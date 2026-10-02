@@ -3,12 +3,13 @@
  * @jsx jsx
  */
 import { type MouseEvent, useCallback } from 'react';
-import Tooltip from '@atlaskit/tooltip';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { css, jsx } from '@atlaskit/css';
+
 import { css as cssUnbounded } from '@compiled/react';
+
+import { css, jsx } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
-import { B100, DN600A, N0 } from '@atlaskit/theme/colors';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
 import { type SwatchSize, type ColorCardVariant } from '../types';
 
 export interface Props {
@@ -18,6 +19,7 @@ export interface Props {
 	label?: string;
 	onClick?: () => void;
 	swatchSize?: SwatchSize;
+	tooltipContent?: string;
 	value: string;
 	variant?: ColorCardVariant;
 }
@@ -30,8 +32,9 @@ const ColorCard = ({
 	swatchSize = 'default',
 	isDisabled,
 	id,
+	tooltipContent,
 	variant = 'fill',
-}: Props) => {
+}: Props): JSX.Element => {
 	const handleMouseDown = useCallback((event: MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 	}, []);
@@ -51,15 +54,12 @@ const ColorCard = ({
 		: { backgroundColor: value || 'transparent' };
 
 	return (
-		<Tooltip content={label}>
+		<Tooltip content={tooltipContent ?? label}>
 			<button
 				css={[
 					sharedColorContainerStyles,
 					swatchSize === 'small' ? smallColorContainerSize : defaultColorContainerSize,
 					colorCardButtonStyles,
-					expanded &&
-						!fg('platform-design-system-dsp-20821-color-pickr-focus') &&
-						colorCardButtonFocusedStyles,
 				]}
 				disabled={isDisabled}
 				onClick={handleClick}
@@ -94,11 +94,11 @@ const sharedColorContainerStyles = css({
 	boxSizing: 'border-box',
 	borderRadius: token('radius.large', '6px'),
 	transition: 'border-color 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38)',
-	backgroundColor: token('color.background.neutral.subtle', N0),
-	paddingTop: token('space.0', '0px'),
-	paddingRight: token('space.0', '0px'),
-	paddingBottom: token('space.0', '0px'),
-	paddingLeft: token('space.0', '0px'),
+	backgroundColor: token('color.background.neutral.subtle'),
+	paddingTop: token('space.0'),
+	paddingRight: token('space.0'),
+	paddingBottom: token('space.0'),
+	paddingLeft: token('space.0'),
 	cursor: 'pointer',
 	outline: 'none',
 });
@@ -106,7 +106,7 @@ const sharedColorContainerStyles = css({
 const smallColorContainerSize = css({
 	width: '24px',
 	height: '24px',
-	top: token('space.negative.025', '-2px'),
+	top: token('space.negative.025'),
 });
 
 const defaultColorContainerSize = css({
@@ -117,18 +117,13 @@ const defaultColorContainerSize = css({
 const colorCardButtonStyles = cssUnbounded({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':hover': {
-		borderColor: token('color.background.neutral.subtle', N0),
+		borderColor: token('color.background.neutral.subtle'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':not(:focus):hover, :focus': {
-		borderColor: token('color.border.focused', B100),
+		borderColor: token('color.border.focused'),
 		outline: 'none',
 	},
-});
-
-const colorCardButtonFocusedStyles = css({
-	borderColor: token('color.border.focused', B100),
-	outline: 'none',
 });
 
 const colorCardWrapperStyles = css({
@@ -141,12 +136,12 @@ const colorCardWrapperStyles = css({
 
 const colorCardContentStyles = cssUnbounded({
 	borderRadius: token('radius.small', '3px'),
-	boxShadow: `inset 0px 0px 0px 1px ${token('color.background.inverse.subtle', DN600A)}`,
+	boxShadow: `inset 0px 0px 0px 1px ${token('color.background.inverse.subtle')}`,
 });
 
 const colorCardContentStylesOutline = css({
 	borderRadius: token('radius.small', '3px'),
-	borderWidth: token('border.width.selected', '2px'),
+	borderWidth: token('border.width.selected'),
 	borderStyle: 'solid',
 });
 

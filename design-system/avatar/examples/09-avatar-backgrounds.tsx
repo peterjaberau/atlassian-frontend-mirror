@@ -3,18 +3,33 @@
  * @jsx jsx
  */
 
-import Avatar, { type AppearanceType, type PresenceType, type StatusType } from '@atlaskit/avatar';
-import { Code } from '@atlaskit/code';
+import React from 'react';
+
+import Avatar from '@atlaskit/avatar/avatar';
+import type {
+	AppearanceType,
+	Presence as PresenceType,
+	Status as StatusType,
+} from '@atlaskit/avatar/types';
+import Code from '@atlaskit/code/code';
 import { cssMap, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Grid, Stack, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { avatarUrl } from '../examples-util/data';
 import loomCircleImage from '../examples-util/loom-circle.svg';
 import ExampleImg from '../examples-util/nucleus.png';
 
+const avatarUrl: string =
+	'https://pbs.twimg.com/profile_images/803832195970433027/aaoG6PJI_400x400.jpg';
+
 const exampleColors = [token('color.background.neutral'), token('color.background.input.pressed')];
+
+const gradientBorders = [
+	'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+	'conic-gradient(from 0deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b)',
+];
 
 const presences: PresenceType[] = ['focus', 'online', 'offline', 'busy'];
 const statuses: StatusType[] = ['approved', 'locked', 'declined'];
@@ -32,7 +47,16 @@ const styles = cssMap({
 	grid: {
 		gridTemplateColumns: '1fr 1fr',
 	},
+	gradientCircle: {
+		borderRadius: token('radius.full', '50%'),
+		display: 'inline-flex',
+	},
+	gradientSquare: {
+		borderRadius: token('radius.small', '26px'),
+		display: 'inline-flex',
+	},
 });
+// oxlint-disable-next-line eslint/no-redeclare
 interface ColorColumn {
 	borderColor: string;
 	src: string;
@@ -45,17 +69,6 @@ interface ColorColumn {
 const ColorColumn = ({ key, src, borderColor, presence, status, appearance }: ColorColumn) => (
 	<div style={{ background: `${borderColor}` }}>
 		<Stack alignBlock="center" alignInline="center" space="space.500" xcss={styles.column}>
-			<Avatar
-				onClick={console.log}
-				key={key}
-				src={src}
-				borderColor={borderColor}
-				status={status}
-				presence={presence}
-				appearance={appearance}
-				size="xlarge"
-				name="John Smith ACME Co."
-			/>
 			<Avatar
 				onClick={console.log}
 				key={key}
@@ -127,6 +140,45 @@ const _default: () => JSX.Element = () => (
 				))}
 			</Grid>
 		</Grid>
+
+		{fg('avatar-custom-border') && (
+			<React.Fragment>
+				<Heading as="h2" size="large">
+					Custom Borders
+				</Heading>
+
+				<Text size="large" color="color.text.subtlest">
+					<Text as="p">
+						For borders beyond a single colour (e.g. gradients, patterns, or images), wrap the
+						Avatar in a container with the desired <Code>background</Code> and set{' '}
+						<Code>{'borderColor="transparent"'}</Code> to remove the default border.
+					</Text>
+				</Text>
+
+				<Grid testId="grid-gradient" gap="space.200" xcss={styles.grid} alignItems="center">
+					{gradientBorders.map((gradient, index) => (
+						<Stack key={index} alignBlock="center" alignInline="center" space="space.200">
+							<div css={styles.gradientCircle} style={{ background: gradient }}>
+								<Avatar
+									src={ExampleImg}
+									borderColor="transparent"
+									size="xlarge"
+									name="Gradient border circle"
+								/>
+							</div>
+							<div css={styles.gradientSquare} style={{ background: gradient }}>
+								<Avatar
+									src={ExampleImg}
+									borderColor="transparent"
+									appearance="square"
+									name="Gradient border square"
+								/>
+							</div>
+						</Stack>
+					))}
+				</Grid>
+			</React.Fragment>
+		)}
 	</Stack>
 );
 export default _default;

@@ -3,12 +3,14 @@
  * @jsx jsx
  */
 import { css, jsx, cssMap, cx } from '@compiled/react';
-import { FlashAnimation } from './FlashAnimation';
-import { type ReactionProps } from './Reaction';
-import { fg } from '@atlaskit/platform-feature-flags';
+
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Pressable } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { Pressable } from '@atlaskit/primitives/compiled';
+import { FlashAnimation } from './FlashAnimation';
+import { type ReactionProps } from './Reaction';
 
 const styles = cssMap({
 	reactionButton: {
@@ -101,6 +103,7 @@ const flashStyleOld = css({
 });
 
 interface ReactionButtonProps extends Pick<ReactionProps, 'flash'> {
+	ariaExpanded?: boolean;
 	ariaLabel: string;
 	ariaPressed?: boolean;
 	children?: React.ReactNode;
@@ -124,6 +127,7 @@ export const ReactionButton = ({
 	useCompactStyles,
 	reacted,
 	ariaLabel,
+	ariaExpanded,
 	ariaPressed,
 	onMouseEnter,
 	onMouseLeave,
@@ -131,7 +135,7 @@ export const ReactionButton = ({
 	children,
 	dataAttributes = {},
 	testId,
-}: ReactionButtonProps) => {
+}: ReactionButtonProps): JSX.Element => {
 	return (
 		<Pressable
 			onClick={onClick}
@@ -140,6 +144,7 @@ export const ReactionButton = ({
 			onFocus={onFocus}
 			aria-label={ariaLabel}
 			aria-pressed={ariaPressed}
+			aria-expanded={isExperimentEnabled('a11y-fixes-week4-may-2026') ? ariaExpanded : undefined}
 			testId={testId}
 			xcss={cx(
 				styles.reactionButton,

@@ -1,8 +1,9 @@
-import type { MediaInlineAttributes } from '@atlaskit/adf-schema';
+import type { MediaInlineAttributes } from '@atlaskit/adf-schema/media-inline';
 import type {
 	EditorAnalyticsAPI,
 	InputMethodInsertMedia,
 	InsertEventPayload,
+	// oxlint-disable-next-line import/no-duplicates
 } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -41,7 +42,6 @@ import {
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { MediaState } from '../../types';
-
 import { isImage } from './is-type';
 import {
 	copyOptionalAttrsFromMediaState,

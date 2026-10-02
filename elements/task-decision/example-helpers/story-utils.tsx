@@ -5,9 +5,10 @@
 
 import React from 'react';
 import { PureComponent } from 'react';
+
 import { jsx } from '@compiled/react';
 
-export const Grid = ({ children }: React.PropsWithChildren<unknown>) => (
+export const Grid = ({ children }: React.PropsWithChildren<unknown>): JSX.Element => (
 	<div
 		// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 		css={{
@@ -20,7 +21,7 @@ export const Grid = ({ children }: React.PropsWithChildren<unknown>) => (
 	</div>
 );
 
-export const Item = ({ children }: React.PropsWithChildren<unknown>) => (
+export const Item = ({ children }: React.PropsWithChildren<unknown>): JSX.Element => (
 	<div
 		// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 		css={{
@@ -32,12 +33,12 @@ export const Item = ({ children }: React.PropsWithChildren<unknown>) => (
 	</div>
 );
 
-export const dumpRef = (ref: HTMLElement | null) => {
+export const dumpRef = (ref: HTMLElement | null): void => {
 	// eslint-disable-next-line no-console
 	console.log('Content HTML', ref && ref.outerHTML);
 };
 
-export const action = (action: string) => () => {
+export const action = (action: string) => (): void => {
 	// eslint-disable-next-line no-console
 	console.log({ action });
 };
@@ -69,7 +70,7 @@ export class TaskStateManager extends PureComponent<Props, State> {
 		this.setState({ tick: this.state.tick + 1 });
 	};
 
-	render() {
+	render(): JSX.Element {
 		return <div>{this.props.render(this.taskStates, this.onChangeListener)}</div>;
 	}
 }

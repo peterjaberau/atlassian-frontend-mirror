@@ -7,8 +7,8 @@ import { Fragment, type ReactElement } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import Avatar from '@atlaskit/avatar';
-import Lozenge from '@atlaskit/lozenge';
+import Avatar from '@atlaskit/avatar/avatar';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import { Inline } from '@atlaskit/primitives/compiled';
 
 import type { Item, Status } from './types';
@@ -45,8 +45,8 @@ export function getProperty(value: keyof Item): string {
 }
 
 const statusMap: { [key in Status]: ReactElement } = {
-	todo: <Lozenge appearance="new">Todo</Lozenge>,
-	'in-progress': <Lozenge appearance="inprogress">In Progress</Lozenge>,
+	todo: <Lozenge appearance="discovery">Todo</Lozenge>,
+	'in-progress': <Lozenge appearance="information">In Progress</Lozenge>,
 	done: <Lozenge appearance="success">Done</Lozenge>,
 };
 

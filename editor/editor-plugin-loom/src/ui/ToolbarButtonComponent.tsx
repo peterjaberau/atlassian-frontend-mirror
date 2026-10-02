@@ -6,8 +6,8 @@ import React from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx, css } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import {
 	type NamedPluginStatesFromInjectionAPI,
@@ -20,7 +20,7 @@ import VideoIcon from '@atlaskit/icon/core/video';
 import { token } from '@atlaskit/tokens';
 
 import type { LoomPlugin } from '../loomPluginType';
-import { type ButtonComponentProps } from '../types';
+import type { ButtonComponentProps } from '../types';
 
 // This const is derived from the breakpoint where the toolbar hides its icons. It is used to hide the text in the AI button.
 // Derived from values from platform/packages/editor/editor-core/src/ui/Appearance/FullPage/MainToolbar.tsx
@@ -114,4 +114,18 @@ const LoomToolbarButtonInternal = React.forwardRef<HTMLElement, Props & WrappedC
 	},
 );
 
-export default injectIntl(LoomToolbarButtonInternal, { forwardRef: true });
+const _default_1: React.ForwardRefExoticComponent<
+	Omit<
+		WithIntlProps<
+			React.PropsWithChildren<Props & WrappedComponentProps & React.RefAttributes<HTMLElement>>
+		>,
+		'ref'
+	> &
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		React.RefAttributes<any>
+> & {
+	WrappedComponent: React.ComponentType<
+		Props & WrappedComponentProps & React.RefAttributes<HTMLElement>
+	>;
+} = injectIntl(LoomToolbarButtonInternal, { forwardRef: true });
+export default _default_1;

@@ -2,17 +2,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type CSSProperties, type FC, forwardRef, type ReactNode } from 'react';
+import { type FC, type JSX } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
 import SearchIcon from '@atlaskit/icon/core/search';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { components } from '@atlaskit/react-select';
-import { N40A } from '@atlaskit/theme/colors';
-import { layers } from '@atlaskit/theme/constants';
+import { components } from '@atlaskit/react-select/components';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
 
 import {
 	type ClearIndicatorProps,
@@ -23,54 +19,12 @@ import {
 } from '../types';
 
 // ==============================
-// Styled Components
-// ==============================
-interface MenuDialogProps {
-	style: CSSProperties;
-	children: ReactNode;
-	id: string;
-	testId?: string;
-}
-
-const menuDialogStyles = css({
-	zIndex: layers.modal(),
-	backgroundColor: token('elevation.surface.overlay', 'white'),
-	borderRadius: token('radius.small', '4px'),
-	boxShadow: token('elevation.shadow.overlay', `0 0 0 1px ${N40A}, 0 4px 11px ${N40A}`),
-});
-
-const menuDialogStylesT26Shape = css({
-	borderRadius: token('radius.large', '8px'),
-});
-
-/**
- * __Menu dialog__
- * Wrapper for PopupSelect component.
- */
-export const MenuDialog: React.ForwardRefExoticComponent<
-	React.PropsWithoutRef<MenuDialogProps> & React.RefAttributes<HTMLDivElement>
-> = forwardRef<HTMLDivElement, MenuDialogProps>(({ children, id, style, testId }, ref) => {
-	return (
-		<div
-			ref={ref}
-			css={[menuDialogStyles, fg('platform-dst-shape-theme-default') && menuDialogStylesT26Shape]}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			style={style}
-			id={id}
-			data-testid={testId && `${testId}--menu`}
-		>
-			{children}
-		</div>
-	);
-});
-
-// ==============================
 // Custom Components
 // ==============================
 
 const dropdownStyles = css({
 	width: 32,
-	marginInlineEnd: token('space.025', '2px'),
+	marginInlineEnd: token('space.025'),
 	textAlign: 'center',
 });
 
@@ -81,10 +35,10 @@ const DropdownIndicator = (): JSX.Element => (
 );
 
 const controlStyles = css({
-	paddingBlockEnd: token('space.050', '4px'),
-	paddingBlockStart: token('space.100', '8px'),
-	paddingInlineEnd: token('space.100', '8px'),
-	paddingInlineStart: token('space.100', '8px'),
+	paddingBlockEnd: token('space.050'),
+	paddingBlockStart: token('space.100'),
+	paddingInlineEnd: token('space.100'),
+	paddingInlineStart: token('space.100'),
 });
 
 const Control = <Option, IsMulti extends boolean>({
@@ -95,17 +49,6 @@ const Control = <Option, IsMulti extends boolean>({
 	<div ref={innerRef} css={controlStyles}>
 		<components.Control {...(props as ControlProps<Option, IsMulti>)} innerProps={innerProps} />
 	</div>
-);
-
-/**
- * __Dummy control__
- * Overrides the default DummyControl component in Select.
- */
-export const DummyControl = (props: ControlProps<OptionType, boolean>): JSX.Element => (
-	<VisuallyHidden>
-		{/* eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props */}
-		<components.Control {...(props as any)} />
-	</VisuallyHidden>
 );
 
 // NOTE `props` intentionally omitted from `Fragment`
@@ -123,6 +66,7 @@ const MultiValueRemove = (props: MultiValueRemoveProps): JSX.Element => (
 	<components.MultiValueRemove {...props} />
 );
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const defaultComponents: {
 	Control: FC<ControlProps<OptionType, boolean>>;
 	DropdownIndicator: () => JSX.Element;

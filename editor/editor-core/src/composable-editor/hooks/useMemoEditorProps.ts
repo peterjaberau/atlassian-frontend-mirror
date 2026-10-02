@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import type { EditorNextProps, EditorProps } from '../../types/editor-props';
-import { type WithAppearanceComponent } from '../../types/with-appearance-component';
+import type { WithAppearanceComponent } from '../../types/with-appearance-component';
 
 export type Complete<T> = {
 	[P in keyof Required<T>]: Pick<T, P> extends Required<Pick<T, P>> ? T[P] : T[P] | undefined;
@@ -9,7 +9,7 @@ export type Complete<T> = {
 
 export const useMemoEditorProps = (
 	passedProps: EditorProps & EditorNextProps & WithAppearanceComponent,
-) => {
+): EditorProps & EditorNextProps & WithAppearanceComponent => {
 	const memodProps: EditorProps & EditorNextProps & WithAppearanceComponent = useMemo(() => {
 		type All = Complete<Omit<EditorNextProps, 'trackValidTransactions'>> &
 			Complete<Omit<EditorProps, 'trackValidTransactions'>> &
@@ -47,6 +47,7 @@ export const useMemoEditorProps = (
 			extensionProviders: passedProps.extensionProviders,
 			UNSAFE_useAnalyticsContext: passedProps.UNSAFE_useAnalyticsContext,
 			useStickyToolbar: passedProps.useStickyToolbar,
+			isEditorModernisationEnabled: passedProps.isEditorModernisationEnabled,
 			featureFlags: passedProps.featureFlags,
 			onSave: passedProps.onSave,
 			sanitizePrivateContent: passedProps.sanitizePrivateContent,
@@ -97,6 +98,7 @@ export const useMemoEditorProps = (
 			mention: passedProps.mention,
 			mentionInsertDisplayName: passedProps.mentionInsertDisplayName,
 			uploadErrorHandler: passedProps.uploadErrorHandler,
+			onSSRMeasure: passedProps.onSSRMeasure,
 			waitForMediaUpload: passedProps.waitForMediaUpload,
 			extensionHandlers: passedProps.extensionHandlers,
 			allowTextColor: passedProps.allowTextColor,
@@ -113,6 +115,7 @@ export const useMemoEditorProps = (
 			syncBlock: passedProps.syncBlock,
 			syncedBlockProvider: passedProps.syncedBlockProvider,
 			pasteWarningOptions: passedProps.pasteWarningOptions,
+			UNSAFE_containLayout: passedProps.UNSAFE_containLayout,
 		};
 
 		const defaultProps: Partial<EditorNextProps> = {
@@ -158,9 +161,11 @@ export const useMemoEditorProps = (
 		passedProps.onDestroy,
 		passedProps.onChange,
 		passedProps.onCancel,
+		passedProps.onSSRMeasure,
 		passedProps.extensionProviders,
 		passedProps.UNSAFE_useAnalyticsContext,
 		passedProps.useStickyToolbar,
+		passedProps.isEditorModernisationEnabled,
 		passedProps.featureFlags,
 		passedProps.onSave,
 		passedProps.sanitizePrivateContent,
@@ -225,9 +230,11 @@ export const useMemoEditorProps = (
 		passedProps.syncBlock,
 		passedProps.syncedBlockProvider,
 		passedProps.pasteWarningOptions,
+		passedProps.UNSAFE_containLayout,
 	]);
 
 	return memodProps;
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default useMemoEditorProps;

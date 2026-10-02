@@ -1,15 +1,17 @@
-import type { EmojiDefinition } from '@atlaskit/adf-schema';
+import type { EmojiDefinition } from '@atlaskit/adf-schema/emoji';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
-import type { JSONNode } from '@atlaskit/editor-json-transformer';
+import type { JSONNode } from '@atlaskit/editor-json-transformer/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import {
-	defaultEmojiHeight,
-	type EmojiId,
-	type EmojiProvider,
-	type EmojiResource,
-	type OptionalEmojiDescriptionWithVariations,
+import { defaultEmojiHeight } from '@atlaskit/emoji';
+import type {
+	EmojiId,
+	EmojiProvider,
+	EmojiResource,
+	OptionalEmojiDescriptionWithVariations,
 } from '@atlaskit/emoji';
+import { emojiIdToEmoji } from '@atlaskit/emoji/emoji-id-to-emoji';
 import { NodeDataProvider } from '@atlaskit/node-data-provider';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 export class EmojiNodeDataProvider extends NodeDataProvider<
 	EmojiDefinition,
@@ -84,6 +86,28 @@ export class EmojiNodeDataProvider extends NodeDataProvider<
 		const getOptimisticImageUrl = this.emojiResource.emojiProviderConfig.optimisticImageApi?.getUrl;
 		if (isSSR() && getOptimisticImageUrl) {
 			return nodes.map((node) => {
+				if (expValEqualsNoExposure('platform_use_unicode_emojis', 'isEnabled', true)) {
+					// Skip SSR for nodes without an Id
+					if (!node.attrs.id) {
+						return undefined;
+					}
+
+					const unicodeEmoji = emojiIdToEmoji(node.attrs.id);
+					if (unicodeEmoji) {
+						return {
+							id: node.attrs.id,
+							shortName: node.attrs.shortName,
+							fallback: node.attrs.text,
+							representation: {
+								unicodeEmoji,
+							},
+							searchable: true,
+							type: '',
+							category: '',
+						};
+					}
+				}
+
 				const emojiId: EmojiId = {
 					id: node.attrs.id,
 					shortName: node.attrs.shortName,
@@ -122,6 +146,24 @@ export class EmojiNodeDataProvider extends NodeDataProvider<
 
 			// This usually fast because the emojiProvider already has all emojis fetched.
 			const result = await emojiProvider.fetchByEmojiId(emojiId, true);
+
+			// For STANDARD emojis, return a UnicodeRepresentation so they are rendered
+			// as native text characters rather than images (twemoji removal).
+			if (
+				node.attrs.id &&
+				result &&
+				expValEqualsNoExposure('platform_use_unicode_emojis', 'isEnabled', true)
+			) {
+				const unicodeEmoji = emojiIdToEmoji(node.attrs.id);
+				if (unicodeEmoji) {
+					return {
+						...result,
+						representation: {
+							unicodeEmoji,
+						},
+					};
+				}
+			}
 
 			// If we have optimisticImageApi, we need to path response and set URL from it to match the URL used in SSR.
 			if (getOptimisticImageUrl && result) {

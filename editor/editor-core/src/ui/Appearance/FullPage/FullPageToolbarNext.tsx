@@ -1,17 +1,21 @@
 /**
  * @jsxRuntime classic
  * @jsx jsx
- * @jsxFrag
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { cssMap, jsx } from '@atlaskit/css';
 import { ContextPanelConsumer } from '@atlaskit/editor-common/context-panel';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
-import { shouldShowPrimaryToolbar, TOOLBARS } from '@atlaskit/editor-common/toolbar';
-import type { PublicPluginAPI } from '@atlaskit/editor-common/types';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import {
+	shouldShowPrimaryToolbar,
+	TOOLBARS,
+	VIEW_MODE_TOGGLE_SECTION,
+} from '@atlaskit/editor-common/toolbar';
+import type { OptionalPlugin, PublicPluginAPI } from '@atlaskit/editor-common/types';
 import { ToolbarArrowKeyNavigationProvider } from '@atlaskit/editor-common/ui-menu';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugins/toolbar';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
@@ -19,7 +23,8 @@ import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
-import type { PrimaryToolbarComponents } from '../../../types';
+import type { PrimaryToolbarComponents } from '../../../types/editor-props';
+import type { MarkdownModePlugin, MarkdownModeView } from '../../../types/markdown-mode';
 import { isToolbar } from '../../../utils/toolbar';
 import ExcludeFromHydration from '../../ExcludeFromHydration';
 import { ToolbarNext } from '../../Toolbar/Toolbar';
@@ -29,7 +34,8 @@ type FullPageToolbarNextProps = {
 	beforeIcon?: React.ReactNode;
 	customPrimaryToolbarComponents?: PrimaryToolbarComponents;
 	disabled: boolean;
-	editorAPI?: PublicPluginAPI<[ToolbarPlugin]>;
+	disabledWithoutInteractionLogic?: boolean;
+	editorAPI?: FullPageToolbarPluginAPI;
 	editorView?: EditorView;
 	popupsBoundariesElement?: HTMLElement;
 	popupsMountPoint?: HTMLElement;
@@ -38,12 +44,16 @@ type FullPageToolbarNextProps = {
 	toolbarDockingPosition?: 'top' | 'none';
 };
 
+type FullPageToolbarPluginAPI = PublicPluginAPI<
+	[ToolbarPlugin, OptionalPlugin<MarkdownModePlugin>]
+>;
+
 const styles = cssMap({
 	// copied from mainToolbarIconBeforeStyle
 	mainToolbarIconBefore: {
-		marginTop: token('space.200', '16px'),
-		marginRight: token('space.200', '16px'),
-		marginBottom: token('space.200', '16px'),
+		marginTop: token('space.200'),
+		marginRight: token('space.200'),
+		marginBottom: token('space.200'),
 	},
 	mainToolbarIconBeforeNew: {
 		alignItems: 'center',
@@ -94,15 +104,6 @@ const styles = cssMap({
 	backgroundColor: {
 		backgroundColor: token('elevation.surface'),
 	},
-	// Placeholder styles to reserve toolbar space during hydration and prevent layout shift
-	toolbarPlaceholder: {
-		borderBottom: `${token('border.width')} solid ${token('color.border')}`,
-		backgroundColor: token('elevation.surface'),
-		boxSizing: 'border-box',
-		// @ts-expect-error - the type here expects an explicit height value, but CSS variables seem to work and are well-supported in compiled for whenever that migration occurs.
-		height: 'var(--ak-editor-fullpage-toolbar-height)',
-		minHeight: '45px',
-	},
 });
 
 const MainToolbarWrapper = ({
@@ -125,9 +126,7 @@ const MainToolbarWrapper = ({
 					'platform_editor_table_sticky_header_improvements',
 					'cohort',
 					'test_with_overflow',
-				) &&
-					expValEquals('platform_editor_table_sticky_header_patch_9', 'isEnabled', true) &&
-					styles.backgroundColor,
+				) && styles.backgroundColor,
 			]}
 			data-testid={testId}
 		>
@@ -155,19 +154,32 @@ const SecondChildWrapper = ({ children }: { children: React.ReactNode }) => {
 	);
 };
 
-/**
- * Placeholder component that reserves the toolbar's space during hydration
- * to prevent layout shift when the actual toolbar renders.
- */
-const ToolbarPlaceholder = () => {
-	return <div css={styles.toolbarPlaceholder} data-testid="ak-editor-main-toolbar-placeholder" />;
-};
-
 const shouldShowToolbarContainer = (
 	toolbar?: RegisterComponent,
 	customPrimaryToolbarComponents?: PrimaryToolbarComponents,
 ) => {
 	return !!toolbar || !!customPrimaryToolbarComponents;
+};
+
+const getToolbarComponentsForMarkdownView = (
+	components: RegisterComponent[],
+	markdownModeView?: MarkdownModeView,
+	isConvertedMarkdownPreview?: boolean,
+) => {
+	if (markdownModeView === 'syntax' || markdownModeView === 'preview') {
+		// Converted markdown live pages in preview should show full toolbar content
+		// so preference-based docking can work consistently.
+		if (isConvertedMarkdownPreview) {
+			return components;
+		}
+		return components.filter(
+			(component) =>
+				component.key === TOOLBARS.PRIMARY_TOOLBAR ||
+				component.key === VIEW_MODE_TOGGLE_SECTION.key,
+		);
+	}
+
+	return components;
 };
 
 export const FullPageToolbarNext = ({
@@ -179,13 +191,45 @@ export const FullPageToolbarNext = ({
 	showKeyline,
 	customPrimaryToolbarComponents,
 	disabled,
-}: FullPageToolbarNextProps) => {
+	disabledWithoutInteractionLogic,
+}: FullPageToolbarNextProps): JSX.Element => {
 	const components = editorAPI?.toolbar?.actions.getComponents();
-	const contextualFormattingEnabled = editorAPI?.toolbar?.actions.contextualFormattingMode();
+	const runtimeOverride = useSharedPluginStateWithSelector(
+		editorAPI,
+		['toolbar'],
+		(states) => states.toolbarState?.contextualFormattingModeOverride,
+	);
+	const contextualFormattingEnabled =
+		runtimeOverride ?? editorAPI?.toolbar?.actions.contextualFormattingMode();
+	const markdownModeState = useSharedPluginStateWithSelector(
+		editorAPI,
+		['markdownMode'],
+		(states) => states.markdownModeState,
+	);
+	const isLivePage = markdownModeState?.isLivePage;
+	const isMarkdownMode = markdownModeState?.isMarkdownMode;
+	const markdownModeView = markdownModeState?.view;
+	const isConvertedMarkdownPreview =
+		isMarkdownMode === true && isLivePage === true && markdownModeView === 'preview';
 	const intl = useIntl();
 	const toolbar = components?.find((component) => component.key === TOOLBARS.PRIMARY_TOOLBAR);
+	const visibleToolbarComponents = useMemo(
+		() =>
+			components
+				? getToolbarComponentsForMarkdownView(
+						components,
+						markdownModeView,
+						isConvertedMarkdownPreview,
+					)
+				: undefined,
+		[components, markdownModeView, isConvertedMarkdownPreview],
+	);
+	const effectiveContextualFormattingEnabled =
+		isConvertedMarkdownPreview && contextualFormattingEnabled === 'always-pinned'
+			? 'controlled'
+			: contextualFormattingEnabled;
 	const primaryToolbarDockingConfigEnabled = shouldShowPrimaryToolbar(
-		contextualFormattingEnabled,
+		effectiveContextualFormattingEnabled,
 		toolbarDockingPosition,
 	);
 
@@ -211,84 +255,114 @@ export const FullPageToolbarNext = ({
 		[editorView],
 	);
 
-	if (expValEquals('platform_editor_primary_toolbar_early_exit', 'isEnabled', true)) {
-		// Remove entire primary toolbar region if:
-		// - primary toolbar isn't registered
-		// - no custom primary toolbar components to render
-		// note: primary toolbar must render if toolbar docking preference is set to "controlled" to avoid SSR conflicts
-		if (!shouldShowToolbarContainer(toolbar, customPrimaryToolbarComponents)) {
-			return <ToolbarPortal>{null}</ToolbarPortal>;
-		}
+	// Remove entire primary toolbar region if:
+	// - primary toolbar isn't registered
+	// - no custom primary toolbar components to render
+	// note: primary toolbar must render if toolbar docking preference is set to "controlled" to avoid SSR conflicts
+	// note(platform_editor_ssr_toolbar_optimistic): On the SSR and CSR, the toolbar plugin may be registered in the
+	// injection API but its components not yet populated. Bypass the early-return
+	// so the toolbar chrome stays mounted for layout stability; ToolbarNext renders
+	// null inside it until components arrive.
+	const isAwaitingToolbarComponents =
+		expValEquals('platform_editor_ssr_toolbar_optimistic', 'isEnabled', true) &&
+		!Boolean(editorAPI?.toolbar);
+
+	if (
+		!isAwaitingToolbarComponents &&
+		!shouldShowToolbarContainer(toolbar, customPrimaryToolbarComponents)
+	) {
+		return <ToolbarPortal>{null}</ToolbarPortal>;
+	}
+	if (
+		isConvertedMarkdownPreview &&
+		!primaryToolbarDockingConfigEnabled &&
+		!customPrimaryToolbarComponents
+	) {
+		return <ToolbarPortal>{null}</ToolbarPortal>;
 	}
 
 	return (
 		<ContextPanelConsumer>
 			{({ width: ContextPanelWidth }) => (
-				<ExcludeFromHydration fallback={<ToolbarPlaceholder />}>
-					<ToolbarArrowKeyNavigationProvider
-						editorView={editorView}
-						childComponentSelector="[data-testid='ak-editor-main-toolbar']"
-						isShortcutToFocusToolbar={isShortcutToFocusToolbar}
-						handleEscape={handleEscape}
-						intl={intl}
-					>
-						<ToolbarPortal>
-							<MainToolbarWrapper
-								testId="ak-editor-main-toolbar"
-								showKeyline={showKeyline || ContextPanelWidth > 0}
-							>
-								{beforeIcon && (
-									<div css={[styles.mainToolbarIconBefore, styles.mainToolbarIconBeforeNew]}>
-										{beforeIcon}
-									</div>
-								)}
-								<>
-									<FirstChildWrapper>
-										{primaryToolbarDockingConfigEnabled &&
-											components &&
-											isToolbar(toolbar) &&
-											((expValEquals('platform_editor_ssr_renderer', 'isEnabled', true) &&
-												isSSR()) ||
-												editorView) &&
-											(!expValEquals(
-												'platform_editor_toolbar_delay_render_fix',
-												'isEnabled',
-												true,
-											) ||
-												!isSSR()) && (
-												<ToolbarNext
-													toolbar={toolbar}
-													components={components}
-													editorView={editorView}
-													editorAPI={editorAPI}
-													popupsMountPoint={mountPoint}
-													editorAppearance="full-page"
-													isDisabled={disabled}
-												/>
-											)}
-									</FirstChildWrapper>
-									<SecondChildWrapper>
-										<div css={styles.customToolbarWrapperStyle}>
-											{!!customPrimaryToolbarComponents &&
-												'before' in customPrimaryToolbarComponents && (
-													<div
-														css={[styles.beforePrimaryToolbarComponents]}
-														data-testid={'before-primary-toolbar-components-plugin'}
-													>
-														{customPrimaryToolbarComponents.before}
-													</div>
+				<ToolbarArrowKeyNavigationProvider
+					editorView={editorView}
+					childComponentSelector="[data-testid='ak-editor-main-toolbar']"
+					isShortcutToFocusToolbar={isShortcutToFocusToolbar}
+					handleEscape={handleEscape}
+					intl={intl}
+				>
+					<ToolbarPortal>
+						<MainToolbarWrapper
+							testId="ak-editor-main-toolbar"
+							showKeyline={showKeyline || ContextPanelWidth > 0}
+						>
+							{beforeIcon && (
+								<div css={[styles.mainToolbarIconBefore, styles.mainToolbarIconBeforeNew]}>
+									{beforeIcon}
+								</div>
+							)}
+							<React.Fragment>
+								<FirstChildWrapper>
+									{expValEquals('platform_editor_ssr_toolbar_optimistic', 'isEnabled', true) ? (
+										// optimistic toolbar — render immediately on both SSR and CSR with items enabled.
+										// Clicks are noops until editorView mounts.
+										primaryToolbarDockingConfigEnabled &&
+										(components && visibleToolbarComponents && isToolbar(toolbar) ? (
+											<ToolbarNext
+												toolbar={toolbar}
+												components={visibleToolbarComponents}
+												editorView={editorView}
+												editorAPI={editorAPI}
+												popupsMountPoint={mountPoint}
+												editorAppearance="full-page"
+												isDisabled={disabled}
+												disabledWithoutInteractionLogic={false}
+											/>
+										) : // toolbar plugin not yet registered — render nothing inside the chrome for layout stability
+										null)
+									) : (
+										<ExcludeFromHydration>
+											{primaryToolbarDockingConfigEnabled &&
+												components &&
+												visibleToolbarComponents &&
+												isToolbar(toolbar) &&
+												editorView &&
+												!isSSR() && (
+													<ToolbarNext
+														toolbar={toolbar}
+														components={visibleToolbarComponents}
+														editorView={editorView}
+														editorAPI={editorAPI}
+														popupsMountPoint={mountPoint}
+														editorAppearance="full-page"
+														isDisabled={disabled}
+														disabledWithoutInteractionLogic={disabledWithoutInteractionLogic}
+													/>
 												)}
-											{!!customPrimaryToolbarComponents && 'after' in customPrimaryToolbarComponents
-												? customPrimaryToolbarComponents.after
-												: customPrimaryToolbarComponents}
-										</div>
-									</SecondChildWrapper>
-									<ToolbarPortalMountPoint />
-								</>
-							</MainToolbarWrapper>
-						</ToolbarPortal>
-					</ToolbarArrowKeyNavigationProvider>
-				</ExcludeFromHydration>
+										</ExcludeFromHydration>
+									)}
+								</FirstChildWrapper>
+								<SecondChildWrapper>
+									<div css={styles.customToolbarWrapperStyle}>
+										{!!customPrimaryToolbarComponents &&
+											'before' in customPrimaryToolbarComponents && (
+												<div
+													css={[styles.beforePrimaryToolbarComponents]}
+													data-testid={'before-primary-toolbar-components-plugin'}
+												>
+													{customPrimaryToolbarComponents.before}
+												</div>
+											)}
+										{!!customPrimaryToolbarComponents && 'after' in customPrimaryToolbarComponents
+											? customPrimaryToolbarComponents.after
+											: customPrimaryToolbarComponents}
+									</div>
+								</SecondChildWrapper>
+								<ToolbarPortalMountPoint />
+							</React.Fragment>
+						</MainToolbarWrapper>
+					</ToolbarPortal>
+				</ToolbarArrowKeyNavigationProvider>
 			)}
 		</ContextPanelConsumer>
 	);

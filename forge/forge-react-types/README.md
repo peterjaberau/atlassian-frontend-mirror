@@ -1,7 +1,9 @@
 # Forge React Types
 
+This package is for EXTERNAL use only and does not comply with Isolated Declarations. Consuming this inside AFM will cause issues with typecheck. Please seek guidance from Loop Experiences before using
+
 This package exposes a public npm package (`@atlaskit/forge-react-types`) that contains all
-necessary types for UIKit2 codegen components.
+necessary types for UIKit codegen components.
 
 The types are code generated from the `@atlassian/forge-ui` package and are guaranteed to be in sync
 with the source component implementation in the `@atlassian/forge-ui` package.
@@ -16,19 +18,19 @@ of being bounded by other dependencies in the Forge mono-repo.
 To generate / update all types, run the following command:
 
 ```bash
-yarn workspace @atlaskit/forge-react-types codegen
+afm workspace @atlaskit/forge-react-types codegen
 ```
 
 During development, the codegen command can be run for a specific component:
 
 ```bash
-yarn workspace @atlaskit/forge-react-types codegen <component-name>
+afm workspace @atlaskit/forge-react-types codegen <component-name>
 ```
 
 e.g.
 
 ```bash
-yarn workspace @atlaskit/forge-react-types codegen Button
+afm workspace @atlaskit/forge-react-types codegen Button
 ```
 
 NOTE: Make sure any new component prop types are being exported from
@@ -39,7 +41,7 @@ NOTE: Make sure any new component prop types are being exported from
 To generate global component types, run the following command:
 
 ```bash
-yarn workspace @atlaskit/forge-react-types codegen-global
+afm workspace @atlaskit/forge-react-types codegen-global
 ```
 
 This will generate the global component types found in `forge-common-app-gateway` package into `/src/components/global/__generated__/index.ts`.

@@ -1,17 +1,17 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
+
 import { Transition } from 'react-transition-group';
+
 import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 
-import { REQUEST_STATE } from '../../../model/Requests';
 import { type ArticleItem } from '../../../model/Article';
-
-import { type TransitionStatus, VIEW } from '../../constants';
-import { useSearchContext } from '../../contexts/searchContext';
-import { useNavigationContext } from '../../contexts/navigationContext';
 import { ARTICLE_TYPE } from '../../../model/Help';
-
-import SearchResultsList from './SearchResults';
+import { REQUEST_STATE } from '../../../model/Requests';
+import { type TransitionStatus, VIEW } from '../../constants';
+import { useNavigationContext } from '../../contexts/navigationContext';
+import { useSearchContext } from '../../contexts/searchContext';
 import SearchExternalSite from './SearchExternalSite';
+import SearchResultsList from './SearchResults';
 import SearchResultsEmpty from './SearchResultsEmpty';
 import SearchResultsError from './SearchResultsError';
 import {
@@ -60,6 +60,8 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ isAiEnabled = fals
 
 	const [suggestionsCount, setSuggestionsCount] = useState(0);
 	const liveRegionRef = useRef<HTMLDivElement>(null);
+	const searchResultsAiRef = useRef<HTMLDivElement>(null);
+	const searchResultsRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		if (searchResult) {
@@ -73,9 +75,10 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ isAiEnabled = fals
 		<Transition
 			in={view === VIEW.SEARCH && isSearchResultVisible}
 			timeout={FADEIN_OVERLAY_TRANSITION_DURATION_MS}
+			nodeRef={searchResultsAiRef}
 		>
 			{(state: TransitionStatus) => (
-				<SearchResultsContainerAi transitionState={state}>
+				<SearchResultsContainerAi ref={searchResultsAiRef} transitionState={state}>
 					{/* Live Region for Announcements */}
 					<div
 						ref={liveRegionRef}
@@ -137,9 +140,10 @@ export const SearchResults: React.FC<SearchResultsProps> = ({ isAiEnabled = fals
 		<Transition
 			in={view === VIEW.SEARCH && isSearchResultVisible}
 			timeout={FADEIN_OVERLAY_TRANSITION_DURATION_MS}
+			nodeRef={searchResultsRef}
 		>
 			{(state: TransitionStatus) => (
-				<SearchResultsContainer transitionState={state}>
+				<SearchResultsContainer ref={searchResultsRef} transitionState={state}>
 					{/* Live Region for Announcements */}
 					<div
 						ref={liveRegionRef}

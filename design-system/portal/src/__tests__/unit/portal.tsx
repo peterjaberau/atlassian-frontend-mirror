@@ -1,16 +1,18 @@
 /* eslint-disable testing-library/no-node-access */
+
 import React, { type ReactNode, StrictMode, useEffect } from 'react';
 
 import { act, render, screen } from '@testing-library/react';
 import { bindAll, type UnbindFn } from 'bind-event-listener';
 import { replaceRaf } from 'raf-stub';
 
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { ThemeProvider } from '@atlaskit/app-provider/theme-provider';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 
 import { PORTAL_MOUNT_EVENT, PORTAL_UNMOUNT_EVENT } from '../../constants';
-import Portal from '../../index';
 import { portalParentSelector } from '../../internal/constants';
-import * as domUtils from '../../internal/utils/portal-dom-utils';
+import * as createContainerModule from '../../internal/utils/create-container';
+import Portal from '../../portal';
 
 replaceRaf();
 
@@ -21,7 +23,7 @@ const zIndex = (elem: HTMLElement | void) =>
 
 const onMountListener = jest.fn();
 const onUnmountListener = jest.fn();
-const createContainerSpy = jest.spyOn(domUtils, 'createContainer');
+const createContainerSpy = jest.spyOn(createContainerModule, 'createContainer');
 const effectSpy = jest.spyOn(React, 'useEffect');
 
 const getElementByText = (text: string, elements: HTMLCollectionOf<Element>) =>
@@ -73,7 +75,7 @@ describe('Portal container', () => {
 		const elements = document.getElementsByClassName('atlaskit-portal');
 		expect(container.innerHTML).toBe('<div></div>');
 		expect(elements).toHaveLength(1);
-		expect(elements[0].innerHTML).toBe('<div>Hi</div>');
+		expect(elements[0]).toHaveTextContent('Hi');
 	});
 
 	test('should use z-index to stack nested portals', async () => {
@@ -428,6 +430,32 @@ describe('Portal container', () => {
 			);
 		}).not.toThrow();
 	});
+
+	describe('ThemeProvider wrapping', () => {
+		test('should wrap portal children with ThemeProvider when inside a ThemeProvider', () => {
+			render(
+				<ThemeProvider>
+					<Portal>
+						<div>Inside ThemeProvider</div>
+					</Portal>
+				</ThemeProvider>,
+			);
+
+			const portalContent = document.querySelector('.atlaskit-portal');
+			expect(portalContent?.querySelector('[data-color-mode]')).toBeInTheDocument();
+		});
+
+		test('should not wrap portal children with ThemeProvider when outside a ThemeProvider', () => {
+			render(
+				<Portal>
+					<div>NOT inside ThemeProvider</div>
+				</Portal>,
+			);
+
+			const portalContent = document.querySelector('.atlaskit-portal');
+			expect(portalContent?.querySelector('[data-color-mode]')).not.toBeInTheDocument();
+		});
+	});
 });
 
 describe('new portal logic enable test', () => {
@@ -449,7 +477,37 @@ describe('new portal logic enable test', () => {
 				const elements = document.getElementsByClassName('atlaskit-portal');
 				expect(container.innerHTML).toBe('<div></div>');
 				expect(elements).toHaveLength(1);
-				expect(elements[0].innerHTML).toBe('<div>Hi</div>');
+				expect(elements[0]).toHaveTextContent('Hi');
+			});
+
+			describe('ThemeProvider wrapping', () => {
+				test('should wrap portal children with ThemeProvider when inside a ThemeProvider', () => {
+					render(
+						<StrictMode>
+							<ThemeProvider>
+								<Portal>
+									<div>Inside ThemeProvider</div>
+								</Portal>
+							</ThemeProvider>
+						</StrictMode>,
+					);
+
+					const portalContent = document.querySelector('.atlaskit-portal');
+					expect(portalContent?.querySelector('[data-color-mode]')).toBeInTheDocument();
+				});
+
+				test('should not wrap portal children with ThemeProvider when outside a ThemeProvider', () => {
+					render(
+						<StrictMode>
+							<Portal>
+								<div>Not inside ThemeProvider</div>
+							</Portal>
+						</StrictMode>,
+					);
+
+					const portalContent = document.querySelector('.atlaskit-portal');
+					expect(portalContent?.querySelector('[data-color-mode]')).not.toBeInTheDocument();
+				});
 			});
 		},
 	);

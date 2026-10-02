@@ -1,8 +1,4 @@
-import CachingClient from './CachingClient';
 import ProfileCardClient from './ProfileCardClient';
-import TeamProfileClient from './TeamProfileCardClient';
-import UserProfileClient, { modifyResponse } from './UserProfileCardClient';
 
-export { CachingClient, modifyResponse, TeamProfileClient, UserProfileClient };
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports
 export default ProfileCardClient;

@@ -1,4 +1,5 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	HeadingRenderer,
 	HeadingsCenterRenderer,
@@ -7,7 +8,7 @@ import {
 	HeadingsRTLSymbolsWithHighlighterRenderer,
 	HeadingCommentRenderer,
 	HeadingMultilineRenderer,
-} from './heading.fixture';
+} from './heading.fixture.vr.ap';
 
 snapshot(HeadingRenderer);
 snapshot(HeadingsCenterRenderer);

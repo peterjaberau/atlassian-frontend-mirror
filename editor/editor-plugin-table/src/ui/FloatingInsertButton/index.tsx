@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type {
 	AnalyticsEventPayload,
@@ -32,11 +32,11 @@ import {
 	insertRowWithAnalytics,
 } from '../../pm-plugins/commands/commands-with-analytics';
 import { checkIfNumberColumnEnabled } from '../../pm-plugins/utils/nodes';
+import { isFullRowOrColumnSelected } from '../../pm-plugins/utils/selection';
 import { TableCssClassName as ClassName } from '../../types';
 import type { PluginInjectionAPI } from '../../types';
-
 import getPopupOptions from './getPopupOptions';
-import InsertButton, { DragAndDropInsertButton } from './InsertButton';
+import { DragAndDropInsertButton } from './InsertButton';
 
 export interface Props {
 	api: PluginInjectionAPI | undefined | null;
@@ -51,7 +51,6 @@ export interface Props {
 	insertRowButtonIndex?: number;
 	isChromelessEditor?: boolean;
 	isCommentEditor?: boolean;
-	isDragAndDropEnabled?: boolean;
 	isHeaderColumnEnabled?: boolean;
 	isHeaderRowEnabled?: boolean;
 	isTableScalingEnabled?: boolean;
@@ -81,15 +80,13 @@ export class FloatingInsertButton extends React.Component<Props & WrappedCompone
 			tableRef,
 			mountPoint,
 			boundariesElement,
-			isHeaderColumnEnabled,
 			isHeaderRowEnabled,
-			isDragAndDropEnabled,
 			dispatchAnalyticsEvent,
 			isChromelessEditor,
 		} = this.props;
 
-		// TODO: ED-26961 - temporarily disable insert button for first column and row https://atlassian.slack.com/archives/C05U8HRQM50/p1698363744682219?thread_ts=1698209039.104909&cid=C05U8HRQM50
-		if (isDragAndDropEnabled && (insertColumnButtonIndex === 0 || insertRowButtonIndex === 0)) {
+		// ED-26961 - disable insert button for first row.
+		if (insertRowButtonIndex === 0) {
 			return null;
 		}
 
@@ -104,24 +101,27 @@ export class FloatingInsertButton extends React.Component<Props & WrappedCompone
 			return null;
 		}
 
-		// We can’t display the insert button for row|colum index 0
-		// when the header row|colum is enabled, this feature will be change on the future
-		if (
-			(type === 'column' && isHeaderColumnEnabled && insertColumnButtonIndex === 0) ||
-			(type === 'row' && isHeaderRowEnabled && insertRowButtonIndex === 0)
-		) {
+		// We can't display the insert button for row index 0
+		// when the header row is enabled.
+		if (type === 'row' && isHeaderRowEnabled && insertRowButtonIndex === 0) {
 			return null;
 		}
 
 		const {
 			state: { tr },
 		} = editorView;
-		if (
-			tr.selection instanceof CellSelection &&
-			((tr.selection as CellSelection).isColSelection() ||
-				(tr.selection as CellSelection).isRowSelection())
-		) {
-			return null;
+		if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+			if (isFullRowOrColumnSelected(tr.selection)) {
+				return null;
+			}
+		} else {
+			if (
+				tr.selection instanceof CellSelection &&
+				((tr.selection as CellSelection).isColSelection() ||
+					(tr.selection as CellSelection).isRowSelection())
+			) {
+				return null;
+			}
 		}
 		const tablePos = findTable(tr.selection);
 		if (!tablePos) {
@@ -183,10 +183,25 @@ export class FloatingInsertButton extends React.Component<Props & WrappedCompone
 
 		const hasNumberedColumns = checkIfNumberColumnEnabled(editorView.state.selection);
 
+		// If row 0 has a colspan, anchor to a lower row for the real column boundary (X),
+		// then move back up to the table top (Y):
+		//   row 0: [   colspan=2   ]
+		//   row 1: [ col 1 ][ col 2 ]  ← anchor here for X
+		//          ↑ button should render at row 0/table top
+		let verticalOffsetCorrection = 0;
+		if (
+			type === 'column' &&
+			expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)
+		) {
+			verticalOffsetCorrection = Math.max(
+				0,
+				targetCellRef.getBoundingClientRect().top - tableRef.getBoundingClientRect().top,
+			);
+		}
 		// Fixed the 'add column button' not visible issue when sticky header is enabled
 		// By setting the Popup z-index higher than the sticky header z-index ( common-styles.ts tr.sticky)
 		// Only when inserting a column, otherwise set to undefined
-		// Need to set z-index in the Popup, set z-index in the <InsertButton /> will not work
+		// Need to set z-index in the Popup, set z-index in the <DragAndDropInsertButton /> will not work
 		const zIndex: number | undefined =
 			expValEquals(
 				'platform_editor_table_sticky_header_improvements',
@@ -212,29 +227,32 @@ export class FloatingInsertButton extends React.Component<Props & WrappedCompone
 					type,
 					index,
 					hasNumberedColumns,
-					!!isDragAndDropEnabled,
 					tableContainerWrapper,
+					verticalOffsetCorrection,
 				)}
 				zIndex={zIndex}
 			>
-				{isDragAndDropEnabled ? (
-					<DragAndDropInsertButton
-						type={type}
-						tableRef={tableRef}
-						onMouseDown={type === 'column' ? this.insertColumn : this.insertRow}
-						hasStickyHeaders={this.props.hasStickyHeaders || false}
-						isChromelessEditor={isChromelessEditor}
-					/>
-				) : (
-					<InsertButton
-						type={type}
-						tableRef={tableRef}
-						onMouseDown={type === 'column' ? this.insertColumn : this.insertRow}
-						hasStickyHeaders={this.props.hasStickyHeaders || false}
-					/>
-				)}
+				<DragAndDropInsertButton
+					type={type}
+					tableRef={tableRef}
+					onMouseDown={type === 'column' ? this.insertColumn : this.insertRow}
+					hasStickyHeaders={this.props.hasStickyHeaders || false}
+					isChromelessEditor={isChromelessEditor}
+				/>
 			</Popup>
 		);
+	}
+
+	// Finds a row where `columnIndex` has real left/right cell boundaries.
+	private findRowWithUnmergedColumn(tableMap: TableMap, columnIndex: number): number | null {
+		for (let row = 0; row < tableMap.height; row++) {
+			const pos = tableMap.map[row * tableMap.width + columnIndex];
+			const rect = tableMap.findCell(pos);
+			if (rect.left === columnIndex && rect.right === columnIndex + 1) {
+				return row;
+			}
+		}
+		return null;
 	}
 
 	private getCellPosition(type: 'column' | 'row', tableNode: PmNode): number | null {
@@ -252,6 +270,13 @@ export class FloatingInsertButton extends React.Component<Props & WrappedCompone
 
 			if (columnIndex > tableMap.width - 1) {
 				return null;
+			}
+
+			if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+				const rowWithRealColumn = this.findRowWithUnmergedColumn(tableMap, columnIndex);
+				return rowWithRealColumn === null
+					? null
+					: tableMap.positionAt(rowWithRealColumn, columnIndex, tableNode);
 			}
 
 			return tableMap.positionAt(0, columnIndex, tableNode);
@@ -320,4 +345,8 @@ export class FloatingInsertButton extends React.Component<Props & WrappedCompone
 	}
 }
 
-export default injectIntl(FloatingInsertButton);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(FloatingInsertButton);
+export default _default_1;

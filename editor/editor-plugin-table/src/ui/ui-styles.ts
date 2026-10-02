@@ -1,23 +1,13 @@
 /* eslint-disable @atlaskit/design-system/no-css-tagged-template-expression -- needs mahual remediation */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css } from '@emotion/react';
+import { css, type SerializedStyles } from '@emotion/react';
 
-import {
-	tableCellBorderWidth,
-	tableMarginTop,
-	tableMarginTopWithControl,
-} from '@atlaskit/editor-common/styles';
-import {
-	akEditorShadowZIndex,
-	akEditorTableBorder,
-	akEditorTableNumberColumnWidth,
-	akEditorUnitZIndex,
-} from '@atlaskit/editor-shared-styles';
-import { B300, N0, N300, N40A, N60A, Y200, Y50 } from '@atlaskit/theme/colors';
+import { tableCellBorderWidth } from '@atlaskit/editor-common/styles';
+import { akEditorUnitZIndex } from '@atlaskit/editor-shared-styles';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { TableCssClassName as ClassName } from '../types';
-
 import {
 	columnControlsDecorationHeight,
 	columnControlsSelectedZIndex,
@@ -39,7 +29,6 @@ import {
 	tableDeleteButtonSize,
 	tableHeaderCellBackgroundColor,
 	tableInsertColumnButtonSize,
-	tableOverflowShadowWidthWide,
 	tableToolbarDeleteColor,
 	tableToolbarSelectedColor,
 	tableToolbarSize,
@@ -68,7 +57,7 @@ const Marker = () =>
 		pointerEvents: 'none',
 	});
 
-export const InsertMarker = (cssString?: string) => css`
+export const InsertMarker = (cssString?: string): SerializedStyles => css`
 	.${ClassName.CONTROLS_INSERT_MARKER} {
 		${Marker()};
 		${cssString}
@@ -100,7 +89,7 @@ const Button = (cssString?: string) => css`
 
 // Explicit pixel values required here to ensure classic row controls align correctly
 // eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
-export const HeaderButton = (cssString?: string) => css`
+export const HeaderButton = (cssString?: string): SerializedStyles => css`
 	.${ClassName.CONTROLS_BUTTON} {
 		background: ${tableHeaderCellBackgroundColor};
 		border: 1px solid ${tableBorderColor};
@@ -126,22 +115,22 @@ export const HeaderButton = (cssString?: string) => css`
 	}
 
 	.active .${ClassName.CONTROLS_BUTTON} {
-		color: ${token('color.icon.inverse', N0)};
+		color: ${token('color.icon.inverse')};
 		background-color: ${tableToolbarSelectedColor};
 		border-color: ${tableBorderSelectedColor};
 	}
 `;
 
-export const HeaderButtonHover = () => css`
+export const HeaderButtonHover = (): SerializedStyles => css`
 	.${ClassName.CONTROLS_BUTTON}:hover {
-		color: ${token('color.icon.inverse', N0)};
+		color: ${token('color.icon.inverse')};
 		background-color: ${tableToolbarSelectedColor};
 		border-color: ${tableBorderSelectedColor};
 		cursor: pointer;
 	}
 `;
 
-export const HeaderButtonDanger = () => css`
+export const HeaderButtonDanger = (): SerializedStyles => css`
 	.${ClassName.HOVERED_CELL_IN_DANGER} .${ClassName.CONTROLS_BUTTON} {
 		background-color: ${tableToolbarDeleteColor};
 		border-color: ${tableBorderDeleteColor};
@@ -162,9 +151,9 @@ const InsertButton = () => css`
 	}
 	.${ClassName.CONTROLS_INSERT_BUTTON} {
 		${Button(`
-      background: ${token('elevation.surface.overlay', 'white')};
-      box-shadow: ${token('elevation.shadow.overlay', `0 4px 8px -2px ${N60A}, 0 0 1px ${N60A}`)};
-      color: ${token('color.icon', N300)};
+      background: ${token('elevation.surface.overlay')};
+      box-shadow: ${token('elevation.shadow.overlay')};
+      color: ${token('color.icon')};
     `)}
 	}
 	.${ClassName.CONTROLS_INSERT_LINE} {
@@ -177,13 +166,13 @@ const InsertButton = () => css`
 
 const InsertButtonHover = () => css`
 	.${ClassName.CONTROLS_INSERT_BUTTON}:hover {
-		background: ${token('color.background.brand.bold', B300)};
-		color: ${token('color.icon.inverse', 'white')};
+		background: ${token('color.background.brand.bold')};
+		color: ${token('color.icon.inverse')};
 		cursor: pointer;
 	}
 `;
 
-export const dragInsertButtonWrapper = () => css`
+export const dragInsertButtonWrapper = (): SerializedStyles => css`
 	.${ClassName.DRAG_CONTROLS_INSERT_BUTTON_INNER} {
 		position: absolute;
 		z-index: ${akEditorUnitZIndex + 10};
@@ -205,9 +194,9 @@ export const dragInsertButtonWrapper = () => css`
 
 	.${ClassName.DRAG_CONTROLS_INSERT_BUTTON} {
 		${Button(`
-    background: ${token('elevation.surface.overlay', 'white')};
-    color: ${token('color.icon', N300)};
-    border: 1px solid ${token('color.background.accent.gray.subtler', '#C1C7D0')};
+    background: ${token('elevation.surface.overlay')};
+    color: ${token('color.icon')};
+    border: 1px solid ${token('color.background.accent.gray.subtler')};
     border-radius: 50%;
     height: ${dragTableInsertColumnButtonSize}px;
     width: ${dragTableInsertColumnButtonSize}px;
@@ -215,16 +204,16 @@ export const dragInsertButtonWrapper = () => css`
 	}
 
 	.${ClassName.DRAG_CONTROLS_INSERT_BUTTON}:hover {
-		background: ${token('color.background.brand.bold', B300)};
-		border: 1px solid ${token('color.background.brand.bold', B300)};
-		color: ${token('color.icon.inverse', 'white')};
+		background: ${token('color.background.brand.bold')};
+		border: 1px solid ${token('color.background.brand.bold')};
+		color: ${token('color.icon.inverse')};
 		cursor: pointer;
 	}
 `;
 
 // Explicit pixel values required here to ensure corner button aligns correctly
 // eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
-export const dragCornerControlButton = () => css`
+export const dragCornerControlButton = (): SerializedStyles => css`
 	.${ClassName.DRAG_CORNER_BUTTON} {
 		width: 15px;
 		height: 15px;
@@ -241,7 +230,7 @@ export const dragCornerControlButton = () => css`
 		z-index: ${akEditorUnitZIndex * 99};
 
 		&.active .${ClassName.DRAG_CORNER_BUTTON_INNER} {
-			background-color: ${token('color.border.selected', '#0C66E4')};
+			background-color: ${token('color.border.selected')};
 			width: 10px;
 			height: 10px;
 			border-width: 2px;
@@ -265,8 +254,8 @@ export const dragCornerControlButton = () => css`
 	}
 
 	.${ClassName.DRAG_CORNER_BUTTON_INNER} {
-		border: 1px solid ${token('color.border.inverse', '#FFF')};
-		background-color: ${token('color.background.accent.gray.subtler', '#DCDFE4')};
+		border: 1px solid ${token('color.border.inverse')};
+		background-color: ${token('color.background.accent.gray.subtler')};
 		border-radius: 2px;
 		width: 5px;
 		height: 5px;
@@ -274,7 +263,7 @@ export const dragCornerControlButton = () => css`
 	}
 `;
 
-export const insertColumnButtonWrapper = () =>
+export const insertColumnButtonWrapper = (): SerializedStyles =>
 	css(
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		InsertButton(),
@@ -289,7 +278,7 @@ export const insertColumnButtonWrapper = () =>
 		),
 	);
 
-export const insertRowButtonWrapper = () =>
+export const insertRowButtonWrapper = (): SerializedStyles =>
 	css(
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		InsertButton(),
@@ -306,14 +295,14 @@ export const insertRowButtonWrapper = () =>
 		),
 	);
 
-export const columnControlsLineMarker = () => css`
+export const columnControlsLineMarker = (): SerializedStyles => css`
 	.${ClassName.TABLE_CONTAINER}.${ClassName.WITH_CONTROLS} table tr:first-of-type td,
 	.${ClassName.TABLE_CONTAINER}.${ClassName.WITH_CONTROLS} table tr:first-of-type th {
 		position: relative;
 	}
 `;
 
-export const DeleteButton = () => css`
+export const DeleteButton = (): SerializedStyles => css`
 	.${ClassName.CONTROLS_DELETE_BUTTON_WRAP}, .${ClassName.CONTROLS_DELETE_BUTTON} {
 		height: ${tableDeleteButtonSize}px;
 		width: ${tableDeleteButtonSize}px;
@@ -331,86 +320,6 @@ export const DeleteButton = () => css`
 		background: ${tableCellHoverDeleteIconBackground};
 		color: ${tableCellHoverDeleteIconColor};
 		cursor: pointer;
-	}
-`;
-
-export const OverflowShadow = (isDragAndDropEnabled: boolean | undefined) => css`
-	.${ClassName.TABLE_RIGHT_SHADOW}, .${ClassName.TABLE_LEFT_SHADOW} {
-		display: block;
-		height: calc(100% - ${tableMarginTop}px);
-		position: absolute;
-		pointer-events: none;
-		top: ${tableMarginTop}px;
-		z-index: ${akEditorShadowZIndex};
-		width: ${tableOverflowShadowWidthWide}px;
-	}
-	.${ClassName.TABLE_LEFT_SHADOW} {
-		background:
-			linear-gradient(
-				to left,
-				transparent 0,
-				${token('elevation.shadow.overflow.spread', N40A)} 140%
-			),
-			linear-gradient(
-				to right,
-				${token('elevation.shadow.overflow.perimeter', 'transparent')} 0px,
-				transparent 1px
-			);
-		left: 0px;
-	}
-	.${ClassName.TABLE_CONTAINER}[data-number-column='true'] > :not(.${ClassName.TABLE_STICKY_SHADOW}).${ClassName.TABLE_LEFT_SHADOW} {
-		left: ${akEditorTableNumberColumnWidth - 1}px;
-	}
-	.${ClassName.TABLE_RIGHT_SHADOW} {
-		background:
-			linear-gradient(
-				to right,
-				transparent 0,
-				${token('elevation.shadow.overflow.spread', N40A)} 140%
-			),
-			linear-gradient(
-				to left,
-				${token('elevation.shadow.overflow.perimeter', 'transparent')} 0px,
-				transparent 1px
-			);
-		left: calc(100% - ${tableOverflowShadowWidthWide}px);
-	}
-	.${ClassName.WITH_CONTROLS} {
-		${overflowShadowWidhoutDnD(isDragAndDropEnabled)}
-		.${ClassName.TABLE_LEFT_SHADOW} {
-			border-left: 1px solid ${tableBorderColor};
-		}
-	}
-`;
-
-const overflowShadowWidhoutDnD = (isDragAndDropEnabled: boolean | undefined) => {
-	if (!isDragAndDropEnabled) {
-		return css`
-			.${ClassName.TABLE_RIGHT_SHADOW}, .${ClassName.TABLE_LEFT_SHADOW} {
-				height: calc(100% - ${tableMarginTopWithControl}px);
-				top: ${tableMarginTopWithControl}px;
-			}
-		`;
-	}
-};
-
-export const OverflowShadowLessPadding = (tableOverflowShadowWidth: number) => css`
-	.${ClassName.TABLE_LEFT_SHADOW}, .${ClassName.TABLE_RIGHT_SHADOW} {
-		width: ${tableOverflowShadowWidth}px;
-	}
-
-	.${ClassName.TABLE_LEFT_SHADOW} {
-		left: 6px;
-	}
-	.${ClassName.TABLE_LEFT_SHADOW}.${ClassName.TABLE_CHROMELESS} {
-		left: 8px;
-	}
-
-	.${ClassName.TABLE_RIGHT_SHADOW} {
-		left: calc(100% - 6px);
-	}
-	.${ClassName.TABLE_RIGHT_SHADOW}.${ClassName.TABLE_CHROMELESS} {
-		left: calc(100% - 16px);
 	}
 `;
 
@@ -434,7 +343,7 @@ const columnHeaderButton = (cssString?: string) => {
 
 const columnHeaderButtonSelected = () =>
 	css({
-		color: token('color.text.inverse', N0),
+		color: token('color.text.inverse'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		backgroundColor: tableToolbarSelectedColor,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
@@ -458,13 +367,13 @@ const getFloatingDotOverrides = () => {
 			width: ${lineMarkerSize}px;
 			border-radius: 50%;
 			pointer-events: none;
-			top: ${token('space.025', '2px')};
+			top: ${token('space.025')};
 			right: 0px;
 		}
 	`;
 };
 
-export const floatingColumnControls = () => {
+export const floatingColumnControls = (): SerializedStyles => {
 	return css`
 		.${ClassName.DRAG_COLUMN_DROP_TARGET_CONTROLS} {
 			box-sizing: border-box;
@@ -488,7 +397,7 @@ export const floatingColumnControls = () => {
 	`;
 };
 
-export const rowControlsWrapperDotStyle = () => {
+export const rowControlsWrapperDotStyle = (): SerializedStyles => {
 	return css`
 		/* override for DnD controls */
 		div.${ClassName.WITH_CONTROLS}>.${ClassName.DRAG_ROW_CONTROLS_WRAPPER}::after {
@@ -509,7 +418,7 @@ export const rowControlsWrapperDotStyle = () => {
 	`;
 };
 
-export const columnControlsDecoration = () => {
+export const columnControlsDecoration = (): SerializedStyles => {
 	return css`
 		.${ClassName.COLUMN_CONTROLS_DECORATIONS} {
 			display: none;
@@ -529,7 +438,7 @@ export const columnControlsDecoration = () => {
 				border-radius: 50%;
 				pointer-events: none;
 				top: 2px;
-				right: ${token('space.negative.025', '-2px')};
+				right: ${token('space.negative.025')};
 			}
 
 			&::after {
@@ -627,10 +536,12 @@ export const columnControlsDecoration = () => {
 	`;
 };
 
-export const hoveredDeleteButton = () => css`
+export const hoveredDeleteButton = (): SerializedStyles => css`
 	.${ClassName.TABLE_CONTAINER}.${ClassName.HOVERED_DELETE_BUTTON} {
 		.${ClassName.SELECTED_CELL}, .${ClassName.COLUMN_SELECTED}, .${ClassName.HOVERED_CELL} {
-			border: 1px solid ${tableBorderDeleteColor};
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? '' /* Cell borders handled by ::after overlay in rounded mode. */
+				: `border: 1px solid ${tableBorderDeleteColor};`}
 		}
 		.${ClassName.SELECTED_CELL}::after {
 			background: ${tableCellDeleteColor};
@@ -652,30 +563,33 @@ export const hoveredDeleteButton = () => css`
 	}
 `;
 
-export const hoveredCell = () => css`
+export const hoveredCell = (): SerializedStyles => css`
 	:not(.${ClassName.IS_RESIZING})
 		.${ClassName.TABLE_CONTAINER}:not(.${ClassName.HOVERED_DELETE_BUTTON}) {
 		.${ClassName.HOVERED_CELL} {
 			position: relative;
-			border: 1px solid ${tableBorderSelectedColor};
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? '' /* Cell borders handled by ::after overlay in rounded mode. */
+				: `border: 1px solid ${tableBorderSelectedColor};`}
 		}
 		.${ClassName.HOVERED_CELL}.${ClassName.HOVERED_NO_HIGHLIGHT} {
 			position: relative;
-			border: 1px solid ${tableBorderColor};
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? '' /* Cell borders handled by ::after overlay in rounded mode. */
+				: `border: 1px solid ${tableBorderColor};`}
 		}
 	}
 `;
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const hoveredWarningCell = css`
+export const hoveredWarningCell: SerializedStyles = css`
 	:not(.${ClassName.IS_RESIZING})
 		.${ClassName.TABLE_CONTAINER}:not(.${ClassName.HOVERED_DELETE_BUTTON}) {
 		td.${ClassName.HOVERED_CELL_WARNING} {
 			background-color: ${token(
 				'color.background.warning',
-				Y50,
 			)} !important; /* We need to override the background-color added to the cell */
-			border: 1px solid ${token('color.border.warning', Y200)};
+			border: 1px solid ${token('color.border.warning')};
 		}
 	}
 `;
@@ -687,7 +601,7 @@ const resizeLineStyles = () => {
 		th.${ClassName.WITH_DRAG_RESIZE_LINE}::before, td.${ClassName.WITH_DRAG_RESIZE_LINE}::before {
 			content: ' ';
 			position: absolute;
-			left: ${token('space.negative.025', '-2px')};
+			left: ${token('space.negative.025')};
 			top: -1px;
 			width: ${resizeLineWidth}px;
 			height: calc(100% + 2px);
@@ -711,7 +625,7 @@ const resizeLineStyles = () => {
 		td.${ClassName.WITH_RESIZE_LINE}::before {
 			content: ' ';
 			position: absolute;
-			left: ${token('space.negative.025', '-2px')};
+			left: ${token('space.negative.025')};
 			top: -1px;
 			width: ${resizeLineWidth}px;
 			height: calc(100% + 2px);
@@ -721,7 +635,7 @@ const resizeLineStyles = () => {
 
 		th.${ClassName.WITH_RESIZE_LINE}::before {
 			content: ' ';
-			left: ${token('space.negative.025', '-2px')};
+			left: ${token('space.negative.025')};
 			position: absolute;
 			width: ${resizeLineWidth}px;
 			height: calc(100% + ${tableToolbarSize + tableCellBorderWidth}px);
@@ -754,7 +668,7 @@ const resizeLineStyles = () => {
 	`;
 };
 
-export const resizeHandle = () => css`
+export const resizeHandle = (): SerializedStyles => css`
 	.${ClassName.TABLE_CONTAINER} {
 		.${ClassName.RESIZE_HANDLE_DECORATION} {
 			background-color: transparent;
@@ -823,7 +737,7 @@ const tableCellColumnInsertLineStyles = css({
 const tableCellRowInsertLineStyles = css({
 	content: "' '",
 	position: 'absolute',
-	left: token('space.negative.025', '-2px'),
+	left: token('space.negative.025'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	height: `${insertLineWidth}px`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
@@ -839,13 +753,13 @@ const insertLineActiveColor = css({
 
 const insertLineInactiveColor = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	backgroundColor: token('color.background.accent.gray.subtler', akEditorTableBorder),
+	backgroundColor: token('color.background.accent.gray.subtler'),
 });
 
 // Explicit pixel values required here to ensure correct positioning of line that is show on row
 // or column drag
 // eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
-export const insertLine = () => css`
+export const insertLine = (): SerializedStyles => css`
 	.${ClassName.TABLE_CONTAINER} {
 		td.${ClassName.WITH_FIRST_COLUMN_INSERT_LINE}::before {
 			${tableCellColumnInsertLineStyles}
@@ -877,28 +791,28 @@ export const insertLine = () => css`
 
 		td.${ClassName.WITH_COLUMN_INSERT_LINE}::before {
 			${tableCellColumnInsertLineStyles}
-			left: ${token('space.negative.025', '-2px')};
+			left: ${token('space.negative.025')};
 			top: -1px;
 			${insertLineActiveColor}
 		}
 
 		td.${ClassName.WITH_COLUMN_INSERT_LINE_INACTIVE}::before {
 			${tableCellColumnInsertLineStyles}
-			left: ${token('space.negative.025', '-2px')};
+			left: ${token('space.negative.025')};
 			top: -1px;
 			${insertLineInactiveColor}
 		}
 
 		th.${ClassName.WITH_COLUMN_INSERT_LINE}::before {
 			${tableCellColumnInsertLineStyles}
-			left: ${token('space.negative.025', '-2px')};
+			left: ${token('space.negative.025')};
 			top: -${tableCellBorderWidth}px;
 			${insertLineActiveColor}
 		}
 
 		th.${ClassName.WITH_COLUMN_INSERT_LINE_INACTIVE}::before {
 			${tableCellColumnInsertLineStyles}
-			left: ${token('space.negative.025', '-2px')};
+			left: ${token('space.negative.025')};
 			top: -${tableCellBorderWidth}px;
 			${insertLineInactiveColor}
 		}

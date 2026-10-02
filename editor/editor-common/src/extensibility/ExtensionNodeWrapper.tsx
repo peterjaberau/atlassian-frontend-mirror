@@ -5,15 +5,16 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 import classnames from 'classnames';
+import type { IntlShape } from 'react-intl';
 
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { ZERO_WIDTH_SPACE } from '../whitespace';
-
+import { ExtensionSSRReactContextsProvider } from './ExtensionSSRReactContextsProvider';
+import { GeneratedContentReveal } from './GeneratedContentReveal';
 import type { MacroInteractionDesignFeatureFlags } from './types';
 
 const styles = css({
@@ -27,6 +28,7 @@ const styles = css({
 	},
 });
 
+// Mirrored by the reveal span in `GeneratedContentReveal`; keep the two in step.
 const hoverStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 	':has(.extension-label:hover) .extension-container, :has(.extension-edit-toggle-container:hover) .extension-container':
@@ -70,6 +72,15 @@ const hoverStyles = css({
 
 type Props = {
 	children: React.ReactNode;
+	/** True once the extension has reported its content ready. Only read with the motion on. */
+	contentReady?: boolean;
+	/**
+	 * Renders the node through `GeneratedContentReveal`, which holds it closed while its embed loads
+	 * and then animates it in. Set by the node view for native embeds only; see
+	 * `allowAIGeneratedContentMotion` on the extension plugin's options.
+	 */
+	generatedContentMotion?: boolean;
+	intl: IntlShape | undefined;
 	macroInteractionDesignFeatureFlags?: MacroInteractionDesignFeatureFlags;
 	nodeType: string;
 };
@@ -86,8 +97,24 @@ export const ExtensionNodeWrapper = ({
 	children,
 	nodeType,
 	macroInteractionDesignFeatureFlags,
-}: Props) => {
+	generatedContentMotion = false,
+	contentReady = false,
+	intl,
+}: Props): jsx.JSX.Element => {
 	const { showMacroInteractionDesignUpdates } = macroInteractionDesignFeatureFlags || {};
+
+	// Fixed for the node view's lifetime: switching would remount the subtree and reload the embed.
+	if (generatedContentMotion) {
+		return (
+			<GeneratedContentReveal
+				contentReady={contentReady}
+				intl={intl}
+				showMacroInteractionDesignUpdates={showMacroInteractionDesignUpdates}
+			>
+				{children}
+			</GeneratedContentReveal>
+		);
+	}
 
 	const wrapperClassNames = classnames({
 		'inline-extension': nodeType === 'inlineExtension' && showMacroInteractionDesignUpdates,
@@ -95,17 +122,16 @@ export const ExtensionNodeWrapper = ({
 	});
 
 	return (
-		<span
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
-			className={wrapperClassNames}
-			css={[
-				styles,
-				expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true) &&
-					hoverStyles,
-			]}
-		>
-			{children}
-			{nodeType === 'inlineExtension' && ZERO_WIDTH_SPACE}
-		</span>
+		<ExtensionSSRReactContextsProvider intl={intl}>
+			<span
+				data-testid="extension-node-wrapper"
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+				className={wrapperClassNames}
+				css={[styles, hoverStyles]}
+			>
+				{children}
+				{nodeType === 'inlineExtension' && ZERO_WIDTH_SPACE}
+			</span>
+		</ExtensionSSRReactContextsProvider>
 	);
 };

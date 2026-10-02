@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::3ed7d2f84cfdfe8bfef2a295bafed6da>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::095e1c83544a75e1f635b976a426ad78>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -20,11 +20,11 @@ const svg = `<svg height="100%" viewBox="0 0 83 32">
 /**
  * __JiraLogoCS__
  *
- * A temporary component to represent the logo for Jira.
+ * A component to represent the logo for Jira.
  *
  */
 export function JiraLogoCS({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Jira',
 	testId,

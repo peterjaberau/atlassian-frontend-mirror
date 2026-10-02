@@ -1,5 +1,5 @@
-import type { AnnotationMarkAttributes } from '@atlaskit/adf-schema';
-import { AnnotationTypes } from '@atlaskit/adf-schema';
+import type { AnnotationMarkAttributes } from '@atlaskit/adf-schema/annotation';
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -34,11 +34,16 @@ import {
 	TextSelection,
 } from '@atlaskit/editor-prosemirror/state';
 import { Decoration } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import type { AnnotationInfo, DraftBookmark, InlineCommentInputMethod, TargetType } from '../types';
+import type {
+	AnnotationInfo,
+	DraftBookmark,
+	InlineCommentAnnotationProvider,
+	InlineCommentInputMethod,
+	TargetType,
+} from '../types';
 import { AnnotationSelectionType } from '../types';
-
 import type { InlineCommentPluginState } from './types';
 
 function sum<T>(arr: Array<T>, f: (val: T) => number) {
@@ -48,7 +53,7 @@ function sum<T>(arr: Array<T>, f: (val: T) => number) {
  * Finds the marks in the nodes to the left and right.
  * @param $pos Position to center search around
  */
-export const surroundingMarks = ($pos: ResolvedPos) => {
+export const surroundingMarks = ($pos: ResolvedPos): (readonly Mark[])[] => {
 	const { nodeBefore, nodeAfter } = $pos;
 	const markNodeBefore =
 		nodeBefore && $pos.doc.nodeAt(Math.max(0, $pos.pos - nodeBefore.nodeSize - 1));
@@ -142,7 +147,7 @@ export const addDraftDecoration = (
 	start: number,
 	end: number,
 	targetType: TargetType = 'inline',
-) => {
+): Decoration => {
 	if (targetType === 'block') {
 		return Decoration.node(
 			start,
@@ -228,6 +233,7 @@ export const resolveDraftBookmark = (
 	editorState: EditorState,
 	bookmark?: SelectionBookmark,
 	supportedBlockNodes: string[] = [],
+	isBlockNodeSupported?: InlineCommentAnnotationProvider['isBlockNodeSupported'],
 ): DraftBookmark => {
 	const { doc } = editorState;
 
@@ -246,7 +252,15 @@ export const resolveDraftBookmark = (
 			}
 			const nodeEndsAt = pos + node.nodeSize;
 
-			if (supportedBlockNodes.includes(node.type.name)) {
+			const isLegacyMediaSingleWrapper =
+				node.type.name === 'mediaSingle' &&
+				supportedBlockNodes.includes('media') &&
+				!supportedBlockNodes.includes('mediaSingle');
+
+			if (
+				isSupportedBlockNode(node, supportedBlockNodes, isBlockNodeSupported) &&
+				!isLegacyMediaSingleWrapper
+			) {
 				draftBookmark = {
 					from: pos,
 					to: nodeEndsAt,
@@ -277,11 +291,10 @@ export function getSelectionPositions(
 	return editorState.selection;
 }
 
-export const inlineCommentPluginKey = new PluginKey<InlineCommentPluginState>(
-	'inlineCommentPluginKey',
-);
+export const inlineCommentPluginKey: PluginKey<InlineCommentPluginState> =
+	new PluginKey<InlineCommentPluginState>('inlineCommentPluginKey');
 
-export const getPluginState = (state: EditorState) => {
+export const getPluginState = (state: EditorState): InlineCommentPluginState | undefined => {
 	return inlineCommentPluginKey.getState(state);
 };
 
@@ -300,7 +313,7 @@ const getAnnotationsInSelectionCount = (state: EditorState): number => {
 export const getDraftCommandAnalyticsPayload = (
 	drafting: boolean,
 	inputMethod: InlineCommentInputMethod,
-) => {
+): AnalyticsEventPayloadCallback => {
 	const payload: AnalyticsEventPayloadCallback = (state: EditorState): AnalyticsEventPayload => {
 		let attributes: Partial<AnnotationDraftAEPAttributes> = {};
 
@@ -332,7 +345,8 @@ export const getDraftCommandAnalyticsPayload = (
 
 export const isSelectionValid = (
 	state: EditorState,
-	_supportedNodes: string[] = [],
+	supportedBlockNodes: string[] = [],
+	isBlockNodeSupported?: InlineCommentAnnotationProvider['isBlockNodeSupported'],
 ): AnnotationSelectionType => {
 	const { selection } = state;
 	const { disallowOnWhitespace } = getPluginState(state) || {};
@@ -340,8 +354,12 @@ export const isSelectionValid = (
 	const isSelectionEmpty = selection.empty;
 	const isTextOrAllSelection =
 		selection instanceof TextSelection || selection instanceof AllSelection;
+	const isSupportedBlockNodeSelection =
+		selection instanceof NodeSelection &&
+		isSupportedBlockNode(selection.node, supportedBlockNodes, isBlockNodeSupported);
 	const isValidNodeSelection =
-		selection instanceof NodeSelection && allowedInlineNodes.includes(selection.node.type.name);
+		selection instanceof NodeSelection &&
+		(allowedInlineNodes.includes(selection.node.type.name) || isSupportedBlockNodeSelection);
 	const isValidSelection = isTextOrAllSelection || isValidNodeSelection;
 
 	// Allow media so that it can enter draft mode
@@ -353,7 +371,7 @@ export const isSelectionValid = (
 		return AnnotationSelectionType.INVALID;
 	}
 
-	const containsInvalidNodes = hasInvalidNodes(state);
+	const containsInvalidNodes = !isSupportedBlockNodeSelection && hasInvalidNodes(state);
 
 	// A selection that only covers 1 pos, and is an invalid node
 	// e.g. a text selection over a mention
@@ -388,10 +406,15 @@ export const hasInvalidNodes = (state: EditorState): boolean => {
 	);
 };
 
-export const isSupportedBlockNode = (node: Node, supportedBlockNodes: string[] = []): boolean => {
+export const isSupportedBlockNode = (
+	node: Node,
+	supportedBlockNodes: string[] = [],
+	isBlockNodeSupported?: InlineCommentAnnotationProvider['isBlockNodeSupported'],
+): boolean => {
 	return (
 		supportedBlockNodes.indexOf(node.type.name) >= 0 ||
-		(node.type.name === 'mediaSingle' && supportedBlockNodes.indexOf('media') >= 0)
+		(node.type.name === 'mediaSingle' && supportedBlockNodes.indexOf('media') >= 0) ||
+		(fg('cc_maui_annotations_on_extensions') && isBlockNodeSupported?.(node) === true)
 	);
 };
 
@@ -480,7 +503,7 @@ export function annotationExists(annotationId: string, state: EditorState): bool
 /*
  * remove annotations that dont exsist in plugin state from slice
  */
-export function stripNonExistingAnnotations(slice: Slice, state: EditorState) {
+export function stripNonExistingAnnotations(slice: Slice, state: EditorState): false | undefined {
 	if (!slice.content.size) {
 		return false;
 	}

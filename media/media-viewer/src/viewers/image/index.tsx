@@ -9,13 +9,15 @@ import {
 	addFileAttrsToUrl,
 } from '@atlaskit/media-client';
 import { isImageMimeTypeSupportedByBrowser } from '@atlaskit/media-common';
-import { getOrientation } from '@atlaskit/media-ui';
-
-import { Outcome } from '../../domain';
-import { MediaViewerError } from '../../errors';
-import { InteractiveImg } from './interactive-img';
-import { BaseViewer } from '../base-viewer';
 import { type MediaTraceContext } from '@atlaskit/media-common';
+import { getOrientation } from '@atlaskit/media-ui/imageMetaData/getOrientation';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { buildImgErrorDiagnostics } from '../../buildImgErrorDiagnostics';
+import { Outcome } from '../../domain/outcome';
+import { MediaViewerError } from '../../MediaViewerError';
+import { BaseViewer } from '../base-viewer';
+import { InteractiveImg } from './interactive-img';
 
 export type ObjectUrl = string;
 
@@ -34,6 +36,7 @@ export interface ImageViewerContent {
 	objectUrl: ObjectUrl;
 	originalBinaryImageUrl?: string;
 	orientation?: number;
+	clientId?: string;
 }
 
 function processedFileStateToMediaItem(file: FileState): FileItem {
@@ -46,7 +49,9 @@ function processedFileStateToMediaItem(file: FileState): FileItem {
 }
 
 export class ImageViewer extends BaseViewer<ImageViewerContent, ImageViewerProps> {
-	protected get initialState() {
+	protected get initialState(): {
+		content: Outcome<ImageViewerContent, MediaViewerError>;
+	} {
 		return { content: Outcome.pending<ImageViewerContent, MediaViewerError>() };
 	}
 
@@ -65,6 +70,16 @@ export class ImageViewer extends BaseViewer<ImageViewerContent, ImageViewerProps
 			let objectUrl: string;
 			let originalBinaryImageUrl: string | undefined;
 			let isLocalFileReference: boolean = false;
+			let clientId: string | undefined;
+			// The MIME type of the actual bytes that will be rendered.
+			let renderedBlobMimeType: string | undefined;
+
+			// Fetch clientId for cross-client copy
+			try {
+				clientId = await mediaClient.getClientId(collectionName);
+			} catch {
+				// ClientId is optional, silently fail
+			}
 
 			const { preview } = fileState;
 			if (preview) {
@@ -73,6 +88,7 @@ export class ImageViewer extends BaseViewer<ImageViewerContent, ImageViewerProps
 					orientation = await getOrientation(value as File);
 					objectUrl = URL.createObjectURL(value);
 					isLocalFileReference = origin === 'local';
+					renderedBlobMimeType = value.type || undefined;
 				} else {
 					objectUrl = value;
 				}
@@ -90,7 +106,9 @@ export class ImageViewer extends BaseViewer<ImageViewerContent, ImageViewerProps
 					traceContext,
 				);
 				this.cancelImageFetch = () => controller?.abort();
-				objectUrl = URL.createObjectURL(await response);
+				const blob = await response;
+				renderedBlobMimeType = blob.type || undefined;
+				objectUrl = URL.createObjectURL(blob);
 			} else {
 				this.setState({
 					content: Outcome.pending(),
@@ -102,13 +120,31 @@ export class ImageViewer extends BaseViewer<ImageViewerContent, ImageViewerProps
 				!isLocalFileReference && // objectUrl at this point is binary file already
 				!isErrorFileState(fileState) &&
 				fileState.status !== 'uploading' &&
-				fileState.mediaType === 'image' &&
-				isImageMimeTypeSupportedByBrowser(fileState.mimeType)
+				fileState.mediaType === 'image'
 			) {
-				originalBinaryImageUrl = await mediaClient.file.getFileBinaryURL(
-					fileState.id,
-					collectionName,
-				);
+				// Prefer the MIME type of the actual fetched bytes over the declared one.
+
+				const effectiveMimeType = fg('platform_media_unsupported_mime_routing')
+					? (renderedBlobMimeType ?? fileState.mimeType)
+					: fileState.mimeType;
+				if (isImageMimeTypeSupportedByBrowser(effectiveMimeType)) {
+					originalBinaryImageUrl = await mediaClient.file.getFileBinaryURL(
+						fileState.id,
+						collectionName,
+					);
+				} else if (fg('platform_media_unsupported_mime_routing')) {
+					// Route unsupported MIME types browser can't natively decode straight to the
+					// unsupported/download view instead of handing a guaranteed-undecodable blob
+					// to <img>, which would only ever fire onerror and
+					// surface as an opaque `imageviewer-src-onerror` failure.
+					this.revokeObjectUrl(objectUrl);
+					const unsupportedError = new MediaViewerError('imageviewer-unsupported-mime');
+					this.setState({
+						content: Outcome.failed(unsupportedError),
+					});
+					this.props.onError(unsupportedError);
+					return;
+				}
 			}
 
 			this.setState({
@@ -116,6 +152,7 @@ export class ImageViewer extends BaseViewer<ImageViewerContent, ImageViewerProps
 					objectUrl,
 					orientation,
 					originalBinaryImageUrl,
+					clientId,
 				}),
 			});
 		} catch (err) {
@@ -158,6 +195,7 @@ export class ImageViewer extends BaseViewer<ImageViewerContent, ImageViewerProps
 					id: item.id,
 					contextId,
 					collection: collectionName,
+					clientId: content.clientId ?? '',
 				})
 			: content.objectUrl;
 
@@ -179,7 +217,13 @@ export class ImageViewer extends BaseViewer<ImageViewerContent, ImageViewerProps
 		this.onMediaDisplayed();
 	};
 
-	private onImgError = () => {
-		this.props.onError(new MediaViewerError('imageviewer-src-onerror'));
+	private onImgError = (event?: React.SyntheticEvent<HTMLImageElement, Event>) => {
+		let secondaryError: Error | undefined;
+		try {
+			secondaryError = buildImgErrorDiagnostics(this.props.item, event);
+		} catch {
+			secondaryError = undefined;
+		}
+		this.props.onError(new MediaViewerError('imageviewer-src-onerror', secondaryError));
 	};
 }

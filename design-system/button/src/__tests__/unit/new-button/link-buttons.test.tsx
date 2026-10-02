@@ -2,9 +2,12 @@ import React, { forwardRef, type Ref } from 'react';
 
 import { render, screen } from '@testing-library/react';
 
-import AppProvider, { type RouterLinkComponentProps } from '@atlaskit/app-provider';
+import AppProvider from '@atlaskit/app-provider/app-provider';
+import type { RouterLinkComponentProps } from '@atlaskit/app-provider/router-link-provider';
+import SettingsIcon from '@atlaskit/icon/core/settings';
 
-import { linkButtonVariants } from '../../../utils/variants';
+import LinkIconButton from '../../../new-button/variants/icon/link';
+import variants from '../../../utils/variants';
 
 type MyRouterLinkConfig = {
 	to: string;
@@ -128,7 +131,7 @@ const testCases: Array<{
 	},
 ];
 
-linkButtonVariants.forEach(({ name, Component }) => {
+[variants.LinkButton, variants.LinkIconButton].forEach(({ name, Component }) => {
 	describe(name, () => {
 		describe('should conditionally render router links or standard <a> anchors', () => {
 			describe('when links are used outside an AppProvider', () => {
@@ -184,5 +187,24 @@ linkButtonVariants.forEach(({ name, Component }) => {
 				});
 			});
 		});
+	});
+});
+
+describe('LinkIconButton: compact spacing regression', () => {
+	it('applies compact dimensions (1.5rem) to trigger when href, icon, label, spacing="compact", and isTooltipDisabled={false}', () => {
+		render(
+			<LinkIconButton
+				href="/settings"
+				icon={SettingsIcon}
+				label="Settings"
+				spacing="compact"
+				isTooltipDisabled={false}
+				testId="link-icon-button-compact"
+			/>,
+		);
+
+		const trigger = screen.getByTestId('link-icon-button-compact');
+		expect(trigger).toHaveCompiledCss('height', '1.5rem');
+		expect(trigger).toHaveCompiledCss('width', '1.5rem');
 	});
 });

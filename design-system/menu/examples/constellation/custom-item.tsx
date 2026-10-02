@@ -4,9 +4,9 @@
  */
 import { cssMap, jsx } from '@compiled/react';
 
-import { CustomItem, type CustomItemComponentProps } from '@atlaskit/menu';
-import { Box } from '@atlaskit/primitives/compiled';
-import { B100 } from '@atlaskit/theme/colors';
+import CustomItem from '@atlaskit/menu/custom-item';
+import { type CustomItemComponentProps } from '@atlaskit/menu/types';
+import { Box } from '@atlaskit/primitives/compiled/box';
 
 import Slack from '../icons/slack';
 
@@ -33,13 +33,13 @@ const styles = cssMap({
 		'&::before': {
 			content: '""',
 			position: 'absolute',
-			left: 0,
-			top: 0,
-			bottom: 0,
+			insetInlineStart: 0,
+			insetBlockStart: 0,
+			insetBlockEnd: 0,
 			width: 3,
 			transform: 'translateX(-1px)',
 			transition: 'transform 70ms ease-in-out',
-			backgroundColor: B100,
+			backgroundColor: '#4C9AFF',
 		},
 		'&:hover::before': {
 			transform: 'translateX(0)',
@@ -83,7 +83,7 @@ const _default: () => JSX.Element = () => (
 		<CustomItem
 			href="/navigation-system-3"
 			component={CustomComponent}
-			iconBefore={<Slack aria-label="" />}
+			iconBefore={<Slack />}
 			css={[styles.root, styles.interactive]}
 		>
 			iconBefore CustomItem
@@ -91,7 +91,7 @@ const _default: () => JSX.Element = () => (
 		<CustomItem
 			href="/navigation-system-4"
 			component={CustomComponent}
-			iconBefore={<Slack aria-label="" />}
+			iconBefore={<Slack />}
 			description="Next-gen software project"
 			css={[styles.root, styles.interactive]}
 		>

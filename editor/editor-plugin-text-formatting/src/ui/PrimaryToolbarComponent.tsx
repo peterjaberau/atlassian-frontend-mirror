@@ -1,14 +1,11 @@
 import React from 'react';
 
-import {
-	useSharedPluginStateWithSelector,
-	type NamedPluginStatesFromInjectionAPI,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI, ToolbarSize } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { TextFormattingPlugin } from '../textFormattingPluginType';
-
 import Toolbar from './Toolbar';
 import { ToolbarType } from './Toolbar/types';
 
@@ -56,7 +53,18 @@ const selector = (
 	};
 };
 
-export const PrimaryToolbarComponent = React.memo(
+export const PrimaryToolbarComponent: React.MemoExoticComponent<
+	({
+		api,
+		popupsMountPoint,
+		popupsScrollableElement,
+		toolbarSize,
+		editorView,
+		disabled,
+		isReducedSpacing,
+		shouldUseResponsiveToolbar,
+	}: PrimaryToolbarComponentProps) => React.JSX.Element
+> = React.memo(
 	({
 		api,
 		popupsMountPoint,

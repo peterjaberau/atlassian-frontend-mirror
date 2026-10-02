@@ -1,16 +1,20 @@
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import {
-	TextSelection,
-	type EditorState,
-	type Transaction,
-} from '@atlaskit/editor-prosemirror/state';
+import { TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { CreateSuccessEnrichment } from '@atlaskit/editor-synced-block-provider/errorHandling';
 
 import type { SyncedBlockPlugin } from '../../syncedBlockPluginType';
-import { FLAG_ID, type SyncBlockInfo } from '../../types';
+import { FLAG_ID } from '../../types';
+import type { SyncBlockInfo } from '../../types';
 import { syncedBlockPluginKey } from '../main';
+import { deferDispatch } from './utils';
 
-const onRetry = (api: ExtractInjectionAPI<SyncedBlockPlugin> | undefined, resourceId: string) => {
+const onRetry = (
+	api: ExtractInjectionAPI<SyncedBlockPlugin> | undefined,
+	resourceId: string,
+	enrichment?: CreateSuccessEnrichment,
+) => {
 	return () => {
 		api?.core?.actions.focus();
 		api?.core?.actions.execute(({ tr }) => {
@@ -26,7 +30,7 @@ const onRetry = (api: ExtractInjectionAPI<SyncedBlockPlugin> | undefined, resour
 			tr.setSelection(TextSelection.create(tr.doc, from, to)).setMeta(syncedBlockPluginKey, {
 				activeFlag: false,
 			});
-			api?.syncedBlock?.commands.insertSyncedBlock()({ tr });
+			api?.syncedBlock?.commands.insertSyncedBlock(enrichment?.inputMethod)({ tr });
 
 			return tr;
 		});
@@ -77,13 +81,17 @@ const buildRevertCreationTr = (tr: Transaction, pos: { from: number; to: number 
 
 /**
  *
- * Save the new bodiedSyncBlock to backend with empty content and handles revert (if failed) and retry flow
+ * Save the new bodiedSyncBlock to backend with empty content and handles revert (if failed) and retry flow.
+ *
+ * @param enrichment optional creation analytics signals from `createSyncedBlock`,
+ *   forwarded to the store manager to attach to the `syncedBlockCreate` event.
  */
 export const handleBodiedSyncBlockCreation = (
 	bodiedSyncBlockAdded: SyncBlockInfo[],
 	editorState: EditorState,
 	api: ExtractInjectionAPI<SyncedBlockPlugin> | undefined,
-) => {
+	enrichment?: CreateSuccessEnrichment,
+): void => {
 	const syncBlockStore = syncedBlockPluginKey.getState(editorState).syncBlockStore;
 
 	bodiedSyncBlockAdded.forEach((node) => {
@@ -93,7 +101,7 @@ export const handleBodiedSyncBlockCreation = (
 		const retryCreationPos = { from: node.from, to: node.to };
 		const resourceId = node.attrs.resourceId;
 
-		setTimeout(() => {
+		deferDispatch(() => {
 			api?.core?.actions.execute(({ tr }) => {
 				return tr.setMeta(syncedBlockPluginKey, {
 					retryCreationPos: { resourceId, pos: retryCreationPos },
@@ -102,6 +110,7 @@ export const handleBodiedSyncBlockCreation = (
 		});
 		syncBlockStore.sourceManager.createBodiedSyncBlockNode(
 			node.attrs,
+			node.node,
 			(success: boolean) => {
 				if (success) {
 					api?.core?.actions.execute(({ tr }) => {
@@ -123,7 +132,7 @@ export const handleBodiedSyncBlockCreation = (
 							.setMeta(syncedBlockPluginKey, {
 								activeFlag: {
 									id: FLAG_ID.CANNOT_CREATE_SYNC_BLOCK,
-									onRetry: onRetry(api, resourceId),
+									onRetry: onRetry(api, resourceId, enrichment),
 									onDismissed: (tr: Transaction) =>
 										tr.setMeta(syncedBlockPluginKey, {
 											...tr.getMeta(syncedBlockPluginKey),
@@ -134,7 +143,7 @@ export const handleBodiedSyncBlockCreation = (
 					});
 				}
 			},
-			node.node,
+			enrichment,
 		);
 	});
 };

@@ -16,7 +16,11 @@ test.describe('Tooltip mouse positioning', () => {
 	test('should position tooltip at mouse coordinates with position="mouse" (old)', async ({
 		page,
 	}) => {
-		await page.visitExample('design-system', 'tooltip', 'position-mouse');
+		await page.visitExample<typeof import('../../../examples/position-mouse.vr.ap.tsx')>(
+			'design-system',
+			'tooltip',
+			'position-mouse',
+		);
 
 		const trigger = page.getByTestId('trigger-mouse');
 		const triggerBox = await trigger.boundingBox();
@@ -55,12 +59,12 @@ test.describe('Tooltip mouse positioning', () => {
 		expect(tooltipBox.y).toBe(expectedTooltipPosition.y);
 	});
 
-	test('should position tooltip at mouse coordinates with position="mouse" (platform_dst_nav4_side_nav_resize_tooltip_feedback)', async ({
-		page,
-	}) => {
-		await page.visitExample('design-system', 'tooltip', 'position-mouse', {
-			featureFlag: 'platform_dst_nav4_side_nav_resize_tooltip_feedback',
-		});
+	test('should position tooltip at mouse coordinates with position="mouse"', async ({ page }) => {
+		await page.visitExample<typeof import('../../../examples/position-mouse.vr.ap.tsx')>(
+			'design-system',
+			'tooltip',
+			'position-mouse',
+		);
 
 		const trigger = page.getByTestId('trigger-mouse');
 		const triggerBox = await trigger.boundingBox();
@@ -102,9 +106,11 @@ test.describe('Tooltip mouse positioning', () => {
 	test('should position tooltip using mouse Y and target X with position="mouse-y"', async ({
 		page,
 	}) => {
-		await page.visitExample('design-system', 'tooltip', 'position-mouse', {
-			featureFlag: 'platform_dst_nav4_side_nav_resize_tooltip_feedback',
-		});
+		await page.visitExample<typeof import('../../../examples/position-mouse.vr.ap.tsx')>(
+			'design-system',
+			'tooltip',
+			'position-mouse',
+		);
 
 		const trigger = page.getByTestId('trigger-mouse-y');
 		const triggerBox = await trigger.boundingBox();
@@ -148,9 +154,11 @@ test.describe('Tooltip mouse positioning', () => {
 	test('should position tooltip using mouse X and target Y with position="mouse-x"', async ({
 		page,
 	}) => {
-		await page.visitExample('design-system', 'tooltip', 'position-mouse', {
-			featureFlag: 'platform_dst_nav4_side_nav_resize_tooltip_feedback',
-		});
+		await page.visitExample<typeof import('../../../examples/position-mouse.vr.ap.tsx')>(
+			'design-system',
+			'tooltip',
+			'position-mouse',
+		);
 
 		const trigger = page.getByTestId('trigger-mouse-x');
 		const triggerBox = await trigger.boundingBox();

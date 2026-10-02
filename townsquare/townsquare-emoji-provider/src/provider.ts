@@ -1,5 +1,9 @@
-import { EmojiResource, type EmojiResourceConfig } from '@atlaskit/emoji/resource';
+import EmojiResource, {
+	type EmojiProvider,
+	type EmojiResourceConfig,
+} from '@atlaskit/emoji/emoji-resource';
 
+import { resources } from './resources';
 import { withSelectedToneEmitter } from './withSelectedToneEmitter';
 
 const EMOJI_URL = '/gateway/api/emoji';
@@ -8,16 +12,20 @@ const DEFAULT_EMOJI_CONFIG: EmojiResourceConfig = {
 	providers: [{ url: `${EMOJI_URL}/standard` }],
 };
 
-export const emojiResource = new EmojiResource(DEFAULT_EMOJI_CONFIG);
-export const emojiProvider = withSelectedToneEmitter(emojiResource.getEmojiProvider());
+export const emojiResource: EmojiResource = new EmojiResource(DEFAULT_EMOJI_CONFIG);
+export const emojiProvider: Promise<EmojiProvider> = withSelectedToneEmitter(
+	emojiResource.getEmojiProvider(),
+);
 
-const resources = new Map<string, EmojiResource>();
-
+/**
+ * @deprecated Recommend using /for-cloud-id over the barrel file version here
+ * This version will create an emojiProvider on import - which isn't always desired.
+ */
 export const getEmojiProviderForCloudId = (
 	cloudId: string,
 	userId: string,
 	disableUpload?: boolean,
-) => {
+): Promise<EmojiProvider> => {
 	const resourceKey = `${cloudId}::${userId}::${disableUpload ? 'no-upload' : 'with-upload'}`;
 
 	let resource = resources.get(resourceKey);

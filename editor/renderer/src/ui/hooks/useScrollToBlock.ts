@@ -1,5 +1,6 @@
-import type { DocNode } from '@atlaskit/adf-schema';
 import { useEffect } from 'react';
+
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import { getDocument } from '@atlaskit/browser-apis';
 import {
 	DEFAULT_BLOCK_LINK_HASH_PREFIX,
@@ -9,7 +10,7 @@ import {
 	findNodeWithExpandParents,
 	getLocalIdSelector,
 } from '@atlaskit/editor-common/block-menu';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
 import { useStableScroll } from './useStableScroll';
 
 /**
@@ -23,19 +24,13 @@ import { useStableScroll } from './useStableScroll';
  * which prevents issues with images loading, dynamic content, or other async operations that
  * cause layout changes.
  *
- * This hook replaces useScrollToLocalId when the platform_editor_expand_on_scroll_to_block experiment is enabled.
- *
- * When platform_editor_expand_on_scroll_to_block experiment is cleaned up:
- *       - Remove the experiment check
- *       - Delete the deprecated useScrollToLocalId hook
- *       - Make this the default scroll-to-block behavior
- *
  * @param containerRef - Optional ref to the renderer container (RendererStyleContainer)
  * @param adfDoc - The ADF document to search for nodes and expand parents
  */
 export const useScrollToBlock = (
 	containerRef?: React.RefObject<HTMLDivElement>,
 	adfDoc?: DocNode,
+	scrollToBlock?: (element: HTMLElement) => void,
 ): void => {
 	const { waitForStability, cleanup: cleanupStability } = useStableScroll({
 		stabilityWaitTime: 750,
@@ -48,16 +43,13 @@ export const useScrollToBlock = (
 			return;
 		}
 
-		if (!expValEquals('platform_editor_expand_on_scroll_to_block', 'isEnabled', true)) {
-			return;
-		}
-
 		// Parse hash fragment for block ID (format: #block-{localId}).
 		const hash = window.location.hash;
 		const defaultPrefixWithHash = `#${DEFAULT_BLOCK_LINK_HASH_PREFIX}`;
-		const blockId = hash.startsWith(defaultPrefixWithHash)
-			? hash.slice(defaultPrefixWithHash.length)
-			: null;
+		const blockId =
+			hash && hash.startsWith(defaultPrefixWithHash)
+				? hash.slice(defaultPrefixWithHash.length)
+				: null;
 
 		if (!blockId) {
 			return;
@@ -138,7 +130,13 @@ export const useScrollToBlock = (
 			// Element found and all parent expands are open! Use the utility to scroll.
 			// (This will handle any final edge cases and do the actual scrolling).
 			// Capture cleanup function to cancel pending timeouts.
-			cancelExpandAndScroll = expandAllParentsThenScroll(element);
+			cancelExpandAndScroll = expandAllParentsThenScroll(element, 0, (el) => {
+				if (scrollToBlock) {
+					scrollToBlock(el);
+				} else {
+					el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+				}
+			});
 
 			return true;
 		};
@@ -257,5 +255,5 @@ export const useScrollToBlock = (
 		return cleanup;
 		// Intentionally not including adfDoc in the dependency array to avoid unnecessary re-renders.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [containerRef, waitForStability, cleanupStability]);
+	}, [containerRef, waitForStability, cleanupStability, scrollToBlock]);
 };

@@ -1,14 +1,13 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
 		"outDir": "../../../../../tsDist/@atlaskit__codemod-cli/app",
 		"rootDir": "../",
 		"composite": true,
 		"noCheck": true
 	},
 	"include": [
-		"../src/**/*.ts"
+		"../src/**/*.tsx"
 	],
 	"exclude": [
 		"../src/**/__tests__/*",

@@ -1,27 +1,30 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import { DateTimePicker } from '@atlaskit/datetime-picker';
-import Form, { Field, FormFooter, HelperMessage } from '@atlaskit/form';
+import Button from '@atlaskit/button/default/button';
+import DateTimePicker from '@atlaskit/datetime-picker/date-time-picker';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
 
 const DateTimePickerFormExample = (): React.JSX.Element => (
 	<Form onSubmit={(formState: unknown) => console.log('form submitted', formState)}>
-		<Field name="datetime-picker" label="Scheduled run time" isRequired={false}>
-			{({ fieldProps }) => (
-				<>
-					<DateTimePicker
-						{...fieldProps}
-						clearControlLabel="Clear scheduled run time"
-						datePickerProps={{
-							shouldShowCalendarButton: true,
-							label: 'Scheduled run time, date',
-						}}
-						timePickerProps={{ label: 'Scheduled run time, time' }}
-					/>
-					<HelperMessage>Help or instruction text goes here</HelperMessage>
-				</>
+		<Field
+			name="datetime-picker"
+			label="Scheduled run time"
+			isRequired={false}
+			helperMessage="Help or instruction text goes here."
+			component={({ fieldProps }) => (
+				<DateTimePicker
+					{...fieldProps}
+					clearControlLabel="Clear scheduled run time"
+					datePickerProps={{
+						shouldShowCalendarButton: true,
+						label: 'Scheduled run time, date',
+					}}
+					timePickerProps={{ label: 'Scheduled run time, time' }}
+				/>
 			)}
-		</Field>
+		/>
 		<FormFooter>
 			<Button type="submit" appearance="primary">
 				Submit

@@ -1,7 +1,8 @@
 import isEqual from 'lodash/isEqual';
 
-import { isSafeUrl } from '@atlaskit/adf-schema';
-import type { CreateUIAnalyticsEvent, UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import type {
 	AnalyticsEventPayload,
 	EditorAnalyticsAPI,
@@ -18,7 +19,11 @@ import {
 	unlinkPayload,
 } from '@atlaskit/editor-common/analytics';
 import { addLinkMetadata } from '@atlaskit/editor-common/card';
-import type { CardReplacementInputMethod } from '@atlaskit/editor-common/card';
+import type {
+	CardReplacementInputMethod,
+	EmbedCardNodeTransformer,
+	EmbedCardTransformAttrs,
+} from '@atlaskit/editor-common/card';
 import { getActiveLinkMark } from '@atlaskit/editor-common/link';
 import type { CardAppearance } from '@atlaskit/editor-common/provider-factory';
 import type { Command } from '@atlaskit/editor-common/types';
@@ -29,7 +34,14 @@ import {
 	nodesBetweenChanged,
 	processRawValue,
 } from '@atlaskit/editor-common/utils';
-import type { Mark, Node, NodeType, Schema } from '@atlaskit/editor-prosemirror/model';
+import type {
+	Attrs,
+	Mark,
+	MarkType,
+	Node,
+	NodeType,
+	Schema,
+} from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
@@ -38,12 +50,12 @@ import type {
 	DatasourceAdf,
 	DatasourceAdfView,
 	InlineCardAdf,
-} from '@atlaskit/linking-common';
-import { closeHistory } from '@atlaskit/prosemirror-history';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+} from '@atlaskit/linking-common/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { closeHistory } from '@atlaskit/prosemirror-history/closeHistory';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { CardPluginState, Request } from '../types';
-
 import {
 	hideDatasourceModal,
 	queueCards,
@@ -120,6 +132,7 @@ export const replaceQueuedUrlWithCard =
 		analyticsAction?: ACTION,
 		editorAnalyticsApi?: EditorAnalyticsAPI,
 		createAnalyticsEvent?: CreateUIAnalyticsEvent,
+		embedCardNodeTransformer?: EmbedCardNodeTransformer,
 	): Command =>
 	(editorState, dispatch) => {
 		const state = pluginKey.getState(editorState) as CardPluginState | undefined;
@@ -132,7 +145,54 @@ export const replaceQueuedUrlWithCard =
 
 		// try to transform response to ADF
 		const schema: Schema = editorState.schema;
-		const cardAdf = processRawValue(schema, cardData);
+		let cardAdf: Node | null = null;
+
+		// If an embed card transformer is provided and the resolved card is an embedCard,
+		// attempt to transform it into an alternative node representation first.
+		if (
+			cardData.type === 'embedCard' &&
+			embedCardNodeTransformer &&
+			fg('platform_native_embeds_rollout_non_maui_experience')
+		) {
+			const transformResult = embedCardNodeTransformer(
+				schema,
+				cardData.attrs as EmbedCardTransformAttrs,
+			);
+			// The transformer may return a Promise for async transformations (e.g. short-link expansion).
+			// When async, we snapshot the current requests and positions now (before any dispatch),
+			// then insert the resolved node and clean up the queue in one transaction once the
+			// Promise settles. This avoids the stale-editorState problem: rather than re-running
+			// replaceQueuedUrlWithCard with an outdated state snapshot, we capture what we need
+			// immediately and apply a targeted insert when ready.
+			if (transformResult instanceof Promise) {
+				// Snapshot requests now, while the queue still contains this URL.
+				const pendingRequests = [...requests];
+				transformResult.then((resolvedNode) => {
+					if (!dispatch) {
+						return;
+					}
+					// Build a fresh transaction (editorState is the snapshot at call-time; positions
+					// are mapped through it). For the async case we fall back to cardData if the
+					// transform returned nothing, mirroring what the sync path would do.
+					const asyncCardAdf = resolvedNode
+						? resolvedNode
+						: (processRawValue(schema, cardData) ?? null);
+					const asyncTr = editorState.tr;
+					if (asyncCardAdf) {
+						pendingRequests.forEach((request) =>
+							replaceLinksToCards(asyncTr, asyncCardAdf, schema, request),
+						);
+					}
+					dispatch(resolveCard(url)(closeHistory(asyncTr)));
+				});
+				return true;
+			}
+			cardAdf = transformResult ?? null;
+		}
+
+		if (!cardAdf) {
+			cardAdf = processRawValue(schema, cardData) ?? null;
+		}
 
 		const tr = editorState.tr;
 
@@ -226,6 +286,60 @@ export const handleFallbackWithAnalytics =
 		return true;
 	};
 
+/**
+ * Shared options used by both `queueCardsFromChangedTr` and
+ * `queueCardsFromRange` to build smart-link resolution requests for text
+ * nodes carrying a `link` mark.
+ */
+type CollectLinkRequestsOptions = {
+	analyticsAction?: ACTION;
+	appearance: CardAppearance;
+	linkMarkType: MarkType;
+	normalizeLinkText: boolean;
+	source: CardReplacementInputMethod;
+	sourceEvent: UIAnalyticsEvent | null | undefined;
+};
+
+/**
+ * Per-node walker shared by `queueCardsFromChangedTr` and
+ * `queueCardsFromRange`. Pushes a smart-link resolution request for every
+ * text node carrying a qualifying `link` mark.
+ *
+ * Returning `true`/`false` follows the ProseMirror `nodesBetween`/
+ * `nodesBetweenChanged` walker contract: `true` to descend into children,
+ * `false` to skip subtree.
+ */
+const collectLinkRequest = (
+	requests: Request[],
+	node: Node,
+	pos: number,
+	options: CollectLinkRequestsOptions,
+): boolean => {
+	if (!node.isText) {
+		return true;
+	}
+
+	const linkMark = node.marks.find((mark) => mark.type === options.linkMarkType);
+
+	if (linkMark) {
+		if (!shouldReplaceLink(node, options.normalizeLinkText)) {
+			return false;
+		}
+
+		requests.push({
+			url: linkMark.attrs.href,
+			pos,
+			appearance: options.appearance,
+			compareLinkText: options.normalizeLinkText,
+			source: options.source,
+			analyticsAction: options.analyticsAction,
+			sourceEvent: options.sourceEvent,
+		});
+	}
+
+	return false;
+};
+
 export const queueCardsFromChangedTr = (
 	state: EditorState,
 	tr: Transaction,
@@ -239,32 +353,66 @@ export const queueCardsFromChangedTr = (
 	const { link } = schema.marks;
 
 	const requests: Request[] = [];
+	const options: CollectLinkRequestsOptions = {
+		analyticsAction,
+		appearance,
+		linkMarkType: link,
+		normalizeLinkText,
+		source,
+		sourceEvent,
+	};
 
-	nodesBetweenChanged(tr, (node, pos) => {
-		if (!node.isText) {
-			return true;
-		}
+	nodesBetweenChanged(tr, (node, pos) => collectLinkRequest(requests, node, pos, options));
 
-		const linkMark = node.marks.find((mark) => mark.type === link);
+	if (analyticsAction) {
+		addLinkMetadata(state.selection, tr, {
+			action: analyticsAction,
+		});
+	}
 
-		if (linkMark) {
-			if (!shouldReplaceLink(node, normalizeLinkText)) {
-				return false;
-			}
+	return queueCards(requests)(tr);
+};
 
-			requests.push({
-				url: linkMark.attrs.href,
-				pos,
-				appearance,
-				compareLinkText: normalizeLinkText,
-				source,
-				analyticsAction,
-				sourceEvent,
-			});
-		}
+/**
+ * Queue link-mark → smart-link resolution for text nodes within an explicit
+ * document range, rather than the entire step range of the transaction.
+ *
+ * Use this instead of `queueCardsFromChangedTr` when you know the exact range
+ * that was inserted/modified and want to avoid accidentally queuing pre-existing
+ * links that happen to fall within the broader step range.
+ */
+export const queueCardsFromRange = (
+	state: EditorState,
+	tr: Transaction,
+	from: number,
+	to: number,
+	source: CardReplacementInputMethod,
+	analyticsAction?: ACTION,
+	normalizeLinkText: boolean = true,
+	sourceEvent: UIAnalyticsEvent | null | undefined = undefined,
+	appearance: CardAppearance = 'inline',
+): Transaction => {
+	const { schema } = state;
+	const { link } = schema.marks;
 
-		return false;
-	});
+	const requests: Request[] = [];
+	const options: CollectLinkRequestsOptions = {
+		analyticsAction,
+		appearance,
+		linkMarkType: link,
+		normalizeLinkText,
+		source,
+		sourceEvent,
+	};
+
+	const clampedFrom = Math.max(0, from);
+	const clampedTo = Math.min(tr.doc.content.size, to);
+
+	if (clampedFrom < clampedTo) {
+		tr.doc.nodesBetween(clampedFrom, clampedTo, (node, pos) =>
+			collectLinkRequest(requests, node, pos, options),
+		);
+	}
 
 	if (analyticsAction) {
 		addLinkMetadata(state.selection, tr, {
@@ -382,7 +530,7 @@ export const changeSelectedCardToLink =
 			state.selection instanceof NodeSelection ? state.selection.node : undefined;
 
 		let tr;
-		if (node && pos) {
+		if (node && pos !== undefined) {
 			tr = cardNodeToLinkWithTransaction(state, text, href, node, pos);
 		} else {
 			tr = cardToLinkWithTransaction(state, text, href);
@@ -422,7 +570,7 @@ export const changeSelectedCardToLinkFallback =
 	): Command =>
 	(state, dispatch) => {
 		let tr;
-		if (node && pos) {
+		if (node && pos !== undefined) {
 			tr = cardNodeToLinkWithTransaction(state, text, href, node, pos);
 		} else {
 			tr = cardToLinkWithTransaction(state, text, href);
@@ -556,17 +704,46 @@ export const setSelectedCardAppearance: (
 		return false;
 	}
 
-	const attrs = editorExperiment('platform_synced_block', true)
-		? getAttrsForAppearance(
-				appearance,
-				selectedNode,
-				state.selection.$from.parent.type.name === 'bodiedSyncBlock',
-		  )
-		: getAttrsForAppearance(appearance, selectedNode);
+	const attrs = getAttrsForAppearance(
+		appearance,
+		selectedNode,
+		state.selection.$from.parent.type.name === 'bodiedSyncBlock',
+	);
 
 	const { from, to } = state.selection;
 	const nodeType = getLinkNodeType(appearance, state.schema.nodes as LinkNodes);
 	const tr = state.tr.setNodeMarkup(from, nodeType, attrs, selectedNode.marks);
+
+	// If switching to embed appearance, attempt to use a registered transform command
+	// to create an alternative node representation (e.g. a native embed).
+	if (appearance === 'embed' && (selectedNode.attrs.url || selectedNode.attrs.data?.url)) {
+		const cardState = pluginKey.getState(state) as CardPluginState | undefined;
+		const createEmbedCardTransformCommand =
+			cardState?.embedCardTransformers?.createEmbedCardTransformCommand;
+		if (createEmbedCardTransformCommand) {
+			const transformCommand = createEmbedCardTransformCommand({
+				editorAnalyticsApi,
+				augmentTransaction: (augmentTr: Transaction) => {
+					updateDatasourceStash(augmentTr, selectedNode);
+					editorAnalyticsApi?.attachAnalyticsEvent({
+						action: ACTION.CHANGED_TYPE,
+						actionSubject: ACTION_SUBJECT.SMART_LINK,
+						eventType: EVENT_TYPE.TRACK,
+						attributes: {
+							newType: appearance as SMART_LINK_TYPE,
+							previousType: appearanceForNodeType(selectedNode.type),
+						},
+					} as AnalyticsEventPayload)(augmentTr);
+					addLinkMetadata(state.selection, augmentTr, {
+						action: ACTION.CHANGED_TYPE,
+					});
+				},
+			});
+			if (transformCommand(state, dispatch)) {
+				return true;
+			}
+		}
+	}
 
 	updateDatasourceStash(tr, selectedNode);
 
@@ -647,8 +824,11 @@ export const updateCardViaDatasource = (args: UpdateCardArgs): void => {
 
 			const isColumnChange = !isEqual(oldViews?.properties?.columns, newViews?.properties?.columns);
 			const isUrlChange = newAttrs.url !== oldAttrs.url;
+			const isParametersChange =
+				fg('platform_lp_sllv_preserve_assets_columns') &&
+				!isEqual(oldAttrs.datasource.parameters, newAttrs.datasource.parameters);
 
-			if (isColumnChange || isUrlChange) {
+			if (isColumnChange || isUrlChange || isParametersChange) {
 				tr.setNodeMarkup(from, schemaNodes.blockCard, {
 					...oldAttrs,
 					...newAdf.attrs,
@@ -735,16 +915,16 @@ export const getAttrsForAppearance = (
 	appearance: CardAppearance,
 	selectedNode: Node,
 	isInsideBodiedSyncBlock: boolean = false,
-) => {
+): Attrs => {
 	if (appearance === 'embed') {
 		return {
 			...selectedNode.attrs,
 			layout: 'center',
 			...(isInsideBodiedSyncBlock
 				? // When converting to embed, width attribute is set to null and when the document is published, the width attribute is set to 100 as per schema default
-				  // For editor, width is not required to render the embed card, but it's required in renderer
-				  // Because sync block has nested renderer in editor, we need width to be defined even in editor so embed in reference sync block can be rendered properly
-				  { width: selectedNode.attrs.width ?? 100 }
+					// For editor, width is not required to render the embed card, but it's required in renderer
+					// Because sync block has nested renderer in editor, we need width to be defined even in editor so embed in reference sync block can be rendered properly
+					{ width: selectedNode.attrs.width ?? 100 }
 				: {}),
 		};
 	}

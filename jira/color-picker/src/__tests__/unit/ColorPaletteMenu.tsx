@@ -1,10 +1,13 @@
 import React from 'react';
+
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ColorPaletteMenuWithoutAnalytics as ColorPaletteMenu } from '../..';
-import { fg } from '@atlaskit/platform-feature-flags';
 
-jest.mock('@atlaskit/platform-feature-flags');
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { ColorPaletteMenuWithoutAnalytics as ColorPaletteMenu } from '../..';
+
+jest.mock('@atlaskit/platform-feature-flags/fg');
 const mockGetBooleanFG = fg as jest.MockedFunction<typeof fg>;
 
 describe('ColorPaletteMenu', () => {
@@ -26,7 +29,7 @@ describe('ColorPaletteMenu', () => {
 
 	describe('All FFs enabled', () => {
 		beforeEach(() => {
-			mockGetBooleanFG.mockReturnValue(true);
+			mockGetBooleanFG.mockImplementation((flag: string) => flag !== 'platform-dst-top-layer');
 		});
 
 		test('should capture and report a11y violations', async () => {

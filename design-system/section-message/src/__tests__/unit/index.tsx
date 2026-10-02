@@ -3,6 +3,7 @@ import React from 'react';
 import { fireEvent, queryByAttribute, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { cssMap } from '@atlaskit/css';
 import noop from '@atlaskit/ds-lib/noop';
 import JiraLabsIcon from '@atlaskit/icon/core/flask';
 import QuestionCircleIcon from '@atlaskit/icon/core/question-circle';
@@ -10,19 +11,50 @@ import ErrorIcon from '@atlaskit/icon/core/status-error';
 import InfoIcon from '@atlaskit/icon/core/status-information';
 import CheckCircleIcon from '@atlaskit/icon/core/status-success';
 import WarningIcon from '@atlaskit/icon/core/status-warning';
-import { Text } from '@atlaskit/primitives/compiled';
+import { Flex, Text } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
 
-import SectionMessage, { SectionMessageAction } from '../../index';
+import SectionMessage from '../../section-message';
+import SectionMessageAction from '../../section-message-action';
 import { type Appearance } from '../../types';
 
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
+
 const appearances: [Appearance, ({}) => JSX.Element][] = [
-	['information', (props: {}) => <InfoIcon {...props} spacing="spacious" label="information" />],
-	['warning', (props: {}) => <WarningIcon {...props} spacing="spacious" label="warning" />],
-	['error', (props: {}) => <ErrorIcon {...props} spacing="spacious" label="error" />],
-	['success', (props: {}) => <CheckCircleIcon {...props} spacing="spacious" label="success" />],
+	[
+		'information',
+		(
+			props: {} /* eslint-disable-next-line @atlaskit/design-system/no-icon-spacing-prop -- TODO: Manually migrate spacing prop to Flex primitive (spread props detected) */,
+		) => <InfoIcon {...props} spacing="spacious" label="information" />,
+	],
+	[
+		'warning',
+		(
+			props: {} /* eslint-disable-next-line @atlaskit/design-system/no-icon-spacing-prop -- TODO: Manually migrate spacing prop to Flex primitive (spread props detected) */,
+		) => <WarningIcon {...props} spacing="spacious" label="warning" />,
+	],
+	[
+		'error',
+		(
+			props: {} /* eslint-disable-next-line @atlaskit/design-system/no-icon-spacing-prop -- TODO: Manually migrate spacing prop to Flex primitive (spread props detected) */,
+		) => <ErrorIcon {...props} spacing="spacious" label="error" />,
+	],
+	[
+		'success',
+		(
+			props: {} /* eslint-disable-next-line @atlaskit/design-system/no-icon-spacing-prop -- TODO: Manually migrate spacing prop to Flex primitive (spread props detected) */,
+		) => <CheckCircleIcon {...props} spacing="spacious" label="success" />,
+	],
 	[
 		'discovery',
-		(props: {}) => <QuestionCircleIcon {...props} spacing="spacious" label="discovery" />,
+		(
+			props: {} /* eslint-disable-next-line @atlaskit/design-system/no-icon-spacing-prop -- TODO: Manually migrate spacing prop to Flex primitive (spread props detected) */,
+		) => <QuestionCircleIcon {...props} spacing="spacious" label="discovery" />,
 	],
 ];
 
@@ -39,6 +71,8 @@ const getByHref = queryByAttribute.bind(null, 'href');
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('SectionMessage', () => {
+	const headingText = 'Heading';
+
 	it('should render correct defaults', () => {
 		render(<SectionMessage>boo</SectionMessage>);
 
@@ -46,18 +80,35 @@ describe('SectionMessage', () => {
 	});
 
 	it('should render both <Title /> and children if there is a title', () => {
-		render(<SectionMessage title="things">boo</SectionMessage>);
+		render(<SectionMessage title={headingText}>boo</SectionMessage>);
 
-		expect(screen.getByText('things')).toBeInTheDocument();
+		const heading = screen.getByText(headingText);
+		expect(heading).toBeInTheDocument();
+		expect(heading.tagName.toLowerCase()).toBe('h2');
 		expect(screen.getByText('boo')).toBeInTheDocument();
+	});
+
+	it('should allow custom heading levels', () => {
+		const headingLevel = 'h6';
+		render(
+			<SectionMessage title={headingText} headingLevel={headingLevel}>
+				boo
+			</SectionMessage>,
+		);
+
+		const heading = screen.getByText(headingText);
+		expect(heading).toBeInTheDocument();
+		expect(heading.tagName.toLowerCase()).toBe(headingLevel);
 	});
 
 	it('should render a custom icon and label if one is given', () => {
 		const CustomIcon = () => (
-			<JiraLabsIcon spacing="spacious" label="some label" testId="custom-icon" />
+			<Flex xcss={iconSpacingStyles.space050}>
+				<JiraLabsIcon label="some label" testId="custom-icon" />
+			</Flex>
 		);
 		render(
-			<SectionMessage title="things" icon={CustomIcon}>
+			<SectionMessage title={headingText} icon={CustomIcon}>
 				boo
 			</SectionMessage>,
 		);
@@ -239,6 +290,33 @@ describe('SectionMessage', () => {
 			fireEvent.click(sectionMsgAction);
 
 			expect(onClick).toHaveBeenCalledTimes(1);
+		});
+
+		it('should add `ref` to actions', () => {
+			const onClick = jest.fn();
+			const linkRef = React.createRef<HTMLAnchorElement>();
+			const buttonRef = React.createRef<HTMLButtonElement>();
+			const linkComponentRef = React.createRef<HTMLElement>();
+			const actions = [
+				<SectionMessageAction href="zombo.com" ref={linkRef}>
+					Link
+				</SectionMessageAction>,
+				<SectionMessageAction onClick={onClick} ref={buttonRef}>
+					Button
+				</SectionMessageAction>,
+				<SectionMessageAction
+					href="zombo.com"
+					linkComponent={CustomLinkComponent}
+					ref={linkComponentRef}
+				>
+					hello world
+				</SectionMessageAction>,
+			];
+			render(<SectionMessage actions={actions}>boo</SectionMessage>);
+
+			expect(linkRef.current).toBe(screen.getByText('Link'));
+			expect(buttonRef.current).toBe(screen.getByText('Button'));
+			expect(linkComponentRef.current).toBe(screen.getByText('hello world'));
 		});
 
 		it('should NOT render custom component for an action with onClick but no href', () => {

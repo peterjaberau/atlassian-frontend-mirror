@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -26,13 +27,18 @@
 		"**/codemods/**/*.ts",
 		"**/codemods/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-plugin-local-id/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-plugin-local-id/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
 			"path": "../adf-schema/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
 		},
 		{
 			"path": "../editor-common/tsconfig.app.json"
@@ -50,10 +56,13 @@
 			"path": "../editor-prosemirror/tsconfig.app.json"
 		},
 		{
+			"path": "../../platform/feature-experiments/tsconfig.app.json"
+		},
+		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
 		},
 		{
-			"path": "../tmp-editor-statsig/tsconfig.app.json"
+			"path": "../../design-system/tokens/tsconfig.app.json"
 		}
 	]
 }

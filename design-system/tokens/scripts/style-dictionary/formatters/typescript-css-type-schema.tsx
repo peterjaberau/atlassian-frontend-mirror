@@ -3,7 +3,7 @@ import type { Format, TransformedToken } from 'style-dictionary';
 import format from '@af/formatting/sync';
 import { createSignedArtifact } from '@atlassian/codegen';
 
-import { getCSSCustomProperty } from '../../../src/utils/token-ids';
+import { getCSSCustomProperty } from '../../../src/utils/get-css-custom-property';
 
 function mapToCssVar(tokens: TransformedToken[]) {
 	return tokens.map((token) => `'var(${getCSSCustomProperty(token.path)})'`).join(' | ');
@@ -15,7 +15,7 @@ const formatter: Format['formatter'] = ({ dictionary }) => {
 	const tokens = dictionary.allTokens.filter((token) => {
 		const attributes = token.attributes || {};
 		const isToken = attributes.group !== 'palette';
-		const isPublicToken = attributes.state !== 'experimental' && attributes.state !== 'deleted';
+		const isPublicToken = attributes.state !== 'deleted';
 
 		return isToken && isPublicToken;
 	});
@@ -36,15 +36,15 @@ const formatter: Format['formatter'] = ({ dictionary }) => {
 	const fontShorthand: TransformedToken[] = [];
 	const fontWeight: TransformedToken[] = [];
 	const fontFamily: TransformedToken[] = [];
+	const motion: TransformedToken[] = [];
+	const motionDuration: TransformedToken[] = [];
+	const motionEasing: TransformedToken[] = [];
+	const motionKeyframes: TransformedToken[] = [];
 
 	for (let i = 0; i < tokens.length; i++) {
 		const token = tokens[i];
 
-		if (
-			token.attributes?.group === 'palette' ||
-			token.attributes?.state === 'experimental' ||
-			token.attributes?.state === 'deleted'
-		) {
+		if (token.attributes?.group === 'palette' || token.attributes?.state === 'deleted') {
 			// Skip palette / experimental / deleted tokens.
 			continue;
 		}
@@ -118,6 +118,18 @@ const formatter: Format['formatter'] = ({ dictionary }) => {
 			fontFamily.push(token);
 		}
 
+		if (token.path.includes('motion')) {
+			if (token.path.includes('duration')) {
+				motionDuration.push(token);
+			} else if (token.path.includes('easing')) {
+				motionEasing.push(token);
+			} else if (token.path.includes('keyframe')) {
+				motionKeyframes.push(token);
+			} else {
+				motion.push(token);
+			}
+		}
+
 		if (fontShorthandTokenMatcher.test(token.name)) {
 			fontShorthand.push(token);
 		}
@@ -136,7 +148,7 @@ export type BorderRadius = ${mapToCssVar(borderRadius)} | 0 | '0'| 'inherit';
 export type BorderWidth = ${mapToCssVar(borderWidth)} | 0 | '0';
 export type BorderShorthand = 'none' | \`\${BorderWidth} solid \${BorderColor}\`;
 type NumericSize = \`\${number}px\` | \`\${number}rem\` | \`\${number}vh\` | \`\${number}vw\` | \`\${number}%\`;
-export type SizeIntrinsic = 'min-content' | 'max-content' | 'fit-content' | 'auto' | NumericSize | \`min(\${NumericSize}, \${NumericSize})\` | \`max(\${NumericSize}, \${NumericSize})\`;
+export type SizeIntrinsic = 'min-content' | 'max-content' | 'fit-content' | 'auto' | NumericSize | \`min(\${NumericSize}, \${NumericSize})\` | \`max(\${NumericSize}, \${NumericSize})\` | 0 | '0';
 export type Space = ${mapToCssVar(space)} | 0 | '0';
 export type SpaceMargin = Space | 'auto' | '0 auto';
 export type SpaceInset = Space | '50%';
@@ -146,6 +158,10 @@ export type TextColor = 'transparent' | TextColorPressed | ${mapToCssVar(textCol
 export type Opacity = ${mapToCssVar(opacity)} | 0 | 1 | '0' | '1';
 export type FontWeight = ${mapToCssVar(fontWeight)} | 'inherit' | 'initial' | 'unset';
 export type FontFamily = ${mapToCssVar(fontFamily)};
+export type MotionDuration = ${mapToCssVar(motionDuration)};
+export type MotionEasing = ${mapToCssVar(motionEasing)};
+export type MotionKeyframes = ${mapToCssVar(motionKeyframes)};
+export type Motion = ${mapToCssVar(motion)};
 
 export interface CSSPropertiesHovered {
 	backgroundColor: BackgroundColorHovered;

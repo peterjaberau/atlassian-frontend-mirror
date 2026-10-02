@@ -1,25 +1,25 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
-export default md`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- md template from @atlaskit/docs
+const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Text Formatting', [
 	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
-  ${
-		(
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			<div style={{ marginTop: token('space.100', '8px') }}>
+  ${(
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
 				<AtlassianInternalWarning />
 			</div>
-		)
-	}
+		</>
+	)}
 
   This package includes the text formatting plugin used by \`@atlaskit/editor-core\`.
 
@@ -33,17 +33,24 @@ ${code`
 type TextFormattingPlugin = NextEditorPlugin<
   'textFormatting',
   {
-    pluginConfiguration: TextFormattingPluginOptions | undefined;
-    dependencies: [OptionalPlugin<typeof analyticsPlugin>];
     commands: {
-      toggleSuperscript: ToggleMarkEditorCommand;
-      toggleSubscript: ToggleMarkEditorCommand;
-      toggleStrike: ToggleMarkEditorCommand;
       toggleCode: ToggleMarkEditorCommand;
-      toggleUnderline: ToggleMarkEditorCommand;
       toggleEm: ToggleMarkEditorCommand;
+      toggleStrike: ToggleMarkEditorCommand;
       toggleStrong: ToggleMarkEditorCommand;
+      toggleSubscript: ToggleMarkEditorCommand;
+      toggleSuperscript: ToggleMarkEditorCommand;
+      toggleUnderline: ToggleMarkEditorCommand;
     };
+    dependencies: [
+      OptionalPlugin<AnalyticsPlugin>,
+      OptionalPlugin<PrimaryToolbarPlugin>,
+      OptionalPlugin<BasePlugin>,
+      OptionalPlugin<SelectionToolbarPlugin>,
+      OptionalPlugin<UserPreferencesPlugin>,
+      OptionalPlugin<ToolbarPlugin>,
+    ];
+    pluginConfiguration: TextFormattingPluginOptions | undefined;
     sharedState: TextFormattingState | undefined;
   }
 >;
@@ -57,3 +64,4 @@ For internal Atlassian, visit the slack channel [#help-editor](https://atlassian
 ---
  Please see [Atlassian Frontend - License](https://hello.atlassian.net/wiki/spaces/AF/pages/2589099144/Documentation#License) for more licensing information.
 `;
+export default _default_1;

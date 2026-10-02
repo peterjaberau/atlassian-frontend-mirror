@@ -1,6 +1,22 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	defaultWarning: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deprecatedBothParentReplacementMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deprecatedParentReplacementMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	deprecatedParentReplacementMessage: {
 		id: 'jql-editor.ui.jql-warning-message.deprecated-epic-link-or-parent-link-field',
 		defaultMessage:
@@ -17,6 +33,7 @@ export const messages = defineMessages({
 	defaultWarning: {
 		id: 'jql-editor.ui.jql-warning-message.default',
 		defaultMessage: '{deprecatedField} has been deprecated and may stop working in the future.',
-		description: 'Default warning message to show on NIN',
+		description:
+			'The text is shown as a warning message in the JQL editor footer when a deprecated field is used in the query. The placeholder {deprecatedField} will be substituted with the name of the deprecated JQL field.',
 	},
 });

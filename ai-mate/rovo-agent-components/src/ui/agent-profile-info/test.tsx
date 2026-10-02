@@ -1,7 +1,11 @@
 import React from 'react';
 
 import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
+
+import { eeTest } from '@atlaskit/tmp-editor-statsig/editor-experiments-test-utils';
+import { passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 
 import { AgentProfileCreator, getAgentCreator } from './index';
 
@@ -36,6 +40,16 @@ describe('getAgentCreator', () => {
 				authoringTeam: undefined,
 			},
 			expected: { type: 'FORGE', name: '' },
+		},
+		{
+			testName: 'remote A2A without feature flag returns undefined',
+			params: {
+				creatorType: 'REMOTE_A2A',
+				userCreator: undefined,
+				forgeCreator: 'Remote App Name',
+				authoringTeam: undefined,
+			},
+			expected: undefined,
 		},
 		{
 			testName: 'ootb',
@@ -166,6 +180,43 @@ describe('getAgentCreator', () => {
 			});
 		});
 	});
+
+	ffTest.on('rovo_agent_support_a2a_avatar', 'with rovo_agent_support_a2a_avatar on', () => {
+		it('should return FORGE creator for remote A2A with forge creator', () => {
+			const creator = getAgentCreator({
+				creatorType: 'REMOTE_A2A',
+				userCreator: undefined,
+				forgeCreator: 'Remote App Name',
+				authoringTeam: undefined,
+			});
+			expect(creator).toEqual({ type: 'FORGE', name: 'Remote App Name' });
+		});
+
+		it('should return FORGE creator for remote A2A without forge creator', () => {
+			const creator = getAgentCreator({
+				creatorType: 'REMOTE_A2A',
+				userCreator: undefined,
+				forgeCreator: undefined,
+				authoringTeam: undefined,
+			});
+			expect(creator).toEqual({ type: 'FORGE', name: '' });
+		});
+	});
+
+	describe('with rovo_agent_support_a2a_avatar and jira_improve_agent_profile_for_a2a on', () => {
+		it('should preserve the REMOTE_A2A creator type instead of collapsing to FORGE', () => {
+			passGate('rovo_agent_support_a2a_avatar');
+			passGate('jira_improve_agent_profile_for_a2a');
+
+			const creator = getAgentCreator({
+				creatorType: 'REMOTE_A2A',
+				userCreator: undefined,
+				forgeCreator: 'Remote App Name',
+				authoringTeam: undefined,
+			});
+			expect(creator).toEqual({ type: 'REMOTE_A2A', name: 'Remote App Name' });
+		});
+	});
 });
 
 describe('AgentProfileCreator', () => {
@@ -246,7 +297,7 @@ describe('AgentProfileCreator', () => {
 			{ wrapper },
 		);
 
-		expect(screen.getByRole('link', { name: 'John Doe' })).toBeInTheDocument();
+		expect(screen.getByRole('link', { name: /John Doe/ })).toBeInTheDocument();
 		expect(screen.queryByTestId('agent-profile-creator-skeleton')).not.toBeInTheDocument();
 	});
 
@@ -266,7 +317,7 @@ describe('AgentProfileCreator', () => {
 			{ wrapper },
 		);
 
-		expect(screen.getByRole('link', { name: 'John Doe (deactivated)' })).toBeInTheDocument();
+		expect(screen.getByRole('link', { name: /John Doe \(deactivated\)/ })).toBeInTheDocument();
 		expect(screen.queryByTestId('agent-profile-creator-skeleton')).not.toBeInTheDocument();
 	});
 
@@ -284,7 +335,58 @@ describe('AgentProfileCreator', () => {
 		);
 
 		expect(screen.getByText('Rovo Agent by John Doe Forge')).toBeInTheDocument();
+		expect(screen.getByTestId('rovo-icon-wrapper')).toBeInTheDocument();
 		expect(screen.queryByTestId('agent-profile-creator-skeleton')).not.toBeInTheDocument();
+	});
+
+	eeTest.describe('platform_editor_agent_mentions', 'experiment on').variant(true, () => {
+		ffTest.on('platform_editor_agent_mentions_drop_one_fixes', 'fg on', () => {
+			test('hides the Rovo icon', () => {
+				render(
+					<AgentProfileCreator
+						creator={getAgentCreator({
+							creatorType: 'FORGE',
+							forgeCreator: 'John Doe Forge',
+						})}
+						isLoading={false}
+						onCreatorLinkClick={() => {}}
+					/>,
+					{ wrapper },
+				);
+
+				expect(screen.getByText('Rovo Agent by John Doe Forge')).toBeInTheDocument();
+				expect(screen.queryByTestId('rovo-icon-wrapper')).not.toBeInTheDocument();
+			});
+		});
+	});
+
+	test('render correctly for REMOTE_A2A: "Agent by" copy without the Rovo logo', () => {
+		passGate('jira_improve_agent_profile_for_a2a');
+
+		render(
+			<AgentProfileCreator
+				creator={{ type: 'REMOTE_A2A', name: 'Cursor' }}
+				isLoading={false}
+				onCreatorLinkClick={() => {}}
+			/>,
+			{ wrapper },
+		);
+
+		expect(screen.getByText('Agent by Cursor')).toBeInTheDocument();
+		expect(screen.queryByTestId('rovo-icon-wrapper')).not.toBeInTheDocument();
+	});
+
+	test('should apply aria-hidden to the decorative rovo icon element', () => {
+		render(
+			<AgentProfileCreator
+				creator={getAgentCreator({ creatorType: 'SYSTEM' })}
+				isLoading={false}
+				onCreatorLinkClick={() => {}}
+			/>,
+			{ wrapper },
+		);
+		// aria-hidden is applied on a wrapper element because RovoIcon does not support aria-hidden directly
+		expect(screen.getByTestId('rovo-icon-wrapper')).toHaveAttribute('aria-hidden', 'true');
 	});
 
 	test('render correctly without creator', () => {

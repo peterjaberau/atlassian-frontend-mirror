@@ -1,9 +1,13 @@
-import ReactDOM from 'react-dom';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+import { unmountFromMountPoint } from './react-root-registry';
+import { isFontSizeMarkActive } from './utils/validation';
 
 export const TYPE_DROP_TARGET_DEC = 'drop-target-decoration';
 export const TYPE_HANDLE_DEC = 'drag-handle';
@@ -15,9 +19,23 @@ export const getNodeAnchor = (node: PMNode) => {
 	return `--node-anchor-${node.type.name}-${handleId}`;
 };
 
+const getSubType = (node: PMNode): string => {
+	if (node.attrs.level) {
+		return `-${node.attrs.level}`;
+	}
+	if (isFontSizeMarkActive(node)) {
+		return '-small';
+	}
+	return '';
+};
+
 export const getNodeTypeWithLevel = (node: PMNode): string => {
-	const subType = node.attrs.level ? `-${node.attrs.level}` : '';
-	return node.type.name + subType;
+	const subType = getSubType(node);
+
+	const typeName = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? getBaseNodeTypeName(node.type)
+		: node.type.name;
+	return typeName + subType;
 };
 
 class ObjHash {
@@ -43,6 +61,6 @@ export const unmountDecorations = (
 	// as it was more responsive and causes less re-rendering
 	const decorationsToRemove = document.querySelectorAll(`[${selector}="true"]`);
 	decorationsToRemove.forEach((el) => {
-		ReactDOM.unmountComponentAtNode(el);
+		unmountFromMountPoint(el);
 	});
 };

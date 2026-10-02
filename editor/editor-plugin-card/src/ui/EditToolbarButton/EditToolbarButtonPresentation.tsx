@@ -4,9 +4,9 @@
  */
 import { useCallback, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import { linkToolbarMessages, cardMessages as messages } from '@atlaskit/editor-common/messages';
 import {
@@ -19,17 +19,16 @@ import {
 } from '@atlaskit/editor-common/ui-menu';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import EditIcon from '@atlaskit/icon/core/edit';
-import { ButtonItem } from '@atlaskit/menu';
+import ButtonItem from '@atlaskit/menu/button-item';
 import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { focusEditorView } from '../../pm-plugins/utils';
 import { editDatasource } from '../editDatasourceAction';
-
 import type { EditDatasourceToolbarButtonWithCommonProps, EditVariant } from './types';
 
 const dropdownExpandContainer = css({
-	margin: `0px ${token('space.negative.050', '-4px')}`,
+	margin: `0px ${token('space.negative.050')}`,
 });
 
 interface EditToolbarPresentationProps extends EditDatasourceToolbarButtonWithCommonProps {
@@ -48,7 +47,7 @@ const EditToolbarButtonPresentation = ({
 	onLinkEditClick,
 	intl,
 	areAnyNewToolbarFlagsEnabled,
-}: EditToolbarPresentationProps) => {
+}: EditToolbarPresentationProps): jsx.JSX.Element | null => {
 	const [isOpen, setIsOpen] = useState(false);
 	const containerRef = useRef();
 
@@ -89,6 +88,11 @@ const EditToolbarButtonPresentation = ({
 						testId="edit-link"
 						onClick={onEditLink}
 						icon={icon}
+						ariaLabel={
+							areAnyNewToolbarFlagsEnabled
+								? intl.formatMessage(linkToolbarMessages.editLink)
+								: undefined
+						}
 						tooltipContent={tooltipContent}
 						areAnyNewToolbarFlagsEnabled={areAnyNewToolbarFlagsEnabled}
 					>
@@ -163,6 +167,7 @@ const EditToolbarButtonPresentation = ({
 						handleEscapeKeydown={onClose}
 						trigger={trigger}
 						scrollableElement={containerRef.current}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						arrowKeyNavigationProviderOptions={{
 							type: ArrowKeyNavigationType.MENU,
 						}}

@@ -1,9 +1,13 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { getBreakoutResizableNodeTypes, stepAddsOneOf } from '@atlaskit/editor-common/utils';
+import {
+	getBreakoutResizableNodeTypes,
+	getBreakoutResizableNodeTypesNew,
+	stepAddsOneOf,
+} from '@atlaskit/editor-common/utils';
 import { getChangedNodes, isReplaceDocOperation } from '@atlaskit/editor-common/utils/document';
 import type { Mark, Node, NodeType } from '@atlaskit/editor-prosemirror/model';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
@@ -12,23 +16,24 @@ import type {
 	ReadonlyTransaction,
 	Transaction,
 } from '@atlaskit/editor-prosemirror/state';
-import type { Step } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 import type { ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import {
 	akEditorDefaultLayoutWidth,
 	akEditorFullWidthLayoutWidth,
+	akEditorMaxWidthLayoutWidth,
 	akEditorCalculatedWideLayoutWidth,
 } from '@atlaskit/editor-shared-styles';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type {
 	BreakoutPlugin,
 	BreakoutPluginOptions,
 	BreakoutPluginState,
 } from '../breakoutPluginType';
-
-import { type GUIDELINE_KEYS } from './get-guidelines';
+import type { GUIDELINE_KEYS } from './get-guidelines';
 import { handleKeyDown } from './handle-key-down';
 import { ResizingMarkView } from './resizing-mark-view';
 import { updateExpandedStateNew } from './utils/single-player-expand';
@@ -36,6 +41,7 @@ import { updateExpandedStateNew } from './utils/single-player-expand';
 type AddBreakoutToResizableNodeProps = {
 	breakoutResizableNodes: Set<NodeType>;
 	isFullWidthEnabled: boolean;
+	isMaxWidthEnabled: boolean;
 	newState: EditorState;
 	newTr: Transaction;
 	node: Node;
@@ -49,6 +55,7 @@ const addBreakoutToResizableNode = ({
 	newTr,
 	breakoutResizableNodes,
 	isFullWidthEnabled,
+	isMaxWidthEnabled,
 }: AddBreakoutToResizableNodeProps) => {
 	let updatedDocChanged = false;
 	let updatedTr = newTr;
@@ -63,11 +70,20 @@ const addBreakoutToResizableNode = ({
 		const isExpand = node.type === expand;
 
 		if (!breakoutMark) {
-			const width = isFullWidthEnabled ? akEditorFullWidthLayoutWidth : akEditorDefaultLayoutWidth;
+			const width = isMaxWidthEnabled
+				? akEditorMaxWidthLayoutWidth
+				: isFullWidthEnabled
+					? akEditorFullWidthLayoutWidth
+					: akEditorDefaultLayoutWidth;
 
-			updatedTr = newTr.setNodeMarkup(pos, node.type, node.attrs, [
-				breakout.create({ width: width }),
-			]);
+			if (isExperimentEnabled('platform_editor_lovability_resize_extensions')) {
+				const marks = breakout.create({ width: width }).addToSet(node.marks);
+				updatedTr = newTr.setNodeMarkup(pos, node.type, node.attrs, marks);
+			} else {
+				updatedTr = newTr.setNodeMarkup(pos, node.type, node.attrs, [
+					breakout.create({ width: width }),
+				]);
+			}
 
 			if (isExpand) {
 				updateExpandedStateNew({ tr: updatedTr, node, pos, isLivePage: true });
@@ -78,14 +94,20 @@ const addBreakoutToResizableNode = ({
 			const mode = breakoutMark.attrs.mode;
 
 			// if breakout is present on node, but page appearance is 'full width' force width to full width to maintain backwards compatibility
-			const newWidth =
-				isFullWidthEnabled || mode === 'full-width'
+			const width = isMaxWidthEnabled
+				? akEditorMaxWidthLayoutWidth
+				: isFullWidthEnabled || mode === 'full-width'
 					? akEditorFullWidthLayoutWidth
 					: akEditorCalculatedWideLayoutWidth;
 
-			updatedTr = newTr.setNodeMarkup(pos, node.type, node.attrs, [
-				breakout.create({ width: newWidth, mode: mode }),
-			]);
+			if (isExperimentEnabled('platform_editor_lovability_resize_extensions')) {
+				const marks = breakout.create({ width: width }).addToSet(node.marks);
+				updatedTr = newTr.setNodeMarkup(pos, node.type, node.attrs, marks);
+			} else {
+				updatedTr = newTr.setNodeMarkup(pos, node.type, node.attrs, [
+					breakout.create({ width: width, mode: mode }),
+				]);
+			}
 
 			if (isExpand) {
 				updateExpandedStateNew({ tr: updatedTr, node, pos, isLivePage: true });
@@ -98,7 +120,9 @@ const addBreakoutToResizableNode = ({
 	return { updatedTr, updatedDocChanged };
 };
 
-export const resizingPluginKey = new PluginKey<BreakoutPluginState>('breakout-resizing');
+export const resizingPluginKey: PluginKey<BreakoutPluginState> = new PluginKey<BreakoutPluginState>(
+	'breakout-resizing',
+);
 
 export type ActiveGuidelineKey = Exclude<
 	(typeof GUIDELINE_KEYS)[keyof typeof GUIDELINE_KEYS],
@@ -171,12 +195,27 @@ const pluginState = {
 	},
 };
 
+const requestIdleCallbackWithFallback = (callback: () => void) => {
+	if (typeof requestIdleCallback !== 'undefined') {
+		requestIdleCallback(callback);
+	} else {
+		// fallback to requestAnimationFrame for Safari
+		requestAnimationFrame(callback);
+	}
+};
+
 export const createResizingPlugin = (
 	api: ExtractInjectionAPI<BreakoutPlugin> | undefined,
 	getIntl: () => IntlShape,
 	nodeViewPortalProviderAPI: PortalProviderAPI,
 	options?: BreakoutPluginOptions,
-) => {
+): SafePlugin<
+	| BreakoutPluginState
+	| {
+			activeGuidelineLabel: undefined;
+			breakoutNode: undefined;
+	  }
+> => {
 	return new SafePlugin({
 		key: resizingPluginKey,
 		state: pluginState,
@@ -187,6 +226,85 @@ export const createResizingPlugin = (
 				},
 			},
 			handleKeyDown: handleKeyDown(api),
+		},
+		view: (editorView: EditorView) => {
+			const isPageLoadNormalizationEnabled =
+				expValEquals('platform_editor_add_breakout_marks_on_page_load', 'isEnabled', true) ||
+				isExperimentEnabled('platform_editor_lovability_resize_extensions');
+
+			const isRuleAndPanelResizingEnabled = expValEquals(
+				'platform_editor_lovability_resize_dividers_panels',
+				'isEnabled',
+				true,
+			);
+
+			if (!isPageLoadNormalizationEnabled && !isRuleAndPanelResizingEnabled) {
+				return {};
+			}
+
+			/**
+			 * This performs a one-time scan of the document to add breakout marks
+			 * to nodes that don't have them. It's designed to run only once per
+			 * editor instance to avoid performance issues.
+			 */
+			const normalizeBreakoutResizableNodes = () => {
+				if (api?.editorViewMode?.sharedState.currentState()?.mode === 'view') {
+					return;
+				}
+
+				const isFullWidthEnabled = !(options?.allowBreakoutButton === true);
+				const isMaxWidthEnabled = options?.appearance === 'max';
+
+				const { state } = editorView;
+				const breakoutResizableNodes = isExperimentEnabled(
+					'platform_editor_lovability_resize_extensions',
+				)
+					? getBreakoutResizableNodeTypesNew(state.schema)
+					: getBreakoutResizableNodeTypes(state.schema, isRuleAndPanelResizingEnabled);
+
+				let newTr = state.tr;
+				let hasDocChanged = false;
+
+				// scan the document for top-level resizable nodes
+				state.doc.forEach((node: Node, pos: number) => {
+					if (!breakoutResizableNodes.has(node.type)) {
+						return;
+					}
+
+					const { updatedTr, updatedDocChanged } = addBreakoutToResizableNode({
+						node,
+						pos,
+						newState: state,
+						newTr,
+						breakoutResizableNodes,
+						isFullWidthEnabled,
+						isMaxWidthEnabled,
+					});
+
+					newTr = updatedTr;
+					hasDocChanged = hasDocChanged || updatedDocChanged;
+				});
+
+				if (hasDocChanged) {
+					editorView.dispatch(newTr.setMeta('addToHistory', false));
+				}
+			};
+
+			requestIdleCallbackWithFallback(normalizeBreakoutResizableNodes);
+
+			const unsubscribeFromViewMode = api?.editorViewMode?.sharedState.onChange(
+				({ nextSharedState }) => {
+					if (nextSharedState?.mode === 'edit') {
+						requestIdleCallbackWithFallback(normalizeBreakoutResizableNodes);
+					}
+				},
+			);
+
+			return {
+				destroy: () => {
+					unsubscribeFromViewMode?.();
+				},
+			};
 		},
 		appendTransaction(
 			transactions: readonly Transaction[],
@@ -200,14 +318,30 @@ export const createResizingPlugin = (
 			let newTr = newState.tr;
 			let hasDocChanged = false;
 
-			const { expand, codeBlock, layoutSection } = newState.schema.nodes;
-			const breakoutResizableNodes = editorExperiment('platform_synced_block', true)
-											? getBreakoutResizableNodeTypes(newState.schema)
-											: new Set([expand, codeBlock, layoutSection]);
+			const isRuleAndPanelResizingEnabled = expValEquals(
+				'platform_editor_lovability_resize_dividers_panels',
+				'isEnabled',
+				true,
+			);
+
+			const breakoutResizableNodes = isExperimentEnabled(
+				'platform_editor_lovability_resize_extensions',
+			)
+				? getBreakoutResizableNodeTypesNew(newState.schema)
+				: getBreakoutResizableNodeTypes(newState.schema, isRuleAndPanelResizingEnabled);
 
 			const isFullWidthEnabled = !(options?.allowBreakoutButton === true);
+			const isMaxWidthEnabled = options?.appearance === 'max';
 
-			if (isReplaceDocOperation(transactions, oldState)) {
+			const isPageLoadNormalizationEnabled =
+				expValEquals('platform_editor_add_breakout_marks_on_page_load', 'isEnabled', true) ||
+				isExperimentEnabled('platform_editor_lovability_resize_extensions');
+
+			if (
+				!isPageLoadNormalizationEnabled &&
+				!isRuleAndPanelResizingEnabled &&
+				isReplaceDocOperation(transactions, oldState)
+			) {
 				newState.doc.forEach((node: Node, pos: number) => {
 					const { updatedTr, updatedDocChanged } = addBreakoutToResizableNode({
 						node,
@@ -216,6 +350,7 @@ export const createResizingPlugin = (
 						newTr,
 						breakoutResizableNodes,
 						isFullWidthEnabled,
+						isMaxWidthEnabled,
 					});
 
 					newTr = updatedTr;
@@ -237,6 +372,7 @@ export const createResizingPlugin = (
 								newTr,
 								breakoutResizableNodes,
 								isFullWidthEnabled,
+								isMaxWidthEnabled,
 							});
 
 							newTr = updatedTr;
@@ -247,7 +383,10 @@ export const createResizingPlugin = (
 			}
 
 			if (hasDocChanged) {
-				return newTr;
+				// This transaction normalizes a newly inserted node to the editor's default breakout
+				// width. It is not a user resize and must not become an undo step — in particular, a
+				// source synced block can be deleted permanently before Undo reaches this normalization.
+				return newTr.setMeta('addToHistory', false);
 			}
 		},
 	});

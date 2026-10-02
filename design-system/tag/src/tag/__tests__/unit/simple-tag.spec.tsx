@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@atlassian/testing-library';
 
-import { SimpleTag } from '../../index';
+import { default as SimpleTag } from '../../internal/simple';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('<SimpleTag />', () => {
@@ -11,5 +11,32 @@ describe('<SimpleTag />', () => {
 		render(<SimpleTag text={text} href="https://atlassian.design" />);
 		expect(screen.getByText(text)).toBeInTheDocument();
 		expect(screen.queryByRole('button')).not.toBeInTheDocument();
+	});
+
+	it('should use the supplied link component', () => {
+		const CustomLink = ({
+			children,
+			href,
+			testId,
+		}: {
+			children?: React.ReactNode;
+			href?: string;
+			testId?: string;
+		}) => (
+			<span data-href={href} data-testid={testId}>
+				{children}
+			</span>
+		);
+
+		render(
+			<SimpleTag
+				text="Custom link"
+				href="/custom-link"
+				linkComponent={CustomLink}
+				testId="simple-tag"
+			/>,
+		);
+
+		expect(screen.getByTestId('simple-tag--link')).toHaveAttribute('data-href', '/custom-link');
 	});
 });

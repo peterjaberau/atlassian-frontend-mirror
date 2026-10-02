@@ -9,11 +9,12 @@ import { css, jsx } from '@compiled/react';
 import { cssMap } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
 import Spinner from '@atlaskit/spinner/spinner';
-import Tabs, { Tab, TabList } from '@atlaskit/tabs';
+import Tab from '@atlaskit/tabs/tab';
+import TabList from '@atlaskit/tabs/tab-list';
+import Tabs from '@atlaskit/tabs/tabs';
 import { token } from '@atlaskit/tokens';
 
 import { type LinkPickerPlugin, type LinkSearchListItemData } from '../../../common/types';
-
 import { LinkSearchError, testIds as searchErrorTestIds } from './link-search-error';
 import { LinkSearchList, testIds as listTestIds } from './link-search-list';
 import { ScrollingTabList } from './scrolling-tabs';
@@ -35,7 +36,18 @@ const spinnerContainerStyles = css({
 	flexGrow: 1,
 });
 
-export const testIds = {
+export const testIds: {
+	tabsLoadingIndicator: string;
+	tabList: string;
+	tabItem: string;
+	resultListTitle: string;
+	searchResultList: string;
+	searchResultLoadingIndicator: string;
+	searchResultItem: string;
+	searchResultIcon: string;
+	emptyResultPage: string;
+	searchError: string;
+} = {
 	...searchErrorTestIds,
 	...listTestIds,
 	tabsLoadingIndicator: 'link-picker.tabs-loading-indicator',

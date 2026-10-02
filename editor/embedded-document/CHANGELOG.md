@@ -1,5 +1,265 @@
 # @atlaskit/embedded-document
 
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`192cdfa42f9d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/192cdfa42f9d3) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`97eb246201d1f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/97eb246201d1f) -
+  Extend react and react-dom version range to include 19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.2
+
+### Patch Changes
+
+- [`5979ce2baa3ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5979ce2baa3ea) -
+  Mechanical type-import autofix for rendering and provider packages.
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 6.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 5.0.2
 
 ### Patch Changes

@@ -1,12 +1,6 @@
-import { type Facet } from '@codemirror/state';
-import {
-	ViewPlugin,
-	WidgetType,
-	Decoration as CodeMirrorDecoration,
-	type EditorView as CodeMirror,
-	type DecorationSet,
-	type ViewUpdate,
-} from '@codemirror/view';
+import type { Facet } from '@codemirror/state';
+import { ViewPlugin, WidgetType, Decoration as CodeMirrorDecoration } from '@codemirror/view';
+import type { EditorView as CodeMirror, DecorationSet, ViewUpdate } from '@codemirror/view';
 
 import type { EditorView, Decoration, DecorationSource } from '@atlaskit/editor-prosemirror/view';
 
@@ -92,6 +86,11 @@ function isDefined<TValue>(value: TValue | undefined): value is TValue {
 	return value !== undefined;
 }
 
+export const sortDecorationsByPositionAndSide = (
+	a: { from: number; value: { startSide: number } },
+	b: { from: number; value: { startSide: number } },
+): number => a.from - b.from || a.value.startSide - b.value.startSide;
+
 /**
  * Creates CodeMirror versions of the decorations provided by ProseMirror.
  *
@@ -108,7 +107,11 @@ export const prosemirrorDecorationPlugin = (
 	updateDecorationsEffect: Facet<DecorationSource>,
 	editorView: EditorView,
 	getPos: () => number | undefined,
-) =>
+): ViewPlugin<{
+	decorations: DecorationSet;
+	update: (update: ViewUpdate) => void;
+	updateDecorations: (view: CodeMirror) => DecorationSet;
+}> =>
 	ViewPlugin.fromClass(
 		class {
 			decorations: DecorationSet;
@@ -136,7 +139,7 @@ export const prosemirrorDecorationPlugin = (
 					.map((decoration) => mapPMDecorationToCMDecoration(decoration, editorView, getPos))
 					.filter(isDefined);
 
-				return CodeMirrorDecoration.set(cmDecorations);
+				return CodeMirrorDecoration.set(cmDecorations.sort(sortDecorationsByPositionAndSide));
 			}
 			update(update: ViewUpdate) {
 				this.decorations = this.updateDecorations(update.view);

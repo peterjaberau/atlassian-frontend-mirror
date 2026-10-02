@@ -1,4 +1,4 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
 
 import {
 	TEST_BASE_DATA,
@@ -37,15 +37,29 @@ describe('extractors.lozenge.state', () => {
 
 	it('returns lozenge if state is present - string,', () => {
 		expect(extractState({ ...BASE_DATA, 'atlassian:state': 'some-string' })).toEqual({
-			text: 'some-string',
+			text: 'Some-string',
 			appearance: 'default',
 		});
 	});
 
 	it('returns lozenge if state is present - string', () => {
 		expect(extractState({ ...BASE_DATA, 'atlassian:state': 'OPEN' })).toEqual({
-			text: 'open',
+			text: 'Open',
 			appearance: 'inprogress',
+		});
+	});
+
+	it('returns lozenge if state is present - merged (capitalize)', () => {
+		expect(extractState({ ...BASE_DATA, 'atlassian:state': 'MERGED' })).toEqual({
+			text: 'Merged',
+			appearance: 'success',
+		});
+	});
+
+	it('returns lozenge if state is present - queued to merge', () => {
+		expect(extractState({ ...BASE_DATA, 'atlassian:state': 'QUEUED TO MERGE' })).toEqual({
+			text: 'Queued to merge',
+			appearance: 'moved',
 		});
 	});
 });

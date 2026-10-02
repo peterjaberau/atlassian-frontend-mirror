@@ -7,7 +7,6 @@ import {
 import { type BufferedTokenStream, type Parser, Token } from 'antlr4ts';
 
 import { type Position } from '../common/types';
-
 import {
 	type RuleSuggestion,
 	type RuleSuggestionsWithRuleList,
@@ -21,7 +20,7 @@ import { getMatchedText } from './util';
  * suggestions returned by the autocompletion engine, or extend the class to enrich suggestions with
  * additional contextual data.
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export class BaseAutocomplete<RuleContext extends {} = {}> {
 	private readonly parser: Parser;
 	private readonly core: CodeCompletionCore;

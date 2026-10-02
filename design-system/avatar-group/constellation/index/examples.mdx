@@ -18,26 +18,42 @@ You can display a group of avatars in a stack or a grid.
 Stacked avatar groups can contain up to five avatars, and should only be used with small or medium
 sized avatars.
 
-<Example Component={AvatarGroupStack} packageName="@atlaskit/avatar-group" />
+<Example
+	Component={AvatarGroupStack}
+	packageName="@atlaskit/avatar-group"
+	featureFlagSwitchers={['motion']}
+/>
 
 ### Grid
 
 Avatar groups displayed in a grid can contain up to 11 avatars spread across its rows.
 
-<Example Component={AvatarGroupGrid} packageName="@atlaskit/avatar-group" />
+<Example
+	Component={AvatarGroupGrid}
+	packageName="@atlaskit/avatar-group"
+	featureFlagSwitchers={['motion']}
+/>
 
 ## Max count
 
 Use the `maxCount` prop to customize the maximum number of avatars allowed in the list.
 
-<Example Component={AvatarGroupMaxCount} packageName="@atlaskit/avatar-group" />
+<Example
+	Component={AvatarGroupMaxCount}
+	packageName="@atlaskit/avatar-group"
+	featureFlagSwitchers={['motion']}
+/>
 
 ## Border color
 
 The color of the border around the avatar. Any color that the CSS `border-color` property accepts
 can be used.
 
-<Example Component={AvatarGroupBorderColor} packageName="@atlaskit/avatar-group" />
+<Example
+	Component={AvatarGroupBorderColor}
+	packageName="@atlaskit/avatar-group"
+	featureFlagSwitchers={['motion']}
+/>
 
 ## Overrides
 
@@ -47,7 +63,12 @@ For example, you can add extra behavior into the overflow menu using the `overri
 the example overflow avatar and you'll see a load more button powered by our custom
 `AvatarGroupItem`.
 
-<Example highlight="33-50" Component={AvatarGroupOverrides} packageName="@atlaskit/avatar-group" />
+<Example
+	highlight="33-50"
+	Component={AvatarGroupOverrides}
+	packageName="@atlaskit/avatar-group"
+	featureFlagSwitchers={['motion']}
+/>
 
 ## Size
 
@@ -55,4 +76,8 @@ Avatars are available in multiple sizes. See [avatar](/components/avatar) for in
 size to use when. Note the `xsmall` size is not available for `AvatarGroup` due to its size being
 too small to render certain elements in an accessible manner.
 
-<Example Component={AvatarGroupSize} packageName="@atlaskit/avatar-group" />
+<Example
+	Component={AvatarGroupSize}
+	packageName="@atlaskit/avatar-group"
+	featureFlagSwitchers={['motion']}
+/>

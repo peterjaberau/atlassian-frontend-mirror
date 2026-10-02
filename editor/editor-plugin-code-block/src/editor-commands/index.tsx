@@ -11,6 +11,7 @@ import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { copyToClipboard, getAnalyticsPayload } from '@atlaskit/editor-common/clipboard';
 import {
 	codeBlockWrappedStates,
+	getDefaultCodeBlockAttrs,
 	isCodeBlockWordWrapEnabled,
 } from '@atlaskit/editor-common/code-block';
 import { withAnalytics } from '@atlaskit/editor-common/editor-analytics';
@@ -18,10 +19,11 @@ import {
 	contentAllowedInCodeBlock,
 	shouldSplitSelectedNodeOnNodeInsertion,
 } from '@atlaskit/editor-common/insert';
+import { editorCommandToPMCommand } from '@atlaskit/editor-common/preset';
 import { findCodeBlock } from '@atlaskit/editor-common/transforms';
-import type { Command } from '@atlaskit/editor-common/types';
+import type { Command, EditorCommand, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import {
 	findParentNodeOfType,
@@ -31,12 +33,27 @@ import {
 	removeSelectedNode,
 	safeInsert,
 } from '@atlaskit/editor-prosemirror/utils';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
+import type { CodeBlockPlugin } from '../codeBlockPluginType';
 import { ACTIONS } from '../pm-plugins/actions';
+import { autoDetectPluginKey, type AutoDetectEntry } from '../pm-plugins/auto-detect-state';
 import { copySelectionPluginKey } from '../pm-plugins/codeBlockCopySelectionPlugin';
-import { type CodeBlockState } from '../pm-plugins/main-state';
+import type {
+	CodeBlockState,
+	PendingFormatRequest,
+	ResolveFormatCodeOutcome,
+} from '../pm-plugins/main-state';
 import { pluginKey } from '../pm-plugins/plugin-key';
 import { transformToCodeBlockAction } from '../pm-plugins/transform-to-code-block';
+import type { CodeBlockFormatProvider, FormatResult } from '../types';
+import type { LanguagePickerSelectionSource } from '../ui/language-picker-options';
+import {
+	createAutoDetectEntry,
+	getLocalId,
+	hasEnoughTextForAutoDetection,
+} from '../utils/auto-detect-state';
+import type { LanguageSource } from '../utils/format-code/formatter';
 
 export const removeCodeBlockWithAnalytics = (
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
@@ -69,7 +86,7 @@ export const removeCodeBlock: Command = (state, dispatch) => {
 
 export const changeLanguage =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
-	(language: string): Command =>
+	(language: string | null, selectionSource?: LanguagePickerSelectionSource): Command =>
 	(state, dispatch) => {
 		const { codeBlock } = state.schema.nodes;
 		const pos = pluginKey.getState(state)?.pos;
@@ -78,9 +95,26 @@ export const changeLanguage =
 			return false;
 		}
 
+		const node = state.doc.nodeAt(pos);
+		const localId = node?.attrs.localId;
+		const shouldIncludeAutoDetectionContext = expValEquals(
+			'platform_editor_code_block_q4_lovability',
+			'isEnabled',
+			true,
+		);
+		const previousAutoDetectEntry: AutoDetectEntry | undefined = shouldIncludeAutoDetectionContext
+			? autoDetectPluginKey.getState(state)?.languageDetectionMap[localId]
+			: undefined;
 		const tr = state.tr
-			.setNodeMarkup(pos, codeBlock, { language })
+			.setNodeMarkup(pos, codeBlock, { ...node?.attrs, language })
 			.setMeta('scrollIntoView', false);
+
+		if (shouldIncludeAutoDetectionContext) {
+			tr.setMeta(autoDetectPluginKey, {
+				type: ACTIONS.REMOVE_AUTO_DETECT_ENTRY,
+				data: { localId },
+			});
+		}
 
 		const selection = isNodeSelection(state.selection)
 			? NodeSelection.create(tr.doc, pos)
@@ -92,11 +126,303 @@ export const changeLanguage =
 			editorAnalyticsAPI?.attachAnalyticsEvent({
 				action: ACTION.LANGUAGE_SELECTED,
 				actionSubject: ACTION_SUBJECT.CODE_BLOCK,
-				attributes: { language },
+				attributes: {
+					language: language ?? 'none',
+					...(selectionSource ? { selectionSource } : {}),
+					...(shouldIncludeAutoDetectionContext
+						? {
+								autoDetectionResult: previousAutoDetectEntry?.detectionResult,
+								autoDetectedLanguage: previousAutoDetectEntry?.autoDetectedLanguage,
+							}
+						: {}),
+				},
 				eventType: EVENT_TYPE.TRACK,
 			})(result);
 			dispatch(result);
 		}
+
+		return true;
+	};
+
+/** Queue auto-detection for selected code block. */
+export const detectLanguage = (): Command => (state, dispatch) => {
+	const pos = pluginKey.getState(state)?.pos;
+
+	if (typeof pos !== 'number') {
+		return false;
+	}
+
+	const node = state.doc.nodeAt(pos);
+
+	if (!node) {
+		return false;
+	}
+
+	const localId = getLocalId(node);
+	if (!localId) {
+		return false;
+	}
+
+	const autoDetectState = autoDetectPluginKey.getState(state);
+	const previousEntry = autoDetectState?.languageDetectionMap[localId];
+	const entry = createAutoDetectEntry(
+		node,
+		pos,
+		hasEnoughTextForAutoDetection(node.textContent),
+		previousEntry,
+		{ preserveDetectionResult: false },
+	);
+	const tr = state.tr
+		.setNodeMarkup(pos, state.schema.nodes.codeBlock, { ...node.attrs, language: null })
+		.setMeta(autoDetectPluginKey, {
+			type: ACTIONS.SET_AUTO_DETECT_ENTRY,
+			data: { localId, entry },
+		})
+		.setMeta('scrollIntoView', false);
+	const selection = isNodeSelection(state.selection)
+		? NodeSelection.create(tr.doc, pos)
+		: tr.selection;
+	const result = tr.setSelection(selection);
+
+	if (dispatch) {
+		dispatch(result);
+	}
+
+	return true;
+};
+
+const setResolveFormatCodeMeta = (
+	tr: Transaction,
+	{
+		languageSource,
+		localId,
+		outcome,
+		requestId,
+		errorType,
+	}: {
+		errorType?: Extract<FormatResult, { status: 'failed' }>['errorType'];
+		languageSource: LanguageSource;
+		localId: string;
+		outcome: ResolveFormatCodeOutcome;
+		requestId: string;
+	},
+): Transaction =>
+	tr.setMeta(pluginKey, {
+		type: ACTIONS.RESOLVE_FORMAT_CODE,
+		data: {
+			languageSource,
+			localId,
+			outcome,
+			requestId,
+			...(errorType ? { errorType } : {}),
+		},
+	});
+
+const replaceCodeBlockText = ({
+	codeBlockNode,
+	content,
+	pos,
+	tr,
+}: {
+	codeBlockNode: PMNode;
+	content: string;
+	pos: number;
+	tr: Transaction;
+}): Transaction => {
+	const from = pos + 1;
+	const to = pos + codeBlockNode.nodeSize - 1;
+	tr.delete(from, to);
+
+	if (content) {
+		tr.insertText(content, from);
+	}
+
+	// The editor scroll plugin scrolls doc-changing transactions by default.
+	return tr.setMeta('scrollIntoView', false);
+};
+
+const attachFormatCodeAnalytics = ({
+	editorAnalyticsAPI,
+	languageSource,
+	result,
+	tr,
+}: {
+	editorAnalyticsAPI: EditorAnalyticsAPI | undefined;
+	languageSource: LanguageSource;
+	result: FormatResult;
+	tr: Transaction;
+}): void => {
+	if (result.status === 'failed') {
+		editorAnalyticsAPI?.attachAnalyticsEvent({
+			action: ACTION.ERRORED,
+			actionSubject: ACTION_SUBJECT.CODE_BLOCK,
+			attributes: {
+				errorType: result.errorType,
+				language: result.language,
+				languageSource,
+			},
+			eventType: EVENT_TYPE.TRACK,
+		})(tr);
+		return;
+	}
+
+	editorAnalyticsAPI?.attachAnalyticsEvent({
+		action: ACTION.FORMATTED,
+		actionSubject: ACTION_SUBJECT.CODE_BLOCK,
+		attributes: {
+			language: result.language,
+			languageSource,
+			outcome: result.status,
+		},
+		eventType: EVENT_TYPE.TRACK,
+	})(tr);
+};
+
+const createResolveFormatCodeTransaction = ({
+	editorAnalyticsAPI,
+	localId,
+	pendingFormat,
+	result,
+	tr,
+}: {
+	editorAnalyticsAPI: EditorAnalyticsAPI | undefined;
+	localId: string;
+	pendingFormat: PendingFormatRequest;
+	result: FormatResult;
+	tr: Transaction;
+}): Transaction => {
+	const { languageSource, requestId } = pendingFormat;
+	const codeBlockNode = tr.doc.nodeAt(pendingFormat.pos);
+	const hasMatchingCodeBlock =
+		codeBlockNode?.type === tr.doc.type.schema.nodes.codeBlock &&
+		codeBlockNode?.attrs.localId === localId;
+
+	if (!hasMatchingCodeBlock) {
+		// Keep failure telemetry even when the target block is no longer available.
+		if (result.status === 'failed') {
+			attachFormatCodeAnalytics({
+				editorAnalyticsAPI,
+				languageSource,
+				result,
+				tr,
+			});
+		}
+
+		return setResolveFormatCodeMeta(tr, {
+			languageSource,
+			localId,
+			outcome: 'unchanged',
+			requestId,
+		});
+	}
+
+	let resultTransaction = tr;
+
+	if (result.status === 'formatted') {
+		resultTransaction = replaceCodeBlockText({
+			codeBlockNode,
+			content: result.content,
+			pos: pendingFormat.pos,
+			tr,
+		});
+	}
+
+	attachFormatCodeAnalytics({
+		editorAnalyticsAPI,
+		languageSource,
+		result,
+		tr: resultTransaction,
+	});
+
+	return setResolveFormatCodeMeta(resultTransaction, {
+		errorType: result.status === 'failed' ? result.errorType : undefined,
+		languageSource,
+		localId,
+		outcome: result.status,
+		requestId,
+	});
+};
+
+export const createFormatCodeOnClick =
+	({
+		api,
+		editorAnalyticsAPI,
+		formatCodeProvider,
+	}: {
+		api?: ExtractInjectionAPI<CodeBlockPlugin>;
+		editorAnalyticsAPI: EditorAnalyticsAPI | undefined;
+		formatCodeProvider: CodeBlockFormatProvider | undefined;
+	}): Command =>
+	(state, dispatch) => {
+		if (!formatCodeProvider) {
+			return false;
+		}
+
+		const currentCodeBlockState = pluginKey.getState(state);
+		const currentPos = currentCodeBlockState?.pos;
+
+		if (!currentCodeBlockState || typeof currentPos !== 'number') {
+			return false;
+		}
+
+		const currentNode = state.doc.nodeAt(currentPos);
+		if (!currentNode || currentNode.type !== state.schema.nodes.codeBlock) {
+			return false;
+		}
+
+		const currentLanguage = currentNode.attrs.language ?? '';
+
+		const currentLocalId = currentNode.attrs.localId;
+		if (currentCodeBlockState.pendingFormats[currentLocalId]) {
+			return true;
+		}
+
+		const autoDetectEntry =
+			autoDetectPluginKey.getState(state)?.languageDetectionMap[currentLocalId];
+		const languageSource =
+			autoDetectEntry?.autoDetectedLanguage === currentLanguage ? 'auto-detected' : 'selected';
+		const content = currentNode.textContent;
+		const requestId = crypto.randomUUID();
+
+		api?.core?.actions.execute(({ tr }) =>
+			tr.setMeta(pluginKey, {
+				type: ACTIONS.START_FORMAT_CODE,
+				data: {
+					languageSource,
+					localId: currentLocalId,
+					pos: currentPos,
+					requestId,
+				},
+			}),
+		);
+
+		void formatCodeProvider
+			.formatCode({ content, language: currentLanguage })
+			.catch(
+				(): FormatResult => ({
+					errorType: 'formatter-execution-failed',
+					language: currentLanguage,
+					status: 'failed',
+				}),
+			)
+			.then((result) => {
+				const pendingFormat =
+					api?.codeBlock?.sharedState.currentState()?.pendingFormats[currentLocalId];
+
+				if (!pendingFormat || pendingFormat.requestId !== requestId) {
+					return;
+				}
+
+				api?.core?.actions.execute(({ tr }) =>
+					createResolveFormatCodeTransaction({
+						editorAnalyticsAPI,
+						localId: currentLocalId,
+						pendingFormat,
+						result,
+						tr,
+					}),
+				);
+			});
 
 		return true;
 	};
@@ -234,10 +560,11 @@ export const resetShouldIgnoreFollowingMutations: Command = (state, dispatch) =>
  * if there is text selected it will wrap the current selection if not it will
  * append the codeblock to the end of the document.
  */
-export function createInsertCodeBlockTransaction({ state }: { state: EditorState }) {
+export function createInsertCodeBlockTransaction({ state }: { state: EditorState }): Transaction {
 	let { tr } = state;
 	const { from } = state.selection;
 	const { codeBlock } = state.schema.nodes;
+	const codeBlockAttrs = getDefaultCodeBlockAttrs();
 	const grandParentNode = state.selection.$from.node(-1);
 	const grandParentNodeType = grandParentNode?.type;
 	const parentNodeType = state.selection.$from.parent.type;
@@ -255,11 +582,36 @@ export function createInsertCodeBlockTransaction({ state }: { state: EditorState
 		}) && contentAllowedInCodeBlock(state);
 
 	if (canInsertCodeBlock) {
-		tr = transformToCodeBlockAction(state, from, undefined);
+		tr = transformToCodeBlockAction(state, from, codeBlockAttrs);
 	} else {
-		safeInsert(codeBlock.createAndFill() as PMNode)(tr).scrollIntoView();
+		safeInsert(codeBlock.createAndFill(codeBlockAttrs) as PMNode)(tr).scrollIntoView();
 	}
 
+	return tr;
+}
+
+export function createInsertCodeBlockTransactionWithAnalytics({
+	analyticsAPI,
+	inputMethod,
+	state,
+}: {
+	analyticsAPI?: EditorAnalyticsAPI;
+	inputMethod:
+		| INPUT_METHOD.FORMATTING
+		| INPUT_METHOD.INSERT_MENU
+		| INPUT_METHOD.QUICK_INSERT
+		| INPUT_METHOD.TOOLBAR
+		| INPUT_METHOD.ELEMENT_BROWSER;
+	state: EditorState;
+}): Transaction {
+	const tr = createInsertCodeBlockTransaction({ state });
+	analyticsAPI?.attachAnalyticsEvent({
+		action: ACTION.INSERTED,
+		actionSubject: ACTION_SUBJECT.DOCUMENT,
+		actionSubjectId: ACTION_SUBJECT_ID.CODE_BLOCK,
+		attributes: { inputMethod },
+		eventType: EVENT_TYPE.TRACK,
+	})(tr);
 	return tr;
 }
 
@@ -288,7 +640,8 @@ export function insertCodeBlockWithAnalytics(
 export const toggleWordWrapStateForCodeBlockNode =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined): Command =>
 	(state, dispatch) => {
-		const codeBlockNode = findCodeBlock(state)?.node;
+		const codeBlock = findCodeBlock(state);
+		const codeBlockNode = codeBlock?.node;
 		const { tr } = state;
 
 		if (!codeBlockWrappedStates || !codeBlockNode) {
@@ -297,7 +650,14 @@ export const toggleWordWrapStateForCodeBlockNode =
 
 		const updatedToggleState = !isCodeBlockWordWrapEnabled(codeBlockNode);
 
-		codeBlockWrappedStates.set(codeBlockNode, updatedToggleState);
+		if (expValEquals('platform_editor_code_block_q4_lovability', 'isEnabled', true)) {
+			tr.setNodeMarkup(codeBlock.pos, undefined, {
+				...codeBlockNode.attrs,
+				wrap: updatedToggleState,
+			}).setMeta('scrollIntoView', false);
+		} else {
+			codeBlockWrappedStates.set(codeBlockNode, updatedToggleState);
+		}
 
 		tr.setMeta(pluginKey, {
 			type: ACTIONS.SET_IS_WRAPPED,
@@ -321,3 +681,42 @@ export const toggleWordWrapStateForCodeBlockNode =
 
 		return true;
 	};
+
+export const toggleLineNumbersForCodeBlockNodeEditorCommand =
+	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined): EditorCommand =>
+	({ tr }) => {
+		const { codeBlock: codeBlockType } = tr.doc.type.schema.nodes;
+		const codeBlock =
+			findSelectedNodeOfType(codeBlockType)(tr.selection) ||
+			findParentNodeOfType(codeBlockType)(tr.selection);
+
+		if (!codeBlock) {
+			return null;
+		}
+
+		const codeBlockNode = codeBlock.node;
+		const lineNumbersHidden = !Boolean(codeBlockNode.attrs.hideLineNumbers);
+
+		tr.setNodeMarkup(codeBlock.pos, undefined, {
+			...codeBlockNode.attrs,
+			hideLineNumbers: lineNumbersHidden,
+		});
+
+		editorAnalyticsAPI?.attachAnalyticsEvent({
+			action: ACTION.TOGGLE_CODE_BLOCK_LINE_NUMBERS,
+			actionSubject: ACTION_SUBJECT.CODE_BLOCK,
+			attributes: {
+				platform: PLATFORMS.WEB,
+				lineNumbersHidden,
+				codeBlockNodeSize: codeBlockNode.nodeSize,
+			},
+			eventType: EVENT_TYPE.TRACK,
+		})(tr);
+
+		return tr;
+	};
+
+export const toggleLineNumbersForCodeBlockNode = (
+	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+): Command =>
+	editorCommandToPMCommand(toggleLineNumbersForCodeBlockNodeEditorCommand(editorAnalyticsAPI));

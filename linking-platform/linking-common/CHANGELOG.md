@@ -1,5 +1,358 @@
 # @atlaskit/linking-common
 
+## 13.0.1
+
+### Patch Changes
+
+- [`ffe3187520151`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ffe3187520151) -
+  Remove the redundant `linking_platform_site_picker_api_unit_compliant_cloud_id` and
+  `linking_platform_link_datasource_unit_compliant_cloud_id` feature gates. Both duplicated the
+  targeting of the existing `linking_platform_site_picker_api_unit_compliant` and
+  `linking_platform_link_datasource_unit_compliant` gates, which now solely drive the units
+  isolation rollout for the site picker and link datasource. No behaviour change.
+
+## 13.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.0
+
+### Minor Changes
+
+- [`2bbc1c84de468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bbc1c84de468) -
+  Expose direct entry points for existing mention resources and predicates, linking errors, site
+  hooks, URL helpers, Pulse, and preview-panel detection. Existing entry points remain compatible.
+
+## 12.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.0
+
+### Minor Changes
+
+- [`2474922a7a598`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2474922a7a598) -
+  Adds a shared `@atlaskit/linking-common/units-rollout` entry point that resolves whether unit
+  isolation applies to the current organisation, and moves `useAvailableSites` and
+  `useAvailableSitesV2` onto it.
+
+  During the units rollout, the unit compliant available sites and accessible products endpoints are
+  only used when the units GA master gate `cc-units-ga` is on (killswitch), either the existing
+  `linking_platform_site_picker_api_unit_compliant` (org id targeted) or the new
+  `linking_platform_site_picker_api_unit_compliant_cloud_id` (cloud id targeted) gate is enabled,
+  **and** `Query.admin_unitSettings` in AGG reports that the organisation has both
+  `endUsersLaunched` and `boundaryEnforced`. Anything else keeps the existing, non-isolated
+  behaviour.
+
+  The organisation is resolved from the current hostname via `Query.tenantContexts`, so callers do
+  not need to supply an org id. The settings are fetched at most once per page load.
+
+## 12.1.2
+
+### Patch Changes
+
+- [`9bdffe8379139`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9bdffe8379139) -
+  Duplicate and re-export SpanSkeleton code to accomodate for the Volt Component Standards
+
+## 12.1.1
+
+### Patch Changes
+
+- [`57b50caf6411e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/57b50caf6411e) -
+  Use the site URL as the available-site display name when the API omits or returns an empty
+  workspace display name.
+
+  All changes behind feature gate: `platform_lp_sllv_display_name_fallback`.
+
+## 12.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`41b55f01fb4e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41b55f01fb4e1) -
+  Cleanup feature gate `platform_lp_kill_isvertigo_and_vortexmode`.
+
+  Remove the deprecated `AvailableSite.isVertigo` and `Workspace.vortexMode` fields. Consumers
+  should stop reading or supplying these fields.
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`85d7fd1344407`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85d7fd1344407) -
+  Imports from the package root are deprecated and will be removed in a future release. Migrate to
+  dedicated entry-point imports to reduce upgrade friction. Recommended imports:
+  - `import { linkifyMatch } from '@atlaskit/linking-common/linkify'`
+  - `import { isSafeUrl } from '@atlaskit/linking-common/linkify'`
+  - `import { normalizeUrl } from '@atlaskit/linking-common/linkify'`
+  - `import { useAvailableSites } from '@atlaskit/linking-common/hook/use-available-sites'`
+  - `import { useCloudIdToUrl } from '@atlaskit/linking-common/hook/use-cloud-id-to-url'`
+  - `import { useIsMounted } from '@atlaskit/linking-common/hook/use-is-mounted'`
+
+## 11.1.0
+
+### Minor Changes
+
+- [`bafd7711a515b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bafd7711a515b) -
+  Upgrade linkify-it to 5.0.2 and markdown-it to 14.1.1 to resolve a quadratic-complexity
+  denial-of-service vulnerability in link parsing.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`3c46bdc078b9e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c46bdc078b9e) -
+  All changes behind feature gate: `platform_lp_kill_isvertigo_and_vortexmode`.
+
+  In `@atlaskit/linking-common`, `AvailableSite.isVertigo` and `Workspace.vortexMode` are now
+  deprecated and marked as optional. The public type fields remain for compatibility, but their
+  values will be `undefined` with flag turned on. That explains major release.
+
+  When `platform_lp_kill_isvertigo_and_vortexmode` is enabled, `useAvailableSites` and
+  `useAvailableSitesV2` return `AvailableSite.isVertigo` as `undefined`, and `useAvailableSitesV2`
+  no longer depends on `Workspace.vortexMode` to map accessible product workspaces.
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.13.0
+
+### Minor Changes
+
+- [`f8b3089961cdf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8b3089961cdf) -
+  Extend `StructuredContentSource` so `*.docs.tsx` files can describe packages whose exports are not
+  all renderable React components. The container now accepts optional `package`, `hooks`, and
+  `utilities` (function / constant / type) keys alongside the existing `components` key. New
+  per-kind schemas: `hookDocsSourceSchema`, `utilityDocsSourceSchema`, plus `packageMetadataSchema`
+  for shared package-level metadata.
+
+  All new fields are optional, so existing components-only `*.docs.tsx` files continue to work
+  unchanged — this is an additive, non-breaking extension.
+
+  Pilots the new shape with `docs.tsx` files for `@atlaskit/analytics-next`, `@atlaskit/layering`,
+  `@af/accessibility-testing`, `@af/react-unit-testing`, `@atlaskit/pragmatic-drag-and-drop-hitbox`,
+  `@atlaskit/pragmatic-drag-and-drop-live-region`, `@atlaskit/feature-flag-client`,
+  `@atlaskit/frontend-utilities`, and `@atlaskit/linking-common`. The last two are non-ADS pilots
+  that exercise the new `hooks` and `utilities` kinds in `helpers/` and `linking-platform/`. These
+  pilot files are explicitly marked as non-final in their file-level JSDoc.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.12.2
+
+### Patch Changes
+
+- [`c3816dafd4629`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3816dafd4629) -
+  Mark mocks from @atlaskit/linking-common as deprecated and move to @atlaskit/link-test-helpers
+
+## 9.12.1
+
+### Patch Changes
+
+- [`188a015533f17`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/188a015533f17) -
+  Feature gate clean up
+
+## 9.12.0
+
+### Minor Changes
+
+- [`e496f75d89eec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e496f75d89eec) -
+  Debarrel @atlaskit/linking-common. Add new entry points and mark barrel files as deprecated.
+
+  New entry points:
+  - `@atlaskit/linking-common/actions`
+  - `@atlaskit/linking-common/api`
+  - `@atlaskit/linking-common/api/errors`
+  - `@atlaskit/linking-common/browser`
+  - `@atlaskit/linking-common/client`
+  - `@atlaskit/linking-common/constants`
+  - `@atlaskit/linking-common/hook/use-available-sites`
+  - `@atlaskit/linking-common/hook/use-cloud-id-to-url`
+  - `@atlaskit/linking-common/hook/use-is-mounted`
+  - `@atlaskit/linking-common/linkify`
+  - `@atlaskit/linking-common/pulse`
+  - `@atlaskit/linking-common/sentry/capture-exception`
+  - `@atlaskit/linking-common/skeleton`
+  - `@atlaskit/linking-common/store`
+  - `@atlaskit/linking-common/utils/filter-site-products`
+  - `@atlaskit/linking-common/utils/filter-unique-items`
+  - `@atlaskit/linking-common/utils/get-status`
+  - `@atlaskit/linking-common/utils/get-trace-id`
+  - `@atlaskit/linking-common/utils/preview-panel`
+  - `@atlaskit/linking-common/utils/promise-debounce`
+  - `@atlaskit/linking-common/utils/with-feature-flagged-component`
+
+  Updated entry points:
+  - `@atlaskit/linking-common/types` (previously `./src/types.ts`, now
+    `./src/entry-points/types.ts`)
+
+  Deprecating entry points:
+  - `@atlaskit/linking-common` (root barrel — use the specific entry points instead)
+  - `@atlaskit/linking-common/hooks` (use the specific `hook/*` entry points instead)
+  - `@atlaskit/linking-common/sentry` (use `@atlaskit/linking-common/sentry/capture-exception`
+    instead)
+  - `@atlaskit/linking-common/url` (use `@atlaskit/linking-common/linkify` instead)
+  - `@atlaskit/linking-common/user-agent` (use `@atlaskit/linking-common/browser` instead)
+  - `@atlaskit/linking-common/utils` (use the specific `utils/*` entry points instead)
+
+## 9.11.6
+
+### Patch Changes
+
+- [`03c8ed2c9c8d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/03c8ed2c9c8d6) -
+  Refactoring for pre-debarrel. Move NetworkError from api.ts to error.ts
+
+## 9.11.5
+
+### Patch Changes
+
+- [`4175fc4bd57f5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4175fc4bd57f5) -
+  Fix bug in linkify util which extracts URLs from text strings
+
+## 9.11.4
+
+### Patch Changes
+
+- [`76faad1c8c7b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76faad1c8c7b5) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` devDependency alias (which resolved to `react-intl@^5`) has
+  been renamed to `react-intl`. This is a development-only change with no impact on consumers.
+
+## 9.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.11.1
+
+### Patch Changes
+
+- [`93a66599141af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93a66599141af) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 9.11.0
+
+### Minor Changes
+
+- [`ef7797fd12220`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef7797fd12220) -
+  Switch /gateway/api/available-sites and /gateway/api/v2/accessible-products endpoints to
+  unit-compliant paths (/gateway/api/experimental/available-sites and
+  /gateway/api/experimental/v2/accessible-products) behind
+  linking_platform_site_picker_api_unit_compliant feature gate
+
+## 9.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.10.0
+
+### Minor Changes
+
+- [`3bee560fea726`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3bee560fea726) -
+  Exclude Invalid URL error from new URL() from operational.smartLink.unresolved event, behind fg
+  platform_navx_lp_invalid_url_error
+
 ## 9.9.3
 
 ### Patch Changes

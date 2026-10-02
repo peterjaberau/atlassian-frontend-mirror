@@ -14,9 +14,8 @@ import {
 	unstable_scheduleCallback as scheduleCallback,
 } from 'scheduler';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Preserves the existing UUID implementation.
 import { v4 as createUUID } from 'uuid';
-
-import { fg } from '@atlaskit/platform-feature-flags';
 
 import coinflip from '../coinflip';
 import type { EnhancedUFOInteractionContextType } from '../common';
@@ -25,8 +24,11 @@ import {
 	getDoNotAbortActivePressInteraction,
 	getInteractionRate,
 	getMinorInteractions,
+	isUFOEnabled,
 } from '../config';
-import { getActiveTrace, setInteractionActiveTrace } from '../experience-trace-id-context';
+import { sanitizeLabelStackName } from '../create-payload/common/utils/sanitize-label-stack-name';
+import { getActiveTrace } from '../experience-trace-id-context/get-active-trace';
+import { setInteractionActiveTrace } from '../experience-trace-id-context/set-interaction-active-trace';
 import UFOInteractionContext, { type LabelStack } from '../interaction-context';
 import UFOInteractionIDContext from '../interaction-id-context';
 import {
@@ -45,7 +47,6 @@ import {
 	type CustomData,
 	type CustomTiming,
 	getActiveInteraction,
-	markFirstSegmentLoad,
 	removeHoldByID,
 	removeSegment,
 	type RequestInfo,
@@ -53,29 +54,35 @@ import {
 } from '../interaction-metrics';
 import UFORouteName from '../route-name-context';
 import generateId from '../short-id';
-
 import scheduleOnPaint from './schedule-on-paint';
-import SsrRenderProfiler from './ssr-render-profiler';
+import SsrRenderProfiler from './ssr-render-profiler/ssr-render-profiler';
 
-export type UFOSegmentType = 'third-party' | 'first-party';
+export type UFOSegmentType = 'third-party' | 'gen-ai' | 'first-party';
 
 export type Props = {
 	name: string;
 	children: ReactNode;
 	mode?: 'list' | 'single';
 	type?: UFOSegmentType;
+	excludeFromMetrics?: boolean;
 };
 
 let tryCompleteHandle: number | undefined;
-let hasMarkedFirstSegmentLoad = false;
-
 /** A portion of the page we apply measurement to */
-export default function UFOSegment({
+const UFOSegment: {
+	(props: Props): React.JSX.Element;
+	displayName: string;
+} = ({
 	name: segmentName,
 	children,
 	mode = 'single',
 	type = 'first-party',
-}: Props): React.JSX.Element {
+	excludeFromMetrics = false,
+}: Props): React.JSX.Element => {
+	// If UFO is disabled, render children without any tracking overhead
+	// Note: isUFOEnabled() returns a stable value based on config, so it's safe to call before hooks
+	const ufoEnabled = isUFOEnabled();
+
 	const parentContext = useContext(UFOInteractionContext) as EnhancedUFOInteractionContextType;
 
 	const segmentIdMap = useMemo(() => {
@@ -99,33 +106,19 @@ export default function UFOSegment({
 		return newSegmentId;
 	}, [mode, segmentName, segmentIdMap]);
 
-	const labelStack: LabelStack = useMemo(
-		() =>
-			parentContext?.labelStack
-				? [
-						...parentContext.labelStack,
-						{
-							name: segmentName,
-							segmentId,
-							...(type !== 'first-party' ? { type } : {}),
-						}, // Only pass non-default types (not 'first-party') in payload to reduce size
-					]
-				: [
-						{
-							name: segmentName,
-							segmentId,
-							...(type !== 'first-party' ? { type } : {}),
-						},
-					],
-		[parentContext, segmentName, segmentId, type],
-	);
+	const labelStack: LabelStack = useMemo(() => {
+		// Only stamp `excludeFromMetrics` alongside a third-party type.
+		// So it can never remove first-party work from metrics.
+		const label = {
+			name: segmentName,
+			segmentId,
+			...(type !== 'first-party' ? { type } : {}), // Only pass non-default types (not 'first-party') in payload to reduce size
+			...(excludeFromMetrics && type === 'third-party' ? { excludeFromMetrics: true } : {}),
+		};
+		return parentContext?.labelStack ? [...parentContext.labelStack, label] : [label];
+	}, [parentContext, segmentName, segmentId, type, excludeFromMetrics]);
 
 	const interactionId = useContext(UFOInteractionIDContext);
-	if (interactionId.current != null && !hasMarkedFirstSegmentLoad) {
-		markFirstSegmentLoad(interactionId.current, labelStack, performance.now());
-		hasMarkedFirstSegmentLoad = true;
-	}
-
 	const interactionContext = useMemo<EnhancedUFOInteractionContextType>(() => {
 		let lastCompleteEndTime = 0;
 		function complete(endTime: number = performance.now()) {
@@ -170,14 +163,13 @@ export default function UFOSegment({
 			this: EnhancedUFOInteractionContextType,
 			labelStack: LabelStack,
 			name: string,
-			experimental = false,
 		) {
 			if (interactionId.current != null) {
 				if (parentContext) {
-					return parentContext._internalHold(labelStack, name, experimental);
+					return parentContext._internalHold(labelStack, name);
 				} else {
 					const capturedInteractionId = interactionId.current;
-					const disposeHold = addHold(interactionId.current, labelStack, name, experimental);
+					const disposeHold = addHold(interactionId.current, labelStack, name, false);
 					return () => {
 						if (capturedInteractionId === interactionId.current) {
 							disposeHold();
@@ -221,9 +213,6 @@ export default function UFOSegment({
 			segmentIdMap: segmentIdMap,
 			hold(this: EnhancedUFOInteractionContextType, name: string | undefined = 'unknown') {
 				return this._internalHold(this.labelStack, name);
-			},
-			holdExperimental(this: EnhancedUFOInteractionContextType, name: string = 'unknown') {
-				return this._internalHold(this.labelStack, name, true);
 			},
 			addHoldByID(
 				this: EnhancedUFOInteractionContextType,
@@ -395,7 +384,15 @@ export default function UFOSegment({
 		};
 	}, [interactionId, parentContext, interactionContext, labelStack]);
 
-	const reactProfilerId = useMemo(() => labelStack.map((l) => l.name).join('/'), [labelStack]);
+	const reactProfilerId = useMemo(
+		() => labelStack.map((l) => sanitizeLabelStackName(l.name)).join('/'),
+		[labelStack],
+	);
+
+	// If UFO is disabled, just render children without tracking overhead
+	if (!ufoEnabled) {
+		return <>{children}</>;
+	}
 
 	const ufoSegment = (
 		<UFOInteractionContext.Provider value={interactionContext}>
@@ -405,15 +402,16 @@ export default function UFOSegment({
 		</UFOInteractionContext.Provider>
 	);
 
-	if (fg('platform_ufo_ssr_render_profiler')) {
-		return (
-			<SsrRenderProfiler labelStack={labelStack} onRender={interactionContext.onRender}>
-				{ufoSegment}
-			</SsrRenderProfiler>
-		);
-	}
-
-	return ufoSegment;
-}
+	return (
+		<SsrRenderProfiler
+			labelStack={labelStack}
+			onRender={(...args) => interactionContext.onRender.apply(interactionContext, args)}
+		>
+			{ufoSegment}
+		</SsrRenderProfiler>
+	);
+};
 
 UFOSegment.displayName = 'UFOSegment';
+
+export default UFOSegment;

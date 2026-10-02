@@ -1,9 +1,12 @@
-import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { screen, act, fireEvent, render } from '@testing-library/react';
 import React from 'react';
+
+import { screen, act, fireEvent, render } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
+
+import Select from '@atlaskit/select/default';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+
 import { BaseUserPicker } from '../BaseUserPicker';
-import Select from '@atlaskit/select';
-import { IntlProvider } from 'react-intl-next';
 class TestSelect extends React.Component {
 	render() {
 		return <div {...this.props} data-testid="test-select"></div>;
@@ -85,19 +88,19 @@ describe('BaseUserPicker', () => {
 	it('should open menu when we focus on the input', async () => {
 		renderUserPickerWithSelect();
 		act(() => screen.getByRole('combobox').focus());
-		expect(onMenuOpenMock).toBeCalled();
+		expect(onMenuOpenMock).toHaveBeenCalled();
 	});
 
 	it('should not open menu when we focus on the input where openMenuOnClick is enabled', () => {
 		renderUserPickerWithSelect({ openMenuOnClick: true });
 		act(() => screen.getByRole('combobox').focus());
-		expect(onMenuOpenMock).not.toBeCalled();
+		expect(onMenuOpenMock).not.toHaveBeenCalled();
 	});
 
 	it('should open menu when we arrow down on the input where openMenuOnClick is enabled', () => {
 		const { getByRole } = renderUserPickerWithSelect({ openMenuOnClick: true });
 		const input = getByRole('combobox');
 		fireEvent.keyDown(input, { key: 'ArrowDown' });
-		expect(onMenuOpenMock).toBeCalled();
+		expect(onMenuOpenMock).toHaveBeenCalled();
 	});
 });

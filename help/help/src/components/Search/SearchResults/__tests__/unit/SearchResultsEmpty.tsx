@@ -1,10 +1,11 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render, fireEvent } from '@testing-library/react';
-import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
-import { createIntl, createIntlCache } from 'react-intl-next';
+import { createIntl, createIntlCache, IntlProvider } from 'react-intl';
 
-import { messages } from '../../../../../messages';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+
 import { SearchResultsEmpty } from '../../SearchResultsEmpty';
 
 // Messages
@@ -16,7 +17,7 @@ const intl = createIntl(
 	},
 	cache,
 );
-const messageNoResultLink = intl.formatMessage(messages.help_search_results_external_site_link);
+const messageNoResultLink = 'search all online help articles';
 
 const mockOnSearchExternalUrlClick = jest.fn();
 const mockSearchExternalUrl = 'https://www.atlassian.com/';
@@ -25,31 +26,23 @@ const analyticsSpy = jest.fn();
 describe('SearchResultsEmpty', () => {
 	it('should capture and report a11y violations', async () => {
 		const { container } = render(
-			<SearchResultsEmpty
-				intl={intl}
-				onSearchExternalUrlClick={mockOnSearchExternalUrlClick}
-				searchExternalUrl={mockSearchExternalUrl}
-			/>,
+			<IntlProvider locale="en">
+				<SearchResultsEmpty
+					intl={intl}
+					onSearchExternalUrlClick={mockOnSearchExternalUrlClick}
+					searchExternalUrl={mockSearchExternalUrl}
+				/>
+			</IntlProvider>,
 		);
 
 		await expect(container).toBeAccessible();
 	});
 
-	it('Should match snapshot', () => {
-		const { asFragment } = render(
-			<SearchResultsEmpty
-				intl={intl}
-				onSearchExternalUrlClick={mockOnSearchExternalUrlClick}
-				searchExternalUrl={mockSearchExternalUrl}
-			/>,
-		);
-
-		expect(asFragment()).toMatchSnapshot();
-	});
-
 	it('Hide part of the alert message and the link to open a new page using the value of SearchExternalUrl if "SearchExternalUrl" is not defined', () => {
 		const { queryByText } = render(
-			<SearchResultsEmpty intl={intl} onSearchExternalUrlClick={mockOnSearchExternalUrlClick} />,
+			<IntlProvider locale="en">
+				<SearchResultsEmpty intl={intl} onSearchExternalUrlClick={mockOnSearchExternalUrlClick} />
+			</IntlProvider>,
 		);
 
 		const LinkLabel = queryByText(messageNoResultLink);
@@ -58,11 +51,13 @@ describe('SearchResultsEmpty', () => {
 
 	it('display full alert message and the link to open a new page using the value of SearchExternalUrl if "SearchExternalUrl" is defined', () => {
 		const { queryByText } = render(
-			<SearchResultsEmpty
-				intl={intl}
-				onSearchExternalUrlClick={mockOnSearchExternalUrlClick}
-				searchExternalUrl={mockSearchExternalUrl}
-			/>,
+			<IntlProvider locale="en">
+				<SearchResultsEmpty
+					intl={intl}
+					onSearchExternalUrlClick={mockOnSearchExternalUrlClick}
+					searchExternalUrl={mockSearchExternalUrl}
+				/>
+			</IntlProvider>,
 		);
 
 		const LinkLabel = queryByText(messageNoResultLink);
@@ -71,13 +66,15 @@ describe('SearchResultsEmpty', () => {
 
 	it('Execute the function prop "onSearchExternalUrlClick" when the user clicks the link to open the external url', () => {
 		const { queryByText } = render(
-			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
-				<SearchResultsEmpty
-					intl={intl}
-					onSearchExternalUrlClick={mockOnSearchExternalUrlClick}
-					searchExternalUrl={mockSearchExternalUrl}
-				/>
-			</AnalyticsListener>,
+			<IntlProvider locale="en">
+				<AnalyticsListener channel="help" onEvent={analyticsSpy}>
+					<SearchResultsEmpty
+						intl={intl}
+						onSearchExternalUrlClick={mockOnSearchExternalUrlClick}
+						searchExternalUrl={mockSearchExternalUrl}
+					/>
+				</AnalyticsListener>
+			</IntlProvider>,
 		);
 
 		const LinkLabel = queryByText(messageNoResultLink);

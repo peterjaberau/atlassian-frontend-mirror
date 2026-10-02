@@ -1,3 +1,5 @@
+import type { IntlShape } from 'react-intl';
+
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -6,16 +8,17 @@ import {
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
 import type { Dispatch, EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { CaptionPlugin } from '../captionPluginType';
 import captionNodeView from '../nodeviews';
-
+import { captionNodeView as captionNodeViewVanilla } from '../nodeviews/captionNodeView';
 import { pluginKey } from './plugin-key';
 
 const fireAnalytics = (
@@ -37,7 +40,8 @@ export default (
 	providerFactory: ProviderFactory,
 	dispatch: Dispatch,
 	pluginInjectionApi: ExtractInjectionAPI<CaptionPlugin> | undefined,
-) => {
+	intl?: IntlShape,
+): SafePlugin => {
 	const analyticsApi = pluginInjectionApi?.analytics?.actions;
 	return new SafePlugin({
 		appendTransaction(
@@ -72,7 +76,9 @@ export default (
 		key: pluginKey,
 		props: {
 			nodeViews: {
-				caption: captionNodeView(portalProviderAPI, eventDispatcher, pluginInjectionApi),
+				caption: isExperimentEnabled('platform_editor_vanilla_node_views_phase1')
+					? captionNodeViewVanilla()
+					: captionNodeView(portalProviderAPI, eventDispatcher, pluginInjectionApi, intl),
 			},
 		},
 	});

@@ -3,12 +3,13 @@
  * @jsx jsx
  */
 
-import Avatar, { AvatarContent } from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
+import { AvatarContent } from '@atlaskit/avatar/avatar-content';
 import { css, jsx } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { Block } from '../examples-util/helpers';
+import { Block } from '../examples-util/block';
 
 const styles = {
 	custom: css({

@@ -2,25 +2,26 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type KeyboardEvent, type MouseEvent, useCallback } from 'react';
+import { useCallback } from 'react';
+import type { ForwardRefExoticComponent, KeyboardEvent, MouseEvent, RefAttributes } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
-import DropdownMenu, {
-	DropdownItem,
-	DropdownItemGroup,
-	type OnOpenChangeArgs,
-} from '@atlaskit/dropdown-menu';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { WithContextProps } from '@atlaskit/analytics-next/withAnalyticsContext';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import type { CustomTriggerProps, OnOpenChangeArgs } from '@atlaskit/dropdown-menu/types';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import PreferencesIcon from '@atlaskit/icon/core/customize';
 import LinkExternalIcon from '@atlaskit/icon/core/link-external';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import { cardMessages as messages } from '../../messages';
-
 import { StyledButton } from './StyledButton';
 import { useLinkOverlayAnalyticsEvents } from './useLinkOverlayAnalyticsEvents';
 
@@ -89,21 +90,44 @@ const Dropdown = ({
 		focusEditor();
 	}, [fireActionClickEvent, focusEditor, onConfigureClickCallback]);
 
+	const memoizedTrigger = useCallback(
+		({ onClick, triggerRef, ...props }: CustomTriggerProps<HTMLButtonElement>) => (
+			<StyledButton
+				innerRef={triggerRef}
+				// Ignored via go/ees005
+				// eslint-disable-next-line react/jsx-props-no-spreading
+				{...props}
+				iconBefore={<ChevronDownIcon label={configureLinkLabel} size="small" />}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- intentional: onClick closes over per-render trigger prop
+				onClick={(e) => {
+					onClick?.(e);
+					fireLinkClickEvent();
+				}}
+			/>
+		),
+		[configureLinkLabel, fireLinkClickEvent],
+	);
+
 	return (
 		<DropdownMenu<HTMLButtonElement>
-			trigger={({ onClick, triggerRef, ...props }) => (
-				<StyledButton
-					innerRef={triggerRef}
-					// Ignored via go/ees005
-					// eslint-disable-next-line react/jsx-props-no-spreading
-					{...props}
-					iconBefore={<ChevronDownIcon label={configureLinkLabel} size="small" />}
-					onClick={(e) => {
-						onClick?.(e);
-						fireLinkClickEvent();
-					}}
-				/>
-			)}
+			trigger={
+				isExperimentEnabled('platform_editor_perf_lint_cleanup')
+					? memoizedTrigger
+					: ({ onClick, triggerRef, ...props }) => (
+							<StyledButton
+								innerRef={triggerRef}
+								// Ignored via go/ees005
+								// eslint-disable-next-line react/jsx-props-no-spreading
+								{...props}
+								iconBefore={<ChevronDownIcon label={configureLinkLabel} size="small" />}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- intentional fallback for experiment off path
+								onClick={(e) => {
+									onClick?.(e);
+									fireLinkClickEvent();
+								}}
+							/>
+						)
+			}
 			testId={`${testId}-dropdown`}
 			onOpenChange={onOpenChange}
 		>
@@ -127,4 +151,7 @@ const Dropdown = ({
 	);
 };
 
-export default withAnalyticsContext({ source: SMALL_LINK_TOOLBAR_ANALYTICS_SOURCE })(Dropdown);
+const _default_1: ForwardRefExoticComponent<
+	DropdownProps & WithContextProps & RefAttributes<unknown>
+> = withAnalyticsContext({ source: SMALL_LINK_TOOLBAR_ANALYTICS_SOURCE })(Dropdown);
+export default _default_1;

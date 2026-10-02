@@ -1,12 +1,12 @@
 import React from 'react';
 
 import { useId } from '@atlaskit/ds-lib/use-id';
-import { useThemeObserver } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import { defaultLogoParams } from '../../constants';
 import type { LogoProps } from '../../types';
 import Wrapper from '../../wrapper';
-import { getColorsFromAppearanceOldLogos } from '../utils';
+import { getColorsFromAppearanceOldLogos } from '../get-colors-from-appearance-old-logos';
 
 const svg = ({ appearance, iconColor }: LogoProps, colorMode: string | undefined, id: string) => {
 	let colors = {

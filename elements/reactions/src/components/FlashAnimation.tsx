@@ -3,8 +3,9 @@
  * @jsx jsx
  */
 import { type PropsWithChildren } from 'react';
+
 import { jsx, css, keyframes } from '@compiled/react';
-import { B75, B300 } from '@atlaskit/theme/colors';
+
 import { token } from '@atlaskit/tokens';
 
 const flashTime = 700;
@@ -14,16 +15,16 @@ const flashAnimation = keyframes({
 		backgroundColor: 'transparent',
 	},
 	'20%': {
-		backgroundColor: token('color.background.selected.pressed', B75),
-		borderColor: token('color.border.selected', B300),
+		backgroundColor: token('color.background.selected.pressed'),
+		borderColor: token('color.border.selected'),
 	},
 	'75%': {
-		backgroundColor: token('color.background.selected.pressed', B75),
-		borderColor: token('color.border.selected', B300),
+		backgroundColor: token('color.background.selected.pressed'),
+		borderColor: token('color.border.selected'),
 	},
 	'100%': {
-		backgroundColor: token('color.background.selected.pressed', B75),
-		borderColor: token('color.border.selected', B300),
+		backgroundColor: token('color.background.selected.pressed'),
+		borderColor: token('color.border.selected'),
 	},
 });
 
@@ -56,7 +57,7 @@ export const RENDER_FLASHANIMATION_TESTID = 'flash-animation';
 /**
  * Flash animation background component. See Reaction component for usage.
  */
-export const FlashAnimation = (props: FlashAnimationProps) => (
+export const FlashAnimation = (props: FlashAnimationProps): JSX.Element => (
 	<div
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 		className={props.className}

@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement, ReactNode, SVGProps as ReactSVGProps } from 'react';
+import type { ComponentType, ReactNode, SVGProps as ReactSVGProps } from 'react';
 
 import type {
 	IconColor,
@@ -71,11 +71,9 @@ interface GlyphSizeProps {
 }
 
 interface NewCoreGlyphSpacingProps {
+	// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
 	/**
-	 * Core Icons can be displayed with additional spacing.
-	 * - `none` is default, and allows the icon to be placed in buttons and allows the parent component to manage spacing.
-	 * - `compact` provides accessible compact spacing between the icon and other elements. **Only available for small icons.**
-	 * - `spacious` provides accessible spacing between the icon and other elements.
+	 * @deprecated Use a `Flex` wrapper with `cssMap` padding tokens instead. Migrate with the `32.0.2-icon-spacing-to-flex-primitive` codemod in `npx @atlaskit/codemod-cli`, or the `no-icon-spacing-prop` ESLint rule.
 	 */
 	spacing?: IconSpacing;
 }
@@ -149,10 +147,7 @@ interface IconInternalGlyphProps {
 export interface GlyphProps extends LegacyOtherGlyphProps, GlyphSizeProps, GlyphColorProps {}
 
 interface NewCoreGlyphProps
-	extends OtherGlyphProps,
-		NewCoreGlyphSpacingProps,
-		NewCoreGlyphSizeProps,
-		NewGlyphColorProps {}
+	extends OtherGlyphProps, NewCoreGlyphSpacingProps, NewCoreGlyphSizeProps, NewGlyphColorProps {}
 
 export interface IconProps extends GlyphProps, IconInternalGlyphProps {
 	/**
@@ -197,11 +192,9 @@ export type IconTileAppearance =
 	| 'magentaBold'
 	| 'purpleBold';
 
-export type NewIconTileSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
-export type LegacyIconTileSize = '16' | '24' | '32' | '40' | '48';
-export type IconTileSize = NewIconTileSize | LegacyIconTileSize;
+export type IconTileSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
-export interface IconTileProps {
+interface IconTileBaseProps {
 	/**
 	 * The icon to display
 	 */
@@ -215,47 +208,19 @@ export interface IconTileProps {
 	 */
 	appearance: IconTileAppearance;
 	/**
-	 * Size of the tile, in pixels. Defaults to `24`.
+	 * Size of the tile. Defaults to `medium`.
 	 *
-	 * Now supports both semantic t-shirt size names and pixel number values. Pixel number values are deprecated and will be removed in a future release, however they will both be available and backwards-compatible during a transition period.
-	 *
-	 * Size `16` will not have a replacement after deprecation, and should be replaced with direct icons without a tile or enlarging to the next available size `xsmall`.
-	 *
-	 * All available sizes:
-	 * - `16` (deprecated)
-	 * - `xsmall` (new)
-	 * - `small` or `24`
-	 * - `medium` or `32`
-	 * - `large` or `40`
-	 * - `xlarge` or `48`
+	 * Available sizes: `xsmall`, `small`, `medium`, `large`, `xlarge`.
 	 */
 	size?: IconTileSize;
-	// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
-	/**
-	 * Shape of the tile background. Defaults to "square"
-	 * @deprecated Circle shape is deprecated and will be removed in a future version. Consider migrating to alternatives such as a square tile, or an `IconButton` for interactive elements.
-	 * If necessary, the only way to retain a circle appearance is to rebuild the component custom using ADS primitives. The prop `UNSAFE_circleReplacementComponent` can be used to
-	 * implement alternatives.
-	 */
-	shape?: 'square' | 'circle';
-	// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
-	/**
-	 * Legacy component to render when the icon refresh feature flag is turned off.
-	 * @deprecated This prop is deprecated and will be removed in a future version.
-	 */
-	LEGACY_fallbackComponent?: ReactElement;
-	/**
-	 * A component to render in place of circle shaped icon tiles, swapped out with a feature flag.
-	 *
-	 * This prop is temporary, and will be used by ADS to safely rollout alternatives as circle shaped icon tiles are deprecated.
-	 */
-	UNSAFE_circleReplacementComponent?: ReactElement;
 	/**
 	 * A unique string that appears as a data attribute `data-testid` in the rendered code,
 	 * serving as a hook for automated tests.
 	 */
 	testId?: string;
 }
+
+export interface IconTileProps extends IconTileBaseProps {}
 
 export interface SkeletonProps {
 	/*
@@ -287,54 +252,6 @@ export interface SVGProps extends GlyphProps {
 	 */
 	children?: ReactNode;
 }
-
-/**
- * The migration outcome for a given legacy icon
- */
-type IconMigrationResult = {
-	/**
-	 * The recommended new icon that the legacy icon should be migrated to
-	 */
-	newIcon?: {
-		name: string;
-		package: string;
-		isMigrationUnsafe?: boolean;
-		/**
-		 * Forces the new icon to be `size="small"`, even if the legacy icon was not a small icon.
-		 *
-		 * E.g. used for chevron icons.
-		 */
-		shouldForceSmallIcon?: boolean;
-	};
-	/**
-	 * Alternative new icon that the legacy icon can be migrated to
-	 * Primarily used to maintain migration guidance for icons that have since had a
-	 * change to the recommended migration path in "newIcon"
-	 */
-	additionalIcons?: {
-		name: string;
-		package: string;
-	}[];
-	/**
-	 * For each size the legacy icon can take, the per-size migration guidance
-	 */
-	sizeGuidance: Record<Size, IconMigrationSizeGuidance>;
-};
-export type IconMigrationSizeGuidance =
-	| '16-icon-tile'
-	| '24-icon-tile'
-	| '32-icon-tile'
-	| '48-icon-tile'
-	| 'swap'
-	| 'swap-slight-visual-change'
-	| 'swap-visual-change'
-	| 'product-icon'
-	| 'not-recommended'
-	| 'icon-tile'
-	| 'top-nav'
-	| 'icon-lab'
-	| 'no-larger-size';
-export type IconMigrationMap = Record<string, IconMigrationResult>;
 
 interface LEGACY_Data {
 	keywords: string[];

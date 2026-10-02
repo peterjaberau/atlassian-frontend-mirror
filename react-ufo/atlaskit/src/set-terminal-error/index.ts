@@ -1,14 +1,19 @@
 import { useEffect, useRef } from 'react';
 
-import { type LabelStack, useInteractionContext } from '../interaction-context';
+import { getActiveTrace } from '../experience-trace-id-context/get-active-trace';
+import type { LabelStack } from '../interaction-context';
+import { useInteractionContext } from '../interaction-context/useInteractionContext';
 import { getActiveInteraction, PreviousInteractionLog } from '../interaction-metrics';
+import UFORouteName from '../route-name-context';
+import { classifyTerminalError, type TerminalErrorCategory } from './classify-terminal-error';
+
+export type { TerminalErrorCategory };
 
 export interface TerminalErrorAdditionalAttributes {
 	teamName?: string;
 	packageName?: string;
 	errorBoundaryId?: string;
 	errorHash?: string;
-	traceId?: string;
 	fallbackType?: 'page' | 'flag' | 'custom';
 	statusCode?: number;
 }
@@ -17,6 +22,8 @@ export interface TerminalErrorData extends TerminalErrorAdditionalAttributes {
 	errorType: string;
 	errorMessage: string;
 	timestamp: number;
+	traceId?: string;
+	errorCategory?: TerminalErrorCategory;
 }
 
 export interface TerminalErrorContext {
@@ -28,6 +35,7 @@ export interface TerminalErrorContext {
 	previousInteractionName: string | null;
 	previousInteractionType: string | null;
 	timeSincePreviousInteraction: number | null;
+	routeName: string | null;
 }
 
 let sinkHandlerFn: (
@@ -41,6 +49,46 @@ export function sinkTerminalErrorHandler(
 	sinkHandlerFn = fn;
 }
 
+const RELAY_NETWORK_ERRORS_NAME = 'RelayNetwork';
+/**
+ * Relay error structure
+ */
+type RelayNetworkErrors = {
+	name: string;
+	type: string;
+	source?: {
+		errors?: { extensions?: { statusCode?: number } }[];
+	};
+};
+
+export const isRelayNetworkError = (
+	error: RelayNetworkErrors | Error,
+): error is RelayNetworkErrors => error.name === RELAY_NETWORK_ERRORS_NAME;
+
+const isErrorObject = (error: unknown): error is Record<string, unknown> =>
+	typeof error === 'object' && error !== null;
+
+const getErrorStatusCode = (error: Error) => {
+	if (!isErrorObject(error)) {
+		return undefined;
+	}
+
+	if (isRelayNetworkError(error)) {
+		return error.source?.errors?.[0]?.extensions?.statusCode;
+	}
+
+	if ('statusCode' in error && typeof error.statusCode === 'number') {
+		return error.statusCode;
+	}
+
+	return undefined;
+};
+
+const getErrorTraceId = (error: Error) =>
+	isErrorObject(error) && 'traceId' in error && typeof error.traceId === 'string'
+		? error.traceId
+		: undefined;
+
 export function setTerminalError(
 	error: Error,
 	additionalAttributes?: TerminalErrorAdditionalAttributes,
@@ -48,16 +96,30 @@ export function setTerminalError(
 ): void {
 	const activeInteraction = getActiveInteraction();
 	const currentTime = performance.now();
-	const errorData: TerminalErrorData = {
+
+	const baseErrorData = {
 		errorType: error.name || 'Error',
-		errorMessage: error.message.slice(0, 100),
+		errorMessage: error.message?.slice(0, 100) || 'Unknown error',
 		timestamp: currentTime,
-		...additionalAttributes,
+		errorCategory: classifyTerminalError(error),
+	};
+	const errorData: TerminalErrorData = {
+		...baseErrorData,
+		statusCode: additionalAttributes?.statusCode ?? getErrorStatusCode(error),
+		// Fallback to traceId from error object if it exists (e.g. FetchError)
+		traceId: getActiveTrace()?.traceId ?? getErrorTraceId(error),
+		teamName: additionalAttributes?.teamName,
+		packageName: additionalAttributes?.packageName,
+		errorBoundaryId: additionalAttributes?.errorBoundaryId,
+		errorHash: additionalAttributes?.errorHash,
+		fallbackType: additionalAttributes?.fallbackType,
 	};
 
 	// Calculate time since previous interaction
 	const timeSincePreviousInteraction =
-		PreviousInteractionLog.timestamp != null ? currentTime - PreviousInteractionLog.timestamp : null;
+		PreviousInteractionLog.timestamp != null
+			? currentTime - PreviousInteractionLog.timestamp
+			: null;
 
 	const context: TerminalErrorContext = {
 		labelStack: labelStack ?? null,
@@ -68,6 +130,7 @@ export function setTerminalError(
 		previousInteractionName: PreviousInteractionLog.name ?? null,
 		previousInteractionType: PreviousInteractionLog.type ?? null,
 		timeSincePreviousInteraction,
+		routeName: UFORouteName.current ?? null,
 	};
 	sinkHandlerFn(errorData, context);
 }

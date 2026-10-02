@@ -1,17 +1,13 @@
+import { getNodeSelectionForPos, selectNodeAtPos } from '@atlaskit/editor-common/node-selection';
 import { GapCursorSelection, Side } from '@atlaskit/editor-common/selection';
 import { areToolbarFlagsEnabled } from '@atlaskit/editor-common/toolbar-flag-check';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type Node as PMNode, type ResolvedPos } from '@atlaskit/editor-prosemirror/model';
-import {
-	type EditorState,
-	NodeSelection,
-	type Selection,
-	TextSelection,
-	type Transaction,
-} from '@atlaskit/editor-prosemirror/state';
+import type { Node as PMNode, ResolvedPos } from '@atlaskit/editor-prosemirror/model';
+import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Selection, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import { selectTableClosestToPos } from '@atlaskit/editor-tables/utils';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { BlockControlsPlugin } from '../../blockControlsPluginType';
 
@@ -54,54 +50,6 @@ export const isNodeWithCodeBlock = (tr: Transaction, start: number, nodeSize: nu
 	return hasCodeBlock;
 };
 
-const isNodeWithMediaOrExtension = (doc: PMNode, start: number, nodeSize: number) => {
-	const $startPos = doc.resolve(start);
-	let hasMediaOrExtension = false;
-	doc.nodesBetween($startPos.pos, $startPos.pos + nodeSize, (n) => {
-		if (['media', 'extension'].includes(n.type.name)) {
-			hasMediaOrExtension = true;
-		}
-	});
-	return hasMediaOrExtension;
-};
-
-const oldGetSelection = (tr: Transaction, start: number) => {
-	const node = tr.doc.nodeAt(start);
-	const isNodeSelection = node && NodeSelection.isSelectable(node);
-	const nodeSize = node ? node.nodeSize : 1;
-	const $startPos = tr.doc.resolve(start);
-	const nodeName = node?.type.name;
-	const isBlockQuoteWithMediaOrExtension =
-		nodeName === 'blockquote' && isNodeWithMediaOrExtension(tr.doc, start, nodeSize);
-	const isListWithMediaOrExtension =
-		(nodeName === 'bulletList' && isNodeWithMediaOrExtension(tr.doc, start, nodeSize)) ||
-		(nodeName === 'orderedList' && isNodeWithMediaOrExtension(tr.doc, start, nodeSize));
-
-	if (
-		(isNodeSelection && nodeName !== 'blockquote') ||
-		isListWithMediaOrExtension ||
-		isBlockQuoteWithMediaOrExtension ||
-		// decisionList/layoutColumn node is not selectable, but we want to select the whole node not just text
-		['decisionList', 'layoutColumn'].includes(nodeName || '')
-	) {
-		return new NodeSelection($startPos);
-	} else if (nodeName === 'mediaGroup' && node?.childCount === 1) {
-		const $mediaStartPos = tr.doc.resolve(start + 1);
-		return new NodeSelection($mediaStartPos);
-	} else if (
-		// Even though mediaGroup is not selectable,
-		// we need a quick way to make all child media nodes appear as selected without the need for a custom selection
-		nodeName === 'mediaGroup'
-	) {
-		return new NodeSelection($startPos);
-	} else if (nodeName === 'taskList') {
-		return TextSelection.create(tr.doc, start, start + nodeSize);
-	} else {
-		const { inlineNodePos, inlineNodeEndPos } = getInlineNodePos(tr.doc, start, nodeSize);
-		return new TextSelection(tr.doc.resolve(inlineNodePos), tr.doc.resolve(inlineNodeEndPos));
-	}
-};
-
 /**
  * Gets the appropriate selection for the node at the given start position.
  *
@@ -110,83 +58,31 @@ const oldGetSelection = (tr: Transaction, start: number) => {
  * @param start The start position of the node.
  * @returns The appropriate selection for the node.
  */
-export const newGetSelection = (doc: PMNode, selectionEmpty: boolean, start: number) => {
+export const newGetSelection = (
+	doc: PMNode,
+	selectionEmpty: boolean,
+	start: number,
+): false | TextSelection | NodeSelection => {
+	if (fg('platform_editor_maui_jira_updates')) {
+		return getNodeSelectionForPos(doc, start) || false;
+	}
+
 	const node = doc.nodeAt(start);
-	const isNodeSelection = node && NodeSelection.isSelectable(node);
-	const nodeSize = node ? node.nodeSize : 1;
 	const nodeName = node?.type.name;
 
-	if (expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) {
-		// if mediaGroup only has a single child, we want to select the child
-		if (nodeName === 'mediaGroup' && node?.childCount === 1) {
-			const $mediaStartPos = doc.resolve(start + 1);
-			return new NodeSelection($mediaStartPos);
-		}
-
-		// if heading with alignment nested inside a layout column, return TextSelection
-		// As NodeSelection cause the desc.selectNode is not a function error in the syncNodeSelection in prosemirror view
-		// Results in block menu not open on the first 2 clicks for a heading with alignment nested inside a layout column
-		if (
-			nodeName === 'heading' &&
-			node?.marks.some((mark) => mark.type.name === 'alignment') &&
-			doc.nodeAt(start - 1)?.type.name === 'layoutColumn'
-		) {
-			return TextSelection.create(doc, start, start + nodeSize);
-		}
-
-		return new NodeSelection(doc.resolve(start));
-	}
-
-	// this is a fix for empty paragraph selection - put first to avoid any extra work
-	if (nodeName === 'paragraph' && selectionEmpty && node?.childCount === 0) {
-		return false;
-	}
-
-	const isBlockQuoteWithMediaOrExtension =
-		nodeName === 'blockquote' && isNodeWithMediaOrExtension(doc, start, nodeSize);
-
-	const isListWithMediaOrExtension =
-		(nodeName === 'bulletList' && isNodeWithMediaOrExtension(doc, start, nodeSize)) ||
-		(nodeName === 'orderedList' && isNodeWithMediaOrExtension(doc, start, nodeSize));
-
-	if (
-		(isNodeSelection && nodeName !== 'blockquote') ||
-		isListWithMediaOrExtension ||
-		isBlockQuoteWithMediaOrExtension ||
-		// decisionList/layoutColumn node is not selectable, but we want to select the whole node not just text
-		['decisionList', 'layoutColumn'].includes(nodeName || '') ||
-		(nodeName === 'mediaGroup' && typeof node?.childCount === 'number' && node?.childCount > 1)
-	) {
-		return new NodeSelection(doc.resolve(start));
-	}
-
 	// if mediaGroup only has a single child, we want to select the child
-	if (nodeName === 'mediaGroup') {
+	if (nodeName === 'mediaGroup' && node?.childCount === 1) {
 		const $mediaStartPos = doc.resolve(start + 1);
 		return new NodeSelection($mediaStartPos);
 	}
-
-	if (nodeName === 'taskList') {
-		return TextSelection.create(doc, start, start + nodeSize);
-	}
-
-	const { inlineNodePos, inlineNodeEndPos } = getInlineNodePos(doc, start, nodeSize);
-	return new TextSelection(doc.resolve(inlineNodePos), doc.resolve(inlineNodeEndPos));
+	return new NodeSelection(doc.resolve(start));
 };
 
 export const getSelection = (
 	tr: Transaction,
 	start: number,
-	api?: ExtractInjectionAPI<BlockControlsPlugin>,
-) => {
-	if (
-		areToolbarFlagsEnabled(Boolean(api?.toolbar)) ||
-		expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-	) {
-		return newGetSelection(tr.doc, tr.selection.empty, start);
-	}
-
-	return oldGetSelection(tr, start);
+): false | TextSelection | NodeSelection => {
+	return newGetSelection(tr.doc, tr.selection.empty, start);
 };
 
 export const selectNode = (
@@ -195,13 +91,16 @@ export const selectNode = (
 	nodeType: string,
 	api?: ExtractInjectionAPI<BlockControlsPlugin>,
 ): Transaction => {
-	// For table, we need to do cell selection instead of node selection
+	if (fg('platform_editor_maui_jira_updates')) {
+		return selectNodeAtPos(tr, start, nodeType);
+	}
+
 	if (nodeType === 'table') {
 		tr = selectTableClosestToPos(tr, tr.doc.resolve(start + 1));
 		return tr;
 	}
 
-	const selection = getSelection(tr, start, api);
+	const selection = getSelection(tr, start);
 
 	if (selection) {
 		tr.setSelection(selection);
@@ -287,7 +186,7 @@ export const isHandleCorrelatedToSelection = (
 	return Boolean(handlePos < selection.$to.pos && handlePos >= nodeStart);
 };
 
-export const rootListDepth = (itemPos: ResolvedPos) => {
+export const rootListDepth = (itemPos: ResolvedPos): number | undefined => {
 	let depth;
 	for (let i = itemPos.depth; i > 1; i -= 2) {
 		const node = itemPos.node(i);
@@ -300,7 +199,7 @@ export const rootListDepth = (itemPos: ResolvedPos) => {
 	return depth;
 };
 
-export const rootTaskListDepth = (taskListPos: ResolvedPos) => {
+export const rootTaskListDepth = (taskListPos: ResolvedPos): number | undefined => {
 	let depth;
 	for (let i = taskListPos.depth; i > 0; i--) {
 		const node = taskListPos.node(i);

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { type FileIdentifier, type FilePreview, type MediaClient } from '@atlaskit/media-client';
-import { useFileState, useMediaClient } from '@atlaskit/media-client-react';
+import { useFileState } from '@atlaskit/media-client-react/use-file-state';
+import { useMediaClient } from '@atlaskit/media-client-react/use-media-client';
 
 import { useCurrentValueRef } from '../utils/useCurrentValueRef';
 import { usePrevious } from '../utils/usePrevious';
-
-import { MediaSVGError } from './errors';
+import { MediaSVGError } from './MediaSVGError';
 import type { ContentSource } from './types';
 
 // We need to convert the blob into Base64 for security reasons: https://asecurityteam.atlassian.net/browse/VULN-1495952
@@ -53,7 +53,10 @@ const getRemoteSvg = async (
 export const useResolveSvg = (
 	identifier: FileIdentifier,
 	onError?: (error: MediaSVGError) => void,
-) => {
+): {
+	svgUrl: string | undefined;
+	source: ContentSource | undefined;
+} => {
 	const mediaClient = useMediaClient();
 	const { id, collectionName } = identifier;
 	const { id: prevId } = usePrevious(identifier) || identifier;

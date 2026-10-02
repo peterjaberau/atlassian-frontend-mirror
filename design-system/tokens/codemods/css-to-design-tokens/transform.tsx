@@ -3,8 +3,10 @@ import postcss, { type Plugin } from 'postcss';
 // @ts-ignore
 import lessSyntax from 'postcss-less';
 
-import { isColorRelatedProperty, isCssDeclaration, splitCssValue } from './lib/declaration';
-import { getBaseDeclarationMeta } from './lib/meta';
+import { getBaseDeclarationMeta } from './lib/get-base-declaration-meta';
+import { isColorRelatedProperty } from './lib/is-color-related-property';
+import { isCssDeclaration } from './lib/is-css-declaration';
+import { splitCssValue } from './lib/split-css-value';
 import findToken from './lib/tokens';
 import parseValue from './lib/value';
 

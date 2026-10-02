@@ -1,8 +1,10 @@
+/* eslint-disable @atlaskit/ui-styling-standard/no-styled */
+
 import React from 'react';
 
-import { styled } from '@compiled/react';
+import { styled, type StyledProps } from '@compiled/react';
 
-import { SpanSkeleton } from '@atlaskit/linking-common';
+import { SpanSkeleton } from '@atlaskit/linking-common/span-skeleton';
 import { token } from '@atlaskit/tokens';
 
 // TODO: Figure out a more scalable/responsive solution
@@ -11,10 +13,12 @@ import { token } from '@atlaskit/tokens';
 // the smart card container (when set to 0). Offset this
 // to position it with appropriate whitespace from the top.
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const Icon = styled.img({
+export const Icon: React.ComponentType<
+	React.ClassAttributes<HTMLImageElement> & React.ImgHTMLAttributes<HTMLImageElement> & StyledProps
+> = styled.img({
 	height: '16px',
 	width: '16px',
-	marginRight: token('space.050', '4px'),
+	marginRight: token('space.050'),
 	borderRadius: token('radius.xsmall'),
 	userSelect: 'none',
 	position: 'absolute',
@@ -31,14 +35,14 @@ export const Shimmer = ({ testId }: { testId: string }): React.JSX.Element => {
 		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
 		left: '50%',
 		transform: 'translate(-50%, -50%)',
-		marginRight: token('space.050', '4px'),
+		marginRight: token('space.050'),
 	};
 
 	return (
 		<SpanSkeleton
 			width={16}
 			height={16}
-			borderRadius={2}
+			borderRadius={token('radius.xsmall')}
 			testId={testId}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			style={skeletonCustomStyles}

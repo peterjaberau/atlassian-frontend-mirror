@@ -5,8 +5,8 @@
 
 import React, { useMemo } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 import { v4 as uuid } from 'uuid';
 
@@ -17,13 +17,12 @@ import {
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { MenuItem } from '@atlaskit/editor-common/ui-menu';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { SelectionExtensionPlugin } from '../../selectionExtensionPluginType';
 import type { SelectionExtension, MenuItemsType } from '../../types';
-
 import { SelectionExtensionDropdownMenu } from './SelectionExtensionDropdownMenu';
 
 type SelectionExtensionItemsProps = {
@@ -90,4 +89,7 @@ export const SelectionExtensionItemsComponent = ({
 	);
 };
 
-export const SelectionExtensionItems = injectIntl(SelectionExtensionItemsComponent);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const SelectionExtensionItems: React.FC<WithIntlProps<SelectionExtensionItemsProps>> & {
+	WrappedComponent: React.ComponentType<SelectionExtensionItemsProps>;
+} = injectIntl(SelectionExtensionItemsComponent);

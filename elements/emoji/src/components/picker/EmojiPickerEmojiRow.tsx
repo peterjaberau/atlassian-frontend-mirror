@@ -2,16 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { memo } from 'react';
+import { memo, type MemoExoticComponent } from 'react';
+
 import { css, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { useIntl } from 'react-intl-next';
-import type { EmojiDescription, OnEmojiEvent } from '../../types';
-import CachingEmoji from '../common/CachingEmoji';
 import type { VirtualItem as VirtualItemContext } from '@tanstack/react-virtual';
+import { useIntl } from 'react-intl';
+
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import { token } from '@atlaskit/tokens';
+
 import { useEmojiPickerListContext } from '../../hooks/useEmojiPickerListContext';
-import type { CategoryGroupKey } from './categories';
+import type { EmojiDescription, OnEmojiEvent } from '../../types';
+import { isTeamoji26RefreshEmojiPickerEnabledNoExposure } from '../../util/teamoji26RefreshEmojiPicker';
+import CachingEmoji from '../common/CachingEmoji';
 import { messages } from '../i18n';
+import type { CategoryGroupKey } from './categories';
 
 const emojiItem = css({
 	display: 'inline-block',
@@ -21,33 +26,33 @@ const emojiItem = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& .emoji-common-node': {
 		cursor: 'pointer',
-		paddingTop: token('space.100', '8px'),
-		paddingRight: token('space.100', '8px'),
-		paddingBottom: token('space.100', '8px'),
-		paddingLeft: token('space.100', '8px'),
+		paddingTop: token('space.100'),
+		paddingRight: token('space.100'),
+		paddingBottom: token('space.100'),
+		paddingLeft: token('space.100'),
 		borderRadius: token('radius.medium'),
 		width: '24px',
 		height: '24px',
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& .emoji-common-placeholder': {
-		paddingTop: token('space.0', '0px'),
-		paddingRight: token('space.0', '0px'),
-		paddingBottom: token('space.0', '0px'),
-		paddingLeft: token('space.0', '0px'),
-		marginTop: token('space.100', '8px'),
-		marginRight: token('space.100', '8px'),
-		marginBottom: token('space.100', '8px'),
-		marginLeft: token('space.100', '8px'),
+		paddingTop: token('space.0'),
+		paddingRight: token('space.0'),
+		paddingBottom: token('space.0'),
+		paddingLeft: token('space.0'),
+		marginTop: token('space.100'),
+		marginRight: token('space.100'),
+		marginBottom: token('space.100'),
+		marginLeft: token('space.100'),
 		minWidth: '24px',
 		maxWidth: '24px',
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& .emoji-common-node .emoji-common-placeholder': {
-		marginTop: token('space.0', '0px'),
-		marginRight: token('space.0', '0px'),
-		marginBottom: token('space.0', '0px'),
-		marginLeft: token('space.0', '0px'),
+		marginTop: token('space.0'),
+		marginRight: token('space.0'),
+		marginBottom: token('space.0'),
+		marginLeft: token('space.0'),
 	},
 	// Fit non-square emoji to square
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
@@ -68,8 +73,11 @@ const emojiItem = css({
 	},
 });
 
-const emojiPickerRow = css({
-	marginLeft: token('space.100', '8px'),
+const emojiPickerRowList = css({
+	listStyle: 'none',
+	padding: 0,
+	margin: 0,
+	marginLeft: token('space.100'),
 });
 
 export interface Props {
@@ -77,6 +85,7 @@ export interface Props {
 	emojis: EmojiDescription[];
 	onDelete?: OnEmojiEvent;
 	onFocus?: OnEmojiEvent;
+	onMouseLeave?: () => void;
 	onMouseMove?: OnEmojiEvent;
 	onSelected?: OnEmojiEvent;
 	showDelete: boolean;
@@ -88,15 +97,20 @@ const EmojiPickerEmojiRow = ({
 	emojis,
 	onSelected,
 	onMouseMove,
+	onMouseLeave,
 	onFocus,
 	title,
 	showDelete,
 	onDelete,
 	virtualItemContext,
-}: Props) => {
+}: Props): JSX.Element => {
 	const { currentEmojisFocus, setEmojisFocus } = useEmojiPickerListContext();
 	const rowIndex = virtualItemContext?.index || 0;
 	const { formatMessage } = useIntl();
+	const fitToHeight = expValEqualsNoExposure('platform_use_unicode_emojis', 'isEnabled', true)
+		? 24
+		: undefined;
+	const preventFocusOnMouseDown = isTeamoji26RefreshEmojiPickerEnabledNoExposure();
 	const handleFocus: (index: number) => OnEmojiEvent<HTMLSpanElement> =
 		(index) => (emojiId, emoji, event) => {
 			setEmojisFocus({
@@ -106,24 +120,20 @@ const EmojiPickerEmojiRow = ({
 			onFocus && onFocus(emojiId, emoji, event);
 		};
 	return (
-		<div css={emojiPickerRow} role="presentation">
+		<ul css={emojiPickerRowList} role="list">
 			{emojis.map((emoji, index) => {
 				const { shortName, id } = emoji;
 				const key = id ? `${id}-${title}` : `${shortName}-${title}`;
 				const focus =
 					currentEmojisFocus.rowIndex === rowIndex && currentEmojisFocus.columnIndex === index;
 				return (
-					<span
-						css={emojiItem}
-						key={key}
-						role="gridcell"
-						aria-colindex={index + 1} // aria-colindex is 1 based
-					>
+					<li key={key} css={emojiItem}>
 						<CachingEmoji
 							emoji={emoji}
 							selectOnHover={true}
 							onSelected={onSelected}
 							onMouseMove={onMouseMove}
+							onMouseLeave={onMouseLeave}
 							onFocus={handleFocus(index)}
 							showDelete={showDelete}
 							onDelete={onDelete}
@@ -132,12 +142,26 @@ const EmojiPickerEmojiRow = ({
 							tabIndex={focus ? 0 : -1}
 							aria-roledescription={formatMessage(messages.emojiButtonRoleDescription)}
 							shouldBeInteractive
+							fitToHeight={fitToHeight}
+							preventFocusOnMouseDown={preventFocusOnMouseDown}
 						/>
-					</span>
+					</li>
 				);
 			})}
-		</div>
+		</ul>
 	);
 };
 
-export default memo(EmojiPickerEmojiRow);
+const _default_1: MemoExoticComponent<
+	({
+		emojis,
+		onSelected,
+		onMouseMove,
+		onFocus,
+		title,
+		showDelete,
+		onDelete,
+		virtualItemContext,
+	}: Props) => JSX.Element
+> = memo(EmojiPickerEmojiRow);
+export default _default_1;

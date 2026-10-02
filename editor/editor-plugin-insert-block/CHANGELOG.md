@@ -1,5 +1,1671 @@
 # @atlaskit/editor-plugin-insert-block
 
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.10
+
+### Patch Changes
+
+- [`051cd10867eae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/051cd10867eae) -
+  Expose uploadStatus and mentionProviderStatus to distinguish pending providers from unavailable
+  capabilities. Under platform_editor_ssr_toolbar_optimistic, keep mention and media toolbar buttons
+  enabled while providers are pending, avoiding class changes on successful initialization while
+  preserving existing insertion restrictions.
+
+  When a view-only synchronous SSR media provider accompanies a pending full provider, keep uploads
+  pending until the full provider resolves instead of treating the SSR config as a permission
+  denial.
+
+- Updated dependencies
+
+## 23.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- [`6a4ce5b236e6b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6a4ce5b236e6b) -
+  [ux] Expose the emoji content identifier in shared state and pass it to toolbar emoji pickers so
+  Confluence comments can use AI emoji generation behind `confluence_ai_generated_emojis`.
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- [`7306003a7565b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7306003a7565b) -
+  Fix modal dismissal, category spacing, measured list height, and viewport-aware menu placement
+  under platform_editor_slash_command.
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- [`a1df9dd2d8f02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a1df9dd2d8f02) -
+  Add the optional `showNoResultsMessage` empty-state handler parameter and
+  `platform_editor_slash_command`-gated Ask Rovo and View more recovery for registered quick insert
+  searches with no matches. Respect registry visibility and keep Marketplace content separate from
+  listbox navigation while preserving its native keyboard controls.
+
+  Show the registered Ask Rovo action alongside Marketplace suggestions in the element browser's
+  no-match state, with a divider separating the fallback action from Marketplace content. Keep the
+  toolbar's View more footer visible while Marketplace content scrolls and preserve native Tab
+  navigation.
+
+  Respect `data-keyboard-navigation-independent` containers in both toolbar keyboard navigation
+  providers. Apply the attribute to the registered insert menu, whose rendering is gated by
+  `platform_editor_slash_command`, so its controls retain their own key handling and native tab
+  stops.
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.12
+
+### Patch Changes
+
+- [`749f1c3c8359c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/749f1c3c8359c) -
+  Retain the first 30 category results and include the first 10 ecosystem quick-insert registrations
+  when they fall beyond that cutoff.
+
+  Limit slash-command insert-menu category browsing while preserving uncapped search results.
+
+  Classify ecosystem quick-insert provider registrations without changing compatibility keys.
+
+  Preserve app provenance for Quick Insert items while the `platform_editor_slash_command`
+  experiment is enabled.
+
+  Enable Quick Insert category analytics while the `platform_editor_slash_command` experiment is
+  enabled.
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.2
+
+### Patch Changes
+
+- [`c3b80cb940e98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3b80cb940e98) -
+  Clean up feature gate `platform_editor_experience_tracking_toolbar_button` and permanently enable
+  the toolbar action experiences plugin it gated
+- Updated dependencies
+
+## 18.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`df59babd59961`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/df59babd59961) -
+  Use registered Quick Insert items in both primary toolbar implementations when
+  `platform_editor_slash_command` is enabled, independently of the controls and AIFC experiments.
+  Share the registered menu model through an explicit editor-common subpath and use compact
+  presentation for typeahead and toolbar items.
+
+  Virtualize the toolbar menu, keep keyboard-selected items visible, and restore the bounded popup's
+  themed background and scrolling. Dismiss the popup on outside clicks and inset the search field
+  from its edges. When the experiment is enabled, ignore absent legacy Quick Insert handlers to
+  prevent suggestion crashes.
+
+  Provide persisted toolbar docking preferences in editor examples to support testing the primary
+  toolbar Insert menu.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.15
+
+### Patch Changes
+
+- [`b4c4cd8f205e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b4c4cd8f205e4) -
+  Clean up experiment `platform_editor_prevent_toolbar_layout_shifts` and keep the enabled toolbar
+  layout behavior.
+- Updated dependencies
+
+## 16.0.14
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 16.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- [`8e67cc3c24a39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8e67cc3c24a39) -
+  Remove the concluded Create with Rovo quick-insert experiment and retain its control behavior.
+
+  This is a breaking API change for `@atlaskit/tmp-editor-statsig` consumers because
+  `editorExperimentsConfig.cc_fd_cwr_quick_insert` and the corresponding typed experiment key no
+  longer exist.
+
+  Remove references to `editorExperimentsConfig.cc_fd_cwr_quick_insert` and experiment lookups such
+  as:
+
+  ```ts
+  if (expValNoExposure('cc_fd_cwr_quick_insert', 'cohort', 'control') === 'control') {
+  	return useControlBehavior();
+  }
+  return useTreatmentBehavior();
+  ```
+
+  There is no replacement experiment. Delete the conditional and use the former control behavior
+  directly:
+
+  ```ts
+  return useControlBehavior();
+  ```
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.16
+
+### Patch Changes
+
+- [`fd3ef8de291ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fd3ef8de291ba) -
+  Cleanup feature gate `platform_editor_nov_a11y_fixes`
+- Updated dependencies
+
+## 12.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- [`db6cfe6d842ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db6cfe6d842ac) -
+  Cleaned up stale experiment platform_editor_fix_media_picker_hidden. Removed experiment gating in
+  MediaButton, keeping the shipped (true) code path. Removed experiment type definition and config
+  entry.
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.0
+
+### Minor Changes
+
+- [`a94a013546f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a94a013546f69) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`ef22af532ebfd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef22af532ebfd) -
+  EDITOR-6558: Introduce a reusable Markdown Mode editor plugin and two consumer-supplied
+  insert-filter hooks.
+
+  ### `@atlassian/editor-plugin-markdown-mode` (new package — major)
+
+  A reusable editor plugin that owns the full Markdown Mode lifecycle: ProseMirror plugin state for
+  the active view, a 3-button view toggle (`MarkdownModeViewToggleBase`), a CodeMirror 6 source view
+  (`MarkdownSourceView`), ADF↔markdown conversion (`adfToMarkdown` / `markdownToAdf`), and the
+  snapshot/writeback orchestration (`MarkdownModeContentComponent`). The plugin is product-agnostic
+  — Confluence wraps it for the `cc-markdown-mode` experiment, but any consumer can adopt it.
+
+  The package also exports two allowlists used by the new insert-filter hooks below:
+  - `MARKDOWN_COMPATIBLE_QUICK_INSERT_ITEM_IDS` + `isMarkdownCompatibleQuickInsertItem` — items
+    whose underlying node has a clean GFM round-trip via `@atlassian/mdast-util-from-pm`.
+  - `MARKDOWN_COMPATIBLE_TOOLBAR_ITEM_NAMES` + `isMarkdownCompatibleToolbarItem` — same idea for the
+    main toolbar's `+` insert block.
+
+  ### `@atlaskit/editor-plugin-quick-insert` (minor)
+
+  Added an optional `itemFilter?: (item: QuickInsertItem) => boolean` to `QuickInsertOptions`. When
+  set, the filter is applied in both `getQuickInsertSuggestions` (the typeahead path) and the
+  `getSuggestions` action path before items are categorised or returned. Composes additively with
+  any caller-supplied filter via `&&`. No behavioural change for callers that don't set it.
+
+  ### `@atlaskit/editor-plugin-insert-block` (minor)
+
+  Added an optional `itemFilter?: (item: { value: { name: string } }) => boolean` to
+  `InsertBlockPluginOptions`. The filter is applied to the items list inside `createItems` before
+  it's split into toolbar buttons / overflow dropdown entries, so item counts stay correct
+  downstream. Wired through both legacy (`ToolbarInsertBlock`) and new (`useInsertButtonState`)
+  toolbar code paths. No behavioural change for callers that don't set it.
+
+  ### `@atlaskit/editor-common` (patch)
+
+  `UseSharedPluginStateWithSelector`-friendly types are unchanged; the only public change is a new
+  optional field on `QuickInsertOptions` and a corresponding plumbing field on the internal
+  `QuickInsertSearchOptions`.
+
+  ### `@atlassian/mdast-util-from-pm` (patch)
+
+  Added `undoEdgeWhitespaceEncoding()` post-processor that replaces the leading/trailing-edge entity
+  escapes `&#x20;` and `&#x9;` produced by the upstream encoder with literal space and tab
+  characters. This is a readability + round-trip identity fix that benefits all consumers, not just
+  Markdown Mode.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`d1bd1354e626f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1bd1354e626f) -
+  Remove A/A for Create with Rovo via Slash Command experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.0
+
+### Minor Changes
+
+- [`505563ec74fe5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/505563ec74fe5) -
+  [ux] Add insert menu featured sorting for Create with Rovo via slash experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.2
+
+### Patch Changes
+
+- [`14803a836f641`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14803a836f641) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`73ebf54808245`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73ebf54808245) -
+  [ux] Added featured sorting for whiteboard jira quick insert item to the insert menu
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.24
+
+### Patch Changes
+
+- [`b42704f7ca9d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b42704f7ca9d8) -
+  Clean up stale feature flag `platform_editor_media_insert_check` (final value: `true`). The
+  flag-gated code paths are now the default behaviour — media insert popup is shown via
+  `mediaInsert` plugin when available, falling back to the legacy `showMediaPicker`.
+- Updated dependencies
+
+## 9.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.16
+
+### Patch Changes
+
+- [`88a7ee0806123`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88a7ee0806123) -
+  Mechanical type-import autofix for block, layout, and control packages.
+- Updated dependencies
+
+## 9.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.14
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 9.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.11
+
+### Patch Changes
+
+- [`da1128b3090cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da1128b3090cc) -
+  [EDITOR-5922] Update media picker to mount to popupsMountPoint (e.g. portal) if available so that
+  it is still visible when rendering outside of editor that has overflow hidden (e.g. resizable
+  editor)
+- Updated dependencies
+
+## 9.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.10
+
+### Patch Changes
+
+- [`f623524e57d49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f623524e57d49) -
+  Add portalRoot type to ExperienceCheckPopupMutation
+- Updated dependencies
+
+## 8.7.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.8
+
+### Patch Changes
+
+- [`64fe39d800a84`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64fe39d800a84) -
+  Improve ExperienceCheckPopupMutation logic to be more performant
+- Updated dependencies
+
+## 8.7.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.4
+
+### Patch Changes
+
+- [`57f499d6937db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/57f499d6937db) -
+  Extract ExperienceCheckPopupMutation logic to be reusable for block menu experience tracking
+- Updated dependencies
+
+## 8.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.0
+
+### Minor Changes
+
+- [`19911524eaec5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19911524eaec5) -
+  Cleanup A/A test for cc_fd_db_top_editor_toolbar experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.6.0
 
 ### Minor Changes

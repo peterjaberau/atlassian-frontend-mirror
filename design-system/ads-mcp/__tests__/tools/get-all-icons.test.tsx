@@ -1,7 +1,9 @@
-import { getAllIconsTool } from '../../src/tools/get-all-icons';
+import { getAllIconsTool } from '../../src/tools/get-all-icons/get-all-icons-tool';
 
-jest.mock('@atlaskit/icon/metadata', () => ({
-	coreIconMetadata: {
+jest.mock('@atlaskit/icon/metadata-core', () => ({
+	...jest.requireActual('@atlaskit/icon/metadata-core'),
+	__esModule: true,
+	default: {
 		'test-icon': {
 			keywords: ['test-keyword'],
 			componentName: 'ExampleIcon',
@@ -9,6 +11,7 @@ jest.mock('@atlaskit/icon/metadata', () => ({
 			categorization: 'single-purpose',
 			usage: 'Example Usage',
 			status: 'published',
+			team: 'Design System Team',
 		},
 		'test-icon-2': {
 			keywords: ['test-keyword'],
@@ -18,6 +21,7 @@ jest.mock('@atlaskit/icon/metadata', () => ({
 			usage: 'Example Usage',
 			status: 'published',
 			shouldRecommendSmallIcon: true,
+			team: 'Design System Team',
 		},
 	},
 }));
@@ -35,6 +39,7 @@ describe('ads_get_all_icons tool', () => {
 					keywords: ['test-keyword'],
 					status: 'published',
 					usage: 'Example Usage',
+					team: 'Design System Team',
 				},
 				null,
 				2,
@@ -51,6 +56,7 @@ describe('ads_get_all_icons tool', () => {
 					status: 'published',
 					usage: 'Example Usage',
 					shouldRecommendSmallIcon: true,
+					team: 'Design System Team',
 				},
 				null,
 				2,

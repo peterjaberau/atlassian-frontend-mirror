@@ -1,5 +1,1449 @@
 # @atlaskit/editor-extension-dropbox
 
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.0
+
+### Minor Changes
+
+- [`a034f535638cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a034f535638cc) -
+  Add structured Quick Insert previews with localised title, description and attribution under
+  platform_editor_slash_command.
+
+  Exclude footer and category navigation actions from previews. Left-align attribution, use subtle
+  title and attribution text, and default description text.
+
+  Show text previews even without preview metadata, and reserve a fixed image area while images load
+  or when they fail. Keep previews within the viewport, flipping left when needed, with compact
+  panel dimensions and typography.
+
+  Replace baked panel screenshots with image-only assets. Remove image fields from text-only legacy
+  previews while preserving their attribution.
+
+  Let extension providers own their preview images and attribution. Pass preview metadata through
+  the Company Hub manifest factory and remove Editor's fallback preview registry.
+
+  Localize provider attribution names and display Confluence and Jira product icons instead of the
+  attribution prefix when an icon is present. Allow the Dropbox manifest to receive the host's
+  message formatter.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`c7ac8f1cd5f6b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7ac8f1cd5f6b) -
+  Add ModalTitle usage behind platform_dst_modal-dialog-use-modal-title (adds
+  @atlaskit/platform-feature-flags).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.10
+
+### Patch Changes
+
+- [`18c1059ce30c8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18c1059ce30c8) -
+  Order Embed app slash commands alphabetically and keep the Dropbox icon vertically centered.
+- Updated dependencies
+
+## 15.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.8
+
+### Patch Changes
+
+- [`6304662fbdf4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6304662fbdf4a) -
+  Use the supported `createRoot` API when `platform_editor_react19_migration` is enabled.
+- Updated dependencies
+
+## 14.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`85087b263ce43`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85087b263ce43) -
+  Migrate react-dom render/unmountComponentAtNode to the React 18/19 createRoot API behind the
+  nike_r19_render_unmount feature gate. The legacy react-dom path is preserved on the gate-off
+  branch for rollback.
+
+## 10.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.6
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 9.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`ce30a31e6369d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce30a31e6369d) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.11
+
+### Patch Changes
+
+- [`d94df511393a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d94df511393a9) -
+  Removing FG platform_editor_a11y_eslint_fix
+- Updated dependencies
+
+## 8.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- [`9e45c7ac76c9a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e45c7ac76c9a) -
+  Enrol editor core packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.25
+
+### Patch Changes
+
+- [`7b7c52dff5d7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7c52dff5d7d) -
+  Fix eslint violations for type import syntax
+
+## 6.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`0a65ee9a1c299`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a65ee9a1c299) -
+  Replace ReactDOM.render in editor-extesion-dropbox
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.12
+
+### Patch Changes
+
+- [`07a6b579ea15d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07a6b579ea15d) -
+  remove unused dependencies
+- Updated dependencies
+
+## 5.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.5
+
+### Patch Changes
+
+- [`d2f1426fe5b85`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2f1426fe5b85) -
+  [ux] ENGHEALTH-46817 Add feature gated a11y eslint fixes across editor packages
+- Updated dependencies
+
+## 5.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 5.0.3
 
 ### Patch Changes

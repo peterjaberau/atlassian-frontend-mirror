@@ -2,7 +2,6 @@ import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import {
 	GapCursorSelection,
 	Side as GapCursorSide,
-	hideCaretModifier,
 	JSON_ID,
 	setGapCursorAtPos,
 	Side,
@@ -16,17 +15,22 @@ import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
 
 import { selectionPluginKey } from '../types';
-
 import { gapCursorPluginKey } from './gap-cursor-plugin-key';
 import { deleteNode } from './gap-cursor/actions';
 import { Direction } from './gap-cursor/direction';
 import { getLayoutModeFromTargetNode, isIgnoredClick } from './gap-cursor/utils';
 import { toDOM } from './gap-cursor/utils/place-gap-cursor';
 
-const plugin = new SafePlugin({
+type GapCursorPluginState = {
+	displayGapCursor: boolean;
+	hideCursor: boolean;
+	selectionIsGapCursor: boolean;
+};
+
+const plugin: SafePlugin<GapCursorPluginState> = new SafePlugin({
 	key: gapCursorPluginKey,
 	state: {
-		init: () => ({
+		init: (): GapCursorPluginState => ({
 			selectionIsGapCursor: false,
 			displayGapCursor: true,
 			hideCursor: false,
@@ -63,23 +67,7 @@ const plugin = new SafePlugin({
 				);
 			});
 		}
-		return {
-			update(view) {
-				const { selectionIsGapCursor } = gapCursorPluginKey.getState(view.state);
-				/**
-				 * Starting with prosemirror-view 1.19.4, cursor wrapper that previously was hiding cursor doesn't exist:
-				 * https://github.com/ProseMirror/prosemirror-view/commit/4a56bc7b7e61e96ef879d1dae1014ede0fc09e43
-				 *
-				 * Because it was causing issues with RTL: https://github.com/ProseMirror/prosemirror/issues/948
-				 *
-				 * This is the work around which uses `caret-color: transparent` in order to hide regular caret,
-				 * when gap cursor is visible.
-				 *
-				 * Browser support is pretty good: https://caniuse.com/#feat=css-caret-color
-				 */
-				view.dom.classList.toggle(hideCaretModifier, selectionIsGapCursor);
-			},
-		};
+		return {};
 	},
 
 	props: {
@@ -106,7 +94,8 @@ const plugin = new SafePlugin({
 				return DecorationSet.create(doc, [
 					Decoration.widget(position, toDOM, {
 						key: `${JSON_ID}-${side}-${layoutMode}`,
-						side: layoutMode ? -1 : 0,
+						// position === 0: if gap cursor at start of document, render it on the left side of the selection to enable pasting (otherwise Chrome doesn't pick up the paste event)
+						side: layoutMode || position === 0 ? -1 : 0,
 					}),
 				]);
 			}

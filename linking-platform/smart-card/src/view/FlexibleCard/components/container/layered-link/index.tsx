@@ -2,10 +2,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { css, jsx } from '@compiled/react';
 
-import { useMouseDownEvent } from '../../../../../state/analytics/useLinkClicked';
-
+import { useMouseDownEvent } from '../../../../../state/analytics/useMouseDownEvent';
 import { type LayeredLinkProps } from './types';
 
 const styles = css({
@@ -51,7 +51,15 @@ const styles = css({
  * @internal
  * @see `clickableContainer`
  */
-const LayeredLink = ({ onClick, target, testId, text, url }: LayeredLinkProps) => {
+const LayeredLink = ({
+	onClick,
+	onAuxClick,
+	onContextMenu,
+	target,
+	testId,
+	text,
+	url,
+}: LayeredLinkProps): JSX.Element => {
 	const onMouseDown = useMouseDownEvent();
 
 	return (
@@ -63,6 +71,8 @@ const LayeredLink = ({ onClick, target, testId, text, url }: LayeredLinkProps) =
 			data-testid={`${testId}-layered-link`}
 			href={url}
 			onClick={onClick}
+			onAuxClick={onAuxClick}
+			onContextMenu={onContextMenu}
 			onMouseDown={onMouseDown}
 			target={target}
 		>

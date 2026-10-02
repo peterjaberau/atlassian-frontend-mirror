@@ -2,28 +2,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-/** @jsxFrag */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-	type UIAnalyticsEvent,
-	withAnalyticsContext,
-	type WithContextProps,
-} from '@atlaskit/analytics-next';
-import SectionMessage from '@atlaskit/section-message';
-import Button from '@atlaskit/button/custom-theme-button';
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
-import { Text } from '@atlaskit/primitives/compiled';
+
 import { css, jsx } from '@compiled/react';
+import { injectIntl, type WrappedComponentProps } from 'react-intl';
+
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
+import { Text } from '@atlaskit/primitives/compiled';
+import SectionMessage from '@atlaskit/section-message/message';
 
 import { messages } from '../../messages';
 import { type ArticleItem } from '../../model/Article';
-import ArticlesList from '../ArticlesList';
-import RelatedArticlesLoading from './RelatedArticlesLoading';
-import { DividerLine } from '../../util/styled';
-import { RelatedArticlesTitle } from './styled';
 import useCancellablePromise from '../../util/hooks/cancellablePromise';
 import { usePrevious } from '../../util/hooks/previous';
+import { DividerLine } from '../../util/styled';
+import ArticlesList from '../ArticlesList';
+import RelatedArticlesLoading from './RelatedArticlesLoading';
+import { RelatedArticlesTitle } from './styled';
 
 const packageName = process.env._PACKAGE_NAME_ as string;
 const packageVersion = process.env._PACKAGE_VERSION_ as string;
@@ -137,14 +137,14 @@ export const RelatedArticles: React.FC<Props & WrappedComponentProps> = ({
 		);
 	} else {
 		return (
-			<>
+			<React.Fragment>
 				{style === 'secondary' && relatedArticles.length > 0 && (
-					<>
+					<React.Fragment>
 						<DividerLine />
 						<RelatedArticlesTitle>
 							{formatMessage(messages.help_related_article_title)}
 						</RelatedArticlesTitle>
-					</>
+					</React.Fragment>
 				)}
 				{isLoading ? (
 					<RelatedArticlesLoading />
@@ -157,7 +157,7 @@ export const RelatedArticles: React.FC<Props & WrappedComponentProps> = ({
 						onToggleArticlesList={handleOnRelatedArticlesShowMoreClick}
 					/>
 				)}
-			</>
+			</React.Fragment>
 		);
 	}
 };

@@ -1,5 +1,520 @@
 # @atlaskit/lozenge
 
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- [`0f780b942b35d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f780b942b35d) -
+  Use Popup's shared trigger types for existing trigger ARIA contracts.
+- Updated dependencies
+
+## 17.0.0
+
+### Major Changes
+
+- [`ae5c32fe7bfd6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae5c32fe7bfd6) -
+  Record the rollback of the DSP-25935 popup trigger type expansion in PR #487935. This restores
+  compatibility with existing consumers, including Jira Assets audit logs and linked objects.
+
+  Popup's `aria-haspopup` trigger contract returns to `boolean | 'dialog'`. The affected public
+  trigger props in Dropdown Menu, Avatar, Lozenge, Universal Create, Rovo Pins, and Navigation
+  System also return to their earlier contracts. Consumers using the newly added role-specific
+  string values must return to values supported by those earlier contracts. Popup no longer exports
+  `AriaHasPopup` or `TriggerAriaProps`; use `TriggerProps['aria-haspopup']` and
+  `Pick<TriggerProps, 'aria-controls' | 'aria-expanded' | 'aria-haspopup'>` instead.
+
+  Popup and Dropdown Menu retain their existing top-layer runtime ARIA values through the prior
+  compatibility adapters. Conversation Assistant returns to its previous internal trigger type
+  annotation without changing its public API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`228be7a992e49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/228be7a992e49) -
+  Allow Avatar and Lozenge Dropdown Trigger to accept popup role values and booleans for
+  `aria-haspopup`, including values forwarded by Popup. Align Universal Create and Rovo Pins trigger
+  types with Popup when forwarding its ARIA props.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Major Changes
+
+- [`1487ee3c552ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1487ee3c552ad) -
+  [ux] BREAKING: Removes the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate and makes
+  the refreshed Lozenge implementation the default. Legacy non-bold rendering and legacy DOM or
+  styling assertions are no longer supported; use Tag for labels and categorization, and update
+  visual snapshots or DOM assertions that depend on the legacy Lozenge rendering.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.1
+
+### Patch Changes
+
+- [`22d1769061c07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22d1769061c07) -
+  Experimental React 19 test compatibility fix for Lozenge. Test coverage is partial.
+- Updated dependencies
+
+## 15.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.1
+
+### Patch Changes
+
+- Use `@atlassian/testing-library` exclusively in unit tests.
+- Updated dependencies
+
+## 15.3.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`0f991757357a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f991757357a9) -
+  Fade between Lozenge Dropdown Trigger content and its loading spinner behind the
+  `platform-dst-motion-uplift-button` feature gate.
+
+## 15.0.2
+
+### Patch Changes
+
+- [`77c80a1010e70`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77c80a1010e70) -
+  Include border-color in button motion transitions and apply the motion to interactive lozenge
+  dropdown triggers behind the button motion feature flag.
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Major Changes
+
+- [`b9a07863db348`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9a07863db348) -
+  Apply Volt entry-point and multi-export standards via `volt-migrate-package`. This is a **major**
+  change to `@atlaskit/lozenge`: the package `exports` map has been restructured so every public
+  subpath now resolves **directly** to its `./src/*` implementation instead of going through an
+  intermediate `./src/entry-points/*` re-export. It also introduces new public subpaths:
+  `@atlaskit/lozenge/new/lozenge`.
+
+  ### Why this is breaking
+
+  Because each subpath now points straight at its implementation module, a subpath and the package
+  root can resolve to the **same module instance**. Consumers that deep-import the internal
+  `entry-points/*` files, or that `jest.mock()` a specific subpath, may observe changed
+  resolution/behaviour and need updating.
+
+  ### Migration — public imports are unchanged
+
+  Importing the published subpaths (or the package root) continues to work as before:
+
+  ```ts
+  // Still valid — no change required
+  import Lozenge from '@atlaskit/lozenge/lozenge';
+  ```
+
+  If you were reaching into the internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Lozenge from '@atlaskit/lozenge/entry-points/lozenge';
+  +import Lozenge from '@atlaskit/lozenge/lozenge';
+  ```
+
+  ### Before / after `exports` map
+
+  ```diff
+    "exports": {
+      ".": "./src/index.tsx",
+  -   "./lozenge": "./src/entry-points/lozenge.tsx",
+  +   "./lozenge": "./src/lozenge.tsx",
+  -   "./lozenge-dropdown-trigger": "./src/entry-points/lozenge-dropdown-trigger.tsx",
+  +   "./lozenge-dropdown-trigger": "./src/new/lozenge-dropdown-trigger.tsx",
+      "./new": "./src/new/entrypoint.tsx",
+  +   "./new/lozenge": "./src/new/lozenge.tsx",
+  -   "./types": "./src/entry-points/types.tsx",
+  +   "./types": "./src/new/types.tsx",
+    }
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 14.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.9.0
+
+### Minor Changes
+
+- [`3806011c04923`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3806011c04923) -
+  Removed all OKLCH and `color-mix()` runtime color transformations from the new Lozenge component
+  (behind the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate).
+  - Borders now use the new `color.border.accent.*.subtle` / `color.border.*.subtle` tokens
+    (introduced in `@atlaskit/tokens@13.2.0`) instead of being derived via OKLCH transforms.
+  - Icons use `color.text.*` tokens for guaranteed 3:1 contrast on coloured backgrounds across
+    default, hover, and pressed states. Neutral and accent-gray icons use `color.text.subtle`.
+  - The trailing metric Badge uses the new bold semantic Badge appearances (`successBold`,
+    `warningBold`, `dangerBold`, `informationBold`, `discoveryBold`) so the badge no longer reaches
+    into Lozenge styling. In the lozenge's pressed/selected state the badge overlays
+    `color.background.neutral` to remain distinguishable. The neutral lozenge uses
+    `color.background.neutral.hovered` in default/hovered states (no `neutralBold` appearance
+    exists).
+  - Removed Lozenge-specific accent.gray `.subtle` border in favour of the default `color.border`
+    (since gray decorative borders look the same as the neutral default).
+
+## 13.8.4
+
+### Patch Changes
+
+- [`9ef96548c3d31`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ef96548c3d31) -
+  Fixed the new Lozenge component (behind the `platform-dst-lozenge-tag-badge-visual-uplifts`
+  feature gate) not truncating text correctly when placed inside a parent container narrower than
+  the lozenge's `maxWidth` prop (e.g. a fixed-width or percentage-width container). The inner
+  content wrapper now has `max-width: 100%` applied unconditionally so it inherits the container's
+  width constraint, allowing the text to truncate at the visible edge of its parent.
+
+## 13.8.3
+
+### Patch Changes
+
+- [`4837611b390d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4837611b390d6) -
+  Fixed lozenge not truncating when max width is set to a percentage and new motion enabled
+- Updated dependencies
+
+## 13.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.8.1
+
+### Patch Changes
+
+- [`1f9114700d351`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f9114700d351) -
+  Moved new motion changes from `platform-dst-motion-uplift` feature gate to
+  `platform-dst-motion-uplift-popup`
+- Updated dependencies
+
+## 13.8.0
+
+### Minor Changes
+
+- [`436b89822a386`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/436b89822a386) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 13.7.1
+
+### Patch Changes
+
+- [`88696c5e1a75c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88696c5e1a75c) -
+  Switched from experimental `useResizingWidth` to the new generic `useResizing` hook from
+  `@atlaskit/motion/resizing`. No behavioural change.
+- Updated dependencies
+
+## 13.7.0
+
+### Minor Changes
+
+- [`52b7aa6b3d721`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52b7aa6b3d721) -
+  Added a new `/new` entrypoint for `@atlaskit/lozenge`, `@atlaskit/badge`, and `@atlaskit/tag`.
+  These entrypoints export the new visual refresh components directly, bypassing the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature flag. This is intended for products that
+  don't have Statsig integrated and cannot evaluate the feature flag.
+
+  New entrypoints:
+  - `import Lozenge from '@atlaskit/lozenge/new'`
+  - `import Badge from '@atlaskit/badge/new'`
+  - `import Tag from '@atlaskit/tag/new'`
+
+  **Note:** Do not use the `/new` entrypoint if your app can evaluate the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature flag. These entrypoints will be removed
+  after the visual uplift rollout is complete, which will require updating import paths back to the
+  default entrypoint.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.6.1
+
+### Patch Changes
+
+- [`82429debcd5e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/82429debcd5e8) -
+  Fixed issue where with motion enabled the lozenge was displaying ellipsis on resize
+- Updated dependencies
+
+## 13.6.0
+
+### Minor Changes
+
+- [`7b44d021342cf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b44d021342cf) -
+  Added motion to lozenge dropdown to animate the width of the lozenge upon change. Includes
+  transitioning the background, border and text color using experimental motion design tokens. These
+  changes are behind the `platform-dst-motion-uplift` feature flag.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.6
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 13.5.5
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 13.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.3
+
+### Patch Changes
+
+- [`18245cbd990e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18245cbd990e3) -
+  Added motion to opening and closing of Popup
+- Updated dependencies
+
+## 13.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.0
+
+### Minor Changes
+
+- [`1090b6ca92c60`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1090b6ca92c60) -
+  Added `aria-label` prop support to LozengeDropdownTrigger for providing custom accessible labels
+  to the trigger button element.
+
+## 13.4.5
+
+### Patch Changes
+
+- [`a18e28278b0ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a18e28278b0ac) -
+  Fixed percentage maxWidth truncation in new lozenge component. Text now correctly truncates with
+  ellipsis when maxWidth is set to a percentage value (e.g., '50%', '100%').
+
+  Add aria-controls, aria-expanded, and aria-haspopup props support to LozengeDropdownTrigger for
+  improved accessibility when used with DropdownMenu or Popup components. These props are now
+  properly passed through to the underlying button element.
+
+- Updated dependencies
+
+## 13.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 13.4.2
 
 ### Patch Changes

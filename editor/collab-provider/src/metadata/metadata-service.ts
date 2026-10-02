@@ -1,6 +1,6 @@
-import type { Metadata, CollabEvents } from '@atlaskit/editor-common/collab';
-
 import isEqual from 'lodash/isEqual';
+
+import type { Metadata, CollabEvents } from '@atlaskit/editor-common/collab';
 
 export class MetadataService {
 	private metadata: Metadata = {};
@@ -12,7 +12,7 @@ export class MetadataService {
 		private broadcastMetadata: (metadata: Metadata) => void,
 	) {}
 
-	getMetaData = () => this.metadata;
+	getMetaData = (): Metadata => this.metadata;
 
 	getTitle = (): string => {
 		return this.metadata.title?.toString();

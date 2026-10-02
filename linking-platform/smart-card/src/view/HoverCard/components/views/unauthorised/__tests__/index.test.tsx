@@ -1,16 +1,17 @@
+import { mockGetContext } from '../../../../../../state/actions/__tests__/index.test.mock';
+
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
+import { render, screen } from '@atlassian/testing-library';
 
 import { getCardState } from '../../../../../../../examples/utils/flexible-ui';
 import {
 	CONTENT_URL_3P_ACCOUNT_AUTH,
 	CONTENT_URL_SECURITY_AND_PERMISSIONS,
 } from '../../../../../../constants';
-import { mockGetContext } from '../../../../../../state/actions/__tests__/index.test.mock';
 import { mocks } from '../../../../../../utils/mocks';
 import { mockUnauthorisedResponse } from '../../../../__tests__/__mocks__/mocks';
 import HoverCardUnauthorisedView from '../index';
@@ -18,8 +19,8 @@ import { type HoverCardUnauthorisedProps } from '../types';
 
 mockSimpleIntersectionObserver();
 
-jest.mock('@atlaskit/link-provider', () => ({
-	...jest.requireActual('@atlaskit/link-provider'),
+jest.mock('@atlaskit/link-provider/use-smart-link-context', () => ({
+	...jest.requireActual('@atlaskit/link-provider/use-smart-link-context'),
 	useSmartLinkContext: () => ({
 		...mockGetContext(),
 		store: {
@@ -84,11 +85,11 @@ describe('Unauthorised Hover Card', () => {
 		const buttonElement = screen.getByTestId('hover-card-unauthorised-view-button');
 
 		expect(iconElement).toBeTruthy();
-		expect(titleElement).toHaveTextContent('Connect your Google account');
+		expect(titleElement).toHaveTextContent('Connect your Google Drive account');
 		expect(mainContentElement).toHaveTextContent(
-			'Connect your Google account to collaborate on work across Atlassian products. Learn more about Smart Links.',
+			'Turn your URLs into rich, interactive previews.Learn more about Smart Links.',
 		);
-		expect(buttonElement).toHaveTextContent('Connect to Google');
+		expect(buttonElement).toHaveTextContent('Connect to Google Drive');
 	});
 
 	it('"learn more" link should have a correct url', () => {
@@ -116,11 +117,11 @@ describe('Unauthorised Hover Card', () => {
 		const buttonElement = screen.getByTestId('hover-card-unauthorised-view-button');
 
 		expect(iconElement).toBeTruthy();
-		expect(titleElement).toHaveTextContent('Connect your Google account');
+		expect(titleElement).toHaveTextContent('Connect your Google Drive account');
 		expect(mainContentElement).toHaveTextContent(
-			'Connect your Google account to collaborate on work across Atlassian products. Learn more about connecting your account to Atlassian products.',
+			'Turn your URLs into rich, interactive previews.Learn more about connecting your account to Atlassian products.',
 		);
-		expect(buttonElement).toHaveTextContent('Connect to Google');
+		expect(buttonElement).toHaveTextContent('Connect to Google Drive');
 	});
 
 	it('uses alternative "learn more" url when `hasScopeOverrides` flag is present in the meta', () => {

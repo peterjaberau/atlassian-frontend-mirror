@@ -4,12 +4,13 @@ import {
 	localStorageFetchProvider,
 	localStorageWriteProvider,
 } from '@af/editor-examples-helpers/utils';
-import type { SyncedBlockPluginOptions } from '@atlaskit/editor-plugin-synced-block';
 import { CollapsedEditor, Editor, EditorContext } from '@atlaskit/editor-core';
-import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
+import type { SyncedBlockPluginOptions } from '@atlaskit/editor-plugin-synced-block';
 import { useMemoizedSyncedBlockProvider } from '@atlaskit/editor-synced-block-provider';
 import { getSyncedBlockRenderer } from '@atlaskit/editor-synced-block-renderer';
+import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
 import { token } from '@atlaskit/tokens';
+import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
 
 import ToolsDrawer from '../example-helpers/ToolsDrawer';
 import { SlackTransformer } from '../src';
@@ -39,7 +40,7 @@ declare global {
 	}
 }
 
-export default function EditorWithFeedback(props: Props): React.JSX.Element {
+export default function EditorWithFeedback(_props: Props): React.JSX.Element {
 	const [{ hasJquery, isExpanded }, setState] = useState<State>({
 		hasJquery: false,
 		isExpanded: false,
@@ -96,7 +97,7 @@ export default function EditorWithFeedback(props: Props): React.JSX.Element {
 				<ToolsDrawer
 					renderEditor={({ mentionProvider, emojiProvider, onChange, disabled }) => (
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						<div style={{ padding: token('space.250', '20px') }}>
+						<div style={{ padding: token('space.250') }}>
 							<CollapsedEditor
 								placeholder="What do you want to say?"
 								isExpanded={isExpanded}
@@ -108,9 +109,14 @@ export default function EditorWithFeedback(props: Props): React.JSX.Element {
 									placeholder="What do you want to say?"
 									shouldFocus={true}
 									allowHelpDialog={true}
+									allowPanel={true}
+									allowTables={true}
+									allowTasksAndDecisions={true}
+									allowNestedTasks={true}
 									disabled={disabled}
 									mentionProvider={mentionProvider}
 									emojiProvider={emojiProvider}
+									taskDecisionProvider={Promise.resolve(getMockTaskDecisionResource())}
 									media={{
 										provider: mediaProvider,
 										allowMediaSingle: true,

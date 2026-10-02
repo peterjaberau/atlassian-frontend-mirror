@@ -1,0 +1,67 @@
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
+import { useCallback, type MouseEvent } from 'react';
+
+import { css, jsx } from '@compiled/react';
+import { FormattedMessage } from 'react-intl';
+
+import AkButton from '@atlaskit/button/standard-button';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
+
+import { messages } from '../i18n';
+import SearchNoResultDark from './assets/spot/search-no-result/SearchNoResultDark';
+import SearchNoResultLight from './assets/spot/search-no-result/SearchNoResultLight';
+
+const noResultsContainer = css({
+	display: 'flex',
+	flexDirection: 'column',
+	alignItems: 'center',
+	justifyContent: 'center',
+	paddingTop: token('space.300'),
+	paddingRight: token('space.200'),
+	paddingBottom: token('space.300'),
+	paddingLeft: token('space.200'),
+	gap: token('space.200'),
+	textAlign: 'center',
+	width: '100%',
+	boxSizing: 'border-box',
+});
+
+export const RENDER_EMOJI_PICKER_NO_RESULTS_TESTID = 'render-emoji-picker-no-results';
+
+export interface Props {
+	onOpenUpload: () => void;
+	uploadEnabled: boolean;
+}
+
+const EmojiPickerNoResults = ({ onOpenUpload, uploadEnabled }: Props): JSX.Element => {
+	const { colorMode } = useThemeObserver();
+	const handleOpenUpload = useCallback(
+		(event: MouseEvent<HTMLElement>) => {
+			event.preventDefault();
+			event.stopPropagation();
+			onOpenUpload();
+		},
+		[onOpenUpload],
+	);
+
+	return (
+		<div css={noResultsContainer} data-testid={RENDER_EMOJI_PICKER_NO_RESULTS_TESTID}>
+			{colorMode === 'dark' ? <SearchNoResultDark /> : <SearchNoResultLight />}
+			{uploadEnabled && (
+				<FormattedMessage {...messages.emojiPickerAddCustomEmoji}>
+					{(label) => (
+						<AkButton onClick={handleOpenUpload} appearance="default" tabIndex={0}>
+							{label}
+						</AkButton>
+					)}
+				</FormattedMessage>
+			)}
+		</div>
+	);
+};
+
+export default EmojiPickerNoResults;

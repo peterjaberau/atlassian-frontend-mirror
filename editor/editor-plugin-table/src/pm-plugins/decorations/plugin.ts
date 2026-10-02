@@ -2,7 +2,6 @@ import { insideTable } from '@atlaskit/editor-common/core-utils';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type {
 	EditorState,
-	// @ts-ignore -- ReadonlyTransaction is a local declaration and will cause a TS2305 error in CCFE typecheck
 	ReadonlyTransaction,
 	Transaction,
 } from '@atlaskit/editor-prosemirror/state';
@@ -13,13 +12,12 @@ import { findTable } from '@atlaskit/editor-tables/utils';
 
 import { pluginKey as tablePluginKey } from '../plugin-key';
 import { pluginKey as tableWidthPluginKey } from '../table-width';
-
 import {
 	buildColumnControlsDecorations,
 	maybeUpdateColumnControlsSelectedDecoration,
 } from './utils/column-controls';
 
-export const pluginKey = new PluginKey('tableDecorationsPlugin');
+export const pluginKey: PluginKey = new PluginKey('tableDecorationsPlugin');
 
 export const getDecorations = (state: EditorState): DecorationSet => pluginKey.getState(state);
 
@@ -31,11 +29,7 @@ export const handleDocOrSelectionChanged = (
 ): DecorationSet => {
 	const isResizing = tableWidthPluginKey.getState(newState)?.resizing;
 	const wasResizing = tableWidthPluginKey.getState(oldState)?.resizing;
-	const {
-		isDragAndDropEnabled = false,
-		isInDanger,
-		isTableHovered,
-	} = tablePluginKey.getState(newState) || {};
+	const { isInDanger, isTableHovered } = tablePluginKey.getState(newState) || {};
 
 	const changedResizing = isResizing !== wasResizing;
 
@@ -43,13 +37,7 @@ export const handleDocOrSelectionChanged = (
 	if (isResizing) {
 		return DecorationSet.empty;
 	} else if (tr.docChanged || tr.selection instanceof CellSelection || changedResizing) {
-		return buildColumnControlsDecorations({
-			decorationSet,
-			tr,
-			options: {
-				isDragAndDropEnabled,
-			},
-		});
+		return buildColumnControlsDecorations({ decorationSet, tr });
 	} else if (tr.selectionSet) {
 		const isTransactionFromMouseClick = !tr.docChanged && tr.selectionSet && tr.getMeta('pointer');
 		if (isTransactionFromMouseClick || oldState.selection instanceof CellSelection) {
@@ -64,20 +52,14 @@ export const handleDocOrSelectionChanged = (
 			(!insideTable(newState) ||
 				findTable(newState.selection)?.node !== findTable(oldState.selection)?.node)
 		) {
-			return buildColumnControlsDecorations({
-				decorationSet,
-				tr,
-				options: {
-					isDragAndDropEnabled,
-				},
-			});
+			return buildColumnControlsDecorations({ decorationSet, tr });
 		}
 	}
 
 	return decorationSet;
 };
 
-export const createPlugin = () => {
+export const createPlugin = (): SafePlugin<DecorationSet> => {
 	return new SafePlugin({
 		state: {
 			init: () => DecorationSet.empty,

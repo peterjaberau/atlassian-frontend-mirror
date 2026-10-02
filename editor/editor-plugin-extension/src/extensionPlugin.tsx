@@ -1,16 +1,14 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import {
-	extension,
-	extensionFrame,
-	inlineExtension,
-	multiBodiedExtension,
-} from '@atlaskit/adf-schema';
+import { extension, extensionWithAnnotationStage0 } from '@atlaskit/adf-schema/extension';
+import { inlineExtension } from '@atlaskit/adf-schema/inline-extension';
+import { extensionFrame, multiBodiedExtension } from '@atlaskit/adf-schema/multi-bodied-extension';
+import type { ExtensionHandlers } from '@atlaskit/editor-common/extensions';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { PMPluginFactoryParams } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import {
 	createEditSelectedExtensionAction,
@@ -40,6 +38,7 @@ export const extensionPlugin: ExtensionPlugin = ({ config: options = {}, api }) 
 	//Note: This is a hack to get the editor view reference in the plugin. Copied from table plugin.
 	//This is needed to get the current selection in the editor
 	const editorViewRef: Record<'current', EditorView | null> = { current: null };
+	const extensionLoadingHandlers: ExtensionHandlers = {};
 
 	const showContextPanel = api?.contextPanel?.actions?.showPanel;
 
@@ -50,7 +49,7 @@ export const extensionPlugin: ExtensionPlugin = ({ config: options = {}, api }) 
 			const extensionNodes = [
 				{
 					name: 'extension',
-					node: extension,
+					node: fg('cc_maui_annotations_on_extensions') ? extensionWithAnnotationStage0 : extension,
 				},
 				{
 					name: 'bodiedExtension',
@@ -90,13 +89,14 @@ export const extensionPlugin: ExtensionPlugin = ({ config: options = {}, api }) 
 			return [
 				{
 					name: 'extension',
-					plugin: ({ dispatch, providerFactory, portalProviderAPI, eventDispatcher }) => {
+					plugin: ({ dispatch, providerFactory, portalProviderAPI, eventDispatcher, getIntl }) => {
 						const extensionHandlers = options.extensionHandlers || {};
 
 						return createPlugin(
 							dispatch,
 							providerFactory,
 							extensionHandlers,
+							extensionLoadingHandlers,
 							portalProviderAPI,
 							eventDispatcher,
 							api,
@@ -104,9 +104,11 @@ export const extensionPlugin: ExtensionPlugin = ({ config: options = {}, api }) 
 							{
 								appearance: options.appearance,
 								getExtensionHeight: options.getExtensionHeight,
+								allowAIGeneratedContentMotion: options.allowAIGeneratedContentMotion,
 							},
 							featureFlags,
 							options?.__rendererExtensionOptions,
+							getIntl(),
 						);
 					},
 				},
@@ -153,6 +155,7 @@ export const extensionPlugin: ExtensionPlugin = ({ config: options = {}, api }) 
 					editorAnalyticsAPI: api?.analytics?.actions,
 				});
 			},
+			getExtensionLoadingHandlers: () => extensionLoadingHandlers,
 			insertMacroFromMacroBrowser: insertMacroFromMacroBrowser(api?.analytics?.actions),
 			insertOrReplaceExtension: ({
 				editorView,
@@ -195,6 +198,14 @@ export const extensionPlugin: ExtensionPlugin = ({ config: options = {}, api }) 
 				editorAnalyticsAPI: api?.analytics?.actions,
 				applyChangeToContextPanel: api?.contextPanel?.actions.applyChange,
 			}),
+			registerExtensionLoadingHandler: ({ extensionType, handler }) => {
+				extensionLoadingHandlers[extensionType] = handler;
+				return () => {
+					if (extensionLoadingHandlers[extensionType] === handler) {
+						delete extensionLoadingHandlers[extensionType];
+					}
+				};
+			},
 			runMacroAutoConvert,
 			forceAutoSave,
 		},
@@ -202,7 +213,10 @@ export const extensionPlugin: ExtensionPlugin = ({ config: options = {}, api }) 
 		pluginsOptions: {
 			floatingToolbar: getToolbarConfig({
 				breakoutEnabled: options.breakoutEnabled,
+				copyEnabled: options.copyEnabled,
+				deleteEnabled: options.deleteEnabled,
 				extensionApi: api,
+				getUnsupportedContent: options.getUnsupportedContent,
 			}),
 			contextPanel:
 				// if showContextPanel action is not available, or platform_editor_ai_object_sidebar_injection feature flag is off

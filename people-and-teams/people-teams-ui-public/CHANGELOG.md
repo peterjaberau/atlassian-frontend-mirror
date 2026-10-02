@@ -1,5 +1,206 @@
 # @atlaskit/people-teams-ui-public
 
+## 5.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`a9a8208446bfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9a8208446bfa) -
+  Support React 19 for people-and-teams packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`c4618bd639f01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4618bd639f01) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 4.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.1
+
+### Patch Changes
+
+- [`7fb5bfbafb83e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fb5bfbafb83e) -
+  Enrol people-and-teams packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 4.0.0
+
+### Major Changes
+
+- [`fbc8a506b5b08`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbc8a506b5b08) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.9
+
+### Patch Changes
+
+- [`3b330857e464b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b330857e464b) -
+  Clean up the ptc-enable-people-teams-ui-analytics-refactor feature gate
+
+## 3.7.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.7
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.7.6
 
 ### Patch Changes

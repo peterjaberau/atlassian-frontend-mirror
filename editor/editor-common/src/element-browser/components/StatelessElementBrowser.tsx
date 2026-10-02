@@ -6,12 +6,15 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 import type { CellMeasurerCache } from 'react-virtualized/dist/commonjs/CellMeasurer';
 
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
-import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
@@ -32,7 +35,6 @@ import {
 import useContainerWidth from '../hooks/use-container-width';
 import useSelectAndFocusOnArrowNavigation from '../hooks/use-select-and-focus-on-arrow-navigation';
 import type { Category, Modes, SelectedItemProps } from '../types';
-
 import CategoryList from './CategoryList';
 import ElementList from './ElementList/ElementList';
 import ElementSearch from './ElementSearch';
@@ -91,10 +93,7 @@ const baseSidebarStyles = css({
 const mobileSideBar = css(baseSidebarStyles, {
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	flex: `0 0 ${INLINE_SIDEBAR_HEIGHT}`,
-	padding: `${token('space.150', '12px')} ${token(
-		'space.150',
-		'12px',
-	)} 0 ${token('space.150', '12px')}`,
+	padding: `${token('space.150')} ${token('space.150')} 0 ${token('space.150')}`,
 });
 
 const mobileSideBarShowCategories = css({
@@ -130,18 +129,18 @@ const mobileMainContent = css({
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 const mainContent = css(mobileMainContent, {
-	marginLeft: token('space.200', '16px'),
+	marginLeft: token('space.200'),
 	height: 'auto',
 });
 
 const searchContainer = css({
-	paddingBottom: token('space.200', '16px'),
+	paddingBottom: token('space.200'),
 });
 
 const mobileCategoryListWrapper = css({
 	display: 'flex',
 	overflowX: 'auto',
-	padding: `${token('space.200', '8px')} 0 ${token('space.200', '16px')} 0`,
+	padding: `${token('space.200')} 0 ${token('space.200')} 0`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	minHeight: `${GRID_SIZE * 4}px`,
 	overflow: '-moz-scrollbars-none',
@@ -156,7 +155,7 @@ const mobileCategoryListWrapper = css({
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 const categoryListWrapper = css(mobileCategoryListWrapper, {
 	padding: 0,
-	marginTop: token('space.200', '24px'),
+	marginTop: token('space.200'),
 	flexDirection: 'column',
 });
 
@@ -303,15 +302,8 @@ function StatelessElementBrowser(props: StatelessElementBrowserProps) {
 		setCanFocusSearch(true);
 	};
 
-	return (
-		/* eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable*/
-		<div
-			css={wrapper}
-			data-testid="element-browser"
-			id={ELEMENT_BROWSER_ID}
-			onKeyUp={canFocusSearch ? undefined : handleKeyPress}
-			onClick={canFocusSearch ? undefined : handleClick}
-		>
+	const browserContent = (
+		<React.Fragment>
 			<ContainerWidthMonitor />
 			{containerWidth < DEVICE_BREAKPOINT_NUMBERS.medium ? (
 				<MobileBrowser
@@ -356,6 +348,34 @@ function StatelessElementBrowser(props: StatelessElementBrowserProps) {
 					cache={cache}
 				/>
 			)}
+		</React.Fragment>
+	);
+
+	if (expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)) {
+		return (
+			<div
+				css={wrapper}
+				data-testid="element-browser"
+				id={ELEMENT_BROWSER_ID}
+				role="none"
+				onKeyUp={canFocusSearch ? undefined : handleKeyPress}
+				onClick={canFocusSearch ? undefined : handleClick}
+			>
+				{browserContent}
+			</div>
+		);
+	}
+
+	return (
+		// eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable
+		<div
+			css={wrapper}
+			data-testid="element-browser"
+			id={ELEMENT_BROWSER_ID}
+			onKeyUp={canFocusSearch ? undefined : handleKeyPress}
+			onClick={canFocusSearch ? undefined : handleClick}
+		>
+			{browserContent}
 		</div>
 	);
 }
@@ -403,9 +423,11 @@ function MobileBrowser({
 		setFocusOnSearch: () => void;
 	}) {
 	return (
-		// eslint-disable-next-line @atlassian/a11y/no-static-element-interactions
 		<div
 			css={mobileElementBrowserContainer}
+			role={
+				expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true) ? 'none' : undefined
+			}
 			onKeyDown={onKeyDown}
 			data-testid="mobile__element-browser"
 		>
@@ -464,6 +486,7 @@ function MobileBrowser({
 					selectedCategory={selectedCategory}
 					searchTerm={searchTerm}
 					cache={cache}
+					hasTabListContext={false}
 				/>
 			</div>
 			{onViewMore && <ViewMore onViewMore={onViewMore} focus={focusOnViewMore} />}
@@ -524,23 +547,44 @@ function DesktopBrowser({
 							description="Sidebar heading"
 						/>
 					</div>
-					{/* eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-to-interactive-role*/}
-					<nav role="tablist" aria-labelledby="sidebar-heading" css={categoryListWrapper}>
-						<CategoryList
-							categories={categories}
-							onSelectCategory={onSelectCategory}
-							selectedCategory={selectedCategory}
-							createAnalyticsEvent={createAnalyticsEvent}
-							focusedCategoryIndex={focusedCategoryIndex}
-							setFocusedCategoryIndex={setFocusedCategoryIndex}
-							setFocusedItemIndex={setFocusedItemIndex}
-							setFocusOnSearch={setFocusOnSearch}
-						/>
-					</nav>
+					{expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true) ? (
+						<div role="tablist" aria-labelledby="sidebar-heading" css={categoryListWrapper}>
+							<CategoryList
+								categories={categories}
+								onSelectCategory={onSelectCategory}
+								selectedCategory={selectedCategory}
+								createAnalyticsEvent={createAnalyticsEvent}
+								focusedCategoryIndex={focusedCategoryIndex}
+								setFocusedCategoryIndex={setFocusedCategoryIndex}
+								setFocusedItemIndex={setFocusedItemIndex}
+								setFocusOnSearch={setFocusOnSearch}
+							/>
+						</div>
+					) : (
+						// eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-to-interactive-role
+						<nav role="tablist" aria-labelledby="sidebar-heading" css={categoryListWrapper}>
+							<CategoryList
+								categories={categories}
+								onSelectCategory={onSelectCategory}
+								selectedCategory={selectedCategory}
+								createAnalyticsEvent={createAnalyticsEvent}
+								focusedCategoryIndex={focusedCategoryIndex}
+								setFocusedCategoryIndex={setFocusedCategoryIndex}
+								setFocusedItemIndex={setFocusedItemIndex}
+								setFocusOnSearch={setFocusOnSearch}
+							/>
+						</nav>
+					)}
 				</div>
 			)}
-			{/* eslint-disable-next-line @atlassian/a11y/no-static-element-interactions*/}
-			<div css={mainContent} onKeyDown={onKeyDown} data-testid="main-content">
+			<div
+				css={mainContent}
+				role={
+					expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true) ? 'none' : undefined
+				}
+				onKeyDown={onKeyDown}
+				data-testid="main-content"
+			>
 				{showSearch && (
 					// eslint-disable-next-line
 					<div css={searchContainer}>
@@ -576,13 +620,46 @@ function DesktopBrowser({
 					searchTerm={searchTerm}
 					setFocusedCategoryIndex={showCategories ? setFocusedCategoryIndex : undefined}
 					cache={cache}
+					hasTabListContext={showCategories}
 				/>
 			</div>
 		</div>
 	);
 }
 
-const MemoizedElementBrowser = memo(
+const MemoizedElementBrowser: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<
+		Omit<
+			Omit<
+				{
+					/**
+					 * If search field should be focused on the initial load
+					 */
+					autoFocusSearch?: boolean;
+					cache?: CellMeasurerCache;
+					categories?: Category[];
+					emptyStateHandler?: EmptyStateHandler;
+					items: QuickInsertItem[];
+					mode: keyof typeof Modes;
+					onInsertItem: (item: QuickInsertItem) => void;
+					onSearch: (searchTerm: string) => void;
+					onSelectCategory: (category: Category) => void;
+					onSelectItem?: (item: QuickInsertItem) => void;
+					onViewMore?: () => void;
+					searchTerm?: string;
+					selectedCategory?: string;
+					showCategories: boolean;
+					showSearch: boolean;
+				},
+				keyof WithAnalyticsEventsProps
+			> &
+				React.RefAttributes<unknown> &
+				WithContextProps,
+			'ref'
+		> &
+			React.RefAttributes<unknown>
+	>
+> = memo(
 	withAnalyticsContext({
 		source: 'ElementBrowser',
 	})(withAnalyticsEvents()(StatelessElementBrowser)),

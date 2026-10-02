@@ -2,14 +2,18 @@ import valueParser from 'postcss-value-parser';
 import stylelint, { type Rule, type RuleBase } from 'stylelint';
 
 import renameMapping from '@atlaskit/tokens/rename-mapping';
-import { getCSSCustomProperty } from '@atlaskit/tokens/token-ids';
+import { getCSSCustomProperty } from '@atlaskit/tokens/utils/get-css-custom-property';
 
-import { isFunction, isWord } from '../../utils/rules';
+import { isFunction } from '../../utils/is-function';
+import { isWord } from '../../utils/is-word';
 
 export const ruleName = 'design-system/no-deprecated-design-token-usage';
 export const messages: {
-    invalidToken: (name: string | number | boolean | RegExp, replacement: string | number | boolean | RegExp) => string;
-    deprecatedToken: (name: string | number | boolean | RegExp) => string;
+	invalidToken: (
+		name: string | number | boolean | RegExp,
+		replacement: string | number | boolean | RegExp,
+	) => string;
+	deprecatedToken: (name: string | number | boolean | RegExp) => string;
 } = stylelint.utils.ruleMessages(ruleName, {
 	invalidToken: (name, replacement): string =>
 		`The token '${name}' has been deprecated. Please use ${replacement} instead.`,
@@ -95,4 +99,5 @@ const rule: Rule<any, any> = Object.assign(ruleBase, {
 
 const plugin: stylelint.Plugin = stylelint.createPlugin(ruleName, rule);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default plugin;

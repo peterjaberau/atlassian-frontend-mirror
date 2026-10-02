@@ -1,20 +1,14 @@
-import {
-	type MediaAttributes,
-	getEmojiAcName,
-	hexToRgb,
-	type RichMediaAttributes as MediaSingleAttributes,
-	tableBackgroundColorPalette,
-} from '@atlaskit/adf-schema';
+import { getEmojiAcName } from '@atlaskit/adf-schema/get-emoji-ac-name';
+import { hexToRgb } from '@atlaskit/adf-schema/hex-to-rgb';
+import type { MediaAttributes } from '@atlaskit/adf-schema/media';
+import type { RichMediaAttributes as MediaSingleAttributes } from '@atlaskit/adf-schema/rich-media-common';
+import { tableBackgroundColorNameByHex } from '@atlaskit/adf-schema/tableNodes';
 import { timestampToIsoFormat, calcTableColumnWidths } from '@atlaskit/editor-common/utils';
-import {
-	type Fragment,
-	type Node as PMNode,
-	type Mark,
-	type Schema,
-} from '@atlaskit/editor-prosemirror/model';
-import parseCxhtml from './parse-cxhtml';
+import type { Fragment, Node as PMNode, Mark, Schema } from '@atlaskit/editor-prosemirror/model';
+
 import { AC_XMLNS, FAB_XMLNS, default as encodeCxhtml } from './encode-cxhtml';
 import { mapCodeLanguage } from './languageMap';
+import parseCxhtml from './parse-cxhtml';
 import { getNodeMarkOfType, encodeMacroParams, mapPanelTypeToCxhtml } from './utils';
 
 export default function encode(node: PMNode, schema: Schema): string {
@@ -188,10 +182,11 @@ export default function encode(node: PMNode, schema: Schema): string {
 				}
 
 				if (background) {
-					cellElement.setAttribute(
-						'data-highlight-colour',
-						(tableBackgroundColorPalette.get(background.toLowerCase()) || background).toLowerCase(),
-					);
+					// Ungated union lookup: the storage format written here is read back by every
+					// cohort, so the colour name must not depend on the experiment being on.
+					const colorName =
+						tableBackgroundColorNameByHex.get(background.toLowerCase()) || background;
+					cellElement.setAttribute('data-highlight-colour', colorName.toLowerCase());
 				}
 
 				if (colspan && colspan !== 1) {

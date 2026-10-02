@@ -2,10 +2,20 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
+
 import React from 'react';
 import { Component, type SyntheticEvent } from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import { jsx } from '@emotion/react';
+
+import Button from '@atlaskit/button/default/button';
+import {
+	UploadController,
+	type FileIdentifier,
+	MediaClient,
+	type MediaSubscribable,
+} from '@atlaskit/media-client';
 import {
 	defaultCollectionName,
 	genericFileId,
@@ -24,16 +34,9 @@ import {
 	emptyImageFileId,
 } from '@atlaskit/media-test-helpers';
 
-import Button from '@atlaskit/button/new';
-import { Card } from '../src';
-import {
-	UploadController,
-	type FileIdentifier,
-	MediaClient,
-	type MediaSubscribable,
-} from '@atlaskit/media-client';
-import { cardWrapperStyles, cardFlowHeaderStyles } from '../example-helpers/styles';
 import { MainWrapper } from '../example-helpers';
+import { cardWrapperStyles, cardFlowHeaderStyles } from '../example-helpers/styles';
+import Card from '../src/card/cardLoader';
 
 const mediaClientConfig = createUploadMediaClientConfig();
 const mediaClient = new MediaClient(mediaClientConfig);
@@ -114,6 +117,7 @@ class Example extends Component<ComponentProps, ComponentState> {
 			name: file.name,
 			collection: defaultCollectionName,
 			mimeType: file.type,
+			size: file.size,
 		};
 		const uploadController = new UploadController();
 		const stream = mediaClient.file.upload(uplodableFile, uploadController);

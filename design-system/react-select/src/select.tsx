@@ -1,37 +1,60 @@
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
+// Applies presence motion at the value-list boundary so default and custom values reflow together.
 import React, {
 	type AriaAttributes,
 	Component,
 	type FocusEventHandler,
 	type FormEventHandler,
+	type JSX,
 	type KeyboardEventHandler,
 	type MouseEventHandler,
 	type ReactNode,
 	type RefCallback,
+	type RefObject,
 	type TouchEventHandler,
 } from 'react';
 
-import { isAppleDevice, isSafari } from '@atlaskit/ds-lib/device-check';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { css, jsx } from '@compiled/react';
+
+import { isAppleDevice } from '@atlaskit/ds-lib/device-check';
+import { isSafari } from '@atlaskit/ds-lib/is-safari';
+import __noop from '@atlaskit/ds-lib/noop';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+import { type TPopoverCloseReason } from '@atlaskit/top-layer/popover/types';
 
 import { type AriaLiveMessages, type AriaSelection } from './accessibility';
 import {
-	formatGroupLabel as formatGroupLabelBuiltin,
-	getOptionLabel as getOptionLabelBuiltin,
-	getOptionValue as getOptionValueBuiltin,
-	isOptionDisabled as isOptionDisabledBuiltin,
-} from './builtins';
-import { defaultComponents, type SelectComponentsConfig } from './components';
-import { DummyInput, RequiredInput, ScrollManager } from './components/internal';
-import { NotifyOpenLayerObserver } from './components/internal/notify-open-layer-observer';
+	components as builtinComponents,
+	defaultComponents,
+	type SelectComponentsConfig,
+} from './components';
+import DummyInput from './components/dummy-input';
 import LiveRegion from './components/live-region';
-import { MenuPlacer } from './components/menu';
+import MenuPlacer from './components/menu-placer';
+import MultiValueMotion from './components/multi-value-motion';
 import { createFilter, type FilterOptionOption } from './filters';
-import {
-	type ClassNamesConfig,
-	defaultStyles,
-	type StylesConfig,
-	type StylesProps,
-} from './styles';
+import { formatGroupLabel as formatGroupLabelBuiltin } from './format-group-label';
+import { getOptionLabel as getOptionLabelBuiltin } from './get-option-label';
+import { getOptionValue as getOptionValueBuiltin } from './get-option-value';
+import { classNames } from './internal/classnames';
+import { cleanValue } from './internal/clean-value';
+import { isDocumentElement } from './internal/is-document-el';
+import { MenuPortalCloseContext } from './internal/menu-portal-close-context';
+import { multiValueAsValue } from './internal/multi-value-as-value';
+import { NotifyOpenLayerObserver } from './internal/notify-open-layer-observer';
+import RequiredInput from './internal/required-input';
+import ScrollManager from './internal/scroll-manager';
+import { scrollTo } from './internal/scroll-to';
+import { SelectGetStylesContext } from './internal/select-get-styles-context';
+import { singleValueAsValue } from './internal/single-value-as-value';
+import { valueTernary } from './internal/value-ternary';
+import { isOptionDisabled as isOptionDisabledBuiltin } from './is-option-disabled';
+import { type ClassNamesConfig, type StylesConfig, type StylesProps } from './styles';
 import {
 	type ActionMeta,
 	type CommonProps,
@@ -48,20 +71,86 @@ import {
 	type PropsValue,
 	type SetValueAction,
 } from './types';
-import {
-	classNames,
-	cleanValue,
-	filterUnsupportedSelectors,
-	isDocumentElement,
-	isMobileDevice,
-	isTouchCapable,
-	multiValueAsValue,
-	noop,
-	notNullish,
-	scrollIntoView,
-	singleValueAsValue,
-	valueTernary,
-} from './utils';
+
+const noop = __noop;
+
+function notNullish<T>(item: T | null | undefined): item is T {
+	return item != null;
+}
+
+function scrollIntoView(menuEl: HTMLElement, focusedEl: HTMLElement): void {
+	const menuRect = menuEl.getBoundingClientRect();
+	const focusedRect = focusedEl.getBoundingClientRect();
+	const overScroll = focusedEl.offsetHeight / 3;
+
+	if (focusedRect.bottom + overScroll > menuRect.bottom) {
+		scrollTo(
+			menuEl,
+			Math.min(
+				focusedEl.offsetTop + focusedEl.clientHeight - menuEl.offsetHeight + overScroll,
+				menuEl.scrollHeight,
+			),
+		);
+	} else if (focusedRect.top - overScroll < menuRect.top) {
+		scrollTo(menuEl, Math.max(focusedEl.offsetTop - overScroll, 0));
+	}
+}
+
+function isMobileDevice(): boolean {
+	try {
+		return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+			navigator.userAgent,
+		);
+	} catch {
+		return false;
+	}
+}
+
+function isTouchCapable(): boolean {
+	try {
+		document.createEvent('TouchEvent');
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Filters out unsupported selectors (e.g., pseudo-classes, complex selectors) from a styles object.
+ * @param styles - The styles object to filter.
+ * @returns A new object containing only supported styles.
+ */
+const filterUnsupportedSelectors: (styles: Record<string, any>) => Record<string, any> = (
+	styles: Record<string, any>,
+): Record<string, any> => {
+	const unsupportedSelectors = [
+		':', // pseudo-classes/elements
+		'[', // attribute selectors
+		'>', // child combinator
+		'+', // adjacent sibling combinator
+		'~', // general sibling combinator
+		' ', // descendant combinator
+		'*', // universal selector
+		'#', // ID selector
+		'.', // class selector
+		'@', // at-rules
+		'&', // parent selector
+		'|', // namespace separator
+		'^', // starts with
+		'$', // ends with
+		'=', // equals
+	];
+
+	return Object.keys(styles).reduce(
+		(filteredStyles, key) => {
+			if (!unsupportedSelectors.some((selector) => key.includes(selector))) {
+				filteredStyles[key] = styles[key];
+			}
+			return filteredStyles;
+		},
+		{} as Record<string, any>,
+	);
+};
 
 export type FormatOptionLabelContext = 'menu' | 'value';
 export interface FormatOptionLabelMeta<Option> {
@@ -355,6 +444,11 @@ export interface SelectProps<Option, IsMulti extends boolean, Group extends Grou
 	 */
 	menuPortalTarget?: HTMLElement | null;
 	/**
+	 * Element refs outside the menu that should be treated as inside its light-dismiss boundary.
+	 * Only used by the top-layer menu implementation.
+	 */
+	additionalInsideElementRefs?: readonly RefObject<HTMLElement | null>[];
+	/**
 	 * Whether to block scroll events when the menu is open
 	 *
 	 * @deprecated {@link https://hello.atlassian.net/browse/ENGHEALTH-14529 Internal documentation for deprecation (no external access)}
@@ -509,12 +603,17 @@ export interface SelectProps<Option, IsMulti extends boolean, Group extends Grou
 	// temp fix to support unofficial props.
 	[key: string]: any;
 	UNSAFE_is_experimental_generic?: boolean;
-	/**
-	 * If `true`, the input value will be kept when an option is selected and isMulti is `true`. The default is `false`.
-	 */
-	shouldKeepInputOnSelect?: boolean;
 }
 
+const elemBeforeCSS = css({
+	display: 'flex',
+	alignItems: 'center',
+	gap: token('space.100'),
+});
+
+// Matches the duration of `motion.label.exit`; used only if a consumer render path
+// unmounts the exiting values before their motion completion callback can run.
+const MULTI_VALUE_EXIT_FALLBACK_DURATION_MS = 100;
 export const defaultProps: Omit<
 	SelectProps<unknown, false, GroupBase<unknown>>,
 	| 'inputValue'
@@ -558,14 +657,12 @@ export const defaultProps: Omit<
 	shouldPreventEscapePropagation: false,
 	options: [],
 	pageSize: 5,
-	placeholder: 'Select...',
 	screenReaderStatus: ({ count }: { count: number }) =>
 		`${count} result${count !== 1 ? 's' : ''} available`,
 	styles: {},
 	tabIndex: 0,
 	tabSelectsValue: true,
 	UNSAFE_is_experimental_generic: false,
-	shouldKeepInputOnSelect: false,
 };
 
 interface State<Option, IsMulti extends boolean, Group extends GroupBase<Option>> {
@@ -583,6 +680,16 @@ interface State<Option, IsMulti extends boolean, Group extends GroupBase<Option>
 	inputIsHiddenAfterUpdate: boolean | null | undefined;
 	prevProps: SelectProps<Option, IsMulti, Group> | void;
 	instancePrefix: string;
+	/**
+	 * State mirror of `controlRef`, used only on the top-layer path so
+	 * `MenuPortalTopLayer` re-renders when the anchor attaches (its layout
+	 * effects depend on this prop). Legacy `MenuPortalLegacy` measures during
+	 * render and keeps reading `controlRef` directly. Stays `null` when the
+	 * `platform-dst-top-layer` flag is off.
+	 */
+	controlElement: HTMLDivElement | null;
+	isMultiValueExiting: boolean;
+	hasCompletedMultiValueExit: boolean;
 }
 
 interface CategorizedOption<Option> {
@@ -824,7 +931,7 @@ const shouldHideSelectedOptions = <
 
 let instanceId = 1;
 
-// eslint-disable-next-line @repo/internal/react/no-class-components
+// eslint-disable-next-line @repo/internal/react/no-class-components, @atlaskit/volt-strict-mode/no-multiple-exports
 export default class Select<
 	Option = unknown,
 	IsMulti extends boolean = false,
@@ -846,6 +953,9 @@ export default class Select<
 		inputIsHiddenAfterUpdate: undefined,
 		prevProps: undefined,
 		instancePrefix: '',
+		controlElement: null,
+		isMultiValueExiting: false,
+		hasCompletedMultiValueExit: false,
 	};
 
 	// Misc. Instance Properties
@@ -857,7 +967,9 @@ export default class Select<
 	initialTouchX = 0;
 	initialTouchY = 0;
 	openAfterFocus = false;
+	openAfterClick: 'first' | 'last' | null = null;
 	scrollToFocusedOptionOnUpdate = false;
+	multiValueExitFallbackTimeout: ReturnType<typeof setTimeout> | null = null;
 	userIsDragging?: boolean;
 
 	// Refs
@@ -866,6 +978,16 @@ export default class Select<
 	controlRef: HTMLDivElement | null = null;
 	getControlRef: RefCallback<HTMLDivElement> = (ref) => {
 		this.controlRef = ref;
+		// Mirror the ref into state on the top-layer path so
+		// `MenuPortalTopLayer`'s layout effects react to the anchor attaching.
+		// Skip the null-ref (unmount) case: setState during unmount is unsafe
+		// and the state is dropped with the instance anyway.
+		if (ref === null) {
+			return;
+		}
+		if (this.state.controlElement !== ref && fg('platform-dst-top-layer')) {
+			this.setState({ controlElement: ref });
+		}
 	};
 	focusedOptionRef: HTMLDivElement | null = null;
 	getFocusedOptionRef: RefCallback<HTMLDivElement> = (ref) => {
@@ -912,6 +1034,8 @@ export default class Select<
 				prevWasFocused: boolean;
 				inputIsHidden: boolean;
 				inputIsHiddenAfterUpdate: undefined;
+				isMultiValueExiting: boolean;
+				hasCompletedMultiValueExit: boolean;
 		  }
 		| {
 				prevProps: SelectProps<unknown, boolean, GroupBase<unknown>>;
@@ -919,6 +1043,8 @@ export default class Select<
 				prevWasFocused: boolean;
 				inputIsHidden?: undefined;
 				inputIsHiddenAfterUpdate?: undefined;
+				isMultiValueExiting: boolean;
+				hasCompletedMultiValueExit: boolean;
 		  } {
 		const {
 			prevProps,
@@ -931,6 +1057,18 @@ export default class Select<
 		} = state;
 		const { options, value, menuIsOpen, inputValue, isMulti } = props;
 		const selectValue = cleanValue(value);
+		let isTagMotionEnabled = false;
+		if (isMulti) {
+			const ffTagMotion = fg('platform-dst-motion-uplift-labels');
+			isTagMotionEnabled = ffTagMotion;
+		}
+		const hasCompletedMultiValueExit =
+			selectValue.length > 0 ? false : state.hasCompletedMultiValueExit;
+		const isMultiValueExiting =
+			isTagMotionEnabled &&
+			selectValue.length === 0 &&
+			!hasCompletedMultiValueExit &&
+			(state.isMultiValueExiting || (state.selectValue.length > 0 && value !== prevProps?.value));
 		let newMenuOptionsState = {};
 		if (
 			prevProps &&
@@ -998,8 +1136,19 @@ export default class Select<
 			prevProps: props,
 			ariaSelection: newAriaSelection,
 			prevWasFocused: hasKeptFocus,
+			isMultiValueExiting,
+			hasCompletedMultiValueExit,
 		};
 	}
+	onMultiValueMotionFinish = (): void => {
+		if (this.state.isMultiValueExiting) {
+			this.setState({
+				isMultiValueExiting: false,
+				hasCompletedMultiValueExit: true,
+				selectValue: [],
+			});
+		}
+	};
 	componentDidMount(): void {
 		this.startListeningComposition();
 		this.startListeningToTouch();
@@ -1024,9 +1173,26 @@ export default class Select<
 			scrollIntoView(this.menuListRef, this.focusedOptionRef);
 		}
 	}
-	componentDidUpdate(prevProps: SelectProps<Option, IsMulti, Group>): void {
+	componentDidUpdate(
+		prevProps: SelectProps<Option, IsMulti, Group>,
+		prevState: State<Option, IsMulti, Group>,
+	): void {
 		const { isDisabled, menuIsOpen } = this.props;
 		const { isFocused } = this.state;
+
+		// A consumer can cause the value subtree to unmount while the final tags are exiting.
+		// The fallback keeps the placeholder out for the exit duration, then restores it even
+		// when the individual MultiValue completion callback cannot fire.
+		if (!prevState.isMultiValueExiting && this.state.isMultiValueExiting) {
+			this.multiValueExitFallbackTimeout = setTimeout(() => {
+				this.onMultiValueMotionFinish();
+			}, MULTI_VALUE_EXIT_FALLBACK_DURATION_MS);
+		} else if (prevState.isMultiValueExiting && !this.state.isMultiValueExiting) {
+			if (this.multiValueExitFallbackTimeout) {
+				clearTimeout(this.multiValueExitFallbackTimeout);
+				this.multiValueExitFallbackTimeout = null;
+			}
+		}
 
 		if (
 			// ensure focus is restored correctly when the control becomes enabled
@@ -1061,6 +1227,10 @@ export default class Select<
 		this.stopListeningToTouch();
 		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
 		document.removeEventListener('scroll', this.onScroll, true);
+		if (this.multiValueExitFallbackTimeout) {
+			clearTimeout(this.multiValueExitFallbackTimeout);
+			this.multiValueExitFallbackTimeout = null;
+		}
 	}
 
 	// ==============================
@@ -1102,6 +1272,41 @@ export default class Select<
 	// aliased for consumers
 	focus: () => void = this.focusInput;
 	blur: () => void = this.blurInput;
+
+	/**
+	 * Whether to defer the menu open until the in-flight click completes.
+	 * Any renderer that drives a `popover="auto"` element must, otherwise
+	 * the browser's light-dismiss can close the menu during the opening
+	 * gesture. Today only the top-layer path needs it.
+	 */
+	private shouldDeferOpenUntilClick(): boolean {
+		return fg('platform-dst-top-layer');
+	}
+
+	/**
+	 * Open the menu after the current click, instead of
+	 * synchronously inside `mousedown`.
+	 *
+	 * On the top-layer path the menu is a `popover="auto"` element. The
+	 * browser performs light-dismiss during the pointer gesture. Deferring
+	 * until `click` ensures light-dismiss has completed before the popover opens.
+	 * Off the top-layer path we open synchronously as before.
+	 */
+	private openMenuAfterClick(focusOption: 'first' | 'last'): void {
+		if (!this.shouldDeferOpenUntilClick()) {
+			this.openMenu(focusOption);
+			return;
+		}
+		this.openAfterClick = focusOption;
+	}
+
+	onControlClick: MouseEventHandler<HTMLDivElement> = () => {
+		const focusOption = this.openAfterClick;
+		this.openAfterClick = null;
+		if (focusOption && !this.props.menuIsOpen) {
+			this.openMenu(focusOption);
+		}
+	};
 
 	openMenu(focusOption: 'first' | 'last'): void {
 		const { selectValue, isFocused } = this.state;
@@ -1283,13 +1488,8 @@ export default class Select<
 		action: SetValueAction,
 		option?: Option,
 	): void => {
-		const { closeMenuOnSelect, isMulti, inputValue, shouldKeepInputOnSelect } = this.props;
-		// for multiple selection options, do not clear the search input value
-		if (isMulti && shouldKeepInputOnSelect && fg('platform_do_not_clear_input_for_multiselect')) {
-			this.onInputChange(inputValue, { action: 'set-value', prevInputValue: inputValue });
-		} else {
-			this.onInputChange('', { action: 'set-value', prevInputValue: inputValue });
-		}
+		const { closeMenuOnSelect, isMulti, inputValue } = this.props;
+		this.onInputChange('', { action: 'set-value', prevInputValue: inputValue });
 		if (closeMenuOnSelect) {
 			this.setState({
 				inputIsHiddenAfterUpdate: !isMulti,
@@ -1413,14 +1613,12 @@ export default class Select<
 		key: Key,
 		props: StylesProps<Option, IsMulti, Group>[Key],
 	): any => {
-		const base = defaultStyles[key](props as any);
-		base.boxSizing = 'border-box';
+		const base = { boxSizing: 'border-box' };
 		const custom = this.props.styles[key];
-		if (!custom) {
-			return base;
+		if (custom) {
+			return filterUnsupportedSelectors(custom(base, props as any));
 		}
-		const customStyles = filterUnsupportedSelectors(custom(base, props as any));
-		return customStyles;
+		return base;
 	};
 	getClassNames = <Key extends keyof StylesProps<Option, IsMulti, Group>>(
 		key: Key,
@@ -1497,9 +1695,23 @@ export default class Select<
 				inputValue,
 				selectValue,
 			});
-		} else {
-			return this.getOptionLabel(data);
 		}
+		// Auto-render elemBefore in dropdown menu only if formatOptionLabel is not provided
+		// and no custom Option component is provided (custom Option components may already
+		// render elemBefore themselves, causing it to appear twice)
+		if (context === 'menu' && !this.props.formatOptionLabel && !this.props.components?.Option) {
+			const elemBefore = (data as { elemBefore?: ReactNode }).elemBefore;
+			if (elemBefore) {
+				const label = this.getOptionLabel(data);
+				return (
+					<div css={elemBeforeCSS}>
+						{elemBefore}
+						<span>{label}</span>
+					</div>
+				);
+			}
+		}
+		return this.getOptionLabel(data);
 	}
 	formatGroupLabel(data: Group): React.ReactNode {
 		return this.props.formatGroupLabel(data);
@@ -1573,7 +1785,7 @@ export default class Select<
 			this.focusInput();
 		} else if (!this.props.menuIsOpen) {
 			if (openMenuOnClick) {
-				this.openMenu('first');
+				this.openMenuAfterClick('first');
 			}
 		} else {
 			if (
@@ -1610,7 +1822,7 @@ export default class Select<
 			this.setState({ inputIsHiddenAfterUpdate: !isMulti });
 			this.onMenuClose();
 		} else {
-			this.openMenu('first');
+			this.openMenuAfterClick('first');
 		}
 		event.preventDefault();
 	};
@@ -1783,7 +1995,14 @@ export default class Select<
 			isFocused: true,
 		});
 		if (this.openAfterFocus || this.props.openMenuOnFocus) {
-			this.openMenu('first');
+			// `openAfterFocus` always follows a pointer gesture, so defer until
+			// click. `openMenuOnFocus` alone can come from a keyboard tab
+			// with no pointer gesture in flight, so open synchronously.
+			if (this.openAfterFocus) {
+				this.openMenuAfterClick('first');
+			} else {
+				this.openMenu('first');
+			}
 		}
 		this.openAfterFocus = false;
 	};
@@ -1937,6 +2156,21 @@ export default class Select<
 				}
 				return;
 			case 'Escape':
+				if (fg('platform-dst-top-layer')) {
+					if (menuIsOpen) {
+						this.setState({ inputIsHiddenAfterUpdate: false });
+						return;
+					}
+
+					if (isClearable && escapeClearsValue) {
+						this.clearValue();
+						return;
+					}
+
+					// With no open menu, leave native dismissal of containing popovers alone.
+					return;
+				}
+
 				if (menuIsOpen) {
 					this.setState({
 						inputIsHiddenAfterUpdate: false,
@@ -2036,6 +2270,8 @@ export default class Select<
 
 		const id = inputId || this.getElementId('input');
 
+		const isDisabledA11yFixEnabled = fg('platform_dst_select_disabled_a11y_fix');
+
 		// aria attributes makes the JSX "noisy", separated for clarity
 		const ariaAttributes = {
 			...(!this.props.isSearchable && fg('platform_fix_autocomplete_aria_for_select')
@@ -2058,12 +2294,18 @@ export default class Select<
 			...(menuIsOpen && {
 				'aria-controls': this.getElementId('listbox'),
 			}),
-			// TODO: Might need to remove this
-			...(!isSearchable && {
-				'aria-readonly': true,
+			...(!isSearchable &&
+				!fg('select_issearchable_aria-readonly_fix') && {
+					'aria-readonly': true,
+				}),
+			// Using aria-disabled so the element remains in the a11y tree.
+			...(isDisabledA11yFixEnabled && {
+				'aria-disabled': isDisabled || undefined,
 			}),
 			...this.calculateDescription(),
 		};
+
+		const effectiveTabIndex = isDisabledA11yFixEnabled && isDisabled ? -1 : tabIndex;
 
 		if (!isSearchable) {
 			// use a dummy input to maintain focus/blur functionality
@@ -2075,7 +2317,7 @@ export default class Select<
 					onChange={noop}
 					onFocus={this.onInputFocus}
 					disabled={isDisabled}
-					tabIndex={tabIndex}
+					tabIndex={effectiveTabIndex}
 					inputMode="none"
 					form={form}
 					value=""
@@ -2102,7 +2344,7 @@ export default class Select<
 				onChange={this.handleInputChange}
 				onFocus={this.onInputFocus}
 				spellCheck="false"
-				tabIndex={tabIndex}
+				tabIndex={effectiveTabIndex}
 				form={form}
 				type="text"
 				value={inputValue}
@@ -2120,35 +2362,21 @@ export default class Select<
 			Placeholder,
 		} = this.getComponents();
 		const { commonProps } = this;
+		const isCustomMultiValue = MultiValue !== builtinComponents.MultiValue;
+		const customMultiValueOwnsTagMotion =
+			isCustomMultiValue &&
+			MultiValue != null &&
+			Reflect.get(MultiValue, Symbol.for('@atlaskit/tag/motion-capable')) === true;
 		const { controlShouldRenderValue, isDisabled, isMulti, inputValue, placeholder, testId } =
 			this.props;
 		const { selectValue, focusedValue, isFocused } = this.state;
 
-		if (!this.hasValue() || !controlShouldRenderValue) {
-			return inputValue ? null : (
-				<Placeholder
-					{...commonProps}
-					key="placeholder"
-					isDisabled={isDisabled}
-					isFocused={isFocused}
-					innerProps={{
-						id: this.getElementId('placeholder'),
-						...(testId && {
-							'data-testid': `${testId}-select--placeholder`,
-						}),
-					}}
-				>
-					{placeholder}
-				</Placeholder>
-			);
-		}
-
-		if (isMulti) {
-			return selectValue.map((opt, index) => {
+		const renderMultiValues = (isMotionEnabled = false): React.JSX.Element[] =>
+			selectValue.map((opt, index) => {
 				const isOptionFocused = opt === focusedValue;
 				const key = `${this.getOptionLabel(opt)}-${this.getOptionValue(opt)}`;
 
-				return (
+				const multiValue = (
 					<MultiValue
 						{...commonProps}
 						components={{
@@ -2160,6 +2388,8 @@ export default class Select<
 						isDisabled={isDisabled}
 						key={key}
 						index={index}
+						isMotionEnabled={isMotionEnabled && !isCustomMultiValue}
+						onMotionFinish={this.onMultiValueMotionFinish}
 						removeProps={{
 							onClick: () => this.removeValue(opt),
 							onTouchEnd: () => this.removeValue(opt),
@@ -2182,7 +2412,61 @@ export default class Select<
 						{this.formatOptionLabel(opt, 'value')}
 					</MultiValue>
 				);
+
+				if (isMotionEnabled && isCustomMultiValue && !customMultiValueOwnsTagMotion) {
+					return (
+						<MultiValueMotion key={key} onMotionFinish={this.onMultiValueMotionFinish}>
+							{() => multiValue}
+						</MultiValueMotion>
+					);
+				}
+
+				return multiValue;
 			});
+
+		const placeholderElement = inputValue ? null : (
+			<Placeholder
+				{...commonProps}
+				key="placeholder"
+				isDisabled={isDisabled}
+				isFocused={isFocused}
+				innerProps={{
+					id: this.getElementId('placeholder'),
+					...(testId && {
+						'data-testid': `${testId}-select--placeholder`,
+					}),
+				}}
+			>
+				{placeholder}
+			</Placeholder>
+		);
+
+		if (isMulti) {
+			const ffTagMotion = fg('platform-dst-motion-uplift-labels');
+			const isTagMotionEnabled = ffTagMotion;
+
+			if (isTagMotionEnabled) {
+				return (
+					<React.Fragment>
+						<ExitingPersistence>
+							{controlShouldRenderValue ? renderMultiValues(true) : null}
+						</ExitingPersistence>
+						{(!this.hasValue() || !controlShouldRenderValue) &&
+							!this.state.isMultiValueExiting &&
+							placeholderElement}
+					</React.Fragment>
+				);
+			}
+
+			if (!this.hasValue() || !controlShouldRenderValue) {
+				return placeholderElement;
+			}
+
+			return renderMultiValues();
+		}
+
+		if (!this.hasValue() || !controlShouldRenderValue) {
+			return placeholderElement;
 		}
 
 		if (inputValue) {
@@ -2195,7 +2479,11 @@ export default class Select<
 				{...commonProps}
 				data={singleValue}
 				isDisabled={isDisabled}
-				innerProps={{ id: this.getElementId('single-value') }}
+				innerProps={{
+					id: this.getElementId('single-value'),
+					// Hide from AT so the value is only announced via aria-describedby on the combobox.
+					...(isDisabled && fg('platform_dst_select_disabled_a11y_fix') && { 'aria-hidden': true }),
+				}}
 			>
 				{this.formatOptionLabel(singleValue, 'value')}
 			</SingleValue>
@@ -2267,6 +2555,8 @@ export default class Select<
 		const innerProps = {
 			onMouseDown: this.onDropdownIndicatorMouseDown,
 			onTouchEnd: this.onDropdownIndicatorTouchEnd,
+			// Always hidden: DropdownIndicator hoists aria-hidden onto consumer-supplied
+			// children only, keeping the voice-control button visible to AT.
 			'aria-hidden': 'true',
 			...(testId && {
 				'data-testid': `${testId}-select--dropdown-indicator`,
@@ -2307,6 +2597,7 @@ export default class Select<
 			menuPlacement,
 			menuPosition,
 			menuPortalTarget,
+			additionalInsideElementRefs,
 			menuShouldBlockScroll,
 			menuShouldScrollIntoView,
 			noOptionsMessage,
@@ -2500,21 +2791,40 @@ export default class Select<
 			</MenuPlacer>
 		);
 
-		// positioning behaviour is almost identical for portalled and fixed,
-		// so we use the same component. the actual portalling logic is forked
-		// within the component based on `menuPosition`
-		return menuPortalTarget || menuPosition === 'fixed' ? (
+		// On the top-layer path the menu always portals (into the top layer)
+		// regardless of consumer `menuPortalTarget` / `menuPosition`. Off the
+		// flag we keep the legacy "portal only when needed" behaviour.
+		const shouldPortal =
+			fg('platform-dst-top-layer') || menuPortalTarget || menuPosition === 'fixed';
+		if (!shouldPortal) {
+			return menuElement;
+		}
+		// Top-layer path needs the state mirror so MenuPortalTopLayer re-renders
+		// when the anchor attaches; legacy path keeps the direct ref read.
+		const controlElementForPortal = fg('platform-dst-top-layer')
+			? this.state.controlElement
+			: this.controlRef;
+		const menuPortal = (
 			<MenuPortal
 				{...commonProps}
 				appendTo={menuPortalTarget}
-				controlElement={this.controlRef}
+				additionalInsideElementRefs={additionalInsideElementRefs}
+				controlElement={controlElementForPortal}
 				menuPlacement={menuPlacement}
 				menuPosition={menuPosition}
 			>
 				{menuElement}
 			</MenuPortal>
-		) : (
-			menuElement
+		);
+		// The Provider plumbs the close signal to MenuPortalTopLayer; not
+		// needed on the legacy path.
+		if (!fg('platform-dst-top-layer')) {
+			return menuPortal;
+		}
+		return (
+			<MenuPortalCloseContext.Provider value={this.handleMenuCloseSignal}>
+				{menuPortal}
+			</MenuPortalCloseContext.Provider>
 		);
 	}
 	renderFormField(): React.JSX.Element | undefined {
@@ -2572,7 +2882,9 @@ export default class Select<
 	renderMultiselectMessage(): React.JSX.Element {
 		// In the future, when we actually support touch devices, we'll need to update this to not be keyboard specific.
 		// Also, since this is rendered onscreen, it should be transtlated automatically.
-		const msg = `, multiple selections available, ${this.state.selectValue.length ? 'Use left or right arrow keys to navigate selected items' : ''}`;
+		const msg = `, multiple selections available, ${
+			this.state.selectValue.length ? 'Use left or right arrow keys to navigate selected items' : ''
+		}`;
 		return (
 			// eslint-disable-next-line @atlaskit/design-system/use-primitives-text
 
@@ -2582,7 +2894,10 @@ export default class Select<
 		);
 	}
 
-	handleOpenLayerObserverCloseSignal = (): void => {
+	handleMenuCloseSignal = (args?: { reason: TPopoverCloseReason }): void => {
+		if (args?.reason === 'escape') {
+			this.setState({ inputIsHiddenAfterUpdate: false });
+		}
 		this.onMenuClose();
 	};
 
@@ -2603,81 +2918,91 @@ export default class Select<
 		const commonProps = (this.commonProps = this.getCommonProps());
 		const isCompact = spacing === 'compact';
 		return (
-			<SelectContainer
-				{...commonProps}
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
-				className={className}
-				innerProps={{
-					id: id,
-					onKeyDown: this.onKeyDown,
-					...(testId && {
-						'data-testid': testId && `${testId}-select--container`,
-					}),
-				}}
-				isDisabled={isDisabled}
-				isFocused={isFocused}
-			>
-				{this.renderLiveRegion()}
-				{commonProps.isMulti && this.renderMultiselectMessage()}
-				<Control
+			<SelectGetStylesContext.Provider value={this.getStyles}>
+				<SelectContainer
 					{...commonProps}
-					innerRef={this.getControlRef}
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+					className={className}
 					innerProps={{
-						onMouseDown: this.onControlMouseDown,
-						onTouchEnd: this.onControlTouchEnd,
+						id: id,
+						onKeyDown: this.onKeyDown,
 						...(testId && {
-							'data-testid': `${testId}-select--control`,
+							'data-testid': testId && `${testId}-select--container`,
 						}),
 					}}
-					appearance={appearance}
-					isInvalid={isInvalid}
 					isDisabled={isDisabled}
 					isFocused={isFocused}
-					menuIsOpen={menuIsOpen}
-					isCompact={isCompact}
 				>
-					<ValueContainer
+					{this.renderLiveRegion()}
+					{commonProps.isMulti && this.renderMultiselectMessage()}
+					<Control
 						{...commonProps}
+						innerRef={this.getControlRef}
+						innerProps={{
+							onMouseDown: this.onControlMouseDown,
+							onClick: this.onControlClick,
+							onTouchEnd: this.onControlTouchEnd,
+							...(testId && {
+								'data-testid': `${testId}-select--control`,
+							}),
+						}}
+						appearance={appearance}
+						isInvalid={isInvalid}
 						isDisabled={isDisabled}
+						isFocused={isFocused}
+						menuIsOpen={menuIsOpen}
 						isCompact={isCompact}
-						innerProps={{
-							...(testId && {
-								'data-testid': `${testId}-select--value-container`,
-							}),
-							...(commonProps.isMulti &&
-								commonProps.hasValue &&
-								!isAppleDevice() && {
-									// Required to keep JAWS from popping out of forms mode when using LEFT/RIGHT arrow keys.
-									// This is Jedi Master level ARIA and not taken lightly. Do not modify without consulting
-									// DST Accessibility.
-									role: 'application',
+					>
+						<ValueContainer
+							{...commonProps}
+							isDisabled={isDisabled}
+							isCompact={isCompact}
+							hasValue={commonProps.hasValue || this.state.isMultiValueExiting}
+							innerProps={{
+								...(testId && {
+									'data-testid': `${testId}-select--value-container`,
 								}),
-						}}
-					>
-						{this.renderPlaceholderOrValue()}
-						{this.renderInput()}
-					</ValueContainer>
-					<IndicatorsContainer
-						{...commonProps}
-						isDisabled={isDisabled}
-						innerProps={{
-							...(testId && {
-								'data-testid': `${testId}-select--indicators-container`,
-							}),
-						}}
-					>
-						{this.renderClearIndicator()}
-						{this.renderLoadingIndicator()}
-						{this.renderDropdownIndicator()}
-					</IndicatorsContainer>
-				</Control>
-				{this.renderMenu()}
-				{this.renderFormField()}
-				<NotifyOpenLayerObserver
-					isOpen={this.props.menuIsOpen}
-					onClose={this.handleOpenLayerObserverCloseSignal}
-				/>
-			</SelectContainer>
+								...(commonProps.isMulti &&
+									commonProps.hasValue &&
+									!isAppleDevice() && {
+										// Required to keep JAWS from popping out of forms mode when using LEFT/RIGHT arrow keys.
+										// This is Jedi Master level ARIA and not taken lightly. Do not modify without consulting
+										// DST Accessibility.
+										role: 'application',
+									}),
+							}}
+						>
+							{this.renderPlaceholderOrValue()}
+							{this.renderInput()}
+						</ValueContainer>
+						<IndicatorsContainer
+							{...commonProps}
+							isDisabled={isDisabled}
+							innerProps={{
+								...(testId && {
+									'data-testid': `${testId}-select--indicators-container`,
+								}),
+							}}
+						>
+							{this.renderClearIndicator()}
+							{this.renderLoadingIndicator()}
+							{this.renderDropdownIndicator()}
+						</IndicatorsContainer>
+					</Control>
+					{this.renderMenu()}
+					{this.renderFormField()}
+					{/*
+					 * On the top-layer path MenuPortalTopLayer owns this
+					 * notification; skip here to avoid a duplicate open signal.
+					 */}
+					{!fg('platform-dst-top-layer') && (
+						<NotifyOpenLayerObserver
+							isOpen={this.props.menuIsOpen}
+							onClose={this.handleMenuCloseSignal}
+						/>
+					)}
+				</SelectContainer>
+			</SelectGetStylesContext.Provider>
 		);
 	}
 }

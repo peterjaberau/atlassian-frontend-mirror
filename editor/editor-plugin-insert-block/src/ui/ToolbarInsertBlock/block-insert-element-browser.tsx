@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
+import { useMenuPopupSizing } from '@atlaskit/editor-common/quick-insert/use-menu-popup-sizing';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { Popup } from '@atlaskit/editor-common/ui';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { InsertBlockPlugin } from '../../index';
 import InsertMenu, { DEFAULT_HEIGHT } from '../ElementBrowser/InsertMenu';
 import type { OnInsert } from '../ElementBrowser/types';
-
+import { RegisteredInsertMenuContent } from '../registered-insert-menu/RegisteredInsertMenuContent';
 import type { BlockMenuItem } from './create-items';
 import { DropDownButton } from './dropdown-button';
 
@@ -16,6 +18,7 @@ type SimpleEventHandler<T> = (event?: T) => void;
 export interface BlockInsertElementBrowserProps {
 	disabled: boolean;
 	editorView: EditorView;
+	isEditorOffline?: boolean;
 	isFullPageAppearance?: boolean;
 	items: BlockMenuItem[];
 	label: string;
@@ -43,13 +46,33 @@ const FIT_HEIGHT_BUFFER = 100;
 export const BlockInsertElementBrowser = (
 	props: BlockInsertElementBrowserProps,
 ): React.JSX.Element => {
+	const { togglePlusMenuVisibility, plusButtonRef } = props;
+	const isRegisteredMenu = isExperimentEnabled('platform_editor_slash_command');
+	const menuHeight = useMenuPopupSizing({
+		target: plusButtonRef,
+		boundariesElement: props.popupsBoundariesElement,
+		scrollableElement: props.popupsScrollableElement,
+		maxHeight: 520,
+		offset: 3,
+		isOpen: props.open && isRegisteredMenu,
+	});
+	const closeRegisteredMenu = useCallback(
+		() => togglePlusMenuVisibility(),
+		[togglePlusMenuVisibility],
+	);
+	const closeRegisteredMenuAndRestoreFocus = useCallback(() => {
+		togglePlusMenuVisibility();
+		plusButtonRef?.focus();
+	}, [togglePlusMenuVisibility, plusButtonRef]);
+
 	return (
 		<>
 			{props.open && (
 				<Popup
 					target={props.plusButtonRef}
-					fitHeight={DEFAULT_HEIGHT + FIT_HEIGHT_BUFFER}
+					fitHeight={isRegisteredMenu ? menuHeight : DEFAULT_HEIGHT + FIT_HEIGHT_BUFFER}
 					fitWidth={350}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					offset={[0, 3]}
 					mountTo={props.popupsMountPoint}
 					boundariesElement={props.popupsBoundariesElement}
@@ -57,15 +80,28 @@ export const BlockInsertElementBrowser = (
 					preventOverflow
 					alignX="right"
 				>
-					<InsertMenu
-						editorView={props.editorView}
-						dropdownItems={props.items}
-						onInsert={props.onInsert}
-						toggleVisiblity={props.togglePlusMenuVisibility}
-						showElementBrowserLink={props.showElementBrowserLink}
-						pluginInjectionApi={props.pluginInjectionApi}
-						isFullPageAppearance={props.isFullPageAppearance}
-					/>
+					{isRegisteredMenu ? (
+						<RegisteredInsertMenuContent
+							api={props.pluginInjectionApi}
+							maxHeight={menuHeight}
+							editorView={props.editorView}
+							isOffline={Boolean(props.isEditorOffline)}
+							onClose={closeRegisteredMenuAndRestoreFocus}
+							onDismiss={closeRegisteredMenu}
+							onSelect={closeRegisteredMenu}
+							target={props.plusButtonRef}
+						/>
+					) : (
+						<InsertMenu
+							editorView={props.editorView}
+							dropdownItems={props.items}
+							onInsert={props.onInsert}
+							toggleVisiblity={props.togglePlusMenuVisibility}
+							showElementBrowserLink={props.showElementBrowserLink}
+							pluginInjectionApi={props.pluginInjectionApi}
+							isFullPageAppearance={props.isFullPageAppearance}
+						/>
+					)}
 				</Popup>
 			)}
 			<DropDownButton

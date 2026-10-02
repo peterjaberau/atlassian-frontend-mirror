@@ -1,4 +1,4 @@
-import type { ExtensionLayout } from '@atlaskit/adf-schema';
+import type { Layout as ExtensionLayout } from '@atlaskit/adf-schema/extensions';
 import type { EditorAnalyticsAPI, INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -12,6 +12,7 @@ import type {
 	TransformAfter,
 	TransformBefore,
 } from '@atlaskit/editor-common/extensions';
+import type { Command } from '@atlaskit/editor-common/types';
 import { removeConnectedNodes } from '@atlaskit/editor-common/utils';
 import type { ApplyChangeHandler } from '@atlaskit/editor-plugin-context-panel';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
@@ -31,9 +32,8 @@ import { createCommand } from '../pm-plugins/plugin-factory';
 import { getSelectedExtension } from '../pm-plugins/utils';
 
 // AFP-2532 TODO: Fix automatic suppressions below
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 
-export function updateState(state: Partial<ExtensionState>) {
+export function updateState(state: Partial<ExtensionState>): Command {
 	return createCommand({
 		type: 'UPDATE_STATE',
 		data: state,
@@ -44,7 +44,7 @@ export function setEditingContextToContextPanel<T extends Parameters = Parameter
 	processParametersBefore: TransformBefore<T>,
 	processParametersAfter: TransformAfter<T>,
 	applyChangeToContextPanel: ApplyChangeHandler | undefined,
-) {
+): Command {
 	return createCommand<ExtensionAction<T>>(
 		{
 			type: 'UPDATE_STATE',
@@ -58,7 +58,9 @@ export function setEditingContextToContextPanel<T extends Parameters = Parameter
 	);
 }
 
-export const clearEditingContext = (applyChangeToContextPanel: ApplyChangeHandler | undefined) =>
+export const clearEditingContext = (
+	applyChangeToContextPanel: ApplyChangeHandler | undefined,
+): Command =>
 	createCommand(
 		{
 			type: 'UPDATE_STATE',
@@ -73,7 +75,7 @@ export const clearEditingContext = (applyChangeToContextPanel: ApplyChangeHandle
 
 export const forceAutoSave =
 	(applyChangeToContextPanel: ApplyChangeHandler | undefined) =>
-	(resolve: () => void, reject?: RejectSave) =>
+	(resolve: () => void, reject?: RejectSave): Command =>
 		createCommand(
 			{
 				type: 'UPDATE_STATE',
@@ -82,7 +84,10 @@ export const forceAutoSave =
 			applyChangeToContextPanel,
 		);
 
-export const updateExtensionLayout = (layout: ExtensionLayout, analyticsApi?: EditorAnalyticsAPI) =>
+export const updateExtensionLayout = (
+	layout: ExtensionLayout,
+	analyticsApi?: EditorAnalyticsAPI,
+): Command =>
 	createCommand({ type: 'UPDATE_STATE', data: { layout } }, (tr, state) => {
 		const selectedExtension = getSelectedExtension(state, true);
 
@@ -117,7 +122,7 @@ export const updateExtensionLayout = (layout: ExtensionLayout, analyticsApi?: Ed
 export const removeExtension = (
 	editorAnalyticsAPI?: EditorAnalyticsAPI,
 	inputMethod?: INPUT_METHOD.TOOLBAR | INPUT_METHOD.FLOATING_TB,
-) =>
+): Command =>
 	createCommand(
 		{
 			type: 'UPDATE_STATE',
@@ -132,7 +137,7 @@ export const removeExtension = (
 		},
 	);
 
-export const removeDescendantNodes = (sourceNode?: PMNode) =>
+export const removeDescendantNodes = (sourceNode?: PMNode): Command =>
 	createCommand(
 		{
 			type: 'UPDATE_STATE',
@@ -148,7 +153,7 @@ export const removeSelectedNodeWithAnalytics = (
 	tr: Transaction,
 	analyticsApi?: EditorAnalyticsAPI,
 	inputMethod?: INPUT_METHOD.TOOLBAR | INPUT_METHOD.FLOATING_TB,
-) => {
+): Transaction => {
 	if (state.selection instanceof NodeSelection) {
 		const node = state.selection.node;
 		if (analyticsApi) {
@@ -175,7 +180,7 @@ export const checkAndRemoveExtensionNode = (
 	tr: Transaction,
 	analyticsApi?: EditorAnalyticsAPI,
 	inputMethod?: INPUT_METHOD.TOOLBAR | INPUT_METHOD.FLOATING_TB,
-) => {
+): Transaction => {
 	let nodeType = state.schema.nodes.bodiedExtension;
 
 	const maybeMBENode = findParentNodeOfType(state.schema.nodes.multiBodiedExtension)(

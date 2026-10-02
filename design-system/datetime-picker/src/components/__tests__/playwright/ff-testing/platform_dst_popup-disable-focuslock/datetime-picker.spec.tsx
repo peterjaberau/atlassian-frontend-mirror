@@ -9,9 +9,15 @@ const dateTimePickerTime = '[data-testid="dateTimePicker--timepicker--container"
 test('When DateTimePicker is focused & backspace pressed, the date value should be cleared but the time value should not be affected', async ({
 	page,
 }) => {
-	await page.visitExample('design-system', 'datetime-picker', 'basic', {
-		featureFlag: 'platform_dst_popup-disable-focuslock',
-	});
+	await page.visitExample<typeof import('../../../../../../examples/00-basic.vr.ap.tsx')>(
+		'design-system',
+		'datetime-picker',
+		'basic',
+		{
+			featureFlag: 'platform_dst_popup-disable-focuslock',
+			'react-18-mode': 'modern',
+		},
+	);
 	await page.locator(dateTimePickerDate).first().click();
 	await page.locator(date).first().click();
 	const previousDate = await page.locator(dateTimePickerDate).first().textContent();

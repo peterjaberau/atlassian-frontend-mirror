@@ -3,24 +3,23 @@
  * @jsx jsx
  */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
-import type { IntlShape, WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { FC, ComponentType } from 'react';
 
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import { css, jsx } from '@emotion/react';
+import type { IntlShape, WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
+
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { SortOrder } from '../types';
-
 import { SORTABLE_COLUMN_ICON_CLASSNAME } from './consts';
-import { sortingAriaLabelMessages, sortingIconMessages } from './messages';
-
-export enum StatusClassNames {
-	ASC = 'sorting-icon-svg__asc',
-	DESC = 'sorting-icon-svg__desc',
-	NO_ORDER = 'sorting-icon-svg__no_order',
-	SORTING_NOT_ALLOWED = 'sorting-icon-svg__not-allowed',
-}
+import { NewSortingIcon } from './NewSortingIcon';
+import { sortingAriaLabelMessages } from './sortingAriaLabelMessages';
+import { sortingIconMessages } from './sortingIconMessages';
+import { StatusClassNames } from './StatusClassNames';
 
 // eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 const buttonStyles = css`
@@ -28,10 +27,10 @@ const buttonStyles = css`
 	display: flex;
 	height: 28px;
 	width: 28px;
-	margin: ${token('space.075', '6px')};
+	margin: ${token('space.075')};
 	right: 0;
 	top: 0;
-	border: ${token('border.width.selected')} solid ${token('color.border', '#fff')};
+	border: ${token('border.width.selected')} solid ${token('color.border')};
 	border-radius: ${token('radius.small', '4px')};
 	background-color: ${token('elevation.surface.overlay')};
 	justify-content: center;
@@ -43,13 +42,19 @@ const buttonStyles = css`
 	}
 
 	&:active {
-		background-color: ${token('elevation.surface.overlay.pressed', 'rgba(179, 212, 255, 0.6)')};
+		background-color: ${token('elevation.surface.overlay.pressed')};
 	}
 
 	&.${SORTABLE_COLUMN_ICON_CLASSNAME}__not-allowed {
 		cursor: not-allowed;
 	}
 `;
+
+// Keep the sort button above header content nodes that the editor's native-anchor DnD
+// styles give a z-index in live docs, which otherwise cover the button's clickable body.
+const sortButtonElevatedStyles = css({
+	zIndex: 1,
+});
 
 // eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 const iconWrapperStyles = css`
@@ -76,10 +81,10 @@ const iconStyles = css({
 	height: '100%',
 	width: '2px',
 	borderRadius: token('radius.full'),
-	background: token('color.icon', '#42526E'),
+	background: token('color.icon'),
 	userSelect: 'none',
 	'&::before, &::after': {
-		background: token('color.icon', '#42526E'),
+		background: token('color.icon'),
 		content: "''",
 		height: '2px',
 		width: '6px',
@@ -195,9 +200,13 @@ const SortingIcon = ({
 	};
 
 	return (
-		<Tooltip delay={0} content={content} position="top">
+		<Tooltip delay={0} content={content} position="top" hasNewContentOnTriggerClick>
 			<div
-				css={buttonStyles}
+				css={[
+					buttonStyles,
+					expValEquals('confluence_live_doc_table_sort_bugfix', 'isEnabled', true) &&
+						sortButtonElevatedStyles,
+				]}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className={buttonClassName}
 				role="button"
@@ -208,16 +217,25 @@ const SortingIcon = ({
 				onClick={handleClick}
 				onKeyDown={handleKeyDown}
 			>
-				<div
-					css={iconWrapperStyles}
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-					className={getIconClassName(isSortingAllowed, sortOrdered)}
-				>
-					<div css={[iconStyles]} />
-				</div>
+				{expValEquals('platform_editor_table_menu_updates', 'isEnabled', true) ? (
+					<NewSortingIcon sortOrdered={sortOrdered} />
+				) : (
+					<div
+						css={iconWrapperStyles}
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+						className={getIconClassName(isSortingAllowed, sortOrdered)}
+					>
+						<div css={[iconStyles]} />
+					</div>
+				)}
 			</div>
 		</Tooltip>
 	);
 };
 
-export default injectIntl(SortingIcon);
+const _default_1: FC<WithIntlProps<SortingIconProps>> & {
+	WrappedComponent: ComponentType<SortingIconProps>;
+} = injectIntl(SortingIcon);
+export default _default_1;
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { StatusClassNames } from './StatusClassNames';

@@ -1,7 +1,10 @@
 import React from 'react';
-import { Truncate } from '../../truncateText';
-import { type TruncateProps, calculateTruncation } from '../../truncateText-compiled';
+
 import { render, screen } from '@testing-library/react';
+
+import { calculateTruncation } from '../../calculateTruncation';
+import { Truncate } from '../../Truncate';
+import { type TruncateProps } from '../../truncateTextTypes';
 
 const setupRTL = (props: TruncateProps) => render(<Truncate {...props} />);
 

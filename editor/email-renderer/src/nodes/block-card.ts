@@ -1,11 +1,11 @@
-import {
-	type NodeSerializerOpts,
-	type SmartCardWithDataAttributes,
-	type SmartCardWithUrlAttributes,
-} from '../interfaces';
 import { createTag } from '../create-tag';
-import { createTable } from '../table-util';
+import type {
+	NodeSerializerOpts,
+	SmartCardWithDataAttributes,
+	SmartCardWithUrlAttributes,
+} from '../interfaces';
 import { createClassName } from '../styles/util';
+import { createTable } from '../table-util';
 
 const className = createClassName('blockCard');
 

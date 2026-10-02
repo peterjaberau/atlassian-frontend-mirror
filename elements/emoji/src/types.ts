@@ -1,13 +1,20 @@
 import type { SyntheticEvent } from 'react';
+
+import type { Provider } from '@atlaskit/util-service-support/types';
+
 import type { messages } from './components/i18n';
 import type { CategoryId } from './components/picker/categories';
-import type { Provider } from '@atlaskit/util-service-support/types';
 import type { EmojiRepository } from './resource';
 
 export type { CategoryId } from './components/picker/categories';
 
-export interface EmojiProvider
-	extends Provider<string, EmojiSearchResult, any, undefined, SearchOptions> {
+export interface EmojiProvider extends Provider<
+	string,
+	EmojiSearchResult,
+	any,
+	undefined,
+	SearchOptions
+> {
 	/**
 	 * Returns an immutable copy of EmojiDescription where mediaPath has token and client appended to url.
 	 *
@@ -40,6 +47,7 @@ export interface EmojiProvider
 	fetchByEmojiId(
 		emojiId: EmojiId,
 		optimistic: boolean,
+		emojiProviderLookupOrder?: EmojiProviderLookupOrder,
 	): OptionalEmojiDescriptionWithVariations | Promise<OptionalEmojiDescriptionWithVariations>;
 
 	/**
@@ -54,7 +62,10 @@ export interface EmojiProvider
 	 *
 	 * Will load media api images before returning.
 	 */
-	findByEmojiId(emojiId: EmojiId): OptionalEmojiDescription | Promise<OptionalEmojiDescription>;
+	findByEmojiId(
+		emojiId: EmojiId,
+		emojiProviderLookupOrder?: EmojiProviderLookupOrder,
+	): OptionalEmojiDescription | Promise<OptionalEmojiDescription>;
 
 	/**
 	 * Return the emoji that matches the supplied id or undefined. As with findByEmojiId, this call should load
@@ -67,7 +78,10 @@ export interface EmojiProvider
 	 *
 	 * Will load media api images before returning.
 	 */
-	findByShortName(shortName: string): OptionalEmojiDescription | Promise<OptionalEmojiDescription>;
+	findByShortName(
+		shortName: string,
+		emojiProviderLookupOrder?: EmojiProviderLookupOrder,
+	): OptionalEmojiDescription | Promise<OptionalEmojiDescription>;
 
 	/**
 	 * Finds emojis belonging to specified category.
@@ -80,6 +94,18 @@ export interface EmojiProvider
 	 * Returns a map matching ascii representations to their corresponding EmojiDescription.
 	 */
 	getAsciiMap(): Promise<Map<string, EmojiDescription>>;
+
+	/**
+	 * Synchronously reads the emoji type (e.g. 'STANDARD', 'SITE', 'ATLASSIAN') from the
+	 * local cache for the given emojiId, without making any network requests.
+	 *
+	 * Returns `undefined` when the emoji is not yet in the cache or no repository has been
+	 * initialised. This is an optional method — callers must fall back gracefully when it is
+	 * absent (e.g. in mock or legacy providers).
+	 *
+	 * Optional.
+	 */
+	getCachedEmojiType?(emojiId: EmojiId): string | undefined;
 
 	/**
 	 * Returns the logged user passed by the Product
@@ -201,6 +227,13 @@ export interface EmojiId {
 	shortName: string;
 }
 
+/**
+ * Preferred emoji provider type order when resolving an emoji by shortName.
+ * The first matching type wins. If no provided type matches, lookup falls back
+ * to the default provider ordering.
+ */
+export type EmojiProviderLookupOrder = string[];
+
 export interface SpriteSheet {
 	column: number;
 	height: number;
@@ -244,23 +277,35 @@ export interface MediaApiRepresentation extends EmojiImageRepresentation {
 	mediaPath: string;
 }
 
+export interface UnicodeRepresentation {
+	unicodeEmoji: string;
+}
+
 export type EmojiRepresentation =
 	| SpriteRepresentation
 	| ImageRepresentation
 	| MediaApiRepresentation
+	| UnicodeRepresentation
 	| undefined;
 
 export interface EmojiDescription extends EmojiId {
 	altRepresentation?: EmojiRepresentation;
 	ascii?: string[];
 	category: string;
+	color?: string;
 	createdDate?: string;
 	creatorUserId?: string;
+	fallback?: string;
+	hidden?: boolean;
+	keywords?: string[];
 	name?: string;
 	order?: number;
 	representation: EmojiRepresentation;
 	searchable: boolean;
 	type: string;
+	variantBase?: boolean;
+	variantChildren?: string[];
+	variantParent?: string;
 }
 
 export interface EmojiDescriptionWithVariations extends EmojiDescription {
@@ -285,16 +330,22 @@ export interface EmojiServiceDescription {
 	altRepresentations?: AltRepresentations;
 	ascii?: string[];
 	category: string;
+	color?: string;
 	createdDate?: string;
 	creatorUserId?: string;
 	fallback?: string;
+	hidden?: boolean;
 	id: string;
+	keywords?: string[];
 	name?: string;
 	order?: number;
 	representation: EmojiServiceRepresentation;
 	searchable: boolean;
 	shortName: string;
 	type: string;
+	variantBase?: boolean;
+	variantChildren?: string[];
+	variantParent?: string;
 }
 
 export interface EmojiServiceDescriptionWithVariations extends EmojiServiceDescription {

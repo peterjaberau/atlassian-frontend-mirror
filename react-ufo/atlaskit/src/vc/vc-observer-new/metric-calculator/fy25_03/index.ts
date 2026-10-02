@@ -1,8 +1,8 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { VCAbortReason } from '../../../../common/vc/types';
 import { expVal } from '../../../expVal';
-import { containsDnDMutationInStyle } from '../../../vc-observer/observers/non-visual-styles/is-dnd-style-mutation';
+import { containsAnchorNameMutationInStyle } from '../../../vc-observer/observers/non-visual-styles/is-anchor-name-style-mutation';
 import type {
 	VCObserverEntry,
 	VCObserverEntryType,
@@ -11,11 +11,11 @@ import type {
 } from '../../types';
 import AbstractVCCalculatorBase from '../abstract-base-vc-calculator';
 import {
+	DARK_READER_BROWSER_EXTENSION_ATTRIBUTES,
+	MORE_THIRD_PARTY_EXTENSION_ATTRIBUTES,
 	KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS,
 	NON_VISUAL_ARIA_ATTRIBUTES,
-	THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES,
 } from '../utils/constants';
-import { isEntrySmartAnswersInSearch } from '../utils/is-entry-smart-answers-in-search';
 import isViewportEntryData from '../utils/is-viewport-entry-data';
 
 const ABORTING_WINDOW_EVENT = ['wheel', 'scroll', 'keydown', 'resize'] as const;
@@ -35,14 +35,15 @@ const getConsideredEntryTypes = (
 		'window:event',
 	];
 
-	// If not exclude 3p elements from ttvc,
-	// including the tags into the ConsideredEntryTypes so that it won't be ignored for TTVC calculation
-	if (!fg('platform_ufo_exclude_3p_elements_from_ttvc') || include3p) {
+	// Only include third-party elements in TTVC calculation when explicitly requested.
+	// GenAI elements intentionally remain excluded from core TTVC; a server-side metric variant
+	// can derive "including GenAI" from the emitted metricWindows payload.
+	if (include3p) {
 		entryTypes.push('mutation:third-party-element');
 		entryTypes.push('mutation:third-party-attribute');
 	}
 
-	if (!excludeSmartAnswersInSearch && fg('rovo_search_page_ttvc_ignoring_smart_answers_fix')) {
+	if (!excludeSmartAnswersInSearch) {
 		entryTypes.push('mutation:smart-answers-element');
 		entryTypes.push('mutation:smart-answers-attribute');
 	}
@@ -75,14 +76,6 @@ export default class VCCalculator_FY25_03 extends AbstractVCCalculatorBase {
 			return false;
 		}
 
-		if (
-			excludeSmartAnswersInSearch &&
-			isEntrySmartAnswersInSearch(entry) &&
-			!fg('rovo_search_page_ttvc_ignoring_smart_answers_fix')
-		) {
-			return false;
-		}
-
 		if (entry.data.type === 'mutation:media' && fg('media-perf-uplift-mutation-fix')) {
 			const entryData = entry.data as ViewportEntryData;
 			const attributeName = entryData.attributeName;
@@ -103,7 +96,7 @@ export default class VCCalculator_FY25_03 extends AbstractVCCalculatorBase {
 			// special case for style attribute to ignore only anchor-name changes
 			if (expVal('platform_editor_media_vc_fixes', 'isEnabled', false)) {
 				if (
-					containsDnDMutationInStyle({
+					containsAnchorNameMutationInStyle({
 						attributeName: entryData.attributeName,
 						oldValue: entryData.oldValue,
 						newValue: entryData.newValue,
@@ -128,8 +121,9 @@ export default class VCCalculator_FY25_03 extends AbstractVCCalculatorBase {
 			if (
 				attributeName.startsWith('data-test') ||
 				NON_VISUAL_ARIA_ATTRIBUTES.includes(attributeName) ||
-				(THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES.includes(attributeName) &&
-					fg('platform_ufo_exclude_3p_extensions_from_ttvc'))
+				DARK_READER_BROWSER_EXTENSION_ATTRIBUTES.includes(attributeName) ||
+				(MORE_THIRD_PARTY_EXTENSION_ATTRIBUTES.includes(attributeName) &&
+					fg('platform_ufo_exclude_fdprocessedid_attribute'))
 			) {
 				return false;
 			}
@@ -160,8 +154,9 @@ export default class VCCalculator_FY25_03 extends AbstractVCCalculatorBase {
 		const hasAbortEvent = filteredEntries.some((entry) => {
 			if (entry.data.type === 'window:event') {
 				const data = entry.data as WindowEventEntryData;
-				if (ABORTING_WINDOW_EVENT.includes(data.eventType)) {
-					dirtyReason = data.eventType === 'keydown' ? 'keypress' : data.eventType;
+				const eventType = data.eventType as (typeof ABORTING_WINDOW_EVENT)[number];
+				if (ABORTING_WINDOW_EVENT.includes(eventType)) {
+					dirtyReason = eventType === 'keydown' ? 'keypress' : eventType;
 					abortTimestamp = Math.round(entry.time);
 					return true;
 				}

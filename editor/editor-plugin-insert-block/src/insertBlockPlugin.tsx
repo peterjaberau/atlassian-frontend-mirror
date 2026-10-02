@@ -2,12 +2,8 @@ import React, { useEffect } from 'react';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { ElementBrowser } from '@atlaskit/editor-common/element-browser';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
-import type { Providers } from '@atlaskit/editor-common/provider-factory';
-import { WithProviders } from '@atlaskit/editor-common/provider-factory';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type {
 	Command,
 	EditorAppearance,
@@ -22,8 +18,7 @@ import type { InputMethod as BlockTypeInputMethod } from '@atlaskit/editor-plugi
 import { BLOCK_QUOTE, CODE_BLOCK, PANEL } from '@atlaskit/editor-plugin-block-type/consts';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { InsertBlockPlugin } from './insertBlockPluginType';
 import { getToolbarActionExperiencesPlugin } from './pm-plugins/experiences/toolbar-action-experiences';
@@ -34,7 +29,10 @@ import { getToolbarComponents } from './ui/toolbar-components';
 // eslint-disable-next-line import/no-named-as-default
 import ToolbarInsertBlock from './ui/ToolbarInsertBlock';
 
-export const toolbarSizeToButtons = (toolbarSize: ToolbarSize, appearance?: EditorAppearance) => {
+export const toolbarSizeToButtons = (
+	toolbarSize: ToolbarSize,
+	appearance?: EditorAppearance,
+): 0 | 2 | 3 | 5 | 7 => {
 	// Different button numbers for full-page to better match full page toolbar breakpoints
 	if (appearance === 'full-page' && fg('platform_editor_toolbar_responsive_fixes')) {
 		switch (toolbarSize) {
@@ -140,60 +138,26 @@ export const insertBlockPlugin: InsertBlockPlugin = ({ config: options = {}, api
 	}) => {
 		refs.popupsMountPoint = popupsMountPoint || undefined;
 
-		const renderNode = (providers: Providers) => {
-			if (!editorView) {
-				return null;
-			}
-
-			return (
-				<ToolbarInsertBlockWithInjectionApi
-					pluginInjectionApi={api}
-					editorView={editorView}
-					editorActions={editorActions}
-					dispatchAnalyticsEvent={dispatchAnalyticsEvent}
-					providerFactory={providerFactory}
-					popupsMountPoint={popupsMountPoint}
-					popupsBoundariesElement={popupsBoundariesElement}
-					popupsScrollableElement={popupsScrollableElement}
-					toolbarSize={toolbarSize}
-					disabled={disabled}
-					isToolbarReducedSpacing={isToolbarReducedSpacing}
-					isLastItem={isLastItem}
-					providers={providers}
-					options={options}
-					appearance={options.appearance}
-				/>
-			);
-		};
-		if (editorExperiment('platform_editor_prevent_toolbar_layout_shifts', true)) {
-			if (!editorView) {
-				return null;
-			}
-
-			return (
-				<ToolbarInsertBlockWithInjectionApi
-					pluginInjectionApi={api}
-					editorView={editorView}
-					editorActions={editorActions}
-					dispatchAnalyticsEvent={dispatchAnalyticsEvent}
-					providerFactory={providerFactory}
-					popupsMountPoint={popupsMountPoint}
-					popupsBoundariesElement={popupsBoundariesElement}
-					popupsScrollableElement={popupsScrollableElement}
-					toolbarSize={toolbarSize}
-					disabled={disabled}
-					isToolbarReducedSpacing={isToolbarReducedSpacing}
-					isLastItem={isLastItem}
-					options={options}
-					appearance={options.appearance}
-				/>
-			);
+		if (!editorView) {
+			return null;
 		}
+
 		return (
-			<WithProviders
+			<ToolbarInsertBlockWithInjectionApi
+				pluginInjectionApi={api}
+				editorView={editorView}
+				editorActions={editorActions}
+				dispatchAnalyticsEvent={dispatchAnalyticsEvent}
 				providerFactory={providerFactory}
-				providers={['emojiProvider']}
-				renderNode={renderNode}
+				popupsMountPoint={popupsMountPoint}
+				popupsBoundariesElement={popupsBoundariesElement}
+				popupsScrollableElement={popupsScrollableElement}
+				toolbarSize={toolbarSize}
+				disabled={disabled}
+				isToolbarReducedSpacing={isToolbarReducedSpacing}
+				isLastItem={isLastItem}
+				options={options}
+				appearance={options.appearance}
 			/>
 		);
 	};
@@ -263,17 +227,14 @@ export const insertBlockPlugin: InsertBlockPlugin = ({ config: options = {}, api
 				plugin: () => toggleInsertBlockPmPlugin(),
 			});
 
-			if (fg('platform_editor_experience_tracking_toolbar_button')) {
-				plugins.push({
-					name: 'toolbarActionExperiences',
-					plugin: () =>
-						getToolbarActionExperiencesPlugin({
-							refs,
-							dispatchAnalyticsEvent: (payload) =>
-								api?.analytics?.actions?.fireAnalyticsEvent(payload),
-						}),
-				});
-			}
+			plugins.push({
+				name: 'toolbarActionExperiences',
+				plugin: () =>
+					getToolbarActionExperiencesPlugin({
+						dispatchAnalyticsEvent: (payload) =>
+							api?.analytics?.actions?.fireAnalyticsEvent(payload),
+					}),
+			});
 
 			return plugins;
 		},
@@ -284,15 +245,13 @@ export const insertBlockPlugin: InsertBlockPlugin = ({ config: options = {}, api
 	return plugin;
 };
 
-interface ToolbarInsertBlockWithInjectionApiProps
-	extends Omit<
-		ToolbarUiComponentFactoryParams,
-		'eventDispatcher' | 'appearance' | 'containerElement' | 'wrapperElement'
-	> {
+interface ToolbarInsertBlockWithInjectionApiProps extends Omit<
+	ToolbarUiComponentFactoryParams,
+	'eventDispatcher' | 'appearance' | 'containerElement' | 'wrapperElement'
+> {
 	appearance: EditorAppearance | undefined;
 	options: InsertBlockOptions;
 	pluginInjectionApi: ExtractInjectionAPI<typeof insertBlockPlugin> | undefined;
-	providers?: Providers;
 }
 
 const selector = (
@@ -312,7 +271,6 @@ const selector = (
 	>,
 ) => {
 	return {
-		emojiProviderSelector: states.emojiState?.emojiProvider,
 		showMediaPicker: states.mediaState?.showMediaPicker,
 		mediaAllowsUploads: states.mediaState?.allowsUploads,
 		showElementBrowser: states.insertBlockState?.showElementBrowser,
@@ -326,6 +284,7 @@ const selector = (
 		availableWrapperBlockTypes: states.blockTypeState?.availableWrapperBlockTypes,
 		canInsertLink: states.hyperlinkState?.canInsertLink,
 		activeLinkMark: states.hyperlinkState?.activeLinkMark,
+		emojiContentId: states.emojiState?.contentId,
 	};
 };
 
@@ -346,7 +305,6 @@ function ToolbarInsertBlockWithInjectionApi({
 }: ToolbarInsertBlockWithInjectionApiProps & { editorView: EditorView }) {
 	const buttons = toolbarSizeToButtons(toolbarSize, appearance);
 	const {
-		emojiProviderSelector,
 		showMediaPicker,
 		mediaAllowsUploads,
 		showElementBrowser,
@@ -360,6 +318,7 @@ function ToolbarInsertBlockWithInjectionApi({
 		availableWrapperBlockTypes,
 		canInsertLink,
 		activeLinkMark,
+		emojiContentId,
 	} = useSharedPluginStateWithSelector(
 		pluginInjectionApi,
 		[
@@ -377,40 +336,26 @@ function ToolbarInsertBlockWithInjectionApi({
 		],
 		selector,
 	);
-	const emojiProviderPromise = useSharedPluginStateSelector(
+	const emojiProvider = useSharedPluginStateSelector(
 		pluginInjectionApi,
 		'emoji.emojiProviderPromise',
-		{
-			disabled: !editorExperiment('platform_editor_prevent_toolbar_layout_shifts', true),
-		},
 	);
-
-	const getEmojiProvider = () => {
-		if (emojiProviderSelector) {
-			return Promise.resolve(emojiProviderSelector);
-		}
-	};
-
-	const emojiProvider = editorExperiment('platform_editor_prevent_toolbar_layout_shifts', true, {
-		exposure: true,
-	})
-		? emojiProviderPromise
-		: getEmojiProvider();
 
 	const onShowMediaPicker = (mountInfo?: { mountPoint: HTMLElement; ref: HTMLElement }) => {
 		if (!showMediaPicker) {
 			return;
 		}
 
-		if (fg('platform_editor_media_insert_check')) {
-			pluginInjectionApi?.mediaInsert?.commands.showMediaInsertPopup ? pluginInjectionApi?.core?.actions.execute(pluginInjectionApi?.mediaInsert?.commands.showMediaInsertPopup(mountInfo)) : showMediaPicker();
-		} else {
-			pluginInjectionApi?.core?.actions.execute(pluginInjectionApi?.mediaInsert?.commands.showMediaInsertPopup(mountInfo));
-		}
+		pluginInjectionApi?.mediaInsert?.commands.showMediaInsertPopup
+			? pluginInjectionApi?.core?.actions.execute(
+					pluginInjectionApi?.mediaInsert?.commands.showMediaInsertPopup(mountInfo),
+				)
+			: showMediaPicker();
 	};
 
 	return (
 		<ToolbarInsertBlock
+			emojiContentId={emojiContentId}
 			showElementBrowser={showElementBrowser || false}
 			pluginInjectionApi={pluginInjectionApi}
 			buttons={buttons}
@@ -456,6 +401,7 @@ function ToolbarInsertBlockWithInjectionApi({
 			popupsBoundariesElement={popupsBoundariesElement}
 			popupsScrollableElement={popupsScrollableElement}
 			insertMenuItems={options.insertMenuItems}
+			itemFilter={options.itemFilter}
 			editorActions={editorActions}
 			dispatchAnalyticsEvent={dispatchAnalyticsEvent}
 			showElementBrowserLink={options.showElementBrowserLink}

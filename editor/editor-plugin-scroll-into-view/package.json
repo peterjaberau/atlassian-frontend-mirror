@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-scroll-into-view",
-	"version": "7.0.0",
+	"version": "23.0.0",
 	"description": "Scroll-into-view plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -16,74 +16,31 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./scroll-into-view-plugin": "./src/entry-points/scroll-into-view-plugin.tsx",
+		"./scroll-into-view-plugin-type": "./src/entry-points/scroll-into-view-plugin-type.ts"
 	},
 	"dependencies": {
 		"@atlaskit/editor-prosemirror": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/prosemirror-input-rules": "workspace:^",
+		"@atlaskit/section-message": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0"
 	},
 	"devDependencies": {
 		"@testing-library/react": "root:*",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
 		"wait-for-expect": "root:*"
 	},
-	"platform-feature-flags": {
-		"dst-a11y__replace-anchor-with-link__editor-lego": {
-			"type": "boolean"
-		}
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"emotion"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	}
+	"platform-feature-flags": {}
 }

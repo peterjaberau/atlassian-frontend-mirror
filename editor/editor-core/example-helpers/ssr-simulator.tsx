@@ -19,16 +19,13 @@ import { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import Heading from '@atlaskit/heading';
-import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags';
+import Heading from '@atlaskit/heading/heading';
+import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags/setBooleanFeatureFlagResolver';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Flex, Stack } from '@atlaskit/primitives/compiled';
 import { setupEditorExperiments } from '@atlaskit/tmp-editor-statsig/setup';
 
-import {
-	type InitialPluginConfiguration,
-	type UniversalPresetProps,
-} from '../src/presets/universal';
+import type { InitialPluginConfiguration, UniversalPresetProps } from '../src/presets/universal';
 
 type CreateExamplePresetConfig = {
 	featureFlags?: EditorProps['featureFlags'];
@@ -190,7 +187,25 @@ const EditorWithRealNodeView = memo(
  * This component simulates the SSR environment using the LNV fallback rendering
  * to show the APPROXIMATE HTML rendered through Tesseract.
  */
-export const SSRSimulator = memo(
+export const SSRSimulator: React.MemoExoticComponent<
+	({
+		name,
+		appearance,
+		adf,
+		props,
+		featureFlags,
+		experiments,
+		initialPluginConfiguration,
+	}: {
+		adf: Object | undefined;
+		appearance: EditorAppearance;
+		experiments?: Record<string, boolean>;
+		featureFlags?: EditorProps['featureFlags'];
+		initialPluginConfiguration?: InitialPluginConfiguration;
+		name: string;
+		props?: UniversalPresetProps;
+	}) => React.JSX.Element
+> = memo(
 	({
 		name,
 		appearance,

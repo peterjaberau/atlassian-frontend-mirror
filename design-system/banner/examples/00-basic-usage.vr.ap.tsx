@@ -1,0 +1,31 @@
+import React from 'react';
+
+import Banner from '@atlaskit/banner/banner';
+import { cssMap } from '@atlaskit/css';
+import WarningIcon from '@atlaskit/icon/core/status-warning';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
+import Box from '@atlaskit/primitives/box';
+import { Flex } from '@atlaskit/primitives/compiled/flex';
+import { token } from '@atlaskit/tokens';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
+
+export default (): React.JSX.Element => (
+	<Box>
+		<Banner
+			icon={
+				<Flex xcss={iconSpacingStyles.space050}>
+					<WarningIcon label="Warning" />
+				</Flex>
+			}
+			testId="basicTestId"
+		>
+			Your license is about to expire. Please renew your license within the next week.
+		</Banner>
+	</Box>
+);

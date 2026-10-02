@@ -1,7 +1,7 @@
+import type { Valign } from '@atlaskit/adf-schema/valign';
 import type { TableSortOrder as SortOrder } from '@atlaskit/custom-steps';
 
 import type { EditorBreakpointKey } from '../../utils/analytics';
-
 import type { ACTION_SUBJECT, INPUT_METHOD, ACTION_SUBJECT_ID } from './enums';
 import type { OperationalAEP, TableAEP, UIAEP } from './utils';
 
@@ -44,20 +44,25 @@ export enum TABLE_ACTION {
 	ROW_OR_COLUMN_MOVED = 'rowOrColumnMoved',
 	CHANGED_DISPLAY_MODE = 'changedDisplayMode',
 	CHANGED_ALIGNMENT = 'changedAlignment',
+	CHANGED_CELL_VERTICAL_ALIGNMENT = 'changedVerticalAlignment',
 	// Temporary to track usage of CONFCLOUD-78239 bug
 	TABLE_CELL_BACKGROUND_FIXED = 'tableCellBackgroundFixed',
 	TABLE_WIDTH_INFO = 'tableWidthInformation',
 	TABLE_EDITOR_HEIGHT_INFO = 'tableEditorHeightInformation',
 	TABLE_RENDERER_HEIGHT_INFO = 'tableRendererHeightInformation',
 	STICKY_HEADER_METHOD_TOGGLED = 'stickyHeaderMethodToggled',
+	FIT_TO_CONTENT_AUTO_CONVERTED = 'fitToContentAutoConverted',
+	FIT_TO_CONTENT_ON_DEMAND = 'fitToContentOnDemand',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum TABLE_BREAKOUT {
 	WIDE = 'wide',
 	FULL_WIDTH = 'fullWidth',
 	NORMAL = 'normal',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum TABLE_OVERFLOW_CHANGE_TRIGGER {
 	EXTERNAL = 'external',
 	ADDED_COLUMN = 'addedColumn',
@@ -69,6 +74,7 @@ export enum TABLE_OVERFLOW_CHANGE_TRIGGER {
 	RESIZED = 'resizedTable',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum TABLE_STATUS {
 	SUCCESS = 'success',
 	CANCELLED = 'cancelled',
@@ -169,6 +175,17 @@ type TableColorAEP = TableAEP<
 			| INPUT_METHOD.FLOATING_TB
 			| INPUT_METHOD.TABLE_CONTEXT_MENU;
 	} & { cellColor: string } & AllCellInfo,
+	undefined
+>;
+
+type TableChangedCellVerticalAlignmentAEP = TableAEP<
+	TABLE_ACTION.CHANGED_CELL_VERTICAL_ALIGNMENT,
+	{
+		inputMethod: INPUT_METHOD.TABLE_CONTEXT_MENU;
+		previousValign: Valign | 'mixed';
+		updatedCount: number;
+		valign: Valign;
+	} & AllCellInfo,
 	undefined
 >;
 
@@ -350,6 +367,7 @@ type TableClonedRowOrColumnAEP = TableAEP<
 	undefined
 >;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum TABLE_DISPLAY_MODE {
 	FIXED = 'fixed',
 	DEFAULT = 'default',
@@ -370,6 +388,7 @@ type TableChangedDisplayModeAEP = TableAEP<
 // currently duplicated in editor-plugin-table/src/types.ts
 type AlignmentOptions = 'center' | 'align-start';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum CHANGE_ALIGNMENT_REASON {
 	TABLE_RESIZING = 'tableResizing',
 	TABLE_COLUMN_RESIZED = 'tableColumnResized',
@@ -437,11 +456,35 @@ type TableStickyHeaderEnabledAEP = UIAEP<
 	undefined
 >;
 
+type TableFitToContentAutoConvertedAEP = TableAEP<
+	TABLE_ACTION.FIT_TO_CONTENT_AUTO_CONVERTED,
+	{
+		editorContainerWidth: number;
+		measurements: Array<{
+			tableWidth: number;
+			totalColumnCount: number;
+		}>;
+		totalTablesResized: number;
+	},
+	undefined
+>;
+
+type TableFitToContentOnDemandAEP = TableAEP<
+	TABLE_ACTION.FIT_TO_CONTENT_ON_DEMAND,
+	{
+		editorContainerWidth: number;
+		tableWidth: number;
+		totalColumnCount: number;
+	},
+	undefined
+>;
+
 export type TableEventPayload =
 	| TableDeleteAEP
 	| TableClearAEP
 	| TableMergeSplitAEP
 	| TableColorAEP
+	| TableChangedCellVerticalAlignmentAEP
 	| TableToggleHeaderAEP
 	| TableChangeBreakoutAEP
 	| TableCopyAndCutAEP
@@ -467,4 +510,6 @@ export type TableEventPayload =
 	| TableChangedAlignmentAEP
 	| TableWidthInfoAEP
 	| TableHeightInfoAEP
-	| TableStickyHeaderEnabledAEP;
+	| TableStickyHeaderEnabledAEP
+	| TableFitToContentAutoConvertedAEP
+	| TableFitToContentOnDemandAEP;

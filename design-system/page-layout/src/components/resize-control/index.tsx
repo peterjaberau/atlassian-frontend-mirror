@@ -20,6 +20,7 @@ import { css, Global, jsx } from '@emotion/react';
 import { bindAll, type UnbindFn } from 'bind-event-listener';
 import rafSchd from 'raf-schd';
 
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { UNSAFE_useMediaQuery as useMediaQuery } from '@atlaskit/primitives/responsive';
 
 import {
@@ -30,13 +31,11 @@ import {
 	RESIZE_CONTROL_SELECTOR,
 	VAR_LEFT_SIDEBAR_WIDTH,
 } from '../../common/constants';
-import { getLeftPanelWidth, getLeftSidebarPercentage } from '../../common/utils';
-import {
-	type LeftSidebarState,
-	SidebarResizeContext,
-} from '../../controllers/sidebar-resize-context';
+import { getLeftPanelWidth } from '../../common/get-left-panel-width';
+import { getLeftSidebarPercentage } from '../../common/get-left-sidebar-percentage';
+import { SidebarResizeContext } from '../../controllers/sidebar-resize-context';
+import type { LeftSidebarState } from '../../controllers/types';
 /* import useUpdateCssVar from '../../controllers/use-update-css-vars'; */
-
 import GrabArea from './grab-area';
 import ResizeButton from './resize-button';
 import Shadow from './shadow';

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import Button from '@atlaskit/button/new';
-import InlineDialog from '@atlaskit/inline-dialog';
+import Button from '@atlaskit/button/default/button';
+import InlineDialog from '@atlaskit/inline-dialog/inline-dialog';
 import { token } from '@atlaskit/tokens';
 
 import { Placements } from '../utils';
@@ -19,6 +19,7 @@ const styles: React.CSSProperties = {
 	width: '100%',
 };
 
+// eslint-disable-next-line @repo/internal/react/no-class-components
 export default class InlineDialogPositioningExample extends Component<{}, State> {
 	state = {
 		placementIndex: 0,

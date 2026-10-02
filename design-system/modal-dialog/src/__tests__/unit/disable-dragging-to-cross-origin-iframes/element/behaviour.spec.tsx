@@ -1,7 +1,6 @@
-import { fireEvent } from '@testing-library/react';
-
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { fireEvent } from '@atlassian/testing-library';
 
 import { disableDraggingToCrossOriginIFramesForElement } from '../../../../internal/pragmatic-drag-and-drop/disable-dragging-to-cross-origin-iframes/element';
 import { appendToBody, getBubbleOrderedTree, getElements, reset } from '../_pdnd-test-utils';

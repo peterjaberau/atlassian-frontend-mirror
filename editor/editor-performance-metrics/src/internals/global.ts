@@ -1,7 +1,5 @@
-import {
-	EditorPerformanceObserver,
-	type EditorPerformanceObserverOptions,
-} from './editorPerformanceObserver';
+import { EditorPerformanceObserver } from './editorPerformanceObserver';
+import type { EditorPerformanceObserverOptions } from './editorPerformanceObserver';
 import { TimelineController } from './timeline';
 import type { Timeline } from './timelineInterfaces';
 
@@ -12,7 +10,7 @@ interface WindowWithEditorPerformance extends Window {
 
 export const getGlobalEditorMetricsObserver = (
 	options?: Partial<EditorPerformanceObserverOptions>,
-) => {
+): EditorPerformanceObserver => {
 	let observer = (globalThis as unknown as WindowWithEditorPerformance)
 		.__editor_performance_metrics_observer;
 

@@ -1,6 +1,6 @@
 import type { FieldDefinition, Option, Parameters } from '@atlaskit/editor-common/extensions';
-import type { GroupBase } from '@atlaskit/react-select';
-import { isOptionsGrouped } from '@atlaskit/select';
+import type { GroupBase } from '@atlaskit/react-select/types';
+import { isOptionsGrouped } from '@atlaskit/select/grouped-options-announcement';
 
 import { ALLOWED_LOGGED_MACRO_PARAMS, ALLOWED_PARAM_TYPES } from './constants';
 import { ValidationError } from './types';
@@ -78,7 +78,8 @@ const duplicateFieldRegex = /:[0-9]+$/;
 
 export const isDuplicateField = (key: string): boolean => duplicateFieldRegex.test(key);
 
-export const getNameFromDuplicateField = (key: string): string => key.replace(duplicateFieldRegex, '');
+export const getNameFromDuplicateField = (key: string): string =>
+	key.replace(duplicateFieldRegex, '');
 
 // An overly cautious parser for sanitizing configuration parameters of UGC
 export const parseParamType = (
@@ -118,7 +119,8 @@ export const getLoggedParameters = (
 	macroKey: string,
 	currentParams: Parameters,
 	macroFields?: FieldDefinition[],
-) => {
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+): {} => {
 	// Get the parameters only defined in the allowlist of logged macro/parameter keys
 	return Object.keys(currentParams)
 		.filter((paramKey) => ALLOWED_LOGGED_MACRO_PARAMS[macroKey]?.includes(paramKey))

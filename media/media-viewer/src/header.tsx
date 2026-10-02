@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { type ReactNode, type ReactChild } from 'react';
+
+import { FormattedMessage, type WrappedComponentProps } from 'react-intl';
+
 import {
 	type FileState,
 	type ProcessingFileState,
@@ -10,15 +13,24 @@ import {
 	type FileIdentifier,
 	toCommonMediaClientError,
 } from '@atlaskit/media-client';
-import {
-	hideControlsClassName,
-	messages,
-	toHumanReadableMediaSize,
-	MediaButton,
-} from '@atlaskit/media-ui';
-import { getLanguageType, getExtension, isCodeViewerItem } from '@atlaskit/media-ui/codeViewer';
-import { FormattedMessage, injectIntl, type WrappedComponentProps } from 'react-intl-next';
-import { Outcome } from './domain';
+import { useFileState } from '@atlaskit/media-client-react/use-file-state';
+import { useMediaClient } from '@atlaskit/media-client-react/use-media-client';
+import { type MediaFeatureFlags, type MediaTraceContext } from '@atlaskit/media-common';
+import { isZipMimeType } from '@atlaskit/media-common/isZipMimeType';
+import { hideControlsClassName } from '@atlaskit/media-ui/classNames';
+import { getExtension } from '@atlaskit/media-ui/getExtension';
+import { getLanguageType } from '@atlaskit/media-ui/getLanguageType';
+import { toHumanReadableMediaSize } from '@atlaskit/media-ui/humanReadableSize';
+import { isCodeViewerItem } from '@atlaskit/media-ui/isCodeViewerItem';
+import MediaButton from '@atlaskit/media-ui/MediaButton';
+import { messages } from '@atlaskit/media-ui/messages';
+import { MimeTypeIcon } from '@atlaskit/media-ui/mime-type-icon';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { type MediaViewerExtensions } from './components/types';
+import { Outcome } from './domain/outcome';
+import { DisabledToolbarDownloadButton } from './download';
+import { MediaViewerError } from './MediaViewerError';
 import {
 	Header as HeaderWrapper,
 	LeftHeader,
@@ -30,13 +42,8 @@ import {
 	MetadataFileName,
 	FormattedMessageWrapper,
 } from './styleWrappers';
-import { ToolbarDownloadButton, DisabledToolbarDownloadButton } from './download';
-import { type MediaViewerExtensions } from './components/types';
-import { useFileState, useMediaClient } from '@atlaskit/media-client-react';
-import { type MediaFeatureFlags, type MediaTraceContext } from '@atlaskit/media-common';
-import { MimeTypeIcon } from '@atlaskit/media-ui/mime-type-icon';
-import { getFormat } from './viewers/codeViewer/util';
-import { MediaViewerError } from './errors';
+import { ToolbarDownloadButton } from './ToolbarDownloadButton';
+import { getFormat } from './viewers/codeViewer/getFormat';
 
 export type Props = {
 	readonly identifier: Identifier;
@@ -48,6 +55,7 @@ export type Props = {
 	readonly onSetArchiveSideBarVisible?: (isVisible: boolean) => void;
 	readonly isArchiveSideBarVisible?: boolean;
 	traceContext: MediaTraceContext;
+	readonly fallbackMediaNameFetcher?: (id: string) => Promise<string>;
 };
 
 export const Header = ({
@@ -56,11 +64,16 @@ export const Header = ({
 	isSidebarVisible,
 	onSidebarButtonClick,
 	identifier,
+	onClose,
 	onSetArchiveSideBarVisible,
 	traceContext,
+	fallbackMediaNameFetcher,
 }: Props & WrappedComponentProps): React.JSX.Element => {
 	// States
 	const [item, setItem] = useState<Outcome<FileState, MediaViewerError>>(Outcome.pending());
+	const [fallbackMediaName, setFallbackMediaName] = useState<string | undefined>();
+	const fallbackMediaNameFetchAttempted = useRef(false);
+	const lastFetchedFileId = useRef<string | undefined>();
 
 	// Refs and Hooks
 	const mediaClient = useMediaClient();
@@ -97,8 +110,17 @@ export const Header = ({
 		}
 
 		if (fileState.status !== 'error') {
+			// Only reserve the archive sidebar space for previewable ZIP archives.
+			// Non-ZIP archives (e.g. RAR, TAR, 7z) render a full-width "unsupported
+			// file format" error in the body and have no sidebar, so the header
+			// must not leave an empty 300px gap for them.
 			onSetArchiveSideBarVisibleRef.current?.(
-				!isErrorFileState(fileState) && fileState.mediaType === 'archive',
+				!isErrorFileState(fileState) &&
+					fileState.mediaType === 'archive' &&
+					// When the zip guard is on, non-ZIP archives show a full-width
+					// "unsupported file format" error with no sidebar, so the header
+					// must not reserve the 300px sidebar space for them.
+					(!fg('platform_media_archive_zip_guard') || isZipMimeType(fileState.mimeType)),
 			);
 			setItem(Outcome.successful(fileState));
 		} else {
@@ -109,6 +131,34 @@ export const Header = ({
 			);
 		}
 	}, [fileState, identifier]);
+
+	useEffect(() => {
+		// Reset fetch state when the file identity changes (e.g. navigating in viewer)
+		const currentId = fileState?.status !== 'error' ? fileState?.id : undefined;
+		if (currentId && currentId !== lastFetchedFileId.current) {
+			fallbackMediaNameFetchAttempted.current = false;
+			setFallbackMediaName(undefined);
+			lastFetchedFileId.current = currentId;
+		}
+
+		if (
+			fileState &&
+			fileState.status !== 'error' &&
+			!fileState.name &&
+			fallbackMediaNameFetcher &&
+			!fallbackMediaNameFetchAttempted.current
+		) {
+			fallbackMediaNameFetchAttempted.current = true;
+			fallbackMediaNameFetcher(fileState.id).then(
+				(name) => {
+					setFallbackMediaName(name);
+				},
+				() => {
+					// Silently ignore fetch failures
+				},
+			);
+		}
+	}, [fileState, fallbackMediaNameFetcher]);
 
 	const renderFileTypeText = (item: Exclude<FileState, ErrorFileState>): ReactNode => {
 		// render appropriate header if its a code/email item and the feature flag is enabled
@@ -166,7 +216,7 @@ export const Header = ({
 								</MetadataIconWrapper>
 								<MedatadataTextWrapper>
 									<MetadataFileName data-testid="media-viewer-file-name">
-										{item.name || <FormattedMessage {...messages.unknown} />}
+										{item.name || fallbackMediaName || <FormattedMessage {...messages.unknown} />}
 									</MetadataFileName>
 									<MetadataSubText data-testid="media-viewer-file-metadata-text">
 										<FormattedMessageWrapper>{renderFileTypeText(item)}</FormattedMessageWrapper>
@@ -180,6 +230,20 @@ export const Header = ({
 				})}
 			</LeftHeader>
 			<RightHeader>
+				{extensions?.headerActions?.map((action, index) => {
+					if (action.isVisible && !action.isVisible(identifier)) {
+						return null;
+					}
+					return (
+						<MediaButton
+							key={index}
+							testId={`media-viewer-header-action-${index}`}
+							onClick={() => action.onClick(identifier, { close: onClose || (() => {}) })}
+							iconBefore={action.icon as ReactChild}
+							aria-label={action.label}
+						/>
+					);
+				})}
 				{extensions?.sidebar && (
 					<MediaButton
 						isSelected={isSidebarVisible}
@@ -197,6 +261,7 @@ export const Header = ({
 							identifier={identifier}
 							mediaClient={mediaClient}
 							traceContext={traceContext}
+							fallbackMediaName={fallbackMediaName}
 						/>
 					),
 				})}
@@ -204,5 +269,3 @@ export const Header = ({
 		</HeaderWrapper>
 	);
 };
-
-export default injectIntl(Header) as React.FC<Props>;

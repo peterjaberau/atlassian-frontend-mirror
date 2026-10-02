@@ -1,5 +1,62 @@
 # @atlaskit/feature-flag-client
 
+## 6.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 5.8.0
+
+### Minor Changes
+
+- [`f8b3089961cdf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8b3089961cdf) -
+  Extend `StructuredContentSource` so `*.docs.tsx` files can describe packages whose exports are not
+  all renderable React components. The container now accepts optional `package`, `hooks`, and
+  `utilities` (function / constant / type) keys alongside the existing `components` key. New
+  per-kind schemas: `hookDocsSourceSchema`, `utilityDocsSourceSchema`, plus `packageMetadataSchema`
+  for shared package-level metadata.
+
+  All new fields are optional, so existing components-only `*.docs.tsx` files continue to work
+  unchanged — this is an additive, non-breaking extension.
+
+  Pilots the new shape with `docs.tsx` files for `@atlaskit/analytics-next`, `@atlaskit/layering`,
+  `@af/accessibility-testing`, `@af/react-unit-testing`, `@atlaskit/pragmatic-drag-and-drop-hitbox`,
+  `@atlaskit/pragmatic-drag-and-drop-live-region`, `@atlaskit/feature-flag-client`,
+  `@atlaskit/frontend-utilities`, and `@atlaskit/linking-common`. The last two are non-ADS pilots
+  that exercise the new `hooks` and `utilities` kinds in `helpers/` and `linking-platform/`. These
+  pilot files are explicitly marked as non-final in their file-level JSDoc.
+
+## 5.7.0
+
+### Minor Changes
+
+- [`c56476b969862`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c56476b969862) -
+  Autofix: add explicit package exports (barrel removal)
+
 ## 5.6.1
 
 ### Patch Changes
@@ -313,7 +370,6 @@
 
   Remove namespace imports from React, ReactDom, and PropTypes- Updated dependencies
   [6548261c9a](https://bitbucket.org/atlassian/atlassian-frontend/commits/6548261c9a):
-
   - @atlaskit/docs@8.3.2
 
 ## 3.1.7
@@ -348,7 +404,6 @@
 - [patch][18dfac7332](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/18dfac7332):
 
   In this PR, we are:
-
   - Re-introducing dist build folders
   - Adding back cjs
   - Replacing es5 by cjs and es2015 by esm
@@ -377,44 +432,37 @@
 ## 3.1.1
 
 - [patch][2e25dad67e](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/2e25dad67e):
-
   - Change process.env check to process.env.NODE_ENV check
 
 ## 3.1.0
 
 - [minor][5a49043dac](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/5a49043dac):
-
   - Enable strictPropertyInitialization in tsconfig.base
 
 ## 3.0.0
 
 - [major][7c17b35107](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/7c17b35107):
-
   - Updates react and react-dom peer dependencies to react@^16.8.0 and react-dom@^16.8.0. To use
     this package, please ensure you use at least this version of react and react-dom.
 
 ## 2.1.2
 
 - [patch][0a4ccaafae](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/0a4ccaafae):
-
   - Bump tslib
 
 ## 2.1.1
 
 - [patch][1bcaa1b991](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/1bcaa1b991):
-
   - Add npmignore for index.ts to prevent some jest tests from resolving that instead of index.js
 
 ## 2.1.0
 
 - [minor][a89f1bf6cd](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/a89f1bf6cd):
-
   - Enable noImplicitAny for growth/feature-flag-client
 
 ## 2.0.0
 
 - [major][9d5cc39394](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/9d5cc39394):
-
   - Dropped ES5 distributables from the typescript packages
 
 ## 1.1.2

@@ -3,23 +3,21 @@
  * @jsx jsx
  */
 import React from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import type { SerializedStyles } from '@emotion/react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
 
-import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx, type SerializedStyles, css } from '@emotion/react';
 
+import type { Layout as TableLayout } from '@atlaskit/adf-schema/tableNodes';
 import { TableSharedCssClassName } from '@atlaskit/editor-common/styles';
 import type { OverflowShadowProps } from '@atlaskit/editor-common/ui';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { akEditorStickyHeaderZIndex } from '@atlaskit/editor-shared-styles';
-import type { TableLayout } from '@atlaskit/adf-schema';
-import { N40A } from '@atlaskit/theme/colors';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
-import { Table } from './table';
-import { recursivelyInjectProps } from '../../utils/inject-props';
 import type { RendererAppearance } from '../../../ui/Renderer/types';
+import { recursivelyInjectProps } from '../../utils/inject-props';
+import { Table } from './table';
 export type StickyMode = 'none' | 'stick' | 'pin-bottom';
 
 export const tableStickyPadding = 8;
@@ -43,6 +41,30 @@ const modeSpecficStyles: Record<StickyMode, SerializedStyles> = {
 	}),
 };
 
+const suppressExternalStickStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Override external renderer wrapper styles targeting div[mode='stick']
+	"&.fixed-table-div-custom-table-resizing[mode='stick']": {
+		background: token('elevation.surface'),
+	},
+});
+
+const panelAwareStickyTableStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Override external renderer wrapper styles targeting div[mode='stick']
+	"&.fixed-table-div-custom-table-resizing[mode='stick']": {
+		background: `var(--ak-renderer-panel-bg-color, ${token('elevation.surface')})`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+	[`& .${TableSharedCssClassName.TABLE_CONTAINER}, & .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]:
+		{
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+			tr: {
+				background: `var(--ak-renderer-panel-bg-color, ${token('elevation.surface')})`,
+			},
+		},
+	borderTopColor: `var(--ak-renderer-panel-bg-color, ${token('elevation.surface')})`,
+	background: `var(--ak-renderer-panel-bg-color, ${token('elevation.surface.overlay')})`,
+});
+
 // refactored based on fixedTableDivStaticStyles
 // TODO: DSP-4123 - Quality ticket
 const fixedTableDivStaticStyles = css({
@@ -54,12 +76,12 @@ const fixedTableDivStaticStyles = css({
 			marginBottom: 0,
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 			tr: {
-				background: token('elevation.surface', 'white'),
+				background: token('elevation.surface'),
 			},
 		},
-	borderTop: `${tableStickyPadding}px solid ${token('elevation.surface', 'white')}`,
-	background: token('elevation.surface.overlay', 'white'),
-	boxShadow: `0 6px 4px -4px ${token('elevation.shadow.overflow.perimeter', N40A)}`,
+	borderTop: `${tableStickyPadding}px solid ${token('elevation.surface')}`,
+	background: token('elevation.surface.overlay'),
+	boxShadow: `0 6px 4px -4px ${token('elevation.shadow.overflow.perimeter')}`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	"div[data-expanded='false'] &": {
 		display: 'none',
@@ -96,7 +118,14 @@ const FixedTableDiv = (props: FixedProps) => {
 			data-testid="sticky-table-fixed"
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={allowTableResizing ? 'fixed-table-div-custom-table-resizing' : ''}
-			css={[fixedTableDivStaticStyles, modeSpecficStyles?.[mode]]}
+			css={[
+				fixedTableDivStaticStyles,
+				modeSpecficStyles?.[mode],
+				expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true) &&
+					suppressExternalStickStyles,
+				expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true) &&
+					panelAwareStickyTableStyles,
+			]}
 			style={
 				{
 					'--ak-renderer-sticky-header-zindex': stickyHeaderZIndex,
@@ -115,8 +144,6 @@ type StickyTableProps = {
 	allowTableResizing?: boolean;
 	children: React.ReactNode[];
 	columnWidths?: number[];
-	fixTableSSRResizing?: boolean;
-
 	innerRef: React.RefObject<HTMLDivElement>;
 	isNumberColumnEnabled: boolean;
 	layout: TableLayout;
@@ -148,9 +175,8 @@ export const StickyTable = ({
 	tableNode,
 	rendererAppearance,
 	allowTableResizing,
-	fixTableSSRResizing = false,
 	allowFixedColumnWidthOption,
-}: StickyTableProps) => {
+}: StickyTableProps): jsx.JSX.Element => {
 	let styles;
 	/* eslint-disable @atlaskit/design-system/ensure-design-token-usage */
 	if (allowTableResizing) {
@@ -187,7 +213,7 @@ export const StickyTable = ({
 					style={{
 						width: tableWidth,
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						marginBottom: fixTableSSRResizing ? 0 : '',
+						marginBottom: 0,
 					}}
 				>
 					<div
@@ -206,7 +232,7 @@ export const StickyTable = ({
 							renderWidth={renderWidth}
 							tableNode={tableNode}
 							rendererAppearance={rendererAppearance}
-							fixTableSSRResizing={fixTableSSRResizing}
+							fixTableSSRResizing
 							allowFixedColumnWidthOption={allowFixedColumnWidthOption}
 						>
 							{
@@ -274,7 +300,7 @@ export class OverflowParent {
 	 * @param defaultScrollRootId
 	 * @example
 	 */
-	static fromElement(el: HTMLElement | null, defaultScrollRootId?: string) {
+	static fromElement(el: HTMLElement | null, defaultScrollRootId?: string): OverflowParent {
 		return new OverflowParent(
 			findHorizontalOverflowScrollParent(el, defaultScrollRootId) || window,
 		);
@@ -301,7 +327,7 @@ export class OverflowParent {
 	/**
 	 *
 	 */
-	get top() {
+	get top(): number {
 		if (this.ref instanceof HTMLElement) {
 			return this.ref.getBoundingClientRect().top;
 		}

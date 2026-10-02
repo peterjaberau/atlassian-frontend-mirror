@@ -4,23 +4,22 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 import classnames from 'classnames';
 
-import type { RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
 import {
 	akEditorMediaResizeHandlerPaddingWide,
 	DEFAULT_EMBED_CARD_WIDTH,
 } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { VcMediaWrapperProps } from '@atlaskit/react-ufo/vc-media';
 
 import { MEDIA_SINGLE_GUTTER_SIZE } from '../../media-single/constants';
-import { getMediaSinglePixelWidth } from '../../media-single/utils';
+import { getMediaSinglePixelWidth } from '../../media-single/getMediaSinglePixelWidth';
 import type { EditorAppearance } from '../../types';
-import { shouldAddDefaultWrappedWidth } from '../../utils/rich-media-utils';
-
+import { shouldAddDefaultWrappedWidth } from '../../utils/shouldAddDefaultWrappedWidth';
 import { MediaSingleDimensionHelper, MediaWrapper } from './styled';
 import type { MediaSingleSize } from './types';
 export interface Props {
@@ -35,6 +34,7 @@ export interface Props {
 	handleMediaSingleRef?: React.RefObject<HTMLDivElement>;
 	hasFallbackContainer?: boolean;
 	height: number;
+	isInRenderer?: boolean;
 	isInsideOfInlineExtension?: boolean;
 	isLoading?: boolean;
 	layout: MediaSingleLayout;
@@ -47,7 +47,6 @@ export interface Props {
 	 */
 	pctWidth?: number;
 	size?: MediaSingleSize;
-	isInRenderer?: boolean;
 	width?: number;
 }
 
@@ -91,7 +90,7 @@ export default function MediaSingle({
 	isInsideOfInlineExtension = false,
 	dataAttributes,
 	isInRenderer = false,
-}: Props) {
+}: Props): jsx.JSX.Element {
 	const isPixelWidth = size?.widthType === 'pixel';
 
 	let mediaSingleWidth = size?.width || pctWidth;
@@ -105,6 +104,10 @@ export default function MediaSingle({
 	// When both width and height are set we use them to determine ratio and use that to define
 	// embed height in relation to whatever width of an dom element is in runtime.
 	const isHeightOnly = width === undefined;
+	// Preserve the absolute height before it is scaled below, so we can fall back to it if the
+	// pixel-width computation yields a non-finite value (e.g. editorWidth/lineLength is 0 or
+	// undefined in some host renderers such as Jira issue view).
+	const absoluteHeight = height;
 	if (mediaSingleWidth) {
 		const pxWidth = getMediaSinglePixelWidth(
 			mediaSingleWidth,
@@ -134,6 +137,17 @@ export default function MediaSingle({
 	let paddingBottom: string | undefined;
 	if (isHeightOnly) {
 		mediaWrapperHeight = height;
+	} else if (width !== undefined && !Number.isFinite((height / width) * 100)) {
+		// The aspect-ratio (padding-bottom) trick collapses to 0 when the ratio is non-finite,
+		// which happens when the resolved pixel width is 0/NaN (e.g. editorWidth/lineLength is
+		// unavailable in the host renderer). Fall back to the embed's absolute height so the box
+		// keeps a usable height instead of collapsing.
+		// For embedCard nodes the `height` prop is the iframe height only; the normal ratio path
+		// adds 32px for the embed header (see `calc(... + 32px)` below), so add it here too to
+		// avoid clipping the header.
+		mediaWrapperHeight = Number.isFinite(absoluteHeight)
+			? absoluteHeight + (nodeType === 'embedCard' ? 32 : 0)
+			: undefined;
 	} else if (width !== undefined) {
 		const mediaWrapperRatio = (height / width) * 100;
 		paddingBottom = `${mediaWrapperRatio.toFixed(3)}%`;
@@ -164,8 +178,7 @@ export default function MediaSingle({
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 				isInRenderer: isInRenderer && fg('media-perf-uplift-mutation-fix'),
 			})}
-			// eslint-disable-next-line react/jsx-props-no-spreading, @atlaskit/platform/no-preconditioning
-			{...(!fg('platform_editor_fix_media_in_renderer') ? {} : { 'data-layout': layout })}
+			data-layout={layout}
 			data-width={mediaSingleWidth}
 			data-width-type={size?.widthType || 'percentage'}
 			data-node-type={nodeType}

@@ -1,42 +1,61 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+	type DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES,
+	type ScriptHTMLAttributes,
+} from 'react';
 
 import {
 	type FileIdentifier,
+	type FileState,
 	isImageRepresentationReady,
 	type MediaBlobUrlAttrs,
 	type MediaStoreGetFileImageParams,
 	toCommonMediaClientError,
 } from '@atlaskit/media-client';
-import { useCopyIntent, useFileState, useMediaClient } from '@atlaskit/media-client-react';
+import { useCopyIntent } from '@atlaskit/media-client-react/use-copy-intent';
+import { useFileState } from '@atlaskit/media-client-react/use-file-state';
+import { useMediaClient } from '@atlaskit/media-client-react/use-media-client';
+import { isCDNEnabled } from '@atlaskit/media-client/media-cdn';
 import {
 	isMimeTypeSupportedByBrowser,
 	type MediaTraceContext,
 	type SSR,
 } from '@atlaskit/media-common';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { useInteractionContext } from '@atlaskit/react-ufo/interaction-context';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { useInteractionContext } from '@atlaskit/react-ufo/use-interaction-context';
 
-import { createFailedSSRObject, extractErrorInfo, type SSRStatus } from './analytics';
-import { ensureMediaFilePreviewError, ImageLoadError, MediaFilePreviewError } from './errors';
-import {
-	getAndCacheLocalPreview,
-	getAndCacheRemotePreview,
-	getSSRPreview,
-	isLocalPreview,
-	isRemotePreview,
-	isSSRClientPreview,
-	isSSRDataPreview,
-	isSSRPreview,
-	isSupportedLocalPreview,
-	mediaFilePreviewCache,
-} from './getPreview';
-import { generateScriptProps, getSSRData } from './globalScope';
-import { createRequestDimensions, isBigger, isWider, useCurrentValueRef } from './helpers';
+import type { SSRStatus } from './analytics';
+import { createFailedSSRObject } from './createFailedSSRObject';
+import { createRequestDimensions } from './createRequestDimensions';
+import { ensureMediaFilePreviewError } from './ensureMediaFilePreviewError';
+import { extractErrorInfo } from './extractErrorInfo';
+import { mediaFilePreviewCache } from './getPreview/cache';
+import { getAndCacheLocalPreview } from './getPreview/getAndCacheLocalPreview';
+import { getAndCacheRemotePreview } from './getPreview/getAndCacheRemotePreview';
+import { getSSRPreview } from './getPreview/getSSRPreview';
+import { isLocalPreview } from './getPreview/isLocalPreview';
+import { isRemotePreview } from './getPreview/isRemotePreview';
+import { isSSRClientPreview } from './getPreview/isSSRClientPreview';
+import { isSSRDataPreview } from './getPreview/isSSRDataPreview';
+import { isSSRPreview } from './getPreview/isSSRPreview';
+import { isSupportedLocalPreview } from './getPreview/isSupportedLocalPreview';
+import { generateScriptProps } from './globalScope/generateScriptProps';
+import { getSSRData } from './globalScope/getSSRData';
+import { ImageLoadError } from './ImageLoadError';
+import { isBigger } from './isBigger';
+import { isWider } from './isWider';
+import { MediaFilePreviewError } from './MediaFilePreviewError';
 import {
 	type MediaFilePreview,
 	type MediaFilePreviewDimensions,
 	type MediaFilePreviewStatus,
 } from './types';
+import { useCurrentValueRef } from './useCurrentValueRef';
 
 // invisible gif for SSR preview to show the underlying spinner until the src is replaced by
 // the actual image src in the inline script
@@ -72,6 +91,8 @@ export interface UseFilePreviewParams {
 	readonly maxAge?: number;
 	/** Defines the source component */
 	readonly source?: string;
+	/** Initial file state to be used for the preview. */
+	readonly initialFileState?: FileState;
 }
 
 export const useFilePreview = ({
@@ -87,9 +108,25 @@ export const useFilePreview = ({
 	upscale,
 	maxAge,
 	source,
-}: UseFilePreviewParams) => {
+	initialFileState,
+}: UseFilePreviewParams): {
+	preview: MediaFilePreview | undefined;
+	status: MediaFilePreviewStatus;
+	error: MediaFilePreviewError | undefined;
+	nonCriticalError: MediaFilePreviewError | undefined;
+	ssrReliability: SSRStatus;
+	onImageError: (failedPreview?: MediaFilePreview) => void;
+	onImageLoad: (newPreview?: MediaFilePreview) => void;
+	getSsrScriptProps: (() => ScriptHTMLAttributes<HTMLScriptElement>) | undefined;
+	copyNodeRef: (
+		instance: HTMLDivElement | HTMLImageElement | null,
+	) =>
+		| void
+		| DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES[keyof DO_NOT_USE_OR_YOU_WILL_BE_FIRED_CALLBACK_REF_RETURN_VALUES];
+} => {
 	const mediaClient = useMediaClient();
 	const [status, setStatus] = useState<MediaFilePreviewStatus>('loading');
+
 	const [error, setError] = useState<MediaFilePreviewError | undefined>();
 	const [nonCriticalError, setNonCriticalError] = useState<MediaFilePreviewError | undefined>();
 	const [isBannedLocalPreview, setIsBannedLocalPreview] = useState(false);
@@ -104,7 +141,7 @@ export const useFilePreview = ({
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	useLayoutEffect(() => {
-		if (isLoading && fg('platform_close_image_blindspot_2')) {
+		if (isLoading) {
 			return ufoContext?.hold('img-loading');
 		}
 	}, [ufoContext, isLoading]);
@@ -152,7 +189,32 @@ export const useFilePreview = ({
 				// where no SSR occurred, so we should skip SSR preview generation entirely.
 				if (ssr === 'server' || ssrData) {
 					try {
-						return getSSRPreview(ssr, mediaClient, identifier.id, imageURLParams, mediaBlobUrlAttrs);
+						// When the relay/SSR-seed path provided a full pre-signed CDN asset
+						// URL, pass it through to getImageUrlSync as the base. That inserts
+						// the client's image-transform params before &wm-ari and preserves
+						// the backend's v2 CDN path, CloudFront signature and watermark
+						// anchors that a rebuilt /file/{id}/image/cdn URL cannot reproduce.
+						const seededCdnUrl =
+							initialFileState && initialFileState.status !== 'error'
+								? initialFileState.previewCdnUrl
+								: undefined;
+						// Only use the seeded CDN URL when CDN delivery is actually in use.
+						// isCDNEnabled() is false for path-based routing (and for isolated
+						// cloud / GCP), where the signed media-cdn URL is not served — there
+						// getImageUrlSync must build the URL on the product's own /media-api
+						// host instead.
+						const ssrSeededCdnUrl =
+							seededCdnUrl && isCDNEnabled() && fg('platform_media_ssr_data_seed')
+								? seededCdnUrl
+								: undefined;
+						return getSSRPreview(
+							ssr,
+							mediaClient,
+							identifier.id,
+							imageURLParams,
+							mediaBlobUrlAttrs,
+							ssrSeededCdnUrl,
+						);
 					} catch (e: any) {
 						ssrReliabilityRef.current = {
 							...ssrReliabilityRef.current,
@@ -177,6 +239,7 @@ export const useFilePreview = ({
 	//----------------------------------------------------------------
 
 	const { fileState } = useFileState(identifier.id, {
+		initialFileState,
 		skipRemote,
 		collectionName: identifier.collectionName,
 		occurrenceKey: identifier.occurrenceKey,
@@ -323,11 +386,13 @@ export const useFilePreview = ({
 			// Then, local Preview NOT available
 			setIsLoading(true);
 			getAndCacheLocalPreview(
+				mediaClient,
 				identifier.id,
 				localBinary,
 				requestDimensions || {},
 				resizeMode,
 				mediaBlobUrlAttrsRef.current,
+				identifier.collectionName,
 			)
 				.then(setPreview)
 				.catch((e) => {
@@ -384,9 +449,11 @@ export const useFilePreview = ({
 		nonCriticalError,
 		getAndCacheRemotePreviewRef,
 		identifier.id,
+		identifier.collectionName,
 		resizeMode,
 		isBannedLocalPreview,
 		mediaBlobUrlAttrsRef,
+		mediaClient,
 		preview,
 		requestDimensions,
 		skipRemote,
@@ -397,6 +464,16 @@ export const useFilePreview = ({
 		upfrontPreviewStatus,
 		dimensions,
 	]);
+
+	//----------------------------------------------------------------
+	// Cache ref tracking — prevent blob URL eviction while mounted
+	//----------------------------------------------------------------
+	useEffect(() => {
+		mediaFilePreviewCache.acquire(identifier.id, resizeMode);
+		return () => {
+			mediaFilePreviewCache.release(identifier.id, resizeMode);
+		};
+	}, [identifier.id, resizeMode]);
 
 	//----------------------------------------------------------------
 	// RETURN
@@ -500,7 +577,7 @@ export const useFilePreview = ({
 	// FOR SSR
 	const getSsrScriptProps =
 		ssr === 'server'
-			? () =>
+			? (): ScriptHTMLAttributes<HTMLScriptElement> =>
 					generateScriptProps(
 						identifier,
 						preview?.dataURI,

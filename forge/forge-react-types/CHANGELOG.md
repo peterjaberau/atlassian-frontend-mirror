@@ -1,5 +1,566 @@
 # @atlaskit/forge-react-types
 
+## 2.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.0
+
+### Minor Changes
+
+- [`9e632e4e9add7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e632e4e9add7) -
+  Add `SearchableFlyoutMenuItemsProps` and `TSearchableFlyoutMenuItems` types for the Global Sidebar
+  `SearchableFlyoutMenuItems` component.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.0
+
+### Minor Changes
+
+- [`eb05bbc9f6c6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb05bbc9f6c6e) -
+  Add SidebarFooter component
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.3
+
+### Patch Changes
+
+- [`cd622822a8d5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd622822a8d5a) -
+  Add Apache-2.0 license metadata and license notice.
+
+## 2.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.0
+
+### Minor Changes
+
+- [`4c012e69c2d7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c012e69c2d7b) -
+  Add MenuSpacer component types for global side navigation.
+
+## 2.7.0
+
+### Minor Changes
+
+- [`515cffbfd2ae3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/515cffbfd2ae3) -
+  Add forYouMenuItem prop for global side navigation
+
+## 2.6.0
+
+### Minor Changes
+
+- [`2e9d020ef0794`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e9d020ef0794) -
+  Add activePath prop to LinkMenuItem and ReoderableMenuItems
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.1
+
+### Patch Changes
+
+- [`d4e462d4af67f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4e462d4af67f) -
+  Add option for badge for artifacts for global top nav
+- Updated dependencies
+
+## 2.5.0
+
+### Minor Changes
+
+- [`94dfc36102449`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94dfc36102449) -
+  Add MenuSection to <Global />
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.0
+
+### Minor Changes
+
+- [`3c30a26a23a2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c30a26a23a2d) -
+  Added unsupported_hideChrome prop to global:ui to hide TopNav and Sidebar
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.9
+
+### Patch Changes
+
+- [`7bb2679af9e44`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7bb2679af9e44) -
+  Adds optional hideMenu property in charts components
+
+## 2.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.6
+
+### Patch Changes
+
+- [`a64454e5b2584`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a64454e5b2584) -
+  Fix TypeScript error bug when using a documented pixel value for an XCSS size property in UI Kit.
+
+## 2.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.0
+
+### Minor Changes
+
+- [`1c7f81c96a123`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c7f81c96a123) -
+  Add an optional `icon` prop to the global:ui `LinkMenuItem` and reorderable menu items so sidebar
+  menu items can render a chosen glyph icon. Exposes `IconComponent` from the
+  `@atlassian/forge-ui/UIKit` entrypoint and regenerates the global component prop types.
+
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.1
+
+### Patch Changes
+
+- [`9caf2b96e0878`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9caf2b96e0878) -
+  Widen onDownload type to accept Blobs for default browser download
+
+## 2.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.7.1
+
+### Patch Changes
+
+- [`6e1f2974a7d54`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e1f2974a7d54) -
+  Enable isolatedDeclarations for forge-ui by giving makeXCSSValidator an explicit (hoisted,
+  generic) return type instead of an inferred one; regenerate forge-react-types Box/Pressable prop
+  types and adjust the codegen to emit the xcssValidator initializer without its source-local type
+  annotation/cast.
+
+## 1.7.0
+
+### Minor Changes
+
+- [`ab5703fe34009`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab5703fe34009) -
+  Adding resizable and custom dimension type to UI Kit Modal
+
+## 1.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.6.1
+
+### Patch Changes
+
+- [`08165c4246069`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08165c4246069) -
+  Resolved xcss type regression that caused TypeScript `xcss` props to degrade to `any` type, which
+  was triggering `@typescript-eslint/no-unsafe-assignment` errors in projects with strict
+  ESLint/TypeScript configurations. Updated `@atlaskit/forge-react-types` to `^1.5.0` which includes
+  the proper type exports for design token type safety.
+
+## 1.6.0
+
+### Minor Changes
+
+- [`ab2a4204087b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab2a4204087b8) -
+  Add ReorderableMenuItems component for Forge global apps
+
+### Patch Changes
+
+- [`cd226e3ea10b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd226e3ea10b4) -
+  Added forge-ui-iframe-ufo-perf-observers to Forge iframe
+
+## 1.5.0
+
+### Minor Changes
+
+- [`afdaf26fd3c35`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/afdaf26fd3c35) -
+  Add dispatch function prop to UI Kit Frame component. This function is intended for use in
+  global:ui modules
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.4.0
+
+### Minor Changes
+
+- [`aa7db57d6921d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa7db57d6921d) -
+  Clean up flag to render layers to parent instead of portals.
+
+## 1.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.3.0
+
+### Minor Changes
+
+- [`a463262abf609`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a463262abf609) -
+  Add prop types for Banner, Blanket, Bleed, Breadcrumbs, BreadcrumbsItem, and Pagination components
+
+## 1.2.0
+
+### Minor Changes
+
+- [`9a694209edbb9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a694209edbb9) -
+  Add Bleed UI Kit component from @atlaskit/primitives/compiled
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.0
+
+### Minor Changes
+
+- [`1cd16f49a36f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1cd16f49a36f1) -
+  Add new UI Kit components: Banner, Blanket, Bleed, Breadcrumbs, BreadcrumbsItem, Focusable,
+  Pagination, Skeleton
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.9
+
+### Patch Changes
+
+- [`0a6cd98a2280c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a6cd98a2280c) -
+  Add ADS hasInlinePadding prop to ModalBody component
+
+## 1.0.8
+
+### Patch Changes
+
+- [`1defac8866839`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1defac8866839) -
+  Consolidate User and Image UIKit component types into forge-react-types package
+
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.6
+
+### Patch Changes
+
+- [`639dee621a5ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/639dee621a5ab) -
+  Cleanup platform_migrate_pressable_to_use_migrated_xcss and small refactor
+
+## 1.0.5
+
+### Patch Changes
+
+- [`eb0b56b0bfa58`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb0b56b0bfa58) -
+  Enrol forge packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 1.0.4
+
+### Patch Changes
+
+- [`82ad484f26e5d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/82ad484f26e5d) -
+  Consolidate UIKit component types to forge-react-types
+
+## 1.0.3
+
+### Patch Changes
+
+- [`2fc22a970eeab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fc22a970eeab) -
+  Remove forYouUrl from Global Sidebar component
+- Updated dependencies
+
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.1
+
+### Patch Changes
+
+- [`146a62c48848f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/146a62c48848f) -
+  Support global entry point for typescript versions 4.5-4.9
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`0fa33f0928bd7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0fa33f0928bd7) -
+  Export global types from /global. Global types have been removed from the main entrypoint
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.67.0
+
+### Minor Changes
+
+- [`fd70710159ab9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fd70710159ab9) -
+  Add PersonalSettings component
+
+## 0.66.0
+
+### Minor Changes
+
+- [`b6f594e629511`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6f594e629511) -
+  Add HelpLink component for Global Forge apps.
+
+### Patch Changes
+
+- [`c987593f0bbb5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c987593f0bbb5) -
+  Fix check-types script failing due to ts-node moduleResolution not supporting package.json exports
+  maps
+
+## 0.65.3
+
+### Patch Changes
+
+- [`024c80d6caae2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/024c80d6caae2) -
+  <Global> TopNav now renders automatically and Create button moved to top level
+- Updated dependencies
+
+## 0.65.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.65.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.65.0
+
+### Minor Changes
+
+- [`88558df4c7482`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88558df4c7482) -
+  Exported FlyOutMenuItem
+
+## 0.64.0
+
+### Minor Changes
+
+- [`74ca1750dd048`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/74ca1750dd048) -
+  Added FlyOutMenuItem
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.63.2
+
+### Patch Changes
+
+- [`a7b61a83fc974`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7b61a83fc974) -
+  Added CreateButton to Global UI Kit component
+
+## 0.63.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.63.0
+
+### Minor Changes
+
+- [`a11e55ab6e41c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a11e55ab6e41c) -
+  Clean up unused files
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.62.0
+
+### Minor Changes
+
+- [`4e53247402873`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4e53247402873) -
+  Update global component props
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.61.0
 
 ### Minor Changes

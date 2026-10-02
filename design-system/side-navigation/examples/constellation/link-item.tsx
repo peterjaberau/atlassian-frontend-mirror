@@ -1,19 +1,19 @@
 import React from 'react';
 
 import BookWithBookmarkIcon from '@atlaskit/icon/core/book-with-bookmark';
-import { LinkItem, Section } from '@atlaskit/side-navigation';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { LinkItem } from '@atlaskit/side-navigation/link-item';
+import { Section } from '@atlaskit/side-navigation/section';
 
 const ButtonItemExample = (): React.JSX.Element => {
 	return (
 		<div>
 			<Section>
-				{/* eslint-disable-next-line @atlassian/a11y/anchor-is-valid */}
-				<LinkItem href="#">My articles</LinkItem>
+				<LinkItem href="/">My articles</LinkItem>
 			</Section>
 			<Section>
-				{/* eslint-disable-next-line @atlassian/a11y/anchor-is-valid */}
 				<LinkItem
-					href="#"
+					href="/"
 					description="All published articles"
 					iconBefore={<BookWithBookmarkIcon label="" />}
 				>

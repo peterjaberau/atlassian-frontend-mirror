@@ -3,7 +3,6 @@ import type { UIEvent } from 'react';
 import mapToInteractionType from './internal/map-to-interaction-type';
 import internal_traceUFOInteraction from './internal/trace-ufo-interaction';
 
-export { default as UNSAFE__DO_NOT_USE_traceUFOInteraction } from './internal/trace-ufo-interaction';
 /**
  * *Warning* Currently this only supports the events with the following types
  * ```ts

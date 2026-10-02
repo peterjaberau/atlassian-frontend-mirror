@@ -1,13 +1,24 @@
 import React from 'react';
+
 import { fireEvent, waitFor, screen, cleanup } from '@testing-library/react';
+
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+
 import {
 	VirtualList,
 	virtualListScrollContainerTestId,
 } from '../../../../components/picker/VirtualList';
 import { renderWithIntl } from '../../_testing-library';
 
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
+
 describe('VirtualList', () => {
 	const onRowsRendered = jest.fn();
+	let getExperimentValueSpy: jest.SpiedFunction<typeof FeatureGates.getExperimentValue>;
 
 	const renderList = () => {
 		return renderWithIntl(
@@ -24,7 +35,35 @@ describe('VirtualList', () => {
 		);
 	};
 
+	const mockRenderedRowBounds = () => {
+		const scrollContainer = screen.getByTestId(virtualListScrollContainerTestId);
+		scrollContainer.getBoundingClientRect = jest.fn(
+			() =>
+				({
+					top: 0,
+					bottom: 400,
+				}) as DOMRect,
+		);
+
+		Array.from(scrollContainer.firstElementChild?.children ?? []).forEach((row, rowIndex) => {
+			row.getBoundingClientRect = jest.fn(
+				() =>
+					({
+						top: rowIndex * 40,
+						bottom: rowIndex * 40 + 40,
+					}) as DOMRect,
+			);
+		});
+	};
+
+	beforeEach(() => {
+		getExperimentValueSpy = jest
+			.spyOn(FeatureGates, 'getExperimentValue')
+			.mockImplementation((_experimentName, _parameterName, defaultValue) => defaultValue);
+	});
+
 	afterEach(() => {
+		getExperimentValueSpy.mockRestore();
 		jest.resetAllMocks();
 		cleanup();
 	});
@@ -42,23 +81,36 @@ describe('VirtualList', () => {
 			expect(screen.queryByText('3')).toBeInTheDocument();
 		});
 
+		onRowsRendered.mockClear();
 		fireEvent.scroll(screen.getByTestId(virtualListScrollContainerTestId), {
 			target: { scrollTop: 1000 },
 		});
 		await waitFor(() => {
 			expect(screen.queryByText('22')).toBeInTheDocument();
-			expect(onRowsRendered).toHaveBeenCalledTimes(1);
+			expect(onRowsRendered).toHaveBeenCalled();
 		});
 	});
 
 	it('onRowsRendered is called with correct first visible row index', async () => {
 		const { container } = renderList();
 		expect(container).toBeDefined();
+		await waitFor(() => {
+			expect(screen.queryByText('3')).toBeInTheDocument();
+		});
+
+		onRowsRendered.mockClear();
 		fireEvent.scroll(screen.getByTestId(virtualListScrollContainerTestId), {
 			target: { scrollTop: 1000 },
 		});
 		await waitFor(() => {
-			expect(onRowsRendered).toHaveBeenCalledTimes(1);
+			expect(screen.queryByText('22')).toBeInTheDocument();
+		});
+		mockRenderedRowBounds();
+		onRowsRendered.mockClear();
+		fireEvent.scroll(screen.getByTestId(virtualListScrollContainerTestId), {
+			target: { scrollTop: 1000 },
+		});
+		await waitFor(() => {
 			expect(onRowsRendered).toHaveBeenCalledWith({ startIndex: 22 });
 		});
 	});

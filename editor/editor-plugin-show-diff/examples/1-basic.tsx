@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import applyDevTools from 'prosemirror-dev-tools';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { usePreset } from '@atlaskit/editor-core/use-preset';
 import { showDiffPlugin } from '@atlaskit/editor-plugin-show-diff';
@@ -46,6 +46,8 @@ import { typeAheadPlugin } from '@atlaskit/editor-plugins/type-ahead';
 import { unsupportedContentPlugin } from '@atlaskit/editor-plugins/unsupported-content';
 import { widthPlugin } from '@atlaskit/editor-plugins/width';
 
+import type { ColorScheme } from '../src/showDiffPluginType';
+
 const step1 = {
 	userId: 'ari:cloud:identity::user/123',
 	clientId: 123,
@@ -60,7 +62,7 @@ const step1 = {
 };
 
 export default function Editor(): React.JSX.Element {
-	const [colourScheme, setColourScheme] = useState<'standard' | 'traditional'>('traditional');
+	const [colorScheme, setColorScheme] = useState<ColorScheme>('traditional');
 	const { preset } = usePreset(
 		(builder) =>
 			builder
@@ -89,7 +91,6 @@ export default function Editor(): React.JSX.Element {
 							allowTableResizing: true,
 						},
 						isTableScalingEnabled: true,
-						dragAndDropEnabled: true,
 						allowContextualMenu: true,
 						fullWidthEnabled: true,
 					},
@@ -141,7 +142,7 @@ export default function Editor(): React.JSX.Element {
 					showDiffPlugin,
 					{
 						steps: [step1],
-						colourScheme: colourScheme,
+						colorScheme: colorScheme,
 						originalDoc: {
 							type: 'doc',
 							version: 1,
@@ -154,17 +155,17 @@ export default function Editor(): React.JSX.Element {
 						},
 					},
 				]),
-		[colourScheme],
+		[colorScheme],
 	);
 
 	return (
 		<>
 			<Button
 				onClick={() => {
-					setColourScheme(colourScheme === 'traditional' ? 'standard' : 'traditional');
+					setColorScheme(colorScheme === 'traditional' ? 'standard' : 'traditional');
 				}}
 			>
-				Colour scheme: {colourScheme}
+				Colour scheme: {colorScheme}
 			</Button>
 			<ComposableEditor
 				appearance="full-page"

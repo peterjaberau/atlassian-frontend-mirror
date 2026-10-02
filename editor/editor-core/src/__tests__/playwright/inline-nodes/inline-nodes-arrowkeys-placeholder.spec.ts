@@ -9,6 +9,7 @@ import {
 
 test.describe(`inline-nodes - placeholder`, () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 		editorProps: {
 			appearance: 'full-page',
 			allowTextAlignment: true,
@@ -24,6 +25,7 @@ test.describe(`inline-nodes - placeholder`, () => {
 
 	test.describe(`trailing spaces`, () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			adf: trailingSpacesWithPlaceholder,
 		});
 
@@ -39,6 +41,7 @@ test.describe(`inline-nodes - placeholder`, () => {
 				anchor: 7,
 				head: 7,
 			});
+			await editor.waitForEditorStable();
 			await editor.keyboard.press('ArrowLeft');
 			await expect(editor).toHaveSelection({
 				type: 'text',
@@ -89,6 +92,7 @@ test.describe(`inline-nodes - placeholder`, () => {
 				anchor: 1,
 				head: 1,
 			});
+			await editor.waitForEditorStable();
 			await editor.keyboard.press('ArrowRight');
 			await expect(editor).toHaveSelection({
 				type: 'text',
@@ -120,25 +124,11 @@ test.describe(`inline-nodes - placeholder`, () => {
 				head: 6,
 			});
 		});
-
-		test('should capture and report a11y violations', async ({ editor }) => {
-			await editor.selection.set({
-				anchor: 7,
-				head: 7,
-			});
-			await editor.keyboard.press('ArrowLeft');
-			await expect(editor).toHaveSelection({
-				type: 'text',
-				anchor: 6,
-				head: 6,
-			});
-
-			await expect(editor.page).toBeAccessible();
-		});
 	});
 
 	test.describe(`no trailing spaces`, () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			adf: noTrailingSpacesWithPlaceholder,
 		});
 
@@ -154,6 +144,7 @@ test.describe(`inline-nodes - placeholder`, () => {
 				anchor: 4,
 				head: 4,
 			});
+			await editor.waitForEditorStable();
 
 			await editor.keyboard.press('ArrowLeft');
 			await expect(editor).toHaveSelection({
@@ -187,6 +178,7 @@ test.describe(`inline-nodes - placeholder`, () => {
 				anchor: 1,
 				head: 1,
 			});
+			await editor.waitForEditorStable();
 
 			await editor.keyboard.press('ArrowRight');
 			await expect(editor).toHaveSelection({

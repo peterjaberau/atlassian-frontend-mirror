@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import { convertToError } from '@atlaskit/frontend-utilities/convert-to-error';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { useLinkPickerAnalytics } from '../../common/analytics';
 import { ANALYTICS_CHANNEL, RECENT_SEARCH_LIST_SIZE } from '../../common/constants';
@@ -14,7 +14,6 @@ import {
 	type LinkSearchListItemData,
 } from '../../common/types';
 import createEventPayload from '../../common/utils/analytics/analytics.codegen';
-
 import { usePluginReducer } from './reducer';
 import { CancellationError, resolvePluginUpdates } from './utils';
 
@@ -35,6 +34,7 @@ export function usePlugins(
 	activeTab: number,
 	plugins?: LinkPickerPlugin[],
 	recentSearchListSize?: number,
+	alwaysShowTabs?: boolean,
 ): LinkPickerPluginsService {
 	const { createAnalyticsEvent } = useAnalyticsEvents();
 	const [retries, setRetries] = useState(0);
@@ -104,7 +104,7 @@ export function usePlugins(
 	}, [activePlugin, state, retries, createAnalyticsEvent, dispatch, recentSearchListSize]);
 
 	const tabs = useMemo(() => {
-		if (!plugins || plugins.length <= 1) {
+		if (!plugins || (!alwaysShowTabs && plugins.length <= 1)) {
 			return [];
 		}
 
@@ -113,7 +113,7 @@ export function usePlugins(
 			.map((plugin) => ({
 				tabTitle: plugin.tabTitle!,
 			}));
-	}, [plugins]);
+	}, [plugins, alwaysShowTabs]);
 
 	const handleRetry = useCallback(() => {
 		setRetries((prev) => ++prev);

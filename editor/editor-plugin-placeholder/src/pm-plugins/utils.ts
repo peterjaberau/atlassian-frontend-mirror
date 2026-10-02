@@ -1,28 +1,23 @@
-import type { DocNode } from '@atlaskit/adf-schema';
-import { placeholderTextMessages as messages } from '@atlaskit/editor-common/messages';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import {
 	bracketTyped,
 	hasDocAsParent,
 	isEmptyDocument,
 	isEmptyParagraph,
 } from '@atlaskit/editor-common/utils';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { findParentNode } from '@atlaskit/editor-prosemirror/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { pluginKey } from '../placeholderPlugin';
-
 import {
 	createLongEmptyNodePlaceholderADF,
 	createShortEmptyNodePlaceholderADF,
 } from './adf-builders';
-import {
-	nodeTypesWithLongPlaceholderText,
-	nodeTypesWithShortPlaceholderText,
-	nodeTypesWithSyncBlockPlaceholderText,
-} from './constants';
-import type { PlaceHolderState, CreatePlaceholderStateProps, UserInteractionState } from './types';
+import { nodeTypesWithLongPlaceholderText, nodeTypesWithShortPlaceholderText } from './constants';
+import type { CreatePlaceholderStateProps, PlaceHolderState, UserInteractionState } from './types';
 
 export function getPlaceholderState(editorState: EditorState): PlaceHolderState {
 	return pluginKey.getState(editorState);
@@ -102,9 +97,7 @@ export function createPlaceHolderStateFrom({
 	withEmptyParagraph,
 	showOnEmptyParagraph,
 }: CreatePlaceholderStateProps): PlaceHolderState {
-	const shouldHidePlaceholder = fg('platform_editor_ai_aifc_patch_ga_blockers')
-		? isPlaceholderHidden
-		: isPlaceholderHidden && withEmptyParagraph;
+	const shouldHidePlaceholder = isPlaceholderHidden;
 
 	if (shouldHidePlaceholder) {
 		return {
@@ -150,51 +143,29 @@ export function createPlaceHolderStateFrom({
 			hasDocAsParent($to);
 
 		if (isOnEmptyParagraphInNonEmptyDoc) {
-			if (fg('platform_editor_ai_aifc_patch_ga_blockers')) {
-				// If placeholder was already shown, keep it visible even without focus
-				// This prevents the placeholder from disappearing when switching browser tabs
-				if (showOnEmptyParagraph) {
-					return setPlaceHolderState({
-						placeholderText: defaultPlaceholderText,
-						pos: to,
-						placeholderPrompts,
-						typedAndDeleted,
-						userHadTyped,
-						canShowOnEmptyParagraph: true,
-						showOnEmptyParagraph: true,
-					});
-				}
-				// Focus is required to start the timeout for showing placeholder
-				if (isEditorFocused) {
-					return emptyPlaceholder({
-						placeholderText: defaultPlaceholderText,
-						placeholderPrompts,
-						userHadTyped,
-						canShowOnEmptyParagraph: true,
-						showOnEmptyParagraph: false,
-						pos: to,
-					});
-				}
-			} else if (isEditorFocused) {
-				// Original behavior: focus is required for both showing and keeping placeholder visible
-				return showOnEmptyParagraph
-					? setPlaceHolderState({
-							placeholderText: defaultPlaceholderText,
-							pos: to,
-							placeholderPrompts,
-							typedAndDeleted,
-							userHadTyped,
-							canShowOnEmptyParagraph: true,
-							showOnEmptyParagraph: true,
-						})
-					: emptyPlaceholder({
-							placeholderText: defaultPlaceholderText,
-							placeholderPrompts,
-							userHadTyped,
-							canShowOnEmptyParagraph: true,
-							showOnEmptyParagraph: false,
-							pos: to,
-						});
+			// If placeholder was already shown, keep it visible even without focus
+			// This prevents the placeholder from disappearing when switching browser tabs
+			if (showOnEmptyParagraph) {
+				return setPlaceHolderState({
+					placeholderText: defaultPlaceholderText,
+					pos: to,
+					placeholderPrompts,
+					typedAndDeleted,
+					userHadTyped,
+					canShowOnEmptyParagraph: true,
+					showOnEmptyParagraph: true,
+				});
+			}
+			// Focus is required to start the timeout for showing placeholder
+			if (isEditorFocused) {
+				return emptyPlaceholder({
+					placeholderText: defaultPlaceholderText,
+					placeholderPrompts,
+					userHadTyped,
+					canShowOnEmptyParagraph: true,
+					showOnEmptyParagraph: false,
+					pos: to,
+				});
 			}
 		}
 	}
@@ -211,7 +182,10 @@ export function createPlaceHolderStateFrom({
 		}
 
 		const parentNode = $from.node($from.depth - 1);
-		const parentType = parentNode?.type.name;
+		const parentType =
+			parentNode?.type && expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+				? getBaseNodeTypeName(parentNode.type)
+				: parentNode?.type?.name;
 
 		if (emptyLinePlaceholder && parentType === 'doc') {
 			const isEmptyLine = isEmptyParagraph($from.parent);
@@ -247,12 +221,8 @@ export function createPlaceHolderStateFrom({
 			const isFirstCell = table?.node.firstChild?.content.firstChild === parentNode;
 			if (isFirstCell) {
 				return setPlaceHolderState({
-					placeholderText: !fg('platform_editor_ai_aifc_patch_ga')
-						? intl.formatMessage(messages.shortEmptyNodePlaceholderText)
-						: undefined,
-					contextPlaceholderADF: fg('platform_editor_ai_aifc_patch_ga')
-						? createShortEmptyNodePlaceholderADF(intl)
-						: undefined,
+					placeholderText: undefined,
+					contextPlaceholderADF: createShortEmptyNodePlaceholderADF(intl),
 					pos: $from.pos,
 					placeholderPrompts,
 					typedAndDeleted,
@@ -263,26 +233,8 @@ export function createPlaceHolderStateFrom({
 
 		if (nodeTypesWithLongPlaceholderText.includes(parentType) && isEmptyNode) {
 			return setPlaceHolderState({
-				placeholderText: !fg('platform_editor_ai_aifc_patch_ga')
-					? intl.formatMessage(messages.longEmptyNodePlaceholderText)
-					: undefined,
-				contextPlaceholderADF: fg('platform_editor_ai_aifc_patch_ga')
-					? createLongEmptyNodePlaceholderADF(intl)
-					: undefined,
-				pos: $from.pos,
-				placeholderPrompts,
-				typedAndDeleted,
-				userHadTyped,
-			});
-		}
-
-		if (
-			nodeTypesWithSyncBlockPlaceholderText.includes(parentType) &&
-			isEmptyNode &&
-			editorExperiment('platform_synced_block', true)
-		) {
-			return setPlaceHolderState({
-				placeholderText: intl.formatMessage(messages.sourceSyncBlockPlaceholderText),
+				placeholderText: undefined,
+				contextPlaceholderADF: createLongEmptyNodePlaceholderADF(intl),
 				pos: $from.pos,
 				placeholderPrompts,
 				typedAndDeleted,

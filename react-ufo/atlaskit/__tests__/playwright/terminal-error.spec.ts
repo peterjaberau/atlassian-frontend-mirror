@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test } from './fixtures';
 
 test.describe('ReactUFO: Terminal Error Reporting', () => {
 	test.use({
 		examplePage: 'basic-with-terminal-error',
-		featureFlags: ['platform_ufo_enable_terminal_errors'],
+	} satisfies {
+		examplePage: 'basic-with-terminal-error';
+		__exampleDependency?: typeof import('../../examples/38-basic-with-terminal-error.tsx');
 	});
 
 	test('custom.terminal-error metric should be fired when terminal error is reported after hold is finished', async ({
@@ -101,37 +104,5 @@ test.describe('ReactUFO: Terminal Error Reporting', () => {
 		await expect(mainDiv).toBeVisible();
 
 		await expect(page).toBeAccessible();
-	});
-});
-
-test.describe('ReactUFO: Terminal Error Reporting (feature gate disabled)', () => {
-	test.use({
-		examplePage: 'basic-with-terminal-error',
-		featureFlags: [],
-	});
-
-	test('no terminal errors should be fired when feature gate is disabled', async ({
-		page,
-		waitForReactUFOPayload,
-	}) => {
-		const mainDiv = page.locator('[data-testid="main"]');
-		const sectionOne = page.locator('[data-testid="sectionOne"]');
-		const sectionTwo = page.locator('[data-testid="sectionTwo"]');
-		const sectionThree = page.locator('[data-testid="sectionThree"]');
-
-		await expect(mainDiv).toBeVisible();
-		await expect(sectionOne).toBeVisible();
-		await expect(sectionTwo).toBeVisible();
-		await expect(sectionThree).toBeVisible();
-
-		// Wait for the main UFO payload to ensure the interaction has completed
-		const reactUFOPayload = await waitForReactUFOPayload();
-		expect(reactUFOPayload).toBeDefined();
-
-		const terminalErrorPayloads = await page.evaluate(() => {
-			return (window as any).__websiteReactUfoTerminalErrors || [];
-		});
-
-		expect(terminalErrorPayloads.length).toBe(0);
 	});
 });

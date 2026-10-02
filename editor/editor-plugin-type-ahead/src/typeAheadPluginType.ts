@@ -5,18 +5,20 @@ import type {
 	OptionalPlugin,
 	TypeAheadHandler,
 	TypeAheadItem,
+	TypeAheadSectionTitleUpdate,
 } from '@atlaskit/editor-common/types';
 import type { AnalyticsPlugin } from '@atlaskit/editor-plugin-analytics';
 import type { ConnectivityPlugin } from '@atlaskit/editor-plugin-connectivity';
 import type { ContextPanelPlugin } from '@atlaskit/editor-plugin-context-panel';
 import type { FeatureFlagsPlugin } from '@atlaskit/editor-plugin-feature-flags';
 import type { MetricsPlugin } from '@atlaskit/editor-plugin-metrics';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugin-ui-control-registry/ui-control-registry-plugin-type';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 
-import {
-	type TypeAheadPluginOptions,
-	type TypeAheadPluginSharedState,
-	type OpenTypeAheadProps,
+import type {
+	TypeAheadPluginOptions,
+	TypeAheadPluginSharedState,
+	OpenTypeAheadProps,
 } from './types';
 
 type InsertTypeAheadItemProps = {
@@ -47,6 +49,13 @@ export type TypeAheadPlugin = NextEditorPlugin<
 			isOpen: (editorState: EditorState) => boolean;
 			open: (props: OpenTypeAheadProps) => boolean;
 			openAtTransaction: (props: OpenTypeAheadProps) => (tr: Transaction) => boolean;
+			/**
+			 * Updates the display title for an existing typeahead section in the current typeahead session.
+			 *
+			 * Optional `sectionTitleDisplay` rules can control whether the title stays visible once
+			 * there is a query, or keep the title visible when this section is the only populated section.
+			 */
+			updateSectionTitle?: (props: TypeAheadSectionTitleUpdate) => boolean;
 		};
 		dependencies: [
 			OptionalPlugin<AnalyticsPlugin>,
@@ -54,6 +63,7 @@ export type TypeAheadPlugin = NextEditorPlugin<
 			OptionalPlugin<ConnectivityPlugin>,
 			OptionalPlugin<ContextPanelPlugin>,
 			OptionalPlugin<MetricsPlugin>,
+			OptionalPlugin<UiControlRegistryPlugin>,
 		];
 		pluginConfiguration: TypeAheadPluginOptions | undefined;
 		sharedState: TypeAheadPluginSharedState;

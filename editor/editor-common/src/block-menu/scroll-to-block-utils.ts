@@ -3,23 +3,12 @@
  * Used by both Confluence's useScrollOnUrlChange and platform renderer's useScrollToBlock.
  */
 
-import type { DocNode } from '@atlaskit/adf-schema';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import type { ADFEntity } from '@atlaskit/adf-utils/types';
 
-/**
- * Timing constants for expand animation and DOM update delays.
- * These values are tuned for the expand component's behavior and React's update cycle.
- */
-export const SCROLL_TO_BLOCK_TIMING = {
-	/** Minimal delay for DOM/React updates after expanding (no animation in expand component). */
-	DOM_UPDATE_DELAY: 50,
-	/** Delay when expand operation fails and needs retry. */
-	RETRY_DELAY: 100,
-	/** Maximum number of retry attempts before giving up and scrolling anyway. */
-	MAX_ATTEMPTS: 5,
-	/** Maximum depth of nested expands to search (prevents infinite loops). */
-	MAX_EXPAND_DEPTH: 2,
-} as const;
+import { expandElement } from './expandElement';
+import { isExpandCollapsed } from './isExpandCollapsed';
+import { SCROLL_TO_BLOCK_TIMING } from './SCROLL_TO_BLOCK_TIMING';
 
 export type NodeWithExpandParents = {
 	/** Array of expand parent localIds (empty if no expand parents, ordered from outermost to innermost). */
@@ -99,6 +88,7 @@ export function findNodeWithExpandParents(
  *          For example, if element is inside expand B which is inside expand A,
  *          this returns [expandA, expandB].
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const findParentExpands = (
 	element: HTMLElement,
 	maxDepth: number = SCROLL_TO_BLOCK_TIMING.MAX_EXPAND_DEPTH,
@@ -127,56 +117,6 @@ export const findParentExpands = (
 };
 
 /**
- * Check if an expand node is currently collapsed.
- *
- * Uses two methods to determine collapse state:
- * 1. First checks aria-expanded attribute on the toggle button (most reliable).
- * 2. Falls back to checking content div visibility via computed styles.
- *
- * @param expandContainer - The expand container element.
- * @returns True if the expand is collapsed, false if expanded or state cannot be determined.
- */
-export const isExpandCollapsed = (expandContainer: HTMLElement): boolean => {
-	// Check for aria-expanded attribute on the toggle button
-	const toggleButton = expandContainer.querySelector('[aria-expanded]');
-	if (toggleButton && toggleButton instanceof HTMLElement) {
-		return toggleButton.getAttribute('aria-expanded') === 'false';
-	}
-
-	// Fallback: check if content div is hidden using the actual class name
-	const contentDiv = expandContainer.querySelector('.ak-editor-expand__content');
-	if (contentDiv && contentDiv instanceof HTMLElement) {
-		const computedStyle = window.getComputedStyle(contentDiv);
-		return (
-			computedStyle.display === 'none' || computedStyle.visibility === 'hidden' || contentDiv.hidden
-		);
-	}
-
-	return false;
-};
-
-/**
- * Expand a collapsed expand node by clicking its toggle button.
- *
- * This function finds the toggle button with aria-expanded="false" and programmatically
- * clicks it to expand the node. It does not wait for the expansion to complete.
- *
- * @param expandContainer - The expand container element.
- * @returns True if the toggle button was found and clicked, false otherwise.
- */
-export const expandElement = (expandContainer: HTMLElement): boolean => {
-	// Find and click the toggle button
-	const toggleButton = expandContainer.querySelector('[aria-expanded="false"]');
-
-	if (toggleButton && toggleButton instanceof HTMLElement) {
-		toggleButton.click();
-		return true;
-	}
-
-	return false;
-};
-
-/**
  * Expand all parent expands then scroll to the element.
  *
  * This is the main entry point for scrolling to elements that may be hidden inside collapsed expands.
@@ -197,11 +137,15 @@ export const expandElement = (expandContainer: HTMLElement): boolean => {
  * @returns A cleanup function that cancels any pending timeouts. Call this when the operation
  *          should be aborted (e.g., component unmount, navigation, or new scroll request).
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const expandAllParentsThenScroll = (
 	element: HTMLElement,
 	attempt: number = 0,
+	scrollFn?: (element: HTMLElement) => void,
 ): (() => void) => {
 	const { MAX_EXPAND_DEPTH, MAX_ATTEMPTS, DOM_UPDATE_DELAY, RETRY_DELAY } = SCROLL_TO_BLOCK_TIMING;
+	const doScroll =
+		scrollFn ?? ((el: HTMLElement) => el.scrollIntoView({ behavior: 'smooth', block: 'center' }));
 
 	// Store timeout ID and nested cleanup function so they can be cancelled.
 	let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -223,7 +167,7 @@ export const expandAllParentsThenScroll = (
 	if (attempt >= MAX_ATTEMPTS || !element.isConnected) {
 		// Max attempts reached or element disconnected, scroll anyway.
 		if (element.isConnected) {
-			element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			doScroll(element);
 		}
 		return cleanup;
 	}
@@ -239,7 +183,7 @@ export const expandAllParentsThenScroll = (
 
 		if (collapsedExpands.length === 0) {
 			// All expands are open (or there are no expands), scroll to element.
-			element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			doScroll(element);
 			return cleanup;
 		}
 
@@ -260,11 +204,11 @@ export const expandAllParentsThenScroll = (
 						}
 
 						// Recurse to handle any nested collapsed expands or retry if still collapsed.
-						nestedCleanup = expandAllParentsThenScroll(element, attempt + 1);
+						nestedCleanup = expandAllParentsThenScroll(element, attempt + 1, scrollFn);
 					} catch {
 						// Fallback to simple scroll on error.
 						if (element.isConnected) {
-							element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+							doScroll(element);
 						}
 					}
 				}, DOM_UPDATE_DELAY);
@@ -272,7 +216,7 @@ export const expandAllParentsThenScroll = (
 				// Failed to expand, retry with longer delay.
 				timeoutId = setTimeout(() => {
 					if (element.isConnected) {
-						nestedCleanup = expandAllParentsThenScroll(element, attempt + 1);
+						nestedCleanup = expandAllParentsThenScroll(element, attempt + 1, scrollFn);
 					}
 				}, RETRY_DELAY);
 			}
@@ -280,50 +224,24 @@ export const expandAllParentsThenScroll = (
 			// Retry on error.
 			timeoutId = setTimeout(() => {
 				if (element.isConnected) {
-					nestedCleanup = expandAllParentsThenScroll(element, attempt + 1);
+					nestedCleanup = expandAllParentsThenScroll(element, attempt + 1, scrollFn);
 				}
 			}, RETRY_DELAY);
 		}
 	} catch {
 		// Fallback to simple scroll on error.
 		if (element.isConnected) {
-			element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			doScroll(element);
 		}
 	}
 
 	return cleanup;
 };
-
-export const getLocalIdSelector = (localId: string, container: HTMLElement) => {
-	// Check if the element with data-local-id exists
-	let element = container.querySelector(`[data-local-id="${localId}"]`) as HTMLElement | null;
-
-	if (element) {
-		return element;
-	}
-
-	// Special case for decision lists and task lists which already have localId
-	element = container.querySelector(`[data-decision-list-local-id="${localId}"]`);
-	if (element) {
-		return element;
-	}
-
-	element = container.querySelector(`[data-task-list-local-id="${localId}"]`);
-	if (element) {
-		return element;
-	}
-
-	// Special case for tables which use data-table-local-id
-	element = container.querySelector(`[data-table-local-id="${localId}"]`);
-	if (element) {
-		return element;
-	}
-
-	// Special case for extension, smart cards and media which use lowercase localid
-	element = container.querySelector(`[localid="${localId}"]`);
-	if (element) {
-		return element;
-	}
-
-	return null;
-};
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { SCROLL_TO_BLOCK_TIMING } from './SCROLL_TO_BLOCK_TIMING';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isExpandCollapsed } from './isExpandCollapsed';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { expandElement } from './expandElement';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { getLocalIdSelector } from './getLocalIdSelector';

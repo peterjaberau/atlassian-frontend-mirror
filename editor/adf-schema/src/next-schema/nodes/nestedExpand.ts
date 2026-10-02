@@ -1,7 +1,10 @@
+import type { ADFCommonNodeSpec, ADFNode } from '@atlaskit/adf-schema-generator';
 import { $onePlus, $or, adfNode } from '@atlaskit/adf-schema-generator';
+
 import { unsupportedMark } from '../marks/unsupportedMark';
 import { unsupportedNodeAttribute } from '../marks/unsupportedNodeAttribute';
 import { blockquote } from './blockquote';
+import { bodiedRule } from './bodiedRule';
 import { codeBlock } from './codeBlock';
 import { decisionList } from './decisionList';
 import { extension } from './extension';
@@ -17,6 +20,7 @@ import { unsupportedBlock } from './unsupportedBlock';
 
 const nestedExpandContent = [
 	paragraph.use('with_no_marks'),
+	paragraph.use('with_font_size'),
 	heading.use('with_no_marks'),
 	mediaSingle.use('caption'),
 	mediaSingle.use('full'),
@@ -27,11 +31,22 @@ const nestedExpandContent = [
 	taskList,
 	decisionList,
 	rule,
+	rule.use('with_attrs'),
+	bodiedRule,
 	panel,
 	blockquote,
 	unsupportedBlock,
 ];
-export const nestedExpand = adfNode('nestedExpand')
+export const nestedExpand: ADFNode<
+	[string, 'content', 'with_no_marks'],
+	ADFCommonNodeSpec & {
+		ignore: 'pm-spec'[];
+	} & {
+		content: never[];
+		marks: never[];
+		noMarks: true;
+	}
+> = adfNode('nestedExpand')
 	.define({
 		isolating: true,
 		selectable: true,
@@ -44,7 +59,11 @@ export const nestedExpand = adfNode('nestedExpand')
 			localId: { type: 'string', default: null, optional: true },
 		},
 
-		content: [$onePlus($or(...nestedExpandContent, extension.use('with_marks')))],
+		content: [
+			$onePlus(
+				$or(...nestedExpandContent, extension.use('with_marks'), extension.use('with_annotation')),
+			),
+		],
 
 		DANGEROUS_MANUAL_OVERRIDE: {
 			'validator-spec': {

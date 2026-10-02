@@ -1,9 +1,10 @@
 {
 	"name": "@atlaskit/feature-flag-client",
-	"version": "5.6.1",
+	"version": "6.1.0",
 	"description": "A client to take care of feature flag evaluation and tracking of exposure events",
 	"exports": {
 		".": "./src/index.ts",
+		"./client": "./src/client.ts",
 		"./types": "./src/types.ts"
 	},
 	"publishConfig": {
@@ -15,18 +16,13 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
 		"team": "MEP: Switcheroo",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Feature Flag Client"
 		}
 	},
@@ -38,11 +34,11 @@
 		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
-		"enzyme": "root:*"
-	},
-	"techstack": {
-		"@repo/internal": {
-			"documented-code": "no-undocumented-todos"
-		}
+		"@atlaskit/heading": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
+		"react": "root:*",
+		"react-dom": "root:*"
 	}
 }

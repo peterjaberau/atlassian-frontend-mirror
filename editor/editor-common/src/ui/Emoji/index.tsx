@@ -3,8 +3,10 @@ import React, { useMemo } from 'react';
 import { ResourcedEmoji } from '@atlaskit/emoji/element';
 import type { EmojiProvider, EmojiResourceConfig } from '@atlaskit/emoji/resource';
 import type { EmojiId } from '@atlaskit/emoji/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { type ProviderFactory } from '../../provider-factory';
+import type { ProviderFactory } from '../../provider-factory';
+import { isSingleEmoji } from '../../utils/isSingleEmoji';
 
 export interface EmojiProps extends EmojiId {
 	allowTextFallback?: boolean;
@@ -32,6 +34,11 @@ const EmojiNodeFunctional = (props: EmojiProps) => {
 	const emojiId = useMemo(() => ({ shortName, id, fallback }), [shortName, id, fallback]);
 	const emojiProviderResolver = useMemo(() => Promise.resolve(emojiProvider), [emojiProvider]);
 
+	const customFallback =
+		fg('platform_editor_custom_emoji_unicode_fallback') && !isSingleEmoji(fallback || shortName)
+			? '\uFFFD'
+			: undefined;
+
 	if (allowTextFallback && !emojiProvider) {
 		return (
 			<span
@@ -39,7 +46,7 @@ const EmojiNodeFunctional = (props: EmojiProps) => {
 				data-emoji-short-name={shortName}
 				data-emoji-text={fallback || shortName}
 			>
-				{fallback || shortName}
+				{customFallback || fallback || shortName}
 			</span>
 		);
 	}
@@ -55,20 +62,55 @@ const EmojiNodeFunctional = (props: EmojiProps) => {
 			showTooltip={showTooltip}
 			fitToHeight={fitToHeight}
 			optimistic
+			customFallback={customFallback}
 			optimisticImageURL={resourceConfig?.optimisticImageApi?.getUrl({
 				id,
 				fallback,
 				shortName,
 			})}
 			editorEmoji={true}
+			renderUnicodeEmojiAsImage={false}
 		/>
 	);
 };
 
-const EmojiNode = (props: EmojiProps): React.JSX.Element => {
-	// Ignored via go/ees005
-	// eslint-disable-next-line react/jsx-props-no-spreading
-	return <EmojiNodeFunctional {...props} />;
+const EmojiNode = ({
+	allowTextFallback,
+	shortName,
+	id,
+	fallback,
+	fitToHeight,
+	showTooltip,
+	resourceConfig,
+	emojiProvider,
+	providers,
+}: EmojiProps): React.JSX.Element => {
+	return (
+		<EmojiNodeFunctional
+			allowTextFallback={allowTextFallback}
+			shortName={shortName}
+			id={id}
+			fallback={fallback}
+			fitToHeight={fitToHeight}
+			showTooltip={showTooltip}
+			resourceConfig={resourceConfig}
+			emojiProvider={emojiProvider}
+			providers={providers}
+		/>
+	);
 };
 
-export default React.memo(EmojiNode);
+const _default_1: React.MemoExoticComponent<
+	({
+		allowTextFallback,
+		shortName,
+		id,
+		fallback,
+		fitToHeight,
+		showTooltip,
+		resourceConfig,
+		emojiProvider,
+		providers,
+	}: EmojiProps) => React.JSX.Element
+> = React.memo(EmojiNode);
+export default _default_1;

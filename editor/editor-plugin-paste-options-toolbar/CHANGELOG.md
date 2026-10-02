@@ -1,5 +1,1679 @@
 # @atlaskit/editor-plugin-paste-options-toolbar
 
+## 24.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.6
+
+### Patch Changes
+
+- [`a6c26b16402ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a6c26b16402ca) -
+  Migrate nine dogfooding editor experiments from `@atlaskit/tmp-editor-statsig` to the Platform
+  experiment API and move their tests to Platform experiment mocks.
+- Updated dependencies
+
+## 17.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- [`b8700e10d6391`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b8700e10d6391) -
+  Remove invalid experiment keys from Editor package feature gate manifests.
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`c78198dd074dd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c78198dd074dd) -
+  EDITOR-8420: show the paste options menu when a markdown list is pasted at the top level, behind
+  the platform_editor_markdown_conversion_improvements experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.0
+
+### Minor Changes
+
+- [`894f9e2ba765a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/894f9e2ba765a) -
+  Decouple paste-as-markdown GFM transformer rollout from `cc-markdown-mode` and gate it with the
+  new `platform_editor_paste_as_md_use_gfm` experiment for independent rollout control.
+
+  Consumers can gate the new transformer path with:
+  `expValEquals('platform_editor_paste_as_md_use_gfm', 'isEnabled', true)`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.0
+
+### Minor Changes
+
+- [`24fdd04e3b469`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/24fdd04e3b469) -
+  Switch Paste as Markdown to the markdown-plus parser behind existing gates, with legacy fallback
+  retained. Wire the converter through Confluence preset configuration for the gated path.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`06c7a1c8b9f35`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06c7a1c8b9f35) -
+  Fix Ask Rovo context for pasted Smart Links and hide single-link AI actions in comments
+
+## 13.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.6
+
+### Patch Changes
+
+- [`0f828d3590ec8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f828d3590ec8) -
+  Fix the paste actions menu to remain visible for single Smart Link pastes when an AI action is
+  available.
+
+## 13.1.5
+
+### Patch Changes
+
+- [`c10f8b3827a81`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c10f8b3827a81) -
+  Add a `displayAsVisible` attribute to the paste actions menu `opened` analytics event, reporting
+  whether the Smart Link "Display as" section is shown when the menu opens. A shared
+  `SMART_LINK_DISPLAY_AS_PASTE_MENU_SECTION` key is exposed from `@atlaskit/editor-common/toolbar`
+  so the section can be identified without depending on the card plugin.
+- Updated dependencies
+
+## 13.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.3
+
+### Patch Changes
+
+- [`1e91a4b881a3e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e91a4b881a3e) -
+  Fire the `confluence_editor_paste_3p_link_actions_menu` exposure only for single-link pastes
+  instead of during menu setup. Experiment checks now use `expValEqualsNoExposure`, and the exposure
+  is fired separately when a single link is pasted.
+
+## 13.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`779a0020403de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/779a0020403de) -
+  Add async hidden support to paste menu registered components, including timeout/error handling and
+  single Smart Link URL context from the paste options toolbar. Use Smart Card access checks to hide
+  Smart Link Display as options and AI Add Summary / Ask Rovo paste actions for inaccessible
+  single-link pastes in Confluence.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.18
+
+### Patch Changes
+
+- [`e8a2ffea2c9eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8a2ffea2c9eb) -
+  [ux] Paste actions popup no longer appears for link-only pastes.
+- Updated dependencies
+
+## 13.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.12
+
+### Patch Changes
+
+- [`346f91cfe1997`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/346f91cfe1997) -
+  Clean up prefer static regex violations
+- Updated dependencies
+
+## 13.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.8
+
+### Patch Changes
+
+- [`75bc915c1fe98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/75bc915c1fe98) -
+  Hide paste actions when pasting agent mentions behind the platform_editor_agent_mentions
+  experiment. The paste plugin now exposes the source pasted slice so consumers can inspect the
+  paste handler content without depending on the last transaction step slice.
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- [`defb03527fd74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/defb03527fd74) -
+  Clean up feature gate `platform_editor_paste_actions_keypress_fix`
+- [`12f4372b86b8d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12f4372b86b8d) -
+  Add `platform_editor_menu_radius_update` experiment that bumps the editor menu surface border
+  radius from `radius.small` (4px) to `radius.large` (8px). The block menu and paste actions menu
+  now consume the shared `ToolbarMenuContainer` surface rather than rolling their own, so they
+  inherit the gated radius along with `ToolbarMenuContainer`'s existing consumers (table and layout
+  menus).
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.1
+
+### Patch Changes
+
+- [`52a08b0d14e39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52a08b0d14e39) -
+  Add code block language auto-detection experiment
+- Updated dependencies
+
+## 11.4.0
+
+### Minor Changes
+
+- [`d2be5b45b39b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2be5b45b39b0) -
+  Add Smart Link-aware paste actions for the paste actions menu V2 experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.1
+
+### Patch Changes
+
+- [`e5763b625793c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5763b625793c) -
+  Fix tsdoc to remove `listItem` from list of non-structural container nodes.
+- Updated dependencies
+
+## 11.3.0
+
+### Minor Changes
+
+- [`dbe895a6ef5a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbe895a6ef5a2) -
+  Add pasteMenuButtonsFactory config param to pasteOptionsToolbarPlugin for product-specific button
+  composition.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`bbc429637a494`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bbc429637a494) -
+  [EDITOR-6941] Add way to fetch rules for people to compose rules simply per button
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`a94a013546f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a94a013546f69) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.18
+
+### Patch Changes
+
+- [`ded95ac7efcc4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ded95ac7efcc4) -
+  Persist code block wrap state in ADF, default code blocks created across editor runtime paths to
+  wrapped, and update the wrap toolbar tooltip behind platform_editor_code_block_q4_lovability.
+- Updated dependencies
+
+## 11.0.17
+
+### Patch Changes
+
+- [`aa02fe7d81d17`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa02fe7d81d17) -
+  Add V2 experiment exposure function for paste_actions_menu_v2_multivariate, wired into
+  usePluginHook behind platform_editor_paste_actions_menu_v2_gate
+- Updated dependencies
+
+## 11.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- [`aaa61a61efb94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aaa61a61efb94) -
+  Remove unecessary paste icon re-export
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.8
+
+### Patch Changes
+
+- [`fa146e17e08d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa146e17e08d6) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 9.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.0
+
+### Minor Changes
+
+- [`f320bfec5b28f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f320bfec5b28f) -
+  Hide AI paste actions when pasted content contains a table.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.9
+
+### Patch Changes
+
+- [`194f00cfcef60`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/194f00cfcef60) -
+  EDITOR-6197 Fire manual experiment exposure for paste actions menu experiment
+
+## 9.1.8
+
+### Patch Changes
+
+- [`fb9bbd5719238`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb9bbd5719238) -
+  EDITOR-6193 Correcting `visibleAiActions` attribute of paste actions menu which was not being
+  populated.
+
+## 9.1.7
+
+### Patch Changes
+
+- [`3b007c601e102`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b007c601e102) -
+  EDITOR-6092 Remove 100 character limit on legacy paste actions for new editor AI paste actions
+  menu. Also redesigns the legacy paste actions to more closely resemble the legacy paste floating
+  toolbar when there are no AI actions present.
+- Updated dependencies
+
+## 9.1.6
+
+### Patch Changes
+
+- [`fc5915138b437`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fc5915138b437) -
+  EDITOR-6110 Ensure that paste actions menu appears in the correct position when the first item of
+  the paste is an inline node or mark
+- Updated dependencies
+
+## 9.1.5
+
+### Patch Changes
+
+- [`2e030e319c013`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e030e319c013) -
+  [EDITOR-5982] Fix AI paste menu not appearing when pasting heading + text
+- [`e7032ec0e9287`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e7032ec0e9287) -
+  [ux] EDITOR-5983 Ensure paste menu is in correct position when first pasted node is empty
+
+## 9.1.4
+
+### Patch Changes
+
+- [`cdacbdec78ed6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cdacbdec78ed6) -
+  [EDITOR-5980] Fix sticky menu stopping before table when paste selection ends inside cell
+- [`70e3625a8ae3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70e3625a8ae3f) -
+  [EDITOR-5880] updated prop name for consistency and used view.dom for stable editor reference
+- Updated dependencies
+
+## 9.1.3
+
+### Patch Changes
+
+- [`0fe3de6aa5e9c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0fe3de6aa5e9c) -
+  [ux] EDITOR-5978 Add additional buttons and update thresholds for Editor AI paste actions. Only
+  show existing paste actions if pasting greater than 100 characters.
+
+## 9.1.2
+
+### Patch Changes
+
+- [`0386f83e8c2b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0386f83e8c2b8) -
+  Fix paste actions menu dismissing when pressing modifier keys (Ctrl, Shift, Alt, Meta/Cmd).
+  Modifier-only key presses no longer hide the toolbar, gated behind
+  platform_editor_paste_actions_keypress_fix feature flag.
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`496231f48cbde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/496231f48cbde) -
+  [ux] EDITOR-5907 Ensure experiment is only enabled for full page editor and AI actions only
+  visible if Editor AI streaming enabled
+
+## 9.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.6
+
+### Patch Changes
+
+- [`2b33e02e33a67`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2b33e02e33a67) -
+  [ux] [EDITOR-5880] paste menu position fix so it sticks on screen when pasting large content
+- Updated dependencies
+
+## 9.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- [`bba4ad9eec00a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bba4ad9eec00a) -
+  Ensure `invokedFrom` is passed to on-paste actions legacy paste events
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- [`6ebc53b2b151d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ebc53b2b151d) -
+  [ux] [EDITOR-5821] updated paste menu position so that its the same as the inline comment editor'
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- [`52d4528d79431`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52d4528d79431) -
+  [ux] EDITOR-5896 Minor paste menu cleanup. Reduce padding and remove separator from legacy paste
+  actions when there's no AI paste actions
+
+## 9.0.0
+
+### Patch Changes
+
+- [`7091cae4a7f26`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7091cae4a7f26) -
+  EDITOR-5607 Add analytics for new editor paste menu
+- Updated dependencies
+
+## 8.4.1
+
+### Patch Changes
+
+- [`1a9b3a0f8a1c1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a9b3a0f8a1c1) -
+  [ux] EDITOR-5892 Refactor Paste actions menu to use a single ui controls registry entry and single
+  SurfaceRenderer. Tweaked visibility rules and increased test coverage.
+- Updated dependencies
+
+## 8.4.0
+
+### Minor Changes
+
+- [`8cb8a3e42b2c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8cb8a3e42b2c2) -
+  [ux] EDITOR-5668 Introducing configurable visibility rules to determine which AI actions should
+  display in on-paste menu
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.0
+
+### Minor Changes
+
+- [`d7675f084fe05`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7675f084fe05) -
+  [ux] [EDITOR-5669] refactored existing paste actions menu to use control registry and platform
+  toolbars
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.3
+
+### Patch Changes
+
+- [`808af626ed714`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/808af626ed714) -
+  [ux] EDITOR-5468 Introduce new paste menu context to pass required information to paste action
+  buttons. Modified createOpenAIModalCommand to optionally accept start/end positions if we want to
+  modify non-selection content (eg. pasted content).
+- Updated dependencies
+
+## 8.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`73fe865b67fd9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73fe865b67fd9) -
+  [ux] Adds new paste action buttons in editor-plugin-ai and registers them with the editor controls
+  registry - then renders these buttons from the registry into the (currently in development) paste
+  actions menu.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`a0aa8f73bbd02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0aa8f73bbd02) -
+  [ux] EDITOR-5466 Introduce new popup menu for paste actions which includes existing functionality
+  used by the existing floatingToolbar implementation
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.0.2
 
 ### Patch Changes

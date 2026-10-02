@@ -1,14 +1,18 @@
 import React, { type ReactNode } from 'react';
 
 import { skipA11yAudit } from '@af/accessibility-testing';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import __noop from '@atlaskit/ds-lib/noop';
-import Select, { type ValueType } from '@atlaskit/select';
-import TextField from '@atlaskit/textfield';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import Select from '@atlaskit/select/default';
+import type { ValueType } from '@atlaskit/select/types';
+import TextField from '@atlaskit/textfield/text-field';
 import { fireEvent, render, screen, userEvent, waitFor } from '@atlassian/testing-library';
 
-import Form, { ErrorMessage, Field, HelperMessage, ValidMessage } from '../../index';
+import { ErrorMessage } from '../../error-message';
+import Field from '../../field';
+import Form from '../../form';
+import { HelperMessage } from '../../helper-message';
+import { ValidMessage } from '../../valid-message';
 
 const testId = 'testId';
 
@@ -1050,12 +1054,12 @@ describe('Field', () => {
 			);
 			const setRequiredButton = screen.getByTestId('SetRequiredButton');
 
-			expect(validate).toBeCalledTimes(1);
+			expect(validate).toHaveBeenCalledTimes(1);
 
 			// Change if the field is required
 			await user.click(setRequiredButton);
 
-			expect(validate).toBeCalledTimes(2);
+			expect(validate).toHaveBeenCalledTimes(2);
 		});
 
 		it('should not reset form field after re-mounting caused by changed key', async () => {
@@ -1197,66 +1201,58 @@ describe('Field', () => {
 			expect(screen.getByText(error)).toBeInTheDocument();
 		});
 
-		ffTest.on(
-			'platform_dst_form_fix_isrequired_effect',
-			'when platform_dst_form_fix_isrequired_effect is enabled',
-			async () => {
-				it('should re-validate the form if isRequired is changed', async () => {
-					render(
-						<WithState defaultState={false}>
-							{(isRequired, setIsRequired) => (
-								<>
-									<Form onSubmit={jest.fn()}>
-										{({ formProps }) => (
-											<form {...formProps}>
-												<Field
-													name="test123"
-													label="Username"
-													defaultValue=""
-													isRequired={isRequired}
-													validate={(value) =>
-														isRequired && !value ? 'value is required' : undefined
-													}
-												>
-													{({ fieldProps, error }) => (
-														<>
-															<TextField {...fieldProps} />
-															{error && <ErrorMessage>{error}</ErrorMessage>}
-														</>
-													)}
-												</Field>
-											</form>
-										)}
-									</Form>
-									<Button testId="SetRequiredButton" onClick={() => setIsRequired(!isRequired)}>
-										Change required status
-									</Button>
-									<Button
-										testId="SubmitButton"
-										onClick={() => user.click(screen.getByTestId('SubmitButton'))}
-									>
-										Submit
-									</Button>
-								</>
-							)}
-						</WithState>,
-					);
+		it('should re-validate the form if isRequired is changed', async () => {
+			render(
+				<WithState defaultState={false}>
+					{(isRequired, setIsRequired) => (
+						<>
+							<Form onSubmit={jest.fn()}>
+								{({ formProps }) => (
+									<form {...formProps}>
+										<Field
+											name="test123"
+											label="Username"
+											defaultValue=""
+											isRequired={isRequired}
+											validate={(value) => (isRequired && !value ? 'value is required' : undefined)}
+										>
+											{({ fieldProps, error }) => (
+												<>
+													<TextField {...fieldProps} />
+													{error && <ErrorMessage>{error}</ErrorMessage>}
+												</>
+											)}
+										</Field>
+									</form>
+								)}
+							</Form>
+							<Button testId="SetRequiredButton" onClick={() => setIsRequired(!isRequired)}>
+								Change required status
+							</Button>
+							<Button
+								testId="SubmitButton"
+								onClick={() => user.click(screen.getByTestId('SubmitButton'))}
+							>
+								Submit
+							</Button>
+						</>
+					)}
+				</WithState>,
+			);
 
-					const setRequiredButton = screen.getByTestId('SetRequiredButton');
-					const input = screen.getByRole('textbox');
-					fireEvent.focus(input);
-					fireEvent.blur(input);
+			const setRequiredButton = screen.getByTestId('SetRequiredButton');
+			const input = screen.getByRole('textbox');
+			fireEvent.focus(input);
+			fireEvent.blur(input);
 
-					expect(() => screen.getByText('value is required')).toThrow();
+			expect(() => screen.getByText('value is required')).toThrow();
 
-					await user.click(setRequiredButton);
+			await user.click(setRequiredButton);
 
-					fireEvent.focus(input);
-					fireEvent.blur(input);
+			fireEvent.focus(input);
+			fireEvent.blur(input);
 
-					expect(screen.getByText('value is required')).toBeInTheDocument();
-				});
-			},
-		);
+			expect(screen.getByText('value is required')).toBeInTheDocument();
+		});
 	});
 });

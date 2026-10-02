@@ -1,5 +1,1262 @@
 # @atlaskit/editor-toolbar-model
 
+## 1.2.86
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.85
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.84
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.83
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.82
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.81
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.80
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.79
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.78
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.77
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.76
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.75
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.74
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.6
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.14
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 0.5.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.0
+
+### Minor Changes
+
+- [`7b2ab46c79d94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b2ab46c79d94) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.37
+
+### Patch Changes
+
+- [`9e45c7ac76c9a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e45c7ac76c9a) -
+  Enrol editor core packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 0.4.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.31
+
+### Patch Changes
+
+- [`7b7c52dff5d7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7c52dff5d7d) -
+  Fix eslint violations for type import syntax
+
+## 0.4.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.4.0
+
+### Minor Changes
+
+- [`52d4b8fab3118`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52d4b8fab3118) -
+  Add platform_editor_toolbar_hide_overflow_menu experiment, add logic to hide menu button if there
+  are no menu items rendered
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.3.2
 
 ### Patch Changes

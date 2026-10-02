@@ -1,9 +1,14 @@
 import React, { Component, Fragment } from 'react';
 
-import { Label } from '@atlaskit/form';
-import { createLocalizationProvider, type LocalizationProvider } from '@atlaskit/locale';
+import Field from '@atlaskit/form/field';
+import { Label } from '@atlaskit/form/label/default';
 import LocaleSelect, { type Locale } from '@atlaskit/locale/LocaleSelect';
-import TextField from '@atlaskit/textfield';
+import {
+	createLocalizationProvider,
+	type LocalizationProvider,
+} from '@atlaskit/locale/localization-provider';
+import { Text } from '@atlaskit/primitives/compiled/text';
+import TextField from '@atlaskit/textfield/text-field';
 
 type State = {
 	l10n: LocalizationProvider;
@@ -65,15 +70,15 @@ export default class Example extends Component<ExampleProps, State> {
 		return (
 			<Fragment>
 				<h2>Date Parser</h2>
-				<Label htmlFor="input">Input</Label>
-				<TextField
-					id="input"
-					value={dateInput}
-					onChange={this.onInputChange}
-					placeholder={l10n.formatDate(now)}
+				<Field
+					label="Input"
+					name="input"
+					helperMessage={`Enter a date such as ${l10n.formatDate(now)}.`}
+					component={({ fieldProps }) => (
+						<TextField {...fieldProps} value={dateInput} onChange={this.onInputChange} />
+					)}
 				/>
-				<Label htmlFor="output">Output</Label>
-				<TextField id="output" value={parsedDateISO} isReadOnly isDisabled />
+				<Text as="p">Output: {parsedDateISO}</Text>
 
 				{this.props.l10n ? undefined : (
 					<>

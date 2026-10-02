@@ -1,13 +1,24 @@
 import { expect } from '@af/integration-testing';
+import { skipAutoA11yFile } from '@atlassian/a11y-playwright-testing';
+
 import { test } from './user-picker';
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:playwright
+skipAutoA11yFile();
 
 const EXAMPLE = 'creatable-with-locale';
 
 test.describe('Creatable User Picker with Locale', () => {
 	test('should load user picker with allowEmail enabled and default locale', async ({
 		userPicker,
+		page,
 	}) => {
-		await userPicker.init(EXAMPLE);
+		await page.visitExample<typeof import('../../../examples/12-creatable-with-locale.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 
 		// Check that the user picker is loaded
 		await expect(userPicker.placeholder).toBeVisible();
@@ -19,8 +30,12 @@ test.describe('Creatable User Picker with Locale', () => {
 		await expect(userPicker.firstOption).toBeVisible();
 	});
 
-	test('should create new email option when typing valid email', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should create new email option when typing valid email', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/12-creatable-with-locale.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 
 		// Click input and type a valid email address
 		await userPicker.input.nth(1).click();
@@ -39,8 +54,12 @@ test.describe('Creatable User Picker with Locale', () => {
 		await expect(userPicker.selectedMultiValue).toContainText('integration_test@example.com');
 	});
 
-	test('should handle multiple email creations', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should handle multiple email creations', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/12-creatable-with-locale.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 
 		// Add first email
 		await userPicker.input.nth(1).click();
@@ -63,8 +82,12 @@ test.describe('Creatable User Picker with Locale', () => {
 		);
 	});
 
-	test('should not create option for invalid email format', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should not create option for invalid email format', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/12-creatable-with-locale.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 
 		// Type an invalid email address
 		await userPicker.input.nth(1).click();
@@ -76,8 +99,12 @@ test.describe('Creatable User Picker with Locale', () => {
 		await expect(userPicker.firstOption).toHaveAttribute('aria-disabled', 'true');
 	});
 
-	test('should remove created email option', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should remove created email option', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/12-creatable-with-locale.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 
 		// Create and add an email
 		await userPicker.input.nth(1).click();

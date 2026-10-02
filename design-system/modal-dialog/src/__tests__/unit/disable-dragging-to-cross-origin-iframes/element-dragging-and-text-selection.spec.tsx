@@ -1,12 +1,13 @@
-import { fireEvent } from '@testing-library/react';
-
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { draggable, monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { monitorForTextSelection } from '@atlaskit/pragmatic-drag-and-drop/text-selection/adapter';
+import {
+	draggable,
+	monitorForElements,
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { monitorForTextSelection } from '@atlaskit/pragmatic-drag-and-drop/adapter/monitor-for-text-selection';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { fireEvent } from '@atlassian/testing-library';
 
 import { disableDraggingToCrossOriginIFramesForElement } from '../../../internal/pragmatic-drag-and-drop/disable-dragging-to-cross-origin-iframes/element';
 import { disableDraggingToCrossOriginIFramesForTextSelection } from '../../../internal/pragmatic-drag-and-drop/disable-dragging-to-cross-origin-iframes/text-selection';
-
 import {
 	appendToBody,
 	getBubbleOrderedTree,

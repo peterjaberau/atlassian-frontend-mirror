@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 
-import type { CardClient, EnvironmentsKeys } from '@atlaskit/link-provider';
-import { getResolverUrl } from '@atlaskit/linking-common';
+import type CardClient from '@atlaskit/link-provider/client';
+import { getResolverUrl } from '@atlaskit/linking-common/get-resolver-url';
+import type { EnvironmentsKeys } from '@atlaskit/linking-common/types';
 
 export const useResolverUrl = (cardClient: CardClient): string =>
 	useMemo(

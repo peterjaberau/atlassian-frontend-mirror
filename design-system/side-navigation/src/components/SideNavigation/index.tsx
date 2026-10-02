@@ -6,10 +6,13 @@ import { forwardRef } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { SELECTION_STYLE_CONTEXT_DO_NOT_USE } from '@atlaskit/menu';
-import { N10, N500 } from '@atlaskit/theme/colors';
+import warnOnce from '@atlaskit/ds-lib/warn-once';
+import { SELECTION_STYLE_CONTEXT_DO_NOT_USE } from '@atlaskit/menu/selection-style-context-do-not-use';
 import { token } from '@atlaskit/tokens';
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface SideNavigationProps {
 	/**
 	 *  Describes the specific role of this navigation component for people viewing the page with assistive technology.
@@ -52,8 +55,8 @@ const sideNavStyles = css({
 	height: '100%',
 	position: 'relative',
 	flexDirection: 'column',
-	backgroundColor: token('elevation.surface', N10),
-	color: token('color.text.subtle', N500),
+	backgroundColor: token('elevation.surface'),
+	color: token('color.text.subtle'),
 	overflow: 'hidden',
 });
 
@@ -65,10 +68,20 @@ const sideNavStyles = css({
  * - [Examples](https://atlassian.design/components/side-navigation/examples)
  * - [Code](https://atlassian.design/components/side-navigation/code)
  * - [Usage](https://atlassian.design/components/side-navigation/usage)
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const SideNavigation: React.ForwardRefExoticComponent<
+export const SideNavigation: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<SideNavigationProps> & React.RefAttributes<HTMLElement>
 > = forwardRef<HTMLElement, SideNavigationProps>((props: SideNavigationProps, ref) => {
+	if (
+		typeof process !== 'undefined' &&
+		process.env.NODE_ENV !== 'production' &&
+		process.env.NODE_ENV !== 'CI'
+	) {
+		warnOnce('@atlaskit/side-navigation is deprecated. Use @atlaskit/navigation-system instead.');
+	}
+
 	const { children, testId, label, isServer = false, isSSRPlaceholderEnabled = false } = props;
 	return (
 		<nav
@@ -92,5 +105,3 @@ const SideNavigation: React.ForwardRefExoticComponent<
 		</nav>
 	);
 });
-
-export default SideNavigation;

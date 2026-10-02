@@ -1,5 +1,116 @@
 # @atlaskit/atlassian-context
 
+## 2.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+## 1.2.0
+
+### Minor Changes
+
+- [`50b7110d4923c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50b7110d4923c) -
+  Add discovery deep links, expose the Admin Hub connector URL helper for TWC onboarding, and allow
+  Atlassian context URLs to resolve against an explicitly provided environment.
+
+## 1.1.1
+
+### Patch Changes
+
+- [`b1cf9e336f0f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1cf9e336f0f0) -
+  Migrate consumers of @atlaskit/atlassian-context from barrel imports to direct subpath imports,
+  and remove the deprecated `./domain-lookup`, `./generalized-domain-lookup`, and `./perimeter`
+  entry-point exports (all symbols remain available via their per-export subpaths).
+
+  Also extends the `no-restricted-fedramp-imports` ESLint rule to cover the new
+  `@atlaskit/atlassian-context/is-fedramp` and `@atlaskit/atlassian-context/is-isolated-cloud`
+  subpaths, so the FedRamp/IsolatedCloud deprecation guardrail keeps firing after the migration.
+
+## 1.1.0
+
+### Minor Changes
+
+- [`65323ff2440b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/65323ff2440b3) -
+  Flatten single-re-export entry-points and add per-export subpaths for multi-export ones.
+  - Single-re-export entry-points (`cloud-provider`, `is-fedramp`,
+    `resolve-provided-url-by-boundary`, `types`) are removed; their existing subpath exports now
+    point directly at the source module (no consumer changes required).
+  - Multi-export entry-points (`domain-lookup`, `generalized-domain-lookup`, `perimeter`) gain new
+    per-export subpaths (kebab-cased), e.g. `@atlaskit/atlassian-context/is-fedramp-moderate`,
+    `@atlaskit/atlassian-context/get-atl-context-domain`. The original multi-export subpaths remain
+    but their re-exports are now marked `@deprecated`; migrate to the per-export subpaths.
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 0.11.0
+
+### Minor Changes
+
+- [`6470a26220eb0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6470a26220eb0) -
+  Add resolveProvidedUrlByBoundary(urls) utility
+
+## 0.10.0
+
+### Minor Changes
+
+- [`f07546acf4fbb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f07546acf4fbb) -
+  Add isGoogleCloudPlatform function to detect GCP cloud environment via
+  Bifrost-Atl-Ctx-Cloud-Service-Provider cookie, with SSR support via globalThis.ssrContext.isInGCP
+
+## 0.9.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 0.8.0
+
+### Minor Changes
+
+- [`6cedbecacab30`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6cedbecacab30) -
+  TREX-1028 Part 3a: Fix cross-package barrel imports in product-search-dialog and search-page. Add
+  displayNames to search-dialog components. Add defensive optional chaining in atlassian-context SSR
+  functions.
+
+## 0.7.0
+
+### Minor Changes
+
+- [`052b82d447d68`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/052b82d447d68) -
+  TREX-1028: Replace barrel imports with direct subpath imports in search-page (debarel) + fix SSR
+  crash and atlassian-context optional chaining
+
+## 0.6.1
+
+### Patch Changes
+
+- [`18a6ca6a0c98c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18a6ca6a0c98c) -
+  Widen React peer dependency from ^18.2.0 to ^18.2.0 || ^19.0.0 to support React 19
+
 ## 0.6.0
 
 ### Minor Changes

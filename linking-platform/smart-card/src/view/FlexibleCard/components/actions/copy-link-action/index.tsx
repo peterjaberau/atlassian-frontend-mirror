@@ -1,21 +1,21 @@
 import React, { useCallback, useState } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import LinkIcon from '@atlaskit/icon/core/link';
 
 import { ActionName } from '../../../../../constants';
 import { messages } from '../../../../../messages';
-import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context';
+import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context/useFlexibleUiContext';
 import useInvokeClientAction from '../../../../../state/hooks/use-invoke-client-action';
 import Action from '../action';
-
 import { type CopyLinkActionProps } from './types';
 
 const CopyLinkAction = ({
 	onClick: onClickCallback,
 	...props
 }: CopyLinkActionProps): React.JSX.Element | null => {
+	const intl = useIntl();
 	const context = useFlexibleUiContext();
 	const invoke = useInvokeClientAction({});
 
@@ -37,12 +37,14 @@ const CopyLinkAction = ({
 
 	return data ? (
 		<Action
+			ariaLabel={intl.formatMessage(messages.copy_url_to_clipboard)}
 			content={<FormattedMessage {...messages.copy_url_to_clipboard} />}
-			icon={<LinkIcon color="currentColor" label="copy url" spacing="spacious" />}
+			icon={<LinkIcon color="currentColor" label="" spacing="spacious" size={props.iconSize} />}
 			onClick={onClick}
 			testId="smart-action-copy-link-action"
 			tooltipMessage={<FormattedMessage {...tooltipMessage} />}
 			tooltipOnHide={() => setTooltipMessage(messages.copy_url_to_clipboard)}
+			hasNewContentOnTriggerClick
 			{...data}
 			{...props}
 		/>

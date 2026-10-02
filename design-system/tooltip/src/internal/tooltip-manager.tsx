@@ -1,17 +1,36 @@
-import type { VirtualElement } from '@popperjs/core';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+let delayId: number | null = null;
 
-import type { FakeMouseElement } from '../utilities';
+function clearScheduled(): void {
+	if (delayId != null) {
+		window.clearTimeout(delayId);
+		delayId = null;
+	}
+}
 
-import { clearScheduled, scheduleTimeout } from './shared-schedule';
+function scheduleTimeout(fn: () => void, delay: number): void {
+	clearScheduled();
 
-// This file is a singleton for managing tooltips
+	delayId = window.setTimeout(() => {
+		delayId = null;
+		fn();
+	}, delay);
+}
+
+// This file is a singleton for managing tooltips.
+//
+// Once we roll out top-layer and remove the legacy path, this manager can be simplified:
+// - Singleton: Can be removed; the platform (popover="auto" or popover="hint") already enforces
+//   only one tooltip open at a time.
+// - Phase machine: Can be simplified; drop hide-animating and finishHideAnimation (legacy fade-out).
+//   Use e.g. pending-show | visible | pending-hide with immediate hide.
+// - API: Can drop or simplify mousePosition/mousePos if no longer needed; keep delay scheduling,
+//   keep(), requestHide, abort, and minimal lifecycle.
 
 export type Source =
 	| {
 			type: 'mouse';
-			mouse?: VirtualElement | FakeMouseElement;
 			clientX: number;
 			clientY: number;
 	  }
@@ -28,7 +47,6 @@ export type Entry = {
 
 export type API = {
 	isActive: () => boolean;
-	mousePosition: VirtualElement | FakeMouseElement | null | undefined;
 	mousePos: Pick<React.MouseEvent<HTMLElement>, 'clientX' | 'clientY'> | null;
 	requestHide: (value: { isImmediate: boolean }) => void;
 	finishHideAnimation: () => void;
@@ -105,7 +123,13 @@ export function show(entry: Entry): API {
 		}
 
 		// already waiting to hide
+		// Bug in legacy path: isImmediate hide requests are ignored during waiting-to-hide,
+		// meaning Escape/scroll won't instantly dismiss a tooltip that's already fading out.
+		// Gated fix: only apply the immediate-hide behavior under the top-layer flag for now.
 		if (phase === 'waiting-to-hide') {
+			if (isImmediate && fg('platform-dst-top-layer-tooltip')) {
+				immediatelyHideAndDone();
+			}
 			return;
 		}
 
@@ -130,17 +154,8 @@ export function show(entry: Entry): API {
 		return phase === 'shown' || phase === 'waiting-to-hide' || phase === 'hide-animating';
 	}
 
-	function getInitialMouse(): VirtualElement | FakeMouseElement | null | undefined {
-		if (entry.source.type === 'mouse') {
-			return entry.source.mouse;
-		}
-		return null;
-	}
-
 	function start() {
-		const shouldAlwaysFadeIn = fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')
-			? entry.shouldAlwaysFadeIn
-			: false;
+		const shouldAlwaysFadeIn = entry.shouldAlwaysFadeIn;
 		const showImmediately: boolean = Boolean(active && active.isVisible()) && !shouldAlwaysFadeIn;
 
 		// If there was an active tooltip; we tell it to remove itself at once!
@@ -179,13 +194,8 @@ export function show(entry: Entry): API {
 		isActive,
 		requestHide,
 		finishHideAnimation,
-		// Removing old `mousePosition` behind gate because it stored a function.
-		// With the gate we just store the coords which are easier to work with.
-		mousePosition: fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')
-			? undefined
-			: getInitialMouse(),
 		mousePos:
-			entry.source.type === 'mouse' && fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')
+			entry.source.type === 'mouse'
 				? { clientX: entry.source.clientX, clientY: entry.source.clientY }
 				: null,
 	};

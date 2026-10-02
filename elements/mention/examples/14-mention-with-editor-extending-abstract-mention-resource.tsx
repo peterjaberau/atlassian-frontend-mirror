@@ -1,21 +1,22 @@
 import React from 'react';
 
-import { type EditorProps, EditorContext, ToolbarHelp } from '@atlaskit/editor-core';
 import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
+import { type EditorProps, EditorContext, ToolbarHelp } from '@atlaskit/editor-core';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { useUniversalPreset } from '@atlaskit/editor-core/preset-universal';
 import { usePreset } from '@atlaskit/editor-core/use-preset';
-import {
-	type MentionResourceConfig,
-	AbstractMentionResource,
-	type ResolvingMentionProvider,
-	type MentionNameDetails,
-	MentionNameStatus,
-} from '../src/resource';
+import { type HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { mentionTestResult } from '@atlaskit/util-data-test/mention-test-data';
+
+import { AbstractMentionResource } from '../src/api/AbstractMentionResource';
+import type { ResolvingMentionProvider } from '../src/api/MentionResource';
+import {
+	type MentionResourceConfig,
+	type MentionNameDetails,
+	MentionNameStatus,
+} from '../src/types';
 
 /**
  * The user resolver resolves pre-mentioned users, using their IDs, by mapping
@@ -122,7 +123,7 @@ export class MentionEditor extends React.Component<Props, State> {
 	};
 
 	// Create a provider by instantiating an AbstractMentionResource
-	mentionResourceProvider = new ExampleMentionResource({
+	mentionResourceProvider: ExampleMentionResource = new ExampleMentionResource({
 		url: '',
 		mentionNameResolver: {
 			lookupName: async (id: string) => {

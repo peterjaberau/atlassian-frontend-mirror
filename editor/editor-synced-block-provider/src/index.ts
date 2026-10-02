@@ -31,6 +31,17 @@ export {
 	generateBlockAriFromReference,
 	getLocalIdFromBlockResourceId,
 } from './clients/block-service/ari';
+export type {
+	BlockContentResponse,
+	BatchRetrieveSyncedBlocksResponse,
+	ErrorResponse,
+} from './clients/block-service/blockService';
+
+export { BlockError, updateSyncedBlocks } from './clients/block-service/blockService';
+export {
+	extractGraphQLWSErrorMessage,
+	getConnectionDiagnosticsSummary,
+} from './clients/block-service/blockSubscription';
 export {
 	getConfluencePageAri,
 	getPageIdAndTypeFromConfluencePageAri,
@@ -48,20 +59,22 @@ export {
 	useMemoizedBlockServiceFetchOnlyAPIProvider,
 	fetchReferences,
 	batchFetchData,
+	writeDataBatch,
+	blockAriToResourceId,
+	convertToSyncBlockData,
+	extractResourceIdFromBlockAri,
 } from './providers/block-service/blockServiceAPI';
 export { fetchConfluencePageInfo } from './clients/confluence/sourceInfo';
 
-export {
-	SyncBlockProvider as SyncedBlockProvider,
-	useMemoizedSyncedBlockProvider,
-} from './providers/syncBlockProvider';
+export { SyncedBlockProvider, useMemoizedSyncedBlockProvider } from './providers/syncBlockProvider';
 export type {
 	ADFFetchProvider,
 	ADFWriteProvider,
+	BatchFetchConfig,
 	BlockNodeIdentifiers,
 	BlockSubscriptionErrorCallback,
 	BlockUpdateCallback,
-	SyncBlockDataProvider,
+	SyncBlockDataProviderInterface,
 	SyncBlockInstance,
 	MediaEmojiProviderOptions,
 	SyncedBlockRendererProviderOptions,
@@ -75,7 +88,11 @@ export type {
 } from './providers/types';
 
 // store managers
-export { type ReferenceSyncBlockStoreManager } from './store-manager/referenceSyncBlockStoreManager';
+export { ReferenceSyncBlockStoreManager } from './store-manager/referenceSyncBlockStoreManager';
+export {
+	SyncBlockInMemorySessionCache,
+	syncBlockInMemorySessionCache,
+} from './store-manager/syncBlockInMemorySessionCache';
 export {
 	SyncBlockStoreManager,
 	useMemoizedSyncBlockStoreManager,

@@ -6,8 +6,9 @@ import {
 	type MouseEvent,
 	PureComponent,
 } from 'react';
+
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v1';
+import { v1 as uuid } from 'uuid';
 
 function noModifiers(event: MouseEvent<any> | KeyboardEvent<any>): boolean {
 	return !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
@@ -31,7 +32,7 @@ export interface Props {
 }
 
 class SearchTextInput extends PureComponent<Props, {}> {
-	handleKeyDown = (event: React.KeyboardEvent) => {
+	handleKeyDown = (event: React.KeyboardEvent): void => {
 		if (noModifiers(event)) {
 			let notify: Callback | undefined;
 			switch (event.keyCode) {
@@ -55,7 +56,7 @@ class SearchTextInput extends PureComponent<Props, {}> {
 		}
 	};
 
-	inputRefUpdate = (ref: HTMLInputElement | null) => {
+	inputRefUpdate = (ref: HTMLInputElement | null): void => {
 		if (this.props.inputRef) {
 			this.props.inputRef(ref);
 		}
@@ -65,7 +66,7 @@ class SearchTextInput extends PureComponent<Props, {}> {
 		this.inputRefUpdate(ref);
 	};
 
-	render() {
+	render(): React.JSX.Element {
 		const { onUp, onDown, onEnter, onEscape, label, inputRef, inputId, ...other } = this.props;
 		let labelComponent;
 		// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead

@@ -1,6 +1,5 @@
 import type { Store, Unsubscribe } from 'redux';
-import type { State, Action, Handler } from '../internal/store';
-import createStore from '../internal/store';
+
 import {
 	FETCH_CONVERSATIONS_REQUEST,
 	FETCH_CONVERSATIONS_SUCCESS,
@@ -19,10 +18,12 @@ import {
 	CREATE_CONVERSATION_SUCCESS,
 	CREATE_CONVERSATION_ERROR,
 } from '../internal/actions';
+import type { State, Action, Handler } from '../internal/store';
+import createStore from '../internal/store';
+import { uuid } from '../internal/uuid';
 import type { Comment } from '../model/Comment';
 import type { Conversation } from '../model/Conversation';
 import type { User } from '../model/User';
-import { uuid } from '../internal/uuid';
 import { HttpError } from './HttpError';
 
 export interface ConversationResourceConfig {
@@ -31,17 +32,15 @@ export interface ConversationResourceConfig {
 }
 
 export interface ResourceProvider {
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	addComment(
+	addComment: (
 		conversationId: string,
 		parentId: string,
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		document: any,
 		localId?: string,
-	): Promise<Comment>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	create(
+	) => Promise<Comment>;
+	create: (
 		localId: string,
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,21 +50,17 @@ export interface ResourceProvider {
 		meta: any,
 		objectId: string,
 		containerId?: string,
-	): Promise<Conversation>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	deleteComment(
+	) => Promise<Conversation>;
+	deleteComment: (
 		conversationId: string,
 		commentId: string,
-	): Promise<Pick<Comment, 'conversationId' | 'commentId' | 'deleted'>>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	getConversations(objectId: string, containerId?: string): Promise<Conversation[]>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	revertComment(
+	) => Promise<Pick<Comment, 'conversationId' | 'commentId' | 'deleted'>>;
+	getConversations: (objectId: string, containerId?: string) => Promise<Conversation[]>;
+	revertComment: (
 		conversationId: string,
 		commentId: string,
-	): Promise<Pick<Comment, 'conversationId' | 'commentId'>>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	saveDraft(
+	) => Promise<Pick<Comment, 'conversationId' | 'commentId'>>;
+	saveDraft: (
 		isLocal: boolean,
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,15 +72,13 @@ export interface ResourceProvider {
 		meta: any,
 		objectId: string,
 		containerId?: string,
-	): void;
+	) => void;
 	store: Store<State | undefined>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	subscribe(handler: Handler): Unsubscribe;
+	subscribe: (handler: Handler) => Unsubscribe;
 	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/method-signature-style -- method-signature-style ignored via go/ees013 (to be fixed)
-	updateComment(conversationId: string, commentId: string, document: any): Promise<Comment>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	updateUser(user?: User): Promise<User | undefined>;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	updateComment: (conversationId: string, commentId: string, document: any) => Promise<Comment>;
+	updateUser: (user?: User) => Promise<User | undefined>;
 }
 
 const getHighlightedComment = () => {
@@ -106,7 +99,7 @@ const getHighlightedComment = () => {
 export class AbstractConversationResource implements ResourceProvider {
 	private _store: Store<State | undefined>;
 
-	get store() {
+	get store(): Store<State | undefined> {
 		return this._store;
 	}
 
@@ -280,7 +273,7 @@ export class ConversationResource extends AbstractConversationResource {
 	/**
 	 * Retrieve the IDs (and meta-data) for all conversations associated with the container ID.
 	 */
-	async getConversations(objectId: string, containerId?: string) {
+	async getConversations(objectId: string, containerId?: string): Promise<Conversation[]> {
 		const { dispatch } = this;
 		dispatch({ type: FETCH_CONVERSATIONS_REQUEST });
 

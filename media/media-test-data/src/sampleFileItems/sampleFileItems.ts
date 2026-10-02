@@ -977,7 +977,65 @@ const videoCaptions = createGenerator({
 	},
 });
 
-export const generateSampleFileItem = {
+const workingImgWithNoName = createGenerator({
+	type: 'file',
+	id: '020c195b-a2ad-49b7-9b18-f13ef014bf75',
+	collection: 'MediaServicesSample',
+	details: {
+		mediaType: 'image',
+		mimeType: 'image/png',
+		name: '',
+		size: 41811,
+		processingStatus: 'succeeded',
+		artifacts: {
+			'image.jpg': {
+				url: '/file/020c195b-a2ad-49b7-9b18-f13ef014bf75/artifact/image.jpg/binary',
+				processingStatus: 'succeeded',
+			},
+			'image.png': {
+				url: '/file/020c195b-a2ad-49b7-9b18-f13ef014bf75/artifact/image.png/binary',
+				processingStatus: 'succeeded',
+			},
+		},
+		representations: {
+			image: {},
+		},
+		createdAt: 1693368330362,
+	},
+});
+
+export const generateSampleFileItem: {
+	workingImgWithRemotePreview: FileItemGenerator;
+	workingImgWithRemotePreviewInRecentsCollection: FileItemGenerator;
+	workingPdfWithRemotePreview: FileItemGenerator;
+	workingPdfWithoutRemotePreview: FileItemGenerator;
+	workingPdfWithLocalPreview: FileItemGenerator;
+	workingVideo: FileItemGenerator;
+	workingJpegWithRemotePreview: FileItemGenerator;
+	workingAudioWithoutRemotePreview: FileItemGenerator;
+	workingArchive: FileItemGenerator;
+	workingUnknown: FileItemGenerator;
+	workingGif: FileItemGenerator;
+	workingCode: FileItemGenerator;
+	workingCodeLarge: FileItemGenerator;
+	workingExcelWithLocalPreview: FileItemGenerator;
+	processingPdf: FileItemGenerator;
+	failedPdf: FileItemGenerator;
+	failedDoc: FileItemGenerator;
+	failedVideo: FileItemGenerator;
+	passwordPdf: FileItemGenerator;
+	svg: FileItemGenerator;
+	svgWithoutPreview: FileItemGenerator;
+	svgFailedProcessing: FileItemGenerator;
+	abuseImage: FileItemGenerator;
+	abuseSvg: FileItemGenerator;
+	abuseFailedVideo: FileItemGenerator;
+	abusePdfNoPreview: FileItemGenerator;
+	csv: FileItemGenerator;
+	spreadsheet: FileItemGenerator;
+	videoCaptions: FileItemGenerator;
+	workingImgWithNoName: FileItemGenerator;
+} = {
 	workingImgWithRemotePreview,
 	workingImgWithRemotePreviewInRecentsCollection,
 	workingPdfWithRemotePreview,
@@ -1007,4 +1065,5 @@ export const generateSampleFileItem = {
 	csv,
 	spreadsheet,
 	videoCaptions,
+	workingImgWithNoName,
 };

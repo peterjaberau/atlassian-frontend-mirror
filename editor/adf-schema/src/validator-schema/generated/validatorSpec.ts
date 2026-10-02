@@ -1,32 +1,106 @@
-export const alignment = {
+export const alignment: {
   props: {
-    type: { type: 'enum', values: ['alignment'] },
-    attrs: { props: { align: { type: 'enum', values: ['center', 'end'] } } },
-  },
-};
-
-export const annotation = {
-  props: {
-    type: { type: 'enum', values: ['annotation'] },
     attrs: {
       props: {
-        id: { type: 'string' },
-        annotationType: { type: 'enum', values: ['inlineComment'] },
+        align: {
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        align: {
+          type: 'enum',
+          values: ['center', 'end'],
+        },
       },
     },
-  },
-};
-
-export const backgroundColor = {
-  props: {
-    type: { type: 'enum', values: ['backgroundColor'] },
-    attrs: {
-      props: { color: { pattern: '^#[0-9a-fA-F]{6}$', type: 'string' } },
+    type: {
+      type: 'enum',
+      values: ['alignment'],
     },
   },
 };
 
-export const block_content = [
+export const annotation: {
+  props: {
+    attrs: {
+      props: {
+        annotationType: {
+          type: string;
+          values: string[];
+        };
+        id: {
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        annotationType: {
+          type: 'enum',
+          values: ['inlineComment'],
+        },
+        id: {
+          type: 'string',
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['annotation'],
+    },
+  },
+};
+
+export const backgroundColor: {
+  props: {
+    attrs: {
+      props: {
+        color: {
+          pattern: string;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        color: {
+          pattern: '^#[0-9a-fA-F]{6}$',
+          type: 'string',
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['backgroundColor'],
+    },
+  },
+};
+
+export const block_content: string[] = [
   'blockCard',
   'paragraph_with_no_marks',
   'paragraph_with_alignment',
@@ -43,33 +117,132 @@ export const block_content = [
   'mediaGroup',
   'decisionList',
   'rule',
+  'rule_with_attrs',
+  'bodiedRule',
   'panel',
   'blockquote',
   'extension_with_marks',
+  'extension_with_annotation',
   'embedCard',
   'table',
   'expand',
   'bodiedExtension_with_marks',
 ];
 
-export const blockCard = {
+export const blockCard: {
   props: {
-    type: { type: 'enum', values: ['blockCard'] },
+    attrs: (
+      | {
+          props: {
+            data?: undefined;
+            datasource: {
+              props: {
+                id: {
+                  type: string;
+                };
+                parameters: {
+                  type: string;
+                };
+                views: {
+                  items: {
+                    props: {
+                      properties: {
+                        optional: boolean;
+                        type: string;
+                      };
+                      type: {
+                        type: string;
+                      };
+                    };
+                  }[];
+                  minItems: number;
+                  type: string;
+                };
+              };
+            };
+            layout: {
+              optional: boolean;
+              type: string;
+              values: string[];
+            };
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            url: {
+              optional: boolean;
+              type: string;
+              validatorFn: string;
+            };
+            width: {
+              optional: boolean;
+              type: string;
+            };
+          };
+        }
+      | {
+          props: {
+            data?: undefined;
+            datasource?: undefined;
+            layout?: undefined;
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            url: {
+              optional?: undefined;
+              type: string;
+              validatorFn: string;
+            };
+            width?: undefined;
+          };
+        }
+      | {
+          props: {
+            data: {
+              type: string;
+            };
+            datasource?: undefined;
+            layout?: undefined;
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            url?: undefined;
+            width?: undefined;
+          };
+        }
+    )[];
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+  required: string[];
+} = {
+  props: {
     attrs: [
       {
         props: {
-          localId: { type: 'string', optional: true },
-          url: { type: 'string', optional: true, validatorFn: 'safeUrl' },
           datasource: {
             props: {
-              id: { type: 'string' },
-              parameters: { type: 'object' },
+              id: {
+                type: 'string',
+              },
+              parameters: {
+                type: 'object',
+              },
               views: {
                 items: [
                   {
                     props: {
-                      properties: { optional: true, type: 'object' },
-                      type: { type: 'string' },
+                      properties: {
+                        optional: true,
+                        type: 'object',
+                      },
+                      type: {
+                        type: 'string',
+                      },
                     },
                   },
                 ],
@@ -78,8 +251,8 @@ export const blockCard = {
               },
             },
           },
-          width: { type: 'number', optional: true },
           layout: {
+            optional: true,
             type: 'enum',
             values: [
               'wide',
@@ -90,36 +263,89 @@ export const blockCard = {
               'align-end',
               'align-start',
             ],
+          },
+          localId: {
             optional: true,
+            type: 'string',
+          },
+          url: {
+            optional: true,
+            type: 'string',
+            validatorFn: 'safeUrl',
+          },
+          width: {
+            optional: true,
+            type: 'number',
           },
         },
       },
       {
         props: {
-          url: { type: 'string', validatorFn: 'safeUrl' },
-          localId: { type: 'string', optional: true },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+          url: {
+            type: 'string',
+            validatorFn: 'safeUrl',
+          },
         },
       },
       {
         props: {
-          data: { type: 'object' },
-          localId: { type: 'string', optional: true },
+          data: {
+            type: 'object',
+          },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
         },
       },
     ],
+    type: {
+      type: 'enum',
+      values: ['blockCard'],
+    },
   },
   required: ['attrs'],
 };
 
-export const blockquote = {
+export const blockquote: {
   props: {
-    type: { type: 'enum', values: ['blockquote'] },
     attrs: {
-      props: { localId: { type: 'string', optional: true } },
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
       optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+      },
     },
     content: {
-      type: 'array',
+      allowUnsupportedBlock: true,
       items: [
         [
           'paragraph_with_no_marks',
@@ -130,85 +356,400 @@ export const blockquote = {
           'mediaSingle_full',
           'mediaGroup',
           'extension_with_marks',
+          'extension_with_annotation',
         ],
       ],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['blockquote'],
     },
   },
 };
 
-export const blockRootOnly = ['multiBodiedExtension'];
+export const blockRootOnly: string[] = ['multiBodiedExtension'];
 
-export const blockTaskItem = {
+export const blockTaskItem: {
   props: {
-    type: { type: 'enum', values: ['blockTaskItem'] },
     attrs: {
       props: {
-        localId: { type: 'string' },
-        state: { type: 'enum', values: ['TODO', 'DONE'] },
+        localId: {
+          type: string;
+        };
+        state: {
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    content: {
+      isTupleLike: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: 'string',
+        },
+        state: {
+          type: 'enum',
+          values: ['TODO', 'DONE'],
+        },
       },
     },
     content: {
-      type: 'array',
       isTupleLike: true,
       items: [
-        ['paragraph_with_no_marks', 'extension_with_marks'],
-        ['paragraph_with_no_marks', 'extension_with_marks'],
+        [
+          'paragraph_with_no_marks',
+          'paragraph_with_font_size',
+          'extension_with_marks',
+          'extension_with_annotation',
+        ],
+        [
+          'paragraph_with_no_marks',
+          'paragraph_with_font_size',
+          'extension_with_marks',
+          'extension_with_annotation',
+        ],
       ],
       minItems: 1,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['blockTaskItem'],
     },
   },
 };
 
-export const bodiedExtension = {
+export const bodiedExtension: {
   props: {
-    type: { type: 'enum', values: ['bodiedExtension'] },
     attrs: {
       props: {
-        extensionKey: { minLength: 1, type: 'string' },
-        extensionType: { minLength: 1, type: 'string' },
-        parameters: { type: 'object', optional: true },
-        text: { type: 'string', optional: true },
+        extensionKey: {
+          minLength: number;
+          type: string;
+        };
+        extensionType: {
+          minLength: number;
+          type: string;
+        };
         layout: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        localId: {
+          minLength: number;
+          optional: boolean;
+          type: string;
+        };
+        parameters: {
+          optional: boolean;
+          type: string;
+        };
+        text: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[];
+      minItems: number;
+      type: string;
+    };
+    marks: {
+      items: unknown[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        extensionKey: {
+          minLength: 1,
+          type: 'string',
+        },
+        extensionType: {
+          minLength: 1,
+          type: 'string',
+        },
+        layout: {
+          optional: true,
           type: 'enum',
           values: ['wide', 'full-width', 'default'],
-          optional: true,
         },
-        localId: { minLength: 1, type: 'string', optional: true },
+        localId: {
+          minLength: 1,
+          optional: true,
+          type: 'string',
+        },
+        parameters: {
+          optional: true,
+          type: 'object',
+        },
+        text: {
+          optional: true,
+          type: 'string',
+        },
       },
     },
     content: {
-      type: 'array',
+      allowUnsupportedBlock: true,
       items: ['non_nestable_block_content'],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
     },
-    marks: { type: 'array', items: [], optional: true },
+    marks: {
+      items: [],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['bodiedExtension'],
+    },
   },
 };
 
-export const bodiedExtension_with_marks = [
+export const bodiedExtension_root_only: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'bodiedExtension',
   {
+    meta: {
+      stage0: true,
+    },
     props: {
       marks: {
-        type: 'array',
+        items: [['breakout', 'dataConsumer', 'fragment']],
         optional: true,
-        items: [['dataConsumer', 'fragment']],
+        type: 'array',
       },
     },
   },
 ];
 
-export const bodiedSyncBlock = {
+export const bodiedExtension_with_marks: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'bodiedExtension',
+  {
+    props: {
+      marks: {
+        items: [['dataConsumer', 'fragment']],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const bodiedRule: {
+  meta: {
+    stage0: boolean;
+  };
   props: {
-    type: { type: 'enum', values: ['bodiedSyncBlock'] },
     attrs: {
-      props: { resourceId: { type: 'string' }, localId: { type: 'string' } },
+      props: {
+        alignment: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        color: {
+          optional: boolean;
+          pattern: string;
+          type: string;
+        };
+        localId: {
+          minLength: number;
+          type: string;
+        };
+        style: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        weight: {
+          maximum: number;
+          minimum: number;
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      items: string[][];
+      maxItems: number;
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  meta: {
+    stage0: true,
+  },
+  props: {
+    attrs: {
+      props: {
+        alignment: {
+          optional: true,
+          type: 'enum',
+          values: ['start', 'center', 'end'],
+        },
+        color: {
+          optional: true,
+          pattern: '^#[0-9a-fA-F]{6}$',
+          type: 'string',
+        },
+        localId: {
+          minLength: 1,
+          type: 'string',
+        },
+        style: {
+          optional: true,
+          type: 'enum',
+          values: ['solid', 'dashed', 'dotted', 'sketch', 'fade'],
+        },
+        weight: {
+          maximum: 3,
+          minimum: 1,
+          optional: true,
+          type: 'number',
+        },
+      },
     },
     content: {
+      items: [['paragraph_with_no_marks', 'heading_with_no_marks']],
+      maxItems: 1,
+      minItems: 1,
       type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['bodiedRule'],
+    },
+  },
+};
+
+export const bodiedRule_root_only: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'bodiedRule',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const bodiedSyncBlock: {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: string;
+        };
+        resourceId: {
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: 'string',
+        },
+        resourceId: {
+          type: 'string',
+        },
+      },
+    },
+    content: {
+      allowUnsupportedBlock: true,
       items: [
         [
           'paragraph',
@@ -235,70 +776,191 @@ export const bodiedSyncBlock = {
           'mediaSingle_full',
           'mediaSingle_width_type',
           'orderedList',
+          'panel_c1',
           'panel',
           'rule',
+          'rule_with_attrs',
+          'bodiedRule',
           'table',
           'taskList',
         ],
       ],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
     },
-    marks: { type: 'array', optional: true, items: ['breakout'] },
+    marks: {
+      items: ['breakout'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['bodiedSyncBlock'],
+    },
   },
 };
 
-export const border = {
+export const border: {
   props: {
-    type: { type: 'enum', values: ['border'] },
     attrs: {
       props: {
-        size: { type: 'number', minimum: 1, maximum: 3 },
+        color: {
+          pattern: string;
+          type: string;
+        };
+        size: {
+          maximum: number;
+          minimum: number;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
         color: {
           pattern: '^#[0-9a-fA-F]{8}$|^#[0-9a-fA-F]{6}$',
           type: 'string',
         },
+        size: {
+          maximum: 3,
+          minimum: 1,
+          type: 'number',
+        },
       },
+    },
+    type: {
+      type: 'enum',
+      values: ['border'],
     },
   },
 };
 
-export const breakout = {
+export const breakout: {
   props: {
-    type: { type: 'enum', values: ['breakout'] },
     attrs: {
       props: {
-        mode: { type: 'enum', values: ['wide', 'full-width'] },
-        width: { type: 'number', optional: true },
+        mode: {
+          type: string;
+          values: string[];
+        };
+        width: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        mode: {
+          type: 'enum',
+          values: ['wide', 'full-width'],
+        },
+        width: {
+          optional: true,
+          type: 'number',
+        },
       },
     },
+    type: {
+      type: 'enum',
+      values: ['breakout'],
+    },
   },
 };
 
-export const bulletList = {
+export const bulletList: {
   props: {
-    type: { type: 'enum', values: ['bulletList'] },
     attrs: {
-      props: { localId: { type: 'string', optional: true } },
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      items: string[];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
       optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+      },
     },
     content: {
-      type: 'array',
-      items: [['listItem', 'listItem_with_nested_decision']],
+      items: ['listItem'],
       minItems: 1,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['bulletList'],
     },
   },
 };
 
-export const caption = {
+export const caption: {
   props: {
-    type: { type: 'enum', values: ['caption'] },
     attrs: {
-      props: { localId: { type: 'string', optional: true } },
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedInline: boolean;
+      items: string[][];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
       optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+      },
     },
     content: {
-      type: 'array',
+      allowUnsupportedInline: true,
       items: [
         [
           'hardBreak',
@@ -313,105 +975,378 @@ export const caption = {
         ],
       ],
       optional: true,
-      allowUnsupportedInline: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['caption'],
     },
   },
 };
 
-export const code = { props: { type: { type: 'enum', values: ['code'] } } };
-
-export const codeBlock = {
+export const code: {
   props: {
-    type: { type: 'enum', values: ['codeBlock'] },
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    type: {
+      type: 'enum',
+      values: ['code'],
+    },
+  },
+};
+
+export const codeBlock: {
+  props: {
     attrs: {
+      optional: boolean;
       props: {
-        language: { type: 'string', optional: true },
-        uniqueId: { type: 'string', optional: true },
-        localId: { type: 'string', optional: true },
-      },
+        hideLineNumbers: {
+          optional: boolean;
+          type: string;
+        };
+        language: {
+          optional: boolean;
+          type: string;
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        uniqueId: {
+          optional: boolean;
+          type: string;
+        };
+        wrap: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedInline: boolean;
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    marks: {
+      items: unknown[];
+      maxItems: number;
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
       optional: true,
+      props: {
+        hideLineNumbers: {
+          optional: true,
+          type: 'boolean',
+        },
+        language: {
+          optional: true,
+          type: 'string',
+        },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        uniqueId: {
+          optional: true,
+          type: 'string',
+        },
+        wrap: {
+          optional: true,
+          type: 'boolean',
+        },
+      },
     },
     content: {
-      type: 'array',
+      allowUnsupportedInline: true,
       items: ['text_with_no_marks'],
       optional: true,
-      allowUnsupportedInline: true,
+      type: 'array',
+    },
+    marks: {
+      items: [],
+      maxItems: 0,
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['codeBlock'],
     },
   },
 };
 
-export const codeBlock_root_only = [
+export const codeBlock_root_only: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'codeBlock',
-  { props: { marks: { type: 'array', optional: true, items: ['breakout'] } } },
+  {
+    props: {
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
 ];
 
-export const confluenceInlineComment = {
+export const confluenceInlineComment: {
   props: {
-    type: { type: 'enum', values: ['confluenceInlineComment'] },
-    attrs: { props: { reference: { type: 'string' } } },
-  },
-};
-
-export const dataConsumer = {
-  props: {
-    type: { type: 'enum', values: ['dataConsumer'] },
     attrs: {
       props: {
-        sources: { type: 'array', items: [{ type: 'string' }], minItems: 1 },
+        reference: {
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        reference: {
+          type: 'string',
+        },
       },
+    },
+    type: {
+      type: 'enum',
+      values: ['confluenceInlineComment'],
     },
   },
 };
 
-export const date = {
+export const dataConsumer: {
   props: {
-    type: { type: 'enum', values: ['date'] },
     attrs: {
       props: {
-        timestamp: { minLength: 1, type: 'string' },
-        localId: { type: 'string', optional: true },
+        sources: {
+          items: {
+            type: string;
+          }[];
+          minItems: number;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        sources: {
+          items: [
+            {
+              type: 'string',
+            },
+          ],
+          minItems: 1,
+          type: 'array',
+        },
       },
     },
-    marks: { type: 'array', optional: true, items: ['annotation'] },
+    type: {
+      type: 'enum',
+      values: ['dataConsumer'],
+    },
   },
 };
 
-export const decisionItem = {
+export const date: {
   props: {
-    type: { type: 'enum', values: ['decisionItem'] },
     attrs: {
-      props: { localId: { type: 'string' }, state: { type: 'string' } },
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        timestamp: {
+          minLength: number;
+          type: string;
+        };
+      };
+    };
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        timestamp: {
+          minLength: 1,
+          type: 'string',
+        },
+      },
+    },
+    marks: {
+      items: ['annotation'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['date'],
+    },
+  },
+};
+
+export const decisionItem: {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: string;
+        };
+        state: {
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedInline: boolean;
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: 'string',
+        },
+        state: {
+          type: 'string',
+        },
+      },
     },
     content: {
-      type: 'array',
+      allowUnsupportedInline: true,
       items: ['inline_content'],
       optional: true,
-      allowUnsupportedInline: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['decisionItem'],
     },
   },
 };
 
-export const decisionList = {
+export const decisionList: {
   props: {
-    type: { type: 'enum', values: ['decisionList'] },
-    attrs: { props: { localId: { type: 'string' } } },
+    attrs: {
+      props: {
+        localId: {
+          type: string;
+        };
+      };
+    };
     content: {
-      type: 'array',
+      allowUnsupportedBlock: boolean;
+      items: string[];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: 'string',
+        },
+      },
+    },
+    content: {
+      allowUnsupportedBlock: true,
       items: ['decisionItem'],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['decisionList'],
     },
   },
 };
 
-export const doc = {
+export const doc: {
   props: {
-    type: { type: 'enum', values: ['doc'] },
-    version: { type: 'enum', values: [1] },
     content: {
-      type: 'array',
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+    version: {
+      type: string;
+      values: number[];
+    };
+  };
+} = {
+  props: {
+    content: {
+      allowUnsupportedBlock: true,
       items: [
         [
+          'panel_c1',
           'blockCard',
           'paragraph_with_no_marks',
           'paragraph_with_alignment',
@@ -428,14 +1363,26 @@ export const doc = {
           'mediaGroup',
           'decisionList',
           'rule',
+          'rule_with_attrs',
+          'bodiedRule',
           'panel',
           'blockquote',
           'extension_with_marks',
+          'extension_with_annotation',
           'embedCard',
           'table',
           'expand',
           'bodiedExtension_with_marks',
           'codeBlock_root_only',
+          'panel_root_only',
+          'panel_c1_root_only',
+          'rule_root_only',
+          'rule_with_attrs_root_only',
+          'bodiedRule_root_only',
+          'extension_root_only',
+          'extension_root_only_with_annotation',
+          'bodiedExtension_root_only',
+          'multiBodiedExtension_root_only',
           'layoutSection_with_single_column',
           'layoutSection_full',
           'multiBodiedExtension',
@@ -444,19 +1391,76 @@ export const doc = {
           'bodiedSyncBlock',
         ],
       ],
-      allowUnsupportedBlock: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['doc'],
+    },
+    version: {
+      type: 'enum',
+      values: [1],
     },
   },
 };
 
-export const em = { props: { type: { type: 'enum', values: ['em'] } } };
-
-export const embedCard = {
+export const em: {
   props: {
-    type: { type: 'enum', values: ['embedCard'] },
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    type: {
+      type: 'enum',
+      values: ['em'],
+    },
+  },
+};
+
+export const embedCard: {
+  props: {
     attrs: {
       props: {
-        url: { type: 'string', validatorFn: 'safeUrl' },
+        layout: {
+          type: string;
+          values: string[];
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        originalHeight: {
+          optional: boolean;
+          type: string;
+        };
+        originalWidth: {
+          optional: boolean;
+          type: string;
+        };
+        url: {
+          type: string;
+          validatorFn: string;
+        };
+        width: {
+          maximum: number;
+          minimum: number;
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
         layout: {
           type: 'enum',
           values: [
@@ -469,50 +1473,161 @@ export const embedCard = {
             'align-start',
           ],
         },
-        width: { type: 'number', maximum: 100, minimum: 0, optional: true },
-        originalHeight: { type: 'number', optional: true },
-        originalWidth: { type: 'number', optional: true },
-        localId: { type: 'string', optional: true },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        originalHeight: {
+          optional: true,
+          type: 'number',
+        },
+        originalWidth: {
+          optional: true,
+          type: 'number',
+        },
+        url: {
+          type: 'string',
+          validatorFn: 'safeUrl',
+        },
+        width: {
+          maximum: 100,
+          minimum: 0,
+          optional: true,
+          type: 'number',
+        },
       },
+    },
+    type: {
+      type: 'enum',
+      values: ['embedCard'],
     },
   },
 };
 
-export const emoji = {
+export const emoji: {
   props: {
-    type: { type: 'enum', values: ['emoji'] },
     attrs: {
       props: {
-        shortName: { type: 'string' },
-        id: { type: 'string', optional: true },
-        text: { type: 'string', optional: true },
-        localId: { type: 'string', optional: true },
+        id: {
+          optional: boolean;
+          type: string;
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        shortName: {
+          type: string;
+        };
+        text: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        id: {
+          optional: true,
+          type: 'string',
+        },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        shortName: {
+          type: 'string',
+        },
+        text: {
+          optional: true,
+          type: 'string',
+        },
       },
     },
-    marks: { type: 'array', optional: true, items: ['annotation'] },
-  },
-};
-
-export const expand = {
-  props: {
-    type: { type: 'enum', values: ['expand'] },
-    attrs: {
-      props: {
-        title: { type: 'string', optional: true },
-        localId: { type: 'string', optional: true },
-      },
+    marks: {
+      items: ['annotation'],
       optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['emoji'],
+    },
+  },
+};
+
+export const expand: {
+  props: {
+    attrs: {
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        title: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    marks: {
+      items: unknown[];
+      maxItems: number;
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        title: {
+          optional: true,
+          type: 'string',
+        },
+      },
     },
     content: {
-      type: 'array',
+      allowUnsupportedBlock: true,
       items: [
         [
           'paragraph_with_no_marks',
+          'paragraph_with_font_size',
           'panel',
           'blockquote',
           'orderedList',
           'bulletList',
           'rule',
+          'rule_with_attrs',
+          'bodiedRule',
           'heading_with_no_marks',
           'codeBlock',
           'mediaGroup',
@@ -524,67 +1639,287 @@ export const expand = {
           'blockCard',
           'embedCard',
           'extension_with_marks',
+          'extension_with_annotation',
           'nestedExpand_with_no_marks',
         ],
       ],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
+    },
+    marks: {
+      items: [],
+      maxItems: 0,
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['expand'],
     },
   },
 };
 
-export const expand_root_only = [
-  'expand',
-  { props: { marks: { type: 'array', optional: true, items: ['breakout'] } } },
-];
-
-export const extension = {
-  props: {
-    type: { type: 'enum', values: ['extension'] },
-    attrs: {
+export const expand_root_only: (
+  | string
+  | {
       props: {
-        extensionKey: { minLength: 1, type: 'string' },
-        extensionType: { minLength: 1, type: 'string' },
-        parameters: { type: 'object', optional: true },
-        text: { type: 'string', optional: true },
-        layout: {
-          type: 'enum',
-          values: ['wide', 'full-width', 'default'],
-          optional: true,
-        },
-        localId: { minLength: 1, type: 'string', optional: true },
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'expand',
+  {
+    props: {
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
       },
     },
-    marks: { type: 'array', items: [], optional: true },
+  },
+];
+
+export const extension: {
+  props: {
+    attrs: {
+      props: {
+        extensionKey: {
+          minLength: number;
+          type: string;
+        };
+        extensionType: {
+          minLength: number;
+          type: string;
+        };
+        layout: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        localId: {
+          minLength: number;
+          optional: boolean;
+          type: string;
+        };
+        parameters: {
+          optional: boolean;
+          type: string;
+        };
+        text: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    marks: {
+      items: unknown[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        extensionKey: {
+          minLength: 1,
+          type: 'string',
+        },
+        extensionType: {
+          minLength: 1,
+          type: 'string',
+        },
+        layout: {
+          optional: true,
+          type: 'enum',
+          values: ['wide', 'full-width', 'default'],
+        },
+        localId: {
+          minLength: 1,
+          optional: true,
+          type: 'string',
+        },
+        parameters: {
+          optional: true,
+          type: 'object',
+        },
+        text: {
+          optional: true,
+          type: 'string',
+        },
+      },
+    },
+    marks: {
+      items: [],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['extension'],
+    },
   },
 };
 
-export const extension_with_marks = [
+export const extension_root_only: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'extension',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      marks: {
+        items: [['breakout', 'dataConsumer', 'fragment']],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const extension_root_only_with_annotation: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'extension',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      marks: {
+        items: [['annotation', 'breakout', 'dataConsumer', 'fragment']],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const extension_with_annotation: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'extension',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      marks: {
+        items: [['annotation', 'dataConsumer', 'fragment']],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const extension_with_marks: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'extension',
   {
     props: {
       marks: {
-        type: 'array',
-        optional: true,
         items: [['dataConsumer', 'fragment']],
+        optional: true,
+        type: 'array',
       },
     },
   },
 ];
 
-export const extensionFrame = {
+export const extensionFrame: {
+  meta: {
+    stage0: boolean;
+  };
   props: {
-    type: { type: 'enum', values: ['extensionFrame'] },
     content: {
-      type: 'array',
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    marks: {
+      items: string[][];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  meta: {
+    stage0: true,
+  },
+  props: {
+    content: {
       items: [
         [
           'paragraph_with_no_marks',
+          'paragraph_with_font_size',
           'panel',
           'blockquote',
           'orderedList',
           'bulletList',
           'rule',
+          'rule_with_attrs',
+          'bodiedRule',
           'heading_with_no_marks',
           'codeBlock',
           'mediaGroup',
@@ -600,86 +1935,309 @@ export const extensionFrame = {
         ],
       ],
       minItems: 1,
+      type: 'array',
     },
     marks: {
-      type: 'array',
-      optional: true,
       items: [['dataConsumer', 'fragment']],
-    },
-  },
-};
-
-export const fragment = {
-  props: {
-    type: { type: 'enum', values: ['fragment'] },
-    attrs: {
-      props: {
-        localId: { minLength: 1, type: 'string' },
-        name: { type: 'string', optional: true },
-      },
-    },
-  },
-};
-
-export const hardBreak = {
-  props: {
-    type: { type: 'enum', values: ['hardBreak'] },
-    attrs: {
-      props: {
-        text: { type: 'enum', values: ['\n'], optional: true },
-        localId: { type: 'string', optional: true },
-      },
       optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['extensionFrame'],
     },
   },
 };
 
-export const heading = {
+export const fontSize: {
   props: {
-    type: { type: 'enum', values: ['heading'] },
     attrs: {
       props: {
-        level: { type: 'number', minimum: 1, maximum: 6 },
-        localId: { type: 'string', optional: true },
+        fontSize: {
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        fontSize: {
+          type: 'enum',
+          values: ['small'],
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['fontSize'],
+    },
+  },
+};
+
+export const fragment: {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          minLength: number;
+          type: string;
+        };
+        name: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          minLength: 1,
+          type: 'string',
+        },
+        name: {
+          optional: true,
+          type: 'string',
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['fragment'],
+    },
+  },
+};
+
+export const hardBreak: {
+  props: {
+    attrs: {
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        text: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        text: {
+          optional: true,
+          type: 'enum',
+          values: ['\n'],
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['hardBreak'],
+    },
+  },
+};
+
+export const heading: {
+  props: {
+    attrs: {
+      props: {
+        level: {
+          maximum: number;
+          minimum: number;
+          type: string;
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedInline: boolean;
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    marks: {
+      items: unknown[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        level: {
+          maximum: 6,
+          minimum: 1,
+          type: 'number',
+        },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
       },
     },
     content: {
-      type: 'array',
+      allowUnsupportedInline: true,
       items: ['inline_content'],
       optional: true,
-      allowUnsupportedInline: true,
+      type: 'array',
     },
-    marks: { type: 'array', items: [], optional: true },
+    marks: {
+      items: [],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['heading'],
+    },
   },
 };
 
-export const heading_with_alignment = [
-  'heading',
-  { props: { marks: { type: 'array', optional: true, items: ['alignment'] } } },
-];
-
-export const heading_with_indentation = [
+export const heading_with_alignment: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'heading',
   {
-    props: { marks: { type: 'array', optional: true, items: ['indentation'] } },
+    props: {
+      marks: {
+        items: ['alignment'],
+        optional: true,
+        type: 'array',
+      },
+    },
   },
 ];
 
-export const heading_with_no_marks = [
+export const heading_with_indentation: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'heading',
   {
-    props: { marks: { type: 'array', maxItems: 0, items: [], optional: true } },
+    props: {
+      marks: {
+        items: ['indentation'],
+        optional: true,
+        type: 'array',
+      },
+    },
   },
 ];
 
-export const indentation = {
+export const heading_with_no_marks: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: unknown[];
+          maxItems: number;
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'heading',
+  {
+    props: {
+      marks: {
+        items: [],
+        maxItems: 0,
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const indentation: {
   props: {
-    type: { type: 'enum', values: ['indentation'] },
-    attrs: { props: { level: { type: 'number', minimum: 1, maximum: 6 } } },
+    attrs: {
+      props: {
+        level: {
+          maximum: number;
+          minimum: number;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        level: {
+          maximum: 6,
+          minimum: 1,
+          type: 'number',
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['indentation'],
+    },
   },
 };
 
-export const inline_content = [
+export const inline_content: string[] = [
   'text_formatted',
   'text_code_inline',
   'date',
@@ -693,166 +2251,550 @@ export const inline_content = [
   'mediaInline',
 ];
 
-export const inlineCard = {
+export const inlineCard: {
   props: {
-    type: { type: 'enum', values: ['inlineCard'] },
+    attrs: (
+      | {
+          props: {
+            data?: undefined;
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            url: {
+              type: string;
+              validatorFn: string;
+            };
+          };
+        }
+      | {
+          props: {
+            data: {
+              type: string;
+            };
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            url?: undefined;
+          };
+        }
+    )[];
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+  required: string[];
+} = {
+  props: {
     attrs: [
       {
         props: {
-          url: { type: 'string', validatorFn: 'safeUrl' },
-          localId: { type: 'string', optional: true },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+          url: {
+            type: 'string',
+            validatorFn: 'safeUrl',
+          },
         },
       },
       {
         props: {
-          data: { type: 'object' },
-          localId: { type: 'string', optional: true },
+          data: {
+            type: 'object',
+          },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
         },
       },
     ],
-    marks: { type: 'array', optional: true, items: ['annotation'] },
+    marks: {
+      items: ['annotation'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['inlineCard'],
+    },
   },
   required: ['attrs'],
 };
 
-export const inlineExtension = {
+export const inlineExtension: {
   props: {
-    type: { type: 'enum', values: ['inlineExtension'] },
     attrs: {
       props: {
-        extensionKey: { minLength: 1, type: 'string' },
-        extensionType: { minLength: 1, type: 'string' },
-        parameters: { type: 'object', optional: true },
-        text: { type: 'string', optional: true },
-        localId: { minLength: 1, type: 'string', optional: true },
+        extensionKey: {
+          minLength: number;
+          type: string;
+        };
+        extensionType: {
+          minLength: number;
+          type: string;
+        };
+        localId: {
+          minLength: number;
+          optional: boolean;
+          type: string;
+        };
+        parameters: {
+          optional: boolean;
+          type: string;
+        };
+        text: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    marks: {
+      items: unknown[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        extensionKey: {
+          minLength: 1,
+          type: 'string',
+        },
+        extensionType: {
+          minLength: 1,
+          type: 'string',
+        },
+        localId: {
+          minLength: 1,
+          optional: true,
+          type: 'string',
+        },
+        parameters: {
+          optional: true,
+          type: 'object',
+        },
+        text: {
+          optional: true,
+          type: 'string',
+        },
       },
     },
-    marks: { type: 'array', items: [], optional: true },
+    marks: {
+      items: [],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['inlineExtension'],
+    },
   },
 };
 
-export const inlineExtension_with_marks = [
+export const inlineExtension_with_marks: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'inlineExtension',
   {
     props: {
       marks: {
-        type: 'array',
-        optional: true,
         items: [['dataConsumer', 'fragment']],
-      },
-    },
-  },
-];
-
-export const layoutColumn = {
-  props: {
-    type: { type: 'enum', values: ['layoutColumn'] },
-    attrs: {
-      props: {
-        width: { type: 'number', minimum: 0, maximum: 100 },
-        localId: { type: 'string', optional: true },
-      },
-    },
-    content: {
-      type: 'array',
-      items: ['block_content'],
-      minItems: 1,
-      allowUnsupportedBlock: true,
-    },
-  },
-};
-
-export const layoutSection = {
-  props: {
-    type: { type: 'enum', values: ['layoutSection'] },
-    attrs: {
-      props: { localId: { type: 'string', optional: true } },
-      optional: true,
-    },
-    content: {
-      type: 'array',
-      items: ['layoutColumn'],
-      minItems: 1,
-      maxItems: 3,
-      allowUnsupportedBlock: true,
-    },
-    marks: { type: 'array', optional: true, items: ['breakout'] },
-  },
-};
-
-export const layoutSection_full = [
-  'layoutSection',
-  {
-    props: {
-      content: {
-        type: 'array',
-        items: ['layoutColumn'],
-        minItems: 2,
-        maxItems: 3,
-        allowUnsupportedBlock: true,
-      },
-      marks: { type: 'array', optional: true, items: ['breakout'] },
-    },
-  },
-];
-
-export const layoutSection_with_single_column = [
-  'layoutSection',
-  {
-    props: {
-      attrs: {
-        props: {
-          columnRuleStyle: { type: 'enum', values: ['solid'], optional: true },
-          localId: { type: 'string', optional: true },
-        },
         optional: true,
-      },
-      content: {
         type: 'array',
-        items: ['layoutColumn'],
-        minItems: 1,
-        maxItems: 5,
-        allowUnsupportedBlock: true,
       },
-      marks: { type: 'array', optional: true, items: ['breakout'] },
     },
   },
 ];
 
-export const link = {
+export const layoutColumn: {
   props: {
-    type: { type: 'enum', values: ['link'] },
     attrs: {
       props: {
-        href: { type: 'string', validatorFn: 'safeUrl' },
-        title: { type: 'string', optional: true },
-        id: { type: 'string', optional: true },
-        collection: { type: 'string', optional: true },
-        occurrenceKey: { type: 'string', optional: true },
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        valign: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        width: {
+          maximum: number;
+          minimum: number;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        valign: {
+          optional: true,
+          type: 'enum',
+          values: ['top', 'middle', 'bottom'],
+        },
+        width: {
+          maximum: 100,
+          minimum: 0,
+          type: 'number',
+        },
       },
     },
-  },
-};
-
-export const listItem = {
-  props: {
-    type: { type: 'enum', values: ['listItem'] },
-    attrs: {
-      props: { localId: { type: 'string', optional: true } },
-      optional: true,
-    },
     content: {
-      type: 'array',
-      isTupleLike: true,
+      allowUnsupportedBlock: true,
       items: [
         [
+          'panel_c1',
+          'blockCard',
           'paragraph_with_no_marks',
+          'paragraph_with_alignment',
+          'paragraph_with_indentation',
           'mediaSingle_caption',
           'mediaSingle_full',
           'codeBlock',
+          'taskList',
+          'bulletList',
+          'orderedList',
+          'heading_with_no_marks',
+          'heading_with_alignment',
+          'heading_with_indentation',
+          'mediaGroup',
+          'decisionList',
+          'rule',
+          'rule_with_attrs',
+          'bodiedRule',
+          'panel',
+          'blockquote',
           'extension_with_marks',
+          'extension_with_annotation',
+          'embedCard',
+          'table',
+          'expand',
+          'bodiedExtension_with_marks',
         ],
+      ],
+      minItems: 1,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['layoutColumn'],
+    },
+  },
+};
+
+export const layoutSection: {
+  props: {
+    attrs: {
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[];
+      maxItems: number;
+      minItems: number;
+      type: string;
+    };
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+      },
+    },
+    content: {
+      allowUnsupportedBlock: true,
+      items: ['layoutColumn'],
+      maxItems: 3,
+      minItems: 1,
+      type: 'array',
+    },
+    marks: {
+      items: ['breakout'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['layoutSection'],
+    },
+  },
+};
+
+export const layoutSection_full: (
+  | string
+  | {
+      props: {
+        content: {
+          allowUnsupportedBlock: boolean;
+          items: string[];
+          maxItems: number;
+          minItems: number;
+          type: string;
+        };
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'layoutSection',
+  {
+    props: {
+      content: {
+        allowUnsupportedBlock: true,
+        items: ['layoutColumn'],
+        maxItems: 3,
+        minItems: 2,
+        type: 'array',
+      },
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const layoutSection_with_single_column: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        attrs: {
+          optional: boolean;
+          props: {
+            columnRuleStyle: {
+              optional: boolean;
+              type: string;
+              values: string[];
+            };
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+          };
+        };
+        content: {
+          allowUnsupportedBlock: boolean;
+          items: string[];
+          maxItems: number;
+          minItems: number;
+          type: string;
+        };
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'layoutSection',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      attrs: {
+        optional: true,
+        props: {
+          columnRuleStyle: {
+            optional: true,
+            type: 'enum',
+            values: ['solid'],
+          },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+        },
+      },
+      content: {
+        allowUnsupportedBlock: true,
+        items: ['layoutColumn'],
+        maxItems: 5,
+        minItems: 1,
+        type: 'array',
+      },
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const link: {
+  props: {
+    attrs: {
+      props: {
+        collection: {
+          optional: boolean;
+          type: string;
+        };
+        href: {
+          type: string;
+          validatorFn: string;
+        };
+        id: {
+          optional: boolean;
+          type: string;
+        };
+        occurrenceKey: {
+          optional: boolean;
+          type: string;
+        };
+        title: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        collection: {
+          optional: true,
+          type: 'string',
+        },
+        href: {
+          type: 'string',
+          validatorFn: 'safeUrl',
+        },
+        id: {
+          optional: true,
+          type: 'string',
+        },
+        occurrenceKey: {
+          optional: true,
+          type: 'string',
+        },
+        title: {
+          optional: true,
+          type: 'string',
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['link'],
+    },
+  },
+};
+
+export const listItem: {
+  props: {
+    attrs: {
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+      },
+    },
+    content: {
+      allowUnsupportedBlock: true,
+      items: [
         [
+          'paragraph_with_font_size',
           'paragraph_with_no_marks',
           'bulletList',
           'orderedList',
@@ -861,134 +2803,390 @@ export const listItem = {
           'mediaSingle_full',
           'codeBlock',
           'extension_with_marks',
+          'extension_with_annotation',
         ],
       ],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['listItem'],
     },
   },
 };
 
-export const listItem_with_nested_decision = [
-  'listItem',
-  {
-    props: {
-      content: {
-        type: 'array',
-        isTupleLike: true,
-        items: [
-          [
-            'paragraph_with_no_marks',
-            'mediaSingle_caption',
-            'mediaSingle_full',
-            'codeBlock',
-            'decisionList',
-            'extension_with_marks',
-          ],
-          [
-            'paragraph_with_no_marks',
-            'bulletList',
-            'orderedList',
-            'taskList',
-            'mediaSingle_caption',
-            'mediaSingle_full',
-            'codeBlock',
-            'decisionList',
-            'extension_with_marks',
-          ],
-        ],
-        minItems: 1,
-        allowUnsupportedBlock: true,
-      },
-    },
-  },
-];
-
-export const media = {
+export const media: {
   props: {
-    type: { type: 'enum', values: ['media'] },
+    attrs: (
+      | {
+          props: {
+            alt: {
+              optional: boolean;
+              type: string;
+            };
+            collection: {
+              type: string;
+            };
+            height: {
+              optional: boolean;
+              type: string;
+            };
+            id: {
+              minLength: number;
+              type: string;
+            };
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            occurrenceKey: {
+              minLength: number;
+              optional: boolean;
+              type: string;
+            };
+            type: {
+              type: string;
+              values: string[];
+            };
+            url?: undefined;
+            width: {
+              optional: boolean;
+              type: string;
+            };
+          };
+        }
+      | {
+          props: {
+            alt: {
+              optional: boolean;
+              type: string;
+            };
+            collection?: undefined;
+            height: {
+              optional: boolean;
+              type: string;
+            };
+            id?: undefined;
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            occurrenceKey?: undefined;
+            type: {
+              type: string;
+              values: string[];
+            };
+            url: {
+              type: string;
+            };
+            width: {
+              optional: boolean;
+              type: string;
+            };
+          };
+        }
+    )[];
+    marks: {
+      items: string[][];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+  required: string[];
+} = {
+  props: {
     attrs: [
       {
         props: {
-          type: { type: 'enum', values: ['link', 'file'] },
-          localId: { type: 'string', optional: true },
-          id: { minLength: 1, type: 'string' },
-          alt: { type: 'string', optional: true },
-          collection: { type: 'string' },
-          height: { type: 'number', optional: true },
-          occurrenceKey: { minLength: 1, type: 'string', optional: true },
-          width: { type: 'number', optional: true },
+          alt: {
+            optional: true,
+            type: 'string',
+          },
+          collection: {
+            type: 'string',
+          },
+          height: {
+            optional: true,
+            type: 'number',
+          },
+          id: {
+            minLength: 1,
+            type: 'string',
+          },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+          occurrenceKey: {
+            minLength: 1,
+            optional: true,
+            type: 'string',
+          },
+          type: {
+            type: 'enum',
+            values: ['link', 'file'],
+          },
+          width: {
+            optional: true,
+            type: 'number',
+          },
         },
       },
       {
         props: {
-          type: { type: 'enum', values: ['external'] },
-          localId: { type: 'string', optional: true },
-          alt: { type: 'string', optional: true },
-          height: { type: 'number', optional: true },
-          width: { type: 'number', optional: true },
-          url: { type: 'string' },
+          alt: {
+            optional: true,
+            type: 'string',
+          },
+          height: {
+            optional: true,
+            type: 'number',
+          },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+          type: {
+            type: 'enum',
+            values: ['external'],
+          },
+          url: {
+            type: 'string',
+          },
+          width: {
+            optional: true,
+            type: 'number',
+          },
         },
       },
     ],
     marks: {
-      type: 'array',
+      items: [['dataConsumer', 'link', 'annotation', 'border']],
       optional: true,
-      items: [['link', 'annotation', 'border']],
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['media'],
     },
   },
   required: ['attrs'],
 };
 
-export const mediaGroup = {
+export const mediaGroup: {
   props: {
-    type: { type: 'enum', values: ['mediaGroup'] },
     content: {
-      type: 'array',
+      allowUnsupportedBlock: boolean;
+      items: string[];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    content: {
+      allowUnsupportedBlock: true,
       items: ['media'],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['mediaGroup'],
     },
   },
 };
 
-export const mediaInline = {
+export const mediaInline: {
   props: {
-    type: { type: 'enum', values: ['mediaInline'] },
     attrs: {
       props: {
+        alt: {
+          optional: boolean;
+          type: string;
+        };
+        collection: {
+          type: string;
+        };
+        data: {
+          optional: boolean;
+          type: string;
+        };
+        height: {
+          optional: boolean;
+          type: string;
+        };
+        id: {
+          minLength: number;
+          type: string;
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        occurrenceKey: {
+          minLength: number;
+          optional: boolean;
+          type: string;
+        };
         type: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        url: {
+          optional: boolean;
+          type: string;
+        };
+        width: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    marks: {
+      items: string[][];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        alt: {
+          optional: true,
+          type: 'string',
+        },
+        collection: {
+          type: 'string',
+        },
+        data: {
+          optional: true,
+          type: 'object',
+        },
+        height: {
+          optional: true,
+          type: 'number',
+        },
+        id: {
+          minLength: 1,
+          type: 'string',
+        },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        occurrenceKey: {
+          minLength: 1,
+          optional: true,
+          type: 'string',
+        },
+        type: {
+          optional: true,
           type: 'enum',
           values: ['link', 'file', 'image'],
-          optional: true,
         },
-        localId: { type: 'string', optional: true },
-        url: { type: 'string', optional: true },
-        id: { minLength: 1, type: 'string' },
-        alt: { type: 'string', optional: true },
-        collection: { type: 'string' },
-        occurrenceKey: { minLength: 1, type: 'string', optional: true },
-        width: { type: 'number', optional: true },
-        height: { type: 'number', optional: true },
-        data: { type: 'object', optional: true },
+        url: {
+          optional: true,
+          type: 'string',
+        },
+        width: {
+          optional: true,
+          type: 'number',
+        },
       },
     },
     marks: {
-      type: 'array',
+      items: [['dataConsumer', 'link', 'annotation', 'border']],
       optional: true,
-      items: [['link', 'annotation', 'border']],
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['mediaInline'],
     },
   },
 };
 
-export const mediaSingle = {
+export const mediaSingle: {
   props: {
-    type: { type: 'enum', values: ['mediaSingle'] },
+    attrs: (
+      | {
+          props: {
+            layout: {
+              type: string;
+              values: string[];
+            };
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            width: {
+              maximum: number;
+              minimum: number;
+              optional: boolean;
+              type: string;
+            };
+            widthType: {
+              optional: boolean;
+              type: string;
+              values: string[];
+            };
+          };
+        }
+      | {
+          props: {
+            layout: {
+              type: string;
+              values: string[];
+            };
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            width: {
+              maximum?: undefined;
+              minimum: number;
+              optional?: undefined;
+              type: string;
+            };
+            widthType: {
+              optional?: undefined;
+              type: string;
+              values: string[];
+            };
+          };
+        }
+    )[];
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
     attrs: [
       {
         props: {
-          localId: { type: 'string', optional: true },
-          width: { type: 'number', minimum: 0, maximum: 100, optional: true },
           layout: {
             type: 'enum',
             values: [
@@ -1001,14 +3199,25 @@ export const mediaSingle = {
               'align-start',
             ],
           },
-          widthType: { type: 'enum', values: ['percentage'], optional: true },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+          width: {
+            maximum: 100,
+            minimum: 0,
+            optional: true,
+            type: 'number',
+          },
+          widthType: {
+            optional: true,
+            type: 'enum',
+            values: ['percentage'],
+          },
         },
       },
       {
         props: {
-          localId: { type: 'string', optional: true },
-          width: { type: 'number', minimum: 0 },
-          widthType: { type: 'enum', values: ['pixel'] },
           layout: {
             type: 'enum',
             values: [
@@ -1020,121 +3229,379 @@ export const mediaSingle = {
               'align-end',
               'align-start',
             ],
+          },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+          width: {
+            minimum: 0,
+            type: 'number',
+          },
+          widthType: {
+            type: 'enum',
+            values: ['pixel'],
           },
         },
       },
     ],
-    marks: { type: 'array', optional: true, items: ['link'] },
+    marks: {
+      items: ['link'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['mediaSingle'],
+    },
   },
 };
 
-export const mediaSingle_caption = [
+export const mediaSingle_caption: (
+  | string
+  | {
+      props: {
+        content: {
+          allowUnsupportedBlock: boolean;
+          isTupleLike: boolean;
+          items: string[];
+          maxItems: number;
+          minItems: number;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'mediaSingle',
   {
     props: {
       content: {
-        type: 'array',
+        allowUnsupportedBlock: true,
         isTupleLike: true,
         items: ['media', 'caption'],
-        minItems: 1,
         maxItems: 2,
-        allowUnsupportedBlock: true,
+        minItems: 1,
+        type: 'array',
       },
     },
   },
 ];
 
-export const mediaSingle_full = [
+export const mediaSingle_full: (
+  | string
+  | {
+      props: {
+        content: {
+          allowUnsupportedBlock: boolean;
+          items: string[];
+          maxItems: number;
+          minItems: number;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'mediaSingle',
   {
     props: {
       content: {
-        type: 'array',
-        items: ['media'],
-        minItems: 1,
-        maxItems: 1,
         allowUnsupportedBlock: true,
+        items: ['media'],
+        maxItems: 1,
+        minItems: 1,
+        type: 'array',
       },
     },
   },
 ];
 
-export const mediaSingle_width_type = [
+export const mediaSingle_width_type: (
+  | string
+  | {
+      props: {
+        content: {
+          allowUnsupportedBlock: boolean;
+          items: string[];
+          maxItems: number;
+          minItems: number;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'mediaSingle',
   {
     props: {
       content: {
-        type: 'array',
-        items: ['media'],
-        minItems: 1,
-        maxItems: 1,
         allowUnsupportedBlock: true,
+        items: ['media'],
+        maxItems: 1,
+        minItems: 1,
+        type: 'array',
       },
     },
   },
 ];
 
-export const mention = {
+export const mention: {
   props: {
-    type: { type: 'enum', values: ['mention'] },
     attrs: {
       props: {
-        id: { type: 'string' },
-        localId: { type: 'string', optional: true },
-        text: { type: 'string', optional: true },
-        accessLevel: { type: 'string', optional: true },
+        accessLevel: {
+          optional: boolean;
+          type: string;
+        };
+        id: {
+          type: string;
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        text: {
+          optional: boolean;
+          type: string;
+        };
         userType: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        accessLevel: {
+          optional: true,
+          type: 'string',
+        },
+        id: {
+          type: 'string',
+        },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        text: {
+          optional: true,
+          type: 'string',
+        },
+        userType: {
+          optional: true,
           type: 'enum',
           values: ['DEFAULT', 'SPECIAL', 'APP'],
-          optional: true,
         },
       },
     },
-    marks: { type: 'array', optional: true, items: ['annotation'] },
+    marks: {
+      items: ['annotation'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['mention'],
+    },
   },
 };
 
-export const multiBodiedExtension = {
+export const multiBodiedExtension: {
+  meta: {
+    stage0: boolean;
+  };
   props: {
-    type: { type: 'enum', values: ['multiBodiedExtension'] },
     attrs: {
       props: {
-        extensionKey: { type: 'string', minLength: 1 },
-        extensionType: { type: 'string', minLength: 1 },
-        parameters: { type: 'object', optional: true },
-        text: { type: 'string', optional: true },
+        extensionKey: {
+          minLength: number;
+          type: string;
+        };
+        extensionType: {
+          minLength: number;
+          type: string;
+        };
         layout: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        localId: {
+          minLength: number;
+          optional: boolean;
+          type: string;
+        };
+        parameters: {
+          optional: boolean;
+          type: string;
+        };
+        text: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      items: string[];
+      type: string;
+    };
+    marks: {
+      items: unknown[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  meta: {
+    stage0: true,
+  },
+  props: {
+    attrs: {
+      props: {
+        extensionKey: {
+          minLength: 1,
+          type: 'string',
+        },
+        extensionType: {
+          minLength: 1,
+          type: 'string',
+        },
+        layout: {
+          optional: true,
           type: 'enum',
           values: ['default', 'wide', 'full-width'],
-          optional: true,
         },
-        localId: { type: 'string', optional: true, minLength: 1 },
+        localId: {
+          minLength: 1,
+          optional: true,
+          type: 'string',
+        },
+        parameters: {
+          optional: true,
+          type: 'object',
+        },
+        text: {
+          optional: true,
+          type: 'string',
+        },
       },
     },
-    content: { type: 'array', items: ['extensionFrame'] },
-    marks: { type: 'array', items: [], optional: true },
+    content: {
+      items: ['extensionFrame'],
+      type: 'array',
+    },
+    marks: {
+      items: [],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['multiBodiedExtension'],
+    },
   },
 };
 
-export const nestedExpand = {
+export const multiBodiedExtension_root_only: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'multiBodiedExtension',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const nestedExpand: {
   props: {
-    type: { type: 'enum', values: ['nestedExpand'] },
     attrs: {
       props: {
-        title: { type: 'string', optional: true },
-        localId: { type: 'string', optional: true },
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        title: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: string;
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+  required: string[];
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        title: {
+          optional: true,
+          type: 'string',
+        },
       },
     },
     content: 'nestedExpand_content',
+    type: {
+      type: 'enum',
+      values: ['nestedExpand'],
+    },
   },
   required: ['content'],
 };
 
-export const nestedExpand_content = {
-  type: 'array',
+export const nestedExpand_content: {
+  allowUnsupportedBlock: boolean;
+  items: string[][];
+  minItems: number;
+  type: string;
+} = {
+  allowUnsupportedBlock: true,
   items: [
     [
       'paragraph_with_no_marks',
+      'paragraph_with_font_size',
       'heading_with_no_marks',
       'mediaSingle_caption',
       'mediaSingle_full',
@@ -1145,29 +3612,54 @@ export const nestedExpand_content = {
       'taskList',
       'decisionList',
       'rule',
+      'rule_with_attrs',
+      'bodiedRule',
       'panel',
       'blockquote',
       'extension_with_marks',
+      'extension_with_annotation',
     ],
   ],
   minItems: 1,
-  allowUnsupportedBlock: true,
+  type: 'array',
 };
 
-export const nestedExpand_with_no_marks = [
+export const nestedExpand_with_no_marks: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: unknown[];
+          maxItems: number;
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'nestedExpand',
   {
-    props: { marks: { type: 'array', maxItems: 0, items: [], optional: true } },
+    props: {
+      marks: {
+        items: [],
+        maxItems: 0,
+        optional: true,
+        type: 'array',
+      },
+    },
   },
 ];
 
-export const non_nestable_block_content = [
+export const non_nestable_block_content: string[] = [
   'paragraph_with_no_marks',
+  'paragraph_with_font_size',
   'panel',
   'blockquote',
   'orderedList',
   'bulletList',
   'rule',
+  'rule_with_attrs',
+  'bodiedRule',
   'heading_with_no_marks',
   'codeBlock',
   'mediaGroup',
@@ -1181,29 +3673,125 @@ export const non_nestable_block_content = [
   'extension_with_marks',
 ];
 
-export const orderedList = {
+export const orderedList: {
   props: {
-    type: { type: 'enum', values: ['orderedList'] },
     attrs: {
+      optional: boolean;
       props: {
-        order: { type: 'number', minimum: 0, optional: true },
-        localId: { type: 'string', optional: true },
-      },
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        order: {
+          minimum: number;
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      items: string[];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
       optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        order: {
+          minimum: 0,
+          optional: true,
+          type: 'number',
+        },
+      },
     },
     content: {
-      type: 'array',
-      items: [['listItem', 'listItem_with_nested_decision']],
+      items: ['listItem'],
       minItems: 1,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['orderedList'],
     },
   },
 };
 
-export const panel = {
+export const panel: {
   props: {
-    type: { type: 'enum', values: ['panel'] },
     attrs: {
       props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        panelColor: {
+          optional: boolean;
+          type: string;
+        };
+        panelIcon: {
+          optional: boolean;
+          type: string;
+        };
+        panelIconId: {
+          optional: boolean;
+          type: string;
+        };
+        panelIconText: {
+          optional: boolean;
+          type: string;
+        };
+        panelType: {
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        panelColor: {
+          optional: true,
+          type: 'string',
+        },
+        panelIcon: {
+          optional: true,
+          type: 'string',
+        },
+        panelIconId: {
+          optional: true,
+          type: 'string',
+        },
+        panelIconText: {
+          optional: true,
+          type: 'string',
+        },
         panelType: {
           type: 'enum',
           values: [
@@ -1216,18 +3804,14 @@ export const panel = {
             'custom',
           ],
         },
-        panelIcon: { type: 'string', optional: true },
-        panelIconId: { type: 'string', optional: true },
-        panelIconText: { type: 'string', optional: true },
-        panelColor: { type: 'string', optional: true },
-        localId: { type: 'string', optional: true },
       },
     },
     content: {
-      type: 'array',
+      allowUnsupportedBlock: true,
       items: [
         [
           'paragraph_with_no_marks',
+          'paragraph_with_font_size',
           'heading_with_no_marks',
           'bulletList',
           'orderedList',
@@ -1238,125 +3822,812 @@ export const panel = {
           'codeBlock',
           'taskList',
           'rule',
+          'rule_with_attrs',
+          'bodiedRule',
           'decisionList',
           'extension_with_marks',
+          'extension_with_annotation',
         ],
       ],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['panel'],
     },
   },
 };
 
-export const paragraph = {
+export const panel_c1: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        content: {
+          allowUnsupportedBlock: boolean;
+          items: string[][];
+          minItems: number;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'panel',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      content: {
+        allowUnsupportedBlock: true,
+        items: [
+          [
+            'paragraph_with_no_marks',
+            'paragraph_with_font_size',
+            'heading_with_no_marks',
+            'bulletList',
+            'orderedList',
+            'blockCard',
+            'mediaGroup',
+            'mediaSingle_caption',
+            'mediaSingle_full',
+            'codeBlock',
+            'taskList',
+            'rule',
+            'rule_with_attrs',
+            'bodiedRule',
+            'decisionList',
+            'extension_with_marks',
+            'extension_with_annotation',
+            'table',
+          ],
+        ],
+        minItems: 1,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const panel_c1_root_only: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        content: {
+          allowUnsupportedBlock: boolean;
+          items: string[][];
+          minItems: number;
+          type: string;
+        };
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'panel',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      content: {
+        allowUnsupportedBlock: true,
+        items: [
+          [
+            'paragraph_with_no_marks',
+            'paragraph_with_font_size',
+            'heading_with_no_marks',
+            'bulletList',
+            'orderedList',
+            'blockCard',
+            'mediaGroup',
+            'mediaSingle_caption',
+            'mediaSingle_full',
+            'codeBlock',
+            'taskList',
+            'rule',
+            'rule_with_attrs',
+            'bodiedRule',
+            'decisionList',
+            'extension_with_marks',
+            'extension_with_annotation',
+            'table',
+          ],
+        ],
+        minItems: 1,
+        type: 'array',
+      },
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const panel_root_only: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'panel',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const paragraph: {
   props: {
-    type: { type: 'enum', values: ['paragraph'] },
     attrs: {
-      props: { localId: { type: 'string', optional: true } },
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedInline: boolean;
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    marks: {
+      items: unknown[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
       optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+      },
     },
     content: {
-      type: 'array',
+      allowUnsupportedInline: true,
       items: ['inline_content'],
       optional: true,
-      allowUnsupportedInline: true,
+      type: 'array',
     },
-    marks: { type: 'array', items: [], optional: true },
-  },
-};
-
-export const paragraph_with_alignment = [
-  'paragraph',
-  { props: { marks: { type: 'array', optional: true, items: ['alignment'] } } },
-];
-
-export const paragraph_with_indentation = [
-  'paragraph',
-  {
-    props: { marks: { type: 'array', optional: true, items: ['indentation'] } },
-  },
-];
-
-export const paragraph_with_no_marks = [
-  'paragraph',
-  {
-    props: { marks: { type: 'array', maxItems: 0, items: [], optional: true } },
-  },
-];
-
-export const placeholder = {
-  props: {
-    type: { type: 'enum', values: ['placeholder'] },
-    attrs: {
-      props: {
-        text: { type: 'string' },
-        localId: { type: 'string', optional: true },
-      },
-    },
-  },
-};
-
-export const rule = {
-  props: {
-    type: { type: 'enum', values: ['rule'] },
-    attrs: {
-      props: { localId: { type: 'string', optional: true } },
+    marks: {
+      items: [],
       optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['paragraph'],
     },
   },
 };
 
-export const status = {
-  props: {
-    type: { type: 'enum', values: ['status'] },
-    attrs: {
+export const paragraph_with_alignment: (
+  | string
+  | {
       props: {
-        text: { minLength: 1, type: 'string' },
-        color: {
-          type: 'enum',
-          values: ['neutral', 'purple', 'blue', 'red', 'yellow', 'green'],
-        },
-        localId: { type: 'string', optional: true },
-        style: { type: 'string', optional: true },
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'paragraph',
+  {
+    props: {
+      marks: {
+        items: [['fontSize', 'alignment']],
+        optional: true,
+        type: 'array',
       },
     },
-    marks: { type: 'array', optional: true, items: ['annotation'] },
   },
-};
+];
 
-export const strike = { props: { type: { type: 'enum', values: ['strike'] } } };
-
-export const strong = { props: { type: { type: 'enum', values: ['strong'] } } };
-
-export const subsup = {
-  props: {
-    type: { type: 'enum', values: ['subsup'] },
-    attrs: { props: { type: { type: 'enum', values: ['sub', 'sup'] } } },
-  },
-};
-
-export const syncBlock = {
-  props: {
-    type: { type: 'enum', values: ['syncBlock'] },
-    attrs: {
-      props: { resourceId: { type: 'string' }, localId: { type: 'string' } },
+export const paragraph_with_font_size: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'paragraph',
+  {
+    props: {
+      marks: {
+        items: ['fontSize'],
+        optional: true,
+        type: 'array',
+      },
     },
-    marks: { type: 'array', optional: true, items: ['breakout'] },
+  },
+];
+
+export const paragraph_with_indentation: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'paragraph',
+  {
+    props: {
+      marks: {
+        items: [['fontSize', 'indentation']],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const paragraph_with_no_marks: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: unknown[];
+          maxItems: number;
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'paragraph',
+  {
+    props: {
+      marks: {
+        items: [],
+        maxItems: 0,
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const placeholder: {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        text: {
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        text: {
+          type: 'string',
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['placeholder'],
+    },
   },
 };
 
-export const table = {
+export const rule: {
   props: {
-    type: { type: 'enum', values: ['table'] },
     attrs: {
+      optional: boolean;
+      props: {
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['rule'],
+    },
+  },
+};
+
+export const rule_root_only: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'rule',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const rule_with_attrs: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        attrs: {
+          optional: boolean;
+          props: {
+            color: {
+              optional: boolean;
+              pattern: string;
+              type: string;
+            };
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            style: {
+              optional: boolean;
+              type: string;
+              values: string[];
+            };
+            weight: {
+              maximum: number;
+              minimum: number;
+              optional: boolean;
+              type: string;
+            };
+          };
+        };
+      };
+    }
+)[] = [
+  'rule',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      attrs: {
+        optional: true,
+        props: {
+          color: {
+            optional: true,
+            pattern: '^#[0-9a-fA-F]{6}$',
+            type: 'string',
+          },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+          style: {
+            optional: true,
+            type: 'enum',
+            values: ['solid', 'dashed', 'dotted', 'sketch', 'fade'],
+          },
+          weight: {
+            maximum: 3,
+            minimum: 1,
+            optional: true,
+            type: 'number',
+          },
+        },
+      },
+    },
+  },
+];
+
+export const rule_with_attrs_root_only: (
+  | string
+  | {
+      meta: {
+        stage0: boolean;
+      };
+      props: {
+        attrs: {
+          optional: boolean;
+          props: {
+            color: {
+              optional: boolean;
+              pattern: string;
+              type: string;
+            };
+            localId: {
+              optional: boolean;
+              type: string;
+            };
+            style: {
+              optional: boolean;
+              type: string;
+              values: string[];
+            };
+            weight: {
+              maximum: number;
+              minimum: number;
+              optional: boolean;
+              type: string;
+            };
+          };
+        };
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'rule',
+  {
+    meta: {
+      stage0: true,
+    },
+    props: {
+      attrs: {
+        optional: true,
+        props: {
+          color: {
+            optional: true,
+            pattern: '^#[0-9a-fA-F]{6}$',
+            type: 'string',
+          },
+          localId: {
+            optional: true,
+            type: 'string',
+          },
+          style: {
+            optional: true,
+            type: 'enum',
+            values: ['solid', 'dashed', 'dotted', 'sketch', 'fade'],
+          },
+          weight: {
+            maximum: 3,
+            minimum: 1,
+            optional: true,
+            type: 'number',
+          },
+        },
+      },
+      marks: {
+        items: ['breakout'],
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const status: {
+  props: {
+    attrs: {
+      props: {
+        color: {
+          pattern: string;
+          type: string;
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        style: {
+          optional: boolean;
+          type: string;
+        };
+        text: {
+          minLength: number;
+          type: string;
+        };
+      };
+    };
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        color: {
+          pattern: '^(neutral|purple|blue|red|yellow|green|#[0-9a-fA-F]{6})$',
+          type: 'string',
+        },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        style: {
+          optional: true,
+          type: 'string',
+        },
+        text: {
+          minLength: 1,
+          type: 'string',
+        },
+      },
+    },
+    marks: {
+      items: ['annotation'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['status'],
+    },
+  },
+};
+
+export const strike: {
+  props: {
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    type: {
+      type: 'enum',
+      values: ['strike'],
+    },
+  },
+};
+
+export const strong: {
+  props: {
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    type: {
+      type: 'enum',
+      values: ['strong'],
+    },
+  },
+};
+
+export const subsup: {
+  props: {
+    attrs: {
+      props: {
+        type: {
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        type: {
+          type: 'enum',
+          values: ['sub', 'sup'],
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['subsup'],
+    },
+  },
+};
+
+export const syncBlock: {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: string;
+        };
+        resourceId: {
+          type: string;
+        };
+      };
+    };
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: 'string',
+        },
+        resourceId: {
+          type: 'string',
+        },
+      },
+    },
+    marks: {
+      items: ['breakout'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['syncBlock'],
+    },
+  },
+};
+
+export const table: {
+  props: {
+    attrs: {
+      optional: boolean;
       props: {
         displayMode: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        isNumberColumnEnabled: {
+          optional: boolean;
+          type: string;
+        };
+        layout: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+        localId: {
+          minLength: number;
+          optional: boolean;
+          type: string;
+        };
+        width: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      items: string[];
+      minItems: number;
+      type: string;
+    };
+    marks: {
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      optional: true,
+      props: {
+        displayMode: {
+          optional: true,
           type: 'enum',
           values: ['default', 'fixed'],
-          optional: true,
         },
-        isNumberColumnEnabled: { type: 'boolean', optional: true },
+        isNumberColumnEnabled: {
+          optional: true,
+          type: 'boolean',
+        },
         layout: {
+          optional: true,
           type: 'enum',
           values: [
             'wide',
@@ -1366,37 +4637,121 @@ export const table = {
             'align-start',
             'default',
           ],
-          optional: true,
         },
-        localId: { type: 'string', minLength: 1, optional: true },
-        width: { type: 'number', optional: true },
+        localId: {
+          minLength: 1,
+          optional: true,
+          type: 'string',
+        },
+        width: {
+          optional: true,
+          type: 'number',
+        },
       },
-      optional: true,
     },
-    content: { type: 'array', items: ['tableRow'], minItems: 1 },
-    marks: { type: 'array', optional: true, items: ['fragment'] },
+    content: {
+      items: ['tableRow'],
+      minItems: 1,
+      type: 'array',
+    },
+    marks: {
+      items: ['fragment'],
+      optional: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['table'],
+    },
   },
 };
 
-export const tableCell = {
+export const tableCell: {
   props: {
-    type: { type: 'enum', values: ['tableCell'] },
     attrs: {
+      optional: boolean;
       props: {
-        colspan: { type: 'number', optional: true },
-        rowspan: { type: 'number', optional: true },
+        background: {
+          optional: boolean;
+          type: string;
+        };
+        colspan: {
+          optional: boolean;
+          type: string;
+        };
         colwidth: {
-          type: 'array',
-          items: [{ type: 'number' }],
-          optional: true,
-        },
-        background: { type: 'string', optional: true },
-        localId: { type: 'string', optional: true },
-      },
+          items: {
+            type: string;
+          }[];
+          optional: boolean;
+          type: string;
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        rowspan: {
+          optional: boolean;
+          type: string;
+        };
+        valign: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+  required: string[];
+} = {
+  props: {
+    attrs: {
       optional: true,
+      props: {
+        background: {
+          optional: true,
+          type: 'string',
+        },
+        colspan: {
+          optional: true,
+          type: 'number',
+        },
+        colwidth: {
+          items: [
+            {
+              type: 'number',
+            },
+          ],
+          optional: true,
+          type: 'array',
+        },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        rowspan: {
+          optional: true,
+          type: 'number',
+        },
+        valign: {
+          optional: true,
+          type: 'enum',
+          values: ['top', 'middle', 'bottom'],
+        },
+      },
     },
     content: {
-      type: 'array',
+      allowUnsupportedBlock: true,
       items: [
         [
           'paragraph_with_no_marks',
@@ -1406,6 +4761,8 @@ export const tableCell = {
           'orderedList',
           'bulletList',
           'rule',
+          'rule_with_attrs',
+          'bodiedRule',
           'heading_with_no_marks',
           'heading_with_alignment',
           'heading_with_indentation',
@@ -1418,35 +4775,105 @@ export const tableCell = {
           'blockCard',
           'embedCard',
           'extension_with_marks',
+          'extension_with_annotation',
           'nestedExpand_with_no_marks',
         ],
       ],
       minItems: 1,
-      allowUnsupportedBlock: true,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['tableCell'],
     },
   },
   required: ['content'],
 };
 
-export const tableHeader = {
+export const tableHeader: {
   props: {
-    type: { type: 'enum', values: ['tableHeader'] },
     attrs: {
+      optional: boolean;
       props: {
-        colspan: { type: 'number', optional: true },
-        rowspan: { type: 'number', optional: true },
+        background: {
+          optional: boolean;
+          type: string;
+        };
+        colspan: {
+          optional: boolean;
+          type: string;
+        };
         colwidth: {
-          type: 'array',
-          items: [{ type: 'number' }],
-          optional: true,
-        },
-        background: { type: 'string', optional: true },
-        localId: { type: 'string', optional: true },
-      },
+          items: {
+            type: string;
+          }[];
+          optional: boolean;
+          type: string;
+        };
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+        rowspan: {
+          optional: boolean;
+          type: string;
+        };
+        valign: {
+          optional: boolean;
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    content: {
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+  required: string[];
+} = {
+  props: {
+    attrs: {
       optional: true,
+      props: {
+        background: {
+          optional: true,
+          type: 'string',
+        },
+        colspan: {
+          optional: true,
+          type: 'number',
+        },
+        colwidth: {
+          items: [
+            {
+              type: 'number',
+            },
+          ],
+          optional: true,
+          type: 'array',
+        },
+        localId: {
+          optional: true,
+          type: 'string',
+        },
+        rowspan: {
+          optional: true,
+          type: 'number',
+        },
+        valign: {
+          optional: true,
+          type: 'enum',
+          values: ['top', 'middle', 'bottom'],
+        },
+      },
     },
     content: {
-      type: 'array',
       items: [
         [
           'paragraph_with_no_marks',
@@ -1456,6 +4883,8 @@ export const tableHeader = {
           'orderedList',
           'bulletList',
           'rule',
+          'rule_with_attrs',
+          'bodiedRule',
           'heading_with_no_marks',
           'heading_with_alignment',
           'heading_with_indentation',
@@ -1468,90 +4897,230 @@ export const tableHeader = {
           'blockCard',
           'embedCard',
           'extension_with_marks',
+          'extension_with_annotation',
           'nestedExpand_with_no_marks',
           'nestedExpand',
         ],
       ],
       minItems: 1,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['tableHeader'],
     },
   },
   required: ['content'],
 };
 
-export const tableRow = {
+export const tableRow: {
   props: {
-    type: { type: 'enum', values: ['tableRow'] },
     attrs: {
-      props: { localId: { type: 'string', optional: true } },
-      optional: true,
-    },
-    content: { type: 'array', items: [['tableCell', 'tableHeader']] },
-  },
-};
-
-export const taskItem = {
-  props: {
-    type: { type: 'enum', values: ['taskItem'] },
-    attrs: {
+      optional: boolean;
       props: {
-        localId: { type: 'string' },
-        state: { type: 'enum', values: ['TODO', 'DONE'] },
+        localId: {
+          optional: boolean;
+          type: string;
+        };
+      };
+    };
+    content: {
+      items: string[][];
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      optional: true,
+      props: {
+        localId: {
+          optional: true,
+          type: 'string',
+        },
       },
     },
     content: {
+      items: [['tableCell', 'tableHeader']],
       type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['tableRow'],
+    },
+  },
+};
+
+export const taskItem: {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: string;
+        };
+        state: {
+          type: string;
+          values: string[];
+        };
+      };
+    };
+    content: {
+      allowUnsupportedInline: boolean;
+      items: string[];
+      optional: boolean;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: 'string',
+        },
+        state: {
+          type: 'enum',
+          values: ['TODO', 'DONE'],
+        },
+      },
+    },
+    content: {
+      allowUnsupportedInline: true,
       items: ['inline_content'],
       optional: true,
-      allowUnsupportedInline: true,
-    },
-  },
-};
-
-export const taskList = {
-  props: {
-    type: { type: 'enum', values: ['taskList'] },
-    attrs: { props: { localId: { type: 'string' } } },
-    content: {
       type: 'array',
-      isTupleLike: true,
-      items: [
-        ['taskItem', 'blockTaskItem'],
-        ['taskItem', 'taskList', 'blockTaskItem'],
-      ],
-      minItems: 1,
-      allowUnsupportedBlock: true,
+    },
+    type: {
+      type: 'enum',
+      values: ['taskItem'],
     },
   },
 };
 
-export const text = {
+export const taskList: {
   props: {
-    type: { type: 'enum', values: ['text'] },
-    text: { type: 'string', minLength: 1 },
-    marks: { type: 'array', items: [], optional: true },
+    attrs: {
+      props: {
+        localId: {
+          type: string;
+        };
+      };
+    };
+    content: {
+      allowUnsupportedBlock: boolean;
+      items: string[][];
+      minItems: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        localId: {
+          type: 'string',
+        },
+      },
+    },
+    content: {
+      allowUnsupportedBlock: true,
+      items: [['taskItem', 'taskList', 'blockTaskItem']],
+      minItems: 1,
+      type: 'array',
+    },
+    type: {
+      type: 'enum',
+      values: ['taskList'],
+    },
   },
 };
 
-export const text_code_inline = [
+export const text: {
+  props: {
+    marks: {
+      items: unknown[];
+      optional: boolean;
+      type: string;
+    };
+    text: {
+      minLength: number;
+      type: string;
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    marks: {
+      items: [],
+      optional: true,
+      type: 'array',
+    },
+    text: {
+      minLength: 1,
+      type: 'string',
+    },
+    type: {
+      type: 'enum',
+      values: ['text'],
+    },
+  },
+};
+
+export const text_code_inline: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'text',
   {
     props: {
       marks: {
-        type: 'array',
-        optional: true,
         items: [['code', 'link', 'annotation']],
+        optional: true,
+        type: 'array',
       },
     },
   },
 ];
 
-export const text_formatted = [
+export const text_formatted: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[][];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'text',
   {
     props: {
       marks: {
-        type: 'array',
-        optional: true,
         items: [
           [
             'link',
@@ -1563,35 +5132,109 @@ export const text_formatted = [
             'textColor',
             'annotation',
             'backgroundColor',
-            null,
           ],
         ],
+        optional: true,
+        type: 'array',
       },
     },
   },
 ];
 
-export const text_link_inline = [
-  'text',
-  { props: { marks: { type: 'array', optional: true, items: ['link'] } } },
-];
-
-export const text_with_no_marks = [
+export const text_link_inline: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: string[];
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
   'text',
   {
-    props: { marks: { type: 'array', maxItems: 0, items: [], optional: true } },
+    props: {
+      marks: {
+        items: ['link'],
+        optional: true,
+        type: 'array',
+      },
+    },
   },
 ];
 
-export const textColor = {
+export const text_with_no_marks: (
+  | string
+  | {
+      props: {
+        marks: {
+          items: unknown[];
+          maxItems: number;
+          optional: boolean;
+          type: string;
+        };
+      };
+    }
+)[] = [
+  'text',
+  {
+    props: {
+      marks: {
+        items: [],
+        maxItems: 0,
+        optional: true,
+        type: 'array',
+      },
+    },
+  },
+];
+
+export const textColor: {
   props: {
-    type: { type: 'enum', values: ['textColor'] },
     attrs: {
-      props: { color: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' } },
+      props: {
+        color: {
+          pattern: string;
+          type: string;
+        };
+      };
+    };
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    attrs: {
+      props: {
+        color: {
+          pattern: '^#[0-9a-fA-F]{6}$',
+          type: 'string',
+        },
+      },
+    },
+    type: {
+      type: 'enum',
+      values: ['textColor'],
     },
   },
 };
 
-export const underline = {
-  props: { type: { type: 'enum', values: ['underline'] } },
+export const underline: {
+  props: {
+    type: {
+      type: string;
+      values: string[];
+    };
+  };
+} = {
+  props: {
+    type: {
+      type: 'enum',
+      values: ['underline'],
+    },
+  },
 };

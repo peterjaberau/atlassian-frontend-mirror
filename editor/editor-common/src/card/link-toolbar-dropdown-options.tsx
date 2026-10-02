@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { Command, DropdownOptionT } from '../types';
-
-import { appearancePropsMap } from './link-toolbar-button-group-options';
+import { appearancePropsMap } from './appearancePropsMap';
 import type { OptionConfig } from './types';
 
 export const getDropdownOption = (

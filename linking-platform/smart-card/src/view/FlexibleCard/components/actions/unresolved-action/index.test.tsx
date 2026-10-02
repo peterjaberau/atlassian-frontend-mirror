@@ -1,12 +1,10 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, userEvent } from '@atlassian/testing-library';
 
 import { getFlexibleCardTestWrapper } from '../../../../../__tests__/__utils__/unit-testing-library-helpers';
 import { InternalActionName } from '../../../../../constants';
 import type { FlexibleUiDataContext } from '../../../../../state/flexible-ui-context/types';
-
 import UnresolvedAction from './index';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage

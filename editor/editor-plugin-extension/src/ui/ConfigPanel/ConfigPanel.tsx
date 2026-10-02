@@ -1,15 +1,19 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 
+import { bind, type UnbindFn } from 'bind-event-listener';
 import _isEqual from 'lodash/isEqual';
 import _mergeRecursive from 'lodash/merge';
 import memoizeOne from 'memoize-one';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import { withAnalyticsContext, withAnalyticsEvents } from '@atlaskit/analytics-next';
+import type { WithContextProps } from '@atlaskit/analytics-next/withAnalyticsContext';
+import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
+import { getDocument } from '@atlaskit/browser-apis';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -32,12 +36,11 @@ import {
 } from '@atlaskit/editor-common/hooks';
 import type { ContextIdentifierProvider } from '@atlaskit/editor-common/provider-factory';
 import type { ExtractInjectionAPI, FeatureFlags } from '@atlaskit/editor-common/types';
-import Form, { FormFooter } from '@atlaskit/form';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { ExtensionPlugin, RejectSave } from '../../extensionPluginType';
-
 import { ALLOWED_LOGGED_MACRO_PARAMS } from './constants';
 import { DescriptionSummary } from './DescriptionSummary';
 import ErrorMessage from './ErrorMessage';
@@ -204,6 +207,7 @@ type State = {
 // eslint-disable-next-line @repo/internal/react/no-class-components
 class ConfigPanel extends React.Component<Props, State> {
 	onFieldChange: OnFieldChange | null;
+	unbindKeyDownHandler: UnbindFn | null;
 
 	constructor(props: Props) {
 		super(props);
@@ -215,16 +219,26 @@ class ConfigPanel extends React.Component<Props, State> {
 		};
 
 		this.onFieldChange = null;
+		this.unbindKeyDownHandler = null;
 	}
 
 	componentDidMount() {
 		const { fields, parameters } = this.props;
 		this.parseParameters(fields, parameters);
+		const doc = getDocument();
+		if (doc) {
+			this.unbindKeyDownHandler = bind(doc, {
+				type: 'keydown',
+				listener: this.handleKeyDown,
+			});
+		}
 	}
 
 	componentWillUnmount() {
 		const { createAnalyticsEvent, extensionManifest, fields } = this.props;
 		const { currentParameters } = this.state;
+
+		this.unbindKeyDownHandler?.();
 
 		fireAnalyticsEvent(createAnalyticsEvent)({
 			payload: {
@@ -284,7 +298,7 @@ class ConfigPanel extends React.Component<Props, State> {
 		}
 	}
 
-	handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+	handleKeyDown = (e: KeyboardEvent | React.KeyboardEvent<HTMLFormElement>) => {
 		if ((e.key === 'Esc' || e.key === 'Escape') && this.props.closeOnEsc) {
 			this.props.onCancel();
 		}
@@ -372,11 +386,7 @@ class ConfigPanel extends React.Component<Props, State> {
 				fields,
 			);
 
-			if (editorExperiment('platform_editor_offline_editing_web', true, { exposure: true })) {
-				await onChange(serializedData);
-			} else {
-				onChange(serializedData);
-			}
+			await onChange(serializedData);
 		} catch (error) {
 			autoSaveReject?.(error);
 			// eslint-disable-next-line no-console
@@ -482,10 +492,9 @@ class ConfigPanel extends React.Component<Props, State> {
 
 		const { errorMessage, fields, isLoading, onCancel, api } = this.props;
 		const { currentParameters, hasParsedParameters, firstVisibleFieldName } = this.state;
-		const { handleSubmit, handleKeyDown } = this;
 
 		return (
-			<Form onSubmit={handleSubmit}>
+			<Form onSubmit={this.handleSubmit}>
 				{({ formProps, getState, submitting }) => {
 					return (
 						<WithOnFieldChange
@@ -496,24 +505,23 @@ class ConfigPanel extends React.Component<Props, State> {
 									values: Parameters;
 								}
 							}
-							handleSubmit={handleSubmit}
+							handleSubmit={this.handleSubmit}
 						>
 							{(onFieldChange) => {
 								this.onFieldChange = onFieldChange;
 								return (
-									// eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-interactions
 									<form
 										// Ignored via go/ees005
 										// eslint-disable-next-line react/jsx-props-no-spreading
 										{...formProps}
 										noValidate
-										onKeyDown={handleKeyDown}
 										data-testid="extension-config-panel"
 									>
 										{this.renderHeader(extensionManifest)}
-										{fg('platform_editor_ai_object_sidebar_injection') && (
-											<DescriptionSummary extensionManifest={extensionManifest} />
-										)}
+										{this.props.usingObjectSidebarPanel &&
+											fg('platform_editor_ai_object_sidebar_injection') && (
+												<DescriptionSummary extensionManifest={extensionManifest} />
+											)}
 										<ConfigFormIntlWithBoundary
 											api={api}
 											canSave={false}
@@ -614,6 +622,36 @@ function ConfigFormIntlWithBoundary({
 	);
 }
 
-const result = withAnalyticsContext({ source: 'ConfigPanel' })(withAnalyticsEvents()(ConfigPanel));
+const result: React.ForwardRefExoticComponent<
+	Omit<
+		Omit<
+			{
+				api: ExtractInjectionAPI<ExtensionPlugin> | undefined;
+				autoSaveReject?: RejectSave;
+				autoSaveTrigger?: () => void;
+				closeOnEsc?: boolean;
+				disableFields?: boolean;
+				errorMessage: string | null;
+				extensionManifest?: ExtensionManifest;
+				featureFlags?: FeatureFlags;
+				fields?: FieldDefinition[];
+				isLoading?: boolean;
+				onCancel: () => void | Promise<void>;
+				onChange: OnSaveCallback | OnSaveCallbackAsync;
+				parameters?: Parameters;
+				showHeader?: boolean;
+				// Remove below prop when cleaning platform_editor_ai_object_sidebar_injection FG
+				usingObjectSidebarPanel?: boolean;
+			},
+			keyof WithAnalyticsEventsProps
+		> &
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			React.RefAttributes<any> &
+			WithContextProps,
+		'ref'
+	> &
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		React.RefAttributes<any>
+> = withAnalyticsContext({ source: 'ConfigPanel' })(withAnalyticsEvents()(ConfigPanel));
 
 export default result;

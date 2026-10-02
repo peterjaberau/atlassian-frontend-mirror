@@ -1,29 +1,73 @@
 import React from 'react';
-import type { RichMediaLayout } from '@atlaskit/adf-schema';
-import { WidthContext } from '@atlaskit/editor-common/ui';
-import '@atlaskit/link-test-helpers/jest';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import type { RendererAppearance } from '@atlaskit/renderer';
-import { Pressable } from '@atlaskit/primitives/compiled';
 
-import { CardClient as Client, SmartCardProvider as Provider } from '@atlaskit/link-provider';
-import { Card } from '@atlaskit/smart-card';
 import { render } from '@testing-library/react';
 
+import type { Layout as RichMediaLayout } from '@atlaskit/adf-schema/rich-media-common';
+import '@atlaskit/link-test-helpers/jest';
+import { MediaSingle as UIMediaSingle, WidthContext } from '@atlaskit/editor-common/ui';
+import Client from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
+import { Pressable } from '@atlaskit/primitives/compiled';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import type { RendererAppearance } from '@atlaskit/renderer';
+import { Card } from '@atlaskit/smart-card';
+
 import EmbedCard from '../../../../react/nodes/embedCard';
+import { getCardClickHandler } from '../../../../react/utils/getCardClickHandler';
 
 jest.mock('@atlaskit/smart-card', () => {
 	const originalModule = jest.requireActual('@atlaskit/smart-card');
 	return {
 		...originalModule,
-		Card: jest.fn((props) => <originalModule.Card {...props} />),
+		Card: jest.fn(() => <div data-testid="smart-card" />),
 	};
 });
+
+jest.mock('@atlaskit/smart-card/ssr', () => ({
+	CardSSR: jest.fn(() => <div data-testid="smart-card-ssr" />),
+}));
+
+jest.mock('@atlaskit/tmp-editor-statsig/editor-experiment', () => ({
+	...jest.requireActual('@atlaskit/tmp-editor-statsig/editor-experiment'),
+	editorExperiment: () => false,
+}));
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Renderer - React/Nodes/EmbedCard', () => {
 	const url =
 		'https://pug.jira-dev.com/wiki/spaces/CE/blog/2017/08/18/3105751050/A+better+REST+API+for+Confluence+Cloud+via+Swagger';
+
+	it('should call consumer onClick with destinationUrl from Card when provided', () => {
+		const mockedOnClick = jest.fn();
+		const mockedEvent = { target: {} } as unknown as React.MouseEvent<HTMLElement>;
+
+		// Test getCardClickHandler directly — the Card mock calls onClick(e) without the
+		// second argument, so we test the closure in isolation to verify the destinationUrl
+		// extraction logic without the mock Card interfering.
+		const onCardClick = getCardClickHandler({ smartCard: { onClick: mockedOnClick } }, url);
+
+		// Card/CardSSR now calls onClick(e, { destinationUrl }) — simulate that
+		onCardClick!(mockedEvent, {
+			destinationUrl: 'https://resolved.com',
+			url: 'https://original.com',
+		});
+
+		// Consumer (e.g. Confluence router) receives the resolved url, not the ADF url
+		expect(mockedOnClick).toHaveBeenCalledWith(mockedEvent, 'https://resolved.com');
+	});
+
+	it('should fall back to ADF url when Card onClick fires with no destinationUrl', () => {
+		const mockedOnClick = jest.fn();
+		const mockedEvent = { target: {} } as unknown as React.MouseEvent<HTMLElement>;
+
+		const onCardClick = getCardClickHandler({ smartCard: { onClick: mockedOnClick } }, url);
+
+		// Card fires onClick with empty meta (no destinationUrl)
+		onCardClick!(mockedEvent, {});
+
+		// Falls back to the ADF node's url when destinationUrl is absent
+		expect(mockedOnClick).toHaveBeenCalledWith(mockedEvent, url);
+	});
 
 	it('should render Card with frameStyle if provided as SmartLinks prop', () => {
 		render(
@@ -31,12 +75,11 @@ describe('Renderer - React/Nodes/EmbedCard', () => {
 				<EmbedCard url={url} layout={'full-width'} smartLinks={{ frameStyle: 'hide' }} />
 			</Provider>,
 		);
-		expect(Card).toBeCalledWith(
+		expect((Card as unknown as jest.Mock).mock.lastCall?.[0]).toEqual(
 			expect.objectContaining({
 				frameStyle: 'hide',
 				appearance: 'embed',
 			}),
-			expect.anything(),
 		);
 	});
 
@@ -113,6 +156,114 @@ describe('Renderer - React/Nodes/EmbedCard', () => {
 		runScenarios(600, { 'full-width': '504px', wide: '600px' }, true);
 		runScenarios(200, { 'full-width': '104px', wide: '200px' }, true);
 
+		describe('height-only embed collapse repro (EDSD-2436)', () => {
+			const mediaWrapperSelector = '.mediaSingleView-content-wrap > div';
+			const originalHeight = 480;
+
+			// Live scenario: NCE Confluence embed provides an absolute height (data-card-original-height="480")
+			// but NO originalWidth. data-width is 100 (percentage). We reproduce across document widths.
+			// The height-only path never reaches the ratio fallback branch.
+			it('a height-only embed (no originalWidth) emits an explicit height spacer', () => {
+				const { baseElement } = render(
+					<Provider client={new Client('staging')}>
+						<WidthContext.Provider value={{ width: 680, breakpoint: 'S' }}>
+							<EmbedCard layout="center" url={url} originalHeight={originalHeight} />
+						</WidthContext.Provider>
+					</Provider>,
+				);
+
+				const wrapper = baseElement.querySelector(mediaWrapperSelector);
+				// Height-only mode must produce an explicit height (independent of parent width),
+				// otherwise the embed collapses to 0.
+				expect(wrapper).toHaveStyleDeclaration('height', `${originalHeight}px`, {
+					target: '::after',
+				});
+				// And it must NOT use a padding-bottom ratio (which collapses when width resolves to 0).
+				expect(wrapper).not.toHaveStyleDeclaration('padding-bottom', expect.anything(), {
+					target: '::after',
+				});
+			});
+
+			it.each([2000, 1000, 680, 200, 0])(
+				'height-only embed keeps an explicit height spacer at document width %d',
+				(documentWidth) => {
+					const { baseElement } = render(
+						<Provider client={new Client('staging')}>
+							<WidthContext.Provider value={{ width: documentWidth, breakpoint: 'S' }}>
+								<EmbedCard layout="center" url={url} originalHeight={originalHeight} />
+							</WidthContext.Provider>
+						</Provider>,
+					);
+
+					expect(baseElement.querySelector(mediaWrapperSelector)).toHaveStyleDeclaration(
+						'height',
+						`${originalHeight}px`,
+						{ target: '::after' },
+					);
+				},
+			);
+
+			// The live broken DOM showed data-width-type="percentage" (ratio path), so the embed
+			// had BOTH width and height. Reproduce that path and inspect the emitted padding-bottom.
+			it.each([2000, 1000, 680, 200, 0])(
+				'ratio-path embed (finite width+height) never emits NaN padding-bottom at document width %d',
+				(documentWidth) => {
+					const { baseElement } = render(
+						<Provider client={new Client('staging')}>
+							<WidthContext.Provider value={{ width: documentWidth, breakpoint: 'S' }}>
+								<EmbedCard
+									layout="center"
+									url={url}
+									originalHeight={originalHeight}
+									originalWidth={640}
+								/>
+							</WidthContext.Provider>
+						</Provider>,
+					);
+
+					const wrapper = baseElement.querySelector(mediaWrapperSelector);
+					// The ratio path must never emit a NaN padding-bottom (which collapses the box).
+					// calc(NaN% + 32px) would be the live-bug signature.
+					expect(wrapper).not.toHaveStyleDeclaration('padding-bottom', 'calc(NaN% + 32px)', {
+						target: '::after',
+					});
+					expect(wrapper).not.toHaveStyleDeclaration('padding-bottom', 'calc(NaN% + 32px)');
+				},
+			);
+
+			// Direct MediaSingle repro: ratio path with a zero/non-finite lineLength (editorWidth)
+			// is what collapses the box in the live bug. getMediaSinglePixelWidth(100, 0) -> 0,
+			// then (height/width)*0 -> 0, then (0/0)*100 -> NaN -> calc(NaN% + 32px).
+			const msSelector = '.mediaSingleView-content-wrap > div';
+
+			it.each([0, undefined, NaN])(
+				'MediaSingle ratio path with lineLength=%p falls back to explicit height (fix)',
+				(lineLength) => {
+					const { baseElement } = render(
+						<UIMediaSingle
+							layout="center"
+							width={640}
+							height={480}
+							pctWidth={100}
+							nodeType="embedCard"
+							lineLength={lineLength as unknown as number}
+							hasFallbackContainer
+						>
+							<div />
+						</UIMediaSingle>,
+					);
+
+					const wrapper = baseElement.querySelector(msSelector);
+					// Fix: falls back to the absolute height (+32px embed header, matching the ratio
+					// path's `calc(... + 32px)`), no NaN padding-bottom.
+					expect(wrapper).toHaveStyleDeclaration('height', '512px', { target: '::after' });
+					expect(wrapper).not.toHaveStyleDeclaration('padding-bottom', 'calc(NaN% + 32px)', {
+						target: '::after',
+					});
+				},
+			);
+		});
+
 		describe('with ssr', () => {
 			const mountEmbedCardSSR = (rendererAppearance: RendererAppearance = 'full-width') =>
 				mountEmbedCard(0, {
@@ -163,7 +314,10 @@ describe('Renderer - React/Nodes/EmbedCard', () => {
 					const { baseElement } = mountEmbedCardSSR();
 					const mediaSingleElement = baseElement.querySelector(mediaSingleSelector);
 					expect(mediaSingleElement).toHaveAttribute('data-width-type', 'percentage');
-					expect(mediaSingleElement).toHaveStyleDeclaration('max-width', '100%');
+					expect(mediaSingleElement).toHaveStyleDeclaration(
+						'max-width',
+						'var(--ak-editor-max-container-width)',
+					);
 				});
 			});
 		});
@@ -194,12 +348,11 @@ describe('Renderer - React/Nodes/EmbedCard - CompetitorPrompt', () => {
 			</Provider>,
 		);
 
-		expect(Card).toHaveBeenCalledWith(
+		expect((Card as unknown as jest.Mock).mock.lastCall?.[0]).toEqual(
 			expect.objectContaining({
 				CompetitorPrompt: MockCompetitorPrompt,
 				url: 'test.com',
 			}),
-			expect.anything(),
 		);
 	});
 });

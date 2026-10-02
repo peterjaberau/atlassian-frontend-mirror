@@ -1,19 +1,22 @@
 import React from 'react';
+
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { type EmojiProvider } from '@atlaskit/emoji';
 import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
+import { mockExpDisabled } from '@atlassian/experiment-test-utils/mock-exp-disabled';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
+
+import { getReactionSummary } from '../MockReactionsClient';
+import { DefaultReactions } from '../shared/constants';
+import { type ReactionSummary } from '../types';
+import { RENDER_COUNTER_TESTID } from './Counter';
 import {
 	ReactionSummaryButton,
 	RENDER_SUMMARY_BUTTON_TESTID,
 	RENDER_SUMMARY_EMOJI_TESTID,
 } from './ReactionSummaryButton';
-import { DefaultReactions } from '../shared/constants';
-import { getReactionSummary } from '../MockReactionsClient';
-import { messages } from '../shared/i18n';
-import { type ReactionSummary } from '../types';
-import { RENDER_COUNTER_TESTID } from './Counter';
 
 jest.mock('./ReactionParticleEffect', () => {
 	return {
@@ -155,7 +158,7 @@ describe('ReactionSummaryButton', () => {
 	it('should have an accessible label', () => {
 		renderComponent();
 		const button = screen.getByRole('button');
-		expect(button).toHaveAccessibleName(messages.summary.defaultMessage);
+		expect(button).toHaveAccessibleName(/View all user reactions, \d+ reactions?/);
 	});
 
 	it('should accurately count reactions without being affected by non number values', async () => {
@@ -218,5 +221,28 @@ describe('ReactionSummaryButton', () => {
 		renderComponent();
 		await screen.findByTestId(RENDER_SUMMARY_BUTTON_TESTID);
 		expect(screen.queryByText('ReactionParticleEffect')).not.toBeInTheDocument();
+	});
+
+	describe('aria-expanded (a11y-fixes-week4-may-2026 experiment)', () => {
+		it('should NOT set aria-expanded on summary button when experiment is disabled', () => {
+			mockExpDisabled('a11y-fixes-week4-may-2026');
+			renderComponent({ isOpen: true });
+			const button = screen.getByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			expect(button).not.toHaveAttribute('aria-expanded');
+		});
+
+		it('should set aria-expanded="false" on summary button when experiment is enabled and popup is closed', () => {
+			mockExpEnabled('a11y-fixes-week4-may-2026');
+			renderComponent({ isOpen: false });
+			const button = screen.getByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			expect(button).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('should set aria-expanded="true" on summary button when experiment is enabled and popup is open', () => {
+			mockExpEnabled('a11y-fixes-week4-may-2026');
+			renderComponent({ isOpen: true });
+			const button = screen.getByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			expect(button).toHaveAttribute('aria-expanded', 'true');
+		});
 	});
 });

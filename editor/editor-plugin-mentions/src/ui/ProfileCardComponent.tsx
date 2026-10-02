@@ -2,22 +2,62 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { bind } from 'bind-event-listener';
+import Loadable from 'react-loadable';
+// oxlint-disable-next-line @atlassian/no-restricted-imports
+import { lazyForPaint, LazySuspense } from 'react-loosely-lazy';
 
-import type { MentionAttributes } from '@atlaskit/adf-schema';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import type { MentionAttributes } from '@atlaskit/adf-schema/mention';
 import { cssMap, jsx } from '@atlaskit/css';
 import type { ProfilecardProvider } from '@atlaskit/editor-common/provider-factory';
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import type { Placement } from '@atlaskit/popper/main';
+import type { AgentProfileCardResourcedProps } from '@atlaskit/profilecard/agent-profile-card-resourced';
+import { ProfileCardLazy } from '@atlaskit/profilecard/lazy-profile-card';
 import type {
 	ProfileCardClientData,
 	TeamCentralReportingLinesData,
 } from '@atlaskit/profilecard/types';
-import { ProfileCardLazy } from '@atlaskit/profilecard/user';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
 import { token } from '@atlaskit/tokens';
 
 import { Popup } from './PopperWrapper';
+
+// eslint-disable-next-line require-unicode-regexp
+const LEADING_AT_SIGN_RE = /^@/;
+
+const loadAgentProfileCardResourced = () =>
+	import(
+		/* webpackChunkName: "@atlaskit-internal_editor-plugin-mentions-agent-profile-card-resourced" */
+		'@atlaskit/profilecard/agent-profile-card-resourced'
+	).then(({ AgentProfileCardResourced }) => AgentProfileCardResourced);
+
+const AgentProfileCardResourcedLazy = lazyForPaint(() =>
+	import(
+		/* webpackChunkName: "@atlaskit-internal_editor-plugin-mentions-agent-profile-card-resourced" */
+		'@atlaskit/profilecard/agent-profile-card-resourced'
+	).then(({ AgentProfileCardResourced }) => AgentProfileCardResourced),
+);
+const AgentProfileCardResourcedLoadable = Loadable<AgentProfileCardResourcedProps, never>({
+	loader: loadAgentProfileCardResourced,
+	loading: () => null,
+});
+
+const AgentProfileCardResourced = (props: AgentProfileCardResourcedProps) =>
+	isExperimentEnabled('platform_editor_loosely_lazy_migration') ? (
+		<LazySuspense fallback={null}>
+			{/* eslint-disable-next-line react/jsx-props-no-spreading -- forward the loader props to the profile card */}
+			<AgentProfileCardResourcedLazy {...props} />
+		</LazySuspense>
+	) : (
+		// eslint-disable-next-line react/jsx-props-no-spreading -- forward the loader props to the profile card
+		<AgentProfileCardResourcedLoadable {...props} />
+	);
 
 const styles = cssMap({
 	loadingStyles: {
@@ -35,7 +75,20 @@ type WrapperProps = { children: React.ReactNode; isLoading: boolean };
 const LoadingWrapper = ({ children, isLoading }: WrapperProps) =>
 	isLoading ? <div css={styles.loadingStyles}>{children}</div> : children;
 
-export const useProfileCardState = ({ id, provider }: ProfileCardStateProps) => {
+export const isAgentMentionType = (userType: unknown): boolean =>
+	userType === 'APP' || userType === 'AGENT';
+
+export const useProfileCardState = ({
+	id,
+	provider,
+}: ProfileCardStateProps): {
+	data: ProfileCardClientData | undefined;
+	hasError: boolean;
+	isLoading: boolean;
+	reportingLinesData: TeamCentralReportingLinesData | undefined;
+	shouldShowGiveKudos: boolean;
+	teamCentralBaseUrl: string | undefined;
+} => {
 	const [data, setData] = useState<ProfileCardClientData | undefined>();
 	const [reportingLinesData, setReportingLinesData] = useState<
 		TeamCentralReportingLinesData | undefined
@@ -68,7 +121,7 @@ export const useProfileCardState = ({ id, provider }: ProfileCardStateProps) => 
 				setShouldShowGiveKudos(shouldGiveKudos ?? false);
 				setTeamCentralBaseUrl(teamCentralBaseUrl);
 				setHasError(false);
-			} catch (e) {
+			} catch {
 				setHasError(true);
 			} finally {
 				setIsLoading(false);
@@ -86,17 +139,30 @@ export const useProfileCardState = ({ id, provider }: ProfileCardStateProps) => 
 	};
 };
 
+/**
+ * Renders the profile card popup for an editor mention node.
+ */
 export function ProfileCardComponent({
 	profilecardProvider,
 	activeMention,
 	dom,
 	closeComponent,
+	onAgentMentionChatClick,
+	placement,
+	offset,
+	disableFocusTrap,
+	hideActions,
 }: {
-	activeMention: PMNode;
+	activeMention: { attrs: MentionAttributes };
 	closeComponent: () => void;
+	disableFocusTrap?: boolean;
 	dom: HTMLElement;
+	hideActions?: boolean;
+	offset?: [number, number];
+	onAgentMentionChatClick?: (agentId: string, agentMentionContext?: DocNode) => void;
+	placement?: Placement;
 	profilecardProvider?: Promise<ProfilecardProvider> | undefined;
-}) {
+}): JSX.Element {
 	const [provider, setProvider] = useState<ProfilecardProvider | undefined>(undefined);
 	useEffect(() => {
 		profilecardProvider?.then((p) => {
@@ -104,15 +170,7 @@ export function ProfileCardComponent({
 		});
 	}, [profilecardProvider]);
 
-	const { id, text, accessLevel } = (activeMention.attrs as MentionAttributes) ?? {};
-
-	const actions = useMemo(
-		() => provider?.getActions(id, text ?? '', accessLevel),
-		[accessLevel, id, provider, text],
-	);
-
-	const { data, reportingLinesData, shouldShowGiveKudos, teamCentralBaseUrl, isLoading, hasError } =
-		useProfileCardState({ id, provider });
+	const { id, text, accessLevel, userType } = (activeMention.attrs as MentionAttributes) ?? {};
 
 	useEffect(() => {
 		return bind(window, {
@@ -125,33 +183,173 @@ export function ProfileCardComponent({
 		});
 	});
 
-	return (
-		<Popup referenceElement={dom}>
-			<LoadingWrapper isLoading={isLoading}>
-				<ProfileCardLazy
-					avatarUrl={data?.avatarUrl}
-					accountType={data?.accountType}
-					status={data?.status}
-					statusModifiedDate={data?.statusModifiedDate}
-					timestring={data?.timestring}
-					isCurrentUser={data?.isCurrentUser}
-					isBot={data?.isBot}
-					fullName={data?.fullName}
-					userId={id}
-					cloudId={provider?.cloudId}
-					actions={actions}
-					isLoading={isLoading}
-					location={data?.location}
-					companyName={data?.companyName}
-					customLozenges={data?.customLozenges}
-					nickname={data?.nickname}
-					email={data?.email}
-					hasError={hasError}
-					reportingLines={reportingLinesData}
-					isKudosEnabled={shouldShowGiveKudos}
-					teamCentralBaseUrl={teamCentralBaseUrl}
+	if (
+		!expVal('platform_editor_agent_mentions', 'isEnabled', false) &&
+		!fg('platform_editor_agent_card_fixes')
+	) {
+		return (
+			<Popup
+				referenceElement={dom}
+				placement={placement}
+				offset={offset}
+				disableFocusTrap={disableFocusTrap}
+			>
+				<UserProfileCardContent
+					accessLevel={accessLevel}
+					id={id}
+					provider={provider}
+					text={text}
+					hideActions={hideActions}
 				/>
-			</LoadingWrapper>
+			</Popup>
+		);
+	}
+
+	const isAgentMention = isAgentMentionType(userType);
+
+	return (
+		<Popup
+			referenceElement={dom}
+			placement={placement}
+			offset={offset}
+			disableFocusTrap={disableFocusTrap}
+		>
+			{isAgentMention && provider && id ? (
+				<AgentProfileCardContent
+					accountId={id}
+					provider={provider}
+					hideActions={hideActions}
+					text={
+						expVal('platform_editor_reduced_agent_profile_cards', 'isEnabled', false)
+							? text
+							: undefined
+					}
+					onChatClick={
+						onAgentMentionChatClick && fg('platform_editor_agent_mentions_drop_one_fixes')
+							? (event: React.MouseEvent, agentStudioId?: string) => {
+									// agentMentionContext is already captured in the onAgentMentionChatClick
+									// closure built by profileCardRenderer at chip-click time via doc.descendants()
+									onAgentMentionChatClick(agentStudioId ?? id);
+									// Dismiss the profile card once the Rovo chat panel opens (EDITOR-8257).
+									closeComponent();
+								}
+							: undefined
+					}
+				/>
+			) : (
+				<UserProfileCardContent
+					accessLevel={accessLevel}
+					id={id}
+					provider={provider}
+					text={text}
+					hideActions={hideActions}
+				/>
+			)}
 		</Popup>
 	);
 }
+
+const UserProfileCardContent = ({
+	accessLevel,
+	id,
+	provider,
+	text,
+	hideActions,
+}: {
+	accessLevel: MentionAttributes['accessLevel'];
+	hideActions?: boolean;
+	id: MentionAttributes['id'];
+	provider: ProfilecardProvider | undefined;
+	text: MentionAttributes['text'];
+}): JSX.Element => {
+	const actions = useMemo(
+		() => (hideActions ? [] : provider?.getActions(id, text ?? '', accessLevel)),
+		[hideActions, accessLevel, id, provider, text],
+	);
+
+	const { data, reportingLinesData, shouldShowGiveKudos, teamCentralBaseUrl, isLoading, hasError } =
+		useProfileCardState({ id, provider });
+
+	return (
+		<LoadingWrapper isLoading={isLoading}>
+			<ProfileCardLazy
+				avatarUrl={data?.avatarUrl}
+				accountType={data?.accountType}
+				status={data?.status}
+				statusModifiedDate={data?.statusModifiedDate}
+				timestring={data?.timestring}
+				isCurrentUser={data?.isCurrentUser}
+				isBot={data?.isBot}
+				fullName={data?.fullName}
+				userId={id}
+				cloudId={provider?.cloudId}
+				actions={actions}
+				isLoading={isLoading}
+				location={data?.location}
+				companyName={data?.companyName}
+				customLozenges={data?.customLozenges}
+				nickname={data?.nickname}
+				email={data?.email}
+				hasError={hasError}
+				reportingLines={reportingLinesData}
+				isKudosEnabled={shouldShowGiveKudos}
+				teamCentralBaseUrl={teamCentralBaseUrl}
+				isRenderedInPortal={expValEquals(
+					'editor_a11y_7152_profile_card_tab_order',
+					'isEnabled',
+					true,
+				)}
+			/>
+		</LoadingWrapper>
+	);
+};
+
+const AgentProfileCardContent = ({
+	accountId,
+	provider,
+	text,
+	onChatClick,
+	hideActions,
+}: {
+	accountId: MentionAttributes['id'];
+	hideActions?: boolean;
+	onChatClick?: (event: React.MouseEvent, agentStudioId?: string) => void;
+	provider: ProfilecardProvider;
+	text?: MentionAttributes['text'];
+}): React.ReactNode => {
+	const agentName = (text ?? '').replace(LEADING_AT_SIGN_RE, '');
+	if (provider.renderAgentMentionCard) {
+		return provider.renderAgentMentionCard({
+			accountId,
+			cloudId: provider.cloudId,
+			isReadOnly: hideActions,
+			onChatClick,
+		});
+	}
+	return expVal('platform_editor_reduced_agent_profile_cards', 'isEnabled', false) ? (
+		<AgentProfileCardResourced
+			accountId={accountId}
+			cloudId={provider.cloudId}
+			resourceClient={provider.resourceClient}
+			agentName={agentName}
+			onChatClick={onChatClick}
+			hideAgentActions={hideActions}
+			hideConversationStarters={hideActions}
+			hideStarButton={hideActions}
+			hideAiDisclaimer={hideActions}
+			showCreatorNameWithoutLink={hideActions}
+		/>
+	) : (
+		<AgentProfileCardResourced
+			accountId={accountId}
+			cloudId={provider.cloudId}
+			resourceClient={provider.resourceClient}
+			onChatClick={onChatClick}
+			hideAgentActions={hideActions}
+			hideConversationStarters={hideActions}
+			hideStarButton={hideActions}
+			hideAiDisclaimer={hideActions}
+			showCreatorNameWithoutLink={hideActions}
+		/>
+	);
+};

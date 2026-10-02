@@ -1,0 +1,35 @@
+{
+	"extends": "../../../../tsconfig.local-consumption.json",
+	"compilerOptions": {
+		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-autocomplete/app",
+		"rootDir": "../",
+		"composite": true,
+		"noCheck": true,
+		"resolveJsonModule": true
+	},
+	"include": [
+		"../src/**/*.ts",
+		"../src/**/*.tsx"
+	],
+	"exclude": [
+		"../src/**/__tests__/*",
+		"../src/**/*.test.*",
+		"../src/**/test.*",
+		"../src/**/mocks/*",
+		"../src/**/examples.*"
+	],
+	"references": [
+		{
+			"path": "../../editor-prosemirror/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../data/ufo-external/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-common/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-analytics/afm-products/tsconfig.json"
+		}
+	]
+}

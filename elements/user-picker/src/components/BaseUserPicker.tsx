@@ -1,23 +1,32 @@
-import { withAnalyticsEvents, type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import { type UFOExperience, UFOExperienceState } from '@atlaskit/ufo';
-import debounce from 'lodash/debounce';
 import React from 'react';
-import { FormattedMessage } from 'react-intl-next';
+import type { AriaAttributes } from 'react';
+
+import debounce from 'lodash/debounce';
+import { FormattedMessage } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 import { v4 as uuidv4 } from 'uuid';
+
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import type { PopupSelectProps } from '@atlaskit/select/popup-select';
+import type { SelectComponentsConfig, StylesConfig } from '@atlaskit/select/types';
+import type { UFOExperience } from '@atlaskit/ufo/experience';
+import { UFOExperienceState } from '@atlaskit/ufo/experience-state';
+
 import {
-	cancelEvent,
-	clearEvent,
 	createAndFireEventInElementsChannel,
-	deleteEvent,
 	type EventCreator,
-	failedEvent,
-	focusEvent,
-	searchedEvent,
-	selectEvent,
-	startSession,
 	type UserPickerSession,
 } from '../analytics';
+import { cancelEvent } from '../cancelEvent';
+import { clearEvent } from '../clearEvent';
+import { deleteEvent } from '../deleteEvent';
+import { failedEvent } from '../failedEvent';
+import { focusEvent } from '../focusEvent';
+import { searchedEvent } from '../searchedEvent';
+import { selectEvent } from '../selectEvent';
+import { startSession } from '../startSession';
 import type {
 	Appearance,
 	AtlasKitSelectChange,
@@ -35,26 +44,20 @@ import type {
 	UserPickerProps,
 	UserPickerRef,
 	UserPickerState,
-    Value,
+	Value,
 } from '../types';
-import { batchByKey } from './batch';
-import { messages } from './i18n';
-import {
-	callCallback,
-	extractOptionValue,
-	getOptions,
-	isIterable,
-	isPopupUserPickerByComponent,
-	isDefaultValuePopulated,
-	isSingleValue,
-	optionToSelectableOptions,
-} from './utils';
 import { groupOptionsByType } from '../util/group-options-by-type';
 import { userPickerOptionsShownUfoExperience } from '../util/ufoExperiences';
-import type { AriaAttributes } from 'react';
-import { fg } from '@atlaskit/platform-feature-flags';
-import type { SelectComponentsConfig, PopupSelectProps, StylesConfig } from '@atlaskit/select';
+import { batchByKey } from './batch';
+import { callCallback } from './callCallback';
 import type { EmailValidator } from './emailValidation';
+import { extractOptionValue } from './extractOptionValue';
+import { messages } from './i18n';
+import { isDefaultValuePopulated } from './isDefaultValuePopulated';
+import { isIterable } from './isIterable';
+import { isPopupUserPickerByComponent } from './isPopupUserPickerByComponent';
+import { isSingleValue } from './isSingleValue';
+import { getOptions, optionToSelectableOptions } from './utils';
 
 export type BaseUserPickerProps = UserPickerProps & {
 	components: any;
@@ -91,7 +94,10 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 		openMenuOnClick: false,
 	};
 
-	static getDerivedStateFromProps(nextProps: Partial<UserPickerProps>, prevState: UserPickerState): Partial<UserPickerState> {
+	static getDerivedStateFromProps(
+		nextProps: Partial<UserPickerProps>,
+		prevState: UserPickerState,
+	): Partial<UserPickerState> {
 		const derivedState: Partial<UserPickerState> = {};
 		if (nextProps.isDisabled || nextProps.disableInput) {
 			derivedState.menuIsOpen = false;
@@ -317,10 +323,6 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 		this.optionsShownUfoExperienceInstance.start();
 	};
 
-	private get isCreateTeamA11yEnabled() {
-		return fg('a11y-create-team-is-not-focusable-and-has-no-btn');
-	}
-
 	private executeLoadOptions = (search?: string) => {
 		const { loadOptions } = this.props;
 		if (loadOptions) {
@@ -335,7 +337,8 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 		}
 		this.startOptionsShownUfoExperience();
 		callCallback(this.props.onFocus, this.getSessionId());
-		if (!this.isMenuOpenOnClickForSingleSelect) {
+		const openMenuOnFocus = this.props.openMenuOnFocus ?? true;
+		if (!this.isMenuOpenOnClickForSingleSelect && openMenuOnFocus) {
 			this.setState({ menuIsOpen: true });
 			if (!this.props.isMulti && isSingleValue(value)) {
 				const input = event.target;
@@ -364,7 +367,7 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 	};
 
 	private handleBlur = () => {
-		if (this.isCreateTeamA11yEnabled && this.props.isFooterFocused) {
+		if (this.props.isFooterFocused || this.props.isHeaderFocused) {
 			return;
 		}
 		callCallback(this.props.onBlur, this.getSessionId());
@@ -382,7 +385,7 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 	};
 
 	private handleClose = () => {
-		if (this.isCreateTeamA11yEnabled && this.props.isFooterFocused) {
+		if (this.props.isFooterFocused || this.props.isHeaderFocused) {
 			return;
 		}
 
@@ -432,12 +435,11 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 	componentDidUpdate(prevProps: UserPickerProps, prevState: UserPickerState): void {
 		const { menuIsOpen, options, resolving, count, inputValue } = this.state;
 
-		// Close menu when isFooterFocused changes from true to false
+		// Close menu when isFooterFocused or isHeaderFocused changes from true to false
 		if (
-			this.isCreateTeamA11yEnabled &&
 			menuIsOpen &&
-			prevProps.isFooterFocused === true &&
-			this.props.isFooterFocused === false &&
+			((prevProps.isFooterFocused === true && this.props.isFooterFocused === false) ||
+				(prevProps.isHeaderFocused === true && this.props.isHeaderFocused === false)) &&
 			!this.shouldKeepMenuOpen()
 		) {
 			this.resetInputState();
@@ -517,18 +519,21 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 		}
 		this.props.onKeyDown && this.props.onKeyDown(event);
 
-		if (this.isCreateTeamA11yEnabled) {
-			if (event.key === 'Escape') {
-				this.setState({
-					menuIsOpen: false,
-					options: [],
-				});
-				this.props.setIsFooterFocused && this.props.setIsFooterFocused(false);
-			}
+		if (event.key === 'Escape') {
+			this.setState({
+				menuIsOpen: false,
+				options: [],
+			});
+			this.props.setIsFooterFocused && this.props.setIsFooterFocused(false);
+			this.props.setIsHeaderFocused && this.props.setIsHeaderFocused(false);
+		}
 
-			if (event.key === 'Tab' && this.props.setIsFooterFocused && this.props.footer) {
-				this.props.setIsFooterFocused(true);
-			}
+		if (event.key === 'Tab' && this.props.setIsFooterFocused && this.props.footer) {
+			this.props.setIsFooterFocused(true);
+		}
+
+		if (event.key === 'Tab' && this.props.setIsHeaderFocused && this.props.header) {
+			this.props.setIsHeaderFocused(true);
 		}
 	};
 
@@ -538,7 +543,7 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 
 	private getOptions = (): Option[] | GroupedOptions[] => {
 		const options = getOptions(this.state.options) || [];
-		const { maxOptions, isMulti, groupByTypeOrder } = this.props;
+		const { maxOptions, isMulti, groupByTypeOrder, customGroupLabels } = this.props;
 		if (maxOptions === 0) {
 			return [];
 		}
@@ -551,11 +556,17 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 				filteredOptions = options.filter((option) => valueIds.indexOf(option.data.id) === -1);
 			}
 			return groupByTypeOrder
-				? groupOptionsByType(filteredOptions.slice(0, maxOptions), groupByTypeOrder)
+				? groupOptionsByType(
+						filteredOptions.slice(0, maxOptions),
+						groupByTypeOrder,
+						customGroupLabels,
+					)
 				: filteredOptions.slice(0, maxOptions);
 		}
 
-		return groupByTypeOrder ? groupOptionsByType(options, groupByTypeOrder) : options;
+		return groupByTypeOrder
+			? groupOptionsByType(options, groupByTypeOrder, customGroupLabels)
+			: options;
 	};
 
 	private getAppearance = (): Appearance =>
@@ -590,7 +601,8 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 	};
 
 	private shouldKeepMenuOpen = () =>
-		Boolean(!!this.props.footer) && Boolean(this.props.isFooterFocused);
+		(Boolean(!!this.props.footer) && Boolean(this.props.isFooterFocused)) ||
+		(Boolean(!!this.props.header) && Boolean(this.props.isHeaderFocused));
 
 	render(): React.JSX.Element {
 		const {
@@ -638,7 +650,7 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 			...(!this.isMenuOpenOnClickForSingleSelect && {
 				menuIsOpen,
 				blurInputOnSelect: !isMulti,
-				openMenuOnFocus: true,
+				openMenuOnFocus: this.props.openMenuOnFocus ?? true,
 			}),
 		};
 
@@ -720,104 +732,183 @@ export class BaseUserPickerWithoutAnalytics extends React.Component<
 	}
 }
 
-export const BaseUserPicker: React.ForwardRefExoticComponent<Pick<Omit<{
-    addMoreMessage?: string;
-    allowEmail?: boolean;
-    anchor?: React.ComponentType<any>;
-    appearance?: Appearance;
-    ariaDescribedBy?: string;
-    ariaLabel?: string;
-    ariaLabelledBy?: string;
-    ariaLive?: "polite" | "off" | "assertive";
-    autoFocus?: boolean;
-    captureMenuScroll?: boolean;
-    clearValueLabel?: string;
-    closeMenuOnScroll?: boolean | EventListener;
-    components?: SelectComponentsConfig<OptionData, boolean>;
-    defaultValue?: DefaultValue;
-    disableInput?: boolean;
-    emailLabel?: string;
-    fieldId: string | null;
-    footer?: React.ReactNode;
-    forwardedRef?: React.ForwardedRef<UserPickerRef>;
-    groupByTypeOrder?: NonNullable<OptionData["type"]>[];
-    header?: React.ReactNode;
-    height?: number | string;
-    includeTeamsUpdates?: boolean;
-    inputId?: string;
-    isClearable?: boolean;
-    isDisabled?: boolean;
-    isFooterFocused?: boolean;
-    isInvalid?: boolean;
-    isLoading?: boolean;
-    isMulti?: boolean;
-    isValidEmail?: EmailValidator;
-    loadOptions?: LoadOptions;
-    loadOptionsErrorMessage?: (value: {
-        inputValue: string;
-    }) => React.ReactNode;
-    loadUserSource?: LoadUserSource;
-    maxOptions?: number;
-    maxPickerHeight?: number;
-    menuIsOpen?: boolean;
-    menuMinWidth?: number;
-    menuPortalTarget?: HTMLElement;
-    menuPosition?: "absolute" | "fixed";
-    menuShouldBlockScroll?: boolean;
-    name?: string;
-    noBorder?: boolean;
-    noOptionsMessage?: ((value: {
-        inputValue: string;
-    }) => string | null | React.ReactNode) | null | React.ReactNode;
-    onBlur?: OnPicker;
-    onChange?: OnChange;
-    onClear?: OnPicker;
-    onClose?: OnPicker;
-    onFocus?: OnPicker;
-    onInputChange?: OnInputChange;
-    onKeyDown?: (event: React.KeyboardEvent) => void;
-    onOpen?: OnPicker;
-    onSelection?: OnOption;
-    open?: boolean;
-    openMenuOnClick?: boolean;
-    options?: OptionData[];
-    placeholder?: React.ReactNode;
-    placeholderAvatar?: "person" | "team";
-    popupSelectProps?: PopupSelectProps<OptionData>;
-    required?: boolean;
-    search?: string;
-    setIsFooterFocused?: React.Dispatch<React.SetStateAction<boolean>>;
-    showClearIndicator?: boolean;
-    strategy?: "fixed" | "absolute";
-    styles?: StylesConfig;
-    subtle?: boolean;
-    suggestEmailsForDomain?: string;
-    textFieldBackgroundColor?: boolean;
-    UNSAFE_hasDraggableParentComponent?: boolean;
-    value?: Value;
-    width?: number | string;
-} & {
-    components: any;
-    name?: string;
-    pickerProps?: any;
-    SelectComponent: React.ComponentType<any>;
-    styles: any;
-    // eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
-    /**
-     * @deprecated This is a temporary prop to enable user-pickers to work in Draggable elements in react-beautiful-dnd.
-     * See https://product-fabric.atlassian.net/browse/DSP-15701 for more details.
-     * It may be removed in a future minor or patch when a longer-term workaround is found.
-     */
-    UNSAFE_hasDraggableParentComponent?: boolean;
-    width: string | number;
-}, keyof WithAnalyticsEventsProps>, "options" | "noOptionsMessage" | "placeholder" | "addMoreMessage" | "allowEmail" | "anchor" | "appearance" | "ariaDescribedBy" | "ariaLabel" | "ariaLabelledBy" | "ariaLive" | "autoFocus" | "captureMenuScroll" | "clearValueLabel" | "closeMenuOnScroll" | "components" | "defaultValue" | "disableInput" | "emailLabel" | "fieldId" | "footer" | "forwardedRef" | "groupByTypeOrder" | "header" | "height" | "includeTeamsUpdates" | "inputId" | "isDisabled" | "isFooterFocused" | "isInvalid" | "isLoading" | "isValidEmail" | "loadOptions" | "loadUserSource" | "maxOptions" | "maxPickerHeight" | "menuIsOpen" | "menuMinWidth" | "menuPortalTarget" | "menuPosition" | "menuShouldBlockScroll" | "name" | "onBlur" | "onChange" | "onClear" | "onClose" | "onFocus" | "onInputChange" | "onKeyDown" | "onOpen" | "onSelection" | "open" | "placeholderAvatar" | "popupSelectProps" | "required" | "search" | "setIsFooterFocused" | "showClearIndicator" | "strategy" | "styles" | "suggestEmailsForDomain" | "UNSAFE_hasDraggableParentComponent" | "value" | "width" | "pickerProps" | "SelectComponent"> & {
-    isClearable?: boolean | undefined;
-    isMulti?: boolean | undefined;
-    loadOptionsErrorMessage?: ((value: {
-        inputValue: string;
-    }) => React.ReactNode) | undefined;
-    noBorder?: boolean | undefined;
-    openMenuOnClick?: boolean | undefined;
-    subtle?: boolean | undefined;
-    textFieldBackgroundColor?: boolean | undefined;
-} & {} & React.RefAttributes<any>> = withAnalyticsEvents()(BaseUserPickerWithoutAnalytics);
+export const BaseUserPicker: React.ForwardRefExoticComponent<
+	Pick<
+		Omit<
+			{
+				addMoreMessage?: string;
+				allowEmail?: boolean;
+				anchor?: React.ComponentType<any>;
+				appearance?: Appearance;
+				ariaDescribedBy?: string;
+				ariaLabel?: string;
+				ariaLabelledBy?: string;
+				ariaLive?: 'polite' | 'off' | 'assertive';
+				autoFocus?: boolean;
+				captureMenuScroll?: boolean;
+				clearValueLabel?: string;
+				closeMenuOnScroll?: boolean | EventListener;
+				components?: SelectComponentsConfig<OptionData, boolean>;
+				customGroupAnalyticsLabels?: Partial<Record<NonNullable<OptionData['type']>, string>>;
+				customGroupLabels?: Partial<Record<NonNullable<OptionData['type']>, React.ReactNode>>;
+				defaultValue?: DefaultValue;
+				disableInput?: boolean;
+				emailLabel?: string;
+				fieldId: string | null;
+				footer?: React.ReactNode;
+				forwardedRef?: React.ForwardedRef<UserPickerRef>;
+				groupByTypeOrder?: NonNullable<OptionData['type']>[];
+				header?: React.ReactNode;
+				height?: number | string;
+				includeTeamsUpdates?: boolean;
+				inputId?: string;
+				isClearable?: boolean;
+				isDisabled?: boolean;
+				isFooterFocused?: boolean;
+				isHeaderFocused?: boolean;
+				isInvalid?: boolean;
+				isLoading?: boolean;
+				isMulti?: boolean;
+				isValidEmail?: EmailValidator;
+				loadOptions?: LoadOptions;
+				loadOptionsErrorMessage?: (value: { inputValue: string }) => React.ReactNode;
+				loadUserSource?: LoadUserSource;
+				maxOptions?: number;
+				maxPickerHeight?: number;
+				menuIsOpen?: boolean;
+				menuMinWidth?: number;
+				menuPortalTarget?: HTMLElement;
+				menuPosition?: 'absolute' | 'fixed';
+				menuShouldBlockScroll?: boolean;
+				name?: string;
+				noBorder?: boolean;
+				noOptionsMessage?:
+					| ((value: { inputValue: string }) => string | null | React.ReactNode)
+					| null
+					| React.ReactNode;
+				onBlur?: OnPicker;
+				onChange?: OnChange;
+				onClear?: OnPicker;
+				onClose?: OnPicker;
+				onFocus?: OnPicker;
+				onInputChange?: OnInputChange;
+				onKeyDown?: (event: React.KeyboardEvent) => void;
+				onOpen?: OnPicker;
+				onSelection?: OnOption;
+				open?: boolean;
+				openMenuOnClick?: boolean;
+				openMenuOnFocus?: boolean;
+				options?: OptionData[];
+				placeholder?: React.ReactNode;
+				placeholderAvatar?: 'person' | 'team';
+				popupSelectProps?: PopupSelectProps<OptionData>;
+				required?: boolean;
+				search?: string;
+				setIsFooterFocused?: React.Dispatch<React.SetStateAction<boolean>>;
+				setIsHeaderFocused?: React.Dispatch<React.SetStateAction<boolean>>;
+				showClearIndicator?: boolean;
+				strategy?: 'fixed' | 'absolute';
+				styles?: StylesConfig;
+				subtle?: boolean;
+				suggestEmailsForDomain?: string;
+				textFieldBackgroundColor?: boolean;
+				UNSAFE_hasDraggableParentComponent?: boolean;
+				value?: Value;
+				width?: number | string;
+			} & {
+				components: any;
+				name?: string;
+				pickerProps?: any;
+				SelectComponent: React.ComponentType<any>;
+				styles: any;
+				// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
+				/**
+				 * @deprecated This is a temporary prop to enable user-pickers to work in Draggable elements in react-beautiful-dnd.
+				 * See https://product-fabric.atlassian.net/browse/DSP-15701 for more details.
+				 * It may be removed in a future minor or patch when a longer-term workaround is found.
+				 */
+				UNSAFE_hasDraggableParentComponent?: boolean;
+				width: string | number;
+			},
+			keyof WithAnalyticsEventsProps
+		>,
+		| 'options'
+		| 'noOptionsMessage'
+		| 'placeholder'
+		| 'addMoreMessage'
+		| 'allowEmail'
+		| 'anchor'
+		| 'appearance'
+		| 'ariaDescribedBy'
+		| 'ariaLabel'
+		| 'ariaLabelledBy'
+		| 'ariaLive'
+		| 'autoFocus'
+		| 'captureMenuScroll'
+		| 'clearValueLabel'
+		| 'closeMenuOnScroll'
+		| 'components'
+		| 'defaultValue'
+		| 'disableInput'
+		| 'emailLabel'
+		| 'fieldId'
+		| 'footer'
+		| 'forwardedRef'
+		| 'groupByTypeOrder'
+		| 'customGroupLabels'
+		| 'customGroupAnalyticsLabels'
+		| 'header'
+		| 'height'
+		| 'includeTeamsUpdates'
+		| 'inputId'
+		| 'isDisabled'
+		| 'isFooterFocused'
+		| 'isInvalid'
+		| 'isLoading'
+		| 'isValidEmail'
+		| 'loadOptions'
+		| 'loadUserSource'
+		| 'maxOptions'
+		| 'maxPickerHeight'
+		| 'menuIsOpen'
+		| 'menuMinWidth'
+		| 'menuPortalTarget'
+		| 'menuPosition'
+		| 'menuShouldBlockScroll'
+		| 'name'
+		| 'onBlur'
+		| 'onChange'
+		| 'onClear'
+		| 'onClose'
+		| 'onFocus'
+		| 'onInputChange'
+		| 'onKeyDown'
+		| 'onOpen'
+		| 'onSelection'
+		| 'open'
+		| 'openMenuOnFocus'
+		| 'placeholderAvatar'
+		| 'popupSelectProps'
+		| 'required'
+		| 'search'
+		| 'setIsFooterFocused'
+		| 'showClearIndicator'
+		| 'strategy'
+		| 'styles'
+		| 'suggestEmailsForDomain'
+		| 'UNSAFE_hasDraggableParentComponent'
+		| 'value'
+		| 'width'
+		| 'pickerProps'
+		| 'SelectComponent'
+	> & {
+		isClearable?: boolean | undefined;
+		isMulti?: boolean | undefined;
+		loadOptionsErrorMessage?: ((value: { inputValue: string }) => React.ReactNode) | undefined;
+		noBorder?: boolean | undefined;
+		openMenuOnClick?: boolean | undefined;
+		openMenuOnFocus?: boolean | undefined;
+		subtle?: boolean | undefined;
+		textFieldBackgroundColor?: boolean | undefined;
+	} & {} & React.RefAttributes<any>
+> = withAnalyticsEvents()(BaseUserPickerWithoutAnalytics);

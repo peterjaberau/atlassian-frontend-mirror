@@ -1,4 +1,4 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
@@ -36,7 +36,6 @@ import { stateKey } from '../pm-plugins/plugin-key';
 import type { MediaOptions } from '../types';
 import { updateMediaSingleWidth } from '../ui/toolbar/commands';
 import { calcNewLayout, getSelectedMediaSingle } from '../ui/toolbar/utils';
-
 import type { PixelEntryValidation } from './pixel-resizing/ui/types';
 import type { MediaPluginState } from './types';
 

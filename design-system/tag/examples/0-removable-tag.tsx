@@ -1,8 +1,7 @@
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box } from '@atlaskit/primitives';
-import { RemovableTag as Tag } from '@atlaskit/tag';
+import { Box } from '@atlaskit/primitives/compiled';
+import Tag from '@atlaskit/tag/removable-tag';
 
 export default (): React.JSX.Element => (
 	<Box role="group" aria-label="Removable tag examples">

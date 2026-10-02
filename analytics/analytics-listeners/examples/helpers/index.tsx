@@ -1,18 +1,19 @@
+import React from 'react';
+
 import {
 	type EventType,
 	type GasPurePayload,
 	type GasPureScreenEventPayload,
 } from '@atlaskit/analytics-gas-types';
-import {
-	createAndFireEvent,
-	withAnalyticsEvents,
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import createAndFireEvent from '@atlaskit/analytics-next/createAndFireEvents';
+import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
+import withAnalyticsEvents, {
 	type WithAnalyticsEventsProps,
-	type AnalyticsEventPayload,
-	withAnalyticsContext,
-} from '@atlaskit/analytics-next';
-import Button from '@atlaskit/button/new';
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import Button from '@atlaskit/button/default/button';
 import { token } from '@atlaskit/tokens';
-import React from 'react';
+
 import { FabricChannel } from '../../src/types';
 
 export type OwnProps = {
@@ -48,6 +49,12 @@ export class DummyElementsComponent extends React.Component<Props> {
 export class DummyAtlaskitComponent extends React.Component<Props> {
 	render(): React.JSX.Element {
 		return <CustomButton text={FabricChannel.atlaskit} onClick={this.props.onClick} />;
+	}
+}
+
+export class DummyA2UIComponent extends React.Component<Props> {
+	render(): React.JSX.Element {
+		return <CustomButton text={FabricChannel.a2ui} onClick={this.props.onClick} />;
 	}
 }
 
@@ -164,6 +171,7 @@ class MyButton extends React.Component<Props> {
 }
 
 const componentChannels = {
+	[FabricChannel.a2ui]: DummyA2UIComponent,
 	[FabricChannel.atlaskit]: DummyAtlaskitComponent,
 	[FabricChannel.elements]: DummyElementsComponent,
 	[FabricChannel.navigation]: DummyNavigationComponent,
@@ -185,7 +193,11 @@ const componentChannels = {
 	[FabricChannel.teamworkGraph]: DummyTeamworkGraphComponent,
 };
 
-export const createComponentWithAnalytics = (channel: FabricChannel): React.ForwardRefExoticComponent<Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
+export const createComponentWithAnalytics = (
+	channel: FabricChannel,
+): React.ForwardRefExoticComponent<
+	Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>
+> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',
@@ -194,7 +206,11 @@ export const createComponentWithAnalytics = (channel: FabricChannel): React.Forw
 		}),
 	})(componentChannels[channel]);
 
-export const createComponentWithAttributesWithAnalytics = (channel: FabricChannel): React.ForwardRefExoticComponent<Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
+export const createComponentWithAttributesWithAnalytics = (
+	channel: FabricChannel,
+): React.ForwardRefExoticComponent<
+	Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>
+> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',
@@ -209,7 +225,12 @@ export const createComponentWithAttributesWithAnalytics = (channel: FabricChanne
 		}),
 	})(componentChannels[channel]);
 
-export const createTaggedComponentWithAnalytics = (channel: FabricChannel, tag: string): React.ForwardRefExoticComponent<Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
+export const createTaggedComponentWithAnalytics = (
+	channel: FabricChannel,
+	tag: string,
+): React.ForwardRefExoticComponent<
+	Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>
+> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',
@@ -219,7 +240,11 @@ export const createTaggedComponentWithAnalytics = (channel: FabricChannel, tag: 
 		}),
 	})(componentChannels[channel]);
 
-export const IncorrectEventType = (channel: FabricChannel): React.ForwardRefExoticComponent<Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
+export const IncorrectEventType = (
+	channel: FabricChannel,
+): React.ForwardRefExoticComponent<
+	Omit<OwnProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>
+> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',
@@ -229,7 +254,7 @@ export const IncorrectEventType = (channel: FabricChannel): React.ForwardRefExot
 	})(componentChannels[channel]);
 
 export const createButtonWithAnalytics = (
-	payload: GasPurePayload,
+	payload: GasPurePayload | GasPureScreenEventPayload,
 	channel: FabricChannel,
 	context: AnalyticsEventPayload[] = [], // Context should incluide all data in the same order that AnalyticsListener would receive it
 ): typeof MyButton => {

@@ -1,4 +1,6 @@
+import type { ADFCommonNodeSpec, ADFNode } from '@atlaskit/adf-schema-generator';
 import { $onePlus, $or, adfNode } from '@atlaskit/adf-schema-generator';
+
 import { dataConsumer } from '../marks/dataConsumer';
 import { fragment } from '../marks/fragment';
 import { unsupportedMark } from '../marks/unsupportedMark';
@@ -6,6 +8,7 @@ import { unsupportedNodeAttribute } from '../marks/unsupportedNodeAttribute';
 import { blockCard } from './blockCard';
 import { blockquote } from './blockquote';
 import { bodiedExtension } from './bodiedExtension';
+import { bodiedRule } from './bodiedRule';
 import { codeBlock } from './codeBlock';
 import { decisionList } from './decisionList';
 import { embedCard } from './embedCard';
@@ -21,7 +24,9 @@ import { table } from './tableNodes';
 import { taskList } from './task';
 import { unsupportedBlock } from './unsupportedBlock';
 
-export const extensionFrame = adfNode('extensionFrame').define({
+export const extensionFrame: ADFNode<[string], ADFCommonNodeSpec> = adfNode(
+	'extensionFrame',
+).define({
 	stage0: true,
 
 	isolating: true,
@@ -39,11 +44,14 @@ export const extensionFrame = adfNode('extensionFrame').define({
 		$onePlus(
 			$or(
 				paragraph.use('with_no_marks'),
+				paragraph.use('with_font_size'),
 				panel,
 				blockquote,
 				orderedList,
 				bulletList,
 				rule,
+				rule.use('with_attrs'),
+				bodiedRule,
 				heading.use('with_no_marks'),
 				codeBlock,
 				mediaGroup,

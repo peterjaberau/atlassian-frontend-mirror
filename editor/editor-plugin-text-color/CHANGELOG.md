@@ -1,5 +1,1653 @@
 # @atlaskit/editor-plugin-text-color
 
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.7
+
+### Patch Changes
+
+- [`064f989853cf0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/064f989853cf0) -
+  Clean up experiment `platform_editor_default_toolbar_state`
+- Updated dependencies
+
+## 22.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- [`a13383c3c99b2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a13383c3c99b2) -
+  [FFCLEANUP-192944] clean up code references to patch gates
+  `platform_editor_lovability_text_bg_color_patch_1` and
+  `platform_editor_lovability_text_bg_color_patch_2`.
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- [`2a3bb6864b8fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a3bb6864b8fe) -
+  Clean up the `platform_editor_fix_selection_text_color_change` experiment.
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- [`590b6a2adcf09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/590b6a2adcf09) -
+  Render the text color palette's label as a non-heading element behind
+  platform_editor_a11y_color_palette_radiogroup, so it no longer reports an out-of-order heading
+  level inside the toolbar menu
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- [`6c8c928766851`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c8c928766851) -
+  Associate the text color palette's radio group with its visible "Text color" label
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.11
+
+### Patch Changes
+
+- [`0920715a6b9fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0920715a6b9fc) -
+  Clean up feature gate `platform_editor_use_preferences_plugin`
+- Updated dependencies
+
+## 18.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- [`fb891566dfac2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb891566dfac2) -
+  Add anyMarksActiveFromTr and getHadMarkAttributes so mark-active checks can run from a
+  transaction. Color, highlight, toolbar/Cmd+K link apply, and paste events include had-mark
+  attributes behind kill switch platform_editor_add_text_color_tracking.
+- Updated dependencies
+
+## 16.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 15.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.2
+
+### Patch Changes
+
+- [`ca816d97f5b74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca816d97f5b74) -
+  [ux] [EDITOR-8376] Update remove color button to remove highlight.
+- Updated dependencies
+
+## 12.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.31
+
+### Patch Changes
+
+- [`e74b3e9fc5c95`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e74b3e9fc5c95) -
+  Account for container backgrounds in text color contrast warnings
+- Updated dependencies
+
+## 12.3.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.24
+
+### Patch Changes
+
+- [`d778b282fb391`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d778b282fb391) -
+  Tighten color picker spacing and footer dimensions.
+
+  The `@atlaskit/editor-toolbar/color-palette` entry point now supports a `gap` prop to customise
+  spacing between color tile wrappers, for example: `<ColorPalette gap="space.0" {...props} />`.
+
+- Updated dependencies
+
+## 12.3.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.20
+
+### Patch Changes
+
+- [`1a6b32ef3760e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a6b32ef3760e) -
+  Treat default text and highlight colors as mixed selection colors
+- Updated dependencies
+
+## 12.3.19
+
+### Patch Changes
+
+- [`4821d5874a821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4821d5874a821) -
+  EDITOR-7869: Show worst accessibility status when selection spans multiple text or highlight
+  colors
+- Updated dependencies
+
+## 12.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.14
+
+### Patch Changes
+
+- [`74b3e15fed77e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/74b3e15fed77e) -
+  Check editor text and highlight color accessibility against both light and dark theme variants.
+- Updated dependencies
+
+## 12.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.6
+
+### Patch Changes
+
+- [`294e8295a274f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/294e8295a274f) -
+  [ux] [EDITOR-7863] Keep the color menu open when clicking inside the palette.
+
+## 12.3.5
+
+### Patch Changes
+
+- [`283c55290e6cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/283c55290e6cc) -
+  Preserve visual selection after applying text color or highlight
+- Updated dependencies
+
+## 12.3.4
+
+### Patch Changes
+
+- [`262d8099a9e63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/262d8099a9e63) -
+  [ux] [EDITOR-7851] address minor UI fixes for platform_editor_lovability_text_bg_color experiment
+  behind platform_editor_lovability_text_bg_color_patch_1
+- Updated dependencies
+
+## 12.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.0
+
+### Minor Changes
+
+- [`a3986c96cfbc4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3986c96cfbc4) -
+  Clean up
+  [platform_editor_toolbar_aifc_text_color_config](https://switcheroo.atlassian.com/ui/gates/72f9412f-73b0-449f-891e-82bd3c32d50b/key/platform_editor_toolbar_aifc_text_color_config)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.0
+
+### Minor Changes
+
+- [`eb17ff47fd9d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb17ff47fd9d1) -
+  [EDITOR-7588] Add an accessibility footer for the new text and highlight color experience behind
+  `platform_editor_lovability_text_bg_color`.
+
+### Patch Changes
+
+- [`724e2a1ea50bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/724e2a1ea50bb) -
+  Remove stale feature gate platform_editor_toolbar_aifc_text_color_config_jsm.
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- [`6f7b6c498b07c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6f7b6c498b07c) -
+  [EDITOR-7591] Align the no-color highlight palette tile icon with the updated transparent
+  highlight styling for the experiment `platform_editor_lovability_text_bg_color`.
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`1498129c7eef2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1498129c7eef2) -
+  [EDITOR-7591] adds updated text color and highlight color palettes behind the
+  `platform_editor_lovability_text_bg_color` experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`b26d59f2d7dbf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b26d59f2d7dbf) -
+  [ux] [EDITOR-7589] combine text color highlight color behind experiment
+
+### Patch Changes
+
+- [`3a59e88cfd890`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a59e88cfd890) -
+  [ux] [EDITOR-7589] update icon colors for highlight color palette and toolbar icon
+- Updated dependencies
+
+## 11.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`b7790a8e32b47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7790a8e32b47) -
+  Update the clear color button UI
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.12
+
+### Patch Changes
+
+- [`94d24f07a0482`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94d24f07a0482) -
+  [ux] [EDITOR-7451] keep color palette open after applying text or highlight changes or clearing
+  the text color
+- Updated dependencies
+
+## 11.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.5
+
+### Patch Changes
+
+- [`41962dd9dccb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41962dd9dccb2) -
+  NO-ISSUE: adds a default toolbar state so we can render the toolbar on initial load without
+  relying on editor state
+- Updated dependencies
+
+## 10.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.23
+
+### Patch Changes
+
+- [`9ff7d1c1aa288`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ff7d1c1aa288) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 8.1.22
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 8.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.9
+
+### Patch Changes
+
+- [`86fd5ef0f1d07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/86fd5ef0f1d07) -
+  Mechanical type-import autofix for text formatting editor plugins.
+- Updated dependencies
+
+## 8.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`5a8d797e50210`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a8d797e50210) -
+  [FFCLEANUP-91669] clean up platform_editor_hide_toolbar_tooltips_fix experiment to hide dropdown
+  menu item tooltips on hover of the dropdown menu button
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.17
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.2.16
 
 ### Patch Changes

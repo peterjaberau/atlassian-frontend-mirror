@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/ufo",
-	"version": "0.4.1",
+	"version": "2.0.0",
 	"description": "UFO external part",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -18,43 +18,39 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
+		".": "./src/index.ts",
+		"./buildVersion": "./src/buildVersion.ts",
+		"./concurrent-experience": "./src/platform-client/core/experience/concurrent-experience.ts",
+		"./experience": "./src/platform-client/core/experience/experience.ts",
+		"./experience-state": "./src/platform-client/core/experience/experience-state.ts",
+		"./experience-types": "./src/platform-client/core/experience/experience-types.ts",
+		"./global-page-load-experience": "./src/platform-client/core/experience/global-page-load-experience.ts",
+		"./global-stream-buffer/experience-payload-event": "./src/global-stream-buffer/experiencePayloadEvent.ts",
+		"./global-stream-buffer/get-global-event-stream": "./src/global-stream-buffer/getGlobalEventStream.ts",
+		"./global-stream-buffer/set-global-event-stream": "./src/global-stream-buffer/setGlobalEventStream.ts",
+		"./global-stream-buffer/subscribe-event": "./src/global-stream-buffer/subscribeEvent.ts",
+		"./global-stream-buffer/unsubscribe-event": "./src/global-stream-buffer/unsubscribeEvent.ts",
 		"./global-stream-buffer": "./src/global-stream-buffer/index.ts",
+		"./logger/ufolog": "./src/logger/ufolog.ts",
+		"./logger/ufowarn": "./src/logger/ufowarn.ts",
 		"./logger": "./src/logger/index.ts",
-		"./platform-client": "./src/platform-client/index.ts",
 		"./types": "./src/types.ts",
-		".": "./src/index.ts"
+		"./until-helpers": "./src/platform-client/utils/until-helpers.ts",
+		"./visibility-change-observer": "./src/observer/visibility-change-observer.ts"
 	},
 	"dependencies": {
+		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@babel/runtime": "root:*",
 		"uuid": "root:*"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"deprecation": [
-				"no-deprecated-imports"
-			]
-		}
+	"platform-feature-flags": {},
+	"devDependencies": {
+		"react": "root:*"
 	}
 }

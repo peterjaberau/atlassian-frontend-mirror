@@ -1,16 +1,16 @@
 import React, { Fragment, useCallback, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
-import Modal, {
-	CloseButton,
-	ModalBody,
-	ModalFooter,
-	ModalTransition,
-	useModal,
-} from '@atlaskit/modal-dialog';
-import { Box } from '@atlaskit/primitives/compiled';
+import Heading from '@atlaskit/heading/heading';
+import { CloseButton } from '@atlaskit/modal-dialog/close-button';
+import { useModal } from '@atlaskit/modal-dialog/hooks';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { Box } from '@atlaskit/primitives/compiled/box';
+import { Text } from '@atlaskit/primitives/compiled/text';
 
 const styles = cssMap({
 	header: {
@@ -48,7 +48,6 @@ export default function Example(): React.JSX.Element {
 			<Button aria-haspopup="dialog" appearance="primary" onClick={openModal}>
 				Open modal
 			</Button>
-
 			<ModalTransition>
 				{isOpen && (
 					// This is fixed in the custom header
@@ -56,21 +55,21 @@ export default function Example(): React.JSX.Element {
 					<Modal onClose={closeModal}>
 						<CustomHeader />
 						<ModalBody>
-							<p>
+							<Text as="p">
 								If you wish to customise a modal dialog, it accepts any valid React element as
 								children.
-							</p>
+							</Text>
 
-							<p>
+							<Text as="p">
 								Modal header accepts any valid React element as children, so you can use modal title
 								in conjunction with other elements like an exit button in the top right.
-							</p>
+							</Text>
 
-							<p>
+							<Text as="p">
 								Modal footer accepts any valid React element as children. For example, you can add
 								an avatar in the footer. For very custom use cases, you can achieve the same thing
 								without modal footer.
-							</p>
+							</Text>
 						</ModalBody>
 						<ModalFooter>
 							<Button appearance="subtle">About modals</Button>

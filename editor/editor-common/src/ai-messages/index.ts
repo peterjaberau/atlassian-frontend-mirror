@@ -10,4 +10,6 @@ export { aiProactiveMessages } from './ai-proactive';
 export { aiMessages } from './ai';
 export { aiProactiveSettingMessages } from './ai-proactive-setting';
 export { aiProactiveTransformMessages } from './ai-proactive-transform';
+export { aiQuickPromptMessages } from './ai-quick-prompt';
 export { aiSuggestionsMessages } from './ai-suggestions';
+export { aiAutocompleteMessages } from './ai-autocomplete';

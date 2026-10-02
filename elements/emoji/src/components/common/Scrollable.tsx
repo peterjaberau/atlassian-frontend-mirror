@@ -4,12 +4,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { css, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
 import { type MouseEventHandler, PureComponent, type ReactNode, type UIEvent } from 'react';
 
+import { css, jsx } from '@compiled/react';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+
 const emojiScrollable = css({
-	border: `${token('border.width')} solid ${token('color.border', '#fff')}`,
+	border: `${token('border.width')} solid ${token('color.border')}`,
 	borderRadius: token('radius.small', '3px'),
 	display: 'block',
 	margin: '0',
@@ -26,7 +29,7 @@ export interface Props {
 	children?: ReactNode;
 	className?: string;
 	maxHeight?: string;
-	onMouseLeave?: MouseEventHandler<any>;
+	onMouseLeave?: MouseEventHandler<any>; // Remove on cleanup of platform_suppression_removal_fix_reactions
 	onScroll?: OnScroll;
 }
 
@@ -73,7 +76,7 @@ export default class Scrollable extends PureComponent<Props, {}> {
 		this.scrollableDiv = ref;
 	};
 
-	render() {
+	render(): JSX.Element {
 		const { children, className, maxHeight, onMouseLeave } = this.props;
 
 		const style = maxHeight ? { maxHeight } : {};
@@ -84,7 +87,7 @@ export default class Scrollable extends PureComponent<Props, {}> {
 				className={`emoji-scrollable ${className}`}
 				css={emojiScrollable}
 				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
-				onMouseLeave={onMouseLeave}
+				onMouseLeave={fg('platform_suppression_removal_fix_reactions') ? undefined : onMouseLeave}
 				onScroll={this.handleScroll}
 				ref={this.handleRef}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766

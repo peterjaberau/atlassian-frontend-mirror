@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::61dd349b817df11b196de45b8945fcdf>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::0c40baf4d0ed079ba8f93f730fdbf2e8>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -19,14 +19,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __BitbucketDataCenterIcon__
  *
- * A temporary component to represent the icon for Bitbucket Data Center.
- * @deprecated This component has been replaced by the component `BitbucketDataCenterIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Bitbucket Data Center.
+ * Import `BitbucketDataCenterIcon` from `@atlaskit/logo/bitbucket-data-center/icon`.
  *
  */
 export function BitbucketDataCenterIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Bitbucket Data Center',
 	testId,

@@ -4,37 +4,42 @@
  */
 import { useCallback, useState } from 'react';
 
-import { type Placement } from '@atlaskit/popper';
-import Popup from '@atlaskit/popup';
-import { type OnEmojiEvent } from '@atlaskit/emoji/types';
-import { EmojiPicker } from '@atlaskit/emoji/picker';
+import { cssMap, jsx } from '@compiled/react';
 
+import { EmojiPicker } from '@atlaskit/emoji/picker';
+import { type OnEmojiEvent } from '@atlaskit/emoji/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import type { Placement } from '@atlaskit/popper/main';
+import { Popup } from '@atlaskit/popup/popup';
+import { Box, Flex, Inline } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
+import { useDelayedState } from '../hooks/useDelayedState';
 import {
 	type ReactionClick,
 	type ReactionFocused,
 	type ReactionMouseEnter,
 	type ReactionSource,
 } from '../types';
-import { useDelayedState } from '../hooks/useDelayedState';
+import { PickerRender } from '../ufo';
 import { Reaction } from './Reaction';
 import { type ReactionsProps, type OpenReactionsDialogOptions } from './Reactions';
+import { ReactionSummaryButton } from './ReactionSummaryButton';
 import { type TriggerProps } from './Trigger';
 import { Trigger as EmojiPickerTrigger } from './Trigger';
 
-import { ReactionSummaryButton } from './ReactionSummaryButton';
-import { PickerRender } from '../ufo';
-
-import { Box, Flex, Inline } from '@atlaskit/primitives/compiled';
-import { cssMap, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-
 const styles = cssMap({
-	summaryPopup: {
+	summaryList: {
 		paddingTop: token('space.050'),
 		paddingRight: token('space.100'),
 		paddingBottom: token('space.100'),
 		paddingLeft: token('space.100'),
+		marginTop: token('space.0'),
+		marginRight: token('space.0'),
+		marginBottom: token('space.0'),
+		marginLeft: token('space.0'),
 		maxWidth: '325px',
+		listStyleType: 'none',
 	},
 });
 
@@ -44,7 +49,8 @@ const styles = cssMap({
 export const RENDER_SUMMARY_VIEW_POPUP_TESTID = 'render-summary-view-popup';
 
 interface ReactionSummaryViewProps
-	extends Pick<
+	extends
+		Pick<
 			ReactionsProps,
 			| 'emojiProvider'
 			| 'reactions'
@@ -52,6 +58,7 @@ interface ReactionSummaryViewProps
 			| 'particleEffectByEmoji'
 			| 'allowUserDialog'
 			| 'allowSelectFromSummaryView'
+			| 'contentId'
 			| 'emojiPickerSize'
 			| 'useButtonAlignmentStyling'
 			| 'reactionPickerTriggerText'
@@ -140,6 +147,7 @@ export const ReactionSummaryView = ({
 	handleOpenReactionsDialog,
 	isViewOnly = false,
 	allowSelectFromSummaryView,
+	contentId,
 	disabled,
 	emojiPickerSize,
 	onSelection,
@@ -153,7 +161,7 @@ export const ReactionSummaryView = ({
 	summaryGetOptimisticImageURL,
 	summaryButtonIconAfter,
 	summaryViewParticleEffectEmojiId,
-}: ReactionSummaryViewProps) => {
+}: ReactionSummaryViewProps): JSX.Element => {
 	const [isSummaryPopupOpen, setSummaryPopupOpen] = useDelayedState<boolean>(
 		false,
 		hoverableSummaryViewDelay,
@@ -297,13 +305,13 @@ export const ReactionSummaryView = ({
 		setSummaryPopupOpen,
 		isSummaryViewButtonClicked,
 	]);
-
 	return (
 		<Popup
 			placement={placement}
 			content={({ update: recalculatePopupPosition }) =>
 				isEmojiPickerOpen ? (
 					<EmojiPicker
+						contentId={contentId}
 						emojiProvider={emojiProvider}
 						onSelection={onEmojiSelected}
 						size={emojiPickerSize}
@@ -330,28 +338,39 @@ export const ReactionSummaryView = ({
 								/>
 							</Flex>
 						)}
-						<Inline xcss={styles.summaryPopup} space="space.025" shouldWrap alignBlock="center">
-							{reactions.map((reaction) => (
-								<Reaction
-									key={reaction.emojiId}
-									reaction={reaction}
-									emojiProvider={emojiProvider}
-									onClick={onReactionClick}
-									onFocused={onReactionFocused}
-									onMouseEnter={onReactionMouseEnter}
-									flash={flash[reaction.emojiId]}
-									showParticleEffect={particleEffectByEmoji[reaction.emojiId]}
-									allowUserDialog={allowUserDialog}
-									handleOpenReactionsDialog={handleOpenReactionsDialog}
-									isViewOnly={isViewOnly}
-								/>
-							))}
+						<Inline
+							as="ul"
+							xcss={styles.summaryList}
+							space="space.025"
+							shouldWrap
+							alignBlock="center"
+						>
+							{reactions.map((reaction) => {
+								return (
+									<Reaction
+										key={reaction.emojiId}
+										rootElement="li"
+										reaction={reaction}
+										emojiProvider={emojiProvider}
+										onClick={onReactionClick}
+										onFocused={onReactionFocused}
+										onMouseEnter={onReactionMouseEnter}
+										flash={flash[reaction.emojiId]}
+										showParticleEffect={particleEffectByEmoji[reaction.emojiId]}
+										allowUserDialog={allowUserDialog}
+										handleOpenReactionsDialog={handleOpenReactionsDialog}
+										isViewOnly={isViewOnly}
+									/>
+								);
+							})}
 						</Inline>
 					</Box>
 				)
 			}
 			isOpen={isSummaryPopupOpen || isEmojiPickerOpen}
 			onClose={handlePopupClose}
+			shouldRenderToParent={fg('platform_a11y_fixes_reading_order')}
+			strategy={fg('platform_a11y_fixes_reading_order') ? 'absolute' : undefined}
 			trigger={(triggerProps) => (
 				<ReactionSummaryButton
 					{...triggerProps}
@@ -366,6 +385,7 @@ export const ReactionSummaryView = ({
 					summaryGetOptimisticImageURL={summaryGetOptimisticImageURL}
 					summaryButtonIconAfter={summaryButtonIconAfter}
 					summaryViewParticleEffectEmojiId={summaryViewParticleEffectEmojiId}
+					isOpen={isSummaryPopupOpen || isEmojiPickerOpen}
 				/>
 			)}
 		/>

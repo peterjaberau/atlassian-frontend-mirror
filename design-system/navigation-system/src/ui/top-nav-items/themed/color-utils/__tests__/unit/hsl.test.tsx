@@ -20,11 +20,7 @@ describe('parseHsl', () => {
 			parseHsl('hls(1,2,3)');
 
 			expect(consoleError).toHaveBeenCalledTimes(1);
-			expect(consoleError.mock.lastCall).toMatchInlineSnapshot(`
-			[
-			  "parseHsl failed to parse input: 'hls(1,2,3)'",
-			]
-		`);
+			expect(consoleError.mock.lastCall).toEqual(["parseHsl failed to parse input: 'hls(1,2,3)'"]);
 
 			process.env.NODE_ENV = NODE_ENV;
 		});

@@ -1,6 +1,9 @@
 jest.mock('../to-formatted-parts');
 jest.mock('../../date-parser');
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
 import { createDateParser } from '../../date-parser';
+import { mockLocaleWeekInfo } from '../__fixtures__/mock-locale-week-info';
 import { createLocalizationProvider, type LocalizationProvider } from '../localization-provider';
 import { toFormattedParts } from '../to-formatted-parts';
 
@@ -25,10 +28,10 @@ const origDateTimeFormat = Intl.DateTimeFormat;
 const mockIntlDateTimeFormat = (mockedReturn: any) => {
 	Intl.DateTimeFormat = jest.fn(() => mockedReturn) as unknown as typeof Intl.DateTimeFormat;
 };
-
 describe('LocalizationProvider', () => {
 	afterEach(() => {
 		Intl.DateTimeFormat = origDateTimeFormat;
+		jest.restoreAllMocks();
 	});
 
 	it('formats date with Intl.DateTimeFormat.format', () => {
@@ -41,8 +44,8 @@ describe('LocalizationProvider', () => {
 		const provider = createLocalizationProvider('en');
 		const result = provider.formatDate(date);
 
-		expect(Intl.DateTimeFormat).toBeCalledWith('en');
-		expect(mockedIntl.format).toBeCalledWith(date);
+		expect(Intl.DateTimeFormat).toHaveBeenCalledWith('en');
+		expect(mockedIntl.format).toHaveBeenCalledWith(date);
 		expect(result).toBe(expectedResult);
 	});
 
@@ -61,8 +64,11 @@ describe('LocalizationProvider', () => {
 		const provider = createLocalizationProvider('en');
 		const result = provider.formatTime(date);
 
-		expect(Intl.DateTimeFormat).toBeCalledWith('en', expect.objectContaining(formatterOptions));
-		expect(mockedIntl.format).toBeCalledWith(date);
+		expect(Intl.DateTimeFormat).toHaveBeenCalledWith(
+			'en',
+			expect.objectContaining(formatterOptions),
+		);
+		expect(mockedIntl.format).toHaveBeenCalledWith(date);
 		expect(result).toBe(expectedResult);
 	});
 
@@ -108,8 +114,8 @@ describe('LocalizationProvider', () => {
 		const provider = createLocalizationProvider('en');
 		const result = provider.parseDate(input);
 
-		expect(createDateParser).toBeCalledWith('en');
-		expect(mockedDateParser).toBeCalledWith(input, {});
+		expect(createDateParser).toHaveBeenCalledWith('en');
+		expect(mockedDateParser).toHaveBeenCalledWith(input, {});
 		expect(result).toBe(expectedResult);
 	});
 
@@ -124,9 +130,9 @@ describe('LocalizationProvider', () => {
 		const provider = createLocalizationProvider('en', formatterOptions);
 		const result = provider.formatToParts(date);
 
-		expect(Intl.DateTimeFormat).toBeCalledWith('en', formatterOptions);
-		expect(mockedIntl.formatToParts).toBeCalled();
-		expect(toFormattedParts).toBeCalled();
+		expect(Intl.DateTimeFormat).toHaveBeenCalledWith('en', formatterOptions);
+		expect(mockedIntl.formatToParts).toHaveBeenCalled();
+		expect(toFormattedParts).toHaveBeenCalled();
 		expect(result).toBe(expectedResult);
 	});
 
@@ -142,6 +148,48 @@ describe('LocalizationProvider', () => {
 		const provider = createLocalizationProvider('en', formatterOptions);
 		provider.formatToParts(date);
 
-		expect(mockedIntl.formatToParts).toBeCalledWith(expect.toBeDateWithYear(2020));
+		expect(mockedIntl.formatToParts).toHaveBeenCalledWith(expect.toBeDateWithYear(2020));
+	});
+
+	// smoke test for Locale to have the method we need, see https://github.com/microsoft/TypeScript/issues/61713#issuecomment-5569377698
+	it('should make a Locale that has getWeekInfo (smoke test)', () => {
+		const locale = new Intl.Locale('en');
+		const weekInfo = locale.getWeekInfo();
+		expect(weekInfo).toBeDefined();
+	});
+
+	describe.each(['method', 'getter', 'none'] as const)('week-info API support: %s', (support) => {
+		beforeEach(() => {
+			mockLocaleWeekInfo(support);
+		});
+
+		it.each([
+			['en-US', 0],
+			['en-GB', 1],
+			['en_GB', 1],
+			['fa-IR', 6],
+		] as [string, number][])('returns the first day of the week for %s', (locale, expected) => {
+			passGate('platform-dst-locale-week-start-day');
+			expect(createLocalizationProvider(locale).getFirstDayOfWeek()).toBe(expected);
+		});
+
+		it('does not construct Intl.Locale until getFirstDayOfWeek is called', () => {
+			createLocalizationProvider('en');
+			expect(Intl.Locale).not.toHaveBeenCalled();
+		});
+
+		it('reuses Intl.Locale across calls and returns consistent results', () => {
+			passGate('platform-dst-locale-week-start-day');
+			const provider = createLocalizationProvider('en-GB');
+			expect(provider.getFirstDayOfWeek()).toBe(1);
+			expect(provider.getFirstDayOfWeek()).toBe(1);
+			expect(Intl.Locale).toHaveBeenCalledTimes(1);
+		});
+
+		it('returns Sunday when platform-dst-locale-week-start-day is off', () => {
+			failGate('platform-dst-locale-week-start-day');
+			expect(createLocalizationProvider('en-GB').getFirstDayOfWeek()).toBe(0);
+			expect(Intl.Locale).not.toHaveBeenCalled();
+		});
 	});
 });

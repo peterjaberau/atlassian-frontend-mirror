@@ -2,20 +2,32 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useState } from 'react';
+import { type JSX, useState } from 'react';
 
 import { cssMap, cx, jsx } from '@atlaskit/css';
 import __noop from '@atlaskit/ds-lib/noop';
-import { FlagsProvider, useFlags } from '@atlaskit/flag';
-import Heading from '@atlaskit/heading';
+import { FlagsProvider } from '@atlaskit/flag/flags-provider';
+import { useFlags } from '@atlaskit/flag/use-flags';
+import Heading from '@atlaskit/heading/heading';
 import CheckMarkIcon from '@atlaskit/icon/core/check-mark';
 import InformationIcon from '@atlaskit/icon/core/status-information';
 import InteractionContext from '@atlaskit/interaction-context';
-import { ZoomIn } from '@atlaskit/motion';
-import { Box, Inline, Pressable, Stack } from '@atlaskit/primitives/compiled';
+import ZoomIn from '@atlaskit/motion/zoom-in';
+import { Box } from '@atlaskit/primitives/compiled/box';
+import { Flex } from '@atlaskit/primitives/compiled/flex';
+import { Inline } from '@atlaskit/primitives/compiled/inline';
+import { Pressable } from '@atlaskit/primitives/compiled/pressable';
+import { Stack } from '@atlaskit/primitives/compiled/stack';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const styles = cssMap({
 	base: {
@@ -159,11 +171,9 @@ const ColorPaletteButtons = () => {
 						title: `Traced a press!`,
 						description: name,
 						icon: (
-							<InformationIcon
-								label="Info"
-								color={token('color.icon.information')}
-								spacing="spacious"
-							/>
+							<Flex xcss={iconSpacingStyles.space050}>
+								<InformationIcon label="Info" color={token('color.icon.information')} />
+							</Flex>
 						),
 						isAutoDismiss: true,
 					});

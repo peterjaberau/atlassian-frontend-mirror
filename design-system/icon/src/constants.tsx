@@ -7,6 +7,7 @@ export const sizes: Record<Size, string> = {
 	xlarge: '48px',
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const sizeMap: Record<Size, Size> = {
 	small: 'small',
 	medium: 'medium',
@@ -14,23 +15,24 @@ export const sizeMap: Record<Size, Size> = {
 	xlarge: 'xlarge',
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const dimensions: {
-    readonly small: {
-        readonly width: string;
-        readonly height: string;
-    };
-    readonly medium: {
-        readonly width: string;
-        readonly height: string;
-    };
-    readonly large: {
-        readonly width: string;
-        readonly height: string;
-    };
-    readonly xlarge: {
-        readonly width: string;
-        readonly height: string;
-    };
+	readonly small: {
+		readonly width: string;
+		readonly height: string;
+	};
+	readonly medium: {
+		readonly width: string;
+		readonly height: string;
+	};
+	readonly large: {
+		readonly width: string;
+		readonly height: string;
+	};
+	readonly xlarge: {
+		readonly width: string;
+		readonly height: string;
+	};
 } = {
 	small: {
 		width: sizes.small,

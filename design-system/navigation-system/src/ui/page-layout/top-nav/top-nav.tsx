@@ -2,31 +2,35 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useContext, useMemo } from 'react';
+import { useContext } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
 import type { StrictXCSSProp } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { componentWithFG } from '@atlaskit/platform-feature-flags-react/component-with-fg';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
-import { useSkipLink } from '../../../context/skip-links/skip-links-context';
+import { useSkipLinkInternal } from '../../../context/skip-links/use-skip-link-internal';
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
 import { type CustomTheme } from '../../top-nav-items/themed/get-custom-theme-styles';
 import { HasCustomThemeContext } from '../../top-nav-items/themed/has-custom-theme-context';
+import { HasDefaultBackgroundColorContext } from '../../top-nav-items/themed/has-default-background-color-context';
 import { useCustomTheme } from '../../top-nav-items/themed/use-custom-theme';
+import { useCustomThemeNew } from '../../top-nav-items/themed/use-custom-theme-new';
 import {
-	bannerMountedVar,
-	localSlotLayers,
-	sideNavLiveWidthVar,
-	topNavMountedVar,
 	UNSAFE_topNavVar,
+	type bannerMountedVar,
+	type localSlotLayers,
+	type sideNavLiveWidthVar,
+	topNavMountedVar,
 } from '../constants';
+import { DangerouslyHoistCssVarToDocumentRoot } from '../dangerously-hoist-css-var-to-document-root';
+import { HoistCssVarToLocalGrid } from '../hoist-css-var-to-local-grid';
 import { DangerouslyHoistSlotSizes } from '../hoist-slot-sizes-context';
-import { DangerouslyHoistCssVarToDocumentRoot, HoistCssVarToLocalGrid } from '../hoist-utils';
-import { useLayoutId } from '../id-utils';
 import { useSideNavVisibility } from '../side-nav/use-side-nav-visibility';
 import type { CommonSlotProps } from '../types';
+import { useLayoutId } from '../use-layout-id';
 
 /**
  * Styles for the container for the top nav items.
@@ -49,15 +53,15 @@ const styles = cssMap({
 		boxSizing: 'border-box',
 		borderBlockEnd: `${token('border.width')} solid ${token('color.border')}`,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		height: `var(${topNavMountedVar})`,
+		height: `var(${'--n_tNvM' satisfies typeof topNavMountedVar})`,
 		// This sets the sticky point to be just below banner. It's needed to ensure the stick
 		// point is exactly where this element is rendered to with no wiggle room. Unfortunately the CSS
 		// spec for sticky doesn't support "stick to where I'm initially rendered" so we need to tell it.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		insetBlockStart: `var(${bannerMountedVar}, 0px)`,
+		insetBlockStart: `var(${'--n_bnrM' satisfies typeof bannerMountedVar}, 0px)`,
 		position: 'sticky',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-		zIndex: localSlotLayers.topBar,
+		zIndex: 4 satisfies typeof localSlotLayers.topBar,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		' > span[data-ep-placeholder-id="top_navigation_skeleton"]': {
 			// TODO: BLU-3336 This is needed as a workaround for the JIRA issue (it places a placeholder span as a direct child of TopNav which breaks the grid layout). Please remove when the proper fix is applied.
@@ -78,15 +82,32 @@ const styles = cssMap({
 		// Avoiding use of `paddingInlineStart` and `paddingInlineEnd` separately to workaround Compiled selector ordering bugs.
 		// We can safely use them though once we clean up the non-FHS `paddingInline` style (or don't apply it when FHS is enabled)
 		paddingInline: token('space.0'),
-
-		// The background and border are now on a sibling element for layering reasons
-		backgroundColor: 'none',
-		borderBlockEnd: 'none',
-		// Pointer events are disabled so the side nav panel splitter remains interactive from behind the top nav items.
-		// We re-enable pointer events on the top nav slots.
-		pointerEvents: 'none',
+		pointerEvents: 'auto',
+		backgroundColor: token('elevation.surface'),
 		'@media (min-width: 64rem)': {
 			gap: token('space.150'),
+		},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		zIndex: 3 satisfies typeof localSlotLayers.topNavFHS,
+
+		// The border is now on a pseudo element for layering reasons, so we reset the border style from styles.root
+		borderBlockEnd: 'none',
+		// This pseudo element is used to apply the top nav's bottom border. It is positioned so it does not cover the side nav,
+		// to make the sidebar appear full height.
+		'&::after': {
+			content: '""',
+			position: 'absolute',
+			// Pin to the bottom of the top nav
+			insetBlockEnd: 0,
+			// Pin to the right side of the top nav
+			insetInlineEnd: 0,
+			// Push the element to the right based on the side nav width
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			insetInlineStart: `var(${'--n_sNvlw' satisfies typeof sideNavLiveWidthVar}, 0px)`,
+			borderBlockEndWidth: token('border.width'),
+			borderBlockEndStyle: 'solid',
+			borderBlockEndColor: token('color.border'),
 		},
 	},
 	fullHeightSidebarExpanded: {
@@ -101,76 +122,17 @@ const styles = cssMap({
 			gridTemplateColumns: '1fr minmax(min-content, max-content) 1fr',
 		},
 	},
-	fullHeightSidebarWithLayeringFixes: {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		zIndex: localSlotLayers.topNavFHS,
-		pointerEvents: 'auto',
-		backgroundColor: token('elevation.surface'),
-
-		// This pseudo element is used to apply the top nav's bottom border. It is positioned so it does not cover the side nav,
-		// to make the sidebar appear full height.
-		'&::after': {
-			content: '""',
-			position: 'absolute',
-			// Pin to the bottom of the top nav
-			insetBlockEnd: 0,
-			// Pin to the right side of the top nav
-			insetInlineEnd: 0,
-			// Push the element to the right based on the side nav width
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			insetInlineStart: `var(${sideNavLiveWidthVar}, 0px)`,
-			borderBlockEndWidth: token('border.width'),
-			borderBlockEndStyle: 'solid',
-			borderBlockEndColor: token('color.border'),
-		},
-	},
-});
-
-/**
- * Styles for the visible 'bar' of the top nav, including background and border.
- *
- * This is on a lower z-index than the expanded side nav, and is separate to the top nav items which are above the expanded side nav.
- */
-const backgroundStyles = cssMap({
-	root: {
-		// Occupies the same grid area as the top nav item container (but is below it)
-		gridArea: 'top-bar',
-		width: '100%',
-		height: '100%',
-		backgroundColor: token('elevation.surface'),
-		boxSizing: 'border-box',
-		borderBlockEnd: `${token('border.width')} solid ${token('color.border')}`,
-		// Stick point for sticky positioning, relevant on mobile or if the whole page scrolls for some reason
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		insetBlockStart: `var(${bannerMountedVar}, 0px)`,
-		position: 'sticky',
-		pointerEvents: 'none',
-		// By default the background is still above everything
-		// This prevents shadows from the side nav and panel from showing above the top nav border.
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		zIndex: localSlotLayers.topBar,
-	},
-	sideNavExpanded: {
+	fullHeightSidebarCustomTheming: {
 		'@media (min-width: 64rem)': {
-			// We want the background to appear behind the full height side nav when fg('platform-dst-side-nav-layering-fixes') is disabled
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			zIndex: localSlotLayers.sideNav,
+			'&::after': {
+				// Hide the top nav bottom borderwhen a custom background color is used
+				display: 'none',
+			},
 		},
 	},
 });
 
-/**
- * The top nav layout area. It will display at the top of the screen, below the banner if one is present.
- */
-export function TopNav({
-	children,
-	xcss,
-	height = 48,
-	skipLinkLabel = 'Top Bar',
-	testId,
-	id: providedId,
-	UNSAFE_theme,
-}: CommonSlotProps & {
+type TopNavProps = CommonSlotProps & {
 	/**
 	 * The content of the layout area.
 	 * Should include `TopNavStart`, `TopNavMiddle`, and `TopNavEnd`.
@@ -186,79 +148,54 @@ export function TopNav({
 	 */
 	height?: number;
 	/**
-	 * EXPERIMENTAL - DO NOT USE
-	 *
-	 * Feature is incomplete and API is subject to change at any time
+	 * Custom theme for the top navigation. This is a port of Nav 3 functionality, and not recommended for new usage,
+	 * as it does not align with our future vision.
 	 */
-	UNSAFE_theme?: CustomTheme;
-}): JSX.Element {
+	customTheme?: CustomTheme;
+};
+
+/**
+ * The top nav layout area. It will display at the top of the screen, below the banner if one is present.
+ */
+function TopNavOld({
+	children,
+	xcss,
+	height: heightProp,
+	skipLinkLabel = 'Top Bar',
+	testId,
+	id: providedId,
+	customTheme: customThemeConfig,
+}: TopNavProps): JSX.Element {
 	const isFhsEnabled = useIsFhsEnabled();
 	const dangerouslyHoistSlotSizes = useContext(DangerouslyHoistSlotSizes);
 	const id = useLayoutId({ providedId });
-	useSkipLink(id, skipLinkLabel);
+	useSkipLinkInternal({
+		id,
+		label: skipLinkLabel,
+		isHidden: fg('platform_dst_nav4_skip_link_a11y_1'),
+	});
 
-	const customTheme = useCustomTheme(UNSAFE_theme);
+	const height =
+		heightProp ?? (isFhsEnabled || fg('platform_dst_ads_appswitcher_improvements') ? 56 : 48);
 
-	/**
-	 * Note: this is no longer the case when fg('platform-dst-side-nav-layering-fixes') is enabled.
-	 *
-	 * With the full height sidebar we have a foreground and background element,
-	 * so we need to apply the custom theme styles to the correct element.
-	 *
-	 * The foreground element should not have a background color,
-	 * and the background element doesn't need any of the other styles.
-	 */
-	const { backgroundStyle, foregroundStyle } = useMemo(() => {
-		if (!customTheme.isEnabled) {
-			return { backgroundStyle: undefined, foregroundStyle: undefined };
-		}
-
-		const { backgroundColor, ...foregroundStyle } = customTheme.style;
-
-		return {
-			backgroundStyle: { backgroundColor },
-			foregroundStyle,
-		};
-	}, [customTheme]);
+	const customTheme = useCustomTheme(customThemeConfig);
 
 	const { isExpandedOnDesktop } = useSideNavVisibility();
 
 	return (
 		<HasCustomThemeContext.Provider value={customTheme.isEnabled}>
-			{isFhsEnabled && !fg('platform-dst-side-nav-layering-fixes') && (
-				// Note: when the layering fixes are enabled, we no longer have separate elements for the foreground and background.
-				// The separate element allows top nav items to sit in front of the sidebar, while the background sits behind.
-				// It also has a simple story around z-index and positioning.
-				<div
-					data-layout-slot
-					css={[backgroundStyles.root, isExpandedOnDesktop && backgroundStyles.sideNavExpanded]}
-					aria-hidden
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-					style={isFhsEnabled ? backgroundStyle : undefined}
-				/>
-			)}
 			<header
 				id={id}
 				data-layout-slot
 				css={[
 					styles.root,
 					isFhsEnabled && styles.fullHeightSidebar,
-					isFhsEnabled &&
-					fg('platform-dst-side-nav-layering-fixes') &&
-					styles.fullHeightSidebarWithLayeringFixes,
 					isExpandedOnDesktop && isFhsEnabled && styles.fullHeightSidebarExpanded,
 				]}
 				className={xcss}
 				data-testid={testId}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-				style={
-					// When the layering fixes are enabled, we no longer have separate elements for the foreground and background.
-					isFhsEnabled && !fg('platform-dst-side-nav-layering-fixes')
-						? foregroundStyle
-						: customTheme.isEnabled
-							? customTheme.style
-							: undefined
-				}
+				style={customTheme.isEnabled ? customTheme.style : undefined}
 			>
 				<HoistCssVarToLocalGrid variableName={topNavMountedVar} value={height} />
 				{dangerouslyHoistSlotSizes && (
@@ -273,3 +210,76 @@ export function TopNav({
 		</HasCustomThemeContext.Provider>
 	);
 }
+
+/**
+ * The top nav layout area. It will display at the top of the screen, below the banner if one is present.
+ */
+function TopNavNew({
+	children,
+	xcss,
+	height: heightProp,
+	skipLinkLabel = 'Top Bar',
+	testId,
+	id: providedId,
+	customTheme: customThemeConfig,
+}: TopNavProps): JSX.Element {
+	const isFhsEnabled = useIsFhsEnabled();
+	const dangerouslyHoistSlotSizes = useContext(DangerouslyHoistSlotSizes);
+	const id = useLayoutId({ providedId });
+	useSkipLinkInternal({
+		id,
+		label: skipLinkLabel,
+		isHidden: fg('platform_dst_nav4_skip_link_a11y_1'),
+	});
+
+	const height =
+		heightProp ?? (isFhsEnabled || fg('platform_dst_ads_appswitcher_improvements') ? 56 : 48);
+
+	const customTheme = useCustomThemeNew(customThemeConfig);
+	const hasDefaultBackground = customTheme.isEnabled ? customTheme.hasDefaultBackground : true;
+
+	const { isExpandedOnDesktop } = useSideNavVisibility();
+
+	return (
+		<HasCustomThemeContext.Provider value={customTheme.isEnabled}>
+			<HasDefaultBackgroundColorContext.Provider value={hasDefaultBackground}>
+				<header
+					id={id}
+					data-layout-slot
+					css={[
+						styles.root,
+						isFhsEnabled && styles.fullHeightSidebar,
+						isExpandedOnDesktop && isFhsEnabled && styles.fullHeightSidebarExpanded,
+						customTheme.isEnabled &&
+							!hasDefaultBackground &&
+							fg('platform_dst_nav4_custom_theming_fhs_1') &&
+							styles.fullHeightSidebarCustomTheming,
+					]}
+					className={xcss}
+					data-testid={testId}
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+					style={customTheme.isEnabled ? customTheme.style : undefined}
+				>
+					<HoistCssVarToLocalGrid variableName={topNavMountedVar} value={height} />
+					{dangerouslyHoistSlotSizes && (
+						// ------ START UNSAFE STYLES ------
+						// These styles are only needed for the UNSAFE legacy use case for Jira + Confluence.
+						// When they aren't needed anymore we can delete them wholesale.
+						<DangerouslyHoistCssVarToDocumentRoot variableName={UNSAFE_topNavVar} value={height} />
+						// ------ END UNSAFE STYLES ------
+					)}
+					{children}
+				</header>
+			</HasDefaultBackgroundColorContext.Provider>
+		</HasCustomThemeContext.Provider>
+	);
+}
+
+/**
+ * The top nav layout area. It will display at the top of the screen, below the banner if one is present.
+ */
+export const TopNav: (props: TopNavProps) => React.ReactNode = componentWithFG(
+	'platform_dst_nav4_custom_theming_fhs_1',
+	TopNavNew,
+	TopNavOld,
+);

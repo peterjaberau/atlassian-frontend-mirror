@@ -8,11 +8,10 @@ jest.mock('../../imageMetaData/parsePNGXMP', () => ({
 	parseXMPMetaData: jest.fn(() => ({})),
 }));
 
+import { readImageMetaTags } from '../../imageMetaData/metatags';
 import { readJPEGExifMetaData } from '../../imageMetaData/parseJPEG';
 import { readPNGXMPMetaData } from '../../imageMetaData/parsePNG';
 import { parseXMPMetaData } from '../../imageMetaData/parsePNGXMP';
-
-import { readImageMetaTags } from '../../imageMetaData/metatags';
 
 describe('Image Meta Tags', () => {
 	const pngFile = new File([], 'filename.png', { type: 'image/png' });
@@ -21,14 +20,14 @@ describe('Image Meta Tags', () => {
 	describe('readImageMetaTags()', () => {
 		it('should use PNG parser on PNG file', async () => {
 			const metaData = await readImageMetaTags(pngFile);
-			expect(readPNGXMPMetaData).toBeCalledWith(pngFile);
-			expect(parseXMPMetaData).toBeCalled();
+			expect(readPNGXMPMetaData).toHaveBeenCalledWith(pngFile);
+			expect(parseXMPMetaData).toHaveBeenCalled();
 			expect(metaData).toEqual({});
 		});
 
 		it('should use JPEG parser on JPEG file', async () => {
 			const metaData = await readImageMetaTags(jpegFile);
-			expect(readJPEGExifMetaData).toBeCalledWith(jpegFile);
+			expect(readJPEGExifMetaData).toHaveBeenCalledWith(jpegFile);
 			expect(metaData).toEqual('jpgMetaData');
 		});
 

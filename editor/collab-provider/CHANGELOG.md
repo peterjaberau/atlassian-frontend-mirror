@@ -1,5 +1,1767 @@
 # @atlaskit/collab-provider
 
+## 32.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.3
+
+### Patch Changes
+
+- [`84d66ad0f47b2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/84d66ad0f47b2) -
+  Retain agents for 30 seconds active followed by five minutes inactive when
+  `platform_move_presence_agents` is enabled.
+- Updated dependencies
+
+## 31.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.3.0
+
+### Minor Changes
+
+- [`fcc5d229eacdb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fcc5d229eacdb) -
+  Carry complete agent display identity through the shared update-command adapter and collaboration
+  step attribution while preserving account ID semantics.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.2.1
+
+### Patch Changes
+
+- [`d2d4a126ef64e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2d4a126ef64e) -
+  Gate the periodic AI-provider presence re-broadcast behind platform_move_presence_agents, matching
+  the existing gating of the ai-provider:change send in Provider.sendMessage. When the gate is
+  enabled the presence heartbeat no longer re-announces editor AI plugin provider ids, which
+  previously registered a duplicate, agentType-less presence participant for an agent that was
+  already present under its AAID and caused it to render as the External agent fallback.
+- Updated dependencies
+
+## 28.2.0
+
+### Minor Changes
+
+- [`9461b21b24472`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9461b21b24472) -
+  Add the recovery:required provider event with a reason payload so Confluence can reset an NCS
+  document on request. NCS sends the event to the document's current socket. Rollout is controlled
+  by NCS emitting the event.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.1.0
+
+### Minor Changes
+
+- [`36e3ed7c27a98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/36e3ed7c27a98) -
+  Fix missing userIds in steps by using the already known confluence userId, gated by
+  `confluence_ncs_step_diffing_version_history`.
+
+### Patch Changes
+
+- [`6f50f448a393e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6f50f448a393e) -
+  Stop deriving agent participants from editor steps when platform_editor_agent_edit_presence is
+  enabled.
+- Updated dependencies
+
+## 28.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.1
+
+### Patch Changes
+
+- [`a8b0726ce1e34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8b0726ce1e34) -
+  Adds shared semantic agent colour resolution and aligns diff history with agent telepointers
+  behind `confluence_ncs_step_diffing_version_history`.
+
+## 27.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.10
+
+### Patch Changes
+
+- [`0f5c0015f457f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f5c0015f457f) -
+  Remove feature gate `platform-editor-collab-edit-websocket-only`. Collab editing on commercial and
+  non-GCP tenants reverts to the default polling-first transport strategy.
+- [`962e8dc0188bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/962e8dc0188bf) -
+  Clean up `platform_editor_offline_editing_web` with `isEnabled: true` for Confluence, keeping
+  offline editing and recovery behavior enabled. Remove the retired experiment from the editor
+  Statsig configuration; consumers must stop querying or overriding this experiment.
+- Updated dependencies
+
+## 26.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.7
+
+### Patch Changes
+
+- [`1fff1e044deb4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1fff1e044deb4) -
+  Decouple agent presence and agent attribution visuals from `platform_editor_agent_be_streaming`.
+  Agent-authored steps now raise the presence facepile under
+  `platform_editor_ai_streaming_ux_experience_m1` as well, and the unified post-apply chrome stamped
+  by frontend streaming no longer reads the backend streaming experiment's highlight lifetime and
+  telepointer configuration.
+- Updated dependencies
+
+## 26.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.2.1
+
+### Patch Changes
+
+- [`f330bc1939dac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f330bc1939dac) -
+  Extend websocket-only transport to collab editing, behind the
+  platform-editor-collab-edit-websocket-only feature gate (excludes long-polling-only tenants).
+  Previously websocket-only applied to presence only.
+- Updated dependencies
+
+## 25.2.0
+
+### Minor Changes
+
+- [`23f2823b17126`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/23f2823b17126) -
+  Add a `DOCUMENT_BLOCKED` provider error and map the NCS `ARI_BLACKLISTED` (423) error to it.
+  Previously `ARI_BLACKLISTED` had no mapping and was silently dropped by the provider, so products
+  could not react to a blocked (blacklisted) document. The new mapping is gated behind
+  `platform_editor_blocked_document_ux`; when the gate is off the error is still dropped, preserving
+  existing behaviour.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.6
+
+### Patch Changes
+
+- [`351ba3a2cc9d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/351ba3a2cc9d5) -
+  `BaseStepPM` gains an optional `invocationId`, the backend-issued identifier of the agent
+  invocation a collaboration step belongs to.
+
+  NCS attaches the identifier to every step produced by one backend agent invocation, so consumers
+  can group a received batch back into the invocation that produced it. Identity is per step rather
+  than per batch: one live or catch-up batch can mix human steps, agent steps from different
+  invocations, and steps with no identifier at all.
+
+  The field is optional and additive, so steps that do not carry it are unaffected, and the frontend
+  treats the value as opaque rather than validating its format.
+
+- Updated dependencies
+
+## 25.0.5
+
+### Patch Changes
+
+- [`4f5cb2d60c652`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4f5cb2d60c652) -
+  [ux] Preserve agent types for step-driven presence behind `platform_editor_agent_be_streaming` so
+  `confluence_agent_presence_profile_by_type` can resolve type-only agents.
+- Updated dependencies
+
+## 25.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.2.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 24.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.2.0
+
+### Minor Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.10
+
+### Patch Changes
+
+- [`80b19d6c0649f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/80b19d6c0649f) -
+  Preserve agent type metadata in collaboration presence participants behind
+  `platform_move_presence_agents`.
+- Updated dependencies
+
+## 24.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.2
+
+### Patch Changes
+
+- [`b73b84d18876e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b73b84d18876e) -
+  Stop broadcasting AI provider presence changes when `platform_move_presence_agents` is enabled.
+- Updated dependencies
+
+## 24.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.0
+
+### Minor Changes
+
+- [`3c9414f125601`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c9414f125601) -
+  Show editing status for agents detected from agent-authored collaboration steps.
+
+## 24.0.2
+
+### Patch Changes
+
+- [`d7528657a607f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7528657a607f) -
+  Feature-gate and serialize agent attribution from matching transaction origins onto native-collab
+  steps.
+- Updated dependencies
+
+## 24.0.1
+
+### Patch Changes
+
+- [`e3cd2bd6f960a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3cd2bd6f960a) -
+  Fix agent presence lifecycle behind platform_move_presence_agents.
+- Updated dependencies
+
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.1.0
+
+### Minor Changes
+
+- [`94d2f2443bb25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94d2f2443bb25) -
+  Share the process suspension detector so consumers outside the provider can react to a device
+  waking, via a new `./sleep-detector` entry point.
+
+  `SleepDetector` was an internal class holding its own interval and gap history. It is replaced by
+  a module-scoped detector with a single shared interval:
+
+  ```ts
+  import {
+  	acquireSleepDetector,
+  	getMaxGapSince,
+  	onSuspension,
+  } from '@atlaskit/collab-provider/sleep-detector';
+
+  const release = acquireSleepDetector(); // ref-counted; the interval runs until every consumer releases
+  const unsubscribe = onSuspension((gapMs) => {
+  	/* the process was frozen for gapMs */
+  });
+  const sleptFor = getMaxGapSince(watermark);
+  ```
+
+  Consumers pass their own watermark to `getMaxGapSince` instead of clearing history, so one
+  consumer observing a suspension cannot hide it from another. `Provider` behaviour is unchanged; it
+  now holds a watermark internally where it previously reset the detector. No existing entry point
+  changes, so no migration is required for current consumers.
+
+  The refactor itself is not gated, but the behaviour it exists to serve is: `Provider` only acts on
+  a detected suspension when the `collab_check_sleep_detection_experiment` experiment is enabled,
+  and the first consumer of the new entry point (Confluence quick reload) is gated on the same
+  experiment.
+
+### Patch Changes
+
+- [`b22ad50198f6a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b22ad50198f6a) -
+  Propagate the actingUserId for presence attribution
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- [`b8700e10d6391`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b8700e10d6391) -
+  Remove invalid experiment keys from Editor package feature gate manifests.
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.0
+
+### Minor Changes
+
+- [`83cf312c45f2f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83cf312c45f2f) -
+  Detect process suspension on reconnect so catchup runs after a device wakes from sleep, where
+  `disconnectedAt` is only stamped once the process resumes. Behind
+  `collab_check_sleep_detection_experiment`, read through `@atlaskit/platform-feature-experiments`.
+
+  `@atlaskit/collab-provider` adds no public API. `SleepDetector` is internal: it is not reachable
+  from the `.`, `./provider`, `./socket-io-provider`, `./types` or `./version-wrapper` entry points
+  and does not appear in `report.api.md`. The provider constructs and drives it internally, so
+  consumers need no migration and no call sites change.
+
+  `@atlaskit/tmp-editor-statsig` drops `collab_bypass_out_of_sync_period_experiment` from
+  `editorExperimentsConfig`, which is part of its typed surface. The key had no call sites outside
+  `@atlaskit/collab-provider`, which no longer reads it, so no consumer migration is expected in
+  practice. Any remaining caller must move to the new experiment:
+
+  ```ts
+  // before
+  if (expValEquals('collab_bypass_out_of_sync_period_experiment', 'isEnabled', true, false)) {
+  	// catch up regardless of how long the client was offline
+  }
+
+  // after
+  if (isExperimentEnabled('collab_check_sleep_detection_experiment')) {
+  	// catch up when a suspension of at least OUT_OF_SYNC_PERIOD was detected
+  }
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- [`66dd767196a39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/66dd767196a39) -
+  Receive actingUserId and populate as required
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- [`febd7e6f80cd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/febd7e6f80cd1) - -
+  `collab-provider` Cleanup experiment platform_editor_to_use_pmr_for_collab_edit_none_ic
+  - `editor-core` Update collaborative editing example so non dev connections have to provide PMR
+    path
+  - `tmp-editor-statsig` Remove platform_editor_to_use_pmr_for_collab_edit_none_ic from config
+- Updated dependencies
+
+## 21.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.0
+
+### Minor Changes
+
+- [`782360c1111dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/782360c1111dc) -
+  Agent-edit shimmer review follow-ups (behind the default-OFF `platform_editor_agent_be_streaming`
+  experiment):
+  - Add a second shimmer phase: after the skeleton loader clears, the changed range shows a purple
+    "just edited" highlight (same colours as the editor AI "improve writing" in-editor highlight)
+    that eases in and out over its lifetime. The Rovo telepointer stays through both phases.
+  - The two phases are sized by independent experiment params: `shimmerDurationMs` (skeleton,
+    renamed from `durationMs`) and `highlightDurationMs` (highlight). `0` on either skips just that
+    phase, `0` on both shows nothing.
+  - Gate the agent-edit shimmer styles behind the experiment in both the emotion and compiled
+    `EditorContentContainer` style entries, using the no-exposure check on the hot render path.
+  - Add an `agentEditReceived` collab-provider analytics event, fired once per received transaction
+    that contains agent-authored steps, with non-PII attributes (agent ids, count, kinds,
+    agent/total step counts).
+  - Add an `agentEditShimmerNotShown` COLLAB operational analytics event for agent edits that apply
+    without the shimmer (`rebasedConcurrentEdit`, `nothingToShow`, `captureThrew`,
+    `tornDownMidAnimation`); neutral action + `reason`, non-PII attributes.
+  - Hoist the top-level block/position helpers in `agent-shimmer-ranges` to reusable module scope,
+    drop the redundant upper-bound clamp in `agent-shimmer-decorations`, and remove the empty
+    `@example` JSDoc tags added in the original PR.
+
+  `@atlaskit/editor-common` gains a new subpath export,
+  `@atlaskit/editor-common/analytics/types/agent-edit-shimmer-events`, exposing the
+  `agentEditShimmerNotShown` operational event types. Usage:
+
+  ```ts
+  import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+  import type { AgentEditShimmerNotShownReason } from '@atlaskit/editor-common/analytics/types/agent-edit-shimmer-events';
+
+  const reason: AgentEditShimmerNotShownReason = 'captureThrew';
+  editorAnalyticsApi?.fireAnalyticsEvent({
+  	action: ACTION.AGENT_EDIT_SHIMMER_NOT_SHOWN,
+  	actionSubject: ACTION_SUBJECT.COLLAB,
+  	eventType: EVENT_TYPE.OPERATIONAL,
+  	attributes: { reason },
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.0
+
+### Minor Changes
+
+- [`895ac23f1a3be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/895ac23f1a3be) -
+  Agent edit presence: surface agent-authored collaborative edits to other users.
+  - `collab-provider` detects agent-authored remote steps (`agentType`/`agentId`) and registers a
+    synthetic agent participant in the AI-provider (`agent:`) partition so the agent appears in
+    presence, with a 30s sliding inactivity window (CCI-18030). `editor-common` gains optional
+    `agentId`/`agentType` on the collab step types.
+  - `editor-plugin-collab-edit` + `editor-core` add the in-editor shimmer (CCI-18033): when an
+    agent-authored step lands, the top-level block(s) it touched are covered by a skeleton-loader
+    shimmer (grey skeleton with a moving highlight) with a Rovo agent telepointer/cursor — labelled
+    with the agent's type — at the end of the range, then removed on a timer to reveal the content.
+    Gated behind the default-OFF `platform_editor_agent_be_streaming` experiment; the `durationMs`
+    dynamic-config param controls how long the shimmer stays (0 disables it) and
+    `telepointerDisabled` hides the telepointer. `tmp-editor-statsig` registers the experiment.
+  - `ratcheting` excludes the new `agentShimmerStyles.ts` from the "No unsafe typography" rule (the
+    agent telepointer label mirrors the existing AI in-editor telepointer's sub-token 10px/9px
+    sizing, matching its already-excluded Compiled counterpart).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.28
+
+### Patch Changes
+
+- [`ea47d8afdb33d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea47d8afdb33d) -
+  Clean up experiment `platform_editor_ignore_metadata_connection_errors`
+- Updated dependencies
+
+## 21.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.11
+
+### Patch Changes
+
+- [`346f91cfe1997`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/346f91cfe1997) -
+  Clean up prefer static regex violations
+- Updated dependencies
+
+## 21.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Major Changes
+
+- [`61d2fd59ab062`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/61d2fd59ab062) -
+  Remove canonical file violations and file barrelling from @atlaskit/editor-common/collab
+
+## 18.3.0
+
+### Minor Changes
+
+- [`ce30a31e6369d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce30a31e6369d) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.1
+
+### Patch Changes
+
+- [`967cff1c14097`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/967cff1c14097) -
+  Add isolatedDeclarations: true to tsconfig.app.json and tsconfig.dev.json
+- Updated dependencies
+
+## 18.2.0
+
+### Minor Changes
+
+- [`efed9a7ddd2cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/efed9a7ddd2cd) -
+  Use websocket transport only for socket connections on GCP tenants
+
+## 18.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`e6053f4348753`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e6053f4348753) -
+  Fix cc-markdown-mode duplication and stuck-loading issues on rich/markdown convert. Cache the
+  latest init payload on the native collab provider and expose it via an optional getInitPayload()
+  getter so editor-plugin-collab-edit can seed collabInitialised=true on a rebind (e.g. preset
+  rebuild) without re-running handleInit. Gate a synthetic-BE-step filter in
+  documentService.processSteps that neutralises NCS reconcile-generated steps tagged with the user's
+  userId but no clientId (prevents HelloHello duplication after a markdown-mode flip). Defensively
+  hide the WYSIWYG editor DOM in MarkdownModeContentComponent when the source view is active so the
+  floating toolbar/cursor doesn't leak through. All behaviour changes are behind the
+  cc-markdown-mode experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.0
+
+### Minor Changes
+
+- [`ffccc4788eabb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ffccc4788eabb) -
+  Cleanup presence PMR experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.10
+
+### Patch Changes
+
+- [`5221db0d676ef`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5221db0d676ef) -
+  Mechanical type-import autofix for tables, collab, and synchrony packages.
+- Updated dependencies
+
+## 16.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`e6fbfbf141ff3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e6fbfbf141ff3) -
+  Cleanup feature exp cleanup-platform_editor_send_client_platform_header
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- [`224048d036344`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/224048d036344) -
+  EDITOR-5683 do not rethrow setMetadataError: Cannot send metadata, currently offline and
+  setMetadataError: Cannot send metadata, not initialized yet as they are intermittent connection
+  errors
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.24
+
+### Patch Changes
+
+- [`f29e3578dc7d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f29e3578dc7d1) -
+  Use CollabDraftMetadata.relevance to conditionally run frontend catchup on ncs connected
+- Updated dependencies
+
+## 15.3.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.20
+
+### Patch Changes
+
+- [`4446a5fc716d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4446a5fc716d9) -
+  [ux] proactively catch up on ncs connected
+- Updated dependencies
+
+## 15.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.11
+
+### Patch Changes
+
+- [`3e551df36b04f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e551df36b04f) -
+  cleanup of add-session-id-catchup-query FG
+- Updated dependencies
+
+## 15.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 15.3.9
 
 ### Patch Changes

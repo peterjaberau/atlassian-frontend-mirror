@@ -8,7 +8,10 @@ import { css } from '@compiled/react';
 
 import { cssMap, jsx } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
-import Tabs, { TabList, TabPanel, useTab } from '@atlaskit/tabs';
+import TabList from '@atlaskit/tabs/tab-list';
+import TabPanel from '@atlaskit/tabs/tab-panel';
+import Tabs from '@atlaskit/tabs/tabs';
+import useTab from '@atlaskit/tabs/use-tab';
 import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
@@ -36,11 +39,11 @@ const panelStyles = css({
 	paddingInlineStart: token('space.400'),
 });
 
-export const Panel: ({ children }: {
-    children: ReactNode;
-}) => JSX.Element = ({ children }: { children: ReactNode }) => (
-	<div css={panelStyles}>{children}</div>
-);
+export const Panel: ({ children }: { children: ReactNode }) => JSX.Element = ({
+	children,
+}: {
+	children: ReactNode;
+}) => <div css={panelStyles}>{children}</div>;
 
 const CustomTab = ({ label }: { label: string }) => {
 	const tabAttributes = useTab();

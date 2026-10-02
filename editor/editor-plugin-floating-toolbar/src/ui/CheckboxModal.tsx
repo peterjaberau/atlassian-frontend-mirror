@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
+import type { WrappedComponentProps } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
-import { Checkbox } from '@atlaskit/checkbox';
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import { messages } from '@atlaskit/editor-common/floating-toolbar';
 import type { ConfirmationDialogProps } from '@atlaskit/editor-common/types';
-import Modal, { ModalBody, ModalFooter, ModalHeader, ModalTitle } from '@atlaskit/modal-dialog';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
 import { Text } from '@atlaskit/primitives/compiled';
 
 type ListComponentProps = {
@@ -71,6 +75,7 @@ export const CheckboxModal = (
 				<Text as="p">
 					<Checkbox
 						isChecked={isChecked}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onChange={() => setCheckbox(!isChecked)}
 						label={checkboxlabel}
 						testId={testId ? `${testId}-checkbox` : undefined}
@@ -87,6 +92,7 @@ export const CheckboxModal = (
 				</Button>
 				<Button
 					appearance="warning"
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onClick={() => {
 						onConfirm(isChecked);
 						onClose();

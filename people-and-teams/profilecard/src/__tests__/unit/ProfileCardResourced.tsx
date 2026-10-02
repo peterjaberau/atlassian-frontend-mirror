@@ -1,14 +1,13 @@
 import React from 'react';
 
 import { act, screen, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { renderWithAnalyticsListener as render } from '@atlassian/ptc-test-utils';
 
 import ProfileClient from '../../client/ProfileCardClient';
 import ProfileCardResourced from '../../components/User/ProfileCardResourced';
-import { profileCardRendered } from '../../util/analytics';
-
+import { profileCardRendered } from '../../util/profileCardRendered';
 import { flexiTime } from './helper/_mock-analytics';
 
 const clientUrl = 'https://foo/';
@@ -42,6 +41,10 @@ beforeEach(() => {
 	jest.spyOn(client, 'getReportingLines').mockResolvedValue({});
 });
 
+afterEach(() => {
+	jest.restoreAllMocks();
+});
+
 describe('Fetching data', () => {
 	it('should start to fetch data when mounting', async () => {
 		renderComponent();
@@ -73,6 +76,7 @@ describe('Fetching data', () => {
 			url: clientUrl,
 		});
 		jest.spyOn(newClient, 'getProfile').mockResolvedValue({});
+		jest.spyOn(newClient, 'getReportingLines').mockResolvedValue({});
 		renderComponent({ resourceClient: newClient });
 		await act(async () => {
 			await waitForPromises();
@@ -83,7 +87,7 @@ describe('Fetching data', () => {
 			'test-user-id',
 			expect.any(Function),
 		);
-		expect(defaultProps.resourceClient.getReportingLines).toHaveBeenCalledWith('test-user-id');
+		expect(newClient.getReportingLines).toHaveBeenCalledWith('test-user-id');
 	});
 });
 

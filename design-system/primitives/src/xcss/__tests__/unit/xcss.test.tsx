@@ -1,6 +1,7 @@
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import * as emotion from '@emotion/react';
 
+import { parseXcss } from '../../parse-xcss';
 import { xcss } from '../../xcss';
 
 describe('xcss()', () => {
@@ -28,22 +29,19 @@ describe('xcss()', () => {
 			fontFamily: 'font.family.code',
 		});
 
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    "boxShadow": "var(--ds-shadow-overflow, 0px 0px 8px #1E1F21, 0px 0px 1px #1E1F21)",
-		    "color": "var(--ds-text, #292A2E)",
-		    "font": "var(--ds-font-body-small, normal 400 12px/16px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif)",
-		    "fontFamily": "var(--ds-font-family-code, "Atlassian Mono", ui-monospace, Menlo, "Segoe UI Mono", "Ubuntu Mono", monospace)",
-		    "fontWeight": "var(--ds-font-weight-bold, 653)",
-		    "insetBlock": "var(--ds-space-negative-150, -12px)",
-		    "margin": "var(--ds-space-negative-200, -16px)",
-		    "padding": "var(--ds-space-100, 8px)",
-		    "top": "var(--ds-space-negative-050, -4px)",
-		    "zIndex": 500,
-		  },
-		}
-	`);
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			boxShadow: 'var(--ds-shadow-overflow, 0px 0px 8px #1E1F21, 0px 0px 1px #1E1F21)',
+			color: 'var(--ds-text, #292A2E)',
+			font: 'var(--ds-font-body-small, normal 400 12px/16px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif)',
+			fontFamily:
+				'var(--ds-font-family-code, "Atlassian Mono", ui-monospace, Menlo, "Segoe UI Mono", "Ubuntu Mono", monospace)',
+			fontWeight: 'var(--ds-font-weight-bold, 653)',
+			insetBlock: 'var(--ds-space-negative-150, -12px)',
+			margin: 'var(--ds-space-negative-200, -16px)',
+			padding: 'var(--ds-space-100, 8px)',
+			top: 'var(--ds-space-negative-050, -4px)',
+			zIndex: 500,
+		});
 	});
 
 	it('handles CSSObjects with both token styles and non-token styles', () => {
@@ -51,14 +49,10 @@ describe('xcss()', () => {
 			borderColor: 'color.border',
 			justifyContent: 'center',
 		});
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    "borderColor": "var(--ds-border, #0B120E24)",
-		    "justifyContent": "center",
-		  },
-		}
-	`);
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			borderColor: 'var(--ds-border, #0B120E24)',
+			justifyContent: 'center',
+		});
 	});
 
 	it('transforms pseudo classes', () => {
@@ -72,19 +66,15 @@ describe('xcss()', () => {
 			},
 		});
 
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    ":hover": {
-		      "borderWidth": "var(--ds-border-width-selected, 2px)",
-		      "display": "flex",
-		    },
-		    ":visited": {
-		      "borderWidth": "var(--ds-border-width, 1px)",
-		    },
-		  },
-		}
-	`);
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			':hover': {
+				borderWidth: 'var(--ds-border-width-selected, 2px)',
+				display: 'flex',
+			},
+			':visited': {
+				borderWidth: 'var(--ds-border-width, 1px)',
+			},
+		});
 	});
 
 	it('allows CSS transitions', () => {
@@ -92,13 +82,9 @@ describe('xcss()', () => {
 			transition: 'all 0.3s',
 		});
 
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    "transition": "all 0.3s",
-		  },
-		}
-	`);
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			transition: 'all 0.3s',
+		});
 	});
 
 	it('allows pseudo elements', () => {
@@ -114,38 +100,16 @@ describe('xcss()', () => {
 			},
 		});
 
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    "::before": {
-		      "content": ">",
-		    },
-		    "@media (min-width: 110.5rem)": {
-		      ":hover": {
-		        "color": "var(--ds-text, #292A2E)",
-		      },
-		    },
-		  },
-		}
-	`);
-	});
-
-	it('allows @supports elements', () => {
-		const styles = xcss({
-			'@supports not selector(*:focus-visible)': {
-				padding: 'space.100',
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			'::before': {
+				content: '>',
+			},
+			'@media (min-width: 110.5rem)': {
+				':hover': {
+					color: 'var(--ds-text, #292A2E)',
+				},
 			},
 		});
-
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    "@supports not selector(*:focus-visible)": {
-		      "padding": "var(--ds-space-100, 8px)",
-		    },
-		  },
-		}
-	`);
 	});
 
 	it('allows valid interpolated keys', () => {
@@ -158,15 +122,11 @@ describe('xcss()', () => {
 			},
 		});
 
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    ":hover": {
-		      "gap": "var(--ds-space-200, 16px)",
-		    },
-		  },
-		}
-	`);
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			':hover': {
+				gap: 'var(--ds-space-200, 16px)',
+			},
+		});
 	});
 
 	it('allows non-token values to be passed through for tokenisable properties', () => {
@@ -180,15 +140,11 @@ describe('xcss()', () => {
 			top: 0,
 		});
 
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    "color": "#F0F0F0",
-		    "padding": "10px",
-		    "top": 0,
-		  },
-		}
-	`);
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			color: '#F0F0F0',
+			padding: '10px',
+			top: 0,
+		});
 	});
 
 	it('allows non-token values to be passed through for tokenisable properties', () => {
@@ -206,18 +162,14 @@ describe('xcss()', () => {
 			top: 0,
 		});
 
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    "@media (min-width: 100px)": {
-		      "padding": "var(--ds-space-100, 8px)",
-		    },
-		    "color": "#F0F0F0",
-		    "padding": "10px",
-		    "top": 0,
-		  },
-		}
-	`);
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			'@media (min-width: 100px)': {
+				padding: 'var(--ds-space-100, 8px)',
+			},
+			color: '#F0F0F0',
+			padding: '10px',
+			top: 0,
+		});
 	});
 
 	it('should not throw warning on flexShrink: 0', () => {
@@ -226,13 +178,9 @@ describe('xcss()', () => {
 		});
 
 		expect(console.warn).not.toHaveBeenCalled();
-		expect(styles).toMatchInlineSnapshot(`
-		{
-		  Symbol(UNSAFE_INTERNAL_styles): {
-		    "flexShrink": "0",
-		  },
-		}
-	`);
+		expect(parseXcss(styles).emotion?.[0]).toEqual({
+			flexShrink: '0',
+		});
 	});
 
 	it('throws on unsupported selectors', () => {

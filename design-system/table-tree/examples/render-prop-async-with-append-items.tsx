@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 import TableTree, {
 	Cell,
 	Header,
@@ -12,7 +12,32 @@ import TableTree, {
 
 type Item = (typeof ROOTS)[number];
 
-const ROOTS = [
+const ROOTS: (
+	| {
+			title: string;
+			id: string;
+			page: number;
+			numbering: string;
+			hasChildren: boolean;
+			children?: undefined;
+	  }
+	| {
+			title: string;
+			id: string;
+			page: number;
+			numbering: string;
+			hasChildren?: undefined;
+			children?: undefined;
+	  }
+	| {
+			title: string;
+			id: string;
+			page: number;
+			numbering: string;
+			children: never[];
+			hasChildren?: undefined;
+	  }
+)[] = [
 	{
 		title: 'Chapter 1: Clean code',
 		id: 'chapter-1-clean-code',
@@ -88,9 +113,11 @@ function getData(parentItem?: Item) {
 
 const tableTreeHelper = new TableTreeDataHelper<Item>({ key: 'id' });
 
-// eslint-disable-next-line import/no-anonymous-default-export, @repo/internal/react/no-class-components
+// eslint-disable-next-line @repo/internal/react/no-class-components
 export default class extends Component {
-	state = {
+	state: {
+		items: never[];
+	} = {
 		items: [],
 	};
 

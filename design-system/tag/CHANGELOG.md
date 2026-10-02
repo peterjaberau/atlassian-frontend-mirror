@@ -1,5 +1,647 @@
 # @atlaskit/tag
 
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Major Changes
+
+- [`0770268039333`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0770268039333) -
+  [ux] BREAKING: Removes the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate and makes
+  the refreshed Tag implementation the default. The temporary `migration_fallback="lozenge"` and
+  legacy appearance, DOM, and styling behavior no longer affect rendering; use `@atlaskit/lozenge`
+  directly for status labels and update visual snapshots or DOM assertions that depend on the legacy
+  Tag rendering. Custom link components remain supported.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.8.4
+
+### Patch Changes
+
+- [`78264aeafd321`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78264aeafd321) -
+  Add an onStart lifecycle callback to useMotion so Tag, Select, and User Picker consumers can
+  determine settled truncation before tokenized grid-column motion runs behind
+  platform-dst-motion-uplift-labels.
+- Updated dependencies
+
+## 15.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.8.1
+
+### Patch Changes
+
+- [`3516c9fac5ea8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3516c9fac5ea8) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall`.
+- Updated dependencies
+
+## 15.8.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.7.4
+
+### Patch Changes
+
+- [`ae3b452f54cbe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae3b452f54cbe) -
+  Point the `RemovableTag` re-export at the internal removable implementation
+  (`./tag/internal/removable`) and remove the now-redundant `src/tag/removable-tag.tsx` shim (Volt
+  Stage-1). The public `RemovableTag` export and its props are unchanged.
+
+## 15.7.3
+
+### Patch Changes
+
+- [`fb7fe0e714a8f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb7fe0e714a8f) -
+  Cleanup feature gate `parent-field-switcher-missing-info-image-text`. When both
+  `swatchBeforeLabel` and `swatchBeforeRole` are provided, the color swatch now always renders with
+  `role` and `aria-label` for screen reader accessibility.
+- Updated dependencies
+
+## 15.7.2
+
+### Patch Changes
+
+- Use `@atlassian/testing-library` exclusively in unit tests.
+
+## 15.7.1
+
+### Patch Changes
+
+- [`fae4f6a53e4be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fae4f6a53e4be) -
+  Render label enter and exit animations through `cssMap` in Tag, React Select, Select, and User
+  Picker. Motion now measures concurrent CSS animation lists correctly so the label scale and fade
+  animations complete together.
+- Updated dependencies
+
+## 15.7.0
+
+### Minor Changes
+
+- [`ef98af289c49b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef98af289c49b) -
+  Add motion to Tag, AvatarTag, TagDropdownTrigger, Tag Group, Select, React Select, and User Picker
+  tag values. Tags use `motion.label.enter` and `motion.label.exit` for entry and exit, while
+  interactive tags and dropdown triggers use the button hover and pressed motion tokens; Tag
+  Dropdown Trigger also fades between its content and loading spinner. The remove control is removed
+  when exit begins so it cannot linger while the tag collapses.
+
+  Motion is gated by `platform-dst-motion-uplift-labels`. Compatibility and adoption paths for the
+  visually uplifted Tag, Tag Group, Select, React Select, and User Picker additionally remain behind
+  `platform-dst-lozenge-tag-badge-visual-uplifts`.
+
+  `@atlaskit/react-select` also adds an optional `onMotionFinish` callback to the exported
+  `MultiValueProps` interface so the Select can restore its placeholder after the final multi-value
+  exit completes.
+
+  ```tsx
+  import Tag from '@atlaskit/tag/new';
+
+  <Tag text="Status" />;
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.8
+
+### Patch Changes
+
+- [`6d704062ca749`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d704062ca749) -
+  Internal changes to support tree shaking. No consumer changes.
+
+## 15.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.6
+
+### Patch Changes
+
+- [`e0edc05cd52d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0edc05cd52d7) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall` as a 1:1 size rename with no visual
+  change.
+- Updated dependencies
+
+## 15.4.5
+
+### Patch Changes
+
+- [`95d4618be32ae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95d4618be32ae) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 15.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.0
+
+### Minor Changes
+
+- [`772c0f5a9cdbd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/772c0f5a9cdbd) -
+  Add a new `@atlaskit/tag/tag` entry point that exports the default `Tag` component (removable by
+  default) without going through the package barrel.
+
+  This gives consumers a non-barrel path to the recommended default `Tag` when migrating off the
+  deprecated `SimpleTag` (`@atlaskit/tag/simple-tag`) and `RemovableTag`
+  (`@atlaskit/tag/removable-tag`) entry points:
+
+  ```diff
+  - import SimpleTag from '@atlaskit/tag/simple-tag';
+  + import Tag from '@atlaskit/tag/tag';
+    // <Tag ... isRemovable={false} />
+
+  - import RemovableTag from '@atlaskit/tag/removable-tag';
+  + import Tag from '@atlaskit/tag/tag';
+    // <Tag ... />
+  ```
+
+  Importing from `@atlaskit/tag/tag` (instead of the `@atlaskit/tag` barrel) keeps consumers off the
+  prohibited barrel entry point, improving IDE type highlighting, dev-server startup, and
+  tree-shaking.
+
+## 15.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.2
+
+### Patch Changes
+
+- [`79699bc682645`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79699bc682645) -
+  Fix `testId` not being forwarded to the link element on the default `Tag` (and `RemovableTag`)
+  when a `href` is provided. Previously a linked tag rendered its anchor without the
+  `${testId}--link` test id, breaking test/query targeting. This restores parity with `SimpleTag`.
+
+## 15.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.0
+
+### Minor Changes
+
+- [`7de10719ffa5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7de10719ffa5c) -
+  Adds optional `swatchBeforeLabel` and `swatchBeforeRole` props to `SimpleTag`, `RemovableTag`, and
+  `TagNew` components. When both props are provided and the
+  `parent-field-switcher-missing-info-image-text` feature gate is enabled, the color swatch renders
+  with `role="img"` and `aria-label` for screen reader accessibility.
+
+  ```jsx
+  <SimpleTag
+  	color="purple"
+  	swatchBefore
+  	swatchBeforeLabel="Epic"
+  	swatchBeforeRole="img"
+  	text="My Epic"
+  />
+  ```
+
+## 15.2.3
+
+### Patch Changes
+
+- [`10862ef4cfde6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/10862ef4cfde6) -
+  Re-introduces the `SimpleTag`/`RemovableTag` deprecation and `hasMargin` cleanup.
+
+  These changes were previously released in `@atlaskit/tag@15.2.2`, then reverted in the monorepo,
+  so the published `15.2.2` package on npm no longer matched `master`. This change re-lands the
+  intended behaviour so the source and published package are back in sync.
+  - Deprecated `SimpleTag` and `RemovableTag`. Migrate to the default `Tag` export from
+    `@atlaskit/tag`: use `<Tag isRemovable={false} />` in place of `SimpleTag`, and `<Tag />` in
+    place of `RemovableTag` (removable by default).
+  - Removed `hasMargin` from `SimpleTagProps` as it was never forwarded to the underlying tag and
+    had no effect on `SimpleTag`. The prop remains available on `RemovableTag`, where it is applied
+    correctly.
+
+## 15.2.2
+
+### Patch Changes
+
+- [`54390f4df63aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/54390f4df63aa) - -
+  Deprecated `SimpleTag` and `RemovableTag`. Migrate to the default `Tag` export from
+  `@atlaskit/tag`: use `<Tag isRemovable={false} />` in place of `SimpleTag`, and `<Tag />` in place
+  of `RemovableTag` (removable by default).
+  - Removed `hasMargin` from `SimpleTagProps` as it was never forwarded to the underlying tag and
+    had no effect on `SimpleTag`. The prop remains available on `RemovableTag`, where it is applied
+    correctly.
+- Updated dependencies
+
+## 15.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.1
+
+### Patch Changes
+
+- [`e724a276d68f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e724a276d68f2) -
+  Fix a crash (`Cannot read properties of undefined (reading 'standard')`) that could occur when
+  rendering `Tag` from the precompiled package. The removable and simple tag internals imported
+  `colorMapping` through the `tag-new` barrel, which is part of a circular dependency, so in the
+  built (dist) output `colorMapping` could be undefined at render time when the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` flag was enabled. They now import `colorMapping`
+  directly from the leaf `tag-new/color-mapping` module, matching how `tag-new` and
+  `tag-dropdown-trigger` already import it.
+
+## 15.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- [`c955baee350f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c955baee350f7) -
+  Fix focus ring offset on remove button in Tag and AvatarTag to use 2px offset, matching the
+  standardized ADS focus ring behavior across all components
+
+## 15.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.16.0
+
+### Minor Changes
+
+- [`1ed7a98923fd7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ed7a98923fd7) -
+  Removed all OKLCH and `color-mix()` runtime color transformations from the new Tag component
+  (behind the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate).
+  - Borders now use the new `color.border.accent.*.subtle` tokens (introduced in
+    `@atlaskit/tokens@13.2.0`).
+  - Icons keep `color.icon.accent.*` in the default state (vibrant on the plain page background) and
+    swap to `color.text.accent.*` on hover/pressed for guaranteed 3:1 contrast against the coloured
+    interactive backgrounds.
+  - The `AvatarTag` border uses `color.border.accent.gray.subtle` directly with no interactive
+    transforms.
+
+## 14.15.0
+
+### Minor Changes
+
+- [`5a852801cedf2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a852801cedf2) -
+  Add trailing metric support to the new Tag API and tag dropdown trigger, including neutral metric
+  interaction styling updates for the dropdown trigger and refreshed documentation examples.
+
+## 14.14.0
+
+### Minor Changes
+
+- [`f66361a625b2c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f66361a625b2c) -
+  Support `string[]` for the UI-uplifted Tag (`TagNew`) `text` prop.
+
+  This helps Lozenge → Tag migration cases where intl placeholder callbacks return ordered string
+  chunks. `string[]` values are flattened with `join('')` before rendering. AvatarTag remain
+  string-only.
+
+## 14.13.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.13.2
+
+### Patch Changes
+
+- [`19547c9a9aad5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19547c9a9aad5) -
+  [ux] In the deprecated Tag Dropdown Trigger, added the interactive background and focus ring
+  styles back which were accidentally removed in a previous commit.
+
+## 14.13.1
+
+### Patch Changes
+
+- [`237f0d148a18e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/237f0d148a18e) -
+  update prop from data-testid to testId
+
+## 14.13.0
+
+### Minor Changes
+
+- [`aef119573f01b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aef119573f01b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.12.0
+
+### Minor Changes
+
+- [`7c17bccdb5fb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7c17bccdb5fb8) -
+  [ux] Adds hasMargin optional prop to tag so that margin can be removed in tag. This is used in
+  parent elements that control margin themselves.
+
+## 14.11.0
+
+### Minor Changes
+
+- [`c23fa87416661`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c23fa87416661) -
+  [ux] Adds hasMargin optional prop to tag so that margin can be removed in tag. This is used in
+  parent elements that control margin themselves.
+
+## 14.10.0
+
+### Minor Changes
+
+- [`ea970883e4943`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea970883e4943) -
+  [ux] Adds hasMargin optional prop to tag so that margin can be removed in tag. This is used in
+  parent elements that control margin themselves.
+
+## 14.9.1
+
+### Patch Changes
+
+- [`311b68e6c4494`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/311b68e6c4494) -
+  Fixes new removable tag remove animation.
+
+## 14.9.0
+
+### Minor Changes
+
+- [`52b7aa6b3d721`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52b7aa6b3d721) -
+  Added a new `/new` entrypoint for `@atlaskit/lozenge`, `@atlaskit/badge`, and `@atlaskit/tag`.
+  These entrypoints export the new visual refresh components directly, bypassing the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature flag. This is intended for products that
+  don't have Statsig integrated and cannot evaluate the feature flag.
+
+  New entrypoints:
+  - `import Lozenge from '@atlaskit/lozenge/new'`
+  - `import Badge from '@atlaskit/badge/new'`
+  - `import Tag from '@atlaskit/tag/new'`
+
+  **Note:** Do not use the `/new` entrypoint if your app can evaluate the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature flag. These entrypoints will be removed
+  after the visual uplift rollout is complete, which will require updating import paths back to the
+  default entrypoint.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.8.0
+
+### Minor Changes
+
+- [`564c0378f73b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/564c0378f73b5) -
+  Add a temporary migration prop `swatchBefore` to the old tag prop types, and pass it to the new
+  tag when `platform-dst-lozenge-tag-badge-visual-uplifts` is true
+
+## 14.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.7.0
+
+### Minor Changes
+
+- [`0b0079f9a87a8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b0079f9a87a8) -
+  Introduced `TagDropdownTrigger` for Jira Epic workflows only. This component is deprecated and
+  intended strictly for migration/backward-compatibility use cases; do not adopt it for new product
+  experiences.
+
+  Added experimental `swatchBefore` support to new Tag component, which renders a 12x12 leading
+  color swatch before `elemBefore` (using either the tag color’s subtle accent token or a provided
+  token value). This API is experimental and not recommended for broad adoption yet.
+
+## 14.6.2
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 14.6.1
+
+### Patch Changes
+
+- [`e2085d35701ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2085d35701ca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 14.6.0
+
+### Minor Changes
+
+- [`a4a6864086c42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4a6864086c42) -
+  Added onClick prop to new Tag and AvatarTag with link for analytics tracking.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 14.5.0
 
 ### Minor Changes

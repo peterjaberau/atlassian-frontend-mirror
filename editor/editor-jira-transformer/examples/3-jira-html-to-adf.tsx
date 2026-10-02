@@ -2,20 +2,24 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
+
 import React from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
+import { css, jsx } from '@emotion/react';
+
 import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
-import { JSONTransformer } from '@atlaskit/editor-json-transformer';
+import { JSONTransformer } from '@atlaskit/editor-json-transformer/JSONTransformer-2';
 import { token } from '@atlaskit/tokens';
+
 import { JIRATransformer } from '../src';
 
 const container = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'#source, #output': {
 		boxSizing: 'border-box',
-		margin: token('space.100', '8px'),
-		padding: token('space.100', '8px'),
+		margin: token('space.100'),
+		padding: token('space.100'),
 		whiteSpace: 'pre-wrap',
 		width: '100%',
 		'&:focus': {
@@ -65,4 +69,4 @@ class Example extends React.PureComponent<{}, State> {
 	}
 }
 
-export default () => <Example />;
+export default (): jsx.JSX.Element => <Example />;

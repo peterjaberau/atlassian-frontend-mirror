@@ -1,4 +1,4 @@
-import { type IntlShape } from 'react-intl-next/src/types';
+import type { IntlShape } from 'react-intl/src/types';
 
 import { tableMessages as messages } from '@atlaskit/editor-common/messages';
 import type { SelectionSharedState } from '@atlaskit/editor-common/selection';
@@ -16,6 +16,7 @@ import { Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
 import { TableMap } from '@atlaskit/editor-tables/table-map';
 import {
+	cellAround,
 	findTable,
 	isColumnSelected,
 	isRowSelected,
@@ -26,7 +27,6 @@ import {
 import type tablePlugin from '../../tablePlugin';
 import { getClosestSelectionRect } from '../../ui/toolbar';
 import { getPluginState } from '../plugin-factory';
-
 import { selectColumn, selectRow } from './misc';
 
 enum TableSelectionDirection {
@@ -325,6 +325,23 @@ const arrowRightFromText =
 	};
 
 /**
+ * sets a cell selection over the table cell in which the selection is inside of
+ */
+const selectTableCell: Command = (state, dispatch) => {
+	const $cell = cellAround(state.selection.$from);
+	if (!$cell) {
+		return false;
+	}
+
+	if (dispatch) {
+		dispatch(state.tr.setSelection(new CellSelection($cell)));
+		return true;
+	}
+
+	return false;
+};
+
+/**
  * Sets a cell selection over all the cells in the table node
  * We use this instead of selectTable from prosemirror-utils so we can control which
  * cell is the anchor and which is the head, and also so we can set the relative selection
@@ -520,8 +537,14 @@ export const modASelectTable =
 		const { $from, $to } = selection;
 
 		const tableSelected = isTableSelected(selection);
+		const isCellSelection = selection instanceof CellSelection;
 
-		if (
+		// if no cells are selected
+		if (!isCellSelection) {
+			return selectTableCell(state, dispatch);
+		}
+		// else if any number of cells are selected but not the full table
+		else if (
 			!tableSelected &&
 			$from.pos > table.start + 1 &&
 			$to.pos < table.start + table.node.nodeSize

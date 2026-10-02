@@ -15,24 +15,22 @@ import {
 import { css, jsx } from '@emotion/react';
 import invariant from 'tiny-invariant';
 
-import { type UIAnalyticsEvent, usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
-import { type RouterLinkComponentProps, useRouterLink } from '@atlaskit/app-provider';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
+import type { RouterLinkComponentProps } from '@atlaskit/app-provider/router-link-provider';
+import { useRouterLink } from '@atlaskit/app-provider/use-router-link';
 import noop from '@atlaskit/ds-lib/noop';
 import { useId } from '@atlaskit/ds-lib/use-id';
 import InteractionContext, { type InteractionContextType } from '@atlaskit/interaction-context';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
-import {
-	type BackgroundColor,
-	backgroundColorStylesMap,
-	borderColorMap,
-	borderWidthMap,
-	paddingStylesMap,
-	positiveSpaceMap,
-	type Space,
-} from '../xcss/style-maps.partial';
-import { parseXcss } from '../xcss/xcss';
-
+import { type BackgroundColor } from '../xcss/background-color';
+import { backgroundColorStylesMap } from '../xcss/background-color-styles-map';
+import { borderColorMap } from '../xcss/border-color';
+import { borderWidthMap } from '../xcss/border-width';
+import { paddingStylesMap } from '../xcss/padding-styles-map';
+import { parseXcss } from '../xcss/parse-xcss';
+import { positiveSpaceMap, type Space } from '../xcss/positive-space';
 import type { BasePrimitiveProps, StyleProp } from './types';
 
 type BaseAnchorProps = {
@@ -249,7 +247,6 @@ const AnchorNoRef = <RouterLinkConfig extends Record<string, any> = never>(
 
 	return (
 		<Component
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			style={style}
 			ref={ref}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
@@ -298,9 +295,9 @@ const AnchorNoRef = <RouterLinkConfig extends Record<string, any> = never>(
 		>
 			{children}
 			{target === '_blank' && ((children && !ariaLabel && !ariaLabelledBy) || ariaLabelledBy) && (
-				<VisuallyHidden
-					id={opensNewWindowLabelId}
-				>{`, ${newWindowLabel ? newWindowLabel : OPENS_NEW_WINDOW_LABEL}`}</VisuallyHidden>
+				<VisuallyHidden id={opensNewWindowLabelId}>{`, ${
+					newWindowLabel ? newWindowLabel : OPENS_NEW_WINDOW_LABEL
+				}`}</VisuallyHidden>
 			)}
 		</Component>
 	);
@@ -316,10 +313,13 @@ const AnchorNoRef = <RouterLinkConfig extends Record<string, any> = never>(
  * - [Code](https://atlassian.design/components/primitives/anchor/code)
  * - [Usage](https://atlassian.design/components/primitives/anchor/usage)
  */
-const Anchor = forwardRef(AnchorNoRef) as <RouterLinkConfig extends Record<string, any> = never>(
+export const Anchor = forwardRef(AnchorNoRef) as <
+	RouterLinkConfig extends Record<string, any> = never,
+>(
 	props: AnchorProps<RouterLinkConfig> & {
 		ref?: Ref<HTMLAnchorElement>;
 	},
 ) => ReturnType<typeof AnchorNoRef>;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Anchor;

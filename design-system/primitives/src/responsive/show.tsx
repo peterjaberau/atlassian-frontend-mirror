@@ -8,13 +8,10 @@ import { type ReactElement, type ReactNode } from 'react';
 import { css, jsx } from '@emotion/react';
 
 import { type BasePrimitiveProps } from '../components/types';
-import { parseXcss } from '../xcss/xcss';
-
-import {
-	UNSAFE_buildAboveMediaQueryCSS,
-	UNSAFE_buildBelowMediaQueryCSS,
-} from './build-media-query-css';
+import { parseXcss } from '../xcss/parse-xcss';
 import type { Breakpoint } from './types';
+import { UNSAFE_buildAboveMediaQueryCSS } from './unsafe-build-above-media-query-css';
+import { UNSAFE_buildBelowMediaQueryCSS } from './unsafe-build-below-media-query-css';
 
 const showAboveQueries = UNSAFE_buildAboveMediaQueryCSS({ display: 'revert' });
 const showBelowQueries = UNSAFE_buildBelowMediaQueryCSS({ display: 'revert' });

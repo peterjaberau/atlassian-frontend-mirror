@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { Text } from '@atlaskit/primitives/compiled';
 
-export const MockDisclaimer = () => {
+export const MockDisclaimer = (): React.JSX.Element => {
 	const { locale } = useIntl();
 	const parentLocale = locale.split(/[-_]/)[0];
 	const disclaimer = 'This is a mocked plugin.';

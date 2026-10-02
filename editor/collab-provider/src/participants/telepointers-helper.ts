@@ -1,12 +1,14 @@
-import { createLogger } from '../helpers/utils';
-import { ExperiencePerformanceTypes, ExperienceTypes, UFOExperience } from '@atlaskit/ufo';
-import type { CustomData } from '@atlaskit/ufo';
-import type { AcknowledgementErrorPayload, AcknowledgementPayload } from '../types';
 import type {
 	CollabTelepointerPayload,
 	StepJson,
 	ProviderParticipant,
 } from '@atlaskit/editor-common/collab';
+import { UFOExperience } from '@atlaskit/ufo/experience';
+import { ExperiencePerformanceTypes, ExperienceTypes } from '@atlaskit/ufo/experience-types';
+import type { CustomData } from '@atlaskit/ufo/types';
+
+import { createLogger } from '../helpers/utils';
+import type { AcknowledgementErrorPayload, AcknowledgementPayload } from '../types';
 import { AcknowledgementResponseTypes } from '../types';
 
 const logger = createLogger('Telepointer', 'green');

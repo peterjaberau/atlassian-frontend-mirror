@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 
-import Button, { IconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import CommentAddIcon from '@atlaskit/icon/core/comment-add';
 import CrossIcon from '@atlaskit/icon/core/cross';
+// eslint-disable-next-line @atlaskit/design-system/use-spotlight-package
 import {
 	Spotlight,
 	SpotlightManager,
 	SpotlightTarget,
 	SpotlightTransition,
 } from '@atlaskit/onboarding';
-import { N0 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 const SpotlightHeadingAfterElement = (): React.JSX.Element => {
@@ -48,7 +49,7 @@ const SpotlightHeadingAfterElement = (): React.JSX.Element => {
 						target="comment"
 						key="comment"
 						targetRadius={3}
-						targetBgColor={N0}
+						targetBgColor={'#FFFFFF'}
 					>
 						Quickly add a comment to the work item.
 					</Spotlight>

@@ -1,0 +1,53 @@
+{
+	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
+		"team": "Editor: Jenga",
+		"releaseModel": "continuous"
+	},
+	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-monorepo",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
+	"module:es2019": "dist/es2019/index.js",
+	"types": "dist/types/index.d.ts",
+	"sideEffects": [
+		"*.compiled.css"
+	],
+	"atlaskit:src": "src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./create-registry": "./src/entry-points/create-registry.ts",
+		"./create-surface-context": "./src/entry-points/create-surface-context.ts",
+		"./surface-renderer/types": "./src/entry-points/surface-renderer-types.ts",
+		"./surface-renderer": "./src/entry-points/surface-renderer.tsx",
+		"./types": "./src/entry-points/types.ts",
+		"./utils": "./src/entry-points/utils.ts"
+	},
+	"dependencies": {
+		"@atlaskit/platform-feature-experiments": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@babel/runtime": "root:*"
+	},
+	"peerDependencies": {
+		"react": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
+	},
+	"name": "@atlaskit/editor-ui-control-model",
+	"version": "2.10.0",
+	"description": "Rendering logic and model-types for Editor controls registry ( editor-plugin-ui-control-registry)",
+	"author": "Atlassian Pty Ltd",
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
+	"devDependencies": {
+		"@atlassian/experiment-test-utils": "workspace:^",
+		"react": "^19.2.0",
+		"react-intl": "root:*"
+	}
+}

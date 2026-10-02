@@ -12,7 +12,8 @@ import React, {
 import { bind } from 'bind-event-listener';
 
 import noop from '@atlaskit/ds-lib/noop';
-import { isReducedMotion } from '@atlaskit/motion';
+import { isReducedMotion } from '@atlaskit/motion/is-reduced-motion';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { UNSAFE_useMediaQuery as useMediaQuery } from '@atlaskit/primitives/responsive';
 
 import {
@@ -20,14 +21,10 @@ import {
 	DEFAULT_LEFT_SIDEBAR_WIDTH,
 	IS_SIDEBAR_COLLAPSING,
 } from '../common/constants';
-import { type SidebarResizeControllerProps } from '../common/types';
-import { getPageLayoutSlotCSSSelector } from '../common/utils';
-
-import {
-	type LeftSidebarState,
-	SidebarResizeContext,
-	type SidebarResizeContextValue,
-} from './sidebar-resize-context';
+import { getPageLayoutSlotCSSSelector } from '../common/get-page-layout-slot-css-selector';
+import type { SidebarResizeControllerProps } from '../common/types';
+import { SidebarResizeContext, type SidebarResizeContextValue } from './sidebar-resize-context';
+import type { LeftSidebarState } from './types';
 
 type Callback = (leftSidebarState: LeftSidebarState) => void;
 const handleDataAttributesAndCb = (

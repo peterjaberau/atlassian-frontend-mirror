@@ -8,11 +8,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { css, jsx } from '@emotion/react';
 import invariant from 'tiny-invariant';
 
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 
 import king from '../../icons/king.png';
 import pawn from '../../icons/pawn.png';
-
 import { type Coord } from './chessboard-drop-target';
 
 export type PieceType = 'king' | 'pawn';

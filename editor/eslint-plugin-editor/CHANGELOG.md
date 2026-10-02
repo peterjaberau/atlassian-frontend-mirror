@@ -1,5 +1,65 @@
 # @atlaskit/eslint-plugin-editor
 
+## 2.0.3
+
+### Patch Changes
+
+- [`e29faa16e0c66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e29faa16e0c66) -
+  Migrate selected editor experiment reads and tooling from tmp-editor-statsig to
+  platform-feature-experiments, including static CSS, floating ToC, insert-menu AI, table overflow
+  shadows, and collapsible headings.
+
+## 2.0.2
+
+### Patch Changes
+
+- [`25e3dde50eeb3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25e3dde50eeb3) -
+  Upgrade `@typescript-eslint` dependencies from v5 to v7
+
+## 2.0.1
+
+### Patch Changes
+
+- [`c2986ab2c7a01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2986ab2c7a01) -
+  Cleans up prefer static regex violations and enables e18e rule
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 1.6.0
+
+### Minor Changes
+
+- [`90b759086522c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90b759086522c) -
+  Add withCompiledMigration HOC and enforce-compiled-migration-gate ESLint rule for feature-gated
+  Emotion to Compiled CSS-in-JS migration
+
+## 1.5.3
+
+### Patch Changes
+
+- [`c0a8e9590b919`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c0a8e9590b919) -
+  Mechanical type-import autofix for editor lint and metrics packages.
+
 ## 1.5.2
 
 ### Patch Changes

@@ -1,9 +1,10 @@
 import React from 'react';
 
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
-import { LARGE, LOADING_CONTENTS_OPACITY } from '../internal/constants';
-import { Container, ContentsContainer, SpinnerContainer } from '../styled/loading-container';
+import { Container } from '../styled/container';
+import { ContentsContainer } from '../styled/contents-container';
+import { SpinnerContainer } from '../styled/spinner-container';
 import type { SpinnerSizeType } from '../types';
 
 interface LoadingContainerProps {
@@ -17,10 +18,15 @@ interface LoadingContainerProps {
 
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export default class LoadingContainer extends React.Component<LoadingContainerProps> {
-	static defaultProps = {
+	static defaultProps: {
+		isLoading: boolean;
+		spinnerSize: string;
+		contentsOpacity: number;
+		loadingLabel: string;
+	} = {
 		isLoading: true,
-		spinnerSize: LARGE,
-		contentsOpacity: LOADING_CONTENTS_OPACITY,
+		spinnerSize: 'large',
+		contentsOpacity: 0.22,
 		loadingLabel: 'Loading table',
 	};
 

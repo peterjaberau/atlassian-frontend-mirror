@@ -1,5 +1,231 @@
 # @atlaskit/teams-avatar
 
+## 4.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.3
+
+### Patch Changes
+
+- [`3516c9fac5ea8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3516c9fac5ea8) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall`.
+- Updated dependencies
+
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.1
+
+### Patch Changes
+
+- [`e0edc05cd52d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0edc05cd52d7) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall` as a 1:1 size rename with no visual
+  change.
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`a9a8208446bfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9a8208446bfa) -
+  Support React 19 for people-and-teams packages.
+
+## 4.0.0
+
+### Major Changes
+
+- [`175997bf1d626`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/175997bf1d626) -
+  Removed barrel (entry-point) re-exports from the package root. Consumers must now import directly
+  from the package subpaths instead of the root barrel.
+  - `import TeamAvatar from '@atlaskit/teams-avatar'` →
+    `import TeamAvatar from '@atlaskit/teams-avatar/teams-avatar'`
+  - `import { UNSAFE_urlIsRefreshedTeamAvatar } from '@atlaskit/teams-avatar'` →
+    `import { UNSAFE_urlIsRefreshedTeamAvatar } from '@atlaskit/teams-avatar/unsafe-url-is-refreshed-team-avatar'`
+
+  The root re-exports remain temporarily as `@deprecated` for backwards compatibility but will be
+  removed in a future release.
+
+## 3.2.0
+
+### Minor Changes
+
+- [`0a1dac0483f0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a1dac0483f0a) -
+  `TeamAvatar`'s `size` prop is now typed as the new `TeamAvatarSize` type, which is the avatar
+  `SizeType` excluding `UNSAFE_xsmall` (20px). Team avatars have no dedicated 20px square artwork,
+  so this size is intentionally not supported by `TeamAvatar`.
+
+  `TeamAvatarSize` is exported from the `@atlaskit/teams-avatar/teams-avatar` entry point.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.1
+
+### Patch Changes
+
+- [`c1363affce29a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c1363affce29a) -
+  Make the ADS fixes from the now-launched feature gate permanent.
+- Updated dependencies
+
+## 3.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 3.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.0
+
+### Minor Changes
+
+- [`fb2784c333519`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb2784c333519) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 2.6.1
+
+### Patch Changes
+
+- [`7fb5bfbafb83e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fb5bfbafb83e) -
+  Enrol people-and-teams packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 2.6.0
+
+### Minor Changes
+
+- [`e993a197e2357`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e993a197e2357) -
+  Fix stale avatar and error state when teamId changes by keying TeamAvatarImage on teamId in the
+  T26 branch
+
+## 2.5.0
+
+### Minor Changes
+
+- [`d672e00aaa0e2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d672e00aaa0e2) -
+  Updated teams avatar to use @atlaskit/avatar
+
+## 2.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.13
+
+### Patch Changes
+
+- [`8f7ace8dafec7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f7ace8dafec7) -
+  Convert examples to use playground package
+
+## 2.4.12
+
+### Patch Changes
+
+- [`fd9cfb7fca5c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fd9cfb7fca5c6) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 2.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 2.4.10
 
 ### Patch Changes

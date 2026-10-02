@@ -1,13 +1,19 @@
 import React from 'react';
+
 import { screen, render } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import DeleteIcon from '@atlaskit/icon/core/delete';
 import DownloadIcon from '@atlaskit/icon/core/download';
 import EditIcon from '@atlaskit/icon/core/edit';
-import userEvent from '@testing-library/user-event';
 
 import { type CardAction } from '../../../actions';
-
 import { ActionsBar } from '../actionsBar';
+
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
+	fg: jest.fn().mockReturnValue(false),
+}));
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('ActionsBar', () => {

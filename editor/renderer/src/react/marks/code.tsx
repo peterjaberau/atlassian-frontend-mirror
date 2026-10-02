@@ -1,10 +1,13 @@
 import React from 'react';
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
-import AkCode from '@atlaskit/code/inline';
-import { codeBidiWarningMessages } from '@atlaskit/editor-common/messages';
-import { type Mark } from '@atlaskit/editor-prosemirror/model';
 
-import type { MarkProps } from '../types';
+import { injectIntl } from 'react-intl';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+
+import AkCode from '@atlaskit/code/code';
+import { codeBidiWarningMessages } from '@atlaskit/editor-common/messages';
+import type { Mark } from '@atlaskit/editor-prosemirror/model';
+
+import type { MarkMeta, MarkProps } from '../types';
 
 export const isCodeMark = (mark: Mark): boolean => {
 	return mark && mark.type && mark.type.name === 'code';
@@ -29,4 +32,22 @@ export function CodeWithIntl(
 		</AkCode>
 	);
 }
-export default injectIntl(CodeWithIntl);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<
+	WithIntlProps<
+		{
+			codeBidiWarningTooltipEnabled: boolean;
+		} & MarkMeta & {
+				children?: React.ReactNode | undefined;
+			} & WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			codeBidiWarningTooltipEnabled: boolean;
+		} & MarkMeta & {
+				children?: React.ReactNode | undefined;
+			} & WrappedComponentProps
+	>;
+} = injectIntl(CodeWithIntl);
+export default _default_1;

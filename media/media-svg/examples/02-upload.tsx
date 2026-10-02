@@ -6,13 +6,15 @@ import { Fragment, useState } from 'react';
 
 import { jsx } from '@compiled/react';
 
-import { Label } from '@atlaskit/form';
-import { MediaClientProvider } from '@atlaskit/media-client-react';
+import { Label } from '@atlaskit/form/label/default';
+import { MediaClientProvider } from '@atlaskit/media-client-react/media-client-provider';
 import { createUploadMediaClientConfig } from '@atlaskit/media-test-helpers';
 
-import MediaSvg from '../src';
-
-import { ControlsBox, DimensionsPicker, SvgContainer, useSvgUploader } from './helpers';
+import MediaSvg from '../src/media-svg';
+import { ControlsBox } from './helpers/controls';
+import { DimensionsPicker } from './helpers/dimensionPicker';
+import { SvgContainer } from './helpers/svgContainer';
+import { useSvgUploader } from './helpers/uploader';
 
 const mediaClientConfig = createUploadMediaClientConfig();
 
@@ -60,7 +62,7 @@ function Resizable() {
 	);
 }
 
-export default function () {
+export default function (): JSX.Element {
 	return (
 		<MediaClientProvider clientConfig={mediaClientConfig}>
 			<Resizable />

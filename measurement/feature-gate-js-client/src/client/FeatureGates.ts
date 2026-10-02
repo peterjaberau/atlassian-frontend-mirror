@@ -1,7 +1,9 @@
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+
 import { Client } from './Client';
 import type { DynamicConfig } from './compat/DynamicConfig';
 import type { Layer } from './compat/Layer';
-import type { FetcherOptions } from './fetcher';
+import type { FetcherOptions } from './fetcher/Fetcher';
 import type { LocalOverrides } from './PersistentOverrideAdapter';
 import {
 	type BaseClientOptions,
@@ -20,8 +22,14 @@ import {
 } from './types';
 import { CLIENT_VERSION } from './version';
 
+/**
+ * @deprecated Use `import { EvaluationDetails, EvaluationReason } from '@atlaskit/feature-gate-js-client/compat/types'` instead.
+ */
 export { type EvaluationDetails, EvaluationReason } from './compat/types';
 export type { LocalOverrides } from './PersistentOverrideAdapter';
+/**
+ * @deprecated Use `import { DynamicConfig } from '@atlaskit/feature-gate-js-client/dynamic-config'` instead.
+ */
 export { DynamicConfig } from './compat/DynamicConfig';
 
 export type {
@@ -40,8 +48,14 @@ export type {
 	UpdateUserCompletionCallback,
 	Provider,
 } from './types';
+/**
+ * @deprecated Use `import { FeatureGateEnvironment, PerimeterType } from '@atlaskit/feature-gate-js-client/types'` instead.
+ */
 export { FeatureGateEnvironment, PerimeterType } from './types';
 
+/**
+ * @deprecated Use `import { CLIENT_VERSION } from '@atlaskit/feature-gate-js-client/version'` instead.
+ */
 export { CLIENT_VERSION } from './version';
 
 declare global {
@@ -224,6 +238,7 @@ class FeatureGates {
 		initializeValues?: Record<string, unknown>,
 	) => Promise<void> = this.client.updateUserWithValues.bind(this.client);
 	static getPackageVersion: () => string = this.client.getPackageVersion.bind(this.client);
+	static getTargetApp: () => string | undefined = this.client.getTargetApp.bind(this.client);
 	static getLayer: (layerName: string, options?: GetLayerOptions) => Layer =
 		this.client.getLayer.bind(this.client);
 	static getLayerValue: <T>(

@@ -10,17 +10,19 @@ import { css, jsx } from '@compiled/react';
 import { browser } from '@atlaskit/linking-common/user-agent';
 import { token } from '@atlaskit/tokens';
 
-import { ActionName, ElementName, SmartLinkPosition } from '../../../constants';
+import { ActionName, CardDisplay, ElementName, SmartLinkPosition } from '../../../constants';
+import extractRovoChatAction from '../../../extractors/flexible/actions/extract-rovo-chat-action';
+import { getExtensionKey } from '../../../state/getExtensionKey';
+import useBlockCardRovoAction from '../../../state/hooks/use-block-card-rovo-action-experiment';
+import useRovoConfig from '../../../state/hooks/use-rovo-config';
+import { RovoChatPromptKey } from '../../common/rovo-chat-utils';
 import FlexibleCard from '../../FlexibleCard';
-import {
-	FooterBlock,
-	MetadataBlock,
-	PreviewBlock,
-	SnippetBlock,
-	TitleBlock,
-} from '../../FlexibleCard/components/blocks';
+import { default as FooterBlock } from '../../FlexibleCard/components/blocks/footer-block';
+import { default as MetadataBlock } from '../../FlexibleCard/components/blocks/metadata-block';
+import { default as PreviewBlock } from '../../FlexibleCard/components/blocks/preview-block';
+import { default as SnippetBlock } from '../../FlexibleCard/components/blocks/snippet-block';
+import { default as TitleBlock } from '../../FlexibleCard/components/blocks/title-block';
 import type { ActionItem } from '../../FlexibleCard/components/blocks/types';
-
 import { type FlexibleBlockCardProps } from './types';
 import {
 	FlexibleCardUiOptions,
@@ -40,11 +42,15 @@ const titleBlockCss = css({
 });
 
 const footerBlockCss = css({
-	height: '1.5rem',
+	height: '25px',
 	display: 'flex',
 	justifyContent: 'space-between',
 	alignItems: 'flex-end',
 	alignSelf: 'stretch',
+});
+
+const footerSpacingCss = css({
+	marginTop: token('space.100'),
 });
 
 const footerBlockSafariStyles = css({
@@ -59,6 +65,8 @@ const footerBlockSafariStyles = css({
 const ResolvedView = ({
 	cardState,
 	onClick,
+	onAuxClick,
+	onContextMenu,
 	onError,
 	onResolve,
 	actionOptions,
@@ -68,6 +76,10 @@ const ResolvedView = ({
 	hideIconLoadingSkeleton,
 }: FlexibleBlockCardProps) => {
 	const [isPreviewBlockErrored, setIsPreviewBlockErrored] = useState<boolean>(false);
+	const extensionKey = getExtensionKey(cardState.details);
+	const is3PRovoBlockRovoActionEnabled = useBlockCardRovoAction(url, actionOptions);
+
+	const rovoConfig = useRovoConfig();
 
 	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const { safari = false } = useMemo(() => browser(), []);
@@ -80,14 +92,60 @@ const ResolvedView = ({
 		cardState.details,
 	);
 
-	const footerActions: ActionItem[] = useMemo(
-		() => [
-			{ name: ActionName.FollowAction, hideIcon: true },
-			{ name: ActionName.PreviewAction, hideIcon: true },
-			{ name: ActionName.DownloadAction, hideIcon: true },
-		],
-		[],
-	);
+	const prompts = useMemo(() => {
+		if (is3PRovoBlockRovoActionEnabled) {
+			const defaultPrompts = [RovoChatPromptKey.KEY_HIGHLIGHTS];
+
+			const linkType = cardState.details?.data?.['@type'];
+
+			if (extensionKey === 'slack-object-provider') {
+				return [RovoChatPromptKey.FIND_OPEN_QUESTIONS, ...defaultPrompts];
+			}
+			if (
+				extensionKey === 'google-object-provider' &&
+				linkType?.includes('schema:PresentationDigitalDocument')
+			) {
+				return [RovoChatPromptKey.IDENTIFY_KEY_POINTS, ...defaultPrompts];
+			}
+			if (
+				extensionKey === 'google-object-provider' &&
+				linkType?.includes('schema:SpreadsheetDigitalDocument')
+			) {
+				return [RovoChatPromptKey.IDENTIFY_KEY_TRENDS, ...defaultPrompts];
+			}
+
+			return [RovoChatPromptKey.SUMMARIZE_LINK, ...defaultPrompts];
+		}
+		return [];
+	}, [cardState?.details?.data, extensionKey, is3PRovoBlockRovoActionEnabled]);
+
+	const footerActions: ActionItem[] = useMemo(() => {
+		const showRovoResolvedView =
+			cardState?.status === 'resolved' &&
+			cardState.details &&
+			extractRovoChatAction({
+				response: cardState.details,
+				rovoConfig,
+				actionOptions: actionOptions,
+			}) !== undefined;
+
+		return showRovoResolvedView && is3PRovoBlockRovoActionEnabled
+			? [
+					{
+						name: ActionName.RovoChatAction,
+						prompts: prompts,
+						iconSize: 'small',
+						cardAppearance: CardDisplay.Block,
+					},
+					{ name: ActionName.FollowAction, iconSize: 'small' },
+					{ name: ActionName.DownloadAction, iconSize: 'small' },
+				]
+			: [
+					{ name: ActionName.FollowAction, hideIcon: true },
+					{ name: ActionName.PreviewAction, hideIcon: true },
+					{ name: ActionName.DownloadAction, hideIcon: true },
+				];
+	}, [prompts, is3PRovoBlockRovoActionEnabled, cardState, rovoConfig, actionOptions]);
 
 	const uiOptions = FlexibleCardUiOptions;
 	uiOptions.enableSnippetRenderer = true;
@@ -98,6 +156,8 @@ const ResolvedView = ({
 			appearance="block"
 			cardState={cardState}
 			onClick={onClick}
+			onAuxClick={onAuxClick}
+			onContextMenu={onContextMenu}
 			onError={onError}
 			onResolve={onResolve}
 			origin="smartLinkCard"
@@ -128,11 +188,14 @@ const ResolvedView = ({
 				/>
 			) : null}
 			<FooterBlock
-				css={[footerBlockCss, safari && footerBlockSafariStyles]}
+				css={[footerBlockCss, safari && footerBlockSafariStyles, footerSpacingCss]}
 				actions={footerActions}
+				isPreviewBlockErrored={isPreviewBlockErrored}
 			/>
 		</FlexibleCard>
 	);
 };
 
-export default withFlexibleUIBlockCardStyle(ResolvedView);
+const _default_1: (props: FlexibleBlockCardProps) => JSX.Element =
+	withFlexibleUIBlockCardStyle(ResolvedView);
+export default _default_1;

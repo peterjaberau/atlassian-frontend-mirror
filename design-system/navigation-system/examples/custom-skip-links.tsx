@@ -5,9 +5,11 @@
 
 import { cssMap, jsx } from '@compiled/react';
 
-import Badge from '@atlaskit/badge';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-import Heading from '@atlaskit/heading';
+import Badge from '@atlaskit/badge/badge';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import Heading from '@atlaskit/heading/heading';
 import AppsIcon from '@atlaskit/icon/core/apps';
 import InboxIcon from '@atlaskit/icon/core/inbox';
 import ProjectIcon from '@atlaskit/icon/core/project';
@@ -17,7 +19,7 @@ import { PanelSplitter } from '@atlaskit/navigation-system/layout/panel-splitter
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavToggleButton,
 } from '@atlaskit/navigation-system/layout/side-nav';
 import { useSkipLink } from '@atlaskit/navigation-system/layout/skip-links';
@@ -92,7 +94,7 @@ export function CustomSkipLinksExample(): JSX.Element {
 						<Notifications
 							label="Notifications"
 							badge={() => (
-								<Badge max={9} appearance="important">
+								<Badge max={9} appearance="dangerBold">
 									{99999}
 								</Badge>
 							)}
@@ -112,7 +114,7 @@ export function CustomSkipLinksExample(): JSX.Element {
 				</TopNav>
 
 				<SideNav>
-					<SideNavContent>
+					<SideNavBody>
 						<MenuList>
 							<LinkMenuItem href="#" elemBefore={<InboxIcon label="" color="currentColor" />}>
 								Your work
@@ -124,7 +126,7 @@ export function CustomSkipLinksExample(): JSX.Element {
 								Projects
 							</LinkMenuItem>
 						</MenuList>
-					</SideNavContent>
+					</SideNavBody>
 					<PanelSplitter label="Resize side nav" />
 				</SideNav>
 

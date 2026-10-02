@@ -30,12 +30,14 @@ import {
 	CODE_BLOCK_GROUP_RANK,
 } from '@atlaskit/editor-common/toolbar';
 import type { Command, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { Show, ToolbarButtonGroup, type Breakpoint } from '@atlaskit/editor-toolbar';
+import { Show, ToolbarButtonGroup } from '@atlaskit/editor-toolbar';
+import type { Breakpoint } from '@atlaskit/editor-toolbar';
 import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { InsertBlockPlugin } from '../insertBlockPluginType';
 import type { InsertBlockPluginOptions } from '../types';
-
+import { RegisteredInsertButton } from './registered-insert-menu/RegisteredInsertButton';
 import { CodeBlockButton } from './toolbar-components/CodeBlockButton';
 import { resolveToolbarConfig } from './toolbar-components/config-resolver';
 import { EmojiButton } from './toolbar-components/EmojiButton';
@@ -298,21 +300,25 @@ export const getToolbarComponents = ({
 	// Insert Group
 	if (config.insert?.enabled) {
 		const createInsertButtonComponent = (breakpoint: Breakpoint | null) => {
-			return () => (
-				<InsertButton
-					api={api}
-					breakpoint={breakpoint}
-					toolbarConfig={config}
-					showElementBrowserLink={options.showElementBrowserLink}
-					tableSelectorSupported={options.tableSelectorSupported}
-					onInsertBlockType={onInsertBlockType}
-					nativeStatusSupported={options.nativeStatusSupported}
-					horizontalRuleEnabled={options.horizontalRuleEnabled}
-					expandEnabled={options.allowExpand}
-					insertMenuItems={options.insertMenuItems}
-					numberOfButtons={0}
-				/>
-			);
+			return () =>
+				isExperimentEnabled('platform_editor_slash_command') ? (
+					<RegisteredInsertButton api={api} />
+				) : (
+					<InsertButton
+						api={api}
+						breakpoint={breakpoint}
+						toolbarConfig={config}
+						showElementBrowserLink={options.showElementBrowserLink}
+						tableSelectorSupported={options.tableSelectorSupported}
+						onInsertBlockType={onInsertBlockType}
+						nativeStatusSupported={options.nativeStatusSupported}
+						horizontalRuleEnabled={options.horizontalRuleEnabled}
+						expandEnabled={options.allowExpand}
+						insertMenuItems={options.insertMenuItems}
+						itemFilter={options.itemFilter}
+						numberOfButtons={0}
+					/>
+				);
 		};
 
 		components.push({

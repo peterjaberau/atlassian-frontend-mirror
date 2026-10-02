@@ -6,24 +6,24 @@ import { Fragment, useState } from 'react';
 
 import { jsx } from '@compiled/react';
 
-import { Label } from '@atlaskit/form';
+import { Label } from '@atlaskit/form/label/default';
 import {
 	type MediaClientConfig,
 	type FileIdentifier,
 	type ImageResizeMode,
 } from '@atlaskit/media-client';
-
-import { MediaClientProvider } from '@atlaskit/media-client-react';
+import { MediaClientProvider } from '@atlaskit/media-client-react/media-client-provider';
 import {
 	createStorybookMediaClientConfig,
 	genericFileId,
 	largeImageFileId,
 } from '@atlaskit/media-test-helpers';
-import Select from '@atlaskit/select';
+import Select from '@atlaskit/select/default';
 
-import { Card } from '../src';
-
-import { ControlsBox, DimensionsPicker, SvgContainer } from '../example-helpers/svg-helpers';
+import { ControlsBox } from '../example-helpers/svg-helpers/controls';
+import { DimensionsPicker } from '../example-helpers/svg-helpers/dimensionPicker';
+import { SvgContainer } from '../example-helpers/svg-helpers/svgContainer';
+import Card from '../src/card/cardLoader';
 
 const dummyMediaClientConfig = {} as MediaClientConfig;
 const mediaClientConfig = createStorybookMediaClientConfig();
@@ -100,7 +100,7 @@ function Resizable() {
 	);
 }
 
-export default function () {
+export default function (): JSX.Element {
 	return (
 		<MediaClientProvider clientConfig={mediaClientConfig}>
 			<Resizable />

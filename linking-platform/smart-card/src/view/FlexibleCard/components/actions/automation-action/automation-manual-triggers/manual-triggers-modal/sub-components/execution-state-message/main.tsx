@@ -2,14 +2,14 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { defineMessages, FormattedMessage } from 'react-intl-next';
+import { defineMessages, FormattedMessage } from 'react-intl';
 
 import { cssMap, jsx } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 import { token } from '@atlaskit/tokens';
 
-import { useAutomationMenu } from '../../menu-context';
+import { useAutomationMenu } from '../../menu-context/useAutomationMenu';
 
 const styles = cssMap({
 	messageStyling: {
@@ -34,7 +34,7 @@ const i18n = defineMessages({
 	},
 });
 
-export const AutomationModalExecutionState = () => {
+export const AutomationModalExecutionState = (): JSX.Element | null => {
 	const { ruleExecutionState } = useAutomationMenu();
 
 	if (ruleExecutionState === 'FAILURE') {

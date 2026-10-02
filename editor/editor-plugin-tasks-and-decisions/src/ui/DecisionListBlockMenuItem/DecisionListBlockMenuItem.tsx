@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { blockMenuMessages } from '@atlaskit/editor-common/messages';
@@ -14,8 +14,10 @@ const NODE_NAME = 'decisionList';
 
 export const DecisionListBlockMenuItem = ({
 	api,
+	isSuggested,
 }: {
 	api: ExtractInjectionAPI<TasksAndDecisionsPlugin> | undefined;
+	isSuggested?: boolean;
 }): React.JSX.Element | null => {
 	const { formatMessage } = useIntl();
 
@@ -31,6 +33,7 @@ export const DecisionListBlockMenuItem = ({
 				tr.doc.type.schema.nodes.decisionList,
 				{
 					inputMethod,
+					isSuggested,
 					triggeredFrom,
 					targetTypeName: NODE_NAME,
 				},
@@ -40,7 +43,7 @@ export const DecisionListBlockMenuItem = ({
 	};
 
 	return (
-		<ToolbarDropdownItem onClick={onClick} elemBefore={<DecisionIcon label="" />}>
+		<ToolbarDropdownItem onClick={onClick} elemBefore={<DecisionIcon label="" size="small" />}>
 			{formatMessage(blockMenuMessages.decisionList)}
 		</ToolbarDropdownItem>
 	);

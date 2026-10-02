@@ -6,23 +6,29 @@ import React, { memo } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import { findDOMNode } from 'react-dom';
 import { List, type ListRowProps } from 'react-virtualized';
 import invariant from 'tiny-invariant';
 
 import { easeInOut } from '@atlaskit/motion/curves';
-import { durations } from '@atlaskit/motion/durations';
+import { durations } from '@atlaskit/motion/utils/durations';
 import { token } from '@atlaskit/tokens';
 
 import type { ColumnType } from '../../data/tasks';
 import { Card, CardInner } from '../card';
 import { useDependency } from '../example-wrapper';
 
+type ReactVirtualizedListProps = React.ComponentProps<typeof List> & {
+	elementRef?: React.Ref<HTMLElement>;
+};
+
+// react-virtualized forwards this prop from List to Grid at runtime, but its types do not expose it.
+const ReactVirtualizedList = List as unknown as React.ComponentType<ReactVirtualizedListProps>;
+
 const columnStyles = css({
 	display: 'flex',
 	width: 250,
 	flexDirection: 'column',
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 	borderRadius: 'calc(var(--grid) * 2)',
 	position: 'relative',
 	overflow: 'hidden',
@@ -35,12 +41,12 @@ const columnHeaderStyles = css({
 	padding: 'calc(var(--grid) * 2) calc(var(--grid) * 2) calc(var(--grid) * 1)',
 	justifyContent: 'space-between',
 	flexDirection: 'row',
-	color: token('color.text.subtlest', '#626F86'),
+	color: token('color.text.subtlest'),
 	userSelect: 'none',
 });
 
 const columnHeaderIdStyles = css({
-	color: token('color.text.disabled', '#091E424F'),
+	color: token('color.text.disabled'),
 	fontSize: '10px',
 });
 
@@ -52,7 +58,9 @@ type ColumnProps = {
 
 const GUTTER_SIZE = 8;
 
-export const Column = memo(({ column, droppableId, index }: ColumnProps): React.JSX.Element => {
+export const Column: React.MemoExoticComponent<
+	({ column, droppableId, index }: ColumnProps) => React.JSX.Element
+> = memo(({ column, droppableId, index }: ColumnProps): React.JSX.Element => {
 	const { Draggable, Droppable } = useDependency();
 
 	const columnId = column.columnId;
@@ -89,28 +97,16 @@ export const Column = memo(({ column, droppableId, index }: ColumnProps): React.
 								};
 
 								if (snapshot.isDraggingOver) {
-									style.background = token('color.background.selected.hovered', '#CCE0FF');
+									style.background = token('color.background.selected.hovered');
 								}
 
 								return (
-									<List
+									<ReactVirtualizedList
 										height={440}
 										rowCount={itemCount}
 										rowHeight={({ index }) => (index === itemCount - 1 ? 72 : 64)}
+										elementRef={provided.innerRef}
 										width={250}
-										ref={(ref) => {
-											// react-virtualized has no way to get the list's ref
-											// So we use the `ReactDOM.findDOMNode(ref)` escape hatch to get the ref
-											if (ref) {
-												// DSP-10519 TODO: ReactDOM.findDOMNode is deprecated in React18, consider using alternative solution
-												// https://react.dev/reference/react-dom/findDOMNode#alternatives
-												// eslint-disable-next-line react/no-find-dom-node
-												const whatHasMyLifeComeTo = findDOMNode(ref);
-												if (whatHasMyLifeComeTo instanceof HTMLElement) {
-													provided.innerRef(whatHasMyLifeComeTo);
-												}
-											}
-										}}
 										style={style}
 										rowRenderer={({ index, style }: ListRowProps) => {
 											const item = column.items[index];

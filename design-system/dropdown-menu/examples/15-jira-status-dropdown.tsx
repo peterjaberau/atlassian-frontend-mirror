@@ -1,9 +1,11 @@
 import React from 'react';
 
 import { cssMap } from '@atlaskit/css';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import Arrow from '@atlaskit/icon/core/arrow-right';
-import Lozenge from '@atlaskit/lozenge';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import { Box } from '@atlaskit/primitives/compiled';
 
 const styles = cssMap({
@@ -20,7 +22,7 @@ export default (): React.JSX.Element => (
 				elemAfter={
 					<Box xcss={styles.item}>
 						<Arrow label="" size="small" />
-						<Lozenge appearance="inprogress">in progress</Lozenge>
+						<Lozenge appearance="information">in progress</Lozenge>
 					</Box>
 				}
 			>

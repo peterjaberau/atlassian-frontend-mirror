@@ -1,4 +1,4 @@
-import { logException } from '../sentry';
+import { logException } from '../sentry/logException';
 import { type ClientContext, type ClientContextProps } from '../types';
 
 type NestedContext = {
@@ -29,17 +29,17 @@ export class BaseClient {
 	constructor(config: ClientConfig) {
 		this.config = config;
 		this.context = {
-			cloudId: 'None',
+			cloudId: '',
 		};
 	}
 	setContext(context: ClientContextProps): void {
 		this.context = {
 			...context,
-			cloudId: context.cloudId || 'None',
+			cloudId: context.cloudId || '',
 		};
 	}
 
-	getContext() {
+	getContext(): ClientContext {
 		return this.context;
 	}
 
@@ -87,7 +87,7 @@ export class BaseClient {
 		};
 	}
 
-	getCachedValue<T>(key: string) {
+	getCachedValue<T>(key: string): T | undefined {
 		const record = this.cache[this.keyWithContext(key)];
 		if (record && record.expiration > Date.now()) {
 			return record.data as T;

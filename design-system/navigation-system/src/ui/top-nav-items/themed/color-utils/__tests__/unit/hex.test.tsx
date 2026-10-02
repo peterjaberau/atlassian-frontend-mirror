@@ -20,11 +20,7 @@ describe('parseHex()', () => {
 			parseHex('a#123');
 
 			expect(consoleError).toHaveBeenCalledTimes(1);
-			expect(consoleError.mock.lastCall).toMatchInlineSnapshot(`
-			[
-			  "parseHex failed to parse input: 'a#123'",
-			]
-		`);
+			expect(consoleError.mock.lastCall).toEqual(["parseHex failed to parse input: 'a#123'"]);
 
 			process.env.NODE_ENV = NODE_ENV;
 		});

@@ -1,6 +1,5 @@
 import type { AbortReasonType, InteractionType } from '../../common/common/types';
-
-import type { ObservedWindowEvent } from './window-event-observer';
+import type { ObservedWindowEventExtended } from './window-event-observer';
 
 export type VCObserverEntryType =
 	| 'mutation:child-element'
@@ -18,6 +17,8 @@ export type VCObserverEntryType =
 	| 'mutation:rll-placeholder'
 	| 'mutation:third-party-element'
 	| 'mutation:third-party-attribute'
+	| 'mutation:gen-ai-element'
+	| 'mutation:gen-ai-attribute'
 	| 'mutation:smart-answers-element'
 	| 'mutation:smart-answers-attribute'
 	| 'mutation:ssr-placeholder'
@@ -37,6 +38,7 @@ export type ViewportEntryData = {
 	readonly oldValue?: string | null | undefined;
 	readonly newValue?: string | null | undefined;
 	readonly labelStacks?: VCObserverLabelStacks;
+	readonly originalMutationTimestamp?: DOMHighResTimeStamp;
 };
 
 export type VCObserverLabelStacks = {
@@ -46,7 +48,8 @@ export type VCObserverLabelStacks = {
 
 export type WindowEventEntryData = {
 	readonly type: VCObserverEntryType;
-	readonly eventType: ObservedWindowEvent;
+	readonly eventType: ObservedWindowEventExtended;
+	readonly elementName?: string;
 };
 
 export type VCObserverEntry = {
@@ -69,4 +72,5 @@ export type VCObserverGetVCResultParam = {
 	includeRawData?: boolean;
 	includeSSRInV3?: boolean;
 	rawDataStopTime?: number;
+	reportLayoutShiftOffenders?: boolean;
 };

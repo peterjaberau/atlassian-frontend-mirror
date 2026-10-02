@@ -3,12 +3,14 @@
  * @jsx jsx
  */
 import React from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
+
 import { Editor, EditorContext, WithEditorActions } from '@atlaskit/editor-core';
+import { token } from '@atlaskit/tokens';
 import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
 import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
-import { token } from '@atlaskit/tokens';
 
 import { WikiMarkupTransformer } from '../src';
 
@@ -18,8 +20,8 @@ const container = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'#source, #output': {
 		border: `${token('border.width.selected')} solid`,
-		margin: token('space.100', '8px'),
-		padding: token('space.100', '8px'),
+		margin: token('space.100'),
+		padding: token('space.100'),
 		whiteSpace: 'pre-wrap',
 		'&:focus': {
 			outline: 'none',
@@ -84,6 +86,7 @@ class TransformerPanels extends React.PureComponent<Props, State> {
 						}}
 						contentTransformerProvider={(schema) => new WikiMarkupTransformer(schema)}
 						allowDate={true}
+						allowStatus={true}
 						mentionProvider={Promise.resolve(mentionResourceProvider)}
 						taskDecisionProvider={Promise.resolve(getMockTaskDecisionResource())}
 						onChange={this.handleChangeInTheEditor}
@@ -100,7 +103,7 @@ class TransformerPanels extends React.PureComponent<Props, State> {
 	}
 }
 
-export default () => (
+export default (): jsx.JSX.Element => (
 	<EditorContext>
 		<WithEditorActions render={(actions) => <TransformerPanels actions={actions} />} />
 	</EditorContext>

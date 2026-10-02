@@ -3,21 +3,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { forwardRef } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
-import { type MessageDescriptor } from 'react-intl-next';
+import { type MessageDescriptor } from 'react-intl';
 
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { IconType } from '../../../../../../constants';
 import { messages } from '../../../../../../messages';
-import { useFlexibleUiOptionContext } from '../../../../../../state/flexible-ui-context';
+import { useFlexibleUiOptionContext } from '../../../../../../state/flexible-ui-context/useFlexibleUiOptionContext';
+import useRovoConfig from '../../../../../../state/hooks/use-rovo-config';
+import ImageIcon from '../../../../../common/image-icon';
 import AtlaskitIcon from '../../../common/atlaskit-icon';
-import ImageIcon from '../../../common/image-icon';
 import { withOverrideCss } from '../../../common/with-override-css';
-import { getFormattedMessage } from '../../../utils';
+import { getFormattedMessage } from '../../../getFormattedMessage';
 import type { ElementProps } from '../../index';
 
 const styles = cssMap({
@@ -113,6 +115,11 @@ export type BaseBadgeElementProps = ElementProps & {
 	 */
 	hideIconLoadingSkeleton?: boolean;
 	/**
+	 * Determines whether the badge label should be hidden. When set to true,
+	 * the badge will be displayed without the label, showing only the icon.
+	 */
+	hideLabel?: boolean;
+	/**
 	 * The Atlaskit Icon to display next to the label. If this is not supplied,
 	 * then the badge icon will fallback to the URL provided.
 	 */
@@ -151,10 +158,12 @@ const BaseBadgeRefreshNew = forwardRef(
 			testId = 'smart-element-badge',
 			url,
 			color,
+			hideLabel = false,
 		}: BaseBadgeElementProps,
 		ref: React.Ref<HTMLElement>,
 	) => {
 		const ui = useFlexibleUiOptionContext();
+		const { product } = useRovoConfig();
 
 		const formattedMessageOrLabel = getFormattedMessageFromIcon(icon) || label;
 		const badgeIcon =
@@ -162,6 +171,8 @@ const BaseBadgeRefreshNew = forwardRef(
 		if (!formattedMessageOrLabel || !badgeIcon) {
 			return null;
 		}
+
+		const shouldHideLabel = hideLabel && !!product && product === 'CONFLUENCE';
 
 		return (
 			<span
@@ -179,17 +190,52 @@ const BaseBadgeRefreshNew = forwardRef(
 						{badgeIcon}
 					</Box>
 				)}
-				<Box as="span" testId={`${testId}-label`} xcss={styles.text}>
-					{formattedMessageOrLabel}
-				</Box>
+				{!shouldHideLabel && (
+					<Box as="span" testId={`${testId}-label`} xcss={styles.text}>
+						{formattedMessageOrLabel}
+					</Box>
+				)}
 			</span>
 		);
 	},
 );
 
-export default withOverrideCss(BaseBadgeRefreshNew);
+const _default_1: (
+	props: ElementProps & {
+		/**
+		 * Badge appearances
+		 */
+		appearance?: 'default' | 'subtle';
+		/**
+		 * Color of the text and badge
+		 */
+		color?: string;
+		/**
+		 * Determines whether the badge icon should be hidden. When set to true,
+		 * the badge will be displayed without the icon, showing only the label text.
+		 */
+		hideIcon?: boolean;
+		/**
+		 * When set to true, the loading skeleton for the image icon will be hidden,
+		 * the image will be rendered directly.
+		 */
+		hideIconLoadingSkeleton?: boolean;
+		/**
+		 * The Atlaskit Icon to display next to the label. If this is not supplied,
+		 * then the badge icon will fallback to the URL provided.
+		 */
+		icon?: IconType;
+		/**
+		 * The text to display for the badge.
+		 */
+		label?: string;
+		/**
+		 * The icon from this URL will be used for the badge if no Atlaskit Icon is provided.
+		 */
+		url?: string;
+	} & React.RefAttributes<HTMLElement> & {
+			className?: string;
+		},
+) => React.JSX.Element = withOverrideCss(BaseBadgeRefreshNew);
 
-export const toBadgeProps = (label?: string): Partial<BaseBadgeElementProps> | undefined => {
-	// Don't render the element if its 0
-	return label !== '0' && label ? { label } : undefined;
-};
+export default _default_1;

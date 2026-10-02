@@ -10,7 +10,7 @@ import { FixedSizeList } from 'react-window';
 import invariant from 'tiny-invariant';
 
 import { easeInOut } from '@atlaskit/motion/curves';
-import { durations } from '@atlaskit/motion/durations';
+import { durations } from '@atlaskit/motion/utils/durations';
 import { token } from '@atlaskit/tokens';
 
 import type { ColumnType, Item } from '../../data/tasks';
@@ -21,7 +21,7 @@ const columnStyles = css({
 	display: 'flex',
 	width: 250,
 	flexDirection: 'column',
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 	borderRadius: 'calc(var(--grid) * 2)',
 	position: 'relative',
 	overflow: 'hidden',
@@ -34,12 +34,12 @@ const columnHeaderStyles = css({
 	padding: 'calc(var(--grid) * 2) calc(var(--grid) * 2) calc(var(--grid) * 1)',
 	justifyContent: 'space-between',
 	flexDirection: 'row',
-	color: token('color.text.subtlest', '#626F86'),
+	color: token('color.text.subtlest'),
 	userSelect: 'none',
 });
 
 const columnHeaderIdStyles = css({
-	color: token('color.text.disabled', '#091E424F'),
+	color: token('color.text.disabled'),
 	fontSize: '10px',
 });
 
@@ -111,7 +111,9 @@ const CardRenderer = ({
 	);
 };
 
-export const Column = memo(({ column, droppableId, index }: ColumnProps): React.JSX.Element => {
+export const Column: React.MemoExoticComponent<
+	({ column, droppableId, index }: ColumnProps) => React.JSX.Element
+> = memo(({ column, droppableId, index }: ColumnProps): React.JSX.Element => {
 	const { Draggable, Droppable } = useDependency();
 
 	const columnId = column.columnId;
@@ -148,7 +150,7 @@ export const Column = memo(({ column, droppableId, index }: ColumnProps): React.
 								};
 
 								if (snapshot.isDraggingOver) {
-									style.background = token('color.background.selected.hovered', '#CCE0FF');
+									style.background = token('color.background.selected.hovered');
 								}
 
 								return (

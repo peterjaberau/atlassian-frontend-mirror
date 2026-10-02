@@ -1,11 +1,13 @@
 import { type Action } from 'react-sweet-state';
 
-import { getJastFromState } from '../../plugins/jql-ast';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+
+import { getJastFromState } from '../../plugins/jql-ast/getJastFromState';
 import { replaceRichInlineNodes } from '../../plugins/rich-inline-nodes/util/replace-nodes-transaction';
 import { actions } from '../index';
 import { type HydratedValuesMap, type Props, type State } from '../types';
-
-import { ValidQueryVisitor } from './util';
+import { normaliseHydrationKey } from './normaliseHydrationKey';
+import { ValidQueryVisitor } from './ValidQueryVisitor';
 
 export const hydrateQuery =
 	(): Action<State, Props, Promise<void>> =>
@@ -39,15 +41,28 @@ export const hydrateQuery =
 		try {
 			const newHydratedValues = await onHydrate(queryToHydrate);
 
+			// IMPORTANT: Field name keys must be normalised (unquoted + lowercased) when storing hydrated values.
+			// The hydration API returns field names in a canonical format (e.g. 'Project[AtlassianProject]'),
+			// but lookup keys from ProseMirror node attributes may differ in quoting and casing
+			// (e.g. '"project[atlassianproject]"'). normaliseHydrationKey ensures both storage and lookup use
+			// the same key format. See normaliseHydrationKey in ./util.ts.
 			const hydratedValuesMap: HydratedValuesMap = Object.entries(newHydratedValues).reduce(
 				(map, [fieldName, values]) => {
-					const valueMap = new Map(oldHydratedValues[fieldName]);
+					const fieldNameToUse =
+						FeatureGates.getExperimentValue(
+							'atlassian_projects_-_native_integration',
+							'releaseVersion',
+							-1,
+						) >= 1
+							? normaliseHydrationKey(fieldName)
+							: fieldName;
+					const valueMap = new Map(oldHydratedValues[fieldNameToUse]);
 					values.forEach((value) => {
 						valueMap.set(value.id, value);
 					});
 					return {
 						...map,
-						[fieldName]: valueMap,
+						[fieldNameToUse]: valueMap,
 					};
 				},
 				{},
@@ -58,7 +73,7 @@ export const hydrateQuery =
 			});
 
 			dispatch(replaceHydratedValuesWithRichInlineNodes());
-		} catch (error) {
+		} catch {
 			// Hydration failed, do nothing
 		}
 	};

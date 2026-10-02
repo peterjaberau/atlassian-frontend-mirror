@@ -1,5 +1,6 @@
-import { createContext } from 'react';
-import { type Document } from '../model';
+import { createContext, type Context as ReactContext } from 'react';
+
+import type { Document } from '../model';
 
 export interface ContextType {
 	actions: Actions;
@@ -28,7 +29,7 @@ export interface Actions {
 
 const noop = () => {};
 
-export const Context = createContext<ContextType>({
+export const Context: ReactContext<ContextType> = createContext<ContextType>({
 	value: {},
 	actions: {
 		getDocument: noop,

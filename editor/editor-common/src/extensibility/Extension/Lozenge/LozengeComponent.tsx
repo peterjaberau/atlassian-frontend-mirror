@@ -5,17 +5,15 @@
 import type { CSSProperties } from 'react';
 import { Fragment } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 
 import EditorFileIcon from '@atlaskit/icon/core/file';
 
-import { type ExtensionsPluginInjectionAPI } from '../../types';
+import type { ExtensionsPluginInjectionAPI } from '../../types';
 import { placeholderFallback, placeholderFallbackParams } from '../styles';
-
 import { EditToggle } from './EditToggle';
 import { ExtensionLabel } from './ExtensionLabel';
-
 import type { LozengeData } from './index';
 
 export const ICON_SIZE = 24;
@@ -26,10 +24,12 @@ const capitalizeFirstLetter = (str: string): string => {
 type LozengeComponentProps = {
 	customContainerStyles?: CSSProperties;
 	extensionName: string;
+	// When true, the node exposes no configuration affordance, so the "Configure {name}"
+	// lozenge label is omitted (e.g. redaction nodes).
+	hideConfigureLabel?: boolean;
 	isBodiedMacro?: boolean;
 	isNodeHovered?: boolean;
 	isNodeNested?: boolean;
-	isNodeSelected?: boolean;
 	lozengeData?: LozengeData;
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,6 +45,7 @@ type LozengeComponentProps = {
 	title: string;
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const LozengeComponent = ({
 	lozengeData,
 	extensionName,
@@ -62,7 +63,8 @@ export const LozengeComponent = ({
 	showBodiedExtensionRendererView,
 	setShowBodiedExtensionRendererView,
 	pluginInjectionApi,
-}: LozengeComponentProps) => {
+	hideConfigureLabel,
+}: LozengeComponentProps): jsx.JSX.Element => {
 	const capitalizedTitle = capitalizeFirstLetter(title);
 
 	if (showMacroInteractionDesignUpdates) {
@@ -71,6 +73,7 @@ export const LozengeComponent = ({
 				<ExtensionLabel
 					text={capitalizedTitle}
 					extensionName={extensionName}
+					hideConfigureLabel={hideConfigureLabel}
 					isNodeHovered={isNodeHovered}
 					isNodeNested={isNodeNested}
 					customContainerStyles={customContainerStyles}
@@ -108,12 +111,13 @@ export const LozengeComponent = ({
 			)}
 			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766  */}
 			<span className="extension-title">{capitalizedTitle}</span>
-			{params && !isBlockExtension && (
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-				<span css={placeholderFallbackParams}>
-					{Object.keys(params).map((key) => key && ` | ${key} = ${params[key].value}`)}
-				</span>
-			)}
+			{params &&
+				!isBlockExtension && (
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
+					<span css={placeholderFallbackParams}>
+						{Object.keys(params).map((key) => key && ` | ${key} = ${params[key].value}`)}
+					</span>
+				)}
 		</div>
 	);
 };

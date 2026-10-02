@@ -1,13 +1,12 @@
 import React, { useMemo } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 
 import { messages } from '../../../../messages';
 import { toMessage } from '../../../../utils/intl-utils';
 import UnresolvedView from '../unresolved-view';
-
 import { ForbiddenSVG } from './forbidden-svg';
 import { type ForbiddenViewProps } from './types';
 
@@ -18,7 +17,7 @@ const ForbiddenView = ({
 	testId = 'embed-card-forbidden-view',
 	...unresolvedViewProps
 }: ForbiddenViewProps): React.JSX.Element => {
-	const { icon, image, text = '' } = context ?? {};
+	const { icon, image, providerIcon, providerIconLabel, text = '' } = context ?? {};
 	const {
 		accessType,
 		hostname,
@@ -66,6 +65,8 @@ const ForbiddenView = ({
 		<UnresolvedView
 			{...unresolvedViewProps}
 			icon={icon}
+			providerIcon={providerIcon}
+			providerIconLabel={providerIconLabel}
 			image={image ?? <ForbiddenSVG />}
 			testId={testId}
 			text={text}

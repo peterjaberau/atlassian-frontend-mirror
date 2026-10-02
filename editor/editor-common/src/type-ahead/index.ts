@@ -7,12 +7,13 @@ export enum TypeAheadAvailableNodes {
 	QUICK_INSERT = 'quickInsertTypeAhead',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum SelectItemMode {
 	SHIFT_ENTER = 'shift-enter',
 	ENTER = 'enter',
 	SPACE = 'space',
 	SELECTED = 'selected',
-	TAB = 'tab',
 }
 
 export { typeAheadListMessages } from './messages';
+export type { TypeAheadSurfaceContext } from './TypeAheadSurfaceContext';

@@ -1,13 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Form, { FormFooter } from '@atlaskit/form';
+import Button from '@atlaskit/button/default/button';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
 
 import type { CardProps } from '../../../src';
 import { type FlexibleUiOptions } from '../../../src/view/FlexibleCard/types';
 import { BlockName, DefaultTemplate, FlexibleDefaultTemplate } from '../constants';
 import type { BlockTemplate, FlexibleTemplate } from '../types';
-
 import BlockBuilder from './block-builder';
 import CardBuilder from './card-builder';
 import FlexibleToggle from './flexible-toggle';

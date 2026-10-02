@@ -1,6 +1,7 @@
-import { filterSiteProducts } from '.';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { AvailableSitesProductType } from '@atlaskit/linking-common/types';
+
+import { filterSiteProducts } from './filter-site-products';
 
 describe('filter site products', () => {
 	it('can filter out site by the specified products', () => {
@@ -9,7 +10,6 @@ describe('filter site products', () => {
 			avatarUrl: 'http://example.com/avatarUrl',
 			cloudId: 'test-cloudid',
 			displayName: 'test-displayName',
-			isVertigo: false,
 			products: [AvailableSitesProductType.CONFLUENCE, AvailableSitesProductType.JIRA_SOFTWARE],
 			url: 'http://example.com',
 		};
@@ -22,7 +22,6 @@ describe('filter site products', () => {
 			avatarUrl: 'http://example.com/avatarUrl',
 			cloudId: 'test-cloudid',
 			displayName: 'test-displayName',
-			isVertigo: false,
 			products: [AvailableSitesProductType.JIRA_SOFTWARE],
 			url: 'http://example.com',
 		};

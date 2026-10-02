@@ -1,25 +1,17 @@
 import React, { useEffect } from 'react';
-import { CardErrorBoundary } from '../../../../react/nodes/fallback';
-import { isSafeUrl } from '@atlaskit/adf-schema';
-import { CardClient as Client, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Loadable from 'react-loadable';
-import { fg } from '@atlaskit/platform-feature-flags';
 
-// Mock the platform feature flags
-jest.mock('@atlaskit/platform-feature-flags', () => ({
-	fg: jest.fn(),
-}));
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
+import Client from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
+
+import { CardErrorBoundary } from '../../../../react/nodes/fallback';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Renderer - React/Nodes/Fallback', () => {
-	const mockFg = fg as jest.MockedFunction<typeof fg>;
-
-	beforeEach(() => {
-		mockFg.mockReset();
-	});
-
 	const FakeExplodingComponent = () => {
 		useEffect(() => {
 			throw new Error('KABOOOM!');
@@ -149,25 +141,6 @@ describe('Renderer - React/Nodes/Fallback', () => {
 	});
 
 	it('should render Link component', () => {
-		mockFg.mockImplementation(
-			(flag: string) => flag === 'dst-a11y__replace-anchor-with-link__editor',
-		);
-
-		render(
-			<CardErrorBoundary url={url} unsupportedComponent={MockedUnsupportedInline}>
-				<MockedChildren />
-				<FakeExplodingComponent />
-			</CardErrorBoundary>,
-		);
-
-		const link = screen.getByRole('link', { name: url });
-		expect(link).toBeVisible();
-		expect(link).toHaveAttribute('href', url);
-	});
-
-	it('should render anchor element with explicit props when dst-a11y__replace-anchor-with-link__editor FG is disabled', () => {
-		mockFg.mockReturnValue(false);
-
 		render(
 			<CardErrorBoundary url={url} unsupportedComponent={MockedUnsupportedInline}>
 				<MockedChildren />
@@ -182,13 +155,7 @@ describe('Renderer - React/Nodes/Fallback', () => {
 	});
 
 	describe('Link External Icon rendering for fallback link', () => {
-		it('should set target and rel attributes when onSetLinkTarget returns _blank when FG is enabled', () => {
-			mockFg.mockImplementation(
-				(flag: string) =>
-					flag === 'rovo_chat_deep_linking_enabled' ||
-					flag === 'dst-a11y__replace-anchor-with-link__editor',
-			);
-
+		it('should set target and rel attributes when onSetLinkTarget returns _blank', () => {
 			const mockOnSetLinkTarget = jest.fn().mockReturnValue('_blank');
 
 			render(
@@ -208,37 +175,7 @@ describe('Renderer - React/Nodes/Fallback', () => {
 			expect(mockOnSetLinkTarget).toHaveBeenCalledWith(url);
 		});
 
-		it('should not set target and rel attributes when onSetLinkTarget returns _blank and FG is OFF', () => {
-			mockFg.mockImplementation(
-				(flag: string) => flag === 'dst-a11y__replace-anchor-with-link__editor',
-			);
-
-			const mockOnSetLinkTarget = jest.fn().mockReturnValue('_blank');
-
-			render(
-				<CardErrorBoundary
-					url={url}
-					onSetLinkTarget={mockOnSetLinkTarget}
-					unsupportedComponent={MockedUnsupportedInline}
-				>
-					<MockedChildren />
-					<FakeExplodingComponent />
-				</CardErrorBoundary>,
-			);
-
-			const link = screen.getByRole('link');
-			expect(link).not.toHaveAttribute('target');
-			expect(link).not.toHaveAttribute('rel');
-			expect(mockOnSetLinkTarget).not.toHaveBeenCalled();
-		});
-
 		it('should not set target and rel attributes when onSetLinkTarget returns undefined', () => {
-			mockFg.mockImplementation(
-				(flag: string) =>
-					flag === 'rovo_chat_deep_linking_enabled' ||
-					flag === 'dst-a11y__replace-anchor-with-link__editor',
-			);
-
 			const mockOnSetLinkTarget = jest.fn().mockReturnValue(undefined);
 
 			render(
@@ -258,12 +195,6 @@ describe('Renderer - React/Nodes/Fallback', () => {
 		});
 
 		it('should handle onSetLinkTarget throwing error gracefully', () => {
-			mockFg.mockImplementation(
-				(flag: string) =>
-					flag === 'rovo_chat_deep_linking_enabled' ||
-					flag === 'dst-a11y__replace-anchor-with-link__editor',
-			);
-
 			const mockOnSetLinkTarget = jest.fn().mockImplementation(() => {
 				throw new Error('URL parsing failed');
 			});

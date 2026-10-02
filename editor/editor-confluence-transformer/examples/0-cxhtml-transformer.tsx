@@ -2,29 +2,37 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx, type SerializedStyles } from '@emotion/react';
-import { Component } from 'react';
+
+import { Component, createRef } from 'react';
+
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports */
+import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 import { pd } from 'pretty-data';
-import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
-import type { EditorProps, EditorActions } from '@atlaskit/editor-core';
-import { EditorContext, WithEditorActions } from '@atlaskit/editor-core';
-import { storyContextIdentifierProviderFactory } from '@atlaskit/editor-test-helpers/context-identifier-provider';
-import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
-import { macroProvider } from '@atlaskit/editor-test-helpers/mock-macro-provider';
-import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
-import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
-import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
+
 // eslint-disable-next-line  no-restricted-imports -- Legacy package outside of AFM lacks entry points
 import { MockActivityResource } from '@atlaskit/activity/dist/es5/support';
-import Spinner from '@atlaskit/spinner';
-import { token } from '@atlaskit/tokens';
-import { TitleInput } from '@atlaskit/editor-test-helpers/example-helpers';
-import { highlightPlugin } from '@atlaskit/editor-plugins/highlight';
+import ButtonGroup from '@atlaskit/button/button-group';
+import Button from '@atlaskit/button/default/button';
+// eslint-disable-next-line @atlaskit/editor/warn-no-restricted-imports
+import type { EditorProps, EditorActions } from '@atlaskit/editor-core';
+// eslint-disable-next-line @atlaskit/editor/warn-no-restricted-imports
+import { EditorContext, WithEditorActions } from '@atlaskit/editor-core';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { useUniversalPreset } from '@atlaskit/editor-core/preset-universal';
 import { usePreset } from '@atlaskit/editor-core/use-preset';
+import { highlightPlugin } from '@atlaskit/editor-plugins/highlight';
+import type { Node } from '@atlaskit/editor-prosemirror/model';
+import { storyContextIdentifierProviderFactory } from '@atlaskit/editor-test-helpers/context-identifier-provider';
+import { TitleInput } from '@atlaskit/editor-test-helpers/example-helpers';
+import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
+import { macroProvider } from '@atlaskit/editor-test-helpers/mock-macro-provider';
+import Spinner from '@atlaskit/spinner/spinner';
+import { token } from '@atlaskit/tokens';
+import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
+import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
+import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
+
 import {
 	CODE_MACRO,
 	JIRA_ISSUE,
@@ -37,14 +45,30 @@ import {
 	DATE,
 } from '../example-helpers/cxhtml-test-data';
 import { ConfluenceTransformer } from '../src';
-import type { Node } from '@atlaskit/editor-prosemirror/model';
-
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
 export const content: SerializedStyles = css({
-	padding: `0 ${token('space.250', '20px')}`,
+	padding: `0 ${token('space.250')}`,
 	height: '100%',
 	background: '#fff',
 	boxSizing: 'border-box',
+});
+
+const clickableSpan: SerializedStyles = css({
+	cursor: 'pointer',
+});
+
+const fieldsetStyle: SerializedStyles = css({
+	marginTop: token('space.250'),
+	marginBottom: token('space.250'),
+});
+
+const textareaStyle: SerializedStyles = css({
+	boxSizing: 'border-box',
+	border: `${token('border.width')} solid lightgray`,
+	fontFamily: 'monospace',
+	padding: token('space.150'),
+	width: '100%',
+	height: 100,
 });
 
 const SaveAndCancelButtons = (props: any) => (
@@ -87,12 +111,70 @@ type ExampleState = {
 	output: string;
 };
 
-const Editor = ({ ...props }: EditorProps) => {
+const ComposableEditorWrapper = (props: EditorProps) => {
 	const universalPreset = useUniversalPreset({ props });
 	const { preset } = usePreset(() => {
 		return universalPreset.add(highlightPlugin);
 	}, [universalPreset]);
-	return <ComposableEditor preset={preset} {...props} />;
+	return (
+		<ComposableEditor
+			preset={preset}
+			appearance={props.appearance}
+			contentMode={props.contentMode}
+			contentComponents={props.contentComponents}
+			primaryToolbarIconBefore={props.primaryToolbarIconBefore}
+			secondaryToolbarComponents={props.secondaryToolbarComponents}
+			persistScrollGutter={props.persistScrollGutter}
+			quickInsert={props.quickInsert}
+			shouldFocus={props.shouldFocus}
+			disabled={props.disabled}
+			contextPanel={props.contextPanel}
+			errorReporterHandler={props.errorReporterHandler}
+			contentTransformerProvider={props.contentTransformerProvider}
+			maxHeight={props.maxHeight}
+			minHeight={props.minHeight}
+			defaultValue={props.defaultValue}
+			assistiveLabel={props.assistiveLabel}
+			assistiveDescribedBy={props.assistiveDescribedBy}
+			popupsMountPoint={props.popupsMountPoint}
+			popupsBoundariesElement={props.popupsBoundariesElement}
+			popupsScrollableElement={props.popupsScrollableElement}
+			editorActions={props.editorActions}
+			onEditorReady={props.onEditorReady}
+			onDestroy={props.onDestroy}
+			onChange={props.onChange}
+			onCancel={props.onCancel}
+			extensionProviders={props.extensionProviders}
+			UNSAFE_useAnalyticsContext={props.UNSAFE_useAnalyticsContext}
+			useStickyToolbar={props.useStickyToolbar}
+			featureFlags={props.featureFlags}
+			onSave={props.onSave}
+			sanitizePrivateContent={props.sanitizePrivateContent}
+			media={props.media}
+			collabEdit={props.collabEdit}
+			primaryToolbarComponents={props.primaryToolbarComponents}
+			performanceTracking={props.performanceTracking}
+			inputSamplingLimit={props.inputSamplingLimit}
+			allowUndoRedoButtons={props.allowUndoRedoButtons}
+			linking={props.linking}
+			activityProvider={props.activityProvider}
+			searchProvider={props.searchProvider}
+			annotationProviders={props.annotationProviders}
+			collabEditProvider={props.collabEditProvider}
+			presenceProvider={props.presenceProvider}
+			emojiProvider={props.emojiProvider}
+			taskDecisionProvider={props.taskDecisionProvider}
+			legacyImageUploadProvider={props.legacyImageUploadProvider}
+			mentionProvider={props.mentionProvider}
+			autoformattingProvider={props.autoformattingProvider}
+			macroProvider={props.macroProvider}
+			contextIdentifierProvider={props.contextIdentifierProvider}
+			onSSRMeasure={props.onSSRMeasure}
+			__livePage={props.__livePage}
+			skipValidation={props.skipValidation}
+			syncedBlockProvider={props.syncedBlockProvider}
+		/>
+	);
 };
 
 // Ignored via go/ees005
@@ -103,9 +185,7 @@ class Example extends Component<ExampleProps, ExampleState> {
 		output: '',
 	};
 
-	refs!: {
-		input: HTMLTextAreaElement;
-	};
+	inputRef = createRef<HTMLTextAreaElement>();
 
 	shouldComponentUpdate(_nextProps: ExampleProps, nextState: ExampleState) {
 		return nextState.input !== this.state.input || nextState.output !== this.state.output;
@@ -113,36 +193,11 @@ class Example extends Component<ExampleProps, ExampleState> {
 
 	render() {
 		return (
-			// eslint-disable-next-line react/no-string-refs -- Ignored via go/ED-25883
-			<div ref="root">
-				<fieldset
-					style={{
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						marginTop: token('space.250', '20px'),
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						marginBottom: token('space.250', '20px'),
-					}}
-				>
+			<div>
+				<fieldset css={fieldsetStyle}>
 					<legend>Input</legend>
 					{/* eslint-disable-next-line @atlaskit/design-system/no-html-textarea */}
-					<textarea
-						style={{
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							boxSizing: 'border-box',
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							border: `${token('border.width')} solid lightgray`,
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							fontFamily: 'monospace',
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							padding: token('space.150', '12px'),
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							width: '100%',
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							height: 100,
-						}}
-						// eslint-disable-next-line react/no-string-refs -- Ignored via go/ED-25883
-						ref="input"
-					/>
+					<textarea css={textareaStyle} ref={this.inputRef} />
 					<button onClick={this.handleImportClick}>Import</button>
 					<button onClick={this.handleInsertCodeClick}>Code</button>
 					<button onClick={this.handleInsertPanelClick}>Panel</button>
@@ -158,7 +213,7 @@ class Example extends Component<ExampleProps, ExampleState> {
 					<EditorContext>
 						<WithEditorActions
 							render={(actions) => (
-								<Editor
+								<ComposableEditorWrapper
 									appearance="full-page"
 									allowTextColor={true}
 									allowTables={{
@@ -171,7 +226,12 @@ class Example extends Component<ExampleProps, ExampleState> {
 									allowExtension={true}
 									allowConfluenceInlineComment={true}
 									allowDate={true}
-									{...providers}
+									emojiProvider={providers.emojiProvider}
+									mentionProvider={providers.mentionProvider}
+									activityProvider={providers.activityProvider}
+									macroProvider={providers.macroProvider}
+									taskDecisionProvider={providers.taskDecisionProvider}
+									contextIdentifierProvider={providers.contextIdentifierProvider}
 									media={{ provider: mediaProvider, allowMediaSingle: true }}
 									contentTransformerProvider={(schema) => new ConfluenceTransformer(schema)}
 									placeholder="Write something..."
@@ -196,8 +256,7 @@ class Example extends Component<ExampleProps, ExampleState> {
 		);
 	}
 
-	// eslint-disable-next-line react/no-string-refs -- Ignored via go/ED-25883
-	private handleImportClick = () => this.setState({ input: this.refs.input.value });
+	private handleImportClick = () => this.setState({ input: this.inputRef.current?.value ?? '' });
 	private handleInsertCodeClick = () => this.setState({ input: CODE_MACRO });
 	private handleInsertJiraIssueClick = () => this.setState({ input: JIRA_ISSUE });
 	private handleInsertJiraIssuesListClick = () => this.setState({ input: JIRA_ISSUES_LIST });
@@ -226,6 +285,19 @@ export default class ExampleWrapper extends Component<ExampleWrapperProps, Examp
 		isMediaReady: true,
 	};
 
+	fieldsetStyle: SerializedStyles = css({
+		marginTop: token('space.250'),
+	});
+
+	preStyle: SerializedStyles = css({
+		whiteSpace: 'pre-wrap',
+		wordBreak: 'break-all',
+	});
+
+	spinnerContainerStyle: SerializedStyles = css({
+		padding: token('space.250'),
+	});
+
 	handleChange = (editorActions: EditorActions): void => {
 		this.setState({ isMediaReady: false });
 
@@ -246,31 +318,32 @@ export default class ExampleWrapper extends Component<ExampleWrapperProps, Examp
 		this.setState({ prettify: !this.state.prettify });
 	};
 
-	render() {
+	render(): jsx.JSX.Element {
 		const xml = this.state.prettify ? pd.xml(this.state.cxhtml || '') : this.state.cxhtml || '';
 
 		return (
-			// eslint-disable-next-line react/no-string-refs -- Ignored via go/ED-25883
-			<div ref="root">
+			<div>
 				<Example onChange={this.handleChange} />
-				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<fieldset style={{ marginTop: token('space.250', '20px') }}>
+				<fieldset css={fieldsetStyle}>
 					<legend>
 						CXHTML output ({/* eslint-disable-next-line @atlaskit/design-system/no-html-checkbox */}
 						<input type="checkbox" checked={this.state.prettify} onChange={this.togglePrettify} />
-						{/* eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/no-static-element-interactions, @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766  */}
-						<span onClick={this.togglePrettify} style={{ cursor: 'pointer' }}>
+						<span
+							onClick={this.togglePrettify}
+							onKeyDown={this.togglePrettify}
+							css={clickableSpan}
+							role="button"
+							tabIndex={0}
+						>
 							{' '}
 							prettify
 						</span>
 						)
 					</legend>
 					{this.state.isMediaReady ? (
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						<pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{xml}</pre>
+						<pre css={this.preStyle}>{xml}</pre>
 					) : (
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						<div style={{ padding: token('space.250', '20px') }}>
+						<div css={this.spinnerContainerStyle}>
 							<Spinner size="large" />
 						</div>
 					)}

@@ -1,9 +1,9 @@
-import type { ADFNode } from '../adfNode';
 import type { ADFMark } from '../adfMark';
+import type { ADFNode } from '../adfNode';
 import type { TransformerNames } from '../transforms/transformerNames';
 import type { ADFAttributes } from './ADFAttribute';
-import type { ADFNodeGroup } from './ADFNodeGroup';
 import type { ADFMarkSpec } from './ADFMarkSpec';
+import type { ADFNodeGroup } from './ADFNodeGroup';
 
 export type ADFNodeSpec = ADFCommonNodeSpec | ADFTextNodeSpec;
 
@@ -189,6 +189,15 @@ export type ADFCommonNodeSpec = {
 	 * This is different to simply having an empty mark list.
 	 */
 	noMarks?: boolean;
+
+	/**
+	 * PM Spec only.
+	 *
+	 * Most DSL variants collapse to their base node type in ProseMirror content
+	 * expressions. Set this on variants that correspond to a distinct PM node
+	 * name and must keep their variant suffix in generated PM content.
+	 */
+	preserveVariantNameInPm?: boolean;
 
 	/**
 	 * Marks a node as the top-level node of a document.

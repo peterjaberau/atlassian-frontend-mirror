@@ -1,10 +1,12 @@
 import { useContext, useEffect } from 'react';
+
+import type { AnnotationId, AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import { AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
 import type { AnnotationState } from '@atlaskit/editor-common/types';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
-import type { AnnotationId, AnnotationTypes } from '@atlaskit/adf-schema';
-import { ProvidersContext } from '../context';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
+
 import { RendererContext as ActionsContext } from '../../RendererActionsContext';
+import { ProvidersContext } from '../context';
 import { useAnnotationManagerDispatch } from '../contexts/AnnotationManagerContext';
 
 export type LoadCompleteHandler = (params: { numberOfUnresolvedInlineComments: number }) => void;
@@ -14,7 +16,11 @@ type Props = {
 	isNestedRender: boolean;
 	onLoadComplete?: LoadCompleteHandler;
 };
-export const useLoadAnnotations = ({ adfDocument, isNestedRender, onLoadComplete }: Props): void => {
+export const useLoadAnnotations = ({
+	adfDocument,
+	isNestedRender,
+	onLoadComplete,
+}: Props): void => {
 	const actions = useContext(ActionsContext);
 	const providers = useContext(ProvidersContext);
 	const { annotationManager, dispatch } = useAnnotationManagerDispatch();

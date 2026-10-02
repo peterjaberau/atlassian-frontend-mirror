@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { token } from '@atlaskit/tokens';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { render, screen } from '@atlassian/testing-library';
 
 import { type LozengeProps } from '../../../../../types';
 import { InlineCardResolvedView } from '../../index';
@@ -74,11 +75,11 @@ describe('ResolvedView', () => {
 			<InlineCardResolvedView
 				icon="some-link-to-icon"
 				title="some text content"
-				titleTextColor={token('color.text.inverse', '#FFFFFF')}
+				titleTextColor={token('color.text.inverse')}
 			/>,
 		);
 		expect(await screen.findByText('some text content')).toHaveStyle(
-			`color: var(--ds-text-inverse, #FFFFFF)`,
+			`color: var(--ds-text-inverse)`,
 		);
 	});
 
@@ -90,10 +91,14 @@ describe('ResolvedView', () => {
 		};
 		render(<InlineCardResolvedView title="some text content" lozenge={lozengeProps} />);
 		const lozenge = await screen.findByTestId('inline-card-resolved-view-lozenge');
-		// Lozenge background color is hardcoded in the lozenge component for now
-		expect(lozenge).toHaveCompiledCss('background-color', '#8fb8f6');
-
-		expect(lozenge).toHaveStyle(`color: var(--ds-link,#0052cc)`);
+		expect(lozenge).toHaveCompiledCss(
+			'background-color',
+			token('color.background.information.subtler', '#CFE1FD').replace(/\s/g, '').toLowerCase(),
+		);
+		expect(lozenge).toHaveCompiledCss(
+			'color',
+			token('color.text.information.bolder', '#123263').replace(/\s/g, '').toLowerCase(),
+		);
 	});
 
 	it('should not render a lozenge when one is not provided', () => {
@@ -131,5 +136,169 @@ describe('ResolvedView', () => {
 	it('should not render a hover preview when prop is not provided', () => {
 		render(<InlineCardResolvedView link="www.test.com" />);
 		expect(screen.queryByTestId('hover-card-trigger-wrapper')).not.toBeInTheDocument();
+	});
+
+	it('should forward a custom testId to the frame', () => {
+		render(<InlineCardResolvedView title="some text content" testId="my-custom-card" />);
+		expect(screen.getByTestId('my-custom-card')).toBeInTheDocument();
+	});
+
+	describe('feature flag: platform-dst-lozenge-tag-badge-visual-uplifts', () => {
+		ffTest.on(
+			'platform-dst-lozenge-tag-badge-visual-uplifts',
+			'splits state metric from lozenge text',
+			() => {
+				it('should split "On track - 0.7" into label and trailingMetric', () => {
+					const lozengeProps: LozengeProps = {
+						text: 'On track - 0.7',
+						appearance: 'success',
+					};
+					render(<InlineCardResolvedView title="some text content" lozenge={lozengeProps} />);
+
+					const lozenge = screen.getByTestId('inline-card-resolved-view-lozenge');
+					expect(lozenge).toBeInTheDocument();
+					expect(lozenge).toHaveTextContent('On track');
+					expect(lozenge).not.toHaveTextContent('On track - 0.7');
+					const metricBadge = screen.getByTestId('inline-card-resolved-view-lozenge--metric');
+					expect(metricBadge).toHaveTextContent('0.7');
+				});
+
+				it('should split "Off track - 0.1" into label and trailingMetric for integers', () => {
+					const lozengeProps: LozengeProps = {
+						text: 'Off track - 0.1',
+						appearance: 'removed',
+					};
+					render(<InlineCardResolvedView title="some text content" lozenge={lozengeProps} />);
+
+					const lozenge = screen.getByTestId('inline-card-resolved-view-lozenge');
+					expect(lozenge).toBeInTheDocument();
+					expect(lozenge).toHaveTextContent('Off track');
+					const metricBadge = screen.getByTestId('inline-card-resolved-view-lozenge--metric');
+					expect(metricBadge).toHaveTextContent('0.1');
+				});
+
+				it('should not split text without a dash-number pattern', () => {
+					const lozengeProps: LozengeProps = {
+						text: 'Pending',
+						appearance: 'default',
+					};
+					render(<InlineCardResolvedView title="some text content" lozenge={lozengeProps} />);
+
+					const lozenge = screen.getByTestId('inline-card-resolved-view-lozenge');
+					expect(lozenge).toBeInTheDocument();
+					expect(lozenge).toHaveTextContent('Pending');
+				});
+			},
+		);
+
+		ffTest.off(
+			'platform-dst-lozenge-tag-badge-visual-uplifts',
+			'does not split state metric when flag is off',
+			() => {
+				it('should render full text without splitting when flag is off', () => {
+					const lozengeProps: LozengeProps = {
+						text: 'On track - 0.7',
+						appearance: 'success',
+					};
+					render(<InlineCardResolvedView title="some text content" lozenge={lozengeProps} />);
+
+					const lozenge = screen.getByTestId('inline-card-resolved-view-lozenge');
+					expect(lozenge).toBeInTheDocument();
+					expect(lozenge).toHaveTextContent('On track - 0.7');
+				});
+			},
+		);
+	});
+
+	describe('feature flag: smart-card-inline-resolved-view-refactor', () => {
+		ffTest.on(
+			'smart-card-inline-resolved-view-refactor',
+			'uses functional component implementation',
+			() => {
+				it('should render the title', async () => {
+					render(
+						<Provider>
+							<InlineCardResolvedView title="functional component title" />
+						</Provider>,
+					);
+					expect(await screen.findByText('functional component title')).toBeVisible();
+				});
+
+				it('should render a lozenge when one is provided', async () => {
+					const lozengeProps: LozengeProps = {
+						text: 'In Progress',
+						isBold: true,
+						appearance: 'inprogress',
+					};
+					render(
+						<Provider>
+							<InlineCardResolvedView title="some text" lozenge={lozengeProps} />
+						</Provider>,
+					);
+					expect(
+						await screen.findByTestId('inline-card-resolved-view-lozenge'),
+					).toBeInTheDocument();
+				});
+
+				it('should render a hover preview when prop is enabled and link is included', async () => {
+					render(
+						<IntlProvider locale="en">
+							<Provider>
+								<InlineCardResolvedView showHoverPreview={true} link="www.test.com" />
+							</Provider>
+						</IntlProvider>,
+					);
+					expect(await screen.findByTestId('hover-card-trigger-wrapper')).toBeInTheDocument();
+				});
+
+				it('should not render a hover preview when prop is disabled', () => {
+					render(
+						<Provider>
+							<InlineCardResolvedView showHoverPreview={false} link="www.test.com" />
+						</Provider>,
+					);
+					expect(screen.queryByTestId('hover-card-trigger-wrapper')).not.toBeInTheDocument();
+				});
+			},
+		);
+
+		ffTest.off(
+			'smart-card-inline-resolved-view-refactor',
+			'uses class component implementation',
+			() => {
+				it('should render the title', async () => {
+					render(<InlineCardResolvedView title="class component title" />);
+					expect(await screen.findByText('class component title')).toBeVisible();
+				});
+
+				it('should render a lozenge when one is provided', async () => {
+					const lozengeProps: LozengeProps = {
+						text: 'In Progress',
+						isBold: true,
+						appearance: 'inprogress',
+					};
+					render(<InlineCardResolvedView title="some text" lozenge={lozengeProps} />);
+					expect(
+						await screen.findByTestId('inline-card-resolved-view-lozenge'),
+					).toBeInTheDocument();
+				});
+
+				it('should render a hover preview when prop is enabled and link is included', async () => {
+					render(
+						<IntlProvider locale="en">
+							<Provider>
+								<InlineCardResolvedView showHoverPreview={true} link="www.test.com" />
+							</Provider>
+						</IntlProvider>,
+					);
+					expect(await screen.findByTestId('hover-card-trigger-wrapper')).toBeInTheDocument();
+				});
+
+				it('should not render a hover preview when prop is disabled', () => {
+					render(<InlineCardResolvedView showHoverPreview={false} link="www.test.com" />);
+					expect(screen.queryByTestId('hover-card-trigger-wrapper')).not.toBeInTheDocument();
+				});
+			},
+		);
 	});
 });

@@ -1,6 +1,6 @@
 import { createDownloadButtonClickedEvent } from '../../../../analytics/events/ui/downloadButtonClicked';
 import { createFailedPreviewDownloadButtonClickedEvent } from '../../../../analytics/events/ui/failedPreviewDownloadButtonClicked';
-import { MediaViewerError } from '../../../../errors';
+import { MediaViewerError } from '../../../../MediaViewerError';
 import {
 	processedFile,
 	processingFile,

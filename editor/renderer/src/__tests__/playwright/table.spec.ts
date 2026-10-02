@@ -1,9 +1,10 @@
+import adf from '../__fixtures__/table-complex-selections.adf.json';
 import { selectors as decisionSelectors } from '../__helpers/page-objects/_decision';
 import { selectors as expandSelectors } from '../__helpers/page-objects/_expand';
 import { selectors as statusSelectors } from '../__helpers/page-objects/_status';
-
 import { expect, rendererTestCase as test } from './not-libra';
-import adf from '../__fixtures__/table-complex-selections.adf.json';
+
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
 
 test.describe('table.ts: triple click selection', () => {
 	test.use({
@@ -53,7 +54,7 @@ test.describe('table.ts: triple click selection', () => {
 		await renderer.waitForRendererStable();
 
 		const selection = await renderer.page.evaluate(() => window.getSelection()?.toString());
-		expect(selection).toBe('SOME STATUS');
+		expect(selection).toBe('some status');
 	});
 
 	test('on triple-clicking last decision item (with text) in table cell (row:3,col:2), it should select from last decision item to last decision item', async ({

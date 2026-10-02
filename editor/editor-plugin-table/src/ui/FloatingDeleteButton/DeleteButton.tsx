@@ -1,8 +1,8 @@
 import type { SyntheticEvent } from 'react';
 import React from 'react';
 
-import type { MessageDescriptor, WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { MessageDescriptor, WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { TableCssClassName as ClassName } from '../../types';
 
@@ -27,10 +27,10 @@ const DeleteButton = ({
 		className={ClassName.CONTROLS_DELETE_BUTTON_WRAP}
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 		style={style}
-		// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 		onMouseEnter={onMouseEnter}
-		// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 		onMouseLeave={onMouseLeave}
+		onFocus={onMouseEnter}
+		onBlur={onMouseLeave}
 	>
 		<button
 			type="button"
@@ -52,4 +52,8 @@ const DeleteButton = ({
 	</div>
 );
 
-export default injectIntl(DeleteButton);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<ButtonProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<ButtonProps & WrappedComponentProps>;
+} = injectIntl(DeleteButton);
+export default _default_1;

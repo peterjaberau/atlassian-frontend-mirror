@@ -1,4 +1,5 @@
-import { type AuthProvider, type MediaApiConfig } from '@atlaskit/media-core';
+import type { AuthProvider, MediaApiConfig } from '@atlaskit/media-core/auth';
+
 import { uploadFile, type UploadableFileUpfrontIds, type MediaStore } from '../..';
 
 jest.mock('../../constants', () => ({
@@ -62,6 +63,7 @@ describe('Uploader', () => {
 				name: 'file-name',
 				collection: 'some-collection',
 				mimeType: 'some-mime-type',
+				size: 3,
 			},
 			mediaStore as MediaStore,
 			uploadableFileUpfrontIds,
@@ -69,11 +71,12 @@ describe('Uploader', () => {
 				onProgress: jest.fn(),
 				onUploadFinish: () => {
 					expect(createFileFromUpload).toHaveBeenCalledTimes(1);
-					expect(createFileFromUpload).toBeCalledWith(
+					expect(createFileFromUpload).toHaveBeenCalledWith(
 						{
 							uploadId: 'some-upload-id',
 							name: 'file-name',
 							mimeType: 'some-mime-type',
+							conditions: { size: 3 },
 						},
 						{
 							occurrenceKey: 'some-occurrence-key',
@@ -81,6 +84,7 @@ describe('Uploader', () => {
 							replaceFileId: 'some-file-id',
 						},
 						undefined,
+						{ expectedFileSize: 3 },
 					);
 					done();
 				},
@@ -98,6 +102,7 @@ describe('Uploader', () => {
 				name: 'file-name',
 				collection: 'some-collection',
 				mimeType: 'some-mime-type',
+				size: 5,
 			},
 			mediaStore as MediaStore,
 			uploadableFileUpfrontIds,
@@ -105,11 +110,12 @@ describe('Uploader', () => {
 				onProgress: jest.fn(),
 				onUploadFinish: () => {
 					expect(createFileFromUpload).toHaveBeenCalledTimes(1);
-					expect(createFileFromUpload).toBeCalledWith(
+					expect(createFileFromUpload).toHaveBeenCalledWith(
 						{
 							uploadId: 'some-upload-id',
 							name: 'file-name',
 							mimeType: 'some-mime-type',
+							conditions: { size: 5 },
 						},
 						{
 							occurrenceKey: 'some-occurrence-key',
@@ -117,6 +123,7 @@ describe('Uploader', () => {
 							replaceFileId: 'some-file-id',
 						},
 						undefined,
+						{ expectedFileSize: 5 },
 					);
 					done();
 				},

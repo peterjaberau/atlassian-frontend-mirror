@@ -1,13 +1,9 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
+
 import { type RequestServiceOptions, utils } from '@atlaskit/util-service-support';
 
-import {
-	convertServiceTaskToTask,
-	convertServiceTaskStateToBaseItem,
-	findIndex,
-} from './TaskDecisionUtils';
-
+import { objectKeyToString, toggleTaskState, toObjectKey } from '../type-helpers';
 import {
 	type BaseItem,
 	type ServiceTaskState,
@@ -25,8 +21,11 @@ import {
 	type TaskState,
 	type ServiceItem,
 } from '../types';
-
-import { objectKeyToString, toggleTaskState, toObjectKey } from '../type-helpers';
+import {
+	convertServiceTaskToTask,
+	convertServiceTaskStateToBaseItem,
+	findIndex,
+} from './TaskDecisionUtils';
 
 interface RecentUpdateByIdValue {
 	listener: RecentUpdatesListener;
@@ -220,7 +219,11 @@ export class ItemStateManager {
 		this.scheduleGetTaskState();
 	}
 
-	subscribe(objectKey: ObjectKey, handler: Handler, item?: BaseItem<TaskState | DecisionState>): void {
+	subscribe(
+		objectKey: ObjectKey,
+		handler: Handler,
+		item?: BaseItem<TaskState | DecisionState>,
+	): void {
 		const key = objectKeyToString(objectKey);
 		const handlers = this.subscribers.get(key) || [];
 		handlers.push(handler);
@@ -264,7 +267,7 @@ export class ItemStateManager {
 		}
 	}
 
-	getTaskState(keys: ObjectKey[]) {
+	getTaskState(keys: ObjectKey[]): Promise<ServiceTaskState[]> {
 		const options: RequestServiceOptions = {
 			path: 'tasks/state',
 			requestInit: {
@@ -397,7 +400,11 @@ export default class TaskDecisionResource implements TaskDecisionProvider {
 		return this.itemStateManager.toggleTask(objectKey, state);
 	}
 
-	subscribe(objectKey: ObjectKey, handler: Handler, item?: BaseItem<TaskState | DecisionState>): void {
+	subscribe(
+		objectKey: ObjectKey,
+		handler: Handler,
+		item?: BaseItem<TaskState | DecisionState>,
+	): void {
 		this.itemStateManager.subscribe(objectKey, handler, item);
 	}
 

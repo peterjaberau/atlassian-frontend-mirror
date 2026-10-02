@@ -1,34 +1,22 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
 import React, { Fragment } from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
-import { B400, B300, B500 } from '@atlaskit/theme/colors';
-import type { LinkAttributes } from '@atlaskit/adf-schema';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-
-import { getEventHandler } from '../../utils';
-import { PLATFORM, MODE } from '../../analytics/events';
+import type { LinkAttributes } from '@atlaskit/adf-schema/link';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { componentWithCondition } from '@atlaskit/platform-feature-flags-react/component-with-condition';
+
+import { PLATFORM, MODE } from '../../analytics/events';
+import { getEventHandler } from '../../utils';
 import type { MarkProps } from '../types';
+import { LinkUrlCompiled } from './link-compiled';
+import { LinkUrlEmotion } from './link-emotion';
 
-import { token } from '@atlaskit/tokens';
-import LinkUrl from '@atlaskit/smart-card/link-url';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
-
-const anchorStyles = css({
-	color: token('color.link', B400),
-	'&:hover': {
-		color: token('color.link', B300),
-		textDecoration: 'underline',
-	},
-	'&:active': {
-		color: token('color.link.pressed', B500),
-	},
-});
+const LinkUrlMigration = componentWithCondition(
+	() => isExperimentEnabled('platform_editor_renderer_static_css'),
+	LinkUrlCompiled,
+	LinkUrlEmotion,
+);
 
 interface LinkProps extends LinkAttributes {
 	isMediaLink?: boolean;
@@ -36,7 +24,10 @@ interface LinkProps extends LinkAttributes {
 	target?: string;
 }
 
-export default function Link(props: MarkProps<LinkProps>) {
+/**
+ * Render an ADF link mark in renderer.
+ */
+export default function Link(props: MarkProps<LinkProps>): React.JSX.Element {
 	const {
 		href,
 		target,
@@ -49,10 +40,11 @@ export default function Link(props: MarkProps<LinkProps>) {
 
 	let actualTarget = target;
 
-	if (onSetLinkTarget && href && fg('rovo_chat_deep_linking_enabled')) {
+	if (onSetLinkTarget && href) {
 		try {
 			actualTarget = onSetLinkTarget(href) ?? actualTarget;
 		} catch (error) {
+			// eslint-disable-line no-unused-vars
 			// If URL parsing fails, use the original target
 		}
 	}
@@ -83,8 +75,8 @@ export default function Link(props: MarkProps<LinkProps>) {
 
 	return (
 		<AnalyticsContext data={analyticsData}>
-			<LinkUrl
-				css={anchorStyles}
+			<LinkUrlMigration
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onClick={(e) => {
 					if (fireAnalyticsEvent) {
 						fireAnalyticsEvent({
@@ -112,7 +104,7 @@ export default function Link(props: MarkProps<LinkProps>) {
 				enableResolve={true}
 			>
 				{props.children}
-			</LinkUrl>
+			</LinkUrlMigration>
 		</AnalyticsContext>
 	);
 }

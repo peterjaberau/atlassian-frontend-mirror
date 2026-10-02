@@ -1,17 +1,21 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { extractLink } from '@atlaskit/link-extractors';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { extractLink } from '@atlaskit/link-extractors/extract-link';
 
-import { CardAction } from '../../index';
-import { getDefinitionId, getExtensionKey, getResourceType } from '../../state/helpers';
+import { CardAction } from '../../constants';
+import { getDefinitionId } from '../../state/getDefinitionId';
+import { getExtensionKey } from '../../state/getExtensionKey';
+import { getResourceType } from '../../state/getResourceType';
 import { type InvokeClientActionProps } from '../../state/hooks/use-invoke-client-action/types';
-import { openUrl } from '../../utils';
 import { canShowAction } from '../../utils/actions/can-show-action';
+import { openUrl } from '../../utils/open-url';
 import { getActionsFromJsonLd } from '../common/actions/extractActions';
+import { type ExtractClientActionsParam, type TransformUrlFn } from './types';
 
-import { type ExtractClientActionsParam } from './types';
-
+export type ExtractInvokeViewActionParam = ExtractClientActionsParam & {
+	transformUrl?: TransformUrlFn;
+};
 export const extractInvokeViewAction = (
-	{ actionOptions, appearance, id, response }: ExtractClientActionsParam,
+	{ actionOptions, appearance, transformUrl, id, response }: ExtractInvokeViewActionParam,
 	force?: boolean,
 ): InvokeClientActionProps | undefined => {
 	if (!canShowAction(CardAction.ViewAction, actionOptions)) {
@@ -28,7 +32,10 @@ export const extractInvokeViewAction = (
 
 	if (url && (viewActionExists || force)) {
 		return {
-			actionFn: async () => openUrl(url),
+			actionFn: async () => {
+				const destinationUrl = transformUrl?.(url) ?? url;
+				return openUrl(destinationUrl);
+			},
 			actionSubjectId: 'shortcutGoToLink',
 			actionType: 'ViewAction',
 			definitionId: getDefinitionId(response),

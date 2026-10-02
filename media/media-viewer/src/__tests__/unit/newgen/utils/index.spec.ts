@@ -1,14 +1,13 @@
 import { type Identifier } from '@atlaskit/media-client';
-import {
-	getSelectedIndex,
-	extractArchiveFolderName,
-	getFolderParent,
-	getMediaTypeFromFilename,
-	getFormattedFolderName,
-	isMacPrivateFile,
-	rejectAfter,
-} from '../../../../utils';
 import { nextTick } from '@atlaskit/media-test-helpers';
+
+import { extractArchiveFolderName } from '../../../../utils/extractArchiveFolderName';
+import { getFolderParent } from '../../../../utils/getFolderParent';
+import { getFormattedFolderName } from '../../../../utils/getFormattedFolderName';
+import { getMediaTypeFromFilename } from '../../../../utils/getMediaTypeFromFilename';
+import { getSelectedIndex } from '../../../../utils/getSelectedIndex';
+import { isMacPrivateFile } from '../../../../utils/isMacPrivateFile';
+import { rejectAfter } from '../../../../utils/rejectAfter';
 
 describe('utils', () => {
 	describe('getSelectedIndex', () => {

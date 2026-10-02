@@ -1,6 +1,6 @@
 import type { PastePluginAction as Action } from '../editor-actions/actions';
 import { PastePluginActionTypes as ActionTypes } from '../editor-actions/actions';
-import type { PasteOtionsPluginState as State } from '../types/types';
+import type { PasteOptionsPluginState as State } from '../types/types';
 
 export const reducer = (state: State, action: Action): State => {
 	switch (action.type) {
@@ -8,6 +8,8 @@ export const reducer = (state: State, action: Action): State => {
 			return {
 				...state,
 				showToolbar: true,
+				showLegacyOptions: action.data.showLegacyOptions,
+				pasteAncestorNodeNames: action.data.pasteAncestorNodeNames,
 				highlightContent: false,
 				isPlainText: action.data.isPlainText,
 				plaintext: action.data.plaintext,

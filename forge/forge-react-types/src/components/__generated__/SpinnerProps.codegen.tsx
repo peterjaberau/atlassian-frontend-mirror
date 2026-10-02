@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - SpinnerProps
  *
- * @codegen <<SignedSource::da564e9fcc19afc8bb55ad494a1e1aa6>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/spinner/__generated__/index.partial.tsx <<SignedSource::d6138d211e143990a6133754180f565c>>
+ * @codegen <<SignedSource::1d267baa392f56f63ccbd73bd0c5db1c>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/spinner/__generated__/index.partial.tsx <<SignedSource::0dd572b0415ac2558dcf04013cd2d8e5>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import PlatformSpinner from '@atlaskit/spinner';
+import PlatformSpinner from '@atlaskit/spinner/spinner';
 
 type PlatformSpinnerProps = React.ComponentProps<typeof PlatformSpinner>;
 

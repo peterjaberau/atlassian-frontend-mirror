@@ -6,31 +6,32 @@ import React, { forwardRef, memo, useState } from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
 
-import { type UIAnalyticsEvent, usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
 import __noop from '@atlaskit/ds-lib/noop';
 import { useId } from '@atlaskit/ds-lib/use-id';
 import CheckMarkIcon from '@atlaskit/icon/core/check-mark';
 import CloseIcon from '@atlaskit/icon/core/cross';
-import Spinner from '@atlaskit/spinner';
-import { B200, G400, G500, N0, N20, N200, N400, N70 } from '@atlaskit/theme/colors';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import IconContainer from './icon-container';
 import { type Size, type ToggleProps } from './types';
 
 const LOADING_LABEL = ', Loading';
 
-const basicStyles = css({
+const baseStyles = css({
 	display: 'inline-block',
 	boxSizing: 'content-box',
 	position: 'relative',
 	backgroundClip: 'content-box',
-	backgroundColor: token('color.background.neutral.bold', N200),
+	backgroundColor: token('color.background.neutral.bold'),
 	borderColor: 'transparent',
 	borderStyle: 'solid',
 	borderWidth: token('border.width.selected'),
-	color: token('color.icon.inverse', N0),
+	color: token('color.icon.inverse'),
+	cursor: 'pointer',
 	marginBlockEnd: token('space.025'),
 	marginBlockStart: token('space.025'),
 	marginInlineEnd: token('space.025'),
@@ -39,86 +40,24 @@ const basicStyles = css({
 	paddingBlockStart: token('space.025'),
 	paddingInlineEnd: token('space.025'),
 	paddingInlineStart: token('space.025'),
-	transition: 'transform 0.2s ease',
+	transitionDuration: token('motion.duration.medium', '0.2s'),
+	transitionProperty: 'transform',
+	transitionTimingFunction: token('motion.easing.out.practical', 'ease'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'&:has(:focus-visible)': {
-		borderColor: token('color.border.focused', B200),
-		borderStyle: 'solid',
+		borderColor: token('color.border.focused'),
 		borderWidth: token('border.width.focused'),
 	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&[data-disabled]:not([data-checked])': {
-		backgroundColor: token('color.background.disabled', N20),
-	},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'&[data-disabled][data-checked],&[data-disabled][data-checked]:hover': {
-		backgroundColor: token('color.background.disabled', N20),
-	},
-
-	'&:hover': {
-		backgroundColor: token('color.background.neutral.bold.hovered', N400),
-		cursor: 'pointer',
-	},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&[data-disabled]:hover,&[data-disabled][data-checked]:hover,&[data-disabled]:not([data-checked]):hover':
-		{
-			cursor: 'not-allowed',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'&[data-checked]': {
-		backgroundColor: token('color.background.success.bold', G400),
-		color: token('color.icon.inverse', N0),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'&[data-checked]:hover': {
-		backgroundColor: token('color.background.success.bold.hovered', G500),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&:not([data-checked]):hover': {
-		backgroundColor: token('color.background.neutral.bold.hovered', N400),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&[data-disabled]:not([data-checked]):hover': {
-		backgroundColor: token('color.background.disabled', N20),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'&[data-disabled], &[data-disabled][data-checked], &[data-disabled][data-checked]:hover': {
-		color: token('color.icon.disabled', N70),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'input[type="checkbox"]': {
-		margin: 0,
-		padding: 0,
-		border: 'none',
-		opacity: 0,
-		'&:focus': {
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
-			outline: 'none !important',
-		},
-	},
-
-	// slider
 	'&::before': {
 		position: 'absolute',
-		backgroundColor: token('color.icon.inverse', N0),
+		backgroundColor: token('color.icon.inverse'),
 		borderRadius: token('radius.full', '50%'),
 		content: '""',
 		insetBlockEnd: `4px`,
 		insetInlineStart: `4px`,
-		transform: 'initial',
-		transition: 'transform 0.2s ease',
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'&[data-checked]::before': {
-		backgroundColor: token('color.icon.inverse', N0),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'&[data-disabled]::before': {
-		zIndex: 1,
-		backgroundColor: token('color.icon.inverse', N0),
+		transitionDuration: token('motion.duration.medium', '0.2s'),
+		transitionProperty: 'transform',
+		transitionTimingFunction: token('motion.easing.out.practical', 'ease'),
 	},
 	'@media screen and (forced-colors: active)': {
 		'&::before': {
@@ -139,10 +78,6 @@ const sizeStyles = cssMap({
 			height: token('space.150'),
 			width: `12px`,
 		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'&[data-checked]::before': {
-			transform: `translateX(${token('space.200')})`,
-		},
 	},
 	large: {
 		borderRadius: token('radius.full'),
@@ -152,10 +87,68 @@ const sizeStyles = cssMap({
 			height: token('space.200'),
 			width: `16px`,
 		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'&[data-checked]::before': {
+	},
+});
+
+/**
+ * Slider knob translate transforms per size, applied when checked.
+ */
+const checkedSliderStyles = cssMap({
+	regular: {
+		'&::before': {
+			transform: `translateX(${token('space.200')})`,
+		},
+	},
+	large: {
+		'&::before': {
 			transform: `translateX(${token('space.250')})`,
 		},
+	},
+});
+
+/**
+ * Applied when the toggle is checked
+ */
+const checkedStyles = css({
+	backgroundColor: token('color.background.success.bold'),
+});
+
+/**
+ * Applied when the toggle is checked and not disabled.
+ */
+const checkedHoveredStyles = css({
+	'&:hover': {
+		backgroundColor: token('color.background.success.bold.hovered'),
+	},
+});
+
+/**
+ * Applied when the toggle is unchecked and not disabled.
+ */
+const uncheckedHoveredStyles = css({
+	'&:hover': {
+		backgroundColor: token('color.background.neutral.bold.hovered'),
+	},
+});
+
+/**
+ * Applied when the toggle is disabled.
+ */
+const disabledStyles = css({
+	backgroundColor: token('color.background.disabled'),
+	color: token('color.icon.disabled'),
+	cursor: 'not-allowed',
+});
+
+const inputStyles = css({
+	margin: 0,
+	padding: 0,
+	border: 'none',
+	opacity: 0,
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'&:focus': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+		outline: 'none !important',
 	},
 });
 
@@ -176,7 +169,9 @@ const analyticsAttributes = {
  * - [Code](https://atlassian.design/components/toggle/code)
  * - [Usage](https://atlassian.design/components/toggle/usage)
  */
-const Toggle: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<ToggleProps, "ref"> & React.RefAttributes<HTMLInputElement>>> = memo(
+const Toggle: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<Omit<ToggleProps, 'ref'> & React.RefAttributes<HTMLInputElement>>
+> = memo(
 	forwardRef<HTMLInputElement, ToggleProps>((props, ref) => {
 		const {
 			defaultChecked = false,
@@ -228,16 +223,23 @@ const Toggle: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<Tog
 
 		const shouldChecked = isControlled ? checked : isChecked;
 
-		const controlProps = {
-			'data-checked': shouldChecked ? shouldChecked : undefined,
-			'data-disabled': isDisabled ? isDisabled : undefined,
-			'data-size': size,
-			'data-testid': testId ? testId : undefined,
-		};
-
 		const labelId = useId();
 		return (
-			<label {...controlProps} css={[basicStyles, sizeStyles[size]]}>
+			<label
+				data-testid={testId}
+				css={[
+					baseStyles,
+					sizeStyles[size],
+					// Checked state: success background + slider knob translation
+					shouldChecked && checkedStyles,
+					shouldChecked && checkedSliderStyles[size],
+					// Hover states: only applied for enabled toggles
+					!isDisabled && shouldChecked && checkedHoveredStyles,
+					!isDisabled && !shouldChecked && uncheckedHoveredStyles,
+					// Disabled state: overrides all other styles
+					isDisabled && disabledStyles,
+				]}
+			>
 				{label ? (
 					<span id={labelId} hidden>
 						{isLoading ? `${label}${LOADING_LABEL}` : label}
@@ -259,6 +261,7 @@ const Toggle: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<Tog
 						isLoading && label ? `${labelId} ${loadingLabelId}` : label ? labelId : undefined
 					}
 					aria-describedby={descriptionId}
+					css={inputStyles}
 				/>
 				<IconContainer size={size} isHidden={!shouldChecked} position="left">
 					{isLoading && shouldChecked ? (

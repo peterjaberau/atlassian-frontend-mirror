@@ -47,7 +47,6 @@ export function wrapInList(listType: NodeType, attrs?: Attrs) {
 		// This is at the top of an existing list item
 		if (
 			range.depth >= 2 &&
-			// @ts-ignore - missing type for compatibleContent
 			$from.node(range.depth - 1).type.compatibleContent(listType) &&
 			range.startIndex === 0
 		) {
@@ -114,6 +113,7 @@ function doWrapInList(
 	const parent = range.parent;
 	for (let i = range.startIndex, e = range.endIndex, first = true; i < e; i++, first = false) {
 		if (!first && canSplit(tr.doc, splitPos, splitDepth)) {
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			tr.split(splitPos, splitDepth);
 			splitPos += 2 * splitDepth;
 		}

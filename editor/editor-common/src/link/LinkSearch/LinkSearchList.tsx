@@ -1,13 +1,16 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type KeyboardEvent } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx, type SerializedStyles } from '@emotion/react';
+import type { KeyboardEvent } from 'react';
 
-import Spinner from '@atlaskit/spinner';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
+import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
+
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 
 import ForwardedLinkSearchListItemNextWithIntl from './LinkSearchListItem';
@@ -15,14 +18,14 @@ import type { LinkSearchListItemData } from './types';
 
 const listContainer = css({
 	paddingTop: 0,
-	marginTop: token('space.150', '12px'),
+	marginTop: token('space.150'),
 	borderTop: `${token('border.width')} solid ${token('color.border')}`,
 });
 
 const spinnerContainer = css({
 	textAlign: 'center',
 	minHeight: '80px',
-	marginTop: token('space.400', '32px'),
+	marginTop: token('space.400'),
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
@@ -37,6 +40,7 @@ export interface Props {
 	isLoading: boolean;
 	items?: LinkSearchListItemData[];
 	listItemRefCallback?: (el: HTMLElement | null, id: string) => void;
+	onBlur?: () => void;
 	onFocus?: (index: number) => void;
 	onKeyDown?: (e: KeyboardEvent<HTMLDivElement>) => void;
 	onMouseEnter?: (objectId: string) => void;
@@ -49,6 +53,7 @@ export interface Props {
 
 const LinkSearchList = ({
 	listItemRefCallback,
+	onBlur,
 	onFocus,
 	onKeyDown,
 	onSelect,
@@ -61,7 +66,7 @@ const LinkSearchList = ({
 	ariaControls,
 	role,
 	id,
-}: Props) => {
+}: Props): jsx.JSX.Element => {
 	let itemsContent;
 	let loadingContent;
 
@@ -79,6 +84,8 @@ const LinkSearchList = ({
 						id={`link-search-list-item-${index}`}
 						item={item}
 						selected={selectedIndex === index}
+						onBlur={onBlur}
+						// eslint-disable-next-line @atlassian/perf-linting/detect-unnecessary-rerenders, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onFocus={() => onFocus?.(index)}
 						onKeyDown={onKeyDown}
 						onMouseMove={onMouseMove}
@@ -86,6 +93,7 @@ const LinkSearchList = ({
 						onMouseLeave={onMouseLeave}
 						onSelect={onSelect}
 						key={item.objectId}
+						// eslint-disable-next-line @atlassian/perf-linting/detect-unnecessary-rerenders, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						ref={(el) => listItemRefCallback?.(el, item.objectId)}
 					/>
 				))}
@@ -109,4 +117,5 @@ const LinkSearchList = ({
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default LinkSearchList;

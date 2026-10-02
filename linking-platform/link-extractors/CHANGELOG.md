@@ -1,5 +1,262 @@
 # @atlaskit/link-extractors
 
+## 5.0.1
+
+### Patch Changes
+
+- [`983eed01a5872`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/983eed01a5872) -
+  Clean up `platform_sl_icons_refactor` and `platform_navx_smart_link_icon_label_a11y` as enabled.
+  Smart Links retain the updated icon sizing and semantic icon labels for documents, file formats,
+  and work types.
+
+  In `@atlaskit/smart-card`, also clean up `platform_sl_priority_icon` and
+  `platform_navx_jira_issue_type_icon_label_a11y` as enabled. Priority icons use the current assets
+  without icon tiles, and Jira issue icons retain their resolver-provided subtype labels.
+
+## 5.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.1
+
+### Patch Changes
+
+- [`8d869cadd115d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d869cadd115d) -
+  Restore generator icons for Smart Link provider badges when entity-specific icons are available.
+  Resolved embeds keep the entity icon next to the resource title. Unresolved embeds show the
+  provider icon next to the provider name. Gate OFF preserves current entity icons in provider
+  badges; gate ON uses generator icons for provider branding. All changes behind feature gate:
+  `platform_lp_use_generator_icon_for_provider`.
+
+## 4.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.1
+
+### Patch Changes
+
+- [`74df17a1cfabf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/74df17a1cfabf) -
+  Cleanup feature gate `platform_sl_google_rebrand`. Smart Link providers named "Google" are now
+  always rebranded to "Google Drive", and provider extraction for unresolved link states always uses
+  `extractProvider`.
+
+## 4.1.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- [`41b55f01fb4e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41b55f01fb4e1) -
+  Cleanup feature gate platform_lp_use_entity_icon_url_for_icon and use entity icon URLs by default.
+- Updated dependencies
+
+## 4.0.0
+
+### Major Changes
+
+- [`96fd2559b70c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/96fd2559b70c5) -
+  Apply Volt entry-point and barrel-removal standards across these packages. Public `exports` now
+  resolve **directly** to `./src/*` implementations instead of intermediate `./src/entry-points/*`
+  re-exports.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.4
+
+### Patch Changes
+
+- [`87d3a5aafece6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87d3a5aafece6) -
+  Cleanup navx-1895-new-logo-design
+
+## 3.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.1
+
+### Patch Changes
+
+- [`b8399b376c921`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b8399b376c921) -
+  Rebrand Google to Google Drive on ORS /resolve extractor
+
+## 3.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 3.1.0
+
+### Minor Changes
+
+- [`91fb45b6e63f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/91fb45b6e63f3) -
+  Add gated inline Smart Link icon extraction through link-extractors
+
+## 3.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.0
+
+### Minor Changes
+
+- [`437eba4b32d0d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/437eba4b32d0d) -
+  Even though there are no API changes in this realase, but internal structure of the package has
+  changed significantly - all exports are now in single src/index.tsx
+
+## 2.6.0
+
+### Minor Changes
+
+- [`9331fc2edba96`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9331fc2edba96) -
+  Add extractNameFromJsonLd and /extract-name-from-json-ld entrypoint
+
+## 2.5.0
+
+### Minor Changes
+
+- [`00d5363469512`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00d5363469512) -
+  Two changes:
+  1. When response has `entityData`, Smart Card icon extraction now tries entity-specific icon URL
+     for main icon rendering.
+  2. For image-icon cases, Smart Card passes an `alt` label for the icon image (entity
+     design/document icon labels and provider label paths).
+
+  Public API change:
+  - In `@atlaskit/link-extractors` (main entrypoint), exported `LinkProvider` type now includes
+    optional `iconLabel?: string`.
+
+  All changes behind feature gate: `platform_lp_use_entity_icon_url_for_icon`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.7
+
+### Patch Changes
+
+- [`3b4f9743f0c18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b4f9743f0c18) -
+  Enrol navigation and linking-platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+
 ## 2.4.6
 
 ### Patch Changes

@@ -1,10 +1,13 @@
 import React, { useMemo, useCallback, useRef, useEffect } from 'react';
 
 import chromatism from 'chromatism';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Grid, Inline } from '@atlaskit/primitives/compiled';
-import { token, useThemeObserver } from '@atlaskit/tokens';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import { Color } from './Color';
 import getColorMessage from './getColorMessage';
@@ -56,7 +59,9 @@ function getCheckMarkColor(color: string, useIconToken: boolean): string {
  * - Customizable color mapping
  */
 const ColorPalette = ({
+	ariaLabelledBy,
 	cols = DEFAULT_COLOR_PICKER_COLUMNS,
+	gap = 'space.050',
 	onClick,
 	onKeyDown,
 	selectedColor,
@@ -67,6 +72,11 @@ const ColorPalette = ({
 
 	const { colorMode: tokenTheme } = useThemeObserver();
 	const useIconToken = !!hexToPaletteColor;
+	const shouldUseInlineColorGap = expValEquals(
+		'platform_editor_lovability_text_bg_color',
+		'isEnabled',
+		true,
+	);
 
 	// Refs for keyboard navigation
 	const paletteRef = useRef<HTMLDivElement>(null);
@@ -224,10 +234,19 @@ const ColorPalette = ({
 		[colorsPerRow, focusColorAt, onClick, onKeyDown],
 	);
 
-	return (
-		<Grid gap="space.050" ref={paletteRef} role="group">
+	const paletteGrid = (
+		<Grid
+			gap={gap}
+			ref={paletteRef}
+			role={fg('platform_editor_a11y_color_palette_radiogroup') ? 'presentation' : 'group'}
+		>
 			{colorsPerRow.map((row, rowIndex) => (
-				<Inline rowSpace="space.050" key={`row-first-color-${row[0].value}`} role="radiogroup">
+				<Inline
+					space={shouldUseInlineColorGap ? gap : undefined}
+					rowSpace={shouldUseInlineColorGap ? undefined : gap}
+					key={`row-first-color-${row[0].value}`}
+					role={fg('platform_editor_a11y_color_palette_radiogroup') ? 'presentation' : 'radiogroup'}
+				>
 					{row.map(({ value, label, border, message, decorator }, colIndex) => {
 						let tooltipMessage = message;
 
@@ -275,6 +294,17 @@ const ColorPalette = ({
 			))}
 		</Grid>
 	);
+
+	if (fg('platform_editor_a11y_color_palette_radiogroup')) {
+		// All swatches are one radio group; the grid and its rows only carry the layout
+		return (
+			<div role="radiogroup" aria-labelledby={ariaLabelledBy}>
+				{paletteGrid}
+			</div>
+		);
+	}
+
+	return paletteGrid;
 };
 
 export default ColorPalette;

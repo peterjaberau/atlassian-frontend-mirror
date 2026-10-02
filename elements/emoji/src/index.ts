@@ -1,12 +1,13 @@
 import { AbstractResource } from '@atlaskit/util-service-support';
+
 import Emoji from './components/common/Emoji';
 import EmojiPlaceholder from './components/common/EmojiPlaceholder';
 import ResourcedEmoji from './components/common/ResourcedEmoji';
 import EmojiPicker from './components/picker/EmojiPicker';
-import { preloadEmojiPicker } from './components/picker/EmojiPicker';
-import EmojiUploader from './components/uploader/EmojiUploader';
+import { preloadEmojiPicker } from './components/picker/preloadEmojiPicker';
 import EmojiTypeAhead from './components/typeahead/EmojiTypeAhead';
 import EmojiTypeAheadItem from './components/typeahead/EmojiTypeAheadItem';
+import EmojiUploader from './components/uploader/EmojiUploader';
 export {
 	// renaming exports to prevent breaking changes due to renaming
 	commonSelectedStyles as selected,
@@ -16,22 +17,24 @@ export {
 	emojiImage,
 	placeholder as emojiPlaceholder,
 } from './components/common/styles';
+import { denormaliseEmojiServiceResponse } from './api/denormaliseEmojiServiceResponse';
+import EmojiLoader from './api/EmojiLoader';
+import EmojiRepository from './api/EmojiRepository';
 import EmojiResource, {
 	type EmojiProvider,
 	type UploadingEmojiProvider,
 	type EmojiResourceConfig,
 } from './api/EmojiResource';
-import EmojiRepository from './api/EmojiRepository';
-import EmojiLoader from './api/EmojiLoader';
-import { denormaliseEmojiServiceResponse } from './api/EmojiUtils';
-import { toEmojiId, toOptionalEmojiId } from './util/type-helpers';
-import {
-	recordSelectionFailedSli,
-	recordSelectionSucceededSli,
-	ufoExperiences,
-	withSampling,
-	type WithSamplingUFOExperience,
-} from './util/analytics';
+import { UsageFrequencyTracker } from './api/internal/UsageFrequencyTracker';
+import { EmojiCommonProvider } from './context/EmojiCommonProvider';
+import { EmojiContextProvider } from './context/EmojiContextProvider';
+import { useEmoji } from './hooks/useEmoji';
+import { useEmojiContext } from './hooks/useEmojiContext';
+import { recordSelectionFailedSli } from './util/analytics/recordSelectionFailedSli';
+import { recordSelectionSucceededSli } from './util/analytics/recordSelectionSucceededSli';
+import type { WithSamplingUFOExperience } from './util/analytics/samplingUfo';
+import { ufoExperiences } from './util/analytics/ufoExperiences';
+import { withSampling } from './util/analytics/withSampling';
 import {
 	customCategory,
 	defaultEmojiHeight,
@@ -47,11 +50,8 @@ import {
 	emojiPickerWidth,
 	emojiPickerHeight,
 } from './util/constants';
-import { UsageFrequencyTracker } from './api/internal/UsageFrequencyTracker';
-import { useEmoji } from './hooks/useEmoji';
-import { useEmojiContext } from './hooks/useEmojiContext';
-import { EmojiContextProvider } from './context/EmojiContextProvider';
-import { EmojiCommonProvider } from './context/EmojiCommonProvider';
+import { toEmojiId } from './util/to-emoji-id';
+import { toOptionalEmojiId } from './util/to-optional-emoji-id';
 
 export {
 	// Classes

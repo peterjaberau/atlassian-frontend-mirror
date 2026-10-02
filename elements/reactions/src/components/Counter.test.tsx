@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { screen } from '@testing-library/react';
+
 import {
 	mockReactDomWarningGlobal,
 	renderWithIntl,
@@ -13,13 +15,11 @@ import {
 	RENDER_COMPONENT_WRAPPER,
 } from './Counter';
 
-jest.mock('@atlaskit/motion', () => {
-	const actualMotion = jest.requireActual('@atlaskit/motion');
-	return {
-		...actualMotion,
-		ExitingPersistence: ({ children }: any) => children,
-	};
-});
+jest.mock('@atlaskit/motion/exiting-persistence', () => ({
+	...jest.requireActual('@atlaskit/motion/exiting-persistence'),
+	__esModule: true,
+	default: ({ children }: any) => children,
+}));
 
 const renderCounter = (props: CounterProps) => {
 	return renderWithIntl(<Counter {...props} />);
@@ -103,7 +103,7 @@ describe('@atlaskit/reactions/components/Counter', () => {
 		renderCounter({ value, highlight });
 		const labelWrapper = await screen.findByTestId(RENDER_LABEL_TESTID);
 		expect(labelWrapper).toBeInTheDocument();
-		expect(labelWrapper).toHaveCompiledCss('color', 'var(--ds-text-selected,#0052cc)');
+		expect(labelWrapper).toHaveCompiledCss('color', 'var(--ds-text-selected,#1868db)');
 	});
 
 	describe('should update number', () => {

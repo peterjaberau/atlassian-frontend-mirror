@@ -1,4 +1,4 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
 export const messages: {
 	help_loading: {
@@ -12,11 +12,6 @@ export const messages: {
 		id: string;
 	};
 	help_panel_header_close: {
-		defaultMessage: string;
-		description: string;
-		id: string;
-	};
-	help_panel_header_close_button: {
 		defaultMessage: string;
 		description: string;
 		id: string;
@@ -35,31 +30,27 @@ export const messages: {
 	help_loading: {
 		id: 'helpPanel.loading',
 		defaultMessage: 'Loading',
-		description: '',
+		description: 'Loading indicator text shown in the help panel while content is being fetched.',
 	},
 	help_panel_header_title: {
-		id: 'helpPanel.header.title',
+		id: 'help.header',
 		defaultMessage: 'Help',
-		description: '',
+		description: 'Title displayed in the header of the help panel.',
 	},
 	help_panel_header_back: {
 		id: 'helpPanel.header.back',
 		defaultMessage: 'Back',
-		description: '',
+		description: 'Back navigation button label in the help panel header.',
 	},
 	help_panel_header_close: {
-		id: 'helpPanel.header.close',
+		id: 'help.close',
 		defaultMessage: 'Close',
-		description: '',
-	},
-	help_panel_header_close_button: {
-		id: 'helpPanel.header.close.button',
-		defaultMessage: 'Close Help Panel',
-		description: '',
+		description: 'Close button label in the help panel header.',
 	},
 	help_panel_new_chat_button: {
 		id: 'helpPanel.header.new.chat.button',
 		defaultMessage: 'New',
-		description: 'Start a new chat with CSM agent',
+		description:
+			'Label for the button in the help panel header that starts a new chat session with the CSM agent.',
 	},
 });

@@ -1,10 +1,10 @@
 import type { ReactChild, ReactNode } from 'react';
 
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import type { Appearance } from '@atlaskit/button/types';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import type { Appearance } from '@atlaskit/button/old-button/types';
 import type { Space } from '@atlaskit/primitives/compiled';
 
-import type { SmartLinkSize } from '../../../../../constants';
+import type { CardDisplay, SmartLinkSize } from '../../../../../constants';
 
 export type ActionMessageAppearance = 'error';
 
@@ -35,6 +35,11 @@ export type ActionProps = {
 	 * Used to determine whether the Action is in a Dropdown.
 	 */
 	asDropDownItem?: boolean;
+
+	/**
+	 * Used to show different icons for Rovo actions
+	 */
+	cardAppearance?: CardDisplay;
 
 	/**
 	 * For compiled css
@@ -72,6 +77,11 @@ export type ActionProps = {
 	iconPosition?: 'before' | 'after';
 
 	/**
+	 * Determines the size of the icon.
+	 */
+	iconSize?: 'small' | 'medium';
+
+	/**
 	 * Determines whether the button displays as disabled.
 	 */
 	isDisabled?: boolean;
@@ -94,6 +104,12 @@ export type ActionProps = {
 
 	/* Optional callback that can be invoked to update the action blocks loading state */
 	onLoadingChange?: (isLoading: boolean) => void;
+
+	/**
+	 * Keeps the tooltip open when the action is pressed. Set it when a press changes
+	 * `tooltipMessage`. Only used when `as` is `stack-item`.
+	 */
+	hasNewContentOnTriggerClick?: boolean;
 
 	/**
 	 * Determines the size of the Action. Corresponds to an Action appearance.

@@ -3,7 +3,7 @@ import { Plugin } from '@atlaskit/editor-prosemirror/state';
 import { JQLValidationTooltipPluginKey } from './constants';
 import { ValidationTooltipPluginView } from './view';
 
-const validationTooltipPlugin = (mainId: string) => {
+const validationTooltipPlugin = (mainId: string): Plugin<boolean> => {
 	const plugin: Plugin<boolean> = new Plugin<boolean>({
 		key: JQLValidationTooltipPluginKey,
 		view: () => new ValidationTooltipPluginView(mainId),
@@ -11,7 +11,6 @@ const validationTooltipPlugin = (mainId: string) => {
 			init() {
 				return false;
 			},
-			// @ts-ignore
 			apply(tr, value) {
 				if (tr.getMeta(plugin) !== undefined) {
 					return tr.getMeta(plugin);

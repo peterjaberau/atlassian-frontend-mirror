@@ -1,14 +1,16 @@
 /* eslint-disable no-console */
 
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
+
+import { IntlProvider } from 'react-intl';
 
 import { Editor, EditorContext, CollapsedEditor } from '@atlaskit/editor-core';
-import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
 import { token } from '@atlaskit/tokens';
-import ToolsDrawer from './helpers/ToolsDrawer';
+import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
+
 import { BitbucketTransformer } from '../src';
 import exampleHTML from './helpers/exampleHTML';
+import ToolsDrawer from './helpers/ToolsDrawer';
 
 const SAVE_ACTION = () => console.log('Save');
 const CANCEL_ACTION = () => console.log('Cancel');
@@ -55,7 +57,7 @@ export default class EditorWithFeedback extends React.Component<Props, State> {
 						<ToolsDrawer
 							renderEditor={({ mentionProvider, emojiProvider, onChange, disabled }) => (
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								<div style={{ padding: token('space.100', '8px') }}>
+								<div style={{ padding: token('space.100') }}>
 									<CollapsedEditor
 										placeholder="What do you want to say?"
 										isExpanded={this.state.isExpanded}

@@ -1,0 +1,17 @@
+import React from 'react';
+
+import { IntlProvider } from 'react-intl';
+
+import { ConfirmDismissDialog } from '../../src/common/ui/confirm-dismiss-dialog/main';
+
+const createExample = (): React.ComponentType => {
+	return function Example() {
+		return (
+			<IntlProvider locale="en">
+				<ConfirmDismissDialog active={true} onClose={() => {}} onCancel={() => {}} />
+			</IntlProvider>
+		);
+	};
+};
+
+export const DefaultConfirmDismissDialog: React.ComponentType<{}> = createExample();

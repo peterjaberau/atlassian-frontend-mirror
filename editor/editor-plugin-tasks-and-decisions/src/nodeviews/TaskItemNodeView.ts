@@ -1,19 +1,18 @@
-import { type Listener, type UnbindFn, bindAll } from 'bind-event-listener';
-import { type IntlShape } from 'react-intl-next';
+import type { Listener, UnbindFn } from 'bind-event-listener';
+import { bindAll } from 'bind-event-listener';
+import type { IntlShape } from 'react-intl';
 
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
 import { tasksAndDecisionsMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI, getPosHandlerNode } from '@atlaskit/editor-common/types';
-import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
-import type { NodeView } from '@atlaskit/editor-prosemirror/view';
+import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
+import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { openRequestEditPopupAt } from '../pm-plugins/helpers';
 import type { TasksAndDecisionsPlugin } from '../tasksAndDecisionsPluginType';
 import type { TaskAndDecisionsSharedState, TaskItemInfoMeta, TaskItemState } from '../types';
-
 import { taskItemToDom } from './taskItemNodeSpec';
 import { isContentEmpty } from './utils';
 
@@ -56,6 +55,7 @@ export class TaskItemNodeView implements NodeView {
 		this.dom = dom;
 		this.contentDOM = contentDOM;
 		this.domElement = this.dom instanceof HTMLElement ? this.dom : undefined;
+
 		if (this.domElement) {
 			this.input = this.domElement.querySelector('input[type="checkbox"]') as HTMLInputElement;
 			this.unbindInputDom = bindAll(this.input, [
@@ -141,6 +141,7 @@ export class TaskItemNodeView implements NodeView {
 		if (expValEquals('platform_editor_blocktaskitem_node_tenantid', 'isEnabled', true)) {
 			currentIsContentEmpty = isContentEmpty(node);
 		}
+
 		if (currentIsContentEmpty !== this.emptyContent) {
 			this.emptyContent = currentIsContentEmpty;
 			this.contentDOM?.toggleAttribute('data-empty', currentIsContentEmpty);
@@ -148,33 +149,22 @@ export class TaskItemNodeView implements NodeView {
 	}
 
 	update(node: PMNode): boolean {
-		if (!expValEquals('platform_editor_prevent_taskitem_remount', 'isEnabled', true)) {
-			const isValidUpdate =
-				node.type === this.node.type && !!(node.attrs.state === this.node.attrs.state);
-			if (!isValidUpdate) {
-				return false;
-			}
-		}
-
 		// Only return false if this is a completely different task
 		if (this.node.attrs.localId !== node.attrs.localId) {
 			return false;
 		}
 
-		if (expValEquals('platform_editor_prevent_taskitem_remount', 'isEnabled', true)) {
-			if (node.type !== this.node.type) {
-				return false;
-			}
+		if (node.type !== this.node.type) {
+			return false;
+		}
 
-			const stateChanged =
-				node.type === this.node.type && !!(node.attrs.state !== this.node.attrs.state);
+		const stateChanged = node.attrs.state !== this.node.attrs.state;
 
-			// Update task checkbox state to match document state.
-			// It's possible the state may have changed from a collab edit and not from a checkbox click
-			// so we need to update the checkbox to match.
-			if (stateChanged && this.input) {
-				this.input.checked = node.attrs.state === 'DONE';
-			}
+		// Update task checkbox state to match document state.
+		// It's possible the state may have changed from a collab edit and not from a checkbox click
+		// so we need to update the checkbox to match.
+		if (stateChanged && this.input) {
+			this.input.checked = node.attrs.state === 'DONE';
 		}
 
 		this.updatePlaceholder(node);

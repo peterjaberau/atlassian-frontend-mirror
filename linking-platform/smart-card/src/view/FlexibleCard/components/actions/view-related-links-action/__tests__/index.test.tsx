@@ -1,24 +1,22 @@
-import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { render, waitForElementToBeRemoved } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { render, waitForElementToBeRemoved, userEvent } from '@atlassian/testing-library';
+import '@atlaskit/link-test-helpers/jest';
 
 import mockContextDefault from '../../../../../../__fixtures__/flexible-ui-data-context';
-import { useFlexibleUiContext } from '../../../../../../state/flexible-ui-context';
 import type { FlexibleUiDataContext } from '../../../../../../state/flexible-ui-context/types';
-import { SmartLinkModalProvider } from '../../../../../../state/modal';
-import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics';
+import { useFlexibleUiContext } from '../../../../../../state/flexible-ui-context/useFlexibleUiContext';
+import { SmartLinkModalProvider } from '../../../../../../state/modal/SmartLinkModalProvider';
+import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics/analytics';
 import ViewRelatedLinksAction from '../index';
 import { type ViewRelatedLinksActionProps } from '../types';
 
-jest.mock('../../../../../../state/flexible-ui-context', () => ({
-	...jest.requireActual('../../../../../../state/flexible-ui-context'),
+jest.mock('../../../../../../state/flexible-ui-context/useFlexibleUiContext', () => ({
+	...jest.requireActual('../../../../../../state/flexible-ui-context/useFlexibleUiContext'),
 	useFlexibleUiContext: jest.fn().mockReturnValue(mockContextDefault),
 }));
 
@@ -119,7 +117,14 @@ describe('ViewRelatedLinksAction', () => {
 		user.click(closeButton);
 		await waitForElementToBeRemoved(modal);
 	});
-	it('should capture and report a11y violations', async () => {
+
+	it('should render icon without aria-label', async () => {
+		const { queryByLabelText } = setup();
+		const iconWithLabel = queryByLabelText('View related links...');
+		expect(iconWithLabel).not.toBeInTheDocument();
+	});
+
+	it('should pass a11y check with empty icon label', async () => {
 		const onClick = jest.fn();
 		const { container } = setup({ onClick });
 		await expect(container).toBeAccessible();

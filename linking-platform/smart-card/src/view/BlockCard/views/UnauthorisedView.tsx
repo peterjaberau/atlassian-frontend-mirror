@@ -2,49 +2,51 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useCallback, useMemo } from 'react';
+
+import { type ReactNode, useCallback, useMemo } from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
+import { di } from 'react-magnetic-di';
 
-import { extractSmartLinkProvider } from '@atlaskit/link-extractors';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import { extractSmartLinkProvider } from '@atlaskit/link-extractors/extract-smart-link-provider';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import { componentWithFG } from '@atlaskit/platform-feature-flags-react/component-with-fg';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { useAnalyticsEvents } from '../../../common/analytics/generated/use-analytics-events';
 import { ElementName, SmartLinkDirection, SmartLinkSize, SmartLinkWidth } from '../../../constants';
 import { messages } from '../../../messages';
-import { useFlexibleCardContext } from '../../../state/flexible-ui-context';
-import { getExtensionKey, hasAuthScopeOverrides } from '../../../state/helpers';
-import { isNewBlockcardUnauthorizedRefreshExperimentEnabled } from '../../../utils/experiments';
+import { useFlexibleCardContext } from '../../../state/flexible-ui-context/useFlexibleCardContext';
+import { hasAuthScopeOverrides } from '../../../state/hasAuthScopeOverrides';
+import { getSocialProofExperimentMeta } from '../../../state/hooks/use-social-proof-experiment/getSocialProofExperimentMeta';
+import { default as useSocialProofExperiment } from '../../../state/hooks/use-social-proof-experiment/index';
 import UnauthorisedViewContent from '../../common/UnauthorisedViewContent';
 import FlexibleCard from '../../FlexibleCard';
 import ActionGroup from '../../FlexibleCard/components/blocks/action-group';
 import Block from '../../FlexibleCard/components/blocks/block';
 import ElementGroup from '../../FlexibleCard/components/blocks/element-group';
+import { renderElementItems } from '../../FlexibleCard/components/blocks/renderElementItems';
 import { type ActionItem } from '../../FlexibleCard/components/blocks/types';
-import { renderElementItems } from '../../FlexibleCard/components/blocks/utils';
-import { LinkIcon, Title } from '../../FlexibleCard/components/elements';
+import { default as LinkIcon } from '../../FlexibleCard/components/elements/link-icon-element';
+import { default as Title } from '../../FlexibleCard/components/elements/title-element';
 import { AuthorizeAction } from '../actions/AuthorizeAction';
-
-import unauthIllustrationFigma from './assets/figma@2x.png';
 import unauthIllustrationGeneral from './assets/general@2x.png';
-import unauthIllustrationGdrive from './assets/google-drive@2x.png';
-import unauthIllustrationOnedrive from './assets/onedrive@2x.png';
-import unauthIllustrationSlack from './assets/slack@2x.png';
+import SocialProofMessage from './SocialProofMessage';
 import { type FlexibleBlockCardProps } from './types';
-import UnresolvedView from './unresolved-view';
-import type { UnresolvedViewProps } from './unresolved-view/types';
+import { type UnresolvedViewProps } from './unresolved-view/types';
 import { FlexibleCardUiOptions, titleBlockOptions } from './utils';
 import { withFlexibleUIBlockCardStyle } from './utils/withFlexibleUIBlockCardStyle';
 
-const contentStyles = css({
-	color: token('color.text'),
-	marginTop: token('space.100'),
-	font: token('font.body.small'),
-});
+interface UnauthorisedViewFrameProps extends FlexibleBlockCardProps {
+	content: ReactNode;
+	providerName?: string;
+	testId: string;
+}
 
-const newContentStyles = css({
+const contentStyles = css({
 	color: token('color.text'),
 	marginTop: token('space.100'),
 	font: token('font.body'),
@@ -162,21 +164,24 @@ const getBetterTitle = (url: string) => {
 		const { pathname, search } = new URL(url);
 		if (pathname.length > 1) {
 			return pathname.substring(1);
-		} else {
+		}
+		if (search) {
 			return search;
 		}
+		// Fall back to the full URL when there is no useful path/search to display,
+		// so the title (and the underlying link) always has accessible text.
+		return url;
 	} catch {
 		return url;
 	}
 };
 
-const NewUnauthorisedBlock = ({
+const UnauthorisedBlock = ({
 	actions,
 	children,
 	url,
 	CompetitorPrompt,
 	testId,
-	cardState,
 }: Pick<
 	UnresolvedViewProps,
 	'actions' | 'children' | 'url' | 'CompetitorPrompt' | 'testId' | 'cardState'
@@ -205,29 +210,7 @@ const NewUnauthorisedBlock = ({
 
 	const { position } = titleBlockOptions;
 
-	const extensionKey = getExtensionKey(cardState?.details) ?? '';
-
-	let overrideUrl = data?.preview?.url;
-	let isHardcodedImage = !overrideUrl;
-	if (isHardcodedImage) {
-		switch (extensionKey) {
-			case 'figma-object-provider':
-				overrideUrl = unauthIllustrationFigma;
-				break;
-			case 'google-object-provider':
-				overrideUrl = unauthIllustrationGdrive;
-				break;
-			case 'onedrive-object-provider':
-				overrideUrl = unauthIllustrationOnedrive;
-				break;
-			case 'slack-object-provider':
-				overrideUrl = unauthIllustrationSlack;
-				break;
-			default:
-				overrideUrl = unauthIllustrationGeneral;
-				break;
-		}
-	}
+	let overrideUrl = data?.preview?.url ?? unauthIllustrationGeneral;
 
 	return (
 		<Block {...titleBlockOptions} testId={`${testId}-errored-view`} css={containerStyles}>
@@ -269,7 +252,7 @@ const NewUnauthorisedBlock = ({
 			</ElementGroup>
 
 			{hasActions ? (
-				<div css={[previewBlockStyle, isHardcodedImage ? previewBlockStyleWithOverlap : undefined]}>
+				<div css={[previewBlockStyle, previewBlockStyleWithOverlap]}>
 					<div css={previewBlockImageStyle} style={{ backgroundImage: `url(${overrideUrl})` }} />
 				</div>
 			) : null}
@@ -284,14 +267,13 @@ const NewUnauthorisedBlock = ({
  * @see SmartLinkStatus
  * @see FlexibleCardProps
  */
-const UnauthorisedView = ({
-	testId = 'smart-block-unauthorized-view',
+const UnauthorisedViewFrame = ({
+	content,
+	providerName,
+	testId,
 	...props
-}: FlexibleBlockCardProps) => {
-	const { cardState, onAuthorize } = props;
-	const providerName = extractSmartLinkProvider(cardState.details)?.text;
-
-	const isProductIntegrationSupported = hasAuthScopeOverrides(cardState.details);
+}: UnauthorisedViewFrameProps) => {
+	const { onAuthorize } = props;
 	const { fireEvent } = useAnalyticsEvents();
 
 	const handleAuthorize = useCallback(() => {
@@ -300,6 +282,46 @@ const UnauthorisedView = ({
 			onAuthorize();
 		}
 	}, [onAuthorize, fireEvent]);
+
+	const actions = useMemo<ActionItem[]>(
+		() => (onAuthorize ? [AuthorizeAction(handleAuthorize, providerName)] : []),
+		[handleAuthorize, onAuthorize, providerName],
+	);
+
+	return (
+		<FlexibleCard
+			appearance="block"
+			onAuthorize={onAuthorize}
+			origin="smartLinkCard"
+			testId={testId}
+			ui={FlexibleCardUiOptions}
+			{...props}
+		>
+			<UnauthorisedBlock
+				actions={actions}
+				cardState={props.cardState}
+				CompetitorPrompt={props.CompetitorPrompt}
+				testId={testId}
+				url={props.url}
+			>
+				<div
+					css={[contentStyles, actions.length > 0 ? contentAdditionalStyles : undefined]}
+					data-testid={`${testId}-content`}
+				>
+					{content}
+				</div>
+			</UnauthorisedBlock>
+		</FlexibleCard>
+	);
+};
+
+const UnauthorisedViewBase = ({
+	testId = 'smart-block-unauthorized-view',
+	...props
+}: FlexibleBlockCardProps) => {
+	const { cardState, onAuthorize } = props;
+	const providerName = extractSmartLinkProvider(cardState.details)?.text;
+	const isProductIntegrationSupported = hasAuthScopeOverrides(cardState.details);
 
 	const content = useMemo(
 		() =>
@@ -322,40 +344,79 @@ const UnauthorisedView = ({
 		[isProductIntegrationSupported, onAuthorize, providerName, testId],
 	);
 
-	const actions = useMemo<ActionItem[]>(
-		() => (onAuthorize ? [AuthorizeAction(handleAuthorize, providerName)] : []),
-		[handleAuthorize, onAuthorize, providerName],
+	return (
+		<UnauthorisedViewFrame
+			{...props}
+			content={content}
+			providerName={providerName}
+			testId={testId}
+		/>
 	);
-
-	if (isNewBlockcardUnauthorizedRefreshExperimentEnabled(true)) {
-		return (
-			<FlexibleCard
-				appearance="block"
-				onAuthorize={onAuthorize}
-				origin="smartLinkCard"
-				testId={testId}
-				ui={FlexibleCardUiOptions}
-				{...props}
-			>
-				<NewUnauthorisedBlock {...props} actions={actions} testId={testId}>
-					<div
-						css={[newContentStyles, actions.length > 0 ? contentAdditionalStyles : undefined]}
-						data-testid={`${testId}-content`}
-					>
-						{content}
-					</div>
-				</NewUnauthorisedBlock>
-			</FlexibleCard>
-		);
-	} else {
-		return (
-			<UnresolvedView {...props} actions={actions} testId={testId}>
-				<div css={[contentStyles]} data-testid={`${testId}-content`}>
-					{content}
-				</div>
-			</UnresolvedView>
-		);
-	}
 };
 
-export default withFlexibleUIBlockCardStyle(UnauthorisedView);
+/**
+ * Experiment wrapper: fires social proof exposure and renders social proof UI when FG is on.
+ * TODO: remove when social-proof-3p-unauth-block-fg is cleaned up
+ */
+const UnauthorisedViewWithExperiment = ({
+	testId = 'smart-block-unauthorized-view',
+	...props
+}: FlexibleBlockCardProps): JSX.Element => {
+	const extensionKey = props.cardState?.details?.meta?.key;
+	di(useSocialProofExperiment);
+	const providerName = extractSmartLinkProvider(props.cardState.details)?.text;
+	const { connections } = useSmartLinkContext();
+	const { isTreatment, tier, connectedPct } = useSocialProofExperiment(
+		providerName ? extensionKey : undefined,
+		connections.client.baseUrlOverride,
+	);
+	const socialProofExperimentMeta = getSocialProofExperimentMeta({
+		extensionKey,
+		baseUriWithNoTrailingSlash: connections.client.baseUrlOverride,
+	});
+	const analyticsContextData = {
+		attributes: {
+			experiment: 'social_proof_3p_unauth_block_exp',
+			cohort: isTreatment ? 'treatment' : 'control',
+			tier,
+			experimentMeta: socialProofExperimentMeta,
+		},
+	};
+
+	if (!isTreatment || !providerName) {
+		const fallbackView = <UnauthorisedViewBase {...props} testId={testId} />;
+
+		return connectedPct !== undefined ? (
+			<AnalyticsContext data={analyticsContextData}>{fallbackView}</AnalyticsContext>
+		) : (
+			fallbackView
+		);
+	}
+
+	return (
+		<AnalyticsContext data={analyticsContextData}>
+			<UnauthorisedViewFrame
+				{...props}
+				content={
+					<SocialProofMessage tier={tier} connectedPct={connectedPct} providerName={providerName} />
+				}
+				providerName={providerName}
+				testId={testId}
+			/>
+		</AnalyticsContext>
+	);
+};
+
+const UnauthorisedViewWithoutExperiment = (props: FlexibleBlockCardProps): JSX.Element => {
+	return <UnauthorisedViewBase {...props} />;
+};
+
+const UnauthorisedView = componentWithFG(
+	'social-proof-3p-unauth-block-fg',
+	UnauthorisedViewWithExperiment,
+	UnauthorisedViewWithoutExperiment,
+);
+
+const _default_1: (props: FlexibleBlockCardProps) => JSX.Element =
+	withFlexibleUIBlockCardStyle(UnauthorisedView);
+export default _default_1;

@@ -9,11 +9,12 @@ import { jsx } from '@compiled/react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { AnalyticsListener, UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { cssMap } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
 
-import Pressable from '../../pressable';
+import { Pressable } from '../../pressable';
 
 const testId = 'test-pressable';
 const styles = cssMap({
@@ -135,7 +136,7 @@ describe('Pressable', () => {
 			expect(screen.getByTestId(testId)).not.toHaveAttribute('tabindex');
 		});
 
-		it('should set tabIndex to 0 by default for Safari ', () => {
+		it('should set tabIndex to 0 by default for Safari', () => {
 			const orginalNavigator = window.navigator;
 			Object.defineProperty(window.navigator, 'userAgent', { value: 'safari', writable: true });
 

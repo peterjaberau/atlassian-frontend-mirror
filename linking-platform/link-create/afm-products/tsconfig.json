@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__link-create/app",
 		"rootDir": "../",
 		"composite": true,
@@ -48,9 +47,6 @@
 			"path": "../../../media/icon-file-type/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/icon-object/afm-products/tsconfig.json"
-		},
-		{
 			"path": "../../../helpers/intl-messages-provider/afm-products/tsconfig.json"
 		},
 		{
@@ -63,10 +59,19 @@
 			"path": "../../../design-system/modal-dialog/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/object/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/react-select/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/select/afm-products/tsconfig.json"

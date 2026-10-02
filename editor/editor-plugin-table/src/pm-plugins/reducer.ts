@@ -1,5 +1,4 @@
 import type { TablePluginAction, TablePluginState } from '../types';
-
 import { defaultTableSelection } from './default-table-selection';
 
 export default (pluginState: TablePluginState, action: TablePluginAction): TablePluginState => {
@@ -30,6 +29,9 @@ export default (pluginState: TablePluginState, action: TablePluginAction): Table
 				...pluginState,
 				isContextualMenuOpen: !pluginState.isContextualMenuOpen,
 			};
+
+		case 'SET_ACTIVE_TABLE_MENU':
+			return { ...pluginState, ...action.data };
 
 		case 'SHOW_INSERT_ROW_BUTTON':
 			if (action.data.insertRowButtonIndex === pluginState.insertRowButtonIndex) {

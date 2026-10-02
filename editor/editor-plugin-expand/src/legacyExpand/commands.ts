@@ -1,4 +1,4 @@
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
 import type { AnalyticsEventPayload, EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -19,11 +19,9 @@ import { Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { safeInsert } from '@atlaskit/editor-prosemirror/utils';
 import { findTable } from '@atlaskit/editor-tables/utils';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { InsertMethod } from '../types';
 import { isNestedInExpand } from '../utils';
-
 import { createCommand } from './pm-plugins/plugin-factory';
 
 export const setExpandRef = (ref?: HTMLDivElement | null): Command =>
@@ -224,6 +222,7 @@ export const insertExpandWithInputMethod =
 					state,
 					type: expandNode.type,
 				});
+
 		const payload: AnalyticsEventPayload = {
 			action: ACTION.INSERTED,
 			actionSubject: ACTION_SUBJECT.DOCUMENT,
@@ -277,11 +276,8 @@ export const focusIcon =
 			return false;
 		}
 
-		// TODO: ED-29205 - During platform_editor_native_expand_button cleanup, rename `iconContainer` to `iconButton`.
-		const iconContainer = (
-			expValEquals('platform_editor_native_expand_button', 'isEnabled', true)
-				? expand.querySelector(`.${expandClassNames.iconButton}`)
-				: expand.querySelector(`.${expandClassNames.iconContainer}`)
+		const iconContainer = expand.querySelector(
+			`.${expandClassNames.iconContainer}`,
 		) as HTMLElement | null;
 		if (iconContainer && iconContainer.focus) {
 			const { tr } = state;
@@ -318,7 +314,7 @@ export const setSelectionInsideExpand =
 
 export const toggleExpandWithMatch =
 	(_selection: Selection): EditorCommand =>
-	({ tr }) => {
+	({ tr: _tr }) => {
 		// this action exists so that we can keep the plugin types consistent across the
 		// the legacy expand plugin and the single player expand plugin until
 		// we will remove the legacy expand plugin

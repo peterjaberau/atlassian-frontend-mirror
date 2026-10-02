@@ -1,17 +1,17 @@
-import { Server, type Router, type Database } from 'kakapo';
 import * as exenv from 'exenv';
+import { Server, type Router, type Database } from 'kakapo';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 import { type MediaFile } from '@atlaskit/media-client';
+import { dataURItoFile } from '@atlaskit/media-ui/dataURItoFile';
 
-import { createApiRouter, createMediaPlaygroundRouter } from './routers';
-import { createDatabase, type MediaDatabaseSchema } from './database';
-import { RemoteUploadActivityServer, type WebSocketServer } from './websockets';
-import { mapDataUriToBlob } from '../utils';
-import { dataURItoFile } from '@atlaskit/media-ui/util';
 import { smallImage } from '../dataURIs/smallImageURI';
+import { mapDataUriToBlob } from '../utils';
+import { createDatabase, type MediaDatabaseSchema } from './database';
 import { createDropEventWithFiles, createFileSystemFileEntry } from './fileAndDirectoriesUtils';
+import { createApiRouter, createMediaPlaygroundRouter } from './routers';
+import { RemoteUploadActivityServer, type WebSocketServer } from './websockets';
 
 const blob = dataURItoFile(smallImage);
 const imageFile = new File([blob], 'image.png', { type: 'image/png' });
@@ -33,7 +33,7 @@ export class MediaMock {
 	private dbs: Database<MediaDatabaseSchema>[] = [];
 	private websockets: Array<WebSocketServer> = [];
 
-	constructor(readonly collections?: MockCollections) {}
+	constructor(readonly collections?: MockCollections | undefined) {}
 
 	enable(config: MediaMockConfig = {}): void {
 		const { isSlowServer, urlsReturnErrorsTo, mockRemoteUploadActivity } = config;
@@ -111,7 +111,7 @@ export function generateFilesFromTestData(files: MockFileInputParams[]): MockFil
 	});
 }
 
-export const mediaMock = new MediaMock();
+export const mediaMock: MediaMock = new MediaMock();
 
 export interface MediaMockControlsBackdoor {
 	resetMediaMock: (config?: MediaMockConfig) => void;
@@ -146,4 +146,5 @@ const mediaMockControlsBackdoor: MediaMockControlsBackdoor = {
 };
 
 export const mediaMockQueryOptInFlag = 'mediaMock=true';
-export const isMediaMockOptedIn = (): boolean => location.search.indexOf(mediaMockQueryOptInFlag) > -1;
+export const isMediaMockOptedIn = (): boolean =>
+	location.search.indexOf(mediaMockQueryOptInFlag) > -1;

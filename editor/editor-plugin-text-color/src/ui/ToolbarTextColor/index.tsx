@@ -4,10 +4,10 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type {
 	AnalyticsEventPayload,
@@ -22,9 +22,7 @@ import {
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
-import {
-	DynamicStrokeIconDecoration,
-} from '@atlaskit/editor-common/icons';
+import { DynamicStrokeIconDecoration } from '@atlaskit/editor-common/icons';
 import { textColorMessages as messages } from '@atlaskit/editor-common/messages';
 import {
 	expandIconContainerStyle,
@@ -49,7 +47,8 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorMenuZIndex } from '@atlaskit/editor-shared-styles';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import TextStyleIcon from '@atlaskit/icon/core/text-style';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { changeColor as changeColorWithAnalytics } from '../../pm-plugins/commands/change-color';
@@ -82,7 +81,7 @@ interface HandleOpenChangeData {
 }
 
 const addMarginToWrapper = css({
-	marginRight: token('space.050', '4px'),
+	marginRight: token('space.050'),
 });
 
 // eslint-disable-next-line @repo/internal/react/no-class-components
@@ -100,7 +99,7 @@ export class ToolbarTextColor extends React.Component<Props & WrappedComponentPr
 			getInputMethod(this.props.toolbarType),
 		)(this.props.editorView.state, this.props.editorView.dispatch);
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { isOpen, isOpenedByKeyboard } = this.state;
 		const {
 			popupsMountPoint,
@@ -114,14 +113,21 @@ export class ToolbarTextColor extends React.Component<Props & WrappedComponentPr
 		} = this.props;
 
 		const palette = pluginState.palette;
+		const isNewColorPaletteEnabled = expValEquals(
+			'platform_editor_lovability_text_bg_color',
+			'isEnabled',
+			true,
+		);
+		const colorPickerColumns = isNewColorPaletteEnabled ? 10 : undefined;
 
 		let fitWidth: number | undefined;
 		if (document.body.clientWidth <= 740) {
 			// This was originally hard-coded, but moved here to a const
 			// My guess is it's based off (width of button * columns) + left/right padding
-			// 240 = (32 * 7) + (8 + 8)
+			// 7 cols: 240 = (32 * 7) + (8 + 8)
+			// 10 cols: 338 = (32 * 10) + (8 + 8)
 			// Not sure where the extra 2px comes from
-			fitWidth = 242;
+			fitWidth = isNewColorPaletteEnabled ? 338 : 242;
 		}
 
 		const selectedColor = this.getSelectedColor(pluginState);
@@ -140,6 +146,7 @@ export class ToolbarTextColor extends React.Component<Props & WrappedComponentPr
 		const { selectedRowIndex, selectedColumnIndex } = getSelectedRowAndColumnFromPalette(
 			palette,
 			pluginState.color,
+			colorPickerColumns,
 		);
 
 		const reducedSpacing = this.props.toolbarType === ToolbarType.FLOATING ? 'compact' : 'none';
@@ -161,6 +168,7 @@ export class ToolbarTextColor extends React.Component<Props & WrappedComponentPr
 					zIndex={akEditorMenuZIndex}
 					fitWidth={fitWidth}
 					closeOnTab={true}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					arrowKeyNavigationProviderOptions={{
 						type: ArrowKeyNavigationType.COLOR,
 						selectedRowIndex,
@@ -210,6 +218,8 @@ export class ToolbarTextColor extends React.Component<Props & WrappedComponentPr
 				>
 					<div data-testid="text-color-palette">
 						<ColorPalette
+							cols={colorPickerColumns}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onClick={(color) =>
 								this.changeTextColor(
 									color,
@@ -218,6 +228,7 @@ export class ToolbarTextColor extends React.Component<Props & WrappedComponentPr
 								)
 							}
 							selectedColor={pluginState.color}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							paletteOptions={{
 								palette,
 								hexToPaletteColor: hexToEditorTextPaletteColor,
@@ -343,4 +354,8 @@ export class ToolbarTextColor extends React.Component<Props & WrappedComponentPr
 	}
 }
 
-export default injectIntl(ToolbarTextColor);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(ToolbarTextColor);
+export default _default_1;

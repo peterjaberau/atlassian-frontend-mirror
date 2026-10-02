@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - ValidMessageProps
  *
- * @codegen <<SignedSource::3eb0a5c4721b83e37d1bc27e5b9547e2>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/form/__generated__/valid-message.partial.tsx <<SignedSource::7c24bfd118e399bb212709c31585209b>>
+ * @codegen <<SignedSource::ee3e4b9414ef7e295782692092d94188>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/form/__generated__/valid-message.partial.tsx <<SignedSource::87c85696c64d3c0fe153fbc4f54e97fb>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import { ValidMessage as PlatformValidMessage } from '@atlaskit/form';
+import { ValidMessage as PlatformValidMessage } from '@atlaskit/form/valid-message';
 
 type PlatformValidMessageProps = React.ComponentProps<typeof PlatformValidMessage>;
 

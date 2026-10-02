@@ -1,7 +1,4 @@
-import { AbstractResource } from '@atlaskit/util-service-support';
-
 import { type EmojiProvider, type EmojiRepository } from '@atlaskit/emoji/resource';
-
 import {
 	type EmojiDescription,
 	type EmojiId,
@@ -13,9 +10,10 @@ import {
 	type OptionalUser,
 	type CategoryId,
 } from '@atlaskit/emoji/types';
+import { AbstractResource } from '@atlaskit/util-service-support';
 
-import { type MockEmojiResourceConfig, type PromiseBuilder } from './types';
 import { selectedToneStorageKey } from '../emoji-constants';
+import { type MockEmojiResourceConfig, type PromiseBuilder } from './types';
 
 export class MockNonUploadingEmojiResource
 	extends AbstractResource<string, EmojiSearchResult, any, undefined, SearchOptions>
@@ -121,7 +119,9 @@ export class MockNonUploadingEmojiResource
 		);
 	}
 
-	async getMediaEmojiDescriptionURLWithInlineToken(emoji: EmojiDescription) {
+	async getMediaEmojiDescriptionURLWithInlineToken(
+		emoji: EmojiDescription,
+	): Promise<EmojiDescription> {
 		return emoji;
 	}
 

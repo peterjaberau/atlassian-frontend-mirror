@@ -1,4 +1,5 @@
-import { SmartLinkActionType } from '@atlaskit/linking-types';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+import { SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
 
 export default {
 	meta: {
@@ -76,4 +77,4 @@ export default {
 			},
 		],
 	},
-};
+} as SmartLinkResponse;

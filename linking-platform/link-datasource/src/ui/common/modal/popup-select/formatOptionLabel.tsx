@@ -1,10 +1,9 @@
 import React from 'react';
 
-import Avatar from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
 import { cssMap, cx } from '@atlaskit/css';
 import PeopleGroupIcon from '@atlaskit/icon/core/people-group';
-import Lozenge from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import { Box, Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -51,11 +50,7 @@ const IconOptionLabel = ({ data }: { data: IconLabelOption }) => {
 
 const LozengeOptionLabel = ({ data }: { data: LozengeLabelOption }) => {
 	return (
-		<Lozenge
-			appearance={data.appearance}
-			isBold={fg('platform-component-visual-refresh') ? true : false}
-			testId="basic-filter-popup-select-option--lozenge"
-		>
+		<Lozenge appearance={data.appearance} isBold testId="basic-filter-popup-select-option--lozenge">
 			<Box xcss={styles.commonLabelStyles}>{data.label}</Box>
 		</Lozenge>
 	);
@@ -69,7 +64,7 @@ const AvatarOptionLabel = ({ data, testId }: { data: AvatarLabelOption; testId?:
 					<PeopleGroupIcon color="currentColor" label="" />
 				</Flex>
 			) : (
-				<Avatar appearance={data.isSquare ? 'square' : 'circle'} src={data.avatar} size="xsmall" />
+				<Avatar appearance={data.isSquare ? 'square' : 'circle'} src={data.avatar} size="xxsmall" />
 			)}
 			<Box xcss={cx(styles.commonLabelStyles, styles.avatarOptionLabelStyles)}>{data.label}</Box>
 		</Flex>

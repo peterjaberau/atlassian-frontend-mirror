@@ -1,8 +1,10 @@
-import React, { forwardRef, type ReactNode, type Ref } from 'react';
+import React, { forwardRef } from 'react';
+import type { ReactNode, Ref } from 'react';
 
 import { cssMap, cx } from '@atlaskit/css';
-import { type TriggerProps } from '@atlaskit/popup';
+import type { TriggerProps } from '@atlaskit/popup/types';
 import { Pressable } from '@atlaskit/primitives/compiled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { useToolbarUI } from '../hooks/ui-context';
@@ -56,6 +58,7 @@ type ToolbarButtonProps = Partial<TriggerProps> & {
 	children?: ReactNode;
 	iconBefore: React.ReactNode;
 	id?: string;
+	ignoreInteractionDisabled?: boolean;
 	interactionName?: string;
 	isDisabled?: boolean;
 	isSelected?: boolean;
@@ -66,7 +69,9 @@ type ToolbarButtonProps = Partial<TriggerProps> & {
 	testId?: string;
 };
 
-export const ToolbarButton = forwardRef(
+export const ToolbarButton: React.ForwardRefExoticComponent<
+	Omit<ToolbarButtonProps, 'ref'> & React.RefAttributes<HTMLButtonElement>
+> = forwardRef(
 	(
 		{
 			iconBefore,
@@ -85,11 +90,19 @@ export const ToolbarButton = forwardRef(
 			ariaKeyshortcuts,
 			label,
 			interactionName,
+			ignoreInteractionDisabled,
 		}: ToolbarButtonProps,
 		ref: Ref<HTMLButtonElement>,
 	) => {
-		const { preventDefaultOnMouseDown, isDisabled: ctxDisabled } = useToolbarUI();
-		const disabled = Boolean(ctxDisabled || isDisabled);
+		const {
+			preventDefaultOnMouseDown,
+			isDisabled: ctxDisabled,
+			disabledWithoutInteractionLogic,
+		} = useToolbarUI();
+		// When ignoreInteractionDisabled=true, only use the disabled state without the interaction check
+		const disabled = Boolean(
+			(ignoreInteractionDisabled ? disabledWithoutInteractionLogic : ctxDisabled) || isDisabled,
+		);
 
 		return (
 			<Pressable
@@ -98,7 +111,13 @@ export const ToolbarButton = forwardRef(
 					styles.button,
 					disabled ? styles.disabled : isSelected ? styles.selected : styles.enabled,
 				)}
-				aria-pressed={isSelected}
+				aria-pressed={
+					expValEquals('jira_editor_a11y_toolbar_fixes', 'isEnabled', true)
+						? Boolean(ariaHasPopup)
+							? undefined // No aria-pressed for dropdown buttons
+							: isSelected
+						: isSelected
+				}
 				aria-expanded={ariaExpanded}
 				aria-haspopup={ariaHasPopup}
 				aria-controls={ariaControls}
@@ -111,12 +130,16 @@ export const ToolbarButton = forwardRef(
 				testId={testId}
 				id={id}
 				isDisabled={disabled}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onMouseDown={(event) => {
 					if (preventDefaultOnMouseDown) {
 						event.preventDefault();
 					}
 				}}
 				data-toolbar-component="button"
+				data-selected={
+					expValEquals('jira_editor_a11y_toolbar_fixes', 'isEnabled', true) ? isSelected : undefined
+				}
 				interactionName={interactionName}
 			>
 				{iconBefore}

@@ -1,12 +1,14 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { GiveKudosLauncherLazy, KudosType } from '@atlaskit/give-kudos';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Popup from '@atlaskit/popup';
-import { type FireEventType, useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics';
+import { Popup } from '@atlaskit/popup/popup';
+import type { FireEventType } from '@atlaskit/teams-app-internal-analytics/types';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import filterActionsInner from '../../internal/filterActions';
 import getLabelMessage from '../../internal/getLabelMessage';
@@ -27,7 +29,6 @@ import { PACKAGE_META_DATA } from '../../util/analytics';
 import { DELAY_MS_HIDE, DELAY_MS_SHOW } from '../../util/config';
 import { getPageTime } from '../../util/performance';
 import { AgentProfileCardResourced } from '../Agent/AgentProfileCardResourced';
-
 import { ProfileCardLazy } from './lazyProfileCard';
 import UserLoadingState from './UserLoadingState';
 
@@ -42,6 +43,7 @@ function ProfileCardContent({
 	hasError,
 	errorType,
 	agentActions,
+	isRenderedInPortal,
 	addFlag,
 	hideAgentMoreActions,
 	hideAiDisclaimer,
@@ -54,6 +56,13 @@ function ProfileCardContent({
 	trigger?: TriggerType;
 	product?: string;
 	isAgent: boolean;
+	/**
+	 * Indicates whether the profile card is rendered in a portal.
+	 *
+	 * If true, the profile card will auto-focus the name element when opened for better accessibility,
+	 * keeping the user's focus in the tab trap.
+	 */
+	isRenderedInPortal?: boolean;
 	profileCardAction: ProfileCardAction[];
 	hasError?: boolean;
 	errorType?: ProfileCardErrorType;
@@ -72,15 +81,16 @@ function ProfileCardContent({
 				onChatClick={agentActions?.onChatClick}
 				onConversationStartersClick={agentActions?.onConversationStartersClick}
 				addFlag={addFlag}
-				hideMoreActions={fg('jira_ai_profilecard_hide_agent_actions') && !!hideAgentMoreActions}
+				hideMoreActions={!!hideAgentMoreActions}
 				hideAiDisclaimer={hideAiDisclaimer}
 			/>
 		);
 	} else {
-		return (
+		const profileCard = (
 			<Suspense fallback={null}>
 				<ProfileCardLazy
 					{...profilecardProps}
+					isRenderedInPortal={isRenderedInPortal}
 					actions={profileCardAction}
 					hasError={hasError}
 					errorType={errorType}
@@ -88,6 +98,8 @@ function ProfileCardContent({
 				/>
 			</Suspense>
 		);
+
+		return profileCard;
 	}
 }
 export default function ProfilecardTriggerNext({
@@ -115,6 +127,7 @@ export default function ProfilecardTriggerNext({
 	hideAiDisclaimer,
 	ariaHideProfileTrigger = false,
 	isVisible: propsIsVisible,
+	isRenderedInPortal,
 	ssrPlaceholderId,
 	showDelay: customShowDelay,
 	hideDelay: customHideDelay,
@@ -128,14 +141,22 @@ export default function ProfilecardTriggerNext({
 	const hideTimer = useRef<number>(0);
 
 	const isExternalControl = propsIsVisible !== undefined && propsIsVisible !== visible;
-	const showDelay =
-		trigger === 'click' || (isExternalControl && fg('fix_profilecard_trigger_isvisible'))
-			? 0
-			: (customShowDelay ?? DELAY_MS_SHOW);
-	const hideDelay =
-		trigger === 'click' || (isExternalControl && fg('fix_profilecard_trigger_isvisible'))
-			? 0
-			: (customHideDelay ?? DELAY_MS_HIDE);
+	// Skip delay entirely for click triggers.
+	const shouldSkipDelay = trigger === 'click';
+	// When externally controlled, use a short debounce to absorb rapid focus
+	// changes from dropdown options settling after async load.
+	const REDUCED_DELAY_MS = 100;
+	const shouldReduceDelay = isExternalControl;
+
+	let showDelay = customShowDelay ?? DELAY_MS_SHOW;
+	let hideDelay = customHideDelay ?? DELAY_MS_HIDE;
+	if (shouldSkipDelay) {
+		showDelay = 0;
+		hideDelay = 0;
+	} else if (shouldReduceDelay) {
+		showDelay = REDUCED_DELAY_MS;
+		hideDelay = REDUCED_DELAY_MS;
+	}
 
 	const [isLoading, setIsLoading] = useState<boolean | undefined>(undefined);
 	const [hasError, setHasError] = useState<boolean>(false);
@@ -345,9 +366,6 @@ export default function ProfilecardTriggerNext({
 	}, [showProfilecard]);
 
 	useEffect(() => {
-		if (!fg('fix_profilecard_trigger_isvisible')) {
-			return;
-		}
 		// If the prop isVisible is not defined, we don't want to do anything
 		if (propsIsVisible === undefined) {
 			return;
@@ -367,13 +385,15 @@ export default function ProfilecardTriggerNext({
 						onMouseEnter: onMouseEnter,
 						onMouseLeave: hideProfilecard,
 						onBlur: hideProfilecard,
-						onKeyPress: onKeyPress,
+						// A child button activates Space on keyup. Prevent its keydown default before
+						// that click can navigate as well as opening the profile card.
+						...(disabledAriaAttributes ? { onKeyDown: onKeyPress } : { onKeyPress }),
 					}
 				: {
 						onClick: onClick,
 						onKeyPress: onKeyPress,
 					},
-		[hideProfilecard, onClick, onKeyPress, onMouseEnter, trigger],
+		[disabledAriaAttributes, hideProfilecard, onClick, onKeyPress, onMouseEnter, trigger],
 	);
 
 	const filterActions = useCallback((): ProfileCardAction[] => {
@@ -453,6 +473,7 @@ export default function ProfilecardTriggerNext({
 									addFlag={addFlag}
 									hideAgentMoreActions={hideAgentMoreActions}
 									hideAiDisclaimer={hideAiDisclaimer}
+									isRenderedInPortal={isRenderedInPortal}
 								/>
 							)
 						)}
@@ -493,10 +514,13 @@ export default function ProfilecardTriggerNext({
 				}}
 				zIndex={layers.modal()}
 				shouldUseCaptureOnOutsideClick
-				autoFocus={autoFocus ?? trigger === 'click'}
-				// This feature gate is currently enabled only for Jira_Web to avoid UI issues in Confluence_Web.
-				shouldRenderToParent={fg('enable_appropriate_reading_order_in_profile_card')}
-				shouldDisableFocusLock={fg('enable_appropriate_reading_order_in_profile_card')}
+				autoFocus={
+					expValEquals('editor_a11y_7152_profile_card_tab_order', 'isEnabled', true)
+						? isRenderedInPortal && isTriggeredUsingKeyboard
+							? false
+							: (autoFocus ?? trigger === 'click')
+						: (autoFocus ?? trigger === 'click')
+				}
 			/>
 			{shouldShowGiveKudos && teamCentralBaseUrl && (
 				<Suspense fallback={null}>

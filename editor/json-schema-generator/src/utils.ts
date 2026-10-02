@@ -1,23 +1,28 @@
-import {
-	type Node,
-	type Type,
-	type Symbol,
-	TypeFlags,
-	type UnionType,
-	type TupleType,
-	type SourceFile,
-	SyntaxKind,
-	type ObjectType,
-	type Declaration,
-	type LiteralType,
-	type TypeChecker,
-	ObjectFlags,
-	type JSDocTagInfo,
-	type TypeReference,
-	type IntersectionType,
-	type InterfaceDeclaration,
-	type TypeAliasDeclaration,
+import { TypeFlags, SyntaxKind, ObjectFlags } from 'typescript';
+import type {
+	Node,
+	Type,
+	Symbol,
+	UnionType,
+	TupleType,
+	SourceFile,
+	ObjectType,
+	Declaration,
+	LiteralType,
+	TypeChecker,
+	JSDocTagInfo,
+	TypeReference,
+	IntersectionType,
+	InterfaceDeclaration,
+	TypeAliasDeclaration,
 } from 'typescript';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const DIGITS_ONLY_REGEX = /^\d+$/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const PM_NAME_SUFFIX_REGEX = /_node|_mark$/;
 
 export type TagInfo = {
 	// Ignored via go/ees005
@@ -37,9 +42,7 @@ export function getTags(tagInfo: JSDocTagInfo[]): TagInfo {
 			return obj;
 		}
 		const val: string = text.map((text) => text.text).join('');
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		if (/^\d+$/.test(val)) {
+		if (DIGITS_ONLY_REGEX.test(val)) {
 			// Number
 			obj[name] = +val;
 		} else if (val === 'true') {
@@ -71,7 +74,7 @@ export function extractLiteralValue(type: LiteralType): PrimitiveType {
 	throw new Error(`Couldn't parse in extractLiteralValue`);
 }
 
-export function getTypeFromSymbol(checker: TypeChecker, symbol: Symbol) {
+export function getTypeFromSymbol(checker: TypeChecker, symbol: Symbol): Type {
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	return checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration!);
@@ -147,9 +150,7 @@ export function syntaxKindToName(kind: SyntaxKind): string {
 export function getPmName(name: string): string {
 	return (
 		name
-			// Ignored via go/ees005
-			// eslint-disable-next-line require-unicode-regexp
-			.replace(/_node|_mark$/, '')
+			.replace(PM_NAME_SUFFIX_REGEX, '')
 			// @see https://product-fabric.atlassian.net/wiki/spaces/E/pages/722076396/ADF+Change+22+Consistent+naming
 			.replace('table_row', 'tableRow')
 			.replace('table_header', 'tableHeader')

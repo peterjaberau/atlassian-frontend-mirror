@@ -1,28 +1,33 @@
-import { renderHook } from '@testing-library/react';
-
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { useSmartLinkContext } from '@atlaskit/link-provider';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import type { CardState } from '@atlaskit/linking-common/store';
+import { renderHook } from '@atlassian/testing-library';
 
 import { extractInvokePreviewAction } from '../../../extractors/action/extract-invoke-preview-action';
+import { extractInvokeViewAction } from '../../../extractors/action/extract-invoke-view-action';
 import { mocks } from '../../../utils/mocks';
 import { EmbedModalSize } from '../../../view/EmbedModal/types';
 import useInvokeClientAction from '../../hooks/use-invoke-client-action';
 import useResolve from '../../hooks/use-resolve';
+import { useSmartLinkCrossProductUrlWrapper } from '../../hooks/use-smart-link-cross-product-url-wrapper';
 import { useSmartCardState } from '../../store';
-import { type CardState } from '../../types';
 import { useSmartLinkActions } from '../useSmartLinkActions';
 
 jest.mock('@atlaskit/tmp-editor-statsig/exp-val-equals', () => ({
 	expValEquals: jest.fn(),
 }));
 
-jest.mock('../../analytics', () => ({
+jest.mock('../../analytics/failUfoExperience', () => ({
 	failUfoExperience: jest.fn(),
+}));
+jest.mock('../../analytics/startUfoExperience', () => ({
 	startUfoExperience: jest.fn(),
+}));
+jest.mock('../../analytics/succeedUfoExperience', () => ({
 	succeedUfoExperience: jest.fn(),
 }));
 
-jest.mock('../../store', () => ({
+jest.mock('../../store/index', () => ({
 	useSmartCardState: jest.fn(),
 }));
 
@@ -31,12 +36,21 @@ jest.mock('../../hooks/use-invoke-client-action', () => ({
 	default: jest.fn(),
 }));
 
-jest.mock('@atlaskit/link-provider', () => ({
+jest.mock('@atlaskit/link-provider/use-smart-link-context', () => ({
+	...jest.requireActual('@atlaskit/link-provider/use-smart-link-context'),
 	useSmartLinkContext: jest.fn(),
 }));
 
 jest.mock('../../../extractors/action/extract-invoke-preview-action', () => ({
 	extractInvokePreviewAction: jest.fn(),
+}));
+
+jest.mock('../../../extractors/action/extract-invoke-view-action', () => ({
+	extractInvokeViewAction: jest.fn(),
+}));
+
+jest.mock('../../hooks/use-smart-link-cross-product-url-wrapper/index', () => ({
+	useSmartLinkCrossProductUrlWrapper: jest.fn(),
 }));
 
 jest.mock('../../hooks/use-resolve', () => ({
@@ -56,7 +70,8 @@ const mockNoActions = () => {
 
 	(useSmartCardState as jest.Mock).mockReturnValue(state);
 
-	// Mock extractInvokePreviewAction to return undefined when there are no actions
+	// Mock extractors to return undefined when there are no actions
+	(extractInvokeViewAction as jest.Mock).mockReturnValue(undefined);
 	(extractInvokePreviewAction as jest.Mock).mockReturnValue(undefined);
 };
 
@@ -67,6 +82,20 @@ const mockWithActions = () => {
 	const state: CardState = { details: mocks.success, status: 'resolved' };
 
 	(useSmartCardState as jest.Mock).mockReturnValue(state);
+
+	(useSmartLinkCrossProductUrlWrapper as jest.Mock).mockReturnValue(
+		(url: string) => `${url}?xpc=1`,
+	);
+
+	// Mock extractInvokeViewAction to return a valid result
+	(extractInvokeViewAction as jest.Mock).mockReturnValue({
+		actionFn: jest.fn(),
+		actionSubjectId: 'shortcutGoToLink',
+		actionType: 'ViewAction',
+		display: 'block',
+		extensionKey: 'object-provider',
+		id: 'test-id',
+	});
 
 	// Mock extractInvokePreviewAction to return a valid result
 	(extractInvokePreviewAction as jest.Mock).mockReturnValue({
@@ -97,9 +126,35 @@ const mockLifecycle = () => {
 		.mockImplementationOnce(() => pendingState)
 		.mockImplementationOnce(() => resolvingState)
 		.mockImplementationOnce(() => resolvedState);
+
+	// Mock extractors for the resolved state
+	(extractInvokeViewAction as jest.Mock).mockReturnValue({
+		actionFn: jest.fn(),
+		actionSubjectId: 'shortcutGoToLink',
+		actionType: 'ViewAction',
+		display: 'block',
+		extensionKey: 'object-provider',
+		id: 'test-id',
+	});
+	(extractInvokePreviewAction as jest.Mock).mockReturnValue({
+		invokeAction: {
+			actionFn: jest.fn(),
+			actionSubjectId: 'invokePreviewScreen',
+			actionType: 'PreviewAction',
+			display: 'block',
+			extensionKey: 'object-provider',
+			id: 'test-id',
+		},
+		hasPreviewPanel: false,
+	});
 };
 
 describe(useSmartLinkActions.name, () => {
+	beforeEach(() => {
+		// Default mock for the cross-product URL wrapper (identity function)
+		(useSmartLinkCrossProductUrlWrapper as jest.Mock).mockReturnValue((u: string) => u);
+	});
+
 	afterEach(() => {
 		jest.clearAllMocks();
 	});
@@ -111,9 +166,9 @@ describe(useSmartLinkActions.name, () => {
 		});
 		mockWithActions();
 
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
-		expect(result.current).toHaveLength(2);
+		expect(result.current).toHaveLength(3);
 	});
 
 	it('returns server-based action', () => {
@@ -123,7 +178,7 @@ describe(useSmartLinkActions.name, () => {
 		});
 		mockWithActions();
 
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 		expect(result.current?.[0]).toMatchObject({ id: 'download-content' });
 	});
@@ -135,9 +190,9 @@ describe(useSmartLinkActions.name, () => {
 		});
 		mockWithActions();
 
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
-		expect(result.current?.[1]).toMatchObject({ id: 'preview-content' });
+		expect(result.current?.[2]).toMatchObject({ id: 'preview-content' });
 	});
 
 	it('invokes correct promise on trigger of action (first)', async () => {
@@ -147,7 +202,7 @@ describe(useSmartLinkActions.name, () => {
 		});
 		const actionHandler = mockWithActions();
 
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 		await result.current?.[0].invoke();
 
@@ -161,7 +216,7 @@ describe(useSmartLinkActions.name, () => {
 		});
 		const actionHandler = mockWithActions();
 
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 		await result.current?.[1].invoke();
 		expect(actionHandler).toHaveBeenCalledTimes(1);
@@ -174,7 +229,7 @@ describe(useSmartLinkActions.name, () => {
 		});
 		mockWithActions();
 
-		const { result } = renderHook(() =>
+		const result = renderHook(() =>
 			useSmartLinkActions({
 				url,
 				appearance,
@@ -192,7 +247,7 @@ describe(useSmartLinkActions.name, () => {
 		});
 		mockWithActions();
 
-		const { result } = renderHook(() =>
+		const result = renderHook(() =>
 			useSmartLinkActions({
 				url,
 				appearance,
@@ -211,6 +266,10 @@ describe(useSmartLinkActions.name, () => {
 				invoke: expect.any(Function),
 			}),
 			expect.objectContaining({
+				id: 'view-content',
+				invoke: expect.any(Function),
+			}),
+			expect.objectContaining({
 				id: 'preview-content',
 				invoke: expect.any(Function),
 			}),
@@ -224,7 +283,7 @@ describe(useSmartLinkActions.name, () => {
 		});
 		mockWithActions();
 
-		const { result } = renderHook(() =>
+		const result = renderHook(() =>
 			useSmartLinkActions({
 				url,
 				appearance,
@@ -244,6 +303,10 @@ describe(useSmartLinkActions.name, () => {
 				invoke: expect.any(Function),
 			}),
 			expect.objectContaining({
+				id: 'view-content',
+				invoke: expect.any(Function),
+			}),
+			expect.objectContaining({
 				id: 'preview-content',
 				invoke: expect.any(Function),
 			}),
@@ -257,18 +320,18 @@ describe(useSmartLinkActions.name, () => {
 		});
 		mockLifecycle();
 
-		const { result, rerender } = renderHook(() => useSmartLinkActions({ url, appearance }));
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 		// pending state
 		expect(result.current).toEqual([]);
-		rerender();
+		result.update();
 
 		// resolving state
 		expect(result.current).toEqual([]);
-		rerender();
+		result.update();
 
 		// resolved state
-		expect(result.current).toHaveLength(2);
+		expect(result.current).toHaveLength(3);
 	});
 
 	it('returns empty list when no data available', () => {
@@ -278,7 +341,7 @@ describe(useSmartLinkActions.name, () => {
 		});
 		mockNoActions();
 
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 		expect(result.current).toEqual([]);
 	});
@@ -295,7 +358,7 @@ describe(useSmartLinkActions.name, () => {
 
 			mockWithActions();
 
-			const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+			const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 			// Just verify that the hook returns some actions when preview panel is available
 			expect(result.current.length).toBeGreaterThan(0);
@@ -311,7 +374,7 @@ describe(useSmartLinkActions.name, () => {
 
 			mockWithActions();
 
-			const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+			const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 			// Just verify that the hook returns some actions when preview panel is not available
 			expect(result.current.length).toBeGreaterThan(0);
@@ -325,7 +388,7 @@ describe(useSmartLinkActions.name, () => {
 
 			mockWithActions();
 
-			const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+			const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 			// Just verify that the hook returns some actions when parameters are undefined
 			expect(result.current.length).toBeGreaterThan(0);
@@ -339,7 +402,7 @@ describe(useSmartLinkActions.name, () => {
 
 			mockWithActions();
 
-			const { result } = renderHook(() => useSmartLinkActions({ url, appearance }));
+			const result = renderHook(() => useSmartLinkActions({ url, appearance }));
 
 			// Just verify that the hook returns some actions when parameters are null
 			expect(result.current.length).toBeGreaterThan(0);
@@ -356,7 +419,7 @@ describe(useSmartLinkActions.name, () => {
 
 			mockWithActions();
 
-			const { result } = renderHook(() =>
+			const result = renderHook(() =>
 				useSmartLinkActions({
 					url,
 					appearance,
@@ -366,6 +429,48 @@ describe(useSmartLinkActions.name, () => {
 
 			// Just verify that the hook returns some actions when origin is provided
 			expect(result.current.length).toBeGreaterThan(0);
+		});
+	});
+
+	describe('cross-product URL transformation', () => {
+		const setup = () => {
+			(useSmartLinkContext as jest.Mock).mockReturnValue({
+				isPreviewPanelAvailable: undefined,
+				openPreviewPanel: undefined,
+			});
+			mockWithActions();
+		};
+
+		it('passes transformUrl to extractInvokeViewAction', () => {
+			setup();
+			renderHook(() => useSmartLinkActions({ url, appearance }));
+
+			expect(extractInvokeViewAction).toHaveBeenCalledWith(
+				expect.objectContaining({
+					transformUrl: expect.any(Function),
+				}),
+			);
+		});
+
+		it('passes transformUrl to extractInvokePreviewAction', () => {
+			setup();
+			renderHook(() => useSmartLinkActions({ url, appearance }));
+
+			expect(extractInvokePreviewAction).toHaveBeenCalledWith(
+				expect.objectContaining({
+					transformUrl: expect.any(Function),
+				}),
+			);
+		});
+
+		it('transformUrl calls appendCrossProductAnalyticsParams with the url', () => {
+			setup();
+			renderHook(() => useSmartLinkActions({ url, appearance }));
+
+			const callArgs = (extractInvokeViewAction as jest.Mock).mock.calls[0][0];
+			const transformedUrl = callArgs.transformUrl(url);
+
+			expect(transformedUrl).toBe(`${url}?xpc=1`);
 		});
 	});
 
@@ -405,7 +510,7 @@ describe(useSmartLinkActions.name, () => {
 				'cohort',
 				'test',
 			);
-			expect(mockResolve).toHaveBeenCalledWith(url);
+			expect(mockResolve).toHaveBeenCalledWith({ url });
 		});
 
 		it('should not call resolve when experiment is disabled even if prefetch is true and linkState.details is not available', () => {
@@ -565,7 +670,7 @@ describe(useSmartLinkActions.name, () => {
 				'cohort',
 				'test',
 			);
-			expect(mockResolve).toHaveBeenCalledWith(url);
+			expect(mockResolve).toHaveBeenCalledWith({ url });
 		});
 
 		it('should not call resolve when experiment is true but prefetch is true and linkState.details is already available', () => {

@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { type RefObject } from 'react';
 
-import { type MessageDescriptor, useIntl } from 'react-intl-next';
+import IconButton from '@atlaskit/button/icon/button';
+import type { IconProp } from '@atlaskit/button/variants/types';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { IconButton, type IconProp } from '@atlaskit/button/new';
-import Tooltip from '@atlaskit/tooltip';
-
-import { useMouseDownEvent } from '../../../../../state/analytics/useLinkClicked';
+import { useMouseDownEvent } from '../../../../../state/analytics/useMouseDownEvent';
 
 export type LinkInfoButtonProps = {
 	content: React.ReactNode;
+	focusRef?: RefObject<HTMLButtonElement>;
 	icon: IconProp;
-	label: MessageDescriptor;
+	label: string;
 	onClick?: () => void;
 	role?: string;
 	testId?: string;
@@ -23,20 +23,21 @@ const LinkInfoButton = ({
 	onClick,
 	testId,
 	role,
+	focusRef,
 }: LinkInfoButtonProps): React.JSX.Element => {
 	const onMouseDown = useMouseDownEvent();
-	const { formatMessage } = useIntl();
 
 	return (
 		<Tooltip content={content} hideTooltipOnClick={true} tag="span" testId={`${testId}-tooltip`}>
 			<IconButton
 				appearance="subtle"
 				icon={icon}
-				label={formatMessage(label)}
+				label={label}
 				onClick={onClick}
 				onMouseDown={onMouseDown}
 				testId={`${testId}-button`}
 				role={role}
+				ref={focusRef}
 			/>
 		</Tooltip>
 	);

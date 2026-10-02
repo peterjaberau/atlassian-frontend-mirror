@@ -1,12 +1,15 @@
-import React, { PureComponent, type ReactNode } from 'react';
+import React, { PureComponent } from 'react';
+import type { ReactNode } from 'react';
+
+import { FabricElementsAnalyticsContext } from '@atlaskit/analytics-namespaced-context/FabricElementsAnalyticsContext';
 import { ProviderFactory, WithProviders } from '@atlaskit/editor-common/provider-factory';
-import TaskItemWithProviders from './task-item-with-providers';
-import { type RendererContext, type NodeProps } from '../types';
-import { FabricElementsAnalyticsContext } from '@atlaskit/analytics-namespaced-context';
+
 import {
 	TaskItemsFormatProvider,
 	TaskItemsFormatConsumer,
 } from '../../ui/TaskItemsFormatContext/TaskItemsFormatContext';
+import type { RendererContext, NodeProps } from '../types';
+import TaskItemWithProviders from './task-item-with-providers';
 
 export interface Props {
 	children?: ReactNode;
@@ -20,7 +23,7 @@ export interface Props {
 
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
-export default class TaskItem extends PureComponent<NodeProps<Props>, Object> {
+export default class TaskItem extends PureComponent<NodeProps<Props>, object> {
 	private providerFactory: ProviderFactory;
 
 	constructor(props: NodeProps<Props>) {
@@ -49,6 +52,7 @@ export default class TaskItem extends PureComponent<NodeProps<Props>, Object> {
 
 		return (
 			<FabricElementsAnalyticsContext
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				data={{
 					userContext: 'document',
 				}}
@@ -66,6 +70,7 @@ export default class TaskItem extends PureComponent<NodeProps<Props>, Object> {
 								taskDecisionProvider={taskDecisionProvider}
 								contextIdentifierProvider={contextIdentifierProvider}
 								dataAttributes={dataAttributes}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onChange={(_, isChecked) => {
 									dispatch(isChecked);
 								}}
@@ -82,6 +87,7 @@ export default class TaskItem extends PureComponent<NodeProps<Props>, Object> {
 	render(): React.JSX.Element {
 		return (
 			<WithProviders
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				providers={['taskDecisionProvider', 'contextIdentifierProvider']}
 				providerFactory={this.providerFactory}
 				renderNode={this.renderWithProvider}

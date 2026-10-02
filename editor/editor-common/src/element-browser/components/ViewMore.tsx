@@ -5,10 +5,11 @@
 import { useEffect, useRef } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
-import { ButtonItem, Section } from '@atlaskit/menu';
+import ButtonItem from '@atlaskit/menu/button-item';
+import Section from '@atlaskit/menu/section';
 import { Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -39,7 +40,13 @@ const styles = cssMap({
 	},
 });
 
-export const ViewMore = ({ onViewMore, focus }: { focus: boolean; onViewMore: () => void }) => {
+export const ViewMore = ({
+	onViewMore,
+	focus,
+}: {
+	focus: boolean;
+	onViewMore: () => void;
+}): JSX.Element => {
 	const ref = useRef<HTMLElement>(null);
 	const { formatMessage } = useIntl();
 	useEffect(() => {

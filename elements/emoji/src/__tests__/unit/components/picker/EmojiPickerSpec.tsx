@@ -1,46 +1,47 @@
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { waitUntil } from '@atlaskit/elements-test-helpers';
+import React from 'react';
+
 import { matchers } from '@emotion/jest';
 import { act, fireEvent, type RenderResult, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import fetchMock from 'fetch-mock/cjs/client';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import React from 'react';
-import { mockReactDomWarningGlobal, renderWithIntl } from '../../_testing-library';
+
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { mockNonUploadingEmojiResourceFactory } from '@atlaskit/util-data-test/mock-non-uploading-emoji-resource-factory';
 import type { ServiceConfig } from '@atlaskit/util-service-support';
-import userEvent from '@testing-library/user-event';
-import fetchMock from 'fetch-mock/cjs/client';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
+
 import EmojiRepository from '../../../../api/EmojiRepository';
 import { EmojiResource, type EmojiResourceConfig } from '../../../../api/EmojiResource';
 import { toneSelectorTestId } from '../../../../components/common/ToneSelector';
 import { messages } from '../../../../components/i18n';
 import { CategoryDescriptionMap } from '../../../../components/picker/categories';
-import { sortCategories } from '../../../../components/picker/CategorySelector';
-import * as utils from '../../../../components/picker/utils';
 import EmojiPicker, {
 	type Props as EmojiPickerProps,
 } from '../../../../components/picker/EmojiPicker';
-import { emojiPickerHeightOffset } from '../../../../components/picker/utils';
+import { emojiPickerHeightOffset } from '../../../../components/picker/emojiPickerHeightOffset';
+import * as scrollToRowModule from '../../../../components/picker/scrollToRow';
+import { sortCategories } from '../../../../components/picker/sortCategories';
+import { virtualListScrollContainerTestId } from '../../../../components/picker/VirtualList';
 import {
 	SearchSourceTypes,
 	type EmojiDescription,
 	type EmojiProvider,
 	type OptionalEmojiDescription,
 } from '../../../../types';
-import {
-	categoryClickedEvent,
-	closedPickerEvent,
-	openedPickerEvent,
-	pickerClickedEvent,
-	pickerSearchedEvent,
-	recordFailedEmoji,
-	recordSucceededEmoji,
-	toneSelectedEvent,
-	toneSelectorClosedEvent,
-	toneSelectorOpenedEvent,
-	ufoExperiences,
-} from '../../../../util/analytics';
+import { categoryClickedEvent } from '../../../../util/analytics/categoryClickedEvent';
+import { closedPickerEvent } from '../../../../util/analytics/closedPickerEvent';
+import { openedPickerEvent } from '../../../../util/analytics/openedPickerEvent';
+import { pickerClickedEvent } from '../../../../util/analytics/pickerClickedEvent';
+import { pickerSearchedEvent } from '../../../../util/analytics/pickerSearchedEvent';
+import { recordFailedEmoji } from '../../../../util/analytics/recordFailedEmoji';
+import { recordSucceededEmoji } from '../../../../util/analytics/recordSucceededEmoji';
+import { toneSelectedEvent } from '../../../../util/analytics/toneSelectedEvent';
+import { toneSelectorClosedEvent } from '../../../../util/analytics/toneSelectorClosedEvent';
+import { toneSelectorOpenedEvent } from '../../../../util/analytics/toneSelectorOpenedEvent';
+import { ufoExperiences } from '../../../../util/analytics/ufoExperiences';
 import * as constants from '../../../../util/constants';
 import {
 	customCategory,
@@ -48,16 +49,21 @@ import {
 	defaultEmojiPickerSize,
 	emojiPickerHeight,
 	emojiPickerHeightWithPreview,
+	emojiPickerListHeightNew,
+	emojiPickerPreviewHeight,
 	frequentCategory,
 	selectedToneStorageKey,
 } from '../../../../util/constants';
-import { isMessagesKey } from '../../../../util/type-helpers';
+import { isMessagesKey } from '../../../../util/is-messages-key';
 import {
+	getEmojiResourcePromiseFromRepository,
 	getEmojiResourcePromise,
 	mediaEmoji,
+	siteEmojiFoo,
 	standardEmojis,
 	standardServiceEmojis,
 } from '../../_test-data';
+import { mockReactDomWarningGlobal, renderWithIntl } from '../../_testing-library';
 import * as helperTestingLibrary from './_emoji-picker-helpers-testing-library';
 import * as helper from './_emoji-picker-test-helpers';
 
@@ -79,11 +85,20 @@ const emojiListHeaders = {
 	ALL_UPLOADS: 'All uploads',
 	ATLASSIAN: 'Atlassian & productivity',
 	FLAGS: 'Flags',
+	USER_UPLOADS: 'Your uploads',
 };
 
 const emojiCategoryIds = {
 	ATLASSIAN: 'ATLASSIAN',
 	FLAGS: 'FLAGS',
+};
+const teamojiRefreshExperimentName = 'platform_teamoji_26_refresh_emoji_picker';
+const changeEmojiLabel = (emoji: EmojiDescription) =>
+	`Change emoji, currently ${emoji.name ?? emoji.shortName}`;
+const raisedHandEmoji = helper.allEmojis.find(
+	(emoji: EmojiDescription) => emoji.shortName === ':raised_hand:',
+) as EmojiDescription & {
+	skinVariations?: EmojiDescription[];
 };
 // Add the custom matchers provided by '@emotion/jest'
 expect.extend(matchers);
@@ -123,7 +138,7 @@ describe('<EmojiPicker />', () => {
 		// scrolling of the virtual list doesn't work out of the box for the tests
 		// mocking `scrollToRow` for all tests
 		jest
-			.spyOn(utils, 'scrollToRow')
+			.spyOn(scrollToRowModule, 'scrollToRow')
 			.mockImplementation((listRef?: any, index?: number) =>
 				helperTestingLibrary.scrollToIndex(index || 0),
 			);
@@ -142,7 +157,11 @@ describe('<EmojiPicker />', () => {
 			</AnalyticsListener>,
 		);
 
-	const getUpdatedList = () => screen.getByRole('grid', { name: 'Emojis' });
+	const getUpdatedList = () => screen.getByTestId(virtualListScrollContainerTestId);
+	const withRefreshEmojiPicker = async (test: () => Promise<void>) => {
+		mockExpEnabled(teamojiRefreshExperimentName);
+		await test();
+	};
 
 	describe('analytics for component lifecycle', () => {
 		it('should fire analytics when component unmounts', async () => {
@@ -173,12 +192,12 @@ describe('<EmojiPicker />', () => {
 
 			const firstEmoji = emojis[0];
 			// First emoji displayed
-			expect(firstEmoji.getAttribute('aria-label')).toEqual(helper.allEmojis[0].shortName);
+			expect(firstEmoji.getAttribute('aria-label')).toEqual(changeEmojiLabel(helper.allEmojis[0]));
 
 			const lastEmoji = emojis[emojis.length - 1];
 			// Last displayed emoji in same order as source data
 			expect(lastEmoji.getAttribute('aria-label')).toEqual(
-				helper.allEmojis[emojis.length - 1].shortName,
+				changeEmojiLabel(helper.allEmojis[emojis.length - 1]),
 			);
 		});
 
@@ -270,6 +289,24 @@ describe('<EmojiPicker />', () => {
 			);
 		});
 
+		it('should use footer space for the list when upload is unsupported and no emoji is selected', async () => {
+			mockExpEnabled(teamojiRefreshExperimentName);
+
+			await helper.setupPicker({
+				emojiProvider: mockNonUploadingEmojiResourceFactory(new EmojiRepository(standardEmojis)),
+			});
+
+			const picker = screen.getByRole('dialog', { name: 'Emoji picker' });
+			expect(picker).toHaveCompiledCss(
+				'height',
+				emojiPickerHeightWithPreview + emojiPickerHeightOffset(defaultEmojiPickerSize) + 'px',
+			);
+			expect(screen.queryByTestId('emoji-picker-footer')).not.toBeInTheDocument();
+			expect(screen.getByTestId(virtualListScrollContainerTestId)).toHaveStyle({
+				height: `${emojiPickerListHeightNew + emojiPickerHeightOffset(defaultEmojiPickerSize) + emojiPickerPreviewHeight}px`,
+			});
+		});
+
 		it('media emoji should render placeholder while loading', async () => {
 			const mockConfig = {
 				promiseBuilder: (result: any, context: string) => {
@@ -308,7 +345,67 @@ describe('<EmojiPicker />', () => {
 			const previewEmoji = within(footer).getAllByRole('img')[0];
 			expect(previewEmoji).toBeVisible();
 
-			expect(previewEmoji).toHaveAttribute('aria-label', helper.allEmojis[0].shortName);
+			expect(previewEmoji).toHaveAttribute('aria-label', changeEmojiLabel(helper.allEmojis[0]));
+		});
+
+		it('should keep preview after emoji blur when upload is unsupported', async () => {
+			await withRefreshEmojiPicker(async () => {
+				await helper.setupPicker({
+					emojiProvider: mockNonUploadingEmojiResourceFactory(new EmojiRepository(standardEmojis)),
+					hideToneSelector: true,
+				});
+				const list = getUpdatedList();
+
+				const emojis = await helper.emojisVisible(list);
+				const hoverButton = emojis[0];
+				const hoveredEmojiLabel = hoverButton.getAttribute('aria-label') as string;
+				expect(hoveredEmojiLabel).toBeTruthy();
+				await userEvent.hover(hoverButton);
+
+				const footer = await helper.findEmojiPreview();
+				expect(within(footer).getAllByRole('img', { name: hoveredEmojiLabel })[0]).toHaveAttribute(
+					'aria-label',
+					hoveredEmojiLabel,
+				);
+
+				fireEvent.blur(hoverButton.parentElement as HTMLElement);
+
+				expect(within(footer).getAllByRole('img', { name: hoveredEmojiLabel })[0]).toHaveAttribute(
+					'aria-label',
+					hoveredEmojiLabel,
+				);
+			});
+		});
+
+		it('should show add emoji footer after emoji leave when upload is supported', async () => {
+			await withRefreshEmojiPicker(async () => {
+				await helper.setupPicker({
+					emojiProvider: getEmojiResourcePromise({
+						uploadSupported: true,
+					}),
+					hideToneSelector: true,
+				});
+				const list = getUpdatedList();
+
+				const emojis = await helper.emojisVisible(list);
+				const hoverButton = emojis[0];
+				const hoveredEmojiLabel = hoverButton.getAttribute('aria-label') as string;
+				expect(hoveredEmojiLabel).toBeTruthy();
+				await userEvent.hover(hoverButton);
+
+				const footer = await helper.findEmojiPreview();
+				expect(within(footer).getAllByRole('img', { name: hoveredEmojiLabel })[0]).toHaveAttribute(
+					'aria-label',
+					hoveredEmojiLabel,
+				);
+
+				await userEvent.unhover(hoverButton);
+
+				expect(
+					within(footer).queryByRole('img', { name: hoveredEmojiLabel }),
+				).not.toBeInTheDocument();
+				expect(within(footer).getByRole('button', { name: 'Add emoji' })).toBeInTheDocument();
+			});
 		});
 	});
 
@@ -358,6 +455,38 @@ describe('<EmojiPicker />', () => {
 			await waitFor(() => {
 				expect(
 					helperTestingLibrary.queryEmojiCategoryHeader(emojiListHeaders.ALL_UPLOADS),
+				).toBeInTheDocument();
+			});
+		});
+
+		it('selecting custom category scrolls to your uploads when current user has uploads', async () => {
+			mockExpEnabled(teamojiRefreshExperimentName);
+			const emojiProvider = getEmojiResourcePromiseFromRepository(
+				new EmojiRepository(
+					JSON.parse(JSON.stringify([...standardEmojis, mediaEmoji, siteEmojiFoo])),
+				),
+				{
+					currentUser: { id: siteEmojiFoo.creatorUserId },
+				},
+			);
+
+			await helper.setupPicker({
+				emojiProvider,
+			});
+
+			await waitFor(() => {
+				expect(helperTestingLibrary.getVirtualList()).toBeInTheDocument();
+			});
+
+			expect(
+				helperTestingLibrary.queryEmojiCategoryHeader(emojiListHeaders.USER_UPLOADS),
+			).not.toBeInTheDocument();
+
+			await helperTestingLibrary.selectCategory(customCategory);
+
+			await waitFor(() => {
+				expect(
+					helperTestingLibrary.queryEmojiCategoryHeader(emojiListHeaders.USER_UPLOADS),
 				).toBeInTheDocument();
 			});
 		});
@@ -437,14 +566,11 @@ describe('<EmojiPicker />', () => {
 			const list = getUpdatedList();
 			await helper.emojisVisible(list);
 
-			const rows = within(list).getAllByRole('row');
-			const firstRow = rows[0];
-			await within(firstRow).findByRole('rowheader', {
-				name: 'Frequent',
-			});
-			const secondRow = rows[1];
-			const emojis = await helper.emojisVisible(secondRow);
-			expect(emojis).toHaveLength(5);
+			await within(list).findByText('Frequent');
+			const emojis = await helper.emojisVisible(list);
+			expect(emojis.slice(0, 5).map((emoji) => emoji.getAttribute('aria-label'))).toEqual(
+				frequent.map((emoji) => `Change emoji, currently ${emoji.name}`),
+			);
 		});
 
 		it('adds non-standard categories to the selector dynamically based on whether they are populated with emojis', async () => {
@@ -488,7 +614,7 @@ describe('<EmojiPicker />', () => {
 			const hoverButton = emojis[clickOffset];
 			await userEvent.click(hoverButton);
 
-			await waitUntil(() => !!selection);
+			await waitFor(() => expect(selection).toBeDefined());
 			expect(selection).toBeDefined();
 			expect(selection!.id).toEqual(helper.allEmojis[clickOffset].id);
 
@@ -512,9 +638,9 @@ describe('<EmojiPicker />', () => {
 				'fabric-elements',
 			);
 
-			expect(ufoEmojiRecordedStartSpy).toBeCalled();
-			expect(ufoEmojiRecordedSuccessSpy).toBeCalled();
-			expect(ufoEmojiRecordedFailureSpy).not.toBeCalled();
+			expect(ufoEmojiRecordedStartSpy).toHaveBeenCalled();
+			expect(ufoEmojiRecordedSuccessSpy).toHaveBeenCalled();
+			expect(ufoEmojiRecordedFailureSpy).not.toHaveBeenCalled();
 		});
 
 		it('should fire insertion failed event if provider recordSelection fails', async () => {
@@ -544,8 +670,8 @@ describe('<EmojiPicker />', () => {
 			const hoverButton = emojis[clickOffset];
 			await userEvent.click(hoverButton);
 
-			await waitUntil(() => failureOccurred);
-			await waitUntil(() => !!selection);
+			await waitFor(() => expect(failureOccurred).toBe(true));
+			await waitFor(() => expect(selection).toBeDefined());
 
 			expect(selection).toBeDefined();
 			expect(selection!.id).toEqual(helper.allEmojis[clickOffset].id);
@@ -555,9 +681,9 @@ describe('<EmojiPicker />', () => {
 				}),
 				'fabric-elements',
 			);
-			expect(ufoEmojiRecordedStartSpy).toBeCalled();
-			expect(ufoEmojiRecordedSuccessSpy).not.toBeCalled();
-			expect(ufoEmojiRecordedFailureSpy).toBeCalled();
+			expect(ufoEmojiRecordedStartSpy).toHaveBeenCalled();
+			expect(ufoEmojiRecordedSuccessSpy).not.toHaveBeenCalled();
+			expect(ufoEmojiRecordedFailureSpy).toHaveBeenCalled();
 		});
 
 		it('selecting emoji should call recordSelection on EmojiProvider', async () => {
@@ -576,16 +702,16 @@ describe('<EmojiPicker />', () => {
 			const hoverButton = emojis[clickOffset];
 			await userEvent.click(hoverButton);
 
-			await waitUntil(() => !!selection);
+			await waitFor(() => expect(selection).toBeDefined());
 			const provider = await emojiResourcePromise;
 			expect(provider.recordedSelections).toHaveLength(1);
 			expect(provider.recordedSelections[0].shortName).toEqual(
 				helper.allEmojis[clickOffset].shortName,
 			);
 
-			expect(ufoEmojiRecordedStartSpy).toBeCalled();
-			expect(ufoEmojiRecordedSuccessSpy).toBeCalled();
-			expect(ufoEmojiRecordedFailureSpy).not.toBeCalled();
+			expect(ufoEmojiRecordedStartSpy).toHaveBeenCalled();
+			expect(ufoEmojiRecordedSuccessSpy).toHaveBeenCalled();
+			expect(ufoEmojiRecordedFailureSpy).not.toHaveBeenCalled();
 		});
 	});
 
@@ -622,8 +748,6 @@ describe('<EmojiPicker />', () => {
 
 			await waitFor(() => {
 				expect(screen.queryByTestId('sprite-emoji-:red_car:')).toBeInTheDocument();
-
-				expect(screen.getByLabelText(':red_car:')).toBeInTheDocument();
 
 				const emojis = within(helperTestingLibrary.getVirtualList()).getAllByRole('button');
 
@@ -736,10 +860,10 @@ describe('<EmojiPicker />', () => {
 				expect(screen.queryByTestId('sprite-emoji-:grinning:')).toBeInTheDocument();
 			});
 
-			expect(ufoSearchedStartSpy).toBeCalled();
-			expect(ufoSearchedSuccessSpy).toBeCalled();
-			expect(ufoSearchedAbortSpy).not.toBeCalled();
-			expect(ufoSearchedFailureSpy).not.toBeCalled();
+			expect(ufoSearchedStartSpy).toHaveBeenCalled();
+			expect(ufoSearchedSuccessSpy).toHaveBeenCalled();
+			expect(ufoSearchedAbortSpy).not.toHaveBeenCalled();
+			expect(ufoSearchedFailureSpy).not.toHaveBeenCalled();
 		});
 	});
 
@@ -768,7 +892,7 @@ describe('<EmojiPicker />', () => {
 			const hoverOffset = helper.findHandEmoji(emojis);
 			expect(hoverOffset).toBeGreaterThan(-1);
 			const handEmoji = helper.findEmoji(list)[hoverOffset];
-			expect(handEmoji).toHaveAttribute('aria-label', ':raised_hand:');
+			expect(handEmoji).toHaveAttribute('aria-label', changeEmojiLabel(raisedHandEmoji));
 		});
 
 		it('should fire tone selected and not cancelled', async () => {
@@ -859,7 +983,10 @@ describe('<EmojiPicker />', () => {
 			const hoverOffset = helper.findHandEmoji(emojis);
 			expect(hoverOffset).toBeGreaterThan(-1);
 			const handEmoji = helper.findEmoji(list)[hoverOffset];
-			expect(handEmoji).toHaveAttribute('aria-label', ':raised_hand::skin-tone-2:');
+			expect(handEmoji).toHaveAttribute(
+				'aria-label',
+				changeEmojiLabel(raisedHandEmoji.skinVariations![0]),
+			);
 		});
 	});
 
@@ -883,12 +1010,18 @@ describe('<EmojiPicker />', () => {
 
 			// First picker should have tone set by default
 			const handEmoji1 = await findToneEmojiInNewPicker();
-			expect(handEmoji1).toHaveAttribute('aria-label', ':raised_hand::skin-tone-3:');
+			expect(handEmoji1).toHaveAttribute(
+				'aria-label',
+				changeEmojiLabel(raisedHandEmoji.skinVariations![1]),
+			);
 			unmount!();
 
 			// Second picker should have tone set by default
 			const handEmoji2 = await findToneEmojiInNewPicker();
-			expect(handEmoji2).toHaveAttribute('aria-label', ':raised_hand::skin-tone-3:');
+			expect(handEmoji2).toHaveAttribute(
+				'aria-label',
+				changeEmojiLabel(raisedHandEmoji.skinVariations![1]),
+			);
 		});
 	});
 
@@ -896,10 +1029,10 @@ describe('<EmojiPicker />', () => {
 		it('should track picker opened UFO experience when picker rendered and unmounted', async () => {
 			const { unmount } = await helper.setupPicker();
 			unmount();
-			expect(ufoPickerStartSpy).toBeCalled();
-			expect(ufoPickerMarkFMPSpy).toBeCalled();
-			expect(ufoPickerSuccessSpy).toBeCalled();
-			expect(ufoPickerAbortSpy).toBeCalled();
+			expect(ufoPickerStartSpy).toHaveBeenCalled();
+			expect(ufoPickerMarkFMPSpy).toHaveBeenCalled();
+			expect(ufoPickerSuccessSpy).toHaveBeenCalled();
+			expect(ufoPickerAbortSpy).toHaveBeenCalled();
 		});
 
 		it('should fail picker opened UFO experience when picker throw errors', async () => {
@@ -917,12 +1050,24 @@ describe('<EmojiPicker />', () => {
 				// There's an assertion in setupPicker we don't care about
 			}
 
-			expect(ufoPickerStartSpy).toBeCalled();
-			expect(ufoPickerFailureSpy).toBeCalled();
+			expect(ufoPickerStartSpy).toHaveBeenCalled();
+			expect(ufoPickerFailureSpy).toHaveBeenCalled();
 		});
 	});
 
 	describe('Accessibility', () => {
+		it('focuses the selected People category instead of search', async () => {
+			await helper.setupPicker();
+			const peopleCategory = await screen.findByRole('tab', {
+				name: messages.peopleCategory.defaultMessage,
+			});
+
+			await waitFor(() => {
+				expect(peopleCategory).toHaveFocus();
+				expect(helperTestingLibrary.getEmojiSearchInput()).not.toHaveFocus();
+			});
+		});
+
 		it('should have no accessibility violations', async () => {
 			const { container } = await helper.setupPicker();
 			const list = getUpdatedList();

@@ -1,3 +1,7 @@
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+import * as uuid from 'uuid';
+import { type MockRequest, type MockResponse } from 'xhr-mock';
+
 import {
 	fillInResponse,
 	exactMatch,
@@ -5,13 +9,11 @@ import {
 	type InternalFile,
 	type MediaCollectionFile,
 } from '..';
-import { type MockRequest, type MockResponse } from 'xhr-mock';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import * as uuid from 'uuid';
 import { files, fileUri } from '../staticCommon';
 
 export const copyWithToken =
-	(context: () => MockContext) => (req: MockRequest, res: MockResponse) => {
+	(context: () => MockContext) =>
+	(req: MockRequest, res: MockResponse): MockResponse | undefined => {
 		const data: Array<any> = context().userContext.collection.map((item: any) => ({
 			method: 'POST',
 			url: {

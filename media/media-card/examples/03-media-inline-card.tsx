@@ -3,8 +3,18 @@
  * @jsx jsx
  */
 import React from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
+import { IntlProvider } from 'react-intl';
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+import { v4 as uuidv4 } from 'uuid';
+
+import {
+	MediaClient,
+	type UploadableFile,
+	type UploadableFileUpfrontIds,
+} from '@atlaskit/media-client';
 import {
 	docFileId,
 	videoProcessingFailedId,
@@ -14,18 +24,12 @@ import {
 	createUploadMediaClientConfig,
 	defaultCollectionName,
 	unknownFileId,
+	dataURItoBlob,
 } from '@atlaskit/media-test-helpers';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import { v4 as uuidv4 } from 'uuid';
-import {
-	MediaClient,
-	type UploadableFile,
-	type UploadableFileUpfrontIds,
-} from '@atlaskit/media-client';
-import MediaInlineCard from '../src/inline/loader';
+
 import { MainWrapper } from '../example-helpers';
-import { IntlProvider } from 'react-intl-next';
 import { mediaInlineTableStyles, mediaInlineWrapperStyles } from '../example-helpers/styles';
+import MediaInlineCard from '../src/inline/loader';
 
 const mediaClientConfig = createUploadMediaClientConfig();
 
@@ -34,6 +38,8 @@ const file: UploadableFile = {
 	content: smallImage,
 	collection: defaultCollectionName,
 	name: 'test.png',
+	// `content` is a data URI, so the byte size has to come from the decoded blob
+	size: dataURItoBlob(smallImage).size,
 };
 
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead

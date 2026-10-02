@@ -18,6 +18,8 @@ export const deleteEmojiLabel = 'delete-emoji';
  */
 export const MAX_ORDINAL = 100000;
 
+// Constant variables here has been inlined in css from EditorContentContainer, if you need to make
+// update here, please also update packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
 export const scaledEmojiHeightH1 = 28;
 export const scaledEmojiHeightH2 = 26;
 export const scaledEmojiHeightH3 = 24;
@@ -31,6 +33,8 @@ export const denseEmojiHeightH4 = 18.25;
 export const defaultEmojiHeight = 20;
 export const defaultDenseEmojiHeight = 16.25;
 
+export const defaultInlineEmojiHeight = 16;
+
 export type EmojiPickerWidth = 350;
 export const emojiPickerWidth: EmojiPickerWidth = 350;
 
@@ -40,13 +44,15 @@ export const defaultEmojiPickerSize = 'medium';
 
 export const emojiPickerMinHeight = 260;
 export const emojiPickerHeight = 295;
-export const emojiPickerListHeight = emojiPickerHeight - 58; // picker height - actions height
+export const emojiPickerListHeight: number = emojiPickerHeight - 58; // picker height - actions height
+export const emojiPickerListHeightNew: number = emojiPickerHeight - 102; // picker height - actions height - preview height
 
 export const emojiPickerPreviewHeight = 54;
-export const emojiPickerHeightWithPreview = emojiPickerHeight + emojiPickerPreviewHeight;
+export const emojiPickerHeightWithPreview: number = emojiPickerHeight + emojiPickerPreviewHeight;
 
 export const localStoragePrefix = 'fabric.emoji';
-export const selectedToneStorageKey = `${localStoragePrefix}.selectedTone`;
+export const selectedToneStorageKey: 'fabric.emoji.selectedTone' = `${localStoragePrefix}.selectedTone`;
+export const selectedProductivityColorStorageKey: 'fabric.emoji.selectedProductivityColor' = `${localStoragePrefix}.selectedProductivityColor`;
 export const defaultCategories: CategoryId[] = [
 	'PEOPLE',
 	'NATURE',

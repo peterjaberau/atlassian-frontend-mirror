@@ -1,37 +1,63 @@
+import { readFileSync } from 'node:fs';
+import { join, normalize } from 'node:path';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import compiledPlugin from '@compiled/eslint-plugin';
-import type { ESLint, Linter } from 'eslint';
+import type { ESLint, Linter, Rule } from 'eslint';
+
+import expandBackgroundShorthand from './rules/compiled/expand-background-shorthand';
+import expandBorderShorthand from './rules/compiled/expand-border-shorthand';
+import expandMotionShorthand from './rules/compiled/expand-motion-shorthand';
+import expandSpacingShorthand from './rules/compiled/expand-spacing-shorthand';
+import noCssPropInObjectSpread from './rules/compiled/no-css-prop-in-object-spread';
+import useMotionTokenValues from './rules/compiled/use-motion-token-values';
+import editorExampleTypeImportRequired from './rules/editor-example-type-import-required';
+import ensureAtlassianTeam from './rules/ensure-atlassian-team';
+import ensureCriticalDependencyResolutions from './rules/ensure-critical-dependency-resolutions';
 import ensureFeatureFlagRegistration from './rules/ensure-feature-flag-registration';
-import noPreAndPostInstallScripts from './rules/no-pre-post-installs';
+import ensureNoPrivateDependencies from './rules/ensure-no-private-dependencies';
+import ensureProductCollectionNamePrefix from './rules/ensure-product-collection-name-prefix';
+import ensurePublishValid from './rules/ensure-publish-valid';
+import ensureReactPeerDepsInDevDeps from './rules/ensure-react-peer-deps-in-dev-deps';
+import ensureStaticStructuredContent from './rules/ensure-static-structured-content';
 import ensureTestRunnerArguments from './rules/ensure-test-runner-arguments';
 import ensureTestRunnerNestedCount from './rules/ensure-test-runner-nested-count';
-import ensureAtlassianTeam from './rules/ensure-atlassian-team';
-import noDuplicateDependencies from './rules/no-duplicate-dependencies';
-import noInvalidFeatureFlagUsage from './rules/no-invalid-feature-flag-usage';
-import ensureCriticalDependencyResolutions from './rules/ensure-critical-dependency-resolutions';
+import ensureUseSyncExternalStoreServerSnapshot from './rules/ensure-use-sync-external-store-server-snapshot';
 import ensureValidBinValues from './rules/ensure-valid-bin-values';
-import ensureNoPrivateDependencies from './rules/ensure-no-private-dependencies';
-import expandBorderShorthand from './rules/compiled/expand-border-shorthand';
-import noInvalidStorybookDecoratorUsage from './rules/no-invalid-storybook-decorator-usage';
-import ensurePublishValid from './rules/ensure-publish-valid';
-import ensureNativeAndAfExportsSynced from './rules/ensure-native-and-af-exports-synced';
+import inlineUsage from './rules/feature-gating/inline-usage';
+import noAlias from './rules/feature-gating/no-alias';
 import noModuleLevelEval from './rules/feature-gating/no-module-level-eval';
 import noModuleLevelEvalNav4 from './rules/feature-gating/no-module-level-eval-nav4';
-import staticFeatureFlags from './rules/feature-gating/static-feature-flags';
 import noPreconditioning from './rules/feature-gating/no-preconditioning';
-import inlineUsage from './rules/feature-gating/inline-usage';
+import noUnsafeNoExposure from './rules/feature-gating/no-unsafe-no-exposure';
 import preferFG from './rules/feature-gating/prefer-fg';
-import noAlias from './rules/feature-gating/no-alias';
-import useEntrypointsInExamples from './rules/use-entrypoints-in-examples';
+import staticFeatureFlags from './rules/feature-gating/static-feature-flags';
 import useRecommendedUtils from './rules/feature-gating/use-recommended-utils';
-import expandBackgroundShorthand from './rules/compiled/expand-background-shorthand';
-import expandSpacingShorthand from './rules/compiled/expand-spacing-shorthand';
-import noSparseCheckout from './rules/no-sparse-checkout';
+import validGateName from './rules/feature-gating/valid-gate-name';
+import noBarrelEntryImports from './rules/import/no-barrel-entry-imports';
+import noBarrelEntryJestMock from './rules/import/no-barrel-entry-jest-mock';
+import noConversationAssistantBarrelImports from './rules/import/no-conversation-assistant-barrel-imports';
+import noJestMockBarrelFiles from './rules/import/no-jest-mock-barrel-files';
+import noRelativeBarrelFileImports from './rules/import/no-relative-barrel-file-imports';
+import oneValueExportPerFile from './rules/import/one-value-export-per-file';
 import noDirectDocumentUsage from './rules/no-direct-document-usage';
+import noDirectWebStorageUsage from './rules/no-direct-web-storage-usage';
+import noDoubleTypeAssertions from './rules/no-double-type-assertions';
+import noDuplicateDependencies from './rules/no-duplicate-dependencies';
+import noInlineImages from './rules/no-inline-images';
+import noInternalDependenciesInPublicPackages from './rules/no-internal-dependencies-in-public-packages';
+import noInvalidFeatureFlagUsage from './rules/no-invalid-feature-flag-usage';
+import noInvalidStorybookDecoratorUsage from './rules/no-invalid-storybook-decorator-usage';
+import noNativeEmbedBridgeQueryParamLiterals from './rules/no-native-embed-bridge-query-param-literals';
+import noPreAndPostInstallScripts from './rules/no-pre-post-installs';
+import noRestrictedFedrampImports from './rules/no-restricted-fedramp-imports';
 import noSetImmediate from './rules/no-set-immediate';
+import noSparseCheckout from './rules/no-sparse-checkout';
+import noStatsigVersionBump from './rules/no-statsig-version-bump';
+import noXcssInCx from './rules/no-xcss-in-cx';
 import preferCryptoRandomUuid from './rules/prefer-crypto-random-uuid';
-import { join, normalize } from 'node:path';
-import { readFileSync } from 'node:fs';
+import useEntrypointsInExamples from './rules/use-entrypoints-in-examples';
+import visitExampleTypeImportRequired from './rules/visit-example-type-import-required';
 
 let jiraRoot: string | undefined;
 
@@ -59,7 +85,61 @@ const packageJson: {
 	// eslint-disable-next-line import/no-extraneous-dependencies
 } = require('@atlaskit/eslint-plugin-platform/package.json');
 
-const rules = {
+const rules: {
+	'ensure-feature-flag-registration': Rule.RuleModule;
+	'ensure-test-runner-arguments': Rule.RuleModule;
+	'ensure-test-runner-nested-count': Rule.RuleModule;
+	'ensure-atlassian-team': Rule.RuleModule;
+	'ensure-critical-dependency-resolutions': Rule.RuleModule;
+	'ensure-valid-bin-values': Rule.RuleModule;
+	'ensure-no-private-dependencies': Rule.RuleModule;
+	'ensure-react-peer-deps-in-dev-deps': Rule.RuleModule;
+	'expand-border-shorthand': Rule.RuleModule;
+	'expand-background-shorthand': Rule.RuleModule;
+	'expand-spacing-shorthand': Rule.RuleModule;
+	'no-css-prop-in-object-spread': Rule.RuleModule;
+	'no-duplicate-dependencies': Rule.RuleModule;
+	'no-invalid-feature-flag-usage': Rule.RuleModule;
+	'no-pre-post-install-scripts': Rule.RuleModule;
+	'no-invalid-storybook-decorator-usage': Rule.RuleModule;
+	'ensure-publish-valid': Rule.RuleModule;
+	'ensure-product-collection-name-prefix': Rule.RuleModule;
+	'ensure-static-structured-content': Rule.RuleModule;
+	'no-internal-dependencies-in-public-packages': Rule.RuleModule;
+	'no-module-level-eval': Rule.RuleModule;
+	'no-module-level-eval-nav4': Rule.RuleModule;
+	'static-feature-flags': Rule.RuleModule;
+	'no-preconditioning': Rule.RuleModule;
+	'inline-usage': Rule.RuleModule;
+	'prefer-fg': Rule.RuleModule;
+	'no-alias': Rule.RuleModule;
+	'use-entrypoints-in-examples': Rule.RuleModule;
+	'use-recommended-utils': Rule.RuleModule;
+	'valid-gate-name': Rule.RuleModule;
+	'no-unsafe-no-exposure': Rule.RuleModule;
+	'no-sparse-checkout': Rule.RuleModule;
+	'no-direct-document-usage': Rule.RuleModule;
+	'no-inline-images': Rule.RuleModule;
+	'no-direct-web-storage-usage': Rule.RuleModule;
+	'no-native-embed-bridge-query-param-literals': Rule.RuleModule;
+	'no-set-immediate': Rule.RuleModule;
+	'prefer-crypto-random-uuid': Rule.RuleModule;
+	'no-restricted-fedramp-imports': Rule.RuleModule;
+	'no-double-type-assertions': Rule.RuleModule;
+	'no-barrel-entry-imports': Rule.RuleModule;
+	'no-barrel-entry-jest-mock': Rule.RuleModule;
+	'no-jest-mock-barrel-files': Rule.RuleModule;
+	'no-relative-barrel-file-imports': Rule.RuleModule;
+	'no-conversation-assistant-barrel-imports': Rule.RuleModule;
+	'one-value-export-per-file': Rule.RuleModule;
+	'visit-example-type-import-required': Rule.RuleModule;
+	'no-xcss-in-cx': Rule.RuleModule;
+	'editor-example-type-import-required': Rule.RuleModule;
+	'ensure-use-sync-external-store-server-snapshot': Rule.RuleModule;
+	'use-motion-token-values': Rule.RuleModule;
+	'expand-motion-shorthand': Rule.RuleModule;
+	'no-statsig-version-bump': Rule.RuleModule;
+} = {
 	'ensure-feature-flag-registration': ensureFeatureFlagRegistration,
 	'ensure-test-runner-arguments': ensureTestRunnerArguments,
 	'ensure-test-runner-nested-count': ensureTestRunnerNestedCount,
@@ -67,15 +147,19 @@ const rules = {
 	'ensure-critical-dependency-resolutions': ensureCriticalDependencyResolutions,
 	'ensure-valid-bin-values': ensureValidBinValues,
 	'ensure-no-private-dependencies': ensureNoPrivateDependencies,
+	'ensure-react-peer-deps-in-dev-deps': ensureReactPeerDepsInDevDeps,
 	'expand-border-shorthand': expandBorderShorthand,
 	'expand-background-shorthand': expandBackgroundShorthand,
 	'expand-spacing-shorthand': expandSpacingShorthand,
+	'no-css-prop-in-object-spread': noCssPropInObjectSpread,
 	'no-duplicate-dependencies': noDuplicateDependencies,
 	'no-invalid-feature-flag-usage': noInvalidFeatureFlagUsage,
 	'no-pre-post-install-scripts': noPreAndPostInstallScripts,
 	'no-invalid-storybook-decorator-usage': noInvalidStorybookDecoratorUsage,
 	'ensure-publish-valid': ensurePublishValid,
-	'ensure-native-and-af-exports-synced': ensureNativeAndAfExportsSynced,
+	'ensure-product-collection-name-prefix': ensureProductCollectionNamePrefix,
+	'ensure-static-structured-content': ensureStaticStructuredContent,
+	'no-internal-dependencies-in-public-packages': noInternalDependenciesInPublicPackages,
 	'no-module-level-eval': noModuleLevelEval,
 	'no-module-level-eval-nav4': noModuleLevelEvalNav4,
 	'static-feature-flags': staticFeatureFlags,
@@ -85,25 +169,51 @@ const rules = {
 	'no-alias': noAlias,
 	'use-entrypoints-in-examples': useEntrypointsInExamples,
 	'use-recommended-utils': useRecommendedUtils,
+	'valid-gate-name': validGateName,
+	'no-unsafe-no-exposure': noUnsafeNoExposure,
 	'no-sparse-checkout': noSparseCheckout,
 	'no-direct-document-usage': noDirectDocumentUsage,
+	'no-inline-images': noInlineImages,
+	'no-direct-web-storage-usage': noDirectWebStorageUsage,
+	'no-native-embed-bridge-query-param-literals': noNativeEmbedBridgeQueryParamLiterals,
 	'no-set-immediate': noSetImmediate,
 	'prefer-crypto-random-uuid': preferCryptoRandomUuid,
+	'no-restricted-fedramp-imports': noRestrictedFedrampImports,
+	'no-double-type-assertions': noDoubleTypeAssertions,
+	'no-barrel-entry-imports': noBarrelEntryImports,
+	'no-barrel-entry-jest-mock': noBarrelEntryJestMock,
+	'no-jest-mock-barrel-files': noJestMockBarrelFiles,
+	'no-relative-barrel-file-imports': noRelativeBarrelFileImports,
+	'no-conversation-assistant-barrel-imports': noConversationAssistantBarrelImports,
+	'one-value-export-per-file': oneValueExportPerFile,
+	'visit-example-type-import-required': visitExampleTypeImportRequired,
+	'no-xcss-in-cx': noXcssInCx,
+	'editor-example-type-import-required': editorExampleTypeImportRequired,
+	'ensure-use-sync-external-store-server-snapshot': ensureUseSyncExternalStoreServerSnapshot,
+	'use-motion-token-values': useMotionTokenValues,
+	'expand-motion-shorthand': expandMotionShorthand,
+	'no-statsig-version-bump': noStatsigVersionBump,
 };
 
 const commonConfig = {
 	'@atlaskit/platform/ensure-test-runner-arguments': 'error',
 	'@atlaskit/platform/ensure-test-runner-nested-count': 'warn',
+	'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error',
 	'@atlaskit/platform/no-invalid-feature-flag-usage': 'error',
 	'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error',
 	'@atlaskit/platform/ensure-atlassian-team': 'error',
 	'@atlaskit/platform/no-module-level-eval-nav4': 'error',
 	'@atlaskit/platform/no-direct-document-usage': 'warn',
+	'@atlaskit/platform/no-native-embed-bridge-query-param-literals': 'error',
 	'@atlaskit/platform/no-set-immediate': 'error',
+	'@atlaskit/platform/no-xcss-in-cx': 'error',
+	// Prevents bumping @statsig/js-client or @statsig/client-core to versions with a known CPU regression (HOT-303669)
+	'@atlaskit/platform/no-statsig-version-bump': 'error',
 	// Compiled: rules that are not included via `@compiled/recommended
 	'@atlaskit/platform/expand-border-shorthand': 'error',
 	'@atlaskit/platform/expand-background-shorthand': 'error',
 	'@atlaskit/platform/expand-spacing-shorthand': 'error',
+	'@atlaskit/platform/no-css-prop-in-object-spread': 'error',
 	'@compiled/jsx-pragma': [
 		'error',
 		{
@@ -124,6 +234,8 @@ const recommendedRules = {
 	'@atlaskit/platform/inline-usage': 'error',
 	'@atlaskit/platform/prefer-fg': 'error',
 	'@atlaskit/platform/no-alias': 'error',
+	'@atlaskit/platform/valid-gate-name': 'error',
+	'@atlaskit/platform/no-unsafe-no-exposure': 'warn',
 	// end: feature-gating rules
 	'@atlaskit/platform/ensure-feature-flag-registration': 'error',
 } satisfies Linter.RulesRecord;
@@ -139,7 +251,208 @@ const jsonPrefixForFlatConfig =
 const jsonPrefixForJira = 'module.exports = ';
 
 const { name, version } = packageJson;
-const plugin = {
+const plugin: {
+	meta: {
+		name: string;
+		version: string;
+	};
+	rules: {
+		'ensure-feature-flag-registration': Rule.RuleModule;
+		'ensure-test-runner-arguments': Rule.RuleModule;
+		'ensure-test-runner-nested-count': Rule.RuleModule;
+		'ensure-atlassian-team': Rule.RuleModule;
+		'ensure-critical-dependency-resolutions': Rule.RuleModule;
+		'ensure-valid-bin-values': Rule.RuleModule;
+		'ensure-no-private-dependencies': Rule.RuleModule;
+		'ensure-react-peer-deps-in-dev-deps': Rule.RuleModule;
+		'expand-border-shorthand': Rule.RuleModule;
+		'expand-background-shorthand': Rule.RuleModule;
+		'expand-spacing-shorthand': Rule.RuleModule;
+		'no-css-prop-in-object-spread': Rule.RuleModule;
+		'no-duplicate-dependencies': Rule.RuleModule;
+		'no-invalid-feature-flag-usage': Rule.RuleModule;
+		'no-pre-post-install-scripts': Rule.RuleModule;
+		'no-invalid-storybook-decorator-usage': Rule.RuleModule;
+		'ensure-publish-valid': Rule.RuleModule;
+		'ensure-product-collection-name-prefix': Rule.RuleModule;
+		'ensure-static-structured-content': Rule.RuleModule;
+		'no-internal-dependencies-in-public-packages': Rule.RuleModule;
+		'no-module-level-eval': Rule.RuleModule;
+		'no-module-level-eval-nav4': Rule.RuleModule;
+		'static-feature-flags': Rule.RuleModule;
+		'no-preconditioning': Rule.RuleModule;
+		'inline-usage': Rule.RuleModule;
+		'prefer-fg': Rule.RuleModule;
+		'no-alias': Rule.RuleModule;
+		'use-entrypoints-in-examples': Rule.RuleModule;
+		'use-recommended-utils': Rule.RuleModule;
+		'valid-gate-name': Rule.RuleModule;
+		'no-unsafe-no-exposure': Rule.RuleModule;
+		'no-sparse-checkout': Rule.RuleModule;
+		'no-inline-images': Rule.RuleModule;
+		'no-direct-document-usage': Rule.RuleModule;
+		'no-direct-web-storage-usage': Rule.RuleModule;
+		'no-native-embed-bridge-query-param-literals': Rule.RuleModule;
+		'no-set-immediate': Rule.RuleModule;
+		'prefer-crypto-random-uuid': Rule.RuleModule;
+		'no-restricted-fedramp-imports': Rule.RuleModule;
+		'no-barrel-entry-imports': Rule.RuleModule;
+		'no-barrel-entry-jest-mock': Rule.RuleModule;
+		'no-jest-mock-barrel-files': Rule.RuleModule;
+		'no-relative-barrel-file-imports': Rule.RuleModule;
+		'no-conversation-assistant-barrel-imports': Rule.RuleModule;
+		'one-value-export-per-file': Rule.RuleModule;
+		'visit-example-type-import-required': Rule.RuleModule;
+		'editor-example-type-import-required': Rule.RuleModule;
+		'ensure-use-sync-external-store-server-snapshot': Rule.RuleModule;
+		'use-motion-token-values': Rule.RuleModule;
+		'expand-motion-shorthand': Rule.RuleModule;
+	};
+	configs: {
+		recommended: {
+			plugins: string[];
+			rules: {
+				// See platform/packages/platform/eslint-plugin/src/rules/feature-gating/README.md
+				// These rules are specific to `platform` and seem a WIP; jira and confluence currently have their own rules
+				'@atlaskit/platform/no-module-level-eval': 'error';
+				'@atlaskit/platform/static-feature-flags': 'error';
+				'@atlaskit/platform/no-preconditioning': 'error';
+				'@atlaskit/platform/inline-usage': 'error';
+				'@atlaskit/platform/prefer-fg': 'error';
+				'@atlaskit/platform/no-alias': 'error';
+				'@atlaskit/platform/valid-gate-name': 'error';
+				// end: feature-gating rules
+				'@atlaskit/platform/ensure-feature-flag-registration': 'error';
+				'@atlaskit/platform/ensure-test-runner-arguments': 'error';
+				'@atlaskit/platform/ensure-test-runner-nested-count': 'warn';
+				'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error';
+				'@atlaskit/platform/no-invalid-feature-flag-usage': 'error';
+				'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error';
+				'@atlaskit/platform/ensure-atlassian-team': 'error';
+				'@atlaskit/platform/no-module-level-eval-nav4': 'error';
+				'@atlaskit/platform/no-direct-document-usage': 'warn';
+				'@atlaskit/platform/no-set-immediate': 'error';
+				// Compiled: rules that are not included via `@compiled/recommended
+				'@atlaskit/platform/expand-border-shorthand': 'error';
+				'@atlaskit/platform/expand-background-shorthand': 'error';
+				'@atlaskit/platform/expand-spacing-shorthand': 'error';
+				'@atlaskit/platform/no-css-prop-in-object-spread': 'error';
+				'@compiled/jsx-pragma': [
+					'error',
+					{
+						importSources: string[];
+						onlyRunIfImportingCompiled: boolean;
+						runtime: string;
+					},
+				];
+			};
+		};
+		'recommended/flat': {
+			plugins: {
+				readonly '@atlaskit/platform': ESLint.Plugin;
+				'@compiled': ESLint.Plugin;
+			};
+			rules: {
+				// See platform/packages/platform/eslint-plugin/src/rules/feature-gating/README.md
+				// These rules are specific to `platform` and seem a WIP; jira and confluence currently have their own rules
+				'@atlaskit/platform/no-module-level-eval': 'error';
+				'@atlaskit/platform/static-feature-flags': 'error';
+				'@atlaskit/platform/no-preconditioning': 'error';
+				'@atlaskit/platform/inline-usage': 'error';
+				'@atlaskit/platform/prefer-fg': 'error';
+				'@atlaskit/platform/no-alias': 'error';
+				'@atlaskit/platform/valid-gate-name': 'error';
+				// end: feature-gating rules
+				'@atlaskit/platform/ensure-feature-flag-registration': 'error';
+				'@atlaskit/platform/ensure-test-runner-arguments': 'error';
+				'@atlaskit/platform/ensure-test-runner-nested-count': 'warn';
+				'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error';
+				'@atlaskit/platform/no-invalid-feature-flag-usage': 'error';
+				'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error';
+				'@atlaskit/platform/ensure-atlassian-team': 'error';
+				'@atlaskit/platform/no-module-level-eval-nav4': 'error';
+				'@atlaskit/platform/no-direct-document-usage': 'warn';
+				'@atlaskit/platform/no-set-immediate': 'error';
+				// Compiled: rules that are not included via `@compiled/recommended
+				'@atlaskit/platform/expand-border-shorthand': 'error';
+				'@atlaskit/platform/expand-background-shorthand': 'error';
+				'@atlaskit/platform/expand-spacing-shorthand': 'error';
+				'@atlaskit/platform/no-css-prop-in-object-spread': 'error';
+				'@compiled/jsx-pragma': [
+					'error',
+					{
+						importSources: string[];
+						onlyRunIfImportingCompiled: boolean;
+						runtime: string;
+					},
+				];
+			};
+		};
+		jira: {
+			plugins: string[];
+			rules: {
+				'@atlaskit/platform/ensure-test-runner-arguments': 'error';
+				'@atlaskit/platform/ensure-test-runner-nested-count': 'warn';
+				'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error';
+				'@atlaskit/platform/no-invalid-feature-flag-usage': 'error';
+				'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error';
+				'@atlaskit/platform/ensure-atlassian-team': 'error';
+				'@atlaskit/platform/no-module-level-eval-nav4': 'error';
+				'@atlaskit/platform/no-direct-document-usage': 'warn';
+				'@atlaskit/platform/no-set-immediate': 'error';
+				// Compiled: rules that are not included via `@compiled/recommended
+				'@atlaskit/platform/expand-border-shorthand': 'error';
+				'@atlaskit/platform/expand-background-shorthand': 'error';
+				'@atlaskit/platform/expand-spacing-shorthand': 'error';
+				'@atlaskit/platform/no-css-prop-in-object-spread': 'error';
+				'@compiled/jsx-pragma': [
+					'error',
+					{
+						importSources: string[];
+						onlyRunIfImportingCompiled: boolean;
+						runtime: string;
+					},
+				];
+			};
+		};
+		'jira/flat': {
+			plugins: {
+				readonly '@atlaskit/platform': ESLint.Plugin;
+				'@compiled': ESLint.Plugin;
+			};
+			rules: {
+				'@atlaskit/platform/ensure-test-runner-arguments': 'error';
+				'@atlaskit/platform/ensure-test-runner-nested-count': 'warn';
+				'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error';
+				'@atlaskit/platform/no-invalid-feature-flag-usage': 'error';
+				'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error';
+				'@atlaskit/platform/ensure-atlassian-team': 'error';
+				'@atlaskit/platform/no-module-level-eval-nav4': 'error';
+				'@atlaskit/platform/no-direct-document-usage': 'warn';
+				'@atlaskit/platform/no-set-immediate': 'error';
+				// Compiled: rules that are not included via `@compiled/recommended
+				'@atlaskit/platform/expand-border-shorthand': 'error';
+				'@atlaskit/platform/expand-background-shorthand': 'error';
+				'@atlaskit/platform/expand-spacing-shorthand': 'error';
+				'@atlaskit/platform/no-css-prop-in-object-spread': 'error';
+				'@compiled/jsx-pragma': [
+					'error',
+					{
+						importSources: string[];
+						onlyRunIfImportingCompiled: boolean;
+						runtime: string;
+					},
+				];
+			};
+		};
+	};
+	processors: {
+		'package-json-processor': Linter.Processor;
+		// This processor is used for ESLint FlatConfig,
+		// once we roll out FlatConfig, we can remove the above processor
+		'package-json-processor-for-flat-config': Linter.Processor;
+	};
+} = {
 	meta: {
 		name,
 		version,
@@ -155,8 +468,10 @@ const plugin = {
 				get '@atlaskit/platform'(): ESLint.Plugin {
 					return plugin;
 				},
-				// @ts-expect-error there's an issue with the types for @compiled/eslint-plugin ('no-css-prop-without-css-function' specifically)
-				'@compiled': { meta: compiledPlugin.meta, rules: compiledPlugin.rules } as ESLint.Plugin,
+				'@compiled': {
+					meta: compiledPlugin.meta,
+					rules: compiledPlugin.rules,
+				} as unknown as ESLint.Plugin,
 			},
 			rules: recommendedRules,
 		},
@@ -169,8 +484,10 @@ const plugin = {
 				get '@atlaskit/platform'(): ESLint.Plugin {
 					return plugin;
 				},
-				// @ts-expect-error there's an issue with the types for @compiled/eslint-plugin ('no-css-prop-without-css-function' specifically)
-				'@compiled': { meta: compiledPlugin.meta, rules: compiledPlugin.rules } as ESLint.Plugin,
+				'@compiled': {
+					meta: compiledPlugin.meta,
+					rules: compiledPlugin.rules,
+				} as unknown as ESLint.Plugin,
 			},
 			rules: jiraRules,
 		},
@@ -241,8 +558,150 @@ const plugin = {
 		} as Linter.Processor,
 	},
 } satisfies ESLint.Plugin;
-const configs = plugin.configs;
-const processors = plugin.processors;
+const configs: {
+	recommended: {
+		plugins: string[];
+		rules: {
+			// See platform/packages/platform/eslint-plugin/src/rules/feature-gating/README.md
+			// These rules are specific to `platform` and seem a WIP; jira and confluence currently have their own rules
+			'@atlaskit/platform/no-module-level-eval': 'error';
+			'@atlaskit/platform/static-feature-flags': 'error';
+			'@atlaskit/platform/no-preconditioning': 'error';
+			'@atlaskit/platform/inline-usage': 'error';
+			'@atlaskit/platform/prefer-fg': 'error';
+			'@atlaskit/platform/no-alias': 'error';
+			'@atlaskit/platform/valid-gate-name': 'error';
+			// end: feature-gating rules
+			'@atlaskit/platform/ensure-feature-flag-registration': 'error';
+			'@atlaskit/platform/ensure-test-runner-arguments': 'error';
+			'@atlaskit/platform/ensure-test-runner-nested-count': 'warn';
+			'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error';
+			'@atlaskit/platform/no-invalid-feature-flag-usage': 'error';
+			'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error';
+			'@atlaskit/platform/ensure-atlassian-team': 'error';
+			'@atlaskit/platform/no-module-level-eval-nav4': 'error';
+			'@atlaskit/platform/no-direct-document-usage': 'warn';
+			'@atlaskit/platform/no-set-immediate': 'error';
+			// Compiled: rules that are not included via `@compiled/recommended
+			'@atlaskit/platform/expand-border-shorthand': 'error';
+			'@atlaskit/platform/expand-background-shorthand': 'error';
+			'@atlaskit/platform/expand-spacing-shorthand': 'error';
+			'@atlaskit/platform/no-css-prop-in-object-spread': 'error';
+			'@compiled/jsx-pragma': [
+				'error',
+				{
+					importSources: string[];
+					onlyRunIfImportingCompiled: boolean;
+					runtime: string;
+				},
+			];
+		};
+	};
+	'recommended/flat': {
+		plugins: {
+			readonly '@atlaskit/platform': ESLint.Plugin;
+			'@compiled': ESLint.Plugin;
+		};
+		rules: {
+			// See platform/packages/platform/eslint-plugin/src/rules/feature-gating/README.md
+			// These rules are specific to `platform` and seem a WIP; jira and confluence currently have their own rules
+			'@atlaskit/platform/no-module-level-eval': 'error';
+			'@atlaskit/platform/static-feature-flags': 'error';
+			'@atlaskit/platform/no-preconditioning': 'error';
+			'@atlaskit/platform/inline-usage': 'error';
+			'@atlaskit/platform/prefer-fg': 'error';
+			'@atlaskit/platform/no-alias': 'error';
+			'@atlaskit/platform/valid-gate-name': 'error';
+			// end: feature-gating rules
+			'@atlaskit/platform/ensure-feature-flag-registration': 'error';
+			'@atlaskit/platform/ensure-test-runner-arguments': 'error';
+			'@atlaskit/platform/ensure-test-runner-nested-count': 'warn';
+			'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error';
+			'@atlaskit/platform/no-invalid-feature-flag-usage': 'error';
+			'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error';
+			'@atlaskit/platform/ensure-atlassian-team': 'error';
+			'@atlaskit/platform/no-module-level-eval-nav4': 'error';
+			'@atlaskit/platform/no-direct-document-usage': 'warn';
+			'@atlaskit/platform/no-set-immediate': 'error';
+			// Compiled: rules that are not included via `@compiled/recommended
+			'@atlaskit/platform/expand-border-shorthand': 'error';
+			'@atlaskit/platform/expand-background-shorthand': 'error';
+			'@atlaskit/platform/expand-spacing-shorthand': 'error';
+			'@atlaskit/platform/no-css-prop-in-object-spread': 'error';
+			'@compiled/jsx-pragma': [
+				'error',
+				{
+					importSources: string[];
+					onlyRunIfImportingCompiled: boolean;
+					runtime: string;
+				},
+			];
+		};
+	};
+	jira: {
+		plugins: string[];
+		rules: {
+			'@atlaskit/platform/ensure-test-runner-arguments': 'error';
+			'@atlaskit/platform/ensure-test-runner-nested-count': 'warn';
+			'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error';
+			'@atlaskit/platform/no-invalid-feature-flag-usage': 'error';
+			'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error';
+			'@atlaskit/platform/ensure-atlassian-team': 'error';
+			'@atlaskit/platform/no-module-level-eval-nav4': 'error';
+			'@atlaskit/platform/no-direct-document-usage': 'warn';
+			'@atlaskit/platform/no-set-immediate': 'error';
+			// Compiled: rules that are not included via `@compiled/recommended
+			'@atlaskit/platform/expand-border-shorthand': 'error';
+			'@atlaskit/platform/expand-background-shorthand': 'error';
+			'@atlaskit/platform/expand-spacing-shorthand': 'error';
+			'@atlaskit/platform/no-css-prop-in-object-spread': 'error';
+			'@compiled/jsx-pragma': [
+				'error',
+				{
+					importSources: string[];
+					onlyRunIfImportingCompiled: boolean;
+					runtime: string;
+				},
+			];
+		};
+	};
+	'jira/flat': {
+		plugins: {
+			readonly '@atlaskit/platform': ESLint.Plugin;
+			'@compiled': ESLint.Plugin;
+		};
+		rules: {
+			'@atlaskit/platform/ensure-test-runner-arguments': 'error';
+			'@atlaskit/platform/ensure-test-runner-nested-count': 'warn';
+			'@atlaskit/platform/ensure-use-sync-external-store-server-snapshot': 'error';
+			'@atlaskit/platform/no-invalid-feature-flag-usage': 'error';
+			'@atlaskit/platform/no-invalid-storybook-decorator-usage': 'error';
+			'@atlaskit/platform/ensure-atlassian-team': 'error';
+			'@atlaskit/platform/no-module-level-eval-nav4': 'error';
+			'@atlaskit/platform/no-direct-document-usage': 'warn';
+			'@atlaskit/platform/no-set-immediate': 'error';
+			// Compiled: rules that are not included via `@compiled/recommended
+			'@atlaskit/platform/expand-border-shorthand': 'error';
+			'@atlaskit/platform/expand-background-shorthand': 'error';
+			'@atlaskit/platform/expand-spacing-shorthand': 'error';
+			'@atlaskit/platform/no-css-prop-in-object-spread': 'error';
+			'@compiled/jsx-pragma': [
+				'error',
+				{
+					importSources: string[];
+					onlyRunIfImportingCompiled: boolean;
+					runtime: string;
+				},
+			];
+		};
+	};
+} = plugin.configs;
+const processors: {
+	'package-json-processor': Linter.Processor;
+	// This processor is used for ESLint FlatConfig,
+	// once we roll out FlatConfig, we can remove the above processor
+	'package-json-processor-for-flat-config': Linter.Processor;
+} = plugin.processors;
 
 export { configs, plugin, processors, rules };
 export default plugin;

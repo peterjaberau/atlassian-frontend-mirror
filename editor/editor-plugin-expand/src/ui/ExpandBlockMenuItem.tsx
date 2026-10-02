@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { toolbarInsertBlockMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { BlockMenuItemComponentProps } from '@atlaskit/editor-plugin-block-menu/blockMenuPluginType';
 import { ToolbarDropdownItem } from '@atlaskit/editor-toolbar';
 import ExpandElementIcon from '@atlaskit/icon-lab/core/expand-element';
 
@@ -12,11 +13,12 @@ import type { ExpandPlugin } from '../types';
 
 type Props = {
 	api: ExtractInjectionAPI<ExpandPlugin> | undefined;
+	isSuggested?: boolean;
 };
 
 const NODE_NAME = 'expand';
 
-const ExpandBlockMenuItem = ({ api }: Props) => {
+const ExpandBlockMenuItem = ({ api, isSuggested }: Props) => {
 	const { formatMessage } = useIntl();
 
 	const handleClick = (event: React.MouseEvent | React.KeyboardEvent) => {
@@ -29,6 +31,7 @@ const ExpandBlockMenuItem = ({ api }: Props) => {
 		api?.core.actions.execute(({ tr }) => {
 			const command = api?.blockMenu?.commands.transformNode(tr.doc.type.schema.nodes.expand, {
 				inputMethod,
+				isSuggested,
 				triggeredFrom,
 				targetTypeName: NODE_NAME,
 			});
@@ -37,12 +40,17 @@ const ExpandBlockMenuItem = ({ api }: Props) => {
 	};
 
 	return (
-		<ToolbarDropdownItem onClick={handleClick} elemBefore={<ExpandElementIcon label="" />}>
+		<ToolbarDropdownItem
+			onClick={handleClick}
+			elemBefore={<ExpandElementIcon label="" size="small" />}
+		>
 			{formatMessage(toolbarInsertBlockMessages.expand)}
 		</ToolbarDropdownItem>
 	);
 };
 
 export const createExpandBlockMenuItem = (api: ExtractInjectionAPI<ExpandPlugin> | undefined) => {
-	return (): React.JSX.Element => <ExpandBlockMenuItem api={api} />;
+	return ({ isSuggested }: BlockMenuItemComponentProps = {}): React.JSX.Element => (
+		<ExpandBlockMenuItem api={api} isSuggested={isSuggested} />
+	);
 };

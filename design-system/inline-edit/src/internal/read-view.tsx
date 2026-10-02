@@ -5,9 +5,8 @@
 import React, { useRef } from 'react';
 
 import { css, cssMap, jsx } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Pressable } from '@atlaskit/primitives/compiled';
-import { N30 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 const readViewContainerStyles = css({
@@ -56,17 +55,17 @@ const readViewWrapperStyles = css({
 	width: 'auto',
 	maxWidth: '100%',
 	borderColor: 'transparent',
-	borderRadius: token('radius.small', '3px'),
+	borderRadius: token('radius.medium'),
 	borderStyle: 'solid',
 	borderWidth: token('border.width.selected'),
 	transition: 'background 0.2s',
 	'&:hover': {
-		backgroundColor: token('color.background.neutral.subtle.hovered', N30),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
 	},
 });
 
-const readViewWrapperStylesT26Shape = css({
-	borderRadius: token('radius.medium', '6px'),
+const readViewWrapperMotionStyles = css({
+	transition: token('motion.button.hovered'), //move this into readViewWrapperStyles once fg is rolled out
 });
 
 const readViewFitContainerWidthStyles = css({
@@ -77,15 +76,25 @@ const DRAG_THRESHOLD = 5;
 
 interface ReadViewProps {
 	editButtonLabel: string;
+	// eslint-disable-next-line @repo/internal/react/consistent-props-definitions
 	onEditRequested: () => void;
 	postReadViewClick: () => void;
 	editButtonRef: React.RefObject<HTMLButtonElement>;
+	// eslint-disable-next-line @repo/internal/react/boolean-prop-naming-convention
 	readViewFitContainerWidth?: boolean;
 	readView: () => React.ReactNode;
 	testId?: string;
 }
 
-const ReadView: ({ editButtonLabel, onEditRequested, postReadViewClick, editButtonRef, readViewFitContainerWidth, readView, testId, }: ReadViewProps) => JSX.Element = ({
+const ReadView: ({
+	editButtonLabel,
+	onEditRequested,
+	postReadViewClick,
+	editButtonRef,
+	readViewFitContainerWidth,
+	readView,
+	testId,
+}: ReadViewProps) => JSX.Element = ({
 	editButtonLabel,
 	onEditRequested,
 	postReadViewClick,
@@ -97,13 +106,9 @@ const ReadView: ({ editButtonLabel, onEditRequested, postReadViewClick, editButt
 	const startX = useRef(0);
 	const startY = useRef(0);
 
-	const mouseHasMovedAfterMouseDown = (event: { clientX: number; clientY: number }) => {
-		return (
-			Math.abs(startX.current - event.clientX) >= DRAG_THRESHOLD ||
-			Math.abs(startY.current - event.clientY) >= DRAG_THRESHOLD
-		);
-	};
-
+	const mouseHasMovedAfterMouseDown = (event: { clientX: number; clientY: number }) =>
+		Math.abs(startX.current - event.clientX) >= DRAG_THRESHOLD ||
+		Math.abs(startY.current - event.clientY) >= DRAG_THRESHOLD;
 	const onReadViewClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
 		const element = event.target as HTMLElement;
 		/**
@@ -130,7 +135,7 @@ const ReadView: ({ editButtonLabel, onEditRequested, postReadViewClick, editButt
 				css={[
 					readViewWrapperStyles,
 					readViewFitContainerWidth && readViewFitContainerWidthStyles,
-					fg('platform-dst-shape-theme-default') && readViewWrapperStylesT26Shape,
+					fg('platform-dst-motion-uplift-button') && readViewWrapperMotionStyles,
 				]}
 				/**
 				 * It is not normally acceptable to add click handlers to non-interactive elements

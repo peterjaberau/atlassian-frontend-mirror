@@ -1,4 +1,4 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
@@ -20,8 +20,10 @@ export type LayoutButtonProps = {
 	testId?: string;
 };
 
-export interface LayoutButtonWrapperProps
-	extends Pick<LayoutButtonProps, 'mountPoint' | 'boundariesElement' | 'scrollableElement'> {
+export interface LayoutButtonWrapperProps extends Pick<
+	LayoutButtonProps,
+	'mountPoint' | 'boundariesElement' | 'scrollableElement'
+> {
 	api: ExtractInjectionAPI<typeof cardPlugin> | undefined;
 	editorView: EditorView;
 }

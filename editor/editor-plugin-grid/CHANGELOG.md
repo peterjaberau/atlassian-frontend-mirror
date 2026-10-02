@@ -1,5 +1,1343 @@
 # @atlaskit/editor-plugin-grid
 
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- [`c004ba24db31f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c004ba24db31f) -
+  Clean up the shipped `platform_editor_external_embed_grid_fix` experiment. The grid overlay now
+  always sizes itself from the content line length plus the gutter width, so the conditional and the
+  experiment registration have been removed. The experiment is no longer available in the Statsig
+  configuration; consumers should remove its overrides and checks.
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.13
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 15.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.15
+
+### Patch Changes
+
+- [`0117f2bf00eb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0117f2bf00eb2) -
+  Use editor line length rather than editor DOM width for the external embed grid guideline fix so
+  guidelines stay aligned in wide editor layouts.
+- Updated dependencies
+
+## 11.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.12
+
+### Patch Changes
+
+- [`62bea93a6f5eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62bea93a6f5eb) -
+  Add the `platform_editor_external_embed_grid_fix` experiment and use it to align editor grid
+  guidelines to the editor viewport while resizing external embeds.
+- Updated dependencies
+
+## 11.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- [`4c44277d90774`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c44277d90774) -
+  depreciate theme in editor
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- [`c61ad86da2b49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c61ad86da2b49) -
+  Clean up `platform_editor_remove_grid_init_reflow` experiment.
+  - Remove `expValEquals` gate check from `ContentComponent` in `editor-plugin-grid`, keeping the
+    treatment branch (`isEnabled=true`) logic permanently
+  - Remove unused `expValEquals` import from `gridPlugin.tsx`
+  - Remove `platform_editor_remove_grid_init_reflow` type definition and config entries from
+    `tmp-editor-statsig` experiments-config
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`acbb2aa5cc917`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acbb2aa5cc917) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 10.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`e5cdd96dcf4f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5cdd96dcf4f9) -
+  Clean up platform_editor_hydratable_ui experiment (shipped as enabled)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.26
+
+### Patch Changes
+
+- [`3da5fc5ff18bc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3da5fc5ff18bc) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 8.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.12
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 8.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.20
+
+### Patch Changes
+
+- [`f91f6be9566a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f91f6be9566a5) -
+  Don't show the grid container if not visible to avoid reflow experiment.
+- Updated dependencies
+
+## 7.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.0.8
 
 ### Patch Changes

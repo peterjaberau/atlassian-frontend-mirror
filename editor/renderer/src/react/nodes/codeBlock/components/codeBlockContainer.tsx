@@ -2,23 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx, css } from '@emotion/react';
+
 import type { ReactNode } from 'react';
-import type { CodeBlockButtonContainerProps } from './codeBlockButtonContainer';
 
-import { N20 } from '@atlaskit/theme/colors';
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx, css } from '@emotion/react';
+
 import { CodeBlockSharedCssClassName } from '@atlaskit/editor-common/styles';
-
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
+import type { CodeBlockButtonContainerProps } from './codeBlockButtonContainer';
 import CodeBlockButtonContainer from './codeBlockButtonContainer';
 
 const codeBlockStyleOverrides = css({
 	tabSize: 4,
-	backgroundColor: token('elevation.surface.raised', N20),
+	backgroundColor: token('elevation.surface.raised'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	button: {
 		opacity: 0,
@@ -39,36 +37,36 @@ const codeBlockStyleOverrides = css({
 		lineHeight: '1.5rem',
 		backgroundImage: `linear-gradient(
 			to right,
-			${token('color.background.neutral')} ${token('space.300', '24px')},
-			transparent ${token('space.300', '24px')}
+			${token('color.background.neutral')} ${token('space.300')},
+			transparent ${token('space.300')}
 			),linear-gradient(
 			to right,
-			${token('elevation.surface.raised')} ${token('space.300', '24px')},
-			transparent ${token('space.300', '24px')}
+			${token('elevation.surface.raised')} ${token('space.300')},
+			transparent ${token('space.300')}
 			),linear-gradient(
 			to left,
-			${token('color.background.neutral')} ${token('space.100', '8px')},
-			transparent ${token('space.100', '8px')}
+			${token('color.background.neutral')} ${token('space.100')},
+			transparent ${token('space.100')}
 			),linear-gradient(
 			to left,
-			${token('elevation.surface.raised')} ${token('space.100', '8px')},
-			transparent ${token('space.100', '8px')}
+			${token('elevation.surface.raised')} ${token('space.100')},
+			transparent ${token('space.100')}
 			),linear-gradient(
 			to left,
 			${token('elevation.shadow.overflow.spread')} 0,
-			${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+			${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 			),linear-gradient(
 			to left,
 			${token('elevation.shadow.overflow.perimeter')} 0,
-			${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+			${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 			),linear-gradient(
 			to right,
 			${token('elevation.shadow.overflow.spread')} 0,
-			${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+			${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 			),linear-gradient(
 			to right,
 			${token('elevation.shadow.overflow.perimeter')} 0,
-			${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+			${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 			)`,
 		backgroundAttachment: 'local, local, local, local, scroll, scroll, scroll, scroll',
 		backgroundPosition: '0 0, 0 0, 100% 0, 100% 0, 100% 0, 100% 0, 0 0, 0 0',
@@ -93,30 +91,28 @@ interface ContainerProps extends CodeBlockButtonContainerProps {
 
 const CodeBlockContainer = ({
 	allowCopyToClipboard,
+	allowDownloadCodeBlock,
 	allowWrapCodeBlock,
 	children,
 	className,
+	language,
 	localId,
 	setWrapLongLines,
 	text,
 	wrapLongLines,
-}: ContainerProps) => {
+}: ContainerProps): jsx.JSX.Element => {
 	return (
 		<div
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={className}
 			data-local-id={localId}
-			css={[
-				codeBlockStyleOverrides,
-				(expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-					(expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-						fg('platform_editor_content_mode_button_mvp'))) &&
-					denseModeOverrides,
-			]}
+			css={[codeBlockStyleOverrides, denseModeOverrides]}
 		>
 			<CodeBlockButtonContainer
 				allowCopyToClipboard={allowCopyToClipboard}
+				allowDownloadCodeBlock={allowDownloadCodeBlock}
 				allowWrapCodeBlock={allowWrapCodeBlock}
+				language={language}
 				setWrapLongLines={setWrapLongLines}
 				text={text}
 				wrapLongLines={wrapLongLines}

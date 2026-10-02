@@ -1,5 +1,254 @@
 # @atlaskit/portal
 
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`7195b37b51df4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7195b37b51df4) -
+  Removed the `isClosed` prop from `Portal`.
+
+  The prop was added for a JSM CSV-import onboarding flow that has since been removed, and it has no
+  remaining consumers. `Portal` now always uses its baseline lifecycle: the portal container is
+  removed when the component unmounts, rather than when a prop flips.
+
+  Consumers that previously passed `isClosed={true}` to tear down portalled content should stop
+  rendering the `Portal` instead, which removes the container through the same cleanup path.
+
+  The `import_into_jsm_in_template_gallery_killswitch` feature flag that gated this behaviour has
+  also been removed, along with the internal `removePortalParent` utility that only the gated path
+  used.
+
+## 6.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.0
+
+### Minor Changes
+
+- [`09178f5539092`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/09178f5539092) -
+  VOLTC-14 - run on @atlaskit/portal
+
+## 6.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.6
+
+### Patch Changes
+
+- [`63c62192cbfc6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63c62192cbfc6) -
+  Cleanup feature gate `platform-dst-portal-conditial-theme-provider`. ThemeProvider wrapping
+  behaviour (wrapping portal children when inside a ThemeProvider) is now permanently enabled.
+
+## 5.5.5
+
+### Patch Changes
+
+- [`66215bbc9a383`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/66215bbc9a383) -
+  Cleanup feature gate `platform-dst-portal-conditial-theme-provider`. ThemeProvider wrapping
+  behaviour (wrapping portal children when inside a ThemeProvider) is now permanently enabled.
+
+## 5.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.2
+
+### Patch Changes
+
+- [`5df00e0f09845`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5df00e0f09845) -
+  Fix portal wrapping portalled content with ThemeProvider when outside a ThemeProvider. Previously,
+  components like modal-dialog would always inject theme CSS variables into the DOM via a
+  portal-owned ThemeProvider, even when no ThemeProvider was present in the tree.
+- Updated dependencies
+
+## 5.5.1
+
+### Patch Changes
+
+- [`8e2f0f5b6e5b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8e2f0f5b6e5b9) -
+  Fix portal wrapping portalled content with ThemeProvider when outside a ThemeProvider. Previously,
+  components like modal-dialog would always inject theme CSS variables into the DOM via a
+  portal-owned ThemeProvider, even when no ThemeProvider was present in the tree.
+- Updated dependencies
+
+## 5.5.0
+
+### Minor Changes
+
+- [`31b1ede297136`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31b1ede297136) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 5.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.1
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 5.4.0
+
+### Minor Changes
+
+- [`399dfa9f10273`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/399dfa9f10273) -
+  [ux] Added an `isClosed` property that closes the portal cleanly and unmounts it
+
+## 5.3.2
+
+### Patch Changes
+
+- [`e2085d35701ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2085d35701ca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+
+## 5.3.0
+
+### Minor Changes
+
+- [`1fab6967bb305`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1fab6967bb305) -
+  Tidied feature flag `platform_dst_subtree_theming` which enables sub-tree theming capabilities
+  within `@atlaskit/app-provider`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 5.2.1
 
 ### Patch Changes

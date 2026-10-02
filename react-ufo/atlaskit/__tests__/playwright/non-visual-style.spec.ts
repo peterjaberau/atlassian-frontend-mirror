@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
-import { VCObserver } from '../../src/vc/vc-observer';
 
-import { expect, test, viewports } from './fixtures';
+import { VCObserver } from '../../src/vc/vc-observer';
+import { expect, getClientCalculatedVCRevisions, test, viewports } from './fixtures';
 
 test.describe('ReactUFO: fy25.02 - non visual style mutation', () => {
 	for (const viewport of viewports) {
@@ -11,6 +11,13 @@ test.describe('ReactUFO: fy25.02 - non visual style mutation', () => {
 			test.use({
 				examplePage: 'non-visual-style-mutation',
 				viewport,
+			} satisfies {
+				examplePage: 'non-visual-style-mutation';
+				viewport: {
+					width: number;
+					height: number;
+				};
+				__exampleDependency?: typeof import('../../examples/11-non-visual-style-mutation.tsx');
 			});
 
 			test(`VC90 should match when the [content-div] is first visible`, async ({
@@ -38,11 +45,21 @@ test.describe('ReactUFO: fy25.02 - non visual style mutation', () => {
 				expect(fy25_02_rev).toBeDefined();
 				expect(fy25_02_rev!.clean).toEqual(true);
 
-				for (const checkpoint of VCObserver.VCParts) {
-					await test.step(`checking fy25_02_rev vc ${checkpoint} details`, () => {
-						expect(fy25_02_rev!.vcDetails![checkpoint].t).toMatchTimestamp(mainDivAddedAt);
-						expect(fy25_02_rev!.vcDetails![checkpoint].e).not.toContain(['div[testid=nvs-div]']);
-					});
+				// When raw data is included, vcDetails is deleted and carried by raw-handler.
+				// eslint-disable-next-line playwright/no-conditional-in-test
+				if (fy25_02_rev!.vcDetails) {
+					for (const checkpoint of VCObserver.VCParts) {
+						await test.step(`checking fy25_02_rev vc ${checkpoint} details`, () => {
+							expect(fy25_02_rev!.vcDetails![checkpoint].t).toMatchTimestamp(mainDivAddedAt);
+							expect(fy25_02_rev!.vcDetails![checkpoint].e).not.toContain(['div[testid=nvs-div]']);
+						});
+					}
+				} else {
+					const rawHandlerRev = ufoRevisions?.find((rev) => rev.revision === 'raw-handler');
+					expect(rawHandlerRev).toBeTruthy();
+					expect(rawHandlerRev!.rawData).toBeDefined();
+					expect(rawHandlerRev!.rawData!.obs!.length).toBeGreaterThan(0);
+					expect(rawHandlerRev!.rawData!.eid).toBeDefined();
 				}
 
 				const vc90Result = fy25_02_rev!['metric:vc90'];
@@ -51,9 +68,9 @@ test.describe('ReactUFO: fy25.02 - non visual style mutation', () => {
 				expect(vc90Result).toMatchTimestamp(mainDivAddedAt);
 
 				// check future bigger revisions
-				const applicableRevisions = ufoRevisions?.filter((rev) => rev['revision'] >= 'fy25.03');
+				const applicableRevisions = getClientCalculatedVCRevisions(ufoRevisions);
 
-				for (const rev of applicableRevisions!) {
+				for (const rev of applicableRevisions) {
 					const vc90Result = rev['metric:vc90'];
 					const revisionName = rev['revision'];
 					expect(vc90Result).toBeDefined();
@@ -62,11 +79,15 @@ test.describe('ReactUFO: fy25.02 - non visual style mutation', () => {
 					await test.step(`checking revision ${revisionName}`, async () => {
 						expect(vc90Result).toMatchTimestamp(mainDivVisibleAt);
 
-						for (const checkpoint of VCObserver.VCParts) {
-							await test.step(`checking revision ${revisionName} vc ${checkpoint} details`, () => {
-								expect(rev!.vcDetails![checkpoint].t).toMatchTimestamp(mainDivVisibleAt);
-								expect(rev!.vcDetails![checkpoint].e).not.toContain(['div[testid=nvs-div]']);
-							});
+						// When raw data is included, vcDetails is deleted
+						// eslint-disable-next-line playwright/no-conditional-in-test
+						if (rev!.vcDetails) {
+							for (const checkpoint of VCObserver.VCParts) {
+								await test.step(`checking revision ${revisionName} vc ${checkpoint} details`, () => {
+									expect(rev!.vcDetails![checkpoint].t).toMatchTimestamp(mainDivVisibleAt);
+									expect(rev!.vcDetails![checkpoint].e).not.toContain(['div[testid=nvs-div]']);
+								});
+							}
 						}
 					});
 				}

@@ -1,6 +1,22 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const modalMessages = defineMessages({
+export const modalMessages: {
+	updateObjectsButtonText: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	insertIssuesButtonText: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	insertObjectsTitle: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+} = defineMessages({
 	updateObjectsButtonText: {
 		id: 'linkDataSource.assets.configmodal.updateObjectsButtonText',
 		description: 'Button text to update the displayed content',

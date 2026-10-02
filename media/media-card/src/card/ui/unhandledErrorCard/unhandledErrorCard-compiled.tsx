@@ -3,14 +3,16 @@
  * @jsx jsx
  */
 import { Component } from 'react';
+
 import { css, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
+
 import WarningIcon from '@atlaskit/icon/core/status-warning';
-import { N20, N800, Y500 } from '@atlaskit/theme/colors';
+import { token } from '@atlaskit/tokens';
+
 import { type CardDimensions } from '../../../types';
-import { type UnhandledErrorCardProps } from './types';
-import { defaultImageCardDimensions } from '../../../utils';
+import { defaultImageCardDimensions } from '../../../utils/cardDimensions';
 import { ContentLoadingErrorMessage } from './contentLoadingErrorMessage';
+import { type UnhandledErrorCardProps } from './types';
 
 type ConvertedDimensions = {
 	width: string;
@@ -50,8 +52,8 @@ const wrapperStyle = css({
 	justifyContent: 'center',
 	// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
 	borderRadius: token('radius.small', '3px'),
-	backgroundColor: token('color.background.neutral', N20),
-	color: token('color.text.subtle', N800),
+	backgroundColor: token('color.background.neutral'),
+	color: token('color.text.subtle'),
 	maxHeight: '100%',
 	maxWidth: '100%',
 	flexDirection: 'column',
@@ -64,20 +66,21 @@ const wrapperStyle = css({
 });
 
 export class UnhandledErrorCard extends Component<UnhandledErrorCardProps, {}> {
-	render() {
+	render(): JSX.Element {
 		const { dimensions = defaultImageCardDimensions, onClick } = this.props;
 		const convertedDimensions = getConvertedDimension(dimensions);
 		const hideText = !shouldShowText(getConvertedDimension(dimensions));
+
 		return (
-			// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 			<div
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 				style={convertedDimensions}
 				css={wrapperStyle}
 				onClick={onClick}
 				data-testid="unhandled-error-card"
+				role="none"
 			>
-				<WarningIcon label="Error" color={token('color.icon.warning', Y500)} spacing="spacious" />
+				<WarningIcon label="Error" color={token('color.icon.warning')} spacing="spacious" />
 				<ContentLoadingErrorMessage isHidden={hideText} />
 			</div>
 		);

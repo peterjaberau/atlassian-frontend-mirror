@@ -5,7 +5,7 @@ import type { DraggableId, DroppableId } from 'react-beautiful-dnd';
 /**
  * Private symbol that is intentionally not exported from this file.
  */
-const privateKey = Symbol('DraggableData');
+const privateKey: unique symbol = Symbol('DraggableData');
 
 /**
  * Data that is attached to drags. The same data is used for the `draggable()`
@@ -51,6 +51,7 @@ export function isDraggableData(data: Record<string | symbol, unknown>): data is
  *
  * The symbol allows us to quickly check if an object satisfies `DraggableData`.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function useDraggableData({
 	draggableId,
 	droppableId,

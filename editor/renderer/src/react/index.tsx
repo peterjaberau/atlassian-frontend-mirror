@@ -1,14 +1,29 @@
 import type { ComponentType } from 'react';
 import React from 'react';
 
-import { type GetPMNodeHeight } from '@atlaskit/editor-common/extensibility';
+import type { GetPMNodeHeight } from '@atlaskit/editor-common/extensibility';
+import type {
+	ExtensionHandlers,
+	ExtensionParams,
+	Parameters,
+} from '@atlaskit/editor-common/extensions';
+import type { MentionNodeDataProvider } from '@atlaskit/editor-common/mention';
+import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import type { EventHandlers } from '@atlaskit/editor-common/ui';
+import { getColumnWidths } from '@atlaskit/editor-common/utils';
+import { getMarksByOrder, isSameMark } from '@atlaskit/editor-common/validator';
 import type { Fragment, Mark, Node } from '@atlaskit/editor-prosemirror/model';
 import { MarkType } from '@atlaskit/editor-prosemirror/model';
+import { findChildrenByType } from '@atlaskit/editor-prosemirror/utils';
+import type { EmojiProviderLookupOrder, EmojiResourceConfig } from '@atlaskit/emoji/resource';
+import { expVal } from '@atlaskit/platform-feature-experiments/exp-val';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { AnalyticsEventPayload } from '../analytics/events';
 import type { Serializer } from '../serializer';
+import type { MediaOptions } from '../types/mediaOptions';
+import type { SmartLinksOptions } from '../types/smartLinksOptions';
 import type {
 	HeadingAnchorLinksProps,
 	NodeComponentsProps,
@@ -16,6 +31,10 @@ import type {
 	RendererContentMode,
 	StickyHeaderConfig,
 } from '../ui/Renderer/types';
+import { mergeExpandBodyText, withExpandBodyBlock } from '../ui/utils/expand-body';
+import { getText } from '../utils';
+import { isAnnotationMark, toReact as markToReact } from './marks';
+import { isCodeMark } from './marks/code';
 import type { TextWrapper } from './nodes';
 import {
 	Doc,
@@ -26,29 +45,9 @@ import {
 	toReact,
 } from './nodes';
 import TextWrapperComponent from './nodes/text-wrapper';
-import { isNestedHeaderLinksEnabled } from './utils/links';
-
-import type {
-	ExtensionHandlers,
-	ExtensionParams,
-	Parameters,
-} from '@atlaskit/editor-common/extensions';
-import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import type { EventHandlers } from '@atlaskit/editor-common/ui';
-import { getColumnWidths } from '@atlaskit/editor-common/utils';
-import { getMarksByOrder, isSameMark } from '@atlaskit/editor-common/validator';
-import { findChildrenByMark, findChildrenByType } from '@atlaskit/editor-prosemirror/utils';
-import type { EmojiResourceConfig } from '@atlaskit/emoji/resource';
-import { fg } from '@atlaskit/platform-feature-flags';
-import type { MediaOptions } from '../types/mediaOptions';
-import type { SmartLinksOptions } from '../types/smartLinksOptions';
-import { getText } from '../utils';
-import { isAnnotationMark, toReact as markToReact } from './marks';
-import { isCodeMark } from './marks/code';
 import {
+	getNestedUnderNodes,
 	insideBlockNode,
-	insideBreakoutExpand,
-	insideBreakoutLayout,
 	insideMultiBodiedExtension,
 	insideTable,
 } from './renderer-node';
@@ -60,10 +59,11 @@ import type {
 	RendererContext,
 	TextHighlighter,
 } from './types';
-import { renderTextSegments } from './utils/render-text-segments';
-import { segmentText } from './utils/segment-text';
+import { createContentGetter } from './utils/content-getter';
 import { getStandaloneBackgroundColorMarks } from './utils/getStandaloneBackgroundColorMarks';
+import { isNestedHeaderLinksEnabled } from './utils/links';
 import { markBlockAsInline } from './utils/markBlockAsInline';
+import { renderText } from './utils/render-text';
 
 export interface ReactSerializerInit {
 	allowAltTextOnImages?: boolean;
@@ -71,6 +71,7 @@ export interface ReactSerializerInit {
 	allowColumnSorting?: boolean;
 	allowCopyToClipboard?: boolean;
 	allowCustomPanels?: boolean;
+	allowDownloadCodeBlock?: boolean;
 	allowFixedColumnWidthOption?: boolean;
 	allowHeadingAnchorLinks?: HeadingAnchorLinksProps;
 	allowMediaLinking?: boolean;
@@ -85,15 +86,19 @@ export interface ReactSerializerInit {
 	disableActions?: boolean;
 	disableHeadingIDs?: boolean;
 	disableTableOverflowShadow?: boolean;
+	emojiProviderLookupOrder?: EmojiProviderLookupOrder;
 	emojiResourceConfig?: EmojiResourceConfig;
 	eventHandlers?: EventHandlers;
 	extensionHandlers?: ExtensionHandlers;
 	extensionViewportSizes?: ExtensionViewportSize[];
 	fireAnalyticsEvent?: (event: AnalyticsEventPayload) => void;
 	getExtensionHeight?: GetPMNodeHeight;
+	headingIdPrefix?: string;
+	hideExtensionKeysWhilePending?: string[];
 	isInsideOfInlineExtension?: boolean;
 	isPresentational?: boolean;
 	media?: MediaOptions;
+	mentionNodeDataProvider?: MentionNodeDataProvider;
 	nodeComponents?: NodeComponentsProps;
 	objectContext?: RendererContext;
 	onSetLinkTarget?: (url: string) => '_blank' | undefined;
@@ -177,6 +182,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	private appearance?: RendererAppearance;
 	private contentMode?: RendererContentMode;
 	private disableHeadingIDs?: boolean;
+	private headingIdPrefix?: string;
 	private disableActions?: boolean;
 	private headingIds: string[] = [];
 	/**
@@ -191,6 +197,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	private allowHeadingAnchorLinks?: HeadingAnchorLinksProps;
 	private allowColumnSorting?: boolean;
 	private allowCopyToClipboard?: boolean = false;
+	private allowDownloadCodeBlock?: boolean = false;
 	private allowWrapCodeBlock?: boolean = false;
 	private allowPlaceholderText?: boolean = true;
 	private allowCustomPanels?: boolean = false;
@@ -202,10 +209,14 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	private initStartPos: number;
 	private startPos: number;
 	private surroundTextNodesWithTextWrapper: boolean = false;
+	private textFastPath: boolean = false;
 	private media?: MediaOptions;
+	private mentionNodeDataProvider?: MentionNodeDataProvider;
+	private emojiProviderLookupOrder?: EmojiProviderLookupOrder;
 	private emojiResourceConfig?: EmojiResourceConfig;
 	private smartLinks?: SmartLinksOptions;
 	private extensionViewportSizes?: ExtensionViewportSize[];
+	private hideExtensionKeysWhilePending?: string[];
 	private getExtensionHeight?: GetPMNodeHeight;
 	private allowAnnotations: boolean = false;
 	private allowSelectAllTrap?: boolean;
@@ -227,13 +238,8 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	private inlinePositions: Set<number> = new Set();
 
 	constructor(init: ReactSerializerInit) {
-		if (editorExperiment('comment_on_bodied_extensions', true)) {
-			this.initStartPos = init.startPos || 1;
-			this.startPos = init.startPos || 1;
-		} else {
-			this.initStartPos = 1;
-			this.startPos = 1;
-		}
+		this.initStartPos = init.startPos || 1;
+		this.startPos = init.startPos || 1;
 		this.providers = init.providers;
 		this.eventHandlers = init.eventHandlers;
 		this.extensionHandlers = init.extensionHandlers;
@@ -242,9 +248,11 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		this.appearance = init.appearance;
 		this.contentMode = init.contentMode;
 		this.disableHeadingIDs = init.disableHeadingIDs;
+		this.headingIdPrefix = init.headingIdPrefix;
 		this.disableActions = init.disableActions;
 		this.allowHeadingAnchorLinks = init.allowHeadingAnchorLinks;
 		this.allowCopyToClipboard = init.allowCopyToClipboard;
+		this.allowDownloadCodeBlock = init.allowDownloadCodeBlock;
 		this.allowWrapCodeBlock = init.allowWrapCodeBlock;
 		this.allowPlaceholderText = init.allowPlaceholderText;
 		this.allowCustomPanels = init.allowCustomPanels;
@@ -256,10 +264,14 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		this.allowMediaLinking = init.allowMediaLinking;
 		this.allowAnnotations = Boolean(init.allowAnnotations);
 		this.surroundTextNodesWithTextWrapper = Boolean(init.surroundTextNodesWithTextWrapper);
+		this.textFastPath = expVal('platform_renderer_text_paragraph_fast_path', 'isEnabled', false);
 		this.media = init.media;
+		this.mentionNodeDataProvider = init.mentionNodeDataProvider;
+		this.emojiProviderLookupOrder = init.emojiProviderLookupOrder;
 		this.emojiResourceConfig = init.emojiResourceConfig;
 		this.smartLinks = init.smartLinks;
 		this.extensionViewportSizes = init.extensionViewportSizes;
+		this.hideExtensionKeysWhilePending = init.hideExtensionKeysWhilePending;
 		this.getExtensionHeight = init.getExtensionHeight;
 		this.allowSelectAllTrap = init.allowSelectAllTrap;
 		this.nodeComponents = init.nodeComponents;
@@ -294,6 +306,8 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 				return this.getMediaProps(node, path);
 			case 'emoji':
 				return this.getEmojiProps(node, path);
+			case 'mention':
+				return this.getMentionProps(node, path);
 			case 'extension':
 			case 'bodiedExtension':
 				return this.getExtensionProps(node, path);
@@ -317,12 +331,8 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			case 'inlineCard':
 				return this.getInlineCardProps(node, path);
 			case 'expand':
-				return this.getExpandProps(node, path);
 			case 'nestedExpand':
-				if (fg('hot-121622_lazy_load_expand_content')) {
-					return this.getExpandProps(node, path);
-				}
-				return this.getProps(node, path);
+				return this.getExpandProps(node, path);
 			case 'unsupportedBlock':
 			case 'unsupportedInline':
 				return this.getUnsupportedContentProps(node);
@@ -330,6 +340,11 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 				return this.getCodeBlockProps(node);
 			case 'panel':
 				return this.getPanelProps(node);
+			case 'panel_c1':
+				if (expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)) {
+					return this.getPanelProps(node);
+				}
+				return this.getProps(node, path);
 			default:
 				return this.getProps(node, path);
 		}
@@ -355,12 +370,14 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			target,
 			props,
 			key,
-			this.getChildNodes(fragment).map((node, index) => {
-				if (isTextWrapper(node)) {
-					return this.serializeTextWrapper(node.content, { index, parentInfo });
-				}
-				return this.serializeFragmentChild(node, { index, parentInfo });
-			}),
+			mergeExpandBodyText(
+				this.getChildNodes(fragment, !parentInfo?.path.length).map((node, index) => {
+					if (isTextWrapper(node)) {
+						return this.serializeTextWrapper(node.content, { index, parentInfo });
+					}
+					return this.serializeFragmentChild(node, { index, parentInfo });
+				}),
+			),
 		);
 	}
 
@@ -412,7 +429,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		const shouldSkipLinkMark = (mark: Mark): boolean =>
 			this.allowMediaLinking !== true && isMedia && mark.type.name === 'link';
 
-		return marks.reduceRight((content, mark) => {
+		const serialized = marks.reduceRight((content, mark) => {
 			if (shouldSkipLinkMark(mark) || shouldSkipBorderMark(mark)) {
 				return content;
 			}
@@ -424,6 +441,8 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 				content,
 			);
 		}, serializedContent);
+
+		return withExpandBodyBlock(node, currentPath, index, serialized);
 	};
 
 	// Ignored via go/ees005
@@ -514,14 +533,14 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 					endPos={endPos + parentDepth}
 					textHighlighter={this.textHighlighter}
 					marks={mark.marks}
+					plainTextFastPath={this.textFastPath}
 				>
 					{mark.text}
 				</TextWrapperComponent>
 			);
 		}
 
-		const segments = segmentText(mark.text, this.textHighlighter);
-		return renderTextSegments(segments, this.textHighlighter, mark.marks, startPos);
+		return renderText(mark.text, this.textHighlighter, mark.marks, startPos, this.textFastPath);
 	}
 
 	private renderNode(
@@ -575,20 +594,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		const isInsideOfBlockNode = insideBlockNode(path, node.type.schema);
 		const isInsideMultiBodiedExtension = insideMultiBodiedExtension(path, node.type.schema);
 		const isInsideOfTable = insideTable(path, node.type.schema);
-
-		// TODO: EDITOR-3850 - support sticky headers inside breakouts (layouts and expands)
-		const isInsideBreakoutExpand =
-			expValEquals(
-				'platform_editor_table_sticky_header_improvements',
-				'cohort',
-				'test_with_overflow',
-			) &&
-			expValEquals('platform_editor_table_sticky_header_patch_11', 'isEnabled', true) &&
-			insideBreakoutExpand(path);
-		const stickyHeaders =
-			!isInsideOfTable && !insideBreakoutLayout(path) && !isInsideBreakoutExpand
-				? this.stickyHeaders
-				: undefined;
+		const stickyHeaders = !isInsideOfTable ? this.stickyHeaders : undefined;
 
 		return {
 			...this.getProps(node),
@@ -601,6 +607,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			isInsideMultiBodiedExtension,
 			allowTableAlignment: this.allowTableAlignment,
 			allowTableResizing: this.allowTableResizing,
+			// eslint-disable-next-line @atlaskit/platform/valid-gate-name
 			isPresentational: fg('platform_renderer_isPresentational') ? this.isPresentational : false,
 			disableTableOverflowShadow: this.disableTableOverflowShadow,
 			allowFixedColumnWidthOption: this.allowFixedColumnWidthOption,
@@ -648,6 +655,8 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		} = node.type.schema;
 
 		const isChildOfMediaSingle = path.some((n) => n.type?.name === 'mediaSingle');
+		// Only check path for bodiedSyncBlock; syncBlock uses RendererContext
+		const nestedUnder = getNestedUnderNodes(path, ['bodiedSyncBlock']);
 
 		const isAnnotationMark = (mark: Mark) => mark.type === annotation;
 		const isLinkMark = (mark: Mark) => mark.type === link;
@@ -666,6 +675,10 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			// surroundTextNodesWithTextWrapper checks inlineComment.allowDraftMode
 			allowAnnotationsDraftMode: this.surroundTextNodesWithTextWrapper,
 			enableSyncMediaCard: this.media?.enableSyncMediaCard,
+			mediaViewerExtensions: this.media?.mediaViewerExtensions,
+			fallbackMediaNameFetcher: this.media?.fallbackMediaNameFetcher,
+			onMediaRenderEvent: this.media?.onMediaRenderEvent,
+			nestedUnder,
 		};
 	}
 
@@ -673,6 +686,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		return {
 			...this.getProps(node, path),
 			extensionViewportSizes: this.extensionViewportSizes,
+			hideExtensionKeysWhilePending: this.hideExtensionKeysWhilePending,
 			nodeHeight: this.getExtensionHeight?.(node),
 			shouldDisplayExtensionAsInline: this.shouldDisplayExtensionAsInline,
 		};
@@ -681,7 +695,17 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	private getEmojiProps(node: Node, path: Array<Node> = []) {
 		return {
 			...this.getProps(node, path),
+			emojiProviderLookupOrder: fg('platform_bitbucket_fix_shortname_and_ordering')
+				? this.emojiProviderLookupOrder
+				: undefined,
 			resourceConfig: this.emojiResourceConfig,
+		};
+	}
+
+	private getMentionProps(node: Node, path: Array<Node> = []) {
+		return {
+			...this.getProps(node, path),
+			mentionNodeDataProvider: this.mentionNodeDataProvider,
 		};
 	}
 
@@ -724,6 +748,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		return {
 			...this.getProps(node),
 			ssr: this.media?.ssr,
+			fallbackMediaNameFetcher: this.media?.fallbackMediaNameFetcher,
 		};
 	}
 
@@ -783,6 +808,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 
 		return {
 			asInline: this.inlinePositions.has(startPos) ? 'on' : undefined,
+			plainTextFastPath: this.textFastPath,
 			text: node.text,
 			providers: this.providers,
 			eventHandlers: this.eventHandlers,
@@ -790,9 +816,10 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			portal: this.portal,
 			rendererContext: this.rendererContext,
 			serializer: this,
-			content: node.content ? node.content.toJSON() : undefined,
+			getContent: createContentGetter(node.content),
 			allowHeadingAnchorLinks: this.allowHeadingAnchorLinks,
 			allowCopyToClipboard: this.allowCopyToClipboard,
+			allowDownloadCodeBlock: this.allowDownloadCodeBlock,
 			allowWrapCodeBlock: this.allowWrapCodeBlock,
 			allowPlaceholderText: this.allowPlaceholderText,
 			rendererAppearance: this.appearance,
@@ -828,7 +855,6 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	private getHeadingProps(node: Node, path: Array<Node> = []) {
 		return {
 			...this.getProps(node, path),
-			content: node.content ? node.content.toJSON() : undefined,
 			headingId: this.getHeadingId(node, this.headingIds),
 			showAnchorLink:
 				this.appearance !== 'comment' &&
@@ -839,20 +865,12 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 	}
 
 	private getExpandProps(node: Node, _path: Array<Node> = []) {
-		let loadBodyContent = false;
-		if (fg('hot-121622_lazy_load_expand_content')) {
-			const annotations = findChildrenByMark(node, node.type.schema.marks.annotation, true);
-			// Force rendering children if there are inline comments to support comments navigation
-			// which relies on the HTML node to be present.
-			loadBodyContent = annotations.some((annotation) => {
-				return annotation.node.marks.some((mark) => mark.attrs.annotationType === 'inlineComment');
-			});
-		}
-
+		// Expand is given the node so it can tell whether it opted into lazy body loading at all. The
+		// text each block shows is attached to the block itself, by `withExpandBodyBlock`.
 		if (!isNestedHeaderLinksEnabled(this.allowHeadingAnchorLinks)) {
 			return {
 				...this.getProps(node),
-				loadBodyContent,
+				node,
 			};
 		}
 
@@ -863,7 +881,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		return {
 			...this.getProps(node),
 			nestedHeaderIds,
-			loadBodyContent,
+			node,
 		};
 	}
 
@@ -894,7 +912,8 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 			return;
 		}
 
-		return this.getUniqueHeadingId(nodeContent, headingIds);
+		const uniqueId = this.getUniqueHeadingId(nodeContent, headingIds);
+		return this.headingIdPrefix ? `${this.headingIdPrefix}-${uniqueId}` : uniqueId;
 	}
 
 	private getUniqueHeadingId(baseId: string, headingIds: string[], counter = 0): string {
@@ -978,7 +997,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 		return props;
 	};
 
-	private getChildNodes(fragment: Fragment): (Node | TextWrapper)[] {
+	private getChildNodes(fragment: Fragment, isTopLevel = true): (Node | TextWrapper)[] {
 		let children: Node[] = [];
 		fragment.forEach((node) => {
 			children.push(node);
@@ -994,6 +1013,7 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 					this.inlinePositions.add(pos);
 				},
 				parentPos: this.startPos,
+				isTopLevel,
 				shouldDisplayExtensionAsInline: this.shouldDisplayExtensionAsInline,
 			});
 		}
@@ -1029,17 +1049,5 @@ export default class ReactSerializer implements Serializer<JSX.Element> {
 				}, node as any);
 			}),
 		) as Mark[];
-	}
-
-	// TODO: ED-9004 - Remove unused ReactSerializer.fromSchema in renderer
-	// https://sourcegraph-frontend.internal.shared-prod.us-west-2.kitt-inf.net/search?q=ReactSerializer.fromSchema&patternType=literal
-	static fromSchema(_: unknown, init: ReactSerializerInit) {
-		if (process.env.NODE_ENV !== 'production') {
-			// eslint-disable-next-line no-console
-			console.warn(
-				'ReactSerializer.fromSchema is deprecated. Please use the constructor instead via new ReactSerializer()',
-			);
-		}
-		return new ReactSerializer(init);
 	}
 }

@@ -1,13 +1,37 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { getGlobalTheme, ThemeMutationObserver } from '@atlaskit/tokens';
+import { getGlobalTheme } from '@atlaskit/tokens/get-global-theme';
+import { ThemeMutationObserver } from '@atlaskit/tokens/theme-mutation-observer';
 
 import { type Theme, ThemeContext } from '../context/theme';
 
 /**
  * __useTheme()__
  *
- * Returns the current theme settings when inside the app provider.
+ * Returns the current theme settings for the nearest `ThemeProvider` in the
+ * React tree.
+ *
+ * The returned object contains the named theme IDs for each slot: `light`,
+ * `dark`, `spacing`, and `typography`. Use `useSetTheme` to change these
+ * values at runtime.
+ *
+ * This hook can be used both inside and outside `AppProvider`. When used
+ * inside a nested `ThemeProvider`, it reflects the theme of that sub-tree.
+ *
+ * @returns The current theme settings object.
+ *
+ * @example
+ * ```tsx
+ * function ThemeDisplay() {
+ *   const theme = useTheme();
+ *
+ *   return (
+ *     <p>
+ *       Light theme: {theme.light}, Dark theme: {theme.dark}
+ *     </p>
+ *   );
+ * }
+ * ```
  */
 export function useTheme(): Partial<Theme> {
 	const theme = useContext(ThemeContext);

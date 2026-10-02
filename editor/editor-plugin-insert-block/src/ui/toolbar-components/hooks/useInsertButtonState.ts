@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { MenuItem } from '@atlaskit/editor-common/ui-menu';
@@ -14,7 +14,6 @@ import type { InsertBlockPlugin } from '../../../insertBlockPluginType';
 import type { ToolbarInsertBlockButtonsConfig } from '../../../types';
 import type { BlockMenuItem } from '../../ToolbarInsertBlock/create-items';
 import { createItems } from '../../ToolbarInsertBlock/create-items';
-
 import { filterDropdownItemsByBreakpoint } from './filterDropdownItems';
 
 interface UseInsertButtonStateProps {
@@ -24,6 +23,8 @@ interface UseInsertButtonStateProps {
 	expandEnabled?: boolean;
 	horizontalRuleEnabled?: boolean;
 	insertMenuItems?: MenuItem[];
+	/** @see InsertBlockPluginOptions.itemFilter */
+	itemFilter?: (item: MenuItem) => boolean;
 	nativeStatusSupported?: boolean;
 	numberOfButtons?: number;
 	showElementBrowserLink?: boolean;
@@ -43,6 +44,7 @@ export const useInsertButtonState = ({
 	editorView,
 	horizontalRuleEnabled,
 	insertMenuItems,
+	itemFilter,
 	nativeStatusSupported,
 	numberOfButtons,
 	tableSelectorSupported,
@@ -114,6 +116,7 @@ export const useInsertButtonState = ({
 				emojiProvider,
 				availableWrapperBlockTypes,
 				insertMenuItems,
+				itemFilter,
 				schema: editorView?.state.schema,
 				numberOfButtons: numberOfButtons || 0,
 				formatMessage,

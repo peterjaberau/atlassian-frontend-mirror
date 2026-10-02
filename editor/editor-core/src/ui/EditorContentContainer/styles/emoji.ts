@@ -1,5 +1,9 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import {
 	defaultEmojiHeight,
@@ -20,21 +24,67 @@ import {
 } from '@atlaskit/editor-shared-styles';
 import { token } from '@atlaskit/tokens';
 
-import {
-	blanketSelectionStyles,
-	boxShadowSelectionStyles,
-	dangerBackgroundStyles,
-	dangerBorderStyles,
-	hideNativeBrowserTextSelectionStyles,
-} from './selectionStyles';
-
-const emojiSelectionStyles = css({
-	borderRadius: token('radius.xsmall'),
-});
-
 // Emoji node view styles
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const emojiStyles: SerializedStyles = css({
+	// Show diff: emoji attr change highlight. Keep this with emoji node styles so the highlight
+	// targets sprite/image/unicode emoji renderers.
+	// The ON cohort of platform_editor_show_diff_color_scheme_refactor sets
+	// --show-diff-atomic-inline-changed-border-color inline, overriding the table below; the OFF
+	// cohort picks its colour with the `-traditional` class. Drop the table at cleanup (EDITOR-8281).
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.show-diff-atomic-inline-changed-emoji': {
+		'--show-diff-atomic-inline-changed-border-color': token('color.border.accent.purple'),
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.show-diff-atomic-inline-changed-emoji.show-diff-atomic-inline-changed-traditional': {
+		'--show-diff-atomic-inline-changed-border-color': token('color.border.accent.green'),
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.show-diff-atomic-inline-changed-emoji :is(.emoji-common-emoji-sprite, .emoji-common-emoji-image, .emoji-common-emoji-unicode)':
+		{
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+			outline: `2px solid var(--show-diff-atomic-inline-changed-border-color, ${token('color.border.accent.purple')})`,
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+			outlineOffset: '1px',
+			borderRadius: token('radius.xsmall'),
+		},
+
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${defaultEmojiHeight}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror h1 [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH1}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror h2 [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH2}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror h3 [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH3}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror h4 [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH4}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.ProseMirror :is(h5, h6, p) [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${defaultEmojiHeight}px`,
+	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 	[`.ProseMirror .${EmojiSharedCssClassName.EMOJI_CONTAINER}`]: {
 		display: 'inline-block',
@@ -53,22 +103,71 @@ export const emojiStyles: SerializedStyles = css({
 			userSelect: 'all',
 		},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-	[`.ProseMirror .${akEditorSelectedNodeClassName}`]: {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-		[`.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE}`]: [
-			emojiSelectionStyles,
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-			blanketSelectionStyles,
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-			boxShadowSelectionStyles,
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-			hideNativeBrowserTextSelectionStyles,
-		],
+	[`.ProseMirror .${EmojiSharedCssClassName.EMOJI_UNICODE}`]: {
+		cursor: 'pointer',
 	},
 });
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const scaledEmojiStyles: SerializedStyles = css({
+	// Show diff: emoji attr change highlight. Keep this with scaled emoji node styles too,
+	// because scaled emoji styles replace the base emoji style bucket when enabled.
+	// The ON cohort of platform_editor_show_diff_color_scheme_refactor sets
+	// --show-diff-atomic-inline-changed-border-color inline, overriding the table below; the OFF
+	// cohort picks its colour with the `-traditional` class. Drop the table at cleanup (EDITOR-8281).
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.show-diff-atomic-inline-changed-emoji': {
+		'--show-diff-atomic-inline-changed-border-color': token('color.border.accent.purple'),
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.show-diff-atomic-inline-changed-emoji.show-diff-atomic-inline-changed-traditional': {
+		'--show-diff-atomic-inline-changed-border-color': token('color.border.accent.green'),
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.show-diff-atomic-inline-changed-emoji :is(.emoji-common-emoji-sprite, .emoji-common-emoji-image, .emoji-common-emoji-unicode)':
+		{
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+			outline: `2px solid var(--show-diff-atomic-inline-changed-border-color, ${token('color.border.accent.purple')})`,
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+			outlineOffset: '1px',
+			borderRadius: token('radius.xsmall'),
+		},
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const scaledEmojiStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${defaultEmojiHeight}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror h1 [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH1}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror h2 [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH2}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror h3 [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH3}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror h4 [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH4}px`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.ProseMirror :is(h5, h6, p) [data-emoji-type="unicode"]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		'--emoji-common-unicode-size': `${defaultEmojiHeight}px`,
+	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 	[`.ProseMirror .${EmojiSharedCssClassName.EMOJI_CONTAINER}`]: {
 		display: 'inline-block',
@@ -93,17 +192,8 @@ export const scaledEmojiStyles = css({
 			userSelect: 'all',
 		},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-	[`.ProseMirror .${akEditorSelectedNodeClassName}`]: {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-		[`.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE}`]: [
-			emojiSelectionStyles,
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-			blanketSelectionStyles,
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-			boxShadowSelectionStyles,
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-			hideNativeBrowserTextSelectionStyles,
-		],
+	[`.ProseMirror .${EmojiSharedCssClassName.EMOJI_UNICODE}`]: {
+		cursor: 'pointer',
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 	[`.ProseMirror h1 :is(.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE}, .${EmojiSharedCssClassName.EMOJI_PLACEHOLDER})`]:
@@ -146,12 +236,140 @@ export const scaledEmojiStyles = css({
 	},
 });
 
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const emojiSelectionStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+	[`.ProseMirror .${akEditorSelectedNodeClassName}`]: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/no-invalid-css-map
+		[`.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE}, .${EmojiSharedCssClassName.EMOJI_UNICODE}`]:
+			{
+				borderRadius: token('radius.xsmall'),
+				position: 'relative',
+				WebkitUserSelect: 'text',
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+				boxShadow: `0 0 0 1px ${token('color.border.selected')}`,
+				borderColor: 'transparent',
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+				'&::selection,*::selection': {
+					backgroundColor: 'transparent',
+				},
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+				'&::-moz-selection,*::-moz-selection': {
+					backgroundColor: 'transparent',
+				},
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+				'&::before': {
+					position: 'absolute',
+					content: "''",
+					left: 0,
+					right: 0,
+					top: 0,
+					bottom: 0,
+					width: '100%',
+					pointerEvents: 'none',
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+					zIndex: 12,
+					backgroundColor: token('color.blanket.selected'),
+				},
+			},
+	},
+});
+
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const directEmojiSelectionStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+	[`.ProseMirror .${akEditorSelectedNodeClassName}[data-emoji-id]`]: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/no-invalid-css-map
+		[`.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE}, .${EmojiSharedCssClassName.EMOJI_UNICODE}`]:
+			{
+				borderRadius: token('radius.xsmall'),
+				position: 'relative',
+				WebkitUserSelect: 'text',
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+				boxShadow: `0 0 0 1px ${token('color.border.selected')}`,
+				borderColor: 'transparent',
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+				'&::selection,*::selection': {
+					backgroundColor: 'transparent',
+				},
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+				'&::-moz-selection,*::-moz-selection': {
+					backgroundColor: 'transparent',
+				},
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+				'&::before': {
+					position: 'absolute',
+					content: "''",
+					left: 0,
+					right: 0,
+					top: 0,
+					bottom: 0,
+					width: '100%',
+					pointerEvents: 'none',
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+					zIndex: 12,
+					backgroundColor: token('color.blanket.selected'),
+				},
+			},
+	},
+});
+
+/**
+ * Gets scaled dense emoji styles that adjust emoji sizes for dense mode headings.
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getScaledDenseEmojiStyles = (baseFontSize?: number): SerializedStyles => {
 	if (!baseFontSize || baseFontSize === akEditorFullPageDefaultFontSize) {
 		return css({});
 	}
 
 	return css({
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${defaultDenseEmojiHeight}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror h1 [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${denseEmojiHeightH1}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror h2 [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${denseEmojiHeightH2}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror h3 [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${denseEmojiHeightH3}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror h4 [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${denseEmojiHeightH4}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'.ProseMirror :is(h5, h6, p) [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${defaultDenseEmojiHeight}px`,
+		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 		[`.ProseMirror :is(.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE})`]:
 			{
@@ -178,9 +396,9 @@ export const getScaledDenseEmojiStyles = (baseFontSize?: number): SerializedStyl
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'.ProseMirror .ak-editor-panel .ak-editor-panel__icon': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-			height: token('space.250', '20px'),
+			height: token('space.250'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-			width: token('space.250', '20px'),
+			width: token('space.250'),
 		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 		[`.ProseMirror h1 :is(.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE})`]:
@@ -255,9 +473,14 @@ export const getScaledDenseEmojiStyles = (baseFontSize?: number): SerializedStyl
 /**
  * Gets dynamic emoji styles that scale emoji size based on the base font size.
  * This allows emojis to scale proportionally when the base font size changes.
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
  * @param baseFontSize - The base font size in pixels (e.g., 16 for default, 13 for dense mode)
  * @returns SerializedStyles with emoji size overrides if baseFontSize is provided and different from default.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getDenseEmojiStyles = (baseFontSize?: number): SerializedStyles => {
 	if (!baseFontSize || baseFontSize === akEditorFullPageDefaultFontSize) {
 		return css({});
@@ -270,6 +493,36 @@ export const getDenseEmojiStyles = (baseFontSize?: number): SerializedStyles => 
 	const emojiSize = (defaultEmojiHeight * baseFontSize) / akEditorFullPageDefaultFontSize;
 
 	return css({
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${defaultDenseEmojiHeight}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror h1 [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${denseEmojiHeightH1}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror h2 [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${denseEmojiHeightH2}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror h3 [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${denseEmojiHeightH3}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.ProseMirror h4 [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${denseEmojiHeightH4}px`,
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'.ProseMirror :is(h5, h6, p) [data-emoji-type="unicode"]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+			'--emoji-common-unicode-size': `${defaultDenseEmojiHeight}px`,
+		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 		[`.ProseMirror :is(.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE})`]:
 			{
@@ -290,21 +543,28 @@ export const getDenseEmojiStyles = (baseFontSize?: number): SerializedStyles => 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'.ProseMirror .ak-editor-panel .ak-editor-panel__icon': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-			height: token('space.250', '20px'),
+			height: token('space.250'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-			width: token('space.250', '20px'),
+			width: token('space.250'),
 		},
 	});
 };
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const emojiDangerStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 	[`.ProseMirror .${akEditorSelectedNodeClassName}.danger`]: {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-		[`.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE}`]: [
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-			[dangerBorderStyles, dangerBackgroundStyles],
-		],
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/no-invalid-css-map
+		[`.${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_IMAGE}, .${EmojiSharedCssClassName.EMOJI_UNICODE}`]:
+			{
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+				boxShadow: `0 0 0 1px ${token('color.border.danger')}`,
+				backgroundColor: token('color.background.danger'),
+			},
 	},
 });

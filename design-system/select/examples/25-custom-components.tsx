@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 
-import { Label } from '@atlaskit/form';
-import Select, {
-	components,
-	type OptionProps,
-	type SingleValueProps,
-	type ValueType,
-} from '@atlaskit/select';
+import { Label } from '@atlaskit/form/label/default';
+import { components } from '@atlaskit/react-select/components';
+import Select from '@atlaskit/select/default';
+import type { OptionProps, SingleValueProps, ValueType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 interface Option {
@@ -37,9 +34,9 @@ const ColorBox = ({ color }: { color: string }) => (
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			display: 'inline-block',
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			marginRight: token('space.100', '8px'),
+			marginRight: token('space.100'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			marginBottom: token('space.050', '4px'),
+			marginBottom: token('space.050'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			verticalAlign: 'middle',
 		}}

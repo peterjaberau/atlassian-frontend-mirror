@@ -1,4 +1,3 @@
-/* eslint-disable @atlaskit/design-system/use-primitives */
 /**
  * @jsxRuntime classic
  * @jsx jsx
@@ -6,7 +5,7 @@
 import { type ReactNode } from 'react';
 
 import { css, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import { token } from '@atlaskit/tokens';
 
 interface FormHeaderProps {
@@ -43,7 +42,7 @@ const formHeaderDescriptionStyles = css({
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/form/docs/layout)
  * - [Usage](https://atlaskit.atlassian.com/packages/design-system/form/docs/layout).
  */
-const FormHeader = ({ children, description, title }: FormHeaderProps): JSX.Element => {
+export const FormHeader = ({ children, description, title }: FormHeaderProps): JSX.Element => {
 	return (
 		<div>
 			{title && <Heading size="large">{title}</Heading>}
@@ -52,5 +51,3 @@ const FormHeader = ({ children, description, title }: FormHeaderProps): JSX.Elem
 		</div>
 	);
 };
-
-export default FormHeader;

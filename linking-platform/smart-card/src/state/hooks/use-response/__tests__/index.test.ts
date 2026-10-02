@@ -1,11 +1,13 @@
 // eslint-disable-next-line import/order
 import * as testMocks from '../../use-resolve/__tests__/index.test.mock';
 
-import { renderHook } from '@testing-library/react';
-
-import { type CardContext, useSmartLinkContext } from '@atlaskit/link-provider';
-import { APIError, type CardState } from '@atlaskit/linking-common';
-import { asMockFunction } from '@atlaskit/media-test-helpers';
+import type { CardContext } from '@atlaskit/link-provider/types';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import { APIError } from '@atlaskit/linking-common/api-error';
+import type { CardState } from '@atlaskit/linking-common/store';
+import { asMockFunction } from '@atlaskit/media-test-helpers/jestHelpers';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { renderHook } from '@atlassian/testing-library';
 
 import { mocks } from '../../../../utils/mocks';
 import useResponse from '../index';
@@ -32,7 +34,7 @@ describe('useResponse', () => {
 
 	describe('handleResolvedLinkResponse', () => {
 		it('should dispatch resolved response on link success', () => {
-			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).result.current;
+			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
 			handleResolvedLinkResponse(url, mocks.success, false, false);
 
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(2);
@@ -58,7 +60,7 @@ describe('useResponse', () => {
 		});
 
 		it('should dispatch reloading response on link success when isReloading is true', () => {
-			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).result.current;
+			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
 			handleResolvedLinkResponse(url, mocks.success, true, false);
 
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(2);
@@ -81,6 +83,103 @@ describe('useResponse', () => {
 			);
 		});
 
+		ffTest.on(
+			'platform_smartlink_inline_resolve_optimization',
+			'should use provided metadata status on link success',
+			() => {
+				it('should use provided metadata status on link success', () => {
+					const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
+					handleResolvedLinkResponse(url, mocks.success, false, false, 'pending');
+
+					expect(mockContext.store.dispatch).toHaveBeenCalledWith(
+						expect.objectContaining({
+							type: 'metadata',
+							url: 'https://some/url',
+							metadataStatus: 'pending',
+						}),
+					);
+				});
+
+				it('should preserve resolved metadata when an inline response settles after block metadata', () => {
+					mockState({
+						status: 'resolved',
+						details: mocks.success,
+						metadataStatus: 'resolved',
+					});
+					const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
+
+					handleResolvedLinkResponse(url, mocks.success, false, false, 'pending');
+
+					expect(mockContext.store.dispatch).toHaveBeenCalledWith(
+						expect.objectContaining({
+							type: 'metadata',
+							url: 'https://some/url',
+							metadataStatus: 'resolved',
+						}),
+					);
+				});
+
+				it('should allow an explicit reload to mark resolved metadata as pending', () => {
+					mockState({
+						status: 'resolved',
+						details: mocks.success,
+						metadataStatus: 'resolved',
+					});
+					const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
+
+					handleResolvedLinkResponse(url, mocks.success, true, false, 'pending');
+
+					expect(mockContext.store.dispatch).toHaveBeenCalledWith(
+						expect.objectContaining({
+							type: 'metadata',
+							url: 'https://some/url',
+							metadataStatus: 'pending',
+						}),
+					);
+				});
+			},
+		);
+
+		ffTest.off(
+			'platform_smartlink_inline_resolve_optimization',
+			'should ignore provided metadata status on link success',
+			() => {
+				it('should ignore provided metadata status on link success', () => {
+					const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
+					handleResolvedLinkResponse(url, mocks.success, false, false, 'pending');
+
+					expect(mockContext.store.dispatch).toHaveBeenCalledWith(
+						expect.objectContaining({
+							type: 'metadata',
+							url: 'https://some/url',
+							metadataStatus: 'resolved',
+						}),
+					);
+				});
+			},
+		);
+
+		it('should resolve metadata status for unauthorized link responses', () => {
+			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
+			handleResolvedLinkResponse(url, mocks.unauthorized, false, false, 'pending');
+
+			expect(mockContext.store.dispatch).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: 'metadata',
+					url: 'https://some/url',
+					metadataStatus: 'resolved',
+				}),
+			);
+
+			expect(mockContext.store.dispatch).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: 'resolved',
+					url: 'https://some/url',
+					payload: mocks.unauthorized,
+				}),
+			);
+		});
+
 		it('should dispatch fallback error for forbidden responses when authFlow is disabled', () => {
 			mockContext = {
 				...mockContext,
@@ -89,7 +188,7 @@ describe('useResponse', () => {
 					authFlow: 'disabled',
 				},
 			};
-			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).result.current;
+			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
 			handleResolvedLinkResponse(url, mocks.forbidden, false, false);
 
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(1);
@@ -111,7 +210,7 @@ describe('useResponse', () => {
 					authFlow: 'disabled',
 				},
 			};
-			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).result.current;
+			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
 			handleResolvedLinkResponse(url, mocks.unauthorized, false, false);
 
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(1);
@@ -140,7 +239,7 @@ describe('useResponse', () => {
 		};
 
 		it('should throw fatal error and dispatch error for an undefined response', () => {
-			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).result.current;
+			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
 
 			expectToThrowAndDispatchError(() => {
 				handleResolvedLinkResponse(url, undefined, false, false);
@@ -148,7 +247,7 @@ describe('useResponse', () => {
 		});
 
 		it('should dispatch metadata error if isMetadataRequest is true and is an error', () => {
-			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).result.current;
+			const { handleResolvedLinkResponse } = renderHook(() => useResponse()).current;
 			handleResolvedLinkResponse(url, mocks.notFound, false, true);
 
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(1);
@@ -167,7 +266,7 @@ describe('useResponse', () => {
 	describe('handleResolvedLinkError', () => {
 		it('should return error metadata status if isMetadataRequest is true', () => {
 			const apiError = new APIError('error', 'hostname', 'errormessage');
-			const { handleResolvedLinkError } = renderHook(() => useResponse()).result.current;
+			const { handleResolvedLinkError } = renderHook(() => useResponse()).current;
 			handleResolvedLinkError(url, apiError, undefined, true);
 
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(1);
@@ -203,7 +302,7 @@ describe('useResponse', () => {
 				},
 			};
 			mockState(state);
-			const { handleResolvedLinkError } = renderHook(() => useResponse()).result.current;
+			const { handleResolvedLinkError } = renderHook(() => useResponse()).current;
 			const apiError = new APIError('fatal', 'hostname', 'this is an error message');
 			handleResolvedLinkError(url, apiError, undefined, false);
 

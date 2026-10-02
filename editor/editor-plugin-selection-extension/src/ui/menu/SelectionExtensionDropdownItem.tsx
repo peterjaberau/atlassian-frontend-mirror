@@ -1,17 +1,21 @@
-import React from 'react';
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
+import React, { useCallback, useRef, useState } from 'react';
 
-import { cssMap } from '@atlaskit/css';
+import { cssMap, jsx } from '@atlaskit/css';
 import {
 	ACTION,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
-import { ToolbarDropdownItem } from '@atlaskit/editor-toolbar';
-import Lozenge from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { EXTENSION_MENU_ITEM_TEST_ID } from '@atlaskit/editor-common/block-menu';
+import { ToolbarDropdownItem, ToolbarTooltip } from '@atlaskit/editor-toolbar';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
-import { token } from '@atlaskit/tokens';
 
 import { selectionExtensionPluginKey } from '../../pm-plugins/main';
 import { getSelectionAdfInfoNew, getSelectionTextInfoNew } from '../../pm-plugins/utils';
@@ -20,8 +24,22 @@ import { SelectionExtensionActionTypes } from '../../types';
 import { useSelectionExtensionComponentContext } from '../SelectionExtensionComponentContext';
 
 const styles = cssMap({
-	lozenge: {
-		marginLeft: token('space.050'),
+	svgOverflow: {
+		// @ts-expect-error - nested selector required to target SVGs within icon wrapper
+		// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors
+		svg: { overflow: 'visible' },
+	},
+	contentWrapper: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		minWidth: '0px',
+	},
+	label: {
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
+		whiteSpace: 'nowrap',
+		minWidth: '0px',
 	},
 });
 
@@ -61,11 +79,7 @@ export const SelectionExtensionDropdownItem = ({
 				nodePos,
 			});
 
-			if (fg('platform_editor_block_menu_v2_patch_1')) {
-				if (extensionLocation === 'block-menu') {
-					api?.blockControls?.commands.toggleBlockMenu({ closeMenu: true })({ tr });
-				}
-			} else {
+			if (extensionLocation === 'block-menu') {
 				api?.blockControls?.commands.toggleBlockMenu({ closeMenu: true })({ tr });
 			}
 
@@ -89,29 +103,52 @@ export const SelectionExtensionDropdownItem = ({
 		});
 	};
 
-	return (
-		<ToolbarDropdownItem
-			elemBefore={
-				IconComponent ? (
-					<IconComponent
-						size={
-							extensionLocation === 'inline-toolbar' && fg('platform_editor_block_menu_v2_patch_1')
-								? 'small'
-								: undefined
-						}
-						label=""
-					/>
-				) : undefined
-			}
-			onClick={handleClick}
-			isDisabled={dropdownItem.isDisabled}
+	const labelRef = useRef<HTMLSpanElement>(null);
+	const [isTruncated, setIsTruncated] = useState(false);
+
+	const handleMouseEnter = useCallback(() => {
+		const el = labelRef.current;
+		if (el) {
+			setIsTruncated(el.scrollWidth > el.clientWidth);
+		}
+	}, []);
+
+	const iconSize =
+		extensionLocation === 'inline-toolbar' || extensionLocation === 'block-menu'
+			? 'small'
+			: undefined;
+	const iconElement = IconComponent ? <IconComponent size={iconSize} label="" /> : undefined;
+	const lozengeLabel = dropdownItem.lozenge?.label;
+	const elemAfterText = lozengeLabel ? (
+		<Lozenge
+			appearance={fg('confluence_fronend_labels_categorization_migration') ? 'discovery' : 'new'}
 		>
-			{dropdownItem.label}
-			{dropdownItem.lozenge ? (
-				<Box as="span" xcss={styles.lozenge}>
-					<Lozenge appearance="new">{dropdownItem.lozenge.label}</Lozenge>
+			{lozengeLabel}
+		</Lozenge>
+	) : undefined;
+	const elemBeforeIcon =
+		iconElement && extensionLocation === 'block-menu' ? (
+			<span css={styles.svgOverflow}>{iconElement}</span>
+		) : (
+			iconElement
+		);
+
+	return (
+		<ToolbarTooltip content={isTruncated ? dropdownItem.label : null} position="top">
+			<ToolbarDropdownItem
+				elemBefore={elemBeforeIcon}
+				elemAfterText={elemAfterText}
+				onClick={handleClick}
+				isDisabled={dropdownItem.isDisabled}
+				testId={EXTENSION_MENU_ITEM_TEST_ID}
+				data-extension-item-key={dropdownItem.key}
+			>
+				<Box as="span" xcss={styles.contentWrapper} onMouseOver={handleMouseEnter}>
+					<Box as="span" xcss={styles.label} ref={labelRef}>
+						{dropdownItem.label}
+					</Box>
 				</Box>
-			) : undefined}
-		</ToolbarDropdownItem>
+			</ToolbarDropdownItem>
+		</ToolbarTooltip>
 	);
 };

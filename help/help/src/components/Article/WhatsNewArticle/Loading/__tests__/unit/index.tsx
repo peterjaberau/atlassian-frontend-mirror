@@ -1,9 +1,11 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { createIntl, createIntlCache } from 'react-intl-next';
+
+import { createIntl, createIntlCache } from 'react-intl';
+
+import { render } from '@atlassian/testing-library/render';
+import { screen } from '@atlassian/testing-library/screen';
 
 import { messages } from '../../../../../../messages';
-
 import { Loading } from '../../index';
 
 // Messages
@@ -24,16 +26,16 @@ describe('ArticleContent', () => {
 		await expect(container).toBeAccessible();
 	});
 
-	it('Should match snapshot', () => {
-		const { asFragment } = render(<Loading intl={intl} />);
+	it('Should render the loading state', () => {
+		render(<Loading intl={intl} />);
 
-		expect(asFragment()).toMatchSnapshot();
+		expect(screen.getByLabelText(messageLoading)).toBeInTheDocument();
 	});
 
 	it('Should display Loading component', () => {
-		const { queryByLabelText } = render(<Loading intl={intl} />);
+		render(<Loading intl={intl} />);
 
-		const loadingImg = queryByLabelText(messageLoading);
+		const loadingImg = screen.queryByLabelText(messageLoading);
 
 		expect(loadingImg).not.toBeNull();
 	});

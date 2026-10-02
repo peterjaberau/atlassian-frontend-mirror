@@ -13,6 +13,8 @@ export type Identifiers = {
 	bitbucketConnectAppId?: string;
 	bitbucketRepositoryId?: string;
 	bitbucketWorkspaceId?: string;
+	csmAccountId?: string;
+	customerAccountId?: string;
 	emailUuid?: string;
 	gsacIssueId?: string;
 	intercomConversationId?: string;
@@ -26,6 +28,7 @@ export type Identifiers = {
 	productIntegrationsVendorId?: string;
 	randomizationId?: string;
 	stableId?: string;
+	studioWorkspaceId?: string;
 	tenantId?: string;
 	transactionAccountId?: string;
 	trelloUserId?: string;
@@ -94,6 +97,7 @@ export interface FromValuesClientOptions extends BaseClientOptions {
 
 export type OptionsWithDefaults<T extends BaseClientOptions> = T & Required<Pick<T, 'perimeter'>>;
 
+// oxlint-disable-next-line eslint/no-redeclare
 export interface FrontendExperimentsResult extends InitializeValues {
 	clientSdkKey?: string;
 }
@@ -105,17 +109,22 @@ export type CustomAttributes = {
 	[key: string]: string | number | boolean | Array<string>;
 };
 
-export enum FeatureGateEnvironment {
-	Development = 'development',
-	Staging = 'staging',
-	Production = 'production',
-}
+// oxlint-disable-next-line eslint/no-redeclare
+export const FeatureGateEnvironment = {
+	Development: 'development',
+	Staging: 'staging',
+	Production: 'production',
+} as const;
+export type FeatureGateEnvironment =
+	(typeof FeatureGateEnvironment)[keyof typeof FeatureGateEnvironment];
 
 // If adding new values here, please check FeatureGates.getDefaultPerimeter to make sure it still returns something sensible.
-export enum PerimeterType {
-	COMMERCIAL = 'commercial',
-	FEDRAMP_MODERATE = 'fedramp-moderate',
-}
+// oxlint-disable-next-line eslint/no-redeclare eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const PerimeterType = {
+	COMMERCIAL: 'commercial',
+	FEDRAMP_MODERATE: 'fedramp-moderate',
+} as const;
+export type PerimeterType = (typeof PerimeterType)[keyof typeof PerimeterType];
 
 export interface CheckGateOptions {
 	/**
@@ -188,6 +197,7 @@ export interface Provider {
 	getApiKey?: () => string;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const NON_BOOLEAN_VALUE = 'non_boolean';
 
 export type FeatureFlagValue =

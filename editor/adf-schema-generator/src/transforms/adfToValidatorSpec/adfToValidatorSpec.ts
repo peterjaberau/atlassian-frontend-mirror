@@ -1,10 +1,9 @@
+import has from 'lodash/has';
+import set from 'lodash/set';
+import unset from 'lodash/unset';
+
 import type { ADFMark } from '../../adfMark';
 import type { ADFNode } from '../../adfNode';
-
-import unset from 'lodash/unset';
-import set from 'lodash/set';
-import has from 'lodash/has';
-
 import type { ADFVisitor } from '../../traverse';
 import { traverse } from '../../traverse';
 import type { ADFNodeSpec } from '../../types/ADFNodeSpec';
@@ -116,11 +115,25 @@ export const buildNode = (
 		json.props.content = buildContent(node, content);
 	}
 
-	if (nodeSpec.marks !== baseSpec.marks) {
+	// `noMarks` says the node takes a `marks` property that must stay empty, which the JSON schema
+	// emits as `marks: { type: 'array', maxItems: 0 }`. A node can declare it without listing any
+	// marks (`codeBlock`, `expand`), so comparing mark lists alone misses it and the spec then reads
+	// as taking no `marks` property at all — what a node like `rule` means.
+	if (nodeSpec.marks !== baseSpec.marks || nodeSpec.noMarks !== baseSpec.noMarks) {
 		const marks = buildMarks(nodeSpec.marks ?? [], nodeSpec.noMarks, nodeSpec.hasEmptyMarks);
 		if (marks) {
 			json.props.marks = marks;
 		}
+	}
+
+	// `meta.stage0` marks a spec that exists only in the stage-0 schema, so a consumer validating full
+	// ADF can decline it. It describes the spec as a whole rather than individual attrs or marks: a
+	// node that only widens its mark set in stage-0 carries no flag, even though the spec built above
+	// describes that wider set.
+	if (node.isStage0Only()) {
+		json.meta = {
+			stage0: true,
+		};
 	}
 
 	const overrides = node.getSpec().DANGEROUS_MANUAL_OVERRIDE?.['validator-spec'] || {};

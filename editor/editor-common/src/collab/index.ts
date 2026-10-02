@@ -1,22 +1,25 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
+
 import type { ReactElement } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, type SerializedStyles } from '@emotion/react';
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
-import {
-	type BatchAttrsStep,
-	type OverrideDocumentStepJSON as OverrideDocumentStep,
-} from '@atlaskit/adf-schema/steps';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
+import type { BatchAttrsStep } from '@atlaskit/adf-schema/steps/batch-attrs-step';
+import type { OverrideDocumentStepJSON as OverrideDocumentStep } from '@atlaskit/adf-schema/steps/override-document-step';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 import type { Node as PMNode, Slice } from '@atlaskit/editor-prosemirror/model';
 import type {
 	EditorState,
 	ReadonlyTransaction,
 	Transaction,
 } from '@atlaskit/editor-prosemirror/state';
-import type { Step } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 import { participantColors } from '@atlaskit/editor-shared-styles';
-import { getGlobalTheme, token } from '@atlaskit/tokens';
+import { token } from '@atlaskit/tokens';
+import { getGlobalTheme } from '@atlaskit/tokens/get-global-theme';
 
 import type { Providers } from '../provider-factory';
 import type { GetResolvedEditorStateReason } from '../types';
@@ -48,6 +51,7 @@ export enum PROVIDER_ERROR_CODE {
 	INVALID_USER_TOKEN = 'INVALID_USER_TOKEN',
 	DOCUMENT_NOT_FOUND = 'DOCUMENT_NOT_FOUND',
 	LOCKED = 'LOCKED',
+	DOCUMENT_BLOCKED = 'DOCUMENT_BLOCKED',
 	FAIL_TO_SAVE = 'FAIL_TO_SAVE',
 	DOCUMENT_RESTORE_ERROR = 'DOCUMENT_RESTORE_ERROR',
 	INITIALISATION_ERROR = 'INITIALISATION_ERROR',
@@ -119,6 +123,21 @@ type DocumentNotFound = {
  */
 type Locked = {
 	code: PROVIDER_ERROR_CODE.LOCKED;
+	message: string;
+	recoverable: boolean;
+	status?: number;
+};
+
+/**
+ * This error is thrown when the document has been blocked (blacklisted) by NCS, e.g. via the
+ * documentari kill switch. Unlike a temporary Locked namespace, the block is not expected to clear
+ * on its own, so editing should be disabled and the user informed the document can't be edited.
+ * The error is passed to us by NCS as ARI_BLACKLISTED with a 423 status.
+ * @message Message returned to editor, i.e. Document is blocked
+ * @recoverable It is not recoverable, as the provider cannot do anything to unblock the document.
+ */
+type DocumentBlocked = {
+	code: PROVIDER_ERROR_CODE.DOCUMENT_BLOCKED;
 	message: string;
 	recoverable: boolean;
 	status?: number;
@@ -258,6 +277,7 @@ export type ProviderError =
 	| InvalidUserToken
 	| DocumentNotFound
 	| Locked
+	| DocumentBlocked
 	| FailToSave
 	| DocumentNotRestore
 	| InitialisationError
@@ -370,8 +390,32 @@ export interface StepMetadata {
 }
 
 export interface BaseStepPM extends StepMetadata {
+	// Optional agent attribution set by NCS on agent-authored steps.
+	// `agentType` (e.g. 'mcp' | 'twg') present ⇒ the step was made by an agent on behalf of the
+	// user; `agentId` is the agent's AAID when available. See the NCS↔Editor agent steps contract.
+	// Both are optional/additive so human steps are unchanged.
+	agentId?: string;
+	/** Agent display name, so collaborators can label the agent without an async lookup. */
+	agentName?: string;
+	/** External config reference (named_id) for OOTB agent avatar and brand colour lookup. */
+	agentNamedId?: string;
+	/** The agent's own id, as opposed to `agentId`, which carries its Atlassian account id. */
+	agentSourceId?: string;
+	agentType?: string;
+	/** True for a Forge / third-party / remote agent, so collaborators match its presentation. */
+	isThirdPartyAgent?: boolean;
 	clientId: number | string;
 	from?: number;
+	/**
+	 * Opaque identifier issued by the backend for the agent invocation a step belongs to.
+	 *
+	 * Every step produced by one invocation carries the same value, so steps can be grouped back
+	 * into the invocation that produced them. A single batch is not a whole invocation: one
+	 * invocation's steps can be split across batches by version boundaries or replayed by catch-up,
+	 * so group by this value rather than by batch. Absent on human steps and on steps from backends
+	 * that do not send it, and never validated for format by the frontend.
+	 */
+	invocationId?: string;
 	slice?: SliceJson;
 	stepType: string;
 	to?: number;
@@ -485,6 +529,8 @@ type ProviderParticipantPermitLevel = {
 };
 
 export interface CollabParticipant {
+	actingUserId?: string;
+	agentType?: string;
 	avatar: string;
 	cursorPos?: number;
 	isGuest?: boolean;
@@ -495,6 +541,7 @@ export interface CollabParticipant {
 	presenceActivity?: PresenceActivity;
 	presenceId?: string;
 	sessionId: string;
+	userId?: string;
 }
 
 export type ProviderParticipant = CollabParticipant & {
@@ -549,6 +596,11 @@ export interface CollabEventConflictPayload extends ConflictChanges {
 	offlineDoc: PMNode;
 }
 
+export type CollabRecoveryRequiredPayload = {
+	/** NCS recovery reason, for example `steps_migration`. The socket identifies the document. */
+	reason: string;
+};
+
 export interface CollabEvents {
 	'commit-status': CollabCommitStatusEventPayload;
 	connected: CollabConnectedPayload;
@@ -567,47 +619,59 @@ export interface CollabEvents {
 	permission: CollabPermissionEventPayload;
 	presence: CollabPresencePayload;
 	'presence:changed': CollabPresenceActivityChangePayload;
+	/** NCS requests that the host product recover this document. */
+	'recovery:required': CollabRecoveryRequiredPayload;
 	telepointer: CollabTelepointerPayload;
 }
 
 export type SyncUpErrorFunction = (attributes: NewCollabSyncUpErrorAttributes) => void;
 
 export interface CollabEditProvider<Events extends CollabEvents = CollabEvents> {
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	getFinalAcknowledgedState(reason: GetResolvedEditorStateReason): Promise<ResolvedEditorState>;
+	getFinalAcknowledgedState: (reason: GetResolvedEditorStateReason) => Promise<ResolvedEditorState>;
 
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	getIsNamespaceLocked(): boolean;
+	/**
+	 * Returns the cached `init` payload if the provider has already initialised the
+	 * document with NCS, otherwise `undefined`.
+	 *
+	 * Used by the collab plugin to seed a freshly-attached plugin view (e.g. after
+	 * an editor preset reconfigure or a full EditorView recreation) with the same
+	 * `init` data the original subscribers received. Without this, late subscribers
+	 * never receive `init` (it is fired once at session start) and the editor
+	 * gets stuck in the `!isReady` state, silently dropping doc-changing
+	 * transactions via `filterTransaction`.
+	 *
+	 * Optional for backwards compatibility with custom provider implementations
+	 * (e.g. test mocks). When undefined, the rebind path is skipped.
+	 */
+	getInitPayload?: () => CollabEventInitData | undefined;
+
+	getIsNamespaceLocked: () => boolean;
 
 	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/method-signature-style -- method-signature-style ignored via go/ees013 (to be fixed)
-	initialize(getState: () => any, createStep: (json: object) => Step): this; // TO-DO: deprecate this
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	initialize: (getState: () => any, createStep: (json: object) => Step) => this; // TO-DO: deprecate this
 
 	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/method-signature-style -- method-signature-style ignored via go/ees013 (to be fixed)
-	off(evt: keyof Events, handler: (...args: any) => void): this;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	off: (evt: keyof Events, handler: (...args: any) => void) => this;
 
 	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/method-signature-style -- method-signature-style ignored via go/ees013 (to be fixed)
-	on(evt: keyof Events, handler: (...args: any) => void): this;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	on: (evt: keyof Events, handler: (...args: any) => void) => this;
 
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	send(tr: Transaction, oldState: EditorState, newState: EditorState): void;
+	send: (tr: Transaction, oldState: EditorState, newState: EditorState) => void;
 
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	sendMessage<K extends keyof Events>(data: { type: K } & Events[K]): void;
+	sendMessage: <K extends keyof Events>(data: { type: K } & Events[K]) => void;
 
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	setup(props: {
+	setup: (props: {
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		editorApi?: any;
 		getState?: () => EditorState;
 		onSyncUpError?: SyncUpErrorFunction;
-	}): this;
+	}) => this;
 
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	unsubscribeAll(evt: keyof Events): this;
+	unsubscribeAll: (evt: keyof Events) => this;
 }
 
 export type CollabEditOptions = {

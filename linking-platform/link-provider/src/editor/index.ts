@@ -8,18 +8,16 @@
 // https://product-fabric.atlassian.net/browse/EDM-5755
 
 import DataLoader from 'dataloader';
-import {
-	type CardAdf,
-	type CardAppearance,
-	getBaseUrl,
-	getResolverUrl,
-	type EnvironmentsKeys,
-	request,
-	getStatus,
-} from '@atlaskit/linking-common';
 
-import { extractSmartLinkEmbed } from '@atlaskit/link-extractors';
+import { extractSmartLinkEmbed } from '@atlaskit/link-extractors/extract-smart-link-embed';
+import { request } from '@atlaskit/linking-common/api';
+import { getBaseUrl } from '@atlaskit/linking-common/get-base-url';
+import { getResolverUrl } from '@atlaskit/linking-common/get-resolver-url';
+import type { CardAdf, CardAppearance, EnvironmentsKeys } from '@atlaskit/linking-common/types';
+import { getStatus } from '@atlaskit/linking-common/utils/get-status';
 
+import CardClient from '../client';
+import { Transformer } from './transformer';
 import {
 	type CardProvider,
 	type LinkAppearance,
@@ -27,9 +25,6 @@ import {
 	type ProviderPattern,
 	type ProvidersData,
 } from './types';
-import { Transformer } from './transformer';
-
-import CardClient from '../client';
 
 const BATCH_WAIT_TIME = 50;
 
@@ -286,5 +281,5 @@ export class EditorCardProvider implements CardProvider {
 }
 
 /** @deprecated {@link https://hello.atlassian.net/browse/ENGHEALTH-661 Internal documentation for deprecation (no external access)} */
-export const editorCardProvider = new EditorCardProvider();
+export const editorCardProvider: EditorCardProvider = new EditorCardProvider();
 export type { CardProvider, ORSCheckResponse } from './types';

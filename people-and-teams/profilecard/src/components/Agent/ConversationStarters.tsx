@@ -1,7 +1,11 @@
 import React from 'react';
 
 import { Stack } from '@atlaskit/primitives/compiled';
-import { AgentConversationStarters, type AgentConversationStartersProps, type ConversationStarter } from '@atlaskit/rovo-agent-components/ui/AgentConversationStarters';
+import { AgentConversationStarters } from '@atlaskit/rovo-agent-components/agent-conversation-starters';
+import type {
+	AgentConversationStartersProps,
+	ConversationStarter,
+} from '@atlaskit/rovo-agent-components/ui/AgentConversationStarters';
 
 export const ConversationStarters = ({
 	isAgentDefault,

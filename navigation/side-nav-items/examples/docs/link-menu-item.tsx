@@ -1,0 +1,164 @@
+import React, { useState } from 'react';
+
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
+import AddIcon from '@atlaskit/icon/core/add';
+import HomeIcon from '@atlaskit/icon/core/home';
+import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
+import { JiraIcon } from '@atlaskit/logo';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { SideNavBody } from '@atlaskit/navigation-system/layout/side-nav';
+import { Inline, Stack } from '@atlaskit/primitives/compiled';
+import { ContainerAvatar } from '@atlaskit/side-nav-items/container-avatar';
+import { COLLAPSE_ELEM_BEFORE, LinkMenuItem } from '@atlaskit/side-nav-items/link-menu-item';
+import { MenuList } from '@atlaskit/side-nav-items/menu-list';
+
+import MoneyIcon from '../images/money.svg';
+
+import { MockSideNav } from './common/mock-side-nav';
+
+function AddAction() {
+	return (
+		<IconButton
+			spacing="compact"
+			appearance="subtle"
+			label="Add"
+			icon={(iconProps) => <AddIcon {...iconProps} size="small" />}
+		/>
+	);
+}
+
+function MoreAction() {
+	return (
+		<IconButton
+			spacing="compact"
+			appearance="subtle"
+			label="More"
+			icon={(iconProps) => <MoreIcon {...iconProps} size="small" />}
+		/>
+	);
+}
+
+const linkMenuItemHref = '#example-href';
+
+export function LinkMenuItemExample(): React.JSX.Element {
+	const [showSelectedStateExample, setShowSelectedStateExample] = useState(false);
+	return (
+		<Stack space="space.100">
+			<Inline space="space.600">
+				<MockSideNav>
+					<SideNavBody>
+						<MenuList>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<HomeIcon label="" color="currentColor" spacing="spacious" />}
+							>
+								Link menu item (icon)
+							</LinkMenuItem>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<ContainerAvatar src={MoneyIcon} />}
+							>
+								Link menu item (ContainerAvatar)
+							</LinkMenuItem>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<JiraIcon label="" size="xsmall" />}
+							>
+								Link menu item (app tile)
+							</LinkMenuItem>
+							<LinkMenuItem href={linkMenuItemHref}>Link menu item (spacer)</LinkMenuItem>
+							<LinkMenuItem href={linkMenuItemHref} elemBefore={COLLAPSE_ELEM_BEFORE}>
+								Link menu item (no elemBefore)
+							</LinkMenuItem>
+						</MenuList>
+					</SideNavBody>
+				</MockSideNav>
+
+				<MockSideNav>
+					<SideNavBody>
+						<MenuList>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<HomeIcon label="" color="currentColor" spacing="spacious" />}
+								description="With description underneath"
+							>
+								Link menu item
+							</LinkMenuItem>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<HomeIcon label="" color="currentColor" spacing="spacious" />}
+								actions={
+									<>
+										<AddAction />
+										<MoreAction />
+									</>
+								}
+							>
+								Link menu item (actions)
+							</LinkMenuItem>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<HomeIcon label="" color="currentColor" spacing="spacious" />}
+								actionsOnHover={
+									<>
+										<AddAction />
+										<MoreAction />
+									</>
+								}
+							>
+								Link menu item (actionsOnHover)
+							</LinkMenuItem>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<HomeIcon label="" color="currentColor" spacing="spacious" />}
+								actions={<MoreAction />}
+								actionsOnHover={<AddAction />}
+							>
+								Link menu item (actions & actionsOnHover)
+							</LinkMenuItem>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<HomeIcon label="" color="currentColor" spacing="spacious" />}
+								elemAfter={<Lozenge>New</Lozenge>}
+							>
+								Link menu item (elemAfter)
+							</LinkMenuItem>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<HomeIcon label="" color="currentColor" spacing="spacious" />}
+								elemAfter={<Lozenge>New</Lozenge>}
+								actions={<MoreAction />}
+								actionsOnHover={<AddAction />}
+							>
+								Link menu item (elemAfter, actions & actionsOnHover)
+							</LinkMenuItem>
+						</MenuList>
+					</SideNavBody>
+				</MockSideNav>
+			</Inline>
+
+			<Button onClick={() => setShowSelectedStateExample(!showSelectedStateExample)}>
+				{showSelectedStateExample ? 'Hide' : 'Show'} selected state example
+			</Button>
+
+			{showSelectedStateExample && (
+				<MockSideNav>
+					<SideNavBody>
+						<MenuList>
+							<LinkMenuItem
+								href={linkMenuItemHref}
+								elemBefore={<HomeIcon label="" color="currentColor" spacing="spacious" />}
+								isSelected
+							>
+								Link menu item (selected state)
+							</LinkMenuItem>
+						</MenuList>
+					</SideNavBody>
+				</MockSideNav>
+			)}
+		</Stack>
+	);
+}
+
+export default LinkMenuItemExample;

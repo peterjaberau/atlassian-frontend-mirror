@@ -1,16 +1,18 @@
 import React, { useCallback, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import { Code } from '@atlaskit/code';
-import Form, { Field } from '@atlaskit/form';
-import ModalDialog, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import Select, { type OptionType as Option, type ValueType as Value } from '@atlaskit/select';
+import Button from '@atlaskit/button/default/button';
+import Code from '@atlaskit/code/code';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { Text } from '@atlaskit/primitives/compiled';
+import Select from '@atlaskit/select/default';
+import type { OptionType as Option, ValueType as Value } from '@atlaskit/select/types';
 
 export default function ModalDialogSelect(): React.JSX.Element {
 	const [isOpen, setIsOpen] = useState(false);
@@ -38,11 +40,11 @@ export default function ModalDialogSelect(): React.JSX.Element {
 			>
 				Open Modal
 			</Button>
-			<p>
+			<Text as="p">
 				{country
 					? `The country selected is '${country.label}'.`
 					: 'No country has been selected yet.'}
-			</p>
+			</Text>
 
 			<ModalTransition>
 				{isOpen && (
@@ -51,13 +53,15 @@ export default function ModalDialogSelect(): React.JSX.Element {
 							<ModalTitle>Using select in a modal dialog</ModalTitle>
 						</ModalHeader>
 						<ModalBody>
-							<p>
+							<Text as="p">
 								This select should open and be visible on top of the modal dialog. This is because
 								of the usage of <Code>menuPosition="fixed"</Code> on <Code>@atlaskit/select</Code>.
-							</p>
+							</Text>
 							<Form onSubmit={onSubmit} id="modal-form">
-								<Field<Value<Option, true>> name="country" label="Country of residence">
-									{({ fieldProps }) => (
+								<Field<Value<Option, true>>
+									name="country"
+									label="Country of residence"
+									component={({ fieldProps }) => (
 										<Select<Option, true>
 											{...fieldProps}
 											menuPosition="fixed"
@@ -73,7 +77,7 @@ export default function ModalDialogSelect(): React.JSX.Element {
 											]}
 										/>
 									)}
-								</Field>
+								></Field>
 							</Form>
 						</ModalBody>
 						<ModalFooter>

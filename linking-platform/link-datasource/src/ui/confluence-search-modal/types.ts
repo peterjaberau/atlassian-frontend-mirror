@@ -1,21 +1,19 @@
 import { type DatasourceAdf, type InlineCardAdf } from '@atlaskit/linking-common/types';
-import { type DatasourceParameters } from '@atlaskit/linking-types';
+import type { DatasourceParameters } from '@atlaskit/linking-types/datasource';
 
 import { type ConfigModalProps } from '../../common/types';
 import { type ConnectedConfigModalProps } from '../common/modal/datasource-modal/createDatasourceModal';
 import { type DateRangeType } from '../common/modal/popup-select/types';
 
-export interface ConfluenceSearchConfigModalProps
-	extends ConfigModalProps<
-		InlineCardAdf | ConfluenceSearchDatasourceAdf,
-		DatasourceParameters | ConfluenceSearchDatasourceParameters
-	> {
+export interface ConfluenceSearchConfigModalProps extends ConfigModalProps<
+	InlineCardAdf | ConfluenceSearchDatasourceAdf,
+	DatasourceParameters | ConfluenceSearchDatasourceParameters
+> {
 	disableSiteSelector?: boolean;
 	overrideParameters?: Pick<ConfluenceSearchDatasourceParameters, 'entityTypes'>;
 }
 
-export interface ConnectedConfluenceSearchConfigModalProps
-	extends ConnectedConfigModalProps<ConfluenceSearchDatasourceParameters> {
+export interface ConnectedConfluenceSearchConfigModalProps extends ConnectedConfigModalProps<ConfluenceSearchDatasourceParameters> {
 	disableSiteSelector?: boolean;
 	overrideParameters?: Pick<ConfluenceSearchDatasourceParameters, 'entityTypes'>;
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/side-navigation",
-	"version": "11.1.4",
+	"version": "13.3.5",
 	"description": "A highly composable side navigation component that supports nested views.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,16 +17,46 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./button-item": "./src/components/Item/button-item.tsx",
+		"./constants": "./src/common/constants.tsx",
+		"./custom-item": "./src/components/Item/custom-item.tsx",
+		"./footer": "./src/components/Footer/index.tsx",
+		"./go-back-item": "./src/components/Item/go-back-item.tsx",
+		"./header": "./src/components/Header/index.tsx",
+		"./heading-item": "./src/components/Section/heading-item.tsx",
+		"./link-item": "./src/components/Item/link-item.tsx",
+		"./loading-items": "./src/components/LoadingItems/index.tsx",
+		"./menu": "./src/entry-points/menu.tsx",
+		"./navigation-content": "./src/components/NavigationContent/index.tsx",
+		"./navigation-footer": "./src/components/NavigationFooter/index.tsx",
+		"./navigation-header": "./src/components/NavigationHeader/index.tsx",
+		"./nestable-navigation-content": "./src/components/NestableNavigationContent/index.tsx",
+		"./nesting-item": "./src/components/NestingItem/index.tsx",
+		"./section": "./src/components/Section/section.tsx",
+		"./side-navigation": "./src/components/SideNavigation/index.tsx",
+		"./skeleton-heading-item": "./src/components/Section/skeleton-heading-item.tsx",
+		"./skeleton-item": "./src/components/Item/skeleton-item.tsx",
+		"./use-should-nested-element-render": "./src/components/NestableNavigationContent/use-should-nested-element-render.tsx"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Side navigation",
 			"category": "Navigation",
 			"status": {
-				"type": "intent-to-deprecate",
-				"description": "We are planning on deprecating Side navigation. We recommend using Navigation system instead. [View Navigation system documentation](/components/navigation-system)"
+				"type": "deprecated",
+				"description": "This package is deprecated. Use our new [navigation system](/components/navigation-system)."
 			}
 		}
 	},
@@ -38,13 +68,13 @@
 		"@atlaskit/motion": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -55,6 +85,7 @@
 		"@atlaskit/docs": "workspace:^",
 		"@atlaskit/dropdown-menu": "workspace:^",
 		"@atlaskit/form": "workspace:^",
+		"@atlaskit/icon-lab": "workspace:^",
 		"@atlaskit/image": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/logo": "workspace:^",
@@ -65,40 +96,17 @@
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/spotlight": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"raf-stub": "root:*",
+		"react": "^19.0.0",
 		"tiny-invariant": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"design-system": "v1",
-			"dom-events": "use-bind-event-listener",
-			"ui-components": [
-				"lite-mode"
-			],
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"analytics": "analytics-next",
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion"
-			]
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"platform-feature-flags": {
+		"platform-dst-motion-uplift-list-item": {
+			"type": "boolean"
+		},
 		"platform-side-navigation-keyboard-focus": {
 			"type": "boolean"
 		}

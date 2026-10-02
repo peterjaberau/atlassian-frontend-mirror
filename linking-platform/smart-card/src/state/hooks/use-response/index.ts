@@ -1,31 +1,45 @@
 import { useCallback, useMemo } from 'react';
-
 import { unstable_batchedUpdates } from 'react-dom';
 
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { useSmartLinkContext } from '@atlaskit/link-provider';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
 import {
 	ACTION_ERROR,
 	ACTION_ERROR_FALLBACK,
 	ACTION_RELOADING,
 	ACTION_RESOLVED,
 	ACTION_UPDATE_METADATA_STATUS,
-	APIError,
 	cardAction,
-	type CardState,
-	getStatus,
-	type MetadataStatus,
-} from '@atlaskit/linking-common';
+} from '@atlaskit/linking-common/actions';
+import { APIError } from '@atlaskit/linking-common/api-error';
+import type { CardState } from '@atlaskit/linking-common/store';
+import type { MetadataStatus } from '@atlaskit/linking-common/types';
+import { getStatus } from '@atlaskit/linking-common/utils/get-status';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { SmartLinkStatus } from '../../../constants';
-import { getUnauthorizedJsonLd } from '../../../utils/jsonld';
+import { getUnauthorizedJsonLd } from '../../../utils/get-unauthorized-json-ld';
 import {
 	ERROR_MESSAGE_FATAL,
 	ERROR_MESSAGE_METADATA,
 	ERROR_MESSAGE_OAUTH,
 } from '../../actions/constants';
 
-const useResponse = () => {
+const useResponse = (): {
+	handleResolvedLinkError: (
+		url: string,
+		error: APIError,
+		response?: JsonLd.Response,
+		isMetadataRequest?: boolean,
+	) => void;
+	handleResolvedLinkResponse: (
+		resourceUrl: string,
+		response: JsonLd.Response | undefined,
+		isReloading?: boolean,
+		isMetadataRequest?: boolean,
+		metadataStatus?: MetadataStatus,
+	) => void;
+} => {
 	// Takes in the JSON-LD response and dispatch the resolved action for the card.
 	// It will dispatch a successful or error action
 	const { store, config } = useSmartLinkContext();
@@ -93,9 +107,32 @@ const useResponse = () => {
 			response: JsonLd.Response,
 			isReloading: boolean,
 			isMetadataRequest?: boolean,
+			metadataStatus: MetadataStatus = 'resolved',
 		) => {
-			//if a link resolves normally, metadata will also always be resolved
-			setMetadataStatus(resourceUrl, 'resolved');
+			/**
+			 * Metadata status scenarios:
+			 * - Gate off, or a non-resolved response: use `resolved`, preserving legacy behavior and
+			 *   avoiding a gate exposure when the result would not affect the status.
+			 * - Gate on with full metadata: use the provided/default `resolved` status.
+			 * - Gate on with reduced inline metadata: use the provided `pending` status so block or
+			 *   hover rendering knows to request the full metadata later.
+			 * - Reduced inline metadata arriving after full metadata: keep the existing `resolved`
+			 *   status so an out-of-order response cannot trigger another full request.
+			 * - Explicit reload: allow `pending` even after full metadata, because the caller is
+			 *   intentionally replacing the existing data.
+			 */
+			const shouldUseProvidedMetadataStatus =
+				getStatus(response) === 'resolved' && fg('platform_smartlink_inline_resolve_optimization');
+			const shouldPreserveResolvedMetadata =
+				shouldUseProvidedMetadataStatus &&
+				metadataStatus === 'pending' &&
+				!isReloading &&
+				getState()[resourceUrl]?.metadataStatus === 'resolved';
+			const nextMetadataStatus =
+				shouldUseProvidedMetadataStatus && !shouldPreserveResolvedMetadata
+					? metadataStatus
+					: 'resolved';
+			setMetadataStatus(resourceUrl, nextMetadataStatus);
 			// Dispatch Analytics and resolved card action - including unauthorized states.
 			if (isReloading) {
 				dispatch(cardAction(ACTION_RELOADING, { url: resourceUrl }, response));
@@ -112,7 +149,7 @@ const useResponse = () => {
 				);
 			}
 		},
-		[setMetadataStatus, dispatch],
+		[getState, setMetadataStatus, dispatch],
 	);
 
 	const handleResolvedLinkResponse = useCallback(
@@ -121,7 +158,11 @@ const useResponse = () => {
 			response: JsonLd.Response | undefined,
 			isReloading = false,
 			isMetadataRequest?: boolean,
+			metadataStatus?: MetadataStatus,
 		) => {
+			if (!resourceUrl) {
+				return;
+			}
 			const hostname = new URL(resourceUrl).hostname;
 			const nextStatus = response ? getStatus(response) : 'fatal';
 
@@ -166,7 +207,13 @@ const useResponse = () => {
 			 * https://react-redux.js.org/api/batch
 			 */
 			unstable_batchedUpdates(() => {
-				handleResolvedLinkSuccess(resourceUrl, response, isReloading, isMetadataRequest);
+				handleResolvedLinkSuccess(
+					resourceUrl,
+					response,
+					isReloading,
+					isMetadataRequest,
+					metadataStatus,
+				);
 			});
 		},
 		[handleResolvedLinkError, handleResolvedLinkSuccess, hasAuthFlowSupported],

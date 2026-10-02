@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Avatar from '@atlaskit/avatar';
-import Tag from '@atlaskit/tag';
+import Avatar from '@atlaskit/avatar/avatar';
+import Tag from '@atlaskit/tag/removable-tag';
 
 export default (): React.JSX.Element => (
 	<Tag
@@ -9,6 +9,6 @@ export default (): React.JSX.Element => (
 		removeButtonLabel="Remove"
 		text="Round removable link"
 		href="/components/tag"
-		elemBefore={<Avatar borderColor="transparent" size="xsmall" />}
+		elemBefore={<Avatar borderColor="transparent" size="xxsmall" />}
 	/>
 );

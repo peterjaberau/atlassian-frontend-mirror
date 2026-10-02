@@ -6,27 +6,26 @@ import { type CSSProperties, type FC, useCallback, useEffect, useState } from 'r
 
 import { css } from '@compiled/react';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
-import { cssMap, cx, jsx } from '@atlaskit/css';
+import { cssMap, jsx } from '@atlaskit/css';
 import noop from '@atlaskit/ds-lib/noop';
-import Heading from '@atlaskit/heading';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Heading from '@atlaskit/heading/heading';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import { DEFAULT_APPEARANCE } from './constants';
 import Actions from './flag-actions';
-import { useFlagGroup } from './flag-group';
-import { DismissButton, Expander } from './internal';
-import {
-	flagBackgroundColor,
-	flagIconColor,
-	flagIconGlyph,
-	flagTextColor,
-	flagTextColorToken,
-} from './theme';
+import { flagBackgroundColor } from './flag-background-color';
+import { flagIconColor } from './flag-icon-color';
+import { flagIconGlyph } from './flag-icon-glyph';
+import { flagTextColor } from './flag-text-color';
+import { flagTextColorToken } from './flag-text-color-token';
+import { default as DismissButton } from './internal/dismiss-button';
+import { default as Expander } from './internal/expander';
+import { useFlagGroup } from './internal/use-flag-group';
 import type { FlagProps } from './types';
 
 const styles = cssMap({
@@ -35,16 +34,19 @@ const styles = cssMap({
 		overflowWrap: 'anywhere',
 	},
 	flag: {
-		boxShadow: token('elevation.shadow.overlay', '0px 8px 12px #091e423f, 0px 0px 1px #091e424f'),
-		borderRadius: token('radius.small', '3px'),
+		boxShadow: token('elevation.shadow.overlay'),
+		borderRadius: token('radius.large'),
 		overflow: 'hidden',
 		zIndex: 600,
 		width: '100%',
 		transition: 'background-color 200ms',
 	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	flagT26Shape: {
-		borderRadius: token('radius.large', '8px'),
+	contentStack: {
+		transitionProperty: 'gap',
+		transitionDuration: token('motion.duration.long'),
+		'@media (prefers-reduced-motion: reduce)': {
+			transitionDuration: '0s',
+		},
 	},
 });
 
@@ -57,6 +59,10 @@ const descriptionStyles = css({
 	overflowWrap: 'anywhere', // For cases where a single word is longer than the container (e.g. filenames)
 });
 
+const flagWrapperStyles = css({
+	width: '100%',
+});
+
 const iconWrapperStyles = css({
 	display: 'flex',
 	minWidth: '24px',
@@ -67,8 +73,10 @@ const iconWrapperStyles = css({
 	color: `var(${CSS_VAR_ICON_COLOR})`,
 });
 
-const flagWrapperStyles = css({
-	width: '100%',
+const transitionStyles = css({
+	minWidth: 0,
+	flexGrow: 1,
+	transition: `gap 0.3s`,
 });
 
 const analyticsAttributes = {
@@ -76,11 +84,6 @@ const analyticsAttributes = {
 	packageName: process.env._PACKAGE_NAME_ as string,
 	packageVersion: process.env._PACKAGE_VERSION_ as string,
 };
-
-const transitionStyles = css({
-	flexGrow: 1,
-	transition: `gap 0.3s`,
-});
 
 /**
  * __Flag__
@@ -187,6 +190,7 @@ const Flag: FC<FlagProps> = (props) => {
 	const iconGlyph = flagIconGlyph[appearance];
 	const isDismissable = isBold || isDismissAllowed;
 	const shouldRenderGap = (!isBold && (description || actions.length)) || isExpanded;
+	const isCollapseAnimationEnabled = fg('platform-dst-flag-collapse-animation-fix');
 	// when delayAnnouncement is available we will use a hidden content for announcement
 	const delayedAnnouncement = delayAnnouncement ? (
 		<VisuallyHidden>
@@ -195,13 +199,12 @@ const Flag: FC<FlagProps> = (props) => {
 		</VisuallyHidden>
 	) : undefined;
 
+	// A11y improvement opportunity: all flags currently use role="alert" (assertive),
+	// but non-critical flags (e.g. info, success) should use role="status" (polite)
+	// to avoid interrupting screen reader users. See WCAG 4.1.3.
 	return (
 		<div role="alert" css={flagWrapperStyles} data-testid={testId} {...autoDismissProps}>
-			<Box
-				padding="space.200"
-				backgroundColor={flagBackgroundColor[appearance]}
-				xcss={cx(styles.flag, fg('platform-dst-shape-theme-default') && styles.flagT26Shape)}
-			>
+			<Box padding="space.200" backgroundColor={flagBackgroundColor[appearance]} xcss={styles.flag}>
 				<Inline alignBlock="start" space="space.200">
 					<div
 						css={iconWrapperStyles}
@@ -214,6 +217,8 @@ const Flag: FC<FlagProps> = (props) => {
 					<span css={transitionStyles}>
 						<Stack
 							space={shouldRenderGap ? 'space.100' : 'space.0'} // Gap exists even when not expanded due to Expander internals always being in the DOM
+							xcss={isCollapseAnimationEnabled ? styles.contentStack : undefined}
+							testId={testId && `${testId}-content-stack`}
 						>
 							{/* if isDelayToAnnounce is true, we will use the hidden content for screen reader to announce */}
 							{isDelayToAnnounce && delayedAnnouncement}

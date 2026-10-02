@@ -2,15 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import Button from '@atlaskit/button/custom-theme-button';
-import { codeBlockButtonMessages } from '@atlaskit/editor-common/messages';
-import CopyIcon from '@atlaskit/icon/core/copy';
-import Tooltip from '@atlaskit/tooltip';
+
+import { useState, type ComponentType, type FC } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import { useState } from 'react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
+
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
+import { codeBlockButtonMessages } from '@atlaskit/editor-common/messages';
+import CopyIcon from '@atlaskit/icon/core/copy';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
 import AnalyticsContext from '../../../../analytics/analyticsContext';
 import { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, EVENT_TYPE } from '../../../../analytics/enums';
 import { copyTextToClipboard } from '../../../utils/clipboard';
@@ -20,28 +26,34 @@ type Props = {
 };
 
 const CopyButton = ({ content, intl }: Props & WrappedComponentProps) => {
-	const [tooltip, setTooltip] = useState<string>(
-		intl.formatMessage(codeBlockButtonMessages.copyCodeToClipboard),
-	);
+	const copyCodeToClipboardMessage = isExperimentEnabled('platform_editor_a11y_codeblock_copy_name')
+		? codeBlockButtonMessages.copyCodeSnippetToClipboard
+		: codeBlockButtonMessages.copyCodeToClipboard;
+	const [tooltip, setTooltip] = useState<string>(intl.formatMessage(copyCodeToClipboardMessage));
 	const [className, setClassName] = useState<string>('copy-to-clipboard');
 	const onMouseLeave = () => {
-		setTooltip(intl.formatMessage(codeBlockButtonMessages.copyCodeToClipboard));
+		setTooltip(intl.formatMessage(copyCodeToClipboardMessage));
 		setClassName('copy-to-clipboard');
 	};
 	return (
 		<AnalyticsContext.Consumer>
 			{({ fireAnalyticsEvent }) => (
 				<span>
-					<Tooltip content={tooltip} hideTooltipOnClick={false} position="top">
-						{/* eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events*/}
-						<div onMouseLeave={onMouseLeave}>
+					<Tooltip
+						content={tooltip}
+						hideTooltipOnClick={false}
+						position="top"
+						hasNewContentOnTriggerClick
+					>
+						<div onMouseLeave={onMouseLeave} onBlur={onMouseLeave}>
 							<Button
 								appearance="subtle"
-								aria-haspopup={true}
+								aria-haspopup={fg('platform_editor_a11y_codeblock_haspopup') ? undefined : true}
 								aria-label={tooltip}
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 								className={className}
 								iconBefore={<CopyIcon label={tooltip} />}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onClick={(event) => {
 									fireAnalyticsEvent({
 										// @ts-expect-error - Type 'ACTION.CLICKED' is not assignable to type 'ACTION.CLICKED | ACTION.MEDIA_LINK_TRANSFORMED | ACTION.STARTED | ACTION.TOGGLE_EXPAND | ACTION.UNSUPPORTED_CONTENT_ENCOUNTERED | ACTION.VISITED | ACTION.RENDERED | ACTION.INVALID_PROSEMIRROR_DOCUMENT | ACTION.CRASHED | ... 6 more ... | AnnotationActionType'.
@@ -68,4 +80,7 @@ const CopyButton = ({ content, intl }: Props & WrappedComponentProps) => {
 	);
 };
 
-export default injectIntl(CopyButton);
+const _default_1: FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(CopyButton);
+export default _default_1;

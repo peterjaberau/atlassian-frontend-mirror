@@ -1,5 +1,1412 @@
 # @atlaskit/task-decision
 
+## 21.11.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.11.0
+
+### Minor Changes
+
+- [`e470e521bcb20`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e470e521bcb20) -
+  Add a lightweight messages entry point for task and decision accessibility labels.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.10.0
+
+### Minor Changes
+
+- [`e909670f087d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e909670f087d4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.7
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+## 21.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.9.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.8.0
+
+### Minor Changes
+
+- [`7d37c14edffa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d37c14edffa7) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 21.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.7.0
+
+### Minor Changes
+
+- [`5228612e884f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5228612e884f4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 21.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.6.0
+
+### Minor Changes
+
+- [`30f196e640e18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30f196e640e18) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.5.0
+
+### Minor Changes
+
+- [`7da4b354a3633`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7da4b354a3633) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 21.4.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.3.0
+
+### Minor Changes
+
+- [`6d48bbf99477b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d48bbf99477b) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 21.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 21.2.0
+
+### Minor Changes
+
+- [`404be770a2ccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/404be770a2ccf) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 21.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.0
+
+### Minor Changes
+
+- [`5bf738fb98422`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bf738fb98422) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.0
+
+### Minor Changes
+
+- [`f89de6a3f94b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f89de6a3f94b5) -
+  Clean up stale experiment editor_a11y_decision_aria_label. Decision items now always render
+  dynamic aria-labels based on empty/filled state.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.18
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 20.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.13
+
+### Patch Changes
+
+- [`a66bb82913543`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a66bb82913543) -
+  FF platform_editor_fix_missing_task_id cleanup
+
+## 20.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.7
+
+### Patch Changes
+
+- [`2a75c1be2244e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a75c1be2244e) -
+  Removed usage of @atlaskit/elements-test-helpers from tests
+- Updated dependencies
+
+## 20.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.3
+
+### Patch Changes
+
+- [`72290778b16ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72290778b16ca) -
+  Enrol mixed platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 20.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.0
+
+### Minor Changes
+
+- [`302503d41b736`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/302503d41b736) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Major Changes
+
+- [`deb3d6a6498e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/deb3d6a6498e8) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 19.3.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.18
+
+### Patch Changes
+
+- [`608c375f6f9b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/608c375f6f9b9) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 19.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.3.0
+
+### Minor Changes
+
+- [`d78ff724d3bce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d78ff724d3bce) -
+  i18n aria labels for the Decision and if a decision is undefined provide an appropriate label
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.23
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 19.2.22
 
 ### Patch Changes

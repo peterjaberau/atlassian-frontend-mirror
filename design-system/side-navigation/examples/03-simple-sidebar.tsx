@@ -1,24 +1,33 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import { cssMap } from '@atlaskit/css';
 import SelectedIcon from '@atlaskit/icon/core/check-mark';
 import ButtonIcon from '@atlaskit/icon/core/checkbox-indeterminate';
 import CustomIcon from '@atlaskit/icon/core/compass';
 import LinkIcon from '@atlaskit/icon/core/link';
-import {
-	ButtonItem,
-	HeadingItem,
-	LinkItem,
-	NavigationContent,
-	NavigationFooter,
-	NavigationHeader,
-	Section,
-	SideNavigation,
-} from '@atlaskit/side-navigation';
+import { Flex } from '@atlaskit/primitives/compiled/flex';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { ButtonItem } from '@atlaskit/side-navigation/button-item';
+import { HeadingItem } from '@atlaskit/side-navigation/heading-item';
+import { LinkItem } from '@atlaskit/side-navigation/link-item';
+import { NavigationContent } from '@atlaskit/side-navigation/navigation-content';
+import { NavigationFooter } from '@atlaskit/side-navigation/navigation-footer';
+import { NavigationHeader } from '@atlaskit/side-navigation/navigation-header';
+import { Section } from '@atlaskit/side-navigation/section';
+import { SideNavigation } from '@atlaskit/side-navigation/side-navigation';
+import { token } from '@atlaskit/tokens';
 
 import AppFrame from './common/app-frame';
 import SampleFooter from './common/sample-footer';
 import SampleHeader from './common/sample-header';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const BasicExample = (): React.JSX.Element => {
 	return (
@@ -30,12 +39,33 @@ const BasicExample = (): React.JSX.Element => {
 				<NavigationContent>
 					<Section>
 						<HeadingItem>This is a simple flat sidebar</HeadingItem>
-						<ButtonItem iconBefore={<ButtonIcon spacing="spacious" label="" />}>It can contain buttons</ButtonItem>
-						{/* eslint-disable-next-line @atlassian/a11y/anchor-is-valid */}
-						<LinkItem href="#" iconBefore={<LinkIcon spacing="spacious" label="" />}>
+						<ButtonItem
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<ButtonIcon label="" />
+								</Flex>
+							}
+						>
+							It can contain buttons
+						</ButtonItem>
+						<LinkItem
+							href="/"
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<LinkIcon label="" />
+								</Flex>
+							}
+						>
 							Or anchor links
 						</LinkItem>
-						<ButtonItem isSelected iconBefore={<SelectedIcon spacing="spacious" label="" />}>
+						<ButtonItem
+							isSelected
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<SelectedIcon label="" />
+								</Flex>
+							}
+						>
 							Or selected items
 						</ButtonItem>
 					</Section>

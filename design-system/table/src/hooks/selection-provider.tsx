@@ -6,6 +6,7 @@ import useSelectionReducer, {
 	type SelectableState,
 } from './use-selectable';
 
+// oxlint-disable-next-line eslint/no-redeclare
 type SelectionContext = [
 	SelectableState,
 	/**
@@ -14,7 +15,10 @@ type SelectionContext = [
 	SelectableActions | Partial<SelectableActions>,
 ];
 
-const SelectionContext = createContext<SelectionContext>([defaultSelectableState, {}]);
+const SelectionContext: React.Context<SelectionContext> = createContext<SelectionContext>([
+	defaultSelectableState,
+	{},
+]);
 
 /**
  * __Selection provider__
@@ -31,4 +35,5 @@ export const useSelection: () => SelectionContext = () => {
 	return useContext(SelectionContext);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default SelectionProvider;

@@ -3,20 +3,22 @@
  * @jsx jsx
  */
 import { forwardRef, useEffect, useMemo, useState } from 'react';
+import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 import debounce from 'lodash/debounce';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import CustomThemeButton from '@atlaskit/button/custom-theme-button';
+import CustomThemeButton from '@atlaskit/button/custom-theme-button/custom-theme-button';
 import { akEditorUnitZIndex } from '@atlaskit/editor-shared-styles';
 import CommentIcon from '@atlaskit/icon/core/comment';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { commentMessages as messages } from '../media';
-
+import { getBadgeSize } from './getBadgeSize';
 const commentBadgeWrapper = css({
 	position: 'absolute',
 	// closest parent element with position relative is .resizer-hover-zone, which includes 10px padding
@@ -35,11 +37,6 @@ const commentBadgeEditorOverrides = (badgeOffsetRight?: string) =>
 		zIndex: 100,
 	});
 
-export const getBadgeSize = (width?: number, height?: number) => {
-	// width is the original width of image, not resized or currently rendered to user. Defaulting to medium for now
-	return (width && width < 70) || (height && height < 70) ? 'small' : 'medium';
-};
-
 export type CommentBadgeProps = {
 	badgeOffsetRight?: string;
 	height?: number;
@@ -54,7 +51,9 @@ export type CommentBadgeProps = {
 	width?: number;
 };
 
-export const CommentBadge = forwardRef<HTMLDivElement, CommentBadgeProps>(
+export const CommentBadge: ForwardRefExoticComponent<
+	CommentBadgeProps & RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, CommentBadgeProps>(
 	(
 		{
 			intl,
@@ -90,17 +89,38 @@ export const CommentBadge = forwardRef<HTMLDivElement, CommentBadgeProps>(
 		}, [mediaSingleElement]);
 
 		const badgeDimensions = badgeSize === 'medium' ? '24px' : '16px';
-
 		const colourToken = useMemo(() => {
 			switch (status) {
 				case 'active':
-					return token('color.background.accent.yellow.subtlest.pressed', '#F5CD47');
+					return token('color.background.accent.yellow.subtlest.pressed');
 				case 'entered':
-					return token('color.background.accent.yellow.subtlest.hovered', '#F8E6A0');
+					return token('color.background.accent.yellow.subtlest.hovered');
 				default:
-					return token('color.background.accent.yellow.subtlest', '#FFF7D6');
+					return token('color.background.accent.yellow.subtlest');
 			}
 		}, [status]);
+
+		const memoizedBadgeStyle = useMemo(
+			() => ({
+				height: badgeDimensions,
+				width: badgeDimensions,
+				background: colourToken,
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}),
+			[badgeDimensions, colourToken],
+		);
+		const badgeStyle = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+			? memoizedBadgeStyle
+			: {
+					height: badgeDimensions,
+					width: badgeDimensions,
+					background: colourToken,
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+				};
 
 		return (
 			<div
@@ -121,26 +141,27 @@ export const CommentBadge = forwardRef<HTMLDivElement, CommentBadgeProps>(
 				<Tooltip position="top" content={title}>
 					{/* TODO: (from codemod) CustomThemeButton will be deprecated. Please consider migrating to Pressable or Anchor Primitives with custom styles. */}
 					<CustomThemeButton
-						style={{
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							height: badgeDimensions,
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							width: badgeDimensions,
-							background: colourToken,
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							display: 'flex',
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							justifyContent: 'center',
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							alignItems: 'center',
-						}}
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+						style={badgeStyle}
 						onClick={onClick}
 						onMouseEnter={onMouseEnter}
 						onMouseLeave={onMouseLeave}
-						iconAfter={<CommentIcon label={title} spacing="spacious" color="currentColor" />}
+						iconAfter={
+							<CommentIcon
+								label={title}
+								spacing="spacious"
+								color={
+									isExperimentEnabled('cc_comments_media_viewer_sidebar')
+										? token('color.icon.accent.yellow')
+										: 'currentColor'
+								}
+							/>
+						}
 					/>
 				</Tooltip>
 			</div>
 		);
 	},
 );
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { getBadgeSize } from './getBadgeSize';

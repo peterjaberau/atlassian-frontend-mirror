@@ -1,19 +1,56 @@
 import React from 'react';
 
-import { defineMessages, FormattedMessage } from 'react-intl-next';
+import { defineMessages, FormattedMessage } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
-import ModalDialog, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-} from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button/default/button';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Stack, Text } from '@atlaskit/primitives/compiled';
 
 import { type ContainerTypes } from '../../../common/types';
 
-export const messages = defineMessages({
+export const messages: {
+	disconnectDialogTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	disconnectDialogDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	disconnectDialogDisclaimer: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	disconnectDialogDisclaimerNew: {
+		id: string;
+		// eslint-disable-next-line @atlassian/i18n/no-complex-selectors
+		defaultMessage: string;
+		description: string;
+	};
+	disconnectDialogDisclaimerFallback: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	disconnectDialogCancelButton: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	disconnectDialogRemoveButton: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	disconnectDialogTitle: {
 		id: 'ptc-directory.team-profile-page.team-containers.disconnect-dialog.title',
 		defaultMessage: 'Disconnect place',
@@ -22,7 +59,7 @@ export const messages = defineMessages({
 	disconnectDialogDescription: {
 		id: 'ptc-directory.team-profile-page.team-containers.disconnect-dialog.description',
 		defaultMessage: `This team will no longer be connected to the {containerName} {containerType, select,
-			JiraProject {Jira project}
+			JiraProject {Jira space}
 			ConfluenceSpace {Confluence space}
 			LoomSpace {Loom space}
 			other {link}
@@ -32,16 +69,27 @@ export const messages = defineMessages({
 	disconnectDialogDisclaimer: {
 		id: 'ptc-directory.team-profile-page.team-containers.disconnect-dialog.disclaimer',
 		defaultMessage: `Disconnecting the team from the {containerType, select,
-			JiraProject {project}
+			JiraProject {space}
 			ConfluenceSpace {space}
 			LoomSpace {space}
 			other {link}
 		} will not affect any work connected to the team within the {containerType, select,
-			JiraProject {project}
+			JiraProject {space}
 			ConfluenceSpace {space}
 			LoomSpace {space}
 			other {link}
 		}.`,
+		description: 'Disclaimer of the disconnect dialog for team containers',
+	},
+	disconnectDialogDisclaimerNew: {
+		id: 'ptc-directory.team-profile-page.team-containers.disconnect-dialog.disclaimer',
+		// eslint-disable-next-line @atlassian/i18n/no-complex-selectors
+		defaultMessage: `{containerType, select,
+			JiraProject {Disconnecting the team from the space might affect work connected to the team within the space.}
+			ConfluenceSpace {Disconnecting the team from the space will not affect any work connected to the team within the space.}
+			LoomSpace {Disconnecting the team from the space will not affect any work connected to the team within the space.}
+			other {Disconnecting the team from the link will not affect any work connected to the team within the link.}
+		}`,
 		description: 'Disclaimer of the disconnect dialog for team containers',
 	},
 	disconnectDialogDisclaimerFallback: {
@@ -53,7 +101,7 @@ export const messages = defineMessages({
 	disconnectDialogCancelButton: {
 		id: 'ptc-directory.team-profile-page.team-containers.disconnect-dialog.cancel-button',
 		defaultMessage: 'Cancel',
-		description: 'Button to cancel the dialog',
+		description: 'Button label to cancel the disconnect dialog without making changes',
 	},
 	disconnectDialogRemoveButton: {
 		id: 'ptc-directory.team-profile-page.team-containers.disconnect-dialog.remove-button',
@@ -106,7 +154,12 @@ export const DisconnectDialog = ({
 						/>
 					</Box>
 
-					<FormattedMessage {...messages.disconnectDialogDisclaimer} values={{ containerType }} />
+					<FormattedMessage
+						{...(fg('workforce_optimization_team_modal_update')
+							? messages.disconnectDialogDisclaimerNew
+							: messages.disconnectDialogDisclaimer)}
+						values={{ containerType }}
+					/>
 				</Stack>
 			</ModalBody>
 			<ModalFooter>

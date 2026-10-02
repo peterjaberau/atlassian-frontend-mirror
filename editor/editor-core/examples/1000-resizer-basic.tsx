@@ -5,12 +5,12 @@
 import type { SyntheticEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 
 import { ResizerNext } from '@atlaskit/editor-common/resizer';
 import type { HandleResize, HandleSize } from '@atlaskit/editor-common/resizer';
-import { RadioGroup } from '@atlaskit/radio';
+import RadioGroup from '@atlaskit/radio/radio-group';
 import type { OptionsPropType } from '@atlaskit/radio/types';
 import { token } from '@atlaskit/tokens';
 
@@ -86,7 +86,7 @@ function Parent(props: {
 	);
 }
 
-export default function Example() {
+export default function Example(): jsx.JSX.Element {
 	const [size, setSize] = useState<HandleSize>('medium');
 	const [snap, setSnap] = useState(false);
 
@@ -106,7 +106,7 @@ export default function Example() {
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				flexDirection: 'column',
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				gap: token('space.800', '64px'),
+				gap: token('space.800'),
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				alignItems: 'center',
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -122,7 +122,7 @@ export default function Example() {
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 					flexDirection: 'row',
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					gap: token('space.800', '64px'),
+					gap: token('space.800'),
 				}}
 			>
 				<RadioGroup

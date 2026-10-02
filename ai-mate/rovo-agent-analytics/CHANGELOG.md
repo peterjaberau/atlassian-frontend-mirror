@@ -1,5 +1,527 @@
 # @atlaskit/rovo-agent-analytics
 
+## 6.5.0
+
+### Minor Changes
+
+- [`58640a3ed819d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/58640a3ed819d) -
+  Add typed Insights tab and value-filter events and optional date-filter surface context for
+  rovo_agents_roi_calculator_m2.
+- [`8f9fd8ef29071`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f9fd8ef29071) -
+  Add optional typed card journey analytics context to Browse Kit lists and interactions under
+  rovo_agents_studio_browse_kit_uplift.
+
+## 6.4.0
+
+### Minor Changes
+
+- [`4886507c54435`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4886507c54435) -
+  Add typed legacy profile analytics and a configurable touchPoint for the new agent profile.
+
+## 6.3.0
+
+### Minor Changes
+
+- [`c4ee31ae1d342`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4ee31ae1d342) -
+  Track close-button clicks, viewing agent details, and debounced search requests (including
+  immediate clearing) in Browse Kit, with optional generic consumer analytics attributes. Add an
+  optional category runtime notification for search requests so analytics follows the actual refetch
+  without a separate timer. Track modal dismissal consistently after selection and creation,
+  independently of analytics metadata.
+
+## 6.2.2
+
+### Patch Changes
+
+- [`b709c3bbbd03e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b709c3bbbd03e) -
+  Add typed agent import and export analytics events.
+
+## 6.2.1
+
+### Patch Changes
+
+- [`321a559f40e21`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/321a559f40e21) -
+  Exclude structured Rovo offering documentation from published package artifacts.
+
+## 6.2.0
+
+### Minor Changes
+
+- [`35d441857e3f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/35d441857e3f4) -
+  Add typed Agent Insights value calculator events for `trackAgentEvent()`.
+
+## 6.1.2
+
+### Patch Changes
+
+- [`bcdd60ca05ef6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcdd60ca05ef6) -
+  Add analytics payload support for bulk agent deletion.
+
+## 6.1.1
+
+### Patch Changes
+
+- [`e7042f38bf2c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e7042f38bf2c6) -
+  Add analytics payload support for bulk agent ownership transfers.
+
+## 6.1.0
+
+### Minor Changes
+
+- [`26d0116cedca1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/26d0116cedca1) -
+  Keep card metadata aligned to the bottom and instrument Browse Agents interactions and
+  reliability.
+
+## 6.0.0
+
+### Major Changes
+
+- [`d786421d6d238`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d786421d6d238) -
+  Update knowledge source count attribute name to reflect enabled count.
+
+## 5.4.0
+
+### Minor Changes
+
+- [`a45c42dd2acfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a45c42dd2acfa) -
+  Add optional `crossSiteKnowledgeSourcesCount` attribute to the `field: 'knowledgeSources'` variant
+  of the `rovoAgent` `updated` editing event, so consumers can report how many saved knowledge
+  sources are scoped to a site other than the current one (unit-scoped agents) without emitting raw
+  cloudIds.
+
+  ```ts
+  trackAgentEvent({
+  	action: 'updated',
+  	actionSubject: 'rovoAgent',
+  	attributes: {
+  		field: 'knowledgeSources',
+  		knowledgeSourcesCount: sources.length,
+  		crossSiteKnowledgeSourcesCount: sources.filter((s) => isOtherSite(s)).length,
+  		subagentId: null,
+  	},
+  });
+  ```
+
+## 5.3.3
+
+### Patch Changes
+
+- [`7722b9396665c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7722b9396665c) -
+  Add the Servo team as both a Trusted Committer and Trusted Reviewer Team in the `compass.yml` of
+  Agents FE-owned packages. This lets the Servo sister team raise and approve PRs in these packages
+  without waiting for Agents FE owner approval. No functional/runtime change.
+
+## 5.3.2
+
+### Patch Changes
+
+- [`9965db56641a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9965db56641a6) -
+  Update the Slack channel link in compass.yml for Agents FE owned packages to point to
+  #rovo-agents-frontend.
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- [`3459b8faed8ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3459b8faed8ba) -
+  Clean up the shipped `rovo_chat_3p_app_discovery_m1_experiment` and the shadowed
+  `post-office_rovo-chat_thinking-deeper` menu path. This removes the obsolete ChatModeMenu UI, its
+  popup variants, and its spotlight code.
+
+  Breaking changes:
+  - Remove `changeChatModeMenuAlignmentToBottomStart` from `RovoChatPromptInput`. The `ChatModeMenu`
+    implementation it configured has been removed.
+
+  `showChatModeMenu`, `shouldRenderChatModeMenusInPortal`, `customSlotBeforeChatModeMenu`, and
+  `UIConfig.elements.chatModeMenuButton` remain supported. They now apply to the surviving source
+  and reasoning footer controls.
+
+## 5.3.0
+
+### Minor Changes
+
+- [`ae847ff5d5fb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae847ff5d5fb2) -
+  Add an `addMissingTools` operation variant to the `agenticSkills` editing analytics event, fired
+  when a user adds a skill's missing tools onto an agent from the per-skill warning popover.
+
+## 5.2.0
+
+### Minor Changes
+
+- [`7e764916a0baa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7e764916a0baa) -
+  [ux] Bring tool auto-pick up and auto-selection back into skills package, allowing tools to be
+  pushed onto consuming agent config page
+
+## 5.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`ad236a4768346`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ad236a4768346) -
+  Remove the orphan `rovoAgent subagentEdit` event variant from `SubagentInteractionsEventPayload`.
+  No callers existed in product code.
+
+## 4.1.0
+
+### Minor Changes
+
+- [`aaefb1f02471c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aaefb1f02471c) -
+  Adjust event for rovo-agent updated to include skill names
+
+## 4.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.0
+
+### Major Changes
+
+- [`f56e7f95fadad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f56e7f95fadad) -
+  Remove redundant `rovoAgent` interaction events `editTools`, `subagentEditTools`,
+  `editToolConfiguration`, `subagentEditToolConfiguration` — these are fully covered by the typed
+  `rovoAgent updated` events. Add a new `field: 'toolConfiguration'` variant to the
+  `rovoAgent updated` event payload, with a required `toolId: string` attribute.
+
+## 2.4.0
+
+### Minor Changes
+
+- [`a220a9993d915`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a220a9993d915) -
+  Consolidate tools and skills variants of the `rovoAgent updated` event payload: removed the legacy
+  `'tools' | 'actions'` and `'actionsAndMcpServers'` field variants in favour of a single `'tools'`
+  variant discriminated by `operation: 'remove' | 'change'`. The `'agenticSkills'` variant now also
+  requires `operation: 'remove' | 'change'`. `mcpServersCount` and `mcpToolsCount` are required on
+  the `'tools'` variant.
+
+## 2.3.2
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+
+## 2.3.1
+
+### Patch Changes
+
+- [`991f688d99805`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/991f688d99805) -
+  Remove workItemSurfaceEnabled usage; fire setIsAgentAssignable analytics on isPublished instead
+
+## 2.3.0
+
+### Minor Changes
+
+- [`c393ca269974b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c393ca269974b) -
+  Migrate source files to one value export per file.
+
+## 2.2.0
+
+### Minor Changes
+
+- [`573b49ec9d02b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/573b49ec9d02b) -
+  Add create/publish/assignable/error analytics events to inline agent creation flow
+
+## 2.1.1
+
+### Patch Changes
+
+- [`026beed942749`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/026beed942749) -
+  Fix resumption flow analytics: fire toolsExecutionCancelled on cancel and include actionKey in
+  aiResult actioned event
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`b4a8990eab900`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b4a8990eab900) -
+  Add createFlowPlanGenerated and createFlowPlanViewed analytics events for inline create-agent plan
+  card
+
+## 2.0.0
+
+### Major Changes
+
+- [`b0222d13caefe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b0222d13caefe) -
+  Replace `@typescript-eslint/no-explicit-any` suppressions with real types across
+  rovo-content-bridge and rovo-platform packages (TREX-1392).
+
+  Key changes:
+  - `rovo-content-bridge-api`: Replace `any` in `CommandConstructor`, type guards, handlers,
+    debugger, and desktop transport with `unknown`, typed event interfaces, and a new `WebContents`
+    interface.
+  - `rovo-content-bridge-api-commands`: Replace `any` fields with `SerializableValue` in chart,
+    Jira, and content commands.
+  - `rovo-playground`: Replace `any` in plugin config, settings store, and ADF utilities with
+    `unknown` and recursive typed nodes.
+  - `rovo-platform-ui-components`, `rovo-navigation`, `rovo-spaces`, `rovo-triggers`,
+    `rovo-agent-analytics`, `rovo-agent-components`, `rovo-chat-side-by-side-evaluation`,
+    `rovo-agent-debug-modal`: Replace remaining `any` occurrences with `unknown`, typed interfaces,
+    or properly inferred types.
+
+## 1.11.0
+
+### Minor Changes
+
+- [`5922ce1f90616`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5922ce1f90616) -
+  RAGE-3548: Type `EditingEventPayload['attributes']` as a discriminated union by `field`, so
+  field-specific data (e.g. `newValue: boolean` for toggle fields, `skillCount: number` for
+  `agenticSkills`) is required at call sites and discoverable to analytics consumers. A
+  `{ field: string }` catch-all is kept for backwards compatibility; prefer adding a typed variant
+  for new fields.
+
+## 1.10.0
+
+### Minor Changes
+
+- [`c5948348a4e51`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5948348a4e51) -
+  TREX-1373 (part 3/3): add @typescript-eslint/no-explicit-any OXLint suppression comments across
+  rovo-\* and misc packages. Includes OXLint override and Mithril ratchet to prevent new
+  suppressions.
+
+## 1.9.0
+
+### Minor Changes
+
+- [`5ad26dd7ae450`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ad26dd7ae450) -
+  Make `agentType` optional and add required `subagentId: string | null` attribute to
+  `EditingEventPayload`. Use `subagentId` to differentiate events fired at the scenario/subagent
+  level vs the agent level.
+
+## 1.8.0
+
+### Minor Changes
+
+- [`0cf21efc19163`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0cf21efc19163) -
+  Added 'ModelPreferencesEventPayload' as a new event type
+
+## 1.7.0
+
+### Minor Changes
+
+- [`b72d0152846b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b72d0152846b8) -
+  Fire knowledgeFilters analytics events: 'saved' on successful update and 'closed' on cancel from
+  ConnectorFilters; 'updated' from SelectFilter when the selection changes (filterOrControlId as
+  filter id, comma-joined option values).
+
+## 1.6.0
+
+### Minor Changes
+
+- [`1382e455b2661`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1382e455b2661) -
+  Add subagent analytics tracking events for create, delete, edit tools and tool configuration
+  actions
+
+## 1.5.0
+
+### Minor Changes
+
+- [`d1b7d4ba4fd6f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1b7d4ba4fd6f) -
+  Implement
+  https://hello.atlassian.net/wiki/spaces/~598965687/pages/6881328891/Tools+attributes+analytics+spec
+
+## 1.4.0
+
+### Minor Changes
+
+- [`04fe400264167`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04fe400264167) -
+  RAGE-3507: Add versioned-agent analytics foundation
+
+  ### `@atlaskit/rovo-agent-analytics`
+  - Added `VersionedAgentAttributes` type (`agentIsPublished`, `agentVersionNumber`)
+  - Added new `createFlow` event payloads:
+    - `createAgentRecord` — fires when BE `agentStudio_createAgent` mutation succeeds
+      (post-versioning, replaces `createFlowActivate`); minimal payload (registry/101157)
+    - `published` — fires on every agent version publish; carries rich agent attrs + versioning
+      envelope (registry/101158)
+    - `createLandInAgentLandingWithSA` — fires when user lands on agents landing with SA modal
+      auto-opened; v2/SA only (registry/99780)
+  - Extended `editing.ts` `updated` event to carry `agentIsPublished` from mutation response
+  - Updated `createFlow` JSDoc funnel table to v1 / v1+versioning / v2 / v2+versioning columns
+
+  ### `@atlassian/agent-studio`
+  - Three dedicated analytics helpers in `services/create-agent/utils.tsx`:
+    - `getAgentLegacyCreateActivateAnalytics` — rich write-input shape for legacy
+      `createFlowActivate` (deletion path RAGE-3459)
+    - `getAgentCreateAnalytics` — minimal payload for `createAgentRecord` (`agentId`, `source`,
+      `agentType`, `agentIsPublished`)
+    - `getAgentPublishAnalytics` — fragment-read shape for `published`; computes `agentToolCount`,
+      `agentMcpServerCount`, `agentToolsList` from agent-level tools and per-scenario `toolCount`,
+      `toolsList`, `mcpServerCount`, `mcpToolCount`
+  - `useCreateAgent`: new required `hasVersionCapability` param gates either-or between
+    `createAgentRecord` and `createFlowActivate`
+  - Publish-button: fires `published` event with rich attrs; fragment extended with `definitionId` +
+    `definitionSource` on all tool fields
+  - `update-agent-details` mutation: fires `updated` event with `agentIsPublished` from response
+    (gated on `rovo_agent_versioning_enabled` FG via `@include`)
+  - Landing: fires `createLandInAgentLandingWithSA` when SA modal auto-opens
+
+  ### `@atlassian/studio-solution-architect-ui-components`
+  - SA Manual Create Agent button: fires `createAgentRecord` analytics on successful create (gated
+    on `rovo-agents-universal-analytics` FG)
+
+## 1.3.0
+
+### Minor Changes
+
+- [`6f5f7728ba6d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6f5f7728ba6d1) -
+  [ux] Redirect deprecated `/create/<subpath>` URLs to the appropriate create entry point when agent
+  versioning is enabled.
+
+  When a user lands on a bookmarked or shared URL like `/create/details`, `/create/identity`,
+  `/create/permissions`, `/create/overview`, `/create/surfaces`, or `/create/scenarios` (anything
+  under `/create/...` except `/create/chat`), they're now automatically redirected:
+  - **v1 studio** → NL create screen (`/create/chat`)
+  - **v2 studio** → agents landing page with the Solutions Architect modal opened
+    (`?openCreateAgentModal=true`)
+
+  The Solutions Architect FE-draft escape hatch (`?draftBuildId=...`) is preserved until the SA
+  migration is complete.
+
+## 1.2.0
+
+### Minor Changes
+
+- [`17f2af77c77de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/17f2af77c77de) -
+  Add InsightsEventPayload for insights page date filter analytics
+
+## 1.1.1
+
+### Patch Changes
+
+- [`47b02f048ca4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47b02f048ca4a) -
+  Enrol search and ai-mate packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+
+## 1.1.0
+
+### Minor Changes
+
+- [`cffd9dae547c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cffd9dae547c3) -
+  Update rovo agents analytics funnel
+
+## 1.0.0
+
+### Major Changes
+
+- [`e4034958fc116`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4034958fc116) -
+  Adjust event tracking for agent analytics to use new trackAgentEvent() method. Remove deprecated
+  trackAgentAction() export and exported action const enums
+
+## 0.20.0
+
+### Minor Changes
+
+- [`30edbd0d978ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30edbd0d978ea) -
+  Deprecate trackAgentAction() and enums exports, introduce trackAgentEvent()
+
+## 0.19.0
+
+### Minor Changes
+
+- [`2ccb8729cef96`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ccb8729cef96) -
+  Reorg agent action enums to different files, add the actionGroup to the analytics
+
+## 0.18.0
+
+### Minor Changes
+
+- [`c2adfceefe4d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2adfceefe4d2) -
+  Add scenarioId to chat; add more guardrail for rovo agent analytics; add single instrumentation id
+  for rovoAgent toolsExecutionResult; add trackAIMauAction
+
+## 0.17.0
+
+### Minor Changes
+
+- [`0f9bf8c0ac300`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f9bf8c0ac300) -
+  Add examplePromptKey attribute in analytics context for when example prompt is used. Add SA_DRAFT
+  event for rovo agent analytics"
+
+## 0.16.0
+
+### Minor Changes
+
+- [`1778d733b1d68`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1778d733b1d68) -
+  Adding analytics to confirmed tools, including using the rovo agent analytics library
+
+## 0.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.15.0
+
+### Minor Changes
+
+- [`d4d7d91e006ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4d7d91e006ac) -
+  Update no skills modal analytics to use rovo agents analytics lib
+
+## 0.14.0
+
+### Minor Changes
+
+- [`dd26e8d5e8e1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dd26e8d5e8e1b) -
+  Update rovo agent analytics track landing
+
+## 0.13.0
+
+### Minor Changes
+
+- [`d6ab7edf41142`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d6ab7edf41142) -
+  Update agent analytics types
+
 ## 0.12.1
 
 ### Patch Changes

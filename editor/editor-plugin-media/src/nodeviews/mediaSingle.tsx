@@ -5,8 +5,9 @@
  */
 import { useCallback, useMemo } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
+import type { IntlShape } from 'react-intl';
 
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
@@ -20,15 +21,20 @@ import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import ReactNodeView from '@atlaskit/editor-common/react-node-view';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
-import { isNodeSelectedOrInRange } from '@atlaskit/editor-common/utils';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { isNodeSelectedOrInRange, SelectedState } from '@atlaskit/editor-common/utils';
+import {
+	applyContentVisibility,
+	estimateMediaSingleIntrinsicSize,
+} from '@atlaskit/editor-common/utils/content-visibility';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Decoration, DecorationSource, EditorView } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { MediaNextEditorPluginType } from '../mediaPluginType';
 import { MEDIA_CONTENT_WRAP_CLASS_NAME } from '../pm-plugins/main';
 import type { ForwardRef, getPosHandler, getPosHandlerNode, MediaOptions } from '../types';
-
+import { MediaSSRReactContextsProvider } from '../ui/MediaSSRReactContextsProvider';
 import { MediaSingleNodeNext } from './mediaSingleNext';
 import type { MediaSingleNodeProps, MediaSingleNodeViewProps } from './types';
 
@@ -127,12 +133,30 @@ const MediaSingleNodeWrapper = ({
 	);
 };
 
+/**
+ * Only the percentage-based `ResizableMediaSingle` reads `offsetLeft`, to offset the resize grid
+ * for an image indented in a list. Pixel resizing and no-resizer configurations never consume it,
+ * so `ignoreMutation` can skip the forced layout read for them.
+ *
+ * We can remove this and always return true from ignoreMutation once the legacy media resizer is removed.
+ */
+const shouldSkipOffsetLeftRead = (mediaOptions: MediaOptions | undefined): boolean => {
+	const allowPixelResizing = Boolean(mediaOptions && mediaOptions.allowPixelResizing);
+	const allowResizing = Boolean(mediaOptions && mediaOptions.allowResizing);
+
+	return (
+		(allowPixelResizing || !allowResizing) &&
+		isExperimentEnabled('platform_editor_reduce_forced_layout')
+	);
+};
+
 class MediaSingleNodeView extends ReactNodeView<MediaSingleNodeViewProps> {
 	lastOffsetLeft = 0;
 	forceViewUpdate = false;
 	selectionType: number | null = null;
 	unsubscribeToViewModeChange: (() => void) | undefined;
 	hasResized = false;
+	skipsOffsetLeftRead: boolean | null = null;
 
 	createDomRef(): HTMLElement {
 		const domRef = document.createElement('div');
@@ -148,13 +172,43 @@ class MediaSingleNodeView extends ReactNodeView<MediaSingleNodeViewProps> {
 		}
 		domRef.setAttribute('data-media-vc-wrapper', 'true');
 
+		this.updateContentVisibility(domRef);
+
 		return domRef;
 	}
 
-	getContentDOM() {
+	getContentDOM(): {
+		dom: HTMLDivElement;
+	} {
 		const dom = document.createElement('div');
 		dom.classList.add(MEDIA_CONTENT_WRAP_CLASS_NAME);
 		return { dom };
+	}
+
+	/**
+	 * Skip rendering off-screen media in large (limited-mode) documents; the estimate is derived from
+	 * the media's own dimensions and the renderer's width calculation. Called from both `createDomRef`
+	 * and `update()` because limited mode can flip from disabled→enabled after the document loads.
+	 * Takes the target element explicitly because `createDomRef` runs before `this.dom` is assigned.
+	 */
+	private updateContentVisibility(dom: HTMLElement): void {
+		const api = this.reactComponentProps.pluginInjectionApi;
+		// Read limited mode from `this.view.state` via the exposed plugin key, NOT `currentState().enabled`
+		// (which reads a stale false during initial EditorView construction — see the table nodeView).
+		//
+		// Reads the plugin's derived `enabled`, so this covers every reason limited mode can be on.
+		const enabled = Boolean(
+			api?.limitedMode?.sharedState.currentState()?.limitedModePluginKey?.getState(this.view.state)
+				?.enabled,
+		);
+		applyContentVisibility(dom, enabled, () => {
+			const widthState = api?.width?.sharedState.currentState();
+			return estimateMediaSingleIntrinsicSize(
+				this.node,
+				widthState?.lineLength ?? 0,
+				widthState?.width ?? 0,
+			);
+		});
 	}
 
 	viewShouldUpdate(nextNode: PMNode): boolean {
@@ -178,7 +232,7 @@ class MediaSingleNodeView extends ReactNodeView<MediaSingleNodeViewProps> {
 		return super.viewShouldUpdate(nextNode);
 	}
 
-	subscribeToViewModeChange(domRef: HTMLElement) {
+	subscribeToViewModeChange(domRef: HTMLElement): (() => void) | undefined {
 		return this.reactComponentProps.pluginInjectionApi?.editorViewMode?.sharedState.onChange(
 			(viewModeState) => {
 				this.updateDomRefContentEditable(domRef, viewModeState.nextSharedState?.mode);
@@ -201,7 +255,7 @@ class MediaSingleNodeView extends ReactNodeView<MediaSingleNodeViewProps> {
 		}
 	}
 
-	checkAndUpdateSelectionType = () => {
+	checkAndUpdateSelectionType = (): SelectedState | null => {
 		const getPos = this.getPos as getPosHandlerNode;
 		const { selection } = this.view.state;
 
@@ -267,19 +321,21 @@ class MediaSingleNodeView extends ReactNodeView<MediaSingleNodeViewProps> {
 				this.getNodeMediaId(currentNode) === this.getNodeMediaId(newNode);
 		}
 		// Detect mediaSingle width attribute changes and signal child media node to update
-		if (
-			!this.hasResized &&
-			this.node.attrs.width !== node.attrs.width &&
-			expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)
-		) {
+		if (!this.hasResized && this.node.attrs.width !== node.attrs.width) {
 			const target = this.dom.querySelector('div[data-prosemirror-node-name="media"]');
 			target?.dispatchEvent(new CustomEvent('resized'));
 		}
 
-		return super.update(node, decorations, _innerDecorations, isValidUpdate);
+		const didUpdate = super.update(node, decorations, _innerDecorations, isValidUpdate);
+
+		if (this.dom) {
+			this.updateContentVisibility(this.dom);
+		}
+
+		return didUpdate;
 	}
 
-	render(props: MediaSingleNodeViewProps, forwardRef?: ForwardRef) {
+	render(props: MediaSingleNodeViewProps, forwardRef?: ForwardRef): jsx.JSX.Element {
 		const {
 			eventDispatcher,
 			fullWidthMode,
@@ -288,42 +344,54 @@ class MediaSingleNodeView extends ReactNodeView<MediaSingleNodeViewProps> {
 			dispatchAnalyticsEvent,
 			pluginInjectionApi,
 			editorAppearance,
+			intl,
 		} = this.reactComponentProps;
-
 		// getPos is a boolean for marks, since this is a node we know it must be a function
 		const getPos = this.getPos as getPosHandlerNode;
 
 		return (
-			<WithProviders
-				providers={['contextIdentifierProvider']}
-				providerFactory={providerFactory}
-				renderNode={({ contextIdentifierProvider }) => {
-					return (
-						<MediaSingleNodeWrapper
-							pluginInjectionApi={pluginInjectionApi}
-							contextIdentifierProvider={contextIdentifierProvider}
-							node={this.node}
-							getPos={getPos}
-							mediaOptions={mediaOptions}
-							view={this.view}
-							fullWidthMode={fullWidthMode}
-							selected={this.isNodeSelected}
-							eventDispatcher={eventDispatcher}
-							// Ignored via go/ees005
-							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-							dispatchAnalyticsEvent={dispatchAnalyticsEvent!}
-							// Ignored via go/ees005
-							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-							forwardRef={forwardRef!}
-							editorAppearance={editorAppearance}
-						/>
-					);
-				}}
-			/>
+			<MediaSSRReactContextsProvider intl={intl}>
+				<WithProviders
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					providers={['contextIdentifierProvider']}
+					providerFactory={providerFactory}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					renderNode={({ contextIdentifierProvider }) => {
+						return (
+							<MediaSingleNodeWrapper
+								pluginInjectionApi={pluginInjectionApi}
+								contextIdentifierProvider={contextIdentifierProvider}
+								node={this.node}
+								getPos={getPos}
+								mediaOptions={mediaOptions}
+								view={this.view}
+								fullWidthMode={fullWidthMode}
+								selected={this.isNodeSelected}
+								eventDispatcher={eventDispatcher}
+								// Ignored via go/ees005
+								// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								dispatchAnalyticsEvent={dispatchAnalyticsEvent!}
+								// Ignored via go/ees005
+								// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								forwardRef={forwardRef!}
+								editorAppearance={editorAppearance}
+							/>
+						);
+					}}
+				/>
+			</MediaSSRReactContextsProvider>
 		);
 	}
 
-	ignoreMutation() {
+	ignoreMutation(): boolean {
+		if (this.skipsOffsetLeftRead === null) {
+			this.skipsOffsetLeftRead = shouldSkipOffsetLeftRead(this.reactComponentProps.mediaOptions);
+		}
+
+		if (this.skipsOffsetLeftRead) {
+			return true;
+		}
+
 		// DOM has changed; recalculate if we need to re-render
 		if (this.dom) {
 			// Ignored via go/ees005
@@ -354,8 +422,9 @@ export const ReactMediaSingleNode =
 		pluginInjectionApi: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined,
 		dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
 		mediaOptions: MediaOptions = {},
+		intl?: IntlShape,
 	) =>
-	(node: PMNode, view: EditorView, getPos: getPosHandler) => {
+	(node: PMNode, view: EditorView, getPos: getPosHandler): MediaSingleNodeView => {
 		return new MediaSingleNodeView(node, view, getPos, portalProviderAPI, eventDispatcher, {
 			eventDispatcher,
 			fullWidthMode: mediaOptions.fullWidthEnabled,
@@ -365,5 +434,6 @@ export const ReactMediaSingleNode =
 			isCopyPasteEnabled: mediaOptions.isCopyPasteEnabled,
 			pluginInjectionApi,
 			editorAppearance: mediaOptions.editorAppearance,
+			intl,
 		}).init();
 	};

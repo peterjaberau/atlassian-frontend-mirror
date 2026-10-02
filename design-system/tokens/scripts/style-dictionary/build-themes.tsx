@@ -3,29 +3,30 @@ import path from 'path';
 
 import { type Config, type Core } from 'style-dictionary';
 
+import motionPalette from '../../schema/palettes/motion-palette';
 import defaultPalette from '../../schema/palettes/palette';
 import shapePalette from '../../schema/palettes/shape-palette';
 import spacingScale from '../../schema/palettes/spacing-scale';
 import typographyPalette from '../../schema/palettes/typography-palette';
 import themeConfig, { type Palettes, type ThemeFileNames } from '../../src/theme-config';
-
 import {
 	ARTIFACT_OUTPUT_DIR,
 	FIGMA_ARTIFACT_OUTPUT_DIR,
 	THEME_INPUT_DIR,
 	TOKENS_INPUT_DIR,
 } from './constants';
-import formatterCSSVariables from './formatters/css-variables';
+import { default as formatterCSSVariables } from './formatters/css-variables';
 import formatterCSSVariablesAsModule from './formatters/css-variables-as-module';
 import formatterFigma from './formatters/figma';
+import { formatter as formatterTSTokenValueForContrastCheck } from './formatters/formatter';
 import formatterRaw from './formatters/raw';
-import formatterTSTokenValueForContrastCheck from './formatters/typescript-token-value-for-contrast-check';
+import { default as motionTransform } from './transformers/animation';
 import boxShadowTransform from './transformers/box-shadow';
 import dotSyntax from './transformers/dot-syntax';
 import numberPixelTransform from './transformers/number-pixel';
 import paletteTransform from './transformers/palette';
 import pixelRemTransform from './transformers/pixel-rem';
-import fontTransform from './transformers/web-font';
+import { default as fontTransform } from './transformers/web-font';
 
 const getPalette = (paletteId: Palettes) => {
 	switch (paletteId) {
@@ -35,6 +36,8 @@ const getPalette = (paletteId: Palettes) => {
 			return typographyPalette;
 		case 'shapePalette':
 			return shapePalette;
+		case 'motionPalette':
+			return motionPalette;
 		case 'defaultPalette':
 		default:
 			return defaultPalette;
@@ -62,10 +65,18 @@ const getBaseThemes = (themeName: ThemeFileNames): ThemeFileNames[] => {
  * Finds theme targeted for increased contrast.
  */
 const getIncreasedContrastTargetTheme = (themeName: ThemeFileNames): ThemeFileNames | undefined => {
+	let increasedContrastFor = themeConfig[themeName].increasesContrastFor;
+
+	if (!increasedContrastFor && themeConfig[themeName].override) {
+		increasedContrastFor = Object.values(themeConfig).find(
+			({ id }) => id === themeConfig[themeName].override,
+		)?.increasesContrastFor;
+	}
+
 	let targetTheme;
-	if (themeConfig[themeName].increasesContrastFor) {
+	if (increasedContrastFor) {
 		targetTheme = Object.entries(themeConfig).find(
-			([, { id }]) => id === themeConfig[themeName].increasesContrastFor,
+			([, { id }]) => id === increasedContrastFor,
 		)?.[0] as ThemeFileNames;
 	}
 
@@ -102,6 +113,7 @@ const createThemeConfig = (
 			'pixel/rem': pixelRemTransform,
 			'raw/pixel': numberPixelTransform,
 			'font/web': fontTransform,
+			'motion/animation': motionTransform,
 		},
 		source: [path.join(THEME_INPUT_DIR, themeName, '**', '*.tsx')],
 		include: [
@@ -147,7 +159,13 @@ const createThemeConfig = (
 				],
 			},
 			cssAsModule: {
-				transforms: ['name/dot', 'color/palette', 'pixel/rem', 'box-shadow/figma'],
+				transforms: [
+					'name/dot',
+					'color/palette',
+					'pixel/rem',
+					'box-shadow/figma',
+					'motion/animation',
+				],
 				buildPath: path.join(ARTIFACT_OUTPUT_DIR, 'themes/'),
 				options: {
 					themeName,

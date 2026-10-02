@@ -2,18 +2,20 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
+
 import React from 'react';
-import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
+import { jsx } from '@emotion/react';
+
 // eslint-disable-next-line no-restricted-imports -- Legacy package outside of AFM lacks entry points
 import { MockActivityResource } from '@atlaskit/activity/dist/es5/support';
-import { JIRATransformer } from '../src';
-
-import { content } from './styles';
-
-import { MentionResource } from '@atlaskit/mention/resource';
+import { MentionResource } from '@atlaskit/mention/mention-resource';
 import { token } from '@atlaskit/tokens';
+import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
+
+import { JIRATransformer } from '../src';
+import { content } from './styles';
 
 const rejectedPromise = Promise.reject(new Error('Simulated provider rejection'));
 // Ignored via go/ees005
@@ -96,12 +98,12 @@ export default class ToolsDrawer extends React.Component<any, State> {
 		});
 	};
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { mentionProvider, activityProvider, document, reloadEditor, editorEnabled } = this.state;
 		return (
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 			<div css={content}>
-				<div style={{ padding: `${token('space.075', '6px')} 0` }}>Editor</div>
+				<div style={{ padding: `${token('space.075')} 0` }}>Editor</div>
 				{reloadEditor
 					? ''
 					: this.props.renderEditor({

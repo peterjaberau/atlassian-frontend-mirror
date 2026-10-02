@@ -2,9 +2,11 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+import type { FC, ComponentType } from 'react';
+
 import { css as cssUnbounded } from '@compiled/react';
-import { injectIntl } from 'react-intl-next';
-import type { MessageDescriptor, WrappedComponentProps } from 'react-intl-next';
+import { injectIntl } from 'react-intl';
+import type { MessageDescriptor, WithIntlProps, WrappedComponentProps } from 'react-intl';
 
 import { css, jsx } from '@atlaskit/css';
 import type { Keymap } from '@atlaskit/editor-common/keymaps';
@@ -14,15 +16,14 @@ import { token } from '@atlaskit/tokens';
 
 import type { AlignmentState } from '../../pm-plugins/types';
 import { IconMap } from '../ToolbarAlignment/icon-map';
-
 import AlignmentButton from './AlignmentButton';
 
 const alignmentWrapper = css({
 	display: 'flex',
-	paddingTop: token('space.0', '0px'),
-	paddingBottom: token('space.0', '0px'),
-	paddingLeft: token('space.100', '8px'),
-	paddingRight: token('space.100', '8px'),
+	paddingTop: token('space.0'),
+	paddingBottom: token('space.0'),
+	paddingLeft: token('space.100'),
+	paddingRight: token('space.100'),
 	maxWidth: `${3 * 32 + 2 * 2}px`, // 3 buttons * 32px + 2 * 2px gap
 	columnGap: token('space.025'), // add gap between buttons, so they don't crunch each other
 });
@@ -93,4 +94,7 @@ function Alignment({ onClick, selectedAlignment, className, intl }: Props & Wrap
 	);
 }
 
-export default injectIntl(Alignment);
+const _default_1: FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(Alignment);
+export default _default_1;

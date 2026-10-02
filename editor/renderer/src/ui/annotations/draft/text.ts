@@ -1,5 +1,6 @@
 import React from 'react';
-import { type TextPosition, type Position } from '../types';
+
+import type { TextPosition, Position } from '../types';
 
 export const findTextString = (reactNode: React.ReactNode): string | null => {
 	let result: string | null = null;
@@ -43,7 +44,10 @@ export const calcTextSplitOffset = (
 	position: Position,
 	textPosition: TextPosition,
 	text: string,
-) => {
+): {
+	endOffset: number;
+	startOffset: number;
+} => {
 	const { start, end } = textPosition;
 	const startOffset = Math.max(position.from - start, 0);
 	const endOffset = Math.min(Math.abs(end - position.to - text.length), text.length);

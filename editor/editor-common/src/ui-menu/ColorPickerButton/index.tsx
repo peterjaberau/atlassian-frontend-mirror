@@ -2,23 +2,26 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
-import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
-import Button from '@atlaskit/button/new';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import Button from '@atlaskit/button/default/button';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss, Inline } from '@atlaskit/primitives';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import type { ColorPickerAEP } from '../../analytics';
 import {
@@ -71,7 +74,7 @@ const colorPickerWrapper = () =>
 		borderRadius: token('radius.small', '3px'),
 		backgroundColor: token('elevation.surface.overlay'),
 		boxShadow: token('elevation.shadow.overlay'),
-		padding: `${token('space.100', '8px')} 0px`,
+		padding: `${token('space.100')} 0px`,
 	});
 /* eslint-enable @atlaskit/design-system/ensure-design-token-usage */
 
@@ -82,6 +85,7 @@ type Props = WithAnalyticsEventsProps & {
 	cols?: number;
 	currentColor?: string;
 	hexToPaletteColor?: (hexColor: string) => string | undefined;
+	hideExpandIcon?: boolean;
 	isAriaExpanded?: boolean;
 	mountPoint?: HTMLElement;
 	onChange?: (color: PaletteColor) => void;
@@ -103,6 +107,7 @@ type Props = WithAnalyticsEventsProps & {
 };
 
 const ColorPaletteWithReactViewListeners = withReactEditorViewOuterListeners(ColorPalette);
+const COLOR_PICKER_POPUP_OFFSET: [number, number] = [0, 10];
 
 const ColorPickerButton = (props: Props) => {
 	const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -111,13 +116,65 @@ const ColorPickerButton = (props: Props) => {
 	const [isOpenedByKeyboard, setIsOpenedByKeyboard] = React.useState(false);
 	const { formatMessage } = useIntl();
 
-	const togglePopup = () => {
-		setIsPopupOpen(!isPopupOpen);
-		if (!isPopupOpen) {
-			setIsOpenedByKeyboard(false);
-			setIsPopupPositioned(false);
-		}
-	};
+	const memoizedHandleClose = useCallback(() => setIsPopupOpen(false), [setIsPopupOpen]);
+	const handleClose = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedHandleClose
+		: () => setIsPopupOpen(false);
+
+	const memoizedTogglePopup = useCallback(() => {
+		setIsPopupOpen((prevIsOpen) => {
+			if (!prevIsOpen) {
+				setIsOpenedByKeyboard(false);
+				setIsPopupPositioned(false);
+			}
+			return !prevIsOpen;
+		});
+	}, []);
+	const togglePopup = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedTogglePopup
+		: () => {
+				setIsPopupOpen(!isPopupOpen);
+				if (!isPopupOpen) {
+					setIsOpenedByKeyboard(false);
+					setIsPopupPositioned(false);
+				}
+			};
+
+	const memoizedOnKeyDown = useCallback(
+		(event: React.KeyboardEvent) => {
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				memoizedTogglePopup();
+				setIsOpenedByKeyboard(true);
+			}
+		},
+		[memoizedTogglePopup],
+	);
+	const onKeyDown = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedOnKeyDown
+		: (event: React.KeyboardEvent) => {
+				if (event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault();
+					togglePopup();
+					setIsOpenedByKeyboard(true);
+				}
+			};
+
+	const memoizedPaletteOptions = useMemo(
+		() => ({
+			palette: props.colorPalette,
+			hexToPaletteColor: props.hexToPaletteColor,
+			paletteColorTooltipMessages: props.paletteColorTooltipMessages,
+		}),
+		[props.colorPalette, props.hexToPaletteColor, props.paletteColorTooltipMessages],
+	);
+	const paletteOptions = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedPaletteOptions
+		: {
+				palette: props.colorPalette,
+				hexToPaletteColor: props.hexToPaletteColor,
+				paletteColorTooltipMessages: props.paletteColorTooltipMessages,
+			};
 
 	React.useEffect(() => {
 		if (props.setDisableParentScroll) {
@@ -142,8 +199,14 @@ const ColorPickerButton = (props: Props) => {
 		return position;
 	}, []);
 
-	const { onChange, createAnalyticsEvent, colorPalette, placement, skipFocusButtonAfterPick } =
-		props;
+	const {
+		onChange,
+		createAnalyticsEvent,
+		colorPalette,
+		placement,
+		skipFocusButtonAfterPick,
+		hideExpandIcon = false,
+	} = props;
 
 	const onColorSelected = React.useCallback(
 		(color: string, label: string) => {
@@ -194,7 +257,11 @@ const ColorPickerButton = (props: Props) => {
 				target={buttonRef.current}
 				fitHeight={350}
 				fitWidth={350}
-				offset={[0, 10]}
+				offset={
+					isExperimentEnabled('platform_editor_perf_lint_cleanup')
+						? COLOR_PICKER_POPUP_OFFSET
+						: [0, 10]
+				}
 				alignX={props.alignX}
 				mountTo={props.setDisableParentScroll ? props.mountPoint : undefined}
 				absoluteOffset={props.absoluteOffset}
@@ -202,11 +269,7 @@ const ColorPickerButton = (props: Props) => {
 				// if the toolbar is scrollable, this will be mounted in the root editor
 				// we need an index of > 500 to display over it
 				zIndex={props.setDisableParentScroll ? 600 : undefined}
-				ariaLabel={
-					fg('_editor_a11y_aria_label_removal_popup')
-						? formatMessage(colorPickerButtonMessages.colorPickerMenuLabel)
-						: 'Color picker popup'
-				}
+				ariaLabel={formatMessage(colorPickerButtonMessages.colorPickerMenuLabel)}
 				onPositionCalculated={onPositionCalculated}
 			>
 				<div css={colorPickerWrapper} data-test-id="color-picker-menu">
@@ -215,7 +278,7 @@ const ColorPickerButton = (props: Props) => {
 						selectedRowIndex={selectedRowIndex}
 						selectedColumnIndex={selectedColumnIndex}
 						closeOnTab={true}
-						handleClose={() => setIsPopupOpen(false)}
+						handleClose={handleClose}
 						isOpenedByKeyboard={isOpenedByKeyboard}
 						isPopupPositioned={isPopupPositioned}
 						ignoreEscapeKey={props.returnEscToButton}
@@ -226,11 +289,7 @@ const ColorPickerButton = (props: Props) => {
 							onClick={onColorSelected}
 							handleClickOutside={togglePopup}
 							handleEscapeKeydown={handleEsc}
-							paletteOptions={{
-								palette: props.colorPalette,
-								hexToPaletteColor: props.hexToPaletteColor,
-								paletteColorTooltipMessages: props.paletteColorTooltipMessages,
-							}}
+							paletteOptions={paletteOptions}
 						/>
 					</ArrowKeyNavigationProvider>
 				</div>
@@ -263,7 +322,7 @@ const ColorPickerButton = (props: Props) => {
 				width: props.size?.width || '14px',
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 				height: props.size?.height || '14px',
-				marginTop: `${token('space.025', '2px')}`,
+				marginTop: `${token('space.025')}`,
 			},
 		});
 	return (
@@ -279,13 +338,7 @@ const ColorPickerButton = (props: Props) => {
 							editorExperiment('platform_editor_controls', 'variant1') ? 'default' : 'compact'
 						}
 						onClick={togglePopup}
-						onKeyDown={(event: React.KeyboardEvent) => {
-							if (event.key === 'Enter' || event.key === ' ') {
-								event.preventDefault();
-								togglePopup();
-								setIsOpenedByKeyboard(true);
-							}
-						}}
+						onKeyDown={onKeyDown}
 						data-selected-color={props.currentColor}
 						isSelected={isPopupOpen}
 					>
@@ -294,14 +347,16 @@ const ColorPickerButton = (props: Props) => {
 								// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage
 								css={buttonStyleVisualRefresh}
 							/>
-							<Box xcss={colorPickerExpandContainerVisualRefresh}>
-								<ChevronDownIcon
-									color="currentColor"
-									spacing="spacious"
-									label="color-picker-chevron-down"
-									size="small"
-								/>
-							</Box>
+							{!hideExpandIcon && (
+								<Box xcss={colorPickerExpandContainerVisualRefresh}>
+									<ChevronDownIcon
+										color="currentColor"
+										spacing="spacious"
+										label="color-picker-chevron-down"
+										size="small"
+									/>
+								</Box>
+							)}
 						</Inline>
 					</Button>
 				</div>
@@ -311,6 +366,41 @@ const ColorPickerButton = (props: Props) => {
 	);
 };
 
-export default withAnalyticsContext({ source: 'ConfigPanel' })(
-	withAnalyticsEvents()(ColorPickerButton),
-);
+const _default_1: React.ForwardRefExoticComponent<
+	Omit<
+		Omit<
+			{
+				absoluteOffset?: PopupPosition;
+				alignX?: 'left' | 'right' | 'center' | 'end';
+				colorPalette: PaletteColor[];
+				cols?: number;
+				currentColor?: string;
+				hexToPaletteColor?: (hexColor: string) => string | undefined;
+				hideExpandIcon?: boolean;
+				isAriaExpanded?: boolean;
+				mountPoint?: HTMLElement;
+				onChange?: (color: PaletteColor) => void;
+				paletteColorTooltipMessages?: PaletteTooltipMessages;
+				placement: string;
+				returnEscToButton?: boolean;
+				setDisableParentScroll?: (disable: boolean) => void;
+				size?: {
+					height: string;
+					width: string;
+				};
+				/**
+				 * After picking the color the default behaviour is to focus the color picker button.
+				 * To prevent this use skipFocusButtonAfterPick.
+				 */
+				skipFocusButtonAfterPick?: boolean;
+				title?: string;
+			},
+			keyof WithAnalyticsEventsProps
+		> &
+			React.RefAttributes<unknown> &
+			WithContextProps,
+		'ref'
+	> &
+		React.RefAttributes<unknown>
+> = withAnalyticsContext({ source: 'ConfigPanel' })(withAnalyticsEvents()(ColorPickerButton));
+export default _default_1;

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import { type Jast } from '@atlaskit/jql-ast';
-import { JQLEditor } from '@atlaskit/jql-editor';
-import { useAutocompleteProvider } from '@atlaskit/jql-editor-autocomplete-rest';
+import { useAutocompleteProvider } from '@atlaskit/jql-editor-autocomplete-rest/use-autocomplete-provider';
+import JQLEditor from '@atlaskit/jql-editor/ui';
 
 import { makeGetJqlAutocompleteData } from '../../../services/makeGetJqlAutocompleteData';
 import { makeGetJqlSuggestionsData } from '../../../services/makeGetJqlSuggestionsData';
@@ -54,8 +54,8 @@ export const JiraJQLEditor = ({
 			inputRef={inputRef}
 			query={query}
 			aria-label={
-			<FormattedMessage defaultMessage="JQL Query Editor" id='link-datasource.jira.jql-editor' />
-		}
+				<FormattedMessage defaultMessage="JQL Query Editor" id="link-datasource.jira.jql-editor" />
+			}
 		/>
 	);
 };

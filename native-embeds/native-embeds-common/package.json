@@ -1,0 +1,74 @@
+{
+	"atlassian": {
+		"team": "Confluence Content Types",
+		"website": {
+			"name": "NativeEmbedsCommon",
+			"category": "Layout and structure"
+		}
+	},
+	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-monorepo",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
+	"module:es2019": "dist/es2019/index.js",
+	"types": "dist/types/index.d.ts",
+	"sideEffects": [
+		"*.compiled.css"
+	],
+	"atlaskit:src": "src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./embed-depth": "./src/embed-depth.ts",
+		"./fallback-ui": "./src/ui/index.tsx",
+		"./constants": "./src/entry-points/constants.ts",
+		"./initial-layout": "./src/entry-points/initial-layout.ts",
+		"./initial-placeholder": "./src/entry-points/initial-placeholder.tsx",
+		"./native-embed-styles": "./src/entry-points/native-embed-styles.ts",
+		"./whiteboard-viewport-alignment": "./src/entry-points/whiteboard-viewport-alignment.ts",
+		"./embed-depth/constants": "./src/entry-points/embed-depth-constants.ts",
+		"./plugin-actions/types": "./src/entry-points/plugin-actions-types.ts",
+		"./remix-slot-store": "./src/entry-points/remix-slot-store.ts",
+		"./types": "./src/entry-points/types.ts",
+		"./utils": "./src/entry-points/utils.ts",
+		"./i18n/*": {
+			"publish": null,
+			"default": "./src/i18n/*.ts"
+		}
+	},
+	"dependencies": {
+		"@atlaskit/button": "workspace:^",
+		"@atlaskit/editor-common": "workspace:^",
+		"@atlaskit/editor-plugin-local-id": "workspace:^",
+		"@atlaskit/editor-prosemirror": "workspace:^",
+		"@atlaskit/heading": "workspace:^",
+		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/tokens": "workspace:^",
+		"@atlassian/afm-i18n-platform-native-embeds-native-embeds-common": "root:*",
+		"@babel/runtime": "root:*",
+		"@compiled/react": "root:*",
+		"@emotion/react": "root:*"
+	},
+	"peerDependencies": {
+		"react": "^18.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
+	},
+	"devDependencies": {
+		"@af/integration-testing": "workspace:^",
+		"@af/visual-regression": "workspace:^",
+		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@testing-library/react": "root:*",
+		"react": "root:*",
+		"react-dom": "root:*",
+		"react-intl": "root:*"
+	},
+	"name": "@atlaskit/native-embeds-common",
+	"version": "2.6.2",
+	"description": "A shared package for native embeds to be used across experiences and plugin",
+	"author": "Atlassian Pty Ltd",
+	"license": "Apache-2.0",
+	"i18n": true,
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	}
+}

@@ -5,12 +5,13 @@ import {
 	type ExternalImageIdentifier,
 	type MediaType,
 } from '@atlaskit/media-client';
+
 import {
 	defaultCollectionName as collectionName,
 	onlyAnimatedGifsCollectionName,
 } from './collectionNames';
-import { videoURI } from './dataURIs/videoURI';
 import { videoPreviewURI } from './dataURIs/videoPreviewURI';
+import { videoURI } from './dataURIs/videoURI';
 
 const fileType: MediaItemType = 'file';
 
@@ -323,7 +324,14 @@ export const genericDataURI =
 
 // === VR test ids ===
 
-export const vrVideoDetails = {
+export const vrVideoDetails: {
+	id: string;
+	name: string;
+	dataUri: string;
+	previewDataUri: string;
+	mediaType: MediaType;
+	mimeType: string;
+} = {
 	id: '57b9af11-eead-4711-85fa-9d393278c314',
 	name: 'video.mp4',
 	dataUri: videoURI,

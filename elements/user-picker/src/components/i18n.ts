@@ -1,6 +1,212 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	addEmail: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	addMore: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	adminManagedGroupByline: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	archivedLozenge: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	clear: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	confluenceSource: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	continueToAddEmail: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	customTypeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emailTypeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	errorMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	externalUserSourcesError: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	externalUserSourcesHeading: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	externalUserTypeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	gitHubProvider: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	googleProvider: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	groupByline: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	groupTypeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	guestGroupLozengeTooltip: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	guestLozengeText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	guestUserLozengeTooltip: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	jiraSource: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	memberCountWithoutYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	memberCountWithYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	memberLozengeText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	microsoftProvider: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	officialMemberCountWithoutYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	officialMemberCountWithYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	officialPlus50MembersWithoutYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	officialPlus50MembersWithYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	officialTeamByline: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	otherAtlassianSource: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	otherTypeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	placeholder: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	plus50MembersWithoutYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	plus50MembersWithYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	remove: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	selectToAddEmail: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	slackProvider: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	teamByline: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	teamTypeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	userTypeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	placeholder: {
 		id: 'fabric.elements.user-picker.placeholder',
 		defaultMessage: 'Enter people or teams...',
@@ -29,7 +235,8 @@ export const messages = defineMessages({
 	teamByline: {
 		id: 'fabric.elements.user-picker.team.byline',
 		defaultMessage: 'Team',
-		description: 'Byline for team',
+		description:
+			'Secondary text shown below a team name in the user picker drop-down list to indicate the option is a team.',
 	},
 	officialTeamByline: {
 		id: 'fabric.elements.user-picker.team.byline.official',
@@ -87,12 +294,14 @@ export const messages = defineMessages({
 	addEmail: {
 		id: 'fabric.elements.user-picker.email.add',
 		defaultMessage: 'Add user',
-		description: 'Byline for valid email option.',
+		description:
+			'Label for the add-user option shown in the user picker when the user has typed a valid email address.',
 	},
 	selectToAddEmail: {
 		id: 'fabric.elements.user-picker.email.select.to.add',
 		defaultMessage: 'Select an email address',
-		description: 'Byline for valid email option.',
+		description:
+			'Instruction text shown in the user picker prompting the user to select a typed email address to add it.',
 	},
 	continueToAddEmail: {
 		id: 'fabric.elements.user-picker.email.add.potential',
@@ -107,12 +316,14 @@ export const messages = defineMessages({
 	groupByline: {
 		id: 'fabric.elements.user-picker.group.byline',
 		defaultMessage: 'Admin-managed group',
-		description: 'Byline for admin-managed groups',
+		description:
+			'Secondary text shown below a group name in the user picker drop-down list to indicate the option is an admin-managed group.',
 	},
 	externalUserSourcesHeading: {
 		id: 'fabric.elements.user-picker.external.sourced.from',
 		defaultMessage: 'Found in:',
-		description: 'From where the external user is coming',
+		description:
+			'Label shown in the user picker beside the list of sources where an external user was found (e.g. Jira, Confluence).',
 	},
 	externalUserSourcesError: {
 		id: 'fabric.elements.user-picker.external.sourced.error',
@@ -142,7 +353,8 @@ export const messages = defineMessages({
 	jiraSource: {
 		id: 'fabric.elements.user-picker.source.jira',
 		defaultMessage: 'Jira',
-		description: 'This external user is sourced from Jira',
+		description:
+			'Source label shown in the user picker to indicate that an external user was found via Jira.',
 	},
 	confluenceSource: {
 		id: 'fabric.elements.user-picker.source.confluence',
@@ -150,12 +362,6 @@ export const messages = defineMessages({
 		description: 'This external user is sourced from Confluence',
 	},
 	otherAtlassianSource: {
-		id: 'fabric.elements.user-picker.source.other-atlassian',
-		defaultMessage: 'Other Atlassian products',
-		description:
-			'This external user is sourced from Atlassian products other than Jira and Confluence',
-	},
-	otherAtlassianSourceAppify: {
 		id: 'fabric.elements.user-picker.source.other-atlassian-appify',
 		defaultMessage: 'Other Atlassian apps',
 		description:
@@ -182,39 +388,51 @@ export const messages = defineMessages({
 			'Guest groups can only access certain spaces and have limited access to user info.',
 		description: 'Tooltip text for lozenge showing that a group is for guests in Confluence',
 	},
+	archivedLozenge: {
+		id: 'fabric.elements.user-picker.archived.lozenge.text',
+		defaultMessage: 'Archived',
+		description: 'Text within the lozenge when the selected team has been archived/disbanded',
+	},
 	userTypeLabel: {
 		id: 'fabric.elements.user-picker.user.type.label',
 		defaultMessage: 'People',
-		description: 'Label for user type',
+		description:
+			'Tab or section heading label in the user picker that groups results of type People (individual users).',
 	},
 	teamTypeLabel: {
 		id: 'fabric.elements.user-picker.team.type.label',
 		defaultMessage: 'Teams',
-		description: 'Label for team type',
+		description:
+			'Tab or section heading label in the user picker that groups results of type Teams.',
 	},
 	emailTypeLabel: {
 		id: 'fabric.elements.user-picker.email.type.label',
 		defaultMessage: 'Emails',
-		description: 'Label for email type',
+		description:
+			'Tab or section heading label in the user picker that groups results of type Emails.',
 	},
 	groupTypeLabel: {
 		id: 'fabric.elements.user-picker.group.type.label',
 		defaultMessage: 'Groups',
-		description: 'Label for group type',
+		description:
+			'Tab or section heading label in the user picker that groups results of type Groups.',
 	},
 	externalUserTypeLabel: {
 		id: 'fabric.elements.user-picker.external.user.type.label',
 		defaultMessage: 'External Users',
-		description: 'Label for external user type',
+		description:
+			'Tab or section heading label in the user picker that groups results of type External Users.',
 	},
 	customTypeLabel: {
 		id: 'fabric.elements.user-picker.custom.type.label',
 		defaultMessage: 'Customs',
-		description: 'Label for custom type',
+		description:
+			'Tab or section heading label in the user picker that groups results of a custom type defined by the host application.',
 	},
 	otherTypeLabel: {
 		id: 'fabric.elements.user-picker.other.type.label',
 		defaultMessage: 'Others',
-		description: 'Label for other type',
+		description:
+			'Tab or section heading label in the user picker that groups results that do not fit any standard type category.',
 	},
 });

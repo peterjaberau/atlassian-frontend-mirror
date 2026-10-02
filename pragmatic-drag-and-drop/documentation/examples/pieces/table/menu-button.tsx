@@ -2,12 +2,20 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef, useCallback, useContext } from 'react';
+import {
+	forwardRef,
+	useCallback,
+	useContext,
+	type ForwardRefExoticComponent,
+	type RefAttributes,
+} from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 // eslint-disable-next-line @atlaskit/design-system/no-banned-imports
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
 import { DragHandleButton } from '@atlaskit/pragmatic-drag-and-drop-react-accessibility/drag-handle-button';
@@ -34,7 +42,12 @@ const columnMenuButtonWrapperStyles = css({
 	right: 12,
 });
 
-export const RowMenuButton = forwardRef<
+export const RowMenuButton: ForwardRefExoticComponent<
+	{
+		rowIndex: number;
+		amountOfRows: number;
+	} & RefAttributes<HTMLButtonElement>
+> = forwardRef<
 	HTMLButtonElement,
 	{
 		rowIndex: number;
@@ -81,7 +94,12 @@ export const RowMenuButton = forwardRef<
 	);
 });
 
-export const ColumnMenuButton = forwardRef<
+export const ColumnMenuButton: ForwardRefExoticComponent<
+	{
+		columnIndex: number;
+		amountOfHeaders: number;
+	} & RefAttributes<HTMLButtonElement>
+> = forwardRef<
 	HTMLButtonElement,
 	{
 		columnIndex: number;

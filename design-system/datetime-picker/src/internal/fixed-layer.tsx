@@ -7,15 +7,17 @@ import React from 'react';
 import { cssMap, jsx } from '@compiled/react';
 
 import noop from '@atlaskit/ds-lib/noop';
-import { sizes } from '@atlaskit/icon';
-import { Manager, Popper, type PopperChildrenProps, Reference } from '@atlaskit/popper';
+import { sizes } from '@atlaskit/icon/constants/default';
+import { Popper, type PopperChildrenProps } from '@atlaskit/popper/main';
+import { Manager } from '@atlaskit/popper/manager';
+import { Reference } from '@atlaskit/popper/reference';
 import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
 	root: {
 		background: 'transparent',
 		position: 'absolute',
-		top: token('space.0'),
+		insetBlockStart: token('space.0'),
 	},
 	popperStyles: {
 		zIndex: 300,
@@ -59,7 +61,7 @@ export default class FixedLayer extends React.Component<FixedLayerProps> {
 		}
 	}
 
-	render() {
+	render(): JSX.Element {
 		const { containerRef, content, testId } = this.props;
 
 		// Wait for containerRef callback to cause a re-render
@@ -88,7 +90,6 @@ export default class FixedLayer extends React.Component<FixedLayerProps> {
 						return (
 							<div
 								ref={ref as React.Ref<HTMLDivElement>}
-								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 								style={style}
 								css={styles.popperStyles}
 								data-testid={testId && `${testId}--popper--container`}

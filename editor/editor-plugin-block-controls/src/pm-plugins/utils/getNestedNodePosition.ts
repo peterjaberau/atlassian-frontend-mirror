@@ -1,5 +1,6 @@
 import type { ResolvedPos, Schema } from '@atlaskit/editor-prosemirror/model';
-import { TextSelection, type Selection } from '@atlaskit/editor-prosemirror/state';
+import { TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 
 export const getNestedNodePosition = ({
@@ -10,7 +11,7 @@ export const getNestedNodePosition = ({
 	resolve: (pos: number) => ResolvedPos;
 	schema: Schema;
 	selection: Selection;
-}) => {
+}): number => {
 	let nestedNodePos = selection.$from.before(1);
 	if (selection instanceof TextSelection) {
 		nestedNodePos = selection.$from.before();
@@ -54,7 +55,7 @@ export const getNestedNodeStartingPosition = ({
 	resolve: (pos: number) => ResolvedPos;
 	schema: Schema;
 	selection: Selection;
-}) => {
+}): number => {
 	let nestedNodePos = selection.$from.before(1);
 	if (selection instanceof TextSelection) {
 		nestedNodePos = selection.$from.before();

@@ -3,27 +3,25 @@
  * @jsx jsx
  */
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
 import ReactDOM from 'react-dom';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { createIntl, injectIntl } from 'react-intl-next';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
+import { jsx } from '@emotion/react';
+import type { WrappedComponentProps } from 'react-intl';
+import { createIntl, injectIntl } from 'react-intl';
 
 import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
-import {
-	fireFailedMediaInlineEvent,
-	fireSucceededMediaInlineEvent,
-	MediaCardError,
-} from '@atlaskit/media-card';
+import { fireFailedOperationalEvent as fireFailedMediaInlineEvent } from '@atlaskit/media-card/inline/fire-failed-operational-event';
+import { fireSucceededOperationalEvent as fireSucceededMediaInlineEvent } from '@atlaskit/media-card/inline/fire-succeeded-operational-event';
+import { MediaCardError } from '@atlaskit/media-card/media-card-error';
 import type { FileIdentifier, FileState, MediaClient } from '@atlaskit/media-client';
 import { FileFetcherError } from '@atlaskit/media-client';
-import { MediaClientContext } from '@atlaskit/media-client-react';
+import { MediaClientContext } from '@atlaskit/media-client-react/media-client-provider';
 import { MediaViewer } from '@atlaskit/media-viewer';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { messages } from '../messages/media-inline-card';
-
 import { referenceHeights } from './constants';
 import { InlineImageCard } from './inline-image-card';
 import { InlineImageWrapper } from './inline-image-wrapper';
@@ -60,7 +58,7 @@ export const MediaInlineImageCardInternal = ({
 	serializeDataAttrs,
 	shouldOpenMediaViewer,
 	isViewOnly,
-}: MediaInlineImageCardProps & WrappedComponentProps & MediaInlineAttrs) => {
+}: MediaInlineImageCardProps & WrappedComponentProps & MediaInlineAttrs): jsx.JSX.Element => {
 	const [fileState, setFileState] = useState<FileState | undefined>();
 	const [subscribeError, setSubscribeError] = useState<Error>();
 	const [isFailedEventSent, setIsFailedEventSent] = useState(false);
@@ -106,6 +104,11 @@ export const MediaInlineImageCardInternal = ({
 			};
 		}
 	}, [identifier, mediaClient]);
+
+	const memoizedRenderError = useCallback(
+		() => <InlineImageCardErrorView message={formatMessage(messages.unableToLoadContent)} />,
+		[formatMessage],
+	);
 
 	const content = (dimensions: Dimensions) => {
 		if (!mediaClient) {
@@ -154,9 +157,14 @@ export const MediaInlineImageCardInternal = ({
 				<InlineImageCard
 					dimensions={dimensions}
 					identifier={identifier}
-					renderError={() => (
-						<InlineImageCardErrorView message={formatMessage(messages.unableToLoadContent)} />
-					)}
+					renderError={
+						isExperimentEnabled('platform_editor_perf_lint_cleanup')
+							? memoizedRenderError
+							: // eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- intentional fallback for experiment off path
+								() => (
+									<InlineImageCardErrorView message={formatMessage(messages.unableToLoadContent)} />
+								)
+					}
 					alt={alt}
 					ssr={ssr?.mode}
 					isLazy={isLazy}
@@ -214,7 +222,7 @@ export const MediaInlineImageCardInternal = ({
 	}, [alt, fileState, height, identifier, width, serializeDataAttrs]);
 
 	const onMediaInlineImageClick = useCallback(
-		(e: React.MouseEvent) => {
+		(e: React.MouseEvent | React.KeyboardEvent) => {
 			if (shouldOpenMediaViewer) {
 				setMediaViewerVisible(true);
 			}
@@ -233,12 +241,19 @@ export const MediaInlineImageCardInternal = ({
 		setMediaViewerVisible(false);
 	}, []);
 
+	const memoizedMediaViewerItems = useMemo(() => [identifier], [identifier]);
+
 	const mediaViewer = useMemo(() => {
 		if (isMediaViewerVisible && mediaClient?.mediaClientConfig) {
 			return ReactDOM.createPortal(
 				<MediaViewer
 					collectionName={identifier.collectionName || ''}
-					items={[identifier]}
+					items={
+						isExperimentEnabled('platform_editor_perf_lint_cleanup')
+							? memoizedMediaViewerItems
+							: // eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- intentional fallback for experiment off path
+								[identifier]
+					}
 					mediaClientConfig={mediaClient?.mediaClientConfig}
 					selectedItem={identifier}
 					onClose={onMediaInlinePreviewClose}
@@ -247,7 +262,13 @@ export const MediaInlineImageCardInternal = ({
 			);
 		}
 		return null;
-	}, [identifier, isMediaViewerVisible, mediaClient?.mediaClientConfig, onMediaInlinePreviewClose]);
+	}, [
+		identifier,
+		isMediaViewerVisible,
+		mediaClient?.mediaClientConfig,
+		onMediaInlinePreviewClose,
+		memoizedMediaViewerItems,
+	]);
 
 	return (
 		<Fragment>
@@ -266,6 +287,7 @@ export const MediaInlineImageCardInternal = ({
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediaInlineImageCard: React.ComponentType<
 	React.PropsWithChildren<MediaInlineImageCardProps & MediaInlineAttrs>
 > = injectIntl(MediaInlineImageCardInternal, { enforceContext: false });

@@ -5,9 +5,9 @@
 import type { ReactNode } from 'react';
 import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
-import type { IntlShape } from 'react-intl-next/src/types';
+import type { IntlShape } from 'react-intl/src/types';
 
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
@@ -18,6 +18,7 @@ import type { EditorAppearance } from '../../types';
 import type { UseStickyToolbarType } from '../../ui';
 import { EDIT_AREA_ID } from '../../ui';
 
+// oxlint-disable-next-line eslint/no-redeclare
 export interface KeyDownHandlerContext {
 	handleArrowLeft: () => void;
 	handleArrowRight: () => void;
@@ -29,11 +30,12 @@ export interface KeyDownHandlerContext {
  **  Because the keyboard navigation is explicitly managed for main toolbar items
  **  Few key presses such as Tab,Arrow Right/Left need ot be handled here via context
  */
-export const KeyDownHandlerContext = React.createContext<KeyDownHandlerContext>({
-	handleArrowLeft: () => {},
-	handleArrowRight: () => {},
-	handleTab: () => {},
-});
+export const KeyDownHandlerContext: React.Context<KeyDownHandlerContext> =
+	React.createContext<KeyDownHandlerContext>({
+		handleArrowLeft: () => {},
+		handleArrowRight: () => {},
+		handleTab: () => {},
+	});
 
 const centeredToolbarContainer = css({
 	display: 'flex',
@@ -47,6 +49,7 @@ const centeredToolbarContainer = css({
  * @param
  * @returns
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const ToolbarArrowKeyNavigationProvider = ({
 	children,
 	editorView,
@@ -68,7 +71,7 @@ export const ToolbarArrowKeyNavigationProvider = ({
 	intl: IntlShape;
 	isShortcutToFocusToolbar?: (event: KeyboardEvent) => boolean;
 	useStickyToolbar?: UseStickyToolbarType;
-}) => {
+}): jsx.JSX.Element => {
 	const wrapperRef = useRef<HTMLDivElement>(null);
 	const selectedItemIndex = useRef(0);
 
@@ -171,6 +174,8 @@ export const ToolbarArrowKeyNavigationProvider = ({
 						?.contains(targetElement)) ||
 				(targetElement instanceof HTMLElement &&
 					document.querySelector('[data-test-id="color-picker-menu"]')?.contains(targetElement)) ||
+				(targetElement instanceof HTMLElement &&
+					targetElement.closest('[data-keyboard-navigation-independent]')) ||
 				event.key === 'ArrowUp' ||
 				event.key === 'ArrowDown' ||
 				disableArrowKeyNavigation
@@ -368,9 +373,8 @@ function isElementOrAncestorHiddenOrDisabled(
 }
 
 function getFilteredFocusableElements(rootNode: HTMLElement | null): Array<HTMLElement> {
-	// The focusable elements from child components such as dropdown menus / popups are ignored
+	// Independent containers and child popups own their key handling and tab stops.
 	return getFocusableElements(rootNode).filter((elm) => {
-
 		// Check if element or any ancestor is hidden or disabled
 		const isHiddenOrDisabled = isElementOrAncestorHiddenOrDisabled(elm, rootNode);
 
@@ -378,6 +382,7 @@ function getFilteredFocusableElements(rootNode: HTMLElement | null): Array<HTMLE
 			!elm.closest('[data-role="droplistContent"]') &&
 			!elm.closest('[data-emoji-picker-container="true"]') &&
 			!elm.closest('[data-test-id="color-picker-menu"]') &&
+			!elm.closest('[data-keyboard-navigation-independent]') &&
 			!elm.closest('.scroll-buttons') &&
 			!isHiddenOrDisabled
 		);

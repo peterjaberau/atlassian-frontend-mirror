@@ -1,8 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { type GroupBase, type InputActionMeta, type OptionsOrGroups } from './types';
-import { type StateManagerProps } from './use-state-manager';
-import { handleInputChange } from './utils';
+import type { GroupBase, InputActionMeta, OptionsOrGroups } from './types';
+import type { StateManagerProps } from './use-state-manager';
+
+function handleInputChange(
+	inputValue: string,
+	actionMeta: InputActionMeta,
+	onInputChange?: (newValue: string, actionMeta: InputActionMeta) => string | void,
+): string {
+	if (onInputChange) {
+		const newValue = onInputChange(inputValue, actionMeta);
+		if (typeof newValue === 'string') {
+			return newValue;
+		}
+	}
+	return inputValue;
+}
 
 type AsyncManagedPropKeys = 'options' | 'isLoading' | 'onInputChange' | 'filterOption';
 

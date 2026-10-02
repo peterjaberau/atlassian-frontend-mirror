@@ -1,15 +1,19 @@
-import {
-	type Auth,
-	type AsapBasedAuth,
-	type AuthContext,
-	type ClientAltBasedAuth,
-} from '@atlaskit/media-core';
 import { type SSR, type MediaTraceContext } from '@atlaskit/media-common';
+import type {
+	Auth,
+	AsapBasedAuth,
+	AuthContext,
+	ClientAltBasedAuth,
+} from '@atlaskit/media-core/auth';
+import type { ChunkHashAlgorithm } from '@atlaskit/media-core/chunk-hash-algorithm';
+import type { MediaFileArtifacts } from '@atlaskit/media-state/file-state';
 
-import { type MediaFileArtifacts } from '@atlaskit/media-state';
-
+import {
+	type DocumentPageRangeContent,
+	type GetDocumentPageImage,
+	type GetDocumentContentOptions,
+} from '../../models/document';
 import { type MediaItemDetails, type MediaFile, type MediaUpload } from '../../models/media';
-
 import {
 	type ClientOptions,
 	type RequestHeaders,
@@ -17,12 +21,6 @@ import {
 	type RequestParams,
 	type RequestMetadata,
 } from '../../utils/request/types';
-import { type ChunkHashAlgorithm } from '@atlaskit/media-core';
-import {
-	type DocumentPageRangeContent,
-	type GetDocumentPageImage,
-	type GetDocumentContentOptions,
-} from '../../models/document';
 
 export interface ResponseFileItem {
 	id: string;
@@ -114,7 +112,7 @@ export type MediaStoreCreateFileFromBinaryParams = {
 
 export type MediaStoreCreateFileFromUploadConditions = {
 	readonly hash?: string;
-	readonly size?: number;
+	readonly size: number;
 };
 
 export type MediaStoreCreateFileFromUploadBody = {
@@ -122,7 +120,7 @@ export type MediaStoreCreateFileFromUploadBody = {
 
 	readonly name?: string;
 	readonly mimeType?: string;
-	readonly conditions?: MediaStoreCreateFileFromUploadConditions;
+	readonly conditions: MediaStoreCreateFileFromUploadConditions;
 };
 
 export type MediaStoreGetFileParams = {
@@ -250,6 +248,7 @@ export interface MediaApi {
 		body: MediaStoreCreateFileFromUploadBody,
 		params: MediaStoreCreateFileFromUploadParams,
 		traceContext?: MediaTraceContext,
+		options?: { expectedFileSize?: number },
 	) => Promise<MediaStoreResponse<MediaFile>>;
 
 	getRejectedResponseFromDescriptor: (
@@ -261,6 +260,7 @@ export interface MediaApi {
 		body: MediaStoreTouchFileBody,
 		params: MediaStoreTouchFileParams,
 		traceContext?: MediaTraceContext,
+		options?: { expectedFileSize?: number },
 	) => Promise<MediaStoreResponse<TouchedFiles>>;
 
 	getFile: (
@@ -272,7 +272,11 @@ export interface MediaApi {
 	getFileImageURL: (id: string, params?: MediaStoreGetFileImageParams) => Promise<string>;
 
 	// TODO Create ticket in case Trace Id can be supported through query params
-	getFileImageURLSync: (id: string, params?: MediaStoreGetFileImageParams) => string;
+	getFileImageURLSync: (
+		id: string,
+		params?: MediaStoreGetFileImageParams,
+		seededCdnUrl?: string,
+	) => string;
 
 	getFileBinary: (
 		id: string,
@@ -280,7 +284,12 @@ export interface MediaApi {
 		abortController?: AbortController,
 	) => Promise<Blob>;
 
-	getFileBinaryURL: (id: string, collectionName?: string) => Promise<string>;
+	getFileBinaryURL: (
+		id: string,
+		collectionName?: string,
+		maxAge?: number,
+		name?: string,
+	) => Promise<string>;
 
 	getArtifactURL: (
 		artifacts: MediaFileArtifacts,
@@ -335,6 +344,7 @@ export interface MediaApi {
 		body: AppendChunksToUploadRequestBody,
 		collectionName?: string,
 		traceContext?: MediaTraceContext,
+		options?: { expectedFileSize?: number },
 	) => Promise<void>;
 
 	copyFileWithToken: (

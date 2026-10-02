@@ -1,6 +1,6 @@
 ---
 title: Icon tile
-description: An icon with background, shape, color, and size determined by the Tile component.
+description: An icon with background, color and size determined by the Tile component.
 order: 3
 ---
 
@@ -14,6 +14,10 @@ import iconTileColorLight from './images/icon-tile-color-light.png';
 import iconTileColorDark from './images/icon-tile-color-dark.png';
 import iconTileBoldDo from './images/do-donts/icon-tile-bold-do.png';
 import iconTileBoldDont from './images/do-donts/icon-tile-bold-dont.png';
+import iconTileHeightDo from './images/do-donts/icon-tile-height-do.png';
+import iconTileHeightDont from './images/do-donts/icon-tile-height-dont.png';
+import iconTilePairingDo from './images/do-donts/icon-tile-pairing-do.png';
+import iconTilePairingDont from './images/do-donts/icon-tile-pairing-dont.png';
 
 ## Usage
 
@@ -23,7 +27,7 @@ radii. Use an icon tile to prominently highlight icons in a layout, such as next
 For icon tiles representing Atlassian-specific content such as pages, live docs, or bugs use
 [Object tile](/components/object/object-tile/examples).
 
-## Anatomy
+## Parts
 
 <Image src={iconTileAnatomyLight} srcDark={iconTileAnatomyDark} alt="Anatomy of an icon tile" />
 
@@ -68,24 +72,80 @@ tile to a custom color.
 
 Be cautious when using bold tiles. Use them only when highlighting stand-alone elements.
 
-<DoDont
-	type="do"
-	image={{
-		url: iconTileBoldDo,
-		alt: '',
-	}}
->
-	Use sparingly, and only as stand-alone elements.
-</DoDont>
-<DoDont
-	type="dont"
-	image={{
-		url: iconTileBoldDont,
-		alt: '',
-	}}
->
-	Don't use bold tiles on compact elements like lists or tables.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: iconTileBoldDo,
+			alt: '',
+		}}
+	>
+		Use sparingly, and only as stand-alone elements.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: iconTileBoldDont,
+			alt: '',
+		}}
+	>
+		Don't use bold tiles on compact elements like lists or tables.
+	</DoDont>
+</DoDontGrid>
+
+### Reference height of adjacent content for size
+
+Icon tile supports a range of sizes from 20px to 48px. As a general rule when selecting size,
+reference the size of the icon tile to the height of its adjacent content for visual balance.
+
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: iconTileHeightDo,
+			alt: '',
+		}}
+	>
+		Align icon tile sizing to closely match the height of its adjacent content.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: iconTileHeightDont,
+			alt: '',
+		}}
+	>
+		Avoid selecting icon tile sizes smaller than the height of its adjacent content.
+	</DoDont>
+</DoDontGrid>
+
+### Avoid pairing icon tile with compact elements
+
+Icon tile can act as strong visual anchors for primary content. Reserve them for grounding major
+content blocks. When pairing an icon with compact elements like a single line body copy, use a
+standard icon instead.
+
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: iconTilePairingDo,
+			alt: '',
+		}}
+	>
+		Use icon tile to highlight content at a glance.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: iconTilePairingDont,
+			alt: '',
+		}}
+	>
+		Avoid pairing icon tile next to compact elements such as single line body text. Use{' '}
+		<a href="/components/icon/examples">Icon</a> instead.
+	</DoDont>
+</DoDontGrid>
 
 ## Related
 

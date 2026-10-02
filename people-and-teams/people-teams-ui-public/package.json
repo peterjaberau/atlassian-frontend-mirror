@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/people-teams-ui-public",
-	"version": "3.7.6",
+	"version": "5.2.4",
 	"description": "UI components for public packages",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,6 +8,13 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "People and Teams Collective",
 		"website": {
 			"name": "PeopleTeamsUiPublic",
@@ -19,21 +26,16 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		"./verified-team-icon": "./src/ui/verified-team-icon/index.ts",
-		"./analytics": "./src/common/utils/analytics/index.ts"
+		"./analytics-subcontext/store": "./src/common/utils/analytics/analytics-subcontext/store.ts",
+		"./analytics/hooks": "./src/common/utils/analytics/hooks.tsx",
+		"./verified-team-icon/main": "./src/ui/verified-team-icon/main.tsx",
+		"./analytics": "./src/common/utils/analytics/index.ts",
+		"./verified-team-icon": "./src/ui/verified-team-icon/index.ts"
 	},
 	"scripts": {
 		"test:coverage": "(cd ../../.. && yarn test 'packages/people-and-teams/people-teams-ui-public/src' --coverage --coverageProvider=v8 --collectCoverageFrom='[\"packages/people-and-teams/people-teams-ui-public/src/**\", \"!packages/people-and-teams/people-teams-ui-public/src/**/**/types.ts\", \"!packages/people-and-teams/people-teams-ui-public/src/ui/**/styled.tsx\"]')"
@@ -42,17 +44,16 @@
 		"@atlaskit/analytics-namespaced-context": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
-		"@atlaskit/platform-feature-flags-react": "workspace:^",
-		"@atlaskit/teams-app-internal-analytics": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
-		"react-intl-next": "root:*",
 		"react-sweet-state": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
@@ -61,45 +62,9 @@
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
-		"react-dom": "root:*",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"react-intl": "root:*",
 		"wait-for-expect": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"tangerine-next"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
 	}
 }

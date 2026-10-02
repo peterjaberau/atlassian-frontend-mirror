@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Breakout', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the breakout plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,11 +30,32 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+interface BreakoutPluginState {
+  activeGuidelineKey: ActiveGuidelineKey | undefined;
+  breakoutNode: ContentNodeWithPos | undefined;
+}
+
+interface BreakoutPluginOptions {
+  allowBreakoutButton?: boolean;
+  appearance?: EditorAppearance;
+}
+
+type BreakoutPluginDependencies = [
+  WidthPlugin,
+  OptionalPlugin<EditorViewModePlugin>,
+  OptionalPlugin<EditorDisabledPlugin>,
+  OptionalPlugin<BlockControlsPlugin>,
+  OptionalPlugin<InteractionPlugin>,
+  OptionalPlugin<UserIntentPlugin>,
+  OptionalPlugin<GuidelinePlugin>,
+  OptionalPlugin<AnalyticsPlugin>,
+];
+
 type BreakoutPlugin = NextEditorPlugin<
   'breakout',
   {
+    dependencies: BreakoutPluginDependencies;
     pluginConfiguration: BreakoutPluginOptions | undefined;
-    dependencies: [WidthPlugin];
     sharedState: Partial<BreakoutPluginState>;
   }
 >;

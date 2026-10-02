@@ -2,55 +2,53 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import {
-	Fragment,
-	useState,
-	useMemo,
-	type Context,
-	type ErrorInfo,
-	type JSX,
-	type ReactInstance,
-	useEffect,
-} from 'react';
+/* eslint-disable jsdoc/check-tag-names */
+import { Fragment, useState, useMemo, useEffect } from 'react';
+import type { ComponentClass, ComponentProps } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import { type Mark } from '@atlaskit/editor-prosemirror/model';
-import { useSmartCardContext } from '@atlaskit/link-provider';
-import { Card, getObjectAri, getObjectIconUrl, getObjectName } from '@atlaskit/smart-card';
-import { isWithinPreviewPanelIFrame } from '@atlaskit/linking-common/utils';
-import { useSmartLinkActions, useSmartLinkReload } from '@atlaskit/smart-card/hooks';
-import { CardSSR } from '@atlaskit/smart-card/ssr';
-import { HoverLinkOverlay, UnsupportedInline } from '@atlaskit/editor-common/ui';
-import type { EventHandlers } from '@atlaskit/editor-common/ui';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
-import { componentWithCondition } from '@atlaskit/platform-feature-flags-react';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type { EditorCardProvider } from '@atlaskit/editor-card-provider';
 import {
 	ACTION,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
-
-import { CardErrorBoundary } from './fallback';
-import type { WithSmartCardStorageProps } from '../../ui/SmartCardStorage';
-import { withSmartCardStorage } from '../../ui/SmartCardStorage';
-import { getCardClickHandler } from '../utils/getCardClickHandler';
-import type { SmartLinksOptions } from '../../types/smartLinksOptions';
-
+import { useProvider } from '@atlaskit/editor-common/provider-factory';
+import { HoverLinkOverlay, UnsupportedInline } from '@atlaskit/editor-common/ui';
+import type { EventHandlers } from '@atlaskit/editor-common/ui';
+import type { Diff } from '@atlaskit/editor-common/utils';
+import type { Mark } from '@atlaskit/editor-prosemirror/model';
 import {
-	useInlineAnnotationProps,
-	type MarkDataAttributes,
-} from '../../ui/annotations/element/useInlineAnnotationProps';
+	SmartLinkDraggable,
+	SMART_LINK_DRAG_TYPES,
+	SMART_LINK_APPEARANCE,
+} from '@atlaskit/editor-smart-link-draggable';
+import { extractSmartLinkEmbed } from '@atlaskit/link-extractors/extract-smart-link-embed';
+import { useSmartCardContext } from '@atlaskit/link-provider/use-smart-card-context';
+import { isWithinPreviewPanelIFrame } from '@atlaskit/linking-common/utils/is-within-preview-panel-iframe';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Card, getObjectAri, getObjectIconUrl, getObjectName } from '@atlaskit/smart-card';
+import { useSmartLinkActions } from '@atlaskit/smart-card/hooks';
+import { CardSSR } from '@atlaskit/smart-card/ssr';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+import type { AnalyticsEventPayload } from '../../analytics/events';
+import type { SmartLinksOptions } from '../../types/smartLinksOptions';
+import { useInlineAnnotationProps } from '../../ui/annotations/element/useInlineAnnotationProps';
+import type { MarkDataAttributes } from '../../ui/annotations/element/useInlineAnnotationProps';
 import { usePortal } from '../../ui/Renderer/PortalContext';
 import type { RendererAppearance } from '../../ui/Renderer/types';
-import type { AnalyticsEventPayload } from '../../analytics/events';
-import { extractSmartLinkEmbed } from '@atlaskit/link-extractors';
-import type { Diff } from '@atlaskit/editor-common/utils';
+import type { WithSmartCardStorageProps } from '../../ui/SmartCardStorage';
+import { withSmartCardStorage } from '../../ui/SmartCardStorage';
+import { getEventHandler } from '../../utils';
+import { getCardClickHandler } from '../utils/getCardClickHandler';
+import { CardErrorBoundary } from './fallback';
 
-type HoverLinkOverlayProps = React.ComponentProps<typeof HoverLinkOverlay>;
+type HoverLinkOverlayProps = ComponentProps<typeof HoverLinkOverlay>;
 export interface InlineCardProps extends MarkDataAttributes {
 	data?: object;
 	eventHandlers?: EventHandlers;
@@ -64,12 +62,6 @@ export interface InlineCardProps extends MarkDataAttributes {
 }
 const HoverLinkOverlayNoop = (props: OverlayWithCardContextProps) => (
 	<Fragment>{props.children}</Fragment>
-);
-
-const HoverLinkOverlayWithCondition = componentWithCondition(
-	() => editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true }),
-	HoverLinkOverlay,
-	HoverLinkOverlayNoop,
 );
 
 type OverlayWithCardContextProps = HoverLinkOverlayProps & {
@@ -143,7 +135,7 @@ const OverlayWithCardContext = ({
 	const isInPreviewPanel = isWithinPreviewPanelIFrame();
 	const showPanelButton = isInPreviewPanel ? isPreviewPanelAvailable : isPreviewAvailable;
 
-	const Overlay = isPreviewAvailable ? HoverLinkOverlayWithCondition : HoverLinkOverlayNoop;
+	const Overlay = isPreviewAvailable ? HoverLinkOverlay : HoverLinkOverlayNoop;
 
 	return (
 		<Overlay
@@ -152,6 +144,7 @@ const OverlayWithCardContext = ({
 			compactPadding={rendererAppearance === 'comment'}
 			showPanelButton={showPanelButton}
 			showPanelButtonIcon={showPanelButtonIcon}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onClick={(event) => {
 				if (isPreviewPanelAvailable) {
 					// Prevent anchor default behaviour(click to open the anchor link)
@@ -168,15 +161,13 @@ const OverlayWithCardContext = ({
 								: undefined,
 						},
 					});
-					editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true }) &&
-						fireHoverLabelAEP('panel');
+					fireHoverLabelAEP('panel');
 				} else if (isPreviewModalAvailable) {
 					event.preventDefault();
 					if (preview) {
 						preview.invoke();
 					}
-					editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true }) &&
-						fireHoverLabelAEP('modal');
+					fireHoverLabelAEP('modal');
 				}
 			}}
 		>
@@ -197,17 +188,36 @@ const InlineCard = (props: InlineCardProps & WithSmartCardStorageProps) => {
 	} = props;
 	const portal = usePortal(props);
 	const cardContext = useSmartCardContext();
-	const reload = useSmartLinkReload({ url: url || '' });
+	const provider = useProvider('cardProvider');
+	const SuspenseWrapperForUrl = smartLinks?.SuspenseWrapperForUrl;
+
+	// Helper fn to conditionally wrap cards when suspense boundary is passed in via product
+	const wrapWithSuspense = (card: JSX.Element) => {
+		if (SuspenseWrapperForUrl && url) {
+			return <SuspenseWrapperForUrl url={url}>{card}</SuspenseWrapperForUrl>;
+		}
+		return card;
+	};
+
+	const { getState: getSmartlinkState } = cardContext?.value?.store || {};
 	const [isResolvedViewRendered, setIsResolvedViewRendered] = useState(false);
 
+	const cardState = getSmartlinkState?.()[url || ''];
+
+	// Card/CardSSR's onClick — (e, { destinationUrl?, url? })
 	const onClick = getCardClickHandler(eventHandlers, url);
+	// SmartCardEventClickHandler — (e, url?) => void — for CardErrorBoundary.
+	// When the gate is off, fall back to the old behaviour (pass the same onClick as Card).
+	const onConsumerClick = getEventHandler(eventHandlers, 'smartCard');
 	const cardProps = {
 		url,
 		data,
 		onClick,
 		container: portal,
 	};
-	const { hideHoverPreview, actionOptions, ssr } = smartLinks || {};
+	const { hideHoverPreview, actionOptions, ssr, getResolvingPlaceholder } = smartLinks || {};
+	const resolvingPlaceholder =
+		url && getResolvingPlaceholder ? getResolvingPlaceholder(url) : undefined;
 
 	const analyticsData = {
 		attributes: {
@@ -228,98 +238,104 @@ const InlineCard = (props: InlineCardProps & WithSmartCardStorageProps) => {
 		}
 	};
 
+	useEffect(() => {
+		if (url) {
+			// Refresh cache in the background
+			provider?.then((providerInstance) => {
+				(providerInstance as EditorCardProvider).refreshCache?.({
+					// It's ok to cast any resourceUrl to inlineCard here, because only URL is important for the request.
+					type: 'inlineCard',
+					attrs: {
+						url,
+					},
+				});
+			});
+		}
+	}, [provider, url]);
+
 	const MaybeOverlay = cardContext?.value ? OverlayWithCardContext : HoverLinkOverlayNoop;
 
-	const cardState = cardContext?.value?.store?.getState()[url || ''];
-	useEffect(() => {
-		// if we render from cache, we want to make sure we reload the data in the background
-		if (
-			expValEquals('platform_editor_smartlink_local_cache', 'isEnabled', true) &&
-			!ssr &&
-			url &&
-			cardState?.status === 'resolved'
-		) {
-			reload();
-		}
-	});
-
-	if (
-		(ssr ||
-			(cardState && expValEquals('platform_editor_smartlink_local_cache', 'isEnabled', true))) &&
-		url &&
-		!editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true })
-	) {
+	if ((ssr || cardState) && url) {
 		if (
 			// eslint-disable-next-line @atlaskit/platform/no-invalid-feature-flag-usage
 			fg('editor_inline_comments_on_inline_nodes')
 		) {
 			return (
-				<span
-					data-inline-card
-					data-card-data={data ? JSON.stringify(data) : undefined}
-					data-card-url={url}
-					// Ignored via go/ees005
-					// eslint-disable-next-line react/jsx-props-no-spreading
-					{...inlineAnnotationProps}
+				<SmartLinkDraggable
+					url={url}
+					appearance={SMART_LINK_APPEARANCE.INLINE}
+					source={SMART_LINK_DRAG_TYPES.RENDERER}
 				>
-					<AnalyticsContext data={analyticsData}>
-						<CardSSR
-							appearance="inline"
-							url={url}
-							showHoverPreview={!hideHoverPreview}
-							actionOptions={actionOptions}
-							onClick={onClick}
-						/>
-					</AnalyticsContext>
-				</span>
+					<span
+						data-inline-card
+						// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
+						data-card-data={data ? JSON.stringify(data) : undefined}
+						data-card-url={url}
+						data-renderer-mark={inlineAnnotationProps['data-renderer-mark']}
+						data-annotation-draft-mark={inlineAnnotationProps['data-annotation-draft-mark']}
+						data-annotation-inline-node={inlineAnnotationProps['data-annotation-inline-node']}
+						data-renderer-start-pos={inlineAnnotationProps['data-renderer-start-pos']}
+						data-annotation-mark={inlineAnnotationProps['data-annotation-mark']}
+					>
+						<AnalyticsContext data={analyticsData}>
+							<MaybeOverlay
+								url={url || ''}
+								rendererAppearance={rendererAppearance}
+								isResolvedViewRendered={isResolvedViewRendered}
+								fireAnalyticsEvent={fireAnalyticsEvent}
+							>
+								{wrapWithSuspense(
+									<CardSSR
+										appearance="inline"
+										url={url}
+										showHoverPreview={!hideHoverPreview}
+										actionOptions={actionOptions}
+										onClick={onClick}
+										resolvingPlaceholder={resolvingPlaceholder}
+										// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+										onResolve={(data) => {
+											if (!data.url || !data.title) {
+												return;
+											}
+
+											props.smartCardStorage.set(data.url, data.title);
+
+											if (data.title) {
+												setIsResolvedViewRendered(true);
+											}
+										}}
+										onError={onError}
+										disablePreviewPanel={true}
+									/>,
+								)}
+							</MaybeOverlay>
+						</AnalyticsContext>
+					</span>
+				</SmartLinkDraggable>
 			);
 		}
 		return (
-			<AnalyticsContext data={analyticsData}>
-				<CardSSR
-					appearance="inline"
-					url={url}
-					showHoverPreview={!hideHoverPreview}
-					actionOptions={actionOptions}
-					onClick={onClick}
-				/>
-				{CompetitorPromptComponent}
-			</AnalyticsContext>
-		);
-	} else if (
-		(ssr ||
-			(cardState && expValEquals('platform_editor_smartlink_local_cache', 'isEnabled', true))) &&
-		url &&
-		editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true })
-	) {
-		if (
-			// eslint-disable-next-line @atlaskit/platform/no-invalid-feature-flag-usage
-			fg('editor_inline_comments_on_inline_nodes')
-		) {
-			return (
-				<span
-					data-inline-card
-					data-card-data={data ? JSON.stringify(data) : undefined}
-					data-card-url={url}
-					data-renderer-mark={inlineAnnotationProps['data-renderer-mark']}
-					data-annotation-draft-mark={inlineAnnotationProps['data-annotation-draft-mark']}
-					data-annotation-inline-node={inlineAnnotationProps['data-annotation-inline-node']}
-					data-renderer-start-pos={inlineAnnotationProps['data-renderer-start-pos']}
-					data-annotation-mark={inlineAnnotationProps['data-annotation-mark']}
-				>
-					<AnalyticsContext data={analyticsData}>
-						<MaybeOverlay
-							url={url || ''}
-							rendererAppearance={rendererAppearance}
-							isResolvedViewRendered={isResolvedViewRendered}
-							fireAnalyticsEvent={fireAnalyticsEvent}
-						>
+			<SmartLinkDraggable
+				url={url}
+				appearance={SMART_LINK_APPEARANCE.INLINE}
+				source={SMART_LINK_DRAG_TYPES.RENDERER}
+			>
+				<AnalyticsContext data={analyticsData}>
+					<MaybeOverlay
+						url={url || ''}
+						rendererAppearance={rendererAppearance}
+						isResolvedViewRendered={isResolvedViewRendered}
+						fireAnalyticsEvent={fireAnalyticsEvent}
+					>
+						{wrapWithSuspense(
 							<CardSSR
 								appearance="inline"
 								url={url}
 								showHoverPreview={!hideHoverPreview}
 								actionOptions={actionOptions}
 								onClick={onClick}
+								resolvingPlaceholder={resolvingPlaceholder}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onResolve={(data) => {
 									if (!data.url || !data.title) {
 										return;
@@ -333,309 +349,81 @@ const InlineCard = (props: InlineCardProps & WithSmartCardStorageProps) => {
 								}}
 								onError={onError}
 								disablePreviewPanel={true}
-							/>
-						</MaybeOverlay>
-					</AnalyticsContext>
-				</span>
-			);
-		}
-		return (
-			<AnalyticsContext data={analyticsData}>
-				<MaybeOverlay
-					url={url || ''}
-					rendererAppearance={rendererAppearance}
-					isResolvedViewRendered={isResolvedViewRendered}
-					fireAnalyticsEvent={fireAnalyticsEvent}
-				>
-					<CardSSR
-						appearance="inline"
-						url={url}
-						showHoverPreview={!hideHoverPreview}
-						actionOptions={actionOptions}
-						onClick={onClick}
-						onResolve={(data) => {
-							if (!data.url || !data.title) {
-								return;
-							}
-
-							props.smartCardStorage.set(data.url, data.title);
-
-							if (data.title) {
-								setIsResolvedViewRendered(true);
-							}
-						}}
-						onError={onError}
-						disablePreviewPanel={true}
-					/>
-				</MaybeOverlay>
-				{CompetitorPromptComponent}
-			</AnalyticsContext>
+							/>,
+						)}
+					</MaybeOverlay>
+					{CompetitorPromptComponent}
+				</AnalyticsContext>
+			</SmartLinkDraggable>
 		);
 	}
 
 	return (
-		<AnalyticsContext data={analyticsData}>
-			<span
-				data-inline-card
-				data-card-data={data ? JSON.stringify(data) : undefined}
-				data-card-url={url}
-				// Ignored via go/ees005
-				// eslint-disable-next-line react/jsx-props-no-spreading
-				{...inlineAnnotationProps}
-			>
-				<CardErrorBoundary
-					unsupportedComponent={UnsupportedInline}
+		<SmartLinkDraggable
+			url={url || ''}
+			appearance={SMART_LINK_APPEARANCE.INLINE}
+			source={SMART_LINK_DRAG_TYPES.RENDERER}
+		>
+			<AnalyticsContext data={analyticsData}>
+				<span
+					data-inline-card
+					// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
+					data-card-data={data ? JSON.stringify(data) : undefined}
+					data-card-url={url}
 					// Ignored via go/ees005
 					// eslint-disable-next-line react/jsx-props-no-spreading
-					{...cardProps}
-					onSetLinkTarget={onSetLinkTarget}
+					{...inlineAnnotationProps}
 				>
-					<MaybeOverlay
-						url={url || ''}
-						rendererAppearance={rendererAppearance}
-						isResolvedViewRendered={isResolvedViewRendered}
-						fireAnalyticsEvent={fireAnalyticsEvent}
+					<CardErrorBoundary
+						unsupportedComponent={UnsupportedInline}
+						// Ignored via go/ees005
+						// eslint-disable-next-line react/jsx-props-no-spreading
+						{...cardProps}
+						onClick={onConsumerClick}
+						onSetLinkTarget={onSetLinkTarget}
 					>
-						<Card
-							appearance="inline"
-							showHoverPreview={!hideHoverPreview}
-							actionOptions={actionOptions}
-							// Ignored via go/ees005
-							// eslint-disable-next-line react/jsx-props-no-spreading
-							{...cardProps}
-							onResolve={(data) => {
-								if (!data.url || !data.title) {
-									return;
-								}
+						<MaybeOverlay
+							url={url || ''}
+							rendererAppearance={rendererAppearance}
+							isResolvedViewRendered={isResolvedViewRendered}
+							fireAnalyticsEvent={fireAnalyticsEvent}
+						>
+							{wrapWithSuspense(
+								<Card
+									appearance="inline"
+									showHoverPreview={!hideHoverPreview}
+									actionOptions={actionOptions}
+									resolvingPlaceholder={resolvingPlaceholder}
+									// Ignored via go/ees005
+									// eslint-disable-next-line react/jsx-props-no-spreading
+									{...cardProps}
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+									onResolve={(data) => {
+										if (!data.url || !data.title) {
+											return;
+										}
 
-								props.smartCardStorage.set(data.url, data.title);
+										props.smartCardStorage.set(data.url, data.title);
 
-								if (data.title) {
-									setIsResolvedViewRendered(true);
-								}
-							}}
-							onError={onError}
-							disablePreviewPanel={editorExperiment(
-								'platform_editor_preview_panel_linking_exp',
-								true,
-								{ exposure: true },
+										if (data.title) {
+											setIsResolvedViewRendered(true);
+										}
+									}}
+									onError={onError}
+									// Setting disablePreviewPanel={true} leaves the overlay button as the only way to open the panel.
+									disablePreviewPanel={true}
+								/>,
 							)}
-						/>
-					</MaybeOverlay>
-					{CompetitorPromptComponent}
-				</CardErrorBoundary>
-			</span>
-		</AnalyticsContext>
+						</MaybeOverlay>
+						{CompetitorPromptComponent}
+					</CardErrorBoundary>
+				</span>
+			</AnalyticsContext>
+		</SmartLinkDraggable>
 	);
 };
 
-const _default_1: {
-	new (props: Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>): {
-		componentDidCatch?: (error: Error, errorInfo: ErrorInfo) => void;
-		componentDidMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		componentDidUpdate?: (
-			prevProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			prevState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			snapshot?: any,
-		) => void;
-		componentWillMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		componentWillReceiveProps?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		componentWillUnmount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		componentWillUpdate?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			nextState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		context: unknown;
-		forceUpdate: (callback?: (() => void) | undefined) => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		getSnapshotBeforeUpdate?: (
-			prevProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			prevState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		) => any;
-		readonly props: Readonly<
-			Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-		>;
-		refs: {
-			[key: string]: ReactInstance;
-		};
-		render: () => JSX.Element;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-		setState: <K extends never>(
-			state: // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			| {}
-				| ((
-						// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-						prevState: Readonly<{}>,
-						props: Readonly<
-							Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-						>,
-						// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-				  ) => {} | Pick<{}, K> | null)
-				// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-				| Pick<{}, K>
-				| null,
-			callback?: (() => void) | undefined,
-		) => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		shouldComponentUpdate?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			nextState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => boolean;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-		state: Readonly<{}>;
-		UNSAFE_componentWillMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		UNSAFE_componentWillReceiveProps?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		UNSAFE_componentWillUpdate?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			nextState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-	};
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	new (
-		props: Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>,
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		context: any,
-	): {
-		componentDidCatch?: (error: Error, errorInfo: ErrorInfo) => void;
-		componentDidMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		componentDidUpdate?: (
-			prevProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			prevState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			snapshot?: any,
-		) => void;
-		componentWillMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		componentWillReceiveProps?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		componentWillUnmount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		componentWillUpdate?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			nextState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		context: unknown;
-		forceUpdate: (callback?: (() => void) | undefined) => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		getSnapshotBeforeUpdate?: (
-			prevProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			prevState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		) => any;
-		readonly props: Readonly<
-			Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-		>;
-		refs: {
-			[key: string]: ReactInstance;
-		};
-		render: () => JSX.Element;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-		setState: <K extends never>(
-			state: // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			| {}
-				| ((
-						// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-						prevState: Readonly<{}>,
-						props: Readonly<
-							Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-						>,
-						// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-				  ) => {} | Pick<{}, K> | null)
-				// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-				| Pick<{}, K>
-				| null,
-			callback?: (() => void) | undefined,
-		) => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		shouldComponentUpdate?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			nextState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => boolean;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-		state: Readonly<{}>;
-		UNSAFE_componentWillMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		UNSAFE_componentWillReceiveProps?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		// eslint-disable-next-line @typescript-eslint/no-empty-object-type, @typescript-eslint/no-explicit-any
-		UNSAFE_componentWillUpdate?: (
-			nextProps: Readonly<
-				Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
-			>,
-			// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			nextState: Readonly<{}>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-	};
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	contextType?: Context<any> | undefined;
-} = withSmartCardStorage(InlineCard);
+const _default_1: ComponentClass<
+	Diff<InlineCardProps & WithSmartCardStorageProps, WithSmartCardStorageProps>
+> = withSmartCardStorage(InlineCard);
 export default _default_1;

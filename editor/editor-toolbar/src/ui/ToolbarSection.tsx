@@ -2,7 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
@@ -48,7 +48,8 @@ type ToolbarSectionProps = {
 
 const ToolbarSeparator = () => {
 	return (
-		<div css={[separator, marginInlineOverridden]}
+		<div
+			css={[separator, marginInlineOverridden]}
 			data-toolbar-component="separator"
 			role="separator"
 			aria-orientation="vertical"
@@ -56,7 +57,11 @@ const ToolbarSeparator = () => {
 	);
 };
 
-export const ToolbarSection = ({ children, testId, hasSeparator }: ToolbarSectionProps) => {
+export const ToolbarSection = ({
+	children,
+	testId,
+	hasSeparator,
+}: ToolbarSectionProps): JSX.Element => {
 	return (
 		<Box xcss={cx(styles.container)} testId={testId} data-toolbar-component="section">
 			{hasSeparator === SeparatorPosition.START && <ToolbarSeparator />}

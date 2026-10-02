@@ -1,9 +1,7 @@
-import { mediaSingleSpec } from '@atlaskit/adf-schema';
-import type { RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema/schema';
+import { mediaSingleSpec } from '@atlaskit/adf-schema/media-single-spec';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
 import type { DOMOutputSpec, NodeSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { N20, N50 } from '@atlaskit/theme/colors';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { getAttrsFromNodeMediaSingle } from './toDOMAttrs';
@@ -74,17 +72,9 @@ export const mediaWidthCSSCalc = ({
 	} else if (shouldHardCodePixelWidth) {
 		cssCalc = `min(${mediaSingleDimensionWidth}px, ${fullContainerWidth})`;
 	} else if (shouldUseBreakoutWideLogic) {
-		if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-			cssCalc = `max(var(--ak-editor--line-length), min(var(--ak-editor--breakout-wide-layout-width), var(--ak-editor-max-container-width)))`;
-		} else {
-			cssCalc = `max(var(--ak-editor--line-length), min(var(--ak-editor--breakout-wide-layout-width), calc(100cqw - var(--ak-editor--breakout-full-page-guttering-padding))))`;
-		}
+		cssCalc = `max(var(--ak-editor--line-length), min(var(--ak-editor--breakout-wide-layout-width), var(--ak-editor-max-container-width)))`;
 	} else if (shouldUseBreakoutFullWidthLogic) {
-		if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-			cssCalc = `max(var(--ak-editor--line-length), min(var(--ak-editor--full-width-layout-width), var(--ak-editor-max-container-width)))`;
-		} else {
-			cssCalc = `max(var(--ak-editor--line-length), min(var(--ak-editor--full-width-layout-width), calc(100cqw - var(--ak-editor--breakout-full-page-guttering-padding))))`;
-		}
+		cssCalc = `max(var(--ak-editor--line-length), min(var(--ak-editor--full-width-layout-width), var(--ak-editor-max-container-width)))`;
 	} else {
 		cssCalc = `max(min(${baseWidth}px, min(100cqw, 100%)), ${GUTTER_SIZE})`;
 	}
@@ -216,7 +206,7 @@ export const prepareWrapperContentDOM = ({
 					borderRadius: token('radius.small', '3px'),
 					width: mediaWidthCalc,
 					minWidth: mediaWidthCalc,
-					color: token('color.icon', N50),
+					color: token('color.icon'),
 				}),
 			},
 			[
@@ -294,9 +284,9 @@ export const getToDom =
 					'--ak-editor-media-card-display': 'block',
 					'--ak-editor-media-single--gutter-size': GUTTER_SIZE,
 					'--ak-editor-media-margin-right': '0',
-					'--ak-editor-media-card-background-color': token('color.background.neutral', N20),
-					marginTop: isMediaWrapped ? HALF_GUTTER_SIZE : token('space.300', '24px'),
-					marginBottom: isMediaWrapped ? HALF_GUTTER_SIZE : token('space.300', '24px'),
+					'--ak-editor-media-card-background-color': token('color.background.neutral'),
+					marginTop: isMediaWrapped ? HALF_GUTTER_SIZE : token('space.300'),
+					marginBottom: isMediaWrapped ? HALF_GUTTER_SIZE : token('space.300'),
 					marginRight: isMediaWrapped ? (layout === 'wrap-right' ? 'auto' : HALF_GUTTER_SIZE) : 0,
 					marginLeft: isMediaWrapped ? (layout === 'wrap-left' ? 'auto' : HALF_GUTTER_SIZE) : 0,
 					width: contentWrapperWidth,

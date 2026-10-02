@@ -1,15 +1,7 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
-import { Fragment, memo, type MemoExoticComponent } from 'react';
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
+import React, { Fragment, memo } from 'react';
+import type { MemoExoticComponent } from 'react';
 
 import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
-import type { FireAnalyticsCallback } from '@atlaskit/editor-common/analytics';
-import { ACTION, ACTION_SUBJECT } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import { usePortalProvider } from '@atlaskit/editor-common/portal';
 import type {
@@ -19,21 +11,28 @@ import type {
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import type { Transformer } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { editorFontSize } from '@atlaskit/editor-shared-styles';
+import { componentWithCondition } from '@atlaskit/platform-feature-flags-react/component-with-condition';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type EditorActions from '../actions';
 import ErrorBoundary from '../create-editor/ErrorBoundary';
 import ReactEditorViewNext from '../create-editor/ReactEditorView';
-import { type EditorAppearanceComponentProps } from '../types';
+import type { EditorAppearanceComponentProps } from '../types/editor-appearance-component';
 import type { EditorNextProps } from '../types/editor-props';
 import EditorContext from '../ui/EditorContext';
 import { IntlProviderIfMissingWrapper } from '../ui/IntlProviderIfMissingWrapper/IntlProviderIfMissingWrapper';
 import { createFeatureFlagsFromProps } from '../utils/feature-flags-from-props';
-import { RenderTracking } from '../utils/performance/components/RenderTracking';
-
 import { BaseThemeWrapper } from './BaseThemeWrapper';
+import { EditorInternalContainerCompiled } from './editor-internal-compiled';
+import { EditorInternalContainerEmotion } from './editor-internal-emotion';
 import { getBaseFontSize } from './utils/getBaseFontSize';
+
+const EditorInternalContainerMigration = componentWithCondition(
+	() => expValEquals('platform_editor_core_non_ecc_static_css', 'isEnabled', true),
+	EditorInternalContainerCompiled,
+	EditorInternalContainerEmotion,
+);
 
 interface InternalProps {
 	AppearanceComponent: React.ComponentType<
@@ -41,7 +40,6 @@ interface InternalProps {
 	>;
 	createAnalyticsEvent: CreateUIAnalyticsEvent;
 	editorActions: EditorActions;
-	handleAnalyticsEvent: FireAnalyticsCallback;
 	handleSave: (view: EditorView) => void;
 	onEditorCreated: (instance: {
 		eventDispatcher: EventDispatcher;
@@ -54,12 +52,6 @@ interface InternalProps {
 	providerFactory: ProviderFactory;
 }
 
-const editorContainerStyles = css({
-	position: 'relative',
-	width: '100%',
-	height: '100%',
-});
-
 /**
  * EditorInternalComponent is used to capture the common component
  * from the `render` method of `Editor` and share it with `EditorNext`.
@@ -67,7 +59,6 @@ const editorContainerStyles = css({
 export const EditorInternal: MemoExoticComponent<(props: InternalProps) => JSX.Element> = memo(
 	({
 		props,
-		handleAnalyticsEvent,
 		createAnalyticsEvent,
 		handleSave,
 		editorActions,
@@ -86,47 +77,25 @@ export const EditorInternal: MemoExoticComponent<(props: InternalProps) => JSX.E
 
 		const featureFlags = createFeatureFlagsFromProps(props.featureFlags);
 
-		// Render tracking is firing too many events in Jira so we are disabling them for now. See - https://product-fabric.atlassian.net/browse/ED-25616
-		// Also firing too many events for the legacy content macro, so disabling for now. See - https://product-fabric.atlassian.net/browse/ED-26650
-		const renderTrackingEnabled =
-			!fg('platform_editor_disable_rerender_tracking_jira') &&
-			!featureFlags.lcmPreventRenderTracking;
-
-		const useShallow = false;
 		const [portalProviderAPI, PortalRenderer] = usePortalProvider();
 		const [nodeViewPortalProviderAPI, NodeViewPortalRenderer] = usePortalProvider();
 
+		const baseFontSize = getBaseFontSize(props.appearance, props.contentMode);
+		const fontSize =
+			expValEquals('platform_editor_core_non_ecc_static_css', 'isEnabled', true) ||
+			expValEquals('platform_editor_core_static_css', 'isEnabled', true)
+				? editorFontSize({ theme: { baseFontSize } })
+				: undefined;
+
 		return (
 			<Fragment>
-				{renderTrackingEnabled && (
-					<RenderTracking
-						componentProps={props}
-						action={ACTION.RE_RENDERED}
-						actionSubject={ACTION_SUBJECT.EDITOR}
-						handleAnalyticsEvent={handleAnalyticsEvent}
-						propsToIgnore={['defaultValue']}
-						useShallow={useShallow}
-					/>
-				)}
 				<ErrorBoundary
 					errorTracking={true}
 					createAnalyticsEvent={createAnalyticsEvent}
 					contextIdentifierProvider={props.contextIdentifierProvider}
 					featureFlags={featureFlags}
 				>
-					<div
-						css={editorContainerStyles}
-						// eslint-disable-next-line react/jsx-props-no-spreading
-						{...(expValEquals('cc_fix_hydration_ttvc', 'isEnabled', true) &&
-						!expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-							? process.env.REACT_SSR
-								? { 'data-vc-ignore-if-no-layout-shift': true, 'data-ssr-placeholder': 'fallback' }
-								: {
-										'data-vc-ignore-if-no-layout-shift': true,
-										'data-ssr-placeholder-replace': 'fallback',
-								  }
-							: {})}
-					>
+					<EditorInternalContainerMigration fontSize={fontSize}>
 						<EditorContext editorActions={editorActions}>
 							<IntlProviderIfMissingWrapper>
 								<Fragment>
@@ -140,6 +109,7 @@ export const EditorInternal: MemoExoticComponent<(props: InternalProps) => JSX.E
 										onEditorDestroyed={onEditorDestroyed}
 										disabled={props.disabled}
 										preset={preset}
+										// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017: this callback closes over the full props object and derived featureFlags; memoization is ineffective because ReactEditorViewNext is not memo()'d and deps (props, featureFlags) change every render
 										render={({
 											editor,
 											view,
@@ -149,9 +119,7 @@ export const EditorInternal: MemoExoticComponent<(props: InternalProps) => JSX.E
 											editorRef,
 											editorAPI,
 										}) => (
-											<BaseThemeWrapper
-												baseFontSize={getBaseFontSize(props.appearance, props.contentMode)}
-											>
+											<BaseThemeWrapper baseFontSize={baseFontSize}>
 												<AppearanceComponent
 													innerRef={editorRef}
 													editorAPI={editorAPI}
@@ -169,6 +137,7 @@ export const EditorInternal: MemoExoticComponent<(props: InternalProps) => JSX.E
 													minHeight={props.minHeight}
 													onSave={props.onSave ? handleSave : undefined}
 													onCancel={props.onCancel}
+													onSSRMeasure={props.onSSRMeasure}
 													popupsMountPoint={props.popupsMountPoint}
 													popupsBoundariesElement={props.popupsBoundariesElement}
 													popupsScrollableElement={props.popupsScrollableElement}
@@ -188,11 +157,13 @@ export const EditorInternal: MemoExoticComponent<(props: InternalProps) => JSX.E
 															? !!props.featureFlags?.toolbarMinWidthOverflow
 															: props.allowUndoRedoButtons
 													}
+													isEditorModernisationEnabled={props.isEditorModernisationEnabled}
 													useStickyToolbar={props.useStickyToolbar}
 													featureFlags={featureFlags}
 													pluginHooks={config.pluginHooks}
 													__livePage={props.__livePage}
 													preset={preset}
+													UNSAFE_containLayout={props.UNSAFE_containLayout}
 												/>
 											</BaseThemeWrapper>
 										)}
@@ -202,7 +173,7 @@ export const EditorInternal: MemoExoticComponent<(props: InternalProps) => JSX.E
 								</Fragment>
 							</IntlProviderIfMissingWrapper>
 						</EditorContext>
-					</div>
+					</EditorInternalContainerMigration>
 				</ErrorBoundary>
 			</Fragment>
 		);

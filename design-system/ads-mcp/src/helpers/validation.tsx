@@ -1,8 +1,9 @@
 /* eslint-disable-next-line import/extensions -- MCP SDK requires .js extensions for ESM imports */
+
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import type { z } from 'zod';
 
-import { zodToJsonSchema } from './index';
+import { zodToJsonSchema } from './zod-to-json-schema';
 
 export interface ValidationErrorResult extends CallToolResult {
 	content: [

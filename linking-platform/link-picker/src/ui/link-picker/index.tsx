@@ -2,8 +2,9 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import {
+import React, {
 	type ChangeEvent,
+	type ComponentType,
 	type FormEvent,
 	Fragment,
 	type KeyboardEvent,
@@ -15,21 +16,21 @@ import {
 } from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { FormattedMessage, useIntl } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useMergeRefs } from 'use-callback-ref';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import { cssMap } from '@atlaskit/css';
-import { HelperMessage } from '@atlaskit/form';
-import { CardClient } from '@atlaskit/link-provider';
+import CardClient from '@atlaskit/link-provider/client';
 import { isSafeUrl, normalizeUrl } from '@atlaskit/linking-common/url';
 import { browser } from '@atlaskit/linking-common/user-agent';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
 import LinkUrl from '@atlaskit/smart-card/link-url';
-import { N700 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import {
 	useLinkPickerAnalytics,
@@ -47,7 +48,6 @@ import createEventPayload from '../../common/utils/analytics/analytics.codegen';
 import { handleNavKeyDown } from '../../common/utils/handleNavKeyDown';
 import { usePlugins } from '../../services/use-plugins';
 import { useSearchQuery } from '../../services/use-search-query';
-
 import { Announcer } from './announcer';
 import AutoSubmitOnChange from './autoSubmitOnChange';
 import { FormFooter, testIds as formFooterTestIds } from './form-footer';
@@ -64,13 +64,6 @@ const styles = cssMap({
 		display: 'flex',
 		flexDirection: 'column',
 	},
-	linkDisplayHelperTextContainer: {
-		marginTop: token('space.050'),
-		color: token('color.text.subtlest', N700),
-	},
-	linkDisplayHelperText: {
-		font: token('font.body.small'),
-	},
 });
 
 const baseRootContainerStyles = css({
@@ -84,15 +77,36 @@ const baseRootContainerStyles = css({
 });
 
 const formFooterMargin = css({
-	marginTop: token('space.200', '16px'),
+	marginTop: token('space.200'),
 });
 
-export const testIds = {
+export const testIds: {
+	readonly urlError: string;
+	readonly clearUrlButton: string;
+	readonly linkHelperText: string;
+	readonly insertButton: 'link-picker-insert-button';
+	readonly cancelButton: 'link-picker-cancel-button';
+	readonly actionButton: 'link-picker-action-button';
+	readonly submitStatusA11yIndicator: 'link-picker-submit-status-a11y-indicator';
+	readonly tabsLoadingIndicator: string;
+	readonly tabList: string;
+	readonly tabItem: string;
+	readonly resultListTitle: string;
+	readonly searchResultList: string;
+	readonly searchResultLoadingIndicator: string;
+	readonly searchResultItem: string;
+	readonly searchResultIcon: string;
+	readonly emptyResultPage: string;
+	readonly searchError: string;
+	readonly linkPickerRoot: 'link-picker-root';
+	readonly linkPicker: 'link-picker';
+	readonly urlInputField: 'link-url';
+	readonly textInputField: 'link-text';
+} = {
 	linkPickerRoot: 'link-picker-root',
 	linkPicker: 'link-picker',
 	urlInputField: 'link-url',
 	textInputField: 'link-text',
-	linkHelperText: 'link-helper-text',
 	...searchTestIds,
 	...formFooterTestIds,
 	...textFieldTestIds,
@@ -142,7 +156,7 @@ const DisplayTextInputField = withInputFieldTracking(TextInput, 'displayText');
 
 const client = new CardClient();
 
-export const LinkPicker = withLinkPickerAnalyticsContext(
+export const LinkPicker: ComponentType<LinkPickerProps> = withLinkPickerAnalyticsContext(
 	memo(
 		({
 			onSubmit,
@@ -164,8 +178,16 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 			submitOnInputChange = false,
 			recentSearchListSize,
 			shouldRenderNoResultsImage,
+			alwaysShowTabs,
+			disableManualUrlInsert: disableManualUrlInsertProp = false,
 		}: LinkPickerProps) => {
+			const disableManualUrlInsert =
+				fg('add-disable-manual-url-capability-technical') && disableManualUrlInsertProp;
+
 			const { createAnalyticsEvent } = useAnalyticsEvents();
+
+			const linkInputRef = React.useRef<HTMLInputElement>(null);
+			const mergedRefs = useMergeRefs(inputRef ? [linkInputRef, inputRef] : [linkInputRef]);
 
 			const [state, dispatch] = useReducer(reducer, {
 				...initState,
@@ -188,7 +210,7 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 				error,
 				retry,
 				pluginAction,
-			} = usePlugins(queryState, activeTab, plugins, recentSearchListSize);
+			} = usePlugins(queryState, activeTab, plugins, recentSearchListSize, alwaysShowTabs);
 
 			const isEditing = !!initUrl;
 			const selectedItem: LinkSearchListItemData | undefined = items?.[selectedIndex];
@@ -344,7 +366,7 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 										hasPreview: false,
 									});
 								}
-							} catch (error) {
+							} catch {
 								return dispatch({
 									invalidUrl: true,
 								});
@@ -353,6 +375,9 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 							return handleInsert(normalized, null, 'manual');
 						}
 					}
+
+					linkInputRef.current?.focus();
+
 					return dispatch({
 						invalidUrl: true,
 					});
@@ -517,6 +542,7 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 					css={[baseRootContainerStyles]}
 					// Use onSubmitCapture instead of onSubmit so that any possible parent form isn't submitted
 					onSubmitCapture={handleSubmit}
+					noValidate={true}
 				>
 					<TrackMount />
 					{submitOnInputChange && (
@@ -572,7 +598,7 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 						onClear={handleUrlClear}
 						onKeyDown={handleKeyDown}
 						onChange={handleChangeUrl}
-						inputRef={inputRef}
+						inputRef={mergedRefs}
 						isRequired
 					/>
 					{!hideDisplayText && (
@@ -596,12 +622,10 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 								readOnly={isSubmitting}
 								onClear={handleClear}
 								onChange={handleChangeText}
+								helperMessage={intl.formatMessage(
+									customMessages?.linkHelperTextLabel ?? linkTextMessages.linkHelperTextLabel,
+								)}
 							/>
-							<HelperMessage testId={testIds.linkHelperText}>
-								{customMessages?.linkHelperTextLabel
-									? intl.formatMessage(customMessages?.linkHelperTextLabel)
-									: intl.formatMessage(linkTextMessages.linkHelperTextLabel)}
-							</HelperMessage>
 						</Fragment>
 					)}
 					{moveSubmitButton && (
@@ -617,6 +641,7 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 								submitMessageId={submitMessageId}
 								testId={testIds.insertButton}
 								url={url}
+								disableManualUrlInsert={disableManualUrlInsert}
 							/>
 						</Box>
 					)}
@@ -659,6 +684,7 @@ export const LinkPicker = withLinkPickerAnalyticsContext(
 						customSubmitButtonLabel={customSubmitButtonLabel}
 						submitMessageId={submitMessageId}
 						hideSubmitButton={moveSubmitButton || submitOnInputChange}
+						disableManualUrlInsert={disableManualUrlInsert}
 					/>
 				</form>
 			);

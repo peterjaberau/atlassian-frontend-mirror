@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::9644eafd202e31d1b6f6c9b86ad519a2>>
- * @codegenCommand yarn workspace @atlaskit/eslint-plugin-design-system codegen
+ * @codegen <<SignedSource::debe51c7d33e9ee24cb3cdad6fa1a864>>
+ * @codegenCommand afm workspace @atlaskit/eslint-plugin-design-system codegen
  */
 import type { Rule } from 'eslint';
 
@@ -12,18 +12,19 @@ import ensureDesignTokenUsage from './ensure-design-token-usage';
 import ensureDesignTokenUsagePreview from './ensure-design-token-usage-preview';
 import ensureIconColor from './ensure-icon-color';
 import ensureProperXcssUsage from './ensure-proper-xcss-usage';
+import expandMotionShorthand from './expand-motion-shorthand';
 import iconLabel from './icon-label';
 import lozengeBadgeTagLabellingSystemMigration from './lozenge-badge-tag-labelling-system-migration';
 import noBannedImports from './no-banned-imports';
-import noBooleanAutofocusOnModalDialog from './no-boolean-autofocus-on-modal-dialog';
+import noCssMapScoped from './no-css-map-scoped';
 import noCssTaggedTemplateExpression from './no-css-tagged-template-expression';
-import noCustomIcons from './no-custom-icons';
 import noDarkThemeVrTests from './no-dark-theme-vr-tests';
 import noDeprecatedApis from './no-deprecated-apis';
 import noDeprecatedDesignTokenUsage from './no-deprecated-design-token-usage';
 import noDeprecatedImports from './no-deprecated-imports';
 import noDirectUseOfWebPlatformDragAndDrop from './no-direct-use-of-web-platform-drag-and-drop';
 import noEmotionPrimitives from './no-emotion-primitives';
+import noEmptyIconButtonLabel from './no-empty-icon-button-label';
 import noEmptyStyledExpression from './no-empty-styled-expression';
 import noExportedCss from './no-exported-css';
 import noExportedKeyframes from './no-exported-keyframes';
@@ -38,13 +39,15 @@ import noHtmlRange from './no-html-range';
 import noHtmlSelect from './no-html-select';
 import noHtmlTextInput from './no-html-text-input';
 import noHtmlTextarea from './no-html-textarea';
+import noIconSpacingProp from './no-icon-spacing-prop';
 import noInvalidCssMap from './no-invalid-css-map';
 import noKeyframesTaggedTemplateExpression from './no-keyframes-tagged-template-expression';
-import noLegacyIcons from './no-legacy-icons';
 import noMargin from './no-margin';
+import noModalLabel from './no-modal-label';
 import noNestedStyles from './no-nested-styles';
 import noPhysicalProperties from './no-physical-properties';
 import noPlaceholder from './no-placeholder';
+import noReadonlyOrDisabledInputs from './no-readonly-or-disabled-inputs';
 import noSeparatorWithListElements from './no-separator-with-list-elements';
 import noStyledTaggedTemplateExpression from './no-styled-tagged-template-expression';
 import noToMatchSnapshot from './no-to-match-snapshot';
@@ -62,22 +65,25 @@ import useDatetimePickerCalendarButton from './use-datetime-picker-calendar-butt
 import useDrawerLabel from './use-drawer-label';
 import useFieldMessageWrapper from './use-field-message-wrapper';
 import useHeading from './use-heading';
+import useHeadingLevelInSectionMessage from './use-heading-level-in-section-message';
 import useHeadingLevelInSpotlightCard from './use-heading-level-in-spotlight-card';
 import useHrefInLinkItem from './use-href-in-link-item';
 import useLatestXcssSyntax from './use-latest-xcss-syntax';
 import useLatestXcssSyntaxTypography from './use-latest-xcss-syntax-typography';
 import useMenuSectionTitle from './use-menu-section-title';
 import useModalDialogCloseButton from './use-modal-dialog-close-button';
+import useModalTitle from './use-modal-title';
 import useOnboardingSpotlightLabel from './use-onboarding-spotlight-label';
 import usePopupLabel from './use-popup-label';
-import usePrimitives from './use-primitives';
+import usePressableMotion from './use-pressable-motion';
 import usePrimitivesText from './use-primitives-text';
 import useShouldRenderToParent from './use-should-render-to-parent';
-import useSideNavItemsPackage from './use-side-nav-items-package';
 import useSimpleField from './use-simple-field';
 import useSimpleForm from './use-simple-form';
 import useSpotlightPackage from './use-spotlight-package';
 import useTagGroupLabel from './use-tag-group-label';
+import useTextfieldAutocomplete from './use-textfield-autocomplete';
+import useTokensMotion from './use-tokens-motion';
 import useTokensShape from './use-tokens-shape';
 import useTokensSpace from './use-tokens-space';
 import useTokensTypography from './use-tokens-typography';
@@ -91,18 +97,19 @@ export const rules: Record<string, Rule.RuleModule> = {
 	'ensure-design-token-usage/preview': ensureDesignTokenUsagePreview,
 	'ensure-icon-color': ensureIconColor,
 	'ensure-proper-xcss-usage': ensureProperXcssUsage,
+	'expand-motion-shorthand': expandMotionShorthand,
 	'icon-label': iconLabel,
 	'lozenge-badge-tag-labelling-system-migration': lozengeBadgeTagLabellingSystemMigration,
 	'no-banned-imports': noBannedImports,
-	'no-boolean-autofocus-on-modal-dialog': noBooleanAutofocusOnModalDialog,
+	'no-css-map-scoped': noCssMapScoped,
 	'no-css-tagged-template-expression': noCssTaggedTemplateExpression,
-	'no-custom-icons': noCustomIcons,
 	'no-dark-theme-vr-tests': noDarkThemeVrTests,
 	'no-deprecated-apis': noDeprecatedApis,
 	'no-deprecated-design-token-usage': noDeprecatedDesignTokenUsage,
 	'no-deprecated-imports': noDeprecatedImports,
 	'no-direct-use-of-web-platform-drag-and-drop': noDirectUseOfWebPlatformDragAndDrop,
 	'no-emotion-primitives': noEmotionPrimitives,
+	'no-empty-icon-button-label': noEmptyIconButtonLabel,
 	'no-empty-styled-expression': noEmptyStyledExpression,
 	'no-exported-css': noExportedCss,
 	'no-exported-keyframes': noExportedKeyframes,
@@ -117,13 +124,15 @@ export const rules: Record<string, Rule.RuleModule> = {
 	'no-html-select': noHtmlSelect,
 	'no-html-text-input': noHtmlTextInput,
 	'no-html-textarea': noHtmlTextarea,
+	'no-icon-spacing-prop': noIconSpacingProp,
 	'no-invalid-css-map': noInvalidCssMap,
 	'no-keyframes-tagged-template-expression': noKeyframesTaggedTemplateExpression,
-	'no-legacy-icons': noLegacyIcons,
 	'no-margin': noMargin,
+	'no-modal-label': noModalLabel,
 	'no-nested-styles': noNestedStyles,
 	'no-physical-properties': noPhysicalProperties,
 	'no-placeholder': noPlaceholder,
+	'no-readonly-or-disabled-inputs': noReadonlyOrDisabledInputs,
 	'no-separator-with-list-elements': noSeparatorWithListElements,
 	'no-styled-tagged-template-expression': noStyledTaggedTemplateExpression,
 	'no-to-match-snapshot': noToMatchSnapshot,
@@ -141,22 +150,25 @@ export const rules: Record<string, Rule.RuleModule> = {
 	'use-drawer-label': useDrawerLabel,
 	'use-field-message-wrapper': useFieldMessageWrapper,
 	'use-heading': useHeading,
+	'use-heading-level-in-section-message': useHeadingLevelInSectionMessage,
 	'use-heading-level-in-spotlight-card': useHeadingLevelInSpotlightCard,
 	'use-href-in-link-item': useHrefInLinkItem,
 	'use-latest-xcss-syntax': useLatestXcssSyntax,
 	'use-latest-xcss-syntax-typography': useLatestXcssSyntaxTypography,
 	'use-menu-section-title': useMenuSectionTitle,
 	'use-modal-dialog-close-button': useModalDialogCloseButton,
+	'use-modal-title': useModalTitle,
 	'use-onboarding-spotlight-label': useOnboardingSpotlightLabel,
 	'use-popup-label': usePopupLabel,
-	'use-primitives': usePrimitives,
+	'use-pressable-motion': usePressableMotion,
 	'use-primitives-text': usePrimitivesText,
 	'use-should-render-to-parent': useShouldRenderToParent,
-	'use-side-nav-items-package': useSideNavItemsPackage,
 	'use-simple-field': useSimpleField,
 	'use-simple-form': useSimpleForm,
 	'use-spotlight-package': useSpotlightPackage,
 	'use-tag-group-label': useTagGroupLabel,
+	'use-textfield-autocomplete': useTextfieldAutocomplete,
+	'use-tokens-motion': useTokensMotion,
 	'use-tokens-shape': useTokensShape,
 	'use-tokens-space': useTokensSpace,
 	'use-tokens-typography': useTokensTypography,

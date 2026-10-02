@@ -1,22 +1,22 @@
 import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { render, screen, userEvent } from '@atlassian/testing-library';
 
 import mockContext from '../../../../../../__fixtures__/flexible-ui-data-context';
-import * as flexibleUiContextModule from '../../../../../../state/flexible-ui-context';
+import { closeEmbedModal } from '../../../../../../__tests__/__utils__/unit-helpers';
+import { useFlexibleUiContext } from '../../../../../../state/flexible-ui-context/useFlexibleUiContext';
 import * as useInvokeClientAction from '../../../../../../state/hooks/use-invoke-client-action';
-import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics';
+import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics/analytics';
 import PreviewAction from '../index';
 import { type PreviewActionProps } from '../types';
 
-jest.mock('../../../../../../state/flexible-ui-context', () => ({
-	...jest.requireActual('../../../../../../state/flexible-ui-context'),
+jest.mock('../../../../../../state/flexible-ui-context/useFlexibleUiContext', () => ({
+	...jest.requireActual('../../../../../../state/flexible-ui-context/useFlexibleUiContext'),
 	useFlexibleUiContext: jest.fn().mockReturnValue(mockContext),
 }));
 
@@ -32,12 +32,27 @@ describe('PreviewAction', () => {
 		const onEvent = jest.fn();
 
 		return render(
-			<AnalyticsListener onEvent={onEvent} channel={ANALYTICS_CHANNEL}>
-				<IntlProvider locale="en">
-					<PreviewAction {...props} />
-				</IntlProvider>
-			</AnalyticsListener>,
+			<SmartCardProvider>
+				<AnalyticsListener onEvent={onEvent} channel={ANALYTICS_CHANNEL}>
+					<IntlProvider locale="en">
+						<PreviewAction {...props} />
+					</IntlProvider>
+				</AnalyticsListener>
+			</SmartCardProvider>,
 		);
+	};
+
+	const setContextWithPreviewPanel = (hasPreviewPanel: boolean) => {
+		(useFlexibleUiContext as jest.Mock).mockReturnValue({
+			...mockContext,
+			actions: {
+				...(mockContext as any).actions,
+				PreviewAction: {
+					...(mockContext as any).actions.PreviewAction,
+					hasPreviewPanel,
+				},
+			},
+		});
 	};
 
 	beforeEach(() => {
@@ -56,15 +71,18 @@ describe('PreviewAction', () => {
 	it('invokes action', async () => {
 		const invoke = jest.fn();
 		const spy = jest.spyOn(useInvokeClientAction, 'default').mockReturnValue(invoke);
+		const event = userEvent.setup();
 
 		setup();
 
 		const element = await screen.findByTestId(testId);
-		await userEvent.click(element);
+		await event.click(element);
 
 		expect(invoke).toHaveBeenCalledTimes(1);
 
 		spy.mockRestore();
+
+		await closeEmbedModal(event);
 	});
 
 	describe('with tooltip', () => {
@@ -92,65 +110,55 @@ describe('PreviewAction', () => {
 	});
 
 	it('should render modal variant when hasPreviewPanel is false', async () => {
-		(flexibleUiContextModule.useFlexibleUiContext as jest.Mock).mockReturnValue({
-			...mockContext,
-			actions: {
-				...(mockContext as any).actions,
-				PreviewAction: {
-					...(mockContext as any).actions.PreviewAction,
-					hasPreviewPanel: false,
-				},
-			},
-		});
-
+		setContextWithPreviewPanel(false);
 		setup();
 
 		const element = await screen.findByTestId(testId);
 		expect(element).toHaveTextContent('Open preview');
-		// icon label for modal
-		expect(screen.getByLabelText('Open preview')).toBeInTheDocument();
+		// button has aria-label for a11y; icon is decorative (empty label)
+		expect(element).toHaveAttribute('aria-label', 'Open preview');
 	});
 
 	it('should render panel variant when hasPreviewPanel is true', async () => {
 		// Enable the experiment for this test
 		const { expValEquals } = require('@atlaskit/tmp-editor-statsig/exp-val-equals');
 		expValEquals.mockReturnValue(true);
-
-		(flexibleUiContextModule.useFlexibleUiContext as jest.Mock).mockReturnValue({
-			...mockContext,
-			actions: {
-				...(mockContext as any).actions,
-				PreviewAction: {
-					...(mockContext as any).actions.PreviewAction,
-					hasPreviewPanel: true,
-				},
-			},
-		});
-
+		setContextWithPreviewPanel(true);
 		setup();
 
 		const element = await screen.findByTestId(testId);
 		expect(element).toHaveTextContent('Open preview panel');
-		// icon label for panel
-		expect(screen.getByLabelText('Open preview panel')).toBeInTheDocument();
+		// button has aria-label for a11y; icon is decorative (empty label)
+		expect(element).toHaveAttribute('aria-label', 'Open preview panel');
 	});
 
 	it('should not render when no preview action data present', () => {
-		(flexibleUiContextModule.useFlexibleUiContext as jest.Mock).mockReturnValue({
+		(useFlexibleUiContext as jest.Mock).mockReturnValue({
 			...mockContext,
 			actions: {
 				...mockContext.actions,
 				PreviewAction: undefined,
 			},
 		});
-
 		setup();
 
 		expect(screen.queryByTestId(testId)).toBeNull();
 	});
 
-	it('should capture and report a11y violations', async () => {
-		const { container } = setup({ as: 'stack-item' });
+	it('should render modal icon without aria-label when flag is enabled', async () => {
+		setContextWithPreviewPanel(false);
+		setup();
+		const element = await screen.findByTestId(testId);
+		expect(element).toBeInTheDocument();
+		expect(element).toHaveTextContent('Open preview');
+		// button has aria-label for a11y; icon is decorative (empty label)
+		expect(element).toHaveAttribute('aria-label', 'Open preview');
+	});
+
+	it('should pass a11y check when icon label is empty', async () => {
+		setContextWithPreviewPanel(false);
+
+		const { container } = setup();
 		await expect(container).toBeAccessible();
 	});
 });

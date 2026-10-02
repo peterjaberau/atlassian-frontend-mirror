@@ -2,17 +2,17 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useCallback } from 'react';
 
 import { cssMap, cx, jsx } from '@atlaskit/css';
 import { Box, Inline, Pressable } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
-import type { TriggerProps } from '@atlaskit/tooltip';
+import type { TriggerProps } from '@atlaskit/tooltip/types';
 
-import { getPrimitivesInlineSpaceBySize } from '../../../utils';
+import { getPrimitivesInlineSpaceBySize } from '../../../getPrimitivesInlineSpaceBySize';
 import ActionIcon from '../action-icon';
-
 import type { ActionStackItemProps } from './types';
 
 const styles = cssMap({
@@ -37,6 +37,13 @@ const styles = cssMap({
 		color: token('color.text'),
 		font: token('font.body.small'),
 	},
+	spinner: {
+		width: '24px',
+		height: '24px',
+		display: 'inline-flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 });
 
 const ActionButton = ({
@@ -50,7 +57,8 @@ const ActionButton = ({
 	testId,
 	tooltipProps,
 	style,
-}: ActionStackItemProps & { tooltipProps?: TriggerProps }) => {
+	ariaLabel,
+}: ActionStackItemProps & { tooltipProps?: TriggerProps }): JSX.Element => {
 	const space = spaceOption ?? getPrimitivesInlineSpaceBySize(size);
 
 	const onClick = useCallback(() => {
@@ -59,10 +67,24 @@ const ActionButton = ({
 		}
 	}, [isDisabled, isLoading, onClickCallback]);
 
+	// FIX-ME: This is required for ResolvedHoverCardFooterBlock action to show proper size
+	// ResolvedHoverCardFooterBlock is currently not used but keeping inside the code base for
+	// upcoming experiment to refresh HoverCard design
+	// If ResolvedHoverCardFooterBlock is cleaned up, this code can be removed.
+	const showSpinnerSize24 = false;
+
 	const icon =
 		iconOption && isLoading ? (
 			<ActionIcon
-				icon={<Spinner testId={`${testId}-loading`} />}
+				icon={
+					showSpinnerSize24 ? (
+						<Box xcss={styles.spinner}>
+							<Spinner size={16} testId={`${testId}-loading`} />
+						</Box>
+					) : (
+						<Spinner testId={`${testId}-loading`} />
+					)
+				}
 			/>
 		) : (
 			iconOption
@@ -76,6 +98,7 @@ const ActionButton = ({
 			testId={testId}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 			style={style}
+			aria-label={ariaLabel}
 		>
 			<Inline alignBlock="center" grow="fill" space={space}>
 				{icon}

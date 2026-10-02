@@ -1,27 +1,26 @@
 /* eslint-disable @atlaskit/design-system/no-html-button */
+
 import React, { useEffect, useState } from 'react';
 
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import { AnnotationMarkStates, AnnotationTypes, type DocNode } from '@atlaskit/adf-schema';
+import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema/annotation';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import {
-	type AnnotationManager,
 	AnnotationUpdateEmitter,
 	createAnnotationManager,
 } from '@atlaskit/editor-common/annotation';
-import {
-	// type AnnotationActionResult,
-	type AnnotationProviders,
-	AnnotationUpdateEvent,
-} from '@atlaskit/editor-common/types';
+import type { AnnotationManager } from '@atlaskit/editor-common/annotation';
+import { AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
+import type { AnnotationProviders } from '@atlaskit/editor-common/types';
 import type { AddMarkStep } from '@atlaskit/editor-prosemirror/transform';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { HighlightBar } from './HighlightBar';
 import { AttachedComment } from './AttachedComment';
-import { popupPortalContainerId } from './shared';
+import { HighlightBar } from './HighlightBar';
 import { ExampleHighlightMenu } from './mock-ui';
+import { popupPortalContainerId } from './shared';
 
 type AnnotationEventEmitterFn = () => any;
 
@@ -42,7 +41,10 @@ export const getRendererAnnotationManager: () => AnnotationManager | undefined =
 	return annotationManager;
 };
 
-export const useExampleRendererAnnotationProvider = () => {
+export const useExampleRendererAnnotationProvider = (): {
+	highlightsMountPoint: React.JSX.Element;
+	rendererAnnotationProvider: AnnotationProviders;
+} => {
 	const highlightsMountPoint = (
 		<div
 			id={popupPortalContainerId}
@@ -328,10 +330,11 @@ type ProductState = {
 	drafts: { [rangeKey: string]: string };
 };
 
-export const ExampleAnnotationProductStateContext = React.createContext({} as ProductState);
-export const ExampleAnnotationProductDispatch = React.createContext(
-	{} as React.Dispatch<ProductStateReducerAction>,
-);
+export const ExampleAnnotationProductStateContext: React.Context<ProductState> =
+	React.createContext({} as ProductState);
+export const ExampleAnnotationProductDispatch: React.Context<
+	React.Dispatch<ProductStateReducerAction>
+> = React.createContext({} as React.Dispatch<ProductStateReducerAction>);
 
 export const ExampleAnnotationProductState = ({
 	initialAnnotationState,

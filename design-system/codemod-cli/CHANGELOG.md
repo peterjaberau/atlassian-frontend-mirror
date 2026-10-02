@@ -1,5 +1,175 @@
 # @atlaskit/codemod-cli
 
+## 2.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.4
+
+### Patch Changes
+
+- [`517bbea71d2d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/517bbea71d2d2) -
+  Add `avatar-remove-is-decorative` codemod to automate migration away from the removed
+  `isDecorative` prop on `@atlaskit/avatar`.
+  - `isDecorative` / `isDecorative={true}` → `label=""`
+  - `isDecorative={false}` → prop removed (was already the default)
+  - Dynamic expressions → prop removed with a TODO comment for manual review
+
+  Run with:
+
+  ```
+  npx @atlaskit/codemod-cli --preset avatar-remove-is-decorative --extensions tsx,ts
+  ```
+
+- Updated dependencies
+
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.4
+
+### Patch Changes
+
+- [`1b322a30271e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b322a30271e1) -
+  Fixed badge-appearance-semantic-migration codemod incorrectly flagging already-migrated semantic
+  values as unknown.
+
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.2
+
+### Patch Changes
+
+- [`dc456d412b841`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dc456d412b841) -
+  Fixed lozenge-appearance-semantic-migration codemod incorrectly flagging already-migrated semantic
+  values as unknown.
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`16367702dad7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/16367702dad7e) -
+  Removes `codemod-cli/transforms` entry-point.
+
+## 0.34.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.34.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.34.7
+
+### Patch Changes
+
+- [`5367a27d5fe5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5367a27d5fe5a) -
+  Internal refactoring
+
+## 0.34.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.34.5
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.34.4
 
 ### Patch Changes

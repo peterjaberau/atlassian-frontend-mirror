@@ -1,5 +1,6 @@
-import { type PrimitiveType } from './schema-node';
-import SchemaNodeWithValidators, { type Indexed } from './schema-node-with-validators';
+import type { PrimitiveType } from './schema-node';
+import SchemaNodeWithValidators from './schema-node-with-validators';
+import type { Indexed } from './schema-node-with-validators';
 
 export default class PrimitiveSchemaNode<T extends Indexed> extends SchemaNodeWithValidators<T> {
 	constructor(type: PrimitiveType, validators: T = {} as T) {
@@ -12,7 +13,7 @@ export default class PrimitiveSchemaNode<T extends Indexed> extends SchemaNodeWi
 		return keys.length ? this.mergeValidationInfo(keys, obj) : obj;
 	}
 
-	toSpec() {
+	toSpec(): object {
 		return this.toJSON();
 	}
 }

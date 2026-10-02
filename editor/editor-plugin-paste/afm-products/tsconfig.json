@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-paste/app",
 		"rootDir": "../",
 		"composite": true,
@@ -27,6 +26,9 @@
 			"path": "../../adf-schema/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../adf-utils/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/code/afm-products/tsconfig.json"
 		},
 		{
@@ -43,6 +45,12 @@
 		},
 		{
 			"path": "../../editor-plugin-card/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-expand/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-extension/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-feature-flags/afm-products/tsconfig.json"
@@ -72,10 +80,16 @@
 			"path": "../../insm/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../linking-platform/linking-common/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../media/media-client/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../media/media-common/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"

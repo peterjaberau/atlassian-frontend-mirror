@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/panel",
-	"version": "0.12.3",
+	"version": "2.9.2",
 	"description": "A React component rendering a collapsible panel",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,20 +12,14 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
 		".": "./src/index.ts",
 		"./i18n/*": {
 			"publish": null,
 			"default": "./src/i18n/*.ts"
-		}
+		},
+		"./Panel": "./src/entry-points/Panel.tsx",
+		"./PanelStateless": "./src/entry-points/PanelStateless.tsx"
 	},
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
@@ -45,28 +39,23 @@
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"react-animate-height": "root:*",
-		"react-focus-within": "root:*",
-		"react-intl-next": "root:*"
+		"react-focus-within": "root:*"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0",
 		"styled-components": "^3.2.6"
 	},
 	"devDependencies": {
+		"@atlaskit/page": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
-		"@testing-library/user-event": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		}
+		"@testing-library/user-event": "root:*",
+		"react": "root:*",
+		"react-intl": "root:*"
 	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
-	"platform-feature-flags": {
-		"dst-a11y__replace-anchor-with-link__bitbucket-core": {
-			"type": "boolean"
-		}
-	}
+	"platform-feature-flags": {}
 }

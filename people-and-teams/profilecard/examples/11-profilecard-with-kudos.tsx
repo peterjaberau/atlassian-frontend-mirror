@@ -1,22 +1,25 @@
 import React, { useCallback, useState } from 'react';
 
 import { cssMap } from '@atlaskit/css';
-import Flag, { FlagGroup, type FlagProps } from '@atlaskit/flag';
+import Flag from '@atlaskit/flag/flag';
+import FlagGroup from '@atlaskit/flag/flag-group';
+import type { FlagProps } from '@atlaskit/flag/types';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import ProfileCardResourced, { type Team } from '../src';
-import TeamProfilecardTrigger from '../src/components/Team';
-import ProfileCardTrigger from '../src/components/User';
+import TeamProfilecardTrigger from '../src/components/Team/TeamProfileCardTrigger';
+import ProfileCardResourced from '../src/components/User/ProfileCardResourced';
+import ProfileCardTrigger from '../src/components/User/ProfileCardTrigger';
+import getMockTeamClient from '../src/mocks/mock-team-client';
 import teamData from '../src/mocks/team-data';
-
+import { type Team } from '../src/types';
 import ExampleWrapper from './helper/example-wrapper';
 import { MainStage } from './helper/main-stage';
-import { getMockProfileClient, getMockTeamClient } from './helper/util';
+import { getMockProfileClient } from './helper/util';
 
 const styles = cssMap({
 	wrap: {
-		marginBottom: token('space.250', '20px'),
+		marginBottom: token('space.250'),
 	},
 });
 const Wrap = ({ children }: { children: React.ReactNode }) => {
@@ -101,19 +104,6 @@ export default function Example(): React.JSX.Element {
 		],
 	};
 
-	const teamActions = [
-		{
-			label: 'Team Thing',
-			id: 'team-thing',
-			callback: () => {},
-		},
-		{
-			label: 'Wat!',
-			id: 'team-thing-1',
-			callback: () => {},
-		},
-	];
-
 	return (
 		<ExampleWrapper>
 			<MainStage>
@@ -142,55 +132,22 @@ export default function Example(): React.JSX.Element {
 					/>
 				</Wrap>
 				<Wrap>
-					<TeamProfilecardTrigger
-						{...defaultProps}
-						teamId={teamClientData.team.id}
-						actions={[]}
-						trigger="click"
-						viewingUserId={'viewerId'}
-						addFlag={addFlag}
-						viewProfileLink="/"
-					>
+					<TeamProfilecardTrigger>
 						<strong>The Kudos Team (clickable)</strong>
 					</TeamProfilecardTrigger>
 				</Wrap>
 				<Wrap>
-					<TeamProfilecardTrigger
-						{...defaultProps}
-						teamId={teamClientData.team.id}
-						actions={[]}
-						trigger="hover"
-						viewingUserId={'viewerId'}
-						addFlag={addFlag}
-						viewProfileLink="/"
-					>
+					<TeamProfilecardTrigger>
 						<strong>The Kudos Team</strong>
 					</TeamProfilecardTrigger>
 				</Wrap>
 				<Wrap>
-					<TeamProfilecardTrigger
-						{...defaultProps}
-						teamId={teamClientData.team.id}
-						actions={teamActions}
-						trigger="hover"
-						viewingUserId={'viewerId'}
-						addFlag={addFlag}
-						viewProfileLink="/"
-					>
+					<TeamProfilecardTrigger>
 						<strong>The Kudos Team with meatballs</strong>
 					</TeamProfilecardTrigger>
 				</Wrap>
 				<Wrap>
-					<TeamProfilecardTrigger
-						{...defaultProps}
-						cloudId={undefined}
-						teamId={teamClientData.team.id}
-						actions={[]}
-						trigger="hover"
-						viewingUserId={'viewerId'}
-						addFlag={addFlag}
-						viewProfileLink="/"
-					>
+					<TeamProfilecardTrigger>
 						<strong>The Kudos Team without site</strong>
 					</TeamProfilecardTrigger>
 				</Wrap>

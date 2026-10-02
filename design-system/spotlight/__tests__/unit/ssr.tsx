@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { screen } from '@testing-library/react';
 
 import { cleanup, hydrateWithAct, ssr } from '@atlaskit/ssr/emotion';
+import { screen } from '@atlassian/testing-library';
 
 jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -10,7 +10,7 @@ afterEach(() => {
 });
 
 test('should ssr then hydrate example component correctly', async () => {
-	const examplePath = require.resolve('../../examples/card');
+	const examplePath = require.resolve('../../examples/card.vr.ap');
 	const elem = document.createElement('div');
 	const { html, styles } = await ssr(examplePath);
 	elem.innerHTML = html;

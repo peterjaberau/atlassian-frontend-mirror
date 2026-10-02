@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { useDatasourceAnalyticsEvents } from '../../../../../analytics';
 import { SpotSearchNoResult } from '../../../../../common/ui/spot/error-state/search-no-result';
 import { SEARCH_DEBOUNCE_MS } from '../constants';
-
 import { asyncPopupSelectMessages } from './messages';
 import CustomSelectMessage from './selectMessage';
 

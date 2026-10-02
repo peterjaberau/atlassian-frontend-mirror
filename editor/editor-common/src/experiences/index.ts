@@ -7,7 +7,13 @@ export { EXPERIENCE_ABORT_REASON, EXPERIENCE_FAILURE_REASON, EXPERIENCE_ID } fro
 
 export { ExperienceCheckComposite } from './ExperienceCheckComposite';
 export { ExperienceCheckDomMutation } from './ExperienceCheckDomMutation';
+export { ExperienceCheckPopupMutation } from './ExperienceCheckPopupMutation';
 export { ExperienceCheckTimeout } from './ExperienceCheckTimeout';
+
+export type {
+	ExperienceCheckPopupMutationConfig,
+	PopupCheckType,
+} from './ExperienceCheckPopupMutation';
 
 export type {
 	ExperienceCheck,
@@ -21,9 +27,8 @@ export type {
 	ExperienceDomMutationCheckOptions,
 } from './ExperienceCheckDomMutation';
 
-export {
-	containsPopupWithNestedElement,
-	popupWithNestedElement,
-	getPopupContainerFromEditorView,
-	getNodeQuery,
-} from './experience-utils';
+export { containsPopupWithNestedElement } from './containsPopupWithNestedElement';
+export { getNodeQuery } from './getNodeQuery';
+export { getPopupContainerFromEditorView } from './getPopupContainerFromEditorView';
+export { getSelectionAncestorDOM } from './getSelectionAncestorDOM';
+export { popupWithNestedElement } from './popupWithNestedElement';

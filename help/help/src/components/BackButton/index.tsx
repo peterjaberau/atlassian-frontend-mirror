@@ -1,17 +1,17 @@
-import React from 'react';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
-import {
-	useAnalyticsEvents,
-	type UIAnalyticsEvent,
-	AnalyticsContext,
-} from '@atlaskit/analytics-next';
+import React, { useRef } from 'react';
+
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
 import { Transition } from 'react-transition-group';
-import ArrowleftIcon from '@atlaskit/icon/core/arrow-left';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import Button from '@atlaskit/button/standard-button';
+import ArrowleftIcon from '@atlaskit/icon/core/arrow-left';
 
 import { messages } from '../../messages';
-import { BackButtonContainer, BACK_BUTTON_CONTAINER_TRANSITION_DURATION_MS } from '../styled';
 import { type TransitionStatus } from '../constants';
+import { BackButtonContainer, BACK_BUTTON_CONTAINER_TRANSITION_DURATION_MS } from '../styled';
 
 interface Props {
 	// Defines if the back button is visible
@@ -29,6 +29,7 @@ export const BackButton: React.FC<Props & WrappedComponentProps> = ({
 	intl: { formatMessage },
 }) => {
 	const { createAnalyticsEvent } = useAnalyticsEvents();
+	const transitionRef = useRef<HTMLDivElement>(null);
 
 	const handleOnClick = (event: React.MouseEvent<HTMLElement, MouseEvent>): void => {
 		if (onClick) {
@@ -43,11 +44,12 @@ export const BackButton: React.FC<Props & WrappedComponentProps> = ({
 		<Transition
 			in={isVisible}
 			timeout={BACK_BUTTON_CONTAINER_TRANSITION_DURATION_MS}
+			nodeRef={transitionRef}
 			mountOnEnter
 			unmountOnExit
 		>
 			{(state: TransitionStatus) => (
-				<BackButtonContainer transitionState={state}>
+				<BackButtonContainer ref={transitionRef} transitionState={state}>
 					<Button
 						onClick={(event: React.MouseEvent<HTMLElement, MouseEvent>) => {
 							if (state === 'entered') {

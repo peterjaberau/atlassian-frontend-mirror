@@ -1,16 +1,8 @@
-export enum ShadowKeys {
-	SHOW_LEFT_SHADOW = 'showLeftShadow',
-	SHOW_RIGHT_SHADOW = 'showRightShadow',
-}
+import { ShadowKeys } from './ShadowKeys';
+import { shadowObserverClassNames } from './shadowObserverClassNames';
 
 export type ShadowsStates = {
 	[ShadowKey in ShadowKeys]: boolean;
-};
-
-export const shadowObserverClassNames = {
-	SENTINEL_LEFT: 'sentinel-left',
-	SENTINEL_RIGHT: 'sentinel-right',
-	SHADOW_CONTAINER: 'with-shadow-observer',
 };
 
 const requestIdleCallback = (fn: FrameRequestCallback) => {
@@ -105,5 +97,13 @@ export class ShadowObserver {
 			this.intersectionObserver = undefined;
 			this.requestCallbackId && cancelIdleCallback(this.requestCallbackId);
 		}
+
+		this.sentinels.left?.remove();
+		this.sentinels.right?.remove();
+		this.sentinels = {};
 	}
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { ShadowKeys } from './ShadowKeys';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { shadowObserverClassNames } from './shadowObserverClassNames';

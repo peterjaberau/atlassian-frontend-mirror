@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::bd1bab94a38a90c6edb21c32d39a27ad>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::ee7a2149a32d3b6da46b1c87d041f15c>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -25,13 +25,13 @@ const customThemeSvg = `<svg height="100%" viewBox="0 0 186 24">
 /**
  * __JiraProductDiscoveryLogo__
  *
- * A temporary component to represent the logo for Jira Product Discovery.
+ * A component to represent the logo for Jira Product Discovery.
  *
  */
 export function JiraProductDiscoveryLogo({
 	iconColor,
 	textColor,
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Jira Product Discovery',
 	testId,

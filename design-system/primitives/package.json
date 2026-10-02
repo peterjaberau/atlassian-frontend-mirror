@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/primitives",
-	"version": "18.0.0",
+	"version": "22.5.4",
 	"description": "Primitives are token-backed low-level building blocks.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,8 +17,18 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Primitives",
 			"category": "Primitives",
 			"status": {
@@ -53,19 +63,13 @@
 					"title": "Flex",
 					"folder": "flex",
 					"slug": "primitives/flex",
-					"id": "@atlaskit/primitives/flex",
-					"status": {
-						"type": "beta"
-					}
+					"id": "@atlaskit/primitives/compiled/flex"
 				},
 				{
 					"title": "Grid",
 					"folder": "grid",
 					"slug": "primitives/grid",
-					"id": "@atlaskit/primitives/grid",
-					"status": {
-						"type": "beta"
-					}
+					"id": "@atlaskit/primitives/compiled/grid"
 				},
 				{
 					"title": "Bleed",
@@ -129,7 +133,7 @@
 		}
 	},
 	"scripts": {
-		"codegen-styles": "ts-node -r tsconfig-paths/register ./scripts/codegen-styles.tsx"
+		"codegen-styles": "run-ts ./scripts/codegen-styles.tsx"
 	},
 	"dependencies": {
 		"@atlaskit/analytics-next": "workspace:^",
@@ -137,6 +141,7 @@
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/ds-lib": "workspace:^",
 		"@atlaskit/interaction-context": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/visually-hidden": "workspace:^",
 		"@babel/runtime": "root:*",
@@ -147,7 +152,7 @@
 		"tiny-invariant": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -164,12 +169,12 @@
 		"@atlaskit/form": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
-		"@atlaskit/icon-object": "workspace:^",
 		"@atlaskit/image": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/logo": "workspace:^",
 		"@atlaskit/lozenge": "workspace:^",
 		"@atlaskit/motion": "workspace:^",
+		"@atlaskit/object": "workspace:^",
 		"@atlaskit/range": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
@@ -178,58 +183,73 @@
 		"@atlassian/analytics-bridge": "workspace:^",
 		"@atlassian/codegen": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/ts-loader": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"csstype": "root:*",
 		"jscodeshift": "root:*",
-		"react-dom": "root:*",
-		"react-resource-router": "root:*",
-		"ts-node": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": "file-and-folder-level"
-		},
-		"@repo/internal": {
-			"design-system": "v1",
-			"dom-events": "use-bind-event-listener",
-			"analytics": "analytics-next",
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"design-tokens": [
-				"color",
-				"spacing"
-			]
-		}
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-resource-router": "root:*"
 	},
 	"homepage": "https://atlassian.design/components/primitives/overview/",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
 		".": "./src/index.tsx",
+		"./anchor": "./src/components/anchor.tsx",
+		"./bleed": "./src/components/bleed.tsx",
 		"./box": "./src/components/box.tsx",
-		"./stack": "./src/components/stack.tsx",
+		"./compiled/anchor": "./src/compiled/components/anchor.tsx",
+		"./compiled/bleed": "./src/compiled/components/bleed.tsx",
+		"./compiled/box": "./src/compiled/components/box.tsx",
+		"./compiled/components/types": "./src/compiled/components/types.tsx",
+		"./compiled/flex": "./src/compiled/components/flex.tsx",
+		"./compiled/focusable": "./src/compiled/components/focusable.tsx",
+		"./compiled/grid": "./src/compiled/components/grid.tsx",
+		"./compiled/hide": "./src/compiled/responsive/hide.tsx",
+		"./compiled/inline": "./src/compiled/components/inline.tsx",
+		"./compiled/media-helper": "./src/compiled/responsive/media-helper.tsx",
+		"./compiled/metric-text": "./src/compiled/components/metric-text.tsx",
+		"./compiled/pressable": "./src/compiled/components/pressable.tsx",
+		"./compiled/show": "./src/compiled/responsive/show.tsx",
+		"./compiled/stack": "./src/compiled/components/stack.tsx",
+		"./compiled/surface-context": "./src/utils/unsafe-surface-context.tsx",
+		"./compiled/surface-provider": "./src/entry-points/compiled-surface-provider.tsx",
+		"./compiled/text": "./src/compiled/components/text.tsx",
+		"./compiled/types": "./src/compiled/responsive/types.tsx",
+		"./compiled/use-media-query": "./src/compiled/responsive/use-media-query.tsx",
+		"./compiled/utils/types": "./src/utils/types.tsx",
+		"./compiled": "./src/compiled/index.tsx",
+		"./components/flex": "./src/components/flex.tsx",
+		"./constants": "./src/responsive/constants.tsx",
+		"./flex": "./src/components/flex.tsx",
+		"./grid": "./src/components/grid.tsx",
 		"./inline": "./src/components/inline.tsx",
-		"./text": "./src/components/text.tsx",
+		"./media-helper": "./src/entry-points/media-helper.tsx",
 		"./metric-text": "./src/components/metric-text.tsx",
 		"./pressable": "./src/components/pressable.tsx",
-		"./anchor": "./src/components/anchor.tsx",
+		"./responsive/build-media-query-css": "./src/responsive/unsafe-build-above-media-query-css.tsx",
+		"./responsive/constants": "./src/responsive/constants.tsx",
+		"./responsive/hide": "./src/responsive/hide.tsx",
+		"./responsive/media": "./src/responsive/media.tsx",
+		"./responsive/media-helper": "./src/entry-points/responsive-media-helper.tsx",
+		"./responsive/show": "./src/responsive/show.tsx",
+		"./responsive/types": "./src/responsive/types.tsx",
+		"./responsive/unsafe-build-above-media-query-css": "./src/responsive/unsafe-build-above-media-query-css.tsx",
+		"./responsive/use-media-query": "./src/responsive/use-media-query.tsx",
 		"./responsive": "./src/responsive/index.tsx",
-		"./compiled": "./src/compiled/index.tsx"
+		"./stack": "./src/components/stack.tsx",
+		"./surface-provider": "./src/utils/unsafe-use-surface.tsx",
+		"./text": "./src/components/text.tsx",
+		"./tokens-map": "./src/xcss/tokens-map.tsx",
+		"./types": "./src/responsive/types.tsx",
+		"./xcss": "./src/entry-points/xcss.tsx",
+		"./xcss/inverse-color": "./src/xcss/inverse-color.tsx",
+		"./surface-context": "./src/utils/surface-context.tsx",
+		"./utils/surface-provider": "./src/utils/surface-provider.tsx",
+		"./media-helper/default": "./src/responsive/media-helper.tsx",
+		"./xcss/xcss": "./src/xcss/xcss.tsx",
+		"./compiled/responsive/index": "./src/compiled/responsive/index.tsx"
 	}
 }

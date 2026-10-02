@@ -1,10 +1,12 @@
 import React from 'react';
 import { type ReactNode, type MouseEvent } from 'react';
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
+import { fireMediaCardEvent } from '../../../../utils/analytics/fireMediaCardEvent';
 import { CardActionButton } from './cardActionButton';
-import Tooltip from '@atlaskit/tooltip';
 import { type CardActionIconButtonVariant } from './styles';
-import { fireMediaCardEvent } from '../../../../utils/analytics';
 
 export type CardActionIconButtonProps = {
 	readonly icon: ReactNode;

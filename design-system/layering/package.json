@@ -1,11 +1,23 @@
 {
 	"name": "@atlaskit/layering",
-	"version": "3.6.0",
+	"version": "6.0.0",
 	"description": "Layering provides consistent and accessible layered experience",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"website": {
+			"tags": [
+				"platform-labs"
+			]
+		},
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"singleton": true
 	},
@@ -22,50 +34,38 @@
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
 		".": "./src/index.tsx",
-		"./experimental/open-layer-observer": "./src/entry-points/experimental/open-layer-observer.tsx"
+		"./experimental/open-layer-observer": "./src/entry-points/experimental/open-layer-observer-old.tsx",
+		"./experimental/types": "./src/entry-points/experimental/types.tsx",
+		"./layering": "./src/components/layering.tsx",
+		"./open-layer-observer": "./src/components/open-layer-observer/open-layer-observer.tsx",
+		"./open-layer-observer-namespace-provider": "./src/components/open-layer-observer/open-layer-observer-namespace-provider.tsx",
+		"./types": "./src/components/open-layer-observer/types.tsx",
+		"./use-close-on-escape-press": "./src/hooks/use-close-on-escape-press.tsx",
+		"./use-layering": "./src/hooks/use-layering.tsx",
+		"./use-notify-open-layer-observer": "./src/components/open-layer-observer/use-notify-open-layer-observer.tsx",
+		"./use-open-layer-observer": "./src/components/open-layer-observer/use-open-layer-observer.tsx",
+		"./experimental/open-layer-observer-namespace-provider": "./src/entry-points/experimental/open-layer-observer-namespace-provider.tsx",
+		"./experimental/open-layer-observer/open-layer-observer": "./src/entry-points/experimental/open-layer-observer.tsx",
+		"./experimental/use-notify-open-layer-observer": "./src/entry-points/experimental/use-notify-open-layer-observer.tsx",
+		"./experimental/use-open-layer-observer": "./src/entry-points/experimental/use-open-layer-observer.tsx"
 	},
 	"dependencies": {
-		"@atlaskit/ds-lib": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@babel/runtime": "root:*",
 		"bind-event-listener": "root:*",
 		"tiny-invariant": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/modal-dialog": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
-		"@testing-library/user-event": "root:*"
+		"@testing-library/user-event": "root:*",
+		"react": "^19.0.0"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"ui-components": "lite-mode",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"static",
-				"emotion"
-			]
-		}
-	},
-	"homepage": "https://atlassian.design/components",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	}
+	"homepage": "https://atlassian.design/components"
 }

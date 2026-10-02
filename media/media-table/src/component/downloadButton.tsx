@@ -1,13 +1,15 @@
-import { token } from '@atlaskit/tokens';
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
-import { N40 } from '@atlaskit/theme/colors';
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
 import DownloadIcon from '@atlaskit/icon/core/download';
-import Button from '@atlaskit/button/custom-theme-button';
-import { messages } from '@atlaskit/media-ui';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import { messages } from '@atlaskit/media-ui/messages';
+import { token } from '@atlaskit/tokens';
+
 import { ANALYTICS_MEDIA_CHANNEL } from '../util';
 
 interface Props {
@@ -42,7 +44,7 @@ const MediaDownloadButton = (props: Props & WrappedComponentProps) => {
 					...current(themeProps).buttonStyles,
 					minWidth: 'max-content',
 					'&:hover': {
-						background: token('color.background.neutral.hovered', N40),
+						background: token('color.background.neutral.hovered'),
 					},
 				},
 				spinnerStyles: current(themeProps).spinnerStyles,
@@ -51,4 +53,7 @@ const MediaDownloadButton = (props: Props & WrappedComponentProps) => {
 	);
 };
 
-export default injectIntl(MediaDownloadButton);
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(MediaDownloadButton);
+export default _default_1;

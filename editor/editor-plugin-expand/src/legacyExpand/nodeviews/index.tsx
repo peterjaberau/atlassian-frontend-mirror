@@ -1,11 +1,12 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { keyName } from 'w3c-keyname';
 
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import { BLOCK_CONTROLS_DRAG_HANDLE } from '@atlaskit/editor-common/block-controls/surface-keys';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { GapCursorSelection, RelativeSelectionPos, Side } from '@atlaskit/editor-common/selection';
 import type {
 	SelectionSharedState,
@@ -19,17 +20,22 @@ import type {
 } from '@atlaskit/editor-common/types';
 import { expandMessages } from '@atlaskit/editor-common/ui';
 import { closestElement, isEmptyNode } from '@atlaskit/editor-common/utils';
+import {
+	applyContentVisibility,
+	estimateExpandIntrinsicHeight,
+} from '@atlaskit/editor-common/utils/content-visibility';
 import type { DOMOutputSpec, Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection, Selection } from '@atlaskit/editor-prosemirror/state';
 import type { Decoration, EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { redo, undo } from '@atlaskit/prosemirror-history';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { redo } from '@atlaskit/prosemirror-history/redo';
+import { undo } from '@atlaskit/prosemirror-history/undo';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import type { ExpandPlugin } from '../../types';
-import { renderExpandButton } from '../../ui/renderExpandButton';
 import {
 	deleteExpandAtPos,
 	setSelectionInsideExpand,
@@ -42,6 +48,19 @@ function buildExpandClassName(type: string, expanded: boolean) {
 	return `${expandClassNames.prefix} ${expandClassNames.type(type)} ${
 		expanded ? expandClassNames.expanded : ''
 	}`;
+}
+
+export function getExpandBodyAriaLabel(title: string, intl?: IntlShape): string {
+	const safeTitle =
+		title.trim() ||
+		intl?.formatMessage(expandMessages.expandBodyAriaLabelUntitled) ||
+		expandMessages.expandBodyAriaLabelUntitled.defaultMessage;
+
+	return (
+		intl?.formatMessage(expandMessages.expandBodyAriaLabel, {
+			title: safeTitle,
+		}) || expandMessages.expandBodyAriaLabel.defaultMessage.replace('{title}', safeTitle)
+	);
 }
 
 const toDOM = (
@@ -76,7 +95,7 @@ const toDOM = (
 			tabindex: '-1',
 		},
 		// prettier-ignore
-		['div', { 'class': expandClassNames.icon, style: `display: flex; width: ${token('space.300', '24px')}; height: ${token('space.300', '24px')}` }],
+		['div', { 'class': expandClassNames.icon, style: `display: flex; width: ${token('space.300')}; height: ${token('space.300')}` }],
 		[
 			'div',
 			{
@@ -102,17 +121,28 @@ const toDOM = (
 		],
 	],
 	[
-		'div',
+		isExperimentEnabled('platform_editor_expand_content_a11y_2') ? 'section' : 'div',
 		{
 			// prettier-ignore
-			class: expandClassNames.content,
-			style: expValEquals('platform_editor_display_none_to_expand', 'isEnabled', true)
-				? `display: ${
-						__livePage ? !node.attrs.__expanded : node.attrs.__expanded ? 'flow-root' : 'none'
-					}`
-				: undefined,
+			class: `${expandClassNames.content} ${(__livePage ? !node.attrs.__expanded : node.attrs.__expanded) ? '' : expandClassNames.contentCollapsed}`,
 			contenteditable:
 				contentEditable !== undefined ? (contentEditable ? 'true' : 'false') : undefined,
+			...(!isExperimentEnabled('platform_editor_expand_content_a11y_2') && {
+				role: 'textbox',
+				'aria-multiline': 'true',
+				'aria-label':
+					(intl && intl.formatMessage(expandMessages.expandBodyAriaLabelOriginal)) ||
+					expandMessages.expandBodyAriaLabelOriginal.defaultMessage,
+			}),
+			...(isExperimentEnabled('platform_editor_expand_content_a11y_2') && {
+				'aria-label': getExpandBodyAriaLabel(node.attrs.title ?? '', intl),
+				'aria-description':
+					intl?.formatMessage(expandMessages.expandBodyAriaDescription) ||
+					expandMessages.expandBodyAriaDescription.defaultMessage,
+				'aria-roledescription':
+					intl?.formatMessage(expandMessages.expandBodyRoleDescription) ??
+					expandMessages.expandBodyRoleDescription.defaultMessage,
+			}),
 		},
 		0,
 	],
@@ -178,13 +208,12 @@ export class ExpandNodeView implements NodeView {
 			`.${expandClassNames.titleContainer}`,
 		);
 		this.content = this.dom.querySelector<HTMLElement>(`.${expandClassNames.content}`);
+		applyContentVisibility(this.dom, this.isLimitedModeEnabled(), () => ({
+			height: estimateExpandIntrinsicHeight(this.node, !this.isCollapsed()),
+		}));
 		// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 		this.renderKey = uuid();
-		if (expValEquals('platform_editor_native_expand_button', 'isEnabled', true)) {
-			this.renderNativeIcon(this.node);
-		} else {
-			this.renderIcon(this.intl);
-		}
+		this.renderIcon(this.intl);
 
 		this.initHandlers();
 	}
@@ -237,9 +266,7 @@ export class ExpandNodeView implements NodeView {
 						);
 					}
 
-					if (expValEquals('platform_editor_display_none_to_expand', 'isEnabled', true)) {
-						this.updateDisplayStyle(this.node);
-					}
+					this.updateDisplayStyle(this.node);
 				},
 			);
 		}
@@ -276,20 +303,6 @@ export class ExpandNodeView implements NodeView {
 				break;
 		}
 	};
-
-	private renderNativeIcon(node: PmNode) {
-		if (!this.icon) {
-			return;
-		}
-
-		const { __expanded } = node.attrs;
-
-		renderExpandButton(this.icon, {
-			expanded: this.__livePage ? !__expanded : __expanded,
-			allowInteractiveExpand: this.allowInteractiveExpand,
-			intl: this.intl,
-		});
-	}
 
 	private renderIcon(intl?: IntlShape, node?: PmNode) {
 		if (!this.icon) {
@@ -382,7 +395,68 @@ export class ExpandNodeView implements NodeView {
 	};
 
 	private handleTitleKeydown = (event: KeyboardEvent) => {
-		switch (keyName(event)) {
+		// Handle Ctrl+Shift+H to select the expand node for drag handle
+		// Note: If changing this implementation in legacyExpand, please also update the implementation in singlePlayerExpand
+		if (
+			expValEquals('platform_editor_dnd_accessibility_fixes_expand', 'isEnabled', true) &&
+			(event.ctrlKey || event.metaKey) &&
+			event.shiftKey &&
+			(event.key === 'H' || event.key === 'h')
+		) {
+			event.preventDefault();
+			const pos = this.getPos();
+			if (typeof pos === 'number') {
+				// Blur the input first to remove focus from the title
+				if (this.input) {
+					this.input.blur();
+				}
+				// Use requestAnimationFrame to ensure blur completes before setting selection
+				requestAnimationFrame(() => {
+					const { state } = this.view;
+					this.view.focus();
+					this.api?.core.actions.execute(({ tr }) => {
+						tr.setSelection(NodeSelection.create(state.doc, pos));
+						if (isExperimentEnabled('platform_editor_block_control_migration')) {
+							const command = this.api?.blockControls?.commands.showControlAtPosition(
+								pos,
+								BLOCK_CONTROLS_DRAG_HANDLE,
+								{
+									isFocused: true,
+								},
+							);
+							if (command) {
+								return command({ tr });
+							}
+							return null;
+						}
+
+						const node = state.doc.nodeAt(pos);
+						if (node) {
+							const dom = this.view.nodeDOM(pos);
+							if (dom instanceof HTMLElement) {
+								const anchorName = dom.getAttribute('data-node-anchor');
+								if (anchorName) {
+									const command = this.api?.blockControls?.commands.showDragHandleAt(
+										pos,
+										anchorName,
+										node.type.name,
+										{ isFocused: true },
+									);
+									if (command) {
+										return command({ tr });
+									}
+								}
+							}
+						}
+						return null;
+					});
+				});
+			}
+			return;
+		}
+
+		const keyName_result = keyName(event);
+		switch (keyName_result) {
 			case 'Enter':
 				this.toggleExpand();
 				break;
@@ -671,11 +745,33 @@ export class ExpandNodeView implements NodeView {
 	};
 
 	private updateDisplayStyle(node: PmNode): void {
+		const isCollapsed = this.__livePage ? node.attrs.__expanded : !node.attrs.__expanded;
 		if (this.content) {
-			const isCollapsed = this.__livePage ? node.attrs.__expanded : !node.attrs.__expanded;
-
-			this.content.style.display = isCollapsed ? 'none' : 'flow-root';
+			if (isCollapsed) {
+				this.content.classList.add(expandClassNames.contentCollapsed);
+			} else {
+				this.content.classList.remove(expandClassNames.contentCollapsed);
+			}
 		}
+		// Collapsed vs expanded changes the reserved height, so re-apply the intrinsic-size estimate.
+		if (this.dom) {
+			applyContentVisibility(this.dom, this.isLimitedModeEnabled(), () => ({
+				height: estimateExpandIntrinsicHeight(node, !isCollapsed),
+			}));
+		}
+	}
+
+	private isLimitedModeEnabled(): boolean {
+		// Read from `this.view.state` via the exposed plugin key rather than the shared state's
+		// `enabled`, which reads a stale `false` during initial EditorView construction (the injection
+		// API's editor state isn't wired up yet).
+		//
+		// Reads the plugin's derived `enabled`, so this covers every reason limited mode can be on.
+		return Boolean(
+			this.api?.limitedMode?.sharedState
+				.currentState()
+				?.limitedModePluginKey?.getState(this.view.state)?.enabled,
+		);
 	}
 
 	stopEvent(event: Event): boolean {
@@ -707,16 +803,18 @@ export class ExpandNodeView implements NodeView {
 
 	update(node: PmNode, _decorations: readonly Decoration[]): boolean {
 		if (this.node.type === node.type) {
+			// Re-apply in case limited mode flipped from disabled→enabled after the document loaded
+			// (the flip is transaction-driven, so this update() fires once it becomes enabled).
+			const isCollapsed = this.__livePage ? node.attrs.__expanded : !node.attrs.__expanded;
+			applyContentVisibility(this.dom, this.isLimitedModeEnabled(), () => ({
+				height: estimateExpandIntrinsicHeight(node, !isCollapsed),
+			}));
 			if (this.node.attrs.__expanded !== node.attrs.__expanded) {
 				// Instead of re-rendering the view on an expand toggle
 				// we toggle a class name to hide the content and animate the chevron.
 				if (this.dom) {
 					this.dom.classList.toggle(expandClassNames.expanded);
-					if (expValEquals('platform_editor_native_expand_button', 'isEnabled', true)) {
-						this.renderNativeIcon(node);
-					} else {
-						this.renderIcon(this && this.intl, node);
-					}
+					this.renderIcon(this.intl, node);
 				}
 
 				if (this.content) {
@@ -727,9 +825,7 @@ export class ExpandNodeView implements NodeView {
 					);
 				}
 
-				if (expValEquals('platform_editor_display_none_to_expand', 'isEnabled', true)) {
-					this.updateDisplayStyle(node);
-				}
+				this.updateDisplayStyle(node);
 			}
 
 			// During a collab session the title doesn't sync with other users
@@ -740,6 +836,15 @@ export class ExpandNodeView implements NodeView {
 					this.input.value = this.node.attrs.title;
 				}
 			});
+
+			if (isExperimentEnabled('platform_editor_expand_content_a11y_2')) {
+				if (this.node.attrs.title !== node.attrs.title && this.content) {
+					this.content.setAttribute(
+						'aria-label',
+						getExpandBodyAriaLabel(node.attrs.title ?? '', this.intl),
+					);
+				}
+			}
 
 			this.node = node;
 			return true;

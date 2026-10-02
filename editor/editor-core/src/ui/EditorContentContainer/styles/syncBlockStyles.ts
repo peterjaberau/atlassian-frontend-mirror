@@ -1,5 +1,9 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles, keyframes } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css, keyframes } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import {
 	BodiedSyncBlockSharedCssClassName,
@@ -8,9 +12,13 @@ import {
 	SyncBlockStateCssClassName,
 } from '@atlaskit/editor-common/sync-block';
 import { token } from '@atlaskit/tokens';
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const syncBlockStyles: SerializedStyles = css({
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const syncBlockStylesBase: SerializedStyles = css({
 	'@property --angle': { syntax: '"<angle>"', initialValue: '0deg', inherits: 'false' },
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -19,11 +27,9 @@ export const syncBlockStyles: SerializedStyles = css({
 			position: 'relative',
 			cursor: 'pointer',
 			borderRadius: token('radius.small', '3px'),
-			marginRight: `-18px`,
-			marginLeft: `-18px`,
 			marginBottom: 0,
-			marginTop: token('space.075', '6px'),
-			paddingBlock: token('space.150', '12px'),
+			marginTop: token('space.075'),
+			paddingBlock: token('space.150'),
 			color: 'inherit',
 
 			/* Hover state */
@@ -55,16 +61,20 @@ export const syncBlockStyles: SerializedStyles = css({
 			/* Node selection state */
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 			'&.ak-editor-selected-node': {
-				boxShadow: `0 0 0 1px ${token('color.border.focused')}`,
+				boxShadow: `0 0 0 1px var(--ak-editor-sync-block-selected-border-color, ${token(
+					'color.border.focused',
+				)})`,
 
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 				[`.${SyncBlockLabelSharedCssClassName.labelClassName}`]: {
 					opacity: 1,
 					visibility: 'visible',
-					backgroundColor: token('color.background.selected'),
+					backgroundColor: `var(--ak-editor-sync-block-selected-label-background-color, ${token(
+						'color.background.selected',
+					)})`,
 					top: '-14px',
-					paddingBottom: token('space.050', '4px'),
-					paddingTop: token('space.050', '4px'),
+					paddingBottom: token('space.050'),
+					paddingTop: token('space.050'),
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 					'> span': {
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
@@ -88,8 +98,8 @@ export const syncBlockStyles: SerializedStyles = css({
 				[`.${SyncBlockLabelSharedCssClassName.labelClassName}`]: {
 					backgroundColor: token('color.background.danger'),
 					top: '-14px',
-					paddingBottom: token('space.050', '4px'),
-					paddingTop: token('space.050', '4px'),
+					paddingBottom: token('space.050'),
+					paddingTop: token('space.050'),
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 					'> span': {
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
@@ -123,7 +133,11 @@ export const syncBlockStyles: SerializedStyles = css({
 					to: { '--angle': '360deg' },
 				})} 2s linear infinite`,
 				border: '1px solid transparent',
-				background: `linear-gradient(${token('elevation.surface')}, ${token('elevation.surface')}) padding-box, conic-gradient(from var(--angle), #1868DB, ${token('color.background.accent.purple.subtlest.pressed')}, #3279E0, #1868DB) border-box`,
+				background: `linear-gradient(${token('elevation.surface')}, ${token(
+					'elevation.surface',
+				)}) padding-box, conic-gradient(from var(--angle), #1868DB, ${token(
+					'color.background.accent.purple.subtlest.pressed',
+				)}, #3279E0, #1868DB) border-box`,
 				backgroundClip: 'padding-box, border-box',
 
 				boxShadow: 'none',
@@ -166,15 +180,37 @@ export const syncBlockStyles: SerializedStyles = css({
 				},
 			},
 
+			/* Dragging state */
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+			[`&.${SyncBlockStateCssClassName.draggingClassName}`]: {
+				boxShadow: `0 0 0 1px ${token('color.border')}`,
+
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+				[`.${SyncBlockLabelSharedCssClassName.labelClassName}`]: {
+					opacity: 1,
+					visibility: 'visible',
+				},
+			},
+
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 			[`.${BodiedSyncBlockSharedCssClassName.content}`]: {
-				padding: '0 18px',
+				paddingTop: 0,
+				paddingBottom: 0,
+				// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+				paddingLeft: '19px',
+				// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+				paddingRight: '18px',
 				cursor: 'text',
 			},
 
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 			[`.${SyncBlockSharedCssClassName.renderer}`]: {
-				padding: '0 18px',
+				paddingTop: 0,
+				paddingBottom: 0,
+				// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+				paddingLeft: '19px',
+				// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+				paddingRight: '18px',
 			},
 		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
@@ -200,7 +236,7 @@ export const syncBlockStyles: SerializedStyles = css({
 	[`.${SyncBlockLabelSharedCssClassName.labelClassName}`]: {
 		borderRadius: token('radius.small', '3px'),
 		position: 'absolute',
-		gap: token('space.050', '4px'),
+		gap: token('space.050'),
 		justifyContent: 'center',
 		alignItems: 'center',
 		display: 'flex',
@@ -209,29 +245,117 @@ export const syncBlockStyles: SerializedStyles = css({
 		boxShadow: 'none',
 		zIndex: 1,
 
-		paddingLeft: token('space.100', '8px'),
-		paddingRight: token('space.100', '8px'),
+		paddingLeft: token('space.100'),
+		paddingRight: token('space.100'),
 
 		top: '-10px',
-		right: token('space.150', '12px'),
+		right: token('space.150'),
 		backgroundColor: token('elevation.surface'),
 		maxWidth: '140px',
 	},
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+// Export the default styles with negative margins (original behavior)
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const syncBlockStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+		[`.${SyncBlockSharedCssClassName.prefix}, .${BodiedSyncBlockSharedCssClassName.prefix}`]: {
+			marginRight: `-19px`,
+			marginLeft: `-19px`,
+		},
+	},
+});
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const syncBlockOverflowStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 		[`.${BodiedSyncBlockSharedCssClassName.content}`]: {
 			// Contain floated elements (wrap-left/wrap-right) within synced block borders
-			overflow: 'hidden',
+			// Use display: flow-root to create a block formatting context without clipping other content e.g. telepointers
+			display: 'flow-root',
 		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 		[`.${SyncBlockSharedCssClassName.renderer}`]: {
 			// Contain floated elements (wrap-left/wrap-right) within synced block borders
-			overflow: 'hidden',
+			// Use display: flow-root to create a block formatting context without clipping other content e.g. telepointers
+			display: 'flow-root',
+		},
+	},
+});
+
+// Styles for text selection in reference sync blocks.
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const syncBlockTextSelectionStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+	[`.${SyncBlockSharedCssClassName.renderer}`]: {
+		// Show text cursor to indicate content is selectable
+		cursor: 'text',
+		// Remove browser focus outline on the contentEditable renderer wrapper
+		outline: 'none',
+		// Hide the blinking insertion caret. contentEditable="true" is set on
+		// the renderer to enable text selection, but the content is read-only.
+		caretColor: 'transparent',
+		// Override cursor: pointer set by the editor's layout styles on
+		// [data-layout-section] elements rendered inside the sync block content.
+		// Without this, layout nodes inside reference sync blocks show a pointer
+		// cursor instead of a text cursor.
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'[data-layout-section]': {
+			cursor: 'text',
+		},
+	},
+	// Suppress ProseMirror's selected-node box-shadow and backgroundColor on emojis inside
+	// the contentEditable renderer wrapper. PM applies .ak-editor-selected-node
+	// to inline nodes within contentEditable regions.
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
+	[`.ProseMirror .ak-editor-selected-node .${SyncBlockSharedCssClassName.renderer}`]: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'span[data-emoji-id], span[data-emoji-id] span': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			boxShadow: 'none !important',
+
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'&::before': {
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+				backgroundColor: 'transparent !important',
+			},
+		},
+	},
+});
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const syncBlockFirstNodeStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values,@atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+	[`.ProseMirror > .fabric-editor-breakout-mark:first-child`]: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values,@atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+		[`.${SyncBlockSharedCssClassName.prefix}, .${BodiedSyncBlockSharedCssClassName.prefix}`]: {
+			marginTop: 0,
 		},
 	},
 });

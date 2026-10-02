@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/drawer",
-	"version": "11.0.26",
+	"version": "14.3.6",
 	"description": "A drawer is a panel that slides in from the left side of the screen.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,26 +12,37 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
 		".": "./src/index.tsx",
-		"./constants": "./src/constants.tsx"
+		"./drawer": "./src/drawer.tsx",
+		"./drawer-close-button": "./src/drawer-panel/drawer-close-button.tsx",
+		"./drawer-content": "./src/drawer-panel/drawer-content.tsx",
+		"./drawer-sidebar": "./src/drawer-panel/drawer-sidebar.tsx",
+		"./types": "./src/types.tsx"
+	},
+	"platform-feature-flags": {
+		"platform-dst-top-layer": {
+			"type": "boolean"
+		}
 	},
 	"homepage": "https://atlassian.design/components/drawer",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Drawer",
 			"category": "Overlays and layering",
 			"status": {
@@ -45,12 +56,16 @@
 		"@atlaskit/blanket": "workspace:^",
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/css": "workspace:^",
+		"@atlaskit/ds-lib": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/layering": "workspace:^",
 		"@atlaskit/motion": "workspace:^",
+		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/portal": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
+		"@atlaskit/top-layer": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
 		"bind-event-listener": "root:*",
@@ -61,7 +76,7 @@
 		"use-callback-ref": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -70,40 +85,23 @@
 		"@atlaskit/code": "workspace:^",
 		"@atlaskit/docs": "workspace:^",
 		"@atlaskit/dropdown-menu": "workspace:^",
-		"@atlaskit/ds-lib": "workspace:^",
 		"@atlaskit/form": "workspace:^",
+		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/inline-message": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/menu": "workspace:^",
 		"@atlaskit/modal-dialog": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/exenv": "root:*",
-		"react-dom": "root:*",
-		"react-lorem-component": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"styling": [
-				"static"
-			],
-			"deprecation": "no-deprecated-imports",
-			"ui-components": [
-				"primitives"
-			]
-		}
+		"lorem-ipsum": "root:*",
+		"react": "^19.0.0",
+		"react-dom": "root:*"
 	}
 }

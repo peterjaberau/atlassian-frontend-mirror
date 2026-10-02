@@ -6,7 +6,6 @@ import { useControlDataExportConfig } from '../../state/hooks/use-control-data-e
 import { getIsDataExportEnabled } from '../../utils/should-data-export';
 import { handleClickCommon } from '../common/utils';
 import { CardLinkView } from '../LinkView';
-
 import { type BlockCardProps } from './types';
 import ErroredView from './views/ErroredView';
 import ForbiddenView from './views/ForbiddenView';
@@ -28,6 +27,8 @@ export const BlockCard = ({
 	authFlow,
 	handleAuthorize,
 	handleFrameClick,
+	handleFrameAuxClick,
+	handleFrameContextMenu,
 	renderers,
 	isSelected,
 	onResolve,
@@ -45,6 +46,8 @@ export const BlockCard = ({
 		url,
 		testId,
 		onClick: (event: React.MouseEvent) => handleClickCommon(event, handleFrameClick),
+		onAuxClick: handleFrameAuxClick,
+		onContextMenu: handleFrameContextMenu,
 		onError,
 		onResolve,
 		renderers,

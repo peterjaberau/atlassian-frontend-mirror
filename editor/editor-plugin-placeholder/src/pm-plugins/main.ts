@@ -1,15 +1,13 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import type { DocNode } from '@atlaskit/adf-schema';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
 
-import { pluginKey, EMPTY_PARAGRAPH_TIMEOUT_DELAY } from '../placeholderPlugin';
-import type { PlaceholderPlugin } from '../placeholderPluginType';
-
+import { EMPTY_PARAGRAPH_TIMEOUT_DELAY, pluginKey } from '../placeholderPlugin';
+import type { PlaceholderPlugin, PlaceholderPluginOptions } from '../placeholderPluginType';
 import { TYPEWRITER_TYPED_AND_DELETED_DELAY } from './constants';
 import { createPlaceholderDecoration } from './decorations';
 import type { PlaceHolderState } from './types';
@@ -26,7 +24,10 @@ export default function createPlugin(
 	emptyLinePlaceholder?: string,
 	placeholderPrompts?: string[],
 	withEmptyParagraph?: boolean,
+	initialIsPlaceholderHidden?: boolean,
 	placeholderADF?: DocNode,
+	placeholderPromptAnimationOptions?: PlaceholderPluginOptions['placeholderPromptAnimationOptions'],
+	isRovoLLMEnabled?: boolean,
 	api?: ExtractInjectionAPI<PlaceholderPlugin>,
 ): SafePlugin | undefined {
 	if (
@@ -63,6 +64,7 @@ export default function createPlugin(
 					userHadTyped: false,
 					intl,
 					withEmptyParagraph,
+					isPlaceholderHidden: initialIsPlaceholderHidden,
 				}),
 
 			apply: (tr, placeholderState, _oldEditorState, newEditorState) => {
@@ -76,16 +78,19 @@ export default function createPlugin(
 				});
 
 				let isPlaceholderHidden = placeholderState?.isPlaceholderHidden ?? false;
-				const shouldUpdatePlaceholderHidden = fg('platform_editor_ai_aifc_patch_ga_blockers')
-					? meta?.isPlaceholderHidden !== undefined
-					: meta?.isPlaceholderHidden !== undefined && withEmptyParagraph;
+				const shouldUpdatePlaceholderHidden = meta?.isPlaceholderHidden !== undefined;
 				if (shouldUpdatePlaceholderHidden) {
 					isPlaceholderHidden = meta.isPlaceholderHidden;
 				}
 
 				if (meta?.placeholderText !== undefined && withEmptyParagraph) {
+					const isCreateWithRovoOverride =
+						!!meta.placeholderText &&
+						isRovoLLMEnabled &&
+						expVal('cwr_blank_object_experiment', 'isEnabled', false);
 					// Only update defaultPlaceholderText from meta if we're not using ADF placeholder
-					if (!(fg('platform_editor_ai_aifc_patch_ga') && placeholderADF)) {
+					// OR when the create-with-rovo experiment is active to allow intentional non-empty placeholder overrides
+					if (!placeholderADF || isCreateWithRovoOverride) {
 						defaultPlaceholderText = meta.placeholderText;
 					}
 				}
@@ -123,13 +128,9 @@ export default function createPlugin(
 		},
 		props: {
 			decorations(editorState) {
-				if (
-					expValEquals('confluence_load_editor_title_on_transition', 'contentPlaceholder', true)
-				) {
-					// @ts-ignore quick fix which needs follow up to use standard apis
-					if (editorState.collabEditPlugin$ && editorState.collabEditPlugin$.isReady !== true) {
-						return;
-					}
+				// @ts-ignore quick fix which needs follow up to use standard apis
+				if (editorState.collabEditPlugin$ && editorState.collabEditPlugin$.isReady !== true) {
+					return;
 				}
 				const {
 					hasPlaceholder,
@@ -175,6 +176,7 @@ export default function createPlugin(
 						initialDelayWhenUserTypedAndDeleted,
 						placeholderAdfToUse,
 						showOnEmptyParagraph,
+						placeholderPromptAnimationOptions,
 					);
 				}
 				return;

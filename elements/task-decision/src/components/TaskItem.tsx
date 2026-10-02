@@ -3,22 +3,23 @@
  * @jsx jsx
  */
 import React, { useMemo, useRef, type Ref } from 'react';
-import { useIntl } from 'react-intl-next';
 
 import { css, jsx } from '@compiled/react';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
-import { Icon } from '@atlaskit/icon/base-new';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
-import type { NewCoreIconProps } from '@atlaskit/icon/base-new';
-import CheckboxCheckedIcon from '@atlaskit/icon/core/checkbox-checked';
+import { useIntl } from 'react-intl';
+import { useMergeRefs } from 'use-callback-ref';
 
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import { Icon } from '@atlaskit/icon/components/icon-new';
+import CheckboxCheckedIcon from '@atlaskit/icon/core/checkbox-checked';
+import type { NewCoreIconProps } from '@atlaskit/icon/types';
+import { token } from '@atlaskit/tokens';
+
+import { createAndFireEventInElementsChannel } from '../analytics';
+import { type Appearance, type ContentRef } from '../types';
 import { messages } from './i18n';
 import Item from './Item';
-import { type Appearance, type ContentRef } from '../types';
-import { withAnalyticsEvents, type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import { createAndFireEventInElementsChannel } from '../analytics';
-import { token } from '@atlaskit/tokens';
-import { useMergeRefs } from 'use-callback-ref';
 
 const CheckboxUncheckedIcon = (props: NewCoreIconProps) => (
 	<Icon
@@ -153,10 +154,10 @@ const checkboxStyles = css({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		'&:focus + span::after': {
 			position: 'absolute',
-			width: token('space.200', '16px'),
-			height: token('space.200', '16px'),
+			width: token('space.200'),
+			height: token('space.200'),
 			border: `${token('border.width.selected')} solid ${token('color.border.focused')}`,
-			borderRadius: token('space.050', '4px'),
+			borderRadius: token('space.050'),
 			content: "''",
 			display: 'block',
 			top: '50%',
@@ -290,4 +291,7 @@ const TaskItem = (props: Props & WithAnalyticsEventsProps) => {
 	);
 };
 
-export default withAnalyticsEvents()(TaskItem);
+const _default_1: React.ForwardRefExoticComponent<
+	Omit<Props, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>
+> = withAnalyticsEvents()(TaskItem);
+export default _default_1;

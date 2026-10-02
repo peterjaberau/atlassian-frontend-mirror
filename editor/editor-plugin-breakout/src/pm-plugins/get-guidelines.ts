@@ -1,4 +1,5 @@
 import memoizeOne from 'memoize-one';
+import type { MemoizedFn } from 'memoize-one';
 
 import type { GuidelineConfig } from '@atlaskit/editor-common/guideline';
 import {
@@ -7,7 +8,7 @@ import {
 	resizerHandleThumbWidth,
 } from '@atlaskit/editor-common/styles';
 import type { EditorContainerWidth } from '@atlaskit/editor-common/types';
-import { type NodeType } from '@atlaskit/editor-prosemirror/model';
+import type { NodeType } from '@atlaskit/editor-prosemirror/model';
 import {
 	akEditorGutterPaddingDynamic,
 	akEditorGutterPadding,
@@ -18,8 +19,7 @@ import {
 	akEditorDefaultLayoutWidth,
 	akEditorMaxLayoutWidth,
 } from '@atlaskit/editor-shared-styles';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 const WIDTHS = {
 	MIN: akEditorDefaultLayoutWidth,
@@ -39,17 +39,26 @@ export const GUIDELINE_KEYS = {
 	maxWidthRight: 'max_width_right',
 } as const;
 
+const SYNC_BLOCK_PADDING = 19;
+const EXTENSION_WRAPPER_PADDING = 20;
 const AK_NESTED_DND_GUTTER_OFFSET = 8;
 const roundToNearest = (value: number, interval: number = 0.5): number =>
 	Math.round(value / interval) * interval;
 
-export const getGuidelines = memoizeOne(
+export const getGuidelines: MemoizedFn<
 	(
 		isResizing: boolean,
 		newWidth: number,
 		getEditorWidth: () => EditorContainerWidth | undefined,
 		nodeType?: NodeType | undefined,
-	) => {
+	) => GuidelineConfig[]
+> = memoizeOne(
+	(
+		isResizing: boolean,
+		newWidth: number,
+		getEditorWidth: () => EditorContainerWidth | undefined,
+		nodeType?: NodeType | undefined,
+	): GuidelineConfig[] => {
 		const guidelines: GuidelineConfig[] = [];
 		if (!isResizing) {
 			return guidelines;
@@ -64,6 +73,15 @@ export const getGuidelines = memoizeOne(
 					break;
 				case 'layoutSection':
 					innerPaddingOffset = LAYOUT_COLUMN_PADDING + AK_NESTED_DND_GUTTER_OFFSET;
+					break;
+				case 'bodiedSyncBlock':
+				case 'syncBlock':
+					innerPaddingOffset = SYNC_BLOCK_PADDING;
+					break;
+				case 'extension':
+				case 'multiBodiedExtension':
+				case 'bodiedExtension':
+					innerPaddingOffset = EXTENSION_WRAPPER_PADDING;
 					break;
 				default:
 					break;
@@ -84,12 +102,9 @@ export const getGuidelines = memoizeOne(
 			? Math.min(WIDTHS.FULL, width - 2 * padding - akEditorGutterPadding)
 			: undefined;
 
-		const maxWidth =
-			width &&
-			(expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-				expValEquals('confluence_max_width_content_appearance', 'isEnabled', true))
-				? Math.min(WIDTHS.MAX, width - 2 * padding - akEditorGutterPadding)
-				: undefined;
+		const maxWidth = width
+			? Math.min(WIDTHS.MAX, width - 2 * padding - akEditorGutterPadding)
+			: undefined;
 
 		guidelines.push({
 			key: GUIDELINE_KEYS.lineLengthLeft,

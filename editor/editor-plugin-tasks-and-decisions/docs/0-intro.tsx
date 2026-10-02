@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Tasks and Decisions', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the tasks and decisions plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,15 +30,33 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+type TasksAndDecisionsPluginDependencies = [
+  OptionalPlugin<TypeAheadPlugin>,
+  OptionalPlugin<AnalyticsPlugin>,
+  OptionalPlugin<ContextIdentifierPlugin>,
+  OptionalPlugin<EditorViewModePlugin>,
+  OptionalPlugin<BlockMenuPlugin>,
+  OptionalPlugin<SelectionPlugin>,
+  OptionalPlugin<ToolbarPlugin>,
+];
+
 type TasksAndDecisionsPlugin = NextEditorPlugin<
   'taskDecision',
   {
-    pluginConfiguration: TaskDecisionPluginOptions | undefined;
+    actions: {
+      indentTaskList: ReturnType<typeof getIndentCommand>;
+      insertTaskDecision: ReturnType<typeof insertTaskDecisionCommand>;
+      outdentTaskList: ReturnType<typeof getUnindentCommand>;
+      setProvider: (provider: Promise<TaskDecisionProvider>) => Promise<boolean>;
+    };
+    commands: {
+      toggleTaskList: (targetType?: 'orderedList' | 'bulletList' | 'paragraph') => EditorCommand;
+      updateEditPermission: (hasEditPermission: boolean | undefined) => EditorCommand;
+      updateHasRequestedEditPermission: (hasRequestedEditPermission: boolean) => EditorCommand;
+    };
+    dependencies: TasksAndDecisionsPluginDependencies;
+    pluginConfiguration: TasksAndDecisionsPluginOptions | undefined;
     sharedState: TaskAndDecisionsSharedState | undefined;
-    dependencies: [
-      OptionalPlugin<TypeAheadPlugin>,
-      OptionalPlugin<AnalyticsPlugin>,
-    ];
   }
 >;
 `}

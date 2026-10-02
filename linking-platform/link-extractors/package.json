@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/link-extractors",
-	"version": "2.4.6",
+	"version": "5.0.1",
 	"description": "Functions for extracting props from JSON-LD",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,8 +8,18 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Navigation Experiences - Linking Platform",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "LinkExtractors",
 			"category": "Components"
 		}
@@ -19,26 +29,66 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
-	"atlaskit:src": "src/index.ts",
+	"atlaskit:src": "src/index.tsx",
 	"exports": {
-		"./types": "./src/types.ts",
-		".": "./src/index.ts"
+		".": "./src/index.tsx",
+		"./extract-ari": "./src/extract-ari.tsx",
+		"./extract-context": "./src/extract-context.tsx",
+		"./extract-date-created": "./src/extract-date-created.tsx",
+		"./extract-date-updated": "./src/extract-date-updated.tsx",
+		"./extract-date-viewed": "./src/extract-date-viewed.tsx",
+		"./extract-entity": "./src/extract-entity.tsx",
+		"./extract-entity-icon": "./src/extract-entity-icon.tsx",
+		"./extract-entity-provider": "./src/extract-entity-provider.tsx",
+		"./extract-image": "./src/extract-image.tsx",
+		"./extract-link": "./src/extract-link.tsx",
+		"./extract-members": "./src/extract-members.tsx",
+		"./extract-name-from-json-ld/default": "./src/extract-name-from-json-ld.tsx",
+		"./extract-name-from-json-ld": "./src/index.tsx",
+		"./extract-person-assigned-to": "./src/extract-person-assigned-to.tsx",
+		"./extract-person-created-by": "./src/extract-person-created-by.tsx",
+		"./extract-person-from-json-ld": "./src/extract-person-from-json-ld.tsx",
+		"./extract-person-owned-by": "./src/extract-person-owned-by.tsx",
+		"./extract-person-updated-by": "./src/extract-person-updated-by.tsx",
+		"./extract-platform-is-supported": "./src/extract-platform-is-supported.tsx",
+		"./extract-preview": "./src/extract-preview.tsx",
+		"./extract-provider": "./src/extract-provider.tsx",
+		"./extract-provider-icon": "./src/extract-provider-icon.tsx",
+		"./extract-smart-link-ari": "./src/extract-smart-link-ari.tsx",
+		"./extract-smart-link-author-group": "./src/extract-smart-link-author-group.tsx",
+		"./extract-smart-link-created-by": "./src/extract-smart-link-created-by.tsx",
+		"./extract-smart-link-created-on": "./src/extract-smart-link-created-on.tsx",
+		"./extract-smart-link-download-url": "./src/extract-smart-link-download-url.tsx",
+		"./extract-smart-link-embed": "./src/extract-smart-link-embed.tsx",
+		"./extract-smart-link-inline-icon": "./src/extract-smart-link-inline-icon.tsx",
+		"./extract-smart-link-modified-by": "./src/extract-smart-link-modified-by.tsx",
+		"./extract-smart-link-modified-on": "./src/extract-smart-link-modified-on.tsx",
+		"./extract-smart-link-provider": "./src/extract-smart-link-provider.tsx",
+		"./extract-smart-link-title": "./src/extract-smart-link-title.tsx",
+		"./extract-smart-link-url": "./src/extract-smart-link-url.tsx",
+		"./extract-summary": "./src/extract-summary.tsx",
+		"./extract-title": "./src/extract-title.tsx",
+		"./extract-type": "./src/extract-type.tsx",
+		"./extract-url-from-icon-json-ld": "./src/extract-url-from-icon-json-ld.tsx",
+		"./extract-url-from-link-json-ld": "./src/extract-url-from-link-json-ld.tsx",
+		"./generic-extract-props-from-jsonld": "./src/generic-extract-props-from-jsonld.tsx",
+		"./is-confluence-generator": "./src/is-confluence-generator.tsx",
+		"./is-entity-present": "./src/is-entity-present.tsx",
+		"./types": "./src/types.ts"
 	},
 	"dependencies": {
+		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/icon-file-type": "workspace:^",
 		"@atlaskit/json-ld-types": "workspace:^",
 		"@atlaskit/linking-types": "workspace:^",
 		"@atlaskit/logo": "workspace:^",
+		"@atlaskit/object": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
-		"@babel/runtime": "root:*"
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/tokens": "workspace:^",
+		"@babel/runtime": "root:*",
+		"react-loadable": "root:*"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0"
@@ -47,45 +97,13 @@
 		"@atlaskit/docs": "workspace:^",
 		"@atlaskit/link-test-helpers": "workspace:^",
 		"@atlaskit/media-test-helpers": "workspace:^",
-		"@atlassian/feature-flags-test-utils": "workspace:^"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"tangerine-classic"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"emotion"
-			]
-		}
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"react": "root:*"
 	},
 	"platform-feature-flags": {
-		"navx-1895-new-logo-design": {
+		"platform_lp_use_generator_icon_for_provider": {
 			"type": "boolean"
 		}
 	},

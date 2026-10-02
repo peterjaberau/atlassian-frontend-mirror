@@ -4,20 +4,33 @@
  */
 import type { Ref } from 'react';
 import React from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import LinkIcon from '@atlaskit/icon/core/link';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import Tooltip from '@atlaskit/tooltip';
 import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { headingAnchorLinkMessages } from '../../messages';
 import type { MessageDescriptor } from '../../types/i18n';
+import HeadingAnchorButton from './heading-anchor-button';
 
 export const HeadingAnchorWrapperClassName = 'heading-anchor-wrapper';
+
+const headingAnchorWrapperTargetSizeStyles = css({
+	display: 'inline-flex',
+	boxSizing: 'border-box',
+	alignItems: 'center',
+	justifyContent: 'center',
+	width: '24px',
+	height: '24px',
+	verticalAlign: 'middle',
+});
 
 const CopyAnchorWrapperWithRef = React.forwardRef(
 	(props: React.PropsWithChildren<unknown>, ref: Ref<HTMLElement>) => {
@@ -29,6 +42,11 @@ const CopyAnchorWrapperWithRef = React.forwardRef(
 				{...rest}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className={HeadingAnchorWrapperClassName}
+				css={
+					isExperimentEnabled('platform_editor_heading_link_target_size')
+						? headingAnchorWrapperTargetSizeStyles
+						: undefined
+				}
 				ref={ref}
 			>
 				{children}
@@ -45,6 +63,12 @@ const copyAnchorButtonStyles = css({
 	color: token('color.icon'),
 	cursor: 'pointer',
 	right: 0,
+});
+
+const scaledLinkIconStyles = css({
+	display: 'inline-flex',
+	transform: 'scale(1.5)',
+	transformOrigin: 'center',
 });
 
 type Props = {
@@ -65,6 +89,14 @@ class HeadingAnchor extends React.PureComponent<HeadingAnchorProps, HeadingAncho
 
 	copyLinkId: string | undefined;
 
+	_tooltipUpdate: (() => void) | undefined;
+
+	// Stable reference for Tooltip content prop to avoid recreating on each render
+	private renderTooltipContent = ({ update }: { update?: () => void }) => {
+		this._tooltipUpdate = update;
+		return this.state.tooltipMessage;
+	};
+
 	constructor(props: HeadingAnchorProps) {
 		super(props);
 		this.copyLinkId = expValEquals(
@@ -81,11 +113,19 @@ class HeadingAnchor extends React.PureComponent<HeadingAnchorProps, HeadingAncho
 	}
 
 	private setTooltipState = (message: MessageDescriptor, isClicked: boolean = false) => {
-		this.setState({
-			// TODO: ED-14403 - investigate why this does not translate
-			tooltipMessage: this.props.intl.formatMessage(message),
-			isClicked,
-		});
+		this.setState(
+			{
+				// TODO: ED-14403 - investigate why this does not translate
+				tooltipMessage: this.props.intl.formatMessage(message),
+				isClicked,
+			},
+			() => {
+				// Reposition tooltip after content change (replaces the key-based remount)
+				if (isExperimentEnabled('a11y-fixes-week4-may-2026')) {
+					this._tooltipUpdate?.();
+				}
+			},
+		);
 	};
 
 	private getCopyAriaLabel = () => {
@@ -138,13 +178,40 @@ class HeadingAnchor extends React.PureComponent<HeadingAnchorProps, HeadingAncho
 				? undefined
 				: -1;
 
+		if (isExperimentEnabled('platform_editor_heading_link_target_size')) {
+			return (
+				<HeadingAnchorButton
+					data-testid="anchor-button"
+					id={this.copyLinkId}
+					onMouseLeave={this.resetMessage}
+					onBlur={this.resetMessage}
+					onClick={this.copyToClipboard}
+					aria-hidden={hideFromScreenReader}
+					tabIndex={tabIndex}
+					aria-label={hideFromScreenReader ? undefined : this.state.tooltipMessage}
+					aria-labelledby={hideFromScreenReader ? undefined : labelledBy}
+					type="button"
+				>
+					<span css={scaledLinkIconStyles} data-testid="scaled-link-icon">
+						<LinkIcon
+							label={this.getCopyAriaLabel()}
+							size="medium"
+							color={
+								this.state.isClicked ? token('color.icon.selected') : token('color.icon.subtle')
+							}
+						/>
+					</span>
+				</HeadingAnchorButton>
+			);
+		}
+
 		return (
 			<button
 				data-testid="anchor-button"
 				id={this.copyLinkId}
 				css={copyAnchorButtonStyles}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 				onMouseLeave={this.resetMessage}
+				onBlur={this.resetMessage}
 				onClick={this.copyToClipboard}
 				aria-hidden={hideFromScreenReader}
 				tabIndex={tabIndex}
@@ -164,17 +231,43 @@ class HeadingAnchor extends React.PureComponent<HeadingAnchorProps, HeadingAncho
 		const { tooltipMessage } = this.state;
 
 		if (tooltipMessage) {
+			if (isExperimentEnabled('a11y-fixes-week4-may-2026')) {
+				// Fix for A11Y-30972: Use content as a function with update callback so
+				// the Tooltip repositions without unmounting (which caused focus loss).
+				// @see https://hello.jira.atlassian.cloud/browse/A11Y-30972
+				return (
+					<Tooltip
+						tag={CopyAnchorWrapperWithRef}
+						content={this.renderTooltipContent}
+						position="top"
+						delay={0}
+						isScreenReaderAnnouncementDisabled={
+							expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+								? true
+								: false
+						}
+						hasNewContentOnTriggerClick
+					>
+						{this.renderAnchorButton()}
+					</Tooltip>
+				);
+			}
+
 			// We set the key to the message to ensure it remounts when the message
 			// changes, so that it correctly repositions.
 			// @see https://ecosystem.atlassian.net/projects/AK/queues/issue/AK-6548
 			return (
 				<Tooltip
-					// @ts-ignore: [PIT-1685] Fails in post-office due to backwards incompatibility issue with React 18
 					tag={CopyAnchorWrapperWithRef}
 					content={tooltipMessage}
 					position="top"
 					delay={0}
 					key={tooltipMessage}
+					isScreenReaderAnnouncementDisabled={
+						expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
+							? true
+							: false
+					}
 				>
 					{this.renderAnchorButton()}
 				</Tooltip>
@@ -185,4 +278,8 @@ class HeadingAnchor extends React.PureComponent<HeadingAnchorProps, HeadingAncho
 	}
 }
 
-export default injectIntl(HeadingAnchor);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<HeadingAnchorProps>> & {
+	WrappedComponent: React.ComponentType<HeadingAnchorProps>;
+} = injectIntl(HeadingAnchor);
+export default _default_1;

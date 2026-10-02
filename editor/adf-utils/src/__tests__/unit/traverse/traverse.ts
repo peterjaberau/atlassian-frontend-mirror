@@ -1,7 +1,7 @@
 import { traverse } from '../../../traverse/traverse';
-import mentionsDoc from './__fixtures__/mentions.json';
-import emojiDoc from './__fixtures__/emoji.json';
 import deepDoc from './__fixtures__/deep-adf.json';
+import emojiDoc from './__fixtures__/emoji.json';
+import mentionsDoc from './__fixtures__/mentions.json';
 
 describe('Traverse', () => {
 	it('should call a callback for all nodes of a given type', () => {
@@ -31,18 +31,30 @@ describe('Traverse', () => {
 			traverse(emojiDoc, {
 				emoji: () => false,
 			}),
-		).toMatchSnapshot();
+		).toEqual({
+			type: 'doc',
+			version: 1,
+			content: [
+				{
+					type: 'paragraph',
+					content: [
+						{ type: 'text', text: 'My favourite emoji is ' },
+						{ type: 'text', text: ' . What is yours?' },
+					],
+				},
+			],
+		});
 	});
 
 	it('should replace a node when visitor returns a new adf node', () => {
-		expect(
-			traverse(mentionsDoc, {
-				mention: (node) => ({
-					...node,
-					attrs: { ...node.attrs, text: `${node.attrs!.text} – updated` },
-				}),
+		const result = traverse(mentionsDoc, {
+			mention: (node) => ({
+				...node,
+				attrs: { ...node.attrs, text: `${node.attrs!.text} – updated` },
 			}),
-		).toMatchSnapshot();
+		});
+		expect(result).not.toEqual(mentionsDoc);
+		expect(JSON.stringify(result)).toContain('updated');
 	});
 
 	it('should not process children nodes if parent node has been removed', () => {

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/modal-dialog",
-	"version": "14.10.3",
+	"version": "17.0.1",
 	"description": "A modal dialog displays content that requires user interaction, in a layer above the page.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,8 +17,18 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Modal dialog",
 			"category": "Messaging"
 		}
@@ -39,8 +49,10 @@
 		"@atlaskit/portal": "workspace:^",
 		"@atlaskit/pragmatic-drag-and-drop": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
+		"@atlaskit/top-layer": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
 		"bind-event-listener": "root:*",
@@ -49,7 +61,7 @@
 		"react-scrolllock": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -75,14 +87,16 @@
 		"@atlaskit/spotlight": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/dom": "root:*",
-		"@testing-library/react": "root:*",
-		"@testing-library/user-event": "root:*",
 		"@types/raf-schd": "root:*",
 		"jscodeshift": "root:*",
-		"react-dom": "root:*",
-		"react-lorem-component": "root:*",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
 		"react-sweet-state": "root:*",
 		"tiny-invariant": "root:*",
 		"typescript": "root:*"
@@ -92,54 +106,28 @@
 		"react",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"ui-components": "lite-mode",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"static",
-				"emotion"
-			]
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
 		".": "./src/index.tsx",
-		"./types": "./src/types.tsx",
+		"./close-button": "./src/close-button.tsx",
+		"./context": "./src/internal/context.tsx",
 		"./full-screen": "./src/full-screen.tsx",
 		"./hooks": "./src/hooks.tsx",
+		"./modal-body": "./src/modal-body.tsx",
 		"./modal-dialog": "./src/modal-dialog.tsx",
+		"./modal-footer": "./src/modal-footer.tsx",
 		"./modal-header": "./src/modal-header.tsx",
 		"./modal-title": "./src/modal-title.tsx",
-		"./modal-body": "./src/modal-body.tsx",
-		"./modal-footer": "./src/modal-footer.tsx",
-		"./modal-transition": "./src/modal-transition.tsx"
+		"./modal-transition": "./src/modal-transition.tsx",
+		"./types": "./src/types.tsx"
 	},
 	"platform-feature-flags": {
 		"platform_modal-dialog-heading-icon-a11y-fix": {
 			"type": "boolean"
 		},
-		"platform_dst_autofocus-never-false": {
+		"platform-dst-motion-uplift-modal": {
 			"type": "boolean"
 		},
-		"platform-dst-shape-theme-default": {
+		"platform-dst-top-layer": {
 			"type": "boolean"
 		}
 	},

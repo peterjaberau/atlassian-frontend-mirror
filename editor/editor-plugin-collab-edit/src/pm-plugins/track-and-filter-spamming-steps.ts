@@ -1,11 +1,10 @@
-import {
-	AnalyticsStep,
-	InsertTypeAheadStep,
-	LinkMetaStep,
-	SetAttrsStep,
-} from '@atlaskit/adf-schema/steps';
+import { AnalyticsStep } from '@atlaskit/adf-schema/steps/analytics';
+import { LinkMetaStep } from '@atlaskit/adf-schema/steps/link-meta-step';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
+import { InsertTypeAheadStep } from '@atlaskit/adf-schema/steps/type-ahead';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import { PluginKey, type Transaction } from '@atlaskit/editor-prosemirror/state';
+import { PluginKey } from '@atlaskit/editor-prosemirror/state';
+import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import {
 	AddMarkStep,
 	AddNodeMarkStep,
@@ -15,8 +14,8 @@ import {
 	RemoveNodeMarkStep,
 	ReplaceAroundStep,
 	ReplaceStep,
-	type Step,
 } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 
 import type { TrackSpammingStepsMetadata } from '../types';
 
@@ -180,11 +179,12 @@ export function generateTransactionKey(tr: Transaction): string {
 	return '';
 }
 
-export const trackSpammingStepsPluginKey = new PluginKey<TrackSpammingStepsMetadata>(
-	'trackAndFilterSpammingStepsPluginKey',
-);
+export const trackSpammingStepsPluginKey: PluginKey<TrackSpammingStepsMetadata> =
+	new PluginKey<TrackSpammingStepsMetadata>('trackAndFilterSpammingStepsPluginKey');
 
-export const createPlugin = (trackFilteredTransaction: TrackFilteredTransaction) => {
+export const createPlugin = (
+	trackFilteredTransaction: TrackFilteredTransaction,
+): SafePlugin<TrackSpammingStepsMetadata> => {
 	const recentTransactionsTimestamps = new Map<string, RecentTransactionTimestamp>();
 	return new SafePlugin<TrackSpammingStepsMetadata>({
 		key: trackSpammingStepsPluginKey,

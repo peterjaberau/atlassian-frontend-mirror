@@ -7,10 +7,12 @@ import React from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
 import chromatism from 'chromatism';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import { token, useThemeObserver } from '@atlaskit/tokens';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import Color from './Color';
 import getColorMessage from './Palettes/getColorMessage';
@@ -23,6 +25,10 @@ import {
 } from './utils';
 
 interface Props {
+	/**
+	 * Accessible name for the radio group each row of colors is rendered as.
+	 */
+	ariaLabel?: string;
 	className?: string;
 	cols?: number;
 	onClick: (value: string, label: string) => void;
@@ -91,11 +97,13 @@ const ColorPalette = (props: Props & WrappedComponentProps) => {
 		className,
 		intl: { formatMessage },
 		paletteOptions,
+		ariaLabel,
 	} = props;
 	const { palette, hexToPaletteColor, paletteColorTooltipMessages } = paletteOptions;
 
 	const { colorMode: tokenTheme } = useThemeObserver();
 	const useIconToken = !!hexToPaletteColor;
+	const isDividerExperimentEnabled = isExperimentEnabled('platform_editor_lovability_dividers');
 
 	const colorsPerRow = React.useMemo(() => {
 		return getColorsPerRowFromPalette(palette, cols);
@@ -111,6 +119,7 @@ const ColorPalette = (props: Props & WrappedComponentProps) => {
 					className={className}
 					key={`row-first-color-${row[0].value}`}
 					role="radiogroup"
+					aria-label={ariaLabel}
 				>
 					{row.map(({ value, label, border, message, decorator }) => {
 						if (paletteColorTooltipMessages) {
@@ -130,7 +139,9 @@ const ColorPalette = (props: Props & WrappedComponentProps) => {
 								onClick={onClick}
 								onKeyDown={onKeyDown}
 								isSelected={value === selectedColor}
-								checkMarkColor={getCheckMarkColor(value, useIconToken)}
+								checkMarkColor={
+									isDividerExperimentEnabled ? getCheckMarkColor(value, useIconToken) : undefined
+								}
 								hexToPaletteColor={hexToPaletteColor}
 								decorator={decorator}
 							/>
@@ -142,4 +153,8 @@ const ColorPalette = (props: Props & WrappedComponentProps) => {
 	);
 };
 
-export default injectIntl(ColorPalette);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(ColorPalette);
+export default _default_1;

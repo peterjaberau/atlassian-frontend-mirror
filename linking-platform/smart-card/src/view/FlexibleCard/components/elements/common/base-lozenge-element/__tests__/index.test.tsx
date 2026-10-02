@@ -4,10 +4,10 @@
  */
 import '@testing-library/jest-dom';
 import { css, jsx } from '@compiled/react';
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { SmartLinkActionType } from '@atlaskit/linking-types';
+import { SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
+import { render, screen } from '@atlassian/testing-library';
 
 import * as useInvoke from '../../../../../../../state/hooks/use-invoke';
 import * as useResolve from '../../../../../../../state/hooks/use-resolve';
@@ -18,11 +18,9 @@ describe('Element: Lozenge', () => {
 	const defaultText = 'Some status';
 	const defaultAppearance = 'inprogress';
 
-	
-
 	const renderComponent = (props?: Partial<BaseLozengeElementProps>) => {
-		const {text = defaultText, appearance = defaultAppearance, ...rest} = props || {};
-		
+		const { text = defaultText, appearance = defaultAppearance, ...rest } = props || {};
+
 		const overrideCss = css({
 			fontStyle: 'italic',
 		});

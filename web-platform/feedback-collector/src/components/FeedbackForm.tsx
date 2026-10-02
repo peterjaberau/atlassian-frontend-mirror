@@ -1,22 +1,29 @@
-import React, { type FunctionComponent, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
-import { FormattedMessage, useIntl } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import Button from '@atlaskit/button/standard-button';
-import { Checkbox } from '@atlaskit/checkbox';
-import Form, { ErrorMessage, Field, Fieldset, RequiredAsterisk } from '@atlaskit/form';
-import Link from '@atlaskit/link';
-import Modal, { ModalBody, ModalFooter, ModalHeader, ModalTitle } from '@atlaskit/modal-dialog';
-import { fg } from '@atlaskit/platform-feature-flags';
-import SectionMessage from '@atlaskit/section-message';
-import Select from '@atlaskit/select';
-import TextArea from '@atlaskit/textarea';
-import { N300 } from '@atlaskit/theme/colors';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import Field from '@atlaskit/form/field';
+import { Fieldset } from '@atlaskit/form/fieldset';
+import Form from '@atlaskit/form/form';
+import { MessageWrapper } from '@atlaskit/form/message-wrapper';
+import { RequiredAsterisk } from '@atlaskit/form/required-asterisk';
+import Link from '@atlaskit/link/link';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import SectionMessage from '@atlaskit/section-message/message';
+import Select from '@atlaskit/select/default';
+import TextArea from '@atlaskit/textarea/text-area';
 import { token } from '@atlaskit/tokens';
 
 import { messages } from '../messages';
 import { type FormFields, type SelectOptionDetails, type SelectValue } from '../types';
-
 import { IntlProviderWithResolvedMessages } from './IntlProviderWithResolvedMessages';
 
 interface Props {
@@ -46,8 +53,18 @@ interface Props {
 	cancelButtonLabel?: string;
 	/**  Message for select option labels and field labels **/
 	feedbackGroupLabels?: Partial<Record<SelectValue, SelectOptionDetails>>;
-	/** Function that will be called to initiate the exit transition. */
-	onClose: () => void;
+	/**
+	 * Function that will be called to initiate the exit transition.
+	 * When triggered by the cancel button the originating event and Atlaskit UI analytics
+	 * event are forwarded; programmatic close paths (e.g. after submit) invoke it with no
+	 * arguments. Typed as a variadic `any[]` to maximise backward compatibility with
+	 * consumers that declared any conceivable signature for this callback.
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	onClose: (...args: any[]) => void;
+	/** Optional function that will be called when the cancel button is clicked, in addition to onClose. */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	onCancel?: (...args: any[]) => void;
 	/** Function that will be called immediately after the submit action  */
 	onSubmit: (formValues: FormFields) => Promise<void>;
 	/**  Optional locale for i18n **/
@@ -64,6 +81,8 @@ interface Props {
 	customFeedbackOptions?: OptionType[];
 	/** React Ref to focus on close */
 	shouldReturnFocusRef?: React.RefObject<HTMLElement>;
+	/** Ref to the rendered feedback dialog container */
+	dialogRef?: React.RefObject<HTMLElement>;
 	/** Disable submit button to allow custom content to handle validation */
 	disableSubmitButton?: boolean;
 	/** Optional to show or hide the required fields summary */
@@ -75,7 +94,7 @@ export interface OptionType {
 	value: SelectValue;
 }
 
-const LinkWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const LinkWrapper = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<span
 			style={{
@@ -90,11 +109,12 @@ const LinkWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	);
 };
 
-const FeedbackForm: React.FunctionComponent<Props> = ({
+const FeedbackForm = ({
 	showTypeField = true,
 	showDefaultTextFields = true,
 	customContent,
 	onClose,
+	onCancel,
 	onSubmit,
 	feedbackTitle,
 	feedbackTitleDetails,
@@ -112,49 +132,44 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 	customTextAreaLabel,
 	customFeedbackOptions = [],
 	shouldReturnFocusRef,
+	dialogRef,
 	disableSubmitButton,
 	showRequiredFieldsSummary = true,
-}) => {
+}: Props) => {
 	const [canBeContacted, setCanBeContacted] = useState<FormFields['canBeContacted']>(false);
 	const [description, setDescription] = useState<FormFields['description']>('');
 	const [enrollInResearchGroup, setEnrollInResearchGroup] =
 		useState<FormFields['enrollInResearchGroup']>(false);
 	const [type, setType] = useState<FormFields['type']>('empty');
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [validationErrors, setValidationErrors] = useState<{
-		type?: string;
-		description?: string;
-	}>({});
 	const { formatMessage } = useIntl();
 	const isTypeSelected = () => type !== 'empty';
 
+	const validateType = (value: SelectValue | undefined): string | undefined =>
+		showTypeField && (!value || value === 'empty')
+			? formatMessage(messages.validationErrorTypeRequired)
+			: undefined;
+
+	const validateDescription = (value: string | undefined): string | undefined => {
+		if (!showDefaultTextFields || hasDescriptionDefaultValue) {
+			return undefined;
+		}
+		return !value || !value.trim()
+			? formatMessage(messages.validationErrorDescriptionRequired)
+			: undefined;
+	};
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const handleCancel = (...args: any[]) => {
+		onCancel?.(...args);
+		// Forward every arg the click handler received so consumers retain the full
+		// pre-change runtime contract (originating event + Atlaskit UI analytics event).
+		onClose(...args);
+	};
+
 	const canShowTextField = isTypeSelected() || !showTypeField;
 
-	const hasDescription = description || hasDescriptionDefaultValue;
-
-	// Feature flag determines validation behavior
-	const useNewValidation = fg('feedback-collector-custom-validation');
-
-	const isDisabled = useNewValidation
-		? isSubmitting || disableSubmitButton // New: only disable when submitting or explicitly disabled
-		: disableSubmitButton ||
-			(showTypeField ? !isTypeSelected() || !hasDescription : !hasDescription); // Old: disable based on form validation
-
-	const getValidationErrors = () => {
-		const errors: { type?: string; description?: string } = {};
-
-		// Validate type selection if showTypeField is true
-		if (showTypeField && !isTypeSelected()) {
-			errors.type = formatMessage(messages.validationErrorTypeRequired);
-		}
-
-		// Validate description if showDefaultTextFields is true
-		if (showDefaultTextFields && !hasDescription) {
-			errors.description = formatMessage(messages.validationErrorDescriptionRequired);
-		}
-
-		return errors;
-	};
+	const isDisabled = isSubmitting || disableSubmitButton;
 
 	const getFieldLabels = (
 		record?: Partial<Record<SelectValue, SelectOptionDetails>>,
@@ -209,18 +224,18 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 
 	const renderContactLabelAppify = () => {
 		if (fg('jfp_a11y_team_feedback_collector_nested_elements')) {
-			return messages.canBeContactedLabelAppifyWithoutLink;
+			return messages.canBeContactedLabelAppifyWithResponseWithoutLink;
 		}
 
-		return messages.canBeContactedLabelAppify;
+		return messages.canBeContactedLabelAppifyWithResponse;
 	};
 
 	const renderContactLabel = () => {
 		if (fg('jfp_a11y_team_feedback_collector_nested_elements')) {
-			return messages.canBeContactedLabelWithoutLink;
+			return messages.canBeContactedLabelWithResponseWithoutLink;
 		}
 
-		return messages.canBeContactedLabel;
+		return messages.canBeContactedLabelWithResponse;
 	};
 
 	const requiredFieldsSummary = (
@@ -228,9 +243,9 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 		<p
 			style={{
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				color: token('color.text.subtle', N300),
+				color: token('color.text.subtle'),
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				marginBottom: token('space.300', '24px'),
+				marginBottom: token('space.300'),
 			}}
 		>
 			{formatMessage(messages.requiredFieldsSummary)}
@@ -245,6 +260,7 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 
 	return (
 		<Modal
+			ref={dialogRef}
 			shouldCloseOnOverlayClick={false}
 			onClose={onClose}
 			testId="feedbackCollectorModalDialog"
@@ -254,18 +270,6 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 			{fg('platform-design_system_team-form_conversion') ? (
 				<Form
 					onSubmit={async () => {
-						if (useNewValidation) {
-							// New validation: validate on submit and show errors
-							const errors = getValidationErrors();
-
-							// If there are validation errors, show them and don't submit
-							if (Object.keys(errors).length > 0) {
-								setValidationErrors(errors);
-								return;
-							}
-						}
-
-						// Submit the form (both old and new validation paths reach here)
 						setIsSubmitting(true);
 						try {
 							await onSubmit({
@@ -293,39 +297,33 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 						{showTypeField ? (
 							<Field
 								name="topic"
+								id="topic"
 								label={selectLabel || formatMessage(messages.selectionOptionDefaultLabel)}
 								isRequired
+								validate={validateType}
 							>
-								{({ fieldProps: { id, ...restProps } }) => (
+								{({ fieldProps: { id, ...restProps }, error }) => (
 									<>
 										<Select<OptionType>
 											{...restProps}
+											value={selectOptions.find((opt) => opt.value === type) ?? null}
 											onChange={(option) => {
 												if (!option || option instanceof Array) {
 													return;
 												}
 												setType(option.value);
-												// Clear validation error when user selects a type (only for new validation)
-												if (useNewValidation && validationErrors.type) {
-													setValidationErrors((prev) => ({ ...prev, type: undefined }));
-												}
+												restProps.onChange?.(option.value);
 											}}
-											menuPortalTarget={document.body}
-											styles={{
-												menuPortal: (base) => ({
-													...base,
-													zIndex: 9999,
-												}),
-											}}
+											menuPosition="fixed"
 											options={selectOptions}
+											shouldPreventEscapePropagation
 											// @ts-ignore
 											ref={focusRef}
 											placeholder={getDefaultPlaceholder(feedbackGroupLabels)}
 											inputId={id}
+											isInvalid={!!error}
 										/>
-										{useNewValidation && validationErrors.type && (
-											<ErrorMessage>{validationErrors.type}</ErrorMessage>
-										)}
+										<MessageWrapper>{error && <ErrorMessage>{error}</ErrorMessage>}</MessageWrapper>
 									</>
 								)}
 							</Field>
@@ -340,8 +338,10 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 									}
 									isRequired
 									name="description"
+									id="description"
+									validate={validateDescription}
 								>
-									{({ fieldProps }) => (
+									{({ fieldProps, error }) => (
 										<>
 											<TextArea
 												{...fieldProps}
@@ -350,22 +350,19 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 												placeholder={summaryPlaceholder || undefined}
 												onChange={(e) => {
 													setDescription(e.target.value);
-													// Clear validation error when user types
-													if (useNewValidation && validationErrors.description) {
-														setValidationErrors((prev) => ({ ...prev, description: undefined }));
-													}
+													fieldProps.onChange(e.target.value);
 												}}
 												value={description}
 											/>
-											{useNewValidation && validationErrors.description && (
-												<ErrorMessage>{validationErrors.description}</ErrorMessage>
-											)}
+											<MessageWrapper>
+												{error && <ErrorMessage>{error}</ErrorMessage>}
+											</MessageWrapper>
 										</>
 									)}
 								</Field>
 								{(!anonymousFeedback && (
 									<Fieldset>
-										<legend aria-hidden={false} hidden>
+										<legend>
 											<FormattedMessage {...messages.optInOptionsLegend} />
 										</legend>
 										<Field name="can-be-contacted">
@@ -454,7 +451,7 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 						)}
 					</ModalBody>
 					<ModalFooter>
-						<Button appearance="subtle" onClick={onClose}>
+						<Button appearance="subtle" onClick={handleCancel}>
 							{cancelButtonLabel || <FormattedMessage {...messages.cancelButtonLabel} />}
 						</Button>
 						<Button
@@ -470,18 +467,6 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 			) : (
 				<Form
 					onSubmit={async () => {
-						if (useNewValidation) {
-							// New validation: validate on submit and show errors
-							const errors = getValidationErrors();
-
-							// If there are validation errors, show them and don't submit
-							if (Object.keys(errors).length > 0) {
-								setValidationErrors(errors);
-								return;
-							}
-						}
-
-						// Submit the form (both old and new validation paths reach here)
 						setIsSubmitting(true);
 						try {
 							await onSubmit({
@@ -511,39 +496,35 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 								{showTypeField ? (
 									<Field
 										name="topic"
+										id="topic"
 										label={selectLabel || formatMessage(messages.selectionOptionDefaultLabel)}
 										isRequired
+										validate={validateType}
 									>
-										{({ fieldProps: { id, ...restProps } }) => (
+										{({ fieldProps: { id, ...restProps }, error }) => (
 											<>
 												<Select<OptionType>
 													{...restProps}
+													value={selectOptions.find((opt) => opt.value === type) ?? null}
 													onChange={(option) => {
 														if (!option || option instanceof Array) {
 															return;
 														}
 														setType(option.value);
-														// Clear validation error when user selects a type (only for new validation)
-														if (useNewValidation && validationErrors.type) {
-															setValidationErrors((prev) => ({ ...prev, type: undefined }));
-														}
+														restProps.onChange?.(option.value);
 													}}
-													menuPortalTarget={document.body}
-													styles={{
-														menuPortal: (base) => ({
-															...base,
-															zIndex: 9999,
-														}),
-													}}
+													menuPosition="fixed"
 													options={selectOptions}
+													shouldPreventEscapePropagation
 													// @ts-ignore
 													ref={focusRef}
 													placeholder={getDefaultPlaceholder(feedbackGroupLabels)}
 													inputId={id}
+													isInvalid={!!error}
 												/>
-												{useNewValidation && validationErrors.type && (
-													<ErrorMessage>{validationErrors.type}</ErrorMessage>
-												)}
+												<MessageWrapper>
+													{error && <ErrorMessage>{error}</ErrorMessage>}
+												</MessageWrapper>
 											</>
 										)}
 									</Field>
@@ -559,8 +540,10 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 											}
 											isRequired
 											name="description"
+											id="description"
+											validate={validateDescription}
 										>
-											{({ fieldProps }) => (
+											{({ fieldProps, error }) => (
 												<>
 													<TextArea
 														{...fieldProps}
@@ -569,25 +552,19 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 														placeholder={summaryPlaceholder || undefined}
 														onChange={(e) => {
 															setDescription(e.target.value);
-															// Clear validation error when user types
-															if (useNewValidation && validationErrors.description) {
-																setValidationErrors((prev) => ({
-																	...prev,
-																	description: undefined,
-																}));
-															}
+															fieldProps.onChange(e.target.value);
 														}}
 														value={description}
 													/>
-													{useNewValidation && validationErrors.description && (
-														<ErrorMessage>{validationErrors.description}</ErrorMessage>
-													)}
+													<MessageWrapper>
+														{error && <ErrorMessage>{error}</ErrorMessage>}
+													</MessageWrapper>
 												</>
 											)}
 										</Field>
 										{(!anonymousFeedback && (
 											<Fieldset>
-												<legend aria-hidden={false} hidden>
+												<legend>
 													<FormattedMessage {...messages.optInOptionsLegend} />
 												</legend>
 												<Field name="can-be-contacted">
@@ -679,7 +656,7 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 								)}
 							</ModalBody>
 							<ModalFooter>
-								<Button appearance="subtle" onClick={onClose}>
+								<Button appearance="subtle" onClick={handleCancel}>
 									{cancelButtonLabel || <FormattedMessage {...messages.cancelButtonLabel} />}
 								</Button>
 								<Button
@@ -699,10 +676,10 @@ const FeedbackForm: React.FunctionComponent<Props> = ({
 	);
 };
 
-const FeedbackFormWithIntl: FunctionComponent<Props & { locale: string }> = ({
+const FeedbackFormWithIntl = ({
 	locale,
 	...props
-}) => {
+}: Props & { locale: string }): React.ReactElement => {
 	return (
 		<IntlProviderWithResolvedMessages locale={locale}>
 			<FeedbackForm {...props} />

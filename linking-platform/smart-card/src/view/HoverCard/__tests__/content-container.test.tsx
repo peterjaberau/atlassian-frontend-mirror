@@ -1,14 +1,12 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import type { ProductType } from '@atlaskit/linking-common';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { ProductType } from '@atlaskit/linking-common/types';
+import { render, screen } from '@atlassian/testing-library';
 
 import { useAISummary } from '../../../state/hooks/use-ai-summary';
 import ContentContainer from '../components/ContentContainer';
 import { hoverCardClassName } from '../components/HoverCardContent';
-import type { ContentContainerProps } from '../types';
 
 jest.mock('../../../state/hooks/use-ai-summary', () => ({
 	useAISummary: jest.fn().mockReturnValue({ state: { status: 'ready' } }),
@@ -21,7 +19,7 @@ describe('ContentContainer', () => {
 
 	const setup = (
 		props: Partial<
-			ContentContainerProps & {
+			React.ComponentProps<typeof ContentContainer> & {
 				product: ProductType | undefined;
 			}
 		> = {},
@@ -54,6 +52,14 @@ describe('ContentContainer', () => {
 		expect(contentContainer).toBeInTheDocument();
 		expect(contentContainer).toHaveTextContent(content);
 		expect(contentContainer.classList.contains(hoverCardClassName)).toBe(true);
+	});
+
+	it('uses the slim shell width when requested', async () => {
+		setup({ widthAppearance: 'slim' });
+
+		const contentContainer = await screen.findByTestId(testId);
+
+		expect(contentContainer).toHaveCompiledCss('width', '20rem');
 	});
 
 	describe('when AI summary is enabled', () => {

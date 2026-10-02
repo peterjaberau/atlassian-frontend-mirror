@@ -2,13 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { css, jsx } from '@compiled/react';
-import { render, screen, waitFor } from '@testing-library/react';
+
+import { render, screen, waitFor } from '@atlassian/testing-library';
 
 import context from '../../../../../../__fixtures__/flexible-ui-data-context';
 import { getFlexibleCardTestWrapper } from '../../../../../../__tests__/__utils__/unit-testing-library-helpers';
 import { SmartLinkStatus } from '../../../../../../constants';
-import { useFlexibleUiOptionContext } from '../../../../../../state/flexible-ui-context';
+import { useFlexibleUiOptionContext } from '../../../../../../state/flexible-ui-context/useFlexibleUiOptionContext';
 import { useSmartLinkRenderers } from '../../../../../../state/renderers';
 import SnippetBlock from '../index';
 
@@ -16,8 +18,8 @@ jest.mock('../../../../../../state/renderers', () => ({
 	useSmartLinkRenderers: jest.fn(),
 }));
 
-jest.mock('../../../../../../state/flexible-ui-context', () => ({
-	...jest.requireActual('../../../../../../state/flexible-ui-context'),
+jest.mock('../../../../../../state/flexible-ui-context/useFlexibleUiOptionContext', () => ({
+	...jest.requireActual('../../../../../../state/flexible-ui-context/useFlexibleUiOptionContext'),
 	useFlexibleUiOptionContext: jest.fn(),
 }));
 

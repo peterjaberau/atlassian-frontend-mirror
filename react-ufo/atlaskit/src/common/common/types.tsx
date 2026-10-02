@@ -122,6 +122,13 @@ export type HoldInfo = HoldActive & {
 	end: number;
 };
 
+export type PreloadInfo = {
+	source: string;
+	preloadStartedAt: number;
+	adoptedAt: number;
+	settledAt?: number;
+};
+
 export interface Redirect {
 	fromInteractionName: string;
 	time: number;
@@ -139,26 +146,94 @@ export type MinorInteraction = {
 	startTime: DOMHighResTimeStamp;
 };
 
+/** One third-party iframe/embed perf row in the UFO payload; mirrors resourceTimings' `{ label, data }` pattern. */
+export type Segment3pTimingEntry = {
+	label: string;
+	data: Record<string, unknown>;
+};
+
+/** Flattened row emitted in the analytics payload — segmentId promoted from object key to field. */
+export type FlatSegment3pTimingEntry = {
+	segmentId: string;
+	label: string;
+	data: Record<string, unknown>;
+};
+
+/** Per-segment timing + metadata entry. */
+export type Segment3pEntry = {
+	meta: Record<string, string | undefined>;
+	timings: Segment3pTimingEntry[];
+};
+
+/** Third-party segment data keyed by segmentId. */
+export type Segment3pData = Record<string, Segment3pEntry>;
+
+/** Payload field combining segment data with a trim indicator. */
+export type Segment3pDataPayload = {
+	segments: Segment3pData;
+	trim?: true;
+};
+
+export type MetricVariantCategory = 'third-party' | 'gen-ai';
+export type MetricVariantName = string;
+
+export type MetricWindow = {
+	start: number;
+	end: number;
+	includeCategories: MetricVariantCategory[];
+	excludeCategories: MetricVariantCategory[];
+};
+
+export type MetricWindows = Partial<Record<MetricVariantName, MetricWindow>>;
+
+export type LifecycleObservationType =
+	| 'new_interaction_started'
+	| 'transition_started'
+	| 'timeout_expired'
+	| 'page_unloaded';
+
+export type LifecycleObservation = {
+	type: LifecycleObservationType;
+	timestamp: number;
+	triggerName?: string;
+	activeHoldCount?: number;
+};
+
 export interface InteractionMetrics {
 	id: string;
 	start: number;
 	end: number;
+	/**
+	 * End time for the legacy extended-hold bucket originally used by third-party metrics.
+	 *
+	 * Category-specific variants should prefer `metricCategoryEnds` / `metricWindows`; this field is
+	 * retained for existing third-party payload and extra-metrics behavior.
+	 */
 	end3p?: number;
 	ufoName: string;
+	preloadKey?: string;
 	previousInteractionName?: string;
 	isPreviousInteractionAborted: boolean;
 	type: InteractionType;
 	marks: Mark[];
 	customData: { labelStack: LabelStack; data: CustomData }[];
+	/**
+	 * Diagnostic breadcrumbs for third-party segments that were intentionally excluded from all
+	 * metric windows (e.g. Forge background/headless modules under `excludeFromMetrics`).
+	 * This is intended to be purely side-channel:
+	 * never read by any metric window / `ttai` / `vc` computation, creates no hold, and is emitted
+	 * independently of iframe timings so the module identity survives even when `segment3pData` is
+	 * dropped. Kept separate from `customData` as this pertains to a special metadata.
+	 */
+	excluded3pSegmentData?: Record<string, CustomData>;
 	cohortingCustomData: Map<string, number | boolean | string | null | undefined>;
 	customTimings: { labelStack: LabelStack; data: CustomTiming }[];
 	spans: Span[];
 	requestInfo: (RequestInfo & { labelStack: LabelStack })[];
 	holdInfo: HoldInfo[];
-	holdExpInfo: HoldInfo[];
 	holdActive: Map<string, HoldActive>;
+	preloadInfo: PreloadInfo[];
 	reactProfilerTimings: ReactProfilerTiming[];
-	holdExpActive: Map<string, HoldActive>;
 	measureStart: number;
 	rate: number;
 	cancelCallbacks: (() => void)[];
@@ -203,16 +278,53 @@ export interface InteractionMetrics {
 	trace: TraceIdContext | null;
 	legacyMetrics?: BM3Event[];
 	vcObserver?: VCObserverInterface;
-	experimentalVCObserver?: VCObserverInterface;
 	vc?: VCRawDataType | null;
 	hydration?: ReactHydrationStats;
-	experimentalTTAI?: number;
-	experimentalVC90?: number;
 	unknownElementName?: string;
 	unknownElementHierarchy?: string;
+	/**
+	 * Legacy backing bucket for holds that should not block core interaction metrics.
+	 *
+	 * This was introduced for third-party segments, so the field name is intentionally preserved for
+	 * existing payload / extra-metrics compatibility. New metric-variant categories such as GenAI can
+	 * also use this bucket for lifecycle bookkeeping, while their category-specific timing is recorded
+	 * in `metricCategoryEnds` and emitted through `metricWindows`.
+	 */
 	hold3pActive?: Map<string, HoldActive>;
+	/**
+	 * Completed entries from the legacy extended-hold bucket. See `hold3pActive` for why the 3P name is
+	 * retained even though the bucket can back non-3P metric variants.
+	 */
 	hold3pInfo?: HoldInfo[];
 	minorInteractions?: MinorInteraction[];
+	/**
+	 * Third-party (3P) iframe/embed timing rows keyed by UFO segment id. Same `{ label, data }` row
+	 * shape as resourceTimings; emitted on the payload as `segment3pTimings`.
+	 */
+	segment3pTimings?: Record<string, Segment3pTimingEntry[]>;
+	/**
+	 * Cross-segment deduplication set for iframe timing entries (B3).
+	 * Keys are `${label}|${stableDataFingerprint}` (no segmentId) so that identical
+	 * entries reported by N iframes on the same page (e.g. shared Forge runtime CDN
+	 * resources) are rejected on arrival rather than stored N times and deduped later.
+	 *
+	 * Not serialised into the payload — used only during the interaction lifetime.
+	 */
+	segment3pCrossSegmentSeen?: Set<string>;
+	/**
+	 * Arbitrary extra data keyed by UFO segment id. Unlike customData (interaction-level),
+	 * this is scoped per segment so multiple segments on the same page don't collide.
+	 */
+	segmentExtraData?: Record<string, Record<string, string | undefined>>;
+
+	metricWindows?: MetricWindows;
+	/**
+	 * Category-specific end times for metric variants that share the legacy extended-hold bucket.
+	 * For example, GenAI records its own end here so `include-gen-ai` can be emitted independently of
+	 * the legacy third-party `end3p` value.
+	 */
+	metricCategoryEnds?: Partial<Record<MetricVariantCategory, number>>;
+	lifecycleObservations?: LifecycleObservation[];
 }
 
 export type LoadProfilerEventInfo = {
@@ -230,11 +342,9 @@ export interface LazyLoadProfilerContext {
 }
 
 export interface EnhancedUFOInteractionContextType
-	extends UFOInteractionContextType,
-		RelayMetricsRecorder,
-		LazyLoadProfilerContext {
+	extends UFOInteractionContextType, RelayMetricsRecorder, LazyLoadProfilerContext {
 	// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-	_internalHold(labelStack: LabelStack, name: string, experimental?: boolean): void | (() => void);
+	_internalHold(labelStack: LabelStack, name: string): void | (() => void);
 
 	_internalHoldByID(
 		labelStack: LabelStack,
@@ -290,8 +400,6 @@ export type LastInteractionFinishInfo = Pick<
 	| 'abortedByInteractionName'
 	| 'routeName'
 	| 'type'
-	| 'experimentalVC90'
-	| 'experimentalTTAI'
 	| 'errors'
 >;
 

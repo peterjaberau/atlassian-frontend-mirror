@@ -3,35 +3,20 @@ import { type FunctionComponent } from 'react';
 import { Fragment, type Node, Slice } from '@atlaskit/editor-prosemirror/model';
 import { type EditorState, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { type EditorView } from '@atlaskit/editor-prosemirror/view';
-import { isListOperator } from '@atlaskit/jql-ast';
-import { fg } from '@atlaskit/platform-feature-flags';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type PortalActions } from '../../ui/jql-editor-portal-provider/types';
 import getDocumentPosition from '../common/get-document-position';
 import { type PluginKeymap } from '../common/plugin-keymap';
 import ReactPluginView from '../common/react-plugin-view';
-
 import Autocomplete from './components/autocomplete';
 import { type AutocompleteProps, type SelectableAutocompleteOption } from './components/types';
 import { AUTOCOMPLETE_PLUGIN_NAME, JQLAutocompletePluginKey } from './constants';
+import { shouldInsertOpeningParenthesis } from './shouldInsertOpeningParenthesis';
 
-/**
- * Returns whether an opening parenthesis should be automatically inserted for this option (e.g. after a list operator)
- */
-const shouldInsertOpeningParenthesis = ({
-	type,
-	context,
-	isListFunction,
-}: SelectableAutocompleteOption) => {
-	if (type === 'value' || type === 'function' || type === 'keyword') {
-		const operator = context?.operator;
-		if (operator && isListOperator(operator) && !context?.isList && !isListFunction) {
-			return true;
-		}
-	}
-
-	return false;
-};
+const isRichInlineOperandOption = (type: SelectableAutocompleteOption['type']): boolean =>
+	type === 'value' || type === 'functionArgument';
 
 export default class AutocompletePluginView extends ReactPluginView<AutocompleteProps> {
 	private readonly view: EditorView;
@@ -73,15 +58,31 @@ export default class AutocompletePluginView extends ReactPluginView<Autocomplete
 		transaction.setMeta(JQLAutocompletePluginKey, true);
 
 		// Request query hydration if we are inserting a user node
-		if (this.enableRichInlineNodes && option.type === 'value' && option.valueType === 'user') {
+		if (
+			this.enableRichInlineNodes &&
+			isRichInlineOperandOption(option.type) &&
+			option.valueType === 'user'
+		) {
 			transaction.setMeta('hydrate', true);
 		}
 
 		if (
 			this.enableRichInlineNodes &&
-			option.type === 'value' &&
-			option.valueType === 'team' &&
-			fg('jira_update_jql_teams')
+			isRichInlineOperandOption(option.type) &&
+			(option.valueType === 'team' ||
+				(option.valueType === 'goal' &&
+					FeatureGates.getExperimentValue(
+						'anip-1095-goals-in-harmonised-filter',
+						'isEnabled',
+						false,
+					)) ||
+				(option.valueType === 'project' &&
+					FeatureGates.getExperimentValue(
+						'atlassian_projects_-_native_integration',
+						'releaseVersion',
+						-1,
+					) >= 1) ||
+				(option.valueType === 'assets' && fg('orion-8274-cmdb-object-jql-values-resolver')))
 		) {
 			transaction.setMeta('hydrate', true);
 		}
@@ -125,14 +126,64 @@ export default class AutocompletePluginView extends ReactPluginView<Autocomplete
 					break;
 				}
 				case 'team': {
-					if (fg('jira_update_jql_teams')) {
+					const attributes = {
+						type: 'team',
+						id: value,
+						name: nameOnRichInlineNode ?? name,
+						fieldName: context?.field,
+					};
+					nodes.push(this.view.state.schema.nodes.team.create(attributes, textContent));
+					break;
+				}
+				case 'project': {
+					if (
+						FeatureGates.getExperimentValue(
+							'atlassian_projects_-_native_integration',
+							'releaseVersion',
+							-1,
+						) >= 1
+					) {
 						const attributes = {
-							type: 'team',
+							type: 'project',
 							id: value,
 							name: nameOnRichInlineNode ?? name,
 							fieldName: context?.field,
 						};
-						nodes.push(this.view.state.schema.nodes.team.create(attributes, textContent));
+						nodes.push(this.view.state.schema.nodes.project.create(attributes, textContent));
+					} else {
+						nodes.push(textContent);
+					}
+					break;
+				}
+				case 'goal': {
+					if (
+						FeatureGates.getExperimentValue(
+							'anip-1095-goals-in-harmonised-filter',
+							'isEnabled',
+							false,
+						)
+					) {
+						const attributes = {
+							type: 'goal',
+							id: value,
+							name: nameOnRichInlineNode ?? name,
+							fieldName: context?.field,
+						};
+						nodes.push(this.view.state.schema.nodes.goal.create(attributes, textContent));
+					} else {
+						nodes.push(textContent);
+					}
+					break;
+				}
+				case 'assets': {
+					if (fg('orion-8274-cmdb-object-jql-values-resolver')) {
+						const attributes = {
+							type: 'assets',
+							id: value,
+							name: nameOnRichInlineNode ?? name,
+							fieldName: context?.field,
+						};
+						nodes.push(this.view.state.schema.nodes.assets.create(attributes, textContent));
 					} else {
 						nodes.push(textContent);
 					}

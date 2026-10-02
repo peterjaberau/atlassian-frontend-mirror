@@ -6,3 +6,6 @@ export const PASTE_TOOLBAR_ITEM_CLASS = 'ak-editor-paste-toolbar-item';
 export const EDITOR_WRAPPER_CLASS = 'akEditor';
 export const PASTE_OPTIONS_TEST_ID = 'paste-options-testid';
 export const PASTE_OPTIONS_META_ID = 'paste-options$';
+
+export const PASTE_MENU_GAP_HORIZONTAL = 8;
+export const PASTE_MENU_GAP_TOP = 24;

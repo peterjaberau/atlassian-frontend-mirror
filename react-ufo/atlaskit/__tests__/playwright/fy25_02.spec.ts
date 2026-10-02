@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test, viewports } from './fixtures';
 
 test.describe('ReactUFO: fy25.02 - style mutation', () => {
@@ -9,6 +10,13 @@ test.describe('ReactUFO: fy25.02 - style mutation', () => {
 			test.use({
 				examplePage: 'fy25_02-style-mutation',
 				viewport,
+			} satisfies {
+				examplePage: 'fy25_02-style-mutation';
+				viewport: {
+					width: number;
+					height: number;
+				};
+				__exampleDependency?: typeof import('../../examples/10-fy25_02-style-mutation.tsx');
 			});
 
 			test(`VC90 should match when the [content-div] is first visible`, async ({

@@ -1,3 +1,11 @@
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  and raise concerns in https://atlassian.enterprise.slack.com/archives/C0BD4K40BLH
+*/
+
 import React from 'react';
 
 import { render } from '@testing-library/react';
@@ -8,7 +16,7 @@ import { createEditorFactory } from '@atlaskit/editor-test-helpers/create-editor
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { doc, p, panel } from '@atlaskit/editor-test-helpers/doc-builder';
 
-import { ChromelessEditorContainer } from '../../../Appearance/Chromeless';
+import { ChromelessEditorContainer } from '../../ChromelessEditorContainer';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Chromeless editor', () => {
@@ -35,13 +43,15 @@ describe('Chromeless editor', () => {
 	});
 
 	it('should render correct overridden styles', () => {
-		const { container } = render(
+		const { getByTestId, getAllByText } = render(
 			<ChromelessEditorContainer minHeight={100} maxHeight={200}>
 				<p>Hello world</p>
 				<p>Hello world</p>
 			</ChromelessEditorContainer>,
 		);
 
-		expect(container).toMatchSnapshot();
+		const chromeless = getByTestId('chromeless-editor');
+		expect(chromeless).toBeInTheDocument();
+		expect(getAllByText('Hello world')).toHaveLength(2);
 	});
 });

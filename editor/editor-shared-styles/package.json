@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-shared-styles",
-	"version": "3.10.16",
+	"version": "4.3.37",
 	"description": "Style values used in the editor/renderer",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
@@ -28,42 +20,38 @@
 		"team": "Editor: Lego"
 	},
 	"platform-feature-flags": {
-		"platform_editor_controls_increase_full_page_gutter": {
-			"type": "boolean"
+		"confluence_ncs_step_diffing_version_history": {
+			"type": "boolean",
+			"referenceOnly": true
 		},
 		"platform_editor_ai_aifc_streaming": {
 			"type": "boolean"
 		}
 	},
 	"exports": {
+		".": "./src/index.ts",
+		"./constants": "./src/entry-points/constants.ts",
+		"./constants/types": "./src/entry-points/constants-types.ts",
 		"./consts": "./src/consts/index.ts",
+		"./overflow-shadow-for-compiled": "./src/overflow-shadow/overflow-shadow-for-compiled.ts",
+		"./overflow-shadow": "./src/entry-points/overflow-shadow.ts",
+		"./scrollbar": "./src/entry-points/scrollbar.ts",
 		"./selection": "./src/selection/index.ts",
+		"./selection/types": "./src/entry-points/selection-types.ts",
+		"./selection/utils": "./src/entry-points/selection-utils.ts",
 		"./shortcut": "./src/shortcut/index.ts",
-		"./scrollbar": "./src/scrollbar-styles.ts",
-		".": "./src/index.ts"
+		"./shortcut/main": "./src/entry-points/shortcut-main.ts",
+		"./utils": "./src/entry-points/utils.ts"
 	},
 	"dependencies": {
+		"@atlaskit/agent-color": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@emotion/react": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"circular-dependencies": [
-				"file-level"
-			],
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"deprecation": "no-deprecated-imports",
-			"design-tokens": [
-				"color"
-			],
-			"styling": [
-				"emotion"
-			]
-		}
+	"devDependencies": {
+		"@atlassian/feature-flags-test-utils": "workspace:^"
 	}
 }

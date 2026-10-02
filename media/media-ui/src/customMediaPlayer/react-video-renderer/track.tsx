@@ -1,4 +1,5 @@
 import React, { createRef, useEffect, memo, useCallback } from 'react';
+
 import {
 	getVideoTextTrackId,
 	type VideoTextTrack,
@@ -101,7 +102,9 @@ type TextTracksProps = {
 	onError?: (artifactName: string, lang: string, label: string) => void;
 };
 
-export const TextTracks = memo(
+export const TextTracks: React.MemoExoticComponent<
+	({ videoTextTracks, textTracksPosition, onLoad, onError }: TextTracksProps) => React.JSX.Element[]
+> = memo(
 	({
 		videoTextTracks,
 		textTracksPosition,

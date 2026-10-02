@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -11,12 +10,13 @@ ${createEditorUseOnlyNotice('Editor Plugin Fragment', [
 	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
   ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
-			<AtlassianInternalWarning />
-		</div>
-	)
-	}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the fragment plugin used by @atlaskit/editor-core.
 

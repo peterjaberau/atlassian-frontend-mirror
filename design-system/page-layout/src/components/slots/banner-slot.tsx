@@ -15,10 +15,10 @@ import {
 	RIGHT_PANEL_WIDTH,
 	VAR_BANNER_HEIGHT,
 } from '../../common/constants';
-import { type SlotHeightProps } from '../../common/types';
-import { getPageLayoutSlotSelector, resolveDimension } from '../../common/utils';
+import { getPageLayoutSlotSelector } from '../../common/get-page-layout-slot-selector';
+import { resolveDimension } from '../../common/resolve-dimension';
+import type { SlotHeightProps } from '../../common/types';
 import { publishGridState, useSkipLink } from '../../controllers';
-
 import SlotFocusRing from './internal/slot-focus-ring';
 import SlotDimensions from './slot-dimensions';
 
@@ -46,6 +46,8 @@ const bannerFixedStyles = css({
  *
  * - [Examples](https://atlassian.design/components/page-layout/examples)
  * - [Code](https://atlassian.design/components/page-layout/code)
+ *
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 const Banner = (props: SlotHeightProps): jsx.JSX.Element => {
 	const {

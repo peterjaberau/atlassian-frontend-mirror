@@ -7,7 +7,7 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 
 import { ComposableEditor } from './composable-editor';
@@ -15,20 +15,6 @@ import type { InitialPluginConfiguration } from './preset-universal';
 import useUniversalPreset from './presets/useUniversalPreset';
 import type { EditorProps } from './types/editor-props';
 import editorDeprecationWarnings from './utils/editorDeprecationWarnings';
-
-export type {
-	Command,
-	CommandDispatch,
-	DomAtPos,
-	EditorAppearanceComponentProps,
-	EditorConfig,
-	EditorInstance,
-	EditorProps,
-	ExtensionConfig,
-	ExtensionProvidersProp,
-	MessageDescriptor,
-	PMPluginCreateConfig,
-} from './types';
 
 interface WrapperProps {
 	initialPluginConfiguration?: InitialPluginConfiguration;
@@ -70,7 +56,7 @@ export default class Editor extends React.Component<EditorPropsWithInitialPlugin
 		editorDeprecationWarnings(props);
 	}
 
-	render() {
+	render(): jsx.JSX.Element {
 		return (
 			<ComposableEditorWrapper
 				props={this.props}

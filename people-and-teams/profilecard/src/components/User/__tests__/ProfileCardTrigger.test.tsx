@@ -2,14 +2,13 @@ import React from 'react';
 
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { GiveKudosLauncherLazy } from '@atlaskit/give-kudos';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
 import { renderWithAnalyticsListener } from '@atlassian/ptc-test-utils';
 
 import ProfileClient from '../../../client/ProfileCardClient';
-import { getMockProfileClient } from '../../../mocks';
+import getMockProfileClient from '../../../mocks/mock-profile-client';
 import { type ProfileCardTriggerProps } from '../../../types';
 import { DELAY_MS_HIDE, DELAY_MS_SHOW } from '../../../util/config';
 import { AgentProfileCardResourced } from '../../Agent/AgentProfileCardResourced';
@@ -190,135 +189,174 @@ describe('Profile card trigger', () => {
 			});
 		});
 
-		ffTest.on('fix_profilecard_trigger_isvisible', 'isVisible fixed', () => {
-			it('renders the popup based on isVisible prop', async () => {
-				const { rerender } = renderProfileCardTrigger({ isVisible: true });
+		it('renders the popup based on isVisible prop', async () => {
+			const { rerender } = renderProfileCardTrigger({ isVisible: true });
 
-				// popup should appear immediately, (there is still a setTimeout, after 0ms)
-				jest.advanceTimersByTime(1);
-				await waitFor(() => {
-					expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
-				});
-
-				rerender(
-					<IntlProvider locale="en">
-						<ProfilecardTrigger {...mockDefaultProps} isVisible={false}>
-							<div>{mockTriggerText}</div>
-						</ProfilecardTrigger>
-					</IntlProvider>,
-				);
-
-				await waitFor(() => {
-					expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
-				});
+			// popup should appear immediately, (there is still a setTimeout, after 0ms)
+			jest.advanceTimersByTime(1);
+			await waitFor(() => {
+				expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
 			});
 
-			it('preserves normal hover delays when isVisible reflects current state', async () => {
-				const { rerender } = renderProfileCardTrigger({ trigger: 'hover' });
+			rerender(
+				<IntlProvider locale="en">
+					<ProfilecardTrigger {...mockDefaultProps} isVisible={false}>
+						<div>{mockTriggerText}</div>
+					</ProfilecardTrigger>
+				</IntlProvider>,
+			);
 
-				// hover the trigger to make visible=true
-				await userForFakeTimers.hover(screen.getByText(mockTriggerText));
-
-				// advance time to show the popup
-				act(() => {
-					jest.advanceTimersByTime(DELAY_MS_SHOW);
-				});
-
-				expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
-
-				// Now rerender with isVisible=true (reflecting current state)
-				// This should NOT cause immediate hiding when mouse leaves
-				rerender(
-					<IntlProvider locale="en">
-						<ProfilecardTrigger {...mockDefaultProps} trigger="hover" isVisible={true}>
-							<div>{mockTriggerText}</div>
-						</ProfilecardTrigger>
-					</IntlProvider>,
-				);
-
-				// Simulate mouse leave - should use normal hide delay, not immediate
-				await userForFakeTimers.unhover(screen.getByText(mockTriggerText));
-
-				// Should still be visible since normal hide delay hasn't elapsed
-				expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
-
-				// After normal hide delay, should disappear
-				act(() => {
-					jest.advanceTimersByTime(DELAY_MS_HIDE);
-				});
-
-				await waitFor(() => {
-					expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
-				});
-			});
-
-			it('uses immediate delays when isVisible overrides current visible state', async () => {
-				const { rerender } = renderProfileCardTrigger({ trigger: 'hover', isVisible: false });
-
-				// Initially should be hidden
+			await waitFor(() => {
 				expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
+			});
+		});
 
-				// Change isVisible to true while component visible state is false
-				// This is external control and should use immediate delay
-				rerender(
-					<IntlProvider locale="en">
-						<ProfilecardTrigger {...mockDefaultProps} trigger="hover" isVisible={true}>
-							<div>{mockTriggerText}</div>
-						</ProfilecardTrigger>
-					</IntlProvider>,
-				);
+		it('preserves normal hover delays when isVisible reflects current state', async () => {
+			const { rerender } = renderProfileCardTrigger({ trigger: 'hover' });
 
-				// popup should appear immediately (after 0ms delay)
-				jest.advanceTimersByTime(1);
-				await waitFor(() => {
-					expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
-				});
+			// hover the trigger to make visible=true
+			await userForFakeTimers.hover(screen.getByText(mockTriggerText));
 
-				// Change isVisible to false while component visible state is true
-				// This should also use immediate delay
-				rerender(
-					<IntlProvider locale="en">
-						<ProfilecardTrigger {...mockDefaultProps} trigger="hover" isVisible={false}>
-							<div>{mockTriggerText}</div>
-						</ProfilecardTrigger>
-					</IntlProvider>,
-				);
-
-				// Should hide immediately (after 0ms delay)
-				jest.advanceTimersByTime(1);
-				await waitFor(() => {
-					expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
-				});
+			// advance time to show the popup
+			act(() => {
+				jest.advanceTimersByTime(DELAY_MS_SHOW);
 			});
 
-			it('click trigger always uses immediate delays regardless of isVisible', async () => {
-				const { rerender } = renderProfileCardTrigger({ trigger: 'click', isVisible: false });
+			expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
 
-				// Click should show immediately
-				await userForFakeTimers.click(screen.getByText(mockTriggerText));
-				jest.advanceTimersByTime(1);
+			// Now rerender with isVisible=true (reflecting current state)
+			// This should NOT cause immediate hiding when mouse leaves
+			rerender(
+				<IntlProvider locale="en">
+					<ProfilecardTrigger {...mockDefaultProps} trigger="hover" isVisible={true}>
+						<div>{mockTriggerText}</div>
+					</ProfilecardTrigger>
+				</IntlProvider>,
+			);
 
-				await waitFor(() => {
-					expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
-				});
+			// Simulate mouse leave - should use normal hide delay, not immediate
+			await userForFakeTimers.unhover(screen.getByText(mockTriggerText));
 
-				// Rerender with isVisible=true (reflecting current state)
-				rerender(
-					<IntlProvider locale="en">
-						<ProfilecardTrigger {...mockDefaultProps} trigger="click" isVisible={true}>
-							<div>{mockTriggerText}</div>
-						</ProfilecardTrigger>
-					</IntlProvider>,
-				);
+			// Should still be visible since normal hide delay hasn't elapsed
+			expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
 
-				// Click again should toggle immediately
-				await userForFakeTimers.click(screen.getByText(mockTriggerText));
-				jest.advanceTimersByTime(1);
+			// After normal hide delay, should disappear
+			act(() => {
+				jest.advanceTimersByTime(DELAY_MS_HIDE);
+			});
 
-				// Should still be immediate even when isVisible matches visible state
-				await waitFor(() => {
-					expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
-				});
+			await waitFor(() => {
+				expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
+			});
+		});
+
+		it('uses immediate delays when isVisible overrides current visible state', async () => {
+			const { rerender } = renderProfileCardTrigger({ trigger: 'hover', isVisible: false });
+
+			// Initially should be hidden
+			expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
+
+			// Change isVisible to true while component visible state is false
+			// This is external control and should use immediate delay
+			rerender(
+				<IntlProvider locale="en">
+					<ProfilecardTrigger {...mockDefaultProps} trigger="hover" isVisible={true}>
+						<div>{mockTriggerText}</div>
+					</ProfilecardTrigger>
+				</IntlProvider>,
+			);
+
+			// popup should appear immediately (after 0ms delay)
+			jest.advanceTimersByTime(1);
+			await waitFor(() => {
+				expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
+			});
+
+			// Change isVisible to false while component visible state is true
+			// This should also use immediate delay
+			rerender(
+				<IntlProvider locale="en">
+					<ProfilecardTrigger {...mockDefaultProps} trigger="hover" isVisible={false}>
+						<div>{mockTriggerText}</div>
+					</ProfilecardTrigger>
+				</IntlProvider>,
+			);
+
+			// Should hide immediately (after 0ms delay)
+			jest.advanceTimersByTime(1);
+			await waitFor(() => {
+				expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
+			});
+		});
+
+		it('does not show immediately when isVisible overrides state', async () => {
+			const { rerender } = renderProfileCardTrigger({
+				trigger: 'hover',
+				isVisible: false,
+			});
+
+			expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
+
+			rerender(
+				<IntlProvider locale="en">
+					<ProfilecardTrigger {...mockDefaultProps} trigger="hover" isVisible={true}>
+						<div>{mockTriggerText}</div>
+					</ProfilecardTrigger>
+				</IntlProvider>,
+			);
+
+			// After 1ms the popup should NOT be visible yet (reduced delay is 100ms)
+			jest.advanceTimersByTime(1);
+			expect(screen.queryByText(mockProfileCardLazyText)).toBeNull();
+
+			// After 100ms it should appear
+			act(() => {
+				jest.advanceTimersByTime(100);
+			});
+
+			await waitFor(() => {
+				expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
+			});
+		});
+
+		it('click trigger still uses immediate delay', async () => {
+			renderProfileCardTrigger({ trigger: 'click', isVisible: false });
+
+			await userForFakeTimers.click(screen.getByText(mockTriggerText));
+			jest.advanceTimersByTime(1);
+
+			await waitFor(() => {
+				expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
+			});
+		});
+
+		it('click trigger always uses immediate delays regardless of isVisible', async () => {
+			const { rerender } = renderProfileCardTrigger({ trigger: 'click', isVisible: false });
+
+			// Click should show immediately
+			await userForFakeTimers.click(screen.getByText(mockTriggerText));
+			jest.advanceTimersByTime(1);
+
+			await waitFor(() => {
+				expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
+			});
+
+			// Rerender with isVisible=true (reflecting current state)
+			rerender(
+				<IntlProvider locale="en">
+					<ProfilecardTrigger {...mockDefaultProps} trigger="click" isVisible={true}>
+						<div>{mockTriggerText}</div>
+					</ProfilecardTrigger>
+				</IntlProvider>,
+			);
+
+			// Click again should toggle immediately
+			await userForFakeTimers.click(screen.getByText(mockTriggerText));
+			jest.advanceTimersByTime(1);
+
+			// Should still be immediate even when isVisible matches visible state
+			await waitFor(() => {
+				expect(screen.queryByText(mockProfileCardLazyText)).toBeVisible();
 			});
 		});
 	});

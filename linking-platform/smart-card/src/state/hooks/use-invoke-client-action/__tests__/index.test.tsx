@@ -1,24 +1,27 @@
 import React from 'react';
 
-import { renderHook } from '@testing-library/react';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { renderHook } from '@atlassian/testing-library';
 
 import type { FireEventFunction } from '../../../../common/analytics/types';
 import { CardDisplay } from '../../../../constants';
 import { SmartLinkAnalyticsContext } from '../../../../utils/analytics/SmartLinkAnalyticsContext';
-import { mockByUrl } from '../../../../utils/mocks';
-import * as measure from '../../../../utils/performance';
-import * as ufo from '../../../analytics/ufoExperiences';
+import * as markModule from '../../../../utils/mark';
+import { mockByUrl } from '../../../../utils/mock-by-url';
+import * as failUfoExperienceModule from '../../../analytics/failUfoExperience';
+import * as startUfoExperienceModule from '../../../analytics/startUfoExperience';
+import * as succeedUfoExperienceModule from '../../../analytics/succeedUfoExperience';
 import useInvokeClientAction from '../index';
 
 jest.mock('uuid', () => ({
 	...jest.requireActual('uuid'),
 	__esModule: true,
-	default: jest.fn().mockReturnValue('some-uuid-1'),
+	v4: jest.fn().mockReturnValue('some-uuid-1'),
 }));
 
 describe('useInvokeClientAction', () => {
@@ -48,7 +51,7 @@ describe('useInvokeClientAction', () => {
 		const storeOptions = {
 			initialState: { [url]: { details, status: 'resolved' as const } },
 		};
-		const { result } = renderHook(() => useInvokeClientAction({ fireEvent }), {
+		const result = renderHook(() => useInvokeClientAction({ fireEvent }), {
 			wrapper: ({ children }) => (
 				<FabricAnalyticsListeners client={mockAnalyticsClient}>
 					<SmartCardProvider storeOptions={storeOptions}>
@@ -182,8 +185,8 @@ describe('useInvokeClientAction', () => {
 
 	it('sends ufo succeeded experience events', async () => {
 		uuid.mockReturnValueOnce('ufo-experience-id');
-		const ufoStartSpy = jest.spyOn(ufo, 'startUfoExperience');
-		const ufoSucceedSpy = jest.spyOn(ufo, 'succeedUfoExperience');
+		const ufoStartSpy = jest.spyOn(startUfoExperienceModule, 'startUfoExperience');
+		const ufoSucceedSpy = jest.spyOn(succeedUfoExperienceModule, 'succeedUfoExperience');
 		const actionFn = jest.fn().mockResolvedValue(undefined);
 
 		await setup(actionFn);
@@ -201,8 +204,8 @@ describe('useInvokeClientAction', () => {
 
 	it('sends ufo failed experience events', async () => {
 		uuid.mockReturnValueOnce('ufo-experience-id');
-		const ufoStartSpy = jest.spyOn(ufo, 'startUfoExperience');
-		const ufoFailSpy = jest.spyOn(ufo, 'failUfoExperience');
+		const ufoStartSpy = jest.spyOn(startUfoExperienceModule, 'startUfoExperience');
+		const ufoFailSpy = jest.spyOn(failUfoExperienceModule, 'failUfoExperience');
 		const actionFn = jest.fn().mockRejectedValue(new Error());
 
 		await setup(actionFn);
@@ -219,7 +222,7 @@ describe('useInvokeClientAction', () => {
 	});
 
 	it('mark measure resolved performance', async () => {
-		const measureSpy = jest.spyOn(measure, 'mark');
+		const measureSpy = jest.spyOn(markModule, 'mark');
 
 		await setup();
 
@@ -237,7 +240,7 @@ describe('useInvokeClientAction', () => {
 
 	it('mark measure errored performance', async () => {
 		const actionFn = jest.fn().mockRejectedValue(new Error());
-		const measureSpy = jest.spyOn(measure, 'mark');
+		const measureSpy = jest.spyOn(markModule, 'mark');
 
 		await setup(actionFn);
 

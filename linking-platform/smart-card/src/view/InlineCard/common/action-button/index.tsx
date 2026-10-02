@@ -2,10 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ComponentPropsWithRef, forwardRef } from 'react';
+import {
+	type ComponentPropsWithRef,
+	forwardRef,
+	type ForwardRefExoticComponent,
+	type RefAttributes,
+} from 'react';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import { Pressable } from '@atlaskit/primitives/compiled';
+import { Pressable, Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
@@ -24,6 +29,37 @@ const styles = cssMap({
 		textAlign: 'initial',
 		whiteSpace: 'break-spaces',
 		wordBreak: 'break-all',
+	},
+	innerContainerSocialProofConnect: {
+		color: token('color.text.inverse'),
+		cursor: 'pointer',
+		backgroundColor: token('color.background.selected.bold'),
+		'&:hover': {
+			backgroundColor: token('color.background.selected.bold.hovered'),
+		},
+		'&:active': {
+			backgroundColor: token('color.background.selected.bold.pressed'),
+		},
+		borderRadius: token('radius.small'),
+		marginRight: token('space.025'),
+		display: 'inline',
+		alignItems: 'center',
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+		fontSize: '0.8em' as any,
+		backgroundClip: 'padding-box',
+		boxDecorationBreak: 'clone',
+		paddingLeft: token('space.075'),
+		paddingTop: token('space.025'),
+		paddingBottom: token('space.025'),
+		paddingRight: token('space.075'),
+		textAlign: 'initial',
+		verticalAlign: '1px',
+		whiteSpace: 'break-spaces',
+		wordBreak: 'break-all',
+	},
+	innerContainerNoWrap: {
+		whiteSpace: 'nowrap',
+		wordBreak: 'normal',
 	},
 	enabled: {
 		color: token('color.text'),
@@ -66,18 +102,41 @@ const styles = cssMap({
 	},
 });
 
+/* eslint-enable @compiled/shorthand-property-sorting */
 type ActionButtonProps = ComponentPropsWithRef<typeof Pressable> & {
-	viewType?: 'default' | 'unauthorised';
+	isSlimDesign?: boolean;
+	viewType?: 'default' | 'unauthorised' | 'action';
 };
 
 /**
  * Action button has to be a span for the overflow to work correctly
  */
-export const ActionButton = forwardRef(
+export const ActionButton: ForwardRefExoticComponent<
+	Omit<ActionButtonProps, 'ref'> & RefAttributes<HTMLButtonElement>
+> = forwardRef(
 	(
-		{ children, isDisabled, viewType = 'default', ...props }: ActionButtonProps,
+		{
+			children,
+			isDisabled,
+			viewType = 'default',
+			isSlimDesign = false,
+			...props
+		}: ActionButtonProps,
 		ref: ActionButtonProps['ref'],
 	) => {
+		const shouldUseUnauthorisedSlimStyle = viewType === 'unauthorised' && isSlimDesign;
+
+		if (shouldUseUnauthorisedSlimStyle && !isDisabled) {
+			const { onClick, ...boxProps } = props;
+			return (
+				<Box {...boxProps} ref={ref} style={{ font: `inherit` }} xcss={styles.button}>
+					<span css={[styles.innerContainerSocialProofConnect, styles.innerContainerNoWrap]}>
+						{children}
+					</span>
+				</Box>
+			);
+		}
+
 		return (
 			<Pressable
 				{...props}

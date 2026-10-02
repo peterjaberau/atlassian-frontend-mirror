@@ -1,6 +1,8 @@
 import { type UnbindFn } from 'bind-event-listener';
 
-import { type ThemeIdsWithOverrides, type ThemeState, themeStateDefaults } from './theme-config';
+import { type ThemeIdsWithOverrides } from './theme-config';
+import { type ThemeState } from './theme-state';
+import { themeStateDefaults } from './theme-state-defaults';
 import configurePage from './utils/configure-page';
 import { getThemePreferences } from './utils/get-theme-preferences';
 
@@ -12,6 +14,7 @@ import { getThemePreferences } from './utils/get-theme-preferences';
  * @param {string} themeState.colorMode Determines which color theme is applied. If set to `auto`, the theme applied will be determined by the OS setting.
  * @param {string} themeState.dark The color theme to be applied when the color mode resolves to 'dark'.
  * @param {string} themeState.light The color theme to be applied when the color mode resolves to 'light'.
+ * @param {string} themeState.motion The motion theme to be applied.
  * @param {string} themeState.shape The shape theme to be applied.
  * @param {string} themeState.spacing The spacing theme to be applied.
  * @param {string} themeState.typography The typography theme to be applied.
@@ -25,13 +28,14 @@ import { getThemePreferences } from './utils/get-theme-preferences';
  * enableGlobalTheme({colorMode: 'auto', light: 'light', dark: 'dark', spacing: 'spacing'});
  * ```
  */
-const enableGlobalTheme = (
+export const enableGlobalTheme = (
 	{
 		colorMode = themeStateDefaults['colorMode'],
 		contrastMode = themeStateDefaults['contrastMode'],
 		dark = themeStateDefaults['dark'],
 		light = themeStateDefaults['light'],
-		shape = themeStateDefaults['shape'](),
+		motion = themeStateDefaults['motion'](),
+		shape = themeStateDefaults['shape'],
 		spacing = themeStateDefaults['spacing'],
 		typography = themeStateDefaults['typography'],
 		UNSAFE_themeOptions = themeStateDefaults['UNSAFE_themeOptions'],
@@ -43,6 +47,7 @@ const enableGlobalTheme = (
 		contrastMode,
 		dark,
 		light,
+		motion,
 		shape,
 		spacing,
 		typography,

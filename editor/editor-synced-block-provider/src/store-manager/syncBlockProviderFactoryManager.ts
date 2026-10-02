@@ -1,0 +1,274 @@
+import type { RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
+import { isSSR } from '@atlaskit/editor-common/core-utils';
+import { logException } from '@atlaskit/editor-common/monitoring';
+import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
+
+import type { ResourceId } from '../common/types';
+import type {
+	SyncBlockInstance,
+	SyncBlockDataProviderInterface,
+	SyncBlockRendererProviderCreator,
+	SyncedBlockRendererProviderOptions,
+} from '../providers/types';
+import { buildFetchErrorAttribution, fetchErrorPayload } from '../utils/errorHandling';
+import { parseResourceId } from '../utils/resourceId';
+import { getSourceProductFromResourceIdSafe } from '../utils/utils';
+
+export interface SyncBlockProviderFactoryManagerDeps {
+	getDataProvider: () => SyncBlockDataProviderInterface | undefined;
+	getFireAnalyticsEvent: () => ((payload: RendererSyncBlockEventPayload) => void) | undefined;
+	getFromCache: (resourceId: ResourceId) => SyncBlockInstance | undefined;
+}
+
+/**
+ * Manages creation and caching of ProviderFactory instances used to
+ * render synced block content (media, emoji, smart links, etc.).
+ */
+export class SyncBlockProviderFactoryManager {
+	private providerFactories = new Map<ResourceId, ProviderFactory>();
+
+	constructor(private deps: SyncBlockProviderFactoryManagerDeps) {}
+
+	public getProviderFactory(resourceId: ResourceId): ProviderFactory | undefined {
+		const dataProvider = this.deps.getDataProvider();
+		if (!dataProvider) {
+			const error = new Error('Data provider not set');
+			logException(error, {
+				location: 'editor-synced-block-provider/syncBlockProviderFactoryManager',
+			});
+			this.deps.getFireAnalyticsEvent()?.(
+				fetchErrorPayload(
+					error.message,
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+					buildFetchErrorAttribution(error.message),
+				),
+			);
+			return undefined;
+		}
+
+		let providerFactory: ProviderFactory | undefined = this.providerFactories.get(resourceId);
+		if (!providerFactory) {
+			const { parentDataProviders } = dataProvider.getSyncedBlockRendererProviderOptions();
+			providerFactory = ProviderFactory.create({
+				mentionProvider: parentDataProviders?.mentionProvider,
+				profilecardProvider: parentDataProviders?.profilecardProvider,
+				taskDecisionProvider: parentDataProviders?.taskDecisionProvider,
+			});
+			this.providerFactories.set(resourceId, providerFactory);
+		}
+
+		// Syncing providers notifies subscribers synchronously, so on the client it
+		// cannot run during render - callers invoke `syncProviders` from an effect
+		// instead. Effects never run while server rendering, and there are no mounted
+		// subscribers to notify, so the server keeps applying them inline.
+		if (!isSSR()) {
+			return providerFactory;
+		}
+
+		this.syncProviders(resourceId, providerFactory);
+
+		return providerFactory;
+	}
+
+	/**
+	 * The provider options currently supplied by the host. A pure read that does
+	 * not notify subscribers, so it is safe to call during render - callers use it
+	 * to detect when the host swaps a provider and the factory needs re-syncing.
+	 */
+	public getProviderOptions(): SyncedBlockRendererProviderOptions | undefined {
+		return this.deps.getDataProvider()?.getSyncedBlockRendererProviderOptions();
+	}
+
+	/**
+	 * Applies the latest parent and dynamic providers to the cached factory.
+	 * Notifies subscribers, so must be called from an effect, never during render.
+	 */
+	public syncProviders(resourceId: ResourceId, factory?: ProviderFactory): void {
+		const dataProvider = this.deps.getDataProvider();
+		if (!dataProvider) {
+			return;
+		}
+
+		const providerFactory = factory ?? this.providerFactories.get(resourceId);
+		if (!providerFactory) {
+			return;
+		}
+
+		const { parentDataProviders, providerCreator } =
+			dataProvider.getSyncedBlockRendererProviderOptions();
+
+		if (parentDataProviders?.mentionProvider) {
+			providerFactory.setProvider('mentionProvider', parentDataProviders?.mentionProvider);
+		}
+		if (parentDataProviders?.profilecardProvider) {
+			providerFactory.setProvider('profilecardProvider', parentDataProviders?.profilecardProvider);
+		}
+		if (parentDataProviders?.taskDecisionProvider) {
+			providerFactory.setProvider(
+				'taskDecisionProvider',
+				parentDataProviders?.taskDecisionProvider,
+			);
+		}
+
+		if (!providerCreator) {
+			return;
+		}
+
+		try {
+			this.retrieveDynamicProviders(resourceId, providerFactory, providerCreator);
+		} catch (error) {
+			logException(error as Error, {
+				location: 'editor-synced-block-provider/syncBlockProviderFactoryManager',
+			});
+			this.deps.getFireAnalyticsEvent()?.(
+				fetchErrorPayload(
+					(error as Error).message,
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+					buildFetchErrorAttribution((error as Error).message),
+				),
+			);
+		}
+	}
+
+	public getSSRProviders(resourceId: ResourceId): {
+		media: MediaProvider;
+	} | null {
+		const dataProvider = this.deps.getDataProvider();
+		if (!dataProvider) {
+			return null;
+		}
+
+		const { providerCreator } = dataProvider.getSyncedBlockRendererProviderOptions();
+
+		if (!providerCreator?.createSSRMediaProvider) {
+			return null;
+		}
+
+		const parsedResourceId = parseResourceId(resourceId);
+		if (!parsedResourceId) {
+			return null;
+		}
+
+		let { contentId, product: contentProduct } = parsedResourceId;
+		const syncBlock = this.deps.getFromCache(resourceId);
+		let contentAri = syncBlock?.data?.sourceAri || '';
+		if (syncBlock?.data?.sourceAri && syncBlock.data.product) {
+			const parentInfo = dataProvider.retrieveSyncBlockParentInfo(
+				syncBlock.data.sourceAri,
+				syncBlock.data.product,
+			);
+			if (parentInfo) {
+				contentId = parentInfo.contentId;
+				contentProduct = parentInfo.contentProduct;
+				contentAri = parentInfo.contentAri;
+			}
+		}
+
+		try {
+			const mediaProvider = providerCreator.createSSRMediaProvider({
+				contentAri,
+				contentId,
+				contentProduct,
+			});
+
+			if (mediaProvider) {
+				return { media: mediaProvider };
+			}
+		} catch (error) {
+			logException(error as Error, {
+				location: 'editor-synced-block-provider/syncBlockProviderFactoryManager',
+			});
+		}
+
+		return null;
+	}
+
+	public deleteFactory(resourceId: ResourceId): void {
+		this.providerFactories.delete(resourceId);
+	}
+
+	public destroy(): void {
+		this.providerFactories.forEach((pf) => pf.destroy());
+		this.providerFactories.clear();
+	}
+
+	private retrieveDynamicProviders(
+		resourceId: ResourceId,
+		providerFactory: ProviderFactory,
+		providerCreator: SyncBlockRendererProviderCreator,
+	) {
+		const dataProvider = this.deps.getDataProvider();
+		if (!dataProvider) {
+			throw new Error('Data provider not set');
+		}
+
+		const hasMediaProvider = providerFactory.hasProvider('mediaProvider');
+		const hasEmojiProvider = providerFactory.hasProvider('emojiProvider');
+		const hasCardProvider = providerFactory.hasProvider('cardProvider');
+
+		if (hasMediaProvider && hasEmojiProvider && hasCardProvider) {
+			return;
+		}
+
+		const syncBlock = this.deps.getFromCache(resourceId);
+		if (!syncBlock?.data) {
+			return;
+		}
+
+		if (!syncBlock.data.sourceAri || !syncBlock.data.product) {
+			this.deps.getFireAnalyticsEvent()?.(
+				fetchErrorPayload(
+					'Sync block source ari or product not found',
+					resourceId,
+					// Prefer cached product when available; fall back to parsing resourceId.
+					syncBlock.data.product ?? getSourceProductFromResourceIdSafe(resourceId),
+					buildFetchErrorAttribution('Sync block source ari or product not found'),
+				),
+			);
+			return;
+		}
+
+		const parentInfo = dataProvider.retrieveSyncBlockParentInfo(
+			syncBlock.data.sourceAri,
+			syncBlock.data.product,
+		);
+
+		if (!parentInfo) {
+			throw new Error('Unable to retrieve sync block parent info');
+		}
+
+		const { contentAri, contentId, contentProduct } = parentInfo;
+
+		if (!hasMediaProvider && providerCreator.createMediaProvider && contentId && contentProduct) {
+			const mediaProvider = providerCreator.createMediaProvider({
+				contentAri,
+				contentProduct,
+				contentId,
+			});
+			if (mediaProvider) {
+				providerFactory.setProvider('mediaProvider', mediaProvider);
+			}
+		}
+
+		if (!hasEmojiProvider && providerCreator.createEmojiProvider && contentId && contentProduct) {
+			const emojiProvider = providerCreator.createEmojiProvider({
+				contentAri,
+				contentProduct,
+				contentId,
+			});
+			if (emojiProvider) {
+				providerFactory.setProvider('emojiProvider', emojiProvider);
+			}
+		}
+
+		if (!hasCardProvider && providerCreator.createSmartLinkProvider) {
+			const smartLinkProvider = providerCreator.createSmartLinkProvider();
+			if (smartLinkProvider) {
+				providerFactory.setProvider('cardProvider', smartLinkProvider);
+			}
+		}
+	}
+}

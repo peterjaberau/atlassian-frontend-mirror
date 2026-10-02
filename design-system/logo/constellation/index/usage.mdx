@@ -4,10 +4,22 @@ order: 2
 
 import SectionMessage from '@atlaskit/section-message';
 import Link from '@atlaskit/link';
+import { Stack, Text } from '@atlaskit/primitives';
 
 <SectionMessage appearance="information">
-	To use these logos outside of Atlassian apps, you can{' '}
-	<Link href="/resources/logo-library">download the logos</Link> here.
+	<Stack space="space.100">
+		<Text>
+			To use these logos outside of Atlassian apps, you can{' '}
+			<Link href="/resources/logo-library">download the logos</Link> here.
+		</Text>
+		<Text>
+			Logos used to represent third-party integrations are available in{' '}
+			<Link href="https://atlaskit.stg.atlassian.com/packages/design-system-experimentation/logo-third-party">
+				Atlaskit staging (Atlassians only)
+			</Link>
+			.
+		</Text>
+	</Stack>
 </SectionMessage>
 
 ## Usage
@@ -19,7 +31,7 @@ It's important to be mindful of the context of logos and their usage.
 Inside Atlassian apps, our logos work best on surface tokens such as `color.surface` or bold
 backgrounds such as `color.background.brand.bold`.
 
-![logo color](images/logo-color.png)
+![logo color](./images/logo-color.png)
 
 ### Types
 
@@ -29,14 +41,14 @@ There are two types of app logos – the lockup and logomark.
 
 Lockups include both the logomark and app name. These are used in signup and login.
 
-![logomarks](images/logo-lockup.png)
+![logomarks](./images/logo-lockup.png)
 
 #### Logomark
 
 Logomark doesn’t include the app name. Only use logomarks on their own when the context is very
 clear and where possible pair with descriptive text.
 
-![logomarks](images/logo-logomark.png)
+![logomarks](./images/logo-logomark.png)
 
 ## Accessibility
 

@@ -4,26 +4,33 @@
  */
 
 import { cssMap, jsx } from '@atlaskit/css';
-import { type HeadingItemProps, HeadingItem as MenuHeadingItem } from '@atlaskit/menu';
+import MenuHeadingItem from '@atlaskit/menu/heading-item';
+import type { HeadingItemProps as MenuHeadingItemProps } from '@atlaskit/menu/types';
 import { token } from '@atlaskit/tokens';
 
-import { useShouldNestedElementRender } from '../NestableNavigationContent/context';
-
-export type { HeadingItemProps } from '@atlaskit/menu';
+import { useShouldNestedElementRender } from '../NestableNavigationContent/use-should-nested-element-render';
 
 const styles = cssMap({
 	headingItem: {
-		paddingInline: token('space.100', '8px'),
+		paddingInline: token('space.100'),
 	},
 });
+
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
+export interface HeadingItemProps extends MenuHeadingItemProps {}
 
 /**
  * __Heading item__
  *
  * Available for advanced use cases, for most situations providing a `title` to `section` should be enough.
  *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const HeadingItem: (props: HeadingItemProps) => JSX.Element | null = (props: HeadingItemProps) => {
+export const HeadingItem: (props: HeadingItemProps) => JSX.Element | null = (
+	props: HeadingItemProps,
+) => {
 	const { shouldRender } = useShouldNestedElementRender();
 	if (!shouldRender) {
 		return null;
@@ -45,5 +52,3 @@ const HeadingItem: (props: HeadingItemProps) => JSX.Element | null = (props: Hea
 		/>
 	);
 };
-
-export default HeadingItem;

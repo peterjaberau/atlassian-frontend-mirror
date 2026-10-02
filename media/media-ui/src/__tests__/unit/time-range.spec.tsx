@@ -1,10 +1,10 @@
 import React from 'react';
-import { TimeRange, TimeRangeBase, type TimeRangeProps } from '../../customMediaPlayer/timeRange';
-import { CurrentTimeTooltip } from '../../customMediaPlayer/styled-compiled';
-import { mountWithIntlContext } from '../../test-helpers/mountWithIntlContext';
-import type { IntlShape } from 'react-intl-next';
+
 import { fireEvent, screen, waitFor, act } from '@testing-library/react';
-import { renderWithIntl } from '../../test-helpers';
+import type { IntlShape } from 'react-intl';
+
+import { TimeRange, TimeRangeBase, type TimeRangeProps } from '../../customMediaPlayer/timeRange';
+import { renderWithIntl } from '../../test-helpers/renderWithIntl';
 
 let mockedWidth = 100;
 Element.prototype.getBoundingClientRect = jest.fn(() => {
@@ -14,29 +14,6 @@ Element.prototype.getBoundingClientRect = jest.fn(() => {
 });
 
 describe('<TimeRange />', () => {
-	const setup = (props?: Partial<TimeRangeProps>) => {
-		const onChange = jest.fn();
-		const onChanged = jest.fn();
-		const component = mountWithIntlContext(
-			<TimeRange
-				currentTime={10}
-				duration={20}
-				bufferedTime={5}
-				onChange={onChange}
-				onChanged={onChanged}
-				disableThumbTooltip={false}
-				isAlwaysActive={false}
-				{...props}
-			/>,
-		);
-
-		return {
-			component,
-			onChange,
-			onChanged,
-		};
-	};
-
 	const setupRTL = (props?: Partial<TimeRangeProps>) => {
 		const onChange = jest.fn();
 		const onChanged = jest.fn();
@@ -122,10 +99,10 @@ describe('<TimeRange />', () => {
 	});
 
 	it('should not display tooltip on top of thumb when flag disableThumbTooltip is set', () => {
-		const { component } = setup({
+		const { container } = setupRTL({
 			disableThumbTooltip: true,
 		});
 
-		expect(component.find(CurrentTimeTooltip)).toHaveLength(0);
+		expect(container.querySelector('.current-time-tooltip')).toBeNull();
 	});
 });

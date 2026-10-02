@@ -1,3 +1,6 @@
+import React, { PureComponent } from 'react';
+import type { ChangeEvent } from 'react';
+
 /**
  *
  *
@@ -7,14 +10,16 @@
  *
  */
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
 import { initialize } from '@atlaskit/editor-test-helpers/ajv';
-import React, { PureComponent } from 'react';
-import type { ChangeEvent } from 'react';
+import CardClient from '@atlaskit/link-provider/client';
+import {
+	SmartCardProvider,
+	SmartCardProvider as SmartCardContextProvider,
+} from '@atlaskit/link-provider/smart-card-provider';
+import { token } from '@atlaskit/tokens';
+import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
 
 import Renderer from '../src/ui/Renderer';
-
-import { token } from '@atlaskit/tokens';
 
 export interface State {
 	err?: Error;
@@ -43,7 +48,41 @@ const providerFactory = ProviderFactory.create({
 	emojiProvider: getEmojiResource(),
 });
 
+const cardClient = new CardClient('stg');
+
 const ajv = initialize();
+
+interface RenderErrorBoundaryState {
+	error?: Error;
+}
+
+/**
+ * Keeps an unexpected render-time throw from a single node (for example a smart link
+ * failing to find its context) from blanking the whole playground. Without this the user
+ * loses the textarea along with their document and has to reload the page.
+ */
+// Ignored via go/ees005
+// eslint-disable-next-line @repo/internal/react/no-class-components
+class RenderErrorBoundary extends React.Component<
+	{ children: React.ReactNode },
+	RenderErrorBoundaryState
+> {
+	state: RenderErrorBoundaryState = {};
+
+	static getDerivedStateFromError(error: Error): RenderErrorBoundaryState {
+		return { error };
+	}
+
+	render(): React.ReactNode {
+		const { error } = this.state;
+
+		if (error) {
+			return <span>Something went wrong while rendering this document: {error.message}</span>;
+		}
+
+		return this.props.children;
+	}
+}
 
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
@@ -82,7 +121,13 @@ export default class Example extends PureComponent<{}, State> {
 			return <span dangerouslySetInnerHTML={{ __html: textMessage }} />;
 		}
 
-		return <Renderer document={json} dataProviders={providerFactory} />;
+		return (
+			<SmartCardProvider client={cardClient}>
+				<SmartCardContextProvider client={cardClient}>
+					<Renderer document={json} dataProviders={providerFactory} />
+				</SmartCardContextProvider>
+			</SmartCardProvider>
+		);
 	}
 
 	componentDidMount(): void {
@@ -116,33 +161,32 @@ export default class Example extends PureComponent<{}, State> {
 					style={{
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						boxSizing: 'border-box',
-						border: `${token('border.width')} solid ${token('color.border', 'lightgray')}`,
+						border: `${token('border.width')} solid ${token('color.border')}`,
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						fontFamily: 'monospace',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						fontSize: 16,
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						padding: token('space.150', '12px'),
+						padding: token('space.150'),
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						width: '100%',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						height: 320,
 					}}
-					// eslint-disable-next-line react/no-string-refs  -- Ignored via go/ED-25883
-					ref="input"
 					onChange={this.onChange}
 					value={this.state.value}
 				/>
 				<div
 					style={{
-						margin: `${token('space.100', '8px')} 0`,
+						margin: `${token('space.100')} 0`,
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						maxHeight: '300px',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						overflow: 'auto',
 					}}
 				>
-					{renderedContent}
+					{/* Keyed on the document so editing the textarea clears a previously caught error. */}
+					<RenderErrorBoundary key={this.state.value}>{renderedContent}</RenderErrorBoundary>
 				</div>
 			</div>
 		);

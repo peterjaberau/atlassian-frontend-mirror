@@ -5,107 +5,77 @@
 import React, { type ReactNode, useCallback } from 'react';
 
 import { jsx } from '@compiled/react';
-import { bind } from 'bind-event-listener';
 
 import { cssMap } from '@atlaskit/css';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Anchor } from '@atlaskit/primitives';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Anchor } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import type { SkipLinkData } from '../../context/skip-links/types';
+import { focusElement } from './focus-element';
 
 const styles = cssMap({
 	skipLinkListItem: {
 		marginBlockStart: token('space.0'),
 	},
+	skipLinkListItemNew: {
+		paddingBlock: token('space.100'),
+	},
 });
 
-/**
- * Used for moving focus to the corresponding slot or custom target after clicking on a skip link.
- */
-function focusElement(element: HTMLElement) {
-	/**
-	 * Elements without an explicit `tabindex` attribute are not guaranteed to be focusable:
-	 * https://html.spec.whatwg.org/multipage/interaction.html#attr-tabindex
-	 *
-	 * Our slots are not interactive, so this is required.
-	 *
-	 * In the future we may want to check if there is an existing `tabindex` attribute,
-	 * as custom skip linked elements might already have one.
-	 */
-	element.setAttribute('tabindex', '-1');
-
-	/**
-	 * Cleanup the `tabindex` attribute we set when the slot or custom target loses focus.
-	 *
-	 * This is preferable to always having `tabindex="-1"` because always applying the tab index can:
-	 *
-	 * - mess with click events
-	 * - potentially cause a focus ring to be always visible
-	 */
-	bind(element, {
-		type: 'blur',
-		listener() {
-			element.removeAttribute('tabindex');
-		},
-		options: {
-			// Using a one-time listener so it cleans itself up
-			once: true,
-		},
-	});
-
-	/**
-	 * Move focus to the slot or custom target.
-	 *
-	 * Calling `.focus()` will also scroll the element into view:
-	 * https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus
-	 */
-	element.focus({
-		// Forces the focus ring to appear after moving focus to the slot
-		// https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus#focusvisible
-		// @ts-expect-error - new and not in types yet
-		focusVisible: true,
-	});
-}
+type SkipLinkProps = {
+	id: string;
+	children: ReactNode;
+	onBeforeNavigate?: SkipLinkData['onBeforeNavigate'];
+	navigate?: SkipLinkData['navigate'];
+};
 
 /**
  * A link that moves current tab position to a different element
  *
  * This component is rendered internally and is not exported publicly.
  */
-export const SkipLink: ({ id, children, onBeforeNavigate, }: {
-    id: string;
-    children: ReactNode;
-    onBeforeNavigate?: SkipLinkData["onBeforeNavigate"];
-}) => JSX.Element = ({
+export const SkipLink = ({
 	id,
 	children,
 	onBeforeNavigate,
-}: {
-	id: string;
-	children: ReactNode;
-	onBeforeNavigate?: SkipLinkData['onBeforeNavigate'];
-}) => {
+	navigate,
+}: SkipLinkProps): JSX.Element => {
 	const href = `#${id}`;
 
-	const onClick = useCallback(
+	const handleClick = useCallback(
 		(event: React.MouseEvent<HTMLAnchorElement>) => {
 			event.preventDefault();
 
-			// Intentionally not using `document.querySelector` because many valid IDs are not valid selectors.
-			const target = document.getElementById(id);
-			if (!target) {
-				return;
+			if (navigate && fg('platform_dst_nav4_skip_link_a11y_1')) {
+				/**
+				 * The consumer takes over the navigation effect (e.g. expanding the
+				 * side nav and focusing the first nav item). The universal pre/post
+				 * work below (e.g. `window.scrollTo`) still runs around it.
+				 */
+				navigate();
+			} else {
+				// Intentionally not using `document.querySelector` because many valid IDs are not valid selectors.
+				const target = document.getElementById(id);
+				if (!target) {
+					return;
+				}
+
+				/**
+				 * Legacy `onBeforeNavigate` hook. Intentionally NOT called when
+				 * `platform_dst_nav4_skip_link_a11y_1` is enabled — under the gate the
+				 * gate-on path delegates state mutation + focus management to `navigate`,
+				 * and `SkipLinksPopup` injects its popup-close behavior into the
+				 * `navigate` wrapper instead of relying on this hook.
+				 *
+				 * This callback can be removed entirely on gate cleanup.
+				 */
+				if (!fg('platform_dst_nav4_skip_link_a11y_1')) {
+					onBeforeNavigate?.();
+				}
+
+				focusElement(target);
 			}
-
-			/**
-			 * Internal slots can attach an `onBeforeNavigate` callback.
-			 *
-			 * Side nav uses this to ensure it is expanded.
-			 */
-			onBeforeNavigate?.();
-
-			focusElement(target);
 
 			/**
 			 * We should look into removing this, or only calling it in specific cases.
@@ -121,11 +91,16 @@ export const SkipLink: ({ id, children, onBeforeNavigate, }: {
 			 */
 			window.scrollTo(0, 0);
 		},
-		[id, onBeforeNavigate],
+		[id, onBeforeNavigate, navigate],
 	);
 
 	return (
-		<li css={styles.skipLinkListItem}>
+		<li
+			css={[
+				styles.skipLinkListItem,
+				fg('platform_dst_nav4_skip_link_a11y_1') && styles.skipLinkListItemNew,
+			]}
+		>
 			<Anchor
 				/**
 				 * It looks like Safari handles link clicks during `pointerdown` unless it has an explicit `tabIndex={0}` :/
@@ -135,7 +110,7 @@ export const SkipLink: ({ id, children, onBeforeNavigate, }: {
 				 */
 				tabIndex={0}
 				href={href}
-				onClick={onClick}
+				onClick={handleClick}
 			>
 				{children}
 			</Anchor>

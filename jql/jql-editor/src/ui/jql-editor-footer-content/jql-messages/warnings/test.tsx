@@ -1,15 +1,15 @@
 import React, { type ReactNode } from 'react';
 
 import { render } from '@testing-library/react';
-import { type IntlShape } from 'react-intl-next';
+import { type IntlShape } from 'react-intl';
 import { DiProvider, injectable } from 'react-magnetic-di';
 
 import { mockIntl } from '../../../../../mocks';
 import { useExternalMessages, useHydratedDeprecations, useIntl } from '../../../../state';
 import { type ExternalMessagesNormalized } from '../../../../state/types';
 import { type HydratedDeprecatedField } from '../../../jql-editor/types';
-
-import { useFormattedWarningMessage, WarningMessages } from './index';
+import { useFormattedWarningMessage } from './useFormattedWarningMessage';
+import { WarningMessages } from './WarningMessages';
 
 const useFormattedWarningMessageMock = jest.fn<ReactNode, []>(() => null);
 
@@ -116,7 +116,7 @@ describe('useFormattedWarningMessage', () => {
 		const { container, queryByText } = renderConsumer();
 		expect(queryByText('oh no')).not.toBeInTheDocument();
 		expect(container).toHaveTextContent(
-			`Epic Link will soon be replaced with Parent. Update to Parent to prepare for these changes.`,
+			/Epic Link will soon be replaced with Parent. Update to Parent.*to prepare for these changes./,
 		);
 	});
 
@@ -147,7 +147,7 @@ describe('useFormattedWarningMessage', () => {
 		useExternalMessagesMock.mockReturnValue([normalizedExternalMessages, {}]);
 		const { container } = renderConsumer();
 		expect(container).toHaveTextContent(
-			`Epic Link will soon be replaced with Parent. Update to Parent to prepare for these changes.oh no`,
+			/Epic Link will soon be replaced with Parent. Update to Parent.*to prepare for these changes.oh no/,
 		);
 	});
 

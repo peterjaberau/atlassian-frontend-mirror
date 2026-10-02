@@ -1,6 +1,4 @@
-import clamp from 'lodash/clamp';
-
-import type { Node, ResolvedPos, Fragment } from '@atlaskit/editor-prosemirror/model';
+import type { Node, Fragment, Mark } from '@atlaskit/editor-prosemirror/model';
 import type {
 	EditorState,
 	ReadonlyTransaction,
@@ -9,49 +7,9 @@ import type {
 } from '@atlaskit/editor-prosemirror/state';
 import { ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
 
-import { isEmptyParagraph } from './editor-core-utils';
-
+import { getStepRange } from './getStepRange';
+import { hasDocAsParent } from './hasDocAsParent';
 type ChangedFn = (node: Node, pos: number, parent: Node | null, index: number) => boolean | void;
-
-export const getStepRange = (
-	transaction: Transaction | ReadonlyTransaction,
-): { from: number; to: number } | null => {
-	let from = -1;
-	let to = -1;
-
-	transaction.mapping.maps.forEach((stepMap, index) => {
-		stepMap.forEach((oldStart, oldEnd) => {
-			const newStart = transaction.mapping.slice(index).map(oldStart, -1);
-			const newEnd = transaction.mapping.slice(index).map(oldEnd);
-
-			const docSize = transaction.doc.content.size;
-			from = clamp(newStart < from || from === -1 ? newStart : from, 0, docSize);
-			to = clamp(newEnd > to || to === -1 ? newEnd : to, 0, docSize);
-		});
-	});
-
-	if (from !== -1) {
-		return { from, to };
-	}
-
-	return null;
-};
-
-// Checks to see if the parent node is the document, ie not contained within another entity
-export function hasDocAsParent($anchor: ResolvedPos): boolean {
-	return $anchor.depth === 1;
-}
-
-/**
- * Checks if a node looks like an empty document
- */
-export function isEmptyDocument(node: Node): boolean {
-	const nodeChild = node.content.firstChild;
-	if (node.childCount !== 1 || !nodeChild) {
-		return false;
-	}
-	return isEmptyParagraph(nodeChild);
-}
 
 export function bracketTyped(state: EditorState): boolean {
 	const { selection } = state;
@@ -74,6 +32,7 @@ export function bracketTyped(state: EditorState): boolean {
 	return false;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function nodesBetweenChanged(
 	tr: Transaction | ReadonlyTransaction,
 	f: ChangedFn,
@@ -86,40 +45,6 @@ export function nodesBetweenChanged(
 
 	tr.doc.nodesBetween(stepRange.from, stepRange.to, f, startPos);
 }
-
-/**
- * Returns false if node contains only empty inline nodes and hardBreaks.
- */
-export function hasVisibleContent(node: Node): boolean {
-	const isInlineNodeHasVisibleContent = (inlineNode: Node) => {
-		return inlineNode.isText
-			? !!inlineNode.textContent.trim()
-			: inlineNode.type.name !== 'hardBreak';
-	};
-
-	if (node.isInline) {
-		return isInlineNodeHasVisibleContent(node);
-	} else if (node.isBlock && (node.isLeaf || node.isAtom)) {
-		return true;
-	} else if (!node.childCount) {
-		return false;
-	}
-
-	for (let index = 0; index < node.childCount; index++) {
-		const child = node.child(index);
-		const invisibleNodeTypes = ['paragraph', 'text', 'hardBreak'];
-
-		if (!invisibleNodeTypes.includes(child.type.name) || hasVisibleContent(child)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-export const isSelectionEndOfParagraph = (state: EditorState): boolean =>
-	state.selection.$to.parent.type === state.schema.nodes.paragraph &&
-	state.selection.$to.pos === state.doc.resolve(state.selection.$to.pos).end();
 
 function getChangedNodesIn({
 	tr,
@@ -145,6 +70,7 @@ function getChangedNodesIn({
 	return nodes;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function getChangedNodes(
 	tr: ReadonlyTransaction | Transaction,
 ): { node: Node; pos: number }[] {
@@ -163,6 +89,7 @@ type __ReplaceStep = ReplaceStep & {
 // When document first load in Confluence, initially it is an empty document
 // and Collab service triggers a transaction to replace the empty document with the real document that should be rendered.
 // isReplaceDocumentOperation is checking if the transaction is the one that replace the empty document with the real document
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const isReplaceDocOperation = (
 	transactions: readonly Transaction[],
 	oldState: EditorState,
@@ -191,6 +118,25 @@ export const isReplaceDocOperation = (
 	});
 };
 
+function marksEqualInOrder(m1: readonly Mark[], m2: readonly Mark[]): boolean {
+	if (m1.length !== m2.length) return false;
+	return m1.every((m, i) => m.eq(m2[i]));
+}
+
+function marksEqualIgnoringOrder(m1: readonly Mark[], m2: readonly Mark[]): boolean {
+	if (m1.length !== m2.length) {
+		return false;
+	}
+	const m2Used = new Set<number>();
+	for (const mark1 of m1) {
+		const idx = m2.findIndex((mark2, i) => !m2Used.has(i) && mark1.eq(mark2));
+		if (idx === -1) {
+			return false;
+		}
+		m2Used.add(idx);
+	}
+	return true;
+}
 /**
  * Compares two ProseMirror documents for equality, ignoring attributes
  * which don't affect the document structure.
@@ -200,39 +146,56 @@ export const isReplaceDocOperation = (
  * @param doc1 PMNode
  * @param doc2 PMNode
  * @param attributesToIgnore Specific array of attribute keys to ignore - defaults to ignoring all
+ * @param opts.ignoreMarkOrder If mark order should be ignored to still be equal (e.g. reversed annotation marks). Defaults to true.
  * @returns boolean
  */
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function areNodesEqualIgnoreAttrs(
 	node1: Node,
 	node2: Node,
 	attributesToIgnore?: string[],
+	opts?: {
+		ignoreMarkOrder?: boolean;
+	},
 ): boolean {
+	const ignoreMarkOrder = opts?.ignoreMarkOrder ?? true;
+
 	if (node1.isText) {
+		if (ignoreMarkOrder) {
+			return node1.text === node2.text && marksEqualIgnoringOrder(node1.marks, node2.marks);
+		}
 		return node1.eq(node2);
 	}
+
+	const marksEqual = ignoreMarkOrder
+		? marksEqualIgnoringOrder(node1.marks, node2.marks)
+		: marksEqualInOrder(node1.marks, node2.marks);
 
 	// If no attributes to ignore, compare all attributes
 	if (!attributesToIgnore || attributesToIgnore.length === 0) {
 		return (
 			node1 === node2 ||
-			(node1.hasMarkup(node2.type, node1.attrs, node2.marks) &&
-				areFragmentsEqual(node1.content, node2.content))
+			(node1.hasMarkup(node2.type, node1.attrs, node1.marks) &&
+				marksEqual &&
+				areFragmentsEqual(node1.content, node2.content, undefined, opts))
 		);
 	}
 
 	// Build attrs to compare by excluding ignored attributes
-	const attrsToCompare: Record<string, unknown> = node2.attrs;
+	const attrsToCompare: Record<string, unknown> = { ...node2.attrs };
 	const ignoreSet = new Set(attributesToIgnore);
 	for (const key in node2.attrs) {
 		if (ignoreSet.has(key)) {
 			attrsToCompare[key] = node1.attrs[key];
 		}
 	}
-
 	return (
 		node1 === node2 ||
-		(node1.hasMarkup(node2.type, attrsToCompare, node2.marks) &&
-			areFragmentsEqual(node1.content, node2.content, attributesToIgnore))
+		(node1.type === node2.type &&
+			node1.hasMarkup(node2.type, attrsToCompare, node1.marks) &&
+			marksEqual &&
+			areFragmentsEqual(node1.content, node2.content, attributesToIgnore, opts))
 	);
 }
 
@@ -240,6 +203,7 @@ function areFragmentsEqual(
 	frag1: Fragment,
 	frag2: Fragment,
 	attributesToIgnore?: string[],
+	opts?: { ignoreMarkOrder?: boolean },
 ): boolean {
 	if (frag1.content.length !== frag2.content.length) {
 		return false;
@@ -249,7 +213,7 @@ function areFragmentsEqual(
 		const otherChild = frag2.child(i);
 		if (
 			child === otherChild ||
-			(otherChild && areNodesEqualIgnoreAttrs(child, otherChild, attributesToIgnore))
+			(otherChild && areNodesEqualIgnoreAttrs(child, otherChild, attributesToIgnore, opts))
 		) {
 			return;
 		}
@@ -257,3 +221,14 @@ function areFragmentsEqual(
 	});
 	return childrenEqual;
 }
+
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { getStepRange } from './getStepRange';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { hasDocAsParent } from './hasDocAsParent';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isEmptyDocument } from './isEmptyDocument';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { hasVisibleContent } from './hasVisibleContent';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isSelectionEndOfParagraph } from './isSelectionEndOfParagraph';

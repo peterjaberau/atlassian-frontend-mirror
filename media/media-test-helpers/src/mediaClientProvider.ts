@@ -1,13 +1,18 @@
 import { MediaClient } from '@atlaskit/media-client';
-import { type MediaClientConfig } from '@atlaskit/media-core';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
+
 import { StoryBookAuthProvider } from './authProvider';
 import { collectionNames } from './collectionNames';
-import { type MediaEnv, mediaPickerAuthProvider } from './mediaPickerAuthProvider';
 import { MEDIA_BASE_URL } from './mediaBaseURLS';
+import { type MediaEnv, mediaPickerAuthProvider } from './mediaPickerAuthProvider';
 
-export const defaultBaseUrl = MEDIA_BASE_URL;
+export const defaultBaseUrl: 'https://media.staging.atl-paas.net' = MEDIA_BASE_URL;
 
-export const defaultParams = {
+export const defaultParams: {
+	clientId: string;
+	asapIssuer: string;
+	baseUrl: string;
+} = {
 	clientId: '5a9812fc-d029-4a39-8a46-d3cc36eed7ab',
 	asapIssuer: 'micros/media-playground',
 	baseUrl: defaultBaseUrl,
@@ -49,7 +54,8 @@ export const createStorybookMediaClientConfig = (
 	return { authProvider };
 };
 
-export const createUploadMediaClient = () => new MediaClient(createUploadMediaClientConfig());
+export const createUploadMediaClient = (): MediaClient =>
+	new MediaClient(createUploadMediaClientConfig());
 
 export const createUploadMediaClientConfig = (
 	stargateBaseUrl?: string,

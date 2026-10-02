@@ -15,6 +15,7 @@ const EmojiPicker = (props: AkEmojiPickerProps) => {
 	const setOutsideClickTargetRef = React.useContext(OutsideClickTargetRefContext);
 	return (
 		<AkEmojiPicker
+			contentId={props.contentId}
 			onPickerRef={setOutsideClickTargetRef}
 			emojiProvider={props.emojiProvider}
 			onSelection={props.onSelection}
@@ -25,6 +26,7 @@ const EmojiPicker = (props: AkEmojiPickerProps) => {
 const EmojiPickerWithListeners = withOuterListeners(EmojiPicker);
 
 interface EmojiPickerPopupProps {
+	contentId?: string;
 	emojiProvider?: Promise<EmojiProvider>;
 	isOpen: boolean;
 	onClickOutside: (e: MouseEvent) => void;
@@ -38,6 +40,7 @@ interface EmojiPickerPopupProps {
 }
 
 export const EmojiPickerPopup = ({
+	contentId,
 	isOpen,
 	targetRef,
 	emojiProvider,
@@ -58,6 +61,7 @@ export const EmojiPickerPopup = ({
 			target={targetRef.current}
 			fitHeight={350}
 			fitWidth={350}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			offset={[0, 3]}
 			mountTo={popupsMountPoint}
 			boundariesElement={popupsBoundariesElement}
@@ -67,6 +71,7 @@ export const EmojiPickerPopup = ({
 			zIndex={akEditorMenuZIndex}
 		>
 			<EmojiPickerWithListeners
+				contentId={contentId}
 				emojiProvider={emojiProvider}
 				onSelection={onSelection}
 				handleClickOutside={onClickOutside}

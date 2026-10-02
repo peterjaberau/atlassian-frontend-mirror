@@ -16,6 +16,7 @@ import {
 	heading,
 	indentation,
 } from '../../../builders';
+import expectedAdfs from './__fixtures__/expected-adf.json';
 
 describe('Builders', () => {
 	const nodes = [
@@ -119,7 +120,7 @@ describe('Builders', () => {
 
 	nodes.forEach((node, idx) => {
 		it(`should be able to generate correct ADF for example #${idx}`, () => {
-			expect(node()).toMatchSnapshot();
+			expect(node()).toEqual(expectedAdfs[idx]);
 		});
 	});
 });

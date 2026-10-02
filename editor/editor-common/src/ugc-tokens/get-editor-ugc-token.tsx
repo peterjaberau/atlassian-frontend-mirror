@@ -1,19 +1,8 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { editorUGCTokensRefreshed } from './editor-ugc-token-names';
+import type { EditorUGCTokens } from './editor-ugc-token-names';
 
-import {
-	type EditorUGCTokens,
-	editorUGCTokens,
-	editorUGCTokensRefreshed,
-} from './editor-ugc-token-names';
-
-function editorUGCToken<T extends keyof EditorUGCTokens>(path: T) {
-	let tokens;
-	if (fg('platform_editor_typography_ugc')) {
-		tokens = editorUGCTokensRefreshed;
-	} else {
-		tokens = editorUGCTokens;
-	}
-	return tokens[path];
+function editorUGCToken<T extends keyof EditorUGCTokens>(path: T): EditorUGCTokens[T] {
+	return editorUGCTokensRefreshed[path];
 }
 
 export default editorUGCToken;

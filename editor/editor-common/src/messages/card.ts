@@ -1,6 +1,192 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	url: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	block: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inline: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	embed: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	link: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	card: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	blockCardUnavailable: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	displayOptionUnavailableInParentNode: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	urlTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	blockTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inlineTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	openButtonTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	panelButtonTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	previewButtonTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	embedTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	urlDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	blockDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inlineDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	embedDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	embedToBlockCardWarning: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	editDropdownExpandIconLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	editDropdownTriggerTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	editDropdownEditLinkTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	editDropdownEditDatasourceTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceAppearanceTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceJiraIssue: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceJiraIssueDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceAssetsObjectsGeneralAvailability: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceAssetsObjectsDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inlineOverlay: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inlineConfigureLink: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inlineGoToLink: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceConfluenceSearch: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceConfluenceSearchDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceJiraIssueIssueTermRefresh: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	datasourceJiraIssueDescriptionIssueTermRefresh: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	url: {
 		id: 'fabric.editor.url',
 		defaultMessage: 'Display URL',
@@ -15,12 +201,14 @@ export const messages = defineMessages({
 	inline: {
 		id: 'fabric.editor.displayInline',
 		defaultMessage: 'Display inline',
-		description: 'Display link with the title only.',
+		description:
+			'Label for a toolbar option that changes a smart link to display inline, showing only the link title as a compact inline element within the text.',
 	},
 	embed: {
 		id: 'fabric.editor.displayEmbed',
 		defaultMessage: 'Display embed',
-		description: 'Display link as an embedded object',
+		description:
+			'Label for a toolbar option that changes a smart link to display as an embedded object, showing a rich preview of the linked content.',
 	},
 	link: {
 		id: 'fabric.editor.displayLink',
@@ -30,7 +218,8 @@ export const messages = defineMessages({
 	card: {
 		id: 'fabric.editor.cardFloatingControls',
 		defaultMessage: 'Card options',
-		description: 'Options to change card type',
+		description:
+			'The text is shown as a title for the floating toolbar when a user selects an inline card or smart link in the editor, providing options to change the card display type.',
 	},
 	blockCardUnavailable: {
 		id: 'fabric.editor.blockCardUnavailable',
@@ -108,7 +297,8 @@ export const messages = defineMessages({
 	editDropdownExpandIconLabel: {
 		id: 'fabric.editor.editDropdownExpandIconLabel',
 		defaultMessage: 'Expand dropdown menu',
-		description: 'Text of an icon to expand the dropdown',
+		description:
+			'Accessible label for an icon button in the smart link toolbar that expands a dropdown menu containing additional editing options for the link.',
 	},
 	editDropdownTriggerTitle: {
 		id: 'fabric.editor.editDropdownTriggerTitle',
@@ -118,7 +308,8 @@ export const messages = defineMessages({
 	editDropdownEditLinkTitle: {
 		id: 'fabric.editor.editDropdownEditLinkTitle',
 		defaultMessage: 'Edit link',
-		description: 'Edit dropdown edit link button text',
+		description:
+			'Label for a button inside the smart link edit dropdown menu that opens the link editing interface to modify the URL or display text.',
 	},
 	editDropdownEditDatasourceTitle: {
 		id: 'fabric.editor.editDropdownEditDatasourceTitle',
@@ -138,13 +329,15 @@ export const messages = defineMessages({
 	datasourceJiraIssue: {
 		id: 'fabric.editor.datasource.jiraIssue',
 		defaultMessage: 'Jira Issues',
-		description: 'Insert a jira datasource table',
+		description:
+			'Title shown as a quick insert option for adding a Jira Issues datasource table that displays live Jira issue data in the editor.',
 	},
 	datasourceJiraIssueDescription: {
 		id: 'fabric.editor.datasource.jiraIssue.description',
 		defaultMessage:
 			'Insert Jira issues from Jira Cloud with enhanced search, filtering, and configuration.',
-		description: 'Insert a jira datasource table',
+		description:
+			'Description text shown beneath the Jira Issues option in the quick insert menu, explaining what data the datasource will display when inserted.',
 	},
 	datasourceAssetsObjectsGeneralAvailability: {
 		id: 'fabric.editor.datasource.assetsObjectsGeneralAvailability',

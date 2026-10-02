@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import { useMediaClient } from '@atlaskit/media-client-react';
+import { type WithIntlProps, type WrappedComponentProps, injectIntl } from 'react-intl';
+
+import Button from '@atlaskit/button/default/button';
 import { type MediaClient, type FileIdentifier } from '@atlaskit/media-client';
-import { parseError } from './artifactUploader/captions/util';
-import ApiFeedback, { type NotificationTypes } from './apiFeedback';
-import { type WrappedComponentProps, injectIntl } from 'react-intl-next';
-import { messages } from '../../../messages';
+import { useMediaClient } from '@atlaskit/media-client-react/use-media-client';
 import { type MediaTraceContext, getRandomTelemetryId } from '@atlaskit/media-common';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+
+import { messages } from '../../../messages';
+import ApiFeedback, { type NotificationTypes } from './apiFeedback';
+import { parseError } from './artifactUploader/captions/util';
 
 export interface CaptionDeleteConfirmationModalProps {
 	identifier: FileIdentifier;
@@ -85,7 +86,14 @@ const CaptionDeleteConfirmationModal = ({
 	);
 };
 
-export default injectIntl(CaptionDeleteConfirmationModal);
+const _default_1: React.FC<
+	WithIntlProps<CaptionDeleteConfirmationModalProps & WrappedComponentProps>
+> & {
+	WrappedComponent: React.ComponentType<
+		CaptionDeleteConfirmationModalProps & WrappedComponentProps
+	>;
+} = injectIntl(CaptionDeleteConfirmationModal);
+export default _default_1;
 
 const deleteCaption = async (
 	mediaClient: MediaClient,

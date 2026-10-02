@@ -1,8 +1,9 @@
 import { snapshotInformational } from '@af/visual-regression';
+
 import {
 	PixelWidthGreaterThenDefault,
 	PixelWidthGreaterThenDefaultFullWidth,
-} from '../__helpers/rendererComponents';
+} from '../__helpers/rendererComponents.vr.ap';
 
 snapshotInformational.skip(PixelWidthGreaterThenDefault, {
 	prepare: async (page) => {

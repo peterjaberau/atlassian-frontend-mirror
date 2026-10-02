@@ -1,1 +1,1 @@
-export { LazyDragHandle } from '../../ui/menu-item/drag-handle/lazy-drag-handle';
+export { DragHandle } from '../../ui/menu-item/drag-handle/drag-handle';

@@ -5,6 +5,7 @@ import {
 	type EmojiUpload,
 	type OptionalEmojiDescriptionWithVariations,
 } from '@atlaskit/emoji/types';
+
 import { emojiFromUpload } from './emoji-from-upload';
 import { MockNonUploadingEmojiResource } from './mock-non-uploading-emoji-resource';
 import { type MockEmojiResourceConfig, type UploadDetail } from './types';
@@ -35,7 +36,7 @@ export class MockEmojiResource
 		return emoji;
 	}
 
-	getEmojiProvider() {
+	getEmojiProvider(): Promise<EmojiRepository> {
 		return Promise.resolve(this.emojiRepository);
 	}
 
@@ -58,7 +59,7 @@ export class MockEmojiResource
 		return this.promiseBuilder(this.uploadSupported, 'isUploadSupported');
 	}
 
-	uploadCustomEmoji(upload: EmojiUpload) {
+	uploadCustomEmoji(upload: EmojiUpload): Promise<any> {
 		if (this.uploadError) {
 			return Promise.reject(this.uploadError);
 		}
@@ -85,7 +86,7 @@ export class MockEmojiResource
 		super.notifyNotReady();
 	}
 
-	loadMediaEmoji(emoji: EmojiDescription) {
+	loadMediaEmoji(emoji: EmojiDescription): Promise<any> | EmojiDescription {
 		if (this.promiseBuilder) {
 			return this.promiseBuilder(emoji, 'loadMediaEmoji');
 		}

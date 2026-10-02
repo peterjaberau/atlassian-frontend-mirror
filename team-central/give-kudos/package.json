@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/give-kudos",
-	"version": "4.11.0",
+	"version": "7.1.1",
 	"description": "Give Kudos experience ",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,7 +8,14 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
-		"team": "Team Central",
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
+		"team": "People and Teams Collective",
 		"website": {
 			"name": "Give Kudos"
 		},
@@ -19,24 +26,21 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
+		"./give-kudos-launcher": "./src/ui/GiveKudosLauncher/index.tsx",
+		"./give-kudos-launcher/main": "./src/ui/GiveKudosLauncher/main.tsx",
 		"./i18n/*": {
 			"publish": null,
 			"default": "./src/i18n/*.ts"
-		}
+		},
+		"./types": "./src/types.ts",
+		"./is-safe-https-url": "./src/ui/GiveKudosLauncher/isSafeHttpsUrl.tsx",
+		"./is-trusted-origin": "./src/ui/GiveKudosLauncher/isTrustedOrigin.tsx"
 	},
 	"scripts": {
 		"lint": "(cd ../../.. && yarn eslint 'packages/team-central/give-kudos/**/*.{ts,tsx}')",
@@ -46,6 +50,7 @@
 	"dependencies": {
 		"@atlaskit/afm-i18n-platform-team-central-give-kudos": "root:*",
 		"@atlaskit/analytics-next": "workspace:^",
+		"@atlaskit/browser-apis": "workspace:^",
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/drawer": "workspace:^",
@@ -56,61 +61,29 @@
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/portal": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
-		"@babel/runtime": "root:*",
-		"react-intl-next": "root:*"
+		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0",
-		"react-intl-next": "*"
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
+		"@atlaskit/flag": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*",
+		"react-intl": "root:*",
 		"wait-for-expect": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"tangerine-next"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"compiled",
-				"static"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
 	"platform-feature-flags": {
-		"people-teams-kudos-launcher-z-index": {
+		"teams_a11y_focus_high_priority": {
 			"type": "boolean"
 		}
 	}

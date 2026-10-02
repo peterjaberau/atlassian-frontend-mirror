@@ -7,7 +7,9 @@ import type { ReactNode } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
-import { easeOut, prefersReducedMotion } from '@atlaskit/motion';
+import { easeOut } from '@atlaskit/motion/curves';
+import { prefersReducedMotion } from '@atlaskit/motion/utils/accessibility';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { UNSAFE_media } from '@atlaskit/primitives/responsive';
 
 import {
@@ -102,7 +104,7 @@ const LeftSidebarInner = ({
 	children,
 	isFixed = false,
 	isFlyoutOpen = false,
-}: LeftSidebarInnerProps): jsx.JSX.Element => {
+}: LeftSidebarInnerProps): JSX.Element => {
 	const isDragging = useIsSidebarDragging();
 
 	return (

@@ -22,14 +22,6 @@
 	},
 	"iframe": "",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
 		".": "./src/index.ts",
 		"./host": "./src/host/index.ts",
@@ -50,55 +42,17 @@
 	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
+		"@atlaskit/button": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"typescript": "root:*"
 	},
 	"atlaskit:src": "src/index.ts",
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
 	"name": "@atlaskit/simple-xdm",
-	"version": "1.2.0",
+	"version": "2.0.0",
 	"description": "A simple library that allows to expose host API to an embedded iframe through the `postMessage` protocol.",
 	"author": "Atlassian Pty Ltd",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
-	},
-	"platform-feature-flags": {
-		"platform_deprecate_lp_cc_embed": {
-			"type": "boolean"
-		}
 	}
 }

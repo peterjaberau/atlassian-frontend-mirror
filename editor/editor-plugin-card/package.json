@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-card",
-	"version": "12.3.5",
+	"version": "29.0.0",
 	"description": "Card plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -16,26 +16,25 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./cardPlugin": "./src/entry-points/cardPlugin.tsx",
+		"./cardPluginType": "./src/entry-points/cardPluginType.ts",
+		"./types": "./src/entry-points/types.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
 		"@atlaskit/analytics-next": "workspace:^",
+		"@atlaskit/button": "workspace:^",
+		"@atlaskit/css": "workspace:^",
 		"@atlaskit/custom-steps": "workspace:^",
+		"@atlaskit/editor-card-provider": "workspace:^",
 		"@atlaskit/editor-plugin-analytics": "workspace:^",
+		"@atlaskit/editor-plugin-annotation": "workspace:^",
 		"@atlaskit/editor-plugin-base": "workspace:^",
 		"@atlaskit/editor-plugin-connectivity": "workspace:^",
 		"@atlaskit/editor-plugin-decorations": "workspace:^",
@@ -44,12 +43,19 @@
 		"@atlaskit/editor-plugin-feature-flags": "workspace:^",
 		"@atlaskit/editor-plugin-floating-toolbar": "workspace:^",
 		"@atlaskit/editor-plugin-grid": "workspace:^",
+		"@atlaskit/editor-plugin-selection": "workspace:^",
 		"@atlaskit/editor-plugin-toolbar": "workspace:^",
+		"@atlaskit/editor-plugin-ui-control-registry": "workspace:^",
+		"@atlaskit/editor-plugin-user-intent": "workspace:^",
 		"@atlaskit/editor-plugin-width": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
 		"@atlaskit/editor-shared-styles": "workspace:^",
+		"@atlaskit/editor-smart-link-draggable": "workspace:^",
+		"@atlaskit/editor-toolbar": "workspace:^",
+		"@atlaskit/editor-ui-control-model": "workspace:^",
 		"@atlaskit/frontend-utilities": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/json-ld-types": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/link-analytics": "workspace:^",
 		"@atlaskit/link-client-extension": "workspace:^",
@@ -58,12 +64,12 @@
 		"@atlaskit/linking-common": "workspace:^",
 		"@atlaskit/linking-types": "workspace:^",
 		"@atlaskit/menu": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/platform-feature-flags-react": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/prosemirror-history": "workspace:^",
 		"@atlaskit/smart-card": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
@@ -76,57 +82,39 @@
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
 		"@atlaskit/link-provider": "workspace:^",
-		"react": "^18.2.0",
-		"react-intl-next": "*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"emotion"
-			]
-		}
+		"react": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"platform-feature-flags": {
-		"confluence-issue-terminology-refresh": {
+		"cc-mui-slides-opted-out": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"confluence_editor_paste_3p_link_actions_menu": {
 			"type": "boolean"
 		},
-		"dst-a11y__replace-anchor-with-link__linking-platfo": {
+		"platform_native_embeds_rollout_non_maui_experience": {
+			"type": "boolean"
+		},
+		"confluence-issue-terminology-refresh": {
 			"type": "boolean"
 		},
 		"platform_editor_adf_with_localid": {
 			"type": "boolean"
+		},
+		"platform_sl_3p_preauth_value_modal_killswitch": {
+			"type": "boolean"
+		},
+		"platform_lp_sllv_preserve_assets_columns": {
+			"type": "boolean"
+		},
+		"platform_lp_sllv_table_settings_menu": {
+			"type": "boolean"
 		}
 	},
-	"stricter": {
-		"no-unused-dependencies": {
-			"checkDevDependencies": true
-		}
-	},
-	"compassUnitTestMetricSourceId": "ari:cloud:compass:a436116f-02ce-4520-8fbb-7301462a1674:metric-source/c5751cc6-3513-4070-9deb-af31e86aed34/e6f3220b-0ca2-445a-a4c5-78cff6ca2a34"
+	"compassUnitTestMetricSourceId": "ari:cloud:compass:a436116f-02ce-4520-8fbb-7301462a1674:metric-source/c5751cc6-3513-4070-9deb-af31e86aed34/e6f3220b-0ca2-445a-a4c5-78cff6ca2a34",
+	"devDependencies": {
+		"react": "^19.2.0",
+		"react-intl": "root:*"
+	}
 }

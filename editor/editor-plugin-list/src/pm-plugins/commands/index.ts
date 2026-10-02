@@ -8,8 +8,12 @@ import {
 } from '@atlaskit/editor-common/analytics';
 import { findCutBefore } from '@atlaskit/editor-common/commands';
 import {
+	getBlockMarkAttrs,
 	getCommonListAnalyticsAttributes,
+	getFirstParagraphBlockMarkAttrs,
 	moveTargetIntoList,
+	reconcileBlockMarkForContainerAtPos,
+	reconcileBlockMarkForParagraphAtPos,
 } from '@atlaskit/editor-common/lists';
 import { editorCommandToPMCommand } from '@atlaskit/editor-common/preset';
 import { GapCursorSelection } from '@atlaskit/editor-common/selection';
@@ -25,7 +29,11 @@ import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection, Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { StepResult } from '@atlaskit/editor-prosemirror/transform';
-import { findPositionOfNodeBefore, hasParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
+import {
+	findParentNodeOfTypeClosestToPos,
+	findPositionOfNodeBefore,
+	hasParentNodeOfType,
+} from '@atlaskit/editor-prosemirror/utils';
 
 import { convertListType } from '../actions/conversions';
 import { wrapInListAndJoin } from '../actions/wrap-and-join-lists';
@@ -36,7 +44,6 @@ import {
 	isInsideListItem,
 	selectionContainsList,
 } from '../utils/selection';
-
 import { isFirstChildOfParent } from './isFirstChildOfParent';
 import { joinListItemForward } from './join-list-item-forward';
 import { listBackspace } from './listBackspace';
@@ -53,10 +60,10 @@ export const enterKeyCommand =
 			const { $from } = selection;
 			const { listItem, codeBlock } = state.schema.nodes;
 
-		// the list item is the parent of the gap cursor
-		// while for text, list item is the grandparent of the text node
-		const isGapCursorSelection = selection instanceof GapCursorSelection;
-		const wrapper = isGapCursorSelection ? $from.parent : $from.node($from.depth - 1);
+			// the list item is the parent of the gap cursor
+			// while for text, list item is the grandparent of the text node
+			const isGapCursorSelection = selection instanceof GapCursorSelection;
+			const wrapper = isGapCursorSelection ? $from.parent : $from.node($from.depth - 1);
 
 			if (wrapper && wrapper.type === listItem) {
 				/** Check if the wrapper has any visible content */
@@ -76,6 +83,21 @@ export const enterKeyCommand =
 
 export const backspaceKeyCommand =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) => (): Command => (state, dispatch) => {
+		// Select an adjacent syncBlock before the list command chain can outdent the current list.
+		if (isEmptySelectionAtStart(state)) {
+			const $cut = findCutBefore(state.selection.$from);
+			if ($cut?.nodeBefore?.type.name === 'syncBlock') {
+				if (dispatch) {
+					dispatch(
+						state.tr
+							.setSelection(NodeSelection.create(state.doc, $cut.pos - $cut.nodeBefore.nodeSize))
+							.scrollIntoView(),
+					);
+				}
+				return true;
+			}
+		}
+
 		return chainCommands(
 			listBackspace(editorAnalyticsAPI),
 			// if we're at the start of a list item, we need to either backspace
@@ -103,11 +125,11 @@ export const backspaceKeyCommand =
 		)(state, dispatch);
 	};
 
-export const deleteKeyCommand = (editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
+export const deleteKeyCommand = (editorAnalyticsAPI: EditorAnalyticsAPI | undefined): Command =>
 	joinListItemForward(editorAnalyticsAPI);
 
 // Get the depth of the nearest ancestor list
-export const rootListDepth = (pos: ResolvedPos, nodes: Record<string, NodeType>) => {
+const rootListDepth = (pos: ResolvedPos, nodes: Record<string, NodeType>): number | undefined => {
 	const { bulletList, orderedList, listItem } = nodes;
 	let depth;
 	for (let i = pos.depth - 1; i > 0; i--) {
@@ -303,10 +325,25 @@ function splitListItem(itemType: NodeType): Command {
 		const nextType = $to.pos === $from.end() ? wrapperListItem.contentMatchAt(0).defaultType : null;
 		const tr = state.tr.delete($from.pos, $to.pos);
 		const types = nextType && [null, { type: nextType }];
+		const fontSize = state.schema.marks.fontSize;
+		const isFontSizeSupported = fontSize;
+
+		const currentFontSizeAttrs = isFontSizeSupported
+			? getBlockMarkAttrs($from.parent, fontSize)
+			: false;
 
 		if (dispatch) {
 			if (ref instanceof TextSelection) {
-				dispatch(tr.split($from.pos, 2, types ?? undefined).scrollIntoView());
+				const splitTr = tr.split($from.pos, 2, types ?? undefined);
+				if (isFontSizeSupported) {
+					reconcileBlockMarkForParagraphAtPos(
+						splitTr,
+						splitTr.selection.from,
+						fontSize,
+						currentFontSizeAttrs,
+					);
+				}
+				dispatch(splitTr.scrollIntoView());
 				return true;
 			}
 
@@ -315,7 +352,17 @@ function splitListItem(itemType: NodeType): Command {
 				// For gap cursor selection, we cannot split the list item directly
 				// We need to insert a new list item after the current list item to simulate the split behaviour
 				const { listItem, paragraph } = state.schema.nodes;
-				const newListItem = listItem.createChecked({}, paragraph.createChecked());
+
+				const newListItem = listItem.createChecked(
+					{},
+					paragraph.createChecked(
+						{},
+						undefined,
+						currentFontSizeAttrs && isFontSizeSupported
+							? [fontSize.create(currentFontSizeAttrs)]
+							: undefined,
+					),
+				);
 				dispatch(
 					tr
 						.insert($from.pos, newListItem)
@@ -364,6 +411,7 @@ const deletePreviousEmptyListItem: Command = (state, dispatch) => {
 const joinToPreviousListItem: Command = (state, dispatch) => {
 	const { $from } = state.selection;
 	const { paragraph, listItem, codeBlock, bulletList, orderedList } = state.schema.nodes;
+	const { fontSize } = state.schema.marks;
 	const isGapCursorShown = state.selection instanceof GapCursorSelection;
 	const $cutPos = isGapCursorShown ? state.doc.resolve($from.pos + 1) : $from;
 	const $cut = findCutBefore($cutPos);
@@ -424,6 +472,24 @@ const joinToPreviousListItem: Command = (state, dispatch) => {
 				[bulletList, orderedList].indexOf($postCut.nodeBefore.type) > -1
 			) {
 				tr = tr.join($postCut.pos);
+			}
+
+			if (fontSize) {
+				const prevListFontSizeAttrs = getFirstParagraphBlockMarkAttrs($cut.nodeBefore, fontSize);
+
+				const containingList = findParentNodeOfTypeClosestToPos(
+					tr.doc.resolve(tr.mapping.map($cut.pos)),
+					[bulletList, orderedList],
+				);
+
+				if (containingList) {
+					reconcileBlockMarkForContainerAtPos(
+						tr,
+						containingList.pos,
+						fontSize,
+						prevListFontSizeAttrs,
+					);
+				}
 			}
 
 			if (dispatch) {

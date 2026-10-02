@@ -1,5 +1,1776 @@
 # @atlaskit/editor-plugin-expand
 
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- [`f2cc6b030e5c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2cc6b030e5c6) -
+  Clean up experiment `platform_editor_vc90_transition_expand_icon`.
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- [`a034f535638cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a034f535638cc) -
+  Add structured Quick Insert previews with localised title, description and attribution under
+  platform_editor_slash_command.
+
+  Exclude footer and category navigation actions from previews. Left-align attribution, use subtle
+  title and attribution text, and default description text.
+
+  Show text previews even without preview metadata, and reserve a fixed image area while images load
+  or when they fail. Keep previews within the viewport, flipping left when needed, with compact
+  panel dimensions and typography.
+
+  Replace baked panel screenshots with image-only assets. Remove image fields from text-only legacy
+  previews while preserving their attribution.
+
+  Let extension providers own their preview images and attribution. Pass preview metadata through
+  the Company Hub manifest factory and remove Editor's fallback preview registry.
+
+  Localize provider attribution names and display Confluence and Jira product icons instead of the
+  attribution prefix when an icon is present. Allow the Dropbox manifest to receive the host's
+  message formatter.
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Minor Changes
+
+- [`5c5d7a5bbff74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c5d7a5bbff74) -
+  Cleanup `feature_gate` `platform_editor_element_browser_analytic`. Insert analytics permanently
+  report the caller's actual input method rather than always attributing the insertion to
+  `quickInsert`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- [`ad905e52e6f1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ad905e52e6f1b) -
+  CONFCLOUD-84260: Include the expand title in body accessible names, localize the macro role
+  description, and keep them updated behind `platform_editor_expand_content_a11y_2`.
+- [`fc26bfc51dd5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fc26bfc51dd5c) -
+  Add sparse block-control surface anchors, intersection-driven candidates, and explicit visibility
+  invalidation for registry-backed block controls. Expose registration change subscriptions from the
+  UI control registry model, and refresh cached visibility from suggestion and collapse transaction
+  metadata. Under `platform_editor_block_control_migration`, use native node-anchor identity across
+  Editor and Block Controls, and route expand keyboard focus through the shared Block Controls
+  command. Preserve Show Diff visibility checks in both migration cohorts so block controls stay
+  hidden while a diff is displayed. Keep the block menu closed when a migrated layout-column handle
+  opens the layout menu, and close the layout menu when the selection moves away from its selected
+  columns.
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- [`88fb7a8d4013a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88fb7a8d4013a) -
+  [ux] Add optional light and dark preview URLs to slash-command menu items and pass theme-aware
+  previews to supported commands when the `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.3
+
+### Patch Changes
+
+- [`6322f75743dc1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6322f75743dc1) -
+  Clean up experiment platform_editor_expand_content_a11y
+- Updated dependencies
+
+## 18.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`aec3fcfe13ff9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aec3fcfe13ff9) -
+  EDITOR-8303 Add runtime input-latency trigger for limited mode behind
+  platform_editor_dynamic_limited_mode. Limited mode can now latch mid-session when sustained slow
+  input or repeated browser freezes indicate the device is struggling, in addition to the existing
+  document-size decision. The latch is one-way. Nothing is constructed when the experiment is off.
+
+  How much evidence is needed is a single tunable, `requiredConfirmations`: that many qualifying
+  windows, each separated from the last by `confirmationGapMs`. The hardware no longer feeds into
+  the decision — `navigator.hardwareConcurrency` and `navigator.deviceMemory` are reported with the
+  `limitedModeLatched` event instead, so which devices latch can be answered from the data rather
+  than assumed up front.
+
+  `LimitedModePluginState` gains a derived `enabled` flag, which is now the single thing consumers
+  should branch on — the individual reasons (`documentSizeBreachesThreshold`, `latchPolicyBreached`)
+  no longer need to be combined at each call site, so a future reason needs no change outside this
+  plugin. `sharedState.enabled` reads from it.
+
+  Under the experiment the document decision is also evaluated on load and on document replacement
+  only, rather than on every transaction that changes the document. That check walks the whole
+  document, so it was a full-document scan per keystroke on exactly the pages least able to afford
+  one. The trade-off is that a document editing its way past the thresholds is not re-judged until
+  it next loads.
+
+  Consumers updated to react to a mid-session change: table sticky headers now subscribe instead of
+  reading once at construction, block-controls resets rather than freezes its state on entry, and
+  the expand, media and table nodeviews read the derived flag so they no longer miss a runtime
+  latch.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.7
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 17.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- [`5d35806b69659`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5d35806b69659) -
+  Clean up experiment `platform_editor_expand_paste_in_comment_editor`
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- [`d82ea790b5c1c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82ea790b5c1c) -
+  Update registered slash-command menu icons, including the Jira datasource WorkItems icon, when the
+  `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`4273da2e1a648`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4273da2e1a648) -
+  Register native Quick Insert items behind `platform_editor_slash_command`.
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.0
+
+### Minor Changes
+
+- [`da5eaf0bc37da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da5eaf0bc37da) -
+  Clean up the platform_editor_editor_ssr_streaming experiment. The SSR streaming code paths are now
+  permanent and the isSSRStreaming() utility has been removed from
+  @atlaskit/editor-common/core-utils.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`2d23b40eed4f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d23b40eed4f0) -
+  Add gated content-visibility:auto to tables, expands and media singles to improve editor rendering
+  performance on large documents. Applied only to nodes whose rendered size can be estimated closely
+  — structurally (row/child counts) for tables and expands, and from the media's own dimensions and
+  the renderer's width calculation for media singles. Behind the
+  cc_editor_limited_mode_perf_improvements experiment and only active when limited mode is enabled
+  for the document (shared large-document detection with the limited-mode plugin).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- [`42931028bd815`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42931028bd815) -
+  [FFCLEANUP-138148] clean up experiment `platform_editor_find_and_replace_improvements`
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- [`72f7cec91a1d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72f7cec91a1d4) -
+  Remove stale `platform-feature-flags` registrations for shipped block menu and blocks feature
+  gates. No behaviour change.
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.15
+
+### Patch Changes
+
+- [`4bd3df7dc598e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4bd3df7dc598e) -
+  Set contenteditable on the expand body during SSR streaming so the initial render matches CSR (the
+  imperative update that normally sets it does not run in SSR)
+- Updated dependencies
+
+## 13.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`b483e293da76f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b483e293da76f) -
+  Add a gated `isSuggested` attribute to block menu element transformed analytics events so
+  suggested and non-suggested transform selections can be distinguished. The event attribute is
+  gated behind the `platform_editor_blocks_patch_2` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.5
+
+### Patch Changes
+
+- [`5e34be0ba10b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e34be0ba10b6) -
+  Cleanup show diff experiments
+- Updated dependencies
+
+## 11.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`acbb2aa5cc917`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acbb2aa5cc917) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.2
+
+### Patch Changes
+
+- [`0f48d9316bffc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f48d9316bffc) -
+  Changed role of expand from group to textbox and added aria-multiline for editable clarity for
+  screen users
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`9c750ab0192db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9c750ab0192db) -
+  Add role=group and aria-label to expand content div so screen readers announce the body of an
+  expand node
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- [`c50b6810de5a3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c50b6810de5a3) -
+  Fix `toggleExpandRange` to set a `forceExpandOpen` node decoration via transaction meta (gated by
+  `platform_editor_expand_force_open_decoration`) so `ExpandNodeView.update()` correctly opens
+  expands visually regardless of whether the `platform_editor_aifc_expand_collapses_oncreate_fix`
+  experiment is active. Also returns `null` when no expand nodes are found or no state changes, and
+  removes stray debug `console.log` statements.
+
+## 11.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.31
+
+### Patch Changes
+
+- [`1bd298ad0a152`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bd298ad0a152) -
+  [ux] EDITOR-6280 Clean up platform_editor_block_menu_v2_patch_3 to fix icon and copy in jira block
+  menu
+- Updated dependencies
+
+## 9.1.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.26
+
+### Patch Changes
+
+- [`7b7c52dff5d7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7c52dff5d7d) -
+  Fix eslint violations for type import syntax
+- Updated dependencies
+
+## 9.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.17
+
+### Patch Changes
+
+- [`f2500fdeca2ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2500fdeca2ee) -
+  Fix Ctrl+Shift+H keyboard shortcut for expand node title drag handles to support keyboard-only and
+  screen reader users
+- Updated dependencies
+
+## 9.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.11
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 9.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.7
+
+### Patch Changes
+
+- [`9ed32aea2c1d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ed32aea2c1d3) -
+  Replace feature experiment util with cross platform alternative for platform_editor_block_menu
+- Updated dependencies
+
+## 9.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`0efca55740b36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0efca55740b36) -
+  [FFCLEANUP-71458] clean up experiment platform_editor_toggle_expand_on_match_found
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- [`5985f38f7104e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5985f38f7104e) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.0
+
+### Minor Changes
+
+- [`9398ad3ad409c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9398ad3ad409c) -
+  [ux] [EDITOR-5376] change single player expands feature gate to the new
+  `platform_editor_single_player_expand` experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`00ae34886b5f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00ae34886b5f7) -
+  [EDITOR-5796](https://hello.jira.atlassian.cloud/browse/EDITOR-5796) - clean up
+  platform_editor_display_none_to_expand experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.1
+
+### Patch Changes
+
+- [`0f91061590da3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f91061590da3) -
+  Split platform_editor_vc90_transition_fixes_batch_1 into
+  platform_editor_vc90_transition_table_border, platform_editor_vc90_transition_expand_icon,
+  platform_editor_vc90_transition_mentions, platform_editor_vc90_transition_panel_icon
+- Updated dependencies
+
+## 8.4.0
+
+### Minor Changes
+
+- [`342dd44a8575e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/342dd44a8575e) -
+  [ux] EDITOR-4609 Add prop to disable pasting expands
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.5
+
+### Patch Changes
+
+- [`fb11822025800`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb11822025800) -
+  EDITOR-4473 Fix the selection changes on mouse move after multi turn into expand
+
+## 8.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.2
+
+### Patch Changes
+
+- [`50f96b87a6d02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50f96b87a6d02) -
+  batch/change experiment
+- Updated dependencies
+
+## 8.3.1
+
+### Patch Changes
+
+- [`7ea2e225c0abb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ea2e225c0abb) -
+  [ux] Minor styling, wording changes for block menu and sync blocks
+- Updated dependencies
+
+## 8.3.0
+
+### Minor Changes
+
+- [`01e7751e6b213`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01e7751e6b213) -
+  [EDITOR-5538](https://hello.jira.atlassian.cloud/browse/EDITOR-5538) - fix how navite expand icon
+  is rendered in SSR
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.2.8
 
 ### Patch Changes

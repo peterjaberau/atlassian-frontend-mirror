@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Demo } from '../example-helpers/DemoPage';
 import { MOCK_USERS } from '../example-helpers/MockData';
 import {
@@ -11,6 +12,6 @@ const provider = new ConversationResource({
 	user: MOCK_USERS[0],
 });
 
-export default function Example() {
+export default function Example(): React.JSX.Element {
 	return <Demo provider={provider} dataProviders={getDataProviderFactory()} />;
 }

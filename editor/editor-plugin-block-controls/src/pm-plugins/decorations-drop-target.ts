@@ -1,36 +1,35 @@
 import { createElement } from 'react';
 
-import { type IntlShape } from 'react-intl-next';
+import memoizeOne from 'memoize-one';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { expandSelectionBounds } from '@atlaskit/editor-common/selection';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { isEmptyParagraph } from '@atlaskit/editor-common/utils';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
-import { Decoration, type DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { Decoration } from '@atlaskit/editor-prosemirror/view';
+import type { DecorationSet } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { ActiveNode, BlockControlsPlugin } from '../blockControlsPluginType';
 import { nodeMargins } from '../ui/consts';
 import {
-	type DropTargetProps,
 	DropTarget,
 	EDITOR_BLOCK_CONTROLS_DROP_INDICATOR_GAP,
 	EDITOR_BLOCK_CONTROLS_DROP_INDICATOR_OFFSET,
 } from '../ui/drop-target';
-import {
-	DropTargetLayout,
-	DropTargetLayoutNativeAnchorSupport,
-	type DropTargetLayoutProps,
-} from '../ui/drop-target-layout';
-
+import type { DropTargetProps } from '../ui/drop-target';
+import { DropTargetLayout, DropTargetLayoutNativeAnchorSupport } from '../ui/drop-target-layout';
+import type { DropTargetLayoutProps } from '../ui/drop-target-layout';
 import { NESTED_DEPTH, TYPE_DROP_TARGET_DEC } from './decorations-common';
-import { type AnchorRectCache } from './utils/anchor-utils';
+import type { AnchorRectCache } from './utils/anchor-utils';
 import { maxLayoutColumnSupported } from './utils/consts';
 import { canMoveNodeToIndex, canMoveSliceToIndex, isInSameLayout } from './utils/validation';
 
@@ -52,18 +51,15 @@ const PARENT_WITH_END_DROP_TARGET = [
 	'nestedExpand',
 	'bodiedExtension',
 ];
-
-const PARENT_WITH_END_DROP_TARGET_NEXT = [
-	'tableCell',
-	'tableHeader',
-	'panel',
-	'layoutColumn',
-	'expand',
-	'nestedExpand',
-	'bodiedExtension',
-	'bodiedSyncBlock',
-];
 const DISABLE_CHILD_DROP_TARGET = ['orderedList', 'bulletList'];
+
+const getParentTypesWithEndDropTarget = memoizeOne(() => [
+	...PARENT_WITH_END_DROP_TARGET,
+	...(expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)
+		? ['multiBodiedExtension']
+		: []),
+	'bodiedSyncBlock',
+]);
 
 const shouldDescend = (node: PMNode) => {
 	return !['mediaSingle', 'paragraph', 'heading'].includes(node.type.name);
@@ -93,28 +89,17 @@ const shouldCollapseMargin = (prevNode?: PMNode, nextNode?: PMNode) => {
 };
 
 const getGapAndOffset = (prevNode?: PMNode, nextNode?: PMNode, parentNode?: PMNode | null) => {
-	const isSyncBlockOffsetPatchEnabled =
-		editorExperiment('platform_synced_block', true) && fg('platform_synced_block_patch_2');
-
 	if (!prevNode && nextNode) {
 		// first node - adjust for bodied containers
 		let offset = 0;
-		if (
-			isSyncBlockOffsetPatchEnabled &&
-			parentNode?.type.name &&
-			parentNode.type.name === 'bodiedSyncBlock'
-		) {
+		if (parentNode?.type.name === 'bodiedSyncBlock') {
 			offset += 4;
 		}
 		return { gap: 0, offset };
 	} else if (prevNode && !nextNode) {
 		// last node - adjust for bodied containers
 		let offset = 0;
-		if (
-			isSyncBlockOffsetPatchEnabled &&
-			parentNode?.type.name &&
-			parentNode.type.name === 'bodiedSyncBlock'
-		) {
+		if (parentNode?.type.name === 'bodiedSyncBlock') {
 			offset -= 4;
 		}
 		return { gap: 0, offset };
@@ -143,7 +128,11 @@ const getGapAndOffset = (prevNode?: PMNode, nextNode?: PMNode, parentNode?: PMNo
  * @param to
  * @returns
  */
-export const findDropTargetDecs = (decorations: DecorationSet, from?: number, to?: number) => {
+export const findDropTargetDecs = (
+	decorations: DecorationSet,
+	from?: number,
+	to?: number,
+): Decoration[] => {
 	return decorations.find(from, to, (spec) => spec.type === TYPE_DROP_TARGET_DEC);
 };
 
@@ -154,7 +143,7 @@ export const createDropTargetDecoration = (
 	side?: number,
 	anchorRectCache?: AnchorRectCache,
 	isSameLayout?: boolean,
-) => {
+): Decoration => {
 	// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 	const key = uuid();
 	return Decoration.widget(
@@ -202,7 +191,7 @@ export const createLayoutDropTargetDecoration = (
 	props: Omit<DropTargetLayoutProps, 'getPos'>,
 	nodeViewPortalProviderAPI: PortalProviderAPI,
 	anchorRectCache?: AnchorRectCache,
-) => {
+): Decoration => {
 	// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 	const key = uuid();
 	return Decoration.widget(
@@ -219,13 +208,11 @@ export const createLayoutDropTargetDecoration = (
 			element.setAttribute('data-blocks-drop-target-container', 'true');
 			element.setAttribute('data-blocks-drop-target-key', key);
 			element.style.clear = 'unset';
-			const DropTargetLayoutComponent = expValEquals(
-				'platform_editor_native_anchor_with_dnd',
-				'isEnabled',
-				true,
-			)
-				? DropTargetLayoutNativeAnchorSupport
-				: DropTargetLayout;
+			const DropTargetLayoutComponent =
+				expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+				isExperimentEnabled('platform_editor_block_control_migration')
+					? DropTargetLayoutNativeAnchorSupport
+					: DropTargetLayout;
 
 			nodeViewPortalProviderAPI.render(
 				() => createElement(DropTargetLayoutComponent, { ...props, getPos, anchorRectCache }),
@@ -255,7 +242,7 @@ export const dropTargetDecorations = (
 	anchorRectCache?: AnchorRectCache,
 	from?: number,
 	to?: number,
-) => {
+): Decoration[] => {
 	const decs: Decoration[] = [];
 	const POS_END_OF_DOC = newState.doc.nodeSize - 2;
 	const docFrom = from === undefined || from < 0 ? 0 : from;
@@ -263,7 +250,6 @@ export const dropTargetDecorations = (
 	const activeNodePos = activeNode?.pos;
 	const $activeNodePos = typeof activeNodePos === 'number' && newState.doc.resolve(activeNodePos);
 	const activePMNode = $activeNodePos && $activeNodePos.nodeAfter;
-	const isMultiSelect = editorExperiment('platform_editor_element_drag_and_drop_multiselect', true);
 
 	anchorRectCache?.clear();
 
@@ -295,6 +281,8 @@ export const dropTargetDecorations = (
 	const selectionTo = Math.max(expandedAnchor.pos, expandedHead.pos);
 	const handleInsideSelection =
 		activeNodePos !== undefined && activeNodePos >= selectionFrom && activeNodePos <= selectionTo;
+
+	const parentTypesWithEndDropTarget = getParentTypesWithEndDropTarget();
 
 	newState.doc.nodesBetween(docFrom, docTo, (node, pos, parent, index) => {
 		let depth = 0;
@@ -340,53 +328,40 @@ export const dropTargetDecorations = (
 			return shouldDescend(node); //skip over, don't consider it a valid depth
 		}
 
-		// When multi select is on, validate all the nodes in the selection instead of just the handle node
-		if (isMultiSelect) {
-			const selectionSlice = newState.doc.slice(selectionFrom, selectionTo, false);
-			const selectionSliceChildCount = selectionSlice.content.childCount;
-			let canDropSingleNode: boolean = true;
-			let canDropMultipleNodes: boolean = true;
+		// validate all the nodes in the selection instead of just the handle node
+		const selectionSlice = newState.doc.slice(selectionFrom, selectionTo, false);
+		const selectionSliceChildCount = selectionSlice.content.childCount;
+		let canDropSingleNode: boolean = true;
+		let canDropMultipleNodes: boolean = true;
 
-			// when there is only one node in the slice, use the same logic as when multi select is not on
-			if (selectionSliceChildCount > 1 && handleInsideSelection) {
-				canDropMultipleNodes = canMoveSliceToIndex(
-					selectionSlice,
-					selectionFrom,
-					selectionTo,
-					parent,
-					index,
-					$pos,
-				);
-			} else {
-				canDropSingleNode = !!(
-					activePMNode && canMoveNodeToIndex(parent, index, activePMNode, $pos, node)
-				);
-			}
-
-			if (!canDropMultipleNodes || !canDropSingleNode) {
-				pushNodeStack(node, depth);
-				return false; //not valid pos, so nested not valid either
-			}
+		// when there is only one node in the slice, use the same logic as when multi select is not on
+		if (selectionSliceChildCount > 1 && handleInsideSelection) {
+			canDropMultipleNodes = canMoveSliceToIndex(
+				selectionSlice,
+				selectionFrom,
+				selectionTo,
+				parent,
+				index,
+				$pos,
+			);
 		} else {
-			const canDrop = activePMNode && canMoveNodeToIndex(parent, index, activePMNode, $pos, node);
-
-			//NOTE: This will block drop targets showing for nodes that are valid after transformation (i.e. expand -> nestedExpand)
-			if (!canDrop) {
-				pushNodeStack(node, depth);
-				return false; //not valid pos, so nested not valid either
-			}
+			canDropSingleNode = !!(
+				activePMNode && canMoveNodeToIndex(parent, index, activePMNode, $pos, node)
+			);
 		}
 
-		const parentTypesWithEndDropTarget =
-			editorExperiment('platform_synced_block', true) &&
-			fg('platform_synced_block_patch_2')
-				? PARENT_WITH_END_DROP_TARGET_NEXT
-				: PARENT_WITH_END_DROP_TARGET;
+		if (!canDropMultipleNodes || !canDropSingleNode) {
+			pushNodeStack(node, depth);
+			return false; //not valid pos, so nested not valid either
+		}
 
+		const parentTypeName = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+			? getBaseNodeTypeName(parent.type)
+			: parent.type.name;
 		if (
 			parent.lastChild === node &&
 			!isEmptyParagraph(node) &&
-			parentTypesWithEndDropTarget.includes(parent.type.name)
+			parentTypesWithEndDropTarget.includes(parentTypeName)
 		) {
 			endPos = pos + node.nodeSize;
 		}

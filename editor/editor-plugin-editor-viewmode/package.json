@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-editor-viewmode",
-	"version": "9.0.0",
+	"version": "25.0.0",
 	"description": "Editor viewmode plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -16,58 +16,23 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./editorViewmodePlugin": "./src/entry-points/editorViewmodePlugin.tsx",
+		"./editorViewmodePluginType": "./src/entry-points/editorViewmodePluginType.ts"
 	},
 	"dependencies": {
 		"@atlaskit/editor-prosemirror": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			],
-			"code-structure": [
-				"editor-plugin"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"emotion"
-			]
-		}
+	"devDependencies": {
+		"react": "^19.2.0"
 	}
 }

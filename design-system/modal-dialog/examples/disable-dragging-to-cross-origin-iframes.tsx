@@ -6,14 +6,15 @@ import { Global } from '@emotion/react';
 import { bindAll } from 'bind-event-listener';
 import invariant from 'tiny-invariant';
 
+import Code from '@atlaskit/code/code';
 import { cssMap, cx } from '@atlaskit/css';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/adapter/drop-target-for-external';
+import { dropTargetForTextSelection } from '@atlaskit/pragmatic-drag-and-drop/adapter/drop-target-for-text-selection';
 import {
 	draggable,
 	dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
-import { dropTargetForTextSelection } from '@atlaskit/pragmatic-drag-and-drop/text-selection/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 import { Box, Flex, Inline, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -55,7 +56,7 @@ function InIframe() {
 	return (
 		<Box xcss={inIframeStyles.root} backgroundColor="color.background.accent.red.subtler">
 			<span>
-				<code>iframe</code> on same <code>origin</code>
+				<Code>iframe</Code> on same <Code>origin</Code>
 			</span>
 			<Draggable />
 			<DropTarget />
@@ -144,7 +145,7 @@ function DropTarget() {
 		>
 			<div>Drop target</div>
 			<div>
-				(state: <code>{state}</code>)
+				(state: <Code>{state}</Code>)
 			</div>
 		</Box>
 	);
@@ -321,7 +322,7 @@ function Parent() {
 					xcss={cx(parentStyles.panel, isOnTop ? parentStyles.panelOnTop : undefined)}
 					backgroundColor="color.background.accent.blue.subtler"
 				>
-					<span>In parent window</span>
+					<Text>In parent window</Text>
 					<Draggable />
 					<Box
 						as="div"
@@ -340,7 +341,7 @@ function Parent() {
 							checked={isIframeOnSameOrigin}
 							onChange={() => setIsIframeOnSameOrigin(!isIframeOnSameOrigin)}
 						/>
-						<code>iframe</code> on same origin?
+						<Code>iframe</Code> on same origin?
 					</Box>
 					<Box as="label" xcss={parentStyles.label}>
 						<input type="checkbox" checked={isOnTop} onChange={() => setIsOnTop(!isOnTop)} />

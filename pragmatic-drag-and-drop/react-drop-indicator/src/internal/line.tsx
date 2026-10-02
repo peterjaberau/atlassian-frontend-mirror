@@ -125,7 +125,7 @@ export function Line({
 	strokeColor?: CSSColor;
 	strokeWidth?: CSSSize;
 	type?: LineType;
-}) {
+}): JSX.Element {
 	const orientation = edgeToOrientationMap[edge];
 
 	return (
@@ -168,4 +168,5 @@ export function Line({
 }
 
 // For React.lazy
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Line;

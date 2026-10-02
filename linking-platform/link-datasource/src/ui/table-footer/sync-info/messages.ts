@@ -1,6 +1,17 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	underOneMinuteText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	overOneMinuteText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	underOneMinuteText: {
 		id: 'linkDataSource.table-footer.date_formatter.under_one_minute',
 		defaultMessage: 'Synced just now',

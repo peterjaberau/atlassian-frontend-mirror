@@ -1,8 +1,12 @@
 /* eslint-disable @atlaskit/editor/no-re-export */
 // Entry file in package.json
 
+import memoizeOne from 'memoize-one';
+
 import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
 import {
+	nativeEmbedsFallbackTransform,
+	transformContainerNodes,
 	transformMediaLinkMarks,
 	transformNestedTablesIncomingDocument,
 } from '@atlaskit/adf-utils/transforms';
@@ -13,15 +17,16 @@ import {
 	validateADFEntity,
 } from '@atlaskit/editor-common/utils';
 import type { ADFStage } from '@atlaskit/editor-common/validator';
-import { getValidDocument } from '@atlaskit/editor-common/validator';
-import { type Node as PMNode, type Schema } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
-import memoizeOne from 'memoize-one';
-import { PLATFORM, type AnalyticsEventPayload } from './analytics/events';
+import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+import { PLATFORM } from './analytics/events';
+import type { AnalyticsEventPayload } from './analytics/events';
 import { trackUnsupportedContentLevels } from './analytics/unsupported-content';
-import { type Serializer } from './serializer';
+import type { Serializer } from './serializer';
 import { countNodes } from './ui/Renderer/count-nodes';
-import { type RendererAppearance } from './ui/Renderer/types';
+import type { RendererAppearance } from './ui/Renderer/types';
 
 export interface RenderOutput<T> {
 	pmDoc?: PMNode;
@@ -58,49 +63,52 @@ const withStopwatch = <T>(cb: () => T): ResultWithTime<T> => {
 
 type DispatchAnalyticsEvent = (event: AnalyticsEventPayload) => void;
 
+/** Schema-variant escape hatches handed to the ADF validator. */
+type ValidationOverrides = { allowNestedTables?: boolean; allowTableInPanel?: boolean };
+
 const _validation = (
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	doc: any,
 	schema: Schema,
-	adfStage: ADFStage,
-	useSpecBasedValidator: boolean,
+	adfStage: ADFStage | undefined,
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
 	skipValidation?: boolean,
-	validationOverrides?: { allowNestedTables?: boolean },
+	validationOverrides?: ValidationOverrides,
 ) => {
-	let result;
-
-	if (useSpecBasedValidator) {
-		// link mark on mediaSingle is deprecated, need to move link mark to child media node
-		// https://product-fabric.atlassian.net/browse/ED-14043
-		const { transformedAdf, isTransformed } = transformMediaLinkMarks(doc);
-		if (isTransformed && dispatchAnalyticsEvent) {
-			dispatchAnalyticsEvent({
-				action: ACTION.MEDIA_LINK_TRANSFORMED,
-				actionSubject: ACTION_SUBJECT.RENDERER,
-				eventType: EVENT_TYPE.OPERATIONAL,
-			});
-		}
-
-		result = skipValidation
-			? transformedAdf || doc
-			: validateADFEntity(
-					schema,
-					transformedAdf || doc,
-					dispatchAnalyticsEvent,
-					validationOverrides,
-				);
-	} else {
-		result = getValidDocument(doc, schema, adfStage);
+	// link mark on mediaSingle is deprecated, need to move link mark to child media node
+	// https://product-fabric.atlassian.net/browse/ED-14043
+	const { transformedAdf, isTransformed } = transformMediaLinkMarks(doc);
+	if (isTransformed && dispatchAnalyticsEvent) {
+		dispatchAnalyticsEvent({
+			action: ACTION.MEDIA_LINK_TRANSFORMED,
+			actionSubject: ACTION_SUBJECT.RENDERER,
+			eventType: EVENT_TYPE.OPERATIONAL,
+		});
 	}
 
-	if (!result) {
-		return result;
+	// Forward `adfStage` only when a caller names one. Omitting it keeps stage-0 specs acceptable,
+	// which is what a renderer wants: stored documents can contain them, and wrapping such content
+	// as unsupported is worse than rendering it. A caller that declares `final` asks for full-ADF
+	// strictness and gets it.
+	let result = skipValidation
+		? transformedAdf || doc
+		: validateADFEntity(
+				schema,
+				transformedAdf || doc,
+				dispatchAnalyticsEvent,
+				validationOverrides,
+				adfStage,
+			);
+
+	// The spec validator can return the original root object when malformed JSON has no node type.
+	// Reject it here, matching the legacy validator, before ProseMirror attempts to deserialize it.
+	if (!result || typeof result.type !== 'string' || result.type.length === 0) {
+		return null;
 	}
 
 	// ProseMirror always require a child under doc
-	if (result.type === 'doc' && useSpecBasedValidator) {
+	if (result.type === 'doc') {
 		if (Array.isArray(result.content) && result.content.length === 0) {
 			result.content.push({
 				type: 'paragraph',
@@ -139,6 +147,57 @@ const _validation = (
 		});
 	}
 
+	// Upgrade panel → panel_c1 where the schema allows it
+	if (result && expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)) {
+		try {
+			const { transformedAdf, isTransformed, transformedNodeTypes } = transformContainerNodes(
+				result,
+				schema,
+			);
+			if (isTransformed && transformedAdf) {
+				dispatchAnalyticsEvent?.({
+					action: ACTION.CONTAINER_NODE_TRANSFORMED,
+					actionSubject: ACTION_SUBJECT.RENDERER,
+					eventType: EVENT_TYPE.OPERATIONAL,
+					attributes: {
+						transformedNodeTypes,
+					},
+				});
+
+				result = transformedAdf;
+			}
+		} catch (e) {
+			dispatchAnalyticsEvent?.({
+				action: ACTION.INVALID_PROSEMIRROR_DOCUMENT,
+				actionSubject: ACTION_SUBJECT.RENDERER,
+				eventType: EVENT_TYPE.OPERATIONAL,
+				attributes: {
+					platform: PLATFORM.WEB,
+					errorStack: `${e instanceof Error && e.name === 'NodeNestingTransformError' ? 'NodeNestingTransformError - Failed to transform panel to panel_c1' : undefined}`,
+				},
+			});
+		}
+	}
+
+	if (
+		result &&
+		!expValEquals('cc-maui-experiment', 'isEnabled', true) &&
+		!fg('platform_native_embeds_rollout_non_maui_experience') &&
+		fg('platform_editor_native_embeds_fallback_transform')
+	) {
+		const { transformedAdf, hasValidTransform } = nativeEmbedsFallbackTransform(result, schema);
+
+		if (hasValidTransform && transformedAdf) {
+			dispatchAnalyticsEvent?.({
+				action: ACTION.NATIVE_EMBEDS_TRANSFORMED,
+				actionSubject: ACTION_SUBJECT.RENDERER,
+				eventType: EVENT_TYPE.OPERATIONAL,
+			});
+
+			result = transformedAdf;
+		}
+	}
+
 	return result;
 };
 
@@ -147,18 +206,16 @@ const memoValidation = memoizeOne(_validation, (newArgs, lastArgs) => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		doc: any,
 		schema: Schema,
-		stage: ADFStage,
-		useSpecValidator: boolean,
+		stage: ADFStage | undefined,
 		DispatchAnalyticsEvent?: DispatchAnalyticsEvent | undefined,
 		skipValidation?: boolean | undefined,
-		validationOverrides?: { allowNestedTables?: boolean },
+		validationOverrides?: ValidationOverrides,
 	];
 
 	const [
 		newDoc,
 		newSchema,
 		newADFStage,
-		newUseSpecValidator,
 		,
 		/* ignoring dispatchAnalyticsEvent */ newSkipValidation,
 		newValidationOverrides,
@@ -167,19 +224,19 @@ const memoValidation = memoizeOne(_validation, (newArgs, lastArgs) => {
 		oldDoc,
 		oldSchema,
 		oldADFStage,
-		oldUseSpecValidator,
 		,
 		/* ignoring dispatchAnalyticsEvent */ oldSkipValidation,
 		oldValidationOverrides,
 	]: ValidationArgsType = lastArgs;
 
+	// `areDocsEqual` may stringify the whole document, so it goes last and only runs once everything
+	// cheaper has matched.
 	return (
-		areDocsEqual(newDoc, oldDoc) &&
 		newSchema === oldSchema &&
 		newADFStage === oldADFStage &&
-		newUseSpecValidator === oldUseSpecValidator &&
 		newSkipValidation === oldSkipValidation &&
-		newValidationOverrides === oldValidationOverrides
+		areValidationOverridesEqual(newValidationOverrides, oldValidationOverrides) &&
+		areDocsEqual(newDoc, oldDoc)
 	);
 });
 
@@ -196,11 +253,38 @@ const areDocsEqual = (docA: any, docB: any) => {
 
 	// PMNode
 	if (docA.type && docA.toJSON && docB.type && docB.toJSON) {
+		// `Node.eq` compares markup and content directly; stringifying both `toJSON` trees gives the
+		// same answer ~14x slower on a 5k-node document.
+		if (typeof docA.eq === 'function' && typeof docB.eq === 'function') {
+			return docA.eq(docB);
+		}
 		return JSON.stringify(docA.toJSON()) === JSON.stringify(docB.toJSON());
 	}
 
 	// Object
 	return JSON.stringify(docA) === JSON.stringify(docB);
+};
+
+/**
+ * `Renderer` rebuilds this object in its render body, so a reference check never matches and the memo
+ * re-validates (and re-transforms) an unchanged document every render. A flat bag of optional
+ * booleans, so a shallow key/value comparison is exact and free next to what it protects.
+ */
+const areValidationOverridesEqual = (a?: ValidationOverrides, b?: ValidationOverrides): boolean => {
+	if (a === b) {
+		return true;
+	}
+	if (!a || !b) {
+		return false;
+	}
+	const aEntries = Object.entries(a);
+	// Ignored via go/ees005
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const bRecord = b as Record<string, any>;
+	return (
+		aEntries.length === Object.keys(b).length &&
+		aEntries.every(([key, value]) => bRecord[key] === value)
+	);
 };
 
 const _serializeFragment = <T>(serializer: Serializer<T>, doc: PMNode): T | null => {
@@ -252,28 +336,22 @@ export const renderDocument = <T>(
 	doc: any,
 	serializer: Serializer<T>,
 	schema: Schema = defaultSchema,
-	adfStage: ADFStage = 'final',
-	useSpecBasedValidator: boolean = false,
+	adfStage?: ADFStage,
 	rendererId: string = 'noid',
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
 	unsupportedContentLevelsTracking?: UnsupportedContentLevelsTracking,
 	appearance?: RendererAppearance,
 	includeNodesCountInStats?: boolean,
 	skipValidation?: boolean,
-	validationOverrides?: { allowNestedTables?: boolean },
+	validationOverrides?: ValidationOverrides,
 ): RenderOutput<T | null> => {
 	const stat: RenderOutputStat = { sanitizeTime: 0 };
-
-	if (fg('platform_editor_renderer_rm_usespecbasedvalidator')) {
-		useSpecBasedValidator = true;
-	}
 
 	const { output: validDoc, time: sanitizeTime } = withStopwatch(() => {
 		return memoValidation(
 			doc,
 			schema,
 			adfStage,
-			useSpecBasedValidator,
 			dispatchAnalyticsEvent,
 			skipValidation,
 			validationOverrides,
@@ -301,7 +379,7 @@ export const renderDocument = <T>(
 	// save serialize tree time to stats
 	stat.serializeTime = serializeTime;
 
-	if (dispatchAnalyticsEvent && useSpecBasedValidator) {
+	if (dispatchAnalyticsEvent) {
 		findAndTrackUnsupportedContentNodes(node, schema, dispatchAnalyticsEvent);
 
 		if (unsupportedContentLevelsTracking?.enabled) {

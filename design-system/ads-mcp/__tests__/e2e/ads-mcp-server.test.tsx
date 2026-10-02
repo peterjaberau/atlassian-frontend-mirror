@@ -8,11 +8,21 @@ import {
 	/* eslint-disable-next-line import/extensions -- MCP SDK requires .js extensions for ESM imports */
 } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-import { coreIconMetadata as allIcons } from '@atlaskit/icon/metadata';
+import allIcons from '@atlaskit/icon/metadata-core';
 import { tokens as allTokens } from '@atlaskit/tokens/token-metadata';
 
-import { components as allComponents } from '../../src/tools/get-components/components';
+import { components as allComponents } from '../../src/tools/get-all-components/components.codegen';
+import { atlaskitComponents } from '../../src/tools/get-atlaskit-components/atlaskit-components.codegen';
 import { testData } from '../__fixtures__/data';
+
+const atlaskitToolNames = [
+	'atlaskit_get_components',
+	'atlaskit_search_components',
+	'atlaskit_get_hooks',
+	'atlaskit_search_hooks',
+	'atlaskit_get_utilities',
+	'atlaskit_search_utilities',
+];
 
 describe('ADS MCP Server E2E', () => {
 	let client: Client;
@@ -51,7 +61,7 @@ describe('ADS MCP Server E2E', () => {
 		'ads_get_a11y_guidelines',
 		'ads_get_all_icons',
 		'ads_get_all_tokens',
-		'ads_get_components',
+		'ads_get_all_components',
 		'ads_plan',
 	])('Lists the %s tool', async (toolName) => {
 		const listedTools = (await client.listTools()).tools;
@@ -60,40 +70,31 @@ describe('ADS MCP Server E2E', () => {
 		);
 	});
 
-	it('Lists the ads_get_tokens tool with feature flags enabled', async () => {
-		const listedTools = (await client.listTools()).tools;
-		expect(listedTools).toEqual(
-			expect.arrayContaining([expect.objectContaining({ name: 'ads_get_tokens' })]),
-		);
-	});
-
-	it('Does not list the ads_get_all_tokens tool with feature flags enabled', async () => {
-		const listedTools = (await client.listTools()).tools;
-		expect(listedTools).not.toEqual(
-			expect.arrayContaining([expect.objectContaining({ name: 'ads_get_all_tokens' })]),
-		);
-	});
-
-	it('Lists the ads_get_icons tool with feature flags enabled', async () => {
-		const listedTools = (await client.listTools()).tools;
-		expect(listedTools).toEqual(
-			expect.arrayContaining([expect.objectContaining({ name: 'ads_get_icons' })]),
-		);
-	});
-
-	it('Does not list the ads_get_all_icons tool with feature flags enabled', async () => {
-		const listedTools = (await client.listTools()).tools;
-		expect(listedTools).not.toEqual(
-			expect.arrayContaining([expect.objectContaining({ name: 'ads_get_all_icons' })]),
-		);
-	});
-
-	it('Lists the ads_get_lint_rules tool with feature flags enabled', async () => {
+	it('lists the ads_get_lint_rules tool', async () => {
 		const listedTools = (await client.listTools()).tools;
 		expect(listedTools).toEqual(
 			expect.arrayContaining([expect.objectContaining({ name: 'ads_get_lint_rules' })]),
 		);
 	});
+
+	it('lists the atlaskit_get_components tool', async () => {
+		const listedTools = (await client.listTools()).tools;
+		expect(listedTools).toEqual(
+			expect.arrayContaining([expect.objectContaining({ name: 'atlaskit_get_components' })]),
+		);
+	});
+
+	it.each(atlaskitToolNames)(
+		'lists %s with public @atlaskit/* routing guidance',
+		async (toolName) => {
+			const listedTools = (await client.listTools()).tools;
+			const tool = listedTools.find((listedTool) => listedTool.name === toolName);
+
+			expect(tool).toEqual(expect.objectContaining({ name: toolName }));
+			expect(tool?.description).toContain('@atlaskit/*');
+			expect(tool?.description).toContain('ADS');
+		},
+	);
 
 	it('Gets all the tokens', async () => {
 		const expectedTokenNames = allTokens.map(({ name }) => expect.objectContaining({ name }));
@@ -110,10 +111,21 @@ describe('ADS MCP Server E2E', () => {
 		const expectedComponentNames = allComponents.map(({ name }) =>
 			expect.objectContaining({ name }),
 		);
-		const listedComponents = (await client.callTool({ name: 'ads_get_components' })).content as {
+		const listedComponents = (await client.callTool({ name: 'ads_get_all_components' }))
+			.content as {
 			text: string;
 		}[];
 		const listedComponentsData = listedComponents.map((data) => JSON.parse(data.text));
+		expect(listedComponentsData).toEqual(expect.arrayContaining(expectedComponentNames));
+	});
+
+	it('Gets all the atlaskit components', async () => {
+		const expectedComponentNames = atlaskitComponents.map(({ name }) =>
+			expect.objectContaining({ name }),
+		);
+		const listedComponents = (await client.callTool({ name: 'atlaskit_get_components' }))
+			.content as { text: string }[];
+		const listedComponentsData = JSON.parse(listedComponents[0].text);
 		expect(listedComponentsData).toEqual(expect.arrayContaining(expectedComponentNames));
 	});
 
@@ -143,97 +155,7 @@ describe('ADS MCP Server E2E', () => {
 		},
 	);
 
-	it('Returns markdown content for ads_get_tokens tool with feature flags enabled', async () => {
-		const result = (
-			await client.callTool({
-				name: 'ads_get_tokens',
-				arguments: {
-					terms: ['color.text'],
-					limit: 1,
-					exactName: true,
-				},
-			})
-		).content as { text: string }[];
-
-		expect(result).toHaveLength(1);
-		const markdown = result[0].text;
-
-		// Validate markdown structure - should contain heading, description, and example value
-		expect(markdown).toContain('# color.text');
-		expect(markdown).toContain('Example Value:');
-		expect(markdown).toMatch(/Example Value: `[^`]+`/);
-
-		// Should not be valid JSON (since it's markdown)
-		expect(() => JSON.parse(markdown)).toThrow();
-	});
-
-	it('Returns markdown content for ads_get_icons tool with feature flags enabled', async () => {
-		const result = (
-			await client.callTool({
-				name: 'ads_get_icons',
-				arguments: {
-					terms: ['AddIcon'],
-					limit: 1,
-					exactName: true,
-				},
-			})
-		).content as { text: string }[];
-
-		expect(result).toHaveLength(1);
-		const markdown = result[0].text;
-
-		// Validate markdown structure - should contain heading and key fields
-		expect(markdown).toContain('# Add Icon');
-		expect(markdown).toContain('Keywords');
-		expect(markdown).toContain('Import statement:');
-		expect(markdown).toMatch(/import AddIcon from '[^']+'/);
-		expect(markdown).toContain('Sizes:');
-
-		// Should not be valid JSON (since it's markdown)
-		expect(() => JSON.parse(markdown)).toThrow();
-	});
-
-	it('Returns all icons as markdown when no search terms provided for ads_get_icons tool with feature flags enabled', async () => {
-		const result = (
-			await client.callTool({
-				name: 'ads_get_icons',
-				arguments: {},
-			})
-		).content as { text: string }[];
-
-		expect(result).toHaveLength(1);
-		const markdown = result[0].text;
-
-		// Should contain multiple icons (at least one)
-		expect(markdown).toContain('#');
-		expect(markdown).toContain('Keywords');
-		expect(markdown).toContain('Import statement:');
-		expect(markdown).toContain('Sizes:');
-		expect(markdown.length).toBeGreaterThan(100); // Should have substantial content
-
-		// Should not be valid JSON (since it's markdown)
-		expect(() => JSON.parse(markdown)).toThrow();
-	});
-
-	it('Returns markdown with Icon Lab import path for ads_get_icons when searching for an Icon Lab icon with feature flags enabled', async () => {
-		const result = (
-			await client.callTool({
-				name: 'ads_get_icons',
-				arguments: {
-					terms: ['PlanIcon'],
-					limit: 1,
-					exactName: true,
-				},
-			})
-		).content as { text: string }[];
-
-		expect(result).toHaveLength(1);
-		const markdown = result[0].text;
-		expect(markdown).toContain('@atlaskit/icon-lab/core/plan');
-		expect(markdown).toMatch(/import PlanIcon from '@atlaskit\/icon-lab\/core\/plan'/);
-	});
-
-	it('Returns markdown content for ads_get_lint_rules tool with feature flags enabled', async () => {
+	it('Returns markdown content for ads_get_lint_rules tool', async () => {
 		const result = (
 			await client.callTool({
 				name: 'ads_get_lint_rules',
@@ -246,18 +168,21 @@ describe('ADS MCP Server E2E', () => {
 		).content as { text: string }[];
 
 		expect(result).toHaveLength(1);
-		const markdown = result[0].text;
+		const text = result[0].text;
 
-		// Validate markdown structure - should contain rule heading and content
-		expect(markdown).toContain('# icon-label');
-		expect(markdown).toContain('Icon labels');
-		expect(markdown.length).toBeGreaterThan(50);
-
-		// Should not be valid JSON (since it's markdown)
-		expect(() => JSON.parse(markdown)).toThrow();
+		// Returns JSON (single rule: may be double-stringified)
+		const parsed = JSON.parse(text);
+		const rule = typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
+		expect(rule).toHaveProperty('ruleName', 'icon-label');
+		expect(rule).toHaveProperty('description');
+		expect(rule).toHaveProperty('content');
+		// Inner content is markdown
+		expect(rule.content).toContain('# icon-label');
+		expect(rule.content).toContain('Icon labels');
+		expect(rule.content.length).toBeGreaterThan(50);
 	});
 
-	it('Returns all lint rules as markdown when no search terms provided for ads_get_lint_rules tool with feature flags enabled', async () => {
+	it('Returns all lint rules as JSON array when no search terms provided for ads_get_lint_rules tool', async () => {
 		const result = (
 			await client.callTool({
 				name: 'ads_get_lint_rules',
@@ -266,14 +191,17 @@ describe('ADS MCP Server E2E', () => {
 		).content as { text: string }[];
 
 		expect(result).toHaveLength(1);
-		const markdown = result[0].text;
+		const text = result[0].text;
 
-		// Should contain multiple rules (at least one)
-		expect(markdown).toContain('#');
-		expect(markdown.length).toBeGreaterThan(100); // Should have substantial content
-
-		// Should not be valid JSON (since it's markdown)
-		expect(() => JSON.parse(markdown)).toThrow();
+		// Returns JSON array (elements may be JSON strings)
+		const parsed = JSON.parse(text);
+		expect(Array.isArray(parsed)).toBe(true);
+		expect(parsed.length).toBeGreaterThan(0);
+		const firstRule = typeof parsed[0] === 'string' ? JSON.parse(parsed[0]) : parsed[0];
+		expect(firstRule).toHaveProperty('ruleName');
+		expect(firstRule).toHaveProperty('description');
+		expect(firstRule).toHaveProperty('content');
+		expect(text.length).toBeGreaterThan(100); // Substantial content
 	});
 
 	it('Returns a useful error if a tool is called with the wrong arguments', async () => {

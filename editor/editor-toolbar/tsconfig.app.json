@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -24,11 +25,19 @@
 		"./__mocks__/**/*",
 		"**/mock.*",
 		"**/codemods/**/*.ts",
-		"**/codemods/**/*.tsx"
+		"**/codemods/**/*.tsx",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-toolbar/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-toolbar/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
@@ -53,6 +62,9 @@
 			"path": "../../design-system/menu/tsconfig.app.json"
 		},
 		{
+			"path": "../../platform/feature-experiments/tsconfig.app.json"
+		},
+		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
 		},
 		{
@@ -65,10 +77,25 @@
 			"path": "../tmp-editor-statsig/tsconfig.app.json"
 		},
 		{
+			"path": "../../design-system/toggle/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/tokens/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/tooltip/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/feature-flags-test-utils/tsconfig.app.json"
+		},
+		{
+			"path": "../../design-system/structured-docs-types/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/testing-library/tsconfig.app.json"
+		},
+		{
+			"path": "../../ap/workbench/tsconfig.app.json"
 		}
 	]
 }

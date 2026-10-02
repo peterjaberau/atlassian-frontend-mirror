@@ -10,12 +10,11 @@ import { css, jsx } from '@emotion/react';
 import { token } from '@atlaskit/tokens';
 
 import { useTheme } from '../../theme';
-
 import { type SkeletonCreateButtonProps } from './types';
 
 const skeletonCreateButtonStyles = css({
 	height: 32,
-	padding: `0 ${token('space.150', '12px')}`,
+	padding: `0 ${token('space.150')}`,
 	alignSelf: 'center',
 	border: 0,
 	borderRadius: token('radius.small', '3px'),
@@ -30,7 +29,7 @@ const skeletonCreateButtonStyles = css({
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&&': {
-		marginInlineStart: token('space.150', '12px'),
+		marginInlineStart: token('space.150'),
 	},
 });
 
@@ -49,7 +48,10 @@ const buttonWrapperStyles = css({
  * - [Examples](https://atlassian.design/components/atlassian-navigation/examples#skeleton-button)
  * - [Code](https://atlassian.design/components/atlassian-navigation/code)
  */
-export const SkeletonCreateButton = ({ text, testId }: SkeletonCreateButtonProps): React.JSX.Element => {
+export const SkeletonCreateButton = ({
+	text,
+	testId,
+}: SkeletonCreateButtonProps): React.JSX.Element => {
 	const theme = useTheme();
 
 	return (

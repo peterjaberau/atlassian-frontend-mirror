@@ -1,8 +1,10 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook } from '@atlassian/testing-library';
 
 import { getFlexibleCardTestWrapper } from '../../../__tests__/__utils__/unit-testing-library-helpers';
 import { SmartLinkSize, SmartLinkStatus } from '../../../constants';
-import { useFlexibleCardContext, useFlexibleUiContext, useFlexibleUiOptionContext } from '../index';
+import { useFlexibleCardContext } from '../useFlexibleCardContext';
+import { useFlexibleUiContext } from '../useFlexibleUiContext';
+import { useFlexibleUiOptionContext } from '../useFlexibleUiOptionContext';
 
 describe('useFlexibleCardContext', () => {
 	it('provides correct context to consumer', () => {
@@ -11,7 +13,7 @@ describe('useFlexibleCardContext', () => {
 		const ui = { size: SmartLinkSize.Small, zIndex: 20 };
 		const { current } = renderHook(() => useFlexibleCardContext(), {
 			wrapper: getFlexibleCardTestWrapper(data, ui),
-		}).result;
+		});
 
 		expect(current?.data).toEqual(data);
 		expect(current?.status).toEqual(status);
@@ -24,7 +26,7 @@ describe('useFlexibleUiContext', () => {
 		const context = { linkTitle: { text: 'This is title.' } };
 		const { current } = renderHook(() => useFlexibleUiContext(), {
 			wrapper: getFlexibleCardTestWrapper(context),
-		}).result;
+		});
 
 		expect(current).toEqual(context);
 	});
@@ -35,7 +37,7 @@ describe('useFlexibleUiOptionContext', () => {
 		const ui = { size: SmartLinkSize.Small, zIndex: 20 };
 		const { current } = renderHook(() => useFlexibleUiOptionContext(), {
 			wrapper: getFlexibleCardTestWrapper(undefined, ui),
-		}).result;
+		});
 
 		expect(current).toEqual(ui);
 	});

@@ -1,17 +1,14 @@
 import type React from 'react';
 
-import { type IntlShape } from 'react-intl-next';
+import { type IntlShape } from 'react-intl';
 
-import { type AnalyticsEventPayload, type CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
 import { type ConversationStarter } from '@atlaskit/rovo-agent-components/ui/AgentConversationStarters';
-import type {
-	AnalyticsEventAttributes,
-	FireEventType,
-	useAnalyticsEvents,
-} from '@atlaskit/teams-app-internal-analytics';
+import type { AnalyticsEventAttributes } from '@atlaskit/teams-app-internal-analytics/analytics/types';
+import type { FireEventType } from '@atlaskit/teams-app-internal-analytics/types';
+import type { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
 
 import { type TeamCentralScopes } from './client/ProfileCardClient';
-import type RovoAgentCardClient from './client/RovoAgentCardClient';
+import type { default as RovoAgentCardClient } from './client/RovoAgentCardClient';
 import {
 	type default as TeamCentralCardClient,
 	type TeamCentralCardClientOptions,
@@ -84,7 +81,7 @@ export interface RovoAgent {
 	name: string;
 	description: string | null;
 	system_prompt_template?: string | null;
-	creator_type: 'SYSTEM' | 'CUSTOMER' | 'THIRD_PARTY' | 'FORGE' | 'ROVO_DEV';
+	creator_type: 'SYSTEM' | 'CUSTOMER' | 'THIRD_PARTY' | 'FORGE' | 'REMOTE_A2A' | 'ROVO_DEV';
 	creator?: string | null;
 	visibility?: 'PUBLIC' | 'PRIVATE' | null;
 	is_default: boolean;
@@ -115,7 +112,7 @@ export type RovoAgentCardClientResult = {
 };
 
 export interface RovoAgentCreatorInfo {
-	type: 'CUSTOMER' | 'SYSTEM' | 'THIRD_PARTY' | 'FORGE' | 'OOTB';
+	type: 'CUSTOMER' | 'SYSTEM' | 'THIRD_PARTY' | 'FORGE' | 'OOTB' | 'REMOTE_A2A';
 	name?: string;
 	profileLink?: string;
 	id?: string;
@@ -219,13 +216,28 @@ export interface ProfileCardTriggerProps {
 	disabledAriaAttributes?: boolean;
 	onVisibilityChange?: (isVisible: boolean) => void;
 	isVisible?: boolean;
+	/**
+	 * Indicates whether the profile card is rendered in a portal.
+	 *
+	 * If true, the profile card will auto-focus the name element when opened for better accessibility,
+	 * keeping the user's focus in the tab trap.
+	 */
+	isRenderedInPortal?: boolean;
 	offset?: [number, number];
 	product?: string;
 	viewingUserId?: string;
 	agentActions?: AgentActionsType;
 	ariaHideProfileTrigger?: boolean;
 	ssrPlaceholderId?: string;
+	/**
+	 * The delay in milliseconds before the profile card is shown.
+	 * PS: This is ignored when the isVisible is true or the trigger is clicked.
+	 */
 	showDelay?: number;
+	/**
+	 * The delay in milliseconds before the profile card is hidden.
+	 * PS: This is ignored when the isVisible is false or the trigger is clicked.
+	 */
 	hideDelay?: number;
 	hideAgentMoreActions?: boolean;
 	hideAiDisclaimer?: boolean;
@@ -301,90 +313,21 @@ export interface TeamProfilecardCoreProps {
 	viewProfileOnClick?: (event?: React.MouseEvent<Element>) => void;
 }
 
-export interface TeamProfileCardTriggerProps extends TeamProfilecardCoreProps {
-	/** The id of the team. */
-	teamId: string;
-	/**
-	Optional orgId. The id of the organization that the team belongs to.
-		Not in use.
-   */
-	orgId?: string;
-	/** An instance of ProfileClient. */
-	resourceClient: ProfileClient;
-	/**
-	The position relative to the trigger that the card should be displayed in.
-   */
-	position?: ProfilecardTriggerPosition;
-	/**
-	The interaction method used to trigger the team profile card to appear.
-
-	- Click is generally recommended, but your needs may vary.
-
-	- Hover works for mouse users, but does not support those who use a
-	  keyboard or screen reader, avoid using this if it's possible or makes
-	  sense.
-
-	- Hover-click is usable for scenarios like inline-edits, where mouse users
-	  cannot click on the trigger without causing side effects, but keyboard
-	  users are still able to navigate into and trigger the profile card.
-
-	Look at the "Team Profilecard Trigger" or "Trigger Link Types" examples to
-	see how they behave, or ask in #help-people-and-teams-xpc on Slack for our
-	recommendations.
-   */
-	trigger?: 'hover' | 'click' | 'hover-click';
-	/**
-	We generally prefer to wrap the trigger in a link to the team profile
-	page. This prop determines how that link behaves.
-
-	- Link is generally the recommended prop (especially in combination with
-	  click or hover-click for the trigger prop above). It wraps the trigger in
-	  an anchor tag with the team profile link (that users can interact with
-	  via middle-click, etc.), but left clicking on the link is suppressed.
-
-	- None does not wrap the trigger in a link at all. This makes it difficult
-	  for keyboard or screen reader users to know how to trigger the profile
-	  card. Generally avoid this.
-
-	- Clickable-link wraps the trigger in a link with no special behaviour.
-	  This is suitable for places where you want the trigger to serve primarily
-	  as a link, and optionally allow hovering to preview the team first.
-
-	Look at the example on "Trigger Link Types" for more in-depth analysis, or
-	ask in #help-people-and-teams-xpc on Slack for our recommendations.
-
-		@deprecated
-		Consumers should always pass it as "none" from now on.
-		Consumers should be responsible to implement wrapper of our profilecard trigger, for example a link
-		We are keeping the original comments longer for existing exps
-   */
-	triggerLinkType?: 'none' | 'link' | 'clickable-link';
-	/**
-	This is the component that will cause a team profile card to appear when
-	interacted with according to the method specified by the trigger prop.
-   */
-	children?: React.ReactNode;
-	/**
-	 * Used by the card to show Flags.
-	 */
-	addFlag?: (flag: any) => void;
-	/**
-	 * Mandatory cloudId. Used to fetch team.
-	 */
-	cloudId?: string;
-	/**
-	 * Whether the popup should have the parent as its root.
-	 */
-	shouldRenderToParent?: boolean;
-}
-
 export interface AgentActionsType {
-	onChatClick?: (event: React.MouseEvent) => void;
+	/**
+	 * Called when the "Chat with Agent" button is clicked. Receives the mouse event
+	 * and the Agent Studio UUID.
+	 * So callers can open Rovo chat with the correct agent without needing
+	 * their own AAID→UUID resolution.
+	 */
+	onChatClick?: (event: React.MouseEvent, agentStudioId?: string) => void;
 	onConversationStartersClick?: (starter: ConversationStarter) => void;
 }
 export interface AgentProfileCardTriggerProps extends AgentActionsType {
 	agentId: string;
+	agentIdType?: 'agent' | 'identity';
 	cloudId?: string;
+	email?: string;
 	autoFocus?: boolean;
 	resourceClient: ProfileClient;
 	actions?: ProfileCardAction[];
@@ -402,6 +345,9 @@ export interface AgentProfileCardTriggerProps extends AgentActionsType {
 	product?: string;
 	viewingUserId?: string;
 	onDeleteAgent?: (agentId: string) => { restore: () => void };
+	hideStarButton?: boolean;
+	/** Optional component rendered at the bottom of the agent profile card. */
+	footerComponent?: React.ReactNode;
 }
 
 export type AgentProfileCardProps = {
@@ -410,13 +356,24 @@ export type AgentProfileCardProps = {
 	isLoading?: boolean;
 	hasError?: boolean;
 	cloudId?: string;
+	email?: string;
 	errorType?: ProfileCardErrorType;
 	addFlag?: (flag: Flag) => void;
 	onDeleteAgent?: (agentId: string) => { restore: () => void };
-	/** Hide the Agent more actions dropdown when true */
+	/** Hide the Agent more actions dropdown when true, is also hidden when hideAgentActions is true */
 	hideMoreActions?: boolean;
 	/** Hide the AI disclaimer. Defaults to false (disclaimer is shown by default). */
 	hideAiDisclaimer?: boolean;
+	/** Hide the conversation starters. Defaults to false (conversation starters are shown by default). */
+	hideConversationStarters?: boolean;
+	/** Hide the agent actions (chat button and dropdown menu). Defaults to false (agent actions are shown by default). */
+	hideAgentActions?: boolean;
+	/** Hide the favourite (star) button. Defaults to false (the star is shown). */
+	hideStarButton?: boolean;
+	/** Render the creator/author as plain text with no link. Defaults to false. */
+	showCreatorNameWithoutLink?: boolean;
+	/** Optional component rendered at the bottom of the agent profile card. */
+	footerComponent?: React.ReactNode;
 } & AgentActionsType;
 
 export type StatusType = 'active' | 'inactive' | 'closed';
@@ -486,9 +443,16 @@ export interface ProfilecardProps {
 	teamCentralBaseUrl?: string;
 	addFlag?: (flag: any) => void;
 	cloudId?: string;
+	/**
+	 * Indicates whether the profile card is rendered in a portal.
+	 *
+	 * If true, the profile card will auto-focus the name element when opened for better accessibility,
+	 * keeping the user's focus in the tab trap.
+	 */
+	isRenderedInPortal?: boolean;
 
 	// Allow to pass custom message for disabled account which `status` prop is `inactive` or `closed`.
-	// `disabledAccountMessage` should not contain react-intl-next components, ex: `FormattedMessage`,
+	// `disabledAccountMessage` should not contain react-intl components, ex: `FormattedMessage`,
 	// because ProfileCard component is wrapped in its own `IntlProvider` and `FormattedMessage` will loads messages of `@atlaskit/profilecard`,
 	// not from the consumer of `@atlaskit/profilecard`.
 	disabledAccountMessage?: React.ReactNode;
@@ -503,28 +467,24 @@ export interface ProfilecardProps {
 	agentActions?: AgentActionsType;
 }
 
-export type AnalyticsFromDuration = (duration: number) => AnalyticsEventPayload;
-export type AnalyticsFromDurationNext = <K extends keyof AnalyticsEventAttributes>(
+export type AnalyticsFromDuration = <K extends keyof AnalyticsEventAttributes>(
 	eventKey: K,
 	duration: number,
 ) => {
 	attributes: AnalyticsEventAttributes[K];
 };
 
-export type AnalyticsFunction = (generator: AnalyticsFromDuration) => void;
-export type AnalyticsFunctionNext = <K extends keyof AnalyticsEventAttributes>(
+export type AnalyticsFunction = <K extends keyof AnalyticsEventAttributes>(
 	eventKey: K,
 	generator: (duration: number) => AnalyticsEventAttributes[K],
 ) => void;
 
 export interface AnalyticsProps {
-	createAnalyticsEvent?: CreateUIAnalyticsEvent;
 	fireEvent?: ReturnType<typeof useAnalyticsEvents>['fireEvent'];
 }
 
 export interface AnalyticsWithDurationProps {
 	fireAnalyticsWithDuration: AnalyticsFunction;
-	fireAnalyticsWithDurationNext: AnalyticsFunctionNext;
 }
 
 export interface TeamProfilecardProps extends TeamProfilecardCoreProps {
@@ -538,10 +498,8 @@ export interface TeamProfilecardProps extends TeamProfilecardCoreProps {
 	team?: Team;
 	/** A callback that will try to re-fetch data in case an error occurred. */
 	clientFetchProfile?: () => void;
-	/** Details relevant to passing around analytics. */
-	analytics: AnalyticsFunction;
 	/** Details relevant to passing around analytics with @atlaskit/teams-app-internal-analytics. */
-	analyticsNext: AnalyticsFunctionNext;
+	analytics: AnalyticsFunction;
 	/** Set auto focus for actionable items */
 	isTriggeredByKeyboard?: boolean;
 }
@@ -562,7 +520,7 @@ export type RelativeDateKeyType =
 
 export type AgentIdType = { type: 'agent' | 'identity'; value: string };
 
-type AgentPermissionName = 'AGENT_CREATE' | 'AGENT_UPDATE' | 'AGENT_DEACTIVATE';
+type AgentPermissionName = 'AGENT_CREATE' | 'AGENT_DUPLICATE' | 'AGENT_UPDATE' | 'AGENT_DEACTIVATE';
 export type AgentPermissions = {
 	permissions: Record<
 		AgentPermissionName,
@@ -597,6 +555,9 @@ export interface ProfileClient {
 }
 
 export type ProfilecardTriggerPosition =
+	| 'auto'
+	| 'auto-start'
+	| 'auto-end'
 	| 'bottom-start'
 	| 'bottom'
 	| 'bottom-end'

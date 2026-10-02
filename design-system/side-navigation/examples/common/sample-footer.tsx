@@ -7,9 +7,10 @@ import { Fragment } from 'react';
 import { cssMap, jsx } from '@compiled/react';
 
 import PremiumIcon from '@atlaskit/icon/core/premium';
-import { type CustomItemComponentProps } from '@atlaskit/menu';
+import type { CustomItemComponentProps } from '@atlaskit/menu/types';
 import { Anchor } from '@atlaskit/primitives/compiled';
-import { Footer } from '@atlaskit/side-navigation';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { Footer } from '@atlaskit/side-navigation/footer';
 import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
@@ -24,7 +25,13 @@ const styles = cssMap({
 	},
 });
 
-export const CustomItemFooter: ({ children, ...props }: CustomItemComponentProps) => JSX.Element = ({ children, ...props }: CustomItemComponentProps) => {
+export const CustomItemFooter: ({
+	children,
+	...props
+}: CustomItemComponentProps) => JSX.Element = ({
+	children,
+	...props
+}: CustomItemComponentProps) => {
 	const Component = props.onClick ? 'a' : 'div';
 	return (
 		<Component

@@ -1,6 +1,7 @@
-import { MediaCardError } from '../../../errors';
-import { isNetworkError } from '../../isNetworkError';
 import { createMediaStoreError } from '@atlaskit/media-client/test-helpers';
+
+import { MediaCardError } from '../../../MediaCardError';
+import { isNetworkError } from '../../isNetworkError';
 
 describe('isNetworkError', () => {
 	it('should return false when error is undefined', () => {
@@ -62,4 +63,3 @@ describe('isNetworkError', () => {
 		// However, in CardView, upload errors are checked first, so network error check won't run
 	});
 });
-

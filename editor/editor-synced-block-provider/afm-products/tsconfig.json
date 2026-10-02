@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-synced-block-provider/app",
 		"rootDir": "../",
 		"composite": true,
@@ -27,6 +26,9 @@
 			"path": "../../adf-utils/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../helpers/browser-apis/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-json-transformer/afm-products/tsconfig.json"
 		},
 		{
@@ -36,7 +38,13 @@
 			"path": "../../node-data-provider/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-common/afm-products/tsconfig.json"

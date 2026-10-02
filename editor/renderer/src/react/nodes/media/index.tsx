@@ -1,33 +1,20 @@
 /**
  * @jsxRuntime classic
  * @jsx jsx
- * @jsxFrag
  */
 import type { PropsWithChildren, SyntheticEvent } from 'react';
 import React, { PureComponent, Fragment, useEffect, useState, useMemo } from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx, css } from '@emotion/react';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
-import { MEDIA_CONTEXT } from '@atlaskit/analytics-namespaced-context';
-import { WithProviders } from '@atlaskit/editor-common/provider-factory';
-import type {
-	ContextIdentifierProvider,
-	ProviderFactory,
-} from '@atlaskit/editor-common/provider-factory';
-import type { EventHandlers } from '@atlaskit/editor-common/ui';
-import { MediaBorderGapFiller } from '@atlaskit/editor-common/ui';
-import type { MediaCardProps, MediaProvider } from '../../../ui/MediaCard';
-import { MediaCard } from '../../../ui/MediaCard';
-import type {
-	LinkDefinition,
-	BorderMarkDefinition,
-	AnnotationMarkDefinition,
-} from '@atlaskit/adf-schema';
-import { AnnotationMarkStates } from '@atlaskit/adf-schema';
-import type { MediaFeatureFlags } from '@atlaskit/media-common';
-import { hexToEditorBorderPaletteColor } from '@atlaskit/editor-palette';
 
-import { getEventHandler } from '../../../utils';
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx, css } from '@emotion/react';
+
+import type { AnnotationMarkDefinition } from '@atlaskit/adf-schema/annotation';
+import { AnnotationMarkStates } from '@atlaskit/adf-schema/annotation';
+import type { BorderMarkDefinition } from '@atlaskit/adf-schema/border';
+import type { DataConsumerDefinition } from '@atlaskit/adf-schema/data-consumer';
+import type { LinkDefinition } from '@atlaskit/adf-schema/link';
+import { MEDIA_CONTEXT } from '@atlaskit/analytics-namespaced-context/MediaAnalyticsContext';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -35,19 +22,35 @@ import {
 	EVENT_TYPE,
 	VIEW_METHOD,
 } from '@atlaskit/editor-common/analytics';
-
-import type { AnalyticsEventPayload } from '../../../analytics/events';
-import { MODE, PLATFORM } from '../../../analytics/events';
-import AnnotationComponent from '../../marks/annotation';
 import {
 	CommentBadgeNext,
 	ExternalImageBadge,
 	MediaBadges,
 } from '@atlaskit/editor-common/media-single';
-import { useInlineCommentsFilter } from '../../../ui/annotations/hooks/use-inline-comments-filter';
-import { useInlineCommentSubscriberContext } from '../../../ui/annotations/hooks/use-inline-comment-subscriber';
+import { WithProviders } from '@atlaskit/editor-common/provider-factory';
+import type {
+	ContextIdentifierProvider,
+	ProviderFactory,
+} from '@atlaskit/editor-common/provider-factory';
 import { AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
+import type { EventHandlers } from '@atlaskit/editor-common/ui';
+import { MediaBorderGapFiller } from '@atlaskit/editor-common/ui';
+import { hexToEditorBorderPaletteColor } from '@atlaskit/editor-palette';
+import type { MediaFeatureFlags } from '@atlaskit/media-common';
+import type { MediaViewerExtensions } from '@atlaskit/media-viewer/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+
+import type { AnalyticsEventPayload } from '../../../analytics/events';
+import { MODE, PLATFORM } from '../../../analytics/events';
+import type { MediaRenderEvent, MediaRenderEventPayload } from '../../../types/mediaOptions';
 import { useAnnotationRangeState } from '../../../ui/annotations/contexts/AnnotationRangeContext';
+import { useInlineCommentSubscriberContext } from '../../../ui/annotations/hooks/use-inline-comment-subscriber';
+import { useInlineCommentsFilter } from '../../../ui/annotations/hooks/use-inline-comments-filter';
+import type { MediaCardProps, MediaProvider } from '../../../ui/MediaCard';
+import { MediaCard } from '../../../ui/MediaCard';
+import { getEventHandler } from '../../../utils';
+import AnnotationComponent from '../../marks/annotation';
 
 export type MediaProps = MediaCardProps & {
 	allowAltTextOnImages?: boolean;
@@ -63,9 +66,14 @@ export type MediaProps = MediaCardProps & {
 	isDrafting: boolean;
 	isInsideOfBlockNode?: boolean;
 	isLinkMark: () => boolean;
-	marks: Array<LinkDefinition | BorderMarkDefinition | AnnotationMarkDefinition>;
+	marks: Array<
+		LinkDefinition | BorderMarkDefinition | AnnotationMarkDefinition | DataConsumerDefinition
+	>;
 	// only used for comment badge, is injected via nodes/mediaSingle
 	mediaSingleElement?: HTMLElement | null;
+	/** Extensions for the media viewer (e.g. sidebar with comment indicator). */
+	mediaViewerExtensions?: MediaViewerExtensions;
+	onMediaRenderEvent?: (event: MediaRenderEvent) => void;
 	providers?: ProviderFactory;
 	// attributes for media node
 	width?: number;
@@ -75,6 +83,16 @@ type Providers = {
 	contextIdentifierProvider?: Promise<ContextIdentifierProvider>;
 	mediaProvider?: Promise<MediaProvider>;
 };
+
+const getDataConsumerMark = (marks: MediaProps['marks']): DataConsumerDefinition | undefined =>
+	marks.find(
+		(mark) =>
+			mark.type === 'dataConsumer' ||
+			(mark.type as unknown as { name: string })?.name === 'dataConsumer',
+	) as DataConsumerDefinition | undefined;
+
+const getRemixDataConsumerMark = (marks: MediaProps['marks']): DataConsumerDefinition | undefined =>
+	fg('cc-maui-add-mark-for-remix-generated-images') ? getDataConsumerMark(marks) : undefined;
 
 const linkStyle = css({
 	position: 'absolute',
@@ -113,6 +131,8 @@ const MediaBorder = ({
 
 	const paletteColorValue = hexToEditorBorderPaletteColor(borderColor) || borderColor;
 
+	const borderRadius = token('radius.large', '8px');
+
 	return (
 		<div
 			data-mark-type="border"
@@ -120,7 +140,8 @@ const MediaBorder = ({
 			data-size={borderWidth}
 			css={borderStyle}
 			style={{
-				borderRadius: `${borderWidth}px`,
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+				borderRadius,
 				boxShadow: `0 0 0 ${borderWidth}px ${paletteColorValue}`,
 			}}
 		>
@@ -171,11 +192,13 @@ const MediaAnnotation = ({
 		<AnnotationComponent
 			id={mark.attrs.id}
 			annotationType={mark.attrs.annotationType}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			dataAttributes={{
 				'data-renderer-mark': true,
 				'data-block-mark': true,
 			}}
 			// This should be fine being empty [] since the serializer serializeFragmentChild getMarkProps call always passes
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			annotationParentIds={[]}
 			allowAnnotations
 			useBlockLevel
@@ -282,7 +305,9 @@ const CommentBadgeWrapper = ({
 
 	return (
 		<CommentBadgeNext
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onMouseEnter={() => setEntered(true)}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onMouseLeave={() => setEntered(false)}
 			status={entered ? 'entered' : status}
 			onClick={onClick}
@@ -296,12 +321,76 @@ const CommentBadgeWrapper = ({
 
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
-class Media extends PureComponent<MediaProps, Object> {
+class Media extends PureComponent<MediaProps, object> {
+	private readonly mediaInstance = {};
+
 	constructor(props: MediaProps) {
 		super(props);
 		this.handleMediaLinkClickFn = this.handleMediaLinkClick.bind(this);
 	}
 	private handleMediaLinkClickFn;
+
+	private getDataConsumerMark = (): DataConsumerDefinition | undefined =>
+		getRemixDataConsumerMark(this.props.marks);
+
+	private getDataConsumerSource = (props: MediaProps = this.props): string | undefined =>
+		getDataConsumerMark(props.marks)?.attrs.sources?.[0];
+
+	private emitMediaRenderEvent = (
+		event: MediaRenderEventPayload,
+		props: MediaProps = this.props,
+	): void => {
+		props.onMediaRenderEvent?.({
+			...event,
+			dataConsumerSource: this.getDataConsumerSource(props),
+			mediaId: props.id,
+			mediaInstance: this.mediaInstance,
+		});
+	};
+
+	componentDidMount(): void {
+		this.emitMediaRenderEvent({ type: 'mounted' });
+		const dataConsumerMark = this.getDataConsumerMark();
+		const infographicType = dataConsumerMark?.attrs.sources?.[0];
+		if (infographicType && this.props.fireAnalyticsEvent) {
+			this.props.fireAnalyticsEvent({
+				action: ACTION.RENDERED,
+				actionSubject: ACTION_SUBJECT.MEDIA,
+				actionSubjectId: this.props.id,
+				eventType: EVENT_TYPE.TRACK,
+				attributes: {
+					infographicType,
+					pageMode: 'view',
+					mediaId: this.props.id,
+				},
+			});
+		}
+	}
+
+	componentDidUpdate(prevProps: MediaProps): void {
+		if (
+			prevProps.id !== this.props.id ||
+			this.getDataConsumerSource(prevProps) !== this.getDataConsumerSource() ||
+			prevProps.onMediaRenderEvent !== this.props.onMediaRenderEvent
+		) {
+			this.emitMediaRenderEvent({ type: 'unmounted' }, prevProps);
+			this.emitMediaRenderEvent({ type: 'mounted' });
+		}
+	}
+
+	componentWillUnmount(): void {
+		this.emitMediaRenderEvent({ type: 'unmounted' });
+	}
+
+	private onPreviewRender = (renderedMediaId: string): void => {
+		this.props.onPreviewRender?.(renderedMediaId);
+		this.emitMediaRenderEvent({ renderedMediaId, type: 'preview-rendered' });
+	};
+
+	private onError: NonNullable<MediaCardProps['onError']> = (reason): void => {
+		this.props.onError?.(reason);
+		this.emitMediaRenderEvent({ reason, type: 'error' });
+	};
 
 	private renderCard = (providers: Providers = {}) => {
 		const { contextIdentifierProvider } = providers;
@@ -316,6 +405,7 @@ class Media extends PureComponent<MediaProps, Object> {
 			height,
 			mediaSingleElement,
 			isDrafting = false,
+			mediaViewerExtensions,
 		} = this.props;
 
 		const annotationMarks = (
@@ -325,6 +415,8 @@ class Media extends PureComponent<MediaProps, Object> {
 		const borderMark = this.props.marks.find(this.props.isBorderMark) as
 			| BorderMarkDefinition
 			| undefined;
+
+		const dataConsumerMark = this.getDataConsumerMark();
 
 		const linkMark = this.props.marks.find(this.props.isLinkMark) as LinkDefinition | undefined;
 
@@ -341,9 +433,13 @@ class Media extends PureComponent<MediaProps, Object> {
 				<MediaAnnotations marks={annotationMarks}>
 					<MediaBorder mark={borderMark}>
 						<AnalyticsContext
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							data={{
 								[MEDIA_CONTEXT]: {
 									border: !!borderMark,
+									// Only defined for remix-generated media (i.e. media nodes with a dataConsumer mark).
+									// Format: "remix:{type}:{subtype}" e.g. "remix:infographic:corporate-doodle"
+									remixSource: dataConsumerMark?.attrs.sources?.[0],
 								},
 							}}
 						>
@@ -354,7 +450,7 @@ class Media extends PureComponent<MediaProps, Object> {
 								useMinimumZIndex
 							>
 								{({ visible }: { visible: boolean }) => (
-									<>
+									<React.Fragment>
 										{visible && (
 											<ExternalImageBadge
 												type={this.props.type}
@@ -368,7 +464,7 @@ class Media extends PureComponent<MediaProps, Object> {
 												isDrafting={isDrafting}
 											/>
 										)}
-									</>
+									</React.Fragment>
 								)}
 							</MediaBadges>
 							<MediaCard
@@ -382,6 +478,15 @@ class Media extends PureComponent<MediaProps, Object> {
 								featureFlags={featureFlags}
 								shouldEnableDownloadButton={enableDownloadButton}
 								ssr={ssr}
+								onError={
+									this.props.onMediaRenderEvent || this.props.onError ? this.onError : undefined
+								}
+								onPreviewRender={
+									this.props.onMediaRenderEvent || this.props.onPreviewRender
+										? this.onPreviewRender
+										: undefined
+								}
+								mediaViewerExtensions={mediaViewerExtensions}
 							/>
 						</AnalyticsContext>
 					</MediaBorder>
@@ -421,6 +526,7 @@ class Media extends PureComponent<MediaProps, Object> {
 		}
 		return (
 			<WithProviders
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				providers={['mediaProvider', 'contextIdentifierProvider']}
 				providerFactory={providers}
 				renderNode={this.renderCard}
@@ -429,7 +535,7 @@ class Media extends PureComponent<MediaProps, Object> {
 	}
 }
 
-const MediaWithDraftAnnotation = (props: PropsWithChildren<MediaProps>) => {
+const MediaWithDraftAnnotation = (props: PropsWithChildren<MediaProps>): jsx.JSX.Element => {
 	const { hoverDraftDocumentPosition: draftPosition } = useAnnotationRangeState();
 
 	const { dataAttributes } = props;
@@ -437,7 +543,6 @@ const MediaWithDraftAnnotation = (props: PropsWithChildren<MediaProps>) => {
 
 	const [position, setPosition] = useState<number | undefined>();
 	const [shouldApplyDraftAnnotation, setShouldApplyDraftAnnotation] = useState<boolean>(false);
-
 	useEffect(() => {
 		if (pos === undefined) {
 			return;
@@ -445,10 +550,14 @@ const MediaWithDraftAnnotation = (props: PropsWithChildren<MediaProps>) => {
 		const posToCheck = (draftPosition?.from ?? 0) + 1;
 
 		if (draftPosition !== null && posToCheck === pos) {
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			setShouldApplyDraftAnnotation(true);
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			setPosition(posToCheck);
 		} else if (draftPosition === null && shouldApplyDraftAnnotation) {
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			setShouldApplyDraftAnnotation(false);
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			setPosition(undefined);
 		}
 	}, [draftPosition, pos, shouldApplyDraftAnnotation]);

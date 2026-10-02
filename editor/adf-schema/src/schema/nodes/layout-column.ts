@@ -1,6 +1,53 @@
-import type { BlockContent } from './types/block-content';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { layoutColumn as layoutColumnFactory } from '../../next-schema/generated/nodeTypes';
 import { uuid } from '../../utils/uuid';
+import type { BlockContent } from './types/block-content';
+import { parseValign } from './types/valign';
+import type { Valign } from './types/valign';
+
+interface ColumnOptions {
+	withLocalId?: boolean;
+}
+
+const setColumnAttributes = (
+	node: Parameters<NonNullable<NodeSpec['toDOM']>>[0],
+	{ withLocalId = false }: ColumnOptions = {},
+) => {
+	const attrs: Record<string, string> = {
+		'data-layout-column': 'true',
+	};
+	const { width, valign, localId } = node.attrs;
+	if (width) {
+		const baseStyle = `flex-basis: ${width}%`;
+		attrs['style'] = `${baseStyle}; --column-width: ${width}%`;
+		attrs['data-column-width'] = `${width}`;
+	}
+	if (valign) {
+		attrs['data-valign'] = valign;
+	}
+	if (withLocalId && localId) {
+		attrs['data-local-id'] = localId;
+	}
+	return attrs;
+};
+
+const getColumnAttrs =
+	({ withLocalId = false }: ColumnOptions = {}) =>
+	(domNode: Node | string) => {
+		// eslint-disable-next-line @atlaskit/editor/no-as-casting
+		const dom = domNode as HTMLElement;
+		const base = {
+			width: Number(dom.getAttribute('data-column-width')) || undefined,
+			...(withLocalId && { localId: uuid.generate() }),
+		};
+		const valign = parseValign(dom.getAttribute('data-valign'));
+		return valign ? { ...base, valign } : base;
+	};
+
+// We need to apply an attribute to the innermost child to help ProseMirror
+// identify its boundaries better.
+const LAYOUT_CONTENT_ATTRS = { 'data-layout-content': 'true' } as const;
 
 /**
  * @name layoutColumn_node
@@ -8,21 +55,26 @@ import { uuid } from '../../utils/uuid';
 export interface LayoutColumnDefinition {
 	attrs: {
 		localId?: string;
+		valign?: Valign;
 		/**
+		 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 		 * @minimum 0
+		 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 		 * @maximum 100
 		 */
 		width: number;
 	};
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 1
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @allowUnsupportedBlock true
 	 */
 	content: Array<BlockContent>;
 	type: 'layoutColumn';
 }
 
-export const layoutColumn = layoutColumnFactory({
+export const layoutColumn: NodeSpec = layoutColumnFactory({
 	parseDOM: [
 		{
 			context: 'layoutColumn//',
@@ -31,36 +83,15 @@ export const layoutColumn = layoutColumnFactory({
 		},
 		{
 			tag: 'div[data-layout-column]',
-			getAttrs: (domNode) => {
-				// eslint-disable-next-line @atlaskit/editor/no-as-casting
-				const dom = domNode as HTMLElement;
-				return {
-					width: Number(dom.getAttribute('data-column-width')) || undefined,
-				};
-			},
+			getAttrs: getColumnAttrs(),
 		},
 	],
 	toDOM(node) {
-		const attrs: Record<string, string> = {
-			'data-layout-column': 'true',
-		};
-		const { width } = node.attrs;
-		if (width) {
-			attrs['style'] = `flex-basis: ${width}%`;
-			attrs['data-column-width'] = `${width}`;
-		}
-
-		// We need to apply a attribute to the inner most child to help
-		// ProseMirror identify its boundaries better.
-		const contentAttrs: Record<string, string> = {
-			'data-layout-content': 'true',
-		};
-
-		return ['div', attrs, ['div', contentAttrs, 0]];
+		return ['div', setColumnAttributes(node), ['div', LAYOUT_CONTENT_ATTRS, 0]];
 	},
 });
 
-export const layoutColumnWithLocalId = layoutColumnFactory({
+export const layoutColumnWithLocalId: NodeSpec = layoutColumnFactory({
 	parseDOM: [
 		{
 			context: 'layoutColumn//',
@@ -69,35 +100,16 @@ export const layoutColumnWithLocalId = layoutColumnFactory({
 		},
 		{
 			tag: 'div[data-layout-column]',
-			getAttrs: (domNode) => {
-				// eslint-disable-next-line @atlaskit/editor/no-as-casting
-				const dom = domNode as HTMLElement;
-				return {
-					width: Number(dom.getAttribute('data-column-width')) || undefined,
-					localId: uuid.generate(),
-				};
-			},
+			getAttrs: getColumnAttrs({ withLocalId: true }),
 		},
 	],
 	toDOM(node) {
-		const attrs: Record<string, string> = {
-			'data-layout-column': 'true',
-		};
-		if (node?.attrs?.localId !== undefined) {
-			attrs['data-local-id'] = node.attrs.localId;
-		}
-		const { width } = node.attrs;
-		if (width) {
-			attrs['style'] = `flex-basis: ${width}%`;
-			attrs['data-column-width'] = `${width}`;
-		}
-
-		// We need to apply a attribute to the inner most child to help
-		// ProseMirror identify its boundaries better.
-		const contentAttrs: Record<string, string> = {
-			'data-layout-content': 'true',
-		};
-
-		return ['div', attrs, ['div', contentAttrs, 0]];
+		return [
+			'div',
+			setColumnAttributes(node, { withLocalId: true }),
+			['div', LAYOUT_CONTENT_ATTRS, 0],
+		];
 	},
 });
+
+export const layoutColumnStage0: NodeSpec = layoutColumnWithLocalId;

@@ -1,5 +1,1370 @@
 # @atlaskit/editor-plugin-base
 
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- [`9e6211ceb4ceb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e6211ceb4ceb) -
+  Clean up the fully rolled-out `platform_editor_small_font_size` experiment and make its permanent
+  `true` behavior unconditional across editor formatting, task and list handling, paste behavior,
+  controls, and rendering.
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.14
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 16.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`98bc3bac22bb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/98bc3bac22bb2) -
+  Add platform_editor_blocks editor experiment that routes to platform_editor_blocks_conf on
+  Confluence and platform_editor_blocks_jira on Jira; migrate internal callsites of the old
+  per-product Blocks experiments to the unified key
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.2
+
+### Patch Changes
+
+- [`0b640b43bac93`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b640b43bac93) -
+  Change experiment name, no functionality changes
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`f1eebdf4ed96b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1eebdf4ed96b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.31
+
+### Patch Changes
+
+- [`a0f40da6cf877`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0f40da6cf877) -
+  Preserve fontSize mark when pressing Enter at end of paragraph to create new paragraph
+- Updated dependencies
+
+## 9.0.30
+
+### Patch Changes
+
+- [`73b2fc243f544`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73b2fc243f544) -
+  Cleaning up getBrowserInfo which was behind experiment platform_editor_hydratable_ui and is now
+  rolled out
+- Updated dependencies
+
+## 9.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.20
+
+### Patch Changes
+
+- [`4babe84074774`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4babe84074774) -
+  Updates lookup and identiier for gutter to use a data attribute
+- Updated dependencies
+
+## 9.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.15
+
+### Patch Changes
+
+- [`c9b7aaa42d05b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9b7aaa42d05b) -
+  Mechanical type-import autofix for editor core shell packages.
+- Updated dependencies
+
+## 9.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.12
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 9.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.0.10
 
 ### Patch Changes

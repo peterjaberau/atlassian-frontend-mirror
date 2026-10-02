@@ -4,16 +4,15 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type MutableState, type Tools } from 'final-form';
 import { Form } from 'react-final-form';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { asMock } from '@atlaskit/link-test-helpers/jest';
 
-import { useFormContext } from '../../../controllers/form-context';
-
+import { useFormContext } from '../../../controllers/form-context/main';
 import { CreateFormFooter } from './main';
 
-jest.mock('../../../controllers/form-context', () => {
-	const originalModule = jest.requireActual('../../../controllers/form-context');
+jest.mock('../../../controllers/form-context/main', () => {
+	const originalModule = jest.requireActual('../../../controllers/form-context/main');
 	return {
 		...originalModule,
 		useFormContext: jest.fn(originalModule.useFormContext),

@@ -1,27 +1,31 @@
 jest.mock('../../../utils/shouldSample');
 import './unauthorized.test.mock';
-
 import React from 'react';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import * as jestExtendedMatchers from 'jest-extended';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
-import { type CardClient, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
 import { asMockFunction, type JestFunction } from '@atlaskit/media-test-helpers';
-import { auth, AuthError } from '@atlaskit/outbound-auth-flow-client';
+import { auth } from '@atlaskit/outbound-auth-flow-client/auth';
+import { AuthError } from '@atlaskit/outbound-auth-flow-client/error';
+import { eeTest } from '@atlaskit/tmp-editor-statsig/editor-experiments-test-utils';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { fireEvent, render, screen, waitFor, userEvent } from '@atlassian/testing-library';
 
-import * as ufoWrapper from '../../../state/analytics/ufoExperiences';
-import { fakeFactory, mocks } from '../../../utils/mocks';
+import * as startUfoExperienceModule from '../../../state/analytics/startUfoExperience';
+import * as succeedUfoExperienceModule from '../../../state/analytics/succeedUfoExperience';
+import { fakeFactory } from '../../../utils/fake-factory';
+import { mocks } from '../../../utils/mocks';
 import { Card, type CardAppearance } from '../../Card';
-
 // ShouldSample needs to be loaded for beforeEach inside to be picked up before test runs
 import '../../../utils/shouldSample';
 
@@ -40,8 +44,8 @@ describe('smart-card: unauthorized analytics', () => {
 	let mockWindowOpen: jest.Mock;
 
 	const mockUuid = uuid as JestFunction<typeof uuid>;
-	const mockStartUfoExperience = jest.spyOn(ufoWrapper, 'startUfoExperience');
-	const mockSucceedUfoExperience = jest.spyOn(ufoWrapper, 'succeedUfoExperience');
+	const mockStartUfoExperience = jest.spyOn(startUfoExperienceModule, 'startUfoExperience');
+	const mockSucceedUfoExperience = jest.spyOn(succeedUfoExperienceModule, 'succeedUfoExperience');
 	const mockAnalyticsClient = {
 		sendUIEvent: jest.fn().mockResolvedValue(undefined),
 		sendOperationalEvent: jest.fn().mockResolvedValue(undefined),
@@ -54,7 +58,6 @@ describe('smart-card: unauthorized analytics', () => {
 		mockClient = new (fakeFactory(mockFetch))();
 		mockWindowOpen = jest.fn();
 		mockUuid.mockReturnValue('some-uuid-1');
-		/// @ts-ignore
 		global.open = mockWindowOpen;
 	});
 
@@ -154,13 +157,15 @@ describe('smart-card: unauthorized analytics', () => {
 			},
 		);
 
-		it('should fire clicked event when the "learn more" button is clicked on unauthorized hover card', async () => {
+		async function expectUnauthorisedHoverLearnMoreClickFiresAnalytics(
+			rovoOptions?: React.ComponentProps<typeof Provider>['rovoOptions'],
+		) {
 			const mockUrl = 'https://this.is.a.url';
 			mockFetch.mockImplementationOnce(async () => mocks.unauthorized);
 			render(
 				<FabricAnalyticsListeners client={mockAnalyticsClient}>
 					<IntlProvider locale="en">
-						<Provider client={mockClient}>
+						<Provider client={mockClient} rovoOptions={rovoOptions}>
 							<Card
 								url={mockUrl}
 								appearance="inline"
@@ -202,6 +207,69 @@ describe('smart-card: unauthorized analytics', () => {
 					}),
 				}),
 			);
+		}
+
+		ffTest.off('platform_sl_3p_preauth_better_hovercard_killswitch', '', () => {
+			it('should fire learn more clicked on unauthorised hover when preauth-better killswitch is off', async () => {
+				await expectUnauthorisedHoverLearnMoreClickFiresAnalytics();
+			});
+		});
+
+		ffTest.on('platform_sl_3p_preauth_better_hovercard_killswitch', '', () => {
+			eeTest
+				.describe('platform_sl_3p_preauth_better_hovercard', 'unauthorised hover learn more')
+				.variant(false, () => {
+					it('should fire learn more clicked on unauthorised hover when killswitch is on and experiment is off', async () => {
+						await expectUnauthorisedHoverLearnMoreClickFiresAnalytics();
+					});
+				});
+
+			eeTest
+				.describe('platform_sl_3p_preauth_better_hovercard', 'unauthorised hover learn more')
+				.variant(true, () => {
+					it('should fire learn more clicked when experiment is on but Rovo is disabled', async () => {
+						await expectUnauthorisedHoverLearnMoreClickFiresAnalytics({
+							isRovoEnabled: false,
+							isRovoLLMEnabled: true,
+						});
+					});
+
+					it('should not show learn more when Rovo unauthorised hover is shown', async () => {
+						const mockUrl = 'https://this.is.a.url';
+						mockFetch.mockImplementationOnce(async () => mocks.unauthorized);
+						render(
+							<FabricAnalyticsListeners client={mockAnalyticsClient}>
+								<IntlProvider locale="en">
+									<Provider
+										client={mockClient}
+										rovoOptions={{ isRovoEnabled: true, isRovoLLMEnabled: true }}
+									>
+										<Card
+											url={mockUrl}
+											appearance="inline"
+											testId="unauthorized-inline-card"
+											showHoverPreview={true}
+										/>
+									</Provider>
+								</IntlProvider>
+							</FabricAnalyticsListeners>,
+						);
+
+						const unauthorizedLink = await screen.findByTestId(
+							'unauthorized-inline-card-unauthorized-view',
+							{},
+							{ timeout: 10000 },
+						);
+						await userEvent.hover(unauthorizedLink);
+
+						expect(
+							await screen.findByTestId('hover-card-rovo-unauthorised-view'),
+						).toBeInTheDocument();
+						expect(
+							screen.queryByTestId('unauthorised-view-content-learn-more'),
+						).not.toBeInTheDocument();
+					});
+				});
 		});
 
 		it.each<[CardAppearance, string]>([

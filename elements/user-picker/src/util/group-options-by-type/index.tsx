@@ -1,10 +1,18 @@
 import React from 'react';
-import { FormattedMessage } from 'react-intl-next';
-import memoizeOne from 'memoize-one';
+
+import memoizeOne, { type MemoizedFn } from 'memoize-one';
+import { FormattedMessage } from 'react-intl';
+
 import { messages } from '../../components/i18n';
 import type { OptionData, Option, GroupedOptions } from '../../types';
 
-const getLabelForType = (type: NonNullable<OptionData['type']>) => {
+const getLabelForType = (
+	type: NonNullable<OptionData['type']>,
+	customLabels?: Partial<Record<NonNullable<OptionData['type']>, React.ReactNode>>,
+) => {
+	if (customLabels && type in customLabels) {
+		return <>{customLabels[type]}</>;
+	}
 	switch (type) {
 		case 'user':
 			return <FormattedMessage {...messages.userTypeLabel} />;
@@ -21,8 +29,18 @@ const getLabelForType = (type: NonNullable<OptionData['type']>) => {
 	}
 };
 
-export const groupOptionsByType = memoizeOne(
-	(options: Option[], groupByTypeOrder: NonNullable<OptionData['type']>[]) => {
+export const groupOptionsByType: MemoizedFn<
+	(
+		options: Option[],
+		groupByTypeOrder: NonNullable<OptionData['type']>[],
+		customGroupLabels?: Partial<Record<NonNullable<OptionData['type']>, React.ReactNode>>,
+	) => Option[] | GroupedOptions[]
+> = memoizeOne(
+	(
+		options: Option[],
+		groupByTypeOrder: NonNullable<OptionData['type']>[],
+		customGroupLabels?: Partial<Record<NonNullable<OptionData['type']>, React.ReactNode>>,
+	): Option[] | GroupedOptions[] => {
 		// If groupByTypeOrder is empty, just return the original options
 		if (groupByTypeOrder.length === 0) {
 			return options;
@@ -46,7 +64,7 @@ export const groupOptionsByType = memoizeOne(
 		groupByTypeOrder.forEach((type) => {
 			if (groupedMap.has(type)) {
 				result.push({
-					label: getLabelForType(type),
+					label: getLabelForType(type, customGroupLabels),
 					options: groupedMap.get(type)!,
 				});
 

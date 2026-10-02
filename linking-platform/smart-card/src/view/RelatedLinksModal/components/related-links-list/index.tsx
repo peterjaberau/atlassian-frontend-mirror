@@ -2,7 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import { cssMap, jsx } from '@atlaskit/css';
 import { Box, Stack } from '@atlaskit/primitives/compiled';
@@ -34,7 +34,7 @@ const RelatedLinksList = ({
 	testId,
 	selected,
 	handleSelectedUpdate,
-}: RelatedLinksListProp) => {
+}: RelatedLinksListProp): JSX.Element => {
 	return (
 		<Stack testId={testId}>
 			<Box xcss={styles.sectionTitle}>

@@ -1,4 +1,14 @@
 import {
+	type MentionDescription,
+	type MentionDisabledState,
+	type MentionDisabledStateInput,
+	type InviteFromMentionProvider,
+	type XProductInviteMentionProvider,
+	type AnalyticsCallback,
+} from '../types';
+import { padArray } from '../util';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import {
 	type MentionProvider,
 	type MentionContextIdentifier,
 	// @ts-ignore
@@ -8,12 +18,6 @@ import {
 	// @ts-ignore
 	ResultCallback,
 } from './MentionResource';
-import { padArray } from '../util';
-import {
-	type MentionDescription,
-	type InviteFromMentionProvider,
-	type XProductInviteMentionProvider,
-} from '../types';
 export type { MentionDescription };
 
 export type MentionProviderFunctions = Omit<
@@ -57,15 +61,37 @@ export default class ContextMentionResource implements MentionProvider {
 		(...args: any[]) =>
 			(this.mentionProvider[f] as Function)(...args);
 
-	subscribe = this.callDefault('subscribe');
+	subscribe: (
+		key: string,
+		callback?: ResultCallback<MentionDescription[]> | undefined,
+		errCallback?: ErrorCallback,
+		infoCallback?: InfoCallback,
+		allResultsCallback?: ResultCallback<MentionDescription[]> | undefined,
+		analyticsCallback?: AnalyticsCallback,
+	) => void = this.callDefault('subscribe');
 
-	unsubscribe = this.callDefault('unsubscribe');
+	unsubscribe: (key: string) => void = this.callDefault('unsubscribe');
 
-	filter = this.callWithContextIds('filter', 1);
+	filter: (query?: string, contextIdentifier?: MentionContextIdentifier) => void =
+		this.callWithContextIds('filter', 1);
 
-	recordMentionSelection = this.callWithContextIds('recordMentionSelection', 1);
+	recordMentionSelection: (
+		mention: MentionDescription,
+		contextIdentifier?: MentionContextIdentifier,
+	) => void = this.callWithContextIds('recordMentionSelection', 1);
 
-	shouldHighlightMention = this.callDefault('shouldHighlightMention');
+	shouldHighlightMention: (mention: MentionDescription) => boolean =
+		this.callDefault('shouldHighlightMention');
 
-	isFiltering = this.callDefault('isFiltering');
+	getMentionDisabledState = (
+		mention: MentionDisabledStateInput,
+	): MentionDisabledState | undefined => this.mentionProvider.getMentionDisabledState?.(mention);
+
+	subscribeToDisabledStateChanges = (listener: () => void): (() => void) =>
+		this.mentionProvider.subscribeToDisabledStateChanges?.(listener) ?? (() => undefined);
+
+	notifyMentionDestroyed = (mention: { id: string }): void =>
+		this.mentionProvider.notifyMentionDestroyed?.(mention);
+
+	isFiltering: (query: string) => boolean = this.callDefault('isFiltering');
 }

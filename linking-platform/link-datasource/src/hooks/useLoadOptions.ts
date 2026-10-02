@@ -4,10 +4,9 @@ import {
 	ActionOperationStatus,
 	type AtomicActionExecuteRequest,
 	type AtomicActionExecuteResponse,
-} from '@atlaskit/linking-types';
+} from '@atlaskit/linking-types/datasource-actions';
 
 import type { ExecuteFetch } from '../state/actions';
-
 import { useDatasourceTableFlag } from './useDatasourceTableFlag';
 
 const loadOptions = async <T>(
@@ -49,7 +48,11 @@ export const useLoadOptions = <T>({
 	fetchInputs,
 	executeFetch,
 	emptyOption,
-}: LoadOptionsProps<T>) => {
+}: LoadOptionsProps<T>): {
+	hasFailed: boolean;
+	isLoading: boolean;
+	options: T[];
+} => {
 	const [{ options, isLoading, hasFailed }, dispatch] = useReducer(reducer<T>, {
 		isLoading: true,
 		options: [],

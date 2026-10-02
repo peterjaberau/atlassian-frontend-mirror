@@ -1,0 +1,18 @@
+/* eslint-disable @atlaskit/editor/no-re-export */
+
+export { SyncBlockError } from '../common/types';
+export type {
+	ResourceId,
+	SyncBlockData,
+	SyncBlockNode,
+	SyncBlockProduct,
+	SyncBlockLocationScope,
+	SyncBlockStatus,
+	BlockInstanceId,
+	SyncBlockAttrs,
+	ReferenceSyncBlockData,
+	ReferencesSourceInfo,
+	DeletionReason,
+	DeletionMechanism,
+	SyncBlockPrefetchData,
+} from '../common/types';

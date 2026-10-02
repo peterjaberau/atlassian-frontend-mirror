@@ -1,5 +1,313 @@
 # @atlaskit/editor-plugin-rule
 
+## 23.0.0
+
+### Patch Changes
+
+- [`281a2188b8d83`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/281a2188b8d83) -
+  [ux] [EDITOR-8348] this change adds a color picker to the divider floating toolbar behind
+  `platform_editor_lovability_dividers`. the selected color is applied behind
+  `platform_editor_lovability_dividers_attributes`.
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- [`a034f535638cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a034f535638cc) -
+  Add structured Quick Insert previews with localised title, description and attribution under
+  platform_editor_slash_command.
+
+  Exclude footer and category navigation actions from previews. Left-align attribution, use subtle
+  title and attribution text, and default description text.
+
+  Show text previews even without preview metadata, and reserve a fixed image area while images load
+  or when they fail. Keep previews within the viewport, flipping left when needed, with compact
+  panel dimensions and typography.
+
+  Replace baked panel screenshots with image-only assets. Remove image fields from text-only legacy
+  previews while preserving their attribution.
+
+  Let extension providers own their preview images and attribution. Pass preview metadata through
+  the Company Hub manifest factory and remove Editor's fallback preview registry.
+
+  Localize provider attribution names and display Confluence and Jira product icons instead of the
+  attribution prefix when an icon is present. Allow the Dropbox manifest to receive the host's
+  message formatter.
+
+- Updated dependencies
+
+## 21.0.0
+
+### Minor Changes
+
+- [`5c5d7a5bbff74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c5d7a5bbff74) -
+  Cleanup `feature_gate` `platform_editor_element_browser_analytic`. Insert analytics permanently
+  report the caller's actual input method rather than always attributing the insertion to
+  `quickInsert`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.2
+
+### Patch Changes
+
+- [`88fb7a8d4013a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88fb7a8d4013a) -
+  [ux] Add optional light and dark preview URLs to slash-command menu items and pass theme-aware
+  previews to supported commands when the `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 18.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`27b897435a350`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/27b897435a350) -
+  [ux] [EDITOR-8345] This change adds a menu to the feature-gated floating toolbar with options to
+  toggle Divider weights and styles, behind platform_editor_lovability_dividers.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- [`0e5685af71a8f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e5685af71a8f) -
+  [ux] [EDITOR-8350] This change adds a feature-gated floating toolbar for divider nodes behind
+  platform_editor_lovability_dividers, with Copy and Delete buttons.
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.0
+
+### Minor Changes
+
+- [`ec66928dbdbeb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec66928dbdbeb) -
+  For the platform_editor_slash_command experiment, reorder Structure items, update slash-command
+  icons, move Jira work items to Data & Charts, and move Create Jira work item and Mention to
+  Structure. Use BlockSyncedIcon for the Synced block command.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`9f8027e06f6f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f8027e06f6f6) -
+  Use updated slash-command menu icons when platform_editor_slash_command is enabled.
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- [`4273da2e1a648`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4273da2e1a648) -
+  Register native Quick Insert items behind `platform_editor_slash_command`.
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- [`346f91cfe1997`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/346f91cfe1997) -
+  Clean up prefer static regex violations
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`a94a013546f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a94a013546f69) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- [`fa146e17e08d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa146e17e08d6) -
+  Update README.md and 0-intro.tsx
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.0.0
 
 ### Patch Changes

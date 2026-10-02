@@ -7,16 +7,15 @@ import { forwardRef, memo, type Ref, useRef } from 'react';
 import { cssMap, cx, jsx } from '@atlaskit/css';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
 import useAutoFocus from '@atlaskit/ds-lib/use-auto-focus';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Anchor } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import Content from '../shared/content';
 import IconRenderer from '../shared/icon-renderer';
 import type { CommonAnchorProps, CommonLinkVariantProps } from '../types';
-
 import { type CommonIconButtonProps } from './types';
 
 export type LinkIconButtonProps<RouterLinkConfig extends Record<string, any> = never> =
@@ -34,7 +33,7 @@ const styles = cssMap({
 		alignItems: 'baseline',
 		justifyContent: 'center',
 		columnGap: token('space.050'),
-		borderRadius: token('radius.small', '3px'),
+		borderRadius: token('radius.medium'),
 		borderWidth: 0,
 		flexShrink: 0,
 		height: '2rem',
@@ -55,9 +54,11 @@ const styles = cssMap({
 			position: 'absolute',
 		},
 	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	baseT26Shape: {
-		borderRadius: token('radius.medium', '6px'),
+	interactiveMotion: {
+		transition: token('motion.button.hovered'),
+		'&:active': {
+			transition: token('motion.button.pressed'),
+		},
 	},
 	// Required due to Jira's AUI CSS reset: https://product-fabric.atlassian.net/browse/DSP-15687
 	linkDecorationUnset: {
@@ -147,6 +148,22 @@ const primaryStyles = cssMap({
 			// @ts-expect-error
 			color: token('color.text.inverse'),
 			backgroundColor: token('color.background.brand.bold.pressed'),
+		},
+	},
+});
+
+const rovoStyles = cssMap({
+	root: {
+		backgroundColor: token('color.rovo.background.brand.bold'),
+		color: token('color.text.inverse'),
+		'&:visited': {
+			color: token('color.text.inverse'),
+		},
+		'&:hover': {
+			backgroundColor: token('color.rovo.background.brand.bold.hovered'),
+		},
+		'&:active': {
+			backgroundColor: token('color.rovo.background.brand.bold.pressed'),
 		},
 	},
 });
@@ -247,6 +264,7 @@ const LinkIconButtonBase = <RouterLinkConfig extends Record<string, any> = never
 		isSelected,
 		isTooltipDisabled = true,
 		label,
+		newWindowLabel,
 		onClick,
 		onClickCapture,
 		onKeyDownCapture,
@@ -287,12 +305,14 @@ const LinkIconButtonBase = <RouterLinkConfig extends Record<string, any> = never
 				component={tooltip?.component}
 				hideTooltipOnClick={tooltip?.hideTooltipOnClick}
 				hideTooltipOnMouseDown={tooltip?.hideTooltipOnMouseDown}
+				hasNewContentOnTriggerClick={tooltip?.hasNewContentOnTriggerClick}
 				ignoreTooltipPointerEvents={tooltip?.ignoreTooltipPointerEvents}
 			>
 				{(triggerProps) => (
 					<Anchor
 						{...saferRest}
 						aria-labelledby={ariaLabelledBy}
+						newWindowLabel={newWindowLabel}
 						testId={testId}
 						componentName="LinkIconButton"
 						analyticsContext={analyticsContext}
@@ -331,17 +351,18 @@ const LinkIconButtonBase = <RouterLinkConfig extends Record<string, any> = never
 						// Base props only
 						xcss={cx(
 							styles.base,
-							fg('platform-dst-shape-theme-default') && styles.baseT26Shape,
+							!isDisabled && fg('platform-dst-motion-uplift-button') && styles.interactiveMotion,
 							appearance === 'default' && defaultStyles.root,
 							appearance === 'primary' && primaryStyles.root,
+							appearance === 'rovo' && rovoStyles.root,
 							appearance === 'discovery' && discoveryStyles.root,
 							appearance === 'subtle' && subtleStyles.root,
 							styles.linkDecorationUnset,
 							isSelected && selectedStyles.root,
 							isSelected && appearance === 'discovery' && selectedStyles.discovery,
 							isDisabled && styles.disabled,
-							spacing === 'compact' && styles.spacingCompact,
 							styles.iconButton,
+							spacing === 'compact' && styles.spacingCompact,
 							shape === 'circle' && styles.circle,
 						)}
 						onMouseDownCapture={onMouseDownCapture}
@@ -378,12 +399,14 @@ const LinkIconButtonBase = <RouterLinkConfig extends Record<string, any> = never
 			{...saferRest}
 			// aria-label={preventedAriaLabel}
 			aria-labelledby={ariaLabelledBy}
+			newWindowLabel={newWindowLabel}
 			ref={mergeRefs([localRef, ref])}
 			xcss={cx(
 				styles.base,
-				fg('platform-dst-shape-theme-default') && styles.baseT26Shape,
+				!isDisabled && fg('platform-dst-motion-uplift-button') && styles.interactiveMotion,
 				appearance === 'default' && defaultStyles.root,
 				appearance === 'primary' && primaryStyles.root,
+				appearance === 'rovo' && rovoStyles.root,
 				appearance === 'discovery' && discoveryStyles.root,
 				appearance === 'subtle' && subtleStyles.root,
 				styles.linkDecorationUnset,

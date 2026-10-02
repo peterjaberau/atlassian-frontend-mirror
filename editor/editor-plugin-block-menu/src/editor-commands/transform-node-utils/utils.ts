@@ -1,8 +1,11 @@
+import { isNodeTypeValidChildOf } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { NodeRange, Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
 import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
-import { type ContentNodeWithPos, findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
+import { findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
+import type { ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
 import { CellSelection } from '@atlaskit/editor-tables';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { NodeTypeName } from './types';
 import { NODE_CATEGORY_BY_TYPE } from './types';
@@ -14,6 +17,10 @@ import { NODE_CATEGORY_BY_TYPE } from './types';
 export const isTextNode = (node: PMNode): boolean => {
 	const category = NODE_CATEGORY_BY_TYPE[node.type.name as NodeTypeName];
 	return category === 'text';
+};
+
+export const isListNode = (node: PMNode): boolean => {
+	return ['bulletList', 'orderedList', 'taskList'].includes(node.type.name);
 };
 
 export const getSelectedNode = (selection: Selection): ContentNodeWithPos | undefined => {
@@ -62,6 +69,7 @@ export const getTargetNodeTypeNameInContext = (
 	nodeTypeName: NodeTypeName | null,
 	isNested?: boolean,
 	parentNode?: PMNode,
+	schema?: Schema,
 ): NodeTypeName | null => {
 	if (
 		parentNode &&
@@ -73,6 +81,16 @@ export const getTargetNodeTypeNameInContext = (
 
 	if (nodeTypeName === 'expand' && isNested) {
 		return 'nestedExpand';
+	}
+
+	if (
+		nodeTypeName === 'panel' &&
+		schema?.nodes['panel_c1'] &&
+		expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+	) {
+		if (!parentNode || isNodeTypeValidChildOf('panel_c1', parentNode, schema)) {
+			return 'panel_c1';
+		}
 	}
 
 	return nodeTypeName;
@@ -89,7 +107,10 @@ export const convertNestedExpandToExpand = (node: PMNode, schema: Schema): PMNod
 		return null;
 	}
 
-	return expandType.createAndFill({ title: node.attrs?.title || '' }, node.content);
+	return expandType.createAndFill(
+		{ title: node.attrs?.title || '', localId: crypto.randomUUID() },
+		node.content,
+	);
 };
 
 /**
@@ -103,7 +124,10 @@ export const convertExpandToNestedExpand = (node: PMNode, schema: Schema): PMNod
 		return null;
 	}
 
-	return nestedExpandType.createAndFill({ title: node.attrs?.title || '' }, node.content);
+	return nestedExpandType.createAndFill(
+		{ title: node.attrs?.title || '', localId: crypto.randomUUID() },
+		node.content,
+	);
 };
 
 /**

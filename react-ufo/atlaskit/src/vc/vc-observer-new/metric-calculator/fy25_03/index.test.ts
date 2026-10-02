@@ -1,17 +1,19 @@
 // fy25_03/index.test.ts
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { expVal } from '../../../expVal';
 import type { VCObserverEntry, ViewportEntryData, WindowEventEntryData } from '../../types';
 import {
+	DARK_READER_BROWSER_EXTENSION_ATTRIBUTES,
+	MORE_THIRD_PARTY_EXTENSION_ATTRIBUTES,
 	KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS,
 	NON_VISUAL_ARIA_ATTRIBUTES,
 } from '../utils/constants';
-
 import VCCalculator_FY25_03 from './index';
 
 // Mock feature flags
-jest.mock('@atlaskit/platform-feature-flags', () => ({
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn(),
 }));
 
@@ -360,62 +362,54 @@ describe('VCCalculator_FY25_03', () => {
 			});
 		});
 
-		describe('rovo_search_page_ttvc_ignoring_smart_answers_fix is on', () => {
-			beforeEach(() => {
-				mockFg.mockImplementation(
-					(flag) => flag === 'rovo_search_page_ttvc_ignoring_smart_answers_fix',
-				);
-			});
+		it('should return true for smart answers entries by default', () => {
+			const addedElementEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:smart-answers-element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
 
-			it('should return true for smart answers entries by default', () => {
-				const addedElementEntry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:smart-answers-element',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
+			const attributeMutationEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:smart-answers-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
 
-				const attributeMutationEntry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:smart-answers-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
+			expect(calculator['isEntryIncluded'](addedElementEntry)).toBe(true);
+			expect(calculator['isEntryIncluded'](attributeMutationEntry)).toBe(true);
+		});
 
-				expect(calculator['isEntryIncluded'](addedElementEntry)).toBe(true);
-				expect(calculator['isEntryIncluded'](attributeMutationEntry)).toBe(true);
-			});
+		it('should return false for smart answers entries when excludeSmartAnswersInSearch is true', () => {
+			const addedElementEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:smart-answers-element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
 
-			it('should return false for smart answers entries when excludeSmartAnswersInSearch is true', () => {
-				const addedElementEntry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:smart-answers-element',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
+			const attributeMutationEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:smart-answers-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
 
-				const attributeMutationEntry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:smart-answers-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
-
-				expect(calculator['isEntryIncluded'](addedElementEntry, undefined, true)).toBe(false);
-				expect(calculator['isEntryIncluded'](attributeMutationEntry, undefined, true)).toBe(false);
-			});
+			expect(calculator['isEntryIncluded'](addedElementEntry, undefined, true)).toBe(false);
+			expect(calculator['isEntryIncluded'](attributeMutationEntry, undefined, true)).toBe(false);
 		});
 	});
 
@@ -453,94 +447,186 @@ describe('VCCalculator_FY25_03', () => {
 		it('should return true for empty entries', () => {
 			expect(calculator['getVCCleanStatus']([])).toEqual({ isVCClean: true });
 		});
+
+		it('should return clean for scroll-container events (not an aborting event in fy25.03)', () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1234,
+					data: {
+						type: 'window:event',
+						eventType: 'scroll-container',
+					} as unknown as WindowEventEntryData,
+				},
+			];
+			expect(calculator['getVCCleanStatus'](entries)).toEqual({ isVCClean: true });
+		});
 	});
 
-	describe('getConsideredEntryTypes behavior with platform_ufo_exclude_3p_elements_from_ttvc feature flag', () => {
-		describe('when fg platform_ufo_exclude_3p_elements_from_ttvc is true', () => {
+	describe('getConsideredEntryTypes behavior - third-party elements excluded from TTVC by default', () => {
+		it('should exclude mutation:third-party-element entries', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:third-party-element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+		});
+
+		it('should exclude mutation:gen-ai-element entries', () => {
+			const calculator = new VCCalculator_FY25_03();
+			const entry = {
+				time: 100,
+				data: {
+					type: 'mutation:gen-ai-element' as const,
+					elementName: 'test-element',
+					rect: new DOMRect(0, 0, 100, 100),
+					visible: true,
+				},
+			};
+
+			expect((calculator as any).isEntryIncluded(entry, true)).toBe(false);
+		});
+
+		it('should exclude mutation:gen-ai-attribute entries', () => {
+			const calculator = new VCCalculator_FY25_03();
+			const entry = {
+				time: 100,
+				data: {
+					type: 'mutation:gen-ai-attribute' as const,
+					elementName: 'test-element',
+					rect: new DOMRect(0, 0, 100, 100),
+					visible: true,
+					attributeName: 'class',
+				},
+			};
+
+			expect((calculator as any).isEntryIncluded(entry, true)).toBe(false);
+		});
+
+		it('should exclude mutation:third-party-attribute entries', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:third-party-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+		});
+
+		it('should still include other valid entry types', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
+		});
+	});
+
+	describe('dark reader extension attribute filtering for mutation:attribute entries', () => {
+		beforeEach(() => {
+			mockFg.mockImplementation(() => false);
+		});
+
+		describe.each(DARK_READER_BROWSER_EXTENSION_ATTRIBUTES)(
+			'when entry has %s attribute',
+			(att) => {
+				it('should return false', () => {
+					const entry: VCObserverEntry = {
+						time: 0,
+						data: {
+							type: 'mutation:attribute',
+							elementName: 'div',
+							rect: new DOMRect(),
+							visible: true,
+							attributeName: att,
+						} as ViewportEntryData,
+					};
+					expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+				});
+			},
+		);
+
+		it('should still include other mutation:attribute entries', () => {
+			const entry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+					attributeName: 'class',
+				} as ViewportEntryData,
+			};
+			expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
+		});
+	});
+
+	describe('fdprocessedid attribute filtering for mutation:attribute entries', () => {
+		describe('when platform_ufo_exclude_fdprocessedid_attribute is true', () => {
 			beforeEach(() => {
-				mockFg.mockImplementation((flag) => flag === 'platform_ufo_exclude_3p_elements_from_ttvc');
+				mockFg.mockImplementation(
+					(flag: string) => flag === 'platform_ufo_exclude_fdprocessedid_attribute',
+				);
 			});
 
-			it('should exclude mutation:third-party-element entries', () => {
+			describe.each(MORE_THIRD_PARTY_EXTENSION_ATTRIBUTES)('when entry has %s attribute', (att) => {
+				it('should return false', () => {
+					const entry: VCObserverEntry = {
+						time: 0,
+						data: {
+							type: 'mutation:attribute',
+							elementName: 'div',
+							rect: new DOMRect(),
+							visible: true,
+							attributeName: att,
+						} as ViewportEntryData,
+					};
+					expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
+				});
+			});
+
+			it('should still include other mutation:attribute entries', () => {
 				const entry: VCObserverEntry = {
 					time: 0,
 					data: {
-						type: 'mutation:third-party-element',
+						type: 'mutation:attribute',
 						elementName: 'div',
 						rect: new DOMRect(),
 						visible: true,
-					},
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-			});
-
-			it('should exclude mutation:third-party-attribute entries', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:third-party-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeFalsy();
-			});
-
-			it('should still include other valid entry types', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:element',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
+						attributeName: 'class',
+					} as ViewportEntryData,
 				};
 				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
 			});
 		});
 
-		describe('when fg platform_ufo_exclude_3p_elements_from_ttvc is false', () => {
+		describe('when platform_ufo_exclude_fdprocessedid_attribute is false', () => {
 			beforeEach(() => {
 				mockFg.mockImplementation(() => false);
 			});
 
-			it('should include mutation:third-party-element entries', () => {
+			it('should include fdprocessedid attribute', () => {
 				const entry: VCObserverEntry = {
 					time: 0,
 					data: {
-						type: 'mutation:third-party-element',
+						type: 'mutation:attribute',
 						elementName: 'div',
 						rect: new DOMRect(),
 						visible: true,
-					},
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
-			});
-
-			it('should include mutation:third-party-attribute entries', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:third-party-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
-				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
-			});
-
-			it('should still include other valid entry types', () => {
-				const entry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:element',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
+						attributeName: 'fdprocessedid',
+					} as ViewportEntryData,
 				};
 				expect(calculator['isEntryIncluded'](entry)).toBeTruthy();
 			});

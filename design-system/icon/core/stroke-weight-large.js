@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::f218031e192f56c45b2f2c356b3c928a>>
+ * @codegen <<SignedSource::b21529f89f7d042240b8c37cbada8167>>
  * @codegenCommand yarn build:icon-glyphs
  */
 "use strict";
@@ -10,17 +10,18 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _react = _interopRequireDefault(require("react"));
-var _baseNew = _interopRequireDefault(require("@atlaskit/icon/base-new"));
+var _iconNew = _interopRequireDefault(require("@atlaskit/icon/components/icon-new"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 /**
  * Icon: "StrokeWeightLarge".
  * Category: single-purpose
- * Location: @atlaskit/icon
- * Usage guidance: Reserved for representing thick border stroke widths.
+ * Location: @atlaskit/icon/core/stroke-weight-large
+ * Usage guidance:
+ * Reserved for representing thick border stroke widths.
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/icon)
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/icon/docs/custom-icons)
  */
-const StrokeWeightLargeIcon = props => /*#__PURE__*/_react.default.createElement(_baseNew.default, Object.assign({
+const StrokeWeightLargeIcon = props => /*#__PURE__*/_react.default.createElement(_iconNew.default, Object.assign({
   name: "StrokeWeightLargeIcon",
   dangerouslySetGlyph: `<path fill="currentcolor" fill-rule="evenodd" d="M4.25 8a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0" clip-rule="evenodd"/>`
   // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props

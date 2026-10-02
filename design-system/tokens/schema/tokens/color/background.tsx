@@ -31,6 +31,106 @@ const color: AttributeSchema<BackgroundColorTokenSchema<BaseToken>> = {
 				},
 			},
 		},
+		rovo: {
+			background: {
+				brand: {
+					bold: {
+						'[default]': {
+							attributes: {
+								group: 'paint',
+								state: 'active',
+								introduced: '8.2.0',
+								description: 'Background color for Rovo brand emphasis.',
+							},
+						},
+						hovered: {
+							attributes: {
+								group: 'paint',
+								state: 'active',
+								introduced: '8.2.0',
+								description: 'Hovered state of color.rovo.background.brand.bold.',
+							},
+						},
+						pressed: {
+							attributes: {
+								group: 'paint',
+								state: 'active',
+								introduced: '8.2.0',
+								description: 'Pressed state of color.rovo.background.brand.bold.',
+							},
+						},
+					},
+				},
+			},
+			border: {
+				blue: {
+					attributes: {
+						group: 'paint',
+						state: 'active',
+						introduced: '13.1.1',
+						description: 'Use for Rovo blue borders.',
+					},
+				},
+				lime: {
+					attributes: {
+						group: 'paint',
+						state: 'active',
+						introduced: '13.1.1',
+						description: 'Use for Rovo lime borders.',
+					},
+				},
+				purple: {
+					attributes: {
+						group: 'paint',
+						state: 'active',
+						introduced: '13.1.1',
+						description: 'Use for Rovo purple borders.',
+					},
+				},
+				saffron: {
+					attributes: {
+						group: 'paint',
+						state: 'active',
+						introduced: '13.1.1',
+						description: 'Use for Rovo saffron borders.',
+					},
+				},
+			},
+			icon: {
+				blue: {
+					attributes: {
+						group: 'paint',
+						state: 'active',
+						introduced: '13.1.1',
+						description: 'Use for Rovo blue icons.',
+					},
+				},
+				lime: {
+					attributes: {
+						group: 'paint',
+						state: 'active',
+						introduced: '13.1.1',
+						description: 'Use for Rovo lime icons.',
+					},
+				},
+				purple: {
+					attributes: {
+						group: 'paint',
+						state: 'active',
+						introduced: '13.1.1',
+						description: 'Use for Rovo purple icons.',
+					},
+				},
+				saffron: {
+					attributes: {
+						group: 'paint',
+						state: 'active',
+						introduced: '13.1.1',
+						description: 'Use for Rovo saffron icons.',
+					},
+				},
+			},
+		},
 		background: {
 			disabled: {
 				attributes: {
@@ -399,6 +499,17 @@ const color: AttributeSchema<BackgroundColorTokenSchema<BaseToken>> = {
 						},
 					},
 				},
+				subtle: {
+					'[default]': {
+						attributes: {
+							group: 'paint',
+							state: 'active',
+							introduced: '13.2.0',
+							description:
+								'Background colour for non-interactive elements communicating critical danger information (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.danger.bold or color.background.danger.subtler for interactive states.',
+						},
+					},
+				},
 			},
 			warning: {
 				'[default]': {
@@ -479,6 +590,17 @@ const color: AttributeSchema<BackgroundColorTokenSchema<BaseToken>> = {
 							state: 'active',
 							introduced: '8.1.0',
 							description: 'Pressed state of color.background.warning.subtler',
+						},
+					},
+				},
+				subtle: {
+					'[default]': {
+						attributes: {
+							group: 'paint',
+							state: 'active',
+							introduced: '13.2.0',
+							description:
+								'Background colour for non-interactive elements communicating caution (e.g. status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.warning.bold or color.background.warning.subtler for interactive states.',
 						},
 					},
 				},
@@ -565,6 +687,17 @@ const color: AttributeSchema<BackgroundColorTokenSchema<BaseToken>> = {
 						},
 					},
 				},
+				subtle: {
+					'[default]': {
+						attributes: {
+							group: 'paint',
+							state: 'active',
+							introduced: '13.2.0',
+							description:
+								'Background colour for non-interactive elements communicating success (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.success.bold or color.background.success.subtler for interactive states.',
+						},
+					},
+				},
 			},
 			discovery: {
 				'[default]': {
@@ -648,6 +781,17 @@ const color: AttributeSchema<BackgroundColorTokenSchema<BaseToken>> = {
 						},
 					},
 				},
+				subtle: {
+					'[default]': {
+						attributes: {
+							group: 'paint',
+							state: 'active',
+							introduced: '13.2.0',
+							description:
+								'Background colour for non-interactive elements communicating discovery (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.discovery.bold or color.background.discovery.subtler for interactive states.',
+						},
+					},
+				},
 			},
 			information: {
 				'[default]': {
@@ -728,6 +872,17 @@ const color: AttributeSchema<BackgroundColorTokenSchema<BaseToken>> = {
 							state: 'active',
 							introduced: '8.1.0',
 							description: 'Pressed state of color.background.information.subtler',
+						},
+					},
+				},
+				subtle: {
+					'[default]': {
+						attributes: {
+							group: 'paint',
+							state: 'active',
+							introduced: '13.2.0',
+							description:
+								'Background colour for non-interactive elements communicating information (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.information.bold or color.background.information.subtler for interactive states.',
 						},
 					},
 				},

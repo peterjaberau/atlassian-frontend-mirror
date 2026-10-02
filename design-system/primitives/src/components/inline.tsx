@@ -18,10 +18,9 @@ import { css, jsx } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
-import { type Space } from '../xcss/style-maps.partial';
+import { type Space } from '../xcss/positive-space';
 import { type XCSS, xcss } from '../xcss/xcss';
-
-import Flex from './flex';
+import { Flex } from './flex';
 import type { AlignBlock, AlignInline, BasePrimitiveProps, Grow, Spread } from './types';
 
 export type InlineProps<T extends ElementType = 'div'> = {
@@ -120,7 +119,11 @@ const Separator: FC<{ children: string }> = ({ children }) => (
  * ```
  *
  */
-const Inline: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<InlineProps<React.ElementType>, "ref"> & React.RefAttributes<any>>> = memo(
+export const Inline: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<
+		Omit<InlineProps<React.ElementType>, 'ref'> & React.RefAttributes<any>
+	>
+> = memo(
 	forwardRef(
 		<T extends ElementType = 'div'>(
 			{
@@ -189,4 +192,5 @@ const Inline: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<Inl
 
 Inline.displayName = 'Inline';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Inline;

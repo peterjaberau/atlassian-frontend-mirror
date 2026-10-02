@@ -1,4 +1,5 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	CodeBlockInBlockquote,
 	CodeBlockInBlockquoteCopy,
@@ -6,7 +7,7 @@ import {
 	CodeBlockInBlockquoteCopyWrap,
 	CodeBlockOverflowInBlockquote,
 	CodeBlockWithReactLooselyLazy,
-} from './code-block-in-blockquote.fixture';
+} from './code-block-in-blockquote.fixture.vr.ap';
 
 snapshot(CodeBlockInBlockquote, {
 	description: 'should render codeblock inside blockquote',

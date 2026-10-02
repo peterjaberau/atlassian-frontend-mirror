@@ -4,13 +4,13 @@
  */
 import { type ReactNode, useContext } from 'react';
 
-import { createIntl, createIntlCache, IntlContext, IntlProvider } from 'react-intl-next';
+import { createIntl, createIntlCache, IntlContext, IntlProvider } from 'react-intl';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import { ufologger } from '@atlaskit/ufo';
+import { ufologger } from '@atlaskit/ufo/logger';
 
 const styles = cssMap({
 	pageWrapper: {
@@ -49,7 +49,7 @@ const useSafeIntl = () => {
 	return context;
 };
 
-export function PageWrapper({ children }: WrapperProps) {
+export function PageWrapper({ children }: WrapperProps): JSX.Element {
 	ufologger.enable();
 	const intl = useSafeIntl();
 
@@ -62,6 +62,6 @@ export function PageWrapper({ children }: WrapperProps) {
 	);
 }
 
-export function PageHeader(wrapperProps: WrapperProps) {
+export function PageHeader(wrapperProps: WrapperProps): JSX.Element {
 	return <Box xcss={styles.pageWrapper}>{wrapperProps.children}</Box>;
 }

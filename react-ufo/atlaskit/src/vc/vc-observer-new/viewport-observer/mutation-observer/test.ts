@@ -2,7 +2,8 @@ import createMutationObserver from './index';
 // import { fg } from '@atlaskit/platform-feature-flags';
 
 const mockedFg = new Map<string, boolean>();
-jest.mock('@atlaskit/platform-feature-flags', () => ({
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn((flag: string) => mockedFg.get(flag)),
 }));
 
@@ -24,7 +25,7 @@ describe('createMutationObserver', () => {
 			disconnect: jest.fn(),
 		} as unknown as MutationObserver;
 
-		jest.spyOn(window, 'MutationObserver').mockImplementation((callback) => {
+		jest.spyOn(window, 'MutationObserver').mockImplementation((_callback) => {
 			return mockObserver;
 		});
 
@@ -241,6 +242,7 @@ describe('createMutationObserver', () => {
 			attributeName: 'data-testid',
 			newValue: 'new-value',
 			oldValue: 'old-value',
+			timestamp: expect.any(Number),
 		});
 
 		// ChildList mutations should be batched
@@ -370,6 +372,7 @@ describe('createMutationObserver', () => {
 			attributeName: 'data-testid',
 			newValue: 'new-value',
 			oldValue: 'old-value',
+			timestamp: expect.any(Number),
 		});
 	});
 });

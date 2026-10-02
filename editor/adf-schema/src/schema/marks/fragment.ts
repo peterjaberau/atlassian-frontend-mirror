@@ -1,4 +1,5 @@
 import type { Mark, MarkSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { fragment as fragmentFactory } from '../../next-schema/generated/markTypes';
 import { isDOMElement } from '../../utils/parseDOM';
 
@@ -6,6 +7,7 @@ export type LocalId = string;
 
 export interface FragmentAttributes {
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minLength 1
 	 */
 	localId: LocalId;
@@ -62,7 +64,17 @@ export const fragment: MarkSpec = fragmentFactory({
 	},
 });
 
-export const toJSON = (mark: Mark) => {
+export const toJSON = (
+	mark: Mark,
+): {
+	attrs: {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		localId: any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		name?: any;
+	};
+	type: string;
+} => {
 	return {
 		type: mark.type.name,
 		attrs: {
@@ -71,3 +83,6 @@ export const toJSON = (mark: Mark) => {
 		},
 	};
 };
+
+// Public API aliases preserved from an eliminated entry-point (volt-migrate-package).
+export { toJSON as fragmentToJSON };

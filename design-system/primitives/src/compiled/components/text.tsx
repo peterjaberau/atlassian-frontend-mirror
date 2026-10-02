@@ -16,9 +16,9 @@ import invariant from 'tiny-invariant';
 import { cssMap, type StrictXCSSProp } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
 
-import { HasTextAncestorProvider, useHasTextAncestor } from '../../utils/has-text-ancestor-context';
+import { HasTextAncestorProvider } from '../../utils/has-text-ancestor-provider';
 import { useSurface } from '../../utils/surface-provider';
-
+import { useHasTextAncestor } from '../../utils/use-has-text-ancestor';
 import type { BasePrimitiveProps, FontSize, FontWeight, TextAlign, TextColor } from './types';
 
 const asAllowlist = ['span', 'p', 'strong', 'em'] as const;
@@ -126,7 +126,6 @@ const styles = unboundedCssMap({
 
 const fontSizeMap = cssMap({
 	medium: { font: token('font.body') },
-	UNSAFE_small: { font: token('font.body.UNSAFE_small') },
 	large: { font: token('font.body.large') },
 	small: { font: token('font.body.small') },
 });
@@ -178,7 +177,7 @@ const textColorMap = cssMap({
 	'color.link.visited.pressed': { color: token('color.link.visited.pressed') },
 });
 
-export const inverseColorMap = {
+const inverseColorMap = {
 	'color.background.neutral.bold': 'color.text.inverse',
 	'color.background.neutral.bold.hovered': 'color.text.inverse',
 	'color.background.neutral.bold.pressed': 'color.text.inverse',
@@ -217,7 +216,7 @@ export const inverseColorMap = {
  *
  * @internal
  */
-const Text: React.ForwardRefExoticComponent<
+export const Text: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<TextProps<ElementType>> & React.RefAttributes<any>
 > = forwardRef(
 	<T extends ElementType = 'span'>(
@@ -280,5 +279,3 @@ const Text: React.ForwardRefExoticComponent<
 		return <HasTextAncestorProvider value={true}>{component}</HasTextAncestorProvider>;
 	},
 );
-
-export default Text;

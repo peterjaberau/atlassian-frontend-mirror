@@ -1,22 +1,28 @@
 import React, { type ReactElement } from 'react';
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import type {
+	MatcherOptions,
+	waitForOptions,
+	ByRoleMatcher,
+	ByRoleOptions,
+} from '@testing-library/react';
+import type { UserEvent } from '@testing-library/user-event';
+import { IntlProvider } from 'react-intl';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { MockIntersectionObserverFactory } from '@atlaskit/link-test-helpers';
-import type { ProductType } from '@atlaskit/linking-common';
+import type { ProductType } from '@atlaskit/linking-common/types';
 import { Box } from '@atlaskit/primitives/compiled';
 import { Card, type CardProps } from '@atlaskit/smart-card';
-import { setGlobalTheme } from '@atlaskit/tokens';
+import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
+import { render, screen, userEvent, type Matcher } from '@atlassian/testing-library';
 
 import * as analytics from '../../../../utils/analytics/analytics';
-import { fakeFactory } from '../../../../utils/mocks';
+import { fakeFactory } from '../../../../utils/fake-factory';
 import { mockConfluenceResponse } from '../__mocks__/mocks';
-
 import { mockUrl } from './common.test-utils';
 
 export type SetUpParams = {
@@ -25,8 +31,9 @@ export type SetUpParams = {
 	mock?: any;
 	mockFetch?: () => unknown;
 	product?: ProductType;
+	rovoOptions?: React.ComponentProps<typeof Provider>['rovoOptions'];
 	storeOptions?: React.ComponentProps<typeof Provider>['storeOptions'];
-	testId?: string;
+	testId?: Matcher;
 	userEventOptions?: {
 		advanceTimers?: typeof jest.advanceTimersByTime;
 		delay?: number | null;
@@ -35,7 +42,9 @@ export type SetUpParams = {
 
 const now = new Date('April 1, 2022 00:00:00').getTime();
 
-export const userEventOptionsWithAdvanceTimers = {
+export const userEventOptionsWithAdvanceTimers: {
+	advanceTimers: typeof jest.advanceTimersByTime;
+} = {
 	advanceTimers: jest.advanceTimersByTime,
 };
 
@@ -45,10 +54,40 @@ export const setup = async ({
 	component,
 	extraCardProps,
 	mockFetch = jest.fn(() => Promise.resolve(mock)),
+	rovoOptions,
 	storeOptions,
 	userEventOptions = { delay: null },
 	product,
-}: SetUpParams = {}) => {
+}: SetUpParams = {}): Promise<{
+	analyticsSpy: jest.Mock<any, any, any>;
+	container: HTMLElement;
+	dateSpy: jest.SpyInstance<number, [], any>;
+	element: HTMLElement;
+	event: UserEvent;
+	findAllByTestId: (
+		id: Matcher,
+		options?: MatcherOptions | undefined,
+		waitForElementOptions?: waitForOptions | undefined,
+	) => Promise<HTMLElement[]>;
+	findByRole: (
+		role: ByRoleMatcher,
+		options?: ByRoleOptions | undefined,
+		waitForElementOptions?: waitForOptions | undefined,
+	) => Promise<HTMLElement>;
+	findByTestId: (
+		id: Matcher,
+		options?: MatcherOptions | undefined,
+		waitForElementOptions?: waitForOptions | undefined,
+	) => Promise<HTMLElement>;
+	mockAnalyticsClient: {
+		sendOperationalEvent: jest.Mock<any, any, any>;
+		sendScreenEvent: jest.Mock<any, any, any>;
+		sendTrackEvent: jest.Mock<any, any, any>;
+		sendUIEvent: jest.Mock<any, any, any>;
+	};
+	queryByRole: (role: ByRoleMatcher, options?: ByRoleOptions | undefined) => HTMLElement | null;
+	queryByTestId: (id: Matcher, options?: MatcherOptions | undefined) => HTMLElement | null;
+}> => {
 	const mockClient = new (fakeFactory(mockFetch))();
 	const analyticsSpy = jest.fn();
 	const mockAnalyticsClient = {
@@ -65,7 +104,12 @@ export const setup = async ({
 			<FabricAnalyticsListeners client={mockAnalyticsClient}>
 				<AnalyticsListener channel={analytics.ANALYTICS_CHANNEL} onEvent={analyticsSpy}>
 					<IntlProvider locale="en">
-						<Provider client={mockClient} product={product} storeOptions={storeOptions}>
+						<Provider
+							client={mockClient}
+							product={product}
+							rovoOptions={rovoOptions}
+							storeOptions={storeOptions}
+						>
 							{component ? (
 								component
 							) : (

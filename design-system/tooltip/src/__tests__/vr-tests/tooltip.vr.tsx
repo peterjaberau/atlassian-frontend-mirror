@@ -1,12 +1,11 @@
-import { type Hooks, snapshot, type SnapshotTestOptions } from '@af/visual-regression';
+import { type Hooks, type SnapshotTestOptions, snapshot } from '@af/visual-regression';
 
-import TooltipCustom from '../../../examples/component-prop';
-import TooltipBasic from '../../../examples/default-tooltip';
-import KeyboardShortcutsExample from '../../../examples/keyboard-shortcut';
-import KeyboardShortcutGlobalStylesExample from '../../../examples/keyboard-shortcut-global-styles';
-import TooltipPosition from '../../../examples/position';
-import TooltipPositionMouseExample from '../../../examples/position-mouse';
-import TooltipTruncateExample from '../../../examples/truncate';
+import TooltipCustom from '../../../examples/component-prop.vr.ap';
+import TooltipBasic from '../../../examples/default-tooltip.vr.ap';
+import KeyboardShortcutGlobalStylesExample from '../../../examples/keyboard-shortcut-global-styles.vr.ap';
+import KeyboardShortcutsExample from '../../../examples/keyboard-shortcut.vr.ap';
+import TooltipTruncateExample from '../../../examples/truncate.vr.ap';
+import VrPositionAllExample from '../../../examples/vr-position-all.vr.ap';
 
 const lightModeVariant: SnapshotTestOptions<Hooks>['variants'] = [
 	{
@@ -28,6 +27,7 @@ snapshot(TooltipBasic, {
 	variants: lightModeVariant,
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-tooltip': [true, false],
 	},
 });
 
@@ -44,54 +44,7 @@ snapshot(TooltipCustom, {
 	variants: lightModeVariant,
 	featureFlags: {
 		'platform-component-visual-refresh': true,
-	},
-});
-
-snapshot(TooltipPosition, {
-	description: 'tooltip with dynamic mouse position',
-	states: [
-		{
-			selector: {
-				byRole: 'button',
-			},
-			state: 'hovered',
-		},
-	],
-	drawsOutsideBounds: true,
-	featureFlags: {
-		platform_dst_nav4_side_nav_resize_tooltip_feedback: [true, false],
-	},
-});
-
-snapshot(TooltipPositionMouseExample, {
-	description: 'tooltip with dynamic mouse X position but target Y position',
-	states: [
-		{
-			selector: {
-				byTestId: 'trigger-mouse-x',
-			},
-			state: 'hovered',
-		},
-	],
-	drawsOutsideBounds: true,
-	featureFlags: {
-		platform_dst_nav4_side_nav_resize_tooltip_feedback: [true, false],
-	},
-});
-
-snapshot(TooltipPositionMouseExample, {
-	description: 'tooltip with dynamic mouse Y position but target X position',
-	states: [
-		{
-			selector: {
-				byTestId: 'trigger-mouse-y',
-			},
-			state: 'hovered',
-		},
-	],
-	drawsOutsideBounds: true,
-	featureFlags: {
-		platform_dst_nav4_side_nav_resize_tooltip_feedback: [true, false],
+		'platform-dst-top-layer-tooltip': [true, false],
 	},
 });
 
@@ -110,6 +63,7 @@ snapshot(TooltipTruncateExample, {
 	variants: lightModeVariant,
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-tooltip': [true, false],
 	},
 });
 
@@ -130,6 +84,7 @@ snapshot(KeyboardShortcutsExample, {
 	variants: lightModeVariant,
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-tooltip': [true, false],
 	},
 });
 
@@ -150,6 +105,7 @@ snapshot(KeyboardShortcutsExample, {
 	variants: lightModeVariant,
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-tooltip': [true, false],
 	},
 });
 
@@ -170,6 +126,7 @@ snapshot(KeyboardShortcutsExample, {
 	variants: lightModeVariant,
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-tooltip': [true, false],
 	},
 });
 
@@ -190,5 +147,74 @@ snapshot(KeyboardShortcutGlobalStylesExample, {
 	variants: lightModeVariant,
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-tooltip': [true, false],
+	},
+});
+
+snapshot(VrPositionAllExample, {
+	description: 'tooltip position top',
+	states: [
+		{
+			selector: {
+				byTestId: 'trigger-top',
+			},
+			state: 'hovered',
+		},
+	],
+	drawsOutsideBounds: true,
+	variants: lightModeVariant,
+	featureFlags: {
+		'platform-dst-top-layer-tooltip': [true, false],
+	},
+});
+
+snapshot(VrPositionAllExample, {
+	description: 'tooltip position right',
+	states: [
+		{
+			selector: {
+				byTestId: 'trigger-right',
+			},
+			state: 'hovered',
+		},
+	],
+	drawsOutsideBounds: true,
+	variants: lightModeVariant,
+	featureFlags: {
+		'platform-dst-top-layer-tooltip': [true, false],
+	},
+});
+
+snapshot(VrPositionAllExample, {
+	description: 'tooltip position bottom',
+	states: [
+		{
+			selector: {
+				byTestId: 'trigger-bottom',
+			},
+			state: 'hovered',
+		},
+	],
+	drawsOutsideBounds: true,
+	variants: lightModeVariant,
+	featureFlags: {
+		'platform-dst-top-layer-tooltip': [true, false],
+	},
+});
+
+snapshot(VrPositionAllExample, {
+	description: 'tooltip position left',
+	states: [
+		{
+			selector: {
+				byTestId: 'trigger-left',
+			},
+			state: 'hovered',
+		},
+	],
+	drawsOutsideBounds: true,
+	variants: lightModeVariant,
+	featureFlags: {
+		'platform-dst-top-layer-tooltip': [true, false],
 	},
 });

@@ -1,5 +1,4 @@
-import type { BreakoutMarkAttrs } from '@atlaskit/adf-schema';
-import type { Schema } from '@atlaskit/editor-prosemirror/model';
+import type { BreakoutMarkAttrs } from '@atlaskit/adf-schema/breakout';
 import {
 	akEditorBreakoutPadding,
 	akEditorDefaultLayoutWidth,
@@ -9,26 +8,9 @@ import {
 	breakoutWideScaleRatio,
 } from '@atlaskit/editor-shared-styles';
 
-import commonMessages from '../messages';
-import type { BreakoutMode } from '../types/breakout';
 import { mapBreakpointToLayoutMaxWidth } from '../ui/BaseTheme';
 import { getBreakpoint } from '../ui/WidthProvider';
-
-import { parsePx } from './dom';
-
-export const breakoutResizableNodes: string[] = [
-	'expand',
-	'layoutSection',
-	'codeBlock',
-	'syncBlock',
-	'bodiedSyncBlock',
-];
-
-export const getBreakoutResizableNodeTypes = (schema: Schema) => {
-	const { expand, codeBlock, layoutSection, syncBlock, bodiedSyncBlock } = schema.nodes;
-
-	return new Set([expand, codeBlock, layoutSection, syncBlock, bodiedSyncBlock]);
-};
+import { parsePx } from './parsePx';
 
 /**
  * Variables required to construct a context for breakout ssr inline script.
@@ -69,66 +51,66 @@ const breakoutConsts: BreakoutConstsType = {
 	 */
 	calcBreakoutWidth:
 		(breakoutConsts: BreakoutConstsType) =>
-			(layout: 'full-width' | 'wide' | string, containerWidth: number, padding?: number) => {
-				const effectiveFullWidth = containerWidth - (padding ?? breakoutConsts.padding);
+		(layout: 'full-width' | 'wide' | string, containerWidth: number, padding?: number) => {
+			const effectiveFullWidth = containerWidth - (padding ?? breakoutConsts.padding);
 
-				switch (layout) {
-					case 'full-width':
-						return `${Math.min(effectiveFullWidth, breakoutConsts.fullWidthLayoutWidth)}px`;
-					case 'wide':
-						if (effectiveFullWidth <= 0) {
-							return '100%';
-						}
-
-						const wideWidth = breakoutConsts.calcWideWidth(breakoutConsts)(
-							containerWidth,
-							undefined,
-							undefined,
-							padding,
-						);
-						if (wideWidth.endsWith('%')) {
-							return `${Math.min(effectiveFullWidth, breakoutConsts.fullWidthLayoutWidth)}px`;
-						}
-						return wideWidth;
-					default:
+			switch (layout) {
+				case 'full-width':
+					return `${Math.min(effectiveFullWidth, breakoutConsts.fullWidthLayoutWidth)}px`;
+				case 'wide':
+					if (effectiveFullWidth <= 0) {
 						return '100%';
-				}
-			},
+					}
+
+					const wideWidth = breakoutConsts.calcWideWidth(breakoutConsts)(
+						containerWidth,
+						undefined,
+						undefined,
+						padding,
+					);
+					if (wideWidth.endsWith('%')) {
+						return `${Math.min(effectiveFullWidth, breakoutConsts.fullWidthLayoutWidth)}px`;
+					}
+					return wideWidth;
+				default:
+					return '100%';
+			}
+		},
 	calcBreakoutWithCustomWidth:
 		(breakoutConsts: BreakoutConstsType) =>
-			(mode: 'full-width' | 'wide', width: number | null, editorContainerWidth: number) => {
-				if (width !== null && width > 0) {
-					const effectiveFullWidth = editorContainerWidth - breakoutConsts.padding;
-					// if below 0 then expect we're rendering in SSR
-					return `${Math.min(width, effectiveFullWidth)}px`;
-				}
-				return breakoutConsts.calcBreakoutWidth(breakoutConsts)(mode, editorContainerWidth);
-			},
+		(mode: 'full-width' | 'wide', width: number | null, editorContainerWidth: number) => {
+			if (width !== null && width > 0) {
+				const effectiveFullWidth = editorContainerWidth - breakoutConsts.padding;
+				// if below 0 then expect we're rendering in SSR
+				return `${Math.min(width, effectiveFullWidth)}px`;
+			}
+			return breakoutConsts.calcBreakoutWidth(breakoutConsts)(mode, editorContainerWidth);
+		},
 	calcLineLength: (breakoutConsts: BreakoutConstsType) => () => breakoutConsts.defaultLayoutWidth,
 	calcWideWidth:
 		(breakoutConsts: BreakoutConstsType) =>
-			(
-				containerWidth: number = breakoutConsts.defaultLayoutWidth,
-				maxWidth: number = Infinity,
-				fallback: string = '100%',
-				padding?: number,
-			) => {
-				const effectiveFullWidth = containerWidth - (padding ?? breakoutConsts.padding);
-				const layoutMaxWidth = breakoutConsts.mapBreakpointToLayoutMaxWidth(
-					breakoutConsts.getBreakpoint(containerWidth),
-				);
-				const wideWidth = Math.min(
-					Math.ceil(layoutMaxWidth * breakoutConsts.wideScaleRatio),
-					effectiveFullWidth,
-				);
-				return layoutMaxWidth > wideWidth ? fallback : `${Math.min(maxWidth, wideWidth)}px`;
-			},
+		(
+			containerWidth: number = breakoutConsts.defaultLayoutWidth,
+			maxWidth: number = Infinity,
+			fallback: string = '100%',
+			padding?: number,
+		) => {
+			const effectiveFullWidth = containerWidth - (padding ?? breakoutConsts.padding);
+			const layoutMaxWidth = breakoutConsts.mapBreakpointToLayoutMaxWidth(
+				breakoutConsts.getBreakpoint(containerWidth),
+			);
+			const wideWidth = Math.min(
+				Math.ceil(layoutMaxWidth * breakoutConsts.wideScaleRatio),
+				effectiveFullWidth,
+			);
+			return layoutMaxWidth > wideWidth ? fallback : `${Math.min(maxWidth, wideWidth)}px`;
+		},
 };
 
 export const absoluteBreakoutWidth = (
 	layout: 'full-width' | 'wide' | string,
 	containerWidth: number,
-) => {
+): number => {
 	const breakoutWidth = breakoutConsts.calcBreakoutWidth(breakoutConsts)(layout, containerWidth);
 
 	// If it's percent, map to max layout size
@@ -148,13 +130,25 @@ export const absoluteBreakoutWidth = (
 	return parseInt(breakoutWidth, 10);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export { breakoutConsts };
-export const calcWideWidth = breakoutConsts.calcWideWidth(breakoutConsts);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const calcWideWidth: (
+	containerWidth?: number,
+	maxWidth?: number,
+	fallback?: string,
+	padding?: number,
+) => string = breakoutConsts.calcWideWidth(breakoutConsts);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @atlaskit/volt-strict-mode/no-multiple-exports
 export const calcBreakoutWidth: any = breakoutConsts.calcBreakoutWidth(breakoutConsts);
-export const calcBreakoutWithCustomWidth =
-	breakoutConsts.calcBreakoutWithCustomWidth(breakoutConsts);
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const calcBreakoutWithCustomWidth: (
+	mode: 'full-width' | 'wide',
+	width: number | null,
+	editorContainerWidth: number,
+) => string = breakoutConsts.calcBreakoutWithCustomWidth(breakoutConsts);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function calculateBreakoutStyles({
 	mode,
 	widthStateLineLength,
@@ -173,27 +167,27 @@ export function calculateBreakoutStyles({
 	widthStateWidth?: number;
 }):
 	| {
-		display: string;
-		justifyContent: string;
-		marginLeft?: undefined;
-		minWidth: number;
-		transform: string;
-		transition: string;
-		type: 'line-length-unknown';
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		width: any;
-	}
+			display: string;
+			justifyContent: string;
+			marginLeft?: undefined;
+			minWidth: number;
+			transform: string;
+			transition: string;
+			type: 'line-length-unknown';
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			width: any;
+	  }
 	| {
-		display?: undefined;
-		justifyContent?: undefined;
-		marginLeft: string;
-		minWidth: number;
-		transform: string;
-		transition: string;
-		type: 'line-length-known';
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		width: any;
-	} {
+			display?: undefined;
+			justifyContent?: undefined;
+			marginLeft: string;
+			minWidth: number;
+			transform: string;
+			transition: string;
+			type: 'line-length-known';
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			width: any;
+	  } {
 	const breakoutWidth = calcBreakoutWidth(mode, widthStateWidth);
 	const breakoutWidthPx = parsePx(breakoutWidth) as number;
 
@@ -235,31 +229,19 @@ export function calculateBreakoutStyles({
 	};
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function calcBreakoutWidthPx(
 	mode: BreakoutMarkAttrs['mode'],
 	widthStateWidth?: number,
 	padding?: number,
-) {
+): number {
 	return parsePx(calcBreakoutWidth(mode, widthStateWidth, padding));
 }
-
-export const getNextBreakoutMode = (currentMode?: BreakoutMode): Exclude<BreakoutMode, 'max'> => {
-	if (currentMode === 'full-width') {
-		return 'center';
-	} else if (currentMode === 'wide') {
-		return 'full-width';
-	}
-
-	return 'wide';
-};
-
-export const getTitle = (layout?: BreakoutMode) => {
-	switch (layout) {
-		case 'full-width':
-			return commonMessages.layoutFixedWidth;
-		case 'wide':
-			return commonMessages.layoutFullWidth;
-		default:
-			return commonMessages.layoutWide;
-	}
-};
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { breakoutResizableNodes } from './breakoutResizableNodes';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { getBreakoutResizableNodeTypes } from './getBreakoutResizableNodeTypes';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { getNextBreakoutMode } from './getNextBreakoutMode';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { getTitle } from './getTitle';

@@ -1,6 +1,6 @@
 import type { MediaApiToken } from '../../types';
-import type TokenManager from './TokenManager';
 import { imageAcceptHeader } from '../../util/image';
+import type TokenManager from './TokenManager';
 
 const defaultConcurrentDownloadLimit = 16;
 const backoffMaxDelayInMillis = 600;
@@ -63,11 +63,11 @@ export default class MediaImageLoader {
 		return pending;
 	}
 
-	getQueueSize() {
+	getQueueSize(): number {
 		return this.mediaImageQueue.length;
 	}
 
-	getActiveDownloads() {
+	getActiveDownloads(): number {
 		return this.activeProcessing;
 	}
 

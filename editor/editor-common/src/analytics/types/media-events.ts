@@ -1,7 +1,6 @@
-import type { RichMediaLayout } from '@atlaskit/adf-schema';
+import type { Layout as RichMediaLayout } from '@atlaskit/adf-schema/rich-media-common';
 
 import type { GuidelineTypes, WidthTypes } from '../../guideline/types';
-
 import type { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, INPUT_METHOD } from './enums';
 import type { EventInput } from './type-ahead';
 import type { ChangeTypeAEP, TrackAEP, UIAEP } from './utils';
@@ -134,7 +133,15 @@ export type MediaRenderErrorEvent = UIAEP<
 	ACTION.ERRORED,
 	ACTION_SUBJECT.EDITOR,
 	ACTION_SUBJECT_ID.MEDIA,
-	{ external?: boolean; reason: string },
+	{ external?: boolean; isDuplicateError?: boolean; nestedUnder?: string; reason: string },
+	undefined
+>;
+
+export type MediaRenderedAEP = TrackAEP<
+	ACTION.RENDERED,
+	ACTION_SUBJECT.MEDIA,
+	string | undefined,
+	{ infographicType: string; mediaId: string | undefined; pageMode: 'view' | 'edit' },
 	undefined
 >;
 
@@ -148,4 +155,5 @@ export type MediaEventPayload =
 	| CaptionTrackAction
 	| ChangeMediaAEP
 	| MediaViewerEventAction
-	| MediaRenderErrorEvent;
+	| MediaRenderErrorEvent
+	| MediaRenderedAEP;

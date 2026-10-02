@@ -1,8 +1,17 @@
 import React from 'react';
-import { injectIntl, IntlProvider, useIntl, type WrappedComponentProps } from 'react-intl-next';
-import { messages } from '@atlaskit/media-ui';
+
+import {
+	injectIntl,
+	IntlProvider,
+	useIntl,
+	type WithIntlProps,
+	type WrappedComponentProps,
+} from 'react-intl';
+
+import { messages } from '@atlaskit/media-ui/messages';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Pressable } from '@atlaskit/primitives/compiled';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 type OpenMediaViewerButtonProps = {
 	fileName: string;
@@ -13,7 +22,17 @@ const OpenMediaViewerButton = ({ fileName, innerRef, ...props }: OpenMediaViewer
 	const intl = useIntl();
 	return (
 		<VisuallyHidden>
-			<Pressable ref={innerRef} {...props}>
+			<Pressable
+				ref={innerRef}
+				{...props}
+				{...(fg('create_modernization_ga_fixes_drop_2')
+					? {
+							'aria-label': intl.formatMessage(messages.open_file_in_viewer_aria_label, {
+								name: fileName,
+							}),
+						}
+					: {})}
+			>
 				{intl.formatMessage(messages.open_file_in_viewer, {
 					name: fileName,
 				})}
@@ -34,6 +53,23 @@ const OpenMediaViewerButtonWrapper = (
 	);
 };
 
-export default injectIntl(OpenMediaViewerButtonWrapper, {
+const _default_1: React.FC<
+	WithIntlProps<
+		{
+			fileName: string;
+			innerRef: React.Ref<HTMLButtonElement>;
+		} & React.ButtonHTMLAttributes<HTMLButtonElement> &
+			WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			fileName: string;
+			innerRef: React.Ref<HTMLButtonElement>;
+		} & React.ButtonHTMLAttributes<HTMLButtonElement> &
+			WrappedComponentProps
+	>;
+} = injectIntl(OpenMediaViewerButtonWrapper, {
 	enforceContext: false,
 });
+export default _default_1;

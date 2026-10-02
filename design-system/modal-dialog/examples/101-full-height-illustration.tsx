@@ -1,19 +1,18 @@
 import React, { useCallback, useState } from 'react';
 
-import Lorem from 'react-lorem-component';
-
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import Modal, {
-	CloseButton,
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
+import { CloseButton } from '@atlaskit/modal-dialog/close-button';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
+
+import PlaceholderContent from './placeholder-content';
 
 const styles = cssMap({
 	modalBody: {
@@ -60,8 +59,8 @@ const styles = cssMap({
 	},
 	closeButton: {
 		position: 'absolute',
-		insetBlockStart: token('space.200', '16px'),
-		insetInlineEnd: token('space.200', '16px'),
+		insetBlockStart: token('space.200'),
+		insetInlineEnd: token('space.200'),
 		zIndex: 1,
 	},
 	illustration: {
@@ -93,7 +92,7 @@ export default function FullHeightIllustrationExample(): React.JSX.Element {
 									</ModalHeader>
 									<Box xcss={styles.content}>
 										<ModalBody>
-											<Lorem count={2} />
+											<PlaceholderContent count={2} />
 										</ModalBody>
 									</Box>
 									<ModalFooter>

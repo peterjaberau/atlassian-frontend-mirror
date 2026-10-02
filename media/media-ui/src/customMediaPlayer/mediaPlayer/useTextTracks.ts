@@ -1,25 +1,35 @@
 import {
-	type FileState,
-	type MediaUserArtifact,
-	type MediaUserArtifactCaptionKey,
-} from '@atlaskit/media-state';
-import { hasArtifacts } from '@atlaskit/media-client';
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { type VideoTextTrack, type VideoTextTracks } from '../react-video-renderer';
-import { useMediaClient, useMediaSettings } from '@atlaskit/media-client-react';
-import {
-	getUserCaptionsEnabled,
-	getUserCaptionsLocale,
-	findPreselectedTrackIndex,
-	setUserCaptionsEnabled,
-	setUserCaptionsLocale,
-} from './captions';
-import { useIntl } from 'react-intl-next';
+	useState,
+	useEffect,
+	useMemo,
+	useCallback,
+	useRef,
+	type Dispatch,
+	type SetStateAction,
+} from 'react';
 
+import { useIntl } from 'react-intl';
+
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { hasArtifacts } from '@atlaskit/media-client';
+import { useMediaClient } from '@atlaskit/media-client-react/use-media-client';
+import { useMediaSettings } from '@atlaskit/media-client-react/use-media-settings';
 import { type MediaTraceContext, getRandomTelemetryId } from '@atlaskit/media-common';
-import { createCaptionDisplayFailedEventPayload, fireAnalyticsEvent } from '../analytics';
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import type {
+	FileState,
+	MediaUserArtifact,
+	MediaUserArtifactCaptionKey,
+} from '@atlaskit/media-state/file-state';
+
+import { createCaptionDisplayFailedEventPayload } from '../analytics/events/operational/createCaptionDisplayFailedEventPayload';
+import { fireAnalyticsEvent } from '../analytics/utils/fireAnalyticsEvent';
+import type { VideoTextTrack, VideoTextTracks } from '../react-video-renderer/text';
 import { type CustomMediaPlayerType } from '../types';
+import { getUserCaptionsEnabled } from './captions/getUserCaptionsEnabled';
+import { getUserCaptionsLocale } from './captions/getUserCaptionsLocale';
+import { findPreselectedTrackIndex } from './captions/selectTracks';
+import { setUserCaptionsEnabled } from './captions/setUserCaptionsEnabled';
+import { setUserCaptionsLocale } from './captions/setUserCaptionsLocale';
 
 type CaptionsRawMetadata = { l?: string; n?: string };
 type CaptionsMetadata = { lang: string; fileName: string; label: string };
@@ -48,7 +58,17 @@ type UseTextTracksProps = {
 	type: CustomMediaPlayerType;
 };
 
-export const useTextTracks = ({ fileState, collectionName, type }: UseTextTracksProps) => {
+export const useTextTracks = ({
+	fileState,
+	collectionName,
+	type,
+}: UseTextTracksProps): {
+	textTracks: VideoTextTracks;
+	verifyUserCaptionsEnabled: () => void;
+	areCaptionsEnabled: boolean;
+	setSelectedTracksIndex: Dispatch<SetStateAction<number>>;
+	setAreCaptionsEnabled: Dispatch<SetStateAction<boolean>>;
+} => {
 	const { createAnalyticsEvent } = useAnalyticsEvents();
 	const mediaClient = useMediaClient();
 	const captionsObjectURLsStatus = useRef<Map<string, 'loading' | 'loaded' | 'error' | undefined>>(

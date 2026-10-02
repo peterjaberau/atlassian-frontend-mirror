@@ -9,7 +9,7 @@ import {
 import { currentMediaNodeWithPos } from '@atlaskit/editor-common/media-single';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
-import { type EditorState } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { AnnotationPlugin } from '../../annotationPluginType';
@@ -25,13 +25,21 @@ export const isButtonDisabled = ({
 	api?: ExtractInjectionAPI<AnnotationPlugin>;
 	canAddComments: boolean;
 	state: EditorState | null | undefined;
-}): boolean => {
+}): {
+	canAddComments: boolean;
+	isAnnotationSelectionInvalid: boolean;
+	isDisabled: boolean;
+	isOffline: boolean;
+} => {
 	const annotationSelectionType = state ? isSelectionValid(state) : AnnotationSelectionType.INVALID;
-	return (
-		!canAddComments ||
-		annotationSelectionType === AnnotationSelectionType.DISABLED ||
-		isOfflineMode(api?.connectivity?.sharedState?.currentState()?.mode)
-	);
+	const isAnnotationSelectionInvalid = annotationSelectionType === AnnotationSelectionType.DISABLED;
+	const isOffline = isOfflineMode(api?.connectivity?.sharedState?.currentState()?.mode);
+	return {
+		isAnnotationSelectionInvalid,
+		isOffline,
+		canAddComments,
+		isDisabled: !canAddComments || isAnnotationSelectionInvalid || isOffline,
+	};
 };
 
 export const shouldShowCommentButton = ({

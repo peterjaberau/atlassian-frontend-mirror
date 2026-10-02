@@ -8,7 +8,7 @@ import { akEditorDefaultLayoutWidth } from '@atlaskit/editor-shared-styles';
 import type { Breakpoints } from '../WidthProvider';
 import { WidthConsumer } from '../WidthProvider';
 
-export function mapBreakpointToLayoutMaxWidth(breakpoint: Breakpoints) {
+export function mapBreakpointToLayoutMaxWidth(breakpoint: Breakpoints): 680 | 760 {
 	switch (breakpoint) {
 		case 'M':
 		case 'L':
@@ -31,6 +31,7 @@ declare module '@emotion/react' {
 	}
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function BaseThemeWrapper({
 	baseFontSize,
 	children,
@@ -51,6 +52,7 @@ type BaseThemeProps = {
 	children: React.ReactNode;
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function BaseTheme({ children, baseFontSize }: BaseThemeProps): React.JSX.Element {
 	return (
 		<WidthConsumer>

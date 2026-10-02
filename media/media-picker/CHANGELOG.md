@@ -1,5 +1,410 @@
 # @atlaskit/media-picker
 
+## 73.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.1
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 72.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.2.0
+
+### Minor Changes
+
+- [`c7bc023b40205`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7bc023b40205) -
+  Imports from aggregating package entry-points are deprecated and will be removed in a future
+  release. Migrate to dedicated entry-point imports to reduce upgrade friction. Recommended imports:
+  - `import { startMediaUploadUfoExperience } from '@atlaskit/media-picker/util/startMediaUploadUfoExperience'`
+  - `import { succeedMediaUploadUfoExperience } from '@atlaskit/media-picker/util/succeedMediaUploadUfoExperience'`
+  - `import { failMediaUploadUfoExperience } from '@atlaskit/media-picker/util/failMediaUploadUfoExperience'`
+  - `import type { UFOFailedEventPayload } from '@atlaskit/media-picker/util/UFOFailedEventPayload'`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.4
+
+### Patch Changes
+
+- [`ba204031c7c29`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba204031c7c29) -
+  Apply Volt one-export-per-file standard via `volt-migrate-package` to `@atlaskit/media-picker`.
+  This is a **patch** change: unlike packages whose `exports` map was restructured away from
+  `./src/entry-points/*` indirection, `@atlaskit/media-picker` already resolved every public subpath
+  directly to its `./src/*` implementation, so the package `exports` map is unchanged.
+
+  ### What changed internally
+
+  Multi-export modules were split into single-export files:
+  - `src/components/browser/browser.tsx` — the `BrowserBase` class and its `COMPONENT_NAME` constant
+    were extracted into `src/components/browser/BrowserBase.tsx` and
+    `src/components/browser/componentName.ts`.
+  - `src/components/clipboard/clipboard.tsx` — the `ClipboardBase` class and its `COMPONENT_NAME`
+    constant were extracted into `src/components/clipboard/ClipboardBase.tsx` and
+    `src/components/clipboard/componentName.ts`.
+  - `src/components/dropzone/dropzone.tsx` — the `DropzoneBase` class and its `COMPONENT_NAME`
+    constant were extracted into `src/components/dropzone/DropzoneBase.tsx` and
+    `src/components/dropzone/componentName.ts`.
+  - `src/util/analytics.ts` — `getPackageAttributes`, `getRequestMetadata`, and
+    `isUnknownDimensions` were extracted into their own single-export files under `src/util/`.
+
+  ### Why this is not breaking
+
+  None of the extracted modules (`BrowserBase`, `ClipboardBase`, `DropzoneBase`, `componentName.ts`,
+  or the split `util` helpers) are re-exported through the package's public `exports` map — the
+  public entry points (`.`, `./browser`, `./clipboard`, `./dropzone`, `./plugin`, `./preview`,
+  `./types`, `./components/types`) resolve to the same files as before, and their exported members
+  are unchanged.
+
+  ### Migration — no action required
+
+  ```ts
+  // Still valid — no change required
+  import { Browser } from '@atlaskit/media-picker/browser';
+  ```
+
+## 72.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.1
+
+### Patch Changes
+
+- [`dbc145df6b864`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbc145df6b864) -
+  Clean up feature gate `platform_media_package_react19_lifecycle_fix`. The React 19-safe lifecycle
+  behaviour is now permanent: prop-change reactions run in `componentDidUpdate` and the legacy
+  `UNSAFE_componentWillReceiveProps` paths have been removed.
+
+## 72.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.2
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 72.0.1
+
+### Patch Changes
+
+- [`0a00d74d3fe12`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a00d74d3fe12) -
+  Surface the underlying `DOMException` (e.g. `NotReadableError`, `NotFoundError`, `SecurityError`)
+  when a `FileReader` fails while hashing an upload, instead of leaking the browser `ProgressEvent`
+  which analytics serialised to the opaque `{"isTrusted":true}` error detail. Gated behind
+  `platform_media_filereader_error_surfacing`.
+
+  `@atlaskit/media-client` also exposes the `toFileReaderError` helper via a new
+  `@atlaskit/media-client/hashing/file-reader-error` entry point so consumers can normalise
+  `FileReader`/`DOMException` failures consistently without duplicating the logic.
+
+- Updated dependencies
+
+## 72.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.4.0
+
+### Minor Changes
+
+- [`4b1523c328148`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b1523c328148) -
+  Clean up flag to improve accessibility of layered components.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.3.0
+
+### Minor Changes
+
+- [`2bd6fc60982c8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bd6fc60982c8) -
+  Add optional sequential upload batching behind the `platform_media_picker_upload_batching` feature
+  flag to help consumers avoid overwhelming upload credential endpoints during bulk uploads.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.2.1
+
+### Patch Changes
+
+- [`2fe9a9909d2ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe9a9909d2ac) -
+  Enrol media packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 71.2.0
+
+### Minor Changes
+
+- [`5653e8be24c05`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5653e8be24c05) -
+  Replace `uuid-validate` with an inlined, browser-only `isValidUuid` helper in
+  `@atlaskit/media-common`. Removes the `uuid-validate` dependency from `media-card`,
+  `media-client`, `media-common` and `media-picker` so consumers no longer pull in the Node `Buffer`
+  polyfill purely for a `Buffer.isBuffer` check that always returned `false` in the browser.
+
+  Adds a new `@atlaskit/media-common/isValidUuid` subpath export so consumers can import the helper
+  without going through the package's barrel file (in line with the Debarreling Platform Packages
+  initiative).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.1.0
+
+### Minor Changes
+
+- [`818d7e656a226`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/818d7e656a226) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.0.1
+
+### Patch Changes
+
+- [`e3d1ec1074c7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3d1ec1074c7e) -
+  Removing UNSAFE_componentWillReceiveProps from media-picker, media-avatar-picker and media-viewer
+  package to support React19 migration
+
+## 71.0.0
+
+### Major Changes
+
+- [`770f036c93884`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/770f036c93884) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.17
+
+### Patch Changes
+
+- [`c3e8b437d0d8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3e8b437d0d8a) -
+  Replace deprecated `font.body.UNSAFE_small` token with `font.body.small`.
+
+## 70.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.15
+
+### Patch Changes
+
+- [`715629fc18fc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/715629fc18fc8) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 70.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 70.1.9
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-markdown-transformer",
-	"version": "5.20.4",
+	"version": "6.3.1",
 	"description": "Editor Markdown transformer",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
@@ -29,6 +21,9 @@
 	"atlassian": {
 		"team": "Editor: Collaboration",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Editor Markdown Transformer"
 		}
 	},
@@ -41,8 +36,11 @@
 	},
 	"devDependencies": {
 		"@atlaskit/editor-json-transformer": "workspace:^",
+		"@atlaskit/editor-test-helpers": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@emotion/react": "root:*",
 		"@types/markdown-it": "root:*",
-		"react": "root:*"
+		"react": "^19.2.0"
 	}
 }

@@ -1,8 +1,18 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { getEarliestHiddenTiming, getPageVisibilityState, getThrottleMeasurements, isTabThrottled, setupHiddenTimingCapture, setupThrottleDetection, stopThrottleDetection } from '../../index';
+import {
+	getEarliestHiddenTiming,
+	getPageVisibilityState,
+	getPageVisibilityTimeline,
+	getThrottleMeasurements,
+	isTabThrottled,
+	setupHiddenTimingCapture,
+	setupThrottleDetection,
+	stopThrottleDetection,
+} from '../../index';
 
-jest.mock('@atlaskit/platform-feature-flags', () => ({
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn(),
 }));
 
@@ -26,7 +36,7 @@ const createVisibilityEntry = (name: 'hidden' | 'visible', startTime: number): P
 				duration: 0,
 			};
 		},
-	} as PerformanceEntry);
+	}) as PerformanceEntry;
 
 const originalGetEntriesByType = performanceWithEntries.getEntriesByType;
 
@@ -101,11 +111,8 @@ describe('hidden-timing with timings which is smaller than 50(SIZE)', () => {
 
 		// When hidden-timing with timings which is smaller than 50(SIZE)
 		for (let i = 1; i < 10; i++) {
-			performanceSpy.mockImplementationOnce(() => i * 10);
-			visibilitySpy.mockReturnValueOnce(i % 2 === 0 ? 'visible' : 'hidden');
-		}
-
-		for (let i = 1; i < 10; i++) {
+			performanceSpy.mockReturnValue(i * 10);
+			visibilitySpy.mockReturnValue(i % 2 === 0 ? 'visible' : 'hidden');
 			document.dispatchEvent(new Event('visibilitychange'));
 		}
 
@@ -129,11 +136,8 @@ describe('hidden-timing with timings which is smaller than 50(SIZE)', () => {
 
 		// When hidden-timing with timings which is greater than 50(SIZE)
 		for (let i = 10; i < 75; i++) {
-			performanceSpy.mockImplementationOnce(() => i * 10);
-			visibilitySpy.mockReturnValueOnce(i % 2 === 0 ? 'visible' : 'hidden');
-		}
-
-		for (let i = 10; i < 75; i++) {
+			performanceSpy.mockReturnValue(i * 10);
+			visibilitySpy.mockReturnValue(i % 2 === 0 ? 'visible' : 'hidden');
 			document.dispatchEvent(new Event('visibilitychange'));
 		}
 
@@ -180,14 +184,19 @@ describe('hidden-timing with timings which is smaller than 50(SIZE)', () => {
 describe('getHasHiddenTimingBeforeSetup', () => {
 	it('should return false by default when setupHiddenTimingCapture is not called', () => {
 		jest.isolateModules(() => {
-			const { getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup } = require('../../index');
+			const {
+				getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup,
+			} = require('../../index');
 			expect(isolatedGetHasHiddenTimingBeforeSetup()).toBe(false);
 		});
 	});
 
 	it('should return false when no visibility entries exist before setup', () => {
 		jest.isolateModules(() => {
-			const { getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+			const {
+				getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
 			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 
 			getEntriesSpy.mockReturnValue([]);
@@ -202,7 +211,10 @@ describe('getHasHiddenTimingBeforeSetup', () => {
 
 	it('should return false when only visible entries exist before setup', () => {
 		jest.isolateModules(() => {
-			const { getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+			const {
+				getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
 			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 
 			const visibilityEntries = [
@@ -221,7 +233,10 @@ describe('getHasHiddenTimingBeforeSetup', () => {
 
 	it('should return true when hidden entry exists before setup', () => {
 		jest.isolateModules(() => {
-			const { getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+			const {
+				getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
 			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 
 			const visibilityEntries = [
@@ -240,7 +255,10 @@ describe('getHasHiddenTimingBeforeSetup', () => {
 
 	it('should return true when multiple hidden entries exist before setup', () => {
 		jest.isolateModules(() => {
-			const { getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+			const {
+				getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
 			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 
 			const visibilityEntries = [
@@ -261,7 +279,10 @@ describe('getHasHiddenTimingBeforeSetup', () => {
 
 	it('should work correctly with platform_ufo_use_native_page_visibility_api enabled', () => {
 		jest.isolateModules(() => {
-			const { getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+			const {
+				getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
 			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 
 			const visibilityEntries = [
@@ -282,7 +303,10 @@ describe('getHasHiddenTimingBeforeSetup', () => {
 
 	it('should handle performance.getEntriesByType throwing an error gracefully', () => {
 		jest.isolateModules(() => {
-			const { getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+			const {
+				getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
 			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 
 			getEntriesSpy.mockImplementation(() => {
@@ -298,7 +322,10 @@ describe('getHasHiddenTimingBeforeSetup', () => {
 
 	it('should detect hidden entry in visibility state entries', () => {
 		jest.isolateModules(() => {
-			const { getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+			const {
+				getHasHiddenTimingBeforeSetup: isolatedGetHasHiddenTimingBeforeSetup,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
 			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 
 			const visibilityEntries = [
@@ -404,9 +431,19 @@ describe('isOpenedInBackground', () => {
 	});
 
 	describe('fallback with time threshold', () => {
+		beforeEach(() => {
+			// The time-threshold fallback path is gated by
+			// `platform_ufo_use_native_page_visibility_api`; the outer beforeEach sets
+			// the gate to false, so enable it here for these fallback-specific tests.
+			mockedFg.mockReturnValue(true);
+		});
+
 		it('should return true when setup runs early (< 100ms) and page is hidden', () => {
 			jest.isolateModules(() => {
-				const { isOpenedInBackground: isolatedIsOpenedInBackground, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+				const {
+					isOpenedInBackground: isolatedIsOpenedInBackground,
+					setupHiddenTimingCapture: isolatedSetup,
+				} = require('../../index');
 				const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
 				const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 				const performanceNowSpy = jest.spyOn(window.performance, 'now');
@@ -427,7 +464,10 @@ describe('isOpenedInBackground', () => {
 
 		it('should return false when setup runs late (>= 100ms) even if page is hidden', () => {
 			jest.isolateModules(() => {
-				const { isOpenedInBackground: isolatedIsOpenedInBackground, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+				const {
+					isOpenedInBackground: isolatedIsOpenedInBackground,
+					setupHiddenTimingCapture: isolatedSetup,
+				} = require('../../index');
 				const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
 				const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 				const performanceNowSpy = jest.spyOn(window.performance, 'now');
@@ -448,7 +488,10 @@ describe('isOpenedInBackground', () => {
 
 		it('should return false when setup runs early but page is visible', () => {
 			jest.isolateModules(() => {
-				const { isOpenedInBackground: isolatedIsOpenedInBackground, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+				const {
+					isOpenedInBackground: isolatedIsOpenedInBackground,
+					setupHiddenTimingCapture: isolatedSetup,
+				} = require('../../index');
 				const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
 				const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 				const performanceNowSpy = jest.spyOn(window.performance, 'now');
@@ -469,7 +512,10 @@ describe('isOpenedInBackground', () => {
 
 		it('should return false when page is hidden later after setup', () => {
 			jest.isolateModules(() => {
-				const { isOpenedInBackground: isolatedIsOpenedInBackground, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+				const {
+					isOpenedInBackground: isolatedIsOpenedInBackground,
+					setupHiddenTimingCapture: isolatedSetup,
+				} = require('../../index');
 				const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
 				const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 				const performanceNowSpy = jest.spyOn(window.performance, 'now');
@@ -495,7 +541,10 @@ describe('isOpenedInBackground', () => {
 
 		it('should handle getEntriesByType throwing an error gracefully', () => {
 			jest.isolateModules(() => {
-				const { isOpenedInBackground: isolatedIsOpenedInBackground, setupHiddenTimingCapture: isolatedSetup } = require('../../index');
+				const {
+					isOpenedInBackground: isolatedIsOpenedInBackground,
+					setupHiddenTimingCapture: isolatedSetup,
+				} = require('../../index');
 				const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
 				const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
 				const performanceNowSpy = jest.spyOn(window.performance, 'now');
@@ -531,6 +580,203 @@ describe('isOpenedInBackground', () => {
 
 				getEntriesSpy.mockRestore();
 			});
+		});
+	});
+});
+
+describe('getPageVisibilityTimeline', () => {
+	it('should return empty array when no measurements are available', () => {
+		jest.isolateModules(() => {
+			const { getPageVisibilityTimeline: isolatedGetTimeline } = require('../../index');
+			expect(isolatedGetTimeline(0, 1000)).toEqual([]);
+		});
+	});
+
+	it('should return empty array for invalid input (startTime >= endTime)', () => {
+		expect(getPageVisibilityTimeline(1000, 1000)).toEqual([]);
+		expect(getPageVisibilityTimeline(2000, 1000)).toEqual([]);
+	});
+
+	it('should return empty array for non-finite inputs', () => {
+		expect(getPageVisibilityTimeline(NaN, 1000)).toEqual([]);
+		expect(getPageVisibilityTimeline(0, NaN)).toEqual([]);
+		expect(getPageVisibilityTimeline(Infinity, 1000)).toEqual([]);
+	});
+
+	it('should return the initial visibility state and transitions within the window', () => {
+		jest.isolateModules(() => {
+			const {
+				getPageVisibilityTimeline: isolatedGetTimeline,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
+			const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
+			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
+			const performanceSpy = jest.spyOn(window.performance, 'now');
+
+			const visibilityEntries = [
+				createVisibilityEntry('hidden', 10),
+				createVisibilityEntry('visible', 40),
+			];
+
+			getEntriesSpy.mockReturnValue(visibilityEntries);
+			visibilitySpy.mockReturnValue('visible');
+			mockedFg.mockReturnValue(true);
+
+			isolatedSetup();
+
+			// Query window that spans a transition: visible at 0, hidden at 10, visible at 40
+			// Window from 5 to 50: initial state at 5 is visible (from t=0), then hidden at 10, visible at 40
+			const timeline = isolatedGetTimeline(5, 50);
+			expect(timeline).toEqual([
+				{ time: 0, hidden: false }, // initial state at start of window (visible at t=0)
+				{ time: 5, hidden: true }, // hidden at t=10, relative: 10-5=5
+				{ time: 35, hidden: false }, // visible at t=40, relative: 40-5=35
+			]);
+
+			getEntriesSpy.mockRestore();
+			performanceSpy.mockRestore();
+			visibilitySpy.mockRestore();
+		});
+	});
+
+	it('should return only initial state when no transitions occur within the window', () => {
+		jest.isolateModules(() => {
+			const {
+				getPageVisibilityTimeline: isolatedGetTimeline,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
+			const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
+			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
+
+			getEntriesSpy.mockReturnValue([]);
+			visibilitySpy.mockReturnValue('visible');
+			mockedFg.mockReturnValue(false);
+
+			isolatedSetup();
+
+			// Query window where no transitions happen (only the initial state at t=0)
+			const timeline = isolatedGetTimeline(1, 100);
+			expect(timeline).toEqual([
+				{ time: 0, hidden: false }, // initial state is visible
+			]);
+
+			getEntriesSpy.mockRestore();
+			visibilitySpy.mockRestore();
+		});
+	});
+
+	it('should return empty array when window is before any recorded timings', () => {
+		jest.isolateModules(() => {
+			const {
+				getPageVisibilityTimeline: isolatedGetTimeline,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
+			const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
+			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
+			const performanceSpy = jest.spyOn(window.performance, 'now');
+
+			getEntriesSpy.mockReturnValue([]);
+			visibilitySpy.mockReturnValue('hidden');
+			performanceSpy.mockReturnValue(100);
+
+			isolatedSetup();
+
+			// Setup pushes hidden at t=0. Query window after visibility changes
+			performanceSpy.mockReturnValue(200);
+			visibilitySpy.mockReturnValue('visible');
+			document.dispatchEvent(new Event('visibilitychange'));
+
+			// Window from 50 to 150: initial state at 50 is hidden (from t=0), visible at 200 is outside
+			const timeline = isolatedGetTimeline(50, 150);
+			expect(timeline).toEqual([
+				{ time: 0, hidden: true }, // initial state from t=0 entry
+			]);
+
+			getEntriesSpy.mockRestore();
+			performanceSpy.mockRestore();
+			visibilitySpy.mockRestore();
+		});
+	});
+
+	it('should handle multiple transitions within the window', () => {
+		jest.isolateModules(() => {
+			const {
+				getPageVisibilityTimeline: isolatedGetTimeline,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
+			const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
+			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
+			const performanceSpy = jest.spyOn(window.performance, 'now');
+
+			getEntriesSpy.mockReturnValue([]);
+			visibilitySpy.mockReturnValue('visible');
+			mockedFg.mockReturnValue(false);
+
+			isolatedSetup();
+
+			// Simulate several transitions: hidden at 100, visible at 200, hidden at 300
+			performanceSpy.mockReturnValue(100);
+			visibilitySpy.mockReturnValue('hidden');
+			document.dispatchEvent(new Event('visibilitychange'));
+
+			performanceSpy.mockReturnValue(200);
+			visibilitySpy.mockReturnValue('visible');
+			document.dispatchEvent(new Event('visibilitychange'));
+
+			performanceSpy.mockReturnValue(300);
+			visibilitySpy.mockReturnValue('hidden');
+			document.dispatchEvent(new Event('visibilitychange'));
+
+			// Window from 50 to 350
+			const timeline = isolatedGetTimeline(50, 350);
+			expect(timeline).toEqual([
+				{ time: 0, hidden: false }, // initial state (visible at t=0)
+				{ time: 50, hidden: true }, // hidden at 100, relative: 100-50=50
+				{ time: 150, hidden: false }, // visible at 200, relative: 200-50=150
+				{ time: 250, hidden: true }, // hidden at 300, relative: 300-50=250
+			]);
+
+			getEntriesSpy.mockRestore();
+			performanceSpy.mockRestore();
+			visibilitySpy.mockRestore();
+		});
+	});
+
+	it('should handle window that starts after some transitions', () => {
+		jest.isolateModules(() => {
+			const {
+				getPageVisibilityTimeline: isolatedGetTimeline,
+				setupHiddenTimingCapture: isolatedSetup,
+			} = require('../../index');
+			const visibilitySpy = jest.spyOn(window.document, 'visibilityState', 'get');
+			const getEntriesSpy = jest.spyOn(window.performance, 'getEntriesByType');
+			const performanceSpy = jest.spyOn(window.performance, 'now');
+
+			getEntriesSpy.mockReturnValue([]);
+			visibilitySpy.mockReturnValue('visible');
+			mockedFg.mockReturnValue(false);
+
+			isolatedSetup();
+
+			// hidden at 100, visible at 200
+			performanceSpy.mockReturnValue(100);
+			visibilitySpy.mockReturnValue('hidden');
+			document.dispatchEvent(new Event('visibilitychange'));
+
+			performanceSpy.mockReturnValue(200);
+			visibilitySpy.mockReturnValue('visible');
+			document.dispatchEvent(new Event('visibilitychange'));
+
+			// Window from 150 to 250: initial state at 150 is hidden (from t=100), visible at 200
+			const timeline = isolatedGetTimeline(150, 250);
+			expect(timeline).toEqual([
+				{ time: 0, hidden: true }, // initial state (hidden from t=100)
+				{ time: 50, hidden: false }, // visible at 200, relative: 200-150=50
+			]);
+
+			getEntriesSpy.mockRestore();
+			performanceSpy.mockRestore();
+			visibilitySpy.mockRestore();
 		});
 	});
 });
@@ -573,7 +819,11 @@ describe('Throttle Detection', () => {
 
 		it('should return false when timer runs normally (no throttling)', () => {
 			jest.isolateModules(() => {
-				const { setupThrottleDetection: isolatedSetup, stopThrottleDetection: isolatedStop, isTabThrottled: isolatedIsThrottled } = require('../../index');
+				const {
+					setupThrottleDetection: isolatedSetup,
+					stopThrottleDetection: isolatedStop,
+					isTabThrottled: isolatedIsThrottled,
+				} = require('../../index');
 				const performanceNowSpy = jest.spyOn(performance, 'now');
 
 				// Start at 0ms
@@ -597,7 +847,11 @@ describe('Throttle Detection', () => {
 
 		it('should return true when timer is throttled (significant drift detected)', () => {
 			jest.isolateModules(() => {
-				const { setupThrottleDetection: isolatedSetup, stopThrottleDetection: isolatedStop, isTabThrottled: isolatedIsThrottled } = require('../../index');
+				const {
+					setupThrottleDetection: isolatedSetup,
+					stopThrottleDetection: isolatedStop,
+					isTabThrottled: isolatedIsThrottled,
+				} = require('../../index');
 				const performanceNowSpy = jest.spyOn(performance, 'now');
 
 				// Start at 0ms
@@ -617,7 +871,11 @@ describe('Throttle Detection', () => {
 
 		it('should return false when throttling occurred outside the queried time window', () => {
 			jest.isolateModules(() => {
-				const { setupThrottleDetection: isolatedSetup, stopThrottleDetection: isolatedStop, isTabThrottled: isolatedIsThrottled } = require('../../index');
+				const {
+					setupThrottleDetection: isolatedSetup,
+					stopThrottleDetection: isolatedStop,
+					isTabThrottled: isolatedIsThrottled,
+				} = require('../../index');
 				const performanceNowSpy = jest.spyOn(performance, 'now');
 
 				// Start at 0ms
@@ -654,7 +912,11 @@ describe('Throttle Detection', () => {
 
 		it('should return measurements within the specified time window', () => {
 			jest.isolateModules(() => {
-				const { setupThrottleDetection: isolatedSetup, stopThrottleDetection: isolatedStop, getThrottleMeasurements: isolatedGetMeasurements } = require('../../index');
+				const {
+					setupThrottleDetection: isolatedSetup,
+					stopThrottleDetection: isolatedStop,
+					getThrottleMeasurements: isolatedGetMeasurements,
+				} = require('../../index');
 				const performanceNowSpy = jest.spyOn(performance, 'now');
 
 				// Start at 0ms
@@ -683,7 +945,12 @@ describe('Throttle Detection', () => {
 	describe('stopThrottleDetection', () => {
 		it('should clear measurements and reset state', () => {
 			jest.isolateModules(() => {
-				const { setupThrottleDetection: isolatedSetup, stopThrottleDetection: isolatedStop, isTabThrottled: isolatedIsThrottled, getThrottleMeasurements: isolatedGetMeasurements } = require('../../index');
+				const {
+					setupThrottleDetection: isolatedSetup,
+					stopThrottleDetection: isolatedStop,
+					isTabThrottled: isolatedIsThrottled,
+					getThrottleMeasurements: isolatedGetMeasurements,
+				} = require('../../index');
 				const performanceNowSpy = jest.spyOn(performance, 'now');
 
 				performanceNowSpy.mockReturnValue(0);

@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -25,11 +26,19 @@
 		"**/mock.*",
 		"**/codemods/**/*.ts",
 		"**/codemods/**/*.tsx",
-		"./src/nodeviews/__mocks__/**/*"
+		"./src/nodeviews/__mocks__/**/*",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-plugin-table/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-plugin-table/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
@@ -40,6 +49,9 @@
 		},
 		{
 			"path": "../custom-steps/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
 		},
 		{
 			"path": "../editor-common/tsconfig.app.json"
@@ -84,6 +96,9 @@
 			"path": "../editor-plugin-toolbar/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-plugin-ui-control-registry/tsconfig.app.json"
+		},
+		{
 			"path": "../editor-plugin-user-intent/tsconfig.app.json"
 		},
 		{
@@ -99,13 +114,25 @@
 			"path": "../editor-tables/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-toolbar/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-ui-control-model/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/icon/tsconfig.app.json"
+		},
+		{
+			"path": "../../design-system/icon-lab/tsconfig.app.json"
 		},
 		{
 			"path": "../insm/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/menu/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/feature-experiments/tsconfig.app.json"
 		},
 		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
@@ -121,9 +148,6 @@
 		},
 		{
 			"path": "../../design-system/primitives/tsconfig.app.json"
-		},
-		{
-			"path": "../../design-system/theme/tsconfig.app.json"
 		},
 		{
 			"path": "../tmp-editor-statsig/tsconfig.app.json"

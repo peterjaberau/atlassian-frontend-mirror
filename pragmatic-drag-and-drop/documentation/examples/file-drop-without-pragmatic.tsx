@@ -8,7 +8,7 @@ import React, { type DragEventHandler, Fragment, useCallback, useState } from 'r
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import Badge from '@atlaskit/badge';
+import Badge from '@atlaskit/badge/badge';
 import { token } from '@atlaskit/tokens';
 
 const itemInfoStyles = css({
@@ -16,7 +16,7 @@ const itemInfoStyles = css({
 	width: '-webkit-fill-available',
 	padding: 24,
 	gap: 8,
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 	borderRadius: 4,
 });
 
@@ -41,8 +41,8 @@ const fileDropZoneStyles = css({
 	alignItems: 'flex-start',
 	gap: 16,
 	flexDirection: 'column',
-	background: token('elevation.surface', '#FFF'),
-	border: `${token('border.width.selected')} solid ${token('color.border', '#091E4224')}`,
+	background: token('elevation.surface'),
+	border: `${token('border.width.selected')} solid ${token('color.border')}`,
 	borderRadius: 6,
 });
 
@@ -61,7 +61,7 @@ const FileDropZone = () => {
 	return (
 		<div onDragOver={onDragOver} onDrop={onDrop} data-testid="drop-zone" css={fileDropZoneStyles}>
 			<p>
-				<Badge appearance="primary">{items.length}</Badge> items dropped.
+				<Badge appearance="informationBold">{items.length}</Badge> items dropped.
 			</p>
 			{items.map((item, index) => (
 				<ItemInfo key={index} kind={item.kind} type={item.type} file={item.getAsFile()} />

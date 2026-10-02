@@ -2,31 +2,19 @@ import type { PopupProps } from '@atlaskit/editor-common/ui';
 import { akEditorTableNumberColumnWidth } from '@atlaskit/editor-shared-styles';
 
 import type { TableDirection } from '../../types';
-import {
-	tableInsertColumnButtonOffset,
-	tableInsertColumnButtonSize,
-	tableToolbarSize,
-} from '../consts';
+import { tableInsertColumnButtonOffset, tableInsertColumnButtonSize } from '../consts';
 
 const HORIZONTAL_ALIGN_COLUMN_BUTTON = -(tableInsertColumnButtonSize / 2);
 const HORIZONTAL_ALIGN_NUMBERED_COLUMN_BUTTON =
 	HORIZONTAL_ALIGN_COLUMN_BUTTON + akEditorTableNumberColumnWidth;
 
-const VERTICAL_ALIGN_COLUMN_BUTTON = tableToolbarSize + tableInsertColumnButtonOffset;
-
 const VERTICAL_ALIGN_COLUMN_BUTTON_DRAG = tableInsertColumnButtonOffset;
-
-const HORIZONTAL_ALIGN_ROW_BUTTON = -(
-	tableToolbarSize +
-	tableInsertColumnButtonOffset +
-	tableInsertColumnButtonSize
-);
 
 const HORIZONTAL_ALIGN_ROW_BUTTON_DRAG = -18;
 
 const VERTICAL_ALIGN_ROW_BUTTON = tableInsertColumnButtonSize / 2;
 
-function getRowOptions(index: number, isDragAndDropEnabled: boolean): Partial<PopupProps> {
+function getRowOptions(index: number): Partial<PopupProps> {
 	let defaultOptions = {
 		alignX: 'left',
 		alignY: 'bottom',
@@ -48,7 +36,7 @@ function getRowOptions(index: number, isDragAndDropEnabled: boolean): Partial<Po
 			return {
 				...position,
 				// Left position should be always the offset (To place in the correct position even if the table has overflow).
-				left: isDragAndDropEnabled ? HORIZONTAL_ALIGN_ROW_BUTTON_DRAG : HORIZONTAL_ALIGN_ROW_BUTTON,
+				left: HORIZONTAL_ALIGN_ROW_BUTTON_DRAG,
 			};
 		},
 	};
@@ -58,30 +46,37 @@ function getColumnOptions(
 	index: number,
 	tableContainer: HTMLElement | null,
 	hasNumberedColumns: boolean,
-	isDragAndDropEnabled: boolean,
+	// Distance between the target cell top and table top, used when anchoring to a lower-row cell.
+	verticalOffsetCorrection = 0,
 ): Partial<PopupProps> {
 	const options: Partial<PopupProps> = {
 		alignX: 'end',
 		alignY: 'top',
-		offset: [
-			HORIZONTAL_ALIGN_COLUMN_BUTTON,
-			isDragAndDropEnabled ? VERTICAL_ALIGN_COLUMN_BUTTON_DRAG : VERTICAL_ALIGN_COLUMN_BUTTON,
-		],
+		offset: [HORIZONTAL_ALIGN_COLUMN_BUTTON, VERTICAL_ALIGN_COLUMN_BUTTON_DRAG],
 		// :: (position: PopupPosition) -> PopupPosition
 		// Limit the InsertButton position to the table container
 		// if the left position starts before it
 		// we should always set the InsertButton on the start,
 		// considering the offset from the first column
 		onPositionCalculated(position) {
+			// Move the popup upward whether the offset parent provides `top` or `bottom`.
+			let verticalCorrection: { bottom?: number; top?: number } | undefined;
+			if (verticalOffsetCorrection) {
+				if (position.top !== undefined) {
+					verticalCorrection = { top: position.top - verticalOffsetCorrection };
+				} else if (position.bottom !== undefined) {
+					verticalCorrection = { bottom: position.bottom + verticalOffsetCorrection };
+				}
+			}
 			const { left } = position;
 			if (!left) {
-				// If not left, lest skip expensive next calculations.
-				return position;
+				return { ...position, ...verticalCorrection };
 			}
 
 			if (index === 0) {
 				return {
 					...position,
+					...verticalCorrection,
 					left: hasNumberedColumns
 						? HORIZONTAL_ALIGN_NUMBERED_COLUMN_BUTTON
 						: HORIZONTAL_ALIGN_COLUMN_BUTTON,
@@ -93,6 +88,7 @@ function getColumnOptions(
 
 			return {
 				...position,
+				...verticalCorrection,
 				left: rect && left > rect.width ? rect.width : left,
 			};
 		},
@@ -115,14 +111,14 @@ function getPopupOptions(
 	direction: TableDirection,
 	index: number,
 	hasNumberedColumns: boolean,
-	isDragAndDropEnabled: boolean,
 	tableContainer: HTMLElement | null,
+	verticalOffsetCorrection = 0,
 ): Partial<PopupProps> {
 	switch (direction) {
 		case 'column':
-			return getColumnOptions(index, tableContainer, hasNumberedColumns, isDragAndDropEnabled);
+			return getColumnOptions(index, tableContainer, hasNumberedColumns, verticalOffsetCorrection);
 		case 'row':
-			return getRowOptions(index, isDragAndDropEnabled);
+			return getRowOptions(index);
 		default:
 			return {};
 	}

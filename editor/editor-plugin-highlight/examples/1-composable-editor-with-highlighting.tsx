@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AnnotationTypes } from '@atlaskit/adf-schema';
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import { AnnotationUpdateEmitter } from '@atlaskit/editor-common/annotation';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { usePreset } from '@atlaskit/editor-core/use-preset';
@@ -22,7 +22,8 @@ import { quickInsertPlugin } from '@atlaskit/editor-plugins/quick-insert';
 import { selectionPlugin } from '@atlaskit/editor-plugins/selection';
 import { selectionToolbarPlugin } from '@atlaskit/editor-plugins/selection-toolbar';
 import { statusPlugin } from '@atlaskit/editor-plugins/status';
-import { type TablePluginOptions, tablesPlugin } from '@atlaskit/editor-plugins/table';
+import { tablesPlugin } from '@atlaskit/editor-plugins/table';
+import type { TablePluginOptions } from '@atlaskit/editor-plugins/table';
 import { textColorPlugin } from '@atlaskit/editor-plugins/text-color';
 import { textFormattingPlugin } from '@atlaskit/editor-plugins/text-formatting';
 import { typeAheadPlugin } from '@atlaskit/editor-plugins/type-ahead';

@@ -1,4 +1,4 @@
-import { cssVariableFormatter as formatter } from '../../css-variables';
+import { cssVariableFormatter as formatter } from '../../css-variable-formatter';
 
 describe('formatter', () => {
 	it('should parse token', () => {
@@ -20,14 +20,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
-		html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
-		  color-scheme: dark;
-		  --ds-brand: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
+html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
+  color-scheme: dark;
+  --ds-brand: #ffffff;
+}
+`);
 	});
 
 	it('should preserve camelCase tokens', () => {
@@ -49,14 +48,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
-		html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
-		  color-scheme: dark;
-		  --ds-colorAccent: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
+html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
+  color-scheme: dark;
+  --ds-colorAccent: #ffffff;
+}
+`);
 	});
 
 	it('should omit palette tokens', () => {
@@ -80,13 +78,12 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
-		html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
-		  color-scheme: dark;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
+html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
+  color-scheme: dark;
+}
+`);
 	});
 
 	it('should parse nested token', () => {
@@ -108,14 +105,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
-		html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
-		  color-scheme: dark;
-		  --ds-accent: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
+html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
+  color-scheme: dark;
+  --ds-accent: #ffffff;
+}
+`);
 	});
 
 	it('should parse deeply nested token', () => {
@@ -137,14 +133,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
-		html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
-		  color-scheme: dark;
-		  --ds-accent-brand: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
+html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
+  color-scheme: dark;
+  --ds-accent-brand: #ffffff;
+}
+`);
 	});
 
 	it('should omit [default] keywords in token paths', () => {
@@ -168,14 +163,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
-		html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
-		  color-scheme: dark;
-		  --ds-background-brand: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
+html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
+  color-scheme: dark;
+  --ds-background-brand: #ffffff;
+}
+`);
 	});
 
 	it('should omit nested [default] keywords in token paths', () => {
@@ -199,14 +193,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
-		html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
-		  color-scheme: dark;
-		  --ds-background-brand: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
+html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
+  color-scheme: dark;
+  --ds-background-brand: #ffffff;
+}
+`);
 	});
 
 	it('should omit nested [default] keywords in the middle of token paths', () => {
@@ -230,14 +223,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:light"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:light"],
-		html[data-color-mode="dark"][data-theme~="dark:light"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:light"] {
-		  color-scheme: light;
-		  --ds-background-brand-pressed: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:light"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:light"],
+html[data-color-mode="dark"][data-theme~="dark:light"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:light"] {
+  color-scheme: light;
+  --ds-background-brand-pressed: #ffffff;
+}
+`);
 	});
 
 	it('should omit prefers-color-scheme media selector for non-color themes', () => {
@@ -269,13 +261,12 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-theme~="spacing:spacing"], [data-subtree-theme][data-theme~="spacing:spacing"] {
-		  --ds-FontSize050: 11px;
-		  --ds-space-Space0: 0;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-theme~="spacing:spacing"], [data-subtree-theme][data-theme~="spacing:spacing"] {
+  --ds-FontSize050: 11px;
+  --ds-space-Space0: 0;
+}
+`);
 	});
 
 	it('should inject color-scheme for color themes with a light mode', () => {
@@ -297,14 +288,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:light"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:light"],
-		html[data-color-mode="dark"][data-theme~="dark:light"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:light"] {
-		  color-scheme: light;
-		  --ds-brand: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:light"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:light"],
+html[data-color-mode="dark"][data-theme~="dark:light"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:light"] {
+  color-scheme: light;
+  --ds-brand: #ffffff;
+}
+`);
 	});
 
 	it('should inject color-scheme for color themes with a dark mode', () => {
@@ -326,14 +316,13 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
-		html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
-		  color-scheme: dark;
-		  --ds-brand: #ffffff;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-color-mode="light"][data-theme~="light:dark"], [data-subtree-theme][data-color-mode="light"][data-theme~="light:dark"],
+html[data-color-mode="dark"][data-theme~="dark:dark"], [data-subtree-theme][data-color-mode="dark"][data-theme~="dark:dark"] {
+  color-scheme: dark;
+  --ds-brand: #ffffff;
+}
+`);
 	});
 
 	it('should not inject color-scheme for non-color themes with a dark mode', () => {
@@ -355,12 +344,11 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-theme~="spacing:spacing"], [data-subtree-theme][data-theme~="spacing:spacing"] {
-		  --ds-base: 16px;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-theme~="spacing:spacing"], [data-subtree-theme][data-theme~="spacing:spacing"] {
+  --ds-base: 16px;
+}
+`);
 	});
 
 	it('should create correct format for typographic tokens', () => {
@@ -397,11 +385,10 @@ describe('formatter', () => {
 			},
 		} as any);
 
-		expect(result).toMatchInlineSnapshot(`
-		"html[data-theme~="typography:typography"], [data-subtree-theme][data-theme~="typography:typography"] {
-		  --ds-base: normal bold 16px/24px sans-serif;
-		}
-		"
-	`);
+		expect(result)
+			.toEqual(`html[data-theme~="typography:typography"], [data-subtree-theme][data-theme~="typography:typography"] {
+  --ds-base: normal bold 16px/24px sans-serif;
+}
+`);
 	});
 });

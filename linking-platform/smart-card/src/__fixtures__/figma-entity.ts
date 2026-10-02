@@ -1,3 +1,6 @@
+import type { DesignEntity } from '@atlaskit/linking-types/entity-types';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 export default {
 	meta: {
 		access: 'granted',
@@ -52,8 +55,9 @@ export default {
 			externalUrl: 'https://image-url',
 		},
 		liveEmbedUrl: 'https://preview-url',
+		status: 'UNKNOWN',
 		type: 'FILE',
 		inspectUrl: 'https://preview-url',
 		iconUrl: 'https://icon-url',
-	},
-};
+	} satisfies DesignEntity,
+} as SmartLinkResponse;

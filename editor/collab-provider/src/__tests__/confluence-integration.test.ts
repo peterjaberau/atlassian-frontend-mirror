@@ -1,25 +1,34 @@
-jest.mock('@atlaskit/feature-gate-js-client', () => ({
-	...jest.requireActual('@atlaskit/feature-gate-js-client'),
-	initialize: jest.fn(Promise.resolve),
-	initializeCompleted: jest.fn(() => true),
-	getExperimentValue: jest.fn(),
-	checkGate: jest.fn(),
-}));
+jest.mock('@atlaskit/feature-gate-js-client/feature-gates', () => {
+	const actual = jest.requireActual('@atlaskit/feature-gate-js-client/feature-gates');
+	return {
+		__esModule: true,
+		default: {
+			...actual.default,
+			initialize: jest.fn(Promise.resolve),
+			initializeCompleted: jest.fn(() => true),
+			getExperimentValue: jest.fn(),
+			checkGate: jest.fn(),
+		},
+	};
+});
 
-import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners';
+import { mockIo } from './jest_mocks/socket.io-client.mock';
+
+import SocketIOClient from 'socket.io-client';
+
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
 import type { CollabTelepointerPayload } from '@atlaskit/editor-common/collab';
 import type { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import { collab } from '@atlaskit/prosemirror-collab';
-import { createSocketIOCollabProvider } from '../socket-io-provider';
-import type { Config, PresencePayload } from '../types';
-// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
-import { doc, p } from '@atlaskit/editor-test-helpers/doc-builder';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { createEditorState } from '@atlaskit/editor-test-helpers/create-editor-state';
-import SocketIOClient from 'socket.io-client';
+// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
+import { doc, p } from '@atlaskit/editor-test-helpers/doc-builder';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { collab } from '@atlaskit/prosemirror-collab';
+
 import type { Provider } from '../provider';
-import { mockIo } from './jest_mocks/socket.io-client.mock';
-import FeatureGates from '@atlaskit/feature-gate-js-client';
+import { createSocketIOCollabProvider } from '../socket-io-provider';
+import type { Config, PresencePayload } from '../types';
 
 describe('Collab Provider Integration Tests - Confluence', () => {
 	let provider: Provider;
@@ -195,8 +204,8 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 				};
 				provider.setMetadata(mockMetaData);
 				expect(provider.getMetadata()).toEqual(mockMetaData);
-				expect(socketEmitSpy).toBeCalledTimes(1);
-				expect(socketEmitSpy).toBeCalledWith('metadata', mockMetaData);
+				expect(socketEmitSpy).toHaveBeenCalledTimes(1);
+				expect(socketEmitSpy).toHaveBeenCalledWith('metadata', mockMetaData);
 			});
 		});
 
@@ -320,11 +329,11 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 
 		it('should call the permissionTokenRefresh call-back on establishing the connection', () => {
 			provider.initialize(getStateMock);
-			expect(permissionTokenRefreshMock).toBeCalledTimes(1);
+			expect(permissionTokenRefreshMock).toHaveBeenCalledTimes(1);
 			// Socket IO connects automatically but the mock doesn't
 			// @ts-expect-error mocking Socket IO client behaviour
 			provider.channel.getSocket().connect();
-			expect(permissionTokenRefreshMock).toBeCalledTimes(2);
+			expect(permissionTokenRefreshMock).toHaveBeenCalledTimes(2);
 		});
 	});
 
@@ -332,27 +341,20 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 		it('should return the current document state when calling getCurrentState()', async () => {
 			provider.initialize(getStateMock);
 			const currentDocumentState = await provider.getCurrentState();
-			expect(currentDocumentState).toMatchInlineSnapshot(`
-			{
-			  "content": {
-			    "content": [
-			      {
-			        "content": [
-			          {
-			            "text": "lol",
-			            "type": "text",
-			          },
-			        ],
-			        "type": "paragraph",
-			      },
-			    ],
-			    "type": "doc",
-			    "version": 1,
-			  },
-			  "stepVersion": 0,
-			  "title": undefined,
-			}
-		`);
+			expect(currentDocumentState).toEqual({
+				content: {
+					type: 'doc',
+					version: 1,
+					content: [
+						{
+							type: 'paragraph',
+							content: [{ type: 'text', text: 'lol' }],
+						},
+					],
+				},
+				stepVersion: 0,
+				title: undefined,
+			});
 		});
 
 		it('should throw an error if there is a problem when calling getCurrentState()', async () => {
@@ -367,9 +369,7 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 				provider.analyticsHelper,
 				'sendErrorEvent',
 			);
-			await expect(provider.getCurrentState()).rejects.toThrowErrorMatchingInlineSnapshot(
-				`"fake error"`,
-			);
+			await expect(provider.getCurrentState()).rejects.toThrow('fake error');
 
 			expect(analyticsHelperSpy).toHaveBeenCalledTimes(2);
 			expect(analyticsHelperSpy).toHaveBeenCalledWith(
@@ -381,27 +381,20 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 		it('should return the final acknowledged document state when calling getFinalAcknowledgedState()', async () => {
 			provider.initialize(getStateMock);
 			const finalDocumentState = await provider.getFinalAcknowledgedState('publish');
-			expect(finalDocumentState).toMatchInlineSnapshot(`
-			{
-			  "content": {
-			    "content": [
-			      {
-			        "content": [
-			          {
-			            "text": "lol",
-			            "type": "text",
-			          },
-			        ],
-			        "type": "paragraph",
-			      },
-			    ],
-			    "type": "doc",
-			    "version": 1,
-			  },
-			  "stepVersion": 0,
-			  "title": undefined,
-			}
-		`);
+			expect(finalDocumentState).toEqual({
+				content: {
+					type: 'doc',
+					version: 1,
+					content: [
+						{
+							type: 'paragraph',
+							content: [{ type: 'text', text: 'lol' }],
+						},
+					],
+				},
+				stepVersion: 0,
+				title: undefined,
+			});
 		});
 
 		it('should throw an error if there is a problem when calling getFinalAcknowledgedState()', async () => {
@@ -416,9 +409,7 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 				provider.analyticsHelper,
 				'sendErrorEvent',
 			);
-			await expect(
-				provider.getFinalAcknowledgedState('publish'),
-			).rejects.toThrowErrorMatchingInlineSnapshot(`"fake error"`);
+			await expect(provider.getFinalAcknowledgedState('publish')).rejects.toThrow('fake error');
 
 			expect(analyticsHelperSpy).toHaveBeenCalledTimes(2);
 			expect(analyticsHelperSpy).toHaveBeenCalledWith(
@@ -430,19 +421,15 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 		it('should be unable to use the provider after calling .destroy()', async () => {
 			const unsubscribeSpy = jest.spyOn(provider, 'unsubscribeAll');
 			await provider.destroy();
-			expect(unsubscribeSpy).toBeCalledTimes(1);
-			await expect(provider.getCurrentState()).rejects.toThrowErrorMatchingInlineSnapshot(
-				`"this.getState is not a function"`,
-			);
+			expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
+			await expect(provider.getCurrentState()).rejects.toThrow('this.getState is not a function');
 		});
 
 		it('should be unable to use the provider after calling .disconnect()', async () => {
 			const unsubscribeSpy = jest.spyOn(provider, 'unsubscribeAll');
 			await provider.disconnect();
-			expect(unsubscribeSpy).toBeCalledTimes(1);
-			await expect(provider.getCurrentState()).rejects.toThrowErrorMatchingInlineSnapshot(
-				`"this.getState is not a function"`,
-			);
+			expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
+			await expect(provider.getCurrentState()).rejects.toThrow('this.getState is not a function');
 		});
 
 		it('should be able to set the title using setMetadata', async () => {
@@ -476,7 +463,7 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 			// @ts-ignore accessing private property for testing purposes
 			const broadcastSpy = jest.spyOn(provider.channel, 'broadcast');
 			provider.sendMessage(telepointerData);
-			expect(broadcastSpy).toBeCalledTimes(1);
+			expect(broadcastSpy).toHaveBeenCalledTimes(1);
 		});
 
 		it('should not throw an error when sendMessage fails to broadcast', () => {
@@ -508,75 +495,72 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 			);
 		});
 
-		it('should be unusable before calling setup, and usable after', async () => {
-			await expect(provider.getCurrentState()).rejects.toThrowErrorMatchingInlineSnapshot(
-				`"this.getState is not a function"`,
-			);
+		it('should not throw when setMetadata is called before initialization', () => {
 			expect(() => {
 				provider.setMetadata({ title: 'abc' });
-			}).toThrowErrorMatchingInlineSnapshot(`"Cannot send metadata, not initialized yet"`);
+			}).not.toThrow();
+		});
+
+		it('should still report error via sendErrorEvent for observability', () => {
+			const analyticsHelperSpy = jest.spyOn(
+				// @ts-ignore accessing private method for testing purposes
+				provider.analyticsHelper,
+				'sendErrorEvent',
+			);
+			provider.setMetadata({ title: 'abc' });
+			expect(analyticsHelperSpy).toHaveBeenCalledWith(
+				expect.objectContaining({
+					message: 'Cannot send metadata, not initialized yet',
+				}),
+				'Error while setting metadata',
+			);
+		});
+
+		it('should be unusable before calling setup, and usable after', async () => {
+			await expect(provider.getCurrentState()).rejects.toThrow('this.getState is not a function');
 			provider.setup({ getState: getStateMock });
 			await provider.setMetadata({ title: 'abc' });
 			const currentDocumentState = await provider.getCurrentState();
 			// @ts-ignore accessing private property for testing purposes
 			expect(provider.metadataService.getTitle()).toEqual('abc');
-			expect(currentDocumentState).toMatchInlineSnapshot(`
-			{
-			  "content": {
-			    "content": [
-			      {
-			        "content": [
-			          {
-			            "text": "lol",
-			            "type": "text",
-			          },
-			        ],
-			        "type": "paragraph",
-			      },
-			    ],
-			    "type": "doc",
-			    "version": 1,
-			  },
-			  "stepVersion": 0,
-			  "title": "abc",
-			}
-		`);
+			expect(currentDocumentState).toEqual({
+				content: {
+					type: 'doc',
+					version: 1,
+					content: [
+						{
+							type: 'paragraph',
+							content: [{ type: 'text', text: 'lol' }],
+						},
+					],
+				},
+				stepVersion: 0,
+				title: 'abc',
+			});
 		});
 
 		it('should be unusable before calling initialize, and usable after', async () => {
-			await expect(provider.getCurrentState()).rejects.toThrowErrorMatchingInlineSnapshot(
-				`"this.getState is not a function"`,
-			);
-			expect(() => {
-				provider.setMetadata({ title: 'abc' });
-			}).toThrowErrorMatchingInlineSnapshot(`"Cannot send metadata, not initialized yet"`);
+			await expect(provider.getCurrentState()).rejects.toThrow('this.getState is not a function');
 
 			provider.initialize(getStateMock);
 			await provider.setMetadata({ title: 'abc' });
 			const currentDocumentState = await provider.getCurrentState();
 			// @ts-ignore accessing private property for testing purposes
 			expect(provider.metadataService.getTitle()).toEqual('abc');
-			expect(currentDocumentState).toMatchInlineSnapshot(`
-			{
-			  "content": {
-			    "content": [
-			      {
-			        "content": [
-			          {
-			            "text": "lol",
-			            "type": "text",
-			          },
-			        ],
-			        "type": "paragraph",
-			      },
-			    ],
-			    "type": "doc",
-			    "version": 1,
-			  },
-			  "stepVersion": 0,
-			  "title": "abc",
-			}
-		`);
+			expect(currentDocumentState).toEqual({
+				content: {
+					type: 'doc',
+					version: 1,
+					content: [
+						{
+							type: 'paragraph',
+							content: [{ type: 'text', text: 'lol' }],
+						},
+					],
+				},
+				stepVersion: 0,
+				title: 'abc',
+			});
 		});
 		it('should fail to set up the provider if getState is missing the collab plugin when calling initialize()', async () => {
 			const badEditorState = createEditorState(doc(p('lol'))); // missing collab plugin
@@ -589,8 +573,8 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 			);
 			expect(() => {
 				provider.initialize(badGetStateMock);
-			}).toThrowErrorMatchingInlineSnapshot(
-				`"Collab provider attempted to initialise, but Editor state is missing collab plugin"`,
+			}).toThrow(
+				'Collab provider attempted to initialise, but Editor state is missing collab plugin',
 			);
 
 			expect(analyticsHelperSpy).toHaveBeenCalledTimes(1);
@@ -612,8 +596,8 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 			);
 			expect(() => {
 				provider.setup({ getState: badGetStateMock });
-			}).toThrowErrorMatchingInlineSnapshot(
-				`"Collab provider attempted to initialise, but Editor state is missing collab plugin"`,
+			}).toThrow(
+				'Collab provider attempted to initialise, but Editor state is missing collab plugin',
 			);
 
 			expect(analyticsHelperSpy).toHaveBeenCalledTimes(1);
@@ -644,9 +628,7 @@ describe('Collab Provider Integration Tests - Confluence', () => {
 
 		it('should be unable to use the provider after calling .unsubscribeAll()', async () => {
 			await provider.unsubscribeAll();
-			await expect(provider.getCurrentState()).rejects.toThrowErrorMatchingInlineSnapshot(
-				`"this.getState is not a function"`,
-			);
+			await expect(provider.getCurrentState()).rejects.toThrow('this.getState is not a function');
 		});
 
 		it('should return the current unconfirmed steps', () => {

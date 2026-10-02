@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Label } from '@atlaskit/form';
-import { RadioSelect } from '@atlaskit/select';
+import { Label } from '@atlaskit/form/label/default';
+import { RadioSelect } from '@atlaskit/select/radio-select';
 
 import { cities } from './common/data';
 
@@ -9,7 +9,6 @@ import { cities } from './common/data';
 const RadioExample = (): React.JSX.Element => (
 	<>
 		<Label htmlFor="radio-select-example">What city do you live in?</Label>
-		{/* eslint-disable-next-line @atlaskit/design-system/no-placeholder */}
 		<RadioSelect
 			inputId="radio-select-example"
 			testId="react-select"
@@ -20,7 +19,6 @@ const RadioExample = (): React.JSX.Element => (
 					value: 'test',
 				},
 			]}
-			placeholder=""
 		/>
 	</>
 );

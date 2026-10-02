@@ -15,9 +15,9 @@ tasks, someone clears their inbox, or a search returns no results.
 An empty state can appear as a full screen message or within panels, tables, and other containers.
 Empty states can be a chance to celebrate, educate, and inform people of what they can do next.
 
-## Anatomy
+## Parts
 
-![The empty state component is made up of four parts that are center-aligned and stacked vertically: An illustration, a header, a description, and a button.](images/empty-state-anatomy.png)
+![The empty state component is made up of four parts that are center-aligned and stacked vertically: An illustration, a header, a description, and a button.](./images/empty-state-anatomy.png)
 
 1. **Illustration (optional)**: A spot illustration that relates to the message literally or as a
    metaphor (see illustration best practices below).
@@ -26,19 +26,6 @@ Empty states can be a chance to celebrate, educate, and inform people of what th
    next. See content guidelines below for details.
 1. **Buttons (optional)**: Next steps or a way to dismiss the message. Can be a primary button,
    secondary button, or link-styled button.
-
-## Behavior
-
-This component has two width options for containers of different sizes:
-
-- The default width, `wide`, is 464px. This is based on six columns in the cozy grid system.
-- The `narrow` size shrinks the text width to 304px. That's four columns in the cozy grid system.
-  Use this for empty states in containers smaller than the default width.
-
-The only required part of the empty state component is the heading, which uses h600 heading type. If
-this doesn't fit your case, you may have to consider another component or custom design. See the
-[grid](/foundations/grid/) and [typography](/foundations/typography/) foundations for more
-guidelines.
 
 ## Accessibility
 
@@ -51,25 +38,26 @@ guidelines.
 
 Include an action or link to help people understand what to do next.
 
-<DoDont
-	type="do"
-	image={{
-		url: ctaDoImage,
-		alt: `An empty state with a single call to action to "Add files".`,
-	}}
->
-	Include a relevant call to action.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: ctaDontImage,
-		alt: 'An empty state with multiple primary buttons on the page: "Add files" and "Use API"',
-	}}
->
-	Include too many call to action buttons on one page.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: ctaDoImage,
+			alt: `An empty state with a single call to action to "Add files".`,
+		}}
+	>
+		Include a relevant call to action.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: ctaDontImage,
+			alt: 'An empty state with multiple primary buttons on the page: "Add files" and "Use API"',
+		}}
+	>
+		Include too many call to action buttons on one page.
+	</DoDont>
+</DoDontGrid>
 
 ### Illustrations
 
@@ -85,25 +73,26 @@ Include an action or link to help people understand what to do next.
 - If there isn’t a relevant illustration in the library, internal Atlassians can request one through
   the [illustration request process](http://go/custom-illustration).
 
-<DoDont
-	type="do"
-	image={{
-		url: illustrationDoImage,
-		alt: `An empty state with a call to action to "Create or import a repository" and a spot illustration of an open file.`,
-	}}
->
-	Use a relevant spot illustration (optional).
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: illustrationDontImage,
-		alt: 'An empty state with an image that looks squished in with other elements in a UI',
-	}}
->
-	Resize illustrations to fit.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: illustrationDoImage,
+			alt: `An empty state with a call to action to "Create or import a repository" and a spot illustration of an open file.`,
+		}}
+	>
+		Use a relevant spot illustration (optional).
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: illustrationDontImage,
+			alt: 'An empty state with an image that looks squished in with other elements in a UI',
+		}}
+	>
+		Resize illustrations to fit.
+	</DoDont>
+</DoDontGrid>
 
 ## Content guidelines
 
@@ -118,7 +107,7 @@ your writing:
   showing next steps.
 
 When crafting your message, see the
-[Atlassian voice and tone principles for empty states](/content/designing-messages/empty-state/).
+[Atlassian voice and tone principles for empty states](/foundations/content/designing-messages/empty-state).
 
 - Always use sentence case for titles and headings.
 - Try to limit the number of words in the message as much as possible. Remember that most people
@@ -130,16 +119,28 @@ When crafting your message, see the
   first time a person sees a screen. Avoid sending people to another location for more reading where
   possible, but if it can't be avoided, use a tertiary action link.
 - See all writing guidelines on
-  [empty state CTAs](/content/designing-messages/empty-state/#call-to-action-cta).
+  [empty state CTAs](/foundations/content/designing-messages/empty-state#call-to-action-cta).
+
+## Behavior
+
+This component has two width options for containers of different sizes:
+
+- The default width, `wide`, is 464px. This is based on six columns in the cozy grid system.
+- The `narrow` size shrinks the text width to 304px. That's four columns in the cozy grid system.
+  Use this for empty states in containers smaller than the default width.
+
+The only required part of the empty state component is the heading, which uses h600 heading type. If
+this doesn't fit your case, you may have to consider another component or custom design. See the
+[grid](/foundations/grid) and [typography](/foundations/typography) foundations for more guidelines.
 
 ## Related
 
 - For more empty state guidelines and examples, see
-  [empty state messaging](/content/designing-messages/empty-state/).
+  [empty state messaging](/foundations/content/designing-messages/empty-state).
 - For very small spaces or situations where this component doesn’t fit, you may consider designing
-  an empty state from scratch. See our [grid](/foundations/grid/) and
-  [typography](/foundations/typography/) foundations for guidelines.
+  an empty state from scratch. See our [grid](/foundations/grid) and
+  [typography](/foundations/typography) foundations for guidelines.
 - Some error messages, such as not found errors, may also fit this component layout. If you use this
   component for an error message, follow the
-  [error message guidelines](/content/designing-messages/writing-error-messages/) and use an
+  [error message guidelines](/foundations/content/designing-messages/error-messages) and use an
   appropriate illustration.

@@ -1,16 +1,13 @@
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+
 import { type MediaTraceContext, type MediaType } from '@atlaskit/media-common';
-import { type MediaFileArtifacts, type ProcessingFailReason } from '@atlaskit/media-state';
+import type { MediaFileArtifacts, ProcessingFailReason } from '@atlaskit/media-state/file-state';
 
 // Warning! You can't add new media file processing status!
 // See packages/media/media-core/src/__tests__/cache-backward-compatibility.spec.ts
 export type MediaFileProcessingStatus = 'pending' | 'succeeded' | 'failed';
 
 export type { MediaType } from '@atlaskit/media-common';
-
-export const isPreviewableType = (type: MediaType): boolean => {
-	const defaultPreviewableTypes = ['audio', 'video', 'image', 'doc'];
-	return defaultPreviewableTypes.indexOf(type) > -1;
-};
 
 export type AbuseClassification = {
 	classification: 'ABHORRENT' | 'MALICIOUS' | 'ILLICIT' | 'COPYRIGHT';
@@ -36,6 +33,7 @@ export type MediaFile = {
 	readonly abuseClassification?: AbuseClassification;
 	readonly mediaMetadata?: FileMediaMetadata;
 	readonly failReason?: ProcessingFailReason;
+	readonly previewCdnUrl?: string;
 };
 
 export type MediaItemDetails = {
@@ -52,6 +50,7 @@ export type MediaItemDetails = {
 	readonly abuseClassification?: AbuseClassification;
 	readonly mediaMetadata?: FileMediaMetadata;
 	readonly failReason?: ProcessingFailReason;
+	readonly previewCdnUrl?: string;
 };
 
 export type NotFoundMediaItemDetails = {
@@ -59,12 +58,6 @@ export type NotFoundMediaItemDetails = {
 	readonly collection?: string;
 	readonly type: 'not-found';
 	readonly metadataTraceContext?: MediaTraceContext;
-};
-
-export const isNotFoundMediaItemDetails = (
-	itemDetails: any,
-): itemDetails is NotFoundMediaItemDetails => {
-	return 'type' in itemDetails && itemDetails.type === 'not-found';
 };
 
 export type MediaRepresentations = {
@@ -82,3 +75,12 @@ export enum DATA_UNIT {
 	GB = 1024 * MB,
 	TB = 1024 * GB,
 }
+
+/**
+ * @deprecated Use `import { isPreviewableType } from '@atlaskit/media-client'` instead.
+ */
+export { isPreviewableType } from './is-previewable-type';
+/**
+ * @deprecated Use `import { isNotFoundMediaItemDetails } from '@atlaskit/media-client/media'` instead.
+ */
+export { isNotFoundMediaItemDetails } from './is-not-found-media-item-details';

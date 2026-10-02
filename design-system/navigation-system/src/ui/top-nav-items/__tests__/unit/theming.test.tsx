@@ -1,26 +1,36 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render } from '@atlassian/testing-library/render';
+import { screen } from '@atlassian/testing-library/screen';
 
 import { TopNav } from '../../../page-layout/top-nav/top-nav';
-import { Button, IconButton } from '../../themed/migration';
+import { Button } from '../../themed/button';
+import { IconButton } from '../../themed/icon-button';
 
 const mockIcon = () => null;
 const noop = () => {};
 
 const mockTheme = { backgroundColor: '#FFF', highlightColor: '#000' };
 
-jest.mock('@atlaskit/button/new', () => {
+jest.mock('@atlaskit/button/default/button', () => ({
+	...jest.requireActual('@atlaskit/button/default/button'),
+	__esModule: true,
+	default: jest.fn(() => <button type="button">AkButton</button>),
+}));
+jest.mock('@atlaskit/button/icon/button', () => ({
+	...jest.requireActual('@atlaskit/button/icon/button'),
+	__esModule: true,
+	default: jest.fn(() => <button type="button">AkIconButton</button>),
+}));
+
+jest.mock('../../themed/themed-button', () => {
 	return {
-		__esModule: true,
-		default: jest.fn(() => <button type="button">AkButton</button>),
-		IconButton: jest.fn(() => <button type="button">AkIconButton</button>),
+		ThemedButton: jest.fn(() => <button type="button">ThemedButton</button>),
 	};
 });
 
-jest.mock('../../themed/button', () => {
+jest.mock('../../themed/themed-icon-button', () => {
 	return {
-		ThemedButton: jest.fn(() => <button type="button">ThemedButton</button>),
 		ThemedIconButton: jest.fn(() => <button type="button">ThemedIconButton</button>),
 	};
 });
@@ -41,7 +51,7 @@ describe('top navigation custom theming', () => {
 
 		it('should use the themed Button if a theme is provided', () => {
 			render(
-				<TopNav UNSAFE_theme={mockTheme}>
+				<TopNav customTheme={mockTheme}>
 					<Button onClick={noop}>Hello world</Button>
 				</TopNav>,
 			);
@@ -65,7 +75,7 @@ describe('top navigation custom theming', () => {
 
 		it('should use the themed IconButton if a theme is provided', () => {
 			render(
-				<TopNav UNSAFE_theme={mockTheme}>
+				<TopNav customTheme={mockTheme}>
 					<IconButton icon={mockIcon} label="" onClick={noop} />
 				</TopNav>,
 			);

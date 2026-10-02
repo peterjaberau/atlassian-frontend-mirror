@@ -3,8 +3,8 @@
  *
  * Generates Typescript types for analytics events from analytics.spec.yaml
  *
- * @codegen <<SignedSource::050566410df453c9b1ba071c6805ead2>>
- * @codegenCommand yarn workspace @atlassian/analytics-tooling run analytics:codegen teams-app-internal-analytics
+ * @codegen <<SignedSource::378c0a04d2cca8641793d5a92fac3d1a>>
+ * @codegenCommand afm workspace @atlassian/analytics-tooling analytics:codegen teams-app-internal-analytics
  */
 import type { AnalyticsEventAttributes, EventKey } from './analytics.types';
 
@@ -35,20 +35,25 @@ const createEventPayload = <K extends EventKey>(
 	eventKey: K,
 	...[attributes]: EventPayloadAttributes<K>
 ): ScreenEventPayload<K> | EventPayload<K> => {
-	const [eventType, actionSubject, action, actionSubjectId] = eventKey.split('.');
+	const [eventType, actionSubject, action, actionSubjectId] = eventKey.split('.') as [
+		string,
+		string,
+		string,
+		string | undefined,
+	];
 	if (eventType === 'screen') {
 		return {
-			eventType,
+			eventType: eventType,
 			name: actionSubject,
 			action: 'viewed',
 			attributes: attributes,
 		};
 	}
 	return {
-		eventType,
-		actionSubject,
-		action,
-		actionSubjectId,
+		eventType: eventType,
+		actionSubject: actionSubject,
+		action: action,
+		actionSubjectId: actionSubjectId,
 		attributes: attributes,
 	};
 };

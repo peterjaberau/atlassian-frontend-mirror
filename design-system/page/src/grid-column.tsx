@@ -2,11 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { createContext, useContext, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
 import { defaultMedium } from './constants';
+import { GridColumnContext } from './grid-column-context';
 import { GridContext } from './grid-context';
 import type { GridColumnProps } from './types';
 
@@ -87,22 +88,17 @@ const getVariant = ({ medium, columns }: { medium: number; columns: number }): C
 };
 
 /**
- * __Grid column context__
- *
- * @internal
- */
-export const GridColumnContext: import("react").Context<{
-    medium: number;
-}> = createContext({ medium: defaultMedium });
-
-/**
  * __Grid column__
  *
  * A grid column can span one or more column positions within a grid.
  *
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/page)
  */
-const GridColumn: ({ medium, children, testId }: GridColumnProps) => JSX.Element = ({ medium = defaultMedium, children, testId }: GridColumnProps) => {
+const GridColumn: ({ medium, children, testId }: GridColumnProps) => JSX.Element = ({
+	medium = defaultMedium,
+	children,
+	testId,
+}: GridColumnProps) => {
 	const { columns } = useContext(GridContext);
 
 	const contextValue = useMemo(() => ({ medium }), [medium]);

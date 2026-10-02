@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 
-import Button, { IconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import SearchIcon from '@atlaskit/icon/core/search';
+// eslint-disable-next-line @atlaskit/design-system/use-spotlight-package
 import {
 	Spotlight,
 	SpotlightManager,
 	SpotlightTarget,
 	SpotlightTransition,
 } from '@atlaskit/onboarding';
-import { N0 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 const SpotlightActionsAppearance = (): React.JSX.Element => {
@@ -46,7 +47,7 @@ const SpotlightActionsAppearance = (): React.JSX.Element => {
 						key="action-button-appearances"
 						target="action-button-appearances"
 						targetRadius={3}
-						targetBgColor={N0}
+						targetBgColor={'#FFFFFF'}
 					>
 						You can change the default action button appearance to `subtle` or `subtle-link`.
 					</Spotlight>

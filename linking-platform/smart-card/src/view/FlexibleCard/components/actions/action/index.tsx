@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { SmartLinkSize } from '../../../../../constants';
-
 import ActionButton from './action-button';
 import ActionDropdownItem from './action-dropdown-item';
 import ActionIcon from './action-icon';
@@ -28,6 +27,7 @@ const Action = ({
 	tooltipOnHide,
 	hideTooltip,
 	hideTooltipOnMouseDown,
+	hasNewContentOnTriggerClick,
 	style,
 	asDropDownItem,
 	className,
@@ -43,12 +43,7 @@ const Action = ({
 	const isStackItem = as === 'stack-item';
 	const isDropdownItem = as === 'dropdown-item' || asDropDownItem;
 
-	const actionIcon = icon ? (
-		<ActionIcon
-			icon={icon}
-			testId={testId}
-		/>
-	) : undefined;
+	const actionIcon = icon ? <ActionIcon icon={icon} testId={testId} /> : undefined;
 	const iconBefore = icon && iconPosition === 'before' ? actionIcon : undefined;
 	const iconAfter = icon && iconPosition === 'after' ? actionIcon : undefined;
 
@@ -68,7 +63,9 @@ const Action = ({
 				style={style}
 				tooltipOnHide={tooltipOnHide}
 				hideTooltipOnMouseDown={hideTooltipOnMouseDown}
+				hasNewContentOnTriggerClick={hasNewContentOnTriggerClick}
 				hideTooltip={hideTooltip}
+				ariaLabel={ariaLabel}
 			/>
 		);
 	}

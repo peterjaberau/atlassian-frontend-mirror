@@ -1,8 +1,11 @@
 // eslint-disable-line no-console
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
-import ImageNavigator from '../src/image-navigator';
+
+import { IntlProvider } from 'react-intl';
+
 import { token } from '@atlaskit/tokens';
+
+import ImageNavigator from '../src/image-navigator';
 
 let onLoadParams: any;
 let imageElement: any;
@@ -35,7 +38,7 @@ export default (): React.JSX.Element => (
 		</div>
 		<img
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			style={{ marginTop: token('space.100', '8px') }}
+			style={{ marginTop: token('space.100') }}
 			src=""
 			alt=""
 			ref={handleImgRef}

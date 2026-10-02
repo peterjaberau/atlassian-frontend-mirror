@@ -1,5 +1,5 @@
-import { CardAction } from '../../../index';
-import * as utils from '../../../utils';
+import { CardAction } from '../../../constants';
+import * as openUrlUtils from '../../../utils/open-url';
 import { TEST_RESPONSE, TEST_RESPONSE_WITH_VIEW, TEST_URL } from '../../common/__mocks__/jsonld';
 import { extractInvokeViewAction } from '../extract-invoke-view-action';
 
@@ -22,7 +22,7 @@ describe('extractInvokeViewAction', () => {
 	});
 
 	it('triggers open url', async () => {
-		const openUrl = jest.spyOn(utils, 'openUrl').mockResolvedValue(undefined);
+		const openUrl = jest.spyOn(openUrlUtils, 'openUrl').mockResolvedValue(undefined);
 		const action = extractInvokeViewAction({
 			appearance: 'block',
 			id: 'test-id',
@@ -75,6 +75,41 @@ describe('extractInvokeViewAction', () => {
 			display: 'block',
 			extensionKey: 'object-provider',
 			id: 'test-id',
+		});
+	});
+
+	describe('cross-product URL transformation', () => {
+		it('calls transformUrl and opens transformed URL', async () => {
+			const openUrl = jest.spyOn(openUrlUtils, 'openUrl').mockResolvedValue(undefined);
+			const transformUrl = jest.fn().mockReturnValue(`${TEST_URL}?xpc=1`);
+
+			const action = extractInvokeViewAction({
+				appearance: 'block',
+				id: 'test-id',
+				response: TEST_RESPONSE_WITH_VIEW,
+				transformUrl,
+			});
+
+			await action?.actionFn();
+
+			expect(transformUrl).toHaveBeenCalledWith(TEST_URL);
+			expect(openUrl).toHaveBeenCalledWith(`${TEST_URL}?xpc=1`);
+		});
+
+		it('falls back to original url if transformUrl returns undefined', async () => {
+			const openUrl = jest.spyOn(openUrlUtils, 'openUrl').mockResolvedValue(undefined);
+			const transformUrl = jest.fn().mockReturnValue(undefined);
+
+			const action = extractInvokeViewAction({
+				appearance: 'block',
+				id: 'test-id',
+				response: TEST_RESPONSE_WITH_VIEW,
+				transformUrl,
+			});
+
+			await action?.actionFn();
+
+			expect(openUrl).toHaveBeenCalledWith(TEST_URL);
 		});
 	});
 });

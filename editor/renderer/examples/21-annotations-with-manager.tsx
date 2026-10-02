@@ -2,40 +2,45 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { IntlProvider } from 'react-intl-next';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ChangeEvent } from 'react';
 
+import { IntlProvider } from 'react-intl';
+
+import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema/annotation';
+import ButtonGroup from '@atlaskit/button/button-group';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import { css, jsx } from '@atlaskit/css';
-import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema';
 import type { AnnotationSelectedChangeData } from '@atlaskit/editor-common/annotation';
-import { type AnnotationProviders, AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
+import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import { AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
+import type { AnnotationProviders } from '@atlaskit/editor-common/types';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 import {
 	AnnotationsProvider,
 	CommentsContentProvider,
 	RendererAnnotationComponents,
 	useRendererAnnotationProviders,
 } from '@atlaskit/editor-test-helpers/annotation-example';
+import { getExampleExtensionProviders } from '@atlaskit/editor-test-helpers/example-helpers';
+import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
 import {
 	useUpdateDocument,
 	UpdateDocumentProvider,
-	type UpdateDocument,
 } from '@atlaskit/editor-test-helpers/update-document-context';
-import { getExampleExtensionProviders } from '@atlaskit/editor-test-helpers/example-helpers';
-import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
-import { exampleMediaFeatureFlags } from '@atlaskit/media-test-helpers/exampleMediaFeatureFlags';
-import { getExamplesProviders } from '@af/editor-examples-helpers/utils';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
-import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
-import { AnnotationsWrapper, RendererWithAnalytics } from '@atlaskit/renderer';
-import { RendererActionsContext } from '@atlaskit/renderer/actions';
-import { token } from '@atlaskit/tokens';
-import { Inline } from '@atlaskit/primitives/compiled';
-import Toggle from '@atlaskit/toggle';
-import { ButtonGroup } from '@atlaskit/button';
-import Button, { IconButton } from '@atlaskit/button/new';
+import type { UpdateDocument } from '@atlaskit/editor-test-helpers/update-document-context';
 import DeleteIcon from '@atlaskit/icon/core/delete';
-import SectionMessage from '@atlaskit/section-message';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { exampleMediaFeatureFlags } from '@atlaskit/media-test-helpers/exampleMediaFeatureFlags';
+import { Inline } from '@atlaskit/primitives/compiled';
+import { AnnotationsWrapper, RendererWithAnalytics } from '@atlaskit/renderer';
+import { RendererActionsContext } from '@atlaskit/renderer/actions/renderer-actions-context';
+import SectionMessage from '@atlaskit/section-message/message';
+import Toggle from '@atlaskit/toggle';
+import { token } from '@atlaskit/tokens';
+import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
 
 import { exampleDocumentWithComments } from './helper/annotations/example-doc-with-comments';
 
@@ -341,7 +346,7 @@ const ExampleAnnotationsWithManagerRenderer = React.memo(
 									document={adf as any}
 									adfStage="stage0"
 									dataProviders={ProviderFactory.create({
-										...getExamplesProviders({}),
+										emojiProvider: getEmojiResource(),
 										extensionProvider: Promise.resolve(getExampleExtensionProviders(undefined)),
 									})}
 									allowColumnSorting={true}
@@ -357,7 +362,6 @@ const ExampleAnnotationsWithManagerRenderer = React.memo(
 									}}
 									allowCopyToClipboard={true}
 									allowWrapCodeBlock={true}
-									useSpecBasedValidator={true}
 									allowSelectAllTrap
 									// featureFlags={props.featureFlags}
 									allowCustomPanels={true}
@@ -373,7 +377,7 @@ const ExampleAnnotationsWithManagerRenderer = React.memo(
 ExampleAnnotationsWithManagerRenderer.displayName = 'ExampleAnnotationsWithManagerRenderer';
 
 // eslint-disable-next-line jsdoc/require-jsdoc
-export default function ExampleAnnotationsWithManager() {
+function ExampleAnnotationsWithManager(): JSX.Element {
 	const [adf, setAdf] = useState<JSONDocNode>(exampleDocumentWithComments);
 
 	// this will be called when the renderer changes the document such as adding/deleting annotations
@@ -393,4 +397,5 @@ export default function ExampleAnnotationsWithManager() {
 		</IntlProvider>
 	);
 }
-ExampleAnnotationsWithManager.displayName = 'ExampleAnnotationsWithManager';
+
+export default ExampleAnnotationsWithManager;

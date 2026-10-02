@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::f23b44770520d60de0fa92f6f0dfd3b9>>
+ * @codegen <<SignedSource::453a28ed8cadeac917b8d4375b254654>>
  * @codegenCommand yarn build:icon-glyphs
  */
 "use strict";
@@ -10,19 +10,20 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _react = _interopRequireDefault(require("react"));
-var _baseNew = _interopRequireDefault(require("@atlaskit/icon/base-new"));
+var _iconNew = _interopRequireDefault(require("@atlaskit/icon/components/icon-new"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 /**
  * Icon: "Tab".
  * Category: single-purpose
- * Location: @atlaskit/icon-lab
- * Usage guidance: Reserved for representing tab key.
+ * Location: @atlaskit/icon-lab/core/tab
+ * Usage guidance:
+ * Reserved for representing tab key.
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/icon)
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/icon/docs/custom-icons)
  */
-const TabIcon = props => /*#__PURE__*/_react.default.createElement(_baseNew.default, Object.assign({
+const TabIcon = props => /*#__PURE__*/_react.default.createElement(_iconNew.default, Object.assign({
   name: "TabIcon",
-  dangerouslySetGlyph: `<path fill="currentcolor" fill-rule="evenodd" d="m7.28 3.47 4 4a.75.75 0 0 1 0 1.06l-4 4-1.06-1.06 2.72-2.72H1v-1.5h7.94L6.22 4.53zM15 3.5v9h-1.5v-9z" clip-rule="evenodd"/>`
+  dangerouslySetGlyph: `<path fill="currentcolor" fill-rule="evenodd" d="m7.28 3.469 4 4a.75.75 0 0 1 0 1.06l-4 4-1.06-1.06 2.72-2.72H1v-1.5h7.94L6.22 4.53zm7.72.03v9h-1.5v-9z" clip-rule="evenodd"/>`
   // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 }, props));
 TabIcon.displayName = 'TabIcon';

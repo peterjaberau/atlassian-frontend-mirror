@@ -1,4 +1,4 @@
-import { type IntlShape } from 'react-intl-next';
+import { type IntlShape } from 'react-intl';
 
 import { EntityType, type UserSearchItem } from '@atlaskit/smart-common';
 import {
@@ -10,7 +10,7 @@ import {
 	TeamType,
 	type User,
 	UserType,
-} from '@atlaskit/user-picker';
+} from '@atlaskit/user-picker/types';
 
 import { messages } from '../../messages';
 

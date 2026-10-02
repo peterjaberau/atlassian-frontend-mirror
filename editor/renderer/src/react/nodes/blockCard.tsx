@@ -2,38 +2,53 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
-import { Card } from '@atlaskit/smart-card';
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx, css } from '@emotion/react';
+
+import type { DatasourceAttributeProperties } from '@atlaskit/adf-schema/block-card';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import { UnsupportedBlock, UnsupportedInline, WidthConsumer } from '@atlaskit/editor-common/ui';
 import type { EventHandlers } from '@atlaskit/editor-common/ui';
-
-import { CardErrorBoundary } from './fallback';
-import type { RendererAppearance } from '../../ui/Renderer/types';
-import { getCardClickHandler } from '../utils/getCardClickHandler';
-import type { SmartLinksOptions } from '../../types/smartLinksOptions';
-import InlineCard from './inlineCard';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
-import type { DatasourceAdfView } from '@atlaskit/link-datasource';
-import { DatasourceTableView } from '@atlaskit/link-datasource';
-import { CardSSR } from '@atlaskit/smart-card/ssr';
-import { fg } from '@atlaskit/platform-feature-flags';
-
-import type { DatasourceAttributeProperties } from '@atlaskit/adf-schema/schema';
-import { token } from '@atlaskit/tokens';
-import { N40 } from '@atlaskit/theme/colors';
 import { calcBreakoutWidth, canRenderDatasource } from '@atlaskit/editor-common/utils';
+import {
+	SmartLinkDraggable,
+	SMART_LINK_DRAG_TYPES,
+	SMART_LINK_APPEARANCE,
+} from '@atlaskit/editor-smart-link-draggable';
+import { DatasourceTableViewWithWrappers as DatasourceTableView } from '@atlaskit/link-datasource/datasource-table-view-with-wrappers';
+import type { DatasourceAdfView } from '@atlaskit/linking-common/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Card } from '@atlaskit/smart-card';
+import { CardSSR } from '@atlaskit/smart-card/ssr';
+import { token } from '@atlaskit/tokens';
+
+import { RendererCssClassName } from '../../consts';
+import type { SmartLinksOptions } from '../../types/smartLinksOptions';
 import { usePortal } from '../../ui/Renderer/PortalContext';
+import type { RendererAppearance } from '../../ui/Renderer/types';
+import { getEventHandler } from '../../utils';
+import { getCardClickHandler } from '../utils/getCardClickHandler';
+import { CardErrorBoundary } from './fallback';
+import InlineCard from './inlineCard';
+
+const datasourceCenterWrapperStyles = css({
+	marginTop: token('space.150'),
+	marginBottom: token('space.150'),
+});
 
 const datasourceContainerStyleWithMarginTop = css({
 	borderRadius: `${token('radius.large', '8px')}`,
-	border: `${token('border.width')} solid ${token('color.border', N40)}`,
+	border: `${token('border.width')} solid ${token('color.border')}`,
 	overflow: 'hidden',
-	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-	marginLeft: '50%',
-	marginBottom: `${token('space.150', '0.75rem')}`,
-	transform: 'translateX(-50%)',
-	marginTop: `${token('space.150', '0.75rem')}`,
+	marginTop: `${token('space.150')}`,
+	marginBottom: `${token('space.150')}`,
+});
+
+// No vertical margin when inside center wrapper (wrapper has margin so it participates in collapse).
+const datasourceContainerStyleNoVerticalMargin = css({
+	borderRadius: `${token('radius.large', '8px')}`,
+	border: `${token('border.width')} solid ${token('color.border')}`,
+	overflow: 'hidden',
 });
 
 export default function BlockCard(props: {
@@ -48,11 +63,16 @@ export default function BlockCard(props: {
 	rendererAppearance?: RendererAppearance;
 	smartLinks?: SmartLinksOptions;
 	url?: string;
-}) {
+}): jsx.JSX.Element {
 	const { url, data, eventHandlers, smartLinks, isNodeNested, localId, onSetLinkTarget } = props;
 	const portal = usePortal(props);
 	const { actionOptions } = smartLinks || {};
+
+	// Card/CardSSR's onClick — (e, { destinationUrl?, url? })
 	const onClick = getCardClickHandler(eventHandlers, url);
+	// SmartCardEventClickHandler — (e, url?) => void — for CardErrorBoundary.
+	// When the gate is off, fall back to the old behaviour (pass the same onClick as Card).
+	const onConsumerClick = getEventHandler(eventHandlers, 'smartCard');
 
 	const platform = 'web';
 
@@ -89,6 +109,7 @@ export default function BlockCard(props: {
 			const columns = tableView.properties?.columns;
 			const visibleColumnKeys = columns?.map(({ key }) => key);
 
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 			const columnCustomSizesEntries = columns
 				?.filter((c): c is { key: string; width: number } => !!c.width)
 				.map<[string, number]>(({ key, width }) => [key, width]);
@@ -97,6 +118,7 @@ export default function BlockCard(props: {
 				? Object.fromEntries<number>(columnCustomSizesEntries)
 				: undefined;
 
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 			const wrappedColumnKeys = columns?.filter((c) => c.isWrapped).map((c) => c.key);
 
 			const { datasource, layout } = props;
@@ -110,32 +132,55 @@ export default function BlockCard(props: {
 						// Ignored via go/ees005
 						// eslint-disable-next-line react/jsx-props-no-spreading
 						{...cardProps}
+						onClick={onConsumerClick}
 					>
 						<WidthConsumer>
-							{({ width }) => (
-								<div
-									css={datasourceContainerStyleWithMarginTop}
-									data-testid="renderer-datasource-table"
-									data-local-id={localId}
-									style={{
-										// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-										width: isNodeNested ? '100%' : calcBreakoutWidth(layout, width),
-									}}
-								>
-									<DatasourceTableView
-										datasourceId={datasource.id}
-										parameters={datasource.parameters}
-										visibleColumnKeys={visibleColumnKeys}
-										columnCustomSizes={columnCustomSizes}
-										wrappedColumnKeys={
-											wrappedColumnKeys && wrappedColumnKeys.length > 0
-												? wrappedColumnKeys
-												: undefined
+							{({ width }) => {
+								const useCenterWrapper = !isNodeNested;
+								const datasourceDiv = (
+									<div
+										css={
+											useCenterWrapper
+												? datasourceContainerStyleNoVerticalMargin
+												: datasourceContainerStyleWithMarginTop
 										}
-										url={url}
-									/>
-								</div>
-							)}
+										data-testid="renderer-datasource-table"
+										data-local-id={localId}
+										style={{
+											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+											width: isNodeNested ? '100%' : calcBreakoutWidth(layout, width),
+										}}
+									>
+										<DatasourceTableView
+											datasourceId={datasource.id}
+											parameters={datasource.parameters}
+											visibleColumnKeys={visibleColumnKeys}
+											columnCustomSizes={columnCustomSizes}
+											wrappedColumnKeys={
+												wrappedColumnKeys && wrappedColumnKeys.length > 0
+													? wrappedColumnKeys
+													: undefined
+											}
+											url={url}
+										/>
+									</div>
+								);
+								return useCenterWrapper ? (
+									<div
+										// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+										className={
+											RendererCssClassName.BLOCK_CARD_DATASOURCE_CENTER_WRAPPER +
+											' ' +
+											RendererCssClassName.FLEX_CENTER_WRAPPER
+										}
+										css={datasourceCenterWrapperStyles}
+									>
+										{datasourceDiv}
+									</div>
+								) : (
+									datasourceDiv
+								);
+							}}
 						</WidthConsumer>
 					</CardErrorBoundary>
 				</AnalyticsContext>
@@ -185,25 +230,33 @@ export default function BlockCard(props: {
 	}
 
 	return (
-		<AnalyticsContext data={analyticsData}>
-			<div
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-				className="blockCardView-content-wrap"
-				data-block-card
-				data-card-data={data ? JSON.stringify(data) : undefined}
-				data-card-url={url}
-				data-local-id={localId}
-			>
-				<CardErrorBoundary
-					unsupportedComponent={UnsupportedBlock}
-					onSetLinkTarget={onSetLinkTarget}
-					// Ignored via go/ees005
-					// eslint-disable-next-line react/jsx-props-no-spreading
-					{...cardProps}
+		<SmartLinkDraggable
+			url={url || ''}
+			appearance={SMART_LINK_APPEARANCE.BLOCK}
+			source={SMART_LINK_DRAG_TYPES.RENDERER}
+		>
+			<AnalyticsContext data={analyticsData}>
+				<div
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+					className="blockCardView-content-wrap"
+					data-block-card
+					// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
+					data-card-data={data ? JSON.stringify(data) : undefined}
+					data-card-url={url}
+					data-local-id={localId}
 				>
-					{cardComponent}
-				</CardErrorBoundary>
-			</div>
-		</AnalyticsContext>
+					<CardErrorBoundary
+						unsupportedComponent={UnsupportedBlock}
+						onSetLinkTarget={onSetLinkTarget}
+						// Ignored via go/ees005
+						// eslint-disable-next-line react/jsx-props-no-spreading
+						{...cardProps}
+						onClick={onConsumerClick}
+					>
+						{cardComponent}
+					</CardErrorBoundary>
+				</div>
+			</AnalyticsContext>
+		</SmartLinkDraggable>
 	);
 }

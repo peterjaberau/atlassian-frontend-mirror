@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { act, render, type RenderResult } from '@testing-library/react';
-
 import { type JestFunction } from '@atlaskit/media-test-helpers';
+import { act, render } from '@atlassian/testing-library';
 
 import { IframeDwellTracker, type IframeDwellTrackerProps } from '../components/IframeDwellTracker';
+
+type RenderResult = ReturnType<typeof render>;
 
 describe('Iframe Dwell Tracker', () => {
 	let iframeTracker: RenderResult;
@@ -124,22 +125,15 @@ describe('Iframe Dwell Tracker', () => {
 		await expect(document.body).toBeAccessible();
 	});
 
-	it('should stop timer on window blur', async () => {
+	it('should continue timer on window blur (window focus no longer affects dwell tracking)', async () => {
 		mouseEnter();
 		iframeLoaded();
 
 		incrementSeconds(2);
 		windowBlur();
+		// Timer continues even when window is not focused — mouse over is sufficient
 		incrementSeconds(3);
-		expect(onIframeDwellMock).toHaveBeenCalledTimes(0);
-
-		windowFocus();
-		incrementSeconds(2);
-		expect(onIframeDwellMock).toHaveBeenCalledTimes(0);
-
-		incrementSeconds(1);
 		expect(onIframeDwellMock).toHaveBeenLastCalledWith(5, 75);
-
 		expect(onIframeDwellMock).toHaveBeenCalledTimes(1);
 
 		await expect(document.body).toBeAccessible();
@@ -163,11 +157,6 @@ describe('Iframe Dwell Tracker', () => {
 
 	const windowBlur = () => {
 		props.isWindowFocused = false;
-		rerender();
-	};
-
-	const windowFocus = () => {
-		props.isWindowFocused = true;
 		rerender();
 	};
 

@@ -1,48 +1,47 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
-import type { RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
 import type { JSONNode } from '@atlaskit/editor-json-transformer/types';
 
 import { getProductFromSourceAri } from '../clients/block-service/ari';
 import { getPageIdAndTypeFromConfluencePageAri } from '../clients/confluence/ari';
 import { fetchConfluencePageInfo } from '../clients/confluence/sourceInfo';
 import { fetchJiraWorkItemInfo } from '../clients/jira/sourceInfo';
-import {
-	SyncBlockError,
-	type BlockInstanceId,
-	type DeletionReason,
-	type ReferenceSyncBlockData,
-	type ResourceId,
-	type SyncBlockAttrs,
-	type SyncBlockData,
-	type SyncBlockNode,
-	type SyncBlockProduct,
+import { SyncBlockError } from '../common/types';
+import type {
+	BlockInstanceId,
+	DeletionReason,
+	ReferenceSyncBlockData,
+	ResourceId,
+	SyncBlockAttrs,
+	SyncBlockData,
+	SyncBlockNode,
+	SyncBlockProduct,
 } from '../common/types';
-
-import {
-	SyncBlockDataProvider,
-	type ADFFetchProvider,
-	type ADFWriteProvider,
-	type BlockSubscriptionErrorCallback,
-	type BlockUpdateCallback,
-	type DeleteSyncBlockResult,
-	type SyncBlockInstance,
-	type SyncBlockParentInfo,
-	type SyncBlockSourceInfo,
-	type SyncedBlockRendererProviderOptions,
-	type Unsubscribe,
-	type UpdateReferenceSyncBlockResult,
-	type WriteSyncBlockResult,
+import { getFieldAwareLocationScope } from '../utils/fieldAwareLocations';
+import { SyncBlockDataProviderInterface } from './types';
+import type {
+	ADFFetchProvider,
+	ADFWriteProvider,
+	BlockSubscriptionErrorCallback,
+	BlockUpdateCallback,
+	DeleteSyncBlockResult,
+	SyncBlockInstance,
+	SyncBlockParentInfo,
+	SyncBlockSourceInfo,
+	SyncedBlockRendererProviderOptions,
+	Unsubscribe,
+	UpdateReferenceSyncBlockResult,
+	WriteSyncBlockResult,
 } from './types';
 
-export class SyncBlockProvider extends SyncBlockDataProvider {
+export class SyncedBlockProvider extends SyncBlockDataProviderInterface {
 	name = 'syncBlockProvider';
 	private fetchProvider: ADFFetchProvider;
 	private writeProvider: ADFWriteProvider | undefined;
 	private providerOptions: SyncedBlockRendererProviderOptions;
 
 	/**
-	 * Constructor for the SyncBlockProvider
+	 * Constructor for the SyncedBlockProvider
 	 *
 	 * @param fetchProvider
 	 * @param writeProvider
@@ -108,9 +107,9 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 						(data) => {
 							return data;
 						},
-						() => {
+						(error) => {
 							return {
-								error: { type: SyncBlockError.Errored },
+								error: { type: SyncBlockError.Errored, reason: error },
 								resourceId: blockIdentifier.resourceId,
 							};
 						},
@@ -142,6 +141,34 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 		if (!this.writeProvider) {
 			return Promise.reject(new Error('Write provider not set'));
 		}
+
+		// Use batch write only when method is available
+		if (this.writeProvider.writeDataBatch) {
+			// Separate data into valid (with content) and invalid (without content)
+			const validDataWithIndices: SyncBlockData[] = [];
+			const invalidResults: WriteSyncBlockResult[] = [];
+
+			data.forEach((blockData) => {
+				if (blockData.content) {
+					validDataWithIndices.push(blockData);
+				} else {
+					invalidResults.push({
+						error: 'No Synced Block content to write',
+						resourceId: blockData.resourceId,
+					});
+				}
+			});
+
+			// Process valid data in batch
+			let batchResults: WriteSyncBlockResult[] = [];
+			if (validDataWithIndices.length > 0) {
+				batchResults = await this.writeProvider.writeDataBatch(validDataWithIndices);
+			}
+
+			return [...batchResults, ...invalidResults];
+		}
+
+		// Fall back to individual writes
 		const results = await Promise.allSettled(
 			nodes.map((_node, index) => {
 				if (!this.writeProvider) {
@@ -216,10 +243,7 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 		localId?: BlockInstanceId,
 		sourceAri?: string,
 		sourceProduct?: SyncBlockProduct,
-		fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
 		hasAccess: boolean = true,
-		urlType: 'view' | 'edit' = 'edit',
-		isUnpublished?: boolean,
 	): Promise<SyncBlockSourceInfo | undefined> {
 		const ari = sourceAri ?? this.writeProvider?.parentAri;
 		const product = sourceProduct ?? getProductFromSourceAri(ari);
@@ -230,13 +254,7 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 
 		switch (product) {
 			case 'confluence-page': {
-				const sourceInfo = await fetchConfluencePageInfo(
-					ari,
-					hasAccess,
-					urlType,
-					localId,
-					isUnpublished,
-				);
+				const sourceInfo = await fetchConfluencePageInfo(ari, hasAccess, localId);
 
 				if (!sourceInfo) {
 					return Promise.resolve(undefined);
@@ -247,7 +265,13 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 					productType: product,
 				};
 			}
-			case 'jira-work-item':
+			case 'jira-work-item': {
+				// Note: `subType`, archived URL handling, and `isUnpublished` are intentionally
+				// omitted here — Jira work items have no equivalent page subtype or archived state.
+				// The `localId` param is intentionally not forwarded: the current Jira issue view
+				// does not scroll to `#block-{localId}` anchors, so passing it would only pollute
+				// the URL. See the parity-notes JSDoc on `fetchJiraWorkItemInfo` for the full
+				// rationale and the conditions under which this should be revisited.
 				const sourceInfo: SyncBlockSourceInfo | undefined = await fetchJiraWorkItemInfo(
 					ari,
 					hasAccess,
@@ -258,8 +282,14 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 				return {
 					...sourceInfo,
 					onSameDocument: this.writeProvider?.parentAri === ari,
+					...getFieldAwareLocationScope({
+						documentAri: ari,
+						hostAri: this.writeProvider?.parentAri,
+						productType: product,
+					}),
 					productType: product,
 				};
+			}
 			default:
 				return Promise.reject(new Error(`${product} source product not supported`));
 		}
@@ -306,11 +336,16 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 		switch (sourceProduct) {
 			case 'confluence-page':
 				return {
+					contentAri: sourceAri,
 					contentId: getPageIdAndTypeFromConfluencePageAri({ ari: sourceAri }).id,
 					contentProduct: sourceProduct,
 				};
 			case 'jira-work-item':
-				throw new Error('Jira work item source product not supported');
+				return {
+					contentAri: sourceAri,
+					contentId: sourceAri,
+					contentProduct: sourceProduct,
+				};
 			default:
 				throw new Error(`${sourceProduct} source product not supported`);
 		}
@@ -346,9 +381,10 @@ export class SyncBlockProvider extends SyncBlockDataProvider {
 		resourceId: string,
 		onUpdate: BlockUpdateCallback,
 		onError?: BlockSubscriptionErrorCallback,
+		onComplete?: () => void,
 	): Unsubscribe | undefined {
 		if (this.fetchProvider.subscribeToBlockUpdates) {
-			return this.fetchProvider.subscribeToBlockUpdates(resourceId, onUpdate, onError);
+			return this.fetchProvider.subscribeToBlockUpdates(resourceId, onUpdate, onError, onComplete);
 		}
 		return undefined;
 	}
@@ -368,7 +404,7 @@ const createSyncedBlockProvider = ({
 	fetchProvider: ADFFetchProvider;
 	writeProvider: ADFWriteProvider | undefined;
 }) => {
-	return new SyncBlockProvider(fetchProvider, writeProvider);
+	return new SyncedBlockProvider(fetchProvider, writeProvider);
 };
 
 export const useMemoizedSyncedBlockProvider = ({
@@ -376,17 +412,25 @@ export const useMemoizedSyncedBlockProvider = ({
 	writeProvider,
 	providerOptions,
 	getSSRData,
-}: UseMemoizedSyncedBlockProviderProps) => {
+}: UseMemoizedSyncedBlockProviderProps): SyncedBlockProvider => {
 	const syncBlockProvider = useMemo(
 		() => createSyncedBlockProvider({ fetchProvider, writeProvider }),
 		[fetchProvider, writeProvider],
 	);
 
-	syncBlockProvider.setProviderOptions(providerOptions);
+	const prevProviderOptionsRef = useRef<SyncedBlockRendererProviderOptions | undefined>(undefined);
+	if (providerOptions !== prevProviderOptionsRef.current) {
+		prevProviderOptionsRef.current = providerOptions;
+		syncBlockProvider.setProviderOptions(providerOptions);
+	}
 
-	const ssrData = getSSRData ? getSSRData() : undefined;
-	if (ssrData) {
-		syncBlockProvider.setSSRData(ssrData);
+	const prevSSRDataRef = useRef<Record<string, SyncBlockInstance> | undefined>(undefined);
+	const ssrData = getSSRData?.();
+	if (ssrData !== prevSSRDataRef.current) {
+		prevSSRDataRef.current = ssrData;
+		if (ssrData) {
+			syncBlockProvider.setSSRData(ssrData);
+		}
 	}
 
 	return syncBlockProvider;

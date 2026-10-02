@@ -37,7 +37,7 @@ export type {
 	User,
 	UserType,
 	Visibility,
-} from './datasource-types';
+} from './entry-points/datasource-types';
 
 export type {
 	ActionsDiscoveryRequest,
@@ -49,9 +49,9 @@ export type {
 	AtomicActionExecuteRequest,
 	AtomicActionExecuteResponse,
 	ActionsServiceError,
-} from './datasource-action-types';
+} from './entry-points/datasource-action-types';
 
-export { ActionOperationStatus } from './datasource-action-types';
+export { ActionOperationStatus } from './entry-points/datasource-action-types';
 
 export type {
 	InvokeRequest,
@@ -60,12 +60,12 @@ export type {
 	InvokeResponse,
 	InvokeErrorResponse,
 	GetStatusTransitionsInvokeResponse,
-} from './smart-link-action-types';
+} from './entry-points/smart-link-action-types';
 
-export { SmartLinkActionType, InvokeError } from './smart-link-action-types';
+export { SmartLinkActionType, InvokeError } from './entry-points/smart-link-action-types';
 
 export type { SupportedFeature } from './supported-feature';
 
-export type { EntityType, DesignEntity } from './entity-types';
+export type { EntityType, DesignEntity } from './entry-points/entity-types';
 
 export type { SmartLinkResponse, ProviderGenerator } from './smart-link-types';

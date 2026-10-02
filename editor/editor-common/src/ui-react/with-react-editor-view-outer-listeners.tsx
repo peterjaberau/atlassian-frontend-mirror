@@ -1,18 +1,12 @@
 import React, { PureComponent, useCallback, useEffect, useRef, useState } from 'react';
 
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
+import { OutsideClickTargetRefContext } from './OutsideClickTargetRefContext';
 import ReactEditorViewContext from './ReactEditorViewContext';
 
 type SimpleEventHandler<T> = (event: T) => void;
-
-// Use this context to pass in the reference of the element that should be considered as the outside click target
-// The outside click target is the element that should be clicked outside of to trigger the `handleClickOutside` event
-export const OutsideClickTargetRefContext = React.createContext<(el: HTMLElement | null) => void>(
-	() => Object,
-);
 
 // This needs exporting to be used alongside `withReactEditorViewOuterListeners`
 export interface WithOutsideClickProps {
@@ -60,7 +54,7 @@ class WithOutsideClick extends PureComponent<
 		if (
 			this.props.handleEscapeKeydown ||
 			this.props.handleBackspaceDeleteKeydown ||
-			(this.props.handleKeyDown && expValEquals('platform_editor_block_menu', 'isEnabled', true))
+			this.props.handleKeyDown
 		) {
 			// Attached event to the menu so that 'ESC' events from the opened menu also will be handled.
 			// Ignored via go/ees005
@@ -90,7 +84,7 @@ class WithOutsideClick extends PureComponent<
 		if (
 			this.props.handleEscapeKeydown ||
 			this.props.handleBackspaceDeleteKeydown ||
-			(this.props.handleKeyDown && expValEquals('platform_editor_block_menu', 'isEnabled', true))
+			this.props.handleKeyDown
 		) {
 			// Ignored via go/ees005
 			// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
@@ -144,9 +138,7 @@ class WithOutsideClick extends PureComponent<
 			this.props.handleBackspaceDeleteKeydown(evt);
 		}
 
-		if (expValEquals('platform_editor_block_menu', 'isEnabled', true)) {
-			this.props.handleKeyDown?.(evt);
-		}
+		this.props.handleKeyDown?.(evt);
 	};
 
 	render() {
@@ -224,3 +216,5 @@ export default function withReactEditorViewOuterListeners<P extends Object>(
 		);
 	};
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { OutsideClickTargetRefContext } from './OutsideClickTargetRefContext';

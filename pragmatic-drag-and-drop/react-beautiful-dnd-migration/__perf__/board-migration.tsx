@@ -4,7 +4,6 @@ import type { InteractionTaskArgs, PublicInteractionTask } from 'storybook-addon
 import invariant from 'tiny-invariant';
 
 import { DragDropContext, Draggable, Droppable } from '../src';
-
 import Board from './pieces/board';
 import { type RbdApi } from './pieces/types';
 import { getColumn, getColumnItems, getColumnOrder, getItem } from './utils/board-utils';
@@ -19,7 +18,17 @@ const rbdApi: RbdApi = {
 	Droppable,
 };
 
-const boardMigration = () => <Board rbdApi={rbdApi} />;
+const boardMigration: {
+	(): React.JSX.Element;
+	story: {
+		name: string;
+		parameters: {
+			performance: {
+				interactions: PublicInteractionTask[];
+			};
+		};
+	};
+} = (): React.JSX.Element => <Board rbdApi={rbdApi} />;
 
 async function waitUntilElementIsDraggable(element: HTMLElement): Promise<void> {
 	return new Promise((resolve) => {

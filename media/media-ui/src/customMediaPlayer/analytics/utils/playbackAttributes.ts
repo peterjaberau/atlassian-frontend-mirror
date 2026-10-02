@@ -1,5 +1,6 @@
-import { type VideoState, type VideoStatus } from '../../react-video-renderer';
 import { isUndefined, omitBy } from '@atlaskit/media-common';
+
+import type { VideoState, VideoStatus } from '../../react-video-renderer/video';
 
 export type WithPlaybackProps = {
 	readonly isAutoPlay: boolean;

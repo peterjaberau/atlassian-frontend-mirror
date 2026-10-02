@@ -21,14 +21,16 @@ const styles = cssMap({
 		backgroundColor: token('color.background.neutral.hovered'),
 	},
 	margin: {
-		marginBlockEnd: token('space.100', '8px'),
+		marginBlockEnd: token('space.100'),
 	},
 });
 
-export const Dummy: ({ children, hasMargin }: DummyProps) => JSX.Element = ({ children, hasMargin = false }: DummyProps) => (
-	<div css={[styles.base, hasMargin && styles.margin]}>{children}</div>
-);
+export const Dummy: ({ children, hasMargin }: DummyProps) => JSX.Element = ({
+	children,
+	hasMargin = false,
+}: DummyProps) => <div css={[styles.base, hasMargin && styles.margin]}>{children}</div>;
 
-export const DummyNested: ({ children, hasMargin }: DummyProps) => JSX.Element = ({ children, hasMargin = false }: DummyProps) => (
-	<div css={[styles.nested, hasMargin && styles.margin]}>{children}</div>
-);
+export const DummyNested: ({ children, hasMargin }: DummyProps) => JSX.Element = ({
+	children,
+	hasMargin = false,
+}: DummyProps) => <div css={[styles.nested, hasMargin && styles.margin]}>{children}</div>;

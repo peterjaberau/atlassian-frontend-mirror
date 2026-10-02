@@ -11,7 +11,6 @@ import { token } from '@atlaskit/tokens';
 
 import { type ActionMessageAppearance } from '../../../actions/action/types';
 import MotionWrapper from '../../../common/motion-wrapper';
-
 import { type ActionFooterProps } from './types';
 
 const styles = cssMap({
@@ -34,7 +33,7 @@ const styles = cssMap({
 	},
 	titleStyles: {
 		color: token('color.text.subtle'),
-		font: token('font.body.UNSAFE_small'),
+		font: token('font.body.small'),
 	},
 });
 
@@ -43,7 +42,7 @@ const getIcon = (appearance?: ActionMessageAppearance) => {
 		case 'error':
 			return (
 				<ErrorIcon
-					color={token('color.icon.danger', '#C9372C')}
+					color={token('color.icon.danger')}
 					spacing="compact"
 					label="Error"
 					testId="action-error-icon"
@@ -55,7 +54,7 @@ const getIcon = (appearance?: ActionMessageAppearance) => {
 	}
 };
 
-export const ActionFooter = ({ message, testId }: ActionFooterProps) => {
+export const ActionFooter = ({ message, testId }: ActionFooterProps): JSX.Element | null => {
 	if (!message) {
 		return null;
 	}

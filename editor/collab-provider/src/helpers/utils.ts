@@ -1,9 +1,5 @@
-import { type ADFEntity } from '@atlaskit/adf-utils/types';
-import type { ProductInformation } from '../types';
-import type { Step as ProseMirrorStep } from '@atlaskit/editor-prosemirror/transform';
 import { scrubAdf } from '@atlaskit/adf-utils/scrub';
-import type { EditorState } from '@atlaskit/editor-prosemirror/state';
-import { sendableSteps } from '@atlaskit/prosemirror-collab';
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
 import type {
 	BatchAttrsStepPM,
 	InlineCommentAddNodeMarkStepPM,
@@ -16,9 +12,17 @@ import type {
 	StepJson,
 	StepMetadata,
 } from '@atlaskit/editor-common/collab';
-import { type JSONDocNode } from '@atlaskit/editor-json-transformer';
-import { type Node as ProseMirrorNode } from '@atlaskit/editor-prosemirror/model';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
+import type { Node as ProseMirrorNode } from '@atlaskit/editor-prosemirror/model';
+import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+import type { Step as ProseMirrorStep } from '@atlaskit/editor-prosemirror/transform-override';
+import { sendableSteps } from '@atlaskit/prosemirror-collab';
+
 import { CustomError } from '../errors/custom-errors';
+import type { ProductInformation } from '../types';
+
+// eslint-disable-next-line require-unicode-regexp
+const GCP_TENANT_PATTERN = /^.*-cdp-\w+\.jira-dev\.com$/;
 
 export const createLogger =
 	(prefix: string, color: string = 'blue') =>
@@ -33,14 +37,55 @@ export const createLogger =
 		}
 	};
 
-export function sleep(ms: number) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function sleep(ms: number): Promise<any> {
 	return new Promise((resolve) => {
 		setTimeout(resolve, ms);
 	});
 }
 
+/**
+ * Returns whether an id belongs to an agent — referred to as an "AI provider" in this
+ * package's terminology.
+ *
+ * @remarks Agents are not a distinct type: they are ordinary participants distinguished
+ * only by the `agent:` prefix on their `userId`/`sessionId`. This predicate is the single
+ * source of truth for that convention and gates agent-specific presence handling across the
+ * provider (e.g. immediate `presence` emission and agent-leave cleanup).
+ */
 export const isAIProviderID = (id: string): boolean =>
 	typeof id === 'string' && id.startsWith('agent:');
+
+const IDENTITY_USER_ARI_PREFIX = 'ari:cloud:identity::user/';
+
+/**
+ * Normalises an agent identifier that may arrive as an identity ARI
+ * (`ari:cloud:identity::user/<aaid>`) down to the bare AAID. Any other value is
+ * returned unchanged.
+ */
+export const normalizeAgentId = (agentId: string): string =>
+	agentId.startsWith(IDENTITY_USER_ARI_PREFIX)
+		? agentId.slice(IDENTITY_USER_ARI_PREFIX.length)
+		: agentId;
+
+/**
+ * Derives the synthetic AI-provider participant id (`agent:<id>`) for an
+ * agent-authored step, or `undefined` if the step is not agent-authored.
+ *
+ * `agentType` is the reliable "made by an agent" signal (present even when
+ * `agentId` is not). We key on the agent's AAID when available, otherwise the
+ * agent type (e.g. `mcp`/`twg`), otherwise a generic `agent`.
+ */
+export const getAgentProviderId = (step: {
+	agentId?: string;
+	agentType?: string;
+}): string | undefined => {
+	if (!step.agentType) {
+		return undefined;
+	}
+	const id = step.agentId ? normalizeAgentId(step.agentId) : step.agentType;
+	return `agent:${id || 'agent'}`;
+};
 
 export const getProduct = (productInfo?: ProductInformation): string =>
 	productInfo?.product ?? 'unknown';
@@ -148,7 +193,12 @@ const stepWithSlice = (stepJson: StepJson): stepJson is ReplaceAroundStepPM | Re
 };
 
 // Get as step info which is known not to contain user generated content.
-export const getStepTypes = (stepJson: StepJson) => {
+export const getStepTypes = (
+	stepJson: StepJson,
+): {
+	contentTypes: string | null;
+	type: string;
+} => {
 	let contentTypes: string | null = null;
 
 	if (stepWithSlice(stepJson)) {
@@ -197,7 +247,16 @@ export const getDocAdfWithObfuscationFromJSON = (docJson: JSONDocNode): ADFEntit
 	return scrubbedDoc;
 };
 
-export const getStepPositions = (stepJson: StepJson) => {
+export const getStepPositions = (
+	stepJson: StepJson,
+): {
+	from?: number | undefined;
+	gapFrom?: number | undefined;
+	gapTo?: number | undefined;
+	insert?: number | undefined;
+	pos?: number | undefined;
+	to?: number | undefined;
+} => {
 	return {
 		...(stepWithFromTo(stepJson) && { from: stepJson.from, to: stepJson.to }),
 		...(stepWithGapFromTo(stepJson) && { gapFrom: stepJson.gapFrom, gapTo: stepJson.gapTo }),
@@ -208,13 +267,43 @@ export const getStepPositions = (stepJson: StepJson) => {
 
 /**
  * Returns the metadata for Step
- * @description metadata is applied by transform overrides [here](https://bitbucket.org/atlassian/adf-schema/src/e13bbece84ede8f245067dc53dd7ce694f427eda/packages/editor-prosemirror/src/transform-override.ts#lines-12)
+ * @description metadata is applied by transform overrides [here](https://bitbucket.org/atlassian/adf-schema/src/e13bbece84ede8f245067dc53dd7ce694f427eda/packages/editor-prosemirror/transform-override.ts#lines-12)
  */
 const getStepMetadata = (stepJson: StepJson): StepMetadata['metadata'] | undefined => {
 	return stepJson.metadata;
 };
 
-export const getObfuscatedSteps = (steps: StepJson[], endIndex: number | undefined = undefined) => {
+export const getObfuscatedSteps = (
+	steps: StepJson[],
+	endIndex: number | undefined = undefined,
+): {
+	stepContent: ADFEntity[] | null;
+	stepMetadata:
+		| {
+				createdOffline?: boolean;
+				prevStepId?: string;
+				rebased?: boolean;
+				reqId?: string;
+				schemaVersion?: string;
+				source?: string;
+				stepId?: string;
+				traceId?: string;
+				unconfirmedStepAfterRecovery?: boolean;
+		  }
+		| undefined;
+	stepPositions: {
+		from?: number | undefined;
+		gapFrom?: number | undefined;
+		gapTo?: number | undefined;
+		insert?: number | undefined;
+		pos?: number | undefined;
+		to?: number | undefined;
+	};
+	stepType: {
+		contentTypes: string | null;
+		type: string;
+	};
+}[] => {
 	return steps.slice(0, endIndex).map((step) => {
 		return {
 			stepType: getStepTypes(step),
@@ -270,7 +359,16 @@ const stepToAdf = (step: StepJson): ADFEntity[] | null => {
 	return [];
 };
 
-export async function logObfuscatedSteps(oldState: EditorState | null, newState: EditorState) {
+export async function logObfuscatedSteps(
+	oldState: EditorState | null,
+	newState: EditorState,
+): Promise<
+	| CustomError
+	| {
+			stepsFromNewState: string;
+			stepsFromOldState: string;
+	  }
+> {
 	try {
 		let stepsFromOldState = '',
 			stepsFromNewState = '';
@@ -297,7 +395,21 @@ export async function logObfuscatedSteps(oldState: EditorState | null, newState:
 	}
 }
 
-export async function toObfuscatedSteps(steps: readonly ProseMirrorStep[]) {
+export async function toObfuscatedSteps(steps: readonly ProseMirrorStep[]): Promise<string> {
 	const _steps = await Promise.resolve(steps.slice().map<StepJson>((s) => s.toJSON()));
 	return JSON.stringify(getObfuscatedSteps(_steps));
+}
+
+/**
+ * Copied from confluence/next/packages/graphql/src/utils/gcpDomainUtils.ts
+ * Checks if the current domain is a GCP tenant matching the pattern: .*-cdp-{cdp-id}\.jira-dev\.com
+ * @param {string | undefined} hostname optional hostname to evaluate
+ * @returns {boolean} true if the domain matches the GCP tenant pattern
+ */
+export function isGCPtenant(hostname?: string): boolean {
+	if (!hostname) {
+		return false;
+	}
+
+	return GCP_TENANT_PATTERN.test(hostname);
 }

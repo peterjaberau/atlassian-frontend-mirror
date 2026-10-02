@@ -1,6 +1,335 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const aiMessages = defineMessages({
+export const aiMessages: {
+	actionItemsPageDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// AI Panel Action items messages
+	actionItemsPageTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	adjustLengthToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Agent messages
+	agentsDropdownTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	agentsViewAgentsLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Telepointer
+	aiPlannerTelepointer: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	aiRovoTelepointer: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// AI Smart button messages
+	aiSmartButtonDynamicSurfaceSelectedContent: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Toolbar messages
+	aiToolbarTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askAIToolbarIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askAIToolbarIconTooltip: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askAIToolbarIconTooltipQuickCommand: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askRovoAiSplitButtonLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askRovoToolbarIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askRovoToolbarIconTooltipQuickCommand: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askRovoToolbarImageTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askRovoToolbarImageTooltipQuickCommand: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askRovoToolbarRemixAppTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	askRovoToolbarRemixAppTooltipQuickCommand: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Prebuilt messages
+	atlasGenerateContentConfigItemDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	atlasSummarizePageConfigItemDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Block menu messages
+	blockMenuNestedMenuTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	changeToneOptionsIconLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	changeToneToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cmdPaletteUnhandledErrorMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	confluenceChangeToneSelectionToolbarDropdownMenuTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	confluenceRewriteSelectionToolbarDropdownMenuTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	confluenceTranslateSelectionToolbarDropdownMenuTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	DefineDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Event hub messages
+	eventHubfallbackSuggestedTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	eventHubfallbackSuggestedTitlePrefix: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	improveWritingToolbarIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	improveWritingToolbarIconTooltip: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	makeLongerToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	makeShorterToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	markdownErrorMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moreCasualToneToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moreEmpatheticToneToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moreProfessionalToneToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moreRovoOptionsMenuLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// On-paste menu messages
+	pasteMenuActionsTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Prompt Builder messages
+	promptbuilderAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	promptBuilderFromButton: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rovoToolbarDropdownChevronLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	simplifiedAIToolbarIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Smartlink action messages
+	smartlinkAddDecisions: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smartlinkAddRelatedWorkItems: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smartlinkDefineActionItems: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smartlinkExtractInsights: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smartlinkExtractUserQuotes: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smartlinkListKeyThemes: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smartlinkListKeyTopics: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smartlinkListTodos: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smartlinkSummarizeChanges: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	spellingAndGrammarToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	summarisePageDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// AI Panel Summarise page messages
+	summarizePageTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	summarizeToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	translateOptionsIconLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	translateToolbarDropdownIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	tryAIToolbarIconTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	tryAIToolbarIconTooltip: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// Error messages
+	unhandledErrorMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	// Event hub messages
 	eventHubfallbackSuggestedTitle: {
 		id: 'fabric.editor.ai.eventHub.fallbackSuggestedTitle',
@@ -41,6 +370,16 @@ export const aiMessages = defineMessages({
 		defaultMessage: 'Ask Rovo',
 		description: 'Title for an option to use Atlassian Intellgience',
 	},
+	askRovoToolbarRemixAppTitle: {
+		id: 'fabric.editor.ai.toolbar.askRovo.remixApp.title',
+		defaultMessage: 'Edit',
+		description: 'Title for an option to edit a MAUI app embed with Rovo',
+	},
+	askRovoToolbarImageTitle: {
+		id: 'fabric.editor.ai.toolbar.askRovo.image.title',
+		defaultMessage: 'Edit image',
+		description: 'Title for an option to edit an image with Rovo',
+	},
 	moreRovoOptionsMenuLabel: {
 		id: 'fabric.editor.ai.toolbar.moreRovoOptions.label',
 		defaultMessage: 'More Rovo options',
@@ -67,6 +406,17 @@ export const aiMessages = defineMessages({
 		defaultMessage: "Ask Rovo {key}+'",
 		description: 'Tooltip text for an option to use Rovo AI with quick command',
 	},
+	askRovoToolbarRemixAppTooltipQuickCommand: {
+		id: 'fabric.editor.ai.toolbar.askRovo.remixApp.tooltip.quickCommand',
+		defaultMessage: "Edit {key}+'",
+		description:
+			'Tooltip text for an option to edit a MAUI app embed with Rovo using quick command',
+	},
+	askRovoToolbarImageTooltipQuickCommand: {
+		id: 'fabric.editor.ai.toolbar.askRovo.image.tooltip.quickCommand',
+		defaultMessage: "Edit image {key}+'",
+		description: 'Tooltip text for an option to edit an image with Rovo using quick command',
+	},
 	tryAIToolbarIconTitle: {
 		id: 'fabric.editor.ai.toolbar.tryAI.title',
 		defaultMessage: 'Try AI',
@@ -81,6 +431,12 @@ export const aiMessages = defineMessages({
 		id: 'fabric.editor.ai.toolbar.simplifiedAI.title',
 		defaultMessage: 'AI',
 		description: 'Title for Atlassian Intelligence button in editor selection floating toolbar',
+	},
+	rovoToolbarDropdownChevronLabel: {
+		id: 'fabric.editor.ai.toolbar.rovoDropdownChevron.label',
+		defaultMessage: 'More Ask Rovo options',
+		description:
+			'Accessible label for the chevron button that opens a dropdown menu with additional Ask Rovo options in the editor selection floating toolbar',
 	},
 	summarizeToolbarDropdownIconTitle: {
 		id: 'fabric.editor.ai.toolbar.summarize.title',
@@ -194,24 +550,28 @@ export const aiMessages = defineMessages({
 	actionItemsPageTitle: {
 		id: 'fabric.editor.ai.ai-panels.actionItemsPageTitle',
 		defaultMessage: `Action items panel (Beta)`,
-		description: 'Title for AI action items panel',
+		description:
+			'The text is shown as the heading of the AI action items panel (Beta) in the editor, displayed when the user opens the panel to view automatically identified action items.',
 	},
 	actionItemsPageDescription: {
 		id: 'fabric.editor.ai.ai-panels.actionItemsPageDescription',
 		defaultMessage: `Use Atlassian Intelligence to find action items and display in a panel`,
-		description: 'Description for AI action items panel',
+		description:
+			'The text is shown as the descriptive subtitle of the AI action items panel in the editor, explaining that Atlassian Intelligence will identify and display action items from the page.',
 	},
 
 	// AI Panel Summarise page messages
 	summarizePageTitle: {
 		id: 'fabric.editor.ai.ai-panels.summarizePageTitle',
 		defaultMessage: `Page summary panel (Beta)`,
-		description: 'Title for AI summary panel',
+		description:
+			'The text is shown as a title for the AI-powered page summary panel in the editor when the user accesses the summarize page feature.',
 	},
 	summarisePageDescription: {
 		id: 'fabric.editor.ai.ai-panels.summarizePageDescription',
 		defaultMessage: `Use Atlassian Intelligence to summarize this page and display in a panel`,
-		description: 'Description for AI summary panel',
+		description:
+			'The text is shown as the descriptive subtitle of the AI page summary panel in the editor, explaining that Atlassian Intelligence will summarize the page and display the result in a panel.',
 	},
 
 	// Agent messages
@@ -247,7 +607,8 @@ export const aiMessages = defineMessages({
 	promptbuilderAriaLabel: {
 		id: 'fabric.editor.ai.commandPalette.promptBuilderForm.generateContent.ariaLabel',
 		defaultMessage: 'Ask Atlassian Intelligence',
-		description: 'Aria label for prompt builder form',
+		description:
+			'The text is used as the ARIA label for the prompt builder form in the command palette, helping screen reader users identify the input area where they can type a request for Atlassian Intelligence.',
 	},
 	promptBuilderFromButton: {
 		id: 'fabric.editor.ai.commandPalette.promptBuilderForm.buttons.submit',
@@ -264,9 +625,75 @@ export const aiMessages = defineMessages({
 	},
 
 	// Telepointer
+	aiPlannerTelepointer: {
+		id: 'fabric.editor.ai.telepointer.planner',
+		defaultMessage: 'Planner',
+		description: 'Product name shown beside the streaming cursor when Planner writes content',
+	},
 	aiRovoTelepointer: {
 		id: 'fabric.editor.ai.telepointer.rovo',
 		defaultMessage: 'Rovo',
 		description: 'This is the name which appears in the AI telepointer',
+	},
+
+	// On-paste menu messages
+	pasteMenuActionsTitle: {
+		id: 'fabric.editor.ai.paste-menu.section-title',
+		defaultMessage: 'Actions',
+		description: 'Section title for AI actions in the paste options menu',
+	},
+
+	// Block menu messages
+	blockMenuNestedMenuTitle: {
+		id: 'fabric.editor.ai.config.item.blockMenuNestedMenu.title',
+		defaultMessage: 'View more actions',
+		description: 'Title for the nested menu in the block menu',
+	},
+
+	// Smartlink action messages
+	smartlinkListKeyTopics: {
+		id: 'fabric.editor.ai.smartlink.action.listKeyTopics',
+		defaultMessage: 'List key topics',
+		description: 'Action to list key topics from the linked content',
+	},
+	smartlinkListKeyThemes: {
+		id: 'fabric.editor.ai.smartlink.action.listKeyThemes',
+		defaultMessage: 'List key themes',
+		description: 'Action to list key themes from the linked content',
+	},
+	smartlinkExtractInsights: {
+		id: 'fabric.editor.ai.smartlink.action.extractInsights',
+		defaultMessage: 'Extract insights',
+		description: 'Action to extract insights from the linked content',
+	},
+	smartlinkExtractUserQuotes: {
+		id: 'fabric.editor.ai.smartlink.action.extractUserQuotes',
+		defaultMessage: 'Extract user quotes',
+		description: 'Action to extract user quotes from the linked content',
+	},
+	smartlinkAddDecisions: {
+		id: 'fabric.editor.ai.smartlink.action.addDecisions',
+		defaultMessage: 'Add decisions',
+		description: 'Action to add decisions from the linked content',
+	},
+	smartlinkDefineActionItems: {
+		id: 'fabric.editor.ai.smartlink.action.defineActionItems',
+		defaultMessage: 'Define action items',
+		description: 'Action to define action items from the linked content',
+	},
+	smartlinkSummarizeChanges: {
+		id: 'fabric.editor.ai.smartlink.action.summarizeChanges',
+		defaultMessage: 'Summarize changes',
+		description: 'Action to summarize changes in the linked content',
+	},
+	smartlinkAddRelatedWorkItems: {
+		id: 'fabric.editor.ai.smartlink.action.addRelatedWorkItems',
+		defaultMessage: 'Add related work items',
+		description: 'Action to add related work items from the linked content',
+	},
+	smartlinkListTodos: {
+		id: 'fabric.editor.ai.smartlink.action.listTodos',
+		defaultMessage: 'List to-dos',
+		description: 'Action to list to-dos from the linked content',
 	},
 });

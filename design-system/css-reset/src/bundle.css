@@ -29,7 +29,8 @@ html {
 	width: 100%;
 }
 
-body {
+body,
+[data-subtree-theme] {
 	background-color: var(--ds-surface, #fff);
 	color: var(--ds-text, #172b4d);
 	font: var(
@@ -45,6 +46,9 @@ body {
 		'Helvetica Neue',
 		sans-serif
 	);
+}
+
+body {
 	-ms-overflow-style: -ms-autohiding-scrollbar;
 	text-decoration-skip-ink: auto;
 }
@@ -422,6 +426,73 @@ section {
 */
 button {
 	font-family: inherit;
+}
+
+/*
+ * Feature-gated harmonised scrollbar appearance.
+ * Visibility and width remain browser managed.
+ */
+:root[data-scrollbar-harmonisation] {
+	scrollbar-color: var(--ds-border-input, #8c8f97) var(--ds-elevation-surface-current, #ffffff);
+}
+
+:root[data-scrollbar-harmonisation] * {
+	scrollbar-color: var(--ds-border-input, #8c8f97) var(--ds-elevation-surface-current, #ffffff);
+}
+
+:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent],
+:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent] * {
+	scrollbar-color: var(--ds-border-input, #8c8f97) transparent;
+}
+
+:root[data-scrollbar-harmonisation]::-webkit-scrollbar-track,
+:root[data-scrollbar-harmonisation]::-webkit-scrollbar-corner,
+:root[data-scrollbar-harmonisation] *::-webkit-scrollbar-track,
+:root[data-scrollbar-harmonisation] *::-webkit-scrollbar-corner {
+	background-color: var(--ds-elevation-surface-current, #ffffff);
+	border: 0;
+}
+
+:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]::-webkit-scrollbar-track,
+:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]::-webkit-scrollbar-corner,
+:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]
+	*::-webkit-scrollbar-track,
+:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]
+	*::-webkit-scrollbar-corner {
+	background-color: transparent;
+}
+
+:root[data-scrollbar-harmonisation]::-webkit-scrollbar-thumb,
+:root[data-scrollbar-harmonisation] *::-webkit-scrollbar-thumb {
+	background-color: var(--ds-border-input, #8c8f97);
+}
+
+@media (forced-colors: active) {
+	:root[data-scrollbar-harmonisation],
+	:root[data-scrollbar-harmonisation] *,
+	:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent],
+	:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent] * {
+		scrollbar-color: auto;
+	}
+
+	:root[data-scrollbar-harmonisation]::-webkit-scrollbar-track,
+	:root[data-scrollbar-harmonisation]::-webkit-scrollbar-thumb,
+	:root[data-scrollbar-harmonisation]::-webkit-scrollbar-corner,
+	:root[data-scrollbar-harmonisation] *::-webkit-scrollbar-track,
+	:root[data-scrollbar-harmonisation] *::-webkit-scrollbar-thumb,
+	:root[data-scrollbar-harmonisation] *::-webkit-scrollbar-corner,
+	:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]::-webkit-scrollbar-track,
+	:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]::-webkit-scrollbar-thumb,
+	:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]::-webkit-scrollbar-corner,
+	:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]
+		*::-webkit-scrollbar-track,
+	:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]
+		*::-webkit-scrollbar-thumb,
+	:root[data-scrollbar-harmonisation][data-scrollbar-harmonisation-transparent]
+		*::-webkit-scrollbar-corner {
+		background-color: revert;
+		border: revert;
+	}
 }
 
 .assistive {

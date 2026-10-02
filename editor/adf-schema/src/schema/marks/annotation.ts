@@ -1,4 +1,5 @@
 import type { MarkSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { annotation as annotationFactory } from '../../next-schema/generated/markTypes';
 
 /**
@@ -95,3 +96,6 @@ export const annotation: MarkSpec = annotationFactory({
 		];
 	},
 });
+
+// Public API aliases preserved from an eliminated entry-point (volt-migrate-package).
+export { buildDataAttributes as buildAnnotationMarkDataAttributes };

@@ -1,10 +1,37 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	statusEditorLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	placeholder: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	editText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	editColor: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	statusPickerOpenedAlert: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	statusEditorLabel: {
 		id: 'fabric.editor.statusEditorLabel',
 		defaultMessage: 'Status editor',
-		description: 'Label for the status element editor',
+		description:
+			'Accessible label for the status element editor panel that appears when a user clicks on a status badge in the editor to modify it.',
 	},
 	placeholder: {
 		id: 'fabric.editor.statusPlaceholder',

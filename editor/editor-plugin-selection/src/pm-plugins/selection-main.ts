@@ -3,16 +3,14 @@ import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { SelectionPluginState } from '@atlaskit/editor-common/selection';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+// oxlint-disable-next-line import/no-duplicates
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { type Selection, NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { SelectionPlugin } from '../selectionPluginType';
 import type { SelectionPluginOptions } from '../types';
 import { selectionPluginKey } from '../types';
-
 import { SelectionActionTypes } from './actions';
 import { onCreateSelectionBetween } from './events/create-selection-between';
 import { createOnKeydown } from './events/keydown';
@@ -30,7 +28,7 @@ export const createPlugin = (
 	dispatch: Dispatch,
 	dispatchAnalyticsEvent: DispatchAnalyticsEvent,
 	options: SelectionPluginOptions = {},
-) => {
+): SafePlugin<SelectionPluginState> => {
 	let cursorHidden = false;
 	let blockSelection: Selection | undefined;
 
@@ -44,12 +42,6 @@ export const createPlugin = (
 			let hideCursorChanged = false;
 			let blockSelectionChanged = false;
 
-			const needsManualSelection = editorExperiment(
-				'platform_editor_element_drag_and_drop_multiselect',
-				true,
-			);
-			const needsBlockSelection = expValEquals('platform_editor_block_menu', 'isEnabled', true);
-
 			for (let i = transactions.length - 1; i >= 0; i--) {
 				const meta = transactions[i].getMeta(selectionPluginKey);
 
@@ -61,20 +53,18 @@ export const createPlugin = (
 					}
 				}
 
-				if (needsManualSelection && meta?.manualSelection && !manualSelection) {
+				if (meta?.manualSelection && !manualSelection) {
 					manualSelection = meta.manualSelection;
 				}
 
-				if (needsBlockSelection) {
-					if (meta?.setBlockSelection) {
-						blockSelection = meta.setBlockSelection;
-						blockSelectionChanged = true;
-					}
+				if (meta?.setBlockSelection) {
+					blockSelection = meta.setBlockSelection;
+					blockSelectionChanged = true;
+				}
 
-					if (meta?.clearBlockSelection) {
-						blockSelection = undefined;
-						blockSelectionChanged = true;
-					}
+				if (meta?.clearBlockSelection) {
+					blockSelection = undefined;
+					blockSelectionChanged = true;
 				}
 			}
 
@@ -127,14 +117,9 @@ export const createPlugin = (
 			decorations(state) {
 				const interactionState = api?.interaction?.sharedState.currentState()?.interactionState;
 
-				// Do not show selection decorations for live pages where the user has not
-				// interacted with the page. We do not show cursor until interaction and we do not
-				// want to show selections either.
-				if (
-					(options.__livePage ||
-						expValEquals('platform_editor_no_cursor_on_edit_page_init', 'isEnabled', true)) &&
-					interactionState === 'hasNotHadInteraction'
-				) {
+				// The interaction plugin is only present for editors that suppress the cursor
+				// until first interaction, so we suppress selections for the same period.
+				if (interactionState === 'hasNotHadInteraction') {
 					return DecorationSet.empty;
 				}
 

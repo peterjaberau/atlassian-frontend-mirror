@@ -1,4 +1,4 @@
-import { SmartLinkActionType } from '@atlaskit/linking-types';
+import { SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
 
 import { avatar1, avatar2, avatar3, iconBitbucket } from '../../images';
 import preview from '../../images/rectangle.svg';
@@ -8,7 +8,165 @@ export const url = 'https://product-fabric.atlassian.net/wiki/spaces/EM';
 // This response is a showcase of a link response that contains a vast amount of data.
 // It is unlikely that a real link would have all these information.
 // For example, a blog link would not have data for a pull request target branch.',
-export const unicornResponse = {
+export const unicornResponse: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@type': string[];
+		'atlassian:appliedToComponentsCount': number;
+		'atlassian:assignedTo': {
+			'@type': string;
+			icon: string;
+			name: string;
+		};
+		'atlassian:attachmentCount': number;
+		'atlassian:checkItems': {
+			checkedItems: number;
+			totalItems: number;
+		};
+		'atlassian:downloadUrl': string;
+		'atlassian:latestCommit': {
+			'@context': {
+				'@vocab': string;
+				atlassian: string;
+				schema: string;
+			};
+			'@id': string;
+			'@type': string;
+			'atlassian:committedBy': string;
+			attributedTo: string;
+			generator: {
+				'@type': string;
+				icon: {
+					'@type': string;
+					url: string;
+				};
+				name: string;
+			};
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+			'schema:dateCreated': string;
+			summary: string;
+			updated: string;
+			url: string;
+		};
+		'atlassian:mergeDestination': {
+			'@type': string;
+			href: string;
+			name: string;
+		};
+		'atlassian:mergeSource': {
+			'@type': string;
+			href: string;
+			name: string;
+		};
+		'atlassian:ownedBy': {
+			'@type': string;
+			icon: string;
+			name: string;
+		}[];
+		'atlassian:priority': string;
+		'atlassian:reactCount': number;
+		'atlassian:readTimeInMinutes': number;
+		'atlassian:serverAction': (
+			| {
+					'@type': string;
+					dataRetrievalAction: {
+						'@type': string;
+						name: SmartLinkActionType;
+					};
+					dataUpdateAction: {
+						'@type': string;
+						name: SmartLinkActionType;
+					};
+					name: string;
+					refField: string;
+					resourceIdentifiers: {
+						ari?: undefined;
+						hostname: string;
+						issueKey: string;
+					};
+			  }
+			| {
+					'@type': string;
+					dataRetrievalAction?: undefined;
+					dataUpdateAction: {
+						'@type': string;
+						name: string;
+					};
+					name: string;
+					refField: string;
+					resourceIdentifiers: {
+						ari: string;
+						hostname?: undefined;
+						issueKey?: undefined;
+					};
+			  }
+		)[];
+		'atlassian:state': string;
+		'atlassian:storyPoints': number;
+		'atlassian:subscriberCount': number;
+		'atlassian:subTasks': {
+			resolvedCount: number;
+			totalCount: number;
+		};
+		'atlassian:updatedBy': {
+			'@type': string;
+			icon: string;
+			name: string;
+		};
+		'atlassian:viewCount': number;
+		'atlassian:voteCount': number;
+		attributedTo: {
+			'@type': string;
+			icon: string;
+			name: string;
+		}[];
+		endTime: string;
+		generator: {
+			'@id': string;
+			'@type': string;
+			name: string;
+		};
+		image: string;
+		mediaType: string;
+		name: string;
+		preview: {
+			'@type': string;
+			'atlassian:supportedPlatforms': string[];
+			href: string;
+		};
+		'schema:commentCount': number;
+		'schema:dateCreated': string;
+		'schema:potentialAction': {
+			'@type': string;
+			name: string;
+		}[];
+		'schema:programmingLanguage': string;
+		summary: string;
+		tag: {
+			'@type': string;
+			appearance: string;
+			name: string;
+		};
+		updated: string;
+		url: string;
+	};
+	meta: {
+		access: string;
+		auth: never[];
+		definitionId: string;
+		key: string;
+		supportedFeature: string[];
+		visibility: string;
+	};
+} = {
 	meta: {
 		visibility: 'public',
 		access: 'granted',
@@ -148,7 +306,51 @@ export const unicornResponse = {
 	},
 };
 
-export const response1 = {
+export const response1: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@type': string[];
+		'atlassian:priority': string;
+		'atlassian:reactCount': number;
+		'atlassian:state': string;
+		'atlassian:subscriberCount': number;
+		'atlassian:updatedBy': {
+			'@type': string;
+			icon: string;
+			name: string;
+		};
+		attributedTo: {
+			'@type': string;
+			icon: string;
+			name: string;
+		}[];
+		endTime: string;
+		generator: {
+			'@id': string;
+			'@type': string;
+			name: string;
+		};
+		image: string;
+		mediaType: string;
+		name: string;
+		'schema:commentCount': number;
+		'schema:dateCreated': string;
+		summary: string;
+		updated: string;
+		url: string;
+	};
+	meta: {
+		access: string;
+		auth: never[];
+		definitionId: string;
+		key: string;
+		visibility: string;
+	};
+} = {
 	meta: {
 		visibility: 'public',
 		access: 'granted',
@@ -191,7 +393,55 @@ export const response1 = {
 	},
 };
 
-export const response2 = {
+export const response2: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@type': string[];
+		'atlassian:priority': string;
+		'atlassian:subscriberCount': number;
+		attributedTo: {
+			'@type': string;
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+		};
+		generator: {
+			'@id': string;
+			'@type': string;
+			name: string;
+		};
+		name: string;
+		'schema:commentCount': number;
+		'schema:dateCreated': string;
+		summary: string;
+		tag: {
+			'@type': string;
+			appearance: string;
+			name: string;
+		};
+		taskType: {
+			'@id': string;
+			'@type': string[];
+			name: string;
+		};
+		updated: string;
+		url: string;
+	};
+	meta: {
+		access: string;
+		auth: never[];
+		definitionId: string;
+		key: string;
+		resourceType: string;
+		visibility: string;
+	};
+} = {
 	meta: {
 		auth: [],
 		definitionId: 'jira-object-provider',
@@ -234,7 +484,45 @@ export const response2 = {
 	},
 };
 
-export const response3 = {
+export const response3: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@type': string[];
+		'atlassian:state': string;
+		'atlassian:subscriberCount': number;
+		attributedTo: {
+			'@type': string;
+			icon: string;
+			name: string;
+		}[];
+		generator: {
+			'@id': string;
+			'@type': string;
+			name: string;
+		};
+		name: string;
+		preview: {
+			'@type': string;
+			href: string;
+		};
+		'schema:commentCount': number;
+		'schema:dateCreated': string;
+		summary: string;
+		url: string;
+	};
+	meta: {
+		access: string;
+		auth: never[];
+		definitionId: string;
+		key: string;
+		resourceType: string;
+		visibility: string;
+	};
+} = {
 	meta: {
 		auth: [],
 		definitionId: 'confluence-object-provider',
@@ -271,7 +559,62 @@ export const response3 = {
 	},
 };
 
-export const response4 = {
+export const response4: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@type': string[];
+		attributedTo: (
+			| {
+					'@type': string;
+					icon: string;
+					name: string;
+			  }
+			| {
+					'@type': string;
+					icon?: undefined;
+					name: string;
+			  }
+		)[];
+		generator: {
+			'@id': string;
+			'@type': string;
+			name: string;
+		};
+		name: string;
+		preview: {
+			'@type': string;
+			href: string;
+		};
+		'schema:dateCreated': string;
+		summary: string;
+		tag: {
+			appearance: string;
+			name: string;
+			type: string;
+		};
+		taskType: {
+			'@id': string;
+			'@type': string[];
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+		};
+		url: string;
+	};
+	meta: {
+		access: string;
+		auth: never[];
+		definitionId: string;
+		key: string;
+		visibility: string;
+	};
+} = {
 	meta: {
 		auth: [],
 		definitionId: 'watermelon-object-provider',

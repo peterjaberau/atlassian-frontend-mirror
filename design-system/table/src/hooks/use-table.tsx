@@ -5,6 +5,7 @@ import __noop from '@atlaskit/ds-lib/noop';
 export type SortDirection = 'ascending' | 'descending';
 export type SortKey<Key extends string | symbol | number> = Key | 'unset';
 
+// oxlint-disable-next-line eslint/no-redeclare
 type TableContext<T, K extends keyof T = keyof T> = {
 	isSelectable?: boolean;
 	sortKey: SortKey<K>;
@@ -22,7 +23,7 @@ function generateContext<T extends object>(): Context<TableContext<T>> {
 	} as TableContext<T>);
 }
 
-const TableContext = generateContext();
+const TableContext: React.Context<TableContext<object, never>> = generateContext();
 
 /**
  * __Table state provider__
@@ -44,6 +45,7 @@ export function TableProvider<T extends object>({
 	);
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const useTable = <TableItem extends object>() =>
 	// @ts-expect-error
 	useContext(TableContext) as TableContext<TableItem>;

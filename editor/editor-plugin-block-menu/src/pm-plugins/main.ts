@@ -1,19 +1,20 @@
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { BlockMenuPlugin, FLAG_ID } from '../blockMenuPluginType';
-
 import { shouldSuppressKeyboardEvent } from './utils/shouldSuppressKeyboardEvent';
 
-export const blockMenuPluginKey = new PluginKey('blockMenuPlugin');
+export const blockMenuPluginKey: PluginKey = new PluginKey('blockMenuPlugin');
 
 type BlockMenuPluginState = {
 	showFlag: FLAG_ID | false;
 };
 
-export const createPlugin = (api: ExtractInjectionAPI<BlockMenuPlugin> | undefined) => {
+export const createPlugin = (
+	api: ExtractInjectionAPI<BlockMenuPlugin> | undefined,
+): SafePlugin<BlockMenuPluginState> => {
 	return new SafePlugin<BlockMenuPluginState>({
 		key: blockMenuPluginKey,
 		state: {
@@ -42,7 +43,7 @@ export const createPlugin = (api: ExtractInjectionAPI<BlockMenuPlugin> | undefin
 				}
 
 				// Block further handling of key events when block menu is open
-				// Except for backspace/delete/copy/cut/paste/undo/redo/copy-link-to-block which should be handled by the selection preservation plugin
+				// Except for backspace/delete/copy/cut/paste/undo/redo/copy-link-to-selection which should be handled by the selection preservation plugin
 				return shouldSuppressKeyboardEvent(event);
 			},
 		},

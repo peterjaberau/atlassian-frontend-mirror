@@ -1,5 +1,1588 @@
 # @atlaskit/rovo-agent-components
 
+## 9.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.6.0
+
+### Minor Changes
+
+- [`bba093aeda375`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bba093aeda375) -
+  Allow ResolvedAgentAvatar consumers to opt into updated hexagon geometry behind
+  platform-dst-avatar-updated-geometry.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.3
+
+### Patch Changes
+
+- [`4eabf4c2cc23e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4eabf4c2cc23e) -
+  Add avatar for the Jira Delivery Agent (jira_delivery_agent)
+- [`4254737e3f847`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4254737e3f847) -
+  Update the Jira Triage Agent and Ops Expert avatar icons to match the latest Team 26 EU brand
+  artwork.
+- Updated dependencies
+
+## 9.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.0
+
+### Minor Changes
+
+- [`f3c48159106b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3c48159106b7) -
+  Update i18n NPM package versions for ai-mate,ai,ai-opt-in,insights-ai-platform (Group 2)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.0
+
+### Minor Changes
+
+- [`8b8621693100c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8b8621693100c) -
+  Add refreshed artwork for mapped OOTB agent avatars and apply the designer's updated palette to
+  generated custom avatars behind the platform-dst-avatar-updated-geometry feature gate. Keep legacy
+  secondary colors for gate-off avatars.
+
+## 9.3.0
+
+### Minor Changes
+
+- [`2c9bd2393dbec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c9bd2393dbec) -
+  Add refreshed generated agent avatars behind the platform-dst-avatar-updated-geometry feature
+  gate.
+- [`9d5a0324d68cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d5a0324d68cd) -
+  Renamed `UNSAFE__useAdsAvatar` prop to `UNSAFE_useAdsAvatar`
+
+### Patch Changes
+
+- [`3f554debe10e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f554debe10e9) -
+  Enabled UNSAFE_isUpdatedGeometry for Rovo Agent Avatar
+- Updated dependencies
+
+## 9.2.0
+
+### Minor Changes
+
+- [`463f291ca4e20`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/463f291ca4e20) -
+  Select the Amplitude v2 avatar behind a frontend feature gate for the existing Amplitude agent ID,
+  and remove the unused versioned agent ID mappings.
+- [`b962a1898979b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b962a1898979b) -
+  Add the UNSAFE\_\_useAdsAvatar prop to opt AgentAvatar into using ADS Avatar for its hexagon
+  frame, border, and geometry while preserving the existing renderer by default.
+
+### Patch Changes
+
+- [`463f291ca4e20`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/463f291ca4e20) -
+  Use square, full-bleed Amplitude v2 artwork so avatar components apply their own hexagonal shape
+  and border.
+- [`b962a1898979b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b962a1898979b) -
+  Use supported granular testing-library entry points in AgentAvatar tests.
+- [`b962a1898979b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b962a1898979b) -
+  Avoid constructing generated AgentAvatar artwork when an image is rendered.
+
+## 9.1.0
+
+### Minor Changes
+
+- [`943f7df0bd6d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/943f7df0bd6d9) -
+  Update i18n NPM package versions for ai-mate,ai,ai-opt-in,insights-ai-platform (Group 2)
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- [`421075b740424`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/421075b740424) -
+  Preserve the original Amplitude avatar for existing consumers and register the separate hexagonal
+  v2 avatar as `mcp_amplitude_agent_v2`. Match its avatar, brand, and Studio card cover colors to
+  the original Amplitude mappings. Declare the v2 avatar props locally to avoid a relative type
+  barrel import.
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Minor Changes
+
+- [`00fad91fb24eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00fad91fb24eb) -
+  Add gated agent duplication permission support and hide unauthorized duplicate actions.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.15.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.15.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.15.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.15.0
+
+### Minor Changes
+
+- [`31ab94fba61b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31ab94fba61b5) -
+  Update i18n NPM package versions for ai-mate,ai,ai-opt-in,insights-ai-platform (Group 2)
+
+## 8.14.3
+
+### Patch Changes
+
+- [`b724786886a1f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b724786886a1f) -
+  Cleanup `feature_gate` `rovo_agents_agent_verification`. Agent verification badges, the verified
+  agents tab, and the agent verification menu items are now always shown, and the
+  `atlassianStudio_userSiteContext` user permissions are always requested.
+- [`7e54df1e977d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7e54df1e977d7) -
+  Opt-in component examples to Workbench
+
+## 8.14.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.14.1
+
+### Patch Changes
+
+- [`2d5e3789793e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d5e3789793e9) -
+  Internal changes as part of package refactor.
+
+## 8.14.0
+
+### Minor Changes
+
+- [`4142cf1006553`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4142cf1006553) -
+  Update i18n NPM package versions for ai-mate,ai,ai-opt-in,insights-ai-platform (Group 2)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.13.1
+
+### Patch Changes
+
+- [`7ab7f5213c65b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ab7f5213c65b) -
+  Fixed `ResolvedAgentAvatar` drawing a white hexagon border around the fetched picture when
+  `showBorder` is false. `Avatar`'s hexagon appearance always paints a border ring from
+  `borderColor`, which defaults to `elevation.surface`, so the picture now passes
+  `borderColor="transparent"` in that case to match the borderless look callers expect.
+
+## 8.13.0
+
+### Minor Changes
+
+- [`241e671db5235`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/241e671db5235) -
+  `ResolvedAgentAvatar` now accepts either a bare account id or a full identity ARI for
+  `agentIdentityAccountId`, so callers that already have the bare id don't need to wrap it first.
+  `fallback` is now optional, defaulting to a generic hexagon `Avatar` built from `agentName` when a
+  caller has nothing more specific to show. The fetched picture now renders through `Avatar`
+  directly instead of the deprecated `AgentAvatar`.
+
+## 8.12.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.12.2
+
+### Patch Changes
+
+- [`8039321556a06`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8039321556a06) -
+  Deprecate AgentAvatar in favour of AvatarRelay and link to the migration guide. Recommend using
+  Avatar directly with a hexagon appearance when an image URL is already available.
+- Updated dependencies
+
+## 8.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.12.0
+
+### Minor Changes
+
+- [`441bd218eede9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/441bd218eede9) -
+  Fetch the real account picture for the default Rovo agent, the same way any other agent's avatar
+  resolves, in the agent-mention nudge, the agent profile card, and the editor streaming
+  telepointer. Adds a shared `ResolvedAgentAvatar` to `@atlaskit/rovo-agent-components` (real
+  picture with a caller-supplied fallback) and uses it from the telepointer and the profile card
+  instead of each carrying its own avatar logic. Falls back to the same specialist avatar or
+  generated illustration every other agent gets when there's no picture to fetch, rather than a
+  Rovo-specific fallback.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.11.0
+
+### Minor Changes
+
+- [`3b78768eefc81`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b78768eefc81) -
+  Add dedicated public entrypoint imports for `@atlaskit/rovo-agent-components`:
+  `agent-conversation-starters`, `conversation-starters-2`, `get-conversation-starters`,
+  `ui/agent-dropdown-menu/agent-dropdown-menu`, `ui/agent-dropdown-menu/chat-to-agent-button`,
+  `ui/agent-verified/agent-verified`, and `ui/agent-verified/agent-verified-icon`. Root and
+  deprecated compatibility imports remain supported for existing consumers.
+
+## 8.10.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.10.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.10.0
+
+### Minor Changes
+
+- [`9b594c204939a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b594c204939a) -
+  [ux] Add Rovo Chat avatar
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.29
+
+### Patch Changes
+
+- [`ce4bca26fddc1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce4bca26fddc1) -
+  Add a document writer generated avatar.
+- Updated dependencies
+
+## 8.9.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.23
+
+### Patch Changes
+
+- [`58af51ca2cc2f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/58af51ca2cc2f) -
+  Add agent profile card to mention typeahead in Jira
+- Updated dependencies
+
+## 8.9.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.15
+
+### Patch Changes
+
+- [`3516c9fac5ea8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3516c9fac5ea8) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall`.
+- Updated dependencies
+
+## 8.9.14
+
+### Patch Changes
+
+- [`bcfe498b206d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcfe498b206d5) -
+  Adopt button and list-item motion tokens behind the use-pressable-motion rollout.
+
+## 8.9.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.7
+
+### Patch Changes
+
+- [`44a80d90ea61d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44a80d90ea61d) -
+  Migrate Pressable hover and pressed colour transitions to semantic motion tokens behind
+  platform-dst-motion-uplift-custom-button.
+- Updated dependencies
+
+## 8.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.4
+
+### Patch Changes
+
+- [`2339c88f41eaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2339c88f41eaa) -
+  Adds the Jira Scoping Agent avatar behind the jira_ai_task_level_planning_ootb_agent rollout.
+- Updated dependencies
+
+## 8.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.0
+
+### Minor Changes
+
+- [`b2a45610e0caa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b2a45610e0caa) -
+  Update i18n NPM package versions for ai-mate,ai,ai-opt-in,insights-ai-platform (Group 2)
+
+## 8.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.0
+
+### Minor Changes
+
+- [`bfdf195b0f2be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bfdf195b0f2be) -
+  Cleanup feature gate `rovo_agent_star_icon_button`. Use the accessible icon button for starring
+  agents.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.0
+
+### Minor Changes
+
+- [`fa9c2e2279c7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa9c2e2279c7b) -
+  Add a dedicated out-of-the-box avatar for the Request router agent (external config reference
+  `jsm_service_triage_agent`), which previously fell back to a hash-generated generic avatar.
+
+## 8.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.0
+
+### Minor Changes
+
+- [`5fbac0cd20e28`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5fbac0cd20e28) -
+  updating svg for request-resolver agent
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`6997a74055219`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6997a74055219) -
+  Add profile card on hover in the mentions typeahead for agent mentions
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.0
+
+### Minor Changes
+
+- [`4041e39ab85ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4041e39ab85ea) -
+  updating icon for rovo service agent
+
+## 8.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.0
+
+### Minor Changes
+
+- [`236f9e8bbe74e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/236f9e8bbe74e) -
+  Refine browse agent iconography, avatar cover colors, and sizing
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.13
+
+### Patch Changes
+
+- [`82d4773eb679e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/82d4773eb679e) -
+  Add a blue avatar for the Tech Writer agent
+- Updated dependencies
+
+## 8.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.11
+
+### Patch Changes
+
+- [`e0edc05cd52d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0edc05cd52d7) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall` as a 1:1 size rename with no visual
+  change.
+- Updated dependencies
+
+## 8.2.10
+
+### Patch Changes
+
+- [`d4335d42eedbd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4335d42eedbd) -
+  chore: migrate gemini VR examples to ap-headless pattern
+
+  Rename all VR example/fixture files to the \`\*.vr.ap.<ext>\` naming convention so the Atlaspack
+  (ap) bundler can discover them via the Headless Entry API.
+
+## 8.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`dc937f627fb6f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dc937f627fb6f) -
+  Volt Components - Update imports for @atlaskit/icon in ai-mate after flattening entrypoint
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- [`f75155b315007`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f75155b315007) -
+  Remove jira_browse_agents_modal feature gate (winning variant: true). Inline truthy branches,
+  delete dead code, and clean up test wrappers.
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`d5a23742161f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d5a23742161f6) -
+  Update i18n NPM package versions for ai-mate,ai,ai-opt-in,insights-ai-platform (Group 2)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- [`d5999d2cd6719`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d5999d2cd6719) -
+  Use the ADS icon button for agent favourite actions.
+- Updated dependencies
+
+## 8.0.0
+
+### Major Changes
+
+- [`53dd004a01fc4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/53dd004a01fc4) -
+  Removes the Rovo creator icon on the agent profile card and across all other surfaces where this
+  is used. Removes the `hideCreatorIcon` prop from agent profile info - all usages have been cleaned
+  up in this PR
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.2
+
+### Patch Changes
+
+- [`7722b9396665c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7722b9396665c) -
+  Add the Servo team as both a Trusted Committer and Trusted Reviewer Team in the `compass.yml` of
+  Agents FE-owned packages. This lets the Servo sister team raise and approve PRs in these packages
+  without waiting for Agents FE owner approval. No functional/runtime change.
+- Updated dependencies
+
+## 7.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.0
+
+### Minor Changes
+
+- [`aa85779ad72a8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa85779ad72a8) -
+  [ux] Update agent profile and make delete option optional
+
+### Patch Changes
+
+- [`f3f5ada0cba94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3f5ada0cba94) -
+  Align the agent profile card styling with Figma, gated on
+  `platform_editor_agent_mentions_drop_one_fixes` and the `platform_editor_agent_mentions`
+  experiment
+
+## 7.4.4
+
+### Patch Changes
+
+- [`9965db56641a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9965db56641a6) -
+  Update the Slack channel link in compass.yml for Agents FE owned packages to point to
+  #rovo-agents-frontend.
+- Updated dependencies
+
+## 7.4.3
+
+### Patch Changes
+
+- [`3459b8faed8ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3459b8faed8ba) -
+  Clean up the shipped `rovo_chat_3p_app_discovery_m1_experiment` and the shadowed
+  `post-office_rovo-chat_thinking-deeper` menu path. This removes the obsolete ChatModeMenu UI, its
+  popup variants, and its spotlight code.
+
+  Breaking changes:
+  - Remove `changeChatModeMenuAlignmentToBottomStart` from `RovoChatPromptInput`. The `ChatModeMenu`
+    implementation it configured has been removed.
+
+  `showChatModeMenu`, `shouldRenderChatModeMenusInPortal`, `customSlotBeforeChatModeMenu`, and
+  `UIConfig.elements.chatModeMenuButton` remain supported. They now apply to the surviving source
+  and reasoning footer controls.
+
+- Updated dependencies
+
+## 7.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.1
+
+### Patch Changes
+
+- [`6b27fa50e913b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6b27fa50e913b) -
+  Add fixed OOTB avatar mappings for Planner, Discovery and Feedback, and Daily Brief agents.
+
+## 7.4.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`b84f653c93be0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b84f653c93be0) -
+  Update i18n NPM package versions for ai-mate,ai,ai-opt-in,insights-ai-platform (Group 2)
+
+## 7.2.0
+
+### Minor Changes
+
+- [`6cee291426484`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6cee291426484) -
+  Added `shouldRenderToParent` prop to `AgentDropdownMenu` and enabled for the actions dropdown on
+  the View Agent modal
+
+## 7.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`9ed7de31803c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ed7de31803c7) -
+  Updating rovo_hide_remote_a2a_agent_creator to be an experiment
+  rovo_hide_remote_a2a_agent_creator_exp instead of feature gate as per SPRT
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- [`1562c8fde9669`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1562c8fde9669) -
+  Add @ts-expect-error suppressions for TypeScript errors surfaced after enabling
+  typescriptExcludeUndefinedFromNullableUnion in the Relay compiler config.
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`3c682874dac06`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c682874dac06) -
+  [ux] Hide the "Agent by …" creator attribution for `REMOTE_A2A` agents on the agent profile card,
+  thebrowse agents modal view-agent panel, and agent cards.
+  Behind`rovo_hide_remote_a2a_agent_creator`.
+
+## 5.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.2
+
+### Patch Changes
+
+- [`6b637cd3a7ff3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6b637cd3a7ff3) -
+  Fix Jira Coding Agent profilecard showing old green Rovo Dev avatar and banner.
+
+  The `creator_type` field for the Jira Coding Agent is still `'ROVO_DEV'` (not updated at the
+  source), which caused `isRovoDev` to be `true` and the profilecard to render the legacy green
+  avatar and banner header.
+
+  When the `devai-rdij-to-jira-coding-agent` gate is enabled, the `isRovoDev` check now also
+  verifies the agent name is `'rovo dev'` (case-insensitive). If the name is anything else (e.g.
+  `'Jira Coding Agent'`), `isRovoDev` is `false` and the agent falls through to the named-avatar
+  lookup via `external_config_reference`.
+
+  A new `jira_coding_agent` entry has been added to `outOfTheBoxAgentAvatar` with a Jira icon on a
+  blue hexagon background, matching the backfilled identity avatar.
+
+## 5.2.1
+
+### Patch Changes
+
+- [`704255fb1bd8d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/704255fb1bd8d) -
+  Adding avatar for triage agent
+
+## 5.2.0
+
+### Minor Changes
+
+- [`77d13ee041600`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77d13ee041600) -
+  [ux] Update agent profile card design
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`2a6f508e4e6d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a6f508e4e6d2) -
+  Hide Rovo logo, hide behaviour, and show 'Agent by …' for REMOTE_A2A agents on the agent profile
+  card and the browse agents modal view-agent panel.
+
+## 5.0.0
+
+### Major Changes
+
+- [`b0222d13caefe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b0222d13caefe) -
+  Replace `@typescript-eslint/no-explicit-any` suppressions with real types across
+  rovo-content-bridge and rovo-platform packages (TREX-1392).
+
+  Key changes:
+  - `rovo-content-bridge-api`: Replace `any` in `CommandConstructor`, type guards, handlers,
+    debugger, and desktop transport with `unknown`, typed event interfaces, and a new `WebContents`
+    interface.
+  - `rovo-content-bridge-api-commands`: Replace `any` fields with `SerializableValue` in chart,
+    Jira, and content commands.
+  - `rovo-playground`: Replace `any` in plugin config, settings store, and ADF utilities with
+    `unknown` and recursive typed nodes.
+  - `rovo-platform-ui-components`, `rovo-navigation`, `rovo-spaces`, `rovo-triggers`,
+    `rovo-agent-analytics`, `rovo-agent-components`, `rovo-chat-side-by-side-evaluation`,
+    `rovo-agent-debug-modal`: Replace remaining `any` occurrences with `unknown`, typed interfaces,
+    or properly inferred types.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.7.0
+
+### Minor Changes
+
+- [`c5948348a4e51`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5948348a4e51) -
+  TREX-1373 (part 3/3): add @typescript-eslint/no-explicit-any OXLint suppression comments across
+  rovo-\* and misc packages. Includes OXLint override and Mithril ratchet to prevent new
+  suppressions.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.6.0
+
+### Minor Changes
+
+- [`2f13c6822ad55`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f13c6822ad55) -
+  [TREX-1413] Add presentational `AgentResponseHat` (above assistant messages) and `AgentInputHat`
+  (above the chat prompt input) components for per-turn agent attribution. Both render under the
+  `rovo_chat_agent_identity_ui` feature gate; data wiring (selected agent, dismiss callback) is
+  intentionally not yet connected and will land with TREX-1410/TREX-1411.
+
+  Also:
+  - Adds shared `deriveAgentIdentity` helper in `@atlaskit/rovo-agent-components` (subpath:
+    `ui/agent-identity/derive-agent-identity`) that centralises specialist-vs-default detection,
+    visible/accessible name derivation, and Forge prop gating via `rovo_agent_support_a2a_avatar`.
+    Both hats consume this helper to avoid drift.
+  - Extends `Message.author` in `@atlassian/conversation-assistant-service-api` with
+    `external_config_reference`, `identity_account_id`, `creator_type`, and `icon` so
+    `AgentResponseHat` receives the right inputs once TREX-1411 wires live data. Also marks the
+    existing `named_id` field as `@deprecated` in favour of `external_config_reference` for OOTB
+    avatar lookup.
+  - Adds storybook examples (`73-agent-response`, `74-chat-prompt-input`) for visual validation.
+
+## 4.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.0
+
+### Minor Changes
+
+- [`23c709ec00f33`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/23c709ec00f33) -
+  add jira work agent avatar icon
+
+## 4.4.2
+
+### Patch Changes
+
+- [`267b2bb06c564`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/267b2bb06c564) -
+  Internal dependency change: switch from pinned Relay v17 aliases to root:\* and upgraded root to
+  Relay v20.1.1. No public API changes.
+- Updated dependencies
+
+## 4.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.4.0
+
+### Minor Changes
+
+- [`9caad6633bc3d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9caad6633bc3d) -
+  Add jira_admin_agent avatar to out-of-the-box agent avatars.
+
+## 4.3.2
+
+### Patch Changes
+
+- [`ab6e1ed0c80d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab6e1ed0c80d9) -
+  We have added the jira_admin_agent as an option such that it has an allocated ottb agent icon
+
+## 4.3.1
+
+### Patch Changes
+
+- [`3f13070221110`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f13070221110) -
+  Clean up stale feature gate `rovo_dev_themed_identity_card`. The gated code path is now
+  permanently enabled.
+
+## 4.3.0
+
+### Minor Changes
+
+- [`892d2b5b986db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/892d2b5b986db) -
+  casing change for agent operations
+
+## 4.2.0
+
+### Minor Changes
+
+- [`266566c8db777`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/266566c8db777) -
+  Duplicate agent via BE mutation when versioning is enabled Changing all duplicate touchpoints to
+  do useMutation and then redirect. So this requires chaging all the onDuplicate to return Promise
+  and handles the loading state.
+
+  3 places where it changes:
+  - conversation-assistant-agent useAgentUrlActions - this is browse agent modal, view agent modal,
+    agent profile, chat sidebar, studio migration modal
+  - atlassian-studio AgentContextMenu - studio `...` buttons in side nav, agent title bar `...`
+  - profile-card useAgentUrlActions - Agent profile card (no relay)
+
+## 4.1.0
+
+### Minor Changes
+
+- [`af7c97b639e4f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/af7c97b639e4f) -
+  Removed hardcoded `borderRadius` pixel values from `Skeleton` components
+
+## 4.0.0
+
+### Major Changes
+
+- [`8004b39cfac18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8004b39cfac18) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 3.49.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.49.1
+
+### Patch Changes
+
+- [`47b02f048ca4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47b02f048ca4a) -
+  Enrol search and ai-mate packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 3.49.0
+
+### Minor Changes
+
+- [`344cad68b44ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/344cad68b44ee) -
+  Clean up flag to improve accessibility of links.
+
+## 3.48.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.48.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.48.0
+
+### Minor Changes
+
+- [`5763146cffd44`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5763146cffd44) - -
+  Update AgentCreatorType import from @atlassian/rovo-agent-components.
+  - Update `AssistanceService.getAgentKnowledgeConfiguration` to accept an optional
+    `agentCreatorType` to pass as query params to the underlying `/knowledge` endpoint.
+  - Update `KnowledgeSourcesField` to pass in `creatorType` value, under a FG
+    `rovo_agent_knowledge_source_allow_list`.
+
+## 3.47.0
+
+### Minor Changes
+
+- [`f04cf52b53925`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f04cf52b53925) -
+  [ux] This change adds two new props to the browse agent modal and view agent modal to optionally
+  allow additional content and CTA to be rendered in the agent profile. An opt-in change to the chat
+  button has also been added to account for reduced space when the CTA is used.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.46.3
+
+### Patch Changes
+
+- [`255cf43792087`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/255cf43792087) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 3.46.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.46.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.46.0
+
+### Minor Changes
+
+- [`d4c66fd8ab94f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4c66fd8ab94f) -
+  Add agentName to LinkIconButton and StarIconButton labels for unique accessible names across agent
+  cards
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.45.0
+
+### Minor Changes
+
+- [`4434681e268dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4434681e268dc) -
+  update rovo logo
+
+## 3.44.0
+
+### Minor Changes
+
+- [`b9ad62060f899`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9ad62060f899) -
+  Add avatar for Lovable agent (OOTB)
+
+## 3.43.0
+
+### Minor Changes
+
+- [`687a8de6184c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/687a8de6184c3) -
+  [ux] This change adds additional optional options to the dropdown menu on agent cards for the
+  browse agents modal. It also removes the showCreateAgentButtonInHeader prop from the browse agents
+  modal.
+
+## 3.42.0
+
+### Minor Changes
+
+- [`f502fb4f37f79`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f502fb4f37f79) -
+  [ux] add rovo agent logo
+
+## 3.41.0
+
+### Minor Changes
+
+- [`8036cb29672c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8036cb29672c7) -
+  Add avatar for Replit agent (OOTB)
+
+## 3.40.0
+
+### Minor Changes
+
+- [`e4034958fc116`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4034958fc116) -
+  Adjust event tracking for agent analytics to use new trackAgentEvent() method. Remove deprecated
+  trackAgentAction() export and exported action const enums
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.39.0
+
+### Minor Changes
+
+- [`e72179b379afd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e72179b379afd) -
+  Update isForgeAgentByCreatorType import
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.38.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.38.0
+
+### Minor Changes
+
+- [`a4789cedc2893`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4789cedc2893) -
+  Cleanup rovo_agent_empty_state_refresh FG
+
+## 3.37.0
+
+### Minor Changes
+
+- [`aa072e4b28464`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa072e4b28464) -
+  Add avatar for Gamma agent (OOTB)
+
+## 3.36.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.36.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.36.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.36.1
+
+### Patch Changes
+
+- [`3828b60d0308e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3828b60d0308e) -
+  Profile card now supports A2A agent authors properly
+
+## 3.36.0
+
+### Minor Changes
+
+- [`9ad74d8309d6f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ad74d8309d6f) -
+  Extracted `AgentNameSideNav` into new entry-point
+  `@atlaskit/rovo-agent-components/agent-name-side-nav`
+
+## 3.35.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.35.0
+
+### Minor Changes
+
+- [`28160ba7270df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28160ba7270df) -
+  Fixed various decorative icon a11y issues
+
+## 3.34.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.34.0
+
+### Minor Changes
+
+- [`beb9688ab2b20`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/beb9688ab2b20) -
+  Add avatar for Amplitude, Box, Canva, Figma, HubSpot and Intercom agents (OOTB)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.33.0
+
+### Minor Changes
+
+- [`ebdb0137330d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebdb0137330d9) -
+  Support REMOTE_A2A agent exposing isForgeAgentByCreatorType to public repo and deprecating
+  isForgeAgent from private repo
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.32.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.32.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.32.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.32.2
 
 ### Patch Changes

@@ -1,5 +1,308 @@
 # @atlaskit/media-filmstrip
 
+## 53.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.4.1
+
+### Patch Changes
+
+- [`bcfe498b206d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcfe498b206d5) -
+  Adopt button and list-item motion tokens behind the use-pressable-motion rollout.
+- Updated dependencies
+
+## 52.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.3.1
+
+### Patch Changes
+
+- [`ba1f311553ac9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba1f311553ac9) -
+  Replace hardcoded duration/easing CSS literals with motion.duration.\* and
+  motion.easing.out.practical tokens
+
+## 52.3.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.2.5
+
+### Patch Changes
+
+- [`be5f53435795e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be5f53435795e) -
+  Cleanup feature gate `platform_media_a11y_suppression_fixes`. The accessible wrapper behavior is
+  now permanent in media card, viewer, and filmstrip.
+- Updated dependencies
+
+## 52.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.1.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 52.1.0
+
+### Minor Changes
+
+- [`19773530cd51c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19773530cd51c) -
+  Add fallbackMediaNameFetcher support to MediaCard (FileCard) and MediaViewer (header display),
+  gated behind the platform_editor_media_name_fallback_viewer_card experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.3.1
+
+### Patch Changes
+
+- [`2fe9a9909d2ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe9a9909d2ac) -
+  Enrol media packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 51.3.0
+
+### Minor Changes
+
+- [`818d7e656a226`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/818d7e656a226) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.7
+
+### Patch Changes
+
+- [`9896ce8e69e57`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9896ce8e69e57) -
+  Improve accessibility across media packages with semantic button elements and i18n support, all
+  changes are behind feature flag
+- Updated dependencies
+
+## 51.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.5
+
+### Patch Changes
+
+- [`715629fc18fc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/715629fc18fc8) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 51.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 51.2.0
+
+### Minor Changes
+
+- [`5998a9dd8fa32`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5998a9dd8fa32) -
+  Cleanup platform_editor_disable_trigger_scroll_event feature gate
+
+## 51.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 51.1.9
 
 ### Patch Changes

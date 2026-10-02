@@ -6,8 +6,6 @@ import React from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { token } from '@atlaskit/tokens';
-
 const styles = cssMap({
 	text: {
 		// content can grow and shrink
@@ -31,22 +29,6 @@ const styles = cssMap({
 		lineHeight: 0,
 		userSelect: 'none',
 	},
-	/**
-	 * These CSS variables consumed by the new icons, to allow them to have appropriate
-	 * padding inside Button while also maintaining spacing for the existing icons.
-	 *
-	 * These styles can be removed once the new icons are fully rolled out, feature flag
-	 * platform-visual-refresh-icons is cleaned up,
-	 * and we bump Button to set padding based on the new icons.
-	 */
-	beforeIcon: {
-		'--ds--button--new-icon-padding-start': token('space.050'),
-		'--ds--button--new-icon-padding-end': token('space.025'),
-	},
-	afterIcon: {
-		'--ds--button--new-icon-padding-start': token('space.025'),
-		'--ds--button--new-icon-padding-end': token('space.050'),
-	},
 	common: {
 		transition: 'opacity 0.3s',
 	},
@@ -67,7 +49,7 @@ type ContentProps = {
  *
  * Used for slots within a Button, including icons and text content.
  */
-const Content = ({ children, type = 'text', isLoading, position }: ContentProps): JSX.Element => {
+const Content = ({ children, type = 'text', isLoading }: ContentProps): JSX.Element => {
 	return (
 		<span
 			css={[
@@ -75,8 +57,6 @@ const Content = ({ children, type = 'text', isLoading, position }: ContentProps)
 				type === 'text' && styles.text,
 				type === 'icon' && styles.icon,
 				isLoading && styles.fade,
-				position === 'before' && styles.beforeIcon,
-				position === 'after' && styles.afterIcon,
 			]}
 		>
 			{children}

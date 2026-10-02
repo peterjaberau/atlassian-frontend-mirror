@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { type FormApi, type OnSubmitHandler } from '@atlaskit/form';
+import type { FormApi, OnSubmitHandler } from '@atlaskit/form/types';
 
 import useEscapeToDismiss from '../components/useEscapeToDismiss';
 import { type FormValues } from '../types';
-
 import FeedbackAcknowledgement from './FeedbackAcknowledgement';
 import SignUpPrompt from './SignUpPrompt';
 import SignUpSuccess from './SignUpSuccess';
@@ -238,5 +237,12 @@ export default ({
 		tryDismiss(DismissTrigger.Manual);
 	}, [tryDismiss, tryClearTimeout]);
 
-	return <SurveyContainer headerImage={ currentStep === 'SURVEY' ? headerImage : undefined} onDismiss={manualDismiss}>{content}</SurveyContainer>;
+	return (
+		<SurveyContainer
+			headerImage={currentStep === 'SURVEY' ? headerImage : undefined}
+			onDismiss={manualDismiss}
+		>
+			{content}
+		</SurveyContainer>
+	);
 };

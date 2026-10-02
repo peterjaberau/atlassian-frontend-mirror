@@ -1,3 +1,4 @@
+import type { BlockTransformExtension } from '@atlaskit/editor-common/block-menu/block-transform-extension';
 import type {
 	EditorCommand,
 	NextEditorPlugin,
@@ -10,7 +11,11 @@ import type { SelectionPlugin } from '@atlaskit/editor-plugin-selection';
 import type { UserIntentPlugin } from '@atlaskit/editor-plugin-user-intent';
 import type { NodeType } from '@atlaskit/editor-prosemirror/model';
 
-import type { TransformNodeMetadata } from './editor-commands/transforms/types';
+import type {
+	TransformInlineNodeMetadata,
+	TransformNodeMarkChanges,
+	TransformNodeMetadata,
+} from './editor-commands/types';
 
 export enum FLAG_ID {
 	LINK_COPIED_TO_CLIPBOARD = 'link-copied-to-clipboard',
@@ -21,6 +26,8 @@ type TransformNodeCommand = (
 	metadata?: TransformNodeMetadata,
 ) => EditorCommand;
 
+type TransformInlineNodeCommand = (metadata: TransformInlineNodeMetadata) => EditorCommand;
+
 export type BlockMenuPlugin = NextEditorPlugin<
 	'blockMenu',
 	{
@@ -29,10 +36,13 @@ export type BlockMenuPlugin = NextEditorPlugin<
 			isTransformOptionDisabled: (
 				optionNodeTypeName: string,
 				optionNodeTypeAttrs?: Record<string, unknown>,
+				targetNodeMarkChanges?: TransformNodeMarkChanges,
 			) => boolean;
 			registerBlockMenuComponents: (blockMenuComponents: Array<RegisterBlockMenuComponent>) => void;
+			registerBlockMenuTransforms: (transforms: readonly BlockTransformExtension[]) => () => void;
 		};
 		commands: {
+			transformInlineNode: TransformInlineNodeCommand;
 			transformNode: TransformNodeCommand;
 		};
 		dependencies: [
@@ -59,6 +69,14 @@ export type BlockMenuPluginOptions = {
 	 * @returns The current link path as a string, or null if no path is available
 	 */
 	getLinkPath?: () => string | null;
+
+	/**
+	 * When true, nodes maintain their standard width without negative margins
+	 * for block menu compatibility. Used in contexts like Jira issue descriptions
+	 * where block menu controls need consistent spacing.
+	 * @default false
+	 */
+	useStandardNodeWidth?: boolean;
 };
 
 export type BlockMenuSharedState =
@@ -72,6 +90,11 @@ export type BlockMenuSharedState =
 			 * Whether to show a flag (e.g. for copy confirmation)
 			 */
 			showFlag: FLAG_ID | false;
+			/**
+			 * When true, nodes maintain their standard width without negative margins
+			 * for block menu compatibility.
+			 */
+			useStandardNodeWidth?: boolean;
 	  }
 	| undefined;
 
@@ -120,10 +143,15 @@ export type BlockMenuNestedSectionComponent = (props: {
 	children: React.ReactNode;
 }) => React.ReactNode;
 
-export type BlockMenuItemComponent = () => React.ReactNode;
+export type BlockMenuItemComponentProps = {
+	isSuggested?: boolean;
+};
+
+export type BlockMenuItemComponent = (props?: BlockMenuItemComponentProps) => React.ReactNode;
 
 export type RegisterBlockMenuNested = BlockMenuNested & {
 	component?: BlockMenuNestedComponent;
+	isHidden?: () => boolean;
 	parent: Parent<BlockMenuSection>;
 };
 

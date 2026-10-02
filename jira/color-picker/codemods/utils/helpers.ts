@@ -210,9 +210,7 @@ export function isUsingThroughSpread({
 							}
 
 							const match: boolean =
-								// @ts-ignore
 								value.init.properties.filter(
-									// @ts-ignore
 									(property) =>
 										property.type === 'ObjectProperty' &&
 										property.key.type === 'Identifier' &&
@@ -275,7 +273,7 @@ export function addCommentToStartOfFile({
 	base: Collection<Node>;
 	j: core.JSCodeshift;
 	message: string;
-}) {
+}): void {
 	addCommentBefore({
 		j,
 		// @ts-ignore
@@ -292,7 +290,7 @@ export function addCommentBefore({
 	j: core.JSCodeshift;
 	message: string;
 	target: Collection<Node>;
-}) {
+}): void {
 	const content: string = ` TODO: (from codemod) ${clean(message)} `;
 	target.forEach((path) => {
 		path.value.comments = path.value.comments || [];
@@ -314,7 +312,7 @@ export function updateRenderProps(
 	specifier: string,
 	oldProperty: string,
 	newProperty: string,
-) {
+): void {
 	source.findJSXElements(specifier).forEach((element: ASTPath<JSXElement>) => {
 		j(element)
 			.find(j.ArrowFunctionExpression)

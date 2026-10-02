@@ -1,5 +1,1757 @@
 # @atlaskit/editor-plugin-tasks-and-decisions
 
+## 26.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.3
+
+### Patch Changes
+
+- [`85394203c5e0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85394203c5e0a) -
+  Cleanup `platform_editor_markdown_compatible_toolbar`.
+- Updated dependencies
+
+## 25.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.4
+
+### Patch Changes
+
+- [`a034f535638cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a034f535638cc) -
+  Add structured Quick Insert previews with localised title, description and attribution under
+  platform_editor_slash_command.
+
+  Exclude footer and category navigation actions from previews. Left-align attribution, use subtle
+  title and attribution text, and default description text.
+
+  Show text previews even without preview metadata, and reserve a fixed image area while images load
+  or when they fail. Keep previews within the viewport, flipping left when needed, with compact
+  panel dimensions and typography.
+
+  Replace baked panel screenshots with image-only assets. Remove image fields from text-only legacy
+  previews while preserving their attribution.
+
+  Let extension providers own their preview images and attribution. Pass preview metadata through
+  the Company Hub manifest factory and remove Editor's fallback preview registry.
+
+  Localize provider attribution names and display Confluence and Jira product icons instead of the
+  attribution prefix when an icon is present. Allow the Dropbox manifest to receive the host's
+  message formatter.
+
+- Updated dependencies
+
+## 24.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.0
+
+### Minor Changes
+
+- [`5c5d7a5bbff74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c5d7a5bbff74) -
+  Cleanup `feature_gate` `platform_editor_element_browser_analytic`. Insert analytics permanently
+  report the caller's actual input method rather than always attributing the insertion to
+  `quickInsert`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- [`3b3e57040d2d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b3e57040d2d0) -
+  Remove retired flexible-list feature controls and schema styles while preserving shipped list
+  normalization, hidden-marker rendering for wrapper list items, task paste and task-list tab
+  behavior, and toolbar indentation behavior.
+
+  Remove unused legacy list utilities after the flexible-list rollout: `flattenList`,
+  `normalizeListItemsSelection`, `hasValidListIndentationLevel`,
+  `processNestedTaskListsInSameLevel`, and `wrapTaskListIntoListAbove`. The
+  `@atlaskit/editor-common/lists/indentation` entrypoint is also removed.
+
+  Consumers of the removed runtime helpers should use the editor list plugin's indent/outdent
+  commands. The shared `FlattenedItem`, `FlattenListOptions`, and `FlattenListResult` types remain
+  available for the active list implementations.
+
+- Updated dependencies
+
+## 21.0.11
+
+### Patch Changes
+
+- [`88fb7a8d4013a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88fb7a8d4013a) -
+  [ux] Add optional light and dark preview URLs to slash-command menu items and pass theme-aware
+  previews to supported commands when the `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 21.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.6
+
+### Patch Changes
+
+- [`9e6211ceb4ceb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e6211ceb4ceb) -
+  Clean up the fully rolled-out `platform_editor_small_font_size` experiment and make its permanent
+  `true` behavior unconditional across editor formatting, task and list handling, paste behavior,
+  controls, and rendering.
+- Updated dependencies
+
+## 21.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- [`077f0fa90b5c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/077f0fa90b5c9) -
+  Clean up experiment `platform_editor_prevent_taskitem_remount`
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- [`aca1f7aaf3fd6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aca1f7aaf3fd6) -
+  Remove the fully rolled-out `platform_editor_exp_lazy_node_views` experiment and call the block
+  card, embed card, extension, table, and task node views directly.
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.1
+
+### Patch Changes
+
+- [`bcfe498b206d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcfe498b206d5) -
+  Adopt button and list-item motion tokens behind the use-pressable-motion rollout.
+- Updated dependencies
+
+## 19.2.0
+
+### Minor Changes
+
+- [`18d27cec35407`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18d27cec35407) -
+  [ux] FFCLEANUP-81253 Cleanup of experiment platform_editor_blocktaskitem_patch_1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- [`44a80d90ea61d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44a80d90ea61d) -
+  Migrate Pressable hover and pressed colour transitions to semantic motion tokens behind
+  platform-dst-motion-uplift-custom-button.
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- [`d82ea790b5c1c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82ea790b5c1c) -
+  Update registered slash-command menu icons, including the Jira datasource WorkItems icon, when the
+  `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.15
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 18.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- [`4273da2e1a648`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4273da2e1a648) -
+  Register native Quick Insert items behind `platform_editor_slash_command`.
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.6
+
+### Patch Changes
+
+- [`3c4994f354f5f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c4994f354f5f) -
+  [ux] Fix content order being corrupted when indenting or outdenting a list item that has content
+  placed between its sub-lists (e.g. `li(p, ul, p, ul)`).
+- Updated dependencies
+
+## 15.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.0
+
+### Minor Changes
+
+- [`4b43e68ec0c47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b43e68ec0c47) -
+  Clean up feature gate platform_editor_toolbar_task_list_analytics. Task list toolbar analytics are
+  now always tracked.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`b483e293da76f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b483e293da76f) -
+  Add a gated `isSuggested` attribute to block menu element transformed analytics events so
+  suggested and non-suggested transform selections can be distinguished. The event attribute is
+  gated behind the `platform_editor_blocks_patch_2` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.0
+
+### Minor Changes
+
+- [`f89de6a3f94b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f89de6a3f94b5) -
+  Clean up stale experiment editor_a11y_decision_aria_label. Decision items now always render
+  dynamic aria-labels based on empty/filled state.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.5
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 14.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`1c50b36642fde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c50b36642fde) -
+  Update toolbar indentation disabled states
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.2
+
+### Patch Changes
+
+- [`2c2360f6ef073`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c2360f6ef073) -
+  Move \_MarkdownModePluginStub to @atlaskit/editor-common
+- Updated dependencies
+
+## 13.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.0
+
+### Minor Changes
+
+- [`3b79e10490ac2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b79e10490ac2) -
+  Support markdown source view list and task toolbar actions
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.9
+
+### Patch Changes
+
+- [`9ea3b02135766`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ea3b02135766) -
+  EDITOR-5613: Remove flexible list variants and consolidate into base list types.
+
+  The `listItem` and `taskList` node specs now natively support the flexible content model (allowing
+  lists as first child of listItem, and nested taskLists without requiring taskItem first). The
+  separate `listItemWithFlexibleFirstChildStage0` and `taskListWithFlexibleFirstChildStage0`
+  variants have been removed from public exports — the flexible behavior is now the default for all
+  schema stages. Consumers importing these removed exports should switch to `listItem` / `taskList`.
+
+  This is a schema simplification: the flexible content spec is a strict superset of the old
+  restrictive spec, so all previously valid content remains valid.
+
+- Updated dependencies
+
+## 13.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`e5cdd96dcf4f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5cdd96dcf4f9) -
+  Clean up platform_editor_hydratable_ui experiment (shipped as enabled)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- [`402738b592e0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/402738b592e0b) -
+  Fix invalid flexible list structures caused by delete, paste, and typing operations.
+
+  Under platform_editor_flexible_list_schema, operations that remove content spanning list or task
+  list items could leave nodes with a nested list as their first child instead of a required
+  paragraph/item. Normalisation now runs efficiently on all relevant transactions in
+  appendTransaction.
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.18
+
+### Patch Changes
+
+- [`1bd298ad0a152`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bd298ad0a152) -
+  [ux] EDITOR-6280 Clean up platform_editor_block_menu_v2_patch_3 to fix icon and copy in jira block
+  menu
+- Updated dependencies
+
+## 11.4.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.13
+
+### Patch Changes
+
+- [`9ff7d1c1aa288`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ff7d1c1aa288) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 11.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.8
+
+### Patch Changes
+
+- [`e3da94ed988bc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3da94ed988bc) -
+  Fix task list indentation producing two sibling taskLists when indenting an item that has a nested
+  sibling. When a selected (moved) item establishes a wrapper at a given depth, subsequent
+  unselected items at the same depth now merge into that wrapper rather than creating a separate
+  sibling taskList.
+- Updated dependencies
+
+## 11.4.7
+
+### Patch Changes
+
+- [`3e18e5bea1aa1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e18e5bea1aa1) -
+  Fixed cursor placement when pressing Enter at the start of a nested task item. Fixed extra spacing
+  on nested task lists when flexible list indentation is enabled.
+- Updated dependencies
+
+## 11.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.4
+
+### Patch Changes
+
+- [`1c4534dc921e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c4534dc921e6) -
+  Preserve small text formatting when converting selections to task lists across block menu, block
+  type, and paste flows
+- Updated dependencies
+
+## 11.4.3
+
+### Patch Changes
+
+- [`e2f512c5e8eba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2f512c5e8eba) -
+  Clean up feature flag platform_editor_task_item_styles for task item checkbox and remove unused
+  styles objects taskItemCheckboxStylesWithBlockTaskItem and taskItemCheckboxStyles. Renamed
+  taskItemNextCheckboxStyles to taskItemCheckboxStyles
+- Updated dependencies
+
+## 11.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.0
+
+### Minor Changes
+
+- [`b749ce678d575`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b749ce678d575) -
+  Preserve small text formatting across list and task list edits
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.4
+
+### Patch Changes
+
+- [`86fd5ef0f1d07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/86fd5ef0f1d07) -
+  Mechanical type-import autofix for text formatting editor plugins.
+- Updated dependencies
+
+## 11.3.3
+
+### Patch Changes
+
+- [`9b33b26d69865`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b33b26d69865) -
+  Narrow list replacement range during indent/outdent for collab-friendly cursor preservation
+- Updated dependencies
+
+## 11.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.1
+
+### Patch Changes
+
+- [`aa4e1fcb89ca8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa4e1fcb89ca8) -
+  Added new `platform_editor_flexible_list_schema` experiment that independently enables ADF schema
+  and CSS rendering support for flexible lists, without creation behaviour. Updated schema node
+  selection, CSS rendering, ADF validation, and task list schema to use the new gate. Indent/outdent
+  behaviour remains on the existing `platform_editor_flexible_list_indentation` gate.
+- Updated dependencies
+
+## 11.3.0
+
+### Minor Changes
+
+- [`65cb641586cc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/65cb641586cc0) -
+  Add flexible per-item task list indentation with breakout support behind
+  platform_editor_flexible_list_indentation experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.1
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`b50791532c24a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b50791532c24a) -
+  [FFCLEANUP-79900] Remove experiment editor_refactor_backspace_task_and_decisions
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.7
+
+### Patch Changes
+
+- [`9ed32aea2c1d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ed32aea2c1d3) -
+  Replace feature experiment util with cross platform alternative for platform_editor_block_menu
+- Updated dependencies
+
+## 11.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`71fb8b5aa2558`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71fb8b5aa2558) -
+  [FFCLEANUP-79003] clean up feature flag platform_editor_blocktaskitem_patch_2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`d78ff724d3bce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d78ff724d3bce) -
+  i18n aria labels for decision image icon (either Decision or Undefined decision)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.28
+
+### Patch Changes
+
+- [`aeb46591ec80a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aeb46591ec80a) -
+  [ux] EDITOR-5627 flexible task list indentation adf schema updates
+- Updated dependencies
+
+## 10.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.22
+
+### Patch Changes
+
+- [`7ea2e225c0abb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ea2e225c0abb) -
+  [ux] Minor styling, wording changes for block menu and sync blocks
+- Updated dependencies
+
+## 10.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.16
+
+### Patch Changes
+
+- [`5decb780f02e0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5decb780f02e0) -
+  ED-29766: Add analytics instrumentation to task list toolbar button
+- Updated dependencies
+
+## 10.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 10.1.13
 
 ### Patch Changes

@@ -3,9 +3,12 @@
  * @jsx jsx
  */
 import React from 'react';
-import { components, type ClearIndicatorProps } from '@atlaskit/select';
-import { token } from '@atlaskit/tokens';
+
 import { cssMap, jsx } from '@compiled/react';
+
+import { components } from '@atlaskit/react-select/components';
+import type { ClearIndicatorProps } from '@atlaskit/select/types';
+import { token } from '@atlaskit/tokens';
 
 const AsyncTooltip = React.lazy(() =>
 	import(/* webpackChunkName: "@atlaskit-internal_@atlaskit/tooltip" */ '@atlaskit/tooltip').then(
@@ -44,15 +47,13 @@ export class ClearIndicator extends React.PureComponent<ClearIndicatorProps<any>
 		// Prevent focus when clear on blurred state
 		const { clearValue, selectProps } = this.props;
 		clearValue();
-		//@ts-ignore react-select unsupported props
 		if (selectProps && !selectProps.isFocused) {
 			event.stopPropagation();
 		}
 	};
 
-	render() {
+	render(): JSX.Element {
 		const {
-			//@ts-ignore react-select unsupported props
 			selectProps: { clearValueLabel },
 		} = this.props;
 		const Indicator = (

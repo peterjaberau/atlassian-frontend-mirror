@@ -3,11 +3,12 @@ import { isNodeOfType } from 'eslint-codemod-utils';
 
 import renameMapping from '@atlaskit/tokens/rename-mapping';
 import tokenDefaultValues from '@atlaskit/tokens/token-default-values';
-import { getTokenId } from '@atlaskit/tokens/token-ids';
 import tokens from '@atlaskit/tokens/token-names';
+import { getTokenId } from '@atlaskit/tokens/utils/get-token-id';
 
-import { createLintRule } from '../utils/create-rule';
-import { isDecendantOfStyleBlock, isDecendantOfStyleJsxAttribute } from '../utils/is-node';
+import { createLintRule } from '../utils/create-lint-rule';
+import { isDecendantOfStyleBlock } from '../utils/is-decendant-of-style-block';
+import { isDecendantOfStyleJsxAttribute } from '../utils/is-decendant-of-style-jsx-attribute';
 import { isToken } from '../utils/is-token';
 
 type PluginConfig = {

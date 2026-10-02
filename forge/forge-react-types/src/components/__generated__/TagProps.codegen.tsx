@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - TagProps
  *
- * @codegen <<SignedSource::8dd4fdab8ec8a06ebdaa818808a12d3a>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/tag/__generated__/index.partial.tsx <<SignedSource::1f9f7073797cd01947c622c0400785ae>>
+ * @codegen <<SignedSource::207ff41907aa29f2807a61c193049a84>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/tag/__generated__/index.partial.tsx <<SignedSource::c7b50bdfe39850c3363f4d8e0c100e53>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import { SimpleTag as PlatformSimpleTag } from '@atlaskit/tag';
+import PlatformSimpleTag from '@atlaskit/tag/tag/simple';
 
 type PlatformSimpleTagProps = React.ComponentProps<typeof PlatformSimpleTag>;
 

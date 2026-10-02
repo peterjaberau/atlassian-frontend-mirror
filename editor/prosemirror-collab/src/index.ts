@@ -1,14 +1,11 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 import { v4 as uuidv4 } from 'uuid';
 
+import type { Node } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { Plugin, PluginKey, TextSelection } from '@atlaskit/editor-prosemirror/state';
-import type {
-	Step as ProseMirrorStep,
-	Transform as ProseMirrorTransform,
-} from '@atlaskit/editor-prosemirror/transform';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import type { Transform as ProseMirrorTransform } from '@atlaskit/editor-prosemirror/transform';
+import type { Step as ProseMirrorStep } from '@atlaskit/editor-prosemirror/transform-override';
 
 import { mapStep } from './movedContent';
 
@@ -24,7 +21,7 @@ export function rebaseSteps(
 	steps: readonly Rebaseable[],
 	over: readonly ProseMirrorStep[],
 	transform: ProseMirrorTransform,
-) {
+): Rebaseable[] {
 	for (let i = steps.length - 1; i >= 0; i--) {
 		transform.step(steps[i].inverted);
 	}
@@ -35,9 +32,7 @@ export function rebaseSteps(
 	for (let i = 0, mapFrom = steps.length; i < steps.length; i++) {
 		const mapped = steps[i].step.map(transform.mapping.slice(mapFrom));
 
-		const movedStep = editorExperiment('platform_editor_offline_editing_web', true)
-			? mapStep(steps, transform, i, mapped)
-			: undefined;
+		const movedStep = mapStep(steps, transform, i, mapped);
 
 		mapFrom--;
 		if (mapped && !transform.maybeStep(mapped).failed) {
@@ -54,16 +49,14 @@ export function rebaseSteps(
 		}
 
 		// If the step is a "move" step - apply the additional step
-		if (editorExperiment('platform_editor_offline_editing_web', true)) {
-			if (movedStep && !transform.maybeStep(movedStep).failed) {
-				result.push(
-					new Rebaseable(
-						movedStep,
-						movedStep.invert(transform.docs[transform.docs.length - 1]),
-						transform,
-					),
-				);
-			}
+		if (movedStep && !transform.maybeStep(movedStep).failed) {
+			result.push(
+				new Rebaseable(
+					movedStep,
+					movedStep.invert(transform.docs[transform.docs.length - 1]),
+					transform,
+				),
+			);
 		}
 	}
 	return result;
@@ -134,14 +127,7 @@ export function collab(config: CollabConfig = {}): Plugin {
 			apply(tr, collab) {
 				const newState = tr.getMeta(collabKey);
 				if (newState) {
-					if (
-						editorExperiment('platform_editor_offline_editing_web', true) ||
-						expValEquals('platform_editor_enable_single_player_step_merging', 'isEnabled', true)
-					) {
-						return new CollabState(newState.version, transformUnconfirmed(newState.unconfirmed));
-					} else {
-						return newState;
-					}
+					return new CollabState(newState.version, transformUnconfirmed(newState.unconfirmed));
 				}
 				if (tr.docChanged) {
 					return new CollabState(
@@ -170,7 +156,7 @@ export function collab(config: CollabConfig = {}): Plugin {
  * @param state The editor state
  * @returns The document before the unconfirmed steps were applied
  */
-export function getDocBeforeUnconfirmedSteps(state: EditorState) {
+export function getDocBeforeUnconfirmedSteps(state: EditorState): Node {
 	const tr = state.tr;
 	const { version, unconfirmed } = collabKey.getState(state) ?? {};
 
@@ -253,7 +239,7 @@ export function receiveTransaction(
 		/// reasons of backwards compatibility.
 		mapSelectionBackward?: boolean;
 	} = {},
-) {
+): Transaction {
 	// Pushes a set of steps (received from the central authority) into
 	// the editor state (which should have the collab plugin enabled).
 	// Will recognize its own changes, and confirm unconfirmed steps as

@@ -1,43 +1,38 @@
-export {
-	SideNavigation,
-	Header,
-	NavigationHeader,
-	NavigationContent,
-	Section,
-	HeadingItem,
-	SkeletonHeadingItem,
-	NestableNavigationContent,
-	NestingItem,
-	ButtonItem,
-	LinkItem,
-	GoBackItem,
-	CustomItem,
-	SkeletonItem,
-	Footer,
-	NavigationFooter,
-	LoadingItems,
-} from './components';
-export type {
-	CustomItemComponentProps,
-	CustomItemProps,
-	LoadingItemsProps,
-	ButtonItemProps,
-	FooterProps,
-	GoBackItemProps,
-	HeaderProps,
-	HeadingItemProps,
-	LinkItemProps,
-	NavigationContentProps,
-	NavigationFooterProps,
-	NavigationHeaderProps,
-	NestableNavigationContentProps,
-	NestingItemProps,
-	SectionProps,
-	SideNavigationProps,
-	SkeletonHeadingItemProps,
-	SkeletonItemProps,
-} from './components';
+export { SideNavigation } from './components/SideNavigation';
+export type { SideNavigationProps } from './components/SideNavigation';
+export { Section } from './components/Section/section';
+export { HeadingItem } from './components/Section/heading-item';
+export { SkeletonHeadingItem } from './components/Section/skeleton-heading-item';
+export type { HeadingItemProps } from './components/Section/heading-item';
+export type { SectionProps } from './components/Section/section';
+export type { SkeletonHeadingItemProps } from './components/Section/skeleton-heading-item';
+export { NestingItem } from './components/NestingItem';
+export type { NestingItemProps } from './components/NestingItem';
+export { NavigationContent } from './components/NavigationContent';
+export type { NavigationContentProps } from './components/NavigationContent';
+export { ButtonItem } from './components/Item/button-item';
+export { GoBackItem } from './components/Item/go-back-item';
+export { LinkItem } from './components/Item/link-item';
+export { CustomItem } from './components/Item/custom-item';
+export { SkeletonItem } from './components/Item/skeleton-item';
+export type { CustomItemComponentProps, CustomItemProps } from '@atlaskit/menu/types';
+export type { ButtonItemProps } from '@atlaskit/menu/types';
+export type { ButtonItemProps as GoBackItemProps } from '@atlaskit/menu/types';
+export type { LinkItemProps } from '@atlaskit/menu/types';
+export type { SkeletonItemProps } from '@atlaskit/menu/types';
+export { Footer } from './components/Footer';
+export type { FooterProps } from './components/Footer';
+export { Header } from './components/Header';
+export type { HeaderProps } from './components/Header';
+export { NavigationHeader } from './components/NavigationHeader';
+export type { NavigationHeaderProps } from './components/NavigationHeader';
+export { NavigationFooter } from './components/NavigationFooter';
+export type { NavigationFooterProps } from './components/NavigationFooter';
+export { LoadingItems } from './components/LoadingItems';
+export type { LoadingItemsProps } from './components/LoadingItems';
+export { NestableNavigationContent } from './components/NestableNavigationContent';
+export type { NestableNavigationContentProps } from './components/NestableNavigationContent';
 
-export { useShouldNestedElementRender } from './components/NestableNavigationContent/context';
+export { useShouldNestedElementRender } from './components/NestableNavigationContent/use-should-nested-element-render';
 
 export { VAR_SCROLL_INDICATOR_COLOR, VAR_SEPARATOR_COLOR } from './common/constants';

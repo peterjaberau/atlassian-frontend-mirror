@@ -7,8 +7,8 @@ import { useCallback, useState } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import Heading from '@atlaskit/heading';
+import Button from '@atlaskit/button/default/button';
+import Heading from '@atlaskit/heading/heading';
 import AppsIcon from '@atlaskit/icon/core/apps';
 import InboxIcon from '@atlaskit/icon/core/inbox';
 import ProjectIcon from '@atlaskit/icon/core/project';
@@ -18,7 +18,7 @@ import { PanelSplitter } from '@atlaskit/navigation-system/layout/panel-splitter
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavToggleButton,
 	useExpandSideNav,
 } from '@atlaskit/navigation-system/layout/side-nav';
@@ -35,6 +35,7 @@ import {
 	Search,
 	Settings,
 } from '@atlaskit/navigation-system/top-nav-items';
+// eslint-disable-next-line @atlaskit/design-system/use-spotlight-package
 import {
 	Spotlight,
 	SpotlightManager,
@@ -106,7 +107,7 @@ export default function SideNavOnboardingExample(): JSX.Element {
 						onExpand={() => console.log('onExpand')}
 						onCollapse={() => console.log('onCollapse')}
 					>
-						<SideNavContent>
+						<SideNavBody>
 							<MenuList>
 								<SpotlightTarget name="your-work">
 									<LinkMenuItem href="#" elemBefore={<InboxIcon label="" color="currentColor" />}>
@@ -120,7 +121,7 @@ export default function SideNavOnboardingExample(): JSX.Element {
 									Projects
 								</LinkMenuItem>
 							</MenuList>
-						</SideNavContent>
+						</SideNavBody>
 						<PanelSplitter label="Resize side nav" />
 					</SideNav>
 					<Main id="main-container">

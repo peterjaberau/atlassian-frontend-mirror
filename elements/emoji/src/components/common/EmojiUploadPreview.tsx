@@ -2,15 +2,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { PureComponent } from 'react';
+import { PureComponent, type ComponentType, type FC } from 'react';
+
 import { css, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
+import {
+	FormattedMessage,
+	injectIntl,
+	type WithIntlProps,
+	type WrappedComponentProps,
+} from 'react-intl';
+
 import AkButton from '@atlaskit/button/standard-button';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import { Stack } from '@atlaskit/primitives/compiled';
-import { FormattedMessage, injectIntl, type WrappedComponentProps } from 'react-intl-next';
-import { customCategory } from '../../util/constants';
+import { token } from '@atlaskit/tokens';
+
 import type { EmojiDescription, Message } from '../../types';
+import { customCategory } from '../../util/constants';
 import { messages } from '../i18n';
 import Emoji from './Emoji';
 import EmojiErrorMessage from './EmojiErrorMessage';
@@ -18,7 +26,7 @@ import { UploadStatus } from './internal-types';
 import RetryableButton from './RetryableButton';
 
 const bigEmojiPreview = css({
-	paddingLeft: token('space.050', '4px'),
+	paddingLeft: token('space.050'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	img: {
 		maxHeight: '40px',
@@ -146,4 +154,8 @@ class EmojiUploadPreview extends PureComponent<
 	}
 }
 
-export default injectIntl(EmojiUploadPreview);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: FC<WithIntlProps<EmojiUploadPreviewProps & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<EmojiUploadPreviewProps & WrappedComponentProps>;
+} = injectIntl(EmojiUploadPreview);
+export default _default_1;

@@ -1,4 +1,4 @@
-import type { MediaADFAttrs } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
 import { DEFAULT_IMAGE_WIDTH } from '@atlaskit/editor-common/media-single';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import {
@@ -11,7 +11,7 @@ import type { Schema, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import { hasParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import { getRandomHex } from '@atlaskit/media-common';
-import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { PastePlugin } from '../pastePluginType';
 
@@ -28,7 +28,7 @@ export function transformSliceForMedia(
 	const { mediaSingle, layoutSection, table, bulletList, orderedList, expand, nestedExpand } =
 		schema.nodes;
 
-	return (selection: Selection) => {
+	return (selection: Selection): Slice => {
 		let newSlice = slice;
 		if (
 			hasParentNodeOfType([layoutSection, table, bulletList, orderedList, expand, nestedExpand])(
@@ -72,7 +72,7 @@ export const isImage = (fileType?: string): boolean => {
 	return !!fileType && (fileType.indexOf('image/') > -1 || fileType.indexOf('video/') > -1);
 };
 
-export const transformSliceToCorrectMediaWrapper = (slice: Slice, schema: Schema) => {
+export const transformSliceToCorrectMediaWrapper = (slice: Slice, schema: Schema): Slice => {
 	const { mediaGroup, mediaSingle, media } = schema.nodes;
 	return mapSlice(slice, (node, parent) => {
 		if (!parent && node.type === media) {
@@ -95,7 +95,7 @@ export const transformSliceToMediaSingleWithNewExperience = (
 	slice: Slice,
 	schema: Schema,
 	api: ExtractInjectionAPI<PastePlugin> | undefined,
-) => {
+): Slice => {
 	const { mediaInline, mediaSingle, media } = schema.nodes;
 	const newSlice = mapSlice(slice, (node) => {
 		// This logic is duplicated in editor-plugin-ai where external images can be inserted
@@ -174,6 +174,30 @@ function canContainImage(element: HTMLElement | null): boolean {
 }
 
 /**
+ * Determines whether an `<img>` inside a mediaSingle wrapper should be hoisted
+ * out of the wrapper and treated as a standalone external image.
+ *
+ * This should only happen when:
+ * - The image source is external (data-source="external"), and
+ * - The media wrapper has no valid file reference (no data-id), meaning
+ *   ProseMirror cannot reconstruct a proper internal media node from the wrapper.
+ *
+ * When the wrapper has a valid file reference (e.g. internal media from Jira),
+ * we leave the wrapper intact so ProseMirror can reconstruct a proper internal media node with the file reference and fetch fresh auth tokens.
+ */
+function shouldHoistFromMediaSingle(imageTag: HTMLImageElement): boolean {
+	const isExternalSource = imageTag.getAttribute('data-source') === 'external';
+	if (!isExternalSource) {
+		return false;
+	}
+
+	const mediaNode = imageTag.closest('[data-node-type="media"]');
+	const hasFileReference = mediaNode?.hasAttribute('data-id') ?? false;
+
+	return !hasFileReference;
+}
+
+/**
  * Given a html string, we attempt to hoist any nested `<img>` tags,
  * not directly wrapped by a `<div>` as ProseMirror no-op's
  * on those scenarios.
@@ -203,11 +227,47 @@ export const unwrapNestedMediaElements = (html: string): string => {
 		}
 
 		// Bypass emoji
+		if (imageTag.className.includes('emoji-common-emoji-image')) {
+			return;
+		}
+
+		// Bypass mention avatars - a mention's avatar <img> is nested only inside <span>s
+		// (never a valid container), so it would otherwise get hoisted out of the mention's
+		// DOM subtree and parsed as a standalone image instead of leaving the mention intact
+		// for its own parseDOM rule to match.
 		if (
-			imageTag.className.includes('emoji-common-emoji-image') &&
-			expVal('platform_editor_fix_emoji_paste_html', 'isEnabled', false)
+			isExperimentEnabled('platform_editor_preserve_mention_on_paste') &&
+			imageTag.closest('[data-mention-id]')
 		) {
 			return;
+		}
+
+		// Bypass mediaInline images - don't hoist images that are inside a mediaInline wrapper
+		// as this would break parseDOM matching for mediaInline nodes
+		// We remove the img from the DOM since mediaInline is a leaf node with no content
+		if (imageTag.closest('[data-node-type="mediaInline"]')) {
+			// Remove the img element so ProseMirror doesn't try to parse it
+			// mediaInline nodes are leaf nodes and cannot have children
+			imageTag.remove();
+			return;
+		}
+
+		// when copying a jira comment that contains external image (data-source="external"),
+		// the 'media' div is like this:
+		// <div data-node-type="media"> has no data-id,
+		// But when copying a jira comment that contains image that was uploaded to Jira, the div is like this:
+		// <div data-node-type="media" data-type="file" data-id="dce9c14b-b857-41fd-9452-5f4ba3a4f679" data-collection="" data-file-name="Screenshot 2026-05-26 at 4.41.05 pm.png" data-file-size="1354355" data-file-mime-type="image/png">
+		// ProseMirror fails to parse the media node because it has no data-id,
+		// so we hoist the <img> to replace the entire mediaSingle wrapper
+		// so the editor can treat it as a plain external image and render/re-upload it correctly.
+		const mediaSingleWrapper = imageTag.closest('[data-node-type="mediaSingle"]');
+		if (mediaSingleWrapper && shouldHoistFromMediaSingle(imageTag)) {
+			// Hoist the <img> to replace the entire mediaSingle wrapper
+			if (mediaSingleWrapper.parentElement) {
+				mediaSingleWrapper.parentElement.insertBefore(imageTag, mediaSingleWrapper);
+				mediaSingleWrapper.remove();
+				return;
+			}
 		}
 
 		// If either the parent or the image itself contains styles that would make

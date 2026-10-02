@@ -3,8 +3,8 @@
  * @jsx jsx
  */
 import { jsx, css } from '@compiled/react';
+
 import { token } from '@atlaskit/tokens';
-import { N0 } from '@atlaskit/theme/colors';
 
 import { playButtonClassName } from './styles';
 
@@ -17,7 +17,7 @@ const playButtonWrapperStyles = css({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	color: token('color.icon.inverse', N0),
+	color: token('color.icon.inverse'),
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	span: {
@@ -25,10 +25,14 @@ const playButtonWrapperStyles = css({
 	},
 });
 
-export const PlayButtonWrapper = (props: any) => {
+export const PlayButtonWrapper = (props: any): JSX.Element => {
 	return (
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
-		<div css={playButtonWrapperStyles} className={playButtonClassName}>
+		<div
+			css={playButtonWrapperStyles}
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+			className={playButtonClassName}
+			data-testid="media-card-play-button-wrapper"
+		>
 			{props.children}
 		</div>
 	);

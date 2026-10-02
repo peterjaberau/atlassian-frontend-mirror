@@ -8,11 +8,15 @@ import {
 	Popper as ReactPopper,
 } from 'react-popper';
 
-import { getMaxSizeModifiers } from './max-size';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
+import { getMaxSizeModifiers } from './max-size';
+import { PopperTopLayer } from './popper-top-layer';
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports
 export { placements } from '@popperjs/core';
 // Export types from PopperJS / React Popper
-export type { Placement, VirtualElement } from '@popperjs/core';
+export type { Placement, State, VirtualElement } from '@popperjs/core';
 export type {
 	ManagerProps,
 	ReferenceProps,
@@ -28,6 +32,11 @@ type Offset = [number | null | undefined, number | null | undefined];
 export interface CustomPopperProps<Modifiers> {
 	/**
 	 * Returns the element to be positioned.
+	 *
+	 * On the top-layer code path this must be ONE element: it is rendered into a
+	 * flex-row host so the viewport cap can reach it, and a fragment's children
+	 * would become side-by-side flex items. See `children` on `Popover` in
+	 * `@atlaskit/top-layer`.
 	 */
 	children?: (childrenProps: PopperChildrenProps) => React.ReactNode;
 
@@ -95,6 +104,46 @@ function defaultChildrenFn() {
 const defaultOffset: Offset = [0, 8];
 
 export function Popper<CustomModifiers>({
+	children,
+	offset,
+	placement,
+	referenceElement,
+	modifiers,
+	strategy,
+	shouldFitViewport,
+}: CustomPopperProps<CustomModifiers>): React.JSX.Element {
+	// The FF check sits at the very top of the public Popper so the
+	// rest of the function (which has its own hooks) does not violate
+	// the rules of hooks. Each branch is its own component with its
+	// own complete hook order. Props are forwarded explicitly to
+	// satisfy `no-unsafe-spread-props`.
+	if (fg('platform-dst-top-layer')) {
+		return (
+			<PopperTopLayer
+				children={children}
+				offset={offset}
+				placement={placement}
+				referenceElement={referenceElement}
+				modifiers={modifiers}
+				strategy={strategy}
+				shouldFitViewport={shouldFitViewport}
+			/>
+		);
+	}
+	return (
+		<LegacyPopper
+			children={children}
+			offset={offset}
+			placement={placement}
+			referenceElement={referenceElement}
+			modifiers={modifiers}
+			strategy={strategy}
+			shouldFitViewport={shouldFitViewport}
+		/>
+	);
+}
+
+function LegacyPopper<CustomModifiers>({
 	children = defaultChildrenFn,
 	offset = defaultOffset,
 	placement = 'bottom-start',
@@ -125,7 +174,6 @@ export function Popper<CustomModifiers>({
 
 		const maxSizeModifiers = shouldFitViewport ? getMaxSizeModifiers({ viewportPadding }) : [];
 
-		// @ts-ignore Type errors from incompatible @popperjs/core versions between Jira and AFM Platform... we are using ts-ignore here because ts-expect-error will cause an "Unused '@ts-expect-error' directive." error
 		return [...constantModifiers, preventOverflowModifier, offsetModifier, ...maxSizeModifiers];
 	}, [offsetX, offsetY, shouldFitViewport]);
 

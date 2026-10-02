@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Label } from '@atlaskit/form';
+import { Label } from '@atlaskit/form/label/default';
 import { Box } from '@atlaskit/primitives/compiled';
 import Toggle from '@atlaskit/toggle';
 
@@ -23,7 +23,7 @@ export const ToggleBox = ({
 }: Omit<React.ComponentProps<typeof Toggle>, 'onChange'> & {
 	label: string;
 	onChange: (val: boolean) => void;
-}) => {
+}): React.JSX.Element => {
 	const [id] = useState(makeid());
 
 	return (

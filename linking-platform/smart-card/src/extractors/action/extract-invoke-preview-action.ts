@@ -1,18 +1,17 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import {
-	extractPreview as extractPreviewData,
-	extractSmartLinkAri,
-	extractSmartLinkEmbed,
-	extractSmartLinkProvider,
-	extractSmartLinkTitle,
-	extractSmartLinkUrl,
-} from '@atlaskit/link-extractors';
-import { isWithinPreviewPanelIFrame } from '@atlaskit/linking-common/utils';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { extractPreview as extractPreviewData } from '@atlaskit/link-extractors/extract-preview';
+import { extractSmartLinkAri } from '@atlaskit/link-extractors/extract-smart-link-ari';
+import { extractSmartLinkEmbed } from '@atlaskit/link-extractors/extract-smart-link-embed';
+import { extractSmartLinkProvider } from '@atlaskit/link-extractors/extract-smart-link-provider';
+import { extractSmartLinkTitle } from '@atlaskit/link-extractors/extract-smart-link-title';
+import { extractSmartLinkUrl } from '@atlaskit/link-extractors/extract-smart-link-url';
+import { isWithinPreviewPanelIFrame } from '@atlaskit/linking-common/utils/is-within-preview-panel-iframe';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { type FireEventFunction } from '../../common/analytics/types';
-import { ActionName, CardAction } from '../../index';
-import { getExtensionKey } from '../../state/helpers';
+import { ActionName, CardAction } from '../../constants';
+import { getExtensionKey } from '../../state/getExtensionKey';
 import { type InvokeClientActionProps } from '../../state/hooks/use-invoke-client-action/types';
 import { canShowAction } from '../../utils/actions/can-show-action';
 import { type AnalyticsOrigin } from '../../utils/types';
@@ -20,15 +19,16 @@ import { type EmbedModalProps } from '../../view/EmbedModal/types';
 import { openEmbedModal } from '../../view/EmbedModal/utils';
 import { extractIsSupportTheming } from '../common/meta/extractIsSupportTheming';
 import { extractIsTrusted } from '../common/meta/extractIsTrusted';
-import { extractLinkIcon } from '../flexible/icon';
-
+import { extractLinkIcon } from '../flexible/icon/extract-link-icon';
+import { extractSmartLinkIcon } from '../flexible/icon/extract-smart-link-icon';
 import { extractInvokeDownloadAction } from './extract-invoke-download-action';
 import { extractInvokeViewAction } from './extract-invoke-view-action';
-import { type ExtractClientActionsParam } from './types';
+import { type ExtractClientActionsParam, type TransformUrlFn } from './types';
 
 export type ExtractInvokePreviewActionParam = ExtractClientActionsParam & {
 	fireEvent?: FireEventFunction;
 	isPreviewPanelAvailable?: (params: { ari: string }) => boolean;
+	isPreviewRestricted?: (params: { ari: string }) => boolean;
 	onClose?: EmbedModalProps['onClose'];
 	openPreviewPanel?: (params: {
 		ari: string;
@@ -38,6 +38,7 @@ export type ExtractInvokePreviewActionParam = ExtractClientActionsParam & {
 		url: string;
 	}) => void;
 	origin?: AnalyticsOrigin;
+	transformUrl?: TransformUrlFn;
 };
 
 type ExtractInvokePreviewActionReturn = {
@@ -57,6 +58,7 @@ export const extractInvokePreviewAction = (
 		origin,
 		response,
 		isPreviewPanelAvailable,
+		isPreviewRestricted,
 		openPreviewPanel,
 	} = param;
 
@@ -66,11 +68,11 @@ export const extractInvokePreviewAction = (
 
 	const hasPreviewPanelParams = Boolean(
 		expValEquals('platform_hover_card_preview_panel', 'cohort', 'test') &&
-			isPreviewPanelAvailable &&
-			openPreviewPanel &&
-			ari &&
-			url &&
-			name,
+		isPreviewPanelAvailable &&
+		openPreviewPanel &&
+		ari &&
+		url &&
+		name,
 	);
 
 	const hasPreviewPanel = hasPreviewPanelParams && isPreviewPanelAvailable!({ ari: ari! });
@@ -83,6 +85,12 @@ export const extractInvokePreviewAction = (
 	const meta = response.meta as JsonLd.Meta.BaseMeta;
 
 	if (!canShowAction(CardAction.PreviewAction, actionOptions)) {
+		return;
+	}
+
+	// Restricted (e.g. cross-unit) resources must not be previewed at all — suppress
+	// the action so it does not fall back to a preview modal.
+	if (ari && isPreviewRestricted?.({ ari }) && fg('preview_panel_unit_check')) {
 		return;
 	}
 
@@ -148,7 +156,9 @@ export const extractInvokePreviewAction = (
 							invokeViewAction: extractInvokeViewAction(param, true),
 							isSupportTheming: extractIsSupportTheming(meta),
 							isTrusted: extractIsTrusted(meta),
-							linkIcon: extractLinkIcon(response),
+							linkIcon: fg('platform_lp_use_generator_icon_for_provider')
+								? extractSmartLinkIcon(response)
+								: extractLinkIcon(response),
 							providerName: extractSmartLinkProvider(response)?.text,
 							onClose,
 							origin,

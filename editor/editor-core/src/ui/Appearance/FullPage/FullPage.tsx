@@ -1,14 +1,8 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
-
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import { SSRRenderMeasure } from '@atlaskit/editor-common/performance/ssr-measures';
 import type { OptionalPlugin } from '@atlaskit/editor-common/types';
 import { ContextPanelWidthProvider } from '@atlaskit/editor-common/ui';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
@@ -18,19 +12,28 @@ import type { PrimaryToolbarPlugin } from '@atlaskit/editor-plugins/primary-tool
 import type { SelectionToolbarPlugin } from '@atlaskit/editor-plugins/selection-toolbar';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugins/toolbar';
 import { FULL_PAGE_EDITOR_TOOLBAR_HEIGHT } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { componentWithCondition } from '@atlaskit/platform-feature-flags-react/component-with-condition';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
-import type { EditorAppearanceComponentProps, PrimaryToolbarComponents } from '../../../types';
+import type { EditorAppearanceComponentProps } from '../../../types/editor-appearance-component';
+import type { PrimaryToolbarComponents } from '../../../types/editor-props';
 import { getPrimaryToolbarComponents } from '../../Toolbar/getPrimaryToolbarComponents';
-
+import { FullPageEditorWrapperCompiled } from './FullPage-compiled';
+import { FullPageEditorWrapperEmotion } from './FullPage-emotion';
 import { FullPageContentArea } from './FullPageContentArea';
 import type { ToolbarEditorPlugins } from './FullPageToolbar';
 import { FullPageToolbar } from './FullPageToolbar';
 import { FullPageToolbarNext } from './FullPageToolbarNext';
-import { fullPageEditorWrapper } from './StyledComponents';
-import { type ScrollContainerRefs } from './types';
+import type { ScrollContainerRefs } from './types';
+
+const SSR_TRACE_SEGMENT_NAME = 'reactEditorView/fullPageAppearance';
+
+const FullPageEditorWrapperMigration = componentWithCondition(
+	() => expValEquals('platform_editor_core_non_ecc_static_css', 'isEnabled', true),
+	FullPageEditorWrapperCompiled,
+	FullPageEditorWrapperEmotion,
+);
 
 const useShowKeyline = (contentAreaRef: React.MutableRefObject<ScrollContainerRefs | null>) => {
 	const [showKeyline, setShowKeyline] = useState<boolean>(false);
@@ -40,9 +43,7 @@ const useShowKeyline = (contentAreaRef: React.MutableRefObject<ScrollContainerRe
 			return;
 		}
 
-		const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-			? getBrowserInfo()
-			: browserLegacy;
+		const browser = getBrowserInfo();
 
 		const intersection = new IntersectionObserver(
 			([entry]) => {
@@ -98,7 +99,10 @@ const hasCustomComponents = (components?: PrimaryToolbarComponents) => {
 	return true;
 };
 
-export const FullPageEditor = (props: ComponentProps) => {
+export const FullPageEditor = (props: ComponentProps): React.JSX.Element => {
+	// Should be always the first statement in the component
+	const firstRenderStartTimestampRef = useRef(performance.now());
+
 	const wrapperElementRef = useMemo(() => props.innerRef, [props.innerRef]);
 	const scrollContentContainerRef = useRef<ScrollContainerRefs | null>(null);
 	const showKeyline = useShowKeyline(scrollContentContainerRef);
@@ -106,13 +110,19 @@ export const FullPageEditor = (props: ComponentProps) => {
 
 	const state = useSharedPluginStateWithSelector(
 		editorAPI,
-		['primaryToolbar', 'interaction', 'editorViewMode'],
+		['primaryToolbar', 'interaction', 'editorViewMode', 'toolbar'],
 		(states) => ({
 			primaryToolbarComponents: states.primaryToolbarState?.components,
 			interactionState: states.interactionState?.interactionState,
 			editorViewMode: states.editorViewModeState?.mode,
+			contextualFormattingModeOverride: states.toolbarState?.contextualFormattingModeOverride,
 		}),
 	);
+	// Markdown Mode forces `'always-pinned'` while in source / preview view
+	// (no PM selection to anchor a floating toolbar to). The user's docking
+	// pref alone is not enough to decide whether to mount the primary toolbar
+	// in that case — the override has to short-circuit the hide gate below.
+	const forcePrimaryToolbarPinned = state.contextualFormattingModeOverride === 'always-pinned';
 
 	const interactionState = state.interactionState;
 
@@ -123,35 +133,17 @@ export const FullPageEditor = (props: ComponentProps) => {
 
 	const hasHadInteraction = interactionState !== 'hasNotHadInteraction';
 
-	let toolbarDocking = useSharedPluginStateSelector(editorAPI, 'selectionToolbar.toolbarDocking', {
-		disabled: fg('platform_editor_use_preferences_plugin'),
-	});
-	if (!fg('platform_editor_use_preferences_plugin')) {
-		if (!toolbarDocking) {
-			// This is a workaround for the rendering issue with the selection toolbar
-			// where using useSharedPluginStateSelector or useSharedPluginState the state are not
-			// available when the editor is first loaded. and cause the toolbar to blink.
-			const defaultDocking = props.__livePage ? 'none' : 'top';
-			toolbarDocking =
-				editorAPI?.selectionToolbar?.sharedState.currentState()?.toolbarDocking ?? defaultDocking;
-		}
-	}
-
 	let { toolbarDockingPosition } =
-		useSharedPluginStateSelector(editorAPI, 'userPreferences.preferences', {
-			disabled: !fg('platform_editor_use_preferences_plugin'),
-		}) || {};
-	if (fg('platform_editor_use_preferences_plugin')) {
-		if (!toolbarDockingPosition) {
-			// This is a workaround for the rendering issue with the selection toolbar
-			// when using useSharedPluginStateWithSelector the state is not yet
-			// available when the editor is first loaded.
-			// This causes the toolbar to blink creating a layout shift.
-			const defaultDockingPosition = props.__livePage ? 'none' : 'top';
-			toolbarDockingPosition =
-				editorAPI?.userPreferences?.actions.getUserPreferences()?.toolbarDockingPosition ??
-				defaultDockingPosition;
-		}
+		useSharedPluginStateSelector(editorAPI, 'userPreferences.preferences') || {};
+	if (!toolbarDockingPosition) {
+		// This is a workaround for the rendering issue with the selection toolbar
+		// when using useSharedPluginStateWithSelector the state is not yet
+		// available when the editor is first loaded.
+		// This causes the toolbar to blink creating a layout shift.
+		const defaultDockingPosition = props.__livePage ? 'none' : 'top';
+		toolbarDockingPosition =
+			editorAPI?.userPreferences?.actions.getUserPreferences()?.toolbarDockingPosition ??
+			defaultDockingPosition;
 	}
 
 	let primaryToolbarComponents = props.primaryToolbarComponents;
@@ -165,22 +157,12 @@ export const FullPageEditor = (props: ComponentProps) => {
 	const { customPrimaryToolbarComponents } = props;
 
 	if (editorExperiment('platform_editor_controls', 'variant1', { exposure: true })) {
-		if (fg('platform_editor_use_preferences_plugin')) {
-			// need to check if the toolbarDockingPosition is set to 'none' or 'top'
-			if (toolbarDockingPosition === 'none') {
-				primaryToolbarComponents = [];
+		// need to check if the toolbarDockingPosition is set to 'none' or 'top'
+		if (toolbarDockingPosition === 'none' && !forcePrimaryToolbarPinned) {
+			primaryToolbarComponents = [];
 
-				if (!hasCustomComponents(customPrimaryToolbarComponents)) {
-					isEditorToolbarHidden = true;
-				}
-			}
-		} else {
-			if (toolbarDocking === 'none') {
-				primaryToolbarComponents = [];
-
-				if (!hasCustomComponents(customPrimaryToolbarComponents)) {
-					isEditorToolbarHidden = true;
-				}
+			if (!hasCustomComponents(customPrimaryToolbarComponents)) {
+				isEditorToolbarHidden = true;
 			}
 		}
 	}
@@ -191,91 +173,105 @@ export const FullPageEditor = (props: ComponentProps) => {
 		props.popupsBoundariesElement || scrollContentContainerRef?.current?.containerArea || undefined;
 
 	return (
-		<ContextPanelWidthProvider>
-			<div
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-				css={fullPageEditorWrapper}
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-				className="akEditor"
-				ref={wrapperElementRef}
-				style={
-					{
-						'--ak-editor-fullpage-toolbar-height':
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-							FULL_PAGE_EDITOR_TOOLBAR_HEIGHT(isToolbarAIFCEnabled),
-					} as React.CSSProperties
-				}
-			>
-				{!isEditorToolbarHidden &&
-					(isToolbarAIFCEnabled ? (
-						<FullPageToolbarNext
-							disabled={!!props.disabled}
-							toolbarDockingPosition={toolbarDockingPosition ?? toolbarDocking}
-							beforeIcon={props.primaryToolbarIconBefore}
-							editorAPI={editorAPI}
-							editorView={props.editorView}
-							popupsMountPoint={props.popupsMountPoint}
-							popupsBoundariesElement={props.popupsBoundariesElement}
-							popupsScrollableElement={props.popupsScrollableElement}
-							showKeyline={showKeyline}
-							customPrimaryToolbarComponents={props.customPrimaryToolbarComponents}
-						/>
-					) : (
-						<FullPageToolbar
-							appearance={props.appearance}
-							editorAPI={editorAPI}
-							beforeIcon={props.primaryToolbarIconBefore}
-							collabEdit={props.collabEdit}
-							containerElement={scrollContentContainerRef.current?.scrollContainer ?? null}
-							customPrimaryToolbarComponents={props.customPrimaryToolbarComponents}
-							disabled={!!props.disabled}
-							dispatchAnalyticsEvent={props.dispatchAnalyticsEvent}
-							editorActions={props.editorActions}
-							editorDOMElement={props.editorDOMElement}
-							// Ignored via go/ees005
-							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-							editorView={props.editorView!}
-							// Ignored via go/ees005
-							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-							eventDispatcher={props.eventDispatcher!}
-							hasMinWidth={props.enableToolbarMinWidth}
-							popupsBoundariesElement={props.popupsBoundariesElement}
-							popupsMountPoint={props.popupsMountPoint}
-							popupsScrollableElement={props.popupsScrollableElement}
-							primaryToolbarComponents={primaryToolbarComponents}
-							providerFactory={props.providerFactory}
-							showKeyline={showKeyline}
-							featureFlags={props.featureFlags}
-						/>
-					))}
-				<FullPageContentArea
-					editorAPI={editorAPI}
-					ref={scrollContentContainerRef}
-					appearance={props.appearance}
-					contentComponents={props.contentComponents}
-					contextPanel={props.contextPanel}
-					customContentComponents={props.customContentComponents}
-					disabled={props.disabled}
-					dispatchAnalyticsEvent={props.dispatchAnalyticsEvent}
-					editorActions={props.editorActions}
-					editorDOMElement={props.editorDOMElement}
-					// Ignored via go/ees005
-					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-					editorView={props.editorView!}
-					eventDispatcher={props.eventDispatcher}
-					popupsBoundariesElement={popupsBoundariesElement}
-					popupsMountPoint={props.popupsMountPoint}
-					popupsScrollableElement={props.popupsScrollableElement}
-					providerFactory={props.providerFactory}
-					wrapperElement={wrapperElementRef?.current ?? null}
-					pluginHooks={props.pluginHooks}
-					featureFlags={props.featureFlags}
-					isEditorToolbarHidden={isEditorToolbarHidden}
-					viewMode={state.editorViewMode}
-					hasHadInteraction={hasHadInteraction}
-					contentMode={props.contentMode}
-				/>
-			</div>
-		</ContextPanelWidthProvider>
+		<SSRRenderMeasure
+			segmentName={SSR_TRACE_SEGMENT_NAME}
+			startTimestampRef={firstRenderStartTimestampRef}
+			onSSRMeasure={props.onSSRMeasure}
+		>
+			<ContextPanelWidthProvider>
+				<FullPageEditorWrapperMigration
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+					className="akEditor"
+					ref={wrapperElementRef}
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+					style={
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props
+						{
+							'--ak-editor-fullpage-toolbar-height':
+								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+								FULL_PAGE_EDITOR_TOOLBAR_HEIGHT(isToolbarAIFCEnabled),
+						} as React.CSSProperties
+					}
+				>
+					{!isEditorToolbarHidden &&
+						(isToolbarAIFCEnabled ? (
+							<FullPageToolbarNext
+								disabled={
+									expValEquals('platform_editor_ssr_toolbar_optimistic', 'isEnabled', true)
+										? !hasHadInteraction
+											? false
+											: !!props.disabled
+										: !!props.disabled
+								}
+								disabledWithoutInteractionLogic={!!props.disabled}
+								toolbarDockingPosition={toolbarDockingPosition}
+								beforeIcon={props.primaryToolbarIconBefore}
+								editorAPI={editorAPI}
+								editorView={props.editorView}
+								popupsMountPoint={props.popupsMountPoint}
+								popupsBoundariesElement={props.popupsBoundariesElement}
+								popupsScrollableElement={props.popupsScrollableElement}
+								showKeyline={showKeyline}
+								customPrimaryToolbarComponents={props.customPrimaryToolbarComponents}
+							/>
+						) : (
+							<FullPageToolbar
+								appearance={props.appearance}
+								editorAPI={editorAPI}
+								beforeIcon={props.primaryToolbarIconBefore}
+								collabEdit={props.collabEdit}
+								containerElement={scrollContentContainerRef.current?.scrollContainer ?? null}
+								customPrimaryToolbarComponents={props.customPrimaryToolbarComponents}
+								disabled={!!props.disabled}
+								dispatchAnalyticsEvent={props.dispatchAnalyticsEvent}
+								editorActions={props.editorActions}
+								editorDOMElement={props.editorDOMElement}
+								// Ignored via go/ees005
+								// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								editorView={props.editorView!}
+								// Ignored via go/ees005
+								// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+								eventDispatcher={props.eventDispatcher!}
+								hasMinWidth={props.enableToolbarMinWidth}
+								popupsBoundariesElement={props.popupsBoundariesElement}
+								popupsMountPoint={props.popupsMountPoint}
+								popupsScrollableElement={props.popupsScrollableElement}
+								primaryToolbarComponents={primaryToolbarComponents}
+								providerFactory={props.providerFactory}
+								showKeyline={showKeyline}
+								featureFlags={props.featureFlags}
+							/>
+						))}
+					<FullPageContentArea
+						editorAPI={editorAPI}
+						ref={scrollContentContainerRef}
+						appearance={props.appearance}
+						contentComponents={props.contentComponents}
+						contextPanel={props.contextPanel}
+						customContentComponents={props.customContentComponents}
+						disabled={props.disabled}
+						dispatchAnalyticsEvent={props.dispatchAnalyticsEvent}
+						editorActions={props.editorActions}
+						editorDOMElement={props.editorDOMElement}
+						// Ignored via go/ees005
+						// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+						editorView={props.editorView!}
+						eventDispatcher={props.eventDispatcher}
+						popupsBoundariesElement={popupsBoundariesElement}
+						popupsMountPoint={props.popupsMountPoint}
+						popupsScrollableElement={props.popupsScrollableElement}
+						providerFactory={props.providerFactory}
+						wrapperElement={wrapperElementRef?.current ?? null}
+						pluginHooks={props.pluginHooks}
+						featureFlags={props.featureFlags}
+						isEditorToolbarHidden={isEditorToolbarHidden}
+						viewMode={state.editorViewMode}
+						hasHadInteraction={hasHadInteraction}
+						contentMode={props.contentMode}
+						UNSAFE_containLayout={props.UNSAFE_containLayout}
+					/>
+				</FullPageEditorWrapperMigration>
+			</ContextPanelWidthProvider>
+		</SSRRenderMeasure>
 	);
 };

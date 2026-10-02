@@ -14,6 +14,7 @@ import { emptyAdf } from '../__fixtures__/base-adfs';
 
 test.describe('z indexes', () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx'),
 		adf: emptyAdf,
 		editorProps: {
 			appearance: 'full-page',
@@ -34,7 +35,11 @@ test.describe('z indexes', () => {
 	test('table trash icon is behind emoji picker', async ({ editor }) => {
 		const { mainToolbarModel, floatingToolbarModel } = await addTable(editor);
 
-		await mainToolbarModel.clickAt('Emoji');
+		const emojiButton = await mainToolbarModel.menuItemByLabel('Emoji');
+		await expect(emojiButton).toBeVisible();
+		await expect(emojiButton).toBeEnabled();
+		await emojiButton.dispatchEvent('click');
+		await editor.waitForEditorStable();
 
 		const popup = EditorPopupModel.from(editor);
 		const emojiPopup = EditorEmojiPickerModel.from(popup);

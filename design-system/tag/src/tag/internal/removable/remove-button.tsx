@@ -66,10 +66,12 @@ const removeButtonStyles = cssMap({
 			outlineOffset: 0,
 		},
 	},
-});
-
-const removeButtonStylesNewIcon = cssMap({
-	root: {
+	focusRing: {
+		'&:focus-visible': {
+			outlineOffset: token('space.025'),
+		},
+	},
+	newIcon: {
 		insetInlineEnd: token('space.025'),
 	},
 });
@@ -94,7 +96,8 @@ const RemoveButton: (props: RemoveButtonProps) => JSX.Element = ({
 			xcss={cx(
 				removeButtonStyles.root,
 				shape === 'circle' && removeButtonStyles.circle,
-				removeButtonStylesNewIcon.root,
+				removeButtonStyles.newIcon,
+				removeButtonStyles.focusRing,
 			)}
 			aria-label={ariaLabel}
 			onClick={onClick}

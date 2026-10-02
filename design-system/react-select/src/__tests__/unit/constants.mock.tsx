@@ -1,3 +1,5 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+
 export interface Option {
 	readonly label: string;
 	readonly value: string;

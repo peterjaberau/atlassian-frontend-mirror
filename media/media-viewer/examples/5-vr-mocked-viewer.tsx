@@ -1,10 +1,12 @@
 import React from 'react';
+
 import { canUseDOM } from 'exenv';
+
 import Button from '@atlaskit/button/standard-button';
 import ArrowRightIcon from '@atlaskit/icon/core/arrow-right';
 import DetailViewIcon from '@atlaskit/icon/core/layout-two-columns-sidebar-left';
 import { MediaClient, type Identifier } from '@atlaskit/media-client';
-import { MediaClientContext } from '@atlaskit/media-client-react';
+import { MediaClientContext } from '@atlaskit/media-client-react/media-client-provider';
 import {
 	MediaMock,
 	defaultCollectionName,
@@ -15,55 +17,12 @@ import {
 	type MockFile,
 } from '@atlaskit/media-test-helpers';
 import { token } from '@atlaskit/tokens';
+
 import { wideImage } from '../example-helpers/assets/wide-image';
 import { MainWrapper, MVSidebar, MVSidebarHeader } from '../example-helpers/MainWrapper';
-import { MediaViewerBase } from '../src/components/media-viewer';
 import { type MediaViewerExtensionsActions } from '../src';
+import { MediaViewerBase } from '../src/components/media-viewer-base';
 
-let files: MockFile[] = [];
-
-if (canUseDOM) {
-	(window as any).areControlsRendered = () => {
-		return !!document.querySelector('div.mvng-hide-controls');
-	};
-
-	(window as any).areControlsVisible = () => {
-		const controls = document.querySelector('div.mvng-hide-controls');
-		if (!controls) {
-			return false;
-		} else {
-			return window.getComputedStyle(controls).opacity === '1';
-		}
-	};
-
-	(window as any).areControlsHidden = () => {
-		const controls = document.querySelector('div.mvng-hide-controls');
-		if (!controls) {
-			return false;
-		} else {
-			return window.getComputedStyle(controls).opacity === '0';
-		}
-	};
-
-	files = generateFilesFromTestData([
-		{
-			name: 'media-test-file-1.png',
-			dataUri: smallImage,
-		},
-		{
-			name: 'media-test-file-2.jpg',
-			dataUri: wideImage,
-		},
-		{
-			name: 'media-test-file-3.png',
-			dataUri: tallImage,
-		},
-	]);
-	const mediaMock = new MediaMock({
-		[defaultCollectionName]: files,
-	});
-	mediaMock.enable();
-}
 const mediaClient = new MediaClient({
 	authProvider: () =>
 		Promise.resolve({
@@ -77,9 +36,65 @@ export interface State {
 	isMediaViewerActive: boolean;
 }
 export default class Example extends React.Component<{}, State> {
+	private readonly files: MockFile[];
+	private readonly mediaMock?: MediaMock;
+
 	state = {
 		isMediaViewerActive: true,
 	};
+
+	constructor(props: {}) {
+		super(props);
+
+		if (canUseDOM) {
+			(window as any).areControlsRendered = () => {
+				return !!document.querySelector('div.mvng-hide-controls');
+			};
+
+			(window as any).areControlsVisible = () => {
+				const controls = document.querySelector('div.mvng-hide-controls');
+				if (!controls) {
+					return false;
+				} else {
+					return window.getComputedStyle(controls).opacity === '1';
+				}
+			};
+
+			(window as any).areControlsHidden = () => {
+				const controls = document.querySelector('div.mvng-hide-controls');
+				if (!controls) {
+					return false;
+				} else {
+					return window.getComputedStyle(controls).opacity === '0';
+				}
+			};
+
+			this.files = generateFilesFromTestData([
+				{
+					name: 'media-test-file-1.png',
+					dataUri: smallImage,
+				},
+				{
+					name: 'media-test-file-2.jpg',
+					dataUri: wideImage,
+				},
+				{
+					name: 'media-test-file-3.png',
+					dataUri: tallImage,
+				},
+			]);
+			this.mediaMock = new MediaMock({
+				[defaultCollectionName]: this.files,
+			});
+			this.mediaMock.enable();
+		} else {
+			this.files = [];
+		}
+	}
+
+	componentWillUnmount(): void {
+		this.mediaMock?.disable();
+	}
 
 	deactivate = (): void => {
 		this.setState({ isMediaViewerActive: false });
@@ -98,7 +113,7 @@ export default class Example extends React.Component<{}, State> {
 			<Sidebar
 				identifier={selectedIdentifier}
 				actions={actions}
-				fileData={files.find((file: MockFile) => file.id === id)}
+				fileData={this.files.find((file: MockFile) => file.id === id)}
 			/>
 		);
 	};
@@ -109,9 +124,9 @@ export default class Example extends React.Component<{}, State> {
 		return (
 			<MediaClientContext.Provider value={mediaClient}>
 				<MainWrapper>
-					{isMediaViewerActive && files.length && (
+					{isMediaViewerActive && this.files.length && (
 						<MediaViewerBase
-							items={files
+							items={this.files
 								.map(
 									({ id }): Identifier => ({
 										id,
@@ -128,7 +143,7 @@ export default class Example extends React.Component<{}, State> {
 									},
 								])}
 							selectedItem={{
-								id: files[1].id,
+								id: this.files[1].id,
 								collectionName: defaultCollectionName,
 								mediaItemType: 'file',
 							}}
@@ -194,9 +209,7 @@ const Sidebar = (props: SidebarProps) => {
 				<Button
 					onClick={actions.close}
 					aria-label="Close panel"
-					iconBefore={
-						<ArrowRightIcon spacing="spacious" color={token('color.icon', 'white')} label="" />
-					}
+					iconBefore={<ArrowRightIcon spacing="spacious" color={token('color.icon')} label="" />}
 				/>
 			</MVSidebarHeader>
 			{renderFileState()}

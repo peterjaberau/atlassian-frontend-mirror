@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test } from './fixtures';
 
 test.describe('ReactUFO: post-interaction-log always send', () => {
 	test.use({
 		examplePage: 'basic-three-sections',
 		featureFlags: [],
+	} satisfies {
+		examplePage: 'basic-three-sections';
+		featureFlags: string[];
+		__exampleDependency?: typeof import('../../examples/02-basic-three-sections.tsx');
 	});
 
 	test('sends post interaction log when FG is enabled', async ({

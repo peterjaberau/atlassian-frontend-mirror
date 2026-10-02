@@ -1,39 +1,45 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import { DEFAULT_LOCALE_STATE } from '../../common/constants';
-import { type I18NMessages } from '../../index';
+import { type I18NMessages } from '../../common/types';
 
 export type LocaleState = {
 	locale: string;
 	messages: I18NMessages | undefined;
 };
 
-export const useMessages = (
+export function useMessages(
 	locale: string,
 	loaderFn: (locale: string) => Promise<I18NMessages | undefined>,
-): I18NMessages | undefined => {
+): I18NMessages | undefined {
 	const [localeState, setLocaleState] = useState<LocaleState>(DEFAULT_LOCALE_STATE);
+	const loadedLocaleRef = useRef(localeState.locale);
 
 	useEffect(() => {
-		if (!localeState.messages || locale !== localeState.locale) {
-			let current = true;
-
-			loaderFn(locale).then((messages) => {
-				if (current) {
-					setLocaleState({
-						locale,
-						messages: messages ?? {},
-					});
-				}
-			});
-
-			return () => {
-				current = false;
-			};
+		// Skip if we already have messages for this locale
+		if (locale === loadedLocaleRef.current) {
+			return;
 		}
 
-		return undefined;
-	}, [loaderFn, locale, localeState]);
+		let current = true;
+
+		loaderFn(locale).then(
+			(messages) => {
+				if (current) {
+					loadedLocaleRef.current = locale;
+					setLocaleState({ locale, messages: messages ?? {} });
+				}
+			},
+			(error) => {
+				// Handle or log error appropriately
+				console.error('Failed to load i18n messages via intl-messages-provider', error);
+			},
+		);
+
+		return () => {
+			current = false;
+		};
+	}, [loaderFn, locale]);
 
 	return localeState.messages;
-};
+}

@@ -2,15 +2,20 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import EditorDoneIcon from '@atlaskit/icon/core/check-mark';
-import { token } from '@atlaskit/tokens';
-import { Pressable } from '@atlaskit/primitives/compiled';
+
 import { PureComponent } from 'react';
-import { FormattedMessage } from 'react-intl-next';
+
 import { css, cssMap, jsx } from '@compiled/react';
+import { FormattedMessage } from 'react-intl';
+
+import EditorDoneIcon from '@atlaskit/icon/core/check-mark';
+import { Pressable } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
 import { ANALYTICS_HOVER_DELAY } from '../constants';
 import { messages } from '../i18n';
 import { type Color as ColorType } from '../Status';
+import { getColorLabelKey } from '../status-colors';
 
 const styles = cssMap({
 	button: {
@@ -55,6 +60,7 @@ export interface ColorProps {
 	isSelected?: boolean;
 	onClick: (value: ColorType) => void;
 	onHover?: (value: ColorType) => void;
+	onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>;
 	setRef?: (value: HTMLButtonElement) => HTMLButtonElement;
 	tabIndex?: number;
 	value: ColorType;
@@ -63,12 +69,20 @@ export interface ColorProps {
 export default class Color extends PureComponent<ColorProps> {
 	private hoverStartTime: number = 0;
 
-	render() {
-		const { tabIndex, backgroundColor, isSelected, borderColor, iconColor, value, setRef } =
-			this.props;
+	render(): JSX.Element {
+		const {
+			tabIndex,
+			backgroundColor,
+			isSelected,
+			borderColor,
+			iconColor,
+			value,
+			setRef,
+			onKeyDown,
+		} = this.props;
 		return (
 			<li css={buttonWrapperStyles}>
-				<FormattedMessage {...messages[`${value}Color` as keyof typeof messages]}>
+				<FormattedMessage {...messages[getColorLabelKey(value)]}>
 					{(labels) => (
 						<Pressable
 							xcss={styles.button}
@@ -76,6 +90,7 @@ export default class Color extends PureComponent<ColorProps> {
 							onMouseEnter={this.onMouseEnter}
 							onMouseLeave={this.onMouseLeave}
 							onMouseDown={this.onMouseDown}
+							onKeyDown={onKeyDown}
 							tabIndex={tabIndex}
 							title={labels[0] as string}
 							// button element does not support aria-selected.

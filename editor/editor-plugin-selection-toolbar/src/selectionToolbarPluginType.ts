@@ -22,6 +22,12 @@ export type SelectionToolbarPluginOptions = {
 	 * allows more control over toolbar placement.
 	 */
 	contextualFormattingEnabled?: boolean;
+	/**
+	 * When true, hides the pin/unpin option from the toolbar menu.
+	 * Use this in contexts where toolbar docking should be permanently fixed
+	 * @defaults false
+	 */
+	disablePin?: boolean;
 	/** @defaults false */
 	preferenceToolbarAboveSelection?: boolean;
 	userPreferencesProvider?: UserPreferencesProvider;
@@ -31,7 +37,15 @@ export type SelectionToolbarPlugin = NextEditorPlugin<
 	'selectionToolbar',
 	{
 		actions?: {
+			/**
+			 * Clears the toolbar docking override and reverts to the current preference/state value.
+			 */
+			clearToolbarDockingOverride?: () => boolean;
 			forceToolbarDockingWithoutAnalytics?: (toolbarDocking: ToolbarDocking) => boolean;
+			/**
+			 * Temporarily overrides the toolbar docking position without persisting to user preferences.
+			 */
+			overrideToolbarDocking?: (toolbarDocking: ToolbarDocking) => boolean;
 			/**
 			 * @private
 			 * @deprecated not in use

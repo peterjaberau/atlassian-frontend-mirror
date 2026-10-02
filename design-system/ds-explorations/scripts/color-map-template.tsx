@@ -1,7 +1,10 @@
 import format from '@af/formatting/sync';
-import { light as tokens } from '@atlaskit/tokens/tokens-raw';
+import tokens from '@atlaskit/tokens/atlassian-light';
 
-import { compose, isAccent, not, pick } from './utils';
+import { compose } from './compose';
+import { isAccent } from './is-accent';
+import { not } from './not';
+import { pick } from './pick';
 
 type Token = {
 	token: string;
@@ -29,7 +32,7 @@ export default {
   ${activeTokens
 		.map((t) => {
 			// handle the default case eg color.border or color.text
-			const propName = t.token.replace('color.background.', '');
+			const propName = t.token.replace('color.background.', '').replace('color.', '');
 			return `'${propName}': '${propName.includes('warning') ? 'warning.inverse' : 'inverse'}'`;
 		})
 		.join(',\n\t')}

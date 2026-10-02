@@ -6,15 +6,17 @@ import { format } from 'url';
 
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
-import Button from '@atlaskit/button/new';
-import { Drawer, DrawerCloseButton, DrawerContent, DrawerSidebar } from '@atlaskit/drawer';
+import Button from '@atlaskit/button/default/button';
+import { Drawer } from '@atlaskit/drawer/drawer';
+import { DrawerCloseButton } from '@atlaskit/drawer/drawer-close-button';
+import { DrawerContent } from '@atlaskit/drawer/drawer-content';
+import { DrawerSidebar } from '@atlaskit/drawer/drawer-sidebar';
 import { token } from '@atlaskit/tokens';
 
 import type EditorActions from '../src/actions';
-
 import { default as FullPageExample } from './5-full-page';
 
 // helper function to read url args
@@ -93,12 +95,12 @@ const exampleWrapper = css({
 
 const latencyPanelContainer = css({
 	maxWidth: '250px',
-	padding: token('space.200', '16px'),
+	padding: token('space.200'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	"input[type='number']": {
 		width: '230px',
-		padding: token('space.050', '4px'),
-		margin: token('space.050', '4px'),
+		padding: token('space.050'),
+		margin: token('space.050'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 		'&:first-child': {
 			marginLeft: 0,
@@ -269,8 +271,7 @@ const LatencyPanel = (props: LatencyPanelProps) => {
 					value={variableLatencyFrom}
 					onChange={updateLatency(onVariableLatencyFromChange)}
 				/>
-				{/* eslint-disable-next-line @atlassian/a11y/label-has-associated-control */}
-				<label> to </label>
+				<span> to </span>
 				<input
 					min="0"
 					type="number"
@@ -298,10 +299,10 @@ const LatencyPanel = (props: LatencyPanelProps) => {
 
 			<div>
 				<p>
-					{/* eslint-disable-next-line @atlassian/a11y/label-has-associated-control */}
-					<label>Focus latency (ms)</label>
+					<label htmlFor="focus-latency">Focus latency (ms)</label>
 				</p>
 				<input
+					id="focus-latency"
 					type="number"
 					value={focusLatency}
 					onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -324,7 +325,7 @@ const LatencyPanel = (props: LatencyPanelProps) => {
 	);
 };
 
-export default function Example() {
+export default function Example(): jsx.JSX.Element {
 	const [latencyMode, setLatencyMode] = React.useState(defaultLatencyMode);
 	const [fixedLatency, setFixedLatency] = React.useState(defaultFixedLatency);
 	const [variableLatencyFrom, setVariableLatencyFrom] = React.useState(defaultRangeLatencyFrom);

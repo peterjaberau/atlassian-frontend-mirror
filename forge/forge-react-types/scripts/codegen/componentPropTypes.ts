@@ -1,10 +1,15 @@
-// This rule is banning the `Symbol` type from ts-morph. However we need this type in our functions below. The `symbol` replacement is throwing errors
-/* eslint-disable @typescript-eslint/ban-types */
-import { createSignedArtifact } from '@atlassian/codegen';
+import fs from 'fs';
+import { resolve } from 'path';
+
+import type { StandardizedFilePath } from '@ts-morph/common';
 import { Project } from 'ts-morph';
 import type { Symbol, SourceFile, ExportSpecifier, Node } from 'ts-morph';
-import { resolve } from 'path';
-import fs from 'fs';
+import ts from 'typescript';
+
+// This rule is banning the `Symbol` type from ts-morph. However we need this type in our functions below. The `symbol` replacement is throwing errors
+/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-wrapper-object-types */
+import { createSignedArtifact } from '@atlassian/codegen';
+
 import { generateComponentPropTypeSourceCode } from './codeGenerator';
 
 const forgeUIProject = new Project({
@@ -15,6 +20,33 @@ const forgeUIProject = new Project({
 const isExportSpecifier = (node: Node): node is ExportSpecifier => 'getExportDeclaration' in node;
 
 const isSourceFile = (node: Node): node is SourceFile => 'getFilePath' in node;
+
+/**
+ * ts-morph often omits `moduleResolution` when loading options from tsconfig with
+ * `skipAddingFilesFromTsConfig`, but `ts.resolveModuleName` requires it or resolution
+ * returns nothing for relative paths.
+ */
+const compilerOptionsForModuleResolution = (project: Project): ts.CompilerOptions => {
+	const raw = project.compilerOptions.get() as unknown as ts.CompilerOptions;
+	return {
+		...raw,
+		moduleResolution: raw.moduleResolution ?? ts.ModuleResolutionKind.Bundler,
+	};
+};
+
+const resolveModuleSpecifierToPath = (
+	project: Project,
+	containingFilePath: string,
+	moduleSpecifier: string,
+): string | undefined => {
+	const { resolvedModule } = ts.resolveModuleName(
+		moduleSpecifier,
+		containingFilePath,
+		compilerOptionsForModuleResolution(project),
+		ts.sys,
+	);
+	return resolvedModule?.resolvedFileName;
+};
 
 /**
  * This function tries to resolve the source file of a component symbol on
@@ -28,16 +60,33 @@ const loadComponentSourceFile = (componentSymbol: Symbol, project: Project): Sou
 	if (!declaration || !isExportSpecifier(declaration)) {
 		return null;
 	}
-	const importSrcDeclaration = declaration
-		.getExportDeclaration()
+	const exportDeclaration = declaration.getExportDeclaration();
+	const resolvedFromExport = exportDeclaration.getModuleSpecifierSourceFile();
+	const fallbackFromSymbol = exportDeclaration
 		.getModuleSpecifier()
 		?.getSymbol()
 		?.getValueDeclaration();
-	if (!importSrcDeclaration || !isSourceFile(importSrcDeclaration)) {
+	const moduleSpecifier = exportDeclaration.getModuleSpecifierValue();
+
+	let importSrc: string | undefined =
+		resolvedFromExport?.getFilePath() ??
+		(fallbackFromSymbol && isSourceFile(fallbackFromSymbol)
+			? fallbackFromSymbol.getFilePath()
+			: undefined);
+
+	if (!importSrc && moduleSpecifier) {
+		importSrc = resolveModuleSpecifierToPath(
+			project,
+			declaration.getSourceFile().getFilePath(),
+			moduleSpecifier,
+		);
+	}
+
+	if (!importSrc) {
 		return null;
 	}
-	const importSrc = importSrcDeclaration.getFilePath();
-	const sourceFile = project.addSourceFileAtPath(importSrc);
+
+	const sourceFile = project.addSourceFileAtPath(importSrc as StandardizedFilePath);
 	const baseComponentSymbol = findBaseSymbolFromSourceFile(sourceFile, componentSymbol);
 	if (!baseComponentSymbol) {
 		return sourceFile;
@@ -98,7 +147,7 @@ const generateComponentPropTypeSourceFiles = (
 
 				const signedSourceCode = createSignedArtifact(
 					sourceCode,
-					'yarn workspace @atlaskit/forge-react-types codegen',
+					'afm workspace @atlaskit/forge-react-types codegen',
 					{
 						description: `Extract component prop types from UIKit 2 components - ${componentSymbol.getName()}`,
 						dependencies: [componentSourceFile.getFilePath()],
@@ -188,7 +237,7 @@ const generateSharedTypesFile = (componentOutputDir: string) => {
 
 	const signedSourceCode = createSignedArtifact(
 		fs.readFileSync(uiKit2TypesFile, 'utf8'),
-		'yarn workspace @atlaskit/forge-react-types codegen',
+		'afm workspace @atlaskit/forge-react-types codegen',
 		{
 			description:
 				'Shared types file for UI Kit components. Add shared types to `packages/forge/forge-ui/src/components/UIKit/types.ts` for it to be code generated here and imported correctly into prop type files',
@@ -213,7 +262,7 @@ const generateSharedTokensFile = (componentOutputDir: string) => {
 
 	const signedSourceCode = createSignedArtifact(
 		fs.readFileSync(uiKitTokensFile, 'utf8'),
-		'yarn workspace @atlaskit/forge-react-types codegen',
+		'afm workspace @atlaskit/forge-react-types codegen',
 		{
 			description:
 				'Shared tokens file for UI Kit components. Contains design token maps for xcss support. Source: `packages/forge/forge-ui/src/components/UIKit/tokens.partial.tsx`',
@@ -226,11 +275,14 @@ const generateSharedTokensFile = (componentOutputDir: string) => {
 	fs.writeFileSync(tokensFilePath, signedSourceCode);
 };
 
-const generateComponentPropTypes = (componentNames?: string) => {
+const generateComponentPropTypes = (componentNames?: string): void => {
 	const componentOutputDir = resolve(__dirname, '..', '..', 'src', 'components', '__generated__');
 	const componentIndexSourceFile = forgeUIProject.addSourceFileAtPath(
 		require.resolve('@atlassian/forge-ui/UIKit'),
 	);
+	// Pull in re-export targets so `getModuleSpecifierSourceFile()` can resolve; codegen only
+	// loads the barrel otherwise (`skipAddingFilesFromTsConfig`).
+	forgeUIProject.resolveSourceFileDependencies();
 	try {
 		const componentNamesFilter = componentNames ? componentNames.split(',') : [];
 		const componentPropTypeSymbols = componentIndexSourceFile

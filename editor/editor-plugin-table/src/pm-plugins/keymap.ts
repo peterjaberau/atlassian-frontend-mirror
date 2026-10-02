@@ -1,4 +1,4 @@
-import type { IntlShape } from 'react-intl-next/src/types';
+import type { IntlShape } from 'react-intl/src/types';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
@@ -42,7 +42,7 @@ import {
 	startColumnResizing,
 	toggleTable,
 } from '@atlaskit/editor-common/keymaps';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { editorCommandToPMCommand } from '@atlaskit/editor-common/preset';
 import type { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { GetEditorContainerWidth } from '@atlaskit/editor-common/types';
@@ -52,7 +52,6 @@ import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { moveSourceWithAnalyticsViaShortcut } from '../pm-plugins/drag-and-drop/commands-with-analytics';
 import type { PluginInjectionAPI, PluginInjectionAPIWithA11y } from '../types';
-
 import { goToNextCell, moveCursorBackward, setFocusToCellMenu } from './commands';
 import {
 	activateNextResizeArea,
@@ -78,7 +77,6 @@ export function keymapPlugin(
 	api: PluginInjectionAPI | undefined | null,
 	nodeViewPortalProviderAPI: PortalProviderAPI,
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null,
-	dragAndDropEnabled?: boolean,
 	isTableScalingEnabled = false,
 	isTableAlignmentEnabled = false,
 	isFullWidthEnabled?: boolean,
@@ -233,14 +231,12 @@ export function keymapPlugin(
 		list,
 	);
 
-	if (
-		dragAndDropEnabled &&
-		moveRowDown.common &&
-		moveRowUp.common &&
-		moveColumnLeft.common &&
-		moveColumnRight.common
-	) {
-		const isNewKeyMapExperiment = expValEquals('editor-a11y-fy26-keyboard-move-row-column', 'isEnabled', true);
+	if (moveRowDown.common && moveRowUp.common && moveColumnLeft.common && moveColumnRight.common) {
+		const isNewKeyMapExperiment = expValEquals(
+			'editor-a11y-fy26-keyboard-move-row-column',
+			'isEnabled',
+			true,
+		);
 		// Move row/column shortcuts
 		/**
 		 * NOTE: If the keyboard shortcut for moving rows or columns is changed, we need to update the handleKeyDown function

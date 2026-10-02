@@ -1,5 +1,4 @@
 /**
- * @jsxFrag
  * @jsxRuntime classic
  * @jsx jsx
  */
@@ -16,19 +15,21 @@ import React, {
 import { jsx } from '@compiled/react';
 import invariant from 'tiny-invariant';
 
-import { IconButton } from '@atlaskit/button/new';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import IconButton from '@atlaskit/button/icon/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import AddIcon from '@atlaskit/icon/core/add';
 import FilterIcon from '@atlaskit/icon/core/filter';
 import GrowVerticalIcon from '@atlaskit/icon/core/grow-vertical';
 import SettingsIcon from '@atlaskit/icon/core/settings';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
-import { ModalTransition } from '@atlaskit/modal-dialog';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import {
 	dropTargetForElements,
 	type ElementDropTargetEventBasePayload,
 	monitorForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { GroupDropIndicator } from '@atlaskit/side-nav-items/drag-and-drop/group-drop-indicator';
 import { useMenuItemDragAndDrop } from '@atlaskit/side-nav-items/drag-and-drop/use-menu-item-drag-and-drop';
 import {
@@ -48,7 +49,6 @@ import {
 import { RegistryContext } from '../registry';
 import { useGetData, useLastAction } from '../state-context';
 import { TopLevelSharedMoreMenu } from '../top-level-shared-more-menu';
-
 import { FilterMoveModal } from './filter-move-modal';
 import { getPathToFilter } from './filter-tree-utils';
 
@@ -60,7 +60,7 @@ export function FiltersMenuItem({
 	amountOfMenuItems: number;
 	filters: TFilter[];
 	index: number;
-}) {
+}): JSX.Element {
 	const [isExpanded, setIsExpanded] = useState<boolean>(true);
 	const wasExpandedWhenDragStartedRef = useRef<boolean | null>(null);
 	const { state, draggableButtonRef, dragPreview, dropTargetRef, dropIndicator } =
@@ -107,7 +107,7 @@ export function FiltersMenuItem({
 	}, [registry, draggableButtonRef]);
 
 	return (
-		<>
+		<React.Fragment>
 			<ExpandableMenuItem
 				isExpanded={isExpanded}
 				onExpansionToggle={() => setIsExpanded((value) => !value)}
@@ -120,7 +120,7 @@ export function FiltersMenuItem({
 					hasDragIndicator
 					elemBefore={<FilterIcon label="" />}
 					actionsOnHover={
-						<>
+						<React.Fragment>
 							<IconButton
 								label="Add"
 								icon={(iconProps) => <AddIcon {...iconProps} size="small" />}
@@ -132,7 +132,7 @@ export function FiltersMenuItem({
 								amountOfMenuItems={amountOfMenuItems}
 								value="filters"
 							/>
-						</>
+						</React.Fragment>
 					}
 				>
 					Filters
@@ -142,7 +142,7 @@ export function FiltersMenuItem({
 				</ExpandableMenuItemContent>
 			</ExpandableMenuItem>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }
 
@@ -178,7 +178,7 @@ function FilterLeaf({ filter }: { filter: TFilter }) {
 	}, [registry, draggableAnchorRef, filter.id]);
 
 	return (
-		<>
+		<React.Fragment>
 			<LinkMenuItem
 				href={filter.href}
 				elemBefore={filter.icon}
@@ -233,7 +233,7 @@ function FilterLeaf({ filter }: { filter: TFilter }) {
 				)}
 			</ModalTransition>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }
 
@@ -364,7 +364,7 @@ function FilterParent({ filter }: { filter: TFilter }) {
 	}, [registry, draggableAnchorRef, filter.id]);
 
 	return (
-		<>
+		<React.Fragment>
 			<ExpandableMenuItem
 				isExpanded={isExpanded}
 				onExpansionToggle={() => setIsExpanded((value) => !value)}
@@ -422,7 +422,7 @@ function FilterParent({ filter }: { filter: TFilter }) {
 				)}
 			</ModalTransition>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }
 

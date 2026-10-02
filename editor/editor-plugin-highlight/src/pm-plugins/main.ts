@@ -1,13 +1,12 @@
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorState, ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
 
 import { getActiveColor } from '../editor-commands/color';
 import { getDisabledState } from '../editor-commands/disabled';
-import type { HighlightPlugin } from '../highlightPluginType';
 
-export const highlightPluginKey = new PluginKey<HighlightPluginState>('highlight');
+export const highlightPluginKey: PluginKey<HighlightPluginState> =
+	new PluginKey<HighlightPluginState>('highlight');
 
 export type HighlightPluginState = {
 	activeColor: string | null; // Hex value color, lowercase
@@ -20,11 +19,7 @@ export enum HighlightPluginAction {
 	SET_PALETTE,
 }
 
-export const createPlugin = ({
-	api,
-}: {
-	api: ExtractInjectionAPI<HighlightPlugin> | undefined;
-}) => {
+export const createPlugin = (): SafePlugin<HighlightPluginState> => {
 	return new SafePlugin({
 		key: highlightPluginKey,
 		state: {
@@ -59,9 +54,11 @@ export const createPlugin = ({
 						};
 
 					default:
+						const activeColor = getActiveColor(tr);
+
 						return {
 							...pluginState,
-							activeColor: getActiveColor(tr),
+							activeColor,
 							disabled: getDisabledState(newState),
 						};
 				}

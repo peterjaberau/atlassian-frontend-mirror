@@ -6,7 +6,6 @@ import { type CSSProperties, type FC } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
 import { token } from '@atlaskit/tokens';
 
 import { type AppearanceType, type SizeType } from './types';
@@ -36,7 +35,7 @@ const styles = cssMap({
 	root: {
 		display: 'inline-block',
 		backgroundColor: `var(${bgColorCssVar})`,
-		borderWidth: token('border.width.selected', '2px'),
+		borderWidth: token('border.width.selected'),
 		borderStyle: 'solid',
 		borderColor: 'transparent',
 		borderRadius: token('radius.full', '50%'),
@@ -55,21 +54,14 @@ const styles = cssMap({
 });
 
 const sizeStyles = cssMap({
+	xxsmall: { width: '16px', height: '16px' },
 	xsmall: { width: '16px', height: '16px' },
+	UNSAFE_xsmall: { width: '20px', height: '20px' },
 	small: { width: '24px', height: '24px' },
 	medium: { width: '32px', height: '32px' },
 	large: { width: '40px', height: '40px' },
 	xlarge: { width: '96px', height: '96px' },
 	xxlarge: { width: '128px', height: '128px' },
-});
-
-const borderRadiusMap = cssMap({
-	xsmall: { borderRadius: token('radius.xsmall') },
-	small: { borderRadius: token('radius.xsmall') },
-	medium: { borderRadius: token('radius.small') },
-	large: { borderRadius: token('radius.small') },
-	xlarge: { borderRadius: token('radius.medium') },
-	xxlarge: { borderRadius: token('radius.xlarge') },
 });
 
 /**
@@ -80,23 +72,26 @@ const borderRadiusMap = cssMap({
  * - [Examples](https://atlassian.design/components/avatar/avatar-skeleton/examples)
  * - [Code](https://atlassian.design/components/avatar/avatar-skeleton/code)
  */
-const Skeleton: FC<SkeletonProps> = ({ size, appearance, color, weight }: SkeletonProps) => (
-	<div
-		css={[
-			styles.root,
-			sizeStyles[size ?? 'medium'],
-			appearance === 'square' &&
-				!fg('platform_dst_avatar_tile') &&
-				!fg('platform_dst_avatar_tile_stage2') &&
-				borderRadiusMap[size ?? 'medium'],
-			appearance === 'square' &&
-				(fg('platform_dst_avatar_tile') || fg('platform_dst_avatar_tile_stage2')) &&
-				styles.square,
-			appearance === 'hexagon' && styles.hexagon,
-			weight === 'strong' && styles.strongOpacity,
-		]}
-		style={{ [bgColorCssVar]: color ?? 'currentColor' } as CSSProperties}
-	/>
-);
+const Skeleton: FC<SkeletonProps> = ({
+	size,
+	appearance = 'circle',
+	color,
+	weight,
+}: SkeletonProps) => {
+	const avatarSize = size ?? 'medium';
+
+	return (
+		<div
+			css={[
+				styles.root,
+				sizeStyles[avatarSize],
+				appearance === 'square' && styles.square,
+				appearance === 'hexagon' && styles.hexagon,
+				weight === 'strong' && styles.strongOpacity,
+			]}
+			style={{ [bgColorCssVar]: color ?? 'currentColor' } as CSSProperties}
+		/>
+	);
+};
 
 export default Skeleton;

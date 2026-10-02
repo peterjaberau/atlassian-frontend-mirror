@@ -1,7 +1,13 @@
-import React, { type ComponentProps } from 'react';
+import React from 'react';
+import type { ComponentProps } from 'react';
+
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 // Custom icon ejection - these icons have been migrated away from the deprecated Custom / SVG components to native SVG. Please review whether this icon should be contributed to @atlaskit/icon-lab or whether it can be replaced by an existing icon from either @atlaskit/icon or @atlaskit/icon-lab
-const IconCardGlyph = (props: ComponentProps<'svg'>) => {
+const IconCardGlyph = ({
+	'aria-label': ariaLabel,
+	style,
+}: Pick<ComponentProps<'svg'>, 'aria-label' | 'style'>) => {
 	return (
 		<svg
 			width="32"
@@ -9,9 +15,9 @@ const IconCardGlyph = (props: ComponentProps<'svg'>) => {
 			viewBox="0 0 32 32"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			// Ignored via go/ees005
-			// eslint-disable-next-line react/jsx-props-no-spreading
-			{...props}
+			aria-label={ariaLabel}
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- style prop passed through from parent component
+			style={style}
 		>
 			<path
 				fillRule="evenodd"
@@ -23,16 +29,18 @@ const IconCardGlyph = (props: ComponentProps<'svg'>) => {
 	);
 };
 
+const iconCardStyle: React.CSSProperties = { width: '24px', height: '24px' };
+
 export const IconCard = ({ label }: { label: string }): React.JSX.Element => {
+	const style = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? iconCardStyle
+		: // eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props
+			{ width: '24px', height: '24px' };
 	return (
 		<IconCardGlyph
 			aria-label={label}
-			style={{
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				width: '24px',
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				height: '24px',
-			}}
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+			style={style}
 		/>
 	);
 };

@@ -2,13 +2,14 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef } from 'react';
+
+import { forwardRef, type ForwardRefExoticComponent, type RefAttributes } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
 import { type FileIdentifier } from '@atlaskit/media-client';
 
-import { MediaSVGError } from './errors';
+import { MediaSVGError } from './MediaSVGError';
 import type { ContentSource, MediaSvgProps } from './types';
 
 const svgRendererMaxDimensionStyles = css({
@@ -35,7 +36,9 @@ export type SvgRendererProps = {
 	style: MediaSvgProps['style'];
 };
 
-export const SvgRenderer = forwardRef<HTMLImageElement, SvgRendererProps>(
+export const SvgRenderer: ForwardRefExoticComponent<
+	SvgRendererProps & RefAttributes<HTMLImageElement>
+> = forwardRef<HTMLImageElement, SvgRendererProps>(
 	(
 		{
 			identifier: { id, collectionName },
@@ -46,15 +49,15 @@ export const SvgRenderer = forwardRef<HTMLImageElement, SvgRendererProps>(
 			onError,
 			alt,
 			onLoad,
-			onMouseDown,
 			style,
+			...rest
 		},
 		ref,
 	) => {
 		const { width, height } = dimensions || style || {};
 		return (
-			// eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-interactions
 			<img
+				{...rest}
 				data-testid={testId}
 				data-fileid={id}
 				data-filecollection={collectionName}
@@ -69,7 +72,6 @@ export const SvgRenderer = forwardRef<HTMLImageElement, SvgRendererProps>(
 					height: dimensions?.height || style?.height,
 				}}
 				onLoad={onLoad}
-				onMouseDown={onMouseDown}
 				onError={() => {
 					onError && onError(new MediaSVGError('img-error'));
 				}}

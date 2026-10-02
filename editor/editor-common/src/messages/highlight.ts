@@ -1,6 +1,37 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const highlightMessages = defineMessages({
+export const highlightMessages: {
+	clearColors: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	highlight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	highlightFloatingToolbar: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	removeColor: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	removeHighlight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
+	clearColors: {
+		id: 'fabric.editor.highlight.clearColors',
+		defaultMessage: 'Clear all colors',
+		description: 'Button content for clearing the applied text and/ or highlight colors.',
+	},
 	highlight: {
 		id: 'fabric.editor.highlight',
 		defaultMessage: 'Highlight color',
@@ -22,7 +53,6 @@ export const highlightMessages = defineMessages({
 	removeHighlight: {
 		id: 'fabric.editor.highlight.removeHighlight',
 		defaultMessage: 'Remove highlight',
-		description:
-			'Button content for removing the applied highlight color.',
+		description: 'Button content for removing the applied highlight color.',
 	},
 });

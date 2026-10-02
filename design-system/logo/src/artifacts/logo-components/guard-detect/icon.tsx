@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::e33f9e6e953de047c668f4543ae85124>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::afb7fcf34d29ef274b939fe61842aa5d>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -18,14 +18,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __GuardDetectIcon__
  *
- * A temporary component to represent the icon for Guard Detect.
- * @deprecated This component has been replaced by the component `GuardDetectIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Guard Detect.
+ * Import `GuardDetectIcon` from `@atlaskit/logo/guard-detect/icon`.
  *
  */
 export function GuardDetectIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Guard Detect',
 	testId,

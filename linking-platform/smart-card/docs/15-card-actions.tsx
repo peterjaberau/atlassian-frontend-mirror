@@ -12,7 +12,7 @@ import ContentTable from './utils/content-table';
 import customMd from './utils/custom-md';
 import QuickLinks from './utils/quick-links';
 
-export default customMd`
+const _default_1: JSX.Element = customMd`
 
 ${(<QuickLinks />)}
 
@@ -37,3 +37,4 @@ ${(
 )}
 
 `;
+export default _default_1;

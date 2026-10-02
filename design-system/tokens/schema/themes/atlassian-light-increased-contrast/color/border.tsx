@@ -15,7 +15,12 @@ const color: ExtendedValueSchema<BorderColorTokenSchema<BaseToken>> = {
 				value: 'Blue800',
 			},
 			input: {
-				value: 'Neutral800',
+				'[default]': {
+					value: 'Neutral800',
+				},
+				search: {
+					value: 'Neutral300A',
+				},
 			},
 			disabled: {
 				value: 'Neutral300A',
@@ -27,19 +32,29 @@ const color: ExtendedValueSchema<BorderColorTokenSchema<BaseToken>> = {
 				value: 'Blue800',
 			},
 			danger: {
-				value: 'Red700',
+				'[default]': {
+					value: 'Red700',
+				},
 			},
 			warning: {
-				value: 'Orange800',
+				'[default]': {
+					value: 'Orange800',
+				},
 			},
 			success: {
-				value: 'Green800',
+				'[default]': {
+					value: 'Green800',
+				},
 			},
 			discovery: {
-				value: 'Purple700',
+				'[default]': {
+					value: 'Purple700',
+				},
 			},
 			information: {
-				value: 'Blue800',
+				'[default]': {
+					value: 'Blue800',
+				},
 			},
 		},
 	},

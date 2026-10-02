@@ -2,6 +2,7 @@ import { findRootSync } from '@manypkg/find-root';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import type { Rule } from 'eslint';
 import type { ObjectExpression } from 'estree';
+
 import { getObjectPropertyAsObject } from '../util/handle-ast-object';
 
 // Here we only need to specify the major and minor versions
@@ -12,7 +13,6 @@ const DESIRED_PKG_VERSIONS: Record<string, string[]> = {
 	tslib: ['2.6', '2.8'],
 	'@types/react': ['16.14', '18.2', '18.3'],
 	'react-relay': ['npm:atl-react-relay@0.0.0-main-39e79f66'],
-	'relay-compiler': ['npm:atl-relay-compiler@0.0.0-main-39e79f66'],
 	'relay-runtime': ['npm:atl-relay-runtime@0.0.0-main-39e79f66'],
 	'relay-test-utils': ['npm:atl-relay-test-utils@0.0.0-main-39e79f66'],
 };
@@ -130,7 +130,8 @@ const rule: Rule.RuleModule = {
 		},
 	},
 	create(context) {
-		const fileName = context.getFilename();
+		// @ts-ignore - Jira's ESLint v10 types expose filename, platform still checks with ESLint v9.
+		const fileName = context.filename ?? context.getFilename();
 		return {
 			ObjectExpression: (node: Rule.Node) => {
 				if (!fileName.endsWith('package.json') || node.type !== 'ObjectExpression') {

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { cssMap, cx } from '@atlaskit/css';
 import {
@@ -10,9 +10,15 @@ import {
 	EVENT_TYPE,
 	INPUT_METHOD,
 } from '@atlaskit/editor-common/analytics';
+import { surfaceDragHandleElementStore } from '@atlaskit/editor-common/block-controls/surface-drag-handle-element';
+import { BLOCK_MENU_TEST_ID } from '@atlaskit/editor-common/block-menu';
 import { ErrorBoundary } from '@atlaskit/editor-common/error-boundary';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
-import { DRAG_HANDLE_SELECTOR, DRAG_HANDLE_WIDTH } from '@atlaskit/editor-common/styles';
+import {
+	DRAG_HANDLE_SELECTOR,
+	NESTED_DROPDOWN_MENU,
+	DRAG_HANDLE_WIDTH,
+} from '@atlaskit/editor-common/styles';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { Popup } from '@atlaskit/editor-common/ui';
 import {
@@ -26,22 +32,26 @@ import {
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorFloatingOverlapPanelZIndex } from '@atlaskit/editor-shared-styles';
+import { ToolbarMenuContainer } from '@atlaskit/editor-toolbar/toolbar-menu-container';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { Box } from '@atlaskit/primitives/compiled';
-import { redo, undo } from '@atlaskit/prosemirror-history';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { redo } from '@atlaskit/prosemirror-history/redo';
+import { undo } from '@atlaskit/prosemirror-history/undo';
 import { token } from '@atlaskit/tokens';
 
 import type { BlockMenuPlugin } from '../blockMenuPluginType';
-
 import { useBlockMenu } from './block-menu-provider';
 import { BlockMenuRenderer } from './block-menu-renderer/BlockMenuRenderer';
+import { BlockMenuTargetVisibilityProvider } from './block-menu-target-visibility-context';
 
 const styles = cssMap({
 	base: {
 		backgroundColor: token('elevation.surface.overlay'),
 		boxShadow: token('elevation.shadow.overlay'),
 		borderRadius: token('radius.small'),
+	},
+	maxWidthStyles: {
+		maxWidth: '320px',
 	},
 	emptyMenuSectionStyles: {
 		/*
@@ -136,6 +146,60 @@ const isSelectionWithinCodeBlock = (state: EditorState) => {
 	const { $from, $to } = state.selection;
 	return $from.sameParent($to) && $from.parent.type === state.schema.nodes.codeBlock;
 };
+const useCloseBlockMenuOnResize = ({
+	isEnabled,
+	mountTo,
+	boundariesElement,
+	scrollableElement,
+	closeMenu,
+}: {
+	boundariesElement?: HTMLElement;
+	closeMenu: () => void;
+	isEnabled: boolean;
+	mountTo?: HTMLElement;
+	scrollableElement?: HTMLElement;
+}) => {
+	useEffect(() => {
+		if (!isEnabled || typeof ResizeObserver === 'undefined') {
+			return;
+		}
+
+		const observedElements = Array.from(
+			new Set(
+				[mountTo, boundariesElement, scrollableElement].filter((element): element is HTMLElement =>
+					Boolean(element),
+				),
+			),
+		);
+
+		if (observedElements.length === 0) {
+			return;
+		}
+
+		const pendingInitialResizeElements = new Set<HTMLElement>(observedElements);
+		const resizeObserver = new ResizeObserver((entries) => {
+			const hasResizeAfterInitialObservation = entries.some(({ target }) => {
+				if (target instanceof HTMLElement && pendingInitialResizeElements.has(target)) {
+					pendingInitialResizeElements.delete(target);
+					return false;
+				}
+
+				return true;
+			});
+
+			if (hasResizeAfterInitialObservation) {
+				closeMenu();
+			}
+		});
+
+		observedElements.forEach((element) => resizeObserver.observe(element));
+
+		return () => {
+			resizeObserver.disconnect();
+		};
+	}, [boundariesElement, closeMenu, isEnabled, mountTo, scrollableElement]);
+};
+
 const BlockMenuContent = ({
 	api,
 	setRef,
@@ -162,22 +226,31 @@ const BlockMenuContent = ({
 		return target.closest('[data-toolbar-nested-dropdown-menu]') !== null;
 	};
 
+	if (isExperimentEnabled('platform_editor_menu_radius_update')) {
+		return (
+			<ToolbarMenuContainer testId={BLOCK_MENU_TEST_ID} ref={ref} xcss={styles.maxWidthStyles}>
+				<ArrowKeyNavigationProvider
+					type={ArrowKeyNavigationType.MENU}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					handleClose={(e) => e.preventDefault()}
+					disableArrowKeyNavigation={shouldDisableArrowKeyNavigation}
+				>
+					<BlockMenuRenderer allRegisteredComponents={blockMenuComponents || []} />
+				</ArrowKeyNavigationProvider>
+			</ToolbarMenuContainer>
+		);
+	}
+
 	return (
 		<Box
-			testId="editor-block-menu"
-			role={
-				expValEquals('platform_editor_enghealth_a11y_jan_fixes', 'isEnabled', true)
-					? 'menu'
-					: undefined
-			}
+			testId={BLOCK_MENU_TEST_ID}
+			role="menu"
 			ref={ref}
-			xcss={cx(
-				styles.base,
-				editorExperiment('platform_synced_block', true) && styles.emptyMenuSectionStyles,
-			)}
+			xcss={cx(styles.base, styles.maxWidthStyles, styles.emptyMenuSectionStyles)}
 		>
 			<ArrowKeyNavigationProvider
 				type={ArrowKeyNavigationType.MENU}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				handleClose={(e) => e.preventDefault()}
 				disableArrowKeyNavigation={shouldDisableArrowKeyNavigation}
 			>
@@ -194,25 +267,128 @@ const BlockMenu = ({
 	boundariesElement,
 	scrollableElement,
 }: BlockMenuProps & WrappedComponentProps) => {
+	const isPopupTargetVisibilityEnabled = isExperimentEnabled(
+		'platform_editor_popup_target_visibility',
+	);
 	const {
 		menuTriggerBy,
+		menuTriggerByNode,
 		isSelectedViaDragHandle,
 		isMenuOpen,
 		currentUserIntent,
 		openedViaKeyboard,
 	} = useSharedPluginStateWithSelector(api, ['blockControls', 'userIntent'], (states) => ({
 		menuTriggerBy: states.blockControlsState?.menuTriggerBy,
+		menuTriggerByNode: isPopupTargetVisibilityEnabled
+			? states.blockControlsState?.menuTriggerByNode
+			: undefined,
 		isSelectedViaDragHandle: states.blockControlsState?.isSelectedViaDragHandle,
 		isMenuOpen: states.blockControlsState?.isMenuOpen,
 		currentUserIntent: states.userIntentState?.currentUserIntent,
 		openedViaKeyboard: states.blockControlsState?.blockMenuOptions?.openedViaKeyboard,
 	}));
 	const { onDropdownOpenChanged } = useBlockMenu();
-	const targetHandleRef = editorView?.dom?.querySelector<HTMLElement>(DRAG_HANDLE_SELECTOR);
+	const isMenuOpenRef = React.useRef(isMenuOpen);
+	isMenuOpenRef.current = isMenuOpen;
+	const [surfaceDragHandle, setSurfaceDragHandle] = React.useState<HTMLElement | null>(null);
+	React.useLayoutEffect(() => {
+		if (!isExperimentEnabled('platform_editor_block_control_migration')) {
+			return;
+		}
+
+		const readElement = () => setSurfaceDragHandle(surfaceDragHandleElementStore.get(editorView));
+		readElement();
+		return surfaceDragHandleElementStore.subscribe(editorView, () => {
+			if (!isMenuOpenRef.current) {
+				readElement();
+			}
+		});
+	}, [editorView]);
+
+	const openMenuHandleRef = React.useRef<HTMLElement | null>(null);
+	const anchoredToRef = React.useRef<string | undefined>(undefined);
+	if (!isMenuOpen) {
+		openMenuHandleRef.current = null;
+		anchoredToRef.current = undefined;
+	} else if (!openMenuHandleRef.current || anchoredToRef.current !== menuTriggerBy) {
+		openMenuHandleRef.current =
+			surfaceDragHandleElementStore.get(editorView) ??
+			openMenuHandleRef.current ??
+			surfaceDragHandle;
+		anchoredToRef.current = menuTriggerBy;
+	}
+
+	const targetHandleRef = isExperimentEnabled('platform_editor_block_control_migration')
+		? (openMenuHandleRef.current ?? surfaceDragHandle)
+		: editorView?.dom?.querySelector<HTMLElement>(DRAG_HANDLE_SELECTOR);
+	const menuTargetNode = menuTriggerByNode && editorView?.nodeDOM(menuTriggerByNode.pos);
+	const visibilityTarget = menuTargetNode instanceof HTMLElement ? menuTargetNode : undefined;
+	const closeMenu = React.useCallback(() => {
+		api?.core.actions.execute(({ tr }) => {
+			api?.blockControls?.commands.toggleBlockMenu({ closeMenu: true })({ tr });
+			onDropdownOpenChanged(false);
+			api?.userIntent?.commands.setCurrentUserIntent(
+				currentUserIntent === 'blockMenuOpen' ? 'default' : currentUserIntent || 'default',
+			)({ tr });
+
+			return tr;
+		});
+	}, [api, currentUserIntent, onDropdownOpenChanged]);
+
+	useCloseBlockMenuOnResize({
+		isEnabled: Boolean(isMenuOpen),
+		mountTo,
+		boundariesElement,
+		scrollableElement,
+		closeMenu,
+	});
 	const prevIsMenuOpenRef = useRef(false);
 	const popupRef = useRef<HTMLElement | undefined>(undefined);
 
 	const [menuHeight, setMenuHeight] = React.useState<number>(0);
+	const [targetVisibility, setTargetVisibility] = React.useState<{
+		isVisible: boolean | undefined;
+		restoreFocusTo: HTMLElement | null;
+	}>({ isVisible: undefined, restoreFocusTo: null });
+	const { isVisible: targetVisible, restoreFocusTo } = targetVisibility;
+	// CSS visibility can move focus to the document body. Preserve the active menu item so the
+	// existing focus-loss guard does not close the menus during a temporary scroll transition.
+	const handleTargetVisibilityChanged = React.useCallback((isVisible: boolean) => {
+		if (isVisible) {
+			setTargetVisibility((current) => ({
+				isVisible: true,
+				restoreFocusTo: current.isVisible === false ? current.restoreFocusTo : null,
+			}));
+			return;
+		}
+
+		// Capture focus before scheduling the state update so the updater stays pure.
+		// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+		const activeElement = document.activeElement;
+		const isFocusInMenu =
+			activeElement instanceof HTMLElement &&
+			(popupRef.current?.contains(activeElement) ||
+				activeElement.closest(NESTED_DROPDOWN_MENU) !== null);
+
+		setTargetVisibility({
+			isVisible: false,
+			restoreFocusTo: isFocusInMenu ? activeElement : null,
+		});
+	}, []);
+
+	React.useLayoutEffect(() => {
+		if (!isPopupTargetVisibilityEnabled || !targetVisible || !restoreFocusTo) {
+			return;
+		}
+
+		const { activeElement, body, documentElement } = restoreFocusTo.ownerDocument;
+		const focusWasLost =
+			activeElement === null || activeElement === body || activeElement === documentElement;
+		if (restoreFocusTo.isConnected && focusWasLost) {
+			restoreFocusTo.focus({ preventScroll: true });
+		}
+		setTargetVisibility((current) => ({ ...current, restoreFocusTo: null }));
+	}, [isPopupTargetVisibilityEnabled, restoreFocusTo, targetVisible]);
 
 	const targetHandleHeightOffset = -(targetHandleRef?.clientHeight || 0);
 
@@ -220,15 +396,27 @@ const BlockMenu = ({
 		if (!isMenuOpen) {
 			return;
 		}
+		onDropdownOpenChanged(true);
 		setMenuHeight(popupRef.current?.clientHeight || FALLBACK_MENU_HEIGHT);
-	}, [isMenuOpen]);
+	}, [isMenuOpen, onDropdownOpenChanged]);
 
+	// Nested dropdowns are portaled outside the block-menu popup. Sparse surface reconciliation
+	// dispatches after the menu opens, so a re-render can occur while focus is inside that portal.
 	const hasFocus =
 		(editorView?.hasFocus() ||
+			(isPopupTargetVisibilityEnabled && (targetVisible === false || restoreFocusTo !== null)) ||
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
 			document.activeElement === targetHandleRef ||
 			(popupRef.current &&
+				// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
 				(popupRef.current.contains(document.activeElement) ||
-					popupRef.current === document.activeElement))) ??
+					// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+					popupRef.current === document.activeElement)) ||
+			(isExperimentEnabled('platform_editor_block_control_migration') &&
+				// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+				document.activeElement instanceof HTMLElement &&
+				// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+				document.activeElement.closest(NESTED_DROPDOWN_MENU) !== null)) ??
 		false;
 
 	const selectedByShortcutOrDragHandle = !!isSelectedViaDragHandle || !!openedViaKeyboard;
@@ -280,24 +468,15 @@ const BlockMenu = ({
 	};
 
 	const handleClickOutside = (e: MouseEvent) => {
-		// check if the clicked element was another drag handle, if so don't close the menu
-		if (e.target instanceof HTMLElement && e.target.closest(DRAG_HANDLE_SELECTOR)) {
+		// check if the clicked element was another drag handle or nested dropdown menu, if so don't close the menu
+		if (
+			e.target instanceof HTMLElement &&
+			(e.target.closest(DRAG_HANDLE_SELECTOR) || e.target.closest(NESTED_DROPDOWN_MENU))
+		) {
 			return;
 		}
 
 		closeMenu();
-	};
-
-	const closeMenu = () => {
-		api?.core.actions.execute(({ tr }) => {
-			api?.blockControls?.commands.toggleBlockMenu({ closeMenu: true })({ tr });
-			onDropdownOpenChanged(false);
-			api?.userIntent?.commands.setCurrentUserIntent(
-				currentUserIntent === 'blockMenuOpen' ? 'default' : currentUserIntent || 'default',
-			)({ tr });
-
-			return tr;
-		});
 	};
 
 	if (
@@ -319,6 +498,7 @@ const BlockMenu = ({
 	if (!(targetHandleRef instanceof HTMLElement)) {
 		return null;
 	}
+	const blockMenuContent = <BlockMenuContent api={api} setRef={setRef} />;
 
 	return (
 		<ErrorBoundary
@@ -336,11 +516,17 @@ const BlockMenu = ({
 				boundariesElement={boundariesElement}
 				scrollableElement={scrollableElement}
 				target={targetHandleRef}
+				visibilityTarget={visibilityTarget}
 				zIndex={akEditorFloatingOverlapPanelZIndex}
 				fitWidth={DEFAULT_MENU_WIDTH}
 				fitHeight={menuHeight}
 				preventOverflow={true}
 				stick={true}
+				hideWhenTargetOutOfView={isPopupTargetVisibilityEnabled}
+				onTargetVisibilityChanged={
+					isPopupTargetVisibilityEnabled ? handleTargetVisibilityChanged : undefined
+				}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				offset={[DRAG_HANDLE_WIDTH + DRAG_HANDLE_OFFSET_PADDING, targetHandleHeightOffset]}
 				focusTrap={
 					openedViaKeyboard
@@ -349,10 +535,20 @@ const BlockMenu = ({
 						: undefined
 				}
 			>
-				<BlockMenuContent api={api} setRef={setRef} />
+				{isPopupTargetVisibilityEnabled ? (
+					<BlockMenuTargetVisibilityProvider value={targetVisible}>
+						{blockMenuContent}
+					</BlockMenuTargetVisibilityProvider>
+				) : (
+					blockMenuContent
+				)}
 			</PopupWithListeners>
 		</ErrorBoundary>
 	);
 };
 
-export default injectIntl(BlockMenu);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<BlockMenuProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<BlockMenuProps & WrappedComponentProps>;
+} = injectIntl(BlockMenu);
+export default _default_1;

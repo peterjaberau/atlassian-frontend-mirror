@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
+
 import { token } from '@atlaskit/tokens';
 
 const articlesListContainerStyles = css({
@@ -16,9 +18,9 @@ export const ArticlesListContainer = ({ children }: { children: React.ReactNode 
 );
 
 const toggleShowMoreArticlesContainerStyles = css({
-	paddingTop: token('space.100', '8px'),
+	paddingTop: token('space.100'),
 	paddingRight: 0,
-	paddingBottom: token('space.100', '8px'),
+	paddingBottom: token('space.100'),
 	paddingLeft: 0,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	span: {

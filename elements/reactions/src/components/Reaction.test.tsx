@@ -1,20 +1,24 @@
 import React from 'react';
+
 import { act, fireEvent, screen } from '@testing-library/react';
-import { AnalyticsListener, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { type EmojiDescription, type EmojiProvider, toEmojiId } from '@atlaskit/emoji';
-import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
 import { getTestEmojiRepository } from '@atlaskit/util-data-test/get-test-emoji-repository';
+import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
+
+import {
+	mockReactDomWarningGlobal,
+	renderWithIntl,
+	useFakeTimers,
+} from '../__tests__/_testing-library';
 import {
 	type ReactionSummary,
 	type ReactionClick,
 	type ReactionMouseEnter,
 	type User,
 } from '../types';
-import {
-	mockReactDomWarningGlobal,
-	renderWithIntl,
-	useFakeTimers,
-} from '../__tests__/_testing-library';
 import { RENDER_FLASHANIMATION_TESTID } from './FlashAnimation';
 import { Reaction, RENDER_REACTION_TESTID } from './Reaction';
 
@@ -79,6 +83,7 @@ const renderReaction = ({
 	isViewOnly = false,
 	showSubtleStyle = false,
 	optimistic = false,
+	optimisticImageURL,
 }: {
 	count: number;
 	enableFlash?: boolean;
@@ -87,6 +92,7 @@ const renderReaction = ({
 	onEvent?: (event: UIAnalyticsEvent, channel?: string) => void;
 	onMouseEnter?: ReactionMouseEnter;
 	optimistic?: boolean;
+	optimisticImageURL?: string;
 	reacted: boolean;
 	showOpaqueBackground?: boolean;
 	showParticleEffect?: boolean;
@@ -105,6 +111,7 @@ const renderReaction = ({
 				showOpaqueBackground={showOpaqueBackground}
 				isViewOnly={isViewOnly}
 				showSubtleStyle={showSubtleStyle}
+				optimisticImageURL={optimisticImageURL}
 			/>
 		</AnalyticsListener>,
 	);
@@ -118,9 +125,10 @@ describe('@atlaskit/reactions/components/Reaction', () => {
 		const reacted = false;
 		renderReaction({ reacted, count });
 
-		const emojiButton = await screen.findByTestId(RENDER_REACTION_TESTID);
-		expect(emojiButton).toBeInTheDocument();
-		expect(emojiButton).toHaveAttribute('data-emoji-id', grinning.id);
+		// Reaction renders RENDER_REACTION_TESTID in two places (isListItem and default paths)
+		const emojiButtons = await screen.findAllByTestId(RENDER_REACTION_TESTID);
+		expect(emojiButtons[0]).toBeInTheDocument();
+		expect(emojiButtons[0]).toHaveAttribute('data-emoji-id', grinning.id);
 	});
 
 	it('should call onClick on click', async () => {

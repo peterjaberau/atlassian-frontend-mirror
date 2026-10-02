@@ -5,8 +5,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { skipA11yAudit } from '@af/accessibility-testing';
 import noop from '@atlaskit/ds-lib/noop';
 
-import { Tab, TabList } from '../../index';
-import { TabListContext } from '../../internal/context';
+import Tab from '../../components/tab';
+import TabList from '../../components/tab-list';
+import { TabListContext } from '../../internal/tab-list-context';
 import { type TabListAttributesType } from '../../types';
 
 const tabList = (
@@ -168,7 +169,7 @@ describe('@atlaskit/tabs', () => {
 			screen.getByText('Tab 2 label').click();
 
 			expect(spy).toHaveBeenCalled();
-			expect(spy).toBeCalledWith(1);
+			expect(spy).toHaveBeenCalledWith(1);
 		});
 
 		describe('can navigate via keyboard', () => {

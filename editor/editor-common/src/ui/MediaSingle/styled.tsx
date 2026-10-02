@@ -1,24 +1,28 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import type { RefObject } from 'react';
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
-import type { RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
 import {
 	akEditorDefaultLayoutWidth,
 	akEditorFullPageMaxWidth,
 	akEditorFullWidthLayoutWidth,
 } from '@atlaskit/editor-shared-styles';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { token } from '@atlaskit/tokens';
 
 import { nonWrappedLayouts } from '../../utils';
 import { calcBreakoutWidth, calcWideWidth } from '../../utils/breakout';
-
+import { calcResizedWidth } from './calcResizedWidth';
+import { roundToClosestEvenPxValue } from './roundToClosestEvenPxValue';
 function float(layout: MediaSingleLayout): string {
 	switch (layout) {
 		case 'wrap-right':
@@ -112,6 +116,7 @@ export function calcLegacyWidth(
  * @param isResized
  * @example
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function calcLegacyWidthForInline(
 	layout: MediaSingleLayout,
 	width: number,
@@ -135,43 +140,6 @@ export function calcLegacyWidthForInline(
 				: fullWidthMode
 					? getWidthIfFullWidthMode(width, containerWidth)
 					: getWidthIfDefaultMode(width, containerWidth);
-	}
-}
-
-/**
- * Calculates the image width for previously resized images.
- *
- * Wide and full-width images are always that size (960px and 100%); there is
- * no distinction between max-width and width.
- * @param layout
- * @param width
- * @param containerWidth
- * @example
- */
-export function calcResizedWidth(
-	layout: MediaSingleLayout,
-	width: number,
-	containerWidth: number = 0,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any {
-	switch (layout) {
-		case 'wide':
-			return calcWideWidth(containerWidth);
-		case 'full-width':
-			return calcBreakoutWidth(layout, containerWidth);
-		default:
-			return `${width}px`;
-	}
-}
-
-function calcMaxWidth(layout: MediaSingleLayout, containerWidth: number) {
-	switch (layout) {
-		case 'wide':
-			return calcWideWidth(containerWidth);
-		case 'full-width':
-			return calcBreakoutWidth(layout, containerWidth);
-		default:
-			return '100%';
 	}
 }
 
@@ -205,30 +173,6 @@ function isImageAligned(layout: MediaSingleLayout): string {
 			return 'margin-left: 0';
 		default:
 			return '';
-	}
-}
-
-/**
- * Reduces the given CSS width value to the next lowest even pixel value if the value is in px.
- * This is to mitigate subpixel rendering issues of embedded smart links.
- *
- * @param widthValue CSS width value to be rounded
- * @returns Reduced CSS width value where px value given, or otherwise the original value
- * @example
- */
-
-// widthValue could be a string in px, rem or percentage, e.g. "800px", "100%", etc.
-export function roundToClosestEvenPxValue(widthValue: string): string {
-	try {
-		if (widthValue.endsWith('px')) {
-			const pxWidth = parseInt(widthValue.slice(0, -2));
-
-			return `${pxWidth - (pxWidth % 2)}px`;
-		}
-
-		return widthValue;
-	} catch {
-		return widthValue;
 	}
 }
 
@@ -268,6 +212,7 @@ export interface MediaSingleWrapperProps {
  * @param root0.isInRenderer
  * @example
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediaSingleDimensionHelper = ({
 	containerWidth = 0,
 	fullWidthMode,
@@ -279,24 +224,20 @@ export const MediaSingleDimensionHelper = ({
 	isNestedNode = false,
 	isInsideOfInlineExtension = false,
 	isInRenderer = false,
-}: MediaSingleWrapperProps) => {
+}: MediaSingleWrapperProps): SerializedStyles => {
 	const calculatedWidth = roundToClosestEvenPxValue(
 		isExtendedResizeExperienceOn
 			? `${mediaSingleWidth || width}px`
 			: mediaSingleWidth
 				? calcResizedWidth(layout, width || 0, containerWidth)
 				: calcLegacyWidth(
-					layout,
-					width || 0,
-					containerWidth,
-					fullWidthMode,
-					isResized,
-					isInsideOfInlineExtension,
-				),
-	);
-
-	const calculatedMaxWidth = roundToClosestEvenPxValue(
-		isExtendedResizeExperienceOn ? `${containerWidth}px` : calcMaxWidth(layout, containerWidth),
+						layout,
+						width || 0,
+						containerWidth,
+						fullWidthMode,
+						isResized,
+						isInsideOfInlineExtension,
+					),
 	);
 
 	const cssMaxWidth = isExtendedResizeExperienceOn
@@ -331,14 +272,12 @@ export const MediaSingleDimensionHelper = ({
 
 		${isInRenderer
 			? css({
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-container-queries
-				'@container ak-renderer-wrapper (min-width: 1px)': {
-					maxWidth: '100cqw',
-				},
-			})
-			: expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)
-				? `max-width: ${cssMaxWidth};`
-				: `max-width: ${calculatedMaxWidth};`}
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-container-queries
+					'@container ak-renderer-wrapper (min-width: 1px)': {
+						maxWidth: '100cqw',
+					},
+				})
+			: `max-width: ${cssMaxWidth};`}
 
 		${isExtendedResizeExperienceOn &&
 		`&[class*='is-resizing'] {
@@ -346,9 +285,10 @@ export const MediaSingleDimensionHelper = ({
       box-shadow: none !important;
     }
 
-    ${!isNestedNode &&
-		nonWrappedLayouts.includes(layout) &&
-		`margin-left: 50%;
+    ${
+			!isNestedNode &&
+			nonWrappedLayouts.includes(layout) &&
+			`margin-left: 50%;
       transform: translateX(-50%);`
 		}
   }`}
@@ -362,10 +302,10 @@ export const MediaSingleDimensionHelper = ({
 
 		&[class*='not-resizing'] {
 			${isNestedNode
-			? /* Make nested node appear responsive when resizing table cell */
-			`max-width: 100%;`
-			: nonWrappedLayouts.includes(layout) &&
-			`margin-left: 50%;
+				? /* Make nested node appear responsive when resizing table cell */
+					`max-width: 100%;`
+				: nonWrappedLayouts.includes(layout) &&
+					`margin-left: 50%;
         transform: translateX(-50%);`}
 		}
 
@@ -401,8 +341,8 @@ const RenderFallbackContainer = ({
 			: ''}
 	`;
 
-// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression -- Needs manual remediation
-export const mediaWrapperStyle = (props: MediaWrapperProps) => css`
+// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression, @atlaskit/volt-strict-mode/no-multiple-exports -- Needs manual remediation
+export const mediaWrapperStyle = (props: MediaWrapperProps): SerializedStyles => css`
 	position: relative;
 
 	${RenderFallbackContainer(props)}
@@ -434,6 +374,7 @@ export const mediaWrapperStyle = (props: MediaWrapperProps) => css`
 	/* Renderer */
 	[data-node-type='media'] {
 		position: static !important;
+		height: auto !important;
 
 		> div {
 			position: absolute;
@@ -442,10 +383,17 @@ export const mediaWrapperStyle = (props: MediaWrapperProps) => css`
 	}
 `;
 
-export const MediaWrapper = ({
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const MediaWrapper: {
+	({
+		children,
+		...rest
+	}: React.HTMLAttributes<HTMLDivElement> & MediaWrapperProps): jsx.JSX.Element;
+	displayName: string;
+} = ({
 	children,
 	...rest
-}: React.HTMLAttributes<HTMLDivElement> & MediaWrapperProps) => (
+}: React.HTMLAttributes<HTMLDivElement> & MediaWrapperProps): jsx.JSX.Element => (
 	// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 	<div css={mediaWrapperStyle(rest)}>{children}</div>
 );
@@ -463,7 +411,12 @@ type MediaBorderGapFillerProps = {
 	borderColor: string;
 };
 
-export const MediaBorderGapFiller = ({ borderColor }: MediaBorderGapFillerProps) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const MediaBorderGapFiller = ({
+	borderColor,
+}: MediaBorderGapFillerProps): jsx.JSX.Element => {
+	const borderRadius = token('radius.large', '8px');
+
 	return (
 		<div
 			style={{
@@ -473,8 +426,12 @@ export const MediaBorderGapFiller = ({ borderColor }: MediaBorderGapFillerProps)
 				inset: '0px',
 				border: `0.5px solid ${borderColor}`,
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				borderRadius: '1px',
+				borderRadius,
 			}}
 		/>
 	);
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { calcResizedWidth } from './calcResizedWidth';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { roundToClosestEvenPxValue } from './roundToClosestEvenPxValue';

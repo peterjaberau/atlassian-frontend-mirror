@@ -1,6 +1,6 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-jest.mock('@atlaskit/platform-feature-flags');
+jest.mock('@atlaskit/platform-feature-flags/fg');
 
 // Helpers to mock PerformanceNavigationTiming with serverTiming + responseStart
 function mockNavigationTimings(options?: {
@@ -11,7 +11,6 @@ function mockNavigationTimings(options?: {
 		responseStart: options?.responseStart,
 		serverTiming: options?.serverTiming,
 	};
-	// @ts-ignore - JSDOM's performance is writable for tests
 	global.performance.getEntriesByType = jest.fn().mockReturnValue([navEntry]);
 }
 
@@ -183,6 +182,62 @@ describe('ssr module', () => {
 					},
 				});
 				expect(ssr.getSSRFeatureFlags()).toBeUndefined();
+			});
+		});
+	});
+
+	describe('ssr success breakdown payload', () => {
+		it('returns breakdown object; undefined when not configured, null, or throws', () => {
+			jest.isolateModules(() => {
+				const ssr = require('./index');
+				const breakdown = {
+					servedStaticFallback: false,
+					notRendered: false,
+					hadRuntimeError: false,
+					circuitBreakerOpen: false,
+					hadFailedResources: false,
+					fetchAborted: false,
+					emittedSuspenseFallback: false,
+					hadEarlyFlushFailure: false,
+					hadRouteResourceFailure: false,
+					failedResources: [],
+					failedResourceCount: 0,
+					failedRouteResources: [],
+					failedRouteResourceCount: 0,
+				};
+
+				// returns object
+				ssr.configure({
+					getDoneMark: () => 1,
+					getFeatureFlags: () => ({}),
+					getSsrSuccessBreakdown: () => breakdown,
+				});
+				expect(ssr.getSSRSuccessBreakdown()).toEqual(breakdown);
+
+				// returns null -> undefined
+				ssr.configure({
+					getDoneMark: () => 1,
+					getFeatureFlags: () => ({}),
+					getSsrSuccessBreakdown: () => null,
+				});
+				expect(ssr.getSSRSuccessBreakdown()).toBeUndefined();
+
+				// missing getSsrSuccessBreakdown -> undefined (exercises the
+				// `!config?.getSsrSuccessBreakdown` guard; this is the real
+				// "not configured" path that the create-payload wrapper test
+				// can't reach because the wrapper unconditionally delegates.)
+				ssr.configure({ getDoneMark: () => 1, getFeatureFlags: () => ({}) } as any);
+				expect(ssr.getSSRSuccessBreakdown()).toBeUndefined();
+
+				// throws -> undefined
+				ssr.configure({
+					getDoneMark: () => 1,
+					getFeatureFlags: () => ({}),
+					getSsrSuccessBreakdown: () => {
+						throw new Error('boom');
+					},
+				});
+				expect(ssr.getSSRSuccessBreakdown()).toBeUndefined();
 			});
 		});
 	});

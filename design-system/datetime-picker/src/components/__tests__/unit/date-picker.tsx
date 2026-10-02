@@ -2,10 +2,12 @@ import React from 'react';
 
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+// oxlint-disable-next-line @atlassian/no-restricted-imports
 import { format, parseISO } from 'date-fns';
 import cases from 'jest-in-case';
 
 import { skipA11yAudit } from '@af/accessibility-testing';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 
 import { convertTokens } from '../../../internal/parse-tokens';
 import { type DatePickerBaseProps } from '../../../types';
@@ -50,6 +52,7 @@ describe('DatePicker', () => {
 
 	beforeEach(() => {
 		skipA11yAudit();
+		failGate('platform-dst-top-layer');
 	});
 
 	it('should be required when prop is passed', () => {
@@ -304,6 +307,21 @@ describe('DatePicker', () => {
 				expect(value).toHaveAttribute('lang', lang);
 			});
 
+			it('should normalise locale underscores in the `lang` attribute', () => {
+				render(
+					createDatePicker({
+						value: exampleDate.iso,
+						locale: 'en_GB',
+					}),
+				);
+
+				const value = screen.getByText(
+					`${exampleDate.parts.day.padStart(2, '0')}/${exampleDate.parts.month.padStart(2, '0')}/${exampleDate.parts.year}`,
+				);
+
+				expect(value).toHaveAttribute('lang', 'en-GB');
+			});
+
 			cases(
 				'should format date using provided locale',
 				({ locale, result }: { locale: string; result: string }) => {
@@ -327,6 +345,36 @@ describe('DatePicker', () => {
 					},
 				],
 			);
+
+			cases(
+				"should use locale's starting weekday if not provided",
+				({ locale, result }: { locale: string; result: string }) => {
+					passGate('platform-dst-locale-week-start-day');
+					render(
+						createDatePicker({
+							value: exampleDate.iso,
+							locale: locale,
+						}),
+					);
+
+					fireEvent.focus(getInput());
+
+					// Weekday column headers are aria-hidden; query them explicitly.
+					expect(screen.getAllByRole('columnheader', { hidden: true })[0]).toHaveAccessibleName(
+						result,
+					);
+				},
+				[
+					{
+						locale: 'en-US',
+						result: 'Sun',
+					},
+					{
+						locale: 'es-ES',
+						result: 'lun',
+					},
+				],
+			);
 		});
 
 		describe('parseInputValue', () => {
@@ -344,6 +392,76 @@ describe('DatePicker', () => {
 				fireEvent.input(input, { target: { value: exampleDate.input } });
 				expect(onChangeSpy).not.toHaveBeenCalled();
 
+				// eslint-disable-next-line testing-library/prefer-user-event
+				fireEvent.keyDown(input, { key: 'Enter' });
+
+				expect(onChangeSpy).toHaveBeenCalledWith(exampleDate.iso, expect.any(Object));
+			});
+
+			it('parses a dateFormat display label', () => {
+				const onChangeSpy = jest.fn();
+				const dateFormat = 'MMMM/DD/YYYY';
+				const displayLabel = format(parseISO(exampleDate.iso), convertTokens(dateFormat));
+
+				render(
+					createDatePicker({
+						id: 'dateFormatParse-DatePicker',
+						dateFormat,
+						onChange: onChangeSpy,
+					}),
+				);
+
+				const input = getInput();
+				// eslint-disable-next-line testing-library/prefer-user-event
+				fireEvent.input(input, { target: { value: displayLabel } });
+				// eslint-disable-next-line testing-library/prefer-user-event
+				fireEvent.keyDown(input, { key: 'Enter' });
+
+				expect(onChangeSpy).toHaveBeenCalledWith(exampleDate.iso, expect.any(Object));
+			});
+
+			describe('two-digit year entry', () => {
+				beforeEach(() => {
+					jest.useFakeTimers();
+					jest.setSystemTime(new Date(2026, 8, 16, 12));
+				});
+
+				afterEach(() => {
+					jest.useRealTimers();
+				});
+
+				it.each([
+					[false, '1926-02-01'],
+					[true, '2026-02-01'],
+				])('emits the expected century with reference date gate %s', async (enabled, expected) => {
+					const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+					(enabled ? passGate : failGate)('platform-dst-dp-current-reference-date');
+					const onChangeSpy = jest.fn();
+					render(createDatePicker({ dateFormat: 'DD.MM.YY', onChange: onChangeSpy }));
+
+					await user.type(getInput(), '01.02.26');
+					expect(onChangeSpy).not.toHaveBeenCalled();
+					await user.keyboard('{Enter}');
+
+					expect(onChangeSpy).toHaveBeenCalledWith(expected, expect.any(Object));
+					expect(screen.getByTestId(testIdContainer)).toHaveTextContent('01.02.26');
+				});
+			});
+
+			it('falls back to locale parsing when typed input does not match dateFormat', () => {
+				const onChangeSpy = jest.fn();
+
+				render(
+					createDatePicker({
+						id: 'dateFormatFallback-DatePicker',
+						dateFormat: 'MMM D, YYYY',
+						onChange: onChangeSpy,
+					}),
+				);
+
+				const input = getInput();
+				// eslint-disable-next-line testing-library/prefer-user-event
+				fireEvent.input(input, { target: { value: exampleDate.input } });
 				// eslint-disable-next-line testing-library/prefer-user-event
 				fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -1113,5 +1231,27 @@ describe('DatePicker', () => {
 			expect(queryCalendar()).not.toBeInTheDocument();
 			expect(calendarButton).toHaveFocus();
 		});
+	});
+});
+
+describe.each([false, true])('Select blur-close experiment %s', (blurCloseEnabled) => {
+	beforeEach(() => {
+		passGate('platform-dst-top-layer');
+		(blurCloseEnabled ? passGate : failGate)('platform_dst_select_menu_close_on_blur');
+	});
+
+	it('calls onMenuClose once when Escape closes a calendar-focused menu', async () => {
+		const user = userEvent.setup();
+		const onMenuClose = jest.fn();
+		render(createDatePicker({ selectProps: { onMenuClose } }));
+
+		await user.tab();
+		await user.tab();
+		expect(screen.getByTestId(`${testId}--calendar--previous-year`)).toHaveFocus();
+		onMenuClose.mockClear();
+
+		await user.keyboard('{Escape}');
+
+		expect(onMenuClose).toHaveBeenCalledTimes(1);
 	});
 });

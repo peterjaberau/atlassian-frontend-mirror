@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/tokens",
-	"version": "11.0.0",
+	"version": "20.1.0",
 	"description": "Design tokens are the single source of truth to name and store design decisions.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,28 +17,39 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Design tokens",
 			"category": "Libraries"
 		}
 	},
 	"scripts": {
 		"prebuilt": "yes | cp -R $(npx repo-root)/packages/design-system/tokens/dist/cjs/* $(npx repo-root)/packages/design-system/tokens/prebuilt/",
-		"ak-postbuild": "yarn prebuilt && (cd $(npx repo-root) && yarn build --includeDependencies @atlassian/codegen -d cjs,esm,es2019) && yarn workspace @atlaskit/tokens codegen-tokens && yarn workspace @atlaskit/tokens check-clean-git",
+		"ak-postbuild": "yarn prebuilt && afm workspace @atlaskit/tokens codegen-tokens && afm workspace @atlaskit/tokens check-clean-git",
 		"check-clean-git": "git diff --exit-code -- packages/design-system/tokens/ || (echo 'tokens are out of date, run yarn build tokens' && false)",
 		"codegen-tokens": "run-ts ./scripts/style-dictionary/build.tsx && run-ts ./scripts/style-dictionary/build-plugin-token-map.tsx && cd $(npx repo-root)/packages/design-system/primitives && yarn codegen-styles && cd $(npx repo-root)/packages/design-system/ds-explorations && yarn codegen-styles"
 	},
 	"dependencies": {
 		"@atlaskit/ds-lib": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@babel/traverse": "root:*",
 		"@babel/types": "root:*",
 		"bind-event-listener": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/formatting": "workspace:^",
@@ -53,7 +64,6 @@
 		"@atlaskit/dropdown-menu": "workspace:^",
 		"@atlaskit/dynamic-table": "workspace:^",
 		"@atlaskit/form": "workspace:^",
-		"@atlaskit/grid": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/inline-message": "workspace:^",
@@ -71,37 +81,22 @@
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlassian/codegen": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
 		"@atlassian/ts-loader": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@babel/core": "root:*",
 		"@compiled/react": "root:*",
 		"@hypermod/utils": "root:*",
 		"@testing-library/react": "root:*",
 		"color-blend": "root:*",
-		"echarts": "root:*",
-		"echarts-for-react": "root:*",
 		"jscodeshift": "root:*",
 		"json5": "root:*",
 		"lodash": "root:*",
 		"postcss": "root:*",
 		"postcss-less": "root:*",
-		"react": "root:*",
+		"react": "^19.0.0",
 		"react-window": "root:*",
 		"style-dictionary": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions",
-			"circular-dependencies": "file-and-folder-level"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"ui-components": "lite-mode",
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"compiled"
-			]
-		}
 	},
 	"hypermod": {
 		"dependencies": [
@@ -110,42 +105,70 @@
 			"postcss-less"
 		]
 	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
 		".": "./src/index.tsx",
-		"./custom-themes": "./src/entry-points/custom-themes.tsx",
-		"./figma/atlassian-light.json": "./figma/atlassian-light.json",
-		"./figma/atlassian-dark.json": "./figma/atlassian-dark.json",
-		"./palettes-raw": "./src/entry-points/palettes-raw.tsx",
-		"./tokens-raw": "./src/entry-points/tokens-raw.tsx",
-		"./token-ids": "./src/entry-points/token-ids.tsx",
-		"./token-names": "./src/entry-points/token-names.tsx",
-		"./token-metadata": "./src/entry-points/token-metadata.codegen.tsx",
-		"./token-order": "./src/entry-points/token-order.tsx",
-		"./token-default-values": "./src/entry-points/token-default-values.tsx",
-		"./rename-mapping": "./src/entry-points/rename-mapping.tsx",
+		"./artifacts/theme-import-map": "./src/artifacts/theme-import-map.tsx",
+		"./artifacts/types": "./src/artifacts/types.tsx",
+		"./atlassian-dark": "./src/artifacts/tokens-raw/atlassian-dark.tsx",
+		"./atlassian-light": "./src/artifacts/tokens-raw/atlassian-light.tsx",
+		"./UNSAFE_test-light": "./src/artifacts/tokens-raw/UNSAFE-test-light.tsx",
+		"./UNSAFE_test-dark": "./src/artifacts/tokens-raw/UNSAFE-test-dark.tsx",
+		"./atlassian-motion": "./src/artifacts/tokens-raw/atlassian-motion.tsx",
+		"./atlassian-shape": "./src/artifacts/tokens-raw/atlassian-shape.tsx",
+		"./atlassian-spacing": "./src/artifacts/tokens-raw/atlassian-spacing.tsx",
+		"./atlassian-typography": "./src/artifacts/tokens-raw/atlassian-typography.tsx",
 		"./babel-plugin": {
-			"types": "./src/entry-points/babel-plugin.tsx",
-			"publish": "./src/entry-points/babel-plugin.tsx",
+			"types": "./src/babel-plugin/plugin.tsx",
+			"publish": "./src/babel-plugin/plugin.tsx",
 			"default": "./babel-plugin.js"
 		},
-		"./css-type-schema": "./src/entry-points/css-type-schema.codegen.tsx"
+		"./constants": "./src/constants.tsx",
+		"./css-type-schema": "./src/entry-points/css-type-schema.codegen.tsx",
+		"./custom-themes": "./src/load-custom-theme-styles.tsx",
+		"./enable-global-theme": "./src/enable-global-theme.tsx",
+		"./figma/atlassian-dark.json": "./figma/atlassian-dark.json",
+		"./figma/atlassian-light.json": "./figma/atlassian-light.json",
+		"./get-global-theme": "./src/get-global-theme.tsx",
+		"./get-ssr-auto-script": "./src/get-ssr-auto-script.tsx",
+		"./get-theme-html-attrs": "./src/get-theme-html-attrs.tsx",
+		"./get-theme-override-preferences": "./src/utils/get-theme-override-preferences.tsx",
+		"./get-theme-preferences": "./src/utils/get-theme-preferences.tsx",
+		"./get-theme-styles": "./src/get-theme-styles.tsx",
+		"./get-token": "./src/get-token.tsx",
+		"./get-token-value": "./src/get-token-value.tsx",
+		"./palette": "./src/artifacts/palettes-raw/palette.tsx",
+		"./rename-mapping": "./src/artifacts/replacement-mapping.tsx",
+		"./set-global-theme": "./src/set-global-theme.tsx",
+		"./theme-color-modes": "./src/theme-color-modes.tsx",
+		"./theme-config": "./src/theme-config.tsx",
+		"./theme-ids": "./src/theme-ids.tsx",
+		"./theme-mutation-observer": "./src/theme-mutation-observer.tsx",
+		"./theme-object-to-string": "./src/theme-object-to-string.tsx",
+		"./theme-options-schema": "./src/theme-options-schema.tsx",
+		"./theme-state": "./src/theme-state.tsx",
+		"./theme-state-defaults": "./src/theme-state-defaults.tsx",
+		"./theme-string-to-object": "./src/theme-string-to-object.tsx",
+		"./token": "./src/index.tsx",
+		"./token-default-values": "./src/artifacts/token-default-values.tsx",
+		"./token-metadata": "./src/entry-points/token-metadata.codegen.tsx",
+		"./token-names": "./src/artifacts/token-names.tsx",
+		"./token-order": "./src/utils/token-order.tsx",
+		"./types": "./src/types.tsx",
+		"./typography-palette": "./src/artifacts/palettes-raw/typography-palette.tsx",
+		"./unsafe-load-custom-theme-styles": "./src/unsafe-load-custom-theme-styles.tsx",
+		"./use-theme-observer": "./src/use-theme-observer.tsx",
+		"./utils/get-css-custom-property": "./src/utils/get-css-custom-property.tsx",
+		"./utils/get-fully-qualified-token-id": "./src/utils/get-fully-qualified-token-id.tsx",
+		"./utils/get-token-id": "./src/utils/get-token-id.tsx",
+		"./theme-state-transformer": "./src/entry-points/theme-state-transformer.tsx",
+		"./palettes-raw": "./src/entry-points/palettes-raw.tsx",
+		"./tokens-raw": "./src/entry-points/tokens-raw.tsx"
 	},
 	"platform-feature-flags": {
+		"platform-dst-tokens-finesse": {
+			"type": "boolean"
+		},
 		"platform_increased-contrast-themes": {
-			"type": "boolean"
-		},
-		"platform-dst-shape-theme-default": {
-			"type": "boolean"
-		},
-		"platform_dst_subtree_theming": {
 			"type": "boolean"
 		}
 	},

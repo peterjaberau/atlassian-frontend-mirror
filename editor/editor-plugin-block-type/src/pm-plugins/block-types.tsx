@@ -10,10 +10,11 @@ import {
 	HEADING_5_MENU_ITEM,
 	HEADING_6_MENU_ITEM,
 	NORMAL_TEXT_MENU_ITEM,
+	SMALL_TEXT_MENU_ITEM,
 	TEXT_STYLES_MENU_SECTION_RANK,
 } from '@atlaskit/editor-common/toolbar';
 import {
-	TextIcon as EditorToolbarTextIcon,
+	TextNormalIcon,
 	QuoteIcon,
 	HeadingOneIcon,
 	HeadingTwoIcon,
@@ -21,6 +22,7 @@ import {
 	HeadingFourIcon,
 	HeadingFiveIcon,
 	HeadingSixIcon,
+	TextSmallIcon,
 } from '@atlaskit/editor-toolbar';
 import TextHeadingFiveIcon from '@atlaskit/icon-lab/core/text-heading-five';
 import TextHeadingFourIcon from '@atlaskit/icon-lab/core/text-heading-four';
@@ -29,7 +31,6 @@ import TextHeadingSixIcon from '@atlaskit/icon-lab/core/text-heading-six';
 import TextHeadingThreeIcon from '@atlaskit/icon-lab/core/text-heading-three';
 import TextHeadingTwoIcon from '@atlaskit/icon-lab/core/text-heading-two';
 import TextIcon from '@atlaskit/icon/core/text';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { BlockType, BlockTypeWithRank } from './types';
 import { Text, H1, H2, H3, H4, H5, H6 } from './ui/ToolbarBlockType/icons';
@@ -40,6 +41,14 @@ export const NORMAL_TEXT: BlockType = {
 	nodeName: 'paragraph',
 	tagName: 'p',
 	icon: <TextIcon label="" />,
+	LEGACY_icon: <Text />,
+};
+export const SMALL_TEXT: BlockType = {
+	name: 'smallText',
+	title: messages.smallText,
+	nodeName: 'paragraph',
+	markName: 'fontSize',
+	icon: <TextSmallIcon label="" />,
 	LEGACY_icon: <Text />,
 };
 export const HEADING_1: BlockType = {
@@ -118,8 +127,9 @@ export const OTHER: BlockType = {
 	nodeName: '',
 };
 
-export const TEXT_BLOCK_TYPES = [
+export const TEXT_BLOCK_TYPES: BlockType[] = [
 	NORMAL_TEXT,
+	SMALL_TEXT,
 	HEADING_1,
 	HEADING_2,
 	HEADING_3,
@@ -139,13 +149,25 @@ enum ToolbarBlockTypes {
 	blockquote = 'blockquote',
 }
 
-export const toolbarBlockTypesWithRank = (): Record<ToolbarBlockTypes, BlockTypeWithRank> => ({
+export const toolbarBlockTypesWithRank = ({
+	allowFontSize,
+}: {
+	allowFontSize?: boolean;
+}): Record<ToolbarBlockTypes, BlockTypeWithRank> => ({
 	normal: {
 		...NORMAL_TEXT,
-		icon: <EditorToolbarTextIcon size="small" label="" />,
+		icon: <TextNormalIcon size="small" label="" />,
 		toolbarRank: TEXT_STYLES_MENU_SECTION_RANK[NORMAL_TEXT_MENU_ITEM.key],
 		toolbarKey: NORMAL_TEXT_MENU_ITEM.key,
 	},
+	...(allowFontSize && {
+		smallText: {
+			...SMALL_TEXT,
+			icon: <TextSmallIcon size="small" label="" />,
+			toolbarRank: TEXT_STYLES_MENU_SECTION_RANK[SMALL_TEXT_MENU_ITEM.key],
+			toolbarKey: SMALL_TEXT_MENU_ITEM.key,
+		},
+	}),
 	heading1: {
 		...HEADING_1,
 		icon: <HeadingOneIcon size="small" label="" />,
@@ -192,6 +214,7 @@ export const toolbarBlockTypesWithRank = (): Record<ToolbarBlockTypes, BlockType
 
 export type TextBlockTypes =
 	| 'normal'
+	| 'smallText'
 	| 'heading1'
 	| 'heading2'
 	| 'heading3'
@@ -211,29 +234,28 @@ export const FORMATTING_MARK_TYPES: string[] = [
 	'backgroundColor',
 ];
 
-export const WRAPPER_BLOCK_TYPES = [BLOCK_QUOTE, CODE_BLOCK, PANEL];
-export const ALL_BLOCK_TYPES = TEXT_BLOCK_TYPES.concat(WRAPPER_BLOCK_TYPES);
+export const WRAPPER_BLOCK_TYPES: BlockType[] = [BLOCK_QUOTE, CODE_BLOCK, PANEL];
+export const ALL_BLOCK_TYPES: BlockType[] = TEXT_BLOCK_TYPES.concat(WRAPPER_BLOCK_TYPES);
 
-export const getBlockTypesInDropdown = (includeBlockQuoteAsTextstyleOption?: boolean) => {
-	return editorExperiment('platform_editor_blockquote_in_text_formatting_menu', true, {
-		exposure: true,
-	}) && includeBlockQuoteAsTextstyleOption
-		? [...TEXT_BLOCK_TYPES, BLOCK_QUOTE]
-		: TEXT_BLOCK_TYPES;
+export const getBlockTypesInDropdown = (
+	includeBlockQuoteAsTextstyleOption?: boolean,
+): BlockType[] => {
+	return includeBlockQuoteAsTextstyleOption ? [...TEXT_BLOCK_TYPES, BLOCK_QUOTE] : TEXT_BLOCK_TYPES;
 };
 
-export const HEADINGS_BY_LEVEL = TEXT_BLOCK_TYPES.reduce<Record<number, BlockType>>(
-	(acc, blockType) => {
-		if (blockType.level && blockType.nodeName === 'heading') {
-			acc[blockType.level] = blockType;
-		}
+export const HEADINGS_BY_LEVEL: Record<number, BlockType> = TEXT_BLOCK_TYPES.reduce<
+	Record<number, BlockType>
+>((acc, blockType) => {
+	if (blockType.level && blockType.nodeName === 'heading') {
+		acc[blockType.level] = blockType;
+	}
 
-		return acc;
-	},
-	{},
-);
+	return acc;
+}, {});
 
-export const HEADINGS_BY_NAME = TEXT_BLOCK_TYPES.reduce(
+export const HEADINGS_BY_NAME: {
+	[blockType: string]: BlockType;
+} = TEXT_BLOCK_TYPES.reduce(
 	(acc, blockType) => {
 		if (blockType.level && blockType.nodeName === 'heading') {
 			acc[blockType.name] = blockType;

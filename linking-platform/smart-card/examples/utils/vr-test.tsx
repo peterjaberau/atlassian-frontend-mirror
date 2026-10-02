@@ -6,7 +6,7 @@ import React from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { SmartLinkActionType } from '@atlaskit/linking-types';
+import { SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
 import { token } from '@atlaskit/tokens';
 
 import { overrideEmbedContent } from './common';
@@ -34,11 +34,32 @@ type HorizontalWrapperProps = {
 	children: React.ReactNode;
 };
 
-export const HorizontalWrapper = ({ children }: HorizontalWrapperProps) => (
+export const HorizontalWrapper = ({ children }: HorizontalWrapperProps): JSX.Element => (
 	<div css={horizontalWrapperStyles}>{children}</div>
 );
 
-export const LozengeActionExample = {
+export const LozengeActionExample: {
+	read: {
+		action: {
+			actionType: SmartLinkActionType;
+			resourceIdentifiers: {
+				hostname: string;
+				issueKey: string;
+			};
+		};
+		providerKey: string;
+	};
+	update: {
+		action: {
+			actionType: SmartLinkActionType;
+			resourceIdentifiers: {
+				hostname: string;
+				issueKey: string;
+			};
+		};
+		providerKey: string;
+	};
+} = {
 	read: {
 		action: {
 			actionType: SmartLinkActionType.GetStatusTransitionsAction,
@@ -61,7 +82,38 @@ export const LozengeActionExample = {
 	},
 };
 
-export const LozengeActionWithPreviewExample = {
+export const LozengeActionWithPreviewExample: {
+	read: {
+		action: {
+			actionType: SmartLinkActionType;
+			resourceIdentifiers: {
+				hostname: string;
+				issueKey: string;
+			};
+		};
+		providerKey: string;
+	};
+	update: {
+		action: {
+			actionType: SmartLinkActionType;
+			resourceIdentifiers: {
+				hostname: string;
+				issueKey: string;
+			};
+		};
+		details: {
+			id: string;
+			previewData: {
+				providerName: string;
+				src: string;
+				title: string;
+				url: string;
+			};
+			url: string;
+		};
+		providerKey: string;
+	};
+} = {
 	read: {
 		...LozengeActionExample.read,
 	},
@@ -81,7 +133,41 @@ export const LozengeActionWithPreviewExample = {
 	},
 };
 
-export const LozengeActionErrorExample = {
+export const LozengeActionErrorExample: {
+	read: {
+		action: {
+			actionType: SmartLinkActionType;
+			resourceIdentifiers: {
+				issueKey: string;
+			};
+		};
+		providerKey: string;
+	};
+	update: {
+		action: {
+			actionType: SmartLinkActionType;
+			resourceIdentifiers: {
+				hostname: string;
+				issueKey: string;
+			};
+		};
+		details: {
+			id: string;
+			invokePreviewAction: {
+				actionFn: () => Promise<void>;
+				actionType: string;
+			};
+			previewData: {
+				providerName: string;
+				src: string;
+				title: string;
+				url: string;
+			};
+			url: string;
+		};
+		providerKey: string;
+	};
+} = {
 	read: {
 		action: {
 			actionType: SmartLinkActionType.GetStatusTransitionsAction,

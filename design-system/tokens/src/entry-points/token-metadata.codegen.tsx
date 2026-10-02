@@ -1,9 +1,9 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
  *
- * Metadata for generation of of `@atlaskit/ads-mcp` and https://atlassian.design/llms-tokens.txt.
+ * Metadata for generation of `@atlaskit/ads-mcp` and https://atlassian.design/llms-tokens.txt.
  *
- * @codegen <<SignedSource::6c61f13b08f7f4a5c5fb8d55f8ef5c14>>
+ * @codegen <<SignedSource::e70fa534c5916cef7086b540bbeb81c8>>
  * @codegenCommand yarn build tokens
  */
 export interface Token {
@@ -11,595 +11,590 @@ export interface Token {
 	path: string[];
 	description: string;
 	exampleValue?: string | number;
+	usageGuidelines: {
+		usage: string;
+		cssProperties: string[];
+	};
 }
 
 export const tokens: Token[] = [
 	{
-		name: 'color.text',
-		path: ['color', 'text', '[default]'],
-		description: 'Use for primary text, such as body copy, sentence case headers, and buttons.',
-		exampleValue: '#292A2E',
+		name: 'motion.avatar.enter',
+		path: ['motion', 'avatar', 'enter'],
+		description: 'Use for avatar group enter transitions.',
+		exampleValue:
+			'150ms cubic-bezier(0.4, 1, 0.6, 1) ScaleIn80to100 backwards, 150ms cubic-bezier(0.4, 1, 0.6, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.lime',
-		path: ['color', 'text', 'accent', 'lime', '[default]'],
+		name: 'motion.avatar.exit',
+		path: ['motion', 'avatar', 'exit'],
+		description: 'Use for avatar group exit transitions.',
+		exampleValue:
+			'100ms cubic-bezier(0.6, 0, 0.8, 0.6) ScaleOut100to80 forwards, 100ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.avatar.hovered',
+		path: ['motion', 'avatar', 'hovered'],
+		description: 'Use for hover state on avatar elements.',
+		exampleValue:
+			'transform 250ms linear(0, 0.021, 0.058, 0.107, 0.164, 0.227, 0.292, 0.359, 0.425, 0.49, 0.552, 0.61, 0.664, 0.714, 0.759, 0.8, 0.837, 0.869, 0.898, 0.922, 0.943, 0.961, 0.976, 0.988, 0.998, 1.006, 1.013, 1.017, 1.02, 1.023, 1.024, 1.024, 1.024, 1.024, 1.023, 1.022, 1.02, 1.019, 1.017, 1.015, 1.014, 1.012, 1.011, 1.009, 1.008, 1.007, 1.006, 1.005, 1.004, 1.003, 1.002, 1.002, 1.001, 1.001, 1.001, 1, 1, 1, 1, 1, 0.999, 0.999, 0.999, 0.999, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.blanket.enter',
+		path: ['motion', 'blanket', 'enter'],
+		description: 'Use for blanket enter transitions.',
+		exampleValue: '250ms cubic-bezier(0.4, 0, 0, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.blanket.exit',
+		path: ['motion', 'blanket', 'exit'],
+		description: 'Use for blanket exit transitions.',
+		exampleValue: '200ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.button.hovered',
+		path: ['motion', 'button', 'hovered'],
+		description: 'Use for button hover state transitions.',
+		exampleValue:
+			'background-color 150ms cubic-bezier(0.4, 1, 0.6, 1), border-color 150ms cubic-bezier(0.4, 1, 0.6, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.button.pressed',
+		path: ['motion', 'button', 'pressed'],
+		description: 'Use for button pressed state transitions.',
+		exampleValue:
+			'background-color 150ms cubic-bezier(0.4, 1, 0.6, 1), border-color 150ms cubic-bezier(0.4, 1, 0.6, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.duration.instant',
+		path: ['motion', 'duration', 'instant'],
 		description:
-			'Use for lime text on subtlest and subtler lime accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#4C6B1F',
+			'Use for instant feedback with no perceptible delay, such as list item hover, selected and focus states.',
+		exampleValue: '0ms',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.lime.bolder',
-		path: ['color', 'text', 'accent', 'lime', 'bolder'],
+		name: 'motion.duration.long',
+		path: ['motion', 'duration', 'long'],
+		description: 'Use for medium entrance transitions, such as modal enter and flag enter.',
+		exampleValue: '250ms',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.duration.medium',
+		path: ['motion', 'duration', 'medium'],
+		description: 'Use for medium exit transitions, such as modal exit and flag exit.',
+		exampleValue: '200ms',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.duration.short',
+		path: ['motion', 'duration', 'short'],
 		description:
-			'Use for lime text on subtle lime accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#37471F',
+			'Use for interactive state emphasis and small entrances, such as button hover and pressed states, popup enter, and avatar appear.',
+		exampleValue: '150ms',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.red',
-		path: ['color', 'text', 'accent', 'red', '[default]'],
+		name: 'motion.duration.xlong',
+		path: ['motion', 'duration', 'xlong'],
 		description:
-			'Use for red text on subtlest and subtler red accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#AE2E24',
+			'Use for large transitions, such as panel enter/exit, page transitions, and full-screen overlays.',
+		exampleValue: '400ms',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.red.bolder',
-		path: ['color', 'text', 'accent', 'red', 'bolder'],
+		name: 'motion.duration.xshort',
+		path: ['motion', 'duration', 'xshort'],
 		description:
-			'Use for red text on subtle red accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#5D1F1A',
+			'Use for subtle pressed states and quick exits, such as component press feedback, popup dismiss, and avatar transitions.',
+		exampleValue: '100ms',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.orange',
-		path: ['color', 'text', 'accent', 'orange', '[default]'],
+		name: 'motion.duration.xxlong',
+		path: ['motion', 'duration', 'xxlong'],
+		description: 'Use for large transitions, such as onboarding steps and full-screen overlays.',
+		exampleValue: '600ms',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.duration.xxshort',
+		path: ['motion', 'duration', 'xxshort'],
+		description: 'Use for instant feedback, such as list item hover, selected and focus states.',
+		exampleValue: '50ms',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.easing.in.practical',
+		path: ['motion', 'easing', 'in', 'practical'],
 		description:
-			'Use for orange text on subtlest and subtler orange accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#9E4C00',
+			'Starts slowly and accelerates away. Best for exit transitions where elements leaving the screen should feel like they are getting out of the way.',
+		exampleValue: 'cubic-bezier(0.6, 0, 0.8, 0.6)',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.orange.bolder',
-		path: ['color', 'text', 'accent', 'orange', 'bolder'],
+		name: 'motion.easing.inout.bold',
+		path: ['motion', 'easing', 'inout', 'bold'],
 		description:
-			'Use for orange text on subtle orange accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#693200',
+			'The bold in-out curve pairs naturally with scale and repositioning of elements. It controls both the start and end of the motion.',
+		exampleValue: 'cubic-bezier(0.4, 0, 0, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.yellow',
-		path: ['color', 'text', 'accent', 'yellow', '[default]'],
+		name: 'motion.easing.out.practical',
+		path: ['motion', 'easing', 'out', 'practical'],
 		description:
-			'Use for yellow text on subtlest and subtler yellow accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#7F5F01',
+			'A practical, everyday enter curve. Less dramatic than the bold variant, good for subtle transitions like content swaps, tab changes, and list reordering.',
+		exampleValue: 'cubic-bezier(0.4, 1, 0.6, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.yellow.bolder',
-		path: ['color', 'text', 'accent', 'yellow', 'bolder'],
+		name: 'motion.easing.out.bold',
+		path: ['motion', 'easing', 'out', 'bold'],
 		description:
-			'Use for yellow text on subtle yellow accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#533F04',
+			'Elements arrive quickly and decelerate to a stop. The fast start grabs attention and the gentle landing feels controlled.',
+		exampleValue: 'cubic-bezier(0, 0.4, 0, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.green',
-		path: ['color', 'text', 'accent', 'green', '[default]'],
+		name: 'motion.flag.enter',
+		path: ['motion', 'flag', 'enter'],
+		description: 'Use for flag enter transitions.',
+		exampleValue:
+			'250ms cubic-bezier(0, 0.4, 0, 1) SlideIn50PercentLeft backwards, 250ms cubic-bezier(0, 0.4, 0, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.flag.exit',
+		path: ['motion', 'flag', 'exit'],
+		description: 'Use for flag exit transitions.',
+		exampleValue:
+			'200ms cubic-bezier(0.6, 0, 0.8, 0.6) SlideOut15PercentLeft forwards, 200ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.flag.reposition',
+		path: ['motion', 'flag', 'reposition'],
+		description: 'Use for repositioning flag elements.',
+		exampleValue: 'transform 250ms cubic-bezier(0.4, 0, 0, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.input',
+		path: ['motion', 'input'],
+		description: 'Use for input hover, focus, and error state transitions.',
+		exampleValue:
+			'background-color 150ms cubic-bezier(0.4, 1, 0.6, 1), border-color 150ms cubic-bezier(0.4, 1, 0.6, 1), box-shadow 150ms cubic-bezier(0.4, 1, 0.6, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.keyframe.fade.in',
+		path: ['motion', 'keyframe', 'fade', 'in'],
 		description:
-			'Use for green text on subtlest and subtler green accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#216E4E',
+			'Use for fade-in transitions where an element goes from fully transparent to fully opaque.',
+		exampleValue: 'FadeIn0to100',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.green.bolder',
-		path: ['color', 'text', 'accent', 'green', 'bolder'],
+		name: 'motion.keyframe.fade.out',
+		path: ['motion', 'keyframe', 'fade', 'out'],
 		description:
-			'Use for green text on subtle green accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#164B35',
+			'Use for fade-out transitions where an element goes from fully opaque to fully transparent.',
+		exampleValue: 'FadeOut100to0',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.teal',
-		path: ['color', 'text', 'accent', 'teal', '[default]'],
+		name: 'motion.keyframe.grid.column.in',
+		path: ['motion', 'keyframe', 'grid', 'column', 'in'],
+		description: 'Use to expand an inline grid column from 80% to full size on enter.',
+		exampleValue: 'GridColumnIn80to100',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.keyframe.grid.column.out',
+		path: ['motion', 'keyframe', 'grid', 'column', 'out'],
+		description: 'Use to collapse an inline grid column from full size to zero on exit.',
+		exampleValue: 'GridColumnOut100to0',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.keyframe.scale.in.medium',
+		path: ['motion', 'keyframe', 'scale', 'in', 'medium'],
 		description:
-			'Use for teal text on subtlest and subtler teal accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#206A83',
+			'Use for medium scale-in transitions where an element grows from 80% to full size on enter.',
+		exampleValue: 'ScaleIn80to100',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.teal.bolder',
-		path: ['color', 'text', 'accent', 'teal', 'bolder'],
+		name: 'motion.keyframe.scale.in.small',
+		path: ['motion', 'keyframe', 'scale', 'in', 'small'],
 		description:
-			'Use for teal text on subtle teal accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#164555',
+			'Use for small scale-in transitions where an element grows from 95% to full size on enter.',
+		exampleValue: 'ScaleIn95to100',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.blue',
-		path: ['color', 'text', 'accent', 'blue', '[default]'],
+		name: 'motion.keyframe.scale.out.medium',
+		path: ['motion', 'keyframe', 'scale', 'out', 'medium'],
 		description:
-			'Use for blue text on subtlest and subtler blue accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#1558BC',
+			'Use for medium scale-out transitions where an element shrinks from full size to 80% on exit.',
+		exampleValue: 'ScaleOut100to80',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.blue.bolder',
-		path: ['color', 'text', 'accent', 'blue', 'bolder'],
+		name: 'motion.keyframe.scale.out.small',
+		path: ['motion', 'keyframe', 'scale', 'out', 'small'],
 		description:
-			'Use for blue text on subtle blue accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#123263',
+			'Use for small scale-out transitions where an element shrinks from full size to 95% on exit.',
+		exampleValue: 'ScaleOut100to95',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.purple',
-		path: ['color', 'text', 'accent', 'purple', '[default]'],
+		name: 'motion.keyframe.slide.in.bottom.short',
+		path: ['motion', 'keyframe', 'slide', 'in', 'bottom', 'short'],
 		description:
-			'Use for purple text on subtlest and subtler purple accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#803FA5',
+			'Use for short slide-in transitions where an element enters from below its final position by 8px.',
+		exampleValue: 'SlideInBottom8px',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.purple.bolder',
-		path: ['color', 'text', 'accent', 'purple', 'bolder'],
+		name: 'motion.keyframe.slide.in.left.half',
+		path: ['motion', 'keyframe', 'slide', 'in', 'left', 'half'],
 		description:
-			'Use for purple text on subtle purple accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#48245D',
+			'Use for slide-in transitions where an element enters from the left of its final position by 50%.',
+		exampleValue: 'SlideIn50PercentLeft',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.magenta',
-		path: ['color', 'text', 'accent', 'magenta', '[default]'],
+		name: 'motion.keyframe.slide.in.left.short',
+		path: ['motion', 'keyframe', 'slide', 'in', 'left', 'short'],
 		description:
-			'Use for magenta text on subtlest and subtler magenta accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#943D73',
+			'Use for short slide-in transitions where an element enters from the left of its final position by 8px.',
+		exampleValue: 'SlideInLeft8px',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.magenta.bolder',
-		path: ['color', 'text', 'accent', 'magenta', 'bolder'],
+		name: 'motion.keyframe.slide.in.right.short',
+		path: ['motion', 'keyframe', 'slide', 'in', 'right', 'short'],
 		description:
-			'Use for magenta text on subtle magenta accent backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#50253F',
+			'Use for short slide-in transitions where an element enters from the right of its final position by 8px.',
+		exampleValue: 'SlideInRight8px',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.accent.gray',
-		path: ['color', 'text', 'accent', 'gray', '[default]'],
-		description: 'Use for text on non-bold gray accent backgrounds, such as colored tags.',
-		exampleValue: '#505258',
-	},
-	{
-		name: 'color.text.accent.gray.bolder',
-		path: ['color', 'text', 'accent', 'gray', 'bolder'],
-		description: 'Use for text and icons on gray subtle accent backgrounds.',
-		exampleValue: '#1E1F21',
-	},
-	{
-		name: 'color.text.disabled',
-		path: ['color', 'text', 'disabled'],
-		description: 'Use for text in a disabled state.',
-		exampleValue: '#080F214A',
-	},
-	{
-		name: 'color.text.inverse',
-		path: ['color', 'text', 'inverse'],
-		description: 'Use for text on bold backgrounds.',
-		exampleValue: '#FFFFFF',
-	},
-	{
-		name: 'color.text.selected',
-		path: ['color', 'text', 'selected'],
-		description: 'Use for text in selected or opened states, such as tabs and dropdown buttons.',
-		exampleValue: '#1868DB',
-	},
-	{
-		name: 'color.text.brand',
-		path: ['color', 'text', 'brand'],
-		description: 'Use for text that reinforces our brand.',
-		exampleValue: '#1868DB',
-	},
-	{
-		name: 'color.text.danger',
-		path: ['color', 'text', 'danger', '[default]'],
-		description: 'Use for critical text, such as input field error messaging.',
-		exampleValue: '#AE2E24',
-	},
-	{
-		name: 'color.text.danger.bolder',
-		path: ['color', 'text', 'danger', 'bolder'],
+		name: 'motion.keyframe.slide.in.top.short',
+		path: ['motion', 'keyframe', 'slide', 'in', 'top', 'short'],
 		description:
-			'Use for text on top of danger semantic labels to ensure accessibility and desired visual appearance.',
-		exampleValue: '#5D1F1A',
+			'Use for short slide-in transitions where an element enters from above its final position by 8px.',
+		exampleValue: 'SlideInTop8px',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.warning',
-		path: ['color', 'text', 'warning', '[default]'],
-		description: 'Use for text to emphasize caution, such as in moved lozenges.',
-		exampleValue: '#9E4C00',
-	},
-	{
-		name: 'color.text.warning.inverse',
-		path: ['color', 'text', 'warning', 'inverse'],
-		description: 'Use for text when on bold warning backgrounds.',
-		exampleValue: '#292A2E',
-	},
-	{
-		name: 'color.text.warning.bolder',
-		path: ['color', 'text', 'warning', 'bolder'],
+		name: 'motion.keyframe.slide.out.bottom.short',
+		path: ['motion', 'keyframe', 'slide', 'out', 'bottom', 'short'],
 		description:
-			'Use for text on top of warning semantic labels to ensure accessibility and desired visual appearance.',
-		exampleValue: '#693200',
+			'Use for short slide-out transitions where an element exits downward by 8px from its starting position.',
+		exampleValue: 'SlideOutBottom4px',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.success',
-		path: ['color', 'text', 'success', '[default]'],
+		name: 'motion.keyframe.slide.out.left.half',
+		path: ['motion', 'keyframe', 'slide', 'out', 'left', 'half'],
 		description:
-			'Use for text to communicate a favorable outcome, such as input field success messaging.',
-		exampleValue: '#4C6B1F',
+			'Use for slide-out transitions where an element exits to the left of its starting position by 15%.',
+		exampleValue: 'SlideOut15PercentLeft',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.success.bolder',
-		path: ['color', 'text', 'success', 'bolder'],
+		name: 'motion.keyframe.slide.out.left.short',
+		path: ['motion', 'keyframe', 'slide', 'out', 'left', 'short'],
 		description:
-			'Use for text on top of success semantic labels to ensure accessibility and desired visual appearance.',
-		exampleValue: '#37471F',
+			'Use for short slide-out transitions where an element exits to the left by 8px from its starting position.',
+		exampleValue: 'SlideOutLeft4px',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.discovery',
-		path: ['color', 'text', 'discovery', '[default]'],
-		description: 'Use for text to emphasize change or something new, such as in new lozenges.',
-		exampleValue: '#803FA5',
-	},
-	{
-		name: 'color.text.discovery.bolder',
-		path: ['color', 'text', 'discovery', 'bolder'],
+		name: 'motion.keyframe.slide.out.right.short',
+		path: ['motion', 'keyframe', 'slide', 'out', 'right', 'short'],
 		description:
-			'Use for text on top of discovery semantic labels to ensure accessibility and desired visual appearance.',
-		exampleValue: '#48245D',
+			'Use for short slide-out transitions where an element exits to the right by 8px from its starting position.',
+		exampleValue: 'SlideOutRight4px',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.information',
-		path: ['color', 'text', 'information', '[default]'],
+		name: 'motion.keyframe.slide.out.top.short',
+		path: ['motion', 'keyframe', 'slide', 'out', 'top', 'short'],
 		description:
-			'Use for informative text or to communicate something is in progress, such as in-progress lozenges.',
-		exampleValue: '#1558BC',
+			'Use for short slide-out transitions where an element exits upward by 8px from its starting position.',
+		exampleValue: 'SlideOutTop4px',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.information.bolder',
-		path: ['color', 'text', 'information', 'bolder'],
+		name: 'motion.label.enter',
+		path: ['motion', 'label', 'enter'],
+		description: 'Use for label enter transitions (e.g. tag component).',
+		exampleValue:
+			'150ms cubic-bezier(0.4, 1, 0.6, 1) GridColumnIn80to100 backwards, 150ms cubic-bezier(0.4, 1, 0.6, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.label.exit',
+		path: ['motion', 'label', 'exit'],
+		description: 'Use for label exit transitions (e.g. tag component).',
+		exampleValue:
+			'100ms cubic-bezier(0.6, 0, 0.8, 0.6) GridColumnOut100to0 forwards, 100ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.listitem.hovered',
+		path: ['motion', 'listitem', 'hovered'],
+		description: 'Use for list item hover state transitions.',
+		exampleValue:
+			'background-color 50ms cubic-bezier(0.4, 1, 0.6, 1), border-color 50ms cubic-bezier(0.4, 1, 0.6, 1), color 50ms cubic-bezier(0.4, 1, 0.6, 1), text-decoration-color 50ms cubic-bezier(0.4, 1, 0.6, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.listitem.pressed',
+		path: ['motion', 'listitem', 'pressed'],
+		description: 'Use for list item pressed state transitions.',
+		exampleValue:
+			'background-color 100ms cubic-bezier(0.4, 1, 0.6, 1), border-color 100ms cubic-bezier(0.4, 1, 0.6, 1), color 100ms cubic-bezier(0.4, 1, 0.6, 1), text-decoration-color 100ms cubic-bezier(0.4, 1, 0.6, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.listitem.selected',
+		path: ['motion', 'listitem', 'selected'],
+		description: 'Use for list item selected state transitions.',
+		exampleValue:
+			'background-color 100ms cubic-bezier(0.4, 1, 0.6, 1), border-color 100ms cubic-bezier(0.4, 1, 0.6, 1), color 100ms cubic-bezier(0.4, 1, 0.6, 1), text-decoration-color 100ms cubic-bezier(0.4, 1, 0.6, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.modal.enter',
+		path: ['motion', 'modal', 'enter'],
+		description: 'Use for modal enter transitions.',
+		exampleValue: '250ms cubic-bezier(0.4, 0, 0, 1) ScaleIn95to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.modal.exit',
+		path: ['motion', 'modal', 'exit'],
+		description: 'Use for modal exit transitions.',
+		exampleValue: '200ms cubic-bezier(0.6, 0, 0.8, 0.6) ScaleOut100to95 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.panel.content.enter',
+		path: ['motion', 'panel', 'content', 'enter'],
+		description: 'Use for panel content enter.',
+		exampleValue: '150ms cubic-bezier(0.4, 1, 0.6, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.panel.content.exit',
+		path: ['motion', 'panel', 'content', 'exit'],
+		description: 'Use for panel content exit.',
+		exampleValue: '50ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.panel.enter',
+		path: ['motion', 'panel', 'enter', '[default]'],
+		description: 'Use for panel enter transitions.',
+		exampleValue: '250ms cubic-bezier(0, 0.4, 0, 1) SlideIn100PercentRight backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.panel.enter.left',
+		path: ['motion', 'panel', 'enter', 'left'],
+		description: 'Use for panel enter from the left.',
+		exampleValue: '250ms cubic-bezier(0, 0.4, 0, 1) SlideIn100PercentLeft backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.panel.enter.right',
+		path: ['motion', 'panel', 'enter', 'right'],
+		description: 'Use for panel enter from the right.',
+		exampleValue: '250ms cubic-bezier(0, 0.4, 0, 1) SlideIn100PercentRight backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.panel.exit',
+		path: ['motion', 'panel', 'exit', '[default]'],
+		description: 'Use for panel exit transitions.',
+		exampleValue: '200ms cubic-bezier(0, 0.4, 0, 1) SlideOut100PercentRight forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.panel.exit.left',
+		path: ['motion', 'panel', 'exit', 'left'],
+		description: 'Use for panel exit towards the left.',
+		exampleValue: '200ms cubic-bezier(0, 0.4, 0, 1) SlideOut100PercentLeft forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.panel.exit.right',
+		path: ['motion', 'panel', 'exit', 'right'],
+		description: 'Use for panel exit towards the right.',
+		exampleValue: '200ms cubic-bezier(0, 0.4, 0, 1) SlideOut100PercentRight forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.popup.enter.bottom',
+		path: ['motion', 'popup', 'enter', 'bottom'],
+		description: 'Use for popup enter from the bottom.',
+		exampleValue:
+			'150ms cubic-bezier(0.4, 1, 0.6, 1) SlideInBottom8px backwards, 150ms cubic-bezier(0.4, 1, 0.6, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.popup.enter.left',
+		path: ['motion', 'popup', 'enter', 'left'],
+		description: 'Use for popup enter from the left.',
+		exampleValue:
+			'150ms cubic-bezier(0.4, 1, 0.6, 1) SlideInLeft8px backwards, 150ms cubic-bezier(0.4, 1, 0.6, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.popup.enter.right',
+		path: ['motion', 'popup', 'enter', 'right'],
+		description: 'Use for popup enter from the right.',
+		exampleValue:
+			'150ms cubic-bezier(0.4, 1, 0.6, 1) SlideInRight8px backwards, 150ms cubic-bezier(0.4, 1, 0.6, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
+	},
+	{
+		name: 'motion.popup.enter.top',
+		path: ['motion', 'popup', 'enter', 'top'],
 		description:
-			'Use for text on top of information semantic labels to ensure accessibility and desired visual appearance.',
-		exampleValue: '#123263',
+			'Use for popup enter from the top: popup, tooltip, dropdown, inline message, inline dialog.',
+		exampleValue:
+			'150ms cubic-bezier(0.4, 1, 0.6, 1) SlideInTop8px backwards, 150ms cubic-bezier(0.4, 1, 0.6, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.subtlest',
-		path: ['color', 'text', 'subtlest'],
-		description:
-			'Use for tertiary text, such as meta-data, breadcrumbs, input field placeholder and helper text.',
-		exampleValue: '#6B6E76',
+		name: 'motion.popup.exit.bottom',
+		path: ['motion', 'popup', 'exit', 'bottom'],
+		description: 'Use for popup exit toward the bottom.',
+		exampleValue:
+			'100ms cubic-bezier(0.6, 0, 0.8, 0.6) SlideOutBottom4px forwards, 100ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.text.subtle',
-		path: ['color', 'text', 'subtle'],
-		description:
-			'Use for secondary text, such as navigation, subtle button links, input field labels, and all caps subheadings.',
-		exampleValue: '#505258',
+		name: 'motion.popup.exit.left',
+		path: ['motion', 'popup', 'exit', 'left'],
+		description: 'Use for popup exit toward the left.',
+		exampleValue:
+			'100ms cubic-bezier(0.6, 0, 0.8, 0.6) SlideOutLeft4px forwards, 100ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.link',
-		path: ['color', 'link', '[default]'],
-		description:
-			'Use for links in a default or hovered state. Add an underline for hovered states.',
-		exampleValue: '#1868DB',
+		name: 'motion.popup.exit.right',
+		path: ['motion', 'popup', 'exit', 'right'],
+		description: 'Use for popup exit toward the right.',
+		exampleValue:
+			'100ms cubic-bezier(0.6, 0, 0.8, 0.6) SlideOutRight4px forwards, 100ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.link.pressed',
-		path: ['color', 'link', 'pressed'],
-		description: 'Use for links in a pressed state.',
-		exampleValue: '#1558BC',
+		name: 'motion.popup.exit.top',
+		path: ['motion', 'popup', 'exit', 'top'],
+		description: 'Use for popup exit toward the top.',
+		exampleValue:
+			'100ms cubic-bezier(0.6, 0, 0.8, 0.6) SlideOutTop4px forwards, 100ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.link.visited',
-		path: ['color', 'link', 'visited', '[default]'],
-		description: 'Use for visited links.',
-		exampleValue: '#803FA5',
+		name: 'motion.sidenav.enter.left',
+		path: ['motion', 'sidenav', 'enter', 'left'],
+		description: 'Use for side nav enter from the left.',
+		exampleValue: '250ms cubic-bezier(0, 0.4, 0, 1) SlideIn100PercentLeft backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.link.visited.pressed',
-		path: ['color', 'link', 'visited', 'pressed'],
-		description: 'Use for visited links in a pressed state.',
-		exampleValue: '#48245D',
+		name: 'motion.sidenav.enter.right',
+		path: ['motion', 'sidenav', 'enter', 'right'],
+		description: 'Use for side nav enter from the right.',
+		exampleValue: '250ms cubic-bezier(0, 0.4, 0, 1) SlideIn100PercentRight backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon',
-		path: ['color', 'icon', '[default]'],
-		description: 'Use for icon-only buttons, or icons paired with color.text',
-		exampleValue: '#292A2E',
+		name: 'motion.sidenav.exit.left',
+		path: ['motion', 'sidenav', 'exit', 'left'],
+		description: 'Use for side nav exit towards the left.',
+		exampleValue: '200ms cubic-bezier(0, 0.4, 0, 1) SlideOut100PercentLeft forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon.accent.lime',
-		path: ['color', 'icon', 'accent', 'lime'],
-		description:
-			'Use for lime icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#6A9A23',
+		name: 'motion.sidenav.exit.right',
+		path: ['motion', 'sidenav', 'exit', 'right'],
+		description: 'Use for side nav exit towards the right.',
+		exampleValue: '200ms cubic-bezier(0, 0.4, 0, 1) SlideOut100PercentRight forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon.accent.red',
-		path: ['color', 'icon', 'accent', 'red'],
-		description:
-			'Use for red icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#C9372C',
+		name: 'motion.spotlight.enter',
+		path: ['motion', 'spotlight', 'enter'],
+		description: 'Use for spotlight enter transitions.',
+		exampleValue:
+			'250ms cubic-bezier(0.4, 0, 0, 1) ScaleIn95to100 backwards, 250ms cubic-bezier(0.4, 0, 0, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon.accent.orange',
-		path: ['color', 'icon', 'accent', 'orange'],
-		description:
-			'Use for orange icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#E06C00',
+		name: 'motion.spotlight.exit',
+		path: ['motion', 'spotlight', 'exit'],
+		description: 'Use for spotlight exit transitions.',
+		exampleValue:
+			'200ms cubic-bezier(0.6, 0, 0.8, 0.6) ScaleOut100to95 forwards, 200ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon.accent.yellow',
-		path: ['color', 'icon', 'accent', 'yellow'],
-		description:
-			'Use for yellow icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#B38600',
+		name: 'motion.tab',
+		path: ['motion', 'tab', '[default]'],
+		description: 'Use for tab text color and neutral indicator opacity transitions.',
+		exampleValue:
+			'color 150ms cubic-bezier(0.4, 1, 0.6, 1), opacity 150ms cubic-bezier(0.4, 1, 0.6, 1)',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon.accent.green',
-		path: ['color', 'icon', 'accent', 'green'],
-		description:
-			'Use for green icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#22A06B',
+		name: 'motion.tab.indicator.enter.left',
+		path: ['motion', 'tab', 'indicator', 'enter', 'left'],
+		description: 'Use for tab indicators entering from the left.',
+		exampleValue:
+			'150ms cubic-bezier(0, 0.4, 0, 1) SlideInRight8px backwards, 150ms cubic-bezier(0, 0.4, 0, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon.accent.teal',
-		path: ['color', 'icon', 'accent', 'teal'],
-		description:
-			'Use for teal icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#2898BD',
+		name: 'motion.tab.indicator.enter.right',
+		path: ['motion', 'tab', 'indicator', 'enter', 'right'],
+		description: 'Use for tab indicators entering from the right.',
+		exampleValue:
+			'150ms cubic-bezier(0, 0.4, 0, 1) SlideInLeft8px backwards, 150ms cubic-bezier(0, 0.4, 0, 1) FadeIn0to100 backwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon.accent.blue',
-		path: ['color', 'icon', 'accent', 'blue'],
-		description:
-			'Use for blue icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#357DE8',
+		name: 'motion.tab.indicator.exit.left',
+		path: ['motion', 'tab', 'indicator', 'exit', 'left'],
+		description: 'Use for tab indicators exiting toward the left.',
+		exampleValue:
+			'100ms cubic-bezier(0.6, 0, 0.8, 0.6) SlideOutLeft8px forwards, 100ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
-		name: 'color.icon.accent.purple',
-		path: ['color', 'icon', 'accent', 'purple'],
-		description:
-			'Use for purple icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#AF59E1',
-	},
-	{
-		name: 'color.icon.accent.magenta',
-		path: ['color', 'icon', 'accent', 'magenta'],
-		description:
-			'Use for magenta icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
-		exampleValue: '#CD519D',
-	},
-	{
-		name: 'color.icon.accent.gray',
-		path: ['color', 'icon', 'accent', 'gray'],
-		description: 'Use for icons on non-bold gray accent backgrounds, such as file type icons.',
-		exampleValue: '#7D818A',
-	},
-	{
-		name: 'color.icon.disabled',
-		path: ['color', 'icon', 'disabled'],
-		description: 'Use for icons in a disabled state.',
-		exampleValue: '#080F214A',
-	},
-	{
-		name: 'color.icon.inverse',
-		path: ['color', 'icon', 'inverse'],
-		description: 'Use for icons on bold backgrounds.',
-		exampleValue: '#FFFFFF',
-	},
-	{
-		name: 'color.icon.selected',
-		path: ['color', 'icon', 'selected'],
-		description:
-			'Use for icons in selected or opened states, such as those used in dropdown buttons.',
-		exampleValue: '#1868DB',
-	},
-	{
-		name: 'color.icon.brand',
-		path: ['color', 'icon', 'brand'],
-		description: 'Use for icons that reinforce our brand.',
-		exampleValue: '#1868DB',
-	},
-	{
-		name: 'color.icon.danger',
-		path: ['color', 'icon', 'danger'],
-		description:
-			'Use for icons communicating critical information, such as those used in error handing.',
-		exampleValue: '#C9372C',
-	},
-	{
-		name: 'color.icon.warning',
-		path: ['color', 'icon', 'warning', '[default]'],
-		description:
-			'Use for icons communicating caution, such as those used in warning section messages.',
-		exampleValue: '#E06C00',
-	},
-	{
-		name: 'color.icon.warning.inverse',
-		path: ['color', 'icon', 'warning', 'inverse'],
-		description: 'Use for icons when on bold warning backgrounds.',
-		exampleValue: '#292A2E',
-	},
-	{
-		name: 'color.icon.success',
-		path: ['color', 'icon', 'success'],
-		description:
-			'Use for icons communicating a favorable outcome, such as those used in success section messaged.',
-		exampleValue: '#6A9A23',
-	},
-	{
-		name: 'color.icon.discovery',
-		path: ['color', 'icon', 'discovery'],
-		description:
-			'Use for icons communicating change or something new, such as discovery section messages.',
-		exampleValue: '#AF59E1',
-	},
-	{
-		name: 'color.icon.information',
-		path: ['color', 'icon', 'information'],
-		description:
-			'Use for icons communicating information or something in-progress, such as information section messages.',
-		exampleValue: '#357DE8',
-	},
-	{
-		name: 'color.icon.subtlest',
-		path: ['color', 'icon', 'subtlest'],
-		description: 'Use for icons paired with color.text.subtlest',
-		exampleValue: '#6B6E76',
-	},
-	{
-		name: 'color.icon.subtle',
-		path: ['color', 'icon', 'subtle'],
-		description: 'Use for icons paired with color.text.subtle',
-		exampleValue: '#505258',
-	},
-	{
-		name: 'color.border',
-		path: ['color', 'border', '[default]'],
-		description:
-			'Use to visually group or separate UI elements, such as flat cards or side panel dividers.',
-		exampleValue: '#0B120E24',
-	},
-	{
-		name: 'color.border.accent.lime',
-		path: ['color', 'border', 'accent', 'lime'],
-		description:
-			'Use for lime borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#6A9A23',
-	},
-	{
-		name: 'color.border.accent.red',
-		path: ['color', 'border', 'accent', 'red'],
-		description:
-			'Use for red borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#E2483D',
-	},
-	{
-		name: 'color.border.accent.orange',
-		path: ['color', 'border', 'accent', 'orange'],
-		description:
-			'Use for orange borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#E06C00',
-	},
-	{
-		name: 'color.border.accent.yellow',
-		path: ['color', 'border', 'accent', 'yellow'],
-		description:
-			'Use for yellow borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#B38600',
-	},
-	{
-		name: 'color.border.accent.green',
-		path: ['color', 'border', 'accent', 'green'],
-		description:
-			'Use for green borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#22A06B',
-	},
-	{
-		name: 'color.border.accent.teal',
-		path: ['color', 'border', 'accent', 'teal'],
-		description:
-			'Use for teal borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#2898BD',
-	},
-	{
-		name: 'color.border.accent.blue',
-		path: ['color', 'border', 'accent', 'blue'],
-		description:
-			'Use for blue borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#357DE8',
-	},
-	{
-		name: 'color.border.accent.purple',
-		path: ['color', 'border', 'accent', 'purple'],
-		description:
-			'Use for purple borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#AF59E1',
-	},
-	{
-		name: 'color.border.accent.magenta',
-		path: ['color', 'border', 'accent', 'magenta'],
-		description:
-			'Use for magenta borders on non-bold backgrounds when there is no meaning tied to the color.',
-		exampleValue: '#CD519D',
-	},
-	{
-		name: 'color.border.accent.gray',
-		path: ['color', 'border', 'accent', 'gray'],
-		description: 'Use for borders on non-bold gray accent backgrounds.',
-		exampleValue: '#7D818A',
-	},
-	{
-		name: 'color.border.disabled',
-		path: ['color', 'border', 'disabled'],
-		description: 'Use for borders of elements in a disabled state.',
-		exampleValue: '#0515240F',
-	},
-	{
-		name: 'color.border.focused',
-		path: ['color', 'border', 'focused'],
-		description: 'Use for focus rings of elements in a focus state.',
-		exampleValue: '#4688EC',
-	},
-	{
-		name: 'color.border.input',
-		path: ['color', 'border', 'input'],
-		description:
-			'Use for borders of form UI elements, such as text fields, checkboxes, and radio buttons.',
-		exampleValue: '#8C8F97',
-	},
-	{
-		name: 'color.border.inverse',
-		path: ['color', 'border', 'inverse'],
-		description: 'Use for borders on bold backgrounds.',
-		exampleValue: '#FFFFFF',
-	},
-	{
-		name: 'color.border.selected',
-		path: ['color', 'border', 'selected'],
-		description:
-			'Use for borders or visual indicators of elements in a selected or opened state, such as in tabs or menu items.',
-		exampleValue: '#1868DB',
-	},
-	{
-		name: 'color.border.brand',
-		path: ['color', 'border', 'brand'],
-		description:
-			'Use for borders or visual indicators of elements that reinforce our brand, such as logos or primary buttons.',
-		exampleValue: '#1868DB',
-	},
-	{
-		name: 'color.border.danger',
-		path: ['color', 'border', 'danger'],
-		description:
-			'Use for borders communicating critical information, such as the borders on invalid text fields.',
-		exampleValue: '#E2483D',
-	},
-	{
-		name: 'color.border.warning',
-		path: ['color', 'border', 'warning'],
-		description: 'Use for borders communicating caution.',
-		exampleValue: '#E06C00',
-	},
-	{
-		name: 'color.border.success',
-		path: ['color', 'border', 'success'],
-		description:
-			'Use for borders communicating a favorable outcome, such as the borders on validated text fields.',
-		exampleValue: '#6A9A23',
-	},
-	{
-		name: 'color.border.discovery',
-		path: ['color', 'border', 'discovery'],
-		description:
-			'Use for borders communicating change or something new, such as the borders in onboarding spotlights.',
-		exampleValue: '#AF59E1',
-	},
-	{
-		name: 'color.border.information',
-		path: ['color', 'border', 'information'],
-		description: 'Use for borders communicating information or something in-progress.',
-		exampleValue: '#357DE8',
-	},
-	{
-		name: 'color.border.bold',
-		path: ['color', 'border', 'bold'],
-		description: 'A neutral border option that passes min 3:1 contrast ratios.',
-		exampleValue: '#7D818A',
+		name: 'motion.tab.indicator.exit.right',
+		path: ['motion', 'tab', 'indicator', 'exit', 'right'],
+		description: 'Use for tab indicators exiting toward the right.',
+		exampleValue:
+			'100ms cubic-bezier(0.6, 0, 0.8, 0.6) SlideOutRight8px forwards, 100ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeOut100to0 forwards',
+		usageGuidelines: { usage: '', cssProperties: [] },
 	},
 	{
 		name: 'color.background.accent.lime.subtlest',
@@ -607,18 +602,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for for backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#EFFFD6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'lime', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.lime.subtlest.',
 		exampleValue: '#D3F1A7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'lime', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.lime.subtlest.',
 		exampleValue: '#BDE97C',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.subtler',
@@ -626,18 +636,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for for backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#D3F1A7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.subtler.hovered',
 		path: ['color', 'background', 'accent', 'lime', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.lime.subtler.',
 		exampleValue: '#BDE97C',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.subtler.pressed',
 		path: ['color', 'background', 'accent', 'lime', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.lime.subtler.',
 		exampleValue: '#B3DF72',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.subtle',
@@ -645,18 +670,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant for backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#94C748',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.subtle.hovered',
 		path: ['color', 'background', 'accent', 'lime', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.lime.subtle.',
 		exampleValue: '#B3DF72',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.subtle.pressed',
 		path: ['color', 'background', 'accent', 'lime', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.lime.subtle.',
 		exampleValue: '#BDE97C',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.bolder',
@@ -664,18 +704,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for for backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#5B7F24',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.bolder.hovered',
 		path: ['color', 'background', 'accent', 'lime', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.lime.bolder.',
 		exampleValue: '#4C6B1F',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.lime.bolder.pressed',
 		path: ['color', 'background', 'accent', 'lime', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.lime.bolder.',
 		exampleValue: '#3F5224',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtlest',
@@ -683,18 +738,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for red backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#FFECEB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'red', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.red.subtlest.',
 		exampleValue: '#FFD5D2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'red', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.red.subtlest.',
 		exampleValue: '#FFB8B2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtler',
@@ -702,18 +772,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for red backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#FFD5D2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtler.hovered',
 		path: ['color', 'background', 'accent', 'red', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.red.subtler.',
 		exampleValue: '#FFB8B2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtler.pressed',
 		path: ['color', 'background', 'accent', 'red', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.red.subtler.',
 		exampleValue: '#FD9891',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtle',
@@ -721,18 +806,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant red backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#F87168',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtle.hovered',
 		path: ['color', 'background', 'accent', 'red', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.red.subtle.',
 		exampleValue: '#FD9891',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.subtle.pressed',
 		path: ['color', 'background', 'accent', 'red', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.red.subtle.',
 		exampleValue: '#FFB8B2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.bolder',
@@ -740,18 +840,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for red backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#C9372C',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.bolder.hovered',
 		path: ['color', 'background', 'accent', 'red', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.red.bolder.',
 		exampleValue: '#AE2E24',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.red.bolder.pressed',
 		path: ['color', 'background', 'accent', 'red', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.red.bolder.',
 		exampleValue: '#872821',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtlest',
@@ -759,18 +874,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for orange backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#FFF5DB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'orange', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.orange.subtlest.',
 		exampleValue: '#FCE4A6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'orange', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.orange.subtlest.',
 		exampleValue: '#FBD779',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtler',
@@ -778,18 +908,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for orange backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#FCE4A6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtler.hovered',
 		path: ['color', 'background', 'accent', 'orange', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.orange.subtler.',
 		exampleValue: '#FBD779',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtler.pressed',
 		path: ['color', 'background', 'accent', 'orange', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.orange.subtler.',
 		exampleValue: '#FBC828',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtle',
@@ -797,18 +942,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant orange backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#FCA700',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtle.hovered',
 		path: ['color', 'background', 'accent', 'orange', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.orange.subtle.',
 		exampleValue: '#FBC828',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.subtle.pressed',
 		path: ['color', 'background', 'accent', 'orange', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.orange.subtle.',
 		exampleValue: '#FBD779',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.bolder',
@@ -816,18 +976,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for orange backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#BD5B00',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.bolder.hovered',
 		path: ['color', 'background', 'accent', 'orange', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.orange.bolder.',
 		exampleValue: '#9E4C00',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.orange.bolder.pressed',
 		path: ['color', 'background', 'accent', 'orange', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.orange.bolder.',
 		exampleValue: '#7A3B00',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtlest',
@@ -835,18 +1010,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for yellow backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#FEF7C8',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'yellow', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.yellow.subtlest.',
 		exampleValue: '#F5E989',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'yellow', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.yellow.subtlest.',
 		exampleValue: '#EFDD4E',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtler',
@@ -854,18 +1044,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for yellow backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#F5E989',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtler.hovered',
 		path: ['color', 'background', 'accent', 'yellow', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.yellow.subtler.',
 		exampleValue: '#EFDD4E',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtler.pressed',
 		path: ['color', 'background', 'accent', 'yellow', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.yellow.subtler.',
 		exampleValue: '#EED12B',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtle',
@@ -873,18 +1078,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant yellow backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#EED12B',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtle.hovered',
 		path: ['color', 'background', 'accent', 'yellow', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.yellow.subtle.',
 		exampleValue: '#DDB30E',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.subtle.pressed',
 		path: ['color', 'background', 'accent', 'yellow', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.yellow.subtle.',
 		exampleValue: '#EFDD4E',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.bolder',
@@ -892,18 +1112,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for yellow backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#946F00',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.bolder.hovered',
 		path: ['color', 'background', 'accent', 'yellow', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.yellow.bolder.',
 		exampleValue: '#7F5F01',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.yellow.bolder.pressed',
 		path: ['color', 'background', 'accent', 'yellow', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.yellow.bolder.',
 		exampleValue: '#614A05',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtlest',
@@ -911,18 +1146,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for green backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#DCFFF1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'green', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.green.subtlest.',
 		exampleValue: '#BAF3DB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'green', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.green.subtlest.',
 		exampleValue: '#97EDC9',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtler',
@@ -930,18 +1180,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for green backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#BAF3DB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtler.hovered',
 		path: ['color', 'background', 'accent', 'green', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.green.subtler.',
 		exampleValue: '#97EDC9',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtler.pressed',
 		path: ['color', 'background', 'accent', 'green', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.green.subtler.',
 		exampleValue: '#7EE2B8',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtle',
@@ -949,18 +1214,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant green backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#4BCE97',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtle.hovered',
 		path: ['color', 'background', 'accent', 'green', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.green.subtle.',
 		exampleValue: '#7EE2B8',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.subtle.pressed',
 		path: ['color', 'background', 'accent', 'green', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.green.subtle.',
 		exampleValue: '#97EDC9',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.bolder',
@@ -968,18 +1248,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for green backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#1F845A',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.bolder.hovered',
 		path: ['color', 'background', 'accent', 'green', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.green.bolder.',
 		exampleValue: '#216E4E',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.green.bolder.pressed',
 		path: ['color', 'background', 'accent', 'green', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.green.bolder.',
 		exampleValue: '#19573D',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtlest',
@@ -987,18 +1282,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for teal backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#E7F9FF',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'teal', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.teal.subtlest.',
 		exampleValue: '#C6EDFB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'teal', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.teal.subtlest.',
 		exampleValue: '#B1E4F7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtler',
@@ -1006,18 +1316,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for teal backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#C6EDFB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtler.hovered',
 		path: ['color', 'background', 'accent', 'teal', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.teal.subtler.',
 		exampleValue: '#B1E4F7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtler.pressed',
 		path: ['color', 'background', 'accent', 'teal', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.teal.subtler.',
 		exampleValue: '#9DD9EE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtle',
@@ -1025,18 +1350,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant teal backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#6CC3E0',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtle.hovered',
 		path: ['color', 'background', 'accent', 'teal', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.teal.subtle.',
 		exampleValue: '#9DD9EE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.subtle.pressed',
 		path: ['color', 'background', 'accent', 'teal', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.teal.subtle.',
 		exampleValue: '#B1E4F7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.bolder',
@@ -1044,18 +1384,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for teal backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#227D9B',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.bolder.hovered',
 		path: ['color', 'background', 'accent', 'teal', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.teal.bolder.',
 		exampleValue: '#206A83',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.teal.bolder.pressed',
 		path: ['color', 'background', 'accent', 'teal', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.teal.bolder.',
 		exampleValue: '#1A5265',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtlest',
@@ -1063,18 +1418,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for blue backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#E9F2FE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'blue', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.blue.subtlest.',
 		exampleValue: '#CFE1FD',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'blue', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.blue.subtlest.',
 		exampleValue: '#ADCBFB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtler',
@@ -1082,18 +1452,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for blue backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#CFE1FD',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtler.hovered',
 		path: ['color', 'background', 'accent', 'blue', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.blue.subtler.',
 		exampleValue: '#ADCBFB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtler.pressed',
 		path: ['color', 'background', 'accent', 'blue', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.blue.subtler.',
 		exampleValue: '#8FB8F6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtle',
@@ -1101,18 +1486,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant blue backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#669DF1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtle.hovered',
 		path: ['color', 'background', 'accent', 'blue', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.blue.subtle.',
 		exampleValue: '#8FB8F6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.subtle.pressed',
 		path: ['color', 'background', 'accent', 'blue', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.blue.subtle.',
 		exampleValue: '#ADCBFB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.bolder',
@@ -1120,18 +1520,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for blue backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.bolder.hovered',
 		path: ['color', 'background', 'accent', 'blue', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.blue.bolder.',
 		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.blue.bolder.pressed',
 		path: ['color', 'background', 'accent', 'blue', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.blue.bolder.',
 		exampleValue: '#144794',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtlest',
@@ -1139,18 +1554,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for purple backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#F8EEFE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'purple', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.purple.subtlest.',
 		exampleValue: '#EED7FC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'purple', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.purple.subtlest.',
 		exampleValue: '#E3BDFA',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtler',
@@ -1158,18 +1588,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for purple backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#EED7FC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtler.hovered',
 		path: ['color', 'background', 'accent', 'purple', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.purple.subtler.',
 		exampleValue: '#E3BDFA',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtler.pressed',
 		path: ['color', 'background', 'accent', 'purple', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.purple.subtler.',
 		exampleValue: '#D8A0F7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtle',
@@ -1177,18 +1622,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant purple backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#C97CF4',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtle.hovered',
 		path: ['color', 'background', 'accent', 'purple', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.purple.subtle.',
 		exampleValue: '#D8A0F7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.subtle.pressed',
 		path: ['color', 'background', 'accent', 'purple', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.purple.subtle.',
 		exampleValue: '#E3BDFA',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.bolder',
@@ -1196,18 +1656,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for purple backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#964AC0',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.bolder.hovered',
 		path: ['color', 'background', 'accent', 'purple', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.purple.bolder.',
 		exampleValue: '#803FA5',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.purple.bolder.pressed',
 		path: ['color', 'background', 'accent', 'purple', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.purple.bolder.',
 		exampleValue: '#673286',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtlest',
@@ -1215,18 +1690,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for magenta backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#FFECF8',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'magenta', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.magenta.subtlest.',
 		exampleValue: '#FDD0EC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'magenta', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.magenta.subtlest.',
 		exampleValue: '#FCB6E1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtler',
@@ -1234,18 +1724,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for magenta backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#FDD0EC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtler.hovered',
 		path: ['color', 'background', 'accent', 'magenta', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.magenta.subtler.',
 		exampleValue: '#FCB6E1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtler.pressed',
 		path: ['color', 'background', 'accent', 'magenta', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.magenta.subtler.',
 		exampleValue: '#F797D2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtle',
@@ -1253,18 +1758,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant magenta backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#E774BB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtle.hovered',
 		path: ['color', 'background', 'accent', 'magenta', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.magenta.subtle.',
 		exampleValue: '#F797D2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.subtle.pressed',
 		path: ['color', 'background', 'accent', 'magenta', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.magenta.subtle.',
 		exampleValue: '#FCB6E1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.bolder',
@@ -1272,18 +1792,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for magenta backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#AE4787',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.bolder.hovered',
 		path: ['color', 'background', 'accent', 'magenta', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.magenta.bolder.',
 		exampleValue: '#943D73',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.magenta.bolder.pressed',
 		path: ['color', 'background', 'accent', 'magenta', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.magenta.bolder.',
 		exampleValue: '#77325B',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtlest',
@@ -1291,18 +1826,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for gray backgrounds when there is no meaning tied to the color. Reserved for when you only want a hint of color.',
 		exampleValue: '#F0F1F2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtlest.hovered',
 		path: ['color', 'background', 'accent', 'gray', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.accent.gray.subtlest.',
 		exampleValue: '#DDDEE1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtlest.pressed',
 		path: ['color', 'background', 'accent', 'gray', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.accent.gray.subtlest.',
 		exampleValue: '#B7B9BE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtler',
@@ -1310,18 +1860,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for gray backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#DDDEE1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtler.hovered',
 		path: ['color', 'background', 'accent', 'gray', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.accent.gray.subtler.',
 		exampleValue: '#B7B9BE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtler.pressed',
 		path: ['color', 'background', 'accent', 'gray', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.accent.gray.subtler.',
 		exampleValue: '#8C8F97',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtle',
@@ -1329,18 +1894,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for vibrant gray backgrounds when there is no meaning tied to the color, such as colored tags.',
 		exampleValue: '#8C8F97',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtle.hovered',
 		path: ['color', 'background', 'accent', 'gray', 'subtle', 'hovered'],
 		description: 'Hovered state of color.background.accent.gray.subtle.',
 		exampleValue: '#B7B9BE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.subtle.pressed',
 		path: ['color', 'background', 'accent', 'gray', 'subtle', 'pressed'],
 		description: 'Pressed state of color.background.accent.gray.subtle.',
 		exampleValue: '#DDDEE1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.bolder',
@@ -1348,24 +1928,121 @@ export const tokens: Token[] = [
 		description:
 			'Use for gray backgrounds when there is no meaning tied to the color, and the background needs to pass min 3:1 contrast requirements.',
 		exampleValue: '#6B6E76',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.bolder.hovered',
 		path: ['color', 'background', 'accent', 'gray', 'bolder', 'hovered'],
 		description: 'Hovered state of color.background.accent.gray.bolder.',
 		exampleValue: '#505258',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.accent.gray.bolder.pressed',
 		path: ['color', 'background', 'accent', 'gray', 'bolder', 'pressed'],
 		description: 'Pressed state of color.background.accent.gray.subtlest.',
 		exampleValue: '#3B3D42',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.code.added.highlight',
+		path: ['color', 'background', 'code', 'added', 'highlight'],
+		description: 'Use for highlighted added code lines.',
+		exampleValue: '#DCFFF1',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.code.added.line',
+		path: ['color', 'background', 'code', 'added', 'line'],
+		description: 'Use for added code lines.',
+		exampleValue: '#BAF3DB66',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.code.default',
+		path: ['color', 'background', 'code', 'default'],
+		description: 'Use for the default background of code blocks and code diffs.',
+		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.code.gutter',
+		path: ['color', 'background', 'code', 'gutter'],
+		description: 'Use for the background of code gutters.',
+		exampleValue: '#F0F1F2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.code.highlight',
+		path: ['color', 'background', 'code', 'highlight'],
+		description: 'Use for highlighted unchanged code lines.',
+		exampleValue: '#F0F1F2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.code.removed.highlight',
+		path: ['color', 'background', 'code', 'removed', 'highlight'],
+		description: 'Use for highlighted removed code lines.',
+		exampleValue: '#FFECEB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.code.removed.line',
+		path: ['color', 'background', 'code', 'removed', 'line'],
+		description: 'Use for removed code lines.',
+		exampleValue: '#FFD5D266',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.disabled',
 		path: ['color', 'background', 'disabled'],
 		description: 'Use for backgrounds of elements in a disabled state.',
-		exampleValue: '#17171708',
+		exampleValue: '#0515240F',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.input',
@@ -1373,18 +2050,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for background of form UI elements, such as text fields, checkboxes, and radio buttons.',
 		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.input.hovered',
 		path: ['color', 'background', 'input', 'hovered'],
 		description: 'Hovered state for color.background.input',
 		exampleValue: '#F8F8F8',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.input.pressed',
 		path: ['color', 'background', 'input', 'pressed'],
 		description: 'Pressed state for color.background.input',
 		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.inverse.subtle',
@@ -1392,36 +2084,66 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds of elements on a bold background, such as in the buttons on spotlight cards.',
 		exampleValue: '#00000029',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.inverse.subtle.hovered',
 		path: ['color', 'background', 'inverse', 'subtle', 'hovered'],
 		description: 'Use for the hovered state of color.background.inverse.subtle',
 		exampleValue: '#0000003D',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.inverse.subtle.pressed',
 		path: ['color', 'background', 'inverse', 'subtle', 'pressed'],
 		description: 'Use for the pressed state of color.background.inverse.subtle',
 		exampleValue: '#00000052',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral',
 		path: ['color', 'background', 'neutral', '[default]', '[default]'],
 		description: 'The default background for neutral elements, such as default buttons.',
 		exampleValue: '#0515240F',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral.hovered',
 		path: ['color', 'background', 'neutral', '[default]', 'hovered'],
 		description: 'Hovered state for color.background.neutral',
 		exampleValue: '#0B120E24',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral.pressed',
 		path: ['color', 'background', 'neutral', '[default]', 'pressed'],
 		description: 'Pressed state for color.background.neutral',
 		exampleValue: '#080F214A',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral.subtle',
@@ -1429,18 +2151,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the background of elements that appear to have no background in a resting state, such as subtle buttons and menu items.',
 		exampleValue: '#00000000',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral.subtle.hovered',
 		path: ['color', 'background', 'neutral', 'subtle', 'hovered'],
 		description: 'Hovered state for color.background.neutral.subtle',
 		exampleValue: '#0515240F',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral.subtle.pressed',
 		path: ['color', 'background', 'neutral', 'subtle', 'pressed'],
 		description: 'Pressed state for color.background.neutral.subtle',
 		exampleValue: '#0B120E24',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral.bold',
@@ -1448,18 +2185,33 @@ export const tokens: Token[] = [
 		description:
 			'A vibrant background option for neutral UI elements, such as announcement banners.',
 		exampleValue: '#292A2E',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral.bold.hovered',
 		path: ['color', 'background', 'neutral', 'bold', 'hovered'],
 		description: 'Hovered state of color.background.neutral.bold',
 		exampleValue: '#3B3D42',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.neutral.bold.pressed',
 		path: ['color', 'background', 'neutral', 'bold', 'pressed'],
 		description: 'Pressed state of color.background.neutral.bold',
 		exampleValue: '#505258',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.selected',
@@ -1467,18 +2219,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the background of elements in a selected state, such as in opened dropdown buttons.',
 		exampleValue: '#E9F2FE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.selected.hovered',
 		path: ['color', 'background', 'selected', '[default]', 'hovered'],
 		description: 'Hovered state for color.background.selected',
 		exampleValue: '#CFE1FD',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.selected.pressed',
 		path: ['color', 'background', 'selected', '[default]', 'pressed'],
 		description: 'Pressed state for color.background.selected',
 		exampleValue: '#8FB8F6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.selected.bold',
@@ -1486,18 +2253,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the backgrounds of elements in a selected state, such as checkboxes and radio buttons.',
 		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.selected.bold.hovered',
 		path: ['color', 'background', 'selected', 'bold', 'hovered'],
 		description: 'Hovered state of color.background.selected.bold',
 		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.selected.bold.pressed',
 		path: ['color', 'background', 'selected', 'bold', 'pressed'],
 		description: 'Pressed state of color.background.selected.bold',
 		exampleValue: '#123263',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.subtlest',
@@ -1505,18 +2287,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the background of elements used to reinforce our brand, but with less emphasis.',
 		exampleValue: '#E9F2FE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.subtlest.hovered',
 		path: ['color', 'background', 'brand', 'subtlest', 'hovered'],
 		description: 'Hovered state of color.background.brand.subtlest.',
 		exampleValue: '#CFE1FD',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.subtlest.pressed',
 		path: ['color', 'background', 'brand', 'subtlest', 'pressed'],
 		description: 'Pressed state of color.background.brand.subtlest',
 		exampleValue: '#ADCBFB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.bold',
@@ -1524,18 +2321,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the background of elements used to reinforce our brand, but with more emphasis.',
 		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.bold.hovered',
 		path: ['color', 'background', 'brand', 'bold', 'hovered'],
 		description: 'Hovered state of color.background.brand.bold.',
 		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.bold.pressed',
 		path: ['color', 'background', 'brand', 'bold', 'pressed'],
 		description: 'Pressed state of color.background.brand.bold.',
 		exampleValue: '#144794',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.boldest',
@@ -1543,18 +2355,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the background of elements used to reinforce our brand, that need to stand out a lot.',
 		exampleValue: '#1C2B42',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.boldest.hovered',
 		path: ['color', 'background', 'brand', 'boldest', 'hovered'],
 		description: 'Hovered state of color.background.brand.boldest.',
 		exampleValue: '#123263',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.brand.boldest.pressed',
 		path: ['color', 'background', 'brand', 'boldest', 'pressed'],
 		description: 'Pressed state of color.background.brand.boldest.',
 		exampleValue: '#144794',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger',
@@ -1562,18 +2389,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds communicating critical information, such in error section messages.',
 		exampleValue: '#FFECEB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger.hovered',
 		path: ['color', 'background', 'danger', '[default]', 'hovered'],
 		description: 'Hovered state for color.background.danger',
 		exampleValue: '#FFD5D2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger.pressed',
 		path: ['color', 'background', 'danger', '[default]', 'pressed'],
 		description: 'Pressed state for color.background.danger',
 		exampleValue: '#FFB8B2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger.subtler',
@@ -1581,18 +2423,45 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds of danger lozenges and badges to ensure accessibility and desired visual appearance.',
 		exampleValue: '#FFD5D2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger.subtler.hovered',
 		path: ['color', 'background', 'danger', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.danger.subtler',
 		exampleValue: '#FFB8B2',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger.subtler.pressed',
 		path: ['color', 'background', 'danger', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.danger.subtler',
 		exampleValue: '#FD9891',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.danger.subtle',
+		path: ['color', 'background', 'danger', 'subtle', '[default]'],
+		description:
+			'Background colour for non-interactive elements communicating critical danger information (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.danger.bold or color.background.danger.subtler for interactive states.',
+		exampleValue: '#FD9891',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger.bold',
@@ -1600,36 +2469,66 @@ export const tokens: Token[] = [
 		description:
 			'A vibrant background option for communicating critical information, such as in danger buttons and error banners.',
 		exampleValue: '#C9372C',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger.bold.hovered',
 		path: ['color', 'background', 'danger', 'bold', 'hovered'],
 		description: 'Hovered state of color.background.danger.bold',
 		exampleValue: '#AE2E24',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.danger.bold.pressed',
 		path: ['color', 'background', 'danger', 'bold', 'pressed'],
 		description: 'Pressed state of color.background.danger.bold',
 		exampleValue: '#872821',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning',
 		path: ['color', 'background', 'warning', '[default]', '[default]'],
 		description: 'Use for backgrounds communicating caution, such as in warning section messages.',
 		exampleValue: '#FFF5DB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning.hovered',
 		path: ['color', 'background', 'warning', '[default]', 'hovered'],
 		description: 'Hovered state for color.background.warning',
 		exampleValue: '#FCE4A6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning.pressed',
 		path: ['color', 'background', 'warning', '[default]', 'pressed'],
 		description: 'Pressed state for color.background.warning',
 		exampleValue: '#FBD779',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning.subtler',
@@ -1637,18 +2536,45 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds of warning lozenges and badges to ensure accessibility and desired visual appearance.',
 		exampleValue: '#FCE4A6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning.subtler.hovered',
 		path: ['color', 'background', 'warning', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.warning.subtler',
 		exampleValue: '#FBD779',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning.subtler.pressed',
 		path: ['color', 'background', 'warning', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.warning.subtler',
 		exampleValue: '#FBC828',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.warning.subtle',
+		path: ['color', 'background', 'warning', 'subtle', '[default]'],
+		description:
+			'Background colour for non-interactive elements communicating caution (e.g. status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.warning.bold or color.background.warning.subtler for interactive states.',
+		exampleValue: '#FBD779',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning.bold',
@@ -1656,18 +2582,33 @@ export const tokens: Token[] = [
 		description:
 			'A vibrant background option for communicating caution, such as in warning buttons and warning banners.',
 		exampleValue: '#FBC828',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning.bold.hovered',
 		path: ['color', 'background', 'warning', 'bold', 'hovered'],
 		description: 'Hovered state of color.background.warning.bold',
 		exampleValue: '#FCA700',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.warning.bold.pressed',
 		path: ['color', 'background', 'warning', 'bold', 'pressed'],
 		description: 'Pressed state of color.background.warning.bold',
 		exampleValue: '#F68909',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success',
@@ -1675,18 +2616,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds communicating a favorable outcome, such as in success section messages.',
 		exampleValue: '#EFFFD6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success.hovered',
 		path: ['color', 'background', 'success', '[default]', 'hovered'],
 		description: 'Hovered state for color.background.success',
 		exampleValue: '#D3F1A7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success.pressed',
 		path: ['color', 'background', 'success', '[default]', 'pressed'],
 		description: 'Pressed state for color.background.success',
 		exampleValue: '#BDE97C',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success.subtler',
@@ -1694,18 +2650,45 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds of success lozenges and badges to ensure accessibility and desired visual appearance.',
 		exampleValue: '#D3F1A7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success.subtler.hovered',
 		path: ['color', 'background', 'success', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.success.subtler',
 		exampleValue: '#BDE97C',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success.subtler.pressed',
 		path: ['color', 'background', 'success', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.success.subtler',
 		exampleValue: '#B3DF72',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.success.subtle',
+		path: ['color', 'background', 'success', 'subtle', '[default]'],
+		description:
+			'Background colour for non-interactive elements communicating success (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.success.bold or color.background.success.subtler for interactive states.',
+		exampleValue: '#B3DF72',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success.bold',
@@ -1713,18 +2696,33 @@ export const tokens: Token[] = [
 		description:
 			'A vibrant background option for communicating a favorable outcome, such as in checked toggles.',
 		exampleValue: '#5B7F24',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success.bold.hovered',
 		path: ['color', 'background', 'success', 'bold', 'hovered'],
 		description: 'Hovered state of color.background.success.bold',
 		exampleValue: '#4C6B1F',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.success.bold.pressed',
 		path: ['color', 'background', 'success', 'bold', 'pressed'],
 		description: 'Pressed state of color.background.success.bold',
 		exampleValue: '#3F5224',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery',
@@ -1732,18 +2730,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds communicating change or something new, such as in discovery section messages.',
 		exampleValue: '#F8EEFE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery.hovered',
 		path: ['color', 'background', 'discovery', '[default]', 'hovered'],
 		description: 'Hover state for color.background.discovery',
 		exampleValue: '#EED7FC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery.pressed',
 		path: ['color', 'background', 'discovery', '[default]', 'pressed'],
 		description: 'Pressed state for color.background.discovery',
 		exampleValue: '#E3BDFA',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery.subtler',
@@ -1751,18 +2764,45 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds of discovery lozenges and badges to ensure accessibility and desired visual appearance.',
 		exampleValue: '#EED7FC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery.subtler.hovered',
 		path: ['color', 'background', 'discovery', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.discovery.subtler',
 		exampleValue: '#E3BDFA',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery.subtler.pressed',
 		path: ['color', 'background', 'discovery', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.discovery.subtler',
 		exampleValue: '#D8A0F7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.discovery.subtle',
+		path: ['color', 'background', 'discovery', 'subtle', '[default]'],
+		description:
+			'Background colour for non-interactive elements communicating discovery (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.discovery.bold or color.background.discovery.subtler for interactive states.',
+		exampleValue: '#D8A0F7',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery.bold',
@@ -1770,18 +2810,33 @@ export const tokens: Token[] = [
 		description:
 			'A vibrant background option communicating change or something new, such as in onboarding spotlights.',
 		exampleValue: '#964AC0',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery.bold.hovered',
 		path: ['color', 'background', 'discovery', 'bold', 'hovered'],
 		description: 'Hovered state of color.background.discovery.bold',
 		exampleValue: '#803FA5',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.discovery.bold.pressed',
 		path: ['color', 'background', 'discovery', 'bold', 'pressed'],
 		description: 'Pressed state of color.background.discovery.bold',
 		exampleValue: '#673286',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information',
@@ -1789,18 +2844,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds communicating information or something in-progress, such as in information section messages.',
 		exampleValue: '#E9F2FE',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information.hovered',
 		path: ['color', 'background', 'information', '[default]', 'hovered'],
 		description: 'Hovered state of color.background.information',
 		exampleValue: '#CFE1FD',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information.pressed',
 		path: ['color', 'background', 'information', '[default]', 'pressed'],
 		description: 'Pressed state of color.background.information',
 		exampleValue: '#ADCBFB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information.subtler',
@@ -1808,18 +2878,45 @@ export const tokens: Token[] = [
 		description:
 			'Use for backgrounds of information lozenges and badges to ensure accessibility and desired visual appearance.',
 		exampleValue: '#CFE1FD',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information.subtler.hovered',
 		path: ['color', 'background', 'information', 'subtler', 'hovered'],
 		description: 'Hovered state of color.background.information.subtler',
 		exampleValue: '#ADCBFB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information.subtler.pressed',
 		path: ['color', 'background', 'information', 'subtler', 'pressed'],
 		description: 'Pressed state of color.background.information.subtler',
 		exampleValue: '#8FB8F6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.background.information.subtle',
+		path: ['color', 'background', 'information', 'subtle', '[default]'],
+		description:
+			'Background colour for non-interactive elements communicating information (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.information.bold or color.background.information.subtler for interactive states.',
+		exampleValue: '#8FB8F6',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information.bold',
@@ -1827,38 +2924,1360 @@ export const tokens: Token[] = [
 		description:
 			'A vibrant background option for communicating information or something in-progress.',
 		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information.bold.hovered',
 		path: ['color', 'background', 'information', 'bold', 'hovered'],
 		description: 'Hovered state of color.background.information.bold',
 		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.background.information.bold.pressed',
 		path: ['color', 'background', 'information', 'bold', 'pressed'],
 		description: 'Pressed state of color.background.information.bold',
 		exampleValue: '#144794',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
-		name: 'color.blanket',
-		path: ['color', 'blanket', '[default]'],
-		description: 'Use for the screen overlay that appears with modal dialogs',
-		exampleValue: '#050C1F75',
-	},
-	{
-		name: 'color.blanket.selected',
-		path: ['color', 'blanket', 'selected'],
+		name: 'color.border',
+		path: ['color', 'border', '[default]'],
 		description:
-			"Use as an overlay to communicate selected states when a simple background color change isn't possible, such as in Editor block elements",
-		exampleValue: '#388BFF14',
+			'Use to visually group or separate UI elements, such as flat cards or side panel dividers.',
+		exampleValue: '#0B120E24',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
 	},
 	{
-		name: 'color.blanket.danger',
-		path: ['color', 'blanket', 'danger'],
+		name: 'color.border.accent.lime',
+		path: ['color', 'border', 'accent', 'lime', '[default]'],
 		description:
-			"Use as an overlay to communicate danger states when a simple background color change isn't possible, such as deletion of Editor block elements",
-		exampleValue: '#EF5C4814',
+			'Use for lime borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.lime.subtle',
+		path: ['color', 'border', 'accent', 'lime', 'subtle'],
+		description:
+			'Use for decorative lime borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#B3DF72',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.red',
+		path: ['color', 'border', 'accent', 'red', '[default]'],
+		description:
+			'Use for red borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#E2483D',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.red.subtle',
+		path: ['color', 'border', 'accent', 'red', 'subtle'],
+		description:
+			'Use for decorative red borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#FD9891',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.orange',
+		path: ['color', 'border', 'accent', 'orange', '[default]'],
+		description:
+			'Use for orange borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#E06C00',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.orange.subtle',
+		path: ['color', 'border', 'accent', 'orange', 'subtle'],
+		description:
+			'Use for decorative orange borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#FBC828',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.yellow',
+		path: ['color', 'border', 'accent', 'yellow', '[default]'],
+		description:
+			'Use for yellow borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#B38600',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.yellow.subtle',
+		path: ['color', 'border', 'accent', 'yellow', 'subtle'],
+		description:
+			'Use for decorative yellow borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#EED12B',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.green',
+		path: ['color', 'border', 'accent', 'green', '[default]'],
+		description:
+			'Use for green borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#22A06B',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.green.subtle',
+		path: ['color', 'border', 'accent', 'green', 'subtle'],
+		description:
+			'Use for decorative green borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#7EE2B8',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.teal',
+		path: ['color', 'border', 'accent', 'teal', '[default]'],
+		description:
+			'Use for teal borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#2898BD',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.teal.subtle',
+		path: ['color', 'border', 'accent', 'teal', 'subtle'],
+		description:
+			'Use for decorative teal borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#9DD9EE',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.blue',
+		path: ['color', 'border', 'accent', 'blue', '[default]'],
+		description:
+			'Use for blue borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.blue.subtle',
+		path: ['color', 'border', 'accent', 'blue', 'subtle'],
+		description:
+			'Use for decorative blue borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#8FB8F6',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.purple',
+		path: ['color', 'border', 'accent', 'purple', '[default]'],
+		description:
+			'Use for purple borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.purple.subtle',
+		path: ['color', 'border', 'accent', 'purple', 'subtle'],
+		description:
+			'Use for decorative purple borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#D8A0F7',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.magenta',
+		path: ['color', 'border', 'accent', 'magenta', '[default]'],
+		description:
+			'Use for magenta borders on non-bold backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#CD519D',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.magenta.subtle',
+		path: ['color', 'border', 'accent', 'magenta', 'subtle'],
+		description:
+			'Use for decorative magenta borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#F797D2',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.gray',
+		path: ['color', 'border', 'accent', 'gray', '[default]'],
+		description: 'Use for borders on non-bold gray accent backgrounds.',
+		exampleValue: '#7D818A',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.accent.gray.subtle',
+		path: ['color', 'border', 'accent', 'gray', 'subtle'],
+		description:
+			'Use for decorative gray borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#B7B9BE',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.code',
+		path: ['color', 'border', 'code'],
+		description: 'Use for code block and code diff borders.',
+		exampleValue: '#0B120E24',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.disabled',
+		path: ['color', 'border', 'disabled'],
+		description: 'Use for borders of elements in a disabled state.',
+		exampleValue: '#0515240F',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.focused',
+		path: ['color', 'border', 'focused'],
+		description: 'Use for focus rings of elements in a focus state.',
+		exampleValue: '#4688EC',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.input',
+		path: ['color', 'border', 'input', '[default]'],
+		description:
+			'Use for borders of form UI elements, such as text fields, checkboxes, and radio buttons.',
+		exampleValue: '#8C8F97',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.input.search',
+		path: ['color', 'border', 'input', 'search'],
+		description: 'Use for the border of search inputs.',
+		exampleValue: '#0B120E24',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.inverse',
+		path: ['color', 'border', 'inverse'],
+		description: 'Use for borders on bold backgrounds.',
+		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.selected',
+		path: ['color', 'border', 'selected'],
+		description:
+			'Use for borders or visual indicators of elements in a selected or opened state, such as in tabs or menu items.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.brand',
+		path: ['color', 'border', 'brand'],
+		description:
+			'Use for borders or visual indicators of elements that reinforce our brand, such as logos or primary buttons.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.danger',
+		path: ['color', 'border', 'danger', '[default]'],
+		description:
+			'Use for borders communicating critical information, such as the borders on invalid text fields.',
+		exampleValue: '#E2483D',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.danger.subtle',
+		path: ['color', 'border', 'danger', 'subtle'],
+		description:
+			'Use for decorative danger borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#FD9891',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.warning',
+		path: ['color', 'border', 'warning', '[default]'],
+		description: 'Use for borders communicating caution.',
+		exampleValue: '#E06C00',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.warning.subtle',
+		path: ['color', 'border', 'warning', 'subtle'],
+		description:
+			'Use for decorative warning borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#FBC828',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.success',
+		path: ['color', 'border', 'success', '[default]'],
+		description:
+			'Use for borders communicating a favorable outcome, such as the borders on validated text fields.',
+		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.success.subtle',
+		path: ['color', 'border', 'success', 'subtle'],
+		description:
+			'Use for decorative success borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#B3DF72',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.discovery',
+		path: ['color', 'border', 'discovery', '[default]'],
+		description:
+			'Use for borders communicating change or something new, such as the borders in onboarding spotlights.',
+		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.discovery.subtle',
+		path: ['color', 'border', 'discovery', 'subtle'],
+		description:
+			'Use for decorative discovery borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#D8A0F7',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.information',
+		path: ['color', 'border', 'information', '[default]'],
+		description: 'Use for borders communicating information or something in-progress.',
+		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.information.subtle',
+		path: ['color', 'border', 'information', 'subtle'],
+		description:
+			'Use for decorative information borders that do not need to meet 3:1 contrast requirements.',
+		exampleValue: '#8FB8F6',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.border.bold',
+		path: ['color', 'border', 'bold'],
+		description: 'A neutral border option that passes min 3:1 contrast ratios.',
+		exampleValue: '#7D818A',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.text',
+		path: ['color', 'text', '[default]'],
+		description: 'Use for primary text, such as body copy, sentence case headers, and buttons.',
+		exampleValue: '#292A2E',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.lime',
+		path: ['color', 'text', 'accent', 'lime', '[default]'],
+		description:
+			'Use for lime text on subtlest and subtler lime accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#4C6B1F',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.lime.bolder',
+		path: ['color', 'text', 'accent', 'lime', 'bolder'],
+		description:
+			'Use for lime text on subtle lime accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#37471F',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.red',
+		path: ['color', 'text', 'accent', 'red', '[default]'],
+		description:
+			'Use for red text on subtlest and subtler red accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#AE2E24',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.red.bolder',
+		path: ['color', 'text', 'accent', 'red', 'bolder'],
+		description:
+			'Use for red text on subtle red accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#5D1F1A',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.orange',
+		path: ['color', 'text', 'accent', 'orange', '[default]'],
+		description:
+			'Use for orange text on subtlest and subtler orange accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#9E4C00',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.orange.bolder',
+		path: ['color', 'text', 'accent', 'orange', 'bolder'],
+		description:
+			'Use for orange text on subtle orange accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#693200',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.yellow',
+		path: ['color', 'text', 'accent', 'yellow', '[default]'],
+		description:
+			'Use for yellow text on subtlest and subtler yellow accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#7F5F01',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.yellow.bolder',
+		path: ['color', 'text', 'accent', 'yellow', 'bolder'],
+		description:
+			'Use for yellow text on subtle yellow accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#533F04',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.green',
+		path: ['color', 'text', 'accent', 'green', '[default]'],
+		description:
+			'Use for green text on subtlest and subtler green accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#216E4E',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.green.bolder',
+		path: ['color', 'text', 'accent', 'green', 'bolder'],
+		description:
+			'Use for green text on subtle green accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#164B35',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.teal',
+		path: ['color', 'text', 'accent', 'teal', '[default]'],
+		description:
+			'Use for teal text on subtlest and subtler teal accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#206A83',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.teal.bolder',
+		path: ['color', 'text', 'accent', 'teal', 'bolder'],
+		description:
+			'Use for teal text on subtle teal accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#164555',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.blue',
+		path: ['color', 'text', 'accent', 'blue', '[default]'],
+		description:
+			'Use for blue text on subtlest and subtler blue accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.blue.bolder',
+		path: ['color', 'text', 'accent', 'blue', 'bolder'],
+		description:
+			'Use for blue text on subtle blue accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#123263',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.purple',
+		path: ['color', 'text', 'accent', 'purple', '[default]'],
+		description:
+			'Use for purple text on subtlest and subtler purple accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#803FA5',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.purple.bolder',
+		path: ['color', 'text', 'accent', 'purple', 'bolder'],
+		description:
+			'Use for purple text on subtle purple accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#48245D',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.magenta',
+		path: ['color', 'text', 'accent', 'magenta', '[default]'],
+		description:
+			'Use for magenta text on subtlest and subtler magenta accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#943D73',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.magenta.bolder',
+		path: ['color', 'text', 'accent', 'magenta', 'bolder'],
+		description:
+			'Use for magenta text on subtle magenta accent backgrounds when there is no meaning tied to the color.',
+		exampleValue: '#50253F',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.gray',
+		path: ['color', 'text', 'accent', 'gray', '[default]'],
+		description: 'Use for text on non-bold gray accent backgrounds, such as colored tags.',
+		exampleValue: '#505258',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.accent.gray.bolder',
+		path: ['color', 'text', 'accent', 'gray', 'bolder'],
+		description: 'Use for text and icons on gray subtle accent backgrounds.',
+		exampleValue: '#1E1F21',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.accent.1',
+		path: ['color', 'text', 'code', 'accent', '1'],
+		description: 'Use for an additional syntax-highlighting text color.',
+		exampleValue: '#943D73',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.accent.2',
+		path: ['color', 'text', 'code', 'accent', '2'],
+		description: 'Use for an additional syntax-highlighting text color.',
+		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.comments',
+		path: ['color', 'text', 'code', 'comments'],
+		description: 'Use for comments in syntax-highlighted code.',
+		exampleValue: '#505258',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.default',
+		path: ['color', 'text', 'code', 'default'],
+		description: 'Use for default text in code blocks and code diffs.',
+		exampleValue: '#505258',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.functions',
+		path: ['color', 'text', 'code', 'functions'],
+		description: 'Use for functions in syntax-highlighted code.',
+		exampleValue: '#216E4E',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.gutter',
+		path: ['color', 'text', 'code', 'gutter'],
+		description: 'Use for line numbers and other code gutter text.',
+		exampleValue: '#6B6E76',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.keywords',
+		path: ['color', 'text', 'code', 'keywords'],
+		description: 'Use for language keywords in syntax-highlighted code.',
+		exampleValue: '#AE2E24',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.numbers',
+		path: ['color', 'text', 'code', 'numbers'],
+		description: 'Use for numeric values in syntax-highlighted code.',
+		exampleValue: '#7F5F01',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.operators',
+		path: ['color', 'text', 'code', 'operators'],
+		description: 'Use for operators and punctuation in syntax-highlighted code.',
+		exampleValue: '#292A2E',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.strings',
+		path: ['color', 'text', 'code', 'strings'],
+		description: 'Use for string values in syntax-highlighted code.',
+		exampleValue: '#4C6B1F',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.code.tags',
+		path: ['color', 'text', 'code', 'tags'],
+		description: 'Use for tags in syntax-highlighted code.',
+		exampleValue: '#9E4C00',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.disabled',
+		path: ['color', 'text', 'disabled'],
+		description: 'Use for text in a disabled state.',
+		exampleValue: '#080F214A',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.inverse',
+		path: ['color', 'text', 'inverse'],
+		description: 'Use for text on bold backgrounds.',
+		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.selected',
+		path: ['color', 'text', 'selected'],
+		description: 'Use for text in selected or opened states, such as tabs and dropdown buttons.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.brand',
+		path: ['color', 'text', 'brand'],
+		description: 'Use for text that reinforces our brand.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.danger',
+		path: ['color', 'text', 'danger', '[default]'],
+		description: 'Use for critical text, such as input field error messaging.',
+		exampleValue: '#AE2E24',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.danger.bolder',
+		path: ['color', 'text', 'danger', 'bolder'],
+		description:
+			'Use for text on top of danger semantic labels to ensure accessibility and desired visual appearance.',
+		exampleValue: '#5D1F1A',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.warning',
+		path: ['color', 'text', 'warning', '[default]'],
+		description: 'Use for text to emphasize caution, such as in moved lozenges.',
+		exampleValue: '#9E4C00',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.warning.inverse',
+		path: ['color', 'text', 'warning', 'inverse'],
+		description: 'Use for text when on bold warning backgrounds.',
+		exampleValue: '#292A2E',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.warning.bolder',
+		path: ['color', 'text', 'warning', 'bolder'],
+		description:
+			'Use for text on top of warning semantic labels to ensure accessibility and desired visual appearance.',
+		exampleValue: '#693200',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.success',
+		path: ['color', 'text', 'success', '[default]'],
+		description:
+			'Use for text to communicate a favorable outcome, such as input field success messaging.',
+		exampleValue: '#4C6B1F',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.success.bolder',
+		path: ['color', 'text', 'success', 'bolder'],
+		description:
+			'Use for text on top of success semantic labels to ensure accessibility and desired visual appearance.',
+		exampleValue: '#37471F',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.discovery',
+		path: ['color', 'text', 'discovery', '[default]'],
+		description: 'Use for text to emphasize change or something new, such as in new lozenges.',
+		exampleValue: '#803FA5',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.discovery.bolder',
+		path: ['color', 'text', 'discovery', 'bolder'],
+		description:
+			'Use for text on top of discovery semantic labels to ensure accessibility and desired visual appearance.',
+		exampleValue: '#48245D',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.information',
+		path: ['color', 'text', 'information', '[default]'],
+		description:
+			'Use for informative text or to communicate something is in progress, such as in-progress lozenges.',
+		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.information.bolder',
+		path: ['color', 'text', 'information', 'bolder'],
+		description:
+			'Use for text on top of information semantic labels to ensure accessibility and desired visual appearance.',
+		exampleValue: '#123263',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.subtlest',
+		path: ['color', 'text', 'subtlest'],
+		description:
+			'Use for tertiary text, such as meta-data, breadcrumbs, input field placeholder and helper text.',
+		exampleValue: '#6B6E76',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.text.subtle',
+		path: ['color', 'text', 'subtle'],
+		description:
+			'Use for secondary text, such as navigation, subtle button links, input field labels, and all caps subheadings.',
+		exampleValue: '#505258',
+		usageGuidelines: {
+			usage:
+				'The color for standard text. Use for primary, readable text in most user interface situations (e.g. color.text, color.text.subtle)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.icon',
+		path: ['color', 'icon', '[default]'],
+		description: 'Use for icon-only buttons, or icons paired with color.text',
+		exampleValue: '#292A2E',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.lime',
+		path: ['color', 'icon', 'accent', 'lime'],
+		description:
+			'Use for lime icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.red',
+		path: ['color', 'icon', 'accent', 'red'],
+		description:
+			'Use for red icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#C9372C',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.orange',
+		path: ['color', 'icon', 'accent', 'orange'],
+		description:
+			'Use for orange icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#E06C00',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.yellow',
+		path: ['color', 'icon', 'accent', 'yellow'],
+		description:
+			'Use for yellow icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#B38600',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.green',
+		path: ['color', 'icon', 'accent', 'green'],
+		description:
+			'Use for green icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#22A06B',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.teal',
+		path: ['color', 'icon', 'accent', 'teal'],
+		description:
+			'Use for teal icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#2898BD',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.blue',
+		path: ['color', 'icon', 'accent', 'blue'],
+		description:
+			'Use for blue icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.purple',
+		path: ['color', 'icon', 'accent', 'purple'],
+		description:
+			'Use for purple icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.magenta',
+		path: ['color', 'icon', 'accent', 'magenta'],
+		description:
+			'Use for magenta icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons.',
+		exampleValue: '#CD519D',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.accent.gray',
+		path: ['color', 'icon', 'accent', 'gray'],
+		description: 'Use for icons on non-bold gray accent backgrounds, such as file type icons.',
+		exampleValue: '#7D818A',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.disabled',
+		path: ['color', 'icon', 'disabled'],
+		description: 'Use for icons in a disabled state.',
+		exampleValue: '#080F214A',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.inverse',
+		path: ['color', 'icon', 'inverse'],
+		description: 'Use for icons on bold backgrounds.',
+		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.selected',
+		path: ['color', 'icon', 'selected'],
+		description:
+			'Use for icons in selected or opened states, such as those used in dropdown buttons.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.brand',
+		path: ['color', 'icon', 'brand'],
+		description: 'Use for icons that reinforce our brand.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.danger',
+		path: ['color', 'icon', 'danger'],
+		description:
+			'Use for icons communicating critical information, such as those used in error handing.',
+		exampleValue: '#C9372C',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.warning',
+		path: ['color', 'icon', 'warning', '[default]'],
+		description:
+			'Use for icons communicating caution, such as those used in warning section messages.',
+		exampleValue: '#E06C00',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.warning.inverse',
+		path: ['color', 'icon', 'warning', 'inverse'],
+		description: 'Use for icons when on bold warning backgrounds.',
+		exampleValue: '#292A2E',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.success',
+		path: ['color', 'icon', 'success'],
+		description:
+			'Use for icons communicating a favorable outcome, such as those used in success section messaged.',
+		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.discovery',
+		path: ['color', 'icon', 'discovery'],
+		description:
+			'Use for icons communicating change or something new, such as discovery section messages.',
+		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.information',
+		path: ['color', 'icon', 'information'],
+		description:
+			'Use for icons communicating information or something in-progress, such as information section messages.',
+		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.subtlest',
+		path: ['color', 'icon', 'subtlest'],
+		description: 'Use for icons paired with color.text.subtlest',
+		exampleValue: '#6B6E76',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.icon.subtle',
+		path: ['color', 'icon', 'subtle'],
+		description: 'Use for icons paired with color.text.subtle',
+		exampleValue: '#505258',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.link',
+		path: ['color', 'link', '[default]'],
+		description:
+			'Use for links in a default or hovered state. Add an underline for hovered states.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for hyperlinks. Use for elements that are links to external resources or navigation (e.g. color.link)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.link.pressed',
+		path: ['color', 'link', 'pressed'],
+		description: 'Use for links in a pressed state.',
+		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage:
+				'The color for hyperlinks. Use for elements that are links to external resources or navigation (e.g. color.link)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.link.visited',
+		path: ['color', 'link', 'visited', '[default]'],
+		description: 'Use for visited links.',
+		exampleValue: '#803FA5',
+		usageGuidelines: {
+			usage:
+				'The color for hyperlinks. Use for elements that are links to external resources or navigation (e.g. color.link)',
+			cssProperties: ['color'],
+		},
+	},
+	{
+		name: 'color.link.visited.pressed',
+		path: ['color', 'link', 'visited', 'pressed'],
+		description: 'Use for visited links in a pressed state.',
+		exampleValue: '#48245D',
+		usageGuidelines: {
+			usage:
+				'The color for hyperlinks. Use for elements that are links to external resources or navigation (e.g. color.link)',
+			cssProperties: ['color'],
+		},
 	},
 	{
 		name: 'color.interaction.hovered',
@@ -1866,6 +4285,11 @@ export const tokens: Token[] = [
 		description:
 			'Use as a background overlay for elements in a hovered state when their background color cannot change, such as avatars.',
 		exampleValue: '#00000029',
+		usageGuidelines: {
+			usage:
+				'Transparent interaction states for use over elements when their background color cannot change, such as images and avatars.',
+			cssProperties: ['background-color', 'border-color'],
+		},
 	},
 	{
 		name: 'color.interaction.pressed',
@@ -1873,636 +4297,1249 @@ export const tokens: Token[] = [
 		description:
 			'Use as a background overlay for elements in a pressed state when their background color cannot change, such as avatars.',
 		exampleValue: '#00000052',
+		usageGuidelines: {
+			usage:
+				'Transparent interaction states for use over elements when their background color cannot change, such as images and avatars.',
+			cssProperties: ['background-color', 'border-color'],
+		},
 	},
 	{
 		name: 'color.skeleton',
 		path: ['color', 'skeleton', '[default]'],
 		description: 'Use for skeleton loading states',
 		exampleValue: '#0515240F',
+		usageGuidelines: {
+			usage: 'The color for skeleton/loading placeholders (e.g. color.skeleton)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.skeleton.subtle',
 		path: ['color', 'skeleton', 'subtle'],
 		description: 'Use for the pulse or shimmer effect in skeleton loading states',
 		exampleValue: '#17171708',
+		usageGuidelines: {
+			usage: 'The color for skeleton/loading placeholders (e.g. color.skeleton)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.blanket',
+		path: ['color', 'blanket', '[default]'],
+		description: 'Use for the screen overlay that appears with modal dialogs',
+		exampleValue: '#050C1F75',
+		usageGuidelines: {
+			usage:
+				'The color for overlay "blankets" such as modals/dimmers/overlays (e.g. color.blanket)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.blanket.selected',
+		path: ['color', 'blanket', 'selected'],
+		description:
+			"Use as an overlay to communicate selected states when a simple background color change isn't possible, such as in Editor block elements",
+		exampleValue: '#388BFF14',
+		usageGuidelines: {
+			usage:
+				'The color for overlay "blankets" such as modals/dimmers/overlays (e.g. color.blanket)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.blanket.danger',
+		path: ['color', 'blanket', 'danger'],
+		description:
+			"Use as an overlay to communicate danger states when a simple background color change isn't possible, such as deletion of Editor block elements",
+		exampleValue: '#EF5C4814',
+		usageGuidelines: {
+			usage:
+				'The color for overlay "blankets" such as modals/dimmers/overlays (e.g. color.blanket)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.1',
 		path: ['color', 'chart', 'categorical', '1', '[default]'],
 		description: 'For data visualisation only. Follow numbered sequence.',
 		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.1.hovered',
 		path: ['color', 'chart', 'categorical', '1', 'hovered'],
 		description: 'Hovered state of color.chart.categorical.1.',
 		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.2',
 		path: ['color', 'chart', 'categorical', '2', '[default]'],
 		description: 'For data visualisation only. Follow numbered sequence.',
 		exampleValue: '#82B536',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.2.hovered',
 		path: ['color', 'chart', 'categorical', '2', 'hovered'],
 		description: 'Hovered state of color.chart.categorical.2.',
 		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.3',
 		path: ['color', 'chart', 'categorical', '3', '[default]'],
 		description: 'For data visualisation only. Follow numbered sequence.',
 		exampleValue: '#BF63F3',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.3.hovered',
 		path: ['color', 'chart', 'categorical', '3', 'hovered'],
 		description: 'Hovered state of color.chart.categorical.3.',
 		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.4',
 		path: ['color', 'chart', 'categorical', '4', '[default]'],
 		description: 'For data visualisation only. Follow numbered sequence.',
 		exampleValue: '#F68909',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.4.hovered',
 		path: ['color', 'chart', 'categorical', '4', 'hovered'],
 		description: 'Hovered state of color.chart.categorical.4.',
 		exampleValue: '#E06C00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.5',
 		path: ['color', 'chart', 'categorical', '5', '[default]'],
 		description: 'For data visualisation only. Follow numbered sequence.',
 		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.5.hovered',
 		path: ['color', 'chart', 'categorical', '5', 'hovered'],
 		description: 'Hovered state of color.chart.categorical.5.',
 		exampleValue: '#123263',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.6',
 		path: ['color', 'chart', 'categorical', '6', '[default]'],
 		description: 'For data visualisation only. Follow numbered sequence.',
 		exampleValue: '#964AC0',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.6.hovered',
 		path: ['color', 'chart', 'categorical', '6', 'hovered'],
 		description: 'Hovered state of color.chart.categorical.6.',
 		exampleValue: '#803FA5',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.7',
 		path: ['color', 'chart', 'categorical', '7', '[default]'],
 		description: 'For data visualisation only. Follow numbered sequence.',
 		exampleValue: '#42B2D7',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.7.hovered',
 		path: ['color', 'chart', 'categorical', '7', 'hovered'],
 		description: 'Hovered state of color.chart.categorical.7.',
 		exampleValue: '#2898BD',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.8',
 		path: ['color', 'chart', 'categorical', '8', '[default]'],
 		description: 'For data visualisation only. Follow numbered sequence.',
 		exampleValue: '#BD5B00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.categorical.8.hovered',
 		path: ['color', 'chart', 'categorical', '8', 'hovered'],
 		description: 'Hovered state of color.chart.categorical.8.',
 		exampleValue: '#7A3B00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.lime.bold',
 		path: ['color', 'chart', 'lime', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.lime.bold.hovered',
 		path: ['color', 'chart', 'lime', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.lime.bold.',
 		exampleValue: '#5B7F24',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.lime.bolder',
 		path: ['color', 'chart', 'lime', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#5B7F24',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.lime.bolder.hovered',
 		path: ['color', 'chart', 'lime', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.lime.bolder.',
 		exampleValue: '#4C6B1F',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.lime.boldest',
 		path: ['color', 'chart', 'lime', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#4C6B1F',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.lime.boldest.hovered',
 		path: ['color', 'chart', 'lime', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.lime.boldest.',
 		exampleValue: '#37471F',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.neutral',
 		path: ['color', 'chart', 'neutral', '[default]'],
 		description: "A secondary color for data visualisation or to communicate 'to-do' statues.",
 		exampleValue: '#8C8F97',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.neutral.hovered',
 		path: ['color', 'chart', 'neutral', 'hovered'],
 		description: 'Hovered state of color.chart.neutral.',
 		exampleValue: '#7D818A',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.red.bold',
 		path: ['color', 'chart', 'red', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#F15B50',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.red.bold.hovered',
 		path: ['color', 'chart', 'red', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.red.bold.',
 		exampleValue: '#E2483D',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.red.bolder',
 		path: ['color', 'chart', 'red', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#E2483D',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.red.bolder.hovered',
 		path: ['color', 'chart', 'red', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.red.bolder.',
 		exampleValue: '#C9372C',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.red.boldest',
 		path: ['color', 'chart', 'red', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#AE2E24',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.red.boldest.hovered',
 		path: ['color', 'chart', 'red', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.red.boldest.',
 		exampleValue: '#5D1F1A',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.orange.bold',
 		path: ['color', 'chart', 'orange', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#E06C00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.orange.bold.hovered',
 		path: ['color', 'chart', 'orange', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.orange.bold.',
 		exampleValue: '#BD5B00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.orange.bolder',
 		path: ['color', 'chart', 'orange', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#BD5B00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.orange.bolder.hovered',
 		path: ['color', 'chart', 'orange', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.orange.bolder.',
 		exampleValue: '#9E4C00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.orange.boldest',
 		path: ['color', 'chart', 'orange', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#7A3B00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.orange.boldest.hovered',
 		path: ['color', 'chart', 'orange', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.orange.boldest.',
 		exampleValue: '#693200',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.yellow.bold',
 		path: ['color', 'chart', 'yellow', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#B38600',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.yellow.bold.hovered',
 		path: ['color', 'chart', 'yellow', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.yellow.bold.',
 		exampleValue: '#946F00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.yellow.bolder',
 		path: ['color', 'chart', 'yellow', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#946F00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.yellow.bolder.hovered',
 		path: ['color', 'chart', 'yellow', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.yellow.bolder.',
 		exampleValue: '#7F5F01',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.yellow.boldest',
 		path: ['color', 'chart', 'yellow', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#7F5F01',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.yellow.boldest.hovered',
 		path: ['color', 'chart', 'yellow', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.yellow.boldest.',
 		exampleValue: '#533F04',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.green.bold',
 		path: ['color', 'chart', 'green', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#22A06B',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.green.bold.hovered',
 		path: ['color', 'chart', 'green', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.green.bold.',
 		exampleValue: '#1F845A',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.green.bolder',
 		path: ['color', 'chart', 'green', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#1F845A',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.green.bolder.hovered',
 		path: ['color', 'chart', 'green', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.green.bolder.',
 		exampleValue: '#216E4E',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.green.boldest',
 		path: ['color', 'chart', 'green', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#216E4E',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.green.boldest.hovered',
 		path: ['color', 'chart', 'green', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.green.boldest.',
 		exampleValue: '#164B35',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.teal.bold',
 		path: ['color', 'chart', 'teal', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#2898BD',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.teal.bold.hovered',
 		path: ['color', 'chart', 'teal', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.teal.bold.',
 		exampleValue: '#227D9B',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.teal.bolder',
 		path: ['color', 'chart', 'teal', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#227D9B',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.teal.bolder.hovered',
 		path: ['color', 'chart', 'teal', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.teal.bolder.',
 		exampleValue: '#206A83',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.teal.boldest',
 		path: ['color', 'chart', 'teal', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#206A83',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.teal.boldest.hovered',
 		path: ['color', 'chart', 'teal', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.teal.boldest.',
 		exampleValue: '#164555',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.blue.bold',
 		path: ['color', 'chart', 'blue', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#4688EC',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.blue.bold.hovered',
 		path: ['color', 'chart', 'blue', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.blue.bold.',
 		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.blue.bolder',
 		path: ['color', 'chart', 'blue', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.blue.bolder.hovered',
 		path: ['color', 'chart', 'blue', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.blue.bolder.',
 		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.blue.boldest',
 		path: ['color', 'chart', 'blue', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.blue.boldest.hovered',
 		path: ['color', 'chart', 'blue', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.blue.boldest.',
 		exampleValue: '#123263',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.purple.bold',
 		path: ['color', 'chart', 'purple', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#BF63F3',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.purple.bold.hovered',
 		path: ['color', 'chart', 'purple', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.purple.bold.',
 		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.purple.bolder',
 		path: ['color', 'chart', 'purple', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.purple.bolder.hovered',
 		path: ['color', 'chart', 'purple', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.purple.bolder.',
 		exampleValue: '#964AC0',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.purple.boldest',
 		path: ['color', 'chart', 'purple', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#803FA5',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.purple.boldest.hovered',
 		path: ['color', 'chart', 'purple', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.purple.boldest.',
 		exampleValue: '#48245D',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.magenta.bold',
 		path: ['color', 'chart', 'magenta', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#DA62AC',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.magenta.bold.hovered',
 		path: ['color', 'chart', 'magenta', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.magenta.bold.',
 		exampleValue: '#CD519D',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.magenta.bolder',
 		path: ['color', 'chart', 'magenta', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#CD519D',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.magenta.bolder.hovered',
 		path: ['color', 'chart', 'magenta', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.magenta.bolder.',
 		exampleValue: '#AE4787',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.magenta.boldest',
 		path: ['color', 'chart', 'magenta', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#943D73',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.magenta.boldest.hovered',
 		path: ['color', 'chart', 'magenta', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.magenta.boldest.',
 		exampleValue: '#50253F',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.gray.bold',
 		path: ['color', 'chart', 'gray', 'bold', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#8C8F97',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.gray.bold.hovered',
 		path: ['color', 'chart', 'gray', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.gray.bold.',
 		exampleValue: '#7D818A',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.gray.bolder',
 		path: ['color', 'chart', 'gray', 'bolder', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#7D818A',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.gray.bolder.hovered',
 		path: ['color', 'chart', 'gray', 'bolder', 'hovered'],
 		description: 'Hovered state of color.chart.gray.bolder.',
 		exampleValue: '#6B6E76',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.gray.boldest',
 		path: ['color', 'chart', 'gray', 'boldest', '[default]'],
 		description: 'For data visualisation only.',
 		exampleValue: '#505258',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.gray.boldest.hovered',
 		path: ['color', 'chart', 'gray', 'boldest', 'hovered'],
 		description: 'Hovered state of color.chart.gray.boldest.',
 		exampleValue: '#3B3D42',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.brand',
 		path: ['color', 'chart', 'brand', '[default]'],
 		description: 'Our primary color for data visualisation. Use when only one color is required.',
 		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.brand.hovered',
 		path: ['color', 'chart', 'brand', 'hovered'],
 		description: 'Hovered state of color.chart.brand.',
 		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.danger',
 		path: ['color', 'chart', 'danger', '[default]', '[default]'],
 		description: "For data visualisation communicating negative information, such as 'off track'.",
 		exampleValue: '#E2483D',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.danger.hovered',
 		path: ['color', 'chart', 'danger', '[default]', 'hovered'],
 		description: 'Hovered state of color.chart.danger.',
 		exampleValue: '#C9372C',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.danger.bold',
 		path: ['color', 'chart', 'danger', 'bold', '[default]'],
 		description: 'A stronger emphasis option of color.chart.danger.',
 		exampleValue: '#872821',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.danger.bold.hovered',
 		path: ['color', 'chart', 'danger', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.danger.bold.',
 		exampleValue: '#5D1F1A',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.warning',
 		path: ['color', 'chart', 'warning', '[default]', '[default]'],
 		description: "For data visualisation communicating caution, such as 'at risk' statuses.",
 		exampleValue: '#F68909',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.warning.hovered',
 		path: ['color', 'chart', 'warning', '[default]', 'hovered'],
 		description: 'Hovered state of color.chart.warning.',
 		exampleValue: '#E06C00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.warning.bold',
 		path: ['color', 'chart', 'warning', 'bold', '[default]'],
 		description: 'A stronger emphasis option of color.chart.warning.',
 		exampleValue: '#BD5B00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.warning.bold.hovered',
 		path: ['color', 'chart', 'warning', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.warning.bold.',
 		exampleValue: '#9E4C00',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.success',
 		path: ['color', 'chart', 'success', '[default]', '[default]'],
 		description: "For data visualisation communicating positive information, such as 'on track'.",
 		exampleValue: '#82B536',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.success.hovered',
 		path: ['color', 'chart', 'success', '[default]', 'hovered'],
 		description: 'Hovered state of color.chart.success.',
 		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.success.bold',
 		path: ['color', 'chart', 'success', 'bold', '[default]'],
 		description: 'A stronger emphasis option of color.chart.success.',
 		exampleValue: '#5B7F24',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.success.bold.hovered',
 		path: ['color', 'chart', 'success', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.success.bold.',
 		exampleValue: '#4C6B1F',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.discovery',
 		path: ['color', 'chart', 'discovery', '[default]', '[default]'],
 		description: "For data visualisation communicating 'new' statuses.",
 		exampleValue: '#BF63F3',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.discovery.hovered',
 		path: ['color', 'chart', 'discovery', '[default]', 'hovered'],
 		description: 'Hovered state of color.chart.discovery.',
 		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.discovery.bold',
 		path: ['color', 'chart', 'discovery', 'bold', '[default]'],
 		description: 'A stronger emphasis option of color.chart.discovery.',
 		exampleValue: '#803FA5',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.discovery.bold.hovered',
 		path: ['color', 'chart', 'discovery', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.discovery.bold.',
 		exampleValue: '#964AC0',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.information',
 		path: ['color', 'chart', 'information', '[default]', '[default]'],
 		description: 'For data visualisation communicating low priority or in-progress statuses.',
 		exampleValue: '#357DE8',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.information.hovered',
 		path: ['color', 'chart', 'information', '[default]', 'hovered'],
 		description: 'Hovered state of color.chart.information.',
 		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.information.bold',
 		path: ['color', 'chart', 'information', 'bold', '[default]'],
 		description: 'A stronger emphasis option of color.chart.information.',
 		exampleValue: '#1558BC',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
 	},
 	{
 		name: 'color.chart.information.bold.hovered',
 		path: ['color', 'chart', 'information', 'bold', 'hovered'],
 		description: 'Hovered state of color.chart.information.bold.',
 		exampleValue: '#123263',
+		usageGuidelines: {
+			usage: 'The color for chart and data visualization elements (e.g. color.chart)',
+			cssProperties: ['fill', 'stroke', 'background-color', 'color'],
+		},
+	},
+	{
+		name: 'color.rovo.background.brand.bold',
+		path: ['color', 'rovo', 'background', 'brand', 'bold', '[default]'],
+		description: 'Background color for Rovo brand emphasis.',
+		exampleValue: '#000000',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.rovo.background.brand.bold.hovered',
+		path: ['color', 'rovo', 'background', 'brand', 'bold', 'hovered'],
+		description: 'Hovered state of color.rovo.background.brand.bold.',
+		exampleValue: '#1E1F21',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.rovo.background.brand.bold.pressed',
+		path: ['color', 'rovo', 'background', 'brand', 'bold', 'pressed'],
+		description: 'Pressed state of color.rovo.background.brand.bold.',
+		exampleValue: '#292A2E',
+		usageGuidelines: {
+			usage:
+				'The color for backgrounds. Use for areas behind content (e.g. color.background.neutral, color.background.selected)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'color.rovo.border.lime',
+		path: ['color', 'rovo', 'border', 'lime'],
+		description: 'Use for Rovo lime borders.',
+		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.rovo.border.saffron',
+		path: ['color', 'rovo', 'border', 'saffron'],
+		description: 'Use for Rovo saffron borders.',
+		exampleValue: '#FCA700',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.rovo.border.blue',
+		path: ['color', 'rovo', 'border', 'blue'],
+		description: 'Use for Rovo blue borders.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.rovo.border.purple',
+		path: ['color', 'rovo', 'border', 'purple'],
+		description: 'Use for Rovo purple borders.',
+		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage:
+				'The color for borders or outlines. Use for border and outline colors on components (e.g. color.border, color.border.focused)',
+			cssProperties: ['border-color', 'outline-color'],
+		},
+	},
+	{
+		name: 'color.rovo.icon.lime',
+		path: ['color', 'rovo', 'icon', 'lime'],
+		description: 'Use for Rovo lime icons.',
+		exampleValue: '#6A9A23',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.rovo.icon.saffron',
+		path: ['color', 'rovo', 'icon', 'saffron'],
+		description: 'Use for Rovo saffron icons.',
+		exampleValue: '#FCA700',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.rovo.icon.blue',
+		path: ['color', 'rovo', 'icon', 'blue'],
+		description: 'Use for Rovo blue icons.',
+		exampleValue: '#1868DB',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
+	},
+	{
+		name: 'color.rovo.icon.purple',
+		path: ['color', 'rovo', 'icon', 'purple'],
+		description: 'Use for Rovo purple icons.',
+		exampleValue: '#AF59E1',
+		usageGuidelines: {
+			usage: 'The color for icons. Use for graphical icon elements (e.g. color.icon.brand)',
+			cssProperties: ['color', 'fill', 'stroke'],
+		},
 	},
 	{
 		name: 'elevation.surface',
 		path: ['elevation', 'surface', '[default]', '[default]'],
 		description: 'Use as the primary background for the UI.',
 		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.hovered',
 		path: ['elevation', 'surface', '[default]', 'hovered'],
 		description: 'Hovered state of elevation.surface',
 		exampleValue: '#F0F1F2',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.pressed',
 		path: ['elevation', 'surface', '[default]', 'pressed'],
 		description: 'Pressed state of elevation.surface',
 		exampleValue: '#DDDEE1',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'elevation.surface.container',
+		path: ['elevation', 'surface', 'container', '[default]'],
+		description: 'Use as a neutral container surface background.',
+		exampleValue: '#17171708',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'elevation.surface.container.hovered',
+		path: ['elevation', 'surface', 'container', 'hovered'],
+		description: 'Hovered state of elevation.surface.container',
+		exampleValue: '#0515240F',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'elevation.surface.container.pressed',
+		path: ['elevation', 'surface', 'container', 'pressed'],
+		description: 'Pressed state of elevation.surface.container',
+		exampleValue: '#0B120E24',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.overlay',
@@ -2510,18 +5547,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the background of elements that sit on top of they UI, such as modals, dialogs, dropdown menus, floating toolbars, and floating single-action buttons. Also use for the background of raised cards in a dragged state. Combine with elevation.shadow.overlay.',
 		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.overlay.hovered',
 		path: ['elevation', 'surface', 'overlay', 'hovered'],
 		description: 'Hovered state of elevation.surface.overlay',
 		exampleValue: '#F0F1F2',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.overlay.pressed',
 		path: ['elevation', 'surface', 'overlay', 'pressed'],
 		description: 'Pressed state of elevation.surface.overlay',
 		exampleValue: '#DDDEE1',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.raised',
@@ -2529,18 +5581,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the background of cards that can be moved, such as Jira cards on a Kanban board. Combine with elevation.shadow.raised.',
 		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.raised.hovered',
 		path: ['elevation', 'surface', 'raised', 'hovered'],
 		description: 'Hovered state of elevation.surface.raised',
 		exampleValue: '#F0F1F2',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.raised.pressed',
 		path: ['elevation', 'surface', 'raised', 'pressed'],
 		description: 'Pressed state of elevation.surface.raised',
 		exampleValue: '#DDDEE1',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.surface.sunken',
@@ -2548,12 +5615,55 @@ export const tokens: Token[] = [
 		description:
 			'A secondary background for the UI commonly used for grouping items, such as Jira cards in columns.',
 		exampleValue: '#F8F8F8',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'elevation.rovo.surface.overlay',
+		path: ['elevation', 'rovo', 'surface', 'overlay', '[default]'],
+		description: 'Use for Rovo overlay surface backgrounds.',
+		exampleValue: '#F8F8F8',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'elevation.rovo.surface.overlay.hovered',
+		path: ['elevation', 'rovo', 'surface', 'overlay', 'hovered'],
+		description: 'Hovered state of elevation.rovo.surface.overlay.',
+		exampleValue: '#F0F1F2',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
+	},
+	{
+		name: 'elevation.rovo.surface.overlay.pressed',
+		path: ['elevation', 'rovo', 'surface', 'overlay', 'pressed'],
+		description: 'Pressed state of elevation.rovo.surface.overlay.',
+		exampleValue: '#DDDEE1',
+		usageGuidelines: {
+			usage:
+				'The base color for app and component surfaces. Raised and overlay surfaces should be used in concert with shadows (e.g. elevation.surface.raised should be used with elevation.shadow.raised)',
+			cssProperties: ['background-color'],
+		},
 	},
 	{
 		name: 'elevation.shadow.overflow',
 		path: ['elevation', 'shadow', 'overflow', '[default]'],
 		description: 'Use to create a shadow when content scrolls under other content.',
 		exampleValue: '0px 0px 8px #1E1F2129, 0px 0px 1px #1E1F211F',
+		usageGuidelines: {
+			usage:
+				'Shadows for showing depth and elevation (e.g. elevation.shadow.raised, elevation.shadow.overlay). Use via the box-shadow property to indicate layer hierarchy',
+			cssProperties: ['box-shadow'],
+		},
 	},
 	{
 		name: 'elevation.shadow.overflow.perimeter',
@@ -2561,6 +5671,11 @@ export const tokens: Token[] = [
 		description:
 			'Use only when elevation.shadow.overflow is not technically feasible to implement. Pair with elevation.shadow.overflow.spread to replicate the overflow shadow.',
 		exampleValue: '#1E1F211f',
+		usageGuidelines: {
+			usage:
+				'Shadows for showing depth and elevation (e.g. elevation.shadow.raised, elevation.shadow.overlay). Use via the box-shadow property to indicate layer hierarchy',
+			cssProperties: ['box-shadow'],
+		},
 	},
 	{
 		name: 'elevation.shadow.overflow.spread',
@@ -2568,6 +5683,11 @@ export const tokens: Token[] = [
 		description:
 			'Use only when elevation.shadow.overflow is not technically feasible to implement. Pair with elevation.shadow.overflow.perimeter to replicate the overflow shadow.',
 		exampleValue: '#1E1F2129',
+		usageGuidelines: {
+			usage:
+				'Shadows for showing depth and elevation (e.g. elevation.shadow.raised, elevation.shadow.overlay). Use via the box-shadow property to indicate layer hierarchy',
+			cssProperties: ['box-shadow'],
+		},
 	},
 	{
 		name: 'elevation.shadow.overlay',
@@ -2575,6 +5695,11 @@ export const tokens: Token[] = [
 		description:
 			'Use for the box shadow of elements that sit on top of the UI, such as modals, dropdown menus, flags, and inline dialogs. Combine with elevation.surface.overlay\n\nAlso use for the box shadow of raised cards in a dragged state.',
 		exampleValue: '0px 8px 12px #1E1F2126, 0px 0px 1px #1E1F214F',
+		usageGuidelines: {
+			usage:
+				'Shadows for showing depth and elevation (e.g. elevation.shadow.raised, elevation.shadow.overlay). Use via the box-shadow property to indicate layer hierarchy',
+			cssProperties: ['box-shadow'],
+		},
 	},
 	{
 		name: 'elevation.shadow.raised',
@@ -2582,18 +5707,33 @@ export const tokens: Token[] = [
 		description:
 			'Use for the box shadow of raised card elements, such as Jira cards on a Kanban board. Combine with elevation.surface.raised',
 		exampleValue: '0px 1px 1px #1E1F2140, 0px 0px 1px #1E1F214F',
+		usageGuidelines: {
+			usage:
+				'Shadows for showing depth and elevation (e.g. elevation.shadow.raised, elevation.shadow.overlay). Use via the box-shadow property to indicate layer hierarchy',
+			cssProperties: ['box-shadow'],
+		},
 	},
 	{
 		name: 'opacity.disabled',
 		path: ['opacity', 'disabled'],
 		description: 'Apply to images when in a disabled state.',
 		exampleValue: 0.4,
+		usageGuidelines: {
+			usage:
+				'Controls the transparency of an element (e.g. opacity.disabled, opacity.loading). Used for communication of loading and disabled states',
+			cssProperties: ['opacity'],
+		},
 	},
 	{
 		name: 'opacity.loading',
 		path: ['opacity', 'loading'],
 		description: 'Apply to content that sits under a loading spinner.',
 		exampleValue: 0.2,
+		usageGuidelines: {
+			usage:
+				'Controls the transparency of an element (e.g. opacity.disabled, opacity.loading). Used for communication of loading and disabled states',
+			cssProperties: ['opacity'],
+		},
 	},
 	{
 		name: 'utility.UNSAFE.transparent',
@@ -2601,6 +5741,11 @@ export const tokens: Token[] = [
 		description:
 			'Transparent token used for backwards compatibility between new and old theming solutions',
 		exampleValue: 'transparent',
+		usageGuidelines: {
+			usage:
+				'Code-specific tokens to aid with migration or enable features such as automatic elevation detection',
+			cssProperties: [],
+		},
 	},
 	{
 		name: 'utility.elevation.surface.current',
@@ -2608,144 +5753,264 @@ export const tokens: Token[] = [
 		description:
 			"A dynamic token that represents the current surface color set by a parent element. It defaults to the 'elevation.surface' token value.",
 		exampleValue: '#FFFFFF',
+		usageGuidelines: {
+			usage:
+				'Code-specific tokens to aid with migration or enable features such as automatic elevation detection',
+			cssProperties: [],
+		},
 	},
 	{
 		name: 'space.0',
 		path: ['space', '0'],
 		description: 'Equates to `0`. Use for resetting default spacing styles.',
 		exampleValue: '0rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.025',
 		path: ['space', '025'],
 		description: 'Use for small and compact pieces of UI.',
 		exampleValue: '0.125rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.050',
 		path: ['space', '050'],
 		description: 'Use for small and compact pieces of UI.',
 		exampleValue: '0.25rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.075',
 		path: ['space', '075'],
 		description: 'Use for small and compact pieces of UI.',
 		exampleValue: '0.375rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.100',
 		path: ['space', '100'],
 		description: 'Use for small and compact pieces of UI.',
 		exampleValue: '0.5rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.150',
 		path: ['space', '150'],
 		description: 'Use for larger and less dense pieces of UI.',
 		exampleValue: '0.75rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.200',
 		path: ['space', '200'],
 		description: 'Use for larger and less dense pieces of UI.',
 		exampleValue: '1rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.250',
 		path: ['space', '250'],
 		description: 'Use for larger and less dense pieces of UI.',
 		exampleValue: '1.25rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.300',
 		path: ['space', '300'],
 		description: 'Use for larger and less dense pieces of UI.',
 		exampleValue: '1.5rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.400',
 		path: ['space', '400'],
 		description: 'Use for the largest pieces of UI and for layout elements.',
 		exampleValue: '2rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.500',
 		path: ['space', '500'],
 		description: 'Use for the largest pieces of UI and for layout elements.',
 		exampleValue: '2.5rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.600',
 		path: ['space', '600'],
 		description: 'Use for the largest pieces of UI and for layout elements.',
 		exampleValue: '3rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.800',
 		path: ['space', '800'],
 		description: 'Use for the largest pieces of UI and for layout elements.',
 		exampleValue: '4rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.1000',
 		path: ['space', '1000'],
 		description: 'Use for the largest pieces of UI and for layout elements.',
 		exampleValue: '5rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.025',
 		path: ['space', 'negative', '025'],
 		description: 'Use to negate parent whitespace or overlap small pieces of UI.',
 		exampleValue: '-0.125rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.050',
 		path: ['space', 'negative', '050'],
 		description: 'Use to negate parent whitespace or overlap small pieces of UI.',
 		exampleValue: '-0.25rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.075',
 		path: ['space', 'negative', '075'],
 		description: 'Use to negate parent whitespace or overlap small pieces of UI.',
 		exampleValue: '-0.375rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.100',
 		path: ['space', 'negative', '100'],
 		description: 'Use to negate parent whitespace or overlap small pieces of UI.',
 		exampleValue: '-0.5rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.150',
 		path: ['space', 'negative', '150'],
 		description: 'Use to negate parent whitespace or overlap larger pieces of UI.',
 		exampleValue: '-0.75rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.200',
 		path: ['space', 'negative', '200'],
 		description: 'Use to negate parent whitespace or overlap larger pieces of UI.',
 		exampleValue: '-1rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.250',
 		path: ['space', 'negative', '250'],
 		description: 'Use to negate parent whitespace or overlap larger pieces of UI.',
 		exampleValue: '-1.25rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.300',
 		path: ['space', 'negative', '300'],
 		description: 'Use to negate parent whitespace or overlap larger pieces of UI.',
 		exampleValue: '-1.5rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'space.negative.400',
 		path: ['space', 'negative', '400'],
 		description: 'Use to negate parent whitespace or overlap the largest pieces of UI.',
 		exampleValue: '-2rem',
+		usageGuidelines: {
+			usage:
+				'Spacing tokens define the distance, alignment, and layout positioning (e.g. space.100, space.200, space.050). Use for margin, padding, gap, and layout positioning such as top, left, etc',
+			cssProperties: ['padding', 'margin', 'gap', 'top', 'left', 'right', 'bottom', 'inset'],
+		},
 	},
 	{
 		name: 'font.heading.xxlarge',
@@ -2754,6 +6019,11 @@ export const tokens: Token[] = [
 			'For overlapping brand with app promotions, such as marketplace content. Migrate instances of H900 to Heading XXL.',
 		exampleValue:
 			'normal 653 2rem/2.25rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies complete font-related properties for headings (e.g. font.heading.xlarge). Includes font size, weight, line height, and family',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.heading.xlarge',
@@ -2762,6 +6032,11 @@ export const tokens: Token[] = [
 			'For overlapping brand with app promotions, such as marketplace content. Migrate instances of H800 to Heading XL.',
 		exampleValue:
 			'normal 653 1.75rem/2rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies complete font-related properties for headings (e.g. font.heading.xlarge). Includes font size, weight, line height, and family',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.heading.large',
@@ -2769,6 +6044,11 @@ export const tokens: Token[] = [
 		description: 'App page titles, such as forms. Migrate instances of H700 to Heading L.',
 		exampleValue:
 			'normal 653 1.5rem/1.75rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies complete font-related properties for headings (e.g. font.heading.xlarge). Includes font size, weight, line height, and family',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.heading.medium',
@@ -2777,6 +6057,11 @@ export const tokens: Token[] = [
 			'Headers in large components, such as modal dialogs. Migrate instances of H600 to Heading M.',
 		exampleValue:
 			'normal 653 1.25rem/1.5rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies complete font-related properties for headings (e.g. font.heading.xlarge). Includes font size, weight, line height, and family',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.heading.small',
@@ -2785,6 +6070,11 @@ export const tokens: Token[] = [
 			'For headers in small components where space is limited. Migrate instances of H500 to Heading S.',
 		exampleValue:
 			'normal 653 1rem/1.25rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies complete font-related properties for headings (e.g. font.heading.xlarge). Includes font size, weight, line height, and family',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.heading.xsmall',
@@ -2793,6 +6083,11 @@ export const tokens: Token[] = [
 			'For headers in small components where space is limited. Migrate instances of H400 to Heading XS.',
 		exampleValue:
 			'normal 653 0.875rem/1.25rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies complete font-related properties for headings (e.g. font.heading.xlarge). Includes font size, weight, line height, and family',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.heading.xxsmall',
@@ -2801,6 +6096,11 @@ export const tokens: Token[] = [
 			'For headers in fine print or tight spaces. Use sparingly. Migrate instances of H100, H200 and H300 to Heading XXS.',
 		exampleValue:
 			'normal 653 0.75rem/1rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies complete font-related properties for headings (e.g. font.heading.xlarge). Includes font size, weight, line height, and family',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.body.large',
@@ -2808,6 +6108,11 @@ export const tokens: Token[] = [
 		description: 'For long-form text, such as in blogs.',
 		exampleValue:
 			'normal 400 1rem/1.5rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies all font properties for standard body text (e.g. font.body)',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.body',
@@ -2816,6 +6121,11 @@ export const tokens: Token[] = [
 			'Use in short descriptions or labels. The default size for text in components. Migrate instances of Paragraph Default and UI Text to Body M.',
 		exampleValue:
 			'normal 400 0.875rem/1.25rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies all font properties for standard body text (e.g. font.body)',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.body.small',
@@ -2824,14 +6134,11 @@ export const tokens: Token[] = [
 			'Use in secondary level content such as fine print or semantic messaging. Use sparingly. Migrate instances of Small text to Body S.',
 		exampleValue:
 			'normal 400 0.75rem/1rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
-	},
-	{
-		name: 'font.body.UNSAFE_small',
-		path: ['font', 'body', 'UNSAFE_small'],
-		description:
-			'UNSAFE - Do not use. Temporary 12px fontsize token. Will be deprecated and replaced with stable small token',
-		exampleValue:
-			'normal 400 0.75rem/1rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'A composite token that applies all font properties for standard body text (e.g. font.body)',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.metric.large',
@@ -2839,6 +6146,11 @@ export const tokens: Token[] = [
 		description: 'Use to emphasize a number within a large donut.',
 		exampleValue:
 			'normal 653 1.75rem/2rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'Font settings for displaying numbers or metrics, ensuring legibility and alignment (e.g. font.metric)',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.metric.medium',
@@ -2846,6 +6158,11 @@ export const tokens: Token[] = [
 		description: 'Use to emphasize a number within a medium donut.',
 		exampleValue:
 			'normal 653 1.5rem/1.75rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'Font settings for displaying numbers or metrics, ensuring legibility and alignment (e.g. font.metric)',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.metric.small',
@@ -2853,6 +6170,11 @@ export const tokens: Token[] = [
 		description: 'Use to emphasize a number and words in single-value tiles, or small donuts.',
 		exampleValue:
 			'normal 653 1rem/1.25rem "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'Font settings for displaying numbers or metrics, ensuring legibility and alignment (e.g. font.metric)',
+			cssProperties: ['font'],
+		},
 	},
 	{
 		name: 'font.code',
@@ -2860,18 +6182,33 @@ export const tokens: Token[] = [
 		description: 'For representing code only, either inline or in code blocks.',
 		exampleValue:
 			'normal 400 0.875em/1 "Atlassian Mono", ui-monospace, Menlo, "Segoe UI Mono", "Ubuntu Mono", monospace',
+		usageGuidelines: {
+			usage:
+				'Font settings for inline code and code blocks, enforcing monospace font and sizing (e.g. font.code)',
+			cssProperties: ['font', 'font-family', 'font-size', 'font-weight', 'line-height'],
+		},
 	},
 	{
 		name: 'font.weight.regular',
 		path: ['font', 'weight', 'regular'],
 		description: 'Default font weight for body text styles.',
 		exampleValue: '400',
+		usageGuidelines: {
+			usage:
+				'Granular control of font weight (e.g. font.weight.regular, font.weight.semibold). Use only to override the default font tokens for custom typography components beyond what’s supported by Text, MetricText and Heading',
+			cssProperties: ['font-weight'],
+		},
 	},
 	{
 		name: 'font.weight.medium',
 		path: ['font', 'weight', 'medium'],
 		description: 'For all text that may appear beside iconography, such as in a button.',
 		exampleValue: '500',
+		usageGuidelines: {
+			usage:
+				'Granular control of font weight (e.g. font.weight.regular, font.weight.semibold). Use only to override the default font tokens for custom typography components beyond what’s supported by Text, MetricText and Heading',
+			cssProperties: ['font-weight'],
+		},
 	},
 	{
 		name: 'font.weight.semibold',
@@ -2879,12 +6216,22 @@ export const tokens: Token[] = [
 		description:
 			'Use with caution as fallback fonts do not support this font weight and will default to bold weight.',
 		exampleValue: '600',
+		usageGuidelines: {
+			usage:
+				'Granular control of font weight (e.g. font.weight.regular, font.weight.semibold). Use only to override the default font tokens for custom typography components beyond what’s supported by Text, MetricText and Heading',
+			cssProperties: ['font-weight'],
+		},
 	},
 	{
 		name: 'font.weight.bold',
 		path: ['font', 'weight', 'bold'],
 		description: 'Use sparingly for emphasising text, such as in a lozenge.',
 		exampleValue: '653',
+		usageGuidelines: {
+			usage:
+				'Granular control of font weight (e.g. font.weight.regular, font.weight.semibold). Use only to override the default font tokens for custom typography components beyond what’s supported by Text, MetricText and Heading',
+			cssProperties: ['font-weight'],
+		},
 	},
 	{
 		name: 'font.family.heading',
@@ -2892,6 +6239,11 @@ export const tokens: Token[] = [
 		description: 'For our default UI heading text.',
 		exampleValue:
 			'"Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'Granular control of font family (e.g. font.family.body). Use only when overriding the default in composites',
+			cssProperties: ['font-family'],
+		},
 	},
 	{
 		name: 'font.family.body',
@@ -2899,6 +6251,11 @@ export const tokens: Token[] = [
 		description: 'For our default UI body text.',
 		exampleValue:
 			'"Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'Granular control of font family (e.g. font.family.body). Use only when overriding the default in composites',
+			cssProperties: ['font-family'],
+		},
 	},
 	{
 		name: 'font.family.code',
@@ -2906,6 +6263,11 @@ export const tokens: Token[] = [
 		description: 'For representing code only.',
 		exampleValue:
 			'"Atlassian Mono", ui-monospace, Menlo, "Segoe UI Mono", "Ubuntu Mono", monospace',
+		usageGuidelines: {
+			usage:
+				'Granular control of font family (e.g. font.family.body). Use only when overriding the default in composites',
+			cssProperties: ['font-family'],
+		},
 	},
 	{
 		name: 'font.family.brand.heading',
@@ -2913,6 +6275,11 @@ export const tokens: Token[] = [
 		description: 'For our brand heading text. Uses Charlie Display.',
 		exampleValue:
 			'"Charlie Display", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'Granular control of font family (e.g. font.family.body). Use only when overriding the default in composites',
+			cssProperties: ['font-family'],
+		},
 	},
 	{
 		name: 'font.family.brand.body',
@@ -2920,6 +6287,11 @@ export const tokens: Token[] = [
 		description: 'For our brand body text. Uses Charlie Text.',
 		exampleValue:
 			'"Charlie Text", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
+		usageGuidelines: {
+			usage:
+				'Granular control of font family (e.g. font.family.body). Use only when overriding the default in composites',
+			cssProperties: ['font-family'],
+		},
 	},
 	{
 		name: 'radius.xsmall',
@@ -2927,6 +6299,17 @@ export const tokens: Token[] = [
 		description:
 			'Use for small detail elements: badges, checkboxes, avatar labels, keyboard shortcuts.',
 		exampleValue: '0.125rem',
+		usageGuidelines: {
+			usage:
+				'Controls the rounding of element corners, often for containers (e.g. radius.medium, radius.circle)',
+			cssProperties: [
+				'border-radius',
+				'border-top-left-radius',
+				'border-top-right-radius',
+				'border-bottom-left-radius',
+				'border-bottom-right-radius',
+			],
+		},
 	},
 	{
 		name: 'radius.small',
@@ -2934,6 +6317,17 @@ export const tokens: Token[] = [
 		description:
 			'Use for supporting elements: labels, lozenges, timestamps, tags, dates, tooltip containers, imagery inside a table, compact buttons.',
 		exampleValue: '0.25rem',
+		usageGuidelines: {
+			usage:
+				'Controls the rounding of element corners, often for containers (e.g. radius.medium, radius.circle)',
+			cssProperties: [
+				'border-radius',
+				'border-top-left-radius',
+				'border-top-right-radius',
+				'border-bottom-left-radius',
+				'border-bottom-right-radius',
+			],
+		},
 	},
 	{
 		name: 'radius.medium',
@@ -2941,6 +6335,17 @@ export const tokens: Token[] = [
 		description:
 			'Use for interactive elements: buttons, inputs, text areas, selects, navigation items, smart links.',
 		exampleValue: '0.375rem',
+		usageGuidelines: {
+			usage:
+				'Controls the rounding of element corners, often for containers (e.g. radius.medium, radius.circle)',
+			cssProperties: [
+				'border-radius',
+				'border-top-left-radius',
+				'border-top-right-radius',
+				'border-bottom-left-radius',
+				'border-bottom-right-radius',
+			],
+		},
 	},
 	{
 		name: 'radius.large',
@@ -2948,6 +6353,17 @@ export const tokens: Token[] = [
 		description:
 			'Use for containment elements: cards, in-page containers, floating UI, dropdown menus.',
 		exampleValue: '0.5rem',
+		usageGuidelines: {
+			usage:
+				'Controls the rounding of element corners, often for containers (e.g. radius.medium, radius.circle)',
+			cssProperties: [
+				'border-radius',
+				'border-top-left-radius',
+				'border-top-right-radius',
+				'border-bottom-left-radius',
+				'border-bottom-right-radius',
+			],
+		},
 	},
 	{
 		name: 'radius.xlarge',
@@ -2955,12 +6371,34 @@ export const tokens: Token[] = [
 		description:
 			'Use for large page elements: full-page containers, large containers, modals, Kanban columns, tables.',
 		exampleValue: '0.75rem',
+		usageGuidelines: {
+			usage:
+				'Controls the rounding of element corners, often for containers (e.g. radius.medium, radius.circle)',
+			cssProperties: [
+				'border-radius',
+				'border-top-left-radius',
+				'border-top-right-radius',
+				'border-bottom-left-radius',
+				'border-bottom-right-radius',
+			],
+		},
 	},
 	{
 		name: 'radius.xxlarge',
 		path: ['radius', 'xxlarge'],
 		description: 'Use for video player containers.',
 		exampleValue: '1rem',
+		usageGuidelines: {
+			usage:
+				'Controls the rounding of element corners, often for containers (e.g. radius.medium, radius.circle)',
+			cssProperties: [
+				'border-radius',
+				'border-top-left-radius',
+				'border-top-right-radius',
+				'border-bottom-left-radius',
+				'border-bottom-right-radius',
+			],
+		},
 	},
 	{
 		name: 'radius.full',
@@ -2968,18 +6406,45 @@ export const tokens: Token[] = [
 		description:
 			'Use for circular elements (user/people related): avatars, names, user-related UI, emoji reactions.',
 		exampleValue: '624.9375rem',
+		usageGuidelines: {
+			usage:
+				'Controls the rounding of element corners, often for containers (e.g. radius.medium, radius.circle)',
+			cssProperties: [
+				'border-radius',
+				'border-top-left-radius',
+				'border-top-right-radius',
+				'border-bottom-left-radius',
+				'border-bottom-right-radius',
+			],
+		},
 	},
 	{
 		name: 'radius.tile',
 		path: ['radius', 'tile'],
 		description: 'Use this specific radius token exclusively for the tile component system.',
 		exampleValue: '25%',
+		usageGuidelines: {
+			usage:
+				'Controls the rounding of element corners, often for containers (e.g. radius.medium, radius.circle)',
+			cssProperties: [
+				'border-radius',
+				'border-top-left-radius',
+				'border-top-right-radius',
+				'border-bottom-left-radius',
+				'border-bottom-right-radius',
+			],
+		},
 	},
 	{
 		name: 'border.width',
 		path: ['border', 'width', '[default]'],
 		description: 'The default width for all standard component borders and dividers.',
 		exampleValue: '0.0625rem',
+		usageGuidelines: {
+			usage:
+				'Controls the thickness of borders/dividers (e.g. border.width, border.width.selected). Use to standardize border widths throughout UI',
+			cssProperties: ['border-width'],
+		},
 	},
 	{
 		name: 'border.width.selected',
@@ -2987,11 +6452,21 @@ export const tokens: Token[] = [
 		description:
 			'The width used to indicate a selected element, such as an active tab or a chosen item.',
 		exampleValue: '0.125rem',
+		usageGuidelines: {
+			usage:
+				'Controls the thickness of borders/dividers (e.g. border.width, border.width.selected). Use to standardize border widths throughout UI',
+			cssProperties: ['border-width'],
+		},
 	},
 	{
 		name: 'border.width.focused',
 		path: ['border', 'width', 'focused'],
 		description: 'The width used for the focus ring on interactive elements.',
 		exampleValue: '0.125rem',
+		usageGuidelines: {
+			usage:
+				'Controls the thickness of borders/dividers (e.g. border.width, border.width.selected). Use to standardize border widths throughout UI',
+			cssProperties: ['border-width'],
+		},
 	},
 ];

@@ -2,16 +2,17 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { jsx, css, cssMap } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { N0, N800 } from '@atlaskit/theme/colors';
 
+import { jsx, css, cssMap } from '@compiled/react';
+
+import { token } from '@atlaskit/tokens';
+
+import { rgba } from '../rgba';
 import {
 	type TitleBoxFooterProps,
 	type TitleBoxHeaderProps,
 	type TitleBoxWrapperProps,
 } from './types';
-import { rgba } from '../styles';
 
 const smallLineHeight = 14;
 const smallVerticalPadding = 4;
@@ -38,8 +39,8 @@ const titleBoxWrapperStyles = css({
 	position: 'absolute',
 	bottom: 0,
 	width: '100%',
-	backgroundColor: token('elevation.surface', 'rgba(255, 255, 255, 1)'),
-	color: token('color.text', N800),
+	backgroundColor: token('elevation.surface'),
+	color: token('color.text'),
 	cursor: 'inherit',
 	pointerEvents: 'none',
 	display: 'flex',
@@ -47,9 +48,13 @@ const titleBoxWrapperStyles = css({
 	justifyContent: 'center',
 });
 
-export const TitleBoxWrapper = (props: TitleBoxWrapperProps) => {
+export const TitleBoxWrapper: {
+	(props: TitleBoxWrapperProps): JSX.Element;
+	displayName: string;
+} = (props: TitleBoxWrapperProps): JSX.Element => {
 	const { breakpoint, titleBoxBgColor, hidden } = props;
-	const color = titleBoxBgColor && rgba(HEX_REGEX.test(titleBoxBgColor) ? titleBoxBgColor : N0, 1);
+	const color =
+		titleBoxBgColor && rgba(HEX_REGEX.test(titleBoxBgColor) ? titleBoxBgColor : '#FFFFFF', 1);
 
 	return (
 		<div
@@ -84,7 +89,11 @@ const titleBoxHeaderStyles = css({
 	fontWeight: token('font.weight.semibold'),
 });
 
-export const TitleBoxHeader = (props: TitleBoxHeaderProps) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- Retain shared module-local Compiled styles across title-box components.
+export const TitleBoxHeader: {
+	(props: TitleBoxHeaderProps): JSX.Element;
+	displayName: string;
+} = (props: TitleBoxHeaderProps): JSX.Element => {
 	const { hasIconOverlap } = props;
 	return (
 		<div
@@ -104,7 +113,11 @@ const titleBoxFooterStyles = css({
 	textOverflow: 'ellipsis',
 });
 
-export const TitleBoxFooter = (props: TitleBoxFooterProps) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- Retain shared module-local Compiled styles across title-box components.
+export const TitleBoxFooter: {
+	(props: TitleBoxFooterProps): JSX.Element;
+	displayName: string;
+} = (props: TitleBoxFooterProps): JSX.Element => {
 	const { hasIconOverlap, suppressHydrationWarning } = props;
 	return (
 		<div
@@ -123,11 +136,12 @@ TitleBoxFooter.displayName = 'TitleBoxFooter';
 
 const titleBoxIconStyles = css({
 	position: 'absolute',
-	right: token('space.050', '4px'),
-	bottom: token('space.050', '4px'),
+	right: token('space.050'),
+	bottom: token('space.050'),
 });
 
-export const TitleBoxIcon = (props: any) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- Retain shared module-local Compiled styles across title-box components.
+export const TitleBoxIcon = (props: any): JSX.Element => {
 	return (
 		<div id="titleBoxIcon" data-testid="title-box-icon" css={[titleBoxIconStyles]}>
 			{props.children}
@@ -143,7 +157,8 @@ const errorMessageWrapperStyles = css({
 	gap: token('space.025'),
 });
 
-export const ErrorMessageWrapper = (props: any) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- Retain shared module-local Compiled styles across title-box components.
+export const ErrorMessageWrapper = (props: any): JSX.Element => {
 	// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 	return <div css={errorMessageWrapperStyles}>{props.children}</div>;
 };

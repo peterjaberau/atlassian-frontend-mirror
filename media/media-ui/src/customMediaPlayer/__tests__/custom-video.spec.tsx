@@ -1,28 +1,31 @@
 jest.mock('../getControlsWrapperClassName');
-jest.mock('../fullscreen', () => {
-	const original = jest.requireActual('../fullscreen');
-	return {
-		...original,
-		toggleFullscreen: jest.fn(),
-		getFullscreenElement: jest.fn(),
-	};
-});
+jest.mock('../toggleFullscreen', () => ({
+	...jest.requireActual('../toggleFullscreen'),
+	toggleFullscreen: jest.fn(),
+}));
+jest.mock('../getFullscreenElement', () => ({
+	...jest.requireActual('../getFullscreenElement'),
+	getFullscreenElement: jest.fn(),
+}));
 
 jest.mock('../simultaneousPlayManager');
-jest.mock('@atlaskit/width-detector');
-import { asMock, asMockFunction } from '@atlaskit/media-common/test-helpers';
-import { fakeIntl } from '../../test-helpers';
-import { type WidthObserver } from '@atlaskit/width-detector';
-import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import React from 'react';
-import { CustomMediaPlayerBase, type CustomMediaPlayerProps } from '..';
-import { toggleFullscreen, getFullscreenElement } from '../fullscreen';
-import simultaneousPlayManager from '../simultaneousPlayManager';
-import * as getControlsWrapperClassNameModule from '../getControlsWrapperClassName';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
+
 import { waitFor, render, screen, fireEvent } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
+
+import { asMock, asMockFunction } from '@atlaskit/media-common/test-helpers';
+import type { WidthObserver } from '@atlaskit/width-detector/width-observer';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+
+import { CustomMediaPlayerBase, type CustomMediaPlayerProps } from '..';
 import { keyCodes } from '../../shortcut';
+import { fakeIntl } from '../../test-helpers/fakeI18n';
+import * as getControlsWrapperClassNameModule from '../getControlsWrapperClassName';
+import { getFullscreenElement } from '../getFullscreenElement';
+import simultaneousPlayManager from '../simultaneousPlayManager';
+import { toggleFullscreen } from '../toggleFullscreen';
 
 const getControlsWrapperClassName = jest.spyOn(
 	getControlsWrapperClassNameModule,
@@ -42,14 +45,13 @@ let widthCbs: Set<(width: number) => void> = new Set();
 // the next line and associated import. For more information, see go/afm-a11y-tooling:jest
 skipAutoA11yFile();
 
-jest.mock('@atlaskit/width-detector', () => {
-	return {
-		WidthObserver: ((props: { setWidth: (width: number) => void }) => {
-			widthCbs.add(props.setWidth);
-			return null;
-		}) as mockWidthObserver,
-	};
-});
+jest.mock('@atlaskit/width-detector/width-observer', () => ({
+	...jest.requireActual('@atlaskit/width-detector/width-observer'),
+	WidthObserver: ((props: { setWidth: (width: number) => void }) => {
+		widthCbs.add(props.setWidth);
+		return null;
+	}) as mockWidthObserver,
+}));
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('<CustomMediaPlayer />', () => {
@@ -324,7 +326,7 @@ describe('<CustomMediaPlayer />', () => {
 					throw new Error('downloadButton does not exist');
 				}
 				fireEvent.click(downloadButton);
-				expect(onDownloadClick).toBeCalledTimes(1);
+				expect(onDownloadClick).toHaveBeenCalledTimes(1);
 			});
 		});
 
@@ -565,7 +567,7 @@ describe('<CustomMediaPlayer />', () => {
 
 		describe('when fullscreen is enabled', () => {
 			beforeEach(() => {
-				const original = jest.requireActual('../fullscreen');
+				const original = jest.requireActual('../toggleFullscreen');
 				asMock(toggleFullscreen).mockImplementation(original.toggleFullscreen);
 				asMockFunction(getFullscreenElement).mockReturnValue({} as HTMLElement);
 			});
@@ -730,13 +732,13 @@ describe('<CustomMediaPlayer />', () => {
 
 		it('should subscribe to Simultaneous Play Manager', () => {
 			setup();
-			expect(simultaneousPlayManager.subscribe).toBeCalledTimes(1);
+			expect(simultaneousPlayManager.subscribe).toHaveBeenCalledTimes(1);
 		});
 
 		it('should unsubscribe from Simultaneous Play Manager on unmount', () => {
 			const { unmount } = setup();
 			unmount();
-			expect(simultaneousPlayManager.unsubscribe).toBeCalledTimes(1);
+			expect(simultaneousPlayManager.unsubscribe).toHaveBeenCalledTimes(1);
 		});
 
 		it('should pause other players when click play button', () => {
@@ -875,7 +877,7 @@ describe('<CustomMediaPlayer />', () => {
 		};
 
 		beforeEach(() => {
-			const original = jest.requireActual('../fullscreen');
+			const original = jest.requireActual('../toggleFullscreen');
 			asMock(toggleFullscreen).mockImplementation(original.toggleFullscreen);
 			asMockFunction(getFullscreenElement).mockReturnValue({} as HTMLElement);
 		});
@@ -1394,7 +1396,7 @@ describe('<CustomMediaPlayer />', () => {
 
 	describe('on toggle fullscreen', () => {
 		beforeEach(() => {
-			const original = jest.requireActual('../fullscreen');
+			const original = jest.requireActual('../toggleFullscreen');
 			asMock(toggleFullscreen).mockImplementation(original.toggleFullscreen);
 		});
 

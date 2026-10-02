@@ -1,10 +1,12 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import AkFlag, { AutoDismissFlag, FlagGroup } from '@atlaskit/flag';
+import AutoDismissFlag from '@atlaskit/flag/auto-dismiss-flag';
+import AkFlag from '@atlaskit/flag/flag';
+import { FlagGroup } from '@atlaskit/flag/flag-group';
 import StatusErrorIcon from '@atlaskit/icon/core/status-error';
 import StatusSuccessIcon from '@atlaskit/icon/core/status-success';
 import StatusWarningIcon from '@atlaskit/icon/core/status-warning';
@@ -19,7 +21,7 @@ type Props = {
 	api?: ExtractInjectionAPI<PastePlugin>;
 };
 
-export const Flag = ({ api }: Props) => {
+export const Flag = ({ api }: Props): React.JSX.Element | undefined => {
 	const { activeFlag } = useSharedPluginStateWithSelector(api, ['paste'], (states) => ({
 		activeFlag: states.pasteState?.activeFlag,
 	}));
@@ -61,7 +63,7 @@ export const Flag = ({ api }: Props) => {
 				? {
 						content: urlText,
 						href: flagUrlHref,
-				  }
+					}
 				: undefined;
 
 		if (action) {

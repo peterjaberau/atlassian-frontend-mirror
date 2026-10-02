@@ -3,20 +3,22 @@
  * @jsx jsx
  */
 import { useEffect, useState, useCallback, useMemo } from 'react';
+
 import { css, cssMap, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import Tabs from '@atlaskit/tabs';
+
 import { type EmojiProvider } from '@atlaskit/emoji/resource';
-import Modal, { ModalBody, type OnCloseHandler } from '@atlaskit/modal-dialog';
-import { type SelectedType } from '@atlaskit/tabs/types';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import type { OnCloseHandler } from '@atlaskit/modal-dialog/types';
 import { Box } from '@atlaskit/primitives/compiled';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Tabs from '@atlaskit/tabs/tabs';
+import { type SelectedType } from '@atlaskit/tabs/types';
+import { token } from '@atlaskit/tokens';
 
 import { NUMBER_OF_REACTIONS_TO_DISPLAY } from '../shared/constants';
 import { type ReactionSummary, type ProfileCardWrapper } from '../types';
-
-import { ReactionsList } from './ReactionsList';
 import { ReactionsDialogHeader } from './ReactionsDialogHeader';
+import { ReactionsList } from './ReactionsList';
 
 const styles = cssMap({
 	modalBodyStyle: { marginBottom: token('space.300') },
@@ -79,7 +81,7 @@ export const ReactionsDialog = ({
 	handleSelectReaction = () => {},
 	handlePaginationChange = () => {},
 	ProfileCardWrapper,
-}: ReactionsDialogProps) => {
+}: ReactionsDialogProps): JSX.Element => {
 	const [hasNavigatedPages, setHasNavigatedPages] = useState<boolean>(false);
 	const [currentPage, setCurrentPage] = useState(1);
 
@@ -130,12 +132,7 @@ export const ReactionsDialog = ({
 	);
 
 	return (
-		<Modal
-			onClose={handleCloseReactionsDialog}
-			height={600}
-			testId={RENDER_MODAL_TESTID}
-			autoFocus={fg('platform-a11y-remove-autofocus-prop') ? true : false}
-		>
+		<Modal onClose={handleCloseReactionsDialog} height={600} testId={RENDER_MODAL_TESTID}>
 			<Tabs id="reactions-dialog-tabs" onChange={onTabChange} selected={selectedIndex}>
 				<ReactionsDialogHeader
 					totalReactionsCount={totalReactionsCount}

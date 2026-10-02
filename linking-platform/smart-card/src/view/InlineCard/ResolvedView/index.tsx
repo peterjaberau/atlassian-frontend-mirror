@@ -1,14 +1,17 @@
 import React from 'react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { componentWithFG } from '@atlaskit/platform-feature-flags-react/component-with-fg';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type LozengeProps } from '../../../types';
-import type { CardActionOptions } from '../../Card/types';
+import type { InternalCardActionOptions as CardActionOptions } from '../../Card/types';
 import { HoverCard } from '../../HoverCard';
 import { type HoverPreviewOptions } from '../../HoverCard/types';
 import InlineLozenge from '../common/inline-lozenge';
 import { Frame } from '../Frame';
 import { IconAndTitleLayout } from '../IconAndTitleLayout';
+import { InlineCardResolvedViewFunctional } from './InlineCardResolvedViewFunctional';
+import type { InlineCardResolvedViewFunctionalProps } from './types';
 
 export interface InlineCardResolvedViewProps {
 	/** Configure visibility of server and client actions */
@@ -31,8 +34,12 @@ export interface InlineCardResolvedViewProps {
 	link?: string;
 	/** The the optional lozenge that might represent the statux of the resource */
 	lozenge?: LozengeProps;
+	/** Optional middle-click handler. */
+	onAuxClick?: React.EventHandler<React.MouseEvent>;
 	/** The optional click handler */
 	onClick?: React.EventHandler<React.MouseEvent | React.KeyboardEvent>;
+	/** Optional right-click handler. */
+	onContextMenu?: React.EventHandler<React.MouseEvent>;
 	/** Enables showing a custom preview on hover of link */
 	showHoverPreview?: boolean;
 	/** A `testId` prop is provided for specified elements, which is a unique string that appears as a data attribute `data-testid` in the rendered code, serving as a hook for automated tests */
@@ -49,11 +56,31 @@ export interface InlineCardResolvedViewProps {
 	type?: string[];
 }
 
-export class InlineCardResolvedView extends React.Component<InlineCardResolvedViewProps> {
+class InlineCardResolvedViewClass extends React.Component<InlineCardResolvedViewProps> {
 	renderLozenge(): React.JSX.Element | null {
 		const { lozenge } = this.props;
-		if (!lozenge) {
+		if (!lozenge || !lozenge?.text) {
 			return null;
+		}
+		if (fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
+			const stateMetricMatch = lozenge.text.match(/^(.+?)\s+-\s+(\d+(?:\.\d+)?)$/);
+			if (stateMetricMatch) {
+				const [, label, metric] = stateMetricMatch;
+				const appearance = lozenge.appearance || 'neutral';
+				return (
+					<InlineLozenge
+						testId="inline-card-resolved-view-lozenge"
+						appearance={appearance}
+						style={{
+							backgroundColor: lozenge?.style?.backgroundColor,
+							color: lozenge?.style?.color,
+						}}
+						trailingMetric={metric}
+					>
+						{label}
+					</InlineLozenge>
+				);
+			}
 		}
 		const appearance = lozenge.appearance || 'default';
 		return (
@@ -61,7 +88,7 @@ export class InlineCardResolvedView extends React.Component<InlineCardResolvedVi
 				testId="inline-card-resolved-view-lozenge"
 				appearance={appearance}
 				style={{ backgroundColor: lozenge?.style?.backgroundColor, color: lozenge?.style?.color }}
-				isBold={fg('platform-component-visual-refresh') ? lozenge.isBold !== false : lozenge.isBold}
+				isBold={lozenge.isBold !== false}
 			>
 				{lozenge.text}
 			</InlineLozenge>
@@ -75,6 +102,8 @@ export class InlineCardResolvedView extends React.Component<InlineCardResolvedVi
 			isSelected,
 			isHovered,
 			onClick,
+			onAuxClick,
+			onContextMenu,
 			icon,
 			link,
 			testId = 'inline-card-resolved-view',
@@ -95,6 +124,8 @@ export class InlineCardResolvedView extends React.Component<InlineCardResolvedVi
 				isSelected={isSelected}
 				isHovered={isHovered}
 				onClick={onClick}
+				onAuxClick={onAuxClick}
+				onContextMenu={onContextMenu}
 				truncateInline={truncateInline}
 			>
 				<IconAndTitleLayout
@@ -125,3 +156,11 @@ export class InlineCardResolvedView extends React.Component<InlineCardResolvedVi
 		return inlineCardResolvedView;
 	}
 }
+
+export const InlineCardResolvedView: React.FC<
+	InlineCardResolvedViewFunctionalProps & InlineCardResolvedViewProps
+> = componentWithFG(
+	'smart-card-inline-resolved-view-refactor',
+	InlineCardResolvedViewFunctional,
+	InlineCardResolvedViewClass,
+);

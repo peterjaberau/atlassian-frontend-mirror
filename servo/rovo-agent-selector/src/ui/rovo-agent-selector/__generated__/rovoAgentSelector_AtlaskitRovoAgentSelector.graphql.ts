@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<dee7b26f44d4075194487d9d4df0d837>>
+ * @generated SignedSource<<becce5c8bc170a4ef6a8ab6fc2bc6eff>>
  * @lightSyntaxTransform
  * @nogrep
  * @codegen-command: yarn relay
@@ -9,24 +9,24 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import type { ReaderFragment } from 'relay-runtime';
 import type { FragmentRefs } from "relay-runtime";
 export type rovoAgentSelector_AtlaskitRovoAgentSelector$data = {
   readonly agentStudio_getAgents: {
     readonly edges: ReadonlyArray<{
       readonly node: {
-        readonly creatorType: string | null | undefined;
-        readonly externalConfigReference: string | null | undefined;
+        readonly creatorType: string | null;
+        readonly externalConfigReference: string | null;
         readonly id: string;
-        readonly identityAccountId: string | null | undefined;
-        readonly name: string | null | undefined;
-      } | null | undefined;
+        readonly identityAccountId: string | null;
+        readonly name: string | null;
+      } | null;
     }>;
     readonly pageInfo: {
-      readonly endCursor: string | null | undefined;
+      readonly endCursor: string | null;
       readonly hasNextPage: boolean;
     };
-  } | null | undefined;
+  } | null;
   readonly " $fragmentType": "rovoAgentSelector_AtlaskitRovoAgentSelector";
 };
 export type rovoAgentSelector_AtlaskitRovoAgentSelector$key = {

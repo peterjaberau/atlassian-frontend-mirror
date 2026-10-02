@@ -1,14 +1,14 @@
 import React from 'react';
 
-import Lozenge from '@atlaskit/lozenge';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 
 export default (): React.JSX.Element => (
 	<>
 		<div>
-			<Lozenge appearance="new">New</Lozenge>
+			<Lozenge appearance="discovery">New</Lozenge>
 		</div>
 		<div>
-			<Lozenge appearance="new" isBold>
+			<Lozenge appearance="discovery" isBold>
 				New bold
 			</Lozenge>
 		</div>

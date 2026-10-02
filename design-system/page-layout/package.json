@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/page-layout",
-	"version": "4.2.27",
+	"version": "5.5.5",
 	"description": "A collection of components which let you compose an application's page layout.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,29 +12,45 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./page-layout": "./src/entry-points/page-layout.tsx",
+		"./main": "./src/entry-points/main.tsx",
+		"./content": "./src/entry-points/content.tsx",
+		"./right-sidebar": "./src/entry-points/right-sidebar.tsx",
+		"./left-sidebar": "./src/entry-points/left-sidebar.tsx",
+		"./left-sidebar-without-resize": "./src/entry-points/left-sidebar-without-resize.tsx",
+		"./right-panel": "./src/entry-points/right-panel.tsx",
+		"./left-panel": "./src/entry-points/left-panel.tsx",
+		"./banner-slot": "./src/entry-points/banner-slot.tsx",
+		"./top-navigation": "./src/entry-points/top-navigation.tsx",
+		"./use-custom-skip-link": "./src/entry-points/use-custom-skip-link.tsx",
+		"./constants": "./src/entry-points/constants.tsx",
+		"./sidebar-resize-context": "./src/entry-points/sidebar-resize-context.tsx",
+		"./types": "./src/entry-points/types.tsx"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Page layout",
 			"category": "Layout and structure",
 			"status": {
-				"type": "intent-to-deprecate",
-				"description": "We are planning on deprecating Page layout. We recommend using Navigation system instead. [View Navigation system documentation](/components/navigation-system)"
+				"type": "deprecated",
+				"description": "This package is deprecated. Use our new [navigation system](/components/navigation-system)."
 			}
 		}
 	},
@@ -46,7 +62,7 @@
 		"@atlaskit/motion": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@emotion/react": "root:*",
@@ -54,8 +70,8 @@
 		"raf-schd": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0",
+		"react-dom": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -70,49 +86,26 @@
 		"@atlaskit/side-navigation": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@types/raf-schd": "root:*",
-		"raf-stub": "root:*"
+		"raf-stub": "root:*",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
 	},
 	"platform-feature-flags": {
 		"platform_dst_popup-disable-focuslock": {
 			"type": "boolean",
 			"referenceOnly": "true"
 		},
-		"platform_dst_spread-props-page-layout": {
-			"type": "boolean"
+		"platform-dst-motion-uplift-button": {
+			"type": "boolean",
+			"referenceOnly": true
 		}
 	},
 	"keywords": [
 		"atlaskit",
 		"react",
 		"ui"
-	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"ui-components": [
-				"lite-mode"
-			],
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"theming": [
-				"react-context"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"static"
-			]
-		}
-	}
+	]
 }

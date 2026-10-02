@@ -1,4 +1,27 @@
-export const basicTableAdf = {
+export const basicTableAdf: {
+	content: {
+		attrs: {
+			isNumberColumnEnabled: boolean;
+			layout: string;
+		};
+		content: {
+			content: {
+				content: {
+					content: {
+						text: string;
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+			}[];
+			type: string;
+		}[];
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -60,7 +83,53 @@ export const basicTableAdf = {
 	],
 };
 
-export const nestedTablesInHeaderAndCellAdf = {
+export const nestedTablesInHeaderAndCellAdf: {
+	content: {
+		attrs: {
+			isNumberColumnEnabled: boolean;
+			layout: string;
+		};
+		content: {
+			content: {
+				content: (
+					| {
+							attrs?: undefined;
+							content: {
+								text: string;
+								type: string;
+							}[];
+							type: string;
+					  }
+					| {
+							attrs: {
+								isNumberColumnEnabled: boolean;
+								layout: string;
+							};
+							content: {
+								content: {
+									content: {
+										content: {
+											text: string;
+											type: string;
+										}[];
+										type: string;
+									}[];
+									type: string;
+								}[];
+								type: string;
+							}[];
+							type: string;
+					  }
+				)[];
+				type: string;
+			}[];
+			type: string;
+		}[];
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -209,7 +278,33 @@ export const nestedTablesInHeaderAndCellAdf = {
 	],
 };
 
-export const tableWithScrollbarAdf = {
+export const tableWithScrollbarAdf: {
+	content: {
+		attrs: {
+			isNumberColumnEnabled: boolean;
+			layout: string;
+		};
+		content: {
+			content: {
+				attrs: {
+					colwidth: number[];
+				};
+				content: {
+					content: {
+						text: string;
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+			}[];
+			type: string;
+		}[];
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -231,7 +326,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'a' }],
 								},
 							],
 						},
@@ -243,7 +338,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'b' }],
 								},
 							],
 						},
@@ -255,7 +350,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'c' }],
 								},
 							],
 						},
@@ -267,7 +362,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'd' }],
 								},
 							],
 						},
@@ -279,7 +374,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'e' }],
 								},
 							],
 						},
@@ -291,7 +386,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'f' }],
 								},
 							],
 						},
@@ -303,7 +398,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'g' }],
 								},
 							],
 						},
@@ -315,7 +410,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'h' }],
 								},
 							],
 						},
@@ -327,7 +422,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'i' }],
 								},
 							],
 						},
@@ -339,7 +434,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'j' }],
 								},
 							],
 						},
@@ -351,7 +446,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'k' }],
 								},
 							],
 						},
@@ -363,7 +458,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'l' }],
 								},
 							],
 						},
@@ -375,7 +470,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'm' }],
 								},
 							],
 						},
@@ -387,7 +482,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'n' }],
 								},
 							],
 						},
@@ -399,7 +494,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'o' }],
 								},
 							],
 						},
@@ -411,7 +506,7 @@ export const tableWithScrollbarAdf = {
 							content: [
 								{
 									type: 'paragraph',
-									content: [],
+									content: [{ type: 'text', text: 'p' }],
 								},
 							],
 						},

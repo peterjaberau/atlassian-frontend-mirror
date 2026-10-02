@@ -1,19 +1,18 @@
-import { InsertTypeAheadStages, InsertTypeAheadStep } from '@atlaskit/adf-schema/steps';
+import { InsertTypeAheadStages, InsertTypeAheadStep } from '@atlaskit/adf-schema/steps/type-ahead';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type { ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
 import { insm } from '@atlaskit/insm';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type {
 	CreateTypeAheadDecorations,
 	PopupMountPointReference,
 	RemoveTypeAheadDecorations,
 	TypeAheadHandler,
+	TypeAheadResolvedSection,
 	TypeAheadInputMethod,
 	TypeAheadPluginState,
 } from '../types';
-
 import { ACTIONS } from './actions';
 import { pluginKey } from './key';
 import { isTypeAheadHandler } from './utils';
@@ -49,6 +48,29 @@ const shouldForceClose = (step: InsertTypeAheadStep | null): boolean => {
 		step.isUndoingStep() && step.stage === InsertTypeAheadStages.DELETING_RAW_QUERY;
 
 	return isInsertingItem || isUndoingDeletionRawQuery;
+};
+
+const applySectionTitleUpdates = ({
+	sections,
+	sectionTitleUpdates,
+}: {
+	sections: TypeAheadResolvedSection[];
+	sectionTitleUpdates: TypeAheadPluginState['sectionTitleUpdates'];
+}): TypeAheadResolvedSection[] => {
+	const updatedSections = sections.map((section) => {
+		const update = sectionTitleUpdates[section.id];
+
+		if (!update) {
+			return section;
+		}
+
+		return {
+			...section,
+			...update,
+		};
+	});
+
+	return updatedSections;
 };
 
 const createFindHandler =
@@ -94,9 +116,7 @@ export const createReducer = ({
 			inputMethod,
 			reopenQuery,
 		});
-		if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-			insm.session?.startFeature('typeaheadOpen');
-		}
+		insm.session?.startFeature('typeaheadOpen');
 		return {
 			...currentPluginState,
 			stats,
@@ -106,6 +126,8 @@ export const createReducer = ({
 			inputMethod,
 			selectedIndex: typeof selectedIndex === 'number' ? selectedIndex : -1,
 			items: [],
+			sectionTitleUpdates: {},
+			sections: [],
 			query: reopenQuery || '',
 			removePrefixTriggerOnCancel,
 		};
@@ -113,9 +135,7 @@ export const createReducer = ({
 
 	const closeMenu = (currentPluginState: TypeAheadPluginState): TypeAheadPluginState => {
 		removeDecorations(currentPluginState.decorationSet);
-		if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-			insm.session?.endFeature('typeaheadOpen');
-		}
+		insm.session?.endFeature('typeaheadOpen');
 		return {
 			...currentPluginState,
 			inputMethod: null,
@@ -125,6 +145,8 @@ export const createReducer = ({
 			stats: null,
 			triggerHandler: undefined,
 			items: [],
+			sections: [],
+			sectionTitleUpdates: {},
 			removePrefixTriggerOnCancel: undefined,
 		};
 	};
@@ -163,6 +185,7 @@ export const createReducer = ({
 		const shouldUpdateListItems = action === ACTIONS.UPDATE_LIST_ITEMS;
 		const shouldUpdateListError = action === ACTIONS.UPDATE_LIST_ERROR;
 		const shouldUpdateSelectedIndex = action === ACTIONS.UPDATE_SELECTED_INDEX;
+		const shouldUpdateSectionTitleState = action === ACTIONS.UPDATE_SECTION_TITLE;
 		const shouldClearListError = action === ACTIONS.CLEAR_LIST_ERROR;
 
 		if (shouldOpenMenu) {
@@ -187,19 +210,42 @@ export const createReducer = ({
 				...currentPluginState,
 				errorInfo,
 				items: [],
+				sections: [],
 				selectedIndex: -1,
 			};
 		} else if (shouldUpdateListItems) {
-			const { items } = params;
+			const { items, sections = [] } = params;
 			const { selectedIndex } = currentPluginState;
 
 			return {
 				...currentPluginState,
 				items,
+				sections: applySectionTitleUpdates({
+					sections,
+					sectionTitleUpdates: currentPluginState.sectionTitleUpdates,
+				}),
 				selectedIndex: Math.max(
 					selectedIndex >= items.length ? items.length - 1 : selectedIndex,
 					-1,
 				),
+			};
+		} else if (shouldUpdateSectionTitleState) {
+			const { id, update } = params;
+			const sectionTitleUpdates = {
+				...currentPluginState.sectionTitleUpdates,
+				[id]: {
+					...currentPluginState.sectionTitleUpdates[id],
+					...update,
+				},
+			};
+
+			return {
+				...currentPluginState,
+				sectionTitleUpdates,
+				sections: applySectionTitleUpdates({
+					sections: currentPluginState.sections,
+					sectionTitleUpdates,
+				}),
 			};
 		} else if (shouldUpdateSelectedIndex) {
 			return {

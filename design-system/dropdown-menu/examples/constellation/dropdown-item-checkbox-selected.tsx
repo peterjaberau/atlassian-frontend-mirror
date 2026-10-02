@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 
-import DropdownMenu, {
-	DropdownItemCheckbox,
-	DropdownItemCheckboxGroup,
-} from '@atlaskit/dropdown-menu';
+import DropdownItemCheckbox from '@atlaskit/dropdown-menu/dropdown-item-checkbox';
+import DropdownItemCheckboxGroup from '@atlaskit/dropdown-menu/dropdown-item-checkbox-group';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
 
 const DropdownItemCheckboxExample = (): React.JSX.Element => {
 	const [checked, setChecked] = useState<Record<string, boolean>>({

@@ -1,8 +1,10 @@
 import path from 'path';
+
+import fs from 'fs-extra';
+import pkgDir from 'pkg-dir';
+
 import { build, createIconDocs, tidy } from '@af/icon-build-process';
 import type { IconBuildConfig } from '@af/icon-build-process';
-import pkgDir from 'pkg-dir';
-import fs from 'fs-extra';
 
 const root = pkgDir.sync();
 
@@ -18,7 +20,7 @@ const config16: IconBuildConfig = {
 	maxHeight: 16,
 	size: 'small',
 	glob: '**/16.svg',
-	baseIconEntryPoint: '@atlaskit/icon/base',
+	baseIconEntryPoint: '@atlaskit/icon-file-type/internal',
 	isColorsDisabled: true,
 	isDeprecated: false,
 };
@@ -31,7 +33,7 @@ const config24: IconBuildConfig = {
 	maxHeight: 24,
 	size: 'medium',
 	glob: '**/24.svg',
-	baseIconEntryPoint: '@atlaskit/icon/base',
+	baseIconEntryPoint: '@atlaskit/icon-file-type/internal',
 	isColorsDisabled: true,
 	isDeprecated: false,
 };
@@ -47,7 +49,7 @@ const config48: IconBuildConfig = {
 	height: 64,
 	// END THESE SIZES ARE A SNOW FLAKE
 	glob: '**/48.svg',
-	baseIconEntryPoint: '@atlaskit/icon/base',
+	baseIconEntryPoint: '@atlaskit/icon-file-type/internal',
 	isColorsDisabled: true,
 	isDeprecated: false,
 };

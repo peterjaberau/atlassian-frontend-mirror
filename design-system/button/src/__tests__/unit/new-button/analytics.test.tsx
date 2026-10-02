@@ -2,7 +2,8 @@ import React from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { AnalyticsListener, UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 
 import Button from '../../../new-button/variants/default/button';
 import variants from '../../../utils/variants';
@@ -12,7 +13,7 @@ const packageVersion = process.env._PACKAGE_VERSION_ as string;
 
 const buttonTestId = 'button';
 
-variants.forEach(({ name, Component, elementType }) => {
+Object.values(variants).forEach(({ name, Component, elementType }) => {
 	it(`${name}: should fire an event on the public channel and the internal channel`, () => {
 		const onPublicEvent = jest.fn();
 		const onAtlaskitEvent = jest.fn();
@@ -66,7 +67,7 @@ variants.forEach(({ name, Component, elementType }) => {
 	});
 });
 
-variants.forEach(({ name, Component, elementType }) => {
+Object.values(variants).forEach(({ name, Component, elementType }) => {
 	it(`${name}: should allow the addition of additional context`, () => {
 		function App({
 			onEvent,
@@ -140,7 +141,7 @@ it('should not error if there is no analytics provider', () => {
 	error.mockRestore();
 });
 
-variants.forEach(({ name, Component, elementType }) => {
+Object.values(variants).forEach(({ name, Component, elementType }) => {
 	it(`${name}: Analytics should send the correct actionSubject`, () => {
 		const onEvent = jest.fn();
 

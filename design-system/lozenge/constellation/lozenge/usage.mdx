@@ -1,201 +1,34 @@
 ---
 order: 2
-title: Lozenge
-description: A lozenge is a visual indicator used to communicate status.
 ---
-
-import Image from '@atlaskit/image';
-
-import lozengeAnatomyLight from '../images/lozenge-anatomy-light.png';
-import lozengeAnatomyDark from '../images/lozenge-anatomy-dark.png';
-import lozengeStatusDo from '../images/lozenge-status-do.png';
-import lozengeStatusDont from '../images/lozenge-status-dont.png';
-import lozengeSemanticAccentDo from '../images/lozenge-semantic-do.png';
-import lozengeSemanticAccentDont from '../images/lozenge-semantic-dont.png';
-import lozengeTriggerDo from '../images/lozenge-trigger-do.png';
-import lozengeTriggerDont from '../images/lozenge-trigger-dont.png';
-import lozengeCaseDo from '../images/lozenge-case-do.png';
-import lozengeCaseDont from '../images/lozenge-case-dont.png';
-import lozengeBadgeDoLight from '../images/lozenge-badge-do-light.png';
-import lozengeBadgeDontLight from '../images/lozenge-badge-dont-light.png';
-import lozengeBadgeDoDark from '../images/lozenge-badge-do-dark.png';
-import lozengeBadgeDontDark from '../images/lozenge-badge-dont-dark.png';
 
 ## Usage
 
-Lozenges indicate the status or state of objects, such as the progress of a work item. They help
-people quickly understand an object’s state, so it’s important they are used accurately and
-consistently.
+Lozenges are either subtle or bold.
 
-## Anatomy
+- Use subtle lozenges by default and in instances where they may dominate the screen, such as in
+  long tables with a lot of lozenges.
+- Use bold lozenges sparingly and reserve them for things like Pipeline or Jira statuses.
+- Combine color with a logical and concise label.
 
-<Image
-	src={lozengeAnatomyLight}
-	srcDark={lozengeAnatomyDark}
-	alt="Lozenge anatomy diagram showing: 1. Label (text that describes the status. For example, “On track”), 2. Icon (optional to add additional affordance), and 3. Badge (optional, to add a score to the status)"
-/>
-
-1. **Label**: Text describing the status. For example, “On track”.
-2. **Icon (optional)**: Use an icon from the iconography library to add additional affordance where
-   the icon has a clear and well-established meaning. For example, arrow up right for “On track”.
-3. **Badge (optional)**: The `trailingMetric` prop can be utilised on semantic colored lozenges to
-   add a score to the status.
-
-## Best practices
-
-### Only use lozenge to communicate status or state
-
-To classify, organize, or categorize information, use a [tag](/components/tag) instead. Tags have
-lower visual prominence than lozenges to create a clear visual hierarchy that prioritizes important
-information that needs customer attention.
-
-<DoDont
-	type="do"
-	image={{
-		url: lozengeStatusDo,
-		alt: 'Use lozenges to communicate the status or state of an object, service, or workflow.',
-	}}
->
-	Use lozenges to communicate the status or state of an object, service, or workflow.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: lozengeStatusDont,
-		alt: 'Don’t use lozenges to classify, organize, and highlight information — use a tag instead.',
-	}}
->
-	Don’t use lozenges to classify, organize, and highlight information — use a tag instead.
-</DoDont>
-
-### Use accent and semantic colors correctly
-
-When choosing a lozenge color, there’s two sets of color choices available:
-
-- **Semantic colors (for example, "success")**: use for status or state where color usage reflects
-  semantic intent.
-- **Accent colors (for example, "accent-red")**: use when color isn’t used for semantic intent. In
-  most cases, accent colors are used for user-generated content, where customers can choose a color
-  and the text label.
-
-<DoDont
-	type="do"
-	image={{
-		url: lozengeSemanticAccentDo,
-		alt: 'Choose the right semantic color to reflect the status.',
-	}}
->
-	Choose the right semantic color to reflect the status.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: lozengeSemanticAccentDont,
-		alt: 'Don’t use accents when the label has semantic meaning and isn’t user generated content.',
-	}}
->
-	Don’t use accents when the label has semantic meaning and isn’t user generated content.
-</DoDont>
-
-### Use the appropriate badge within a semantic colored lozenge
-
-When the appearance is set to a semantic color, you can add a matching trailing badge to the
-lozenge. Use it to add a score to a status, for example for a goal.
-
-<DoDont
-	type="do"
-	image={{
-		url: lozengeBadgeDoLight,
-		urlDarkMode: lozengeBadgeDoDark,
-		alt: 'Use a semantic lozenge with the matching badge to score a goal.',
-	}}
->
-	Use a semantic lozenge with the matching badge to score a goal.
-</DoDont>
-<DoDont
-	type="dont"
-	image={{
-		url: lozengeBadgeDontLight,
-		urlDarkMode: lozengeBadgeDontDark,
-		alt: 'Don’t use a badge within a lozenge with an accent color and avoid mixing semantics.',
-	}}
->
-	Don’t use a badge within a lozenge with an accent color and avoid mixing semantics.
-</DoDont>
-
-### Use lozenge dropdown trigger when interactivity is required
-
-Lozenges are non-interactive. If you require a lozenge that opens a dropdown menu, for example an
-inline status switcher, use a
-[lozenge dropdown trigger](/components/lozenge/lozenge-dropdown-trigger).
-
-<DoDont
-	type="do"
-	image={{
-		url: lozengeTriggerDo,
-		alt: 'Use a lozenge dropdown trigger if interactivity is required.',
-	}}
->
-	Use a lozenge dropdown trigger if interactivity is required.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: lozengeTriggerDont,
-		alt: 'Don’t add custom functionality to the lozenge.',
-	}}
->
-	Don’t add custom functionality to the lozenge.
-</DoDont>
-
-## Content guidelines
-
-### Use sentence case capitalization
-
-Only capitalize the first letter of the label and any proper nouns. View our
-[capitalization guidance](/foundations/content/language-and-grammar#capitalization) for more
-information.
-
-<DoDont
-	type="do"
-	image={{
-		url: lozengeCaseDo,
-		alt: 'Use sentence-case capitalization.',
-	}}
->
-	Use sentence-case capitalization.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: lozengeCaseDont,
-		alt: 'Don’t use title case capitalization or all caps.',
-	}}
->
-	Don’t use title case capitalization or all caps.
-</DoDont>
+The color system is a consistent visual language that helps people learn to quickly recognize the
+meaning of a status across apps. For more information, see the
+[color foundation](/foundations/color).
 
 ## Accessibility
 
-- Don't use color alone to signify an important state or status. Instead, use clear labels and, if
-  relevant, a supporting icon. For example: for a critical status, use descriptors like “Off track”.
-- Don't use long labels in lozenge. They have a max width of 200 pixels (or a
-  custom `maxWidth` value) causing labels to truncate. Lozenges can’t be focused, so truncated text
-  will not be visible.
+- Don't use color alone to signify an important state. Instead, use accurate label. For example: for
+  an critical status, use words like `Error` or `Warning'.
+- Don't use lozenges for long text. Lozenges are not focusable, so any text that gets truncated
+  after 200 pixels (or the custom `maxWidth` value) will not be accessible.
 
-## Data Center products
+## Data Center apps
 
-For all new features, we recommend using Atlassian Design System and
-other [Atlaskit components](https://atlaskit.atlassian.com/). For existing code, continue to
-use [Atlassian User Interface (AUI)](https://aui.atlassian.com/).
+For all new features, we recommend using Atlassian Design System and other
+[Atlaskit components](https://atlaskit.atlassian.com/). For existing code, you can continue to use
+[Atlassian User Interface (AUI)](https://aui.atlassian.com/).
 
 ## Related
 
-- For lozenges requiring dropdown interactivity, use
-  [lozenge dropdown trigger](/components/lozenge/lozenge-dropdown-trigger).
-- For tallies or counts, use a [badge](/components/badge/badge).
-- To visually label content such as categories and attributes, use a [tag](/components/tag).
+- For tallies or counts, use a [badge](/components/badge).
+- To visually label UI objects, use a [tag](/components/tag).

@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
+
 import { token } from '@atlaskit/tokens';
 
 const tabContainerStyles = css({
@@ -12,7 +14,6 @@ const tabContainerStyles = css({
 });
 
 export const TabContainer = ({ children }: { children: React.ReactNode }): JSX.Element => (
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
 	<div css={tabContainerStyles}>{children}</div>
 );
 
@@ -27,10 +28,10 @@ export const TabLabels = ({ children }: { children: React.ReactNode }): JSX.Elem
 
 const tabLabelStyles = css({
 	flex: 1,
-	paddingTop: token('space.150', '12px'),
-	paddingRight: token('space.150', '12px'),
-	paddingBottom: token('space.150', '12px'),
-	paddingLeft: token('space.150', '12px'),
+	paddingTop: token('space.150'),
+	paddingRight: token('space.150'),
+	paddingBottom: token('space.150'),
+	paddingLeft: token('space.150'),
 	textAlign: 'center',
 	alignContent: 'center',
 	cursor: 'pointer',

@@ -1,27 +1,9 @@
 /// <reference types="node" />
+
 import AnalyticsEvent, {
 	type AnalyticsEventPayload,
 	type AnalyticsEventProps,
 } from './AnalyticsEvent';
-
-type ChannelIdentifier = string;
-type Context = Record<string, any>[];
-
-export type UIAnalyticsEventHandler = (
-	event: UIAnalyticsEvent,
-	channel?: ChannelIdentifier,
-) => void;
-
-export type UIAnalyticsEventProps = AnalyticsEventProps & {
-	context?: Context;
-	handlers?: UIAnalyticsEventHandler[];
-};
-
-export const isUIAnalyticsEvent = (obj: any): obj is UIAnalyticsEvent =>
-	obj instanceof UIAnalyticsEvent ||
-	!!obj?._isUIAnalyticsEvent ||
-	// Backwards compatibility with older analytics-next packages
-	obj?.constructor?.name === 'UIAnalyticsEvent';
 
 export default class UIAnalyticsEvent extends AnalyticsEvent {
 	context: Context;
@@ -50,12 +32,7 @@ export default class UIAnalyticsEvent extends AnalyticsEvent {
 		const context = [...this.context];
 		const handlers = [...this.handlers];
 
-		/**
-		 * A hacky "deep clone" of the object. This is limited in that it wont
-		 * support functions, regexs, Maps, Sets, etc, but none of those need to
-		 * be represented in our payload.
-		 */
-		const payload = JSON.parse(JSON.stringify(this.payload));
+		const payload = clonePayload(this.payload);
 
 		return new UIAnalyticsEvent({ context, handlers, payload });
 	};
@@ -70,7 +47,19 @@ export default class UIAnalyticsEvent extends AnalyticsEvent {
 			return;
 		}
 
-		this.handlers.forEach((handler) => handler(this, channel));
+		this.handlers.forEach((handler) => {
+			try {
+				handler(this, channel);
+			} catch (e) {
+				// Analytics must never crash product UI. Swallow handler errors in
+				// production; surface them in development so misconfigured events are
+				// caught early.
+				if (process.env.NODE_ENV !== 'production') {
+					// eslint-disable-next-line no-console
+					console.error('[analytics-next] UIAnalyticsEvent handler threw an error:', e);
+				}
+			}
+		});
 		this.hasFired = true;
 	};
 
@@ -89,3 +78,30 @@ export default class UIAnalyticsEvent extends AnalyticsEvent {
 		return super.update(updater);
 	}
 }
+
+type ChannelIdentifier = string;
+type Context = Record<string, any>[];
+const clonePayload = (payload: AnalyticsEventPayload): AnalyticsEventPayload => {
+	try {
+		return JSON.parse(JSON.stringify(payload));
+	} catch (e) {
+		if (process.env.NODE_ENV !== 'production') {
+			// eslint-disable-next-line no-console
+			console.error(
+				'[analytics-next] UIAnalyticsEvent payload could not be deep cloned; falling back to a shallow clone:',
+				e,
+			);
+		}
+
+		// Shallow clone keeps the event usable without crashing the UI.
+		return { ...payload };
+	}
+};
+export type UIAnalyticsEventHandler = (
+	event: UIAnalyticsEvent,
+	channel?: ChannelIdentifier,
+) => void;
+export type UIAnalyticsEventProps = AnalyticsEventProps & {
+	context?: Context;
+	handlers?: UIAnalyticsEventHandler[];
+};

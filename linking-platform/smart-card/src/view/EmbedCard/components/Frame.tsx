@@ -15,27 +15,30 @@ import React, {
 import { css, jsx } from '@compiled/react';
 import { di } from 'react-magnetic-di';
 
+import { getDocument } from '@atlaskit/browser-apis';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
-import { getIframeSandboxAttribute } from '../../../utils';
-
+import { getIframeSandboxAttribute } from '../../../utils/get-iframe-sandbox-attribute';
 import { IFrame } from './IFrame';
 import { IframeDwellTracker } from './IframeDwellTracker';
 
 export interface FrameProps {
 	extensionKey?: string;
+	/**
+	 * Optional override of the internal mouse-over state. When provided, the
+	 * iframe will use this value instead of its own local state. Falls back to
+	 * local state when undefined (backward compatibility).
+	 */
+	isMouseOver?: boolean;
 	isTrusted?: boolean;
 	onIframeDwell?: (dwellTime: number, dwellPercentVisible: number) => void;
 	onIframeFocus?: () => void;
+	onIframeMouseEnter?: () => void;
+	onIframeMouseLeave?: () => void;
 	testId?: string;
 	title?: string;
 	url?: string;
-}
-
-export interface FrameUpdatedProps extends FrameProps {
-	isMouseOver?: boolean;
-	onIframeMouseEnter?: () => void;
-	onIframeMouseLeave?: () => void;
 }
 
 type Refs =
@@ -67,109 +70,9 @@ const iframeStyles = css({
 	borderRadius: token('radius.small', '3px'),
 });
 
-export const Frame = React.forwardRef<HTMLIFrameElement, FrameProps>(
-	(
-		{ url, isTrusted = false, testId, onIframeDwell, onIframeFocus, title, extensionKey },
-		iframeRef,
-	) => {
-		di(IFrame);
-		const [isIframeLoaded, setIframeLoaded] = useState(false);
-		const [isMouseOver, setMouseOver] = useState(false);
-		const [isWindowFocused, setWindowFocused] = useState(true);
-
-		const ref = useRef<HTMLIFrameElement>();
-		const mergedRef = mergeRefs([iframeRef, ref as RefObject<HTMLIFrameElement>]);
-
-		const [percentVisible, setPercentVisible] = useState(0);
-
-		/**
-		 * These are the 'percent visible' thresholds at which the intersectionObserver will
-		 * trigger a state change. Eg. when the user scrolls and moves from 74% to 76%, or
-		 * vice versa. It's in a state object so that its static for the useEffect
-		 */
-		const [threshold] = useState([0.75, 0.8, 0.85, 0.9, 0.95, 1]);
-		useEffect(() => {
-			if (!ref || !ref.current) {
-				return;
-			}
-
-			const observer = new IntersectionObserver(
-				(entries) => {
-					entries.forEach((entry) => {
-						setPercentVisible(entry?.intersectionRatio);
-					});
-				},
-				{ threshold },
-			);
-
-			observer.observe(ref.current);
-
-			return () => {
-				observer.disconnect();
-			};
-		}, [threshold, mergedRef]);
-
-		useEffect(() => {
-			const onBlur = () => {
-				setWindowFocused(false);
-				if (document.activeElement === ref.current) {
-					onIframeFocus && onIframeFocus();
-				}
-			};
-
-			const onFocus = () => {
-				setWindowFocused(true);
-			};
-
-			window.addEventListener('blur', onBlur);
-			window.addEventListener('focus', onFocus);
-			return () => {
-				window.removeEventListener('blur', onBlur);
-				window.removeEventListener('focus', onFocus);
-			};
-		}, [ref, onIframeFocus]);
-
-		if (!url) {
-			return null;
-		}
-
-		return (
-			<React.Fragment>
-				<IframeDwellTracker
-					isIframeLoaded={isIframeLoaded}
-					isMouseOver={isMouseOver}
-					isWindowFocused={isWindowFocused}
-					iframePercentVisible={percentVisible}
-					onIframeDwell={onIframeDwell}
-				/>
-				<IFrame
-					childRef={mergedRef}
-					src={url}
-					data-testid={`${testId}-frame`}
-					data-test-iframe-loaded={isIframeLoaded}
-					css={iframeStyles}
-					onMouseEnter={() => {
-						setMouseOver(true);
-					}}
-					onMouseLeave={() => {
-						setMouseOver(false);
-					}}
-					allowFullScreen
-					scrolling="yes"
-					allow="autoplay; encrypted-media; clipboard-write"
-					onLoad={() => {
-						setIframeLoaded(true);
-					}}
-					sandbox={getIframeSandboxAttribute(isTrusted)}
-					title={title}
-					extensionKey={extensionKey}
-				/>
-			</React.Fragment>
-		);
-	},
-);
-
-export const FrameUpdated = React.forwardRef<HTMLIFrameElement, FrameUpdatedProps>(
+export const Frame: React.ForwardRefExoticComponent<
+	FrameProps & React.RefAttributes<HTMLIFrameElement>
+> = React.forwardRef<HTMLIFrameElement, FrameProps>(
 	(
 		{
 			url,
@@ -186,9 +89,20 @@ export const FrameUpdated = React.forwardRef<HTMLIFrameElement, FrameUpdatedProp
 		iframeRef,
 	) => {
 		di(IFrame);
+		const doc = getDocument();
 		const [isIframeLoaded, setIframeLoaded] = useState(false);
 		const [isMouseOver, setMouseOver] = useState(false);
-		const [isWindowFocused, setWindowFocused] = useState(document.hasFocus());
+		// Accessing the document here for SSR where document.hasFocus may be absent breaks SSR
+		// when we're trying to load things like Loom frames in SSR
+		// We _could_ either throw a guard in here (i.e check for the existence of document)
+		// _or_
+		// we can default to false, and set this state once the frame ref is available in a useEffect (safer IMO)
+		// which already seems to be existing behavior in a useEffect below.
+		const [isWindowFocused, setWindowFocused] = useState(
+			// The below will be removed as part of FG cleanup
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+			fg('jpx-1074-smart-links-iframe') ? (doc?.hasFocus() ?? false) : document.hasFocus(),
+		);
 
 		// Use prop if provided (from wrapper), otherwise use local state (for backward compatibility)
 		const effectiveMouseOver = isMouseOverProp !== undefined ? isMouseOverProp : isMouseOver;
@@ -227,12 +141,24 @@ export const FrameUpdated = React.forwardRef<HTMLIFrameElement, FrameUpdatedProp
 
 		useEffect(() => {
 			// Initialize with current focus state
-			setWindowFocused(document.hasFocus());
+			// The below will be removed as part of FG cleanup
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+			setWindowFocused(
+				fg('jpx-1074-smart-links-iframe') ? (doc?.hasFocus() ?? false) : document.hasFocus(),
+			);
 
 			const onBlur = () => {
 				setWindowFocused(false);
-				if (document.activeElement === ref.current) {
-					onIframeFocus && onIframeFocus();
+				if (fg('jpx-1074-smart-links-iframe')) {
+					if (doc?.activeElement === ref.current) {
+						onIframeFocus && onIframeFocus();
+					}
+				} else {
+					// The below will be removed as part of FG cleanup
+					// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+					if (document.activeElement === ref.current) {
+						onIframeFocus && onIframeFocus();
+					}
 				}
 			};
 
@@ -246,7 +172,7 @@ export const FrameUpdated = React.forwardRef<HTMLIFrameElement, FrameUpdatedProp
 				window.removeEventListener('blur', onBlur);
 				window.removeEventListener('focus', onFocus);
 			};
-		}, [ref, onIframeFocus]);
+		}, [ref, onIframeFocus, doc]);
 
 		if (!url) {
 			return null;

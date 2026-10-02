@@ -8,16 +8,15 @@ import {
 	useSharedPluginStateWithSelector,
 	type NamedPluginStatesFromInjectionAPI,
 } from '@atlaskit/editor-common/hooks';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { Box } from '@atlaskit/primitives/compiled';
 
 import { clearEditingContext, forceAutoSave } from '../editor-commands/commands';
-import { type ExtensionPlugin } from '../extensionPluginType';
+import type { ExtensionPlugin } from '../extensionPluginType';
 import { getPluginState } from '../pm-plugins/plugin-factory';
 import { getSelectedExtension } from '../pm-plugins/utils';
-
 import ConfigPanelLoader from './ConfigPanel/ConfigPanelLoader';
 import { CONFIG_PANEL_WIDTH } from './ConfigPanel/constants';
 import HeaderAfterIconElement from './ConfigPanel/Header/HeaderAfterIconElement';
@@ -245,6 +244,7 @@ export const getContextPanelBodyComponent = ({
 							extensionProvider={extensionProvider}
 							autoSaveTrigger={autoSaveResolve}
 							autoSaveReject={autoSaveReject}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onChange={async (updatedParameters) => {
 								await onChangeAction(
 									editorView,
@@ -259,6 +259,7 @@ export const getContextPanelBodyComponent = ({
 									autoSaveResolve();
 								}
 							}}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onCancel={() => startClosingConfigPanel({ api, editorView })}
 							featureFlags={featureFlags}
 							// Remove below prop when cleaning platform_editor_ai_object_sidebar_injection FG

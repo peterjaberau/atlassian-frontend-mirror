@@ -1,6 +1,8 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+
 import { bind } from 'bind-event-listener';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { InteractionType } from '../common';
 import type { PageVisibility } from '../common/react-ufo-payload-schema';
@@ -52,7 +54,9 @@ export function isOpenedInBackground(interactionType: InteractionType): boolean 
 	try {
 		const entries = performance.getEntriesByType('visibility-state');
 		if (entries.length > 0) {
-			return entries.some((entry) => entry.name === 'hidden' && entry.startTime <= OPENED_IN_BACKGROUND_THRESHOLD_MS);
+			return entries.some(
+				(entry) => entry.name === 'hidden' && entry.startTime <= OPENED_IN_BACKGROUND_THRESHOLD_MS,
+			);
 		}
 	} catch {
 		// visibility-state not supported (Firefox/Safari)
@@ -282,7 +286,12 @@ export function isTabThrottled(startTime: number, endTime: number): boolean {
 	// Check if any measurement within the time window indicates throttling
 	for (let i = 0; i < throttleMeasurements.length; i++) {
 		const measurement = throttleMeasurements[i];
-		if (measurement && measurement.time >= startTime && measurement.time <= endTime && measurement.isThrottled) {
+		if (
+			measurement &&
+			measurement.time >= startTime &&
+			measurement.time <= endTime &&
+			measurement.isThrottled
+		) {
 			return true;
 		}
 	}
@@ -305,7 +314,7 @@ export function getThrottleMeasurements(startTime: number, endTime: number): Thr
 	}
 
 	return throttleMeasurements.filter(
-		(measurement) => measurement && measurement.time >= startTime && measurement.time <= endTime
+		(measurement) => measurement && measurement.time >= startTime && measurement.time <= endTime,
 	);
 }
 
@@ -318,6 +327,61 @@ export function getThrottleMeasurements(startTime: number, endTime: number): Thr
 export function __injectThrottleMeasurementForTesting(measurement: ThrottleMeasurement): void {
 	throttleMeasurements[throttleInsertIndex] = measurement;
 	throttleInsertIndex = (throttleInsertIndex + 1) % THROTTLE_BUFFER_SIZE;
+}
+
+/**
+ * Returns the page visibility timeline entries within the specified time window.
+ * Each entry contains the time (relative to startTime) and whether the page was hidden.
+ *
+ * @param startTime - The start timestamp of the window (DOMHighResTimeStamp)
+ * @param endTime - The end timestamp of the window (DOMHighResTimeStamp)
+ * @returns Array of HiddenTimingItem entries within the time window, with times relative to startTime
+ */
+export function getPageVisibilityTimeline(startTime: number, endTime: number): HiddenTimingItem[] {
+	// Input validation
+	if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || startTime >= endTime) {
+		return [];
+	}
+
+	if (timings.length === 0) {
+		return [];
+	}
+
+	const result: HiddenTimingItem[] = [];
+
+	// Find the most recent entry at or before startTime to establish initial state
+	let initialEntry: HiddenTimingItem | undefined;
+	const currentSize = timings.length;
+
+	for (let i = 0; i < currentSize; i++) {
+		const idx = (insertIndex + i) % currentSize;
+		const entry = timings[idx];
+		if (entry && entry.time <= startTime) {
+			initialEntry = entry;
+		}
+	}
+
+	// Add the initial visibility state at the start of the window
+	if (initialEntry) {
+		result.push({
+			time: 0,
+			hidden: initialEntry.hidden,
+		});
+	}
+
+	// Add all entries within the time window
+	for (let i = 0; i < currentSize; i++) {
+		const idx = (insertIndex + i) % currentSize;
+		const entry = timings[idx];
+		if (entry && entry.time > startTime && entry.time <= endTime) {
+			result.push({
+				time: Math.round(entry.time - startTime),
+				hidden: entry.hidden,
+			});
+		}
+	}
+
+	return result;
 }
 
 // Expose testing API on window for integration tests

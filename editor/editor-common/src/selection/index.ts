@@ -21,7 +21,8 @@ export type {
 	SetSelectionRelativeToNode,
 } from './types';
 
-export { GapCursorSelection, Side, JSON_ID, GapBookmark } from './gap-cursor/selection';
+export { Side } from './gap-cursor/Side';
+export { GapCursorSelection, JSON_ID, GapBookmark } from './gap-cursor/selection';
 
 export { setSelectionTopLevelBlocks, setGapCursorAtPos } from './gap-cursor/actions';
 
@@ -30,24 +31,30 @@ export { isValidTargetNode } from './gap-cursor/utils/is-valid-target-node';
 export { setGapCursorSelection } from './gap-cursor/utils/setGapCursorSelection';
 export { hideCaretModifier, gapCursorStyles } from './gap-cursor/styles';
 
+export { atTheBeginningOfDoc } from './atTheBeginningOfDoc';
+export { atTheEndOfDoc } from './atTheEndOfDoc';
+export { endPositionOfParent } from './endPositionOfParent';
+export { expandSelectionBounds } from './expandSelectionBounds';
+export { isMultiBlockRange } from './isMultiBlockRange';
+export { isSelectionAtEndOfNode } from './isSelectionAtEndOfNode';
+export { isSelectionAtStartOfNode } from './isSelectionAtStartOfNode';
+export { startPositionOfParent } from './startPositionOfParent';
 export {
 	atTheBeginningOfBlock,
-	atTheBeginningOfDoc,
 	atTheEndOfBlock,
-	atTheEndOfDoc,
 	deleteSelectedRange,
-	endPositionOfParent,
-	expandSelectionBounds,
 	expandSelectionToBlockRange,
 	expandToBlockRange,
 	getSourceNodesFromSelectionRange,
-	isMultiBlockRange,
 	isMultiBlockSelection,
-	isSelectionAtEndOfNode,
-	isSelectionAtStartOfNode,
 	selectionIsAtTheBeginningOfBlock,
-	startPositionOfParent,
 } from './utils';
+
+export { getSliceFromSelection } from './context-helpers';
+export { getFragmentsFromSelection } from './getFragmentsFromSelection';
+export { getLocalIdsFromSelection } from './getLocalIdsFromSelection';
+
+export { FORMAT_SELECTION_SYNC_META } from './format-sync-meta';
 
 export function getNodeSelectionAnalyticsPayload(
 	selection: Selection,
@@ -63,6 +70,7 @@ export function getNodeSelectionAnalyticsPayload(
 	}
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function getAllSelectionAnalyticsPayload(
 	selection: Selection,
 ): AnalyticsEventPayload | undefined {
@@ -76,6 +84,7 @@ export function getAllSelectionAnalyticsPayload(
 	}
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function getCellSelectionAnalyticsPayload(
 	state: EditorState,
 ): AnalyticsEventPayload | undefined {
@@ -96,6 +105,7 @@ export function getCellSelectionAnalyticsPayload(
 	}
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function getRangeSelectionAnalyticsPayload(
 	selection: Selection,
 	doc: PmNode,
@@ -137,6 +147,7 @@ export function getRangeSelectionAnalyticsPayload(
  * @param deletions the ranges to delete
  */
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const selectNode =
 	(pos: number): Command =>
 	(state, dispatch) => {
@@ -145,6 +156,7 @@ export const selectNode =
 		}
 		return true;
 	};
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function createSelectionClickHandler(
 	nodes: string[],
 	isValidTarget: (target: HTMLElement) => boolean,

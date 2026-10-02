@@ -7,6 +7,7 @@ export enum INDENT_DIRECTION {
 	OUTDENT = 'outdent',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum INDENT_TYPE {
 	PARAGRAPH = 'paragraph',
 	LIST = 'list',
@@ -81,6 +82,20 @@ type FormatHeadingAEP = FormatAEP<
 	}
 >;
 
+type FormatSmallTextAEP = FormatAEP<
+	ACTION_SUBJECT_ID.FORMAT_SMALL_TEXT,
+	{
+		inputMethod:
+			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.INSERT_MENU
+			| INPUT_METHOD.KEYBOARD
+			| INPUT_METHOD.FORMATTING
+			| INPUT_METHOD.SHORTCUT
+			| INPUT_METHOD.FLOATING_TB;
+		previousBlockType?: string;
+	}
+>;
+
 type FormatBlockQuoteAEP = FormatAEP<
 	ACTION_SUBJECT_ID.FORMAT_BLOCK_QUOTE,
 	{
@@ -107,6 +122,7 @@ type FormatClearAEP = FormatAEP<
 type FormatColorAEP = FormatAEP<
 	ACTION_SUBJECT_ID.FORMAT_COLOR,
 	{
+		hadBackgroundColor?: boolean;
 		inputMethod?: INPUT_METHOD.TOOLBAR | INPUT_METHOD.FLOATING_TB;
 		newColor: string;
 		previousColor: string;
@@ -130,6 +146,7 @@ export type FormatEventPayload =
 	| FormatSuperSubAEP
 	| FormatIndentationAEP
 	| FormatHeadingAEP
+	| FormatSmallTextAEP
 	| FormatBlockQuoteAEP
 	| FormatClearAEP
 	| FormatColorAEP

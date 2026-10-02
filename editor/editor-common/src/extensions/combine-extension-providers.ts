@@ -1,15 +1,26 @@
 import { combineProviders } from '../provider-helpers';
-
-import type { ExtensionKey, ExtensionType } from './types/extension-manifest';
+import type { ExtensionKey, ExtensionManifest, ExtensionType } from './types/extension-manifest';
 import type { ExtensionProvider } from './types/extension-provider';
+
+type CombineExtensionProvidersOptions = {
+	resolveExtension?: (
+		type: ExtensionType,
+		key: ExtensionKey,
+	) => Promise<ExtensionManifest | undefined>;
+	resolvePreloadedExtension?: (
+		type: ExtensionType,
+		key: ExtensionKey,
+	) => ExtensionManifest | undefined;
+};
 
 /**
  * Allow to run methods from the `ExtensionProvider` interface across all providers seamlessly.
- * This handles promise racing and discards rejected promises safely.
+ * This handles optional explicit resolution, promise racing, and safely discarded rejections.
  */
 export default (
 	extensionProviders: (ExtensionProvider | Promise<ExtensionProvider>)[],
-): ExtensionProvider => {
+	{ resolveExtension, resolvePreloadedExtension }: CombineExtensionProvidersOptions = {},
+): ExtensionProvider & { preload: () => Promise<void> } => {
 	let providersCache = [] as ExtensionProvider[];
 	const { invokeSingle, invokeList } = combineProviders<ExtensionProvider>(extensionProviders);
 
@@ -28,6 +39,11 @@ export default (
 		},
 
 		getPreloadedExtension(type: ExtensionType, key: ExtensionKey) {
+			const resolvedExtension = resolvePreloadedExtension?.(type, key);
+			if (resolvedExtension) {
+				return resolvedExtension;
+			}
+
 			if (providersCache.length === 0) {
 				// preload() has not been called yet
 				return;
@@ -48,7 +64,12 @@ export default (
 			}
 		},
 
-		getExtension(type: ExtensionType, key: ExtensionKey) {
+		async getExtension(type: ExtensionType, key: ExtensionKey) {
+			const resolvedExtension = await resolveExtension?.(type, key);
+			if (resolvedExtension) {
+				return resolvedExtension;
+			}
+
 			return invokeSingle('getExtension', [type, key]);
 		},
 

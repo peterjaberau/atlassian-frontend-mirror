@@ -1,11 +1,14 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import Button from '@atlaskit/button/button';
 import EditorFilePreviewIcon from '@atlaskit/icon/core/grow-diagonal';
-import Button from '@atlaskit/button';
-import { messages } from '@atlaskit/media-ui';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import { messages } from '@atlaskit/media-ui/messages';
+
 import { ANALYTICS_MEDIA_CHANNEL } from '../util';
 
 interface Props {
@@ -41,4 +44,7 @@ const MediaPreviewButton = (props: Props & WrappedComponentProps) => {
 	);
 };
 
-export default injectIntl(MediaPreviewButton);
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(MediaPreviewButton);
+export default _default_1;

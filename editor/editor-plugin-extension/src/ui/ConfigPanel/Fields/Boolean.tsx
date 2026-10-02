@@ -4,12 +4,12 @@
  */
 import React, { Fragment } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
-import { Checkbox as AKCheckbox } from '@atlaskit/checkbox';
+import { Checkbox as AKCheckbox } from '@atlaskit/checkbox/checkbox';
 import type { BooleanField } from '@atlaskit/editor-common/extensions';
-import { Field } from '@atlaskit/form';
+import Field from '@atlaskit/form/field';
 import { Text } from '@atlaskit/primitives/compiled';
 import AKToggle from '@atlaskit/toggle';
 import { token } from '@atlaskit/tokens';
@@ -24,10 +24,7 @@ const toggleFieldWrapperStyles = css({
 
 const toggleLabelStyles = css({
 	display: 'flex',
-	padding: `${token('space.050', '4px')} ${token('space.050', '4px')} ${token(
-		'space.050',
-		'4px',
-	)} ${token('space.0', '0px')}`,
+	padding: `${token('space.050')} ${token('space.050')} ${token('space.050')} ${token('space.0')}`,
 	flexGrow: 1,
 });
 
@@ -74,6 +71,7 @@ function Checkbox({
 		<Field<boolean | string>
 			name={name}
 			isRequired={isRequired}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value) => validate(value, isRequired)}
 			defaultValue={defaultValue}
 			isDisabled={isDisabled}
@@ -87,6 +85,7 @@ function Checkbox({
 							// eslint-disable-next-line react/jsx-props-no-spreading
 							{...restFieldProps}
 							label={label}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onChange={(event) => handleOnChange(fieldProps.onChange, onFieldChange, event)}
 							isChecked={parseBoolean(isChecked)}
 						/>
@@ -113,6 +112,7 @@ function Toggle({
 		<Field<boolean | string>
 			name={name}
 			isRequired={isRequired}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value) => validate(value, isRequired)}
 			defaultValue={defaultValue}
 			testId={`config-panel-toggle-${name}`}
@@ -136,6 +136,7 @@ function Toggle({
 								// Ignored via go/ees005
 								// eslint-disable-next-line react/jsx-props-no-spreading
 								{...restFieldProps}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onChange={(event) => handleOnChange(fieldProps.onChange, onFieldChange, event)}
 								isChecked={parseBoolean(isChecked)}
 								id={id}
@@ -157,7 +158,7 @@ export default function Boolean({
 	field: BooleanField;
 	name: string;
 	onFieldChange: OnFieldChange;
-}) {
+}): jsx.JSX.Element {
 	if (field.style === 'toggle') {
 		return <Toggle name={name} field={field} onFieldChange={onFieldChange} />;
 	}

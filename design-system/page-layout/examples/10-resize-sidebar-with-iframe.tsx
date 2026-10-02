@@ -7,6 +7,7 @@ import React, { Fragment, useCallback, useState } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import {
 	Banner,
 	Content,
@@ -20,7 +21,7 @@ import {
 	TopNavigation,
 } from '@atlaskit/page-layout';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import {
 	ExpandLeftSidebarKeyboardShortcut,
@@ -71,7 +72,7 @@ const initialState = {
 };
 
 const iframeLabelStyles = css({
-	padding: token('space.050', '0'),
+	padding: token('space.050'),
 	position: 'absolute',
 	background: token('color.background.inverse.subtle'),
 	color: token('color.text.inverse'),

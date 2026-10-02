@@ -1,10 +1,14 @@
 import assert from 'assert';
+
 import sinon from 'sinon';
+
 import { defaultSchema as schema } from '@atlaskit/adf-schema/schema-default';
 import {
+	nativeEmbedsFallbackTransform,
 	NodeNestingTransformError,
 	transformNestedTablesIncomingDocument,
 } from '@atlaskit/adf-utils/transforms';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 /**
  * TS 3.9+ defines non-configurable property for exports, that's why it's not possible to mock them like this anymore:
  *
@@ -15,27 +19,41 @@ import {
  *
  * This is a workaround: https://github.com/microsoft/TypeScript/issues/38568#issuecomment-628637477
  */
-jest.mock('@atlaskit/editor-common/validator', () => ({
+jest.mock('@atlaskit/editor-common/utils', () => ({
 	__esModule: true,
-	...jest.requireActual<Object>('@atlaskit/editor-common/validator'),
+	...jest.requireActual<object>('@atlaskit/editor-common/utils'),
 }));
 
 jest.mock('@atlaskit/adf-utils/transforms', () => ({
 	__esModule: true,
-	...jest.requireActual<Object>('@atlaskit/adf-utils/transforms'),
+	...jest.requireActual<object>('@atlaskit/adf-utils/transforms'),
+	nativeEmbedsFallbackTransform: jest.fn((adf) => ({
+		transformedAdf: adf,
+		hasValidTransform: false,
+	})),
 	transformNestedTablesIncomingDocument: jest.fn((adf) => ({
 		transformedAdf: adf,
 		isTransformed: true,
 	})),
 }));
 
-import * as common from '@atlaskit/editor-common/validator';
-import { type Serializer } from '../../serializer';
-import { renderDocument } from '../../render-document';
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
+	__esModule: true,
+	fg: jest.fn(() => false),
+}));
+
+jest.mock('@atlaskit/tmp-editor-statsig/exp-val-equals', () => ({
+	expValEquals: jest.fn(() => false),
+}));
 
 import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import * as commonUtils from '@atlaskit/editor-common/utils';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { PLATFORM } from '../../analytics/events';
+import { renderDocument } from '../../render-document';
+import type { Serializer } from '../../serializer';
 import doc from '../__fixtures__/basic-document.adf.json';
 import dateDoc from '../__fixtures__/date.adf.json';
 import headingsDoc from '../__fixtures__/headings-adf.json';
@@ -49,19 +67,15 @@ class MockSerializer implements Serializer<string> {
 describe('Renderer', () => {
 	describe('renderDocument', () => {
 		const serializer = new MockSerializer();
-		let getValidDocumentSpy: sinon.SinonSpy;
 
-		beforeEach(() => {
-			getValidDocumentSpy = sinon.spy(common, 'getValidDocument');
-		});
-
-		afterEach(() => {
-			getValidDocumentSpy.restore();
-		});
-
-		it('should call getValidDocument', () => {
-			renderDocument(doc, serializer, schema);
-			expect(getValidDocumentSpy.calledWith(doc)).toEqual(true);
+		it('should use the spec-based validator', () => {
+			const validateADFEntitySpy = sinon.spy(commonUtils, 'validateADFEntity');
+			try {
+				renderDocument(doc, serializer, schema);
+				expect(validateADFEntitySpy.calledOnce).toBe(true);
+			} finally {
+				validateADFEntitySpy.restore();
+			}
 		});
 
 		it('should only call schema.nodeFromJSON when needed', () => {
@@ -105,33 +119,8 @@ describe('Renderer', () => {
 			expect(res.result).toBe('dummy');
 		});
 
-		it('should return null if document is invalid', () => {
-			const unexpectedContent = [
-				true,
-				false,
-				new Date(),
-				'',
-				1,
-				[],
-				{},
-				{
-					content: [{}],
-				},
-			];
-
-			unexpectedContent.forEach((content) => {
-				expect(renderDocument(content, serializer).result).toEqual(null);
-			});
-		});
-
-		it('should not call getValidDocument when useSpecBasedValidator is TRUE', () => {
-			renderDocument(doc, serializer, schema, 'final', true);
-			expect(getValidDocumentSpy.called).toEqual(false);
-		});
-
-		it('should return stat when useSpecBasedValidator is TRUE', () => {
-			const result = renderDocument(doc, serializer, schema, 'final', true);
-			expect(getValidDocumentSpy.called).toEqual(false);
+		it('should return stat with spec-based validation', () => {
+			const result = renderDocument(doc, serializer, schema, 'final');
 			expect(result.stat.sanitizeTime).toBeGreaterThan(0);
 			expect(result.stat.buildTreeTime).toBeDefined();
 			expect(result.stat.buildTreeTime).toBeGreaterThan(0);
@@ -139,17 +128,77 @@ describe('Renderer', () => {
 			expect(result.stat.serializeTime).toBeGreaterThan(0);
 		});
 
-		it('should return stat when useSpecBasedValidator is false', () => {
-			const result = renderDocument(doc, serializer, schema, 'final', false);
-			expect(result.stat.sanitizeTime).toBeGreaterThan(0);
-			expect(result.stat.buildTreeTime).toBeDefined();
-			expect(result.stat.buildTreeTime).toBeGreaterThan(0);
-			expect(result.stat.serializeTime).toBeDefined();
-			expect(result.stat.serializeTime).toBeGreaterThan(0);
+		it.each(['final', 'stage0'] as const)(
+			'should tell validateADFEntity the document is %s with spec-based validation',
+			(adfStage) => {
+				const validateADFEntitySpy = sinon.spy(commonUtils, 'validateADFEntity');
+				// A document unique to this case, otherwise `memoValidation`, which compares documents by
+				// content rather than by identity, returns a memoized result and never reaches the validator.
+				const docForStage = {
+					version: 1,
+					type: 'doc',
+					content: [
+						{ type: 'paragraph', content: [{ type: 'text', text: `adfStage ${adfStage}` }] },
+					],
+				};
+				try {
+					renderDocument(docForStage, serializer, schema, adfStage);
+
+					expect(validateADFEntitySpy.callCount).toEqual(1);
+					expect(validateADFEntitySpy.lastCall.args[4]).toEqual(adfStage);
+				} finally {
+					validateADFEntitySpy.restore();
+				}
+			},
+		);
+
+		// A caller with no stage to declare must not be validated against full ADF, so the stage reaches
+		// `validateADFEntity` as `undefined` rather than as this function's own default.
+		it('should leave the stage undefined for validateADFEntity when the caller omits it', () => {
+			const validateADFEntitySpy = sinon.spy(commonUtils, 'validateADFEntity');
+			const docWithoutStage = {
+				version: 1,
+				type: 'doc',
+				content: [{ type: 'paragraph', content: [{ type: 'text', text: 'no adfStage supplied' }] }],
+			};
+			try {
+				renderDocument(docWithoutStage, serializer, schema);
+
+				expect(validateADFEntitySpy.callCount).toEqual(1);
+				expect(validateADFEntitySpy.lastCall.args[4]).toBeUndefined();
+			} finally {
+				validateADFEntitySpy.restore();
+			}
 		});
 
-		it(`should return prosemirror doc with empty paragraph when useSpecBasedValidator is true
-         and supplied a doc without content`, () => {
+		// A `layoutSection` with one column is a stage-0-only construct. Rendering it without declaring
+		// a stage keeps the column, rather than wrapping it as unsupported content.
+		it('should keep a single-column layoutSection when the caller declares no stage', () => {
+			const singleColumnLayout = {
+				version: 1,
+				type: 'doc',
+				content: [
+					{
+						type: 'layoutSection',
+						content: [
+							{
+								type: 'layoutColumn',
+								attrs: { width: 50 },
+								content: [
+									{ type: 'paragraph', content: [{ type: 'text', text: 'single column' }] },
+								],
+							},
+						],
+					},
+				],
+			};
+
+			const result = renderDocument(singleColumnLayout, serializer, schema);
+
+			expect(JSON.stringify(result.result)).not.toContain('unsupportedBlock');
+		});
+
+		it(`should return prosemirror doc with empty paragraph when supplied a doc without content`, () => {
 			const initialDoc = {
 				type: 'doc',
 				content: [],
@@ -165,7 +214,7 @@ describe('Renderer', () => {
 					},
 				],
 			};
-			const result = renderDocument(initialDoc, serializer, schema, 'final', true);
+			const result = renderDocument(initialDoc, serializer, schema, 'final');
 			expect(result.pmDoc).toBeDefined();
 			expect(result.pmDoc!.toJSON()).toEqual(expectedDoc);
 		});
@@ -204,7 +253,7 @@ describe('Renderer', () => {
 
 			it('should not throw an ProseMirror error validation', () => {
 				expect(() => {
-					renderDocument(initialDoc, serializer, schema, 'final', true);
+					renderDocument(initialDoc, serializer, schema, 'final');
 				}).not.toThrow();
 			});
 		});
@@ -244,7 +293,7 @@ describe('Renderer', () => {
 
 			it('should not throw an error', () => {
 				expect(() => {
-					renderDocument(getInvalidDoc('no throw'), serializer, schema, 'final', true);
+					renderDocument(getInvalidDoc('no throw'), serializer, schema, 'final');
 				}).not.toThrow();
 			});
 
@@ -256,11 +305,10 @@ describe('Renderer', () => {
 						serializer,
 						schema,
 						'final',
-						true,
 						undefined,
 						dispatchAnalyticsEvent,
 					);
-				} catch (e) {}
+				} catch {}
 
 				expect(dispatchAnalyticsEvent).toHaveBeenCalledWith(
 					expect.objectContaining({
@@ -303,7 +351,6 @@ describe('Renderer', () => {
 					serializer,
 					schema,
 					undefined,
-					true,
 					undefined,
 					mockDispatchAnalyticsEvent,
 				);
@@ -347,7 +394,6 @@ describe('Renderer', () => {
 					serializer,
 					schema,
 					undefined,
-					true,
 					undefined,
 					mockDispatchAnalyticsEvent,
 				);
@@ -383,12 +429,154 @@ describe('Renderer', () => {
 					serializer,
 					schema,
 					undefined,
-					true,
 					undefined,
 					mockDispatchAnalyticsEvent,
 				);
 
 				expect(transformNestedTablesIncomingDocument).toHaveBeenCalledWith(document);
+			});
+		});
+
+		describe('native embeds fallback feature gate', () => {
+			const gateOffDocument = {
+				type: 'doc',
+				version: 1,
+				content: [
+					{
+						attrs: {
+							localId: null,
+						},
+						type: 'paragraph',
+						content: [{ type: 'text', text: 'native embeds gate test' }],
+					},
+				],
+			};
+
+			const nativeEmbedsEnabledDocument = {
+				type: 'doc',
+				version: 1,
+				content: [
+					{
+						attrs: {
+							localId: null,
+						},
+						type: 'paragraph',
+						content: [{ type: 'text', text: 'native embeds enabled test' }],
+					},
+				],
+			};
+
+			const gateOnDocument = {
+				type: 'doc',
+				version: 1,
+				content: [
+					{
+						attrs: {
+							localId: null,
+						},
+						type: 'paragraph',
+						content: [{ type: 'text', text: 'native embeds gate test on' }],
+					},
+				],
+			};
+
+			const mockDispatchAnalyticsEvent = jest.fn();
+
+			beforeEach(() => {
+				jest.clearAllMocks();
+				(fg as jest.Mock).mockImplementation(() => false);
+				(expValEquals as jest.Mock).mockImplementation(() => false);
+				(
+					nativeEmbedsFallbackTransform as jest.MockedFunction<typeof nativeEmbedsFallbackTransform>
+				).mockImplementation((adf) => ({
+					transformedAdf: adf,
+					hasValidTransform: false,
+				}));
+			});
+
+			it('should not run nativeEmbedsFallbackTransform when gate is off', () => {
+				renderDocument(
+					gateOffDocument,
+					serializer,
+					schema,
+					undefined,
+					undefined,
+					mockDispatchAnalyticsEvent,
+				);
+
+				expect(nativeEmbedsFallbackTransform).not.toHaveBeenCalled();
+			});
+
+			it('should not run nativeEmbedsFallbackTransform when native embeds are enabled via cc-maui-experiment', () => {
+				(fg as jest.Mock).mockImplementation(
+					(flagName: string) => flagName === 'platform_editor_native_embeds_fallback_transform',
+				);
+				(expValEquals as jest.Mock).mockImplementation(
+					(experimentName: string, param: string, expectedValue: boolean) =>
+						experimentName === 'cc-maui-experiment' &&
+						param === 'isEnabled' &&
+						expectedValue === true,
+				);
+
+				renderDocument(
+					nativeEmbedsEnabledDocument,
+					serializer,
+					schema,
+					undefined,
+					undefined,
+					mockDispatchAnalyticsEvent,
+				);
+
+				expect(nativeEmbedsFallbackTransform).not.toHaveBeenCalled();
+			});
+
+			it('should not run nativeEmbedsFallbackTransform when native embeds are enabled via platform_native_embeds_rollout_non_maui_experience', () => {
+				(fg as jest.Mock).mockImplementation(
+					(flagName: string) =>
+						flagName === 'platform_editor_native_embeds_fallback_transform' ||
+						flagName === 'platform_native_embeds_rollout_non_maui_experience',
+				);
+				(expValEquals as jest.Mock).mockImplementation(() => false);
+
+				renderDocument(
+					nativeEmbedsEnabledDocument,
+					serializer,
+					schema,
+					undefined,
+					undefined,
+					mockDispatchAnalyticsEvent,
+				);
+
+				expect(nativeEmbedsFallbackTransform).not.toHaveBeenCalled();
+			});
+
+			it('should run nativeEmbedsFallbackTransform and fire analytics when gate is on and native embeds are not enabled', () => {
+				(fg as jest.Mock).mockImplementation(
+					(flagName: string) => flagName === 'platform_editor_native_embeds_fallback_transform',
+				);
+				(expValEquals as jest.Mock).mockImplementation(() => false);
+				(
+					nativeEmbedsFallbackTransform as jest.MockedFunction<typeof nativeEmbedsFallbackTransform>
+				).mockImplementation((adf) => ({
+					transformedAdf: adf,
+					hasValidTransform: true,
+				}));
+
+				renderDocument(
+					gateOnDocument,
+					serializer,
+					schema,
+					undefined,
+					undefined,
+					mockDispatchAnalyticsEvent,
+				);
+
+				expect(nativeEmbedsFallbackTransform).toHaveBeenCalledWith(gateOnDocument, schema);
+				expect(mockDispatchAnalyticsEvent).toHaveBeenCalledWith({
+					action: ACTION.NATIVE_EMBEDS_TRANSFORMED,
+					actionSubject: ACTION_SUBJECT.RENDERER,
+					eventType: EVENT_TYPE.OPERATIONAL,
+				});
 			});
 		});
 	});

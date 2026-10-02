@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import { useSmartCardActions as useLinkActions } from '../actions';
 
@@ -18,7 +18,7 @@ export interface UseSmartLinkReloadOpts {
  * @param
  * @returns
  */
-export function useSmartLinkReload({ url }: UseSmartLinkReloadOpts) {
+export function useSmartLinkReload({ url }: UseSmartLinkReloadOpts): () => void {
 	// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 	const id: string = useMemo(() => uuid(), []);
 	const linkActions = useLinkActions(id, url);

@@ -1,5 +1,4 @@
 /**
- * @jsxFrag
  * @jsxRuntime classic
  * @jsx jsx
  */
@@ -11,6 +10,9 @@ import invariant from 'tiny-invariant';
 import { ButtonMenuItem } from '@atlaskit/side-nav-items/button-menu-item';
 import { useMenuItemDragAndDrop } from '@atlaskit/side-nav-items/drag-and-drop/use-menu-item-drag-and-drop';
 import {
+	FlyoutBody,
+	FlyoutFooter,
+	FlyoutHeader,
 	FlyoutMenuItem,
 	FlyoutMenuItemContent,
 	FlyoutMenuItemTrigger,
@@ -38,7 +40,7 @@ export function SharedTopLevelFlyout({
 	label: string;
 	testId?: string;
 	value: TTopLevelItem;
-}) {
+}): JSX.Element {
 	const { state, draggableButtonRef, dragPreview, dropTargetRef, dropIndicator } =
 		useMenuItemDragAndDrop({
 			draggable: {
@@ -75,7 +77,7 @@ export function SharedTopLevelFlyout({
 	}, [draggableButtonRef, registry, value]);
 
 	return (
-		<>
+		<React.Fragment>
 			<FlyoutMenuItem isOpen={isOpen}>
 				<FlyoutMenuItemTrigger
 					elemBefore={icon}
@@ -90,57 +92,63 @@ export function SharedTopLevelFlyout({
 					{label}
 				</FlyoutMenuItemTrigger>
 				<FlyoutMenuItemContent onClose={() => setIsOpen(false)}>
-					<MenuList>
-						<ReorderActionMenu
-							label="Reorder menu item"
-							TriggerComponent={ButtonMenuItem}
-							index={index}
-							listSize={amountOfMenuItems}
-							onMoveToTop={() => {
-								dispatch({
-									type: 'top-level-menu-reorder',
-									trigger: 'keyboard',
-									value: value,
-									startIndex: index,
-									finishIndex: 0,
-								});
-								setIsOpen(false);
-							}}
-							onMoveUp={() => {
-								dispatch({
-									type: 'top-level-menu-reorder',
-									trigger: 'keyboard',
-									value: value,
-									startIndex: index,
-									finishIndex: index - 1,
-								});
-								setIsOpen(false);
-							}}
-							onMoveDown={() => {
-								dispatch({
-									type: 'top-level-menu-reorder',
-									trigger: 'keyboard',
-									value: value,
-									startIndex: index,
-									finishIndex: index + 1,
-								});
-								setIsOpen(false);
-							}}
-							onMoveToBottom={() => {
-								dispatch({
-									type: 'top-level-menu-reorder',
-									trigger: 'keyboard',
-									value: value,
-									startIndex: index,
-									finishIndex: amountOfMenuItems - 1,
-								});
-								setIsOpen(false);
-							}}
-						/>
-					</MenuList>
+					<FlyoutHeader title={label} closeButtonLabel="Close menu" />
+					<FlyoutBody>
+						<ButtonMenuItem elemBefore={icon}>{label}</ButtonMenuItem>
+					</FlyoutBody>
+					<FlyoutFooter>
+						<MenuList>
+							<ReorderActionMenu
+								label="Reorder menu item"
+								TriggerComponent={ButtonMenuItem}
+								index={index}
+								listSize={amountOfMenuItems}
+								onMoveToTop={() => {
+									dispatch({
+										type: 'top-level-menu-reorder',
+										trigger: 'keyboard',
+										value: value,
+										startIndex: index,
+										finishIndex: 0,
+									});
+									setIsOpen(false);
+								}}
+								onMoveUp={() => {
+									dispatch({
+										type: 'top-level-menu-reorder',
+										trigger: 'keyboard',
+										value: value,
+										startIndex: index,
+										finishIndex: index - 1,
+									});
+									setIsOpen(false);
+								}}
+								onMoveDown={() => {
+									dispatch({
+										type: 'top-level-menu-reorder',
+										trigger: 'keyboard',
+										value: value,
+										startIndex: index,
+										finishIndex: index + 1,
+									});
+									setIsOpen(false);
+								}}
+								onMoveToBottom={() => {
+									dispatch({
+										type: 'top-level-menu-reorder',
+										trigger: 'keyboard',
+										value: value,
+										startIndex: index,
+										finishIndex: amountOfMenuItems - 1,
+									});
+									setIsOpen(false);
+								}}
+							/>
+						</MenuList>
+					</FlyoutFooter>
 				</FlyoutMenuItemContent>
 			</FlyoutMenuItem>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }

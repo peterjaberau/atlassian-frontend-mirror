@@ -1,8 +1,16 @@
+import { Search } from 'js-search';
 import pWaitFor from 'p-wait-for';
-import EmojiRepository, { getEmojiVariation } from '../../../api/EmojiRepository';
-import { customCategory, customType } from '../../../util/constants';
-import { containsEmojiId, toEmojiId } from '../../../util/type-helpers';
+
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { setupEditorExperiments } from '@atlaskit/tmp-editor-statsig/setup';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
+
+import EmojiRepository from '../../../api/EmojiRepository';
+import { getEmojiVariation } from '../../../api/getEmojiVariation';
 import { type EmojiDescription, SearchSort } from '../../../types';
+import { customCategory, customType, frequentCategory } from '../../../util/constants';
+import { containsEmojiId } from '../../../util/contains-emoji-id';
+import { toEmojiId } from '../../../util/to-emoji-id';
 import {
 	emojis as allEmojis,
 	newEmojiRepository,
@@ -76,6 +84,7 @@ const atlassianTest: EmojiDescription = {
 	shortName: ':test:',
 	type: 'ATLASSIAN',
 	category: 'SYMBOL',
+	keywords: ['explosion'],
 	representation: {
 		sprite: {
 			url: 'https://pf-emoji-service--cdn.ap-southeast-2.dev.public.atl-paas.net/standard/6ba7377a-fbd4-4efe-8dbc-f025cfb40c2b/32x32/people.png',
@@ -142,6 +151,8 @@ const allNumberTest: EmojiDescription = {
 	searchable: true,
 };
 
+const teamojiRefreshExperimentName = 'platform_teamoji_26_refresh_emoji_picker';
+
 const frequentTest: EmojiDescription = {
 	id: '1f43c',
 	name: 'panda face',
@@ -166,7 +177,23 @@ const frequentTest: EmojiDescription = {
 	searchable: true,
 };
 
-export const siteEmojiChinese1 = {
+export const siteEmojiChinese1: {
+	category: string;
+	creatorUserId: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+} = {
 	id: 'chinese1',
 	name: '我想你',
 	fallback: ':chinese1:',
@@ -185,7 +212,23 @@ export const siteEmojiChinese1 = {
 	skinVariations: [],
 };
 
-export const siteEmojiChinese2 = {
+export const siteEmojiChinese2: {
+	category: string;
+	creatorUserId: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+} = {
 	id: 'chinese2',
 	name: '象形字',
 	fallback: ':chinese2:',
@@ -204,7 +247,23 @@ export const siteEmojiChinese2 = {
 	skinVariations: [],
 };
 
-export const siteEmojiChinese3 = {
+export const siteEmojiChinese3: {
+	category: string;
+	creatorUserId: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+} = {
 	id: 'chinese3',
 	name: '我字',
 	fallback: ':chinese3:',
@@ -223,7 +282,23 @@ export const siteEmojiChinese3 = {
 	skinVariations: [],
 };
 
-export const siteEmojiGreek1 = {
+export const siteEmojiGreek1: {
+	category: string;
+	creatorUserId: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+} = {
 	id: 'greek1',
 	name: 'ΦΏϖϘώ',
 	fallback: ':greek1:',
@@ -242,7 +317,23 @@ export const siteEmojiGreek1 = {
 	skinVariations: [],
 };
 
-export const siteEmojiGreek2 = {
+export const siteEmojiGreek2: {
+	category: string;
+	creatorUserId: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+} = {
 	id: 'greek2',
 	name: 'ϪϮϼϠ',
 	fallback: ':greek2:',
@@ -261,7 +352,23 @@ export const siteEmojiGreek2 = {
 	skinVariations: [],
 };
 
-export const siteEmojiGreek3 = {
+export const siteEmojiGreek3: {
+	category: string;
+	creatorUserId: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+} = {
 	id: 'greek3',
 	name: 'ϪϮϘώ',
 	fallback: ':greek3:',
@@ -282,11 +389,25 @@ export const siteEmojiGreek3 = {
 
 describe('EmojiRepository', () => {
 	let emojiRepository: EmojiRepository;
+	let checkGateSpy: jest.SpiedFunction<typeof FeatureGates.checkGate>;
+	let initializeCompletedSpy: jest.SpiedFunction<typeof FeatureGates.initializeCompleted>;
 
 	beforeEach(() => {
+		setupEditorExperiments('confluence');
+		initializeCompletedSpy = jest.spyOn(FeatureGates, 'initializeCompleted').mockReturnValue(true);
+		checkGateSpy = jest.spyOn(FeatureGates, 'checkGate').mockReturnValue(false);
 		// emojiRepository has state that can influence search results so make it fresh for each test.
 		emojiRepository = newEmojiRepository();
 	});
+
+	afterEach(() => {
+		checkGateSpy.mockRestore();
+		initializeCompletedSpy.mockRestore();
+	});
+
+	const enableTeamojiRefreshExperiment = () => {
+		mockExpEnabled(teamojiRefreshExperimentName);
+	};
 
 	describe('Search with non standard characters', () => {
 		it('one match expected when searching emoji with chinese characters', () => {
@@ -503,6 +624,21 @@ describe('EmojiRepository', () => {
 			expect(emojis[0].name).toEqual('BOOM');
 		});
 
+		it('finds Atlassian emojis by keyword when teamoji experiment is enabled', () => {
+			enableTeamojiRefreshExperiment();
+			const repository = new EmojiRepository([...searchableEmojis, atlassianTest]);
+			const emojis = repository.search('explosion').emojis;
+
+			expect(emojis).toContain(atlassianTest);
+		});
+
+		it('does not find Atlassian emojis by keyword when teamoji experiment is disabled', () => {
+			const repository = new EmojiRepository([...searchableEmojis, atlassianTest]);
+			const emojis = repository.search('explosion').emojis;
+
+			expect(emojis).not.toContain(atlassianTest);
+		});
+
 		it('should not find a non-searchable emoji', () => {
 			// ensure :police_officer: is present
 			const policeEmoji = emojiRepository.findByShortName(':police_officer:');
@@ -510,6 +646,42 @@ describe('EmojiRepository', () => {
 
 			const emojis = emojiRepository.search(':police_officer:').emojis;
 			expect(emojis.length).toEqual(0);
+		});
+	});
+
+	describe('search index', () => {
+		let addDocumentsSpy: jest.SpiedFunction<typeof Search.prototype.addDocuments>;
+
+		beforeEach(() => {
+			addDocumentsSpy = jest.spyOn(Search.prototype, 'addDocuments');
+		});
+
+		afterEach(() => {
+			addDocumentsSpy.mockRestore();
+		});
+
+		it('is not built until a text search is performed', () => {
+			const repository = new EmojiRepository(searchableEmojis);
+
+			expect(addDocumentsSpy).not.toHaveBeenCalled();
+
+			// searches without a name query are served from the emoji list, not the index
+			repository.all();
+
+			expect(addDocumentsSpy).not.toHaveBeenCalled();
+
+			repository.search(':smiley');
+
+			expect(addDocumentsSpy).toHaveBeenCalled();
+		});
+
+		it('is only built once for repeated text searches', () => {
+			const repository = new EmojiRepository(searchableEmojis);
+
+			repository.search(':smiley');
+			repository.search(':grin');
+
+			expect(addDocumentsSpy).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -584,6 +756,34 @@ describe('EmojiRepository', () => {
 		});
 	});
 
+	describe('#findByShortName', () => {
+		it('returns the last matching emoji by default', () => {
+			const repository = new EmojiRepository([siteTest, atlassianTest]);
+			expect(repository.findByShortName(':test:')).toEqual(atlassianTest);
+		});
+
+		it('uses the first matching emoji type in the provided lookup order', () => {
+			const standardDuplicate = {
+				...standardTest,
+				id: 'standard-test',
+				shortName: ':test:',
+			};
+			const repository = new EmojiRepository([standardDuplicate, siteTest, atlassianTest]);
+
+			expect(repository.findByShortName(':test:', ['STANDARD', 'ATLASSIAN'])).toEqual(
+				standardDuplicate,
+			);
+			expect(repository.findByShortName(':test:', ['ATLASSIAN', 'STANDARD'])).toEqual(
+				atlassianTest,
+			);
+		});
+
+		it('falls back to the default lookup order if no preferred emoji type matches', () => {
+			const repository = new EmojiRepository([siteTest, atlassianTest]);
+			expect(repository.findByShortName(':test:', ['STANDARD'])).toEqual(atlassianTest);
+		});
+	});
+
 	describe('#delete', () => {
 		let copyEmojis: EmojiDescription[];
 		beforeEach(() => {
@@ -643,6 +843,78 @@ describe('EmojiRepository', () => {
 			const allCategoryEmojis = [...allEmojis, frequentTest];
 			const repository = new EmojiRepository(allCategoryEmojis);
 			expect(repository.getDynamicCategoryList()).toEqual(['ATLASSIAN', 'CUSTOM', 'FREQUENT']);
+		});
+
+		it('groups atlassian subcategory values under ATLASSIAN when teamoji experiment is disabled', () => {
+			const atlassianProductivity: EmojiDescription = {
+				...atlassianTest,
+				id: 'atlassian-productivity',
+				category: 'PRODUCTIVITY',
+			};
+			const frequentAtlassian: EmojiDescription = {
+				...atlassianTest,
+				id: 'frequent-atlassian',
+				category: frequentCategory,
+			};
+			const repository = new EmojiRepository([atlassianProductivity, frequentAtlassian]);
+
+			expect(repository.getDynamicCategoryList()).toEqual(['ATLASSIAN', 'FREQUENT']);
+		});
+
+		it('groups atlassian subcategory values under ATLASSIAN but preserves FREQUENT when teamoji experiment is enabled', () => {
+			enableTeamojiRefreshExperiment();
+			const atlassianFaces: EmojiDescription = {
+				...atlassianTest,
+				id: 'atlassian-faces',
+				category: 'FACES',
+			};
+			const frequentAtlassian: EmojiDescription = {
+				...atlassianTest,
+				id: 'frequent-atlassian',
+				category: frequentCategory,
+			};
+			const repository = new EmojiRepository([atlassianFaces, frequentAtlassian]);
+
+			expect(repository.getDynamicCategoryList()).toEqual(['ATLASSIAN', 'FREQUENT']);
+		});
+
+		it('finds new-format atlassian emojis by top-level ATLASSIAN category when teamoji experiment is disabled', () => {
+			const atlassianProductivity: EmojiDescription = {
+				...atlassianTest,
+				id: 'atlassian-productivity',
+				category: 'PRODUCTIVITY',
+			};
+			const atlassianLogos: EmojiDescription = {
+				...atlassianTest,
+				id: 'atlassian-logos',
+				category: 'LOGOS',
+			};
+			const repository = new EmojiRepository([atlassianProductivity, atlassianLogos, standardTest]);
+
+			expect(repository.findInCategory('ATLASSIAN').map((emoji) => emoji.id)).toEqual([
+				atlassianProductivity.id,
+				atlassianLogos.id,
+			]);
+		});
+
+		it('finds atlassian subcategory emojis by top-level ATLASSIAN category when teamoji experiment is enabled', () => {
+			enableTeamojiRefreshExperiment();
+			const atlassianFaces: EmojiDescription = {
+				...atlassianTest,
+				id: 'atlassian-faces',
+				category: 'FACES',
+			};
+			const atlassianHands: EmojiDescription = {
+				...atlassianTest,
+				id: 'atlassian-hands',
+				category: 'HANDS',
+			};
+			const repository = new EmojiRepository([atlassianFaces, atlassianHands, standardTest]);
+
+			expect(repository.findInCategory('ATLASSIAN').map((emoji) => emoji.id)).toEqual([
+				atlassianFaces.id,
+				atlassianHands.id,
+			]);
 		});
 
 		it('should return FREQUENT as a category if there is emoji use tracked', (done) => {

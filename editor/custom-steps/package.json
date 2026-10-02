@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/custom-steps",
-	"version": "0.16.5",
+	"version": "1.1.1",
 	"description": "Editor Custom Steps",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
@@ -27,7 +19,11 @@
 		"singleton": true
 	},
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./add-column": "./src/entry-points/add-column.ts",
+		"./constants": "./src/entry-points/constants.ts",
+		"./sort-column": "./src/entry-points/sort-column.ts",
+		"./types": "./src/entry-points/types.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
@@ -36,17 +32,9 @@
 		"@babel/runtime": "root:*",
 		"memoize-one": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"circular-dependencies": [
-				"file-level"
-			]
-		},
-		"@repo/internal": {
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion"
-			]
-		}
+	"devDependencies": {
+		"@atlaskit/editor-common": "workspace:^",
+		"@atlaskit/editor-test-helpers": "workspace:^",
+		"@atlaskit/prosemirror-history": "workspace:^"
 	}
 }

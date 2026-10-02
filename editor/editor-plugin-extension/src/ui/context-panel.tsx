@@ -15,7 +15,6 @@ import { clearEditingContext, forceAutoSave, updateState } from '../editor-comma
 import type { ExtensionPlugin, ExtensionState } from '../extensionPluginType';
 import { getPluginState } from '../pm-plugins/plugin-factory';
 import { getSelectedExtension } from '../pm-plugins/utils';
-
 import ConfigPanelLoader from './ConfigPanel/ConfigPanelLoader';
 import { SaveIndicator } from './SaveIndicator/SaveIndicator';
 
@@ -66,7 +65,7 @@ export const duplicateSelection = (
 export const getContextPanel =
 	(getEditorView?: () => EditorView | undefined) =>
 	(api: ExtractInjectionAPI<ExtensionPlugin> | undefined, featureFlags?: FeatureFlags) =>
-	(state: EditorState) => {
+	(state: EditorState): React.JSX.Element | undefined => {
 		const nodeWithPos = getSelectedExtension(state, true);
 		const applyChange = api?.contextPanel?.actions.applyChange;
 
@@ -114,6 +113,7 @@ export const getContextPanel =
 								extensionProvider={extensionProvider}
 								autoSaveTrigger={autoSaveResolve}
 								autoSaveReject={autoSaveReject}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onChange={async (updatedParameters) => {
 									await onChangeAction(
 										editorView,
@@ -128,6 +128,7 @@ export const getContextPanel =
 										autoSaveResolve();
 									}
 								}}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onCancel={async () => {
 									try {
 										await new Promise<void>((resolve, reject) => {
@@ -161,8 +162,8 @@ interface Parameters {
 
 export async function onChangeAction(
 	editorView: EditorView,
-	updatedParameters: Parameters = {},
-	oldParameters: Parameters = {},
+	updatedParameters: Parameters | undefined = {},
+	oldParameters: Parameters | undefined = {},
 	nodeWithPos: ContentNodeWithPos,
 	onSaving?: () => void,
 ): Promise<void> {

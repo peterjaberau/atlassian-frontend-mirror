@@ -22,7 +22,7 @@ interface FormFooterProps {
 const formFooterWrapperStyles = css({
 	display: 'flex',
 	justifyContent: 'flex-end',
-	marginBlockStart: token('space.300', '24px'),
+	marginBlockStart: token('space.300'),
 });
 
 const justifyContentStyles = css({
@@ -38,7 +38,7 @@ const justifyContentStyles = css({
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/form/docs/layout)
  * - [Usage](https://atlaskit.atlassian.com/packages/design-system/form/docs/layout)
  */
-export default function FormFooter({ align = 'end', children }: FormFooterProps): JSX.Element {
+export function FormFooter({ align = 'end', children }: FormFooterProps): JSX.Element {
 	return (
 		<footer css={[formFooterWrapperStyles, align === 'start' && justifyContentStyles]}>
 			{children}

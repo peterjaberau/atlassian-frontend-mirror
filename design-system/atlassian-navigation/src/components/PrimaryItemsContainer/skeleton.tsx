@@ -10,17 +10,18 @@ import { css, jsx } from '@emotion/react';
 import { token } from '@atlaskit/tokens';
 
 import { PrimaryButtonSkeleton } from '../PrimaryButton/skeleton';
-
 import { type PrimaryItemsContainerSkeletonProps } from './types';
 
 const primaryButtonSkeletonStyles = css({
-	marginInlineEnd: token('space.150', '12px'),
-	marginInlineStart: token('space.150', '12px'),
+	marginInlineEnd: token('space.150'),
+	marginInlineStart: token('space.150'),
 });
 
 // Internal only
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
-export const PrimaryItemsContainerSkeleton: MemoExoticComponent<({ count }: PrimaryItemsContainerSkeletonProps) => React.JSX.Element> = memo(
+export const PrimaryItemsContainerSkeleton: MemoExoticComponent<
+	({ count }: PrimaryItemsContainerSkeletonProps) => React.JSX.Element
+> = memo(
 	({ count }: PrimaryItemsContainerSkeletonProps): React.JSX.Element => (
 		<Fragment>
 			{Array.from({ length: count }, (_, index) => (

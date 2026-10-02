@@ -1,10 +1,8 @@
 import { Search } from 'js-search';
 
-import {
-	type MentionDescription,
-	type MentionsResult,
-	AbstractMentionResource,
-} from '@atlaskit/mention/resource';
+import { AbstractMentionResource } from '@atlaskit/mention/abstract-mention-resource';
+import type { MentionDescription, MentionsResult } from '@atlaskit/mention/types';
+
 import debug from '../logger';
 import { mentionTestResult } from './mention-test-data';
 import { type MockMentionConfig } from './mock-mention-resource';

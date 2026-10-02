@@ -1,11 +1,12 @@
-import type { MediaADFAttrs, RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema';
-import { type InsertMediaVia } from '@atlaskit/editor-common/analytics';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
+import type { InsertMediaVia } from '@atlaskit/editor-common/analytics';
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { Identifier } from '@atlaskit/media-client';
-import type { MediaClientConfig } from '@atlaskit/media-core';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
 
 import type {
 	MediaOptions,
@@ -14,7 +15,6 @@ import type {
 	ProsemirrorGetPosHandler,
 } from '../types';
 import type { MediaPluginOptions } from '../types/media-plugin-options';
-
 import type PickerFacade from './picker-facade';
 
 export interface MediaNodeWithPosHandler {
@@ -29,11 +29,9 @@ export interface MediaPluginState {
 	allowInlineImages?: boolean;
 	allowsUploads: boolean;
 	allUploadsFinished: boolean;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	clone(): MediaPluginState;
+	clone: () => MediaPluginState;
 	currentMaxWidth?: number;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	destroy(): void;
+	destroy: () => void;
 	dispatch?: Dispatch;
 	editingMediaSinglePos?: number;
 	element?: HTMLElement;
@@ -68,45 +66,46 @@ export interface MediaPluginState {
 	options: MediaPluginOptions;
 	pickerPromises: Array<Promise<PickerFacade>>;
 	pickers: PickerFacade[];
+	// Set of media file IDs whose image preview has rendered (<img> onload fired).
+	// Populated by the notifyPreviewRender action.
+	previewRenderedMediaIds: Set<string>;
 	removeSelectedMediaContainer: () => boolean;
+	replaceMediaFileId: string | null;
+	replaceMediaTargetDisplayHeight: number | null;
 	resizingWidth: number;
 	selectedMediaContainerNode: () => PMNode | undefined;
 	setBrowseFn: (browseFn: () => void) => void;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	setIsResizing(isResizing: boolean): void;
+	setIsResizing: (isResizing: boolean) => void;
 	setMediaProvider: (mediaProvider?: Promise<MediaProvider>) => Promise<void>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	setResizingWidth(width: number): void;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	setView(view: EditorView): void;
+	setResizingWidth: (width: number) => void;
+	setView: (view: EditorView) => void;
 	showDropzone: boolean;
 	showEditingDialog?: boolean;
 	showMediaPicker: () => void;
+	showMediaPickerForReplace: () => void;
 
 	splitMediaGroup: () => boolean;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	subscribeToUploadInProgressState(fn: (isUploading: boolean) => void): void;
+	subscribeToUploadInProgressState: (fn: (isUploading: boolean) => void) => void;
 	trackOutOfScopeIdentifier: (identifier: Identifier) => void;
 
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	unsubscribeFromUploadInProgressState(fn: (isUploading: boolean) => void): void;
+	unsubscribeFromUploadInProgressState: (fn: (isUploading: boolean) => void) => void;
 
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	updateAndDispatch(
+	updateAndDispatch: (
 		props: Partial<
 			Pick<
 				this,
 				'allowsUploads' | 'allUploadsFinished' | 'isFullscreen' | 'videoControlsWrapperRef'
 			>
 		>,
-	): void;
+	) => void;
 
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	updateElement(): void;
+	updateElement: () => void;
 
 	updateMediaSingleNodeAttrs: (id: string, attrs: object) => undefined | boolean;
 
 	uploadMediaClientConfig?: MediaClientConfig;
+	/** Initial upload capability resolution; does not grant permission to upload. */
+	uploadStatus?: 'pending' | 'available' | 'unavailable';
 	videoControlsWrapperRef?: HTMLElement;
 	waitForMediaUpload: boolean;
 	waitForPendingTasks: (

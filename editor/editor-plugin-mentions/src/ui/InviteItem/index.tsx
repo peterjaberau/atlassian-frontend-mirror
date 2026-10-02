@@ -5,15 +5,13 @@
 import type { MouseEvent, SyntheticEvent } from 'react';
 import React, { useCallback, useEffect } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { FormattedMessage, injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
 
 import { css, jsx } from '@atlaskit/css';
 import { mentionMessages as messages } from '@atlaskit/editor-common/messages';
 import AddIcon from '@atlaskit/icon/core/add';
-import type { UserRole } from '@atlaskit/mention';
-import type { MentionDescription } from '@atlaskit/mention/resource';
-import { N30, N300 } from '@atlaskit/theme/colors';
+import type { UserRole, MentionDescription } from '@atlaskit/mention/types';
 import { token } from '@atlaskit/tokens';
 
 const mentionItemStyle = css({
@@ -25,7 +23,7 @@ const mentionItemStyle = css({
 });
 
 const mentionItemSelectedStyle = css({
-	backgroundColor: token('color.background.neutral.subtle.hovered', N30),
+	backgroundColor: token('color.background.neutral.subtle.hovered'),
 });
 
 const rowStyle = css({
@@ -34,8 +32,8 @@ const rowStyle = css({
 	flexDirection: 'row',
 	flexWrap: 'wrap',
 	overflow: 'hidden',
-	paddingTop: token('space.075', '6px'),
-	paddingBottom: token('space.075', '6px'),
+	paddingTop: token('space.075'),
+	paddingBottom: token('space.075'),
 	// @ts-expect-error - TODO should use token here, https://product-fabric.atlassian.net/browse/EDF-2517
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
 	paddingLeft: '14px',
@@ -63,7 +61,7 @@ const nameSectionStyle = css({
 	// @ts-expect-error - TODO should use token here, https://product-fabric.atlassian.net/browse/EDF-2517
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
 	marginLeft: '14px',
-	color: token('color.text.subtle', N300),
+	color: token('color.text.subtle'),
 });
 
 const capitalizedStyle = css({
@@ -105,8 +103,16 @@ const InviteItem = ({
 	const onSelected = useCallback(
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(event: React.MouseEvent<any>) => {
-			if (leftClick(event) && onSelection) {
+		(event: React.MouseEvent<any> | React.KeyboardEvent<any>) => {
+			if (onSelection) {
+				// For mouse events, only handle left click
+				if ('button' in event && !leftClick(event)) {
+					return;
+				}
+				// For keyboard events, only handle Enter and Space
+				if ('key' in event && event.key !== 'Enter' && event.key !== ' ') {
+					return;
+				}
 				event.preventDefault();
 				onSelection(INVITE_ITEM_DESCRIPTION, event);
 			}
@@ -125,6 +131,17 @@ const InviteItem = ({
 		[onMouseEnter],
 	);
 
+	const onItemFocus = useCallback(
+		// Ignored via go/ees005
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		(event: React.FocusEvent<any>) => {
+			if (onMouseEnter) {
+				onMouseEnter(INVITE_ITEM_DESCRIPTION, event);
+			}
+		},
+		[onMouseEnter],
+	);
+
 	useEffect(() => {
 		if (onMount) {
 			onMount();
@@ -132,13 +149,15 @@ const InviteItem = ({
 	}, [onMount]);
 
 	return (
-		// eslint-disable-next-line @atlassian/a11y/no-static-element-interactions
 		<div
+			role="button"
+			tabIndex={0}
 			// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 			css={[mentionItemStyle, selected && mentionItemSelectedStyle]}
 			onMouseDown={onSelected}
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
+			onKeyDown={onSelected}
 			onMouseEnter={onItemMouseEnter}
+			onFocus={onItemFocus}
 			data-id={INVITE_ITEM_DESCRIPTION.id}
 		>
 			{/* eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
@@ -147,7 +166,7 @@ const InviteItem = ({
 				<span css={avatarStyle}>
 					<AddIcon
 						label={intl.formatMessage(messages.mentionsAddLabel)}
-						color={token('color.icon.subtle', N300)}
+						color={token('color.icon.subtle')}
 					/>
 				</span>
 				{/* eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
@@ -156,6 +175,7 @@ const InviteItem = ({
 						// Ignored via go/ees005
 						// eslint-disable-next-line react/jsx-props-no-spreading
 						{...messages.inviteItemTitle}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						values={{
 							userRole: userRole || 'basic',
 							productName: (
@@ -172,4 +192,8 @@ const InviteItem = ({
 	);
 };
 
-export default injectIntl(InviteItem);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(InviteItem);
+export default _default_1;

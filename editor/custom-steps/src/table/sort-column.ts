@@ -1,6 +1,7 @@
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { Slice } from '@atlaskit/editor-prosemirror/model';
-import { ReplaceStep, Step, StepMap, StepResult } from '@atlaskit/editor-prosemirror/transform';
+import { ReplaceStep, StepMap, StepResult } from '@atlaskit/editor-prosemirror/transform';
+import { Step } from '@atlaskit/editor-prosemirror/transform-override';
 
 import type { TableColumnOrdering } from './types';
 
@@ -18,11 +19,11 @@ export class TableSortStep extends Step {
 		this.pos = pos;
 	}
 
-	invert() {
+	invert(): TableSortStep {
 		return new TableSortStep(this.pos, this.next, this.prev);
 	}
 
-	apply(doc: PMNode) {
+	apply(doc: PMNode): StepResult {
 		return StepResult.ok(doc);
 	}
 
@@ -30,17 +31,19 @@ export class TableSortStep extends Step {
 		return null;
 	}
 
-	getMap() {
+	getMap(): StepMap {
 		return new StepMap([0, 0, 0]);
 	}
 
-	toJSON() {
+	toJSON(): {
+		stepType: string;
+	} {
 		return {
 			stepType: tableSortingStepType,
 		};
 	}
 
-	static fromJSON() {
+	static fromJSON(): ReplaceStep {
 		return new ReplaceStep(0, 0, Slice.empty);
 	}
 }

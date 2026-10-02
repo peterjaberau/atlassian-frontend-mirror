@@ -1,8 +1,10 @@
 import React from 'react';
 
-import { type ActivityProvider } from '@atlaskit/activity-provider';
+import type { ActivityProvider } from '@atlaskit/activity-provider';
 
-import { type ProviderFactory, WithProviders } from '../../provider-factory';
+import { WithProviders } from '../../provider-factory';
+// oxlint-disable-next-line import/no-duplicates
+import type { ProviderFactory } from '../../provider-factory';
 // eslint-disable-next-line no-duplicate-imports
 import type { Providers } from '../../provider-factory';
 import type { Diff } from '../../utils';
@@ -17,12 +19,13 @@ export interface WithActivityProviderProps {
 
 export default function withActivityProvider<Props>(
 	WrappedComponent: React.ComponentType<React.PropsWithChildren<Props & WithActivityProviderProps>>,
-) {
+): React.ComponentClass<Diff<Props, WithActivityProviderProps> & ExpandedActivityProviderProps> {
 	return class WithActivityProvider extends React.Component<
 		Diff<Props, WithActivityProviderProps> & ExpandedActivityProviderProps
 	> {
 		renderNode = (providers: Providers) => {
-			const { providerFactory, ...props } = this.props as ExpandedActivityProviderProps;
+			const { providerFactory: _providerFactory, ...props } = this
+				.props as ExpandedActivityProviderProps;
 			const { activityProvider } = providers;
 
 			// Ignored via go/ees005
@@ -34,6 +37,8 @@ export default function withActivityProvider<Props>(
 			const { providerFactory } = this.props;
 			return (
 				<WithProviders
+					// Memoising this array causes the component fail tests in platform/packages/editor/editor-plugin-media-tests/src/__tests__/playwright/media-link.spec.ts because the WithProviders component doesn't update when the parent rerenders - this is a bug with the underlying WithProviders component
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					providers={['activityProvider']}
 					providerFactory={providerFactory}
 					renderNode={this.renderNode}

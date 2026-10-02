@@ -1,20 +1,28 @@
 import React, { type KeyboardEventHandler, PureComponent, type ReactNode } from 'react';
-
-import { type Placement } from '@popperjs/core';
-import { bind, type UnbindFn } from 'bind-event-listener';
 import { createPortal } from 'react-dom';
+
+import { type UnbindFn, bind } from 'bind-event-listener';
 import FocusLock from 'react-focus-lock';
-import { Manager, type Modifier, Popper, type PopperProps, Reference } from 'react-popper';
+import {
+	Manager as LegacyManager,
+	Popper as LegacyPopper,
+	Reference as LegacyReference,
+} from 'react-popper';
 import { shallowEqualObjects } from 'shallow-equal';
 
-import { IdProvider } from '@atlaskit/ds-lib/use-id';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { IdProvider } from '@atlaskit/ds-lib/id-provider';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import type { Placement } from '@atlaskit/popper/main';
 import {
-	type GroupBase,
-	mergeStyles,
-	type components as RSComponents,
-} from '@atlaskit/react-select';
-import { N80 } from '@atlaskit/theme/colors';
+	Manager as WrappedManager,
+	type Modifier,
+	Popper as WrappedPopper,
+	type PopperProps,
+	Reference as WrappedReference,
+} from '@atlaskit/popper/react-popper';
+import type { components as RSComponents } from '@atlaskit/react-select/components';
+import { mergeStyles } from '@atlaskit/react-select/styles';
+import type { GroupBase } from '@atlaskit/react-select/types';
 import { token } from '@atlaskit/tokens';
 
 import Select from '../select';
@@ -27,9 +35,11 @@ import {
 	type ValidationState,
 	type ValueType,
 } from '../types';
-
-import { defaultComponents, DummyControl, MenuDialog } from './components';
+import { defaultComponents } from './components';
+import { DummyControl } from './dummy-control';
+import { MenuDialog } from './menu-dialog';
 import { NotifyOpenLayerObserver } from './notify-open-layer-observer';
+import { PopupSelectTopLayer } from './popup-select-top-layer';
 
 type SelectComponents = typeof RSComponents;
 
@@ -38,6 +48,22 @@ type SelectComponents = typeof RSComponents;
  */
 const canUseDOM = () =>
 	Boolean(typeof window !== 'undefined' && window.document && window.document.createElement);
+
+function getPopperComponents() {
+	if (fg('platform-dst-popper-consolidation')) {
+		return {
+			Manager: WrappedManager,
+			Popper: WrappedPopper,
+			Reference: WrappedReference,
+		};
+	}
+
+	return {
+		Manager: LegacyManager,
+		Popper: LegacyPopper,
+		Reference: LegacyReference,
+	};
+}
 
 // ==============================
 // Types
@@ -68,6 +94,15 @@ export type ModifierList =
 	| 'hide'
 	| 'eventListeners'
 	| 'applyStyles';
+
+export type PopupSelectHandle = {
+	open: (options?: { controlOverride?: boolean }) => void;
+	close: (options?: { controlOverride?: boolean }) => void;
+	selectRef: AtlaskitSelectRefType | null;
+	menuRef: HTMLElement | null;
+	targetRef: HTMLElement | null;
+};
+
 export interface PopupSelectProps<
 	Option = OptionType,
 	IsMulti extends boolean = false,
@@ -159,7 +194,7 @@ export interface PopupSelectProps<
 interface State<Modifiers = string> {
 	focusLockEnabled: boolean;
 	isOpen: boolean;
-	mergedComponents: Object; // This really should be `SelectComponentsConfig<…>`, but generics aren't compatible across all Selects as structured
+	mergedComponents: object; // This really should be `SelectComponentsConfig<…>`, but generics aren't compatible across all Selects as structured
 	mergedPopperProps: PopperPropsNoChildren<defaultModifiers | Modifiers>;
 }
 
@@ -186,10 +221,10 @@ const defaultPopperProps: PopperPropsNoChildren<defaultModifiers> = {
 	placement: 'bottom-start' as Placement,
 };
 
-const isEmpty = (obj: Object) => Object.keys(obj).length === 0;
+const isEmpty = (obj: object) => Object.keys(obj).length === 0;
 
 // eslint-disable-next-line @repo/internal/react/no-class-components
-export default class PopupSelect<
+class PopupSelectLegacy<
 	Option = OptionType,
 	IsMulti extends boolean = false,
 	Modifiers = ModifierList,
@@ -203,7 +238,7 @@ export default class PopupSelect<
 	defaultStyles: StylesConfig<Option, IsMulti> = {
 		groupHeading: (provided) => ({
 			...provided,
-			color: token('color.text.subtlest', N80),
+			color: token('color.text.subtlest'),
 		}),
 	};
 
@@ -322,10 +357,7 @@ export default class PopupSelect<
 			case 'Escape':
 			case 'Esc':
 				this.close();
-				if (
-					this.props.shouldPreventEscapePropagation &&
-					fg('platform_navx_sllv_dropdown_escape_and_focus_fix')
-				) {
+				if (this.props.shouldPreventEscapePropagation) {
 					event.stopPropagation();
 				}
 				break;
@@ -424,7 +456,6 @@ export default class PopupSelect<
 	 * @param options.controlOverride  - Force the popup to close when it's open state is being controlled
 	 */
 	close = (options?: { controlOverride?: boolean }): void => {
-		//@ts-ignore react-select unsupported props
 		const { onClose, onMenuClose } = this.props;
 
 		if (!options?.controlOverride && this.isOpenControlled) {
@@ -549,6 +580,7 @@ export default class PopupSelect<
 		} = this.props;
 
 		const { focusLockEnabled, isOpen, mergedComponents, mergedPopperProps } = this.state;
+		const { Popper } = getPopperComponents();
 		const showSearchControl = this.showSearchControl();
 		const portalDestination = canUseDOM() ? document.body : null;
 
@@ -561,7 +593,6 @@ export default class PopupSelect<
 			Control: showSearchControl ? mergedComponents.Control : DummyControl,
 		} as Partial<SelectComponents>;
 
-		// @ts-ignore - TS7030: Not all code paths return a value - causing issues for help-center local consumption with TS 5.9.2
 		const getLabel: () => string | undefined = () => {
 			if (label) {
 				return label;
@@ -630,6 +661,7 @@ export default class PopupSelect<
 	render(): React.JSX.Element {
 		const { target } = this.props;
 		const { isOpen } = this.state;
+		const { Manager, Reference } = getPopperComponents();
 
 		return (
 			<Manager>
@@ -661,5 +693,49 @@ export default class PopupSelect<
 				/>
 			</Manager>
 		);
+	}
+}
+
+// This facade preserves the historical class type and imperative ref API while the feature gate
+// selects between independently implemented legacy and top-layer render paths.
+// We cannot just branch inside the `render()` method of `PopupSelectLegacy` class because
+// it has life cycle methods which would still affect the top layer rendering path.
+// eslint-disable-next-line @repo/internal/react/no-class-components
+export class PopupSelect<
+	Option = OptionType,
+	IsMulti extends boolean = false,
+	Modifiers = ModifierList,
+> extends PureComponent<PopupSelectProps<Option, IsMulti, Modifiers>> {
+	private implementation: PopupSelectHandle | null = null;
+	private setImplementationRef = (implementation: PopupSelectHandle | null): void => {
+		this.implementation = implementation;
+	};
+
+	get selectRef(): AtlaskitSelectRefType | null {
+		return this.implementation?.selectRef ?? null;
+	}
+
+	get menuRef(): HTMLElement | null {
+		return this.implementation?.menuRef ?? null;
+	}
+
+	get targetRef(): HTMLElement | null {
+		return this.implementation?.targetRef ?? null;
+	}
+
+	open = (options?: { controlOverride?: boolean }): void => {
+		this.implementation?.open(options);
+	};
+
+	close = (options?: { controlOverride?: boolean }): void => {
+		this.implementation?.close(options);
+	};
+
+	render(): React.JSX.Element {
+		if (fg('platform-dst-top-layer')) {
+			return <PopupSelectTopLayer ref={this.setImplementationRef} {...this.props} />;
+		}
+
+		return <PopupSelectLegacy ref={this.setImplementationRef} {...this.props} />;
 	}
 }

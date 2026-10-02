@@ -1,4 +1,4 @@
-import { type RendererProps } from '@atlaskit/renderer';
+import type { RendererProps } from '@atlaskit/renderer';
 
 export type SyncedBlockRendererOptions = Pick<
 	RendererProps,
@@ -17,6 +17,8 @@ export type SyncedBlockRendererOptions = Pick<
 	| 'emojiResourceConfig'
 	| 'eventHandlers'
 	| 'media'
+	| 'mentionNodeDataProvider'
 	| 'smartLinks'
 	| 'stickyHeaders'
+	| 'contentMode'
 >;

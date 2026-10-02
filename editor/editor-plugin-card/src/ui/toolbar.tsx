@@ -1,8 +1,8 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { isSafeUrl } from '@atlaskit/adf-schema';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
 import type {
 	ACTION_SUBJECT_ID,
 	AnalyticsEventPayload,
@@ -61,7 +61,7 @@ import LinkBrokenIcon from '@atlaskit/icon/core/link-broken';
 import LinkExternalIcon from '@atlaskit/icon/core/link-external';
 import CogIcon from '@atlaskit/icon/core/settings';
 import type { CardAppearance } from '@atlaskit/smart-card';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { cardPlugin } from '../index';
 import { changeSelectedCardToText } from '../pm-plugins/doc';
@@ -73,8 +73,7 @@ import {
 	isDatasourceNode,
 	titleUrlPairFromNode,
 } from '../pm-plugins/utils';
-import type { CardPluginOptions, CardPluginState } from '../types';
-
+import type { CardPluginOptions, CardPluginState, ToolbarResolvedAttributes } from '../types';
 import { DatasourceAppearanceButton } from './DatasourceAppearanceButton';
 import {
 	buildEditLinkToolbar,
@@ -86,6 +85,7 @@ import { HyperlinkToolbarAppearance } from './HyperlinkToolbarAppearance';
 import { getCustomHyperlinkAppearanceDropdown } from './HyperlinkToolbarAppearanceDropdown';
 import { LinkToolbarAppearance } from './LinkToolbarAppearance';
 import { getLinkAppearanceDropdown } from './LinkToolbarAppearanceDropdown';
+import { OpenLinkToolbarButton } from './OpenLinkToolbarButton';
 import { OpenPreviewPanelToolbarButton } from './OpenPreviewButton';
 import { ToolbarViewedEvent } from './ToolbarViewedEvent';
 
@@ -127,6 +127,7 @@ export const visitCardLinkAnalytics =
 			| INPUT_METHOD.BUTTON
 			| INPUT_METHOD.DOUBLE_CLICK
 			| INPUT_METHOD.META_CLICK,
+		resolvedAttributes?: Partial<ToolbarResolvedAttributes>,
 	): Command =>
 	(state, dispatch) => {
 		if (!(state.selection instanceof NodeSelection)) {
@@ -144,11 +145,50 @@ export const visitCardLinkAnalytics =
 						| ACTION_SUBJECT_ID.CARD_BLOCK
 						| ACTION_SUBJECT_ID.EMBEDS,
 					inputMethod,
+					resolvedAttributes,
 				),
 			)(tr);
 
 			dispatch(tr);
 		}
+		return true;
+	};
+
+const fireOpenLinkToolbarAnalytics =
+	(
+		editorAnalyticsApi: EditorAnalyticsAPI | undefined,
+		inputMethod:
+			| INPUT_METHOD.FLOATING_TB
+			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.BUTTON
+			| INPUT_METHOD.DOUBLE_CLICK
+			| INPUT_METHOD.META_CLICK,
+		resolvedAttributes: Partial<ToolbarResolvedAttributes> = {},
+	): Command =>
+	(state, dispatch) => {
+		const linkAnalyticsRecorded = visitCardLinkAnalytics(
+			editorAnalyticsApi,
+			inputMethod,
+			resolvedAttributes,
+		)(state, dispatch);
+
+		if (!linkAnalyticsRecorded) {
+			return false;
+		}
+
+		editorAnalyticsApi?.fireAnalyticsEvent({
+			action: ACTION.CLICKED,
+			actionSubject: ACTION_SUBJECT.BUTTON,
+			actionSubjectId: ACTION_SUBJECTID.OPEN_LINK,
+			attributes: {
+				displayCategory: resolvedAttributes.displayCategory,
+				extensionKey: resolvedAttributes.extensionKey,
+				status: resolvedAttributes.status,
+				statusDetails: resolvedAttributes.statusDetails,
+			},
+			eventType: EVENT_TYPE.UI,
+		});
+
 		return true;
 	};
 
@@ -207,10 +247,10 @@ export const floatingToolbar = (
 		const isEmbedCard = appearanceForNodeType(selectedNode.type) === 'embed';
 
 		/* add an offset to embeds due to extra padding */
-		const toolbarOffset: { offset: [number, number] } | Object = isEmbedCard
+		const toolbarOffset: { offset: [number, number] } | object = isEmbedCard
 			? {
 					offset: [0, 24],
-			  }
+				}
 			: {};
 
 		// Applies padding override for when link picker is currently displayed
@@ -264,7 +304,11 @@ export const floatingToolbar = (
 				pluginInjectionApi,
 			),
 			scrollable: pluginState?.showLinkingToolbar ? false : true,
-			...editLinkToolbarConfig(Boolean(pluginState?.showLinkingToolbar), isLinkPickerEnabled),
+			...editLinkToolbarConfig(
+				Boolean(pluginState?.showLinkingToolbar),
+				isLinkPickerEnabled,
+				linkPickerOptions,
+			),
 		};
 	};
 };
@@ -468,7 +512,7 @@ const generateToolbarItems =
 								/>
 							),
 						},
-				  ]
+					]
 				: [
 						{
 							id: 'editor.link.edit',
@@ -481,7 +525,7 @@ const generateToolbarItems =
 							onClick: getEditLinkCallback(editorAnalyticsApi, true),
 						},
 						{ type: 'separator' },
-				  ];
+					];
 
 			const commentItems: Array<FloatingToolbarItem<Command>> = isCommentEnabled
 				? [
@@ -494,11 +538,12 @@ const generateToolbarItems =
 							title: intl.formatMessage(annotationMessages.createComment),
 							showTitle: editorExperiment('platform_editor_controls', 'control') ? undefined : true,
 							onClick: onCommentButtonClick,
-							disabled:
-								isOfflineMode(pluginInjectionApi?.connectivity?.sharedState?.currentState()?.mode),
+							disabled: isOfflineMode(
+								pluginInjectionApi?.connectivity?.sharedState?.currentState()?.mode,
+							),
 						},
 						{ type: 'separator' },
-				  ]
+					]
 				: [];
 
 			const openLinkInputMethod = INPUT_METHOD.FLOATING_TB;
@@ -521,7 +566,7 @@ const generateToolbarItems =
 								/>
 							),
 						},
-				  ]
+					]
 				: [
 						{
 							id: 'editor.link.edit',
@@ -533,46 +578,68 @@ const generateToolbarItems =
 							testId: 'link-toolbar-edit-link-button',
 							onClick: getEditLinkCallback(editorAnalyticsApi, true),
 						},
-				  ];
+					];
 
-			const openPreviewPanelItems: FloatingToolbarItem<Command>[] = editorExperiment(
-				'platform_editor_preview_panel_linking_exp',
-				true,
-				{ exposure: true },
-			)
-				? [
-						{
-							type: 'custom',
-							fallback: [],
-							render: () => (
-								<OpenPreviewPanelToolbarButton
-									node={node}
-									intl={intl}
-									editorAnalyticsApi={editorAnalyticsApi}
-									areAnyNewToolbarFlagsEnabled={!areAllNewToolbarFlagsDisabled}
-								/>
-							),
-						},
-				  ]
-				: [];
+			const openPreviewPanelItems: FloatingToolbarItem<Command>[] = [
+				{
+					type: 'custom',
+					fallback: [],
+					render: () => (
+						<OpenPreviewPanelToolbarButton
+							node={node}
+							intl={intl}
+							editorAnalyticsApi={editorAnalyticsApi}
+							areAnyNewToolbarFlagsEnabled={!areAllNewToolbarFlagsDisabled}
+						/>
+					),
+				},
+			];
+
+			const resolvedToolbarAttributes = url
+				? (pluginState?.resolvedToolbarAttributesByUrl[url] ?? {})
+				: {};
+
+			const openLinkToolbarItemFallback: FloatingToolbarItem<Command> = {
+				id: 'editor.link.openLink',
+				type: 'button',
+				icon: LinkExternalIcon,
+				iconFallback: LinkExternalIcon,
+				metadata: metadata,
+				className: 'hyperlink-open-link',
+				title: intl.formatMessage(linkMessages.openLink),
+				onClick: fireOpenLinkToolbarAnalytics(
+					editorAnalyticsApi,
+					openLinkInputMethod,
+					resolvedToolbarAttributes,
+				),
+				href: url,
+				target: '_blank',
+			};
+			const openLinkToolbarItem: FloatingToolbarItem<Command> = {
+				type: 'custom',
+				fallback: [openLinkToolbarItemFallback],
+				render: (editorView) =>
+					editorView && url ? (
+						<OpenLinkToolbarButton
+							url={url}
+							title={intl.formatMessage(linkMessages.openLink)}
+							editorView={editorView}
+							onClick={fireOpenLinkToolbarAnalytics(
+								editorAnalyticsApi,
+								openLinkInputMethod,
+								resolvedToolbarAttributes,
+							)}
+							areAnyNewToolbarFlagsEnabled={!areAllNewToolbarFlagsDisabled}
+						/>
+					) : null,
+			};
 
 			const toolbarItems: Array<FloatingToolbarItem<Command>> = areAllNewToolbarFlagsDisabled
 				? [
 						...editItems,
 						...commentItems,
 						...openPreviewPanelItems,
-						{
-							id: 'editor.link.openLink',
-							type: 'button',
-							icon: LinkExternalIcon,
-							iconFallback: LinkExternalIcon,
-							metadata: metadata,
-							className: 'hyperlink-open-link',
-							title: intl.formatMessage(linkMessages.openLink),
-							onClick: visitCardLinkAnalytics(editorAnalyticsApi, openLinkInputMethod),
-							href: url,
-							target: '_blank',
-						},
+						openLinkToolbarItem,
 						{ type: 'separator' },
 						...getUnlinkButtonGroup(
 							state,
@@ -609,7 +676,7 @@ const generateToolbarItems =
 							title: intl.formatMessage(commonMessages.remove),
 							onClick: withToolbarMetadata(removeCard(editorAnalyticsApi)),
 						},
-				  ]
+					]
 				: [
 						...editButtonItems,
 						...([
@@ -624,22 +691,11 @@ const generateToolbarItems =
 							{ type: 'separator', fullHeight: true },
 						] as FloatingToolbarItem<Command>[]),
 						...openPreviewPanelItems,
-						{
-							id: 'editor.link.openLink',
-							type: 'button',
-							icon: LinkExternalIcon,
-							iconFallback: LinkExternalIcon,
-							metadata: metadata,
-							className: 'hyperlink-open-link',
-							title: intl.formatMessage(linkMessages.openLink),
-							onClick: visitCardLinkAnalytics(editorAnalyticsApi, openLinkInputMethod),
-							href: url,
-							target: '_blank',
-						},
+						openLinkToolbarItem,
 						...(commentItems.length > 1
 							? [{ type: 'separator', fullHeight: true } as const, commentItems[0]]
 							: commentItems),
-				  ];
+					];
 
 			if (currentAppearance === 'embed') {
 				const alignmentOptions = buildAlignmentOptions(
@@ -686,7 +742,7 @@ const generateToolbarItems =
 										areAnyNewToolbarFlagsEnabled={false}
 									/>
 								),
-						  }
+							}
 						: getLinkAppearanceDropdown({
 								url,
 								intl,
@@ -704,7 +760,7 @@ const generateToolbarItems =
 								),
 								isDatasourceView: isDatasource,
 								areAnyNewToolbarFlagsEnabled: !areAllNewToolbarFlagsDisabled,
-						  }),
+							}),
 					...(showDatasourceAppearance && areAllNewToolbarFlagsDisabled
 						? [
 								{
@@ -722,7 +778,7 @@ const generateToolbarItems =
 										/>
 									),
 								} satisfies FloatingToolbarItem<never>,
-						  ]
+							]
 						: []),
 					...(!areAllNewToolbarFlagsDisabled
 						? []
@@ -751,7 +807,6 @@ const generateToolbarItems =
 								title: intl.formatMessage(commonMessages.copyToClipboard),
 								onClick: () => {
 									pluginInjectionApi?.core?.actions.execute(
-										// @ts-ignore
 										pluginInjectionApi?.floatingToolbar?.commands.copyNode(
 											node.type,
 											INPUT_METHOD.FLOATING_TB,
@@ -798,7 +853,7 @@ const getUnlinkButtonGroup = (
 					onClick: withToolbarMetadata(unlinkCard(node, state, editorAnalyticsApi)),
 				},
 				...(areAnyNewToolbarFlagsEnabled ? [] : [{ type: 'separator' }]),
-		  ] as Array<FloatingToolbarItem<Command>>)
+			] as Array<FloatingToolbarItem<Command>>)
 		: [];
 };
 
@@ -832,6 +887,7 @@ const getDatasourceButtonGroup = (
 	pluginInjectionApi?: ExtractInjectionAPI<typeof cardPlugin>,
 ): FloatingToolbarItem<Command>[] => {
 	const toolbarItems: Array<FloatingToolbarItem<Command>> = [];
+	toolbarItems.push(...getToolbarViewedItem(node?.attrs?.url, currentAppearance ?? 'url'));
 	const areAllNewToolbarFlagsDisabled = !areToolbarFlagsEnabled(
 		Boolean(pluginInjectionApi?.toolbar),
 	);
@@ -918,6 +974,7 @@ const getDatasourceButtonGroup = (
 	}
 
 	const openLinkInputMethod = INPUT_METHOD.FLOATING_TB;
+	const pluginState = pluginKey.getState(state) as CardPluginState | undefined;
 
 	toolbarItems.push({
 		type: 'custom',
@@ -939,7 +996,7 @@ const getDatasourceButtonGroup = (
 	});
 
 	if (node?.attrs?.url) {
-		toolbarItems.push({
+		const openLinkToolbarItemFallback: FloatingToolbarItem<Command> = {
 			id: 'editor.link.openLink',
 			type: 'button',
 			icon: LinkExternalIcon,
@@ -947,9 +1004,31 @@ const getDatasourceButtonGroup = (
 			metadata: metadata,
 			className: 'hyperlink-open-link',
 			title: intl.formatMessage(linkMessages.openLink),
-			onClick: visitCardLinkAnalytics(editorAnalyticsApi, openLinkInputMethod),
+			onClick: fireOpenLinkToolbarAnalytics(
+				editorAnalyticsApi,
+				openLinkInputMethod,
+				pluginState?.resolvedToolbarAttributesByUrl[node.attrs.url] ?? {},
+			),
 			href: node.attrs.url,
 			target: '_blank',
+		};
+		toolbarItems.push({
+			type: 'custom',
+			fallback: [openLinkToolbarItemFallback],
+			render: (editorView) =>
+				editorView ? (
+					<OpenLinkToolbarButton
+						url={node.attrs.url}
+						title={intl.formatMessage(linkMessages.openLink)}
+						editorView={editorView}
+						onClick={fireOpenLinkToolbarAnalytics(
+							editorAnalyticsApi,
+							openLinkInputMethod,
+							pluginState?.resolvedToolbarAttributesByUrl[node.attrs.url] ?? {},
+						)}
+						areAnyNewToolbarFlagsEnabled={!areAllNewToolbarFlagsDisabled}
+					/>
+				) : null,
 		});
 		if (areAllNewToolbarFlagsDisabled) {
 			toolbarItems.push({ type: 'separator' });
@@ -1017,7 +1096,6 @@ const getDatasourceButtonGroup = (
 						title: intl.formatMessage(commonMessages.copyToClipboard),
 						onClick: () => {
 							pluginInjectionApi?.core?.actions.execute(
-								// @ts-ignore
 								pluginInjectionApi?.floatingToolbar?.commands.copyNode(
 									node.type,
 									INPUT_METHOD.FLOATING_TB,
@@ -1096,7 +1174,7 @@ export const getStartingToolbarItems = (
 							);
 						},
 					},
-			  ]
+				]
 			: [
 					{
 						id: 'editor.link.edit',
@@ -1111,7 +1189,7 @@ export const getStartingToolbarItems = (
 					{
 						type: 'separator',
 					},
-			  ];
+				];
 
 		if (!areAllNewToolbarFlagsDisabled) {
 			const hyperlinkAppearance = [

@@ -3,17 +3,17 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useEffect, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
 import type { EditorAppearance } from '@atlaskit/editor-common/types';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import SidebarContainer from '../example-helpers/SidebarContainer';
 import { PresetContextProvider } from '../src/presets/context';
-
 import FullPageExample, { getAppearance } from './5-full-page';
 
 const disabledBlanket = css({
@@ -36,7 +36,7 @@ const disabledBlanket = css({
  *  - 64px sidebar on the left
  *  - collab editing enabled
  */
-const ExampleEditorComponent = () => {
+const ExampleEditorComponent = (): jsx.JSX.Element => {
 	const [disabled, setDisabled] = useState(true);
 	const [appearance, setAppearance] = useState<EditorAppearance>(getAppearance() || 'full-page');
 

@@ -1,8 +1,10 @@
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
-import { Decoration, type DecorationSet } from '@atlaskit/editor-prosemirror/view';
+import { Decoration } from '@atlaskit/editor-prosemirror/view';
+import type { DecorationSet } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import {
 	getNodeAnchor,
@@ -20,10 +22,20 @@ const IGNORE_NODES = [
 	'layoutColumn',
 ];
 
-export const IGNORE_NODES_NEXT: string[] = ['tableCell', 'tableHeader', 'tableRow', 'listItem', 'caption'];
+export const IGNORE_NODES_NEXT: string[] = [
+	'tableCell',
+	'tableHeader',
+	'tableRow',
+	'listItem',
+	'caption',
+];
 
 const IGNORE_NODE_DESCENDANTS = ['listItem', 'taskList', 'decisionList', 'mediaSingle'];
-export const IGNORE_NODE_DESCENDANTS_ADVANCED_LAYOUT: string[] = ['listItem', 'taskList', 'decisionList'];
+export const IGNORE_NODE_DESCENDANTS_ADVANCED_LAYOUT: string[] = [
+	'listItem',
+	'taskList',
+	'decisionList',
+];
 
 export const shouldDescendIntoNode = (node: PMNode): boolean => {
 	// Optimisation to avoid drawing node decorations for empty table cells
@@ -50,10 +62,6 @@ const shouldIgnoreNode = (
 	depth: number,
 	parent?: PMNode | null,
 ) => {
-	const isEmbedCard = node.type.name === 'embedCard';
-
-	const isMediaSingle = node.type.name === 'mediaSingle';
-
 	const nodeTypes = node.type.schema.nodes;
 
 	const isTable = node.type.name === nodeTypes?.table?.name;
@@ -86,21 +94,7 @@ const shouldIgnoreNode = (
 		return true;
 	}
 
-	return (isEmbedCard || isMediaSingle) && ['wrap-right', 'wrap-left'].includes(node.attrs.layout)
-		? true
-		: ignore_nodes.includes(node.type.name);
-};
-
-const getPositionBeforeNodeAtPos = (state: EditorState, pos: number): number => {
-	if (pos <= 0 || pos >= state.doc.nodeSize - 2) {
-		return pos;
-	}
-
-	const $pos = state.doc.resolve(pos);
-	if ($pos.depth > 0) {
-		return $pos.before();
-	}
-	return pos;
+	return ignore_nodes.includes(node.type.name);
 };
 
 /**
@@ -114,50 +108,40 @@ export const findNodeDecs = (
 	decorations: DecorationSet,
 	from?: number,
 	to?: number,
-) => {
+): Decoration[] => {
 	let newFrom = from;
 
-	if (editorExperiment('platform_editor_block_control_optimise_render', true)) {
-		// return empty array if range reversed
-		if (typeof to === 'number' && typeof newFrom === 'number' && newFrom > to) {
-			return [];
-		}
+	let newTo = to;
 
-		let decs = decorations.find(newFrom, to, (spec) => spec.type === TYPE_NODE_DEC);
-
-		// Prosemirror finds any decorations that overlap with the provided position range, but we don't want to include decorations of nodes that start outside of the range
-		if (typeof to === 'number' && typeof newFrom === 'number') {
-			decs = decs.filter((dec) => {
-				return dec.from >= (newFrom || 0) && dec.from < to;
-			});
-		}
-		return decs;
-	} else {
-		let newTo = to;
-
-		// make it non-inclusive
-		if (newFrom !== undefined) {
-			newFrom++;
-		}
-
-		// make it non-inclusive
-		if (newTo !== undefined) {
-			newTo--;
-		}
-
-		// return empty array if range reversed
-		if (newFrom !== undefined && newTo !== undefined && newFrom > newTo) {
-			return [];
-		}
-
-		return decorations.find(newFrom, newTo, (spec) => spec.type === TYPE_NODE_DEC);
+	// make it non-inclusive
+	if (newFrom !== undefined) {
+		newFrom++;
 	}
+
+	// make it non-inclusive
+	if (newTo !== undefined) {
+		newTo--;
+	}
+
+	// return empty array if range reversed
+	if (newFrom !== undefined && newTo !== undefined && newFrom > newTo) {
+		return [];
+	}
+
+	return decorations.find(newFrom, newTo, (spec) => spec.type === TYPE_NODE_DEC);
 };
 
-export const nodeDecorations = (newState: EditorState, from?: number, to?: number) => {
+export const nodeDecorations = (
+	newState: EditorState,
+	from?: number,
+	to?: number,
+): Decoration[] => {
 	const decs: Decoration[] = [];
 
-	if (expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) {
+	if (
+		expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+		isExperimentEnabled('platform_editor_block_control_migration')
+	) {
 		return [];
 	}
 
@@ -172,13 +156,6 @@ export const nodeDecorations = (newState: EditorState, from?: number, to?: numbe
 		const shouldDescend = shouldDescendIntoNode(node);
 		const anchorName = getNodeAnchor(node);
 		const nodeTypeWithLevel = getNodeTypeWithLevel(node);
-
-		if (editorExperiment('platform_editor_block_control_optimise_render', true)) {
-			// We don't want to create decorations for nodes that start outside of the provided position range
-			if (pos < getPositionBeforeNodeAtPos(newState, docFrom)) {
-				return shouldDescend;
-			}
-		}
 
 		// Doesn't descend into a node
 		if (node.isInline) {

@@ -1,7 +1,10 @@
-import type { IntlShape } from 'react-intl-next/src/types';
+import type { IntlShape } from 'react-intl/src/types';
 
-import type { TableLayout } from '@atlaskit/adf-schema';
-import { tableBackgroundColorPalette } from '@atlaskit/adf-schema';
+import {
+	tableBackgroundColorNameByHex,
+	type Layout as TableLayout,
+} from '@atlaskit/adf-schema/tableNodes';
+import type { Valign } from '@atlaskit/adf-schema/valign';
 import type { TableSortOrder as SortOrder } from '@atlaskit/custom-steps';
 import type {
 	AnalyticsEventPayload,
@@ -16,12 +19,17 @@ import {
 	TABLE_DISPLAY_MODE,
 } from '@atlaskit/editor-common/analytics';
 import { editorCommandToPMCommand } from '@atlaskit/editor-common/preset';
-import type { Command, GetEditorContainerWidth } from '@atlaskit/editor-common/types';
+import type {
+	Command,
+	EditorCommand,
+	GetEditorContainerWidth,
+} from '@atlaskit/editor-common/types';
 import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { NodeWithPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
-import { type Rect, TableMap } from '@atlaskit/editor-tables/table-map';
+import { TableMap } from '@atlaskit/editor-tables/table-map';
+import type { Rect } from '@atlaskit/editor-tables/table-map';
 import {
 	findCellClosestToPos,
 	findCellRectClosestToPos,
@@ -46,7 +54,6 @@ import {
 	getSelectedTableInfo,
 } from '../utils/analytics';
 import { checkIfNumberColumnEnabled } from '../utils/nodes';
-
 import { clearMultipleCells } from './clear';
 import { wrapTableInExpand } from './collapse';
 import { changeColumnWidthByStep } from './column-resize';
@@ -58,6 +65,7 @@ import {
 	deleteTableIfSelected,
 	getTableSelectionType,
 	setMultipleCellAttrs,
+	setMultipleCellAttrsEditorCommand,
 	setTableAlignment,
 	setTableAlignmentWithTableContentWithPos,
 } from './misc';
@@ -65,7 +73,6 @@ import { sortByColumn } from './sort';
 import { splitCell } from './split-cell';
 import { toggleHeaderColumn, toggleHeaderRow, toggleNumberColumn } from './toggle';
 
-// #region Analytics wrappers
 export const emptyMultipleCellsWithAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null) =>
 	(
@@ -75,7 +82,7 @@ export const emptyMultipleCellsWithAnalytics =
 			| INPUT_METHOD.FLOATING_TB
 			| INPUT_METHOD.TABLE_CONTEXT_MENU,
 		targetCellPosition?: number,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI(({ selection }) => {
 			const { horizontalCells, verticalCells, totalRowCount, totalColumnCount } =
 				getSelectedCellInfo(selection);
@@ -97,7 +104,7 @@ export const emptyMultipleCellsWithAnalytics =
 
 export const mergeCellsWithAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | null | undefined) =>
-	(inputMethod: INPUT_METHOD.CONTEXT_MENU | INPUT_METHOD.FLOATING_TB) =>
+	(inputMethod: INPUT_METHOD.CONTEXT_MENU | INPUT_METHOD.FLOATING_TB): Command =>
 		withEditorAnalyticsAPI(({ selection }) => {
 			const { horizontalCells, verticalCells, totalCells, totalRowCount, totalColumnCount } =
 				getSelectedCellInfo(selection);
@@ -125,7 +132,7 @@ export const mergeCellsWithAnalytics =
 
 export const splitCellWithAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null) =>
-	(inputMethod: INPUT_METHOD.CONTEXT_MENU | INPUT_METHOD.FLOATING_TB) =>
+	(inputMethod: INPUT_METHOD.CONTEXT_MENU | INPUT_METHOD.FLOATING_TB): Command =>
 		withEditorAnalyticsAPI(({ selection }) => {
 			const { totalRowCount, totalColumnCount } = getSelectedCellInfo(selection);
 			const cell = findCellClosestToPos(selection.$anchor);
@@ -159,7 +166,7 @@ export const setColorWithAnalytics =
 			| INPUT_METHOD.TABLE_CONTEXT_MENU,
 		cellColor: string,
 		editorView?: EditorView | null,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI(({ selection }) => {
 			const { horizontalCells, verticalCells, totalCells, totalRowCount, totalColumnCount } =
 				getSelectedCellInfo(selection);
@@ -171,7 +178,7 @@ export const setColorWithAnalytics =
 				attributes: {
 					inputMethod,
 					cellColor: (
-						tableBackgroundColorPalette.get(cellColor.toLowerCase()) || cellColor
+						tableBackgroundColorNameByHex.get(cellColor.toLowerCase()) || cellColor
 					).toLowerCase(),
 					horizontalCells,
 					verticalCells,
@@ -182,6 +189,88 @@ export const setColorWithAnalytics =
 				eventType: EVENT_TYPE.TRACK,
 			};
 		})(editorAnalyticsAPI)(setMultipleCellAttrs({ background: cellColor }, editorView));
+
+const getNormalizedCellValign = (valign?: Valign | null): Valign => valign ?? 'top';
+
+type CellVerticalAlignmentAnalyticsInfo = {
+	previousValign: Valign | 'mixed';
+	updatedCount: number;
+};
+
+const getCellVerticalAlignmentAnalyticsInfo = (
+	selection: Selection,
+	valign: Valign,
+	targetCellPosition?: number,
+): CellVerticalAlignmentAnalyticsInfo | undefined => {
+	const selectedValigns: Valign[] = [];
+
+	if (selection instanceof CellSelection) {
+		selection.forEachCell((cell) => {
+			selectedValigns.push(getNormalizedCellValign(cell.attrs.valign));
+		});
+	} else if (typeof targetCellPosition === 'number') {
+		const cell = selection.$from.doc.nodeAt(targetCellPosition);
+		if (cell) {
+			selectedValigns.push(getNormalizedCellValign(cell.attrs.valign));
+		}
+	}
+
+	if (selectedValigns.length === 0) {
+		return undefined;
+	}
+
+	const [firstValign] = selectedValigns;
+	const previousValign = selectedValigns.every((selectedValign) => selectedValign === firstValign)
+		? firstValign
+		: 'mixed';
+	const updatedCount = selectedValigns.filter((selectedValign) => selectedValign !== valign).length;
+
+	return {
+		previousValign,
+		updatedCount,
+	};
+};
+
+export const setCellVerticalAlignmentWithAnalytics =
+	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null) =>
+	(
+		inputMethod: INPUT_METHOD.TABLE_CONTEXT_MENU,
+		valign: Valign,
+		targetCellPosition?: number,
+	): EditorCommand =>
+	({ tr }) => {
+		const analyticsInfo = getCellVerticalAlignmentAnalyticsInfo(
+			tr.selection,
+			valign,
+			targetCellPosition,
+		);
+		const result = setMultipleCellAttrsEditorCommand({ valign }, targetCellPosition)({ tr });
+
+		if (result && analyticsInfo) {
+			const { horizontalCells, verticalCells, totalCells, totalRowCount, totalColumnCount } =
+				getSelectedCellInfo(tr.selection);
+
+			editorAnalyticsAPI?.attachAnalyticsEvent({
+				action: TABLE_ACTION.CHANGED_CELL_VERTICAL_ALIGNMENT,
+				actionSubject: ACTION_SUBJECT.TABLE,
+				actionSubjectId: null,
+				attributes: {
+					inputMethod,
+					previousValign: analyticsInfo.previousValign,
+					valign,
+					updatedCount: analyticsInfo.updatedCount,
+					horizontalCells,
+					verticalCells,
+					totalCells,
+					totalRowCount,
+					totalColumnCount,
+				},
+				eventType: EVENT_TYPE.TRACK,
+			})(tr);
+		}
+
+		return result;
+	};
 
 export const addRowAroundSelection =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null) =>
@@ -209,7 +298,7 @@ export const addRowAroundSelection =
 
 export const insertRowWithAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null) =>
-	(inputMethod: InsertRowMethods, options: InsertRowOptions) =>
+	(inputMethod: InsertRowMethods, options: InsertRowOptions): Command =>
 		withEditorAnalyticsAPI((state) => {
 			const { totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 			return {
@@ -240,7 +329,7 @@ export const changeColumnWidthByStepWithAnalytics =
 		inputMethod: INPUT_METHOD.SHORTCUT,
 		ariaNotify?: (message: string) => void,
 		getIntl?: () => IntlShape,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI((state) => {
 			const { table, totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 			const {
@@ -291,7 +380,7 @@ export const insertColumnWithAnalytics =
 			| INPUT_METHOD.FLOATING_TB
 			| INPUT_METHOD.TABLE_CONTEXT_MENU,
 		position: number,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI((state) => {
 			const { totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 			return {
@@ -327,7 +416,7 @@ export const deleteRowsWithAnalytics =
 			| INPUT_METHOD.TABLE_CONTEXT_MENU,
 		rect: Rect,
 		isHeaderRowRequired: boolean,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI(({ selection }) => {
 			const { totalRowCount, totalColumnCount } = getSelectedTableInfo(selection);
 
@@ -368,7 +457,7 @@ export const deleteColumnsWithAnalytics =
 			| INPUT_METHOD.SHORTCUT
 			| INPUT_METHOD.TABLE_CONTEXT_MENU,
 		rect: Rect,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI(({ selection }) => {
 			const { totalRowCount, totalColumnCount } = getSelectedTableInfo(selection);
 
@@ -458,21 +547,21 @@ const getTableDeletedAnalytics = (
 
 export const deleteTableWithAnalytics = (
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null,
-) =>
+): Command =>
 	withEditorAnalyticsAPI(({ selection }) =>
 		getTableDeletedAnalytics(selection, INPUT_METHOD.FLOATING_TB),
 	)(editorAnalyticsAPI)(deleteTable);
 
 export const deleteTableIfSelectedWithAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null) =>
-	(inputMethod: INPUT_METHOD.FLOATING_TB | INPUT_METHOD.KEYBOARD) =>
+	(inputMethod: INPUT_METHOD.FLOATING_TB | INPUT_METHOD.KEYBOARD): Command =>
 		withEditorAnalyticsAPI(({ selection }) => getTableDeletedAnalytics(selection, inputMethod))(
 			editorAnalyticsAPI,
 		)(deleteTableIfSelected);
 
 export const toggleHeaderRowWithAnalytics = (
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null,
-) =>
+): Command =>
 	withEditorAnalyticsAPI((state) => {
 		const { totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 		const { isHeaderRowEnabled } = getPluginState(state);
@@ -492,7 +581,7 @@ export const toggleHeaderRowWithAnalytics = (
 
 export const toggleHeaderColumnWithAnalytics = (
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null,
-) =>
+): Command =>
 	withEditorAnalyticsAPI((state) => {
 		const { totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 		const { isHeaderColumnEnabled } = getPluginState(state);
@@ -512,7 +601,7 @@ export const toggleHeaderColumnWithAnalytics = (
 
 export const toggleNumberColumnWithAnalytics = (
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null,
-) =>
+): Command =>
 	withEditorAnalyticsAPI((state) => {
 		const { totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 		return {
@@ -537,7 +626,7 @@ export const sortColumnWithAnalytics =
 			| INPUT_METHOD.TABLE_CONTEXT_MENU,
 		columnIndex: number,
 		sortOrder: SortOrder,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI((state) => {
 			const { totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 			return {
@@ -566,7 +655,7 @@ export const distributeColumnsWidthsWithAnalytics =
 			| INPUT_METHOD.FLOATING_TB
 			| INPUT_METHOD.TABLE_CONTEXT_MENU,
 		{ resizeState, table, attributes }: ResizeStateWithAnalytics,
-	) => {
+	): Command => {
 		return withEditorAnalyticsAPI(() => {
 			return {
 				action: TABLE_ACTION.DISTRIBUTED_COLUMNS_WIDTHS,
@@ -588,7 +677,7 @@ export const distributeColumnsWidthsWithAnalytics =
 
 export const wrapTableInExpandWithAnalytics = (
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null,
-) =>
+): Command =>
 	withEditorAnalyticsAPI((state) => {
 		const { totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 		return {
@@ -606,7 +695,7 @@ export const wrapTableInExpandWithAnalytics = (
 export const toggleFixedColumnWidthsOptionAnalytics = (
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null,
 	inputMethod: INPUT_METHOD.FLOATING_TB,
-) =>
+): Command =>
 	withEditorAnalyticsAPI((state) => {
 		const { table, totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 
@@ -651,7 +740,7 @@ export const setTableAlignmentWithAnalytics =
 		previousAlignment: TableLayout,
 		inputMethod: INPUT_METHOD.FLOATING_TB,
 		reason: CHANGE_ALIGNMENT_REASON,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI((state) => {
 			const { table, totalRowCount, totalColumnCount } = getSelectedTableInfo(state.selection);
 
@@ -685,7 +774,7 @@ export const setTableAlignmentWithTableContentWithPosWithAnalytics =
 		tableNodeWithPos: NodeWithPos,
 		inputMethod: INPUT_METHOD.AUTO,
 		reason: CHANGE_ALIGNMENT_REASON,
-	) =>
+	): Command =>
 		withEditorAnalyticsAPI(() => {
 			const map = TableMap.get(tableNodeWithPos.node);
 			const totalRowCount = map.height;

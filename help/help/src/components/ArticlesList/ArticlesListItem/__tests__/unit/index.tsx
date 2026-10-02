@@ -1,13 +1,14 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render, fireEvent } from '@testing-library/react';
+import { createIntl, createIntlCache } from 'react-intl';
+
 import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
-import { createIntl, createIntlCache } from 'react-intl-next';
 
-import { getMockArticleItem } from '../../../../../util/testing/mock';
-
-import { ArticlesListItem } from '../../index';
 import { messages } from '../../../../../messages';
+import { getMockArticleItem } from '../../../../../util/testing/mock';
+import { ArticlesListItem } from '../../index';
 
 // Messages
 const cache = createIntlCache();
@@ -33,14 +34,6 @@ describe('ArticlesListItem', () => {
 		);
 
 		await expect(container).toBeAccessible();
-	});
-
-	it.skip('Should match snapshot', () => {
-		const { container } = render(
-			<ArticlesListItem intl={intl} {...mockArticleItem} onClick={mockOnClick} />,
-		);
-
-		expect(container.firstChild).toMatchSnapshot();
 	});
 
 	it(`Should not display any type text if the type isn't defined `, () => {

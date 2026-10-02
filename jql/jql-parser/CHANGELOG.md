@@ -1,16 +1,64 @@
 # @atlaskit/jql-parser
 
+## 3.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 3.0.1
+
+### Patch Changes
+
+- [`1b6167b6ba2dd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b6167b6ba2dd) -
+  VOLTC-154 - run volt-migrate-package on @atlaskit/jql-parser
+
+## 3.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 2.1.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
 ## 2.0.1
 
 ### Patch Changes
 
-- [#83116](https://stash.atlassian.com/projects/CONFCLOUD/repos/confluence-frontend/pull-requests/83116) [`8d4e99057fe0`](https://stash.atlassian.com/projects/CONFCLOUD/repos/confluence-frontend/commits/8d4e99057fe0) - Upgrade Typescript from `4.9.5` to `5.4.2`
+- [#83116](https://stash.atlassian.com/projects/CONFCLOUD/repos/confluence-frontend/pull-requests/83116)
+  [`8d4e99057fe0`](https://stash.atlassian.com/projects/CONFCLOUD/repos/confluence-frontend/commits/8d4e99057fe0) -
+  Upgrade Typescript from `4.9.5` to `5.4.2`
 
 ## 2.0.0
 
 ### Major Changes
 
-- [#39978](https://bitbucket.org/atlassian/atlassian-frontend/pull-requests/39978) [`978cfcda881`](https://bitbucket.org/atlassian/atlassian-frontend/commits/978cfcda881) - Migrate `jql-parser` package to the `@atlaskit` namespace. Any consumers should update their imports to `@atlaskit/jql-parser`.
+- [#39978](https://bitbucket.org/atlassian/atlassian-frontend/pull-requests/39978)
+  [`978cfcda881`](https://bitbucket.org/atlassian/atlassian-frontend/commits/978cfcda881) - Migrate
+  `jql-parser` package to the `@atlaskit` namespace. Any consumers should update their imports to
+  `@atlaskit/jql-parser`.
 
 ## 1.0.7
 
@@ -64,7 +112,8 @@
 
 ### Major Changes
 
-- 94c794c: Bump all TypeScript packages to 1.0.0 for release to production. From this point on, semver will be used in all packages.
+- 94c794c: Bump all TypeScript packages to 1.0.0 for release to production. From this point on,
+  semver will be used in all packages.
 
 ## 0.11.0
 
@@ -102,7 +151,8 @@
 
 ### Minor Changes
 
-- ab235ac: Operator-specific parsing for terminal clauses. Consolidation of terminal clause and operator nodes in AST.
+- ab235ac: Operator-specific parsing for terminal clauses. Consolidation of terminal clause and
+  operator nodes in AST.
 
 ### Patch Changes
 
@@ -140,7 +190,8 @@
 
 ### Minor Changes
 
-- 5afdcbd: Introduce autocomplete unhandled rules and position autocomplete based on first suggestion replace position
+- 5afdcbd: Introduce autocomplete unhandled rules and position autocomplete based on first
+  suggestion replace position
 
 ## 0.2.1
 
@@ -170,13 +221,15 @@
 
 ### Patch Changes
 
-- 2e8d06e: Update `jql-autosuggest` to accept a selection range which impacts the matchedText and replacePosition for suggestions
+- 2e8d06e: Update `jql-autosuggest` to accept a selection range which impacts the matchedText and
+  replacePosition for suggestions
 
 ## 0.0.4
 
 ### Patch Changes
 
-- 6f89567: Improve accuracy of autocomplete suggestions from `jql-autosuggest` package and include information for token replacement.
+- 6f89567: Improve accuracy of autocomplete suggestions from `jql-autosuggest` package and include
+  information for token replacement.
 
 ## 0.0.3
 

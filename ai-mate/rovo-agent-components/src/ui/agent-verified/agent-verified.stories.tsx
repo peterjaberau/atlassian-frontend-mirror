@@ -7,8 +7,7 @@ import { useFragment } from 'react-relay';
 import { withDi, withUseIntl } from '@atlassian/agent-studio-test-utils/storybook-decorators';
 
 import type { agentVerified_AtlaskitRovoAgentComponents$key } from './__generated__/agentVerified_AtlaskitRovoAgentComponents.graphql';
-
-import { AgentVerified } from './index';
+import { AgentVerified } from './agent-verified';
 
 const commonDeps = [
 	injectable(useFragment, () => ({
@@ -23,11 +22,13 @@ const meta: Meta<ComponentPropsWithoutRef<typeof AgentVerified>> = {
 export default meta;
 
 export const Default = {
-	render: () => <AgentVerified agentRef={{} as agentVerified_AtlaskitRovoAgentComponents$key} />,
+	render: (): React.JSX.Element => (
+		<AgentVerified agentRef={{} as agentVerified_AtlaskitRovoAgentComponents$key} />
+	),
 };
 
 export const TextLarge = {
-	render: () => (
+	render: (): React.JSX.Element => (
 		<AgentVerified
 			agentRef={{} as agentVerified_AtlaskitRovoAgentComponents$key}
 			adjacentTextSize="textLarge"
@@ -36,7 +37,7 @@ export const TextLarge = {
 };
 
 export const HeadingMedium = {
-	render: () => (
+	render: (): React.JSX.Element => (
 		<AgentVerified
 			agentRef={{} as agentVerified_AtlaskitRovoAgentComponents$key}
 			adjacentTextSize="headingMedium"
@@ -45,7 +46,7 @@ export const HeadingMedium = {
 };
 
 export const HeadingLarge = {
-	render: () => (
+	render: (): React.JSX.Element => (
 		<AgentVerified
 			agentRef={{} as agentVerified_AtlaskitRovoAgentComponents$key}
 			adjacentTextSize="headingLarge"

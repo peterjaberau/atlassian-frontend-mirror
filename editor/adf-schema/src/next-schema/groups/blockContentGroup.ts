@@ -1,7 +1,9 @@
-import { adfNodeGroup } from '@atlaskit/adf-schema-generator';
+import { adfNodeGroup, type ADFNodeGroup } from '@atlaskit/adf-schema-generator';
+
 import { blockCard } from '../nodes/blockCard';
 import { blockquote } from '../nodes/blockquote';
 import { bodiedExtension } from '../nodes/bodiedExtension';
+import { bodiedRule } from '../nodes/bodiedRule';
 import { codeBlock } from '../nodes/codeBlock';
 import { confluenceUnsupportedBlock } from '../nodes/confluenceUnsupportedBlock';
 import { decisionList } from '../nodes/decisionList';
@@ -20,6 +22,7 @@ import { taskList } from '../nodes/task';
 import { unsupportedBlock } from '../nodes/unsupportedBlock';
 
 /**
+ // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
  * @DSLCompatibilityException
  *
  * Pseudo group used to match existing validator and json schema specs.
@@ -30,7 +33,7 @@ import { unsupportedBlock } from '../nodes/unsupportedBlock';
  * - no base mediaSingle
  * - no base heading
  */
-export const blockContentGroup = adfNodeGroup(
+export const blockContentGroup: ADFNodeGroup = adfNodeGroup(
 	'block_content',
 	[
 		blockCard,
@@ -49,9 +52,12 @@ export const blockContentGroup = adfNodeGroup(
 		mediaGroup,
 		decisionList,
 		rule,
+		rule.use('with_attrs'),
+		bodiedRule,
 		panel,
 		blockquote,
 		extension.use('with_marks'),
+		extension.use('with_annotation'),
 		embedCard,
 		table,
 		// @ts-expect-error - types don't deal well with circular references for the variant

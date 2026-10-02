@@ -4,16 +4,17 @@
  */
 import type { ReactElement } from 'react';
 import { default as React, Fragment, useCallback, useContext, useMemo, useEffect } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
-import type { MediaADFAttrs, RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import type { MediaFeatureFlags } from '@atlaskit/media-common';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
+import { isSSR } from '@atlaskit/editor-common/core-utils';
 import type { EditorAppearance } from '@atlaskit/editor-common/types';
 import { MediaSingle as UIMediaSingle, WidthContext } from '@atlaskit/editor-common/ui';
-import { fg } from '@atlaskit/platform-feature-flags';
 import type { EventHandlers, MediaSingleWidthType } from '@atlaskit/editor-common/ui';
 import type { ImageLoaderProps } from '@atlaskit/editor-common/utils';
 import {
@@ -21,13 +22,15 @@ import {
 	akEditorDefaultLayoutWidth,
 	akEditorWideLayoutWidth,
 } from '@atlaskit/editor-shared-styles';
-import { isSSR } from '@atlaskit/editor-common/core-utils';
+import type { MediaFeatureFlags } from '@atlaskit/media-common';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
 import type { AnalyticsEventPayload } from '../../../analytics/events';
+import { useAnnotationHoverDispatch } from '../../../ui/annotations/contexts/AnnotationHoverContext';
+import { useAnnotationRangeDispatch } from '../../../ui/annotations/contexts/AnnotationRangeContext';
 import { FullPagePadding } from '../../../ui/Renderer/style';
 import type { RendererAppearance } from '../../../ui/Renderer/types';
 import type { MediaProps } from '../media';
-import { useAnnotationRangeDispatch } from '../../../ui/annotations/contexts/AnnotationRangeContext';
-import { useAnnotationHoverDispatch } from '../../../ui/annotations/contexts/AnnotationHoverContext';
 
 export interface Props {
 	allowCaptions?: boolean;
@@ -304,6 +307,7 @@ const MediaSingleWithChildren = (props: Props & ChildElements & WrappedComponent
 				height={height}
 				lineLength={isInsideOfBlockNode ? containerWidth : lineLength}
 				containerWidth={containerWidth}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				size={{
 					width: widthAttr,
 					widthType,
@@ -344,4 +348,8 @@ const MediaSingle = (props: Props & WrappedComponentProps) => {
 	return <MediaSingleWithChildren {...props} media={media} caption={caption} />;
 };
 
-export default injectIntl(MediaSingle);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(MediaSingle);
+export default _default_1;

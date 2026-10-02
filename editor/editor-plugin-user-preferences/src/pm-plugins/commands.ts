@@ -2,18 +2,42 @@ import {
 	ACTION,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
-	type EditorAnalyticsAPI,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
+import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { logException } from '@atlaskit/editor-common/monitoring';
 import type { EditorCommand } from '@atlaskit/editor-common/types';
-import {
-	type ResolvedUserPreferences,
-	type UserPreferences,
-	type UserPreferencesProvider,
+import type {
+	ResolvedUserPreferences,
+	UserPreferences,
+	UserPreferencesProvider,
 } from '@atlaskit/editor-common/user-preferences';
 
 import { userPreferencesPluginKey } from './main';
+
+export const overrideUserPreference =
+	({
+		key,
+		value,
+	}: {
+		key: keyof ResolvedUserPreferences;
+		value: ResolvedUserPreferences[typeof key];
+	}): EditorCommand =>
+	({ tr }) => {
+		tr.setMeta(userPreferencesPluginKey, {
+			override: { key, value },
+		});
+		return tr;
+	};
+
+export const clearOverrideUserPreference =
+	({ key }: { key: keyof ResolvedUserPreferences }): EditorCommand =>
+	({ tr }) => {
+		tr.setMeta(userPreferencesPluginKey, {
+			override: { key, value: null },
+		});
+		return tr;
+	};
 
 export const updateUserPreference =
 	({

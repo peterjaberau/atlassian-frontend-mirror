@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__breadcrumbs/app",
 		"rootDir": "../",
 		"composite": true,
@@ -28,13 +26,22 @@
 			"path": "../../../analytics/analytics-next/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../helpers/browser-apis/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../button/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../css/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../dropdown-menu/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../ds-lib/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../icon/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
@@ -43,7 +50,10 @@
 			"path": "../../primitives/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../theme/afm-products/tsconfig.json"
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../skeleton/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../tokens/afm-products/tsconfig.json"

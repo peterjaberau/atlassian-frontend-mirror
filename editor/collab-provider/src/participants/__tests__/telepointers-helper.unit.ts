@@ -1,10 +1,13 @@
-import { telepointerCallback, telepointerFromStep } from '../telepointers-helper';
-import { ExperiencePerformanceTypes, ExperienceTypes, UFOExperience } from '@atlaskit/ufo';
-import { AcknowledgementResponseTypes } from '../../types';
 import type { ProviderParticipant, StepJson } from '@atlaskit/editor-common/collab';
-import type { InternalError } from '../../errors/internal-errors';
+import { UFOExperience } from '@atlaskit/ufo/experience';
+import { ExperiencePerformanceTypes, ExperienceTypes } from '@atlaskit/ufo/experience-types';
 
-jest.mock('@atlaskit/ufo');
+import type { InternalError } from '../../errors/internal-errors';
+import { AcknowledgementResponseTypes } from '../../types';
+import { telepointerCallback, telepointerFromStep } from '../telepointers-helper';
+
+jest.mock('@atlaskit/ufo/experience-types');
+jest.mock('@atlaskit/ufo/experience');
 
 describe('telepointerCallback', () => {
 	const startMock = jest.spyOn(UFOExperience.prototype, 'start');

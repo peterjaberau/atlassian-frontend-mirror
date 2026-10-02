@@ -1,6 +1,67 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const mentionMessages = defineMessages({
+export const mentionMessages: {
+	inviteItemTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	inviteTeammateInvalidEmail: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	mentionsAddLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	mentionsIconLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	mentionsNodeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	sendInvite: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	typeAheadSectionAgents: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	typeAheadSectionAgentsLabsLozengeLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	typeAheadSectionAgentsLoadError: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	typeAheadSectionAgentsRetry: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	typeAheadSectionPeople: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	unknownLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	inviteItemTitle: {
 		id: 'fabric.editor.inviteItem.title',
 		defaultMessage:
@@ -15,7 +76,8 @@ export const mentionMessages = defineMessages({
 	mentionsIconLabel: {
 		id: 'fabric.editor.mentionsIconLabel',
 		defaultMessage: 'Mention',
-		description: 'icon label to describe the mention icon',
+		description:
+			'Accessible label for the mention icon displayed in the editor toolbar, indicating that clicking it inserts a mention.',
 	},
 	mentionsNodeLabel: {
 		id: 'fabric.editor.mentionNode.label',
@@ -26,7 +88,8 @@ export const mentionMessages = defineMessages({
 	unknownLabel: {
 		id: 'fabric.editor.unknown.label',
 		defaultMessage: 'Unknown',
-		description: 'Label to indicate unknown mention node',
+		description:
+			'Accessible label for a mention node when the referenced user cannot be identified or resolved.',
 	},
 	inviteTeammateInvalidEmail: {
 		id: 'fabric.editor.inviteItem.invalidEmail',
@@ -37,7 +100,34 @@ export const mentionMessages = defineMessages({
 	sendInvite: {
 		id: 'fabric.editor.inviteItem.sendInvite',
 		defaultMessage: 'Send request to invite teammate',
+		description: 'By line text for send request to invite teammate option shown in mentions.',
+	},
+	typeAheadSectionPeople: {
+		id: 'fabric.editor.typeAhead.mentionSection.people',
+		defaultMessage: 'People',
+		description: 'Section header for people (non-agent) results in the mention type-ahead menu',
+	},
+	typeAheadSectionAgents: {
+		id: 'fabric.editor.typeAhead.mentionSection.agents',
+		defaultMessage: 'Agents',
+		description: 'Section header for agent results in the mention type-ahead menu',
+	},
+	typeAheadSectionAgentsLabsLozengeLabel: {
+		id: 'editor-common.messages.mentions.typeAheadSectionAgentsLabsLozengeLabel',
+		defaultMessage: 'Labs',
 		description:
-			'By line text for send request to invite teammate option shown in mentions.'
+			'Lozenge label shown next to the Agents section header in the mention type-ahead menu to indicate that agent mentions are experimental. This label is intentionally captialised.',
+	},
+	typeAheadSectionAgentsLoadError: {
+		id: 'editor-common.messages.mentions.typeAheadSectionAgentsLoadError',
+		defaultMessage: 'Unable to load agents',
+		description:
+			'Error text shown in the Agents section of the mention type-ahead menu when agent results fail to load.',
+	},
+	typeAheadSectionAgentsRetry: {
+		id: 'editor-common.messages.mentions.typeAheadSectionAgentsRetry',
+		defaultMessage: 'Retry',
+		description:
+			'Retry action text shown next to the agent loading error in the mention type-ahead menu.',
 	},
 });

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/util-data-test",
-	"version": "18.5.1",
+	"version": "19.1.24",
 	"description": "Shared test and story data",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -56,9 +56,20 @@
 		"./presence-data": "./src/mention/presence-data.ts",
 		"./slack-data": "./src/slack-data/index.ts",
 		"./user-picker": "./src/user-picker/index.ts",
-		"./user-picker-data": "./src/user-picker/user-picker-data.ts"
+		"./user-picker-data": "./src/user-picker/user-picker-data.ts",
+		"./slack-conversations-data": "./src/entry-points/slack-conversations-data.ts",
+		"./slack-workspaces-data": "./src/entry-points/slack-workspaces-data.ts",
+		"./user-picker-custom-data": "./src/entry-points/user-picker-custom-data.tsx",
+		"./user-picker-team-data": "./src/entry-points/user-picker-team-data.tsx"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "UIP - Test Foundations"
 	},
 	"scripts": {
@@ -75,7 +86,7 @@
 		"@atlaskit/mention": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/profilecard": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/user-picker": "workspace:^",
 		"@atlaskit/util-service-support": "workspace:^",
@@ -96,6 +107,10 @@
 		"data",
 		"sample"
 	],
+	"devDependencies": {
+		"react": "root:*",
+		"react-dom": "root:*"
+	},
 	"sideEffects": [
 		"*.compiled.css"
 	]

@@ -1,10 +1,11 @@
-jest.mock('@atlaskit/media-ui');
+jest.mock('@atlaskit/media-ui/imageMetaData/getOrientation');
 import { type MediaClient } from '@atlaskit/media-client';
-import { getOrientation } from '@atlaskit/media-ui';
+import { getOrientation } from '@atlaskit/media-ui/imageMetaData/getOrientation';
 
-import { isLocalPreviewError, isRemotePreviewError } from '../errors';
-
-import { getLocalPreview, getRemotePreview } from './helpers';
+import { isLocalPreviewError } from '../isLocalPreviewError';
+import { isRemotePreviewError } from '../isRemotePreviewError';
+import { getLocalPreview } from './getLocalPreview';
+import { getRemotePreview } from './getRemotePreview';
 import * as videoSnapshot from './videoSnapshot';
 
 const takeSnapshot = jest
@@ -44,7 +45,7 @@ describe('getCardPreviewFromBackend()', () => {
 		expect(cardPreview?.dataURI).toEqual('mock result of URL.createObjectURL()');
 		expect(cardPreview.source).toEqual('remote');
 		expect(cardPreview?.orientation).toEqual(1);
-		expect(mediaClient.getImage).toBeCalledWith('some-id', params, undefined, undefined, {
+		expect(mediaClient.getImage).toHaveBeenCalledWith('some-id', params, undefined, undefined, {
 			traceId: 'some-trace-id',
 		});
 	});
@@ -92,7 +93,7 @@ describe('getCardPreviewFromFilePreview()', () => {
 		}
 
 		expect(getOrientation).toHaveBeenCalledTimes(1);
-		expect(getOrientation).toBeCalledWith(blob);
+		expect(getOrientation).toHaveBeenCalledWith(blob);
 		expect(cardPreview.orientation).toEqual(10);
 		expect(cardPreview.source).toEqual('local');
 	});
@@ -107,7 +108,7 @@ describe('getCardPreviewFromFilePreview()', () => {
 		try {
 			cardPreview = await getLocalPreview(filePreview);
 		} catch (e: any) {
-			expect(takeSnapshot).toBeCalledWith(filePreview.value);
+			expect(takeSnapshot).toHaveBeenCalledWith(filePreview.value);
 			expect(isLocalPreviewError(e)).toBe(true);
 			expect(e.secondaryError).toBe(error);
 		}
@@ -124,7 +125,7 @@ describe('getCardPreviewFromFilePreview()', () => {
 			return expect(cardPreview).toBeDefined();
 		}
 
-		expect(takeSnapshot).toBeCalledWith(filePreview.value);
+		expect(takeSnapshot).toHaveBeenCalledWith(filePreview.value);
 		expect(cardPreview.dataURI).toEqual('video-preview');
 		expect(cardPreview.source).toEqual('local');
 	});

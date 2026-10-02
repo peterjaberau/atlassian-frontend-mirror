@@ -1,13 +1,14 @@
 /* eslint-disable testing-library/no-unnecessary-act */
+
 import React from 'react';
 
-import { act, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
 import { flushPromises } from '@atlaskit/link-test-helpers';
 import { SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
+import { act, render, screen, userEvent } from '@atlassian/testing-library';
 
 import * as useInvoke from '../../../../../../../state/hooks/use-invoke';
 import * as useResolve from '../../../../../../../state/hooks/use-resolve';
@@ -110,7 +111,11 @@ describe('ServerAction', () => {
 		await flushPromises();
 
 		expect(mockResolve).toHaveBeenCalledTimes(1);
-		expect(mockResolve).toHaveBeenCalledWith(action.reload.url, true, undefined, action.reload.id);
+		expect(mockResolve).toHaveBeenCalledWith({
+			url: action.reload.url,
+			isReloading: true,
+			id: action.reload.id,
+		});
 	});
 
 	it('does not reloads the url after invoke fails', async () => {

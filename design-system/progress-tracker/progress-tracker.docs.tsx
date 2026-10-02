@@ -1,0 +1,50 @@
+import type { StructuredContentSource } from '@atlassian/structured-docs-types/types';
+
+const documentation: StructuredContentSource = {
+	components: [
+		{
+			name: 'ProgressTracker',
+			description: 'A component for tracking progress through multi-step processes.',
+			status: 'general-availability',
+			designSource: {
+				figmaUrl: 'https://go.atlassian.com/figma-library-ads-5704-5050',
+			},
+			import: {
+				name: 'ProgressTracker',
+				package: '@atlaskit/progress-tracker',
+				type: 'named',
+				packagePath: __dirname,
+				packageJson: require('./package.json'),
+			},
+			usageGuidelines: [
+				'Use for multi-step workflows',
+				'Provide clear progress tracking',
+				'Handle progress updates appropriately',
+				'Consider progress completion states',
+			],
+			contentGuidelines: [
+				'Use clear, descriptive step labels',
+				'Provide meaningful progress descriptions',
+				'Use appropriate progress terminology',
+				'Keep progress information concise',
+			],
+			accessibilityGuidelines: [
+				'Ensure progress is announced by screen readers',
+				'Use appropriate progress indicators',
+				'Provide clear progress context',
+				'Consider progress timing and updates',
+			],
+			examples: [
+				{
+					name: 'Progress Tracker',
+					description: 'Progress Tracker example',
+					source: `${__dirname}/examples/ai/progress-tracker.tsx`,
+				},
+			],
+			keywords: ['progress', 'tracker', 'steps', 'completion', 'workflow'],
+			categories: ['feedback'],
+		},
+	],
+};
+
+export default documentation;

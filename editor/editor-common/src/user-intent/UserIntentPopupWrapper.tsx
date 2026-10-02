@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
-
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import type { ReactNode } from 'react';
 
 import type { ExtractInjectionAPI, NextEditorPlugin } from '../types';
-
 import type { PopupUserIntent } from './types';
 
 /**
@@ -20,31 +17,18 @@ export const UserIntentPopupWrapper = ({
 	api: ExtractInjectionAPI<NextEditorPlugin<any, any>> | undefined | null;
 	children: React.ReactNode;
 	userIntent?: PopupUserIntent;
-}) => {
+}): ReactNode => {
 	useEffect(() => {
-		api?.core.actions.execute(
-			api?.userIntent?.commands.setCurrentUserIntent(
-				expValEqualsNoExposure('platform_editor_lovability_user_intent', 'isEnabled', true)
-					? userIntent
-					: 'popupOpen',
-			),
-		);
+		api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent(userIntent));
 
 		return () => {
-			if (
-				!expValEqualsNoExposure('platform_editor_lovability_user_intent', 'isEnabled', true) ||
-				userIntent === api?.userIntent?.sharedState.currentState()?.currentUserIntent
-			) {
-				if (fg('platform_editor_fix_popup_user_intent')) {
-					// Defer the reset to avoid interfering with ongoing ProseMirror transactions
-					// This fixes a race condition where cleanup happens during a transaction
-					// (e.g., during drag handle mouse over -> unmountDecorations -> flushSync)
-					setTimeout(() => {
-						api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('default'));
-					}, 0);
-				} else {
+			if (userIntent === api?.userIntent?.sharedState.currentState()?.currentUserIntent) {
+				// Defer the reset to avoid interfering with ongoing ProseMirror transactions
+				// This fixes a race condition where cleanup happens during a transaction
+				// (e.g., during drag handle mouse over -> unmountDecorations -> flushSync)
+				setTimeout(() => {
 					api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('default'));
-				}
+				}, 0);
 			}
 		};
 

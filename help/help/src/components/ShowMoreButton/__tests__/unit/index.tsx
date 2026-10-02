@@ -1,10 +1,11 @@
 import React from 'react';
+
 import { render, fireEvent } from '@testing-library/react';
-import { createIntl, createIntlCache } from 'react-intl-next';
+import { createIntl, createIntlCache } from 'react-intl';
+
 import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 
 import { messages } from '../../../../messages';
-
 import { ShowMoreButton } from '../../index';
 
 // Messages
@@ -16,9 +17,8 @@ const intl = createIntl(
 	},
 	cache,
 );
-const buttonLabelShowMore = intl.formatMessage(messages.help_show_more_button_label_more, {
+const buttonLabelShowMore = intl.formatMessage(messages.help_show_more_button_label_more_articles, {
 	numberOfItemsLeft: 9,
-	itemsType: 'articles',
 });
 const buttonLabelShowLess = intl.formatMessage(messages.help_show_more_button_label_less);
 
@@ -42,24 +42,6 @@ describe('ShowMoreButton', () => {
 		const { container } = render(component);
 
 		await expect(container).toBeAccessible();
-	});
-
-	it.skip('Should match snapshot', async () => {
-		const component = (
-			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
-				<ShowMoreButton
-					intl={intl}
-					itemsType="articles"
-					minItemsToDisplay={9}
-					maxItemsToDisplay={18}
-					showMoreToggeled
-					onToggle={mockOnClick}
-				/>
-			</AnalyticsListener>
-		);
-		const { container } = render(component);
-
-		expect(container.firstChild).toMatchSnapshot();
 	});
 
 	it(`Should show display the message ${buttonLabelShowMore} if the showMoreToggeled prop is true`, async () => {
@@ -103,10 +85,12 @@ describe('ShowMoreButton', () => {
 	it(`The number of articles to display should be equal to maxItemsToDisplay - minItemsToDisplay`, async () => {
 		const minItemsToDisplay = 9;
 		const maxItemsToDisplay = 18;
-		let buttonLabelShowMore = intl.formatMessage(messages.help_show_more_button_label_more, {
-			numberOfItemsLeft: maxItemsToDisplay - minItemsToDisplay,
-			itemsType: 'articles',
-		});
+		let buttonLabelShowMore = intl.formatMessage(
+			messages.help_show_more_button_label_more_articles,
+			{
+				numberOfItemsLeft: maxItemsToDisplay - minItemsToDisplay,
+			},
+		);
 		const component = (
 			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
 				<ShowMoreButton
@@ -124,9 +108,8 @@ describe('ShowMoreButton', () => {
 		let showMoreButtonElm = queryByText(`${buttonLabelShowMore}`);
 		expect(showMoreButtonElm).not.toBeNull();
 
-		buttonLabelShowMore = intl.formatMessage(messages.help_show_more_button_label_more, {
+		buttonLabelShowMore = intl.formatMessage(messages.help_show_more_button_label_more_articles, {
 			numberOfItemsLeft: 9999,
-			itemsType: 'articles',
 		});
 
 		showMoreButtonElm = queryByText(`${buttonLabelShowMore}`);
@@ -136,10 +119,12 @@ describe('ShowMoreButton', () => {
 	it(`The number of articles to display should be 0 if minItemsToDisplay > maxItemsToDisplay`, async () => {
 		const minItemsToDisplay = 18;
 		const maxItemsToDisplay = 9;
-		let buttonLabelShowMore = intl.formatMessage(messages.help_show_more_button_label_more, {
-			numberOfItemsLeft: 0,
-			itemsType: 'articles',
-		});
+		let buttonLabelShowMore = intl.formatMessage(
+			messages.help_show_more_button_label_more_articles,
+			{
+				numberOfItemsLeft: 0,
+			},
+		);
 		const component = (
 			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
 				<ShowMoreButton
@@ -161,10 +146,12 @@ describe('ShowMoreButton', () => {
 	it(`Should call handleOnClick when the user click the button`, async () => {
 		const minItemsToDisplay = 18;
 		const maxItemsToDisplay = 9;
-		let buttonLabelShowMore = intl.formatMessage(messages.help_show_more_button_label_more, {
-			numberOfItemsLeft: 0,
-			itemsType: 'articles',
-		});
+		let buttonLabelShowMore = intl.formatMessage(
+			messages.help_show_more_button_label_more_articles,
+			{
+				numberOfItemsLeft: 0,
+			},
+		);
 		const component = (
 			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
 				<ShowMoreButton

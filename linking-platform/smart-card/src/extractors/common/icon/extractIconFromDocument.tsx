@@ -1,16 +1,9 @@
 import React from 'react';
 
 import DocumentFilledIcon from '@atlaskit/icon/core/file';
-import { isConfluenceGenerator } from '@atlaskit/link-extractors';
+import { isConfluenceGenerator } from '@atlaskit/link-extractors/is-confluence-generator';
 
-import BlogIcon from '../../../common/ui/icons/blog-icon';
-import PresentationIcon from '../../../common/ui/icons/chart-bar-icon';
-import FileIcon from '../../../common/ui/icons/file-icon';
-import SpreadsheetIcon from '../../../common/ui/icons/list-bullet-icon';
-import LiveDocumentIcon from '../../../common/ui/icons/live-document-icon';
-import DocumentIcon from '../../../common/ui/icons/page-icon';
-import { getIconForFileType } from '../../../utils';
-
+import { getIconForFileType } from '../../../utils/get-icon-for-file-type';
 import { type IconOpts } from './extractIcon';
 import { prioritiseIcon } from './prioritiseIcon';
 
@@ -23,6 +16,14 @@ export type DocumentType =
 	| 'schema:SpreadsheetDigitalDocument'
 	| 'atlassian:Template'
 	| 'atlassian:UndefinedLink';
+
+const getBlogIconWrapped = () => require('../../../common/ui/icons/blog-icon').default;
+const getDocumentIcon = () => require('../../../common/ui/icons/page-icon').default;
+const getFileIcon = () => require('../../../common/ui/icons/file-icon').default;
+const getLiveDocumentIconWrapped = () =>
+	require('../../../common/ui/icons/live-document-icon').default;
+const getPresentationIcon = () => require('../../../common/ui/icons/chart-bar-icon').default;
+const getSpreadsheetIcon = () => require('../../../common/ui/icons/list-bullet-icon').default;
 
 /**
  * Extracts an icon for a document pbject
@@ -48,51 +49,56 @@ export const extractIconFromDocument = (
 };
 const documentFileFormatToIcon = (opts: IconOpts): React.ReactNode | undefined => {
 	if (opts.fileFormat) {
-		return getIconForFileType(opts.fileFormat);
+		return getIconForFileType(opts.fileFormat, opts.showIconLabel);
 	}
 };
+
+const documentLabel = (opts: IconOpts, label: string) => {
+	if (!opts.showIconLabel) {
+		return '';
+	}
+	return label;
+};
+
 const documentTypeToIcon = (type: DocumentType, opts: IconOpts): React.ReactNode | undefined => {
 	switch (type) {
-		case 'schema:BlogPosting':
-			return <BlogIcon label={opts.showIconLabel ? opts.title || 'blog' : ''} testId="blog-icon" />;
+		case 'schema:BlogPosting': {
+			// Intentionally keep this icon on a synchronous require()-based path.
+			// This icon must be present in SSR markup so hydration does not cause a
+			// visible empty-state-then-pop-in transition for Smart Links.
+			const BlogIconWrapped = getBlogIconWrapped();
+			return <BlogIconWrapped label={documentLabel(opts, 'blog')} testId="blog-icon" />;
+		}
 		case 'schema:DigitalDocument':
 			return digitalDocumentToIcon(opts);
-		case 'schema:TextDigitalDocument':
+		case 'schema:TextDigitalDocument': {
+			const DocumentIcon = getDocumentIcon();
+			return <DocumentIcon label={documentLabel(opts, 'document')} testId="document-icon" />;
+		}
+		case 'schema:PresentationDigitalDocument': {
+			const PresentationIcon = getPresentationIcon();
 			return (
-				<DocumentIcon
-					label={opts.showIconLabel ? opts.title || 'document' : ''}
-					testId="document-icon"
-				/>
+				<PresentationIcon label={documentLabel(opts, 'presentation')} testId="presentation-icon" />
 			);
-		case 'schema:PresentationDigitalDocument':
+		}
+		case 'schema:SpreadsheetDigitalDocument': {
+			const SpreadsheetIcon = getSpreadsheetIcon();
 			return (
-				<PresentationIcon
-					label={opts.showIconLabel ? opts.title || 'presentation' : ''}
-					testId="presentation-icon"
-				/>
+				<SpreadsheetIcon label={documentLabel(opts, 'spreadsheet')} testId="spreadsheet-icon" />
 			);
-		case 'schema:SpreadsheetDigitalDocument':
-			return (
-				<SpreadsheetIcon
-					label={opts.showIconLabel ? opts.title || 'spreadsheet' : ''}
-					testId="spreadsheet-icon"
-				/>
-			);
+		}
 		case 'atlassian:Template':
 			return (
 				<DocumentFilledIcon
 					color="currentColor"
-					label={opts.showIconLabel ? opts.title || 'template' : ''}
+					label={documentLabel(opts, 'template')}
 					testId="document-filled-icon"
 				/>
 			);
-		case 'atlassian:UndefinedLink':
-			return (
-				<DocumentIcon
-					label={opts.showIconLabel ? opts.title || 'undefinedLink' : ''}
-					testId="document-icon"
-				/>
-			);
+		case 'atlassian:UndefinedLink': {
+			const DocumentIcon = getDocumentIcon();
+			return <DocumentIcon label={documentLabel(opts, 'document')} testId="document-icon" />;
+		}
 	}
 };
 
@@ -106,8 +112,18 @@ const documentTypeToIcon = (type: DocumentType, opts: IconOpts): React.ReactNode
  */
 const digitalDocumentToIcon = (opts: IconOpts): React.ReactNode => {
 	if (opts.provider?.id && isConfluenceGenerator(opts.provider.id)) {
-		return <LiveDocumentIcon label="live-doc" testId="live-doc-icon" />;
+		// Intentionally keep this icon on a synchronous require()-based path.
+		// This icon must be present in SSR markup so hydration does not cause a
+		// visible empty-state-then-pop-in transition for Smart Links.
+		const LiveDocumentIconWrapped = getLiveDocumentIconWrapped();
+		return (
+			<LiveDocumentIconWrapped
+				label={documentLabel(opts, 'live document')}
+				testId="live-doc-icon"
+			/>
+		);
 	} else {
-		return <FileIcon label={opts.showIconLabel ? opts.title || 'file' : ''} testId="file-icon" />;
+		const FileIcon = getFileIcon();
+		return <FileIcon label={documentLabel(opts, 'file')} testId="file-icon" />;
 	}
 };

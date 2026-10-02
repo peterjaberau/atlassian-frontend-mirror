@@ -2,24 +2,25 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
-import { ButtonItem, Section } from '@atlaskit/menu';
-import { N30 } from '@atlaskit/theme/colors';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
+import ButtonItem from '@atlaskit/menu/button-item';
+import Section from '@atlaskit/menu/section';
 import { token } from '@atlaskit/tokens';
 
 const buttonStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& > button:hover': {
-		backgroundColor: token('color.background.neutral.subtle.hovered', N30),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
 	},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& > button:focus': {
-		backgroundColor: token('color.background.neutral.subtle.hovered', N30),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
 	},
 });
 
@@ -27,18 +28,31 @@ type Props = {
 	ariaLabel?: string;
 	iconBefore?: React.ReactNode;
 	isFocused: boolean;
+	lastInputMethodRef?: React.MutableRefObject<'mouse' | 'keyboard'>;
 	onClick: () => void;
 	title: string;
 };
 
-export const MoreOptions = ({ onClick, isFocused, title, ariaLabel, iconBefore }: Props) => {
+export const MoreOptions = ({
+	onClick,
+	isFocused,
+	title,
+	ariaLabel,
+	iconBefore,
+	lastInputMethodRef,
+}: Props): jsx.JSX.Element => {
 	const ref = useRef<HTMLElement>(null);
+	const isSafari = getBrowserInfo().safari;
 
 	useEffect(() => {
 		if (isFocused && ref.current) {
-			ref.current.focus();
+			const skipFocusOnSafariHover = isSafari && lastInputMethodRef?.current === 'mouse';
+
+			if (!skipFocusOnSafariHover) {
+				ref.current.focus();
+			}
 		}
-	}, [isFocused]);
+	}, [isFocused, lastInputMethodRef, isSafari]);
 
 	useEffect(() => {
 		if (!ref.current) {
@@ -52,11 +66,6 @@ export const MoreOptions = ({ onClick, isFocused, title, ariaLabel, iconBefore }
 				onClick();
 				// Prevent keydown listener in TypeaheadList from handling Enter pressed
 				e.stopPropagation();
-			} else if (e.key === 'Tab') {
-				// TypeaheadList will try to insert selected item on Tab press
-				// hence stop propagation to prevent that and treat this as noop
-				e.stopPropagation();
-				e.preventDefault();
 			}
 		};
 
@@ -74,6 +83,12 @@ export const MoreOptions = ({ onClick, isFocused, title, ariaLabel, iconBefore }
 			<span css={buttonStyles}>
 				<ButtonItem
 					ref={ref}
+					/* eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed) */
+					onMouseDown={(e: React.MouseEvent) => {
+						if (isSafari) {
+							e.preventDefault();
+						}
+					}}
 					onClick={onClick}
 					iconBefore={iconBefore}
 					aria-label={ariaLabel}

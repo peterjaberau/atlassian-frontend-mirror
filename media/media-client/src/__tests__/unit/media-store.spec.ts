@@ -1,5 +1,10 @@
 jest.mock('../../utils/checkWebpSupport');
 jest.mock('../../client/media-store/resolveAuth');
+jest.mock('../../client/media-store/resolveInitialAuth');
+import { nextTick } from '@atlaskit/media-common/test-helpers';
+import type { Auth } from '@atlaskit/media-core/auth';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+
 import {
 	type CreatedTouchedFile,
 	MediaStore,
@@ -20,12 +25,10 @@ import {
 	getMediaEnvironment,
 	getMediaRegion,
 } from '../..';
+import { resolveAuth } from '../../client/media-store/resolveAuth';
+import { resolveInitialAuth } from '../../client/media-store/resolveInitialAuth';
 import { FILE_CACHE_MAX_AGE } from '../../constants';
-import { resolveAuth, resolveInitialAuth } from '../../client/media-store/resolveAuth';
-import { type Auth } from '@atlaskit/media-core';
 import * as requestModule from '../../utils/request';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-import { nextTick } from '@atlaskit/media-common/test-helpers';
 
 const requestModuleMock = jest.spyOn(requestModule, 'request');
 
@@ -255,7 +258,7 @@ describe('MediaStore', () => {
 				mediaStore.request = jest.fn().mockReturnValue(Promise.resolve({ json() {} }));
 				await mediaStore.createUpload(undefined, 'my-collection');
 
-				expect(mediaStore.request).toBeCalledWith('/upload', {
+				expect(mediaStore.request).toHaveBeenCalledWith('/upload', {
 					method: 'POST',
 					endpoint: '/upload',
 					authContext: {
@@ -322,7 +325,7 @@ describe('MediaStore', () => {
 					traceId: 'test-trace-id',
 				});
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/upload`,
 					expect.objectContaining({
 						auth: {
@@ -388,7 +391,7 @@ describe('MediaStore', () => {
 					traceId: 'test-trace-id',
 				});
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/chunk/some-etag`,
 					expect.objectContaining({
 						auth: {
@@ -454,6 +457,75 @@ describe('MediaStore', () => {
 					body: JSON.stringify(body),
 				});
 			});
+
+			ffTest(
+				'platform_media_upload_expected_size_header',
+				async () => {
+					const body = {
+						uploadId: 'some-upload-id',
+						name: 'some-name',
+						mimeType: 'application/pdf',
+						conditions: { size: 12345 },
+					};
+					const params = { collection: 'some-collection' };
+
+					fetchMock.once(JSON.stringify({ data }), {
+						status: 201,
+						statusText: 'Created',
+					});
+
+					await mediaStore.createFileFromUpload(body, params, undefined, {
+						expectedFileSize: 12345,
+					});
+
+					expect(fetchMock).toHaveBeenCalledWith(
+						`${baseUrl}/file/upload?collection=some-collection`,
+						{
+							method: 'POST',
+							headers: {
+								'X-Client-Id': clientId,
+								Authorization: `Bearer ${token}`,
+								Accept: 'application/json',
+								'Content-Type': 'application/json',
+								'x-expected-size': '12345',
+							},
+							body: JSON.stringify(body),
+						},
+					);
+				},
+				async () => {
+					const body = {
+						uploadId: 'some-upload-id',
+						name: 'some-name',
+						mimeType: 'application/pdf',
+						conditions: { size: 12345 },
+					};
+					const params = { collection: 'some-collection' };
+
+					fetchMock.once(JSON.stringify({ data }), {
+						status: 201,
+						statusText: 'Created',
+					});
+
+					await mediaStore.createFileFromUpload(body, params, undefined, {
+						expectedFileSize: 12345,
+					});
+
+					expect(fetchMock).toHaveBeenCalledWith(
+						`${baseUrl}/file/upload?collection=some-collection`,
+						{
+							method: 'POST',
+							headers: {
+								'X-Client-Id': clientId,
+								Authorization: `Bearer ${token}`,
+								Accept: 'application/json',
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify(body),
+						},
+					);
+				},
+			);
 
 			it('should fail if response is malformed JSON', async () => {
 				const body = {
@@ -538,7 +610,7 @@ describe('MediaStore', () => {
 					statusText: 'Ok',
 				});
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/file/upload`,
 					expect.objectContaining({
 						auth: {
@@ -660,7 +732,7 @@ describe('MediaStore', () => {
 
 				await mediaStore.getFile(fileId, params, { traceId: 'test-trace-id' });
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/file/faee2a3a-f37d-11e4-aae2-3c15c2c70ce6`,
 					expect.objectContaining({
 						auth: {
@@ -715,6 +787,73 @@ describe('MediaStore', () => {
 				});
 			});
 
+			ffTest(
+				'platform_media_upload_expected_size_header',
+				async () => {
+					const uploadId = '29c49470-adac-4b16-82ec-301340c7b16a';
+					const body = {
+						chunks: [
+							'0675a983536736a69f835438bcf8629e044f190d-4096',
+							'e6295a0966535d295582670afeeb14059969d359-209',
+						],
+						hash: 'sha1:b0edf951dd0c86f80d989e20b9dc3060c53d66a6',
+						offset: 0,
+					};
+
+					fetchMock.once('', {
+						status: 200,
+						statusText: 'Ok',
+					});
+
+					await mediaStore.appendChunksToUpload(uploadId, body, undefined, undefined, {
+						expectedFileSize: 12345,
+					});
+
+					expect(fetchMock).toHaveBeenCalledWith(`${baseUrl}/upload/${uploadId}/chunks`, {
+						method: 'PUT',
+						headers: {
+							'X-Client-Id': clientId,
+							Authorization: `Bearer ${token}`,
+							Accept: 'application/json',
+							'Content-Type': 'application/json',
+							'x-expected-size': '12345',
+						},
+						body: JSON.stringify(body),
+					});
+				},
+				async () => {
+					const uploadId = '29c49470-adac-4b16-82ec-301340c7b16a';
+					const body = {
+						chunks: [
+							'0675a983536736a69f835438bcf8629e044f190d-4096',
+							'e6295a0966535d295582670afeeb14059969d359-209',
+						],
+						hash: 'sha1:b0edf951dd0c86f80d989e20b9dc3060c53d66a6',
+						offset: 0,
+					};
+
+					fetchMock.once('', {
+						status: 200,
+						statusText: 'Ok',
+					});
+
+					await mediaStore.appendChunksToUpload(uploadId, body, undefined, undefined, {
+						expectedFileSize: 12345,
+					});
+
+					expect(fetchMock).toHaveBeenCalledWith(`${baseUrl}/upload/${uploadId}/chunks`, {
+						method: 'PUT',
+						headers: {
+							'X-Client-Id': clientId,
+							Authorization: `Bearer ${token}`,
+							Accept: 'application/json',
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(body),
+					});
+				},
+			);
+
 			it('calls request with traceContext', async () => {
 				const uploadId = '29c49470-adac-4b16-82ec-301340c7b16a';
 				const body = {
@@ -735,7 +874,7 @@ describe('MediaStore', () => {
 					traceId: 'test-trace-id',
 				});
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/upload/29c49470-adac-4b16-82ec-301340c7b16a/chunks`,
 					expect.objectContaining({
 						auth: {
@@ -824,6 +963,71 @@ describe('MediaStore', () => {
 					undefined,
 				);
 			});
+
+			ffTest(
+				'platform_media_upload_expected_size_header',
+				async () => {
+					const data: TouchedFiles = {
+						created: [createdTouchedFile1],
+					};
+
+					fetchMock.once(JSON.stringify({ data }), {
+						status: 201,
+						statusText: 'Created',
+					});
+
+					const body: MediaStoreTouchFileBody = {
+						descriptors: [descriptor1],
+					};
+
+					await mediaStore.touchFiles(body, params, undefined, { expectedFileSize: 12345 });
+
+					expect(fetchMock).toHaveBeenCalledWith(
+						`${baseUrl}/upload/createWithFiles?hashAlgorithm=sha256`,
+						{
+							method: 'POST',
+							headers: {
+								'X-Client-Id': clientId,
+								Authorization: `Bearer ${token}`,
+								Accept: 'application/json',
+								'Content-Type': 'application/json',
+								'x-expected-size': '12345',
+							},
+							body: JSON.stringify(body),
+						},
+					);
+				},
+				async () => {
+					const data: TouchedFiles = {
+						created: [createdTouchedFile1],
+					};
+
+					fetchMock.once(JSON.stringify({ data }), {
+						status: 201,
+						statusText: 'Created',
+					});
+
+					const body: MediaStoreTouchFileBody = {
+						descriptors: [descriptor1],
+					};
+
+					await mediaStore.touchFiles(body, params, undefined, { expectedFileSize: 12345 });
+
+					expect(fetchMock).toHaveBeenCalledWith(
+						`${baseUrl}/upload/createWithFiles?hashAlgorithm=sha256`,
+						{
+							method: 'POST',
+							headers: {
+								'X-Client-Id': clientId,
+								Authorization: `Bearer ${token}`,
+								Accept: 'application/json',
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify(body),
+						},
+					);
+				},
+			);
 
 			it('should fail if error status is returned', async () => {
 				fetchMock.once('something went wrong', {
@@ -916,7 +1120,7 @@ describe('MediaStore', () => {
 					traceId: 'test-trace-id',
 				});
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/upload/createWithFiles`,
 					expect.objectContaining({
 						auth: {
@@ -1051,6 +1255,48 @@ describe('MediaStore', () => {
 				);
 				expect(url).toEqual(
 					`${baseUrl}/file/1234/image?allowAnimated=true&client=some-client-id&collection=${collection}&max-age=${FILE_CACHE_MAX_AGE}&mode=crop&token=${token}`,
+				);
+			});
+
+			describe('watermark version param', () => {
+				ffTest(
+					'confluence_watermark_admin_ui',
+					async () => {
+						const collection = 'some-collection';
+						const watermarkPayload = {
+							v: 'WjtFdA',
+							ari: 'ari:cloud:confluence:abc:space/123',
+						};
+						const jwtPayload = {
+							iss: 'test-issuer',
+							watermark: JSON.stringify(watermarkPayload),
+						};
+						const jwtToken = `header.${btoa(JSON.stringify(jwtPayload))}.signature`;
+						const authWithWatermark = { baseUrl, clientId, token: jwtToken };
+						(resolveAuth as jest.Mock).mockResolvedValueOnce(authWithWatermark);
+
+						const url = await mediaStore.getFileImageURL('1234', { collection });
+
+						expect(url).toContain('wmv=WjtFdA');
+					},
+					async () => {
+						const collection = 'some-collection';
+						const watermarkPayload = {
+							v: 'WjtFdA',
+							ari: 'ari:cloud:confluence:abc:space/123',
+						};
+						const jwtPayload = {
+							iss: 'test-issuer',
+							watermark: JSON.stringify(watermarkPayload),
+						};
+						const jwtToken = `header.${btoa(JSON.stringify(jwtPayload))}.signature`;
+						const authWithWatermark = { baseUrl, clientId, token: jwtToken };
+						(resolveAuth as jest.Mock).mockResolvedValueOnce(authWithWatermark);
+
+						const url = await mediaStore.getFileImageURL('1234', { collection });
+
+						expect(url).not.toContain('wmv=');
+					},
 				);
 			});
 		});
@@ -1294,7 +1540,7 @@ describe('MediaStore', () => {
 					{ traceId: 'test-trace-id' },
 				);
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/file/123/image`,
 					expect.objectContaining({
 						auth: {
@@ -1405,6 +1651,60 @@ describe('MediaStore', () => {
 					},
 				);
 			});
+
+			describe('watermark version param', () => {
+				ffTest(
+					'confluence_watermark_admin_ui',
+					async () => {
+						const watermarkPayload = {
+							v: 'WjtFdA',
+							ari: 'ari:cloud:confluence:abc:space/123',
+						};
+						const jwtPayload = {
+							iss: 'test-issuer',
+							watermark: JSON.stringify(watermarkPayload),
+						};
+						const jwtToken = `header.${btoa(JSON.stringify(jwtPayload))}.signature`;
+						const authWithWatermark = { baseUrl, clientId, token: jwtToken };
+						(resolveAuth as jest.Mock).mockResolvedValueOnce(authWithWatermark);
+
+						fetchMock.once(JSON.stringify({ data }), {
+							status: 201,
+							statusText: 'Created',
+						});
+
+						await mediaStore.getImage('123');
+
+						expect(fetchMock).toHaveBeenCalledWith(
+							expect.stringContaining('wmv=WjtFdA'),
+							expect.any(Object),
+						);
+					},
+					async () => {
+						const watermarkPayload = {
+							v: 'WjtFdA',
+							ari: 'ari:cloud:confluence:abc:space/123',
+						};
+						const jwtPayload = {
+							iss: 'test-issuer',
+							watermark: JSON.stringify(watermarkPayload),
+						};
+						const jwtToken = `header.${btoa(JSON.stringify(jwtPayload))}.signature`;
+						const authWithWatermark = { baseUrl, clientId, token: jwtToken };
+						(resolveAuth as jest.Mock).mockResolvedValueOnce(authWithWatermark);
+
+						fetchMock.once(JSON.stringify({ data }), {
+							status: 201,
+							statusText: 'Created',
+						});
+
+						await mediaStore.getImage('123');
+
+						const calledUrl = fetchMock.mock.calls[fetchMock.mock.calls.length - 1][0];
+						expect(calledUrl).not.toContain('wmv=');
+					},
+				);
+			});
 		});
 
 		describe('getItems', () => {
@@ -1495,7 +1795,7 @@ describe('MediaStore', () => {
 					traceId: 'test-trace-id',
 				});
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/items`,
 					expect.objectContaining({
 						auth: {
@@ -1603,7 +1903,7 @@ describe('MediaStore', () => {
 
 				await mediaStore.getImageMetadata('123', {}, { traceId: 'some-trace-id' });
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/file/123/image/metadata`,
 					expect.objectContaining({
 						auth: {
@@ -1721,7 +2021,7 @@ describe('MediaStore', () => {
 						// Test against fedramp hostname, should return non-cdn url
 						global.MICROS_PERIMETER = 'fedramp-moderate';
 						response = await mediaStore.getFileBinary('1234', 'some-collection-name');
-						expect(requestModuleMock).toBeCalledWith(
+						expect(requestModuleMock).toHaveBeenCalledWith(
 							`${baseUrl}/file/1234/binary`,
 							expect.objectContaining(nonCdnObject),
 							undefined,
@@ -1734,7 +2034,7 @@ describe('MediaStore', () => {
 							value: 'atlassian-us-gov-mod.com',
 						});
 						response = await mediaStore.getFileBinary('1234', 'some-collection-name');
-						expect(requestModuleMock).toBeCalledWith(
+						expect(requestModuleMock).toHaveBeenCalledWith(
 							`${baseUrl}/file/1234/binary`,
 							expect.objectContaining(nonCdnObject),
 							undefined,
@@ -1749,7 +2049,7 @@ describe('MediaStore', () => {
 							value: 'hello.atlassian.net',
 						});
 						response = await mediaStore.getFileBinary('1234', 'some-collection-name');
-						expect(requestModuleMock).toBeCalledWith(
+						expect(requestModuleMock).toHaveBeenCalledWith(
 							`${baseUrl}/file/1234/binary/cdn`,
 							expect.objectContaining(cdnObject),
 							undefined,
@@ -1761,7 +2061,7 @@ describe('MediaStore', () => {
 						const response = await mediaStore.getFileBinary('1234', 'some-collection-name');
 						// When the feature flag is disabled, the URL should contain the /binary path
 
-						expect(requestModuleMock).toBeCalledWith(
+						expect(requestModuleMock).toHaveBeenCalledWith(
 							`${baseUrl}/file/1234/binary`,
 							expect.objectContaining(nonCdnObject),
 							undefined,
@@ -1868,6 +2168,23 @@ describe('MediaStore', () => {
 				expect(url).toEqual(
 					`${baseUrl}/file/1234/binary?client=some-client-id&collection=some-collection-name&dl=true&max-age=123&token=${token}`,
 				);
+			});
+
+			describe('name appears as a URL query param when provided', () => {
+				it('should include name in binary URL query params when name is provided', async () => {
+					const url = await mediaStore.getFileBinaryURL(
+						'1234',
+						'some-collection-name',
+						undefined,
+						'my-file.pdf',
+					);
+					expect(url).toContain('name=my-file.pdf');
+				});
+
+				it('should not include name param in URL when name is not provided', async () => {
+					const url = await mediaStore.getFileBinaryURL('1234', 'some-collection-name');
+					expect(url).not.toContain('name=');
+				});
 			});
 		});
 
@@ -2394,7 +2711,7 @@ describe('MediaStore', () => {
 					traceId: 'some-trace-id',
 				});
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/file/copy/withToken`,
 					expect.objectContaining({
 						auth: {
@@ -2606,7 +2923,7 @@ describe('MediaStore', () => {
 					{ traceId: 'some-trace-id' },
 				);
 
-				expect(requestModuleMock).toBeCalledWith(
+				expect(requestModuleMock).toHaveBeenCalledWith(
 					`${baseUrl}/file/copy/intents`,
 					expect.objectContaining({
 						auth: {
@@ -2684,6 +3001,17 @@ describe('MediaStore', () => {
 							});
 							expect(resolveInitialAuth).toHaveBeenCalledWith(auth);
 							expect(url).toEqual(cdnURL);
+
+							const seededCdnUrl =
+								'https://media-cdn.atlassian.com/region/v2/cdn/client/client-id/file/seeded-id/image?token=cdn-token&wm-ari=ari%3Acloud%3Aconfluence%3Asite%3Aspace%2F1&wm-v=version&Policy=policy&Key-Pair-Id=key&Signature=signature';
+							url = mediaStoreSync.getFileImageURLSync(
+								'1234',
+								{ collection, width: 100, height: 200, mode: 'crop' },
+								seededCdnUrl,
+							);
+							expect(url).toEqual(
+								`https://media-cdn.atlassian.com/region/v2/cdn/client/client-id/file/seeded-id/image?token=cdn-token&width=100&height=200&mode=crop&max-age=${FILE_CACHE_MAX_AGE}&allowAnimated=true&wm-ari=ari%3Acloud%3Aconfluence%3Asite%3Aspace%2F1&wm-v=version&Policy=policy&Key-Pair-Id=key&Signature=signature`,
+							);
 						},
 						async () => {
 							const collection = 'some-collection';

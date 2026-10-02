@@ -8,16 +8,21 @@
  * In the long term likely `toDOM` will move back out of `adf-schema` in which
  * case we can consolidate them.
  */
-import { embedCard, embedCardWithLocalId } from '@atlaskit/adf-schema';
-import type { RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema';
+import { embedCard, embedCardWithLocalId } from '@atlaskit/adf-schema/embed-card';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
-import type { DOMOutputSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type {
+	AttributeSpec,
+	DOMOutputSpec,
+	Node as PMNode,
+	TagParseRule,
+} from '@atlaskit/editor-prosemirror/model';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import {
 	DEFAULT_EMBED_CARD_HEIGHT,
 	DEFAULT_EMBED_CARD_WIDTH,
 } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { B400 } from '@atlaskit/theme/colors';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 // From `packages/editor/editor-common/src/ui/MediaSingle/styled.tsx`
@@ -59,7 +64,39 @@ function calcPxFromPct(pct: number, lineLength: number): number {
 const LINE_LENGTH = 760;
 
 // @nodeSpecException:toDOM patch
-export const embedCardSpecWithFixedToDOM = () => {
+export const embedCardSpecWithFixedToDOM = (): {
+	atom?: boolean;
+	attrs?: {
+		[name: string]: AttributeSpec;
+	};
+	code?: boolean;
+	content?: string;
+	defining?: boolean;
+	definingAsContext?: boolean;
+	definingForContent?: boolean;
+	disableDropCursor?:
+		| boolean
+		| ((
+				view: EditorView,
+				pos: {
+					inside: number;
+					pos: number;
+				},
+				event: DragEvent,
+		  ) => boolean);
+	draggable?: boolean;
+	group?: string;
+	inline?: boolean;
+	isolating?: boolean;
+	leafText?: (node: PMNode) => string;
+	linebreakReplacement?: boolean;
+	marks?: string;
+	parseDOM?: readonly TagParseRule[];
+	selectable?: boolean;
+	toDebugString?: (node: PMNode) => string;
+	toDOM: (node: PMNode) => DOMOutputSpec;
+	whitespace?: 'pre' | 'normal';
+} => {
 	const embedCardNode = fg('platform_editor_adf_with_localid') ? embedCardWithLocalId : embedCard;
 	return {
 		...embedCardNode,
@@ -101,12 +138,12 @@ export const embedCardSpecWithFixedToDOM = () => {
 					'a',
 					{
 						style: convertToInlineCss({
-							padding: `${token('space.025', '2px')} 0px`,
-							marginLeft: token('space.negative.025', '-2px'),
+							padding: `${token('space.025')} 0px`,
+							marginLeft: token('space.negative.025'),
 							display: 'inline',
 							boxDecorationBreak: 'clone',
 							borderRadius: token('radius.small', '4px'),
-							color: token('color.link', B400),
+							color: token('color.link'),
 							lineHeight: '22px',
 							WebkitTransition: '0.1s all ease-in-out',
 							transition: '0.1s all ease-in-out',

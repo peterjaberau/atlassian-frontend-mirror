@@ -6,15 +6,14 @@ import React, { useCallback, useRef } from 'react';
 
 import { cssMap, cx, jsx } from '@compiled/react';
 
-import type { LogoProps } from '@atlaskit/logo';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { LogoProps } from '@atlaskit/logo/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Anchor, Inline, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
 import { useHasCustomTheme } from '../themed/has-custom-theme-context';
-
 import { LogoRenderer } from './logo-renderer';
 
 const anchorStyles = cssMap({
@@ -22,10 +21,9 @@ const anchorStyles = cssMap({
 		display: 'flex',
 		alignItems: 'center',
 		height: '32px',
-		borderRadius: '10px',
+		borderRadius: token('radius.large'),
 		flexShrink: 0,
 		// '&&' is required to add more CSS specificity to ensure styles take precedence over the default Anchor styles
-		// @ts-ignore
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'&&': {
 			textDecoration: 'none',
@@ -34,9 +32,6 @@ const anchorStyles = cssMap({
 		// Additional margin is added to the left of the interactive element, to create visual alignment
 		// with the app tile icon and the other icon buttons that use normal (non-tile) icons.
 		marginInlineStart: token('space.050'),
-	},
-	rootT26Shape: {
-		borderRadius: token('radius.large'),
 	},
 	// This is the same between app-logo and nav-logo
 	interactionStates: {
@@ -84,13 +79,11 @@ const iconContainerStyles = cssMap({
 		overflow: 'hidden',
 		display: 'flex',
 		maxWidth: 24,
+		maxHeight: 24,
 	},
 	// Prevents the icon from getting squished
 	fullHeightSidebar: {
 		flexShrink: 0,
-	},
-	maxHeightStyles: {
-		maxHeight: 24,
 	},
 });
 
@@ -102,13 +95,21 @@ const logoTextStyles = cssMap({
 		userSelect: 'none',
 		paddingInlineEnd: token('space.025'),
 		display: 'none',
+		flexDirection: 'column',
+		justifyContent: 'center',
+
 		'@media (min-width: 64rem)': {
-			// @ts-ignore
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'&&': {
-				display: 'initial',
+				display: 'flex',
 			},
 		},
+	},
+});
+
+const secondaryNameStyles = cssMap({
+	root: {
+		marginBlockStart: token('space.negative.025'),
 	},
 });
 
@@ -118,47 +119,15 @@ function isTextClamped(element: HTMLElement): boolean {
 	return element.scrollHeight > element.clientHeight;
 }
 
-/**
- * __App logo__
- *
- * The app logo for the top navigation.
- *
- * To provide a responsive experience, label text will render next to an icon at larger viewports.
- */
-export const AppLogo: ({ name, label, href, icon, onClick, }: {
-    /**
-     * The name of the app. Will be displayed next to the logo in wider viewports, and is used as an accessible label at smaller viewports.
-     */
-    name: string;
-    /**
-     * Provide an accessible label, often used by screen readers.
-     * This label should include the name of the app, and if applicable,
-     * the location the user will navigate to on click.
-     */
-    label: string;
-    /**
-     * The URL to navigate to when the element is clicked.
-     */
-    href: string;
-    /**
-     * The icon to render.
-     */
-    icon: (props: LogoProps) => JSX.Element;
-    /**
-     * Handler called on click.
-     */
-    onClick?: React.MouseEventHandler<HTMLAnchorElement>;
-}) => JSX.Element = ({
-	name,
-	label,
-	href,
-	icon,
-	onClick,
-}: {
+interface AppLogoProps {
 	/**
-	 * The name of the app. Will be displayed next to the logo in wider viewports, and is used as an accessible label at smaller viewports.
+	 * The name of the app. Will be displayed next to the logo in wider viewports.
 	 */
 	name: string;
+	/**
+	 * Provide a secondaryName for the app. Will be displayed below the name in wider viewports.
+	 */
+	secondaryName?: string;
 	/**
 	 * Provide an accessible label, often used by screen readers.
 	 * This label should include the name of the app, and if applicable,
@@ -177,12 +146,30 @@ export const AppLogo: ({ name, label, href, icon, onClick, }: {
 	 * Handler called on click.
 	 */
 	onClick?: React.MouseEventHandler<HTMLAnchorElement>;
-}) => {
+}
+
+/**
+ * __App logo__
+ *
+ * The app logo for the top navigation.
+ *
+ * To provide a responsive experience, label text will render next to an icon at larger viewports.
+ */
+export const AppLogo = ({
+	name,
+	label,
+	secondaryName,
+	href,
+	icon,
+	onClick,
+}: AppLogoProps): JSX.Element => {
 	const isFhsEnabled = useIsFhsEnabled();
 	const ref = useRef<HTMLAnchorElement>(null);
 	const nameRef = useRef<HTMLSpanElement | null>(null);
 
 	const hasCustomTheme = useHasCustomTheme();
+	const showSecondaryName =
+		Boolean(secondaryName) && fg('platform_dst_ads_appswitcher_improvements');
 
 	/**
 	 * Show the tooltip if the name is truncated
@@ -201,7 +188,6 @@ export const AppLogo: ({ name, label, href, icon, onClick, }: {
 			// eslint-disable-next-line @compiled/no-suppress-xcss
 			xcss={cx(
 				anchorStyles.root,
-				fg('platform-dst-shape-theme-default') && anchorStyles.rootT26Shape,
 				hasCustomTheme
 					? anchorStyles.interactionStatesCustomTheming
 					: anchorStyles.interactionStates,
@@ -215,17 +201,9 @@ export const AppLogo: ({ name, label, href, icon, onClick, }: {
 				xcss={cx(logoWrapperStyles.root, isFhsEnabled && logoWrapperStyles.fullHeightSidebar)}
 			>
 				<div
-					css={[
-						iconContainerStyles.root,
-						isFhsEnabled && iconContainerStyles.fullHeightSidebar,
-						fg('platform-dst-nav-app-icon-height-fix') && iconContainerStyles.maxHeightStyles,
-					]}
+					css={[iconContainerStyles.root, isFhsEnabled && iconContainerStyles.fullHeightSidebar]}
 				>
-					<LogoRenderer
-						// Top nav always uses the new logo design
-						shouldUseNewLogoDesign={true}
-						logoOrIcon={icon}
-					/>
+					<LogoRenderer logoOrIcon={icon} />
 				</div>
 				<span css={logoTextStyles.root}>
 					<Tooltip
@@ -252,6 +230,19 @@ export const AppLogo: ({ name, label, href, icon, onClick, }: {
 							</span>
 						)}
 					</Tooltip>
+					{showSecondaryName && (
+						<span css={secondaryNameStyles.root}>
+							<Text
+								aria-hidden={true}
+								color="color.text.subtlest"
+								weight="regular"
+								maxLines={1}
+								size="small"
+							>
+								{secondaryName}
+							</Text>
+						</span>
+					)}
 				</span>
 			</Inline>
 		</Anchor>

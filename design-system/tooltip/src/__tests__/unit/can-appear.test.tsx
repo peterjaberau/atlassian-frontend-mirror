@@ -1,15 +1,16 @@
 import React from 'react';
 
-import { act, fireEvent, render, screen } from '@testing-library/react';
-
 import { skipA11yAudit } from '@af/accessibility-testing';
+import { act, fireEvent, render, screen } from '@atlassian/testing-library';
 
 import Tooltip from '../../tooltip';
 
 jest.useFakeTimers();
 
 beforeEach(() => {
-	HTMLElement.prototype.matches = jest.fn().mockReturnValue(true);
+	HTMLElement.prototype.matches = jest
+		.fn()
+		.mockReturnValue(true) as unknown as typeof HTMLElement.prototype.matches;
 
 	skipA11yAudit();
 });

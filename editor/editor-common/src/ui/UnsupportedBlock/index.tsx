@@ -6,14 +6,14 @@ import React, { useCallback, useRef } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { relativeFontSizeToBase16 } from '@atlaskit/editor-shared-styles';
 import QuestionsIcon from '@atlaskit/icon/core/question-circle';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { ACTION_SUBJECT_ID } from '../../analytics';
 import { unsupportedContentMessages } from '../../messages/unsupportedContent';
@@ -31,9 +31,9 @@ const blockNodeStyle = css({
 	display: 'flex',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	fontSize: relativeFontSizeToBase16(14),
-	margin: `${token('space.100', '8px')} 0`,
+	margin: `${token('space.100')} 0`,
 	minHeight: '24px',
-	padding: token('space.150', '12px'),
+	padding: token('space.150'),
 	textAlign: 'center',
 	verticalAlign: 'text-bottom',
 	minWidth: '120px',
@@ -95,4 +95,8 @@ const UnsupportedBlockNode = ({
 	);
 };
 
-export default injectIntl(UnsupportedBlockNode);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(UnsupportedBlockNode);
+export default _default_1;

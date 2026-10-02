@@ -7,8 +7,10 @@ import { type Ref, useState } from 'react';
 
 import { jsx } from '@compiled/react';
 
-import { IconButton } from '@atlaskit/button/new';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import IconButton from '@atlaskit/button/icon/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import SettingsIcon from '@atlaskit/icon/core/settings';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
 
@@ -24,7 +26,7 @@ export function TopLevelSharedMoreMenu({
 	amountOfMenuItems: number;
 	index: number;
 	value: TTopLevelItem;
-}) {
+}): JSX.Element {
 	const dispatch = useDispatch();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
 

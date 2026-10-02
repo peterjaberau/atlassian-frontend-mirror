@@ -1,4 +1,6 @@
-import { mapAccessibleProductsToAvailableSites } from '@atlaskit/linking-common/hooks';
+import { mapAccessibleProductsToAvailableSites } from '@atlaskit/linking-common/map-accessible-products-to-available-sites';
+import { shouldUseUnitCompliantApi } from '@atlaskit/linking-common/units-rollout';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { Site } from '../common/types';
 
@@ -25,7 +27,18 @@ export const getAccessibleProducts = async (product: 'jira' | 'confluence'): Pro
 		}),
 	};
 
-	const response = await fetch(`/gateway/api/v2/accessible-products`, requestConfig);
+	// Organisations with units isolation in effect must be served the unit compliant endpoint,
+	// which filters the products down to the unit the user belongs to. The gate is passed as a
+	// callback so it is only evaluated - and only records exposure - once the units GA killswitch
+	// has already let the check through.
+	const isUnitCompliant = await shouldUseUnitCompliantApi(() =>
+		fg('linking_platform_link_datasource_unit_compliant'),
+	);
+	const endpoint = isUnitCompliant
+		? '/gateway/api/experimental/v2/accessible-products'
+		: '/gateway/api/v2/accessible-products';
+
+	const response = await fetch(endpoint, requestConfig);
 
 	if (response.ok) {
 		const res = await response.json();

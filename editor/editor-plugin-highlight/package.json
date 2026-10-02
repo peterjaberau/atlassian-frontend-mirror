@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-highlight",
-	"version": "7.3.12",
+	"version": "23.0.0",
 	"description": "Highlight plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -10,6 +10,9 @@
 	"atlassian": {
 		"team": "Editor: Core Experiences",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "EditorPluginHighlight",
 			"category": "Components"
 		}
@@ -19,20 +22,15 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./highlightPlugin": "./src/entry-points/highlightPlugin.tsx",
+		"./highlightPluginType": "./src/entry-points/highlightPluginType.ts",
+		"./main": "./src/entry-points/main.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
@@ -50,6 +48,7 @@
 		"@atlaskit/editor-toolbar-model": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
@@ -59,66 +58,22 @@
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0",
-		"react-intl-next": "*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			],
-			"code-structure": [
-				"editor-plugin"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
-	"stricter": {
-		"no-unused-dependencies": {
-			"checkDevDependencies": true,
-			"exclude": [
-				"@atlaskit/tokens"
-			]
-		}
+		"react": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"platform-feature-flags": {
 		"editor_inline_comments_on_inline_nodes": {
 			"type": "boolean",
 			"referenceOnly": "true"
 		},
-		"platform_editor_use_preferences_plugin": {
-			"type": "boolean"
-		},
-		"platform-visual-refresh-icons": {
-			"type": "boolean"
-		},
-		"platform_editor_dec_a11y_fixes": {
+		"platform_editor_a11y_color_palette_radiogroup": {
 			"type": "boolean"
 		}
+	},
+	"devDependencies": {
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"react": "^19.2.0",
+		"react-intl": "root:*"
 	}
 }

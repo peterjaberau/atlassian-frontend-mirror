@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 
 const TokenButtonCodeBlock = `import { B300, B400, B500, N0 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
@@ -24,7 +24,7 @@ const TokenButton = (): React.JSX.Element => {
 };
 
 const _default_1: {
-    example: () => React.JSX.Element;
-    code: string;
+	example: () => React.JSX.Element;
+	code: string;
 } = { example: TokenButton, code: TokenButtonCodeBlock };
 export default _default_1;

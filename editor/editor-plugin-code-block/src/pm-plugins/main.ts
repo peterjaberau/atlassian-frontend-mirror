@@ -1,6 +1,6 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { updateCodeBlockWrappedStateNodeKeys } from '@atlaskit/editor-common/code-block';
 import { blockTypeMessages } from '@atlaskit/editor-common/messages';
 import type { getPosHandler } from '@atlaskit/editor-common/react-node-view';
@@ -10,26 +10,26 @@ import { findCodeBlock } from '@atlaskit/editor-common/transforms';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
-import {
-	type Decoration,
-	DecorationSet,
-	type EditorView,
-	type EditorProps as PMEditorProps,
+import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
+import type {
+	Decoration,
+	EditorView,
+	EditorProps as PMEditorProps,
 } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import { ignoreFollowingMutations, resetShouldIgnoreFollowingMutations } from '../editor-commands';
 import type { CodeBlockPlugin } from '../index';
 import { codeBlockNodeView } from '../nodeviews/code-block';
 import { codeBlockClassNames } from '../ui/class-names';
-
+import { applyFormatCodeMeta, mapPendingFormats } from '../utils/format-code/format-code-state';
 import { ACTIONS } from './actions';
 import {
 	generateInitialDecorations,
 	updateCodeBlockDecorations,
 	updateDecorationSetWithWordWrappedDecorator,
 } from './decorators';
-import { type CodeBlockState } from './main-state';
+import type { CodeBlockState } from './main-state';
 import { pluginKey } from './plugin-key';
 import { getAllChangedCodeBlocksInTransaction } from './utils';
 
@@ -46,7 +46,7 @@ export const createPlugin = ({
 	decorations?: DecorationSet;
 	getIntl: () => IntlShape;
 	useLongPressSelection?: boolean;
-}) => {
+}): SafePlugin<CodeBlockState> => {
 	const handleDOMEvents: PMEditorProps['handleDOMEvents'] = {
 		click: () => {
 			// Set hasHadInteraction to true on any click of code blocks, as clicks
@@ -62,9 +62,7 @@ export const createPlugin = ({
 			const keyEvent = event as InputEvent;
 			const eventInputType = keyEvent.inputType;
 			const eventText = keyEvent.data as string;
-			const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-				? getBrowserInfo()
-				: browserLegacy;
+			const browser = getBrowserInfo();
 
 			if (
 				browser.ios &&
@@ -126,15 +124,14 @@ export const createPlugin = ({
 					// Long term we will deprecate the code block plugin and move all the related logic to
 					// the advanced plugin
 					// @ts-expect-error Code block advanced cannot depend on code block
-					api?.codeBlockAdvanced !== undefined &&
-					expValEquals('platform_editor_code_block_fold_gutter', 'isEnabled', true)
-						? []
-						: generateInitialDecorations(state);
+					api?.codeBlockAdvanced !== undefined ? [] : generateInitialDecorations(state);
 
 				return {
 					pos: node ? node.pos : null,
 					contentCopied: false,
+					formatCodeErrors: {},
 					isNodeSelected: false,
+					pendingFormats: {},
 					shouldIgnoreFollowingMutations: false,
 					decorations: DecorationSet.create(state.doc, initialDecorations),
 				};
@@ -156,14 +153,13 @@ export const createPlugin = ({
 
 				if (tr.docChanged) {
 					const node = findCodeBlock(newState, tr.selection);
+					const codeBlockNodes = getAllChangedCodeBlocksInTransaction(tr);
 
 					// Updates mapping position of all existing decorations to new positions
 					// specifically used for updating word wrap node decorators (does not cover drag & drop, validateWordWrappedDecorators does).
 					let updatedDecorationSet = pluginState.decorations.map(tr.mapping, tr.doc);
 
-					const codeBlockNodes = getAllChangedCodeBlocksInTransaction(tr);
-
-					if (codeBlockNodes) {
+					if (codeBlockNodes.length) {
 						updateCodeBlockWrappedStateNodeKeys(codeBlockNodes, _oldState);
 						// Disabled when using advanced code block for performance reasons
 						// @ts-expect-error Code block advanced cannot depend on code block
@@ -182,7 +178,21 @@ export const createPlugin = ({
 						isNodeSelected: tr.selection instanceof NodeSelection,
 						decorations: updatedDecorationSet,
 					};
-					return newPluginState;
+
+					if (
+						!expValEqualsNoExposure('platform_editor_code_block_q4_lovability', 'isEnabled', true)
+					) {
+						return newPluginState;
+					}
+
+					// Successful format results change the doc and carry format meta.
+					const formatCodePluginState = applyFormatCodeMeta(newPluginState, meta);
+
+					return {
+						...formatCodePluginState,
+						// Pending format requests can outlive unrelated document edits.
+						pendingFormats: mapPendingFormats(formatCodePluginState.pendingFormats, tr, newState),
+					};
 				}
 
 				if (tr.selectionSet) {
@@ -206,6 +216,12 @@ export const createPlugin = ({
 						shouldIgnoreFollowingMutations: meta.data,
 					};
 				}
+
+				if (expValEqualsNoExposure('platform_editor_code_block_q4_lovability', 'isEnabled', true)) {
+					// Failed/unchanged format results and dismissals are meta-only.
+					return applyFormatCodeMeta(pluginState, meta);
+				}
+
 				return pluginState;
 			},
 		},

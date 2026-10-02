@@ -1,9 +1,12 @@
 import React from 'react';
+
 import ButtonGroup from '@atlaskit/button/button-group';
 import Button from '@atlaskit/button/standard-button';
+
+import { EmbeddedDocument, DocumentBody, WithDocumentActions } from '../src';
+import type { DocumentMode } from '../src';
 import MockServiceProvider from './helpers/mock-provider';
 import { Container, Toolbar } from './helpers/styles';
-import { EmbeddedDocument, DocumentBody, WithDocumentActions, type DocumentMode } from '../src';
 
 const renderToolbar = (mode: DocumentMode, editorActions?: any) => (
 	<WithDocumentActions

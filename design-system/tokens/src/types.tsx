@@ -13,7 +13,13 @@ export type Groups =
 	| 'fontWeight'
 	| 'fontFamily'
 	| 'lineHeight'
-	| 'letterSpacing';
+	| 'letterSpacing'
+	| 'motion'
+	| 'motionDuration'
+	| 'motionEasing'
+	| 'motionKeyframe'
+	| 'motionProperty'
+	| 'motionFillMode';
 
 type ActiveTokenState = 'active';
 type DeprecatedTokenState = 'deprecated';
@@ -165,6 +171,11 @@ export type SpacingToken<BaseToken> = DesignToken<BaseToken, 'spacing'>;
 export type ShapeToken<BaseToken> = DesignToken<BaseToken, 'shape'>;
 export type FontWeightToken<BaseToken> = DesignToken<BaseToken, 'fontWeight'>;
 export type FontFamilyToken<BaseToken> = DesignToken<BaseToken, 'fontFamily'>;
+export type MotionToken<BaseToken> = DesignToken<BaseToken, 'motion'>;
+export type MotionDurationToken<BaseToken> = DesignToken<BaseToken, 'motionDuration'>;
+export type MotionEasingToken<BaseToken> = DesignToken<BaseToken, 'motionEasing'>;
+export type MotionKeyframeToken<BaseToken> = DesignToken<BaseToken, 'motionKeyframe'>;
+export type MotionPropertyToken<BaseToken> = DesignToken<BaseToken, 'motionProperty'>;
 
 export type DeprecatedTypographyToken<BaseToken> = DesignToken<
 	BaseToken,
@@ -201,6 +212,20 @@ export interface ShapeScaleTokenSchema<
 	radius: Record<RadiusScaleValues, ShapeSchemaValue>;
 }
 
+export interface MotionScaleTokenSchema<
+	DurationScaleValues extends string,
+	BezierCurveScaleValues extends string,
+	KeyframeScaleValues extends string,
+	TransitionPropertyScaleValues extends string,
+	FillModeScaleValues extends string = never,
+> {
+	duration: Record<DurationScaleValues, BaseToken<number, 'motionDuration'>>;
+	curve: Record<BezierCurveScaleValues, BaseToken<string, 'motionEasing'>>;
+	keyframe: Record<KeyframeScaleValues, BaseToken<Record<string, object>, 'motionKeyframe'>>;
+	properties: Record<TransitionPropertyScaleValues, BaseToken<string, 'motionProperty'>>;
+	fillMode?: Record<FillModeScaleValues, BaseToken<string, 'motionFillMode'>>;
+}
+
 export interface FontSizeScaleTokenSchema<ScaleValues extends string> {
 	fontSize: Record<ScaleValues, BaseToken<string | number, 'fontSize'>>;
 }
@@ -221,8 +246,38 @@ export interface LetterSpacingScaleTokenSchema<ScaleValues extends string> {
 	letterSpacing: Record<ScaleValues, BaseToken<string, 'letterSpacing'>>;
 }
 
-export interface BackgroundColorTokenSchema<BaseToken> {
+export interface RovoBackgroundColorTokenSchema<BaseToken> {
 	color: {
+		rovo: {
+			background: {
+				brand: {
+					bold: {
+						'[default]': PaintToken<BaseToken>;
+						hovered: PaintToken<BaseToken>;
+						pressed: PaintToken<BaseToken>;
+					};
+				};
+			};
+			border: {
+				blue: PaintToken<BaseToken>;
+				lime: PaintToken<BaseToken>;
+				purple: PaintToken<BaseToken>;
+				saffron: PaintToken<BaseToken>;
+			};
+			icon: {
+				blue: PaintToken<BaseToken>;
+				lime: PaintToken<BaseToken>;
+				purple: PaintToken<BaseToken>;
+				saffron: PaintToken<BaseToken>;
+			};
+		};
+	};
+}
+
+export interface BackgroundColorTokenSchema<
+	BaseToken,
+> extends RovoBackgroundColorTokenSchema<BaseToken> {
+	color: RovoBackgroundColorTokenSchema<BaseToken>['color'] & {
 		blanket: {
 			'[default]': PaintToken<BaseToken>;
 			selected: PaintToken<BaseToken>;
@@ -304,6 +359,9 @@ export interface BackgroundColorTokenSchema<BaseToken> {
 					hovered: PaintToken<BaseToken>;
 					pressed: PaintToken<BaseToken>;
 				};
+				subtle: {
+					'[default]': PaintToken<BaseToken>;
+				};
 			};
 			warning: {
 				'[default]': {
@@ -320,6 +378,9 @@ export interface BackgroundColorTokenSchema<BaseToken> {
 					'[default]': PaintToken<BaseToken>;
 					hovered: PaintToken<BaseToken>;
 					pressed: PaintToken<BaseToken>;
+				};
+				subtle: {
+					'[default]': PaintToken<BaseToken>;
 				};
 			};
 			success: {
@@ -338,6 +399,9 @@ export interface BackgroundColorTokenSchema<BaseToken> {
 					hovered: PaintToken<BaseToken>;
 					pressed: PaintToken<BaseToken>;
 				};
+				subtle: {
+					'[default]': PaintToken<BaseToken>;
+				};
 			};
 			discovery: {
 				'[default]': {
@@ -354,6 +418,9 @@ export interface BackgroundColorTokenSchema<BaseToken> {
 					'[default]': PaintToken<BaseToken>;
 					hovered: PaintToken<BaseToken>;
 					pressed: PaintToken<BaseToken>;
+				};
+				subtle: {
+					'[default]': PaintToken<BaseToken>;
 				};
 			};
 			information: {
@@ -372,6 +439,9 @@ export interface BackgroundColorTokenSchema<BaseToken> {
 					hovered: PaintToken<BaseToken>;
 					pressed: PaintToken<BaseToken>;
 				};
+				subtle: {
+					'[default]': PaintToken<BaseToken>;
+				};
 			};
 		};
 	};
@@ -384,15 +454,33 @@ export interface BorderColorTokenSchema<BaseToken> {
 			bold: PaintToken<BaseToken>;
 			inverse: PaintToken<BaseToken>;
 			focused: PaintToken<BaseToken>;
-			input: PaintToken<BaseToken>;
+			input: {
+				'[default]': PaintToken<BaseToken>;
+				search: PaintToken<BaseToken>;
+			};
 			disabled: PaintToken<BaseToken>;
 			brand: PaintToken<BaseToken>;
 			selected: PaintToken<BaseToken>;
-			danger: PaintToken<BaseToken>;
-			warning: PaintToken<BaseToken>;
-			success: PaintToken<BaseToken>;
-			discovery: PaintToken<BaseToken>;
-			information: PaintToken<BaseToken>;
+			danger: {
+				'[default]': PaintToken<BaseToken>;
+				subtle: PaintToken<BaseToken>;
+			};
+			warning: {
+				'[default]': PaintToken<BaseToken>;
+				subtle: PaintToken<BaseToken>;
+			};
+			success: {
+				'[default]': PaintToken<BaseToken>;
+				subtle: PaintToken<BaseToken>;
+			};
+			discovery: {
+				'[default]': PaintToken<BaseToken>;
+				subtle: PaintToken<BaseToken>;
+			};
+			information: {
+				'[default]': PaintToken<BaseToken>;
+				subtle: PaintToken<BaseToken>;
+			};
 		};
 	};
 }
@@ -462,6 +550,46 @@ export interface TextColorTokenSchema<BaseToken> {
 	};
 }
 
+export interface CodeColorTokenSchema<BaseToken> {
+	color: {
+		text: {
+			code: {
+				default: PaintToken<BaseToken>;
+				comments: PaintToken<BaseToken>;
+				operators: PaintToken<BaseToken>;
+				keywords: PaintToken<BaseToken>;
+				strings: PaintToken<BaseToken>;
+				numbers: PaintToken<BaseToken>;
+				functions: PaintToken<BaseToken>;
+				tags: PaintToken<BaseToken>;
+				accent: {
+					'1': PaintToken<BaseToken>;
+					'2': PaintToken<BaseToken>;
+				};
+				gutter: PaintToken<BaseToken>;
+			};
+		};
+		background: {
+			code: {
+				default: PaintToken<BaseToken>;
+				gutter: PaintToken<BaseToken>;
+				highlight: PaintToken<BaseToken>;
+				added: {
+					highlight: PaintToken<BaseToken>;
+					line: PaintToken<BaseToken>;
+				};
+				removed: {
+					highlight: PaintToken<BaseToken>;
+					line: PaintToken<BaseToken>;
+				};
+			};
+		};
+		border: {
+			code: PaintToken<BaseToken>;
+		};
+	};
+}
+
 export interface AccentColorTokenSchema<BaseToken> {
 	color: {
 		text: {
@@ -524,16 +652,46 @@ export interface AccentColorTokenSchema<BaseToken> {
 		};
 		border: {
 			accent: {
-				blue: PaintToken<BaseToken>;
-				red: PaintToken<BaseToken>;
-				orange: PaintToken<BaseToken>;
-				yellow: PaintToken<BaseToken>;
-				green: PaintToken<BaseToken>;
-				purple: PaintToken<BaseToken>;
-				teal: PaintToken<BaseToken>;
-				magenta: PaintToken<BaseToken>;
-				lime: PaintToken<BaseToken>;
-				gray: PaintToken<BaseToken>;
+				blue: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				red: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				orange: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				yellow: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				green: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				purple: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				teal: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				magenta: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				lime: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
+				gray: {
+					'[default]': PaintToken<BaseToken>;
+					subtle: PaintToken<BaseToken>;
+				};
 			};
 		};
 		background: {
@@ -1054,6 +1212,25 @@ export interface SurfaceTokenSchema<BaseToken> {
 				hovered: PaintToken<BaseToken>;
 				pressed: PaintToken<BaseToken>;
 			};
+			container: {
+				'[default]': PaintToken<BaseToken>;
+				hovered: PaintToken<BaseToken>;
+				pressed: PaintToken<BaseToken>;
+			};
+		};
+	};
+}
+
+export interface RovoSurfaceTokenSchema<BaseToken> {
+	elevation: {
+		rovo: {
+			surface: {
+				overlay: {
+					'[default]': PaintToken<BaseToken>;
+					hovered: PaintToken<BaseToken>;
+					pressed: PaintToken<BaseToken>;
+				};
+			};
 		};
 	};
 }
@@ -1154,7 +1331,6 @@ export interface TypographyTokenSchema<
 		body: {
 			'[default]': TypographyToken<TPalette>;
 			small: TypographyToken<TPalette>;
-			UNSAFE_small: TypographyToken<TPalette>;
 			large: TypographyToken<TPalette>;
 		};
 		code: {
@@ -1212,6 +1388,195 @@ export interface FontFamilyTokenSchema<BaseToken> {
 				body: FontFamilyToken<BaseToken>;
 			};
 			code: FontFamilyToken<BaseToken>;
+		};
+	};
+}
+
+/**
+ * The semantic interface for motion tokens
+ */
+export interface MotionTokenSchema<BaseToken> {
+	motion: {
+		avatar: {
+			enter: MotionToken<BaseToken>;
+			exit: MotionToken<BaseToken>;
+			hovered: MotionToken<BaseToken>;
+		};
+		button: {
+			hovered: MotionToken<BaseToken>;
+			pressed: MotionToken<BaseToken>;
+		};
+		input: MotionToken<BaseToken>;
+		listitem: {
+			hovered: MotionToken<BaseToken>;
+			pressed: MotionToken<BaseToken>;
+			selected: MotionToken<BaseToken>;
+		};
+		blanket: {
+			enter: MotionToken<BaseToken>;
+			exit: MotionToken<BaseToken>;
+		};
+		flag: {
+			enter: MotionToken<BaseToken>;
+			exit: MotionToken<BaseToken>;
+			reposition: MotionToken<BaseToken>;
+		};
+		modal: {
+			enter: MotionToken<BaseToken>;
+			exit: MotionToken<BaseToken>;
+		};
+		popup: {
+			enter: {
+				top: MotionToken<BaseToken>;
+				bottom: MotionToken<BaseToken>;
+				left: MotionToken<BaseToken>;
+				right: MotionToken<BaseToken>;
+			};
+			exit: {
+				top: MotionToken<BaseToken>;
+				bottom: MotionToken<BaseToken>;
+				left: MotionToken<BaseToken>;
+				right: MotionToken<BaseToken>;
+			};
+		};
+		spotlight: {
+			enter: MotionToken<BaseToken>;
+			exit: MotionToken<BaseToken>;
+		};
+		panel: {
+			enter: {
+				'[default]': MotionToken<BaseToken>;
+				left: MotionToken<BaseToken>;
+				right: MotionToken<BaseToken>;
+			};
+			exit: {
+				'[default]': MotionToken<BaseToken>;
+				left: MotionToken<BaseToken>;
+				right: MotionToken<BaseToken>;
+			};
+			content: {
+				enter: MotionToken<BaseToken>;
+				exit: MotionToken<BaseToken>;
+			};
+		};
+		sidenav: {
+			enter: {
+				left: MotionToken<BaseToken>;
+				right: MotionToken<BaseToken>;
+			};
+			exit: {
+				left: MotionToken<BaseToken>;
+				right: MotionToken<BaseToken>;
+			};
+		};
+		label: {
+			enter: MotionToken<BaseToken>;
+			exit: MotionToken<BaseToken>;
+		};
+		tab: {
+			'[default]': MotionToken<BaseToken>;
+			indicator: {
+				enter: {
+					left: MotionToken<BaseToken>;
+					right: MotionToken<BaseToken>;
+				};
+				exit: {
+					left: MotionToken<BaseToken>;
+					right: MotionToken<BaseToken>;
+				};
+			};
+		};
+	};
+}
+
+export interface MotionDurationTokenSchema<BaseToken> {
+	motion: {
+		duration: {
+			instant: MotionDurationToken<BaseToken>;
+			xxshort: MotionDurationToken<BaseToken>;
+			xshort: MotionDurationToken<BaseToken>;
+			short: MotionDurationToken<BaseToken>;
+			medium: MotionDurationToken<BaseToken>;
+			long: MotionDurationToken<BaseToken>;
+			xlong: MotionDurationToken<BaseToken>;
+			xxlong: MotionDurationToken<BaseToken>;
+		};
+	};
+}
+
+export interface MotionEasingTokenSchema<BaseToken> {
+	motion: {
+		easing: {
+			out: {
+				bold: MotionEasingToken<BaseToken>;
+				practical: MotionEasingToken<BaseToken>;
+			};
+			in: {
+				practical: MotionEasingToken<BaseToken>;
+			};
+			inout: {
+				bold: MotionEasingToken<BaseToken>;
+			};
+			spring: MotionEasingToken<BaseToken>;
+		};
+	};
+}
+
+export interface MotionKeyframeTokenSchema<BaseToken> {
+	motion: {
+		keyframe: {
+			grid: {
+				column: {
+					in: MotionKeyframeToken<BaseToken>;
+					out: MotionKeyframeToken<BaseToken>;
+				};
+			};
+			scale: {
+				in: {
+					small: MotionKeyframeToken<BaseToken>;
+					medium: MotionKeyframeToken<BaseToken>;
+				};
+				out: {
+					small: MotionKeyframeToken<BaseToken>;
+					medium: MotionKeyframeToken<BaseToken>;
+				};
+			};
+			fade: {
+				in: MotionKeyframeToken<BaseToken>;
+				out: MotionKeyframeToken<BaseToken>;
+			};
+			slide: {
+				in: {
+					top: {
+						short: MotionKeyframeToken<BaseToken>;
+					};
+					bottom: {
+						short: MotionKeyframeToken<BaseToken>;
+					};
+					left: {
+						short: MotionKeyframeToken<BaseToken>;
+						half: MotionKeyframeToken<BaseToken>;
+					};
+					right: {
+						short: MotionKeyframeToken<BaseToken>;
+					};
+				};
+				out: {
+					top: {
+						short: MotionKeyframeToken<BaseToken>;
+					};
+					bottom: {
+						short: MotionKeyframeToken<BaseToken>;
+					};
+					left: {
+						short: MotionKeyframeToken<BaseToken>;
+						half: MotionKeyframeToken<BaseToken>;
+					};
+					right: {
+						short: MotionKeyframeToken<BaseToken>;
+					};
+				};
+			};
 		};
 	};
 }

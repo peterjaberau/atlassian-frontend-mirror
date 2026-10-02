@@ -1,4 +1,5 @@
 /* eslint-disable @atlaskit/ui-styling-standard/enforce-style-prop */
+
 import React from 'react';
 
 import { token } from '@atlaskit/tokens';
@@ -6,8 +7,8 @@ import { token } from '@atlaskit/tokens';
 const SVGContainer = ({ children }: React.PropsWithChildren<object>) => (
 	<span
 		style={{
-			width: token('space.300', '24px'),
-			height: token('space.300', '24px'),
+			width: token('space.300'),
+			height: token('space.300'),
 			display: 'flex',
 			justifyContent: 'flex-start',
 			alignItems: 'center',

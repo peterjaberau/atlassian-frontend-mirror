@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
+import { useIntl } from 'react-intl';
+
 import { ACTION, INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { SelectItemMode } from '@atlaskit/editor-common/type-ahead';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
 
 import { fireTypeAheadClosedAnalyticsEvent } from '../pm-plugins/analytics';
 import { updateQuery } from '../pm-plugins/commands/update-query';
@@ -14,11 +17,12 @@ import { itemIsDisabled } from '../pm-plugins/item-is-disabled';
 import { getPluginState, moveSelectedIndex, skipForwardToSafeItem } from '../pm-plugins/utils';
 import type { TypeAheadPlugin } from '../typeAheadPluginType';
 import type { TypeAheadHandler, TypeAheadInputMethod } from '../types';
-
 import { useItemInsert } from './hooks/use-item-insert';
 import { useLoadItems } from './hooks/use-load-items';
 import { useOnForceSelect } from './hooks/use-on-force-select';
 import { InputQuery } from './InputQuery';
+import { RegisteredTypeAheadMenu } from './registered-menu/RegisteredTypeAheadMenu';
+import { getTypeAheadSurface } from './registered-menu/typeAheadSurfaces';
 
 type WrapperProps = {
 	anchorElement: HTMLElement;
@@ -35,7 +39,22 @@ type WrapperProps = {
 	triggerHandler: TypeAheadHandler;
 };
 
-export const WrapperTypeAhead = React.memo(
+export const WrapperTypeAhead: React.MemoExoticComponent<
+	({
+		triggerHandler,
+		editorView,
+		anchorElement,
+		shouldFocusCursorInsideQuery,
+		popupsMountPoint,
+		popupsBoundariesElement,
+		popupsScrollableElement,
+		inputMethod,
+		getDecorationPosition,
+		reopenQuery,
+		onUndoRedo,
+		api,
+	}: WrapperProps) => React.JSX.Element | null
+> = React.memo(
 	({
 		triggerHandler,
 		editorView,
@@ -57,11 +76,21 @@ export const WrapperTypeAhead = React.memo(
 			showMoreOptionsButton = !!triggerHandler?.getMoreOptionsButtonConfig;
 		}
 
+		const intl = useIntl();
 		const [closed, setClosed] = useState(false);
 		const [query, setQuery] = useState<string>(reopenQuery || '');
 		const queryRef = useRef(query);
 		const editorViewRef = useRef(editorView);
-		const items = useLoadItems(triggerHandler, editorView, query, showMoreOptionsButton, api);
+		const registeredSurface = getTypeAheadSurface(triggerHandler.id);
+		const items = useLoadItems(
+			triggerHandler,
+			editorView,
+			query,
+			showMoreOptionsButton,
+			api,
+			intl,
+			!registeredSurface,
+		);
 
 		useEffect(() => {
 			if (!closed && fg('platform_editor_ease_of_use_metrics')) {
@@ -175,8 +204,10 @@ export const WrapperTypeAhead = React.memo(
 		useEffect(() => {
 			const { current: view } = editorViewRef;
 			const pluginState = getPluginState(view.state);
+			const shouldSkipEmptyQuery =
+				!expVal('platform_editor_agent_mentions', 'isEnabled', false) && query.length === 0;
 
-			if (query.length === 0 || query === pluginState?.query || !pluginState?.triggerHandler) {
+			if (shouldSkipEmptyQuery || query === pluginState?.query || !pluginState?.triggerHandler) {
 				return;
 			}
 
@@ -197,6 +228,28 @@ export const WrapperTypeAhead = React.memo(
 
 		if (!triggerHandler) {
 			return null;
+		}
+
+		if (registeredSurface) {
+			return (
+				<RegisteredTypeAheadMenu
+					anchorElement={anchorElement}
+					api={api}
+					cancel={cancel}
+					editorView={editorView}
+					forceFocus={shouldFocusCursorInsideQuery}
+					onClose={closePopup}
+					onUndoRedo={onUndoRedo}
+					popupsBoundariesElement={popupsBoundariesElement}
+					popupsMountPoint={popupsMountPoint}
+					popupsScrollableElement={popupsScrollableElement}
+					query={query}
+					reopenQuery={reopenQuery}
+					setQuery={setQuery}
+					surface={registeredSurface}
+					triggerHandler={triggerHandler}
+				/>
+			);
 		}
 
 		return (

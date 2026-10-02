@@ -1,4 +1,5 @@
 /* eslint-disable @atlaskit/design-system/ensure-design-token-usage */
+
 import React from 'react';
 
 import { token } from '@atlaskit/tokens';
@@ -15,7 +16,7 @@ export const ErrorIllustration = (): React.JSX.Element => {
 			<g clipPath="url(#clip0)">
 				<path
 					d="M0.649902 0H163.93V212H0.649902V0Z"
-					fill={token('elevation.surface.overlay', 'white')}
+					fill={token('elevation.surface.overlay')}
 					fillOpacity="0.01"
 				/>
 				<path

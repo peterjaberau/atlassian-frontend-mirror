@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { IntlShape, MessageDescriptor } from 'react-intl-next';
+import type { IntlShape, MessageDescriptor } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
@@ -57,10 +57,11 @@ import ImageFullscreenIcon from '@atlaskit/icon/core/image-fullscreen';
 import ImageInlineIcon from '@atlaskit/icon/core/image-inline';
 import MaximizeIcon from '@atlaskit/icon/core/maximize';
 import SmartLinkCardIcon from '@atlaskit/icon/core/smart-link-card';
+import UploadIcon from '@atlaskit/icon/core/upload';
 import { mediaFilmstripItemDOMSelector } from '@atlaskit/media-filmstrip';
-import { messages } from '@atlaskit/media-ui';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { messages } from '@atlaskit/media-ui/messages';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { MediaNextEditorPluginType } from '../../mediaPluginType';
 import { MediaSingleNodeSelector } from '../../nodeviews/styles';
@@ -76,7 +77,6 @@ import { currentMediaOrInlineNodeBorderMark } from '../../pm-plugins/utils/curre
 import { isVideo } from '../../pm-plugins/utils/media-single';
 import type { MediaFloatingToolbarOptions, MediaToolbarBaseConfig } from '../../types';
 import ImageBorderItem from '../../ui/ImageBorder';
-
 import { altTextButton, getAltTextDropdownOption, getAltTextToolbar } from './alt-text';
 import {
 	changeMediaCardToInline,
@@ -181,7 +181,7 @@ export const handleShowMediaViewer = ({
 }: {
 	api: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined;
 	mediaPluginState: MediaPluginState;
-}) => {
+}): false | undefined => {
 	const selectedNodeAttrs = getSelectedNearestMediaContainerNodeAttrs(mediaPluginState);
 	if (!selectedNodeAttrs) {
 		return false;
@@ -195,7 +195,7 @@ export const handleShowImageEditor = ({
 }: {
 	api: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined;
 	mediaPluginState: MediaPluginState;
-}) => {
+}): false | undefined => {
 	const selectedNodeAttrs = getSelectedNearestMediaContainerNodeAttrs(mediaPluginState);
 	if (!selectedNodeAttrs) {
 		return false;
@@ -221,7 +221,7 @@ const generateMediaCardFloatingToolbar = (
 		testId: 'file-preview-toolbar-button',
 		type: 'button',
 		icon: areAnyNewToolbarFlagsEnabled ? GrowDiagonalIcon : MaximizeIcon,
-		title: intl.formatMessage(messages.preview),
+		title: intl.formatMessage(messages.expand),
 		onClick: () => {
 			return handleShowMediaViewer({ mediaPluginState, api: pluginInjectionApi }) ?? false;
 		},
@@ -368,12 +368,16 @@ const generateMediaSingleFloatingToolbar = (
 		isViewOnly,
 		allowPixelResizing,
 		onCommentButtonMount,
+		createCommentExperience,
 	} = options;
 
 	let toolbarButtons: FloatingToolbarItem<Command>[] = [];
 	const { hoverDecoration } = pluginInjectionApi?.decorations?.actions ?? {};
 	const areAnyNewToolbarFlagsEnabled = areToolbarFlagsEnabled(Boolean(pluginInjectionApi?.toolbar));
 	const disableDownloadButton = getIsDownloadDisabledByDataSecurityPolicy(pluginState);
+
+	const mauiToolbarSeparatorsUpdateEnabled =
+		fg('cc-maui-toolbar-separators-update') && areAnyNewToolbarFlagsEnabled;
 
 	if (shouldShowImageBorder(state)) {
 		toolbarButtons.push({
@@ -387,9 +391,11 @@ const generateMediaSingleFloatingToolbar = (
 				const borderMark = currentMediaOrInlineNodeBorderMark(state);
 				return (
 					<ImageBorderItem
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						toggleBorder={() => {
 							toggleBorderMark(pluginInjectionApi?.analytics?.actions)(state, dispatch);
 						}}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						setBorder={(attrs) => {
 							setBorderMark(pluginInjectionApi?.analytics?.actions)(attrs)(state, dispatch);
 						}}
@@ -487,9 +493,7 @@ const generateMediaSingleFloatingToolbar = (
 					toolbarButtons = [
 						...toolbarButtons,
 						trigger,
-						...(areAnyNewToolbarFlagsEnabled
-							? []
-							: [{ type: 'separator' } as FloatingToolbarItem<Command>]),
+						...(areAnyNewToolbarFlagsEnabled ? [] : [{ type: 'separator' } as const]),
 					];
 				}
 			}
@@ -501,7 +505,7 @@ const generateMediaSingleFloatingToolbar = (
 			} else {
 				toolbarButtons = [...toolbarButtons, ...layoutButtons];
 
-				if (layoutButtons.length) {
+				if (layoutButtons.length && !mauiToolbarSeparatorsUpdateEnabled) {
 					toolbarButtons.push({ type: 'separator' });
 				}
 			}
@@ -546,13 +550,7 @@ const generateMediaSingleFloatingToolbar = (
 							),
 							onClick: changeMediaSingleToMediaInline(pluginInjectionApi?.analytics?.actions),
 							testId: 'image-inline-appearance',
-							selected: expValEquals(
-								'platform_editor_add_aria_checked_to_inline_img_btn',
-								'isEnabled',
-								true,
-							)
-								? false
-								: undefined,
+							selected: false,
 						},
 						{
 							type: 'button',
@@ -581,16 +579,18 @@ const generateMediaSingleFloatingToolbar = (
 						hasCaption,
 					);
 
-					toolbarButtons.push(switchFromBlockToInline, {
-						type: 'separator',
-						fullHeight: true,
-					});
+					toolbarButtons.push(
+						switchFromBlockToInline,
+						...(mauiToolbarSeparatorsUpdateEnabled
+							? []
+							: [{ type: 'separator', fullHeight: true } as const]),
+					);
 				}
 			}
 		}
 
 		// A separator is needed regardless switcher is enabled or not
-		if (Boolean(pluginInjectionApi?.toolbar)) {
+		if (Boolean(pluginInjectionApi?.toolbar) && !mauiToolbarSeparatorsUpdateEnabled) {
 			toolbarButtons.push({
 				type: 'separator',
 				fullHeight: true,
@@ -652,10 +652,19 @@ const generateMediaSingleFloatingToolbar = (
 
 		if (!areAnyNewToolbarFlagsEnabled) {
 			if (allowCommentsOnMedia) {
-				toolbarButtons.push(commentButton(intl, state, pluginInjectionApi, onCommentButtonMount), {
-					type: 'separator',
-					supportsViewMode: true,
-				});
+				toolbarButtons.push(
+					commentButton(
+						intl,
+						state,
+						pluginInjectionApi,
+						onCommentButtonMount,
+						createCommentExperience,
+					),
+					{
+						type: 'separator',
+						supportsViewMode: true,
+					},
+				);
 			}
 
 			if (allowLinking && shouldShowMediaLinkToolbar(state)) {
@@ -711,7 +720,7 @@ const generateMediaSingleFloatingToolbar = (
 			if (
 				!!pluginInjectionApi?.mediaEditing &&
 				allowImageEditing &&
-				expValEquals('platform_editor_add_image_editing', 'isEnabled', true)
+				isExperimentEnabled('platform_editor_add_image_editing')
 			) {
 				const selectedMediaSingleNode = getSelectedMediaSingle(state);
 				const mediaNode = selectedMediaSingleNode?.node.content.firstChild;
@@ -752,7 +761,7 @@ const generateMediaSingleFloatingToolbar = (
 							testId: 'file-preview-toolbar-button',
 							type: 'button',
 							icon: MaximizeIcon,
-							title: intl.formatMessage(messages.preview),
+							title: intl.formatMessage(messages.expand),
 							onClick: () => {
 								return (
 									handleShowMediaViewer({
@@ -790,7 +799,9 @@ const generateMediaSingleFloatingToolbar = (
 				title: intl.formatMessage(messages.download),
 				supportsViewMode: true,
 			},
-			{ type: 'separator', supportsViewMode: true },
+			...(mauiToolbarSeparatorsUpdateEnabled
+				? []
+				: [{ type: 'separator', supportsViewMode: true } as const]),
 		);
 	}
 
@@ -847,7 +858,7 @@ const generateMediaSingleFloatingToolbar = (
 						testId: 'file-preview-toolbar-button',
 						type: 'button',
 						icon: GrowDiagonalIcon,
-						title: intl.formatMessage(messages.preview),
+						title: intl.formatMessage(messages.expand),
 						onClick: () => {
 							return (
 								handleShowMediaViewer({
@@ -861,17 +872,17 @@ const generateMediaSingleFloatingToolbar = (
 						),
 						supportsViewMode: true,
 					},
-					{
-						type: 'separator',
-						supportsViewMode: true,
-					},
+					...(mauiToolbarSeparatorsUpdateEnabled
+						? []
+						: [{ type: 'separator', supportsViewMode: true } as const]),
 				);
 			}
 		}
 
 		if (
 			allowAdvancedToolBarOptions &&
-			allowImageEditing && expValEquals('platform_editor_add_image_editing', 'isEnabled', true)
+			allowImageEditing &&
+			isExperimentEnabled('platform_editor_add_image_editing')
 		) {
 			const selectedMediaSingleNode = getSelectedMediaSingle(state);
 			const mediaNode = selectedMediaSingleNode?.node.content.firstChild;
@@ -897,10 +908,9 @@ const generateMediaSingleFloatingToolbar = (
 						},
 						supportsViewMode: false,
 					},
-					{
-						type: 'separator',
-						supportsViewMode: false,
-					},
+					...(mauiToolbarSeparatorsUpdateEnabled
+						? []
+						: [{ type: 'separator', supportsViewMode: false } as const]),
 				);
 			}
 		}
@@ -914,10 +924,9 @@ const generateMediaSingleFloatingToolbar = (
 		) {
 			toolbarButtons.push(
 				getOpenLinkToolbarButtonOption(intl, mediaLinkingState, pluginInjectionApi),
-				{
-					type: 'separator',
-					supportsViewMode: true,
-				},
+				...(mauiToolbarSeparatorsUpdateEnabled
+					? []
+					: [{ type: 'separator', supportsViewMode: true } as const]),
 			);
 		}
 
@@ -934,12 +943,25 @@ const generateMediaSingleFloatingToolbar = (
 					],
 					supportsViewMode: true,
 				},
-				{ type: 'separator', supportsViewMode: true },
+				...(mauiToolbarSeparatorsUpdateEnabled
+					? []
+					: [{ type: 'separator', supportsViewMode: true } as const]),
 			);
 
 		if (allowAdvancedToolBarOptions && allowCommentsOnMedia) {
-			updateToFullHeightSeparator(toolbarButtons);
-			toolbarButtons.push(commentButton(intl, state, pluginInjectionApi, onCommentButtonMount));
+			if (!mauiToolbarSeparatorsUpdateEnabled) {
+				updateToFullHeightSeparator(toolbarButtons);
+			}
+
+			toolbarButtons.push(
+				commentButton(
+					intl,
+					state,
+					pluginInjectionApi,
+					onCommentButtonMount,
+					createCommentExperience,
+				),
+			);
 		}
 
 		return toolbarButtons;
@@ -967,7 +989,7 @@ const isMediaSelection = (selection: Selection, nodeType: NodeType[]) => {
 export const floatingToolbar = (
 	state: EditorState,
 	intl: IntlShape,
-	options: MediaFloatingToolbarOptions = {},
+	options: MediaFloatingToolbarOptions | undefined = {},
 	pluginInjectionApi: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined,
 ): FloatingToolbarConfig | undefined => {
 	const { media, mediaInline, mediaSingle, mediaGroup } = state.schema.nodes;
@@ -1134,7 +1156,15 @@ export const floatingToolbar = (
 		!mediaPluginState.isResizing &&
 		areToolbarFlagsEnabled(Boolean(pluginInjectionApi?.toolbar))
 	) {
-		updateToFullHeightSeparator(items);
+		if (!fg('cc-maui-toolbar-separators-update')) {
+			updateToFullHeightSeparator(items);
+		}
+
+		const showReplaceOption =
+			!isViewOnly &&
+			mediaPluginState.allowsUploads &&
+			isExperimentEnabled('platform_editor_inline_media_replacement') &&
+			selectedNodeType === mediaSingle;
 
 		const customOptions: FloatingToolbarOverflowDropdownOptions<Command> = [
 			...getLinkingDropdownOptions(
@@ -1172,11 +1202,23 @@ export const floatingToolbar = (
 			testId: overflowDropdwonBtnTriggerTestId,
 			options: [
 				...customOptions,
+				...(showReplaceOption
+					? [
+							{
+								title: intl.formatMessage(mediaAndEmbedToolbarMessages.replaceMedia),
+								onClick: () => {
+									mediaPluginState.showMediaPickerForReplace();
+									return true;
+								},
+								icon: <UploadIcon label="" />,
+								testId: 'media-replace-toolbar-button',
+							} satisfies FloatingToolbarOverflowDropdownOptions<Command>[number],
+						]
+					: []),
 				{
 					title: intl?.formatMessage(commonMessages.copyToClipboard),
 					onClick: () => {
 						pluginInjectionApi?.core?.actions.execute(
-							// @ts-ignore
 							pluginInjectionApi?.floatingToolbar?.commands.copyNode(
 								nodeType,
 								INPUT_METHOD.FLOATING_TB,

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-wikimarkup-transformer",
-	"version": "11.20.5",
+	"version": "12.2.3",
 	"description": "Wiki markup transformer for JIRA and Confluence",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,19 +12,14 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
 		"team": "Editor: Collaboration",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Editor Wikimarkup Transformer"
 		}
 	},
@@ -32,22 +27,25 @@
 		"@atlaskit/adf-schema": "workspace:^",
 		"@atlaskit/editor-json-transformer": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"devDependencies": {
 		"@atlaskit/activity": "root:*",
+		"@atlaskit/editor-common": "workspace:^",
 		"@atlaskit/editor-core": "workspace:^",
 		"@atlaskit/editor-test-helpers": "workspace:^",
 		"@atlaskit/mention": "workspace:^",
+		"@atlaskit/renderer": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/util-data-test": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@emotion/react": "root:*",
 		"@types/debug": "root:*",
 		"cookie": "root:*",
 		"debug": "root:*",
-		"react": "root:*",
-		"react-intl-next": "root:*",
+		"react": "^19.2.0",
+		"react-intl": "root:*",
 		"rxjs": "root:*"
 	},
 	"exports": {

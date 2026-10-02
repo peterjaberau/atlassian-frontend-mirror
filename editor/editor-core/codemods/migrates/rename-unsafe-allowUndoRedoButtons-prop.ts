@@ -1,6 +1,9 @@
-import { createRenameVariableTransform } from '../utils';
+import type { JSCodeshift } from 'jscodeshift';
+import type { Collection } from 'jscodeshift/src/Collection';
 
-export const renameUnsafeAllowUndoRedoButtonsProp = createRenameVariableTransform(
-	'UNSAFE_allowUndoRedoButtons',
-	'allowUndoRedoButtons',
-);
+import { createRenameVariableTransform } from '../createRenameVariableTransform';
+
+export const renameUnsafeAllowUndoRedoButtonsProp: (
+	j: JSCodeshift,
+	source: Collection<unknown>,
+) => void = createRenameVariableTransform('UNSAFE_allowUndoRedoButtons', 'allowUndoRedoButtons');

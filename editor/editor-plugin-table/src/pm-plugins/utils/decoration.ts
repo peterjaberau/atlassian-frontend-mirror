@@ -1,15 +1,14 @@
 import { createElement } from 'react';
 
-import { RawIntlProvider } from 'react-intl-next';
-import type { IntlShape } from 'react-intl-next';
+import { RawIntlProvider } from 'react-intl';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import type { CellAttributes } from '@atlaskit/adf-schema';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { CellAttributes } from '@atlaskit/adf-schema/tableNodes';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { nonNullable } from '@atlaskit/editor-common/utils';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
-// @ts-ignore -- ReadonlyTransaction is a local declaration and will cause a TS2305 error in CCFE typecheck
 import type {
 	ReadonlyTransaction,
 	Selection,
@@ -52,7 +51,6 @@ export const createControlsHoverDecoration = (
 	cells: Cell[],
 	type: 'row' | 'column' | 'table',
 	tr: Transaction | ReadonlyTransaction,
-	isDragAndDropEnable: boolean | undefined,
 	hoveredIndexes: number[],
 	danger?: boolean,
 	selected?: boolean,
@@ -109,19 +107,9 @@ export const createControlsHoverDecoration = (
 			classes.push(ClassName.SELECTED_CELL);
 		}
 
-		if (isDragAndDropEnable) {
-			if (type === 'column' || type === 'row') {
-				classes.pop();
-				classes.push(ClassName.HOVERED_NO_HIGHLIGHT);
-			}
-		} else {
-			classes.push(
-				type === 'column'
-					? ClassName.HOVERED_COLUMN
-					: type === 'row'
-						? ClassName.HOVERED_ROW
-						: ClassName.HOVERED_TABLE,
-			);
+		if (type === 'column' || type === 'row') {
+			classes.pop();
+			classes.push(ClassName.HOVERED_NO_HIGHLIGHT);
 		}
 
 		let key: TableDecorations;
@@ -264,9 +252,7 @@ const makeArray = (n: number) => Array.from(Array(n).keys());
  * the CellColumnPositioning interface.
  *
  * Let's say the `columnEndIndexTarget.right` is 3,
- * so this function will return two types of decorations for each cell on that column,
- * that means 2 `resizerHandle` and 2 `lastCellElement`,
- * here is the explanation for each one of them :
+ * so this function will return the resize handle decoration for each cell on that column:
  *
  * - resizerHandle:
  *
@@ -281,32 +267,6 @@ const makeArray = (n: number) => Array.from(Array(n).keys());
  *   This ▒ represents the area where table resizing will start,
  *   and you can follow that using checking the class name `ClassName.RESIZE_HANDLE_DECORATION` on the code
  *
- * - lastCellElementDecoration
- *
- *   Given the content of the cell C1
- *    ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁
- *   |                   |
- *   |   _____________   |
- *   |  |             |  |
- *   |  |     <p>     |  |
- *   |  |_____________|  |
- *   |                   |
- *   |   _____________   |
- *   |  |             |  |
- *   |  |   <media>   |  |
- *   |  |_____________|  |
- *   |                   |
- *   |   _____________   |
- *   |  |             |  |
- *   |  |   <media>   |  |
- *   |  |_____________|  |
- *   |                   |
- *    ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔
- *   Currently, we are removing the margin-bottom from the last media using this kind of CSS rule:
- *   `div:last-of-type`; This is quite unstable, and after we create the `resizerHandle` div,
- *   that logic will apply the margin in the wrong element, to avoid that,
- *   we will add a new class on the last item for each cell,
- *   hence the second media will receive this class `ClassName.LAST_ITEM_IN_CELL`
  */
 export const createResizeHandleDecoration = (
 	tr: Transaction | ReadonlyTransaction,
@@ -315,16 +275,15 @@ export const createResizeHandleDecoration = (
 	includeTooltip: boolean = false,
 	getIntl: () => IntlShape,
 	nodeViewPortalProviderAPI: PortalProviderAPI,
-): [Decoration[], Decoration[]] => {
-	const emptyResult: [Decoration[], Decoration[]] = [[], []];
+): Decoration[] => {
 	const table = findTable(tr.selection);
 	if (!table || !table.node) {
-		return emptyResult;
+		return [];
 	}
 
 	const map = TableMap.get(table.node);
 	if (!map.width) {
-		return emptyResult;
+		return [];
 	}
 
 	const createResizerHandleDecoration = (
@@ -361,47 +320,14 @@ export const createResizeHandleDecoration = (
 				key: `${
 					TableDecorations.COLUMN_RESIZING_HANDLE_WIDGET
 				}_${rowIndex}_${columnIndex}_${includeTooltip ? 'with' : 'no'}-tooltip`,
-				destroy: (node) => {
+				destroy: (_node) => {
 					nodeViewPortalProviderAPI.remove(decorationRenderKey);
 				},
 			},
 		);
 	};
 
-	const createLastCellElementDecoration = (
-		cellColumnPositioning: CellColumnPositioning,
-		cellPos: number,
-		cellNode: PmNode,
-	): Decoration | null => {
-		let lastItemPositions: { from: number; to: number } | undefined;
-		cellNode.forEach((childNode, offset, index) => {
-			if (index === cellNode.childCount - 1) {
-				const from = offset + cellPos + 1;
-				lastItemPositions = {
-					from,
-					to: from + childNode.nodeSize,
-				};
-			}
-		});
-
-		if (!lastItemPositions) {
-			return null;
-		}
-
-		return Decoration.node(
-			lastItemPositions.from,
-			lastItemPositions.to,
-			{
-				class: ClassName.LAST_ITEM_IN_CELL,
-			},
-			{
-				key: `${TableDecorations.LAST_CELL_ELEMENT}_${cellColumnPositioning.left}_${cellColumnPositioning.right}`,
-			},
-		);
-	};
-
 	const resizeHandleCellDecorations: Decoration[] = [];
-	const lastCellElementsDecorations: Array<Decoration | null> = [];
 
 	for (let rowIndex = 0; rowIndex < map.height; rowIndex++) {
 		const seen: { [key: number]: boolean } = {};
@@ -437,18 +363,12 @@ export const createResizeHandleDecoration = (
 				cellPos,
 				cell,
 			);
-			const lastCellDec = createLastCellElementDecoration(
-				{ left: startIndex, right: endIndex },
-				cellPos,
-				cell,
-			);
 
 			resizeHandleCellDecorations.push(resizerHandleDec);
-			lastCellElementsDecorations.push(lastCellDec);
 		}
 	}
 
-	return [resizeHandleCellDecorations, lastCellElementsDecorations.filter(nonNullable)];
+	return resizeHandleCellDecorations;
 };
 
 /*
@@ -496,7 +416,6 @@ export const createResizeHandleDecoration = (
 export const createColumnLineResize = (
 	selection: Selection,
 	cellColumnPositioning: Omit<CellColumnPositioning, 'left'>,
-	isDragAndDropEnabled?: boolean,
 ): Decoration[] => {
 	const table = findTable(selection);
 	if (!table || cellColumnPositioning.right === null) {
@@ -510,13 +429,9 @@ export const createColumnLineResize = (
 	if (isLastColumn) {
 		columnIndex -= 1;
 	}
-	const decorationClassName = isDragAndDropEnabled
-		? isLastColumn
-			? ClassName.WITH_DRAG_RESIZE_LINE_LAST_COLUMN
-			: ClassName.WITH_DRAG_RESIZE_LINE
-		: isLastColumn
-			? ClassName.WITH_RESIZE_LINE_LAST_COLUMN
-			: ClassName.WITH_RESIZE_LINE;
+	const decorationClassName = isLastColumn
+		? ClassName.WITH_DRAG_RESIZE_LINE_LAST_COLUMN
+		: ClassName.WITH_DRAG_RESIZE_LINE;
 
 	const cellPositions = makeArray(map.height)
 		.map((rowIndex) => map.map[map.width * rowIndex + columnIndex])

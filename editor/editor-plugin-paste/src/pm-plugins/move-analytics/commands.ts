@@ -1,3 +1,4 @@
+import type { Command } from '@atlaskit/editor-common/types';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 
 import { MoveAnalyticPluginTypes } from './actions';
@@ -8,7 +9,7 @@ import type { ActionType, ContentMoved } from './types';
 export const updateContentMoved = (
 	nextState: Omit<ContentMoved, 'currentActions'>,
 	nextAction: ActionType,
-) =>
+): Command =>
 	createCommand(
 		(state) => {
 			const { contentMoved } = getPluginState(state);
@@ -16,7 +17,6 @@ export const updateContentMoved = (
 			const data = {
 				currentActions: [...contentMoved.currentActions, nextAction],
 				size: nextState?.size || contentMoved.size,
-				nodeName: nextState?.nodeName,
 				nodeDepth: nextState?.nodeDepth,
 				nodeTypes: nextState?.nodeTypes,
 				hasSelectedMultipleNodes: nextState?.hasSelectedMultipleNodes,
@@ -30,7 +30,7 @@ export const updateContentMoved = (
 		(tr) => tr.setMeta('addToHistory', false),
 	);
 
-export const resetContentMoved = () =>
+export const resetContentMoved = (): Command =>
 	createCommand(
 		() => {
 			return {
@@ -40,10 +40,12 @@ export const resetContentMoved = () =>
 		(tr) => tr.setMeta('addToHistory', false),
 	);
 
-export const resetContentMovedTransform = () => (tr: Transaction) => {
-	const payload = {
-		type: MoveAnalyticPluginTypes.RemoveMovedAction,
-	};
+export const resetContentMovedTransform =
+	() =>
+	(tr: Transaction): Transaction => {
+		const payload = {
+			type: MoveAnalyticPluginTypes.RemoveMovedAction,
+		};
 
-	return tr.setMeta(pluginKey, payload);
-};
+		return tr.setMeta(pluginKey, payload);
+	};

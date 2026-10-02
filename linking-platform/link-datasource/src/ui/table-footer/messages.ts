@@ -1,6 +1,32 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const footerMessages = defineMessages({
+export const footerMessages: {
+	itemText: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	loadingText: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	refreshLabel: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	powerByJSM: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	poweredByAssets: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+} = defineMessages({
 	itemText: {
 		id: 'linkDataSource.table-footer.item',
 		description: 'Text that appears after item count number.',
@@ -13,7 +39,8 @@ export const footerMessages = defineMessages({
 	},
 	refreshLabel: {
 		id: 'linkDataSource.table-footer.refresh',
-		description: 'Label for refresh icon',
+		description:
+			'Label for the refresh button in the datasource table footer, which reloads the table data',
 		defaultMessage: 'Refresh',
 	},
 	powerByJSM: {

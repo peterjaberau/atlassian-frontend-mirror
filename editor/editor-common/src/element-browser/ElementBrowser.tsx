@@ -3,8 +3,8 @@ import React, { PureComponent } from 'react';
 import type { CellMeasurerCache } from 'react-virtualized/dist/commonjs/CellMeasurer';
 
 import type { QuickInsertItem } from '../provider-factory';
+import { getActiveQuickInsertCategories } from '../quick-insert/getActiveQuickInsertCategories';
 import type { EmptyStateHandler } from '../types';
-
 import StatelessElementBrowser from './components/StatelessElementBrowser';
 import type { Category, Modes } from './types';
 
@@ -56,7 +56,7 @@ export default class ElementBrowser extends PureComponent<Props, State> {
 		});
 	}
 
-	getCategories = (items: QuickInsertItem[] = this.fetchItems()) =>
+	getCategories = (items: QuickInsertItem[] = this.fetchItems()): Category[] =>
 		// NOTE: we fetch all items to determine available categories.
 		this.filterCategories(items, this.props.categories);
 
@@ -68,11 +68,13 @@ export default class ElementBrowser extends PureComponent<Props, State> {
 		return categories.filter(
 			(category) =>
 				category.name === 'all' ||
-				items.some((item) => (item.categories || []).includes(category.name)),
+				items.some((item) =>
+					getActiveQuickInsertCategories(item.category, item.categories).includes(category.name),
+				),
 		);
 	};
 
-	fetchItems = (query?: string, category?: string) => {
+	fetchItems = (query?: string, category?: string): QuickInsertItem[] => {
 		return this.props.getItems(query, category);
 	};
 

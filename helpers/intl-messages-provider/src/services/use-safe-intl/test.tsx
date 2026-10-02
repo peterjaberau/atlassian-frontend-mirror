@@ -1,28 +1,25 @@
-import React from 'react';
+import React, { type PropsWithChildren } from 'react';
 
-import { renderHook, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
+
+import { renderHook } from '@atlassian/testing-library';
 
 import { DEFAULT_LOCALE_STATE } from '../../common/constants';
-
 import { useSafeIntl } from './index';
 
-// Skipping as tests timing out due to open handles (#hot-112198)
-describe.skip('useSafeIntl()', () => {
+describe('useSafeIntl()', () => {
 	beforeEach(() => {
 		jest.restoreAllMocks();
 	});
 
 	const translated = { foo: 'Translated string' };
 
-	it('should return deafult Intl shape when no Intl Context', () => {
-		const { result } = renderHook(() => {
+	it('should return NEW default Intl shape when no Intl Context', () => {
+		const result = renderHook(() => {
 			return useSafeIntl();
 		});
 
-		waitFor(() => {
-			expect(result.current).toEqual(DEFAULT_LOCALE_STATE);
-		});
+		expect(result.current.locale).toEqual(DEFAULT_LOCALE_STATE.locale);
 	});
 
 	it('should return Intl context when a provider is present', () => {
@@ -32,17 +29,15 @@ describe.skip('useSafeIntl()', () => {
 			</IntlProvider>
 		);
 
-		const wrapper = (props: {}) => testWrapper(props);
+		const wrapper = (props: PropsWithChildren) => testWrapper(props);
 
-		const { result } = renderHook(
+		const result = renderHook(
 			() => {
 				return useSafeIntl();
 			},
 			{ wrapper },
 		);
 
-		waitFor(() => {
-			expect(result.current.messages).toEqual(translated);
-		});
+		expect(result.current.messages).toEqual(translated);
 	});
 });

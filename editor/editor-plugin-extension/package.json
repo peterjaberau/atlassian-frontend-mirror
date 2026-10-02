@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-extension",
-	"version": "10.0.13",
+	"version": "26.0.0",
 	"description": "editor-plugin-extension plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,6 +8,11 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"website": {
+			"tags": [
+				"platform-labs"
+			]
+		},
 		"team": "Editor: Core Experiences",
 		"singleton": true
 	},
@@ -21,23 +26,30 @@
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./extensionPlugin": "./src/entry-points/extensionPlugin.tsx",
+		"./extensionPluginType": "./src/entry-points/extensionPluginType.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
 		"@atlaskit/adf-utils": "workspace:^",
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/avatar": "workspace:^",
+		"@atlaskit/browser-apis": "workspace:^",
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/checkbox": "workspace:^",
+		"@atlaskit/code": "workspace:^",
 		"@atlaskit/datetime-picker": "workspace:^",
 		"@atlaskit/editor-json-transformer": "workspace:^",
 		"@atlaskit/editor-plugin-analytics": "workspace:^",
+		"@atlaskit/editor-plugin-block-menu": "workspace:^",
 		"@atlaskit/editor-plugin-connectivity": "workspace:^",
 		"@atlaskit/editor-plugin-context-identifier": "workspace:^",
 		"@atlaskit/editor-plugin-context-panel": "workspace:^",
+		"@atlaskit/editor-plugin-copy-button": "workspace:^",
 		"@atlaskit/editor-plugin-decorations": "workspace:^",
 		"@atlaskit/editor-plugin-feature-flags": "workspace:^",
+		"@atlaskit/editor-plugin-mentions": "workspace:^",
 		"@atlaskit/editor-plugin-toolbar": "workspace:^",
 		"@atlaskit/editor-plugin-width": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
@@ -48,9 +60,13 @@
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/link": "workspace:^",
+		"@atlaskit/mention": "workspace:^",
+		"@atlaskit/menu": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/radio": "workspace:^",
+		"@atlaskit/react-select": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/smart-user-picker": "workspace:^",
@@ -58,11 +74,11 @@
 		"@atlaskit/tabs": "workspace:^",
 		"@atlaskit/textarea": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/toggle": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
+		"@atlaskit/user-picker": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@emotion/react": "root:*",
 		"bind-event-listener": "root:*",
@@ -70,60 +86,36 @@
 		"lodash": "root:*",
 		"memoize-one": "root:*",
 		"react-loadable": "root:*",
+		"react-loosely-lazy": "root:*",
 		"uuid": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0",
-		"react-intl-next": "*"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"react": "^19.2.0",
+		"react-intl": "root:*",
 		"react-select": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			],
-			"code-structure": [
-				"editor-plugin"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"emotion"
-			]
-		}
-	},
 	"platform-feature-flags": {
+		"cc_maui_annotations_on_extensions": {
+			"type": "boolean"
+		},
+		"platform_forge_inline_bodied_macro": {
+			"type": "boolean"
+		},
 		"platform_editor_ai_object_sidebar_injection": {
 			"type": "boolean"
 		},
-		"dst-a11y__replace-anchor-with-link__editor-core-ex": {
+		"platform_editor_extension_hide_copy_button": {
 			"type": "boolean"
-		}
-	},
-	"stricter": {
-		"no-unused-dependencies": {
-			"checkDevDependencies": true
+		},
+		"platform_editor_extension_hide_toolbar_actions": {
+			"type": "boolean"
 		}
 	}
 }

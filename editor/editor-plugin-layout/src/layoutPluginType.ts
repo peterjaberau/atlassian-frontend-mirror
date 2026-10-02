@@ -1,5 +1,11 @@
-import type { NextEditorPlugin, OptionalPlugin } from '@atlaskit/editor-common/types';
+import type {
+	Command,
+	EditorCommand,
+	NextEditorPlugin,
+	OptionalPlugin,
+} from '@atlaskit/editor-common/types';
 import type { AnalyticsPlugin } from '@atlaskit/editor-plugin-analytics';
+import type { BlockControlsPlugin } from '@atlaskit/editor-plugin-block-controls';
 import type { BlockMenuPlugin } from '@atlaskit/editor-plugin-block-menu';
 import type { DecorationsPlugin } from '@atlaskit/editor-plugin-decorations';
 import type { EditorDisabledPlugin } from '@atlaskit/editor-plugin-editor-disabled';
@@ -7,9 +13,19 @@ import type { GuidelinePlugin } from '@atlaskit/editor-plugin-guideline';
 import type { InteractionPlugin } from '@atlaskit/editor-plugin-interaction';
 import type { SelectionPlugin } from '@atlaskit/editor-plugin-selection';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugin-toolbar';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugin-ui-control-registry';
+import type { UserIntentPlugin } from '@atlaskit/editor-plugin-user-intent';
 import type { WidthPlugin } from '@atlaskit/editor-plugin-width';
 
-import type { insertLayoutColumnsWithAnalytics } from './pm-plugins/actions';
+import type {
+	DeleteLayoutColumnOptions,
+	DistributeLayoutColumnsOptions,
+	InsertLayoutColumnOptions,
+	InsertLayoutColumnsInputMethod,
+	SetLayoutColumnValignOptions,
+	ToggleLayoutColumnMenuOptions,
+} from './pm-plugins/actions';
+import type { LayoutState } from './pm-plugins/types';
 import type { LayoutPluginOptions } from './types';
 
 export type LayoutPluginDependencies = [
@@ -20,17 +36,29 @@ export type LayoutPluginDependencies = [
 	OptionalPlugin<EditorDisabledPlugin>,
 	OptionalPlugin<GuidelinePlugin>,
 	OptionalPlugin<InteractionPlugin>,
+	OptionalPlugin<BlockControlsPlugin>,
 	OptionalPlugin<BlockMenuPlugin>,
 	OptionalPlugin<ToolbarPlugin>,
+	OptionalPlugin<UiControlRegistryPlugin>,
+	OptionalPlugin<UserIntentPlugin>,
 ];
 
 export type LayoutPlugin = NextEditorPlugin<
 	'layout',
 	{
 		actions: {
-			insertLayoutColumns: ReturnType<typeof insertLayoutColumnsWithAnalytics>;
+			insertLayoutColumns: (inputMethod: InsertLayoutColumnsInputMethod) => Command;
+		};
+		commands: {
+			deleteLayoutColumn: (options?: DeleteLayoutColumnOptions) => EditorCommand;
+			distributeLayoutColumns: (options?: DistributeLayoutColumnsOptions) => EditorCommand;
+			insertLayoutColumn: (options: InsertLayoutColumnOptions) => EditorCommand;
+			setLayoutColumnDangerPreview: (show: boolean) => EditorCommand;
+			setLayoutColumnValign: (options: SetLayoutColumnValignOptions) => EditorCommand;
+			toggleLayoutColumnMenu: (options: ToggleLayoutColumnMenuOptions) => EditorCommand;
 		};
 		dependencies: LayoutPluginDependencies;
 		pluginConfiguration: LayoutPluginOptions | undefined;
+		sharedState: LayoutState | undefined;
 	}
 >;

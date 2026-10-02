@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-client-react",
-	"version": "4.1.2",
+	"version": "7.0.0",
 	"description": "🖼️ Media Client for React",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,6 +8,13 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif"
 	},
 	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-mirror",
@@ -15,24 +22,36 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
+		"./get-file-state-error-reason": "./src/getFileStateErrorReason.ts",
+		"./get-media-client": "./src/getMediaClient.ts",
+		"./get-media-user-preferences": "./src/mediaSettings/getMediaUserPreferences.ts",
+		"./is-media-file-state-error": "./src/isMediaFileStateError.ts",
+		"./media-client-provider": "./src/MediaClientProvider.tsx",
+		"./media-file-state-error": "./src/MediaFileStateError.ts",
+		"./media-parsed-settings": "./src/mediaSettings/mediaParsedSettings.ts",
+		"./media-provider": "./src/MediaProvider.tsx",
+		"./mocked-get-media-client": "./src/test-helpers/mockedGetMediaClient.ts",
+		"./mocked-media-client-provider": "./src/test-helpers/MockedMediaClientProvider.tsx",
+		"./mocked-media-provider": "./src/test-helpers/MockedMediaProvider.tsx",
+		"./use-copy-intent": "./src/copyIntent/useCopyIntent.ts",
+		"./use-file-hashes": "./src/useFileHashes.ts",
+		"./use-file-state": "./src/useFileState.ts",
+		"./use-media-client": "./src/useMediaClient.ts",
+		"./use-media-settings": "./src/useMediaSettings.ts",
+		"./use-media-store": "./src/useMediaStore.ts",
+		"./with-media-client": "./src/withMediaClient.tsx",
+		"./with-media-client-and-settings": "./src/withMediaClientAndSettings.tsx",
 		"./test-helpers": "./src/test-helpers/index.ts"
 	},
 	"dependencies": {
 		"@atlaskit/media-client": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/platform-feature-flags-react": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@babel/runtime": "root:*",
 		"zustand": "root:*"
 	},
@@ -50,15 +69,21 @@
 	"devDependencies": {
 		"@atlaskit/media-state": "workspace:^",
 		"@atlaskit/media-test-data": "workspace:^",
+		"@atlaskit/media-test-helpers": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"jest-fetch-mock": "root:*",
 		"msw": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*"
 	},
 	"platform-feature-flags": {
 		"platform_media_cross_client_copy": {
+			"type": "boolean"
+		},
+		"platform_media_cross_client_copy_with_auth": {
 			"type": "boolean"
 		},
 		"media-perf-uplift-mutation-fix": {
@@ -66,16 +91,9 @@
 		},
 		"dfo_attachments_late_render_fix": {
 			"type": "boolean"
-		}
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
+		},
+		"platform_media_ssr_data_seed": {
+			"type": "boolean"
 		}
 	}
 }

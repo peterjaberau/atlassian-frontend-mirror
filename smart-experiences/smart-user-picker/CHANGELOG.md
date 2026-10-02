@@ -1,5 +1,329 @@
 # @atlassian/smart-user-picker
 
+## 12.1.0
+
+### Minor Changes
+
+- [`48ee35bbf1e1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48ee35bbf1e1b) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 12.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.9.0
+
+### Minor Changes
+
+- [`69cbbe9ee0f63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69cbbe9ee0f63) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 11.8.1
+
+### Patch Changes
+
+- [`0cb4543c427b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0cb4543c427b0) -
+  Cleaned up feature gate smart_user_picker_suggest_emails_for_domain
+
+## 11.8.0
+
+### Minor Changes
+
+- [`942e8a15cbdf1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/942e8a15cbdf1) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 11.7.1
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 11.7.0
+
+### Minor Changes
+
+- [`0a39ae0f69a25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a39ae0f69a25) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+- [`dbff55e58457b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbff55e58457b) -
+  Use `@atlaskit/smart-user-picker/components` for the picker component,
+  `@atlaskit/smart-user-picker/recommendation-client` for `getUserRecommendations`, and
+  `@atlaskit/smart-user-picker/default-value-hydration-client` for `hydrateDefaultValues`. Use the
+  existing `types`, `user-picker`, and `option` entry points for their respective APIs. Root imports
+  remain supported for existing consumers.
+
+## 11.6.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.5.1
+
+### Patch Changes
+
+- [`6d704062ca749`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d704062ca749) -
+  Internal refactor to support tree shaking. No consumer changes.
+
+## 11.5.0
+
+### Minor Changes
+
+- [`30c27895b9040`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30c27895b9040) -
+  Behind the smart-user-picker-fetch-error-fix gate, a failed user lookup no longer clears the
+  suggestions or fails the UFO experience when the query has already moved on, so a slow or failing
+  request for an earlier keystroke cannot wipe the results of the current one.
+
+## 11.4.0
+
+### Minor Changes
+
+- [`83e8f4f813800`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83e8f4f813800) -
+  Clean up a feature gate. The restrictTo prop is now always applied to user recommendations.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.3
+
+### Patch Changes
+
+- [`e9153fd2bb41f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e9153fd2bb41f) -
+  Migrate user picker feature gate unit tests to the supported mock-gates test utilities.
+- Updated dependencies
+
+## 11.3.2
+
+### Patch Changes
+
+- [`4bdae29c77827`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4bdae29c77827) -
+  Fix suggestEmailsForDomain being suppressed for partial (non-email) input when enableEmailSearch
+  and allowEmailSelectionWhenEmailMatched=false are both set. The WAR-5498 FG cleanup (2026-03-04)
+  made the isEmailQuery restriction unconditional, breaking the domain-suggestion creatable option
+  (e.g. "asdf@atlassian.com"). Behind the new gate smart_user_picker_suggest_emails_for_domain,
+  partial queries now allow the domain suggestion to render, while the email option remains
+  suppressed when a full email query matches an existing user, or when the synthesized
+  "<query>@<domain>" address already belongs to a returned user.
+
+## 11.3.1
+
+### Patch Changes
+
+- [`f834c7d669731`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f834c7d669731) -
+  Removed feature gate TWCG-444 for Unified Share Dialogue experiment. No change in functionality
+- Updated dependencies
+
+## 11.3.0
+
+### Minor Changes
+
+- [`4fd26afe1912d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4fd26afe1912d) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 11.2.0
+
+### Minor Changes
+
+- [`7f2eb99bad9b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f2eb99bad9b3) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 11.1.0
+
+### Minor Changes
+
+- [`b9a7b3350402b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9a7b3350402b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`fbb51c73ed426`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbb51c73ed426) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 10.1.0
+
+### Minor Changes
+
+- [`80d8df1d8b42a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/80d8df1d8b42a) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- [`022735aed6e40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/022735aed6e40) -
+  [PTC-16466]: pass userbaseId to URS
+
+## 10.0.3
+
+### Patch Changes
+
+- [`c8f8aee4be6f5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c8f8aee4be6f5) -
+  [PTC-16442]: add userbaseId as an optional prop
+
+## 10.0.2
+
+### Patch Changes
+
+- [`a95470b46e97e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a95470b46e97e) -
+  Map `appType` field from the recommendation service response through `users-transformer` so that
+  agent principals correctly expose `appType` on the resulting `OptionData` object.
+
+## 10.0.1
+
+### Patch Changes
+
+- [`9b1521c6d0e35`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b1521c6d0e35) -
+  FFCLEANUP-97327: Remove smart-user-picker-attribution-header feature gate (always-on cleanup)
+
+## 10.0.0
+
+### Major Changes
+
+- [`d2e14ba5ae9fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2e14ba5ae9fc) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.2
+
+### Patch Changes
+
+- [`2c91b4048c838`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c91b4048c838) -
+  Bump i18n packages
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 9.2.1
+
+### Patch Changes
+
+- [`7eb1025a50079`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7eb1025a50079) -
+  Added Archive Lozenge when a team state is DISBANDED
+
+## 9.2.0
+
+### Minor Changes
+
+- [`bdbcc02f31ffe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bdbcc02f31ffe) -
+  [ux] Block viewers adding followers that don't have access to private projects
+
+## 9.1.0
+
+### Minor Changes
+
+- [`cd870c596ec95`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd870c596ec95) -
+  Add support for Jira guest user lozenges via user_picker_guest_lozenges feature flag
+
+## 9.0.1
+
+### Patch Changes
+
+- [`94aa45d957856`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94aa45d957856) -
+  Add atl-attribution header to network requests for metrics attribution in AGG
+
+## 9.0.0
+
+### Major Changes
+
+- [`fe65ecbc97c01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fe65ecbc97c01) -
+  Filter team results to directory-synced teams only, so only supported teams can be selected and
+  unsynced teams do not cause errors.
+
 ## 8.9.3
 
 ### Patch Changes

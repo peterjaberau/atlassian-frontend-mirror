@@ -1,17 +1,23 @@
 /* eslint-disable @atlaskit/design-system/no-dark-theme-vr-tests */
+
 import { snapshot } from '@af/visual-regression';
 
-import AllPlacements from '../../examples/all-placements';
-import Card from '../../examples/card';
-import FullWidthTarget from '../../examples/full-width-target';
-import Offset from '../../examples/offset';
-import OverlayingUI from '../../examples/overlaying-ui';
-import StepVariants from '../../examples/step-variants';
-import NoMedia from '../../examples/without-image';
+import Links from '../../examples/action-links.vr.ap';
+import AllPlacements from '../../examples/all-placements.vr.ap';
+import Card from '../../examples/card.vr.ap';
+import FullWidthTarget from '../../examples/full-width-target.vr.ap';
+import Offset from '../../examples/offset.vr.ap';
+import OnModal from '../../examples/on-modal.vr.ap';
+import OverlayingUI from '../../examples/overlaying-ui.vr.ap';
+import Reflow from '../../examples/reflow.vr.ap';
+import StepVariants from '../../examples/step-variants.vr.ap';
+import NoMedia from '../../examples/without-image.vr.ap';
 
 snapshot(Card, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
 	},
 	variants: [
 		{
@@ -32,6 +38,8 @@ snapshot(Card, {
 snapshot(StepVariants, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
 	},
 	variants: [
 		{
@@ -46,6 +54,8 @@ snapshot(StepVariants, {
 snapshot(NoMedia, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
 	},
 	variants: [
 		{
@@ -60,6 +70,8 @@ snapshot(NoMedia, {
 snapshot(AllPlacements, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
 	},
 	variants: [
 		{
@@ -74,6 +86,8 @@ snapshot(AllPlacements, {
 snapshot(OverlayingUI, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
 	},
 	variants: [
 		{
@@ -88,6 +102,8 @@ snapshot(OverlayingUI, {
 snapshot(FullWidthTarget, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
 	},
 	variants: [
 		{
@@ -101,6 +117,53 @@ snapshot(FullWidthTarget, {
 snapshot(Offset, {
 	featureFlags: {
 		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
+	},
+	variants: [
+		{
+			name: 'Light',
+			environment: {
+				colorScheme: 'light',
+			},
+		},
+	],
+});
+snapshot(Links, {
+	featureFlags: {
+		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
+	},
+	variants: [
+		{
+			name: 'Light',
+			environment: {
+				colorScheme: 'light',
+			},
+		},
+	],
+});
+snapshot(OnModal, {
+	featureFlags: {
+		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
+	},
+	variants: [
+		{
+			name: 'Light',
+			environment: {
+				colorScheme: 'light',
+			},
+		},
+	],
+});
+snapshot(Reflow, {
+	featureFlags: {
+		'platform-component-visual-refresh': true,
+		'platform-dst-top-layer-spotlight': true,
+		platform_spotlight_card_fit_content_anchor: true,
 	},
 	variants: [
 		{

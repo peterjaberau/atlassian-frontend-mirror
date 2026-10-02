@@ -7,15 +7,14 @@ import React, { Fragment } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import Button from '@atlaskit/button/custom-theme-button';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
 import AddIcon from '@atlaskit/icon/core/add';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { CREATE_BREAKPOINT } from '../../common/constants';
 import { useTheme } from '../../theme';
 import { IconButton } from '../IconButton';
-
 import { getCreateButtonTheme } from './styles';
 import { type CreateProps } from './types';
 
@@ -40,7 +39,7 @@ const wrapperStyles = css({
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&&': {
-		marginInlineStart: token('space.150', '12px'),
+		marginInlineStart: token('space.150'),
 	},
 });
 
@@ -66,6 +65,8 @@ const TooltipSwitch = ({ buttonTooltip, children }: TooltipSwitchProps) =>
  *
  * - [Examples](https://atlassian.design/components/atlassian-navigation/examples#create)
  * - [Code](https://atlassian.design/components/atlassian-navigation/code)
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 export const Create = ({
 	onClick,

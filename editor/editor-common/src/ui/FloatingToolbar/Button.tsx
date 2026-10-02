@@ -1,22 +1,19 @@
-import React, { forwardRef, useCallback, useEffect, useState, type Ref } from 'react';
+import React, { forwardRef, useCallback, useEffect } from 'react';
+import type { Ref } from 'react';
 
-import Button from '@atlaskit/button/custom-theme-button';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { componentWithCondition } from '@atlaskit/platform-feature-flags-react';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip, { type TooltipProps } from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import type { TooltipProps } from '@atlaskit/tooltip/types';
 
 import type { ButtonAppearance } from '../../types';
-import type { FloatingToolbarButtonSpotlightConfig } from '../../types/floating-toolbar';
-import { Pulse } from '../Pulse/Pulse';
-
-import { ButtonSpotlightCard } from './ButtonSpotlightCard';
-import { getButtonStyles, iconOnlySpacing } from './styles';
+import { iconOnlySpacing } from './iconOnlySpacing';
+import { getButtonStyles } from './styles';
 
 const customSizeAndPadding = {
-	minWidth: token('space.400', '32px'),
-	padding: `0px ${token('space.050', '4px')}`,
+	minWidth: token('space.400'),
+	padding: `0px ${token('space.050')}`,
 };
 
 export interface Props {
@@ -49,7 +46,8 @@ export interface Props {
 	/** If true, the component will have pulse onboarding effect around it. */
 	pulse?: boolean;
 	selected?: boolean;
-	spotlightConfig?: FloatingToolbarButtonSpotlightConfig;
+	/** Keep the tooltip open when the button is pressed. Set it when a press changes the tooltip content. */
+	hasNewContentOnTriggerClick?: boolean;
 	tabIndex?: number | null | undefined;
 	target?: string;
 	testId?: string;
@@ -85,13 +83,13 @@ const FloatingToolbarButton = (
 		testId,
 		interactionName,
 		hideTooltipOnClick = true,
+		hasNewContentOnTriggerClick,
 		ariaHasPopup,
 		tabIndex,
 		areaControls,
 		ariaLabel,
 		isRadioButton,
 		pulse,
-		spotlightConfig,
 		areAnyNewToolbarFlagsEnabled,
 	}: Props,
 	forwardedRef?: Ref<HTMLElement>,
@@ -104,33 +102,19 @@ const FloatingToolbarButton = (
 	 * If it's a radio button, we need to reflect false values too, hence
 	 * we cast it as a Boolean
 	 */
-	const ariaChecked = isRadioButton
-		? fg('platform_editor_dec_a11y_fixes')
-			? Boolean(isButtonPressed)
-			: isButtonPressed
-		: undefined;
+	const ariaChecked = isRadioButton ? Boolean(isButtonPressed) : undefined;
 	const ariaPressed = isRadioButton ? undefined : isButtonPressed;
-	const [spotlightReferenceElement, setSpotlightReferenceElement] = useState<HTMLElement | null>(
-		null,
-	);
-
 	useEffect(() => {
 		onMount?.();
 		return () => onUnmount?.();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const onSpotlightTargetClick = spotlightConfig?.isSpotlightOpen
-		? spotlightConfig?.onTargetClick
-		: undefined;
 	const handleOnClick = useCallback(
 		(event: React.MouseEvent) => {
-			// fire the spotlight onTargetClick callback if a spotlight is rendered and callback is provided
-			onSpotlightTargetClick?.();
-
 			onClick?.(event);
 		},
-		[onClick, onSpotlightTargetClick],
+		[onClick],
 	);
 
 	return (
@@ -140,94 +124,107 @@ const FloatingToolbarButton = (
 				content={tooltipContent || (iconOnly ? title : undefined)}
 				component={tooltipStyle}
 				hideTooltipOnClick={hideTooltipOnClick}
+				hasNewContentOnTriggerClick={hasNewContentOnTriggerClick}
 				position="top"
 			>
-				{/* eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events*/}
-				<div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-					<Pulse pulse={pulse || spotlightConfig?.pulse}>
-						{/* TODO: (from codemod) CustomThemeButton will be deprecated. Please consider migrating to Pressable or Anchor Primitives with custom styles. */}
-						<Button
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/no-unsafe-style-overrides -- Ignored via go/DSP-18766
-							className={className}
-							ref={(buttonElement) => {
-								setSpotlightReferenceElement(buttonElement);
-
-								if (
-									forwardedRef &&
-									editorExperiment('platform_synced_block', true)
-								) {
-									if (typeof forwardedRef === 'function') {
-										forwardedRef(buttonElement);
-									} else if (typeof forwardedRef === 'object') {
-										(forwardedRef as React.MutableRefObject<HTMLElement | null>).current =
-											buttonElement;
-									}
+				{/*
+					Move onMouseEnter/onMouseLeave from this wrapper div to the Button component below,
+					which already has onFocus/onBlur handlers. This satisfies the a11y rule by pairing
+					mouse events with keyboard equivalents on the same element.
+				*/}
+				{/* eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events */}
+				<div
+					onMouseEnter={
+						expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+							? undefined
+							: onMouseEnter
+					}
+					onMouseLeave={
+						expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+							? undefined
+							: onMouseLeave
+					}
+				>
+					{/* TODO: (from codemod) CustomThemeButton will be deprecated. Please consider migrating to Pressable or Anchor Primitives with custom styles. */}
+					<Button
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/no-unsafe-style-overrides -- Ignored via go/DSP-18766
+						className={className}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+						ref={(buttonElement) => {
+							if (forwardedRef) {
+								if (typeof forwardedRef === 'function') {
+									forwardedRef(buttonElement);
+								} else if (typeof forwardedRef === 'object') {
+									(forwardedRef as React.MutableRefObject<HTMLElement | null>).current =
+										buttonElement;
 								}
-							}}
-							// eslint-disable-next-line @atlaskit/design-system/no-unsafe-style-overrides
-							theme={(adgTheme, themeProps) => {
-								const { buttonStyles, ...rest } = adgTheme(themeProps);
-								return {
-									buttonStyles: {
-										...buttonStyles,
-										...customSpacing,
-										...(appearance === 'danger' &&
-											getButtonStyles({
-												appearance,
-												state: themeProps.state,
-												mode: themeProps.mode,
-											})),
-										...(areAnyNewToolbarFlagsEnabled ? customSizeAndPadding : {}),
-									},
-									...rest,
-								};
-							}}
-							aria-label={ariaLabel || title}
-							aria-pressed={ariaPressed}
-							aria-checked={ariaChecked}
-							role={isRadioButton ? 'radio' : undefined}
-							aria-expanded={ariaHasPopup ? selected : undefined}
-							aria-controls={ariaHasPopup ? areaControls : undefined}
-							spacing={areAnyNewToolbarFlagsEnabled ? 'default' : 'compact'}
-							href={href}
-							target={target}
-							appearance={appearance}
-							aria-haspopup={ariaHasPopup}
-							iconBefore={icon || undefined}
-							iconAfter={iconAfter}
-							onClick={handleOnClick}
-							onKeyDown={onKeyDown}
-							isSelected={selected}
-							isDisabled={disabled}
-							testId={testId}
-							interactionName={interactionName}
-							onFocus={onFocus}
-							onBlur={onBlur}
-							// @ts-ignore
-							// tabIndex set as 0 by default in the design system  ButtonBase component
-							// this is not expected for all buttons, we have to use tabIndex={null} for some cases
-							// should be fixed here https://a11y-internal.atlassian.net/browse/DST-287
-							tabIndex={tabIndex}
-						>
-							{children}
-						</Button>
-					</Pulse>
+							}
+						}}
+						// eslint-disable-next-line @atlaskit/design-system/no-unsafe-style-overrides, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+						theme={(adgTheme, themeProps) => {
+							const { buttonStyles, ...rest } = adgTheme(themeProps);
+							return {
+								buttonStyles: {
+									...buttonStyles,
+									...customSpacing,
+									...(appearance === 'danger' &&
+										getButtonStyles({
+											appearance,
+											state: themeProps.state,
+											mode: themeProps.mode,
+										})),
+									...(areAnyNewToolbarFlagsEnabled ? customSizeAndPadding : {}),
+								},
+								...rest,
+							};
+						}}
+						aria-label={ariaLabel || title}
+						aria-pressed={ariaPressed}
+						aria-checked={ariaChecked}
+						role={isRadioButton ? 'radio' : undefined}
+						aria-expanded={ariaHasPopup ? selected : undefined}
+						aria-controls={ariaHasPopup ? areaControls : undefined}
+						spacing={areAnyNewToolbarFlagsEnabled ? 'default' : 'compact'}
+						href={href}
+						target={target}
+						appearance={appearance}
+						aria-haspopup={ariaHasPopup}
+						iconBefore={icon || undefined}
+						iconAfter={iconAfter}
+						onClick={handleOnClick}
+						onKeyDown={onKeyDown}
+						isSelected={selected}
+						isDisabled={disabled}
+						testId={testId}
+						interactionName={interactionName}
+						onMouseEnter={
+							expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+								? onMouseEnter
+								: undefined
+						}
+						onMouseLeave={
+							expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+								? onMouseLeave
+								: undefined
+						}
+						onFocus={onFocus}
+						onBlur={onBlur}
+						// @ts-ignore
+						// tabIndex set as 0 by default in the design system  ButtonBase component
+						// this is not expected for all buttons, we have to use tabIndex={null} for some cases
+						// should be fixed here https://a11y-internal.atlassian.net/browse/DST-287
+						tabIndex={tabIndex}
+					>
+						{children}
+					</Button>
 				</div>
 			</Tooltip>
-			{spotlightConfig?.isSpotlightOpen && spotlightReferenceElement && (
-				<ButtonSpotlightCard
-					referenceElement={spotlightReferenceElement}
-					// Ignored via go/ees005
-					// eslint-disable-next-line react/jsx-props-no-spreading
-					{...spotlightConfig.spotlightCardOptions}
-				/>
-			)}
 		</>
 	);
 };
 
-export default componentWithCondition(
-	() => editorExperiment('platform_synced_block', true),
-	forwardRef<HTMLElement, Props>(FloatingToolbarButton),
-	FloatingToolbarButton,
-);
+const FloatingToolbarButtonWithRef: React.ForwardRefExoticComponent<
+	Props & React.RefAttributes<HTMLElement>
+> = forwardRef<HTMLElement, Props>(FloatingToolbarButton);
+
+export default FloatingToolbarButtonWithRef;

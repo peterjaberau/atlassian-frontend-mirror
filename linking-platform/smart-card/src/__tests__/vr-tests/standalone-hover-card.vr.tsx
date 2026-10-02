@@ -1,13 +1,13 @@
 import { snapshot } from '@af/visual-regression';
 
-import HoverCardConfluence from '../../../examples/vr-hover-card-standalone/vr-hover-card-confluence';
-import HoverCardForSlackMessage from '../../../examples/vr-hover-card-standalone/vr-hover-card-for-slack-message';
-import HoverCardForbiddenJira from '../../../examples/vr-hover-card-standalone/vr-hover-card-forbidden-jira';
-import HoverCardAssignedJiraIssue from '../../../examples/vr-hover-card-standalone/vr-hover-card-jira-assigned-issue';
-import HoverCardJiraProject from '../../../examples/vr-hover-card-standalone/vr-hover-card-jira-project';
-import HoverCardUnassignedJiraIssue from '../../../examples/vr-hover-card-standalone/vr-hover-card-jira-unassigned-issue';
-import HoverCard from '../../../examples/vr-hover-card-standalone/vr-hover-card-layout';
-import HoverCardWithPreview from '../../../examples/vr-hover-card-standalone/vr-hover-card-with-image-preview';
+import HoverCardConfluence from '../../../examples/vr-hover-card-standalone/vr-hover-card-confluence.vr.ap';
+import HoverCardForSlackMessage from '../../../examples/vr-hover-card-standalone/vr-hover-card-for-slack-message.vr.ap';
+import HoverCardForbiddenJira from '../../../examples/vr-hover-card-standalone/vr-hover-card-forbidden-jira.vr.ap';
+import HoverCardAssignedJiraIssue from '../../../examples/vr-hover-card-standalone/vr-hover-card-jira-assigned-issue.vr.ap';
+import HoverCardJiraProject from '../../../examples/vr-hover-card-standalone/vr-hover-card-jira-project.vr.ap';
+import HoverCardUnassignedJiraIssue from '../../../examples/vr-hover-card-standalone/vr-hover-card-jira-unassigned-issue.vr.ap';
+import HoverCard from '../../../examples/vr-hover-card-standalone/vr-hover-card-layout.vr.ap';
+import HoverCardWithPreview from '../../../examples/vr-hover-card-standalone/vr-hover-card-with-image-preview.vr.ap';
 
 snapshot(HoverCard, {
 	description: 'standalone hover card default',
@@ -20,9 +20,6 @@ snapshot(HoverCard, {
 	],
 	states: [{ state: 'hovered', selector: { byRole: 'button' } }],
 	drawsOutsideBounds: true,
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
@@ -59,9 +56,6 @@ snapshot(HoverCardConfluence, {
 	],
 	states: [{ state: 'hovered', selector: { byRole: 'button' } }],
 	drawsOutsideBounds: true,
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
@@ -69,9 +63,6 @@ snapshot(HoverCardAssignedJiraIssue, {
 	description: 'standalone hover card for Assigned Jira Issue',
 	states: [{ state: 'hovered', selector: { byRole: 'button' } }],
 	drawsOutsideBounds: true,
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
@@ -79,9 +70,6 @@ snapshot(HoverCardUnassignedJiraIssue, {
 	description: 'standalone hover card for Unassigned Jira Issue',
 	states: [{ state: 'hovered', selector: { byRole: 'button' } }],
 	drawsOutsideBounds: true,
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
@@ -89,9 +77,6 @@ snapshot(HoverCardJiraProject, {
 	description: 'standalone hover card for Jira Project',
 	states: [{ state: 'hovered', selector: { byRole: 'button' } }],
 	drawsOutsideBounds: true,
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
@@ -131,7 +116,8 @@ snapshot(HoverCardForbiddenJira, {
 	waitForReactLazy: true,
 });
 
-snapshot(HoverCardForbiddenJira, {
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(HoverCardForbiddenJira, {
 	description: 'standalone hover card forbidden view with denied_request_exists context for Jira',
 	states: [
 		{

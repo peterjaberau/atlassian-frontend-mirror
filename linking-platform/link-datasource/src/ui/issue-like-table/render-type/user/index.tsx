@@ -5,14 +5,16 @@
 import React, { useState } from 'react';
 
 import { css, cssMap, jsx, styled } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import Avatar, { type SizeType } from '@atlaskit/avatar';
-import AvatarGroup, { type AvatarProps } from '@atlaskit/avatar-group';
-import { type User } from '@atlaskit/linking-types';
+import AvatarGroup from '@atlaskit/avatar-group/avatar-group';
+import type { AvatarProps } from '@atlaskit/avatar-group/types';
+import Avatar from '@atlaskit/avatar/avatar';
+import type { SizeType } from '@atlaskit/avatar/types';
+import type { User } from '@atlaskit/linking-types/datasource';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import { WidthObserver } from '@atlaskit/width-detector';
+import { WidthObserver } from '@atlaskit/width-detector/width-observer';
 
 import { userTypeMessages } from './messages';
 
@@ -67,7 +69,7 @@ const getMaxUserCount = (_userCount: number, availableWidth: number) => {
 
 export const USER_TYPE_TEST_ID = 'link-datasource-render-type--user';
 
-const UserType = ({ users }: { users: UserProps[] }) => {
+const UserType = ({ users }: { users: UserProps[] }): JSX.Element => {
 	const [width, setWidth] = useState<number | null>(null);
 
 	if (users.length === 1) {

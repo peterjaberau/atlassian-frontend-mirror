@@ -3,20 +3,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { css, cx, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { cssMap } from '@atlaskit/css';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import Lozenge from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import LozengeDropdownTrigger from '@atlaskit/lozenge/lozenge-dropdown-trigger';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../../../../../../messages';
-
 import { type LozengeActionTriggerProps } from './type';
 
 const styles = cssMap({
@@ -38,6 +39,12 @@ const styles = cssMap({
 	lozengeContainerSelected: {
 		borderColor: token('color.border.focused'),
 		overflow: 'hidden',
+	},
+	lozengeDropdownContainer: {
+		paddingTop: token('space.050'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.050'),
+		paddingLeft: token('space.050'),
 	},
 });
 
@@ -68,14 +75,14 @@ const triggerButtonStyles = css({
 	borderStyle: 'solid',
 	borderWidth: token('border.width.selected'),
 	borderColor: 'transparent',
-	marginTop: token('space.025', '2px'),
-	marginRight: token('space.025', '2px'),
-	marginBottom: token('space.025', '2px'),
-	marginLeft: token('space.025', '2px'),
+	marginTop: token('space.025'),
+	marginRight: token('space.025'),
+	marginBottom: token('space.025'),
+	marginLeft: token('space.025'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	"&:focus-visible, &:focus-within, &[aria-expanded='true']": {
 		outline: 'none',
-		boxShadow: `0 0 0 2px ${token('color.border.focused', '#388BFF')}`,
+		boxShadow: `0 0 0 2px ${token('color.border.focused')}`,
 		borderRadius: token('radius.medium'),
 	},
 });
@@ -87,10 +94,10 @@ const LozengeActionTrigger = ({
 	testId,
 	text,
 	triggerRef,
+	trailingMetric,
 	...props
-}: LozengeActionTriggerProps) => {
+}: LozengeActionTriggerProps): JSX.Element => {
 	const intl = useIntl();
-	const [isHovering, setIsHovering] = useState(false);
 	const [isPressing, setIsPressing] = useState(false);
 	const [lozengeBackgroundColor, setLozengeBackgroundColor] = useState<string | undefined>(
 		undefined,
@@ -99,8 +106,6 @@ const LozengeActionTrigger = ({
 		undefined,
 	);
 
-	const onMouseEnter = useCallback(() => setIsHovering(true), []);
-	const onMouseLeave = useCallback(() => setIsHovering(false), []);
 	const onMouseOrKeyDown = useCallback(() => setIsPressing(true), []);
 	const onMouseOrKeyUp = useCallback(() => setIsPressing(false), []);
 
@@ -109,17 +114,14 @@ const LozengeActionTrigger = ({
 			setLozengeBackgroundColor(token('color.background.selected.pressed'));
 			setLozengeForegroundColor(token('color.text.selected'));
 		} else if (isOpen) {
-			if (isHovering) {
-				setLozengeBackgroundColor(token('color.background.selected.hovered'));
-			} else {
-				setLozengeBackgroundColor(token('color.background.selected'));
-			}
+			setLozengeBackgroundColor(token('color.background.selected'));
+
 			setLozengeForegroundColor(token('color.text.selected'));
 		} else {
 			setLozengeBackgroundColor(undefined);
 			setLozengeForegroundColor(undefined);
 		}
-	}, [isPressing, isOpen, isHovering]);
+	}, [isPressing, isOpen]);
 
 	const lozenge = useMemo(() => {
 		return (
@@ -132,8 +134,8 @@ const LozengeActionTrigger = ({
 			>
 				<Lozenge
 					appearance={appearance}
-					isBold={fg('platform-component-visual-refresh') ? true : isHovering}
-					{...(fg('platform_navx_sl_lozenge_max_width') ? { maxWidth } : undefined)}
+					isBold
+					maxWidth={maxWidth}
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 					style={{
 						backgroundColor: lozengeBackgroundColor,
@@ -141,9 +143,7 @@ const LozengeActionTrigger = ({
 					}}
 				>
 					<span css={triggerLozengeStyles}>
-						<span css={[fg('platform_navx_sl_lozenge_max_width') ? textStyles : undefined]}>
-							{text}
-						</span>
+						<span css={textStyles}>{text}</span>
 						<Box as="span" xcss={styles.chevronDown}>
 							<ChevronDownIcon
 								color="currentColor"
@@ -158,7 +158,6 @@ const LozengeActionTrigger = ({
 		);
 	}, [
 		appearance,
-		isHovering,
 		isPressing,
 		text,
 		isOpen,
@@ -167,7 +166,26 @@ const LozengeActionTrigger = ({
 		maxWidth,
 	]);
 
-	return (
+	return fg('platform-dst-lozenge-tag-badge-visual-uplifts') ? (
+		<Box xcss={styles.lozengeDropdownContainer}>
+			<LozengeDropdownTrigger
+				{...props}
+				appearance={appearance}
+				trailingMetric={trailingMetric}
+				data-action-open={isOpen}
+				data-testid={`${testId}--trigger`}
+				maxWidth={maxWidth}
+				testId={testId}
+				ref={triggerRef}
+				aria-label={
+					// The `as unknown` type cast is needed for react-intl v7 upgrade
+					intl.formatMessage(messages.change_status, { status: text }) as unknown as string
+				}
+			>
+				{text}
+			</LozengeDropdownTrigger>
+		</Box>
+	) : (
 		// eslint-disable-next-line @atlaskit/design-system/no-html-button
 		<button
 			type="button"
@@ -175,20 +193,15 @@ const LozengeActionTrigger = ({
 			css={triggerButtonStyles}
 			data-action-open={isOpen}
 			data-testid={`${testId}--trigger`}
-			style={{ maxWidth: fg('platform_navx_sl_lozenge_max_width') ? maxWidth : undefined }}
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
-			onMouseEnter={onMouseEnter}
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
-			onMouseLeave={onMouseLeave}
+			style={{ maxWidth }}
 			onMouseDown={onMouseOrKeyDown}
 			onMouseUp={onMouseOrKeyUp}
 			onKeyDown={onMouseOrKeyDown}
 			onKeyUp={onMouseOrKeyUp}
 			ref={triggerRef}
 			aria-label={
-				fg('platform_navx_flex_card_status_dropdown_a11y_fix')
-					? (intl.formatMessage(messages.change_status, { status: text }) as string)
-					: undefined
+				// The `as unknown` type cast is needed for react-intl v7 upgrade
+				intl.formatMessage(messages.change_status, { status: text }) as unknown as string
 			}
 		>
 			{lozenge}

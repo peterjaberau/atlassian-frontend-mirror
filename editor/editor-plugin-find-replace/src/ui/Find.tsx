@@ -3,26 +3,24 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
 import debounce from 'lodash/debounce';
 import rafSchd from 'raf-schd';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { TRIGGER_METHOD } from '@atlaskit/editor-common/analytics';
 import { findReplaceMessages as messages } from '@atlaskit/editor-common/messages';
-import { Label } from '@atlaskit/form';
+import { Label } from '@atlaskit/form/label/default';
 import TextLetterCaseIcon from '@atlaskit/icon-lab/core/text-letter-case';
-import MatchCaseIcon from '@atlaskit/icon/core/text-style';
 import type { IconProps } from '@atlaskit/icon/types';
-import Textfield from '@atlaskit/textfield';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import Textfield from '@atlaskit/textfield/text-field';
 
 import type { MatchCaseProps } from '../types';
-
 import { FindReplaceTooltipButton } from './FindReplaceTooltipButton';
 import {
 	afterInputSection,
@@ -212,6 +210,7 @@ class Find extends React.Component<FindProps & WrappedComponentProps, State> {
 
 	handleCompositionStart = () => {
 		this.isComposing = true;
+		this.debouncedFind.cancel();
 	};
 
 	handleCompositionEnd = (event: React.CompositionEvent<HTMLInputElement>) => {
@@ -232,11 +231,7 @@ class Find extends React.Component<FindProps & WrappedComponentProps, State> {
 	};
 
 	matchCaseIconEle = (iconProps: IconProps) => {
-		return expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true) ? (
-			<TextLetterCaseIcon label={iconProps.label} size="small" />
-		) : (
-			<MatchCaseIcon label={this.matchCase} />
-		);
+		return <TextLetterCaseIcon label={iconProps.label} size="small" />;
 	};
 
 	render() {
@@ -305,4 +300,66 @@ class Find extends React.Component<FindProps & WrappedComponentProps, State> {
 	}
 }
 
-export default injectIntl(Find);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<
+	WithIntlProps<
+		{
+			count: { index: number; total: number };
+			findText?: string;
+			findTyped: boolean;
+			onArrowDown: () => void;
+			onCancel: ({
+				triggerMethod,
+			}: {
+				triggerMethod: TRIGGER_METHOD.KEYBOARD | TRIGGER_METHOD.TOOLBAR | TRIGGER_METHOD.BUTTON;
+			}) => void;
+			onFind: (findText?: string) => void;
+			onFindBlur: () => void;
+			onFindNext: ({
+				triggerMethod,
+			}: {
+				triggerMethod: TRIGGER_METHOD.KEYBOARD | TRIGGER_METHOD.BUTTON;
+			}) => void;
+			onFindPrev: ({
+				triggerMethod,
+			}: {
+				triggerMethod: TRIGGER_METHOD.KEYBOARD | TRIGGER_METHOD.BUTTON;
+			}) => void;
+			onFindTextfieldRefSet: (ref: React.RefObject<HTMLInputElement>) => void;
+			setFindTyped: (value: boolean) => void;
+			shouldFocus: boolean;
+		} & MatchCaseProps &
+			WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			count: { index: number; total: number };
+			findText?: string;
+			findTyped: boolean;
+			onArrowDown: () => void;
+			onCancel: ({
+				triggerMethod,
+			}: {
+				triggerMethod: TRIGGER_METHOD.KEYBOARD | TRIGGER_METHOD.TOOLBAR | TRIGGER_METHOD.BUTTON;
+			}) => void;
+			onFind: (findText?: string) => void;
+			onFindBlur: () => void;
+			onFindNext: ({
+				triggerMethod,
+			}: {
+				triggerMethod: TRIGGER_METHOD.KEYBOARD | TRIGGER_METHOD.BUTTON;
+			}) => void;
+			onFindPrev: ({
+				triggerMethod,
+			}: {
+				triggerMethod: TRIGGER_METHOD.KEYBOARD | TRIGGER_METHOD.BUTTON;
+			}) => void;
+			onFindTextfieldRefSet: (ref: React.RefObject<HTMLInputElement>) => void;
+			setFindTyped: (value: boolean) => void;
+			shouldFocus: boolean;
+		} & MatchCaseProps &
+			WrappedComponentProps
+	>;
+} = injectIntl(Find);
+export default _default_1;

@@ -34,11 +34,14 @@ css({
 });
 ```
 
-```js
-import { media } from '@atlaskit/primitives';
+Use canonical typed media-query keys:
+
+```tsx
+import { css } from '@atlaskit/css';
+import type MediaAboveXs from '@atlaskit/css/at-rules/media-above-xs';
 
 css({
-	[media.above.xs]: {
+	['@media (min-width: 30rem)' satisfies MediaAboveXs]: {
 		color: 'red',
 	},
 });

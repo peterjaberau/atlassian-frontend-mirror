@@ -1,4 +1,6 @@
 import {
+	panelC1FallbackTransform,
+	panelC1FallbackTransformV2,
 	syncBlockFallbackTransform,
 	transformDedupeMarks,
 	transformIndentationMarks,
@@ -8,22 +10,36 @@ import {
 	transformNodesMissingContent,
 	transformTextLinkCodeMarks,
 	transformMediaSingleWidth,
+	transformContainerNodes,
 } from '@atlaskit/adf-utils/transforms';
 import type { ADFEntity, ADFEntityMark } from '@atlaskit/adf-utils/types';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
-import { Fragment, Node, type Schema } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
+import { Node } from '@atlaskit/editor-prosemirror/model';
+import type { Schema } from '@atlaskit/editor-prosemirror/model';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { DispatchAnalyticsEvent } from '../analytics';
 import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '../analytics';
-import { isNestedTablesSupported } from '../nesting/utilities';
+import { isNestedTablesSupported } from '../nesting/isNestedTablesSupported';
+import { isPanelC1SchemaEnabled } from '../nesting/isPanelC1SchemaEnabled';
+import { isPanelNestingContainerExperimentEnabled } from '../nesting/isPanelNestingContainerExperimentEnabled';
+import { isPanelNestingContainerSupported } from '../nesting/isPanelNestingContainerSupported';
+import { isPanelNestingTableSupported } from '../nesting/isPanelNestingTableSupported';
 import type { ProviderFactory } from '../provider-factory';
 import type { ReplaceRawValue, Transformer } from '../types';
-
 import { sanitizeNodeForPrivacy } from './filter/privacy-filter';
 import { findAndTrackUnsupportedContentNodes } from './track-unsupported-content';
 import { validateADFEntity } from './validate-using-spec';
+
+// Gate the generalised (table + expand + panel + blockquote + bodiedExtension) panel_c1
+// fallback behind the consolidated container-in-panel experiment. The in-production
+// table-in-panel path keeps using the deprecated table-only transform until
+// platform_editor_nest_container_in_panel is rolled out.
+const runPanelC1FallbackTransform = (schema: Schema, adf: ADFEntity) =>
+	isPanelNestingContainerExperimentEnabled()
+		? panelC1FallbackTransformV2(schema, adf)
+		: panelC1FallbackTransform(schema, adf);
 
 interface NodeType {
 	// Ignored via go/ees005
@@ -38,13 +54,14 @@ const transformNestedTablesWithAnalytics = (
 	try {
 		const { transformedAdf, isTransformed } = transformNestedTablesIncomingDocument(node);
 
-		if (isTransformed && dispatchAnalyticsEvent) {
-			dispatchAnalyticsEvent({
-				action: ACTION.NESTED_TABLE_TRANSFORMED,
-				actionSubject: ACTION_SUBJECT.EDITOR,
-				eventType: EVENT_TYPE.OPERATIONAL,
-			});
-
+		if (isTransformed) {
+			if (dispatchAnalyticsEvent) {
+				dispatchAnalyticsEvent({
+					action: ACTION.NESTED_TABLE_TRANSFORMED,
+					actionSubject: ACTION_SUBJECT.EDITOR,
+					eventType: EVENT_TYPE.OPERATIONAL,
+				});
+			}
 			return { transformedAdf, isTransformed };
 		}
 	} catch (e) {
@@ -65,11 +82,64 @@ const transformNestedTablesWithAnalytics = (
 	return { transformedAdf: node, isTransformed: false };
 };
 
+const transformContainerNodesWithAnalytics = (
+	node: ADFEntity,
+	schema: Schema,
+	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
+): { isTransformed: boolean; transformedAdf: ADFEntity } => {
+	try {
+		const { transformedAdf, isTransformed, transformedNodeTypes } = transformContainerNodes(
+			node,
+			schema,
+		);
+
+		if (isTransformed && transformedAdf) {
+			if (dispatchAnalyticsEvent) {
+				dispatchAnalyticsEvent({
+					action: ACTION.CONTAINER_NODE_TRANSFORMED,
+					actionSubject: ACTION_SUBJECT.EDITOR,
+					eventType: EVENT_TYPE.OPERATIONAL,
+					attributes: {
+						transformedNodeTypes,
+					},
+				});
+			}
+			return { transformedAdf, isTransformed };
+		}
+	} catch (e) {
+		// eslint-disable-next-line no-console
+		console.error('Failed to transform one or more panel container nodes');
+		if (dispatchAnalyticsEvent) {
+			dispatchAnalyticsEvent({
+				action: ACTION.DOCUMENT_PROCESSING_ERROR,
+				actionSubject: ACTION_SUBJECT.EDITOR,
+				eventType: EVENT_TYPE.OPERATIONAL,
+				attributes: {
+					errorMessage: `${e instanceof Error && e.name === 'NodeNestingTransformError' ? 'NodeNestingTransformError - Failed to transform panel container nodes' : undefined}`,
+				},
+			});
+		}
+	}
+
+	return { transformedAdf: node, isTransformed: false };
+};
+
+/**
+ * Converts a raw ADF value into a ProseMirror `Node` without running full ADF validation.
+ *
+ * Applies the relevant document transforms (nested tables, sync block and panel_c1 fallbacks,
+ * container node nesting) before building the node directly from the resulting JSON.
+ *
+ * @param schema - The ProseMirror schema to build the node against.
+ * @param value - The raw ADF value (string or object) to process.
+ * @param dispatchAnalyticsEvent - Optional callback used to report transform analytics.
+ * @returns The resulting ProseMirror `Node`, or `undefined` when no value is provided or parsing fails.
+ */
 export function processRawValueWithoutValidation(
 	schema: Schema,
 	value?: ReplaceRawValue,
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
-) {
+): Node | undefined {
 	if (!value) {
 		return;
 	}
@@ -79,7 +149,7 @@ export function processRawValueWithoutValidation(
 	if (typeof value === 'string') {
 		try {
 			node = JSON.parse(value);
-		} catch (e) {
+		} catch {
 			// eslint-disable-next-line no-console
 			console.error(`Error processing value: ${value} isn't a valid JSON`);
 			return;
@@ -94,16 +164,44 @@ export function processRawValueWithoutValidation(
 		dispatchAnalyticsEvent,
 	);
 
-	if (fg('platform_editor_sync_block_fallback_transform')) {
-		const result = syncBlockFallbackTransform(schema, transformedAdf);
-		if (result.isTransformed && result.transformedAdf) {
-			transformedAdf = result.transformedAdf;
+	const result = syncBlockFallbackTransform(schema, transformedAdf);
+	if (result.isTransformed && result.transformedAdf) {
+		transformedAdf = result.transformedAdf;
+	}
+
+	if (fg('platform_editor_panel_c1_fallback_transform')) {
+		const panelC1Result = runPanelC1FallbackTransform(schema, transformedAdf as ADFEntity);
+		if (panelC1Result.isTransformed && panelC1Result.transformedAdf) {
+			transformedAdf = panelC1Result.transformedAdf;
 		}
+	}
+
+	if (expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)) {
+		({ transformedAdf } = transformContainerNodesWithAnalytics(
+			transformedAdf as ADFEntity,
+			schema,
+			dispatchAnalyticsEvent,
+		));
 	}
 
 	return Node.fromJSON(schema, transformedAdf);
 }
 
+/**
+ * Converts a raw ADF value into a validated ProseMirror `Node`.
+ *
+ * Applies document transforms and validates the resulting ADF against the schema, tracking any
+ * unsupported content and optionally sanitizing private content before building the node.
+ *
+ * @param schema - The ProseMirror schema to build and validate the node against.
+ * @param value - The raw ADF value (string or object) to process.
+ * @param providerFactory - Optional provider factory used during validation/sanitization.
+ * @param sanitizePrivateContent - When `true`, private content is stripped from the document.
+ * @param contentTransformer - Optional transformer used to parse string content into ADF.
+ * @param dispatchAnalyticsEvent - Optional callback used to report transform/validation analytics.
+ * @returns The resulting ProseMirror `Node`, or `undefined` when no value is provided or processing fails.
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function processRawValue(
 	schema: Schema,
 	value?: ReplaceRawValue,
@@ -126,7 +224,7 @@ export function processRawValue(
 			} else {
 				node = JSON.parse(value);
 			}
-		} catch (e) {
+		} catch {
 			// eslint-disable-next-line no-console
 			console.error(`Error processing value: ${value} isn't a valid JSON`);
 			return;
@@ -172,17 +270,15 @@ export function processRawValue(
 			});
 		}
 
-		if (fg('platform_editor_transform_invalid_media_width')) {
-			// Fix mediaSingle width issues
-			({ transformedAdf, isTransformed } = transformMediaSingleWidth(transformedAdf as ADFEntity));
+		// Fix mediaSingle width issues
+		({ transformedAdf, isTransformed } = transformMediaSingleWidth(transformedAdf as ADFEntity));
 
-			if (isTransformed && dispatchAnalyticsEvent) {
-				dispatchAnalyticsEvent({
-					action: ACTION.MEDIA_SINGLE_WIDTH_TRANSFORMED,
-					actionSubject: ACTION_SUBJECT.EDITOR,
-					eventType: EVENT_TYPE.OPERATIONAL,
-				});
-			}
+		if (isTransformed && dispatchAnalyticsEvent) {
+			dispatchAnalyticsEvent({
+				action: ACTION.MEDIA_SINGLE_WIDTH_TRANSFORMED,
+				actionSubject: ACTION_SUBJECT.EDITOR,
+				eventType: EVENT_TYPE.OPERATIONAL,
+			});
 		}
 
 		// See: HOT-97965 https://product-fabric.atlassian.net/browse/ED-14400
@@ -267,37 +363,46 @@ export function processRawValue(
 			}
 		}
 
-		let entity: ADFEntity;
+		if (fg('platform_editor_panel_c1_fallback_transform')) {
+			const panelC1Result = runPanelC1FallbackTransform(schema, transformedAdf as ADFEntity);
+			if (panelC1Result.isTransformed && panelC1Result.transformedAdf) {
+				transformedAdf = panelC1Result.transformedAdf;
+			}
+		}
 
-		if (expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
-			// Validate ADF first before converting nested-table extensions into nested tables
-			// This matches the renderer's behavior in render-document.ts
-			const allowNestedTables = isNestedTablesSupported(schema);
-			entity = validateADFEntity(
-				schema,
-				transformedAdf || (node as ADFEntity),
-				dispatchAnalyticsEvent,
-				allowNestedTables ? { allowNestedTables } : undefined,
-			);
+		// Validate ADF first before converting nested-table extensions into nested tables
+		// This matches the renderer's behavior in render-document.ts
+		const allowNestedTables = isNestedTablesSupported(schema);
+		const allowTableInPanel = isPanelNestingTableSupported(schema);
+		const allowContainerInPanel = isPanelNestingContainerSupported(schema);
+		const validateADFEntityOptions =
+			allowNestedTables || allowTableInPanel || allowContainerInPanel
+				? {
+						allowNestedTables: allowNestedTables || undefined,
+						allowTableInPanel: allowTableInPanel || undefined,
+						allowContainerInPanel: allowContainerInPanel || undefined,
+					}
+				: undefined;
+		let entity: ADFEntity = validateADFEntity(
+			schema,
+			transformedAdf || (node as ADFEntity),
+			dispatchAnalyticsEvent,
+			validateADFEntityOptions,
+		);
 
-			// Convert nested-table extensions into nested tables
-			({ transformedAdf } = transformNestedTablesWithAnalytics(
+		// Convert nested-table extensions into nested tables
+		({ transformedAdf } = transformNestedTablesWithAnalytics(entity, dispatchAnalyticsEvent));
+		entity = transformedAdf;
+
+		// The container-node promotion (panel -> panel_c1) is schema-driven and shared across
+		// nesting scenarios, so it runs when any panel container-variant experiment is on.
+		if (isPanelC1SchemaEnabled()) {
+			({ transformedAdf } = transformContainerNodesWithAnalytics(
 				entity as ADFEntity,
-				dispatchAnalyticsEvent,
-			));
-			entity = transformedAdf;
-		} else {
-			// Convert nested-table extensions into nested tables
-			({ transformedAdf } = transformNestedTablesWithAnalytics(
-				transformedAdf as ADFEntity,
-				dispatchAnalyticsEvent,
-			));
-
-			entity = validateADFEntity(
 				schema,
-				transformedAdf || (node as ADFEntity),
 				dispatchAnalyticsEvent,
-			);
+			));
+			entity = transformedAdf as ADFEntity;
 		}
 
 		const newEntity = maySanitizePrivateContent(
@@ -350,47 +455,17 @@ export function processRawValue(
 	}
 }
 
-export function processRawFragmentValue(
-	schema: Schema,
-	value?: ReplaceRawValue[],
-	providerFactory?: ProviderFactory,
-	sanitizePrivateContent?: boolean,
-	contentTransformer?: Transformer<string>,
-	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
-): Fragment | undefined {
-	if (!value) {
-		return;
-	}
-
-	const adfEntities = value
-		.map((item) =>
-			processRawValue(
-				schema,
-				item,
-				providerFactory,
-				sanitizePrivateContent,
-				contentTransformer,
-				dispatchAnalyticsEvent,
-			),
-		)
-		.filter((item) => Boolean(item)) as Node[];
-
-	if (adfEntities.length === 0) {
-		return;
-	}
-
-	return Fragment.from(adfEntities);
-}
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const INVALID_MARKS_REGEX = /^Invalid collection of marks for node/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const INVALID_CONTENT_REGEX = /^Invalid content for node/;
 
 function isProseMirrorSchemaCheckError(error: unknown): boolean {
 	return (
 		error instanceof RangeError &&
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		(!!error.message.match(/^Invalid collection of marks for node/) ||
-			// Ignored via go/ees005
-			// eslint-disable-next-line require-unicode-regexp
-			!!error.message.match(/^Invalid content for node/))
+		(!!error.message.match(INVALID_MARKS_REGEX) || !!error.message.match(INVALID_CONTENT_REGEX))
 	);
 }
 
@@ -404,3 +479,5 @@ const maySanitizePrivateContent = (
 	}
 	return entity;
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { processRawFragmentValue } from './processRawFragmentValue';

@@ -2,6 +2,7 @@
 order: 0
 ---
 
+import SectionMessage from '@atlaskit/section-message';
 import AvatarApproved from '../../examples/constellation/avatar-status-approved';
 import AvatarBusy from '../../examples/constellation/avatar-presence-busy';
 import AvatarCircle from '../../examples/constellation/avatar-circle';
@@ -13,13 +14,14 @@ import AvatarSquare from '../../examples/constellation/avatar-square';
 import AvatarHexagon from '../../examples/constellation/avatar-hexagon';
 import AvatarTooltip from '../../examples/constellation/avatar-tooltip';
 import AvatarSmall from '../../examples/constellation/avatar-small';
-import AvatarXSmall from '../../examples/constellation/avatar-x-small';
+import AvatarXXSmall from '../../examples/constellation/avatar-x-small';
 import AvatarMedium from '../../examples/constellation/avatar-medium';
 import AvatarLarge from '../../examples/constellation/avatar-large';
 import AvatarXLarge from '../../examples/constellation/avatar-x-large';
 import AvatarXXLarge from '../../examples/constellation/avatar-x-x-large';
 import AvatarFocus from '../../examples/constellation/avatar-presence-focus';
 import AvatarLocked from '../../examples/constellation/avatar-status-locked';
+import AvatarWarning from '../../examples/constellation/avatar-status-warning';
 import AvatarOffline from '../../examples/constellation/avatar-presence-offline';
 import AvatarOnline from '../../examples/constellation/avatar-presence-online';
 
@@ -94,6 +96,10 @@ presence.
 
 <Example Component={AvatarLocked} packageName="@atlaskit/avatar" />
 
+### Warning
+
+<Example Component={AvatarWarning} packageName="@atlaskit/avatar" />
+
 ## Presence
 
 Indicates a user's online status by showing a small icon on the avatar.
@@ -118,15 +124,14 @@ Indicates a user's online status by showing a small icon on the avatar.
 
 ### xxlarge
 
-Use `xxlarge` circle avatars in places where larger avatars are needed. For example, the Atlassian
-People Directory. This size isn't used for square avatars.
+Use `xxlarge` avatars in places where larger avatars are needed. For example, the Atlassian People
+Directory.
 
 <Example Component={AvatarXXLarge} packageName="@atlaskit/avatar" />
 
 ### xlarge
 
-Use `xlarge` circle avatars where they’re needed to display prominently on a page. This size isn't
-used for square avatars.
+Use `xlarge` avatars where they're needed to display prominently on a page.
 
 <Example Component={AvatarXLarge} packageName="@atlaskit/avatar" />
 
@@ -151,19 +156,34 @@ things like [dropdown menus](/components/dropdown-menu).
 
 <Example Component={AvatarSmall} packageName="@atlaskit/avatar" />
 
-### xsmall
+### xxsmall
 
-Use `xsmall` circle and square avatars for onscreen metadata such as in Jira work items or dropdown
+Use `xxsmall` circle and square avatars for onscreen metadata such as in Jira work items or dropdown
 menus.
 
-<Example Component={AvatarXSmall} packageName="@atlaskit/avatar" />
+<Example Component={AvatarXXSmall} packageName="@atlaskit/avatar" />
+
+### xsmall (legacy)
+
+In the current major, `xsmall` is retained as a legacy name for 16px avatars. Use `xxsmall` for new
+16px usage. In a future major, `xsmall` will become the public 20px size; use `UNSAFE_xsmall` only
+as the temporary 20px migration value until then.
 
 ## Displaying a tooltip
+
+<SectionMessage title="Motion in Early Access" appearance="warning">
+	The motion added into Avatar is in Early Access. The motion updates are currently behind the
+	feature flag: platform-dst-motion-uplift.
+</SectionMessage>
 
 You can display a tooltip with an avatar on focus or hover. The tooltip `content` should be set to
 the same value as the avatar `label`.
 
 Don't use a tooltip with an avatar unless it is interactive. For more information, see the
-[avatar component accessibilty guidelines](usage#accessibility).
+[avatar component accessibilty guidelines](/components/avatar/usage#accessibility).
 
-<Example Component={AvatarTooltip} packageName="@atlaskit/avatar" />
+<Example
+	Component={AvatarTooltip}
+	packageName="@atlaskit/avatar"
+	featureFlagSwitchers={['motion']}
+/>

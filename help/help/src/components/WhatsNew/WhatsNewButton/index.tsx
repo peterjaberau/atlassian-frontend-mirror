@@ -1,15 +1,17 @@
 import React, { useCallback } from 'react';
-import { type UIAnalyticsEvent, AnalyticsContext } from '@atlaskit/analytics-next';
-import * as colors from '@atlaskit/theme/colors';
+
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import LightbulbIcon from '@atlaskit/icon/core/lightbulb';
 import { token } from '@atlaskit/tokens';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
 
-import { useWhatsNewArticleContext } from '../../contexts/whatsNewArticleContext';
-import { useNavigationContext } from '../../contexts/navigationContext';
 import { messages } from '../../../messages';
-import HelpContentButton from '../../HelpContentButton';
 import { ARTICLE_TYPE } from '../../../model/Help';
+import { useNavigationContext } from '../../contexts/navigationContext';
+import { useWhatsNewArticleContext } from '../../contexts/whatsNewArticleContext';
+import HelpContentButton from '../../HelpContentButton';
 
 const ANALYTICS_CONTEXT_DATA = {
 	componentName: 'WhatsNewButton',
@@ -57,13 +59,7 @@ export const WhatsNewButton: React.FC<WrappedComponentProps & WhatsNewButtonProp
 						})
 					: formatMessage(messages.help_whats_new_button_label_without_product_name)
 			}
-			icon={
-				<LightbulbIcon
-					color={token('color.icon.subtle', colors.N600)}
-					spacing="spacious"
-					label=""
-				/>
-			}
+			icon={<LightbulbIcon color={token('color.icon.subtle')} spacing="spacious" label="" />}
 		/>
 	);
 };

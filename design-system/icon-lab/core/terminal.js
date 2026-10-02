@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::43ee578492c08869d5f395fcddb9fcf9>>
+ * @codegen <<SignedSource::f26cb4555fd0a9c76f3908210a54af9e>>
  * @codegenCommand yarn build:icon-glyphs
  */
 "use strict";
@@ -10,16 +10,16 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _react = _interopRequireDefault(require("react"));
-var _baseNew = _interopRequireDefault(require("@atlaskit/icon/base-new"));
+var _iconNew = _interopRequireDefault(require("@atlaskit/icon/components/icon-new"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 /**
  * Icon: "Terminal".
  * Category: multi-purpose
- * Location: @atlaskit/icon-lab
+ * Location: @atlaskit/icon-lab/core/terminal
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/icon)
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/icon/docs/custom-icons)
  */
-const TerminalIcon = props => /*#__PURE__*/_react.default.createElement(_baseNew.default, Object.assign({
+const TerminalIcon = props => /*#__PURE__*/_react.default.createElement(_iconNew.default, Object.assign({
   name: "TerminalIcon",
   dangerouslySetGlyph: `<path fill="currentcolor" d="M14.5 3a.5.5 0 0 0-.4-.49L14 2.5H2a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5zM16 13a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h12l.204.01A2 2 0 0 1 16 3z"/><path fill="currentcolor" d="m4.28 4.72 2.75 2.75a.75.75 0 0 1 0 1.06l-2.75 2.75-1.06-1.06L5.44 8 3.22 5.78zM12.5 9.5V11H8V9.5z"/>`
   // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props

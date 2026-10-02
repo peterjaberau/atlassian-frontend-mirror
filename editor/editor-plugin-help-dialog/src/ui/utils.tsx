@@ -2,14 +2,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
 
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import type { Keymap } from '@atlaskit/editor-common/keymaps';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { componentFromKeymapWrapperStyles } from './styles';
@@ -44,10 +43,15 @@ const codeSm = xcss({
 	textAlign: 'center',
 });
 
+const arrowSymbols: Record<string, string> = {
+	arrowup: '↑',
+	arrowdown: '↓',
+	arrowleft: '←',
+	arrowright: '→',
+};
+
 const getKeyParts = (keymap: Keymap) => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 	let shortcut: string = keymap[browser.mac ? 'mac' : 'windows'];
 	if (browser.mac) {
 		shortcut = shortcut.replace('Alt', 'Opt');
@@ -59,7 +63,7 @@ const getKeyParts = (keymap: Keymap) => {
 
 export const shortcutNamesWithoutKeymap: string[] = ['table', 'emoji', 'mention', 'quickInsert'];
 
-export const getComponentFromKeymap = (keymap: Keymap) => {
+export const getComponentFromKeymap = (keymap: Keymap): jsx.JSX.Element => {
 	const keyParts = getKeyParts(keymap);
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
@@ -110,6 +114,16 @@ export const getComponentFromKeymap = (keymap: Keymap) => {
 							key={`${keyParts}-${index}`}
 						>
 							{'⏎'}
+						</Box>
+					);
+				} else if (
+					['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].indexOf(part.toLowerCase()) >= 0
+				) {
+					return (
+						// Ignored via go/ees005
+						// eslint-disable-next-line react/no-array-index-key
+						<Box as="span" xcss={codeSm} key={`${keyParts}-${index}`}>
+							{arrowSymbols[part.toLowerCase()]}
 						</Box>
 					);
 				}

@@ -1,20 +1,22 @@
-import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import type { AnonymousAsset } from '@atlaskit/anonymous-assets';
-
 import type { Manager, Socket as SocketIOSocket } from 'socket.io-client';
-import type { InternalError } from './errors/internal-errors';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
-import type { BatchProps, GetUserType } from './participants/participants-helper';
-import type AnalyticsHelper from './analytics/analytics-helper';
+
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import type { AnonymousAsset } from '@atlaskit/anonymous-assets';
 import type {
 	StepJson,
 	CollabSendableSelection,
 	Metadata,
 	UserPermitType,
 	PresenceActivity,
+	CollabRecoveryRequiredPayload,
 } from '@atlaskit/editor-common/collab';
-import { type CatchupEventReason } from './helpers/const';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+
+import type AnalyticsHelper from './analytics/analytics-helper';
+import type { InternalError } from './errors/internal-errors';
+import type { CatchupEventReason } from './helpers/const';
+import type { BatchProps, GetUserType } from './participants/participants-helper';
 
 export interface CollabEventDisconnectedData {
 	reason:
@@ -119,6 +121,8 @@ export interface Config {
 	 * multiple websocket connections, the presenceId is used to correlate the two.
 	 */
 	presenceId?: string;
+	/** The authenticated account ID used to attribute locally committed steps. */
+	userId?: string;
 	productInfo?: ProductInformation;
 
 	/**
@@ -196,12 +200,33 @@ export type BroadcastIncomingPayload = {
 	timestamp?: number;
 };
 
+/**
+ * Presence details broadcast for a single participant (human or agent) on a document.
+ *
+ * @remarks Agents are modelled as ordinary participants distinguished only by the
+ * `agent:` prefix on their `userId`/`sessionId` (see `isAIProviderID`); this package
+ * refers to them as "AI providers". Note this base type carries no last-active time —
+ * a participant's `lastActive` is derived from {@link PresencePayload.timestamp} when the
+ * payload is hydrated into a participant.
+ */
 export type PresenceData = {
+	/** User identity an agent participant is acting on behalf of, when delegated by a user. */
+	actingUserId?: string;
+	/** Agent kind supplied by NCS, such as `convo-ai`, `mcp`, or `twg`. */
+	agentType?: string;
 	clientId: number | string;
+	/** Permission level the participant holds on the document (view / comment / edit). */
 	permit?: UserPermitType;
+	/** Whether the participant is a `viewer` or an `editor`; drives the presence facepile. */
 	presenceActivity?: PresenceActivity;
+	/**
+	 * Correlates the presence connection with the editor websocket connection so avatar
+	 * colours and telepointers line up across both.
+	 */
 	presenceId?: string;
+	/** Stable identifier for this presence session. For agents, carries the `agent:` prefix. */
 	sessionId: string;
+	/** Participant identity. For agents, carries the `agent:` prefix. */
 	userId: string | undefined;
 };
 
@@ -209,6 +234,13 @@ export type PresencePayload = PresenceData & {
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	data?: Record<string, any>;
+	/**
+	 * Epoch milliseconds of when this presence was last observed (added by NCS).
+	 *
+	 * @remarks Hydrated into the participant's `lastActive` (see `createParticipantFromPayload`),
+	 * which drives inactivity filtering and, for agents, is the last-active time surfaced on the
+	 * presence facepile. On the server this same value is the agent session's `updatedAt`.
+	 */
 	timestamp: number;
 };
 
@@ -243,6 +275,16 @@ export type AddStepAcknowledgementPayload =
 	| AddStepAcknowledgementSuccessPayload
 	| AcknowledgementErrorPayload;
 
+/**
+ * A batch of steps delivered to the document service: broadcast live over the websocket, returned by
+ * catch-up, or built locally from the client's own steps once NCS acknowledges them.
+ *
+ * Author and invocation identity live on each step, never on this envelope: one batch may mix human
+ * steps, agent steps from different invocations, and steps that carry no `invocationId` at all.
+ * Consumers should therefore read `agentType`/`agentId`/`invocationId` per step rather than inferring
+ * them for the whole batch — note that the existing agent-presence consumers still derive some
+ * attributes batch-wide, which is safe only while a batch has a single agent author.
+ */
 export type StepsPayload = {
 	steps: StepJson[];
 	version: number;
@@ -272,6 +314,7 @@ export type ChannelEvent = {
 	presence: PresencePayload;
 	'presence:joined': PresencePayload;
 	reconnected: null;
+	'recovery:required': CollabRecoveryRequiredPayload;
 	restore: InitPayload;
 	status: NamespaceStatus;
 	'steps:added': StepsPayload;

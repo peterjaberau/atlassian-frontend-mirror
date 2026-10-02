@@ -2,11 +2,15 @@ import React from 'react';
 
 import { di } from 'react-magnetic-di';
 
-import { ErrorMessage, Field } from '@atlaskit/form';
-import Textfield from '@atlaskit/textfield';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import Field from '@atlaskit/form/field';
+import { MessageWrapper } from '@atlaskit/form/message-wrapper';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Textfield from '@atlaskit/textfield/text-field';
 
 import messages from '../../common/messages';
 import type { UserInputNumberPrompt } from '../../common/types';
+import { numberValidate } from './numberValidate';
 
 interface NumberInputPromptProps {
 	userInputPrompt: UserInputNumberPrompt;
@@ -16,18 +20,6 @@ export enum Errors {
 	EMPTY = 'EMPTY',
 	INVALID_NUMBER = 'INVALID_NUMBER',
 }
-
-export const numberValidate = (isRequired: boolean, value?: string) => {
-	if (isRequired && !value) {
-		return Errors.EMPTY;
-	}
-
-	if (value && Number.isNaN(Number(value))) {
-		return Errors.INVALID_NUMBER;
-	}
-
-	return undefined;
-};
 
 const NumberInputPrompt = ({ userInputPrompt }: NumberInputPromptProps): React.JSX.Element => {
 	di(ErrorMessage, Field, Textfield);
@@ -57,7 +49,11 @@ const NumberInputPrompt = ({ userInputPrompt }: NumberInputPromptProps): React.J
 			{({ fieldProps, error }) => (
 				<>
 					<Textfield {...fieldProps} />
-					{generateErrorMessage(error)}
+					{fg('platform_navx_3298_message_wrapper') ? (
+						<MessageWrapper>{generateErrorMessage(error)}</MessageWrapper>
+					) : (
+						generateErrorMessage(error)
+					)}
 				</>
 			)}
 		</Field>

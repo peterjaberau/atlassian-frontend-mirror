@@ -1,11 +1,22 @@
 import React, { useRef } from 'react';
 
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import { cssMap } from '@atlaskit/css';
 import noop from '@atlaskit/ds-lib/noop';
-import { type CreateFlagArgs, FlagsProvider, useFlags } from '@atlaskit/flag';
+import type { CreateFlagArgs } from '@atlaskit/flag/flag-provider';
+import { FlagsProvider } from '@atlaskit/flag/flags-provider';
+import { useFlags } from '@atlaskit/flag/use-flags';
 import Info from '@atlaskit/icon/core/status-information';
+import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const actions = [
 	{
@@ -23,7 +34,11 @@ const getFlagData = (
 	const flagData: CreateFlagArgs = {
 		actions,
 		description: description,
-		icon: <Info spacing="spacious" label="Info" color={token('color.icon.information')} />,
+		icon: (
+			<Flex xcss={iconSpacingStyles.space050}>
+				<Info label="Info" color={token('color.icon.information')} />
+			</Flex>
+		),
 		title: `${index + 1}: Whoa a new flag!`,
 		isAutoDismiss: isAutoDismiss,
 	};

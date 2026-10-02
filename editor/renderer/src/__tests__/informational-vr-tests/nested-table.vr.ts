@@ -1,12 +1,13 @@
+import type { Page } from '@playwright/test';
+
+import { snapshotInformational } from '@af/visual-regression';
+
 import {
 	NestedTableRenderer,
 	NestedTableWithOverflowRenderer,
 	StickyHeaderNestedTableRenderer,
 	NestedTableNumberedColumnRenderer,
-} from './nested-table.fixture';
-import type { Page } from '@playwright/test';
-
-import { snapshotInformational } from '@af/visual-regression';
+} from './nested-table.fixture.vr.ap';
 
 snapshotInformational(NestedTableRenderer, {
 	description: 'should render nested table in background color cell correctly',

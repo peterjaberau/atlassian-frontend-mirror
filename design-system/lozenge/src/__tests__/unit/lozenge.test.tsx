@@ -1,12 +1,13 @@
 import React from 'react';
 
-import { fireEvent, render, screen } from '@testing-library/react';
-
-import { AnalyticsListener, UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import __noop from '@atlaskit/ds-lib/noop';
-import Lozenge, { LozengeDropdownTrigger } from '@atlaskit/lozenge';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { fireEvent, render, screen } from '@atlassian/testing-library';
 
+import Lozenge from '../../lozenge';
+import LozengeDropdownTrigger from '../../new/lozenge-dropdown-trigger';
 const packageName = process.env._PACKAGE_NAME_ as string;
 const packageVersion = process.env._PACKAGE_VERSION_ as string;
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
@@ -20,187 +21,191 @@ describe('Lozenge', () => {
 		expect(lozenge).toHaveAttribute('class', expect.stringMatching(/^(_[a-z0-9]{8}\s?)+$/));
 	});
 
-	ffTest.on('platform-dst-lozenge-tag-badge-visual-uplifts', 'feature flag enabled', () => {
-		it('should render with compiled styles', () => {
-			render(<Lozenge testId="test">Hello</Lozenge>);
+	it('should render metric badge when provided', () => {
+		render(
+			<Lozenge testId="with-metric" appearance="success" trailingMetric="3">
+				Hello
+			</Lozenge>,
+		);
 
-			const lozenge = screen.getByTestId('test');
-			expect(lozenge).toBeInTheDocument();
+		expect(screen.getByTestId('with-metric--metric')).toBeInTheDocument();
+		expect(screen.getByText('3')).toBeInTheDocument();
+	});
 
-			expect(lozenge).toHaveAttribute('class', expect.stringMatching(/^(_[a-z0-9]{8}\s?)+$/));
-		});
+	it('should support spacing prop', () => {
+		render(
+			<Lozenge testId="spacious" appearance="neutral" spacing="spacious">
+				Spacious
+			</Lozenge>,
+		);
 
-		it('should render metric badge when provided', () => {
-			render(
-				<Lozenge testId="with-metric" appearance="success" trailingMetric="3">
-					Hello
-				</Lozenge>,
-			);
+		const lozenge = screen.getByTestId('spacious');
+		expect(lozenge).toBeInTheDocument();
+	});
 
-			expect(screen.getByTestId('with-metric--metric')).toBeInTheDocument();
-			expect(screen.getByText('3')).toBeInTheDocument();
-		});
+	it('should render with semantic color', () => {
+		render(
+			<LozengeDropdownTrigger appearance="success" isSelected={false} onClick={__noop}>
+				Success Status
+			</LozengeDropdownTrigger>,
+		);
 
-		it('should support spacing prop', () => {
-			render(
-				<Lozenge testId="spacious" appearance="neutral" spacing="spacious">
-					Spacious
-				</Lozenge>,
-			);
+		const trigger = screen.getByText('Success Status');
+		expect(trigger).toBeInTheDocument();
+	});
 
-			const lozenge = screen.getByTestId('spacious');
-			expect(lozenge).toBeInTheDocument();
-		});
+	it('should support all semantic colors', () => {
+		const semanticColors = ['success', 'warning', 'danger', 'information', 'discovery', 'neutral'];
 
-		it('should render with semantic color', () => {
-			render(
-				<LozengeDropdownTrigger appearance="success" isSelected={false} onClick={__noop}>
-					Success Status
-				</LozengeDropdownTrigger>,
-			);
-
-			const trigger = screen.getByText('Success Status');
-			expect(trigger).toBeInTheDocument();
-		});
-
-		it('should support all semantic colors', () => {
-			const semanticColors = [
-				'success',
-				'warning',
-				'danger',
-				'information',
-				'discovery',
-				'neutral',
-			];
-
-			semanticColors.forEach((color) => {
-				const { unmount } = render(
-					<LozengeDropdownTrigger
-						appearance={color as any}
-						isSelected={false}
-						onClick={__noop}
-						testId={`trigger-${color}`}
-					>
-						{color}
-					</LozengeDropdownTrigger>,
-				);
-
-				expect(screen.getByTestId(`trigger-${color}`)).toBeInTheDocument();
-				unmount();
-			});
-		});
-
-		it('should render with accent color', () => {
-			render(
-				<LozengeDropdownTrigger appearance="accent-blue" isSelected={false} onClick={__noop}>
-					Accent Blue
-				</LozengeDropdownTrigger>,
-			);
-
-			const trigger = screen.getByText('Accent Blue');
-			expect(trigger).toBeInTheDocument();
-		});
-
-		it('should render with icon when iconBefore is provided', () => {
-			const TestIcon = () => <span data-testid="test-icon">Icon</span>;
-
-			render(
+		semanticColors.forEach((color) => {
+			const { unmount } = render(
 				<LozengeDropdownTrigger
-					appearance="success"
+					appearance={color as any}
 					isSelected={false}
 					onClick={__noop}
-					iconBefore={TestIcon}
-					testId="trigger-with-icon"
+					testId={`trigger-${color}`}
 				>
-					With Icon
+					{color}
 				</LozengeDropdownTrigger>,
 			);
 
-			const icon = screen.getByTestId('test-icon');
-			expect(icon).toBeInTheDocument();
+			expect(screen.getByTestId(`trigger-${color}`)).toBeInTheDocument();
+			unmount();
 		});
+	});
 
-		it('should support all accent colors', () => {
-			const accentColors = [
-				'accent-red',
-				'accent-orange',
-				'accent-yellow',
-				'accent-lime',
-				'accent-green',
-				'accent-teal',
-				'accent-blue',
-				'accent-purple',
-				'accent-magenta',
-				'accent-gray',
-			];
+	it('should render with accent color', () => {
+		render(
+			<LozengeDropdownTrigger appearance="accent-blue" isSelected={false} onClick={__noop}>
+				Accent Blue
+			</LozengeDropdownTrigger>,
+		);
 
-			accentColors.forEach((color) => {
-				const { unmount } = render(
-					<LozengeDropdownTrigger
-						appearance={color as any}
-						isSelected={false}
-						onClick={__noop}
-						testId={`trigger-${color}`}
-					>
-						{color}
-					</LozengeDropdownTrigger>,
-				);
+		const trigger = screen.getByText('Accent Blue');
+		expect(trigger).toBeInTheDocument();
+	});
 
-				expect(screen.getByTestId(`trigger-${color}`)).toBeInTheDocument();
-				unmount();
-			});
-		});
+	it('should render with icon when iconBefore is provided', () => {
+		const TestIcon = () => <span data-testid="test-icon">Icon</span>;
 
-		it('should support maxWidth prop', () => {
-			render(
+		render(
+			<LozengeDropdownTrigger
+				appearance="success"
+				isSelected={false}
+				onClick={__noop}
+				iconBefore={TestIcon}
+				testId="trigger-with-icon"
+			>
+				With Icon
+			</LozengeDropdownTrigger>,
+		);
+
+		const icon = screen.getByTestId('test-icon');
+		expect(icon).toBeInTheDocument();
+	});
+
+	it('should support all accent colors', () => {
+		const accentColors = [
+			'accent-red',
+			'accent-orange',
+			'accent-yellow',
+			'accent-lime',
+			'accent-green',
+			'accent-teal',
+			'accent-blue',
+			'accent-purple',
+			'accent-magenta',
+			'accent-gray',
+		];
+
+		accentColors.forEach((color) => {
+			const { unmount } = render(
 				<LozengeDropdownTrigger
-					appearance="success"
+					appearance={color as any}
 					isSelected={false}
 					onClick={__noop}
-					maxWidth={150}
-					testId="trigger-max-width"
+					testId={`trigger-${color}`}
 				>
-					Very Long Status Label That Should Truncate
+					{color}
 				</LozengeDropdownTrigger>,
 			);
 
-			const trigger = screen.getByTestId('trigger-max-width');
-			expect(trigger).toBeInTheDocument();
+			expect(screen.getByTestId(`trigger-${color}`)).toBeInTheDocument();
+			unmount();
 		});
+	});
 
-		it('should support custom style prop', () => {
-			render(
-				<LozengeDropdownTrigger
-					appearance="success"
-					isSelected={false}
-					onClick={__noop}
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-					style={{ backgroundColor: '#e8f4f8', color: '#0052cc' }}
-					testId="trigger-custom-style"
-				>
-					Custom Style
-				</LozengeDropdownTrigger>,
-			);
+	it('should support maxWidth prop', () => {
+		render(
+			<LozengeDropdownTrigger
+				appearance="success"
+				isSelected={false}
+				onClick={__noop}
+				maxWidth={150}
+				testId="trigger-max-width"
+			>
+				Very Long Status Label That Should Truncate
+			</LozengeDropdownTrigger>,
+		);
 
-			const trigger = screen.getByTestId('trigger-custom-style');
-			expect(trigger).toBeInTheDocument();
-		});
+		const trigger = screen.getByTestId('trigger-max-width');
+		expect(trigger).toBeInTheDocument();
+	});
 
-		it('should render chevron icon with testId', () => {
-			render(
-				<LozengeDropdownTrigger
-					appearance="success"
-					isSelected={false}
-					onClick={__noop}
-					testId="status-trigger"
-				>
-					Status
-				</LozengeDropdownTrigger>,
-			);
+	// Regression test: the container must use min(maxWidth, 100%) so it
+	// never overflows its parent even when the parent is narrower than
+	// the explicit maxWidth prop, while still honouring the explicit
+	// maxWidth when the parent is wide enough.
+	it('should apply min(maxWidth, 100%) to the container so it never overflows its parent', () => {
+		render(
+			<LozengeDropdownTrigger
+				appearance="success"
+				isSelected={false}
+				onClick={__noop}
+				maxWidth={200}
+				testId="trigger-constrained"
+			>
+				Very Long Status Label That Should Truncate
+			</LozengeDropdownTrigger>,
+		);
 
-			const chevron = screen.getByTestId('status-trigger--chevron');
-			expect(chevron).toBeInTheDocument();
-		});
+		const trigger = screen.getByTestId('trigger-constrained');
+		// The container's inline maxWidth should be min(200px, 100%)
+		expect(trigger).toHaveStyle({ maxWidth: 'min(200px, 100%)' });
+	});
+
+	it('should support custom style prop', () => {
+		render(
+			<LozengeDropdownTrigger
+				appearance="success"
+				isSelected={false}
+				onClick={__noop}
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+				style={{ backgroundColor: '#e8f4f8', color: '#0052cc' }}
+				testId="trigger-custom-style"
+			>
+				Custom Style
+			</LozengeDropdownTrigger>,
+		);
+
+		const trigger = screen.getByTestId('trigger-custom-style');
+		expect(trigger).toBeInTheDocument();
+	});
+
+	it('should render chevron icon with testId', () => {
+		render(
+			<LozengeDropdownTrigger
+				appearance="success"
+				isSelected={false}
+				onClick={__noop}
+				testId="status-trigger"
+			>
+				Status
+			</LozengeDropdownTrigger>,
+		);
+
+		const chevron = screen.getByTestId('status-trigger--chevron');
+		expect(chevron).toBeInTheDocument();
 	});
 });
 
@@ -264,6 +269,50 @@ describe('LozengeDropdownTrigger', () => {
 
 		fireEvent.click(trigger);
 		expect(handleClick).not.toHaveBeenCalled();
+	});
+
+	it('should animate loading content when the button motion gate is enabled', () => {
+		passGate('platform-dst-motion-uplift-button');
+
+		render(
+			<LozengeDropdownTrigger
+				appearance="success"
+				isLoading
+				onClick={__noop}
+				testId="loading-motion-trigger"
+			>
+				Status
+			</LozengeDropdownTrigger>,
+		);
+
+		expect(screen.getByTestId('loading-motion-trigger--content')).toHaveCompiledCss(
+			'transition-property',
+			'opacity',
+		);
+		expect(screen.getByTestId('loading-motion-trigger--loading-overlay')).toHaveCompiledCss(
+			'animation-duration',
+			'var(--ds-duration-short,.15s)',
+		);
+	});
+
+	it('should not animate loading content when the button motion gate is disabled', () => {
+		failGate('platform-dst-motion-uplift-button');
+
+		render(
+			<LozengeDropdownTrigger
+				appearance="success"
+				isLoading
+				onClick={__noop}
+				testId="loading-motion-trigger"
+			>
+				Status
+			</LozengeDropdownTrigger>,
+		);
+
+		expect(screen.getByTestId('loading-motion-trigger--content')).not.toHaveCompiledCss(
+			'transition-property',
+			'opacity',
+		);
 	});
 
 	it('should have selected state styling when isSelected is true', () => {
@@ -506,6 +555,154 @@ describe('LozengeDropdownTrigger', () => {
 
 			fireEvent.click(trigger);
 			expect(handleClick).toHaveBeenCalledTimes(1);
+		});
+
+		it('should accept and pass through aria-controls prop', () => {
+			render(
+				<LozengeDropdownTrigger
+					appearance="success"
+					isSelected={false}
+					aria-controls="dropdown-menu-123"
+					testId="aria-controls-trigger"
+				>
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			const trigger = screen.getByTestId('aria-controls-trigger');
+			expect(trigger).toHaveAttribute('aria-controls', 'dropdown-menu-123');
+		});
+
+		it('should accept and pass through aria-expanded prop', () => {
+			const { rerender } = render(
+				<LozengeDropdownTrigger
+					appearance="success"
+					isSelected={false}
+					aria-expanded={false}
+					testId="aria-expanded-trigger"
+				>
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			const trigger = screen.getByTestId('aria-expanded-trigger');
+			expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+			// Test with expanded state
+			rerender(
+				<LozengeDropdownTrigger
+					appearance="success"
+					isSelected={true}
+					aria-expanded={true}
+					testId="aria-expanded-trigger"
+				>
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			expect(trigger).toHaveAttribute('aria-expanded', 'true');
+		});
+
+		it('should accept and pass through aria-haspopup prop', () => {
+			render(
+				<LozengeDropdownTrigger
+					appearance="success"
+					isSelected={false}
+					aria-haspopup={true}
+					testId="aria-haspopup-trigger"
+				>
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			const trigger = screen.getByTestId('aria-haspopup-trigger');
+			expect(trigger).toHaveAttribute('aria-haspopup', 'true');
+		});
+
+		it('should accept and pass through aria-haspopup with dialog value', () => {
+			render(
+				<LozengeDropdownTrigger
+					appearance="success"
+					isSelected={false}
+					aria-haspopup="dialog"
+					testId="aria-haspopup-dialog-trigger"
+				>
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			const trigger = screen.getByTestId('aria-haspopup-dialog-trigger');
+			expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
+		});
+
+		it('should accept and pass through aria-label prop', () => {
+			render(
+				<LozengeDropdownTrigger
+					appearance="success"
+					isSelected={false}
+					aria-label="Select status"
+					testId="aria-label-trigger"
+				>
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			const trigger = screen.getByTestId('aria-label-trigger');
+			expect(trigger).toHaveAttribute('aria-label', 'Select status');
+		});
+
+		it('should override aria-label with Loading when isLoading is true', () => {
+			render(
+				<LozengeDropdownTrigger
+					appearance="success"
+					isSelected={false}
+					isLoading={true}
+					aria-label="Select status"
+					testId="aria-label-loading-trigger"
+				>
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			const trigger = screen.getByTestId('aria-label-loading-trigger');
+			expect(trigger).toHaveAttribute('aria-label', 'Loading');
+		});
+
+		it('should accept multiple aria props simultaneously', () => {
+			render(
+				<LozengeDropdownTrigger
+					appearance="success"
+					isSelected={true}
+					aria-controls="dropdown-menu-456"
+					aria-expanded={true}
+					aria-haspopup={true}
+					aria-label="Select status"
+					testId="multiple-aria-trigger"
+				>
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			const trigger = screen.getByTestId('multiple-aria-trigger');
+			expect(trigger).toHaveAttribute('aria-controls', 'dropdown-menu-456');
+			expect(trigger).toHaveAttribute('aria-expanded', 'true');
+			expect(trigger).toHaveAttribute('aria-haspopup', 'true');
+			expect(trigger).toHaveAttribute('aria-label', 'Select status');
+		});
+
+		it('should work without any aria props (backward compatibility)', () => {
+			render(
+				<LozengeDropdownTrigger appearance="success" isSelected={false} testId="no-aria-trigger">
+					Status
+				</LozengeDropdownTrigger>,
+			);
+
+			const trigger = screen.getByTestId('no-aria-trigger');
+			expect(trigger).toBeInTheDocument();
+			expect(trigger).not.toHaveAttribute('aria-controls');
+			expect(trigger).not.toHaveAttribute('aria-expanded');
+			expect(trigger).not.toHaveAttribute('aria-haspopup');
+			expect(trigger).not.toHaveAttribute('aria-label');
 		});
 	});
 });

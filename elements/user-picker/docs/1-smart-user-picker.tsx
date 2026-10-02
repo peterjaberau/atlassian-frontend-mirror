@@ -1,7 +1,7 @@
-import Link from '@atlaskit/link';
+import Link from '@atlaskit/link/link';
 import React from 'react';
 import { md } from '@atlaskit/docs';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 
 const _default_1: any = md`
   ${(
@@ -14,7 +14,7 @@ const _default_1: any = md`
 				@atlaskit/smart-user-picker
 			</Link>{' '}
 			instead. Alternatively, @atlaskit/smart-hooks will be ready by end of FY22Q4. Contact
-			#search-plex for further details.
+			#help-search-plex for further details.
 		</SectionMessage>
 	)}
 `;

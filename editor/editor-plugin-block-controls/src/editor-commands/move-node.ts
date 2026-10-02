@@ -1,4 +1,4 @@
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import {
 	ACTION,
@@ -11,11 +11,19 @@ import { expandedState } from '@atlaskit/editor-common/expand';
 import { blockControlsMessages } from '@atlaskit/editor-common/messages';
 import { expandSelectionBounds, GapCursorSelection } from '@atlaskit/editor-common/selection';
 import { transformSliceNestedExpandToExpand } from '@atlaskit/editor-common/transforms';
-import type { Command, EditorCommand, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { DIRECTION } from '@atlaskit/editor-common/types';
-import { isEmptyParagraph } from '@atlaskit/editor-common/utils';
-import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import {
+	type Command,
+	type EditorCommand,
+	type ExtractInjectionAPI,
+	DIRECTION,
+} from '@atlaskit/editor-common/types';
+import { isEmptyParagraph } from '@atlaskit/editor-common/utils';
+import {
+	isNodeTypeValidChildOf,
+	getBaseNodeTypeName,
+} from '@atlaskit/editor-common/utils/node-type-utils';
+import {
+	type Node as PMNode,
 	Fragment,
 	Slice,
 	type NodeType,
@@ -29,9 +37,10 @@ import {
 	findParentNodeOfTypeClosestToPos,
 } from '@atlaskit/editor-prosemirror/utils';
 import { findTable, isInTable, isTableSelected } from '@atlaskit/editor-tables/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { ActiveNode, BlockControlsPlugin, MoveNodeMethod } from '../blockControlsPluginType';
 import { key } from '../pm-plugins/main';
@@ -39,8 +48,12 @@ import {
 	attachMoveNodeAnalytics,
 	getMultiSelectAnalyticsAttributes,
 } from '../pm-plugins/utils/analytics';
+import {
+	isCollapsedHeading,
+	updateCollapsedHeadingAfterMove,
+} from '../pm-plugins/utils/collapsed-heading';
 import { getNestedNodePosition } from '../pm-plugins/utils/getNestedNodePosition';
-import { selectNode, setCursorPositionAtMovedNode } from '../pm-plugins/utils/getSelection';
+import { setCursorPositionAtMovedNode } from '../pm-plugins/utils/getSelection';
 import { removeFromSource } from '../pm-plugins/utils/remove-from-source';
 import { getSelectedSlicePosition } from '../pm-plugins/utils/selection';
 import { getInsertLayoutStep, updateSelection } from '../pm-plugins/utils/update-selection';
@@ -49,8 +62,8 @@ import {
 	isInsideTable,
 	transformFragmentExpandToNestedExpand,
 	transformSliceExpandToNestedExpand,
+	transformSliceNodeType,
 } from '../pm-plugins/utils/validation';
-
 import { getPosWhenMoveNodeDown, getPosWhenMoveNodeUp } from './utils/move-node-utils';
 
 /**
@@ -70,13 +83,27 @@ function transformSourceSlice(nodeCopy: Slice, destType: NodeType): Slice | null
 	const destTypeInTable = isInsideTable(destType);
 	const destTypeInDocOrLayoutCol = [doc, layoutColumn].includes(destType);
 
-	// No need to loop over slice content if destination requires no transformations
-	if (!destTypeInTable && !destTypeInDocOrLayoutCol) {
+	// Only run transformation loop if destination may need node conversions:
+	// - Table destinations may need expand → nestedExpand
+	// - Doc/layoutColumn destinations may need nestedExpand → expand
+	// - When panel_c1 experiment is on:
+	// - Expand/table/bodied extension destinations may need panel_c1 → panel downgrade
+	// - Doc/layoutColumn destinations may need panel → panel_c1 upgrade
+	const needsTransformCheck =
+		destTypeInTable ||
+		destTypeInDocOrLayoutCol ||
+		expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true);
+	if (!needsTransformCheck) {
 		return nodeCopy;
 	}
 
 	let containsExpand = false;
 	let containsNestedExpand = false;
+	// Track variant nodes (e.g. panel_c1) and their base forms (e.g. panel).
+	// Uses getBaseNodeTypeName to auto-detect variants — new variants only need
+	// to be added to variantToBaseNameMap, no changes needed in the detection loop.
+	let variantType: string | null = null;
+	let baseOfVariantType: string | null = null;
 
 	for (let i = 0; i < nodeCopy.content.childCount; i++) {
 		const node = nodeCopy.content.child(i);
@@ -85,7 +112,15 @@ function transformSourceSlice(nodeCopy: Slice, destType: NodeType): Slice | null
 		} else if (node.type === schema.nodes.nestedExpand) {
 			containsNestedExpand = true;
 		}
-		if (containsExpand && containsNestedExpand) {
+		if (expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)) {
+			const baseName = getBaseNodeTypeName(node.type);
+			if (baseName !== node.type.name) {
+				variantType = node.type.name;
+			} else if (schema.nodes[`${baseName}_c1`]) {
+				baseOfVariantType = node.type.name;
+			}
+		}
+		if (containsExpand && containsNestedExpand && (variantType || baseOfVariantType)) {
 			break;
 		}
 	}
@@ -94,6 +129,26 @@ function transformSourceSlice(nodeCopy: Slice, destType: NodeType): Slice | null
 		return transformSliceExpandToNestedExpand(nodeCopy);
 	} else if (containsNestedExpand && destTypeInDocOrLayoutCol) {
 		return transformSliceNestedExpandToExpand(nodeCopy, schema);
+	}
+
+	// Downgrade variant → base (e.g. panel_c1 → panel) when dest doesn't support the variant
+	if (variantType && schema.nodes[variantType]) {
+		const destParent = destType.createAndFill();
+		if (destParent && !isNodeTypeValidChildOf(variantType, destParent, schema)) {
+			const baseName = getBaseNodeTypeName(schema.nodes[variantType]);
+			return transformSliceNodeType(nodeCopy, schema, variantType, baseName);
+		}
+	}
+
+	// Upgrade base → variant (e.g. panel → panel_c1) when dest supports the variant
+	if (baseOfVariantType) {
+		const variantName = `${baseOfVariantType}_c1`;
+		if (schema.nodes[variantName]) {
+			const destParent = destType.createAndFill();
+			if (destParent && isNodeTypeValidChildOf(variantName, destParent, schema)) {
+				return transformSliceNodeType(nodeCopy, schema, baseOfVariantType, variantName);
+			}
+		}
 	}
 
 	return nodeCopy;
@@ -109,7 +164,10 @@ const nodesSupportDragLayoutColumnInto = [
 
 const isDragLayoutColumnIntoSupportedNodes = ($from: ResolvedPos, $to: ResolvedPos) => {
 	const isTopLevel = $to.depth === 0;
-	const isDragIntoNodes = nodesSupportDragLayoutColumnInto.includes($to.parent.type.name);
+	const toParentTypeName = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? getBaseNodeTypeName($to.parent.type)
+		: $to.parent.type.name;
+	const isDragIntoNodes = nodesSupportDragLayoutColumnInto.includes(toParentTypeName);
 	const supportedCondition = isDragIntoNodes || isTopLevel;
 
 	return (
@@ -169,11 +227,6 @@ export const moveNodeViaShortcut = (
 			state.selection,
 		);
 
-		const isMultiSelectEnabled = editorExperiment(
-			'platform_editor_element_drag_and_drop_multiselect',
-			true,
-		);
-
 		const expandedSelection = expandSelectionBounds(selection.$anchor, selection.$head);
 		const expandedAnchor = expandedSelection.$anchor.pos;
 		const expandedHead = expandedSelection.$head.pos;
@@ -186,16 +239,29 @@ export const moveNodeViaShortcut = (
 			hoistedPos = state.doc.resolve(from).before(LAYOUT_COL_DEPTH);
 		}
 
-		const currentNodePos =
-			isMultiSelectEnabled && !getFocusedHandle(state) && !selection.empty
-				? (hoistedPos ?? from)
-				: getCurrentNodePos(state);
+		const table =
+			isExperimentEnabled('platform_editor_fix_table_move_shortcut') && isTableSelected(selection)
+				? findTable(selection)
+				: undefined;
+		let currentNodePos: number;
+		if (table) {
+			currentNodePos = table.pos;
+		} else if (!getFocusedHandle(state) && !selection.empty) {
+			currentNodePos = hoistedPos ?? from;
+		} else {
+			currentNodePos = getCurrentNodePos(state);
+		}
+
 		if (currentNodePos > -1) {
 			const $currentNodePos = state.doc.resolve(currentNodePos);
-			const nodeAfterPos =
-				isMultiSelectEnabled && !getFocusedHandle(state)
-					? Math.max(expandedAnchor, expandedHead)
-					: $currentNodePos.posAtIndex($currentNodePos.index() + 1);
+			let nodeAfterPos: number;
+			if (table) {
+				nodeAfterPos = table.pos + table.node.nodeSize;
+			} else if (!getFocusedHandle(state)) {
+				nodeAfterPos = Math.max(expandedAnchor, expandedHead);
+			} else {
+				nodeAfterPos = $currentNodePos.posAtIndex($currentNodePos.index() + 1);
+			}
 
 			const isTopLevelNode = $currentNodePos.depth === 0;
 
@@ -343,15 +409,7 @@ export const moveNodeViaShortcut = (
 					return tr;
 				});
 				return true;
-			} else if (nodeType && !isMultiSelectEnabled) {
-				// If the node is first/last one, only select the node
-				api?.core?.actions.execute(({ tr }) => {
-					selectNode(tr, currentNodePos, nodeType, api);
-					tr.scrollIntoView();
-					return tr;
-				});
-				return true;
-			} else if (isMultiSelectEnabled) {
+			} else {
 				api?.core?.actions.execute(({ tr }) => {
 					api?.blockControls.commands.setMultiSelectPositions($newAnchor.pos, $newHead.pos)({ tr });
 					tr.scrollIntoView();
@@ -381,27 +439,18 @@ export const moveNode =
 		if (!handleNode) {
 			return tr;
 		}
+		const wasCollapsedHeading =
+			isExperimentEnabled('platform_editor_collapsible_headings') && isCollapsedHeading(api, start);
 
 		let sliceFrom = start;
 		let sliceTo;
 		let sourceNodeTypes, hasSelectedMultipleNodes;
 
-		const isMultiSelect = editorExperiment(
-			'platform_editor_element_drag_and_drop_multiselect',
-			true,
-		);
-
 		if (fg('platform_editor_ease_of_use_metrics')) {
 			api?.metrics?.commands.setContentMoved()({ tr });
 		}
 
-		const preservedSelection = expValEqualsNoExposure(
-			'platform_editor_block_menu',
-			'isEnabled',
-			true,
-		)
-			? api?.blockControls.sharedState.currentState()?.preservedSelection
-			: undefined;
+		const preservedSelection = api?.blockControls.sharedState.currentState()?.preservedSelection;
 
 		if (preservedSelection) {
 			const $from = tr.doc.resolve(Math.min(start, preservedSelection.from));
@@ -413,7 +462,7 @@ export const moveNode =
 			const attributes = getMultiSelectAnalyticsAttributes(tr, sliceFrom, sliceTo);
 			hasSelectedMultipleNodes = attributes.hasSelectedMultipleNodes;
 			sourceNodeTypes = attributes.nodeTypes;
-		} else if (isMultiSelect) {
+		} else {
 			const slicePosition = getSelectedSlicePosition(start, tr, api);
 
 			sliceFrom = slicePosition.from;
@@ -422,9 +471,6 @@ export const moveNode =
 			const attributes = getMultiSelectAnalyticsAttributes(tr, sliceFrom, sliceTo);
 			hasSelectedMultipleNodes = attributes.hasSelectedMultipleNodes;
 			sourceNodeTypes = attributes.nodeTypes;
-		} else {
-			const size = handleNode?.nodeSize ?? 1;
-			sliceTo = sliceFrom + size;
 		}
 
 		const { expand, nestedExpand } = tr.doc.type.schema.nodes;
@@ -481,10 +527,7 @@ export const moveNode =
 
 		// Currently we don't support breakout mark for children nodes of bodiedSyncBlock node
 		// Hence strip out the mark for now
-		if (
-			destNode.type.name === 'bodiedSyncBlock' &&
-			editorExperiment('platform_synced_block', true)
-		) {
+		if (destNode.type.name === 'bodiedSyncBlock') {
 			const nodes: PMNode[] = [];
 
 			convertedNodeSlice?.content.forEach((node) => {
@@ -522,29 +565,33 @@ export const moveNode =
 				...currMeta,
 				preservedSelectionMapping: new Mapping([new StepMap([0, 0, nodeMovedOffset])]),
 			});
-		} else if (isMultiSelect) {
+		} else {
 			tr =
 				api?.blockControls.commands.setMultiSelectPositions(
 					mappedTo,
 					mappedTo + sliceSize,
 				)({ tr }) ?? tr;
-		} else {
-			tr = selectNode(tr, mappedTo, handleNode.type.name, api);
 		}
 
 		const currMeta = tr.getMeta(key);
 		tr.setMeta(key, { ...currMeta, nodeMoved: true });
 		if (
 			// when move node via block menu, we need to keep the focus on block menu popup, so don't move focus to editor in this scenario
-			!(
-				inputMethod === INPUT_METHOD.BLOCK_MENU &&
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-			)
+			inputMethod !== INPUT_METHOD.BLOCK_MENU
 		) {
 			api?.core.actions.focus();
 		}
 
 		const $mappedTo = tr.doc.resolve(mappedTo);
+		if (isExperimentEnabled('platform_editor_collapsible_headings')) {
+			updateCollapsedHeadingAfterMove({
+				api,
+				destinationPos: mappedTo,
+				isNested: $mappedTo.parent.type.name !== 'doc',
+				tr,
+				wasCollapsed: wasCollapsedHeading,
+			});
+		}
 
 		const expandAncestor = findParentNodeOfTypeClosestToPos($to, [expand, nestedExpand]);
 
@@ -564,12 +611,11 @@ export const moveNode =
 				tr,
 				inputMethod,
 				$handlePos.depth,
-				handleNode.type.name,
+				sourceNodeTypes,
 				$mappedTo?.depth,
 				$mappedTo?.parent.type.name,
 				$handlePos.sameParent($mappedTo),
 				api,
-				sourceNodeTypes,
 				hasSelectedMultipleNodes,
 			);
 		} else {
@@ -580,11 +626,11 @@ export const moveNode =
 				actionSubjectId: ACTION_SUBJECT_ID.ELEMENT_DRAG_HANDLE,
 				attributes: {
 					nodeDepth: $handlePos.depth,
-					nodeType: handleNode.type.name,
+					nodeTypes: sourceNodeTypes,
 					destinationNodeDepth: $mappedTo?.depth,
 					destinationNodeType: $mappedTo?.parent.type.name,
 					inputMethod,
-					...(isMultiSelect && { sourceNodeTypes, hasSelectedMultipleNodes }),
+					hasSelectedMultipleNodes,
 				},
 			})(tr);
 		}

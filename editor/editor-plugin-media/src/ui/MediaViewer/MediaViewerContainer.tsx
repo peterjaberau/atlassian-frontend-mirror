@@ -4,16 +4,16 @@
  */
 import React, { Fragment, useEffect, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { MediaClientConfig } from '@atlaskit/media-core/auth';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import type { MediaViewerExtensions } from '@atlaskit/media-viewer';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { isVideo } from '../../pm-plugins/utils/is-type';
 import { getSelectedNearestMediaContainerNodeAttrsFunction } from '../../ui/toolbar/utils';
-
 import { RenderMediaViewer } from './PortalWrapper';
 
 const interactiveStyles = css({
@@ -22,11 +22,13 @@ const interactiveStyles = css({
 
 type MediaViewerContainerProps = {
 	children?: React.ReactNode;
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>;
 	isEditorViewMode?: boolean;
 	isInline?: boolean;
 	isSelected?: boolean;
 	mediaClientConfig: MediaClientConfig;
 	mediaNode: PMNode;
+	mediaViewerExtensions?: MediaViewerExtensions;
 	selectedMediaContainerNode: () => PMNode | undefined;
 };
 const mediaViewerContainerTestID = 'media-viewer-container-test';
@@ -37,8 +39,10 @@ export const MediaViewerContainer = ({
 	isEditorViewMode = false,
 	isSelected = true,
 	isInline = false,
+	mediaViewerExtensions,
+	fallbackMediaNameFetcher,
 	children,
-}: MediaViewerContainerProps) => {
+}: MediaViewerContainerProps): jsx.JSX.Element => {
 	const [showViewer, setShowMediaViewer] = useState(false);
 
 	useEffect(() => {
@@ -72,20 +76,20 @@ export const MediaViewerContainer = ({
 			{isEditorViewMode ? (
 				<Fragment>
 					{isInline ? (
-						// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 						<span
 							onClick={showMediaViewer}
 							css={interactiveStyles}
 							data-testid={mediaViewerContainerTestID}
+							role="none"
 						>
 							{children}
 						</span>
 					) : (
-						// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 						<div
 							onClick={showMediaViewer}
 							css={interactiveStyles}
 							data-testid={mediaViewerContainerTestID}
+							role="none"
 						>
 							{children}
 						</div>
@@ -96,6 +100,8 @@ export const MediaViewerContainer = ({
 							selectedNodeAttrs={selectedNodeAttrs}
 							mediaClientConfig={mediaClientConfig}
 							onClose={closeMediaViewer}
+							extensions={mediaViewerExtensions}
+							fallbackMediaNameFetcher={fallbackMediaNameFetcher}
 						/>
 					)}
 				</Fragment>

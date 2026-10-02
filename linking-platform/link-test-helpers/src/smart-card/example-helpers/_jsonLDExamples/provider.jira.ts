@@ -1,4 +1,4 @@
-import { SmartLinkActionType } from '@atlaskit/linking-types';
+import { SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
 
 import { avatar3 } from '../../images';
 
@@ -100,55 +100,637 @@ const generateJiraTask = (
 	},
 });
 
-export const JiraTask = generateJiraTask('Get Don to perform', JIRA_TASK, 'Task');
-export const JiraSubTask = generateJiraTask(
+export const JiraTask: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask('Get Don to perform', JIRA_TASK, 'Task');
+export const JiraSubTask: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask(
 	'Buy new trumpet',
 	JIRA_SUB_TASK,
 	'Sub-task',
 	{ appearance: 'success' }, // shouldn't display lozenge
 );
-export const JiraStory = generateJiraTask(
+export const JiraStory: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask(
 	'Market next concert',
 	JIRA_STORY,
 	'Story',
 	{ name: 'todo' }, // should display as "default"
 );
-export const JiraBug = generateJiraTask('Fix audio quality of mixer', JIRA_BUG, 'Bug', {
+export const JiraBug: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask('Fix audio quality of mixer', JIRA_BUG, 'Bug', {
 	name: 'todo',
 	appearance: 'default',
 });
-export const JiraEpic = generateJiraTask('Tribute to Earth Concert', JIRA_EPIC, 'Epic', {
+export const JiraEpic: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask('Tribute to Earth Concert', JIRA_EPIC, 'Epic', {
 	name: 'in progress',
 	appearance: 'inprogress',
 });
-export const JiraIncident = generateJiraTask(
-	'Remove unauthorised crowd members',
-	JIRA_INCIDENT,
-	'Incident',
-	{ name: 'blocked', appearance: 'removed' },
-);
-export const JiraServiceRequest = generateJiraTask(
-	'Re-string instruments',
-	JIRA_SERVICE_REQUEST,
-	'Service Request',
-	{ name: 'done', appearance: 'success' },
-);
-export const JiraChange = generateJiraTask('Change album cover', JIRA_CHANGE, 'Change', {
+export const JiraIncident: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask('Remove unauthorised crowd members', JIRA_INCIDENT, 'Incident', {
+	name: 'blocked',
+	appearance: 'removed',
+});
+export const JiraServiceRequest: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask('Re-string instruments', JIRA_SERVICE_REQUEST, 'Service Request', {
+	name: 'done',
+	appearance: 'success',
+});
+export const JiraChange: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask('Change album cover', JIRA_CHANGE, 'Change', {
 	name: 'delayed',
 	appearance: 'moved',
 });
-export const JiraProblem = generateJiraTask(
-	'Request Don to step teasing',
-	JIRA_PROBLEM,
-	'Problem',
-	{ name: 'done', appearance: 'success' },
-);
-export const JiraCustomTaskType = generateJiraTask(
-	'Perform at the Conga Club',
-	JIRA_CUSTOM_TASK_TYPE,
-	'Musician Request',
-	{ name: 'done', appearance: 'success' },
-);
+export const JiraProblem: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask('Request Don to step teasing', JIRA_PROBLEM, 'Problem', {
+	name: 'done',
+	appearance: 'success',
+});
+export const JiraCustomTaskType: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask('Perform at the Conga Club', JIRA_CUSTOM_TASK_TYPE, 'Musician Request', {
+	name: 'done',
+	appearance: 'success',
+});
 export const JiraCustomTaskTypeWithIcon: any = (() => {
 	const json: any = generateJiraTask(
 		'Perform at the Conga Club',
@@ -164,7 +746,66 @@ export const JiraCustomTaskTypeWithIcon: any = (() => {
 
 	return json;
 })();
-export const JiraTaskWithNoEditPermission = generateJiraTask(
+export const JiraTaskWithNoEditPermission: {
+	'@context': {
+		'@vocab': string;
+		atlassian: string;
+		schema: string;
+	};
+	'@id': string;
+	'@type': string[];
+	'atlassian:assignedBy': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:assignedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	}[];
+	'atlassian:attributedTo': {
+		'@type': string;
+		image: string;
+		name: string;
+	};
+	'atlassian:isCompleted': boolean;
+	'atlassian:isDeleted': boolean;
+	'atlassian:taskStatus': {
+		'@type': string;
+		href: string;
+		name: string;
+	};
+	'atlassian:taskType': {
+		'@id': string;
+		'@type': string[];
+		name: string;
+	};
+	content: string;
+	context: {
+		'@type': string;
+		name: string;
+	};
+	generator: {
+		'@id': string;
+		'@type': string;
+		icon: string;
+		name: string;
+	};
+	hasProjectPermission: boolean;
+	icon: {
+		url: string;
+	};
+	name: string;
+	'schema:commentCount': number;
+	'schema:dateCreated': string;
+	startTime: string;
+	tag: {
+		appearance?: string;
+		name?: string;
+	};
+	url: string;
+} = generateJiraTask(
 	'Get Don to sing',
 	JIRA_TASK,
 	'Task',
@@ -187,7 +828,91 @@ export const JiraTasks: any[] = [
 	JiraTaskWithNoEditPermission,
 ];
 
-export const JiraIssue = {
+export const JiraIssue: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@type': string[];
+		'atlassian:priority': {
+			'@type': string;
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+		};
+		'atlassian:serverAction': {
+			'@type': string;
+			dataRetrievalAction: {
+				'@type': string;
+				name: SmartLinkActionType;
+			};
+			dataUpdateAction: {
+				'@type': string;
+				name: SmartLinkActionType;
+			};
+			name: string;
+			refField: string;
+			resourceIdentifiers: {
+				hostname: string;
+				issueKey: string;
+			};
+		}[];
+		'atlassian:subscriberCount': number;
+		attributedTo: {
+			'@type': string;
+			icon: string;
+			name: string;
+		};
+		generator: {
+			'@id': string;
+			'@type': string;
+			name: string;
+		};
+		icon: {
+			'@type': string;
+			url: string;
+		};
+		name: string;
+		preview: {
+			'@type': string;
+			'atlassian:supportedPlatforms': string[];
+			href: string;
+		};
+		'schema:commentCount': number;
+		'schema:dateCreated': string;
+		summary: string;
+		tag: {
+			'@type': string;
+			appearance: string;
+			name: string;
+		};
+		taskType: {
+			'@id': string;
+			'@type': string[];
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+		};
+		updated: string;
+		url: string;
+	};
+	meta: {
+		access: string;
+		auth: never[];
+		definitionId: string;
+		key: string;
+		product: string;
+		resourceType: string;
+		supportedFeature: string[];
+		visibility: string;
+	};
+} = {
 	meta: {
 		auth: [],
 		definitionId: 'jira-object-provider',
@@ -276,7 +1001,96 @@ export const JiraIssue = {
 	},
 };
 
-export const JiraIssueAssigned = {
+export const JiraIssueAssigned: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@type': string[];
+		'atlassian:assignedTo': {
+			'@type': string;
+			icon: string;
+			name: string;
+		};
+		'atlassian:priority': {
+			'@type': string;
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+		};
+		'atlassian:serverAction': {
+			'@type': string;
+			dataRetrievalAction: {
+				'@type': string;
+				name: SmartLinkActionType;
+			};
+			dataUpdateAction: {
+				'@type': string;
+				name: SmartLinkActionType;
+			};
+			name: string;
+			refField: string;
+			resourceIdentifiers: {
+				hostname: string;
+				issueKey: string;
+			};
+		}[];
+		'atlassian:subscriberCount': number;
+		attributedTo: {
+			'@type': string;
+			icon: string;
+			name: string;
+		};
+		generator: {
+			'@id': string;
+			'@type': string;
+			name: string;
+		};
+		icon: {
+			'@type': string;
+			url: string;
+		};
+		name: string;
+		preview: {
+			'@type': string;
+			'atlassian:supportedPlatforms': string[];
+			href: string;
+		};
+		'schema:commentCount': number;
+		'schema:dateCreated': string;
+		summary: string;
+		tag: {
+			'@type': string;
+			appearance: string;
+			name: string;
+		};
+		taskType: {
+			'@id': string;
+			'@type': string[];
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+		};
+		updated: string;
+		url: string;
+	};
+	meta: {
+		access: string;
+		auth: never[];
+		definitionId: string;
+		key: string;
+		product: string;
+		resourceType: string;
+		supportedFeature: string[];
+		visibility: string;
+	};
+} = {
 	...JiraIssue,
 	data: {
 		...JiraIssue.data,
@@ -289,7 +1103,40 @@ export const JiraIssueAssigned = {
 	},
 };
 
-export const JiraProject = {
+export const JiraProject: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@type': string[];
+		generator: {
+			'@id': string;
+			'@type': string;
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+		};
+		icon: {
+			'@type': string;
+			url: string;
+		};
+		name: string;
+		summary: string;
+		url: string;
+	};
+	meta: {
+		access: string;
+		auth: never[];
+		definitionId: string;
+		key: string;
+		product: string;
+		visibility: string;
+	};
+} = {
 	meta: {
 		auth: [],
 		definitionId: 'jira-object-provider',

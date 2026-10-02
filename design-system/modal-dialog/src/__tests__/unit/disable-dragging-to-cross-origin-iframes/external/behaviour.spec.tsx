@@ -1,10 +1,7 @@
-import { fireEvent } from '@testing-library/react';
-
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import {
-	dropTargetForExternal,
-	monitorForExternal,
-} from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
+import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/adapter/drop-target-for-external';
+import { monitorForExternal } from '@atlaskit/pragmatic-drag-and-drop/adapter/monitor-for-external';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { fireEvent } from '@atlassian/testing-library';
 
 import { disableDraggingToCrossOriginIFramesForExternal } from '../../../../internal/pragmatic-drag-and-drop/disable-dragging-to-cross-origin-iframes/external';
 import { appendToBody, getElements, nativeDrag, reset, userEvent } from '../_pdnd-test-utils';

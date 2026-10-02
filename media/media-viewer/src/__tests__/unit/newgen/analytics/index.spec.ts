@@ -6,11 +6,12 @@ import {
 	type ProcessingFailedState,
 	RequestError,
 } from '@atlaskit/media-client';
-import { getFileAttributes } from '../../../../analytics';
-import { MediaViewerError } from '../../../../errors';
+
+import { createDownloadFailedEventPayload } from '../../../../analytics/events/operational/createDownloadFailedEventPayload';
 import { createLoadFailedEvent } from '../../../../analytics/events/operational/loadFailed';
 import { createZipEntryLoadFailedEvent } from '../../../../analytics/events/operational/zipEntryLoadFailed';
-import { createDownloadFailedEventPayload } from '../../../../analytics/events/operational/download';
+import { getFileAttributes } from '../../../../analytics/getFileAttributes';
+import { MediaViewerError } from '../../../../MediaViewerError';
 
 export const processedFile: ProcessedFileState = {
 	status: 'processed',
@@ -104,6 +105,7 @@ describe('getFileAttributes()', () => {
 				error: 'nativeError',
 				errorDetail: 'some-error-message',
 				failReason: 'imageviewer-fetch-url',
+				processingFailReason: undefined,
 				fileMimetype: processedFile.mimeType,
 				fileAttributes: {
 					fileId: processedFile.id,
@@ -139,6 +141,7 @@ describe('getFileAttributes()', () => {
 				error: 'serverInvalidBody',
 				errorDetail: 'unknown',
 				failReason: 'imageviewer-fetch-url',
+				processingFailReason: undefined,
 				statusCode: undefined,
 				request: {
 					method: 'GET',
@@ -216,6 +219,7 @@ describe('getFileAttributes()', () => {
 				error: 'serverForbidden',
 				errorDetail: 'unknown',
 				failReason: 'imageviewer-fetch-url',
+				processingFailReason: undefined,
 				statusCode: 403,
 				request: {
 					method: 'GET',
@@ -260,6 +264,7 @@ describe('getFileAttributes()', () => {
 				error: 'serverUnauthorized',
 				errorDetail: 'unknown',
 				failReason: 'imageviewer-fetch-url',
+				processingFailReason: undefined,
 				statusCode: 401,
 				request: {
 					method: 'GET',
@@ -304,6 +309,7 @@ describe('getFileAttributes()', () => {
 				error: 'serverInternalError',
 				errorDetail: 'unknown',
 				failReason: 'imageviewer-fetch-url',
+				processingFailReason: undefined,
 				statusCode: 500,
 				request: {
 					method: 'GET',
@@ -323,6 +329,45 @@ describe('getFileAttributes()', () => {
 			},
 			eventType: 'operational',
 		});
+	});
+
+	it('should capture processingFailReason for files in failed-processing state', () => {
+		const failedProcessingFile: ProcessingFailedState = {
+			...processingError,
+			failReason: 'unsupported-file-type',
+		};
+		const event = createLoadFailedEvent(
+			failedProcessingFile.id,
+			new MediaViewerError('itemviewer-file-failed-processing-status'),
+			failedProcessingFile,
+		);
+		expect(event.attributes.processingFailReason).toEqual('unsupported-file-type');
+	});
+
+	it('should fall back to not-available when failed-processing file has no failReason', () => {
+		const event = createLoadFailedEvent(
+			processingError.id,
+			new MediaViewerError('itemviewer-file-failed-processing-status'),
+			processingError,
+		);
+		expect(event.attributes.processingFailReason).toEqual('not-available');
+	});
+
+	it('should leave processingFailReason undefined when fileState is undefined', () => {
+		const event = createLoadFailedEvent(
+			'some-id',
+			new MediaViewerError('itemviewer-file-failed-processing-status'),
+		);
+		expect(event.attributes.processingFailReason).toBeUndefined();
+	});
+
+	it('should leave processingFailReason undefined for non-failed-processing failures', () => {
+		const event = createLoadFailedEvent(
+			processedFile.id,
+			new MediaViewerError('imageviewer-fetch-url'),
+			processedFile,
+		);
+		expect(event.attributes.processingFailReason).toBeUndefined();
 	});
 
 	describe('createDownloadFailedEventPayload()', () => {

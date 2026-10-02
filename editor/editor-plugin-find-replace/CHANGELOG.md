@@ -1,5 +1,1553 @@
 # @atlaskit/editor-plugin-find-replace
 
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.0
+
+### Minor Changes
+
+- [`111eaadd44c1c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/111eaadd44c1c) -
+  EDITOR-8995: Make the editor find dialog usable in live view. The find dialog now accepts an
+  `allowReplace` prop, and hides the replace label, field, replacement count message, both replace
+  buttons and the horizontal rule when it is false. It also names the dialog "Find" instead of "Find
+  and Replace" in that state. The find plugin derives `allowReplace` from the `editorViewMode`
+  shared state, so view mode never offers replace. A new ProseMirror plugin opens the dialog on
+  `Mod-f` in view mode, where no keymap fires, behind the `platform_editor_collapsible_headings`
+  experiment. The `activated` analytics event gains an `editorViewMode` attribute.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- [`c59a6b356dc1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c59a6b356dc1b) -
+  Clean up experiment `platform_editor_korean_characters_split`
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- [`2bbc1c84de468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bbc1c84de468) -
+  Migrate Volt consumer imports to existing definitions and align affected test mocks without
+  changing runtime behavior.
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`817bf38f29c51`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/817bf38f29c51) -
+  [ux] Expand collapsed heading sections when navigating find-and-replace matches under
+  `platform_editor_collapsible_headings`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- [`605318d4eba4b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/605318d4eba4b) -
+  [FFCLEANUP-101910] clean up platform_editor_editor_centre_content_on_find experiment
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.13
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 15.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- [`42931028bd815`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42931028bd815) -
+  [FFCLEANUP-138148] clean up experiment `platform_editor_find_and_replace_improvements`
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- [`346f91cfe1997`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/346f91cfe1997) -
+  Clean up prefer static regex violations
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.2
+
+### Patch Changes
+
+- [`cec76b6d3aeaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cec76b6d3aeaa) -
+  Cleanup feature gate `platform_synced_block_patch_11`. Jira work-item issue-type icons,
+  product-specific copy, and Relay environment initialisation are now permanently enabled.
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`acbb2aa5cc917`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acbb2aa5cc917) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`55ad279a5e823`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/55ad279a5e823) -
+  [ux] Support reference sync blocks by find and replace.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.9
+
+### Patch Changes
+
+- [`712e503425ecc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/712e503425ecc) -
+  Fix composition of CJK characters in find/replace editor modal find input
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.25
+
+### Patch Changes
+
+- [`3da5fc5ff18bc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3da5fc5ff18bc) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 8.2.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.23
+
+### Patch Changes
+
+- [`7b7c52dff5d7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7c52dff5d7d) -
+  Fix eslint violations for type import syntax
+- Updated dependencies
+
+## 8.2.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.9
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 8.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`d7dec29b99a58`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7dec29b99a58) -
+  [ux] [EDITOR-5118] his change modifies scrolling behaviour to centre selected content when using
+  find and replace, behind exp platform_editor_editor_centre_content_on_find
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`0efca55740b36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0efca55740b36) -
+  [FFCLEANUP-71458] clean up experiment platform_editor_toggle_expand_on_match_found
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`f444a0d3e2c0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f444a0d3e2c0b) -
+  [FFCLEANUP-79468] clean up platform_editor_dec_a11y_fixes feature gate
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.15
+
+### Patch Changes
+
+- [`5690cd6294eda`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5690cd6294eda) -
+  [EDITOR-5042] Moves findUniqueItemsIn export to index
+- Updated dependencies
+
+## 7.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.0.13
 
 ### Patch Changes

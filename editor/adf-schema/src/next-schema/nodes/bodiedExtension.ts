@@ -1,11 +1,22 @@
+import type { ADFCommonNodeSpec, ADFNode } from '@atlaskit/adf-schema-generator';
 import { $onePlus, $or, adfNode } from '@atlaskit/adf-schema-generator';
+
 import { nonNestableBlockContentGroup } from '../groups/nonNestableBlockContentGroup';
+import { breakout } from '../marks/breakout';
 import { dataConsumer } from '../marks/dataConsumer';
 import { fragment } from '../marks/fragment';
 import { unsupportedMark } from '../marks/unsupportedMark';
 import { unsupportedNodeAttribute } from '../marks/unsupportedNodeAttribute';
 
-export const bodiedExtension = adfNode('bodiedExtension')
+export const bodiedExtension: ADFNode<
+	[string, 'with_marks', 'root_only'],
+	ADFCommonNodeSpec & {
+		content: never[];
+		ignore: never[];
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		marks: any[];
+	}
+> = adfNode('bodiedExtension')
 	.define({
 		defining: true,
 		selectable: true,
@@ -34,4 +45,9 @@ export const bodiedExtension = adfNode('bodiedExtension')
 		marks: [dataConsumer, fragment, unsupportedMark, unsupportedNodeAttribute],
 		content: [],
 		ignore: [],
+	})
+	// this variant is used to support breakout resizing for bodiedExtension nodes at the document root
+	.variant('root_only', {
+		stage0: true,
+		marks: [breakout, dataConsumer, fragment, unsupportedMark, unsupportedNodeAttribute],
 	});

@@ -35,6 +35,7 @@ const djb2MapKey = (hash: string, kind: keyof LocalOverrides) => kind + ':' + ha
  *
  * [Reference](https://github.com/statsig-io/js-client-monorepo/blob/main/packages/js-local-overrides/src/LocalOverrideAdapter.ts)
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export class PersistentOverrideAdapter implements OverrideAdapter {
 	private _overrides: LocalOverrides;
 	private _localStorageKey: string;
@@ -48,6 +49,7 @@ export class PersistentOverrideAdapter implements OverrideAdapter {
 
 	private parseStoredOverrides(localStorageKey: string): LocalOverrides {
 		try {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-web-storage-usage -- existing usage
 			const json = window.localStorage.getItem(localStorageKey);
 			if (!json) {
 				return makeEmptyStore();
@@ -88,6 +90,7 @@ export class PersistentOverrideAdapter implements OverrideAdapter {
 		// Clear data from legacy local storage key now we've read from it.
 		// This prevents things being stuck in there that are always read but never written to.
 		try {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-web-storage-usage -- existing usage
 			window.localStorage.removeItem(LEGACY_LOCAL_STORAGE_KEY);
 		} catch {
 			// ignored - window is not defined in non-browser environments, and we don't save things there
@@ -112,6 +115,7 @@ export class PersistentOverrideAdapter implements OverrideAdapter {
 
 	saveOverrides(): void {
 		try {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-web-storage-usage -- existing usage
 			window.localStorage.setItem(this._localStorageKey, JSON.stringify(this._overrides));
 		} catch {
 			// ignored - window is not defined in non-browser environments, and we don't save things there
@@ -214,6 +218,7 @@ export class PersistentOverrideAdapter implements OverrideAdapter {
 	removeAllOverrides(): void {
 		this._overrides = makeEmptyStore();
 		try {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-web-storage-usage -- existing usage
 			window.localStorage.removeItem(this._localStorageKey);
 		} catch {
 			// ignored - window is not defined in non-browser environments, and we don't save things there

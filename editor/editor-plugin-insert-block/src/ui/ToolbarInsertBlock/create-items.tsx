@@ -2,7 +2,8 @@ import React from 'react';
 
 import memoize from 'lodash/memoize';
 import memoizeOne from 'memoize-one';
-import type { WrappedComponentProps } from 'react-intl-next';
+import type { MemoizedFn } from 'memoize-one';
+import type { WrappedComponentProps } from 'react-intl';
 
 import { ToolTipContent } from '@atlaskit/editor-common/keymaps';
 import {
@@ -13,8 +14,7 @@ import type { MenuItem } from '@atlaskit/editor-common/ui-menu';
 import type { BlockType } from '@atlaskit/editor-plugin-block-type';
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
 import type { EmojiProvider } from '@atlaskit/emoji/resource';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import {
 	action,
@@ -57,6 +57,8 @@ export interface CreateItemsConfig {
 	isEditorOffline?: boolean;
 	isNewMenuEnabled?: boolean;
 	isTypeAheadAllowed?: boolean;
+	/** @see InsertBlockPluginOptions.itemFilter */
+	itemFilter?: (item: MenuItem) => boolean;
 	layoutSectionEnabled?: boolean;
 	linkDisabled?: boolean;
 	linkSupported?: boolean;
@@ -127,6 +129,7 @@ const createInsertBlockItems = (
 		schema,
 		formatMessage,
 		isEditorOffline,
+		itemFilter,
 	} = config;
 
 	const items: MenuItem[] = [];
@@ -154,86 +157,43 @@ const createInsertBlockItems = (
 		);
 	}
 
-	if (editorExperiment('platform_editor_prevent_toolbar_layout_shifts', true)) {
-		if (imageUploadSupported) {
-			items.push(
-				imageUpload({
-					content: formatMessage(messages.image),
-					disabled: !imageUploadEnabled || isOffline,
-				}),
-			);
-		} else if (hasMediaPlugin) {
-			items.push(
-				media({
-					content: formatMessage(messages.addMediaFiles),
-					tooltipDescription: formatMessage(messages.mediaFilesDescription),
-					disabled: isOffline || !mediaSupported || !mediaUploadsEnabled,
-				}),
-			);
-		}
+	if (imageUploadSupported) {
+		items.push(
+			imageUpload({
+				content: formatMessage(messages.image),
+				disabled: !imageUploadEnabled || isOffline,
+			}),
+		);
+	} else if (hasMediaPlugin) {
+		items.push(
+			media({
+				content: formatMessage(messages.addMediaFiles),
+				tooltipDescription: formatMessage(messages.mediaFilesDescription),
+				disabled: isOffline || !mediaSupported || !mediaUploadsEnabled,
+			}),
+		);
+	}
 
-		if (hasMentionsPlugin) {
-			items.push(
-				mention({
-					content: formatMessage(messages.mention),
-					tooltipDescription: formatMessage(messages.mentionDescription),
-					disabled: !isTypeAheadAllowed || !!mentionsDisabled || !mentionsSupported,
-					'aria-haspopup': 'listbox',
-				}),
-			);
-		}
+	if (hasMentionsPlugin) {
+		items.push(
+			mention({
+				content: formatMessage(messages.mention),
+				tooltipDescription: formatMessage(messages.mentionDescription),
+				disabled: !isTypeAheadAllowed || !!mentionsDisabled || !mentionsSupported,
+				'aria-haspopup': 'listbox',
+			}),
+		);
+	}
 
-		if (hasEmojiPlugin) {
-			items.push(
-				emoji({
-					content: formatMessage(messages.emoji),
-					tooltipDescription: formatMessage(messages.emojiDescription),
-					disabled: emojiDisabled || !isTypeAheadAllowed || !emojiProvider,
-					'aria-haspopup': 'dialog',
-				}),
-			);
-		}
-	} else {
-		if (mediaSupported && mediaUploadsEnabled) {
-			items.push(
-				media({
-					content: formatMessage(messages.addMediaFiles),
-					tooltipDescription: formatMessage(messages.mediaFilesDescription),
-					disabled: isOffline,
-				}),
-			);
-		}
-
-		if (imageUploadSupported) {
-			items.push(
-				imageUpload({
-					content: formatMessage(messages.image),
-					disabled: !imageUploadEnabled || isOffline,
-				}),
-			);
-		}
-
-		if (mentionsSupported) {
-			items.push(
-				mention({
-					content: formatMessage(messages.mention),
-					tooltipDescription: formatMessage(messages.mentionDescription),
-					disabled: !isTypeAheadAllowed || !!mentionsDisabled,
-					'aria-haspopup': 'listbox',
-				}),
-			);
-		}
-
-		if (emojiProvider) {
-			items.push(
-				emoji({
-					content: formatMessage(messages.emoji),
-					tooltipDescription: formatMessage(messages.emojiDescription),
-					disabled: emojiDisabled || !isTypeAheadAllowed,
-					'aria-haspopup': 'dialog',
-				}),
-			);
-		}
+	if (hasEmojiPlugin) {
+		items.push(
+			emoji({
+				content: formatMessage(messages.emoji),
+				tooltipDescription: formatMessage(messages.emojiDescription),
+				disabled: emojiDisabled || !isTypeAheadAllowed || !emojiProvider,
+				'aria-haspopup': 'dialog',
+			}),
+		);
 	}
 
 	if (tableSupported) {
@@ -369,18 +329,27 @@ const createInsertBlockItems = (
 		items.push(...insertMenuItems);
 	}
 
+	// EDITOR-6558: apply consumer-supplied filter (e.g. Markdown Mode allowlist)
+	// before computing toolbar button / dropdown splits so item counts are
+	// correct downstream.
+	const filteredItems = itemFilter ? items.filter(itemFilter) : items;
+
 	let numButtonsAdjusted = numberOfButtons;
 	if (fg('platform_editor_toolbar_responsive_fixes')) {
-		if (items.slice(0, numButtonsAdjusted).some((item) => item.value.name === 'table selector')) {
+		if (
+			filteredItems
+				.slice(0, numButtonsAdjusted)
+				.some((item) => item.value.name === 'table selector')
+		) {
 			numButtonsAdjusted++;
 		}
 	} else {
 		numButtonsAdjusted =
 			tableSupported && tableSelectorSupported ? numberOfButtons + 1 : numberOfButtons;
 	}
-	const buttonItems = items.slice(0, numButtonsAdjusted).map(buttonToItem);
+	const buttonItems = filteredItems.slice(0, numButtonsAdjusted).map(buttonToItem);
 
-	const remainingItems = items
+	const remainingItems = filteredItems
 		.slice(numButtonsAdjusted)
 		.filter(({ value: { name } }) => name !== 'table selector');
 
@@ -391,4 +360,6 @@ const createInsertBlockItems = (
 	return [buttonItems, dropdownItems] as const;
 };
 
-export const createItems = memoizeOne(createInsertBlockItems, shallowEquals);
+export const createItems: MemoizedFn<
+	(config: CreateItemsConfig) => Readonly<[BlockMenuItem[], BlockMenuItem[]]>
+> = memoizeOne(createInsertBlockItems, shallowEquals);

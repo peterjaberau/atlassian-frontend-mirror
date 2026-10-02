@@ -1,10 +1,11 @@
+import { mainThemes, verifyBrandRefreshColors } from './brand-refresh-assertion-helper.mock';
+
 import { ffTest } from '@atlassian/feature-flags-test-utils';
 
 import getThemeStyles, { type ThemeStyles } from '../../get-theme-styles';
-import { type ThemeIdsWithOverrides, type ThemeOptionsSchema } from '../../theme-config';
+import { type ThemeIdsWithOverrides } from '../../theme-config';
+import { type ThemeOptionsSchema } from '../../theme-options-schema';
 import { hash } from '../../utils/hash';
-
-import { mainThemes, verifyBrandRefreshColors } from './brand-refresh-assertion-helper.mock';
 
 const UNSAFE_themeOptions: ThemeOptionsSchema = {
 	brandColor: '#ff0000',
@@ -13,7 +14,7 @@ const UNSAFE_themeOptions: ThemeOptionsSchema = {
 const customStyleHashId = hash(JSON.stringify(UNSAFE_themeOptions));
 
 function getThemeData(themes: ThemeStyles[]) {
-	return themes.reduce((acc: Omit<ThemeStyles, 'css'>[], { css, ...rest }) => {
+	return themes.reduce((acc: Omit<ThemeStyles, 'css'>[], { css: _css, ...rest }) => {
 		acc.push({ ...rest });
 		return acc;
 	}, []);
@@ -24,8 +25,9 @@ describe('getThemeStyles', () => {
 		ffTest(
 			'platform_increased-contrast-themes',
 			async () => {
-				let results = await getThemeStyles({
+				const results = await getThemeStyles({
 					light: 'light',
+					shape: 'shape',
 					spacing: 'spacing',
 					typography: 'typography',
 				});
@@ -43,13 +45,16 @@ describe('getThemeStyles', () => {
 						id: 'dark-increased-contrast',
 						attrs: { 'data-theme': 'dark-increased-contrast' },
 					},
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 			async () => {
-				let results = await getThemeStyles({
+				const results = await getThemeStyles({
 					light: 'light',
+					shape: 'shape',
 					spacing: 'spacing',
 					typography: 'typography',
 				});
@@ -62,8 +67,10 @@ describe('getThemeStyles', () => {
 				expect(getThemeData(results)).toEqual([
 					{ id: 'light', attrs: { 'data-theme': 'light' } },
 					{ id: 'dark', attrs: { 'data-theme': 'dark' } },
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 		);
@@ -73,7 +80,7 @@ describe('getThemeStyles', () => {
 		ffTest(
 			'platform_increased-contrast-themes',
 			async () => {
-				let results = await getThemeStyles();
+				const results = await getThemeStyles();
 
 				// Check that CSS is defined for each result
 				results.forEach((result) => {
@@ -91,12 +98,14 @@ describe('getThemeStyles', () => {
 						id: 'dark-increased-contrast',
 						attrs: { 'data-theme': 'dark-increased-contrast' },
 					},
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 			async () => {
-				let results = await getThemeStyles();
+				const results = await getThemeStyles();
 
 				// Check that CSS is defined for each result
 				results.forEach((result) => {
@@ -106,8 +115,10 @@ describe('getThemeStyles', () => {
 				expect(getThemeData(results)).toEqual([
 					{ id: 'light', attrs: { 'data-theme': 'light' } },
 					{ id: 'dark', attrs: { 'data-theme': 'dark' } },
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 		);
@@ -117,11 +128,12 @@ describe('getThemeStyles', () => {
 		ffTest(
 			'platform_increased-contrast-themes',
 			async () => {
-				let results = await getThemeStyles({
+				const results = await getThemeStyles({
 					colorMode: 'auto',
 					dark: 'dark',
 					light: 'light',
 					UNSAFE_themeOptions,
+					shape: 'shape',
 					spacing: 'spacing',
 					typography: 'typography',
 				});
@@ -141,8 +153,10 @@ describe('getThemeStyles', () => {
 						id: 'dark-increased-contrast',
 						attrs: { 'data-theme': 'dark-increased-contrast' },
 					},
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 					{
 						id: 'light',
 						attrs: {
@@ -160,11 +174,12 @@ describe('getThemeStyles', () => {
 				]);
 			},
 			async () => {
-				let results = await getThemeStyles({
+				const results = await getThemeStyles({
 					colorMode: 'auto',
 					dark: 'dark',
 					light: 'light',
 					UNSAFE_themeOptions,
+					shape: 'shape',
 					spacing: 'spacing',
 					typography: 'typography',
 				});
@@ -176,8 +191,10 @@ describe('getThemeStyles', () => {
 				expect(getThemeData(results)).toEqual([
 					{ id: 'light', attrs: { 'data-theme': 'light' } },
 					{ id: 'dark', attrs: { 'data-theme': 'dark' } },
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 					{
 						id: 'light',
 						attrs: {
@@ -201,7 +218,7 @@ describe('getThemeStyles', () => {
 		ffTest(
 			'platform_increased-contrast-themes',
 			async () => {
-				let results = await getThemeStyles({
+				const results = await getThemeStyles({
 					colorMode: 'auto',
 					UNSAFE_themeOptions: {
 						brandColor: '#ff00',
@@ -219,12 +236,14 @@ describe('getThemeStyles', () => {
 						id: 'dark-increased-contrast',
 						attrs: { 'data-theme': 'dark-increased-contrast' },
 					},
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 			async () => {
-				let results = await getThemeStyles({
+				const results = await getThemeStyles({
 					colorMode: 'auto',
 					UNSAFE_themeOptions: {
 						brandColor: '#ff00',
@@ -234,8 +253,10 @@ describe('getThemeStyles', () => {
 				expect(getThemeData(results)).toEqual([
 					{ id: 'light', attrs: { 'data-theme': 'light' } },
 					{ id: 'dark', attrs: { 'data-theme': 'dark' } },
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 		);
@@ -245,10 +266,11 @@ describe('getThemeStyles', () => {
 		ffTest(
 			'platform_increased-contrast-themes',
 			async () => {
-				let results = await getThemeStyles({
+				const results = await getThemeStyles({
 					colorMode: 'light',
 					dark: 'dark',
 					light: 'light',
+					shape: 'shape',
 					spacing: 'spacing',
 					typography: 'typography',
 				});
@@ -259,23 +281,28 @@ describe('getThemeStyles', () => {
 						id: 'light-increased-contrast',
 						attrs: { 'data-theme': 'light-increased-contrast' },
 					},
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 			async () => {
-				let results = await getThemeStyles({
+				const results = await getThemeStyles({
 					colorMode: 'light',
 					dark: 'dark',
 					light: 'light',
+					shape: 'shape',
 					spacing: 'spacing',
 					typography: 'typography',
 				});
 
 				expect(getThemeData(results)).toEqual([
 					{ id: 'light', attrs: { 'data-theme': 'light' } },
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 		);
@@ -289,6 +316,7 @@ describe('getThemeStyles', () => {
 				const results = await getThemeStyles({
 					light: 'dark',
 					dark: 'dark',
+					shape: 'shape',
 					spacing: 'spacing',
 					typography: 'typography',
 				});
@@ -299,8 +327,10 @@ describe('getThemeStyles', () => {
 						id: 'dark-increased-contrast',
 						attrs: { 'data-theme': 'dark-increased-contrast' },
 					},
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 			async () => {
@@ -308,14 +338,17 @@ describe('getThemeStyles', () => {
 				const results = await getThemeStyles({
 					light: 'dark',
 					dark: 'dark',
+					shape: 'shape',
 					spacing: 'spacing',
 					typography: 'typography',
 				});
 
 				expect(getThemeData(results)).toEqual([
 					{ id: 'dark', attrs: { 'data-theme': 'dark' } },
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 		);
@@ -336,8 +369,10 @@ describe('getThemeStyles', () => {
 						id: 'light-increased-contrast',
 						attrs: { 'data-theme': 'light-increased-contrast' },
 					},
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 			async () => {
@@ -348,8 +383,10 @@ describe('getThemeStyles', () => {
 
 				expect(getThemeData(results)).toEqual([
 					{ id: 'light', attrs: { 'data-theme': 'light' } },
+					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 		);
@@ -373,7 +410,9 @@ describe('getThemeStyles', () => {
 					},
 					{ id: 'light', attrs: { 'data-theme': 'light' } },
 					{ id: 'light-future', attrs: { 'data-theme': 'light-future' } },
+					{ id: 'UNSAFE-test-light', attrs: { 'data-theme': 'UNSAFE-test-light' } },
 					{ id: 'dark', attrs: { 'data-theme': 'dark' } },
+					{ id: 'UNSAFE-test-dark', attrs: { 'data-theme': 'UNSAFE-test-dark' } },
 					{ id: 'dark-future', attrs: { 'data-theme': 'dark-future' } },
 					{
 						id: 'dark-increased-contrast',
@@ -382,6 +421,7 @@ describe('getThemeStyles', () => {
 					{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 					{ id: 'shape', attrs: { 'data-theme': 'shape' } },
 					{ id: 'typography', attrs: { 'data-theme': 'typography' } },
+					{ id: 'motion', attrs: { 'data-theme': 'motion' } },
 				]);
 			},
 			() => {
@@ -389,7 +429,9 @@ describe('getThemeStyles', () => {
 					expect(getThemeData(results)).toEqual([
 						{ id: 'light', attrs: { 'data-theme': 'light' } },
 						{ id: 'light-future', attrs: { 'data-theme': 'light-future' } },
+						{ id: 'UNSAFE-test-light', attrs: { 'data-theme': 'UNSAFE-test-light' } },
 						{ id: 'dark', attrs: { 'data-theme': 'dark' } },
+						{ id: 'UNSAFE-test-dark', attrs: { 'data-theme': 'UNSAFE-test-dark' } },
 						{ id: 'dark-future', attrs: { 'data-theme': 'dark-future' } },
 						{ id: 'spacing', attrs: { 'data-theme': 'spacing' } },
 						{ id: 'shape', attrs: { 'data-theme': 'shape' } },
@@ -404,8 +446,8 @@ describe('getThemeStyles', () => {
 					// Check that CSS is defined for each result
 					// Regular expression to find the --ds-text variable and its value
 					results.forEach((result) => {
-						const id = result.id;
-						const css = result.css;
+						const { id } = result;
+						const { css } = result;
 						expect(css).toBeDefined();
 						if (mainThemes.includes(id)) {
 							verify(css, id);

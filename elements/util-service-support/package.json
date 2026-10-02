@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/util-service-support",
-	"version": "6.3.5",
+	"version": "7.4.1",
 	"description": "A library of support classes for integrating React components with REST HTTP services",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,22 +12,25 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
+		"./extractTracingHeaders": "./src/extractTracingHeaders.ts",
+		"./multipartServiceUtils": "./src/multipartServiceUtils.ts",
 		"./serviceResources": "./src/serviceResources.ts",
 		"./serviceUtils": "./src/serviceUtils.ts",
-		"./types": "./src/types.ts"
+		"./requestService": "./src/requestService.ts",
+		"./types": "./src/types.ts",
+		"./constants": "./src/constants.ts"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Build Infra"
 	},
 	"config": {
@@ -35,6 +38,7 @@
 	},
 	"dependencies": {
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/react-ufo": "workspace:^",
 		"@babel/runtime": "root:*",
 		"meros": "root:*"
@@ -49,10 +53,5 @@
 		"ui",
 		"private"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"tree-shaking": []
-		}
-	},
 	"platform-feature-flags": {}
 }

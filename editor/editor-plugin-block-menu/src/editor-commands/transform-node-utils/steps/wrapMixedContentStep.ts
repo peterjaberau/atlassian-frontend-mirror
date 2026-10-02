@@ -1,5 +1,9 @@
-import type { Node as PMNode, NodeType, Schema } from '@atlaskit/editor-prosemirror/model';
+import { getDefaultCodeBlockAttrs } from '@atlaskit/editor-common/code-block';
+import { breakoutResizableNodes, getBreakoutResizableNodes } from '@atlaskit/editor-common/utils';
+import type { Mark, Node as PMNode, NodeType, Schema } from '@atlaskit/editor-prosemirror/model';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { removeDisallowedMarks } from '../marks';
 import type { TransformStep, NodeTypeName } from '../types';
@@ -8,11 +12,13 @@ import { convertTextNodeToParagraph, createTextContent, isTextNode } from '../ut
 
 /**
  * Creates a layout section with two columns, where the first column contains the provided content.
+ * Preserves breakout marks if provided.
  */
 const createLayoutSection = (
 	content: PMNode[],
 	layoutSection: NodeType,
 	layoutColumn: NodeType,
+	marks?: readonly Mark[],
 ): PMNode | null => {
 	const columnOne = layoutColumn.createAndFill({}, removeDisallowedMarks(content, layoutColumn));
 	const columnTwo = layoutColumn.createAndFill();
@@ -21,7 +27,7 @@ const createLayoutSection = (
 		return null;
 	}
 
-	return layoutSection.createAndFill({}, [columnOne, columnTwo]);
+	return layoutSection.createAndFill({}, [columnOne, columnTwo], marks);
 };
 
 /**
@@ -34,7 +40,8 @@ const createTextContentContainer = (
 ): PMNode | null => {
 	const textContent = textContentArray.join('\n');
 	const textNode = textContent ? schema.text(textContent) : null;
-	return targetNodeType.createAndFill({}, textNode);
+	const attrs = targetNodeType.name === 'codeBlock' ? getDefaultCodeBlockAttrs() : {};
+	return targetNodeType.createAndFill(attrs, textNode);
 };
 
 /**
@@ -44,7 +51,9 @@ const createNodeContentContainer = (
 	nodeContent: PMNode[],
 	targetNodeType: NodeType,
 ): PMNode | null => {
-	return targetNodeType.createAndFill({}, nodeContent);
+	const isExpandType = targetNodeType.name === 'expand' || targetNodeType.name === 'nestedExpand';
+	const nodeAttrs = isExpandType ? { localId: crypto.randomUUID() } : {};
+	return targetNodeType.createAndFill(nodeAttrs, nodeContent);
 };
 
 /**
@@ -90,7 +99,9 @@ const handleEmptyContainerEdgeCase = (
 	}
 
 	const emptyParagraph = schema.nodes.paragraph.create();
-	const emptyContainer = targetNodeType.create({}, emptyParagraph);
+	const isExpandType = targetNodeTypeName === 'expand' || targetNodeTypeName === 'nestedExpand';
+	const emptyContainerAttrs = isExpandType ? { localId: crypto.randomUUID() } : {};
+	const emptyContainer = targetNodeType.create(emptyContainerAttrs, emptyParagraph);
 	return [emptyContainer, ...result];
 };
 
@@ -143,6 +154,30 @@ export const wrapMixedContentStep: TransformStep = (nodes, context) => {
 	const isCodeblock = targetNodeTypeName === 'codeBlock';
 	const { layoutSection, layoutColumn } = schema.nodes;
 
+	let breakoutResizableNodesList: string[] = [];
+	if (isExperimentEnabled('platform_editor_lovability_resize_extensions')) {
+		breakoutResizableNodesList = getBreakoutResizableNodes();
+		// rule is NOT a supported transform source/target
+		breakoutResizableNodesList = breakoutResizableNodesList.filter((node) => node !== 'rule');
+	} else {
+		breakoutResizableNodesList = expValEquals(
+			'platform_editor_lovability_resize_dividers_panels',
+			'isEnabled',
+			true,
+		)
+			? [...breakoutResizableNodes, 'panel']
+			: breakoutResizableNodes;
+	}
+
+	const sourceSupportsBreakout = breakoutResizableNodesList.includes(fromNode.type.name);
+	const targetSupportsBreakout = breakoutResizableNodesList.includes(targetNodeTypeName);
+	const shouldPreserveBreakout = sourceSupportsBreakout && targetSupportsBreakout;
+
+	let breakoutMark: Mark | undefined;
+	if (shouldPreserveBreakout) {
+		breakoutMark = fromNode.marks.find((mark) => mark.type.name === 'breakout');
+	}
+
 	const result: PMNode[] = [];
 	let currentContainerContent: Array<PMNode | string> = [];
 	let hasCreatedContainer = false;
@@ -159,6 +194,7 @@ export const wrapMixedContentStep: TransformStep = (nodes, context) => {
 				currentContainerContent as PMNode[],
 				layoutSection,
 				layoutColumn,
+				breakoutMark ? [breakoutMark] : undefined,
 			);
 		} else if (isCodeblock) {
 			container = createTextContentContainer(
@@ -223,7 +259,7 @@ export const wrapMixedContentStep: TransformStep = (nodes, context) => {
 		}
 
 		// All other nodes that cannot be wrapped in the target node - break out
-		// Examples: same-type containers, tables in panels, layoutSections in layouts
+		// Examples: same-type containers, layoutSections in layouts
 		handleUnsupportedNode(node);
 	};
 

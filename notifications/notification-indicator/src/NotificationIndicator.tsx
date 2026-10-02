@@ -1,7 +1,7 @@
 import React from 'react';
 import { Component } from 'react';
 
-import Badge from '@atlaskit/badge';
+import Badge from '@atlaskit/badge/badge';
 import { type NotificationLogProvider } from '@atlaskit/notification-log-client';
 
 const MAX_NOTIFICATIONS_COUNT: number = 9;
@@ -24,7 +24,27 @@ export interface ValueUpdatedParams {
 }
 
 export interface Props {
-	appearance?: 'added' | 'default' | 'important' | 'primary' | 'primaryInverted' | 'removed';
+	appearance?: // Legacy Badge appearances (still supported for backwards compatibility):
+		| 'added'
+		| 'default'
+		| 'important'
+		| 'primary'
+		| 'primaryInverted'
+		| 'removed'
+		// New semantic Badge appearances:
+		| 'success'
+		| 'neutral'
+		| 'information'
+		| 'inverse'
+		| 'danger'
+		| 'warning'
+		| 'discovery'
+		// New bold semantic Badge appearances:
+		| 'successBold'
+		| 'informationBold'
+		| 'dangerBold'
+		| 'warningBold'
+		| 'discoveryBold';
 	createAnalyticsEvent?: any;
 	max?: number;
 	notificationLogProvider: Promise<NotificationLogProvider>;
@@ -46,7 +66,7 @@ class NotificationIndicator extends Component<Props, State> {
 	private notificationLogProvider?: NotificationLogProvider;
 
 	static defaultProps: Partial<Props> = {
-		appearance: 'important',
+		appearance: 'dangerBold',
 		max: MAX_NOTIFICATIONS_COUNT,
 		refreshRate: 0,
 		refreshOnHidden: false,

@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { useMessages } from '../services/use-messages';
 import { useSafeIntl } from '../services/use-safe-intl';
-
 import { type IntlMessagesProviderProps } from './types';
 
 export default function IntlMessagesProvider({
@@ -17,12 +16,12 @@ export default function IntlMessagesProvider({
 
 	/**
 	 * IntlProvider does not inherit from upstream IntlProviders,
-	 * we lookup messages in the context and pass them downstream
-	 * This prevents the missing messages error
+	 * we lookup messages in the Intl context (via useSafeIntl) and pass them downstream
+	 * This prevents the missing messages error.
 	 */
 	const mergedMessages = useMemo(() => {
 		return { ...defaultMessages, ...intl.messages, ...messages };
-	}, [intl, messages, defaultMessages]);
+	}, [intl.messages, messages, defaultMessages]);
 
 	return (
 		<IntlProvider

@@ -1,38 +1,41 @@
+// eslint-disable-line no-console
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+
+import React from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-// eslint-disable-line no-console
-import React from 'react';
-import { atlassianLogoUrl, tallImage, wideTransparentImage } from '@atlaskit/media-test-helpers';
-import { token } from '@atlaskit/tokens';
-import { Checkbox } from '@atlaskit/checkbox';
-import Select from '@atlaskit/select';
-import DownloadIcon from '@atlaskit/icon/core/download';
+import { IntlProvider } from 'react-intl';
+
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import TrashIcon from '@atlaskit/icon/core/delete';
+import DownloadIcon from '@atlaskit/icon/core/download';
 import EditIcon from '@atlaskit/icon/core/edit';
-import { type CardAction, type CardStatus } from '../src';
-import { CardView } from '../src/card/cardView';
 import { type FileDetails, type MediaType } from '@atlaskit/media-client';
-import { IntlProvider } from 'react-intl-next';
-import { Y75 } from '@atlaskit/theme/colors';
+import { atlassianLogoUrl, tallImage, wideTransparentImage } from '@atlaskit/media-test-helpers';
+import Select from '@atlaskit/select/default';
+import { token } from '@atlaskit/tokens';
+
 import { MainWrapper, mediaCardErrorState } from '../example-helpers';
 import { CardViewWrapper } from '../example-helpers/cardViewWrapper';
+import { type CardAction, type CardStatus } from '../src';
+import { CardView } from '../src/card/cardView';
 
 const dimensions = { width: '100%', height: '100%' };
 
 const checkboxesContainerStyles = css({
 	display: 'flex',
 	justifyContent: 'center',
-	marginTop: token('space.250', '20px'),
+	marginTop: token('space.250'),
 	alignItems: 'center',
 });
 
 // eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
 const styledTableStyles = css({
-	margin: `${token('space.400', '32px')} auto ${token('space.0', '0px')} auto`,
+	margin: `${token('space.400')} auto ${token('space.0')} auto`,
 	maxWidth: '1100px',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'thead *': {
@@ -40,7 +43,7 @@ const styledTableStyles = css({
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'td, th': {
-		padding: token('space.0', '0px'),
+		padding: token('space.0'),
 	},
 });
 
@@ -71,9 +74,11 @@ interface State {
 	shouldRenderCard: boolean;
 	withBgColorAndIcon: boolean;
 	withTransparency: boolean;
+	isAIGenerating: boolean;
 	error: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 class Example extends React.Component<{}, State> {
 	state: State = {
 		disableOverlay: false,
@@ -88,6 +93,7 @@ class Example extends React.Component<{}, State> {
 		shouldRenderCard: true,
 		withBgColorAndIcon: false,
 		withTransparency: false,
+		isAIGenerating: false,
 		error: '',
 	};
 
@@ -214,6 +220,13 @@ class Example extends React.Component<{}, State> {
 							onChange={this.onCheckboxChange}
 							name="withTransparency"
 						/>
+						<Checkbox
+							value="isAIGenerating"
+							label="Is AI generating?"
+							isChecked={this.state.isAIGenerating}
+							onChange={this.onCheckboxChange}
+							name="isAIGenerating"
+						/>
 					</div>
 					<table css={styledTableStyles}>
 						<thead>
@@ -304,6 +317,7 @@ class Example extends React.Component<{}, State> {
 			isExternalImage,
 			withBgColorAndIcon,
 			withTransparency,
+			isAIGenerating,
 			error,
 		} = this.state;
 		const actions: CardAction[] = [
@@ -354,11 +368,12 @@ class Example extends React.Component<{}, State> {
 					status={status}
 					mediaItemType="file"
 					metadata={withMetadata ? metadata : undefined}
-					onClick={(e: React.MouseEvent) => {
+					onClick={(_e: React.MouseEvent) => {
 						setSelected(!selected);
 						console.log('mouse click!');
 					}}
-					onMouseEnter={(e: React.MouseEvent) => console.log('mouse enter!')}
+					onMouseEnter={(_e: React.MouseEvent) => console.log('mouse enter!')}
+					onFocus={(_e: React.FocusEvent) => console.log('focus!')}
 					resizeMode="crop"
 					progress={0.5}
 					disableOverlay={disableOverlay}
@@ -367,8 +382,9 @@ class Example extends React.Component<{}, State> {
 					actions={hasActions ? actions : []}
 					cardPreview={dataURI ? { dataURI, source: 'remote' } : undefined}
 					dimensions={dimensions}
-					titleBoxBgColor={withBgColorAndIcon ? Y75 : undefined}
+					titleBoxBgColor={withBgColorAndIcon ? '#FFF0B3' : undefined}
 					titleBoxIcon={withBgColorAndIcon ? 'LockFilledIcon' : undefined}
+					isAIGenerating={isAIGenerating}
 					error={mediaCardErrorState(error)}
 					identifier={{
 						id: 'some-file-id',

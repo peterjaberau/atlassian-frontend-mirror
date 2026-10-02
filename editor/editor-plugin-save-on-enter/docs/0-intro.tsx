@@ -8,12 +8,12 @@ import { createEditorUseOnlyNotice } from './editor-use-only';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _default_1: any = md`
   ${createEditorUseOnlyNotice('Editor Plugin Save-on-enter', [
-	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
-])}
+		{ name: 'Editor Core', link: '/packages/editor/editor-core' },
+	])}
   ${(
 		<>
 			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-			<div style={{ marginTop: token('space.100', '8px') }}>
+			<div style={{ marginTop: token('space.100') }}>
 				<AtlassianInternalWarning />
 			</div>
 		</>
@@ -26,9 +26,9 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type Config = (editorView: EditorView) => void;
+export type Config = (editorView: EditorView) => void;
 
-export type SaveOnEnter = NextEditorPlugin<
+export type SaveOnEnterPlugin = NextEditorPlugin<
   'saveOnEnter',
   {
     pluginConfiguration: Config | undefined;

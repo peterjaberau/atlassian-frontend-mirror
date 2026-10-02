@@ -3,10 +3,9 @@ import Bowser from 'bowser-ultralight';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { INSM } from './insm';
-import type { AddedProperties, ExperienceProperties } from './types';
-
 import { PeriodTracking } from './insm-period';
 import { LongAnimationFrameMeasurer } from './session-measurers/LongAnimationFrameMeasurer';
+import type { AddedProperties, ExperienceProperties } from './types';
 
 /**
  * Only intended for internal use.
@@ -73,7 +72,17 @@ export class INSMSession {
 	/**
 	 * Returns details on the current session.
 	 */
-	get details() {
+	get details(): {
+		experienceKey: string;
+		experienceProperties: ExperienceProperties;
+		paused: boolean;
+		periodState: 'inactive' | 'active';
+		/**
+		 * The only scenario where this value should return false is when
+		 * the experience has been stopped early.
+		 */
+		running: boolean;
+	} {
 		return {
 			experienceKey: this.experienceKey,
 			experienceProperties: this.experienceProperties,
@@ -98,7 +107,7 @@ export class INSMSession {
 	 * insm.session.addProperties('custom:lcm', true)
 	 * ```
 	 */
-	setProperty(key: string, value: number | string | boolean) {
+	setProperty(key: string, value: number | string | boolean): void {
 		this.staticProperties[key] = value;
 	}
 
@@ -203,7 +212,7 @@ export class INSMSession {
 							longScripts: this.longAnimationFrameMeasurer.current,
 							pageLoadTime: this.pageLoadTime,
 							deviceDetails: getDeviceDetails(),
-					  }
+						}
 					: {}),
 				// these health attributes drive our SLOs
 				healthAFPS: periodResults.active.measurements.afps?.average

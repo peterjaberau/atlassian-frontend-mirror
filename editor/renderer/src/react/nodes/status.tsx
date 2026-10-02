@@ -1,21 +1,58 @@
 import React, { memo } from 'react';
-import { Status as AkStatus, type Color } from '@atlaskit/status/element';
-import { FabricElementsAnalyticsContext } from '@atlaskit/analytics-namespaced-context';
-import { fg } from '@atlaskit/platform-feature-flags';
-import {
-	useInlineAnnotationProps,
-	type MarkDataAttributes,
-} from '../../ui/annotations/element/useInlineAnnotationProps';
+
+import { FabricElementsAnalyticsContext } from '@atlaskit/analytics-namespaced-context/FabricElementsAnalyticsContext';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Status as AkStatus } from '@atlaskit/status/element';
+import type { Color } from '@atlaskit/status/element';
+
+import { useInlineAnnotationProps } from '../../ui/annotations/element/useInlineAnnotationProps';
+import type { MarkDataAttributes } from '../../ui/annotations/element/useInlineAnnotationProps';
+
+const ANALYTICS_DATA = { userContext: 'document' };
 
 export interface Props extends MarkDataAttributes {
 	color: Color;
 	localId?: string;
+	style?: string;
 	text: string;
 }
 
-export default memo(function Status(props: Props) {
-	const { text, color, localId } = props;
+const _default_1: React.NamedExoticComponent<Props> = memo(function Status(props: Props) {
+	const { text, color, style, localId } = props;
 	const inlineAnnotationProps = useInlineAnnotationProps(props);
+
+	if (fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
+		if (fg('editor_inline_comments_on_inline_nodes')) {
+			return (
+				<span
+					// Ignored via go/ees005
+					// eslint-disable-next-line react/jsx-props-no-spreading
+					{...inlineAnnotationProps}
+					role={'emphasis'}
+				>
+					<FabricElementsAnalyticsContext data={ANALYTICS_DATA}>
+						<AkStatus
+							text={style === 'mixedCase' ? text : text.toUpperCase()}
+							color={color}
+							localId={localId}
+							role={undefined}
+						/>
+					</FabricElementsAnalyticsContext>
+				</span>
+			);
+		}
+
+		return (
+			<FabricElementsAnalyticsContext data={ANALYTICS_DATA}>
+				<AkStatus
+					text={style === 'mixedCase' ? text : text.toUpperCase()}
+					color={color}
+					localId={localId}
+					role={undefined}
+				/>
+			</FabricElementsAnalyticsContext>
+		);
+	}
 
 	if (fg('editor_inline_comments_on_inline_nodes')) {
 		return (
@@ -26,17 +63,12 @@ export default memo(function Status(props: Props) {
 				role={'emphasis'}
 			>
 				<FabricElementsAnalyticsContext
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					data={{
 						userContext: 'document',
 					}}
 				>
-					<AkStatus
-						text={text}
-						color={color}
-						localId={localId}
-						role={undefined}
-						isBold={fg('platform-component-visual-refresh')}
-					/>
+					<AkStatus text={text} color={color} localId={localId} role={undefined} isBold={true} />
 				</FabricElementsAnalyticsContext>
 			</span>
 		);
@@ -44,18 +76,15 @@ export default memo(function Status(props: Props) {
 
 	return (
 		<FabricElementsAnalyticsContext
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			data={{
 				userContext: 'document',
 			}}
 		>
 			<span role="emphasis">
-				<AkStatus
-					text={text}
-					color={color}
-					localId={localId}
-					isBold={fg('platform-component-visual-refresh')}
-				/>
+				<AkStatus text={text} color={color} localId={localId} isBold={true} />
 			</span>
 		</FabricElementsAnalyticsContext>
 	);
 });
+export default _default_1;

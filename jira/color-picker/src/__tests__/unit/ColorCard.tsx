@@ -1,7 +1,10 @@
-import { fg } from '@atlaskit/platform-feature-flags';
-import { render } from '@testing-library/react';
-import ColorCard, { type Props } from '../../components/ColorCard';
 import React from 'react';
+
+import { render } from '@testing-library/react';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import ColorCard, { type Props } from '../../components/ColorCard';
 import { COLOR_PALETTE_MENU, COLOR_PICKER } from '../../constants';
 
 const defaultProps: Props = {
@@ -11,12 +14,12 @@ const defaultProps: Props = {
 	selected: false,
 };
 
-jest.mock('@atlaskit/platform-feature-flags');
+jest.mock('@atlaskit/platform-feature-flags/fg');
 const mockGetBooleanFG = fg as jest.MockedFunction<typeof fg>;
 
 describe('ColorCard', () => {
 	beforeEach(() => {
-		mockGetBooleanFG.mockReturnValue(true);
+		mockGetBooleanFG.mockImplementation((flag: string) => flag !== 'platform-dst-top-layer');
 	});
 
 	it('should report a11y violations when inside menu in color palette', async () => {

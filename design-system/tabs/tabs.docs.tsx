@@ -1,0 +1,54 @@
+import type { StructuredContentSource } from '@atlassian/structured-docs-types/types';
+
+const documentation: StructuredContentSource = {
+	components: [
+		{
+			name: 'Tabs',
+			description:
+				'Tabs are used to organize content by grouping similar information on the same page.',
+			status: 'general-availability',
+			import: {
+				name: 'Tabs',
+				package: '@atlaskit/tabs/tabs',
+				type: 'default',
+				packagePath: __dirname,
+				packageJson: require('./package.json'),
+			},
+			usageGuidelines: [
+				'Use to organize related content on the same page without navigating away',
+				'Use for concise content or content users access regularly',
+				'Limit the number of tabs to avoid overcrowding',
+				'Keep tab labels concise and descriptive',
+				'Use consistent tab ordering and grouping',
+				'Consider responsive behavior for many tabs',
+			],
+			contentGuidelines: [
+				'Write clear, descriptive tab labels',
+				'Group related content logically',
+				'Use consistent naming conventions',
+				'Ensure tab content is relevant and complete',
+			],
+			accessibilityGuidelines: [
+				'Ensure proper keyboard navigation between tabs',
+				'Use appropriate ARIA attributes for tab panels',
+				'Provide clear focus indicators',
+				'Announce tab changes to screen readers',
+				'Ensure tab content is accessible',
+			],
+			designSource: {
+				figmaUrl: 'https://go.atlassian.com/figma-library-ads-5775-8556',
+			},
+			examples: [
+				{
+					name: 'Tabs',
+					description: 'Tabs example',
+					source: `${__dirname}/examples/ai/tabs.tsx`,
+				},
+			],
+			keywords: ['tabs', 'navigation', 'content', 'organization', 'grouping'],
+			categories: ['navigation'],
+		},
+	],
+};
+
+export default documentation;

@@ -1,7 +1,13 @@
 import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 
 import { ActionsBarWrapper } from '../actionsBarWrapper';
+
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
+	fg: jest.fn().mockReturnValue(false),
+}));
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Actions Bar Styles', () => {

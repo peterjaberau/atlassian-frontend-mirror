@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - TileProps
  *
- * @codegen <<SignedSource::8b1e13d93e3348f59fa7b79a0da227aa>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/tile/__generated__/index.partial.tsx <<SignedSource::d7ec62556fa495888b1d4326b71c4d52>>
+ * @codegen <<SignedSource::7ec84742b9b6ddfe9f8af867e44ce3ce>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/tile/__generated__/index.partial.tsx <<SignedSource::394b39ce6d4f27a1d77644353c10770a>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import PlatformTile from '@atlaskit/tile';
+import PlatformTile from '@atlaskit/tile/tile';
 
 type PlatformTileProps = React.ComponentProps<typeof PlatformTile>;
 

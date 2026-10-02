@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 
-import { Editor } from '../../../../index';
-
-import adf from './tall-image-local.json';
-
 // eslint-disable-next-line
 import type { EditorAppearance } from '@atlaskit/editor-common/types';
+
+import { Editor } from '../../../../index';
+import adf from './tall-image-local.json';
 
 export function EditorFullWidth(): React.JSX.Element {
 	const [appearance, setApperance] = useState('full-page');
@@ -28,6 +27,7 @@ export function EditorFullWidth(): React.JSX.Element {
 	);
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function EditorFullPage(): React.JSX.Element {
 	const [appearance, setApperance] = useState('full-width');
 

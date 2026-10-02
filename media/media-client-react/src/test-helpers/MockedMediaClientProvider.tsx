@@ -5,7 +5,8 @@ import {
 	MediaClient,
 	type MediaClientConfig,
 } from '@atlaskit/media-client';
-import { createMediaStore, type MediaStore } from '@atlaskit/media-state';
+import { createMediaStore } from '@atlaskit/media-state/create-media-store';
+import type { MediaStore } from '@atlaskit/media-state/media-store';
 
 import { MediaClientContext } from '../MediaClientProvider';
 
@@ -14,10 +15,15 @@ export interface MockedMediaClientProviderProps {
 	mockedMediaApi: Partial<MediaApi>;
 	mediaStore?: MediaStore;
 	mediaClientConfig?: Partial<MediaClientConfig>;
+	mockGetClientId?: (collectionName?: string) => Promise<string | undefined>;
 }
 
 export const mockedMediaClientConfig = {
-	authProvider: async () => {
+	authProvider: async (): Promise<{
+		clientId: string;
+		token: string;
+		baseUrl: string;
+	}> => {
 		return {
 			clientId: 'MockedMediaClientProvider-client-id',
 			token: 'MockedMediaClientProvider-token',
@@ -31,6 +37,7 @@ export const MockedMediaClientProvider = ({
 	mediaStore,
 	mockedMediaApi,
 	mediaClientConfig,
+	mockGetClientId,
 }: MockedMediaClientProviderProps): React.JSX.Element => {
 	// WARNING: when mediaStore is updated externally, it gets out of sync with FileStreamCache. This resutls in unexpected behaviour.
 	const currentStore = useMemo(() => mediaStore || createMediaStore(), [mediaStore]);
@@ -39,10 +46,18 @@ export const MockedMediaClientProvider = ({
 		[mediaClientConfig],
 	);
 
-	const mediaClient = useMemo(
-		() => new MediaClient(resolvedMediaClientConfig, currentStore, mockedMediaApi as MediaApi),
-		[mockedMediaApi, currentStore, resolvedMediaClientConfig],
-	);
+	const mediaClient = useMemo(() => {
+		const client = new MediaClient(
+			resolvedMediaClientConfig,
+			currentStore,
+			mockedMediaApi as MediaApi,
+		);
+		// Override getClientId if mock is provided
+		if (mockGetClientId) {
+			client.getClientId = mockGetClientId;
+		}
+		return client;
+	}, [mockedMediaApi, currentStore, resolvedMediaClientConfig, mockGetClientId]);
 
 	return <MediaClientContext.Provider value={mediaClient}>{children}</MediaClientContext.Provider>;
 };

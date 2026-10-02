@@ -1,27 +1,81 @@
+import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
+import {
+	ACTION,
+	ACTION_SUBJECT,
+	EVENT_TYPE,
+	INPUT_METHOD,
+} from '@atlaskit/editor-common/analytics';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import { createSelectionClickHandler } from '@atlaskit/editor-common/selection';
+import {
+	createSelectionClickHandler,
+	GapCursorSelection,
+	Side,
+} from '@atlaskit/editor-common/selection';
 import type { Command } from '@atlaskit/editor-common/types';
 import { filterCommand as filter } from '@atlaskit/editor-common/utils';
 import { keydownHandler } from '@atlaskit/editor-prosemirror/keymap';
-import { Fragment, type Node } from '@atlaskit/editor-prosemirror/model';
+import type { Node } from '@atlaskit/editor-prosemirror/model';
+import { Fragment } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection, Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import {
 	findParentNodeClosestToPos,
 	findParentNodeOfType,
 } from '@atlaskit/editor-prosemirror/utils';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { LayoutPluginOptions } from '../types';
-
-import { fixColumnSizes, fixColumnStructure, getSelectedLayout } from './actions';
+import type { ToggleLayoutColumnMenuOptions } from './actions';
+import {
+	fixColumnSizes,
+	fixColumnStructure,
+	getSelectedLayout,
+	LAYOUT_COLUMN_INSERT_META,
+} from './actions';
+import { getColumnDividerDecorations } from './column-resize-divider';
 import { EVEN_DISTRIBUTED_COL_WIDTHS } from './consts';
 import { pluginKey } from './plugin-key';
+import { pluginKey as layoutResizingPluginKey } from './resizing';
 import type { Change, LayoutState } from './types';
-import { getMaybeLayoutSection } from './utils';
+import {
+	getGapCursorTargetForBlankSpaceClick,
+	getMaybeLayoutSection,
+	isParagraphBlankSpaceTarget,
+} from './utils';
+import { getSelectedLayoutColumnsFromSelection } from './utils/layout-column-selection';
 
 export const DEFAULT_LAYOUT = 'two_equal';
+
+/**
+ * Shared blank-space gap cursor placement, used by both `handleClick` and `handleClickOn`
+ * (the latter catches clicks on atomic node views that stop propagation before `handleClick`).
+ * Returns `true` when it placed a selection and consumed the click, else `false`.
+ */
+const applyBlankSpaceGapCursor = (view: EditorView, event: MouseEvent): boolean => {
+	if (!editorExperiment('advanced_layouts', true)) {
+		return false;
+	}
+	const gapTarget = getGapCursorTargetForBlankSpaceClick(view, event);
+	if (gapTarget === undefined) {
+		return false;
+	}
+	const $pos = view.state.doc.resolve(gapTarget.pos);
+	// A paragraph child takes a TextSelection (caret at the edge) rather than a gap cursor.
+	const isParagraphTarget = isParagraphBlankSpaceTarget(view, gapTarget);
+	const nextSelection = isParagraphTarget
+		? TextSelection.near($pos, gapTarget.side === 'left' ? 1 : -1)
+		: new GapCursorSelection($pos, gapTarget.side === 'left' ? Side.LEFT : Side.RIGHT);
+	// Idempotency guard: `mousedown` already placed this selection, but the browser still
+	// fires `mouseup`, so `handleClick`/`handleClickOn` re-run for the same click. Consume it
+	// without re-dispatching (which would add a redundant undo entry).
+	if (view.state.selection.eq(nextSelection)) {
+		return true;
+	}
+	view.dispatch(view.state.tr.setSelection(nextSelection).scrollIntoView());
+	return true;
+};
 
 const isWholeSelectionInsideLayoutColumn = (state: EditorState): boolean => {
 	// Since findParentNodeOfType doesn't check if selection.to shares the parent, we do this check ourselves
@@ -63,6 +117,16 @@ const getNodeDecoration = (pos: number, node: Node) => [
 	Decoration.node(pos, pos + node.nodeSize, { class: 'selected' }),
 ];
 
+const getDangerPreviewDecorations = (state: EditorState, positions: number[] | undefined) =>
+	positions?.flatMap((pos) => {
+		const node = state.doc.nodeAt(pos);
+		if (!node) {
+			return [];
+		}
+
+		return [Decoration.node(pos, pos + node.nodeSize, { class: 'layout-column-danger-preview' })];
+	}) ?? [];
+
 const getInitialPluginState = (options: LayoutPluginOptions, state: EditorState): LayoutState => {
 	const maybeLayoutSection = getMaybeLayoutSection(state);
 	const allowBreakout = options.allowBreakout || false;
@@ -80,7 +144,100 @@ const getInitialPluginState = (options: LayoutPluginOptions, state: EditorState)
 		selectedLayout,
 		allowSingleColumnLayout,
 		isResizing: false,
+		isLayoutColumnMenuOpen: false,
+		layoutColumnMenuOpenedViaKeyboard: false,
+		layoutColumnMenuAnchorPos: undefined,
+		dangerPreviewLayoutColumnPositions: undefined,
 	};
+};
+
+const fireLayoutColumnMenuOpenedAnalytics = (
+	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+	state: EditorState,
+	openedViaKeyboard: boolean | undefined,
+) => {
+	const selectedLayoutColumnsResult = getSelectedLayoutColumnsFromSelection(state.selection);
+	if (!selectedLayoutColumnsResult) {
+		return;
+	}
+
+	const { layoutSectionNode, selectedLayoutColumns, startIndex, endIndex } =
+		selectedLayoutColumnsResult;
+	editorAnalyticsAPI?.fireAnalyticsEvent({
+		action: ACTION.OPENED,
+		actionSubject: ACTION_SUBJECT.LAYOUT_COLUMN_MENU,
+		attributes: {
+			columnCount: layoutSectionNode.childCount,
+			endIndex,
+			inputMethod: openedViaKeyboard ? INPUT_METHOD.KEYBOARD : INPUT_METHOD.MOUSE,
+			selectedCount: selectedLayoutColumns.length,
+			startIndex,
+		},
+		eventType: EVENT_TYPE.UI,
+	});
+};
+
+type LayoutColumnMenuStateAction =
+	| { meta: ToggleLayoutColumnMenuOptions; type: 'toggleLayoutColumnMenu' }
+	| { positions: number[] | undefined; type: 'setDangerPreview' }
+	| { type: 'clearDangerPreview' }
+	| { isResizing: boolean; type: 'setResizeState' }
+	| { state: EditorState; type: 'syncSelectionState' };
+
+const reduceLayoutColumnMenuState = (
+	pluginState: LayoutState,
+	action: LayoutColumnMenuStateAction,
+): LayoutState => {
+	switch (action.type) {
+		case 'toggleLayoutColumnMenu': {
+			const { anchorPos, isOpen, openedViaKeyboard } = action.meta;
+			// `isOpen` provided: use directly (legacy). Omitted: toggle off only when re-clicking
+			// the already-open column; otherwise open for the clicked column.
+			const isSameColumnAsOpenMenu =
+				pluginState.isLayoutColumnMenuOpen &&
+				anchorPos !== undefined &&
+				anchorPos === pluginState.layoutColumnMenuAnchorPos;
+			const nextIsOpen = isOpen ?? !isSameColumnAsOpenMenu;
+
+			return {
+				...pluginState,
+				isLayoutColumnMenuOpen: nextIsOpen,
+				layoutColumnMenuOpenedViaKeyboard: nextIsOpen ? (openedViaKeyboard ?? false) : false,
+				layoutColumnMenuAnchorPos: nextIsOpen ? anchorPos : undefined,
+				dangerPreviewLayoutColumnPositions: nextIsOpen
+					? pluginState.dangerPreviewLayoutColumnPositions
+					: undefined,
+			};
+		}
+		case 'setDangerPreview':
+			return {
+				...pluginState,
+				dangerPreviewLayoutColumnPositions: action.positions,
+			};
+		case 'clearDangerPreview':
+			return {
+				...pluginState,
+				dangerPreviewLayoutColumnPositions: undefined,
+			};
+		case 'setResizeState':
+			return {
+				...pluginState,
+				isResizing: action.isResizing,
+			};
+		case 'syncSelectionState': {
+			const maybeLayoutSection = getMaybeLayoutSection(action.state);
+			return {
+				...pluginState,
+				pos: maybeLayoutSection ? maybeLayoutSection.pos : null,
+				selectedLayout: getSelectedLayout(
+					maybeLayoutSection && maybeLayoutSection.node,
+					// Ignored via go/ees005
+					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+					pluginState.selectedLayout!,
+				),
+			};
+		}
+	}
 };
 
 // To prevent a single-column layout,
@@ -127,46 +284,129 @@ const handleDeleteLayoutColumn: Command = (state, dispatch) => {
 	return false;
 };
 
-export default (options: LayoutPluginOptions) =>
-	new SafePlugin<LayoutState>({
+export default (
+	options: LayoutPluginOptions,
+	editorAnalyticsAPI?: EditorAnalyticsAPI,
+): SafePlugin<LayoutState> => {
+	// Store a reference to the EditorView so widget decorations can dispatch transactions
+	let editorViewRef: EditorView | undefined;
+
+	return new SafePlugin<LayoutState>({
 		key: pluginKey,
+		view(view) {
+			editorViewRef = view;
+			return {
+				update(updatedView) {
+					editorViewRef = updatedView;
+				},
+				destroy() {
+					editorViewRef = undefined;
+				},
+			};
+		},
 		state: {
 			init: (_, state): LayoutState => getInitialPluginState(options, state),
 
 			apply: (tr, pluginState, oldState, newState) => {
+				let nextPluginState = pluginState;
+				const columnMenuMeta = tr.getMeta('toggleLayoutColumnMenu') as
+					| ToggleLayoutColumnMenuOptions
+					| undefined;
+				const dangerPreviewMeta = tr.getMeta('layoutColumnDangerPreview') as
+					| number[]
+					| null
+					| undefined;
+
+				if (columnMenuMeta) {
+					const wasLayoutColumnMenuOpen = nextPluginState.isLayoutColumnMenuOpen;
+					nextPluginState = reduceLayoutColumnMenuState(nextPluginState, {
+						meta: columnMenuMeta,
+						type: 'toggleLayoutColumnMenu',
+					});
+					if (!wasLayoutColumnMenuOpen && nextPluginState.isLayoutColumnMenuOpen) {
+						fireLayoutColumnMenuOpenedAnalytics(
+							editorAnalyticsAPI,
+							newState,
+							columnMenuMeta.openedViaKeyboard,
+						);
+					}
+				}
+
+				if (tr.getMeta('layoutColumnDangerPreview') !== undefined) {
+					nextPluginState = reduceLayoutColumnMenuState(nextPluginState, {
+						positions: dangerPreviewMeta ?? undefined,
+						type: 'setDangerPreview',
+					});
+				}
+
+				if (tr.docChanged) {
+					nextPluginState = reduceLayoutColumnMenuState(nextPluginState, {
+						type: 'clearDangerPreview',
+					});
+				}
+
 				const isResizing = editorExperiment('single_column_layouts', true)
 					? (tr.getMeta('is-resizer-resizing') ?? pluginKey.getState(oldState)?.isResizing)
 					: false;
-				if (tr.docChanged || tr.selectionSet) {
-					const maybeLayoutSection = getMaybeLayoutSection(newState);
-
-					const newPluginState = {
-						...pluginState,
-						pos: maybeLayoutSection ? maybeLayoutSection.pos : null,
-						isResizing,
-						selectedLayout: getSelectedLayout(
-							maybeLayoutSection && maybeLayoutSection.node,
-							// Ignored via go/ees005
-							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-							pluginState.selectedLayout!,
-						),
-					};
-					return newPluginState;
-				}
-				return {
-					...pluginState,
+				nextPluginState = reduceLayoutColumnMenuState(nextPluginState, {
 					isResizing,
-				};
+					type: 'setResizeState',
+				});
+
+				if (tr.docChanged || tr.selectionSet) {
+					return reduceLayoutColumnMenuState(nextPluginState, {
+						state: newState,
+						type: 'syncSelectionState',
+					});
+				}
+
+				return nextPluginState;
 			},
 		},
 		props: {
 			decorations(state) {
 				const layoutState = pluginKey.getState(state) as LayoutState;
-				if (layoutState.pos !== null) {
-					return DecorationSet.create(
-						state.doc,
-						getNodeDecoration(layoutState.pos, state.doc.nodeAt(layoutState.pos) as Node),
+
+				const isLayoutResizingPluginAvailable = layoutResizingPluginKey.get(state) !== undefined;
+
+				if (editorExperiment('advanced_layouts', true) && isLayoutResizingPluginAvailable) {
+					const dividerDecorations = getColumnDividerDecorations(
+						state,
+						editorViewRef,
+						editorAnalyticsAPI,
 					);
+					const selectedDecorations =
+						layoutState.pos !== null
+							? getNodeDecoration(layoutState.pos, state.doc.nodeAt(layoutState.pos) as Node)
+							: [];
+					const dangerPreviewDecorations = getDangerPreviewDecorations(
+						state,
+						layoutState.dangerPreviewLayoutColumnPositions,
+					);
+					const allDecorations = [
+						...selectedDecorations,
+						...dividerDecorations,
+						...dangerPreviewDecorations,
+					];
+					if (allDecorations.length > 0) {
+						return DecorationSet.create(state.doc, allDecorations);
+					}
+					return undefined;
+				}
+
+				const dangerPreviewDecorations = getDangerPreviewDecorations(
+					state,
+					layoutState.dangerPreviewLayoutColumnPositions,
+				);
+				if (layoutState.pos !== null || dangerPreviewDecorations.length > 0) {
+					const selectedDecorations =
+						layoutState.pos !== null
+							? getNodeDecoration(layoutState.pos, state.doc.nodeAt(layoutState.pos) as Node)
+							: [];
+					return DecorationSet.create(state.doc, [
+						...selectedDecorations,
+						...dangerPreviewDecorations,
+					]);
 				}
 				return undefined;
 			},
@@ -177,15 +417,56 @@ export default (options: LayoutPluginOptions) =>
 				Backspace: handleDeleteLayoutColumn,
 				Delete: handleDeleteLayoutColumn,
 			}),
-			handleClickOn: createSelectionClickHandler(
-				['layoutColumn'],
-				(target) =>
-					target.hasAttribute('data-layout-section') || target.hasAttribute('data-layout-column'),
-				{
-					useLongPressSelection: options.useLongPressSelection || false,
-					getNodeSelectionPos: (state, nodePos) => state.doc.resolve(nodePos).before(),
+			handleDOMEvents: {
+				// Place the gap cursor on `mousedown` (not `mouseup`) so the caret never flashes
+				// inside a nested editable child first.
+				mousedown(view, event: MouseEvent) {
+					const target = event.target as HTMLElement | null;
+					if (target?.hasAttribute('data-layout-section')) {
+						return false;
+					}
+					if (applyBlankSpaceGapCursor(view, event)) {
+						event.preventDefault();
+						// `preventDefault()` blocks the editor focus that makes the gap cursor blink,
+						// so restore it here. The `handleClick`/`handleClickOn` paths don't need this.
+						if (!view.hasFocus()) {
+							view.focus();
+						}
+						return true;
+					}
+					return false;
 				},
-			),
+			},
+			handleClickOn: (() => {
+				const selectionClickHandler = createSelectionClickHandler(
+					['layoutColumn'],
+					(target) =>
+						target.hasAttribute('data-layout-section') || target.hasAttribute('data-layout-column'),
+					{
+						useLongPressSelection: options.useLongPressSelection || false,
+						getNodeSelectionPos: (state, nodePos) => state.doc.resolve(nodePos).before(),
+					},
+				);
+				return (view, pos, node, nodePos, event, direct) => {
+					// Fallback for clicks on an atomic node view that the mousedown hook missed.
+					const target = event.target as HTMLElement | null;
+					if (
+						!target?.hasAttribute('data-layout-section') &&
+						applyBlankSpaceGapCursor(view, event)
+					) {
+						return true;
+					}
+					return selectionClickHandler(view, pos, node, nodePos, event, direct);
+				};
+			})(),
+			handleClick(view, _pos, event) {
+				// Fallback for clicks the mousedown interceptor missed.
+				const target = event.target as HTMLElement | null;
+				if (target?.hasAttribute('data-layout-section')) {
+					return false;
+				}
+				return applyBlankSpaceGapCursor(view, event);
+			},
 		},
 		appendTransaction: (transactions, _oldState, newState) => {
 			const changes: Change[] = [];
@@ -202,6 +483,17 @@ export default (options: LayoutPluginOptions) =>
 
 				// don't consider transactions that don't mutate
 				if (!prevTr.docChanged) {
+					return;
+				}
+
+				// Skip fixing column sizes for column resize drag transactions
+				if (prevTr.getMeta('layoutColumnResize')) {
+					return;
+				}
+
+				// Layout column insert actions already recalculate column widths and need their own
+				// selection mapping; avoid a follow-up normalisation transaction that can remap it.
+				if (prevTr.getMeta(LAYOUT_COLUMN_INSERT_META)) {
 					return;
 				}
 
@@ -249,3 +541,4 @@ export default (options: LayoutPluginOptions) =>
 			return;
 		},
 	});
+};

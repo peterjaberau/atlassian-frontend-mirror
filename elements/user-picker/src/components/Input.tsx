@@ -3,10 +3,14 @@
  * @jsx jsx
  */
 import React, { type AriaAttributes } from 'react';
-import { components, type OptionType, type SelectProps } from '@atlaskit/select';
-import { type AriaAttributesType } from '../types';
-import { token } from '@atlaskit/tokens';
+
 import { cssMap, jsx } from '@compiled/react';
+
+import { components } from '@atlaskit/react-select/components';
+import type { OptionType, SelectProps } from '@atlaskit/select/types';
+import { token } from '@atlaskit/tokens';
+
+import { type AriaAttributesType } from '../types';
 
 export type Props = {
 	ariaDescribedBy?: AriaAttributesType;
@@ -37,7 +41,6 @@ export class Input extends React.Component<Props & AriaAttributes> {
 		if (e.key === 'Enter') {
 			e.preventDefault();
 		}
-		//@ts-ignore react-select unsupported props
 		if (this.props.selectProps?.disableInput) {
 			e.preventDefault();
 		}
@@ -50,16 +53,30 @@ export class Input extends React.Component<Props & AriaAttributes> {
 	 * Placeholder and Input are linked not via label, aria-label or aria-labeledby, but through aria-describedby.
 	 * Basically in the getter we reassign Placeholder ID from aria-describedby to aria-labelledby
 	 * {@link https://github.com/JedWatson/react-select/issues/5651#issue-1731353197 GitHub}
+	 *
+	 * This reassignment should only apply when the input has no other accessible name.
 	 */
 	get ariaLabelledBy(): AriaAttributesType {
-		return this.props['aria-labelledby'] ?? this.props['aria-describedby'];
+		// A11Y-37267: An explicit aria-labelledby is a deliberate association with a visible label
+		// element and is the field's true accessible name (WCAG 2.5.3 Label in Name), so it always
+		// wins. Otherwise we promote aria-describedby -> aria-labelledby to work around
+		// react-select's placeholder linkage bug, but skip that promotion when the input already
+		// has an accessible name via aria-label so the description is announced via
+		// aria-describedby instead.
+		if (this.props['aria-labelledby']) {
+			return this.props['aria-labelledby'];
+		}
+		if (this.props['aria-label']) {
+			return undefined;
+		}
+		return this.props['aria-describedby'];
 	}
 
 	get ariaDescribedBy(): AriaAttributesType {
 		return this.props.selectProps?.['aria-describedby'] ?? this.props['aria-describedby'];
 	}
 
-	render() {
+	render(): JSX.Element {
 		return (
 			<components.Input
 				{...(this.props as any)}

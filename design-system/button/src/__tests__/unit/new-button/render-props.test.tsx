@@ -2,11 +2,13 @@ import React from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
 import { type IconProps } from '@atlaskit/icon/types';
 
-import { IconButton } from '../../../new';
+import IconButton from '../../../new-button/variants/icon/button';
 
 async function assertDropdownIsVisible(icon: HTMLElement) {
 	fireEvent.click(icon);

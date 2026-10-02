@@ -1,4 +1,4 @@
-import { handleAGGErrors } from '../client/errorUtils';
+import { handleAGGErrors } from '../client/handleAGGErrors';
 import TeamProfileCardClient from '../client/TeamProfileCardClient';
 import { type Team } from '../types';
 

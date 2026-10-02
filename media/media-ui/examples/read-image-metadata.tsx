@@ -1,6 +1,8 @@
 import React from 'react';
+
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import Page, { Grid, GridColumn } from '@atlaskit/page';
-import { readImageMetaData, getFileInfo, type ImageMetaData, getScaleFactor } from '../src';
+
 import {
 	InputWrapper,
 	PreviewList,
@@ -9,7 +11,10 @@ import {
 	Code,
 	CloseButton,
 } from '../example-helpers/styled';
-import Lozenge from '@atlaskit/lozenge';
+import { getFileInfo } from '../src/getFileInfo';
+import { getScaleFactor } from '../src/imageMetaData/getScaleFactor';
+import { readImageMetaData } from '../src/imageMetaData/readImageMetaData';
+import { type ImageMetaData } from '../src/imageMetaData/types';
 
 interface ExamplePreview {
 	filename: string;
@@ -95,7 +100,7 @@ class Example extends React.Component<object, ExampleState> {
 				<PreviewItem key={`preview-${i}`}>
 					<div>
 						<p>
-							filename: <Lozenge appearance="inprogress">{preview.filename}</Lozenge>
+							filename: <Lozenge appearance="information">{preview.filename}</Lozenge>
 						</p>
 						<p>
 							scaleFactor:{' '}

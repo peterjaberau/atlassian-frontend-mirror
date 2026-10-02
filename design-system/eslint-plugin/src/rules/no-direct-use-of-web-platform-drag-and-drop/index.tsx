@@ -1,13 +1,12 @@
 import { isNodeOfType, type Node } from 'eslint-codemod-utils';
 
-import { createLintRule } from '../utils/create-rule';
-
+import { createLintRule } from '../utils/create-lint-rule';
 import { isBlockedAddEventListener } from './checks/is-blocked-add-event-listener';
 import { isBlockedBind } from './checks/is-blocked-bind';
 import { isBlockedBindAll } from './checks/is-blocked-bind-all';
 import { isBlockedJSXAttribute } from './checks/is-blocked-jsx-attribute';
 
-const rule: import("eslint").Rule.RuleModule = createLintRule({
+const rule: import('eslint').Rule.RuleModule = createLintRule({
 	meta: {
 		name: 'no-direct-use-of-web-platform-drag-and-drop',
 		type: 'problem',

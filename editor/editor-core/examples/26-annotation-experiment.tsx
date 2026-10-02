@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AnnotationTypes } from '@atlaskit/adf-schema';
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import { AnnotationUpdateEmitter } from '@atlaskit/editor-common/annotation';
 import {
 	ExampleCreateInlineCommentComponent,
@@ -9,7 +9,6 @@ import {
 import { token } from '@atlaskit/tokens';
 
 import { exampleDocumentWithComments } from '../example-helpers/example-doc-with-comments';
-
 import { default as FullPageExample } from './5-full-page';
 
 const emitter = new AnnotationUpdateEmitter();
@@ -71,7 +70,11 @@ type State = {
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components, @typescript-eslint/no-explicit-any
 export default class ExampleAnnotationExperiment extends React.Component<any, State> {
-	state = {
+	state: {
+		annotationStates: Map<string, boolean>;
+		isDisallowOnWhiteSpaceEnabled: boolean;
+		isInlineCommentsEnabled: boolean;
+	} = {
 		isInlineCommentsEnabled: true,
 		isDisallowOnWhiteSpaceEnabled: false,
 		annotationStates: new Map([
@@ -94,7 +97,17 @@ export default class ExampleAnnotationExperiment extends React.Component<any, St
 		]),
 	};
 
-	inlineCommentGetState = async (annotationsIds: string[]) => {
+	inlineCommentGetState = async (
+		annotationsIds: string[],
+	): Promise<
+		{
+			annotationType: AnnotationTypes;
+			id: string;
+			state: {
+				resolved: boolean;
+			};
+		}[]
+	> => {
 		const { annotationStates } = this.state;
 		return annotationsIds.map((id) => ({
 			id,
@@ -160,7 +173,7 @@ export default class ExampleAnnotationExperiment extends React.Component<any, St
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			<div style={{ display: 'flex', height: '100%' }}>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<div style={{ flex: '20%', padding: token('space.200', '16px') }}>
+				<div style={{ flex: '20%', padding: token('space.200') }}>
 					<h3>Annotations</h3>
 					<button onClick={this.handleShowInlineComments}>Show inline comments</button>
 					<div>

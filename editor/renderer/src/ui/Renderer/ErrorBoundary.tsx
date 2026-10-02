@@ -1,13 +1,16 @@
 import React from 'react';
 
-import { ACTION, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
-import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
 import { FabricChannel } from '@atlaskit/analytics-listeners/types';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import { ACTION, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
 import { logException } from '@atlaskit/editor-common/monitoring';
+
 import type { ComponentCaughtDomErrorAEP, ComponentCrashErrorAEP } from '../../analytics/events';
 import { PLATFORM } from '../../analytics/events';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const FAILED_TO_EXECUTE_REGEX = /Failed to execute.*on 'Node'.*/;
 
 interface ErrorBoundaryProps {
 	additionalInfo?: string;
@@ -21,12 +24,13 @@ interface ErrorBoundaryProps {
 
 interface ErrorBoundaryState {
 	domError: boolean;
+	domErrorCount: number;
 	errorCaptured: boolean;
 }
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-	state = { errorCaptured: false, domError: false };
+	state = { errorCaptured: false, domError: false, domErrorCount: 0 };
 
 	private fireAnalyticsEvent(event: ComponentCrashErrorAEP | ComponentCaughtDomErrorAEP) {
 		const { createAnalyticsEvent } = this.props;
@@ -61,10 +65,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 			},
 		});
 		logException(error, { location: 'renderer' });
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		const pattern = /Failed to execute.*on 'Node'.*/;
-		const matchesPattern = pattern.test(error.message);
+		const matchesPattern = FAILED_TO_EXECUTE_REGEX.test(error.message);
 
 		if (matchesPattern) {
 			this.fireAnalyticsEvent({
@@ -77,8 +78,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 					errorMessage: `${additionalInfo}${error?.message}`,
 				},
 			});
-			this.setState(() => ({
+			this.setState((prevState) => ({
 				domError: true,
+				domErrorCount: prevState.domErrorCount + 1,
 			}));
 		}
 		if (this.hasFallback()) {
@@ -90,10 +92,16 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 		}
 	}
 
-	render() {
+	render():
+		| string
+		| number
+		| boolean
+		| Iterable<React.ReactNode>
+		| React.JSX.Element
+		| null
+		| undefined {
 		if (this.state.domError) {
-			// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-			return <React.Fragment key={uuid()}>{this.props.children}</React.Fragment>;
+			return <React.Fragment key={this.state.domErrorCount}>{this.props.children}</React.Fragment>;
 		}
 		if (this.shouldRecover()) {
 			return this.props.fallbackComponent;

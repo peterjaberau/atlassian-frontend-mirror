@@ -5,8 +5,8 @@
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { useThemeObserver } from '@atlaskit/tokens';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import type { IconSize } from './types';
 
@@ -252,7 +252,10 @@ export function IconWrapper({
 					: colorMode === 'dark'
 						? cloudDarkAppearanceMap[appearance]
 						: cloudLightAppearanceMap[appearance],
-				isAssets && appearance === 'brand' && fg('assets-platform-branding') && styles.TEMP_assets,
+				isAssets &&
+					appearance === 'brand' &&
+					(fg('assets-platform-branding') || fg('assets-platform-branding-v2')) &&
+					styles.TEMP_assets,
 			]}
 			data-testid={testId}
 			style={

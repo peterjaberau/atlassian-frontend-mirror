@@ -1,4 +1,5 @@
 import { type MediaType, type ImageResizeMode, type Identifier } from '@atlaskit/media-client';
+
 import { type CardPreview } from '../../../types';
 
 export type ImageRendererProps = {
@@ -14,5 +15,9 @@ export type ImageRendererProps = {
 	readonly wrapperRef: React.RefObject<HTMLDivElement>;
 	readonly identifier: Identifier;
 	readonly useWhiteBackground?: boolean;
+	// Overrides the background color of the rendered <img>. Applied as an inline style for both
+	// SVG and raster media. When set on an SVG, callers should also pass useWhiteBackground={false}
+	// so the default white background CSS class does not override the inline value.
+	readonly backgroundColor?: React.CSSProperties['backgroundColor'];
 	readonly testId?: string;
 };

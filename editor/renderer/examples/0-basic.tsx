@@ -1,8 +1,12 @@
-import React, { type ChangeEvent } from 'react';
-import RendererDemo from './helper/RendererDemo';
-import { SmartCardProvider, CardClient } from '@atlaskit/link-provider';
+import React from 'react';
+import type { ChangeEvent } from 'react';
+
 import { getSchemaBasedOnStage } from '@atlaskit/adf-schema/schema-default';
 import type { ADFStage } from '@atlaskit/editor-common/validator';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+
+import RendererDemo from './helper/RendererDemo';
 
 const ADF_STAGE0 = 'stage0';
 const ADF_FINAL = 'final';

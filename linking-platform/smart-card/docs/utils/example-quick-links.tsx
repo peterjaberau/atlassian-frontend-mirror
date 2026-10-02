@@ -1,7 +1,9 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import Button from '@atlaskit/button/default/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import VidFullScreenOnIcon from '@atlaskit/icon/core/fullscreen-enter';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
@@ -10,7 +12,7 @@ import { navigateToUrl, toExamplePath } from './index';
 
 const styles = xcss({ textAlign: 'right' });
 
-const ExampleQuickLinks = () => (
+const ExampleQuickLinks = (): React.JSX.Element => (
 	<Box paddingBlock="space.100" xcss={styles}>
 		<DropdownMenu<HTMLButtonElement>
 			shouldFlip

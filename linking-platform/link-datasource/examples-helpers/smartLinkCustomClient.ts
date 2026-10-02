@@ -1,6 +1,6 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { CardClient } from '@atlaskit/link-provider';
-import { APIError } from '@atlaskit/linking-common';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import CardClient from '@atlaskit/link-provider/client';
+import { APIError } from '@atlaskit/linking-common/api-error';
 
 import { mockJqlSmartLinkData } from './mockJqlSmartLinkData';
 import { mocks } from './mockSmartLinkData';
@@ -42,8 +42,8 @@ const mockedFetch = (url: string): Promise<JsonLd.Response> => {
 };
 
 class SmartLinkClient extends CardClient {
-	prefetchData = mockedFetch;
-	fetchData = mockedFetch;
+	prefetchData: (url: string) => Promise<JsonLd.Response> = mockedFetch;
+	fetchData: (url: string) => Promise<JsonLd.Response> = mockedFetch;
 }
 
 export default SmartLinkClient;

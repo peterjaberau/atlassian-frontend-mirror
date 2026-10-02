@@ -10,11 +10,9 @@ import {
 } from '../../__tests__/__helpers/mock-plugins';
 import { RECENT_SEARCH_LIST_SIZE } from '../../common/constants';
 import { type LinkPickerPlugin, type LinkPickerState } from '../../common/types';
-
+import { usePlugins } from './index';
 import * as reducer from './reducer';
 import { CancellationError, resolvePluginUpdates } from './utils';
-
-import { usePlugins } from './index';
 
 beforeEach(() => {
 	jest.restoreAllMocks();
@@ -104,7 +102,6 @@ describe('usePlugins', () => {
 				expect(result.current.items).not.toBeNull();
 				expect(result.current.items?.length).toEqual(RECENT_SEARCH_LIST_SIZE);
 			});
-
 		});
 
 		it('Should return available tabs and tabTitle', async () => {
@@ -214,8 +211,8 @@ describe('usePlugins', () => {
 			await promise.resolve();
 			act(() => {});
 
-			expect(resolve).toBeCalledTimes(1);
-			expect(dispatch).toBeCalledTimes(1);
+			expect(resolve).toHaveBeenCalledTimes(1);
+			expect(dispatch).toHaveBeenCalledTimes(1);
 			expect(dispatch).toHaveBeenCalledWith({
 				type: reducer.ACTION_LOADING,
 			});

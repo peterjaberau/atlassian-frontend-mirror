@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__help-article/app",
 		"rootDir": "../",
 		"composite": true,
@@ -32,6 +30,9 @@
 		},
 		{
 			"path": "../../../design-system/icon/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"

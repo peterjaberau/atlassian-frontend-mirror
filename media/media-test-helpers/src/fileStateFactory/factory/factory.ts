@@ -1,5 +1,5 @@
-import { tallImage } from '../../images';
-import { dataURItoBlob } from '../../mockData';
+import { type ReplaySubject } from 'rxjs/ReplaySubject';
+
 import {
 	type FileIdentifier,
 	type FileState,
@@ -7,17 +7,19 @@ import {
 	createMediaSubject,
 	type FileDetails,
 } from '@atlaskit/media-client';
-import { type ReplaySubject } from 'rxjs/ReplaySubject';
-import { type MediaClientConfig } from '@atlaskit/media-core';
 import { type MediaFeatureFlags } from '@atlaskit/media-common';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
+import { mediaStore } from '@atlaskit/media-state/media-store';
+
+import { tallImage } from '../../images';
+import { dataURItoBlob } from '../../mockData';
+import { sleep } from '../../nextTick';
 import {
 	createFileState,
 	type CreateFileStateOptions,
 	type FileStateStatus,
 } from './createFileState';
 import { createFileDetails } from './helpers';
-import { sleep } from '../../nextTick';
-import { mediaStore } from '@atlaskit/media-state';
 
 export type MediaClientMockOptions = {
 	getImageDelay?: number;
@@ -45,7 +47,7 @@ export class MediaClientMock extends MediaClient {
 		this.hasPreview = hasPreview;
 	};
 
-	public getImage = async () => {
+	public getImage = async (): Promise<Blob> => {
 		const { getImageDelay = 0 } = this.options;
 		if (!this.hasPreview) {
 			throw new Error('some error');
@@ -102,7 +104,10 @@ export class FileStateFactory {
 		);
 	}
 
-	public updateIdentifier = (identifier: FileIdentifier, fileDetails?: Partial<FileDetails>): void => {
+	public updateIdentifier = (
+		identifier: FileIdentifier,
+		fileDetails?: Partial<FileDetails>,
+	): void => {
 		this.identifier = identifier;
 		this.fileDetails = fileDetails || createFileDetails(this.identifier.id);
 		this.observable = createMediaSubject();
@@ -129,7 +134,7 @@ export class FileStateFactory {
 		},
 	};
 
-	public createFileState = (status: FileStateStatus, options?: CreateFileStateOptions) =>
+	public createFileState = (status: FileStateStatus, options?: CreateFileStateOptions): FileState =>
 		createFileState(this.identifier.id, status, {
 			...options,
 			fileDetails: options?.fileDetails || this.fileDetails,

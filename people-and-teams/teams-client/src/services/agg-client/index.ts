@@ -1,15 +1,16 @@
-import { toTeamARI, toUserId } from '../../common/utils/ari';
+import { toTeamARI } from '../../common/utils/to-team-ari';
+import { toUserId } from '../../common/utils/to-user-id';
+import { type TeamAgentAssociation } from '../../types/association';
 import {
 	type MembershipState,
-	type TeamAgentAssociation,
 	type TeamMembership,
 	type TeamWithMemberships,
-} from '../../types';
+} from '../../types/membership';
 import { type ClientConfig } from '../base-client';
 import { DEFAULT_CONFIG } from '../constants';
-import { BaseGraphQlClient } from '../graphql-client';
-import { logException } from '../sentry/main';
-
+import { BaseGraphQlClient } from '../graphql-client/main';
+import { logException } from '../sentry/logException';
+import { type TeamContainers } from './TeamContainers';
 import { type AGGPageInfoVariables, type ResultWithPageInfo } from './types';
 import {
 	UnlinkContainerMutation,
@@ -46,25 +47,6 @@ import {
 	type TeamsUserQueryVariables,
 } from './utils/queries/user-query';
 import { toUserType } from './utils/user-type';
-
-// Local type definition to avoid circular dependency with teams-public
-type ContainerTypes = 'ConfluenceSpace' | 'JiraProject' | 'LoomSpace' | 'WebLink';
-type ContainerSubTypes = string;
-
-type TeamContainer = {
-	id: string;
-	type: ContainerTypes;
-	name: string;
-	icon?: string | null;
-	createdDate?: Date;
-	link?: string | null;
-	containerTypeProperties?: {
-		subType?: ContainerSubTypes;
-		name?: string;
-	};
-};
-
-export type TeamContainers = Array<TeamContainer>;
 
 export class AGGClient extends BaseGraphQlClient {
 	constructor(baseUrl: string, config: ClientConfig) {
@@ -176,7 +158,7 @@ export class AGGClient extends BaseGraphQlClient {
 		}));
 	}
 
-	async getTeamContainers(teamId: string) {
+	async getTeamContainers(teamId: string): Promise<TeamContainers> {
 		const teamAri = toTeamARI(teamId);
 		const cypherQuery = `MATCH (team:IdentityTeam {ari: '${teamAri}'})-[:team_connected_to_container]->(container) RETURN container`;
 
@@ -256,7 +238,10 @@ export class AGGClient extends BaseGraphQlClient {
 		return containersResult;
 	}
 
-	async unlinkTeamContainer(teamId: string, containerId: string) {
+	async unlinkTeamContainer(
+		teamId: string,
+		containerId: string,
+	): Promise<UnlinkContainerMutationResponse> {
 		const teamAri = toTeamARI(teamId);
 
 		const response = await this.makeGraphQLRequest<
@@ -343,6 +328,6 @@ export class AGGClient extends BaseGraphQlClient {
 	}
 }
 
-export const aggClient = new AGGClient(DEFAULT_CONFIG.stargateRoot, {
+export const aggClient: AGGClient = new AGGClient(DEFAULT_CONFIG.stargateRoot, {
 	logException,
 });

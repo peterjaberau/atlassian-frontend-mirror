@@ -2,8 +2,7 @@ import React, { type ComponentType, useMemo } from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
 
-import Lozenge from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 
 import type { LozengeActionProps } from '../types';
 
@@ -14,13 +13,14 @@ const withErrorBoundary =
 			() => (
 				<Lozenge
 					appearance={props?.appearance}
-					{...(fg('platform-component-visual-refresh') ? { isBold: true } : undefined)}
+					isBold={true}
 					testId={`${props?.testId ?? 'smart-element-lozenge-action'}-fallback`}
+					trailingMetric={props?.trailingMetric}
 				>
 					{props?.text}
 				</Lozenge>
 			),
-			[props?.appearance, props?.testId, props?.text],
+			[props?.appearance, props?.testId, props?.text, props?.trailingMetric],
 		);
 
 		return (

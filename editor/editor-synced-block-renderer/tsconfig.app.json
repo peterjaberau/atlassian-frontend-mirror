@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -29,9 +30,11 @@
 		"**/codemods/**/*.ts",
 		"**/codemods/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-synced-block-renderer/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-synced-block-renderer/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
@@ -68,7 +71,7 @@
 			"path": "../../design-system/image/tsconfig.app.json"
 		},
 		{
-			"path": "../../platform/feature-flags/tsconfig.app.json"
+			"path": "../../platform/feature-experiments/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/primitives/tsconfig.app.json"

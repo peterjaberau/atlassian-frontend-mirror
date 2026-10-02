@@ -1,9 +1,10 @@
 import React from 'react';
+
 import { act, render, screen, waitFor } from '@testing-library/react';
 
 import {
-	NotificationLogClient,
 	type NotificationCountResponse,
+	type NotificationLogProvider,
 } from '@atlaskit/notification-log-client';
 
 import NotificationIndicator, {
@@ -11,12 +12,8 @@ import NotificationIndicator, {
 	type ValueUpdatingResult,
 } from '../../NotificationIndicator';
 
-class MockNotificationLogClient extends NotificationLogClient {
+class MockNotificationLogClient implements NotificationLogProvider {
 	private response?: Promise<NotificationCountResponse>;
-
-	constructor() {
-		super('', '');
-	}
 
 	public async countUnseenNotifications() {
 		return (
@@ -63,11 +60,11 @@ describe('NotificationIndicator', () => {
 
 		try {
 			await clientPromise;
-		} catch (e) {}
+		} catch {}
 
 		try {
 			await response;
-		} catch (e) {}
+		} catch {}
 
 		return renderResult;
 	}

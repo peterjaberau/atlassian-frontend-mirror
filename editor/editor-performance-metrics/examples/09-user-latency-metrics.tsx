@@ -3,6 +3,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useCallback, useLayoutEffect, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
@@ -81,7 +82,7 @@ const SectionContentOne = () => {
 	);
 };
 
-export default function Example() {
+export default function Example(): JSX.Element {
 	onUserLatency((userLatencyEvents) => {
 		console.log({
 			userLatencyEvents,

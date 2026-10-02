@@ -14,6 +14,7 @@ import type {
 
 import type { AnalyticsDispatch, AnalyticsEventPayload } from '../analytics';
 import { ACTION_SUBJECT, ACTION_SUBJECT_ID } from '../analytics';
+import { isSSR } from '../core-utils';
 import type { EventDispatcher } from '../event-dispatcher';
 import { createDispatch } from '../event-dispatcher';
 import type { PortalProviderAPI } from '../portal';
@@ -24,7 +25,6 @@ import {
 	stopMeasureReactNodeViewRendered,
 } from '../utils';
 import { analyticsEventKey } from '../utils/analytics';
-
 import { generateUniqueNodeKey } from './generateUniqueNodeKey';
 import type {
 	ForwardRef,
@@ -43,15 +43,22 @@ export type {
 };
 export type { InlineNodeViewComponentProps } from './getInlineNodeViewProducer';
 export { getInlineNodeViewProducer, inlineNodeViewClassname } from './getInlineNodeViewProducer';
+export { NodeViewContentHole } from './NodeViewContentHole';
 
 export default class ReactNodeView<P = ReactComponentProps> implements NodeView {
 	private domRef?: HTMLElement;
 	private contentDOMWrapper?: Node;
+	// Spreading props to pass through dynamic component props
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private reactComponent?: React.ComponentType<React.PropsWithChildren<any>>;
 	private portalProviderAPI: PortalProviderAPI;
 	private _viewShouldUpdate?: shouldUpdate;
+	/**
+	 * Tracks whether a React portal is currently mounted into `domRef`. A node view whose
+	 * `render()` returns `null` does not mount one at all.
+	 */
+	private hasMountedPortal = false;
 	protected eventDispatcher?: EventDispatcher;
 	protected decorations: ReadonlyArray<Decoration> = [];
 
@@ -71,6 +78,7 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 		portalProviderAPI: PortalProviderAPI,
 		eventDispatcher: EventDispatcher,
 		reactComponentProps?: P,
+		// Spreading props to pass through dynamic component props
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		reactComponent?: React.ComponentType<React.PropsWithChildren<any>>,
@@ -98,7 +106,7 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 	 * constructor, which leads to some methods being undefined during the
 	 * first render.
 	 */
-	init() {
+	init(shouldSkipInitRender = false): this {
 		this.domRef = this.createDomRef();
 		this.setDomAttrs(this.node, this.domRef);
 
@@ -123,7 +131,24 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 
 		trackingEnabled && startMeasureReactNodeViewRendered({ nodeTypeName: this.node.type.name });
 
-		this.renderReactComponent(() => this.render(this.reactComponentProps, this.handleRef));
+		if (!shouldSkipInitRender) {
+			this.renderReactComponent(() => this.render(this.reactComponentProps, this.handleRef));
+
+			// During SSR, renderToStaticMarkup + container.innerHTML (in portal) clobbers the
+			// contentDOMWrapper that was appended above. The React ref callback
+			// (forwardRef) never fires in renderToStaticMarkup, so contentDOM is
+			// left detached. Re-attach it by finding the marked SSR ref target.
+			if (isSSR() && this.domRef) {
+				const refTarget = this.domRef.querySelector('[data-ssr-content-dom-ref]');
+				if (refTarget) {
+					this.handleRef(refTarget);
+					// The marker is only needed to locate the re-attach target during
+					// this SSR pass. Remove it so it doesn't leak into the streamed
+					// HTML (it has no meaning on the client).
+					refTarget.removeAttribute('data-ssr-content-dom-ref');
+				}
+			}
+		}
 
 		trackingEnabled &&
 			stopMeasureReactNodeViewRendered({
@@ -136,12 +161,38 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 		return this;
 	}
 
+	// Spreading props to pass through dynamic component props
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private renderReactComponent(component: () => React.ReactElement<any> | null) {
 		if (!this.domRef || !component) {
 			return;
 		}
+
+		// React 18 does event delegation per portal container: `createPortal` calls
+		// `listenToAllSupportedEvents(container)`, which registers a bubble *and* a capture
+		// listener for every supported event type — roughly 130 real `addEventListener` calls
+		// on the container element. Those listeners are never removed (React has no
+		// un-listen path), so mounting a portal for a node view that renders nothing is pure
+		// overhead that scales with the number of such nodes in the document.
+		//
+		// `PortalProviderAPI.render` already invokes the thunk eagerly (see
+		// `getPortalProviderAPI`), so evaluating the element here does not change *when*
+		// `render()` runs — the pre-evaluated element is handed to the same render call below.
+		// If a node view starts out empty and later renders something, `update()` calls back into
+		// this method and the portal is mounted at that point.
+		const element = component();
+
+		if (element === null) {
+			if (this.hasMountedPortal) {
+				this.portalProviderAPI.remove(this.key);
+				this.hasMountedPortal = false;
+			}
+			return;
+		}
+
+		this.hasMountedPortal = true;
+		const renderComponent = () => element;
 
 		const componentWithErrorBoundary = () => (
 			<ErrorBoundary
@@ -151,12 +202,13 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 				}
 				dispatchAnalyticsEvent={this.dispatchAnalyticsEvent}
 			>
-				{component()}
+				{renderComponent()}
 			</ErrorBoundary>
 		);
 
 		this.portalProviderAPI.render(
 			componentWithErrorBoundary,
+			// Spreading props to pass through dynamic component props
 			// Ignored via go/ees005
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			this.domRef!,
@@ -179,11 +231,11 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 		return undefined;
 	}
 
-	handleRef = (node: HTMLElement | null): void => this._handleRef(node);
+	handleRef = (node: Element | null): void => this._handleRef(node);
 
-	private _handleRef(node: HTMLElement | null) {
+	private _handleRef(node: Element | null) {
 		const contentDOM = this.contentDOMWrapper || this.contentDOM;
-		// @ts-ignore
+		// Spreading props to pass through dynamic component props
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let oldIgnoreMutation: any;
@@ -236,6 +288,7 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 		}
 	}
 
+	// Spreading props to pass through dynamic component props
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	render(props: P, forwardRef?: ForwardRef): React.ReactElement<any> | null {
@@ -245,8 +298,7 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 				getPos={this.getPos}
 				node={this.node}
 				forwardRef={forwardRef}
-				// Ignored via go/ees005
-				// eslint-disable-next-line react/jsx-props-no-spreading
+				// eslint-disable-next-line react/jsx-props-no-spreading -- Spreading props to pass through dynamic component props
 				{...props}
 			/>
 		) : null;
@@ -304,10 +356,15 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 		});
 	}
 
-	get dom() {
-		// Ignored via go/ees005
-		// eslint-disable-next-line @atlaskit/editor/no-as-casting
-		return this.domRef as HTMLElement;
+	get dom(): HTMLElement {
+		// Only return reference if domRef is defined
+		if (this.domRef === undefined) {
+			//raise an error
+			throw new Error('domRef is not defined or may have been destroyed');
+		}
+
+		// Spreading props to pass through dynamic component props
+		return this.domRef;
 	}
 
 	destroy(): void {
@@ -330,6 +387,7 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 	};
 
 	static fromComponent(
+		// Spreading props to pass through dynamic component props
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		component: React.ComponentType<React.PropsWithChildren<any>>,
@@ -338,7 +396,7 @@ export default class ReactNodeView<P = ReactComponentProps> implements NodeView 
 		props?: ReactComponentProps,
 		viewShouldUpdate?: (nextNode: PMNode) => boolean,
 	) {
-		return (node: PMNode, view: EditorView, getPos: getPosHandler) =>
+		return (node: PMNode, view: EditorView, getPos: getPosHandler): ReactNodeView =>
 			new ReactNodeView(
 				node,
 				view,

@@ -12,7 +12,7 @@
  */
 import rafSchedule from 'raf-schd';
 
-import { uuid } from '@atlaskit/adf-schema';
+import { uuid } from '@atlaskit/adf-schema/uuid';
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { stepHasSlice } from '@atlaskit/editor-common/utils';
@@ -32,7 +32,7 @@ const getPluginState = (state: EditorState): TableLocalIdPluginState | undefined
 /**
  * Ensures uniqueness of `localId`s on tables being created or edited
  */
-const createPlugin = (dispatch: Dispatch) =>
+const createPlugin = (dispatch: Dispatch): SafePlugin<TableLocalIdPluginState> =>
 	new SafePlugin<TableLocalIdPluginState>({
 		key: pluginKey,
 		state: {

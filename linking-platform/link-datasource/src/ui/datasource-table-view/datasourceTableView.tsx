@@ -2,24 +2,34 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useCallback, useEffect, useRef } from 'react';
+
+import {
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+	type ForwardRefExoticComponent,
+	type RefAttributes,
+} from 'react';
 
 import { css, jsx } from '@compiled/react';
+import isEqual from 'lodash/isEqual';
 
-import { withAnalyticsContext } from '@atlaskit/analytics-next';
-import { IntlMessagesProvider } from '@atlaskit/intl-messages-provider';
-import { fg } from '@atlaskit/platform-feature-flags';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';
+import type { DatasourceParameters } from '@atlaskit/linking-types/datasource';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { useDatasourceAnalyticsEvents } from '../../analytics';
 import { componentMetadata } from '../../analytics/constants';
-import { startUfoExperience } from '../../analytics/ufoExperiences';
 import { useColumnPickerRenderedFailedUfoExperience } from '../../analytics/ufoExperiences/hooks/useColumnPickerRenderedFailedUfoExperience';
 import { useDataRenderedUfoExperience } from '../../analytics/ufoExperiences/hooks/useDataRenderedUfoExperience';
+import { startUfoExperience } from '../../analytics/ufoExperiences/startUfoExperience';
 import { fetchMessagesForLocale } from '../../common/utils/locale/fetch-messages-for-locale';
-import {
-	DatasourceExperienceIdProvider,
-	useDatasourceExperienceId,
-} from '../../contexts/datasource-experience-id';
+import { DatasourceExperienceIdProvider } from '../../contexts/datasource-experience-id/datasource-experience-id-provider';
+import { useDatasourceExperienceId } from '../../contexts/datasource-experience-id/use-datasource-experience-id';
 import { useDatasourceTableState } from '../../hooks/useDatasourceTableState';
 import { useDeepEffect } from '../../hooks/useDeepEffect';
 import { useIsInPDFRender } from '../../hooks/useIsInPDFRender';
@@ -30,10 +40,12 @@ import { AccessRequired } from '../common/error-state/access-required';
 import { LoadingError } from '../common/error-state/loading-error';
 import { NoResults } from '../common/error-state/no-results';
 import { ProviderAuthRequired } from '../common/error-state/provider-auth-required';
-import { IssueLikeDataTableView } from '../issue-like-table';
 import EmptyState from '../issue-like-table/empty-state';
+import { IssueLikeDataTableView } from '../issue-like-table/issue-like-data-table-view';
+import type { IssueLikeDataTableViewProps } from '../issue-like-table/types';
+import type { DatasourceTableSortState } from '../issue-like-table/types';
 import { TableFooter } from '../table-footer';
-
+import { getDatasourceColumnSortGetter } from './datasource-column-sort';
 import { type DatasourceTableViewProps } from './types';
 
 const containerStyles = css({
@@ -52,8 +64,40 @@ const DatasourceTableViewWithoutAnalytics = ({
 	onColumnResize,
 	wrappedColumnKeys,
 	onWrappedColumnChange,
+	onWrappedColumnsChange,
 	scrollableContainerHeight = DefaultScrollableContainerHeight,
 }: DatasourceTableViewProps) => {
+	// Local copy lets us apply in-session sort mutations without mutating external parameters.
+	const [sessionParameters, setSessionParameters] = useState(parameters);
+	// Tracks the external parameters that the current session/sort state was derived from.
+	const sessionBaseParametersRef = useRef(parameters);
+	const [sortState, setSortState] = useState<DatasourceTableSortState>();
+
+	const columnSortGetter = getDatasourceColumnSortGetter(datasourceId);
+	// Sorting is only owned by this view when parent callbacks are absent (read-only rendering mode).
+	const isReadOnlyDatasourceTable =
+		!onVisibleColumnKeysChange && !onColumnResize && !onWrappedColumnChange;
+	// Keep sort UI hidden unless datasource + ownership + feature gate all allow it.
+	const shouldEnableColumnSort =
+		!!columnSortGetter &&
+		isReadOnlyDatasourceTable &&
+		fg('platform_lp_jira_sllv_renderer_column_sorting');
+
+	useDeepEffect(() => {
+		// External parameter updates should always reset local sort/session state back to source-of-truth.
+		sessionBaseParametersRef.current = parameters;
+		setSessionParameters(parameters);
+		setSortState(undefined);
+	}, [parameters]);
+
+	const isSessionBasedOnCurrentParameters = isEqual(sessionBaseParametersRef.current, parameters);
+	// Use session parameters only when they are known to be based on the current external parameters.
+	// This avoids a one-render stale read during the deep-effect update cycle above.
+	const activeParameters =
+		isSessionBasedOnCurrentParameters && fg('platform_lp_jira_sllv_renderer_column_sorting')
+			? sessionParameters
+			: parameters;
+
 	const {
 		reset,
 		status,
@@ -71,7 +115,7 @@ const DatasourceTableViewWithoutAnalytics = ({
 		authDetails,
 	} = useDatasourceTableState({
 		datasourceId,
-		parameters,
+		parameters: activeParameters,
 		fieldKeys: visibleColumnKeys,
 	});
 
@@ -82,9 +126,9 @@ const DatasourceTableViewWithoutAnalytics = ({
 	const visibleColumnCount = useRef(visibleColumnKeys?.length || 0);
 
 	/*  Need this to make sure that the datasource in the editor gets updated new info if any edits are made in the modal
-      But we don't want to call it on initial load. This screws up useDatasourceTableState's internal
-      mechanism of initial loading. Use of ref here makes it basically work as a `componentDidUpdate` but not `componentDidMount`
-   */
+			But we don't want to call it on initial load. This screws up useDatasourceTableState's internal
+			mechanism of initial loading. Use of ref here makes it basically work as a `componentDidUpdate` but not `componentDidMount`
+	 */
 	const isInitialRender = useRef(true);
 	const hasColumns = !!columns.length;
 	const isDataReady = hasColumns && responseItems.length > 0 && totalCount && totalCount > 0;
@@ -101,7 +145,7 @@ const DatasourceTableViewWithoutAnalytics = ({
 			reset();
 		}
 		isInitialRender.current = false;
-	}, [reset, parameters]);
+	}, [reset, activeParameters]);
 
 	useEffect(() => {
 		if (
@@ -166,11 +210,36 @@ const DatasourceTableViewWithoutAnalytics = ({
 		forcedReset();
 	}, [destinationObjectTypes, extensionKey, fireEvent, forcedReset]);
 
+	const onColumnSort = useCallback(
+		(columnKey: string) => {
+			// Build next params/sort atomically so UI state and query state stay in sync.
+			const result = columnSortGetter?.({
+				parameters: sessionBaseParametersRef.current,
+				columnKey,
+				currentSort: sortState,
+			});
+
+			if (!result) {
+				return;
+			}
+
+			setSortState(result.sort);
+			setSessionParameters(result.parameters);
+		},
+		[columnSortGetter, sortState],
+	);
+
 	const handleErrorRefresh = useCallback(() => {
 		reset({ shouldForceRequest: true });
 	}, [reset]);
 
-	if ((status === 'resolved' && !responseItems.length) || status === 'forbidden') {
+	const isResolvedWithNoResults = status === 'resolved' && !responseItems.length;
+	// With columns available the table can keep its headers and footer and show the empty state
+	// in place of the rows, instead of replacing the whole view with it.
+	const shouldRenderTableWithNoResults =
+		isResolvedWithNoResults && hasColumns && fg('platform_lp_sllv_ux_improvements');
+
+	if ((isResolvedWithNoResults && !shouldRenderTableWithNoResults) || status === 'forbidden') {
 		return <NoResults />;
 	}
 
@@ -189,63 +258,133 @@ const DatasourceTableViewWithoutAnalytics = ({
 		);
 	}
 
+	let loadingError;
 	if (status === 'rejected') {
-		return <LoadingError onRefresh={handleErrorRefresh} url={url} />;
+		loadingError = <LoadingError onRefresh={handleErrorRefresh} url={url} />;
+		if (!fg('platform_datasource_missing_columns_error')) {
+			return loadingError;
+		}
+	} else if (
+		fg('platform_datasource_missing_columns_error') &&
+		status === 'resolved' &&
+		!hasColumns
+	) {
+		loadingError = (
+			<LoadingError
+				errorType="missing-columns"
+				unavailableColumnKeys={
+					visibleColumnKeys?.length ? visibleColumnKeys : defaultVisibleColumnKeys
+				}
+				url={url}
+			/>
+		);
 	}
 
 	return (
 		<IntlMessagesProvider defaultMessages={i18nEN} loaderFn={fetchMessagesForLocale}>
-			{/* datasource-table classname is to exclude all children from being commentable - exclude list is in CFE*/}
-			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766 */}
-			<div css={containerStyles} className="datasource-table">
-				{hasColumns ? (
-					<IssueLikeDataTableView
-						testId={'datasource-table-view'}
-						hasNextPage={hasNextPage}
-						items={responseItems}
-						itemIds={responseItemIds}
-						onNextPage={onNextPage}
-						onLoadDatasourceDetails={loadDatasourceDetails}
-						status={status}
-						columns={columns}
-						visibleColumnKeys={visibleColumnKeys || defaultVisibleColumnKeys}
-						onVisibleColumnKeysChange={onVisibleColumnKeysChange}
-						columnCustomSizes={columnCustomSizes}
-						onColumnResize={onColumnResize}
-						wrappedColumnKeys={wrappedColumnKeys}
-						onWrappedColumnChange={onWrappedColumnChange}
-						scrollableContainerHeight={
-							isInPDFRender
-								? undefined
-								: fg('lp_enable_datasource-table-view_height_override')
-									? scrollableContainerHeight
-									: DefaultScrollableContainerHeight
+			{loadingError || (
+				// datasource-table classname is to exclude all children from being commentable - exclude list is in CFE
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+				<div css={containerStyles} className="datasource-table">
+					{hasColumns ? (
+						<IssueLikeDataTableView
+							testId={'datasource-table-view'}
+							hasNextPage={hasNextPage}
+							items={responseItems}
+							itemIds={responseItemIds}
+							onNextPage={onNextPage}
+							onLoadDatasourceDetails={loadDatasourceDetails}
+							status={status}
+							columns={columns}
+							visibleColumnKeys={visibleColumnKeys || defaultVisibleColumnKeys}
+							onVisibleColumnKeysChange={onVisibleColumnKeysChange}
+							columnCustomSizes={columnCustomSizes}
+							onColumnResize={onColumnResize}
+							{...(shouldEnableColumnSort && fg('platform_lp_jira_sllv_renderer_column_sorting')
+								? { onColumnSort, sortState }
+								: {})}
+							wrappedColumnKeys={wrappedColumnKeys}
+							onWrappedColumnChange={onWrappedColumnChange}
+							{...(onWrappedColumnsChange && fg('platform_lp_sllv_table_settings_menu')
+								? { onWrappedColumnsChange }
+								: {})}
+							scrollableContainerHeight={
+								isInPDFRender
+									? undefined
+									: fg('lp_enable_datasource-table-view_height_override')
+										? scrollableContainerHeight
+										: DefaultScrollableContainerHeight
+							}
+							extensionKey={extensionKey}
+						/>
+					) : (
+						<EmptyState testId="datasource-table-view-skeleton" isCompact />
+					)}
+					<TableFooter
+						datasourceId={datasourceId}
+						itemCount={isDataReady ? totalCount : shouldRenderTableWithNoResults ? 0 : undefined}
+						onRefresh={onRefresh}
+						isLoading={
+							shouldRenderTableWithNoResults ? false : !isDataReady || status === 'loading'
 						}
-						extensionKey={extensionKey}
+						url={url}
 					/>
-				) : (
-					<EmptyState testId="datasource-table-view-skeleton" isCompact />
-				)}
-				<TableFooter
-					datasourceId={datasourceId}
-					itemCount={isDataReady ? totalCount : undefined}
-					onRefresh={onRefresh}
-					isLoading={!isDataReady || status === 'loading'}
-					url={url}
-				/>
-			</div>
+				</div>
+			)}
 		</IntlMessagesProvider>
 	);
 };
 
-export const DatasourceTableView = withAnalyticsContext(componentMetadata.tableView)(
-	(props: DatasourceTableViewProps) => (
-		<StoreContainer>
-			<DatasourceExperienceIdProvider>
-				<DatasourceTableViewWithoutAnalytics {...props} />
-			</DatasourceExperienceIdProvider>
-		</StoreContainer>
-	),
-);
+export const DatasourceTableView: ForwardRefExoticComponent<
+	{
+		datasourceId: string;
+		parameters: DatasourceParameters;
+		url?: string;
+	} & Partial<
+		Pick<
+			IssueLikeDataTableViewProps,
+			| 'visibleColumnKeys'
+			| 'onVisibleColumnKeysChange'
+			| 'wrappedColumnKeys'
+			| 'onWrappedColumnChange'
+			| 'onWrappedColumnsChange'
+			| 'onColumnResize'
+			| 'onColumnSort'
+			| 'sortState'
+			| 'columnCustomSizes'
+			| 'scrollableContainerHeight'
+		>
+	> &
+		WithContextProps &
+		RefAttributes<any>
+> = withAnalyticsContext(componentMetadata.tableView)((props: DatasourceTableViewProps) => (
+	<StoreContainer>
+		<DatasourceExperienceIdProvider>
+			<DatasourceTableViewWithoutAnalytics {...props} />
+		</DatasourceExperienceIdProvider>
+	</StoreContainer>
+));
 
-export const DataSourceTableViewNoSuspense = DatasourceTableView;
+export const DataSourceTableViewNoSuspense: ForwardRefExoticComponent<
+	{
+		datasourceId: string;
+		parameters: DatasourceParameters;
+		url?: string;
+	} & Partial<
+		Pick<
+			IssueLikeDataTableViewProps,
+			| 'visibleColumnKeys'
+			| 'onVisibleColumnKeysChange'
+			| 'wrappedColumnKeys'
+			| 'onWrappedColumnChange'
+			| 'onWrappedColumnsChange'
+			| 'onColumnResize'
+			| 'onColumnSort'
+			| 'sortState'
+			| 'columnCustomSizes'
+			| 'scrollableContainerHeight'
+		>
+	> &
+		WithContextProps &
+		RefAttributes<any>
+> = DatasourceTableView;

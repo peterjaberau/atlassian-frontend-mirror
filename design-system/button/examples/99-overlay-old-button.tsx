@@ -1,15 +1,19 @@
-/* eslint-disable @atlaskit/design-system/consistent-css-prop-usage */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
 import React, { useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
+import { css, jsx } from '@compiled/react';
 
-import Button, { ButtonGroup } from '@atlaskit/button';
-import { token } from '@atlaskit/tokens';
+import Button from '@atlaskit/button/button';
+import ButtonGroup from '@atlaskit/button/button-group';
+
+const styles = css({
+	display: 'flex',
+	alignItems: 'center',
+	flexDirection: 'column',
+});
 
 function Overlay() {
 	const [overlay, setOverlay] = useState<Boolean>(false);
@@ -21,14 +25,7 @@ function Overlay() {
 	);
 
 	return (
-		<div
-			css={{
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				'> *': { marginBottom: token('space.100', '8px') },
-			}}
-		>
+		<div css={styles}>
 			<Button onClick={() => setOverlay((value) => !value)}>
 				Use overlay: {overlay ? 'true' : 'false'}
 			</Button>

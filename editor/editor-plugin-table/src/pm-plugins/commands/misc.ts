@@ -1,8 +1,12 @@
 import isEqual from 'lodash/isEqual';
 
-import type { CellAttributes, TableAttributes, TableLayout } from '@atlaskit/adf-schema';
+import type {
+	CellAttributes,
+	TableAttributes,
+	Layout as TableLayout,
+} from '@atlaskit/adf-schema/tableNodes';
 import { getTableContainerWidth } from '@atlaskit/editor-common/node-width';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { Command, EditorCommand } from '@atlaskit/editor-common/types';
 import {
 	closestElement,
@@ -33,7 +37,7 @@ import {
 	selectRow as selectRowTransform,
 	setCellAttrs,
 } from '@atlaskit/editor-tables/utils';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { WidthToWidest } from '../../types';
 import { TableCssClassName as ClassName, TableDecorations } from '../../types';
@@ -44,10 +48,7 @@ import {
 } from '../decorations/utils/column-resizing';
 import { createCommand, getPluginState } from '../plugin-factory';
 import { fixAutoSizedTable } from '../transforms/fix-tables';
-import {
-	createColumnControlsDecoration,
-	createColumnSelectedDecoration,
-} from '../utils/decoration';
+import { createColumnSelectedDecoration } from '../utils/decoration';
 import {
 	checkIfHeaderColumnEnabled,
 	checkIfHeaderRowEnabled,
@@ -59,7 +60,35 @@ import { updatePluginStateDecorations } from '../utils/update-plugin-state-decor
 const DARK_MODE_CELL_COLOR = '#1f1f21';
 const DARK_MODE_HEADER_COLOR = '#303134';
 
-export const setEditorFocus = (editorHasFocus: boolean) =>
+const selectColumnWithMergedEdgeRows = (
+	tr: Transaction,
+	column: number,
+	expand?: boolean,
+): Transaction => {
+	const transformedTr = selectColumnTransform(column, expand)(tr);
+
+	if (expand) {
+		return transformedTr;
+	}
+
+	const selectableCells = getCellsInColumn(column)(tr.selection)?.filter(
+		({ node }) => node.attrs.colspan === 1,
+	);
+	const firstCell = selectableCells?.[0];
+	const lastCell = selectableCells?.[selectableCells.length - 1];
+	if (!firstCell || !lastCell) {
+		return transformedTr;
+	}
+
+	return transformedTr.setSelection(
+		new CellSelection(
+			transformedTr.doc.resolve(lastCell.pos),
+			transformedTr.doc.resolve(firstCell.pos),
+		),
+	);
+};
+
+export const setEditorFocus = (editorHasFocus: boolean): Command =>
 	createCommand({
 		type: 'SET_EDITOR_FOCUS',
 		data: {
@@ -67,7 +96,7 @@ export const setEditorFocus = (editorHasFocus: boolean) =>
 		},
 	});
 
-export const setTableRef = (ref?: HTMLTableElement) =>
+export const setTableRef = (ref?: HTMLTableElement): Command =>
 	createCommand(
 		(state) => {
 			const tableRef = ref;
@@ -76,7 +105,6 @@ export const setTableRef = (ref?: HTMLTableElement) =>
 			const tablePos = ref && foundTable ? foundTable.pos : undefined;
 			const tableWrapperTarget =
 				closestElement(tableRef, `.${ClassName.TABLE_NODE_WRAPPER}`) || undefined;
-			const { isDragAndDropEnabled } = getPluginState(state);
 
 			return {
 				type: 'SET_TABLE_REF',
@@ -88,14 +116,6 @@ export const setTableRef = (ref?: HTMLTableElement) =>
 					isNumberColumnEnabled: checkIfNumberColumnEnabled(state.selection),
 					isHeaderRowEnabled: checkIfHeaderRowEnabled(state.selection),
 					isHeaderColumnEnabled: checkIfHeaderColumnEnabled(state.selection),
-					// decoration set is drawn by the decoration plugin, skip this for DnD as all controls are floating
-					decorationSet: !isDragAndDropEnabled
-						? updatePluginStateDecorations(
-								state,
-								createColumnControlsDecoration(state.selection),
-								TableDecorations.COLUMN_CONTROLS_DECORATIONS,
-							)
-						: undefined,
 					resizeHandleRowIndex: undefined,
 					resizeHandleColumnIndex: undefined,
 				},
@@ -245,7 +265,11 @@ export const transformSliceToRemoveColumnsWidths = (slice: Slice, schema: Schema
 	});
 };
 
-export const countCellsInSlice = (slice: Slice, schema: Schema, type?: 'row' | 'column') => {
+export const countCellsInSlice = (
+	slice: Slice,
+	schema: Schema,
+	type?: 'row' | 'column',
+): number => {
 	const { tableHeader, tableCell } = schema.nodes;
 	let count = 0;
 
@@ -264,13 +288,16 @@ export const countCellsInSlice = (slice: Slice, schema: Schema, type?: 'row' | '
 	return count;
 };
 
-export const getTableSelectionType = (selection: Selection) => {
+export const getTableSelectionType = (selection: Selection): 'row' | 'column' | undefined => {
 	if (selection instanceof CellSelection) {
 		return selection.isRowSelection() ? 'row' : selection.isColSelection() ? 'column' : undefined;
 	}
 };
 
-export const getTableElementMoveTypeBySlice = (slice: Slice, state: EditorState) => {
+export const getTableElementMoveTypeBySlice = (
+	slice: Slice,
+	state: EditorState,
+): 'row' | 'column' | undefined => {
 	const {
 		schema: {
 			nodes: { tableRow, table },
@@ -308,7 +335,10 @@ export const getTableElementMoveTypeBySlice = (slice: Slice, state: EditorState)
 	}
 };
 
-export const isInsideFirstCellOfRowOrColumn = (selection: Selection, type?: 'row' | 'column'): boolean => {
+export const isInsideFirstCellOfRowOrColumn = (
+	selection: Selection,
+	type?: 'row' | 'column',
+): boolean => {
 	const table = findTable(selection);
 
 	if (!table || !type) {
@@ -426,7 +456,7 @@ export const moveCursorBackward: Command = (state, dispatch) => {
 };
 
 export const setMultipleCellAttrs =
-	(attrs: Object, editorView?: EditorView | null): Command =>
+	(attrs: object, editorView?: EditorView | null): Command =>
 	(state, dispatch) => {
 		let cursorPos: number | undefined;
 		let { tr } = state;
@@ -453,23 +483,52 @@ export const setMultipleCellAttrs =
 
 		if (tr.docChanged && cursorPos !== undefined) {
 			if (dispatch) {
-				if (expValEquals('platform_editor_table_cell_colour_change', 'isEnabled', true)) {
-					editorView?.focus();
-					dispatch(tr);
-				} else {
-					if (cursorPos !== undefined) {
-						editorView?.focus();
-						tr.setSelection(new TextSelection(tr.doc.resolve(cursorPos)));
-					}
-					dispatch(tr);
-				}
+				editorView?.focus();
+				dispatch(tr);
 			}
 			return true;
 		}
 		return false;
 	};
 
-export const selectColumn = (column: number, expand?: boolean, triggeredByKeyboard = false) =>
+/**
+ * EditorCommand variant of `setMultipleCellAttrs`.
+ */
+export const setMultipleCellAttrsEditorCommand =
+	(attrs: object, targetCellPosition?: number): EditorCommand =>
+	({ tr }) => {
+		let cursorPos: number | undefined;
+
+		if (isSelectionType(tr.selection, 'cell')) {
+			// Ignored via go/ees005
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const selection = tr.selection as any as CellSelection;
+			selection.forEachCell((_cell, pos) => {
+				const $pos = tr.doc.resolve(tr.mapping.map(pos + 1));
+				// Ignored via go/ees005
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+				setCellAttrs(findCellClosestToPos($pos)!, attrs)(tr);
+			});
+			cursorPos = selection.$headCell.pos;
+		} else if (typeof targetCellPosition === 'number') {
+			// Ignored via go/ees005
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+			const cell = findCellClosestToPos(tr.doc.resolve(targetCellPosition + 1))!;
+			setCellAttrs(cell, attrs)(tr);
+			cursorPos = cell.pos;
+		}
+
+		if (tr.docChanged && cursorPos !== undefined) {
+			return tr;
+		}
+		return null;
+	};
+
+export const selectColumn = (
+	column: number,
+	expand?: boolean,
+	triggeredByKeyboard = false,
+): Command =>
 	createCommand(
 		(state) => {
 			const cells = getCellsInColumn(column)(state.tr.selection);
@@ -477,9 +536,13 @@ export const selectColumn = (column: number, expand?: boolean, triggeredByKeyboa
 				return false;
 			}
 
-			const decorations = createColumnSelectedDecoration(
-				selectColumnTransform(column, expand)(state.tr),
-			);
+			let selectionTransaction: Transaction;
+			if (isExperimentEnabled('platform_editor_table_menu_updates_patch_5')) {
+				selectionTransaction = selectColumnWithMergedEdgeRows(state.tr, column, expand);
+			} else {
+				selectionTransaction = selectColumnTransform(column, expand)(state.tr);
+			}
+			const decorations = createColumnSelectedDecoration(selectionTransaction);
 			const decorationSet = updatePluginStateDecorations(
 				state,
 				decorations,
@@ -492,13 +555,20 @@ export const selectColumn = (column: number, expand?: boolean, triggeredByKeyboa
 				data: { targetCellPosition, decorationSet },
 			};
 		},
-		(tr: Transaction) =>
-			selectColumnTransform(column, expand)(tr)
+		(tr: Transaction) => {
+			let selectionTransaction: Transaction;
+			if (isExperimentEnabled('platform_editor_table_menu_updates_patch_5')) {
+				selectionTransaction = selectColumnWithMergedEdgeRows(tr, column, expand);
+			} else {
+				selectionTransaction = selectColumnTransform(column, expand)(tr);
+			}
+			return selectionTransaction
 				.setMeta('addToHistory', false)
-				.setMeta('selectedColumnViaKeyboard', triggeredByKeyboard),
+				.setMeta('selectedColumnViaKeyboard', triggeredByKeyboard);
+		},
 	);
 
-export const selectColumns = (columnIndexes: number[]) =>
+export const selectColumns = (columnIndexes: number[]): Command =>
 	createCommand(
 		(state) => {
 			if (!columnIndexes) {
@@ -536,7 +606,7 @@ export const selectColumns = (columnIndexes: number[]) =>
 		},
 	);
 
-export const selectRow = (row: number, expand?: boolean, triggeredByKeyboard = false) =>
+export const selectRow = (row: number, expand?: boolean, triggeredByKeyboard = false): Command =>
 	createCommand(
 		(state) => {
 			let targetCellPosition;
@@ -548,12 +618,15 @@ export const selectRow = (row: number, expand?: boolean, triggeredByKeyboard = f
 			return { type: 'SET_TARGET_CELL_POSITION', data: { targetCellPosition } };
 		},
 		(tr) =>
-			selectRowTransform(row, expand)(tr)
+			selectRowTransform(
+				row,
+				expand,
+			)(tr)
 				.setMeta('addToHistory', false)
 				.setMeta('selectedRowViaKeyboard', triggeredByKeyboard),
 	);
 
-export const selectRows = (rowIndexes: number[]) =>
+export const selectRows = (rowIndexes: number[]): Command =>
 	createCommand(
 		(state) => {
 			if (rowIndexes.length === 0) {
@@ -574,7 +647,7 @@ export const selectRows = (rowIndexes: number[]) =>
 		(tr) => selectRowsTransform(rowIndexes)(tr).setMeta('addToHistory', false),
 	);
 
-export const showInsertColumnButton = (columnIndex: number) =>
+export const showInsertColumnButton = (columnIndex: number): Command =>
 	createCommand(
 		(_) =>
 			columnIndex > -1
@@ -586,7 +659,7 @@ export const showInsertColumnButton = (columnIndex: number) =>
 		(tr) => tr.setMeta('addToHistory', false),
 	);
 
-export const showInsertRowButton = (rowIndex: number) =>
+export const showInsertRowButton = (rowIndex: number): Command =>
 	createCommand(
 		(_) =>
 			rowIndex > -1
@@ -598,7 +671,7 @@ export const showInsertRowButton = (rowIndex: number) =>
 		(tr) => tr.setMeta('addToHistory', false),
 	);
 
-export const hideInsertColumnOrRowButton = () =>
+export const hideInsertColumnOrRowButton = (): Command =>
 	createCommand(
 		{
 			type: 'HIDE_INSERT_COLUMN_OR_ROW_BUTTON',
@@ -612,7 +685,7 @@ export const addResizeHandleDecorations = (
 	includeTooltip: boolean,
 	nodeViewPortalProviderAPI: PortalProviderAPI,
 	isKeyboardResize?: boolean,
-) =>
+): Command =>
 	createCommand(
 		(state) => {
 			const tableNode = findTable(state.selection);
@@ -653,7 +726,7 @@ export const updateResizeHandleDecorations = (
 	rowIndex?: number,
 	columnIndex?: number,
 	includeTooltip?: boolean,
-) =>
+): Command =>
 	createCommand(
 		(state) => {
 			const tableNode = findTable(state.selection);
@@ -703,7 +776,7 @@ export const updateResizeHandleDecorations = (
 		(tr: Transaction) => tr.setMeta('addToHistory', false),
 	);
 
-export const removeResizeHandleDecorations = () =>
+export const removeResizeHandleDecorations = (): Command =>
 	createCommand(
 		(state) => ({
 			type: 'REMOVE_RESIZE_HANDLE_DECORATIONS',
@@ -763,7 +836,7 @@ export const addBoldInEmptyHeaderCells =
 		return false;
 	};
 
-export const updateWidthToWidest = (widthToWidest: WidthToWidest) =>
+export const updateWidthToWidest = (widthToWidest: WidthToWidest): Command =>
 	createCommand((state) => {
 		const { widthToWidest: prevWidthToWidest } = getPluginState(state);
 
@@ -831,7 +904,10 @@ export const setTableAlignmentWithTableContentWithPos =
 		return tr;
 	};
 
-export const setFocusToCellMenu = (isCellMenuOpenByKeyboard = true, originalTr?: Transaction) =>
+export const setFocusToCellMenu = (
+	isCellMenuOpenByKeyboard = true,
+	originalTr?: Transaction,
+): Command =>
 	createCommand(
 		() => {
 			return {

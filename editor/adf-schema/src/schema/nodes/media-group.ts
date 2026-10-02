@@ -1,12 +1,16 @@
-import type { MediaDefinition as Media } from './media';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { mediaGroup as mediaGroupFactory } from '../../next-schema/generated/nodeTypes';
+import type { MediaDefinition as Media } from './media';
 
 /**
  * @name mediaGroup_node
  */
 export interface MediaGroupDefinition {
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 1
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 *  @allowUnsupportedBlock true
 	 */
 	content: Array<Media>;
@@ -16,7 +20,7 @@ export interface MediaGroupDefinition {
 // Temporary due to an existing issue in validator below:
 // https://product-fabric.atlassian.net/jira/servicedesk/projects/DTR/queues/issue/DTR-1429
 // TODO: ED-29537 - Remove border and link marks from white list
-export const mediaGroup = mediaGroupFactory({
+export const mediaGroup: NodeSpec = mediaGroupFactory({
 	parseDOM: [
 		{
 			tag: 'div[data-node-type="mediaGroup"]',

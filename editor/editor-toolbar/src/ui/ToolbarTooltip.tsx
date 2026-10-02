@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { PositionType } from '@atlaskit/tooltip';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import type { PositionType } from '@atlaskit/tooltip/types';
 
 type ToolbarTooltipProps = {
 	children?: React.ReactNode;
@@ -19,7 +19,15 @@ export const ToolbarTooltip = ({
 	delay,
 }: ToolbarTooltipProps): React.JSX.Element => {
 	return (
-		<Tooltip content={content} position={position} delay={delay} shortcut={shortcut}>
+		<Tooltip
+			content={content}
+			position={position}
+			delay={delay}
+			shortcut={shortcut}
+			// the information in toolbar tooltips is already announced by aria-label and aria-keyshortcuts on the item
+			// so we need to disable screen reader announcement of tooltip to avoid duplicate announcements
+			isScreenReaderAnnouncementDisabled
+		>
 			{children}
 		</Tooltip>
 	);

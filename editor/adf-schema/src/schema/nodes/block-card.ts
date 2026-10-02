@@ -1,10 +1,13 @@
-import type { Layout, OptionalRichMediaAttributes } from './types/rich-media-common';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { blockCard as blockCardFactory } from '../../next-schema/generated/nodeTypes';
-import { uuid } from '../../utils';
+import { uuid } from '../../utils/uuid';
+import type { Layout, OptionalRichMediaAttributes } from './types/rich-media-common';
 
 export interface UrlType {
 	localId?: string;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @validatorFn safeUrl
 	 */
 	url: string;
@@ -12,6 +15,7 @@ export interface UrlType {
 
 export interface DataType {
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @additionalProperties true
 	 */
 	data: object;
@@ -22,6 +26,7 @@ export interface DatasourceAttributeProperties {
 	id: string;
 	parameters: object;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 1
 	 */
 	views: { properties?: object; type: string }[];
@@ -31,6 +36,7 @@ export interface DatasourceAttributes extends OptionalRichMediaAttributes {
 	datasource: DatasourceAttributeProperties;
 	localId?: string;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @validatorFn safeUrl
 	 */
 	url?: string;
@@ -63,7 +69,7 @@ const getCommonAttributesFromDom = (dom: string | Node): Partial<BlockCardDefini
 	};
 };
 
-export const blockCard = blockCardFactory({
+export const blockCard: NodeSpec = blockCardFactory({
 	parseDOM: [
 		{
 			tag: 'a[data-block-card]',
@@ -110,7 +116,7 @@ export const blockCard = blockCardFactory({
 	},
 });
 
-export const blockCardWithLocalId = blockCardFactory({
+export const blockCardWithLocalId: NodeSpec = blockCardFactory({
 	parseDOM: [
 		{
 			tag: 'a[data-block-card]',

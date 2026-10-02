@@ -1,26 +1,25 @@
 import type { EventHandler, KeyboardEvent, MouseEvent } from 'react';
 import React, { useCallback } from 'react';
 
-import { isSafeUrl } from '@atlaskit/adf-schema';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
+import type { IntlShape } from 'react-intl';
+
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import type { OnClickCallback } from '@atlaskit/editor-common/card';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type { ProviderFactory, Providers } from '@atlaskit/editor-common/provider-factory';
 import type { ReactComponentProps, getPosHandler } from '@atlaskit/editor-common/react-node-view';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { getAnalyticsEditorAppearance } from '@atlaskit/editor-common/utils';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import Link from '@atlaskit/link';
-import { type CardContext } from '@atlaskit/link-provider';
-import type { APIError } from '@atlaskit/linking-common';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { CardContext } from '@atlaskit/link-provider/types';
+import Link from '@atlaskit/link/link';
+import type { APIError } from '@atlaskit/linking-common/api-error';
 import type { CardProps as BaseCardProps } from '@atlaskit/smart-card';
 
 import type { CardPlugin } from '../cardPluginType';
@@ -64,12 +63,14 @@ export interface SmartCardProps extends CardProps {
 	CompetitorPrompt?: React.ComponentType<{ linkType?: string; sourceUrl: string }>;
 	disablePreviewPanel?: BaseCardProps['disablePreviewPanel'];
 	enableInlineUpgradeFeatures?: boolean;
+	intl?: IntlShape;
 	isHovered?: boolean;
 	isPageSSRed?: boolean;
 	onClick?: EventHandler<MouseEvent | KeyboardEvent> | undefined;
 	onResolve?: (tr: Transaction, title?: string) => void;
 	pluginInjectionApi?: ExtractInjectionAPI<typeof cardPlugin>;
 	provider?: Providers['cardProvider'];
+	smartCardContext?: CardContext;
 }
 
 const WithClickHandler = ({
@@ -152,25 +153,16 @@ export function Card(
 
 			if (this.state.isError) {
 				if (url) {
-					return fg('dst-a11y__replace-anchor-with-link__linking-platfo') ? (
+					return (
 						<Link
 							href={url}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onClick={(e) => {
 								e.preventDefault();
 							}}
 						>
 							{url}
 						</Link>
-					) : (
-						// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-						<a
-							href={url}
-							onClick={(e) => {
-								e.preventDefault();
-							}}
-						>
-							{url}
-						</a>
 					);
 				} else {
 					return <UnsupportedComponent />;
@@ -182,6 +174,7 @@ export function Card(
 
 			return (
 				<AnalyticsContext
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					data={{
 						attributes: { location: analyticsEditorAppearance },
 						// Below is added for the future implementation of Linking Platform namespaced analytics context

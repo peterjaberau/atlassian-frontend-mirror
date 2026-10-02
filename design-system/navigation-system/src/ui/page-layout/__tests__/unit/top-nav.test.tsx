@@ -1,15 +1,31 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { render } from '@atlassian/testing-library/render';
+import { screen } from '@atlassian/testing-library/screen';
 
 import { TopNav } from '../../top-nav/top-nav';
 
-it('should set the top bar height to the default value if height is not provided', () => {
-	render(<TopNav>topbar</TopNav>);
+ffTest.off('navx-full-height-sidebar', 'without full height sidebar', () => {
+	// Default height is always 48px when FHS is disabled
+	it('should set the top bar height to the default value if height is not provided', () => {
+		render(<TopNav>topbar</TopNav>);
 
-	expect(screen.getByText('topbar')).toHaveTextContent(
-		'#unsafe-design-system-page-layout-root { --n_tNvM: 48px }',
-	);
+		expect(screen.getByText('topbar')).toHaveTextContent(
+			'#unsafe-design-system-page-layout-root { --n_tNvM: 48px }',
+		);
+	});
+});
+
+ffTest.on('navx-full-height-sidebar', 'without full height sidebar', () => {
+	// Default height is 56px when FHS is enabled
+	it('should set the top bar height to the default value if height is not provided', () => {
+		render(<TopNav>topbar</TopNav>);
+
+		expect(screen.getByText('topbar')).toHaveTextContent(
+			'#unsafe-design-system-page-layout-root { --n_tNvM: 56px }',
+		);
+	});
 });
 
 it('should set the top bar height to the provided value', () => {

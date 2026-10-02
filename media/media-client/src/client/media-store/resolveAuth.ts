@@ -1,15 +1,16 @@
-import { type Auth, type AuthContext, type AuthProvider } from '@atlaskit/media-core';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { MediaStoreError } from './error';
-import { rejectTimeout } from '../../utils/setTimeoutPromise';
+import type { Auth, AuthContext, AuthProvider } from '@atlaskit/media-core/auth';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
 import { globalMediaEventEmitter } from '../../globalMediaEventEmitter';
+import { rejectTimeout } from '../../utils/rejectTimeout';
+import { MediaStoreError } from './MediaStoreError';
 
 export const DEFAULT_AUTH_PROVIDER_TIMEOUT = 10000;
 
 export const resolveAuth = async (
 	authProvider: AuthProvider,
 	authContext?: AuthContext,
-	authProviderTimeout = DEFAULT_AUTH_PROVIDER_TIMEOUT,
+	authProviderTimeout: number = DEFAULT_AUTH_PROVIDER_TIMEOUT,
 ): Promise<Auth> => {
 	const startTime = performance.now();
 	let eventEmitted = false;
@@ -74,6 +75,14 @@ export const resolveAuth = async (
 	}
 
 	/*
+	Only client-based auth carries a clientId. Fail fast when it is present but empty, instead of
+	letting the request reach dt-auth and get rejected with `Client id "" is invalid`.
+  */
+	if ('clientId' in auth && !auth.clientId && fg('platform_media_validate_client_id')) {
+		throw new MediaStoreError('emptyClientId');
+	}
+
+	/*
     We added a token expiration check here in the past, and then we had to revert due to edge cases in the client that we can't control.
     Token expiration check in the frontend is a bad idea. Don't do it!
     More info:
@@ -81,12 +90,5 @@ export const resolveAuth = async (
     https://gist.github.com/timvisee/fcda9bbdff88d45cc9061606b4b923ca
   */
 
-	return auth;
-};
-
-export const resolveInitialAuth = (auth?: Auth) => {
-	if (!auth) {
-		throw new MediaStoreError('missingInitialAuth');
-	}
 	return auth;
 };

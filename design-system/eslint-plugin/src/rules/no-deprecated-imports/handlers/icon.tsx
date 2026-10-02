@@ -9,9 +9,9 @@ import {
 } from 'eslint-codemod-utils';
 
 import coreIconLabMetadata from '@atlaskit/icon-lab/metadata';
-import { coreIconMetadata } from '@atlaskit/icon/metadata';
+import coreIconMetadata from '@atlaskit/icon/metadata-core';
 
-import { type DeprecatedImportConfigEntry } from '../../utils/types';
+import type { DeprecatedImportConfigEntry } from '../../utils/types';
 import { pathWithCustomMessageId } from '../constants';
 
 export type ImportIconDeprecationError = Rule.ReportDescriptor & { node: ImportDeclaration };

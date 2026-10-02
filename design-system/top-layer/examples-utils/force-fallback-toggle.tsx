@@ -1,0 +1,80 @@
+/* eslint-disable @atlaskit/ui-styling-standard/enforce-style-prop */
+
+import React, { type Context, createContext, type ReactNode, useState } from 'react';
+
+import { token } from '@atlaskit/tokens';
+import { Popover } from '@atlaskit/top-layer/popover/popover';
+
+export const ForceFallbackContext: Context<boolean> = createContext<boolean>(false);
+
+/**
+ * Wraps an example with a fixed toggle in the top-right corner that
+ * lets you force the JavaScript fallback for anchor positioning.
+ *
+ * Children receive the `forceFallbackPositioning` value through context, which can
+ * be read with `useForceFallback()` or passed directly to `<Popover>`.
+ *
+ * Uses `<Popover mode="manual" isOpen>` so the toggle lives in the top layer
+ * rather than relying on `position: fixed` and `z-index`.
+ *
+ * @example
+ * ```tsx
+ * export default function MyExample() {
+ *   return (
+ *     <ForceFallbackToggle>
+ *       {(forceFallbackPositioning) => (
+ *         <Popup placement="block-end" onClose={fn} forceFallbackPositioning={forceFallbackPositioning}>
+ *           …
+ *         </Popup>
+ *       )}
+ *     </ForceFallbackToggle>
+ *   );
+ * }
+ * ```
+ */
+export function ForceFallbackToggle({
+	children,
+}: {
+	children: React.ReactNode | ((forceFallbackPositioning: boolean) => ReactNode);
+}): React.ReactNode {
+	const [forceFallbackPositioning, setForceFallback] = useState(false);
+
+	return (
+		<ForceFallbackContext.Provider value={forceFallbackPositioning}>
+			<Popover mode="manual" isOpen>
+				<label
+					htmlFor="force-fallback-toggle"
+					style={{
+						position: 'fixed',
+						top: 8,
+						right: 8,
+						display: 'flex',
+						alignItems: 'center',
+						gap: 6,
+						padding: '4px 10px',
+						borderRadius: 6,
+						border: `1px solid ${token('color.border')}`,
+						background: forceFallbackPositioning
+							? token('color.background.warning')
+							: token('color.background.input'),
+						fontSize: 12,
+						fontFamily: token('font.family.body'),
+						cursor: 'pointer',
+						userSelect: 'none',
+						boxShadow: token('elevation.shadow.overlay'),
+					}}
+				>
+					<input
+						id="force-fallback-toggle"
+						type="checkbox"
+						checked={forceFallbackPositioning}
+						onChange={(e) => setForceFallback(e.target.checked)}
+						style={{ margin: 0 }}
+					/>
+					JS fallback
+				</label>
+			</Popover>
+			{typeof children === 'function' ? children(forceFallbackPositioning) : children}
+		</ForceFallbackContext.Provider>
+	);
+}

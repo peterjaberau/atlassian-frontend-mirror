@@ -1,12 +1,17 @@
 /* eslint-disable @atlaskit/ui-styling-standard/no-unsafe-selectors */
 /* eslint-disable @atlaskit/ui-styling-standard/no-container-queries */
 /* eslint-disable @atlaskit/ui-styling-standard/no-nested-selectors */
-import React, { type ReactNode } from 'react';
+
+import React from 'react';
+import type { ReactNode } from 'react';
 
 import type { AllowedStyles, ApplySchema, CompiledStyles } from '@compiled/react';
 
 import { cssMap, cx } from '@atlaskit/css';
-import { Box, type MediaQuery } from '@atlaskit/primitives/compiled';
+import { UNSAFE_expValNoExposure } from '@atlaskit/platform-feature-experiments/unsafe-exp-val-no-exposure';
+import { Box } from '@atlaskit/primitives/compiled';
+import type { MediaQuery } from '@atlaskit/primitives/compiled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import type { DesignTokenStyles } from '@atlaskit/tokens/css-type-schema';
 
 const styles = cssMap({
@@ -98,6 +103,63 @@ const styles = cssMap({
 			},
 		},
 		'@container toolbar-container (min-width: 1024px)': {
+			'.show-only-xl': {
+				display: 'block',
+			},
+		},
+	},
+	// Preset: fullpage updated (410, 476, 1035, 1130)
+	// Gated behind platform_editor_ai_content_suggested_edits experiment
+	fullpageUpdated: {
+		// @ts-expect-error - container queries are not typed in cssMap
+		'@container toolbar-container (max-width: 421px)': {
+			'.show-above-sm': {
+				display: 'none',
+			},
+			'.show-below-sm': {
+				display: 'block',
+			},
+		},
+		'@container toolbar-container (min-width: 422px) and (max-width: 721px)': {
+			'.show-only-sm': {
+				display: 'block',
+			},
+		},
+		'@container toolbar-container (max-width: 721px)': {
+			'.show-above-md': {
+				display: 'none',
+			},
+			'.show-below-md': {
+				display: 'block',
+			},
+		},
+		'@container toolbar-container (min-width: 722px) and (max-width: 1034px)': {
+			'.show-only-md': {
+				display: 'block',
+			},
+		},
+		'@container toolbar-container (max-width: 1034px)': {
+			'.show-above-lg': {
+				display: 'none',
+			},
+			'.show-below-lg': {
+				display: 'block',
+			},
+		},
+		'@container toolbar-container (min-width: 1035px) and (max-width: 1129px)': {
+			'.show-only-lg': {
+				display: 'block',
+			},
+		},
+		'@container toolbar-container (max-width: 1129px)': {
+			'.show-above-xl': {
+				display: 'none',
+			},
+			'.show-below-xl': {
+				display: 'block',
+			},
+		},
+		'@container toolbar-container (min-width: 1130px)': {
 			'.show-only-xl': {
 				display: 'block',
 			},
@@ -221,6 +283,65 @@ const styles = cssMap({
 			},
 		},
 	},
+	// Preset: jira-issue updated (280, 507, 679, 1024)
+	// Gated behind platform_editor_toolbar_update_jira_config experiment
+	jiraIssueUpdated: {
+		// @ts-expect-error - container queries are not typed in cssMap
+		'&&': {
+			'@container toolbar-container (max-width: 279px)': {
+				'.show-above-sm': {
+					display: 'none',
+				},
+				'.show-below-sm': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (min-width: 280px) and (max-width: 506px)': {
+				'.show-only-sm': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (max-width: 506px)': {
+				'.show-above-md': {
+					display: 'none',
+				},
+				'.show-below-md': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (min-width: 507px) and (max-width: 678px)': {
+				'.show-only-md': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (max-width: 678px)': {
+				'.show-above-lg': {
+					display: 'none',
+				},
+				'.show-below-lg': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (min-width: 679px) and (max-width: 1023px)': {
+				'.show-only-lg': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (max-width: 1023px)': {
+				'.show-above-xl': {
+					display: 'none',
+				},
+				'.show-below-xl': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (min-width: 1024px)': {
+				'.show-only-xl': {
+					display: 'block',
+				},
+			},
+		},
+	},
 	// Preset: jsm-comment (365, 500, 630, 1024)
 	// Used for JSM comment editor with canned responses button
 	jsmComment: {
@@ -248,6 +369,65 @@ const styles = cssMap({
 				},
 			},
 			'@container toolbar-container (min-width: 500px) and (max-width: 629px)': {
+				'.show-only-md': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (max-width: 629px)': {
+				'.show-above-lg': {
+					display: 'none',
+				},
+				'.show-below-lg': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (min-width: 630px) and (max-width: 1023px)': {
+				'.show-only-lg': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (max-width: 1023px)': {
+				'.show-above-xl': {
+					display: 'none',
+				},
+				'.show-below-xl': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (min-width: 1024px)': {
+				'.show-only-xl': {
+					display: 'block',
+				},
+			},
+		},
+	},
+	// Preset: jsm-comment updated (365, 391, 630, 1024)
+	// Gated behind platform_editor_toolbar_update_jira_config experiment
+	jsmCommentUpdated: {
+		// @ts-expect-error - container queries are not typed in cssMap
+		'&&': {
+			'@container toolbar-container (max-width: 364px)': {
+				'.show-above-sm': {
+					display: 'none',
+				},
+				'.show-below-sm': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (min-width: 365px) and (max-width: 390px)': {
+				'.show-only-sm': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (max-width: 390px)': {
+				'.show-above-md': {
+					display: 'none',
+				},
+				'.show-below-md': {
+					display: 'block',
+				},
+			},
+			'@container toolbar-container (min-width: 391px) and (max-width: 629px)': {
 				'.show-only-md': {
 					display: 'block',
 				},
@@ -414,11 +594,9 @@ export type BreakpointPreset =
 	| 'jsm-comment'
 	| 'confluence-comment';
 
-// Map preset names to camelCase style keys
-const presetStyleMap: Record<
-	BreakpointPreset,
-	CompiledStyles<ApplySchema<AllowedStyles<MediaQuery>, DesignTokenStyles, ''>>
-> = {
+type PresetStyle = CompiledStyles<ApplySchema<AllowedStyles<MediaQuery>, DesignTokenStyles, ''>>;
+
+const presetStyleMap: Record<BreakpointPreset, PresetStyle> = {
 	fullpage: styles.fullpage,
 	reduced: styles.reduced,
 	'jira-issue': styles.jiraIssue,
@@ -426,12 +604,18 @@ const presetStyleMap: Record<
 	'confluence-comment': styles.confluenceComment,
 };
 
+const updatedPresetStyleMap: Partial<Record<BreakpointPreset, PresetStyle>> = {
+	fullpage: styles.fullpageUpdated,
+	'jira-issue': styles.jiraIssueUpdated,
+	'jsm-comment': styles.jsmCommentUpdated,
+};
+
 export type ResponsiveContainerProps = {
 	/**
 	 * Selects the breakpoint preset for the responsive container.
 	 *
 	 * Available presets:
-	 * - 'fullpage': (410, 476, 768, 1024) - Editor full-page experiences
+	 * - 'fullpage': (410, 476, 768, 1024) - Editor full-page experiences (updated to 410, 476, 1035, 1130 when platform_editor_ai_content_suggested_edits is enabled)
 	 * - 'reduced': (210, 408, 575, 1024) - Default compact toolbars, constrained layouts
 	 * - 'jira-issue': (280, 420, 650, 1024) - Jira issue view and similar contexts
 	 * - 'jsm-comment': (365, 500, 630, 1024) - JSM comment editor with canned responses button
@@ -490,13 +674,29 @@ export const ResponsiveContainer = ({
 	children,
 	breakpointPreset,
 }: ResponsiveContainerProps): React.JSX.Element => {
+	const isUpdatedConfig = (() => {
+		if (breakpointPreset === 'fullpage') {
+			return UNSAFE_expValNoExposure(
+				'platform_editor_ai_content_suggested_edits',
+				'isEnabled',
+				false,
+			);
+		}
+		return (
+			expValEquals('platform_editor_toolbar_update_jira_config', 'isEnabled', true) &&
+			breakpointPreset in updatedPresetStyleMap
+		);
+	})();
+
 	return (
 		<Box
 			xcss={cx(
 				breakpointPreset === 'fullpage'
 					? styles.responsiveContainerFullPage
 					: styles.responsiveContainer,
-				presetStyleMap[breakpointPreset],
+				isUpdatedConfig
+					? updatedPresetStyleMap[breakpointPreset]
+					: presetStyleMap[breakpointPreset],
 			)}
 		>
 			{children}

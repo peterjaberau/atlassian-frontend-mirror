@@ -5,17 +5,19 @@ import type { GetEditorFeatureFlags } from '@atlaskit/editor-common/types';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { RowStickyState } from '../../pm-plugins/sticky-headers/types';
-import { getColumnsWidths } from '../../pm-plugins/utils/column-controls';
+import {
+	getColumnsWidths,
+	getColumnsWidthsWithMergedCells,
+} from '../../pm-plugins/utils/column-controls';
 import { containsHeaderColumn } from '../../pm-plugins/utils/nodes';
 import { getRowHeights } from '../../pm-plugins/utils/row-controls';
 import { isNativeStickySupported } from '../../pm-plugins/utils/sticky-header';
 import type { CellHoverMeta, DraggableSourceData, PluginInjectionAPI } from '../../types';
 import { TableCssClassName as ClassName } from '../../types';
-
 import { ColumnControls } from './ColumnControls';
 import { ColumnDropTargets } from './ColumnDropTargets';
 
@@ -30,7 +32,6 @@ interface Props {
 	hoveredCell?: CellHoverMeta;
 	hoveredRows?: number[];
 	isChromelessEditor?: boolean;
-	isDragAndDropEnabled?: boolean;
 	isInDanger?: boolean;
 	isNumberColumnEnabled?: boolean;
 	isResizing?: boolean;
@@ -62,7 +63,6 @@ const TableFloatingColumnControls = ({
 	tableWrapperHeight,
 	api,
 	isChromelessEditor,
-	isDragAndDropEnabled,
 }: Props): React.JSX.Element | null => {
 	const [isDragging, setIsDragging] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -100,7 +100,9 @@ const TableFloatingColumnControls = ({
 		return null;
 	}
 
-	const colWidths = getColumnsWidths(editorView);
+	const colWidths = expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)
+		? getColumnsWidthsWithMergedCells(editorView)
+		: getColumnsWidths(editorView);
 
 	if (stickyTop) {
 		const columnControlTopOffsetFromParent = '-12px';
@@ -111,7 +113,7 @@ const TableFloatingColumnControls = ({
 
 	let anchorStyles = {};
 	if (
-		isNativeStickySupported(isDragAndDropEnabled ?? false) &&
+		isNativeStickySupported() &&
 		expValEquals('platform_editor_table_sticky_header_improvements', 'cohort', 'test_with_overflow')
 	) {
 		const rowAnchorName = tableRef.querySelector('tr')?.style.getPropertyValue('anchor-name');

@@ -1,8 +1,10 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { VCObserverEntry, VCObserverEntryType, ViewportEntryData } from '../../types';
 import VCCalculator_FY25_03 from '../fy25_03';
 import {
+	DARK_READER_BROWSER_EXTENSION_ATTRIBUTES,
+	MORE_THIRD_PARTY_EXTENSION_ATTRIBUTES,
 	KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS,
 	NON_VISUAL_ARIA_ATTRIBUTES,
 	THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES,
@@ -28,8 +30,8 @@ const getExcludedEntryTypes = () => {
 };
 
 const fy26_04_excluded_attributes = [
-	'data-is-hovered' // non-visual attribute
-]
+	'data-is-hovered', // non-visual attribute
+];
 
 export default class VCCalculator_FY26_04 extends VCCalculator_FY25_03 {
 	constructor(revisionNo: string = 'fy26.04') {
@@ -41,6 +43,19 @@ export default class VCCalculator_FY26_04 extends VCCalculator_FY25_03 {
 		include3p?: boolean,
 		excludeSmartAnswersInSearch?: boolean,
 	): boolean {
+		const extra_fy26_04_excluded_attributes = ['data-fabric-mode'];
+
+		const entryData = entry.data as ViewportEntryData;
+		const { attributeName } = entryData;
+
+		if (
+			entry.data.type === 'mutation:attribute' &&
+			attributeName &&
+			extra_fy26_04_excluded_attributes.includes(attributeName)
+		) {
+			return false;
+		}
+
 		const isEntryIncludedInV3 = super.isEntryIncluded(
 			entry,
 			include3p,
@@ -51,15 +66,22 @@ export default class VCCalculator_FY26_04 extends VCCalculator_FY25_03 {
 			return true;
 		}
 
-		const entryData = entry.data as ViewportEntryData;
-		const { attributeName } = entryData;
-
 		if (
 			entry.data.type === 'mutation:attribute' &&
-			(!attributeName || (fy26_04_excluded_attributes.includes(attributeName) && fg('platform_ufo_data-is-hovered-v4-exclusion')))
+			(!attributeName ||
+				(fy26_04_excluded_attributes.includes(attributeName) &&
+					fg('platform_ufo_data-is-hovered-v4-exclusion')))
 		) {
 			return false;
 		}
+
+		const thirdPartyAttributes = [
+			...THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES,
+			...DARK_READER_BROWSER_EXTENSION_ATTRIBUTES,
+			...(fg('platform_ufo_exclude_fdprocessedid_attribute')
+				? MORE_THIRD_PARTY_EXTENSION_ATTRIBUTES
+				: []),
+		];
 
 		if (entryData.type === 'mutation:display-contents-children-attribute') {
 			if (
@@ -67,7 +89,7 @@ export default class VCCalculator_FY26_04 extends VCCalculator_FY25_03 {
 				attributeName.startsWith('data-test') ||
 				KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS.includes(attributeName) ||
 				NON_VISUAL_ARIA_ATTRIBUTES.includes(attributeName) ||
-				THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES.includes(attributeName)
+				thirdPartyAttributes.includes(attributeName)
 			) {
 				return false;
 			}

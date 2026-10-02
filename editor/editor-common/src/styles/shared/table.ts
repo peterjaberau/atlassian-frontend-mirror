@@ -1,31 +1,23 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
-import type { TableLayout } from '@atlaskit/adf-schema';
 import {
-	tableCellContentDomSelector,
-	tableCellSelector,
-	tableHeaderSelector,
-	tablePrefixSelector,
-} from '@atlaskit/adf-schema';
-import {
-	akEditorBreakoutPadding,
-	akEditorFullWidthLayoutWidth,
 	akEditorSelectedNodeClassName,
-	akEditorTableBorder,
 	akEditorTableNumberColumnWidth,
-	akEditorTableToolbar,
-	akEditorWideLayoutWidth,
 	overflowShadow,
 } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import { token } from '@atlaskit/tokens';
 
-import { browser as browserLegacy, getBrowserInfo } from '../../utils/browser';
-
+import { getBrowserInfo } from '../../utils/browser';
 import { CodeBlockSharedCssClassName } from './code-block';
 import { tableCellBackgroundStyleOverride } from './tableCell';
+import { TableSharedCssClassName } from './TableSharedCssClassName';
 
 export const tableMarginTop = 24;
 export const tableMarginBottom = 16;
@@ -37,90 +29,63 @@ export const tableCellBorderWidth = 1;
 export const tableCellPadding = 8;
 export const tableResizeHandleWidth = 6;
 export const tablePadding = 8;
-export const tableControlsSpacing = tableMarginTop + tablePadding - tableCellBorderWidth;
-
-export const TableSharedCssClassName = {
-	TABLE_CONTAINER: `${tablePrefixSelector}-container`,
-	TABLE_NODE_WRAPPER: `${tablePrefixSelector}-wrapper`,
-	TABLE_NODE_WRAPPER_NO_OVERFLOW: `${tablePrefixSelector}-wrapper-no-overflow`,
-	TABLE_SCROLL_INLINE_SHADOW: `${tablePrefixSelector}-scroll-inline-shadow`,
-	TABLE_RIGHT_BORDER: `${tablePrefixSelector}-right-border`,
-	TABLE_LEFT_BORDER: `${tablePrefixSelector}-left-border`,
-	TABLE_LEFT_SHADOW: `${tablePrefixSelector}-with-left-shadow`,
-	TABLE_RIGHT_SHADOW: `${tablePrefixSelector}-with-right-shadow`,
-	TABLE_STICKY_SHADOW: `${tablePrefixSelector}-sticky-shadow`,
-	TABLE_STICKY_WRAPPER: `${tablePrefixSelector}-sticky-wrapper`,
-	TABLE_STICKY_SCROLLBAR_CONTAINER: `${tablePrefixSelector}-sticky-scrollbar-container`,
-	TABLE_STICKY_SENTINEL_TOP: `${tablePrefixSelector}-sticky-sentinel-top`,
-	TABLE_STICKY_SENTINEL_BOTTOM: `${tablePrefixSelector}-sticky-sentinel-bottom`,
-	TABLE_STICKY_SCROLLBAR_SENTINEL_TOP: `${tablePrefixSelector}-sticky-scrollbar-sentinel-top`,
-	TABLE_STICKY_SCROLLBAR_SENTINEL_BOTTOM: `${tablePrefixSelector}-sticky-scrollbar-sentinel-bottom`,
-	TABLE_SHADOW_SENTINEL_LEFT: `${tablePrefixSelector}-shadow-sentinel-left`,
-	TABLE_SHADOW_SENTINEL_RIGHT: `${tablePrefixSelector}-shadow-sentinel-right`,
-	// eslint-disable-next-line @atlaskit/editor/no-re-export
-	TABLE_CELL_NODEVIEW_CONTENT_DOM: tableCellContentDomSelector,
-	// eslint-disable-next-line @atlaskit/editor/no-re-export
-	TABLE_CELL_WRAPPER: tableCellSelector,
-	// eslint-disable-next-line @atlaskit/editor/no-re-export
-	TABLE_HEADER_CELL_WRAPPER: tableHeaderSelector,
-	TABLE_ROW_CONTROLS_WRAPPER: `${tablePrefixSelector}-row-controls-wrapper`,
-	TABLE_COLUMN_CONTROLS_DECORATIONS: `${tablePrefixSelector}-column-controls-decoration`,
-	TABLE_RESIZER_CONTAINER: `${tablePrefixSelector}-resizer-container`,
-} as const;
+export const tableControlsSpacing: number = tableMarginTop + tablePadding - tableCellBorderWidth;
 
 /* first block node has 0 top margin */
 const firstNodeWithNotMarginTop = () =>
-	fg('platform_editor_nested_dnd_styles_changes')
-		? // eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression
-			css`
-				> :nth-child(1 of :not(style, .ProseMirror-gapcursor, .ProseMirror-widget, span)) {
-					margin-top: 0;
-				}
-			`
-		: // eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression
-			css`
-				> :first-child:not(style),
-				> style:first-child + * {
-					margin-top: 0;
-				}
+	// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression
+	css`
+		> :nth-child(1 of :not(style, .ProseMirror-gapcursor, .ProseMirror-widget, span)) {
+			margin-top: 0;
+		}
+	`;
 
-				> .ProseMirror-gapcursor:first-child + *,
-				> style:first-child + .ProseMirror-gapcursor + * {
-					margin-top: 0;
-				}
-
-				> .ProseMirror-gapcursor:first-child + span + *,
-				> style:first-child + .ProseMirror-gapcursor + span + * {
-					margin-top: 0;
-				}
-			`;
-
-const tableSharedStyle = () => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
+/**
+ * The style is mirrored in:
+ * - packages/editor/renderer/src/ui/Renderer/RendererStyleContainer.tsx ( seems outdated )
+ * - packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ *
+ * If you are updating this, please also update the above files.
+ *
+ * @deprecated This Emotion-based style function is being phased out as part of the
+ * `platform_editor_core_static_css` experiment migration to Compiled CSS. While the experiment
+ * is running, any changes here MUST also be reflected in `EditorContentContainer-compiled.tsx`
+ * (look for `tableSharedStyle`, `tableSharedStyle_with_*`, `tableSharedStyle_without_*` entries
+ * in the `editorContentStyles` cssMap). Failure to do so will cause visual regressions when the
+ * compiled version is active.
+ */
+const tableSharedStyle = (): SerializedStyles => {
+	const browser = getBrowserInfo();
 	// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression -- Appears safe to auto-fix, but leaving it up to the team to remediate as the readability only gets worse with autofixing
 	return css`
 		${tableCellBackgroundStyleOverride()}
 		.${TableSharedCssClassName.TABLE_CONTAINER} {
 			position: relative;
-			margin: 0 auto ${token('space.200', '16px')};
+			margin: 0 auto ${token('space.200')};
 			box-sizing: border-box;
 
 			/**
-     * Fix block top alignment inside table cells.
-     */
+			 * Fix block top alignment inside table cells.
+			 */
 			.decisionItemView-content-wrap:first-of-type > div {
 				margin-top: 0;
 			}
-			.${TableSharedCssClassName.TABLE_RIGHT_BORDER},
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? `/* Fake side borders are not needed when the rounded overlay owns the outer border. */
+				.${TableSharedCssClassName.TABLE_RIGHT_BORDER},
 				.${TableSharedCssClassName.TABLE_LEFT_BORDER} {
+					display: none;
+				}
+					`
+				: `.${TableSharedCssClassName.TABLE_RIGHT_BORDER},
+			.${TableSharedCssClassName.TABLE_LEFT_BORDER} {
 				display: block;
 				width: 1px;
-				height: calc(100% - ${token('space.300', '24px')});
-				background: ${token('color.background.accent.gray.subtler', akEditorTableBorder)};
+				height: calc(100% - ${token('space.300')});
+				background: ${token('color.background.accent.gray.subtler')};
 				position: absolute;
-				top: ${token('space.300', '24px')};
+				top: ${token('space.300')};
 			}
 			.${TableSharedCssClassName.TABLE_RIGHT_BORDER} {
 				right: 0;
@@ -130,7 +95,7 @@ const tableSharedStyle = () => {
 			}
 			.${TableSharedCssClassName.TABLE_LEFT_BORDER}[data-with-numbered-table='true'] {
 				left: ${akEditorTableNumberColumnWidth - 1}px;
-			}
+			}`}
 		}
 		.${TableSharedCssClassName.TABLE_CONTAINER}[data-number-column='true'] {
 			padding-left: ${akEditorTableNumberColumnWidth - 1}px;
@@ -144,20 +109,19 @@ const tableSharedStyle = () => {
 		.${TableSharedCssClassName.TABLE_RESIZER_CONTAINER} table {
 			will-change: width;
 		}
-
 		.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table {
-			margin: ${token('space.300', '24px')} 0 0 0;
+			margin: ${token('space.300')} 0 0 0;
 		}
 
 		.${TableSharedCssClassName.TABLE_CONTAINER} > table,
 		.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table {
-			margin: ${token('space.300', '24px')} ${token('space.100', '8px')} 0 0;
+			margin: ${token('space.300')} ${token('space.100')} 0 0;
 		}
 
 		/* support panel nested in table */
 		${fg('platform_editor_bordered_panel_nested_in_table')
 			? `.${TableSharedCssClassName.TABLE_NODE_WRAPPER} .ak-editor-panel {
-			border: ${token('border.width', '1px')} solid ${token('color.border', '#d9dbea')};
+			border: ${token('border.width')} solid ${token('color.border')};
 		}`
 			: ''}
 
@@ -166,13 +130,38 @@ const tableSharedStyle = () => {
 	.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table,
 	.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table {
 			border-collapse: collapse;
-			border: ${tableCellBorderWidth}px solid
-				${token('color.background.accent.gray.subtler', akEditorTableBorder)};
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? `/* Keep a transparent border so the collapsed border model reserves the same 1px slot
+			   on the table edge; the ::after overlay draws the visible rounded border instead. */
+			border: ${tableCellBorderWidth}px solid transparent;`
+				: `border: ${tableCellBorderWidth}px solid ${token('color.background.accent.gray.subtler')};
 			border-left-color: transparent;
-			border-right-color: transparent;
+			border-right-color: transparent;`}
 			table-layout: fixed;
 			font-size: 1em;
 			width: 100%;
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? `position: relative;
+
+			/* Table-width outer-border owner for overflow-safe rounded corners. */
+			&::after {
+				content: '';
+				position: absolute;
+				inset: -0.5px;
+				border: ${tableCellBorderWidth}px solid ${token('color.background.accent.gray.subtler')};
+				border-radius: ${token('radius.xlarge')};
+				pointer-events: none;
+				z-index: 1;
+			}
+
+			/* When content-visibility is applied to the table (see editor-plugin-table nodeview), the
+			   implied \`contain: paint\` clips descendant painting to the table's border-box. The
+			   overlay above sits at \`inset: -0.5px\` (half a pixel outside), so it would be shaved —
+			   most visibly along the bottom. Pull it flush to the edge so it paints inside the clip. */
+			&[data-content-visibility]::after {
+				inset: 0;
+			}`
+				: ''}
 
 			&[data-autosize='true'] {
 				table-layout: auto;
@@ -190,7 +179,7 @@ const tableSharedStyle = () => {
 					border-bottom: none;
 				}
 				th td {
-					background-color: ${token('color.background.neutral.subtle', 'white')};
+					background-color: ${token('color.background.neutral.subtle')};
 				}
 
 				> tbody > tr > th,
@@ -198,11 +187,19 @@ const tableSharedStyle = () => {
 					min-width: ${tableCellMinWidth}px;
 					font-weight: ${token('font.weight.regular')};
 					vertical-align: top;
-					border: 1px solid ${token('color.background.accent.gray.subtler', akEditorTableBorder)};
+					${expValEqualsNoExposure('platform_editor_table_menu_updates', 'isEnabled', true)
+						? `&[data-valign='middle'] {
+								vertical-align: middle;
+							}
+							&[data-valign='bottom'] {
+								vertical-align: bottom;
+							}`
+						: ''}
+					border: 1px solid ${token('color.background.accent.gray.subtler')};
 					border-right-width: 0;
 					border-bottom-width: 0;
 
-					padding: ${token('space.100', '8px')};
+					padding: ${token('space.100')};
 					/* https://stackoverflow.com/questions/7517127/borders-not-shown-in-firefox-with-border-collapse-on-table-position-relative-o */
 					${browser.gecko || browser.ie || (browser.mac && browser.chrome)
 						? 'background-clip: padding-box;'
@@ -212,7 +209,7 @@ const tableSharedStyle = () => {
 
 				th p:not(:first-of-type),
 				td p:not(:first-of-type) {
-						margin-top: ${token('space.150', '12px')};
+						margin-top: ${token('space.150')};
 					}
 				}
 
@@ -221,8 +218,40 @@ const tableSharedStyle = () => {
 					background-color: ${token('elevation.surface')};
 				}
 
+				${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+					? `/* Let the wrapper overlay own the outer table perimeter.
+				   data-reaches-* attributes are set by the TableCell node view. */
+				> tbody > tr > th[data-reaches-top],
+				> tbody > tr > td[data-reaches-top] {
+					border-top-color: transparent;
+				}
+
+				> tbody > tr > th[data-reaches-left],
+				> tbody > tr > td[data-reaches-left] {
+					border-left-color: transparent;
+				}
+
+				> tbody > tr > td[data-reaches-left]::after {
+					border-left-color: transparent;
+				}
+
+				> tbody > tr > td[data-reaches-bottom]::after,
+				> tbody > tr > th[data-reaches-bottom]::after {
+					border-bottom-color: transparent;
+				}
+
+				/* The rounded-table overlay owns transparent perimeter borders.
+				   Paint edge cell backgrounds into that reserved border area so coloured
+				   first/last rows do not show the page background through 1px seams. */
+				> tbody > tr > th[data-reaches-top],
+				> tbody > tr > td[data-reaches-top],
+				> tbody > tr > th[data-reaches-bottom],
+				> tbody > tr > td[data-reaches-bottom] {
+					background-clip: border-box;
+				}`
+					: ''}
 				th {
-					background-color: ${token('color.background.accent.gray.subtlest', akEditorTableToolbar)};
+					background-color: ${token('color.background.accent.gray.subtlest')};
 					text-align: left;
 
 					/* only apply this styling to codeblocks in default background headercells */
@@ -231,74 +260,59 @@ const tableSharedStyle = () => {
 						? '&:not(.danger)'
 						: '&:not([style]):not(.danger)'} {
 						.${CodeBlockSharedCssClassName.CODEBLOCK_CONTAINER}:not(.danger) {
-							background-color: ${token('elevation.surface.raised', 'rgb(235, 237, 240)')};
+							background-color: ${token('elevation.surface.raised')};
 
 							:not(.${akEditorSelectedNodeClassName}) {
-								box-shadow: 0px 0px 0px 1px ${token('color.border', 'transparent')};
+								box-shadow: 0px 0px 0px 1px ${token('color.border')};
 							}
 
 							.${CodeBlockSharedCssClassName.CODEBLOCK_CONTENT_WRAPPER} {
 								background-image: ${overflowShadow({
-									leftCoverWidth: token('space.300', '24px'),
+									leftCoverWidth: token('space.300'),
 								})};
 
-								background-color: ${token('color.background.neutral', 'rgb(235, 237, 240)')};
+								background-color: ${token('color.background.neutral')};
 							}
 
 							.${CodeBlockSharedCssClassName.CODEBLOCK_LINE_NUMBER_GUTTER} {
-								background-color: ${token('color.background.neutral', 'rgb(226, 229, 233)')};
+								background-color: ${token('color.background.neutral')};
 							}
 
 							/* this is only relevant to the element taken care of by renderer */
 							> [data-ds--code--code-block] {
 								background-image: ${overflowShadow({
-									leftCoverWidth: token('space.300', '24px'),
+									leftCoverWidth: token('space.300'),
 								})}!important;
 
-								background-color: ${token(
-									'color.background.neutral',
-									'rgb(235, 237, 240)',
-								)}!important;
+								background-color: ${token('color.background.neutral')}!important;
 
 								/* selector lives inside @atlaskit/code */
-								--ds--code--line-number-bg-color: ${token(
-									'color.background.neutral',
-									'rgb(226, 229, 233)',
-								)};
+								--ds--code--line-number-bg-color: ${token('color.background.neutral')};
 							}
 						}
 					}
 				}
 			}
 		}
+
+		${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? `/* When the number column is enabled, the left visual edge belongs to the number column.
+		   Remove the left border-radius and left border from the table's ::after overlay
+		   so it doesn't double-up or round where the number column already provides that edge. */
+		.${TableSharedCssClassName.TABLE_CONTAINER}[data-number-column='true'] {
+			> .${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table::after,
+			> .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table::after {
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+				border-left-color: transparent;
+			}
+		}`
+			: ''}
 	`;
 };
 
-export const calcTableWidth = (
-	layout: TableLayout,
-	containerWidth?: number,
-	addControllerPadding: boolean = true,
-): number | 'inherit' => {
-	switch (layout) {
-		case 'full-width':
-			return containerWidth
-				? Math.min(
-						containerWidth - (addControllerPadding ? akEditorBreakoutPadding : 0),
-						akEditorFullWidthLayoutWidth,
-					)
-				: akEditorFullWidthLayoutWidth;
-		case 'wide':
-			if (containerWidth) {
-				return Math.min(
-					containerWidth - (addControllerPadding ? akEditorBreakoutPadding : 0),
-					akEditorWideLayoutWidth,
-				);
-			}
-
-			return akEditorWideLayoutWidth;
-		default:
-			return 'inherit';
-	}
-};
-
 export { tableSharedStyle };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { TableSharedCssClassName } from './TableSharedCssClassName';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { calcTableWidth } from './calcTableWidth';

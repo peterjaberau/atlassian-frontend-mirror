@@ -1,9 +1,8 @@
-import {
-	type HeadingAnchorLinksProps,
-	type HeadingAnchorLinksConfig,
-} from '../../ui/Renderer/types';
+import type { HeadingAnchorLinksProps, HeadingAnchorLinksConfig } from '../../ui/Renderer/types';
 
-export function isNestedHeaderLinksEnabled(allowHeadingAnchorLinks?: HeadingAnchorLinksProps): boolean {
+export function isNestedHeaderLinksEnabled(
+	allowHeadingAnchorLinks?: HeadingAnchorLinksProps,
+): boolean {
 	// If it's a boolean or undefined, then we don't support nesting.
 	if (!allowHeadingAnchorLinks || typeof allowHeadingAnchorLinks === 'boolean') {
 		return false;
@@ -14,7 +13,9 @@ export function isNestedHeaderLinksEnabled(allowHeadingAnchorLinks?: HeadingAnch
 	return !!allowNestedHeaderLinks;
 }
 
-export function getActiveHeadingId(allowHeadingAnchorLinks?: HeadingAnchorLinksProps) {
+export function getActiveHeadingId(
+	allowHeadingAnchorLinks?: HeadingAnchorLinksProps,
+): string | undefined {
 	if (!isNestedHeaderLinksEnabled(allowHeadingAnchorLinks)) {
 		return undefined;
 	}

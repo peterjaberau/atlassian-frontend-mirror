@@ -3,17 +3,31 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import Spinner from '@atlaskit/spinner';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import DynamicTable, { DynamicTableStateless } from '../../../index';
 import { type RowCellType, type RowType } from '../../../types';
+import { rowsWithKeys } from './_data';
+import rows from './_data-json.json';
+import rowsNumeric from './_data-numeric-json.json';
+import { headMock1 } from './_head-mock';
 
-import { headMock1, rows, rowsWithKeys, secondSortKey } from './_data';
-import { headNumeric, rowsNumeric } from './_data-numeric';
+const headNumeric: {
+	cells: {
+		key: string;
+		content: string;
+		isSortable: boolean;
+	}[];
+} = {
+	cells: [
+		{ key: 'first_name', content: 'first name', isSortable: true },
+		{ key: 'numeric', content: 'Arbitrary numeric', isSortable: true },
+	],
+};
 
-jest.mock('@atlaskit/spinner', () => {
-	const actual = jest.requireActual('@atlaskit/spinner');
+jest.mock('@atlaskit/spinner/spinner', () => {
+	const actual = jest.requireActual('@atlaskit/spinner/spinner');
 	return {
 		__esModule: true,
 		...actual,
@@ -507,7 +521,7 @@ describe('@atlaskit/dynamic-table', () => {
 					head={headMock1}
 					rows={rows}
 					sortOrder="DESC"
-					sortKey={secondSortKey}
+					sortKey="last_name"
 					testId={testId}
 				/>,
 			);

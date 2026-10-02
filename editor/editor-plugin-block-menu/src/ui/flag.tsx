@@ -1,11 +1,14 @@
 import React from 'react';
 
-import { useIntl, type MessageDescriptor } from 'react-intl-next';
+import { useIntl } from 'react-intl';
+import type { MessageDescriptor } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { blockMenuMessages as messages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import AkFlag, { FlagGroup, AutoDismissFlag } from '@atlaskit/flag';
+import AutoDismissFlag from '@atlaskit/flag/auto-dismiss-flag';
+import AkFlag from '@atlaskit/flag/flag';
+import { FlagGroup } from '@atlaskit/flag/flag-group';
 import SuccessIcon from '@atlaskit/icon/core/check-circle';
 import { token } from '@atlaskit/tokens';
 
@@ -29,7 +32,7 @@ const flagMap: Record<FLAG_ID, FlagConfig> = {
 	},
 };
 
-export const Flag = ({ api }: Props) => {
+export const Flag = ({ api }: Props): React.JSX.Element | undefined => {
 	const { showFlag } = useSharedPluginStateWithSelector(api, ['blockMenu'], (states) => {
 		return {
 			showFlag: states.blockMenuState?.showFlag,
@@ -62,10 +65,8 @@ export const Flag = ({ api }: Props) => {
 				title={formatMessage(title)}
 				id={showFlag}
 				testId={showFlag}
-				icon={<SuccessIcon label="" color={token('color.icon.success')} />}
+				icon={<SuccessIcon label="" color={token('color.icon.success')} size="small" />}
 			/>
 		</FlagGroup>
 	);
 };
-
-

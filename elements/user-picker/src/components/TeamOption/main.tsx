@@ -2,20 +2,24 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { B400, N800, N200 } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
-import { Inline } from '@atlaskit/primitives/compiled';
-import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon';
+
+import React from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import React from 'react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
+
+import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon/main';
+import { Inline } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
 import { type Team } from '../../types';
-import { AvatarItemOption, textWrapper } from '../AvatarItemOption';
+import { AvatarItemOption } from '../AvatarItemOption';
+import { AvatarOrIcon } from '../AvatarOrIcon';
 import { HighlightText } from '../HighlightText';
 import { messages } from '../i18n';
-import { AvatarOrIcon } from '../AvatarOrIcon';
 import { SizeableAvatar } from '../SizeableAvatar';
+import { textWrapper } from '../textWrapper';
 
 export type TeamOptionProps = {
 	includeTeamsUpdates?: boolean;
@@ -35,7 +39,7 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 				key="name"
 				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 				css={textWrapper(
-					this.props.isSelected ? token('color.text.selected', B400) : token('color.text', N800),
+					this.props.isSelected ? token('color.text.selected') : token('color.text'),
 				)}
 			>
 				{
@@ -125,9 +129,7 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 	private getBylineComponent = (isSelected: boolean, message: JSX.Element) => (
 		<span
 			// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-			css={textWrapper(
-				isSelected ? token('color.text.selected', B400) : token('color.text.subtlest', N200),
-			)}
+			css={textWrapper(isSelected ? token('color.text.selected') : token('color.text.subtlest'))}
 			data-testid="user-picker-team-secondary-text"
 		>
 			{message}
@@ -140,7 +142,13 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 		} = this.props;
 		if (icon) {
 			return (
-				<AvatarOrIcon appearance="big" icon={icon} iconColor={iconColor} src={avatarUrl} type="team" />
+				<AvatarOrIcon
+					appearance="big"
+					icon={icon}
+					iconColor={iconColor}
+					src={avatarUrl}
+					type="team"
+				/>
 			);
 		}
 		// Fallback to original behavior
@@ -170,9 +178,7 @@ export class TeamOption extends React.PureComponent<TeamOptionProps> {
 			<span
 				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 				css={textWrapper(
-					this.props.isSelected
-						? token('color.text.selected', B400)
-						: token('color.text.subtlest', N200),
+					this.props.isSelected ? token('color.text.selected') : token('color.text.subtlest'),
 				)}
 			>
 				{this.props.team.byline}

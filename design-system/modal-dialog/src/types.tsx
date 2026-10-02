@@ -1,6 +1,6 @@
 import { type default as React, type RefObject } from 'react';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 
 export type WidthNames = 'small' | 'medium' | 'large' | 'x-large';
 
@@ -26,15 +26,11 @@ export type { ModalAttributes } from './internal/context';
 export interface ModalDialogProps {
 	// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
 	/**
-	 * Focus is moved to the first interactive element inside the modal dialog
-	 * when `true`. It is not recommended to set to `false` as this creates
-	 * accessibility regressions. Pass an element `ref` to focus on a specific element.
-	 *
-	 * Default value is `true`.
-	 *
-	 * @deprecated {@link https://hello.jira.atlassian.cloud/browse/ENGHEALTH-28588 Learn more about why `false` should not be used and will be removed.}
+	 * Pass an element `ref` to focus on a specific element on load.  Default
+	 * behavior is focus is moved to the first interactive element inside the
+	 * modal dialog.
 	 */
-	autoFocus?: boolean | RefObject<HTMLElement | null | undefined>;
+	autoFocus?: RefObject<HTMLElement | null | undefined>;
 
 	/**
 	 * Contents of the modal dialog.
@@ -92,6 +88,10 @@ export interface ModalDialogProps {
 
 	/**
 	 * Calls `onClose` when pressing escape.
+	 *
+	 * @deprecated This prop will be removed in a future major release. Closing on escape is standard
+	 * modal behaviour and should not be disabled. If you need to prevent closing during an in-progress
+	 * async action, instead handle the `onClose` callback to block the action conditionally.
 	 */
 	shouldCloseOnEscapePress?: boolean;
 
@@ -139,4 +139,13 @@ export interface ModalDialogProps {
 	 * - Blanket: `{testId}--blanket`
 	 */
 	testId?: string;
+
+	/**
+	 * @internal NOT FOR PUBLIC USE.
+	 * This prop is used to disable the new motion uplift.
+	 * It is strictly only used for cases where the motion uplift is not working as expected.
+	 *
+	 * @warning Use with caution. This prop will be removed in a future release.
+	 */
+	UNSAFE_shouldDisableMotionUplift?: boolean | undefined;
 }

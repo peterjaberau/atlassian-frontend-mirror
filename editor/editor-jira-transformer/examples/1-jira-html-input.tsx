@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
 
 import React from 'react';
-import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
+
 import { Editor, EditorContext, CollapsedEditor } from '@atlaskit/editor-core';
 import { token } from '@atlaskit/tokens';
+import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
+
 import type { RenderEditorProps } from '../example-helpers/ToolsDrawer';
 import ToolsDrawer from '../example-helpers/ToolsDrawer';
 import { JIRATransformer } from '../src';
@@ -53,7 +55,7 @@ export default class EditorWithFeedback extends React.Component<Props, State> {
 					<ToolsDrawer
 						renderEditor={({ onChange, disabled }: RenderEditorProps) => (
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							<div style={{ padding: token('space.250', '20px') }}>
+							<div style={{ padding: token('space.250') }}>
 								<CollapsedEditor
 									placeholder="What do you want to say?"
 									isExpanded={this.state.isExpanded}

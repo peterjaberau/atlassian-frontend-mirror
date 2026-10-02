@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::5edf47443601d30b199c36fbcc7b1d7c>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::f62b2ff1db034b7d7f3c24122370170c>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -18,14 +18,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __AnalyticsIcon__
  *
- * A temporary component to represent the icon for Analytics.
- * @deprecated This component has been replaced by the component `AnalyticsIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Analytics.
+ * Import `AnalyticsIcon` from `@atlaskit/logo/analytics/icon`.
  *
  */
 export function AnalyticsIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Analytics',
 	testId,

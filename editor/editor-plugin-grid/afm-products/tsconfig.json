@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-grid/app",
 		"rootDir": "../",
 		"composite": true,
@@ -31,6 +30,9 @@
 		},
 		{
 			"path": "../../editor-shared-styles/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-flags-react/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"

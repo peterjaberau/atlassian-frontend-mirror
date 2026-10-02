@@ -2,31 +2,35 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { PureComponent, type MouseEvent } from 'react';
-import { css, jsx } from '@compiled/react';
-import Lozenge, { type ThemeAppearance } from '@atlaskit/lozenge';
 import {
+	PureComponent,
+	type MouseEvent,
+	type KeyboardEvent,
+	type FocusEvent,
+	type ForwardRefExoticComponent,
+	type RefAttributes,
+} from 'react';
+
+import { css, jsx } from '@compiled/react';
+
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import withAnalyticsEvents, {
 	type WithAnalyticsEventsProps,
-	type CreateUIAnalyticsEvent,
-	type UIAnalyticsEvent,
-	withAnalyticsEvents,
-} from '@atlaskit/analytics-next';
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+
 import { createStatusAnalyticsAndFire } from './analytics';
 import { ANALYTICS_HOVER_DELAY } from './constants';
+import { getLozengeAppearance, type NamedColor, normalizeColor } from './status-colors';
 
-export type Color = 'neutral' | 'purple' | 'blue' | 'red' | 'yellow' | 'green';
+/**
+ * What the ADF `color` attribute can hold. `HexColor` is the closed set we persist — do
+ * not substitute it here, or graceful rendering of unknown hex becomes a type error.
+ */
+export type Color = NamedColor | `#${string}`;
 export type StatusStyle = 'bold' | 'subtle';
 
-const colorToLozengeAppearanceMap: { [K in Color]: ThemeAppearance } = {
-	neutral: 'default',
-	purple: 'new',
-	blue: 'inprogress',
-	red: 'removed',
-	yellow: 'moved',
-	green: 'success',
-};
-
-const DEFAULT_APPEARANCE = 'default';
 const MAX_WIDTH = 200;
 
 /**
@@ -46,6 +50,12 @@ const inlineBlockStyles = css({
 	},
 });
 
+// Bound the Lozenge to its parent while keeping short statuses content-sized.
+const constrainedToParentStyles = css({
+	display: 'inline-block',
+	maxWidth: '100%',
+});
+
 // eg. Version/4.0 Chrome/95.0.4638.50
 const isAndroidChromium =
 	typeof window !== 'undefined' && /Version\/.* Chrome\/.*/.test(window.navigator.userAgent);
@@ -53,6 +63,7 @@ const isAndroidChromium =
 export interface OwnProps {
 	color: Color;
 	isBold?: boolean;
+	isConstrainedToParent?: boolean;
 	localId?: string;
 	onClick?: (event: React.SyntheticEvent<any>) => void;
 	onHover?: () => void;
@@ -82,31 +93,57 @@ class StatusInternal extends PureComponent<Props, any> {
 		this.hoverStartTime = 0;
 	};
 
+	private handleKeyDown = (e: KeyboardEvent<HTMLSpanElement>) => {
+		const { onClick } = this.props;
+		if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+			e.preventDefault();
+			onClick(e);
+		}
+	};
+
+	private handleFocus = (_e: FocusEvent<HTMLSpanElement>) => {
+		this.hoverStartTime = Date.now();
+	};
+
+	private handleBlur = (_e: FocusEvent<HTMLSpanElement>) => {
+		const { onHover } = this.props;
+		const delay = Date.now() - this.hoverStartTime;
+
+		if (delay >= ANALYTICS_HOVER_DELAY && onHover) {
+			onHover();
+		}
+		this.hoverStartTime = 0;
+	};
+
 	componentWillUnmount() {
 		this.hoverStartTime = 0;
 	}
 
 	render() {
-		const { text, color, style, role, onClick, isBold } = this.props;
+		const { text, color, style, role, onClick, isBold, isConstrainedToParent } = this.props;
 		if (text.trim().length === 0) {
 			return null;
 		}
 
-		const appearance = colorToLozengeAppearanceMap[color] || DEFAULT_APPEARANCE;
+		const appearance = getLozengeAppearance(color);
 		// Note: ommitted data-local-id attribute to avoid copying/pasting the same localId
 		return (
-			// eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/click-events-have-key-events
 			<span
-				css={[isAndroidChromium ? inlineBlockStyles : undefined]}
+				css={[
+					isAndroidChromium ? inlineBlockStyles : undefined,
+					isConstrainedToParent ? constrainedToParentStyles : undefined,
+				]}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className="status-lozenge-span"
 				onClick={onClick}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
+				onKeyDown={onClick ? this.handleKeyDown : undefined}
 				onMouseEnter={this.handleMouseEnter}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 				onMouseLeave={this.handleMouseLeave}
+				onFocus={this.handleFocus}
+				onBlur={this.handleBlur}
+				tabIndex={onClick ? -1 : undefined}
 				data-node-type="status"
-				data-color={color}
+				data-color={normalizeColor(color)}
 				data-style={style}
 				role={role}
 			>
@@ -118,7 +155,9 @@ class StatusInternal extends PureComponent<Props, any> {
 	}
 }
 
-export const Status = withAnalyticsEvents({
+export const Status: ForwardRefExoticComponent<
+	Omit<OwnProps, keyof WithAnalyticsEventsProps> & RefAttributes<any>
+> = withAnalyticsEvents({
 	onClick: (createEvent: CreateUIAnalyticsEvent, props: Props): UIAnalyticsEvent => {
 		const { localId } = props;
 		return createStatusAnalyticsAndFire(createEvent)({

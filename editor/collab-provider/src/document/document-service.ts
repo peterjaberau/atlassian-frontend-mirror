@@ -1,5 +1,8 @@
+// oxlint-disable-next-line @atlassian/no-restricted-imports
+import type { DebouncedFunc } from 'lodash';
 import throttle from 'lodash/throttle';
 
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
 import type {
 	ResolvedEditorState,
 	SyncUpErrorFunction,
@@ -7,16 +10,38 @@ import type {
 	CollabInitPayload,
 	StepJson,
 } from '@atlaskit/editor-common/collab';
-import { Step as ProseMirrorStep } from '@atlaskit/editor-prosemirror/transform';
-import { getCollabState, sendableSteps } from '@atlaskit/prosemirror-collab';
+import type { GetResolvedEditorStateReason } from '@atlaskit/editor-common/types';
+import { JSONTransformer } from '@atlaskit/editor-json-transformer/JSONTransformer-2';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { Transaction } from '@atlaskit/editor-prosemirror/state';
-import { JSONTransformer } from '@atlaskit/editor-json-transformer';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { Step as ProseMirrorStep } from '@atlaskit/editor-prosemirror/transform-override';
+import { UNSAFE_expValNoExposure } from '@atlaskit/platform-feature-experiments/unsafe-exp-val-no-exposure';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { getCollabState, sendableSteps } from '@atlaskit/prosemirror-collab';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
+import type AnalyticsHelper from '../analytics/analytics-helper';
+import { MEASURE_NAME, startMeasure, stopMeasure } from '../analytics/performance';
+import { CantSyncUpError, UpdateDocumentError } from '../errors/custom-errors';
+import type { InternalError } from '../errors/internal-errors';
+import { INTERNAL_ERROR_CODE } from '../errors/internal-errors';
+import { ACK_MAX_TRY, EVENT_ACTION, EVENT_STATUS, CatchupEventReason } from '../helpers/const';
+import type { UGCFreeStepDetails } from '../helpers/utils';
+import {
+	createLogger,
+	getAgentProviderId,
+	getDocAdfWithObfuscationFromJSON,
+	getObfuscatedSteps,
+	getStepUGCFreeDetails,
+	normalizeAgentId,
+	sleep,
+} from '../helpers/utils';
+import type { MetadataService } from '../metadata/metadata-service';
+import type { ParticipantsService } from '../participants/participants-service';
+import { MAX_STEP_REJECTED_ERROR, MAX_STEP_REJECTED_ERROR_AGGRESSIVE } from '../provider';
+import { CommitStepService } from '../provider/commit-step';
 import type {
 	Catchupv2Response,
 	ChannelEvent,
@@ -25,30 +50,10 @@ import type {
 	ReconnectionMetadata,
 	StepsPayload,
 } from '../types';
-import type { MetadataService } from '../metadata/metadata-service';
-import { ACK_MAX_TRY, EVENT_ACTION, EVENT_STATUS, CatchupEventReason } from '../helpers/const';
-import type AnalyticsHelper from '../analytics/analytics-helper';
-import { MEASURE_NAME, startMeasure, stopMeasure } from '../analytics/performance';
-import type { InternalError } from '../errors/internal-errors';
-import { INTERNAL_ERROR_CODE } from '../errors/internal-errors';
-import type { UGCFreeStepDetails } from '../helpers/utils';
-import {
-	createLogger,
-	getDocAdfWithObfuscationFromJSON,
-	getObfuscatedSteps,
-	getStepUGCFreeDetails,
-	sleep,
-} from '../helpers/utils';
-import { type ParticipantsService } from '../participants/participants-service';
-import { MAX_STEP_REJECTED_ERROR, MAX_STEP_REJECTED_ERROR_AGGRESSIVE } from '../provider';
-import { CommitStepService } from '../provider/commit-step';
-import { CantSyncUpError, UpdateDocumentError } from '../errors/custom-errors';
-
 import { catchupv2 } from './catchupv2';
-import { StepQueueState } from './step-queue-state';
-import { type DocumentServiceInterface } from './interface-document-service';
 import { getConflictChanges } from './getConflictChanges';
-import type { GetResolvedEditorStateReason } from '@atlaskit/editor-common/types';
+import type { DocumentServiceInterface } from './interface-document-service';
+import { StepQueueState } from './step-queue-state';
 
 const CATCHUP_THROTTLE = 1 * 1000; // 1 second
 
@@ -139,7 +144,13 @@ export class DocumentService implements DocumentServiceInterface {
 	 * To prevent calling catchup to often, use lodash throttle to reduce the frequency
 	 * @param reason - optional reason to attach.
 	 */
-	throttledCatchupv2 = throttle(
+	throttledCatchupv2: DebouncedFunc<
+		(
+			reason?: CatchupEventReason,
+			reconnectionMetadata?: ReconnectionMetadata,
+			sessionId?: string,
+		) => Promise<void>
+	> = throttle(
 		(
 			reason?: CatchupEventReason,
 			reconnectionMetadata?: ReconnectionMetadata,
@@ -270,7 +281,7 @@ export class DocumentService implements DocumentServiceInterface {
 		return collabState.version;
 	}
 
-	getCurrentPmVersion = () => {
+	getCurrentPmVersion = (): number => {
 		const state = this.getState?.();
 		if (!state) {
 			this.analyticsHelper?.sendErrorEvent(
@@ -292,9 +303,6 @@ export class DocumentService implements DocumentServiceInterface {
 	 * @example
 	 */
 	private notifyReconnectionConflict(steps: StepsPayload['steps']) {
-		if (editorExperiment('platform_editor_offline_editing_web', false)) {
-			return;
-		}
 		const state = this.getState?.();
 		const unconfirmedSteps = state ? getCollabState(state)?.unconfirmed : undefined;
 		if (steps.length > 0 && state && unconfirmedSteps && unconfirmedSteps.length > 0) {
@@ -428,6 +436,9 @@ export class DocumentService implements DocumentServiceInterface {
 				this.stepRejectCounter = 0;
 				this.participantsService.emitTelepointersFromSteps(steps);
 
+				// Surface agent edit presence from agent-authored steps.
+				this.maybeAddAgentPresenceFromSteps(steps);
+
 				// Resend local steps if none of the received steps originated with us!
 				// Ignored via go/ees005
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -451,7 +462,85 @@ export class DocumentService implements DocumentServiceInterface {
 		}
 	}
 
-	getUnconfirmedStepsOrigins = () => {
+	/**
+	 * Detect agent-authored steps in a received batch and register each distinct agent as a local
+	 * participant so it appears in the presence facepile.
+	 *
+	 * Gated behind two default-OFF experiments because `collab-provider` is shared platform infra
+	 * (Jira JWM/JPD etc.), and isolated in its own try/catch so a presence failure can never affect
+	 * step persistence. Backend/3P agent streaming enables it, and so does the frontend streaming UX
+	 * milestone independently — the milestone attributes its own local steps, which are echoed back
+	 * to this client, so it needs the facepile without the backend streaming visuals.
+	 *
+	 * When agent edit presence is enabled, the canonical presence channel owns agent participants.
+	 * Skip this step-derived fallback entirely in that cohort to avoid duplicate or stale participants.
+	 *
+	 * The milestone value is read without logging an exposure: this runs on every received step
+	 * batch, whereas the canonical exposure is logged at the action-driven call sites that decide
+	 * whether to attribute a step.
+	 *
+	 * Known limitation (PoC): steps replayed via catch-up/reconnect can briefly re-surface an agent
+	 * whose activity is stale — a freshness guard is a follow-up.
+	 */
+	private maybeAddAgentPresenceFromSteps(steps: StepJson[]): void {
+		if (
+			fg('platform_editor_agent_edit_presence') ||
+			(!expValEquals('platform_editor_agent_be_streaming', 'isEnabled', true) &&
+				!UNSAFE_expValNoExposure(
+					'platform_editor_ai_streaming_ux_experience_m1',
+					'isEnabled',
+					false,
+				))
+		) {
+			return;
+		}
+		try {
+			const agentTypeByProviderId = new Map<string, string>();
+			const agentIds = new Set<string>();
+			const agentTypes = new Set<string>();
+			let agentStepCount = 0;
+			for (const step of steps) {
+				const providerId = getAgentProviderId(step);
+				if (!providerId) {
+					continue;
+				}
+				agentStepCount++;
+				const { agentId, agentType } = step as { agentId?: string; agentType?: string };
+				if (agentType) {
+					agentTypeByProviderId.set(providerId, agentType);
+					agentTypes.add(agentType);
+				}
+				if (agentId) {
+					agentIds.add(normalizeAgentId(agentId));
+				}
+			}
+			// No agent-authored steps in this batch — nothing to register or report.
+			if (agentTypeByProviderId.size === 0) {
+				return;
+			}
+			// Anchor signal that the agent-presence logic kicked off for a received transaction. Fires
+			// once per transaction (agent edits arrive as batches, not per keystroke). Attributes are
+			// non-PII: agent kinds, actor ids, and counts — never document content.
+			this.analyticsHelper?.sendActionEvent(
+				EVENT_ACTION.AGENT_EDIT_RECEIVED,
+				EVENT_STATUS.SUCCESS,
+				{
+					agentIds: [...agentIds],
+					agentCount: agentTypeByProviderId.size,
+					agentTypes: [...agentTypes],
+					agentStepCount,
+					totalStepCount: steps.length,
+				},
+			);
+			agentTypeByProviderId.forEach((agentType, providerId) =>
+				this.participantsService.upsertAIProviderParticipantLocally(providerId, agentType),
+			);
+		} catch (error) {
+			this.analyticsHelper?.sendErrorEvent(error, 'Error while adding agent presence from steps');
+		}
+	}
+
+	getUnconfirmedStepsOrigins = (): readonly Transaction[] | undefined => {
 		const state = this.getState?.();
 		if (!state) {
 			this.analyticsHelper?.sendErrorEvent(
@@ -527,7 +616,39 @@ export class DocumentService implements DocumentServiceInterface {
 	obfuscateStepsAndState = (
 		unconfirmedSteps: readonly ProseMirrorStep[] | undefined,
 		currentState?: ResolvedEditorState<JSONDocNode>,
-	) => {
+	): {
+		obfuscatedDoc: string | ADFEntity | null | undefined;
+		obfuscatedSteps:
+			| string
+			| {
+					stepContent: ADFEntity[] | null;
+					stepMetadata:
+						| {
+								createdOffline?: boolean;
+								prevStepId?: string;
+								rebased?: boolean;
+								reqId?: string;
+								schemaVersion?: string;
+								source?: string;
+								stepId?: string;
+								traceId?: string;
+								unconfirmedStepAfterRecovery?: boolean;
+						  }
+						| undefined;
+					stepPositions: {
+						from?: number | undefined;
+						gapFrom?: number | undefined;
+						gapTo?: number | undefined;
+						insert?: number | undefined;
+						pos?: number | undefined;
+						to?: number | undefined;
+					};
+					stepType: {
+						contentTypes: string | null;
+						type: string;
+					};
+			  }[];
+	} => {
 		let obfuscatedSteps;
 		try {
 			obfuscatedSteps = unconfirmedSteps
@@ -552,7 +673,12 @@ export class DocumentService implements DocumentServiceInterface {
 	};
 
 	// Triggered when page recovery has emitted an 'init' event on a page client is currently connected to.
-	onRestore = async ({ doc, version, metadata, targetClientId }: CollabInitPayload): Promise<void> => {
+	onRestore = async ({
+		doc,
+		version,
+		metadata,
+		targetClientId,
+	}: CollabInitPayload): Promise<void> => {
 		if (!targetClientId) {
 			this.hasRecovered = true;
 		}
@@ -965,7 +1091,10 @@ export class DocumentService implements DocumentServiceInterface {
 	 * @param reason
 	 * @example
 	 */
-	sendStepsFromCurrentState(sendAnalyticsEvent?: boolean, reason?: GetResolvedEditorStateReason): void {
+	sendStepsFromCurrentState(
+		sendAnalyticsEvent?: boolean,
+		reason?: GetResolvedEditorStateReason,
+	): void {
 		const state = this.getState?.();
 		if (!state) {
 			this.analyticsHelper?.sendErrorEvent(
@@ -1013,14 +1142,9 @@ export class DocumentService implements DocumentServiceInterface {
 	 * mutated in: `packages/editor/editor-plugin-collab-edit/src/pm-plugins/mergeUnconfirmed.ts`
 	 */
 	lockSteps = (): void => {
-		if (
-			editorExperiment('platform_editor_offline_editing_web', true) ||
-			expValEquals('platform_editor_enable_single_player_step_merging', 'isEnabled', true)
-		) {
-			const currentState = this.getState?.();
-			if (currentState) {
-				this.lockStepOrigins(sendableSteps(currentState)?.origins ?? []);
-			}
+		const currentState = this.getState?.();
+		if (currentState) {
+			this.lockStepOrigins(sendableSteps(currentState)?.origins ?? []);
 		}
 	};
 
@@ -1049,7 +1173,6 @@ export class DocumentService implements DocumentServiceInterface {
 		sendAnalyticsEvent?: boolean,
 		reason?: GetResolvedEditorStateReason, // only used for publish and draft-sync events - when called through getFinalAcknowledgedState
 	): void {
-		const offlineEditingEnabled = editorExperiment('platform_editor_offline_editing_web', true);
 		const onlineStepMergingEnabled = expValEquals(
 			'platform_editor_enable_single_player_step_merging',
 			'isEnabled',
@@ -1062,22 +1185,20 @@ export class DocumentService implements DocumentServiceInterface {
 		const newState = onlineStepMergingEnabled ? (this.getState?.() ?? _newState) : _newState;
 
 		// Don't send any steps before we're ready.
-		if (offlineEditingEnabled || onlineStepMergingEnabled) {
-			const enableOnlineStepMerging =
-				onlineStepMergingEnabled && !this.commitStepService.getReadyToCommitStatus();
+		const enableOnlineStepMerging =
+			onlineStepMergingEnabled && !this.commitStepService.getReadyToCommitStatus();
 
-			if (!this.getConnected() || enableOnlineStepMerging) {
-				return;
-			}
+		if (!this.getConnected() || enableOnlineStepMerging) {
+			return;
 		}
+
 		const unconfirmedStepsData = sendableSteps(newState);
 		const version = this.getVersionFromCollabState(newState, 'collab-provider: send');
 		if (!unconfirmedStepsData) {
 			return;
 		}
-		if (offlineEditingEnabled || onlineStepMergingEnabled) {
-			this.lockStepOrigins(unconfirmedStepsData.origins);
-		}
+
+		this.lockStepOrigins(unconfirmedStepsData.origins);
 
 		const unconfirmedSteps = unconfirmedStepsData.steps;
 		// sendAnalyticsEvent is only true when buffering is enabled,
@@ -1113,38 +1234,36 @@ export class DocumentService implements DocumentServiceInterface {
 			});
 		}
 
-		if (editorExperiment('platform_editor_offline_editing_web', true)) {
-			const containsOfflineSteps = unconfirmedStepsData?.origins.some((tr) => {
-				return tr instanceof Transaction ? (tr.getMeta('isOffline') ?? false) : false;
-			});
+		const containsOfflineSteps = unconfirmedStepsData?.origins.some((tr) => {
+			return tr instanceof Transaction ? (tr.getMeta('isOffline') ?? false) : false;
+		});
 
-			if (containsOfflineSteps && !this.timeoutExceeded) {
-				// Only start timer if we're online and don't already have one running
-				if (this.getConnected() && !this.timeout) {
-					this.timeout = setTimeout(() => {
-						// If the timer expires and we're still online, handle the offline steps.
-						// Otherwise, clear the timer so it can restart when we're online again.
-						if (this.getConnected()) {
-							this.timeoutExceeded = true;
+		if (containsOfflineSteps && !this.timeoutExceeded) {
+			// Only start timer if we're online and don't already have one running
+			if (this.getConnected() && !this.timeout) {
+				this.timeout = setTimeout(() => {
+					// If the timer expires and we're still online, handle the offline steps.
+					// Otherwise, clear the timer so it can restart when we're online again.
+					if (this.getConnected()) {
+						this.timeoutExceeded = true;
 
-							const updatedUnconfirmedStepsData = sendableSteps(newState);
-							updatedUnconfirmedStepsData?.origins.forEach((origin) => {
-								if (origin instanceof Transaction && origin.getMeta('isOffline')) {
-									origin.setMeta('isOffline', false);
-								}
-							});
-						} else {
-							this.timeout = undefined;
-						}
-					}, 6000);
-				}
-				return;
-			} else if (this.timeoutExceeded) {
-				this.timeoutExceeded = false;
-				if (this.timeout) {
-					clearTimeout(this.timeout);
-					this.timeout = undefined;
-				}
+						const updatedUnconfirmedStepsData = sendableSteps(newState);
+						updatedUnconfirmedStepsData?.origins.forEach((origin) => {
+							if (origin instanceof Transaction && origin.getMeta('isOffline')) {
+								origin.setMeta('isOffline', false);
+							}
+						});
+					} else {
+						this.timeout = undefined;
+					}
+				}, 6000);
+			}
+			return;
+		} else if (this.timeoutExceeded) {
+			this.timeoutExceeded = false;
+			if (this.timeout) {
+				clearTimeout(this.timeout);
+				this.timeout = undefined;
 			}
 		}
 

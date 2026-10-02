@@ -26,8 +26,8 @@ interface NewExportData {
 }
 
 export interface EntryPointData {
-	exportData: NewExportData;
 	atlaskitImportName: string;
+	exportData: NewExportData;
 	fileData: FileData;
 }
 
@@ -35,9 +35,9 @@ function getExports(folderPath: string) {
 	const packageJsonPath = path.join(folderPath, 'package.json');
 	const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-	const exportsValue = packageJson['af:exports'] ?? packageJson['exports'];
+	const exportsValue = packageJson['exports'];
 	if (!exportsValue) {
-		throw new Error(`Could not find af:exports or exports in package.json at ${packageJsonPath}`);
+		throw new Error(`Could not find exports in package.json at ${packageJsonPath}`);
 	}
 
 	const folderName = path.basename(folderPath);
@@ -50,7 +50,9 @@ function getExports(folderPath: string) {
 			const normalizedValue = exportsValue[key].startsWith('.')
 				? exportsValue[key].substring(1)
 				: exportsValue[key];
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			const shortenedFolderName = folderName.split('-').slice(2).join('-');
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			const newRelativeFilePath = exportsValue[key].replace(
 				'./src',
 				path.join('src', shortenedFolderName),
@@ -123,7 +125,10 @@ function createExportStatementsForExport(importName: string, filePath: string) {
 	return exportStatements.join('\n');
 }
 
-export function findExportedVariablesAndTypes(fileName: string) {
+export function findExportedVariablesAndTypes(fileName: string): {
+	variableExports: string[];
+	typeExports: string[];
+} {
 	const exportNames = getFileExportNames(fileName);
 	const statements = getFileTopLevelStatements(fileName);
 	const variableExports: string[] = [];

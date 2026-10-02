@@ -2,13 +2,12 @@ import React from 'react';
 
 import Breadcrumbs, { BreadcrumbsItem } from '@atlaskit/breadcrumbs';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import __noop from '@atlaskit/ds-lib/noop';
 import PageHeader from '@atlaskit/page-header';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Text } from '@atlaskit/primitives';
-import Select from '@atlaskit/select';
-import TextField from '@atlaskit/textfield';
+import { Text } from '@atlaskit/primitives/compiled';
+import Select from '@atlaskit/select/default';
+import TextField from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 const breadcrumbs = (
@@ -29,11 +28,11 @@ const barContent = (
 	<div style={{ display: 'flex' }}>
 		{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
 		<div style={{ flex: '0 0 200px' }}>
-			<TextField isCompact placeholder="Filter" aria-label="Filter" />
+			<TextField isCompact aria-label="Filter" />
 		</div>
 		{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-		<div style={{ flex: '0 0 200px', marginLeft: token('space.100', '8px') }}>
-			<Select spacing="compact" placeholder="Choose an option" label="Choose an option" />
+		<div style={{ flex: '0 0 200px', marginLeft: token('space.100') }}>
+			<Select spacing="compact" label="Choose an option" />
 		</div>
 	</div>
 );

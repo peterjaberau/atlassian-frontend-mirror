@@ -15,9 +15,9 @@ percentage of the process that has been completed.
 
 For short loading times, use a [spinner](/components/spinner) instead.
 
-## Anatomy
+## Parts
 
-![The example progress bar is a light grey horizontal line partially filled with a dark blue fill.](/images/progress-bar-anatomy.png)
+![The example progress bar is a light grey horizontal line partially filled with a dark blue fill.](./images/progress-bar-anatomy.png)
 
 1. Progress line: Progress is visually represented by a filled line. It can be partially filled,
    complete, or indeterminate (partial completion of an unknown amount).
@@ -37,29 +37,30 @@ Use a clear success state when the actions required to continue have been fulfil
 
 ### Don't use progress bars for data visualization
 
-<DoDont
-	type="do"
-	image={{
-		url: progressBarDo,
-		alt: 'An example UI with the heading "Attach files". There are three files with progress bars indicating how far they are in the upload process.',
-	}}
->
-	Use the progress bar component as a loading indicator or to communicate the status of a system
-	process.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: progressBarDont,
-		alt: 'An example table where the progress bar is used to indicate the percentage of work allocated per person.',
-	}}
->
-	Don't use the progress bar for data visualization. Use a custom component instead.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: progressBarDo,
+			alt: 'An example UI with the heading "Attach files". There are three files with progress bars indicating how far they are in the upload process.',
+		}}
+	>
+		Use the progress bar component as a loading indicator or to communicate the status of a system
+		process.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: progressBarDont,
+			alt: 'An example table where the progress bar is used to indicate the percentage of work allocated per person.',
+		}}
+	>
+		Don't use the progress bar for data visualization. Use a custom component instead.
+	</DoDont>
+</DoDontGrid>
 
 ## Related
 
 - For most loading use cases, choose a [spinner component](/components/spinner).
 - For guidelines on applying color to custom components for data visualization, see
-  [data visualization color](/foundations/color-new/data-visualization-color/).
+  [data visualization color](/foundations/color/data-visualization-color).

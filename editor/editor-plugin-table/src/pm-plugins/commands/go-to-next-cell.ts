@@ -1,10 +1,10 @@
-import type { IntlShape } from 'react-intl-next/src/types';
+import type { IntlShape } from 'react-intl/src/types';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { isSelectionTableNestedInTable } from '@atlaskit/editor-common/nesting';
 import type { Command } from '@atlaskit/editor-common/types';
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import { TableMap } from '@atlaskit/editor-tables/table-map';
@@ -18,7 +18,6 @@ import {
 } from '@atlaskit/editor-tables/utils';
 
 import { getPluginState } from '../plugin-factory';
-
 import { stopKeyboardColumnResizing } from './column-resize';
 import { insertRowWithAnalytics } from './commands-with-analytics';
 

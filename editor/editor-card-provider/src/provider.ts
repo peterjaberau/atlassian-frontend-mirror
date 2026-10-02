@@ -1,154 +1,255 @@
 /* eslint-disable require-unicode-regexp,prefer-regex-literals */
-import type { JSONNode } from '@atlaskit/editor-json-transformer';
-import { extractSmartLinkEmbed } from '@atlaskit/link-extractors';
-import type { CallbackPayload } from '@atlaskit/node-data-provider';
-import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { NodeDataProvider } from '@atlaskit/node-data-provider';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import {
-	type BlockCardAdf,
-	type EmbedCardAdf,
-	type CardAdf,
-	type InlineCardAdf,
-	type CardAppearance,
-	type DatasourceAdf,
-	getStatus,
-	type ProductType,
-	type EnvironmentsKeys,
-	getBaseUrl,
-	getResolverUrl,
-} from '@atlaskit/linking-common';
+
 import DataLoader from 'dataloader';
-import { Transformer } from './transformer';
-import {
-	type CardProvider,
-	type LinkAppearance,
-	type ORSProvidersResponse,
-	type ProviderPattern,
-	type ProvidersData,
-} from './types';
-import { type JsonLdDatasourceResponse } from '@atlaskit/link-client-extension';
-import { CardClient } from '@atlaskit/link-provider';
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { fg } from '@atlaskit/platform-feature-flags';
+
+import type { JSONNode } from '@atlaskit/editor-json-transformer/types';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { JsonLdDatasourceResponse } from '@atlaskit/link-client-extension/use-data-source-client-extension/types';
+import { extractSmartLinkEmbed } from '@atlaskit/link-extractors/extract-smart-link-embed';
+import { extractSmartLinkUrl } from '@atlaskit/link-extractors/extract-smart-link-url';
+import CardClient from '@atlaskit/link-provider/client';
+import { getBaseUrl } from '@atlaskit/linking-common/get-base-url';
+import { getResolverUrl } from '@atlaskit/linking-common/get-resolver-url';
+import type {
+	BlockCardAdf,
+	EmbedCardAdf,
+	CardAdf,
+	InlineCardAdf,
+	CardAppearance,
+	DatasourceAdf,
+	ProductType,
+	EnvironmentsKeys,
+} from '@atlaskit/linking-common/types';
+import { getStatus } from '@atlaskit/linking-common/utils/get-status';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+import type { CallbackPayload } from '@atlaskit/node-data-provider';
+import { NodeDataProvider } from '@atlaskit/node-data-provider';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
 import { request } from './api';
 import { SmartCardLocalCacheClient } from './smart-card-local-cache-client';
+import { Transformer } from './transformer';
+import type {
+	CardProvider,
+	LinkAppearance,
+	ORSProvidersResponse,
+	ProviderPattern,
+	ProvidersData,
+} from './types';
+import { isConfluenceSlideUrl } from './url-checkers';
 
 const BATCH_WAIT_TIME = 50;
+type UrlChecker = (url: string) => RegExpMatchArray | null;
 
 // Check if it is matching a Jira Roadmaps or Jira Timeline url
 // NOT to be confused with JSM timeline
-const isJiraRoadmapOrTimeline = (url: string) =>
-	url.match(
-		/^https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/boards\/.*?\/(timeline|roadmap)\/?/,
-	);
+const JIRA_ROADMAP_OR_TIMELINE_REGEX =
+	/^https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/boards\/.*?\/(timeline|roadmap)\/?/;
+const POLARIS_VIEW_REGEX =
+	/^https:\/\/.*?\/jira\/polaris\/projects\/[^\/]+?\/ideas\/view\/\d+$|^https:\/\/.*?\/secure\/JiraProductDiscoveryAnonymous\.jspa\?hash=\w+|^https:\/\/.*?\/jira\/polaris\/share\/\w+|^https:\/\/.*?\/jira\/discovery\/share\/views\/[\w-]+(\?selectedIssue=[\w-]+&issueViewLayout=sidebar&issueViewSection=[\w-]+)?$/;
+const JWM_VIEW_REGEX =
+	/^https:\/\/.*?\/jira\/core\/projects\/[^\/]+?\/(timeline|calendar|list|board|summary|(form\/[^\/]+?))\/?/;
+const JIRA_LIST_REGEX = /^https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/list\/?/;
+const GIPHY_MEDIA_REGEX = /^https:\/\/(.*?\.)?giphy\.com\/(gifs|media|clips)\//;
+const PROFORMA_VIEW_REGEX =
+	/^https:\/\/[^/]+\/jira\/(core|software(\/c)?|servicedesk)\/projects\/\w+\/forms\/form\/direct\/\d+\/\d+.*$/;
+// prettier-ignore
+const CONFLUENCE_WHITEBOARD_DECIMAL_REGEX = /\/wiki\/spaces\/?.*\/whiteboard\/(?<resourceId>\d+)(\?\/)?/;
+// prettier-ignore
+const CONFLUENCE_WHITEBOARD_UUID_REGEX = /\/wiki\/spaces\/?.*\/whiteboard\/(?<resourceId>[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})(\?\/)?/;
+const CONFLUENCE_DATABASE_REGEX = /\/wiki\/spaces\/~?[\d\w]+\/database\/\d+(\?.*)?$/;
+const YOUTUBE_VIDEO_REGEX = /^https:\/\/(.*?\.)?(youtube\..*?\/(watch\?|v\/|shorts\/)|youtu\.be)/;
+// prettier-ignore
+const LOOM_VIDEO_URL_REGEX = /^https:\/\/(.*?\.)?(loom\..*?\/(share|embed))\/([a-zA-Z0-9-]*-)?(?<videoId>[a-f0-9]{32})/;
+// prettier-ignore
+const LOOM_PLAYLIST_URL_REGEX = /^https:\/\/(.*?\.)?loom\..*?\/(?:playlists\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?:\/view)?|embed\/playlists\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:\?|$)/i;
+const LOOM_SCREENSHOT_URL_REGEX = /^https:\/\/(.*?\.)?loom\..*?\/i\/(?<id>[a-f0-9]{32})/;
+const JIRA_DASHBOARD_REGEX = /^https:\/\/.*?\/jira\/dashboards\/[0-9]+.*/;
+const JIRA_BACKLOG_REGEX =
+	/https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/boards\/\d\/backlog\??.*/;
+const JIRA_BOARD_REGEX = /https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/boards\/\d\??.*/;
+const JIRA_PLAN_REGEX = /https:\/\/.*?\/jira\/plans\/(?<resourceId>\d+)/;
+// prettier-ignore
+const JIRA_PLAN_WITH_SCENARIO_REGEX = /https:\/\/.*?\/jira\/plans\/(?<resourceId>\d+)\/scenarios\/(?<resourceContext>\d+)\/(timeline|summary|calendar|program\/\d+|dependencies)\/?/;
+const JIRA_VERSION_REGEX =
+	/https:\/\/.*?\/projects\/[^\/]+?\/versions\/\d+\/tab\/release-report-all-issues/;
+const JIRA_FORM_REGEX = /https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/form\/\d\??.*/;
+const JIRA_SUMMARY_REGEX = /^https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/summary/;
+const ROVO_AGENT_PROFILE_PAGE_REGEX = /^https:\/\/.*?\/people\/agent\/.+$/;
+const CUSTOMER_360_LANDING_PAGE_REGEX = /^https:\/\/customer\.atlassian\.com\/.*$/;
+// prettier-ignore
+const CONFLUENCE_TEAM_CALENDARS_REGEX = /\/wiki\/spaces\/(?<resourceContext>[^\/]+)\/calendars\/(?<resourceId>[a-zA-Z0-9-]+)/;
+const JIRA_ISSUE_NAVIGATOR_REGEX =
+	/^https:\/\/.*?\/jira\/software|core\/(c\/)?projects\/[^\/]+?\/issues\/?/;
+const AVP_VISUALIZATION_VIEW_REGEX = /^https:\/\/.*?\/avpviz\/c\/[^\/]+.*/;
+const ARTIFACT_UUID = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+// Keep in sync with ARTIFACT_URL_PATTERNS in @atlassian/native-embeds-artifacts-experience
+const ARTIFACT_SHARE_REGEX = [
+	new RegExp(`/artifacts/${ARTIFACT_UUID}(?:[/?#].*)?$`),
+	new RegExp(`/apps/${ARTIFACT_UUID}/${ARTIFACT_UUID}/[^?#]*\\?(?:[^#]*&)?smartlink=artifact`),
+];
+const DASHBOARDS_CHART_VIEW_REGEX = /^https:\/\/.*?\/dashboards\/c\/[^\/]+.*/;
+const JIRA_WORK_ITEM_REGEX = /\/browse\/((?:\w+)-(?:\d+))/i;
+const DOES_URL_MATCH_PATH_START_REGEX = /^[a-zA-Z0-9]/;
+const DOES_URL_MATCH_PATH_END_REGEX = /[a-zA-Z0-9]$/;
+const CONFLUENCE_SHORT_LINK_URL_REGEX =
+	/^https:\/\/[^/?#]+\/wiki\/x\/[A-Za-z0-9_-]+\/?(?:[?#].*)?$/;
 
-const isPolarisView = (url: string) =>
-	url.match(
-		/^https:\/\/.*?\/jira\/polaris\/projects\/[^\/]+?\/ideas\/view\/\d+$|^https:\/\/.*?\/secure\/JiraProductDiscoveryAnonymous\.jspa\?hash=\w+|^https:\/\/.*?\/jira\/polaris\/share\/\w+|^https:\/\/.*?\/jira\/discovery\/share\/views\/[\w-]+(\?selectedIssue=[\w-]+&issueViewLayout=sidebar&issueViewSection=[\w-]+)?$/,
-	);
+const isConfluenceShortLinkUrl: UrlChecker = (url) => url.match(CONFLUENCE_SHORT_LINK_URL_REGEX);
 
-const isJwmView = (url: string) =>
-	url.match(
-		/^https:\/\/.*?\/jira\/core\/projects\/[^\/]+?\/(timeline|calendar|list|board|summary|(form\/[^\/]+?))\/?/,
-	);
+const isJiraRoadmapOrTimeline: UrlChecker = (url) => url.match(JIRA_ROADMAP_OR_TIMELINE_REGEX);
 
-const isJiraList = (url: string) =>
-	url.match(/^https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/list\/?/);
+const isPolarisView: UrlChecker = (url) => url.match(POLARIS_VIEW_REGEX);
 
-const isGiphyMedia = (url: string) =>
-	url.match(/^https:\/\/(.*?\.)?giphy\.com\/(gifs|media|clips)\//);
+const isJwmView: UrlChecker = (url) => url.match(JWM_VIEW_REGEX);
 
-const isProformaView = (url: string) =>
-	url.match(
-		/^https:\/\/[^/]+\/jira\/(core|software(\/c)?|servicedesk)\/projects\/\w+\/forms\/form\/direct\/\d+\/\d+.*$/,
-	);
+const isJiraList: UrlChecker = (url) => url.match(JIRA_LIST_REGEX);
 
-const isConfluenceWhiteboard = (url: string) =>
-	// @ts-ignore - TS1503 TypeScript 5.9.2 upgrade
-	url.match(/\/wiki\/spaces\/?.*\/whiteboard\/(?<resourceId>\d+)(\?\/)?/) ||
-	url.match(
-		// @ts-ignore - TS1503 TypeScript 5.9.2 upgrade
-		/\/wiki\/spaces\/?.*\/whiteboard\/(?<resourceId>[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})(\?\/)?/,
-	);
+const isGiphyMedia: UrlChecker = (url) => url.match(GIPHY_MEDIA_REGEX);
 
-const isConfluenceDatabase = (url: string) =>
-	url.match(/\/wiki\/spaces\/~?[\d\w]+\/database\/\d+(\?.*)?$/);
+const isProformaView: UrlChecker = (url) => url.match(PROFORMA_VIEW_REGEX);
 
-const isYoutubeVideo = (url: string) =>
-	url.match(/^https:\/\/(.*?\.)?(youtube\..*?\/(watch\?|v\/|shorts\/)|youtu\.be)/);
+const isConfluenceWhiteboard: UrlChecker = (url) =>
+	url.match(CONFLUENCE_WHITEBOARD_DECIMAL_REGEX) || url.match(CONFLUENCE_WHITEBOARD_UUID_REGEX);
 
-const isLoomUrl = (url: string) => {
-	return url.match(
-		// @ts-ignore - TS1503 TypeScript 5.9.2 upgrade
-		/^https:\/\/(.*?\.)?(loom\..*?\/(share|embed))\/([a-zA-Z0-9-]*-)?(?<videoId>[a-f0-9]{32})/,
-	);
+const isConfluenceDatabase: UrlChecker = (url) => url.match(CONFLUENCE_DATABASE_REGEX);
+
+const isYoutubeVideo: UrlChecker = (url) => url.match(YOUTUBE_VIDEO_REGEX);
+
+const isLoomVideoUrl: UrlChecker = (url) => {
+	return url.match(LOOM_VIDEO_URL_REGEX);
 };
 
-const isJiraDashboard = (url: string) => {
-	return url.match(/^https:\/\/.*?\/jira\/dashboards\/[0-9]+.*/);
+const isLoomPlaylistUrl: UrlChecker = (url) => {
+	return url.match(LOOM_PLAYLIST_URL_REGEX);
 };
 
-const isJiraBacklog = (url: string) => {
-	return url.match(
-		/https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/boards\/\d\/backlog\??.*/,
-	);
+const isLoomScreenshotUrl: UrlChecker = (url) => {
+	return url.match(LOOM_SCREENSHOT_URL_REGEX);
 };
 
-const isJiraBoard = (url: string) => {
-	return url.match(/https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/boards\/\d\??.*/);
+const isJiraDashboard: UrlChecker = (url) => {
+	return url.match(JIRA_DASHBOARD_REGEX);
 };
 
-const isJiraPlan = (url: string) => {
-	return (
-		// @ts-ignore - TS1503 TypeScript 5.9.2 upgrade
-		url.match(/https:\/\/.*?\/jira\/plans\/(?<resourceId>\d+)/) ||
-		url.match(
-			// @ts-ignore - TS1503 TypeScript 5.9.2 upgrade
-			/https:\/\/.*?\/jira\/plans\/(?<resourceId>\d+)\/scenarios\/(?<resourceContext>\d+)\/(timeline|summary|calendar|program\/\d+|dependencies)\/?/,
-		)
-	);
+const isJiraBacklog: UrlChecker = (url) => {
+	return url.match(JIRA_BACKLOG_REGEX);
 };
 
-const isJiraVersion = (url: string) => {
-	return url.match(
-		/https:\/\/.*?\/projects\/[^\/]+?\/versions\/\d+\/tab\/release-report-all-issues/,
-	);
+const isJiraBoard: UrlChecker = (url) => {
+	return url.match(JIRA_BOARD_REGEX);
 };
 
-const isJiraForm = (url: string) => {
-	return url.match(/https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/form\/\d\??.*/);
+const isJiraPlan: UrlChecker = (url) => {
+	return url.match(JIRA_PLAN_REGEX) || url.match(JIRA_PLAN_WITH_SCENARIO_REGEX);
 };
 
-const isJiraSummary = (url: string) => {
-	return url.match(/^https:\/\/.*?\/jira\/software\/(c\/)?projects\/[^\/]+?\/summary/);
+const isJiraVersion: UrlChecker = (url) => {
+	return url.match(JIRA_VERSION_REGEX);
 };
 
-const isRovoAgentProfilePage = (url: string) => {
-	return url.match(/^https:\/\/.*?\/people\/agent\/.+$/);
+const isJiraForm: UrlChecker = (url) => {
+	return url.match(JIRA_FORM_REGEX);
 };
 
-const isCustomer360LandingPage = (url: string) =>
-	url.match(/^https:\/\/customer\.atlassian\.com\/.*$/);
+const isJiraSummary: UrlChecker = (url) => {
+	return url.match(JIRA_SUMMARY_REGEX);
+};
 
-const isConfluenceTeamCalendars = (url: string) =>
-	// @ts-ignore - TS1503 TypeScript 5.9.2 upgrade
-	url.match(/\/wiki\/spaces\/(?<resourceContext>[^\/]+)\/calendars\/(?<resourceId>[a-zA-Z0-9-]+)/);
+const isRovoAgentProfilePage: UrlChecker = (url) => {
+	return url.match(ROVO_AGENT_PROFILE_PAGE_REGEX);
+};
 
-const isJiraIssueNavigator = (url: string) =>
-	url.match(/^https:\/\/.*?\/jira\/software|core\/(c\/)?projects\/[^\/]+?\/issues\/?/);
+const isCustomer360LandingPage: UrlChecker = (url) => url.match(CUSTOMER_360_LANDING_PAGE_REGEX);
 
-const isAvpVisualizationView = (url: string) => url.match(/^https:\/\/.*?\/avpviz\/c\/[^\/]+.*/);
+const isConfluenceTeamCalendars: UrlChecker = (url) => url.match(CONFLUENCE_TEAM_CALENDARS_REGEX);
 
-export const isJiraWorkItem = (url: string): boolean => /\/browse\/((?:\w+)-(?:\d+))/i.test(url);
+const isJiraIssueNavigator: UrlChecker = (url) => url.match(JIRA_ISSUE_NAVIGATOR_REGEX);
+
+const isAvpVisualizationView: UrlChecker = (url) =>
+	url.match(AVP_VISUALIZATION_VIEW_REGEX) ||
+	(fg('platform_avp_viz_dashboard_link_embed') ? url.match(DASHBOARDS_CHART_VIEW_REGEX) : null);
+
+const isArtifactsShareView: UrlChecker = (url) => {
+	for (const pattern of ARTIFACT_SHARE_REGEX) {
+		const match = url.match(pattern);
+		if (match) {
+			return match;
+		}
+	}
+	return null;
+};
+
+export const isJiraWorkItem = (url: string): boolean => JIRA_WORK_ITEM_REGEX.test(url);
+
+// Local UrlChecker-compatible wrapper around the boolean-returning
+// `isConfluenceSlideUrl` from `./url-checkers` (the single source of truth for
+// slide URL matching). Wrapping (rather than aliasing the imported identifier
+// directly inside the exported `internalUrlCheckers` object) avoids the
+// @atlaskit/editor/no-re-export lint rule and gives the registry a uniform
+// `(url) => RegExpMatchArray | null` signature. Consumers of
+// `internalUrlCheckers` only check the truthiness of the result, so returning
+// a synthetic single-element match array (or `null`) preserves behaviour.
+const isConfluenceSlide: UrlChecker = (url) =>
+	isConfluenceSlideUrl(url) ? ([url] as unknown as RegExpMatchArray) : null;
+
+export const internalUrlCheckers: { [key: string]: UrlChecker } = {
+	isJiraRoadmapOrTimeline,
+	isPolarisView,
+	isJwmView,
+	isJiraList,
+	isConfluenceWhiteboard,
+	isConfluenceDatabase,
+	isConfluenceSlide,
+	isJiraDashboard,
+	isJiraBacklog,
+	isJiraBoard,
+	isJiraPlan,
+	isJiraVersion,
+	isJiraForm,
+	isJiraSummary,
+	isRovoAgentProfilePage,
+	isConfluenceTeamCalendars,
+	isJiraIssueNavigator,
+};
+
+/**
+ * Check if a URL is an internal Atlassian URL (Jira, Confluence, etc.)
+ * by testing it against all known internal URL patterns
+ */
+export function isInternalUrl(url: string): boolean {
+	return Object.values(internalUrlCheckers).some((checker) => checker(url));
+}
+
+/**
+ * Check if a URL is external (not a known internal Atlassian URL)
+ */
+export function isExternalUrl(url: string): boolean {
+	return !isInternalUrl(url);
+}
 
 type CardNode = InlineCardAdf | BlockCardAdf | EmbedCardAdf;
+type SupportedUrlFilter = (url: string) => boolean;
+
+function getAppearanceForNode(node: CardNode): CardAppearance {
+	return node.type === 'blockCard' ? 'block' : node.type === 'embedCard' ? 'embed' : 'inline';
+}
+
+function isCardNode(node: JSONNode): node is CardNode {
+	return (
+		['inlineCard', 'blockCard', 'embedCard'].includes(node.type) &&
+		!!node.attrs &&
+		'url' in node.attrs &&
+		typeof node.attrs.url === 'string'
+	);
+}
 
 export class EditorCardProvider
 	extends NodeDataProvider<CardNode, JsonLd.Response>
 	implements CardProvider
 {
-	override readonly name: 'editorCardProvider';
+	override readonly name: 'editorCardProvider' | string;
 	private baseUrl: string;
 	private resolverUrl: string;
 	private providersData?: ProvidersData;
@@ -156,8 +257,10 @@ export class EditorCardProvider
 	private transformer: Transformer;
 	private providersLoader: DataLoader<string, ProvidersData | undefined>;
 	private cardClient: CardClient;
-	private smartCardLocalCacheClient: SmartCardLocalCacheClient = new SmartCardLocalCacheClient();
+	private smartCardLocalCacheClient: SmartCardLocalCacheClient =
+		SmartCardLocalCacheClient.getInstance();
 	private onResolve: ((url: string, ari: string) => void) | undefined;
+	private supportedUrlFilter?: SupportedUrlFilter;
 
 	constructor(
 		envKey?: EnvironmentsKeys,
@@ -165,6 +268,7 @@ export class EditorCardProvider
 		product?: ProductType,
 		onResolve?: (url: string) => void,
 		customCardClient?: CardClient,
+		supportedUrlFilter?: SupportedUrlFilter,
 	) {
 		super();
 		this.name = 'editorCardProvider';
@@ -172,6 +276,7 @@ export class EditorCardProvider
 		this.resolverUrl = getResolverUrl(envKey, baseUrlOverride);
 		this.transformer = new Transformer();
 		this.onResolve = onResolve;
+		this.supportedUrlFilter = supportedUrlFilter;
 		this.requestHeaders = {
 			Origin: this.baseUrl,
 		};
@@ -185,15 +290,16 @@ export class EditorCardProvider
 		}
 	}
 
+	refreshCache(node: CardNode | PMNode): void {
+		if (this.getCacheStatusForNode(node) !== 'network') {
+			this.getData(node, () => {});
+		}
+	}
+
 	override getData(
 		node: CardNode | PMNode,
 		callback: (payload: CallbackPayload<JsonLd.Response>) => void,
-	) {
-		if (expValEquals('platform_editor_smartlink_local_cache', 'isEnabled', true) === false) {
-			// if local cache feature flag is disabled, fall back to the base implementation
-			return super.getData(node, callback);
-		}
-
+	): void {
 		const jsonNode: JSONNode = 'toJSON' in node ? node.toJSON() : node;
 		if (!this.isNodeSupported(jsonNode)) {
 			return;
@@ -202,14 +308,26 @@ export class EditorCardProvider
 		// if we can load a response from cache, use it first
 		const key = this.nodeDataKey(jsonNode);
 		const details = this.smartCardLocalCacheClient.getItem(key);
-		if (details) {
+		// NAVX-4712: Handle responses with non-resolved statuses that were previously cached
+		const isResolvedCachedResponse = details && details.meta && getStatus(details) === 'resolved';
+		if (isResolvedCachedResponse) {
 			callback({ data: details });
 		}
 
-		// fetch the latest data async and update the cache
+		// if parent class NodeDataProvider has cached the network request for the node
+		// we can skip fetching the data async and updating the session storage cache
+		if (isResolvedCachedResponse && this.getCacheStatusForNode(jsonNode) === 'network') {
+			return;
+		}
+
+		// fetch the latest data async and update the session storage cache
 		this.getDataAsync(node, (payload) => {
-			if (payload.data && !payload.error) {
-				this.smartCardLocalCacheClient.setItem(key, payload.data);
+			const response: SmartLinkResponse | undefined = payload.data;
+			if (!payload.error && response?.meta) {
+				const status = getStatus(response);
+				if (status === 'resolved') {
+					this.smartCardLocalCacheClient.setItem(key, response);
+				}
 			}
 
 			callback(payload);
@@ -217,28 +335,36 @@ export class EditorCardProvider
 	}
 
 	override nodeDataKey(node: CardNode): string {
-		// We can use URL as a key here, because CardClient returns the same data for the same URL
-		// regardless of the type of card (inline, block, embed).
-		return node.attrs.url;
+		if (!fg('platform_smartlink_inline_resolve_optimization')) {
+			return node.attrs.url;
+		}
+
+		return `${node.attrs.url}|${getAppearanceForNode(node)}`;
 	}
 
 	override fetchNodesData(nodes: CardNode[]): Promise<JsonLd.Response[]> {
 		const promises = nodes.map((node) => {
 			const url = node.attrs.url;
+			const appearance = fg('platform_smartlink_inline_resolve_optimization')
+				? getAppearanceForNode(node)
+				: undefined;
 
-			return this.cardClient.fetchData(url);
+			return this.cardClient.fetchData(url, false, appearance);
 		});
 
 		return Promise.all(promises);
 	}
 
 	override isNodeSupported(node: JSONNode): node is CardNode {
-		return (
-			['inlineCard', 'blockCard', 'embedCard'].includes(node.type) &&
-			!!node.attrs &&
-			'url' in node.attrs &&
-			typeof node.attrs.url === 'string'
-		);
+		if (!isCardNode(node)) {
+			return false;
+		}
+
+		if (!this.supportedUrlFilter) {
+			return true;
+		}
+
+		return this.supportedUrlFilter(node.attrs.url);
 	}
 
 	private async batchProviders(
@@ -322,8 +448,8 @@ export class EditorCardProvider
 
 	private doesUrlMatchPath(path: string, url: string) {
 		// Using [a-zA-Z0-9] here instead of \w since that includes underscores
-		const startingRegex = new RegExp(/^[a-zA-Z0-9]/).test(path) ? '(^|[^a-zA-Z0-9])' : '';
-		const endingRegex = new RegExp(/[a-zA-Z0-9]$/).test(path) ? '($|[^a-zA-Z0-9])' : '';
+		const startingRegex = DOES_URL_MATCH_PATH_START_REGEX.test(path) ? '(^|[^a-zA-Z0-9])' : '';
+		const endingRegex = DOES_URL_MATCH_PATH_END_REGEX.test(path) ? '($|[^a-zA-Z0-9])' : '';
 
 		const escapedPath = path.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 		const regexPattern = new RegExp(`${startingRegex}${escapedPath}${endingRegex}`);
@@ -396,8 +522,11 @@ export class EditorCardProvider
 			isProformaView(url) ||
 			isConfluenceWhiteboard(url) ||
 			isConfluenceDatabase(url) ||
+			isConfluenceSlideUrl(url) ||
 			isYoutubeVideo(url) ||
-			isLoomUrl(url) ||
+			isLoomVideoUrl(url) ||
+			(isLoomPlaylistUrl(url) && fg('loom-playlist-smartlink-embed-default')) ||
+			(isLoomScreenshotUrl(url) && fg('loom-support-screenshot-sl-resolution')) ||
 			isJiraDashboard(url) ||
 			isJiraBacklog(url) ||
 			isJiraBoard(url) ||
@@ -409,7 +538,8 @@ export class EditorCardProvider
 			isCustomer360LandingPage(url) ||
 			isConfluenceTeamCalendarsEvaluated ||
 			isJiraIssueNavigator(url) ||
-			(isAvpVisualizationView(url) && fg('avp_unfurl_shared_charts_embed_by_default_2'))
+			isAvpVisualizationView(url) ||
+			(isArtifactsShareView(url) && fg('platform_forge_ui_artifact_confluence_integration'))
 		) {
 			return 'embed';
 		}
@@ -422,6 +552,17 @@ export class EditorCardProvider
 			type: 'inlineCard',
 			attrs: { url },
 		});
+	}
+
+	private async resolvesToHardCodedEmbed(url: string): Promise<boolean> {
+		try {
+			const response = await this.fetchData(url);
+			const resolvedUrl = extractSmartLinkUrl(response as SmartLinkResponse);
+
+			return resolvedUrl !== undefined && this.getHardCodedAppearance(resolvedUrl) === 'embed';
+		} catch {
+			return false;
+		}
 	}
 
 	/**
@@ -448,6 +589,20 @@ export class EditorCardProvider
 		} catch {
 			return false;
 		}
+	}
+
+	/**
+	 * Opt-in hook: when a caller explicitly requests an `'embed'` appearance and the
+	 * user has no saved preference for the URL, honour that request as the default
+	 * (above any provider default), validating embeddability first and falling back
+	 * to a card (`'block'`) when the link cannot be embedded.
+	 *
+	 * Defaults to `false` so behaviour is unchanged for every existing consumer.
+	 * Subclasses (e.g. Confluence) can override this to opt in, typically behind an
+	 * experiment.
+	 */
+	protected shouldHonorRequestedEmbedAsDefault(): boolean {
+		return false;
 	}
 
 	private async getAuthStatusFromResolveResponse(
@@ -549,11 +704,44 @@ export class EditorCardProvider
 							// If not, we pick what editor (or any other client) requested
 							appearance;
 
+				const isNativeEmbedShortlinkResolutionEnabled = fg(
+					'platform_native_embeds_enable_shortlink_resolution',
+				);
+
+				const shouldResolveShortLinkForEmbed =
+					isNativeEmbedShortlinkResolutionEnabled &&
+					matchedProviderPattern !== undefined &&
+					isConfluenceShortLinkUrl(url) &&
+					userPreference === undefined &&
+					isEmbedFriendlyLocationEvaluated;
+
+				// Confluence shortlinks do not identify their content type. Resolve the URL before
+				// deciding whether it should use one of the existing hardcoded embed appearances.
+				if (shouldResolveShortLinkForEmbed && (await this.resolvesToHardCodedEmbed(url))) {
+					preferredAppearance = 'embed';
+				}
+
 				if (preferredAppearance === userPreference && userPreference === 'embed') {
 					const canItBeEmbed = await this.canBeResolvedAsEmbed(url);
 					if (!canItBeEmbed) {
 						preferredAppearance = 'inline';
 					}
+				}
+
+				// When a caller explicitly requested an embed (e.g. Confluence's quick-insert
+				// embed flow tags the inserted link) and the user has no saved preference for
+				// this URL, honour embed-by-default above the provider default — but only in an
+				// embed-friendly location (matching how hard-coded embeds are gated above) and
+				// only when the link can actually be embedded, otherwise fall back to a card.
+				// Gated behind a default-off opt-in hook so other consumers are unaffected.
+				if (
+					!userPreference &&
+					appearance === 'embed' &&
+					isEmbedFriendlyLocationEvaluated &&
+					this.shouldHonorRequestedEmbedAsDefault()
+				) {
+					const canItBeEmbed = await this.canBeResolvedAsEmbed(url);
+					preferredAppearance = canItBeEmbed ? 'embed' : 'block';
 				}
 
 				const datasource = await this.getDatasourceFromResolveResponse(url);
@@ -571,25 +759,12 @@ export class EditorCardProvider
 					);
 				}
 
-				if (
-					isEmbedFriendlyLocationEvaluated &&
-					!userPreference &&
-					fg('platform_sl_3p_unauth_paste_as_block_card_gate')
-				) {
+				if (isEmbedFriendlyLocationEvaluated && !userPreference) {
 					const authStatus = await this.getAuthStatusFromResolveResponse(url);
 					if (authStatus) {
 						const { access } = authStatus;
 						if (access === 'unauthorized') {
-							const isUnauthPasteAsBlockCardEnabled = !expValEquals(
-								'platform_sl_3p_unauth_paste_as_block_card',
-								'cohort',
-								'control',
-								'control',
-							);
-
-							if (isUnauthPasteAsBlockCardEnabled) {
-								return this.transformer.toSmartlinkAdf(url, 'block');
-							}
+							return this.transformer.toSmartlinkAdf(url, 'block');
 						}
 					}
 				}
@@ -610,6 +785,6 @@ export class EditorCardProvider
 	}
 }
 
-export const editorCardProvider = new EditorCardProvider();
+export const editorCardProvider: EditorCardProvider = new EditorCardProvider();
 // eslint-disable-next-line @atlaskit/editor/no-re-export
 export type { CardProvider } from './types';

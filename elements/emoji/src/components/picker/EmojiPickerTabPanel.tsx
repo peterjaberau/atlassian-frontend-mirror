@@ -3,9 +3,12 @@
  * @jsx jsx
  */
 import React, { type PropsWithChildren, PureComponent } from 'react';
+
 import { css, jsx } from '@compiled/react';
-import VisuallyHidden from '@atlaskit/visually-hidden';
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
+
 import { messages } from '../i18n';
 import { RENDER_EMOJI_PICKER_LIST_TESTID } from './EmojiPickerList';
 
@@ -56,4 +59,8 @@ class EmojiPickerTabPanelInternal extends PureComponent<
 	}
 }
 
-export default injectIntl(EmojiPickerTabPanelInternal);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<React.PropsWithChildren<EmojiPickerTabPanelProps>>> & {
+	WrappedComponent: React.ComponentType<React.PropsWithChildren<EmojiPickerTabPanelProps>>;
+} = injectIntl(EmojiPickerTabPanelInternal);
+export default _default_1;

@@ -1,8 +1,6 @@
-import {
-	popupWithNestedElement,
-	type ExperienceCheckResult,
-} from '@atlaskit/editor-common/experiences';
-import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { BLOCK_MENU_TEST_ID } from '@atlaskit/editor-common/block-menu';
+import { popupWithNestedElement } from '@atlaskit/editor-common/experiences';
+import type { ExperienceCheckResult } from '@atlaskit/editor-common/experiences';
 
 /**
  * Checks if the given element or any of its ancestors is a drag handle element.
@@ -24,30 +22,7 @@ export const isBlockMenuVisible = (popupsTarget: HTMLElement | undefined): boole
 	if (!popupsTarget) {
 		return false;
 	}
-	return popupWithNestedElement(popupsTarget, '[data-testid="editor-block-menu"]') !== null;
-};
-
-/**
- * Gets the parent DOM element at the starting position of the current selection
- * from the provided editor view.
- *
- * @param editorView - The editor view from which to get the parent DOM element
- * @returns The parent HTMLElement at the selection start, or null if not found
- */
-export const getParentDOMAtSelection = (editorView?: EditorView): HTMLElement | null => {
-	if (!editorView) {
-		return null;
-	}
-
-	const { selection } = editorView.state;
-	const from = selection.from;
-	const nodeDOM = editorView.nodeDOM(from);
-
-	if (nodeDOM instanceof HTMLElement) {
-		return nodeDOM.parentElement;
-	}
-
-	return null;
+	return popupWithNestedElement(popupsTarget, `[data-testid="${BLOCK_MENU_TEST_ID}"]`) !== null;
 };
 
 const isBlockMenuAddedInMutation = ({ type, addedNodes }: MutationRecord) => {
@@ -55,7 +30,7 @@ const isBlockMenuAddedInMutation = ({ type, addedNodes }: MutationRecord) => {
 };
 
 const isBlockMenuWithinNode = (node?: Node | null) => {
-	return popupWithNestedElement(node, '[data-testid="editor-block-menu"]') !== null;
+	return popupWithNestedElement(node, `[data-testid="${BLOCK_MENU_TEST_ID}"]`) !== null;
 };
 
 /**
@@ -132,5 +107,31 @@ export const handleDeleteDomMutation = ({
 	if (childListMutations.some((m) => m.removedNodes.length > 0 && m.addedNodes.length === 0)) {
 		return { status: 'success' };
 	}
+	return undefined;
+};
+
+/**
+ * Handles DOM mutations to determine if a transform action was performed.
+ *
+ * Transforms replace one block type with another (e.g. paragraph → heading),
+ * producing childList mutations with both removed (old node) and added (new node).
+ *
+ * @param options.mutations - The list of DOM mutation records
+ * @returns An ExperienceCheckResult indicating success if a transform was detected, otherwise undefined
+ */
+export const handleTransformDomMutation = ({
+	mutations,
+}: {
+	mutations: MutationRecord[];
+}): ExperienceCheckResult | undefined => {
+	const hasRemovedNodes = mutations.some(
+		(m) => m.type === 'childList' && m.removedNodes.length > 0,
+	);
+	const hasAddedNodes = mutations.some((m) => m.type === 'childList' && m.addedNodes.length > 0);
+
+	if (hasRemovedNodes && hasAddedNodes) {
+		return { status: 'success' };
+	}
+
 	return undefined;
 };

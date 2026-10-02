@@ -1,17 +1,17 @@
 import React, { useCallback, useState } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
+import type { WrappedComponentProps } from 'react-intl';
 
 import { toolbarMessages } from '@atlaskit/editor-common/messages';
 import { DropdownMenuWithKeyboardNavigation as DropdownMenu } from '@atlaskit/editor-common/ui-menu';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorMenuZIndex } from '@atlaskit/editor-shared-styles';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { DropdownToolbarButton } from './dropdown-toolbar-button';
 import { useMenuState } from './hooks/menu-state';
 import { MoreButton } from './more-button';
-import { type MenuIconItem, type ToolbarType } from './types';
+import type { MenuIconItem, ToolbarType } from './types';
 
 type DropdownMenuProps = {
 	editorView: EditorView;
@@ -29,7 +29,22 @@ type DropdownMenuProps = {
 	toolbarType: ToolbarType;
 } & WrappedComponentProps;
 
-export const FormattingTextDropdownMenu = React.memo(
+export const FormattingTextDropdownMenu: React.MemoExoticComponent<
+	({
+		editorView,
+		moreButtonLabel,
+		isReducedSpacing,
+		items,
+		hasFormattingActive,
+		popupsBoundariesElement,
+		popupsMountPoint,
+		popupsScrollableElement,
+		hasMoreButton,
+		intl,
+		toolbarType,
+		isDisabled,
+	}: DropdownMenuProps) => React.JSX.Element
+> = React.memo(
 	({
 		editorView,
 		moreButtonLabel,
@@ -79,7 +94,9 @@ export const FormattingTextDropdownMenu = React.memo(
 				fitHeight={188}
 				fitWidth={editorExperiment('platform_editor_controls', 'control') ? 136 : 230}
 				shouldUseDefaultRole
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				section={{ hasSeparator: true }}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				shouldFocusFirstItem={() => {
 					if (isOpenedByKeyboard) {
 						setIsOpenedByKeyboard(false);
@@ -93,10 +110,12 @@ export const FormattingTextDropdownMenu = React.memo(
 						label={moreButtonLabel}
 						isReducedSpacing={isReducedSpacing}
 						isDisabled={false}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onClick={() => {
 							toggleMenu();
 							setIsOpenedByKeyboard(false);
 						}}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onKeyDown={(event: React.KeyboardEvent) => {
 							if (event.key === 'Enter' || event.key === ' ') {
 								event.preventDefault();
@@ -114,10 +133,12 @@ export const FormattingTextDropdownMenu = React.memo(
 						label={intl.formatMessage(toolbarMessages.textFormat)}
 						aria-expanded={isMenuOpen}
 						aria-haspopup
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onClick={() => {
 							toggleMenu();
 							setIsOpenedByKeyboard(false);
 						}}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onKeyDown={(event: React.KeyboardEvent) => {
 							if (event.key === 'Enter' || event.key === ' ') {
 								event.preventDefault();

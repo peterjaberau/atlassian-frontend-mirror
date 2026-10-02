@@ -1,9 +1,7 @@
-import { getUrlForDomainInContext } from '@atlaskit/atlassian-context';
-import { type Node } from '@atlaskit/editor-prosemirror/model';
+import { getUrlForDomainInContext } from '@atlaskit/atlassian-context/get-url-for-domain-in-context';
+import type { Node } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
-
-import type { Predicate } from '../types';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { linkPreferencesPath } from './constants';
 
@@ -12,20 +10,6 @@ const PRODUCTION = 'prod';
 const DEV = 'dev';
 
 type EnvironmentType = typeof STAGING | typeof PRODUCTION | typeof DEV;
-
-export function isTextAtPos(pos: number): (props: { tr: Transaction }) => boolean {
-	return ({ tr }: { tr: Transaction }) => {
-		const node = tr.doc.nodeAt(pos);
-		return !!node && node.isText;
-	};
-}
-
-export function isLinkAtPos(pos: number): Predicate {
-	return (state: EditorState) => {
-		const node = state.doc.nodeAt(pos);
-		return !!node && !!state.schema.marks.link.isInSet(node.marks);
-	};
-}
 
 export const getLinkPreferencesURLFromENV = (): string => {
 	const envType: EnvironmentType = process.env.CLOUD_ENV === 'staging' ? STAGING : PRODUCTION;
@@ -57,6 +41,7 @@ const isSelectionAroundLink = (state: EditorState | Transaction) => {
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getActiveLinkMark = (
 	state: EditorState | Transaction,
 ): { node: Node; pos: number } | undefined => {
@@ -93,3 +78,7 @@ export const getActiveLinkMark = (
 
 	return undefined;
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isTextAtPos } from './isTextAtPos';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isLinkAtPos } from './isLinkAtPos';

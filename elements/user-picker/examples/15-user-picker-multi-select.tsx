@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+
 import { exampleOptions } from '../example-helpers';
 import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
-import UserPicker from '../src';
+import { UserPicker } from '../src/components/UserPicker';
 import { type OnChange, type Value } from '../src/types';
 
 type ExampleProps = {};

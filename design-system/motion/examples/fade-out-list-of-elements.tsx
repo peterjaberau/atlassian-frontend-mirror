@@ -4,21 +4,60 @@
  */
 import { useState } from 'react';
 
-import { jsx } from '@compiled/react';
+import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import Heading from '@atlaskit/heading/heading';
 import {
 	BitbucketIcon,
 	ConfluenceIcon,
 	JiraServiceManagementIcon,
-	JiraSoftwareIcon,
 	OpsgenieIcon,
 	StatuspageIcon,
 } from '@atlaskit/logo';
-import { ExitingPersistence, FadeIn, StaggeredEntrance } from '@atlaskit/motion';
+import { JiraSoftwareIcon } from '@atlaskit/logo/jira-software-icon';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import FadeIn from '@atlaskit/motion/fade-in';
+import StaggeredEntrance from '@atlaskit/motion/staggered-entrance';
 import { token } from '@atlaskit/tokens';
 
-import { Block, RetryContainer } from './utils';
+import { Block } from './utils/blocks';
+import { RetryContainer } from './utils/containers';
+
+const buttonContainerStyles = css({
+	textAlign: 'center',
+});
+
+const ulStyles = css({
+	maxWidth: '474px',
+	padding: 0,
+	marginBlockEnd: token('space.200'),
+	marginBlockStart: token('space.200'),
+	marginInlineEnd: 'auto',
+	marginInlineStart: 'auto',
+});
+
+const liStyles = css({
+	display: 'block',
+	padding: 0,
+	marginBlockEnd: token('space.100'),
+	marginBlockStart: token('space.100'),
+	marginInlineEnd: token('space.100'),
+	marginInlineStart: token('space.100'),
+});
+
+const innerDivStyles = css({
+	display: 'flex',
+	width: '100%',
+	alignItems: 'center',
+	paddingInlineStart: token('space.100'),
+});
+
+const blockStyles = css({
+	width: '100%',
+	height: '48px',
+	borderRadius: token('radius.small', '3px'),
+});
 
 const logos = [
 	[<BitbucketIcon size="small" />, 'Bitbucket'],
@@ -40,26 +79,11 @@ export default (): JSX.Element => {
 
 	return (
 		<RetryContainer>
-			<div
-				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-				css={{
-					textAlign: 'center',
-					'> *': { marginRight: token('space.050', '4px') },
-				}}
-			>
+			<div css={buttonContainerStyles}>
 				<Button onClick={() => setItems((list) => randRemove(list))}>Random remove</Button>
 				<Button onClick={() => setItems(logos)}>Reset</Button>
 
-				<ul
-					// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-					css={{
-						maxWidth: '474px',
-						height: '328px',
-						padding: 0,
-						margin: `${token('space.200', '16px')} auto !important`,
-						div: { margin: '0' },
-					}}
-				>
+				<ul css={ulStyles}>
 					<StaggeredEntrance>
 						<ExitingPersistence appear>
 							{items.map((logo) => (
@@ -70,42 +94,15 @@ export default (): JSX.Element => {
 											ref={props.ref}
 											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 											className={props.className}
-											// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 											style={props.style}
-											// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-											css={{
-												display: 'block',
-												padding: 0,
-												margin: token('space.100', '8px'),
-											}}
+											css={liStyles}
 										>
-											<Block
-												css={{
-													width: '100%',
-													height: '48px',
-													borderRadius: token('radius.small', '3px'),
-												}}
-											>
-												<div
-													// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-													css={{
-														width: '100%',
-														display: 'flex',
-														alignItems: 'center',
-														paddingLeft: token('space.100', '8px'),
-													}}
-												>
+											<Block css={blockStyles}>
+												<div css={innerDivStyles}>
 													{logo[0]}
-													<h3
-														// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-														css={{
-															margin: 0,
-															fontWeight: 300,
-															marginLeft: token('space.100', '8px'),
-														}}
-													>
+													<Heading as="h3" size="small">
 														{logo[1]}
-													</h3>
+													</Heading>
 												</div>
 											</Block>
 										</li>

@@ -1,5 +1,4 @@
 /**
- * @jsxFrag
  * @jsxRuntime classic
  * @jsx jsx
  */
@@ -7,19 +6,18 @@ import React, { type ReactNode, useCallback, useId, useRef } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import type { RouterLinkComponentProps } from '@atlaskit/app-provider';
-import { IconButton } from '@atlaskit/button/new';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import type { RouterLinkComponentProps } from '@atlaskit/app-provider/router-link-provider';
+import IconButton from '@atlaskit/button/icon/button';
 import forwardRefWithGeneric from '@atlaskit/ds-lib/forward-ref-with-generic';
-import type { IconProps } from '@atlaskit/icon';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
+import type { IconProps } from '@atlaskit/icon/types';
 import { token } from '@atlaskit/tokens';
 
-import { MenuItemBase, nestedOpenPopupCSSSelector } from '../menu-item';
+import { MenuItemBase } from '../menu-item';
 import type { MenuItemCommonProps, MenuItemSlots } from '../types';
 import { useScrollMenuItemIntoView } from '../use-scroll-menu-item-into-view';
-
 import {
 	useIsExpanded,
 	useOnExpansionToggle,
@@ -37,9 +35,8 @@ type ExpandableMenuItemIconProps = {
 	providedElemBefore?: ReactNode;
 };
 
-// Widening type to `string` to side-step Compiled cssMap typescript warnings with unknown properties
-const chevronDisplayCssVar: string = '--expandable-chevron-display';
-const providedElemBeforeDisplayCssVar: string = '--expandable-provided-elembefore-display';
+const chevronDisplayCssVar = '--expandable-chevron-display';
+const providedElemBeforeDisplayCssVar = '--expandable-provided-elembefore-display';
 
 const wrapperStyles = cssMap({
 	root: {
@@ -77,8 +74,19 @@ const wrapperStyles = cssMap({
 			[chevronDisplayCssVar]: 'flex',
 			[providedElemBeforeDisplayCssVar]: 'none',
 		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-		[nestedOpenPopupCSSSelector]: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		['&:has([aria-expanded="true"][aria-haspopup])']: {
+			[chevronDisplayCssVar]: 'flex',
+			[providedElemBeforeDisplayCssVar]: 'none',
+		},
+	},
+});
+
+// Merge back into the `wrapperStyles` after cleanup
+const nestedOpenPopupStyles = cssMap({
+	showProvidedElemBefore: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		['&:has([aria-expanded="true"][aria-haspopup])']: {
 			[chevronDisplayCssVar]: 'flex',
 			[providedElemBeforeDisplayCssVar]: 'none',
 		},
@@ -120,7 +128,7 @@ const ExpandableMenuItemIcon = ({
 	);
 
 	return (
-		<>
+		<React.Fragment>
 			<div css={iconStyles.chevron}>{chevronElem}</div>
 			{/* If there is no provided elemBefore, not rendering the wrapper either to simplify the DOM */}
 			{providedElemBefore && (
@@ -130,7 +138,7 @@ const ExpandableMenuItemIcon = ({
 					{providedElemBefore}
 				</div>
 			)}
-		</>
+		</React.Fragment>
 	);
 };
 
@@ -296,7 +304,11 @@ export const ExpandableMenuItemTrigger: <RouterLinkConfig extends Record<string,
 		// For expandable menu items, we shouldn't wrap in a `li` here. The `li` is instead at a higher level (`ExpandableMenuItem`), grouping the expandable menu item trigger and its content
 		return (
 			<div
-				css={[wrapperStyles.root, providedElemBefore && wrapperStyles.showProvidedElemBefore]}
+				css={[
+					wrapperStyles.root,
+					providedElemBefore && wrapperStyles.showProvidedElemBefore,
+					nestedOpenPopupStyles.showProvidedElemBefore,
+				]}
 				ref={itemRef}
 			>
 				<MenuItemBase

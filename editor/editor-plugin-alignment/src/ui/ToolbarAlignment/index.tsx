@@ -4,13 +4,13 @@
  */
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { jsx } from '@atlaskit/css';
 import { alignCenter, alignLeft, alignRight, tooltip } from '@atlaskit/editor-common/keymaps';
 import { alignmentMessages as messages } from '@atlaskit/editor-common/messages';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { OpenChangedEvent } from '@atlaskit/editor-common/ui';
 import {
 	Shortcut,
@@ -24,17 +24,17 @@ import {
 	DropdownContainer as Dropdown,
 	DropdownMenuWithKeyboardNavigation as DropdownMenu,
 	ToolbarButton,
-	type MenuItem,
 } from '@atlaskit/editor-common/ui-menu';
+import type { MenuItem } from '@atlaskit/editor-common/ui-menu';
 import AlignTextCenterIcon from '@atlaskit/icon/core/align-text-center';
 import AlignTextLeftIcon from '@atlaskit/icon/core/align-text-left';
 import AlignTextRightIcon from '@atlaskit/icon/core/align-text-right';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { AlignmentPlugin } from '../../alignmentPluginType';
-import { ToolbarType, type AlignmentState } from '../../pm-plugins/types';
+import { ToolbarType } from '../../pm-plugins/types';
+import type { AlignmentState } from '../../pm-plugins/types';
 import Alignment from '../Alignment';
-
 import { IconMap } from './icon-map';
 
 interface State {
@@ -77,6 +77,13 @@ class AlignmentToolbar extends React.Component<Props & WrappedComponentProps, St
 		const alignment = align ?? 'start';
 
 		const title = intl.formatMessage(messages.alignment);
+		const alignmentLabelMap: Record<string, string> = {
+			start: intl.formatMessage(messages.alignLeft),
+			center: intl.formatMessage(messages.alignCenter),
+			end: intl.formatMessage(messages.alignRight),
+		};
+
+		const ariaLabel = `${title}, ${alignmentLabelMap[alignment] ?? ''}`;
 
 		const reducedSpacing = editorExperiment('platform_editor_controls', 'variant1', {
 			exposure: true,
@@ -115,12 +122,15 @@ class AlignmentToolbar extends React.Component<Props & WrappedComponentProps, St
 			<ToolbarDropdownWrapper>
 				{editorExperiment('platform_editor_controls', 'variant1') ? (
 					<DropdownMenu
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						arrowKeyNavigationProviderOptions={{
 							type: ArrowKeyNavigationType.MENU,
 						}}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						items={[{ items }]}
 						isOpen={isOpen}
 						onItemActivated={this.handleOnItemActivated}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onOpenChange={(attrs: OpenChangedEvent) => this.setState({ isOpen: attrs?.isOpen })}
 						mountTo={popupsMountPoint}
 						boundariesElement={popupsBoundariesElement}
@@ -132,7 +142,7 @@ class AlignmentToolbar extends React.Component<Props & WrappedComponentProps, St
 							disabled={disabled}
 							selected={isOpen}
 							title={title}
-							aria-label={title}
+							aria-label={ariaLabel}
 							aria-expanded={isOpen}
 							aria-haspopup
 							onClick={this.toggleOpen}
@@ -151,12 +161,14 @@ class AlignmentToolbar extends React.Component<Props & WrappedComponentProps, St
 						boundariesElement={popupsBoundariesElement}
 						scrollableElement={popupsScrollableElement}
 						isOpen={isOpen}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						handleClickOutside={(event: MouseEvent) => {
 							if (event instanceof MouseEvent) {
 								this.hide({ isOpen: false, event });
 							}
 						}}
 						handleEscapeKeydown={this.hideOnEscape}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						arrowKeyNavigationProviderOptions={{
 							type: ArrowKeyNavigationType.MENU,
 						}}
@@ -171,7 +183,7 @@ class AlignmentToolbar extends React.Component<Props & WrappedComponentProps, St
 								title={title}
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/no-unsafe-style-overrides -- Ignored via go/DSP-18766
 								className="align-btn"
-								aria-label={title}
+								aria-label={ariaLabel}
 								aria-expanded={isOpen}
 								aria-haspopup
 								onClick={this.toggleOpen}
@@ -187,6 +199,7 @@ class AlignmentToolbar extends React.Component<Props & WrappedComponentProps, St
 						}
 					>
 						<Alignment
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onClick={(align) => this.changeAlignment(align, false)}
 							selectedAlignment={alignment}
 						/>
@@ -197,7 +210,7 @@ class AlignmentToolbar extends React.Component<Props & WrappedComponentProps, St
 		);
 	}
 
-	componentDidUpdate(prevProps: Props) {
+	componentDidUpdate(_prevProps: Props) {
 		if (this.props.toolbarType !== ToolbarType.FLOATING && this.state.isOpen) {
 			// by triggering the keyboard event with a setTimeout, we ensure that the tooltip
 			// associated with the alignment button doesn't render until the next render cycle
@@ -255,4 +268,8 @@ class AlignmentToolbar extends React.Component<Props & WrappedComponentProps, St
 	};
 }
 
-export default injectIntl(AlignmentToolbar);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(AlignmentToolbar);
+export default _default_1;

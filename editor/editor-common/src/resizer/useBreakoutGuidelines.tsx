@@ -10,11 +10,10 @@ import {
 	akEditorFullPageNarrowBreakout,
 	breakoutWideScaleRatio,
 } from '@atlaskit/editor-shared-styles';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
-import { type GuidelineConfig } from '../guideline';
+import type { GuidelineConfig } from '../guideline';
 import type { BreakoutMode, EditorContainerWidth } from '../types';
-
 import type { Snap } from './types';
 
 export const SNAP_GAP = 8;
@@ -42,11 +41,17 @@ const CURRENT_LAYOUT_KEYS: SnappingWidthsKeyMapping = {
 const roundToNearest = (value: number, interval: number = 0.5): number =>
 	Math.round(value / interval) * interval;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function useBreakoutGuidelines(
 	getEditorWidth: () => EditorContainerWidth | undefined,
 	isResizing: boolean,
 	dynamicFullWidthGuidelineOffset: number = 0,
-) {
+): {
+	currentLayout: BreakoutMode | null;
+	guidelines: GuidelineConfig[];
+	setCurrentWidth: (newWidth: number | null) => void;
+	snaps: Snap | null;
+} {
 	const widthState = getEditorWidth();
 
 	const { lineLength, wide, fullWidth } = useMemo(() => {

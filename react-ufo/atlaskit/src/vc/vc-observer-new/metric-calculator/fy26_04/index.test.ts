@@ -1,5 +1,5 @@
 // vcnext/index.test.ts
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { VCObserverEntry, ViewportEntryData } from '../../types';
 import {
@@ -7,11 +7,11 @@ import {
 	NON_VISUAL_ARIA_ATTRIBUTES,
 	THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES,
 } from '../utils/constants';
-
 import VCCalculator_FY26_04 from './index';
 
 // Mock feature flags
-jest.mock('@atlaskit/platform-feature-flags', () => ({
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn(),
 }));
 
@@ -81,62 +81,54 @@ describe('VCCalculator_FY26_04', () => {
 			});
 		});
 
-		describe('rovo_search_page_ttvc_ignoring_smart_answers_fix is on', () => {
-			beforeEach(() => {
-				mockFg.mockImplementation(
-					(flag) => flag === 'rovo_search_page_ttvc_ignoring_smart_answers_fix',
-				);
-			});
+		it('should return true for smart answers entries by default', () => {
+			const addedElementEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:smart-answers-element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
 
-			it('should return true for smart answers entries by default', () => {
-				const addedElementEntry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:smart-answers-element',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
+			const attributeMutationEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:smart-answers-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
 
-				const attributeMutationEntry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:smart-answers-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
+			expect(calculator['isEntryIncluded'](addedElementEntry)).toBe(true);
+			expect(calculator['isEntryIncluded'](attributeMutationEntry)).toBe(true);
+		});
 
-				expect(calculator['isEntryIncluded'](addedElementEntry)).toBe(true);
-				expect(calculator['isEntryIncluded'](attributeMutationEntry)).toBe(true);
-			});
+		it('should return false for smart answers entries when excludeSmartAnswersInSearch is true', () => {
+			const addedElementEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:smart-answers-element',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
 
-			it('should return false for smart answers entries when excludeSmartAnswersInSearch is true', () => {
-				const addedElementEntry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:smart-answers-element',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
+			const attributeMutationEntry: VCObserverEntry = {
+				time: 0,
+				data: {
+					type: 'mutation:smart-answers-attribute',
+					elementName: 'div',
+					rect: new DOMRect(),
+					visible: true,
+				},
+			};
 
-				const attributeMutationEntry: VCObserverEntry = {
-					time: 0,
-					data: {
-						type: 'mutation:smart-answers-attribute',
-						elementName: 'div',
-						rect: new DOMRect(),
-						visible: true,
-					},
-				};
-
-				expect(calculator['isEntryIncluded'](addedElementEntry, undefined, true)).toBe(false);
-				expect(calculator['isEntryIncluded'](attributeMutationEntry, undefined, true)).toBe(false);
-			});
+			expect(calculator['isEntryIncluded'](addedElementEntry, undefined, true)).toBe(false);
+			expect(calculator['isEntryIncluded'](attributeMutationEntry, undefined, true)).toBe(false);
 		});
 	});
 

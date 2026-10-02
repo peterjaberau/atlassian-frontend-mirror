@@ -11,19 +11,24 @@ import { token } from '@atlaskit/tokens';
 
 import useAISummaryAction from '../../../state/hooks/use-ai-summary-action';
 import AIPrism from '../../common/ai-prism';
-import type { ContentContainerProps } from '../types';
-
 import { hoverCardClassName } from './HoverCardContent';
-
-const NEW_CARD_WIDTH_REM = 25;
 
 const HoverCardContainerStyle = css({
 	background: 'none',
 	borderWidth: '0',
 	boxSizing: 'border-box',
-	width: `${NEW_CARD_WIDTH_REM}rem`,
+});
 
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+const hoverCardShellWidthDefault = css({
+	width: '25rem',
+});
+
+const hoverCardShellWidthSlim = css({
+	width: '20rem',
+});
+
+const hoverCardShellHideLoadingPlaceholder = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- hide smart-link placeholder inside hover shell (descendant)
 	'.smart-link-loading-placeholder': {
 		display: 'none',
 	},
@@ -31,15 +36,25 @@ const HoverCardContainerStyle = css({
 
 const popupContainerStyles = css({
 	borderRadius: token('radius.large', '8px'),
-	backgroundColor: token('elevation.surface.overlay', 'white'),
-	boxShadow: token(
-		'elevation.shadow.overlay',
-		'0px 8px 12px rgba(9, 30, 66, 0.15),0px 0px 1px rgba(9, 30, 66, 0.31)',
-	),
+	backgroundColor: token('elevation.surface.overlay'),
+	boxShadow: token('elevation.shadow.overlay'),
 });
+
+type ContentContainerWidthAppearance = 'default' | 'slim';
+
+type ContentContainerProps = React.HTMLAttributes<HTMLDivElement> & {
+	isAIEnabled?: boolean;
+	testId?: string;
+	url: string;
+	/**
+	 * Visual width preset for the hover card shell. Omit or `undefined` uses `'default'`.
+	 */
+	widthAppearance?: ContentContainerWidthAppearance;
+};
 
 const ConnectedAIPrismContainer = ({
 	children,
+	widthAppearance,
 	isAIEnabled = false,
 	testId,
 	url,
@@ -57,11 +72,18 @@ const ConnectedAIPrismContainer = ({
 		setShowPrism(status === 'loading');
 	}, [status]);
 
+	const resolvedWidthAppearance = widthAppearance ?? 'default';
+
 	const container = (
 		<div
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={hoverCardClassName}
-			css={[HoverCardContainerStyle, !isAIEnabled ? popupContainerStyles : undefined]}
+			css={[
+				HoverCardContainerStyle,
+				resolvedWidthAppearance === 'slim' ? hoverCardShellWidthSlim : hoverCardShellWidthDefault,
+				hoverCardShellHideLoadingPlaceholder,
+				!isAIEnabled ? popupContainerStyles : undefined,
+			]}
 			data-testid={testId}
 			{...props}
 		>
@@ -80,12 +102,19 @@ const ConnectedAIPrismContainer = ({
 
 const ContentContainer = ({
 	children,
+	widthAppearance,
 	isAIEnabled = false,
 	testId,
 	url,
 	...props
 }: ContentContainerProps): JSX.Element => (
-	<ConnectedAIPrismContainer isAIEnabled={isAIEnabled} url={url} testId={testId} {...props}>
+	<ConnectedAIPrismContainer
+		widthAppearance={widthAppearance}
+		isAIEnabled={isAIEnabled}
+		url={url}
+		testId={testId}
+		{...props}
+	>
 		{children}
 	</ConnectedAIPrismContainer>
 );

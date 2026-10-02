@@ -3,18 +3,19 @@
  * @jsx jsx
  */
 
-import { type CSSProperties, memo, useRef } from 'react';
+import { type CSSProperties, memo, type Ref, useCallback, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { type BreadcrumbsItemProps } from '../types';
-
+import BreadcrumbsItemBase from './internal/breadcrumbs-item-base';
 import Step from './internal/step';
 import StepOld from './internal/step-old';
+import { useBreadcrumbsSize } from './internal/use-breadcrumbs-size';
 import useOverflowable from './internal/use-overflowable';
 
 const itemWrapperStyles = css({
@@ -22,20 +23,22 @@ const itemWrapperStyles = css({
 	boxSizing: 'border-box',
 	maxWidth: '100%',
 	height: `${24 / 14}em`,
+	alignItems: 'center',
 	flexDirection: 'row',
 	fontFamily: token('font.family.body'),
-	marginBlockEnd: token('space.0', '0px'),
-	marginBlockStart: token('space.0', '0px'),
-	marginInlineEnd: token('space.0', '0px'),
-	marginInlineStart: token('space.0', '0px'),
-	paddingBlockEnd: token('space.0', '0px'),
-	paddingBlockStart: token('space.0', '0px'),
-	paddingInlineEnd: token('space.0', '0px'),
-	paddingInlineStart: token('space.0', '0px'),
+	marginBlockEnd: token('space.0'),
+	marginBlockStart: token('space.0'),
+	marginInlineEnd: token('space.0'),
+	marginInlineStart: token('space.0'),
+	paddingBlockEnd: token('space.0'),
+	paddingBlockStart: token('space.0'),
+	paddingInlineEnd: token('space.0'),
+	paddingInlineStart: token('space.0'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&:not(:last-child)::after': {
 		width: '8px',
 		flexShrink: 0,
+		color: token('color.text.subtlest'),
 		content: '"/"',
 		paddingBlock: token('space.025'),
 		paddingInline: token('space.100'),
@@ -63,49 +66,123 @@ const staticItemWithoutTruncationStyles = css({
 	flexShrink: `1 !important`,
 });
 
-const BreadcrumbsItem: import("react").MemoExoticComponent<({ analyticsContext, component, href, iconAfter, iconBefore, onClick, onTooltipShown, ref, target, testId, text, truncationWidth, ...rest }: BreadcrumbsItemProps) => JSX.Element> = memo(
+const motionItemStyles = css({
+	textDecorationColor: 'transparent',
+	textDecorationLine: 'underline',
+	transition: token('motion.listitem.hovered'),
+	'&:hover': {
+		textDecorationColor: token('color.text.subtlest'),
+		transition: token('motion.listitem.hovered'),
+	},
+	'&:active': {
+		textDecorationColor: token('color.text'),
+		transition: token('motion.listitem.pressed'),
+	},
+});
+
+type BreadcrumbsItemInternalProps = BreadcrumbsItemProps & {
+	'aria-current'?: 'page' | boolean;
+	_overflowRef?: (el: HTMLLIElement | null) => void;
+};
+
+const BreadcrumbsItem: import('react').MemoExoticComponent<
 	({
 		analyticsContext,
 		component,
-		// `createAnalyticsEvent` should be here, but throws errors on render since
-		// it ends up being spread on a DOM element at the very end
 		href,
+		elemBefore,
 		iconAfter,
 		iconBefore,
 		onClick,
 		onTooltipShown,
-		// This is overridden by the `buttonRef` below
 		ref,
 		target,
 		testId,
 		text,
 		truncationWidth,
-		// I believe there is only `createAnalyticsEvent` left on here, but leaving
-		// it here to allow this to be a patch and not a major
+		_overflowRef,
 		...rest
-	}: BreadcrumbsItemProps) => {
-		const stepTextRef = useRef<HTMLButtonElement | null>(null);
+	}: BreadcrumbsItemInternalProps) => JSX.Element
+> = memo(
+	({
+		analyticsContext,
+		component,
+		// Analytics event creation comes from context via usePlatformLeafEventHandler.
+		// Strip this prop so it cannot leak onto DOM-backed controls.
+		createAnalyticsEvent: _createAnalyticsEvent,
+		href,
+		elemBefore,
+		iconAfter,
+		iconBefore,
+		onClick,
+		onTooltipShown,
+		// This is overridden by the `buttonRef` below
+		ref: _ref,
+		target,
+		testId,
+		text,
+		title,
+		truncationWidth,
+		'aria-label': ariaLabel,
+		'aria-labelledby': ariaLabelledBy,
+		'aria-current': ariaCurrent,
+		_overflowRef,
+		...rest
+	}: BreadcrumbsItemInternalProps) => {
+		const [stepElement, setStepElement] = useState<HTMLElement | null>(null);
+		const setStepRef = useCallback((element: HTMLElement | null) => {
+			setStepElement(element);
+		}, []);
+		const resolvedElemBefore = elemBefore ?? iconBefore;
+		const breadcrumbsSize = useBreadcrumbsSize();
+		const leadingIconWidth = resolvedElemBefore
+			? ICON_WIDTH_ESTIMATE + (breadcrumbsSize === 'small' ? 0 : 2)
+			: 0;
 
-		// If icons are provided we include their width in the truncation calculation to ensure we're as accurate as possible.
-		// Note: this assumes icons are 24px wide which should be almost always.
-		// Not really an issue if the icons are smaller, just that truncation occurs slightly earlier than you may want.
 		let iconWidthAllowance = 0;
-		if (iconBefore) {
+		if (resolvedElemBefore) {
 			iconWidthAllowance += ICON_WIDTH_ESTIMATE;
 		}
 		if (iconAfter) {
 			iconWidthAllowance += ICON_WIDTH_ESTIMATE;
 		}
 
-		const [hasOverflow, showTooltip] = useOverflowable(
+		const [hasOverflow, shouldShowTooltip] = useOverflowable(
 			truncationWidth,
-			stepTextRef.current,
-			iconWidthAllowance,
+			stepElement,
+			// The refresh control now includes the leading icon; exclude it from the truncation check.
+			fg('platform_dst_breadcrumbs-refresh') ? -leadingIconWidth : iconWidthAllowance,
 		);
 
-		// This should be a part of staticItemStyles but it requires the !important flag to prevent the padding from being overridden by the button styles
-		// compiled treats `${token(xxx)} !important` differently when concat !important in es2019 and esm built files
-		// the padding and font weight were not sourced correctly in the esm build
+		if (!component && fg('platform_dst_breadcrumbs-refresh')) {
+			return (
+				<BreadcrumbsItemBase
+					ref={_overflowRef}
+					analyticsContext={analyticsContext}
+					aria-label={ariaLabel}
+					aria-labelledby={ariaLabelledBy}
+					elemBefore={resolvedElemBefore}
+					href={href}
+					// TODO(CAT-2913): Remove `iconAfter` from the refresh path once Jira stops depending on deprecated
+					// `BreadcrumbsItem.iconAfter` in `src/packages/polaris/component-ideas-idea-view/tests/IssueKey.test.tsx`
+					// and `src/packages/polaris/component-ideas-idea-view/tests/IssueBreadcrumbs.test.tsx`.
+					// Those consumers need to move the copy-link affordance out of `BreadcrumbsItem` first.
+					iconAfter={iconAfter}
+					iconBefore={iconBefore}
+					onClick={onClick}
+					onTooltipShown={onTooltipShown}
+					shouldShowTooltip={shouldShowTooltip}
+					stepRef={setStepRef}
+					target={target}
+					testId={testId}
+					text={text}
+					title={title}
+					truncationWidth={truncationWidth}
+					aria-current={ariaCurrent}
+				/>
+			);
+		}
+
 		const buttonOverrideStyles: CSSProperties = {
 			paddingBlock: token('space.025'),
 			fontWeight: token('font.weight.regular'),
@@ -117,52 +194,60 @@ const BreadcrumbsItem: import("react").MemoExoticComponent<({ analyticsContext, 
 				typeof truncationWidth !== 'undefined' && `${truncationWidth}px`,
 		};
 
-		const step =
-			!component && fg('platform_dst_breadcrumbs_step_conversion') ? (
-				<Step
-					ref={stepTextRef}
-					analyticsContext={analyticsContext}
-					href={href}
-					iconAfter={iconAfter}
-					iconBefore={iconBefore}
-					onClick={onClick}
-					target={target}
-					testId={testId}
-					truncationWidth={truncationWidth}
-				>
-					{text}
-				</Step>
-			) : (
-				<StepOld
-					{...rest}
-					analyticsContext={analyticsContext}
-					component={component}
-					hasOverflow={hasOverflow}
-					href={href}
-					iconAfter={iconAfter}
-					iconBefore={iconBefore}
-					onClick={onClick}
-					ref={stepTextRef}
-					target={target}
-					testId={testId}
-					css={[
-						staticItemStyles,
-						truncationWidth ? staticItemWithTruncationStyles : staticItemWithoutTruncationStyles,
-					]}
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					style={
-						truncationWidth
-							? { ...dynamicItemStyles, ...buttonOverrideStyles }
-							: buttonOverrideStyles
-					}
-				>
-					{text}
-				</StepOld>
-			);
+		const step = !component ? (
+			<Step
+				analyticsContext={analyticsContext}
+				aria-label={ariaLabel}
+				aria-labelledby={ariaLabelledBy}
+				aria-current={ariaCurrent}
+				elemBefore={resolvedElemBefore}
+				href={href}
+				iconAfter={iconAfter}
+				iconBefore={iconBefore}
+				onClick={onClick}
+				ref={setStepRef}
+				target={target}
+				testId={testId}
+				title={title}
+				truncationWidth={truncationWidth}
+				{...rest}
+			>
+				{text}
+			</Step>
+		) : (
+			<StepOld
+				analyticsContext={analyticsContext}
+				aria-label={ariaLabel}
+				aria-labelledby={ariaLabelledBy}
+				aria-current={ariaCurrent}
+				component={component}
+				hasOverflow={hasOverflow}
+				href={href}
+				iconAfter={iconAfter}
+				iconBefore={resolvedElemBefore}
+				onClick={onClick}
+				ref={setStepRef as Ref<HTMLButtonElement>}
+				target={target}
+				testId={testId}
+				title={title}
+				css={[
+					staticItemStyles,
+					truncationWidth ? staticItemWithTruncationStyles : staticItemWithoutTruncationStyles,
+					fg('platform-dst-motion-uplift-list-item') && motionItemStyles,
+				]}
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+				style={
+					truncationWidth ? { ...dynamicItemStyles, ...buttonOverrideStyles } : buttonOverrideStyles
+				}
+				{...rest}
+			>
+				{text}
+			</StepOld>
+		);
 
 		return (
-			<li css={itemWrapperStyles}>
-				{showTooltip ? (
+			<li css={itemWrapperStyles} ref={_overflowRef}>
+				{shouldShowTooltip ? (
 					<Tooltip content={text} position="bottom" onShow={onTooltipShown}>
 						{step}
 					</Tooltip>

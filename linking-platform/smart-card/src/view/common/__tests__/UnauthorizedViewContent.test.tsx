@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { render, screen } from '@atlassian/testing-library';
 
 import UnauthorisedViewContent from '../UnauthorisedViewContent';
 
@@ -15,7 +15,8 @@ jest.mock('../../../common/analytics/generated/use-analytics-events', () => ({
 }));
 
 const mockFg = fg as jest.MockedFunction<typeof fg>;
-jest.mock('@atlaskit/platform-feature-flags', () => ({
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn(),
 }));
 
@@ -53,34 +54,16 @@ describe('UnauthorisedViewContent', () => {
 	it('renders Unauthorised hover card content', () => {
 		render(<TestComponent providerName="Google" />);
 
-		expect(
-			screen.getByText(
-				'Connect your Google account to collaborate on work across Atlassian products.',
-			),
-		).toBeInTheDocument();
+		expect(screen.getByText('Turn your URLs into rich, interactive previews.')).toBeInTheDocument();
 	});
 
 	describe('product-terminology-refresh feature flag logic', () => {
 		describe('with provider name', () => {
-			it('shows "products" terminology when feature flag is OFF', () => {
-				mockFg.mockReturnValue(false);
+			it('shows the short description', () => {
 				render(<TestComponent providerName="Google" />);
 
 				expect(
-					screen.getByText(
-						'Connect your Google account to collaborate on work across Atlassian products.',
-					),
-				).toBeInTheDocument();
-			});
-
-			it('shows "apps" terminology when feature flag is ON', () => {
-				mockFg.mockReturnValue(true);
-				render(<TestComponent providerName="Google" />);
-
-				expect(
-					screen.getByText(
-						'Connect your Google account to collaborate on work across Atlassian apps.',
-					),
+					screen.getByText('Turn your URLs into rich, interactive previews.'),
 				).toBeInTheDocument();
 			});
 		});

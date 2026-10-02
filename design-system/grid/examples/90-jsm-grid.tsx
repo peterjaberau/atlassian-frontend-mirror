@@ -4,13 +4,15 @@
  */
 import { css, jsx } from '@compiled/react';
 
+import Field from '@atlaskit/form/field';
 import Grid, { GridItem } from '@atlaskit/grid';
-import Heading, { HeadingContextProvider } from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
+import HeadingContextProvider from '@atlaskit/heading/heading-context/default';
 import { JiraServiceManagementLogo } from '@atlaskit/logo';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box, Inline, Stack } from '@atlaskit/primitives';
-import Textfield from '@atlaskit/textfield';
-import { token, useThemeObserver } from '@atlaskit/tokens';
+import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
+import Textfield from '@atlaskit/textfield/text-field';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import JSMCard from './91-jsm-card';
 import JSMConfigCard from './92-jsm-config-card';
@@ -23,22 +25,22 @@ const responsiveWidthSearchStyles = css({
 
 const dynamicSizedVerticalPaddingStyles = css({
 	justifyContent: 'center',
-	paddingBlock: `calc(${token('space.200', '16px')} * 2)`,
+	paddingBlock: `calc(${token('space.200')} * 2)`,
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 30rem)': {
-		paddingBlock: `calc(${token('space.300', '24px')} * 2)`,
+		paddingBlock: `calc(${token('space.300')} * 2)`,
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 48rem)': {
-		paddingBlock: `calc(${token('space.400', '32px')} * 2)`,
+		paddingBlock: `calc(${token('space.400')} * 2)`,
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 64rem)': {
-		paddingBlock: `calc(${token('space.400', '32px')} * 2)`,
+		paddingBlock: `calc(${token('space.400')} * 2)`,
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 90rem)': {
-		paddingBlock: `calc(${token('space.500', '40px')} * 2)`,
+		paddingBlock: `calc(${token('space.500')} * 2)`,
 	},
 });
 
@@ -68,10 +70,12 @@ const JSMGrid: () => JSX.Element = () => {
 								<Heading size="large" color="color.text.inverse">
 									Welcome to the Internal Help Center
 								</Heading>
-								<Textfield
-									css={responsiveWidthSearchStyles}
-									placeholder="Find help and services"
-									type="search"
+								<Field
+									label="Find help and services"
+									name="help-center-search"
+									component={({ fieldProps }) => (
+										<Textfield {...fieldProps} css={responsiveWidthSearchStyles} type="search" />
+									)}
 								/>
 							</Stack>
 						</GridItem>

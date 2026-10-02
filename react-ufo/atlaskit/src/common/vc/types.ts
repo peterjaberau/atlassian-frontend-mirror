@@ -152,11 +152,13 @@ export type CalculateTTVCResult = {
 	vcDetails: RevisionPayloadVCDetails;
 	ssrRatio: number;
 	speedIndex: number;
+	VC90layoutShiftInsights: LayoutShiftInsights;
 };
 
 export type RawObservation = {
 	t: number;
 	r: [number, number, number, number];
+	pr?: [number, number, number, number] | null;
 	chg: number | string;
 	eid: number;
 	att?: number;
@@ -165,10 +167,35 @@ export type RawObservation = {
 export type RawEventObservation = {
 	t: number;
 	evt: number;
+	eid?: number;
+};
+
+export type LayoutShiftInsightsPayload = {
+	impact: number;
+	sources: number;
+	same: {
+		dir: boolean;
+		dist: boolean;
+	};
+	total_mut: number;
+	mut: Array<{
+		e: string;
+		size: number;
+		attr: {
+			t_before: boolean;
+			p_above: 'all' | 'some' | 'none';
+			p_left: 'all' | 'some' | 'none';
+			p_right: 'all' | 'some' | 'none';
+			p_h_overlap: 'all' | 'some' | 'none';
+			p_v_overlap: 'all' | 'some' | 'none';
+			p_same_offset: 'all' | 'some' | 'none';
+		};
+	}>;
 };
 
 export type RevisionPayloadEntry = {
 	'metric:vc90': number | null;
+	'vc90:ls'?: LayoutShiftInsightsPayload;
 	revision: string;
 	clean: boolean;
 	vcDetails?: RevisionPayloadVCDetails;
@@ -185,6 +212,8 @@ export type RevisionPayloadEntry = {
 		att?: Record<number, string>;
 		evts?: Array<RawEventObservation>;
 		evt?: Record<number, string>;
+		lbl?: Record<number, { s: string; l: string } | 'u'>;
+		lblMode?: 'sentinel-v1';
 	};
 	viewport?: { w: number; h: number };
 	feVCTime?: number;
@@ -192,3 +221,40 @@ export type RevisionPayloadEntry = {
 };
 
 export type RevisionPayload = RevisionPayloadEntry[];
+
+export type LayoutShiftVariables =
+	| {
+			allHaveRects: false;
+			allMovedSameWay: false;
+			allMovedSameAmount: false;
+	  }
+	| {
+			allHaveRects: true;
+			allMovedSameWay: boolean;
+			allMovedSameAmount: boolean;
+			deltaX: number;
+			deltaY: number;
+	  };
+
+export type LayoutShiftOffenderMatchState = 'all' | 'some' | 'none';
+
+export type LayoutShiftOffender = {
+	offender: string;
+	happenedBefore: boolean;
+	distanceToLS: number;
+	isAbove: LayoutShiftOffenderMatchState;
+	isLeft: LayoutShiftOffenderMatchState;
+	isRight: LayoutShiftOffenderMatchState;
+	hasHorizontalOverlap: LayoutShiftOffenderMatchState;
+	hasVerticalOverlap: LayoutShiftOffenderMatchState;
+	matchesLayoutShiftDelta: boolean;
+};
+
+export type LayoutShiftInsights = {
+	layoutShiftOffendersResult: {
+		layoutShiftVariables: LayoutShiftVariables;
+		layoutShiftOffenders: LayoutShiftOffender[];
+	};
+	layoutShiftEntriesCount: number;
+	layoutShiftImpact: number;
+} | null;

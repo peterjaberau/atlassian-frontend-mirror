@@ -5,11 +5,14 @@
 
 import { jsx } from '@compiled/react';
 
-import Badge from '@atlaskit/badge';
-import Button, { IconButton } from '@atlaskit/button/new';
+import Badge from '@atlaskit/badge/badge';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import { cssMap } from '@atlaskit/css';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-import Heading from '@atlaskit/heading';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import Heading from '@atlaskit/heading/heading';
 import ArrowLeftIcon from '@atlaskit/icon/core/arrow-left';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import ScreenIcon from '@atlaskit/icon/core/screen';
@@ -21,7 +24,7 @@ import { PanelSplitter } from '@atlaskit/navigation-system/layout/panel-splitter
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavToggleButton,
 } from '@atlaskit/navigation-system/layout/side-nav';
 import {
@@ -86,7 +89,7 @@ export default function JiraSettingMockExample(): JSX.Element {
 						<Help label="Help" />
 						<Notifications
 							badge={() => (
-								<Badge max={9} appearance="important">
+								<Badge max={9} appearance="dangerBold">
 									{99999}
 								</Badge>
 							)}
@@ -143,7 +146,7 @@ export default function JiraSettingMockExample(): JSX.Element {
 							</Stack>
 						</Stack>
 					</SideNavHeader>
-					<SideNavContent testId="side-nav-content">
+					<SideNavBody testId="side-nav-content">
 						<MenuList>
 							<LinkMenuItem href="#">General configuration</LinkMenuItem>
 							{Array.from({ length: 15 }, (_, index) => (
@@ -152,7 +155,7 @@ export default function JiraSettingMockExample(): JSX.Element {
 								</LinkMenuItem>
 							))}
 						</MenuList>
-					</SideNavContent>
+					</SideNavBody>
 					<PanelSplitter label="Resize side nav" testId="side-nav-panel-splitter" />
 				</SideNav>
 				<Main id="main-container">Hello world</Main>

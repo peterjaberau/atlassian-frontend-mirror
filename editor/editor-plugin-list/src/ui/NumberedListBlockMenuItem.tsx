@@ -1,10 +1,11 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { listMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { BlockMenuItemComponentProps } from '@atlaskit/editor-plugin-block-menu/blockMenuPluginType';
 import { ToolbarDropdownItem } from '@atlaskit/editor-toolbar';
 import ListNumberedIcon from '@atlaskit/icon/core/list-numbered';
 
@@ -12,11 +13,12 @@ import type { ListPlugin } from '../listPluginType';
 
 type NumberedListBlockMenuItemProps = {
 	api: ExtractInjectionAPI<ListPlugin> | undefined;
+	isSuggested?: boolean;
 };
 
 const NODE_NAME = 'orderedList';
 
-const NumberedListBlockMenuItem = ({ api }: NumberedListBlockMenuItemProps) => {
+const NumberedListBlockMenuItem = ({ api, isSuggested }: NumberedListBlockMenuItemProps) => {
 	const { formatMessage } = useIntl();
 
 	const handleClick = (event: React.MouseEvent | React.KeyboardEvent) => {
@@ -29,6 +31,7 @@ const NumberedListBlockMenuItem = ({ api }: NumberedListBlockMenuItemProps) => {
 		api?.core.actions.execute(({ tr }) => {
 			const command = api?.blockMenu?.commands.transformNode(tr.doc.type.schema.nodes.orderedList, {
 				inputMethod,
+				isSuggested,
 				triggeredFrom,
 				targetTypeName: NODE_NAME,
 			});
@@ -37,12 +40,17 @@ const NumberedListBlockMenuItem = ({ api }: NumberedListBlockMenuItemProps) => {
 	};
 
 	return (
-		<ToolbarDropdownItem onClick={handleClick} elemBefore={<ListNumberedIcon label="" />}>
+		<ToolbarDropdownItem
+			onClick={handleClick}
+			elemBefore={<ListNumberedIcon label="" size="small" />}
+		>
 			{formatMessage(listMessages.orderedList)}
 		</ToolbarDropdownItem>
 	);
 };
 
 export const createNumberedListBlockMenuItem = ({ api }: NumberedListBlockMenuItemProps) => {
-	return (): React.JSX.Element => <NumberedListBlockMenuItem api={api} />;
+	return ({ isSuggested }: BlockMenuItemComponentProps = {}): React.JSX.Element => (
+		<NumberedListBlockMenuItem api={api} isSuggested={isSuggested} />
+	);
 };

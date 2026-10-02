@@ -1,10 +1,10 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports -- exports reassign shared mutable module local(s) [testGlobalTheme]; splitting would fork the singleton and is forbidden by TS2632 */
+
 import type { Mark, MarkSpec } from '@atlaskit/editor-prosemirror/model';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+
 import { textColor as textColorFactory } from '../../next-schema/generated/markTypes';
-
-import { hexToEditorTextPaletteColor } from '../../utils/editor-palette';
-
 import {
-	rgbToHex,
 	N0,
 	N80,
 	P50,
@@ -25,12 +25,25 @@ import {
 	B75,
 	B100,
 	B500,
+	Orange200,
+	O600,
+	O800,
+	M200,
+	M600,
+	M800,
+	L200,
+	L600,
+	L800,
+	Y600,
+	Y800,
 } from '../../utils/colors';
-
-import { getDarkModeLCHColor } from '../../utils/lch-color-inversion';
+import { getDarkModeLCHColor } from '../../utils/get-dark-mode-lch-color';
+import { hexToEditorTextPaletteColor } from '../../utils/hex-to-editor-text-palette-color';
+import { rgbToHex } from '../../utils/rgb-to-hex';
 
 export interface TextColorAttributes {
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @pattern "^#[0-9a-fA-F]{6}$"
 	 */
 	color: string;
@@ -51,28 +64,36 @@ export interface TextColorMark extends Mark {
 export type TextColorKey =
 	// row 1 original
 	| 'Light gray'
-	| 'Purple'
+	| 'Blue'
 	| 'Teal'
 	| 'Green'
-	| 'Red'
-	| 'Orange'
-	// row 1 extended extras
-	| 'Dark gray'
-	| 'Blue'
+	| 'Lime'
 	| 'Yellow'
+	| 'Orange'
+	| 'Red'
+	| 'Magenta'
+	| 'Purple'
 	// row 2
+	| 'Dark gray'
 	| 'Dark blue'
 	| 'Dark teal'
 	| 'Dark green'
+	| 'Dark lime'
+	| 'Dark yellow'
+	| 'Dark orange'
 	| 'Dark red'
+	| 'Dark magenta'
 	| 'Dark purple'
 	// row 3
 	| 'White'
 	| 'Light blue'
 	| 'Light teal'
 	| 'Light green'
+	| 'Light lime'
 	| 'Light yellow'
+	| 'Light orange'
 	| 'Light red'
+	| 'Light magenta'
 	| 'Light purple';
 
 // used for extended palette in text color picker
@@ -103,23 +124,78 @@ const colorArrayPalette: Array<[string, TextColorKey]> = [
 	[P50, 'Light purple'], // Lavender secret
 ];
 
+// experiment: platform_editor_lovability_text_bg_color
+const colorArrayPaletteNew: Array<[string, TextColorKey]> = [
+	// default row - first color is added programatically
+	// [N800, 'Squid ink'], // default dark gray
+	[B500, 'Dark blue'], // Chore coat
+	[T500, 'Dark teal'], // Shabby chic
+	[G500, 'Dark green'], // Keen green
+	[L800, 'Dark lime'],
+	[Y800, 'Dark yellow'],
+	[O800, 'Dark orange'],
+	[R500, 'Dark red'], // Dragon's blood
+	[M800, 'Dark magenta'],
+	[P500, 'Dark purple'], // Prince
+	// row 2
+	[N80, 'Light gray'], // Spooky ghost
+	[B100, 'Blue'], // Arvo breeze
+	[T300, 'Teal'], // Tamarama
+	[G300, 'Green'], // Fine pine
+	[L600, 'Lime'],
+	[Y600, 'Yellow'], // Pub mix
+	[O600, 'Orange'],
+	[R300, 'Red'], // Poppy surprise
+	[M600, 'Magenta'],
+	[P300, 'Purple'], // Da' juice
+	// row 3
+	[N0, 'White'],
+	[B75, 'Light blue'], // Schwag
+	[T75, 'Light teal'], // Arctic chill
+	[G75, 'Light green'], // Mintie
+	[L200, 'Light lime'],
+	[Y75, 'Light yellow'], // Dandelion whisper
+	[Orange200, 'Light orange'],
+	[R75, 'Light red'], // Bondi sunburn
+	[M200, 'Light magenta'],
+	[P50, 'Light purple'], // Lavender secret
+];
+
 // @see https://product-fabric.atlassian.net/wiki/spaces/E/pages/55979455/Colour+picker+decisions#Colourpickerdecisions-Visualdesigndecisions
-export const colorPalette = new Map<string, TextColorKey>();
+export const colorPalette: Map<string, TextColorKey> = new Map<string, TextColorKey>();
+export const colorPaletteNew: Map<string, TextColorKey> = new Map<string, TextColorKey>();
+
 // eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
-/** @deprecated [ED-15849] The extended palette is now rolled into the main one. Use `colorPalette` instead. */
-export const colorPaletteExtended = colorPalette;
+/**
+ * @deprecated [ED-15849] The extended palette is now rolled into the main one. Use `colorPalette` instead.
+ **/
+export const colorPaletteExtended: Map<string, TextColorKey> = colorPalette;
 
 colorArrayPalette.forEach(([color, label]) => colorPalette.set(color.toLowerCase(), label));
+colorArrayPaletteNew.forEach(([color, label]) => colorPaletteNew.set(color.toLowerCase(), label));
+
+const isSupportedTextColor = (hexColor: string): boolean => {
+	if (colorPalette.has(hexColor)) {
+		return true;
+	}
+
+	return (
+		expValEqualsNoExposure('platform_editor_lovability_text_bg_color', 'isEnabled', true) &&
+		colorPaletteNew.has(hexColor)
+	);
+};
 
 // these are for test only
 let testGlobalTheme: string;
-export const setGlobalTheme = (theme: string) => {
+export const setGlobalTheme = (theme: string): void => {
 	testGlobalTheme = theme;
 };
 // This is a minimal duplication of the method from @atlaskit/tokens
 // to minimise the number of dependencies required as these changes are expected
 // to be patched onto CR8.
-export const getGlobalTheme = () => {
+export const getGlobalTheme = (): {
+	colorMode: string;
+} => {
 	// This should only be hit during tests.
 	//
 	// At time of writing Jest mocks are not working in this repository.
@@ -132,6 +208,8 @@ export const getGlobalTheme = () => {
 	return { colorMode };
 };
 
+const RGB_PREFIX_TEXT_COLOR_REGEX = /^rgb/iu;
+
 export const textColor: MarkSpec = textColorFactory({
 	parseDOM: [
 		{
@@ -139,14 +217,13 @@ export const textColor: MarkSpec = textColorFactory({
 			getAttrs: (maybeValue) => {
 				const value = maybeValue as string;
 				let hexColor;
-				// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
-				if (value.match(/^rgb/iu)) {
+				if (value.match(RGB_PREFIX_TEXT_COLOR_REGEX)) {
 					hexColor = rgbToHex(value);
 				} else if (value[0] === '#') {
 					hexColor = value.toLowerCase();
 				}
 				// else handle other colour formats
-				return hexColor && colorPalette.has(hexColor) ? { color: hexColor } : false;
+				return hexColor && isSupportedTextColor(hexColor) ? { color: hexColor } : false;
 			},
 		},
 		// This rule ensures when loading from a renderer or editor where the
@@ -166,7 +243,7 @@ export const textColor: MarkSpec = textColorFactory({
 
 				const hexColor = maybeElement.dataset.textCustomColor;
 
-				return hexColor && colorPalette.has(hexColor) ? { color: hexColor } : false;
+				return hexColor && isSupportedTextColor(hexColor) ? { color: hexColor } : false;
 			},
 		},
 	],

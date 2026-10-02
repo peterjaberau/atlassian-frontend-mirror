@@ -1,13 +1,12 @@
 import React, { type PropsWithChildren, useState } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
-import { FlagGroup } from '@atlaskit/flag';
+import Button from '@atlaskit/button/default/button';
+import FlagGroup from '@atlaskit/flag/flag-group';
 import FeedbackIcon from '@atlaskit/icon/core/feedback';
 
 import { messages } from '../messages';
-
 import FeedbackCollector from './FeedbackCollector';
 import FeedbackFlag from './FeedbackFlag';
 import { IntlProviderWithResolvedMessages } from './IntlProviderWithResolvedMessages';

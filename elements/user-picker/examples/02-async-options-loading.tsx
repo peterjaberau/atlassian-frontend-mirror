@@ -1,7 +1,9 @@
-import { token } from '@atlaskit/tokens';
 import React, { useState } from 'react';
+
+import { token } from '@atlaskit/tokens';
+
 import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
-import UserPicker from '../src';
+import { UserPicker } from '../src/components/UserPicker';
 
 const Example = (): React.JSX.Element => {
 	const [enableRandomFailures, setEnableRandomFailures] = useState(false);
@@ -12,8 +14,8 @@ const Example = (): React.JSX.Element => {
 					style={{
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						display: 'grid',
-						gridGap: `${token('space.200', '16px')}`,
-						padding: `${token('space.200', '16px')}`,
+						gridGap: `${token('space.200')}`,
+						padding: `${token('space.200')}`,
 					}}
 				>
 					<div>

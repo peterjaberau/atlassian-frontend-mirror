@@ -1,25 +1,28 @@
 import React from 'react';
-import Spinner from '@atlaskit/spinner';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import styled from 'styled-components';
+
+import Spinner from '@atlaskit/spinner/spinner';
+import { token } from '@atlaskit/tokens';
+
+import { SearchInner } from './search-inner';
+import { SearchInputControlsContainer } from './search-input-controls-container';
 import {
 	SearchBox,
 	SearchFieldBaseInner,
-	SearchInner,
 	SearchInput,
 	SearchFieldBaseOuter,
-	SearchInputControlsContainer,
 	SearchInputTypeAhead,
 } from './styled';
-import { token } from '@atlaskit/tokens';
 
 export const controlKeys: string[] = ['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'ArrowRight'];
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled -- To migrate as part of go/ui-styling-standard
 const SpinnerParent = styled.div({
-	height: token('space.250', '20px'),
-	marginLeft: token('space.150', '12px'),
-	marginTop: token('space.150', '12px'),
+	height: token('space.250'),
+	marginLeft: token('space.150'),
+	marginTop: token('space.150'),
 });
 
 type Props = {

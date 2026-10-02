@@ -4,13 +4,12 @@ import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { AlignmentPlugin } from '../alignmentPluginType';
 import { changeAlignment } from '../editor-commands';
 import type { AlignmentState } from '../pm-plugins/types';
 import { ToolbarType } from '../pm-plugins/types';
-
 import ToolbarAlignment from './ToolbarAlignment';
 
 interface FloatingToolbarComponentProps {
@@ -23,7 +22,10 @@ const FloatingToolbarSettings = {
 	isToolbarReducedSpacing: true,
 };
 
-export function FloatingToolbarComponent({ api, editorView }: FloatingToolbarComponentProps): React.JSX.Element {
+export function FloatingToolbarComponent({
+	api,
+	editorView,
+}: FloatingToolbarComponentProps): React.JSX.Element {
 	const { align, isEnabled } = useSharedPluginStateWithSelector(api, ['alignment'], (states) => {
 		return {
 			align: states.alignmentState?.align,

@@ -1,0 +1,305 @@
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
+import {
+	type CSSProperties,
+	type Dispatch,
+	type FC,
+	type ForwardRefExoticComponent,
+	Fragment,
+	memo,
+	type PropsWithoutRef,
+	type RefAttributes,
+	type SetStateAction,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+} from 'react';
+
+import { jsx } from '@compiled/react';
+
+import noop from '@atlaskit/ds-lib/noop';
+import { getAriaForTrigger } from '@atlaskit/top-layer/get-aria-for-trigger';
+import type { TLegacyPlacement } from '@atlaskit/top-layer/legacy-placements';
+import { fromLegacyPlacement } from '@atlaskit/top-layer/placement-map/index';
+import { PopoverSurface } from '@atlaskit/top-layer/popover-surface';
+import { createPopoverCloseEvent } from '@atlaskit/top-layer/popover/create-close-event';
+import { Popover } from '@atlaskit/top-layer/popover/popover';
+import type { TPopoverCloseReason } from '@atlaskit/top-layer/popover/types';
+import { useAnchoredPopover } from '@atlaskit/top-layer/use-anchored-popover';
+import { usePopoverId } from '@atlaskit/top-layer/use-popover-id';
+
+import { getPopupAxisSizes } from './internal/get-popup-axis-sizes';
+import { useRoleProps } from './internal/top-layer-bridge';
+import {
+	type ContentProps,
+	type PopupComponentProps,
+	type PopupProps,
+	type TriggerProps,
+} from './types';
+
+// Top-layer positioning is handled by CSS Anchor Positioning, not inline styles.
+const EMPTY_STYLE: CSSProperties = {};
+
+/**
+ * Top-layer implementation of Popup.
+ *
+ * Replaces the legacy @atlaskit/popup rendering pipeline
+ * (Popper.js + Portal + focus-trap + @atlaskit/layering)
+ * with the native Popover API + CSS Anchor Positioning via @atlaskit/top-layer.
+ *
+ * Gated behind the `platform-dst-top-layer` feature flag.
+ */
+export const PopupTopLayer: FC<PopupProps> = memo(function PopupTopLayer({
+	xcss,
+	isOpen,
+	id: providedId,
+	offset: offsetProp,
+	testId,
+	trigger,
+	content,
+	onClose = noop,
+	placement = 'auto',
+	fallbackPlacements: _fallbackPlacements,
+	shouldFlip: _shouldFlip = true,
+	popupComponent: PopupContainer,
+	autoFocus = true,
+	shouldFitContainer = false,
+	// top-layer: focus restoration is handled natively by the Popover API. No-op.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	shouldReturnFocus: _shouldReturnFocus = true,
+	role,
+	label,
+	titleId,
+
+	// No-op props.
+	// These props are accepted for API compatibility but have no effect
+	// in the top-layer path. Each is documented with why it is unnecessary.
+
+	// top-layer: stacking managed by browser top layer. zIndex is a no-op.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	zIndex: _zIndex,
+	// top-layer: always renders in top layer. shouldRenderToParent is a no-op.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	shouldRenderToParent: _shouldRenderToParent,
+	// top-layer: CSS Anchor Positioning replaces Popper strategy. No-op.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	strategy: _strategy,
+	// top-layer: Popper.js modifiers not applicable. No-op.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	modifiers: _modifiers,
+	// top-layer: viewport is the natural boundary. No-op.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	boundary: _boundary,
+	// top-layer: viewport is the natural boundary. No-op.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	rootBoundary: _rootBoundary,
+	// top-layer: native light dismiss replaces capture-phase click handler.
+	// Could add mousedown drag guard later if needed.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	shouldUseCaptureOnOutsideClick: _shouldUseCaptureOnOutsideClick,
+	// top-layer: focus trapping is role-based. shouldDisableFocusLock is a no-op.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	shouldDisableFocusLock: _shouldDisableFocusLock,
+	// top-layer: maps onto `'max-available'`, capping the popup to the space
+	// between the trigger and the viewport edge. `PopoverSurface` already owns
+	// `overflow: auto`, so the capped surface scrolls.
+	//
+	// Keep the explicit `false`: `undefined` previously reached an
+	// `isEnabled = true` default and silently enabled fitting for every popup
+	// that omitted the prop.
+	shouldFitViewport = false,
+	// top-layer: appearance is accepted but UNSAFE_modal-below-sm is not yet implemented.
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	appearance: _appearance,
+}: PopupProps) {
+	const triggerRef = useRef<HTMLElement | null>(null);
+	const popoverRef = useRef<HTMLDivElement>(null);
+
+	/**
+	 * Escape hatch for consumer-chosen initial focus target.
+	 *
+	 * The legacy `Popup` surfaced `setInitialFocusRef` on the content
+	 * render prop with a `Dispatch<SetStateAction<HTMLElement | null>>`
+	 * signature so it could be passed as a React `ref` callback. We
+	 * keep the same shape for API compatibility, but store the value in
+	 * a ref rather than component state. Flipping state on every open
+	 * caused a needless re-render and, more importantly, raced the
+	 * initial-focus effect below. The ref is read in the open-side
+	 * effect to override the role-based default focus chosen by
+	 * `useInitialFocus` inside the underlying `Popover`.
+	 */
+	const consumerInitialFocusRef = useRef<HTMLElement | null>(null);
+	const setInitialFocusRef = useCallback<Dispatch<SetStateAction<HTMLElement | null>>>((value) => {
+		consumerInitialFocusRef.current =
+			typeof value === 'function' ? value(consumerInitialFocusRef.current) : value;
+	}, []);
+
+	/**
+	 * Override the role-based initial focus chosen by the underlying
+	 * `Popover` (its internal `useInitialFocus`).
+	 *
+	 * React flushes child effects before parent effects, so by the time
+	 * this effect runs the role-based default focus has already moved.
+	 * We then apply the legacy `Popup` contract:
+	 *
+	 * 1. If the consumer wired `setInitialFocusRef`, focus that element
+	 *    (escape hatch wins).
+	 * 2. Otherwise, if `autoFocus={false}`, return focus to the trigger.
+	 *    The `autoFocus` prop on `Popup` opts out of any initial-focus
+	 *    movement, even for roles like `dialog`.
+	 *
+	 * When neither applies the role-based default from the underlying
+	 * `Popover` stays in place.
+	 */
+	useEffect(() => {
+		if (!isOpen) {
+			/**
+			 * Clear the consumer-supplied focus target on close so a
+			 * subsequent open does not silently inherit a stale ref from
+			 * the previous open cycle. The next open will re-collect a
+			 * target only if the content render prop re-wires
+			 * `setInitialFocusRef`.
+			 */
+			consumerInitialFocusRef.current = null;
+			return;
+		}
+		const consumerTarget = consumerInitialFocusRef.current;
+		if (consumerTarget && consumerTarget.isConnected) {
+			consumerTarget.focus();
+			return;
+		}
+		if (!autoFocus) {
+			const trigger = triggerRef.current;
+			if (trigger && trigger.isConnected) {
+				trigger.focus();
+			}
+		}
+	}, [isOpen, autoFocus]);
+
+	const popoverId = usePopoverId();
+
+	// Placement conversion.
+	// Legacy `offset` is the popper `[along, away]` tuple; `fromLegacyPlacement`
+	// folds it into the new `placement.offset` shape so it travels with placement.
+	const topLayerPlacement = useMemo(
+		() => fromLegacyPlacement({ legacy: placement as TLegacyPlacement, offset: offsetProp }),
+		[placement, offsetProp],
+	);
+
+	useAnchoredPopover({
+		anchorRef: triggerRef,
+		popoverRef,
+		placement: topLayerPlacement,
+		isOpen,
+		...getPopupAxisSizes({ shouldFitContainer, shouldFitViewport }),
+	});
+
+	// onClose bridge.
+	// Translates top-layer's { reason: TPopoverCloseReason } into legacy
+	// onClose(event, currentLevel?) by synthesizing DOM events.
+	//
+	// Focus restoration is handled natively by the Popover API:
+	//   - Escape: browser restores focus to the trigger automatically
+	//   - Click-outside: browser does NOT restore (correct behavior)
+	// No manual triggerRef.current?.focus() is needed.
+	const handleOnClose = useCallback(
+		({ reason }: { reason: TPopoverCloseReason }) => {
+			onClose(createPopoverCloseEvent({ reason }));
+		},
+		[onClose],
+	);
+
+	// Content render-prop bridge.
+	// Legacy content() receives { isOpen, update, setInitialFocusRef, onClose }.
+	// update is a no-op because CSS Anchor Positioning self-updates.
+	const contentProps: ContentProps = useMemo(
+		() => ({
+			isOpen,
+			update: noop as ContentProps['update'],
+			onClose,
+			setInitialFocusRef,
+		}),
+		[isOpen, onClose, setInitialFocusRef],
+	);
+
+	// Role mapping.
+	// Build the role/label props for Popover.
+	// Roles requiring accessible names must have label or labelledBy.
+	const roleProps = useRoleProps({ role, label, titleId });
+	const resolvedPopoverId = providedId ?? popoverId;
+
+	const ariaAttributes = getAriaForTrigger({
+		role: (roleProps.role ?? 'dialog') as Parameters<typeof getAriaForTrigger>[0]['role'],
+		isOpen,
+		popoverId: resolvedPopoverId,
+	});
+
+	// Narrow to ForwardRefExoticComponent so JSX accepts the ref prop.
+	// All popupComponent implementations use forwardRef per the PopupComponentProps contract.
+	const Container = PopupContainer as
+		| ForwardRefExoticComponent<
+				PropsWithoutRef<PopupComponentProps> & RefAttributes<HTMLDivElement>
+		  >
+		| undefined;
+
+	// Map to legacy TriggerProps.
+	const triggerProps: TriggerProps = {
+		ref: (node: HTMLElement | null) => {
+			triggerRef.current = node;
+		},
+		'aria-controls': ariaAttributes['aria-controls'],
+		// `aria-expanded` reflects current open state.
+		'aria-expanded': ariaAttributes['aria-expanded'],
+		'aria-haspopup': ariaAttributes['aria-haspopup'],
+	};
+
+	return (
+		<Fragment>
+			{trigger(triggerProps)}
+			<Popover
+				ref={popoverRef}
+				id={resolvedPopoverId}
+				{...roleProps}
+				isOpen={isOpen}
+				onClose={handleOnClose}
+				shouldAnimate
+				placement={topLayerPlacement}
+				testId={testId && `${testId}--content`}
+			>
+				{Container ? (
+					<Container
+						style={EMPTY_STYLE}
+						id={providedId}
+						data-placement={placement}
+						data-testid={testId}
+						tabIndex={autoFocus ? -1 : undefined}
+						xcss={xcss as PopupComponentProps['xcss']}
+						// Forwarded because several in-tree containers key their own
+						// `overflow: auto` branch off it.
+						shouldFitViewport={shouldFitViewport}
+					>
+						{content(contentProps)}
+					</Container>
+				) : (
+					// `PopoverSurface` owns `overflow: auto` and the `box-shadow` on the
+					// same element, so it is the scroll container. The wrapper exists only
+					// to carry the consumer's `xcss`: `PopoverSurface` exposes no
+					// `className` or `xcss` by design, so `xcss` lands on a CHILD of the
+					// surface. `width` works there; surface-level declarations apply one
+					// level in. Same shape as `compositional/popup-content-top-layer.tsx`.
+					<PopoverSurface>
+						<div
+							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+							className={xcss}
+						>
+							{content(contentProps)}
+						</div>
+					</PopoverSurface>
+				)}
+			</Popover>
+		</Fragment>
+	);
+});

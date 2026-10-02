@@ -1,61 +1,24 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
 import React from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx, css } from '@emotion/react';
 
-import { WidthProvider } from '@atlaskit/editor-common/ui';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { Valign } from '@atlaskit/adf-schema/valign';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { componentWithCondition } from '@atlaskit/platform-feature-flags-react/component-with-condition';
 
-// localized styles, was from clearNextSiblingMarginTopStyle in @atlaskit/editor-common/ui
-const clearNextSiblingMarginTopStyle = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-	'& + *': {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview, @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-		marginTop: '0 !important',
-	},
-});
+import { LayoutSectionCompiled } from './layoutColumn-compiled';
+import { LayoutSectionEmotion } from './layoutColumn-emotion';
 
-const multipleWrappedImagesStyle = css({
-	// Given the first wrapped mediaSingle has 0 marginTop (see clearNextSiblingMarginTopStyle),
-	// update all wrapped mediaSingle inside layout to have 0 margin top unless they don't have sibling wrapped mediaSingle
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,  @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'& [class*="image-wrap-"] + [class*="image-wrap-"], & [class*="image-wrap-"]:has( + [class*="image-wrap-"])':
-		{
-			marginTop: '0',
-		},
-});
+const LayoutSectionMigration = componentWithCondition(
+	() => isExperimentEnabled('platform_editor_renderer_static_css'),
+	LayoutSectionCompiled,
+	LayoutSectionEmotion,
+);
 
-// localized styles, was from clearNextSiblingBlockMarkMarginTopStyle in @atlaskit/editor-common/ui
-const clearNextSiblingBlockMarkMarginTopStyle = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-	[`+ .fabric-editor-block-mark > p,
-	  + .fabric-editor-block-mark > h1,
-	  + .fabric-editor-block-mark > h2,
-	  + .fabric-editor-block-mark > h3,
-	  + .fabric-editor-block-mark > h4,
-	  + .fabric-editor-block-mark > h5,
-	  + .fabric-editor-block-mark > h6
-	`]: {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview, @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-		marginTop: '0 !important',
-	},
-});
-
-export default function LayoutSection(props: React.PropsWithChildren<{ width?: number }>) {
-	return (
-		<div
-			data-layout-column
-			data-column-width={props.width}
-			style={{ flexBasis: `${props.width}%` }}
-			css={fg('platform_editor_fix_media_in_renderer') && multipleWrappedImagesStyle}
-		>
-			<WidthProvider>
-				<div css={[clearNextSiblingMarginTopStyle, clearNextSiblingBlockMarkMarginTopStyle]} />
-				{props.children}
-			</WidthProvider>
-		</div>
-	);
+/**
+ * Render a layout column in renderer.
+ */
+export default function LayoutSection(
+	props: React.PropsWithChildren<{ valign?: Valign; width?: number }>,
+): React.JSX.Element {
+	// eslint-disable-next-line react/jsx-props-no-spreading
+	return <LayoutSectionMigration {...props} />;
 }

@@ -3,6 +3,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useEffect, useMemo, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
@@ -67,7 +68,7 @@ const Inside = () => {
 	return <div data-testid="inside-div">{child}</div>;
 };
 
-export default function Example() {
+export default function Example(): JSX.Element {
 	return (
 		<main id="app-main" css={mainStyles}>
 			<Inside />

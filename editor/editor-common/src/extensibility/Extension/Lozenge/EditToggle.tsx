@@ -5,9 +5,9 @@
 import type { CSSProperties, KeyboardEvent } from 'react';
 import { useCallback } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
-import { defineMessages, useIntl } from 'react-intl-next';
+import { defineMessages, useIntl } from 'react-intl';
 
 import CheckMarkIcon from '@atlaskit/icon/core/check-mark';
 import EditIcon from '@atlaskit/icon/core/edit';
@@ -48,10 +48,6 @@ const buttonStyles = css({
 	color: token('color.text.subtle'),
 });
 
-const showButtonContainerStyle = css({
-	opacity: 1,
-});
-
 const iconStyles = xcss({
 	marginRight: 'space.075',
 });
@@ -79,12 +75,11 @@ type EditToggleProps = {
 
 // Used to toggle between edit and renderer mode for bodied macros in live pages
 export const EditToggle = ({
-	isNodeHovered,
 	customContainerStyles,
 	setIsNodeHovered,
 	showBodiedExtensionRendererView,
 	setShowBodiedExtensionRendererView,
-}: EditToggleProps) => {
+}: EditToggleProps): jsx.JSX.Element => {
 	const intl = useIntl();
 
 	const text = showBodiedExtensionRendererView
@@ -113,20 +108,21 @@ export const EditToggle = ({
 		<div
 			data-testid="extension-edit-toggle-container"
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-			css={[
-				buttonContainerStyles,
-				expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-					? null
-					: isNodeHovered && showButtonContainerStyle,
-			]}
+			css={[buttonContainerStyles]}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			style={customContainerStyles}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className="extension-edit-toggle-container"
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 			onMouseOver={() => setIsNodeHovered?.(true)}
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
+			// @atlassian/a11y/mouse-events-have-key-events: keyboard focus is already handled by the
+			// inner <button>'s onFocus/onBlur. No-ops here satisfy the rule without duplicating state updates.
+			onFocus={
+				expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true) ? () => {} : undefined
+			}
 			onMouseLeave={() => setIsNodeHovered?.(false)}
+			onBlur={
+				expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true) ? () => {} : undefined
+			}
 			tabIndex={-1}
 		>
 			{/* eslint-disable-next-line @atlaskit/design-system/no-html-button */}

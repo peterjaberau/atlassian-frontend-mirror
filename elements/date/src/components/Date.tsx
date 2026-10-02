@@ -1,15 +1,17 @@
+import React from 'react';
+
+import format from 'date-fns/format';
+
 import { DateLozenge } from './DateLozenge';
 import type { Color } from './DateLozenge';
-import React from 'react';
-import format from 'date-fns/format';
 
 export type ValueType = number;
 
 export type OnClick = (value: ValueType, event: React.SyntheticEvent<any>) => void;
 
 export type Props = {
-	children?: // eslint-disable-next-line @typescript-eslint/ban-types
-	React.FunctionComponent<React.PropsWithChildren<Props>> | string | React.ReactNode;
+	children?: // eslint-disable-next-line @typescript-eslint/no-restricted-types
+		React.FunctionComponent<React.PropsWithChildren<Props>> | string | React.ReactNode;
 	className?: string;
 	color?: Color;
 	format?: string;
@@ -34,12 +36,12 @@ export class Date extends React.Component<Props> {
 		}
 	};
 
-	renderContent = () => {
+	renderContent = (): React.ReactNode => {
 		if (this.props.children) {
 			if (typeof this.props.children === 'function') {
 				return (
 					// prettier-ignore
-					// eslint-disable-next-line @typescript-eslint/ban-types
+					// eslint-disable-next-line @typescript-eslint/no-restricted-types
 					(this.props.children as React.FunctionComponent<Props>)(this.props)
 				);
 			}

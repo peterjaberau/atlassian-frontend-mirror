@@ -4,8 +4,7 @@
  */
 import { cssMap, jsx } from '@compiled/react';
 
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Bleed } from '@atlaskit/primitives';
+import { Bleed } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 const TokenNegativeSpaceCodeBlock = `
@@ -45,10 +44,10 @@ const TokenNegativeSpace = (): JSX.Element => {
 };
 
 const _default_1: {
-    example: () => JSX.Element;
-    code: string;
+	example: () => JSX.Element;
+	code: string;
 } = {
-    example: TokenNegativeSpace,
-    code: TokenNegativeSpaceCodeBlock,
+	example: TokenNegativeSpace,
+	code: TokenNegativeSpaceCodeBlock,
 };
 export default _default_1;

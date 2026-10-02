@@ -15,6 +15,7 @@ import {
 	PasteContents,
 	PasteTypes,
 } from '@atlaskit/editor-common/analytics';
+import { getHadMarkAttributes } from '@atlaskit/editor-common/mark';
 import type { Command, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { getLinkDomain, mapSlice } from '@atlaskit/editor-common/utils';
 import type { FindRootParentListNode } from '@atlaskit/editor-plugin-list';
@@ -23,9 +24,9 @@ import type { Fragment, Node, Schema, Slice } from '@atlaskit/editor-prosemirror
 import type { Selection, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { findParentNode } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
 
 import type { PastePlugin } from '../index';
-
 import { getPasteSource } from './util';
 import {
 	handleCodeBlock,
@@ -44,6 +45,12 @@ import {
 	handleNestedTablePaste,
 } from './util/handlers';
 
+const isAgentUserType = (userType: unknown): boolean => userType === 'APP' || userType === 'AGENT';
+
+const shouldSuppressPastedMentionNotification = (node: Node) =>
+	expVal('platform_editor_agent_mentions', 'isEnabled', false) &&
+	isAgentUserType(node.attrs.userType);
+
 type PasteContext = {
 	asPlain?: boolean;
 	/** Has the hyperlink been pasted while text is selected, making the text into a link? */
@@ -55,6 +62,7 @@ type PasteContext = {
 
 type PastePayloadAttributes = {
 	content: PasteContent;
+	hadBackgroundColor?: boolean;
 	/** Has the hyperlink been pasted while text is selected, making the text into a link? */
 	hyperlinkPasteOnText: boolean;
 	/** How many links are in our pasted content? */
@@ -169,7 +177,7 @@ export function getContent({ schema, slice }: GetContentProps): PasteContent {
 	return pasteContent ? pasteContent : PasteContents.uncategorized;
 }
 
-export function getMediaTraceId(slice: Slice) {
+export function getMediaTraceId(slice: Slice): undefined {
 	let traceId;
 	mapSlice(slice, (node) => {
 		if (node.type.name === 'media' || node.type.name === 'mediaInline') {
@@ -254,7 +262,7 @@ function createPasteAnalyticsPayloadBySelection(
 	pasteContext: PasteContext,
 	pluginInjectionApi?: ExtractInjectionAPI<PastePlugin>,
 ) {
-	return (selection: Selection): AnalyticsEventPayload => {
+	return (selection: Selection, tr?: Transaction): AnalyticsEventPayload => {
 		const text = event.clipboardData
 			? event.clipboardData.getData('text/plain') || event.clipboardData.getData('text/uri-list')
 			: '';
@@ -304,6 +312,7 @@ function createPasteAnalyticsPayloadBySelection(
 				id: string;
 				localId: string;
 				method?: 'pasted' | 'typed';
+				shouldSuppressMentionNotification?: boolean;
 				taskLocalId?: string;
 				type: 'added';
 			}[] = [];
@@ -314,6 +323,9 @@ function createPasteAnalyticsPayloadBySelection(
 						id: node.attrs.id,
 						localId: node.attrs.localId,
 						method: 'pasted',
+						...(shouldSuppressPastedMentionNotification(node)
+							? { shouldSuppressMentionNotification: true }
+							: {}),
 					});
 				}
 				if (node.type.name === 'taskItem') {
@@ -325,6 +337,9 @@ function createPasteAnalyticsPayloadBySelection(
 								id: nodeContent.attrs.id,
 								taskLocalId: node.attrs.localId,
 								method: 'pasted',
+								...(shouldSuppressPastedMentionNotification(nodeContent)
+									? { shouldSuppressMentionNotification: true }
+									: {}),
 							});
 						}
 					});
@@ -349,6 +364,10 @@ function createPasteAnalyticsPayloadBySelection(
 		}
 
 		const linkDomains = linkUrls.map(getLinkDomain);
+		const backgroundColor = selection.$from.doc.type.schema.marks.backgroundColor;
+		const hadMarkAttributes =
+			pasteContext.hyperlinkPasteOnText && tr ? getHadMarkAttributes(tr, [backgroundColor]) : {};
+
 		return createPastePayload(
 			actionSubjectId,
 			{
@@ -362,6 +381,7 @@ function createPasteAnalyticsPayloadBySelection(
 				mentionIds,
 				mentionLocalIds,
 				pasteSplitList: pasteContext.pasteSplitList,
+				...hadMarkAttributes,
 			},
 			linkDomains,
 		);
@@ -496,7 +516,9 @@ export const handleRichTextWithAnalytics = (
 
 const injectAnalyticsPayloadBeforeCommand =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
-	(createPayloadByTransaction: (selection: Selection) => AnalyticsEventPayload) => {
+	(
+		createPayloadByTransaction: (selection: Selection, tr: Transaction) => AnalyticsEventPayload,
+	) => {
 		return (mainCommand: Command): Command => {
 			return (state, dispatch, view) => {
 				let originalTransaction: Transaction = state.tr;
@@ -511,7 +533,7 @@ const injectAnalyticsPayloadBeforeCommand =
 				}
 				if (dispatch && originalTransaction.docChanged) {
 					// it needs to know the selection before the changes
-					const payload = createPayloadByTransaction(state.selection);
+					const payload = createPayloadByTransaction(state.selection, state.tr);
 					editorAnalyticsAPI?.attachAnalyticsEvent(payload)(originalTransaction);
 
 					dispatch(originalTransaction);

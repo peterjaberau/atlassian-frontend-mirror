@@ -1,5 +1,146 @@
 # @atlaskit/ds-explorations
 
+## 6.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.1
+
+### Patch Changes
+
+- [`85a3e1ec4b6ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85a3e1ec4b6ff) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 6.2.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.2
+
+### Patch Changes
+
+- [`8f588905041f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f588905041f4) -
+  Add two new interaction-state tokens for the neutral container surface:
+  `elevation.surface.container.hovered` and `elevation.surface.container.pressed`. Use these for
+  hovered and pressed states of elements built on `elevation.surface.container`.
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.4
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
 ## 5.1.3
 
 ### Patch Changes

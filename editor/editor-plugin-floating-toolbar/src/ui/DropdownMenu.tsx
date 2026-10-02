@@ -3,12 +3,13 @@
  * @jsx jsx
  */
 import { memo } from 'react';
+import type { ComponentType, FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 // eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { ExtensionAPI, ExtensionProvider } from '@atlaskit/editor-common/extensions';
 import { DropdownMenuItem, DropdownSeparator } from '@atlaskit/editor-common/floating-toolbar';
@@ -17,8 +18,8 @@ import type {
 	FloatingToolbarOverflowDropdownOptions,
 } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import type { ButtonItemProps } from '@atlaskit/menu';
-import { HeadingItem } from '@atlaskit/menu';
+import HeadingItem from '@atlaskit/menu/heading-item';
+import type { ButtonItemProps } from '@atlaskit/menu/types';
 import { token } from '@atlaskit/tokens';
 
 export const menuItemDimensions = {
@@ -27,7 +28,7 @@ export const menuItemDimensions = {
 };
 
 const headingStyles = css({
-	padding: `${token('space.200', '16px')} 0 ${token('space.100', '8px')}`,
+	padding: `${token('space.200')} 0 ${token('space.100')}`,
 });
 
 // eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
@@ -38,12 +39,12 @@ const menuContainerStyles = css({
 	// temporary solution to retain spacing defined by @atlaskit/Item
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& button': {
-		minHeight: token('space.400', '32px'),
-		padding: `${token('space.100', '8px')} ${token('space.100', '8px')} 7px`,
+		minHeight: token('space.400'),
+		padding: `${token('space.100')} ${token('space.100')} 7px`,
 
 		// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		'& > [data-item-elem-before]': {
-			marginRight: token('space.050', '4px'),
+			marginRight: token('space.050'),
 		},
 	},
 });
@@ -86,8 +87,8 @@ const Dropdown = memo((props: Props & WrappedComponentProps) => {
 	if (areAnyNewToolbarFlagsEnabled) {
 		return (
 			<div css={menuContainerStyles} role="menu">
+				{/* eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed) */}
 				{items
-					// @ts-ignore
 					.filter((item) => item && (!('hidden' in item) || !item.hidden))
 					.map((item, idx) => {
 						if (!('type' in item)) {
@@ -127,6 +128,7 @@ const Dropdown = memo((props: Props & WrappedComponentProps) => {
 
 	return (
 		<div css={menuContainerStyles} role="menu">
+			{/* eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed) */}
 			{(items as Array<DropdownOptionT<Function>>)
 				.filter((item) => !item.hidden)
 				.map((item, idx) => (
@@ -146,4 +148,7 @@ const Dropdown = memo((props: Props & WrappedComponentProps) => {
 	);
 });
 
-export default injectIntl(Dropdown);
+const _default_1: FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(Dropdown);
+export default _default_1;

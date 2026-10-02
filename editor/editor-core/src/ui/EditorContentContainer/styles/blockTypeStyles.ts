@@ -1,23 +1,19 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { akEditorSelectedNodeClassName } from '@atlaskit/editor-shared-styles';
 import { token } from '@atlaskit/tokens';
-
-// This style is needed to avoid Confluence's batch.css overrides that expand blockquote with extra padding after SSR.
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const blockquoteZeroPadding: SerializedStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'.ProseMirror': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'& blockquote': {
-			paddingTop: 0,
-			paddingBottom: 0,
-		},
-	},
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const blocktypeStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -28,7 +24,12 @@ export const blocktypeStyles: SerializedStyles = css({
 			color: 'inherit',
 			width: '100%',
 			display: 'inline-block',
-			paddingLeft: token('space.200', '16px'),
+
+			// These 2 styles are needed to avoid Confluence's batch.css overrides that expand blockquote with extra padding after SSR.
+			paddingTop: 0,
+			paddingBottom: 0,
+
+			paddingLeft: token('space.200'),
 			borderLeftWidth: token('border.width.selected'),
 			borderLeftStyle: 'solid',
 			borderLeftColor: token('color.border'),
@@ -37,7 +38,7 @@ export const blocktypeStyles: SerializedStyles = css({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors
 			'[dir="rtl"] &': {
 				paddingLeft: 0,
-				paddingRight: token('space.200', '16px'),
+				paddingRight: token('space.200'),
 			},
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'&:first-child': {
@@ -115,7 +116,21 @@ export const blocktypeStyles: SerializedStyles = css({
 	},
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+export const headingScrollMarginStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'& h1, & h2, & h3, & h4, & h5, & h6': {
+			scrollMarginTop: token('space.300'),
+		},
+	},
+});
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const blockquoteDangerStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror blockquote.danger': {
@@ -123,8 +138,12 @@ export const blockquoteDangerStyles: SerializedStyles = css({
 		borderLeftColor: `${token('color.border.danger')}`,
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const blockquoteSelectedNodeStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror blockquote.ak-editor-selected-node': {
@@ -143,8 +162,12 @@ export const blockquoteSelectedNodeStyles: SerializedStyles = css({
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const blocktypeStyles_fg_platform_editor_typography_ugc: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -227,109 +250,21 @@ export const blocktypeStyles_fg_platform_editor_typography_ugc: SerializedStyles
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const blocktypeStyles_without_fg_platform_editor_typography_ugc: SerializedStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'.ProseMirror': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'& h1': {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			fontSize: 'calc(24em / 14)',
-			fontStyle: 'inherit',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 'calc(28 / 24)',
-			color: token('color.text'),
-			fontWeight: token('font.weight.medium'),
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			letterSpacing: `-0.01em`,
-			marginBottom: 0,
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			marginTop: '1.667em',
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'& h2': {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			fontSize: 'calc(20em / 14)',
-			fontStyle: 'inherit',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 'calc(24 / 20)',
-			color: token('color.text'),
-			fontWeight: token('font.weight.medium'),
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			letterSpacing: `-0.008em`,
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			marginTop: '1.8em',
-			marginBottom: 0,
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'& h3': {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			fontSize: 'calc(16em / 14)',
-			fontStyle: 'inherit',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 'calc(20 / 16)',
-			color: token('color.text'),
-			fontWeight: token('font.weight.semibold'),
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			letterSpacing: `-0.006em`,
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			marginTop: '2em',
-			marginBottom: 0,
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'& h4': {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			fontSize: 'calc(14em / 14)',
-			fontStyle: 'inherit',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 'calc(16 / 14)',
-			color: token('color.text'),
-			fontWeight: token('font.weight.semibold'),
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			letterSpacing: `-0.003em`,
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			marginTop: '1.357em',
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'& h5': {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			fontSize: 'calc(12em / 14)',
-			fontStyle: 'inherit',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 'calc(16 / 12)',
-			color: token('color.text'),
-			fontWeight: token('font.weight.semibold'),
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			marginTop: '1.667em',
-			textTransform: 'none',
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'& h6': {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			fontSize: 'calc(11em / 14)',
-			fontStyle: 'inherit',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 'calc(16 / 11)',
-			color: token('color.text.subtlest'),
-			fontWeight: token('font.weight.bold'),
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			marginTop: '1.455em',
-			textTransform: 'none',
-		},
-	},
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const blocktypeStyles_fg_platform_editor_nested_dnd_styles_changes: SerializedStyles = css({
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const blocktypeStylesNestedDnd: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ak-editor-content-area.appearance-full-page .ProseMirror blockquote': {
-		paddingLeft: token('space.250', '20px'),
+		paddingLeft: token('space.250'),
 	},
 	// Don't want extra padding for inline editor (nested)
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ak-editor-content-area .ak-editor-content-area .ProseMirror blockquote': {
-		paddingLeft: token('space.200', '16px'),
+		paddingLeft: token('space.200'),
 	},
 });
 
@@ -339,8 +274,12 @@ const isOuterMostSelectedNode = `${isSelectedNode}:not(${isSelectedNode} *)`;
 
 const isList = ':is(ul, ol, div[data-node-type="actionList"])';
 const isOuterMostList = `${isList}:not(${isList} *)`;
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const listSelectedNodeStyles: SerializedStyles = css({
 	// only apply selected styles to the outermost list to avoid nested selection styles for lists within lists
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
@@ -359,8 +298,12 @@ export const listSelectedNodeStyles: SerializedStyles = css({
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const listDangerStyles: SerializedStyles = css({
 	// only apply danger styles to the outermost list to avoid nested danger styles for lists within lists
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
@@ -371,8 +314,12 @@ export const listDangerStyles: SerializedStyles = css({
 
 const isText = `:is(p, h1, h2, h3, h4, h5, h6)`;
 const isRootText = `${isText}:not(${isList} ${isText})`;
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const textSelectedNodeStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
 	[`.ProseMirror ${isRootText}${isOuterMostSelectedNode}`]: {
@@ -391,8 +338,12 @@ export const textSelectedNodeStyles: SerializedStyles = css({
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const textDangerStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
 	[`.ProseMirror ${isRootText}${isOuterMostSelectedNode}.danger`]: {

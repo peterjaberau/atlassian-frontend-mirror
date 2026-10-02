@@ -1,4 +1,5 @@
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { findNodeDecs } from '../../pm-plugins/decorations-anchor';
@@ -14,9 +15,16 @@ type RefreshAnchorNameParams = {
  * Checks for plugin state for latest anchorName based on the position, returns
  * provided anchorName if available
  */
-export const refreshAnchorName = ({ getPos, view, anchorName }: RefreshAnchorNameParams): string => {
+export const refreshAnchorName = ({
+	getPos,
+	view,
+	anchorName,
+}: RefreshAnchorNameParams): string => {
 	let newAnchorName = anchorName || '';
-	if (expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) {
+	if (
+		expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+		isExperimentEnabled('platform_editor_block_control_migration')
+	) {
 		return newAnchorName;
 	}
 	const pos = getPos();

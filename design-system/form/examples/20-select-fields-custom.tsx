@@ -1,14 +1,13 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import Form, { Field, FormFooter } from '@atlaskit/form';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
 import { Flex } from '@atlaskit/primitives/compiled';
-import Select, {
-	components,
-	type OptionProps,
-	type SingleValueProps,
-	type ValueType,
-} from '@atlaskit/select';
+import { components } from '@atlaskit/react-select/components';
+import Select from '@atlaskit/select/default';
+import type { OptionProps, SingleValueProps, ValueType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 interface Option {
@@ -85,9 +84,9 @@ const ColorBox = ({ color }: { color: string }) => (
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			display: 'inline-block',
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			marginRight: token('space.100', '8px'),
+			marginRight: token('space.100'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			marginBottom: token('space.050', '4px'),
+			marginBottom: token('space.050'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			verticalAlign: 'middle',
 		}}

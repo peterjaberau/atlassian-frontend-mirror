@@ -3,26 +3,27 @@
  * @jsx jsx
  */
 
-import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { SyntheticEvent } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 import { bind } from 'bind-event-listener';
 
 import { akEditorMenuZIndex } from '@atlaskit/editor-shared-styles';
-import { N0, N30A, N60A } from '@atlaskit/theme/colors';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
 
 import { withReactEditorViewOuterListeners as withOuterListeners } from '../../ui-react';
 import Popup from '../Popup';
-
 import tableSelectorPopup, {
 	TABLE_SELECTOR_BUTTON_GAP,
 	TABLE_SELECTOR_BUTTON_SIZE,
 } from './table-selector';
 
 const TABLE_SELECTOR_PADDING_TOP = 8;
+const POPUP_OFFSET: [number, number] = [0, 3];
 const TABLE_SELECTOR_PADDING_SIDE = 10;
 
 const DEFAULT_TABLE_SELECTOR_ROWS = 5;
@@ -46,15 +47,9 @@ type SimpleEventHandler<T> = (event: T) => void;
 
 const tableSelectorPopupWrapperStyles = css({
 	borderRadius: token('radius.small', '3px'),
-	backgroundColor: token('elevation.surface.overlay', N0),
-	boxShadow: token(
-		'elevation.shadow.overlay',
-		`0 0 0 1px ${N30A}, 0 2px 1px ${N30A}, 0 0 20px -6px ${N60A}`,
-	),
-	padding: `${token(
-		'space.100',
-		`${TABLE_SELECTOR_PADDING_TOP}px`,
-	)} ${TABLE_SELECTOR_PADDING_SIDE}px`,
+	backgroundColor: token('elevation.surface.overlay'),
+	boxShadow: token('elevation.shadow.overlay'),
+	padding: `${token('space.100')} ${TABLE_SELECTOR_PADDING_SIDE}px`,
 });
 
 export interface TableSelectorPopupProps {
@@ -74,7 +69,7 @@ export interface TableSelectorPopupProps {
 	target?: HTMLElement;
 }
 
-export const TableSelectorPopup = (props: TableSelectorPopupProps) => {
+export const TableSelectorPopup = (props: TableSelectorPopupProps): jsx.JSX.Element => {
 	const [size, setSize] = useState({ ...initialSizeState, ...props.defaultSize });
 
 	const tablePopupRef = useRef(null);
@@ -320,10 +315,14 @@ export const TableSelectorPopup = (props: TableSelectorPopupProps) => {
 		return unbind;
 	}, [handleMouseMove, props.allowOutsideSelection, tablePopupRef]);
 
+	const offset = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? POPUP_OFFSET
+		: ([0, 3] satisfies [number, number]);
+
 	return (
 		<Popup
 			target={props.target}
-			offset={[0, 3]}
+			offset={offset}
 			mountTo={props.popupsMountPoint}
 			boundariesElement={props.popupsBoundariesElement}
 			scrollableElement={props.popupsScrollableElement}
@@ -349,4 +348,5 @@ export const TableSelectorPopup = (props: TableSelectorPopupProps) => {
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default TableSelectorPopup;

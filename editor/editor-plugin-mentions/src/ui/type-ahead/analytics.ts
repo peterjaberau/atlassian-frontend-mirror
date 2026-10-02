@@ -1,17 +1,11 @@
-import {
-	ACTION,
-	ACTION_SUBJECT,
-	type AnalyticsEventPayload,
-	EVENT_TYPE,
-} from '@atlaskit/editor-common/analytics';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import type { AnalyticsEventPayload } from '@atlaskit/editor-common/analytics';
 import type { ContextIdentifierProvider } from '@atlaskit/editor-common/provider-factory';
 import type { SelectItemMode } from '@atlaskit/editor-common/type-ahead';
-import type { UserRole } from '@atlaskit/mention';
-import type { MentionDescription } from '@atlaskit/mention/resource';
-import { isSpecialMention } from '@atlaskit/mention/resource';
+import { isSpecialMention } from '@atlaskit/mention/is-special-mention';
+import type { UserRole, MentionDescription } from '@atlaskit/mention/types';
 
 import type { TeamInfoAttrAnalytics } from '../../types';
-
 import { isTeamType } from './utils';
 
 const componentName = 'mention';
@@ -79,6 +73,7 @@ export const buildTypeAheadInviteItemViewedPayload = (
 	sessionId: string,
 	contextIdentifierProvider?: ContextIdentifierProvider,
 	userRole?: UserRole,
+	additionalAttributes?: Record<string, unknown>,
 ): AnalyticsEventPayload => {
 	const { containerId, objectId, childObjectId } = (contextIdentifierProvider ||
 		{}) as ContextIdentifierProvider;
@@ -95,6 +90,7 @@ export const buildTypeAheadInviteItemViewedPayload = (
 			userRole,
 			sessionId,
 			source: MENTION_SOURCE,
+			...additionalAttributes,
 		},
 	};
 };
@@ -108,6 +104,7 @@ export const buildTypeAheadInviteItemClickedPayload = (
 	query?: string,
 	contextIdentifierProvider?: ContextIdentifierProvider,
 	userRole?: UserRole,
+	additionalAttributes?: Record<string, unknown>,
 ): AnalyticsEventPayload => {
 	const { queryLength, spaceInQuery } = extractAttributesFromQuery(query);
 	const { containerId, objectId, childObjectId } = (contextIdentifierProvider ||
@@ -130,6 +127,7 @@ export const buildTypeAheadInviteItemClickedPayload = (
 			userRole,
 			sessionId,
 			keyboardKey: isClicked(insertType) ? undefined : insertType,
+			...additionalAttributes,
 		},
 	};
 };
@@ -147,6 +145,8 @@ export const buildTypeAheadInsertedPayload = (
 	contextIdentifierProvider?: ContextIdentifierProvider,
 	taskListId?: string,
 	taskItemId?: string,
+	isAgent?: boolean,
+	agentSectioningEnabled?: boolean,
 ): AnalyticsEventPayload => {
 	const { queryLength, spaceInQuery } = extractAttributesFromQuery(query);
 	let containerId;
@@ -184,6 +184,7 @@ export const buildTypeAheadInsertedPayload = (
 				isTeamType(mention.userType) && mention.context ? mention.context.memberCount : null,
 			includesYou:
 				isTeamType(mention.userType) && mention.context ? mention.context.includesYou : null,
+			...(isAgent ? { isAgent, agentSectioningEnabled } : {}),
 			taskListId,
 			taskItemId,
 			localId: mentionLocalId,
@@ -200,11 +201,23 @@ export const buildTypeAheadRenderedPayload = (
 	query: string,
 	teams: TeamInfoAttrAnalytics[] | null,
 	xProductMentionsLength: number,
+	mentionTypeaheadSessionId: string,
+	agentAnalytics?: {
+		agentCount: number;
+		agentSectioningEnabled: boolean;
+	},
 ): AnalyticsEventPayload => {
 	const { queryLength, spaceInQuery } = extractAttributesFromQuery(query);
 	const actionSubject = userIds
 		? ACTION_SUBJECT.MENTION_TYPEAHEAD
 		: ACTION_SUBJECT.TEAM_MENTION_TYPEAHEAD;
+	const agentAnalyticsAttributes = agentAnalytics
+		? {
+				agentCount: agentAnalytics.agentCount,
+				agentsShown: agentAnalytics.agentCount > 0,
+				agentSectioningEnabled: agentAnalytics.agentSectioningEnabled,
+			}
+		: {};
 
 	return {
 		action: ACTION.RENDERED,
@@ -213,11 +226,13 @@ export const buildTypeAheadRenderedPayload = (
 		attributes: {
 			componentName,
 			duration,
+			mentionTypeaheadSessionId,
 			userIds,
 			teams,
 			queryLength,
 			spaceInQuery,
 			xProductMentionsLength,
+			...agentAnalyticsAttributes,
 		},
 	};
 };

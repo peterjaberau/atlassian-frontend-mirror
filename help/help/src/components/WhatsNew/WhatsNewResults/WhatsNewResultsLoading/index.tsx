@@ -1,14 +1,13 @@
 import React from 'react';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
+
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
 import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../../messages';
-
 import { LoadingRectangle } from '../../../../util/styled';
-
-import { LoadingWhatsNewResultsList, LoadingWhatsNewResultsListItem } from './styled';
-
 import { WhatsNewResultsListTitleContainer } from '../styled';
+import { LoadingWhatsNewResultsList, LoadingWhatsNewResultsListItem } from './styled';
 
 export const WhatsNewResultsLoading: React.FC<WrappedComponentProps> = ({
 	intl: { formatMessage },
@@ -38,7 +37,7 @@ export const WhatsNewResultsLoading: React.FC<WrappedComponentProps> = ({
 					<LoadingRectangle
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							marginLeft: token('space.100', '8px'),
+							marginLeft: token('space.100'),
 						}}
 						contentHeight="11px"
 						contentWidth="60px"
@@ -65,7 +64,7 @@ export const WhatsNewResultsLoading: React.FC<WrappedComponentProps> = ({
 					<LoadingRectangle
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							marginLeft: token('space.100', '8px'),
+							marginLeft: token('space.100'),
 						}}
 						contentHeight="11px"
 						contentWidth="60px"
@@ -96,7 +95,7 @@ export const WhatsNewResultsLoading: React.FC<WrappedComponentProps> = ({
 					<LoadingRectangle
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							marginLeft: token('space.100', '8px'),
+							marginLeft: token('space.100'),
 						}}
 						contentHeight="11px"
 						contentWidth="60px"
@@ -123,7 +122,7 @@ export const WhatsNewResultsLoading: React.FC<WrappedComponentProps> = ({
 					<LoadingRectangle
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							marginLeft: token('space.100', '8px'),
+							marginLeft: token('space.100'),
 						}}
 						contentHeight="11px"
 						contentWidth="60px"

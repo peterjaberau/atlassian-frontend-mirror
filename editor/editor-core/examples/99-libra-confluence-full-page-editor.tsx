@@ -1,10 +1,11 @@
 import React, { Profiler } from 'react';
 
-import { createRoot, type Root } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
+import type { Root } from 'react-dom/client';
 
 import { FabricChannel } from '@atlaskit/analytics-listeners/types';
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { AnnotationUpdateEmitter } from '@atlaskit/editor-common/annotation';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { useUniversalPreset } from '@atlaskit/editor-core/preset-universal';
@@ -21,13 +22,14 @@ import {
 	MockActivityResource,
 } from '@atlaskit/editor-test-helpers/example-helpers';
 import { macroProvider } from '@atlaskit/editor-test-helpers/mock-macro-provider';
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
-import { APIError } from '@atlaskit/linking-common';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { APIError } from '@atlaskit/linking-common/api-error';
 import { getData } from '@atlaskit/media-integration-test-helpers/card-client';
 import { currentUser, getEmojiProvider } from '@atlaskit/util-data-test/get-emoji-provider';
 import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
 import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
-import { Scope } from '@atlassian/search-client';
+import { Scope } from '@atlassian/search-client/rest/types';
 import { createSearchProvider } from '@atlassian/search-provider';
 
 import type { EditorNextProps, EditorProps } from '../src/types/editor-props';

@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -24,15 +25,29 @@
 		"./__mocks__/**/*",
 		"**/mock.*",
 		"**/codemods/**/*.ts",
-		"**/codemods/**/*.tsx"
+		"**/codemods/**/*.tsx",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-plugin-emoji/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-plugin-emoji/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
 			"path": "../adf-schema/tsconfig.app.json"
+		},
+		{
+			"path": "../../helpers/browser-apis/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
 		},
 		{
 			"path": "../editor-common/tsconfig.app.json"
@@ -62,10 +77,16 @@
 			"path": "../editor-plugin-type-ahead/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-plugin-ui-control-registry/tsconfig.app.json"
+		},
+		{
 			"path": "../editor-prosemirror/tsconfig.app.json"
 		},
 		{
 			"path": "../editor-shared-styles/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-ui-control-model/tsconfig.app.json"
 		},
 		{
 			"path": "../../elements/emoji/tsconfig.app.json"
@@ -75,6 +96,9 @@
 		},
 		{
 			"path": "../node-data-provider/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/feature-experiments/tsconfig.app.json"
 		},
 		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"

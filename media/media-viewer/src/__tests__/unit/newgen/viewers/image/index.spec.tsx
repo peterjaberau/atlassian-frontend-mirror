@@ -1,10 +1,17 @@
 import React from 'react';
 
-import { type ProcessedFileState } from '@atlaskit/media-client';
-import { awaitError, fakeMediaClient, asMockFunction } from '@atlaskit/media-test-helpers';
-import { IntlProvider } from 'react-intl-next';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
+
+import { type ProcessedFileState } from '@atlaskit/media-client';
 import { getRandomTelemetryId, type MediaTraceContext } from '@atlaskit/media-common';
+import { awaitError, fakeMediaClient, asMockFunction } from '@atlaskit/media-test-helpers';
+import { ffTest } from '@atlassian/feature-flags-test-utils';
+
+import * as buildImgErrorDiagnosticsModule from '../../../../../buildImgErrorDiagnostics';
+import { getErrorDetail } from '../../../../../getErrorDetail';
+import { getSecondaryErrorReason } from '../../../../../getSecondaryErrorReason';
+import { MediaViewerError } from '../../../../../MediaViewerError';
 import { ImageViewer, type ImageViewerProps } from '../../../../../viewers/image';
 
 const collectionName = 'some-collection';
@@ -29,6 +36,7 @@ function setup(response: Promise<Blob>, props?: Partial<ImageViewerProps>) {
 	const mediaClient = fakeMediaClient();
 	asMockFunction(mediaClient.getImage).mockReturnValue(response);
 	asMockFunction(mediaClient.file.getFileBinaryURL).mockResolvedValue('some-binary-url');
+	asMockFunction(mediaClient.getClientId).mockResolvedValue(undefined);
 	const onClose = jest.fn();
 	const onLoaded = jest.fn();
 	const onError = jest.fn();
@@ -48,11 +56,130 @@ function setup(response: Promise<Blob>, props?: Partial<ImageViewerProps>) {
 		</IntlProvider>,
 	);
 
-	return { mediaClient, component, onClose, onLoaded };
+	return { mediaClient, component, onClose, onLoaded, onError };
 }
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('ImageViewer', () => {
+	describe('unsupported MIME routing (platform_media_unsupported_mime_routing)', () => {
+		ffTest.on(
+			'platform_media_unsupported_mime_routing',
+			'when unsupported MIME routing is enabled',
+			() => {
+				it('fails fast with `imageviewer-unsupported-mime` when the fetched blob is a non-decodable image type', async () => {
+					// Declared unsupported and JIT transformation did not change it.
+					const response = Promise.resolve(new Blob([], { type: 'image/heic' }));
+					const { mediaClient, onError } = setup(response, {
+						item: {
+							...imageItem,
+							mimeType: 'image/heic',
+						},
+					});
+
+					await waitFor(() => expect(onError).toHaveBeenCalled());
+					const error = onError.mock.calls[0][0] as MediaViewerError;
+					expect(error).toBeInstanceOf(MediaViewerError);
+					expect(error.primaryReason).toBe('imageviewer-unsupported-mime');
+					// Should not render a doomed <img> for the undecodable blob
+					expect(screen.queryByTestId('media-viewer-image')).not.toBeInTheDocument();
+					// Should not waste a binary URL fetch
+					expect(mediaClient.file.getFileBinaryURL).not.toHaveBeenCalled();
+				});
+
+				it('routes to unsupported when the declared type is supported but the fetched blob is not', async () => {
+					// JIT transformation produced (or left) an undecodable type even though
+					// the declared mimeType from /items looked fine.
+					const response = Promise.resolve(new Blob([], { type: 'image/tiff' }));
+					const { mediaClient, onError } = setup(response, {
+						item: {
+							...imageItem,
+							mimeType: 'image/jpeg',
+						},
+					});
+
+					await waitFor(() => expect(onError).toHaveBeenCalled());
+					const error = onError.mock.calls[0][0] as MediaViewerError;
+					expect(error.primaryReason).toBe('imageviewer-unsupported-mime');
+					expect(screen.queryByTestId('media-viewer-image')).not.toBeInTheDocument();
+					expect(mediaClient.file.getFileBinaryURL).not.toHaveBeenCalled();
+				});
+
+				it('renders the <img> when JIT transformation produced a decodable type despite an unsupported declared type', async () => {
+					// Declared unsupported (e.g. TIFF) but JIT transformed it to a decodable JPEG.
+					const response = Promise.resolve(new Blob([], { type: 'image/jpeg' }));
+					const { onError } = setup(response, {
+						item: {
+							...imageItem,
+							mimeType: 'image/tiff',
+						},
+					});
+
+					await waitFor(() =>
+						expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
+					);
+					expect(screen.getByTestId('media-viewer-image')).toBeInTheDocument();
+					expect(onError).not.toHaveBeenCalled();
+				});
+
+				it('still renders the <img> for decodable image types', async () => {
+					const response = Promise.resolve(new Blob([], { type: 'image/png' }));
+					const { onError } = setup(response, {
+						item: {
+							...imageItem,
+							mimeType: 'image/png',
+						},
+					});
+
+					await waitFor(() =>
+						expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
+					);
+					expect(screen.getByTestId('media-viewer-image')).toBeInTheDocument();
+					expect(onError).not.toHaveBeenCalled();
+				});
+
+				it('falls back to the declared mimeType when the fetched blob has no type', async () => {
+					// e.g. a preview provided as a plain URL string, or a blob with an empty type.
+					const response = Promise.resolve(new Blob());
+					const { onError } = setup(response, {
+						item: {
+							...imageItem,
+							mimeType: 'image/heic',
+						},
+					});
+
+					await waitFor(() => expect(onError).toHaveBeenCalled());
+					const error = onError.mock.calls[0][0] as MediaViewerError;
+					expect(error.primaryReason).toBe('imageviewer-unsupported-mime');
+				});
+			},
+		);
+
+		ffTest.off(
+			'platform_media_unsupported_mime_routing',
+			'when unsupported MIME routing is disabled',
+			() => {
+				it('does not route non-decodable image types (legacy behaviour)', async () => {
+					const response = Promise.resolve(new Blob([], { type: 'image/heic' }));
+					const { onError } = setup(response, {
+						item: {
+							...imageItem,
+							mimeType: 'image/heic',
+						},
+					});
+
+					await waitFor(() =>
+						expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
+					);
+					// Legacy path still hands the blob to <img>; no fail-fast error from init()
+					expect(onError).not.toHaveBeenCalledWith(
+						expect.objectContaining({ primaryReason: 'imageviewer-unsupported-mime' }),
+					);
+					expect(screen.getByTestId('media-viewer-image')).toBeInTheDocument();
+				});
+			},
+		);
+	});
+
 	it('assigns an object url for images when successful', async () => {
 		const response = Promise.resolve(new Blob());
 		setup(response);
@@ -157,6 +284,9 @@ describe('ImageViewer', () => {
 		const response: any = new Promise(() => {});
 		const { component } = setup(response);
 
+		// Wait for async init operations (getClientId) to complete before unmounting
+		await new Promise((resolve) => setTimeout(resolve, 0));
+
 		component.unmount();
 
 		await waitFor(() => {
@@ -234,6 +364,78 @@ describe('ImageViewer', () => {
 		expect(onClose).not.toHaveBeenCalled();
 	});
 
+	describe('src onerror diagnostics', () => {
+		it('attaches a descriptive secondaryError to imageviewer-src-onerror', async () => {
+			const response = Promise.resolve(new Blob());
+			const { onError } = setup(response, {
+				item: {
+					...imageItem,
+					mimeType: 'image/png',
+				},
+			});
+
+			await waitFor(() =>
+				expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
+			);
+			const imageElm = screen.getByTestId('media-viewer-image');
+			fireEvent.error(imageElm);
+
+			expect(onError).toHaveBeenCalled();
+			const error = onError.mock.calls[0][0] as MediaViewerError;
+			expect(error).toBeInstanceOf(MediaViewerError);
+			expect(error.primaryReason).toBe('imageviewer-src-onerror');
+			expect(error.secondaryError).toBeInstanceOf(Error);
+			// errorDetail (downstream analytics) is now descriptive instead of `unknown`
+			const detail = getErrorDetail(error);
+			expect(detail).not.toBe('unknown');
+			expect(detail).toContain('mimeType=image/png');
+			expect(detail).toContain('isBrowserDecodable=true');
+			expect(detail).toContain('naturalWidth=');
+			expect(detail).toContain('failedSrcType=');
+			// secondaryReason becomes a concrete `nativeError` instead of `unknown`
+			expect(getSecondaryErrorReason(error)).toBe('nativeError');
+		});
+
+		it('still emits imageviewer-src-onerror without crashing when diagnostics building throws', async () => {
+			// Diagnostics are best-effort: if buildImgErrorDiagnostics throws, onImgError
+			// must fall back to no secondaryError rather than turn a handled image error
+			// into an unhandled exception.
+			const spy = jest
+				.spyOn(buildImgErrorDiagnosticsModule, 'buildImgErrorDiagnostics')
+				.mockImplementation(() => {
+					throw new Error('boom');
+				});
+
+			try {
+				const response = Promise.resolve(new Blob());
+				const { onError } = setup(response, {
+					item: {
+						...imageItem,
+						mimeType: 'image/png',
+					},
+				});
+
+				await waitFor(() =>
+					expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
+				);
+				const imageElm = screen.getByTestId('media-viewer-image');
+
+				expect(() => fireEvent.error(imageElm)).not.toThrow();
+
+				expect(onError).toHaveBeenCalled();
+				const error = onError.mock.calls[0][0] as MediaViewerError;
+				expect(error).toBeInstanceOf(MediaViewerError);
+				expect(error.primaryReason).toBe('imageviewer-src-onerror');
+				// Falls back to the previous opaque reporting when diagnostics fail.
+				expect(error.secondaryError).toBeUndefined();
+				expect(getErrorDetail(error)).toBe('unknown');
+				expect(getSecondaryErrorReason(error)).toBe('unknown');
+			} finally {
+				spy.mockRestore();
+			}
+		});
+	});
+
 	it('should add file attrs to src if contextId is passed', async () => {
 		const response = Promise.resolve(new Blob());
 		setup(response, {
@@ -244,7 +446,7 @@ describe('ImageViewer', () => {
 
 		const imageElm = screen.getByTestId('media-viewer-image');
 		expect(imageElm.getAttribute('src')).toBe(
-			'mock result of URL.createObjectURL()#media-blob-url=true&id=some-id&contextId=some-context-id&collection=some-collection',
+			'mock result of URL.createObjectURL()#media-blob-url=true&id=some-id&contextId=some-context-id&collection=some-collection&clientId=',
 		);
 	});
 });

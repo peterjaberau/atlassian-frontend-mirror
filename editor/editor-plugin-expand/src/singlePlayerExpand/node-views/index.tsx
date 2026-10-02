@@ -1,12 +1,13 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import { keyName } from 'w3c-keyname';
 
+import { BLOCK_CONTROLS_DRAG_HANDLE } from '@atlaskit/editor-common/block-controls/surface-keys';
 import { expandedState, isExpandCollapsed } from '@atlaskit/editor-common/expand';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { GapCursorSelection, RelativeSelectionPos, Side } from '@atlaskit/editor-common/selection';
 import type {
 	SelectionSharedState,
@@ -19,15 +20,20 @@ import type {
 	getPosHandlerNode,
 } from '@atlaskit/editor-common/types';
 import { closestElement, isEmptyNode } from '@atlaskit/editor-common/utils';
+import {
+	applyContentVisibility,
+	estimateExpandIntrinsicHeight,
+} from '@atlaskit/editor-common/utils/content-visibility';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection, Selection } from '@atlaskit/editor-prosemirror/state';
 import type { Decoration, EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
-import { redo, undo } from '@atlaskit/prosemirror-history';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { redo } from '@atlaskit/prosemirror-history/redo';
+import { undo } from '@atlaskit/prosemirror-history/undo';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { ExpandPlugin } from '../../types';
-import { renderExpandButton } from '../../ui/renderExpandButton';
 import {
 	deleteExpand,
 	setSelectionInsideExpand,
@@ -35,7 +41,7 @@ import {
 	updateExpandTitle,
 } from '../commands';
 import { ExpandButton } from '../ui/ExpandButton';
-import { buildExpandClassName, toDOM } from '../ui/NodeView';
+import { buildExpandClassName, getExpandBodyAriaLabel, toDOM } from '../ui/NodeView';
 import { findReplaceExpandDecorations } from '../utils';
 
 export class ExpandNodeView implements NodeView {
@@ -68,7 +74,7 @@ export class ExpandNodeView implements NodeView {
 		allowInteractiveExpand: boolean = true,
 		private __livePage = false,
 		private cleanUpEditorDisabledOnChange?: () => void,
-		private isExpanded: boolean | undefined = false,
+		private isExpanded: { expanded: boolean; localId?: string } = { expanded: false },
 	) {
 		this.intl = getIntl();
 		this.nodeViewPortalProviderAPI = nodeViewPortalProviderAPI;
@@ -76,13 +82,19 @@ export class ExpandNodeView implements NodeView {
 		this.getPos = getPos;
 		this.view = view;
 		this.node = node;
+
+		this.isExpanded.expanded = expandedState.get(node) ?? false;
+		this.isExpanded.localId = node.attrs.localId;
+
+		const editorDisabled = api?.editorDisabled?.sharedState.currentState()?.editorDisabled;
 		const { dom, contentDOM } = DOMSerializer.renderSpec(
 			document,
 			toDOM(
 				node,
 				this.__livePage,
 				this.intl,
-				api?.editorDisabled?.sharedState.currentState()?.editorDisabled,
+				editorDisabled,
+				!editorDisabled && !isExpandCollapsed(node),
 			),
 		);
 		// Ignored via go/ees005
@@ -107,11 +119,11 @@ export class ExpandNodeView implements NodeView {
 			expandedState.set(this.node, false);
 		}
 
-		if (expValEquals('platform_editor_native_expand_button', 'isEnabled', true)) {
-			this.renderNativeIcon(this.node);
-		} else {
-			this.renderIcon(this.icon, !isExpandCollapsed(this.node));
-		}
+		applyContentVisibility(this.dom, this.isLimitedModeEnabled(), () => ({
+			height: estimateExpandIntrinsicHeight(this.node, !isExpandCollapsed(this.node)),
+		}));
+
+		this.renderIcon(this.icon, !isExpandCollapsed(this.node));
 
 		if (!this.input || !this.titleContainer || !this.icon) {
 			return;
@@ -130,26 +142,56 @@ export class ExpandNodeView implements NodeView {
 		this.icon.addEventListener('keydown', this.handleIconKeyDown);
 
 		if (this.api?.editorDisabled) {
-			this.cleanUpEditorDisabledOnChange = this.api.editorDisabled.sharedState.onChange(
-				(sharedState) => {
-					const editorDisabled = sharedState.nextSharedState.editorDisabled;
+			if (isExperimentEnabled('cc_editor_limited_mode_perf_improvements')) {
+				if (this.content) {
+					this.content.setAttribute(
+						'contenteditable',
+						this.getContentEditable(this.node) ? 'true' : 'false',
+					);
+				}
+				this.cleanUpEditorDisabledOnChange = this.api.editorDisabled.sharedState.onChange(
+					(sharedState) => {
+						const editorDisabled = sharedState.nextSharedState.editorDisabled;
 
-					if (this.input) {
-						if (editorDisabled) {
-							this.input.setAttribute('readonly', 'true');
-						} else {
-							this.input.removeAttribute('readonly');
+						if (this.input) {
+							if (editorDisabled) {
+								this.input.setAttribute('readonly', 'true');
+							} else {
+								this.input.removeAttribute('readonly');
+							}
 						}
-					}
 
-					if (this.content) {
-						this.content.setAttribute(
-							'contenteditable',
-							this.getContentEditable(this.node) ? 'true' : 'false',
-						);
-					}
-				},
-			);
+						const nextContentEditableValue = this.getContentEditable(this.node) ? 'true' : 'false';
+						if (
+							this.content &&
+							this.content.getAttribute('contenteditable') !== nextContentEditableValue
+						) {
+							this.content.setAttribute('contenteditable', nextContentEditableValue);
+						}
+					},
+				);
+			} else {
+				this.cleanUpEditorDisabledOnChange = this.api.editorDisabled.sharedState.onChange(
+					(sharedState) => {
+						const editorDisabled = sharedState.nextSharedState.editorDisabled;
+
+						if (this.input) {
+							if (editorDisabled) {
+								this.input.setAttribute('readonly', 'true');
+							} else {
+								this.input.removeAttribute('readonly');
+							}
+						}
+
+						if (this.content) {
+							this.content.setAttribute(
+								'contenteditable',
+								this.getContentEditable(this.node) ? 'true' : 'false',
+							);
+						}
+					},
+				);
+			}
 		}
 	}
 
@@ -213,10 +255,7 @@ export class ExpandNodeView implements NodeView {
 				node: this.node,
 			})(this.view.state, this.view.dispatch);
 			this.updateExpandToggleIcon(this.node);
-
-			if (expValEquals('platform_editor_display_none_to_expand', 'isEnabled', true)) {
-				this.updateDisplayStyle(this.node);
-			}
+			this.updateDisplayStyle(this.node);
 
 			return;
 		}
@@ -259,6 +298,72 @@ export class ExpandNodeView implements NodeView {
 	};
 
 	private handleTitleKeydown = (event: KeyboardEvent) => {
+		// Handle Ctrl+Shift+H to select the expand node for drag handle
+		// Note: If changing this implementation in singlePlayer expand, please also update the implementation in legacyExpand
+		if (
+			expValEquals('platform_editor_dnd_accessibility_fixes_expand', 'isEnabled', true) &&
+			(event.ctrlKey || event.metaKey) &&
+			event.shiftKey &&
+			(event.key === 'H' || event.key === 'h')
+		) {
+			event.preventDefault();
+			const pos = this.getPos();
+			if (typeof pos === 'number') {
+				// Blur the input first to remove focus from the title
+				if (this.input) {
+					this.input.blur();
+				}
+				// Use requestAnimationFrame to ensure blur completes before setting selection
+				requestAnimationFrame(() => {
+					const { state } = this.view;
+					this.view.focus();
+					this.api?.core.actions.execute(({ tr }) => {
+						tr.setSelection(NodeSelection.create(state.doc, pos));
+						if (isExperimentEnabled('platform_editor_block_control_migration')) {
+							const command = this.api?.blockControls?.commands.showControlAtPosition(
+								pos,
+								BLOCK_CONTROLS_DRAG_HANDLE,
+								{
+									isFocused: true,
+								},
+							);
+							if (command) {
+								return command({ tr });
+							}
+							return null;
+						}
+
+						const node = state.doc.nodeAt(pos);
+						if (node) {
+							const dom = this.view.nodeDOM(pos);
+							if (dom instanceof HTMLElement) {
+								const anchorName = expValEquals(
+									'platform_editor_native_anchor_with_dnd',
+									'isEnabled',
+									true,
+								)
+									? dom.getAttribute('data-node-anchor')
+									: dom.getAttribute('data-drag-handler-anchor-name');
+								if (anchorName) {
+									const command = this.api?.blockControls?.commands.showDragHandleAt(
+										pos,
+										anchorName,
+										node.type.name,
+										{ isFocused: true },
+									);
+									if (command) {
+										return command({ tr });
+									}
+								}
+							}
+						}
+						return null;
+					});
+				});
+			}
+			return;
+		}
+
 		switch (keyName(event)) {
 			case 'Enter':
 				this.toggleExpand();
@@ -348,10 +453,7 @@ export class ExpandNodeView implements NodeView {
 				node: this.node,
 			})(state, dispatch);
 			this.updateExpandToggleIcon(this.node);
-
-			if (expValEquals('platform_editor_display_none_to_expand', 'isEnabled', true)) {
-				this.updateDisplayStyle(this.node);
-			}
+			this.updateDisplayStyle(this.node);
 		}
 	};
 
@@ -590,6 +692,18 @@ export class ExpandNodeView implements NodeView {
 				}
 			});
 
+			// Sync up the aria-label with the current expand title.
+			if (
+				isExperimentEnabled('platform_editor_expand_content_a11y_2') &&
+				this.node.attrs.title !== node.attrs.title &&
+				this.content
+			) {
+				this.content.setAttribute(
+					'aria-label',
+					getExpandBodyAriaLabel(node.attrs.title ?? '', this.intl),
+				);
+			}
+
 			// This checks if the node has been replaced with a different version
 			// and updates the state of the new node to match the old one
 			// Eg. typing in a node changes it to a new node so it must be updated
@@ -601,20 +715,20 @@ export class ExpandNodeView implements NodeView {
 				}
 			}
 
-			if (expValEquals('platform_editor_toggle_expand_on_match_found', 'isEnabled', true)) {
-				this.node = node;
-				const hasChanged = this.isExpanded !== expandedState.get(node);
-				if (hasChanged) {
-					this.updateExpandToggleIcon(node);
-
-					if (expValEquals('platform_editor_display_none_to_expand', 'isEnabled', true)) {
-						this.updateDisplayStyle(node);
-					}
-				}
-			} else {
-				this.node = node;
+			this.node = node;
+			// Re-apply in case limited mode flipped from disabled→enabled after the document loaded
+			// (the flip is transaction-driven, so this update() fires once it becomes enabled).
+			applyContentVisibility(this.dom, this.isLimitedModeEnabled(), () => ({
+				height: estimateExpandIntrinsicHeight(this.node, !isExpandCollapsed(this.node)),
+			}));
+			const currentExpanded = expandedState.get(node) ?? false;
+			const hasChanged =
+				this.isExpanded.expanded !== currentExpanded &&
+				this.isExpanded.localId === node.attrs.localId;
+			if (hasChanged) {
+				this.updateExpandToggleIcon(node);
+				this.updateDisplayStyle(node);
 			}
-
 			return true;
 		}
 		return false;
@@ -623,35 +737,46 @@ export class ExpandNodeView implements NodeView {
 	updateExpandToggleIcon(node: PmNode): void {
 		const expanded = expandedState.get(node) ? expandedState.get(node) : false;
 		if (this.dom && expanded !== undefined) {
-			if (expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)) {
-				const classes = this.dom.className.split(' ');
-				// find & replace styles might be applied to the expand title and we need to keep them
-				const findReplaceDecorationsApplied = classes
-					.filter((className) => findReplaceExpandDecorations.includes(className))
-					.join(' ');
-				this.dom.className = findReplaceDecorationsApplied
-					? buildExpandClassName(node.type.name, expanded) + ` ${findReplaceDecorationsApplied}`
-					: buildExpandClassName(node.type.name, expanded);
-			} else {
-				this.dom.className = buildExpandClassName(node.type.name, expanded);
-			}
+			const classes = this.dom.className.split(' ');
+			// find & replace styles might be applied to the expand title and we need to keep them
+			const findReplaceDecorationsApplied = classes
+				.filter((className) => findReplaceExpandDecorations.includes(className))
+				.join(' ');
+			this.dom.className = findReplaceDecorationsApplied
+				? buildExpandClassName(node.type.name, expanded) + ` ${findReplaceDecorationsApplied}`
+				: buildExpandClassName(node.type.name, expanded);
 			// Re-render the icon to update the aria-expanded attribute
-			if (expValEquals('platform_editor_native_expand_button', 'isEnabled', true)) {
-				this.renderNativeIcon(node);
-			} else {
-				this.renderIcon(this.icon ? this.icon : null, expandedState.get(node) ?? false);
-			}
+			this.renderIcon(this.icon ?? null, expandedState.get(node) ?? false);
 		}
 		this.updateExpandBodyContentEditable();
-		if (expValEquals('platform_editor_toggle_expand_on_match_found', 'isEnabled', true)) {
-			this.isExpanded = expanded;
-		}
+		this.isExpanded = { expanded: expanded ?? false, localId: node.attrs.localId };
+	}
+
+	private isLimitedModeEnabled(): boolean {
+		// Read from `this.view.state` via the exposed plugin key rather than the shared state's
+		// `enabled`, which reads a stale `false` during initial EditorView construction (the injection
+		// API's editor state isn't wired up yet).
+		//
+		// Reads the plugin's derived `enabled`, so this covers every reason limited mode can be on.
+		return Boolean(
+			this.api?.limitedMode?.sharedState
+				.currentState()
+				?.limitedModePluginKey?.getState(this.view.state)?.enabled,
+		);
 	}
 
 	private updateDisplayStyle(node: PmNode): void {
 		if (this.content) {
-			this.content.style.display = isExpandCollapsed(node) ? 'none' : 'flow-root';
+			if (isExpandCollapsed(node)) {
+				this.content.classList.add(expandClassNames.contentCollapsed);
+			} else {
+				this.content.classList.remove(expandClassNames.contentCollapsed);
+			}
 		}
+		// Collapsed vs expanded changes the reserved height, so re-apply the intrinsic-size estimate.
+		applyContentVisibility(this.dom, this.isLimitedModeEnabled(), () => ({
+			height: estimateExpandIntrinsicHeight(node, !isExpandCollapsed(node)),
+		}));
 	}
 
 	updateExpandBodyContentEditable(): void {
@@ -662,18 +787,6 @@ export class ExpandNodeView implements NodeView {
 				this.getContentEditable(this.node) ? 'true' : 'false',
 			);
 		}
-	}
-
-	private renderNativeIcon(node: PmNode) {
-		if (!this.icon) {
-			return;
-		}
-
-		renderExpandButton(this.icon, {
-			expanded: !isExpandCollapsed(node),
-			allowInteractiveExpand: this.allowInteractiveExpand,
-			intl: this.intl,
-		});
 	}
 
 	renderIcon = (icon: HTMLElement | null, expanded: boolean): void => {

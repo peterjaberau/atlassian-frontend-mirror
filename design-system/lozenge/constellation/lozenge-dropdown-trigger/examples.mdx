@@ -2,7 +2,8 @@
 order: 0
 title: Lozenge dropdown trigger
 description:
-  Lozenge dropdown trigger displays an item’s status and enables switching through a menu.
+  Lozenge dropdown trigger enables a lozenge to be interactive, and opens a dropdown to update the
+  selection.
 ---
 
 import LozengeDropdownTriggerBasic from '../../examples/constellation/lozenge-dropdown-trigger-basic';
@@ -29,7 +30,13 @@ Use the lozenge dropdown trigger with the ADS [dropdown menu](/components/dropdo
 [popup](/components/popup) component to create interactive status selectors. The trigger shows a
 chevron and supports a selected state when the dropdown is open.
 
-<Example Component={LozengeDropdownTriggerWithDropdown} packageName="@atlaskit/lozenge" />
+<Example
+	Component={LozengeDropdownTriggerWithDropdown}
+	packageName="@atlaskit/lozenge"
+	featureFlagDefaults={{
+		'platform-dst-motion-uplift-popup': true,
+	}}
+/>
 
 ## Selected state
 
@@ -67,7 +74,6 @@ labeling and visual organization.
 ## Trailing metric
 
 Use `trailingMetric` to display a numeric score as a badge inside the lozenge.
-
 
 <Example Component={LozengeDropdownTriggerMetric} packageName="@atlaskit/lozenge" />
 

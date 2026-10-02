@@ -9,6 +9,7 @@ import {
 } from '@atlaskit/editor-common/analytics';
 import type { Command } from '@atlaskit/editor-common/types';
 import { isEmptySelectionAtEnd, walkNextNode } from '@atlaskit/editor-common/utils';
+import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 
 import { calcJoinListScenario } from '../actions/join-list-items-forward';
@@ -24,6 +25,23 @@ export const joinListItemForward =
 
 		if (!isEmptySelectionAtEnd(state)) {
 			return false;
+		}
+
+		let interveningSyncBlockPos: number | undefined;
+		// walkNextNode can skip leaf nodes because they have no resolvable content position.
+		state.doc.nodesBetween($head.pos, walkNode.$pos.pos, (node, pos) => {
+			if (interveningSyncBlockPos === undefined && node.type.name === 'syncBlock') {
+				interveningSyncBlockPos = pos;
+			}
+			return interveningSyncBlockPos === undefined;
+		});
+
+		if (interveningSyncBlockPos !== undefined) {
+			if (dispatch) {
+				const selection = NodeSelection.create(state.doc, interveningSyncBlockPos);
+				dispatch(tr.setSelection(selection).scrollIntoView());
+			}
+			return true;
 		}
 
 		const scenarios = calcJoinListScenario(walkNode, $head);

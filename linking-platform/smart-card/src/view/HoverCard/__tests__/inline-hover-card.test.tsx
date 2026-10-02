@@ -12,21 +12,23 @@ jest.mock('react-render-image', () => ({ src, errored, onError }: any) => {
 });
 
 import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { act, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-import { type CardClient, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import type CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
+import { eeTest } from '@atlaskit/tmp-editor-statsig/editor-experiments-test-utils';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { act, render, screen, waitFor, userEvent } from '@atlassian/testing-library';
 
 import * as useSmartCardActions from '../../../state/actions';
-import { fakeFactory } from '../../../utils/mocks';
+import { fakeFactory } from '../../../utils/fake-factory';
 import { Card } from '../../Card';
-
-import { mockConfluenceResponse, mockSSRResponse } from './__mocks__/mocks';
+import {
+	mockConfluenceResponse,
+	mockSSRResponse,
+	mockUnauthorisedResponse,
+} from './__mocks__/mocks';
 import { analyticsTests } from './common/analytics.test-utils';
 import {
 	forbiddenViewTests,
@@ -57,7 +59,11 @@ describe('HoverCard', () => {
 	});
 
 	afterEach(() => {
-		act(() => jest.runAllTimers()); // Suppress act errors after test ends
+		// Nested suites (e.g. analytics) may call `useRealTimers()` in their own afterEach first;
+		// `runAllTimers` then warns if fake timers are no longer active.
+		if (jest.isMockFunction(setTimeout)) {
+			act(() => jest.runAllTimers()); // Suppress act errors after test ends
+		}
 		jest.useRealTimers();
 		jest.restoreAllMocks();
 	});
@@ -73,21 +79,19 @@ describe('HoverCard', () => {
 
 		describe('Common tests', () => {
 			runCommonHoverCardTests((setupProps?: SetUpParams) => setup(setupProps), testsConfig);
-			ffTest.both('navx-2478-sl-fix-hover-card-unresolved-view', '', () => {
-				forbiddenViewTests((setupProps?: SetUpParams) =>
-					setup({
-						testId: 'inline-card-forbidden-view',
-						...setupProps,
-					}),
-				);
-				unauthorizedViewTests((setupProps?: SetUpParams) =>
-					setup({
-						testId: 'inline-card-unauthorized-view',
-						...setupProps,
-						extraCardProps: { showHoverPreview: true },
-					}),
-				);
-			});
+			forbiddenViewTests((setupProps?: SetUpParams) =>
+				setup({
+					testId: 'inline-card-forbidden-view',
+					...setupProps,
+				}),
+			);
+			unauthorizedViewTests((setupProps?: SetUpParams) =>
+				setup({
+					testId: 'inline-card-unauthorized-view',
+					...setupProps,
+					extraCardProps: { showHoverPreview: true },
+				}),
+			);
 			analyticsTests((setupProps?: SetUpParams) => setup(setupProps), {
 				display: 'inline',
 				isAnalyticsContextResolvedOnHover: true,
@@ -136,8 +140,8 @@ describe('HoverCard', () => {
 				const link = await screen.findByTestId('smart-element-link');
 				await event.click(link);
 
-				const previewButton = await screen.findByTestId('smart-action-preview-action');
-				await event.click(previewButton);
+				const copyLinkButton = await screen.findByTestId('smart-action-copy-link-action');
+				await event.click(copyLinkButton);
 
 				expect(mockOnClick).not.toHaveBeenCalled();
 			});
@@ -204,41 +208,39 @@ describe('HoverCard', () => {
 				};
 			};
 
-			ffTest.both('navx-2478-sl-fix-hover-card-unresolved-view', '', () => {
-				it('should render hover card view correctly', async () => {
-					const { resolveFetch } = await setupWithSSR();
+			it('should render hover card view correctly', async () => {
+				const { resolveFetch } = await setupWithSSR();
 
-					await screen.findByTestId('hover-card-loading-view');
-					resolveFetch(mockConfluenceResponse);
+				await screen.findByTestId('hover-card-loading-view');
+				resolveFetch(mockConfluenceResponse);
 
-					await screen.findAllByTestId('smart-block-metadata-resolved-view');
-					const titleBlock = await screen.findByTestId('smart-block-title-resolved-view');
-					const snippetBlock = await screen.findByTestId('smart-block-snippet-resolved-view');
-					const footerBlock = await screen.findByTestId('smart-ai-footer-block-resolved-view');
-					expect(screen.queryByTestId('hover-card-loading-view')).toBeNull();
+				await screen.findAllByTestId('smart-block-metadata-resolved-view');
+				const titleBlock = await screen.findByTestId('smart-block-title-resolved-view');
+				const snippetBlock = await screen.findByTestId('smart-block-snippet-resolved-view');
+				const footerBlock = await screen.findByTestId('smart-ai-footer-block-resolved-view');
+				expect(screen.queryByTestId('hover-card-loading-view')).toBeNull();
 
-					// trim because the icons are causing new lines in the textContent
-					expect(titleBlock).toHaveTextContent(/I love cheese$/);
-					expect(snippetBlock).toHaveTextContent(/Here is your serving of cheese$/);
-					expect(footerBlock).toHaveTextContent('Confluence');
-				});
+				// trim because the icons are causing new lines in the textContent
+				expect(titleBlock).toHaveTextContent(/I love cheese$/);
+				expect(snippetBlock).toHaveTextContent(/Here is your serving of cheese$/);
+				expect(footerBlock).toHaveTextContent('Confluence');
+			});
 
-				it('should fall back to default path if fetch fails', async () => {
-					const { rejectFetch } = await setupWithSSR();
+			it('should fall back to default path if fetch fails', async () => {
+				const { rejectFetch } = await setupWithSSR();
 
-					await screen.findByTestId('hover-card-loading-view');
-					rejectFetch('error');
+				await screen.findByTestId('hover-card-loading-view');
+				rejectFetch('error');
 
-					const titleBlock = await screen.findByTestId('smart-block-title-resolved-view');
-					const snippetBlock = await screen.findByTestId('smart-block-snippet-resolved-view');
-					const footerBlock = await screen.findByTestId('smart-ai-footer-block-resolved-view');
-					expect(screen.queryByTestId('hover-card-loading-view')).toBeNull();
+				const titleBlock = await screen.findByTestId('smart-block-title-resolved-view');
+				const snippetBlock = await screen.findByTestId('smart-block-snippet-resolved-view');
+				const footerBlock = await screen.findByTestId('smart-ai-footer-block-resolved-view');
+				expect(screen.queryByTestId('hover-card-loading-view')).toBeNull();
 
-					// trim because the icons are causing new lines in the textContent
-					expect(titleBlock).toHaveTextContent('I am a fan of cheese');
-					expect(snippetBlock).toHaveTextContent('');
-					expect(footerBlock).toHaveTextContent('');
-				});
+				// trim because the icons are causing new lines in the textContent
+				expect(titleBlock).toHaveTextContent('I am a fan of cheese');
+				expect(snippetBlock).toHaveTextContent('');
+				expect(footerBlock).toHaveTextContent('');
 			});
 
 			it('should capture and report a11y violations', async () => {
@@ -258,6 +260,55 @@ describe('HoverCard', () => {
 					</Provider>,
 				);
 				await expect(container).toBeAccessible();
+			});
+		});
+
+		describe('platform_sl_3p_preauth_better_hovercard (unauthorised hover card)', () => {
+			const assertUnauthorisedHoverPreviewWhenPreauthExperimentOn = async (
+				rovoOptions: { isRovoEnabled: boolean; isRovoLLMEnabled: boolean },
+				expectRovo: boolean,
+			) => {
+				await setup({
+					extraCardProps: { showHoverPreview: true },
+					mock: mockUnauthorisedResponse,
+					testId: 'inline-card-unauthorized-view',
+					rovoOptions,
+				});
+
+				act(() => jest.runAllTimers());
+
+				if (expectRovo) {
+					expect(
+						await screen.findByTestId('hover-card-rovo-unauthorised-view'),
+					).toBeInTheDocument();
+					expect(
+						screen.getByTestId('hover-card-rovo-unauthorised-view-connect-account'),
+					).toBeInTheDocument();
+					expect(screen.queryByTestId('hover-card-unauthorised-view')).not.toBeInTheDocument();
+				} else {
+					expect(await screen.findByTestId('hover-card-unauthorised-view')).toBeInTheDocument();
+					expect(screen.queryByTestId('hover-card-rovo-unauthorised-view')).not.toBeInTheDocument();
+				}
+			};
+
+			ffTest.on('platform_sl_3p_preauth_better_hovercard_killswitch', '', () => {
+				eeTest
+					.describe('platform_sl_3p_preauth_better_hovercard', 'unauthorised hover card')
+					.variant(true, () => {
+						it('renders Rovo unauthorised hover when killswitch and experiment are on and Rovo is enabled', async () => {
+							await assertUnauthorisedHoverPreviewWhenPreauthExperimentOn(
+								{ isRovoEnabled: true, isRovoLLMEnabled: true },
+								true,
+							);
+						});
+
+						it('renders legacy unauthorised hover when killswitch and experiment are on but Rovo is disabled', async () => {
+							await assertUnauthorisedHoverPreviewWhenPreauthExperimentOn(
+								{ isRovoEnabled: false, isRovoLLMEnabled: true },
+								false,
+							);
+						});
+					});
 			});
 		});
 	});

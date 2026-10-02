@@ -1,6 +1,122 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const toolbarMessages = defineMessages({
+export const toolbarMessages: {
+	underline: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	strike: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	code: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	codeOn: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	subscript: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	subscriptOffSuperscriptOn: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	superscript: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	superscriptOffSubscriptOn: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	clearFormatting: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	moreFormatting: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	textFormatting: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	textFormat: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	bold: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	italic: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	on: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	off: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	textStyles: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	textStylesTooltip: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	textFormattingOff: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	navigateToEditorToolbar: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	navigateToFloatingToolbar: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	askAI: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	selectionToolbarOverflowMenuTooltip: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	underline: {
 		id: 'fabric.editor.underline',
 		defaultMessage: 'Underline',
@@ -102,7 +218,8 @@ export const toolbarMessages = defineMessages({
 	navigateToEditorToolbar: {
 		id: 'fabric.editor.navigate.toolbar.editor',
 		defaultMessage: 'Navigate to editor toolbar',
-		description: 'Navigate to the main editor toolbar.',
+		description:
+			'Label for the keyboard shortcut action that moves focus to the main editor toolbar, allowing keyboard users to access toolbar buttons.',
 	},
 	navigateToFloatingToolbar: {
 		id: 'fabric.editor.navigate.toolbar.floating',

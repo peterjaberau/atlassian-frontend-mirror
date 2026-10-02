@@ -1,8 +1,8 @@
 import type { Rule } from 'eslint';
 
-import { getScope, getSourceCode } from '../context-compat';
+import { getSourceCode } from '../context-compat';
+import { getScope } from '../get-scope';
 import { getImportSources, type SupportedNameChecker } from '../is-supported-import';
-
 import { checkIfSupportedExport } from './check-if-supported-export';
 
 type RuleModule = Rule.RuleModule;
@@ -68,5 +68,3 @@ export const createNoExportedRule =
 			},
 		};
 	};
-
-export default createNoExportedRule;

@@ -5,7 +5,7 @@ import type {
 	DatasourceResponseSchemaProperty,
 	DatasourceTableStatusType,
 	DatasourceType,
-} from '@atlaskit/linking-types';
+} from '@atlaskit/linking-types/datasource';
 
 import type { NextPageType } from '../../hooks/useDatasourceTableState';
 
@@ -30,6 +30,13 @@ export interface ColumnSizesMap {
 	[key: string]: number;
 }
 
+export type DatasourceTableSortDirection = 'ASC' | 'DESC';
+
+export type DatasourceTableSortState = {
+	direction: DatasourceTableSortDirection;
+	key: string;
+};
+
 export interface IssueLikeDataTableViewProps {
 	/**
 	 * Map of column key to custom column width
@@ -49,6 +56,10 @@ export interface IssueLikeDataTableViewProps {
 	itemIds: string[];
 	items: DatasourceDataResponseItem[];
 	onColumnResize?: (key: string, width: number) => void;
+	/**
+	 * Callback to be invoked whenever a user sorts a datasource table by a column.
+	 */
+	onColumnSort?: (key: string) => void;
 	onLoadDatasourceDetails: () => Promise<void>;
 	onNextPage: NextPageType;
 	/**
@@ -65,6 +76,12 @@ export interface IssueLikeDataTableViewProps {
 	 * @param shouldWrap  Whenever column should wrap
 	 */
 	onWrappedColumnChange?: (key: string, shouldWrap: boolean) => void;
+	/**
+	 * Callback to be invoked whenever wrap is toggled for all currently visible columns.
+	 *
+	 * @param wrappedColumnKeys the full list of column keys that should wrap after the change
+	 */
+	onWrappedColumnsChange?: (wrappedColumnKeys: string[]) => void;
 	/**
 	 * A function to define new or override existing render components.
 	 * eg:
@@ -85,6 +102,7 @@ export interface IssueLikeDataTableViewProps {
 	 */
 	scrollableContainerHeight?: number;
 
+	sortState?: DatasourceTableSortState;
 	status: DatasourceTableStatusType;
 	testId?: string;
 

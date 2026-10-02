@@ -1,31 +1,31 @@
 import React, { useEffect } from 'react';
 
+import * as jestExtendedMatchers from 'jest-extended';
+import { IntlProvider } from 'react-intl';
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+import { v4 as uuid } from 'uuid';
+
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import { flushPromises } from '@atlaskit/link-test-helpers';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import {
 	render,
-	type RenderOptions,
 	screen,
+	userEvent,
 	waitFor,
 	waitForElementToBeRemoved,
 	within,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import * as jestExtendedMatchers from 'jest-extended';
-import { IntlProvider } from 'react-intl-next';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
-
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
-import { flushPromises } from '@atlaskit/link-test-helpers';
-import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+} from '@atlassian/testing-library';
 
 import { useAnalyticsEvents } from '../../../common/analytics/generated/use-analytics-events';
 import { ActionName } from '../../../index';
 import { messages } from '../../../messages';
-import * as ufo from '../../../state/analytics/ufoExperiences';
+import * as startUfoExperienceModule from '../../../state/analytics/startUfoExperience';
+import * as succeedUfoExperienceModule from '../../../state/analytics/succeedUfoExperience';
 import type { InvokeClientActionProps } from '../../../state/hooks/use-invoke-client-action/types';
-import { context } from '../../../utils/analytics';
+import { context } from '../../../utils/analytics/analytics';
 import { SmartLinkAnalyticsContext } from '../../../utils/analytics/SmartLinkAnalyticsContext';
 import { mocks } from '../../../utils/mocks';
 import * as EmbedContent from '../components/embed-content';
@@ -36,15 +36,15 @@ import { EmbedModalSize } from '../types';
 jest.mock('uuid', () => ({
 	...jest.requireActual('uuid'),
 	__esModule: true,
-	default: jest.fn().mockReturnValue('some-uuid-1'),
+	v4: jest.fn().mockReturnValue('some-uuid-1'),
 }));
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
 // be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
 // the next line and associated import. For more information, see go/afm-a11y-tooling:jest
 skipAutoA11yFile();
 
-jest.mock('@atlaskit/link-provider', () => ({
-	...jest.requireActual('@atlaskit/link-provider'),
+jest.mock('@atlaskit/link-provider/use-smart-link-context', () => ({
+	...jest.requireActual('@atlaskit/link-provider/use-smart-link-context'),
 	useSmartLinkContext: () => ({
 		store: {
 			getState: () => ({ 'test-url': mocks.analytics }),
@@ -112,7 +112,7 @@ describe('EmbedModal', () => {
 		resourceType: 'spaghetti-resource',
 	};
 
-	const wrapper: RenderOptions['wrapper'] = ({ children }) => (
+	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<IntlProvider locale="en">
 			<FabricAnalyticsListeners client={mockAnalyticsClient}>
 				<AnalyticsContext data={{ attributes: context }}>
@@ -170,183 +170,171 @@ describe('EmbedModal', () => {
 		jest.restoreAllMocks();
 	});
 
-	ffTest.both('platform_navx_sl_a11y_embed_modal', '', () => {
-		it('should render with size', () => {
-			renderEmbedModal({ size: EmbedModalSize.Small });
-			const modal = screen.getByTestId(testId);
-			expectModalMinSize(modal);
+	it('should render with size', () => {
+		renderEmbedModal({ size: EmbedModalSize.Small });
+		const modal = screen.getByTestId(testId);
+		expectModalMinSize(modal);
+	});
+
+	it('should capture and report a11y violations', async () => {
+		const { container } = render(
+			<IntlProvider locale="en">
+				<EmbedModal iframeName="iframe-name" onClose={() => {}} showModal={true} testId={testId} />
+			</IntlProvider>,
+		);
+
+		await expect(container).toBeAccessible();
+	});
+
+	it('renders embed modal', async () => {
+		renderEmbedModal();
+		const modal = await screen.findByTestId(testId);
+		expect(modal).toBeDefined();
+	});
+
+	it('renders embed modal without analytics', async () => {
+		render(
+			<IntlProvider locale="en">
+				<EmbedModal iframeName="iframe-name" onClose={() => {}} showModal={true} testId={testId} />
+			</IntlProvider>,
+		);
+		const modal = await screen.findByTestId(testId);
+		expect(modal).toBeDefined();
+	});
+
+	it('renders a link info', async () => {
+		const title = 'Link title';
+		renderEmbedModal({
+			title,
 		});
 
-		it('should capture and report a11y violations', async () => {
-			const { container } = render(
-				<IntlProvider locale="en">
-					<EmbedModal
-						iframeName="iframe-name"
-						onClose={() => {}}
-						showModal={true}
-						testId={testId}
-					/>
-				</IntlProvider>,
-			);
+		expect(await screen.findByTestId(`${testId}-title`)).toHaveTextContent(title);
+	});
 
-			await expect(container).toBeAccessible();
+	it('renders an iframe', async () => {
+		const iframeName = 'iframe-name';
+		const src = 'https://link-url';
+		renderEmbedModal({ iframeName, src });
+		const iframe = await screen.findByTestId(`${testId}-embed`);
+
+		expect(iframe).toBeDefined();
+		expect(iframe.getAttribute('name')).toEqual(iframeName);
+		expect(iframe.getAttribute('src')).toEqual(src);
+		expect(iframe.getAttribute('sandbox')).toEqual(expect.any(String));
+	});
+
+	describe('with buttons', () => {
+		it('closes modal and trigger close callback when clicking close button', async () => {
+			const onClose = jest.fn();
+			renderEmbedModal({
+				onClose,
+			});
+
+			const button = await screen.findByTestId(`${testId}--close-button`);
+
+			await userEvent.hover(button);
+
+			expect(await screen.findByTestId(`${testId}-close-tooltip`)).toBeInTheDocument();
+
+			const tooltip = await screen.findByTestId(`${testId}-close-tooltip`);
+			expect(tooltip.textContent).toBe(messages.preview_close.defaultMessage);
+
+			await user.click(button);
+			await waitForElementToBeRemoved(() => screen.queryByTestId(testId));
+			const modal = screen.queryByTestId(testId);
+			expect(modal).not.toBeInTheDocument();
+			expect(onClose).toHaveBeenCalledTimes(1);
 		});
 
-		it('renders embed modal', async () => {
+		it('resizes modal when clicking resize button', async () => {
 			renderEmbedModal();
 			const modal = await screen.findByTestId(testId);
-			expect(modal).toBeDefined();
+			const button = await screen.findByTestId(`${testId}-resize-button`);
+
+			// Resize to min size
+			await userEvent.hover(button);
+
+			expect(await screen.findByTestId(`${testId}-resize-tooltip`)).toBeInTheDocument();
+
+			const minTooltip = await screen.findByTestId(`${testId}-resize-tooltip`);
+			expect(minTooltip.textContent).toBe(messages.preview_min_size.defaultMessage);
+			await user.click(button);
+			expectModalMinSize(modal);
+
+			// Resize to max size
+			await userEvent.hover(button);
+			expect(await screen.findByTestId(`${testId}-resize-tooltip`)).toBeInTheDocument();
+
+			const maxTooltip = await screen.findByTestId(`${testId}-resize-tooltip`);
+			expect(maxTooltip.textContent).toBe(messages.preview_max_size.defaultMessage);
+			await user.click(button);
+			expectModalMaxSize(modal);
 		});
 
-		it('renders embed modal without analytics', async () => {
-			render(
-				<IntlProvider locale="en">
-					<EmbedModal
-						iframeName="iframe-name"
-						onClose={() => {}}
-						showModal={true}
-						testId={testId}
-					/>
-				</IntlProvider>,
-			);
-			const modal = await screen.findByTestId(testId);
-			expect(modal).toBeDefined();
-		});
+		describe('with url button', () => {
+			it('renders url button', async () => {
+				renderEmbedModal({ invokeViewAction });
+				const button = await screen.findByTestId(`${testId}-url-button`);
+				expect(button).toBeInTheDocument();
 
-		it('renders a link info', async () => {
-			const title = 'Link title';
-			renderEmbedModal({
-				title,
+				await userEvent.hover(button);
+
+				expect(await screen.findByTestId(`${testId}-url-tooltip`)).toBeInTheDocument();
+
+				const tooltip = await screen.findByTestId(`${testId}-url-tooltip`);
+				expect(tooltip.textContent).toBe(messages.viewOriginal.defaultMessage);
 			});
 
-			expect(await screen.findByTestId(`${testId}-title`)).toHaveTextContent(title);
-		});
-
-		it('renders an iframe', async () => {
-			const iframeName = 'iframe-name';
-			const src = 'https://link-url';
-			renderEmbedModal({ iframeName, src });
-			const iframe = await screen.findByTestId(`${testId}-embed`);
-
-			expect(iframe).toBeDefined();
-			expect(iframe.getAttribute('name')).toEqual(iframeName);
-			expect(iframe.getAttribute('src')).toEqual(src);
-			expect(iframe.getAttribute('sandbox')).toEqual(expect.any(String));
-		});
-
-		describe('with buttons', () => {
-			it('closes modal and trigger close callback when clicking close button', async () => {
-				const onClose = jest.fn();
+			it('renders url button with provider name', async () => {
 				renderEmbedModal({
-					onClose,
+					invokeViewAction,
+					providerName: 'Confluence',
 				});
-
-				const button = await screen.findByTestId(`${testId}--close-button`);
+				const button = await screen.findByTestId(`${testId}-url-button`);
 
 				await userEvent.hover(button);
+				expect(await screen.findByTestId(`${testId}-url-tooltip`)).toBeInTheDocument();
 
-				expect(await screen.findByTestId(`${testId}-close-tooltip`)).toBeInTheDocument();
-
-				const tooltip = await screen.findByTestId(`${testId}-close-tooltip`);
-				expect(tooltip.textContent).toBe(messages.preview_close.defaultMessage);
-
-				await user.click(button);
-				await waitForElementToBeRemoved(() => screen.queryByTestId(testId));
-				const modal = screen.queryByTestId(testId);
-				expect(modal).not.toBeInTheDocument();
-				expect(onClose).toHaveBeenCalledTimes(1);
+				const tooltip = await screen.findByTestId(`${testId}-url-tooltip`);
+				expect(tooltip).toHaveTextContent('View in Confluence');
 			});
 
-			it('resizes modal when clicking resize button', async () => {
+			it('does not render url button when url is not provided', () => {
 				renderEmbedModal();
-				const modal = await screen.findByTestId(testId);
-				const button = await screen.findByTestId(`${testId}-resize-button`);
-
-				// Resize to min size
-				await userEvent.hover(button);
-
-				expect(await screen.findByTestId(`${testId}-resize-tooltip`)).toBeInTheDocument();
-
-				const minTooltip = await screen.findByTestId(`${testId}-resize-tooltip`);
-				expect(minTooltip.textContent).toBe(messages.preview_min_size.defaultMessage);
-				await user.click(button);
-				expectModalMinSize(modal);
-
-				// Resize to max size
-				await userEvent.hover(button);
-				expect(await screen.findByTestId(`${testId}-resize-tooltip`)).toBeInTheDocument();
-
-				const maxTooltip = await screen.findByTestId(`${testId}-resize-tooltip`);
-				expect(maxTooltip.textContent).toBe(messages.preview_max_size.defaultMessage);
-				await user.click(button);
-				expectModalMaxSize(modal);
-			});
-
-			describe('with url button', () => {
-				it('renders url button', async () => {
-					renderEmbedModal({ invokeViewAction });
-					const button = await screen.findByTestId(`${testId}-url-button`);
-					expect(button).toBeInTheDocument();
-
-					await userEvent.hover(button);
-
-					expect(await screen.findByTestId(`${testId}-url-tooltip`)).toBeInTheDocument();
-
-					const tooltip = await screen.findByTestId(`${testId}-url-tooltip`);
-					expect(tooltip.textContent).toBe(messages.viewOriginal.defaultMessage);
-				});
-
-				it('renders url button with provider name', async () => {
-					renderEmbedModal({
-						invokeViewAction,
-						providerName: 'Confluence',
-					});
-					const button = await screen.findByTestId(`${testId}-url-button`);
-
-					await userEvent.hover(button);
-					expect(await screen.findByTestId(`${testId}-url-tooltip`)).toBeInTheDocument();
-
-					const tooltip = await screen.findByTestId(`${testId}-url-tooltip`);
-					expect(tooltip).toHaveTextContent('View in Confluence');
-				});
-
-				it('does not render url button when url is not provided', () => {
-					renderEmbedModal();
-					const button = screen.queryByTestId(`${testId}-url-button`);
-					expect(button).not.toBeInTheDocument();
-				});
-			});
-
-			describe('with download button', () => {
-				it('renders download button', async () => {
-					renderEmbedModal({ invokeDownloadAction });
-					const button = await screen.findByTestId(`${testId}-download-button`);
-					expect(button).toBeInTheDocument();
-
-					await userEvent.hover(button);
-					expect(await screen.findByTestId(`${testId}-download-tooltip`)).toBeInTheDocument();
-
-					const tooltip = await screen.findByTestId(`${testId}-download-tooltip`);
-					expect(tooltip.textContent).toBe(messages.download.defaultMessage);
-				});
-
-				it('does not render download button when download url is not provided', () => {
-					renderEmbedModal();
-					const button = screen.queryByTestId(`${testId}-download-button`);
-					expect(button).not.toBeInTheDocument();
-				});
+				const button = screen.queryByTestId(`${testId}-url-button`);
+				expect(button).not.toBeInTheDocument();
 			});
 		});
 
-		it('triggers open failed callback when modal content throws error', async () => {
-			const onOpenFailed = jest.fn();
-			const spy = jest.spyOn(EmbedContent, 'default').mockReturnValue(<ThrowError />);
+		describe('with download button', () => {
+			it('renders download button', async () => {
+				renderEmbedModal({ invokeDownloadAction });
+				const button = await screen.findByTestId(`${testId}-download-button`);
+				expect(button).toBeInTheDocument();
 
-			renderEmbedModal({ onOpenFailed });
-			expect(onOpenFailed).toHaveBeenCalledTimes(1);
+				await userEvent.hover(button);
+				expect(await screen.findByTestId(`${testId}-download-tooltip`)).toBeInTheDocument();
 
-			spy.mockRestore();
+				const tooltip = await screen.findByTestId(`${testId}-download-tooltip`);
+				expect(tooltip.textContent).toBe(messages.download.defaultMessage);
+			});
+
+			it('does not render download button when download url is not provided', () => {
+				renderEmbedModal();
+				const button = screen.queryByTestId(`${testId}-download-button`);
+				expect(button).not.toBeInTheDocument();
+			});
 		});
+	});
+
+	it('triggers open failed callback when modal content throws error', async () => {
+		const onOpenFailed = jest.fn();
+		const spy = jest.spyOn(EmbedContent, 'default').mockReturnValue(<ThrowError />);
+
+		renderEmbedModal({ onOpenFailed });
+		expect(onOpenFailed).toHaveBeenCalledTimes(1);
+
+		spy.mockRestore();
 	});
 
 	describe('with analytics', () => {
@@ -487,8 +475,8 @@ describe('EmbedModal', () => {
 		});
 
 		it('dispatches analytics event on open url on a new tab', async () => {
-			const ufoStartSpy = jest.spyOn(ufo, 'startUfoExperience');
-			const ufoSucceedSpy = jest.spyOn(ufo, 'succeedUfoExperience');
+			const ufoStartSpy = jest.spyOn(startUfoExperienceModule, 'startUfoExperience');
+			const ufoSucceedSpy = jest.spyOn(succeedUfoExperienceModule, 'succeedUfoExperience');
 			uuid.mockReturnValueOnce(EXPERIENCE_TEST_ID);
 
 			renderEmbedModal({ invokeViewAction, url: 'https://link-url' });
@@ -512,6 +500,18 @@ describe('EmbedModal', () => {
 						...EXPECTED_COMMON_ATTRIBUTES,
 						id,
 						actionType: 'ViewAction',
+						display: 'embedPreview',
+					}),
+					tags: ['media'],
+				}),
+			);
+
+			expect(mockAnalyticsClient.sendTrackEvent).toHaveBeenCalledWith(
+				expect.objectContaining({
+					action: 'visited',
+					actionSubject: 'smartLink',
+					attributes: expect.objectContaining({
+						id,
 						display: 'embedPreview',
 					}),
 					tags: ['media'],
@@ -546,9 +546,52 @@ describe('EmbedModal', () => {
 			expect(ufoStartSpy).toHaveBeenCalledBefore(ufoSucceedSpy as jest.Mock);
 		});
 
+		it('dispatches track.smartLink.visited event on resize', async () => {
+			const onResize = jest.fn();
+			renderEmbedModal({
+				invokeViewAction,
+				onResize,
+				origin: 'smartLinkCard',
+			});
+
+			const button = await screen.findByTestId(`${testId}-resize-button`);
+			await user.click(button);
+
+			expect(mockAnalyticsClient.sendTrackEvent).toHaveBeenCalledWith(
+				expect.objectContaining({
+					action: 'visited',
+					actionSubject: 'smartLink',
+					attributes: expect.objectContaining({
+						...EXPECTED_COMMON_ATTRIBUTES,
+						id,
+						display: 'embedPreview',
+					}),
+					tags: ['media'],
+				}),
+			);
+		});
+
+		it('does not dispatch track.smartLink.visited event on resize when invokeViewAction is not provided', async () => {
+			const onResize = jest.fn();
+			renderEmbedModal({
+				onResize,
+				origin: 'smartLinkCard',
+			});
+
+			const button = await screen.findByTestId(`${testId}-resize-button`);
+			await user.click(button);
+
+			expect(mockAnalyticsClient.sendTrackEvent).not.toHaveBeenCalledWith(
+				expect.objectContaining({
+					action: 'visited',
+					actionSubject: 'smartLink',
+				}),
+			);
+		});
+
 		it('dispatches analytics event on download url', async () => {
-			const ufoStartSpy = jest.spyOn(ufo, 'startUfoExperience');
-			const ufoSucceedSpy = jest.spyOn(ufo, 'succeedUfoExperience');
+			const ufoStartSpy = jest.spyOn(startUfoExperienceModule, 'startUfoExperience');
+			const ufoSucceedSpy = jest.spyOn(succeedUfoExperienceModule, 'succeedUfoExperience');
 			uuid.mockReturnValueOnce(EXPERIENCE_TEST_ID);
 			const url = 'https://download-url';
 
@@ -611,59 +654,34 @@ describe('EmbedModal', () => {
 	});
 
 	describe('a11y', () => {
-		ffTest.off('platform_navx_flex_card_status_dropdown_a11y_fix', '', () => {
-			it.each([
-				['Close full screen', EmbedModalSize.Large],
-				['View full screen', EmbedModalSize.Small],
-				['View Original'],
-				['Download'],
-			])(
-				'should render both button text and aria-label for %s button',
-				(buttonText: string, size = EmbedModalSize.Large) => {
-					renderEmbedModal({ invokeViewAction, invokeDownloadAction, size });
+		it('should should capture and report a11y violations', async () => {
+			const { container } = renderEmbedModal({ invokeViewAction, invokeDownloadAction });
 
-					expect(screen.queryByText(buttonText)).toBeInTheDocument();
-					expect(screen.queryByLabelText(buttonText)).toBeInTheDocument();
-				},
-			);
+			await expect(container).toBeAccessible();
 		});
 
-		const runA11yTests = () => {
-			it.each([
-				['Close full screen', EmbedModalSize.Large],
-				['View full screen', EmbedModalSize.Small],
-				['View Original'],
-				['Download'],
-			])(
-				'should render both button text and aria-label for %s button',
-				(buttonText: string, size = EmbedModalSize.Large) => {
-					renderEmbedModal({ invokeViewAction, invokeDownloadAction, size });
+		it.each([
+			['Close full screen', EmbedModalSize.Large],
+			['View full screen', EmbedModalSize.Small],
+			['View Original'],
+			['Download'],
+		])(
+			'should render both button text and aria-label for %s button',
+			(buttonText: string, size = EmbedModalSize.Large) => {
+				renderEmbedModal({ invokeViewAction, invokeDownloadAction, size });
 
-					expect(screen.queryByText(buttonText)).toBeInTheDocument();
-					expect(screen.queryByLabelText(buttonText)).not.toBeInTheDocument();
-				},
-			);
-		};
+				expect(screen.queryByText(buttonText)).toBeInTheDocument();
+				expect(screen.queryByLabelText(buttonText)).not.toBeInTheDocument();
+			},
+		);
 
-		ffTest.on('platform_navx_flex_card_status_dropdown_a11y_fix', '', runA11yTests);
+		it('should have list for action items', async () => {
+			renderEmbedModal({ invokeViewAction, invokeDownloadAction });
 
-		ffTest.on('platform_navx_sl_a11y_embed_modal', '', () => {
-			it('should should capture and report a11y violations', async () => {
-				const { container } = renderEmbedModal({ invokeViewAction, invokeDownloadAction });
+			const list = await screen.findByRole('list');
 
-				await expect(container).toBeAccessible();
-			});
-
-			runA11yTests();
-
-			it('should have list for action items', async () => {
-				renderEmbedModal({ invokeViewAction, invokeDownloadAction });
-
-				const list = await screen.findByRole('list');
-
-				expect(list).toBeInTheDocument();
-				expect(within(list).queryAllByRole('button').length).toBe(3);
-			});
+			expect(list).toBeInTheDocument();
+			expect(within(list).queryAllByRole('button').length).toBe(3);
 		});
 	});
 });

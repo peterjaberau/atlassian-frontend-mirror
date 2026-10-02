@@ -5,24 +5,26 @@
 import {
 	type CSSProperties,
 	forwardRef,
+	type ForwardRefExoticComponent,
 	Fragment,
 	type KeyboardEvent,
+	type RefAttributes,
 	useCallback,
 	useRef,
 } from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
-import { defineMessages, FormattedMessage } from 'react-intl-next';
+import { defineMessages, FormattedMessage } from 'react-intl';
 
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import { type LinkPickerPlugin, type LinkSearchListItemData } from '../../../../common/types';
 import { MinHeightContainer } from '../../../../common/ui/min-height-container';
 import { handleNavKeyDown } from '../../../../common/utils/handleNavKeyDown';
-
 import { NoResults, testIds as noResultsTestIds } from './link-search-no-results';
 import { LinkSearchListItem, testIds as searchResultItemTestIds } from './list-item';
 import { useTrackResultsShown } from './use-track-results-shown';
@@ -37,8 +39,8 @@ const listContainerStyles = css({
 	width: '100%',
 	paddingTop: 0,
 	minHeight: '80px',
-	marginTop: token('space.200', '16px'),
-	marginBottom: token('space.200', '16px'),
+	marginTop: token('space.200'),
+	marginBottom: token('space.200'),
 	flexGrow: 1,
 	display: 'flex',
 	flexDirection: 'column',
@@ -51,12 +53,12 @@ const spinnerContainerStyles = css({
 });
 
 const listStyles = css({
-	paddingTop: token('space.0', '0px'),
-	paddingRight: token('space.0', '0px'),
-	paddingBottom: token('space.0', '0px'),
-	paddingLeft: token('space.0', '0px'),
-	marginTop: token('space.0', '0px'),
-	marginBottom: token('space.0', '0px'),
+	paddingTop: token('space.0'),
+	paddingRight: token('space.0'),
+	paddingBottom: token('space.0'),
+	paddingLeft: token('space.0'),
+	marginTop: token('space.0'),
+	marginBottom: token('space.0'),
 	marginLeft: 'calc(-1 * var(--link-picker-padding-left))',
 	marginRight: 'calc(-1 * var(--link-picker-padding-right))',
 	listStyle: 'none',
@@ -65,11 +67,27 @@ const listStyles = css({
 const listTitleStyles: CSSProperties = {
 	font: token('font.body.small'),
 	fontWeight: token('font.weight.bold'),
-	marginBottom: token('space.050', '4px'),
+	marginBottom: token('space.050'),
 	color: token('color.text.subtle'),
 };
 
-export const messages = defineMessages({
+export const messages: {
+	titleRecentlyViewedFormatted: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	titleResults: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	searchLinkResults: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	titleRecentlyViewedFormatted: {
 		id: 'fabric.linkPicker.listTitle.recentlyViewedFormatted',
 		defaultMessage: 'Recently viewed',
@@ -87,7 +105,15 @@ export const messages = defineMessages({
 	},
 });
 
-export const testIds = {
+export const testIds: {
+	resultListTitle: string;
+	searchResultList: string;
+	searchResultLoadingIndicator: string;
+	tabsLoadingIndicator: string;
+	searchResultItem: string;
+	searchResultIcon: string;
+	emptyResultPage: string;
+} = {
 	...noResultsTestIds,
 	...searchResultItemTestIds,
 	resultListTitle: 'link-picker-list-title',
@@ -98,8 +124,10 @@ export const testIds = {
 
 type LinkSearchListElement = HTMLElement;
 
-export interface LinkSearchListProps
-	extends Omit<React.HTMLAttributes<LinkSearchListElement>, 'onSelect' | 'onChange'> {
+export interface LinkSearchListProps extends Omit<
+	React.HTMLAttributes<LinkSearchListElement>,
+	'onSelect' | 'onChange'
+> {
 	items?: LinkSearchListItemData[] | null;
 	isLoading: boolean;
 	selectedIndex: number;
@@ -120,7 +148,9 @@ export interface LinkSearchListProps
 	shouldRenderNoResultsImage?: boolean;
 }
 
-export const LinkSearchList = forwardRef<HTMLDivElement, LinkSearchListProps>(
+export const LinkSearchList: ForwardRefExoticComponent<
+	LinkSearchListProps & RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, LinkSearchListProps>(
 	(
 		{
 			onChange,
@@ -146,8 +176,9 @@ export const LinkSearchList = forwardRef<HTMLDivElement, LinkSearchListProps>(
 		let itemsContent;
 		let loadingContent;
 
-
-		const linkListTitle = hasSearchTerm ? messages.titleResults : messages.titleRecentlyViewedFormatted;
+		const linkListTitle = hasSearchTerm
+			? messages.titleResults
+			: messages.titleRecentlyViewedFormatted;
 
 		useTrackResultsShown(isLoading, items, hasSearchTerm);
 
@@ -201,7 +232,11 @@ export const LinkSearchList = forwardRef<HTMLDivElement, LinkSearchListProps>(
 				const emptyState = activePlugin?.emptyStateNoResults?.();
 				if (emptyState) {
 					return (
-						<div id={tabPanelId} css={styles.emptyStateNoResultsWrapper}>
+						<div
+							id={tabPanelId}
+							css={styles.emptyStateNoResultsWrapper}
+							{...(fg('navx-5378-link-picker-tab-roles') ? { role: 'tabpanel' } : {})}
+						>
 							{emptyState}
 						</div>
 					);
@@ -209,7 +244,10 @@ export const LinkSearchList = forwardRef<HTMLDivElement, LinkSearchListProps>(
 			}
 
 			return (
-				<div id={tabPanelId}>
+				<div
+					id={tabPanelId}
+					{...(fg('navx-5378-link-picker-tab-roles') ? { role: 'tabpanel' } : {})}
+				>
 					<NoResults shouldRenderImage={shouldRenderNoResultsImage} />
 				</div>
 			);
@@ -221,8 +259,8 @@ export const LinkSearchList = forwardRef<HTMLDivElement, LinkSearchListProps>(
 			itemsContent = (
 				<Fragment>
 					<Box
-						as="h2" // Must remain <h2> for a11y title hierarchy as per https://hello.jira.atlassian.cloud/browse/A11Y-27579
-						// `.wiki-content h2` css styles in confluence override ADS/native styles here, so inline styles are needed.
+						as="h3" // Must remain <h3> for a11y title hierarchy as per https://hello.jira.atlassian.cloud/browse/NAVX-3332
+						// `.wiki-content h3` css styles in confluence override ADS/native styles here, so inline styles are needed.
 						// Should use css or xcss prop when that CSS is removed/fixed by confluence
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 						style={listTitleStyles}
@@ -286,8 +324,15 @@ export const LinkSearchList = forwardRef<HTMLDivElement, LinkSearchListProps>(
 		}
 
 		return (
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
-			<div id={tabPanelId} ref={ref} css={listContainerStyles} className={className} {...restProps}>
+			<div
+				id={tabPanelId}
+				ref={ref}
+				css={listContainerStyles}
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+				className={className}
+				{...(fg('navx-5378-link-picker-tab-roles') ? { role: 'tabpanel' } : {})}
+				{...restProps}
+			>
 				{itemsContent}
 				{loadingContent}
 			</div>

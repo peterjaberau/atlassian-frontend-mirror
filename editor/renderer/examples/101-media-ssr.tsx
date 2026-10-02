@@ -1,13 +1,16 @@
 import React, { useEffect } from 'react';
-import { IntlProvider } from 'react-intl-next';
-import ReactDOM from 'react-dom';
-import Loadable from 'react-loadable';
-import { type MediaClientConfig } from '@atlaskit/media-core';
-import { type SSR } from '@atlaskit/media-common';
-import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
-import { createStorybookMediaClientConfig } from '@atlaskit/media-test-helpers';
-import type { DocNode } from '@atlaskit/adf-schema/schema';
+
+import { hydrateRoot } from 'react-dom/client';
 import ReactDOMServer from 'react-dom/server';
+import { IntlProvider } from 'react-intl';
+import Loadable from 'react-loadable';
+
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
+import type { SSR } from '@atlaskit/media-common';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
+import { createStorybookMediaClientConfig } from '@atlaskit/media-test-helpers';
+
 import { default as Renderer } from '../src/ui/Renderer';
 import doc from './helper/ssr-media-adf.json';
 
@@ -65,13 +68,13 @@ const runSSR = async (containerId: string, hydrate?: boolean) => {
 	if (elem) {
 		elem.innerHTML = txt;
 		hydrate &&
-			ReactDOM.hydrate(
+			hydrateRoot(
+				elem,
 				<Page
 					ssr="client"
 					title={'Renderer SSR + Hydration'}
 					mediaClientConfig={mediaClientConfig}
 				/>,
-				elem,
 			);
 	}
 };

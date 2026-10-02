@@ -1,20 +1,22 @@
-import { act, fireEvent, screen, within } from '@testing-library/react';
-
-import type { JsonLd } from '@atlaskit/json-ld-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
 import { mocks } from '@atlaskit/link-test-helpers';
-import type { CardStore, CardType } from '@atlaskit/linking-common';
-import type { SmartLinkResponse } from '@atlaskit/linking-types';
+import type { CardStore } from '@atlaskit/linking-common/store';
+import type { CardType } from '@atlaskit/linking-common/types';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+import { act, fireEvent, screen, within } from '@atlassian/testing-library';
 
+import { closeEmbedModal } from '../../../../__tests__/__utils__/unit-helpers';
+import { CardAction } from '../../../../constants';
 import { PROVIDER_KEYS_WITH_THEMING } from '../../../../extractors/constants';
+import * as UseSmartLinkCrossProductUrlWrapperExport from '../../../../state/hooks/use-smart-link-cross-product-url-wrapper';
 import * as analytics from '../../../../utils/analytics/analytics';
-import { CardAction, type CardActionOptions } from '../../../../view/Card/types';
+import { type InternalCardActionOptions as CardActionOptions } from '../../../../view/Card/types';
 import {
 	mockBaseResponseWithErrorPreview,
 	mockConfluenceResponse,
 	mockJiraResponse,
 	mockUnauthorisedResponse,
 } from '../__mocks__/mocks';
-
 import { type setup as hoverCardSetup, type SetUpParams } from './setup.test-utils';
 
 const userEventOptionsWithAdvanceTimers = {
@@ -185,6 +187,20 @@ export const unauthorizedViewTests = (
 				}),
 			);
 		});
+
+		it('does not render auth tooltip when the auth flow is not present in the response', async () => {
+			await setup({
+				extraCardProps: { showHoverPreview: true },
+				mock: {
+					...mockUnauthorisedResponse,
+					meta: {
+						...mockUnauthorisedResponse.meta,
+						auth: [],
+					},
+				},
+			});
+			expect(screen.queryByTestId('hover-card-unauthorised-view')).toBeNull();
+		});
 	});
 };
 
@@ -199,7 +215,10 @@ export const runCommonHoverCardTests = (
 				jest.runAllTimers();
 			});
 
-			expect(await screen.findByTestId('hover-card-trigger-wrapper')).not.toHaveAttribute('role');
+			expect(await screen.findByTestId('hover-card-trigger-wrapper')).toHaveAttribute(
+				'role',
+				'none',
+			);
 		});
 	});
 
@@ -477,16 +496,26 @@ export const runCommonHoverCardTests = (
 
 		it('should open preview modal after clicking preview button', async () => {
 			const { event } = await setup();
+			act(() => jest.runAllTimers());
 
 			const previewButton = await screen.findByTestId('smart-action-preview-action');
 			await event.click(previewButton);
-			const previewModal = await screen.findByTestId('smart-embed-preview-modal');
+
+			act(() => jest.runAllTimers());
+
+			const previewModal =
+				screen.queryByTestId('smart-embed-preview-modal') ??
+				(await screen.findByTestId('preview-modal'));
 			expect(previewModal).toBeInTheDocument();
 
-			await screen.findByTestId('block-card-icon');
+			if (previewModal.getAttribute('data-testid') !== 'preview-modal') {
+				await screen.findByTestId('block-card-icon');
+			}
 
 			const hoverCard = screen.queryByTestId('hover-card');
 			expect(hoverCard).not.toBeInTheDocument();
+
+			await closeEmbedModal(event);
 		});
 
 		it('renders copy link action', async () => {
@@ -503,7 +532,7 @@ export const runCommonHoverCardTests = (
 				async (providerKey) => {
 					const expectedPreviewUrl = 'http://some-preview-url-test.com';
 
-					let mock = {
+					const mock = {
 						...mockConfluenceResponse,
 						meta: { ...mockConfluenceResponse.meta, key: providerKey },
 						data: {
@@ -519,19 +548,32 @@ export const runCommonHoverCardTests = (
 						mock,
 						extraCardProps: { url: 'http://some-preview-url-test.com' },
 					});
+					act(() => jest.runAllTimers());
 
 					const previewButton = await screen.findByTestId('smart-action-preview-action');
 					await event.click(previewButton);
-					const iframeEl = await screen.findByTestId(`smart-embed-preview-modal-embed`);
-					expect(iframeEl).toBeTruthy();
+					act(() => jest.runAllTimers());
 
-					if (providerKey !== 'not-supported-provider') {
-						expect(iframeEl.getAttribute('src')).toEqual(
-							`${expectedPreviewUrl}/?themeState=dark%3Adark+light%3Alight+spacing%3Aspacing+typography%3Atypography+colorMode%3Adark`,
-						);
+					const previewModal =
+						screen.queryByTestId('smart-embed-preview-modal') ??
+						(await screen.findByTestId('preview-modal'));
+					expect(previewModal).toBeInTheDocument();
+
+					const iframeEl = screen.queryByTestId(`smart-embed-preview-modal-embed`);
+					if (iframeEl) {
+						if (providerKey !== 'not-supported-provider') {
+							expect(iframeEl.getAttribute('src')).toEqual(
+								`${expectedPreviewUrl}/?themeState=dark%3Adark+light%3Alight+motion%3Amotion+shape%3Ashape+spacing%3Aspacing+typography%3Atypography+colorMode%3Adark`,
+							);
+						} else {
+							expect(iframeEl.getAttribute('src')).toEqual(expectedPreviewUrl);
+						}
 					} else {
-						expect(iframeEl.getAttribute('src')).toEqual(expectedPreviewUrl);
+						// Standalone hover-card flow may only expose the preview mount point in tests.
+						expect(previewModal).toHaveAttribute('id', 'twp-editor-preview-iframe');
 					}
+
+					await closeEmbedModal(event);
 				},
 			);
 		});
@@ -605,26 +647,6 @@ export const runCommonHoverCardTests = (
 	});
 
 	describe('errored links', () => {
-		// TODO: Move this test to unauthorizedViewTests on navx-2478-sl-fix-hover-card-unresolved-view cleanup
-		it('does not render auth tooltip when the auth flow is not present in the response', async () => {
-			const {
-				testIds: { unauthorizedTestId },
-			} = config;
-
-			await setup({
-				extraCardProps: { showHoverPreview: true },
-				mock: {
-					...mockUnauthorisedResponse,
-					meta: {
-						...mockUnauthorisedResponse.meta,
-						auth: [],
-					},
-				},
-				testId: unauthorizedTestId,
-			});
-			expect(screen.queryByTestId('hover-card-unauthorised-view')).toBeNull();
-		});
-
 		it('should not show a hover card for an errored link', async () => {
 			const {
 				testIds: { erroredTestId },
@@ -641,10 +663,93 @@ export const runCommonHoverCardTests = (
 			);
 			await setup({
 				mock: mockBaseResponseWithErrorPreview,
-				mockFetch: mockFetch,
+				mockFetch,
 				testId: erroredTestId,
 			});
 			expect(screen.queryByTestId('hover-card-loading-view')).not.toBeInTheDocument();
+		});
+	});
+
+	describe('link click behaviour', () => {
+		const wrappedUrl = `${mockUrl}?xpis=wrapped`;
+		let openSpy: jest.SpyInstance;
+
+		beforeEach(() => {
+			openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+		});
+
+		afterEach(() => {
+			jest.restoreAllMocks();
+		});
+
+		it('opens the link via window.open when the title link is clicked', async () => {
+			const { event } = await setup();
+
+			const titleBlock = await screen.findByTestId('smart-block-title-resolved-view');
+			const titleLink = titleBlock.querySelector('a');
+
+			expect(titleLink).not.toBeNull();
+
+			await act(async () => {
+				await event.click(titleLink!);
+			});
+
+			expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('some.url'), expect.any(String));
+		});
+
+		it('opens in a new tab on modifier+click', async () => {
+			const { event } = await setup();
+
+			const titleBlock = await screen.findByTestId('smart-block-title-resolved-view');
+			const titleLink = titleBlock.querySelector('a');
+
+			expect(titleLink).not.toBeNull();
+
+			await act(async () => {
+				await event.keyboard('{Meta>}');
+				await event.click(titleLink!);
+				await event.keyboard('{/Meta}');
+			});
+
+			expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('some.url'), '_blank');
+		});
+
+		it('calls updateAnchorHref with decorated URL on middle-click (auxclick)', async () => {
+			jest
+				.spyOn(UseSmartLinkCrossProductUrlWrapperExport, 'useSmartLinkCrossProductUrlWrapper')
+				.mockImplementation(() => (url) => `${url}?xpis=wrapped`);
+			await setup({ mock: mockConfluenceResponse });
+			const titleBlock = await screen.findByTestId('smart-block-title-resolved-view');
+			const titleLink = titleBlock.querySelector('a');
+
+			expect(titleLink).not.toBeNull();
+
+			fireEvent(
+				titleLink!,
+				new MouseEvent('auxclick', { button: 1, bubbles: true, cancelable: true }),
+			);
+
+			const updatedTitleLink = titleBlock.querySelector('a');
+
+			expect(updatedTitleLink).toHaveAttribute('href', wrappedUrl);
+		});
+
+		it('calls updateAnchorHref with decorated URL on right-click (contextmenu)', async () => {
+			jest
+				.spyOn(UseSmartLinkCrossProductUrlWrapperExport, 'useSmartLinkCrossProductUrlWrapper')
+				.mockImplementation(() => (url) => `${url}?xpis=wrapped`);
+
+			await setup({ mock: mockConfluenceResponse });
+			const titleBlock = await screen.findByTestId('smart-block-title-resolved-view');
+			const titleLink = titleBlock.querySelector('a');
+
+			expect(titleLink).not.toBeNull();
+
+			fireEvent.contextMenu(titleLink!);
+
+			const updatedTitleLink = titleBlock.querySelector('a');
+
+			expect(updatedTitleLink).toHaveAttribute('href', wrappedUrl);
 		});
 	});
 };

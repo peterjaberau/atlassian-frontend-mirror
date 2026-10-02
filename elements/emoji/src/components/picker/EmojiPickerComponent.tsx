@@ -2,8 +2,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import {
 	type SyntheticEvent,
+	type MutableRefObject,
 	useCallback,
 	useEffect,
 	useMemo,
@@ -11,25 +13,29 @@ import {
 	useState,
 	createRef,
 	memo,
+	type MemoExoticComponent,
 } from 'react';
-import { css, cssMap, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { N40 } from '@atlaskit/theme/colors';
 import { unstable_batchedUpdates as batchedUpdates } from 'react-dom';
-import { FormattedMessage, type MessageDescriptor, useIntl } from 'react-intl-next';
-import { getEmojiVariation } from '../../api/EmojiRepository';
-import { type OnEmojiProviderChange, supportsUploadFeature } from '../../api/EmojiResource';
-import {
-	KeyboardKeys,
-	customCategory,
-	defaultEmojiPickerSize,
-	frequentCategory,
-} from '../../util/constants';
-import {
-	containsEmojiId,
-	isPromise /*, isEmojiIdEqual, isEmojiLoaded*/,
-	isEmojiDescription,
-} from '../../util/type-helpers';
+
+import { css, cssMap, jsx } from '@compiled/react';
+import { FormattedMessage, type MessageDescriptor, useIntl } from 'react-intl';
+
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import { getDocument } from '@atlaskit/browser-apis';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/adapter/drop-target-for-external';
+import { monitorForExternal } from '@atlaskit/pragmatic-drag-and-drop/adapter/monitor-for-external';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { containsFiles } from '@atlaskit/pragmatic-drag-and-drop/utils/contains-files';
+import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/utils/prevent-unhandled';
+import { token } from '@atlaskit/tokens';
+
+import type { OnEmojiProviderChange } from '../../api/EmojiResource';
+import { getEmojiVariation } from '../../api/getEmojiVariation';
+import { supportsUploadFeature } from '../../api/supportsUploadFeature';
+import { useEmoji } from '../../hooks/useEmoji';
+import { useIsMounted } from '../../hooks/useIsMounted';
 import {
 	type EmojiDescription,
 	type EmojiId,
@@ -44,9 +50,42 @@ import {
 	SearchSourceTypes,
 	type ToneSelection,
 } from '../../types';
-import { getToneEmoji } from '../../util/filters';
-import { uploadEmoji } from '../common/UploadEmoji';
+import { createAndFireEventInElementsChannel } from '../../util/analytics/analytics';
+import { categoryClickedEvent } from '../../util/analytics/categoryClickedEvent';
+import { closedPickerEvent } from '../../util/analytics/closedPickerEvent';
+import { deleteBeginEvent } from '../../util/analytics/deleteBeginEvent';
+import { deleteCancelEvent } from '../../util/analytics/deleteCancelEvent';
+import { deleteConfirmEvent } from '../../util/analytics/deleteConfirmEvent';
+import { openedPickerEvent } from '../../util/analytics/openedPickerEvent';
+import { pickerClickedEvent } from '../../util/analytics/pickerClickedEvent';
+import { pickerSearchedEvent } from '../../util/analytics/pickerSearchedEvent';
+import { selectedFileEvent } from '../../util/analytics/selectedFileEvent';
+import { toneSelectorClosedEvent } from '../../util/analytics/toneSelectorClosedEvent';
+import { ufoExperiences } from '../../util/analytics/ufoExperiences';
+import { uploadBeginButton } from '../../util/analytics/uploadBeginButton';
+import { uploadCancelButton } from '../../util/analytics/uploadCancelButton';
+import { uploadConfirmButton } from '../../util/analytics/uploadConfirmButton';
+import {
+	KeyboardKeys,
+	customCategory,
+	defaultEmojiPickerSize,
+	frequentCategory,
+} from '../../util/constants';
+import { containsEmojiId } from '../../util/contains-emoji-id';
+import { filterHiddenEmojis } from '../../util/filter-hidden-emojis';
+import { getToneEmoji } from '../../util/get-tone-emoji';
+import { isEmojiDescription } from '../../util/is-emoji-description';
+import { isPromise } from '../../util/is-promise';
+import {
+	defaultProductivityColor,
+	getStoredProductivityColor,
+	storeProductivityColor,
+	type ProductivityColor,
+} from '../../util/productivity-colors';
+import { isRefreshEmojiPickerEnabled } from '../common/isRefreshEmojiPickerEnabled';
 import { createRecordSelectionDefault } from '../common/RecordSelectionDefault';
+import { uploadEmoji } from '../common/UploadEmoji';
+import { messages } from '../i18n';
 import type { CategoryId } from './categories';
 import CategorySelector from './CategorySelector';
 import EmojiPickerFooter from './EmojiPickerFooter';
@@ -54,31 +93,13 @@ import {
 	EmojiPickerVirtualListInternal as EmojiPickerList,
 	type PickerListRef,
 } from './EmojiPickerList';
-import type { AnalyticsEventPayload, CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
-import {
-	createAndFireEventInElementsChannel,
-	categoryClickedEvent,
-	closedPickerEvent,
-	deleteBeginEvent,
-	deleteCancelEvent,
-	deleteConfirmEvent,
-	openedPickerEvent,
-	pickerClickedEvent,
-	pickerSearchedEvent,
-	selectedFileEvent,
-	uploadBeginButton,
-	uploadCancelButton,
-	uploadConfirmButton,
-	toneSelectorClosedEvent,
-	ufoExperiences,
-} from '../../util/analytics';
-import { useEmoji } from '../../hooks/useEmoji';
-import { useIsMounted } from '../../hooks/useIsMounted';
-import { messages } from '../i18n';
 
-const emojiPickerBoxShadow = token('elevation.shadow.overlay', '0 3px 6px rgba(0, 0, 0, 0.2)');
+const emojiPickerBoxShadow = token('elevation.shadow.overlay');
 const emojiPickerHeight = 295;
 const emojiPickerHeightWithPreview = 349; // emojiPickerHeight + emojiPickerPreviewHeight;
+const emojiPickerHeightWithPreviewNew = 310;
+const emojiPickerHeightWithPreviewAndPreviewErrorNew = 335;
+const emojiPickerHeightDeleteRefresh = 339;
 const emojiPickerWidth = 350;
 const emojiPickerMinHeight = 260;
 const heightOffset = 80;
@@ -87,14 +108,56 @@ const emojiPicker = css({
 	display: 'flex',
 	flexDirection: 'column',
 	justifyContent: 'space-between',
-	backgroundColor: token('elevation.surface.overlay', 'white'),
-	border: `${token('color.border', N40)} ${token('border.width')} solid`,
+	backgroundColor: token('elevation.surface.overlay'),
+	border: `${token('color.border')} ${token('border.width')} solid`,
 	borderRadius: token('radius.small', '3px'),
 	boxShadow: emojiPickerBoxShadow,
 	height: `${emojiPickerHeight}px`,
 	width: `${emojiPickerWidth}px`,
 	minWidth: `${emojiPickerWidth}px`,
 	maxHeight: 'calc(80vh - 86px)', // ensure showing full picker in small device: mobile header is 40px (Jira) - 56px(Confluence and Atlas), reaction picker height is 24px with margin 6px,
+	position: 'relative',
+});
+
+const emojiPickerNew = css({
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'space-between',
+	backgroundColor: token('elevation.surface.overlay'),
+	border: `${token('color.border')} ${token('border.width')} solid`,
+	borderRadius: token('radius.large', '8px'),
+	boxShadow: emojiPickerBoxShadow,
+	height: `${emojiPickerHeight}px`,
+	width: `${emojiPickerWidth}px`,
+	minWidth: `${emojiPickerWidth}px`,
+	maxHeight: 'calc(80vh - 86px)',
+	position: 'relative',
+});
+
+const emojiPickerWrapper = css({
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'space-between',
+	flex: 1,
+	minHeight: 0,
+	overflow: 'hidden',
+});
+
+// When the "Create an emoji with Rovo" section is shown in the upload panel the
+// picker needs more vertical room than the fixed upload height. Make it tall
+// enough to fit the whole section without scrolling, but still let it scroll as
+// a safety net on very short viewports.
+const emojiPickerWrapperScrollable = css({
+	overflowX: 'hidden',
+	overflowY: 'auto',
+});
+
+// When the AI emoji experiment is on, grow the upload panel from its default
+// height to 450px so the manual upload form + the slim "Create an emoji with
+// Rovo" section are both visible without scrolling.
+const withAiUploadHeight = css({
+	height: '450px',
+	maxHeight: 'calc(100vh - 86px)',
 });
 
 const withPreviewHeight = cssMap({
@@ -108,6 +171,51 @@ const withPreviewHeight = cssMap({
 	},
 	large: {
 		height: `${emojiPickerHeightWithPreview + heightOffset * 2}px`,
+		minHeight: `${emojiPickerMinHeight + heightOffset * 2}px`,
+	},
+});
+
+const withUploadRefreshHeight = cssMap({
+	small: {
+		height: `${emojiPickerHeightWithPreviewNew}px`,
+		minHeight: `${emojiPickerMinHeight}px`,
+	},
+	medium: {
+		height: `${emojiPickerHeightWithPreviewNew + heightOffset}px`,
+		minHeight: `${emojiPickerMinHeight + heightOffset}px`,
+	},
+	large: {
+		height: `${emojiPickerHeightWithPreviewNew + heightOffset * 2}px`,
+		minHeight: `${emojiPickerMinHeight + heightOffset * 2}px`,
+	},
+});
+
+const withUploadRefreshAndPreviewErrorHeight = cssMap({
+	small: {
+		height: `${emojiPickerHeightWithPreviewAndPreviewErrorNew}px`,
+		minHeight: `${emojiPickerMinHeight}px`,
+	},
+	medium: {
+		height: `${emojiPickerHeightWithPreviewAndPreviewErrorNew + heightOffset}px`,
+		minHeight: `${emojiPickerMinHeight + heightOffset}px`,
+	},
+	large: {
+		height: `${emojiPickerHeightWithPreviewAndPreviewErrorNew + heightOffset * 2}px`,
+		minHeight: `${emojiPickerMinHeight + heightOffset * 2}px`,
+	},
+});
+
+const withDeleteRefreshHeight = cssMap({
+	small: {
+		height: `${emojiPickerHeightDeleteRefresh}px`,
+		minHeight: `${emojiPickerMinHeight}px`,
+	},
+	medium: {
+		height: `${emojiPickerHeightDeleteRefresh + heightOffset}px`,
+		minHeight: `${emojiPickerMinHeight + heightOffset}px`,
+	},
+	large: {
+		height: `${emojiPickerHeightDeleteRefresh + heightOffset * 2}px`,
 		minHeight: `${emojiPickerMinHeight + heightOffset * 2}px`,
 	},
 });
@@ -127,6 +235,22 @@ const withoutPreviewHeight = cssMap({
 	},
 });
 
+const emojiPickerHeightNoResults = 354;
+const withNoResultsRefreshHeight = cssMap({
+	small: {
+		height: `${emojiPickerHeightNoResults}px`,
+		minHeight: `${emojiPickerMinHeight}px`,
+	},
+	medium: {
+		height: `${emojiPickerHeightNoResults + heightOffset}px`,
+		minHeight: `${emojiPickerMinHeight + heightOffset}px`,
+	},
+	large: {
+		height: `${emojiPickerHeightNoResults + heightOffset * 2}px`,
+		minHeight: `${emojiPickerMinHeight + heightOffset * 2}px`,
+	},
+});
+
 const FREQUENTLY_USED_MAX = 16;
 
 export interface PickerRefHandler {
@@ -134,6 +258,12 @@ export interface PickerRefHandler {
 }
 
 export interface Props {
+	/**
+	 * The current Confluence page content id. When provided (and the
+	 * `confluence_ai_generated_emojis` experiment is on), enables the
+	 * "Create an emoji with Rovo" AI generation section in the upload flow.
+	 */
+	contentId?: string;
 	createAnalyticsEvent?: CreateUIAnalyticsEvent;
 	/**
 	 * Flag to disable tone selector.
@@ -155,10 +285,12 @@ const EmojiPickerComponent = ({
 	onPickerRef,
 	hideToneSelector,
 	createAnalyticsEvent,
+	contentId,
 	size = defaultEmojiPickerSize,
-}: Props) => {
+}: Props): JSX.Element => {
 	const { formatMessage } = useIntl();
 	const { emojiProvider, isUploadSupported } = useEmoji();
+	const isTeamojiExperimentEnabled = isRefreshEmojiPickerEnabled();
 	const [filteredEmojis, setFilteredEmojis] = useState<EmojiDescription[]>([]);
 	const [searchEmojis, setSearchEmojis] = useState<EmojiDescription[]>([]);
 	const [frequentlyUsedEmojis, setFrequentlyUsedEmojis] = useState<EmojiDescription[]>([]);
@@ -167,19 +299,35 @@ const EmojiPickerComponent = ({
 	const [selectedTone, setSelectedTone] = useState(
 		!hideToneSelector ? emojiProvider.getSelectedTone() : undefined,
 	);
+	const [selectedProductivityColor, setSelectedProductivityColor] = useState<ProductivityColor>(
+		() => (isTeamojiExperimentEnabled ? getStoredProductivityColor() : defaultProductivityColor),
+	);
 	const [loading, setLoading] = useState(true);
 	const [uploading, setUploading] = useState(false);
 	const [selectedEmoji, setSelectedEmoji] = useState<EmojiDescription | undefined>();
 	const [activeCategory, setActiveCategory] = useState<CategoryId | null>(null);
 	const [disableCategories, setDisableCategories] = useState(false);
 	const [uploadErrorMessage, setUploadErrorMessage] = useState<MessageDescriptor | undefined>();
+	const [hasUploadPreviewError, setHasUploadPreviewError] = useState(false);
 	const [emojiToDelete, setEmojiToDelete] = useState<EmojiDescription | undefined>();
 	const [toneEmoji, setToneEmoji] = useState<OptionalEmojiDescriptionWithVariations | undefined>();
 
 	const emojiPickerList = useMemo(() => createRef<PickerListRef>(), []);
 	const openTime = useRef(0);
 	const isMounting = useRef(true);
+	const lastNonSearchCategory = useRef<CategoryId | null>(activeCategory);
 	const previousEmojiProvider = useRef(emojiProvider);
+	const isProgrammaticScroll = useRef(false);
+	const pickerRef = useRef<HTMLDivElement>(null);
+	const setPickerRef = useCallback(
+		(el: HTMLDivElement | null) => {
+			if (isTeamojiExperimentEnabled) {
+				(pickerRef as MutableRefObject<HTMLDivElement | null>).current = el;
+			}
+			onPickerRef?.(el);
+		},
+		[isTeamojiExperimentEnabled, onPickerRef],
+	);
 	const currentUser = useMemo(() => {
 		return emojiProvider.getCurrentUser();
 	}, [emojiProvider]);
@@ -203,13 +351,33 @@ const EmojiPickerComponent = ({
 		[selectedEmoji],
 	);
 
+	const uploadEnabled = isUploadSupported && !uploading;
+	const onEmojiLeave = useCallback(() => {
+		if (isRefreshEmojiPickerEnabled() && uploadEnabled) {
+			setSelectedEmoji(undefined);
+		}
+	}, [uploadEnabled]);
+
 	const onCategoryActivated = useCallback(
 		(category: CategoryId | null) => {
+			// Ignore scroll-driven category changes while a programmatic reveal()
+			// scroll is in progress — they would flicker the indicator through
+			// intermediate categories before landing on the correct one.
+			if (isProgrammaticScroll.current && isRefreshEmojiPickerEnabled()) {
+				return;
+			}
+			// Ignore scroll-driven category changes while the upload or delete screen is open
+			if ((uploading || emojiToDelete) && isRefreshEmojiPickerEnabled()) {
+				return;
+			}
 			if (activeCategory !== category) {
 				setActiveCategory(category);
+				if (!query && isRefreshEmojiPickerEnabled()) {
+					lastNonSearchCategory.current = category;
+				}
 			}
 		},
-		[activeCategory],
+		[activeCategory, uploading, emojiToDelete, query],
 	);
 
 	const calculateElapsedTime = () => {
@@ -226,6 +394,11 @@ const EmojiPickerComponent = ({
 			setUploadErrorMessage(undefined);
 		});
 		fireAnalytics(uploadCancelButton());
+		if (isRefreshEmojiPickerEnabled()) {
+			setTimeout(() => {
+				getDocument()?.getElementById('add-custom-emoji')?.focus();
+			}, 0);
+		}
 	}, [fireAnalytics]);
 
 	const getDynamicCategories = useCallback((): Promise<CategoryId[]> => {
@@ -288,7 +461,10 @@ const EmojiPickerComponent = ({
 	const onFrequentEmojiResult = useCallback(
 		(frequentEmoji: EmojiDescription[]): void => {
 			// change the category of each of the featured emoji
-			const recategorised = frequentEmoji.map((emoji) => {
+			const visibleFrequentEmoji = isTeamojiExperimentEnabled
+				? filterHiddenEmojis(frequentEmoji)
+				: frequentEmoji;
+			const recategorised = visibleFrequentEmoji.map((emoji) => {
 				const clone = JSON.parse(JSON.stringify(emoji));
 				clone.category = frequentCategory;
 				return clone;
@@ -298,13 +474,16 @@ const EmojiPickerComponent = ({
 				frequentEmoji: recategorised,
 			});
 		},
-		[setStateAfterEmojiChange],
+		[isTeamojiExperimentEnabled, setStateAfterEmojiChange],
 	);
 
 	const onSearchResult = useCallback(
 		(searchResults: EmojiSearchResult): void => {
 			const frequentlyUsedEmoji = frequentlyUsedEmojis || [];
 			const searchQuery = searchResults.query || '';
+			const visibleSearchEmojis = isTeamojiExperimentEnabled
+				? filterHiddenEmojis(searchResults.emojis)
+				: searchResults.emojis;
 
 			/**
 			 * If there is no user search in the EmojiPicker then it should display all emoji received from the EmojiRepository and should
@@ -313,25 +492,31 @@ const EmojiPickerComponent = ({
 			 */
 			let emojiToRender: EmojiDescription[];
 			if (!frequentlyUsedEmoji.length || query) {
-				emojiToRender = searchResults.emojis;
+				emojiToRender = visibleSearchEmojis;
 			} else {
-				emojiToRender = [...searchResults.emojis, ...frequentlyUsedEmoji];
+				emojiToRender = [...visibleSearchEmojis, ...frequentlyUsedEmoji];
 			}
 
 			setStateAfterEmojiChange({
 				searchQuery,
 				emojiToRender,
-				searchEmoji: searchResults.emojis,
+				searchEmoji: visibleSearchEmojis,
 			});
 
 			fireAnalytics(
 				pickerSearchedEvent({
 					queryLength: searchQuery.length,
-					numMatches: searchResults.emojis.length,
+					numMatches: visibleSearchEmojis.length,
 				}),
 			);
 		},
-		[frequentlyUsedEmojis, query, setStateAfterEmojiChange, fireAnalytics],
+		[
+			frequentlyUsedEmojis,
+			isTeamojiExperimentEnabled,
+			query,
+			setStateAfterEmojiChange,
+			fireAnalytics,
+		],
 	);
 
 	const onProviderChange: OnEmojiProviderChange = useMemo(() => {
@@ -385,6 +570,11 @@ const EmojiPickerComponent = ({
 		fireAnalytics(toneSelectorClosedEvent());
 	}, [fireAnalytics]);
 
+	const onProductivityColorSelected = useCallback((color: ProductivityColor) => {
+		setSelectedProductivityColor(color);
+		storeProductivityColor(color);
+	}, []);
+
 	const onSelectWrapper = useCallback(
 		(emojiId: EmojiId, emoji: OptionalEmojiDescription, event?: SyntheticEvent<any>): void => {
 			if (onSelection) {
@@ -409,17 +599,40 @@ const EmojiPickerComponent = ({
 				return;
 			}
 
+			// If the upload or delete screen is open, close it when a category is selected
+			if (isRefreshEmojiPickerEnabled()) {
+				if (uploading) {
+					setUploading(false);
+					setUploadErrorMessage(undefined);
+				}
+				if (emojiToDelete) {
+					setEmojiToDelete(undefined);
+				}
+			}
+
 			emojiProvider.findInCategory(categoryId).then((emojisInCategory) => {
 				if (!disableCategories) {
 					let newSelectedEmoji: EmojiDescription | undefined;
-					if (emojisInCategory && emojisInCategory.length > 0) {
-						newSelectedEmoji = getEmojiVariation(emojisInCategory[0], {
+					const visibleEmojisInCategory = isTeamojiExperimentEnabled
+						? filterHiddenEmojis(emojisInCategory || [])
+						: emojisInCategory || [];
+					if (visibleEmojisInCategory.length > 0) {
+						newSelectedEmoji = getEmojiVariation(visibleEmojisInCategory[0], {
 							skinTone: selectedTone,
 						});
 					}
 
 					if (emojiPickerList.current) {
-						emojiPickerList.current.reveal(categoryId);
+						if (isTeamojiExperimentEnabled) {
+							isProgrammaticScroll.current = true;
+						}
+						emojiPickerList.current.reveal(categoryId, isTeamojiExperimentEnabled);
+						if (isTeamojiExperimentEnabled) {
+							// Clear the flag after the scroll animation has settled.
+							setTimeout(() => {
+								isProgrammaticScroll.current = false;
+							}, 300);
+						}
 					}
 
 					batchedUpdates(() => {
@@ -430,7 +643,16 @@ const EmojiPickerComponent = ({
 				}
 			});
 		},
-		[disableCategories, emojiPickerList, emojiProvider, fireAnalytics, selectedTone],
+		[
+			disableCategories,
+			emojiPickerList,
+			emojiProvider,
+			fireAnalytics,
+			isTeamojiExperimentEnabled,
+			selectedTone,
+			uploading,
+			emojiToDelete,
+		],
 	);
 
 	const recordUsageOnSelection = useMemo(
@@ -461,6 +683,10 @@ const EmojiPickerComponent = ({
 				source: SearchSourceTypes.PICKER,
 			};
 			if (searchQuery !== query) {
+				// Capture the active category before entering search so we can keep it highlighted
+				if (!query && searchQuery && isRefreshEmojiPickerEnabled()) {
+					lastNonSearchCategory.current = activeCategory;
+				}
 				setQuery(searchQuery);
 			}
 
@@ -471,8 +697,42 @@ const EmojiPickerComponent = ({
 				scrollToTopOfList();
 			}
 		},
-		[query, filteredEmojis, selectedTone, updateEmojis, scrollToTopOfList],
+		[activeCategory, query, filteredEmojis, selectedTone, updateEmojis, scrollToTopOfList],
 	);
+
+	// When the upload screen is open, intercept any file drag at the window level so it
+	// cannot reach underlying page drop handlers (e.g. the Confluence editor).
+	useEffect(() => {
+		if (!uploading || !isRefreshEmojiPickerEnabled()) {
+			return;
+		}
+
+		const body = getDocument()?.body;
+		if (!body) {
+			return;
+		}
+
+		// Register a full-page drop target on document.body and a monitor using
+		// pragmatic-drag-and-drop so that file drops are intercepted before reaching
+		// any underlying native DOM handlers (e.g. the Confluence editor).
+		// The FileChooser's own drop target (registered on pickerRef) takes priority
+		// over the body target for drops inside the picker.
+		const cleanup = combine(
+			dropTargetForExternal({
+				element: body,
+				canDrop: containsFiles,
+			}),
+			monitorForExternal({
+				onDragStart: () => preventUnhandled.start(),
+				onDrop: () => preventUnhandled.stop(),
+			}),
+		);
+
+		return () => {
+			preventUnhandled.stop();
+			cleanup();
+		};
+	}, [uploading]);
 
 	const onOpenUpload = useCallback(() => {
 		// Prime upload token so it's ready when the user adds
@@ -481,6 +741,7 @@ const EmojiPickerComponent = ({
 		}
 		batchedUpdates(() => {
 			setUploadErrorMessage(undefined);
+			setHasUploadPreviewError(false);
 			setUploading(true);
 		});
 		fireAnalytics(uploadBeginButton());
@@ -491,7 +752,7 @@ const EmojiPickerComponent = ({
 			if (emojiPickerList.current) {
 				// Wait a tick to ensure repaint and updated height for picker list
 				window.setTimeout(() => {
-					emojiPickerList.current?.scrollToRecentlyUploaded(emojiDescription);
+					emojiPickerList.current?.scrollToRecentlyUploaded(emojiDescription, false);
 				}, 0);
 			}
 		},
@@ -499,7 +760,7 @@ const EmojiPickerComponent = ({
 	);
 
 	const onUploadEmoji = useCallback(
-		(upload: EmojiUpload, retry: boolean) => {
+		async (upload: EmojiUpload, retry: boolean) => {
 			fireAnalytics(uploadConfirmButton({ retry }));
 			const errorSetter = (message?: MessageDescriptor) => {
 				setUploadErrorMessage(message);
@@ -512,6 +773,16 @@ const EmojiPickerComponent = ({
 				});
 				scrollToUploadedEmoji(emojiDescription);
 			};
+
+			if (isRefreshEmojiPickerEnabled()) {
+				const uploadShortName = `:${upload.name.toLowerCase()}:`;
+				const existing = await emojiProvider.findByShortName(uploadShortName);
+				if (existing) {
+					errorSetter(messages.emojiDuplicateName);
+					return;
+				}
+			}
+
 			uploadEmoji(upload, emojiProvider, errorSetter, onSuccess, fireAnalytics, retry);
 		},
 		[emojiProvider, fireAnalytics, scrollToUploadedEmoji],
@@ -643,63 +914,117 @@ const EmojiPickerComponent = ({
 		};
 	}, [emojiProvider, onProviderChange]);
 
-	const showPreview = selectedEmoji && !uploading;
+	const showPreview = isRefreshEmojiPickerEnabled() ? !uploading : selectedEmoji && !uploading;
+	const shouldRenderFooter =
+		showPreview &&
+		!(emojiToDelete && isRefreshEmojiPickerEnabled()) &&
+		!(query && filteredEmojis.length === 0 && isRefreshEmojiPickerEnabled()) &&
+		(Boolean(selectedEmoji) || uploadEnabled || !isRefreshEmojiPickerEnabled());
+	const useFooterSpaceForList =
+		showPreview &&
+		!selectedEmoji &&
+		!uploadEnabled &&
+		!emojiToDelete &&
+		!(query && filteredEmojis.length === 0) &&
+		isRefreshEmojiPickerEnabled();
+
+	// When the AI emoji section is shown in the upload panel, grow the picker so
+	// the section isn't clipped by the fixed upload height.
+	const showAiUpload =
+		uploading && !!contentId && isExperimentEnabled('confluence_ai_generated_emojis');
 
 	return (
-		// eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-interactions
 		<div
 			css={[
-				emojiPicker,
-				showPreview && withPreviewHeight[size],
-				!showPreview && withoutPreviewHeight[size],
+				isRefreshEmojiPickerEnabled() ? emojiPickerNew : emojiPicker,
+				!!emojiToDelete && isRefreshEmojiPickerEnabled()
+					? withDeleteRefreshHeight[size]
+					: uploading && isRefreshEmojiPickerEnabled()
+						? hasUploadPreviewError
+							? withUploadRefreshAndPreviewErrorHeight[size]
+							: withUploadRefreshHeight[size]
+						: query && filteredEmojis.length === 0 && isRefreshEmojiPickerEnabled()
+							? withNoResultsRefreshHeight[size]
+							: showPreview
+								? withPreviewHeight[size]
+								: withoutPreviewHeight[size],
+				// Override the fixed upload height when the AI section is present.
+				showAiUpload && withAiUploadHeight,
 			]}
-			ref={onPickerRef}
+			ref={setPickerRef}
 			data-emoji-picker-container
 			role="dialog"
 			aria-label={formatMessage(messages.emojiPickerTitle)}
 			aria-modal={true}
-			onKeyPress={suppressKeyPress}
-			onKeyUp={suppressKeyPress}
-			onKeyDown={suppressKeyPress}
 		>
-			<CategorySelector
-				activeCategoryId={activeCategory}
-				dynamicCategories={dynamicCategories}
-				disableCategories={disableCategories}
-				onCategorySelected={onCategorySelected}
-			/>
-			<EmojiPickerList
-				emojis={filteredEmojis}
-				currentUser={currentUser}
-				onEmojiSelected={recordUsageOnSelection}
-				onEmojiActive={onEmojiActive}
-				onEmojiDelete={onTriggerDelete}
-				onCategoryActivated={onCategoryActivated}
-				onSearch={onSearch}
-				query={query}
-				selectedTone={selectedTone}
-				loading={loading}
-				ref={emojiPickerList}
-				initialUploadName={query}
-				onToneSelected={onToneSelected}
-				onToneSelectorCancelled={onToneSelectorCancelled}
-				toneEmoji={toneEmoji}
-				uploading={uploading}
-				emojiToDelete={emojiToDelete}
-				uploadErrorMessage={formattedErrorMessage}
-				uploadEnabled={isUploadSupported && !uploading}
-				onUploadEmoji={onUploadEmoji}
-				onUploadCancelled={onUploadCancelled}
-				onDeleteEmoji={onDeleteEmoji}
-				onCloseDelete={onCloseDelete}
-				onFileChooserClicked={onFileChooserClicked}
-				onOpenUpload={onOpenUpload}
-				size={size}
-				activeCategoryId={activeCategory}
-			/>
-			{showPreview && <EmojiPickerFooter selectedEmoji={selectedEmoji} />}
+			<div
+				role="presentation"
+				onKeyPress={suppressKeyPress}
+				onKeyUp={suppressKeyPress}
+				onKeyDown={suppressKeyPress}
+				css={[emojiPickerWrapper, showAiUpload && emojiPickerWrapperScrollable]}
+			>
+				<CategorySelector
+					activeCategoryId={
+						(uploading || emojiToDelete) && isRefreshEmojiPickerEnabled() ? null : activeCategory
+					}
+					dynamicCategories={dynamicCategories}
+					disableCategories={disableCategories}
+					onCategorySelected={onCategorySelected}
+				/>
+				<EmojiPickerList
+					emojis={filteredEmojis}
+					currentUser={currentUser}
+					onEmojiSelected={recordUsageOnSelection}
+					onEmojiActive={onEmojiActive}
+					onEmojiLeave={onEmojiLeave}
+					onEmojiDelete={onTriggerDelete}
+					onCategoryActivated={onCategoryActivated}
+					onSearch={onSearch}
+					query={query}
+					selectedTone={selectedTone}
+					selectedProductivityColor={
+						isTeamojiExperimentEnabled ? selectedProductivityColor : undefined
+					}
+					loading={loading}
+					ref={emojiPickerList}
+					initialUploadName={query}
+					onToneSelected={onToneSelected}
+					onToneSelectorCancelled={onToneSelectorCancelled}
+					onProductivityColorSelected={
+						isTeamojiExperimentEnabled ? onProductivityColorSelected : undefined
+					}
+					toneEmoji={toneEmoji}
+					uploading={uploading}
+					emojiToDelete={emojiToDelete}
+					uploadErrorMessage={formattedErrorMessage}
+					uploadEnabled={uploadEnabled}
+					onUploadEmoji={onUploadEmoji}
+					onUploadCancelled={onUploadCancelled}
+					onUploadPreviewErrorChange={setHasUploadPreviewError}
+					onDeleteEmoji={onDeleteEmoji}
+					onCloseDelete={onCloseDelete}
+					onFileChooserClicked={onFileChooserClicked}
+					onOpenUpload={onOpenUpload}
+					size={size}
+					activeCategoryId={activeCategory}
+					useFooterSpaceForList={useFooterSpaceForList}
+					contentId={contentId}
+					fireAnalytics={fireAnalytics}
+				/>
+				{shouldRenderFooter && (
+					<EmojiPickerFooter
+						selectedEmoji={selectedEmoji}
+						uploadEnabled={uploadEnabled}
+						onOpenUpload={onOpenUpload}
+					/>
+				)}
+			</div>
 		</div>
 	);
 };
 
-export default memo(EmojiPickerComponent);
+const _default_1: MemoExoticComponent<
+	({ onSelection, onPickerRef, hideToneSelector, createAnalyticsEvent, size }: Props) => JSX.Element
+> = memo(EmojiPickerComponent);
+export default _default_1;

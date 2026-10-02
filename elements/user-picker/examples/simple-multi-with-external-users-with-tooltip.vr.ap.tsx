@@ -1,0 +1,24 @@
+import React from 'react';
+
+import { exampleOptions } from '../example-helpers';
+import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
+import { isExternalUser } from '../src/components/isExternalUser';
+import { UserPicker } from '../src/components/UserPicker';
+
+const Example = (): React.JSX.Element => {
+	return (
+		<ExampleWrapper>
+			{({ onInputChange }) => (
+				<UserPicker
+					fieldId="example"
+					options={exampleOptions.filter((o) => isExternalUser(o)).slice(0, 1)}
+					onChange={console.log}
+					onInputChange={onInputChange}
+					isMulti
+					autoFocus
+				/>
+			)}
+		</ExampleWrapper>
+	);
+};
+export default Example;

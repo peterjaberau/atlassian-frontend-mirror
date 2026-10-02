@@ -1,15 +1,16 @@
-import type { DocNode } from '@atlaskit/adf-schema';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { processRawValue } from '@atlaskit/editor-common/process-raw-value';
-import { browser, ZERO_WIDTH_SPACE } from '@atlaskit/editor-common/utils';
+import { ZERO_WIDTH_SPACE } from '@atlaskit/editor-common/utils';
 import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
 
 import { cycleThroughPlaceholderPrompts } from './animation';
 import { placeholderTestId } from './constants';
+import type { PlaceholderPromptAnimationOptions } from './types';
 
 export function createPlaceholderDecoration(
 	editorState: EditorState,
@@ -20,12 +21,14 @@ export function createPlaceholderDecoration(
 	initialDelayWhenUserTypedAndDeleted: number = 0,
 	placeholderADF?: DocNode,
 	showOnEmptyParagraph?: boolean,
+	placeholderPromptAnimationOptions?: PlaceholderPromptAnimationOptions,
 ): DecorationSet {
+	const browser = getBrowserInfo();
 	const placeholderDecoration = document.createElement('span');
 	let placeholderNodeWithText = placeholderDecoration;
 
 	placeholderDecoration.setAttribute('data-testid', placeholderTestId);
-	const shouldFadeIn = showOnEmptyParagraph && fg('platform_editor_ai_aifc_patch_ga_blockers');
+	const shouldFadeIn = showOnEmptyParagraph;
 	placeholderDecoration.className = shouldFadeIn
 		? 'placeholder-decoration placeholder-decoration-fade-in'
 		: 'placeholder-decoration';
@@ -88,6 +91,7 @@ export function createPlaceholderDecoration(
 			activeTypewriterTimeouts,
 			placeholderNodeWithText,
 			initialDelayWhenUserTypedAndDeleted,
+			placeholderPromptAnimationOptions,
 		);
 	}
 
@@ -110,7 +114,7 @@ export function createPlaceholderDecoration(
 		placeholderDecoration.classList.add('placeholder-decoration-hide-overflow');
 	}
 
-	if (placeholderADF && browser.chrome && fg('platform_editor_ai_aifc_adf_placeholder')) {
+	if (placeholderADF && browser.chrome) {
 		const fragment = document.createDocumentFragment();
 		// An issue occurs with the caret where it gets bigger when it's next to a non-editable element like a decoration.
 		// See: https://discuss.prosemirror.net/t/chrome-caret-cursor-larger-than-the-text-with-inlined-items/5946/2

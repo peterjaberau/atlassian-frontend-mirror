@@ -1,17 +1,27 @@
 import { type CardProviderProps } from '../types';
 
-jest.mock('@atlaskit/link-extractors', () => ({
-	...jest.requireActual<Object>('@atlaskit/link-extractors'),
+jest.mock('@atlaskit/link-extractors/extract-preview', () => ({
+	...jest.requireActual('@atlaskit/link-extractors/extract-preview'),
 	extractPreview: () => 'some-link-preview',
+}));
+jest.mock('@atlaskit/link-extractors/extract-smart-link-embed', () => ({
+	...jest.requireActual('@atlaskit/link-extractors/extract-smart-link-embed'),
 	extractSmartLinkEmbed: () => 'some-live-embed-url',
 }));
 
 import React from 'react';
-import { render } from '@testing-library/react';
+
+import { act, render } from '@testing-library/react';
+
+import { APIError } from '@atlaskit/linking-common/api-error';
+import type { CardStore } from '@atlaskit/linking-common/store';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
 import { SmartCardContext as Context } from '..';
+import type { CardContext } from '..';
 import CardClient from '../../../client';
-import { SmartCardProvider, type CardContext } from '..';
-import { type CardStore } from '@atlaskit/linking-common';
+import { SMART_CARD_EXTERNAL_AUTH_EVENT } from '../../../smart-card-external-auth-event';
+import { SmartCardProvider } from '../../../smart-card-provider';
 
 describe('Provider', () => {
 	it('should setup provider with default options', () => {
@@ -23,7 +33,7 @@ describe('Provider', () => {
 			</SmartCardProvider>,
 		);
 
-		expect(fn).toBeCalledWith(
+		expect(fn).toHaveBeenCalledWith(
 			expect.objectContaining({
 				config: {
 					authFlow: 'oauth2',
@@ -43,7 +53,7 @@ describe('Provider', () => {
 				<Context.Consumer>{fn}</Context.Consumer>
 			</SmartCardProvider>,
 		);
-		expect(fn).toBeCalledWith(
+		expect(fn).toHaveBeenCalledWith(
 			expect.objectContaining({
 				config: {
 					authFlow: 'oauth2',
@@ -65,7 +75,7 @@ describe('Provider', () => {
 				</SmartCardProvider>
 			</SmartCardProvider>,
 		);
-		expect(fn).toBeCalledWith(
+		expect(fn).toHaveBeenCalledWith(
 			expect.objectContaining({
 				config: {
 					authFlow: 'oauth2',
@@ -75,6 +85,45 @@ describe('Provider', () => {
 				},
 			}),
 		);
+	});
+
+	it.each([true, false])(
+		'gates callback inheritance, changes, and removal (enabled=%s)',
+		(enabled) => {
+			if (enabled) passGate('confluence_ep_shim_macro_links_v2');
+			else failGate('confluence_ep_shim_macro_links_v2');
+			const inspect = jest.fn((_context?: CardContext) => null);
+			const first = (url: string) => ({ url });
+			const second = (url: string) => ({ url: `${url}/updated` });
+			const renderProviders = (linkNavigation?: CardProviderProps['linkNavigation']) => (
+				<SmartCardProvider linkNavigation={linkNavigation}>
+					<SmartCardProvider linkNavigation={undefined}>
+						<Context.Consumer>{inspect}</Context.Consumer>
+					</SmartCardProvider>
+				</SmartCardProvider>
+			);
+			const { rerender } = render(renderProviders(first));
+			for (const callback of [first, second, undefined]) {
+				rerender(renderProviders(callback));
+				const context = inspect.mock.calls.at(-1)?.[0];
+				expect(context?.linkNavigation).toBe(enabled ? callback : undefined);
+				if (!enabled) expect(context).not.toHaveProperty('linkNavigation');
+			}
+		},
+	);
+
+	it('lets a child override the parent callback', () => {
+		passGate('confluence_ep_shim_macro_links_v2');
+		const inspect = jest.fn(() => null);
+		const child = (url: string) => ({ url });
+		render(
+			<SmartCardProvider linkNavigation={() => ({ url: 'parent' })}>
+				<SmartCardProvider linkNavigation={child}>
+					<Context.Consumer>{inspect}</Context.Consumer>
+				</SmartCardProvider>
+			</SmartCardProvider>,
+		);
+		expect(inspect).toHaveBeenCalledWith(expect.objectContaining({ linkNavigation: child }));
 	});
 
 	it('should expose extractors to consumers', () => {
@@ -129,7 +178,7 @@ describe('Provider', () => {
 			</SmartCardProvider>,
 		);
 
-		expect(fn).toBeCalledWith(
+		expect(fn).toHaveBeenCalledWith(
 			expect.objectContaining({
 				isAdminHubAIEnabled: true,
 			}),
@@ -144,7 +193,7 @@ describe('Provider', () => {
 			</SmartCardProvider>,
 		);
 
-		expect(fn).toBeCalledWith(
+		expect(fn).toHaveBeenCalledWith(
 			expect.objectContaining({
 				product: 'CONFLUENCE',
 			}),
@@ -169,7 +218,7 @@ describe('Provider', () => {
 			</SmartCardProvider>,
 		);
 
-		expect(fn).toBeCalledTimes(1);
+		expect(fn).toHaveBeenCalledTimes(1);
 
 		const { store } = fn.mock.calls[0][0] as CardContext;
 
@@ -179,7 +228,7 @@ describe('Provider', () => {
 			</SmartCardProvider>,
 		);
 
-		expect(fn).toBeCalledTimes(2);
+		expect(fn).toHaveBeenCalledTimes(2);
 
 		const { store: newStore } = fn.mock.calls[1][0] as CardContext;
 
@@ -194,7 +243,7 @@ describe('Provider', () => {
 			</SmartCardProvider>,
 		);
 
-		expect(fn).toBeCalledTimes(1);
+		expect(fn).toHaveBeenCalledTimes(1);
 
 		const { store } = fn.mock.calls[0][0] as CardContext;
 
@@ -204,7 +253,7 @@ describe('Provider', () => {
 			</SmartCardProvider>,
 		);
 
-		expect(fn).toBeCalledTimes(2);
+		expect(fn).toHaveBeenCalledTimes(2);
 
 		const { store: newStore } = fn.mock.calls[1][0] as CardContext;
 
@@ -221,5 +270,83 @@ describe('Provider', () => {
 		);
 
 		await expect(container).toBeAccessible();
+	});
+
+	describe('external auth completion listener', () => {
+		const EXTENSION_KEY = 'figma-object-provider';
+		const UNAUTHORIZED_URL = 'https://www.figma.com/file/some-file';
+
+		const dispatchExternalAuthEvent = async () => {
+			await act(async () => {
+				window.dispatchEvent(
+					new CustomEvent(SMART_CARD_EXTERNAL_AUTH_EVENT, {
+						detail: { extensionKeys: [EXTENSION_KEY] },
+					}),
+				);
+				// Flush the microtask queue so the fetchData promise settles.
+				await Promise.resolve();
+			});
+		};
+
+		const renderWithUnauthorizedCard = (client: CardClient) => {
+			const fn = jest.fn();
+			const initialState: CardStore = {
+				[UNAUTHORIZED_URL]: {
+					status: 'unauthorized',
+					details: { meta: { key: EXTENSION_KEY } } as any,
+				},
+			};
+
+			render(
+				<SmartCardProvider client={client} storeOptions={{ initialState }}>
+					<Context.Consumer>{fn}</Context.Consumer>
+				</SmartCardProvider>,
+			);
+
+			const { store } = fn.mock.calls[0][0] as CardContext;
+			return store;
+		};
+
+		it('does not turn an unauthorized card into a fatal error when the URL is unsupported', async () => {
+			// Regression test for NAVX-5358.
+			//
+			// When an external auth event fires, the provider re-fetches every unauthorized
+			// card. If the resolver reports the URL as unsupported (a benign, expected state),
+			// fetchData rejects with a fatal `APIError` of type `UnsupportedError`. Writing that
+			// error into the store flips the card to `errored`, which downstream non-flexible
+			// smart-card rendering re-throws to the CardErrorBoundary -> Sentry
+			// (`APIError: URL not supported`).
+			//
+			// The card should stay `unauthorized` and no error should be stored.
+			const client = new CardClient();
+			jest
+				.spyOn(client, 'fetchData')
+				.mockRejectedValue(
+					new APIError('fatal', 'www.figma.com', 'URL not supported', 'UnsupportedError'),
+				);
+
+			const store = renderWithUnauthorizedCard(client);
+
+			await dispatchExternalAuthEvent();
+
+			const cardState = store.getState()[UNAUTHORIZED_URL];
+			expect(client.fetchData).toHaveBeenCalledWith(UNAUTHORIZED_URL, true);
+			expect(cardState.status).toBe('unauthorized');
+			expect(cardState.error).toBeUndefined();
+		});
+
+		it('still errors an unauthorized card when the fetch fails with a non-unsupported error', async () => {
+			const client = new CardClient();
+			const error = new APIError('fatal', 'www.figma.com', 'Something went wrong', 'TimeoutError');
+			jest.spyOn(client, 'fetchData').mockRejectedValue(error);
+
+			const store = renderWithUnauthorizedCard(client);
+
+			await dispatchExternalAuthEvent();
+
+			const cardState = store.getState()[UNAUTHORIZED_URL];
+			expect(cardState.status).toBe('errored');
+			expect(cardState.error).toBe(error);
+		});
 	});
 });

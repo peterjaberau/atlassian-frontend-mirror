@@ -2,25 +2,48 @@
 order: 2
 ---
 
-import buttonPrimaryDo from './images/button-primary-do.png';
-import buttonPrimaryDont from './images/button-primary-dont.png';
-import buttonDisableDo from './images/button-disable-do.png';
-import buttonDisableDont from './images/button-disable-dont.png';
-import buttonConciseDo from './images/button-concise-do.png';
-import buttonConciseDont from './images/button-concise-dont.png';
-import buttonCapitalizationDo from './images/button-capitalization-do.png';
-import buttonCapitalizationDont from './images/button-capitalization-dont.png';
-import buttonActionDo from './images/button-action-do.png';
-import buttonActionDont from './images/button-action-dont.png';
-import buttonLabelDo from './images/button-label-do.png';
-import buttonLabelDont from './images/button-label-dont.png';
+import Image from '@atlaskit/image';
+
+import buttonAnatomyLight from './images/button-anatomy-light.png';
+import buttonAnatomyDark from './images/button-anatomy-dark.png';
+import buttonPrimaryDoLight from './images/button-primary-do-light.png';
+import buttonPrimaryDoDark from './images/button-primary-do-dark.png';
+import buttonPrimaryDontLight from './images/button-primary-dont-light.png';
+import buttonPrimaryDontDark from './images/button-primary-dont-dark.png';
+import buttonDisableDoLight from './images/button-disable-do-light.png';
+import buttonDisableDoDark from './images/button-disable-do-dark.png';
+import buttonDisableDontLight from './images/button-disable-dont-light.png';
+import buttonDisableDontDark from './images/button-disable-dont-dark.png';
+import buttonConciseDoLight from './images/button-concise-do-light.png';
+import buttonConciseDoDark from './images/button-concise-do-dark.png';
+import buttonConciseDontLight from './images/button-concise-dont-light.png';
+import buttonConciseDontDark from './images/button-concise-dont-dark.png';
+import buttonCapitalizationDoLight from './images/button-capitalization-do-light.png';
+import buttonCapitalizationDoDark from './images/button-capitalization-do-dark.png';
+import buttonCapitalizationDontLight from './images/button-capitalization-dont-light.png';
+import buttonCapitalizationDontDark from './images/button-capitalization-dont-dark.png';
+import buttonActionDoLight from './images/button-action-do-light.png';
+import buttonActionDoDark from './images/button-action-do-dark.png';
+import buttonActionDontLight from './images/button-action-dont-light.png';
+import buttonActionDontDark from './images/button-action-dont-dark.png';
+import buttonLabelDoLight from './images/button-label-do-light.png';
+import buttonLabelDoDark from './images/button-label-do-dark.png';
+import buttonLabelDontLight from './images/button-label-dont-light.png';
+import buttonLabelDontDark from './images/button-label-dont-dark.png';
 
 ## Usage
 
-Buttons are triggers for events or actions. They’re a common part of larger experiences such as
-[forms](https://atlassian.design/components/form/usage) or [modal dialogs](/components/modal-dialog).
+Buttons are triggers for events or actions. They're a common part of larger experiences such as
+[forms](https://atlassian.design/components/form/usage) or
+[modal dialogs](/components/modal-dialog).
 
-![Button diagram. A caption follows this image.](images/button-anatomy.png)
+## Parts
+
+<Image
+	src={buttonAnatomyLight}
+	srcDark={buttonAnatomyDark}
+	alt="Button diagram. A caption follows this image."
+/>
 
 Buttons typically have a label and can include an icon before or after the label.
 
@@ -38,25 +61,28 @@ Only include one primary button or call to action (CTA) in a page or area.
 Primary buttons indicate the most important action in a group or area. Having multiple primary CTAs
 in one area can be confusing or visually overwhelming because they compete for attention.
 
-<DoDont
-	type="do"
-	image={{
-		url: buttonPrimaryDo,
-		alt: 'Two buttons in a group. One says cancel and is grey, the other says primary and is blue, making it the more promenint call to action.',
-	}}
->
-	Use one primary call to action to help people proceed.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: buttonPrimaryDont,
-		alt: 'Two buttons in a group. One says cancel and the other says primary. Both are primary blue, causing them to compete for attention.',
-	}}
->
-	Don’t use many calls to action in one page or container.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: buttonPrimaryDoLight,
+			urlDarkMode: buttonPrimaryDoDark,
+			alt: 'Two buttons in a group. One says cancel and is grey, the other says primary and is blue, making it the more promenint call to action.',
+		}}
+	>
+		Use one primary call to action to help people proceed.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: buttonPrimaryDontLight,
+			urlDarkMode: buttonPrimaryDontDark,
+			alt: 'Two buttons in a group. One says cancel and the other says primary. Both are primary blue, causing them to compete for attention.',
+		}}
+	>
+		Don't use many calls to action in one page or container.
+	</DoDont>
+</DoDontGrid>
 
 ### Consider button sizes in context
 
@@ -85,26 +111,29 @@ Disabled buttons don’t explain why the button isn’t usable. They also aren�
 order and don’t receive hover, focus, or click events, making them entirely inaccessible to some
 people.
 
-<DoDont
-	type="do"
-	image={{
-		url: buttonDisableDo,
-		alt: 'A form that is incomplete. The button remains visible and pressable, and validation text explains what must be done to proceed.',
-	}}
->
-	Use validation or other clear on-screen directions to help people proceed.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: buttonDisableDont,
-		alt: 'A form that is incomplete. The button is disabled and light grey in color, which is difficult to see. There is no explanation of what to do to proceed.',
-	}}
->
-	Don’t disable form submission buttons, as this doesn't give people clear a direction for how to
-	proceed.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: buttonDisableDoLight,
+			urlDarkMode: buttonDisableDoDark,
+			alt: 'A form that is incomplete. The button remains visible and pressable, and validation text explains what must be done to proceed.',
+		}}
+	>
+		Use validation or other clear on-screen directions to help people proceed.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: buttonDisableDontLight,
+			urlDarkMode: buttonDisableDontDark,
+			alt: 'A form that is incomplete. The button is disabled and light grey in color, which is difficult to see. There is no explanation of what to do to proceed.',
+		}}
+	>
+		Don't disable form submission buttons, as this doesn't give people clear a direction for how to
+		proceed.
+	</DoDont>
+</DoDontGrid>
 
 ### Never put tooltips on disabled buttons
 
@@ -128,7 +157,7 @@ Things to consider before using a tooltip:
 
 <!-- TODO: make example showcasing focus behavior. Would be ideal to remove from usage and have as an example instead. -->
 
-<Snippet name="button-best-practices" />
+<ButtonBestPracticesSnippet />
 
 ## Content guidelines
 
@@ -136,102 +165,114 @@ Things to consider before using a tooltip:
 
 Only capitalize the first letter of the button and any proper nouns. Most feature names aren’t
 capitalized or considered proper nouns when following
-[our capitalization guidance](/content/language-and-grammar#capitalization).
+[our capitalization guidance](/foundations/content/language-and-grammar#capitalization).
 
-<DoDont
-	type="do"
-	image={{
-		url: buttonCapitalizationDo,
-		alt: 'Button that says Complete sprint. Only the first letter is capitalized.',
-	}}
->
-	Use sentence-case capitalization.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: buttonCapitalizationDont,
-		alt: 'Buttons that say Complete sprint text in title case and all caps.',
-	}}
->
-	Don't use title case capitalization or all caps.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: buttonCapitalizationDoLight,
+			urlDarkMode: buttonCapitalizationDoDark,
+			alt: 'Button that says Complete sprint. Only the first letter is capitalized.',
+		}}
+	>
+		Use sentence-case capitalization.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: buttonCapitalizationDontLight,
+			urlDarkMode: buttonCapitalizationDontDark,
+			alt: 'Buttons that say Complete sprint text in title case and all caps.',
+		}}
+	>
+		Don't use title case capitalization or all caps.
+	</DoDont>
+</DoDontGrid>
 
 ### Keep button labels short
 
 Keep labels short and free of punctuation. Drop unnecessary articles, such as ‘a’ or ‘the’, for a
 more concise label.
 
-<DoDont
-	type="do"
-	image={{
-		url: buttonConciseDo,
-		alt: 'Button that says Reset Password.',
-	}}
->
-	Use concise, easy to scan button labels to describe the action.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: buttonConciseDont,
-		alt: 'Button that says Send a password reset email.',
-	}}
->
-	Don't use long, redundant button labels.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: buttonConciseDoLight,
+			urlDarkMode: buttonConciseDoDark,
+			alt: 'Button that says Reset Password.',
+		}}
+	>
+		Use concise, easy to scan button labels to describe the action.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: buttonConciseDontLight,
+			urlDarkMode: buttonConciseDontDark,
+			alt: 'Button that says Send a password reset email.',
+		}}
+	>
+		Don't use long, redundant button labels.
+	</DoDont>
+</DoDontGrid>
 
 ### Use specific labels wherever possible
 
 Start with the verb and specify what is being acted on. Use dynamic text to make the button very
 specific if possible.
 
-<DoDont
-	type="do"
-	image={{
-		url: buttonActionDo,
-		alt: 'Text that asks delete unpublished page? Followed by a delete CTA button and a cancel button',
-	}}
->
-	Use active verbs or phrases that clearly indicate action.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: buttonActionDont,
-		alt: 'Text that asks delete unpublished page? Followed by a Yes CTA button and a No button',
-	}}
->
-	Don't use vague and generic labels that make the user read the dialog before taking action.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: buttonActionDoLight,
+			urlDarkMode: buttonActionDoDark,
+			alt: 'Text that asks delete unpublished page? Followed by a delete CTA button and a cancel button',
+		}}
+	>
+		Use active verbs or phrases that clearly indicate action.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: buttonActionDontLight,
+			urlDarkMode: buttonActionDontDark,
+			alt: 'Text that asks delete unpublished page? Followed by a Yes CTA button and a No button',
+		}}
+	>
+		Don't use vague and generic labels that make the user read the dialog before taking action.
+	</DoDont>
+</DoDontGrid>
 
 ### Make labels consistent with other UI in view
 
 For example, if a button is part of a larger modal, use the same language in the button as in
 headings and other related text.
 
-<DoDont
-	type="do"
-	image={{
-		url: buttonLabelDo,
-		alt: 'Confirmation modal asking do you want to discard? Button label also says Discard',
-	}}
->
-	Use consistent language for the button and other text descibing the same action.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: buttonLabelDont,
-		alt: 'Confirmation modal asking do you want to discard? Button label says Delete',
-	}}
->
-	Don't use different words to refer to the same action.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: buttonLabelDoLight,
+			urlDarkMode: buttonLabelDoDark,
+			alt: 'Confirmation modal asking do you want to discard? Button label also says Discard',
+		}}
+	>
+		Use consistent language for the button and other text descibing the same action.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: buttonLabelDontLight,
+			urlDarkMode: buttonLabelDontDark,
+			alt: 'Confirmation modal asking do you want to discard? Button label says Delete',
+		}}
+	>
+		Don't use different words to refer to the same action.
+	</DoDont>
+</DoDontGrid>
 
 ## Data Center apps
 
@@ -245,6 +286,6 @@ For all new features, we recommend using Atlassian Design System and other
 - [Link buttons](/components/button/link-button)
 - [Button groups](/components/button/button-group/usage)
 - [Split buttons](/components/button/split-button)
-- [Forms](/patterns/forms)
+- [Forms](/components/form)
 - [Modal dialogs](/components/modal-dialog)
 - [Dropdown menus](/components/dropdown-menu)

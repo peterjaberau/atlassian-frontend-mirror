@@ -13,7 +13,10 @@ import {
 } from './consts';
 import type { TableSortMeta } from './types';
 
-export const unsort = (oldOrder: { index: number; value: number }[], tableElement: HTMLElement): void => {
+export const unsort = (
+	oldOrder: { index: number; value: number }[],
+	tableElement: HTMLElement,
+): void => {
 	const tbody = tableElement.querySelector(`:scope > tbody`);
 	const rows = tableElement.querySelectorAll(`:scope > tbody > tr`);
 
@@ -127,7 +130,12 @@ export const toggleSort = (view: EditorView, event: Event, pluginState: TableSor
 	view.dispatch(tr);
 };
 
-export const getTableElements = (tableId: string) => {
+export const getTableElements = (
+	tableId: string,
+): {
+	rows: NodeListOf<Element> | undefined;
+	tbody: Element | null | undefined;
+} => {
 	const tableElement = document.querySelector(`table[data-table-local-id="${tableId}"]`);
 	const tbody = tableElement?.querySelector(':scope > tbody');
 

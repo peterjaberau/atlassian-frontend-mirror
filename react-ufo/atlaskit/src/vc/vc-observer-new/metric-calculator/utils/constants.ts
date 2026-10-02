@@ -23,9 +23,12 @@ export const KNOWN_ATTRIBUTES_THAT_DOES_NOT_CAUSE_LAYOUT_SHIFTS: string[] = [
 	'contenteditable',
 	'data-has-collab-initialised',
 	'translate',
+	'data-comment-id',
+	'data-access-level',
 ];
 
 // Common aria attributes that don't cause visual layout shifts
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const NON_VISUAL_ARIA_ATTRIBUTES: string[] = [
 	'aria-label',
 	'aria-labelledby',
@@ -45,6 +48,7 @@ export const NON_VISUAL_ARIA_ATTRIBUTES: string[] = [
 ];
 
 // Common third party browser extension attributes
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES: string[] = [
 	'bis_skin_checked',
 	'cz-shortcut-listen',
@@ -57,4 +61,35 @@ export const THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES: string[] = [
 	'data-new-gr-c-s-loaded',
 	'data-gr-aaa-notch-connection-id',
 	'data-gr-aaa-loaded',
+];
+
+// TODO Merge with THIRD_PARTY_BROWSER_EXTENSION_ATTRIBUTES on platform_ufo_exclude_fdprocessedid_attribute cleanup
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const MORE_THIRD_PARTY_EXTENSION_ATTRIBUTES: string[] = [
+	'fdprocessedid',
+	'data-dashlane-classification',
+];
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const DARK_READER_BROWSER_EXTENSION_ATTRIBUTES: string[] = [
+	// dark reader extension
+	'data-darkreader-inline-bgcolor',
+	'data-darkreader-inline-bgimage',
+	'data-darkreader-inline-border',
+	'data-darkreader-inline-border-bottom',
+	'data-darkreader-inline-border-left',
+	'data-darkreader-inline-border-right',
+	'data-darkreader-inline-border-top',
+	'data-darkreader-inline-boxshadow',
+	'data-darkreader-inline-color',
+	'data-darkreader-inline-fill',
+	'data-darkreader-inline-stroke',
+	'data-darkreader-inline-outline',
+	'data-darkreader-inline-stopcolor',
+	'data-darkreader-inline-bg',
+	'data-darkreader-inline-border-short',
+	'data-darkreader-inline-border-bottom-short',
+	'data-darkreader-inline-border-left-short',
+	'data-darkreader-inline-border-right-short',
+	'data-darkreader-inline-border-top-short',
 ];

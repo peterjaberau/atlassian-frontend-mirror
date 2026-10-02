@@ -2,22 +2,26 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
+import React from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import React from 'react';
-import { type CardStatus } from '../src';
-import { CardView } from '../src/card/cardView';
+import { IntlProvider } from 'react-intl';
+
 import { type FileDetails, type MediaType } from '@atlaskit/media-client';
 import { token } from '@atlaskit/tokens';
-import { IntlProvider } from 'react-intl-next';
+
 import { MainWrapper } from '../example-helpers';
 import { CardViewWrapper } from '../example-helpers/cardViewWrapper';
+import { type CardStatus } from '../src';
+import { CardView } from '../src/card/cardView';
 
 const dimensions = { width: '100%', height: '100%' };
 
 const styledContainerStyles = css({
 	maxWidth: '800px',
-	margin: `${token('space.250', '20px')} auto`,
+	margin: `${token('space.250')} auto`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	h3: {
 		textAlign: 'center',

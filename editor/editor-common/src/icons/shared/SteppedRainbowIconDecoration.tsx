@@ -2,7 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
@@ -40,6 +40,7 @@ export const rainbow: string = createSteppedRainbow([
 	token('color.background.accent.red.bolder'),
 ]);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const disabledRainbow: string = createSteppedRainbow([
 	token('color.background.accent.gray.subtle'),
 	token('color.background.accent.gray.subtle.hovered'),
@@ -51,7 +52,7 @@ const barStyles = css({
 	position: 'absolute',
 	left: 0,
 	right: 0,
-	top: token('space.200', '16px'),
+	top: token('space.200'),
 	margin: 'auto',
 	width: '12px',
 	height: '3px',
@@ -78,11 +79,12 @@ const getBackground = (selectedColor?: string | null, disabled?: boolean) => {
 	return rainbow;
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const SteppedRainbowIconDecoration = ({
 	selectedColor,
 	disabled,
 	icon,
-}: SteppedRainbowIconDecorationProps) => {
+}: SteppedRainbowIconDecorationProps): jsx.JSX.Element => {
 	return (
 		<div css={textColorIconWrapper}>
 			{icon}

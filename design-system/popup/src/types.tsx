@@ -10,13 +10,9 @@ import {
 } from 'react';
 
 import { type StrictXCSSProp } from '@atlaskit/css';
-import { type Modifier, type Placement, type PopperChildrenProps } from '@atlaskit/popper';
+import type { Modifier, Placement, PopperChildrenProps } from '@atlaskit/popper/main';
 
-export interface TriggerProps {
-	/**
-	 * React ref that will be attached to the trigger element.
-	 */
-	ref: Ref<any>;
+export interface TriggerAriaProps {
 	/**
 	 * Identifies the popup element that the trigger controls.
 	 * Should match the `id` of the popup content for screen readers to understand the relationship.
@@ -29,7 +25,14 @@ export interface TriggerProps {
 	/**
 	 * Informs assistive technology that this element triggers a popup.
 	 */
-	'aria-haspopup': boolean | 'dialog';
+	'aria-haspopup': boolean | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog';
+}
+
+export interface TriggerProps extends TriggerAriaProps {
+	/**
+	 * React ref that will be attached to the trigger element.
+	 */
+	ref: Ref<any>;
 	'data-ds--level'?: string;
 }
 
@@ -63,6 +66,36 @@ export interface ContentProps {
 	setInitialFocusRef: Dispatch<SetStateAction<HTMLElement | null>>;
 }
 
+/**
+ * Props passed to a custom `popupComponent`, which renders as the popup container in
+ * place of the default surface.
+ *
+ * **Contract on the top-layer path (`platform-dst-top-layer`).** The container is
+ * the first child of a `display: flex` popover host whose `& > *` rule sets
+ * `flex-grow: 1`, `min-inline-size: 0` and `min-block-size: 0`. A size cap
+ * (`shouldFitViewport`, or the always-on viewport backstop) reaches the content only
+ * through that first child, so a container has to:
+ *
+ * 1. Render exactly one in-flow root. A second in-flow root becomes a second flex
+ *    item, laid out in a row beside the first.
+ * 2. Keep that root in flow, not `position: absolute` or `fixed`. An out-of-flow root
+ *    is not a flex item, so `flex-grow` and cross-axis stretch never reach it.
+ * 3. Give the root ITSELF a non-`visible` computed `overflow`, so it is the scroll
+ *    container. The `min-*-size: 0` reset caps the root's box whatever its
+ *    `overflow` is; a `visible` root's content spills out of a correctly-sized box
+ *    instead of scrolling.
+ * 4. Leave the block size `auto`, so cross-axis stretch can size it.
+ * 5. Not pin the inline size above the cap, and not set `flex-shrink: 0`.
+ * 6. Put the `overflow` on the root, not on a descendant. `& > *` reaches one level.
+ *
+ * `shouldFitViewport` is forwarded on both paths, so the container can own its
+ * `overflow` (several in-tree containers key an `overflow: auto` branch off it).
+ *
+ * `shouldRenderToParent` is NOT forwarded on the top-layer path, by decision:
+ * everything renders in the top layer, so the container receives `undefined`, and a
+ * `(!shouldRenderToParent || shouldFitViewport)` branch reads as "fitting applies",
+ * which is the intended reading there.
+ */
 export interface PopupComponentProps {
 	/**
 	 * Children passed through by the parent popup.
@@ -83,11 +116,6 @@ export interface PopupComponentProps {
 	 * ID passed through by the parent popup.
 	 */
 	id?: string;
-
-	/**
-	 * Ref that should be assigned to the root element.
-	 */
-	ref: Ref<HTMLDivElement>;
 
 	/**
 	 * Style that should be assigned to the root element.
@@ -126,16 +154,9 @@ export interface PopupComponentProps {
 	/**
 	 * The "default" appearance is used for standard popups.
 	 * The "UNSAFE_modal-below-sm" appearance makes the popup appear as a modal when the viewport is smaller than "sm".
-	 * When the feature gate `platform_dst_nav4_flyout_menu_slots_close_button` is enabled, the appearance should only
-	 * be set to "UNSAFE_modal-below-sm" if the provided popup includes a close button.
+	 * The appearance should only be set to "UNSAFE_modal-below-sm" if the provided popup includes a close button.
 	 */
 	appearance?: 'default' | 'UNSAFE_modal-below-sm';
-
-	/**
-	 * Use this to set the accessibility role for the popup.
-	 * We strongly recommend using only `menu` or `dialog`.
-	 */
-	role?: string;
 
 	/**
 	 * Class name to apply to the popup container element.
@@ -146,6 +167,12 @@ export interface PopupComponentProps {
 	 * Boolean to indicate if the reference element is hidden.
 	 */
 	isReferenceHidden?: boolean;
+
+	/**
+	 * Use this to set the accessibility role for the popup.
+	 * We strongly recommend using only `menu` or `dialog`.
+	 */
+	role?: string;
 }
 
 interface BaseProps {
@@ -190,6 +217,11 @@ interface BaseProps {
 	 * The distance the popup should be offset from the reference in the format of [along, away] (units in px).
 	 * The default is `[0, 8]`, which means the popup will be `8px` away from the edge of the reference specified
 	 * by the `placement` prop.
+	 *
+	 * @private
+	 * Note: when `platform-dst-top-layer` is enabled, both the `along` and `away`
+	 * values are passed through to the top-layer placement (via `fromLegacyPlacement`),
+	 * matching the legacy popper-js behaviour.
 	 */
 	offset?: [number, number];
 
@@ -204,6 +236,10 @@ interface BaseProps {
 	 * When the preferred placement doesn't have enough space,
 	 * the modifier will test the ones provided in the list, and use the first suitable one.
 	 * If no fallback placements are suitable, it reverts back to the original placement.
+	 *
+	 * @private
+	 * @deprecated No-op when `platform-dst-top-layer` is enabled — CSS Anchor Positioning
+	 * generates fallbacks automatically via `position-try-fallbacks`.
 	 */
 	fallbackPlacements?: Placement[];
 
@@ -211,18 +247,30 @@ interface BaseProps {
 	 * The boundary element that the popup will check for overflow.
 	 * The default is `"clippingParents"` which are parent scroll containers,
 	 * but can be set to any element.
+	 *
+	 * @private
+	 * @deprecated No-op when `platform-dst-top-layer` is enabled — the viewport
+	 * is the natural boundary for top-layer elements.
 	 */
 	boundary?: 'clippingParents' | HTMLElement;
 
 	/**
 	 * The root boundary that the popup will check for overflow.
 	 * The default is `"viewport"` but it can be set to `"document"`.
+	 *
+	 * @private
+	 * @deprecated No-op when `platform-dst-top-layer` is enabled — the viewport
+	 * is the natural boundary for top-layer elements.
 	 */
 	rootBoundary?: 'viewport' | 'document';
 
 	/**
 	 * Allows the popup to be placed on the opposite side of its trigger if it doesn't fit in the viewport.
 	 * The default is `true`.
+	 *
+	 * @private
+	 * @deprecated No-op when `platform-dst-top-layer` is enabled — CSS Anchor Positioning
+	 * handles flipping natively via `position-try-fallbacks`.
 	 */
 	shouldFlip?: boolean;
 
@@ -276,8 +324,18 @@ interface BaseProps {
 	shouldUseCaptureOnOutsideClick?: boolean;
 
 	/**
+	 * Allows consumers to ignore specific close events, for example when an external overlay
+	 * should be treated as part of the popup interaction.
+	 */
+	shouldIgnoreCloseEvent?: (event: Event | React.MouseEvent | React.KeyboardEvent) => boolean;
+
+	/**
 	 * The root element where the popup should be rendered.
 	 * Defaults to `false`.
+	 *
+	 * @private
+	 * @deprecated No-op when `platform-dst-top-layer` is enabled — content always
+	 * renders in the browser's top layer.
 	 */
 	shouldRenderToParent?: boolean;
 
@@ -292,6 +350,10 @@ interface BaseProps {
 	/**
 	 * This makes the popup close on Tab key press. It will only work when `shouldRenderToParent` is `true`.
 	 * The default is `false`.
+	 *
+	 * @private
+	 * @deprecated No-op when `platform-dst-top-layer` is enabled — focus trapping
+	 * is role-based in the top-layer path.
 	 */
 	shouldDisableFocusLock?: boolean;
 
@@ -304,6 +366,10 @@ interface BaseProps {
 	/**
 	 * This controls the positioning strategy to use. Can vary between `absolute` and `fixed`.
 	 * The default is `fixed`.
+	 *
+	 * @private
+	 * @deprecated No-op when `platform-dst-top-layer` is enabled — CSS Anchor Positioning
+	 * replaces Popper's positioning strategy.
 	 */
 	strategy?: 'absolute' | 'fixed';
 
@@ -351,6 +417,10 @@ interface InternalPopupProps extends BaseProps {
 	 * Z-index that the popup should be displayed in.
 	 * This is passed to the portal component.
 	 * The default is 400.
+	 *
+	 * @private
+	 * @deprecated No-op when `platform-dst-top-layer` is enabled — the browser's
+	 * top layer manages stacking without z-index.
 	 */
 	zIndex?: number;
 }
@@ -368,10 +438,11 @@ type ShouldFitContainerPopupProps = InternalPopupProps & {
 export type PopupProps = StandardPopupProps | ShouldFitContainerPopupProps;
 
 export interface PopperWrapperProps extends BaseProps {
+	zIndex?: number;
 	triggerRef: TriggerRef;
 }
 
-export type CloseManagerHook = Pick<PopupProps, 'isOpen' | 'onClose'> & {
+export type CloseManagerHook = Pick<PopupProps, 'isOpen' | 'onClose' | 'shouldIgnoreCloseEvent'> & {
 	popupRef: PopupRef;
 	triggerRef: TriggerRef;
 	shouldUseCaptureOnOutsideClick?: boolean;

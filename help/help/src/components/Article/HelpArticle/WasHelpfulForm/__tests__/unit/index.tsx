@@ -1,10 +1,10 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render, fireEvent } from '@testing-library/react';
-import { createIntl, createIntlCache, IntlProvider } from 'react-intl-next';
+import { createIntl, createIntlCache, IntlProvider } from 'react-intl';
 
 import { messages } from '../../../../../../messages';
-
 import ArticleWasHelpfulForm from '../../index';
 
 // Messages
@@ -40,18 +40,6 @@ describe('ArticleWasHelpfulForm', () => {
 	 * FIXME Snapshot tests that test a large surface area cause friction to platform teams.
 	 * Review if this test is required or whether it can be removed.
 	 */
-	it.skip('Match snapshot', () => {
-		const { container } = render(
-			<IntlProvider locale="en">
-				<ArticleWasHelpfulForm
-					onWasHelpfulNoButtonClick={mockOnWasHelpfulNoButtonClick}
-					onWasHelpfulYesButtonClick={mockOnWasHelpfulYesButtonClick}
-				/>
-			</IntlProvider>,
-		);
-
-		expect(container.firstChild).toMatchSnapshot();
-	});
 
 	it('onWasHelpfulYesButtonClick prop function is called when the user clicks the button in WasHelpfulYesButton component', () => {
 		const { getByText } = render(

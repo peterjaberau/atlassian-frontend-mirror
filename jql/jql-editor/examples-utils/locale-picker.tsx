@@ -3,8 +3,9 @@ import React from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import styled from '@emotion/styled';
 
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-import { fg } from '@atlaskit/platform-feature-flags';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import { token } from '@atlaskit/tokens';
 
 import { type Locale } from './locales';
@@ -13,7 +14,7 @@ import { type Locale } from './locales';
 const DropdownContainer = styled.div({
 	display: 'flex',
 	minWidth: '200px',
-	marginBottom: token('space.200', '16px'),
+	marginBottom: token('space.200'),
 });
 
 export interface Props {
@@ -22,13 +23,9 @@ export interface Props {
 	onChange: (locale: Locale) => void;
 }
 
-export const LocalePicker = ({ currentLocale, locales, onChange }: Props) => (
+export const LocalePicker = ({ currentLocale, locales, onChange }: Props): React.JSX.Element => (
 	<DropdownContainer>
-		<DropdownMenu
-			trigger={currentLocale}
-			placement="bottom-start"
-			shouldRenderToParent={fg('should-render-to-parent-should-be-true-jira-platfo')}
-		>
+		<DropdownMenu trigger={currentLocale} placement="bottom-start" shouldRenderToParent>
 			<DropdownItemGroup>
 				{locales.map((l) => (
 					<DropdownItem key={l} onClick={() => onChange(l)}>

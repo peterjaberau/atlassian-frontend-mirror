@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-guideline/app",
 		"rootDir": "../",
 		"composite": true,
@@ -31,9 +30,6 @@
 		},
 		{
 			"path": "../../editor-shared-styles/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../design-system/theme/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

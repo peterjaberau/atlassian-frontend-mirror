@@ -1,15 +1,15 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { RevisionPayloadVCDetails } from '../../../../../common/vc/types';
 import type { ViewportEntryData } from '../../../types';
 import type {
 	CalcTTVCPercentilesArg,
 	CalcTTVCPercentilesArgWithDebugInfo,
-	PercentileCalcResult,
 	PercentileCalcResultWithSpeedIndex,
 } from '../types';
-
-import { ViewportCanvas } from './canvas-pixel';
+import { calculatePercentiles } from './calculate-percentiles';
+import { calculatePercentilesWithDebugInfo } from './calculate-percentiles-with-debug-info';
+import { ViewportCanvas } from './viewport-canvas';
 
 async function calculateTTVCPercentiles({
 	viewport,
@@ -52,7 +52,6 @@ async function calculateTTVCPercentilesWithDebugInfo({
 	viewport,
 	orderedEntries,
 	startTime,
-	calculateSpeedIndex = false,
 }: CalcTTVCPercentilesArgWithDebugInfo): Promise<PercentileCalcResultWithSpeedIndex> {
 	const canvas = new ViewportCanvas(
 		viewport,
@@ -81,115 +80,10 @@ async function calculateTTVCPercentilesWithDebugInfo({
 	const canvasDimensions = canvas.getScaledDimensions();
 	const totalPixels = canvasDimensions.width * canvasDimensions.height;
 
-	return calculatePercentilesWithDebugInfo(timePixelCounts, elementMap, totalPixels, startTime, calculateSpeedIndex);
-}
-
-export default calculateTTVCPercentiles;
-
-export function calculatePercentiles(
-	timePixelCounts: Map<DOMHighResTimeStamp, number>,
-	elementMap: ReadonlyMap<DOMHighResTimeStamp, Set<string>>,
-	unorderedPercentiles: number[],
-	totalPixels: number,
-	startTime: DOMHighResTimeStamp,
-): RevisionPayloadVCDetails {
-	const results: RevisionPayloadVCDetails = {};
-
-	let cumulativePixels = 0;
-	const percentiles = unorderedPercentiles.sort((a, b) => a - b);
-
-	// Sort entries by timestamp for consistent processing
-	const sortedEntries = Array.from(timePixelCounts.entries()).sort(
-		([timeA], [timeB]) => Number(timeA) - Number(timeB),
-	);
-
-	let percentileIndex = 0;
-	let domElementsBuffer = new Set<string>();
-
-	for (const [time, pixelCount] of sortedEntries) {
-		cumulativePixels += pixelCount;
-		const percentCovered = (cumulativePixels / totalPixels) * 100;
-		const elementNames = elementMap.get(time) || new Set();
-		elementNames.forEach((elName) => domElementsBuffer.add(elName));
-
-		let matchesAnyCheckpoints = false;
-		while (percentileIndex < percentiles.length && percentCovered >= percentiles[percentileIndex]) {
-			results[`${percentiles[percentileIndex]}`] = {
-				t: Math.round(Number(time - startTime)),
-				e: Array.from(domElementsBuffer),
-			};
-			percentileIndex++;
-
-			matchesAnyCheckpoints = true;
-		}
-
-		if (matchesAnyCheckpoints) {
-			domElementsBuffer.clear();
-		}
-
-		if (percentileIndex >= percentiles.length) {
-			break;
-		}
-	}
-
-	let previousResult: { t: number; e: string[] } = { t: 0, e: [] };
-	for (let i = 0; i < percentiles.length; i++) {
-		const percentile = percentiles[i];
-
-		if (!(percentile in results)) {
-			results[`${percentile}`] = previousResult;
-		}
-
-		previousResult = results[`${percentile}`];
-	}
-
-	return results;
-}
-
-export function calculatePercentilesWithDebugInfo(
-	timePixelCounts: Map<DOMHighResTimeStamp, number>,
-	elementMap: ReadonlyMap<DOMHighResTimeStamp, ViewportEntryData[]>,
-	totalPixels: number,
-	startTime: DOMHighResTimeStamp,
-	calculateSpeedIndex: boolean = false,
-): PercentileCalcResultWithSpeedIndex {
-	const entries: PercentileCalcResult = new Array(elementMap.size);
-
-	let cumulativePixels = 0;
-	let speedIndex = 0;
-	let previousPercentCovered = 0;
-
-	const sortedEntries = Array.from(timePixelCounts.entries()).sort(
-		([timeA], [timeB]) => Number(timeA) - Number(timeB),
-	);
-
-	for (let i = 0; i < sortedEntries.length; i++) {
-		const [time, pixelCount] = sortedEntries[i];
-		cumulativePixels += pixelCount;
-		const percentCovered = (cumulativePixels / totalPixels) * 100;
-
-		const entryDatas = elementMap.get(time) || [];
-
-		const relativeTime = Math.round(Number(time - startTime));
-		entries[i] = {
-			time: relativeTime,
-			viewportPercentage: percentCovered,
-			entries: Array.from(entryDatas),
-		};
-
-		// Speed index calculation: sum of (time × incremental viewport percentage)
-		// Only calculate when feature flag is enabled
-		if (calculateSpeedIndex) {
-			const ratioDelta = (percentCovered - previousPercentCovered) / 100;
-			speedIndex += relativeTime * ratioDelta;
-			previousPercentCovered = percentCovered;
-		}
-	}
-
-	return {
-		entries,
-		speedIndex: Math.round(speedIndex),
-	};
+	return calculatePercentilesWithDebugInfo(timePixelCounts, elementMap, totalPixels, startTime);
 }
 
 export { calculateTTVCPercentilesWithDebugInfo };
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export default calculateTTVCPercentiles;

@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::fe1275028f179c85adabcde30f1dc14d>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::ea2c0ba3b652f85dd74538986a391292>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -18,14 +18,12 @@ const svg = `<svg height="100%" viewBox="0 0 48 48">
 /**
  * __DxIcon__
  *
- * A temporary component to represent the icon for Dx.
- * @deprecated This component has been replaced by the component `DxIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Dx.
+ * Import `DxIcon` from `@atlaskit/logo/dx/icon`.
  *
  */
 export function DxIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Dx',
 	testId,

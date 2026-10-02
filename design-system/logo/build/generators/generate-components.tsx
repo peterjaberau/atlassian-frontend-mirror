@@ -6,6 +6,8 @@ import { optimize } from 'svgo';
 import format from '@af/formatting/sync';
 import { createSignedArtifact } from '@atlassian/codegen';
 
+import packageJson from '../../package.json';
+import { logoDocsSchema } from '../../src/logo-docs-schema';
 import { type Assets, dataCenterApps, svgoConfig, transformSVG } from '../utils';
 
 const utilityIcons = ['more-atlassian-apps', 'custom-link'];
@@ -28,7 +30,7 @@ export default function generateComponents(
 	root: string | undefined,
 	rawDirectory: string,
 	targetDirectory: string,
-) {
+): Assets {
 	const assets: Assets = {};
 
 	fs.emptyDirSync(path.resolve(root!, 'src', targetDirectory));
@@ -89,7 +91,7 @@ export default function generateComponents(
 				path.resolve(root!, 'src', targetDirectory, name, `${type}.tsx`),
 				createSignedArtifact(
 					format(jsx, 'tsx'),
-					'yarn workspace @atlaskit/logo generate:components',
+					'afm workspace @atlaskit/logo generate:components',
 				),
 			);
 
@@ -97,47 +99,8 @@ export default function generateComponents(
 		});
 	});
 
-	// Iterate over each folder in target directory and add index file
-	fs.readdirSync(path.resolve(root!, 'src', targetDirectory)).forEach((folder) => {
-		fs.ensureFileSync(path.resolve(root!, 'src', targetDirectory, folder, 'index.tsx'));
-		fs.writeFileSync(
-			path.resolve(root!, 'src', targetDirectory, folder, 'index.tsx'),
-			createSignedArtifact(
-				format(getIndexJSX(path.resolve(root!, 'src', targetDirectory), folder), 'tsx'),
-				'yarn workspace @atlaskit/logo generate:components',
-			),
-		);
-	});
-
 	return assets;
 }
-
-/**
- * Generates index files for each folder in the target directory
- * @param targetDirectory Target directory under where logo components are generated
- */
-const getIndexJSX = (targetDirectory: string, logoName: string) => {
-	const name = logoName
-		.split('-')
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join('');
-	// Detect which logos are available in each folder (logo, logo-cs, icon)
-	const logoFiles = fs.readdirSync(path.resolve(targetDirectory, logoName));
-	const logoTypes = ['logo', 'logo-cs', 'icon'];
-	const supportedLogoTypes = logoTypes.filter((logoType) =>
-		logoFiles.some((logoFile) => logoFile === `${logoType}.tsx`),
-	);
-
-	const logoTypeMap = {
-		logo: `${name}Logo`,
-		'logo-cs': `${name}LogoCS`,
-		icon: `${name}Icon`,
-	};
-
-	return `
-		${supportedLogoTypes.map((logoType) => `export { ${logoTypeMap[logoType]} } from './${logoType}';`).join('\n')}
-	`;
-};
 
 /**
  *
@@ -184,12 +147,17 @@ const getLogoJSX = (
 
 	let typeImport = `import type { ${propType} } from '../../../utils/types';\n`;
 
-	const deprecationText =
-		type === 'icon'
+	const componentDescription = `A component to represent the ${type === 'logo-cs' ? 'logo' : type} for ${productLabel}.`;
+	const isDeprecated = logoDocsSchema.find((logo) => logo.name === name)?.deprecated === true;
+	const deprecationText = isDeprecated
+		? `
+ * @deprecated ${componentName} is deprecated.`
+		: '';
+	const iconEntryPoint = `./${name}/icon`;
+	const usageText =
+		!isDeprecated && type === 'icon' && iconEntryPoint in packageJson.exports
 			? `
- * @deprecated This component has been replaced by the component \`${componentName}\` in \`@atlaskit/logo\`.
- * Please migrate any usages of this temporary component, using the prop \`shouldUseNewLogoDesign\` where necessary
- * to enable the new design by default.`
+ * Import \`${componentName}\` from \`@atlaskit/logo/${name}/icon\`.`
 			: '';
 
 	return `import React from 'react';
@@ -202,12 +170,12 @@ ${customThemeSvg ? `const customThemeSvg = \`${customThemeSvg}\`;\n` : ''}
 /**
  * __${componentName}__
  *
- * A temporary component to represent the ${type === 'logo-cs' ? 'logo' : type} for ${productLabel}.${deprecationText}
+ * ${componentDescription}${deprecationText}${usageText}
  *
  */
 export function ${componentName}({
 		${customThemeSvg ? 'iconColor, ' : ''}
-		${customThemeSvg && (type === 'logo' || type === 'logo-cs') ? 'textColor,' : ''} size, appearance = "brand", label = "${productLabel}", testId
+		${customThemeSvg && (type === 'logo' || type === 'logo-cs') ? 'textColor,' : ''} size = 'medium', appearance = "brand", label = "${productLabel}", testId
 	}: ${propType}): React.JSX.Element {
 	return <${WrapperName}
 			svg={svg} ${customThemeSvg ? 'customThemeSvg={customThemeSvg}' : ''}
@@ -216,7 +184,7 @@ export function ${componentName}({
 			label={label}
 			${name === 'assets' ? 'isAssets={true}' : ''}
 			${dataCenterApps.includes(name) ? 'type="data-center"' : ''}
-			${name === 'rovo-hex' ? 'type="rovo"' : ''}
+			${name === 'rovo-hex' || name === 'rovo' ? 'type="rovo"' : ''}
 			appearance={appearance}
 			size={size}
 			testId={testId}

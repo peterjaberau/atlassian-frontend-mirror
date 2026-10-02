@@ -2,14 +2,13 @@ import { useEffect } from 'react';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { getRangeInlineNodeNames } from '@atlaskit/editor-common/utils';
-import { type EditorState, type SelectionBookmark } from '@atlaskit/editor-prosemirror/state';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { EditorState, SelectionBookmark } from '@atlaskit/editor-prosemirror/state';
 
 import type { AnnotationPlugin } from '../../annotationPluginType';
 import { resolveDraftBookmark } from '../../pm-plugins/utils';
+// oxlint-disable-next-line import/no-duplicates
 import type { AnnotationSelectionType } from '../../types';
-import { type AnnotationProviders } from '../../types';
-
+import type { AnnotationProviders } from '../../types';
 import { fireCommentButtonViewedAnalyticsEvent } from './utils';
 
 export const useCommentButtonMount = ({
@@ -30,10 +29,7 @@ export const useCommentButtonMount = ({
 			return;
 		}
 
-		if (
-			annotationProviders?.inlineComment &&
-			fg('confluence_frontend_preload_inline_comment_editor')
-		) {
+		if (annotationProviders?.inlineComment) {
 			annotationProviders.inlineComment.onCommentButtonMount?.();
 		}
 		// Check if the selection includes an non-text inline node
@@ -44,6 +40,7 @@ export const useCommentButtonMount = ({
 			}) ?? [];
 
 		const isNonTextInlineNodeInludedInComment =
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 			inlineNodeNames.filter((nodeName) => nodeName !== 'text').length > 0;
 
 		fireCommentButtonViewedAnalyticsEvent({

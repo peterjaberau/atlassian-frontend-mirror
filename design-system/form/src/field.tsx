@@ -17,17 +17,20 @@ import { type FieldState } from 'final-form';
 
 import { css, jsx } from '@atlaskit/css';
 import { useId } from '@atlaskit/ds-lib/use-id';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { token } from '@atlaskit/tokens';
 
+import { ErrorMessage } from './error-message';
 import { FieldId } from './field-id-context';
-import { FormContext, IsDisabledContext } from './form';
+import { FormContext } from './form-context';
+import { HelperMessage } from './helper-message';
+import { IsDisabledContext } from './is-disabled-context';
 import { Label } from './label';
-import { ErrorMessage, HelperMessage, MessageWrapper, ValidMessage } from './messages';
-import RequiredAsterisk from './required-asterisk';
+import { MessageWrapper } from './message-wrapper';
+import { RequiredAsterisk } from './required-asterisk';
+import { ValidMessage } from './valid-message';
 
 const fieldWrapperStyles = css({
-	marginBlockStart: token('space.100', '8px'),
+	marginBlockStart: token('space.100'),
 });
 
 function isEvent(event: any): event is FormEvent<SupportedElements> {
@@ -257,10 +260,6 @@ export default function Field<
 
 	const latestStateRef = usePreviousRef(state);
 
-	const isRequiredDependency = fg('platform_dst_form_fix_isrequired_effect')
-		? props.isRequired
-		: undefined;
-
 	useEffect(() => {
 		function fieldStateToMeta(value: Partial<FieldState<FieldValue>> = {}): Meta {
 			return {
@@ -406,7 +405,7 @@ export default function Field<
 		latestStateRef,
 		registerField,
 		props.name,
-		isRequiredDependency,
+		props.isRequired,
 		isDefaultValueChanged,
 	]);
 

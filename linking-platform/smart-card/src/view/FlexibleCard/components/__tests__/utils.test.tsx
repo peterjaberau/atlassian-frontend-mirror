@@ -1,5 +1,9 @@
+import { token } from '@atlaskit/tokens';
+
 import { SmartLinkSize } from '../../../../constants';
-import { getPrimitivesInlineSpaceBySize, hasWhiteSpace } from '../utils';
+import { getIconWidth } from '../getIconWidth';
+import { getPrimitivesInlineSpaceBySize } from '../getPrimitivesInlineSpaceBySize';
+import { hasWhiteSpace } from '../hasWhiteSpace';
 
 describe('getPrimitivesInlineSpaceBySize', () => {
 	it.each([
@@ -16,6 +20,21 @@ describe('getPrimitivesInlineSpaceBySize', () => {
 		// @ts-ignore For testing purpose
 		const space = getPrimitivesInlineSpaceBySize();
 		expect(space).toBe('space.050');
+	});
+});
+
+describe('getIconWidth', () => {
+	it.each([
+		[SmartLinkSize.XLarge, token('space.300', '24px')],
+		[SmartLinkSize.Large, token('space.300', '24px')],
+		[SmartLinkSize.Medium, token('space.200', '16px')],
+		[SmartLinkSize.Small, token('space.200', '16px')],
+	])('returns icon width for %s size', (size: SmartLinkSize, expected: string) => {
+		expect(getIconWidth(size)).toBe(expected);
+	});
+
+	it('returns the small icon width by default', () => {
+		expect(getIconWidth()).toBe(token('space.200', '16px'));
 	});
 });
 

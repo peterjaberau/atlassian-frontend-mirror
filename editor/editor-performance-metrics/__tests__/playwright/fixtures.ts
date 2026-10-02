@@ -1,64 +1,67 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @repo/internal/dom-events/no-unsafe-event-listeners */
 /* eslint-disable compat/compat */
+
+import type {
+	TestType,
+	PlaywrightTestArgs,
+	PlaywrightTestOptions,
+	PlaywrightWorkerArgs,
+	PlaywrightWorkerOptions,
+} from 'playwright/test';
+
 import {
-	test as base,
+	attachFixtureToPage,
 	expect as baseExpect,
+	test as base,
 	type Expect,
 	type Page,
 } from '@af/integration-testing';
+import type { PlaywrightCoverageOptions } from '@af/integration-testing/fixtures';
 import { EditorPerformanceMetrics } from '@atlaskit/editor-performance-metrics/metrics';
 import type { TTVCTargets } from '@atlaskit/editor-performance-metrics/react';
-import {
-	createTimelineFromEvents,
-	type Timeline,
-	type TimelineEvent,
-} from '@atlaskit/editor-performance-metrics/timeline';
+import { createTimelineFromEvents } from '@atlaskit/editor-performance-metrics/timeline';
+import type { Timeline, TimelineEvent } from '@atlaskit/editor-performance-metrics/timeline';
 
 import type { WindowWithEditorPerformanceGlobals } from './window-type';
 
 type TimelineEvents = Array<TimelineEvent>;
-const prepareParams = (params?: { [key: string]: string | boolean }) => {
-	if (!params) {
-		return { urlParams: {}, featureFlags: '' };
-	}
 
-	const { featureFlag, ...rest } = params;
-
-	// url param in string format: '&featureFlag=feature-flag-key&featureFlag=feature-flag-key'
-	const featureFlags =
-		typeof params.featureFlag === 'string'
-			? // Ignored via go/ees005
-				// eslint-disable-next-line require-unicode-regexp
-				`&featureFlag=${params.featureFlag.split(/[ ,;]+/).join('&featureFlag=')}`
-			: '';
-
-	return { urlParams: rest, featureFlags };
-};
-
-const getExampleURL = (props: {
-	baseURL: string | undefined;
-	exampleId: string | undefined;
-	groupId: string;
-	packageId: string;
-	params: Record<string, string | boolean> | undefined;
-}) => {
-	const { baseURL, groupId, packageId, exampleId, params } = props;
-	const { urlParams, featureFlags } = prepareParams(params);
-	const searchParams = new URLSearchParams({
-		groupId,
-		packageId,
-		isTestRunner: 'true',
-		...(exampleId ? { exampleId } : {}),
-		mode: 'light',
-		...urlParams,
-	});
-
-	const url = `${baseURL}/examples.html?${searchParams.toString()}${featureFlags}`;
-	return url;
-};
-
-export const test = base.extend<{
+export const test: TestType<
+	PlaywrightTestArgs &
+		PlaywrightTestOptions & {
+			skipAxeCheck: () => void;
+		} & PlaywrightCoverageOptions & {
+			examplePage:
+				| 'vc-observer-next'
+				| 'vc-observer-react-remount'
+				| 'vc-observer-moving-node'
+				| 'vc-observer-placeholder'
+				| 'vc-observer-attribute-mutation'
+				| 'latency-mouse-events'
+				| 'editor-full-page'
+				| 'basic-react'
+				| 'ttai-with-timers'
+				| 'latency-keyboard-events';
+			getMetrics: () => Promise<EditorPerformanceMetrics | null>;
+			getSectionVisibleAt: (sectionTestId: string) => Promise<DOMHighResTimeStamp | null>;
+			getTimeline: () => Promise<Timeline | null>;
+			getTimelineEvents: () => Promise<TimelineEvents>;
+			/**
+			 * This fixture allow the tests to get the TTVCTarget value set on the example page.
+			 *
+			 * ⚠️ Your example needs to manually set the global variable called `__editor_metrics_tests__calculated_ttvc`.
+			 */
+			getTTVCTargets: () => Promise<TTVCTargets | null>;
+			resetTicks: () => Promise<void>;
+			viewport: {
+				height: number;
+				width: number;
+			};
+			waitForTicks: (tickNth: number) => Promise<DOMHighResTimeStamp>;
+		},
+	PlaywrightWorkerArgs & PlaywrightWorkerOptions
+> = base.extend<{
 	examplePage:
 		| 'vc-observer-next'
 		| 'vc-observer-react-remount'
@@ -140,47 +143,25 @@ export const test = base.extend<{
 			});
 
 			window.addEventListener('load', () => {
-				const divExamples = document.querySelector('#examples');
-				if (divExamples) {
-					observer.observe(divExamples, {
-						childList: true,
-						subtree: true,
-					});
-				}
+				const exampleRoot = document.querySelector('#examples') ?? document.body;
+				observer.observe(exampleRoot, {
+					childList: true,
+					subtree: true,
+				});
 			});
 		});
 
 		//page.on('console', (msg) => console.log(msg.text()));
 
-		(page as unknown as Page).visitExample = (
-			groupId: string,
-			packageId: string,
-			exampleId?: string,
-			params?: Record<string, string | boolean>,
-		) => {
-			const url = getExampleURL({
-				groupId,
-				packageId,
-				exampleId,
-				params,
-				baseURL,
-			});
-
-			return page.goto(url, {
-				waitUntil: 'domcontentloaded',
-			});
-		};
+		const testPage = page as unknown as Page;
+		attachFixtureToPage(testPage, baseURL);
 
 		await page.setViewportSize({
 			width: viewport.width,
 			height: viewport.height,
 		});
 
-		((await page) as unknown as Page).visitExample(
-			'editor',
-			'editor-performance-metrics',
-			examplePage,
-		);
+		await testPage.visitExample('editor', 'editor-performance-metrics', examplePage);
 
 		await page.waitForFunction(() => {
 			return Boolean(
@@ -420,7 +401,10 @@ const customMatchers = {
 		this: ReturnType<Expect['getState']>,
 		timestampReceived: DOMHighResTimeStamp | undefined | null,
 		timestampExpected: DOMHighResTimeStamp | undefined | null,
-	) {
+	): {
+		message: () => any;
+		pass: boolean;
+	} {
 		const receivedInSeconds = Math.round(timestampReceived!) / 1000;
 		const expectedInSeconds = Math.round(timestampExpected!) / 1000;
 
@@ -443,4 +427,4 @@ const customMatchers = {
 	},
 };
 
-export const expect = baseExpect.extend(customMatchers);
+export const expect: any = baseExpect.extend(customMatchers);

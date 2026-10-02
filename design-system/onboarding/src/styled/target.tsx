@@ -41,7 +41,7 @@ const pulseKeyframes = keyframes({
 });
 
 const animationStyles = css({
-	animationDuration: '3000ms',
+	animationDuration: token('motion.duration.xxlong', '3000ms'),
 	animationIterationCount: 'infinite',
 	animationName: pulseKeyframes,
 	animationTimingFunction: easing,
@@ -128,7 +128,11 @@ const targetOverlayStyles = css({
  *
  * @internal
  */
-export const TargetOverlay = ({ onClick, ...props }: HTMLAttributes<HTMLDivElement>): JSX.Element => (
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports, @repo/internal/react/require-jsdoc
+export const TargetOverlay = ({
+	onClick,
+	...props
+}: HTMLAttributes<HTMLDivElement>): JSX.Element => (
 	// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 	<div
 		onClick={onClick}
@@ -154,6 +158,7 @@ export const TargetOverlay = ({ onClick, ...props }: HTMLAttributes<HTMLDivEleme
  *
  * @deprecated Use `@atlaskit/spotlight` instead.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports, @repo/internal/react/require-jsdoc
 export const Pulse = ({
 	bgColor,
 	children,

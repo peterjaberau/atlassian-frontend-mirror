@@ -1,3 +1,5 @@
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 export default {
 	meta: {
 		access: 'granted',
@@ -43,4 +45,4 @@ export default {
 			href: 'https://preview-url',
 		},
 	},
-};
+} as SmartLinkResponse;

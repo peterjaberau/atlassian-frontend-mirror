@@ -1,6 +1,5 @@
 import type { InteractionMetrics } from '../../common';
 import * as getPageVisibilityUpToTTAI from '../utils/get-page-visibility-up-to-ttai';
-
 import getTTAI from './get-ttai';
 
 // Mock the utility function
@@ -26,9 +25,7 @@ describe('getTTAI', () => {
 		requestInfo: [],
 		reactProfilerTimings: [],
 		holdInfo: [],
-		holdExpInfo: [],
 		holdActive: new Map(),
-		holdExpActive: new Map(),
 		measureStart: 1000,
 		rate: 1,
 		cancelCallbacks: [],
@@ -48,6 +45,7 @@ describe('getTTAI', () => {
 		isPreviousInteractionAborted: false,
 		abortReason: undefined,
 		...overrides,
+		preloadInfo: overrides.preloadInfo ?? [],
 	});
 
 	beforeEach(() => {

@@ -1,5 +1,7 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, type SerializedStyles } from '@emotion/react';
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 // We use !important to ensure next sibling gets the margin reset no matter what
 
@@ -18,7 +20,7 @@ const nextSiblingBlockMarkContentSelectors = textElements
 	.map((elem) => `+ .fabric-editor-block-mark > ${elem}`)
 	.join(',');
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const clearNextSiblingBlockMarkMarginTopStyle: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	[`${nextSiblingBlockMarkContentSelectors}`]: {

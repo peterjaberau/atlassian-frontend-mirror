@@ -1,5 +1,4 @@
 import type { InteractionMetrics } from '../../common';
-
 import { findMatchingLegacyMetric } from './find-matching-legacy-metric';
 
 describe('findMatchingLegacyMetric', () => {
@@ -23,9 +22,7 @@ describe('findMatchingLegacyMetric', () => {
 		spans: [],
 		requestInfo: [],
 		holdInfo: [],
-		holdExpInfo: [],
 		holdActive: new Map(),
-		holdExpActive: new Map(),
 		reactProfilerTimings: [],
 		measureStart: 1000,
 		cancelCallbacks: [],
@@ -40,6 +37,7 @@ describe('findMatchingLegacyMetric', () => {
 		trace: null,
 		routeName: 'test-route',
 		...overrides,
+		preloadInfo: overrides.preloadInfo ?? [],
 	});
 
 	describe('matching by key', () => {

@@ -356,9 +356,8 @@ This package supports being loaded in asyncronously, and can be loaded even afte
 started.
 
 ```ts
-const { autoScrollForElements } = await import(
-	'@atlaskit/pragmatic-drag-and-drop-auto-scroll/element'
-);
+const { autoScrollForElements } =
+	await import('@atlaskit/pragmatic-drag-and-drop-auto-scroll/element');
 ```
 
 In this example, we start loading the auto scroller code after the drag has started, but you could
@@ -367,7 +366,7 @@ load in the auto scroller whenever you like.
 <Example Component={LazyLoadedExample} appearance="showcase-only" />
 
 See our
-[deferred loading guide](/components/pragmatic-drag-and-drop/core-package/recipes/deferred-loading/index)
+[deferred loading guide](/components/pragmatic-drag-and-drop/core-package/recipes/deferred-loading)
 for more information.
 
 ## Axis Locking

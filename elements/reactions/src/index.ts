@@ -1,25 +1,3 @@
-import {
-	DefaultReactions,
-	DefaultReactionsByShortName,
-	ExtendedReactions,
-	ExtendedReactionsByShortName,
-	NUMBER_OF_REACTIONS_TO_DISPLAY,
-	SAMPLING_RATE_REACTIONS_RENDERED_EXP,
-	TOOLTIP_USERS_LIMIT,
-} from './shared/constants';
-import {
-	ComponentName,
-	ExperienceName,
-	PickerRender,
-	ReactionsAdd,
-	ReactionDetailsFetch,
-	ReactionDialogOpened,
-	ReactionDialogSelectedReactionChanged,
-	ReactionsRemove,
-	ReactionsRendered,
-	sampledReactionsRendered,
-} from './ufo';
-
 import { ReactionPicker } from './components/ReactionPicker';
 
 export { ReactionServiceClient } from './client';
@@ -43,25 +21,4 @@ export type {
 } from './types';
 export { ReactionUpdateType, ReactionStatus, type ReactionSummary } from './types';
 
-export const constants = {
-	DefaultReactions,
-	DefaultReactionsByShortName,
-	ExtendedReactions,
-	ExtendedReactionsByShortName,
-	NUMBER_OF_REACTIONS_TO_DISPLAY,
-	SAMPLING_RATE_REACTIONS_RENDERED_EXP,
-	TOOLTIP_USERS_LIMIT,
-};
-
-export const UFO = {
-	ComponentName,
-	ExperienceName,
-	PickerRender,
-	ReactionsAdd,
-	ReactionDetailsFetch,
-	ReactionDialogOpened,
-	ReactionDialogSelectedReactionChanged,
-	ReactionsRemove,
-	ReactionsRendered,
-	sampledReactionsRendered,
-};
+export { constants, UFO } from './constants';

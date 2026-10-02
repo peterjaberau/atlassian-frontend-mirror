@@ -1,6 +1,6 @@
 import { type UnbindFn } from 'bind-event-listener';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type {
 	ComponentsLogType,
@@ -13,18 +13,19 @@ import type {
 	VCRawDataType,
 	VCResult,
 } from '../../common/vc/types';
-import { isVCRevisionEnabled } from '../../config';
+import { getSelectorConfig, isVCRevisionEnabled } from '../../config';
 import { getActiveInteraction } from '../../interaction-metrics';
 import type { GetVCResultType, VCObserverInterface, VCObserverOptions } from '../types';
-
 import { attachAbortListeners } from './attachAbortListeners';
 import {
 	getVCRevisionDebugDetails,
 	type VCRevisionDebugDetails,
 } from './getVCRevisionDebugDetails';
 import { getVCRevisionsData } from './getVCRevisionsData';
-import { getViewportHeight, getViewportWidth } from './getViewport';
-import { type ObservedMutationType, Observers } from './observers';
+import { getViewportHeight } from './getViewportHeight';
+import { getViewportWidth } from './getViewportWidth';
+import { Observers } from './observers/index';
+import type { ObservedMutationType } from './observers/types';
 
 type PixelsToMap = { l: number; t: number; r: number; b: number };
 
@@ -117,14 +118,24 @@ export class VCObserver implements VCObserverInterface {
 
 		const { ssrEnablePageLayoutPlaceholder, ssrPlaceholderHandler } = options;
 
+		// Selector-config resolution is centralised in `getSelectorConfig()`
+		// (`../../config`). It enforces FedRAMP-override > caller-override >
+		// centrally configured > caller default. When `getSelectorConfig()`
+		// returns `undefined` we fall back to the legacy hard-coded default
+		// to preserve pre-existing behaviour for callers that don't pass an
+		// explicit `selectorConfig`.
+		const LEGACY_DEFAULT_SELECTOR_CONFIG = {
+			id: false,
+			testId: false,
+			role: false,
+			className: true,
+			dataVC: true,
+		};
 		this.observers = new Observers({
-			selectorConfig: options.selectorConfig || {
-				id: false,
-				testId: false,
-				role: false,
-				className: true,
-				dataVC: true,
-			},
+			selectorConfig:
+				getSelectorConfig(options.selectorConfig, LEGACY_DEFAULT_SELECTOR_CONFIG) ||
+				options.selectorConfig ||
+				LEGACY_DEFAULT_SELECTOR_CONFIG,
 			SSRConfig: {
 				enablePageLayoutPlaceholder: ssrEnablePageLayoutPlaceholder || false,
 			},

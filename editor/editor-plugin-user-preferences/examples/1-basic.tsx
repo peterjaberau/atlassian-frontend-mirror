@@ -45,7 +45,7 @@ import { userPreferencesPlugin } from '../src';
  * This is an example Editor class
  * @example return <Editor />
  */
-export default function Editor() {
+export default function Editor(): React.JSX.Element {
 	const { preset } = usePreset((builder) =>
 		builder
 			.add(basePlugin)
@@ -73,7 +73,6 @@ export default function Editor() {
 						allowTableResizing: true,
 					},
 					isTableScalingEnabled: true,
-					dragAndDropEnabled: true,
 					allowContextualMenu: true,
 					fullWidthEnabled: true,
 				},

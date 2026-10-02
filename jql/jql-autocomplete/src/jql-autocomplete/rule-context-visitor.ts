@@ -1,6 +1,7 @@
 import { type BufferedTokenStream, type ParserRuleContext, type Token } from 'antlr4ts';
 import { type ErrorNode, type RuleNode } from 'antlr4ts/tree';
 
+import { JQLLexer } from '@atlaskit/jql-parser/JQLLexer';
 import {
 	type JqlAndClauseContext,
 	type JqlChangedClauseContext,
@@ -10,11 +11,12 @@ import {
 	type JqlEqualsClauseContext,
 	type JqlEqualsOperatorContext,
 	type JqlFieldContext,
+	type JqlFunctionContext,
+	type JqlFunctionNameContext,
 	type JqlInClauseContext,
 	type JqlInOperatorContext,
 	type JqlIsClauseContext,
 	type JqlIsOperatorContext,
-	JQLLexer,
 	type JqlLikeClauseContext,
 	type JqlLikeOperatorContext,
 	type JqlListContext,
@@ -23,7 +25,6 @@ import {
 	type JqlNumberFieldContext,
 	type JqlOrClauseContext,
 	JQLParser,
-	type JQLParserVisitor,
 	type JqlQueryContext,
 	type JqlSubClauseContext,
 	type JqlTerminalClauseContext,
@@ -32,17 +33,20 @@ import {
 	type JqlWasInOperatorContext,
 	type JqlWasOperatorContext,
 	type JqlWhereContext,
-} from '@atlaskit/jql-parser';
+} from '@atlaskit/jql-parser/JQLParser';
+import type { JQLParserVisitor } from '@atlaskit/jql-parser/JQLParserVisitor';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type RuleSuggestion } from '../base-autocomplete/types';
-
 import { ORDER_BY_CLAUSE, WHERE_CLAUSE } from './constants';
+import { getPositionFromParserRule } from './get-position-from-parser-rule';
+import { isOperator } from './is-operator';
+import { normalizeText } from './normalize-text';
 import {
 	type JQLRuleContext,
 	type JQLRuleContextWithErrors,
 	type MaybeParserRuleContext,
 } from './types';
-import { getPositionFromParserRule, isOperator, normalizeText } from './util';
 
 export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 	private readonly ruleList: number[];
@@ -144,7 +148,12 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 
 	visitJqlEqualsClause = (ctx: JqlEqualsClauseContext): JQLRuleContext => {
 		// We can skip visiting operand in this case as this clause type doesn't support list operands
-		return ctx.jqlEqualsOperator().accept(this);
+		const operatorContext = ctx.jqlEqualsOperator().accept(this);
+		const functionContext = this.getFunctionContext(ctx.jqlFunction());
+		return {
+			...operatorContext,
+			...functionContext,
+		};
 	};
 
 	visitJqlEqualsOperator = (ctx: JqlEqualsOperatorContext): JQLRuleContext => {
@@ -153,7 +162,12 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 
 	visitJqlLikeClause = (ctx: JqlLikeClauseContext): JQLRuleContext => {
 		// We can skip visiting operand in this case as this clause type doesn't support list operands
-		return ctx.jqlLikeOperator().accept(this);
+		const operatorContext = ctx.jqlLikeOperator().accept(this);
+		const functionContext = this.getFunctionContext(ctx.jqlFunction());
+		return {
+			...operatorContext,
+			...functionContext,
+		};
 	};
 
 	visitJqlLikeOperator = (ctx: JqlLikeOperatorContext): JQLRuleContext => {
@@ -162,7 +176,12 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 
 	visitJqlComparisonClause = (ctx: JqlComparisonClauseContext): JQLRuleContext => {
 		// We can skip visiting operand in this case as this clause type doesn't support list operands
-		return ctx.jqlComparisonOperator().accept(this);
+		const operatorContext = ctx.jqlComparisonOperator().accept(this);
+		const functionContext = this.getFunctionContext(ctx.jqlFunction());
+		return {
+			...operatorContext,
+			...functionContext,
+		};
 	};
 
 	visitJqlComparisonOperator = (ctx: JqlComparisonOperatorContext): JQLRuleContext => {
@@ -171,6 +190,14 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 
 	visitJqlInClause = (ctx: JqlInClauseContext): JQLRuleContext => {
 		const operatorContext = ctx.jqlInOperator().accept(this);
+		const functionContext = this.getFunctionContext(ctx.jqlFunction());
+
+		if (Object.keys(functionContext).length > 0) {
+			return {
+				...operatorContext,
+				...functionContext,
+			};
+		}
 
 		const listCtx = ctx.jqlList();
 		if (listCtx !== undefined && this.isReplacePosAtCtx(listCtx)) {
@@ -198,7 +225,12 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 
 	visitJqlWasClause = (ctx: JqlWasClauseContext): JQLRuleContext => {
 		// We can skip visiting operand in this case as this clause type doesn't support list operands
-		return ctx.jqlWasOperator().accept(this);
+		const operatorContext = ctx.jqlWasOperator().accept(this);
+		const functionContext = this.getFunctionContext(ctx.jqlFunction());
+		return {
+			...operatorContext,
+			...functionContext,
+		};
 	};
 
 	visitJqlWasOperator = (ctx: JqlWasOperatorContext): JQLRuleContext => {
@@ -207,6 +239,14 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 
 	visitJqlWasInClause = (ctx: JqlWasInClauseContext): JQLRuleContext => {
 		const operatorContext = ctx.jqlWasInOperator().accept(this);
+		const functionContext = this.getFunctionContext(ctx.jqlFunction());
+
+		if (Object.keys(functionContext).length > 0) {
+			return {
+				...operatorContext,
+				...functionContext,
+			};
+		}
 
 		const listCtx = ctx.jqlList();
 		if (listCtx !== undefined && this.isReplacePosAtCtx(listCtx)) {
@@ -257,6 +297,16 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 		return {};
 	};
 
+	visitJqlFunction = (ctx: JqlFunctionContext): JQLRuleContext => {
+		return ctx.jqlFunctionName().accept(this);
+	};
+
+	visitJqlFunctionName = (ctx: JqlFunctionNameContext): JQLRuleContext => {
+		return {
+			functionName: normalizeText(this.tokenStream.getText(ctx)),
+		};
+	};
+
 	private visitOperator = (ctx: ParserRuleContext): JQLRuleContext => {
 		// In some situations, e.g. "project was in|", autocomplete returns both operator and operand
 		// rules as candidates. For the operand rule, we want to have "was" as operator in context, even
@@ -293,6 +343,18 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 				this.maybeCaretToken.type === JQLLexer.MATCHWS &&
 				this.maybeCaretToken.startIndex === stop)
 		);
+	};
+
+	private getFunctionContext = (ctx: JqlFunctionContext | undefined): JQLRuleContext => {
+		if (!fg('enable-jql-membersof-autocomplete')) {
+			return {};
+		}
+
+		if (ctx !== undefined && this.isReplacePosAtCtx(ctx)) {
+			return ctx.accept(this);
+		}
+
+		return {};
 	};
 
 	/**
@@ -352,15 +414,15 @@ export class RuleContextVisitor implements JQLParserVisitor<JQLRuleContext> {
 		return { errorNodes };
 	};
 
-	visit = () => {
+	visit = (): never => {
 		throw new Error('Unsupported operation visit(ParseTree)');
 	};
 
-	visitErrorNode = () => {
+	visitErrorNode = (): never => {
 		throw new Error('Unsupported operation visitErrorNode(ErrorNode)');
 	};
 
-	visitTerminal = () => {
+	visitTerminal = (): never => {
 		throw new Error('Unsupported operation visitTerminal(TerminalNode)');
 	};
 }

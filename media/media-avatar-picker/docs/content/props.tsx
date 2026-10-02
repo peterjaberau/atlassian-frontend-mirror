@@ -1,7 +1,239 @@
 import React from 'react';
 import { md, PropsTable } from '@atlaskit/docs';
 
-export const avatarPickerProps = {
+export const avatarPickerProps: {
+	kind: string;
+	component: {
+		kind: string;
+		value: {
+			kind: string;
+			types: (
+				| {
+						kind: string;
+						value: {
+							kind: string;
+							members: (
+								| {
+										kind: string;
+										optional: boolean;
+										key: {
+											kind: string;
+											name: string;
+										};
+										value: {
+											kind: string;
+											value: {
+												kind: string;
+												returnType: {
+													kind: string;
+												};
+												parameters: {
+													kind: string;
+													value: {
+														kind: string;
+														name: string;
+													};
+													type: null;
+												}[];
+												name?: undefined;
+												members?: undefined;
+											};
+											key?: undefined;
+											typeParams?: undefined;
+										};
+										leadingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										trailingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										default?: undefined;
+								  }
+								| {
+										kind: string;
+										optional: boolean;
+										key: {
+											kind: string;
+											name: string;
+										};
+										value: {
+											kind: string;
+											value?: undefined;
+											key?: undefined;
+											typeParams?: undefined;
+										};
+										leadingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										trailingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										default?: undefined;
+								  }
+								| {
+										kind: string;
+										optional: boolean;
+										key: {
+											kind: string;
+											name: string;
+										};
+										value: {
+											kind: string;
+											value?: undefined;
+											key?: undefined;
+											typeParams?: undefined;
+										};
+										leadingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										trailingComments?: undefined;
+										default?: undefined;
+								  }
+								| {
+										kind: string;
+										optional: boolean;
+										key: {
+											kind: string;
+											name: string;
+										};
+										value: {
+											kind: string;
+											value: {
+												kind: string;
+												name: string;
+												returnType?: undefined;
+												parameters?: undefined;
+												members?: undefined;
+											};
+											key: {
+												kind: string;
+											};
+											typeParams: {
+												kind: string;
+												params: {
+													kind: string;
+													value: {
+														kind: string;
+														members: {
+															kind: string;
+															optional: boolean;
+															key: {
+																kind: string;
+																name: string;
+															};
+															value: {
+																kind: string;
+															};
+														}[];
+													};
+												}[];
+											};
+										};
+										leadingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										trailingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										default: {
+											kind: string;
+											elements: never[];
+										};
+								  }
+								| {
+										kind: string;
+										optional: boolean;
+										key: {
+											kind: string;
+											name: string;
+										};
+										value: {
+											kind: string;
+											value: {
+												kind: string;
+												members: {
+													kind: string;
+													optional: boolean;
+													key: {
+														kind: string;
+														name: string;
+													};
+													value: {
+														kind: string;
+													};
+												}[];
+												returnType?: undefined;
+												parameters?: undefined;
+												name?: undefined;
+											};
+											key?: undefined;
+											typeParams?: undefined;
+										};
+										leadingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										trailingComments: {
+											type: string;
+											value: string;
+											raw: string;
+										}[];
+										default?: undefined;
+								  }
+							)[];
+							name?: undefined;
+						};
+						key?: undefined;
+						typeParams?: undefined;
+				  }
+				| {
+						kind: string;
+						value: {
+							kind: string;
+							name: string;
+							members?: undefined;
+						};
+						key: {
+							kind: string;
+						};
+						typeParams: {
+							kind: string;
+							params: {
+								kind: string;
+								value: {
+									kind: string;
+									importKind: string;
+									name: string;
+									moduleSpecifier: string;
+								};
+							}[];
+						};
+				  }
+			)[];
+			referenceIdName: string;
+		};
+		name: {
+			kind: string;
+			name: string;
+			type: null;
+		};
+	};
+} = {
 	kind: 'program',
 	component: {
 		kind: 'generic',
@@ -656,7 +888,7 @@ export const avatarPickerProps = {
 									kind: 'import',
 									importKind: 'value',
 									name: 'WrappedComponentProps',
-									moduleSpecifier: 'react-intl-next',
+									moduleSpecifier: 'react-intl',
 								},
 							},
 						],
@@ -673,11 +905,10 @@ export const avatarPickerProps = {
 	},
 };
 
-export default md`
+const _default_1: any = md`
 ${(
 	<PropsTable
 		heading="Avatar List Props"
-		// @ts-ignore
 		props={require('!!extract-react-types-loader!../../src/avatar-list')}
 	/>
 )}
@@ -687,7 +918,6 @@ ${(<PropsTable heading="Avatar Picker Dialog Props" props={avatarPickerProps} />
 ${(
 	<PropsTable
 		heading="Predefined Avatar List Props"
-		// @ts-ignore
 		props={require('!!extract-react-types-loader!../../src/predefined-avatar-list')}
 	/>
 )}
@@ -695,7 +925,7 @@ ${(
 ${(
 	<PropsTable
 		heading="Predefined Avatar View Props"
-		// @ts-ignore
 		props={require('!!extract-react-types-loader!../../src/predefined-avatar-view')}
 	/>
 )}`;
+export default _default_1;

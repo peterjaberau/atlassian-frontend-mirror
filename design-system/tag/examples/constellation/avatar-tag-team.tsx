@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { AvatarTag } from '@atlaskit/tag';
-import TeamAvatar from '@atlaskit/teams-avatar';
+import AvatarTag from '@atlaskit/tag/avatar-tag';
+import TeamAvatar from '@atlaskit/teams-avatar/teams-avatar';
 
 export default (): React.JSX.Element => (
 	<AvatarTag

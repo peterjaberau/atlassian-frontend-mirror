@@ -4,19 +4,18 @@ import Fetcher, {
 	type FrontendClientSdkKeyResponse,
 	type FrontendExperimentsResponse,
 } from '@atlaskit/feature-gate-fetcher';
-import {
-	type BaseClientOptions,
-	type CustomAttributes,
-	type FrontendExperimentsResult,
-	type Identifiers,
-	type OptionsWithDefaults,
-	type Provider,
-} from '@atlaskit/feature-gate-js-client';
+import type {
+	BaseClientOptions,
+	CustomAttributes,
+	FrontendExperimentsResult,
+	Identifiers,
+	OptionsWithDefaults,
+	Provider,
+} from '@atlaskit/feature-gate-js-client/types';
 
 import Broadcast from '../Broadcast';
 import FeatureGatesDB from '../database/FeatureGatesDB';
 import { type ExperimentValuesEntry, type RulesetProfile } from '../database/types';
-
 import Refresh from './Refresh';
 import { type FeatureGateState, type ProviderOptions } from './types';
 import { cloneObject, createHash, getFrontendExperimentsResult } from './utils';

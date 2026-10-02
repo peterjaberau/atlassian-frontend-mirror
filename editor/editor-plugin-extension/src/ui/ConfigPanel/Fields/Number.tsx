@@ -3,8 +3,8 @@ import React from 'react';
 import isNumber from 'is-number';
 
 import type { NumberField } from '@atlaskit/editor-common/extensions';
-import { Field } from '@atlaskit/form';
-import TextField from '@atlaskit/textfield';
+import Field from '@atlaskit/form/field';
+import TextField from '@atlaskit/textfield/text-field';
 
 import FieldMessages from '../FieldMessages';
 import type { OnFieldChange } from '../types';
@@ -58,6 +58,7 @@ export default function Number({
 							// eslint-disable-next-line react/jsx-props-no-spreading
 							{...fieldProps}
 							autoFocus={autoFocus}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onBlur={() => {
 								fieldProps.onBlur();
 								onFieldChange(name, meta.dirty);

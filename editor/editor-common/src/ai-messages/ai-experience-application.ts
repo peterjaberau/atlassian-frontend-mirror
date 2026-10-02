@@ -1,7 +1,148 @@
 // eslint-disable-next-line no-restricted-imports
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const aiExperienceApplicationMessages = defineMessages({
+export const aiExperienceApplicationMessages: {
+	dialogAriaLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	responseTooSimilarMessage: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	generatingAiResponse: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	discardMessagePrompt: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	discardMessageResponse: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	discardStreamingInDocumennt: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	loadingTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	messageTemplateAnalysingQuery: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	messageTemplateContentSearch: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	messageTemplatePageHydration: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	messageTemplateNextBestTask: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	convoAIBeta: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	useRovoOrganisationKnowledgeRightText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	useGeneralAiKnowledgeRightText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	actionsGroupHeading: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	atlassianIntelligenceGroupHeading: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	knowledgeSourceGroupHeading: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	agentsSuggestionGroupHeading: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	rovoAgentsCountSuggestionGroupHeading: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	useRovoAgentsCountSuggestionGroupHeading: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	rovoAgentsSuggestionGroupHeading: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	useGeneralAiKnowledgeLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	useRovoOrganisationKnowledgeLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	agentsFooterRightText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	agentsBrowseMore: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	showMoreButton: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	noResultsSuggestion: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	engagementBannerLinksText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	dialogAriaLabel: {
 		id: 'fabric.editor.ai.experience.dialogAriaLabel',
 		defaultMessage: 'Atlassian Intelligence Dialog',
@@ -129,12 +270,14 @@ export const aiExperienceApplicationMessages = defineMessages({
 	agentsFooterRightText: {
 		id: 'fabric.editor.ai.experience.footerRightText.agents',
 		defaultMessage: 'Powered by Rovo',
-		description: 'Label text for Rovo footer icon',
+		description:
+			'The text is shown as a label in the footer of the AI experience panel, displayed alongside the Rovo icon to indicate that the feature is powered by Rovo.',
 	},
 	agentsBrowseMore: {
 		id: 'fabric.editor.ai.experience.browseMore.agents',
 		defaultMessage: 'Browse Agents',
-		description: 'Link text to browse more agents',
+		description:
+			'The text is shown as a link in the AI experience panel footer, allowing the user to navigate to a page listing all available Rovo agents.',
 	},
 	showMoreButton: {
 		id: 'fabric.editor.ai.experience.showMoreButton',
@@ -149,6 +292,7 @@ export const aiExperienceApplicationMessages = defineMessages({
 	engagementBannerLinksText: {
 		id: 'fabric.editor.ai.experience.engagementBannerLinksText',
 		defaultMessage: '🚀 You can now paste links 🔗 to Jira and Confluence content in your prompts.',
-		description: 'Text for the engagement banner',
+		description:
+			'The text is shown in an engagement banner within the AI prompt experience, informing users that they can paste Jira or Confluence links directly into their prompts.',
 	},
 });

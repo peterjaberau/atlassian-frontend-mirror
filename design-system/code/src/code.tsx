@@ -8,8 +8,8 @@ import { cssMap, jsx } from '@compiled/react';
 
 import { token } from '@atlaskit/tokens';
 
-import CodeBidiWarning from './bidi-warning';
 import codeBidiWarningDecorator from './bidi-warning/bidi-warning-decorator';
+import CodeBidiWarning from './bidi-warning/ui';
 import type { CodeProps } from './types';
 const styles = cssMap({
 	base: {
@@ -38,7 +38,9 @@ const styles = cssMap({
  * - [Code](https://atlassian.design/components/code/code)
  * - [Usage](https://atlassian.design/components/code/usage)
  */
-const Code: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<CodeProps, "ref"> & React.RefAttributes<HTMLElement>>> = memo(
+const Code: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<Omit<CodeProps, 'ref'> & React.RefAttributes<HTMLElement>>
+> = memo(
 	forwardRef<HTMLElement, CodeProps>(function Code({ testId, ...props }, ref) {
 		const {
 			children,

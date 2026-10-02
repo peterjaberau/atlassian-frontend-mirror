@@ -1,14 +1,14 @@
-import { type ActiveTokens } from '@atlaskit/tokens';
+import type { ActiveTokens } from '@atlaskit/tokens/artifacts/types';
 import tokenNames from '@atlaskit/tokens/token-names';
 
 import { baseTokenNames } from '../components/base-token-editor';
-
 import type { BaseTokens, ColorMode, Theme } from './types';
 
 const url = new URL(window.location.href);
 const params = new URLSearchParams(window.location.search);
 
-export const isHex = (value: string): RegExpMatchArray | null => value.match(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/);
+export const isHex = (value: string): RegExpMatchArray | null =>
+	value.match(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/);
 
 // Get search params
 export const getSearchParams = (): {

@@ -1,10 +1,10 @@
 import React from 'react';
 
 import LikeIcon from '@atlaskit/icon/core/thumbs-up';
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { CardClient as Client, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import Client from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { response1 } from '@atlaskit/link-test-helpers';
-import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags';
 
 import {
 	ActionName,
@@ -19,11 +19,8 @@ import {
 	TitleBlock,
 } from '../../src';
 
-// eslint-disable-next-line @atlaskit/platform/no-module-level-eval
-setBooleanFeatureFlagResolver((flag) => flag === 'platform-visual-refresh-icons');
-
 class CustomClient extends Client {
-	fetchData(url: string) {
+	fetchData() {
 		return Promise.resolve(response1 as JsonLd.Response);
 	}
 }

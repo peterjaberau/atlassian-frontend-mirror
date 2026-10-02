@@ -1,3 +1,5 @@
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 export default {
 	meta: {
 		access: 'granted',
@@ -43,4 +45,4 @@ export default {
 			'atlassian:aspectRatio': 1.7778,
 		},
 	},
-};
+} as SmartLinkResponse;

@@ -2,19 +2,19 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { jsx, css } from '@compiled/react';
 
-import { token } from '@atlaskit/tokens';
-import { useIntl } from 'react-intl-next';
-import { messages } from '@atlaskit/media-ui';
-import { B200, B100 } from '@atlaskit/theme/colors';
 import { useState } from 'react';
 
+import { jsx, css } from '@compiled/react';
+import { useIntl } from 'react-intl';
+
+import { messages } from '@atlaskit/media-ui/messages';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
 export interface Avatar {
 	dataURI: string;
 	name?: string;
 }
-
 export interface AvatarListProps {
 	avatars: Array<Avatar>;
 	onItemClick?: (avatar: Avatar) => void;
@@ -25,8 +25,8 @@ export interface AvatarListProps {
 const smallAvatarImageStyles = css({
 	borderRadius: token('radius.small', '3px'),
 	cursor: 'pointer',
-	width: token('space.500', '40px'),
-	height: token('space.500', '40px'),
+	width: token('space.500'),
+	height: token('space.500'),
 });
 
 const avatarListWrapperStyles = css({
@@ -34,7 +34,7 @@ const avatarListWrapperStyles = css({
 });
 
 const labelStyles = css({
-	paddingRight: token('space.050', '4px'),
+	paddingRight: token('space.050'),
 	display: 'inline-flex',
 });
 
@@ -50,17 +50,15 @@ const inputStyles = css({
 });
 
 const imageCheckedStyles = css({
-	boxShadow: `0px 0px 0px 1px ${token(
-		'color.border.inverse',
-		'white',
-	)}, 0px 0px 0px 3px ${token('color.border.selected', B200)}`,
+	boxShadow: `0px 0px 0px 1px ${token('color.border.inverse')}, 0px 0px 0px 3px ${token(
+		'color.border.selected',
+	)}`,
 });
 
 const imageFocusedStyles = css({
-	boxShadow: `0px 0px 0px 1px ${token(
-		'color.border.inverse',
-		'white',
-	)}, 0px 0px 0px 3px ${token('color.border.focused', B100)}`,
+	boxShadow: `0px 0px 0px 1px ${token('color.border.inverse')}, 0px 0px 0px 3px ${token(
+		'color.border.focused',
+	)}`,
 });
 
 export const AvatarList = ({
@@ -68,7 +66,7 @@ export const AvatarList = ({
 	selectedAvatar,
 	onItemClick,
 	selectAvatarLabel,
-}: AvatarListProps) => {
+}: AvatarListProps): JSX.Element => {
 	const intl = useIntl();
 
 	const [isFocused, setIsFocused] = useState(
@@ -84,6 +82,10 @@ export const AvatarList = ({
 	const cards = avatars.map((avatar, idx) => {
 		const elementKey = `predefined-avatar-${idx}`;
 
+		const fallbackAvatarLabel = fg('platform_media_a11y_avatar_radio_label')
+			? intl.formatMessage(messages.select_an_avatar_option, { number: idx + 1 })
+			: undefined;
+
 		return (
 			<label key={elementKey} css={labelStyles}>
 				{/* eslint-disable-next-line @atlaskit/design-system/no-html-radio */}
@@ -91,7 +93,7 @@ export const AvatarList = ({
 					type="radio"
 					name="avatar"
 					value={avatar.dataURI}
-					aria-label={avatar.name || undefined}
+					aria-label={avatar.name || fallbackAvatarLabel}
 					checked={avatar === selectedAvatar}
 					onChange={createOnItemClickHandler(avatar)}
 					css={inputStyles}

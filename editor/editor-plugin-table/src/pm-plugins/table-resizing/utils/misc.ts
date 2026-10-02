@@ -1,4 +1,4 @@
-import type { CellAttributes } from '@atlaskit/adf-schema';
+import type { CellAttributes } from '@atlaskit/adf-schema/tableNodes';
 import {
 	getParentNodeWidth,
 	getTableContainerWidth,
@@ -17,17 +17,14 @@ import {
 	akEditorGutterPaddingReduced,
 	akEditorFullPageNarrowBreakout,
 } from '@atlaskit/editor-shared-styles';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { TableOptions } from '../../../nodeviews/types';
-
 import { hasTableBeenResized, hasTableColumnBeenResized } from './colgroup';
 import {
 	MAX_SCALING_PERCENT,
 	MAX_SCALING_PERCENT_TABLES_WITH_FIXED_COLUMN_WIDTHS_OPTION,
 	TABLE_MAX_WIDTH,
-	TABLE_FULL_WIDTH,
 } from './consts';
 
 // Translates named layouts in number values.
@@ -63,7 +60,7 @@ export function getLayoutSize(
 }
 
 // Does the current position point at a cell.
-export function pointsAtCell($pos: ResolvedPos) {
+export function pointsAtCell($pos: ResolvedPos): false | PMNode | null {
 	return (
 		($pos.parent.type.spec as NodeSpec & { tableRole: string }).tableRole === 'row' &&
 		$pos.nodeAfter
@@ -130,7 +127,7 @@ export const getTableMaxWidth = ({
  * @param table
  * @returns calculated width of <table /> element derived from sum of colwidths on tableCell or tableHeader nodes or falls back to container width
  */
-export const getTableElementWidth = (table: PMNode) => {
+export const getTableElementWidth = (table: PMNode): number => {
 	if (hasTableBeenResized(table)) {
 		// TODO: ED-26961 - is there a scenario where ADF columns are SMALLER than container width?
 		return calcTableColumnWidths(table).reduce((sum, width) => sum + width, 0);
@@ -139,7 +136,7 @@ export const getTableElementWidth = (table: PMNode) => {
 	return getTableContainerElementWidth(table);
 };
 
-export const getTableContainerElementWidth = (table: PMNode) => {
+export const getTableContainerElementWidth = (table: PMNode): number => {
 	return getTableContainerWidth(table);
 };
 
@@ -157,17 +154,9 @@ export const getTableResizerContainerMaxWidthInCSS = (
 	isTableScalingEnabled?: boolean,
 ): string => {
 	const maxResizerWidthForNonCommentEditor = isTableScalingEnabled
-		? `min(calc(100cqw - calc(var(--ak-editor--large-gutter-padding) * 2)), ${
-				expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-				expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-					? TABLE_MAX_WIDTH
-					: TABLE_FULL_WIDTH
-			}px)`
+		? `min(calc(100cqw - calc(var(--ak-editor--large-gutter-padding) * 2)), ${TABLE_MAX_WIDTH}px)`
 		: `min(calc(100cqw - calc(var(--ak-editor--large-gutter-padding) * 2) - var(--ak-editor--resizer-handle-spacing)), ${
-				expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-				expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-					? TABLE_MAX_WIDTH
-					: TABLE_FULL_WIDTH
+				TABLE_MAX_WIDTH
 			}px)`;
 	return isCommentEditor || isChromelessEditor ? '100%' : maxResizerWidthForNonCommentEditor;
 };
@@ -243,7 +232,7 @@ export const getTableScalingPercent = (
 	table: PMNode,
 	tableRef: HTMLElement | null,
 	shouldUseIncreasedScalingPercent?: boolean,
-) => {
+): number => {
 	const maxScalingPercent = shouldUseIncreasedScalingPercent
 		? MAX_SCALING_PERCENT_TABLES_WITH_FIXED_COLUMN_WIDTHS_OPTION
 		: MAX_SCALING_PERCENT;
@@ -264,7 +253,7 @@ export const getTableScalingPercent = (
 export const getScalingPercentForTableWithoutWidth = (
 	table: PMNode,
 	tableRef: HTMLElement | null,
-) => {
+): number => {
 	// are table columns resized
 	if (hasTableColumnBeenResized(table)) {
 		const tableWidth = calcTableColumnWidths(table).reduce((sum, width) => sum + width, 0);
@@ -283,7 +272,7 @@ export const getStaticTableScalingPercent = (
 	table: PMNode,
 	tableRenderWidth: number,
 	shouldUseIncreasedScalingPercent?: boolean,
-) => {
+): number => {
 	const maxScalingPercent = shouldUseIncreasedScalingPercent
 		? MAX_SCALING_PERCENT_TABLES_WITH_FIXED_COLUMN_WIDTHS_OPTION
 		: MAX_SCALING_PERCENT;

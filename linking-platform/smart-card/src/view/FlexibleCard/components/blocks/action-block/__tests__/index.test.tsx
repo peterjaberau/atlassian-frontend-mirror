@@ -1,20 +1,42 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@atlassian/testing-library';
 
 import context from '../../../../../../__fixtures__/flexible-ui-data-context';
 import { getFlexibleCardTestWrapper } from '../../../../../../__tests__/__utils__/unit-testing-library-helpers';
 import { type SmartLinkStatus } from '../../../../../../constants';
+import { ActionName } from '../../../../../../constants';
 import ActionBlock from '../index';
 import type { ActionBlockProps } from '../types';
-
 jest.mock('../../../../../../state/hooks/use-invoke', () => jest.fn());
 jest.mock('../../../../../../state/hooks/use-resolve', () => jest.fn());
+jest.mock('../../../../../../state/hooks/use-rovo-chat', () => ({
+	__esModule: true,
+	default: jest.fn().mockReturnValue({
+		isRovoChatEnabled: true,
+		sendPromptMessage: jest.fn(),
+	}),
+}));
+
+/**
+ * In real code RovoChatAction is only added to context when kill switch is on (extractors/flexible/actions/index.ts).
+ * Use this when testing with kill switch off to match production context (no Rovo in actions).
+ */
+const getContextWithoutRovo = () => {
+	if (!context.actions) return context;
+	const restActions = { ...context.actions };
+	delete (restActions as Record<string, unknown>)[ActionName.RovoChatAction];
+	return { ...context, actions: restActions };
+};
 
 describe('ActionBlock', () => {
-	const setup = (props?: Partial<ActionBlockProps>, status?: SmartLinkStatus) =>
+	const setup = (
+		props?: Partial<ActionBlockProps>,
+		status?: SmartLinkStatus,
+		dataContext = context,
+	) =>
 		render(<ActionBlock {...props} />, {
-			wrapper: getFlexibleCardTestWrapper(context, undefined, status),
+			wrapper: getFlexibleCardTestWrapper(dataContext, undefined, status),
 		});
 
 	it('renders ActionBlock', async () => {
@@ -24,7 +46,7 @@ describe('ActionBlock', () => {
 	});
 
 	it('renders list of actions', async () => {
-		setup();
+		setup(undefined, undefined, getContextWithoutRovo());
 
 		const downloadAction = await screen.findByTestId('smart-action-download-action');
 		expect(downloadAction).toBeInTheDocument();
@@ -47,7 +69,7 @@ describe('ActionBlock', () => {
 	});
 
 	it('sorts list of actions', async () => {
-		setup();
+		setup(undefined, undefined, getContextWithoutRovo());
 
 		const buttons = await screen.findAllByRole('button');
 		const copyLinkAction = await screen.findByTestId('smart-action-copy-link-action');
@@ -62,6 +84,7 @@ describe('ActionBlock', () => {
 			'smart-action-view-related-links-action',
 		);
 
+		// When experiment is off/undefined, Rovo is filtered out → 7 actions
 		expect(buttons.length).toBe(7);
 		expect(buttons[0]).toBe(previewAction);
 		expect(buttons[1]).toBe(copyLinkAction);

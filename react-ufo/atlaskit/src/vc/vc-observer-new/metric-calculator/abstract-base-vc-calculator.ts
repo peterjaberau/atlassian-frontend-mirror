@@ -1,8 +1,8 @@
-import { fg } from '@atlaskit/platform-feature-flags';
-
 import type { AbortReasonType, InteractionType } from '../../../common/common/types';
 import type {
 	CalculateTTVCResult,
+	LayoutShiftInsights,
+	LayoutShiftInsightsPayload,
 	RevisionPayloadEntry,
 	RevisionPayloadVCDetails,
 	VCAbortReason,
@@ -12,11 +12,12 @@ import type {
 } from '../../../common/vc/types';
 import type { VCRevisionDebugDetails } from '../../vc-observer/getVCRevisionDebugDetails';
 import type { VCObserverEntry, ViewportEntryData } from '../types';
-
-import { calculateTTVCPercentilesWithDebugInfo } from './percentile-calc';
+import { calculateTTVCPercentilesWithDebugInfo } from './percentile-calc/canvas-heatmap';
 import type { VCCalculator, VCCalculatorParam } from './types';
+import { detectLayoutShiftCause } from './utils/detect-layout-shift-cause';
 import getViewportHeight from './utils/get-viewport-height';
 import getViewportWidth from './utils/get-viewport-width';
+import isViewportEntryData from './utils/is-viewport-entry-data';
 
 declare global {
 	interface Window {
@@ -38,8 +39,8 @@ type EnhancedVcLogEntry = {
 
 // Helper function for reporting ratios
 function roundDecimal(value: number, decimals: number = 3): number {
-  const factor = Math.pow(10, decimals);
-  return Math.round(value * factor) / factor;
+	const factor = Math.pow(10, decimals);
+	return Math.round(value * factor) / factor;
 }
 
 export default abstract class AbstractVCCalculatorBase implements VCCalculator {
@@ -103,7 +104,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 	): VCLabelStacks {
 		const labelStacks: VCLabelStacks = {};
 		for (const entry of filteredEntries) {
-			if ('elementName' in entry.data && entry.data.labelStacks) {
+			if (isViewportEntryData(entry.data) && entry.data.labelStacks) {
 				if (isPostInteraction) {
 					labelStacks[entry.data.elementName] = {
 						segment: entry.data.labelStacks.segment,
@@ -132,10 +133,10 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 		excludeSmartAnswersInSearch?: boolean,
 		interactionAbortReason?: AbortReasonType,
 		includeSSRRatio?: boolean,
+		reportLayoutShiftOffenders?: boolean,
 	): Promise<CalculateTTVCResult> {
 		const percentiles = [25, 50, 75, 80, 85, 90, 95, 98, 99, 100];
 		const viewportEntries = this.filterViewportEntries(filteredEntries);
-		const shouldCalculateSpeedIndex = fg('platform_ufo_ttvc_v4_speed_index');
 		const { entries: vcLogs, speedIndex } = await calculateTTVCPercentilesWithDebugInfo({
 			viewport: {
 				width: getViewportWidth(),
@@ -144,7 +145,6 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 			startTime,
 			stopTime,
 			orderedEntries: viewportEntries,
-			calculateSpeedIndex: shouldCalculateSpeedIndex,
 		});
 
 		const vcDetails: RevisionPayloadVCDetails = {};
@@ -152,16 +152,14 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 		const entryDataBuffer = new Set<ViewportEntryData>();
 
 		let ssrRatio = -1;
+		let layoutShiftInsights: LayoutShiftInsights = null;
+		let previousViewportPercentage = 0;
 
 		if (vcLogs) {
 			for (const entry of vcLogs) {
 				const { time, viewportPercentage, entries } = entry;
 
-				if (
-					includeSSRRatio &&
-					ssrRatio === -1 &&
-					entries.some((e) => e.elementName === 'SSR')
-				) {
+				if (includeSSRRatio && ssrRatio === -1 && entries.some((e) => e.elementName === 'SSR')) {
 					ssrRatio = viewportPercentage;
 				}
 
@@ -183,6 +181,27 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 							t: Math.round(time),
 							e: elementNames,
 						};
+						if (
+							reportLayoutShiftOffenders &&
+							percentiles[percentileIndex] === 90 &&
+							entries.some((e: ViewportEntryData) => e.type === 'layout-shift')
+						) {
+							const layoutShiftEntries = entries.filter(
+								(e: ViewportEntryData) => e.type === 'layout-shift',
+							);
+							layoutShiftInsights = {
+								layoutShiftOffendersResult: detectLayoutShiftCause({
+									viewportEntries: viewportEntries as ReadonlyArray<
+										VCObserverEntry & { data: ViewportEntryData }
+									>,
+									layoutShiftEntries,
+									time,
+									startTime,
+								}),
+								layoutShiftEntriesCount: layoutShiftEntries.length,
+								layoutShiftImpact: viewportPercentage - previousViewportPercentage,
+							};
+						}
 						percentileIndex++;
 					}
 
@@ -192,6 +211,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 					// Only add to buffer if we haven't reached all percentiles
 					entries.forEach((e: ViewportEntryData) => entryDataBuffer.add(e));
 				}
+				previousViewportPercentage = viewportPercentage;
 			}
 		}
 
@@ -219,14 +239,14 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 			: [];
 
 		// If 3p metric enabled - calculate the debug details
-		const shouldCalculate3p = include3p && fg('platform_ufo_enable_ttai_with_3p');
+		const shouldCalculate3p = include3p;
 		// Only calculate enhanced debug details if devtool callbacks exist
 
 		const shouldCalculateDebugDetails =
-				!isPostInteraction &&
-				(typeof window?.__ufo_devtool_onVCRevisionReady__ === 'function' ||
-					typeof window?.__on_ufo_vc_debug_data_ready === 'function' ||
-					typeof window?.__ufo_devtool_vc_3p_debug_data === 'function');
+			!isPostInteraction &&
+			(typeof window?.__ufo_devtool_onVCRevisionReady__ === 'function' ||
+				typeof window?.__on_ufo_vc_debug_data_ready === 'function' ||
+				typeof window?.__ufo_devtool_vc_3p_debug_data === 'function');
 
 		if (shouldCalculateDebugDetails && allEntries && vcLogs) {
 			// Pre-sort vcLogs by time for efficient lookups
@@ -364,6 +384,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 			vcDetails,
 			ssrRatio,
 			speedIndex,
+			VC90layoutShiftInsights: layoutShiftInsights,
 		};
 	}
 
@@ -379,6 +400,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 		interactionType,
 		isPageVisible,
 		interactionAbortReason,
+		reportLayoutShiftOffenders,
 	}: VCCalculatorParam): Promise<RevisionPayloadEntry | undefined> {
 		const filteredEntries = orderedEntries.filter((entry) => {
 			return this.isEntryIncluded(entry, include3p, excludeSmartAnswersInSearch);
@@ -400,28 +422,65 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 			};
 		}
 
-		const { vcDetails, ssrRatio, speedIndex } = await this.calculateWithDebugInfo(
-			filteredEntries,
-			startTime,
-			stopTime,
-			isPostInteraction,
-			isVCClean,
-			interactionType,
-			isPageVisible,
-			interactionId,
-			dirtyReason,
-			orderedEntries,
-			include3p,
-			excludeSmartAnswersInSearch,
-			interactionAbortReason,
-			includeSSRRatio,
-		);
+		const { vcDetails, ssrRatio, speedIndex, VC90layoutShiftInsights } =
+			await this.calculateWithDebugInfo(
+				filteredEntries,
+				startTime,
+				stopTime,
+				isPostInteraction,
+				isVCClean,
+				interactionType,
+				isPageVisible,
+				interactionId,
+				dirtyReason,
+				orderedEntries,
+				include3p,
+				excludeSmartAnswersInSearch,
+				interactionAbortReason,
+				includeSSRRatio,
+				reportLayoutShiftOffenders,
+			);
+
+		let layoutShiftInsightsPayload: LayoutShiftInsightsPayload | undefined;
+
+		if (VC90layoutShiftInsights !== null && reportLayoutShiftOffenders) {
+			const { layoutShiftOffendersResult, layoutShiftEntriesCount, layoutShiftImpact } =
+				VC90layoutShiftInsights;
+
+			layoutShiftInsightsPayload = {
+				impact: layoutShiftImpact,
+				sources: layoutShiftEntriesCount ?? 0,
+				same: {
+					dir: layoutShiftOffendersResult?.layoutShiftVariables.allMovedSameWay ?? false,
+					dist: layoutShiftOffendersResult?.layoutShiftVariables.allMovedSameAmount ?? false,
+				},
+				total_mut: layoutShiftOffendersResult?.layoutShiftOffenders.length ?? 0,
+				mut: layoutShiftOffendersResult?.layoutShiftOffenders
+					.sort((a, b) => Math.abs(a.distanceToLS) - Math.abs(b.distanceToLS))
+					.slice(0, 5)
+					.map((offender) => ({
+						e: offender.offender,
+						size: -1, // @todo: calculate size
+						attr: {
+							t_before: offender.happenedBefore,
+							t_distance: offender.distanceToLS,
+							p_above: offender.isAbove,
+							p_left: offender.isLeft,
+							p_right: offender.isRight,
+							p_h_overlap: offender.hasHorizontalOverlap,
+							p_v_overlap: offender.hasVerticalOverlap,
+							p_same_offset: offender.matchesLayoutShiftDelta ? 'all' : 'none',
+						},
+					})),
+			};
+		}
 
 		const result: RevisionPayloadEntry = {
 			revision: this.revisionNo,
 			clean: true,
 			'metric:vc90': vcDetails?.['90']?.t ?? null,
 			vcDetails: vcDetails ?? undefined,
+			'vc90:ls': layoutShiftInsightsPayload ?? undefined,
 		};
 
 		result.ratios = this.calculateRatios(filteredEntries);
@@ -430,8 +489,7 @@ export default abstract class AbstractVCCalculatorBase implements VCCalculator {
 			result.ssrRatio = ssrRatio;
 		}
 
-		// speedIndex is only calculated when platform_ufo_ttvc_v4_speed_index is enabled,
-		// so we only include it in the result when it has a meaningful value (> 0)
+		// speedIndex is only included in the result when it has a meaningful value (> 0)
 		if (speedIndex > 0) {
 			result.speedIndex = speedIndex;
 		}

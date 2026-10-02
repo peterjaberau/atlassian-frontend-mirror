@@ -1,4 +1,4 @@
-import { getPixelWidth } from '../../panel-splitter/get-width';
+import { getPixelWidth } from '../../panel-splitter/get-pixel-width';
 
 describe('getPixelWidth', () => {
 	it('should return the offsetWidth of an element', () => {
@@ -6,11 +6,11 @@ describe('getPixelWidth', () => {
 		element.style.width = '100px';
 
 		// `getPixelWidth()` relies on the `offsetWidth`
-		jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockImplementation(function (
-			this: HTMLElement,
-		) {
-			return 100;
-		});
+		jest
+			.spyOn(HTMLElement.prototype, 'offsetWidth', 'get')
+			.mockImplementation(function (this: HTMLElement) {
+				return 100;
+			});
 
 		const result = getPixelWidth(element);
 

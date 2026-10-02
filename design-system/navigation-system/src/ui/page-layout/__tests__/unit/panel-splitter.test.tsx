@@ -1,15 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import * as reactDOM from 'react-dom';
 
 import createStub from 'raf-stub';
 import invariant from 'tiny-invariant';
 
-import { OpenLayerObserver } from '@atlaskit/layering/experimental/open-layer-observer';
-import { type CustomPopperProps, type PopperChildrenProps } from '@atlaskit/popper';
-import * as popperModule from '@atlaskit/popper';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { OpenLayerObserver } from '@atlaskit/layering/open-layer-observer';
+import type { CustomPopperProps, PopperChildrenProps } from '@atlaskit/popper/main';
+import * as popperModule from '@atlaskit/popper/main';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { passGate, failGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 import {
 	act,
+	createEvent,
 	fireEvent,
 	render,
 	screen,
@@ -18,7 +21,7 @@ import {
 	within,
 } from '@atlassian/testing-library';
 
-import * as panelSplitterWidthUtils from '../../panel-splitter/get-width';
+import * as panelSplitterWidthUtils from '../../panel-splitter/get-pixel-width';
 import { PanelSplitter, type PanelSplitterProps } from '../../panel-splitter/panel-splitter';
 import {
 	PanelSplitterProvider,
@@ -75,6 +78,18 @@ function setComputedWidth(element: HTMLElement, width: number): () => void {
 		window.getComputedStyle = original;
 		offsetWidthSpy.mockRestore();
 	};
+}
+
+function drag({ element, fromX, toX }: { element: HTMLElement; fromX: number; toX: number }): void {
+	// We are explicitly firing a mousedown event to replicate what happens in browsers.
+	// Our code uses the initial client location captured from the mousedown event, not from the dragstart event,
+	// as some browser extensions can cause the client locations (e.g. clientX) in the `dragstart` event to incorrectly return 0.
+	fireEvent.mouseDown(element, { clientX: fromX });
+	fireEvent.dragStart(element, { clientX: fromX });
+
+	fireEvent.dragOver(element, { clientX: toX });
+
+	rafStub.step();
 }
 
 const TestComponent = ({
@@ -197,6 +212,137 @@ describe('PanelSplitter', () => {
 		expect(onCompleteResize).toHaveBeenCalledWith(100);
 	});
 
+	it('should call the internal resize start callback before the public callback', () => {
+		const calls: string[] = [];
+		render(
+			<TestComponent
+				onResizeStartInternal={() => calls.push('internal')}
+				onResizeStart={() => calls.push('public')}
+			/>,
+		);
+
+		const splitter = screen.getByTestId('panel-splitter');
+		fireEvent.mouseDown(splitter, { clientX: 100 });
+		fireEvent.dragStart(splitter, { clientX: 100 });
+		rafStub.step();
+
+		expect(calls).toEqual(['internal', 'public']);
+	});
+
+	it('clamps managed drag updates at the maximum without repeating saturated updates', () => {
+		passGate('platform-dst-chat-panel-layout');
+		const onResizeInternal = jest.fn();
+		render(
+			<TestComponent
+				initialPanelWidth={200}
+				getResizeBounds={() => ({ min: '100px', max: '300px' })}
+				onResizeInternal={onResizeInternal}
+			/>,
+		);
+
+		const splitter = screen.getByTestId('panel-splitter');
+		drag({ element: splitter, fromX: 200, toX: 400 });
+
+		expect(onResizeInternal).toHaveBeenCalledWith(300);
+		fireEvent.dragOver(splitter, { clientX: 500 });
+		rafStub.step();
+		expect(onResizeInternal).toHaveBeenCalledTimes(1);
+	});
+
+	it('clamps managed drag updates at the minimum', () => {
+		passGate('platform-dst-chat-panel-layout');
+		const onResizeInternal = jest.fn();
+		render(
+			<TestComponent
+				initialPanelWidth={200}
+				getResizeBounds={() => ({ min: '100px', max: '300px' })}
+				onResizeInternal={onResizeInternal}
+			/>,
+		);
+
+		const splitter = screen.getByTestId('panel-splitter');
+		drag({ element: splitter, fromX: 200, toX: 0 });
+
+		expect(onResizeInternal).toHaveBeenCalledWith(100);
+	});
+
+	it.each([false, true])(
+		'uses coordinated rendering only with the layout gate enabled (%s)',
+		(enabled) => {
+			(enabled ? passGate : failGate)('platform-dst-chat-panel-layout');
+			const onResizeInternal = jest.fn();
+			render(<TestComponent onResizeInternal={onResizeInternal} />);
+			const panel = screen.getByTestId('panel-splitter-parent');
+			const splitter = screen.getByTestId('panel-splitter');
+			drag({ element: splitter, fromX: 300, toX: 350 });
+			if (enabled) {
+				expect(onResizeInternal).toHaveBeenCalledWith(350);
+				// No imperative width can move this panel ahead of the allocated sibling widths.
+				expect(panel.style.getPropertyValue(resizingCssVar)).toBe('');
+				onResizeInternal.mockClear();
+				fireEvent.drop(splitter);
+				expect(onResizeInternal).toHaveBeenCalledWith(350);
+			} else {
+				expect(onResizeInternal).not.toHaveBeenCalled();
+				expect(panel.style.getPropertyValue(resizingCssVar)).toBe('clamp(200px, 350px, 400px)');
+			}
+		},
+	);
+
+	it('batches managed drag frames but commits the last width before measuring on drop', () => {
+		passGate('platform-dst-chat-panel-layout');
+		const onCompleteResize = jest.fn();
+		const getResizeBounds = () => ({ min: '200px', max: '600px' }) as const;
+		const panelId = Symbol('managed test panel');
+		const flush = jest.spyOn(reactDOM, 'flushSync');
+		const measure = jest
+			.spyOn(panelSplitterWidthUtils, 'getPixelWidth')
+			.mockImplementation((element) => Number.parseFloat(element.style.width));
+		function ManagedPanel() {
+			const panelRef = useRef<HTMLDivElement>(null);
+			const [width, setWidth] = useState(300);
+			return (
+				<OpenLayerObserver>
+					<div ref={panelRef} style={{ width }} data-testid="managed-panel">
+						<PanelSplitterProvider
+							panelId={panelId}
+							panelRef={panelRef}
+							panelWidth={width}
+							onResizeInternal={setWidth}
+							onCompleteResize={onCompleteResize}
+							getResizeBounds={getResizeBounds}
+							resizingCssVar={resizingCssVar}
+						>
+							<PanelSplitter label="Resize managed panel" testId="managed-splitter" />
+						</PanelSplitterProvider>
+					</div>
+				</OpenLayerObserver>
+			);
+		}
+		try {
+			render(<ManagedPanel />);
+			const splitter = screen.getByTestId('managed-splitter');
+			act(() => drag({ element: splitter, fromX: 300, toX: 350 }));
+			expect(screen.getByTestId('managed-panel')).toHaveStyle({ width: '350px' });
+			expect(flush).not.toHaveBeenCalled();
+			const lastMove = createEvent.dragOver(splitter, { clientX: 400 });
+			const drop = createEvent.drop(splitter);
+			act(() => {
+				// Dispatch directly so individual fireEvent act boundaries do not commit
+				// the pending frame before we simulate the same-task drop.
+				splitter.dispatchEvent(lastMove);
+				rafStub.step();
+				// The latest update has been queued, but React has not committed this frame yet.
+				expect(flush).not.toHaveBeenCalled();
+				splitter.dispatchEvent(drop);
+			});
+			expect(onCompleteResize).toHaveBeenCalledWith(400);
+		} finally {
+			flush.mockRestore();
+			measure.mockRestore();
+		}
+	});
+
 	describe('when text direction is left to right (ltr)', () => {
 		describe('when position is end', () => {
 			it('should increase the width when resizing to the right with mouse', async () => {
@@ -209,10 +355,7 @@ describe('PanelSplitter', () => {
 
 				const splitter = screen.getByTestId('panel-splitter');
 
-				fireEvent.dragStart(splitter, { clientX: 100 });
-				fireEvent.dragOver(splitter, { clientX: 200 });
-
-				rafStub.step();
+				drag({ element: splitter, fromX: 100, toX: 200 });
 
 				expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 					[resizingCssVar]: 'clamp(50px, 200px, 500px)',
@@ -229,10 +372,7 @@ describe('PanelSplitter', () => {
 
 				const splitter = screen.getByTestId('panel-splitter');
 
-				fireEvent.dragStart(splitter, { clientX: 200 });
-				fireEvent.dragOver(splitter, { clientX: 100 });
-
-				rafStub.step();
+				drag({ element: splitter, fromX: 200, toX: 100 });
 
 				expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 					[resizingCssVar]: 'clamp(50px, 100px, 500px)',
@@ -252,10 +392,7 @@ describe('PanelSplitter', () => {
 
 				const splitter = screen.getByTestId('panel-splitter');
 
-				fireEvent.dragStart(splitter, { clientX: 100 });
-				fireEvent.dragOver(splitter, { clientX: 150 });
-
-				rafStub.step();
+				drag({ element: splitter, fromX: 100, toX: 150 });
 
 				expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 					[resizingCssVar]: 'clamp(50px, 50px, 500px)',
@@ -272,10 +409,7 @@ describe('PanelSplitter', () => {
 				);
 				const splitter = screen.getByTestId('panel-splitter');
 
-				fireEvent.dragStart(splitter, { clientX: 200 });
-				fireEvent.dragOver(splitter, { clientX: 100 });
-
-				rafStub.step();
+				drag({ element: splitter, fromX: 200, toX: 100 });
 
 				expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 					[resizingCssVar]: 'clamp(50px, 300px, 500px)',
@@ -297,10 +431,7 @@ describe('PanelSplitter', () => {
 
 				const splitter = screen.getByTestId('panel-splitter');
 
-				fireEvent.dragStart(splitter, { clientX: 200 });
-				fireEvent.dragOver(splitter, { clientX: 300 });
-
-				rafStub.step();
+				drag({ element: splitter, fromX: 200, toX: 300 });
 
 				expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 					[resizingCssVar]: 'clamp(50px, 100px, 500px)',
@@ -318,10 +449,7 @@ describe('PanelSplitter', () => {
 
 				const splitter = screen.getByTestId('panel-splitter');
 
-				fireEvent.dragStart(splitter, { clientX: 200 });
-				fireEvent.dragOver(splitter, { clientX: 100 });
-
-				rafStub.step();
+				drag({ element: splitter, fromX: 200, toX: 100 });
 
 				expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 					[resizingCssVar]: 'clamp(50px, 300px, 500px)',
@@ -342,10 +470,7 @@ describe('PanelSplitter', () => {
 
 				const splitter = screen.getByTestId('panel-splitter');
 
-				fireEvent.dragStart(splitter, { clientX: 200 });
-				fireEvent.dragOver(splitter, { clientX: 300 });
-
-				rafStub.step();
+				drag({ element: splitter, fromX: 200, toX: 300 });
 
 				expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 					[resizingCssVar]: 'clamp(50px, 300px, 500px)',
@@ -364,10 +489,7 @@ describe('PanelSplitter', () => {
 
 				const splitter = screen.getByTestId('panel-splitter');
 
-				fireEvent.dragStart(splitter, { clientX: 200 });
-				fireEvent.dragOver(splitter, { clientX: 100 });
-
-				rafStub.step();
+				drag({ element: splitter, fromX: 200, toX: 100 });
 
 				expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 					[resizingCssVar]: 'clamp(50px, 100px, 500px)',
@@ -393,9 +515,7 @@ describe('PanelSplitter', () => {
 		const splitter = screen.getByTestId('panel-splitter');
 
 		// Dragging right will increase it's width
-		fireEvent.dragStart(splitter, { clientX: 100 });
-		fireEvent.dragOver(splitter, { clientX: 200 });
-		rafStub.step();
+		drag({ element: splitter, fromX: 100, toX: 200 });
 
 		expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 			[resizingCssVar]: 'clamp(50px, 200px, 500px)',
@@ -419,9 +539,7 @@ describe('PanelSplitter', () => {
 
 		// Dragging left will increase it's width as it's positioned
 		// on the right hand side of the screen
-		fireEvent.dragStart(splitter, { clientX: 800 });
-		fireEvent.dragOver(splitter, { clientX: 700 });
-		rafStub.step();
+		drag({ element: splitter, fromX: 800, toX: 700 });
 
 		expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 			[resizingCssVar]: 'clamp(50px, 300px, 500px)',
@@ -652,30 +770,12 @@ describe('PanelSplitter', () => {
 
 	describe('splitter styles', () => {
 		// We are testing these styles directly as they can't be asserted in a VR test.
-		it('should delay showing the panel splitter on hover', () => {
-			render(<TestComponent />);
-
-			const splitter = screen.getByTestId('panel-splitter');
-
-			expect(splitter).toHaveCompiledCss('transition-delay', '.2s', { target: ':hover' });
-		});
-
-		// We are testing these styles directly as they can't be asserted in a VR test.
-		it('should show the panel splitter slower than when hiding', () => {
-			render(<TestComponent />);
-
-			const splitter = screen.getByTestId('panel-splitter');
-
-			expect(splitter).toHaveCompiledCss('transition-duration', '.2s', { target: ':hover' });
-		});
-
-		// We are testing these styles directly as they can't be asserted in a VR test.
 		it('should hide the panel splitter faster than when showing', () => {
 			render(<TestComponent />);
 
 			const splitter = screen.getByTestId('panel-splitter');
 
-			expect(splitter).toHaveCompiledCss('transition-duration', '.1s');
+			expect(splitter).toHaveCompiledCss('transition-duration', '.15s');
 		});
 
 		// We are testing these styles directly as they can't be asserted in a VR test.
@@ -688,7 +788,7 @@ describe('PanelSplitter', () => {
 			const splitter = screen.getByTestId('panel-splitter');
 
 			expect(splitter).toHaveCompiledCss({
-				transitionDelay: '0ms',
+				transitionDelay: '.3s',
 			});
 		});
 
@@ -698,7 +798,7 @@ describe('PanelSplitter', () => {
 
 			const splitter = screen.getByTestId('panel-splitter');
 
-			expect(splitter).toHaveCompiledCss('transition-delay', '0ms');
+			expect(splitter).toHaveCompiledCss('transition-delay', '.3s');
 		});
 	});
 
@@ -798,9 +898,7 @@ describe('PanelSplitter', () => {
 
 			const getPixelWidthMock = jest.spyOn(panelSplitterWidthUtils, 'getPixelWidth');
 
-			fireEvent.dragStart(splitter, { clientX: 200 });
-			fireEvent.dragOver(splitter, { clientX: finalWidth });
-			rafStub.step();
+			drag({ element: splitter, fromX: 200, toX: finalWidth });
 
 			expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 				[resizingCssVar]: `clamp(50px, ${finalWidth}px, 500px)`,
@@ -882,10 +980,7 @@ describe('PanelSplitter', () => {
 
 		const splitter = screen.getByTestId('panel-splitter');
 
-		fireEvent.dragStart(splitter, { clientX: 100 });
-		fireEvent.dragOver(splitter, { clientX: 200 });
-
-		rafStub.step();
+		drag({ element: splitter, fromX: 100, toX: 200 });
 
 		expect(screen.getByTestId('panel-splitter-parent')).toHaveStyle({
 			[resizingCssVar]: 'clamp(50px, 200px, 500px)',
@@ -899,55 +994,54 @@ describe('PanelSplitter', () => {
 		).toEqual('');
 	});
 
-	ffTest.on(
-		'platform-dst-side-nav-layering-fixes',
-		'when side nav layering flag is enabled',
-		() => {
-			it('should render the panel splitter inside the custom portal when the portalRef prop is provided', () => {
-				function ComponentWithCustomPortal() {
-					const portalRef = useRef<HTMLDivElement | null>(null);
+	it('should apply and reset the resizing css var on an additional layout element', () => {
+		function ComponentWithResizingElement() {
+			const resizingElementRef = useRef<HTMLDivElement | null>(null);
 
-					return (
-						<div>
-							<TestComponent portalRef={portalRef} />
-							<div ref={portalRef} data-testid="custom-portal" />
-						</div>
-					);
-				}
+			return (
+				<>
+					<div ref={resizingElementRef} data-testid="resizing-layout" />
+					<TestComponent
+						initialPanelWidth={100}
+						getResizeBounds={() => ({ min: '50px', max: '500px' })}
+						resizingElementRef={resizingElementRef}
+					/>
+				</>
+			);
+		}
 
-				render(<ComponentWithCustomPortal />);
+		render(<ComponentWithResizingElement />);
+		const splitter = screen.getByTestId('panel-splitter');
 
-				expect(
-					within(screen.getByTestId('custom-portal')).getByTestId('panel-splitter'),
-				).toBeInTheDocument();
-			});
-		},
-	);
+		drag({ element: splitter, fromX: 100, toX: 200 });
+		expect(screen.getByTestId('resizing-layout')).toHaveStyle({
+			[resizingCssVar]: 'clamp(50px, 200px, 500px)',
+		});
 
-	ffTest.off(
-		'platform-dst-side-nav-layering-fixes',
-		'when side nav layering flag is disabled',
-		() => {
-			it('should not render the panel splitter inside the custom portal when the portalRef prop is provided', () => {
-				function ComponentWithCustomPortal() {
-					const portalRef = useRef<HTMLDivElement | null>(null);
+		fireEvent.drop(splitter);
+		expect(screen.getByTestId('resizing-layout').style.getPropertyValue(resizingCssVar)).toEqual(
+			'',
+		);
+	});
 
-					return (
-						<div>
-							<TestComponent portalRef={portalRef} />
-							<div ref={portalRef} data-testid="custom-portal" />
-						</div>
-					);
-				}
+	it('should render the panel splitter inside the custom portal when the portalRef prop is provided', () => {
+		function ComponentWithCustomPortal() {
+			const portalRef = useRef<HTMLDivElement | null>(null);
 
-				render(<ComponentWithCustomPortal />);
+			return (
+				<div>
+					<TestComponent portalRef={portalRef} />
+					<div ref={portalRef} data-testid="custom-portal" />
+				</div>
+			);
+		}
 
-				const panelSplitter = screen.getByTestId('panel-splitter');
-				expect(panelSplitter).toBeInTheDocument();
-				expect(screen.getByTestId('custom-portal')).not.toContainElement(panelSplitter);
-			});
-		},
-	);
+		render(<ComponentWithCustomPortal />);
+
+		expect(
+			within(screen.getByTestId('custom-portal')).getByTestId('panel-splitter'),
+		).toBeInTheDocument();
+	});
 
 	ffTest.on('navx-full-height-sidebar', 'with useIsFhsEnabled true', () => {
 		beforeEach(() => {
@@ -967,8 +1061,11 @@ describe('PanelSplitter', () => {
 				jest.runAllTimers();
 			});
 
+			// Using `hidden: true` because the panel splitter is only visible above 48rem width
+			// but there isn't proper support for media query styles in JSDOM,
+			// so it thinks it is hidden.
 			expect(
-				await screen.findByRole('tooltip', { name: 'Double click to collapse' }),
+				await screen.findByRole('tooltip', { name: 'Double click to collapse', hidden: true }),
 			).toBeInTheDocument();
 		});
 
@@ -981,7 +1078,10 @@ describe('PanelSplitter', () => {
 				jest.runAllTimers();
 			});
 
-			expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+			// Using `hidden: true` because the panel splitter is only visible above 48rem width
+			// but there isn't proper support for media query styles in JSDOM,
+			// so it thinks it is hidden.
+			expect(screen.queryByRole('tooltip', { hidden: true })).not.toBeInTheDocument();
 		});
 
 		it('should display tooltip shortcuts when the shortcut prop is provided to the provider', async () => {
@@ -993,100 +1093,103 @@ describe('PanelSplitter', () => {
 				jest.runAllTimers();
 			});
 
+			// Using `hidden: true` because the panel splitter is only visible above 48rem width
+			// but there isn't proper support for media query styles in JSDOM,
+			// so it thinks it is hidden.
 			expect(
-				await screen.findByRole('tooltip', { name: 'Double click to collapse Ctrl [' }),
+				await screen.findByRole('tooltip', {
+					name: 'Double click to collapse Ctrl [',
+					hidden: true,
+				}),
 			).toBeInTheDocument();
 		});
 
-		ffTest.on(
-			'platform_dst_nav4_side_nav_resize_tooltip_feedback',
-			'when tooltip feedback flag is on',
-			() => {
-				describe('transform value handling', () => {
-					const originalPopper = popperModule.Popper;
-					const popperSpy = jest.spyOn(popperModule, 'Popper');
+		describe('transform value handling', () => {
+			const originalPopper = popperModule.Popper;
+			const popperSpy = jest.spyOn(popperModule, 'Popper');
 
-					let transform = 'translate3d(0px, 0px, 0px)';
-					popperSpy.mockImplementation((props: CustomPopperProps<unknown>) => {
-						const children = props.children;
-						if (!children) {
-							return originalPopper(props);
-						}
-						return originalPopper({
-							...props,
-							children: (childProps: PopperChildrenProps) =>
-								children({
-									...childProps,
-									style: {
-										...childProps.style,
+			let transform = 'translate3d(0px, 0px, 0px)';
+			popperSpy.mockImplementation((props: CustomPopperProps<unknown>) => {
+				const children = props.children;
+				if (!children) {
+					return originalPopper(props);
+				}
+				return originalPopper({
+					...props,
+					children: (childProps: PopperChildrenProps) =>
+						children({
+							...childProps,
+							style: {
+								...childProps.style,
 
-										transform,
-									},
-								}),
-						});
-					});
-
-					afterAll(() => {
-						popperSpy.mockRestore();
-					});
-
-					it('should preserve integer transformX and transformY values in the modified transform', async () => {
-						transform = 'translate3d(308px, 123px, 0)';
-
-						const user = createUser();
-						render(<TestComponent tooltipContent="Double click to collapse" />);
-
-						await user.hover(screen.getByTestId('panel-splitter'));
-						act(() => {
-							jest.runAllTimers();
-						});
-
-						const tooltipContainer = screen.getByTestId('panel-splitter-tooltip--wrapper');
-						// The integer transformX and transformY values are preserved in the modified transform
-						expect((tooltipContainer as HTMLElement).style.transform).toMatchInlineSnapshot(
-							`"translate3d(308px, max(calc(calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px)) + var(--ds-space-100, 8px)), 123px), 0)"`,
-						);
-					});
-
-					it('should preserve non-integer transformX and transformY values in the modified transform', async () => {
-						// Non-integer values like these can occur in real browsers due to scaling
-						transform = 'translate3d(308.5px, 123.7px, 0)';
-
-						const user = createUser();
-						render(<TestComponent tooltipContent="Double click to collapse" />);
-
-						await user.hover(screen.getByTestId('panel-splitter'));
-						act(() => {
-							jest.runAllTimers();
-						});
-
-						const tooltipContainer = screen.getByTestId('panel-splitter-tooltip--wrapper');
-						// The non-integer transformX and transformY values are preserved in the modified transform
-						expect((tooltipContainer as HTMLElement).style.transform).toMatchInlineSnapshot(
-							`"translate3d(308.5px, max(calc(calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px)) + var(--ds-space-100, 8px)), 123.7px), 0)"`,
-						);
-					});
-
-					it('should preserve negative transformX and transformY values in the modified transform', async () => {
-						// Non-integer values like these can occur in real browsers due to scaling
-						transform = 'translate3d(-308.5px, -123.7px, 0)';
-
-						const user = createUser();
-						render(<TestComponent tooltipContent="Double click to collapse" />);
-
-						await user.hover(screen.getByTestId('panel-splitter'));
-						act(() => {
-							jest.runAllTimers();
-						});
-
-						const tooltipContainer = screen.getByTestId('panel-splitter-tooltip--wrapper');
-						// The negative transformX and transformY values are preserved in the modified transform
-						expect((tooltipContainer as HTMLElement).style.transform).toMatchInlineSnapshot(
-							`"translate3d(-308.5px, max(calc(calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px)) + var(--ds-space-100, 8px)), -123.7px), 0)"`,
-						);
-					});
+								transform,
+							},
+						}),
 				});
-			},
-		);
+			});
+
+			afterAll(() => {
+				popperSpy.mockRestore();
+			});
+
+			it('should preserve integer transformX and transformY values in the modified transform', async () => {
+				transform = 'translate3d(308px, 123px, 0)';
+
+				const user = createUser();
+				render(<TestComponent tooltipContent="Double click to collapse" />);
+
+				await act(async () => {
+					await user.hover(screen.getByTestId('panel-splitter'));
+					jest.runAllTimers();
+				});
+
+				const tooltipContainer = screen.getByTestId('panel-splitter-tooltip--wrapper');
+				// The integer transformX and transformY values are preserved in the modified transform
+				expect(tooltipContainer).toHaveStyle({
+					transform:
+						'translate3d(308px, max(calc(calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px)) + var(--ds-space-100, 8px)), 123px), 0)',
+				});
+			});
+
+			it('should preserve non-integer transformX and transformY values in the modified transform', async () => {
+				// Non-integer values like these can occur in real browsers due to scaling
+				transform = 'translate3d(308.5px, 123.7px, 0)';
+
+				const user = createUser();
+				render(<TestComponent tooltipContent="Double click to collapse" />);
+
+				await act(async () => {
+					await user.hover(screen.getByTestId('panel-splitter'));
+					jest.runAllTimers();
+				});
+
+				const tooltipContainer = screen.getByTestId('panel-splitter-tooltip--wrapper');
+				// The non-integer transformX and transformY values are preserved in the modified transform
+				expect(tooltipContainer).toHaveStyle({
+					transform:
+						'translate3d(308.5px, max(calc(calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px)) + var(--ds-space-100, 8px)), 123.7px), 0)',
+				});
+			});
+
+			it('should preserve negative transformX and transformY values in the modified transform', async () => {
+				// Non-integer values like these can occur in real browsers due to scaling
+				transform = 'translate3d(-308.5px, -123.7px, 0)';
+
+				const user = createUser();
+				render(<TestComponent tooltipContent="Double click to collapse" />);
+
+				await act(async () => {
+					await user.hover(screen.getByTestId('panel-splitter'));
+					jest.runAllTimers();
+				});
+
+				const tooltipContainer = screen.getByTestId('panel-splitter-tooltip--wrapper');
+				// The negative transformX and transformY values are preserved in the modified transform
+				expect(tooltipContainer).toHaveStyle({
+					transform:
+						'translate3d(-308.5px, max(calc(calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px)) + var(--ds-space-100, 8px)), -123.7px), 0)',
+				});
+			});
+		});
 	});
 });

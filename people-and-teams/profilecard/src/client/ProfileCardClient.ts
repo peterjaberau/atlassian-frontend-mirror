@@ -1,26 +1,26 @@
-import { getATLContextUrl, isFedRamp } from '@atlaskit/atlassian-context';
-import type { FireEventType } from '@atlaskit/teams-app-internal-analytics';
+import { getATLContextUrl } from '@atlaskit/atlassian-context/get-atl-context-url';
+import type { FireEventType } from '@atlaskit/teams-app-internal-analytics/types';
 
 import {
 	type AgentIdType,
+	type AgentPermissions,
 	type ClientOverrides,
 	type ProfileClient,
 	type ProfileClientOptions,
+	type RovoAgentCardClientResult,
+	type Team,
 	type TeamCentralReportingLinesData,
 } from '../types';
-
-import RovoAgentCardClient from './RovoAgentCardClient';
-import TeamCentralCardClient, { type TeamCentralCardClientOptions } from './TeamCentralCardClient';
+import { defaultConfig } from './defaultConfig';
+import { maybeCreateTeamCentralClient } from './maybeCreateTeamCentralClient';
+import { default as RovoAgentCardClient } from './RovoAgentCardClient';
+import { type default as TeamCentralCardClient } from './TeamCentralCardClient';
 import TeamProfileCardClient from './TeamProfileCardClient';
 import UserProfileCardClient from './UserProfileCardClient';
 
-const defaultConfig = {
-	gatewayGraphqlUrl: '/gateway/api/graphql',
-};
-
 export type TeamCentralScopes = { withOrgContext: true; withSiteContext: boolean };
 
-class ProfileCardClient implements ProfileClient {
+export class ProfileCardClient implements ProfileClient {
 	userClient: UserProfileCardClient;
 	teamClient: TeamProfileCardClient;
 	tcClient?: TeamCentralCardClient;
@@ -50,7 +50,7 @@ class ProfileCardClient implements ProfileClient {
 		return this.userClient.getProfile(cloudId, userId, analytics);
 	}
 
-	getTeamProfile(teamId: string, orgId?: string, analytics?: FireEventType) {
+	getTeamProfile(teamId: string, orgId?: string, analytics?: FireEventType): Promise<Team> {
 		return this.teamClient.getProfile(teamId, orgId, analytics);
 	}
 
@@ -60,7 +60,7 @@ class ProfileCardClient implements ProfileClient {
 		);
 	}
 
-	async getTeamCentralBaseUrl(teamCentralScopes?: TeamCentralScopes) {
+	async getTeamCentralBaseUrl(teamCentralScopes?: TeamCentralScopes): Promise<string | undefined> {
 		if (this.tcClient === undefined) {
 			return Promise.resolve(undefined);
 		}
@@ -95,11 +95,14 @@ class ProfileCardClient implements ProfileClient {
 		return this.tcClient.checkWorkspaceExists();
 	}
 
-	getRovoAgentProfile(id: AgentIdType, analytics?: FireEventType) {
+	getRovoAgentProfile(
+		id: AgentIdType,
+		analytics?: FireEventType,
+	): Promise<RovoAgentCardClientResult> {
 		return this.rovoAgentClient?.getProfile(id, analytics);
 	}
 
-	getRovoAgentPermissions(id: string, fireAnalytics?: FireEventType) {
+	getRovoAgentPermissions(id: string, fireAnalytics?: FireEventType): Promise<AgentPermissions> {
 		return this.rovoAgentClient?.getPermissions(id, fireAnalytics);
 	}
 
@@ -112,19 +115,10 @@ class ProfileCardClient implements ProfileClient {
 	}
 }
 
-function maybeCreateTeamCentralClient(
-	config: TeamCentralCardClientOptions,
-	clients?: ClientOverrides,
-) {
-	if (isFedRamp()) {
-		return undefined;
-	}
-
-	if (clients?.teamCentralClient) {
-		return clients.teamCentralClient;
-	}
-	const teamCentralEnabled = config.teamCentralDisabled !== true;
-	return teamCentralEnabled ? new TeamCentralCardClient({ ...config }) : undefined;
-}
+/**
+ * @deprecated Use the `ProfileCardClient` export from
+ * `@atlaskit/profilecard/profile-card-client` instead.
+ */
+export { ProfileCardClient as ProfileClient };
 
 export default ProfileCardClient;

@@ -42,17 +42,17 @@ export const FlipHorizontalIcon = ({
 	primaryColor = 'currentColor',
 	secondaryColor,
 	isDisabled,
-}: FlipHorizontalIconProps) => (
+}: FlipHorizontalIconProps): JSX.Element => (
 	<svg
 		viewBox="0 0 16 16"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
 		css={[svgStyles, sizeStyles[size]]}
-		style={{ 
-            color: primaryColor,
+		style={{
+			color: primaryColor,
 			fill: secondaryColor,
-            opacity: isDisabled ? 0.5 : 1 
-        }}
+			opacity: isDisabled ? 0.5 : 1,
+		}}
 		aria-label={label || undefined}
 		role={label ? 'img' : 'presentation'}
 	>

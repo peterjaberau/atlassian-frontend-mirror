@@ -8,7 +8,7 @@ Use pagination when there are too many results to show on one page, so that peop
 overwhelmed by too much information. Pagination is a control that sits at the bottom of the page and
 allows the user to easily move between each page.
 
-Parts of a pagination component:
+## Parts
 
 ![The pagination component is a horizontal list of page numbers with navigation arrows at each end.](./images/pagination-anatomy.png)
 
@@ -23,14 +23,6 @@ constitutes “too many results” can be influenced by:
 - system load times
 - the amount of data in each entry
 - the available screen space
-
-## Behavior
-
-- The ellipsis representing truncated pages isn't interactive. To reach page numbers that are
-  truncated, people need to move to a page number that is closer to the number in the series. For
-  example, in a pagination component numbered 1-5, people need to select 5 to reveal page 6.
-- Double truncation is used when the current page is separated by more than five pages from both the
-  first and last page.
 
 ## Accessibility
 
@@ -48,6 +40,14 @@ constitutes “too many results” can be influenced by:
 - For larger screens, show a maximum of 14 pages (including the ellipsis).
 
 ![Examples of pagination components with seven and 14 pages shown.](./images/pagination-page-limits.png)
+
+## Behavior
+
+- The ellipsis representing truncated pages isn't interactive. To reach page numbers that are
+  truncated, people need to move to a page number that is closer to the number in the series. For
+  example, in a pagination component numbered 1-5, people need to select 5 to reveal page 6.
+- Double truncation is used when the current page is separated by more than five pages from both the
+  first and last page.
 
 ## Data Center apps
 

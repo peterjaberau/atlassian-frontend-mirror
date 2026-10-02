@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 
 import type { DisplayViewModes } from '../../../../common/types';
 
@@ -8,28 +8,10 @@ interface ViewModeHookState {
 	setCurrentViewMode: (selectedMode: DisplayViewModes) => void;
 }
 
-const ViewModeContext = createContext<ViewModeHookState | null>(null);
+export const ViewModeContext: React.Context<ViewModeHookState | null> =
+	createContext<ViewModeHookState | null>(null);
 
-export const DatasourceViewModeProvider = ({
-	viewMode: initialViewMode,
-	disableDisplayDropdown,
-	children,
-}: {
-	children: React.ReactNode;
-	disableDisplayDropdown: boolean;
-	viewMode: DisplayViewModes;
-}): React.JSX.Element => {
-	const [currentViewMode, setCurrentViewMode] = useState<DisplayViewModes>(initialViewMode);
-
-	const value = useMemo(
-		() => ({ currentViewMode, setCurrentViewMode, disableDisplayDropdown }),
-		[currentViewMode, setCurrentViewMode, disableDisplayDropdown],
-	);
-
-	return <ViewModeContext.Provider value={value}>{children}</ViewModeContext.Provider>;
-};
-
-export const useViewModeContext = () => {
+export const useViewModeContext = (): ViewModeHookState => {
 	const value = useContext(ViewModeContext);
 	if (!value) {
 		throw new Error('useViewModeContext must be called within DatasourceViewModeProvider');

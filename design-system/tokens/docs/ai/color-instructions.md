@@ -44,6 +44,7 @@
 | bg-blue-50     | #EFF6FF      | color.background.accent.blue.subtlest   | #E9F2FF   |
 | bg-blue-100    | #DBEAFE      | color.background.accent.blue.subtlest   | #E9F2FF   |
 | bg-gray-100    | #F3F4F6      | elevation.surface.sunken                | #F1F2F4   |
+| bg-gray-100    | #F3F4F6      | elevation.surface.container             | #F0F1F2   |
 | bg-gray-200    | #E5E7EB      | color.background.accent.gray.subtlest   | #F1F2F4   |
 | bg-gray-800    | #1F2937      | color.background.brand.boldest          | #1C2B41   |
 | bg-green-100   | #DCFCE7      | color.background.accent.green.subtlest  | #DCFFF1   |
@@ -54,6 +55,17 @@
 | bg-yellow-100  | #FEF9C3      | color.background.accent.yellow.subtlest | #FFF7D6   |
 | bg-white       | #FFFFFF      | elevation.surface                       | #FFFFFF   |
 | bg-white       | #FFFFFF      | elevation.surface.raised                | #FFFFFF   |
+
+For Atlassian app surfaces, use `elevation.surface` for the page surface,
+`elevation.surface.container` for neutral containers on top of the page surface, and
+`elevation.surface.sunken` for recessed grouping. Use Rovo-specific overlay tokens, such as
+`elevation.rovo.surface.overlay`, only for Rovo overlay surfaces.
+
+For interactive elements built on a neutral container, use
+`elevation.surface.container.hovered` for the hover state and
+`elevation.surface.container.pressed` for the pressed/active state, rather than reusing the
+non-container `elevation.surface.hovered`/`elevation.surface.pressed` tokens. Only apply these
+when the resting surface is `elevation.surface.container`.
 
 ## Text colors (`text-`)
 
@@ -101,6 +113,8 @@
 | border-red-600    | #DC2626      | color.border.accent.red    | #E2483D   |
 | border-green-500  | #22C55E      | color.border.accent.green  | #4BCE97   |
 | border-yellow-400 | #FACC15      | color.border.accent.yellow | #E2B203   |
+
+Use `color.border.input.search` for search input borders. Continue to use `color.border.input` for other form inputs.
 
 ## Secondary colors
 
@@ -194,20 +208,27 @@
 | bg-zinc-300    | #D4D4D8     | color.background.accent.gray.subtlest.hovered    | #DCDFE4     |
 | bg-zinc-400    | #A1A1AA     | color.background.accent.gray.subtlest.pressed    | #B3B9C4     |
 
-Example migration from Tailwind classes to ADS color tokens:
+# Translating from Tailwind
 
-```tsx
+```diff
++/** @jsx jsx */
 +import { token } from '@atlaskit/tokens';
++import { cssMap, jsx } from '@atlaskit/css';
++const styles = cssMap({
++  content: {
++    backgroundColor: token('elevation.surface.sunken'),
++    color: token('color.text.accent.gray'),
++    borderColor: token('color.border')
++  },
++  success: {
++    color: token('color.text.accent.green.bolder'),
++    backgroundColor: token('color.background.accent.green.subtlest')
++  }
++});
+
 -<div className="bg-gray-100 text-gray-700 border border-gray-300">Content</div>
-+<div style={{
-+  backgroundColor: token('elevation.surface.sunken'),
-+  color: token('color.text.accent.gray'),
-+  borderColor: token('color.border')
-+}}>Content</div>
++<div css={styles.content}>Content</div>
 
 -<span className="text-green-600 bg-green-100">Success</span>
-+<span style={{
-+  color: token('color.text.accent.green.bolder'),
-+  backgroundColor: token('color.background.accent.green.subtlest')
-+}}>Success</span>
++<span css={styles.success}}>Success</span>
 ```

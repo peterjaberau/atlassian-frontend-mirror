@@ -1,13 +1,16 @@
-import LegacyIcon from '@atlaskit/icon-file-type/glyph/source-code/16';
-import LegacyIconLarge from '@atlaskit/icon-file-type/glyph/source-code/24';
+import type { FC } from 'react';
+
 import AngleBracketsIcon from '@atlaskit/icon/core/angle-brackets';
 
-import { renderIconPerSize, renderIconTile } from './utils';
+import { renderIconTile } from './render-icon-tile';
+import type { AtlaskitIconTileProps } from './types';
 
-const AngleBracketsIconWithColor = renderIconTile(
+// `blueBold` is used while `platform_lp_non_bold_large_sl_icon` is off.
+// Clean up in NAVX-5752: https://hello.jira.atlassian.cloud/browse/NAVX-5752
+// When that gate is cleaned up, replace `blueBold` directly with `blue`.
+const AngleBracketsIconWithColor: FC<AtlaskitIconTileProps> = renderIconTile(
 	AngleBracketsIcon,
 	'blueBold',
-	renderIconPerSize(LegacyIcon, LegacyIconLarge),
 );
 AngleBracketsIconWithColor.displayName = 'AngleBracketsIconWithColor';
 

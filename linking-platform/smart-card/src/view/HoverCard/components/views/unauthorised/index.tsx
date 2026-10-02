@@ -2,29 +2,29 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useCallback, useMemo } from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import { extractSmartLinkProvider } from '@atlaskit/link-extractors';
+import { extractSmartLinkProvider } from '@atlaskit/link-extractors/extract-smart-link-provider';
 import { token } from '@atlaskit/tokens';
 
 import { useAnalyticsEvents } from '../../../../../common/analytics/generated/use-analytics-events';
 import { ActionName, CardDisplay } from '../../../../../constants';
 import { messages } from '../../../../../messages';
 import { useSmartCardActions } from '../../../../../state/actions';
-import { hasAuthScopeOverrides } from '../../../../../state/helpers';
+import { hasAuthScopeOverrides } from '../../../../../state/hasAuthScopeOverrides';
 import UnauthorisedViewContent from '../../../../common/UnauthorisedViewContent';
 import FlexibleCard from '../../../../FlexibleCard';
-import { CustomBlock } from '../../../../FlexibleCard/components/blocks';
 import ActionGroup from '../../../../FlexibleCard/components/blocks/action-group';
+import { default as CustomBlock } from '../../../../FlexibleCard/components/blocks/block';
 import {
 	type ActionItem,
 	type CustomActionItem,
 } from '../../../../FlexibleCard/components/blocks/types';
-import { LinkIcon } from '../../../../FlexibleCard/components/elements';
-
+import { default as LinkIcon } from '../../../../FlexibleCard/components/elements/link-icon-element';
 import { type HoverCardUnauthorisedProps } from './types';
 
 const connectButtonStyles = css({
@@ -42,7 +42,7 @@ const titleBlockStyles = css({
 
 const mainTextStyles = css({
 	marginTop: token('space.100'),
-	font: token('font.body.UNSAFE_small'),
+	font: token('font.body.small'),
 });
 
 const HoverCardUnauthorisedView = ({
@@ -50,7 +50,7 @@ const HoverCardUnauthorisedView = ({
 	flexibleCardProps,
 	testId = 'hover-card-unauthorised-view',
 	url,
-}: HoverCardUnauthorisedProps) => {
+}: HoverCardUnauthorisedProps): JSX.Element => {
 	const { cardState } = flexibleCardProps;
 	const providerName = extractSmartLinkProvider(cardState.details)?.text;
 	const isProductIntegrationSupported = hasAuthScopeOverrides(cardState.details);

@@ -2,15 +2,14 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { N900, R100 } from '@atlaskit/theme/colors';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import type { AvatarGroupPlugin } from '../avatarGroupPluginType';
-
 import { badge } from './styles';
 
 interface ColoredAvatarItemProps {
@@ -20,12 +19,17 @@ interface ColoredAvatarItemProps {
 	sessionId: string;
 }
 
-export const ColoredAvatarItem = (props: ColoredAvatarItemProps) => {
+export const ColoredAvatarItem = (props: ColoredAvatarItemProps): jsx.JSX.Element => {
+	// The fallback mirrors a participant palette slot; red is reserved for deleted content.
+	const fallbackColor = fg('confluence_ncs_step_diffing_version_history')
+		? token('color.background.accent.orange.subtle')
+		: token('color.background.accent.red.subtle');
+
 	const participantColor = props.api?.collabEdit?.actions?.getAvatarColor(
 		props.presenceId ?? props.sessionId,
 	) ?? {
-		backgroundColor: token('color.background.accent.red.subtle', R100),
-		textColor: token('color.text.accent.gray.bolder', N900),
+		backgroundColor: fallbackColor,
+		textColor: token('color.text.accent.gray.bolder'),
 	};
 
 	const avatar = props.name.substr(0, 1).toUpperCase();

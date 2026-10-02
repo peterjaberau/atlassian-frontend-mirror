@@ -2,7 +2,8 @@ import React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 
 import AnalyticsListener from '../../index';
 
@@ -19,7 +20,7 @@ jest.mock('../../ModernAnalyticsListener', () => ({
 describe('ExportedAnalyticsListener', () => {
 	ffTest(
 		'analytics-next-use-legacy-context',
-				() => {
+		() => {
 			const onEvent = jest.fn();
 			render(<AnalyticsListener onEvent={onEvent} />);
 
@@ -34,4 +35,14 @@ describe('ExportedAnalyticsListener', () => {
 			expect(screen.getByText('ModernAnalytics')).toBeInTheDocument();
 		},
 	);
+
+	it('uses modern context when the Admin Hub gate is on, despite the legacy-context gate', async () => {
+		passGate('analytics-next-use-legacy-context');
+		passGate('adminhub-analytics-next-use-modern-context');
+
+		const { container } = render(<AnalyticsListener onEvent={jest.fn()} />);
+
+		expect(screen.getByText('ModernAnalytics')).toBeInTheDocument();
+		await expect(container).toBeAccessible();
+	});
 });

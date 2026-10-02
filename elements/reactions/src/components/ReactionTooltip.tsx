@@ -3,15 +3,18 @@
  * @jsx jsx
  */
 import React, { type PropsWithChildren } from 'react';
+
 import { css, jsx } from '@compiled/react';
-import Tooltip from '@atlaskit/tooltip';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
 import { TOOLTIP_USERS_LIMIT } from '../shared/constants';
 import { messages } from '../shared/i18n';
 import { type ReactionSummary } from '../types';
 import { type OpenReactionsDialogOptions } from './Reactions';
-import { N90, N800, N0 } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
 
 export const verticalMargin = 5;
 const tooltipStyle = css({
@@ -38,21 +41,42 @@ const tooltipStyle = css({
 
 const emojiNameStyle = css({
 	textTransform: 'capitalize',
-	color: token('color.text.inverse', N90),
+	color: token('color.text.inverse'),
 	fontWeight: token('font.weight.semibold'),
 });
 
 const footerStyle = css({
-	color: token('color.text.inverse', N90),
+	color: token('color.text.inverse'),
 });
 
 const underlineStyle = css({
 	cursor: 'pointer',
 	textDecoration: 'underline',
 	'&:hover': {
-		backgroundColor: token('color.background.neutral.bold', N800),
-		color: token('color.text.inverse', N0),
+		backgroundColor: token('color.background.neutral.bold'),
+		color: token('color.text.inverse'),
 	},
+	transition: token('motion.button.hovered'),
+});
+
+// Resets native <button> chrome so it renders as inline text within the tooltip list.
+const footerButtonStyle = css({
+	backgroundColor: 'transparent',
+	border: 'none',
+	font: token('font.body.small'),
+	display: 'block',
+	paddingTop: token('space.0'),
+	paddingRight: token('space.0'),
+	paddingBottom: token('space.0'),
+	paddingLeft: token('space.0'),
+	width: '100%',
+	textAlign: 'left',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+});
+
+const footerButtonColorStyle = css({
+	color: token('color.text.inverse'),
 });
 
 /**
@@ -100,7 +124,7 @@ export const ReactionTooltip = ({
 	allowUserDialog,
 	handleOpenReactionsDialog,
 	dismissTooltip,
-}: ReactionTooltipProps) => {
+}: ReactionTooltipProps): JSX.Element => {
 	const handleClick = () => {
 		if (allowUserDialog && handleOpenReactionsDialog) {
 			dismissTooltip();
@@ -111,28 +135,40 @@ export const ReactionTooltip = ({
 	const content =
 		!users || users.length === 0 || !isEnabled ? null : (
 			// eslint-disable-next-line @atlassian/a11y/no-noninteractive-tabindex
-			<div css={tooltipStyle} tabIndex={0}>
+			<div
+				css={tooltipStyle}
+				tabIndex={fg('platform_suppression_removal_fix_reactions') ? undefined : 0}
+			>
 				<ul>
 					{emojiName ? <li css={emojiNameStyle}>{emojiName}</li> : null}
 					{users.slice(0, maxReactions).map((user) => {
 						return <li key={user.id}>{user.displayName}</li>;
 					})}
-					{/* If count of reactions higher then given threshold then render custom message */}
-
-					{/* eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-interactions, @atlassian/a11y/click-events-have-key-events*/}
-					<li
-						css={[footerStyle, allowUserDialog && underlineStyle]}
-						onMouseDown={handleClick}
-						onClick={handleClick}
-					>
-						{users.length > maxReactions && (
-							<FormattedMessage
-								{...messages.otherUsers}
-								values={{
-									count: users.length - maxReactions,
-								}}
-							/>
-						)}
+					{/* If count of reactions higher than given threshold then render custom message */}
+					<li css={footerStyle}>
+						{users.length > maxReactions &&
+							(allowUserDialog && handleOpenReactionsDialog ? (
+								<button
+									type="button"
+									css={[footerButtonStyle, footerButtonColorStyle, underlineStyle]}
+									onClick={handleClick}
+									onMouseDown={(e) => e.preventDefault()}
+								>
+									<FormattedMessage
+										{...messages.otherUsers}
+										values={{
+											count: users.length - maxReactions,
+										}}
+									/>
+								</button>
+							) : (
+								<FormattedMessage
+									{...messages.otherUsers}
+									values={{
+										count: users.length - maxReactions,
+									}}
+								/>
+							))}
 					</li>
 				</ul>
 			</div>

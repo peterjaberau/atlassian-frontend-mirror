@@ -4,11 +4,11 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
 
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { getPosHandler, ReactComponentProps } from '@atlaskit/editor-common/react-node-view';
 import ReactNodeView from '@atlaskit/editor-common/react-node-view';
 import {
@@ -20,13 +20,12 @@ import { UnsupportedInline } from '@atlaskit/editor-common/ui';
 import { calcBreakoutWidth } from '@atlaskit/editor-common/utils';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Decoration, DecorationSource, EditorView } from '@atlaskit/editor-prosemirror/view';
-import type { DatasourceAdf, DatasourceAdfView } from '@atlaskit/link-datasource';
-import { DatasourceTableView } from '@atlaskit/link-datasource';
-import {
-	EditorSmartCardProvider,
-	EditorSmartCardProviderValueGuard,
-} from '@atlaskit/link-provider';
-import { DATASOURCE_DEFAULT_LAYOUT } from '@atlaskit/linking-common';
+import { DatasourceTableViewWithWrappers as DatasourceTableView } from '@atlaskit/link-datasource/datasource-table-view-with-wrappers';
+import { EditorSmartCardProvider } from '@atlaskit/link-provider/editor-smart-card-provider';
+import { EditorSmartCardProviderValueGuard } from '@atlaskit/link-provider/editor-smart-card-provider-value-guard';
+import { DATASOURCE_DEFAULT_LAYOUT } from '@atlaskit/linking-common/constants';
+import type { DatasourceAdf, DatasourceAdfView } from '@atlaskit/linking-common/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { cardPlugin } from '../index';
 import { DatasourceErrorBoundary } from '../ui/datasourceErrorBoundary';
@@ -54,8 +53,7 @@ export interface DatasourceProps extends ReactComponentProps {
 }
 
 interface DatasourceComponentProps
-	extends ReactComponentProps,
-		Pick<DatasourceProps, 'node' | 'view' | 'getPos'> {}
+	extends ReactComponentProps, Pick<DatasourceProps, 'node' | 'view' | 'getPos'> {}
 
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export class DatasourceComponent extends React.PureComponent<DatasourceComponentProps> {
@@ -159,6 +157,11 @@ export class DatasourceComponent extends React.PureComponent<DatasourceComponent
 		);
 	};
 
+	handleWrappedColumnsChange = (wrappedColumnKeys: string[]): void => {
+		const { columnCustomSizes = {}, visibleColumnKeys = [] } = this.getColumnsInfo();
+		this.updateTableProperties(visibleColumnKeys, columnCustomSizes, wrappedColumnKeys);
+	};
+
 	onError = ({ err }: { err?: Error }): void => {
 		if (err) {
 			throw err;
@@ -190,7 +193,7 @@ export class DatasourceComponent extends React.PureComponent<DatasourceComponent
 		return { visibleColumnKeys, columnCustomSizes, wrappedColumnKeys };
 	}
 
-	render() {
+	render(): jsx.JSX.Element | null {
 		const datasource = this.getDatasource();
 		const attrs = this.props.node.attrs as DatasourceAdf['attrs'];
 		const tableView = this.getTableView();
@@ -211,6 +214,11 @@ export class DatasourceComponent extends React.PureComponent<DatasourceComponent
 								onColumnResize={this.handleColumnResize}
 								columnCustomSizes={columnCustomSizes}
 								onWrappedColumnChange={this.handleWrappedColumnChange}
+								onWrappedColumnsChange={
+									fg('platform_lp_sllv_table_settings_menu')
+										? this.handleWrappedColumnsChange
+										: undefined
+								}
 								wrappedColumnKeys={wrappedColumnKeys}
 							/>
 						</EditorSmartCardProvider>
@@ -296,7 +304,7 @@ export class Datasource extends ReactNodeView<DatasourceProps> {
 		return false;
 	}
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { attrs } = this.node;
 		// EDM-10607: Workaround to remove datasource table draggable attribute
 		// @ts-ignore TS2341: Property domRef is private

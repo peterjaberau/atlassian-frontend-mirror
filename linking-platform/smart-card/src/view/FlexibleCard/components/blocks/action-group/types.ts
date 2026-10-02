@@ -1,4 +1,4 @@
-import { type Appearance } from '@atlaskit/button';
+import type { Appearance } from '@atlaskit/button/old-button/types';
 
 import { type SmartLinkDirection, type SmartLinkSize } from '../../../../../constants';
 import { type ActionItem } from '../types';
@@ -8,6 +8,11 @@ export type ActionGroupProps = {
 	 * Determines the default appearance of the Action Group.
 	 */
 	appearance?: Appearance;
+
+	/**
+	 * The measured width of the stable footer container (from FooterBlockResolvedView).
+	 */
+	containerWidth?: number;
 
 	/**
 	 * Determines the direction that the actions are rendered. Can be vertical
@@ -36,7 +41,6 @@ export type ActionGroupProps = {
 	 * serving as a hook for automated tests
 	 */
 	testId?: string;
-
 	/**
 	 * Determines the maximum number of singular actions that should be rendered
 	 * before collapsing all actions into a Dropdown.

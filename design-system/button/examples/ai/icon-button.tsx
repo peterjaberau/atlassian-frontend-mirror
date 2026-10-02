@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import AddIcon from '@atlaskit/icon/core/add';
 import DeleteIcon from '@atlaskit/icon/core/delete';
 import InfoIcon from '@atlaskit/icon/core/status-information';
 
 const _default_1: React.JSX.Element[] = [
-    <IconButton icon={AddIcon} label="Add new item" appearance="primary" />,
-    <IconButton icon={InfoIcon} label="Show information" appearance="subtle" spacing="compact" />,
-    <IconButton icon={DeleteIcon} label="Delete permanently" appearance="discovery" shape="circle" />,
+	<IconButton icon={AddIcon} label="Add new item" appearance="primary" />,
+	<IconButton icon={InfoIcon} label="Show information" appearance="subtle" spacing="compact" />,
+	<IconButton icon={DeleteIcon} label="Delete permanently" appearance="discovery" shape="circle" />,
 ];
 export default _default_1;

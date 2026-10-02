@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::d504897a042590abfc53b5ea25d7d8b8>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::80ae55becb0920aed1b5f95b8ab480e5>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -25,13 +25,13 @@ const customThemeSvg = `<svg height="100%" viewBox="0 0 206 24">
 /**
  * __JiraServiceManagementLogo__
  *
- * A temporary component to represent the logo for Jira Service Management.
+ * A component to represent the logo for Jira Service Management.
  *
  */
 export function JiraServiceManagementLogo({
 	iconColor,
 	textColor,
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Jira Service Management',
 	testId,

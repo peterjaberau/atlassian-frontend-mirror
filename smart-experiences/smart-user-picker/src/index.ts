@@ -1,29 +1,20 @@
 export { default } from './components';
-export { getUserRecommendations, hydrateDefaultValues } from './service';
-export type { RecommendationRequest, Props, State } from './types';
-export {
-	//Utils
-	isEmail,
-	isTeam,
-	isUser,
-	isExternalUser,
-	isValidEmail,
-	isGroup,
-	// Constants
-	EmailType,
-	GroupType,
-	TeamType,
-	UserType,
-} from '@atlaskit/user-picker';
+export { default as getUserRecommendations } from './service/recommendation-client';
+export { default as hydrateDefaultValues } from './service/default-value-hydration-client';
+export type { RecommendationRequest, Props, State, RestrictionFilter } from './types';
+export { isEmail } from '@atlaskit/user-picker/is-email';
+export { isTeam } from '@atlaskit/user-picker/is-team';
+export { isUser } from '@atlaskit/user-picker/is-user';
+export { isExternalUser } from '@atlaskit/user-picker/is-external-user';
+export { isValidEmail } from '@atlaskit/user-picker/components/email-validation';
+export { isGroup } from '@atlaskit/user-picker/is-group';
+export { EmailType, GroupType, TeamType, UserType } from '@atlaskit/user-picker/types';
 export type {
-	// Types
 	ActionTypes,
 	Appearance,
 	AtlasKitSelectChange,
 	AtlaskitSelectValue,
 	DefaultValue,
-	EmailValidationResponse,
-	EmailValidator,
 	InputActionTypes,
 	LozengeProps,
 	OnChange,
@@ -39,7 +30,6 @@ export type {
 	UserPickerProps,
 	UserPickerState,
 	Value,
-	// Interfaces
 	Email,
 	Group,
 	GroupHighlight,
@@ -52,4 +42,8 @@ export type {
 	UserHighlight,
 	ExternalUser,
 	UserSource,
-} from '@atlaskit/user-picker';
+} from '@atlaskit/user-picker/types';
+export type {
+	EmailValidationResponse,
+	EmailValidator,
+} from '@atlaskit/user-picker/components/email-validation';

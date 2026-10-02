@@ -5,9 +5,12 @@ import {
 	EmojiPickerWithoutUpload,
 	EmojiPickerWithFallbackWithUpload,
 	EmojiPickerWithFallbackWithoutUpload,
-} from './picker.fixture';
+} from './picker.fixture.vr.ap';
 
 snapshot(EmojiPickerWithUpload, {
+	states: [
+		{ selector: { byRole: 'searchbox', options: { name: 'Emoji name' } }, state: 'focused' },
+	],
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -17,6 +20,9 @@ snapshot(EmojiPickerWithUpload, {
 	],
 });
 snapshot(EmojiPickerWithoutUpload, {
+	states: [
+		{ selector: { byRole: 'searchbox', options: { name: 'Emoji name' } }, state: 'focused' },
+	],
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -26,6 +32,9 @@ snapshot(EmojiPickerWithoutUpload, {
 	],
 });
 snapshot(EmojiPickerWithFallbackWithUpload, {
+	states: [
+		{ selector: { byRole: 'searchbox', options: { name: 'Emoji name' } }, state: 'focused' },
+	],
 	ignoredErrors: [
 		{
 			pattern: /Failed to load resource/,
@@ -40,6 +49,9 @@ snapshot(EmojiPickerWithFallbackWithUpload, {
 	],
 });
 snapshot(EmojiPickerWithFallbackWithoutUpload, {
+	states: [
+		{ selector: { byRole: 'searchbox', options: { name: 'Emoji name' } }, state: 'focused' },
+	],
 	ignoredErrors: [
 		{
 			pattern: /Failed to load resource/,

@@ -1,13 +1,14 @@
-jest.mock('@atlaskit/platform-feature-flags', () => ({
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn(),
 }));
 
 import React from 'react';
 
 import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { getContainerProperties, messages } from '../get-container-properties';
 
@@ -105,19 +106,7 @@ describe('getContainerProperties', () => {
 		await expect(document.body).toBeAccessible();
 	});
 
-	it('should use new title for confluence', async () => {
-		const properties = getContainerProperties({
-			containerType: 'ConfluenceSpace',
-		});
-		renderWithIntl(properties.title);
-		expect(
-			screen.getByText(messages.addConfluenceContainerTitle.defaultMessage),
-		).toBeInTheDocument();
-
-		await expect(document.body).toBeAccessible();
-	});
-
-	it('should return correct titles for loom container type', async () => {
+	it('should return correct title for loom container type', async () => {
 		const properties = getContainerProperties({
 			containerType: 'LoomSpace',
 		});
@@ -127,17 +116,7 @@ describe('getContainerProperties', () => {
 		await expect(document.body).toBeAccessible();
 	});
 
-	it('should use new title for jira', async () => {
-		const properties = getContainerProperties({
-			containerType: 'JiraProject',
-		});
-		renderWithIntl(properties.title);
-		expect(screen.getByText(messages.addJiraProject.defaultMessage)).toBeInTheDocument();
-
-		await expect(document.body).toBeAccessible();
-	});
-
-	it('should set weblink title to Add Web Link', async () => {
+	it('should return correct title for weblink', async () => {
 		const properties = getContainerProperties({
 			containerType: 'WebLink',
 		});

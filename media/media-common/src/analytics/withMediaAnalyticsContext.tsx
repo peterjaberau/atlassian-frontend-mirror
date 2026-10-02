@@ -1,6 +1,7 @@
 import React, { forwardRef, useMemo } from 'react';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
+
 import { MEDIA_CONTEXT } from '@atlaskit/analytics-namespaced-context/MediaAnalyticsContext';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 
 import {
 	type ContextPublicAttributes,
@@ -56,7 +57,6 @@ export const withMediaAnalyticsContext =
 		});
 
 		WithMediaAnalyticsContext.displayName = `WithMediaAnalyticsContext(${
-			// @ts-ignore displayName doesn't exist on type
 			WrappedComponent.displayName || WrappedComponent.name
 		})`;
 

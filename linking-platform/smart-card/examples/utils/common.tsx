@@ -3,9 +3,9 @@
  * @jsx jsx
  */
 import { css, jsx } from '@compiled/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { type JsonLd } from '@atlaskit/json-ld-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
 import {
 	forbiddenJira,
 	iconGoogleDrive,
@@ -13,7 +13,7 @@ import {
 	image2,
 	imageForbiddenJiraEmbed,
 } from '@atlaskit/link-test-helpers';
-import type { SmartLinkResponse } from '@atlaskit/linking-types';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
 import Page from '@atlaskit/page';
 import { token } from '@atlaskit/tokens';
 
@@ -27,14 +27,14 @@ const subHeaderCSS = css({
 	// to be thoroughly checked with a designer so that we do not miss an unintended visual change
 	// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
 	marginTop: '28px',
-	marginBottom: token('space.100', '8px'),
+	marginBottom: token('space.100'),
 });
 
 const divPadding = css({
 	padding: '30px',
 });
 
-export const VRTestCase = ({ title, children }: VRTestCaseOpts) => {
+export const VRTestCase = ({ title, children }: VRTestCaseOpts): JSX.Element => {
 	return (
 		<IntlProvider locale={'en'}>
 			<Page>

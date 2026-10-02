@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test';
 
+import { skipAutoA11y } from '@atlassian/a11y-playwright-testing';
+
 import { expect, rendererTestCase as test } from './not-libra';
 import {
 	tableSortingAdf,
@@ -8,6 +10,7 @@ import {
 	tableWithHeaderColumnButWithoutHeaderRowWithoutNumberColumn,
 } from './table-sorting.fixture';
 
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
 class TableSortModel {
 	constructor(private page: Page) {}
 
@@ -191,6 +194,7 @@ test.describe('table sorting', () => {
 			});
 
 			test('should not display sort button', async ({ renderer }) => {
+				skipAutoA11y();
 				await expect(renderer.page.getByRole('button')).toBeHidden();
 			});
 
@@ -207,6 +211,7 @@ test.describe('table sorting', () => {
 			});
 
 			test('should not display sort button', async ({ renderer }) => {
+				skipAutoA11y();
 				await expect(renderer.page.getByRole('button')).toBeHidden();
 			});
 		});

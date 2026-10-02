@@ -1,15 +1,15 @@
-import { fg } from '@atlaskit/platform-feature-flags';
-
 import type { InteractionMetrics } from '../../common';
 import { segmentUnmountCache } from '../../interaction-metrics';
-import { optimizeLabelStack, stringifyLabelStackFully } from '../common/utils';
-
+import type { LabelStackRegistry } from '../common/utils/label-stack-registry';
+import { optimizeLabelStackWithRegistry } from '../common/utils/optimize-label-stack-with-registry';
+import { stringifyLabelStackFully } from '../common/utils/stringify-label-stack-fully';
 import type { getReactUFOPayloadVersion } from './get-react-ufo-payload-version';
 
 export function optimizeReactProfilerTimings(
 	reactProfilerTimings: InteractionMetrics['reactProfilerTimings'],
 	interactionStart: number,
 	reactUFOVersion: ReturnType<typeof getReactUFOPayloadVersion>,
+	registry?: LabelStackRegistry,
 ): any[] {
 	const reactProfilerTimingsMap = reactProfilerTimings.reduce(
 		(result, { labelStack, startTime, commitTime, actualDuration, type }) => {
@@ -19,7 +19,7 @@ export function optimizeReactProfilerTimings(
 				const end = Math.round(commitTime);
 
 				const timing = result.get(label) || {
-					labelStack: optimizeLabelStack(labelStack, reactUFOVersion),
+					labelStack: optimizeLabelStackWithRegistry(labelStack, reactUFOVersion, registry),
 					startTime: start,
 					endTime: end,
 					mountCount: 0,
@@ -39,7 +39,7 @@ export function optimizeReactProfilerTimings(
 				if (type === 'update') {
 					timing.rerenderCount += 1;
 				}
-				if (segmentUnmountCache.has(label) && fg('platform_ufo_segment_unmount_count')) {
+				if (segmentUnmountCache.has(label)) {
 					timing.unmountCount = segmentUnmountCache.get(label) || 0;
 					segmentUnmountCache.delete(label);
 				}

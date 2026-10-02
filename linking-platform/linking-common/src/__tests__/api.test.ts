@@ -1,4 +1,5 @@
-import { request, NetworkError } from '../api';
+import { request } from '../api';
+import { NetworkError } from '../NetworkError';
 
 describe('Smart Card: request()', () => {
 	let mockFetch: jest.Mock;
@@ -26,7 +27,7 @@ describe('Smart Card: request()', () => {
 			Origin: 'some-origin',
 		});
 
-		expect(mockFetch).toBeCalledWith('some-url', {
+		expect(mockFetch).toHaveBeenCalledWith('some-url', {
 			method: 'post',
 			credentials: 'include',
 			headers: {
@@ -43,7 +44,7 @@ describe('Smart Card: request()', () => {
 			foo: 'bar',
 		});
 
-		expect(mockFetch).toBeCalledWith('some-url', {
+		expect(mockFetch).toHaveBeenCalledWith('some-url', {
 			method: 'get',
 			credentials: 'include',
 			headers: {

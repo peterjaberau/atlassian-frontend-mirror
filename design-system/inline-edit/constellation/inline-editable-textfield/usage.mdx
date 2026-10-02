@@ -19,11 +19,11 @@ Use an [inline edit](/components/inline-edit) if you require more customisation 
 your own custom input components. Remember to pass in custom read view and edit view components to
 match the input components' size.
 
-## Anatomy
+## Parts
 
 ### Read view
 
-![An inline edit in read view. The example label is "Team name" and the content of the field is "Design System Team".](/images/inline-editable-textfield-anatomy-read.png)
+![An inline edit in read view. The example label is "Team name" and the content of the field is "Design System Team".](./images/inline-editable-textfield-anatomy-read.png)
 
 1. ** Label: ** Labels are concise, sentence case text describing what to enter in the field.
 
@@ -32,7 +32,7 @@ match the input components' size.
 
 ### Edit view
 
-![An inline edit in edit view. The example label is "Team name" and the field is a text field with "Design System Team" presented as editable text. At the bottom right there are two controls with a tick icon and a cross icon.](/images/inline-editable-textfield-anatomy-edit.png)
+![An inline edit in edit view. The example label is "Team name" and the field is a text field with "Design System Team" presented as editable text. At the bottom right there are two controls with a tick icon and a cross icon.](./images/inline-editable-textfield-anatomy-edit.png)
 
 1. ** Label: ** Labels are concise, sentence case text describing what to enter in the field.
 
@@ -41,34 +41,35 @@ match the input components' size.
 
 3. ** Controls: ** Options to save or cancel the current data entry appear at the end of the field.
 
-## Behavior
-
-The inline editable text field has the same features as [inline edit](/components/inline-edit). This
-includes the action buttons and validation features.
-
 ## Best practices
 
 Use an inline editable text field for when there is existing content in a text field that may need
 to be tweaked.
 
-<DoDont
-	type="do"
-	image={{
-		url: inlineEditTextfieldDo,
-		alt: 'Inline edit textfields in a side drawer.',
-	}}
->
-	Use an inline editable text field for where there are multiple items on a page that can be edited
-	at once.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: inlineEditTextfieldDo,
+			alt: 'Inline edit textfields in a side drawer.',
+		}}
+	>
+		Use an inline editable text field for where there are multiple items on a page that can be
+		edited at once.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: inlineEditTextfieldDont,
+			alt: 'Inline edit textfields in a modal form.',
+		}}
+	>
+		Do not use an inline editable text field if the main function of the screen is editing. Try
+		using a text area instead.
+	</DoDont>
+</DoDontGrid>
 
-<DoDont
-	type="dont"
-	image={{
-		url: inlineEditTextfieldDont,
-		alt: 'Inline edit textfields in a modal form.',
-	}}
->
-	Do not use an inline editable text field if the main function of the screen is editing. Try using
-	a text area instead.
-</DoDont>
+## Behavior
+
+The inline editable text field has the same features as [inline edit](/components/inline-edit). This
+includes the action buttons and validation features.

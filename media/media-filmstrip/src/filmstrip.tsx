@@ -1,10 +1,14 @@
 import React from 'react';
 import { Component } from 'react';
-import { Card, defaultImageCardDimensions, CardLoading } from '@atlaskit/media-card';
-import { FilmstripView } from './filmstripView';
-import { generateIdentifierKey } from './utils/generateIdentifierKey';
-import { type FilmstripProps } from './types';
+
+import { defaultImageCardDimensions } from '@atlaskit/media-card/cardDimensions';
+import Card from '@atlaskit/media-card/cardLoader';
+import { CardLoading } from '@atlaskit/media-card/cardLoading';
+
 import { DeduplicatedFilmStrip } from './deduplicatedFilmstrip';
+import { FilmstripView } from './filmstripView';
+import { type FilmstripProps } from './types';
+import { generateIdentifierKey } from './utils/generateIdentifierKey';
 
 export interface FilmstripState {
 	animate: boolean;
@@ -53,6 +57,7 @@ export class Filmstrip extends Component<FilmstripProps, FilmstripState> {
 					featureFlags={featureFlags}
 					viewerOptions={viewerOptions}
 					isLazy={isLazy}
+					fallbackMediaNameFetcher={this.props.fallbackMediaNameFetcher}
 					{...item}
 				/>
 			);

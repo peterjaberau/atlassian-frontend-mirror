@@ -1,6 +1,17 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	indent: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	outdent: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	indent: {
 		id: 'fabric.editor.indent',
 		defaultMessage: 'Indent',

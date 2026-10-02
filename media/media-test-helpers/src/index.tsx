@@ -85,7 +85,7 @@ export { createMouseEvent } from './createMouseEvent';
 export type { MouseEventProps } from './createMouseEvent';
 export { createTouchEvent } from './createTouchEvent';
 export type { TouchEventProps } from './createTouchEvent';
-export const authProviderBaseURL = 'https://media.staging.atl-paas.net/items';
+export { authProviderBaseURL } from './constants';
 export { MEDIA_BASE_URL, MEDIA_PLAYGROUND_BASE_URL } from './mediaBaseURLS';
 export { mediaPickerAuthProvider } from './mediaPickerAuthProvider';
 export {
@@ -123,11 +123,7 @@ export type {
 } from './jestHelpers';
 export { I18NWrapper } from './I18nWrapper';
 export type { I18NWrapperProps, I18NWrapperState } from './I18nWrapper';
-export {
-	mountWithIntlContext,
-	mountWithIntlWrapper,
-	shallowWithIntlContext,
-} from './mountWithIntlContext';
+export { renderWithIntl } from './renderWithIntl';
 export { fakeIntl } from './fakeI18n';
 export { mockCanvas } from './mockCanvas';
 export { default as KeyboardEventWithKeyCode } from './keyboardEventWithKeyCode';

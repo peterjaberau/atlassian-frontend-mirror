@@ -1,7 +1,7 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
 import type { AnalyticsEventPayload, EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -16,16 +16,16 @@ import { expandedState } from '@atlaskit/editor-common/expand';
 import { GapCursorSelection, Side } from '@atlaskit/editor-common/selection';
 import { expandClassNames } from '@atlaskit/editor-common/styles';
 import { findExpand } from '@atlaskit/editor-common/transforms';
+// oxlint-disable-next-line import/no-duplicates
 import type { Command, EditorCommand } from '@atlaskit/editor-common/types';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { createWrapSelectionTransaction } from '@atlaskit/editor-common/utils';
 import type { NodeType, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType, safeInsert } from '@atlaskit/editor-prosemirror/utils';
 import { findTable } from '@atlaskit/editor-tables/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { ExpandPlugin, InsertMethod } from '../types';
 import { isNestedInExpand } from '../utils';
@@ -67,7 +67,7 @@ export const createExpandNode = (
  * When cleaning up platform_editor_adf_with_localid we can reuse this function
  * in insertExpandWithInputMethod.
  */
-export const wrapSelectionAndSetExpandedState = (state: EditorState, node: PMNode) => {
+export const wrapSelectionAndSetExpandedState = (state: EditorState, node: PMNode): Transaction => {
 	const tr = createWrapSelectionTransaction({
 		state,
 		type: node.type,
@@ -291,11 +291,8 @@ export const focusIcon =
 			return false;
 		}
 
-		// TODO: ED-29205 - During platform_editor_native_expand_button cleanup, rename `iconContainer` to `iconButton`.
-		const iconContainer = (
-			expValEquals('platform_editor_native_expand_button', 'isEnabled', true)
-				? expand.querySelector(`.${expandClassNames.iconButton}`)
-				: expand.querySelector(`.${expandClassNames.iconContainer}`)
+		const iconContainer = expand.querySelector(
+			`.${expandClassNames.iconContainer}`,
 		) as HTMLElement | null;
 		if (iconContainer && iconContainer.focus) {
 			const { tr } = state;
@@ -318,10 +315,7 @@ export const toggleExpandWithMatch =
 		const { expand, nestedExpand } = tr.doc.type.schema.nodes;
 		// if match is inside a nested expand, open the nested expand
 		const nestedExpandNode = findParentNodeOfType(nestedExpand)(selection);
-		if (
-			nestedExpandNode &&
-			expValEquals('platform_editor_toggle_expand_on_match_found', 'isEnabled', true)
-		) {
+		if (nestedExpandNode) {
 			const expanded = expandedState.get(nestedExpandNode.node) ?? false;
 			if (!expanded) {
 				expandedState.set(nestedExpandNode.node, true);
@@ -329,10 +323,7 @@ export const toggleExpandWithMatch =
 		}
 		// if match is (also) inside an expand, open the expand
 		const expandNode = findParentNodeOfType(expand)(selection);
-		if (
-			expandNode &&
-			expValEquals('platform_editor_toggle_expand_on_match_found', 'isEnabled', true)
-		) {
+		if (expandNode) {
 			const expanded = expandedState.get(expandNode.node) ?? false;
 			if (!expanded) {
 				expandedState.set(expandNode.node, true);

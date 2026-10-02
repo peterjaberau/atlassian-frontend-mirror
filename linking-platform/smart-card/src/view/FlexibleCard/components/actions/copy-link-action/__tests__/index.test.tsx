@@ -1,21 +1,20 @@
 import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { render, screen, waitForElementToBeRemoved, userEvent } from '@atlassian/testing-library';
 
 import mockContext from '../../../../../../__fixtures__/flexible-ui-data-context';
 import * as useInvokeClientAction from '../../../../../../state/hooks/use-invoke-client-action';
-import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics';
+import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics/analytics';
 import CopyLinkAction from '../index';
 import { type CopyLinkActionProps } from '../types';
 
-jest.mock('../../../../../../state/flexible-ui-context', () => ({
-	...jest.requireActual('../../../../../../state/flexible-ui-context'),
+jest.mock('../../../../../../state/flexible-ui-context/useFlexibleUiContext', () => ({
+	...jest.requireActual('../../../../../../state/flexible-ui-context/useFlexibleUiContext'),
 	useFlexibleUiContext: jest.fn().mockReturnValue(mockContext),
 }));
 
@@ -26,11 +25,13 @@ describe('CopyLinkAction', () => {
 		const onEvent = jest.fn();
 
 		return render(
-			<AnalyticsListener onEvent={onEvent} channel={ANALYTICS_CHANNEL}>
-				<IntlProvider locale="en">
-					<CopyLinkAction {...props} as="stack-item" />
-				</IntlProvider>
-			</AnalyticsListener>,
+			<SmartCardProvider>
+				<AnalyticsListener onEvent={onEvent} channel={ANALYTICS_CHANNEL}>
+					<IntlProvider locale="en">
+						<CopyLinkAction {...props} as="stack-item" />
+					</IntlProvider>
+				</AnalyticsListener>
+			</SmartCardProvider>,
 		);
 	};
 
@@ -73,6 +74,9 @@ describe('CopyLinkAction', () => {
 
 			const element = await screen.findByTestId(testId);
 			await user.click(element);
+			// Top-layer tooltips stay dismissed after a press until the pointer leaves and re-enters.
+			await user.unhover(element);
+			await user.hover(element);
 
 			const tooltip = await screen.findByRole('tooltip');
 			expect(tooltip).toHaveTextContent('Copied!');
@@ -85,6 +89,9 @@ describe('CopyLinkAction', () => {
 			const element = await screen.findByTestId(testId);
 
 			await user.click(element);
+			// Top-layer tooltips stay dismissed after a press until the pointer leaves and re-enters.
+			await user.unhover(element);
+			await user.hover(element);
 			await screen.findAllByText('Copied!');
 
 			await user.unhover(element);
@@ -95,7 +102,14 @@ describe('CopyLinkAction', () => {
 			expect(tooltip).toBeTruthy();
 		});
 	});
-	it('should capture and report a11y violations', async () => {
+
+	it('should render icon without aria-label', async () => {
+		setup();
+		const iconWithLabel = screen.queryByLabelText('copy url');
+		expect(iconWithLabel).not.toBeInTheDocument();
+	});
+
+	it('should pass a11y check with empty label', async () => {
 		const { container } = setup();
 		await expect(container).toBeAccessible();
 	});

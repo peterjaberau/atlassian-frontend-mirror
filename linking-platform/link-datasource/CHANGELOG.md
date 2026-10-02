@@ -1,5 +1,1163 @@
 # @atlaskit/link-datasource
 
+## 7.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`48ee35bbf1e1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48ee35bbf1e1b) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.8
+
+### Patch Changes
+
+- [`be25f647e8e7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be25f647e8e7b) -
+  Cleanup experiment `platform_datasource_hydration_stability`. The datasource table view now always
+  preserves its Suspense boundary across equivalent renderer props, so an unchanged parent render no
+  longer updates a boundary that is still hydrating.
+- Updated dependencies
+
+## 7.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.5
+
+### Patch Changes
+
+- [`7f8048d956848`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f8048d956848) -
+  [ux] Behind the `platform_lp_jira_searchbar_wrap_a11y` feature gate, the Jira search container now
+  wraps the basic search input above the basic filters when space is limited (e.g. at 200% zoom with
+  a long project name selected), so the search input remains visible. Adds a long project name to
+  the basic filter test mocks.
+- Updated dependencies
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- [`ffe3187520151`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ffe3187520151) -
+  Remove the redundant `linking_platform_site_picker_api_unit_compliant_cloud_id` and
+  `linking_platform_link_datasource_unit_compliant_cloud_id` feature gates. Both duplicated the
+  targeting of the existing `linking_platform_site_picker_api_unit_compliant` and
+  `linking_platform_link_datasource_unit_compliant` gates, which now solely drive the units
+  isolation rollout for the site picker and link datasource. No behaviour change.
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- [`9f02259ff4f80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f02259ff4f80) -
+  Cleanup `feature_gate` `platform_datasource_sync_info_boundary_updates`. The datasource table
+  footer sync label now always schedules its refresh on the next minute, hour or day boundary and
+  stops scheduling once the label becomes a fixed date after eight days, instead of re-rendering
+  every second.
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.14.2
+
+### Patch Changes
+
+- [`3f172371c9b66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f172371c9b66) -
+  Preserve the selected Assets columns when only the AQL query changes, and persist datasource
+  updates that only change parameters. Both behind feature gate
+  `platform_lp_sllv_preserve_assets_columns`.
+- Updated dependencies
+
+## 6.14.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.14.0
+
+### Minor Changes
+
+- [`69cbbe9ee0f63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69cbbe9ee0f63) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.13.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.13.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.13.8
+
+### Patch Changes
+
+- [`2bbc1c84de468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bbc1c84de468) -
+  Migrate Volt consumer imports to existing definitions and align affected test mocks without
+  changing runtime behavior.
+- Updated dependencies
+
+## 6.13.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.13.6
+
+### Patch Changes
+
+- [`808ffc3b50fc9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/808ffc3b50fc9) -
+  Show an error with column recovery instructions instead of indefinite loading when results have no
+  available columns, behind platform_datasource_missing_columns_error.
+- Updated dependencies
+
+## 6.13.5
+
+### Patch Changes
+
+- [`d096b1c221885`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d096b1c221885) -
+  Reduce datasource sync timestamp updates by scheduling the next minute, hour, or day boundary
+  behind a feature gate.
+- Updated dependencies
+
+## 6.13.4
+
+### Patch Changes
+
+- [`2474922a7a598`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2474922a7a598) -
+  Internal change only. The units rollout check now uses the shared
+  `@atlaskit/linking-common/units-rollout` helper instead of a local copy. Behaviour is unchanged.
+- Updated dependencies
+
+## 6.13.3
+
+### Patch Changes
+
+- [`cf6a13a455065`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf6a13a455065) -
+  Redirect modal imports to their existing definitions.
+- Updated dependencies
+
+## 6.13.2
+
+### Patch Changes
+
+- [`830f0495777fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/830f0495777fd) -
+  Gate the unit-compliant `accessible-products` endpoint on the org's units rollout settings.
+  `getAccessibleProducts` now reads `boundaryEnforced` and `endUsersLaunched` from AGG's
+  `Query.unitsRolloutSettings` and only switches to the unit-compliant endpoint when the units GA
+  master gate `cc-units-ga` is on (killswitch), the org has launched units with boundary
+  enforcement, and either the existing `linking_platform_link_datasource_unit_compliant` gate (org
+  id) or the new `linking_platform_link_datasource_unit_compliant_cloud_id` gate (cloud id) passes.
+
+  The settings are read from `Query.admin_unitSettings`, which is keyed by org id, so the org id is
+  first resolved from the current host with `Query.tenantContexts`. Both calls are made once per
+  page load and only when a rollout gate passes, and any failure falls back to the current,
+  non-isolated behaviour.
+
+## 6.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.13.0
+
+### Minor Changes
+
+- [`b2b9a6ccc8b79`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b2b9a6ccc8b79) -
+  Preserve datasource Suspense boundaries across equivalent renderer props behind
+  platform_datasource_hydration_stability. Add the platform experiment runtime dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.12.1
+
+### Patch Changes
+
+- [`b94131fcee276`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b94131fcee276) -
+  Removes the `platform_smartlink_xpc_url_wrapping` feature gate and makes cross-product URL
+  wrapping for Smart Links permanent, on for all consumers.
+
+  What this behavior does: when a resolved Smart Link points to a first-party Atlassian destination
+  (e.g. a Jira issue, Confluence page), the URL used for navigation — via click, "Open link", or any
+  other destination-URL usage — now has a short-lived interaction-session query parameter (`xpis`)
+  appended automatically. This lets the destination product attribute the visit back to the product
+  and surface the link was opened from, powering cross-product usage analytics. It has no effect on:
+  - third-party (non-Atlassian) links,
+  - links that are not yet resolved,
+  - URLs that already contain the parameter.
+
+  No API shape changes: this only affects the resolved value returned by existing Smart Link
+  URL/navigation behavior (e.g. `Card`, `useSmartLinkDestinationUrl`, inline/block/embed card
+  click-through, and datasource table link cells). No new props, exports, or configuration are
+  introduced, and no action is required from consumers.
+
+- Updated dependencies
+
+## 6.12.0
+
+### Minor Changes
+
+- [`942e8a15cbdf1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/942e8a15cbdf1) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.11.2
+
+### Patch Changes
+
+- [`d52a5b1c67047`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d52a5b1c67047) -
+  Remove the navx-5509-sllv-link-new-tab-hint gate and permanently announce new-tab links to
+  assistive technologies.
+- Updated dependencies
+
+## 6.11.1
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 6.11.0
+
+### Minor Changes
+
+- [`0a39ae0f69a25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a39ae0f69a25) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.10.1
+
+### Patch Changes
+
+- [`3516c9fac5ea8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3516c9fac5ea8) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall`.
+- Updated dependencies
+
+## 6.10.0
+
+### Minor Changes
+
+- [`63d9eb9c7a7bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63d9eb9c7a7bd) -
+  [ux] Behind `platform-dst-top-layer-tooltip`, merge the ref from `@atlaskit/tooltip`'s render prop
+  with the trigger's own ref instead of letting the later spread replace it, so the tooltip resolves
+  an anchor element. With the gate off the trigger keeps the ref it had before. Adds
+  `use-callback-ref` as a runtime dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.0
+
+### Minor Changes
+
+- [`99286191a1786`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/99286191a1786) -
+  Add dedicated public entrypoint imports for @atlaskit/link-datasource. Root and deprecated
+  compatibility imports remain supported for existing consumers.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.0
+
+### Minor Changes
+
+- [`a8fb048ddba1a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8fb048ddba1a) -
+  Add a gated table settings menu next to the column picker. When
+  `platform_lp_sllv_table_settings_menu` is on, the menu includes a wrap-text toggle that turns
+  wrapping on for every visible column, or off for every visible column. Gate off keeps the previous
+  column-picker-only header, and the editor does not pass `onWrappedColumnsChange`.
+
+  `DatasourceTableView` now accepts an optional `onWrappedColumnsChange` callback that updates the
+  wrapped state of multiple columns at once.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+- [`7e9c520560753`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7e9c520560753) -
+  Updated AI documentation for Post Office headless API. Other changes are from code generation and
+  are triggered by minor formatting changes.
+
+### Patch Changes
+
+- [`41b55f01fb4e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41b55f01fb4e1) -
+  Cleanup feature gate platform_lp_sllv_jira_type_as_link and keep linked Jira issue-type rendering.
+- Updated dependencies
+
+## 6.5.0
+
+### Minor Changes
+
+- [`f0073f4c89113`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0073f4c89113) -
+  Adds cross-product (XPC) MAU analytics to the datasource modals and the shared issue-like table
+  renderer, behind the `electric_issue_like_table_xpc_url_wrapping` feature gate. When the gate is
+  on, outbound issue/link URLs are enriched with XPC attribution query params; when it is off (or
+  when no host product context is present) the URL is returned untouched, so behaviour matches
+  `master`.
+
+  Attribution is host-driven and follows the same pattern as Smart Links: the host product identity
+  (`xpcProduct`, `xpcSubProduct`, `bridgeProduct`) is read from the surrounding `SmartCardProvider`
+  (`@atlaskit/link-provider`) — which datasource consumers already render — via the gated
+  `useDatasourceCrossProductAttribution` hook. There is no dedicated XPC provider to wire up;
+  consumers that already set `xpcProduct` on their `SmartCardProvider` get attribution
+  automatically.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.11
+
+### Patch Changes
+
+- [`24e05fa81e0c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/24e05fa81e0c7) -
+  [ux] When a search resolves with no items but the response still describes its columns, the
+  datasource table now keeps its column headers and footer and renders the "no results" message in
+  place of the rows, instead of replacing the entire view. Behind the
+  platform_lp_sllv_ux_improvements feature gate.
+
+## 6.4.10
+
+### Patch Changes
+
+- [`83f61c8f828c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83f61c8f828c6) -
+  Cleaning up navx-5290-sllv-modal-a11y-updates
+- Updated dependencies
+
+## 6.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.6
+
+### Patch Changes
+
+- [`e0edc05cd52d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0edc05cd52d7) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall` as a 1:1 size rename with no visual
+  change.
+- [`0972600d28868`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0972600d28868) -
+  Add visually-hidden 'opens in a new tab' hint to Jira issue key links in Datasources tables
+- Updated dependencies
+
+## 6.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.0
+
+### Minor Changes
+
+- [`4fd26afe1912d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4fd26afe1912d) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.1
+
+### Patch Changes
+
+- [`fb07a43bd5ca0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb07a43bd5ca0) -
+  Cleanup platform_sllv_a11y_modal_options_focus
+- [`87d3a5aafece6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87d3a5aafece6) -
+  Cleanup navx-1895-new-logo-design
+- Updated dependencies
+
+## 6.3.0
+
+### Minor Changes
+
+- [`7f2eb99bad9b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f2eb99bad9b3) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.0
+
+### Minor Changes
+
+- [`fea8ee4d97d15`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fea8ee4d97d15) -
+  Assets macro in Confluence now resolves the primary Unit workspace on non-primary sites via an
+  in-package unit-aware resolver, behind the astral_units_workspace_host_resolver gate (default
+  off). Gate-off and single-site behaviour is unchanged.
+
+## 6.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.11
+
+### Patch Changes
+
+- [`f02f8c37640f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f02f8c37640f3) -
+  Migrate deprecated Badge appearance values to the new semantic appearances.
+
+## 6.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.7
+
+### Patch Changes
+
+- [`332865f80eb91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/332865f80eb91) -
+  Migrate deprecated Lozenge appearance values to the new semantic appearances, and migrate
+  deprecated `SimpleTag`/`RemovableTag` to the default `Tag` export (SimpleTag with
+  `isRemovable={false}`).
+- Updated dependencies
+
+## 6.1.6
+
+### Patch Changes
+
+- [`b1cf9e336f0f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1cf9e336f0f0) -
+  Migrate consumers of @atlaskit/atlassian-context from barrel imports to direct subpath imports,
+  and remove the deprecated `./domain-lookup`, `./generalized-domain-lookup`, and `./perimeter`
+  entry-point exports (all symbols remain available via their per-export subpaths).
+
+  Also extends the `no-restricted-fedramp-imports` ESLint rule to cover the new
+  `@atlaskit/atlassian-context/is-fedramp` and `@atlaskit/atlassian-context/is-isolated-cloud`
+  subpaths, so the FedRamp/IsolatedCloud deprecation guardrail keeps firing after the migration.
+
+- Updated dependencies
+
+## 6.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.4
+
+### Patch Changes
+
+- [`5a653f46eff1d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a653f46eff1d) -
+  Partially Reverting a change made in 368271 PR
+
+## 6.1.3
+
+### Patch Changes
+
+- [`f4538424dda2e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f4538424dda2e) -
+  NAVX-5052 Cleaning up SLLV keyboard focus feature flag
+- Updated dependencies
+
+## 6.1.2
+
+### Patch Changes
+
+- [`3723d5e9201e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3723d5e9201e3) -
+  NAVX-5290 Updating aria label for site selector
+
+## 6.1.1
+
+### Patch Changes
+
+- [`d28fdfa9eac28`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d28fdfa9eac28) -
+  [ux] NAVX-5290 Adding keyboard focus for mode switcher and aria-label for site selector
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.6
+
+### Patch Changes
+
+- [`312cd0649a120`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/312cd0649a120) -
+  Fix keyboard focus stealing in ColumnPicker: focus no longer jumps back to the search input when
+  allOptions re-sorts after the popup is already open, resolving an a11y issue for keyboard and
+  screen reader users. Fix is behind feature gate platform_sllv_a11y_modal_options_focus.
+
+## 6.0.5
+
+### Patch Changes
+
+- [`0cc616f1c23b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0cc616f1c23b6) -
+  Clean up feature gate `platform_navx_sllv_j2ws_dropdown_for_single_row`. Single-row inline edit
+  dropdown menus now always render in a portal.
+- Updated dependencies
+
+## 6.0.4
+
+### Patch Changes
+
+- [`c10405c7e4695`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c10405c7e4695) -
+  Internal changes to use tokens for skeleton component border radius.
+- [`c10405c7e4695`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c10405c7e4695) -
+  Internal changes to use tokens for skeleton component border radius.
+- Updated dependencies
+
+## 6.0.3
+
+### Patch Changes
+
+- [`5960cad1ecc81`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5960cad1ecc81) -
+  Remove unused platform feature flag declarations (no runtime impact)
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- [`6600d9566a565`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6600d9566a565) -
+  Internal changes to use tokens for skeleton component border radius.
+- [`9a892d8dc000e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a892d8dc000e) -
+  Clean up feature gate `platform_navx_sllv_dropdown_escape_and_focus_fix`.
+
+  Popup select dropdowns now consistently stop Escape keydown propagation when configured to do so,
+  keeping parent dialogs open while closing the dropdown and preserving focus on the trigger.
+
+- Updated dependencies
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.6
+
+### Patch Changes
+
+- [`0da2911694dd8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0da2911694dd8) -
+  Cleanup the temporary SLLV column fallback workaround that was previously gated behind the
+  `fallback_to_default_columns_to_display_in_sllv` feature gate.
+- Updated dependencies
+
+## 5.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.3
+
+### Patch Changes
+
+- [`c949c4c098a1a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c949c4c098a1a) -
+  Fix vertical alignment gap in SLLV for rich textfields
+- Updated dependencies
+
+## 5.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.1
+
+### Patch Changes
+
+- [`c7fb26d1c5d03`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7fb26d1c5d03) -
+  Fixing read-only SLLV sorting problems with default type losing the label visually and introducing
+  third state of sorting - going back to default
+
+## 5.6.0
+
+### Minor Changes
+
+- [`5700d1a0bb7b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5700d1a0bb7b0) -
+  [ux] Add sortable columns to read only (Renderer) view without persistance
+
+## 5.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.0
+
+### Minor Changes
+
+- [`fbb51c73ed426`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbb51c73ed426) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.4
+
+### Patch Changes
+
+- [`c7fb2b6201353`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7fb2b6201353) -
+  Wrap ErrorMessage/HelperMessage with MessageWrapper in linking-platform packages to improve
+  assistive technology support. Production code changes (link-datasource, link-picker, smart-card
+  source files) are gated behind feature flag `platform_navx_3298_message_wrapper`. The example file
+  `load-link-form.tsx` applies MessageWrapper unconditionally, as example files do not ship to
+  production and are not subject to feature-gating requirements.
+- Updated dependencies
+
+## 5.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.0
+
+### Minor Changes
+
+- [`2827c7d2d2023`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2827c7d2d2023) -
+  changed arguments & return values for assets-workspace-host package updated assets units changes
+  for link datasource
+- [`f7d0c8f644e16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f7d0c8f644e16) -
+  [ux] Fix Smartlink List View getting stuck on the loading skeleton when stored `visibleColumnKeys`
+  don't match the response schema by falling back to `schema.defaultProperties`, behind feature gate
+  `fallback_to_default_columns_to_display_in_sllv`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`9fc64416c119f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9fc64416c119f) -
+  Mark barrel exports as deprecated and add new entry points:
+  - @atlaskit/link-datasource/analytics/render-failed
+  - @atlaskit/link-datasource/assets-modal
+  - @atlaskit/link-datasource/assets-modal/types
+  - @atlaskit/link-datasource/confluence-search-modal
+  - @atlaskit/link-datasource/confluence-search-modal/types
+  - @atlaskit/link-datasource/datasource-table-view
+  - @atlaskit/link-datasource/elements/render-type
+  - @atlaskit/link-datasource/jira-issues-modal
+  - @atlaskit/link-datasource/jira-issues-modal/types
+  - @atlaskit/link-datasource/types
+  - @atlaskit/link-datasource/utils/schema
+
+### Patch Changes
+
+- [`cf8cd6e12c000`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf8cd6e12c000) -
+  [ux] NAVX-4869 Adding keyboard focus support for SLLV column picker
+- Updated dependencies
+
+## 5.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.5
+
+### Patch Changes
+
+- [`b6c31533f2cd2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6c31533f2cd2) -
+  Render Jira issue type icons as links to their issue URLs.
+
+  All changes behind feature gate: platform_lp_sllv_jira_type_as_link.
+
+- Updated dependencies
+
+## 5.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- [`01bfb2823034b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01bfb2823034b) -
+  Expands automatic accessibility (a11y) Playwright test coverage for Platform
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`5e63427d4e3b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e63427d4e3b8) -
+  Align the jira datasource mock with production behaviour and improve test fixture a11y.
+  - `mockDatasourceFetchRequests` for `type: 'jira'` now mirrors production: when no
+    `initialVisibleColumnKeys` option is passed, `/data` returns only the default visible columns
+    (`defaultInitialVisibleColumnKeys`) for `items`, `schema.defaultProperties`, and
+    `schema.properties`. Previously the mock returned a wider superset.
+  - `/data` now honours the `fields` field on the request body. When `fields` is non-empty, the mock
+    filters its response to only those keys (matching how the production datasource API behaves).
+    This is what allows the dedicated rich-text VR test to opt into the `description-richtext`
+    column via `visibleColumnKeys`.
+  - Add a `description-richtext` column to jira mocks for the dedicated rich-text VR test, while
+    keeping the `description` column as plain ADF (no HTML) so non-rich-text VR tests render
+    unchanged.
+  - Fix a11y violations in mock HTML: replace deprecated `<font>` and `<tt>` elements with
+    `<span style>` and `<code>`; remove empty anchor tags and duplicate `rel` attributes; correct
+    heading-order so headings progress h1 → h2 → h3 → h4 (was previously h1 → h2 → h4 → h4).
+  - Remove the `allAvailableColumnKeys` export. The rich-text column is reachable via the schema's
+    full property catalog (column picker) and via explicit `fields` requests, never as a default.
+
+### Patch Changes
+
+- [`5e63427d4e3b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e63427d4e3b8) -
+  NAVX-4680: Remove platform_navx_jira_sllv_rich_text_gate feature flag (cleanup state: true)
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`c4f985702c3d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4f985702c3d5) -
+  Remove flag to increase accessibility in links.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`9f6bcd21611f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f6bcd21611f3) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.9
+
+### Patch Changes
+
+- [`3b4f9743f0c18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b4f9743f0c18) -
+  Enrol navigation and linking-platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 4.34.8
+
+### Patch Changes
+
+- [`7f6cbe29c21d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f6cbe29c21d8) -
+  Switch /gateway/api/v2/accessible-products endpoints to unit-compliant path
+  /gateway/api/experimental/v2/accessible-products behind the
+  `linking_platform_link_datasource_unit_compliant` feature gate
+- Updated dependencies
+
+## 4.34.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.4
+
+### Patch Changes
+
+- [`93a66599141af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93a66599141af) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 4.34.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.34.1
+
+### Patch Changes
+
+- [`236ae1160f1a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/236ae1160f1a0) -
+  Clean up platform-button-icon-spacing-cleanup FG
+- Updated dependencies
+
+## 4.34.0
+
+### Minor Changes
+
+- [`b41bc78e107d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b41bc78e107d1) -
+  Make support for daterange data type in link-datasource stable to better represents data ranges
+  like day, month or quarter
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.12
+
+### Patch Changes
+
+- [`8a319950932e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8a319950932e8) -
+  Remove platform-component-visual-refresh-true feature flag from lozenges.
+- Updated dependencies
+
+## 4.33.11
+
+### Patch Changes
+
+- [`92fc3a4a68be6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92fc3a4a68be6) -
+  Cleaning up navx-1345-issues-modal-jql-submit-fix in Jira issues modal component
+
+## 4.33.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.9
+
+### Patch Changes
+
+- [`6d87d08be8526`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d87d08be8526) -
+  Add dependency for a11y testing.
+- Updated dependencies
+
+## 4.33.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.6
+
+### Patch Changes
+
+- [`c085330e0dde8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c085330e0dde8) -
+  Remove new icon button styling hack
+- Updated dependencies
+
+## 4.33.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 4.33.3
 
 ### Patch Changes

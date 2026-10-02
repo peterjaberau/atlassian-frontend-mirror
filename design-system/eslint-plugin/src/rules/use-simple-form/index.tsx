@@ -1,22 +1,10 @@
 import type { Rule } from 'eslint';
 import { isNodeOfType, type JSXAttribute } from 'eslint-codemod-utils';
 
-import { createLintRule } from '../utils/create-rule';
+import { createLintRule } from '../utils/create-lint-rule';
+import { getFormImportLocalNames } from '../utils/get-form-import-local-names';
+import { topLevelAttributeNames } from './top-level-attribute-names';
 
-const FORM_PACKAGE = '@atlaskit/form';
-
-export const topLevelAttributeNames: string[] = [
-	'autocomplete',
-	'id',
-	'label',
-	'labelId',
-	'onKeyDown',
-	'onSubmit',
-	'name',
-	'noValidate',
-	'ref',
-	'xcss',
-];
 export const convertForm = 'Convert form to simple form';
 
 const rule: Rule.RuleModule = createLintRule({
@@ -39,28 +27,7 @@ const rule: Rule.RuleModule = createLintRule({
 
 		return {
 			ImportDeclaration(node) {
-				const source = node.source.value;
-
-				// Ignore anomalies
-				if (typeof source !== 'string') {
-					return;
-				}
-
-				if (!node.specifiers.length) {
-					return;
-				}
-
-				// If it's not from our package, ignore.
-				if (source !== FORM_PACKAGE) {
-					return;
-				}
-
-				const defaultImportSpecifiers = node.specifiers.filter((spec) =>
-					isNodeOfType(spec, 'ImportDefaultSpecifier'),
-				);
-				if (defaultImportSpecifiers.length > 0) {
-					formImport = defaultImportSpecifiers[0].local.name;
-				}
+				formImport = getFormImportLocalNames(node).Form?.[0] ?? formImport;
 			},
 			JSXElement(node: Rule.Node) {
 				if (!isNodeOfType(node, 'JSXElement')) {
@@ -197,3 +164,4 @@ const rule: Rule.RuleModule = createLintRule({
 });
 
 export default rule;
+export { topLevelAttributeNames } from './top-level-attribute-names';

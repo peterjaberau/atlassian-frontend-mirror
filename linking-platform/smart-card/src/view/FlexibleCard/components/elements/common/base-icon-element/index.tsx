@@ -5,23 +5,22 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useMemo } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
 import LinkIcon from '@atlaskit/icon/core/link';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
-import Tile from '@atlaskit/tile';
+import Tile from '@atlaskit/tile/tile';
 import { token } from '@atlaskit/tokens';
 
 import { type IconType, SmartLinkPosition, SmartLinkSize } from '../../../../../../constants';
-import { type FlexibleUiDataContext } from '../../../../../../state/flexible-ui-context/types';
-import { isProfileType } from '../../../../../../utils';
-import { isNewBlockcardUnauthorizedRefreshExperimentEnabled } from '../../../../../../utils/experiments';
+import ImageIcon from '../../../../../common/image-icon';
+import { type ImageIconProps } from '../../../../../common/image-icon/types';
 import AtlaskitIcon from '../../../common/atlaskit-icon';
-import ImageIcon from '../../../common/image-icon';
-import { type ImageIconProps } from '../../../common/image-icon/types';
-import { getIconWidth } from '../../../utils';
+import { getIconWidth } from '../../../getIconWidth';
 import type { ElementProps } from '../../index';
 
 export type BaseIconElementProps = ElementProps & {
@@ -174,15 +173,17 @@ const renderAtlaskitIcon = (
 	icon?: IconType,
 	testId?: string,
 	size: SmartLinkSize = SmartLinkSize.Medium,
+	label?: string,
+	isTiledIcon?: boolean,
 ): React.ReactNode | undefined => {
 	if (icon) {
 		return (
 			<AtlaskitIcon
 				icon={icon}
 				testId={`${testId}-icon`}
-				aria-hidden="true"
-				label="" // Since we already set aria-hidden="true", the label should be given an empty string
+				label={label}
 				size={size}
+				isTiledIcon={isTiledIcon}
 			/>
 		);
 	}
@@ -192,6 +193,21 @@ const renderDefaultIcon = (label: string, testId: string): React.ReactNode => (
 	<LinkIcon label={label} testId={`${testId}-default`} color="currentColor" />
 );
 
+const widthFromSize = (size: SmartLinkSize, isTiledIcon: boolean) => {
+	switch (size) {
+		case SmartLinkSize.XLarge:
+			return token('space.300');
+		case SmartLinkSize.Large:
+			return token('space.300');
+		case SmartLinkSize.Medium:
+			return isTiledIcon ? token('space.250') : token('space.200');
+		case SmartLinkSize.Small:
+			return token('space.200');
+		default:
+			return token('space.200');
+	}
+};
+
 const renderImageIcon = (
 	defaultIcon: React.ReactNode,
 	url?: string,
@@ -199,12 +215,41 @@ const renderImageIcon = (
 	size = SmartLinkSize.Medium,
 	appearance?: ImageIconProps['appearance'],
 	hideLoadingSkeleton?: boolean,
+	label?: string,
 ): React.ReactNode | undefined => {
 	const width = size === SmartLinkSize.Large ? token('space.300') : token('space.200');
 
 	if (url) {
 		return (
 			<ImageIcon
+				label={label}
+				defaultIcon={defaultIcon}
+				testId={testId}
+				url={url}
+				width={width}
+				height={width}
+				appearance={appearance}
+				hideLoadingSkeleton={hideLoadingSkeleton}
+			/>
+		);
+	}
+};
+
+const renderImageIconNew = (
+	defaultIcon: React.ReactNode,
+	url?: string,
+	testId?: string,
+	size = SmartLinkSize.Medium,
+	appearance?: ImageIconProps['appearance'],
+	hideLoadingSkeleton?: boolean,
+	label?: string,
+	isTiledIcon: boolean = false,
+): React.ReactNode | undefined => {
+	const width = widthFromSize(size, isTiledIcon);
+	if (url) {
+		return (
+			<ImageIcon
+				label={label}
 				defaultIcon={defaultIcon}
 				testId={testId}
 				url={url}
@@ -226,7 +271,7 @@ const renderImageIcon = (
 const IconElement = ({
 	icon,
 	overrideIcon,
-	label = 'Link',
+	label: labelProp,
 	name,
 	position = SmartLinkPosition.Top,
 	className,
@@ -237,17 +282,48 @@ const IconElement = ({
 	appearance = 'square',
 	hideLoadingSkeleton,
 	isTiledIcon,
-}: BaseIconElementProps) => {
+}: BaseIconElementProps): JSX.Element => {
+	const label = labelProp ?? '';
 	const element = useMemo(() => {
 		const defaultIcon = renderDefaultIcon(label, testId);
 		return (
 			overrideIcon ||
 			render?.() ||
-			renderImageIcon(defaultIcon, url, testId, size, appearance, hideLoadingSkeleton) ||
-			renderAtlaskitIcon(icon, testId, size) ||
+			(fg('platform_sl_3p_preauth_better_hovercard_killswitch')
+				? renderImageIconNew(
+						defaultIcon,
+						url,
+						testId,
+						size,
+						appearance,
+						hideLoadingSkeleton,
+						label,
+						isTiledIcon,
+					)
+				: renderImageIcon(
+						defaultIcon,
+						url,
+						testId,
+						size,
+						appearance,
+						hideLoadingSkeleton,
+						label,
+					)) ||
+			renderAtlaskitIcon(icon, testId, size, label, isTiledIcon) ||
 			defaultIcon
 		);
-	}, [label, testId, overrideIcon, render, url, size, appearance, hideLoadingSkeleton, icon]);
+	}, [
+		label,
+		testId,
+		overrideIcon,
+		render,
+		url,
+		size,
+		appearance,
+		hideLoadingSkeleton,
+		icon,
+		isTiledIcon,
+	]);
 
 	const width = getIconWidth(size);
 
@@ -260,13 +336,14 @@ const IconElement = ({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 			className={className}
 		>
-			{isTiledIcon && isNewBlockcardUnauthorizedRefreshExperimentEnabled() ? (
-				<Tile size={size} label={label}>
+			{isTiledIcon ? (
+				<Tile size={size} hasBorder backgroundColor="white" label={label} testId={`${testId}-tile`}>
 					{element}
 				</Tile>
 			) : (
 				<Box
 					xcss={styles.iconWrapperStyle}
+					testId={`${testId}-box`}
 					style={{
 						width,
 						height: width,
@@ -280,20 +357,3 @@ const IconElement = ({
 };
 
 export default IconElement;
-
-export const toLinkIconProps = (
-	data: FlexibleUiDataContext[keyof FlexibleUiDataContext] | undefined,
-	type: FlexibleUiDataContext['type'],
-) => {
-	const isDataLinkIcon = (_data: typeof data): _data is FlexibleUiDataContext['linkIcon'] => {
-		return typeof _data === 'object' && _data !== null && ('icon' in _data || 'url' in _data);
-	};
-
-	if (!isDataLinkIcon(data)) {
-		return typeof data === 'object' ? data : undefined;
-	}
-
-	const isImageRound = isProfileType(type);
-
-	return { ...data, appearance: isImageRound ? 'round' : 'square' };
-};

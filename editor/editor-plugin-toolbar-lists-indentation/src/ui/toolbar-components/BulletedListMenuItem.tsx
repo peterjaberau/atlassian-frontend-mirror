@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import {
@@ -24,7 +24,16 @@ type BulletedListType = {
 	parents: ToolbarComponentTypes;
 };
 
-export const useBulletedListInfo = ({ api, parents }: BulletedListType) => {
+export const useBulletedListInfo = ({
+	api,
+	parents,
+}: BulletedListType): {
+	bulletMessage: string;
+	isDisabled: boolean | undefined;
+	isSelected: boolean | undefined;
+	onClick: () => void;
+	shortcut: string | undefined;
+} => {
 	const { formatMessage } = useIntl();
 	const bulletMessage = formatMessage(listMessages.bulletedList);
 	const { bulletListActive, bulletListDisabled, taskListActive } = useSharedPluginStateWithSelector(
@@ -37,6 +46,8 @@ export const useBulletedListInfo = ({ api, parents }: BulletedListType) => {
 		}),
 	);
 
+	const isDisabled = bulletListDisabled && !taskListActive;
+
 	const onClick = (): void => {
 		api?.core.actions.execute(
 			taskListActive
@@ -44,7 +55,6 @@ export const useBulletedListInfo = ({ api, parents }: BulletedListType) => {
 				: api?.list.commands.toggleBulletList(getInputMethodFromParentKeys(parents)),
 		);
 	};
-	const isDisabled = bulletListDisabled && !taskListActive;
 	const shortcut = formatShortcut(toggleBulletListKeymap);
 
 	return {

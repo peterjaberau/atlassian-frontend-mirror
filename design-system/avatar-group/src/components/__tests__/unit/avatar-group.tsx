@@ -1,12 +1,13 @@
 import React, { Fragment } from 'react';
 
-import { act, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-import { type AppearanceType, type SizeType } from '@atlaskit/avatar';
+import type { AppearanceType, SizeType } from '@atlaskit/avatar/types';
 import __noop from '@atlaskit/ds-lib/noop';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { act, render, screen, userEvent, within } from '@atlassian/testing-library';
 
 import AvatarGroup from '../../avatar-group';
+import { type AvatarProps } from '../../types';
 
 const generateData = ({
 	avatarCount,
@@ -443,6 +444,77 @@ describe('<AvatarGroup />', () => {
 		expect(onClick).toHaveBeenCalled();
 	});
 
+	describe.each([
+		{ motionEnabled: true, overflowExitEnabled: true },
+		{ motionEnabled: true, overflowExitEnabled: false },
+		{ motionEnabled: false, overflowExitEnabled: true },
+		{ motionEnabled: false, overflowExitEnabled: false },
+	])(
+		'overflow removal with motion uplift: $motionEnabled, overflow exit fix: $overflowExitEnabled',
+		({ motionEnabled, overflowExitEnabled }) => {
+			afterEach(() => jest.useRealTimers());
+
+			it.each(['custom', 'popup', 'top-layer'] as const)(
+				'handles %s overflow when the group shrinks',
+				(overflowType) => {
+					(motionEnabled ? passGate : failGate)('platform-dst-motion-uplift');
+					(overflowExitEnabled ? passGate : failGate)('platform-dst-avatar-group-overflow-exit');
+					(overflowType === 'top-layer' ? passGate : failGate)('platform-dst-top-layer');
+					jest.useFakeTimers();
+
+					const data = generateData({ avatarCount: 8 });
+					const onMoreClick = jest.fn();
+					const renderGroup = (avatars: AvatarProps[]) => (
+						<AvatarGroup
+							testId="test"
+							appearance="stack"
+							maxCount={4}
+							data={avatars}
+							isTooltipDisabled
+							onMoreClick={overflowType === 'custom' ? onMoreClick : undefined}
+							// eslint-disable-next-line @repo/internal/react/no-unsafe-overrides
+							overrides={
+								overflowType === 'custom'
+									? {
+											MoreIndicator: {
+												render: (_, { onClick, testId, count }) => (
+													<button type="button" onClick={onClick} data-testid={testId}>
+														{count} more people
+													</button>
+												),
+											},
+										}
+									: undefined
+							}
+						/>
+					);
+					const { rerender } = render(renderGroup(data));
+					expect(screen.getByTestId('test--overflow-menu--trigger')).toBeInTheDocument();
+					if (overflowType === 'custom') {
+						act(() => screen.getByTestId('test--overflow-menu--trigger').click());
+						expect(onMoreClick).toHaveBeenCalledTimes(1);
+					}
+
+					// Expiry can remove all agents together, leaving only the current person.
+					rerender(renderGroup(data.slice(0, 1)));
+					act(() => jest.runAllTimers());
+
+					const retainsLegacyOverflow =
+						motionEnabled && !overflowExitEnabled && overflowType !== 'popup';
+					if (retainsLegacyOverflow) {
+						// Turning off the fix restores the pre-fix custom and top-layer behavior.
+						expect(screen.getByTestId('test--overflow-menu--trigger')).toBeInTheDocument();
+					} else {
+						expect(screen.queryByTestId('test--overflow-menu--trigger')).not.toBeInTheDocument();
+					}
+					expect(
+						within(screen.getByTestId('test--avatar-group')).getAllByRole('listitem'),
+					).toHaveLength(retainsLegacyOverflow ? 4 : 1);
+				},
+			);
+		},
+	);
+
 	it('should pass the index of the avatar when onAvatarClicked is fired', async () => {
 		const user = userEvent.setup();
 		const onClick = jest.fn();
@@ -645,6 +717,141 @@ describe('<AvatarGroup />', () => {
 	});
 });
 
+describe('size prop type constraints', () => {
+	it('should accept a supported size and render the more indicator', () => {
+		render(
+			<AvatarGroup
+				testId="test"
+				size="small"
+				data={generateData({ avatarCount: 4 })}
+				maxCount={3}
+			/>,
+		);
+
+		// The more indicator (+N) renders at supported sizes.
+		expect(screen.getByTestId('test--overflow-menu--trigger')).toBeInTheDocument();
+	});
+
+	it('should reject the avatar-only 16px and 20px sizes at the type level', () => {
+		// AvatarGroupSize excludes `xxsmall` (16px), legacy `xsmall`, and
+		// `UNSAFE_xsmall` (20px) because the
+		// more indicator cannot be shown accessibly at those sizes. These `@ts-expect-error`s
+		// fail the build if any of these sizes are ever (re)allowed on AvatarGroup.
+		render(
+			// @ts-expect-error - "xxsmall" is not a valid AvatarGroupSize
+			<AvatarGroup testId="xxsmall" size="xxsmall" data={generateData({ avatarCount: 2 })} />,
+		);
+		render(
+			// @ts-expect-error - "xsmall" is not a valid AvatarGroupSize
+			<AvatarGroup testId="xsmall" size="xsmall" data={generateData({ avatarCount: 2 })} />,
+		);
+		render(
+			// @ts-expect-error - "UNSAFE_xsmall" is not a valid AvatarGroupSize
+			<AvatarGroup testId="unsafe" size="UNSAFE_xsmall" data={generateData({ avatarCount: 2 })} />,
+		);
+	});
+});
+
+describe('UNSAFE_isUpdatedGeometry', () => {
+	const data: Array<AvatarProps> = [
+		{ name: 'Human', appearance: 'circle' },
+		{ name: 'Agent', appearance: 'hexagon' },
+	];
+	const TestAvatar = (props: AvatarProps) => (
+		<div data-testid={props.testId} data-agent-avatar-v2={props.UNSAFE_isUpdatedGeometry} />
+	);
+
+	it('should forward the group value to visible avatars', () => {
+		render(
+			<AvatarGroup
+				testId="test"
+				size="medium"
+				data={data}
+				avatar={TestAvatar}
+				UNSAFE_isUpdatedGeometry
+			/>,
+		);
+
+		expect(screen.getByTestId('test--avatar-0')).toHaveAttribute('data-agent-avatar-v2', 'true');
+		expect(screen.getByTestId('test--avatar-1')).toHaveAttribute('data-agent-avatar-v2', 'true');
+	});
+
+	it('should let a defined group value override item data', () => {
+		render(
+			<AvatarGroup
+				testId="test"
+				size="small"
+				avatar={TestAvatar}
+				data={[
+					{
+						name: 'Agent',
+						appearance: 'hexagon',
+						UNSAFE_isUpdatedGeometry: false,
+					},
+				]}
+				UNSAFE_isUpdatedGeometry
+			/>,
+		);
+
+		const avatar = screen.getByTestId('test--avatar-0');
+		expect(avatar).toHaveAttribute('data-agent-avatar-v2', 'true');
+	});
+
+	it('should preserve item data when the group value is undefined', () => {
+		render(
+			<AvatarGroup
+				testId="test"
+				size="small"
+				avatar={TestAvatar}
+				data={[
+					{
+						name: 'Agent',
+						appearance: 'hexagon',
+						UNSAFE_isUpdatedGeometry: true,
+					},
+				]}
+			/>,
+		);
+
+		const avatar = screen.getByTestId('test--avatar-0');
+		expect(avatar).toHaveAttribute('data-agent-avatar-v2', 'true');
+	});
+
+	ffTest.both('platform-dst-top-layer', 'avatar group overflow implementations', () => {
+		it('should forward UNSAFE_isUpdatedGeometry to overflow avatars', async () => {
+			const user = userEvent.setup();
+			render(
+				<AvatarGroup
+					testId="test"
+					size="medium"
+					data={data}
+					maxCount={1}
+					UNSAFE_isUpdatedGeometry
+					// eslint-disable-next-line @repo/internal/react/no-unsafe-overrides
+					overrides={{
+						AvatarGroupItem: {
+							render: (_Component, props, index) => (
+								<div
+									key={index}
+									data-testid={`overflow-avatar-${index}`}
+									data-agent-avatar-v2={props.avatar.UNSAFE_isUpdatedGeometry}
+								/>
+							),
+						},
+					}}
+				/>,
+			);
+
+			await user.click(screen.getByTestId('test--overflow-menu--trigger'));
+
+			expect(screen.getByTestId('overflow-avatar-1')).toHaveAttribute(
+				'data-agent-avatar-v2',
+				'true',
+			);
+		});
+	});
+});
+
 describe('Accessibility', () => {
 	// FIXME: Jest 29 upgrade - this test suite is failing when running with flag IS_REACT_18
 	it.skip('Avatar Group items inside more should have role equal to button and get focus', async () => {
@@ -717,5 +924,28 @@ describe('Accessibility', () => {
 		);
 		const moreIndicator = screen.getByTestId('test--overflow-menu--trigger');
 		expect(moreIndicator).toHaveAttribute('aria-label', 'Priority label');
+	});
+});
+
+describe('Custom avatar component', () => {
+	it('should render custom avatar component in the overflow menu items', async () => {
+		const CustomAvatar = (props: AvatarProps) => (
+			<div data-testid={props.testId} data-custom-avatar="true">
+				Custom
+			</div>
+		);
+
+		const user = userEvent.setup();
+		render(
+			<AvatarGroup testId="test" avatar={CustomAvatar} data={generateData({ avatarCount: 8 })} />,
+		);
+
+		// Open the overflow menu
+		const trigger = screen.getByTestId('test--overflow-menu--trigger');
+		await user.click(trigger);
+
+		// The avatar inside the overflow dropdown item should be rendered with the custom component
+		const overflowAvatar = screen.getByTestId('test--avatar-group-item-4--avatar');
+		expect(overflowAvatar).toHaveAttribute('data-custom-avatar', 'true');
 	});
 });

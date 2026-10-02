@@ -1,29 +1,32 @@
 import React, { useState } from 'react';
-import { act } from 'react-dom/test-utils';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { FabricChannel } from '@atlaskit/analytics-listeners';
+import { act } from 'react';
+
+import { FabricChannel } from '@atlaskit/analytics-listeners/types';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 import { asMock } from '@atlaskit/media-common/test-helpers';
-import { mountWithIntlContext } from '../../../test-helpers';
-import { type WidthObserver } from '@atlaskit/width-detector';
-import MediaPlayer, { type VideoProps, type VideoState } from '../../react-video-renderer';
+import type { WidthObserver } from '@atlaskit/width-detector/width-observer';
 
-import { CustomMediaPlayer, type CustomMediaPlayerProps, type CustomMediaPlayerState } from '../..';
-
-import { type CustomMediaPlayerBase } from '../../index-compiled';
+import { CustomMediaPlayer } from '../..';
+import { renderWithIntl } from '../../../test-helpers/renderWithIntl';
+import { type CustomMediaPlayerProps } from '../../index-compiled';
+import {
+	type VideoProps,
+	type VideoState,
+	Video as MediaPlayer,
+} from '../../react-video-renderer/video';
 
 type mockWidthObserver = typeof WidthObserver;
 
-jest.mock('@atlaskit/width-detector', () => {
-	return {
-		WidthObserver: ((props) => {
-			return null;
-		}) as mockWidthObserver,
-	};
-});
+jest.mock('@atlaskit/width-detector/width-observer', () => ({
+	...jest.requireActual('@atlaskit/width-detector/width-observer'),
+	WidthObserver: ((_props) => {
+		return null;
+	}) as mockWidthObserver,
+}));
 
-jest.mock('../../react-video-renderer', () => ({
+jest.mock('../../react-video-renderer/video', () => ({
 	__esModule: true,
-	default: jest.fn(),
+	Video: jest.fn(),
 }));
 
 const MOCK_DURATION = 100;
@@ -77,11 +80,7 @@ describe('CustomMediaPlayer Analytics', () => {
 
 		asMock(MediaPlayer).mockImplementation(MockMediaPlayer);
 
-		const component = mountWithIntlContext<
-			CustomMediaPlayerProps,
-			CustomMediaPlayerState,
-			CustomMediaPlayerBase
-		>(
+		renderWithIntl(
 			<AnalyticsListener channel={FabricChannel.media} onEvent={analyticsHandler}>
 				<CustomMediaPlayer
 					type="video"
@@ -94,7 +93,6 @@ describe('CustomMediaPlayer Analytics', () => {
 		);
 
 		return {
-			component,
 			MockMediaPlayer,
 			updatePlayerMockCurrentTime,
 		};
@@ -108,7 +106,7 @@ describe('CustomMediaPlayer Analytics', () => {
 			fileId: 'some-file-id',
 		});
 
-		expect(onAnalyticsEvent).toBeCalledWith(
+		expect(onAnalyticsEvent).toHaveBeenCalledWith(
 			expect.objectContaining({
 				payload: {
 					eventType: 'screen',

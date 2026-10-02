@@ -3,13 +3,12 @@
  * @jsx jsx
  */
 import '@testing-library/jest-dom';
-
 import { css, jsx } from '@compiled/react';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
-import DropdownMenu, { DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { render, screen, userEvent } from '@atlassian/testing-library';
 
 import { getFlexibleCardTestWrapper } from '../../../../../../__tests__/__utils__/unit-testing-library-helpers';
 import { type InternalFlexibleUiOptions } from '../../../../types';

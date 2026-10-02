@@ -3,15 +3,18 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { axe } from '@af/accessibility-testing';
-import Button from '@atlaskit/button/new';
-import Link from '@atlaskit/link';
+import Button from '@atlaskit/button/default/button';
+import Link from '@atlaskit/link/link';
 
 import DynamicTable, { DynamicTableStateless as StatelessDynamicTable } from '../../../index';
-import { type StatelessProps } from '../../../types';
+import { type RowCellType, type StatelessProps } from '../../../types';
 import LoadingContainer from '../../loading-container';
-import { RankableTableCell } from '../../rankable/table-cell';
+import { RankableTableCell } from '../../rankable/rankable-table-cell';
+import { rowsWithKeys } from './_data';
+import rows from './_data-json.json';
+import { headMock1 } from './_head-mock';
 
-import { cellWithKey as cell, headMock1, rows, rowsWithKeys, sortKey } from './_data';
+const cell: RowCellType = rowsWithKeys[0].cells[0];
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Dynamic Table Accessibility', () => {
@@ -37,7 +40,7 @@ describe('Dynamic Table Accessibility', () => {
 		const createStatelessProps: () => StatelessProps = () => ({
 			head: headMock1,
 			rows: rowsWithKeys,
-			sortKey,
+			sortKey: 'first_name',
 			sortOrder: 'ASC',
 			onSort: jest.fn(),
 			onPageRowsUpdate: jest.fn(),

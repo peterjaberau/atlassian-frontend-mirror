@@ -4,12 +4,13 @@
  * @jsx jsx
  * @jsxFrag Fragment
  */
+
 import { useEffect, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
 import UFOLoadHold from '@atlaskit/react-ufo/load-hold';
-import UFOSegment from '@atlaskit/react-ufo/segment';
+import UFOSegment from '@atlaskit/react-ufo/ufo-segment';
 
 const containerStyle = css({
 	padding: '20px',
@@ -134,9 +135,7 @@ export default function Example(): JSX.Element {
 				<h1 data-testid="title">🔍 Multiple Segments with Same Name Example</h1>
 				<p>
 					This example demonstrates how React UFO handles multiple segments with the same name. Each
-					ImageAttachment segment has the same name but different content and loading times. React
-					UFO will create only one critical metrics payload per segment name, selecting the first
-					segment that mounts to represent all instances.
+					ImageAttachment segment has the same name but different content and loading times.
 				</p>
 
 				<div>
@@ -154,19 +153,10 @@ export default function Example(): JSX.Element {
 				</div>
 
 				<div css={infoBoxStyle}>
-					<h3>📊 What happens with Critical Metrics:</h3>
+					<h3>📊 Segment setup:</h3>
 					<ul>
-						<li>
-							✅ Only <strong>one</strong> critical metrics payload will be created for
-							"ImageAttachment"
-						</li>
-						<li>
-							✅ The payload will represent the <strong>first</strong> ImageAttachment segment to
-							mount (based on timing)
-						</li>
-						<li>
-							✅ One separate payload will be created for "CommentBox" as it has a unique name
-						</li>
+						<li>✅ Multiple ImageAttachment segments share the same segment name.</li>
+						<li>✅ CommentBox uses a separate segment name for comparison.</li>
 						<li>ℹ️ App created at: {appCreatedAt.toFixed(2)} ms</li>
 					</ul>
 				</div>

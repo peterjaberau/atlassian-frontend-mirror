@@ -3,7 +3,6 @@
  * @jsx jsx
  */
 import React, {
-	type ComponentProps,
 	Fragment,
 	useCallback,
 	useContext,
@@ -12,8 +11,23 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import type { ComponentProps } from 'react';
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- emotion jsx pragma; go/DSP-18766
+import { css, jsx } from '@emotion/react'; // oxlint-ignore @typescript-eslint/consistent-type-imports -- classic @jsx jsx factory + jsx.JSX.Element types
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+import { v4 as uuid } from 'uuid';
+
 import { getSchemaBasedOnStage } from '@atlaskit/adf-schema/schema-default';
+import { FabricChannel } from '@atlaskit/analytics-listeners/types';
+import { FabricEditorAnalyticsContext } from '@atlaskit/analytics-namespaced-context/FabricEditorAnalyticsContext';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { isPanelNestingTableSupported } from '@atlaskit/editor-common/nesting';
+import { normalizeFeatureFlags } from '@atlaskit/editor-common/normalize-feature-flags';
+import { startMeasure, stopMeasure } from '@atlaskit/editor-common/performance-measures';
+import { getDistortedDurationMonitor } from '@atlaskit/editor-common/performance/measure-render';
+import { getResponseEndTime } from '@atlaskit/editor-common/performance/navigation';
 import { ProviderFactory, ProviderFactoryProvider } from '@atlaskit/editor-common/provider-factory';
 import {
 	BaseTheme,
@@ -22,30 +36,16 @@ import {
 	WidthProvider,
 	WithCreateAnalyticsEvent,
 } from '@atlaskit/editor-common/ui';
-import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
-
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
-import { startMeasure, stopMeasure } from '@atlaskit/editor-common/performance-measures';
-import { getDistortedDurationMonitor } from '@atlaskit/editor-common/performance/measure-render';
-import { getResponseEndTime } from '@atlaskit/editor-common/performance/navigation';
-import { useScrollToBlock } from '../hooks/useScrollToBlock';
 import {
 	getAnalyticsAppearance,
 	getAnalyticsEventSeverity,
 	shouldForceTracking,
 } from '@atlaskit/editor-common/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
-import { FabricChannel } from '@atlaskit/analytics-listeners/types';
-import { FabricEditorAnalyticsContext } from '@atlaskit/analytics-namespaced-context';
-import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
-import { normalizeFeatureFlags } from '@atlaskit/editor-common/normalize-feature-flags';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
-import type { MediaSSR, RendererContext } from '../../';
+import type { MediaSSR, RendererContext, RenderOutputStat } from '../../';
 import { ReactSerializer, renderDocument } from '../../';
 import AnalyticsContext from '../../analytics/analyticsContext';
 import type { AnalyticsEventPayload, FireAnalyticsCallback } from '../../analytics/events';
@@ -54,32 +54,32 @@ import type { ReactSerializerInit } from '../../react';
 import { EditorMediaClientProvider } from '../../react/utils/EditorMediaClientProvider';
 import { getActiveHeadingId, isNestedHeaderLinksEnabled } from '../../react/utils/links';
 import { RendererContextProvider, useRendererContext } from '../../renderer-context';
-import { type Serializer } from '../../serializer';
+import type { Serializer } from '../../serializer';
 import { findInTree } from '../../utils';
+import { ActiveHeaderIdProvider } from '../active-header-id-provider';
+import { AnnotationsPositionContext, AnnotationsWrapper } from '../annotations';
+import { CollapsibleHeadingsProvider } from '../collapsible-headings';
+import { useScrollToBlock } from '../hooks/useScrollToBlock';
+import type { RendererProps } from '../renderer-props';
 import {
 	RendererContext as ActionsContext,
 	RendererActionsContext,
 } from '../RendererActionsContext';
 import { Provider as SmartCardStorageProvider } from '../SmartCardStorage';
-import { ActiveHeaderIdProvider } from '../active-header-id-provider';
-import { AnnotationsPositionContext, AnnotationsWrapper } from '../annotations';
-import type { RendererProps } from '../renderer-props';
-import { ErrorBoundary } from './ErrorBoundary';
+import { getHeightInfoPayload, getWidthInfoPayload } from './analytics-utils';
 import { BreakoutSSRInlineScript } from './breakout-ssr';
 import { isInteractiveElement } from './click-to-edit';
 import { countNodes } from './count-nodes';
+import { ErrorBoundary } from './ErrorBoundary';
+import { getBaseFontSize } from './get-base-font-size';
+import { PortalContext } from './PortalContext';
+import { removeEmptySpaceAroundContent } from './rendererHelper';
+import { RendererStyleContainer } from './RendererStyleContainer';
 import { TELEPOINTER_ID } from './style';
 import { TruncatedWrapper } from './truncated-wrapper';
 import type { RendererAppearance, RendererContentMode } from './types';
-import { ValidationContext } from './ValidationContext';
-import { RendererStyleContainer } from './RendererStyleContainer';
-import { getBaseFontSize } from './get-base-font-size';
-import { removeEmptySpaceAroundContent } from './rendererHelper';
 import { useMemoFromPropsDerivative } from './useMemoFromPropsDerivative';
-import { PortalContext } from './PortalContext';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { getHeightInfoPayload, getWidthInfoPayload } from './analytics-utils';
+import { ValidationContext } from './ValidationContext';
 
 export const NORMAL_SEVERITY_THRESHOLD = 2000;
 export const DEGRADED_SEVERITY_THRESHOLD = 3000;
@@ -87,7 +87,7 @@ export const DEGRADED_SEVERITY_THRESHOLD = 3000;
 // we want to calculate all the table widths (which causes reflows) after the renderer has finished loading to mitigate performance impact
 const TABLE_INFO_TIMEOUT = 10000;
 
-const RENDER_EVENT_SAMPLE_RATE = 0.2;
+const RENDER_EVENT_SAMPLE_RATE = 0.1;
 
 const packageName = process.env._PACKAGE_NAME_ as string;
 const packageVersion = process.env._PACKAGE_VERSION_ as string;
@@ -98,9 +98,7 @@ const setAsQueryContainerStyles = css({
 });
 
 const handleMouseTripleClickInTables = (event: MouseEvent) => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 	if (browser.ios || browser.android) {
 		return;
 	}
@@ -224,13 +222,15 @@ const handleWrapperOnClick = (
 	}
 };
 
+type ValidationOverrides = { allowNestedTables?: boolean; allowTableInPanel?: boolean };
+
 export const RendererFunctionalComponent = (
 	props: RendererProps & {
+		allowNestedTables?: boolean;
 		skipValidation?: boolean;
 		startPos?: number;
-		validationOverrides?: { allowNestedTables?: boolean };
 	},
-) => {
+): jsx.JSX.Element => {
 	const { createAnalyticsEvent } = props;
 	const mouseDownSelection = useRef<string | undefined>(undefined);
 	const providerFactory = useMemo(
@@ -238,25 +238,26 @@ export const RendererFunctionalComponent = (
 		[props.dataProviders],
 	);
 
-	const { contentMode: parentContextContentMode, nestedRendererType } = useRendererContext();
+	const { nestedRendererType } = useRendererContext();
 
 	const createRendererContext = useMemo(
 		() =>
 			(
 				featureFlags: RendererProps['featureFlags'],
 				isTopLevelRenderer: RendererProps['isTopLevelRenderer'],
-				contentMode?: RendererProps['contentMode'],
 			) => {
 				const normalizedFeatureFlags = normalizeFeatureFlags(featureFlags);
 				return {
 					featureFlags: normalizedFeatureFlags,
 					isTopLevelRenderer: isTopLevelRenderer === undefined,
-					...(fg('platform_editor_content_mode_render_context') && {
-						contentMode: contentMode || parentContextContentMode,
-					}),
+					// Propagate nestedRendererType into the inner RendererContextProvider so that
+					// React components inside the renderer (e.g. Colgroup) can read it via
+					// useRendererContext(). Without this, the inner provider overwrites the outer
+					// AKRendererWrapper context and nestedRendererType becomes undefined.
+					nestedRendererType,
 				};
 			},
-		[parentContextContentMode],
+		[nestedRendererType],
 	);
 
 	const fireAnalyticsEventOld: FireAnalyticsCallback = useCallback(
@@ -299,19 +300,16 @@ export const RendererFunctionalComponent = (
 			const { annotationProvider } = props;
 			const allowAnnotationsDraftMode = Boolean(
 				annotationProvider &&
-					annotationProvider.inlineComment &&
-					annotationProvider.inlineComment.allowDraftMode,
+				annotationProvider.inlineComment &&
+				annotationProvider.inlineComment.allowDraftMode,
 			);
-			const { featureFlags } = createRendererContext(
-				props.featureFlags,
-				props.isTopLevelRenderer,
-				props.contentMode,
-			);
+			const { featureFlags } = createRendererContext(props.featureFlags, props.isTopLevelRenderer);
 			return {
 				startPos: props.startPos ?? 0,
 				providers: providerFactory,
 				eventHandlers: props.eventHandlers,
 				extensionHandlers: props.extensionHandlers,
+				hideExtensionKeysWhilePending: props.hideExtensionKeysWhilePending,
 				portal: props.portal,
 				objectContext: {
 					adDoc: props.shouldRemoveEmptySpaceAroundContent
@@ -319,11 +317,13 @@ export const RendererFunctionalComponent = (
 						: props.document,
 					schema: props.schema,
 					...props.rendererContext,
+					nestedRendererType,
 				} as RendererContext,
 				appearance: props.appearance,
 				contentMode: props.contentMode,
 				onSetLinkTarget: props.onSetLinkTarget,
 				disableHeadingIDs: props.disableHeadingIDs,
+				headingIdPrefix: props.headingIdPrefix,
 				disableActions: props.disableActions,
 				allowHeadingAnchorLinks: props.allowHeadingAnchorLinks,
 				allowColumnSorting: props.allowColumnSorting,
@@ -334,11 +334,14 @@ export const RendererFunctionalComponent = (
 				allowMediaLinking: props.media && props.media.allowLinking,
 				surroundTextNodesWithTextWrapper: allowAnnotationsDraftMode,
 				media: props.media,
+				mentionNodeDataProvider: props.mentionNodeDataProvider,
+				emojiProviderLookupOrder: props.emojiProviderLookupOrder,
 				emojiResourceConfig: props.emojiResourceConfig,
 				smartLinks: props.smartLinks,
 				extensionViewportSizes: props.extensionViewportSizes,
 				getExtensionHeight: props.getExtensionHeight,
 				allowCopyToClipboard: props.allowCopyToClipboard,
+				allowDownloadCodeBlock: props.allowDownloadCodeBlock,
 				allowWrapCodeBlock: props.allowWrapCodeBlock,
 				allowCustomPanels: props.allowCustomPanels,
 				allowAnnotations: props.allowAnnotations,
@@ -356,7 +359,7 @@ export const RendererFunctionalComponent = (
 				shouldDisplayExtensionAsInline: props.shouldDisplayExtensionAsInline,
 			};
 		},
-		[createRendererContext, providerFactory, fireAnalyticsEvent],
+		[createRendererContext, providerFactory, fireAnalyticsEvent, nestedRendererType],
 	);
 
 	const serializer = useMemoFromPropsDerivative(
@@ -394,6 +397,7 @@ export const RendererFunctionalComponent = (
 		const disableHeadingIDs = props.disableHeadingIDs;
 
 		if (!disableHeadingIDs && hash && editorRef && editorRef.current instanceof HTMLElement) {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage -- anchor navigation uses document.getElementById for hash targets
 			const anchorLinkElement = document.getElementById(hash);
 			if (anchorLinkElement && editorRef.current.contains(anchorLinkElement)) {
 				fireAnalyticsEvent({
@@ -429,12 +433,17 @@ export const RendererFunctionalComponent = (
 		let heightWidthAnalyticsRafID: number;
 
 		const handleAnalytics = () => {
-			fireAnalyticsEvent({
-				action: ACTION.STARTED,
-				actionSubject: ACTION_SUBJECT.RENDERER,
-				attributes: { platform: PLATFORM.WEB },
-				eventType: EVENT_TYPE.UI,
-			});
+			if (Math.random() < RENDER_EVENT_SAMPLE_RATE) {
+				fireAnalyticsEvent({
+					action: ACTION.STARTED,
+					actionSubject: ACTION_SUBJECT.RENDERER,
+					attributes: {
+						platform: PLATFORM.WEB,
+						sampleRate: RENDER_EVENT_SAMPLE_RATE,
+					},
+					eventType: EVENT_TYPE.UI,
+				});
+			}
 
 			rafID = requestAnimationFrame(() => {
 				stopMeasure(`Renderer Render Time: ${id}`, (duration) => {
@@ -454,6 +463,20 @@ export const RendererFunctionalComponent = (
 
 					const isTTRTrackingExplicitlyDisabled = analyticsEventSeverityTracking?.enabled === false;
 
+					// Ignored via go/ees005
+					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+					const distortedDuration = renderedMeasurementDistortedDurationMonitor!.distortedDuration;
+					const ttfb = getResponseEndTime();
+					const nodes = countNodes(props.document);
+
+					// Always signal that the renderer has finished rendering, regardless of analytics
+					// sampling or TTR tracking config. This is a reliable, unsampled lifecycle hook
+					// (e.g. used to release a UFO load hold) and must not be coupled to the sampled
+					// `rendered` analytics event below, which only fires for a fraction of renders.
+					if (props.onRendered) {
+						props.onRendered({ duration, distortedDuration, nodes, ttfb });
+					}
+
 					if (!isTTRTrackingExplicitlyDisabled) {
 						const event = {
 							action: ACTION.RENDERED,
@@ -461,29 +484,18 @@ export const RendererFunctionalComponent = (
 							attributes: {
 								platform: PLATFORM.WEB,
 								duration,
-								// Ignored via go/ees005
-								// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-								distortedDuration: renderedMeasurementDistortedDurationMonitor!.distortedDuration,
-								ttfb: getResponseEndTime(),
-								nodes: countNodes(props.document),
-								nestedRendererType:
-									editorExperiment('platform_synced_block', true) &&
-									fg('platform_synced_block_patch_1')
-										? nestedRendererType
-										: undefined,
+								distortedDuration,
+								ttfb,
+								nodes,
+								nestedRendererType,
 								severity,
+								sampleRate: RENDER_EVENT_SAMPLE_RATE,
 							},
 							eventType: EVENT_TYPE.OPERATIONAL,
 						} as const;
-						fireAnalyticsEvent(event);
-						if (
-							expValEquals('platform_editor_sample_renderer_rendered_event', 'isEnabled', true) &&
-							Math.random() < RENDER_EVENT_SAMPLE_RATE
-						) {
-							fireAnalyticsEvent({
-								...event,
-								action: ACTION.RENDERED_SAMPLED,
-							});
+
+						if (Math.random() < RENDER_EVENT_SAMPLE_RATE) {
+							fireAnalyticsEvent(event);
 						}
 					}
 
@@ -494,36 +506,32 @@ export const RendererFunctionalComponent = (
 				anchorLinkAnalytics();
 			});
 
-			if (expValEquals('platform_editor_editor_width_analytics', 'isEnabled', true)) {
-				// send statistics about the heights/widths of the tables on the page for alerting
-				heightWidthAnalyticsSetTimeoutID = setTimeout(() => {
-					const requestIdleCallbackFn = () => {
-						const renderer =
-							props.innerRef?.current?.querySelector<HTMLElement>('.ak-renderer-document');
+			// send statistics about the heights/widths of the tables on the page for alerting
+			heightWidthAnalyticsSetTimeoutID = setTimeout(() => {
+				const requestIdleCallbackFn = () => {
+					const renderer =
+						props.innerRef?.current?.querySelector<HTMLElement>('.ak-renderer-document');
 
-						if (renderer) {
-							const payload = getWidthInfoPayload(renderer);
-							if (payload) {
-								fireAnalyticsEvent(payload);
-							}
-
-							if (fg('platform_editor_table_height_analytics_event')) {
-								const payloadHeight = getHeightInfoPayload(renderer);
-								if (payloadHeight) {
-									fireAnalyticsEvent(payloadHeight);
-								}
-							}
+					if (renderer) {
+						const payload = getWidthInfoPayload(renderer);
+						if (payload) {
+							fireAnalyticsEvent(payload);
 						}
-					};
 
-					if (window && typeof window.requestIdleCallback === 'function') {
-						heightWidthAnalyticsRicID = window.requestIdleCallback(requestIdleCallbackFn);
-					} else if (window && typeof window.requestAnimationFrame === 'function') {
-						// requestIdleCallback is not supported in safari, fallback to requestAnimationFrame
-						heightWidthAnalyticsRafID = window.requestAnimationFrame(requestIdleCallbackFn);
+						const payloadHeight = getHeightInfoPayload(renderer);
+						if (payloadHeight) {
+							fireAnalyticsEvent(payloadHeight);
+						}
 					}
-				}, TABLE_INFO_TIMEOUT);
-			}
+				};
+
+				if (window && typeof window.requestIdleCallback === 'function') {
+					heightWidthAnalyticsRicID = window.requestIdleCallback(requestIdleCallbackFn);
+				} else if (window && typeof window.requestAnimationFrame === 'function') {
+					// requestIdleCallback is not supported in safari, fallback to requestAnimationFrame
+					heightWidthAnalyticsRafID = window.requestAnimationFrame(requestIdleCallbackFn);
+				}
+			}, TABLE_INFO_TIMEOUT);
 		};
 
 		handleAnalytics();
@@ -555,11 +563,43 @@ export const RendererFunctionalComponent = (
 	}, []);
 
 	const rendererContext = useMemo(
-		() => createRendererContext(props.featureFlags, props.isTopLevelRenderer, props.contentMode),
-		[props.featureFlags, props.isTopLevelRenderer, createRendererContext, props.contentMode],
+		() => ({
+			...createRendererContext(props.featureFlags, props.isTopLevelRenderer),
+			timeZone: props.timeZone,
+		}),
+		[props.featureFlags, props.isTopLevelRenderer, createRendererContext, props.timeZone],
 	);
+	const isCollapsibleHeadingsEnabled =
+		props.allowCollapsibleHeadings === true &&
+		['full-page', 'full-width', 'max'].includes(props.appearance || '') &&
+		rendererContext.isTopLevelRenderer &&
+		isExperimentEnabled('platform_renderer_collapsible_headings');
 
-	useScrollToBlock(editorRef, props.document);
+	useScrollToBlock(editorRef, props.document, props.scrollToBlock);
+
+	const { allowNestedTables } = props;
+	// Memoised so `renderDocument`'s validation memo can match by reference across re-renders.
+	const validationOverrides = useMemo<ValidationOverrides>(() => {
+		const schema = getSchema(props.schema, props.adfStage);
+		return isPanelNestingTableSupported(schema)
+			? { allowNestedTables, allowTableInPanel: true }
+			: { allowNestedTables };
+	}, [allowNestedTables, getSchema, props.schema, props.adfStage]);
+
+	// Invoking `onComplete` during render lets consumers set state on other components mid-render,
+	// so the stat is parked here and delivered once the rendered document has been committed.
+	// No dependency array: `renderDocument` produces a new stat on every render, so the callback
+	// must run after every commit to keep its historical once-per-render cadence.
+	const pendingOnCompleteStatRef = useRef<RenderOutputStat | null>(null);
+	const { onComplete } = props;
+	useEffect(() => {
+		const stat = pendingOnCompleteStatRef.current;
+		if (stat === null || !onComplete) {
+			return;
+		}
+		pendingOnCompleteStatRef.current = null;
+		onComplete(stat);
+	});
 
 	try {
 		const schema = getSchema(props.schema, props.adfStage);
@@ -570,24 +610,24 @@ export const RendererFunctionalComponent = (
 			serializer as Serializer<JSX.Element>,
 			schema,
 			props.adfStage,
-			props.useSpecBasedValidator,
 			id,
 			fireAnalyticsEvent,
 			props.unsupportedContentLevelsTracking,
 			props.appearance,
 			props.includeNodesCountInStats,
 			props.skipValidation,
-			props.validationOverrides,
+			validationOverrides,
 		);
 
 		if (props.onComplete) {
-			props.onComplete(stat);
+			pendingOnCompleteStatRef.current = stat;
 		}
 
 		const rendererOutput = (
 			<RendererContextProvider value={rendererContext}>
 				<ActiveHeaderIdProvider value={getActiveHeadingId(props.allowHeadingAnchorLinks)}>
 					<AnalyticsContext.Provider
+						// eslint-disable-next-line @atlassian/perf-linting/no-inline-context-value, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						value={{
 							fireAnalyticsEvent: (event: AnalyticsEventPayload) => fireAnalyticsEvent(event),
 						}}
@@ -597,14 +637,11 @@ export const RendererFunctionalComponent = (
 								<RendererWrapper
 									allowAnnotations={props.allowAnnotations}
 									appearance={props.appearance}
-									contentMode={
-										fg('platform_editor_content_mode_render_context')
-											? props.contentMode || rendererContext.contentMode || 'standard'
-											: props.contentMode || 'standard'
-									}
+									contentMode={props.contentMode || 'standard'}
 									allowNestedHeaderLinks={isNestedHeaderLinksEnabled(props.allowHeadingAnchorLinks)}
 									allowColumnSorting={props.allowColumnSorting}
 									allowCopyToClipboard={props.allowCopyToClipboard}
+									allowDownloadCodeBlock={props.allowDownloadCodeBlock}
 									allowWrapCodeBlock={props.allowWrapCodeBlock}
 									allowCustomPanels={props.allowCustomPanels}
 									allowPlaceholderText={props.allowPlaceholderText}
@@ -613,6 +650,7 @@ export const RendererFunctionalComponent = (
 									}
 									addTelepointer={props.addTelepointer}
 									innerRef={editorRef}
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									onClick={(event) => handleWrapperOnClick(event, props, mouseDownSelection)}
 									onMouseDown={onMouseDownEditView}
 									ssr={props.media?.ssr}
@@ -631,7 +669,13 @@ export const RendererFunctionalComponent = (
 										schema={schema}
 										onAnalyticsEvent={fireAnalyticsEvent}
 									>
-										{result}
+										<CollapsibleHeadingsProvider
+											pmDocument={pmDoc}
+											rendererRef={editorRef}
+											isEnabled={isCollapsibleHeadingsEnabled}
+										>
+											{result}
+										</CollapsibleHeadingsProvider>
 									</RendererActionsInternalUpdater>
 								</RendererWrapper>
 							</ProviderFactoryProvider>
@@ -658,18 +702,16 @@ export const RendererFunctionalComponent = (
 			<RendererWrapper
 				allowAnnotations={props.allowAnnotations}
 				appearance={props.appearance}
-				contentMode={
-					fg('platform_editor_content_mode_render_context')
-						? props.contentMode || rendererContext.contentMode || 'standard'
-						: props.contentMode || 'standard'
-				}
+				contentMode={props.contentMode || 'standard'}
 				allowCopyToClipboard={props.allowCopyToClipboard}
+				allowDownloadCodeBlock={props.allowDownloadCodeBlock}
 				allowWrapCodeBlock={props.allowWrapCodeBlock}
 				allowPlaceholderText={props.allowPlaceholderText}
 				allowColumnSorting={props.allowColumnSorting}
 				allowNestedHeaderLinks={isNestedHeaderLinksEnabled(props.allowHeadingAnchorLinks)}
 				useBlockRenderForCodeBlock={rendererContext.featureFlags.useBlockRenderForCodeBlock ?? true}
 				addTelepointer={props.addTelepointer}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onClick={(event) => handleWrapperOnClick(event, props, mouseDownSelection)}
 				isTopLevelRenderer={rendererContext.isTopLevelRenderer}
 				allowRendererContainerStyles={props.allowRendererContainerStyles}
@@ -681,7 +723,6 @@ export const RendererFunctionalComponent = (
 };
 
 const RendererFunctionalComponentMemoized = React.memo(RendererFunctionalComponent);
-
 const RendererFunctionalComponentWithPortalContext = React.memo(
 	(props: ComponentProps<typeof RendererFunctionalComponent>) => {
 		// If nodeComponents are provided, we don't remove portal from props and use context instead,
@@ -701,15 +742,13 @@ const RendererFunctionalComponentWithPortalContext = React.memo(
 );
 
 /**
- *
- * @param props
- * @example
+ * Top-level ADF renderer: renders document content with analytics and validation context.
+ * @param props Renderer configuration and document tree.
  */
-export function Renderer(props: RendererProps) {
+export function Renderer(props: RendererProps): jsx.JSX.Element {
 	const { startPos } = React.useContext(AnnotationsPositionContext);
 	const { isTopLevelRenderer } = useRendererContext();
 	const { skipValidation, allowNestedTables } = useContext(ValidationContext) || {};
-	const validationOverrides = useMemo(() => ({ allowNestedTables }), [allowNestedTables]);
 
 	return (
 		<RendererFunctionalComponentWithPortalContext
@@ -719,7 +758,7 @@ export function Renderer(props: RendererProps) {
 			startPos={startPos}
 			isTopLevelRenderer={props.isTopLevelRenderer ?? isTopLevelRenderer}
 			skipValidation={skipValidation}
-			validationOverrides={validationOverrides}
+			allowNestedTables={allowNestedTables}
 		/>
 	);
 }
@@ -727,41 +766,47 @@ export function Renderer(props: RendererProps) {
 // Usage notes:
 // Used by Confluence for View page renderer
 // For the nested renderers - see RendererWithAnnotationSelection.
-export const RendererWithAnalytics = React.memo((props: RendererProps) => (
-	<FabricEditorAnalyticsContext
-		data={{
-			appearance: getAnalyticsAppearance(props.appearance),
-			packageName,
-			packageVersion,
-			componentName: 'renderer',
-			// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-			editorSessionId: uuid(),
-		}}
-	>
-		<WithCreateAnalyticsEvent
-			render={(createAnalyticsEvent) => {
-				// `IntlErrorBoundary` only captures Internationalisation errors, leaving others for `ErrorBoundary`.
-				return (
-					<ErrorBoundary
-						component={ACTION_SUBJECT.RENDERER}
-						rethrowError
-						fallbackComponent={null}
-						createAnalyticsEvent={createAnalyticsEvent}
-					>
-						<IntlErrorBoundary>
-							<Renderer
-								// Ignored via go/ees005
-								// eslint-disable-next-line react/jsx-props-no-spreading
-								{...props}
-								createAnalyticsEvent={createAnalyticsEvent}
-							/>
-						</IntlErrorBoundary>
-					</ErrorBoundary>
-				);
+export const RendererWithAnalytics: React.MemoExoticComponent<
+	(props: RendererProps) => jsx.JSX.Element
+> = React.memo(
+	(props: RendererProps): jsx.JSX.Element => (
+		<FabricEditorAnalyticsContext
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+			data={{
+				appearance: getAnalyticsAppearance(props.appearance),
+				packageName,
+				packageVersion,
+				componentName: 'renderer',
+				// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+				editorSessionId: uuid(),
 			}}
-		/>
-	</FabricEditorAnalyticsContext>
-));
+		>
+			<WithCreateAnalyticsEvent
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+				render={(createAnalyticsEvent) => {
+					// `IntlErrorBoundary` only captures Internationalisation errors, leaving others for `ErrorBoundary`.
+					return (
+						<ErrorBoundary
+							component={ACTION_SUBJECT.RENDERER}
+							rethrowError
+							fallbackComponent={null}
+							createAnalyticsEvent={createAnalyticsEvent}
+						>
+							<IntlErrorBoundary>
+								<Renderer
+									// Ignored via go/ees005
+									// eslint-disable-next-line react/jsx-props-no-spreading
+									{...props}
+									createAnalyticsEvent={createAnalyticsEvent}
+								/>
+							</IntlErrorBoundary>
+						</ErrorBoundary>
+					);
+				}}
+			/>
+		</FabricEditorAnalyticsContext>
+	),
+);
 
 export type RendererWrapperProps = {
 	addTelepointer?: boolean;
@@ -769,6 +814,7 @@ export type RendererWrapperProps = {
 	allowColumnSorting?: boolean;
 	allowCopyToClipboard?: boolean;
 	allowCustomPanels?: boolean;
+	allowDownloadCodeBlock?: boolean;
 	allowNestedHeaderLinks: boolean;
 	allowPlaceholderText?: boolean;
 	allowRendererContainerStyles?: boolean;
@@ -807,14 +853,15 @@ const RendererWrapper = React.memo((props: RendererWrapperProps) => {
 	} = props;
 
 	const createTelepointer = () => {
+		// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage -- telepointer span for collaborative presence
 		const telepointer = document.createElement('span');
 		telepointer.textContent = '\u200b';
 		telepointer.id = TELEPOINTER_ID;
 		return telepointer;
 	};
-
 	const initialUpdate = React.useRef(true);
 
+	const { nestedRendererType } = useRendererContext();
 	useEffect(() => {
 		// We must check if window is defined, if it isn't we are in a SSR environment
 		// and we don't want to add the telepointer
@@ -868,8 +915,7 @@ const RendererWrapper = React.memo((props: RendererWrapperProps) => {
 								(mutation.addedNodes[0] as Element)?.id === TELEPOINTER_ID) ||
 							(mutation.removedNodes.length === 1 &&
 								(mutation.removedNodes[0] as Element)?.id === TELEPOINTER_ID)
-						) &&
-						fg('platform_editor_ai_adf_prompts_in_all_products')
+						)
 					) {
 						const lastChild = renderer.lastChild;
 						if (lastChild) {
@@ -910,7 +956,7 @@ const RendererWrapper = React.memo((props: RendererWrapperProps) => {
 
 	const renderer = (
 		<WidthProvider
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+			// eslint-disable-next-line @atlaskit/design-system/no-unsafe-style-overrides, @atlaskit/ui-styling-standard/no-classname-prop -- legacy renderer wrapper appearance classes
 			className={`ak-renderer-wrapper is-${appearance}`}
 			data-appearance={appearance}
 			shouldCheckExistingValue={isInsideOfInlineExtension}
@@ -930,6 +976,7 @@ const RendererWrapper = React.memo((props: RendererWrapperProps) => {
 						allowAnnotations={props.allowAnnotations}
 						allowTableResizing={allowTableResizing}
 						allowRendererContainerStyles={allowRendererContainerStyles}
+						isInsideSyncBlock={nestedRendererType === 'syncedBlock'}
 					>
 						{children}
 					</RendererStyleContainer>
@@ -943,7 +990,7 @@ const RendererWrapper = React.memo((props: RendererWrapperProps) => {
 	//
 
 	// allowRendererContainerStyles is not needed for comment container styling as container should always be set for comments
-	if (appearance === 'comment' && isTopLevelRenderer && fg('platform-ssr-table-resize')) {
+	if (appearance === 'comment' && isTopLevelRenderer) {
 		return <div css={setAsQueryContainerStyles}>{renderer}</div>;
 	}
 
@@ -951,16 +998,11 @@ const RendererWrapper = React.memo((props: RendererWrapperProps) => {
 	// Only apply container-type = inline-size when having a known width in full-page/full-width/comment mode.
 	// Otherwise when appearance is unspecified the renderer size is decided by the content.
 	// In this case we can't set the container-type = inline-size as it will collapse width to 0.
-	return (appearance === 'full-page' ||
-		appearance === 'full-width' ||
-		((expValEqualsNoExposure('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-			expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)) &&
-			appearance === 'max')) &&
+	return (appearance === 'full-page' || appearance === 'full-width' || appearance === 'max') &&
 		// In case of having excerpt-include on page there are multiple renderers nested.
 		// Make sure only the root renderer is set to be query container.
 		isTopLevelRenderer &&
-		allowRendererContainerStyles &&
-		fg('platform-ssr-table-resize') ? (
+		allowRendererContainerStyles ? (
 		<div css={setAsQueryContainerStyles}>{renderer}</div>
 	) : (
 		renderer
@@ -989,17 +1031,10 @@ function RendererActionsInternalUpdater({
 	// It is set to the root renderer's doc as otherwise the resulting document will
 	// be incorrect (nested renderers use a fake document which represents a subset
 	// of the actual document).
-	let _doc: PMNode | undefined;
-
-	if (editorExperiment('comment_on_bodied_extensions', true) && rootRendererContextValue) {
-		// If rootRendererContextValue is set -- we are inside a nested renderer
-		// and should always use the doc from the root renderer
-		_doc = rootRendererContextValue.doc;
-	} else {
-		// If rootRendererContextValue is not set -- we are in the root renderer
-		// and set the doc to the current doc.
-		_doc = doc;
-	}
+	// If rootRendererContextValue is set -- we are inside a nested renderer
+	// and should always use the doc from the root renderer.
+	// Otherwise we are in the root renderer and set the doc to the current doc.
+	const _doc: PMNode | undefined = rootRendererContextValue ? rootRendererContextValue.doc : doc;
 
 	useLayoutEffect(() => {
 		if (_doc) {
@@ -1011,31 +1046,24 @@ function RendererActionsInternalUpdater({
 		return () => actions._privateUnregisterRenderer();
 	}, [actions, schema, _doc, onAnalyticsEvent]);
 
-	if (editorExperiment('comment_on_bodied_extensions', true)) {
-		return (
-			<RootRendererContext.Provider value={{ doc: _doc }}>{children}</RootRendererContext.Provider>
-		);
-	}
+	// Memoised so nested renderers don't re-render on every root renderer render
+	// when the doc itself is unchanged.
+	const rootRendererValue = useMemo(() => ({ doc: _doc }), [_doc]);
 
-	return children;
+	return (
+		<RootRendererContext.Provider value={rootRendererValue}>
+			{children}
+		</RootRendererContext.Provider>
+	);
 }
 
 // Usage notes:
 // Used by Confluence for nested renderers
 // For the View page renderer - see RendererWithAnalytics
-const RendererWithAnnotationSelection = (props: RendererProps) => {
+const RendererWithAnnotationSelection = (props: RendererProps): jsx.JSX.Element => {
 	const { allowAnnotations, document: adfDocument } = props;
 	const localRef = React.useRef<HTMLDivElement>(null);
 	const innerRef = props.innerRef || localRef;
-
-	// @see https://hello.jira.atlassian.cloud/browse/EDITOR-3389
-	if (
-		props.appearance === 'max' &&
-		!expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) &&
-		!expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-	) {
-		props.appearance = 'full-width';
-	}
 
 	if (!allowAnnotations) {
 		// Ignored via go/ees005

@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 
-import {
-	ButtonItem,
-	GoBackItem,
-	Header,
-	NavigationHeader,
-	NestableNavigationContent,
-	NestingItem,
-	Section,
-	SideNavigation,
-} from '@atlaskit/side-navigation';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { ButtonItem } from '@atlaskit/side-navigation/button-item';
+import { GoBackItem } from '@atlaskit/side-navigation/go-back-item';
+import { Header } from '@atlaskit/side-navigation/header';
+import { NavigationHeader } from '@atlaskit/side-navigation/navigation-header';
+import { NestableNavigationContent } from '@atlaskit/side-navigation/nestable-navigation-content';
+import { NestingItem } from '@atlaskit/side-navigation/nesting-item';
+import { Section } from '@atlaskit/side-navigation/section';
+import { SideNavigation } from '@atlaskit/side-navigation/side-navigation';
 import { token } from '@atlaskit/tokens';
 
 import AppFrame from './common/app-frame';
@@ -26,7 +25,7 @@ const BasicExample = (): React.JSX.Element => {
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 					minHeight: 800,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					gap: token('space.600', '48px'),
+					gap: token('space.600'),
 				}}
 			>
 				<SideNavigation label="Controlled navigation" testId="controlled-invalid">

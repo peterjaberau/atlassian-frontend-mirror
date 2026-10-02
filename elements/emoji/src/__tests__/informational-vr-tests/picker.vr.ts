@@ -1,6 +1,11 @@
 import { snapshotInformational } from '@af/visual-regression';
+import { setupEditorExperiments } from '@atlaskit/tmp-editor-statsig/setup';
 
-import { EmojiPickerWithUpload } from './picker.fixture';
+import { EmojiPickerWithUpload } from './picker.fixture.vr.ap';
+
+setupEditorExperiments('test', {
+	platform_teamoji_26_refresh_emoji_picker: false,
+});
 
 snapshotInformational(EmojiPickerWithUpload, {
 	description: 'Emoji picker with preview',
@@ -13,5 +18,6 @@ snapshotInformational(EmojiPickerWithUpload, {
 	],
 	prepare: async (page) => {
 		await page.getByTestId('sprite-emoji-:grinning:').hover();
+		await page.getByRole('searchbox', { name: 'Emoji name' }).focus();
 	},
 });

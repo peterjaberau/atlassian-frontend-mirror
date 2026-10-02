@@ -1,16 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { replaceRaf } from 'raf-stub';
 
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box, Text } from '@atlaskit/primitives';
+import { Box, Text } from '@atlaskit/primitives/compiled';
 
-import * as raf from '../../../../__tests__/unit/__utils__/raf';
-import { ButtonItem, GoBackItem } from '../../../Item';
-import { default as NestingItem } from '../../../NestingItem';
-import { default as NestingTransitionProvider } from '../../index';
+import { step } from '../../../../__tests__/unit/__utils__/raf';
+import { ButtonItem } from '../../../Item/button-item';
+import { GoBackItem } from '../../../Item/go-back-item';
+import { NestingItem } from '../../../NestingItem';
+import { NestableNavigationContent as NestingTransitionProvider } from '../../index';
 
-raf.replace();
+replaceRaf();
 
 // FIXME: Jest 29 upgrade - This test suite is failing in both unit test & react 18 unit tests
 // suggestion to fix issues - use replaceRaf directly, use act() and waitFor()
@@ -24,7 +25,7 @@ describe.skip('NestingTransitionProvider', () => {
 	});
 
 	const completeAnimations = () => {
-		act(() => raf.step());
+		act(() => step());
 		act(() => {
 			jest.runAllTimers();
 		});
@@ -181,7 +182,7 @@ describe.skip('NestingTransitionProvider', () => {
 		);
 
 		fireEvent.click(screen.getByText('Hello Nested'));
-		act(() => raf.step());
+		act(() => step());
 
 		const actual = screen.getByTestId('nested-anim-exiting').getAttribute('data-exit-to');
 		expect(actual).toEqual('left');
@@ -198,7 +199,7 @@ describe.skip('NestingTransitionProvider', () => {
 		);
 
 		fireEvent.click(screen.getByText('Hello Nested'));
-		act(() => raf.step());
+		act(() => step());
 
 		const actual = screen.getByTestId('nested-anim-entering').getAttribute('data-enter-from');
 		expect(actual).toEqual('right');
@@ -217,7 +218,7 @@ describe.skip('NestingTransitionProvider', () => {
 		fireEvent.click(screen.getByText('Hello Nested'));
 		completeAnimations();
 		fireEvent.click(screen.getByText('Go back'));
-		act(() => raf.step());
+		act(() => step());
 
 		const actual = screen.getByTestId('nested-anim-exiting').getAttribute('data-exit-to');
 		expect(actual).toEqual('right');
@@ -236,7 +237,7 @@ describe.skip('NestingTransitionProvider', () => {
 		fireEvent.click(screen.getByText('Hello Nested'));
 		completeAnimations();
 		fireEvent.click(screen.getByText('Go back'));
-		act(() => raf.step());
+		act(() => step());
 
 		const actual = screen.getByTestId('nested-anim-entering').getAttribute('data-enter-from');
 		expect(actual).toEqual('left');
@@ -254,7 +255,7 @@ describe.skip('NestingTransitionProvider', () => {
 
 		fireEvent.click(screen.getByText('Hello Nested'));
 		// Split clicks out after a frame because no one can click twice in the same frame.
-		act(() => raf.step());
+		act(() => step());
 		fireEvent.click(screen.getByText('Hello Nested'));
 		completeAnimations();
 		fireEvent.click(screen.getByText('Go back'));

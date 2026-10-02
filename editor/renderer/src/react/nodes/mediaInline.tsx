@@ -1,3 +1,10 @@
+import React, { useCallback, useEffect, useMemo, useState, useContext } from 'react';
+
+import type { IntlShape, WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
+
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { ACTION_SUBJECT_ID } from '@atlaskit/editor-common/analytics';
 import type { MediaInlineAttrs } from '@atlaskit/editor-common/media-inline';
 import { MediaInlineImageCard } from '@atlaskit/editor-common/media-inline';
 import type {
@@ -6,42 +13,41 @@ import type {
 } from '@atlaskit/editor-common/provider-factory';
 import { useProvider } from '@atlaskit/editor-common/provider-factory';
 import type { EventHandlers } from '@atlaskit/editor-common/ui';
-import type { InlineCardEvent } from '@atlaskit/media-card';
-import { MediaInlineCard } from '@atlaskit/media-card';
+import type { Mark } from '@atlaskit/editor-prosemirror/model';
+import MediaInlineCard from '@atlaskit/media-card/loader';
+import type { InlineCardEvent } from '@atlaskit/media-card/types';
 import type { FileIdentifier, FileState } from '@atlaskit/media-client';
-import { MediaClientContext, getMediaClient } from '@atlaskit/media-client-react';
+import { getMediaClient } from '@atlaskit/media-client-react/get-media-client';
+import { MediaClientContext } from '@atlaskit/media-client-react/media-client-provider';
 import type { MediaFeatureFlags } from '@atlaskit/media-common';
-import { MediaInlineCardLoadingView } from '@atlaskit/media-ui';
-import React, { useCallback, useEffect, useState, useContext } from 'react';
-import type { IntlShape, WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import { MediaInlineCardLoadingView } from '@atlaskit/media-ui/LoadingView';
+
+import { ACTION_SUBJECT } from '../../analytics/enums';
+import type { MediaSSR } from '../../types/mediaOptions';
 import type { ClipboardAttrs } from '../../ui/MediaCard';
 import { getClipboardAttrs, mediaIdentifierMap } from '../../ui/MediaCard';
+import { ErrorBoundary } from '../../ui/Renderer/ErrorBoundary';
 import type { RendererAppearance } from '../../ui/Renderer/types';
 import type { RendererContext } from '../types';
-import type { Mark } from '@atlaskit/editor-prosemirror/model';
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-
-import type { MediaSSR } from '../../types/mediaOptions';
-import { ErrorBoundary } from '../../ui/Renderer/ErrorBoundary';
-import { ACTION_SUBJECT } from '../../analytics/enums';
-import { ACTION_SUBJECT_ID } from '@atlaskit/editor-common/analytics';
 
 type RenderMediaInlineProps = {
 	children?: React.ReactNode;
 	clipboardAttrs: ClipboardAttrs;
 	collection?: string;
 	eventHandlers?: EventHandlers;
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>;
 	featureFlags?: MediaFeatureFlags;
 	identifier: FileIdentifier;
 	intl?: IntlShape;
 	rendererAppearance?: RendererAppearance;
 	rendererContext?: RendererContext;
+	ssr?: MediaSSR;
 };
 
 type MediaInlineProps = {
 	collection?: string;
 	eventHandlers?: EventHandlers;
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>;
 	featureFlags?: MediaFeatureFlags;
 	id: string;
 	marks?: Array<Mark>;
@@ -56,6 +62,8 @@ const RenderMediaInline = ({
 	collection: collectionName,
 	eventHandlers,
 	identifier,
+	fallbackMediaNameFetcher,
+	ssr,
 }: RenderMediaInlineProps) => {
 	const [contextIdentifier, setContextIdentifier] = useState<
 		ContextIdentifierProvider | undefined
@@ -65,6 +73,11 @@ const RenderMediaInline = ({
 
 	const mediaClient = useContext(MediaClientContext);
 	const contextIdentifierProvider = useProvider('contextIdentifierProvider');
+
+	const ssrMediaItem = useMemo(
+		() => ssr?.ssrMediaItems?.find((item) => item.id === identifier.id),
+		[ssr?.ssrMediaItems, identifier.id],
+	);
 
 	useEffect(() => {
 		if (contextIdentifierProvider) {
@@ -87,6 +100,7 @@ const RenderMediaInline = ({
 					setFileState(fileState);
 				}
 			} catch (error) {
+				// eslint-disable-line no-unused-vars
 				// do not set state on error
 			}
 		},
@@ -109,6 +123,7 @@ const RenderMediaInline = ({
 
 	useEffect(() => {
 		const { id } = clipboardAttrs;
+		// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 		id && updateFileState(id);
 	}, [contextIdentifier, clipboardAttrs, updateFileState]);
 
@@ -149,6 +164,8 @@ const RenderMediaInline = ({
 				shouldDisplayToolTip={shouldDisplayToolTip}
 				mediaClientConfig={mediaClient.mediaClientConfig}
 				mediaViewerItems={Array.from(mediaIdentifierMap.values())}
+				fallbackMediaNameFetcher={fallbackMediaNameFetcher}
+				ssrMediaItem={ssrMediaItem}
 			/>
 		</span>
 	);
@@ -167,6 +184,7 @@ const MediaInline = (props: MediaInlineProps & WrappedComponentProps & MediaInli
 		height,
 		marks,
 		ssr,
+		fallbackMediaNameFetcher,
 	} = props;
 
 	const clipboardAttrs: ClipboardAttrs = {
@@ -204,6 +222,7 @@ const MediaInline = (props: MediaInlineProps & WrappedComponentProps & MediaInli
 					width={width}
 					height={height}
 					ssr={ssr}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					border={{ borderSize, borderColor }}
 					serializeDataAttrs
 					shouldOpenMediaViewer={!hasLinkMark}
@@ -221,8 +240,18 @@ const MediaInline = (props: MediaInlineProps & WrappedComponentProps & MediaInli
 			intl={intl}
 			collection={collection}
 			featureFlags={featureFlags}
+			fallbackMediaNameFetcher={fallbackMediaNameFetcher}
+			ssr={ssr}
 		/>
 	);
 };
 
-export default injectIntl(MediaInline);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<
+	WithIntlProps<MediaInlineProps & WrappedComponentProps & MediaInlineAttrs>
+> & {
+	WrappedComponent: React.ComponentType<
+		MediaInlineProps & WrappedComponentProps & MediaInlineAttrs
+	>;
+} = injectIntl(MediaInline);
+export default _default_1;

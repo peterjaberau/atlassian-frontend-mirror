@@ -20,6 +20,28 @@ import { findVariable } from '@atlaskit/eslint-utils/find-variable';
 
 import type { MessageId } from './messages';
 
+type TypeExpression = {
+	type: 'TSAsExpression' | 'TSSatisfiesExpression' | 'TSTypeAssertion';
+	expression: Node;
+};
+
+const unwrapSatisfiesExpression = (node: Node): Node => {
+	if ((node as { type: string }).type !== 'TSSatisfiesExpression') {
+		return node;
+	}
+
+	let currentNode = node;
+	while (
+		['TSAsExpression', 'TSSatisfiesExpression', 'TSTypeAssertion'].includes(
+			(currentNode as { type: string }).type,
+		)
+	) {
+		currentNode = (currentNode as unknown as TypeExpression).expression;
+	}
+
+	return currentNode;
+};
+
 function isReferenceToCssVar(variable: Variable) {
 	const definitions = variable.defs;
 
@@ -45,10 +67,13 @@ export class Linter {
 	private readonly allowedDynamicKeys: AllowList;
 	private readonly allowedFunctionCalls: AllowList;
 
-	constructor(
-		private readonly context: Rule.RuleContext,
-		private readonly baseNode: CallExpression,
-	) {
+	private readonly context: Rule.RuleContext;
+	private readonly baseNode: CallExpression;
+
+	constructor(context: Rule.RuleContext, baseNode: CallExpression) {
+		this.context = context;
+		this.baseNode = baseNode;
+
 		this.allowedDynamicKeys = getAllowedDynamicKeys(context.options);
 		this.allowedFunctionCalls = getAllowedFunctionCalls(context.options);
 	}
@@ -81,7 +106,8 @@ export class Linter {
 
 		const variable = findVariable({
 			identifier: value,
-			sourceCode: this.context.getSourceCode(),
+			// @ts-ignore - Jira's ESLint v10 types expose sourceCode, platform still checks with ESLint v9.
+			sourceCode: this.context.sourceCode ?? this.context.getSourceCode(),
 		});
 		if (!variable) {
 			this.lintUnhandledIdentifier(value);
@@ -117,7 +143,7 @@ export class Linter {
 				/**
 				 * Variables can be used if they resolve to a literal.
 				 */
-				if (initializer.type === 'Literal') {
+				if (unwrapSatisfiesExpression(initializer).type === 'Literal') {
 					return;
 				}
 
@@ -163,6 +189,18 @@ export class Linter {
 	}
 
 	private isAllowedDynamicKey(expression: Expression) {
+		const typedExpression = expression as unknown as {
+			type: string;
+			expression?: Expression & { type: string; value?: unknown };
+		};
+		if (
+			typedExpression.type === 'TSSatisfiesExpression' &&
+			typedExpression.expression?.type === 'Literal' &&
+			typeof typedExpression.expression.value === 'string'
+		) {
+			return true;
+		}
+
 		const identifier = findIdentifierNode(expression);
 		if (!identifier) {
 			return false;
@@ -170,7 +208,8 @@ export class Linter {
 
 		const variable = findVariable({
 			identifier,
-			sourceCode: this.context.getSourceCode(),
+			// @ts-ignore - Jira's ESLint v10 types expose sourceCode, platform still checks with ESLint v9.
+			sourceCode: this.context.sourceCode ?? this.context.getSourceCode(),
 		});
 		if (!variable) {
 			return false;
@@ -183,6 +222,21 @@ export class Linter {
 	}
 
 	private lintKey(property: Property) {
+		const key = property.key as Node;
+
+		// A type-only `satisfies` annotation preserves a static key at runtime.
+		// It is safe for the same reason as a directly written string literal.
+		const unwrappedKey = unwrapSatisfiesExpression(key);
+		const isSatisfiesExpression = unwrappedKey !== key;
+		if (
+			property.computed &&
+			isSatisfiesExpression &&
+			unwrappedKey.type === 'Literal' &&
+			typeof (unwrappedKey as { value?: unknown }).value === 'string'
+		) {
+			return;
+		}
+
 		/**
 		 * If it's not computed then it must be a plain string.
 		 *
@@ -211,7 +265,8 @@ export class Linter {
 
 		const variable = findVariable({
 			identifier,
-			sourceCode: this.context.getSourceCode(),
+			// @ts-ignore - Jira's ESLint v10 types expose sourceCode, platform still checks with ESLint v9.
+			sourceCode: this.context.sourceCode ?? this.context.getSourceCode(),
 		});
 		if (!variable) {
 			return false;
@@ -253,6 +308,12 @@ export class Linter {
 	}
 
 	private lintValue(value: Property['value']): void {
+		const unwrappedValue = unwrapSatisfiesExpression(value);
+		if (unwrappedValue !== value) {
+			this.lintValue(unwrappedValue as Property['value']);
+			return;
+		}
+
 		/**
 		 * Literals are always allowed by this rule.
 		 */

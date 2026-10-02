@@ -1,5 +1,348 @@
 # @atlaskit/util-data-test
 
+## 19.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.17
+
+### Patch Changes
+
+- [`2bbc1c84de468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bbc1c84de468) -
+  Migrate Volt consumer imports to existing definitions and align affected test mocks without
+  changing runtime behavior.
+- Updated dependencies
+
+## 19.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.11
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 19.1.10
+
+### Patch Changes
+
+- [`fa8c160c2b9ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa8c160c2b9ec) -
+  Changes to support Atlaspack Incremental bundling
+- Updated dependencies
+
+## 19.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 19.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.6.0
+
+### Minor Changes
+
+- [`3f23aba4db7f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f23aba4db7f2) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.16
+
+### Patch Changes
+
+- [`72290778b16ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72290778b16ca) -
+  Enrol mixed platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 18.5.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.7
+
+### Patch Changes
+
+- [`608c375f6f9b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/608c375f6f9b9) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 18.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 18.5.1
 
 ### Patch Changes

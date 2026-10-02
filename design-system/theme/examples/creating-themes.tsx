@@ -2,7 +2,8 @@ import React from 'react';
 
 import color from 'color';
 
-import { createTheme } from '@atlaskit/theme';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
+import { createTheme } from '@atlaskit/theme/create-theme';
 
 interface ThemeTokens {
 	backgroundColor?: string;

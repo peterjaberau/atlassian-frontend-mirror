@@ -10,12 +10,12 @@ import invariant from 'tiny-invariant';
 
 import { token } from '@atlaskit/tokens';
 
-import { combine } from '../src/entry-point/combine';
-import { dropTargetForExternal, monitorForExternal } from '../src/entry-point/external/adapter';
-import { containsFiles, getFiles } from '../src/entry-point/external/file';
-import { preventUnhandled } from '../src/entry-point/prevent-unhandled';
-
-import { fallbackColor } from './_util/fallback';
+import { dropTargetForExternal } from '../src/adapter/drop-target-for-external';
+import { monitorForExternal } from '../src/adapter/monitor-for-external';
+import { combine } from '../src/public-utils/combine';
+import { containsFiles } from '../src/public-utils/external/contains-files';
+import { getFiles } from '../src/public-utils/external/get-files';
+import { preventUnhandled } from '../src/public-utils/prevent-unhandled';
 import { GlobalStyles } from './_util/global-styles';
 
 const fileStyles = css({
@@ -24,23 +24,25 @@ const fileStyles = css({
 	alignItems: 'center',
 	justifyContent: 'center',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	background: token('elevation.surface.sunken', fallbackColor),
+	background: token('elevation.surface.sunken'),
 	borderRadius: 'var(--border-radius)',
+	// Use `color.text.subtlest` (not `color.text.disabled`) so the placeholder
+	// label meets WCAG AA contrast against the sunken background.
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	color: token('color.text.disabled', fallbackColor),
+	color: token('color.text.subtlest'),
 	fontSize: '1.4rem',
 });
 
 const overStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	background: token('color.background.selected.hovered', fallbackColor),
+	background: token('color.background.selected.hovered'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	color: token('color.text.selected', fallbackColor),
+	color: token('color.text.selected'),
 });
 
 const potentialStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	background: token('color.background.discovery', fallbackColor),
+	background: token('color.background.discovery'),
 });
 
 const appStyles = css({

@@ -1,13 +1,14 @@
 import { type MouseEventHandler, type ReactElement } from 'react';
 
-import { type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import { type CardProviderRenderers } from '@atlaskit/link-provider';
-import { type CardState } from '@atlaskit/linking-common';
-import { type SmartLinkResponse } from '@atlaskit/linking-types';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import type { CardProviderRenderers } from '@atlaskit/link-provider/types';
+import type { CardState } from '@atlaskit/linking-common/store';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+import type { PopupProps } from '@atlaskit/popup/types';
 
 import type { ActionName } from '../../constants';
 import { type AnalyticsHandler } from '../../utils/types';
-import type { CardActionOptions } from '../Card/types';
+import type { CardActionOptions, InternalCardActionOptions } from '../Card/types';
 
 export interface HoverCardProps extends WithAnalyticsEventsProps {
 	/**
@@ -54,9 +55,22 @@ export interface HoverCardProps extends WithAnalyticsEventsProps {
 	label?: string;
 
 	/**
+	 * @deprecated To be removed - Suspend hover card UI delays (fade-in, fade-out) for VR testing purposes.
+	 */
+	noFadeDelay?: boolean;
+
+	/**
 	 * Callback function that is called when the hover card is visible or hidden.
 	 */
 	onVisibilityChange?: (isVisible: boolean) => void;
+
+	/**
+	 * Where the card should sit relative to the trigger element. Omitted, the card opens below and
+	 * to the right of the pointer, which is what an inline link in a body of text wants. Set it when
+	 * the card would otherwise cover the content the user is pointing at — for example a row in a
+	 * list, where `"left-start"` keeps the row itself visible.
+	 */
+	placement?: PopupProps['placement'];
 
 	/**
 	 * Use this to set the accessibility role for the hover card.
@@ -89,30 +103,38 @@ export interface HoverCardProps extends WithAnalyticsEventsProps {
 }
 
 /**
- * An internal props that internal smart-card components can use to configure
- * hover preview behaviour. The prop contains here are suitable for unsafe
- * or experiment props that will not be or are yet ready to be available on
- * standalone hover card.
+ * @deprecated To be removed - internal component prop
  */
-export interface HoverCardInternalProps {
+export interface HoverCardInternalProps extends HoverCardProps {
+	actionOptions?: CardActionOptions;
 	/**
 	 * Suspend hover card UI delays (fade-in, fade-out) for VR testing purposes.
 	 */
 	noFadeDelay?: boolean;
 }
 
-export interface HoverCardComponentProps extends HoverCardProps, HoverCardInternalProps {
+/**
+ * @deprecated To be removed - internal component prop
+ */
+export interface HoverCardComponentProps extends HoverCardProps {
 	analyticsHandler?: AnalyticsHandler;
 	canOpen?: boolean;
 	closeOnChildClick?: boolean;
 }
 
+/**
+ * @deprecated To be removed - internal component prop
+ */
 export type HoverCardContentProps = {
-	actionOptions?: CardActionOptions;
+	actionOptions?: InternalCardActionOptions;
 	cardState: CardState;
 	hoverPreviewOptions?: HoverPreviewOptions;
 	id?: string;
 	onActionClick: (actionId: string | ActionName) => void;
+	/**
+	 * Closes the hover card popup (e.g. secondary actions like "Maybe later").
+	 */
+	onDismiss?: () => void;
 	onMouseEnter?: MouseEventHandler;
 	onMouseLeave?: MouseEventHandler;
 	onResolve: () => void;
@@ -120,21 +142,38 @@ export type HoverCardContentProps = {
 	url: string;
 };
 
+/**
+ * @deprecated To be removed - internal component type
+ */
+export type ContentContainerWidthAppearance = 'default' | 'slim';
+
+/**
+ * @deprecated To be removed - internal component prop
+ */
 export type ContentContainerProps = React.HTMLAttributes<HTMLDivElement> & {
 	isAIEnabled?: boolean;
 	testId?: string;
 	url: string;
+	/**
+	 * Visual width preset for the hover card shell. Omit or `undefined` uses `'default'`.
+	 */
+	widthAppearance?: ContentContainerWidthAppearance;
 };
 
+/**
+ * @deprecated To be removed - internal component prop
+ */
 export type ImagePreviewProps = {
 	fallbackElementHeight: number;
 	response?: SmartLinkResponse;
 };
+
 export interface HoverPreviewOptions {
 	/**
 	 * Delay (in milliseconds) between hovering over the trigger element and the hover card opening. Defaults to 500ms.
 	 */
 	fadeInDelay?: number;
+
 	/**
 	 * Render a custom component instead of the default hover card.
 	 */

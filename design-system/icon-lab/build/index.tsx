@@ -12,7 +12,6 @@ import {
 } from '@af/icon-build-process';
 
 import coreIconMetadata from '../icons_raw/metadata-core';
-import migrationMap from '../src/migration-map';
 
 async function main() {
 	const root = pkgDir.sync();
@@ -32,9 +31,8 @@ async function main() {
 		maxHeight: 24,
 		glob: '**/*.svg',
 		packageName: '@atlaskit/icon-lab',
-		baseIconEntryPoint: '@atlaskit/icon/base-new',
+		baseIconEntryPoint: '@atlaskit/icon/components/icon-new',
 		metadata: coreIconMetadata,
-		migrationMap: migrationMap,
 	};
 
 	await buildIconsNew(configCore).then((icons) => {
@@ -44,17 +42,11 @@ async function main() {
 			{},
 			['icon', 'icon-lab'],
 			coreIconMetadata,
-			migrationMap,
 		);
 
 		fs.outputFile(path.resolve(root, 'src/metadata-core.tsx'), iconDocs);
 
-		const deprecatedDocs = createDeprecatedIconDocs(
-			icons,
-			'@atlaskit/icon-lab',
-			coreIconMetadata,
-			migrationMap,
-		);
+		const deprecatedDocs = createDeprecatedIconDocs(icons, '@atlaskit/icon-lab', coreIconMetadata);
 
 		fs.outputFile(path.resolve(root, 'src/deprecated-core.tsx'), deprecatedDocs);
 

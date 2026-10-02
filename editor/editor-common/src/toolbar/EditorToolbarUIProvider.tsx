@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
 
-import type { OnOpenChangeArgs } from '@atlaskit/dropdown-menu';
+import type { OnOpenChangeArgs } from '@atlaskit/dropdown-menu/types';
 import type { ToolbarUIContextType } from '@atlaskit/editor-toolbar';
 import { ToolbarUIProvider } from '@atlaskit/editor-toolbar';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { ExtractInjectionAPI, NextEditorPlugin } from '../types';
 
@@ -17,12 +18,14 @@ type Props = Pick<
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	api: ExtractInjectionAPI<NextEditorPlugin<any, any>> | undefined;
 	children: React.ReactNode;
+	disabledWithoutInteractionLogic?: boolean;
 	isDisabled?: boolean;
 };
 export const EditorToolbarUIProvider = ({
 	children,
 	api,
 	isDisabled,
+	disabledWithoutInteractionLogic,
 	popupsMountPoint,
 	popupsBoundariesElement,
 	popupsScrollableElement,
@@ -37,18 +40,27 @@ export const EditorToolbarUIProvider = ({
 				const isKeyboardEscape = event instanceof KeyboardEvent && event.key === 'Escape';
 				const shouldFocusEditor = !isKeyboardEscape;
 
+				if (
+					isExperimentEnabled('platform_editor_toolbar_multi_editor_fix') &&
+					event instanceof MouseEvent &&
+					event.target instanceof Element &&
+					!event.target.closest('[role="menu"]')
+				) {
+					return;
+				}
+
 				if (shouldFocusEditor) {
-						// On Dropdown closed, focus is returned to trigger button by default in requestAnimationFrame
-						// Hence, `.focus()` should also be called in requestAnimationFrame
-						setTimeout(
-							() =>
-								requestAnimationFrame(() => {
-									api?.core.actions.focus({ scrollIntoView: false });
-								}),
-							1,
-						);
-					}
-			};
+					// On Dropdown closed, focus is returned to trigger button by default in requestAnimationFrame
+					// Hence, `.focus()` should also be called in requestAnimationFrame
+					setTimeout(
+						() =>
+							requestAnimationFrame(() => {
+								api?.core.actions.focus({ scrollIntoView: false });
+							}),
+						1,
+					);
+				}
+			}
 		},
 		[api],
 	);
@@ -58,6 +70,7 @@ export const EditorToolbarUIProvider = ({
 			onDropdownOpenChanged={onDropdownOpenChanged}
 			preventDefaultOnMouseDown
 			isDisabled={isDisabled}
+			disabledWithoutInteractionLogic={disabledWithoutInteractionLogic}
 			popupsMountPoint={popupsMountPoint}
 			popupsBoundariesElement={popupsBoundariesElement}
 			popupsScrollableElement={popupsScrollableElement}

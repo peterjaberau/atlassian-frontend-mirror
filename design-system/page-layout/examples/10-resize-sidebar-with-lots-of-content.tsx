@@ -7,6 +7,7 @@ import { type CSSProperties, Fragment, type ReactElement, useCallback, useState 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import {
 	Banner,
 	Content,
@@ -20,7 +21,7 @@ import {
 	TopNavigation,
 } from '@atlaskit/page-layout';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import {
 	ExpandLeftSidebarKeyboardShortcut,
@@ -66,10 +67,10 @@ const initialState = {
 
 const elementStyles = css({
 	display: 'inline-block',
-	minWidth: token('space.1000', '0'),
-	minHeight: token('space.1000', '0'),
-	margin: token('space.025', '0'),
-	padding: token('space.100', '0'),
+	minWidth: token('space.1000'),
+	minHeight: token('space.1000'),
+	margin: token('space.025'),
+	padding: token('space.100'),
 	backgroundColor: 'var(--local-color)',
 	font: token('font.heading.small'),
 });

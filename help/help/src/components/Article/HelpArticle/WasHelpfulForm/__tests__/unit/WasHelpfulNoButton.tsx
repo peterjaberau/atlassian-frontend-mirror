@@ -1,11 +1,13 @@
 import React from 'react';
-import { createIntl, createIntlCache } from 'react-intl-next';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { render, fireEvent } from '@testing-library/react';
+
+import { createIntl, createIntlCache } from 'react-intl';
+
 import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { render } from '@atlassian/testing-library/render';
+import { screen } from '@atlassian/testing-library/screen';
+import { userEvent } from '@atlassian/testing-library/user-event';
 
 import { messages } from '../../../../../../messages';
-
 import { ArticleWasHelpfulNoButton } from '../../WasHelpfulNoButton';
 
 // Messages
@@ -31,26 +33,24 @@ describe('ArticleContent', () => {
 		await expect(container).toBeAccessible();
 	});
 
-	it('Match snapshot', () => {
-		const { asFragment } = render(
-			<ArticleWasHelpfulNoButton isSelected={false} onClick={mockOnClick} intl={intl} />,
-		);
+	it('should render the no button', async () => {
+		render(<ArticleWasHelpfulNoButton isSelected={false} onClick={mockOnClick} intl={intl} />);
 
-		expect(asFragment()).toMatchSnapshot();
+		expect(screen.getByText(messageNo)).toBeInTheDocument();
 	});
 
-	it('props methods "onWasHelpfulNoButtonClick" and "onClick" should be executed when the user click the button', () => {
-		const { getByText } = render(
+	it('props methods "onWasHelpfulNoButtonClick" and "onClick" should be executed when the user click the button', async () => {
+		render(
 			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
 				<ArticleWasHelpfulNoButton isSelected={false} onClick={mockOnClick} intl={intl} />
 			</AnalyticsListener>,
 		);
 
-		const buttonNo = getByText(messageNo).closest('button');
-		expect(buttonNo).not.toBeNull;
+		const buttonNo = screen.getByText(messageNo).closest('button');
+		expect(buttonNo).not.toBeNull();
 
 		if (buttonNo) {
-			fireEvent.click(buttonNo);
+			await userEvent.click(buttonNo);
 			expect(mockOnClick).toHaveBeenCalledTimes(1);
 		}
 	});

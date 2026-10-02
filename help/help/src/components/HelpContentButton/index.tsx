@@ -1,13 +1,12 @@
 import React, { useCallback } from 'react';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import ShortcutIcon from '@atlaskit/icon/core/link-external';
-import Tooltip from '@atlaskit/tooltip';
 import { NotificationIndicator } from '@atlaskit/notification-indicator';
 import { type NotificationLogProvider } from '@atlaskit/notification-log-client';
-import {
-	useAnalyticsEvents,
-	type UIAnalyticsEvent,
-	AnalyticsContext,
-} from '@atlaskit/analytics-next';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import {
 	HelpContentButtonContainer,
@@ -84,7 +83,7 @@ const HelpContentButton = ({
 						<NotificationIndicator
 							notificationLogProvider={notificationLogProvider}
 							max={notificationMax}
-							appearance="primary"
+							appearance="informationBold"
 						/>
 					</HelpContentButtonExternalNotificationIcon>
 				)}

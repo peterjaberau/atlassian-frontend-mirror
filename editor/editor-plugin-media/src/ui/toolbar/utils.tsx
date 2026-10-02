@@ -1,9 +1,10 @@
 import React from 'react';
 
-import memoizeOne from 'memoize-one';
-import type { IntlShape } from 'react-intl-next';
+import memoizeOne, { type MemoizedFn } from 'memoize-one';
+import type { IntlShape } from 'react-intl';
 
-import type { ExternalMediaAttributes, MediaADFAttrs, RichMediaLayout } from '@atlaskit/adf-schema';
+import type { ExternalMediaAttributes, MediaADFAttrs } from '@atlaskit/adf-schema/media';
+import type { Layout as RichMediaLayout } from '@atlaskit/adf-schema/rich-media-common';
 import type { LayoutIcon } from '@atlaskit/editor-common/card';
 import { wrappedLayouts } from '@atlaskit/editor-common/media-single';
 import { mediaAndEmbedToolbarMessages } from '@atlaskit/editor-common/messages';
@@ -16,7 +17,7 @@ import type {
 } from '@atlaskit/editor-common/types';
 import { nonWrappedLayouts } from '@atlaskit/editor-common/utils';
 import type { Node as ProseMirrorNode } from '@atlaskit/editor-prosemirror/model';
-import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import {
 	findParentNodeOfType,
 	findSelectedNodeOfType,
@@ -27,13 +28,12 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorFullWidthLayoutWidth } from '@atlaskit/editor-shared-styles';
 import ImageInlineIcon from '@atlaskit/icon/core/image-inline';
 import MaximizeIcon from '@atlaskit/icon/core/maximize';
-import { getMediaClient } from '@atlaskit/media-client-react';
-import { messages } from '@atlaskit/media-ui';
+import { getMediaClient } from '@atlaskit/media-client-react/get-media-client';
+import { messages } from '@atlaskit/media-ui/messages';
 
 import type { MediaNextEditorPluginType } from '../../mediaPluginType';
 import type { MediaPluginState } from '../../pm-plugins/types';
 import { isVideo } from '../../pm-plugins/utils/media-single';
-
 import { changeMediaInlineToMediaSingle, changeMediaSingleToMediaInline } from './commands';
 
 export const isExternalMedia = (attrs: MediaADFAttrs): attrs is ExternalMediaAttributes => {
@@ -52,7 +52,7 @@ const getSelectedMediaContainerNodeAttrs = (
 
 export const getSelectedNearestMediaContainerNodeAttrsFunction = (
 	selectedMediaContainerNode: () => ProseMirrorNode | undefined,
-) => {
+): MediaADFAttrs | null => {
 	const selectedNode = selectedMediaContainerNode?.();
 	if (selectedNode) {
 		switch (selectedNode.type.name) {
@@ -104,7 +104,13 @@ export const downloadMedia = async (
 			const fileState = await mediaClient.file.getCurrentState(id, {
 				collectionName: collection,
 			});
-			const fileName = fileState.status === 'error' ? undefined : fileState.name;
+			let fileName = fileState.status === 'error' ? undefined : fileState.name;
+			if (!fileName && mediaPluginState.mediaOptions?.fallbackMediaNameFetcher) {
+				const fetched = await mediaPluginState.mediaOptions
+					.fallbackMediaNameFetcher(id)
+					.catch(() => undefined);
+				fileName = fetched ?? undefined;
+			}
 			mediaClient.file.downloadBinary(id, fileName, collection);
 		}
 		return true;
@@ -113,7 +119,7 @@ export const downloadMedia = async (
 	}
 };
 
-export const removeMediaGroupNode = (state: EditorState) => {
+export const removeMediaGroupNode = (state: EditorState): Transaction => {
 	const { mediaGroup } = state.schema.nodes;
 	const mediaGroupParent = findParentNodeOfType(mediaGroup)(state.selection);
 
@@ -140,15 +146,15 @@ export const getSelectedMediaSingle = (
 	);
 };
 
-export const getPixelWidthOfElement = memoizeOne(
-	(editorView: EditorView, pos: number, mediaWidth: number) => {
-		const domNode = editorView.nodeDOM(pos);
-		if (domNode instanceof HTMLElement) {
-			return domNode.offsetWidth;
-		}
-		return mediaWidth;
-	},
-);
+export const getPixelWidthOfElement: MemoizedFn<
+	(editorView: EditorView, pos: number, mediaWidth: number) => number
+> = memoizeOne((editorView: EditorView, pos: number, mediaWidth: number): number => {
+	const domNode = editorView.nodeDOM(pos);
+	if (domNode instanceof HTMLElement) {
+		return domNode.offsetWidth;
+	}
+	return mediaWidth;
+});
 
 export const calcNewLayout = (
 	width: number,
@@ -156,7 +162,7 @@ export const calcNewLayout = (
 	contentWidth: number,
 	fullWidthMode = false,
 	isNested = false,
-) => {
+): RichMediaLayout => {
 	const isWrappedLayout = wrappedLayouts.indexOf(layout) > -1;
 
 	//See flowchart for layout logic: https://hello.atlassian.net/wiki/spaces/TWPCP/whiteboard/2969594044
@@ -179,7 +185,7 @@ export const calcNewLayout = (
 
 let maxToolbarFitWidth = 0;
 
-export const getMaxToolbarWidth = () => {
+export const getMaxToolbarWidth = (): number => {
 	// Ignored via go/ees005
 	// eslint-disable-next-line @atlaskit/editor/no-as-casting
 	const toolbar = document.querySelector(
@@ -195,7 +201,10 @@ export const getMaxToolbarWidth = () => {
 	return maxToolbarFitWidth;
 };
 
-export const getSelectedLayoutIcon = (layoutIcons: LayoutIcon[], selectedNode: ProseMirrorNode) => {
+export const getSelectedLayoutIcon = (
+	layoutIcons: LayoutIcon[],
+	selectedNode: ProseMirrorNode,
+): LayoutIcon | undefined => {
 	const selectedLayout = selectedNode.attrs.layout;
 	return layoutIcons.find(
 		(icon) =>
@@ -207,7 +216,7 @@ export const getSelectedLayoutIcon = (layoutIcons: LayoutIcon[], selectedNode: P
  * Check if 'original size' and 'inline' buttons can be shown in the toolbar for a given mediaSingle node.
  * @param mediaSingleNode node to be checked
  */
-export const canShowSwitchButtons = (mediaSingleNode?: ProseMirrorNode) => {
+export const canShowSwitchButtons = (mediaSingleNode?: ProseMirrorNode): boolean | null => {
 	if (mediaSingleNode) {
 		const mediaNode = mediaSingleNode.content.firstChild;
 		return mediaNode && !isVideo(mediaNode.attrs.__fileMimeType);

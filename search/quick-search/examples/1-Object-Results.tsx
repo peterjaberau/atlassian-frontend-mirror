@@ -1,8 +1,10 @@
 import React from 'react';
-import Avatar from '@atlaskit/avatar';
-import { randomJiraIconUrl, randomConfluenceIconUrl } from './utils/mockData';
-import ObjectResult from '../src/components/Results/ObjectResult';
+
+import Avatar from '@atlaskit/avatar/avatar';
+
 import ResultItemGroup from '../src/components/ResultItem/ResultItemGroup';
+import ObjectResult from '../src/components/Results/ObjectResult';
+import { randomJiraIconUrl, randomConfluenceIconUrl } from './utils/mockData';
 
 const defaultProps = {
 	resultId: 'result_id',
@@ -12,7 +14,7 @@ const dummyAvatarComponent = <Avatar src={randomConfluenceIconUrl()} appearance=
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default class extends React.Component {
-	render() {
+	render(): React.JSX.Element {
 		return (
 			<div>
 				<h3>Objects</h3>

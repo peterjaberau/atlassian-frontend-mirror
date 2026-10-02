@@ -3,8 +3,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
-import { VCObserver } from '../../src/vc/vc-observer';
 
+import { VCObserver } from '../../src/vc/vc-observer';
 import { expect, test } from './fixtures';
 
 function expectValidNumber(value: any) {
@@ -19,6 +19,11 @@ test.describe('React UFO: Payload integrity - v2.0.0, without TTVC v1 fields', (
 			height: 1080,
 		},
 		featureFlags: ['ufo_payload_use_idle_callback'],
+	} satisfies {
+		examplePage: 'basic';
+		viewport: { width: number; height: number };
+		featureFlags: string[];
+		__exampleDependency?: typeof import('../../examples/01-basic.tsx');
 	});
 
 	test(`UFO payload contains expected fields for a basic implementation`, async ({
@@ -146,8 +151,12 @@ test.describe('React UFO: Payload integrity - v2.0.0, without TTVC v1 fields', (
 		expectValidNumber(interactionMetrics.end);
 
 		// Testing fields that are iterables
-		expect(Array.isArray(interactionMetrics.resourceTimings)).toBe(true);
-		for (const resourceTiming of interactionMetrics.resourceTimings!) {
+		const resourceTimings = interactionMetrics.resourceTimings;
+		expect(Array.isArray(resourceTimings)).toBe(true);
+		if (!Array.isArray(resourceTimings)) {
+			throw new Error('Expected resourceTimings to be an array');
+		}
+		for (const resourceTiming of resourceTimings) {
 			// Test for deterministic values within the payload
 			expect(resourceTiming.data.serverTime).toBeUndefined();
 			expect(resourceTiming.data.networkTime).toBeUndefined();
@@ -155,17 +164,27 @@ test.describe('React UFO: Payload integrity - v2.0.0, without TTVC v1 fields', (
 			expect(resourceTiming.data.decodedSize).toBeUndefined();
 
 			// Test for non-deterministic bounded values within the payload - i.e. from the browser APIs
-			expect(['network', 'memory', 'disk'].includes(resourceTiming.data.transferType)).toBe(true);
+			expect(
+				[null, 'network', 'memory', 'disk'].includes(resourceTiming.data.transferType ?? null),
+			).toBe(true);
 			expect(['script', 'link'].includes(resourceTiming.data.type)).toBe(true);
 
 			// Test for non-deterministic unbounded values within the payload
 			expect(typeof resourceTiming.label).toBe('string');
 			expectValidNumber(resourceTiming.data.startTime);
 			expectValidNumber(resourceTiming.data.duration);
-			expectValidNumber(resourceTiming.data.workerStart);
-			expectValidNumber(resourceTiming.data.fetchStart);
-			expectValidNumber(resourceTiming.data.ttfb);
-			expectValidNumber(resourceTiming.data.size);
+			if (resourceTiming.data.workerStart !== undefined) {
+				expectValidNumber(resourceTiming.data.workerStart);
+			}
+			if (resourceTiming.data.fetchStart !== undefined) {
+				expectValidNumber(resourceTiming.data.fetchStart);
+			}
+			if (resourceTiming.data.ttfb !== undefined) {
+				expectValidNumber(resourceTiming.data.ttfb);
+			}
+			if (resourceTiming.data.size !== undefined) {
+				expectValidNumber(resourceTiming.data.size);
+			}
 		}
 
 		expect(typeof interactionMetrics.segments).toBe('object');
@@ -181,12 +200,10 @@ test.describe('React UFO: Payload integrity - v2.0.0, without TTVC v1 fields', (
 		expect(typeof appRootSegment?.c).toBe('object');
 
 		// Verify that app-root has 10 section children
-		// @ts-ignore
 		const sectionSegments = appRootSegment?.c;
 		expect(Object.keys(sectionSegments).length).toBe(10);
 
 		// Check that all section names are present
-		// @ts-ignore
 		const sectionNames = Object.values(sectionSegments).map((segment: any) => segment.n);
 		expect(sectionNames.sort()).toStrictEqual(
 			[

@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 
 import type { EnumRadioField } from '@atlaskit/editor-common/extensions';
-import { Field } from '@atlaskit/form';
-import { RadioGroup } from '@atlaskit/radio';
+import Field from '@atlaskit/form/field';
+import RadioGroup from '@atlaskit/radio/radio-group';
 
 import FieldMessages from '../FieldMessages';
 import type { OnFieldChange } from '../types';
@@ -28,6 +28,7 @@ export default function RadioField({
 			label={field.label}
 			defaultValue={field.defaultValue}
 			isRequired={field.isRequired}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value?: string) => validate<string | undefined>(field, value)}
 			testId={`config-panel-radio-group-${field.name}`}
 			isDisabled={field.isDisabled}
@@ -42,6 +43,7 @@ export default function RadioField({
 							...option,
 							name: field.name,
 						}))}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onChange={(value) => {
 							fieldProps.onChange(value);
 							onFieldChange(field.name, true);

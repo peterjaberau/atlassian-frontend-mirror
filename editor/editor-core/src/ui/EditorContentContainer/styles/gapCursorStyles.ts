@@ -1,5 +1,9 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, keyframes, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css, keyframes } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
@@ -12,7 +16,12 @@ const gapCursorBlink = keyframes({
 	},
 });
 
-export const hideCaretModifier = 'ProseMirror-hide-gapcursor';
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 const gapCursorSelector = '.ProseMirror-gapcursor';
 const prosemirrorwidgetNotBlock =
 	'.ProseMirror-widget:not([data-blocks-decoration-container="true"]):not([data-blocks-drag-handle-container="true"]):not([data-blocks-quick-insert-container="true"])';
@@ -84,16 +93,16 @@ ${wrapLeft} + ${gapCursorSelector} + ${wrapRight} + *,
   ${gapCursorSelector} + ${wrapRight} + span + ${wrapLeft} + * > *,
   ${prosemirrorwidgetNotBlock} + ${gapCursorSelector} + *,
   ${prosemirrorwidgetNotBlock} + ${gapCursorSelector} + span + *`;
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const gapCursorStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
-		[`&.${hideCaretModifier}`]: {
-			caretColor: 'transparent',
-		},
-
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
 		[gapCursorSelector]: {
 			display: 'none',
@@ -121,11 +130,11 @@ export const gapCursorStyles: SerializedStyles = css({
 			},
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 			'&.-left span::after': {
-				left: token('space.negative.050', '-4px'),
+				left: token('space.negative.050'),
 			},
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 			'&.-right span::after': {
-				right: token('space.negative.050', '-4px'),
+				right: token('space.negative.050'),
 			},
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 			'& span[layout="full-width"], & span[layout="wide"], & span[layout="fixed-width"]': {
@@ -183,5 +192,23 @@ export const gapCursorStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
 	[marginDeepChildrenFixSelector]: {
 		marginTop: 0,
+	},
+});
+
+// Hide native caret when gap cursor widget is present (no class toggle = no VC90 mutation)
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const gapCursorStylesVisibilityFix: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+		[`&:has(${gapCursorSelector})`]: {
+			caretColor: 'transparent',
+		},
 	},
 });

@@ -1,5 +1,26 @@
-import { defineMessages } from 'react-intl-next';
-export const alignmentMessages = defineMessages({
+import { defineMessages } from 'react-intl';
+export const alignmentMessages: {
+	alignment: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	alignLeft: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	alignCenter: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	alignRight: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	alignment: {
 		id: 'fabric.editor.alignment',
 		defaultMessage: 'Text alignment',
@@ -8,7 +29,8 @@ export const alignmentMessages = defineMessages({
 	alignLeft: {
 		id: 'fabric.editor.alignLeft',
 		defaultMessage: 'Align left',
-		description: 'label stating that text is aligned left',
+		description:
+			'Label for a toolbar button that aligns the selected text to the left margin of the editor.',
 	},
 	alignCenter: {
 		id: 'fabric.editor.alignCenter',

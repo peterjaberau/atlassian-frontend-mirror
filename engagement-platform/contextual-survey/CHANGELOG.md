@@ -1,5 +1,281 @@
 # @atlaskit/contextual-survey
 
+## 7.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`234fda770bd2b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/234fda770bd2b) -
+  [ux] Fixed unsafe styles that distorted the inline (top-layer) tooltip/popover by excluding
+  top-layer elements from the offending selectors via `:not(:where([popover], dialog))` (and
+  `:nth-last-child(... of ...)` for positional selectors). The `:where()` wrapper keeps the guard at
+  zero specificity, so matching is otherwise unchanged, and the guards are no-ops for the legacy
+  portalled tooltip.
+
+  `@atlassian/gemini` additionally ignores Emotion's `":nth-last-child"` server-side-rendering
+  console warning, which it already ignored for `":first-child"` and `":nth-child"`
+  (emotion-js/emotion#1105).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- [`61965f74ee8b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/61965f74ee8b8) -
+  Include asset files in the published package so they render correctly for consumers.
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 6.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`08f86d1686ebb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08f86d1686ebb) -
+  Making library react19 compatible - Converting JSX.Element to React.JSX.Element & using
+  @atlaskit/motion instead of react-transition-group
+
+## 6.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.8
+
+### Patch Changes
+
+- [`608c375f6f9b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/608c375f6f9b9) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 6.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 6.0.2
 
 ### Patch Changes

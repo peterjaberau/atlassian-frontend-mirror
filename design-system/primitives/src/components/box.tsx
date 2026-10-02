@@ -6,6 +6,7 @@ import {
 	type ComponentPropsWithoutRef,
 	type ComponentPropsWithRef,
 	forwardRef,
+	type JSX,
 	type ReactElement,
 	type ReactNode,
 } from 'react';
@@ -13,18 +14,14 @@ import {
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import { SurfaceContext } from '../utils/surface-provider';
+import type { BackgroundColor, Space } from '../compiled';
+import { SurfaceContext } from '../utils/surface-context';
 import { type SVGElements } from '../utils/types';
-import {
-	type BackgroundColor,
-	backgroundColorStylesMap,
-	isSurfaceColorToken,
-	paddingStylesMap,
-	type Space,
-	surfaceColorStylesMap,
-} from '../xcss/style-maps.partial';
-import { parseXcss } from '../xcss/xcss';
-
+import { backgroundColorStylesMap } from '../xcss/background-color-styles-map';
+import { isSurfaceColorToken } from '../xcss/is-surface-color-token';
+import { paddingStylesMap } from '../xcss/padding-styles-map';
+import { parseXcss } from '../xcss/parse-xcss';
+import { surfaceColorStylesMap } from '../xcss/surface-color-styles-map';
 import type { BasePrimitiveProps, StyleProp } from './types';
 
 // Can either Exclude or Extract - here we're excluding all SVG-related elements, <button> elements (handled by Pressable), and <a> elements (handled by Anchor)
@@ -144,7 +141,6 @@ export const Box = forwardRef(
 		const node = (
 			// @ts-expect-error Expression produces a union type that is too complex to represent. I think this is unavoidable
 			<Component
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				style={style}
 				// @ts-ignore Expression produces a union type that is too complex to represent. We may be able to narrow the type here but unsure.
 				ref={ref}
@@ -185,10 +181,10 @@ export const Box = forwardRef(
 			node
 		);
 	},
-	// @ts-ignore This typescript error has been surpessed while locally enrolling `@atlaskit/primitives` into Jira
 	// The return type of `BoxComponent` does not match the return type of `forwardRef` in React 18
 ) as BoxComponent;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Box;
 
 const baseStyles = css({

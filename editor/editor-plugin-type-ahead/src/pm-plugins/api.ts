@@ -6,7 +6,6 @@ import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { TypeAheadHandler, TypeAheadInputMethod } from '../types';
-
 import { closeTypeAhead } from './commands/close-type-ahead';
 import { insertTypeAheadItem } from './commands/insert-type-ahead-item';
 import { openTypeAheadAtCursor } from './commands/open-typeahead-at-cursor';
@@ -27,9 +26,10 @@ const open =
 			return false;
 		}
 
-		const { tr } = state;
-
-		openTypeAheadAtCursor({ triggerHandler: handler, inputMethod })({ tr });
+		const tr = openTypeAheadAtCursor({ triggerHandler: handler, inputMethod })({ tr: state.tr });
+		if (!tr) {
+			return false;
+		}
 
 		editorView.dispatch(tr);
 
@@ -205,7 +205,37 @@ const currentQuery =
  * @deprecated
  *
  */
-export const createTypeAheadTools = (editorView: EditorView) => {
+export const createTypeAheadTools = (
+	editorView: EditorView,
+): {
+	close: (options?: CloseOptions) => boolean;
+	currentQuery: () => string | undefined;
+	insertItemEmoji: ({ contentItem, query, sourceListItem }: InsertItemProps) => boolean;
+	insertItemMention: ({ contentItem, query, sourceListItem }: InsertItemProps) => boolean;
+	insertItemQuickInsert: ({ contentItem, query, sourceListItem }: InsertItemProps) => boolean;
+	isOpen: () => TypeAheadHandler | false;
+	openEmoji: (inputMethod: TypeAheadInputMethod) => boolean;
+	openMention: (inputMethod: TypeAheadInputMethod) => boolean;
+	openQuickInsert: (inputMethod: TypeAheadInputMethod) => boolean;
+	searchEmoji: (query?: string) => {
+		close: (options?: CloseOptions) => boolean;
+		insert: ({ index, mode }: { index: number; mode?: SelectItemMode }) => Promise<void>;
+		result: () => Promise<TypeAheadItem[] | undefined>;
+		type: (appendValue: string) => Promise<TypeAheadItem[]> | undefined;
+	};
+	searchMention: (query?: string) => {
+		close: (options?: CloseOptions) => boolean;
+		insert: ({ index, mode }: { index: number; mode?: SelectItemMode }) => Promise<void>;
+		result: () => Promise<TypeAheadItem[] | undefined>;
+		type: (appendValue: string) => Promise<TypeAheadItem[]> | undefined;
+	};
+	searchQuickInsert: (query?: string) => {
+		close: (options?: CloseOptions) => boolean;
+		insert: ({ index, mode }: { index: number; mode?: SelectItemMode }) => Promise<void>;
+		result: () => Promise<TypeAheadItem[] | undefined>;
+		type: (appendValue: string) => Promise<TypeAheadItem[]> | undefined;
+	};
+} => {
 	const props: CommonProps = {
 		editorView,
 	};

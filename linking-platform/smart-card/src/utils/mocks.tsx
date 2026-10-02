@@ -1,6 +1,5 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { type BatchResponse, CardClient } from '@atlaskit/link-provider';
-import { type SmartLinkResponse } from '@atlaskit/linking-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
 
 export const mockContext = {
 	'@vocab': 'https://www.w3.org/ns/activitystreams#',
@@ -12,41 +11,6 @@ export const mockGenerator = {
 	'@type': 'Application',
 	'@id': 'https://www.atlassian.com/#Jira',
 	name: 'Jira',
-};
-
-export const mockByUrl = (url: string) => {
-	return {
-		meta: {
-			visibility: 'public',
-			access: 'granted',
-			auth: [],
-			definitionId: 'd1',
-			key: 'object-provider',
-			resourceType: 'object-resource',
-			subproduct: 'object-subproduct',
-			product: 'object-product',
-		},
-		data: {
-			'@context': {
-				'@vocab': 'https://www.w3.org/ns/activitystreams#',
-				atlassian: 'https://schema.atlassian.com/ns/vocabulary#',
-				schema: 'http://schema.org/',
-			},
-			'@type': 'Object',
-			name: url,
-			summary: 'Here is your serving of cheese: 🧀',
-			'schema:potentialAction': {
-				'@id': 'comment',
-				'@type': 'CommentAction',
-				identifier: 'object-provider',
-				name: 'Comment',
-			},
-			preview: {
-				href: 'https://www.ilovecheese.com',
-			},
-			url: url,
-		},
-	} as JsonLd.Response;
 };
 
 const errorResponseData = {
@@ -108,7 +72,87 @@ const entityDataResponse = {
 	},
 };
 
-export const mocks = {
+export const mocks: {
+	actionSuccess: {
+		data: {
+			status: string;
+		};
+		meta: {
+			access: string;
+			auth: never[];
+			definitionId: string;
+			visibility: string;
+		};
+	};
+	analytics: {
+		details: {
+			meta: {
+				access: 'granted';
+				auth: never[];
+				definitionId: string;
+				key: string;
+				product: string;
+				resourceType: string;
+				subproduct: string;
+				visibility: 'public';
+			};
+		};
+		status: 'resolved';
+	};
+	entityDataSuccess: SmartLinkResponse;
+	forbidden: JsonLd.Response;
+	forbiddenWithNoAuth: JsonLd.Response;
+	notFound: JsonLd.Response;
+	success: JsonLd.Response;
+	unauthorized: JsonLd.Response;
+	unauthorizedWithNoAuth: JsonLd.Response;
+	withDatasource: {
+		data: {
+			'@context': {
+				'@vocab': string;
+				atlassian: string;
+				schema: string;
+			};
+			'@type': string;
+			'atlassian:ari': string;
+			'atlassian:downloadUrl': string;
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+			preview: {
+				href: string;
+			};
+			'schema:potentialAction': {
+				'@id': string;
+				'@type': string;
+				identifier: string;
+				name: string;
+			};
+			summary: string;
+			url: string;
+		};
+		datasources: {
+			ari: string;
+			description: string;
+			id: string;
+			key: string;
+			name: string;
+			parameters: {
+				cloudId: string;
+				jql: string;
+			};
+		}[];
+		meta: {
+			access: string;
+			auth: never[];
+			definitionId: string;
+			key: string;
+			visibility: string;
+		};
+	};
+} = {
 	success: {
 		...jsonLdResponse,
 	} as JsonLd.Response,
@@ -248,31 +292,3 @@ export const mocks = {
 		],
 	},
 };
-export const fakeResponse = () => Promise.resolve(mocks.success);
-
-export const fakeFactory: any = (
-	implementation: (url: string) => Promise<JsonLd.Response>,
-	implementationPost: () => Promise<JsonLd.Response>,
-	implementationPrefetch: () => Promise<JsonLd.Response | undefined>,
-	implementationAri: (aris: string[]) => Promise<BatchResponse>,
-) =>
-	class CustomClient extends CardClient {
-		// @ts-ignore
-		async fetchData(url: string) {
-			return await implementation(url);
-		}
-		// @ts-ignore
-		async postData() {
-			return await implementationPost();
-		}
-		// @ts-ignore
-		async prefetchData() {
-			return await implementationPrefetch();
-		}
-		// @ts-ignore
-		async fetchDataAris(aris: string[]) {
-			return await implementationAri(aris);
-		}
-	};
-
-export const waitFor = (time = 1) => new Promise((res) => setTimeout(res, time));

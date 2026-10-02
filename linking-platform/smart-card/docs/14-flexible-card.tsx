@@ -13,7 +13,7 @@ import UIOptionsDoc from './content/ui-options';
 import customMd from './utils/custom-md';
 import LinkTabs from './utils/link-tabs';
 
-export default customMd`
+const _default_1: JSX.Element = customMd`
 
 ${(
 	<LinkTabs
@@ -33,3 +33,4 @@ ${(
 )}
 
 `;
+export default _default_1;

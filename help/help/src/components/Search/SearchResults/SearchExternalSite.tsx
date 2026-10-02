@@ -1,19 +1,22 @@
 import React from 'react';
+
 import {
-	useAnalyticsEvents,
-	type UIAnalyticsEvent,
-	AnalyticsContext,
-} from '@atlaskit/analytics-next';
-import * as colors from '@atlaskit/theme/colors';
-import Button from '@atlaskit/button';
+	injectIntl,
+	FormattedMessage,
+	type WithIntlProps,
+	type WrappedComponentProps,
+} from 'react-intl';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import Button from '@atlaskit/button/button';
 import ShortcutIcon from '@atlaskit/icon/core/link-external';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
 import { Text } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../messages';
-
 import { SearchResultSearchExternalSiteContainer } from './styled';
-import { token } from '@atlaskit/tokens';
 
 export interface Props {
 	onSearchExternalUrlClick?(
@@ -41,23 +44,28 @@ export const SearchExternalSite: React.FC<Props & WrappedComponentProps> = ({
 	return searchExternalUrl ? (
 		<SearchResultSearchExternalSiteContainer>
 			<Text as="p">
-				{formatMessage(messages.help_search_results_search_external_site)}
-				<br />
 				<AnalyticsContext
 					data={{
 						componentName: 'searchExternalUrl',
 					}}
 				>
-					<Button
-						appearance="link"
-						iconAfter={<ShortcutIcon label="" color={token('color.icon.subtle', colors.N90)} />}
-						spacing="compact"
-						href={searchExternalUrl}
-						target="_blank"
-						onClick={handleExternalUrlClick}
-					>
-						{formatMessage(messages.help_search_results_external_site_link)}
-					</Button>
+					<FormattedMessage
+						{...messages.help_search_results_search_external_site}
+						values={{
+							a: (chunks) => (
+								<Button
+									appearance="link"
+									iconAfter={<ShortcutIcon label="" color={token('color.icon.subtle')} />}
+									spacing="compact"
+									href={searchExternalUrl}
+									target="_blank"
+									onClick={handleExternalUrlClick}
+								>
+									{chunks}
+								</Button>
+							),
+						}}
+					/>
 				</AnalyticsContext>
 			</Text>
 		</SearchResultSearchExternalSiteContainer>

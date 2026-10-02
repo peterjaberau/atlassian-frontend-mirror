@@ -3,12 +3,14 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports */
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { SerializedStyles } from '@emotion/react';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import {
 	ACTION,
@@ -18,11 +20,7 @@ import {
 	INPUT_METHOD,
 } from '@atlaskit/editor-common/analytics';
 import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/messages';
-import {
-	buttonGroupStyle,
-	separatorStyles,
-	wrapperStyle,
-} from '@atlaskit/editor-common/styles';
+import { buttonGroupStyle, separatorStyles, wrapperStyle } from '@atlaskit/editor-common/styles';
 import type { TOOLBAR_MENU_TYPE } from '@atlaskit/editor-common/types';
 import { Popup, TableSelectorPopup } from '@atlaskit/editor-common/ui';
 import type { MenuItem, ToolbarButtonRef } from '@atlaskit/editor-common/ui-menu';
@@ -34,16 +32,15 @@ import {
 import { akEditorMenuZIndex } from '@atlaskit/editor-shared-styles';
 import { EmojiPicker as AkEmojiPicker } from '@atlaskit/emoji/picker';
 import type { EmojiId } from '@atlaskit/emoji/types';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-namespace
-import { fg } from '@atlaskit/platform-feature-flags';
-import { N20A, N30A } from '@atlaskit/theme/colors';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
 
 import type { OnInsert } from '../ElementBrowser/types';
 import { LINK_BUTTON_KEY } from '../toolbar-components/hooks/filterDropdownItems';
-
 import { BlockInsertMenu } from './block-insert-menu';
 import type { BlockMenuItem } from './create-items';
 import { createItems } from './create-items';
@@ -54,6 +51,7 @@ import type { Props, State } from './types';
 /**
  * Checks if an element is detached (i.e. not in the current document)
  */
+// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage -- Existing DOM check surfaced by this mechanical PR.
 const isDetachedElement = (el: HTMLElement) => !document.body.contains(el);
 
 const TABLE_SELECTOR_STRING = 'table selector';
@@ -61,10 +59,10 @@ const TABLE_SELECTOR_STRING = 'table selector';
 // TODO: ED-26959 - Jenga team will create a component for a split button using this css
 const getHoverStyles = (selector: string) =>
 	`&:hover ${selector} {
-    background: ${token('color.background.neutral.subtle.hovered', N20A)};
+    background: ${token('color.background.neutral.subtle.hovered')};
 
     &:hover {
-      background: ${token('color.background.neutral.hovered', N30A)};
+      background: ${token('color.background.neutral.hovered')};
     }
   }`;
 
@@ -83,7 +81,7 @@ export const tableButtonWrapper = ({
 }: {
 	isButtonDisabled: boolean | undefined;
 	isTableSelectorOpen: boolean;
-}) =>
+}): SerializedStyles =>
 	// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression -- Needs manual remediation due to mixins
 	css`
 		display: flex;
@@ -93,17 +91,17 @@ export const tableButtonWrapper = ({
   .table-toolbar-btn {
 			border-top-right-radius: ${token('radius.large', '0px')};
 			border-bottom-right-radius: ${token('radius.large', '0px')};
-			margin-right: ${token('space.025', '1px')};
-			padding: ${token('space.0', '0px')};
+			margin-right: ${token('space.025')};
+			padding: ${token('space.0')};
 			& > span {
 				min-width: 16px;
-				margin: ${token('space.0', '0px')};
+				margin: ${token('space.0')};
 			}
 		}
 		.table-selector-toolbar-btn {
-			padding: ${token('space.0', '0px')};
+			padding: ${token('space.0')};
 			& > span {
-				margin: ${token('space.0', '0px')};
+				margin: ${token('space.0')};
 				width: 16px !important;
 				display: flex;
 				justify-content: center;
@@ -166,6 +164,7 @@ export class ToolbarInsertBlock extends React.PureComponent<Props & WrappedCompo
 			emojiProvider: props.emojiProvider,
 			availableWrapperBlockTypes: props.availableWrapperBlockTypes,
 			insertMenuItems: props.insertMenuItems,
+			itemFilter: props.itemFilter,
 			schema: props.editorView.state.schema,
 			numberOfButtons: props.buttons,
 			formatMessage: props.intl.formatMessage,
@@ -317,6 +316,7 @@ export class ToolbarInsertBlock extends React.PureComponent<Props & WrappedCompo
 				target={ref.deref()}
 				fitHeight={350}
 				fitWidth={350}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				offset={[0, 3]}
 				mountTo={popupsMountPoint}
 				boundariesElement={popupsBoundariesElement}
@@ -326,6 +326,7 @@ export class ToolbarInsertBlock extends React.PureComponent<Props & WrappedCompo
 				zIndex={akEditorMenuZIndex}
 			>
 				<EmojiPickerWithListeners
+					contentId={this.props.emojiContentId}
 					emojiProvider={emojiProvider}
 					onSelection={this.handleSelectedEmoji}
 					handleClickOutside={this.handleEmojiClickOutside}
@@ -438,7 +439,7 @@ export class ToolbarInsertBlock extends React.PureComponent<Props & WrappedCompo
 		}
 	};
 
-	render() {
+	render(): jsx.JSX.Element | null {
 		const { buttons, dropdownItems, emojiPickerOpen, isTableSelectorOpen } = this.state;
 		const { isDisabled, isReducedSpacing, editorAppearance } = this.props;
 		const isFullPageAppearance = ['full-page', 'full-width'].includes(editorAppearance ?? '');
@@ -447,7 +448,11 @@ export class ToolbarInsertBlock extends React.PureComponent<Props & WrappedCompo
 
 		const isTableSizeVisible = buttons.some(({ value }) => value.name === 'table selector');
 
-		if (buttons.length === 0 && dropdownItems.length === 0) {
+		if (
+			buttons.length === 0 &&
+			dropdownItems.length === 0 &&
+			!isExperimentEnabled('platform_editor_slash_command')
+		) {
 			return null;
 		}
 
@@ -567,6 +572,7 @@ export class ToolbarInsertBlock extends React.PureComponent<Props & WrappedCompo
 						onInsert={this.insertInsertMenuItem as OnInsert}
 						togglePlusMenuVisibility={this.togglePlusMenuVisibility}
 						showElementBrowserLink={this.props.showElementBrowserLink || false}
+						isEditorOffline={this.props.isEditorOffline}
 						pluginInjectionApi={this.props.pluginInjectionApi}
 						isFullPageAppearance={isFullPageAppearance}
 					/>
@@ -697,19 +703,13 @@ export class ToolbarInsertBlock extends React.PureComponent<Props & WrappedCompo
 		if (onShowMediaPicker) {
 			const ref = this.mediaButtonRef?.deref();
 
-			const args = ref
-				? {
-						ref,
-						mountPoint: this.props.popupsMountPoint ?? ref,
-					}
-				: undefined;
-			const argsWithUpdatedMountPoint = ref?.parentElement
+			const args = ref?.parentElement
 				? {
 						ref,
 						mountPoint: this.props.popupsMountPoint ?? ref.parentElement,
 					}
 				: undefined;
-			onShowMediaPicker(fg('platform_editor_nov_a11y_fixes') ? argsWithUpdatedMountPoint : args);
+			onShowMediaPicker(args);
 			if (dispatchAnalyticsEvent) {
 				dispatchAnalyticsEvent({
 					action: ACTION.OPENED,
@@ -874,4 +874,8 @@ export class ToolbarInsertBlock extends React.PureComponent<Props & WrappedCompo
 		});
 }
 
-export default injectIntl(ToolbarInsertBlock);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(ToolbarInsertBlock);
+export default _default_1;

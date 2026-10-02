@@ -44,13 +44,18 @@ const selectedStyle = css({
 });
 
 const relatedLinkItemStyles = css({
-	paddingTop: token('space.100', '8px'),
-	paddingBottom: token('space.100', '8px'),
-	gap: token('space.150', '12px'),
+	paddingTop: token('space.100'),
+	paddingBottom: token('space.100'),
+	gap: token('space.150'),
 	font: token('font.body.small'),
 });
 
-const RelatedLinkItem = ({ url, testId, isSelected, onFocus }: RelatedLinkItemProp) => {
+const RelatedLinkItem = ({
+	url,
+	testId,
+	isSelected,
+	onFocus,
+}: RelatedLinkItemProp): JSX.Element => {
 	const subtitle: ElementItem[] = [{ name: ElementName.Provider, hideIcon: true }];
 
 	const ui: FlexibleUiOptions = {

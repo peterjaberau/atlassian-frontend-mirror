@@ -6,7 +6,8 @@ import { type CSSProperties, forwardRef, useCallback } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { type AppearanceType, type AvatarClickEventHandler } from '@atlaskit/avatar';
+import type { AppearanceType, AvatarClickEventHandler } from '@atlaskit/avatar/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import { type AvatarGroupSize } from './types';
@@ -36,7 +37,7 @@ const styles = cssMap({
 		boxShadow: `var(${boxShadowCssVar})`,
 		overflow: 'hidden',
 		transform: 'translateZ(0)',
-		transition: 'transform 200ms, opacity 200ms',
+		transition: token('motion.button.hovered'),
 		'&:hover': {
 			backgroundColor: token('color.background.neutral.hovered'),
 			color: token('color.text'),
@@ -44,11 +45,11 @@ const styles = cssMap({
 		'&:active': {
 			backgroundColor: token('color.background.neutral.pressed'),
 			color: token('color.text'),
-			transform: `scale(0.9)`,
+			transition: token('motion.button.pressed'),
 		},
 		'&:focus-visible': {
 			boxShadow: 'none',
-			outlineColor: token('color.border.focused', '#2684FF'),
+			outlineColor: token('color.border.focused'),
 			outlineStyle: 'solid',
 			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
 			outlineOffset: 2,
@@ -67,7 +68,6 @@ const styles = cssMap({
 		backgroundColor: token('color.background.selected'),
 		boxShadow: `0 0 0 ${token('border.width.selected')} ${token('color.border.selected')}`,
 		color: token('color.text.selected'),
-		transform: `scale(0.9)`,
 		'&:hover': {
 			backgroundColor: token('color.background.selected.hovered'),
 			color: token('color.text.selected'),
@@ -75,14 +75,19 @@ const styles = cssMap({
 		'&:active': {
 			backgroundColor: token('color.background.selected.pressed'),
 			color: token('color.text.selected'),
+			transition: token('motion.button.pressed'),
 		},
+		transition: token('motion.button.hovered'),
 	},
 	disabled: {
 		cursor: 'not-allowed',
 		'&::after': {
-			opacity: token('opacity.disabled', '0.7'),
+			opacity: token('opacity.disabled'),
 			backgroundColor: token('elevation.surface'),
 		},
+	},
+	motion: {
+		transition: token('motion.button.hovered'),
 	},
 });
 
@@ -174,7 +179,7 @@ export interface MoreIndicatorProps {
 	count: number;
 	'aria-controls'?: string;
 	'aria-expanded'?: boolean;
-	'aria-haspopup'?: boolean | 'dialog';
+	'aria-haspopup'?: boolean | 'dialog' | 'menu' | 'listbox' | 'tree' | 'grid';
 	moreIndicatorLabel?: string;
 	buttonProps: Partial<React.HTMLAttributes<HTMLElement>>;
 	onClick: AvatarClickEventHandler;
@@ -242,6 +247,7 @@ const MoreIndicator: React.ForwardRefExoticComponent<
 					widthHeightMap[size],
 					fontMap[size],
 					isActive && styles.active,
+					fg('platform-dst-motion-uplift-custom-button') && styles.motion,
 				]}
 			>
 				+{displayCount}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 type ReactEditorViewContextProps = {
 	editorRef?: React.RefObject<HTMLDivElement>;
@@ -8,6 +8,7 @@ type ReactEditorViewContextProps = {
 	popupsMountPoint?: HTMLElement | undefined;
 };
 
-const ReactEditorViewContext = React.createContext<ReactEditorViewContextProps>({});
+const ReactEditorViewContext: React.Context<ReactEditorViewContextProps> =
+	React.createContext<ReactEditorViewContextProps>({});
 
 export default ReactEditorViewContext;

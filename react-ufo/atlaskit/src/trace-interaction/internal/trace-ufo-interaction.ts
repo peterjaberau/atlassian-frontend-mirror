@@ -1,4 +1,6 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Preserves the existing UUID implementation.
 import { v4 as createUUID } from 'uuid';
 
 import coinflip from '../../coinflip';
@@ -6,9 +8,11 @@ import {
 	getDoNotAbortActivePressInteraction,
 	getInteractionRate,
 	getMinorInteractions,
+	isUFOEnabled,
 } from '../../config';
-import { getActiveTrace, setInteractionActiveTrace } from '../../experience-trace-id-context';
-import { DefaultInteractionID } from '../../interaction-id-context';
+import { getActiveTrace } from '../../experience-trace-id-context/get-active-trace';
+import { setInteractionActiveTrace } from '../../experience-trace-id-context/set-interaction-active-trace';
+import DefaultInteractionID from '../../interaction-id-context/defaultInteractionId';
 import { abortAll, addNewInteraction, getActiveInteraction } from '../../interaction-metrics';
 import UFORouteName from '../../route-name-context';
 
@@ -19,6 +23,10 @@ function traceUFOInteraction(
 	interactionType: InteractionType,
 	startTime?: DOMHighResTimeStamp,
 ): void {
+	if (!isUFOEnabled()) {
+		return;
+	}
+
 	const rate = getInteractionRate(name, interactionType);
 	const pressInteractionsList = getDoNotAbortActivePressInteraction();
 

@@ -1,9 +1,11 @@
 export type { CreateUIAnalyticsEvent } from './types';
 
 // Analytics event classes
-export { default as AnalyticsEvent, isAnalyticsEvent } from './events/AnalyticsEvent';
+export { default as AnalyticsEvent } from './events/AnalyticsEvent';
+export { isAnalyticsEvent } from './events/isAnalyticsEvent';
 export type { AnalyticsEventPayload, AnalyticsEventProps } from './events/AnalyticsEvent';
-export { default as UIAnalyticsEvent, isUIAnalyticsEvent } from './events/UIAnalyticsEvent';
+export { default as UIAnalyticsEvent } from './events/UIAnalyticsEvent';
+export { isUIAnalyticsEvent } from './events/isUIAnalyticsEvent';
 export type { UIAnalyticsEventProps, UIAnalyticsEventHandler } from './events/UIAnalyticsEvent';
 
 // AnalyticsListener component
@@ -23,8 +25,8 @@ export { default as withAnalyticsEvents } from './hocs/withAnalyticsEvents';
 export type { WithAnalyticsEventsProps } from './hocs/withAnalyticsEvents';
 
 // React context
-export { default as AnalyticsReactContext } from '@atlaskit/analytics-next-stable-react-context';
-export type { AnalyticsReactContextInterface } from '@atlaskit/analytics-next-stable-react-context';
+export { default as AnalyticsReactContext } from './components/AnalyticsReactContext';
+export type { AnalyticsReactContextInterface } from './components/AnalyticsReactContext';
 
 // Hook for creating and firing analytics events
 export { useAnalyticsEvents } from './hooks/useAnalyticsEvents';
@@ -49,6 +51,6 @@ export { default as createAndFireEvent } from './utils/createAndFireEvent';
 export { default as cleanProps } from './utils/cleanProps';
 
 // Moved from deprecated @atlaskit/analytics
-export { default as AnalyticsDecorator } from './components/AnalyticsDecorator';
+export { AnalyticsDecorator } from './components/AnalyticsDecorator/AnalyticsDecorator';
 export { default as AnalyticsDelegate } from './components/AnalyticsDelegate';
 export { default as withAnalytics } from './utils/withAnalytics';

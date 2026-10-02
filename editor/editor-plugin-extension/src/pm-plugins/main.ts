@@ -1,4 +1,7 @@
+import type { IntlShape } from 'react-intl';
+
 import type { Dispatch, EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
+import { ExtensionNodeView } from '@atlaskit/editor-common/extensibility';
 import type { GetPMNodeHeight } from '@atlaskit/editor-common/extensibility';
 import type {
 	Extension,
@@ -7,7 +10,7 @@ import type {
 	ExtensionProvider,
 	UpdateExtension,
 } from '@atlaskit/editor-common/extensions';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import {
@@ -31,9 +34,12 @@ import {
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import { clearEditingContext, updateState } from '../editor-commands/commands';
-import type { ExtensionPlugin, ExtensionPluginOptions } from '../extensionPluginType';
-import { lazyExtensionNodeView } from '../nodeviews/lazyExtension';
-
+import type {
+	ExtensionPlugin,
+	ExtensionPluginOptions,
+	ExtensionState,
+} from '../extensionPluginType';
+import { buildExtensionBlockTransforms } from './block-transforms';
 import { createPluginState, getPluginState } from './plugin-factory';
 import { pluginKey } from './plugin-key';
 import { updateEditButton } from './update-edit-button';
@@ -76,12 +82,22 @@ const getUpdateExtensionPromise = async (
 };
 
 export const createExtensionProviderHandler =
-	(view: EditorView) => async (name: string, provider?: Promise<ExtensionProvider>): Promise<void> => {
+	(view: EditorView, api?: ExtractInjectionAPI<ExtensionPlugin>) =>
+	async (name: string, provider?: Promise<ExtensionProvider>): Promise<void> => {
 		if (name === 'extensionProvider' && provider) {
 			try {
 				const extensionProvider = await provider;
 				updateState({ extensionProvider })(view.state, view.dispatch);
 				await updateEditButton(view, extensionProvider);
+
+				try {
+					const manifests = await extensionProvider.getExtensions();
+					api?.blockMenu?.actions.registerBlockMenuTransforms(
+						buildExtensionBlockTransforms(manifests),
+					);
+				} catch {
+					// Transform registration remains unavailable when manifests cannot be loaded.
+				}
 			} catch {
 				updateState({ extensionProvider: undefined })(view.state, view.dispatch);
 			}
@@ -100,7 +116,7 @@ export const handleUpdate = ({
 	extensionHandlers: ExtensionHandlers;
 	prevState: EditorState;
 	view: EditorView;
-}) => {
+}): true | undefined => {
 	const { state, dispatch } = view;
 	const { element, localId, extensionProvider, showContextPanel, showEditButton } =
 		getPluginState(state);
@@ -158,6 +174,10 @@ export const handleUpdate = ({
 			showContextPanel: false,
 			element: newElement,
 			showEditButton,
+			// Default to showing synchronously; the manifest-driven value (if any)
+			// is resolved asynchronously via updateEditButton for provider-based
+			// extensions.
+			showCopyButton: true,
 			updateExtension,
 		})(state, dispatch);
 	}
@@ -173,25 +193,30 @@ export const createPlugin = (
 	dispatch: Dispatch,
 	providerFactory: ProviderFactory,
 	extensionHandlers: ExtensionHandlers,
+	extensionLoadingHandlers: ExtensionHandlers | undefined,
 	portalProviderAPI: PortalProviderAPI,
 	eventDispatcher: EventDispatcher,
 	pluginInjectionApi: ExtractInjectionAPI<ExtensionPlugin> | undefined,
 	useLongPressSelection: boolean = false,
 	options: {
+		allowAIGeneratedContentMotion?: boolean;
 		appearance?: EditorAppearance;
 		getExtensionHeight?: GetPMNodeHeight;
 	} = {},
 	featureFlags?: FeatureFlags,
 	__rendererExtensionOptions?: ExtensionPluginOptions['__rendererExtensionOptions'],
-) => {
+	intl?: IntlShape,
+): SafePlugin<ExtensionState> => {
 	const state = createPluginState(dispatch, {
 		showEditButton: false,
+		showCopyButton: true,
 		showContextPanel: false,
 	});
 
 	const extensionNodeViewOptions = {
 		appearance: options.appearance,
 		getExtensionHeight: options.getExtensionHeight,
+		allowAIGeneratedContentMotion: options.allowAIGeneratedContentMotion,
 	};
 
 	const macroInteractionDesignFeatureFlags = {
@@ -204,7 +229,10 @@ export const createPlugin = (
 		state,
 		view: (editorView) => {
 			const domAtPos = editorView.domAtPos.bind(editorView);
-			const extensionProviderHandler = createExtensionProviderHandler(editorView);
+			const extensionProviderHandler = createExtensionProviderHandler(
+				editorView,
+				pluginInjectionApi,
+			);
 
 			providerFactory.subscribe('extensionProvider', extensionProviderHandler);
 
@@ -336,50 +364,63 @@ export const createPlugin = (
 			},
 			nodeViews: {
 				// WARNING: referentiality-plugin also creates these nodeviews
-				extension: lazyExtensionNodeView(
-					'extension',
+				extension: ExtensionNodeView(
 					portalProviderAPI,
 					eventDispatcher,
 					providerFactory,
 					extensionHandlers,
+					extensionLoadingHandlers,
 					extensionNodeViewOptions,
 					pluginInjectionApi,
 					macroInteractionDesignFeatureFlags,
+					undefined,
+					undefined,
+					undefined,
+					intl,
 				),
 				// WARNING: referentiality-plugin also creates these nodeviews
-				bodiedExtension: lazyExtensionNodeView(
-					'bodiedExtension',
+				bodiedExtension: ExtensionNodeView(
 					portalProviderAPI,
 					eventDispatcher,
 					providerFactory,
 					extensionHandlers,
+					extensionLoadingHandlers,
 					extensionNodeViewOptions,
 					pluginInjectionApi,
 					macroInteractionDesignFeatureFlags,
 					showLivePagesBodiedMacrosRendererView,
 					__rendererExtensionOptions?.showUpdated1PBodiedExtensionUI,
 					__rendererExtensionOptions?.rendererExtensionHandlers,
+					intl,
 				),
 				// WARNING: referentiality-plugin also creates these nodeviews
-				inlineExtension: lazyExtensionNodeView(
-					'inlineExtension',
+				inlineExtension: ExtensionNodeView(
 					portalProviderAPI,
 					eventDispatcher,
 					providerFactory,
 					extensionHandlers,
+					extensionLoadingHandlers,
 					extensionNodeViewOptions,
 					pluginInjectionApi,
 					macroInteractionDesignFeatureFlags,
+					undefined,
+					undefined,
+					undefined,
+					intl,
 				),
-				multiBodiedExtension: lazyExtensionNodeView(
-					'multiBodiedExtension',
+				multiBodiedExtension: ExtensionNodeView(
 					portalProviderAPI,
 					eventDispatcher,
 					providerFactory,
 					extensionHandlers,
+					extensionLoadingHandlers,
 					extensionNodeViewOptions,
 					pluginInjectionApi,
 					macroInteractionDesignFeatureFlags,
+					undefined,
+					undefined,
+					undefined,
+					intl,
 				),
 			},
 			createSelectionBetween: function (view, anchor, head) {

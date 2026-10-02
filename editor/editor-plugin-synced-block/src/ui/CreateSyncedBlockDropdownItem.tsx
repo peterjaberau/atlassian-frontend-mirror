@@ -1,18 +1,27 @@
 import React, { useMemo } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
-import { blockMenuMessages } from '@atlaskit/editor-common/messages';
+import { blockMenuMessages, syncBlockMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import { SyncBlocksIcon, ToolbarDropdownItem } from '@atlaskit/editor-toolbar';
-import Lozenge from '@atlaskit/lozenge';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { canBeConvertedToSyncBlock } from '../pm-plugins/utils/utils';
 import type { SyncedBlockPlugin } from '../syncedBlockPluginType';
 import { SYNCED_BLOCK_BUTTON_TEST_ID } from '../types';
+
+const SyncedBlockNewLozenge = ({ label }: { label: string }) => (
+	<Lozenge
+		appearance={fg('confluence_fronend_labels_categorization_migration') ? 'discovery' : 'new'}
+	>
+		{label}
+	</Lozenge>
+);
 
 const CreateSyncedBlockDropdownItem = ({
 	api,
@@ -40,21 +49,47 @@ const CreateSyncedBlockDropdownItem = ({
 	}
 
 	const onClick = () => {
-		api?.core?.actions.execute(api?.syncedBlock.commands.insertSyncedBlock());
-		api?.core?.actions.execute(api?.blockControls?.commands?.toggleBlockMenu({ closeMenu: true }));
+		// Insert the synced block, close the block menu, and stop preserving the
+		// selection — all in a single transaction, mirroring the block-menu delete
+		// item. Stopping preservation is required so the caret that
+		// insertSyncedBlock places inside the new block survives; otherwise
+		// block-controls restores a whole-node NodeSelection over it, hiding the
+		// caret (EDITOR-7949). Then re-focus the editor so the caret is active,
+		// but only when the transaction was actually dispatched — otherwise a
+		// failed insertion would still steal DOM focus into the editor.
+		const dispatched = api?.core?.actions.execute(({ tr }) => {
+			// If the insertion fails, bail out without closing the menu or
+			// stopping selection preservation — otherwise we would dispatch an
+			// effectively-empty transaction and close the menu despite nothing
+			// having been inserted.
+			const result = api?.syncedBlock.commands.insertSyncedBlock(INPUT_METHOD.BLOCK_MENU)({
+				tr,
+			});
+			if (!result) {
+				return null;
+			}
+			api?.blockControls?.commands?.toggleBlockMenu({ closeMenu: true })({ tr });
+			api?.blockControls?.commands?.stopPreservingSelection()({ tr });
+			return tr;
+		});
+		if (dispatched) {
+			api?.core?.actions.focus();
+		}
 	};
 
 	const isOffline = isOfflineMode(mode);
 
+	const lozenge = <SyncedBlockNewLozenge label={formatMessage(blockMenuMessages.newLozenge)} />;
+
 	return (
 		<ToolbarDropdownItem
-			elemBefore={<SyncBlocksIcon label="" />}
+			elemBefore={<SyncBlocksIcon label="" size="small" />}
 			onClick={onClick}
 			isDisabled={isOffline}
 			testId={SYNCED_BLOCK_BUTTON_TEST_ID.blockMenuCreate}
-			elemAfter={<Lozenge appearance="new">{formatMessage(blockMenuMessages.newLozenge)}</Lozenge>}
+			elemAfterText={lozenge}
 		>
-			{formatMessage(blockMenuMessages.createSyncedBlock)}
+			{formatMessage(blockMenuMessages.syncBlock)}
 		</ToolbarDropdownItem>
 	);
 };
@@ -76,14 +111,15 @@ const CopySyncedBlockDropdownItem = ({
 		api?.core?.actions.execute(api?.blockControls?.commands?.toggleBlockMenu({ closeMenu: true }));
 	};
 
+	const lozenge = <SyncedBlockNewLozenge label={formatMessage(blockMenuMessages.newLozenge)} />;
 	return (
 		<ToolbarDropdownItem
-			elemBefore={<SyncBlocksIcon label="" />}
+			elemBefore={<SyncBlocksIcon label="" size="small" />}
 			onClick={onClick}
 			isDisabled={isOfflineMode(mode)}
-			elemAfter={<Lozenge appearance="new">{formatMessage(blockMenuMessages.newLozenge)}</Lozenge>}
+			elemAfterText={lozenge}
 		>
-			{formatMessage(blockMenuMessages.copySyncedBlock)}
+			{formatMessage(syncBlockMessages.copyToSyncLabel)}
 		</ToolbarDropdownItem>
 	);
 };

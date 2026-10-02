@@ -1,6 +1,7 @@
-import { JQLLexer, JQLParser } from '@atlaskit/jql-parser';
+import { JQLLexer } from '@atlaskit/jql-parser/JQLLexer';
+import { JQLParser } from '@atlaskit/jql-parser/JQLParser';
 
-export const ignoredTokens = new Set([
+export const ignoredTokens: Set<number> = new Set([
 	JQLLexer.EOF,
 	JQLLexer.LPAREN,
 	JQLLexer.LBRACKET,
@@ -13,7 +14,7 @@ export const ignoredTokens = new Set([
 	JQLLexer.CUSTOMFIELD,
 ]);
 
-export const preferredRules = new Set([
+export const preferredRules: Set<number> = new Set([
 	JQLParser.RULE_jqlField,
 	JQLParser.RULE_jqlFieldProperty,
 	JQLParser.RULE_jqlEqualsOperator,
@@ -34,4 +35,4 @@ export const preferredRules = new Set([
 
 // The following tokens are returned by autocomplete but they are considered "lower" priority suggestions. We only want
 // to show these if there are no other viable tokens to suggest.
-export const lowPriorityTokens = [JQLLexer.RPAREN, JQLLexer.RBRACKET, JQLLexer.COMMA];
+export const lowPriorityTokens: number[] = [JQLLexer.RPAREN, JQLLexer.RBRACKET, JQLLexer.COMMA];

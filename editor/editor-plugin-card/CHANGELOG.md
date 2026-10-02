@@ -1,5 +1,2125 @@
 # @atlaskit/editor-plugin-card
 
+## 29.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.1.1
+
+### Patch Changes
+
+- [`a034f535638cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a034f535638cc) -
+  Add structured Quick Insert previews with localised title, description and attribution under
+  platform_editor_slash_command.
+
+  Exclude footer and category navigation actions from previews. Left-align attribution, use subtle
+  title and attribution text, and default description text.
+
+  Show text previews even without preview metadata, and reserve a fixed image area while images load
+  or when they fail. Keep previews within the viewport, flipping left when needed, with compact
+  panel dimensions and typography.
+
+  Replace baked panel screenshots with image-only assets. Remove image fields from text-only legacy
+  previews while preserving their attribution.
+
+  Let extension providers own their preview images and attribution. Pass preview metadata through
+  the Company Hub manifest factory and remove Editor's fallback preview registry.
+
+  Localize provider attribution names and display Confluence and Jira product icons instead of the
+  attribution prefix when an icon is present. Allow the Dropbox manifest to receive the host's
+  message formatter.
+
+- Updated dependencies
+
+## 27.1.0
+
+### Minor Changes
+
+- [`067939baaaeb9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/067939baaaeb9) -
+  Fix the pre-auth value proposition modal in the `platform_sl_3p_preauth_value_modal` experiment
+  treatments behind `platform_sl_3p_preauth_value_modal_killswitch`:
+  - Allow titles to wrap in both treatment variants. Preserve the image variant's default height
+    while allowing taller text to reveal more of the centered illustration, keeping provider icons
+    aligned.
+  - Truncate long provider names in the Connect button so the Close button remains fully visible.
+  - Prevent editor floating toolbars from appearing above the modal using the existing `overlayOpen`
+    user intent, without layout effects that warn during server rendering.
+
+  In `@atlaskit/smart-card/pre-auth-value-proposition-modal`, `PreAuthValuePropositionModalProps`
+  adds optional `onOpenChange` to notify hosts when the modal opens, closes, or unmounts.
+  `@atlaskit/editor-plugin-card` adds an optional `UserIntentPlugin` integration and declares its
+  package dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.8
+
+### Patch Changes
+
+- [`3f172371c9b66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f172371c9b66) -
+  Preserve the selected Assets columns when only the AQL query changes, and persist datasource
+  updates that only change parameters. Both behind feature gate
+  `platform_lp_sllv_preserve_assets_columns`.
+- Updated dependencies
+
+## 25.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.5
+
+### Patch Changes
+
+- [`6d07b4f04155f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d07b4f04155f) -
+  Cleanup `feature gate` `jim-lower-ranking-in-jira-macro-search`. Quick insert search now always
+  ranks the Jira work items (datasource) item above the legacy Jira macro when their scores are
+  close, and the Jira work items quick insert item always has a priority of 500.
+- [`109d353d55cfb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/109d353d55cfb) -
+  Add a pre-auth value proposition modal for unauthenticated third-party Smart Links created or
+  converted in the editor. `@atlaskit/smart-card/pre-auth-value-proposition-modal` exports the
+  controlled modal; editor lazy-loads it from Smart Link lifecycle events. Variants
+  `modal_text_only` and `modal_with_image` (plus `control`) are behind experiment
+  `platform_sl_3p_preauth_value_modal` and gate `platform_sl_3p_preauth_value_modal_killswitch`.
+  Connect reuses the existing auth flow. The modal shows once per provider and at most once every
+  seven days across providers. Open/close analytics use `source: 'preAuthValuePropositionModal'`.
+- Updated dependencies
+
+## 25.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.2
+
+### Patch Changes
+
+- [`38952a4383a53`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38952a4383a53) -
+  Add Data and charts slash-command hover previews behind platform_editor_slash_command.
+- Updated dependencies
+
+## 25.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.9
+
+### Patch Changes
+
+- [`2bbc1c84de468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bbc1c84de468) -
+  Migrate Volt consumer imports to existing definitions and align affected test mocks without
+  changing runtime behavior.
+- Updated dependencies
+
+## 24.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.9
+
+### Patch Changes
+
+- [`357df7b291d07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/357df7b291d07) -
+  [ux] remove the left hand resizer behind experiment `platform_editor_remove_left_resize_handle`
+- Updated dependencies
+
+## 23.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.7
+
+### Patch Changes
+
+- [`aca1f7aaf3fd6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aca1f7aaf3fd6) -
+  Remove the fully rolled-out `platform_editor_exp_lazy_node_views` experiment and call the block
+  card, embed card, extension, table, and task node views directly.
+- Updated dependencies
+
+## 23.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- [`0a67d0abf59c1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a67d0abf59c1) -
+  Disable Slides entrypoints when cc-mui-slides-opted-out is enabled.
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- [`b94131fcee276`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b94131fcee276) -
+  Removes the `platform_smartlink_xpc_url_wrapping` feature gate and makes cross-product URL
+  wrapping for Smart Links permanent, on for all consumers.
+
+  What this behavior does: when a resolved Smart Link points to a first-party Atlassian destination
+  (e.g. a Jira issue, Confluence page), the URL used for navigation — via click, "Open link", or any
+  other destination-URL usage — now has a short-lived interaction-session query parameter (`xpis`)
+  appended automatically. This lets the destination product attribute the visit back to the product
+  and surface the link was opened from, powering cross-product usage analytics. It has no effect on:
+  - third-party (non-Atlassian) links,
+  - links that are not yet resolved,
+  - URLs that already contain the parameter.
+
+  No API shape changes: this only affects the resolved value returned by existing Smart Link
+  URL/navigation behavior (e.g. `Card`, `useSmartLinkDestinationUrl`, inline/block/embed card
+  click-through, and datasource table link cells). No new props, exports, or configuration are
+  introduced, and no action is required from consumers.
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- [`3422261e7a40e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3422261e7a40e) -
+  Clean up experiment `platform_editor_smartlink_local_cache`.
+- Updated dependencies
+
+## 22.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.10
+
+### Patch Changes
+
+- [`c12860a41f49d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c12860a41f49d) -
+  Order the Data and charts slash-command menu, including Bitbucket Snippet and GitHub Gist after
+  Questions List, when platform_editor_slash_command is enabled.
+- Updated dependencies
+
+## 22.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.7
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 22.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.5
+
+### Patch Changes
+
+- [`d1f1b273026fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1f1b273026fd) -
+  Clean up experiment `cc_dnd_smart_link_changeboard_platform_css` and preserve smart link
+  changeboarding behavior.
+- Updated dependencies
+
+## 22.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- [`d82ea790b5c1c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82ea790b5c1c) -
+  Update registered slash-command menu icons, including the Jira datasource WorkItems icon, when the
+  `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.14
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 21.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.12
+
+### Patch Changes
+
+- [`9e4a665de419a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e4a665de419a) -
+  Clean up of expriment flag `platform_editor_preview_panel_linking_exp_conf` and
+  `platform_editor_preview_panel_linking_exp_jira`.
+- [`a8fb048ddba1a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8fb048ddba1a) -
+  Add a gated table settings menu next to the column picker. When
+  `platform_lp_sllv_table_settings_menu` is on, the menu includes a wrap-text toggle that turns
+  wrapping on for every visible column, or off for every visible column. Gate off keeps the previous
+  column-picker-only header, and the editor does not pass `onWrappedColumnsChange`.
+
+  `DatasourceTableView` now accepts an optional `onWrappedColumnsChange` callback that updates the
+  wrapped state of multiple columns at once.
+
+- Updated dependencies
+
+## 21.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.9
+
+### Patch Changes
+
+- [`a285770e5decb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a285770e5decb) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_inline_card_dispatch_guard.
+- Updated dependencies
+
+## 21.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.3
+
+### Patch Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.0
+
+### Minor Changes
+
+- [`da5eaf0bc37da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da5eaf0bc37da) -
+  Clean up the platform_editor_editor_ssr_streaming experiment. The SSR streaming code paths are now
+  permanent and the isSSRStreaming() utility has been removed from
+  @atlaskit/editor-common/core-utils.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- [`3a4c286fdb8c1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a4c286fdb8c1) -
+  Add registry-backed Quick Insert search matching under the existing
+  `platform_editor_slash_command` experiment. Make native, provider, and extension registered Quick
+  Insert items searchable.
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- [`1f436e4732b98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f436e4732b98) -
+  Clean up the shipped smart link drag-and-drop feature gate and make the drag-and-drop path
+  permanent.
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- [`7087f393ec725`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7087f393ec725) -
+  Add the categorized registered Quick Insert browse experience with representative native elements
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.4.0
+
+### Minor Changes
+
+- [`448792b5143ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/448792b5143ac) -
+  Show the correct Display as option for a pasted link. A 1P link that resolves to an embed is
+  inserted as a native embed, which the paste menu now reports as an embed and can switch to a link,
+  inline card or card. The pasted link's URL is also used to pick the card the menu describes, so a
+  neighbouring card is no longer reported as the one that was pasted.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.13
+
+### Patch Changes
+
+- [`32f168dee5a99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/32f168dee5a99) -
+  Add tooltips to the "Display as" appearance buttons (URL, Inline, Card, Embed) in the paste
+  actions menu.
+
+## 18.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.4
+
+### Patch Changes
+
+- [`faab2cfa1c720`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/faab2cfa1c720) -
+  Fix white corners on the paste "Display as" menu buttons. The button wrapper no longer paints an
+  opaque surface background behind the rounded button, so each button's corners now match the sunken
+  tray background instead of showing white.
+- Updated dependencies
+
+## 18.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.0
+
+### Minor Changes
+
+- [`06c7a1c8b9f35`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06c7a1c8b9f35) -
+  Fix Ask Rovo context for pasted Smart Links and hide single-link AI actions in comments
+
+## 18.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.3
+
+### Patch Changes
+
+- [`1e91a4b881a3e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e91a4b881a3e) -
+  Fire the `confluence_editor_paste_3p_link_actions_menu` exposure only for single-link pastes
+  instead of during menu setup. Experiment checks now use `expValEqualsNoExposure`, and the exposure
+  is fired separately when a single link is pasted.
+
+## 18.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`779a0020403de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/779a0020403de) -
+  Add async hidden support to paste menu registered components, including timeout/error handling and
+  single Smart Link URL context from the paste options toolbar. Use Smart Card access checks to hide
+  Smart Link Display as options and AI Add Summary / Ask Rovo paste actions for inaccessible
+  single-link pastes in Confluence.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.13
+
+### Patch Changes
+
+- [`750adf4f95e66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/750adf4f95e66) -
+  [ux] [ux] Disables left resize handle on embed nodes except for when embed is aligned or wrapped
+  right.
+- Updated dependencies
+
+## 18.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- [`615699cf079c8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/615699cf079c8) -
+  [ux] Disables left resize handle on embed nodes except for when embed is aligned or wrapped right.
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- [`275679fbe0ea1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/275679fbe0ea1) -
+  Add accessible labels to two floating-toolbar buttons that axe flagged
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- [`3c78f7149e895`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c78f7149e895) -
+  Clean up experiment `cc_integrations_editor_open_link_click_analytics`.
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.2
+
+### Patch Changes
+
+- [`92da883bae00d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92da883bae00d) -
+  Use XPC-wrapped destination URL for link navigation behind `platform_smartlink_xpc_url_wrapping`.
+
+  When the feature gate is enabled, the following link-opening locations now use the cross-product
+  analytics parameter-enriched URL provided by SmartCard instead of the raw node URL:
+  - **Toolbar "Open Link" button** (both smart card and datasource paths) — uses the new
+    `useSmartLinkDestinationUrl` hook from
+    `@atlaskit/smart-card/hook/use-smart-link-destination-url` via a new `OpenLinkToolbarButton`
+    custom toolbar component.
+  - **Inline card overlay anchor** (`InlineCardOverlay`) — `href` updated to use
+    `useSmartLinkDestinationUrl`.
+  - **Hover link overlay** (`HoverLinkOverlay`) — accepts a new optional `destinationUrl` prop; when
+    provided and the gate is on, uses it for both the anchor `href` and double-click `window.open`.
+    The `destinationUrl` is computed by `inlineCardWithAwareness` using `useSmartLinkDestinationUrl`
+    and passed down — keeping `editor-common` free of any SmartCard provider dependency.
+  - **Inline card Cmd/Ctrl+click** — reads `data.destinationUrl` from SmartCard's `onClick` callback
+    (typed as `OnClickCallback` from `@atlaskit/smart-card/card/types`).
+
+  All changes gracefully fall back to the raw URL when the gate is off or the link has not yet
+  resolved.
+
+- Updated dependencies
+
+## 17.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.0
+
+### Minor Changes
+
+- [`ebd3c5d7d340a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebd3c5d7d340a) -
+  Gate single-link paste display menu behind confluence_editor_paste_3p_link_actions_menu feature
+  flag
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.0
+
+### Minor Changes
+
+- [`6e3b4e2317b34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e3b4e2317b34) -
+  [EDITOR-7476](https://hello.jira.atlassian.cloud/browse/EDITOR-7476) - centralize SSR streaming
+  checks behind `isSSRStreaming()` so SSR eligibility is checked before emitting exposure for the
+  `platform_editor_editor_ssr_streaming` experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.1
+
+### Patch Changes
+
+- [`d5309f5ee468b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d5309f5ee468b) -
+  Reverts changes from PR #383977 ("Add tooltips to paste menu display buttons and rename section to
+  Display link as").
+
+## 17.2.0
+
+### Minor Changes
+
+- [`aa0f628e5ad3c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa0f628e5ad3c) -
+  Adds tooltips to the paste menu "Display link as" buttons (URL, Inline, Card, Embed) and renames
+  the section title from "Display as" to "Display link as".
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`9b4d6873a7ed0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b4d6873a7ed0) -
+  Delegate the paste-display-as menu's single-link check to the paste-options-toolbar plugin's
+  shared `notSingleLinkRule` via its `actions.getPasteMenuRules()` API, reached through the existing
+  structural-cast pattern. Keeps the predicate in one place and avoids duplicating it across the
+  package cycle.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.11.0
+
+### Minor Changes
+
+- [`d2be5b45b39b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2be5b45b39b0) -
+  Add Smart Link-aware paste actions for the paste actions menu V2 experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.0
+
+### Minor Changes
+
+- [`3990f4a500c27`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3990f4a500c27) -
+  Fix RovoLinkPicker rendering off-screen by using correct dimensions for popup placement
+  calculations
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.0
+
+### Minor Changes
+
+- [`2e9c8b4281869`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e9c8b4281869) -
+  [EDITOR-6965] Add `onlyInlineCards` option to the card plugin and enable inline Smart Links in the
+  Confluence markdown preset.
+  - `@atlaskit/editor-common`: add optional `onlyInlineCards?: boolean` to `CardOptions`. Defaults
+    to `false` (back-compat). When `true`, the card plugin contributes only the `inlineCard` node to
+    the schema and forces `allowBlockCards` / `allowEmbeds` to `false` at runtime regardless of
+    their explicit values.
+  - `@atlaskit/editor-plugin-card`: honour `onlyInlineCards` in both `nodes()` (skip `blockCard` /
+    `embedCard` entirely) and `pmPlugins()` (force the runtime gates so schema and runtime stay in
+    sync).
+  - `@atlassian/confluence-presets`: `markdownPreset` now `.maybeAdd`s `cardPlugin` after the
+    annotation block when `pluginOptions.card` is supplied, hard-coding `onlyInlineCards: true` so
+    the preset itself guarantees the inline-only constraint. Adds `'card'` to
+    `MarkdownPluginOptionsKeys` and `CardPlugin` to `MarkdownPresetPluginsReversed`. `cardPlugin` is
+    removed from the "intentionally excluded" comment block.
+
+  Existing callers of `cardPlugin` and `markdownPreset` are unaffected: `onlyInlineCards` defaults
+  to `false`, and `cardPlugin` is only added to the markdown preset when callers supply
+  `pluginOptions.card`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.1
+
+### Patch Changes
+
+- [`4c459a2718b67`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c459a2718b67) -
+  Clean up synced block feature gates
+- Updated dependencies
+
+## 16.8.0
+
+### Minor Changes
+
+- [`f1eebdf4ed96b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1eebdf4ed96b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.0
+
+### Minor Changes
+
+- [`edd5d6d4c23ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/edd5d6d4c23ec) -
+  Add SSR streaming supporting to Editor starmt cards and extensions
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.6.0
+
+### Minor Changes
+
+- [`a94026f1bcd86`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a94026f1bcd86) -
+  [ux] fix: scope card queue to inserted range when inserting MAUI embed via Add to Doc
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.5.0
+
+### Minor Changes
+
+- [`c939283d6f41a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c939283d6f41a) -
+  [EDITOR-6181](https://hello.jira.atlassian.cloud/browse/EDITOR-6181) - fix inline smart cards in
+  SSR streaming
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.3
+
+### Patch Changes
+
+- [`d94df511393a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d94df511393a9) -
+  Removing FG platform_editor_a11y_eslint_fix
+- Updated dependencies
+
+## 16.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.1
+
+### Patch Changes
+
+- [`3a31723096050`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a31723096050) -
+  Swap feature gate from `platform-native-embeds-short-link-expansion` to
+  `platform_native_embeds_rollout_non_maui_experience` for Confluence short-link URL expansion in
+  native embeds. This consolidates the short-link expansion behaviour under the existing non-MaUI
+  experience rollout gate.
+
+## 16.4.0
+
+### Minor Changes
+
+- [`aef936f5a23ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aef936f5a23ea) -
+  Rename the changeboard smart link drag-and-drop experiment from
+  `cc_dnd_smart_link_changeboard_po_template` to `cc_dnd_smart_link_changeboard_platform_css` across
+  the card plugin and editor statsig config.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.3.0
+
+### Minor Changes
+
+- [`85699a44bd1f8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85699a44bd1f8) -
+  Add Confluence short-link URL expansion for native embeds. When a Confluence short link
+  (`/wiki/x/<token>`) is pasted, it is resolved to its canonical page URL via the Object Resolver
+  Service before matching against registered experience manifests, gated behind
+  `platform-native-embeds-short-link-expansion`.
+  - `NativeEmbedFacade`: new `expandShortLink`, `getExperienceIdFromUrlAsync`, and `setCardClient`
+    methods; `createExperienceForUrl` now expands short links before manifest matching.
+  - `editor-plugin-card`: exposes `resolveShortLinkUrl` action; `replaceQueuedUrlWithCard` supports
+    async `EmbedCardNodeTransformer` return values.
+  - `editor-plugin-native-embeds`: wires `cardClient` from config and passes `api` to
+    `cardToNativeEmbedNode` for async short-link resolution.
+  - `editor-common`: `EmbedCardNodeTransformer` type updated to allow `Promise` return;
+    `CardPluginActions` extended with `resolveShortLinkUrl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.0
+
+### Minor Changes
+
+- [`e5cdd96dcf4f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5cdd96dcf4f9) -
+  Clean up platform_editor_hydratable_ui experiment (shipped as enabled)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`51d860f32cd31`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51d860f32cd31) -
+  Force 16:9 aspect ratio for Confluence Slides embeds.
+  - `editor-card-provider`: Added `isConfluenceSlideUrl()` URL checker and exported it via
+    `./url-checkers` subpath; slide URLs now always resolve to `'embed'` appearance via
+    `getHardCodedAppearance()`
+  - `editor-plugin-card`: In `onResolve()`, overrides the ORS-resolved aspect ratio with `16/9` when
+    the URL is a Confluence Slide
+  - `native-embeds-slide-experience`: Added `parameterDefaults: { width: 960, height: 540 }` to
+    `SlideExperienceManifest` so slides get a 16:9 aspect-ratio container
+  - `native-embeds-editor-extension`: Falls back to `manifest.parameterDefaults` for width/height
+    when the ADF node has no explicit dimensions
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`3e5cf48f0f52f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e5cf48f0f52f) -
+  Replace `cc_dnd_smart_link_changeboard_po_template_gate` feature gate with
+  `cc_dnd_smart_link_changeboard_po_template` experiment using `expValNoExposure`.
+- Updated dependencies
+
+## 16.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.2
+
+### Patch Changes
+
+- [`ef22944bdbbdf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef22944bdbbdf) -
+  Migrate smart link visited analytics from UI event to track event. The `ui.smartLink.visited`
+  event has been replaced with `track.smartLink.visited` to better capture engagement metrics for
+  smart links. This change is gated behind the `cc_integrations_editor_open_link_click_analytics`
+  feature flag and includes additional attributes (displayCategory, extensionKey, status,
+  statusDetails) when the flag is enabled.
+- Updated dependencies
+
+## 14.1.1
+
+### Patch Changes
+
+- [`73b2fc243f544`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73b2fc243f544) -
+  Cleaning up getBrowserInfo which was behind experiment platform_editor_hydratable_ui and is now
+  rolled out
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`e643f1adf62c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e643f1adf62c9) -
+  Add resolvedInlineSmartLinks to CardPluginState, a generic ordered list of inline smart links that
+  have resolved during the editing session. Each entry tracks pos, url, and source, with positions
+  remapped on document changes. InlineCardNodeView reads this list and passes isChangeboardTarget to
+  SmartLinkDraggable based on the first entry, enabling Product Onboarding spotlight targeting.
+  Gated behind cc_dnd_smart_link_changeboard_po_template_gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- [`24dad72901730`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/24dad72901730) -
+  Editor-6083: Fix border no shown when resize embed inside synced block
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- [`1bd6f56c55358`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bd6f56c55358) -
+  Add gated analytics for Smart Link go-to-link actions, including extensionKey, status, and
+  statusDetails, with supporting editor/card test updates.
+- Updated dependencies
+
+## 14.0.0
+
+### Major Changes
+
+- [`6bdbecda5afa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6bdbecda5afa7) -
+  Clean up editor_fix_embed_width_expand
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.19
+
+### Patch Changes
+
+- [`27529d2f5ddfe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/27529d2f5ddfe) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 13.1.18
+
+### Patch Changes
+
+- [`82c0224977f47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/82c0224977f47) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 13.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.6
+
+### Patch Changes
+
+- [`5979ce2baa3ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5979ce2baa3ea) -
+  Mechanical type-import autofix for rendering and provider packages.
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 13.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- [`2116707c51d9b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2116707c51d9b) -
+  [ux] Add SmartLinkDraggable wrapping to BlockCard and EmbedCard. Add stopEvent to prevent
+  ProseMirror from intercepting drag events on smart-element-link. Remove double feature gating in
+  inlineCard.
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`df047c96e4f78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/df047c96e4f78) -
+  Refresh cash for a smart card if it's not been fetched before
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- [`14aa7871be0b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14aa7871be0b7) -
+  [ux] EDITOR-5513: fix(editor-plugin-card): guard inline card cleanup to dispatch removeCard at
+  most once per effect cycle
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Minor Changes
+
+- [`0fda7892b26bc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0fda7892b26bc) -
+  [ux] Remove useSmartCardReloadAfterCache hook
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.2
+
+### Patch Changes
+
+- [`1d6c102310afb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d6c102310afb) -
+  [ux] Use editor-smart-link-draggable package ti implement React-based drag preview, and design
+  system compliance. Updated editor-plugin-card to reference the new package.
+- Updated dependencies
+
+## 12.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.0
+
+### Minor Changes
+
+- [`06576a95fd8a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06576a95fd8a9) -
+  lower jira legacy macro search ranking
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.18
+
+### Patch Changes
+
+- [`8d4d473fe4cd8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d4d473fe4cd8) -
+  Only reload cached smartlinks when the url changes and we sucessfully got the data from cache
+- Updated dependencies
+
+## 12.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.12
+
+### Patch Changes
+
+- [`d2f1426fe5b85`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2f1426fe5b85) -
+  [ux] ENGHEALTH-46817 Add feature gated a11y eslint fixes across editor packages
+- Updated dependencies
+
+## 12.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 12.3.5
 
 ### Patch Changes

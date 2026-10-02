@@ -4,6 +4,7 @@ import type { Rect } from 'css-box-model';
 
 import config from '../../config';
 import type { Axis } from '../../types';
+
 // all in pixels
 export type DistanceThresholds = {
 	startScrollingFrom: number;
@@ -23,4 +24,5 @@ export const getDistanceThresholds = (container: Rect, axis: Axis): DistanceThre
 	return thresholds;
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default getDistanceThresholds;

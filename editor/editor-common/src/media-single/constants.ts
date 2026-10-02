@@ -1,4 +1,6 @@
-import type { RichMediaLayout } from '@atlaskit/adf-schema';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+
+import type { Layout as RichMediaLayout } from '@atlaskit/adf-schema/rich-media-common';
 
 export const MEDIA_SINGLE_DEFAULT_MIN_PIXEL_WIDTH = 24;
 export const MEDIA_SINGLE_VIDEO_MIN_PIXEL_WIDTH = 320;
@@ -6,7 +8,7 @@ export const MEDIA_SINGLE_SNAP_GAP = 3;
 export const MEDIA_SINGLE_HIGHLIGHT_GAP = 10;
 export const MEDIA_SINGLE_HANDLE_MARGIN = 12;
 export const MEDIA_SINGLE_ADJACENT_HANDLE_MARGIN = 8;
-export const MEDIA_SINGLE_GUTTER_SIZE = MEDIA_SINGLE_HANDLE_MARGIN * 2;
+export const MEDIA_SINGLE_GUTTER_SIZE: number = MEDIA_SINGLE_HANDLE_MARGIN * 2;
 export const DEFAULT_IMAGE_WIDTH = 250;
 export const DEFAULT_IMAGE_HEIGHT = 200;
 export const MEDIA_SINGLE_RESIZE_THROTTLE_TIME = 100;

@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@atlassian/testing-library';
 
-import Tag from '../../index';
+import { default as Tag } from '../../internal/removable';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Tag should be found by data-testid', () => {

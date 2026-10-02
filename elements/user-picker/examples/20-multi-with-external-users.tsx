@@ -1,14 +1,17 @@
 import React, { type SyntheticEvent, useCallback } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import styled from '@emotion/styled';
-import Select from '@atlaskit/select';
-import { RadioGroup } from '@atlaskit/radio';
+
+import RadioGroup from '@atlaskit/radio/radio-group';
+import Select from '@atlaskit/select/default';
+import { token } from '@atlaskit/tokens';
+
 import { exampleOptions } from '../example-helpers';
 import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
-import UserPicker from '../src';
+import { isExternalUser } from '../src/components/isExternalUser';
+import { UserPicker } from '../src/components/UserPicker';
 import { type UserSource, type UserSourceResult } from '../src/types';
-import { isExternalUser } from '../src/components/utils';
-import { token } from '@atlaskit/tokens';
 
 interface Option {
 	label: string;
@@ -31,12 +34,12 @@ const ExampleContainer = styled.div({
 	justifyContent: 'space-around',
 	width: '320px',
 	height: '120px',
-	padding: token('space.500', '40px'),
+	padding: token('space.500'),
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled -- To migrate as part of go/ui-styling-standard
 const InputWrapper = styled.div({
-	marginBottom: token('space.250', '20px'),
+	marginBottom: token('space.250'),
 });
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -12,17 +12,16 @@ import { Show, ToolbarButtonGroup } from '@atlaskit/editor-toolbar';
 import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
 
 import type { SyncedBlockPlugin } from '../syncedBlockPluginType';
-
 import { CreateSyncedBlockButton } from './CreateSyncedBlockButton';
 
 const SYNCED_BLOCK_PRIMARY_TOOLBAR_GROUP = {
 	type: SYNCED_BLOCK_GROUP.type,
 	key: SYNCED_BLOCK_GROUP.key,
 	component: ({ children }: { children: React.ReactNode }) => (
-			<Show above="md">
-				<ToolbarButtonGroup>{children}</ToolbarButtonGroup>
-			</Show>
-		),
+		<Show above="md">
+			<ToolbarButtonGroup>{children}</ToolbarButtonGroup>
+		</Show>
+	),
 	parents: [
 		{
 			type: INSERT_BLOCK_SECTION.type,

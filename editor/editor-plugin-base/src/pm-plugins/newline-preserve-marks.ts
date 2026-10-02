@@ -6,10 +6,28 @@ import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 
 import type { Command } from '../types/command';
 
-export const newlinePreserveMarksKey = new PluginKey('newlinePreserveMarksPlugin');
+export const newlinePreserveMarksKey: PluginKey = new PluginKey('newlinePreserveMarksPlugin');
 
 const isSelectionAligned = (state: EditorState): boolean =>
 	!!state.selection.$to.parent.marks.find((m) => m.type === state.schema.marks.alignment);
+
+const isSelectionFontSized = (state: EditorState): boolean => {
+	const { blockTaskItem, listItem } = state.schema.nodes;
+	const { fontSize } = state.schema.marks;
+	const $to = state.selection.$to;
+	const grandParent = $to.node($to.depth - 1);
+	if (
+		!fontSize ||
+		// don't intercept Enter inside blockTaskItem or listItem
+		(grandParent && (grandParent.type === blockTaskItem || grandParent.type === listItem))
+	) {
+		return false;
+	}
+	return !!$to.parent.marks.find((m) => m.type === fontSize);
+};
+
+const hasBlockMarksToPreserve = (state: EditorState): boolean =>
+	isSelectionAligned(state) || isSelectionFontSized(state);
 
 const splitBlockPreservingMarks: Command = (state, dispatch): boolean => {
 	if (dispatch) {
@@ -18,12 +36,15 @@ const splitBlockPreservingMarks: Command = (state, dispatch): boolean => {
 	return true;
 };
 
-export default () =>
+export default (): SafePlugin =>
 	new SafePlugin({
 		key: newlinePreserveMarksKey,
 		props: {
 			handleKeyDown: keydownHandler({
-				Enter: filter([isSelectionEndOfParagraph, isSelectionAligned], splitBlockPreservingMarks),
+				Enter: filter(
+					[isSelectionEndOfParagraph, hasBlockMarksToPreserve],
+					splitBlockPreservingMarks,
+				),
 			}),
 		},
 	});

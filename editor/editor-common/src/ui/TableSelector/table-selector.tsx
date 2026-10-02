@@ -3,23 +3,22 @@
  * @jsx jsx
  */
 import { useContext, useEffect, useMemo, useRef } from 'react';
-import type { KeyboardEventHandler, SyntheticEvent } from 'react';
+import type { ComponentType, FC, KeyboardEventHandler, SyntheticEvent } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import { injectIntl } from 'react-intl-next';
-import type { WrappedComponentProps } from 'react-intl-next';
+import { injectIntl } from 'react-intl';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
 
-import { fg } from '@atlaskit/platform-feature-flags';
 import { Stack } from '@atlaskit/primitives/compiled';
-import { B100 } from '@atlaskit/theme/colors';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
 
 import { toolbarInsertBlockMessages as messages } from '../../messages';
 import { OutsideClickTargetRefContext } from '../../ui-react';
 
 export const TABLE_SELECTOR_BUTTON_GAP = 2;
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const TABLE_SELECTOR_BUTTON_SIZE = 17;
 
 const MULTIPLICATION_SYMBOL = '×';
@@ -40,26 +39,23 @@ export interface OnTableSizeSelection {
 }
 
 const selectedButtonStyles = css({
-	backgroundColor: token('color.background.accent.blue.subtlest', '#579DFF'),
-	border: `${token('border.width')} solid ${token(
-		'color.background.accent.blue.subtle',
-		'#579DFF',
-	)}`,
+	backgroundColor: token('color.background.accent.blue.subtlest'),
+	border: `${token('border.width')} solid ${token('color.background.accent.blue.subtle')}`,
 });
 
 const buttonStyles = css({
 	height: `${TABLE_SELECTOR_BUTTON_SIZE}px`,
 	width: `${TABLE_SELECTOR_BUTTON_SIZE}px`,
-	border: `${token('border.width')} solid ${token('color.border', '#091e4224')}`,
-	backgroundColor: token('color.background.input', '#ffffff'),
+	border: `${token('border.width')} solid ${token('color.border')}`,
+	backgroundColor: token('color.background.input'),
 	// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
 	borderRadius: token('radius.small', '3px'),
 	cursor: 'pointer',
 	display: 'block',
 	'&:focus': {
 		outline: 'none',
-		border: `${token('border.width')} solid ${token('color.border.focused', B100)}`,
-		boxShadow: `0 0 0 0.5px ${token('color.border.focused', B100)}`,
+		border: `${token('border.width')} solid ${token('color.border.focused')}`,
+		boxShadow: `0 0 0 0.5px ${token('color.border.focused')}`,
 	},
 });
 
@@ -68,8 +64,8 @@ const selectionSizeTextStyles = css({
 	lineHeight: '14px',
 	display: 'flex',
 	justifyContent: 'center',
-	marginTop: token('space.075', '5px'),
-	padding: token('space.075', '10px'),
+	marginTop: token('space.075'),
+	padding: token('space.075'),
 });
 
 const TableSelectorButton = ({
@@ -139,7 +135,7 @@ const gridWrapperStyles = ({ maxCols, maxRows }: { maxCols: number; maxRows: num
 		gridTemplateColumns: `repeat(${maxCols}, 1fr)`,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		gridTemplateRows: `repeat(${maxRows}, 1fr)`,
-		gap: `${token('space.025', `${TABLE_SELECTOR_BUTTON_GAP}px`)}`,
+		gap: `${token('space.025')}`,
 	});
 
 const TableSelectorPopup = ({
@@ -194,12 +190,14 @@ const TableSelectorPopup = ({
 				})}
 			</div>
 			<span css={selectionSizeTextStyles} aria-hidden={true}>
-				{fg('platform_editor_dec_a11y_fixes')
-					? `${selectedCol} ${MULTIPLICATION_SYMBOL} ${selectedRow}`
-					: `${selectedCol} x ${selectedRow}`}
+				{`${selectedCol} ${MULTIPLICATION_SYMBOL} ${selectedRow}`}
 			</span>
 		</Stack>
 	);
 };
 
-export default injectIntl(TableSelectorPopup);
+const _default_1: FC<WithIntlProps<TableSelectorPopupProps & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<TableSelectorPopupProps & WrappedComponentProps>;
+} = injectIntl(TableSelectorPopup);
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export default _default_1;

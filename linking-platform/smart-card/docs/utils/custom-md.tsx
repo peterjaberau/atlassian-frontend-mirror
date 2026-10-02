@@ -15,24 +15,26 @@ const styles = css({
 		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
 		borderRadius: token('radius.small', '3px'),
 		display: 'inline-block',
-		font: token('font.body.UNSAFE_small'),
-		marginTop: token('space.025', '2px'),
+		font: token('font.body.small'),
+		marginTop: token('space.025'),
 		marginRight: 0,
-		marginBottom: token('space.025', '2px'),
+		marginBottom: token('space.025'),
 		marginLeft: 0,
 		paddingTop: 0,
-		paddingRight: token('space.050', '4px'),
+		paddingRight: token('space.050'),
 		paddingBottom: 0,
-		paddingLeft: token('space.050', '4px'),
-		backgroundColor: token('color.background.neutral', '#091E420F'),
-		color: token('color.text', '#172B4D'),
+		paddingLeft: token('space.050'),
+		backgroundColor: token('color.background.neutral'),
+		color: token('color.text'),
 	},
 });
 
 const withCustomStyles =
 	(tag: Function) =>
-	(strings: TemplateStringsArray, ...args: React.ReactNode[]) => (
+	(strings: TemplateStringsArray, ...args: React.ReactNode[]): JSX.Element => (
 		<div css={styles}>{tag(strings, ...args)}</div>
 	);
 
-export default withCustomStyles(md);
+const _default_1: (strings: TemplateStringsArray, ...args: React.ReactNode[]) => JSX.Element =
+	withCustomStyles(md);
+export default _default_1;

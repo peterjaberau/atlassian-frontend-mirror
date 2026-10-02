@@ -7,10 +7,12 @@ import { forwardRef, Fragment, useMemo, useState } from 'react';
 import { css, cssMap, jsx } from '@compiled/react';
 import { ax } from '@compiled/react/runtime';
 
-import { useLayering } from '@atlaskit/layering';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { Popper } from '@atlaskit/popper';
-import { type CURRENT_SURFACE_CSS_VAR, token } from '@atlaskit/tokens';
+import { useLayering } from '@atlaskit/layering/use-layering';
+import Motion, { type MotionProps } from '@atlaskit/motion/entering/motion';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { type Placement, Popper } from '@atlaskit/popper/main';
+import { token } from '@atlaskit/tokens';
+import type { CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens/constants';
 
 import { RepositionOnUpdate } from './reposition-on-update';
 import { type PopperWrapperProps, type PopupComponentProps } from './types';
@@ -28,7 +30,7 @@ const wrapperStyles = cssMap({
 		boxSizing: 'border-box',
 		zIndex: 400,
 		backgroundColor: token('elevation.surface.overlay'),
-		borderRadius: token('radius.small'),
+		borderRadius: token('radius.large'),
 		boxShadow: token('elevation.shadow.overlay'),
 		// Resetting text color for portal content.
 		// Otherwise, when rendering into the parent (not using a portal),
@@ -39,9 +41,12 @@ const wrapperStyles = cssMap({
 			outline: 'none',
 		},
 	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	rootT26Shape: {
-		borderRadius: token('radius.large'),
+	fullWidth: {
+		width: '100%',
+	},
+	motion: {
+		maxHeight: 'inherit',
+		display: 'flex',
 	},
 });
 
@@ -56,13 +61,6 @@ const blanketStyles = css({
 });
 
 const modalStyles = css({
-	maxHeight: '50vh',
-	position: 'fixed',
-	insetBlockStart: token('space.050'),
-	insetInline: token('space.050'),
-});
-
-const newModalStyles = css({
 	maxHeight: `calc(100vh - 2 * ${token('space.050')})`,
 	position: 'fixed',
 	insetBlockStart: token('space.050'),
@@ -72,11 +70,9 @@ const newModalStyles = css({
 const focusRingStyles = cssMap({
 	root: {
 		'&:focus-visible': {
-			outlineColor: token('color.border.focused', '#2684ff'),
-			// @ts-ignore
+			outlineColor: token('color.border.focused'),
 			outlineOffset: token('border.width.focused'),
 			outlineStyle: 'solid',
-			// @ts-ignore
 			outlineWidth: token('border.width.focused'),
 		},
 		'@media screen and (forced-colors: active), screen and (-ms-high-contrast: active)': {
@@ -87,6 +83,60 @@ const focusRingStyles = cssMap({
 		},
 	},
 });
+
+const placementMap: Record<
+	Exclude<Placement, 'auto' | 'auto-start' | 'auto-end'>,
+	{ enter: MotionProps['enteringAnimation']; exit: MotionProps['exitingAnimation'] }
+> = {
+	top: {
+		enter: token('motion.popup.enter.top'),
+		exit: token('motion.popup.exit.top'),
+	},
+	'top-start': {
+		enter: token('motion.popup.enter.top'),
+		exit: token('motion.popup.exit.top'),
+	},
+	'top-end': {
+		enter: token('motion.popup.enter.top'),
+		exit: token('motion.popup.exit.top'),
+	},
+	bottom: {
+		enter: token('motion.popup.enter.bottom'),
+		exit: token('motion.popup.exit.bottom'),
+	},
+	'bottom-start': {
+		enter: token('motion.popup.enter.bottom'),
+		exit: token('motion.popup.exit.bottom'),
+	},
+	'bottom-end': {
+		enter: token('motion.popup.enter.bottom'),
+		exit: token('motion.popup.exit.bottom'),
+	},
+	left: {
+		enter: token('motion.popup.enter.left'),
+		exit: token('motion.popup.exit.left'),
+	},
+	'left-start': {
+		enter: token('motion.popup.enter.left'),
+		exit: token('motion.popup.exit.left'),
+	},
+	'left-end': {
+		enter: token('motion.popup.enter.left'),
+		exit: token('motion.popup.exit.left'),
+	},
+	right: {
+		enter: token('motion.popup.enter.right'),
+		exit: token('motion.popup.exit.right'),
+	},
+	'right-start': {
+		enter: token('motion.popup.enter.right'),
+		exit: token('motion.popup.exit.right'),
+	},
+	'right-end': {
+		enter: token('motion.popup.enter.right'),
+		exit: token('motion.popup.exit.right'),
+	},
+};
 
 const DefaultPopupComponent: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<PopupComponentProps> & React.RefAttributes<HTMLDivElement>
@@ -106,21 +156,17 @@ const DefaultPopupComponent: React.ForwardRefExoticComponent<
 		<div
 			css={[
 				wrapperStyles.root,
-				fg('platform-dst-shape-theme-default') && wrapperStyles.rootT26Shape,
-				appearance === 'UNSAFE_modal-below-sm' && !fg('platform_dst_nav4_flyout_menu_slots_close_button') && modalStyles,
-				appearance === 'UNSAFE_modal-below-sm' && fg('platform_dst_nav4_flyout_menu_slots_close_button') && newModalStyles,
+				appearance === 'UNSAFE_modal-below-sm' && modalStyles,
 				// The popup creates its own scroll container when either:
 				// - It is rendered in a portal
 				// - It is constrained to fit into the viewport (behind a FG)
-				(!shouldRenderToParent ||
-					(shouldFitViewport && fg('platform_dst_nav4_flyoutmenuitem_render_to_parent'))) &&
-					scrollableStyles,
+				(!shouldRenderToParent || shouldFitViewport) && scrollableStyles,
 				shouldFitContainer && fullWidthStyles,
 			]}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 			className={className}
 			{...htmlAttributes}
-			ref={ref}
+			ref={!fg('platform-dst-motion-uplift-popup') ? ref : undefined}
 		>
 			{children}
 		</div>
@@ -140,11 +186,11 @@ function PopperWrapper({
 	rootBoundary,
 	shouldFlip,
 	placement = 'auto',
-	// @ts-ignore: [PIT-1685] Fails in post-office due to backwards incompatibility issue with React 18
 	popupComponent: PopupContainer = DefaultPopupComponent,
 	autoFocus = true,
 	triggerRef,
 	shouldUseCaptureOnOutsideClick,
+	shouldIgnoreCloseEvent,
 	shouldRenderToParent,
 	shouldFitContainer,
 	shouldDisableFocusLock,
@@ -156,6 +202,7 @@ function PopperWrapper({
 	modifiers,
 	shouldFitViewport,
 	appearance = 'default',
+	zIndex,
 }: PopperWrapperProps): JSX.Element {
 	const [popupRef, setPopupRef] = useState<HTMLDivElement | null>(null);
 	const [initialFocusRef, setInitialFocusRef] = useState<HTMLElement | null>(null);
@@ -179,6 +226,7 @@ function PopperWrapper({
 		popupRef,
 		triggerRef,
 		shouldUseCaptureOnOutsideClick,
+		shouldIgnoreCloseEvent,
 		shouldCloseOnTab,
 		autoFocus,
 		shouldDisableFocusTrap,
@@ -230,18 +278,26 @@ function PopperWrapper({
 						role={role}
 						aria-label={label}
 						aria-labelledby={titleId}
-						ref={(node: HTMLDivElement) => {
-							if (node) {
-								if (typeof ref === 'function') {
-									ref(node);
-								} else {
-									(ref as React.MutableRefObject<HTMLElement>).current = node;
-								}
-								setPopupRef(node);
-							}
-						}}
+						ref={
+							!fg('platform-dst-motion-uplift-popup')
+								? (node: HTMLDivElement) => {
+										if (node) {
+											if (typeof ref === 'function') {
+												ref(node);
+											} else {
+												(ref as React.MutableRefObject<HTMLElement>).current = node;
+											}
+											setPopupRef(node);
+										}
+									}
+								: undefined
+						}
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						style={appearance === 'UNSAFE_modal-below-sm' ? {} : style}
+						style={
+							fg('platform-dst-motion-uplift-popup') || appearance === 'UNSAFE_modal-below-sm'
+								? {}
+								: style
+						}
 						// using tabIndex={-1} would cause a bug where Safari focuses
 						// first on the browser address bar when using keyboard
 						tabIndex={autoFocus ? 0 : undefined}
@@ -260,10 +316,42 @@ function PopperWrapper({
 						</RepositionOnUpdate>
 					</PopupContainer>
 				);
+				const isAutoPlacement =
+					placement === 'auto' || placement === 'auto-start' || placement === 'auto-end';
+				const container = (
+					<div
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+						style={{ ...style, zIndex }}
+						css={[shouldFitContainer && wrapperStyles.fullWidth]}
+						// using tabIndex={-1} would cause a bug where Safari focuses
+						// first on the browser address bar when using keyboard
+						ref={(node: HTMLDivElement) => {
+							if (node) {
+								if (typeof ref === 'function') {
+									ref(node);
+								} else {
+									(ref as React.MutableRefObject<HTMLElement>).current = node;
+								}
+								setPopupRef(node);
+							}
+						}}
+						data-testid={`${testId}--container`}
+					>
+						{/* Don't apply motion to auto placements */}
+
+						<Motion
+							enteringAnimation={!isAutoPlacement ? placementMap[placement].enter : undefined}
+							exitingAnimation={!isAutoPlacement ? placementMap[placement].exit : undefined}
+							xcss={wrapperStyles.motion}
+						>
+							{popupContainer}
+						</Motion>
+					</div>
+				);
 
 				return (
 					<Fragment>
-						{popupContainer}
+						{fg('platform-dst-motion-uplift-popup') ? container : popupContainer}
 						{appearance === 'UNSAFE_modal-below-sm' && <div css={blanketStyles} />}
 					</Fragment>
 				);

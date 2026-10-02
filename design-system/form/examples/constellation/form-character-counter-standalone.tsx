@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 
-import { CharacterCounter, Label } from '@atlaskit/form';
-import { Box, Stack } from '@atlaskit/primitives/compiled';
-import TextArea from '@atlaskit/textarea';
-import TextField from '@atlaskit/textfield';
+import { CharacterCounter } from '@atlaskit/form/character-counter';
+import { Label } from '@atlaskit/form/label/default';
+import { Box } from '@atlaskit/primitives/compiled/box';
+import { Stack } from '@atlaskit/primitives/compiled/stack';
+import TextArea from '@atlaskit/textarea/text-area';
+import TextField from '@atlaskit/textfield/text-field';
 
 /**
  * Standalone CharacterCounter example - used outside of Form context

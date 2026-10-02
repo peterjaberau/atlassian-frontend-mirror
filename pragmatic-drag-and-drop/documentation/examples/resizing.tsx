@@ -8,11 +8,13 @@ import React, { type CSSProperties, Fragment, memo, useEffect, useRef, useState 
 import { css, jsx } from '@emotion/react';
 import invariant from 'tiny-invariant';
 
-import { ButtonItem, MenuGroup, Section } from '@atlaskit/menu';
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview';
-import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/prevent-unhandled';
+import ButtonItem from '@atlaskit/menu/button-item';
+import MenuGroup from '@atlaskit/menu/menu-group';
+import Section from '@atlaskit/menu/section';
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import type { DragLocationHistory } from '@atlaskit/pragmatic-drag-and-drop/types';
+import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/disable-native-drag-preview';
+import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/utils/prevent-unhandled';
 import { token } from '@atlaskit/tokens';
 
 import battery from './icons/battery.png';
@@ -116,7 +118,7 @@ const sidebarDividerStyles = css({
 	position: 'relative',
 	background: 'transparent',
 	'&::before': {
-		background: token('color.border.brand', '#0C66E4'),
+		background: token('color.border.brand'),
 		content: '""',
 		position: 'absolute',
 		top: 0,
@@ -272,9 +274,9 @@ const containerStyles = css({
 	flexDirection: 'row',
 	overflow: 'hidden',
 	width: '100%',
-	border: `var(--border-width) solid ${token('color.border', '#091E4224')}`,
+	border: `var(--border-width) solid ${token('color.border')}`,
 	borderRadius: 'var(--border-radius)',
-	background: token('elevation.surface', '#FFF'),
+	background: token('elevation.surface'),
 });
 
 export default function Container(): React.JSX.Element {

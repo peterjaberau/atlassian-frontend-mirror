@@ -1,10 +1,10 @@
 /**
  * @jsxRuntime classic
  * @jsx jsx
- * @jsxFrag
  */
 import React, {
 	type CSSProperties,
+	startTransition,
 	useCallback,
 	useContext,
 	useEffect,
@@ -13,72 +13,82 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import { flushSync } from 'react-dom';
 
 import { cssMap, jsx } from '@compiled/react';
 import { bind } from 'bind-event-listener';
-import { flushSync } from 'react-dom';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import type MediaAboveMd from '@atlaskit/css/at-rules/media-above-md';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
 import useStableRef from '@atlaskit/ds-lib/use-stable-ref';
-import {
-	OpenLayerObserverNamespaceProvider,
-	useOpenLayerObserver,
-} from '@atlaskit/layering/experimental/open-layer-observer';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { media } from '@atlaskit/primitives/responsive';
+import { OpenLayerObserverNamespaceProvider } from '@atlaskit/layering/open-layer-observer-namespace-provider';
+import { useOpenLayerObserver } from '@atlaskit/layering/use-open-layer-observer';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { token } from '@atlaskit/tokens';
 
-import { useSkipLinkInternal } from '../../../context/skip-links/skip-links-context';
-import { TopNavStartElement } from '../../../context/top-nav-start/top-nav-start-context';
+import { useSkipLinkInternal } from '../../../context/skip-links/use-skip-link-internal';
+import { TopNavStartElement } from '../../../context/top-nav-start/top-nav-start-element';
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
 import {
-	bannerMountedVar,
-	contentHeightWhenFixed,
-	contentInsetBlockStart,
-	localSlotLayers,
+	UNSAFE_sideNavLayoutVar,
+	type bannerMountedVar,
+	type contentHeightWhenFixed,
+	type contentInsetBlockStart,
+	type localSlotLayers,
+	mainMinimumWidthVar,
 	openLayerObserverSideNavNamespace,
 	openLayerObserverTopNavStartNamespace,
 	sideNavLiveWidthVar,
 	sideNavPanelSplitterId,
 	sideNavVar,
-	topNavMountedVar,
-	UNSAFE_sideNavLayoutVar,
 } from '../constants';
+import { DangerouslyHoistCssVarToDocumentRoot } from '../dangerously-hoist-css-var-to-document-root';
 import { DangerouslyHoistSlotSizes } from '../hoist-slot-sizes-context';
-import { DangerouslyHoistCssVarToDocumentRoot } from '../hoist-utils';
-import { useLayoutId } from '../id-utils';
+import { convertResizeBoundToPixels } from '../panel-splitter/convert-resize-bound-to-pixels';
 import { PanelSplitterProvider } from '../panel-splitter/provider';
-import type { ResizeBounds } from '../panel-splitter/types';
+import type { ResizeBound, ResizeBounds } from '../panel-splitter/types';
+import { resolveLayoutWidth } from '../resolve-layout-width';
 import type { CommonSlotProps } from '../types';
+import { useLayoutAreaSizing } from '../use-layout-area-sizing';
+import { useLayoutId } from '../use-layout-id';
 import { useResizingWidthCssVarOnRootElement } from '../use-resizing-width-css-var-on-root-element';
 import { useSafeDefaultWidth } from '../use-safe-default-width';
-
-import { useSideNavRef } from './element-context';
 import { sideNavFlyoutCloseDelayMs } from './flyout-close-delay-ms';
-import { useIsSideNavShortcutEnabled } from './is-side-nav-shortcut-enabled-context';
+import { SetSideNavVisibilityState } from './set-side-nav-visibility-state';
+import { SideNavToggleButtonElement } from './side-nav-toggle-button-element';
 import { sideNavToggleTooltipKeyboardShortcut } from './side-nav-toggle-tooltip-keyboard-shortcut';
-import { SideNavToggleButtonElement } from './toggle-button-context';
+import { SideNavVisibilityState } from './side-nav-visibility-state';
 import { useExpandSideNav } from './use-expand-side-nav';
+import { useIsSideNavShortcutEnabled } from './use-is-side-nav-shortcut-enabled';
+import { useSideNavRef } from './use-side-nav-ref';
 import { useSideNavToggleKeyboardShortcut } from './use-side-nav-toggle-keyboard-shortcut';
 import { useSideNavVisibility } from './use-side-nav-visibility';
 import {
-	useSideNavVisibilityCallbacks,
 	type VisibilityCallback,
+	useSideNavVisibilityCallbacks,
 } from './use-side-nav-visibility-callbacks';
 import { useToggleSideNav } from './use-toggle-side-nav';
-import { SetSideNavVisibilityState, SideNavVisibilityState } from './visibility-context';
 
 const panelSplitterResizingVar = '--n_snvRsz';
 // Used to share the side nav width with the panel splitter, which is rendered outside the side nav element
 // but positioned to stay at its right edge.
 const sideNavClampedWidthVar = '--n_snvW';
 
-const widthResizeBounds: ResizeBounds = { min: '240px', max: '50vw' };
+const fallbackMinWidth: ResizeBound = '240px';
 
-function getResizeBounds() {
-	return widthResizeBounds;
+function getPixelCustomProperty(
+	element: HTMLElement,
+	propertyName: string,
+	fallback: number,
+): number {
+	const raw = getComputedStyle(element).getPropertyValue(propertyName).trim();
+	const value = Number.parseFloat(raw);
+	return Number.isFinite(value)
+		? resolveLayoutWidth(raw.endsWith('vw') ? `${value}vw` : value, window.innerWidth)
+		: fallback;
 }
 
 /**
@@ -100,19 +110,22 @@ const panelSplitterPortalTargetStyles = cssMap({
 	root: {
 		position: 'fixed',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-		zIndex: localSlotLayers.sideNavPanelSplitterFHS,
+		zIndex: 4 satisfies typeof localSlotLayers.sideNavPanelSplitterFHS,
 		insetBlockEnd: 0,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
 		transform: `translateX(calc(var(${panelSplitterResizingVar}, var(${sideNavClampedWidthVar}, 0px))))`,
 		// On small viewports, the panel splitter has the same height as the side nav (all of the available viewport space minus top bar + banner)
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		height: contentHeightWhenFixed,
+		height:
+			'calc(100vh - var(--n_bnrM, 0px) - var(--n_tNvM, 0px))' satisfies typeof contentHeightWhenFixed,
 		'@media (min-width: 64rem)': {
 			// On large viewports, the panel splitter overlays the top nav (takes all available viewport space, minus the banner)
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			height: `calc(100vh - var(${bannerMountedVar}, 0px))`,
+			height: `calc(100vh - var(${'--n_bnrM' satisfies typeof bannerMountedVar}, 0px))`,
 			// On large viewports, we need to factor in the side nav's border, and shift the panel splitter so it is centered over the border.
-			transform: `translateX(calc(var(${panelSplitterResizingVar}, var(${sideNavClampedWidthVar}, 0px)) - ${token('border.width')}))`,
+			transform: `translateX(calc(var(${panelSplitterResizingVar}, var(${sideNavClampedWidthVar}, 0px)) - ${token(
+				'border.width',
+			)}))`,
 		},
 	},
 });
@@ -122,19 +135,20 @@ const styles = cssMap({
 		backgroundColor: token('elevation.surface.overlay'),
 		boxShadow: token('elevation.shadow.overlay'),
 		boxSizing: 'border-box',
-		gridArea: 'main / aside / aside / aside',
 		// Height is set so it takes up all of the available viewport space minus top bar + banner.
 		// Since the side nav is always rendered ontop of other grid items across all viewports height is
 		// always set.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		height: contentHeightWhenFixed,
+		height:
+			'calc(100vh - var(--n_bnrM, 0px) - var(--n_tNvM, 0px))' satisfies typeof contentHeightWhenFixed,
 		// This sets the sticky point to be just below top bar + banner. It's needed to ensure the stick
 		// point is exactly where this element is rendered to with no wiggle room. Unfortunately the CSS
 		// spec for sticky doesn't support "stick to where I'm initially rendered" so we need to tell it.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		insetBlockStart: contentInsetBlockStart,
+		insetBlockStart:
+			'calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px))' satisfies typeof contentInsetBlockStart,
 		position: 'sticky',
-		// For mobile viewports, the side nav will take up 90% of the screen width, up to a maximum of 320px (the default SideNav width)
+		// Preserve the legacy compact width until the chat-panel layout rolls out.
 		width: 'min(90%, 320px)',
 		// On small viewports the side nav is displayed above other slots so we create a stacking context.
 		// We keep the side nav with a stacking context always so it is rendered above main content.
@@ -142,14 +156,21 @@ const styles = cssMap({
 		// menu dialogs rendered with "shouldRenderToParent" they could be cut off unintentionally.
 		// Unfortunately this is the best of bad solutions.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-		zIndex: localSlotLayers.sideNav,
+		zIndex: 2 satisfies typeof localSlotLayers.sideNav,
 		// Not required, but declaring explicitly because we really don't want a border at small sizes
 		// Previously we had a transparent border to maintain width, but this unintentionally acted as padding
 		borderInlineStart: 'none',
 		borderInlineEnd: 'none',
+		// Deliberately scoped to the exact inverse of the desktop `@media (min-width: 64rem)` rule
+		// below, so the two can never both match. Unscoped, they would be atomic rules of equal
+		// specificity, leaving the desktop winner up to insertion order — non-deterministic when
+		// Compiled's extraction is disabled (local dev, streaming SSR). See MAGMA-4606.
+		'@media not (min-width: 64rem)': {
+			gridArea: 'main / aside / aside / aside',
+		},
 		'@media (min-width: 48rem)': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			width: `var(${panelSplitterResizingVar}, var(${sideNavVar}))`,
+			width: `var(${panelSplitterResizingVar}, var(${'--n_sNvw' satisfies typeof sideNavVar}))`,
 		},
 		'@media (min-width: 64rem)': {
 			backgroundColor: token('elevation.surface'),
@@ -157,6 +178,23 @@ const styles = cssMap({
 			gridArea: 'side-nav',
 			// We only want the border to be visible when it is not an overlay
 			borderInlineEnd: `${token('border.width')} solid ${token('color.border')}`,
+		},
+	},
+	chatPanelSizing: {
+		// On compact viewports, the allocation system caps the overlay width.
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		width: `var(${panelSplitterResizingVar}, var(${'--n_sNvw' satisfies typeof sideNavVar}))`,
+	},
+	managedOverlay: {
+		'@media (min-width: 64rem)': {
+			// Existing slots can leave too little room for an inline SideNav even on desktop.
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors
+			'&&': {
+				gridArea: 'main',
+				backgroundColor: token('elevation.surface.overlay'),
+				boxShadow: token('elevation.shadow.overlay'),
+				borderInlineEnd: 'none',
+			},
 		},
 	},
 	flyoutOpen: {
@@ -181,7 +219,6 @@ const styles = cssMap({
 				 * starting values for when the element is first displayed, so the
 				 * transition animation knows where to start from.
 				 */
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 				'@starting-style': {
 					transform: 'translateX(-100%)',
 				},
@@ -240,7 +277,6 @@ const styles = cssMap({
 			 * starting values for when the element is first displayed, so the
 			 * transition animation knows where to start from.
 			 */
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'@starting-style': {
 				transform: 'translateX(calc(-100% * var(--animation-direction)))',
 			},
@@ -304,7 +340,6 @@ const styles = cssMap({
 			 * starting values for when the element is first displayed, so the
 			 * transition animation knows where to start from.
 			 */
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'@starting-style': {
 				transform: 'translateX(calc(-100% * var(--animation-direction)))',
 			},
@@ -337,7 +372,6 @@ const styles = cssMap({
 			 * starting values for when the element is first displayed, so the
 			 * transition animation knows where to start from.
 			 */
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'@starting-style': {
 				transform: 'translateX(calc(-100% * var(--animation-direction)))',
 			},
@@ -350,23 +384,135 @@ const styles = cssMap({
 			transform: 'translateX(calc(-100% * var(--animation-direction)))',
 		},
 	},
-	fullHeightSidebar: {
+});
+
+/**
+ * Styles for the side nav enter/exit animations when `platform-dst-motion-uplift-sidenav` is enabled.
+ *
+ * These use the `motion.sidenav.*` tokens (keyframe animations) instead of the `transform` transitions
+ * with `@starting-style` used by `styles`.
+ *
+ * ⚠️ The `transition-duration` values below need to stay in sync with the duration baked into the tokens
+ * (`motion.sidenav.enter.*` is 250ms, `motion.sidenav.exit.*` is 200ms). The `display` property is
+ * transitioned (with `allow-discrete`) so the element stays rendered for the length of the exit animation —
+ * if the transition is shorter than the animation, `display: none` applies early and the exit animation
+ * never runs.
+ */
+const motionUpliftStyles = cssMap({
+	animationRTLSupport: {
+		// Used to support animations for right-to-left (RTL) languages/text direction. We need to flip the animation direction for RTL.
+		// The motion tokens are directional (the keyframes translate towards a fixed physical side), so instead of flipping a
+		// translate value we swap which animation token is used.
+		'--enter-animation': token('motion.sidenav.enter.left'),
+		'--exit-animation': token('motion.sidenav.exit.left'),
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		"[dir='rtl'] &": {
+			'--enter-animation': token('motion.sidenav.enter.right'),
+			'--exit-animation': token('motion.sidenav.exit.right'),
+		},
+	},
+	animationBaseStyles: {
+		/**
+		 * Disabling animations if user has opted for reduced motion
+		 *
+		 * ⚠️ Note: the `@media` query needs to be a top-level style to make sure Compiled orders the media queries correctly.
+		 * Compiled currently only sorts top-level CSS rules:
+		 * https://github.com/atlassian-labs/compiled/blob/master/packages/css/src/plugins/sort-atomic-style-sheet.ts#L39
+		 */
+		'@media (prefers-reduced-motion: no-preference)': {
+			// The animation drives the movement, so only `display` needs to be transitioned.
+			transitionProperty: 'display',
+			transitionBehavior: 'allow-discrete',
+			transitionDuration: token('motion.duration.medium'),
+		},
+	},
+	expandAnimationMobile: {
+		// These styles are not limited to "mobile" viewports, as they are not scoped to any media queries.
+		// Desktop styles will need to override these if required.
+		'@media (prefers-reduced-motion: no-preference)': {
+			animation: 'var(--enter-animation)',
+		},
+	},
+	collapseAnimationMobile: {
+		// These styles are not limited to "mobile" viewports, as they are not scoped to any media queries.
+		// Desktop styles will need to override these if required.
+		'@media (prefers-reduced-motion: no-preference)': {
+			gridArea: 'main',
+			animation: 'var(--exit-animation)',
+		},
+	},
+	flyoutOpen: {
 		'@media (min-width: 64rem)': {
-			// We want it to overlap the top nav
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			height: `calc(100vh - var(${bannerMountedVar}, 0px))`,
-
-			// This is the stick point for the sticky positioning, only relevant if the whole page scrolls for some reason
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			insetBlockStart: `calc(var(${bannerMountedVar}, 0px))`,
-
-			// Push the side nav items down, creating room for the top nav start items
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			paddingBlockStart: `calc(var(${topNavMountedVar}, 0px))`,
-
-			// Bleed for the side nav to overlap the top nav, relevant for the initial positioning / when the whole page is not scrolled
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			marginBlockStart: `calc(-1 * var(${topNavMountedVar}, 0px))`,
+			// These styles are in a media query to override the `styles.root` media query styles
+			backgroundColor: token('elevation.surface.overlay'),
+			boxShadow: token('elevation.shadow.overlay'),
+			gridArea: 'main',
+			// Hide the border for the flyout, because it has a shadow
+			borderInlineEnd: 'none',
+		},
+		// Disabling animations for Firefox, as it doesn't support the close animation. See comment block in `styles.animationBaseStyles` for more details.
+		'@supports not (-moz-appearance: none)': {
+			// Disabling animations if user has opted for reduced motion
+			'@media (prefers-reduced-motion: no-preference)': {
+				transitionDuration: token('motion.duration.long'),
+				transitionBehavior: 'allow-discrete',
+				animation: 'var(--enter-animation)',
+			},
+		},
+	},
+	flyoutAnimateClosed: {
+		display: 'none',
+		'@media (min-width: 64rem)': {
+			// These styles are in a media query to override the `styles.root` media query styles
+			gridArea: 'main',
+		},
+		// Disabling animations for Firefox, as it doesn't support the close animation. See comment block in `styles.animationBaseStyles` for more details.
+		'@supports not (-moz-appearance: none)': {
+			// Disabling animations if user has opted for reduced motion
+			'@media (prefers-reduced-motion: no-preference)': {
+				transitionDuration: token('motion.duration.medium'),
+				transitionBehavior: 'allow-discrete',
+				animation: 'var(--exit-animation)',
+			},
+		},
+	},
+	flyoutOpenFullHeightSidebar: {
+		'@media (prefers-reduced-motion: no-preference) and (min-width: 64rem)': {
+			transitionDuration: token('motion.duration.long'),
+			animation: 'var(--enter-animation)',
+		},
+	},
+	flyoutAnimateClosedFullHeightSidebar: {
+		'@media (min-width: 64rem)': {
+			display: 'none',
+		},
+		// Desktop media query is used here to prevent overriding mobile sidebar styles, if the flyout
+		// was just closed, and then the user resized to mobile viewport with the mobile sidebar expanded.
+		'@media (prefers-reduced-motion: no-preference) and (min-width: 64rem)': {
+			transitionDuration: token('motion.duration.medium'),
+			animation: 'var(--exit-animation)',
+		},
+	},
+	expandAnimationDesktop: {
+		'@media (prefers-reduced-motion: no-preference) and (min-width: 64rem)': {
+			// We need to override the mobile styles for desktop
+			gridArea: 'side-nav',
+			animation: 'var(--enter-animation)',
+			transitionProperty: 'grid-area',
+			transitionDuration: token('motion.duration.instant'),
+			transitionDelay: '24ms', // Snaps main content when 60% of the side nav has entered
+			'@starting-style': {
+				gridArea: 'main',
+			},
+		},
+	},
+	collapseAnimationDesktop: {
+		'@media (prefers-reduced-motion: no-preference) and (min-width: 64rem)': {
+			gridArea: 'main',
+			animation: 'var(--exit-animation)',
+			transitionProperty: 'grid-area, display',
+			transitionDuration: `${token('motion.duration.instant')}, ${token('motion.duration.medium')}`,
+			transitionDelay: `19ms, ${token('motion.duration.instant')}`, // Snaps main content when 60% of the side nav has exited
 		},
 	},
 });
@@ -374,7 +520,7 @@ const styles = cssMap({
 type SideNavProps = CommonSlotProps & {
 	/**
 	 * The content of the layout area.
-	 * Should include side nav layout areas as required: `SideNavHeader`, `SideNavContent`, `SideNavFooter`.
+	 * Should include side nav layout areas as required: `SideNavHeader`, `SideNavBody`, `SideNavFooter`.
 	 * Within these, you can use side nav menu items.
 	 */
 	children: React.ReactNode;
@@ -406,7 +552,7 @@ type SideNavProps = CommonSlotProps & {
 	/**
 	 * The default width of the side nav layout area.
 	 *
-	 * It should be an integer between the resize bounds - the minimum is 240px and the maximum is 50% of the viewport width.
+	 * It should be an integer greater than or equal to the minimum width.
 	 *
 	 * It is only used when the side nav is first mounted, but you should continuously update your
 	 * persisted state using the `onResizeEnd` callback of `PanelSplitter`, to ensure it is up to date
@@ -414,15 +560,19 @@ type SideNavProps = CommonSlotProps & {
 	 */
 	defaultWidth?: number;
 	/**
+	 * Minimum width used when fitting the side nav inline.
+	 */
+	minWidth?: ResizeBound;
+	/**
+	 * Optional maximum width for both inline and overlay resizing.
+	 */
+	maxWidth?: ResizeBound;
+	/**
 	 * Called when the side nav is expanded.
-	 *
-	 * Note: The trigger parameter is only provided when the `platform_dst_nav4_fhs_instrumentation_1` feature flag is enabled.
 	 */
 	onExpand?: VisibilityCallback;
 	/**
 	 * Called when the side nav is collapsed.
-	 *
-	 * Note: The trigger parameter is only provided when the `platform_dst_nav4_fhs_instrumentation_1` feature flag is enabled.
 	 */
 	onCollapse?: VisibilityCallback;
 
@@ -461,6 +611,8 @@ function SideNavInternal({
 	children,
 	defaultCollapsed,
 	defaultWidth: defaultWidthProp = fallbackDefaultWidth,
+	minWidth = fallbackMinWidth,
+	maxWidth,
 	testId,
 	label = 'Sidebar',
 	skipLinkLabel = label,
@@ -471,29 +623,42 @@ function SideNavInternal({
 	id: providedId,
 	canToggleWithShortcut,
 }: SideNavProps) {
+	const isChatPanelLayoutEnabled = fg('platform-dst-chat-panel-layout');
 	const isFhsEnabled = useIsFhsEnabled();
 	const id = useLayoutId({ providedId });
-	const expandSideNav = useExpandSideNav({ trigger: 'skip-link' });
+	const expandAndFocusSideNav = useExpandSideNav({ trigger: 'skip-link' });
 	/**
 	 * Called after clicking on the side nav skip link, and ensures the side nav is expanded so that it is focusable.
 	 *
 	 * We need to update the DOM synchronously because `.focus()` is called synchronously after this state update.
+	 *
+	 * Only used when `platform_dst_nav4_skip_link_a11y_1` is OFF; can be removed on gate cleanup.
 	 */
 	const synchronouslyExpandSideNav = useCallback(() => {
 		flushSync(() => {
 			/**
 			 * Calling this unconditionally and relying on it to avoid no-op renders.
 			 *
-			 * We _could_ call it conditionally, but we'd be duplicating the screen size checks `expandSideNav` makes.
+			 * We _could_ call it conditionally, but we'd be duplicating the screen size checks `expandAndFocusSideNav` makes.
 			 */
-			expandSideNav();
+			expandAndFocusSideNav();
 		});
-	}, [expandSideNav]);
+	}, [expandAndFocusSideNav]);
 
 	useSkipLinkInternal({
 		id,
 		label: skipLinkLabel,
-		onBeforeNavigate: synchronouslyExpandSideNav,
+		/**
+		 * `navigate` is the gate-on contract: it owns expanding the side nav AND moving
+		 * focus to the first nav item, atomically (via `useExpandSideNav`'s `flushSync`).
+		 *
+		 * `onBeforeNavigate` is the legacy contract used only when the gate is OFF.
+		 * On gate cleanup, drop `onBeforeNavigate` and `synchronouslyExpandSideNav` here.
+		 */
+		navigate: fg('platform_dst_nav4_skip_link_a11y_1') ? expandAndFocusSideNav : undefined,
+		onBeforeNavigate: fg('platform_dst_nav4_skip_link_a11y_1')
+			? undefined
+			: synchronouslyExpandSideNav,
 	});
 
 	const sideNavState = useContext(SideNavVisibilityState);
@@ -516,7 +681,7 @@ function SideNavInternal({
 	 * Only firing on desktop because the nav is never open by default on mobile.
 	 */
 	useEffect(() => {
-		if (initialIsExpandedOnDesktop && fg('platform_dst_nav4_fhs_instrumentation_1')) {
+		if (initialIsExpandedOnDesktop) {
 			const isDesktop = window.matchMedia('(min-width: 64rem)').matches;
 			if (isDesktop) {
 				const navigationAnalyticsEvent = createAnalyticsEvent({
@@ -540,18 +705,140 @@ function SideNavInternal({
 		slotName: 'SideNav',
 	});
 
-	const [width, setWidth] = useState(defaultWidth);
-	const clampedWidth = `clamp(${widthResizeBounds.min}, ${width}px, ${widthResizeBounds.max})`;
+	const [inlineWidth, setInlineWidth] = useState(defaultWidth);
+	const [overlayWidth, setOverlayWidth] = useState(defaultWidth);
+	const [isInline, setIsInline] = useState(false);
+	useEffect(() => {
+		if (!isChatPanelLayoutEnabled) {
+			return;
+		}
+		const mediaQuery = window.matchMedia('(min-width: 64rem)');
+		setIsInline(mediaQuery.matches);
+		const onChange = (event: MediaQueryListEvent) => setIsInline(event.matches);
+		return bind(mediaQuery, { type: 'change', listener: onChange });
+	}, [isChatPanelLayoutEnabled]);
+	const toggleVisibilityForChatPanel = useToggleSideNav({ trigger: 'programmatic' });
+	const closeOverlayForChatPanel = useCallback(() => {
+		// Allocation can overlay an expanded desktop nav when other slots consume
+		// its space. Dismiss the visibility state selected by the viewport, not the mode.
+		const isDesktop = window.matchMedia('(min-width: 64rem)').matches;
+		if (isDesktop ? isExpandedOnDesktop : isExpandedOnMobile) {
+			toggleVisibilityForChatPanel();
+		}
+	}, [isExpandedOnDesktop, isExpandedOnMobile, toggleVisibilityForChatPanel]);
+	const {
+		state: managedSizing,
+		getResizeBounds: getManagedResizeBounds,
+		startResize,
+		resize,
+		completeResize,
+	} = useLayoutAreaSizing({
+		area: 'side-nav',
+		config: {
+			defaultWidth,
+			minWidth,
+			maxWidth,
+			isOpen: isInline ? isExpandedOnDesktop : isExpandedOnMobile,
+			onRequestClose: closeOverlayForChatPanel,
+		},
+	});
+	const mode = managedSizing?.mode ?? (isInline ? 'inline' : 'overlay');
+	const renderedWidth = isChatPanelLayoutEnabled
+		? (managedSizing?.width ?? (mode === 'inline' ? inlineWidth : overlayWidth))
+		: inlineWidth;
+	const configuredMaxWidth = maxWidth ?? '100vw';
+	const clampedWidth = !isChatPanelLayoutEnabled
+		? `clamp(240px, ${inlineWidth}px, 50vw)`
+		: managedSizing
+			? `${renderedWidth}px`
+			: `clamp(${minWidth}, ${renderedWidth}px, ${configuredMaxWidth})`;
 	const dangerouslyHoistSlotSizes = useContext(DangerouslyHoistSlotSizes);
 
 	const navRef = useRef<HTMLDivElement | null>(null);
 	const panelSplitterPortalTargetRef = useRef<HTMLDivElement | null>(null);
+	const getResizeBounds = useCallback((): ResizeBounds => {
+		if (!isChatPanelLayoutEnabled) {
+			return { min: '240px', max: '50vw' };
+		}
+		const managedBounds = getManagedResizeBounds();
+		if (managedBounds) {
+			return managedBounds;
+		}
+		const sideNav = navRef.current;
+		const layoutRoot = sideNav?.parentElement;
+		const main = layoutRoot?.querySelector<HTMLElement>(':scope > [data-layout-slot][role="main"]');
+		const fallbackMaxWidth = maxWidth ?? (mode === 'inline' ? '100vw' : '90vw');
+
+		if (!sideNav || mode === 'overlay') {
+			const chatPanel = layoutRoot?.querySelector<HTMLElement>(':scope > [data-layout-chat-panel]');
+			const inlineChatPanelWidth =
+				chatPanel && getComputedStyle(chatPanel).gridArea === 'chat-panel'
+					? chatPanel.getBoundingClientRect().width
+					: 0;
+			const overlayMaxWidth = Math.floor((window.innerWidth - inlineChatPanelWidth) * 0.9);
+			const constrainedMaxWidth = maxWidth
+				? Math.min(convertResizeBoundToPixels(maxWidth), overlayMaxWidth)
+				: overlayMaxWidth;
+			return {
+				min: minWidth,
+				max: `${Math.max(convertResizeBoundToPixels(minWidth), constrainedMaxWidth)}px`,
+			};
+		}
+
+		if (!main) {
+			return { min: minWidth, max: fallbackMaxWidth };
+		}
+
+		const sideNavWidth = sideNav.getBoundingClientRect().width;
+		const mainWidth = main.getBoundingClientRect().width;
+
+		// JSDOM does not perform layout, so retain the static fallback in unit tests and other
+		// environments where used widths cannot be measured.
+		if (sideNavWidth === 0 || mainWidth === 0) {
+			return { min: minWidth, max: fallbackMaxWidth };
+		}
+
+		const localPanel = main.querySelector<HTMLElement>('[data-layout-with-panel-slot]');
+		const isLocalPanelInline = localPanel && getComputedStyle(localPanel).gridArea === 'panel';
+		const localPanelWidth = isLocalPanelInline ? localPanel.getBoundingClientRect().width : 0;
+		const mainContentWidth = mainWidth - localPanelWidth;
+		const mainMinimumWidth = getPixelCustomProperty(main, mainMinimumWidthVar, 320);
+		const availableWidth = Math.max(0, mainContentWidth - mainMinimumWidth);
+		const availableInlineWidth = Math.floor(sideNavWidth + availableWidth);
+		const constrainedMaxWidth = maxWidth
+			? Math.min(convertResizeBoundToPixels(maxWidth), availableInlineWidth)
+			: availableInlineWidth;
+
+		return {
+			min: minWidth,
+			max: `${Math.max(convertResizeBoundToPixels(minWidth), constrainedMaxWidth)}px`,
+		};
+	}, [getManagedResizeBounds, isChatPanelLayoutEnabled, maxWidth, minWidth, mode]);
 	/**
 	 * Used to share the side nav element with the `Panel`,
 	 * which observes the side nav to determine its maximum width.
 	 */
 	const sharedRef = useSideNavRef();
 	const mergedRef = mergeRefs([navRef, sharedRef]);
+	const onCompleteResize = useCallback(
+		(finalWidth: number) => {
+			if (!isChatPanelLayoutEnabled) {
+				setInlineWidth(finalWidth);
+				return;
+			}
+			if (mode === 'inline') {
+				setInlineWidth(finalWidth);
+			} else {
+				setOverlayWidth(finalWidth);
+			}
+			completeResize(mode, finalWidth);
+		},
+		[completeResize, isChatPanelLayoutEnabled, mode],
+	);
+	const onResizeStartInternal = useCallback(() => {
+		startResize(mode);
+	}, [mode, startResize]);
+	const onResizeInternal = useCallback((width: number) => resize(mode, width), [mode, resize]);
 
 	const toggleButtonElement = useContext(SideNavToggleButtonElement);
 	const topNavStartElement = useContext(TopNavStartElement);
@@ -587,8 +874,7 @@ function SideNavInternal({
 				openLayerObserver.getCount({
 					namespace: openLayerObserverTopNavStartNamespace,
 					type: 'popup',
-				}) > 0 &&
-				fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')
+				}) > 0
 			) {
 				return;
 			}
@@ -733,33 +1019,31 @@ function SideNavInternal({
 
 		// Sync the visibility in context (provided in `<Root>`) with the local `defaultCollapsed` prop provided to `SideNav`
 		// after SSR hydration. This should only run once, after the initial render on the client.
-		setSideNavState({
-			desktop: initialDefaultCollapsed ? 'collapsed' : 'expanded',
-			mobile: 'collapsed',
-			flyout: 'closed',
-			lastTrigger: null,
+		startTransition(() => {
+			setSideNavState({
+				desktop: initialDefaultCollapsed ? 'collapsed' : 'expanded',
+				mobile: 'collapsed',
+				flyout: 'closed',
+				lastTrigger: null,
+			});
 		});
 	}, [initialDefaultCollapsed, setSideNavState, sideNavState]);
 
 	const handleExpand = useCallback<VisibilityCallback>(
 		({ screen, trigger }) => {
-			if (fg('platform_dst_nav4_fhs_instrumentation_1')) {
-				onExpand?.({ screen, trigger });
+			onExpand?.({ screen, trigger });
 
-				const navigationAnalyticsEvent = createAnalyticsEvent({
-					source: 'topNav',
-					actionSubject: 'sideNav',
-					action: 'expanded',
-					actionSubjectId: 'sideNavMenu',
-					attributes: {
-						trigger,
-					},
-				});
+			const navigationAnalyticsEvent = createAnalyticsEvent({
+				source: 'topNav',
+				actionSubject: 'sideNav',
+				action: 'expanded',
+				actionSubjectId: 'sideNavMenu',
+				attributes: {
+					trigger,
+				},
+			});
 
-				navigationAnalyticsEvent.fire('navigation');
-			} else {
-				onExpand?.({ screen });
-			}
+			navigationAnalyticsEvent.fire('navigation');
 
 			// When the side nav gets expanded, we close the flyout to reset it.
 			// This prevents the flyout from staying open and ensures we are respecting the user's intent to expand.
@@ -770,23 +1054,19 @@ function SideNavInternal({
 
 	const handleCollapse = useCallback<VisibilityCallback>(
 		({ screen, trigger }) => {
-			if (fg('platform_dst_nav4_fhs_instrumentation_1')) {
-				onCollapse?.({ screen, trigger });
+			onCollapse?.({ screen, trigger });
 
-				const navigationAnalyticsEvent = createAnalyticsEvent({
-					source: 'topNav',
-					actionSubject: 'sideNav',
-					action: 'collapsed',
-					actionSubjectId: 'sideNavMenu',
-					attributes: {
-						trigger,
-					},
-				});
+			const navigationAnalyticsEvent = createAnalyticsEvent({
+				source: 'topNav',
+				actionSubject: 'sideNav',
+				action: 'collapsed',
+				actionSubjectId: 'sideNavMenu',
+				attributes: {
+					trigger,
+				},
+			});
 
-				navigationAnalyticsEvent.fire('navigation');
-			} else {
-				onCollapse?.({ screen });
-			}
+			navigationAnalyticsEvent.fire('navigation');
 
 			// When the side nav gets collapsed, we close the flyout to reset it.
 			// This prevents the flyout from staying open and ensures we are respecting the user's intent to collapse.
@@ -1112,12 +1392,10 @@ function SideNavInternal({
 	const isShortcutEnabled = useIsSideNavShortcutEnabled();
 
 	useResizingWidthCssVarOnRootElement({
-		isEnabled: true,
+		isEnabled: !isChatPanelLayoutEnabled || !managedSizing,
 		cssVar: panelSplitterResizingVar,
 		panelId: sideNavPanelSplitterId,
 	});
-
-	const isFlyoutClosed = sideNavState?.flyout === 'closed' || sideNavState?.flyout === undefined;
 
 	const isExpandedStateDifferentFromInitial =
 		isExpandedOnMobile || isExpandedOnDesktop !== initialIsExpandedOnDesktop;
@@ -1148,9 +1426,11 @@ function SideNavInternal({
 	const hasExpandedStateChanged =
 		isExpandedStateDifferentFromInitial || hasExpandedStateChangedRef.current;
 
+	const isMotionUpliftEnabled = fg('platform-dst-motion-uplift-sidenav');
+
 	// This is only used for the regular expand and collapse animations, not the flyout animations.
 	const shouldShowSidebarToggleAnimation =
-		isFhsEnabled &&
+		(isMotionUpliftEnabled || isFhsEnabled) &&
 		// We do not apply the animation styles on the initial render, as the `@starting-style` rule will cause the sidebar to
 		// slide in initially.
 		hasExpandedStateChanged &&
@@ -1175,7 +1455,7 @@ function SideNavInternal({
 		!isFirefox;
 
 	return (
-		<>
+		<React.Fragment>
 			<nav
 				id={id}
 				{...devTimeOnlyAttributes}
@@ -1190,61 +1470,105 @@ function SideNavInternal({
 				ref={mergedRef}
 				css={[
 					styles.root,
+					isChatPanelLayoutEnabled && styles.chatPanelSizing,
+					isChatPanelLayoutEnabled && managedSizing?.mode === 'overlay' && styles.managedOverlay,
 					// We are explicitly using the `isExpandedOnDesktop` and `isExpandedOnMobile` values here to ensure we are displaying the
 					// correct state during SSR render, as the context value would not have been set yet. These values are derived from the
 					// component props (defaultCollapsed) if context hasn't been set yet.
-					isExpandedOnDesktop &&
-					!isExpandedOnMobile &&
-					!isFlyoutVisible &&
-					styles.hiddenMobileOnly,
+					isExpandedOnDesktop && !isExpandedOnMobile && !isFlyoutVisible && styles.hiddenMobileOnly,
 					!isExpandedOnDesktop &&
-					isExpandedOnMobile &&
-					!isFlyoutVisible &&
-					styles.hiddenDesktopOnly,
+						isExpandedOnMobile &&
+						!isFlyoutVisible &&
+						styles.hiddenDesktopOnly,
 					!isExpandedOnDesktop &&
-					!isExpandedOnMobile &&
-					!isFlyoutVisible &&
-					styles.hiddenMobileAndDesktop,
+						!isExpandedOnMobile &&
+						!isFlyoutVisible &&
+						styles.hiddenMobileAndDesktop,
 
-					isFhsEnabled && styles.animationRTLSupport,
+					isMotionUpliftEnabled && motionUpliftStyles.animationRTLSupport,
+					!isMotionUpliftEnabled && isFhsEnabled && styles.animationRTLSupport,
 					// Expand/collapse animation styles
-					shouldShowSidebarToggleAnimation && styles.animationBaseStyles,
+					shouldShowSidebarToggleAnimation &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.animationBaseStyles,
+					shouldShowSidebarToggleAnimation && !isMotionUpliftEnabled && styles.animationBaseStyles,
 					// We need to separately apply the styles for the expand or collapse animations for both mobile and desktop
 					// based on their relevant expansion state.
-					isExpandedOnMobile && shouldShowSidebarToggleAnimation && styles.expandAnimationMobile,
-					!isExpandedOnMobile && shouldShowSidebarToggleAnimation && styles.collapseAnimationMobile,
-					isExpandedOnDesktop && shouldShowSidebarToggleAnimation && styles.expandAnimationDesktop,
+					isExpandedOnMobile &&
+						shouldShowSidebarToggleAnimation &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.expandAnimationMobile,
+					isExpandedOnMobile &&
+						shouldShowSidebarToggleAnimation &&
+						!isMotionUpliftEnabled &&
+						styles.expandAnimationMobile,
+					!isExpandedOnMobile &&
+						shouldShowSidebarToggleAnimation &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.collapseAnimationMobile,
+					!isExpandedOnMobile &&
+						shouldShowSidebarToggleAnimation &&
+						!isMotionUpliftEnabled &&
+						styles.collapseAnimationMobile,
+					isExpandedOnDesktop &&
+						shouldShowSidebarToggleAnimation &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.expandAnimationDesktop,
+					isExpandedOnDesktop &&
+						shouldShowSidebarToggleAnimation &&
+						!isMotionUpliftEnabled &&
+						styles.expandAnimationDesktop,
 					!isExpandedOnDesktop &&
-					shouldShowSidebarToggleAnimation &&
-					styles.collapseAnimationDesktop,
+						shouldShowSidebarToggleAnimation &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.collapseAnimationDesktop,
+					!isExpandedOnDesktop &&
+						shouldShowSidebarToggleAnimation &&
+						!isMotionUpliftEnabled &&
+						styles.collapseAnimationDesktop,
 
 					// Flyout styles
-					sideNavState?.flyout === 'open' && !isFhsEnabled && styles.flyoutOpen,
+					sideNavState?.flyout === 'open' &&
+						!isFhsEnabled &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.flyoutOpen,
+					sideNavState?.flyout === 'open' &&
+						!isFhsEnabled &&
+						!isMotionUpliftEnabled &&
+						styles.flyoutOpen,
 					sideNavState?.flyout === 'triggered-animate-close' &&
-					!isFhsEnabled &&
-					styles.flyoutAnimateClosed,
+						!isFhsEnabled &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.flyoutAnimateClosed,
+					sideNavState?.flyout === 'triggered-animate-close' &&
+						!isFhsEnabled &&
+						!isMotionUpliftEnabled &&
+						styles.flyoutAnimateClosed,
 
 					(sideNavState?.flyout === 'open' || sideNavState?.flyout === 'triggered-animate-close') &&
-					!isFirefox &&
-					isFhsEnabled &&
-					styles.flyoutBaseStylesFullHeightSidebar,
-					sideNavState?.flyout === 'triggered-animate-close' &&
-					!isFirefox &&
-					isFhsEnabled &&
-					styles.flyoutAnimateClosedFullHeightSidebar,
+						!isFirefox &&
+						isFhsEnabled &&
+						styles.flyoutBaseStylesFullHeightSidebar,
 					sideNavState?.flyout === 'open' &&
-					!isFirefox &&
-					isFhsEnabled &&
-					styles.flyoutOpenFullHeightSidebar,
+						!isFirefox &&
+						isFhsEnabled &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.flyoutOpenFullHeightSidebar,
+					sideNavState?.flyout === 'open' &&
+						!isFirefox &&
+						isFhsEnabled &&
+						!isMotionUpliftEnabled &&
+						styles.flyoutOpenFullHeightSidebar,
 					sideNavState?.flyout === 'triggered-animate-close' &&
-					!isFirefox &&
-					isFhsEnabled &&
-					styles.flyoutAnimateClosedFullHeightSidebar,
-					// Flyout is not using full height styles
-					isFlyoutClosed &&
-					isFhsEnabled &&
-					!fg('platform-dst-side-nav-layering-fixes') &&
-					styles.fullHeightSidebar,
+						!isFirefox &&
+						isFhsEnabled &&
+						isMotionUpliftEnabled &&
+						motionUpliftStyles.flyoutAnimateClosedFullHeightSidebar,
+					sideNavState?.flyout === 'triggered-animate-close' &&
+						!isFirefox &&
+						isFhsEnabled &&
+						!isMotionUpliftEnabled &&
+						styles.flyoutAnimateClosedFullHeightSidebar,
 				]}
 				data-testid={testId}
 			>
@@ -1255,7 +1579,7 @@ function SideNavInternal({
 				<DangerouslyHoistCssVarToDocumentRoot
 					variableName={sideNavLiveWidthVar}
 					value="0px"
-					mediaQuery={media.above.md}
+					mediaQuery={'@media (min-width: 64rem)' satisfies MediaAboveMd}
 					responsiveValue={
 						isExpandedOnDesktop ? `var(${panelSplitterResizingVar}, ${clampedWidth})` : 0
 					}
@@ -1273,29 +1597,25 @@ function SideNavInternal({
 				<PanelSplitterProvider
 					panelId={sideNavPanelSplitterId}
 					panelRef={navRef}
-					portalRef={
-						isFhsEnabled && fg('platform-dst-side-nav-layering-fixes')
-							? panelSplitterPortalTargetRef
-							: undefined
+					portalRef={isFhsEnabled ? panelSplitterPortalTargetRef : undefined}
+					panelWidth={renderedWidth}
+					onCompleteResize={onCompleteResize}
+					onResizeStartInternal={
+						isChatPanelLayoutEnabled && managedSizing ? onResizeStartInternal : undefined
 					}
-					panelWidth={width}
-					onCompleteResize={setWidth}
+					onResizeInternal={
+						isChatPanelLayoutEnabled && managedSizing ? onResizeInternal : undefined
+					}
 					getResizeBounds={getResizeBounds}
 					resizingCssVar={panelSplitterResizingVar}
 					// Not resizable when in peek (flyout) mode.
-					isEnabled={
-						fg('platform-dst-side-nav-layering-fixes')
-							? !isFlyoutVisible
-							: // Old behaviour has a bug: the panel splitter would only be visible on sm screens (between 48rem and 64rem)
-							// if the side nav was expanded on desktop.
-							isExpandedOnDesktop && !isFlyoutVisible
-					}
+					isEnabled={!isFlyoutVisible}
 					shortcut={isShortcutEnabled ? sideNavToggleTooltipKeyboardShortcut : undefined}
 				>
 					<div css={styles.flexContainer}>{children}</div>
 				</PanelSplitterProvider>
 			</nav>
-			{isFhsEnabled && fg('platform-dst-side-nav-layering-fixes') && (
+			{isFhsEnabled && (
 				// The side nav panel splitter is rendered outside of the side nav, so it can be layered above the top nav,
 				// while the actual side nav is layered below the top nav.
 				<div
@@ -1305,17 +1625,17 @@ function SideNavInternal({
 						panelSplitterPortalTargetStyles.root,
 						// We need to apply the same styles to hide the panel splitter when the side nav is hidden, as it is rendered outside of the side nav.
 						isExpandedOnDesktop &&
-						!isExpandedOnMobile &&
-						!isFlyoutVisible &&
-						styles.hiddenMobileOnly,
+							!isExpandedOnMobile &&
+							!isFlyoutVisible &&
+							styles.hiddenMobileOnly,
 						!isExpandedOnDesktop &&
-						isExpandedOnMobile &&
-						!isFlyoutVisible &&
-						styles.hiddenDesktopOnly,
+							isExpandedOnMobile &&
+							!isFlyoutVisible &&
+							styles.hiddenDesktopOnly,
 						!isExpandedOnDesktop &&
-						!isExpandedOnMobile &&
-						!isFlyoutVisible &&
-						styles.hiddenMobileAndDesktop,
+							!isExpandedOnMobile &&
+							!isFlyoutVisible &&
+							styles.hiddenMobileAndDesktop,
 					]}
 					style={
 						{
@@ -1328,14 +1648,14 @@ function SideNavInternal({
 					}
 				/>
 			)}
-		</>
+		</React.Fragment>
 	);
 }
 
 /**
  * The side navigation layout area. It will show on the left (inline start) of the screen.
  *
- * Use the side nav area components (`SideNavHeader`, `SideNavContent`, `SideNavFooter`) to position
+ * Use the side nav area components (`SideNavHeader`, `SideNavBody`, `SideNavFooter`) to position
  * content within areas of the side nav.
  *
  * You can optionally render a `PanelSplitter` as a child to make the side navigation slot resizable.
@@ -1344,6 +1664,8 @@ export function SideNav({
 	children,
 	defaultCollapsed,
 	defaultWidth = 320,
+	minWidth,
+	maxWidth,
 	testId,
 	label, // Default value is defined in `SideNavInternal`
 	skipLinkLabel = label, // Default value is defined in `SideNavInternal`
@@ -1359,6 +1681,8 @@ export function SideNav({
 			<SideNavInternal
 				defaultCollapsed={defaultCollapsed}
 				defaultWidth={defaultWidth}
+				minWidth={minWidth}
+				maxWidth={maxWidth}
 				testId={testId}
 				label={label}
 				skipLinkLabel={skipLinkLabel}

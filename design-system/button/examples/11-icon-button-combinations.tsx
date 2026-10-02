@@ -2,15 +2,16 @@ import React, { Fragment, useState } from 'react';
 
 import capitalize from 'lodash/capitalize';
 
-import LegacyButton from '@atlaskit/button';
-import Checkbox from '@atlaskit/checkbox';
+import LegacyButton from '@atlaskit/button/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import StarStarredIcon from '@atlaskit/icon/core/star-starred';
 import { type IconSize } from '@atlaskit/icon/types';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box, Stack } from '@atlaskit/primitives';
+import { Box, Stack } from '@atlaskit/primitives/compiled';
 
 // eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
-import { iconButtonShapes, iconButtonVariants } from '../src/utils/variants';
+import { iconButtonShapes } from '../src/utils/icon-button-shapes';
+// eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
+import variants from '../src/utils/variants';
 
 const iconSizes: IconSize[] = ['small', 'medium'];
 
@@ -25,7 +26,7 @@ export default function IconButtonExample(): React.JSX.Element {
 				onChange={() => setShowLegacyButton((value) => !value)}
 			/>
 			<Stack space="space.300" alignInline="start">
-				{iconButtonVariants.map(({ name, Component, appearances }) => {
+				{[variants.IconButton, variants.LinkIconButton].map(({ name, Component, appearances }) => {
 					return (
 						<Stack space="space.050" key={name}>
 							<h2>{name}</h2>
@@ -55,27 +56,43 @@ export default function IconButtonExample(): React.JSX.Element {
 													<th>{capitalize(appearance)}</th>
 													<td>
 														<LegacyButton
-															appearance={appearance === 'discovery' ? undefined : appearance}
+															appearance={
+																appearance === 'discovery' || appearance === 'rovo'
+																	? undefined
+																	: appearance
+															}
 															iconBefore={<StarStarredIcon label="Label" size="medium" />}
 														/>
 													</td>
 													<td>
 														<LegacyButton
-															appearance={appearance === 'discovery' ? undefined : appearance}
+															appearance={
+																appearance === 'discovery' || appearance === 'rovo'
+																	? undefined
+																	: appearance
+															}
 															iconBefore={<StarStarredIcon label="Label" size="medium" />}
 															isDisabled
 														/>
 													</td>
 													<td>
 														<LegacyButton
-															appearance={appearance === 'discovery' ? undefined : appearance}
+															appearance={
+																appearance === 'discovery' || appearance === 'rovo'
+																	? undefined
+																	: appearance
+															}
 															iconBefore={<StarStarredIcon label="Label" size="medium" />}
 															isSelected
 														/>
 													</td>
 													<td>
 														<LegacyButton
-															appearance={appearance === 'discovery' ? undefined : appearance}
+															appearance={
+																appearance === 'discovery' || appearance === 'rovo'
+																	? undefined
+																	: appearance
+															}
 															iconBefore={<StarStarredIcon label="Label" size="medium" />}
 															isSelected
 															isDisabled
@@ -85,7 +102,11 @@ export default function IconButtonExample(): React.JSX.Element {
 													{iconSizes.map((size) => (
 														<td>
 															<LegacyButton
-																appearance={appearance === 'discovery' ? undefined : appearance}
+																appearance={
+																	appearance === 'discovery' || appearance === 'rovo'
+																		? undefined
+																		: appearance
+																}
 																iconBefore={<StarStarredIcon label="Label" size={size} />}
 															/>
 														</td>

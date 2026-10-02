@@ -2,15 +2,18 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { type MouseEvent, memo, forwardRef } from 'react';
+import React, { memo, forwardRef } from 'react';
+
 import { css, cssMap, jsx } from '@compiled/react';
+
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import { token } from '@atlaskit/tokens';
-import { B100 } from '@atlaskit/theme/colors';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
+
 import type { EmojiDescription } from '../../types';
-import { leftClick } from '../../util/mouse';
-import Emoji from './Emoji';
 import { TONESELECTOR_KEYBOARD_KEYS_SUPPORTED } from '../../util/constants';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import { isTeamoji26RefreshEmojiPickerEnabledNoExposure } from '../../util/teamoji26RefreshEmojiPicker';
+import Emoji from './Emoji';
 
 const emojiButton = css({
 	backgroundColor: 'transparent',
@@ -21,7 +24,7 @@ const emojiButton = css({
 	position: 'relative',
 	display: 'inline-block',
 
-	/* Firefox */
+	// Firefox
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&::-moz-focus-inner': {
 		borderWidth: 0,
@@ -31,10 +34,10 @@ const emojiButton = css({
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&>span': {
-		paddingTop: token('space.075', '6px'),
-		paddingBottom: token('space.075', '6px'),
-		paddingLeft: token('space.075', '6px'),
-		paddingRight: token('space.075', '6px'),
+		paddingTop: token('space.075'),
+		paddingBottom: token('space.075'),
+		paddingLeft: token('space.075'),
+		paddingRight: token('space.075'),
 
 		// Scale sprite to fit regardless of default emoji size
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
@@ -48,12 +51,6 @@ const emojiButton = css({
 			height: '24px',
 			width: '24px',
 		},
-	},
-
-	'&:focus': {
-		boxShadow: `0 0 0 2px ${token('color.border.focused', B100)}`,
-		transitionDuration: '0s, 0.2s',
-		outline: 'none',
 	},
 });
 
@@ -71,7 +68,7 @@ const emojiRadio = cssMap({
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		'&:focus + span': {
-			boxShadow: `0 0 0 2px ${token('color.border.focused', B100)}`,
+			boxShadow: `0 0 0 2px ${token('color.border.focused')}`,
 			transitionDuration: '0s, 0.2s',
 			outline: 'none',
 		},
@@ -82,19 +79,22 @@ export interface Props {
 	ariaLabelText?: string;
 	defaultChecked?: boolean;
 	emoji: EmojiDescription;
+	onArrowKey?: (direction: -1 | 1) => void;
 	onSelected?: () => void;
 	selectOnHover?: boolean;
 }
 
-const handleMouseDown = (props: Props, event: MouseEvent<any>) => {
-	const { onSelected } = props;
-	event.preventDefault();
-	if (onSelected && leftClick(event)) {
-		onSelected();
+const handleKeyDown = (props: Props, event: React.KeyboardEvent) => {
+	if (
+		(event.key === 'ArrowLeft' || event.key === 'ArrowRight') &&
+		isTeamoji26RefreshEmojiPickerEnabledNoExposure()
+	) {
+		event.preventDefault();
+		event.stopPropagation();
+		props.onArrowKey?.(event.key === 'ArrowRight' ? 1 : -1);
+		return;
 	}
-};
 
-const handleKeyPress = (props: Props, event: React.KeyboardEvent<HTMLLabelElement>) => {
 	if (TONESELECTOR_KEYBOARD_KEYS_SUPPORTED.includes(event.key)) {
 		const { onSelected } = props;
 
@@ -106,16 +106,16 @@ const handleKeyPress = (props: Props, event: React.KeyboardEvent<HTMLLabelElemen
 	}
 };
 
-export const EmojiRadioButton = forwardRef<HTMLInputElement, Props>((props: Props, ref) => {
+export const EmojiRadioButton: React.ForwardRefExoticComponent<
+	Props & React.RefAttributes<HTMLInputElement>
+> = forwardRef<HTMLInputElement, Props>((props: Props, ref) => {
 	const { emoji, selectOnHover, ariaLabelText, defaultChecked } = props;
+	const fitToHeight = expValEqualsNoExposure('platform_use_unicode_emojis', 'isEnabled', true)
+		? 24
+		: undefined;
 
 	return (
-		// eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-interactions
-		<label
-			css={emojiButton}
-			onMouseDown={(event) => handleMouseDown(props, event)}
-			onKeyDown={(event) => handleKeyPress(props, event)}
-		>
+		<label css={emojiButton}>
 			<VisuallyHidden>{ariaLabelText}</VisuallyHidden>
 			{/* eslint-disable-next-line @atlaskit/design-system/no-html-radio */}
 			<input
@@ -125,15 +125,24 @@ export const EmojiRadioButton = forwardRef<HTMLInputElement, Props>((props: Prop
 				name="skin-tone"
 				css={emojiRadio.default}
 				defaultChecked={defaultChecked}
+				onClick={() => props.onSelected?.()}
+				onKeyDown={(event) => handleKeyDown(props, event)}
+				onChange={
+					isTeamoji26RefreshEmojiPickerEnabledNoExposure() ? (e) => e.preventDefault() : undefined
+				}
 			/>
 			<Emoji
 				emoji={emoji}
 				selectOnHover={selectOnHover}
 				shouldBeInteractive={false}
 				aria-hidden={true}
+				fitToHeight={fitToHeight}
 			/>
 		</label>
 	);
 });
 
-export default memo(EmojiRadioButton);
+const _default_1: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<Props & React.RefAttributes<HTMLInputElement>>
+> = memo(EmojiRadioButton);
+export default _default_1;

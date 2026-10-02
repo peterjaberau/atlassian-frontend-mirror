@@ -11,8 +11,31 @@ const color: ValueSchema<BackgroundColorTokenSchema<BaseToken>> = {
 			// @ts-ignore temporary value (Red600 8% opacity)
 			danger: { value: '#E3493514' },
 		},
+		rovo: {
+			background: {
+				brand: {
+					bold: {
+						'[default]': { value: 'DarkNeutral1200' },
+						hovered: { value: 'DarkNeutral1100' },
+						pressed: { value: 'DarkNeutral1000' },
+					},
+				},
+			},
+			border: {
+				blue: { value: 'Blue600' },
+				lime: { value: 'Lime500' },
+				purple: { value: 'Purple500' },
+				saffron: { value: 'Orange400' },
+			},
+			icon: {
+				blue: { value: 'Blue600' },
+				lime: { value: 'Lime500' },
+				purple: { value: 'Purple500' },
+				saffron: { value: 'Orange400' },
+			},
+		},
 		background: {
-			disabled: { value: 'DarkNeutral100A' },
+			disabled: { value: 'DarkNeutral300A' },
 			inverse: {
 				subtle: {
 					// @ts-ignore temporary value (#FFFFFF 16% opacity)
@@ -91,6 +114,9 @@ const color: ValueSchema<BackgroundColorTokenSchema<BaseToken>> = {
 					hovered: { value: 'Red850' },
 					pressed: { value: 'Red800' },
 				},
+				subtle: {
+					'[default]': { value: 'Red800' },
+				},
 			},
 			warning: {
 				'[default]': {
@@ -107,6 +133,9 @@ const color: ValueSchema<BackgroundColorTokenSchema<BaseToken>> = {
 					'[default]': { value: 'Orange900' },
 					hovered: { value: 'Orange850' },
 					pressed: { value: 'Orange800' },
+				},
+				subtle: {
+					'[default]': { value: 'Orange800' },
 				},
 			},
 			success: {
@@ -125,6 +154,9 @@ const color: ValueSchema<BackgroundColorTokenSchema<BaseToken>> = {
 					hovered: { value: 'Lime850' },
 					pressed: { value: 'Lime800' },
 				},
+				subtle: {
+					'[default]': { value: 'Lime800' },
+				},
 			},
 			discovery: {
 				'[default]': {
@@ -142,6 +174,9 @@ const color: ValueSchema<BackgroundColorTokenSchema<BaseToken>> = {
 					hovered: { value: 'Purple850' },
 					pressed: { value: 'Purple800' },
 				},
+				subtle: {
+					'[default]': { value: 'Purple800' },
+				},
 			},
 			information: {
 				'[default]': {
@@ -158,6 +193,9 @@ const color: ValueSchema<BackgroundColorTokenSchema<BaseToken>> = {
 					'[default]': { value: 'Blue900' },
 					hovered: { value: 'Blue850' },
 					pressed: { value: 'Blue800' },
+				},
+				subtle: {
+					'[default]': { value: 'Blue800' },
 				},
 			},
 		},

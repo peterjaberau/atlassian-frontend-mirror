@@ -1,18 +1,28 @@
+import { acNameToEmoji } from '@atlaskit/adf-schema/ac-name-to-emoji';
+import { acShortcutToEmoji } from '@atlaskit/adf-schema/ac-shortcut-to-emoji';
+import type { NameToEmoji } from '@atlaskit/adf-schema/confluence/emoji';
+import type { MediaAttributes } from '@atlaskit/adf-schema/media';
 import type {
-	MediaAttributes,
 	RichMediaAttributes as MediaSingleAttributes,
-	RichMediaLayout as MediaSingleLayout,
-	NameToEmoji,
-} from '@atlaskit/adf-schema';
-import { acNameToEmoji, acShortcutToEmoji, tableBackgroundColorNames } from '@atlaskit/adf-schema';
+	Layout as MediaSingleLayout,
+} from '@atlaskit/adf-schema/rich-media-common';
+import { tableBackgroundColorNames } from '@atlaskit/adf-schema/tableNodes';
+import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
+import { Fragment } from '@atlaskit/editor-prosemirror/model';
 import {
 	akEditorFullPageMaxWidth,
 	akEditorTableNumberColumnWidth,
 } from '@atlaskit/editor-shared-styles/consts';
-import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
-import { Fragment } from '@atlaskit/editor-prosemirror/model';
-import parseCxhtml from './parse-cxhtml';
+
+import {
+	blockquoteContentWrapper,
+	listContentWrapper,
+	listItemContentWrapper,
+	ensureInline,
+	docContentWrapper,
+} from './content-wrapper';
 import { AC_XMLNS, default as encodeCxhtml } from './encode-cxhtml';
+import parseCxhtml from './parse-cxhtml';
 import {
 	findTraversalPath,
 	getNodeName,
@@ -29,13 +39,10 @@ import {
 	mapPanelTypeToPm,
 	calcPixelsFromCSSValue,
 } from './utils';
-import {
-	blockquoteContentWrapper,
-	listContentWrapper,
-	listItemContentWrapper,
-	ensureInline,
-	docContentWrapper,
-} from './content-wrapper';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const WORD_CHARS_END_REGEX = /\w+$/;
 
 const supportedSingleMediaLayouts = ['center', 'wrap-left', 'wrap-right', 'wide', 'full-width'];
 
@@ -43,7 +50,7 @@ const convertedNodes = new WeakMap<Node, Fragment | PMNode>();
 // This reverted mapping is used to map Unsupported Node back to it's original cxhtml
 const convertedNodesReverted = new WeakMap<Fragment | PMNode, Node>();
 
-export default function (cxhtml: string, schema: Schema) {
+export default function (cxhtml: string, schema: Schema): PMNode {
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	const dom = parseCxhtml(cxhtml).querySelector('body')!;
@@ -541,9 +548,7 @@ function convertCodeFromView(schema: Schema, node: Element): Fragment | PMNode |
 
 	let language;
 	if (node.className) {
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		language = (node.className.match(/\w+$/) || [''])[0];
+		language = (node.className.match(WORD_CHARS_END_REGEX) || [''])[0];
 	}
 
 	return createCodeFragment(schema, content, language);

@@ -2,19 +2,19 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState, type ComponentType, type FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import { DatePicker } from '@atlaskit/datetime-picker';
+import DatePicker from '@atlaskit/datetime-picker/date-picker';
 import type { DateRangeField, DateRangeResult } from '@atlaskit/editor-common/extensions';
 import { configPanelMessages as messages } from '@atlaskit/editor-common/extensions';
-import { Field } from '@atlaskit/form';
-import { RadioGroup } from '@atlaskit/radio';
-import TextField from '@atlaskit/textfield';
+import Field from '@atlaskit/form/field';
+import RadioGroup from '@atlaskit/radio/radio-group';
+import TextField from '@atlaskit/textfield/text-field';
 
 import FieldMessages from '../FieldMessages';
 import type { OnFieldChange } from '../types';
@@ -65,6 +65,7 @@ const DateField = ({
 			label={intl.formatMessage(messages[fieldName])}
 			defaultValue={getFromDefaultValue(parentField, fieldName as keyof DateRangeResult)}
 			isRequired={isRequired}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value?: string) => {
 				return validateRequired<string | undefined>({ isRequired }, value);
 			}}
@@ -76,6 +77,7 @@ const DateField = ({
 						// Ignored via go/ees005
 						// eslint-disable-next-line react/jsx-props-no-spreading
 						{...fieldProps}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onChange={(date: string) => {
 							fieldProps.onChange(date);
 							onFieldChange(parentField.name, true);
@@ -145,6 +147,7 @@ const DateRange = function ({
 				label={field.label}
 				defaultValue={currentValue}
 				isRequired={field.isRequired}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				validate={(value?: string) => validate<string>(field, value || '')}
 				testId={`config-panel-date-range-${name}`}
 				isDisabled={field.isDisabled}
@@ -156,6 +159,7 @@ const DateRange = function ({
 							// eslint-disable-next-line react/jsx-props-no-spreading
 							{...fieldProps}
 							options={items}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onChange={(event) => {
 								fieldProps.onChange(event.target.value);
 								setCurrentValue(event.target.value);
@@ -211,4 +215,25 @@ const DateRange = function ({
 	return element;
 };
 
-export default injectIntl(DateRange);
+const _default_1: FC<
+	WithIntlProps<
+		{
+			autoFocus?: boolean;
+			field: DateRangeField;
+			name: string;
+			onFieldChange: OnFieldChange;
+			placeholder?: string;
+		} & WrappedComponentProps
+	>
+> & {
+	WrappedComponent: ComponentType<
+		{
+			autoFocus?: boolean;
+			field: DateRangeField;
+			name: string;
+			onFieldChange: OnFieldChange;
+			placeholder?: string;
+		} & WrappedComponentProps
+	>;
+} = injectIntl(DateRange);
+export default _default_1;

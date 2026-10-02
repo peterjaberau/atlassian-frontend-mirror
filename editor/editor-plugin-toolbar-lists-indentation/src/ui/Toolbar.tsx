@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { jsx } from '@atlaskit/css';
 import {
@@ -26,7 +26,7 @@ import IndentIcon from '@atlaskit/icon/core/text-indent-right';
 
 import type { ButtonName, ToolbarProps } from '../types';
 
-export function Toolbar(props: ToolbarProps) {
+export function Toolbar(props: ToolbarProps): JSX.Element {
 	const { formatMessage } = useIntl();
 
 	const indentButtonRef = useRef<HTMLElement | null>(null);

@@ -1,5 +1,470 @@
 # @atlaskit/motion
 
+## 9.1.0
+
+### Minor Changes
+
+- [`f0b7e833490d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0b7e833490d2) -
+  Expose named literal types for animation curves so static CSS values can be checked against their
+  exact source curve. Preserve existing AnimationCurve annotations and runtime values.
+
+## 9.0.1
+
+### Patch Changes
+
+- [`0a7c952be5cf0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a7c952be5cf0) -
+  Fix settled-width truncation measurement for custom multi-value labels and preserve exiting tags
+  through picker rerenders behind platform-dst-motion-uplift-labels.
+
+## 9.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.0
+
+### Minor Changes
+
+- [`78264aeafd321`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78264aeafd321) -
+  Add an onStart lifecycle callback to useMotion so Tag, Select, and User Picker consumers can
+  determine settled truncation before tokenized grid-column motion runs behind
+  platform-dst-motion-uplift-labels.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.0
+
+### Minor Changes
+
+- [`c7333edc6dfa2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7333edc6dfa2) -
+  Update `useMotion` so exiting state is available during render and consistently drives exit
+  styles, duration measurement, and completion handling.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.1
+
+### Patch Changes
+
+- [`e974cd0ae082c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e974cd0ae082c) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`75e41b355abb1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/75e41b355abb1) -
+  VOLTC-7 - run volt codemods on @atlaskit/motion
+
+### Patch Changes
+
+- [`75e41b355abb1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/75e41b355abb1) -
+  Change `useExitingPersistence` import to newly created named export
+
+## 8.4.2
+
+### Patch Changes
+
+- Use `@atlassian/testing-library` exclusively in unit tests.
+- [`fae4f6a53e4be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fae4f6a53e4be) -
+  Render label enter and exit animations through `cssMap` in Tag, React Select, Select, and User
+  Picker. Motion now measures concurrent CSS animation lists correctly so the label scale and fade
+  animations complete together.
+
+## 8.4.1
+
+### Patch Changes
+
+- [`ef98af289c49b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef98af289c49b) -
+  Add motion to Tag, AvatarTag, TagDropdownTrigger, Tag Group, Select, React Select, and User Picker
+  tag values. Tags use `motion.label.enter` and `motion.label.exit` for entry and exit, while
+  interactive tags and dropdown triggers use the button hover and pressed motion tokens; Tag
+  Dropdown Trigger also fades between its content and loading spinner. The remove control is removed
+  when exit begins so it cannot linger while the tag collapses.
+
+  Motion is gated by `platform-dst-motion-uplift-labels`. Compatibility and adoption paths for the
+  visually uplifted Tag, Tag Group, Select, React Select, and User Picker additionally remain behind
+  `platform-dst-lozenge-tag-badge-visual-uplifts`.
+
+  `@atlaskit/react-select` also adds an optional `onMotionFinish` callback to the exported
+  `MultiValueProps` interface so the Select can restore its placeholder after the final multi-value
+  exit completes.
+
+  ```tsx
+  import Tag from '@atlaskit/tag/new';
+
+  <Tag text="Status" />;
+  ```
+
+## 8.4.0
+
+### Minor Changes
+
+- [`73079cc6f11c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73079cc6f11c2) -
+  VOLTC-7 - run volt codemods on @atlaskit/motion
+
+### Patch Changes
+
+- [`73079cc6f11c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73079cc6f11c2) -
+  Change `useExitingPersistence` import to newly created named export
+
+## 8.3.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`ad1af6eb0a5ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ad1af6eb0a5ea) -
+  VOLTC-7 - run volt codemods on @atlaskit/motion
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+## 8.1.0
+
+### Minor Changes
+
+- [`87c9da1902e16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87c9da1902e16) -
+  VOLTC-7 - run volt codemods on @atlaskit/motion
+
+## 8.0.0
+
+### Major Changes
+
+- [`ae45184d2cd0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae45184d2cd0b) -
+  Add `initialState` option to `useMotion` and introduce explicit `visible` and `hidden` motion
+  states (replacing the previous `idle` state). This allows consumers to render a component in a
+  pre-hidden state and control the starting point of the motion lifecycle.
+
+## 7.5.0
+
+### Minor Changes
+
+- [`cad86b0c0e613`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cad86b0c0e613) -
+  Remove hardcoded animationFillMode styles from Motion component — fill-mode is now included in the
+  motion design tokens (AnimationFillModeForwards/AnimationFillModeBackwards) and baked directly
+  into the generated CSS animation shorthands.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.0
+
+### Minor Changes
+
+- [`95ff9f0742fb9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95ff9f0742fb9) -
+  Added ability to re-animate the exit animation programmatically via the useMotion hook
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`28870bef28294`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28870bef28294) -
+  Add `useMotion` hook so motion can be applied to an existing element without an extra wrapper
+  element. The hook is available from the `@atlaskit/motion/use-motion` entry point. `Motion` now
+  consumes this hook behind the `platform-dst-use-motion` feature gate (no behavioural change while
+  the gate is off).
+
+## 7.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`70d7bedfe6c44`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70d7bedfe6c44) -
+  Migrate CustomMotionXCSS type from XCSSProp (@compiled/react) to StrictXCSSProp (@atlaskit/css)
+  for improved type safety and alignment with the UI Styling Standard
+
+## 7.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.5
+
+### Patch Changes
+
+- [`c1d2cea81ac8c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c1d2cea81ac8c) -
+  Fix exiting presence showing stale popup value when key is not provided
+
+## 6.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.3
+
+### Patch Changes
+
+- [`68077cab1f95d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/68077cab1f95d) -
+  Fixed styling related issues behind the new motion uplift
+
+## 6.2.2
+
+### Patch Changes
+
+- [`8c59900bcec05`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8c59900bcec05) -
+  Added AI specific motion examples for ADS MCP
+
+## 6.2.1
+
+### Patch Changes
+
+- [`69c45287fc0bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69c45287fc0bb) -
+  Simplify motion component examples for ADS skill codegen
+
+  Reduce Motion, ExitingPersistence, StaggeredEntrance, and Resizing from multiple constellation
+  examples to a single focused example each, keeping generated skill reference docs concise for AI
+  consumers.
+
+  Also fix `componentToSlug` and `componentsToSkillIndex` not being exported from
+  `@atlassian/structured-docs/transforms/component-to-skill-reference`, which caused `codegen:skill`
+  to fail with a TypeError.
+
+## 6.2.0
+
+### Minor Changes
+
+- [`aef119573f01b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aef119573f01b) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 6.1.1
+
+### Patch Changes
+
+- [`125ae08eb4dbf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/125ae08eb4dbf) -
+  Added motion structured content
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`0c29c3e6feae5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c29c3e6feae5) -
+  Fixes token based animations in Motion primitive exiting incorrectly
+
+## 6.0.0
+
+### Major Changes
+
+- [`88696c5e1a75c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88696c5e1a75c) -
+  Replaced experimental `useResizingWidth` / `ResizingWidth` with a new generic `useResizing` /
+  `Resizing` exported from `@atlaskit/motion/resizing`.
+
+  The new hook accepts a `dimension: 'width' | 'height' | 'both'` argument so callers can animate
+  either axis (or both) with a single API. The `duration`, `easing`, and `onFinishMotion` options
+  are unchanged.
+
+## 5.7.0
+
+### Minor Changes
+
+- [`3f856fac603f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f856fac603f7) -
+  Motion primitive now can accept a custom motion object defining duration, easing, keyframe and
+  delay. This allows consumers to create more customised entry and exit animations if an applicable
+  motion design token does not exist.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.0
+
+### Minor Changes
+
+- [`7b44d021342cf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b44d021342cf) -
+  Added new experimental `useResizingWidth` hook and `ResizingWidth` component.
+
+  This hook and component can be consumed to enable an element to resize its `width` when it changes
+  after a state transition.
+
+  Usage of this component should be carefully considered as it can have a performance impact.
+
+## 5.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.2
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 5.5.1
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 5.5.0
+
+### Minor Changes
+
+- [`2596f105ed08c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2596f105ed08c) -
+  Fix to Exiting Persistence to display previous elements instead of just exiting children when
+  exitThenEnter set to true
+
+## 5.4.2
+
+### Patch Changes
+
+- [`4927c4a64f704`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4927c4a64f704) -
+  Added export of new MotionProps interface
+- Updated dependencies
+
+## 5.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.0
+
+### Minor Changes
+
+- [`07b8035be9593`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07b8035be9593) -
+  Introduced a new motion primitive to be used in conjunction with new motion design tokens. This is
+  currently experimental and subject to change.
+
+  Includes two props, `enteringAnimation` and `exitingAnimation` that specify the entering and
+  exiting animations via semantic motion design tokens.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.11
+
+### Patch Changes
+
+- [`5db9e3f21a52f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5db9e3f21a52f) -
+  Internal refactoring
+
 ## 5.3.10
 
 ### Patch Changes

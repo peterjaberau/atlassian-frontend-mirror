@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { render } from '@testing-library/react';
-
 import { axe } from '@af/accessibility-testing';
+import { render } from '@atlassian/testing-library';
 
 import { AtlassianLogo } from '../../index';
 

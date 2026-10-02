@@ -1,16 +1,14 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import type { ExtractInjectionAPI, EditorCommand } from '@atlaskit/editor-common/types';
 import { getAnnotationMarksForPos } from '@atlaskit/editor-common/utils';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
 import type { Mark } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
-import {
-	isResolvingMentionProvider,
-	type MentionProvider,
-	type MentionDescription,
-} from '@atlaskit/mention/resource';
+import { isResolvingMentionProvider } from '@atlaskit/mention/is-resolving-mention-provider';
+import type { MentionProvider, MentionDescription } from '@atlaskit/mention/types';
+import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
 
 import type { MentionsPlugin } from '../mentionsPluginType';
 
@@ -37,10 +35,14 @@ type InternalParams = {
 	sanitizePrivateContent: boolean;
 };
 
+const isAgentUserType = (userType: InsertMentionParameters['userType']): boolean =>
+	userType === 'APP' || userType === 'AGENT';
+
 type SingleMentionFragmentParams = {
 	mentionInsertDisplayName: boolean | undefined;
 	mentionProvider: MentionProvider | undefined;
 	sanitizePrivateContent: boolean | undefined;
+	suppressInviteXProductUser?: boolean;
 	tr: Transaction;
 };
 
@@ -50,6 +52,7 @@ export const createSingleMentionFragment =
 		mentionProvider,
 		tr,
 		sanitizePrivateContent,
+		suppressInviteXProductUser,
 	}: SingleMentionFragmentParams) =>
 	({
 		name,
@@ -59,11 +62,11 @@ export const createSingleMentionFragment =
 		localId,
 		accessLevel,
 		isXProductUser,
-	}: InsertMentionParameters) => {
+	}: InsertMentionParameters): Fragment => {
 		const schema = tr.doc.type.schema;
 		const trimmedNickname = nickname && nickname.startsWith('@') ? nickname.slice(1) : nickname;
 		const renderName = mentionInsertDisplayName || !trimmedNickname ? name : trimmedNickname;
-		if (isXProductUser && mentionProvider && mentionProvider.inviteXProductUser) {
+		if (!suppressInviteXProductUser && isXProductUser && mentionProvider?.inviteXProductUser) {
 			mentionProvider.inviteXProductUser(id, name);
 		}
 
@@ -111,6 +114,8 @@ export const insertMention =
 				mentionProvider,
 				mentionInsertDisplayName,
 				tr,
+				suppressInviteXProductUser:
+					expVal('platform_editor_agent_mentions', 'isEnabled', false) && isAgentUserType(userType),
 			})({ name, id, userType, nickname, localId, accessLevel, isXProductUser });
 			return tr.insert(tr.selection.from, mentionFragment);
 		};

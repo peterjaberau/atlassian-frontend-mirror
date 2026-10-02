@@ -6,15 +6,12 @@ import React, { useEffect, useRef } from 'react';
 
 import { cssMap, cx, jsx } from '@compiled/react';
 
-import type { LogoProps } from '@atlaskit/logo';
-import { fg } from '@atlaskit/platform-feature-flags';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Anchor } from '@atlaskit/primitives';
+import type { LogoProps } from '@atlaskit/logo/types';
+import { Anchor } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
 import { useHasCustomTheme } from '../themed/has-custom-theme-context';
-
 import { LogoRenderer } from './logo-renderer';
 
 const anchorStyles = cssMap({
@@ -22,14 +19,10 @@ const anchorStyles = cssMap({
 		display: 'flex',
 		alignItems: 'center',
 		height: '32px',
-		borderRadius: token('radius.small', '3px'),
+		borderRadius: token('radius.small'),
 	},
 	customLogoBorderRadius: {
-		borderRadius: token('radius.small', '3px'),
-	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	customLogoBorderRadiusT26Shape: {
-		borderRadius: token('radius.large', '8px'),
+		borderRadius: token('radius.large'),
 	},
 	newMargin: {
 		// Additional margin is added to the left of the interactive element, to create visual alignment
@@ -101,7 +94,6 @@ const iconContainerStyles = cssMap({
 			// '&&' is required to add more CSS specificity to resolve non-deterministic ordering, which can result in
 			// both the `icon` and `logo` elements to be displayed at the same time
 			// Clean up task: https://jplat.atlassian.net/browse/BLU-4788
-			// @ts-ignore
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'&&': {
 				display: 'none',
@@ -121,7 +113,6 @@ const logoContainerStyles = cssMap({
 			// '&&' is required to add more CSS specificity to resolve non-deterministic ordering, which can result in
 			// both the `icon` and `logo` elements to be displayed at the same time
 			// Clean up task: https://jplat.atlassian.net/browse/BLU-4788
-			// @ts-ignore
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'&&': {
 				display: 'flex',
@@ -138,27 +129,33 @@ const logoContainerStyles = cssMap({
  * To provide a responsive experience, it requires both a logo and an icon component.
  * The logo component will be used for large viewports, and the icon component will be used for small viewports.
  */
-export const CustomLogo: ({ href, logo, icon, onClick, label, }: {
-    /**
-     * Provide an accessible label, often used by screen readers.
-     */
-    label: string;
-    /**
-     * The URL to navigate to when the element is clicked.
-     */
-    href: string;
-    /**
-     * The logo component to render. It will be used for large viewports.
-     */
-    logo: (props: LogoProps) => JSX.Element;
-    /**
-     * The icon component to render. It will be used for small viewports.
-     */
-    icon: (props: LogoProps) => JSX.Element;
-    /**
-     * Handler called on click.
-     */
-    onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+export const CustomLogo: ({
+	href,
+	logo,
+	icon,
+	onClick,
+	label,
+}: {
+	/**
+	 * Provide an accessible label, often used by screen readers.
+	 */
+	label: string;
+	/**
+	 * The URL to navigate to when the element is clicked.
+	 */
+	href: string;
+	/**
+	 * The logo component to render. It will be used for large viewports.
+	 */
+	logo: (props: LogoProps) => JSX.Element;
+	/**
+	 * The icon component to render. It will be used for small viewports.
+	 */
+	icon: (props: LogoProps) => JSX.Element;
+	/**
+	 * Handler called on click.
+	 */
+	onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }) => JSX.Element = ({
 	href,
 	logo,
@@ -244,7 +241,6 @@ export const CustomLogo: ({ href, logo, icon, onClick, label, }: {
 			xcss={cx(
 				anchorStyles.root,
 				anchorStyles.customLogoBorderRadius,
-				fg('platform-dst-shape-theme-default') && anchorStyles.customLogoBorderRadiusT26Shape,
 				anchorStyles.newMargin,
 				hasCustomTheme
 					? anchorStyles.newInteractionStatesCustomTheming

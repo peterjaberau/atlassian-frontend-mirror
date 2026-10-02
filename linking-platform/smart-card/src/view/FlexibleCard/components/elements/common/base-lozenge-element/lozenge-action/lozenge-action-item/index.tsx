@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
 
-import { DropdownItem } from '@atlaskit/dropdown-menu';
-import Lozenge from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 
 import type { LozengeActionItemProps } from './types';
 
@@ -31,13 +30,9 @@ const LozengeActionItem = ({
 	}, []);
 
 	return (
-		// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
-		<span onMouseEnter={handleMouseEnter} role="presentation">
+		<span onFocus={handleMouseEnter} onMouseEnter={handleMouseEnter} role="presentation">
 			<DropdownItem onClick={handleClick} testId={testId}>
-				<Lozenge
-					appearance={appearance}
-					{...(fg('platform-component-visual-refresh') ? { isBold: true } : undefined)}
-				>
+				<Lozenge appearance={appearance} isBold>
 					{text}
 				</Lozenge>
 			</DropdownItem>

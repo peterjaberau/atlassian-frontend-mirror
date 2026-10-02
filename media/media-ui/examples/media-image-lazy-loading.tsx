@@ -1,14 +1,16 @@
-import { token } from '@atlaskit/tokens';
 import React, { type CSSProperties } from 'react';
-import { IntlProvider } from 'react-intl-next';
-import Page from '@atlaskit/page';
-import { atlassianLogoUrl } from '../src/test-helpers/atlassianLogoUrl';
 
-import { MediaImage } from '../src';
+import { IntlProvider } from 'react-intl';
+
+import Page from '@atlaskit/page';
+import { token } from '@atlaskit/tokens';
+
+import { MediaImage } from '../src/mediaImage';
+import { atlassianLogoUrl } from '../src/test-helpers/atlassianLogoUrl';
 
 const paddingBoxStyle: CSSProperties = {
 	height: '110vh',
-	background: token('color.background.neutral', '#eee'),
+	background: token('color.background.neutral'),
 	display: 'flex',
 	flexDirection: 'column',
 	justifyContent: 'space-between',
@@ -16,7 +18,7 @@ const paddingBoxStyle: CSSProperties = {
 const imageBoxStyle: CSSProperties = {
 	position: 'relative',
 	height: '20rem',
-	border: `${token('border.width')} solid ${token('color.border', 'black')}`,
+	border: `${token('border.width')} solid ${token('color.border')}`,
 };
 
 export default (): React.JSX.Element => {

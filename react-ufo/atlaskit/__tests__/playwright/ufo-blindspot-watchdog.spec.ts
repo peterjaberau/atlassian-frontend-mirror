@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test, viewports } from './fixtures';
 
 test.describe('UFO Blindspot Watchdog', () => {
 	test.use({
 		examplePage: 'basic-with-blindspot', // 10 sections, but last 2 sections are missing a UFO Hold
-		featureFlags: ['platform_ufo_enable_late_mutation_label_stacks'],
+	} satisfies {
+		examplePage: 'basic-with-blindspot';
+		__exampleDependency?: typeof import('../../examples/20-basic-with-blindspot.tsx');
 	});
 
 	for (const viewport of viewports) {

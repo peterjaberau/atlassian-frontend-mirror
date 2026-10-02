@@ -1,12 +1,30 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import type { MentionAttributes } from '@atlaskit/adf-schema';
-import type { EditorAnalyticsAPI, InputMethodInsertMedia } from '@atlaskit/editor-common/analytics';
-import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
+import type { MentionAttributes } from '@atlaskit/adf-schema/mention';
+import { transformContainerNodes } from '@atlaskit/adf-utils/transforms';
+import type {
+	AnalyticsEventPayload,
+	EditorAnalyticsAPI,
+	InputMethodInsertMedia,
+} from '@atlaskit/editor-common/analytics';
+import {
+	ACTION,
+	ACTION_SUBJECT,
+	EVENT_TYPE,
+	INPUT_METHOD,
+} from '@atlaskit/editor-common/analytics';
 import type { CardOptions, QueueCardsFromTransactionAction } from '@atlaskit/editor-common/card';
+import { addLinkMetadata } from '@atlaskit/editor-common/card';
 import { insideTable } from '@atlaskit/editor-common/core-utils';
 import type { ExtensionAutoConvertHandler } from '@atlaskit/editor-common/extensions';
+import {
+	getBlockMarkAttrs,
+	getFirstParagraphBlockMarkAttrs,
+	reconcileBlockMarkForContainerAtPos,
+	reconcileBlockMarkForParagraphAtPos,
+	reconcileBlockMarkInRange,
+} from '@atlaskit/editor-common/lists';
 import { anyMarkActive } from '@atlaskit/editor-common/mark';
 import {
 	getParentOfTypeCount,
@@ -27,13 +45,20 @@ import {
 	linkifyContent,
 	mapSlice,
 } from '@atlaskit/editor-common/utils';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { RunMacroAutoConvert } from '@atlaskit/editor-plugin-extension';
 import type { FindRootParentListNode } from '@atlaskit/editor-plugin-list';
 import type { InsertMediaAsMediaSingle } from '@atlaskit/editor-plugin-media/types';
+import type {
+	Mark,
+	MarkType,
+	NodeType,
+	ResolvedPos,
+	Schema,
+} from '@atlaskit/editor-prosemirror/model';
 import { Fragment, Node as PMNode, Slice } from '@atlaskit/editor-prosemirror/model';
-import type { Mark, MarkType, Schema } from '@atlaskit/editor-prosemirror/model';
-import { AllSelection, NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorState, Selection, Transaction } from '@atlaskit/editor-prosemirror/state';
+import { AllSelection, NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import {
 	canInsert,
 	contains,
@@ -45,11 +70,11 @@ import {
 } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { replaceSelectedTable } from '@atlaskit/editor-tables/utils';
-import type { CardAdf, CardAppearance, DatasourceAdf } from '@atlaskit/linking-common';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { closeHistory } from '@atlaskit/prosemirror-history';
+import type { CardAdf, CardAppearance, DatasourceAdf } from '@atlaskit/linking-common/types';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { closeHistory } from '@atlaskit/prosemirror-history/closeHistory';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 // TODO: ED-20519 - Needs Macro extraction
 
 import {
@@ -57,7 +82,6 @@ import {
 	stopTrackingPastedMacroPositions,
 } from '../../editor-commands/commands';
 import { getPluginState as getPastePluginState } from '../plugin-factory';
-
 import {
 	insertSliceForLists,
 	insertSliceForTaskInsideList,
@@ -65,7 +89,6 @@ import {
 	updateSelectionAfterReplace,
 } from './edge-cases';
 import { insertSliceInsideOfPanelNodeSelected } from './edge-cases/lists';
-
 import {
 	addReplaceSelectedTableAnalytics,
 	applyTextMarksToSlice,
@@ -74,7 +97,7 @@ import {
 	isSelectionInsidePanel,
 } from './index';
 
-const insideExpand = (state: EditorState): Boolean => {
+const insideExpand = (state: EditorState): boolean => {
 	const { expand, nestedExpand } = state.schema.nodes;
 
 	return hasParentNodeOfType([expand, nestedExpand])(state.selection);
@@ -149,6 +172,7 @@ export function handlePasteIntoTaskOrDecisionOrPanel(
 				taskItem,
 				text,
 				panel,
+				panel_c1,
 				bulletList,
 				orderedList,
 				taskList,
@@ -164,27 +188,38 @@ export function handlePasteIntoTaskOrDecisionOrPanel(
 			['decisionList', 'decisionItem', 'taskList', 'taskItem'].includes(
 				state.selection.node.type.name,
 			);
-		const selectionHasValidParentNode = hasParentNodeOfType([decisionItem, taskItem, panel])(
-			state.selection,
-		);
+		// panel_c1 is a schema variant of panel (used when a table is nested inside a panel). When the
+		// experiment is on we must handle it anywhere we special-case a panel, otherwise partial
+		// selections copied from inside a table-in-panel are treated as a foreign container and
+		// re-wrapped on paste.
+		const selectionHasValidParentNode = expValEquals(
+			'platform_editor_nest_table_in_panel',
+			'isEnabled',
+			true,
+		)
+			? hasParentNodeOfType([decisionItem, taskItem, panel, panel_c1].filter(Boolean))(
+					state.selection,
+				)
+			: hasParentNodeOfType([decisionItem, taskItem, panel])(state.selection);
 		const selectionIsCodeBlock = hasParentNodeOfType([codeBlock])(state.selection);
 		const selectionIsListItem = hasParentNodeOfType([listItem])(state.selection);
 		const panelNode = isSelectionInsidePanel(selection);
 		const selectionIsPanel = Boolean(panelNode);
+		const sliceFirstChildIsPanel = expValEquals(
+			'platform_editor_nest_table_in_panel',
+			'isEnabled',
+			true,
+		)
+			? !!slice.content.firstChild && getBaseNodeTypeName(slice.content.firstChild.type) === 'panel'
+			: slice.content.firstChild?.type === panel;
 		const isSliceWholePanel =
-			slice.content.firstChild?.type === panel && slice.openStart === 0 && slice.openEnd === 0;
+			sliceFirstChildIsPanel && slice.openStart === 0 && slice.openEnd === 0;
 
 		// we avoid handling codeBlock-in-panel use case in this function
 		// returning false will allow code to flow into `handleCodeBlock` function
 		// Partial content copied from panels will have panel in the slice
 		// Return false to avoid handling this situation when pasted into list in panel and let `handlePastePanelOrDecisionContentIntoList` handle it
-		if (
-			selectionIsPanel &&
-			(selectionIsCodeBlock ||
-				(selectionIsListItem &&
-					!isSliceWholePanel &&
-					expValEquals('platform_editor_pasting_text_in_panel', 'isEnabled', true)))
-		) {
+		if (selectionIsPanel && (selectionIsCodeBlock || (selectionIsListItem && !isSliceWholePanel))) {
 			return false;
 		}
 
@@ -198,7 +233,7 @@ export function handlePasteIntoTaskOrDecisionOrPanel(
 				node.type === bulletList ||
 				node.type === orderedList ||
 				node.type === expand ||
-				node.type === heading ||
+				(node.type === heading && !selectionIsPanel) ||
 				node.type === listItem
 			) {
 				sliceIsInvalid = true;
@@ -253,25 +288,61 @@ export function handlePasteIntoTaskOrDecisionOrPanel(
 		if (
 			panelNode &&
 			sliceHasTask &&
-			slice.content.firstChild?.type === panel &&
+			sliceFirstChildIsPanel &&
 			isEmptyNode(panelNode) &&
 			selection.$from.node() === selection.$to.node()
 		) {
 			return Boolean(insertSliceInsideOfPanelNodeSelected(panelNode)({ tr, slice }));
 		}
-		const transformedSliceIsValidNode =
-			(transformedSlice.content.firstChild.type.inlineContent ||
-				['decisionList', 'decisionItem', 'taskItem', 'taskList', 'panel'].includes(
-					transformedSlice.content.firstChild.type.name,
-				)) &&
-			(!isInListItem(state) || (isInListItem(state) && isFirstChildTaskNode));
+		const transformedSliceIsValidNode = expValEquals(
+			'platform_editor_nest_table_in_panel',
+			'isEnabled',
+			true,
+		)
+			? (transformedSlice.content.firstChild.type.inlineContent ||
+					['decisionList', 'decisionItem', 'taskItem', 'taskList', 'panel'].includes(
+						getBaseNodeTypeName(transformedSlice.content.firstChild.type),
+					)) &&
+				(!isInListItem(state) || (isInListItem(state) && isFirstChildTaskNode))
+			: (transformedSlice.content.firstChild.type.inlineContent ||
+					['decisionList', 'decisionItem', 'taskItem', 'taskList', 'panel'].includes(
+						transformedSlice.content.firstChild.type.name,
+					)) &&
+				(!isInListItem(state) || (isInListItem(state) && isFirstChildTaskNode));
 		// If the slice or the selection are valid nodes to handle,
 		// and the slice is not a whole node (i.e. openStart is 1 and openEnd is 0)
 		// or the slice's first node is a paragraph,
 		// then we can replace the selection with our slice.
-		const pastingIntoExtendedPanel =
-			selectionIsPanel && panel.validContent(transformedSlice.content);
-		if (
+		// When the experiment is on, validate against the actual destination panel variant (panel or
+		// panel_c1) since their content expressions differ (panel_c1 additionally allows a nested
+		// table).
+		const pastingIntoExtendedPanel = expValEquals(
+			'platform_editor_nest_table_in_panel',
+			'isEnabled',
+			true,
+		)
+			? selectionIsPanel && (panelNode?.type ?? panel).validContent(transformedSlice.content)
+			: selectionIsPanel && panel.validContent(transformedSlice.content);
+
+		// A task slice carrying its own open taskList wrapper would, on a plain replaceSelection,
+		// nest that wrapper inside the current item and add an extra taskList level. Unwrapping one
+		// level keeps the pasted task(s) at the same level.
+		const isOpenTaskListSlice =
+			transformedSlice.content.firstChild?.type === taskList &&
+			transformedSlice.openStart >= 2 &&
+			transformedSlice.openEnd >= 1;
+		// Restrict the unwrap to a taskItem destination: its task content is schema-invalid inside a
+		// decisionItem (decisionList only accepts decisionItem), so decisionItem must fall through to
+		// the normal replaceSelection path.
+		const pastingIntoTaskItem = hasParentNodeOfType([taskItem])(selection);
+		if (isOpenTaskListSlice && pastingIntoTaskItem && !selectionIsPanel) {
+			const unwrappedSlice = new Slice(
+				transformedSlice.content.firstChild.content,
+				transformedSlice.openStart - 1,
+				transformedSlice.openEnd - 1,
+			);
+			tr.replaceSelection(unwrappedSlice).scrollIntoView();
+		} else if (
 			((transformedSliceIsValidNode || selectionIsValidNode) &&
 				!pastingIntoExtendedPanel &&
 				!(
@@ -300,7 +371,9 @@ export function handlePasteIntoTaskOrDecisionOrPanel(
 				['mediaSingle'].includes(transformedSlice.content.firstChild.type.name) &&
 				selectionIsPanel
 			) {
-				const parentNode = findParentNodeOfType(panel)(selection);
+				const parentNode = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+					? findParentNodeOfType([panel, panel_c1].filter(Boolean))(selection)
+					: findParentNodeOfType(panel)(selection);
 				if (selectionIsPanel && parentNode && isNodeEmpty(parentNode.node)) {
 					tr.insert(selection.$from.pos, transformedSlice.content).scrollIntoView();
 					// Place the cursor at the the end of the insersertion
@@ -532,11 +605,20 @@ export function handlePastePanelOrDecisionContentIntoList(
 			isSliceWholeNode &&
 			!doesSelectionWhichStartsOrEndsInListContainEntireList(selection, findRootParentListNode);
 
+		// When the experiment is on, treat panel_c1 (table-in-panel variant) like a panel.
+		const blockNodeIsPanelOrDecision = expValEquals(
+			'platform_editor_nest_table_in_panel',
+			'isEnabled',
+			true,
+		)
+			? ['panel', 'decisionList'].includes(blockNode ? getBaseNodeTypeName(blockNode.type) : '')
+			: ['panel', 'decisionList'].includes(blockNode?.type.name ?? '');
+
 		if (
 			!selectionParentListItemNode ||
 			selectionParentListItemNode?.type !== schema.nodes.listItem ||
 			!blockNode ||
-			!['panel', 'decisionList'].includes(blockNode?.type.name) ||
+			!blockNodeIsPanelOrDecision ||
 			slice.content.childCount > 1 ||
 			blockNode?.content.firstChild === undefined ||
 			sliceIsWholeNodeButShouldNotReplaceSelection
@@ -806,7 +888,7 @@ async function getSmartLinkAdf(
 	return await provider.resolve(text, type);
 }
 
-function insertAutoMacro(
+function insertAutoMacroOld(
 	slice: Slice,
 	macro: PMNode,
 	view?: EditorView,
@@ -829,14 +911,226 @@ function insertAutoMacro(
 
 		// replace the text with the macro as a separate transaction
 		// so the autoconversion generates 2 undo steps
-		view.dispatch(
-			closeHistory(view.state.tr)
-				.replaceRangeWith(before, before + slice.size, macro)
-				.scrollIntoView(),
-		);
+		const macroTr = closeHistory(view.state.tr)
+			.replaceRangeWith(before, before + slice.size, macro)
+			.scrollIntoView();
+		addLinkMetadata(view.state.selection, macroTr, {
+			inputMethod: INPUT_METHOD.CLIPBOARD,
+			cardAction: 'AUTO_CONVERT',
+		});
+		view.dispatch(macroTr);
 		return true;
 	}
 	return false;
+}
+
+/**
+ * Replacement for `insertAutoMacroOld` behind
+ * `platform_editor_paste_autoconvert_robustness`.
+ *
+ * Identical in shape, except that the range the macro replaces is derived from the steps
+ * that were actually applied rather than from `slice.size`. `slice.size` is the slice's
+ * own measure and does not account for ProseMirror's fitting behaviour in
+ * `replaceRange`/`replaceSelection`, so the two can disagree — and when they do the macro
+ * is inserted without removing the text it should replace, leaving both the pasted text
+ * and the macro in the document.
+ */
+function insertAutoMacroNew(
+	slice: Slice,
+	macro: PMNode,
+	view?: EditorView,
+	from?: number,
+	to?: number,
+): boolean {
+	if (!view) {
+		return false;
+	}
+
+	const { selection } = view.state;
+	const hasExplicitRange = typeof from === 'number' && typeof to === 'number';
+	const replaceFrom = hasExplicitRange ? from : selection.from;
+	const replaceTo = hasExplicitRange ? to : selection.to;
+
+	// insert the text or linkified/md-converted clipboard data
+	const tr = hasExplicitRange
+		? view.state.tr.replaceRange(replaceFrom, replaceTo, slice)
+		: view.state.tr.replaceSelection(slice);
+
+	const insertedFrom = tr.mapping.map(replaceFrom, -1);
+	const insertedTo = tr.mapping.map(replaceTo, 1);
+
+	view.dispatch(tr);
+
+	// Leave the document alone rather than replacing an implausible range.
+	if (insertedFrom >= insertedTo || insertedTo > view.state.doc.content.size) {
+		return true;
+	}
+
+	// replace the text with the macro as a separate transaction
+	// so the autoconversion generates 2 undo steps
+	const macroTr = closeHistory(view.state.tr)
+		.replaceRangeWith(insertedFrom, insertedTo, macro)
+		.scrollIntoView();
+	addLinkMetadata(view.state.selection, macroTr, {
+		inputMethod: INPUT_METHOD.CLIPBOARD,
+		cardAction: 'AUTO_CONVERT',
+	});
+	view.dispatch(macroTr);
+	return true;
+}
+
+function insertAutoMacro(
+	slice: Slice,
+	macro: PMNode,
+	view?: EditorView,
+	from?: number,
+	to?: number,
+): boolean {
+	return isExperimentEnabled('platform_editor_paste_autoconvert_robustness')
+		? insertAutoMacroNew(slice, macro, view, from, to)
+		: insertAutoMacroOld(slice, macro, view, from, to);
+}
+
+/**
+ * Locates the range currently occupied by a link that we pasted earlier.
+ *
+ * Positions recorded before an async gap can drift or be invalidated entirely by
+ * concurrent edits, collaborative changes and `appendTransaction` hooks, so the
+ * recorded range is verified against the document before it is used. If it no longer
+ * holds the pasted link the link is re-located by href, preferring the occurrence
+ * closest to where it was last seen.
+ *
+ * Returns `undefined` when the link cannot be found, so callers can leave the
+ * document alone rather than replacing whatever happens to sit at a stale position.
+ */
+/**
+ * Whether every text node spanning [from, to) carries a `link` mark pointing at `url`,
+ * with no gaps or uncovered portions.
+ */
+function rangeIsExactLinkMark(
+	doc: EditorState['doc'],
+	from: number,
+	to: number,
+	url: string,
+	linkMarkType: NonNullable<EditorState['schema']['marks']['link']>,
+): boolean {
+	let matches = true;
+	let coveredTo = from;
+	doc.nodesBetween(from, to, (node, pos) => {
+		if (!matches || pos >= to) {
+			return false;
+		}
+		if (!node.isLeaf) {
+			// A container node — e.g. the paragraph the link sits in. `nodesBetween` visits
+			// these on the way down to the text node(s) we actually care about; keep
+			// descending into it rather than treating it as a mismatch.
+			return true;
+		}
+		if (!node.isText) {
+			// A non-text leaf (e.g. an inline card) cannot carry the link mark.
+			matches = false;
+			return false;
+		}
+		const linkMark = linkMarkType.isInSet(node.marks);
+		if (!linkMark || linkMark.attrs.href !== url) {
+			matches = false;
+			return false;
+		}
+		coveredTo = Math.min(pos + node.nodeSize, to);
+		return true;
+	});
+	return matches && coveredTo === to;
+}
+
+/**
+ * `from`/`to` are not a one-off snapshot: they come from `pastedMacroPositions`, which the
+ * paste plugin's `mapping` hook (`plugin-factory.ts`) maps through every transaction
+ * applied while the smart link request is in flight, via `tr.mapping.map(position)`. So
+ * this covers every edit ProseMirror can express as a position mapping — typing,
+ * deleting, or moving content elsewhere in the same edit all keep `from`/`to` pointing at
+ * the same logical span.
+ *
+ * It stops covering that span only when the span itself no longer represents our pasted
+ * link — the link was unlinked, or its content was replaced outright. Deliberately no
+ * fallback search for "the nearest link with the same href" is done: with multiple links
+ * to the same URL in the document, a proximity search cannot tell which one we pasted, so
+ * it risks silently replacing an occurrence we were never asked to touch, and it requires
+ * an O(doc size) scan on every fallback to do it. Leaving the tracked link as a link is
+ * the safe outcome here, and it's what happens when this function returns `undefined`.
+ */
+function findPastedLinkRange(
+	state: EditorState,
+	url: string,
+	from?: number,
+	to?: number,
+): { from: number; to: number } | undefined {
+	const { doc, schema } = state;
+	const linkMarkType = schema.marks.link;
+	const docSize = doc.content.size;
+
+	if (
+		!linkMarkType ||
+		typeof from !== 'number' ||
+		typeof to !== 'number' ||
+		from < 0 ||
+		from >= to ||
+		to > docSize
+	) {
+		return undefined;
+	}
+
+	// Text equality alone is not enough: if the link was unlinked (mark removed) while
+	// the smart link request was in flight, the text can still read as the URL even
+	// though it is no longer a link, and replacing it would destroy content that is no
+	// longer ours to replace.
+	if (doc.textBetween(from, to) === url && rangeIsExactLinkMark(doc, from, to, url, linkMarkType)) {
+		return { from, to };
+	}
+
+	return undefined;
+}
+
+/**
+ * Swaps a link that was already pasted into the document for its macro equivalent.
+ *
+ * Used when smart links could not resolve the URL, so the macro autoconversion is the
+ * fallback. Does nothing if the link can no longer be found — for example because a
+ * smart card has already replaced it — which is preferable to replacing unrelated
+ * content at a stale position.
+ */
+function replacePastedLinkWithMacro(
+	view: EditorView,
+	macro: PMNode,
+	url: string,
+	from?: number,
+	to?: number,
+	editorAnalyticsAPI?: EditorAnalyticsAPI,
+): boolean {
+	const range = findPastedLinkRange(view.state, url, from, to);
+	if (!range) {
+		// Metric for how often the tracked pasted link could no longer be found once the
+		// smart link request settled, so the assumption that this is rare is measurable
+		// rather than assumed.
+		editorAnalyticsAPI?.fireAnalyticsEvent({
+			action: ACTION.ERRORED,
+			actionSubject: ACTION_SUBJECT.SMART_LINK,
+			eventType: EVENT_TYPE.OPERATIONAL,
+			attributes: {
+				error: 'macro-auto-convert-pasted-link-not-found',
+			},
+		} as AnalyticsEventPayload);
+		return false;
+	}
+
+	const macroTr = closeHistory(view.state.tr)
+		.replaceRangeWith(range.from, range.to, macro)
+		.scrollIntoView();
+	addLinkMetadata(view.state.selection, macroTr, {
+		inputMethod: INPUT_METHOD.CLIPBOARD,
+		cardAction: 'AUTO_CONVERT',
+	});
+	view.dispatch(macroTr);
+	return true;
 }
 
 export function handleMacroAutoConvert(
@@ -846,6 +1140,7 @@ export function handleMacroAutoConvert(
 	runMacroAutoConvert: RunMacroAutoConvert | undefined,
 	cardsOptions?: CardOptions,
 	extensionAutoConverter?: ExtensionAutoConvertHandler,
+	editorAnalyticsAPI?: EditorAnalyticsAPI,
 ): Command {
 	return (state: EditorState, dispatch?: CommandDispatch, view?: EditorView) => {
 		let macro: PMNode | null = null;
@@ -880,10 +1175,53 @@ export function handleMacroAutoConvert(
 					throw new Error('View is missing');
 				}
 
+				const autoConvertMacro = macro;
+
 				// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 				const trackingId = uuid();
 				const trackingFrom = `handleMacroAutoConvert-from-${trackingId}`;
 				const trackingTo = `handleMacroAutoConvert-to-${trackingId}`;
+
+				if (isExperimentEnabled('platform_editor_paste_autoconvert_robustness')) {
+					// Insert the pasted content straight away. The smart link provider is only
+					// consulted to decide whether the inserted link should later be swapped for
+					// a macro, so it does not need to gate the insert — otherwise every
+					// autoconvertible paste appears to do nothing until a network round trip
+					// completes.
+					let insertedRange: { from: number; to: number } | undefined;
+					handleMarkdownWithInsertedRange(slice, queueCardsFromChangedTr, (range) => {
+						insertedRange = range;
+					})(state, dispatch);
+
+					if (!insertedRange) {
+						return true;
+					}
+
+					startTrackingPastedMacroPositions({
+						[trackingFrom]: insertedRange.from,
+						[trackingTo]: insertedRange.to,
+					})(view.state, dispatch);
+
+					getSmartLinkAdf(text, 'inline', cardsOptions)
+						.catch(() => {
+							// Smart links could not resolve the URL, so fall back to the macro.
+							// we use view.state rather than state because state becomes a stale
+							// state reference after getSmartLinkAdf's async work
+							const { pastedMacroPositions } = getPastePluginState(view.state);
+							replacePastedLinkWithMacro(
+								view,
+								autoConvertMacro,
+								text,
+								pastedMacroPositions[trackingFrom],
+								pastedMacroPositions[trackingTo],
+								editorAnalyticsAPI,
+							);
+						})
+						.finally(() => {
+							stopTrackingPastedMacroPositions([trackingFrom, trackingTo])(view.state, dispatch);
+						});
+					return true;
+				}
 
 				startTrackingPastedMacroPositions({
 					[trackingFrom]: state.selection.from,
@@ -1038,30 +1376,8 @@ export function handleNestedTablePaste(slice: Slice, isNestingTablesSupported?: 
 		});
 
 		if (sliceHasTable) {
-			if (
-				editorExperiment('nested-tables-in-tables', true, {
-					exposure: true,
-				})
-			) {
-				/* TEST COHORT */
-				// if slice has table - if pasting to deeply nested location place paste after top table
-				if (getParentOfTypeCount(schema.nodes.table)(selection.$from) > 1) {
-					const positionAfterTopTable = getPositionAfterTopParentNodeOfType(schema.nodes.table)(
-						selection.$from,
-					);
-
-					let { tr } = state;
-					tr = safeInsert(slice.content, positionAfterTopTable)(tr);
-					tr.scrollIntoView();
-
-					if (dispatch) {
-						dispatch(tr);
-						return true;
-					}
-				}
-			} else {
-				/* CONTROL COHORT */
-				// if slice has table - place paste after top table
+			// if slice has table - if pasting to deeply nested location place paste after top table
+			if (getParentOfTypeCount(schema.nodes.table)(selection.$from) > 1) {
 				const positionAfterTopTable = getPositionAfterTopParentNodeOfType(schema.nodes.table)(
 					selection.$from,
 				);
@@ -1100,7 +1416,7 @@ export function handleExpandPaste(slice: Slice): Command {
 				hasExpand = true;
 				try {
 					return nestedExpand.createChecked(maybeNode.attrs, maybeNode.content, maybeNode.marks);
-				} catch (e) {
+				} catch {
 					tr = safeInsert(maybeNode, tr.selection.$to.pos)(tr);
 					return Fragment.empty;
 				}
@@ -1208,25 +1524,201 @@ function getTopLevelMarkTypesInSlice(slice: Slice) {
 	return markTypes;
 }
 
-export function handleParagraphBlockMarks(state: EditorState, slice: Slice) {
+/**
+ * Peels container wrapper nodes (e.g. panel, expand) added by ProseMirror's addContext()
+ * so that fontSize-marked paragraphs become top-level, preserving the mark on paste.
+ */
+function unwrapContainerNodesWithBlockMarks(
+	slice: Slice,
+	schema: Schema,
+	fontSize: MarkType,
+): Slice {
+	let content = slice.content;
+	let levelsUnwrapped = 0;
+
+	while (
+		content.childCount === 1 &&
+		content.firstChild &&
+		!content.firstChild.isTextblock &&
+		slice.openStart - levelsUnwrapped > 1
+	) {
+		let hasBlockMarkedParagraph = false;
+		for (let i = 0; i < content.firstChild.childCount; i++) {
+			const child = content.firstChild.child(i);
+			if (child.type === schema.nodes.paragraph && child.marks.some((m) => m.type === fontSize)) {
+				hasBlockMarkedParagraph = true;
+				break;
+			}
+		}
+
+		if (!hasBlockMarkedParagraph) {
+			break;
+		}
+
+		content = content.firstChild.content;
+		levelsUnwrapped++;
+	}
+
+	if (levelsUnwrapped === 0) {
+		return slice;
+	}
+
+	return new Slice(
+		content,
+		slice.openStart - levelsUnwrapped,
+		Math.max(0, slice.openEnd - levelsUnwrapped),
+	);
+}
+
+/**
+ * Returns the fontSize attrs to apply at the paste destination, or false if none.
+ * Checks list and task destinations in priority order.
+ */
+function getDestinationFontSizeAttrs(
+	destinationListNode: PMNode | undefined,
+	isInSmallTaskContext: boolean,
+	$from: ResolvedPos,
+	currentNode: PMNode | undefined,
+	fontSize: MarkType,
+): Record<string, unknown> | false {
+	if (destinationListNode) {
+		return getFirstParagraphBlockMarkAttrs(destinationListNode, fontSize);
+	}
+	if (isInSmallTaskContext) {
+		return (
+			getBlockMarkAttrs($from.parent, fontSize) ||
+			getFirstParagraphBlockMarkAttrs(currentNode, fontSize)
+		);
+	}
+	return false;
+}
+
+/**
+ * Resolves which marks to apply to a paragraph node after filtering forbidden marks.
+ * When a destination block mark is provided, replaces any existing fontSize mark with it.
+ * When normalizing for the target context, removes the fontSize mark entirely.
+ * Otherwise returns the filtered marks unchanged.
+ */
+function resolveParagraphMarks(
+	marks: readonly Mark[],
+	destinationBlockMarkAttrs: Record<string, unknown> | false,
+	shouldNormalize: boolean,
+	fontSize: MarkType,
+): readonly Mark[] {
+	if (destinationBlockMarkAttrs) {
+		return marks
+			.filter((m) => m.type !== fontSize)
+			.concat(fontSize.create(destinationBlockMarkAttrs));
+	}
+	if (shouldNormalize) {
+		return marks.filter((m) => m.type !== fontSize);
+	}
+	return marks;
+}
+
+/**
+ * Variant of `handleMarkdown` used by macro auto-conversion behind
+ * `platform_editor_paste_autoconvert_robustness`.
+ *
+ * Differs in two ways: the inserted range is derived from the steps that were applied
+ * rather than from `markdownSlice.size`, which does not account for ProseMirror's fitting
+ * behaviour; and that range is reported back through `onInsert` so the caller can track
+ * the inserted link across the async gap before deciding whether to swap it for a macro.
+ */
+function handleMarkdownWithInsertedRange(
+	markdownSlice: Slice,
+	queueCardsFromChangedTr: QueueCardsFromTransactionAction | undefined,
+	onInsert: (insertedRange: { from: number; to: number }) => void,
+): Command {
+	return (state, dispatch) => {
+		const tr = closeHistory(state.tr);
+		const replaceFrom = tr.selection.from;
+		const replaceTo = tr.selection.to;
+
+		tr.replaceSelection(markdownSlice);
+
+		const insertedFrom = tr.mapping.map(replaceFrom, -1);
+		const insertedTo = tr.mapping.map(replaceTo, 1);
+
+		tr.setSelection(
+			TextSelection.near(tr.doc.resolve(Math.min(insertedTo, tr.doc.content.size)), -1),
+		);
+
+		queueCardsFromChangedTr?.(state, tr, INPUT_METHOD.CLIPBOARD);
+		if (dispatch) {
+			dispatch(tr.scrollIntoView());
+			onInsert({ from: insertedFrom, to: insertedTo });
+		}
+		return true;
+	};
+}
+
+export function handleParagraphBlockMarks(state: EditorState, slice: Slice): Slice {
 	if (slice.content.size === 0) {
 		return slice;
 	}
 
 	const {
 		schema,
+		selection,
 		selection: { $from },
 	} = state;
+	const { bulletList, orderedList, blockTaskItem, taskItem, paragraph, heading } = schema.nodes;
+	const { fontSize } = schema.marks;
+
+	const hasFontSize = !!fontSize;
+
+	// When copying from inside a container (e.g. panel, expand), ProseMirror wraps the
+	// content back in the container via addContext(), increasing openStart/openEnd. Unwrap
+	// so the paragraph (with its fontSize mark) becomes top-level.
+	if (hasFontSize) {
+		slice = unwrapContainerNodesWithBlockMarks(slice, schema, fontSize);
+	}
+
+	const destinationListNode = findParentNodeOfType([bulletList, orderedList])(selection)?.node;
+	const currentNode = typeof $from.node === 'function' ? $from.node() : undefined;
+	const isInNormalTaskContext = currentNode?.type === taskItem || $from.parent.type === taskItem;
+
+	const isInSmallTaskContext =
+		!!blockTaskItem &&
+		(currentNode?.type === blockTaskItem ||
+			$from.parent.type === blockTaskItem ||
+			($from.parent.type === paragraph &&
+				$from.depth > 0 &&
+				$from.node($from.depth - 1).type === blockTaskItem));
+
+	const destinationBlockMarkAttrs = hasFontSize
+		? getDestinationFontSizeAttrs(
+				destinationListNode,
+				isInSmallTaskContext,
+				$from,
+				currentNode,
+				fontSize,
+			)
+		: false;
+
+	const isInHeadingContext = $from.parent.type === heading;
 
 	// If no paragraph in the slice contains marks, there's no need for special handling
+	// unless we're pasting into a small-text list and need to add the destination block mark.
 	// Note: this doesn't check for marks applied to lower level nodes such as text
-	if (!sliceHasTopLevelMarks(slice)) {
+	if (!sliceHasTopLevelMarks(slice) && !destinationBlockMarkAttrs) {
 		return slice;
 	}
 
-	// If pasting a single paragraph into pre-existing content, match destination formatting
+	const shouldNormalizeFontSizeForTarget =
+		hasFontSize &&
+		(!!destinationListNode || isInNormalTaskContext || isInSmallTaskContext || isInHeadingContext);
+
+	// If pasting a single paragraph into pre-existing content, match destination formatting.
+	// For bullet/ordered lists under small-text, we still need to normalize the paragraph block mark
+	// so pasted content adopts the destination list state.
 	const destinationHasContent = $from.parent.textContent.length > 0;
-	if (slice.content.childCount === 1 && destinationHasContent) {
+	if (
+		slice.content.childCount === 1 &&
+		destinationHasContent &&
+		!shouldNormalizeFontSizeForTarget
+	) {
 		return slice;
 	}
 
@@ -1241,7 +1733,31 @@ export function handleParagraphBlockMarks(state: EditorState, slice: Slice) {
 		}
 	}
 
-	if (forbiddenMarkTypes.length === 0) {
+	const normalizedContent = mapSlice(slice, (node) => {
+		if (node.type === paragraph) {
+			const paragraphMarks = node.marks.filter((mark) => !forbiddenMarkTypes.includes(mark.type));
+			return paragraph.createChecked(
+				undefined,
+				node.content,
+				resolveParagraphMarks(
+					paragraphMarks,
+					destinationBlockMarkAttrs,
+					shouldNormalizeFontSizeForTarget,
+					fontSize,
+				),
+			);
+		} else if (node.type === heading) {
+			// Preserve heading attributes to keep formatting
+			return heading.createChecked(
+				node.attrs,
+				node.content,
+				node.marks.filter((mark) => !forbiddenMarkTypes.includes(mark.type)),
+			);
+		}
+		return node;
+	});
+
+	if (forbiddenMarkTypes.length === 0 && !shouldNormalizeFontSizeForTarget) {
 		// In a slice containing one or more paragraphs at the document level (not wrapped in
 		// another node), the first paragraph will only have its text content captured and pasted
 		// since openStart is 1. We decrement the open depth of the slice so it retains any block
@@ -1251,25 +1767,17 @@ export function handleParagraphBlockMarks(state: EditorState, slice: Slice) {
 		return new Slice(slice.content, openStart, slice.openEnd);
 	}
 
+	if (forbiddenMarkTypes.length === 0 && shouldNormalizeFontSizeForTarget) {
+		// When pasting into a heading, keep the original openStart so ProseMirror merges inline
+		// content into the heading node rather than replacing it with a paragraph.
+		const openStart = isInHeadingContext ? slice.openStart : Math.max(0, slice.openStart - 1);
+		return new Slice(normalizedContent.content, openStart, slice.openEnd);
+	}
+
 	// If the paragraph or heading contains marks forbidden by the parent node
-	// (e.g. alignment/indentation), drop those marks from the slice
-	return mapSlice(slice, (node) => {
-		if (node.type === schema.nodes.paragraph) {
-			return schema.nodes.paragraph.createChecked(
-				undefined,
-				node.content,
-				node.marks.filter((mark) => !forbiddenMarkTypes.includes(mark.type)),
-			);
-		} else if (node.type === schema.nodes.heading) {
-			// Preserve heading attributes to keep formatting
-			return schema.nodes.heading.createChecked(
-				node.attrs,
-				node.content,
-				node.marks.filter((mark) => !forbiddenMarkTypes.includes(mark.type)),
-			);
-		}
-		return node;
-	});
+	// (e.g. alignment/indentation), drop those marks from the slice. For lists under the small
+	// text experiment, also normalize fontSize to the destination list state.
+	return new Slice(normalizedContent.content, slice.openStart, slice.openEnd);
 }
 
 /**
@@ -1299,7 +1807,7 @@ export function handleParagraphBlockMarks(state: EditorState, slice: Slice) {
  *   ┗━ li
  *     ┗━p -> "two"
  */
-export function flattenNestedListInSlice(slice: Slice) {
+export function flattenNestedListInSlice(slice: Slice): Slice {
 	if (!slice.content.firstChild) {
 		return slice;
 	}
@@ -1315,15 +1823,44 @@ export function flattenNestedListInSlice(slice: Slice) {
 	return new Slice(contentWithFlattenedList, slice.openEnd, slice.openEnd);
 }
 
+const doesSliceContainBlockquoteListNodes = (slice: Slice, listContainerNodeTypes: NodeType[]) => {
+	const firstChildOfSlice = slice.content.firstChild;
+	const lastChildOfSlice = slice.content.lastChild;
+
+	const isFirstChildBlockquoteListNode =
+		firstChildOfSlice?.type?.name === 'blockquote' &&
+		listContainerNodeTypes.some(
+			(nodeType) => nodeType === firstChildOfSlice?.content.firstChild?.type,
+		);
+
+	const isLastChildBlockquoteListNode =
+		lastChildOfSlice?.type?.name === 'blockquote' &&
+		listContainerNodeTypes.some(
+			(nodeType) => nodeType === lastChildOfSlice?.content.firstChild?.type,
+		);
+
+	return isFirstChildBlockquoteListNode || isLastChildBlockquoteListNode;
+};
+
 export function handleRichText(
 	slice: Slice,
 	queueCardsFromChangedTr: QueueCardsFromTransactionAction | undefined,
 ): Command {
 	return (state, dispatch) => {
-		const { codeBlock, heading, paragraph, panel } = state.schema.nodes;
+		const { codeBlock, heading, paragraph, panel, panel_c1, bulletList, orderedList } =
+			state.schema.nodes;
+		const { fontSize } = state.schema.marks;
 		const { selection, schema } = state;
 		const firstChildOfSlice = slice.content?.firstChild;
 		const lastChildOfSlice = slice.content?.lastChild;
+		const listContainerNodeTypes = [bulletList, orderedList];
+		const hasFontSize = !!fontSize;
+		const destinationListNode = hasFontSize
+			? findParentNodeOfType(listContainerNodeTypes)(selection)?.node
+			: undefined;
+		const destinationListFontSizeAttrs = hasFontSize
+			? getFirstParagraphBlockMarkAttrs(destinationListNode, fontSize)
+			: false;
 
 		// In case user is pasting inline code,
 		// any backtick ` immediately preceding it should be removed.
@@ -1346,6 +1883,27 @@ export function handleRichText(
 		const isLastChildTaskListNode = lastChildOfSlice?.type?.name === 'taskList';
 		const isSliceContentTaskListNodes = isFirstChildTaskListNode || isLastChildTaskListNode;
 
+		const sliceContentBlockquoteListNodes = doesSliceContainBlockquoteListNodes(
+			slice,
+			listContainerNodeTypes,
+		);
+
+		// Compute once and reuse below to avoid traversing the slice twice.
+		const sliceMarkTypes = hasFontSize ? getTopLevelMarkTypesInSlice(slice) : new Set<MarkType>();
+
+		const destinationIsEmpty =
+			hasFontSize &&
+			selection.$from.parent.type === paragraph &&
+			selection.$from.parent.textContent.length === 0;
+
+		// Capture the destination paragraph's non-fontSize block marks (e.g. alignment, indentation)
+		// before the paste so they can be restored if the paste replaces the paragraph entirely
+		// (which happens when small text is pasted with openStart=0).
+		const destinationNonFontSizeBlockMarks =
+			hasFontSize && selection.$from.parent.type === paragraph && sliceMarkTypes.has(fontSize)
+				? selection.$from.parent.marks.filter((m) => m.type !== fontSize)
+				: [];
+
 		// We want to use safeInsert to insert invalid content, as it inserts at the closest non schema violating position
 		// rather than spliting the selection parent node in half (which is what replaceSelection does)
 		// Exception is paragraph and heading nodes, these should be split, provided their parent supports the pasted content
@@ -1355,13 +1913,20 @@ export function handleRichText(
 			selection.$to.node().type.validContent(slice.content) ||
 			(textNodes.includes(selection.$to.node().type) &&
 				selectionParent.type.validContent(slice.content));
-		const panelParentOverCurrentSelection = findParentNodeOfType(panel)(tr.selection);
+		// panel_c1 is a schema variant of panel; when the experiment is on, treat both together.
+		const panelParentOverCurrentSelection = expValEquals(
+			'platform_editor_nest_table_in_panel',
+			'isEnabled',
+			true,
+		)
+			? findParentNodeOfType([panel, panel_c1].filter(Boolean))(tr.selection)
+			: findParentNodeOfType(panel)(tr.selection);
 		const isTargetPanelEmpty =
 			panelParentOverCurrentSelection && panelParentOverCurrentSelection.node?.content.size === 2;
 
 		if (!isSliceContentTaskListNodes && (isSliceContentListNodes || isTargetPanelEmpty)) {
 			insertSliceForLists({ tr, slice, schema });
-		} else if (noNeedForSafeInsert) {
+		} else if (noNeedForSafeInsert && !checkTaskListInList(state, slice)) {
 			if (
 				firstChildOfSlice?.type?.name === 'blockquote' &&
 				firstChildOfSlice?.content.firstChild?.type.name &&
@@ -1376,12 +1941,17 @@ export function handleRichText(
 				// when cursor is inside a table cell, and slice.content.lastChild is a panel, expand, or decisionList
 				// need to make sure the cursor position is is right after the panel, expand, or decisionList
 				// still in the same table cell, see issue: https://product-fabric.atlassian.net/browse/ED-17862
-				const shouldUpdateCursorPosAfterPaste = [
-					'panel',
-					'nestedExpand',
-					'decisionList',
-					'codeBlock',
-				].includes(slice.content.lastChild?.type?.name || '');
+				const shouldUpdateCursorPosAfterPaste = expValEquals(
+					'platform_editor_nest_table_in_panel',
+					'isEnabled',
+					true,
+				)
+					? ['panel', 'nestedExpand', 'decisionList', 'codeBlock'].includes(
+							slice.content.lastChild ? getBaseNodeTypeName(slice.content.lastChild.type) : '',
+						)
+					: ['panel', 'nestedExpand', 'decisionList', 'codeBlock'].includes(
+							slice.content.lastChild?.type?.name || '',
+						);
 				const lastChild = slice.content.lastChild;
 				const $nextPos = tr.doc.resolve(tr.mapping.map(selection.from));
 				const nextSelection = lastChild?.type.isTextblock
@@ -1397,7 +1967,7 @@ export function handleRichText(
 		} else {
 			// need to scan the slice if there's a block node or list items inside it
 			let sliceHasList = false;
-			slice.content.nodesBetween(0, slice.content.size, (node, start) => {
+			slice.content.nodesBetween(0, slice.content.size, (node) => {
 				if (node.type === state.schema.nodes.listItem) {
 					sliceHasList = true;
 					return false;
@@ -1412,7 +1982,7 @@ export function handleRichText(
 			) {
 				tr.replaceSelection(slice);
 			} else if (checkTaskListInList(state, slice) && !checkIfSelectionInNestedList(state)) {
-				insertSliceForTaskInsideList({ tr, slice });
+				tr = insertSliceForTaskInsideList({ tr, slice });
 			} else {
 				// need safeInsert rather than replaceSelection, so that nodes aren't split in half
 				// e.g. when pasting a layout into a table, replaceSelection splits the table in half and adds the layout in the middle
@@ -1420,6 +1990,44 @@ export function handleRichText(
 				if (checkTaskListInList(state, slice)) {
 					updateSelectionAfterReplace({ tr });
 				}
+			}
+		}
+
+		// font size handling for pasting into lists or blockquotes
+		if (hasFontSize && (isSliceContentListNodes || sliceContentBlockquoteListNodes)) {
+			const containingList = findParentNodeOfTypeClosestToPos(
+				tr.selection.$from,
+				listContainerNodeTypes,
+			);
+			if (containingList) {
+				reconcileBlockMarkForContainerAtPos(
+					tr,
+					containingList.pos,
+					fontSize,
+					isSliceContentListNodes ? destinationListFontSizeAttrs : false,
+				);
+			}
+		}
+
+		// font size handling for pasting into paragraphs (normal text) - preserve source style
+		if (
+			hasFontSize &&
+			destinationIsEmpty &&
+			!sliceMarkTypes.has(fontSize) &&
+			!destinationListNode &&
+			selection.$from.parent.type === paragraph &&
+			getBlockMarkAttrs(selection.$from.parent, fontSize)
+		) {
+			reconcileBlockMarkForParagraphAtPos(tr, tr.mapping.map(selection.$from.pos), fontSize, false);
+		}
+
+		// Restore destination block marks (e.g. alignment) that were lost when pasting small text
+		// replaced the paragraph entirely (openStart=0 from container unwrap).
+		if (hasFontSize && destinationNonFontSizeBlockMarks.length > 0) {
+			const pastedFrom = tr.mapping.map(selection.from, -1);
+			const pastedTo = tr.mapping.map(selection.to, 1);
+			for (const mark of destinationNonFontSizeBlockMarks) {
+				reconcileBlockMarkInRange(tr, pastedFrom, pastedTo, mark.type, mark.attrs);
 			}
 		}
 
@@ -1438,7 +2046,7 @@ export function handleRichText(
 	};
 }
 
-function isUrlString(text: string): Boolean {
+function isUrlString(text: string): boolean {
 	try {
 		new URL(text);
 
@@ -1448,7 +2056,7 @@ function isUrlString(text: string): Boolean {
 	}
 }
 
-function isLinkOrUrlString(slice: Slice, schema: Schema): Boolean {
+function isLinkOrUrlString(slice: Slice, schema: Schema): boolean {
 	if (slice.content.childCount !== 1 || !isParagraph(slice.content.child(0), schema)) {
 		return false;
 	}
@@ -1468,10 +2076,8 @@ function isLinkOrUrlString(slice: Slice, schema: Schema): Boolean {
 
 export function handlePasteIntoCaption(slice: Slice): Command {
 	return (state, dispatch) => {
-		if (fg('platform_editor_fix_captions_on_copy')) {
-			if (isLinkOrUrlString(slice, state.schema)) {
-				return false;
-			}
+		if (isLinkOrUrlString(slice, state.schema)) {
+			return false;
 		}
 
 		const { caption } = state.schema.nodes;
@@ -1511,7 +2117,7 @@ export const handleSelectedTable =
 export function checkTaskListInList(state: EditorState, slice: Slice): boolean {
 	return Boolean(
 		isInListItem(state) &&
-			['taskList', 'taskItem'].includes(slice.content.firstChild?.type?.name || ''),
+		['taskList', 'taskItem'].includes(slice.content.firstChild?.type?.name || ''),
 	);
 }
 
@@ -1538,4 +2144,88 @@ export function checkIfSelectionInNestedList(state: EditorState): boolean {
 	});
 
 	return selectedListItemHasNestedList || selectionIsInNestedList;
+}
+
+// Helper function to filter expand nodes from slice when not allowed
+export function handlePasteExpand(slice: Slice): Slice {
+	return mapSlice(slice, (node) => {
+		if (node.type.name === 'expand' || node.type.name === 'nestedExpand') {
+			const children: PMNode[] = [];
+			if (node.attrs.title) {
+				children.push(
+					node.type.schema.nodes.paragraph.createChecked(
+						undefined,
+						Fragment.from(node.type.schema.text(node.attrs.title)),
+					),
+				);
+			}
+			node.content.forEach((inner) => children.push(inner));
+			return children;
+		}
+		return node;
+	});
+}
+
+/*
+ * Transform container nodes promoting them to _c1 if required as per
+ * transformContainerNodes from adf-utils
+ */
+export function applyContainerNodeTransformToSlice(
+	slice: Slice,
+	schema: Schema,
+	destinationParentType: string,
+): Slice {
+	const sliceJson = slice.toJSON();
+	if (!sliceJson) {
+		return slice;
+	}
+
+	const wrappedAdf = { type: destinationParentType, content: sliceJson.content ?? [] };
+
+	try {
+		const { transformedAdf, isTransformed } = transformContainerNodes(wrappedAdf, schema);
+
+		return isTransformed &&
+			transformedAdf &&
+			transformedAdf.content &&
+			transformedAdf.content.length > 0
+			? Slice.fromJSON(schema, { ...sliceJson, content: transformedAdf.content })
+			: slice;
+	} catch {
+		return slice;
+	}
+}
+
+/*
+ * When platform_editor_nest_table_in_panel is OFF, move table elements out of panel divs in the
+ * clipboard HTML before ProseMirror parses it. This prevents the panel schema from
+ * dropping table content entirely.
+ */
+export function splitTablesOutOfPanelHtml(html: string): string {
+	if (!html.includes('data-panel-type')) {
+		return html;
+	}
+	const doc = new DOMParser().parseFromString(html, 'text/html');
+	const panelDivs = Array.from(doc.querySelectorAll('div[data-panel-type]'));
+	let changed = false;
+	for (const panelDiv of panelDivs) {
+		const editorTableWrappers = Array.from(
+			panelDiv.querySelectorAll('[data-prosemirror-node-name="table"]'),
+		);
+		const rendererTableWrappers = Array.from(
+			panelDiv.querySelectorAll('.pm-table-container'),
+		).filter((wrapper) => wrapper.querySelector('table') !== null);
+		const tableWrappers = [...editorTableWrappers, ...rendererTableWrappers];
+		if (tableWrappers.length === 0) {
+			continue;
+		}
+		changed = true;
+		let anchor: Element = panelDiv;
+		for (const tableWrapper of tableWrappers) {
+			tableWrapper.parentNode?.removeChild(tableWrapper);
+			anchor.parentNode?.insertBefore(tableWrapper, anchor.nextSibling);
+			anchor = tableWrapper;
+		}
+	}
+	return changed ? doc.body.innerHTML : html;
 }

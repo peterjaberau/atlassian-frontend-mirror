@@ -1,5 +1,1523 @@
 # @atlaskit/reactions
 
+## 36.3.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.14
+
+### Patch Changes
+
+- [`37306b987a271`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/37306b987a271) -
+  Remove the tef_fix_a11y_add_reaction_button_language_support feature flag and always localize the
+  add reaction accessible label.
+- Updated dependencies
+
+## 36.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.9
+
+### Patch Changes
+
+- [`5bb049fcdba7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bb049fcdba7e) -
+  Use the direct React UFO segment entry point, preserving the existing component implementation and
+  instrumentation behavior.
+- Updated dependencies
+
+## 36.3.8
+
+### Patch Changes
+
+- [`c7ac8f1cd5f6b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7ac8f1cd5f6b) -
+  Migrate modal titles to ModalTitle behind platform_dst_modal-dialog-use-modal-title.
+
+## 36.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.3.0
+
+### Minor Changes
+
+- [`e909670f087d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e909670f087d4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.10
+
+### Patch Changes
+
+- [`ab8b090b9c640`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab8b090b9c640) -
+  Cleanup experiment `platform_a11y_reactions_hover_selector_list`. Hoverable reaction selectors and
+  summary reactions now always render with list markup.
+- Updated dependencies
+
+## 36.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.5
+
+### Patch Changes
+
+- [`5598b12df2212`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5598b12df2212) -
+  Add feature gate platform_teamoji_26_refresh_emoji_picker_user_id for teamoji changes - by
+  atlassianAccountId, for evaluation from non-tenanted products
+- Updated dependencies
+
+## 36.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.2
+
+### Patch Changes
+
+- [`bcfe498b206d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcfe498b206d5) -
+  Adopt button and list-item motion tokens behind the use-pressable-motion rollout.
+
+## 36.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.0
+
+### Minor Changes
+
+- [`9a225a6cfe56f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a225a6cfe56f) -
+  Add an optional content context to reaction emoji pickers so Confluence page reactions can expose
+  AI emoji generation under the `confluence_ai_generated_emojis` experiment.
+
+## 36.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.1.1
+
+### Patch Changes
+
+- [`08bf773f7599a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08bf773f7599a) -
+  Migrate experiments to use the new platform experiment API. This major release removes the
+  migrated experiment entries from `@atlaskit/tmp-editor-statsig`'s `editorExperimentsConfig` and
+  test overrides. Consumers must replace legacy `expVal`/`expValEquals` calls with
+  `@atlaskit/platform-feature-experiments` APIs, using `isExperimentEnabled` for boolean `isEnabled`
+  experiments and `expVal` for parameterized experiments; use `mockExpEnabled`/`mockExpDisabled` in
+  tests.
+- Updated dependencies
+
+## 36.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.0.5
+
+### Patch Changes
+
+- [`44a80d90ea61d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44a80d90ea61d) -
+  Migrate Pressable hover and pressed colour transitions to semantic motion tokens behind
+  platform-dst-motion-uplift-custom-button.
+- Updated dependencies
+
+## 36.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.0.3
+
+### Patch Changes
+
+- [`e14a534a5823b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e14a534a5823b) -
+  Add aria-modal="false" and "aria-labelledby" to quick reactions
+- Updated dependencies
+
+## 36.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.0.1
+
+### Patch Changes
+
+- [`9cfe1cf91a89f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9cfe1cf91a89f) -
+  Render the reaction popup next to the parent
+- Updated dependencies
+
+## 36.0.0
+
+### Major Changes
+
+- [`1b02e7b19fed0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b02e7b19fed0) -
+  [ux] This is for adding a reaction failure callback and reverting optimistic add/remove updates
+  when the request fails. https://customerfeedback.atlassian.net/browse/MWIV-1073
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.13.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.13.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.13.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.13.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.13.4
+
+### Patch Changes
+
+- [`2fe4e7cff5cb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe4e7cff5cb8) -
+  Localize the "Add reaction" icon's accessible label so assistive technologies use the selected
+  language. Gated behind the `tef_fix_a11y_add_reaction_button_language_support` feature gate.
+- Updated dependencies
+
+## 35.13.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.13.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.13.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.11
+
+### Patch Changes
+
+- [`c93de6bde10fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c93de6bde10fd) -
+  Cleanup feature gate `platform_ceps-5921-a11y-fix-reactions`. The reaction picker panel now always
+  uses non-modal dialog semantics for assistive technology.
+- Updated dependencies
+
+## 35.12.10
+
+### Patch Changes
+
+- [`26d8af3468aee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/26d8af3468aee) -
+  Group added reaction controls with an accessible name behind
+  platform_reactions_a11y_group_added_reactions
+
+## 35.12.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.3
+
+### Patch Changes
+
+- [`cfed5271c3f51`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cfed5271c3f51) -
+  Cleanup feature gate `platform_reactions_view_more_styling_fix`
+- Updated dependencies
+
+## 35.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.12.1
+
+### Patch Changes
+
+- [`d95e6444df894`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d95e6444df894) -
+  Cleanup feature gate `platform_a11y_fixes_reaction_emoji`
+- Updated dependencies
+
+## 35.12.0
+
+### Minor Changes
+
+- [`499c637d02e3b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/499c637d02e3b) -
+  [ux] Add semantic list markup to the reaction summary when the
+  `platform_a11y_reactions_hover_selector_list` experiment is enabled.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.8
+
+### Patch Changes
+
+- [`603c0eaa6238b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/603c0eaa6238b) -
+  Fix reading order of the reaction picker for assistive technologies. When the
+  `a11y_reactions_reading_order` gate is enabled, the expanded picker panel is rendered inline as a
+  DOM sibling directly after the trigger button instead of in a portal at the end of the document,
+  so screen readers encounter the expanded content in the correct order. Visual placement is
+  unchanged as the popper continues to position with `position: fixed`.
+- Updated dependencies
+
+## 35.11.7
+
+### Patch Changes
+
+- [`bc98a973e0455`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc98a973e0455) -
+  [ux] A11Y-31804: Add semantic list markup to the hoverable reaction selector gated by experiment
+  `platform_a11y_reactions_hover_selector_list`
+- Updated dependencies
+
+## 35.11.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.11.0
+
+### Minor Changes
+
+- [`7d37c14edffa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d37c14edffa7) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.10.0
+
+### Minor Changes
+
+- [`5228612e884f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5228612e884f4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.9.0
+
+### Minor Changes
+
+- [`30f196e640e18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30f196e640e18) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.8.0
+
+### Minor Changes
+
+- [`7da4b354a3633`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7da4b354a3633) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.7.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.7.0
+
+### Minor Changes
+
+- [`9b741c5c274ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b741c5c274ba) -
+  A11Y: Expose the reactions picker panel as a non-modal dialog (role="dialog", aria-modal="false")
+  for screen reader users, behind the `platform_ceps-5921-a11y-fix-reactions` feature gate.
+
+## 35.6.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.6.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.6.6
+
+### Patch Changes
+
+- [`c75e9e104057f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c75e9e104057f) -
+  [ux] A11Y-35421: Fix screen readers announcing the reactions picker "More emojis" button as a list
+  item
+
+  The emoji reactions picker (`Selector`) previously wrapped its quick-reaction emoji buttons and
+  the "More emojis" button in `<ul>`/`<li>` list markup, causing screen readers to announce the
+  standalone "More emojis" button as a list item. Behind the
+  `platform_a11y_fixes_reactions_selector_list` experiment, the list markup is replaced with a
+  `<div>` container exposed as a labelled group (`role="group"` with an "Add reactions"
+  `aria-label`), so assistive technology still conveys that the controls belong together without the
+  misleading list-item semantics. The decorative separator is `aria-hidden`. There is no visual
+  change.
+
+- Updated dependencies
+
+## 35.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.6.0
+
+### Minor Changes
+
+- [`e8071bab93879`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8071bab93879) -
+  Refactor packages with custom root `src/index` barrel logic to use dedicated entry modules (for
+  example `main`, `types`, `constants`, `screen`, and package-specific entrypoints) while keeping
+  public exports stable. This aligns the packages with barrel-file ratcheting by reducing custom
+  logic in root barrels and removing now-safe packages from the prohibited barrel-file list.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.5.0
+
+### Minor Changes
+
+- [`c37e285a66ad2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c37e285a66ad2) -
+  [ux] batch migrate from a11y feature gates to experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.4.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.3.0
+
+### Minor Changes
+
+- [`6d48bbf99477b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d48bbf99477b) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.2.3
+
+### Patch Changes
+
+- [`1d58b5e7f4a75`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d58b5e7f4a75) -
+  Stabilize reaction picker emoji loading state
+- Updated dependencies
+
+## 35.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.2.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 35.2.0
+
+### Minor Changes
+
+- [`404be770a2ccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/404be770a2ccf) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.1.0
+
+### Minor Changes
+
+- [`5bf738fb98422`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bf738fb98422) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.12
+
+### Patch Changes
+
+- [`4d71a7433de62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4d71a7433de62) -
+  Use Teamoji default reaction IDs behind the emoji picker refresh experiment.
+- Updated dependencies
+
+## 34.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.4
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 34.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.4.0
+
+### Minor Changes
+
+- [`ec2c29c3c63b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec2c29c3c63b3) -
+  [ux] Reaction button a11y fixes
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.3.0
+
+### Minor Changes
+
+- [`45b3cdde79f3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/45b3cdde79f3f) -
+  fix reactions modal DOM position
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.2.8
+
+### Patch Changes
+
+- [`d0246d76b398a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d0246d76b398a) -
+  Do not announce decorative particle effects
+- Updated dependencies
+
+## 34.2.7
+
+### Patch Changes
+
+- [`e0487eae0dec6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0487eae0dec6) -
+  Removed skipped ssr tests
+- Updated dependencies
+
+## 34.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.2.4
+
+### Patch Changes
+
+- [`0b0def82562f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b0def82562f3) -
+  Fix unnecessary textual description for decorative images
+
+## 34.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.2.2
+
+### Patch Changes
+
+- [`72290778b16ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72290778b16ca) -
+  Enrol mixed platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 34.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.2.0
+
+### Minor Changes
+
+- [`302503d41b736`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/302503d41b736) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.1.1
+
+### Patch Changes
+
+- [`515f634cc8747`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/515f634cc8747) -
+  Reinstate emojiPickerSize as sizing for icon
+- Updated dependencies
+
+## 34.1.0
+
+### Minor Changes
+
+- [`954d295f45814`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/954d295f45814) -
+  [ux] Ensuring add emoji button takes emojiPickerSize as size
+
+## 34.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.0.5
+
+### Patch Changes
+
+- [`be08cb30f2af2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be08cb30f2af2) -
+  Fix reactions list view more link in wrong colour
+
+## 34.0.4
+
+### Patch Changes
+
+- [`5a70776bde8d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a70776bde8d1) -
+  Clean up feature gate `platform_reactions_tooltip_a11y`
+
+## 34.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.0.2
+
+### Patch Changes
+
+- [`64e0668502293`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64e0668502293) -
+  Add getOptimisticImageURL prop to Reactions and optimisticImageURL prop to Reaction and
+  ReactionParticleEffect components, enabling reaction emoji to render immediately without waiting
+  for the catalogue to load
+
+## 34.0.1
+
+### Patch Changes
+
+- [`04871bfd6f636`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04871bfd6f636) -
+  Clean up feature gate `platform_reactions_tooltip_a11y`
+- Updated dependencies
+
+## 34.0.0
+
+### Major Changes
+
+- [`deb3d6a6498e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/deb3d6a6498e8) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.29
+
+### Patch Changes
+
+- [`c3e8b437d0d8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3e8b437d0d8a) -
+  Replace deprecated `font.body.UNSAFE_small` token with `font.body.small`.
+
+## 33.8.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.27
+
+### Patch Changes
+
+- [`62b18e01c52fa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62b18e01c52fa) -
+  Remove feature flag platform-a11y-remove-autofocus-prop and hard-code autoFocus={true} on Modal in
+  ReactionsDialog
+- Updated dependencies
+
+## 33.8.26
+
+### Patch Changes
+
+- [`292fe7483aeee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/292fe7483aeee) -
+  [ux] Improved accessible names for color picker, remove status button, alignment toolbar, reaction
+  summary, and expand/collapse icons
+
+## 33.8.25
+
+### Patch Changes
+
+- [`608c375f6f9b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/608c375f6f9b9) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 33.8.24
+
+### Patch Changes
+
+- [`a592557c4d6a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a592557c4d6a1) -
+  [ux] A11y Updates
+- Updated dependencies
+
+## 33.8.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.21
+
+### Patch Changes
+
+- [`1973bfd3d96db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1973bfd3d96db) -
+  Feature gate cleanup
+- Updated dependencies
+
+## 33.8.20
+
+### Patch Changes
+
+- [`0f66751ec3512`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f66751ec3512) -
+  Click events should also have key events for accessibility
+
+## 33.8.19
+
+### Patch Changes
+
+- [`5e648de49f54d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e648de49f54d) -
+  All mouse events must also have key events for accessibility
+- Updated dependencies
+
+## 33.8.18
+
+### Patch Changes
+
+- [`e16fa4dbfb0d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e16fa4dbfb0d6) -
+  Remove missing content from anchor a11y suppression from docs
+- [`368204368d995`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/368204368d995) -
+  Remove redundant inaccessible tabIndex
+- Updated dependencies
+
+## 33.8.17
+
+### Patch Changes
+
+- [`1d0fcc9c19260`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d0fcc9c19260) -
+  Clean up flag to make links more accessible.
+
+## 33.8.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.8.14
+
+### Patch Changes
+
+- [`21867379c6c52`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/21867379c6c52) -
+  [ux] A11y changes
+
+## 33.8.13
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 33.8.12
 
 ### Patch Changes

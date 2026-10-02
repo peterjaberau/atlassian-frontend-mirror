@@ -1,9 +1,16 @@
 import type { Rule } from 'eslint';
 import type * as ESTree from 'eslint-codemod-utils';
-import { isNesting, type Selector } from 'postcss-selector-parser';
+import {
+	isNesting,
+	isPseudo,
+	type Nesting,
+	type Pseudo,
+	type Selector,
+} from 'postcss-selector-parser';
 
-import { allowedPseudos, legacyPseudoElements } from './constants';
-import { getRangeFromNode, getSourceLocationFromRange } from './source-position-utils';
+import { allowedPseudos } from './constants';
+import { getSourceLocationFromRange } from './get-source-location-from-range';
+import { getRangeFromNode } from './source-position-utils';
 
 type CheckArgs = {
 	context: Rule.RuleContext;
@@ -15,10 +22,28 @@ type CheckArgs = {
 
 export function lintSelector(args: CheckArgs): void {
 	checkNoAmbiguousPseudos(args);
-	checkNoRestrictedPseudos(args);
-	checkNoLegacyPseudoElementSyntax(args);
-	checkNoIncreasedSpecificity(args);
+
+	const pseudos: Pseudo[] = [];
+	const nestings: Nesting[] = [];
+	args.selector.walk((node) => {
+		if (isPseudo(node)) {
+			pseudos.push(node);
+		} else if (isNesting(node)) {
+			nestings.push(node);
+		}
+	});
+
+	checkNoRestrictedPseudos(args, pseudos);
+	checkNoLegacyPseudoElementSyntax(args, pseudos);
+	checkNoIncreasedSpecificity(args, nestings);
 }
+
+const legacyPseudoElements: Set<string> = new Set([
+	':after',
+	':before',
+	':first-letter',
+	':first-line',
+]);
 
 /**
  * Ensures the use of a nesting selector `&` with pseudo-selectors.
@@ -64,10 +89,10 @@ function checkNoAmbiguousPseudos({ context, sourceNode, selector, config, isXcss
 	}
 }
 
-function checkNoRestrictedPseudos({ context, sourceNode, selector }: CheckArgs) {
-	selector.walkPseudos((pseudo) => {
-		if (allowedPseudos.has(pseudo.value)) {
-			return;
+function checkNoRestrictedPseudos({ context, sourceNode }: CheckArgs, pseudos: readonly Pseudo[]) {
+	for (const pseudo of pseudos) {
+		if (allowedPseudos.has(pseudo.value) || isInAllowedPseudoChain(pseudo)) {
+			continue;
 		}
 
 		/**
@@ -77,7 +102,7 @@ function checkNoRestrictedPseudos({ context, sourceNode, selector }: CheckArgs) 
 		 * This will be caught by the `no-legacy-pseudo-element-syntax` check.
 		 */
 		if (legacyPseudoElements.has(pseudo.value) && allowedPseudos.has(`:${pseudo.value}`)) {
-			return;
+			continue;
 		}
 
 		if (!allowedPseudos.has(pseudo.value)) {
@@ -92,7 +117,35 @@ function checkNoRestrictedPseudos({ context, sourceNode, selector }: CheckArgs) 
 				},
 			});
 		}
-	});
+	}
+}
+
+/**
+ * The allowlist includes chained pseudos such as `:focus:not(:focus-visible)` whose parts are not
+ * all allowed on their own, so a pseudo is also allowed when a run of adjacent pseudos containing
+ * it matches an allowlisted chain.
+ */
+function isInAllowedPseudoChain(pseudo: Pseudo): boolean {
+	const chain: Pseudo[] = [pseudo];
+	for (let node = pseudo.prev(); isPseudo(node); node = node.prev()) {
+		chain.unshift(node);
+	}
+	for (let node = pseudo.next(); isPseudo(node); node = node.next()) {
+		chain.push(node);
+	}
+	const index = chain.indexOf(pseudo);
+	for (let start = 0; start <= index; start++) {
+		for (let end = index + 1; end <= chain.length; end++) {
+			const text = chain
+				.slice(start, end)
+				.map((node) => String(node).replace(/\s+/g, ''))
+				.join('');
+			if (allowedPseudos.has(text)) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 /**
@@ -100,8 +153,11 @@ function checkNoRestrictedPseudos({ context, sourceNode, selector }: CheckArgs) 
  *
  * https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-elements
  */
-function checkNoLegacyPseudoElementSyntax({ context, sourceNode, selector }: CheckArgs) {
-	selector.walkPseudos((pseudo) => {
+function checkNoLegacyPseudoElementSyntax(
+	{ context, sourceNode }: CheckArgs,
+	pseudos: readonly Pseudo[],
+) {
+	for (const pseudo of pseudos) {
 		if (legacyPseudoElements.has(pseudo.value)) {
 			const range = getRangeFromNode({ node: pseudo, sourceNode });
 			const loc = getSourceLocationFromRange(context, range);
@@ -114,16 +170,19 @@ function checkNoLegacyPseudoElementSyntax({ context, sourceNode, selector }: Che
 				},
 			});
 		}
-	});
+	}
 }
 
-function checkNoIncreasedSpecificity({ context, sourceNode, selector }: CheckArgs) {
-	selector.walkNesting((nesting) => {
+function checkNoIncreasedSpecificity(
+	{ context, sourceNode }: CheckArgs,
+	nestings: readonly Nesting[],
+) {
+	for (const nesting of nestings) {
 		/**
 		 * If it's not the start of a chain, then it's already been reported.
 		 */
 		if (isNesting(nesting.prev())) {
-			return;
+			continue;
 		}
 
 		let next = nesting.next();
@@ -133,7 +192,7 @@ function checkNoIncreasedSpecificity({ context, sourceNode, selector }: CheckArg
 		 * then it isn't just there to increase specificity — it is actually necessary.
 		 */
 		if (next && !isNesting(next)) {
-			return;
+			continue;
 		}
 
 		let lastNesting = nesting;
@@ -151,5 +210,5 @@ function checkNoIncreasedSpecificity({ context, sourceNode, selector }: CheckArg
 			loc,
 			messageId: 'no-increased-specificity',
 		});
-	});
+	}
 }

@@ -1,6 +1,13 @@
 import React, { type ComponentType } from 'react';
 
-import ReactDOM from 'react-dom';
+import { cssMap } from '@atlaskit/css';
+import { Box } from '@atlaskit/primitives/compiled';
+
+const styles = cssMap({
+	displayContents: {
+		display: 'contents',
+	},
+});
 
 export interface WithOuterListenersProps {
 	handleClickOutside?: () => void;
@@ -11,6 +18,8 @@ export default function withOuterListeners<P>(
 	Component: ComponentType<P>,
 ): React.ComponentClass<P & WithOuterListenersProps> {
 	return class WithOuterListeners extends React.PureComponent<P & WithOuterListenersProps> {
+		private wrapperRef = React.createRef<HTMLDivElement>();
+
 		componentDidMount() {
 			if (this.props.handleClickOutside) {
 				document.addEventListener('click', this.handleClick, false);
@@ -35,7 +44,7 @@ export default function withOuterListeners<P>(
 			const { handleClickOutside } = this.props;
 
 			if (handleClickOutside) {
-				const domNode = ReactDOM.findDOMNode(this); // eslint-disable-line react/no-find-dom-node
+				const domNode = this.wrapperRef.current;
 
 				if (!domNode || (evt.target instanceof Node && !domNode.contains(evt.target))) {
 					handleClickOutside();
@@ -52,7 +61,11 @@ export default function withOuterListeners<P>(
 		};
 
 		render() {
-			return <Component {...this.props} />;
+			return (
+				<Box ref={this.wrapperRef} xcss={styles.displayContents}>
+					<Component {...this.props} />
+				</Box>
+			);
 		}
 	};
 }

@@ -1,44 +1,11 @@
-import type { RichMediaAttributes, RichMediaLayout } from '@atlaskit/adf-schema';
-import { findParentNodeOfTypeClosestToPos } from '@atlaskit/editor-prosemirror/utils';
-import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { akEditorBreakoutPadding } from '@atlaskit/editor-shared-styles';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import type {
+	RichMediaAttributes,
+	Layout as RichMediaLayout,
+} from '@atlaskit/adf-schema/rich-media-common';
 
-import type { SnapPointsProps } from '../types';
-import { calcPxFromColumns, wrappedLayouts } from '../ui/MediaSingle/grid';
-
-
-export const shouldAddDefaultWrappedWidth = (
-	layout: RichMediaLayout,
-	width?: number,
-	lineLength?: number,
-) => {
-	return wrappedLayouts.indexOf(layout) > -1 && lineLength && width && width > 0.5 * lineLength;
-};
-
-export const nonWrappedLayouts: RichMediaLayout[] = ['center', 'wide', 'full-width'];
-
-export const floatingLayouts: string[] = ['wrap-left', 'wrap-right'];
-
-export const isRichMediaInsideOfBlockNode = (view: EditorView, pos: number | boolean): boolean => {
-	if (typeof pos !== 'number' || isNaN(pos) || !view) {
-		return false;
-	}
-
-	const $pos = view.state.doc.resolve(pos);
-
-	const { expand, nestedExpand, layoutColumn, bodiedSyncBlock } = view.state.schema.nodes;
-
-	if (editorExperiment('platform_synced_block', true)) {
-		return !!findParentNodeOfTypeClosestToPos($pos, [
-			expand,
-			nestedExpand,
-			layoutColumn,
-			bodiedSyncBlock,
-		]);
-	}
-	return !!findParentNodeOfTypeClosestToPos($pos, [expand, nestedExpand, layoutColumn]);
-};
+import { wrappedLayouts } from '../ui/MediaSingle/wrappedLayouts';
+import { nonWrappedLayouts } from './nonWrappedLayouts';
+import { shouldAddDefaultWrappedWidth } from './shouldAddDefaultWrappedWidth';
 
 export const alignAttributes = (
 	layout: RichMediaLayout,
@@ -102,51 +69,13 @@ export const alignAttributes = (
 		width,
 	};
 };
-
-export function calculateSnapPoints({
-	$pos,
-	akEditorWideLayoutWidth,
-	allowBreakoutSnapPoints,
-	containerWidth,
-	gridSize,
-	gridWidth,
-	insideInlineLike,
-	insideLayout,
-	isVideoFile,
-	lineLength,
-	offsetLeft,
-	wrappedLayout,
-}: SnapPointsProps) {
-	const snapTargets: number[] = [];
-
-	for (let i = 0; i < gridWidth; i++) {
-		const pxFromColumns = calcPxFromColumns(i, lineLength, gridWidth);
-
-		snapTargets.push(insideLayout ? pxFromColumns : pxFromColumns - offsetLeft);
-	}
-	// full width
-	snapTargets.push(lineLength - offsetLeft);
-	const columns = wrappedLayout || insideInlineLike ? 1 : 2;
-	const minimumWidth = calcPxFromColumns(columns, lineLength, gridSize);
-
-	let snapPoints = snapTargets.filter((width) => width >= minimumWidth);
-	if (!$pos) {
-		return snapPoints;
-	}
-
-	snapPoints = isVideoFile ? snapPoints.filter((width) => width > 320) : snapPoints;
-
-	const isTopLevel = $pos.parent.type.name === 'doc';
-	if (isTopLevel && allowBreakoutSnapPoints) {
-		snapPoints.push(akEditorWideLayoutWidth);
-		const fullWidthPoint = containerWidth - akEditorBreakoutPadding;
-		if (fullWidthPoint > akEditorWideLayoutWidth) {
-			snapPoints.push(fullWidthPoint);
-		}
-	}
-
-	// EDM-1107: Ensure new snapPoints are sorted with existing points
-	snapPoints = snapPoints.sort((a, b) => a - b);
-
-	return snapPoints;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { shouldAddDefaultWrappedWidth } from './shouldAddDefaultWrappedWidth';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { nonWrappedLayouts } from './nonWrappedLayouts';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { floatingLayouts } from './floatingLayouts';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isRichMediaInsideOfBlockNode } from './isRichMediaInsideOfBlockNode';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { calculateSnapPoints } from './calculateSnapPoints';

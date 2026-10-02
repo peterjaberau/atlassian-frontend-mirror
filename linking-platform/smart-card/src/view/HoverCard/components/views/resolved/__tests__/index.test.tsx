@@ -1,13 +1,16 @@
 import React from 'react';
 
-import { act, fireEvent, render, type RenderOptions } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { type JsonLdDatasourceResponse } from '@atlaskit/link-client-extension';
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import type { CardState, ProductType } from '@atlaskit/linking-common';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { JsonLdDatasourceResponse } from '@atlaskit/link-client-extension/use-data-source-client-extension/types';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { GoogleDoc } from '@atlaskit/link-test-helpers';
+import type { CardState } from '@atlaskit/linking-common/store';
+import type { ProductType } from '@atlaskit/linking-common/types';
+import { act, fireEvent, render } from '@atlassian/testing-library';
 
 import { getCardState } from '../../../../../../../examples/utils/flexible-ui';
 import MockAtlasProject from '../../../../../../__fixtures__/atlas-project';
@@ -25,7 +28,12 @@ import {
 	mockIframelyResponse,
 	mockJiraResponse,
 } from '../../../../__tests__/__mocks__/mocks';
+import { flexibleUiOptions } from '../../../../styled';
 import HoverCardResolvedView from '../index';
+
+jest.mock('@atlaskit/tmp-editor-statsig/exp-val-equals', () => ({
+	expValEquals: jest.fn().mockReturnValue(false),
+}));
 
 jest.mock('../../../../../../state/hooks/use-ai-summary', () => {
 	const original = jest.requireActual('../../../../../../state/hooks/use-ai-summary');
@@ -58,7 +66,7 @@ describe('HoverCardResolvedView', () => {
 		sendScreenEvent: jest.fn().mockResolvedValue(undefined),
 	} satisfies AnalyticsWebClient;
 
-	const wrapper: RenderOptions['wrapper'] = ({ children }) => (
+	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<IntlProvider locale="en">
 			<FabricAnalyticsListeners client={mockAnalyticsClient}>
 				<SmartCardProvider
@@ -69,6 +77,7 @@ describe('HoverCardResolvedView', () => {
 					}}
 					product={productName}
 					isAdminHubAIEnabled
+					rovoOptions={{ isRovoEnabled: true, isRovoLLMEnabled: true }}
 				>
 					{children}
 				</SmartCardProvider>
@@ -76,6 +85,7 @@ describe('HoverCardResolvedView', () => {
 		</IntlProvider>
 	);
 
+	const actionOptions = { hide: false, rovoChatAction: { optIn: true } };
 	const TestComponent = ({
 		mockResponse = mockConfluenceResponse as JsonLdDatasourceResponse,
 		isAISummaryEnabled,
@@ -87,12 +97,12 @@ describe('HoverCardResolvedView', () => {
 	}) => {
 		return (
 			<HoverCardResolvedView
+				actionOptions={actionOptions}
 				extensionKey={mockResponse.meta.key}
 				id="123"
-				flexibleCardProps={{ cardState, children: null, url }}
+				flexibleCardProps={{ actionOptions, cardState, children: null, ui: flexibleUiOptions, url }}
 				onActionClick={jest.fn()}
 				cardState={cardState}
-				url={url}
 				titleBlockProps={titleBlockProps}
 				isAISummaryEnabled={isAISummaryEnabled}
 			/>
@@ -266,7 +276,7 @@ describe('HoverCardResolvedView', () => {
 				const aiSummaryAction = await findByTestId(
 					'smart-action-ai-summary-action-summarise-action',
 				);
-				expect(aiSummaryAction).toHaveTextContent('Summarize with AI');
+				expect(aiSummaryAction).toHaveTextContent('Summarize with Rovo');
 			});
 
 			it('renders snippet as a placeholder', async () => {
@@ -319,10 +329,10 @@ describe('HoverCardResolvedView', () => {
 					mockResponse: {
 						...mockAtlasProjectWithAiSummary,
 						data: {
-							...mockAtlasProjectWithAiSummary.data,
+							...(mockAtlasProjectWithAiSummary.data as unknown as JsonLd.Data.BaseData),
 							url: 'http://data-link-url.com',
-						},
-					},
+						} as unknown as JsonLd.Data.BaseData,
+					} as JsonLd.Response,
 					isAISummaryEnabled: true,
 				});
 
@@ -344,6 +354,29 @@ describe('HoverCardResolvedView', () => {
 						product: productName,
 					}),
 				);
+			});
+
+			it('should render AIFooterBlock when Rovo feature flag is off', async () => {
+				const { findByTestId, queryByTestId } = setup({ mockResponse: GoogleDoc });
+
+				const footerBlock = await findByTestId('smart-ai-footer-block-resolved-view');
+				expect(footerBlock).toBeInTheDocument();
+				expect(
+					queryByTestId('smart-hover-card-footer-block-resolved-view'),
+				).not.toBeInTheDocument();
+			});
+
+			it('should render AIFooterBlock when experiment is on but kill switch prevails', async () => {
+				const { expValEquals } = require('@atlaskit/tmp-editor-statsig/exp-val-equals');
+				(expValEquals as jest.Mock).mockReturnValue(true);
+
+				const { findByTestId, queryByTestId } = setup({ mockResponse: GoogleDoc });
+
+				const footerBlock = await findByTestId('smart-ai-footer-block-resolved-view');
+				expect(footerBlock).toBeInTheDocument();
+				expect(
+					queryByTestId('smart-hover-card-footer-block-resolved-view'),
+				).not.toBeInTheDocument();
 			});
 		});
 	});

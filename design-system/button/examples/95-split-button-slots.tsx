@@ -1,13 +1,13 @@
 import React from 'react';
 
-import Button, { IconButton } from '@atlaskit/button/new';
-import Heading from '@atlaskit/heading';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
+import Heading from '@atlaskit/heading/heading';
 import ChevronDown from '@atlaskit/icon/core/chevron-down';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box, Inline, Stack } from '@atlaskit/primitives';
+import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
 
 // eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
-import { SplitButtonWithSlots } from '../src/new-button/containers/split-button';
+import SplitButtonWithSlots from '../src/new-button/containers/split-button/split-button-with-slots';
 
 export default (): React.JSX.Element => (
 	<Box padding="space.250">

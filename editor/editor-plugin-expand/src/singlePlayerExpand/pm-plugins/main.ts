@@ -1,7 +1,7 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { createSelectionClickHandler } from '@atlaskit/editor-common/selection';
 import { expandClassNames } from '@atlaskit/editor-common/styles';
@@ -10,16 +10,19 @@ import {
 	transformSliceNestedExpandToExpand,
 } from '@atlaskit/editor-common/transforms';
 import type { EditorAppearance, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type Slice } from '@atlaskit/editor-prosemirror/model';
+import type { Slice } from '@atlaskit/editor-prosemirror/model';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
+import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
+import { TOGGLE_EXPAND_RANGE_META_KEY } from '../../editor-commands/toggleExpandRange';
 import type { ExpandPlugin } from '../../types';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-named-as-default
 import ExpandNodeView from '../node-views';
 
-export const pluginKey = new PluginKey('expandPlugin');
+export const pluginKey: PluginKey = new PluginKey('expandPlugin');
 
 export function containsClass(element: Element | null, className: string): boolean {
 	return Boolean(element?.classList?.contains(className));
@@ -28,18 +31,56 @@ export function containsClass(element: Element | null, className: string): boole
 export const createPlugin = (
 	dispatch: Dispatch,
 	getIntl: () => IntlShape,
-	appearance: EditorAppearance = 'full-page',
+	appearance: EditorAppearance | undefined = 'full-page',
 	useLongPressSelection: boolean = false,
 	api: ExtractInjectionAPI<ExpandPlugin> | undefined,
 	nodeViewPortalProviderAPI: PortalProviderAPI,
 	allowInteractiveExpand: boolean = true,
 	__livePage: boolean = false,
-) => {
+): SafePlugin => {
 	const isMobile = false;
 
 	return new SafePlugin({
 		key: pluginKey,
+		state: {
+			init() {
+				return DecorationSet.empty;
+			},
+			apply(tr: ReadonlyTransaction, decorationSet: DecorationSet) {
+				const meta = tr.getMeta(TOGGLE_EXPAND_RANGE_META_KEY) as
+					| { open: boolean; positions: number[] }
+					| undefined;
+
+				if (meta && meta.positions.length > 0) {
+					// Add node decorations for each expand node that was toggled.
+					// ExpandNodeView.update() uses these decorations to detect it needs to
+					// visually open or close, even when expandedState was set before the
+					// transaction replaced the node objects.
+					// We do NOT map or carry forward existing decorations — we start fresh
+					// each time the meta is present.
+					const decorations = meta.positions.map((pos) =>
+						Decoration.node(
+							pos,
+							pos + (tr.doc.nodeAt(pos)?.nodeSize ?? 0),
+							{},
+							{
+								forceExpandOpen: meta.open,
+							},
+						),
+					);
+					return DecorationSet.create(tr.doc, decorations);
+				}
+
+				// Map existing decorations through document changes.
+				// They will be naturally cleared when they no longer match any node
+				// (e.g. if the expand is deleted), or on the next toggleExpandRange call.
+				return decorationSet.map(tr.mapping, tr.doc);
+			},
+		},
 		props: {
+			decorations(state) {
+				return pluginKey.getState(state) as DecorationSet;
+			},
 			nodeViews: {
 				expand: ExpandNodeView({
 					getIntl,
@@ -72,7 +113,7 @@ export const createPlugin = (
 				(target) => target.classList.contains(expandClassNames.prefix),
 				{ useLongPressSelection },
 			),
-			handleDrop(view, event, slice, moved) {
+			handleDrop(view, event, slice, _moved) {
 				return handleExpandDrag(view, event, slice);
 			},
 		},

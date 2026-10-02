@@ -1,10 +1,10 @@
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { uuid } from '@atlaskit/adf-schema';
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
+import { uuid } from '@atlaskit/adf-schema/uuid';
 import type { Dispatch, EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import { type NodeViewConstructor } from '@atlaskit/editor-common/lazy-node-view';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { NodeViewConstructor } from '@atlaskit/editor-common/lazy-node-view';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { createSelectionClickHandler, GapCursorSelection } from '@atlaskit/editor-common/selection';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
@@ -16,15 +16,15 @@ import type {
 	Transaction,
 } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
-import { Decoration, DecorationSet, type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { DecisionItemNodeView } from '../nodeviews/DecisionItemNodeView';
 import { taskView } from '../nodeviews/task-node-view';
 import type { TasksAndDecisionsPlugin } from '../tasksAndDecisionsPluginType';
 import type { TaskDecisionPluginState, TaskItemInfoMeta } from '../types';
-
-import { focusTaskDecision, setProvider, openRequestEditPopup } from './actions';
+import { focusTaskDecision, openRequestEditPopup, setProvider } from './actions';
 import {
 	focusCheckbox,
 	focusCheckboxAndUpdateSelection,
@@ -35,7 +35,8 @@ import {
 } from './helpers';
 import { stateKey } from './plugin-key';
 import { taskItemOnChange } from './taskItemOnChange';
-import { ACTIONS, type TaskDecisionPluginAction, type TaskDecisionPluginCommand } from './types';
+import type { TaskDecisionPluginAction, TaskDecisionPluginCommand } from './types';
+import { ACTIONS } from './types';
 import { tempTransformSliceToRemoveBlockTaskItem } from './utils/paste';
 
 type ChangedFn = (
@@ -69,7 +70,7 @@ export function createPlugin(
 	hasRequestedEditPermission?: boolean,
 	requestToEditContent?: () => void,
 	taskPlaceholder?: string,
-) {
+): SafePlugin<TaskDecisionPluginState> {
 	return new SafePlugin<TaskDecisionPluginState>({
 		props: {
 			nodeViews: {
@@ -125,13 +126,7 @@ export function createPlugin(
 				const { selection, schema } = state;
 				const { $from, $to } = selection;
 				const parentOffset = $from.parentOffset;
-				const isInTaskItem = expValEquals(
-					'platform_editor_blocktaskitem_patch_1',
-					'isEnabled',
-					true,
-				)
-					? isInsideTask(state)
-					: $from.node().type === schema.nodes.taskItem;
+				const isInTaskItem = isInsideTask(state);
 
 				const focusedTaskItemLocalId = stateKey.getState(state).focusedTaskItemLocalId;
 
@@ -335,6 +330,8 @@ export function createPlugin(
 		 * Note: we currently do not handle the edge case where two nodes may have the same localId
 		 */
 		appendTransaction: (transactions, _oldState, newState) => {
+			// Assign unique localIds to any new nodes that don't have one.
+			// Runs with addToHistory: false so localId assignment is not part of the undo history.
 			const tr = newState.tr;
 			let modified = false;
 			transactions.forEach((transaction) => {
@@ -372,6 +369,7 @@ export function createPlugin(
 			if (modified) {
 				return tr.setMeta('addToHistory', false);
 			}
+
 			return;
 		},
 		view: () => {

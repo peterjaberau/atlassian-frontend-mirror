@@ -2,9 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { layers } from '@atlaskit/theme/constants';
-import Spinner from '@atlaskit/spinner';
+
 import { css, jsx } from '@compiled/react';
+
+import Spinner from '@atlaskit/spinner/spinner';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
+import { layers } from '@atlaskit/theme/constants';
 
 const blanketStyles = css({
 	position: 'fixed',
@@ -32,7 +35,7 @@ const defaultProps: Props = {
 	invertSpinnerColor: false,
 };
 
-export default ({ blankedColor, invertSpinnerColor }: Props) => (
+export default ({ blankedColor, invertSpinnerColor }: Props): JSX.Element => (
 	<div
 		style={{ backgroundColor: blankedColor || defaultProps.blankedColor }}
 		css={blanketStyles}

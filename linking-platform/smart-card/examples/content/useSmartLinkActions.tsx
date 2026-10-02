@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react';
 
-import Button from '@atlaskit/button/new';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import Button from '@atlaskit/button/default/button';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { ResolvedClient, ResolvedClientUrl } from '@atlaskit/link-test-helpers';
 import { Box } from '@atlaskit/primitives/compiled';
 
-import { Card, CardAction } from '../../src';
+import { Card } from '../../src';
+import { CardAction } from '../../src/constants';
 import { useSmartLinkActions } from '../../src/hooks';
-
 import ExampleContainer from './example-container';
 
 const PreviewButton = ({ url }: { url: string }) => {

@@ -11,11 +11,10 @@ import React, { createContext, type ReactNode, useCallback, useContext, useState
 
 import type { DraggableId, DraggableLocation, DragStart, DragUpdate } from 'react-beautiful-dnd';
 
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 
 import type { CleanupFn } from '../internal-types';
 import { batchUpdatesForReact16 } from '../utils/batch-updates-for-react-16';
-
 import type { DroppableRegistryEntry } from './droppable-registry';
 import { rbdInvariant } from './rbd-invariant';
 
@@ -106,6 +105,7 @@ type MonitorForLifecycle = (args: Partial<LifecycleResponders>) => CleanupFn;
 
 const LifecycleContext = createContext<MonitorForLifecycle | null>(null);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function LifecycleContextProvider({
 	children,
 	lifecycle,
@@ -139,6 +139,7 @@ export function LifecycleContextProvider({
 	);
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function useMonitorForLifecycle(): MonitorForLifecycle {
 	const monitorForLifecycle = useContext(LifecycleContext);
 	rbdInvariant(

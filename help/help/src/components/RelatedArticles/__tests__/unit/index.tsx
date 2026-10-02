@@ -1,15 +1,15 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render, waitFor, fireEvent } from '@testing-library/react';
-import { createIntl, createIntlCache, IntlProvider } from 'react-intl-next';
+import { createIntl, createIntlCache, IntlProvider } from 'react-intl';
 
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 
-import { getMockArticleItemList, getMockArticleItem } from '../../../../util/testing/mock';
 import { messages } from '../../../../messages';
-
-import RelatedArticles from '../../index';
 import { type ArticleItem } from '../../../../model/Article';
+import { getMockArticleItemList, getMockArticleItem } from '../../../../util/testing/mock';
+import RelatedArticles from '../../index';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
 // be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
@@ -35,9 +35,8 @@ const messageEndpointErrorButtonLabel = intl.formatMessage(
 	messages.help_related_article_endpoint_error_button_label,
 );
 const messageTitle = intl.formatMessage(messages.help_related_article_title);
-const messageShowMore = intl.formatMessage(messages.help_show_more_button_label_more, {
+const messageShowMore = intl.formatMessage(messages.help_show_more_button_label_more_articles, {
 	numberOfItemsLeft: '2',
-	itemsType: 'articles',
 });
 const messageLoading = intl.formatMessage(messages.help_loading);
 
@@ -88,26 +87,6 @@ describe('RelatedArticles', () => {
 			// eslint-disable-next-line @atlassian/a11y/no-violation-count
 			violationCount: 2,
 		});
-	});
-
-	it.skip('Should match snapshot', async () => {
-		const { container } = render(
-			<IntlProvider locale="en">
-				<RelatedArticles
-					routeGroup="test"
-					routeName="test"
-					onGetRelatedArticles={() => mockOnGetRelatedArticles(NUMBER_OF_ARTICLES)}
-					onRelatedArticlesListItemClick={mockOnRelatedArticlesListItemClick}
-					onRelatedArticlesShowMoreClick={mockOnRelatedArticlesShowMoreClick}
-				/>
-			</IntlProvider>,
-		);
-
-		jest.advanceTimersByTime(200);
-
-		await waitFor(() => expect(mockOnGetRelatedArticles).toHaveBeenCalled());
-
-		expect(container.firstChild).toMatchSnapshot();
 	});
 
 	it('Should request the related article on the first render', async () => {

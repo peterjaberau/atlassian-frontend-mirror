@@ -1,5 +1,679 @@
 # @atlaskit/jql-editor
 
+## 8.0.2
+
+### Patch Changes
+
+- [`17d1bdf45cdc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/17d1bdf45cdc0) -
+  Fix the JQL editor search button's focus indicator being clipped by its container, behind the
+  a11y-oct-22nd-batch experiment.
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.9.0
+
+### Minor Changes
+
+- [`d41d848e8255c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d41d848e8255c) -
+  Render local agent sessions with their mapped agent artwork and display names in JQL editor rich
+  user nodes. This behavior is gated by `agent_sessions_in_nin_team_eu`.
+
+## 7.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.8.0
+
+### Minor Changes
+
+- [`de49deaecf55a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/de49deaecf55a) -
+  Add clean `./analytics/util` subpath export exposing `useJqlEditorAnalytics`, so consumers of the
+  deprecated `@atlaskit/jql-editor/analytics` shim have a non-deprecated surface to migrate to (Volt
+  Stage-1).
+
+## 7.7.3
+
+### Patch Changes
+
+- [`731a4ac4fc519`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/731a4ac4fc519) -
+  Migrate 16px Avatar usages from `xsmall` to `xxsmall`.
+
+## 7.7.2
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 7.7.1
+
+### Patch Changes
+
+- [`3516c9fac5ea8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3516c9fac5ea8) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall`.
+- Updated dependencies
+
+## 7.7.0
+
+### Minor Changes
+
+- [`3c429c1effcc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c429c1effcc8) -
+  Add `descendantsOfTeamTotalCount` to `JqlInsightsAttributes`, so that `computeJqlInsights` reports
+  how often the `descendantsOfTeam` JQL function is used, alongside the existing `membersOf`
+  attributes. Also add `optionFunctionName` to the `autocompleteOption selected` analytics event
+  attributes, so that autocomplete selections can be attributed to a specific JQL function. Also add
+  `functionName` to the operational `autocompleteOption retrieved` / `retrieveFailed` analytics
+  event attributes, identifying the JQL function whose arguments the caret was inside when the
+  options were requested, so autocomplete impressions can be attributed to a function and measured
+  against selections. The attribute is omitted when the caret is not inside a function's arguments.
+
+  JQL function names are not a closed set — the grammar accepts any quoted string as a function name
+  and Forge/Connect apps register their own functions — so every emitted function name is bucketed
+  against the known team functions (`membersof`, `descendantsofteam`) and anything else is reported
+  as `other`. No identifiers, display names or query text are emitted.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.6.3
+
+### Patch Changes
+
+- [`ed54eea834dd7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed54eea834dd7) -
+  Rename internal feature gate assets_object_jql_values_in_editor to
+  orion-8274-cmdb-object-jql-values-resolver (no behavior change).
+- Updated dependencies
+
+## 7.6.2
+
+### Patch Changes
+
+- [`1ac81bbdf5636`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ac81bbdf5636) -
+  [ux] Behind the `jira-descendants-of-team-jql-function` gate, hydrate team arguments of the
+  `descendantsOfTeam()` JQL function into team lozenges, normalise hydration field-name keys so a
+  lozenge inserted from the autocomplete dropdown resolves its avatar, and strip the `id:` prefix
+  from a team id before deriving its avatar URL. These are internal behaviour changes only — no
+  public API, export, or entry point is added. Gate off leaves existing behaviour unchanged.
+- Updated dependencies
+
+## 7.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.6.0
+
+### Minor Changes
+
+- [`9d816d1001fcf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d816d1001fcf) -
+  Render Assets (CMDB) object names, and their object icon, as rich inline nodes in the JQL editor —
+  both when hydrating an existing query and when a value is selected from autocomplete. Behind
+  `assets_object_jql_values_in_editor`.
+
+  Adds an `assets` rich inline node, a `HydratedAssets` member of the `HydratedValue` union, and an
+  `'assets'` member of `AutocompleteValueType`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.4
+
+### Patch Changes
+
+- [`e0edc05cd52d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0edc05cd52d7) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall` as a 1:1 size rename with no visual
+  change.
+- Updated dependencies
+
+## 7.5.3
+
+### Patch Changes
+
+- [`1f4185080d160`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f4185080d160) -
+  Add gated support for agent field autocomplete and hydration behavior behind
+  jira_filter_by_agent_and_agent_state, including suppressing unsupported functions for
+  agentSessions[agent] and preserving property-based hydration for agent lozenges.
+- Updated dependencies
+
+## 7.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.0
+
+### Minor Changes
+
+- [`8c51c9ddd952e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8c51c9ddd952e) -
+  Update i18n NPM package versions for jira-ai,jira,jsm,proforma,chroma,capacity-planning,jql
+  (Group 4)
+
+## 7.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.3
+
+### Patch Changes
+
+- [`94071380cba1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94071380cba1e) -
+  Fix rich inline value nodes (lozenges) not rendering in JQL mode for collapsed entity-property
+  fields (e.g. agent / agent state) when the field is written unquoted. When such a clause is
+  unquoted the parser splits the property out of `field.value` (leaving the base field name) into
+  `field.properties`, so matching hydrated values against the raw `field.value` missed the hydration
+  key. Field matching now reconstructs the full identity (`value[propertyKey]`). Gated behind the
+  `jira_filter_by_agent_and_agent_state` experiment; when disabled the previous `field.value`
+  behaviour is preserved exactly, so all other fields are unaffected.
+- Updated dependencies
+
+## 7.4.2
+
+### Patch Changes
+
+- [`f400daccdffa1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f400daccdffa1) -
+  All projects*in_jira_ga_drop references removed from platform/ and migrated to the
+  atlassian_projects*-\_native_integration experiment.
+- Updated dependencies
+
+## 7.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.0
+
+### Minor Changes
+
+- [`2177d37c53880`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2177d37c53880) -
+  Update i18n NPM package versions for jira-ai,jira,jsm,proforma,chroma,capacity-planning,jql
+  (Group 4)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`3e4f35f919e4c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e4f35f919e4c) -
+  Update i18n NPM package versions for jira-ai,jira,jsm,proforma,chroma,capacity-planning,jql
+  (Group 4)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- [`cd18c31569944`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd18c31569944) -
+  Added changes to transform team id into membersof acceptable format
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`bd45351c2a76b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd45351c2a76b) -
+  Add optional autocomplete groupTitle for grouped suggestions and functionArgument option type for
+  JQL function argument autocomplete
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.0
+
+### Minor Changes
+
+- [`506238c0247fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/506238c0247fd) -
+  PTC-16709: Added changes to show autocomplete for membersOf function to fetch Teams
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.0
+
+### Minor Changes
+
+- [`9ead91bedc94b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ead91bedc94b) -
+  [ux] Add function argument hydration support behind feature flag
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.7
+
+### Patch Changes
+
+- [`87ab60401cc1d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87ab60401cc1d) -
+  Cleanup feature gate `empanda_jql-editor_fix_tab_select_in_popup`. The JQL editor input now always
+  sets `tabindex="0"` so it is reliably focusable when rendered inside a popup.
+- Updated dependencies
+
+## 6.4.6
+
+### Patch Changes
+
+- [`914fa81a9807b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/914fa81a9807b) -
+  Remove stale `add_nin_press_interactions` feature gate cleanup
+- Updated dependencies
+
+## 6.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.2
+
+### Patch Changes
+
+- [`4f13d0c596cb7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4f13d0c596cb7) -
+  Cleanup experiment gate `anip-1289-scroll-issues-in-jql-autocomplete`. The scroll fix (maxWidth
+  clamping on the autocomplete Popper panel) is now permanently enabled.
+
+## 6.4.1
+
+### Patch Changes
+
+- [`41cdac092bfaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41cdac092bfaa) -
+  Cleanup feature gate list_lovability_improving_filters. The defaultRows prop is now always applied
+  to the JQL editor, enabling configurable initial row height.
+- Updated dependencies
+
+## 6.4.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.1
+
+### Patch Changes
+
+- [`5f131a57d7576`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5f131a57d7576) -
+  [ux] Correct lozenge height
+
+## 6.3.0
+
+### Minor Changes
+
+- [`9b70306018878`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b70306018878) -
+  [ux] Include icon key in Goal node
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.3
+
+### Patch Changes
+
+- [`ef04a3969cfd2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef04a3969cfd2) -
+  Fixes a bug where it was not possible to focus the JQL Editor using the `tab` key when it was
+  contained by certain components, such as the Atlaskit Popup component.
+
+## 6.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.1
+
+### Patch Changes
+
+- [`42a9772eb71b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42a9772eb71b8) -
+  replace 'react-intl-next' alias with 'react-intl'
+- Updated dependencies
+
+## 6.2.0
+
+### Minor Changes
+
+- [`2f2e1ff7d48a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f2e1ff7d48a0) -
+  [ux] Add goal lozenge and use it on JQL editor
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.2
+
+### Patch Changes
+
+- [`85a5e662048f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85a5e662048f6) -
+  Enrol jql packages into the React Compiler with platform gating via isReactCompilerActivePlatform
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`354bbafb6a1e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/354bbafb6a1e9) -
+  Add HydratedGoal type
+
+## 6.0.0
+
+### Major Changes
+
+- [`4b920b03625a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b920b03625a1) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- [`7f43a9c7d5dec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f43a9c7d5dec) -
+  [ux] fixed up the scroll issue in JQL autocomplete if the option name is too long
+
+## 5.14.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.14.4
+
+### Patch Changes
+
+- [`6198f7a6a67fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6198f7a6a67fc) -
+  Handle the long project name and add a long-display-name sample project to example data.
+
+## 5.14.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.14.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.14.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.14.0
+
+### Minor Changes
+
+- [`2ce9dcaba3539`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ce9dcaba3539) -
+  [ux] Normalise hydration key so that lozenge data is refreshed in JQL editor
+
+### Patch Changes
+
+- [`ce16754d5db01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce16754d5db01) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 5.13.6
+
+### Patch Changes
+
+- [`618d4b42a6fe9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/618d4b42a6fe9) -
+  Clean up jira_update_jql_teams feature gate
+- Updated dependencies
+
+## 5.13.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.13.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.13.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.13.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.13.1
+
+### Patch Changes
+
+- [`b7751c58914be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7751c58914be) -
+  Remove old storybook addon (knobs)
+- [`3e57aae5b06fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e57aae5b06fd) -
+  Bump storybook v6 to v8
+
+## 5.13.0
+
+### Minor Changes
+
+- [`daf5c2659939b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/daf5c2659939b) -
+  [ux] Added Project (Atlas) node to the JQL Editor
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.12.8
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 5.12.7
 
 ### Patch Changes

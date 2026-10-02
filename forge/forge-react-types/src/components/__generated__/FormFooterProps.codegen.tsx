@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - FormFooterProps
  *
- * @codegen <<SignedSource::4c90207f54696475cd9bfae6d8cfb8a9>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/form/__generated__/form-footer.partial.tsx <<SignedSource::0b729df36afbc86cc134984bb4c16b3e>>
+ * @codegen <<SignedSource::59acabc38b3f70c3e7c3d6fbdcb93de2>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/form/__generated__/form-footer.partial.tsx <<SignedSource::fdea880452410dc8923b9b330ba4ab9b>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import { FormFooter as PlatformFormFooter } from '@atlaskit/form';
+import { FormFooter as PlatformFormFooter } from '@atlaskit/form/form-footer';
 
 export type PlatformFormFooterProps = Omit<_PlatformFormFooterProps, 'align'> & {
 /**

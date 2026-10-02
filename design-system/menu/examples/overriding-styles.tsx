@@ -7,18 +7,26 @@ import React from 'react';
 import { cssMap, jsx } from '@compiled/react';
 
 import RightArrow from '@atlaskit/icon/core/arrow-right';
-import { ButtonItem } from '@atlaskit/menu';
+import ButtonItem from '@atlaskit/menu/button-item';
+import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import ImgIcon from './common/img-icon';
 import koala from './icons/koala.png';
 
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
+
 const styles = cssMap({
 	buttonOne: {
-		paddingBlockStart: token('space.150', '12px'),
-		paddingInlineEnd: token('space.250', '20px'),
-		paddingBlockEnd: token('space.150', '12px'),
-		paddingInlineStart: token('space.250', '20px'),
+		paddingBlockStart: token('space.150'),
+		paddingInlineEnd: token('space.250'),
+		paddingBlockEnd: token('space.150'),
+		paddingInlineStart: token('space.250'),
 		borderStyle: 'solid',
 		borderWidth: token('border.width'),
 		borderColor: '#CDCDCD',
@@ -67,7 +75,11 @@ const _default: () => JSX.Element = () => (
 			onClick={console.log}
 			iconBefore={<ImgIcon src={koala} alt="" />}
 			description="Hover over me"
-			iconAfter={<RightArrow spacing="spacious" label="" />}
+			iconAfter={
+				<Flex xcss={iconSpacingStyles.space050}>
+					<RightArrow label="" />
+				</Flex>
+			}
 			isSelected
 			css={[styles.buttonOne, styles.selected]}
 		>
@@ -77,7 +89,11 @@ const _default: () => JSX.Element = () => (
 			onClick={console.log}
 			iconBefore={<ImgIcon alt="" src={koala} />}
 			description="Hover over me"
-			iconAfter={<RightArrow spacing="spacious" label="" />}
+			iconAfter={
+				<Flex xcss={iconSpacingStyles.space050}>
+					<RightArrow label="" />
+				</Flex>
+			}
 			css={styles.buttonTwo}
 		>
 			Button item

@@ -2,8 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { bind } from 'bind-event-listener';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-
 import { usePublish } from '../../../main';
 import { type Payload } from '../../../types';
 
@@ -22,7 +20,13 @@ type PostMessageAckEventType = {
 };
 
 // allow subdomains of these domains
-const allowedSubdomains = ['.jira-dev.com', '.atlassian.com', '.atlassian.net', '.atl-paas.net'];
+const allowedSubdomains = [
+	'.jira-dev.com',
+	'.jira.atlassian.cloud',
+	'.atlassian.com',
+	'.atlassian.net',
+	'.atl-paas.net',
+];
 const allowedOrigins = ['bitbucket.org', 'trello.com'];
 
 export const isAllowedOrigin = (origin: string | undefined): boolean => {
@@ -58,9 +62,9 @@ export const RovoPostMessagePubsubListener = () => {
 						eventType: ROVO_POST_MESSAGE_ACK_EVENT_TYPE,
 						payloadId: eventData.payloadId,
 					};
-					event.source?.postMessage(ackPayload, fg('ai-mate-pub-sub-post-message-origin-fix') ? {
+					event.source?.postMessage(ackPayload, {
 						targetOrigin: '*',
-					} : undefined);
+					});
 					publish(event.data.payload);
 				}
 			},
@@ -78,7 +82,18 @@ const TIMEOUT_WAIT_FOR_ACK = 100;
  * Hook to send a publish event to parent iframe using postMessage
  * Only supports 1 pubsub event at a time and waits for acknowledgment or timed out
  */
-export const useRovoPostMessageToPubsub = () => {
+export const useRovoPostMessageToPubsub = (): {
+	publishWithPostMessage: ({
+		targetWindow,
+		payload,
+		onAcknowledgeTimeout,
+	}: {
+		targetWindow?: Window;
+		payload: Payload;
+		onAcknowledgeTimeout: (params: { payload: Payload }) => void;
+	}) => void;
+	isWaitingForAck: boolean;
+} => {
 	const onAcknowledgeTimeoutTimeoutRef = useRef<{ timeout: number; lastPayloadId: string } | null>(
 		null,
 	);

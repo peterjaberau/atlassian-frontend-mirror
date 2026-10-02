@@ -1,68 +1,67 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
-import { usePrefetch } from '../../../state';
-import { startUfoExperience } from '../../../state/analytics/ufoExperiences';
+import { startUfoExperience } from '../../../state/analytics/startUfoExperience';
+import useIntersectionObserver from '../../../state/hooks/use-intersection-observer';
+import { useSmartLinkSeenEvent } from '../../../state/hooks/use-smart-link-seen-event';
+import { usePrefetch } from '../../../state/hooks/usePrefetch';
 import { shouldSample } from '../../../utils/shouldSample';
+import type { OnErrorCallback } from '../../types';
+import CardLoaderWrapper from '../card-loader-wrapper';
 import { CardWithUrlContent } from '../component';
 import { type CardWithUrlContentProps } from '../types';
-
 import { LoadingCardLink } from './LoadingCardLink';
 
-// This property enables the intersection observer to be run once the
-// HTML element being observed is within `X` px of the target container it is
-// being compared to. Since the default container is the `document`, we set this
-// up to check once a Smart Link is within `X` px from the bottom of the viewport.
-const ROOT_MARGIN_VERTICAL = '360px';
-
-export function LazyIntersectionObserverCard(props: CardWithUrlContentProps): React.JSX.Element {
-	const ref = useRef<HTMLDivElement | null>(null);
-
-	const [isIntersecting, setIsIntersecting] = useState(false);
+export const LazyIntersectionObserverCard: React.FC<CardWithUrlContentProps> = (
+	props: CardWithUrlContentProps,
+): React.JSX.Element => {
+	const [isIntersected, setIsIntersected] = useState(false);
 	const [shouldSendRenderedUFOEvent] = useState(shouldSample());
-	const { appearance, url, id } = props;
-	const prefetch = usePrefetch(url);
+	const { appearance, children, id, onError: onErrorCallback, ui, url } = props;
+	const prefetch = usePrefetch(url, appearance);
+	const ComponentObserver = appearance === 'inline' ? 'span' : 'div';
 
-	const Component = appearance === 'inline' ? 'span' : 'div';
-	const ComponentObserver = Component;
+	const { onIntersecting: onSeenIntersecting, onStatusSettled } = useSmartLinkSeenEvent({
+		appearance,
+		children,
+		id,
+		ui,
+		url,
+	});
 
-	const onIntersection: IntersectionObserverCallback = useCallback(
-		(entries, observer) => {
-			const isVisible = entries.some((entry) => entry.isIntersecting);
-			if (isVisible) {
+	const onError: OnErrorCallback = useCallback(
+		(data) => {
+			if (data?.status) {
+				onStatusSettled(data.status);
+			}
+			onErrorCallback?.(data);
+		},
+		[onStatusSettled, onErrorCallback],
+	);
+
+	const onIntersection = useCallback(
+		(isIntersecting: boolean) => {
+			if (isIntersecting) {
 				if (shouldSendRenderedUFOEvent) {
 					startUfoExperience('smart-link-rendered', id);
 				}
-				setIsIntersecting(true);
-				observer.disconnect();
+				onSeenIntersecting();
+				setIsIntersected(true);
 			} else {
 				prefetch();
 			}
 		},
-		[id, prefetch, shouldSendRenderedUFOEvent],
+		[id, onSeenIntersecting, prefetch, shouldSendRenderedUFOEvent],
 	);
 
-	useEffect(() => {
-		if (!ref.current) {
-			return;
-		}
+	const ref = useIntersectionObserver({ onIntersection });
 
-		const intersectionObserver = new IntersectionObserver(onIntersection, {
-			rootMargin: `${ROOT_MARGIN_VERTICAL} 0px ${ROOT_MARGIN_VERTICAL} 0px`,
-		});
-
-		intersectionObserver.observe(ref.current);
-
-		return () => intersectionObserver.disconnect();
-	}, [ref, onIntersection]);
-
-	const content = isIntersecting ? (
-		<CardWithUrlContent {...props} />
+	const content = isIntersected ? (
+		<CardWithUrlContent {...props} onError={onError} />
 	) : (
 		<ComponentObserver ref={ref}>
 			<LoadingCardLink {...props} />
 		</ComponentObserver>
 	);
 
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-	return <Component className="loader-wrapper">{content}</Component>;
-}
+	return <CardLoaderWrapper appearance={appearance}>{content}</CardLoaderWrapper>;
+};

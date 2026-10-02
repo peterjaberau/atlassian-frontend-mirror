@@ -2,15 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { components, type MultiValueProps } from '@atlaskit/select';
+
 import React, { Fragment } from 'react';
-import { FormattedMessage } from 'react-intl-next';
+
+import { cx, cssMap, jsx } from '@compiled/react';
+import { FormattedMessage } from 'react-intl';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { components } from '@atlaskit/react-select/components';
+import type { MultiValueProps } from '@atlaskit/select/types';
+import { token } from '@atlaskit/tokens';
+
 import { type Option, type User } from '../types';
 import { messages } from './i18n';
-import { isChildInput } from './utils';
+import { isChildInput } from './isChildInput';
 import ValueContainerWrapper from './ValueContainerWrapper';
-import { token } from '@atlaskit/tokens';
-import { cssMap, jsx } from '@compiled/react';
 
 export type State = {
 	previousValueSize: number;
@@ -19,6 +25,8 @@ export type State = {
 
 type Props = MultiValueProps<Option<User>[], true> & {
 	innerProps?: ValueContainerInnerProps;
+	/** Passed through from Atlaskit Select value container (spacing compact). */
+	isCompact?: boolean;
 };
 
 type ValueContainerInnerProps = {
@@ -28,9 +36,6 @@ type ValueContainerInnerProps = {
 const valueContainerStyles = cssMap({
 	root: {
 		gridTemplateColumns: 'auto 1fr',
-		paddingTop: token('space.075'),
-		paddingBottom: token('space.075'),
-		paddingLeft: token('space.075'),
 		overflowX: 'hidden',
 		overflowY: 'auto',
 		scrollbarWidth: 'none',
@@ -41,10 +46,40 @@ const valueContainerStyles = cssMap({
 			background: 'transparent',
 		},
 	},
+	paddingLegacy: {
+		paddingTop: token('space.100'),
+		paddingBottom: token('space.100'),
+		paddingLeft: token('space.100'),
+	},
+	tagUpliftVerticalDefault: {
+		paddingTop: token('space.100'),
+		paddingBottom: token('space.100'),
+	},
+	tagUpliftVerticalCompact: {
+		paddingTop: token('space.025'),
+		paddingBottom: token('space.025'),
+	},
+	paddingLeftTight: {
+		paddingLeft: token('space.075'),
+	},
+	paddingLeftWide: {
+		paddingLeft: token('space.100'),
+	},
+	withFlexAndGap: {
+		gridTemplateColumns: 'unset',
+		flexWrap: 'wrap',
+		gap: token('space.050'),
+	},
 });
 
 export class MultiValueContainer extends React.PureComponent<Props, State> {
-	static getDerivedStateFromProps(nextProps: Props, prevState: State) {
+	static getDerivedStateFromProps(
+		nextProps: Props,
+		prevState: State,
+	): {
+		previousValueSize: number;
+		valueSize: number;
+	} {
 		return {
 			valueSize: nextProps.getValue ? nextProps.getValue().length : 0,
 			previousValueSize: prevState.valueSize,
@@ -65,7 +100,6 @@ export class MultiValueContainer extends React.PureComponent<Props, State> {
 
 	componentDidUpdate(): void {
 		const { previousValueSize, valueSize } = this.state;
-		//@ts-ignore react-select unsupported props
 		const { isFocused } = this.props.selectProps;
 		if (valueSize > previousValueSize && isFocused) {
 			if (this.timeoutId) {
@@ -113,7 +147,6 @@ export class MultiValueContainer extends React.PureComponent<Props, State> {
 
 	private renderChildren = () => {
 		const {
-			//@ts-ignore react-select unsupported props
 			selectProps: { addMoreMessage, isDisabled },
 		} = this.props;
 		// Do not render "Add more..." message if picker is disabled
@@ -138,22 +171,48 @@ export class MultiValueContainer extends React.PureComponent<Props, State> {
 		return this.addPlaceholder(addMoreMessage);
 	};
 
-	//@ts-ignore react-select unsupported props
 	onValueContainerClick: any = this.props.selectProps.onValueContainerClick;
 
-	render() {
-		const { children, innerProps, ...valueContainerProps } = this.props;
+	render(): JSX.Element {
+		const {
+			children: _children,
+			innerProps: _innerProps,
+			hasValue,
+			isCompact,
+			...valueContainerProps
+		} = this.props;
 		const props = {
 			...valueContainerProps,
+			hasValue,
+			isCompact,
 			innerProps: this.valueContainerInnerProps,
 		};
+
+		const ffTagUplifts = fg('platform-dst-lozenge-tag-badge-visual-uplifts');
+		const controlRendersValueInControl = this.props.selectProps.controlShouldRenderValue !== false;
+		const tagUpliftChipRow = ffTagUplifts && hasValue && controlRendersValueInControl;
 
 		return (
 			<ValueContainerWrapper
 				isEnabled={this.onValueContainerClick}
 				onMouseDown={this.onValueContainerClick}
 			>
-				<components.ValueContainer {...props} xcss={valueContainerStyles.root}>
+				<components.ValueContainer
+					{...props}
+					xcss={cx(
+						valueContainerStyles.root,
+						!ffTagUplifts && valueContainerStyles.paddingLegacy,
+						ffTagUplifts &&
+							(isCompact
+								? valueContainerStyles.tagUpliftVerticalCompact
+								: valueContainerStyles.tagUpliftVerticalDefault),
+						ffTagUplifts &&
+							(tagUpliftChipRow
+								? valueContainerStyles.paddingLeftWide
+								: valueContainerStyles.paddingLeftTight),
+						tagUpliftChipRow && valueContainerStyles.withFlexAndGap,
+					)}
+				>
 					{this.renderChildren()}
 				</components.ValueContainer>
 			</ValueContainerWrapper>

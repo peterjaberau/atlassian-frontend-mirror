@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 
 import { type JqlAnalyticsEvent } from './types';
 
@@ -9,7 +9,11 @@ export const useJqlPackageAnalytics = <Action, ActionSubject, ActionSubjectId>(
 	packageName: string,
 	packageVersion: string,
 	analyticsChannel: string,
-) => {
+): {
+	createAndFireAnalyticsEvent: (
+		payload: JqlAnalyticsEvent<Action, ActionSubject, ActionSubjectId>,
+	) => void;
+} => {
 	const { createAnalyticsEvent } = useAnalyticsEvents();
 
 	const createAndFireAnalyticsEvent = useCallback(

@@ -1,3 +1,4 @@
+// oxlint-disable-next-line import/no-duplicates
 import type { AnalyticsEventPayload } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -11,8 +12,6 @@ import type { Selection, Transaction } from '@atlaskit/editor-prosemirror/state'
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNode, findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
-
 export function getSelectionType(selection: Selection): {
 	position?: SELECTION_POSITION;
 	type: SELECTION_TYPE;
@@ -49,7 +48,11 @@ export function getSelectionType(selection: Selection): {
 	};
 }
 
-function findInsertedLocation(oldSelection: Selection, newSelection: Selection): string {
+function findInsertedLocation(
+	oldSelection: Selection,
+	newSelection: Selection,
+	tr: Transaction,
+): string {
 	const { schema } = newSelection.$from.doc.type;
 	const {
 		nodes: { paragraph, table },
@@ -59,15 +62,17 @@ function findInsertedLocation(oldSelection: Selection, newSelection: Selection):
 		return table.name;
 	}
 
+	const newDoc = newSelection.$from.doc;
 	const insertLocationInfo = findParentNode((node) => node.type !== paragraph)(oldSelection);
 
-	let parentNodePos = newSelection.$from.doc.resolve(insertLocationInfo?.start || 0);
+	let pos = insertLocationInfo?.start || 0;
+	// Map the old document position through the transaction's steps
+	pos = tr.mapping.map(pos);
+	let parentNodePos = newDoc.resolve(pos);
 
 	// Keep going one level above the attempted insert position till we find a node that contains the current cursor position in it's range
 	while (parentNodePos.end() < newSelection.$from.pos) {
-		parentNodePos = newSelection.$from.doc.resolve(
-			parentNodePos.start(Math.max(parentNodePos.depth - 1, 0)),
-		);
+		parentNodePos = newDoc.resolve(parentNodePos.start(Math.max(parentNodePos.depth - 1, 0)));
 	}
 	return parentNodePos.node().type.name;
 }
@@ -92,7 +97,7 @@ export function getStateContext<Payload extends BaseEventPayload = AnalyticsEven
 		payload.actionSubject !== ACTION_SUBJECT.ANNOTATION &&
 		payload.actionSubject !== ACTION_SUBJECT.EDITOR_PLUGIN_AI
 	) {
-		payload.attributes.insertedLocation = findInsertedLocation(selection, tr.selection);
+		payload.attributes.insertedLocation = findInsertedLocation(selection, tr.selection, tr);
 	}
 	if (
 		payload.action === ACTION.INSERTED &&
@@ -100,10 +105,10 @@ export function getStateContext<Payload extends BaseEventPayload = AnalyticsEven
 		payload.attributes
 	) {
 		payload.attributes.insertLocation = insertLocation;
-		if (editorExperiment('platform_synced_block', true)) {
-			const { bodiedSyncBlock } = selection.$from.doc.type.schema.nodes;
-			payload.attributes.isInsideSyncedBlock = Boolean(findParentNodeOfType(bodiedSyncBlock)(selection));
-		}
+		const { bodiedSyncBlock } = selection.$from.doc.type.schema.nodes;
+		payload.attributes.isInsideSyncedBlock = Boolean(
+			findParentNodeOfType(bodiedSyncBlock)(selection),
+		);
 	} else {
 		payload.attributes.nodeLocation = insertLocation;
 	}

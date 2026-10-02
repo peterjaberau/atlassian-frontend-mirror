@@ -2,10 +2,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { components, type ControlProps } from '@atlaskit/select';
-import { token } from '@atlaskit/tokens';
 
 import { cssMap, jsx, cx } from '@compiled/react';
+
+import { components } from '@atlaskit/react-select/components';
+import type { ControlProps } from '@atlaskit/select/types';
+import { token } from '@atlaskit/tokens';
+
 import type { UserPickerProps } from '../types';
 
 const controlStyles = cssMap({
@@ -63,7 +66,7 @@ const controlStyles = cssMap({
 	},
 });
 
-const Control = (props: ControlProps<any> & UserPickerProps) => {
+const Control = (props: ControlProps<any> & UserPickerProps): JSX.Element => {
 	const isCompact = props.appearance === 'compact';
 	return (
 		<components.Control

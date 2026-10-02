@@ -2,9 +2,10 @@ import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { PluginToolbarComponentConfig } from '@atlaskit/editor-common/toolbar';
 import type { PaletteColor } from '@atlaskit/editor-common/ui-color';
-import { textColorPalette } from '@atlaskit/editor-common/ui-color';
+import { textColorPalette, textColorPaletteNew } from '@atlaskit/editor-common/ui-color';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import { token } from '@atlaskit/tokens';
 
 import { getActiveColor } from './utils/color';
@@ -45,18 +46,26 @@ function createInitialPluginState(
 	pluginConfig?: TextColorPluginConfig,
 ): TextColorPluginState {
 	const defaultColor = pluginConfig?.defaultColor || DEFAULT_COLOR;
+	const paletteColors = expValEqualsNoExposure(
+		'platform_editor_lovability_text_bg_color',
+		'isEnabled',
+		true,
+	)
+		? textColorPaletteNew
+		: textColorPalette;
 
 	const palette: Array<PaletteColor> = [
 		{
 			value: defaultColor.color,
 			label: defaultColor.label,
-			border: token('color.border', '#091E4224'),
+			border: token('color.border'),
 		},
-		...textColorPalette,
+		...paletteColors,
 	];
 
+	const color = getActiveColor(editorState);
 	const state = {
-		color: getActiveColor(editorState),
+		color,
 		disabled: getDisabledState(editorState),
 		palette,
 		defaultColor: defaultColor.color,
@@ -73,7 +82,9 @@ export enum ACTIONS {
 	SET_PALETTE,
 }
 
-export const pluginKey = new PluginKey<TextColorPluginState>('textColorPlugin');
+export const pluginKey: PluginKey<TextColorPluginState> = new PluginKey<TextColorPluginState>(
+	'textColorPlugin',
+);
 
 export function createPlugin(dispatch: Dispatch, pluginConfig?: TextColorPluginConfig): SafePlugin {
 	return new SafePlugin({
@@ -88,7 +99,10 @@ export function createPlugin(dispatch: Dispatch, pluginConfig?: TextColorPluginC
 				let nextState;
 				switch (meta.action) {
 					case ACTIONS.RESET_COLOR:
-						nextState = { ...pluginState, color: pluginState.defaultColor };
+						nextState = {
+							...pluginState,
+							color: pluginState.defaultColor,
+						};
 						break;
 
 					case ACTIONS.SET_COLOR:
@@ -101,17 +115,24 @@ export function createPlugin(dispatch: Dispatch, pluginConfig?: TextColorPluginC
 						break;
 
 					case ACTIONS.DISABLE:
-						nextState = { ...pluginState, disabled: true };
+						nextState = {
+							...pluginState,
+							disabled: true,
+						};
 						break;
 
 					case ACTIONS.SET_PALETTE:
-						nextState = { ...pluginState, isPaletteOpen: meta.isPaletteOpen };
+						nextState = {
+							...pluginState,
+							isPaletteOpen: meta.isPaletteOpen,
+						};
 						break;
 
 					default:
+						const color = getActiveColor(newState);
 						nextState = {
 							...pluginState,
-							color: getActiveColor(newState),
+							color,
 							disabled: getDisabledState(newState),
 						};
 				}

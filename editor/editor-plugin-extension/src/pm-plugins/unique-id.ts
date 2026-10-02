@@ -1,12 +1,12 @@
-import { uuid } from '@atlaskit/adf-schema';
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
+import { uuid } from '@atlaskit/adf-schema/uuid';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { stepAddsOneOf } from '@atlaskit/editor-common/utils';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 
 const pluginKey = new PluginKey('extensionUniqueIdPlugin');
 
-const createPlugin = () =>
+const createPlugin = (): SafePlugin =>
 	new SafePlugin({
 		appendTransaction: (transactions, _oldState, newState) => {
 			const tr = newState.tr;

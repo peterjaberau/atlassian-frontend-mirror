@@ -1,4 +1,326 @@
-export const defaultValue = {
+export const defaultValue: {
+	content: (
+		| {
+				attrs: {
+					extensionKey?: undefined;
+					extensionType?: undefined;
+					isNumberColumnEnabled?: undefined;
+					layout?: undefined;
+					level: number;
+					localId?: undefined;
+					order?: undefined;
+					panelType?: undefined;
+					parameters?: undefined;
+					title?: undefined;
+					width?: undefined;
+				};
+				content: {
+					text: string;
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs?: undefined;
+				content: {
+					text: string;
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey?: undefined;
+					extensionType?: undefined;
+					isNumberColumnEnabled?: undefined;
+					layout?: undefined;
+					level?: undefined;
+					localId?: undefined;
+					order?: undefined;
+					panelType?: undefined;
+					parameters?: undefined;
+					title: string;
+					width?: undefined;
+				};
+				content: {
+					content: never[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey?: undefined;
+					extensionType?: undefined;
+					isNumberColumnEnabled: boolean;
+					layout: string;
+					level?: undefined;
+					localId: string;
+					order?: undefined;
+					panelType?: undefined;
+					parameters?: undefined;
+					title?: undefined;
+					width: number;
+				};
+				content: {
+					content: {
+						attrs: {};
+						content: {
+							content: never[];
+							type: string;
+						}[];
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs?: undefined;
+				content: {
+					content: {
+						content: {
+							text: string;
+							type: string;
+						}[];
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey?: undefined;
+					extensionType?: undefined;
+					isNumberColumnEnabled?: undefined;
+					layout?: undefined;
+					level?: undefined;
+					localId?: undefined;
+					order: number;
+					panelType?: undefined;
+					parameters?: undefined;
+					title?: undefined;
+					width?: undefined;
+				};
+				content: {
+					content: {
+						content: {
+							text: string;
+							type: string;
+						}[];
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey?: undefined;
+					extensionType?: undefined;
+					isNumberColumnEnabled?: undefined;
+					layout?: undefined;
+					level?: undefined;
+					localId?: undefined;
+					order?: undefined;
+					panelType?: undefined;
+					parameters?: undefined;
+					title?: undefined;
+					width?: undefined;
+				};
+				content: {
+					text: string;
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey?: undefined;
+					extensionType?: undefined;
+					isNumberColumnEnabled?: undefined;
+					layout?: undefined;
+					level?: undefined;
+					localId?: undefined;
+					order?: undefined;
+					panelType: string;
+					parameters?: undefined;
+					title?: undefined;
+					width?: undefined;
+				};
+				content: {
+					content: {
+						text: string;
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs?: undefined;
+				content: {
+					content: {
+						text: string;
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey?: undefined;
+					extensionType?: undefined;
+					isNumberColumnEnabled?: undefined;
+					layout?: undefined;
+					level?: undefined;
+					localId: string;
+					order?: undefined;
+					panelType?: undefined;
+					parameters?: undefined;
+					title?: undefined;
+					width?: undefined;
+				};
+				content: {
+					attrs: {
+						localId: string;
+						state: string;
+					};
+					content: {
+						text: string;
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs?: undefined;
+				content?: undefined;
+				type: string;
+		  }
+		| {
+				attrs?: undefined;
+				content: {
+					attrs: {
+						width: number;
+					};
+					content: {
+						content: never[];
+						type: string;
+					}[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey: string;
+					extensionType: string;
+					isNumberColumnEnabled?: undefined;
+					layout: string;
+					level?: undefined;
+					localId?: undefined;
+					order?: undefined;
+					panelType?: undefined;
+					parameters: {
+						items: string[];
+						macroMetadata?: undefined;
+						macroParams?: undefined;
+					};
+					title?: undefined;
+					width?: undefined;
+				};
+				content?: undefined;
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey: string;
+					extensionType: string;
+					isNumberColumnEnabled?: undefined;
+					layout: string;
+					level?: undefined;
+					localId: string;
+					order?: undefined;
+					panelType?: undefined;
+					parameters: {
+						items?: undefined;
+						macroMetadata: {
+							placeholder: {
+								data: {
+									url: string;
+								};
+								type: string;
+							}[];
+						};
+						macroParams: {};
+					};
+					title?: undefined;
+					width?: undefined;
+				};
+				content: {
+					content: never[];
+					type: string;
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey: string;
+					extensionType: string;
+					isNumberColumnEnabled?: undefined;
+					layout: string;
+					level?: undefined;
+					localId: string;
+					order?: undefined;
+					panelType?: undefined;
+					parameters: {};
+					title?: undefined;
+					width?: undefined;
+				};
+				content: {
+					content: {
+						content: {
+							text: string;
+							type: string;
+						}[];
+						type: string;
+					}[];
+					type: 'extensionFrame';
+				}[];
+				type: string;
+		  }
+		| {
+				attrs: {
+					extensionKey?: undefined;
+					extensionType?: undefined;
+					isNumberColumnEnabled?: undefined;
+					layout: string;
+					level?: undefined;
+					localId?: undefined;
+					order?: undefined;
+					panelType?: undefined;
+					parameters?: undefined;
+					title?: undefined;
+					width: number;
+				};
+				content: {
+					attrs: {
+						collection: string;
+						id: string;
+						type: string;
+					};
+					type: string;
+				}[];
+				type: string;
+		  }
+	)[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -532,6 +854,48 @@ export const defaultValue = {
 				{
 					type: 'paragraph',
 					content: [],
+				},
+			],
+		},
+		{
+			type: 'multiBodiedExtension',
+			attrs: {
+				extensionType: 'com.atlassian.confluence.macro.core',
+				extensionKey: 'multi-bodied-eh',
+				parameters: {
+					macroParams: {},
+					macroMetadata: {
+						placeholder: [
+							{
+								data: {
+									url: '',
+								},
+								type: 'icon',
+							},
+						],
+					},
+				},
+				layout: 'default',
+				localId: 'mbe-test-id',
+			},
+			content: [
+				{
+					type: 'extensionFrame',
+					content: [
+						{
+							type: 'paragraph',
+							content: [],
+						},
+					],
+				},
+				{
+					type: 'extensionFrame',
+					content: [
+						{
+							type: 'paragraph',
+							content: [],
+						},
+					],
 				},
 			],
 		},

@@ -1,15 +1,13 @@
 import React from 'react';
 
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import type { PanelAttributes } from '@atlaskit/adf-schema';
-import { PanelType } from '@atlaskit/adf-schema';
+import type { PanelAttributes } from '@atlaskit/adf-schema/panel';
+import { PanelType } from '@atlaskit/adf-schema/panel';
 import { Emoji } from '@atlaskit/editor-common/emoji';
-import {
-	useSharedPluginStateWithSelector,
-	type NamedPluginStatesFromInjectionAPI,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import {
 	PanelErrorIcon,
 	PanelInfoIcon,
@@ -18,7 +16,7 @@ import {
 	PanelWarningIcon,
 } from '@atlaskit/editor-common/icons';
 import { PanelSharedCssClassName } from '@atlaskit/editor-common/panel';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import type {
 	ExtractInjectionAPI,
@@ -33,6 +31,7 @@ import LightbulbIcon from '@atlaskit/icon/core/lightbulb';
 
 import type { PanelPlugin, PanelPluginOptions } from '../panelPluginType';
 import { panelAttrsToDom } from '../pm-plugins/utils/utils';
+import { renderPanelIcon } from '../ui/renderPanelIcon';
 
 /* eslint-disable @atlaskit/editor/no-re-export */
 // Mapping export
@@ -143,18 +142,37 @@ class PanelNodeView {
 		// set contentEditable as false to be able to select the custom panels with keyboard
 		this.icon.contentEditable = 'false';
 
-		this.nodeViewPortalProviderAPI.render(
-			() => (
-				<PanelIcon
-					pluginInjectionApi={api}
-					allowCustomPanel={pluginOptions.allowCustomPanel}
-					panelAttributes={node.attrs as PanelAttributes}
-					providerFactory={this.providerFactory}
-				/>
-			),
-			this.icon,
-			this.key,
-		);
+		const panelAttrs = node.attrs as PanelAttributes;
+
+		// Determine if this is a standard panel type (info, note, success, warning, error)
+		const isStandardPanel =
+			panelAttrs.panelType &&
+			[
+				PanelType.INFO,
+				PanelType.NOTE,
+				PanelType.SUCCESS,
+				PanelType.WARNING,
+				PanelType.ERROR,
+			].includes(panelAttrs.panelType);
+
+		// For standard panels (info, note, success, warning, error), render icon directly as native DOM
+		// This avoids Portal rendering delays that cause flickering on SSR and page transitions
+		if (isStandardPanel) {
+			renderPanelIcon(panelAttrs.panelType, this.icon);
+		} else {
+			this.nodeViewPortalProviderAPI.render(
+				() => (
+					<PanelIcon
+						pluginInjectionApi={api}
+						allowCustomPanel={pluginOptions.allowCustomPanel}
+						panelAttributes={panelAttrs}
+						providerFactory={this.providerFactory}
+					/>
+				),
+				this.icon,
+				this.key,
+			);
+		}
 	}
 
 	ignoreMutation(mutation: MutationRecord | { target: Node; type: 'selection' }): boolean {
@@ -169,7 +187,21 @@ class PanelNodeView {
 	}
 
 	destroy(): void {
-		this.nodeViewPortalProviderAPI.remove(this.key);
+		const panelAttrs = this.node.attrs as PanelAttributes;
+		// Determine if this is a standard panel type (info, note, success, warning, error)
+		const isStandardPanel =
+			panelAttrs.panelType &&
+			[
+				PanelType.INFO,
+				PanelType.NOTE,
+				PanelType.SUCCESS,
+				PanelType.WARNING,
+				PanelType.ERROR,
+			].includes(panelAttrs.panelType);
+		// Only remove Portal if it was used (for custom emoji panels)
+		if (!isStandardPanel) {
+			this.nodeViewPortalProviderAPI.remove(this.key);
+		}
 	}
 }
 

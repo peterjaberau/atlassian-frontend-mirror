@@ -1,5 +1,210 @@
 # @atlaskit/media-common
 
+## 14.6.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.5.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.4.0
+
+### Minor Changes
+
+- [`2140553ed738f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2140553ed738f) -
+  addding object recorder
+
+## 14.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.0
+
+### Minor Changes
+
+- [`e8071bab93879`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8071bab93879) -
+  Refactor packages with custom root `src/index` barrel logic to use dedicated entry modules (for
+  example `main`, `types`, `constants`, `screen`, and package-specific entrypoints) while keeping
+  public exports stable. This aligns the packages with barrel-file ratcheting by reducing custom
+  logic in root barrels and removing now-safe packages from the prohibited barrel-file list.
+
+## 14.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`758e07b536b13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/758e07b536b13) -
+  [ux] Show a clear "Unsupported file format" message for non-ZIP archives (e.g. 7z, tar, gzip) in
+  the media viewer instead of a generic error, and remove the empty sidebar gap. Behind feature gate
+  platform_media_archive_zip_guard.
+
+## 14.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.2
+
+### Patch Changes
+
+- [`c0dbd7b223090`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c0dbd7b223090) -
+  Add `isGCPtenant()` utility to `media-common` and guard CDN delivery in `media-client` for GCP
+  tenants.
+
+  CDN (CloudFront) is an AWS service that is not available on GCP tenants. Browser CDN GET requests
+  were failing with HTTP 500 on GCP environments because `isCDNEnabled()` had no guard for GCP. This
+  fix adds `!isGCPtenant()` to `isCDNEnabled()` and to the inner feature-flag check in
+  `mapToMediaCdnUrl()`, mirroring the existing `isIsolatedCloud()` pattern.
+
+## 13.3.1
+
+### Patch Changes
+
+- [`2fe9a9909d2ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe9a9909d2ac) -
+  Enrol media packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 13.3.0
+
+### Minor Changes
+
+- [`34c40eb233aa4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/34c40eb233aa4) -
+  isUxChange: true
+
+  Lazy-append document pages for MS Excel previews behind platform_media_excel_lazy_load gate to fix
+  initial-render freeze on very large documents
+
+## 13.2.0
+
+### Minor Changes
+
+- [`5653e8be24c05`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5653e8be24c05) -
+  Replace `uuid-validate` with an inlined, browser-only `isValidUuid` helper in
+  `@atlaskit/media-common`. Removes the `uuid-validate` dependency from `media-card`,
+  `media-client`, `media-common` and `media-picker` so consumers no longer pull in the Node `Buffer`
+  polyfill purely for a `Buffer.isBuffer` check that always returned `false` in the browser.
+
+  Adds a new `@atlaskit/media-common/isValidUuid` subpath export so consumers can import the helper
+  without going through the package's barrel file (in line with the Debarreling Platform Packages
+  initiative).
+
+## 13.1.0
+
+### Minor Changes
+
+- [`818d7e656a226`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/818d7e656a226) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 13.0.2
+
+### Patch Changes
+
+- [`83401665664f5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83401665664f5) -
+  Fix failure to extract clientId when performing cross client copy/paste of rich text containing
+  media
+
+## 13.0.1
+
+### Patch Changes
+
+- [`539f26aebdac4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/539f26aebdac4) -
+  Update CopyIntent clientId cache to be mutli use following LRU principles
+
+## 13.0.0
+
+### Major Changes
+
+- [`bc6f294d90d3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc6f294d90d3f) -
+  Upgrade immer dependency to 11.1.4 (COMMIT-24745). Addresses dependency debt and version conflicts
+  for downstream consumers. Uses `produce` API which is compatible across v8–v11.
+
+## 12.4.0
+
+### Minor Changes
+
+- [`c90ccf0c600ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c90ccf0c600ee) -
+  Enable cross product/cross client copy and paste of Media files by including clientId during Copy
+  operations.
+
 ## 12.3.1
 
 ### Patch Changes
@@ -597,7 +802,6 @@
   members (see below). Extra entry point `mediaTypeUtils` for all of them is added.
 
   New members:
-
   - getMediaTypeFromMimeType
   - isImageMimeTypeSupportedByBrowser
   - isDocumentMimeTypeSupportedByBrowser
@@ -828,5 +1032,4 @@
 
   Create @atlaskit/media-common- Updated dependencies
   [168b5f90e5](https://bitbucket.org/atlassian/atlassian-frontend/commits/168b5f90e5):
-
   - @atlaskit/docs@8.5.1

@@ -1,9 +1,12 @@
 import React, { forwardRef } from 'react';
 
-import { Section as MenuSection } from '@atlaskit/menu';
+import MenuSection from '@atlaskit/menu/section';
 
-import { useShouldNestedElementRender } from '../NestableNavigationContent/context';
+import { useShouldNestedElementRender } from '../NestableNavigationContent/use-should-nested-element-render';
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface SectionProps {
 	/**
 	 * The children of the section.
@@ -44,8 +47,10 @@ export interface SectionProps {
  *
  * - [Examples](https://atlassian.design/components/side-navigation/examples#section)
  * - [Code](https://atlassian.design/components/side-navigation/code)
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const Section: React.ForwardRefExoticComponent<
+export const Section: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<SectionProps> & React.RefAttributes<HTMLElement>
 > = forwardRef<HTMLElement, SectionProps>((props, ref) => {
 	const { shouldRender } = useShouldNestedElementRender();
@@ -55,5 +60,3 @@ const Section: React.ForwardRefExoticComponent<
 
 	return <MenuSection {...props} ref={ref} isSideNavSection />;
 });
-
-export default Section;

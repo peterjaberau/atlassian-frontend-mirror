@@ -1,5 +1,6 @@
 import { type Node } from '@atlaskit/editor-prosemirror/model';
 import { type EditorState, type Transaction } from '@atlaskit/editor-prosemirror/state';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
 import {
 	AbstractJastVisitor,
 	type Argument,
@@ -12,13 +13,15 @@ import {
 	type TerminalClause,
 	type ValueOperand,
 } from '@atlaskit/jql-ast';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { JQLEditorSchema } from '../../../schema';
 import { type HydratedValuesMap } from '../../../state/types';
 import { type HydratedValue } from '../../../ui/jql-editor/types';
+import { constructFieldWithPropertyFG } from '../../../utils/construct-field-with-property/constructFieldWithPropertyFG';
+import { isHydratableTeamFunction } from '../../../utils/team-jql-functions/isHydratableTeamFunction';
 import getDocumentPosition from '../../common/get-document-position';
-import { getJastFromState } from '../../jql-ast';
+import { getJastFromState } from '../../jql-ast/getJastFromState';
 import { RICH_INLINE_NODE } from '../constants';
 
 export const replaceRichInlineNodes = (
@@ -32,31 +35,65 @@ export const replaceRichInlineNodes = (
 
 	Object.entries(hydratedValues).forEach(([fieldName, values]) => {
 		values.forEach((value) => {
-			if (value.type === 'user' || (value.type === 'team' && fg('jira_update_jql_teams'))) {
-				// First try to find as direct value operand (e.g., Team[Team] = uuid)
-				let astNodes: Array<ValueOperand | Argument> = getValueNodes(ast, fieldName, value.id);
-
-				// If not found as direct value and it's a team, try to find in membersOf function arguments
-				if (astNodes.length === 0 && value.type === 'team' && fg('jira-membersof-team-support')) {
-					astNodes = getMembersOfArgumentNodes(ast, value.id);
+			if (fg('jql-function-arg-hydration')) {
+				// Skip deprecated fields
+				if (value.type === 'deprecated-field') {
+					return;
 				}
-
-				astNodes.forEach((astNode) => {
-					if (astNode.position) {
-						const [from, to] = astNode.position;
-						const documentFrom = getDocumentPosition(transaction.doc, from);
-						if (!isRichInlineNode(transaction.doc, documentFrom)) {
-							const documentTo = getDocumentPosition(transaction.doc, to);
-							const node = getRichInlineNode(fieldName, value, astNode.text);
-							transaction.replaceWith(documentFrom, documentTo, node);
-						}
-					}
-				});
+				// When the gate is on, collect both direct value operands and function argument
+				// operands for all node types
+				const astNodes: Array<ValueOperand | Argument> = [
+					...getValueNodes(ast, fieldName, value.id),
+					...getFunctionArgumentNodes(ast, fieldName, value.id),
+				];
+				replaceAstNodesWithRichInlineNodes(transaction, astNodes, fieldName, value);
+			} else if (
+				value.type === 'user' ||
+				value.type === 'team' ||
+				(value.type === 'assets' && fg('orion-8274-cmdb-object-jql-values-resolver')) ||
+				(value.type === 'goal' &&
+					FeatureGates.getExperimentValue(
+						'anip-1095-goals-in-harmonised-filter',
+						'isEnabled',
+						false,
+					)) ||
+				(value.type === 'project' &&
+					FeatureGates.getExperimentValue(
+						'atlassian_projects_-_native_integration',
+						'releaseVersion',
+						-1,
+					) >= 1)
+			) {
+				// Legacy path: direct value operands only, with a team function fallback for teams.
+				let astNodes: Array<ValueOperand | Argument> = getValueNodes(ast, fieldName, value.id);
+				if (astNodes.length === 0 && value.type === 'team' && fg('jira-membersof-team-support')) {
+					astNodes = getTeamFunctionArgumentNodes(ast, value.id);
+				}
+				replaceAstNodesWithRichInlineNodes(transaction, astNodes, fieldName, value);
 			}
 		});
 	});
 
 	return transaction;
+};
+
+const replaceAstNodesWithRichInlineNodes = (
+	transaction: Transaction,
+	astNodes: Array<ValueOperand | Argument>,
+	fieldName: string,
+	value: HydratedValue,
+): void => {
+	astNodes.forEach((astNode) => {
+		if (astNode.position) {
+			const [from, to] = astNode.position;
+			const documentFrom = getDocumentPosition(transaction.doc, from);
+			if (!isRichInlineNode(transaction.doc, documentFrom)) {
+				const documentTo = getDocumentPosition(transaction.doc, to);
+				const node = getRichInlineNode(fieldName, value, astNode.text);
+				transaction.replaceWith(documentFrom, documentTo, node);
+			}
+		}
+	});
 };
 
 const getRichInlineNode = (fieldName: string, value: HydratedValue, text: string) => {
@@ -68,6 +105,22 @@ const getRichInlineNode = (fieldName: string, value: HydratedValue, text: string
 		case 'team': {
 			const textContent = JQLEditorSchema.text(text);
 			return JQLEditorSchema.nodes.team.create({ ...value, fieldName }, textContent);
+		}
+		case 'project': {
+			const textContent = JQLEditorSchema.text(text);
+			return JQLEditorSchema.nodes.project.create({ ...value, fieldName }, textContent);
+		}
+		case 'goal': {
+			const textContent = JQLEditorSchema.text(text);
+			return JQLEditorSchema.nodes.goal.create({ ...value, fieldName }, textContent);
+		}
+		case 'lozengeWithAvatar': {
+			const textContent = JQLEditorSchema.text(text);
+			return JQLEditorSchema.nodes.lozengeWithAvatar.create({ ...value, fieldName }, textContent);
+		}
+		case 'assets': {
+			const textContent = JQLEditorSchema.text(text);
+			return JQLEditorSchema.nodes.assets.create({ ...value, fieldName }, textContent);
 		}
 		default: {
 			throw new Error(`Unsupported hydrated value type ${value.type}`);
@@ -86,11 +139,18 @@ const getValueNodes = (ast: Jast, field: string, value: string): ValueOperand[] 
 	return ast.query.accept(new FindValuesVisitor(field, value));
 };
 
-const getMembersOfArgumentNodes = (ast: Jast, teamId: string): Argument[] => {
+const getTeamFunctionArgumentNodes = (ast: Jast, teamId: string): Argument[] => {
 	if (!ast.query) {
 		return [];
 	}
-	return ast.query.accept(new FindMembersOfArgumentsVisitor(teamId));
+	return ast.query.accept(new FindTeamFunctionArgumentsVisitor(teamId));
+};
+
+const getFunctionArgumentNodes = (ast: Jast, fieldName: string, valueId: string): Argument[] => {
+	if (!ast.query) {
+		return [];
+	}
+	return ast.query.accept(new FindFunctionArgumentsVisitor(fieldName, valueId));
 };
 
 /**
@@ -149,7 +209,7 @@ class FindValuesVisitor extends BaseAstNodeFinder<ValueOperand> {
 	}
 
 	visitTerminalClause = (terminalClause: TerminalClause): ValueOperand[] => {
-		if (!this.equalsIgnoreCase(terminalClause.field.value, this.field)) {
+		if (!this.equalsIgnoreCase(constructFieldWithPropertyFG(terminalClause.field), this.field)) {
 			return [];
 		}
 		if (terminalClause.operand === undefined) {
@@ -167,10 +227,44 @@ class FindValuesVisitor extends BaseAstNodeFinder<ValueOperand> {
 }
 
 /**
- * Visitor that finds membersOf function arguments matching a specific team ID.
- * Used for queries like "assignee in membersOf("id: <uuid>")".
+ * Visitor that finds function arguments for a specific field matching a target value id.
+ * This visitor is field-aware: it processes clauses for the given field and matches arguments by their raw value.
  */
-class FindMembersOfArgumentsVisitor extends BaseAstNodeFinder<Argument> {
+class FindFunctionArgumentsVisitor extends BaseAstNodeFinder<Argument> {
+	private readonly fieldName: string;
+	private readonly targetValueId: string;
+
+	constructor(fieldName: string, targetValueId: string) {
+		super();
+		this.fieldName = fieldName;
+		this.targetValueId = targetValueId.trim();
+	}
+
+	visitTerminalClause = (terminalClause: TerminalClause): Argument[] => {
+		if (
+			!this.equalsIgnoreCase(constructFieldWithPropertyFG(terminalClause.field), this.fieldName)
+		) {
+			return [];
+		}
+		if (terminalClause.operand === undefined) {
+			return [];
+		}
+		return terminalClause.operand.accept(this);
+	};
+
+	visitFunctionOperand = (functionOperand: FunctionOperand): Argument[] => {
+		return functionOperand.arguments.filter((arg) =>
+			this.equalsIgnoreCase(arg.value.trim(), this.targetValueId),
+		);
+	};
+}
+
+/**
+ * Visitor that finds team function arguments matching a specific team ID.
+ * Used for queries like `assignee in membersOf("id: <uuid>")` and
+ * `"Team[Team]" in descendantsOfTeam(id:<uuid>)`.
+ */
+class FindTeamFunctionArgumentsVisitor extends BaseAstNodeFinder<Argument> {
 	private readonly teamId: string;
 
 	constructor(teamId: string) {
@@ -188,8 +282,8 @@ class FindMembersOfArgumentsVisitor extends BaseAstNodeFinder<Argument> {
 	visitFunctionOperand = (functionOperand: FunctionOperand): Argument[] => {
 		const functionName = functionOperand.function.value.toLowerCase();
 
-		// Only process membersOf function
-		if (functionName !== 'membersof') {
+		// Only process team functions whose own gate is enabled
+		if (!isHydratableTeamFunction(functionName)) {
 			return [];
 		}
 

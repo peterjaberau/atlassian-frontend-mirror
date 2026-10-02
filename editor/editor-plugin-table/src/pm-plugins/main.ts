@@ -1,4 +1,5 @@
-import type { IntlShape } from 'react-intl-next';
+import { bind, type UnbindFn } from 'bind-event-listener';
+import type { IntlShape } from 'react-intl';
 
 import {
 	ACTION,
@@ -7,11 +8,11 @@ import {
 	INPUT_METHOD,
 } from '@atlaskit/editor-common/analytics';
 import type { DispatchAnalyticsEvent, EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { insideTable } from '@atlaskit/editor-common/core-utils';
 import type { Dispatch, EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import { isNestedTablesSupported } from '@atlaskit/editor-common/nesting';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import {
 	transformSliceToRemoveOpenBodiedExtension,
@@ -27,8 +28,6 @@ import { findParentDomRefOfType, findParentNodeOfType } from '@atlaskit/editor-p
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { TableMap } from '@atlaskit/editor-tables';
 import { findTable } from '@atlaskit/editor-tables/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import {
 	tableCellView,
@@ -42,6 +41,7 @@ import type {
 	PluginConfig,
 	PluginInjectionAPI,
 	PluginInjectionAPIWithA11y,
+	TablePluginState,
 } from '../types';
 import { TableCssClassName as ClassName } from '../types';
 import {
@@ -58,7 +58,6 @@ import {
 	whenTableInFocus,
 	withCellTracking,
 } from '../ui/event-handlers';
-
 import { addBoldInEmptyHeaderCells, clearHoverSelection, setTableRef } from './commands';
 import { stopKeyboardColumnResizing } from './commands/column-resize';
 import {
@@ -82,6 +81,8 @@ import {
 	isHeaderRowRequired,
 	transformSliceTableLayoutDefaultToCenter,
 } from './utils/paste';
+import { applyMeasuredWidthToAllTables } from './utils/tableMode/apply-measured-width-to-all-tables';
+import { isContentModeSupported } from './utils/tableMode/is-content-mode-supported';
 
 export const createPlugin = (
 	dispatchAnalyticsEvent: DispatchAnalyticsEvent,
@@ -95,7 +96,6 @@ export const createPlugin = (
 	getIntl: () => IntlShape,
 	fullWidthModeEnabled?: boolean,
 	previousFullWidthModeEnabled?: boolean,
-	dragAndDropEnabled?: boolean,
 	editorAnalyticsAPI?: EditorAnalyticsAPI,
 	pluginInjectionApi?: PluginInjectionAPI,
 	isTableScalingEnabled?: boolean,
@@ -103,9 +103,12 @@ export const createPlugin = (
 	isCommentEditor?: boolean,
 	isChromelessEditor?: boolean,
 	allowFixedColumnWidthOption?: boolean,
-) => {
+	__livePage?: boolean,
+): SafePlugin<TablePluginState> => {
 	const state = createPluginState(dispatch, {
 		pluginConfig,
+		isCommentEditor,
+		isChromelessEditor,
 		isTableHovered: false,
 		insertColumnButtonIndex: undefined,
 		insertRowButtonIndex: undefined,
@@ -113,8 +116,8 @@ export const createPlugin = (
 		wasFullWidthModeEnabled: previousFullWidthModeEnabled,
 		isHeaderRowEnabled: !!pluginConfig.allowHeaderRow,
 		isHeaderColumnEnabled: false,
-		isDragAndDropEnabled: dragAndDropEnabled,
 		isTableScalingEnabled: isTableScalingEnabled,
+		activeTableMenu: { type: 'none' },
 		...defaultHoveredCell,
 		...defaultTableSelection,
 		getIntl,
@@ -136,6 +139,8 @@ export const createPlugin = (
 		return editorView.state;
 	};
 
+	const intl = getIntl();
+
 	const getNodeView = () => {
 		return {
 			table: tableView({
@@ -147,12 +152,12 @@ export const createPlugin = (
 				pluginInjectionApi,
 				isCommentEditor,
 				isChromelessEditor,
-				allowFixedColumnWidthOption
+				allowFixedColumnWidthOption,
+				intl,
 			}),
 			tableRow: tableRowView({
 				eventDispatcher,
 				pluginInjectionApi,
-				isDragAndDropEnabled: dragAndDropEnabled,
 			}),
 			tableCell: tableCellView({ eventDispatcher, pluginInjectionApi }),
 			tableHeader: tableHeaderView({ eventDispatcher, pluginInjectionApi }),
@@ -213,6 +218,33 @@ export const createPlugin = (
 		view: (editorView: EditorView) => {
 			const domAtPos = editorView.domAtPos.bind(editorView);
 			editorViewRef = editorView;
+			let hasMeasuredContentModeTables = false;
+			let focusListenerBinding: UnbindFn | null = null;
+
+			if (
+				!__livePage &&
+				pluginInjectionApi?.editorViewMode?.sharedState.currentState()?.mode !== 'view' &&
+				isContentModeSupported({
+					allowColumnResizing: !!pluginConfig.allowColumnResizing,
+					allowTableResizing: !!pluginConfig.allowTableResizing,
+					isFullPageEditor: !isChromelessEditor && !isCommentEditor,
+				})
+			) {
+				focusListenerBinding = bind(editorView.dom, {
+					type: 'focus',
+					listener: () => {
+						if (hasMeasuredContentModeTables) {
+							return;
+						}
+
+						hasMeasuredContentModeTables = true;
+						applyMeasuredWidthToAllTables(editorView, pluginInjectionApi);
+					},
+					options: {
+						once: true,
+					},
+				});
+			}
 
 			return {
 				update: (view: EditorView, prevState: EditorState) => {
@@ -220,26 +252,20 @@ export const createPlugin = (
 					const { selection } = state;
 					const pluginState = getPluginState(state);
 					let tableRef: HTMLTableElement | undefined;
-					if (fg('platform_editor_enable_table_dnd')) {
-						const parent = findParentDomRefOfType(state.schema.nodes.table, domAtPos)(selection);
-						const shouldSetTableRef = fg('platform_editor_enable_table_dnd_patch_1') ? parent && pluginInjectionApi?.editorViewMode?.sharedState.currentState()?.mode !== 'view' : parent;
-						if (shouldSetTableRef) {
-							tableRef =
-								// Ignored via go/ees005
-								// eslint-disable-next-line @atlaskit/editor/no-as-casting
-								(parent as HTMLElement).querySelector<HTMLTableElement>('table') || undefined;
-						}
+					const parent = findParentDomRefOfType(state.schema.nodes.table, domAtPos)(selection);
+					const shouldSetTableRef =
+						parent &&
+						pluginInjectionApi?.editorViewMode?.sharedState.currentState()?.mode !== 'view' &&
+						pluginInjectionApi?.interaction?.sharedState.currentState()?.interactionState !==
+							'hasNotHadInteraction';
+
+					if (shouldSetTableRef) {
+						tableRef =
+							// Ignored via go/ees005
+							// eslint-disable-next-line @atlaskit/editor/no-as-casting
+							(parent as HTMLElement).querySelector<HTMLTableElement>('table') || undefined;
 					}
 					if (pluginState.editorHasFocus) {
-						if (!fg('platform_editor_enable_table_dnd')) {
-							const parent = findParentDomRefOfType(state.schema.nodes.table, domAtPos)(selection);
-							if (parent) {
-								tableRef =
-									// Ignored via go/ees005
-									// eslint-disable-next-line @atlaskit/editor/no-as-casting
-									(parent as HTMLElement).querySelector<HTMLTableElement>('table') || undefined;
-							}
-						}
 						const tableNode = findTable(state.selection);
 						// when keyboard cursor leaves the table we need to stop column resizing
 						const pluginPrevState = getPluginState(prevState);
@@ -289,6 +315,9 @@ export const createPlugin = (
 					} else if (pluginState.isResizeHandleWidgetAdded) {
 						removeResizeHandleDecorations()(state, dispatch);
 					}
+				},
+				destroy: () => {
+					focusListenerBinding && focusListenerBinding();
 				},
 			};
 		},
@@ -364,9 +393,7 @@ export const createPlugin = (
 			},
 			handleClick: ({ state, dispatch }, _pos, event: MouseEvent) => {
 				const decorationSet = decorationsPluginKey.getState(state);
-				const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-					? getBrowserInfo()
-					: browserLegacy;
+				const browser = getBrowserInfo();
 				if (findControlsHoverDecoration(decorationSet).length) {
 					clearHoverSelection()(state, dispatch);
 				}
@@ -424,7 +451,9 @@ export const createPlugin = (
 			handleDOMEvents: {
 				focus: handleFocus,
 				blur: handleBlur,
-				mousedown: withCellTracking(handleMouseDown),
+				mousedown: withCellTracking((view, event) =>
+					handleMouseDown(view, event, pluginInjectionApi),
+				),
 				mouseleave: handleMouseLeave,
 				mousemove: whenTableInFocus(handleMouseMove(nodeViewPortalProviderAPI), pluginInjectionApi),
 				mouseenter: handleMouseEnter,

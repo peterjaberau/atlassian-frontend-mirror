@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import type { RootSegment } from '../../src/common/react-ufo-payload-schema';
 import type { SegmentItem } from '../../src/create-payload/common/utils';
-
 import { expect, test, viewports } from './fixtures';
 
 // Find a third-party segment with target segment name in the segment tree
@@ -27,17 +27,20 @@ const findThirdPartySegment = (node: SegmentItem, targetName: string): SegmentIt
 };
 
 test.describe('ReactUFO: Third Party Segment', () => {
-	const requiredFeatureFlags = [
-		'platform_ufo_exclude_3p_elements_from_ttai',
-		'platform_ufo_exclude_3p_elements_from_ttvc',
-		'platform_ufo_enable_ttai_with_3p',
+	const requiredFeatureFlags: string[] = [];
+	const featureFlagsCombos = [
+		[...requiredFeatureFlags],
+		[...requiredFeatureFlags, 'ufo-bump-walk-levels'],
 	];
-	const featureFlagsCombos = [[...requiredFeatureFlags]];
 	for (const featureFlags of featureFlagsCombos) {
 		test.describe(`with feature flags ${featureFlags.join(', ')}`, () => {
 			test.use({
 				examplePage: 'third-party-segment',
 				featureFlags,
+			} satisfies {
+				examplePage: 'third-party-segment';
+				featureFlags: string[];
+				__exampleDependency?: typeof import('../../examples/24-third-party-segment.tsx');
 			});
 
 			for (const viewport of viewports) {

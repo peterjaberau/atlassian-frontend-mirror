@@ -1,3 +1,4 @@
+// eslint-disable-next-line @repo/internal/fs/filename-pattern-match
 import type { API, FileInfo } from 'jscodeshift';
 
 import tagToNewTagMigrationTransformer from './codemods/tag-to-newTag-migration';
@@ -19,4 +20,3 @@ export default async function transformer(file: FileInfo, api: API): Promise<str
 
 	return src;
 }
-

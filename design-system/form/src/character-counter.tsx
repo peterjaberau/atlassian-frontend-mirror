@@ -9,16 +9,16 @@ import { css, cssMap, jsx } from '@atlaskit/css';
 import ErrorIcon from '@atlaskit/icon/core/status-error';
 import { Flex, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import { FieldId } from './field-id-context';
 
 // Extracted styles for character counter message container
 const messageContainerStyles = cssMap({
 	root: {
-		color: token('color.text.danger', '#AE2A19'),
+		color: token('color.text.danger'),
 		font: token('font.body.small'),
-		marginBlockStart: token('space.050', '4px'),
+		marginBlockStart: token('space.050'),
 	},
 });
 
@@ -104,7 +104,7 @@ const pluralize = (count: number) => `character${count !== 1 ? 's' : ''}`;
  * A character counter component that displays remaining characters for text input.
  * Displays messages for over or under the maximum or minimum character limits.
  */
-const CharacterCounter = ({
+export const CharacterCounter = ({
 	maxCharacters,
 	minCharacters,
 	currentValue,
@@ -194,5 +194,3 @@ const CharacterCounter = ({
 		</Flex>
 	);
 };
-
-export default CharacterCounter;

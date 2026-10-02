@@ -1,5 +1,119 @@
 # @atlaskit/analytics-listeners
 
+## 11.4.0
+
+### Minor Changes
+
+- [`5823d13c89a5f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5823d13c89a5f) -
+  Add CodeDiff full-mode pull request links and route privacy-safe, host-attributed A2UI analytics
+  through a dedicated listener.
+
+## 11.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`14ee6b972232b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14ee6b972232b) -
+  [SQA-4568] Allow screen events to populate the Gas top-level `path` and `url` fields, which were
+  previously always sent as empty strings.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- [`caa0499e0b24a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/caa0499e0b24a) -
+  Enrol mercury, one-software-catalog, team-central, react-ufo, analytics and performance packages
+  into the React Compiler with platform gating via isReactCompilerActivePlatform
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`1ebc583c239a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ebc583c239a6) -
+  Reverting the source change introduced in this PR
+  https://bitbucket.org/atlassian/atlassian-frontend-monorepo/pull-requests/277267/diff, which
+  changed the default source for AIMAte events, and started causing issues as seen here
+  https://atlassian.slack.com/archives/C0677M19GU9/p1771456370799029
+
 ## 9.3.0
 
 ### Minor Changes

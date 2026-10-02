@@ -1,19 +1,19 @@
 import React from 'react';
 
-import {
-	ExperiencePerformanceTypes,
-	ExperienceTypes,
-	ConcurrentExperience,
-	UFOExperienceState,
-} from '@atlaskit/ufo';
+import { ConcurrentExperience } from '@atlaskit/ufo/concurrent-experience';
+import { UFOExperienceState } from '@atlaskit/ufo/experience-state';
+import { ExperiencePerformanceTypes, ExperienceTypes } from '@atlaskit/ufo/experience-types';
 
-export const userPickerRenderedUfoExperience = new ConcurrentExperience('user-picker-rendered', {
-	platform: { component: 'user-picker' },
-	type: ExperienceTypes.Load,
-	performanceType: ExperiencePerformanceTypes.PageSegmentLoad,
-});
+export const userPickerRenderedUfoExperience: ConcurrentExperience = new ConcurrentExperience(
+	'user-picker-rendered',
+	{
+		platform: { component: 'user-picker' },
+		type: ExperienceTypes.Load,
+		performanceType: ExperiencePerformanceTypes.PageSegmentLoad,
+	},
+);
 
-export const userPickerOptionsShownUfoExperience = new ConcurrentExperience(
+export const userPickerOptionsShownUfoExperience: ConcurrentExperience = new ConcurrentExperience(
 	'user-picker-options-shown',
 	{
 		platform: { component: 'user-picker' },
@@ -30,7 +30,7 @@ export class UfoErrorBoundary extends React.Component<React.PropsWithChildren<{ 
 		}
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return this.props.children;
 	}
 }

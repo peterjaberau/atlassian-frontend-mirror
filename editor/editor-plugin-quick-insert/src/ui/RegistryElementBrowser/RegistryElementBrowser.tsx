@@ -1,0 +1,392 @@
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { css } from '@compiled/react';
+import { useIntl } from 'react-intl';
+
+import IconButton from '@atlaskit/button/icon/button';
+import { jsx } from '@atlaskit/css';
+import { messages } from '@atlaskit/editor-common/quick-insert';
+import type { QuickInsertSelectionHandler } from '@atlaskit/editor-common/quick-insert/context';
+import { MENU, RECOMMENDED_SECTION } from '@atlaskit/editor-common/quick-insert/keys';
+import { getMenuFooterSectionKey } from '@atlaskit/editor-common/type-ahead-get-menu-footer-section-key';
+import { getSectionOverflowItemKey } from '@atlaskit/editor-common/type-ahead-get-section-overflow-item-key';
+import type { EmptyStateHandler } from '@atlaskit/editor-common/types';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { RegisterComponent } from '@atlaskit/editor-ui-control-model/types';
+import Heading from '@atlaskit/heading/heading';
+import CrossIcon from '@atlaskit/icon/core/cross';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Textfield from '@atlaskit/textfield/text-field';
+import { token } from '@atlaskit/tokens';
+
+import {
+	createRegistryElementBrowserModel,
+	getInitialRegistryElementBrowserSection,
+	getRegistryElementBrowserItems,
+} from './model';
+import { RegistryElementBrowserCategories } from './RegistryElementBrowserCategories';
+import { RegistryElementBrowserFooter } from './RegistryElementBrowserFooter';
+import { RegistryElementBrowserSearchResults } from './RegistryElementBrowserSearchResults';
+
+type Props = {
+	components: RegisterComponent[];
+	defaultSection?: string;
+	editorView: EditorView;
+	emptyStateHandler?: EmptyStateHandler;
+	helpUrl?: string;
+	isLoading?: boolean;
+	isOffline: boolean;
+	isOpen: boolean;
+	onClearSelection: () => void;
+	onClose: () => void;
+	onCloseComplete: () => void;
+	onConfirmInsert: () => void;
+	onSelect: (handler: QuickInsertSelectionHandler) => void;
+};
+
+const browserGridTemplateColumns = '182px minmax(0, 1fr)';
+const categoryColumnGap = `calc(${token('space.200')} + ${token('space.150')})`;
+
+const browserLayoutStyles = css({
+	display: 'grid',
+	gap: categoryColumnGap,
+	gridTemplateColumns: browserGridTemplateColumns,
+	paddingBlockStart: token('space.050'),
+	paddingInline: token('space.050'),
+	'@media (max-width: 599px)': {
+		gridTemplateColumns: 'minmax(0, 1fr)',
+	},
+});
+
+const headerContentStyles = css({
+	display: 'grid',
+	gap: categoryColumnGap,
+	gridTemplateColumns: browserGridTemplateColumns,
+	width: '100%',
+	'@media (max-width: 599px)': {
+		gridTemplateColumns: 'minmax(0, 1fr)',
+	},
+});
+
+const headerSearchStyles = css({
+	alignItems: 'center',
+	display: 'grid',
+	gap: token('space.300'),
+	gridTemplateColumns: 'minmax(0, 1fr) auto',
+	width: '100%',
+});
+
+const resultsId = 'registry-element-browser-results';
+const modalTestId = 'registry-element-browser-modal';
+
+const getRenderedColumnCount = (options: HTMLElement[]): number => {
+	const firstRowTop = options[0]?.getBoundingClientRect().top;
+	const nextRowIndex = options.findIndex(
+		(option) => firstRowTop !== undefined && option.getBoundingClientRect().top > firstRowTop + 1,
+	);
+	return nextRowIndex > 0 ? nextRowIndex : options.length;
+};
+
+export const RegistryElementBrowser = ({
+	components,
+	emptyStateHandler,
+	defaultSection,
+	helpUrl,
+	editorView,
+	isLoading = false,
+	isOffline,
+	isOpen,
+	onClearSelection,
+	onClose,
+	onCloseComplete,
+	onConfirmInsert,
+	onSelect,
+}: Props): React.JSX.Element | null => {
+	const { formatMessage } = useIntl();
+	const model = useMemo(
+		() =>
+			createRegistryElementBrowserModel(components, {
+				footerKey: getMenuFooterSectionKey(MENU.key),
+				overflowKeys: new Set(
+					components
+						.filter((component) => component.type === 'menu-section')
+						.map((component) => getSectionOverflowItemKey(component.key)),
+				),
+				recommendedSectionKey: RECOMMENDED_SECTION.key,
+				rootKey: MENU.key,
+			}),
+		[components],
+	);
+	const [query, setQuery] = useState('');
+	const [section, setSection] = useState<string | undefined>(() =>
+		getInitialRegistryElementBrowserSection(model, defaultSection),
+	);
+	const [selectedKey, setSelectedKey] = useState<string>();
+	const searchInputRef = useRef<HTMLInputElement>(null);
+	const selectedCategoryRef = useRef<HTMLButtonElement>(null);
+	const wasOpen = useRef(false);
+	const previousIsOffline = useRef(isOffline);
+
+	useEffect(() => {
+		if (isOpen && !wasOpen.current) {
+			setQuery('');
+			setSection(getInitialRegistryElementBrowserSection(model, defaultSection));
+			// This clears local visual state and the parent-held insertion handler together.
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates
+			setSelectedKey(undefined);
+			onClearSelection();
+		}
+		wasOpen.current = isOpen;
+	}, [defaultSection, isOpen, model, onClearSelection]);
+	const items = useMemo(
+		() =>
+			getRegistryElementBrowserItems({
+				formatMessage,
+				model,
+				query,
+				section,
+			}),
+		[formatMessage, model, query, section],
+	);
+	const resultCount =
+		items.length || (!isLoading && query.trim() ? (model.fallbackItems?.length ?? 0) : 0);
+	useEffect(() => {
+		if (previousIsOffline.current !== isOffline) {
+			setSelectedKey(undefined);
+			onClearSelection();
+		}
+		previousIsOffline.current = isOffline;
+	}, [isOffline, onClearSelection]);
+
+	const onSearchChange = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			setQuery(event.currentTarget.value);
+			setSelectedKey(undefined);
+			onClearSelection();
+		},
+		[onClearSelection],
+	);
+	const onSectionClick = useCallback(
+		(event: React.MouseEvent<HTMLButtonElement>) => {
+			setQuery('');
+			setSection(event.currentTarget.dataset.section || undefined);
+			setSelectedKey(undefined);
+			onClearSelection();
+		},
+		[onClearSelection],
+	);
+	const onRegistrySelect = useCallback(
+		(key: string, handler: QuickInsertSelectionHandler) => {
+			setSelectedKey(key);
+			onSelect(handler);
+		},
+		[onSelect],
+	);
+	const onModalOpenComplete = useCallback((node: HTMLElement) => {
+		node.style.borderRadius = token('radius.large', '8px');
+		const footer = node.querySelector<HTMLElement>(`[data-testid="${modalTestId}--footer"]`);
+		footer?.style.setProperty('box-sizing', 'border-box');
+		footer?.style.setProperty('height', '64px');
+		footer?.style.setProperty('padding-block', token('space.200'));
+
+		const scrollableBody = node.querySelector<HTMLElement>(
+			`[data-testid="${modalTestId}--scrollable"]`,
+		);
+		scrollableBody?.style.setProperty('border-block-start', 'none');
+		scrollableBody?.style.setProperty('border-block-end', 'none');
+	}, []);
+	const onKeyDown = useCallback(
+		(event: React.KeyboardEvent) => {
+			if (
+				event.key === 'Tab' &&
+				event.shiftKey &&
+				event.target instanceof HTMLElement &&
+				event.target.getAttribute('role') === 'option'
+			) {
+				event.preventDefault();
+				selectedCategoryRef.current?.focus();
+				return;
+			}
+
+			if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+				if (
+					event.currentTarget === searchInputRef.current &&
+					(event.key === 'ArrowLeft' || event.key === 'ArrowRight')
+				) {
+					return;
+				}
+
+				const resultCollection = event.currentTarget.ownerDocument.getElementById(resultsId);
+				const options = Array.from(
+					resultCollection?.querySelectorAll<HTMLElement>('[role="option"]') ?? [],
+				);
+				const currentIndex = options.findIndex(
+					(option) => option === event.currentTarget.ownerDocument.activeElement,
+				);
+				const columnCount = getRenderedColumnCount(options);
+				const step =
+					event.key === 'ArrowDown'
+						? columnCount
+						: event.key === 'ArrowUp'
+							? -columnCount
+							: event.key === 'ArrowRight'
+								? 1
+								: -1;
+				let nextIndex = currentIndex < 0 ? 0 : currentIndex + step;
+				if (event.key === 'ArrowDown' && columnCount < options.length) {
+					nextIndex = Math.min(nextIndex, options.length - 1);
+				}
+				while (
+					nextIndex >= 0 &&
+					nextIndex < options.length &&
+					(options[nextIndex].hasAttribute('disabled') ||
+						options[nextIndex].getAttribute('aria-disabled') === 'true')
+				) {
+					nextIndex += step;
+				}
+				const nextOption = options[nextIndex];
+				if (nextOption) {
+					event.preventDefault();
+					nextOption.focus();
+					nextOption.click();
+				} else if (nextIndex < 0 && currentIndex >= 0) {
+					event.preventDefault();
+					searchInputRef.current?.focus();
+				}
+				return;
+			}
+
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				onClose();
+				return;
+			}
+
+			if (event.key === 'Enter') {
+				const focusedOption =
+					event.target instanceof HTMLElement
+						? event.target.closest<HTMLElement>('[role="option"]')
+						: null;
+				const firstOption = event.currentTarget.ownerDocument
+					.getElementById(resultsId)
+					?.querySelector<HTMLElement>(
+						'[role="option"]:not([aria-disabled="true"]):not([disabled])',
+					);
+				const optionToActivate = focusedOption ?? firstOption;
+				if (selectedKey || optionToActivate) {
+					event.preventDefault();
+					if (!selectedKey) {
+						optionToActivate?.click();
+					}
+					onConfirmInsert();
+				}
+			}
+		},
+		[onClose, onConfirmInsert, selectedKey],
+	);
+
+	return (
+		<ModalTransition>
+			{isOpen && (
+				<Modal
+					label={formatMessage({
+						defaultMessage: 'Insert elements',
+						id: 'editor.quick-insert.title',
+					})}
+					height="664px"
+					onClose={onClose}
+					onCloseComplete={onCloseComplete}
+					onOpenComplete={onModalOpenComplete}
+					testId={modalTestId}
+					width="min(968px, calc(100vw - 32px))"
+				>
+					<ModalHeader>
+						<div css={headerContentStyles}>
+							{fg('platform_dst_modal-dialog-use-modal-title') ? (
+								<ModalTitle>
+									{formatMessage({
+										defaultMessage: 'Insert elements',
+										id: 'editor.quick-insert.title',
+									})}
+								</ModalTitle>
+							) : (
+								<Heading size="medium">
+									{formatMessage({
+										defaultMessage: 'Insert elements',
+										id: 'editor.quick-insert.title',
+									})}
+								</Heading>
+							)}
+							<div css={headerSearchStyles}>
+								<Textfield
+									autoFocus
+									aria-controls={resultsId}
+									aria-label={formatMessage({
+										defaultMessage: 'Search elements',
+										id: 'editor.quick-insert.search',
+									})}
+									isCompact
+									name="registry-element-browser-search"
+									onChange={onSearchChange}
+									onKeyDown={onKeyDown}
+									ref={searchInputRef}
+									value={query}
+								/>
+								<IconButton
+									appearance="subtle"
+									icon={CrossIcon}
+									label={formatMessage(messages.close)}
+									onClick={onClose}
+									spacing="compact"
+								/>
+							</div>
+						</div>
+					</ModalHeader>
+					<ModalBody>
+						<div css={browserLayoutStyles}>
+							<RegistryElementBrowserCategories
+								section={section}
+								sections={model.sections}
+								onSectionClick={onSectionClick}
+								selectedButtonRef={selectedCategoryRef}
+							/>
+							<RegistryElementBrowserSearchResults
+								editorView={editorView}
+								emptyStateHandler={emptyStateHandler}
+								isLoading={isLoading}
+								isOffline={isOffline}
+								items={items}
+								fallbackItems={model.fallbackItems}
+								query={query}
+								resultsId={resultsId}
+								section={section}
+								selectedKey={selectedKey}
+								onKeyDown={onKeyDown}
+								onSelect={onRegistrySelect}
+							/>
+						</div>
+					</ModalBody>
+					<ModalFooter>
+						<RegistryElementBrowserFooter
+							helpUrl={helpUrl}
+							isInsertEnabled={Boolean(selectedKey)}
+							onClose={onClose}
+							onConfirmInsert={onConfirmInsert}
+							resultCount={resultCount}
+						/>
+					</ModalFooter>
+				</Modal>
+			)}
+		</ModalTransition>
+	);
+};

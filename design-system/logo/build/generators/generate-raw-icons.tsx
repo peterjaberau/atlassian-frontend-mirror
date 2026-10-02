@@ -18,7 +18,7 @@ export default function generateRawIcons(
 	root: string | undefined,
 	rawDirectory: string,
 	targetDirectory: string,
-) {
+): void {
 	const rawIconsDirectory = path.resolve(root!, 'src', targetDirectory);
 	fs.ensureDirSync(rawIconsDirectory);
 
@@ -76,7 +76,7 @@ export default function generateRawIcons(
 		.map(([name, value]) => `export const ${name}Icon = ${JSON.stringify(value)};`)
 		.join('\n')}
 
-	export const rawIcons = {
+	export const rawIcons: Record<string, string> = {
 		${Object.keys(rawIcons)
 			.map((name) => `	'${name}': ${name}Icon,`)
 			.join('\n')}
@@ -88,7 +88,7 @@ export default function generateRawIcons(
 		path.resolve(rawIconsDirectory, 'index.tsx'),
 		createSignedArtifact(
 			format(rawIconsString, 'tsx'),
-			'yarn workspace @atlaskit/logo generate:components',
+			'afm workspace @atlaskit/logo generate:components',
 		),
 	);
 }

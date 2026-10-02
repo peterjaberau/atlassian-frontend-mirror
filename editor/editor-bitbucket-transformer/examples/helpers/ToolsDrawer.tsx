@@ -2,19 +2,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
+
 import React from 'react';
-import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import type { MentionProvider } from '@atlaskit/mention/resource';
-import { MentionResource } from '@atlaskit/mention/resource';
-import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
-import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
+import { jsx } from '@emotion/react';
+
 import type { ActivityProvider } from '@atlaskit/activity';
 // eslint-disable-next-line  no-restricted-imports -- Legacy package outside of AFM lacks entry points
 import { MockActivityResource } from '@atlaskit/activity/dist/es5/support';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { EmojiProvider } from '@atlaskit/emoji';
+import { MentionResource } from '@atlaskit/mention/mention-resource';
+import type { MentionProvider } from '@atlaskit/mention/types';
 import { token } from '@atlaskit/tokens';
+import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
+import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
+
 import { BitbucketTransformer } from '../../src';
 import { content } from './styles';
 
@@ -93,7 +97,7 @@ export default class ToolsDrawer extends React.Component<Props, State> {
 		});
 	};
 
-	render() {
+	render(): jsx.JSX.Element {
 		const {
 			mentionProvider,
 			emojiProvider,
@@ -105,7 +109,7 @@ export default class ToolsDrawer extends React.Component<Props, State> {
 		return (
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 			<div css={content}>
-				<div style={{ padding: `${token('space.075', '6px')} 0` }}>️️️ Bitbucket Editor</div>
+				<div style={{ padding: `${token('space.075')} 0` }}>️️️ Bitbucket Editor</div>
 				{reloadEditor
 					? ''
 					: this.props.renderEditor({

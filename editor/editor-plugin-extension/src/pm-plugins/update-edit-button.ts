@@ -1,12 +1,11 @@
-import type { ExtensionProvider } from '@atlaskit/editor-common/extensions';
+import type { ExtensionProvider, UpdateExtension } from '@atlaskit/editor-common/extensions';
 import { getExtensionModuleNode } from '@atlaskit/editor-common/extensions';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import { updateState } from '../editor-commands/commands';
-
 import { getSelectedExtension } from './utils';
 
-const maybeGetUpdateMethodFromExtensionProvider = async (
+const maybeGetExtensionModuleNode = async (
 	view: EditorView,
 	extensionProvider: ExtensionProvider,
 ) => {
@@ -32,16 +31,22 @@ const maybeGetUpdateMethodFromExtensionProvider = async (
 		newNodeWithPos.pos === nodeWithPos.pos &&
 		extensionModuleNode
 	) {
-		return extensionModuleNode.update;
+		return extensionModuleNode;
 	}
 };
 
-export const updateEditButton = async (view: EditorView, extensionProvider: ExtensionProvider) => {
+export const updateEditButton = async (
+	view: EditorView,
+	extensionProvider: ExtensionProvider,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<UpdateExtension<any> | undefined> => {
 	try {
-		const updateMethod = await maybeGetUpdateMethodFromExtensionProvider(view, extensionProvider);
+		const extensionModuleNode = await maybeGetExtensionModuleNode(view, extensionProvider);
+		const updateMethod = extensionModuleNode?.update;
 
 		updateState({
 			showEditButton: !!updateMethod,
+			showCopyButton: !extensionModuleNode?.hideCopyButton,
 			updateExtension: (updateMethod && Promise.resolve(updateMethod)) || undefined,
 		})(view.state, view.dispatch);
 

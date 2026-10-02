@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/profilecard",
-	"version": "24.35.0",
+	"version": "27.1.9",
 	"description": "A React component to display a card with user information.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,38 +12,64 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "People and Teams Collective",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Profilecard"
 		}
 	},
 	"exports": {
+		".": "./src/index.ts",
+		"./agent": "./src/components/Agent/index.ts",
+		"./agent-profile-card": "./src/components/Agent/AgentProfileCard.tsx",
+		"./agent-profile-card-resourced": "./src/components/Agent/AgentProfileCardResourced.tsx",
+		"./agent-profile-card-trigger": "./src/components/Agent/AgentProfileCardTrigger.tsx",
+		"./build-agg-user-query": "./src/client/buildAggUserQuery.ts",
+		"./caching-client": "./src/client/CachingClient.ts",
 		"./client": "./src/client/index.ts",
-		"./messages": "./src/messages.ts",
-		"./i18n": "./src/i18n/index.ts",
+		"./config": "./src/util/config.ts",
 		"./i18n/*": {
 			"publish": null,
 			"default": "./src/i18n/*.ts"
 		},
+		"./lazy-profile-card": "./src/components/User/lazyProfileCard.tsx",
+		"./loading-view": "./src/components/User/LoadingView.tsx",
+		"./main": "./src/components/team-profile-card/main.tsx",
+		"./messages": "./src/messages.ts",
+		"./mock-profile-client": "./src/mocks/mock-profile-client.ts",
+		"./mock-team-client": "./src/mocks/mock-team-client.ts",
+		"./modify-response": "./src/client/modifyResponse.ts",
+		"./profile-card": "./src/components/User/ProfileCard.tsx",
+		"./profile-card-client": "./src/client/ProfileCardClient.ts",
+		"./profile-card-resourced": "./src/components/User/ProfileCardResourced.tsx",
+		"./profile-card-trigger": "./src/components/User/ProfileCardTrigger.tsx",
+		"./profile-data": "./src/mocks/profile-data.ts",
+		"./profilecard-internal": "./src/components/User/ProfilecardInternal.tsx",
+		"./simple-mock-clients": "./src/mocks/simple-mock-clients.ts",
 		"./team": "./src/components/Team/index.ts",
+		"./team-profile-card-client": "./src/client/TeamProfileCardClient.ts",
+		"./team-profile-card/main": "./src/components/team-profile-card/main.tsx",
+		"./team-profile-card": "./src/components/Team/TeamProfileCard.tsx",
+		"./team-profile-card-trigger": "./src/components/Team/TeamProfileCardTrigger.tsx",
 		"./types": "./src/types.ts",
 		"./user": "./src/components/User/index.ts",
-		"./mocks": "./src/mocks/index.ts",
-		"./agent": "./src/components/Agent/index.ts",
-		".": "./src/index.ts"
+		"./user-profile-card-client": "./src/client/UserProfileCardClient.ts",
+		"./with-outer-listeners": "./src/util/withOuterListeners.tsx",
+		"./i18n": "./src/i18n/index.ts"
 	},
 	"scripts": {
-		"ak-postbuild": "ls -d dist/* | xargs -n 1 copyfiles -u 1 -V src/**/*.svg",
+		"ak-postbuild": "ls -d dist/* | xargs -n 1 copyfiles -u 1 -V 'src/**/*.svg'",
 		"lint": "(cd ../../.. && yarn eslint 'packages/people-and-teams/profilecard/**/*.{ts,tsx}')",
 		"test": "(cd ../../.. && yarn test 'packages/people-and-teams/profilecard')",
 		"test:watch": "(cd ../../.. && yarn test 'packages/people-and-teams/profilecard' --watch)",
@@ -55,7 +81,6 @@
 	},
 	"dependencies": {
 		"@atlaskit/afm-i18n-platform-people-and-teams-profilecard": "root:*",
-		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/atlassian-context": "workspace:^",
 		"@atlaskit/avatar": "workspace:^",
 		"@atlaskit/avatar-group": "workspace:^",
@@ -63,6 +88,7 @@
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/dropdown-menu": "workspace:^",
 		"@atlaskit/empty-state": "workspace:^",
+		"@atlaskit/feature-gate-js-client": "workspace:^",
 		"@atlaskit/give-kudos": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
@@ -72,17 +98,19 @@
 		"@atlaskit/modal-dialog": "workspace:^",
 		"@atlaskit/people-teams-ui-public": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
-		"@atlaskit/platform-feature-flags-react": "workspace:^",
 		"@atlaskit/popup": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/rovo-agent-components": "workspace:^",
 		"@atlaskit/rovo-triggers": "workspace:^",
 		"@atlaskit/spinner": "workspace:^",
 		"@atlaskit/teams-app-config": "workspace:^",
 		"@atlaskit/teams-app-internal-analytics": "workspace:^",
+		"@atlaskit/teams-app-internal-navigation": "workspace:^",
 		"@atlaskit/teams-avatar": "workspace:^",
 		"@atlaskit/teams-public": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@babel/runtime": "root:*",
@@ -92,30 +120,36 @@
 		"graphql": "root:*",
 		"graphql-tag": "root:*",
 		"lodash": "root:*",
-		"lru_map": "root:*",
-		"react-intl-next": "root:*"
+		"lru_map": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@af/visual-regression": "workspace:^",
-		"@atlaskit/feature-gate-js-client": "workspace:^",
+		"@atlaskit/flag": "workspace:^",
+		"@atlaskit/inline-edit": "workspace:^",
+		"@atlaskit/section-message": "workspace:^",
+		"@atlaskit/select": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-storybook-utils": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/platform-storybook-helpers": "workspace:^",
 		"@atlassian/ptc-test-utils": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@storybook/addon-actions": "root:*",
 		"@storybook/test": "root:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
-		"enzyme": "root:*",
 		"es6-promise": "root:*",
 		"fetch-mock": "root:*",
 		"loader-utils": "root:*",
-		"react-router-dom": "root:*",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"react-intl": "root:*",
 		"sinon": "root:*",
 		"typescript": "root:*",
 		"uid": "root:*"
@@ -124,19 +158,8 @@
 		"ui",
 		"profilecard"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			]
-		}
-	},
 	"platform-feature-flags": {
-		"enable_appropriate_reading_order_in_profile_card": {
+		"manual-studio-entry-link": {
 			"type": "boolean"
 		},
 		"enable_ptc_townsquare_reporting_lines_unsharded": {
@@ -145,58 +168,37 @@
 		"platform_agg_user_query_doc_change": {
 			"type": "boolean"
 		},
-		"fix_profilecard_trigger_isvisible": {
-			"type": "boolean"
-		},
-		"enable_profilecard_h2tag_a11y_fix": {
-			"type": "boolean"
-		},
-		"enable_userprofilecard_arialabelfix": {
-			"type": "boolean"
-		},
-		"pt-deprecate-assistance-service": {
-			"type": "boolean"
-		},
 		"platform-adopt-teams-nav-config": {
 			"type": "boolean"
 		},
 		"jfp_a11y_team_profile_card_actions_label": {
 			"type": "boolean"
 		},
-		"enable_absolute_positioning_profile_card": {
-			"type": "boolean"
-		},
-		"ptc-enable-profile-card-analytics-refactor": {
-			"type": "boolean"
-		},
 		"cover-header-image-team-profilecard": {
 			"type": "boolean"
 		},
-		"jira_ai_profilecard_hide_agent_actions": {
+		"rovo_agent_versioning_enabled": {
 			"type": "boolean"
 		},
-		"rovo_agent_empty_state_refresh": {
+		"rovo_agent_support_a2a_avatar": {
 			"type": "boolean"
 		},
-		"rovo_dev_themed_identity_card": {
+		"jira_improve_agent_profile_for_a2a": {
 			"type": "boolean"
 		},
-		"enable_profilecard_text_truncation_tooltip": {
+		"confluence_fix_agent_profile_card_flash": {
 			"type": "boolean"
 		},
-		"people-teams-fix-no-literal-string-in-jsx": {
+		"fix_give_kudos_btn_incorrect_role": {
 			"type": "boolean"
 		},
-		"people-teams-deprecate-profilecard-teams": {
+		"create_modernization_ga_fixes_drop_2": {
 			"type": "boolean"
 		},
-		"rovo_display_ai_disclaimer_on_agent_profile_card": {
+		"platform_editor_agent_mentions_drop_one_fixes": {
 			"type": "boolean"
 		},
-		"rovo_agent_show_creator_on_profile_card_fix": {
-			"type": "boolean"
-		},
-		"new_team_profile_fedramp": {
+		"platform_editor_agent_card_fixes": {
 			"type": "boolean"
 		}
 	},

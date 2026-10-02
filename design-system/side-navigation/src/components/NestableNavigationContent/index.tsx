@@ -6,19 +6,21 @@ import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } fr
 
 import { css, jsx } from '@compiled/react';
 
-import { ExitingPersistence } from '@atlaskit/motion';
-import { fg } from '@atlaskit/platform-feature-flags';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { GoBackItem as GoBackButton } from '../Item';
-import { default as NestingItem } from '../NestingItem';
-import { useChildIds } from '../utils/hooks';
-
-import { NestedContext, type NestedContextValue } from './context';
+import useChildIds from '../../common/use-child-ids';
+import { GoBackItem as GoBackButton } from '../Item/go-back-item';
+import { NestingItem } from '../NestingItem';
+import { NestedContext, type NestedContextValue } from './nested-context';
 import { NestingMotion } from './nesting-motion';
 // Named so ERT doesn't pick up the override name as a type.
 
 export const ROOT_ID = 'ATLASKIT_NESTED_ROOT';
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface NestableNavigationContentProps {
 	/**
 	 * The NestableNavigationContent wraps the entire navigation hierarchy of a side navigation.
@@ -123,8 +125,12 @@ const nestingRootStyles = css({
  *
  * - [Examples](https://atlassian.design/components/side-navigation/examples#nested-navigation)
  * - [Code](https://atlassian.design/components/side-navigation/code)
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const NestableNavigationContent: (props: NestableNavigationContentProps) => JSX.Element = (props: NestableNavigationContentProps) => {
+export const NestableNavigationContent: (props: NestableNavigationContentProps) => JSX.Element = (
+	props: NestableNavigationContentProps,
+) => {
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const {
 		children,
@@ -307,5 +313,3 @@ const NestableNavigationContent: (props: NestableNavigationContentProps) => JSX.
 		</Fragment>
 	);
 };
-
-export default NestableNavigationContent;

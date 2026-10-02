@@ -1,12 +1,11 @@
-import { type EventHandler, type KeyboardEvent, type MouseEvent } from 'react';
-
-import type { SmartLinkResponse } from '@atlaskit/linking-types';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
 
 import type {
-	CardActionOptions,
 	CardAppearance,
 	CardPlatform,
 	EmbedIframeUrlType,
+	InternalCardActionOptions,
+	OnClickCallback,
 	OnResolveCallback,
 } from '../Card/types';
 import { type FrameStyle } from '../EmbedCard/types';
@@ -15,7 +14,7 @@ import { type HoverPreviewOptions } from '../HoverCard/types';
 import { type InlinePreloaderStyle, type OnErrorCallback } from '../types';
 
 export type CardWithUrlContentProps = {
-	actionOptions?: CardActionOptions;
+	actionOptions?: InternalCardActionOptions;
 	appearance: CardAppearance;
 	children?: React.ReactNode;
 	CompetitorPrompt?: React.ComponentType<{ linkType?: string; sourceUrl: string }>;
@@ -31,7 +30,7 @@ export type CardWithUrlContentProps = {
 	inlinePreloaderStyle?: InlinePreloaderStyle;
 	isHovered?: boolean;
 	isSelected?: boolean;
-	onClick?: EventHandler<MouseEvent | KeyboardEvent>;
+	onClick?: OnClickCallback;
 	onError?: OnErrorCallback;
 	onResolve?: OnResolveCallback;
 	placeholder?: string;
@@ -41,6 +40,7 @@ export type CardWithUrlContentProps = {
 	resolvingPlaceholder?: string;
 	showHoverPreview?: boolean;
 	testId?: string;
+	title?: string;
 	truncateInline?: boolean;
 	ui?: FlexibleUiOptions;
 	url: string;

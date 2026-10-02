@@ -1,27 +1,30 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { Fragment, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx, type SerializedStyles } from '@emotion/react';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
+import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
+import { useIntl } from 'react-intl';
 import { Grid, List } from 'react-virtualized';
 import type { Size } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { AutoSizer } from 'react-virtualized/dist/commonjs/AutoSizer';
 import { CellMeasurer, CellMeasurerCache } from 'react-virtualized/dist/commonjs/CellMeasurer';
 
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
-import { relativeFontSizeToBase16 } from '@atlaskit/editor-shared-styles';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
 import { shortcutStyle } from '@atlaskit/editor-shared-styles/shortcut';
-import { ButtonItem } from '@atlaskit/menu';
-import { fg } from '@atlaskit/platform-feature-flags';
+import ButtonItem from '@atlaskit/menu/button-item';
 import { Flex, Stack, Text } from '@atlaskit/primitives/compiled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { ACTION, ACTION_SUBJECT, EVENT_TYPE, fireAnalyticsEvent } from '../../../analytics';
 import type { QuickInsertItem } from '../../../provider-factory';
@@ -35,21 +38,23 @@ import {
 } from '../../constants';
 import useContainerWidth from '../../hooks/use-container-width';
 import useFocus from '../../hooks/use-focus';
+import commonMessages from '../../messages';
 import type { SelectedItemProps } from '../../types';
 import { Modes } from '../../types';
-
 import EmptyState from './EmptyState';
-import { getColumnCount, getScrollbarWidth } from './utils';
+import { getColumnCount } from './getColumnCount';
+import { getScrollbarWidth } from './utils';
 
 export const ICON_HEIGHT = 40;
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const ICON_WIDTH = 40;
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const itemIcon: SerializedStyles = css({
 	width: `${ICON_WIDTH}px`,
 	height: `${ICON_HEIGHT}px`,
 	overflow: 'hidden',
-	border: `${token('border.width')} solid ${token('color.border', 'rgba(223, 225, 229, 0.5)')}`,
+	border: `${token('border.width')} solid ${token('color.border')}`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	borderRadius: token('radius.small', '3px'),
 	boxSizing: 'border-box',
@@ -68,6 +73,7 @@ export interface Props {
 	columnCount: number;
 	emptyStateHandler?: EmptyStateHandler;
 	focusOnEmptyStateButton?: boolean;
+	hasTabListContext?: boolean;
 	items: QuickInsertItem[];
 	mode: keyof typeof Modes;
 	onInsertItem: (item: QuickInsertItem) => void;
@@ -96,6 +102,7 @@ function ElementList({
 	setFocusedItemIndex,
 	cache,
 	onInsertItem,
+	hasTabListContext = false,
 }: Props & SelectedItemProps & WithAnalyticsEventsProps) {
 	const { containerWidth, ContainerWidthMonitor } = useContainerWidth();
 	const [scrollbarWidth, setScrollbarWidth] = useState(SCROLLBAR_WIDTH);
@@ -112,6 +119,7 @@ function ElementList({
 			const updatedScrollbarWidth = getScrollbarWidth();
 
 			if (updatedScrollbarWidth > 0) {
+				// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 				setScrollbarWidth(updatedScrollbarWidth);
 			}
 		}
@@ -155,11 +163,13 @@ function ElementList({
 				data-testid="element-items"
 				id={selectedCategory ? `browse-category-${selectedCategory}-tab` : 'browse-category-tab'}
 				aria-labelledby={
-					selectedCategory
-						? `browse-category--${selectedCategory}-button`
-						: 'browse-category-button'
+					!hasTabListContext
+						? undefined
+						: selectedCategory
+							? `browse-category--${selectedCategory}-button`
+							: 'browse-category-button'
 				}
-				role="tabpanel"
+				role={!hasTabListContext ? undefined : 'tabpanel'}
 				tabIndex={items.length === 0 ? 0 : undefined}
 			>
 				{!items.length ? (
@@ -252,6 +262,8 @@ const ElementListSingleColumn = (props: ElementListSingleColumnProps) => {
 		selectedCategoryIndex,
 		selectedItemIndex,
 	} = props;
+	const { formatMessage } = useIntl();
+	const elementListAriaLabel = formatMessage(commonMessages.elementListAriaLabel);
 
 	const rowRenderer = useMemo(
 		() =>
@@ -268,7 +280,6 @@ const ElementListSingleColumn = (props: ElementListSingleColumnProps) => {
 			}) => {
 				return (
 					<CellMeasurer key={key} cache={cache} parent={parent} columnIndex={0} rowIndex={index}>
-						{/* eslint-disable-next-line @atlassian/a11y/no-static-element-interactions*/}
 						<div
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							style={style}
@@ -276,6 +287,11 @@ const ElementListSingleColumn = (props: ElementListSingleColumnProps) => {
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766 -- Ignored via go/DSP-18766
 							className="element-item-wrapper"
 							css={elementItemWrapperSingle}
+							role={
+								expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+									? 'presentation'
+									: undefined
+							}
 							onKeyDown={(e) => {
 								if (e.key === 'Tab') {
 									if (e.shiftKey && index === 0) {
@@ -339,6 +355,7 @@ const ElementListSingleColumn = (props: ElementListSingleColumnProps) => {
 			overscanRowCount={3}
 			containerRole="presentation"
 			role="listbox"
+			aria-label={elementListAriaLabel}
 			// Ignored via go/ees005
 			// eslint-disable-next-line react/jsx-props-no-spreading
 			{...(selectedItemIndex !== undefined && {
@@ -380,6 +397,9 @@ const ElementListMultipleColumns = (props: ElementListMultipleColumnsProps) => {
 		selectedCategoryIndex,
 		selectedItemIndex,
 	} = props;
+
+	const { formatMessage } = useIntl();
+	const elementListAriaLabel = formatMessage(commonMessages.elementListAriaLabel);
 
 	const columnWidth = (containerWidth - ELEMENT_ITEM_PADDING * 2) / columnCount;
 	const rowCount = Math.ceil(items.length / columnCount);
@@ -475,6 +495,7 @@ const ElementListMultipleColumns = (props: ElementListMultipleColumnsProps) => {
 			containerRole="row"
 			cellRenderer={cellRenderer}
 			height={height}
+			aria-label={elementListAriaLabel}
 			width={containerWidth - ELEMENT_LIST_PADDING * 2} // containerWidth - padding on Left/Right (for focus outline)
 			/**
 			 * Refresh Grid on WidthObserver value change.
@@ -511,6 +532,7 @@ type ElementItemType = {
 const MemoizedElementItem = memo(ElementItem);
 MemoizedElementItem.displayName = 'MemoizedElementItem';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function ElementItem({
 	inlineMode,
 	selected,
@@ -520,7 +542,7 @@ export function ElementItem({
 	focus,
 	setFocusedItemIndex,
 	role,
-}: ElementItemType) {
+}: ElementItemType): jsx.JSX.Element {
 	const ref = useFocus(focus);
 
 	/**
@@ -573,11 +595,12 @@ export function ElementItem({
 				id={`searched-item-${index}`}
 				isDisabled={isDisabled}
 				role={role}
+				// @ts-expect-error -- see A11Y-30538
+				tabIndex={-1}
 			>
 				<ItemContent
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 					style={inlineMode ? null : itemStyleOverrides}
-					tabIndex={0}
 					title={title}
 					description={description}
 					keyshortcut={keyshortcut}
@@ -602,64 +625,36 @@ const ElementBefore = memo(({ icon }: Partial<QuickInsertItem>) => (
 
 const ItemContent = memo(
 	({ title, description, keyshortcut, lozenge, isDisabled }: Partial<QuickInsertItem>) => {
-		if (fg('platform_editor_typography_ugc')) {
-			return (
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-				<div css={itemBody} className="item-body">
-					<div css={itemText}>
-						<Stack space="space.025">
-							<div css={itemTitleWrapper}>
-								{editorExperiment('platform_synced_block', true) ? (
-									<Flex alignItems="center" gap="space.050">
-										<Text color={isDisabled ? 'color.text.disabled' : undefined} maxLines={1}>
-											{title}
-										</Text>
-										{lozenge}
-									</Flex>
-								) : (
-									<Text color={isDisabled ? 'color.text.disabled' : undefined} maxLines={1}>
-										{title}
-									</Text>
-								)}
-								<div css={itemAfter}>
-									{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
-									{keyshortcut && <div css={shortcutStyle}>{keyshortcut}</div>}
-								</div>
-							</div>
-							{description && (
-								<Text
-									color={isDisabled ? 'color.text.disabled' : 'color.text.subtle'}
-									size="small"
-									maxLines={2}
-								>
-									{description}
-								</Text>
-							)}
-						</Stack>
-					</div>
-				</div>
-			);
-		} else {
-			return (
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-				<div css={itemBody} className="item-body">
-					<div css={itemText}>
+		return (
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+			<div css={itemBody} className="item-body">
+				<div css={itemText}>
+					<Stack space="space.025">
 						<div css={itemTitleWrapper}>
-							{/* eslint-disable-next-line @atlaskit/design-system/use-primitives-text*/}
-							<p css={isDisabled ? itemTitleDisabled : itemTitle}>{title}</p>
+							<Flex alignItems="center" gap="space.050">
+								<Text color={isDisabled ? 'color.text.disabled' : undefined} maxLines={1}>
+									{title}
+								</Text>
+								{lozenge}
+							</Flex>
 							<div css={itemAfter}>
 								{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
 								{keyshortcut && <div css={shortcutStyle}>{keyshortcut}</div>}
 							</div>
 						</div>
 						{description && (
-							// eslint-disable-next-line @atlaskit/design-system/use-primitives-text
-							<p css={isDisabled ? itemDescriptionDisabled : itemDescription}>{description}</p>
+							<Text
+								color={isDisabled ? 'color.text.disabled' : 'color.text.subtle'}
+								size="small"
+								maxLines={2}
+							>
+								{description}
+							</Text>
 						)}
-					</div>
+					</Stack>
 				</div>
-			);
-		}
+			</div>
+		);
 	},
 );
 
@@ -669,11 +664,10 @@ const elementItemsWrapper = css({
 	alignItems: 'flex-start',
 	justifyContent: 'flex-start',
 	overflow: 'hidden',
-	padding: token('space.025', '2px'),
+	padding: token('space.025'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.ReactVirtualized__Grid': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/no-unsafe-design-token-usage -- Ignored via go/DSP-18766
 		borderRadius: token('radius.small', '3px'),
 		outline: 'none',
 		'&:focus': {
@@ -685,7 +679,7 @@ const elementItemsWrapper = css({
 	'.ReactVirtualized__Grid__innerScrollContainer': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 		"div[class='element-item-wrapper']:last-child": {
-			paddingBottom: token('space.050', '4px'),
+			paddingBottom: token('space.050'),
 		},
 	},
 });
@@ -697,7 +691,7 @@ const elementItemWrapperSingle = css({
 		button: {
 			minHeight: '60px',
 			alignItems: 'flex-start',
-			padding: `${token('space.150', '12px')} ${token('space.150', '12px')} 11px`,
+			padding: `${token('space.150')} ${token('space.150')} 11px`,
 		},
 	},
 });
@@ -709,7 +703,7 @@ const elementItemWrapper = css({
 		button: {
 			minHeight: '75px',
 			alignItems: 'flex-start',
-			padding: `${token('space.150', '12px')} ${token('space.150', '12px')} 11px`,
+			padding: `${token('space.150')} ${token('space.150')} 11px`,
 		},
 	},
 });
@@ -722,35 +716,7 @@ const itemBody = css({
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: 1.4,
 	width: '100%',
-	marginTop: token('space.negative.025', '-2px'),
-});
-
-/*
- * -webkit-line-clamp is also supported by firefox 🎉
- * https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/68#CSS
- */
-const multilineStyle = css({
-	display: '-webkit-box',
-	WebkitLineClamp: 2,
-	WebkitBoxOrient: 'vertical',
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-const itemDescription = css(multilineStyle, {
-	overflow: 'hidden',
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-	fontSize: relativeFontSizeToBase16(11.67),
-	color: token('color.text.subtle'),
-	marginTop: token('space.025', '2px'),
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-const itemDescriptionDisabled = css(multilineStyle, {
-	overflow: 'hidden',
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-	fontSize: relativeFontSizeToBase16(11.67),
-	color: token('color.text.disabled'),
-	marginTop: token('space.025', '2px'),
+	marginTop: token('space.negative.025'),
 });
 
 const itemText = css({
@@ -762,25 +728,11 @@ const itemTitleWrapper = css({
 	display: 'flex',
 	justifyContent: 'space-between',
 });
-const itemTitle = css({
-	width: '100%',
-	overflow: 'hidden',
-	whiteSpace: 'nowrap',
-	textOverflow: 'ellipsis',
-});
-
-const itemTitleDisabled = css({
-	width: '100%',
-	overflow: 'hidden',
-	whiteSpace: 'nowrap',
-	textOverflow: 'ellipsis',
-	color: token('color.text.disabled'),
-});
 
 const itemAfter = css({
 	flex: '0 0 auto',
-	paddingTop: token('space.025', '2px'),
-	marginBottom: token('space.negative.025', '-2px'),
+	paddingTop: token('space.025'),
+	marginBottom: token('space.negative.025'),
 });
 
 const itemIconStyle = css({
@@ -792,8 +744,12 @@ const itemIconStyle = css({
 	},
 });
 
-const MemoizedElementListWithAnalytics = memo(
-	withAnalyticsContext({ component: 'ElementList' })(ElementList),
-);
+const MemoizedElementListWithAnalytics: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<
+		Omit<Props & SelectedItemProps & WithAnalyticsEventsProps & WithContextProps, 'ref'> &
+			React.RefAttributes<unknown>
+	>
+> = memo(withAnalyticsContext({ component: 'ElementList' })(ElementList));
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default MemoizedElementListWithAnalytics;

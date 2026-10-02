@@ -1,13 +1,14 @@
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
 import {
 	type Config,
 	getAwaitBM3TTIList,
 	getCapabilityRate,
 	getConfig,
+	getDefaultTTVCRevision,
 	getDoNotAbortActivePressInteraction,
 	getDoNotAbortActivePressInteractionOnTransition,
 	getEnabledVCRevisions,
-	getExperimentalInteractionRate,
-	getExtraInteractionRate,
 	getInteractionRate,
 	getMostRecentVCRevision,
 	getPostInteractionRate,
@@ -20,11 +21,14 @@ import {
 	shouldUseRawDataThirdPartyBehavior,
 } from './index';
 
+jest.mock('@atlaskit/platform-feature-flags/fg');
+
 describe('UFO Configuration Module', () => {
 	beforeEach(() => {
 		// Reset configuration before each test
 		// @ts-ignore
 		setUFOConfig(undefined);
+		(fg as jest.Mock).mockImplementation(() => false);
 	});
 
 	describe('setUFOConfig and getConfig', () => {
@@ -33,17 +37,56 @@ describe('UFO Configuration Module', () => {
 			setUFOConfig(config);
 			expect(getConfig()).toEqual(config);
 		});
+
+		it('should preserve configured enabledVCRevisions.all values', () => {
+			const config: Config = {
+				product: 'testProduct',
+				region: 'testRegion',
+				vc: {
+					enabled: true,
+					enabledVCRevisions: {
+						all: ['fy25.01'],
+					},
+				},
+			};
+			setUFOConfig(config);
+			expect(getConfig()?.vc?.enabledVCRevisions?.all).toEqual(['fy25.01']);
+		});
+
+		it('should merge configured enabledVCRevisions from all and byExperience without duplicates', () => {
+			const config: Config = {
+				product: 'testProduct',
+				region: 'testRegion',
+				vc: {
+					enabled: true,
+					enabledVCRevisions: {
+						all: ['fy25.01'],
+						byExperience: {
+							exp1: ['fy25.01', 'fy25.03'],
+						},
+					},
+				},
+			};
+			setUFOConfig(config);
+			expect(getConfig()?.vc?.enabledVCRevisions?.all).toEqual(['fy25.01', 'fy25.03']);
+		});
+	});
+
+	describe('getDefaultTTVCRevision', () => {
+		it('should return fy26.04', () => {
+			expect(getDefaultTTVCRevision()).toBe('fy26.04');
+		});
 	});
 
 	describe('getEnabledVCRevisions', () => {
-		it('should return default revision if VC config is enabled, but no `enabledVCRevisions` config is set', () => {
+		it('should return default revision (fy26.04) if VC config is enabled but no `enabledVCRevisions` config is set', () => {
 			const config: Config = {
 				product: 'testProduct',
 				region: 'testRegion',
 				vc: { enabled: true },
 			};
 			setUFOConfig(config);
-			expect(getEnabledVCRevisions()).toEqual(['fy25.03']);
+			expect(getEnabledVCRevisions()).toEqual(['fy26.04']);
 		});
 
 		it('should return revisions based on experienceKey when config is set', () => {
@@ -62,6 +105,38 @@ describe('UFO Configuration Module', () => {
 			};
 			setUFOConfig(config);
 			expect(getEnabledVCRevisions('exp1')).toEqual(['fy25.01']);
+		});
+
+		it('should return [] when enabledVCRevisions.all is explicitly empty and ufo_disable_ttvc_v4 flag is on (isValidConfigArray treats empty array as valid)', () => {
+			(fg as jest.Mock).mockImplementation((flag: string) => flag === 'ufo_disable_ttvc_v4');
+			const config: Config = {
+				product: 'testProduct',
+				region: 'testRegion',
+				vc: {
+					enabled: true,
+					enabledVCRevisions: {
+						all: [],
+					},
+				},
+			};
+			setUFOConfig(config);
+			expect(getEnabledVCRevisions()).toEqual([]);
+		});
+
+		it('should return default revision (fy26.04) when enabledVCRevisions.all is explicitly empty and ufo_disable_ttvc_v4 flag is off (isValidConfigArray treats empty array as invalid)', () => {
+			(fg as jest.Mock).mockImplementation(() => false);
+			const config: Config = {
+				product: 'testProduct',
+				region: 'testRegion',
+				vc: {
+					enabled: true,
+					enabledVCRevisions: {
+						all: [],
+					},
+				},
+			};
+			setUFOConfig(config);
+			expect(getEnabledVCRevisions()).toEqual(['fy26.04']);
 		});
 	});
 
@@ -85,6 +160,21 @@ describe('UFO Configuration Module', () => {
 
 	describe('getMostRecentVCRevision', () => {
 		it('should return the most recent VC revision', () => {
+			const config: Config = {
+				product: 'testProduct',
+				region: 'testRegion',
+				vc: {
+					enabled: true,
+					enabledVCRevisions: {
+						all: ['fy25.01', 'fy25.03'],
+					},
+				},
+			};
+			setUFOConfig(config);
+			expect(getMostRecentVCRevision()).toBe('fy25.03');
+		});
+
+		it('should return the last enabled revision when fy26.04 is not in config', () => {
 			const config: Config = {
 				product: 'testProduct',
 				region: 'testRegion',
@@ -324,22 +414,6 @@ describe('UFO Configuration Module', () => {
 			expect(getInteractionRate('testEvent', 'page_load')).toBe(10);
 		});
 	});
-
-	describe('getExperimentalInteractionRate', () => {
-		it('should return the experimental interaction rate based on configuration', () => {
-			const config = {
-				product: 'testProduct',
-				region: 'testRegion',
-				experimentalInteractionMetrics: {
-					enabled: true,
-					rates: { experimentEvent: 0.7 },
-				},
-			};
-			setUFOConfig(config);
-			expect(getExperimentalInteractionRate('experimentEvent', 'transition')).toBe(0.7);
-		});
-	});
-
 	describe('getPostInteractionRate', () => {
 		it('should return the post-interaction rate based on configuration', () => {
 			const config = {
@@ -367,22 +441,6 @@ describe('UFO Configuration Module', () => {
 			expect(getCapabilityRate('react_profiler')).toBe(1);
 		});
 	});
-
-	describe('getExtraInteractionRate', () => {
-		it('should return the extraInteractionMetrics rate based on configuration', () => {
-			const config = {
-				product: 'testProduct',
-				region: 'testRegion',
-				extraInteractionMetrics: {
-					enabled: true,
-					rates: { extraEvent: 0.8 },
-				},
-			};
-			setUFOConfig(config);
-			expect(getExtraInteractionRate('extraEvent', 'page_load')).toBe(0.8);
-		});
-	});
-
 	describe('getTypingPerformanceTracingMethod', () => {
 		it('should return the default typing method if not set', () => {
 			expect(getTypingPerformanceTracingMethod()).toBe('timeout');
@@ -536,7 +594,7 @@ describe('UFO Configuration Module', () => {
 			expect(shouldUseRawDataThirdPartyBehavior('test-event', 'page_load')).toBe(false);
 		});
 
-		it('should return correct value based on feature flag and rate', () => {
+		it('should return true when raw data rate is greater than 0', () => {
 			const config = {
 				product: 'testProduct',
 				region: 'testRegion',
@@ -546,9 +604,7 @@ describe('UFO Configuration Module', () => {
 				},
 			};
 			setUFOConfig(config);
-			// The result depends on the feature flag value in the test environment
-			const result = shouldUseRawDataThirdPartyBehavior('test-event', 'page_load');
-			expect(typeof result).toBe('boolean');
+			expect(shouldUseRawDataThirdPartyBehavior('test-event', 'page_load')).toBe(true);
 		});
 	});
 });

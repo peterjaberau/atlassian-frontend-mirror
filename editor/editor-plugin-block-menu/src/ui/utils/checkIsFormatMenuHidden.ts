@@ -12,13 +12,14 @@ const getIsFormatMenuHidden = (selection: Selection, schema: Schema) => {
 		return false;
 	}
 
-	const disabledOnNodes = [nodes.syncBlock, nodes.bodiedSyncBlock, nodes.rule];
-	const disabledNode = findSelectedNodeOfType(disabledOnNodes)(selection);
+	const disabledNode = findSelectedNodeOfType([nodes.rule])(selection);
 
 	return !!disabledNode;
 };
 
-export const checkIsFormatMenuHidden = (api: ExtractInjectionAPI<BlockMenuPlugin> | undefined): boolean => {
+export const checkIsFormatMenuHidden = (
+	api: ExtractInjectionAPI<BlockMenuPlugin> | undefined,
+): boolean => {
 	const selection = api?.selection?.sharedState?.currentState()?.selection;
 	const schema = api?.core.sharedState.currentState()?.schema;
 	const menuTriggerBy = api?.blockControls?.sharedState.currentState()?.menuTriggerBy;

@@ -1,11 +1,13 @@
 import React from 'react';
 
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { bind } from 'bind-event-listener';
 
 import { Box } from '@atlaskit/primitives/compiled';
+import { ffTest } from '@atlassian/feature-flags-test-utils';
 
+import Flag from '../../flag';
 import FlagGroup from '../../flag-group';
-import Flag from '../../index';
 import { type FlagProps } from '../../types';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
@@ -306,5 +308,268 @@ describe('FlagGroup', () => {
 		 */
 		const flagGroupContainer = document.getElementById('my-unique-flag-group-id');
 		expect(flagGroupContainer?.nodeName).toBe('DIV');
+	});
+
+	// cc_mohiti_flag_anchoring — symmetric 48px × 48px bottom-left anchoring.
+	// The legacy left inset was 80px (space.1000), a left-rail nav artefact.
+	describe('symmetric anchoring (cc_mohiti_flag_anchoring)', () => {
+		ffTest.on('cc_mohiti_flag_anchoring', 'when symmetric anchoring FF is on', () => {
+			it('applies space.600 (48px) as the inline-start inset', () => {
+				render(<FlagGroup id="fg-test">{generateFlag({ id: 'a' })}</FlagGroup>);
+				const container = document.getElementById('fg-test');
+				expect(container).not.toBeNull();
+				// jsdom's getComputedStyle normalises `var(--x, y)` by stripping the
+				// space after the comma, so compare with whitespace removed.
+				expect(
+					window
+						.getComputedStyle(container!)
+						.getPropertyValue('inset-inline-start')
+						.replace(/\s/g, ''),
+				).toBe('var(--ds-space-600,3pc)');
+			});
+		});
+
+		ffTest.off('cc_mohiti_flag_anchoring', 'when symmetric anchoring FF is off', () => {
+			it('keeps the legacy space.1000 (80px) inline-start inset', () => {
+				render(<FlagGroup id="fg-test">{generateFlag({ id: 'a' })}</FlagGroup>);
+				const container = document.getElementById('fg-test');
+				expect(container).not.toBeNull();
+				// jsdom's getComputedStyle normalises `var(--x, y)` by stripping the
+				// space after the comma, so compare with whitespace removed.
+				expect(
+					window
+						.getComputedStyle(container!)
+						.getPropertyValue('inset-inline-start')
+						.replace(/\s/g, ''),
+				).toBe('var(--ds-space-1000,5pc)');
+			});
+		});
+	});
+
+	// JRACLOUD-97876 — keyboard-only / AT users must be able to dismiss the
+	// topmost flag without tabbing through the entire page.
+	describe('keyboard dismiss (Escape)', () => {
+		ffTest.on('platform_dst_flag_keyboard_dismiss', 'when keyboard dismiss FF is on', () => {
+			it('dismisses the first (topmost) flag when Escape is pressed', () => {
+				const onDismissed = jest.fn();
+				render(
+					<FlagGroup onDismissed={onDismissed}>
+						{generateFlag({ id: 'a', testId: 'a' })}
+						{generateFlag({ id: 'b' })}
+					</FlagGroup>,
+				);
+
+				fireEvent.keyDown(document, { key: 'Escape' });
+				act(() => {
+					jest.runAllTimers();
+				});
+
+				expect(onDismissed).toHaveBeenCalledTimes(1);
+				expect(onDismissed).toHaveBeenCalledWith('a', expect.anything());
+			});
+
+			it('dismisses the first flag when Escape is pressed from an input that stops propagation', () => {
+				const onDismissed = jest.fn();
+				render(
+					<>
+						<input
+							aria-label="Summary"
+							onKeyDown={(event) => {
+								event.stopPropagation();
+							}}
+						/>
+						<FlagGroup onDismissed={onDismissed}>
+							{generateFlag({ id: 'a', testId: 'a' })}
+						</FlagGroup>
+					</>,
+				);
+
+				const input = screen.getByLabelText('Summary');
+				input.focus();
+				fireEvent.keyDown(input, { key: 'Escape' });
+				act(() => {
+					jest.runAllTimers();
+				});
+
+				expect(onDismissed).toHaveBeenCalledTimes(1);
+				expect(onDismissed).toHaveBeenCalledWith('a', expect.anything());
+			});
+
+			it('does not dismiss when there are no flags', () => {
+				const onDismissed = jest.fn();
+				render(<FlagGroup onDismissed={onDismissed}>{null}</FlagGroup>);
+
+				fireEvent.keyDown(document, { key: 'Escape' });
+
+				expect(onDismissed).not.toHaveBeenCalled();
+			});
+
+			it('ignores non-Escape keys', () => {
+				const onDismissed = jest.fn();
+				render(
+					<FlagGroup onDismissed={onDismissed}>{generateFlag({ id: 'a', testId: 'a' })}</FlagGroup>,
+				);
+
+				fireEvent.keyDown(document, { key: 'Enter' });
+				fireEvent.keyDown(document, { key: 'a' });
+
+				expect(onDismissed).not.toHaveBeenCalled();
+			});
+
+			it('only dismisses the first flag at a time (subsequent Escape presses dismiss the next topmost)', () => {
+				const onDismissed = jest.fn();
+				const { rerender } = render(
+					<FlagGroup onDismissed={onDismissed}>
+						{generateFlag({ id: 'a', testId: 'a' })}
+						{generateFlag({ id: 'b', testId: 'b' })}
+					</FlagGroup>,
+				);
+
+				fireEvent.keyDown(document, { key: 'Escape' });
+				act(() => {
+					jest.runAllTimers();
+				});
+				expect(onDismissed).toHaveBeenLastCalledWith('a', expect.anything());
+
+				// Simulate the consumer removing the first flag in response to onDismissed.
+				rerender(
+					<FlagGroup onDismissed={onDismissed}>{generateFlag({ id: 'b', testId: 'b' })}</FlagGroup>,
+				);
+
+				fireEvent.keyDown(document, { key: 'Escape' });
+				act(() => {
+					jest.runAllTimers();
+				});
+				expect(onDismissed).toHaveBeenLastCalledWith('b', expect.anything());
+				expect(onDismissed).toHaveBeenCalledTimes(2);
+			});
+
+			it('mentions the Escape shortcut in the visually-hidden screen reader label', () => {
+				render(<FlagGroup>{generateFlag({ id: 'a' })}</FlagGroup>);
+
+				expect(
+					screen.getByText('Flag notifications. Press Escape to dismiss.'),
+				).toBeInTheDocument();
+			});
+
+			it('does not respond to Escape after the flag group unmounts', () => {
+				const onDismissed = jest.fn();
+				const { unmount } = render(
+					<FlagGroup onDismissed={onDismissed}>{generateFlag({ id: 'a', testId: 'a' })}</FlagGroup>,
+				);
+
+				unmount();
+				fireEvent.keyDown(document, { key: 'Escape' });
+
+				expect(onDismissed).not.toHaveBeenCalled();
+			});
+
+			it('does not dismiss a pending Escape after the flag group unmounts', () => {
+				const onDismissed = jest.fn();
+				const { unmount } = render(
+					<FlagGroup onDismissed={onDismissed}>{generateFlag({ id: 'a', testId: 'a' })}</FlagGroup>,
+				);
+
+				fireEvent.keyDown(document, { key: 'Escape' });
+				unmount();
+				act(() => {
+					jest.runAllTimers();
+				});
+
+				expect(onDismissed).not.toHaveBeenCalled();
+			});
+
+			it('ignores Escape when a capture-phase listener has called preventDefault (e.g. a modal)', () => {
+				const onDismissed = jest.fn();
+				render(
+					<FlagGroup onDismissed={onDismissed}>{generateFlag({ id: 'a', testId: 'a' })}</FlagGroup>,
+				);
+
+				// Simulate an outer handler (e.g. a modal) consuming the Escape key
+				// before it bubbles up to the document-level FlagGroup listener.
+				const unbind = bind(document, {
+					type: 'keydown',
+					listener: (event: KeyboardEvent) => {
+						if (event.key === 'Escape') {
+							event.preventDefault();
+						}
+					},
+					options: { capture: true },
+				});
+
+				try {
+					fireEvent.keyDown(document, { key: 'Escape' });
+					act(() => {
+						jest.runAllTimers();
+					});
+				} finally {
+					unbind();
+				}
+
+				expect(onDismissed).not.toHaveBeenCalled();
+			});
+
+			it('does not dismiss the flag when a modal also has an Escape listener and the modal listener fires first', () => {
+				// JRACLOUD-97876: Verify FlagGroup + modal Escape coexistence.
+				// When a modal's capture-phase Escape handler runs and calls
+				// preventDefault, the FlagGroup should leave flags untouched so
+				// both components remain independent.
+				const onDismissed = jest.fn();
+				const onModalClose = jest.fn();
+
+				// Simulate a modal that closes itself on Escape (capture phase)
+				// and prevents the event from reaching the FlagGroup.
+				const unbind = bind(document, {
+					type: 'keydown',
+					listener: (event: KeyboardEvent) => {
+						if (event.key === 'Escape') {
+							event.preventDefault();
+							onModalClose();
+						}
+					},
+					options: { capture: true },
+				});
+
+				render(
+					<FlagGroup onDismissed={onDismissed}>{generateFlag({ id: 'a', testId: 'a' })}</FlagGroup>,
+				);
+
+				try {
+					fireEvent.keyDown(document, { key: 'Escape' });
+					act(() => {
+						jest.runAllTimers();
+					});
+				} finally {
+					unbind();
+				}
+
+				// The modal closes…
+				expect(onModalClose).toHaveBeenCalledTimes(1);
+				// …but the flag is NOT dismissed.
+				expect(onDismissed).not.toHaveBeenCalled();
+			});
+		});
+
+		ffTest.off('platform_dst_flag_keyboard_dismiss', 'when keyboard dismiss FF is off', () => {
+			it('does not dismiss any flag when Escape is pressed', () => {
+				const onDismissed = jest.fn();
+				render(
+					<FlagGroup onDismissed={onDismissed}>{generateFlag({ id: 'a', testId: 'a' })}</FlagGroup>,
+				);
+
+				fireEvent.keyDown(document, { key: 'Escape' });
+				act(() => {
+					jest.runAllTimers();
+				});
+
+				expect(onDismissed).not.toHaveBeenCalled();
+			});
+
+			it('keeps the original screen reader label', () => {
+				render(<FlagGroup>{generateFlag({ id: 'a' })}</FlagGroup>);
+
+				expect(screen.getByText('Flag notifications')).toBeInTheDocument();
+			});
+		});
 	});
 });

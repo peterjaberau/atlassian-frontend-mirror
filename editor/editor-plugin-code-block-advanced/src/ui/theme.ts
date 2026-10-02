@@ -1,8 +1,10 @@
+import type { Extension } from '@codemirror/state';
 import { EditorView as CodeMirror } from '@codemirror/view';
 
 import type { EditorContentMode } from '@atlaskit/editor-common/types';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import { token } from '@atlaskit/tokens';
 
 const shouldUseCompactTypography = (contentMode?: EditorContentMode) =>
@@ -20,7 +22,7 @@ type ThemeOptions = {
 	contentMode?: EditorContentMode;
 };
 
-export const cmTheme = (options?: ThemeOptions) =>
+export const cmTheme = (options?: ThemeOptions): Extension =>
 	CodeMirror.theme({
 		'&': {
 			backgroundColor: token('color.background.neutral'),
@@ -74,6 +76,13 @@ export const cmTheme = (options?: ThemeOptions) =>
 			border: 'none',
 			padding: token('space.0'),
 			color: token('color.text.subtlest'),
+			...(expValEqualsNoExposure('platform_editor_code_block_q4_lovability', 'isEnabled', true) && {
+				// CodeMirror defaults this to height: 100%, which can resolve against an indefinite
+				// parent height in content-height editor and prevent flex stretching when gutter
+				// content is sparse, such as fold-only gutters.
+				height: 'unset',
+				alignSelf: 'stretch',
+			}),
 		},
 		'.cm-lineNumbers .cm-gutterElement': {
 			paddingLeft: token('space.0'),
@@ -90,7 +99,7 @@ export const cmTheme = (options?: ThemeOptions) =>
 		},
 	});
 
-export const codeFoldingTheme = CodeMirror.theme({
+export const codeFoldingTheme: Extension = CodeMirror.theme({
 	'.cm-gutter': {
 		paddingLeft: token('space.075'),
 		paddingTop: token('space.100'),

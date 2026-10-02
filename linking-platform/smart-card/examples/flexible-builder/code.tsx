@@ -2,12 +2,11 @@ import React, { useMemo } from 'react';
 
 import { withErrorBoundary } from 'react-error-boundary';
 
-import { CodeBlock } from '@atlaskit/code';
+import CodeBlock from '@atlaskit/code/code-block';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
 
 import { toComponentProps, toObjectString } from '../utils/common';
-
 import { type BlockTemplate, type FlexibleTemplate } from './types';
 
 const codeStyles = xcss({
@@ -42,6 +41,11 @@ const Code = ({ template }: { template: FlexibleTemplate }) => {
 	);
 };
 
-export default withErrorBoundary(Code, {
+const _default_1: React.ForwardRefExoticComponent<
+	{
+		template: FlexibleTemplate;
+	} & React.RefAttributes<any>
+> = withErrorBoundary(Code, {
 	fallback: <CodeBlock language="jsx" text="// Error!" />,
 });
+export default _default_1;

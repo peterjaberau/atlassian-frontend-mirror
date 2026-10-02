@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-block-type/app",
 		"rootDir": "../",
 		"composite": true,
@@ -34,6 +33,9 @@
 		},
 		{
 			"path": "../../editor-plugin-block-menu/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-interaction/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-list/afm-products/tsconfig.json"
@@ -72,6 +74,9 @@
 			"path": "../../../design-system/icon-lab/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
@@ -82,9 +87,6 @@
 		},
 		{
 			"path": "../../input-rules/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../design-system/theme/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"

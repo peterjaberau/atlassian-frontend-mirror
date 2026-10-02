@@ -4,26 +4,28 @@
  */
 import { useCallback, useRef } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { jsx } from '@atlaskit/css';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 
 import { useAnalyticsEvents } from '../../../common/analytics/generated/use-analytics-events';
 import { messages } from '../../../messages';
-
 import { type RelatedLinksBaseModalProps } from './types';
 
 const fixedWidth = 'small'; // pre-defined 400px by Atlaskit
 
-const RelatedLinksBaseModal = ({ onClose, showModal, children }: RelatedLinksBaseModalProps) => {
+const RelatedLinksBaseModal = ({
+	onClose,
+	showModal,
+	children,
+}: RelatedLinksBaseModalProps): JSX.Element => {
 	const { fireEvent } = useAnalyticsEvents();
 	const modalOpenTimeRef = useRef<number>(Date.now());
 

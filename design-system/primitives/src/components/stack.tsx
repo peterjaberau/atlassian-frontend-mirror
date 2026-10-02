@@ -2,15 +2,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ElementType, forwardRef, type ForwardRefExoticComponent, memo, type MemoExoticComponent, type ReactNode, type Ref, type RefAttributes } from 'react';
+import {
+	type ElementType,
+	forwardRef,
+	type ForwardRefExoticComponent,
+	memo,
+	type MemoExoticComponent,
+	type ReactNode,
+	type Ref,
+	type RefAttributes,
+} from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
 
-import { type Space } from '../xcss/style-maps.partial';
+import { type Space } from '../xcss/positive-space';
 import { type XCSS, xcss } from '../xcss/xcss';
-
-import Flex from './flex';
+import { Flex } from './flex';
 import type { AlignBlock, AlignInline, BasePrimitiveProps, Grow, Spread } from './types';
 
 export type StackProps<T extends ElementType = 'div'> = {
@@ -81,7 +89,9 @@ const flexGrowMap = {
  * ```
  *
  */
-const Stack: MemoExoticComponent<ForwardRefExoticComponent<Omit<StackProps<ElementType>, "ref"> & RefAttributes<any>>> = memo(
+export const Stack: MemoExoticComponent<
+	ForwardRefExoticComponent<Omit<StackProps<ElementType>, 'ref'> & RefAttributes<any>>
+> = memo(
 	forwardRef(
 		<T extends ElementType = 'div'>(
 			{
@@ -131,4 +141,5 @@ const Stack: MemoExoticComponent<ForwardRefExoticComponent<Omit<StackProps<Eleme
 
 Stack.displayName = 'Stack';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Stack;

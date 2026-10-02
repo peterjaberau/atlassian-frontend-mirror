@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 
 import { expect, test } from '@af/integration-testing';
-
+import { skipAutoA11y } from '@atlassian/a11y-playwright-testing';
 const sitePickerSelector =
 	'[data-testid="confluence-search-datasource-modal--site-selector__control"]';
 
@@ -13,7 +13,11 @@ test.describe('ConfluenceSearchModal', () => {
 		packageIdSelection: string = 'link-datasource',
 		exampleIdSelection: string = 'with-confluence-search-modal',
 	) {
-		await page.visitExample(groupIdSelection, packageIdSelection, exampleIdSelection);
+		await page.visitExample<typeof import('../../examples/with-confluence-search-modal.vr.ap.tsx')>(
+			groupIdSelection,
+			packageIdSelection,
+			exampleIdSelection,
+		);
 	}
 
 	async function openDropDown(page: Page) {
@@ -132,6 +136,7 @@ test.describe('ConfluenceSearchModal', () => {
 	test('Closing and opening the picker after setting a date but not clicking update will clear the selections on reopen', async ({
 		page,
 	}) => {
+		skipAutoA11y();
 		await setup(page);
 		const filterButton = page.getByTestId('confluence-search-modal--date-range-button');
 

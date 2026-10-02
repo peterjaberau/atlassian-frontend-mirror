@@ -4,8 +4,10 @@
  */
 import { jsx } from '@compiled/react';
 
-import { CodeBlock } from '@atlaskit/code';
-import { getTokenValue, token, useThemeObserver } from '@atlaskit/tokens';
+import CodeBlock from '@atlaskit/code/code-block';
+import { token } from '@atlaskit/tokens';
+import { getTokenValue } from '@atlaskit/tokens/get-token-value';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 const ExampleDiv = () => (
 	<p

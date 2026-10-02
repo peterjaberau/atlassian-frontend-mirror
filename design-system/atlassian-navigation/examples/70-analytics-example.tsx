@@ -1,10 +1,9 @@
 import React from 'react';
 
-import {
-	AnalyticsContext,
-	AnalyticsListener,
-	useCallbackWithAnalytics,
-} from '@atlaskit/analytics-next';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { useCallbackWithAnalytics } from '@atlaskit/analytics-next/useCallbackWithAnalytics';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import {
 	AppSwitcher,
 	AtlassianNavigation,
@@ -19,9 +18,9 @@ import {
 	Settings,
 	useOverflowStatus,
 } from '@atlaskit/atlassian-navigation';
-import Badge from '@atlaskit/badge';
+import Badge from '@atlaskit/badge/badge';
 import { JiraIcon, JiraLogo } from '@atlaskit/logo';
-import { ButtonItem } from '@atlaskit/menu';
+import ButtonItem from '@atlaskit/menu/button-item';
 
 const useNavigationAnalytics = (subject: string) => {
 	return useCallbackWithAnalytics(
@@ -70,7 +69,7 @@ const HelpAnalytics = () => {
 	return <Help onClick={onClick} tooltip="Help" />;
 };
 
-const badge = () => <Badge appearance="important">3</Badge>;
+const badge = () => <Badge appearance="dangerBold">3</Badge>;
 
 const NotificationsAnalytics = () => {
 	const onClick = useNavigationAnalytics('notifications');

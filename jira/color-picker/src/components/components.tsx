@@ -2,19 +2,20 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type MenuListComponentProps, type OptionProps } from '@atlaskit/select';
-import { type Color } from '../types';
-import ColorCard from './ColorCard';
-import { getWidth } from '../utils';
-import { token } from '@atlaskit/tokens';
-import { css, jsx } from '@atlaskit/css';
-import { COLOR_PICKER } from '../constants';
-import { useIntl } from 'react-intl-next';
-import messages from '../messages';
 
-export const MenuList = (props: MenuListComponentProps<Color>) => {
+import { useIntl } from 'react-intl';
+
+import { css, jsx } from '@atlaskit/css';
+import type { MenuListComponentProps, OptionProps } from '@atlaskit/select/types';
+import { token } from '@atlaskit/tokens';
+
+import { COLOR_PICKER } from '../constants';
+import messages from '../messages';
+import { type Color } from '../types';
+import { getWidth } from '../utils';
+import ColorCard from './ColorCard';
+export const MenuList = (props: MenuListComponentProps<Color>): JSX.Element => {
 	const {
-		//@ts-ignore react-select unsupported props
 		selectProps: { cols },
 		innerRef,
 		children,
@@ -31,18 +32,15 @@ export const MenuList = (props: MenuListComponentProps<Color>) => {
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 				maxWidth: cols ? getWidth(cols) : undefined,
 			}}
-			//@ts-ignore react-select unsupported props
 			ref={innerRef!}
 		>
 			{children}
 		</div>
 	);
 };
-
-export const Option = (props: OptionProps<Color>) => {
+export const Option = (props: OptionProps<Color>): JSX.Element => {
 	const {
 		data: { value, label },
-		//@ts-ignore react-select unsupported props
 		selectProps: { checkMarkColor, onOptionKeyDown, isTabbing, variant },
 		isFocused,
 		isSelected,
@@ -73,25 +71,23 @@ export const Option = (props: OptionProps<Color>) => {
 		</div>
 	);
 };
-
 export const DropdownIndicator = () => null;
-
 export const Placeholder = () => null;
 
 const colorCardWrapperStyles = css({
 	display: 'flex',
-	marginTop: token('space.025', '2px'),
-	marginRight: token('space.025', '2px'),
-	marginBottom: token('space.025', '2px'),
-	marginLeft: token('space.025', '2px'),
+	marginTop: token('space.025'),
+	marginRight: token('space.025'),
+	marginBottom: token('space.025'),
+	marginLeft: token('space.025'),
 	height: '32px',
 });
 
 const colorPaletteContainerStyles = css({
 	display: 'flex',
 	flexWrap: 'wrap',
-	paddingTop: token('space.050', '4px'),
-	paddingRight: token('space.050', '4px'),
-	paddingBottom: token('space.050', '4px'),
-	paddingLeft: token('space.050', '4px'),
+	paddingTop: token('space.050'),
+	paddingRight: token('space.050'),
+	paddingBottom: token('space.050'),
+	paddingLeft: token('space.050'),
 });

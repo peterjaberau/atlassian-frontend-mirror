@@ -13,10 +13,10 @@ import {
 	LEFT_PANEL_WIDTH,
 	VAR_LEFT_PANEL_WIDTH,
 } from '../../common/constants';
-import { type SlotWidthProps } from '../../common/types';
-import { getPageLayoutSlotSelector, resolveDimension } from '../../common/utils';
+import { getPageLayoutSlotSelector } from '../../common/get-page-layout-slot-selector';
+import { resolveDimension } from '../../common/resolve-dimension';
+import type { SlotWidthProps } from '../../common/types';
 import { publishGridState, useSkipLink } from '../../controllers';
-
 import SlotFocusRing from './internal/slot-focus-ring';
 import SlotDimensions from './slot-dimensions';
 
@@ -41,6 +41,8 @@ const leftPanelFixedStyles = css({
  *
  * - [Examples](https://atlassian.design/components/page-layout/examples)
  * - [Code](https://atlassian.design/components/page-layout/code)
+ *
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 const LeftPanel = (props: SlotWidthProps): jsx.JSX.Element => {
 	const {

@@ -1,4 +1,5 @@
 import React, { type ReactNode, forwardRef } from 'react';
+
 import { ImageWrapper as CompiledImageWrapper } from './ImageWrapper-compiled';
 
 export type ImageWrapperProps = {
@@ -7,6 +8,8 @@ export type ImageWrapperProps = {
 	onClick: (e: React.MouseEvent<Element, MouseEvent>) => void;
 };
 
-export const ImageWrapper = forwardRef<HTMLDivElement, ImageWrapperProps>((props, ref) => (
+export const ImageWrapper: React.ForwardRefExoticComponent<
+	ImageWrapperProps & React.RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, ImageWrapperProps>((props, ref) => (
 	<CompiledImageWrapper {...props} ref={ref} />
 ));

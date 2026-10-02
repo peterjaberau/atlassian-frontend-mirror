@@ -2,27 +2,22 @@ import React from 'react';
 
 import { renderHook, type RenderHookOptions } from '@testing-library/react';
 
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { flushPromises } from '@atlaskit/link-test-helpers';
-import { NetworkError } from '@atlaskit/linking-common';
+import { NetworkError } from '@atlaskit/linking-common/network-error';
+import type {
+	DatasourceDataRequest,
+	DatasourceDataResponse,
+	DatasourceDetailsRequest,
+	DatasourceDetailsResponse,
+} from '@atlaskit/linking-types/datasource';
 import type {
 	ActionsDiscoveryRequest,
 	ActionsDiscoveryResponse,
 	AtomicActionExecuteRequest,
 	AtomicActionExecuteResponse,
-	DatasourceDataRequest,
-	DatasourceDataResponse,
-	DatasourceDetailsRequest,
-	DatasourceDetailsResponse,
-} from '@atlaskit/linking-types';
-
-import {
-	mockActionsDiscoveryResponse,
-	mockDatasourceDataResponse,
-	mockDatasourceDetailsResponse,
-	mockExecuteActionResponse,
-	mockExecuteActionResponseFailure,
-} from './mocks';
+} from '@atlaskit/linking-types/datasource-actions';
 
 import {
 	datasourceActionsPermissionsPromiseCache,
@@ -30,6 +25,11 @@ import {
 	datasourceDetailsResponsePromiseCache,
 	useDatasourceClientExtension,
 } from './index';
+import { mockActionsDiscoveryResponse } from './mockActionsDiscoveryResponse';
+import { mockDatasourceDataResponse } from './mockDatasourceDataResponse';
+import { mockDatasourceDetailsResponse } from './mockDatasourceDetailsResponse';
+import { mockExecuteActionResponse } from './mockExecuteActionResponse';
+import { mockExecuteActionResponseFailure } from './mockExecuteActionResponseFailure';
 
 const allErrorCodes = [
 	400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 421,

@@ -2,21 +2,22 @@
  * Create specific rules for ordering tokens based on their root path and subpath.
  */
 export const tokenOrder: {
-    path: string;
-    subpaths: string[];
+	path: string;
+	subpaths: string[];
 }[] = [
 	{
 		path: 'color',
 		subpaths: [
-			'text',
-			'link',
-			'icon',
-			'border',
 			'background',
-			'blanket',
+			'border',
+			'text',
+			'icon',
+			'link',
 			'interaction',
 			'skeleton',
+			'blanket',
 			'chart',
+			'rovo',
 			// deleted ↓
 			'accent',
 			'iconBorder',
@@ -25,7 +26,7 @@ export const tokenOrder: {
 	},
 	{
 		path: 'elevation',
-		subpaths: ['surface', 'shadow'],
+		subpaths: ['surface', 'rovo', 'shadow'],
 	},
 	{
 		path: 'opacity',

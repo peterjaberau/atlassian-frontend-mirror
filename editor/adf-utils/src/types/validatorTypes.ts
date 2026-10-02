@@ -63,6 +63,9 @@ export interface ValidatorSpecAttrs {
 
 export interface ValidatorSpec {
 	maxItems?: number;
+	meta?: {
+		stage0?: boolean;
+	};
 	minItems?: number;
 	props?: {
 		attrs?: ValidatorSpecAttrs;
@@ -126,6 +129,7 @@ export interface ValidationOptions {
 	// Allow attributes starting with `__` without validation
 	allowPrivateAttributes?: boolean;
 	mode?: ValidationMode;
+	stage0?: boolean;
 }
 
 export interface SpecValidatorResult {
@@ -140,7 +144,9 @@ export type Err = <T extends ValidationErrorType>(
 ) => NodeValidationResult;
 
 export interface ErrorCallbackOptions {
+	allowContainerInPanel?: boolean;
 	allowNestedTables?: boolean;
+	allowTableInPanel?: boolean;
 	allowUnsupportedBlock?: boolean;
 	allowUnsupportedInline?: boolean;
 	// Ignored via go/ees005

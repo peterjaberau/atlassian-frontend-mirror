@@ -1,23 +1,23 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _default_1: any = md`
 
   ${createEditorUseOnlyNotice('Editor Plugin Copy Button', [
-	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
-])}
+		{ name: 'Editor Core', link: '/packages/editor/editor-core' },
+	])}
 
   ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
-			<AtlassianInternalWarning />
-		</div>
-	)
-	}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the copy-button plugin used by @atlaskit/editor-core.
 
@@ -28,8 +28,33 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type CopyButtonPlugin = NextEditorPlugin<'copyButton'>;
+type CopyButtonPlugin = NextEditorPlugin<
+  'copyButton',
+  {
+    actions: {
+      afterCopy: (message: string) => void;
+      processCopyButtonItems: (
+        state: EditorState,
+      ) => (
+        items: Array<FloatingToolbarItem<Command>>,
+        hoverDecoration: HoverDecorationHandler | undefined,
+      ) => Array<FloatingToolbarItem<Command>>;
+    };
+    dependencies: [
+      OptionalPlugin<AnalyticsPlugin>,
+      OptionalPlugin<AccessibilityUtilsPlugin>,
+    ];
+  }
 >;
+
+type CopyButtonPluginState = {
+  copied: boolean;
+  markSelection?: {
+    end: number;
+    markType: MarkType;
+    start: number;
+  };
+};
 `}
 
 

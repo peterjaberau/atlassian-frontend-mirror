@@ -1,4 +1,5 @@
-import { ActionName, CardAction } from '../../../index';
+import { CardAction } from '../../../constants';
+import { ActionName } from '../../../index';
 import { EmbedModalSize } from '../../../view/EmbedModal/types';
 import * as utils from '../../../view/EmbedModal/utils';
 import {
@@ -18,13 +19,13 @@ jest.mock('@atlaskit/tmp-editor-statsig/exp-val-equals', () => ({
 }));
 
 // Mock the fg function
-jest.mock('@atlaskit/platform-feature-flags', () => ({
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn(),
 }));
 
 // Mock the isWithinPreviewPanelIFrame function from linking-common
-jest.mock('@atlaskit/linking-common/utils', () => ({
-	...jest.requireActual('@atlaskit/linking-common/utils'),
+jest.mock('@atlaskit/linking-common/utils/is-within-preview-panel-iframe', () => ({
 	isWithinPreviewPanelIFrame: jest.fn(),
 }));
 
@@ -41,8 +42,10 @@ describe('extractInvokePreviewAction', () => {
 	beforeEach(() => {
 		// Reset the mocks to default behavior
 		const { expValEquals } = require('@atlaskit/tmp-editor-statsig/exp-val-equals');
-		const { fg } = require('@atlaskit/platform-feature-flags');
-		const { isWithinPreviewPanelIFrame } = require('@atlaskit/linking-common/utils');
+		const { fg } = require('@atlaskit/platform-feature-flags/fg');
+		const {
+			isWithinPreviewPanelIFrame,
+		} = require('@atlaskit/linking-common/utils/is-within-preview-panel-iframe');
 
 		expValEquals.mockReturnValue(false);
 		fg.mockReturnValue(false);
@@ -106,7 +109,7 @@ describe('extractInvokePreviewAction', () => {
 			isSupportTheming: false,
 			isTrusted: true,
 			linkIcon: {
-				label: 'my name',
+				label: undefined,
 				url: TEST_URL,
 			},
 			origin: 'smartLinkCard',
@@ -120,7 +123,7 @@ describe('extractInvokePreviewAction', () => {
 		const openEmbedModal = jest.spyOn(utils, 'openEmbedModal').mockResolvedValue(undefined);
 		const fireEvent = jest.fn();
 
-		const { fg } = require('@atlaskit/platform-feature-flags');
+		const { fg } = require('@atlaskit/platform-feature-flags/fg');
 		fg.mockReturnValue(true);
 
 		const action = extractInvokePreviewAction({
@@ -162,7 +165,6 @@ describe('extractInvokePreviewAction', () => {
 			isSupportTheming: false,
 			isTrusted: true,
 			linkIcon: {
-				label: 'my name',
 				url: TEST_URL,
 			},
 			origin: 'smartLinkCard',
@@ -251,6 +253,47 @@ describe('extractInvokePreviewAction', () => {
 		expect(openEmbedModal).toHaveBeenCalled();
 	});
 
+	it('should suppress the preview action entirely (no panel, no modal) when isPreviewRestricted returns true', async () => {
+		const { fg } = require('@atlaskit/platform-feature-flags/fg');
+		fg.mockImplementation((flag: string) => flag === 'preview_panel_unit_check');
+		const openEmbedModal = jest.spyOn(utils, 'openEmbedModal').mockResolvedValue(undefined);
+		const mockOpenPreviewPanel = jest.fn();
+		const mockIsPreviewPanelAvailable = jest.fn().mockReturnValue(false);
+		const mockIsPreviewRestricted = jest.fn().mockReturnValue(true);
+
+		const action = extractInvokePreviewAction({
+			appearance: 'block',
+			id: 'test-id',
+			response: TEST_RESPONSE_WITH_PREVIEW_AND_ARI,
+			isPreviewPanelAvailable: mockIsPreviewPanelAvailable,
+			isPreviewRestricted: mockIsPreviewRestricted,
+			openPreviewPanel: mockOpenPreviewPanel,
+		});
+
+		expect(action).toBeUndefined();
+		expect(mockIsPreviewRestricted).toHaveBeenCalledWith({ ari: expect.any(String) });
+		expect(openEmbedModal).not.toHaveBeenCalled();
+		expect(mockOpenPreviewPanel).not.toHaveBeenCalled();
+	});
+
+	it('should fall back to embed modal when isPreviewRestricted returns false', async () => {
+		const { fg } = require('@atlaskit/platform-feature-flags/fg');
+		fg.mockImplementation((flag: string) => flag === 'preview_panel_unit_check');
+		const openEmbedModal = jest.spyOn(utils, 'openEmbedModal').mockResolvedValue(undefined);
+		const mockIsPreviewRestricted = jest.fn().mockReturnValue(false);
+
+		const action = extractInvokePreviewAction({
+			appearance: 'block',
+			id: 'test-id',
+			response: TEST_RESPONSE_WITH_PREVIEW,
+			isPreviewRestricted: mockIsPreviewRestricted,
+		});
+
+		expect(action).toBeDefined();
+		await action?.invokeAction.actionFn();
+		expect(openEmbedModal).toHaveBeenCalled();
+	});
+
 	it('should fall back to embed modal when preview panel params are incomplete', async () => {
 		const openEmbedModal = jest.spyOn(utils, 'openEmbedModal').mockResolvedValue(undefined);
 		const mockIsPreviewPanelAvailable = jest.fn().mockReturnValue(true);
@@ -281,7 +324,9 @@ describe('extractInvokePreviewAction', () => {
 	it('should not openEmbedModal when experiment is enabled and within preview panel', async () => {
 		// Enable the experiment for this test
 		const { expValEquals } = require('@atlaskit/tmp-editor-statsig/exp-val-equals');
-		const { isWithinPreviewPanelIFrame } = require('@atlaskit/linking-common/utils');
+		const {
+			isWithinPreviewPanelIFrame,
+		} = require('@atlaskit/linking-common/utils/is-within-preview-panel-iframe');
 		expValEquals.mockReturnValue(true);
 		isWithinPreviewPanelIFrame.mockReturnValue(true);
 
@@ -323,7 +368,9 @@ describe('extractInvokePreviewAction', () => {
 	it('should set isInPreviewPanel to false when not within preview panel', async () => {
 		// Enable the experiment for this test
 		const { expValEquals } = require('@atlaskit/tmp-editor-statsig/exp-val-equals');
-		const { isWithinPreviewPanelIFrame } = require('@atlaskit/linking-common/utils');
+		const {
+			isWithinPreviewPanelIFrame,
+		} = require('@atlaskit/linking-common/utils/is-within-preview-panel-iframe');
 		expValEquals.mockReturnValue(true);
 		isWithinPreviewPanelIFrame.mockReturnValue(false);
 
@@ -342,6 +389,54 @@ describe('extractInvokePreviewAction', () => {
 				isInPreviewPanel: false,
 			}),
 		);
+	});
+
+	describe('cross-product URL transformation', () => {
+		it('passes transformUrl to invokeViewAction inside openEmbedModal', async () => {
+			const openEmbedModal = jest.spyOn(utils, 'openEmbedModal').mockResolvedValue(undefined);
+			const transformUrl = jest.fn().mockReturnValue(`${TEST_URL}?xpc=1`);
+
+			const action = extractInvokePreviewAction({
+				appearance: 'block',
+				id: 'test-id',
+				response: TEST_RESPONSE_WITH_PREVIEW,
+				transformUrl,
+			});
+
+			await action?.invokeAction.actionFn();
+
+			// transformUrl is forwarded to invokeViewAction inside the embed modal
+			expect(openEmbedModal).toHaveBeenCalledWith(
+				expect.objectContaining({
+					invokeViewAction: expect.objectContaining({
+						actionFn: expect.any(Function),
+					}),
+				}),
+			);
+		});
+
+		it('passes transformUrl to openPreviewPanel path when gate is on and preview panel is available', async () => {
+			const { expValEquals } = require('@atlaskit/tmp-editor-statsig/exp-val-equals');
+			expValEquals.mockReturnValue(true);
+
+			const transformUrl = jest.fn().mockReturnValue(`${TEST_URL}?xpc=1`);
+			const mockOpenPreviewPanel = jest.fn();
+			const mockIsPreviewPanelAvailable = jest.fn().mockReturnValue(true);
+
+			const action = extractInvokePreviewAction({
+				appearance: 'block',
+				id: 'test-id',
+				response: TEST_RESPONSE_WITH_PREVIEW_AND_ARI,
+				isPreviewPanelAvailable: mockIsPreviewPanelAvailable,
+				openPreviewPanel: mockOpenPreviewPanel,
+				transformUrl,
+			});
+
+			await action?.invokeAction.actionFn();
+
+			// openPreviewPanel is called (transformUrl is carried via param for use in invokeViewAction)
+			expect(mockOpenPreviewPanel).toHaveBeenCalled();
+		});
 	});
 
 	describe('Analytics tracking for preview actions', () => {

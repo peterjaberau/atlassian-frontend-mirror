@@ -1,8 +1,7 @@
 import React from 'react';
 
-import Lozenge from '@atlaskit/lozenge';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box, Stack, Text } from '@atlaskit/primitives';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { Box, Stack, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 export default function Example(): React.JSX.Element {
@@ -17,7 +16,7 @@ export default function Example(): React.JSX.Element {
 			<Box>
 				<Text>
 					appearance: new{' '}
-					<Lozenge appearance="new" testId="new-lozenge">
+					<Lozenge appearance="discovery" testId="new-lozenge">
 						New
 					</Lozenge>
 				</Text>

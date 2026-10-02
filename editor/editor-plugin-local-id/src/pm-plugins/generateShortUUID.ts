@@ -1,10 +1,10 @@
-import { uuid } from '@atlaskit/adf-schema';
+import { uuid } from '@atlaskit/adf-schema/uuid';
 
 /**
  * Global Set to track currently generated and existing short UUIDs in the document.
  * Used to prevent duplicate short IDs when using crypto.randomUUID().
  */
-export const generatedShortUUIDs = new Set<string>();
+export const generatedShortUUIDs: Set<string> = new Set<string>();
 
 /**
  * Generates a short UUID and checks for duplicates against both
@@ -16,6 +16,7 @@ export const generateShortUUID = (): string => {
 	const maxRetries = 10;
 	for (let attempt = 0; attempt < maxRetries; attempt++) {
 		try {
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			const shortUUID = crypto.randomUUID().split('-')[4];
 			if (!generatedShortUUIDs.has(shortUUID)) {
 				generatedShortUUIDs.add(shortUUID);

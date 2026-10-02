@@ -1,32 +1,29 @@
 import React, { forwardRef, Fragment, memo, type Ref, useEffect, useRef, useState } from 'react';
-
 import ReactDOM from 'react-dom';
+
 import invariant from 'tiny-invariant';
 
-import Avatar from '@atlaskit/avatar';
-import Heading from '@atlaskit/heading';
+import Avatar from '@atlaskit/avatar/avatar';
+import Heading from '@atlaskit/heading/heading';
+import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 // This is the smaller MoreIcon soon to be more easily accessible with the
 // ongoing icon project
-import {
-	attachClosestEdge,
-	type Edge,
-	extractClosestEdge,
-} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/adapter/drop-target-for-external';
 import {
 	draggable,
 	dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/utils/preserve-offset-on-source';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Grid, Stack, xcss } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
 
 import { type Person } from '../../data/people';
-
 import {
 	dropHandledExternallyLocalStorageKey,
 	getCard,
@@ -105,12 +102,15 @@ const CardPrimitive = forwardRef<HTMLDivElement, CardPrimitiveProps>(function Ca
 					{role}
 				</Box>
 			</Stack>
-			{closestEdge && <DropIndicator edge={closestEdge} gap={token('space.100', '0')} />}
+			{closestEdge && <DropIndicator edge={closestEdge} gap={token('space.100')} />}
 		</Grid>
 	);
 });
 
-export const Card = memo(function Card({ item, columnId }: { item: Person; columnId: string }) {
+export const Card: React.NamedExoticComponent<{
+	item: Person;
+	columnId: string;
+}> = memo(function Card({ item, columnId }: { item: Person; columnId: string }) {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const { userId } = item;
 	const [closestEdge, setClosestEdge] = useState<Edge | null>(null);

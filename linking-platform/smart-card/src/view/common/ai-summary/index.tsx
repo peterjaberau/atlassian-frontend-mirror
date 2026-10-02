@@ -11,7 +11,6 @@ import type { AISummaryProps } from './types';
 import UList from './ulist';
 
 const baseStyle = css({
-	color: token('color.text.subtle'),
 	font: token('font.body.small'),
 	wordWrap: 'break-word',
 	wordBreak: 'break-word',
@@ -20,6 +19,10 @@ const baseStyle = css({
 	MozUserSelect: 'text',
 	MsUserSelect: 'text',
 	userSelect: 'text',
+});
+
+const textStyle = css({
+	color: token('color.text.subtle'),
 });
 
 /**
@@ -32,7 +35,7 @@ const AISummary = ({
 	className,
 	testId = 'ai-summary',
 	minHeight = 0,
-}: AISummaryProps) => {
+}: AISummaryProps): JSX.Element | null => {
 	if (!content && minHeight === 0) {
 		return null;
 	}
@@ -42,13 +45,14 @@ const AISummary = ({
 			data-testid={testId}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 			className={className}
-			css={[baseStyle]}
+			css={[baseStyle, textStyle]}
 			children={content}
 			options={{
 				forceWrapper: true,
 				overrides: {
 					ul: UList,
 				},
+				disableParsingRawHTML: true,
 			}}
 			style={{ minHeight: minHeight }}
 		/>

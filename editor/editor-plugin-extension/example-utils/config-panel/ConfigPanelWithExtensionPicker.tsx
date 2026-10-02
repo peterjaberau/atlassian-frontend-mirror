@@ -3,31 +3,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useEffect, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { CodeBlock } from '@atlaskit/code';
+import CodeBlock from '@atlaskit/code/code-block';
 import type {
 	ExtensionModule,
 	ExtensionProvider,
 	Parameters,
 } from '@atlaskit/editor-common/extensions';
 import { getExtensionKeyAndNodeKey } from '@atlaskit/editor-common/extensions';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
-import TextArea from '@atlaskit/textarea';
-// Ignored via go/ees005
-// eslint-disable-next-line import/no-namespace
-import * as colors from '@atlaskit/theme/colors';
+import TextArea from '@atlaskit/textarea/text-area';
 import { token } from '@atlaskit/tokens';
 
 import { useStateFromPromise } from '../../src/ui/ConfigPanel/use-state-from-promise';
-
 import ConfigPanelWithProviders from './ConfigPanelWithProviders';
 import type { CallbackParams } from './ExtensionNodePicker';
 import ExtensionNodePicker from './ExtensionNodePicker';
@@ -41,17 +38,16 @@ const column = (width: number | string) =>
 	css({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		width: `${width}px`,
-		margin: token('space.200', '16px'),
+		margin: token('space.200'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		h3: {
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-			borderBottom: `${token('border.width')} solid ${colors.N50}`,
-			marginBottom: token('space.200', '16px'),
+			borderBottom: `${token('border.width')} solid ${token('color.border')}`,
+			marginBottom: token('space.200'),
 		},
 	});
 
 const codeWrapperStyles = css({
-	marginTop: token('space.200', '16px'),
+	marginTop: token('space.200'),
 });
 
 function ExtensionConfigPanel({
@@ -84,6 +80,7 @@ function ExtensionConfigPanel({
 		try {
 			setParameters({
 				...parameters,
+				// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 				...JSON.parse(parametersJson),
 			});
 		} catch (e) {
@@ -122,6 +119,7 @@ function ExtensionConfigPanel({
 					{parameters && (
 						<CodeBlock
 							language="json"
+							// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 							text={JSON.stringify(parameters, null, 4)}
 							showLineNumbers={false}
 						/>
@@ -134,6 +132,7 @@ function ExtensionConfigPanel({
 				<div css={codeWrapperStyles}>
 					<CodeBlock
 						language="json"
+						// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 						text={JSON.stringify(fields, null, 4)}
 						showLineNumbers={false}
 					/>
@@ -160,7 +159,7 @@ export default function ConfigPanelWithExtensionPicker({
 }: {
 	extensionProvider: ExtensionProvider;
 	parameters?: Parameters;
-}) {
+}): jsx.JSX.Element {
 	const [hash, setHash] = useState<string>(getHashFromUrl());
 	const [extensionNode, setNodeAndParameters] = useState<CallbackParams>();
 	const [item, setItem] = useState<ExtensionModule>();
@@ -197,6 +196,7 @@ export default function ConfigPanelWithExtensionPicker({
 						selectedExtension={extensionKey}
 						selectedNode={nodeKey}
 						extensionProvider={extensionProvider}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onSelect={(params) => {
 							setNodeAndParameters(params);
 							setItem(params.item);

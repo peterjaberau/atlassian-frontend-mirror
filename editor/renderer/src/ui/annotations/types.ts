@@ -1,5 +1,5 @@
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
 import type { AnnotationProviders } from '@atlaskit/editor-common/types';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 
 export enum InsertDraftPosition {
 	AROUND_TEXT = 'AROUND_TEXT',

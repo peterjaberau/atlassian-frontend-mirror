@@ -1,20 +1,20 @@
-let mockRequest = jest.fn();
-jest.mock('@atlaskit/linking-common', () => ({
-	...jest.requireActual<Object>('@atlaskit/linking-common'),
+jest.mock('@atlaskit/linking-common/api', () => ({
+	...jest.requireActual('@atlaskit/linking-common/api'),
 	request: (...args: any) => mockRequest(...args),
 }));
 
-import { mocks } from './__fixtures__/mocks';
+import { APIError } from '@atlaskit/linking-common/api-error';
+import type { ErrorType } from '@atlaskit/linking-common/api/errors';
+import { InvalidUrlError } from '@atlaskit/linking-common/invalid-url-error';
+import { NetworkError } from '@atlaskit/linking-common/network-error';
+import { flushPromises } from '@atlaskit/media-test-helpers/flushPromises';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+
 import SmartCardClient, { urlResponsePromiseCache } from '..';
-import {
-	type ErrorResponseBody,
-	isSuccessfulResponse,
-	type SuccessResponse,
-} from '../types/responses';
-import { APIError, type ErrorType, NetworkError } from '@atlaskit/linking-common';
-import { flushPromises } from '@atlaskit/media-test-helpers';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isSuccessfulResponse } from '../types/isSuccessfulResponse';
+import type { ErrorResponseBody, SuccessResponse } from '../types/responses';
+import { mocks } from './__fixtures__/mocks';
 
 // Mock response quick-references:
 const errorResponse = {
@@ -35,6 +35,7 @@ const errorResponse429 = {
 let successfulResponse: SuccessResponse;
 let notFoundResponse: SuccessResponse;
 let unauthorizedResponse: SuccessResponse;
+let mockRequest: jest.Mock;
 
 const hostname = 'https://www.google.com';
 
@@ -150,7 +151,7 @@ describe('Smart Card: Client', () => {
 		expect(client.envKey).toEqual(envKey);
 	});
 
-	ffTest.both('platform_linking_force_no_cache_smart_card_client', '', () => {
+	describe('batching and error handling', () => {
 		it('successfully deduplicates requests made in batches in same execution frame', async () => {
 			mockRequest.mockImplementationOnce(mockRequestFn);
 			const client = new SmartCardClient();
@@ -243,17 +244,17 @@ describe('Smart Card: Client', () => {
 
 			await flushPromises();
 
-			expect(mockRequest).toBeCalledTimes(1);
+			expect(mockRequest).toHaveBeenCalledTimes(1);
 			expect(mockRequest.mock.calls[0][2]).toHaveLength(3);
 
 			jest.advanceTimersToNextTimer();
 			await flushPromises();
 
-			expect(mockRequest).toBeCalledTimes(2);
+			expect(mockRequest).toHaveBeenCalledTimes(2);
 		});
 
 		it('should handle errors in /batch endpoint', async () => {
-			expect.assertions(3);
+			expect.assertions(2);
 			mockRequest.mockImplementationOnce(async () =>
 				Promise.reject({
 					status: 400,
@@ -279,7 +280,7 @@ describe('Smart Card: Client', () => {
 		});
 
 		it('should handle errors containing error instance while fetching data', async () => {
-			expect.assertions(3);
+			expect.assertions(2);
 			mockRequest.mockImplementationOnce(async () => Promise.reject(new Error('test error')));
 			const client = new SmartCardClient();
 			const resourceUrl = 'https://i.love.cheese';
@@ -300,7 +301,7 @@ describe('Smart Card: Client', () => {
 		});
 
 		it('should handle errors containing error instance (child class) while fetching data', async () => {
-			expect.assertions(3);
+			expect.assertions(2);
 			class SomeSpecificError extends Error {}
 
 			mockRequest.mockImplementationOnce(async () =>
@@ -337,7 +338,7 @@ describe('Smart Card: Client', () => {
 		});
 
 		it('should return fallback error when error is a network error', async () => {
-			expect.assertions(3);
+			expect.assertions(2);
 			mockRequest.mockImplementationOnce(async () =>
 				Promise.reject(new NetworkError('some-network-error')),
 			);
@@ -350,6 +351,17 @@ describe('Smart Card: Client', () => {
 				expect(error.kind).toEqual('fallback');
 			}
 		});
+	});
+
+	it('should return InvalidUrlError error when url is invalid url', async () => {
+		const client = new SmartCardClient();
+		const invalidUrl = 'https://';
+		try {
+			await client.fetchData(invalidUrl);
+		} catch (error: any) {
+			expect(error).toBeInstanceOf(InvalidUrlError);
+			expect(error.name).toEqual('InvalidUrlError');
+		}
 	});
 
 	it('postData()', async () => {
@@ -379,61 +391,97 @@ describe('Smart Card: Client', () => {
 	});
 
 	describe('request headers', () => {
-		ffTest.both('platform_linking_force_no_cache_smart_card_client', '', () => {
-			it('should set the timezone header correctly in the request call', async () => {
-				mockRequest.mockImplementationOnce(async () => [successfulResponse]);
-				const client = new SmartCardClient('stg');
-				const resourceUrl = 'https://i.love.cheese';
-				const response = await client.fetchData(resourceUrl);
-				expect(mockRequest).toHaveBeenCalled();
-				expect(mockRequest).toHaveBeenCalledWith(
-					'post',
-					expect.stringMatching(/.*?pug\.jira-dev.*?\/resolve\/batch/),
-					[
-						{
-							resourceUrl,
-						},
-					],
-					{ 'origin-timezone': 'UTC' },
-				);
-				expect(response).toBe(mocks.success);
-			});
-
-			it('should set the timezone header correctly in the request call when timezone is not UTC', async () => {
-				const originalDateResolvedOptions = new Intl.DateTimeFormat().resolvedOptions();
-				const mockedTimeZone = jest
-					.spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions')
-					.mockReturnValue({
-						...originalDateResolvedOptions,
-						timeZone: 'Australia/Sydney',
-					});
-
-				mockRequest.mockImplementationOnce(async () => [successfulResponse]);
-				const client = new SmartCardClient('stg');
-				const resourceUrl = 'https://i.love.cheese';
-				const response = await client.fetchData(resourceUrl);
-				expect(mockRequest).toHaveBeenCalled();
-				expect(mockRequest).toHaveBeenCalledWith(
-					'post',
-					expect.stringMatching(/.*?pug\.jira-dev.*?\/resolve\/batch/),
-					[
-						{
-							resourceUrl,
-						},
-					],
-					{ 'origin-timezone': 'Australia/Sydney' },
-				);
-				expect(response).toBe(mocks.success);
-				mockedTimeZone.mockRestore();
-			});
+		it('should set the timezone header correctly in the request call', async () => {
+			mockRequest.mockImplementationOnce(async () => [successfulResponse]);
+			const client = new SmartCardClient('stg');
+			const resourceUrl = 'https://i.love.cheese';
+			const response = await client.fetchData(resourceUrl);
+			expect(mockRequest).toHaveBeenCalled();
+			expect(mockRequest).toHaveBeenCalledWith(
+				'post',
+				expect.stringMatching(/.*?pug\.jira-dev.*?\/resolve\/batch/),
+				[
+					{
+						resourceUrl,
+					},
+				],
+				{ 'origin-timezone': 'UTC' },
+			);
+			expect(response).toBe(mocks.success);
 		});
 
-		ffTest.on('platform_linking_force_no_cache_smart_card_client', '', () => {
-			it('should set the ignoreCachedValue:true in the request body when force is true', async () => {
+		it('should set the timezone header correctly in the request call when timezone is not UTC', async () => {
+			const originalDateResolvedOptions = new Intl.DateTimeFormat().resolvedOptions();
+			const mockedTimeZone = jest
+				.spyOn(Intl.DateTimeFormat.prototype, 'resolvedOptions')
+				.mockReturnValue({
+					...originalDateResolvedOptions,
+					timeZone: 'Australia/Sydney',
+				});
+
+			mockRequest.mockImplementationOnce(async () => [successfulResponse]);
+			const client = new SmartCardClient('stg');
+			const resourceUrl = 'https://i.love.cheese';
+			const response = await client.fetchData(resourceUrl);
+			expect(mockRequest).toHaveBeenCalled();
+			expect(mockRequest).toHaveBeenCalledWith(
+				'post',
+				expect.stringMatching(/.*?pug\.jira-dev.*?\/resolve\/batch/),
+				[
+					{
+						resourceUrl,
+					},
+				],
+				{ 'origin-timezone': 'Australia/Sydney' },
+			);
+			expect(response).toBe(mocks.success);
+			mockedTimeZone.mockRestore();
+		});
+		it('should set the ignoreCachedValue:true in the request body when force is true', async () => {
+			mockRequest.mockImplementationOnce(async () => [successfulResponse]);
+			const client = new SmartCardClient();
+			const resourceUrl = 'https://i.love.cheese';
+			const response = await client.fetchData(resourceUrl, true);
+			expect(mockRequest).toHaveBeenCalled();
+			expect(mockRequest).toHaveBeenCalledWith(
+				'post',
+				expectedDefaultResolveBatchUrl,
+				[
+					{
+						resourceUrl,
+						ignoreCachedValue: true,
+					},
+				],
+				expect.anything(),
+			);
+			expect(response).toBe(mocks.success);
+		});
+		it('should not set the ignoreCachedValue property in the request body when force is false', async () => {
+			mockRequest.mockImplementationOnce(async () => [successfulResponse]);
+			const client = new SmartCardClient();
+			const resourceUrl = 'https://i.love.cheese';
+			const response = await client.fetchData(resourceUrl, false);
+			expect(mockRequest).toHaveBeenCalled();
+			expect(mockRequest).toHaveBeenCalledWith(
+				'post',
+				expectedDefaultResolveBatchUrl,
+				[
+					{
+						resourceUrl,
+						ignoreCachedValue: undefined,
+					},
+				],
+				expect.anything(),
+			);
+			expect(response).toBe(mocks.success);
+		});
+
+		ffTest.on('platform_smartlink_inline_resolve_optimization', '', () => {
+			it('should pass appearance to request body when appearance is provided', async () => {
 				mockRequest.mockImplementationOnce(async () => [successfulResponse]);
 				const client = new SmartCardClient();
 				const resourceUrl = 'https://i.love.cheese';
-				const response = await client.fetchData(resourceUrl, true);
+				const response = await client.fetchData(resourceUrl, false, 'inline');
 				expect(mockRequest).toHaveBeenCalled();
 				expect(mockRequest).toHaveBeenCalledWith(
 					'post',
@@ -441,19 +489,65 @@ describe('Smart Card: Client', () => {
 					[
 						{
 							resourceUrl,
-							ignoreCachedValue: true,
+							ignoreCachedValue: undefined,
+							appearance: 'inline',
 						},
 					],
 					expect.anything(),
 				);
 				expect(response).toBe(mocks.success);
 			});
-			it('should not set the ignoreCachedValue property in the request body when force is false', async () => {
+
+			it('should pass block appearance for hover card metadata', async () => {
 				mockRequest.mockImplementationOnce(async () => [successfulResponse]);
 				const client = new SmartCardClient();
 				const resourceUrl = 'https://i.love.cheese';
-				const response = await client.fetchData(resourceUrl, false);
+				const response = await client.fetchData(resourceUrl, false, 'block');
 				expect(mockRequest).toHaveBeenCalled();
+				expect(mockRequest).toHaveBeenCalledWith(
+					'post',
+					expectedDefaultResolveBatchUrl,
+					[
+						{
+							resourceUrl,
+							ignoreCachedValue: undefined,
+							appearance: 'block',
+						},
+					],
+					expect.anything(),
+				);
+				expect(response).toBe(mocks.success);
+			});
+
+			it('should use different cache keys for different appearances', async () => {
+				mockRequest.mockImplementation(async () => [successfulResponse]);
+				const client = new SmartCardClient();
+				const resourceUrl = 'https://i.love.cheese';
+
+				// First call with inline appearance
+				await client.fetchData(resourceUrl, false, 'inline');
+				expect(mockRequest).toHaveBeenCalledTimes(1);
+
+				// Second call with same URL but block appearance should make new request
+				await client.fetchData(resourceUrl, false, 'block');
+				expect(mockRequest).toHaveBeenCalledTimes(2);
+
+				// Third call with inline appearance should use cached response
+				await client.fetchData(resourceUrl, false, 'inline');
+				expect(mockRequest).toHaveBeenCalledTimes(2);
+			});
+		});
+
+		ffTest.off('platform_smartlink_inline_resolve_optimization', '', () => {
+			it('should preserve legacy caching and payloads when appearance is provided', async () => {
+				mockRequest.mockImplementationOnce(async () => [successfulResponse]);
+				const client = new SmartCardClient();
+				const resourceUrl = 'https://i.love.cheese/legacy-appearance';
+
+				const inlineResponse = await client.fetchData(resourceUrl, false, 'inline');
+				const blockResponse = await client.fetchData(resourceUrl, false, 'block');
+
+				expect(mockRequest).toHaveBeenCalledTimes(1);
 				expect(mockRequest).toHaveBeenCalledWith(
 					'post',
 					expectedDefaultResolveBatchUrl,
@@ -465,8 +559,170 @@ describe('Smart Card: Client', () => {
 					],
 					expect.anything(),
 				);
-				expect(response).toBe(mocks.success);
+				expect(inlineResponse).toBe(mocks.success);
+				expect(blockResponse).toBe(mocks.success);
 			});
+		});
+
+		describe('when platform_smartlink_inline_resolve_optimization is enabled', () => {
+			beforeEach(() => {
+				passGate('platform_smartlink_inline_resolve_optimization');
+			});
+
+			it.each([
+				['inline before block', ['inline', 'block'] as const],
+				['block before inline', ['block', 'inline'] as const],
+			])(
+				'should preserve concurrent appearance payloads when batching %s',
+				async (_name, order) => {
+					const inlineBody = {
+						...mocks.success,
+						data: { ...mocks.success.data, name: 'Inline response' },
+					};
+					const blockBody = {
+						...mocks.success,
+						data: { ...mocks.success.data, name: 'Block response' },
+					};
+					mockRequest.mockImplementationOnce(async (_method, _url, resources) =>
+						resources.map(({ appearance }: { appearance: 'block' | 'inline' }) => ({
+							status: 200,
+							body: appearance === 'inline' ? inlineBody : blockBody,
+						})),
+					);
+					const client = new SmartCardClient();
+					const resourceUrl = 'https://i.love.cheese/concurrent';
+
+					const responses = await Promise.all(
+						order.map((appearance) => client.fetchData(resourceUrl, false, appearance)),
+					);
+					const responsesByAppearance = Object.fromEntries(
+						order.map((appearance, index) => [appearance, responses[index]]),
+					);
+
+					expect(mockRequest).toHaveBeenCalledTimes(1);
+					expect(mockRequest).toHaveBeenCalledWith(
+						'post',
+						expectedDefaultResolveBatchUrl,
+						expect.arrayContaining([
+							{
+								resourceUrl,
+								ignoreCachedValue: undefined,
+								appearance: 'inline',
+							},
+							{
+								resourceUrl,
+								ignoreCachedValue: undefined,
+								appearance: 'block',
+							},
+						]),
+						expect.anything(),
+					);
+					expect(mockRequest.mock.calls[0][2]).toHaveLength(2);
+					expect(responsesByAppearance.inline).toBe(inlineBody);
+					expect(responsesByAppearance.block).toBe(blockBody);
+				},
+			);
+		});
+
+		describe('when platform_smartlink_inline_resolve_optimization is disabled', () => {
+			beforeEach(() => {
+				failGate('platform_smartlink_inline_resolve_optimization');
+			});
+
+			it.each([
+				['inline before block', ['inline', 'block'] as const],
+				['block before inline', ['block', 'inline'] as const],
+			])('should preserve legacy URL-only caching when batching %s', async (_name, order) => {
+				mockRequest.mockImplementationOnce(async () => [successfulResponse]);
+				const client = new SmartCardClient();
+				const resourceUrl = 'https://i.love.cheese/concurrent-legacy';
+
+				const responses = await Promise.all(
+					order.map((appearance) => client.fetchData(resourceUrl, false, appearance)),
+				);
+				const responsesByAppearance = Object.fromEntries(
+					order.map((appearance, index) => [appearance, responses[index]]),
+				);
+
+				expect(mockRequest).toHaveBeenCalledTimes(1);
+				expect(mockRequest).toHaveBeenCalledWith(
+					'post',
+					expectedDefaultResolveBatchUrl,
+					[
+						{
+							resourceUrl,
+							ignoreCachedValue: undefined,
+						},
+					],
+					expect.anything(),
+				);
+				expect(responsesByAppearance.inline).toBe(mocks.success);
+				expect(responsesByAppearance.block).toBe(mocks.success);
+			});
+		});
+
+		it('should reuse an optimized block request that is already in progress', async () => {
+			passGate('platform_smartlink_inline_resolve_optimization');
+			let resolveRequest: (responses: SuccessResponse[]) => void = () => {};
+			let markRequestStarted: () => void = () => {};
+			const requestStarted = new Promise<void>((resolve) => {
+				markRequestStarted = resolve;
+			});
+			mockRequest.mockImplementationOnce(() => {
+				markRequestStarted();
+				return new Promise((resolve) => {
+					resolveRequest = resolve;
+				});
+			});
+			const client = new SmartCardClient();
+			const resourceUrl = 'https://i.love.cheese/in-flight-block';
+
+			const firstResponse = client.fetchData(resourceUrl, true, 'block');
+			const secondResponse = client.fetchData(resourceUrl, true, 'block');
+
+			await requestStarted;
+			expect(mockRequest).toHaveBeenCalledTimes(1);
+			resolveRequest([successfulResponse]);
+			await expect(Promise.all([firstResponse, secondResponse])).resolves.toEqual([
+				mocks.success,
+				mocks.success,
+			]);
+		});
+
+		it('should not reuse a non-forced optimized block request for a forced request', async () => {
+			passGate('platform_smartlink_inline_resolve_optimization');
+			mockRequest.mockImplementationOnce(async (_method, _url, resources) =>
+				resources.map(() => successfulResponse),
+			);
+			const client = new SmartCardClient();
+			const resourceUrl = 'https://i.love.cheese/in-flight-block-force';
+
+			const cachedResponse = client.fetchData(resourceUrl, false, 'block');
+			const forcedResponse = client.fetchData(resourceUrl, true, 'block');
+
+			await expect(Promise.all([cachedResponse, forcedResponse])).resolves.toEqual([
+				mocks.success,
+				mocks.success,
+			]);
+			expect(mockRequest).toHaveBeenCalledTimes(1);
+			expect(mockRequest).toHaveBeenCalledWith(
+				'post',
+				expectedDefaultResolveBatchUrl,
+				expect.arrayContaining([
+					{
+						resourceUrl,
+						ignoreCachedValue: undefined,
+						appearance: 'block',
+					},
+					{
+						resourceUrl,
+						ignoreCachedValue: true,
+						appearance: 'block',
+					},
+				]),
+				expect.anything(),
+			);
+			expect(mockRequest.mock.calls[0][2]).toHaveLength(2);
 		});
 
 		it('should support setting custom headers to the request', async () => {
@@ -773,7 +1029,12 @@ describe('Smart Card: Client', () => {
 
 			expect(responses).toEqual([mocks.success, mocks.unauthorized, mocks.notFound]);
 			expect(mockRequest).toHaveBeenCalledTimes(1);
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('initial request');
+			expect(mockRequest.mock.calls[0]).toEqual([
+				'post',
+				'/gateway/api/object-resolver/resolve/batch',
+				expect.any(Array),
+				{ 'origin-timezone': 'UTC' },
+			]);
 		});
 
 		it('successfully triggers prefetching of data with exponential backoff for an errored URL which recovers', async () => {
@@ -797,9 +1058,18 @@ describe('Smart Card: Client', () => {
 
 			expect(responses).toEqual([mocks.success, mocks.unauthorized, mocks.success]);
 			expect(mockRequest).toHaveBeenCalledTimes(3);
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('initial request');
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('retry attempt 1');
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('retry attempt 2');
+			expect(mockRequest.mock.calls[0]).toEqual([
+				'post',
+				'/gateway/api/object-resolver/resolve/batch',
+				expect.any(Array),
+				{ 'origin-timezone': 'UTC' },
+			]);
+			expect(mockRequest.mock.calls[1]).toEqual([
+				'post',
+				'/gateway/api/object-resolver/resolve/batch',
+				expect.any(Array),
+				{ 'origin-timezone': 'UTC' },
+			]);
 		});
 
 		it('fails silently when prefetching data with exponential backoff for an errored URL which does not recover', async () => {
@@ -830,10 +1100,24 @@ describe('Smart Card: Client', () => {
 			]);
 
 			expect(mockRequest).toHaveBeenCalledTimes(4);
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('initial request');
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('retry attempt 1');
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('retry attempt 2');
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('retry attempt 3');
+			expect(mockRequest.mock.calls[0]).toEqual([
+				'post',
+				'/gateway/api/object-resolver/resolve/batch',
+				expect.any(Array),
+				{ 'origin-timezone': 'UTC' },
+			]);
+			expect(mockRequest.mock.calls[1]).toEqual([
+				'post',
+				'/gateway/api/object-resolver/resolve/batch',
+				expect.any(Array),
+				{ 'origin-timezone': 'UTC' },
+			]);
+			expect(mockRequest.mock.calls[0]).toEqual([
+				'post',
+				'/gateway/api/object-resolver/resolve/batch',
+				expect.any(Array),
+				{ 'origin-timezone': 'UTC' },
+			]);
 		});
 
 		it('fails silently when prefetching data (stops prefetching) with exponential backoff for an errored URL which recovers with fetch flow', async () => {
@@ -879,9 +1163,18 @@ describe('Smart Card: Client', () => {
 			]);
 
 			expect(mockRequest).toHaveBeenCalledTimes(2);
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('fetch request');
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('initial request');
-			expect(mockRequest.mock.calls.shift()).toMatchSnapshot('retry attempt 1');
+			expect(mockRequest.mock.calls[0]).toEqual([
+				'post',
+				'/gateway/api/object-resolver/resolve/batch',
+				expect.any(Array),
+				{ 'origin-timezone': 'UTC' },
+			]);
+			expect(mockRequest.mock.calls[1]).toEqual([
+				'post',
+				'/gateway/api/object-resolver/resolve/batch',
+				expect.any(Array),
+				{ 'origin-timezone': 'UTC' },
+			]);
 		});
 	});
 
@@ -1149,337 +1442,335 @@ describe('Smart Card: Client', () => {
 });
 
 describe('Smart Card Client with url caching', () => {
-	ffTest.both('platform_linking_force_no_cache_smart_card_client', '', () => {
-		it('should not make second call for the same url when response is successful', async () => {
-			mockRequest.mockImplementation(mockRequestFn);
-			const client = new SmartCardClient();
+	it('should not make second call for the same url when response is successful', async () => {
+		mockRequest.mockImplementation(mockRequestFn);
+		const client = new SmartCardClient();
 
-			// Since there is one call (notSupported) that will throw an exception, we can't use Promise.all
-			// But we do want them all end up in the same batch.
-			const firstSuccessResponsePromise = client.fetchData(`${hostname}/first/success`);
-			const secondSuccessResponsePromise = client.fetchData(`${hostname}/second/success`);
-			const notFoundResponsePromise = client.fetchData(`${hostname}/notFound`);
-			const forbiddenResponsePromise = client.fetchData(`${hostname}/forbidden`);
-			const unauthResponsePromise = client.fetchData(`${hostname}/unauthorized`);
-			const notSupportedPromise = client.fetchData(`${hostname}/notSupported`);
+		// Since there is one call (notSupported) that will throw an exception, we can't use Promise.all
+		// But we do want them all end up in the same batch.
+		const firstSuccessResponsePromise = client.fetchData(`${hostname}/first/success`);
+		const secondSuccessResponsePromise = client.fetchData(`${hostname}/second/success`);
+		const notFoundResponsePromise = client.fetchData(`${hostname}/notFound`);
+		const forbiddenResponsePromise = client.fetchData(`${hostname}/forbidden`);
+		const unauthResponsePromise = client.fetchData(`${hostname}/unauthorized`);
+		const notSupportedPromise = client.fetchData(`${hostname}/notSupported`);
 
-			const [
-				firstSuccessResponse,
-				secondSuccessResponse,
-				notFoundResponse,
-				forbiddenResponse,
-				unauthResponse,
-			] = await Promise.all([
-				firstSuccessResponsePromise,
-				secondSuccessResponsePromise,
-				notFoundResponsePromise,
-				forbiddenResponsePromise,
-				unauthResponsePromise,
-			]);
+		const [
+			firstSuccessResponse,
+			secondSuccessResponse,
+			notFoundResponse,
+			forbiddenResponse,
+			unauthResponse,
+		] = await Promise.all([
+			firstSuccessResponsePromise,
+			secondSuccessResponsePromise,
+			notFoundResponsePromise,
+			forbiddenResponsePromise,
+			unauthResponsePromise,
+		]);
 
-			try {
-				await notSupportedPromise;
-			} catch (apiError: any) {
-				expect(apiError.type).toEqual('ResolveUnsupportedError');
-			}
+		try {
+			await notSupportedPromise;
+		} catch (apiError: any) {
+			expect(apiError.type).toEqual('ResolveUnsupportedError');
+		}
 
-			expect(mockRequest).toHaveBeenCalledTimes(1);
-			expect(mockRequest).toHaveBeenCalledWith(
-				'post',
-				expectedDefaultResolveBatchUrl,
-				[
-					{
-						resourceUrl: `${hostname}/first/success`,
-					},
-					{
-						resourceUrl: `${hostname}/second/success`,
-					},
-					{
-						resourceUrl: `${hostname}/notFound`,
-					},
-					{
-						resourceUrl: `${hostname}/forbidden`,
-					},
-					{
-						resourceUrl: `${hostname}/unauthorized`,
-					},
-					{
-						resourceUrl: `${hostname}/notSupported`,
-					},
-				],
+		expect(mockRequest).toHaveBeenCalledTimes(1);
+		expect(mockRequest).toHaveBeenCalledWith(
+			'post',
+			expectedDefaultResolveBatchUrl,
+			[
 				{
-					'origin-timezone': 'UTC',
+					resourceUrl: `${hostname}/first/success`,
 				},
-			);
-			expect(firstSuccessResponse).toBe(mocks.success);
-			expect(secondSuccessResponse).toBe(mocks.success);
-			expect(notFoundResponse).toBe(mocks.notFound);
-			expect(forbiddenResponse).toBe(mocks.forbidden);
-			expect(unauthResponse).toBe(mocks.unauthorized);
-			expect(unauthResponse).toBe(mocks.unauthorized);
-
-			const firstSuccessSecondResponsePromise = client.fetchData(`${hostname}/first/success`);
-			const thirdSuccessResponsePromise = client.fetchData(`${hostname}/third/success`);
-			const notFoundSecondResponsePromise = client.fetchData(`${hostname}/notFound`);
-			const forbiddenSecondResponsePromise = client.fetchData(`${hostname}/forbidden`);
-			const unauthSecondResponsePromise = client.fetchData(`${hostname}/unauthorized`);
-			const notSupportedSecondPromise = client.fetchData(`${hostname}/notSupported`);
-
-			const [
-				firstSuccessSecondResponse,
-				thirdSuccessResponse,
-				notFoundSecondResponse,
-				forbiddenSecondResponse,
-				unauthSecondResponse,
-			] = await Promise.all([
-				firstSuccessSecondResponsePromise,
-				thirdSuccessResponsePromise,
-				notFoundSecondResponsePromise,
-				forbiddenSecondResponsePromise,
-				unauthSecondResponsePromise,
-			]);
-
-			try {
-				await notSupportedSecondPromise;
-			} catch (apiError: any) {
-				expect(apiError.type).toEqual('ResolveUnsupportedError');
-			}
-
-			expect(mockRequest).toHaveBeenCalledTimes(2);
-
-			expect(mockRequest).toHaveBeenCalledWith(
-				'post',
-				expectedDefaultResolveBatchUrl,
-				[
-					// First url was already requested before and shuoldn't happen again.
-					// {
-					//   resourceUrl: `first.${hostname}/success`,
-					// },
-
-					// This is new url, so it should go ahead
-					{
-						resourceUrl: `${hostname}/third/success`,
-					},
-
-					// All non-success cases shouldn't be cached and so be called again.
-					{
-						resourceUrl: `${hostname}/notFound`,
-					},
-					{
-						resourceUrl: `${hostname}/forbidden`,
-					},
-					{
-						resourceUrl: `${hostname}/unauthorized`,
-					},
-					{
-						resourceUrl: `${hostname}/notSupported`,
-					},
-				],
 				{
-					'origin-timezone': 'UTC',
+					resourceUrl: `${hostname}/second/success`,
 				},
-			);
+				{
+					resourceUrl: `${hostname}/notFound`,
+				},
+				{
+					resourceUrl: `${hostname}/forbidden`,
+				},
+				{
+					resourceUrl: `${hostname}/unauthorized`,
+				},
+				{
+					resourceUrl: `${hostname}/notSupported`,
+				},
+			],
+			{
+				'origin-timezone': 'UTC',
+			},
+		);
+		expect(firstSuccessResponse).toBe(mocks.success);
+		expect(secondSuccessResponse).toBe(mocks.success);
+		expect(notFoundResponse).toBe(mocks.notFound);
+		expect(forbiddenResponse).toBe(mocks.forbidden);
+		expect(unauthResponse).toBe(mocks.unauthorized);
+		expect(unauthResponse).toBe(mocks.unauthorized);
 
-			expect(firstSuccessSecondResponse).toBe(mocks.success);
-			expect(thirdSuccessResponse).toBe(mocks.success);
-			expect(notFoundSecondResponse).toBe(mocks.notFound);
-			expect(forbiddenSecondResponse).toBe(mocks.forbidden);
-			expect(unauthSecondResponse).toBe(mocks.unauthorized);
+		const firstSuccessSecondResponsePromise = client.fetchData(`${hostname}/first/success`);
+		const thirdSuccessResponsePromise = client.fetchData(`${hostname}/third/success`);
+		const notFoundSecondResponsePromise = client.fetchData(`${hostname}/notFound`);
+		const forbiddenSecondResponsePromise = client.fetchData(`${hostname}/forbidden`);
+		const unauthSecondResponsePromise = client.fetchData(`${hostname}/unauthorized`);
+		const notSupportedSecondPromise = client.fetchData(`${hostname}/notSupported`);
+
+		const [
+			firstSuccessSecondResponse,
+			thirdSuccessResponse,
+			notFoundSecondResponse,
+			forbiddenSecondResponse,
+			unauthSecondResponse,
+		] = await Promise.all([
+			firstSuccessSecondResponsePromise,
+			thirdSuccessResponsePromise,
+			notFoundSecondResponsePromise,
+			forbiddenSecondResponsePromise,
+			unauthSecondResponsePromise,
+		]);
+
+		try {
+			await notSupportedSecondPromise;
+		} catch (apiError: any) {
+			expect(apiError.type).toEqual('ResolveUnsupportedError');
+		}
+
+		expect(mockRequest).toHaveBeenCalledTimes(2);
+
+		expect(mockRequest).toHaveBeenCalledWith(
+			'post',
+			expectedDefaultResolveBatchUrl,
+			[
+				// First url was already requested before and shuoldn't happen again.
+				// {
+				//   resourceUrl: `first.${hostname}/success`,
+				// },
+
+				// This is new url, so it should go ahead
+				{
+					resourceUrl: `${hostname}/third/success`,
+				},
+
+				// All non-success cases shouldn't be cached and so be called again.
+				{
+					resourceUrl: `${hostname}/notFound`,
+				},
+				{
+					resourceUrl: `${hostname}/forbidden`,
+				},
+				{
+					resourceUrl: `${hostname}/unauthorized`,
+				},
+				{
+					resourceUrl: `${hostname}/notSupported`,
+				},
+			],
+			{
+				'origin-timezone': 'UTC',
+			},
+		);
+
+		expect(firstSuccessSecondResponse).toBe(mocks.success);
+		expect(thirdSuccessResponse).toBe(mocks.success);
+		expect(notFoundSecondResponse).toBe(mocks.notFound);
+		expect(forbiddenSecondResponse).toBe(mocks.forbidden);
+		expect(unauthSecondResponse).toBe(mocks.unauthorized);
+	});
+
+	it('should make second call for the same url when response is successful if force flag is set', async () => {
+		mockRequest.mockImplementation(mockRequestFn);
+		const client = new SmartCardClient();
+
+		const firstSuccessResponse = await client.fetchData(`${hostname}/first/success`, true);
+
+		const firstSuccessSecondResponse = await client.fetchData(`${hostname}/first/success`, true);
+
+		expect(firstSuccessResponse).toBe(mocks.success);
+		expect(firstSuccessSecondResponse).toBe(mocks.success);
+
+		expect(mockRequest).toHaveBeenCalledTimes(2);
+		expect(mockRequest.mock.calls[0]).toEqual([
+			'post',
+			expectedDefaultResolveBatchUrl,
+			[
+				{
+					ignoreCachedValue: true,
+					resourceUrl: `${hostname}/first/success`,
+				},
+			],
+			{ 'origin-timezone': 'UTC' },
+		]);
+		expect(mockRequest.mock.calls[1]).toEqual([
+			'post',
+			expectedDefaultResolveBatchUrl,
+			[
+				{
+					ignoreCachedValue: true,
+					resourceUrl: `${hostname}/first/success`,
+				},
+			],
+			{
+				'origin-timezone': 'UTC',
+			},
+		]);
+	});
+
+	it('should have limited cache', async () => {
+		mockRequest.mockImplementation(mockRequestFn);
+		const client = new SmartCardClient();
+
+		// Requests 0..99. Should fill in full cache
+		const requestPromises = Array(100)
+			.fill(null)
+			.map((_, i) => client.fetchData(`${hostname}/${i}/success`));
+		await Promise.all(requestPromises);
+		// Two batches of 50
+		expect(mockRequest).toHaveBeenCalledTimes(2);
+
+		// Requests 100..109. Should remove first 10 cached requests out.
+		const requestPromises2 = Array(10)
+			.fill(null)
+			.map((_, i) => client.fetchData(`${hostname}/${i + 100}/success`));
+		await Promise.all(requestPromises2);
+		expect(mockRequest).toHaveBeenCalledTimes(3);
+
+		// Requests 0..09
+		const requestPromises3 = Array(10)
+			.fill(null)
+			.map((_, i) => client.fetchData(`${hostname}/${i}/success`));
+		await Promise.all(requestPromises3);
+		// If cache was unlimited these results would be taken from cache and next assertion would fail.
+		expect(mockRequest).toHaveBeenCalledTimes(4);
+	});
+
+	it('should not initiate second call for the same url if already in progress', async () => {
+		let delayedPromiseResolve1: Function = () => {};
+		let delayedPromiseResolve2: Function = () => {};
+
+		const delayedPromise1 = new Promise((resolve) => {
+			delayedPromiseResolve1 = resolve;
+		});
+		const delayedPromise2 = new Promise((resolve) => {
+			delayedPromiseResolve2 = resolve;
 		});
 
-		it('should make second call for the same url when response is successful if force flag is set', async () => {
-			mockRequest.mockImplementation(mockRequestFn);
-			const client = new SmartCardClient();
+		mockRequest.mockReturnValueOnce(delayedPromise1);
+		mockRequest.mockReturnValueOnce(delayedPromise2);
 
-			const firstSuccessResponse = await client.fetchData(`${hostname}/first/success`, true);
+		const client = new SmartCardClient();
 
-			const firstSuccessSecondResponse = await client.fetchData(`${hostname}/first/success`, true);
+		const firstSuccessResponsePromise = client.fetchData(`${hostname}/first/success`);
 
-			expect(firstSuccessResponse).toBe(mocks.success);
-			expect(firstSuccessSecondResponse).toBe(mocks.success);
+		await flushPromises();
 
-			expect(mockRequest).toHaveBeenCalledTimes(2);
-			expect(mockRequest.mock.calls[0]).toEqual([
-				'post',
-				expectedDefaultResolveBatchUrl,
-				[
-					{
-						ignoreCachedValue: fg('platform_linking_force_no_cache_smart_card_client') || undefined,
-						resourceUrl: `${hostname}/first/success`,
-					},
-				],
-				{ 'origin-timezone': 'UTC' },
-			]);
-			expect(mockRequest.mock.calls[1]).toEqual([
-				'post',
-				expectedDefaultResolveBatchUrl,
-				[
-					{
-						ignoreCachedValue: fg('platform_linking_force_no_cache_smart_card_client') || undefined,
-						resourceUrl: `${hostname}/first/success`,
-					},
-				],
+		const secondSuccessResponsePromise = client.fetchData(`${hostname}/first/success`);
+
+		delayedPromiseResolve1([successfulResponse]);
+
+		const firstSuccessResponse = await firstSuccessResponsePromise;
+
+		delayedPromiseResolve2([successfulResponse]);
+
+		const secondSuccessResponse = await secondSuccessResponsePromise;
+
+		expect(mockRequest).toHaveBeenCalledTimes(1);
+		expect(mockRequest).toHaveBeenCalledWith(
+			'post',
+			expectedDefaultResolveBatchUrl,
+			[
 				{
-					'origin-timezone': 'UTC',
+					resourceUrl: `${hostname}/first/success`,
 				},
-			]);
-		});
+			],
+			{
+				'origin-timezone': 'UTC',
+			},
+		);
+		expect(firstSuccessResponse).toBe(mocks.success);
+		expect(secondSuccessResponse).toBe(mocks.success);
+	});
 
-		it('should have limited cache', async () => {
-			mockRequest.mockImplementation(mockRequestFn);
-			const client = new SmartCardClient();
+	it('should not cache request that end with promise rejection', async () => {
+		mockRequest.mockRejectedValueOnce([new Error('some error')]);
+		mockRequest.mockResolvedValueOnce([successfulResponse]);
 
-			// Requests 0..99. Should fill in full cache
-			const requestPromises = Array(100)
-				.fill(null)
-				.map((_, i) => client.fetchData(`${hostname}/${i}/success`));
-			await Promise.all(requestPromises);
-			// Two batches of 50
-			expect(mockRequest).toHaveBeenCalledTimes(2);
+		const client = new SmartCardClient();
 
-			// Requests 100..109. Should remove first 10 cached requests out.
-			const requestPromises2 = Array(10)
-				.fill(null)
-				.map((_, i) => client.fetchData(`${hostname}/${i + 100}/success`));
-			await Promise.all(requestPromises2);
-			expect(mockRequest).toHaveBeenCalledTimes(3);
+		const failedResponsePromise = client.fetchData(`${hostname}/first/success`);
 
-			// Requests 0..09
-			const requestPromises3 = Array(10)
-				.fill(null)
-				.map((_, i) => client.fetchData(`${hostname}/${i}/success`));
-			await Promise.all(requestPromises3);
-			// If cache was unlimited these results would be taken from cache and next assertion would fail.
-			expect(mockRequest).toHaveBeenCalledTimes(4);
-		});
+		await flushPromises();
 
-		it('should not initiate second call for the same url if already in progress', async () => {
-			let delayedPromiseResolve1: Function = () => {};
-			let delayedPromiseResolve2: Function = () => {};
+		try {
+			await failedResponsePromise;
+		} catch (e) {
+			expect(e).toEqual(expect.any(Error));
+		}
 
-			const delayedPromise1 = new Promise((resolve) => {
-				delayedPromiseResolve1 = resolve;
-			});
-			const delayedPromise2 = new Promise((resolve) => {
-				delayedPromiseResolve2 = resolve;
-			});
+		const successResponsePromise = await client.fetchData(`${hostname}/first/success`);
 
-			mockRequest.mockReturnValueOnce(delayedPromise1);
-			mockRequest.mockReturnValueOnce(delayedPromise2);
-
-			const client = new SmartCardClient();
-
-			const firstSuccessResponsePromise = client.fetchData(`${hostname}/first/success`);
-
-			await flushPromises();
-
-			const secondSuccessResponsePromise = client.fetchData(`${hostname}/first/success`);
-
-			delayedPromiseResolve1([successfulResponse]);
-
-			const firstSuccessResponse = await firstSuccessResponsePromise;
-
-			delayedPromiseResolve2([successfulResponse]);
-
-			const secondSuccessResponse = await secondSuccessResponsePromise;
-
-			expect(mockRequest).toHaveBeenCalledTimes(1);
-			expect(mockRequest).toHaveBeenCalledWith(
-				'post',
-				expectedDefaultResolveBatchUrl,
-				[
-					{
-						resourceUrl: `${hostname}/first/success`,
-					},
-				],
+		expect(mockRequest).toHaveBeenCalledTimes(2);
+		expect(mockRequest).toHaveBeenCalledWith(
+			'post',
+			expectedDefaultResolveBatchUrl,
+			[
 				{
-					'origin-timezone': 'UTC',
+					resourceUrl: `${hostname}/first/success`,
 				},
-			);
-			expect(firstSuccessResponse).toBe(mocks.success);
-			expect(secondSuccessResponse).toBe(mocks.success);
+			],
+			{
+				'origin-timezone': 'UTC',
+			},
+		);
+		expect(successResponsePromise).toBe(mocks.success);
+	});
+
+	it('should use cache between prefetchData and fetchData calls', async () => {
+		let delayedPromiseResolve1: Function = () => {};
+		let delayedPromiseResolve2: Function = () => {};
+
+		const delayedPromise1 = new Promise((resolve) => {
+			delayedPromiseResolve1 = resolve;
+		});
+		const delayedPromise2 = new Promise((resolve) => {
+			delayedPromiseResolve2 = resolve;
 		});
 
-		it('should not cache request that end with promise rejection', async () => {
-			mockRequest.mockRejectedValueOnce([new Error('some error')]);
-			mockRequest.mockResolvedValueOnce([successfulResponse]);
+		mockRequest.mockReturnValueOnce(delayedPromise1);
+		mockRequest.mockReturnValueOnce(delayedPromise2);
 
-			const client = new SmartCardClient();
+		const client = new SmartCardClient();
 
-			const failedResponsePromise = client.fetchData(`${hostname}/first/success`);
+		const firstSuccessResponsePromise = client.fetchData(`${hostname}/first/success`);
 
-			await flushPromises();
+		await flushPromises();
 
-			try {
-				await failedResponsePromise;
-			} catch (e) {
-				expect(e).toEqual(expect.any(Error));
-			}
+		const secondSuccessResponsePromise = client.prefetchData(`${hostname}/first/success`);
 
-			const successResponsePromise = await client.fetchData(`${hostname}/first/success`);
+		delayedPromiseResolve1([successfulResponse]);
 
-			expect(mockRequest).toHaveBeenCalledTimes(2);
-			expect(mockRequest).toHaveBeenCalledWith(
-				'post',
-				expectedDefaultResolveBatchUrl,
-				[
-					{
-						resourceUrl: `${hostname}/first/success`,
-					},
-				],
+		const firstSuccessResponse = await firstSuccessResponsePromise;
+
+		delayedPromiseResolve2([successfulResponse]);
+
+		const secondSuccessResponse = await secondSuccessResponsePromise;
+
+		expect(mockRequest).toHaveBeenCalledTimes(1);
+		expect(mockRequest).toHaveBeenCalledWith(
+			'post',
+			expectedDefaultResolveBatchUrl,
+			[
 				{
-					'origin-timezone': 'UTC',
+					resourceUrl: `${hostname}/first/success`,
 				},
-			);
-			expect(successResponsePromise).toBe(mocks.success);
-		});
-
-		it('should use cache between prefetchData and fetchData calls', async () => {
-			let delayedPromiseResolve1: Function = () => {};
-			let delayedPromiseResolve2: Function = () => {};
-
-			const delayedPromise1 = new Promise((resolve) => {
-				delayedPromiseResolve1 = resolve;
-			});
-			const delayedPromise2 = new Promise((resolve) => {
-				delayedPromiseResolve2 = resolve;
-			});
-
-			mockRequest.mockReturnValueOnce(delayedPromise1);
-			mockRequest.mockReturnValueOnce(delayedPromise2);
-
-			const client = new SmartCardClient();
-
-			const firstSuccessResponsePromise = client.fetchData(`${hostname}/first/success`);
-
-			await flushPromises();
-
-			const secondSuccessResponsePromise = client.prefetchData(`${hostname}/first/success`);
-
-			delayedPromiseResolve1([successfulResponse]);
-
-			const firstSuccessResponse = await firstSuccessResponsePromise;
-
-			delayedPromiseResolve2([successfulResponse]);
-
-			const secondSuccessResponse = await secondSuccessResponsePromise;
-
-			expect(mockRequest).toHaveBeenCalledTimes(1);
-			expect(mockRequest).toHaveBeenCalledWith(
-				'post',
-				expectedDefaultResolveBatchUrl,
-				[
-					{
-						resourceUrl: `${hostname}/first/success`,
-					},
-				],
-				{
-					'origin-timezone': 'UTC',
-				},
-			);
-			expect(firstSuccessResponse).toBe(mocks.success);
-			expect(secondSuccessResponse).toBe(mocks.success);
-		});
+			],
+			{
+				'origin-timezone': 'UTC',
+			},
+		);
+		expect(firstSuccessResponse).toBe(mocks.success);
+		expect(secondSuccessResponse).toBe(mocks.success);
 	});
 });
 

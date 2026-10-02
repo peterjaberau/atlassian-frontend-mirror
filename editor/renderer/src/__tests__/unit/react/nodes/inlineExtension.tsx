@@ -1,16 +1,18 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import InlineExtension from '../../../../react/nodes/inlineExtension';
-import type { RendererContext } from '../../../../react/types';
+
+import { act, render } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
+import Loadable from 'react-loadable';
+
 import { getSchemaBasedOnStage } from '@atlaskit/adf-schema/schema-default';
 import { combineExtensionProviders } from '@atlaskit/editor-common/extensions';
 import type { ExtensionHandlers } from '@atlaskit/editor-common/extensions';
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { createFakeExtensionProvider } from '@atlaskit/editor-test-helpers/extensions';
-import { IntlProvider } from 'react-intl-next';
-import Loadable from 'react-loadable';
-import { act } from 'react-dom/test-utils';
+
+import InlineExtension from '../../../../react/nodes/inlineExtension';
+import type { RendererContext } from '../../../../react/types';
 
 describe('Renderer - React/Nodes/InlineExtension', () => {
 	const providerFactory = ProviderFactory.create({});
@@ -61,7 +63,7 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 	};
 
 	it('should be able to fall back to default content', () => {
-		const extension = mount(
+		const { container } = render(
 			<InlineExtension
 				providers={providerFactory}
 				extensionHandlers={extensionHandlers}
@@ -73,12 +75,11 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 			/>,
 		);
 
-		expect(extension.find('span').first().text()).toEqual('This is the default text');
-		extension.unmount();
+		expect(container.querySelector('span')?.textContent).toEqual('This is the default text');
 	});
 
 	it('should be able to render React.Element from extensionHandler', () => {
-		const extension = mount(
+		const { container } = render(
 			<InlineExtension
 				providers={providerFactory}
 				extensionHandlers={extensionHandlers}
@@ -89,12 +90,11 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 			/>,
 		);
 
-		expect(extension.find('span').first().text()).toEqual('This is a react element');
-		extension.unmount();
+		expect(container.querySelector('span')?.textContent).toEqual('This is a react element');
 	});
 
 	it('should render the default content if extensionHandler throws an exception', () => {
-		const extension = mount(
+		const { container } = render(
 			<InlineExtension
 				providers={providerFactory}
 				extensionHandlers={extensionHandlers}
@@ -105,8 +105,22 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 			/>,
 		);
 
-		expect(extension.find('span').first().text()).toEqual('inlineExtension');
-		extension.unmount();
+		expect(container.querySelector('span')?.textContent).toEqual('inlineExtension');
+	});
+
+	it('should capture and report a11y violations', async () => {
+		const { container } = render(
+			<InlineExtension
+				providers={providerFactory}
+				extensionHandlers={extensionHandlers}
+				rendererContext={rendererContext}
+				extensionType="com.atlassian.fabric"
+				extensionKey="react"
+				localId="c145e554-f571-4208-a0f1-2170e1987722"
+			/>,
+		);
+
+		await expect(container).toBeAccessible();
 	});
 
 	it('extension handler should receive type = inlineExtension', () => {
@@ -120,7 +134,7 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 			localId: fragmentLocalId,
 		});
 
-		const extension = mount(
+		render(
 			<InlineExtension
 				providers={providerFactory}
 				extensionHandlers={extensionHandlers}
@@ -141,8 +155,6 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 			localId: 'c145e554-f571-4208-a0f1-2170e1987722',
 			fragmentLocalId,
 		});
-
-		extension.unmount();
 	});
 
 	describe('extension providers', () => {
@@ -163,7 +175,7 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 		});
 
 		it('should be able to render extensions with the extension provider', async () => {
-			const extension = mount(
+			const { container } = render(
 				<IntlProvider locale="en">
 					<InlineExtension
 						providers={providers}
@@ -183,11 +195,7 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 				await Loadable.preloadAll();
 			});
 
-			extension.update();
-
-			expect(extension.text()).toEqual('Extension provider: lorem ipsum');
-
-			extension.unmount();
+			expect(container.textContent).toEqual('Extension provider: lorem ipsum');
 		});
 
 		it('should prioritize extension handlers (sync) over extension provider', async () => {
@@ -195,7 +203,7 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 				'fake.confluence': (node: any) => <div>Extension handler: {node.parameters.words}</div>,
 			};
 
-			const extension = mount(
+			const { container } = render(
 				<IntlProvider locale="en">
 					<InlineExtension
 						providers={providers}
@@ -211,9 +219,7 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 				</IntlProvider>,
 			);
 
-			expect(extension.text()).toEqual('Extension handler: lorem ipsum');
-
-			extension.unmount();
+			expect(container.textContent).toEqual('Extension handler: lorem ipsum');
 		});
 
 		it('should fallback to extension provider if not handled by extension handlers', async () => {
@@ -221,7 +227,7 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 				'fake.confluence': () => null,
 			};
 
-			const extension = mount(
+			const { container } = render(
 				<IntlProvider locale="en">
 					<InlineExtension
 						providers={providers}
@@ -241,11 +247,7 @@ describe('Renderer - React/Nodes/InlineExtension', () => {
 				await Loadable.preloadAll();
 			});
 
-			extension.update();
-
-			expect(extension.text()).toEqual('Extension provider: lorem ipsum');
-
-			extension.unmount();
+			expect(container.textContent).toEqual('Extension provider: lorem ipsum');
 		});
 	});
 });

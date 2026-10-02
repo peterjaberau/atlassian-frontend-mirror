@@ -1,13 +1,13 @@
 import React from 'react';
 
-import type { MessageDescriptor } from 'react-intl-next';
-import { useIntl } from 'react-intl-next';
+import type { MessageDescriptor } from 'react-intl';
+import { useIntl } from 'react-intl';
 
 import { alignmentMessages as messages } from '@atlaskit/editor-common/messages';
-import type { GlyphProps, NewCoreIconProps } from '@atlaskit/icon';
 import AlignTextCenterIcon from '@atlaskit/icon/core/align-text-center';
 import AlignTextLeftIcon from '@atlaskit/icon/core/align-text-left';
 import AlignTextRightIcon from '@atlaskit/icon/core/align-text-right';
+import type { GlyphProps, NewCoreIconProps } from '@atlaskit/icon/types';
 
 const iconAndMessageMap: {
 	[key: string]: {

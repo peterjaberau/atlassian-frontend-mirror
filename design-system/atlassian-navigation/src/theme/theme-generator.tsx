@@ -1,7 +1,11 @@
 import { token } from '@atlaskit/tokens';
 
-import { DEFAULT_THEME_NAME, defaultThemeBrandRefresh } from './default-theme';
-import { generateTextColor, getBoxShadow, getContrastColor, hexToRGBA } from './theme-helpers';
+import { DEFAULT_THEME_NAME } from './default-theme';
+import { defaultThemeBrandRefresh } from './default-theme-brand-refresh';
+import { generateTextColor } from './generate-text-color';
+import { getBoxShadow } from './get-box-shadow';
+import { getContrastColor } from './get-contrast-color';
+import { hexToRGBA } from './hex-to-rgba';
 import { type ButtonCSSContext, type GenerateThemeArgs, type NavigationTheme } from './types';
 
 type Colors = {
@@ -67,6 +71,11 @@ const generateCreateButtonColors = (_themeBackground: string, themeHighlight: st
 	highlightColor: themeHighlight,
 });
 
+/**
+ * __generateTheme__
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export const generateTheme = (themeColors: GenerateThemeArgs): NavigationTheme => {
 	const { backgroundColor, highlightColor, name } = themeColors;
 	const color = generateTextColor(backgroundColor);

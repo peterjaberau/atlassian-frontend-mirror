@@ -11,11 +11,12 @@ import {
 } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { SelectionExtensionPlugin } from '../selectionExtensionPluginType';
+// oxlint-disable-next-line import/no-duplicates
 import type { ExtensionMenuItemConfiguration } from '../types';
-import { type SelectionExtensionPluginOptions } from '../types';
-
+import type { SelectionExtensionPluginOptions } from '../types';
 import { MenuItem } from './toolbar-components/MenuItem';
 import { registerInlineToolbar } from './toolbar-components/register-inline-toolbar';
 import { migrateSelectionExtensionToMenuItem } from './utils/migrate-selection-extention';
@@ -79,6 +80,13 @@ const registerFirstPartyExtensions = (
 ) => {
 	const components: RegisterComponent[] = [];
 
+	if (
+		extensions.length === 0 &&
+		expValEquals('platform_editor_toolbar_hide_overflow_menu', 'isEnabled', true)
+	) {
+		return components;
+	}
+
 	components.push({
 		type: FIRST_PARTY_EXTENSIONS_MENU_ITEM.type,
 		key: FIRST_PARTY_EXTENSIONS_MENU_ITEM.key,
@@ -102,6 +110,13 @@ const registerExternalExtensions = (
 	extensions: ExtensionMenuItemConfiguration[],
 ) => {
 	const components: RegisterComponent[] = [];
+
+	if (
+		extensions.length === 0 &&
+		expValEquals('platform_editor_toolbar_hide_overflow_menu', 'isEnabled', true)
+	) {
+		return components;
+	}
 
 	components.push({
 		type: EXTERNAL_EXTENSIONS_MENU_ITEM.type,

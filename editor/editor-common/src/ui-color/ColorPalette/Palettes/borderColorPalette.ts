@@ -1,13 +1,14 @@
-import { borderColorPalette as colorPalette } from '@atlaskit/adf-schema';
+import { borderColorPalette as colorPalette } from '@atlaskit/adf-schema/border';
 
 import { DEFAULT_BORDER_COLOR } from './common';
 import getColorMessage from './getColorMessage';
 import paletteMessages from './paletteMessages';
-import { type PaletteColor } from './type';
+import type { PaletteColor } from './type';
 
 const borderColorPalette: Array<PaletteColor> = [];
 
 colorPalette.forEach((label, color) => {
+	// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 	const key = label.toLowerCase().replace(' ', '-');
 	const message = getColorMessage(paletteMessages, key);
 

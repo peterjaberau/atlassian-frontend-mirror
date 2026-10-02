@@ -1,15 +1,14 @@
-import { createIntl } from 'react-intl-next';
-import type { IntlShape } from 'react-intl-next';
+import { createIntl } from 'react-intl';
+import type { IntlShape } from 'react-intl';
 
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
 import type { getPosHandlerNode } from '@atlaskit/editor-common/types';
-import { browser, timestampToString } from '@atlaskit/editor-common/utils';
+import { timestampToString } from '@atlaskit/editor-common/utils';
 import { ZERO_WIDTH_SPACE } from '@atlaskit/editor-common/whitespace';
 import type { DOMOutputSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type EditorState } from '@atlaskit/editor-prosemirror/state';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { N30A, N800 } from '@atlaskit/theme/colors';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import { getDateInformation } from './utils';
@@ -29,8 +28,8 @@ export const dateNodeSpec = (node: PMNode): DOMOutputSpec => {
 	const attrs = {
 		style: convertToInlineCss({
 			// Taken from @atlaskit/date Component
-			backgroundColor: token('color.background.neutral', N30A),
-			color: token('color.text', N800),
+			backgroundColor: token('color.background.neutral'),
+			color: token('color.text'),
 			borderRadius: token('radius.small'),
 			padding: `${token('space.025')} ${token('space.050')}`,
 			margin: '0 1px',
@@ -44,7 +43,54 @@ export const dateToDOM = (
 	state: EditorState,
 	getPos: getPosHandlerNode,
 	intl: IntlShape,
-) => {
+): [
+	string,
+	Record<string, string>,
+	(
+		| string
+		| {
+				class: string;
+		  }
+		| (
+				| string
+				| {
+						class: string;
+				  }
+		  )[]
+	)[],
+	(
+		| string
+		| Record<string, string>
+		| (
+				| string
+				| {
+						class: string;
+						style: string;
+				  }
+		  )[]
+	)[],
+	(
+		| (
+				| string
+				| {
+						class: string;
+						contentEditable: string;
+				  }
+				| (
+						| string
+						| {
+								class: string;
+						  }
+				  )[]
+		  )[]
+		| (
+				| string
+				| {
+						class: string;
+				  }
+		  )[]
+	),
+] => {
 	const timestamp = node.attrs.timestamp;
 	const pos = getPos?.();
 	const { displayString, color } = getDateInformation(timestamp, intl, state, pos);
@@ -56,10 +102,8 @@ export const dateToDOM = (
 		'data-prosemirror-content-type': 'node',
 		'data-prosemirror-node-name': 'date',
 		'data-prosemirror-node-inline': 'true',
-		...(expValEquals('platform_editor_copy_paste_issue_fix', 'isEnabled', true) ? {
-			'data-node-type': 'date',
-			'data-timestamp': timestamp,
-		} : {}),
+		'data-node-type': 'date',
+		'data-timestamp': timestamp,
 		draggable: 'true',
 	};
 	if (fg('platform_editor_adf_with_localid')) {
@@ -85,7 +129,7 @@ export const dateToDOM = (
 			['span', { class: 'inlineNodeViewAddZeroWidthSpace' }, ZERO_WIDTH_SPACE],
 		],
 		['span', wrapperAttrs, ['span', attrs, displayString]],
-		browser.android
+		getBrowserInfo().android
 			? [
 					'span',
 					{ class: 'zeroWidthSpaceContainer', contentEditable: 'false' },

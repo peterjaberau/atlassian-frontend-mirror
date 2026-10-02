@@ -4,7 +4,7 @@ type Size = 'xxsmall' | 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
 type BaseLogoProps = {
 	/**
-	 * The size of the icon.
+	 * The size of the icon. Defaults to "medium".
 	 */
 	size?: Size;
 	/**
@@ -28,10 +28,6 @@ type BaseLogoProps = {
 	 * - `{testId}--wrapper` to access the svg element's wrapper
 	 */
 	testId?: string;
-	/**
-	 * For logos that support it, enables the new logo design ahead of an upcoming feature flag roll-out.
-	 */
-	shouldUseNewLogoDesign?: boolean;
 };
 
 export type LogoProps = BaseLogoProps;

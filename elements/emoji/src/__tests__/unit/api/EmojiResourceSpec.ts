@@ -1,13 +1,19 @@
-import 'es6-promise/auto'; // 'whatwg-fetch' needs a Promise polyfill
-
 import fetchMock from 'fetch-mock/cjs/client';
 import * as sinon from 'sinon';
+import 'es6-promise/auto'; // 'whatwg-fetch' needs a Promise polyfill
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import type {
 	OnProviderChange,
 	SecurityOptions,
 	ServiceConfig,
 } from '@atlaskit/util-service-support';
+import { mockExpDisabled } from '@atlassian/experiment-test-utils/mock-exp-disabled';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
 
+import type EmojiRepository from '../../../api/EmojiRepository';
+import EmojiResource, { type EmojiResourceConfig } from '../../../api/EmojiResource';
+import type { SingleEmojiApiLoaderConfig } from '../../../api/EmojiUtils';
 import {
 	type EmojiDescription,
 	type EmojiId,
@@ -17,9 +23,10 @@ import {
 	ProviderTypes,
 	SearchSort,
 } from '../../../types';
-import EmojiResource, { type EmojiResourceConfig } from '../../../api/EmojiResource';
-import type EmojiRepository from '../../../api/EmojiRepository';
-
+import * as samplingUfo from '../../../util/analytics/samplingUfo';
+import { ufoExperiences } from '../../../util/analytics/ufoExperiences';
+import * as constants from '../../../util/constants';
+import { convertMediaToImageRepresentation } from '../../../util/convert-media-to-image-representation';
 import {
 	atlassianEmojis,
 	atlassianServiceEmojis,
@@ -40,16 +47,8 @@ import {
 	standardServiceEmojis,
 	thumbsupEmoji,
 } from '../_test-data';
-
 import { alwaysPromise } from '../_test-util';
-import { convertMediaToImageRepresentation } from '../../../util/type-helpers';
 import { ErrorEmojiResource } from './_resource-spec-util';
-import * as constants from '../../../util/constants';
-import * as samplingUfo from '../../../util/analytics/samplingUfo';
-
-import { ufoExperiences } from '../../../util/analytics';
-
-import type { SingleEmojiApiLoaderConfig } from '../../../api/EmojiUtils';
 
 jest.mock('../../../util/constants', () => {
 	const originalModule = jest.requireActual('../../../util/constants');
@@ -59,9 +58,15 @@ jest.mock('../../../util/constants', () => {
 	};
 });
 
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
+	fg: jest.fn(),
+}));
+
 const mockConstants = constants as {
 	SAMPLING_RATE_EMOJI_RESOURCE_FETCHED_EXP: number;
 };
+const teamojiRefreshExperimentName = 'platform_teamoji_26_refresh_emoji_picker';
 /**
  * Skipping 3 tests that are failing since the jest 23 upgrade
  * TODO: JEST-23
@@ -220,6 +225,7 @@ describe('EmojiResource', () => {
 		mockConstants.SAMPLING_RATE_EMOJI_RESOURCE_FETCHED_EXP = 1;
 		samplingUfo.clearSampled();
 		jest.clearAllMocks();
+		jest.mocked(fg).mockReturnValue(false);
 	});
 
 	afterEach(() => {
@@ -248,8 +254,122 @@ describe('EmojiResource', () => {
 			} catch (err) {
 				expect(err).not.toBeDefined();
 			}
-			expect(spy).not.toBeCalled();
+			expect(spy).not.toHaveBeenCalled();
 			expect(resource.getActiveLoaders()).toEqual(0);
+		});
+
+		it('rewrites provider, single emoji and optimistic image urls when stargate path flag is enabled', () => {
+			jest.mocked(fg).mockReturnValue(true);
+			const config: EmojiResourceConfig = {
+				...defaultApiConfig,
+				providers: [
+					{
+						url: 'https://example.com/gateway/api/emoji/site',
+					},
+				],
+				singleEmojiApi: {
+					getUrl: (emojiId) =>
+						`https://example.com/gateway/api/emoji/single/${emojiId.id || emojiId.shortName}`,
+				},
+				optimisticImageApi: {
+					getUrl: (emojiId) =>
+						`https://example.com/gateway/api/emoji/image/${emojiId.id || emojiId.shortName}`,
+				},
+			};
+
+			const resource = new EmojiResource(config);
+			const emojiId = { id: 'abc', shortName: ':abc:' };
+
+			expect(resource.emojiProviderConfig.providers[0].url).toEqual(
+				'https://example.com/gateway/api/elements/emoji/site',
+			);
+			expect(resource.emojiProviderConfig.singleEmojiApi?.getUrl(emojiId)).toEqual(
+				'https://example.com/gateway/api/elements/emoji/single/abc',
+			);
+			expect(resource.emojiProviderConfig.optimisticImageApi?.getUrl(emojiId)).toEqual(
+				'https://example.com/gateway/api/elements/emoji/image/abc',
+			);
+		});
+
+		it('does not rewrite urls when stargate path flag is disabled', () => {
+			jest.mocked(fg).mockReturnValue(false);
+			const config: EmojiResourceConfig = {
+				...defaultApiConfig,
+				providers: [
+					{
+						url: 'https://example.com/gateway/api/emoji/site',
+					},
+				],
+				singleEmojiApi: {
+					getUrl: (emojiId: EmojiId) =>
+						`https://example.com/gateway/api/emoji/single/${emojiId.id || emojiId.shortName}`,
+				},
+				optimisticImageApi: {
+					getUrl: (emojiId: EmojiId) =>
+						`https://example.com/gateway/api/emoji/image/${emojiId.id || emojiId.shortName}`,
+				},
+			};
+
+			const resource = new EmojiResource(config);
+			const emojiId = { id: 'abc', shortName: ':abc:' };
+
+			expect(resource.emojiProviderConfig.providers[0].url).toEqual(
+				'https://example.com/gateway/api/emoji/site',
+			);
+			expect(resource.emojiProviderConfig.singleEmojiApi?.getUrl(emojiId)).toEqual(
+				'https://example.com/gateway/api/emoji/single/abc',
+			);
+			expect(resource.emojiProviderConfig.optimisticImageApi?.getUrl(emojiId)).toEqual(
+				'https://example.com/gateway/api/emoji/image/abc',
+			);
+		});
+
+		it('adds teamoji 26 query parameter to atlassian provider urls when refresh experiment is enabled', () => {
+			mockExpEnabled(teamojiRefreshExperimentName);
+			const config: EmojiResourceConfig = {
+				...defaultApiConfig,
+				providers: [
+					{
+						url: 'https://example.com/gateway/api/emoji/standard',
+					},
+					{
+						url: 'https://example.com/gateway/api/emoji/atlassian',
+					},
+					{
+						url: 'https://example.com/gateway/api/emoji/atlassian?foo=bar#section',
+					},
+				],
+			};
+
+			const resource = new EmojiResource(config);
+
+			expect(resource.emojiProviderConfig.providers[0].url).toEqual(
+				'https://example.com/gateway/api/emoji/standard',
+			);
+			expect(resource.emojiProviderConfig.providers[1].url).toEqual(
+				'https://example.com/gateway/api/emoji/atlassian?useTeamoji26=true',
+			);
+			expect(resource.emojiProviderConfig.providers[2].url).toEqual(
+				'https://example.com/gateway/api/emoji/atlassian?foo=bar&useTeamoji26=true#section',
+			);
+		});
+
+		it('does not add teamoji 26 query parameter when refresh experiment is disabled', () => {
+			mockExpDisabled(teamojiRefreshExperimentName);
+			const config: EmojiResourceConfig = {
+				...defaultApiConfig,
+				providers: [
+					{
+						url: 'https://example.com/gateway/api/emoji/atlassian',
+					},
+				],
+			};
+
+			const resource = new EmojiResource(config);
+
+			expect(resource.emojiProviderConfig.providers[0].url).toEqual(
+				'https://example.com/gateway/api/emoji/atlassian',
+			);
 		});
 	});
 
@@ -812,6 +932,7 @@ describe('EmojiResource', () => {
 		});
 	});
 
+	/* eslint-disable testing-library/await-async-queries */
 	describe('#findByEmojiId', () => {
 		it('Before loaded, promise eventually resolved; one provider', () => {
 			let resolveProvider1: (value?: any | PromiseLike<any>) => void;
@@ -1272,6 +1393,7 @@ describe('EmojiResource', () => {
 		});
 	});
 
+	/* eslint-enable testing-library/await-async-queries */
 	describe('#findById', () => {
 		it('unknown id', () => {
 			let resolveProvider1: (value?: any | PromiseLike<any>) => void;

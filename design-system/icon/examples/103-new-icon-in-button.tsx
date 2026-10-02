@@ -1,52 +1,23 @@
 import React from 'react';
 
-import OldButton from '@atlaskit/button';
-import Button, { IconButton } from '@atlaskit/button/new';
-import Heading from '@atlaskit/heading';
+import OldButton from '@atlaskit/button/button';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
+import Heading from '@atlaskit/heading/heading';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Inline, Stack, xcss } from '@atlaskit/primitives';
 
 import AddIcon from '../core/add';
 import ChevronDownIcon from '../core/chevron-down';
-import AddIconOld from '../glyph/add';
-import HipchatChevronDownIconOld from '../glyph/hipchat/chevron-down';
 
 const styles = xcss({ padding: 'space.200' });
 const IconSizeExample = (): React.JSX.Element => {
 	return (
 		<Stack space="space.200" alignInline="start" xcss={styles}>
 			<Heading size="small">Icon button examples</Heading>
-			{[true, false].map((isSelected: boolean) => (
-				<>
+			{[true, false].map((isSelected: boolean, i: number) => (
+				<React.Fragment key={i}>
 					<Heading size="xsmall">{isSelected ? 'Selected buttons' : 'Not selected'}</Heading>
-					<Inline space="space.100" alignBlock="center">
-						<OldButton
-							isSelected={isSelected}
-							iconBefore={<AddIconOld label="" />}
-							iconAfter={<HipchatChevronDownIconOld label="" />}
-						>
-							Button
-						</OldButton>
-						<OldButton isSelected={isSelected} iconBefore={<AddIconOld label="" />}>
-							Button
-						</OldButton>
-						<OldButton isSelected={isSelected} iconBefore={<AddIconOld label="Add" />} />
-						Old button, old icon
-					</Inline>
-					<Inline space="space.100" alignBlock="center">
-						<Button
-							isSelected={isSelected}
-							iconBefore={AddIconOld}
-							iconAfter={HipchatChevronDownIconOld}
-						>
-							Button
-						</Button>
-						<Button isSelected={isSelected} iconBefore={AddIconOld}>
-							Button
-						</Button>
-						<IconButton label="add" isSelected={isSelected} icon={AddIconOld} />
-						New button, old icon
-					</Inline>
 					<Inline space="space.100" alignBlock="center">
 						<OldButton
 							isSelected={isSelected}
@@ -83,7 +54,7 @@ const IconSizeExample = (): React.JSX.Element => {
 						<IconButton isSelected={isSelected} label="add" icon={AddIcon} />
 						New button, new icon
 					</Inline>
-				</>
+				</React.Fragment>
 			))}
 		</Stack>
 	);

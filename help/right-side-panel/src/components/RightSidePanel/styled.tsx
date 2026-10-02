@@ -4,10 +4,12 @@
  */
 
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
+
 import { token } from '@atlaskit/tokens';
+
 import { type TransitionStatus } from '.';
-import { N30 } from '@atlaskit/theme/colors';
 
 const PANEL_WIDTH = 368;
 export const transitionDurationMs = 220;
@@ -34,34 +36,39 @@ const rightSidePanelDrawerTransitionStyles = (
 	},
 });
 
-export const RightSidePanelDrawer = ({
-	transitionState,
-	children,
-	width = PANEL_WIDTH,
-}: {
+type RightSidePanelDrawerProps = {
 	children: React.ReactNode;
 	transitionState: TransitionStatus;
 	width?: number;
-}): JSX.Element => (
-	<div
-		css={rightSidePanelDrawerStyles}
-		style={{
-			width: `${width}px`,
-			flex: `0 0 ${width}px`,
-			transition: `width ${0.6 * width}ms, flex ${0.6 * width}ms`,
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-			...rightSidePanelDrawerTransitionStyles(width)[transitionState],
-		}}
-	>
-		{children}
-	</div>
+};
+
+export const RightSidePanelDrawer: React.ForwardRefExoticComponent<
+	RightSidePanelDrawerProps & React.RefAttributes<HTMLDivElement>
+> = React.forwardRef<HTMLDivElement, RightSidePanelDrawerProps>(
+	({ transitionState, children, width = PANEL_WIDTH }, ref): JSX.Element => (
+		<div
+			ref={ref}
+			css={rightSidePanelDrawerStyles}
+			style={{
+				width: `${width}px`,
+				flex: `0 0 ${width}px`,
+				transition: `width ${0.6 * width}ms, flex ${0.6 * width}ms`,
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+				...rightSidePanelDrawerTransitionStyles(width)[transitionState],
+			}}
+		>
+			{children}
+		</div>
+	),
 );
 
+RightSidePanelDrawer.displayName = 'RightSidePanelDrawer';
+
 const rightSidePanelDrawerContentStyles = css({
-	backgroundColor: token('elevation.surface.overlay', 'white'),
+	backgroundColor: token('elevation.surface.overlay'),
 	boxSizing: 'border-box',
 	flex: 1,
-	borderLeft: `3px solid ${token('color.border', N30)}`,
+	borderLeft: `3px solid ${token('color.border')}`,
 	overflow: 'hidden',
 	flexDirection: 'column',
 	width: `${PANEL_WIDTH}px`,

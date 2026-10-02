@@ -4,13 +4,15 @@ import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ContextPanelHandler } from '@atlaskit/editor-common/types';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { ContextPanelPlugin } from './contextPanelPluginType';
 import { applyChange } from './pm-plugins/transforms';
 import type { ObjectSidebarBehavior, ObjectSidebarPanel } from './types/object-siderbar-types';
 
-export const pluginKey = new PluginKey<ContextPanelPluginState>('contextPanelPluginKey');
+export const pluginKey: PluginKey<ContextPanelPluginState> = new PluginKey<ContextPanelPluginState>(
+	'contextPanelPluginKey',
+);
 
 type ContextPanelPluginState = {
 	contents: React.ReactNode[];

@@ -9,11 +9,11 @@ import { annotationPlugin } from '@atlaskit/editor-plugins/annotation';
 import { avatarGroupPlugin } from '@atlaskit/editor-plugins/avatar-group';
 import { batchAttributeUpdatesPlugin } from '@atlaskit/editor-plugins/batch-attribute-updates';
 import { beforePrimaryToolbarPlugin } from '@atlaskit/editor-plugins/before-primary-toolbar';
+import { blockControlsPlugin } from '@atlaskit/editor-plugins/block-controls';
 import { borderPlugin } from '@atlaskit/editor-plugins/border';
 import { breakoutPlugin } from '@atlaskit/editor-plugins/breakout';
 import { captionPlugin } from '@atlaskit/editor-plugins/caption';
 import { cardPlugin } from '@atlaskit/editor-plugins/card';
-import { codeBidiWarningPlugin } from '@atlaskit/editor-plugins/code-bidi-warning';
 import { collabEditPlugin } from '@atlaskit/editor-plugins/collab-edit';
 import { contentInsertionPlugin } from '@atlaskit/editor-plugins/content-insertion';
 import { contextPanelPlugin } from '@atlaskit/editor-plugins/context-panel';
@@ -22,7 +22,8 @@ import { dataConsumerPlugin } from '@atlaskit/editor-plugins/data-consumer';
 import { datePlugin } from '@atlaskit/editor-plugins/date';
 import { emojiPlugin } from '@atlaskit/editor-plugins/emoji';
 import { expandPlugin } from '@atlaskit/editor-plugins/expand';
-import { extensionPlugin, type ExtensionPluginOptions } from '@atlaskit/editor-plugins/extension';
+import { extensionPlugin } from '@atlaskit/editor-plugins/extension';
+import type { ExtensionPluginOptions } from '@atlaskit/editor-plugins/extension';
 import { feedbackDialogPlugin } from '@atlaskit/editor-plugins/feedback-dialog';
 import { findReplacePlugin } from '@atlaskit/editor-plugins/find-replace';
 import { fragmentPlugin } from '@atlaskit/editor-plugins/fragment';
@@ -52,21 +53,18 @@ import { textColorPlugin } from '@atlaskit/editor-plugins/text-color';
 import { toolbarListsIndentationPlugin } from '@atlaskit/editor-plugins/toolbar-lists-indentation';
 import { ufoPlugin } from '@atlaskit/editor-plugins/ufo';
 import type { BreakpointPreset } from '@atlaskit/editor-toolbar';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
-import type { EditorProps } from '../types';
 import type {
 	BeforeAndAfterToolbarComponents,
 	EditorPluginFeatureProps,
+	EditorProps,
 	EditorProviderProps,
 	EditorSharedPropsWithPlugins,
 	PrimaryToolbarComponents,
 } from '../types/editor-props';
 import { isFullPage as fullPageCheck } from '../utils/is-full-page';
 import { version as coreVersion } from '../version-wrapper';
-
 import type { DefaultPresetPluginOptions } from './default';
 import { createDefaultPreset } from './default';
 
@@ -83,6 +81,22 @@ export type UniversalPresetProps = DefaultPresetPluginOptions &
  * Note: not all plugins are configurable via this mechanism, and for plugins configured -- it is only doing a subset of the configuration.
  */
 export type InitialPluginConfiguration = {
+	blockControlsPlugin?: {
+		enabled?: boolean;
+		// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- EDITOR-8696 tracks migration to the Quick Insert plugin configuration.
+		/** @deprecated Use `quickInsertPlugin.blockControlButtonEnabled` instead. */
+		quickInsertButtonEnabled?: boolean;
+		rightSideControlsEnabled?: boolean;
+	};
+	blockMenuPlugin?: {
+		blockLinkHashPrefix?: string;
+		enabled?: boolean;
+		getLinkPath?: () => string | null;
+		useStandardNodeWidth?: boolean;
+	};
+	blockTypePlugin?: {
+		allowFontSize?: boolean;
+	};
 	emojiPlugin?: {
 		disableAutoformat?: boolean;
 	};
@@ -102,6 +116,9 @@ export type InitialPluginConfiguration = {
 				type: 'added' | 'deleted';
 			}[],
 		) => void;
+	};
+	quickInsertPlugin?: {
+		blockControlButtonEnabled?: boolean;
 	};
 	tasksAndDecisionsPlugin?: {
 		allowBlockTaskItem?: boolean;
@@ -155,7 +172,8 @@ export default function createUniversalPresetInternal({
 	initialPluginConfiguration?: InitialPluginConfiguration;
 	prevAppearance?: EditorAppearance;
 	props: UniversalPresetProps;
-}) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required for --isolatedDeclarations; preset builder return type is too complex to spell out here.
+}): any {
 	const isComment = appearance === 'comment';
 	const isChromeless = appearance === 'chromeless';
 	const isFullPage = fullPageCheck(appearance);
@@ -164,6 +182,17 @@ export default function createUniversalPresetInternal({
 
 	const defaultPreset = createDefaultPreset({
 		...props,
+		blockType: {
+			...props.blockType,
+			...initialPluginConfiguration?.blockTypePlugin,
+		},
+		blockMenu: {
+			enabled: initialPluginConfiguration?.blockMenuPlugin?.enabled ?? false,
+			useStandardNodeWidth:
+				initialPluginConfiguration?.blockMenuPlugin?.useStandardNodeWidth ?? false,
+			blockLinkHashPrefix: initialPluginConfiguration?.blockMenuPlugin?.blockLinkHashPrefix,
+			getLinkPath: initialPluginConfiguration?.blockMenuPlugin?.getLinkPath,
+		},
 		appearance,
 		createAnalyticsEvent,
 		hyperlinkOptions: {
@@ -171,6 +200,10 @@ export default function createUniversalPresetInternal({
 			...props.hyperlinkOptions,
 		},
 		__livePage: props.__livePage,
+		quickInsert: {
+			...props.quickInsert,
+			...initialPluginConfiguration?.quickInsertPlugin,
+		},
 		toolbar: initialPluginConfiguration?.toolbarPlugin,
 	});
 
@@ -196,8 +229,25 @@ export default function createUniversalPresetInternal({
 		.add(contentInsertionPlugin)
 		.add(batchAttributeUpdatesPlugin)
 		.maybeAdd(
+			[
+				blockControlsPlugin,
+				{
+					...(initialPluginConfiguration?.blockControlsPlugin?.quickInsertButtonEnabled !==
+					undefined
+						? {
+								quickInsertButtonEnabled:
+									initialPluginConfiguration.blockControlsPlugin.quickInsertButtonEnabled,
+							}
+						: {}),
+					rightSideControlsEnabled:
+						initialPluginConfiguration?.blockControlsPlugin?.rightSideControlsEnabled ?? false,
+				},
+			],
+			Boolean(initialPluginConfiguration?.blockControlsPlugin?.enabled ?? false),
+		)
+		.maybeAdd(
 			[breakoutPlugin, { allowBreakoutButton: appearance === 'full-page', appearance: appearance }],
-			Boolean(props.allowBreakout && isFullPage),
+			Boolean(props.allowBreakout && (isFullPage || appearance === 'max')),
 		)
 		.maybeAdd(alignmentPlugin, Boolean(props.allowTextAlignment))
 		.maybeAdd([textColorPlugin, props.allowTextColor], Boolean(props.allowTextColor))
@@ -274,6 +324,7 @@ export default function createUniversalPresetInternal({
 					allowZeroWidthSpaceAfter: true,
 					HighlightComponent: props.mention?.HighlightComponent,
 					profilecardProvider: props.mention?.profilecardProvider,
+					mentionNodeDataProvider: props.mention?.mentionNodeDataProvider,
 					mentionProvider: props.mentionProvider,
 					...initialPluginConfiguration?.mentionsPlugin,
 				},
@@ -285,9 +336,7 @@ export default function createUniversalPresetInternal({
 				emojiPlugin,
 				{
 					emojiProvider: props.emojiProvider,
-					...(expValEquals('platform_editor_plain_text_support', 'isEnabled', true)
-						? initialPluginConfiguration?.emojiPlugin
-						: {}),
+					...initialPluginConfiguration?.emojiPlugin,
 				},
 			],
 			Boolean(props.emojiProvider),
@@ -298,25 +347,18 @@ export default function createUniversalPresetInternal({
 				{
 					tableOptions:
 						!props.allowTables || typeof props.allowTables === 'boolean' ? {} : props.allowTables,
-					dragAndDropEnabled:
-						(featureFlags?.tableDragAndDrop &&
-							(isFullPage ||
-								((isComment || isChromeless) &&
-									editorExperiment('support_table_in_comment', true, { exposure: true })))) ||
-						(isComment &&
-							editorExperiment('support_table_in_comment_jira', true, { exposure: true })),
-					isTableScalingEnabled:
-						isFullPage ||
-						(isComment && editorExperiment('support_table_in_comment', true, { exposure: true })) ||
-						(isComment &&
-							editorExperiment('support_table_in_comment_jira', true, { exposure: true })),
+					isTableScalingEnabled: isFullPage || isComment,
 					allowContextualMenu: true,
 					fullWidthEnabled: appearance === 'full-width',
 					wasFullWidthEnabled: prevAppearance && prevAppearance === 'full-width',
 					getEditorFeatureFlags,
 					isCommentEditor: isComment,
 					isChromelessEditor: isChromeless,
-					allowFixedColumnWidthOption: fg('platform_editor_table_fixed_column_width_prop') ? props.allowTables && typeof props.allowTables !== 'boolean' && props.allowTables.allowFixedColumnWidthOption : false,
+					allowFixedColumnWidthOption:
+						props.allowTables &&
+						typeof props.allowTables !== 'boolean' &&
+						props.allowTables.allowFixedColumnWidthOption,
+					__livePage: props.__livePage,
 				},
 			],
 			Boolean(props.allowTables),
@@ -477,10 +519,7 @@ export default function createUniversalPresetInternal({
 			],
 			Boolean(props.allowStatus),
 		)
-		.maybeAdd(
-			[syncedBlockPlugin, props.syncBlock],
-			Boolean(props.syncBlock) && editorExperiment('platform_synced_block', true),
-		)
+		.maybeAdd([syncedBlockPlugin, props.syncBlock], Boolean(props.syncBlock))
 		.maybeAdd(indentationPlugin, Boolean(props.allowIndentation))
 		.maybeAdd(scrollIntoViewPlugin, Boolean(props.autoScrollIntoView !== false))
 		.add([
@@ -546,16 +585,7 @@ export default function createUniversalPresetInternal({
 		)
 		.maybeAdd(borderPlugin, Boolean(props.allowBorderMark))
 		.maybeAdd(fragmentPlugin, Boolean(props.allowFragmentMark))
-		.add(pasteOptionsToolbarPlugin)
-		.maybeAdd(
-			[
-				codeBidiWarningPlugin,
-				{
-					appearance,
-				},
-			],
-			!expValEquals('platform_editor_remove_bidi_char_warning', 'isEnabled', true),
-		);
+		.add(pasteOptionsToolbarPlugin);
 
 	return finalPreset;
 }
@@ -564,7 +594,11 @@ interface ExpandEditorProps {
 	allowExpand?: EditorProps['allowExpand'];
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function isExpandInsertionEnabled({ allowExpand }: ExpandEditorProps): boolean {
+	if (allowExpand === true) {
+		return true;
+	}
 	if (allowExpand && typeof allowExpand === 'object') {
 		return !!allowExpand.allowInsertion;
 	}

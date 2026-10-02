@@ -25,12 +25,13 @@ type DragDropContextValue = {
 
 const DragDropContext = createContext<DragDropContextValue | null>(null);
 
-export function useDragDropContext() {
+export function useDragDropContext(): DragDropContextValue {
 	const value = useContext(DragDropContext);
 	rbdInvariant(value !== null, 'Unable to find DragDropContext context');
 	return value;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function DragDropContextProvider({
 	children,
 	contextId,

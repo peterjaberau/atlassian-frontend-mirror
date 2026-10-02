@@ -1,5 +1,105 @@
 # @atlaskit/notification-log-service
 
+## 10.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`de195f1e0fca6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/de195f1e0fca6) -
+  Updated `collabContextRoutingAri` prop to be required. This prop is required to support
+  collaboration contexts and takes in the ARI of the site/workspace the user is currently viewing,
+  or `undefined` if not applicable.
+
+## 9.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`43d65fc23f039`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/43d65fc23f039) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 8.0.0
+
+### Major Changes
+
+- [`05ac5044f1fd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/05ac5044f1fd1) -
+  Rename prop and usages of routingWorkspaceId to collabContextRoutingAri.
+
+## 7.0.0
+
+### Major Changes
+
+- [`62281c5d82340`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62281c5d82340) -
+  Remove the legacy positional `NotificationLogClient` constructor API, and require a new object
+  configuration format.
+
+  This change completes the cleanup of the old notification-log client configuration and removes the
+  legacy REST/feature-flagged behavior in favor of the GraphQL client path.
+
+  As part of that cleanup, consumers can no longer construct the client with positional parameters
+  such as `baseUrl`, `cloudId`, or `source`.
+
+  To migrate, update any constructor usage from positional arguments to a single configuration
+  object. For example, replace:
+
+  ```ts
+  new NotificationLogClient(baseUrl, cloudId?, source?)
+  ```
+
+  with:
+
+  ```ts
+  new NotificationLogClient({ cloudId?, source?, routingWorkspaceId? })
+  ```
+
+  We do not recommend overriding the default GraphQL endpoint (`/gateway/api/graphql`) unless
+  absolutely necessary.
+
+  However, if you must, you can pass `graphQLBaseUrl` in the config object.
+
+## 6.5.0
+
+### Minor Changes
+
+- [`bfc622620e041`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bfc622620e041) -
+  Adds new optional parameter `routingWorkspaceId` to Notifications, NotificationFullPage and
+  NotificationFullPage components to support collaboration contexts.
+
 ## 6.4.0
 
 ### Minor Changes

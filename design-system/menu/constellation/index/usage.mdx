@@ -13,7 +13,7 @@ import linkItemIconDont from './images/link-item-icon-dont.png';
 
 Use a menu to display a list of options that users can either action or navigate to.
 
-## Anatomy
+## Parts
 
 Menus are made up of a section or multiple sections.
 
@@ -23,7 +23,7 @@ Each section can contain either Button or Link menu items, as well as a separato
 
 Group similar menu items together into sections.
 
-![Anatomy section](images/anatomy-section.png)
+![Anatomy section](./images/anatomy-section.png)
 
 1. **Section.** Menus are made up of a section or multiple sections.
 2. **Separator.** Graphic device to separate a section of similar menu items. If there is more than
@@ -33,14 +33,14 @@ Group similar menu items together into sections.
 
 ### Section header
 
-![Section header](images/anatomy-section-header.png)
+![Section header](./images/anatomy-section-header.png)
 
 1. **Section header.** The area surrounding the section heading.
 2. **Section heading.** A heading to name a section of a group of similar menu items.
 
 ### Menu item
 
-![Anatomy section](images/anatomy-menu-item.png)
+![Anatomy section](./images/anatomy-menu-item.png)
 
 1. **iconBefore.** Optional.
 2. **Menu title.** Text that succinctly describes the menu item link or action.
@@ -69,81 +69,6 @@ the user agent to navigate to that resource”.
 
 Use menus with Link items if sending users to another page, e.g. Team Spaces.
 
-## Best practices
-
-<DoDont
-	type="do"
-	image={{
-		url: buttonItemDo,
-		alt: 'A menu with 2 button menu items.',
-	}}
->
-	Use button menu items when users need an action performed, e.g. Copy.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: buttonItemDont,
-		alt: 'A menu with 2 button menu items.',
-	}}
->
-	Don’t use buttons if navigating users to a specific place.
-</DoDont>
-
-<DoDont
-	type="do"
-	image={{
-		url: linkItemDo,
-		alt: 'A menu with 2 link menu items.',
-	}}
->
-	Use link menu items to navigate users to a resource.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: linkItemDont,
-		alt: 'A menu with 2 link menu items.',
-	}}
->
-	Don’t use link menu items for actions required by users.
-</DoDont>
-
-<DoDont
-	type="do"
-	image={{
-		url: linkItemIconDo,
-		alt: 'A menu with 3 button menu items.',
-	}}
->
-	Use icons to support and indicate if menu items are taking users to a new resource.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: linkItemIconDont,
-		alt: 'A menu with 2 button menu items.',
-	}}
->
-	Don’t use link menu items as button menu items. Use an icon to indicate if a button menu item is
-	taking users to a new place.
-</DoDont>
-
-## Content guidelines
-
-- **Use concise labels.** (max. 24 characters) Avoid unnecessary verbs, jargon, or brand names.
-  Navigation doesn’t benefit from conversational language, and putting the most important word at
-  the start of the label helps people navigate quickly.
-- **Prioritise menu items.** Organise your menu items based on priority, and put the most used items
-  at the start of the menu.
-- **Test your label names.** Make sure that your menu helps people complete their tasks. Contact the
-  Research Hub for further guidance on testing.
-- **Be mindful of menu length.** Putting more items in a menu doesn’t necessarily translate to more
-  exposure or usage.
-
 ## Accessibility
 
 - Compose your menu with the correct semantic elements using sections, heading items, button items,
@@ -158,6 +83,78 @@ Use menus with Link items if sending users to another page, e.g. Team Spaces.
 - **Be consistent.** If your menu appears in more than one place, make sure that the order and
   availability of menu items is consistent throughout your app.
 - **Avoid icons.** If icons must be included, make sure any meaningful imagery has alternative text.
+
+## Best practices
+
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: buttonItemDo,
+			alt: 'A menu with 2 button menu items.',
+		}}
+	>
+		Use button menu items when users need an action performed, e.g. Copy.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: buttonItemDont,
+			alt: 'A menu with 2 button menu items.',
+		}}
+	>
+		Don’t use buttons if navigating users to a specific place.
+	</DoDont>
+	<DoDont
+		type="do"
+		image={{
+			url: linkItemDo,
+			alt: 'A menu with 2 link menu items.',
+		}}
+	>
+		Use link menu items to navigate users to a resource.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: linkItemDont,
+			alt: 'A menu with 2 link menu items.',
+		}}
+	>
+		Don’t use link menu items for actions required by users.
+	</DoDont>
+	<DoDont
+		type="do"
+		image={{
+			url: linkItemIconDo,
+			alt: 'A menu with 3 button menu items.',
+		}}
+	>
+		Use icons to support and indicate if menu items are taking users to a new resource.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: linkItemIconDont,
+			alt: 'A menu with 2 button menu items.',
+		}}
+	>
+		Don’t use link menu items as button menu items. Use an icon to indicate if a button menu item is
+		taking users to a new place.
+	</DoDont>
+</DoDontGrid>
+
+## Content guidelines
+
+- **Use concise labels.** (max. 24 characters) Avoid unnecessary verbs, jargon, or brand names.
+  Navigation doesn’t benefit from conversational language, and putting the most important word at
+  the start of the label helps people navigate quickly.
+- **Prioritise menu items.** Organise your menu items based on priority, and put the most used items
+  at the start of the menu.
+- **Test your label names.** Make sure that your menu helps people complete their tasks. Contact the
+  Research Hub for further guidance on testing.
+- **Be mindful of menu length.** Putting more items in a menu doesn’t necessarily translate to more
+  exposure or usage.
 
 ## Related
 

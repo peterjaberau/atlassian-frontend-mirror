@@ -3,18 +3,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { Fragment, type ReactNode } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, type SerializedStyles } from '@emotion/react';
 
-import Code from '@atlaskit/code/inline';
-import Grid, { GridItem } from '@atlaskit/grid';
-import Lozenge from '@atlaskit/lozenge';
+import Code from '@atlaskit/code/code';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Stack, xcss } from '@atlaskit/primitives';
-import Tabs, { TabPanel as AkTabPanel, Tab, TabList, type TabPanelProps } from '@atlaskit/tabs';
-import { fontFallback } from '@atlaskit/theme/typography';
+import Tab from '@atlaskit/tabs/tab';
+import TabList from '@atlaskit/tabs/tab-list';
+import AkTabPanel from '@atlaskit/tabs/tab-panel';
+import Tabs from '@atlaskit/tabs/tabs';
+import type { TabPanelProps } from '@atlaskit/tabs/types';
 import { token } from '@atlaskit/tokens';
 
 import AsanaFields from './pieces/pinned-fields/experience/asana';
@@ -39,7 +42,7 @@ import SubtasksNotion from './pieces/subtasks/demo/notion';
 import SubtaskReactBeautifulDnd from './pieces/subtasks/demo/react-beautiful-dnd';
 
 const itemStyles = xcss({
-	border: `${token('border.width.selected')} solid ${token('color.border.accent.purple', 'purple')}`,
+	border: `${token('border.width.selected')} solid ${token('color.border.accent.purple')}`,
 	padding: 'space.200',
 	borderRadius: 'radius.xlarge',
 	height: '100%', // ensure all grid items are the same height regardless of content
@@ -100,12 +103,12 @@ const solutionLabelStyles = css({
 
 const solutionLabelColorStyles: Record<Solution, SerializedStyles> = {
 	pdnd: css({
-		color: token('color.text.discovery', 'purple'),
-		borderColor: token('color.border.discovery', 'purple'),
+		color: token('color.text.discovery'),
+		borderColor: token('color.border.discovery'),
 	}),
 	rbd: css({
-		color: token('color.text.accent.magenta', 'magenta'),
-		borderColor: token('color.border.accent.magenta', 'magenta'),
+		color: token('color.text.accent.magenta'),
+		borderColor: token('color.border.accent.magenta'),
 	}),
 };
 
@@ -122,7 +125,7 @@ const tableStyles = css({
 });
 
 const itemCaptionHeadingStyles = css({
-	fontWeight: token('font.weight.bold', 'bold'),
+	fontWeight: token('font.weight.bold'),
 });
 
 const itemCaptionTableRowStyles = css({
@@ -181,9 +184,8 @@ function ItemCaption({
 }
 
 const bigTitleStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	font: token('font.heading.xxlarge', fontFallback.heading.xxlarge),
-	fontWeight: token('font.weight.bold', 'bold'),
+	font: token('font.heading.xxlarge'),
+	fontWeight: token('font.weight.bold'),
 	margin: 0,
 });
 
@@ -208,9 +210,8 @@ const sectionHeaderStyles = xcss({
 });
 
 const sectionHeaderDescriptionStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	font: token('font.heading.medium', fontFallback.heading.medium),
-	color: token('color.text.subtle', 'currentColor'),
+	font: token('font.heading.medium'),
+	color: token('color.text.subtle'),
 });
 
 function SectionHeader({
@@ -243,16 +244,14 @@ const subSectionHeaderStyles = xcss({
 });
 
 const subSectionHeaderTitleStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	font: token('font.heading.large', fontFallback.heading.large),
-	fontWeight: token('font.weight.bold', 'bold'),
+	font: token('font.heading.large'),
+	fontWeight: token('font.weight.bold'),
 });
 
 const subSectionHeaderDescriptionStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	font: token('font.body.large', fontFallback.body.large),
-	fontWeight: token('font.weight.medium', 'medium'),
-	color: token('color.text.subtle', 'currentColor'),
+	font: token('font.body.large'),
+	fontWeight: token('font.weight.medium'),
+	color: token('color.text.subtle'),
 	maxWidth: '70ch',
 	marginInline: 'auto',
 });
@@ -266,19 +265,36 @@ function SubSectionHeader({ title, description }: { title: ReactNode; descriptio
 	);
 }
 
-const containerStyles = xcss({
-	// same as grid spacing
-	// padding: 'space.400',
+const containerStyles = css({
+	paddingInline: token('space.400'),
 });
 
-const gridItem = {
-	default: {
-		span: { md: 12, lg: 8 },
-		centerStart: { md: 1, lg: 3 },
-	},
-} as const;
+const singleColumnLayoutStyles = css({
+	width: '100%',
+	maxWidth: '840px',
+	marginInline: 'auto',
+});
 
-const smallGridItemSpan = { sm: 12, md: 6 } as const;
+const twoColumnLayoutStyles = css({
+	display: 'grid',
+	gridTemplateColumns: '1fr',
+	gap: token('space.300'),
+	width: '100%',
+	maxWidth: '1120px',
+	marginInline: 'auto',
+	'@media (min-width: 64rem)': {
+		gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+	},
+});
+
+const centeredTwoColumnItemStyles = css({
+	'@media (min-width: 64rem)': {
+		gridColumn: '1 / -1',
+		maxWidth: '540px',
+		width: '100%',
+		marginInline: 'auto',
+	},
+});
 
 const tabPanelStyles = css({
 	marginTop: 16,
@@ -294,7 +310,6 @@ function TabPanel({ children, ...props }: TabPanelProps) {
 }
 
 export default function ListComparison(): React.JSX.Element {
-	// TODO: figure out which breakpoints would be nicest
 	return (
 		<Box xcss={containerStyles}>
 			<Stack space="space.0">
@@ -310,29 +325,27 @@ export default function ListComparison(): React.JSX.Element {
 						description="The drag and drop library currently being used."
 					/>
 
-					<Grid>
-						<GridItem span={gridItem.default.span} start={gridItem.default.centerStart}>
-							<Item borderColor={token('color.border.accent.magenta', 'magenta')}>
-								<ItemPreview>
-									<PinnedFieldReactBeautifulDnd />
-									<SubtaskReactBeautifulDnd />
-								</ItemPreview>
-								<ItemCaption
-									title={'Existing experience'}
-									poweredBy="rbd"
-									accessibility={
-										<span>
-											Leverages directional keyboard movements.{' '}
-											{/* eslint-disable-next-line @atlaskit/design-system/no-html-anchor */}
-											<a href="https://youtu.be/5SQkOyzZLHM?t=2223">
-												This approach is a good stepping stone, but not ideal
-											</a>
-										</span>
-									}
-								/>
-							</Item>
-						</GridItem>
-					</Grid>
+					<div css={singleColumnLayoutStyles}>
+						<Item borderColor={token('color.border.accent.magenta')}>
+							<ItemPreview>
+								<PinnedFieldReactBeautifulDnd />
+								<SubtaskReactBeautifulDnd />
+							</ItemPreview>
+							<ItemCaption
+								title={'Existing experience'}
+								poweredBy="rbd"
+								accessibility={
+									<span>
+										Leverages directional keyboard movements.{' '}
+										{/* eslint-disable-next-line @atlaskit/design-system/no-html-anchor */}
+										<a href="https://youtu.be/5SQkOyzZLHM?t=2223">
+											This approach is a good stepping stone, but not ideal
+										</a>
+									</span>
+								}
+							/>
+						</Item>
+					</div>
 
 					<SubSectionHeader
 						title={
@@ -350,169 +363,164 @@ export default function ListComparison(): React.JSX.Element {
 						}
 					/>
 
-					<Grid>
-						<GridItem span={gridItem.default.span} start={gridItem.default.centerStart}>
-							<Tabs id="default">
-								<TabList>
-									<Tab>Basic</Tab>
-									<Tab>Variant: subtle</Tab>
-									<Tab>Variant: subtler</Tab>
-								</TabList>
-								<TabPanel>
-									<Item>
-										<ItemPreview>
-											<PinnedFieldsMigrationLayer />
-											<SubtasksMigrationLayer />
-										</ItemPreview>
-										<ItemCaption
-											title="Migration layer"
-											poweredBy="pdnd"
-											accessibility={
-												<span>
-													Same as <Code>react-beautiful-dnd</Code>
-												</span>
-											}
-											other={
-												<Fragment>
-													<p>
-														The blue background and border visible while dragging pinned fields is{' '}
-														<strong>not</strong> added by the migration layer. It is custom styling
-														added in Jira and can be freely modified. Variations on this styling are
-														provided for reference.
-													</p>
-													<p>
-														Note that the small padding on the subtask container has been removed.
-														This ensures that the drop indicator is flush against the edge at the
-														top and bottom.
-													</p>
-												</Fragment>
-											}
-										/>
-									</Item>
-								</TabPanel>
-								<TabPanel>
-									<Item>
-										<ItemPreview>
-											<PinnedFieldReactBeautifulDndNoDraggingOutline />
-										</ItemPreview>
-										<ItemCaption
-											title="Migration layer (subtle variant)"
-											poweredBy="pdnd"
-											accessibility={
-												<span>
-													Same as <Code>react-beautiful-dnd</Code>
-												</span>
-											}
-											other={
-												<Fragment>
-													This variant removes the blue border that was visible while dragging.
-												</Fragment>
-											}
-										/>
-									</Item>
-								</TabPanel>
-								<TabPanel>
-									<Item>
-										<ItemPreview>
-											<PinnedFieldReactBeautifulDndSubtle />
-										</ItemPreview>
-										<ItemCaption
-											title="Migration layer (subtler variant)"
-											poweredBy="pdnd"
-											accessibility={
-												<span>
-													Same as <Code>react-beautiful-dnd</Code>
-												</span>
-											}
-											other={
-												<Fragment>
-													This variant also makes the blue background that was visible while
-													dragging subtler.
-												</Fragment>
-											}
-										/>
-									</Item>
-								</TabPanel>
-							</Tabs>
-						</GridItem>
-					</Grid>
+					<div css={singleColumnLayoutStyles}>
+						<Tabs id="default">
+							<TabList>
+								<Tab>Basic</Tab>
+								<Tab>Variant: subtle</Tab>
+								<Tab>Variant: subtler</Tab>
+							</TabList>
+							<TabPanel>
+								<Item>
+									<ItemPreview>
+										<PinnedFieldsMigrationLayer />
+										<SubtasksMigrationLayer />
+									</ItemPreview>
+									<ItemCaption
+										title="Migration layer"
+										poweredBy="pdnd"
+										accessibility={
+											<span>
+												Same as <Code>react-beautiful-dnd</Code>
+											</span>
+										}
+										other={
+											<Fragment>
+												<p>
+													The blue background and border visible while dragging pinned fields is{' '}
+													<strong>not</strong> added by the migration layer. It is custom styling
+													added in Jira and can be freely modified. Variations on this styling are
+													provided for reference.
+												</p>
+												<p>
+													Note that the small padding on the subtask container has been removed.
+													This ensures that the drop indicator is flush against the edge at the top
+													and bottom.
+												</p>
+											</Fragment>
+										}
+									/>
+								</Item>
+							</TabPanel>
+							<TabPanel>
+								<Item>
+									<ItemPreview>
+										<PinnedFieldReactBeautifulDndNoDraggingOutline />
+									</ItemPreview>
+									<ItemCaption
+										title="Migration layer (subtle variant)"
+										poweredBy="pdnd"
+										accessibility={
+											<span>
+												Same as <Code>react-beautiful-dnd</Code>
+											</span>
+										}
+										other={
+											<Fragment>
+												This variant removes the blue border that was visible while dragging.
+											</Fragment>
+										}
+									/>
+								</Item>
+							</TabPanel>
+							<TabPanel>
+								<Item>
+									<ItemPreview>
+										<PinnedFieldReactBeautifulDndSubtle />
+									</ItemPreview>
+									<ItemCaption
+										title="Migration layer (subtler variant)"
+										poweredBy="pdnd"
+										accessibility={
+											<span>
+												Same as <Code>react-beautiful-dnd</Code>
+											</span>
+										}
+										other={
+											<Fragment>
+												This variant also makes the blue background that was visible while dragging
+												subtler.
+											</Fragment>
+										}
+									/>
+								</Item>
+							</TabPanel>
+						</Tabs>
+					</div>
 
 					<SubSectionHeader
 						title="Manual migration"
 						description="These are examples of a manual migration using our current drag and drop visual guidelines"
 					/>
 
-					<Grid>
-						<GridItem span={gridItem.default.span} start={gridItem.default.centerStart}>
-							<Tabs id="manual-migration">
-								<TabList>
-									<Tab>Simplified</Tab>
-									<Tab>Accessibility: always visible</Tab>
-									<Tab>Accessibility: visible on focus</Tab>
-								</TabList>
-								<TabPanel>
-									<Item>
-										<ItemPreview>
-											<PinnedFieldsWithCurrentGuidelines />
-											<SubtaskCurrentGuidelines />
-										</ItemPreview>
-										<ItemCaption
-											title="Current guidelines"
-											poweredBy="pdnd"
-											accessibility="Not wired up for this example. See following examples to see accessibility options"
-										/>
-									</Item>
-								</TabPanel>
-								<TabPanel>
-									<Item>
-										<ItemPreview>
-											<PinnedFieldsWithCurrentGuidelinesA11yAlwaysVisible />
-											<SubtasksCurrentGuidelinesA11yAlwaysVisible />
-										</ItemPreview>
-										<ItemCaption
-											title="Current guidelines with visible action menu"
-											poweredBy="pdnd"
-											accessibility={
-												<Fragment>
-													A visible menu button is used to trigger all possible actions
-												</Fragment>
-											}
-											other={
-												<Fragment>
-													During user testing it was found that using menus had superior
-													accessibility characteristics to the <Code>react-beautiful-dnd</Code>{' '}
-													style keyboard controls. The action menu pattern is also cheap and more
-													flexible.
-												</Fragment>
-											}
-										/>
-									</Item>
-								</TabPanel>
-								<TabPanel>
-									<Item>
-										<ItemPreview>
-											<PinnedFieldsWithCurrentGuidelinesA11yKeyboardOnly />
-											<SubtasksCurrentGuidelinesA11yKeyboardOnly />
-										</ItemPreview>
-										<ItemCaption
-											title="Current guidelines with on-focus three dots"
-											poweredBy="pdnd"
-											accessibility={
-												<Fragment>
-													An action menu button is only visible when a draggable item receives
-													focus. This has the same great accessibility as always having the action
-													menu button always visible, but does not clutter the interface
-												</Fragment>
-											}
-										/>
-									</Item>
-								</TabPanel>
-							</Tabs>
-						</GridItem>
-					</Grid>
+					<div css={singleColumnLayoutStyles}>
+						<Tabs id="manual-migration">
+							<TabList>
+								<Tab>Simplified</Tab>
+								<Tab>Accessibility: always visible</Tab>
+								<Tab>Accessibility: visible on focus</Tab>
+							</TabList>
+							<TabPanel>
+								<Item>
+									<ItemPreview>
+										<PinnedFieldsWithCurrentGuidelines />
+										<SubtaskCurrentGuidelines />
+									</ItemPreview>
+									<ItemCaption
+										title="Current guidelines"
+										poweredBy="pdnd"
+										accessibility="Not wired up for this example. See following examples to see accessibility options"
+									/>
+								</Item>
+							</TabPanel>
+							<TabPanel>
+								<Item>
+									<ItemPreview>
+										<PinnedFieldsWithCurrentGuidelinesA11yAlwaysVisible />
+										<SubtasksCurrentGuidelinesA11yAlwaysVisible />
+									</ItemPreview>
+									<ItemCaption
+										title="Current guidelines with visible action menu"
+										poweredBy="pdnd"
+										accessibility={
+											<Fragment>
+												A visible menu button is used to trigger all possible actions
+											</Fragment>
+										}
+										other={
+											<Fragment>
+												During user testing it was found that using menus had superior accessibility
+												characteristics to the <Code>react-beautiful-dnd</Code> style keyboard
+												controls. The action menu pattern is also cheap and more flexible.
+											</Fragment>
+										}
+									/>
+								</Item>
+							</TabPanel>
+							<TabPanel>
+								<Item>
+									<ItemPreview>
+										<PinnedFieldsWithCurrentGuidelinesA11yKeyboardOnly />
+										<SubtasksCurrentGuidelinesA11yKeyboardOnly />
+									</ItemPreview>
+									<ItemCaption
+										title="Current guidelines with on-focus three dots"
+										poweredBy="pdnd"
+										accessibility={
+											<Fragment>
+												An action menu button is only visible when a draggable item receives focus.
+												This has the same great accessibility as always having the action menu
+												button always visible, but does not clutter the interface
+											</Fragment>
+										}
+									/>
+								</Item>
+							</TabPanel>
+						</Tabs>
+					</div>
 				</Section>
 
-				<Section backgroundColor={token('color.background.success', '')}>
+				<Section backgroundColor={token('color.background.success')}>
 					<SectionHeader
 						elementBefore={
 							<Lozenge appearance="success" isBold>
@@ -523,108 +531,105 @@ export default function ListComparison(): React.JSX.Element {
 						description="Exploring how we can evolve our current outputs and guidelines"
 					/>
 
-					<Grid>
-						<GridItem span={gridItem.default.span} start={gridItem.default.centerStart}>
-							<Item borderColor={token('color.border.success', undefined)}>
-								<ItemPreview>
-									{/* <PinnedFieldsEnhancedDragHandleHidden /> */}
-									{/* <PinnedFieldsPdndEnhanced /> */}
-									<PinnedFieldsEnhancedDragHandle />
-									<SubtaskEnhanced />
-								</ItemPreview>
-								<ItemCaption
-									title="Ideas for variation"
-									poweredBy="pdnd"
-									accessibility={
-										<Fragment>
-											<p>
-												The drag handle also functions as a menu button which is used for
-												accessibility.
-											</p>
-											<ul>
-												<li>
-													Dragging from the drag handle will initiate a drag and drop operation.
-												</li>
-												<li>
-													Clicking the drag handle will open a dropdown menu which provides an
-													alternative flow for reordering.
-												</li>
-											</ul>
-										</Fragment>
-									}
-									other={
-										<Fragment>
-											<p>This example introduces a few affordances for improving the experience:</p>
-											{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-											<table style={{ tableLayout: 'fixed' }}>
-												<thead>
-													<tr>
-														{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-														<th style={{ width: '33.3%' }}>Affordance</th>
-														{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-														<th style={{ width: '33.3%' }}>Effect</th>
-														{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-														<th style={{ width: '33.3%' }}>Note(s)</th>
-													</tr>
-												</thead>
-												<tbody
-													// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage
-													css={{
-														'> tr:nth-of-type(2n)': {
-															background: token('color.background.neutral', ''),
-														},
-													}}
-												>
-													<tr>
-														<td>Adding a drag handle</td>
-														<td>
-															<ul>
-																<li>Indicates the item is draggable</li>
-																<li>Doubles as a menu button for accessibility</li>
-															</ul>
-														</td>
-														<td>
-															For this example, we have changed the drag handle icon on subtasks.
-														</td>
-													</tr>
-													<tr>
-														<td>
-															Flashing selected background color on drop (
-															<Code>color.background.selected</Code>)
-														</td>
-														<td>Highlights which item was dropped</td>
-														<td>Inspired by Linear</td>
-													</tr>
-													<tr>
-														<td>
-															Adding a terminal to the drop indicator, that sticks out past the item
-														</td>
-														<td>Improves the visibility of the drop indicator</td>
-														<td></td>
-													</tr>
-													<tr>
-														<td>
-															Using a condensed representation of the item as a preview while
-															dragging
-														</td>
-														<td>
-															<ul>
-																<li>Improves the visibility of the drop indicator</li>
-																<li>Generally avoids large items from obscuring the screen</li>
-															</ul>
-														</td>
-														<td>
-															The exact representation used for the preview would be an app decision
-														</td>
-													</tr>
-												</tbody>
-											</table>
-										</Fragment>
-									}
-								/>
-							</Item>
-						</GridItem>
-					</Grid>
+					<div css={singleColumnLayoutStyles}>
+						<Item borderColor={token('color.border.success')}>
+							<ItemPreview>
+								{/* <PinnedFieldsEnhancedDragHandleHidden /> */}
+								{/* <PinnedFieldsPdndEnhanced /> */}
+								<PinnedFieldsEnhancedDragHandle />
+								<SubtaskEnhanced />
+							</ItemPreview>
+							<ItemCaption
+								title="Ideas for variation"
+								poweredBy="pdnd"
+								accessibility={
+									<Fragment>
+										<p>
+											The drag handle also functions as a menu button which is used for
+											accessibility.
+										</p>
+										<ul>
+											<li>
+												Dragging from the drag handle will initiate a drag and drop operation.
+											</li>
+											<li>
+												Clicking the drag handle will open a dropdown menu which provides an
+												alternative flow for reordering.
+											</li>
+										</ul>
+									</Fragment>
+								}
+								other={
+									<Fragment>
+										<p>This example introduces a few affordances for improving the experience:</p>
+										{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+										<table style={{ tableLayout: 'fixed' }}>
+											<thead>
+												<tr>
+													{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+													<th style={{ width: '33.3%' }}>Affordance</th>
+													{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+													<th style={{ width: '33.3%' }}>Effect</th>
+													{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+													<th style={{ width: '33.3%' }}>Note(s)</th>
+												</tr>
+											</thead>
+											<tbody
+												// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage
+												css={{
+													'> tr:nth-of-type(2n)': {
+														background: token('color.background.neutral'),
+													},
+												}}
+											>
+												<tr>
+													<td>Adding a drag handle</td>
+													<td>
+														<ul>
+															<li>Indicates the item is draggable</li>
+															<li>Doubles as a menu button for accessibility</li>
+														</ul>
+													</td>
+													<td>
+														For this example, we have changed the drag handle icon on subtasks.
+													</td>
+												</tr>
+												<tr>
+													<td>
+														Flashing selected background color on drop (
+														<Code>color.background.selected</Code>)
+													</td>
+													<td>Highlights which item was dropped</td>
+													<td>Inspired by Linear</td>
+												</tr>
+												<tr>
+													<td>
+														Adding a terminal to the drop indicator, that sticks out past the item
+													</td>
+													<td>Improves the visibility of the drop indicator</td>
+													<td></td>
+												</tr>
+												<tr>
+													<td>
+														Using a condensed representation of the item as a preview while dragging
+													</td>
+													<td>
+														<ul>
+															<li>Improves the visibility of the drop indicator</li>
+															<li>Generally avoids large items from obscuring the screen</li>
+														</ul>
+													</td>
+													<td>
+														The exact representation used for the preview would be an app decision
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</Fragment>
+								}
+							/>
+						</Item>
+					</div>
 				</Section>
 
 				<Section>
@@ -642,8 +647,8 @@ export default function ListComparison(): React.JSX.Element {
 							</Fragment>
 						}
 					/>
-					<Grid>
-						<GridItem span={smallGridItemSpan}>
+					<div css={twoColumnLayoutStyles}>
+						<div>
 							<Item>
 								<ItemPreview>
 									<AsanaFields />
@@ -668,8 +673,8 @@ export default function ListComparison(): React.JSX.Element {
 									}
 								/>
 							</Item>
-						</GridItem>
-						<GridItem span={smallGridItemSpan}>
+						</div>
+						<div>
 							<Item>
 								<ItemPreview>
 									<AsanaFieldsWithNativePreview />
@@ -693,8 +698,8 @@ export default function ListComparison(): React.JSX.Element {
 									}
 								/>
 							</Item>
-						</GridItem>
-						<GridItem span={smallGridItemSpan}>
+						</div>
+						<div>
 							<Item>
 								<ItemPreview>
 									<LinearTaskReordering />
@@ -729,9 +734,9 @@ export default function ListComparison(): React.JSX.Element {
 									}
 								/>
 							</Item>
-						</GridItem>
+						</div>
 
-						<GridItem span={smallGridItemSpan}>
+						<div>
 							<Item>
 								<ItemPreview>
 									<LinearTaskReorderingNativePreview />
@@ -757,9 +762,9 @@ export default function ListComparison(): React.JSX.Element {
 									}
 								/>
 							</Item>
-						</GridItem>
+						</div>
 
-						<GridItem span={smallGridItemSpan} start={{ sm: 1, md: 4 }}>
+						<div css={centeredTwoColumnItemStyles}>
 							<Item hasTransparentBackground>
 								<ItemPreview>
 									<SubtasksNotion />
@@ -778,8 +783,8 @@ export default function ListComparison(): React.JSX.Element {
 									}
 								/>
 							</Item>
-						</GridItem>
-					</Grid>
+						</div>
+					</div>
 				</Section>
 			</Stack>
 		</Box>

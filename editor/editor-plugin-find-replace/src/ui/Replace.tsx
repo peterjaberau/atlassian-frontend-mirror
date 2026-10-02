@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { Fragment, useState, useRef, useEffect } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -12,15 +12,16 @@ import {
 	TRIGGER_METHOD,
 } from '@atlaskit/editor-common/analytics';
 import { findReplaceMessages as messages } from '@atlaskit/editor-common/messages';
-import { ValidMessage } from '@atlaskit/form';
+import { ValidMessage } from '@atlaskit/form/valid-message';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import ChevronUpIcon from '@atlaskit/icon/core/chevron-up';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Inline, Text, xcss } from '@atlaskit/primitives';
-import Textfield from '@atlaskit/textfield';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import Textfield from '@atlaskit/textfield/text-field';
 
 import { FindReplaceTooltipButton } from './FindReplaceTooltipButton';
+
+const SPACE_REGEX = / /u;
 
 const replaceContainerStyles = xcss({
 	padding: 'space.100',
@@ -34,15 +35,16 @@ const actionButtonContainerStyles = xcss({
 	paddingTop: 'space.200',
 });
 
+// Without the replace field above it, the button row needs no separating space.
+const findOnlyActionButtonContainerStyles = xcss({
+	paddingTop: 'space.0',
+});
+
 const actionButtonParentInlineStyles = xcss({
 	justifyContent: 'space-between',
 	flexDirection: 'row-reverse',
-});
-
-const actionButtonParentInlineStylesNew = xcss({
-	justifyContent: 'space-between',
-	flexDirection: 'row-reverse',
 	flexWrap: 'wrap',
+	gap: 'space.075',
 });
 
 const actionButtonInlineStyles = xcss({
@@ -54,6 +56,12 @@ const closeButtonInlineStyles = xcss({
 });
 
 export type ReplaceProps = {
+	/**
+	 * When `false`, the replace label, field, replacement count message and both
+	 * replace buttons are not rendered. Both chevrons and the Close button stay.
+	 * Defaults to `true`.
+	 */
+	allowReplace?: boolean;
 	canReplace: boolean;
 	count: {
 		index: number;
@@ -93,6 +101,7 @@ export type ReplaceProps = {
 };
 
 const Replace = ({
+	allowReplace = true,
 	canReplace,
 	replaceText: initialReplaceText,
 	onReplace,
@@ -188,10 +197,7 @@ const Replace = ({
 		skipWhileComposing(() => {
 			onReplaceAll({ replaceText });
 			setIsHelperMessageVisible(true);
-			if (
-				count.totalReplaceable &&
-				expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-			) {
+			if (count.totalReplaceable) {
 				triggerSuccessReplacementMessageUpdate(count.totalReplaceable);
 				setReplaceCount(count.totalReplaceable);
 			} else {
@@ -234,45 +240,48 @@ const Replace = ({
 
 	return (
 		<Box xcss={replaceContainerStyles}>
-			<Box xcss={replaceWithLabelStyle}>
-				<Text id="replace-text-field-label" size="medium" weight="bold" color="color.text.subtle">
-					{replaceWith}
-				</Text>
-			</Box>
-			<Textfield
-				name="replace"
-				aria-labelledby="replace-text-field-label"
-				testId="replace-field"
-				appearance="standard"
-				defaultValue={replaceText}
-				ref={replaceTextfieldRef}
-				autoComplete="off"
-				onChange={handleReplaceChange}
-				onKeyDown={handleReplaceKeyDown}
-				onCompositionStart={handleCompositionStart}
-				onCompositionEnd={handleCompositionEnd}
-			/>
-			{isHelperMessageVisible && !findTyped && (
-				<div ref={successReplacementMessageRef}>
-					<ValidMessage testId="message-success-replacement">
-						{fakeSuccessReplacementMessageUpdate
-							? // @ts-ignore - TS1501 TypeScript 5.9.2 upgrade
-								resultsReplace.replace(/ /u, '\u00a0')
-							: resultsReplace}
-					</ValidMessage>
-				</div>
+			{allowReplace && (
+				<Fragment>
+					<Box xcss={replaceWithLabelStyle}>
+						<Text
+							id="replace-text-field-label"
+							size="medium"
+							weight="bold"
+							color="color.text.subtle"
+						>
+							{replaceWith}
+						</Text>
+					</Box>
+					<Textfield
+						name="replace"
+						aria-labelledby="replace-text-field-label"
+						testId="replace-field"
+						appearance="standard"
+						defaultValue={replaceText}
+						ref={replaceTextfieldRef}
+						autoComplete="off"
+						onChange={handleReplaceChange}
+						onKeyDown={handleReplaceKeyDown}
+						onCompositionStart={handleCompositionStart}
+						onCompositionEnd={handleCompositionEnd}
+					/>
+					{isHelperMessageVisible && !findTyped && (
+						<div ref={successReplacementMessageRef}>
+							<ValidMessage testId="message-success-replacement">
+								{fakeSuccessReplacementMessageUpdate
+									? resultsReplace.replace(SPACE_REGEX, '\u00a0')
+									: resultsReplace}
+							</ValidMessage>
+						</div>
+					)}
+				</Fragment>
 			)}
-			<Box xcss={actionButtonContainerStyles}>
-				<Inline
-					xcss={
-						expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-							? [actionButtonInlineStyles, actionButtonParentInlineStylesNew]
-							: [actionButtonInlineStyles, actionButtonParentInlineStyles]
-					}
-				>
+			<Box xcss={allowReplace ? actionButtonContainerStyles : findOnlyActionButtonContainerStyles}>
+				<Inline xcss={actionButtonParentInlineStyles}>
 					<Inline xcss={actionButtonInlineStyles}>
 						<FindReplaceTooltipButton
 							title={formatMessage(messages.findNext)}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							icon={(iconProps) => <ChevronDownIcon label={iconProps.label} size="small" />}
 							iconLabel={formatMessage(messages.findNext)}
 							keymapDescription={'Enter'}
@@ -281,49 +290,48 @@ const Replace = ({
 						/>
 						<FindReplaceTooltipButton
 							title={findPrevious}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							icon={(iconProps) => <ChevronUpIcon label={iconProps.label} size="small" />}
 							iconLabel={findPrevious}
 							keymapDescription={'Shift Enter'}
 							onClick={handleFindPrevClick}
 							disabled={count.total <= 1}
 						/>
-						<Button
-							testId={'Replace'}
-							id="replace-button"
-							onClick={handleReplaceClick}
-							isDisabled={!canReplace}
-						>
-							{formatMessage(messages.replace)}
-						</Button>
-						<Button
-							appearance="primary"
-							testId={replaceAll}
-							id="replaceAll-button"
-							onClick={handleReplaceAllClick}
-							isDisabled={
-								expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-									? count.totalReplaceable === 0
-									: !canReplace
-							}
-						>
-							{replaceAll}
-						</Button>
+						{allowReplace && (
+							<Fragment>
+								<Button
+									testId={'Replace'}
+									id="replace-button"
+									onClick={handleReplaceClick}
+									isDisabled={!canReplace}
+								>
+									{formatMessage(messages.replace)}
+								</Button>
+								<Button
+									appearance="primary"
+									testId={replaceAll}
+									id="replaceAll-button"
+									onClick={handleReplaceAllClick}
+									isDisabled={count.totalReplaceable === 0}
+								>
+									{replaceAll}
+								</Button>
+							</Fragment>
+						)}
 					</Inline>
-					{expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true) ? (
-						<Inline xcss={closeButtonInlineStyles}>
-							<Button appearance="subtle" testId={closeFindReplaceDialog} onClick={clearSearch}>
-								{closeFindReplaceDialog}
-							</Button>
-						</Inline>
-					) : (
+					<Inline xcss={closeButtonInlineStyles}>
 						<Button appearance="subtle" testId={closeFindReplaceDialog} onClick={clearSearch}>
 							{closeFindReplaceDialog}
 						</Button>
-					)}
+					</Inline>
 				</Inline>
 			</Box>
 		</Box>
 	);
 };
 
-export default injectIntl(Replace);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<ReplaceProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<ReplaceProps & WrappedComponentProps>;
+} = injectIntl(Replace);
+export default _default_1;

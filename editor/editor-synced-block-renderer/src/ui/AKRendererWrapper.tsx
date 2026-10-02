@@ -1,19 +1,19 @@
 import React, { memo, useMemo } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import type { DocNode } from '@atlaskit/adf-schema';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import {
 	ReactRenderer,
 	ValidationContextProvider,
 	defaultNodeComponents,
 } from '@atlaskit/renderer';
-import { RendererActionsContext } from '@atlaskit/renderer/actions';
+import { RendererActionsContext } from '@atlaskit/renderer/actions/renderer-actions-context';
 import { RendererContextProvider } from '@atlaskit/renderer/renderer-context';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import type { SyncedBlockRendererOptions } from '../types';
 
@@ -69,14 +69,35 @@ const defaultOptions: SyncedBlockRendererOptions = {
 	},
 };
 
-export const AKRendererWrapper = memo(
+export const AKRendererWrapper: React.MemoExoticComponent<
 	({
 		doc,
 		dataProviders,
 		options,
+		headingIdPrefix,
 	}: {
 		dataProviders: ProviderFactory | undefined;
 		doc: DocNode;
+		/**
+		 * When provided, headings inside the synced block are rendered with stable
+		 * ids prefixed by this value (typically the reference node's `localId`),
+		 * enabling heading anchor links and Table-of-Contents deep links. When
+		 * omitted, heading ids are disabled (the historical default) so unrelated
+		 * consumers are unaffected.
+		 */
+		headingIdPrefix?: string;
+		options: SyncedBlockRendererOptions | undefined;
+	}) => React.JSX.Element
+> = memo(
+	({
+		doc,
+		dataProviders,
+		options,
+		headingIdPrefix,
+	}: {
+		dataProviders: ProviderFactory | undefined;
+		doc: DocNode;
+		headingIdPrefix?: string;
 		options: SyncedBlockRendererOptions | undefined;
 	}): React.JSX.Element => {
 		const mergedOptions = { ...defaultOptions, ...options };
@@ -97,9 +118,22 @@ export const AKRendererWrapper = memo(
 			emojiResourceConfig,
 			eventHandlers,
 			media,
+			mentionNodeDataProvider,
 			smartLinks,
 			stickyHeaders,
+			contentMode,
 		} = mergedOptions ?? {};
+
+		// Only stamp heading ids when a prefix is supplied AND the consumer has
+		// opted into heading anchor links. This keeps the change scoped: consumers
+		// that enable ToC/anchor support (e.g. Confluence, behind its experiment)
+		// pass both a per-instance prefix (the reference block's localId) and
+		// `allowHeadingAnchorLinks`; every other consumer keeps id-less headings and
+		// is unaffected.
+		const headingIdsEnabled =
+			typeof headingIdPrefix === 'string' &&
+			headingIdPrefix.length > 0 &&
+			Boolean(allowHeadingAnchorLinks);
 
 		const nodeComponents = useMemo(() => {
 			return {
@@ -119,42 +153,15 @@ export const AKRendererWrapper = memo(
 		return (
 			<RendererActionsContext>
 				<ValidationContextWrapper>
-					{fg('platform_synced_block_patch_1') ? (
-						<RendererContextProvider value={{ nestedRendererType: 'syncedBlock' }}>
-							<div data-testid="sync-block-renderer-wrapper">
-								<ReactRenderer
-									appearance={appearance}
-									adfStage="stage0"
-									document={doc}
-									disableHeadingIDs={true}
-									dataProviders={dataProviders}
-									nodeComponents={nodeComponents}
-									allowAltTextOnImages={allowAltTextOnImages}
-									allowAnnotations={allowAnnotations}
-									allowColumnSorting={allowColumnSorting}
-									allowCopyToClipboard={allowCopyToClipboard}
-									allowCustomPanels={allowCustomPanels}
-									allowHeadingAnchorLinks={allowHeadingAnchorLinks}
-									allowPlaceholderText={allowPlaceholderText}
-									allowRendererContainerStyles={allowRendererContainerStyles}
-									allowSelectAllTrap={allowSelectAllTrap}
-									allowUgcScrubber={allowUgcScrubber}
-									allowWrapCodeBlock={allowWrapCodeBlock}
-									emojiResourceConfig={emojiResourceConfig}
-                                    eventHandlers={fg('platform_synced_block_patch_1') ? eventHandlers : undefined}
-									media={media}
-									smartLinks={smartLinks}
-									stickyHeaders={stickyHeaders}
-								/>
-							</div>
-						</RendererContextProvider>
-					) : (
+					{/* eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed) */}
+					<RendererContextProvider value={{ nestedRendererType: 'syncedBlock' }}>
 						<div data-testid="sync-block-renderer-wrapper">
 							<ReactRenderer
 								appearance={appearance}
 								adfStage="stage0"
 								document={doc}
-								disableHeadingIDs={true}
+								disableHeadingIDs={!headingIdsEnabled}
+								headingIdPrefix={headingIdsEnabled ? headingIdPrefix : undefined}
 								dataProviders={dataProviders}
 								nodeComponents={nodeComponents}
 								allowAltTextOnImages={allowAltTextOnImages}
@@ -168,13 +175,25 @@ export const AKRendererWrapper = memo(
 								allowSelectAllTrap={allowSelectAllTrap}
 								allowUgcScrubber={allowUgcScrubber}
 								allowWrapCodeBlock={allowWrapCodeBlock}
+								disableTableOverflowShadow={true}
 								emojiResourceConfig={emojiResourceConfig}
+								eventHandlers={eventHandlers}
 								media={media}
+								// Synced block replica locations render through this wrapper rather than the
+								// main editor/renderer surfaces, so forwarding the provider here is gated
+								// independently of `platform_editor_mention_node_avatar` (which still controls
+								// whether the avatar itself renders once a provider is present).
+								mentionNodeDataProvider={
+									isExperimentEnabled('platform_editor_mention_avatar_synced_block')
+										? mentionNodeDataProvider
+										: undefined
+								}
 								smartLinks={smartLinks}
 								stickyHeaders={stickyHeaders}
+								contentMode={contentMode}
 							/>
 						</div>
-					)}
+					</RendererContextProvider>
 				</ValidationContextWrapper>
 			</RendererActionsContext>
 		);

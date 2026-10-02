@@ -1,8 +1,8 @@
 import debounce from 'lodash/debounce';
 import memoize from 'lodash/memoize';
 
-import { type MediaAttributes } from '@atlaskit/adf-schema';
-import { type BatchAttrsStepData } from '@atlaskit/adf-schema/steps';
+import type { MediaAttributes } from '@atlaskit/adf-schema/media';
+import type { BatchAttrsStepData } from '@atlaskit/adf-schema/steps/batch-attrs-step';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import { batchStepsUpdate } from './batchSteps';
@@ -43,7 +43,7 @@ function memoizeDebounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
 		return debounce<T>(func, wait, options);
 	}, resolver);
 
-	return function (...args: Parameters<T>) {
+	return function (...args: Parameters<T>): ReturnType<T> | undefined {
 		return mem(...args)(...args);
 	};
 }
@@ -63,7 +63,10 @@ export type MediaAttributesCache = WeakMap<EditorView, MediaAttributesCachePerVi
 const mediaAttributesCache: MediaAttributesCache = new WeakMap();
 const debouncedTime = 500;
 
-export const containsSameAttributes = (a: MediaAttributes, b: Partial<MediaAttributes>): boolean => {
+export const containsSameAttributes = (
+	a: MediaAttributes,
+	b: Partial<MediaAttributes>,
+): boolean => {
 	// a contains b, and want to check if attributes in b are same in a
 	return Object.entries(b).every(([bkey, bValue]) => {
 		if (bkey in a) {
@@ -134,7 +137,10 @@ export const runUpdate = (editorView: EditorView, cache: MediaAttributesCache): 
  * 1. Debounces the `runUpdate` function with the specified delay and options.
  * 2. Uses the editor view instance as the key for memoization to ensure that updates are applied correctly.
  */
-export const runUpdateDebounced = memoizeDebounce(
+export const runUpdateDebounced: (
+	editorView: EditorView,
+	cache: MediaAttributesCache,
+) => void | undefined = memoizeDebounce(
 	runUpdate,
 	debouncedTime,
 	/**

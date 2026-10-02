@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import noop from '@atlaskit/ds-lib/noop';
 
-import { reorderRows } from '../internal/helpers';
+import { reorderRows } from '../internal/reorder-rows';
 import { type RankEnd, type RowType, type SortOrderType, type StatefulProps } from '../types';
-
 import DynamicTableStateless from './stateless';
 
 interface State {
@@ -43,7 +42,15 @@ interface State {
  */
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export default class DynamicTable extends React.Component<StatefulProps, State> {
-	static defaultProps = {
+	static defaultProps: {
+		defaultPage: number;
+		isLoading: boolean;
+		isFixedSize: boolean;
+		isRankable: boolean;
+		onSetPage: typeof noop;
+		onSort: typeof noop;
+		rowsPerPage: number;
+	} = {
 		defaultPage: 1,
 		isLoading: false,
 		isFixedSize: false,
@@ -53,7 +60,12 @@ export default class DynamicTable extends React.Component<StatefulProps, State> 
 		rowsPerPage: Infinity,
 	};
 
-	state = {
+	state: {
+		page: number | undefined;
+		sortKey: string | undefined;
+		sortOrder: SortOrderType | undefined;
+		rows: RowType[] | undefined;
+	} = {
 		page: this.props.defaultPage,
 		sortKey: this.props.defaultSortKey,
 		sortOrder: this.props.defaultSortOrder,

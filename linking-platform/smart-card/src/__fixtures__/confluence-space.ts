@@ -1,3 +1,5 @@
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 export default {
 	meta: {
 		auth: [],
@@ -31,4 +33,4 @@ export default {
 		summary: '',
 		'atlassian:titlePrefix': { text: '', '@type': 'atlassian:Emoji' },
 	},
-};
+} as SmartLinkResponse;

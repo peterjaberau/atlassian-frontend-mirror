@@ -1,14 +1,7 @@
 import { roundEpsilon } from '../round-number';
+import type { BundleEvalTimingsConfig, ReportedTimings } from './types';
 
-type MappedPerformanceMark = { type: 'start' | 'end'; name: string };
-
-export type BundleEvalTimingsConfig = {
-	mapPerformanceMark: (mark: string) => MappedPerformanceMark | null;
-};
-
-type ReportedTimings = {
-	[key: string]: { startTime: number; duration: number };
-};
+export type { BundleEvalTimingsConfig } from './types';
 
 let config: BundleEvalTimingsConfig | null = null;
 

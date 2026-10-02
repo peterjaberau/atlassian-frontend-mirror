@@ -1,17 +1,26 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import SpinnerIcon from '@atlaskit/spinner';
 
-import { CardLoading } from '../../lightCards/cardLoading';
+import { IntlProvider } from 'react-intl';
+
+import { render, screen } from '@atlassian/testing-library';
+
 import { CardError } from '../../lightCards/cardError';
+import { CardLoading } from '../../lightCards/cardLoading';
 import { getDimensionsWithDefault } from '../../lightCards/getDimensionsWithDefault';
-import { ErrorIcon } from '../../lightCards/errorIcon';
+
+// `CardLoading` renders `LoadingBar`, which localises its aria-label via `useIntl`.
+const renderWithIntl = (ui: React.ReactElement) =>
+	render(<IntlProvider locale="en">{ui}</IntlProvider>);
 
 describe('<CardLoading />', () => {
-	it('should render spinner', () => {
-		const fileLoading = shallow(<CardLoading />);
+	it('should capture and report a11y violations', async () => {
+		const { container } = renderWithIntl(<CardLoading />);
+		await expect(container).toBeAccessible();
+	});
 
-		expect(fileLoading.find(SpinnerIcon)).toHaveLength(1);
+	it('should render loading indicator', () => {
+		renderWithIntl(<CardLoading />);
+		expect(screen.getByTestId('media-card-loading')).toBeInTheDocument();
 	});
 
 	describe('getDimensionsWithDefault()', () => {
@@ -32,10 +41,14 @@ describe('<CardLoading />', () => {
 });
 
 describe('<CardError />', () => {
-	it('should render the right icon based on the itemType', () => {
-		const fileError = shallow(<CardError />);
+	it('should capture and report a11y violations', async () => {
+		const { container } = render(<CardError />);
+		await expect(container).toBeAccessible();
+	});
 
-		expect(fileError.find(ErrorIcon)).toHaveLength(1);
+	it('should render the right icon based on the itemType', () => {
+		render(<CardError />);
+		expect(screen.getByLabelText('Error')).toBeInTheDocument();
 	});
 
 	describe('getDimensionsWithDefault()', () => {

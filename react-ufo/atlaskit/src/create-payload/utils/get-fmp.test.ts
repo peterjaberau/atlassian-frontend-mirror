@@ -1,5 +1,4 @@
 import type { InteractionMetrics } from '../../common';
-
 import { getFMP } from './get-fmp';
 
 // Mock the config module
@@ -38,9 +37,7 @@ describe('getFMP', () => {
 		spans: [],
 		requestInfo: [],
 		holdInfo: [],
-		holdExpInfo: [],
 		holdActive: new Map(),
-		holdExpActive: new Map(),
 		reactProfilerTimings: [],
 		measureStart: 1000,
 		cancelCallbacks: [],
@@ -55,6 +52,7 @@ describe('getFMP', () => {
 		trace: null,
 		routeName: 'test-route',
 		...overrides,
+		preloadInfo: overrides.preloadInfo ?? [],
 	});
 
 	describe('FMP calculation', () => {

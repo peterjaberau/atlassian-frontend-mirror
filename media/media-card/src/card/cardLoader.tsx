@@ -1,8 +1,12 @@
-import React, { useContext } from 'react';
+import React, { Suspense, useContext } from 'react';
+
 import Loadable from 'react-loadable';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import UFOSegment from '@atlaskit/react-ufo/ufo-segment';
+
 import { CardLoading } from '../utils/lightCards/cardLoading';
 import { type CardWithMediaClientConfigProps } from './types';
-import UFOSegment from '@atlaskit/react-ufo/segment';
 
 const MediaCardContext = React.createContext({});
 
@@ -11,28 +15,47 @@ const CardLoadingWithContext = () => {
 	return <CardLoading {...props} interactionName="media-card-async-loading" />;
 };
 
-const MediaCardWithMediaClientProvider = Loadable({
+function loadCardWithMediaClient() {
+	return import(
+		/* webpackChunkName: "@atlaskit-internal_media-card-with-media-client" */ './cardWithMediaClient'
+	);
+}
+
+const MediaCardWithMediaClientLoadable = Loadable({
 	loader: (): Promise<React.ComponentType<CardWithMediaClientConfigProps>> =>
-		import(
-			/* webpackChunkName: "@atlaskit-internal_media-card-with-media-client" */ './cardWithMediaClient'
-		).then((mod) => mod.CardWithMediaClient),
+		loadCardWithMediaClient().then((mod) => mod.CardWithMediaClient),
 	loading: () => <CardLoadingWithContext />,
 });
 
-type CardLoaderComponent = React.FC<CardWithMediaClientConfigProps> & {
-	preload: () => void;
-};
+const MediaCardWithMediaClientLazy = React.lazy(() =>
+	loadCardWithMediaClient().then((mod) => ({ default: mod.CardWithMediaClient })),
+);
 
-const CardLoader: CardLoaderComponent = (props) => {
+const CardLoader: {
+	(props: CardWithMediaClientConfigProps): React.JSX.Element;
+	preload(): void;
+} = (props: CardWithMediaClientConfigProps): React.JSX.Element => {
 	return (
 		<UFOSegment name="media-card" mode="list">
 			<MediaCardContext.Provider value={props}>
-				<MediaCardWithMediaClientProvider {...props} />
+				{fg('platform_media_react19_support') ? (
+					<Suspense fallback={<CardLoadingWithContext />}>
+						<MediaCardWithMediaClientLazy {...props} />
+					</Suspense>
+				) : (
+					<MediaCardWithMediaClientLoadable {...props} />
+				)}
 			</MediaCardContext.Provider>
 		</UFOSegment>
 	);
 };
 
-CardLoader.preload = () => MediaCardWithMediaClientProvider.preload();
+CardLoader.preload = (): void => {
+	if (fg('platform_media_react19_support')) {
+		loadCardWithMediaClient().then(() => {});
+	} else {
+		MediaCardWithMediaClientLoadable.preload?.();
+	}
+};
 
 export default CardLoader;

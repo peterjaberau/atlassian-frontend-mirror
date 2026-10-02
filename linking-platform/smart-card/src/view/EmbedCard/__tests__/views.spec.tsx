@@ -1,15 +1,15 @@
 import React from 'react';
 
-import { fireEvent, render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import {
 	AtlasProject,
 	overrideEmbedContent,
 	renderWithIntl,
 	ResolvedClient,
 } from '@atlaskit/link-test-helpers';
+import { fireEvent, render, screen } from '@atlassian/testing-library';
 
 import useResolve from '../../../state/hooks/use-resolve';
 import { EmbedCardErroredView } from '../../../view/EmbedCard/views/ErroredView';
@@ -237,7 +237,7 @@ describe('EmbedCard Views', () => {
 				}),
 			);
 
-			expect(mockResolve).toHaveBeenCalledWith(props.link, true);
+			expect(mockResolve).toHaveBeenCalledWith({ url: props.link, isReloading: true });
 
 			await expect(document.body).toBeAccessible();
 		});

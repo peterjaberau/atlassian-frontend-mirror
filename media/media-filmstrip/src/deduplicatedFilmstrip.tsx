@@ -1,15 +1,19 @@
 import { useRef } from 'react';
 import React, { useMemo, useState, useEffect } from 'react';
+
+import { defaultImageCardDimensions } from '@atlaskit/media-card/cardDimensions';
+import Card from '@atlaskit/media-card/cardLoader';
+import { CardLoading } from '@atlaskit/media-card/cardLoading';
+import { isFileIdentifier } from '@atlaskit/media-client';
 import {
 	MediaClientContext,
 	MediaClientProvider,
-	useFileHashes,
-} from '@atlaskit/media-client-react';
-import { Card, defaultImageCardDimensions, CardLoading } from '@atlaskit/media-card';
+} from '@atlaskit/media-client-react/media-client-provider';
+import { useFileHashes } from '@atlaskit/media-client-react/use-file-hashes';
+
 import { FilmstripView, type SizeEvent, type ScrollEvent } from './filmstripView';
-import { generateIdentifierKey } from './utils/generateIdentifierKey';
 import { type FilmstripProps } from './types';
-import { isFileIdentifier } from '@atlaskit/media-client';
+import { generateIdentifierKey } from './utils/generateIdentifierKey';
 
 export function usePrevious<T>(value: T | undefined): T | undefined {
 	const ref = useRef<T | undefined>();
@@ -27,6 +31,7 @@ const DeduplicatedFilmStripInternal = ({
 	viewerOptions,
 	testId = 'media-filmstrip',
 	isLazy,
+	fallbackMediaNameFetcher,
 }: FilmstripProps) => {
 	const [animate, setAnimate] = useState(false);
 	const [offset, setOffset] = useState(0);
@@ -88,6 +93,7 @@ const DeduplicatedFilmStripInternal = ({
 					viewerOptions={viewerOptions}
 					includeHashForDuplicateFiles
 					isLazy={isLazy}
+					fallbackMediaNameFetcher={fallbackMediaNameFetcher}
 					{...item}
 				/>
 			);
@@ -100,6 +106,7 @@ const DeduplicatedFilmStripInternal = ({
 		featureFlags,
 		viewerOptions,
 		isLazy,
+		fallbackMediaNameFetcher,
 	]);
 
 	return (

@@ -1,7 +1,9 @@
 import React from 'react';
+
 import AudioCircleIcon from '@atlaskit/icon/core/audio';
-import ResultBase from '../src/components/Results/ResultBase';
+
 import ResultItemGroup from '../src/components/ResultItem/ResultItemGroup';
+import ResultBase from '../src/components/Results/ResultBase';
 
 const defaultProps = {
 	resultId: 'result_id',
@@ -10,7 +12,7 @@ const defaultProps = {
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default class extends React.Component {
-	render() {
+	render(): React.JSX.Element {
 		return (
 			<div>
 				<h3>Custom result types</h3>

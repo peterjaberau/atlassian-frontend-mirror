@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-code-block",
-	"version": "9.0.13",
+	"version": "25.0.1",
 	"description": "Code block plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -16,22 +16,19 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./codeBlockPlugin": "./src/entry-points/codeBlockPlugin.tsx",
+		"./codeBlockPluginType": "./src/entry-points/codeBlockPluginType.ts",
+		"./types": "./src/entry-points/types.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
+		"@atlaskit/button": "workspace:^",
 		"@atlaskit/code": "workspace:^",
+		"@atlaskit/css": "workspace:^",
 		"@atlaskit/editor-plugin-analytics": "workspace:^",
 		"@atlaskit/editor-plugin-block-menu": "workspace:^",
 		"@atlaskit/editor-plugin-composition": "workspace:^",
@@ -42,71 +39,41 @@
 		"@atlaskit/editor-plugin-selection": "workspace:^",
 		"@atlaskit/editor-plugin-toolbar": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
+		"@atlaskit/editor-shared-styles": "workspace:^",
 		"@atlaskit/editor-toolbar": "workspace:^",
+		"@atlaskit/editor-ui-control-model": "workspace:^",
+		"@atlaskit/flag": "workspace:^",
+		"@atlaskit/frontend-utilities": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/prosemirror-input-rules": "workspace:^",
+		"@atlaskit/react-select": "workspace:^",
+		"@atlaskit/select": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
-		"@babel/runtime": "root:*"
+		"@atlaskit/tokens": "workspace:^",
+		"@babel/runtime": "root:*",
+		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0",
-		"react-intl-next": "*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"emotion"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
-	"stricter": {
-		"no-unused-dependencies": {
-			"checkDevDependencies": true
-		}
+		"react": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"platform-feature-flags": {
 		"code_block_auto_insertion_bug_fix": {
 			"type": "boolean"
 		},
-		"editor_a11y_remove_unwrap_button": {
-			"type": "boolean"
-		},
 		"platform_editor_adf_with_localid": {
 			"type": "boolean"
 		},
-		"platform_editor_dec_a11y_fixes": {
+		"platform_editor_code_block_mermaid_language": {
 			"type": "boolean"
 		}
+	},
+	"devDependencies": {
+		"react": "^19.2.0",
+		"react-intl": "root:*"
 	}
 }

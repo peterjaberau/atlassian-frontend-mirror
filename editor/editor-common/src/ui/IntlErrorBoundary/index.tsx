@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 interface ErrorBoundaryProps {
 	children?: React.ReactNode;
@@ -16,7 +16,7 @@ const isMissingIntlProviderInAncestryError = (err: Error) =>
 	err?.toString()?.includes('<IntlProvider> needs to exist in the component ancestry');
 
 // Ignored via go/ees005
-// eslint-disable-next-line @repo/internal/react/no-class-components
+// eslint-disable-next-line @repo/internal/react/no-class-components, @atlaskit/volt-strict-mode/no-multiple-exports
 export class IntlErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
 	state = {
 		missingIntlProviderInAncestry: false,
@@ -27,12 +27,19 @@ export class IntlErrorBoundary extends React.Component<ErrorBoundaryProps, Error
 		if (isMissingIntlProviderInAncestryError(error)) {
 			this.setState({ missingIntlProviderInAncestry: true });
 		} else {
-			// else we re-propagate the non-react-intl-next error
+			// else we re-propagate the non-react-intl error
 			throw error;
 		}
 	}
 
-	render() {
+	render():
+		| string
+		| number
+		| boolean
+		| Iterable<React.ReactNode>
+		| React.JSX.Element
+		| null
+		| undefined {
 		if (this.state.missingIntlProviderInAncestry) {
 			return <IntlProvider locale="en">{this.props.children}</IntlProvider>;
 		}

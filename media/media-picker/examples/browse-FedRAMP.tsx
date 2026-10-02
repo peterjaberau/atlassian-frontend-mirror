@@ -1,24 +1,24 @@
 // eslint-disable-line no-console
 import React from 'react';
 import { Component } from 'react';
+
+import Button from '@atlaskit/button/default/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
 import {
 	defaultCollectionName,
 	defaultMediaPickerCollectionName,
 	mediaPickerAuthProvider,
 } from '@atlaskit/media-test-helpers';
-import Button from '@atlaskit/button/new';
-import DropdownMenu, { DropdownItem } from '@atlaskit/dropdown-menu';
-import { fg } from '@atlaskit/platform-feature-flags';
-import {
-	MainWrapper,
-	UploadPreviews,
-	type AuthEnvironment,
-	PopupHeader,
-	PopupContainer,
-} from '../example-helpers';
+
+import { MainWrapper } from '../example-helpers/mainWrapper';
+import { PopupContainer } from '../example-helpers/PopupContainer';
+import { PopupHeader } from '../example-helpers/PopupHeader';
+import type { AuthEnvironment } from '../example-helpers/types';
+import { UploadPreviews } from '../example-helpers/upload-previews';
+import { BrowserLoader as Browser } from '../src/components/browser';
 import { type UploadParams, type BrowserConfig } from '../src/types';
-import { Browser } from '../src/';
-import { type MediaClientConfig } from '@atlaskit/media-core';
 
 export interface BrowserWrapperState {
 	collectionName: string;
@@ -111,19 +111,13 @@ class BrowserWrapper extends Component<{}, BrowserWrapperState> {
 						<Button appearance="primary" onClick={this.onOpen}>
 							Open
 						</Button>
-						<DropdownMenu
-							trigger={collectionName}
-							shouldRenderToParent={fg('should-render-to-parent-should-be-true-media-exif')}
-						>
+						<DropdownMenu trigger={collectionName} shouldRenderToParent>
 							<DropdownItem onClick={this.onCollectionChange}>
 								{defaultMediaPickerCollectionName}
 							</DropdownItem>
 							<DropdownItem onClick={this.onCollectionChange}>{defaultCollectionName}</DropdownItem>
 						</DropdownMenu>
-						<DropdownMenu
-							trigger={authEnvironment}
-							shouldRenderToParent={fg('should-render-to-parent-should-be-true-media-exif')}
-						>
+						<DropdownMenu trigger={authEnvironment} shouldRenderToParent>
 							<DropdownItem onClick={this.onAuthTypeChange}>client</DropdownItem>
 							<DropdownItem onClick={this.onAuthTypeChange}>asap</DropdownItem>
 						</DropdownMenu>

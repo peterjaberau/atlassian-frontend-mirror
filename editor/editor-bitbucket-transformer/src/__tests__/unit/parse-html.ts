@@ -1,11 +1,17 @@
-import { BitbucketTransformer, type AdditionalParseOptions } from '../..';
-import { uuid } from '@atlaskit/adf-schema';
-import { defaultSchema as schema } from '@atlaskit/editor-test-helpers/schema';
+import { uuid } from '@atlaskit/adf-schema/uuid';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { Mark } from '@atlaskit/editor-prosemirror/model';
 import {
 	a,
 	blockquote,
+	caption,
+	code,
 	code_block,
 	doc,
+	em,
+	emoji,
+	expand,
+	extension,
 	h1,
 	h2,
 	h3,
@@ -13,35 +19,30 @@ import {
 	h5,
 	h6,
 	hr,
-	li,
-	emoji,
+	inlineCard,
+	liWithAttrs,
+	media,
+	mediaSingle,
 	mention,
-	code,
 	ol,
 	p,
-	ul,
-	table,
-	tr,
-	th,
-	td,
-	strong,
-	em,
 	strike,
-	mediaSingle,
-	media,
-	caption,
-	inlineCard,
-	extension,
-	expand,
+	strong,
+	table,
+	td,
+	th,
+	tr,
+	ul,
 } from '@atlaskit/editor-test-helpers/doc-builder';
-import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { Mark } from '@atlaskit/editor-prosemirror/model';
+import { defaultSchema as schema } from '@atlaskit/editor-test-helpers/schema';
+import { passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
+import { BitbucketTransformer, type AdditionalParseOptions } from '../..';
 
 const transformer = new BitbucketTransformer(schema);
 const parse = (html: string, additionalParseOptions?: AdditionalParseOptions) =>
 	transformer.parse(html, additionalParseOptions);
-const TABLE_LOCAL_ID = 'test-table-local-id';
-const MENTION_LOCAL_ID = 'test-mention-local-id';
+const STATIC_LOCAL_ID = 'static';
 
 export const textWithMarks = (obj: PMNode, text: string, marks: Mark[]): boolean => {
 	let matched = false;
@@ -58,6 +59,14 @@ export const textWithMarks = (obj: PMNode, text: string, marks: Mark[]): boolean
 
 // Based on https://bitbucket.org/tutorials/markdowndemo
 describe('BitbucketTransformer: parser', () => {
+	beforeAll(() => {
+		uuid.setStatic(STATIC_LOCAL_ID);
+	});
+
+	afterAll(() => {
+		uuid.setStatic(false);
+	});
+
 	describe('block elements', () => {
 		it('should support level 1 to 6 headings', () => {
 			expect(parse('<h1>text</h1>')).toEqualDocument(doc(h1('text')));
@@ -168,7 +177,7 @@ describe('BitbucketTransformer: parser', () => {
 			expect(parsed).toEqualDocument(
 				doc(
 					ul(
-						li(
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(
 							p('Hello'),
 							mediaSingle()(
 								media({
@@ -309,7 +318,7 @@ describe('BitbucketTransformer: parser', () => {
 				expect(parsed).toEqualDocument(
 					doc(
 						ul(
-							li(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(
 								p('Hello'),
 								mediaSingle({
 									width: 90.66666,
@@ -497,7 +506,7 @@ describe('BitbucketTransformer: parser', () => {
 				expect(parsed).toEqualDocument(
 					doc(
 						ul(
-							li(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(
 								p('Hello'),
 								mediaSingle()(
 									media({
@@ -659,35 +668,78 @@ describe('BitbucketTransformer: parser', () => {
 		it('should support unordered list inside blockquote', () => {
 			expect(
 				parse('<blockquote><ul><li><p>item 1</p></li><li><p>item 2</p></li></ul></blockquote>'),
-			).toEqualDocument(doc(blockquote(ul(li(p('item 1')), li(p('item 2'))))));
+			).toEqualDocument(
+				doc(
+					blockquote(
+						ul(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 1')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 2')),
+						),
+					),
+				),
+			);
 		});
 		it('should support ordered list inside blockquote', () => {
 			expect(
 				parse('<blockquote><ol><li><p>item 1</p></li><li><p>item 2</p></li></ol></blockquote>'),
-			).toEqualDocument(doc(blockquote(ol()(li(p('item 1')), li(p('item 2'))))));
+			).toEqualDocument(
+				doc(
+					blockquote(
+						ol()(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 1')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 2')),
+						),
+					),
+				),
+			);
 		});
 		it('should support custom ordered list inside blockquote', () => {
 			expect(
 				parse(
 					'<blockquote><ol start="9"><li><p>item 1</p></li><li><p>item 2</p></li></ol></blockquote>',
 				),
-			).toEqualDocument(doc(blockquote(ol({ order: 9 })(li(p('item 1')), li(p('item 2'))))));
+			).toEqualDocument(
+				doc(
+					blockquote(
+						ol({ order: 9 })(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 1')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 2')),
+						),
+					),
+				),
+			);
 		});
 		it('should set order to 1 for negative order for custom ordered list inside blockquote', () => {
 			expect(
 				parse(
 					'<blockquote><ol start="-2"><li><p>item 1</p></li><li><p>item 2</p></li></ol></blockquote>',
 				),
-			).toEqualDocument(doc(blockquote(ol({ order: 1 })(li(p('item 1')), li(p('item 2'))))));
+			).toEqualDocument(
+				doc(
+					blockquote(
+						ol({ order: 1 })(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 1')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 2')),
+						),
+					),
+				),
+			);
 		});
 		it('should support codeblock inside a list within a blockquote', () => {
-			const js = code_block({ language: 'javascript' });
+			const js = code_block({ language: 'javascript', localId: STATIC_LOCAL_ID, wrap: true });
 			expect(
 				parse(
 					'<blockquote><ol start="9"><li><p>item 1</p></li><li><div class="codehilite language-javascript"><pre><span></span>    foo\n       bar</pre></div></li></ol></blockquote>',
 				),
 			).toEqualDocument(
-				doc(blockquote(ol({ order: 9 })(li(p('item 1')), li(js('    foo\n       bar'))))),
+				doc(
+					blockquote(
+						ol({ order: 9 })(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('item 1')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(js('    foo\n       bar')),
+						),
+					),
+				),
 			);
 		});
 		it('should support nested list within a blockquote', () => {
@@ -705,7 +757,19 @@ describe('BitbucketTransformer: parser', () => {
       </blockquote>
     `),
 			).toEqualDocument(
-				doc(blockquote(ul(li(p('level 1'), ul(li(p('level 1.1')), li(p('level 1.2'))))))),
+				doc(
+					blockquote(
+						ul(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(
+								p('level 1'),
+								ul(
+									liWithAttrs({ localId: STATIC_LOCAL_ID })(p('level 1.1')),
+									liWithAttrs({ localId: STATIC_LOCAL_ID })(p('level 1.2')),
+								),
+							),
+						),
+					),
+				),
 			);
 		});
 	});
@@ -713,13 +777,23 @@ describe('BitbucketTransformer: parser', () => {
 	describe('lists', () => {
 		it('that are unordered should be parsed', () => {
 			expect(parse('<ul>' + '<li>foo</li>' + '<li>bar</li>' + '</ul>')).toEqualDocument(
-				doc(ul(li(p('foo')), li(p('bar')))),
+				doc(
+					ul(
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(p('bar')),
+					),
+				),
 			);
 		});
 
 		it('that are ordered should be parsed', () => {
 			expect(parse('<ol>' + '<li>foo</li>' + '<li>bar</li>' + '</ol>')).toEqualDocument(
-				doc(ol()(li(p('foo')), li(p('bar')))),
+				doc(
+					ol()(
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(p('bar')),
+					),
+				),
 			);
 		});
 
@@ -727,31 +801,62 @@ describe('BitbucketTransformer: parser', () => {
 			it('that are ordered starting from 99 should be parsed (start from 99)', () => {
 				expect(
 					parse('<ol start="99">' + '<li>foo</li>' + '<li>bar</li>' + '</ol>'),
-				).toEqualDocument(doc(ol({ order: 99 })(li(p('foo')), li(p('bar')))));
+				).toEqualDocument(
+					doc(
+						ol({ order: 99 })(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('bar')),
+						),
+					),
+				);
 			});
 
 			it('that are ordered starting from 0 should be parsed (start from 0)', () => {
 				expect(parse('<ol start="0">' + '<li>foo</li>' + '<li>bar</li>' + '</ol>')).toEqualDocument(
-					doc(ol({ order: 0 })(li(p('foo')), li(p('bar')))),
+					doc(
+						ol({ order: 0 })(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('bar')),
+						),
+					),
 				);
 			});
 
 			it('that are ordered starting from 1 should be parsed (start from 1)', () => {
 				expect(parse('<ol start="1">' + '<li>foo</li>' + '<li>bar</li>' + '</ol>')).toEqualDocument(
-					doc(ol({ order: 1 })(li(p('foo')), li(p('bar')))),
+					doc(
+						ol({ order: 1 })(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('bar')),
+						),
+					),
 				);
 			});
 
 			it('that are ordered starting from -2 should be parsed (start from 1)', () => {
 				expect(
 					parse('<ol start="-2">' + '<li>foo</li>' + '<li>bar</li>' + '</ol>'),
-				).toEqualDocument(doc(ol({ order: 1 })(li(p('foo')), li(p('bar')))));
+				).toEqualDocument(
+					doc(
+						ol({ order: 1 })(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('bar')),
+						),
+					),
+				);
 			});
 
 			it('that are ordered starting from 2.9 should be parsed (round down to 2)', () => {
 				expect(
 					parse('<ol start="2.9">' + '<li>foo</li>' + '<li>bar</li>' + '</ol>'),
-				).toEqualDocument(doc(ol({ order: 2 })(li(p('foo')), li(p('bar')))));
+				).toEqualDocument(
+					doc(
+						ol({ order: 2 })(
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+							liWithAttrs({ localId: STATIC_LOCAL_ID })(p('bar')),
+						),
+					),
+				);
 			});
 		});
 
@@ -767,7 +872,17 @@ describe('BitbucketTransformer: parser', () => {
 						'</li>' +
 						'</ol>',
 				),
-			).toEqualDocument(doc(ol()(li(p('foo')), li(p('bar'), ol()(li(p('baz')))))));
+			).toEqualDocument(
+				doc(
+					ol()(
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(
+							p('bar'),
+							ol()(liWithAttrs({ localId: STATIC_LOCAL_ID })(p('baz'))),
+						),
+					),
+				),
+			);
 
 			expect(
 				parse(
@@ -780,7 +895,17 @@ describe('BitbucketTransformer: parser', () => {
 						'</li>' +
 						'</ul>',
 				),
-			).toEqualDocument(doc(ul(li(p('foo')), li(p('bar'), ul(li(p('baz')))))));
+			).toEqualDocument(
+				doc(
+					ul(
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(
+							p('bar'),
+							ul(liWithAttrs({ localId: STATIC_LOCAL_ID })(p('baz'))),
+						),
+					),
+				),
+			);
 		});
 
 		it('that are nested and heterogeneous should be parsed', () => {
@@ -795,7 +920,17 @@ describe('BitbucketTransformer: parser', () => {
 						'</li>' +
 						'</ul>',
 				),
-			).toEqualDocument(doc(ul(li(p('foo')), li(p('bar'), ol()(li(p('baz')))))));
+			).toEqualDocument(
+				doc(
+					ul(
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(p('foo')),
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(
+							p('bar'),
+							ol()(liWithAttrs({ localId: STATIC_LOCAL_ID })(p('baz'))),
+						),
+					),
+				),
+			);
 		});
 
 		it('with multiple paragraphs should be parsed', () => {
@@ -812,19 +947,22 @@ describe('BitbucketTransformer: parser', () => {
 						'</li>' +
 						'</ul>',
 				),
-			).toEqualDocument(doc(ul(li(p('foo'), p('bar'), ol()(li(p('nested foo'))), p('baz')))));
+			).toEqualDocument(
+				doc(
+					ul(
+						liWithAttrs({ localId: STATIC_LOCAL_ID })(
+							p('foo'),
+							p('bar'),
+							ol()(liWithAttrs({ localId: STATIC_LOCAL_ID })(p('nested foo'))),
+							p('baz'),
+						),
+					),
+				),
+			);
 		});
 	});
 
 	describe('tables', () => {
-		beforeAll(() => {
-			uuid.setStatic(TABLE_LOCAL_ID);
-		});
-
-		afterAll(() => {
-			uuid.setStatic(false);
-		});
-
 		it('with header, multiple rows and columns should be converted into table', () => {
 			expect(
 				parse(
@@ -852,7 +990,7 @@ describe('BitbucketTransformer: parser', () => {
 				),
 			).toEqualDocument(
 				doc(
-					table({ localId: TABLE_LOCAL_ID })(
+					table({ localId: STATIC_LOCAL_ID })(
 						tr(th({})(p('First Header')), th({})(p('Second Header')), th({})(p('Third Header'))),
 						tr(td({})(p('Content Cell')), td({})(p('Content Cell')), td({})(p('Content Cell'))),
 						tr(td({})(p('Content Cell')), td({})(p('Content Cell')), td({})(p('Content Cell'))),
@@ -882,7 +1020,7 @@ describe('BitbucketTransformer: parser', () => {
 
 			expect(result).toEqualDocument(
 				doc(
-					table({ localId: TABLE_LOCAL_ID })(
+					table({ localId: STATIC_LOCAL_ID })(
 						tr(th({})(p('First Header'))),
 						tr(td({})(p('Content Cell'))),
 						tr(td({})(p('Content Cell'))),
@@ -911,7 +1049,7 @@ describe('BitbucketTransformer: parser', () => {
 			);
 
 			expect(result).toEqualDocument(
-				doc(table({ localId: TABLE_LOCAL_ID })(tr(th({})(p())), tr(td({})(p())), tr(td({})(p())))),
+				doc(table({ localId: STATIC_LOCAL_ID })(tr(th({})(p())), tr(td({})(p())), tr(td({})(p())))),
 			);
 		});
 
@@ -936,7 +1074,7 @@ describe('BitbucketTransformer: parser', () => {
 
 			expect(result).toEqualDocument(
 				doc(
-					table({ localId: TABLE_LOCAL_ID })(
+					table({ localId: STATIC_LOCAL_ID })(
 						tr(th({})(p(strong('testing')))),
 						tr(td({})(p(em('testing')))),
 						tr(td({})(p(strike('testing')))),
@@ -963,7 +1101,7 @@ describe('BitbucketTransformer: parser', () => {
 
 			expect(result).toEqualDocument(
 				doc(
-					table({ localId: TABLE_LOCAL_ID })(
+					table({ localId: STATIC_LOCAL_ID })(
 						tr(
 							th({})(
 								p('Hello there'),
@@ -1002,7 +1140,7 @@ describe('BitbucketTransformer: parser', () => {
 
 	describe('code block', () => {
 		it('parses block with specified language', () => {
-			const js = code_block({ language: 'javascript' });
+			const js = code_block({ language: 'javascript', localId: STATIC_LOCAL_ID, wrap: true });
 
 			expect(
 				parse(
@@ -1014,14 +1152,6 @@ describe('BitbucketTransformer: parser', () => {
 	});
 
 	describe('mentions', () => {
-		beforeAll(() => {
-			uuid.setStatic(MENTION_LOCAL_ID);
-		});
-
-		afterAll(() => {
-			uuid.setStatic(false);
-		});
-
 		['mention', 'ap-mention'].forEach((mentionClass) => {
 			it(`should be parsed preserving display name and user id for ${mentionClass}`, () => {
 				expect(
@@ -1039,7 +1169,7 @@ describe('BitbucketTransformer: parser', () => {
 							mention({
 								text: '@Artur Bodera',
 								id: 'abodera',
-								localId: MENTION_LOCAL_ID,
+								localId: STATIC_LOCAL_ID,
 							})(),
 							' bar',
 						),
@@ -1065,7 +1195,7 @@ describe('BitbucketTransformer: parser', () => {
 							mention({
 								text: '@Artur Bodera',
 								id: '{5c09bf77ec71bd223bbe866f}',
-								localId: MENTION_LOCAL_ID,
+								localId: STATIC_LOCAL_ID,
 							})(),
 							' bar',
 						),
@@ -1090,7 +1220,7 @@ describe('BitbucketTransformer: parser', () => {
 						mention({
 							text: '@Scott Demo',
 							id: '{5c09bf77ec71bd223bbe866f}',
-							localId: MENTION_LOCAL_ID,
+							localId: STATIC_LOCAL_ID,
 						})(),
 						' test',
 					),
@@ -1117,6 +1247,30 @@ describe('BitbucketTransformer: parser', () => {
 				),
 			).toEqualDocument(
 				doc(p('foo ', emoji({ shortName: ':diamond_shape_with_a_dot_inside:' })(), ' bar')),
+			);
+		});
+
+		it('should preserve emoji id and text from data attributes on the img', () => {
+			passGate('platform_bitbucket_fix_shortname_and_ordering');
+
+			expect(
+				parse(
+					'<p>' +
+						'foo ' +
+						'<img ' +
+						'data-emoji-short-name=":grinning:" ' +
+						'data-emoji-id="1f600" ' +
+						'data-emoji-text="😀" ' +
+						'src="https://pf-emoji-service--cdn.useast.atlassian.io/standard/551c9814-1d37-4573-819d-afab3afeaf32/32x32/1f600.png" ' +
+						'alt="grinning face" ' +
+						'title="grinning face" ' +
+						'class="emoji"' +
+						'>' +
+						' bar' +
+						'</p>',
+				),
+			).toEqualDocument(
+				doc(p('foo ', emoji({ shortName: ':grinning:', id: '1f600', text: '😀' })(), ' bar')),
 			);
 		});
 
@@ -1227,7 +1381,13 @@ describe('BitbucketTransformer: parser', () => {
 						'<pre><span></span><code>this is a suggestion</code></pre>' +
 						'</div>',
 				),
-			).toEqualDocument(doc(code_block({ language: 'suggestion' })('this is a suggestion')));
+			).toEqualDocument(
+				doc(
+					code_block({ language: 'suggestion', localId: STATIC_LOCAL_ID, wrap: true })(
+						'this is a suggestion',
+					),
+				),
+			);
 		});
 	});
 

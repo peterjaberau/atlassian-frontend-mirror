@@ -55,9 +55,11 @@ export const directionMapping = {
 /**
  * The thickness of the drop indicator line, in pixels.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const lineThickness = 2;
 
 /**
  * The distance to pull the line back by, to account for its thickness.
  */
-export const lineOffset = lineThickness / 2;
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const lineOffset: number = lineThickness / 2;

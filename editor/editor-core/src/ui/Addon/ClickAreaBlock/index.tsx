@@ -1,20 +1,18 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
-
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { componentWithCondition } from '@atlaskit/platform-feature-flags-react/component-with-condition';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { clickAreaClickHandler } from '../click-area-helper';
+import { ClickAreaBlockContainerCompiled } from './clickAreaBlock-compiled';
+import { ClickAreaBlockContainerEmotion } from './clickAreaBlock-emotion';
 
-const clickWrapper = css({
-	flexGrow: 1,
-	height: '100%',
-});
+const ClickAreaBlockContainerMigration = componentWithCondition(
+	() => expValEquals('platform_editor_core_non_ecc_static_css', 'isEnabled', true),
+	ClickAreaBlockContainerCompiled,
+	ClickAreaBlockContainerEmotion,
+);
 
 export interface Props {
 	children?: React.ReactNode;
@@ -22,7 +20,11 @@ export interface Props {
 	editorView?: EditorView;
 }
 
-export const ClickAreaBlock = ({ editorView, editorDisabled, children }: Props) => {
+export const ClickAreaBlock = ({
+	editorView,
+	editorDisabled,
+	children,
+}: Props): React.JSX.Element => {
 	const handleMouseDown = React.useCallback(
 		(event: React.MouseEvent<HTMLDivElement>) => {
 			if (!editorView) {
@@ -37,16 +39,18 @@ export const ClickAreaBlock = ({ editorView, editorDisabled, children }: Props) 
 	);
 
 	return (
-		// eslint-disable-next-line @atlassian/a11y/no-static-element-interactions
-		<div
+		<ClickAreaBlockContainerMigration
 			data-editor-click-wrapper
 			data-testid="click-wrapper"
-			css={clickWrapper}
 			onMouseDown={handleMouseDown}
+			// This div is a presentational container that captures mouse events
+			// for programmatic editor focus management, not user interaction.
+			role="presentation"
 		>
 			{children}
-		</div>
+		</ClickAreaBlockContainerMigration>
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default ClickAreaBlock;

@@ -4,8 +4,8 @@ order: 2
 
 ## Usage
 
-The image component can be used interchangeably with the native `img` element. The key difference at
-this stage is the image component's awareness of themes, like dark mode.
+The image component can be used interchangeably with the native `img` element. The main difference
+is the image component's awareness of themes, like dark mode.
 
 ## Accessibility
 
@@ -50,8 +50,8 @@ include the alt attribute, but leave it empty. For example, `alt=""`.
 ### Avoid images of text
 
 Avoid images of text as this isn't accessible, and doesn't scale well. Our
-[typography](/foundations/typography/) provides display headings that are accessible and optimised
-to work on every screen size.
+[typography](/foundations/typography) provides display headings that are accessible and optimised to
+work on every screen size.
 
 ### Avoid moving or flashing images
 
@@ -61,6 +61,8 @@ three times in one second.
 ## Best practices
 
 - Use the image component when your image requires different sources for light and dark modes.
+- The image component accepts native `img` props, including `className`, but prefer styling the
+  image's container where possible.
 - Avoid applying css directly to `image`. This isn't supported, and will be deprecated in favor of
   `xcss` in future. In most cases it should be possible to apply styling to the image's container
   instead, but

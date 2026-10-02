@@ -9,4 +9,11 @@ export const ROVO_VALID_PARAMS: ValidParam[] = [
 	'cloudId',
 	'triggerOpen',
 	'insertPrompt',
+	'stagingAreaOpen',
+	'messageIdSelectedForPreview',
+	'invocationIdSelectedForPreview',
+	'promptLibraryOpen',
+	'openChatMode',
+	'rovoJourneyId',
+	'searchQuery',
 ];

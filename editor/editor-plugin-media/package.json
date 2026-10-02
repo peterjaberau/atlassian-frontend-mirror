@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-media",
-	"version": "9.4.15",
+	"version": "25.0.1",
 	"description": "Media plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -16,27 +16,23 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
-		"./types": "./src/types/index.ts"
+		"./media-plugin": "./src/entry-points/media-plugin.tsx",
+		"./media-plugin-type": "./src/entry-points/media-plugin-type.ts",
+		"./nodeviewHelpers": "./src/entry-points/nodeview-helpers.ts",
+		"./types": "./src/entry-points/types.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
 		"@atlaskit/analytics-namespaced-context": "workspace:^",
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/button": "workspace:^",
+		"@atlaskit/css": "workspace:^",
 		"@atlaskit/editor-palette": "workspace:^",
 		"@atlaskit/editor-plugin-analytics": "workspace:^",
 		"@atlaskit/editor-plugin-annotation": "workspace:^",
@@ -49,6 +45,8 @@
 		"@atlaskit/editor-plugin-grid": "workspace:^",
 		"@atlaskit/editor-plugin-guideline": "workspace:^",
 		"@atlaskit/editor-plugin-interaction": "workspace:^",
+		"@atlaskit/editor-plugin-limited-mode": "workspace:^",
+		"@atlaskit/editor-plugin-media-editing": "workspace:^",
 		"@atlaskit/editor-plugin-selection": "workspace:^",
 		"@atlaskit/editor-plugin-toolbar": "workspace:^",
 		"@atlaskit/editor-plugin-width": "workspace:^",
@@ -66,14 +64,15 @@
 		"@atlaskit/media-picker": "workspace:^",
 		"@atlaskit/media-ui": "workspace:^",
 		"@atlaskit/media-viewer": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@babel/runtime": "root:*",
+		"@compiled/react": "root:*",
 		"@emotion/react": "root:*",
 		"bind-event-listener": "root:*",
 		"classnames": "root:*",
@@ -84,54 +83,18 @@
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
 		"@atlaskit/media-core": "workspace:^",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"react-intl-next": "*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"emotion"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"platform-feature-flags": {
+		"platform_editor_a11y_border_radiogroup_label": {
+			"type": "boolean"
+		},
 		"platform_media_cross_client_copy": {
 			"type": "boolean"
 		},
-		"platform_editor_typography_ugc": {
-			"type": "boolean"
-		},
-		"platform-visual-refresh-icons": {
+		"platform_media_cross_client_copy_with_auth": {
 			"type": "boolean"
 		},
 		"platform_editor_introduce_insert_media_command": {
@@ -152,25 +115,30 @@
 		"platform_editor_content_mode_button_mvp": {
 			"type": "boolean"
 		},
-		"confluence_frontend_preload_inline_comment_editor": {
-			"type": "boolean"
-		},
 		"platform_media_video_captions": {
 			"type": "boolean"
 		},
-		"jira_kuro-jjj_disable_auto_focus_after_img_upload": {
+		"confluence_fe_create_inline_comment_exp_coverage_2": {
 			"type": "boolean"
 		},
-		"platform_editor_media_insert_check": {
+		"aifc_page_create_defer_generated_visuals": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"cc-maui-phase-2": {
 			"type": "boolean"
 		},
-		"platform_editor_media_video_check_fix_new": {
+		"cc-maui-add-mark-for-remix-generated-images": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"cc-maui-toolbar-separators-update": {
 			"type": "boolean"
 		}
 	},
-	"stricter": {
-		"no-unused-dependencies": {
-			"checkDevDependencies": true
-		}
+	"devDependencies": {
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"react-intl": "root:*"
 	}
 }

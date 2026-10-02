@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__analytics/app",
 		"rootDir": "../",
 		"composite": true,
@@ -18,5 +17,9 @@
 		"../src/**/mocks/*",
 		"../src/**/examples.*"
 	],
-	"references": []
+	"references": [
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		}
+	]
 }

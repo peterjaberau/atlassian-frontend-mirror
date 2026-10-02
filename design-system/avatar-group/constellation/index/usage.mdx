@@ -7,11 +7,21 @@ order: 2
 Use an avatar group when you want to display a collection of avatars. You can also use them for easy
 collapse states for a set number of avatars, and with a dropdown to show hidden avatars.
 
+## Accessibility
+
+- As the avatar is a visual representation of a person or entity, make sure there’s an alt text
+  equivalent included for screen readers for users, projects, spaces, groups, and repositories.
+- Use the `label` prop to describe the list's entity type, for example: if the label is
+  `team members` for a group of five avatars, the screen reader announcement would be "list team
+  members, five items".
+- When there is more than one avatar group on the page, make sure to differentiate each group with a
+  unique label.
+
 ## Behavior
 
 ### Stack
 
-![A diagram showing four examples of stacked avatars. A caption follows this image.](images/avatar-group.png)
+![A diagram showing four examples of stacked avatars. A caption follows this image.](./images/avatar-group.png)
 
 1. **Avatar group:** Stacked groups are limited to five avatars, and should only be used with medium
    or small avatars.
@@ -25,7 +35,7 @@ collapse states for a set number of avatars, and with a dropdown to show hidden 
 
 ### Grid
 
-![A diagram showing four examples of avatars displayed in a grid. A caption follows this image.](images/avatar-group-grid.png)
+![A diagram showing four examples of avatars displayed in a grid. A caption follows this image.](./images/avatar-group-grid.png)
 
 1. **Avatar group:** Grids are limited to three rows.
 2. **Truncated:** For groups larger than 12, 11 avatars are displayed. Additional avatars are
@@ -35,19 +45,9 @@ collapse states for a set number of avatars, and with a dropdown to show hidden 
 4. **List menu:** All of the avatars are displayed in a list when a person selects the truncated
    avatar.
 
-## Accessibility
-
-- As the avatar is a visual representation of a person or entity, make sure there’s an alt text
-  equivalent included for screen readers for users, projects, spaces, groups, and repositories.
-- Use the `label` prop to describe the list's entity type, for example: if the label is
-  `team members` for a group of five avatars, the screen reader announcement would be "list team
-  members, five items".
-- When there is more than one avatar group on the page, make sure to differentiate each group with a
-  unique label.
-
 ## Related
 
 - A single [avatar](/components/avatar) forms part of the avatar group.
 - [Avatar item](/components/avatar/avatar-item) is the wrapper around each avatar.
-- [Avatar presence](/components/avatar/avatar-presence) is the status indicator.
+- [Avatar presence](/components/avatar) is the status indicator.
 - [Avatar skeleton](/components/avatar/avatar-skeleton) shows the loading state.

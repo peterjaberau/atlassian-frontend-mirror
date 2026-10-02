@@ -1,4 +1,3 @@
-import type { SourceCode } from 'eslint';
 import { isNodeOfType, type ObjectExpression, type Property } from 'eslint-codemod-utils';
 
 const referenceObject = {
@@ -18,29 +17,6 @@ type KeyValue = {
 };
 
 export type ReferenceObject = typeof referenceObject;
-
-/**
- * Returns the first import in the esprima AST.
- */
-export const getFirstImport: (source: SourceCode) => import("estree").ImportDeclaration | undefined = (source: SourceCode) => {
-	return source.ast.body.find((node) => node.type === 'ImportDeclaration');
-};
-
-/**
- * Takes a template literal and returns [key, value] array of the css properties
- */
-export const makeTemplateLiteralIntoEntries: (templateString: string) => string[][] = (templateString: string) => {
-	return templateString
-		.replace(/\n/g, '')
-		.split(/;|{|}/)
-		.filter((el) => !el.match(/\@/))
-		.map((el) =>
-			el
-				.trim()
-				.split(':')
-				.map((e) => e.trim()),
-		);
-};
 
 /**
  * Given a node, translate the node into css key-value pairs and
@@ -67,7 +43,10 @@ export const getObjectLikeness: (node: ObjectExpression) => number = (node: Obje
 	return countMatchingKeyValues(styleEntries);
 };
 
-export const countMatchingKeyValues: (styleEntries: KeyValue[]) => number = (styleEntries: KeyValue[]) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const countMatchingKeyValues: (styleEntries: KeyValue[]) => number = (
+	styleEntries: KeyValue[],
+) => {
 	const matchingStyleEntries = styleEntries.filter(
 		(entry: any): entry is Partial<ReferenceObject> => {
 			return entry.key in referenceObject;

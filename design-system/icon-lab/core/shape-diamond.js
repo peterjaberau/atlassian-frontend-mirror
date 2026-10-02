@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::5d7e932626740fb58621f17059bca48a>>
+ * @codegen <<SignedSource::813f3d847371b041d44079bd13f5e97f>>
  * @codegenCommand yarn build:icon-glyphs
  */
 "use strict";
@@ -10,17 +10,18 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _react = _interopRequireDefault(require("react"));
-var _baseNew = _interopRequireDefault(require("@atlaskit/icon/base-new"));
+var _iconNew = _interopRequireDefault(require("@atlaskit/icon/components/icon-new"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 /**
  * Icon: "ShapeDiamond".
  * Category: multi-purpose
- * Location: @atlaskit/icon-lab
- * Usage guidance: Diamond shape tool in Whiteboards
+ * Location: @atlaskit/icon-lab/core/shape-diamond
+ * Usage guidance:
+ * Diamond shape tool in Whiteboards
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/icon)
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/icon/docs/custom-icons)
  */
-const ShapeDiamondIcon = props => /*#__PURE__*/_react.default.createElement(_baseNew.default, Object.assign({
+const ShapeDiamondIcon = props => /*#__PURE__*/_react.default.createElement(_iconNew.default, Object.assign({
   name: "ShapeDiamondIcon",
   dangerouslySetGlyph: `<path fill="currentcolor" fill-rule="evenodd" d="M7.028.662a1.375 1.375 0 0 1 1.944 0l6.366 6.366a1.375 1.375 0 0 1 0 1.944l-6.366 6.366a1.375 1.375 0 0 1-1.944 0L.662 8.972a1.375 1.375 0 0 1 0-1.944zM8 1.81 1.81 8 8 14.19 14.19 8z" clip-rule="evenodd"/>`
   // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props

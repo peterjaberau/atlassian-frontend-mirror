@@ -8,16 +8,20 @@ const noOptions = '[id="react-select-2-listbox"]';
 const createSelectInput = '[id="async-creatable-example"]';
 
 test(`Creatable-select should pass basic aXe audit`, async ({ page, skipAxeCheck }) => {
-	await page.visitExample('design-system', 'select', 'creatable-select');
+	await page.visitExample<typeof import('../../../../examples/09-creatable-select.tsx')>(
+		'design-system',
+		'select',
+		'creatable-select',
+	);
 	await page.locator(creatableSelectContainer).first().click();
 
 	await expect(page.locator(creatableSelectMenu)).toBeVisible();
-	await expect(page.locator(creatableSelectContainer)).toHaveText('Select...');
+	await expect(page.locator(creatableSelectContainer)).toHaveText('');
 
 	await page.locator(creatableSelectMenuItem).first().click();
 	await page.locator(creatableSelectContainer).first().click();
 
-	await expect(page.locator(creatableSelectContainer)).not.toHaveText('Select...');
+	await expect(page.locator(creatableSelectContainer)).not.toHaveText('');
 
 	// TODO: Remove skip after https://product-fabric.atlassian.net/browse/DSP-21622 is done
 	// Received:
@@ -26,7 +30,11 @@ test(`Creatable-select should pass basic aXe audit`, async ({ page, skipAxeCheck
 });
 
 test(`Async-creatable-select should pass basic aXe audit`, async ({ page, skipAxeCheck }) => {
-	await page.visitExample('design-system', 'select', 'async-creatable-select');
+	await page.visitExample<typeof import('../../../../examples/08-async-creatable-select.tsx')>(
+		'design-system',
+		'select',
+		'async-creatable-select',
+	);
 
 	await page.locator(creatableSelectContainer).first().click();
 

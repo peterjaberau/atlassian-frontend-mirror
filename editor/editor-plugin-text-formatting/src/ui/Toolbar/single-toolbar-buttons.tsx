@@ -4,19 +4,17 @@
  */
 import React, { useCallback } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
 
-import {
-	buttonGroupStyle,
-} from '@atlaskit/editor-common/styles';
+import { buttonGroupStyle } from '@atlaskit/editor-common/styles';
 import type { Command } from '@atlaskit/editor-common/types';
 import { ToolbarButton } from '@atlaskit/editor-common/ui-menu';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { MenuIconItem } from './types';
 
-export const SingleToolbarButtons = React.memo(
+export const SingleToolbarButtons: React.MemoExoticComponent<
 	({
 		items,
 		isReducedSpacing,
@@ -25,7 +23,17 @@ export const SingleToolbarButtons = React.memo(
 		editorView: EditorView;
 		isReducedSpacing: boolean;
 		items: MenuIconItem[];
-	}) => {
+	}) => jsx.JSX.Element
+> = React.memo(
+	({
+		items,
+		isReducedSpacing,
+		editorView,
+	}: {
+		editorView: EditorView;
+		isReducedSpacing: boolean;
+		items: MenuIconItem[];
+	}): jsx.JSX.Element => {
 		const onClick = useCallback(
 			(command: Command) => {
 				return () => {

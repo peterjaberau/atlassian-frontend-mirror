@@ -1,19 +1,38 @@
 import { $onePlus, $or, adfNode } from '@atlaskit/adf-schema-generator';
-import { fragment } from '../marks/fragment';
-import { unsupportedMark } from '../marks/unsupportedMark';
-import { unsupportedNodeAttribute } from '../marks/unsupportedNodeAttribute';
+
 import {
 	tableCellContentPseudoGroup,
 	tableCellContentNodes,
 	tableHeaderContentPseudoGroup,
 } from '../groups/tableCellContentPseudoGroup';
-import { tableCellContent } from './tableCellContent';
-
+import { fragment } from '../marks/fragment';
+import { unsupportedMark } from '../marks/unsupportedMark';
+import { unsupportedNodeAttribute } from '../marks/unsupportedNodeAttribute';
 import { nestedExpand } from './nestedExpand';
+import { tableCellContent } from './tableCellContent';
+import { table } from './tableStub';
 import { unsupportedBlock } from './unsupportedBlock';
 
-// Declare early to allow for circular references within the file
-const table = adfNode('table');
+const valign = {
+	type: 'enum' as const,
+	values: ['top', 'middle', 'bottom'],
+	default: null,
+	optional: true,
+};
+
+const cellAttributes = {
+	colspan: { type: 'number' as const, default: 1, optional: true },
+	rowspan: { type: 'number' as const, default: 1, optional: true },
+	colwidth: {
+		type: 'array' as const,
+		items: { type: 'number' as const },
+		default: null,
+		optional: true,
+	},
+	background: { type: 'string' as const, default: null, optional: true },
+	localId: { type: 'string' as const, default: null, optional: true },
+	valign,
+};
 
 const tableCell = adfNode('tableCell')
 	.define({
@@ -21,24 +40,12 @@ const tableCell = adfNode('tableCell')
 		selectable: false,
 		tableRole: 'cell',
 		marks: [unsupportedMark, unsupportedNodeAttribute],
-		attrs: {
-			colspan: { type: 'number', default: 1, optional: true },
-			rowspan: { type: 'number', default: 1, optional: true },
-			colwidth: {
-				type: 'array',
-				items: { type: 'number' },
-				default: null,
-				optional: true,
-			},
-			background: { type: 'string', default: null, optional: true },
-			localId: { type: 'string', default: null, optional: true },
-		},
+		attrs: cellAttributes,
 		content: [tableCellContentPseudoGroup],
 		DANGEROUS_MANUAL_OVERRIDE: {
 			'validator-spec': {
 				required: {
-					reason:
-						'@DSLCompatibilityException - required for tableCell validator spec',
+					reason: '@DSLCompatibilityException - required for tableCell validator spec',
 					value: ['content'],
 				},
 			},
@@ -55,24 +62,12 @@ const tableHeader = adfNode('tableHeader')
 		selectable: false,
 		tableRole: 'header_cell',
 		marks: [unsupportedMark, unsupportedNodeAttribute],
-		attrs: {
-			colspan: { type: 'number', default: 1, optional: true },
-			rowspan: { type: 'number', default: 1, optional: true },
-			colwidth: {
-				type: 'array',
-				items: { type: 'number' },
-				default: null,
-				optional: true,
-			},
-			background: { type: 'string', default: null, optional: true },
-			localId: { type: 'string', default: null, optional: true },
-		},
+		attrs: cellAttributes,
 		content: [tableHeaderContentPseudoGroup],
 		DANGEROUS_MANUAL_OVERRIDE: {
 			'validator-spec': {
 				required: {
-					reason:
-						'@DSLCompatibilityException - required for tableHeader validator spec',
+					reason: '@DSLCompatibilityException - required for tableHeader validator spec',
 					value: ['content'],
 				},
 			},
@@ -95,8 +90,7 @@ const tableRow = adfNode('tableRow')
 		DANGEROUS_MANUAL_OVERRIDE: {
 			'validator-spec': {
 				'props.content.minItems': {
-					reason:
-						'@DSLCompatibilityException - required for tableRow validator spec',
+					reason: '@DSLCompatibilityException - required for tableRow validator spec',
 					remove: true,
 				},
 			},
@@ -104,12 +98,7 @@ const tableRow = adfNode('tableRow')
 	})
 	.variant('with_nested_table', {
 		content: [
-			$onePlus(
-				$or(
-					tableCell.use('with_nested_table'),
-					tableHeader.use('with_nested_table'),
-				),
-			),
+			$onePlus($or(tableCell.use('with_nested_table'), tableHeader.use('with_nested_table'))),
 		],
 		ignore: ['json-schema', 'validator-spec'],
 	});
@@ -136,14 +125,7 @@ table
 			},
 			layout: {
 				type: 'enum',
-				values: [
-					'wide',
-					'full-width',
-					'center',
-					'align-end',
-					'align-start',
-					'default',
-				],
+				values: ['wide', 'full-width', 'center', 'align-end', 'align-start', 'default'],
 				default: 'default',
 				optional: true,
 			},
@@ -160,4 +142,8 @@ table
 		ignore: ['json-schema', 'validator-spec'],
 	});
 
+// Re-export the now-defined `table` stub as this module's public API. Importing `table` from here
+// (rather than from `./tableStub`) forces this definition module to evaluate first, so consumers
+// that eagerly call `table.use('with_nested_table')` see the defined variant.
+// eslint-disable-next-line @atlaskit/editor/no-re-export
 export { table };

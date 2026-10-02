@@ -1,7 +1,8 @@
-import { type NodeSerializerOpts } from '../interfaces';
+import { N20 } from '@atlaskit/adf-schema/colors';
+
 import { createTag } from '../create-tag';
+import type { NodeSerializerOpts } from '../interfaces';
 import { codeFontFamily } from '../styles/common';
-import { N20 } from '@atlaskit/adf-schema';
 import { createClassName } from '../styles/util';
 
 const className = createClassName(`codeBlock`);

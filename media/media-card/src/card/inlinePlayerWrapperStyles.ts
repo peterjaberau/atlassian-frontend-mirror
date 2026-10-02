@@ -1,7 +1,6 @@
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css } from '@emotion/react';
-import { getDimensionsWithDefault } from '../utils/lightCards/getDimensionsWithDefault';
-import { type InlinePlayerWrapperProps } from './types';
+import { css, type SerializedStyles } from '@emotion/react';
+
 import {
 	getSelectionStyles,
 	SelectionStyle,
@@ -9,11 +8,14 @@ import {
 } from '@atlaskit/editor-shared-styles/selection';
 import { token } from '@atlaskit/tokens';
 
+import { getDimensionsWithDefault } from '../utils/lightCards/getDimensionsWithDefault';
+import { type InlinePlayerWrapperProps } from './types';
+
 /*
  * Used to display the blue border around a selected card without
  * shrinking the image OR growing the card size
  */
-const getSelectedBorderStyle = ({ selected }: { selected?: boolean }) => `
+const getSelectedBorderStyle = (selected?: boolean) => `
     ${selected ? hideNativeBrowserTextSelectionStyles : ''}
 
     &::after {
@@ -31,11 +33,14 @@ const getSelectedBorderStyle = ({ selected }: { selected?: boolean }) => `
 
 export const inlinePlayerClassName = 'media-card-inline-player';
 
-export const inlinePlayerWrapperStyles = ({
+export const inlinePlayerWrapperStyles: {
+	({ dimensions, selected }: InlinePlayerWrapperProps): SerializedStyles;
+	displayName: string;
+} = ({
 	dimensions,
 	selected,
 }: // eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression -- needs manual remediation
-InlinePlayerWrapperProps) => css`
+InlinePlayerWrapperProps): SerializedStyles => css`
 	width: ${getDimensionsWithDefault(dimensions).width || '100%'};
 	height: ${getDimensionsWithDefault(dimensions).height || 'auto'};
 	overflow: hidden;

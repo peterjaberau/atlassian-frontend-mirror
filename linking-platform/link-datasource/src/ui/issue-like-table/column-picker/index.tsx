@@ -1,27 +1,32 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { cssMap } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
+import { mergeRefs } from 'use-callback-ref';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import CustomizeIcon from '@atlaskit/icon/core/customize';
-import { type DatasourceResponseSchemaProperty } from '@atlaskit/linking-types';
+import TableColumnsDistributeIcon from '@atlaskit/icon/core/table-columns-distribute';
+import type { DatasourceResponseSchemaProperty } from '@atlaskit/linking-types/datasource';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
-import { createFilter, type ModifierList, type OptionType, PopupSelect } from '@atlaskit/select';
-import Tooltip from '@atlaskit/tooltip';
+import { createFilter } from '@atlaskit/react-select/filters';
+import { type ModifierList, PopupSelect } from '@atlaskit/select/popup-select';
+import type { OptionType } from '@atlaskit/select/types';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { succeedUfoExperience } from '../../../analytics/ufoExperiences';
-import { useDatasourceExperienceId } from '../../../contexts/datasource-experience-id';
-
-import { ConcatenatedMenuList, MenuItem } from './concatenated-menu-list';
+import { succeedUfoExperience } from '../../../analytics/ufoExperiences/succeedUfoExperience';
+import { useDatasourceExperienceId } from '../../../contexts/datasource-experience-id/use-datasource-experience-id';
+import { ConcatenatedMenuList } from './concatenated-menu-list';
+import { MenuItem } from './menu-item';
 import { columnPickerMessages } from './messages';
 import { type ColumnPickerProps } from './types';
 
 const styles = cssMap({
-	chevronIconStyles: {
-		display: 'flex',
-		alignItems: 'center',
+	customizeIcon: {
+		verticalAlign: 'middle',
 	},
 });
 
@@ -101,11 +106,11 @@ export const ColumnPicker = ({
 	};
 
 	useEffect(() => {
-		if (allOptions.length) {
+		if (pickerRef?.current && allOptions.length > 0) {
 			// necessary to refocus the search input after the loading state
 			pickerRef?.current?.selectRef?.select?.inputRef?.focus();
 		}
-	}, [allOptions]);
+	}, [allOptions.length]);
 
 	useEffect(() => {
 		if (allOptions.length) {
@@ -123,7 +128,6 @@ export const ColumnPicker = ({
 			filterOption={createFilter({ ignoreAccents: false })}
 			options={allOptions}
 			value={selectedOptions}
-			// @ts-ignore - https://product-fabric.atlassian.net/browse/DSP-21000
 			onOpen={handleOpen}
 			closeMenuOnSelect={false}
 			hideSelectedOptions={false}
@@ -136,28 +140,51 @@ export const ColumnPicker = ({
 			label="Search for fields"
 			onChange={handleChange}
 			isLoading={allOptions.length === 0}
-			target={({ isOpen, ...triggerProps }) => (
-				<Tooltip content={intl.formatMessage(columnPickerMessages.tooltip)}>
-					{(tooltipProps) => (
-						<Button
-							{...tooltipProps}
+			target={({ isOpen, ...triggerProps }) => {
+				if (fg('platform_lp_sllv_table_settings_menu')) {
+					return (
+						<IconButton
 							{...triggerProps}
+							appearance="default"
+							icon={TableColumnsDistributeIcon}
 							isSelected={isOpen}
-							spacing="compact"
-							appearance={'default'}
+							isTooltipDisabled={false}
+							label={intl.formatMessage(columnPickerMessages.tooltip)}
+							spacing="default"
 							testId="column-picker-trigger-button"
-							iconBefore={() => (
-								<Box as="span" xcss={styles.chevronIconStyles}>
+						/>
+					);
+				}
+
+				return (
+					<Tooltip content={intl.formatMessage(columnPickerMessages.tooltip)}>
+						{(tooltipProps) => (
+							<Button
+								{...tooltipProps}
+								{...triggerProps}
+								// `tooltipProps.ref` must be included: spreading `triggerProps` after
+								// `tooltipProps` drops the tooltip's ref, leaving Tooltip without an
+								// anchor element. Gate off leaves `triggerProps.ref` winning, exactly as
+								// master does.
+								ref={
+									fg('platform-dst-top-layer-tooltip')
+										? mergeRefs([triggerProps.ref, tooltipProps.ref])
+										: triggerProps.ref
+								}
+								isSelected={isOpen}
+								spacing="compact"
+								appearance={'default'}
+								testId="column-picker-trigger-button"
+								iconAfter={() => <ChevronDownIcon label="down" size="small" />}
+							>
+								<Box as="span" xcss={styles.customizeIcon}>
 									<CustomizeIcon label="customize" />
-									<ChevronDownIcon label="down" size="small" />
 								</Box>
-							)}
-						>
-							{''}
-						</Button>
-					)}
-				</Tooltip>
-			)}
+							</Button>
+						)}
+					</Tooltip>
+				);
+			}}
 		/>
 	);
 };

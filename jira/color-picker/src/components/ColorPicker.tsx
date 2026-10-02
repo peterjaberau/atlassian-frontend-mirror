@@ -5,21 +5,27 @@
 /// <reference types="node" />
 // for typing `process`
 import React from 'react';
-import { PopupSelect, type PopupSelectProps, type ValueType } from '@atlaskit/select';
-import Trigger from './Trigger';
-import { type Color, type Palette, type SwatchSize, type ColorCardVariant } from '../types';
-import * as components from './components';
-import { KEY_ARROW_DOWN, KEY_ARROW_UP, KEY_TAB, KEY_ESCAPE } from '../constants';
-import {
-	createAndFireEvent,
-	withAnalyticsContext,
-	withAnalyticsEvents,
-} from '@atlaskit/analytics-next';
-import { getOptions } from '../utils';
+
+import { injectIntl } from 'react-intl';
+import type { IntlShape, WithIntlProps, WrappedComponentProps } from 'react-intl';
+
+import createAndFireEvent from '@atlaskit/analytics-next/createAndFireEvents';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
 import { css, jsx } from '@atlaskit/css';
-import { injectIntl } from 'react-intl-next';
-import type { IntlShape, WrappedComponentProps } from 'react-intl-next';
+import { PopupSelect, type PopupSelectProps } from '@atlaskit/select/popup-select';
+import type { ValueType } from '@atlaskit/select/types';
+
+import { KEY_ARROW_DOWN, KEY_ARROW_UP, KEY_TAB, KEY_ESCAPE } from '../constants';
 import messages from '../messages';
+import { type Color, type Palette, type SwatchSize, type ColorCardVariant } from '../types';
+import { getOptions } from '../utils';
+import * as components from './components';
+import Trigger from './Trigger';
 export interface Props {
 	/** color of checkmark on selected color */
 	checkMarkColor?: string;
@@ -47,6 +53,7 @@ export interface Props {
 	showDefaultSwatchColor?: boolean;
 	/** Test ID  */
 	testId?: string;
+	tooltipContent?: string;
 	/** trigger id for accessability labelling */
 	triggerId?: string;
 	/** Display filled or outline variant of the color */
@@ -123,6 +130,7 @@ class ColorPickerWithoutAnalyticsBase extends React.Component<Props & WrappedCom
 			cols,
 			popperProps = defaultPopperProps,
 			label = 'Color picker',
+			tooltipContent,
 			triggerId,
 			selectedColourSwatchSize,
 			showDefaultSwatchColor = true,
@@ -141,6 +149,7 @@ class ColorPickerWithoutAnalyticsBase extends React.Component<Props & WrappedCom
 						<Trigger
 							{...value}
 							label={fullLabel}
+							tooltipContent={tooltipContent}
 							expanded={isOpen}
 							swatchSize={selectedColourSwatchSize}
 							isDisabled={isDisabledSelectedSwatch}
@@ -160,7 +169,6 @@ class ColorPickerWithoutAnalyticsBase extends React.Component<Props & WrappedCom
 				// never show search input
 				searchThreshold={Number.MAX_VALUE}
 				// palette props
-				//@ts-ignore react-select unsupported props
 				cols={cols}
 				checkMarkColor={checkMarkColor}
 				variant={variant}
@@ -174,13 +182,29 @@ class ColorPickerWithoutAnalyticsBase extends React.Component<Props & WrappedCom
 	}
 }
 
-export const ColorPickerWithoutAnalytics = injectIntl(ColorPickerWithoutAnalyticsBase);
+export const ColorPickerWithoutAnalytics: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(ColorPickerWithoutAnalyticsBase);
 
-export default withAnalyticsContext({
+const ExportedDefault: React.ForwardRefExoticComponent<
+	Omit<
+		Omit<
+			Omit<Props & WrappedComponentProps, 'intl'> & {
+				forwardedRef?: React.Ref<any>;
+			},
+			keyof WithAnalyticsEventsProps
+		> &
+			React.RefAttributes<any> &
+			WithContextProps,
+		'ref'
+	> &
+		React.RefAttributes<any>
+> = withAnalyticsContext({
 	componentName: 'color-picker',
 	packageName,
 	packageVersion,
 })(withAnalyticsEvents()(ColorPickerWithoutAnalytics));
+export default ExportedDefault;
 
 const colorCardWrapperStyles = css({
 	display: 'inline-block',

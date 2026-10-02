@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { skipA11yAudit } from '@af/accessibility-testing';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 
 import Toggle from '../../toggle';
 
@@ -58,12 +58,12 @@ describe('Toggle component', () => {
 
 		const labelElement = screen.getByLabelText(label);
 
-		expect(labelElement).not.toHaveAttribute('data-checked');
+		expect(labelElement).not.toBeChecked();
 
 		await user.click(labelElement);
 		expect(onChange).not.toHaveBeenCalled();
 
-		expect(labelElement).not.toHaveAttribute('data-checked');
+		expect(labelElement).not.toBeChecked();
 	});
 
 	it('should set received label to input', () => {

@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::45c3b4b2f73587dee325566fc7978684>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::1a74ee1739ec76048373c60f0edf790d>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -18,14 +18,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __LoomInternalIcon__
  *
- * A temporary component to represent the icon for Loom.
- * @deprecated This component has been replaced by the component `LoomInternalIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Loom.
+ * Import `LoomInternalIcon` from `@atlaskit/logo/loom-internal/icon`.
  *
  */
 export function LoomInternalIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Loom',
 	testId,

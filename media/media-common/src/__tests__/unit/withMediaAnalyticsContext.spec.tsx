@@ -1,20 +1,18 @@
 import React, { forwardRef, useEffect } from 'react';
-import { mount } from 'enzyme';
 
-import {
-	type AnalyticsEventPayload,
-	AnalyticsListener,
-	createAndFireEvent,
-	type CreateUIAnalyticsEvent,
-	type WithAnalyticsEventsProps,
-	withAnalyticsEvents,
-} from '@atlaskit/analytics-next';
 import { MEDIA_CONTEXT } from '@atlaskit/analytics-namespaced-context/MediaAnalyticsContext';
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import createAndFireEvent from '@atlaskit/analytics-next/createAndFireEvents';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import { render } from '@atlassian/testing-library';
 
 import { ANALYTICS_MEDIA_CHANNEL } from '../../analytics/constants';
 import { type ContextPublicAttributes, type ContextStaticProps } from '../../analytics/types';
 import { withMediaAnalyticsContext } from '../../analytics/withMediaAnalyticsContext';
-
 import { type MediaFeatureFlags } from '../../mediaFeatureFlags';
 
 describe('withMediaAnalyticsContext()', () => {
@@ -48,6 +46,19 @@ describe('withMediaAnalyticsContext()', () => {
 		};
 	};
 
+	it('should capture and report a11y violations', async () => {
+		const { someContextData } = setup();
+		const SimpleComponent = (_props: ContextStaticProps) => (
+			<button type="button" aria-label="example">
+				Example
+			</button>
+		);
+		const WrappedSimpleComponent = withMediaAnalyticsContext(someContextData)(SimpleComponent);
+
+		const { container } = render(<WrappedSimpleComponent />);
+		await expect(container).toBeAccessible();
+	});
+
 	it('should create MediaAnalyticsContext containing package infos and feature flags', () => {
 		const analyticsEventPayload = { test: 'ok' };
 		const someFeatureFlags: MediaFeatureFlags = {
@@ -62,7 +73,7 @@ describe('withMediaAnalyticsContext()', () => {
 			someContextData,
 		)(MediaComponentFiringAnalyticsEvent);
 
-		mount(
+		render(
 			<AnalyticsListener onEvent={onEvent} channel={ANALYTICS_MEDIA_CHANNEL}>
 				<MediaComponentFiringAnalyticsEventWithContext featureFlags={someFeatureFlags} />
 			</AnalyticsListener>,
@@ -92,7 +103,7 @@ describe('withMediaAnalyticsContext()', () => {
 		const FancyButton = forwardRef<HTMLButtonElement, React.PropsWithChildren<ContextStaticProps>>(
 			(props, ref) => (
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-				<button ref={ref} className="FancyButton">
+				<button ref={ref} className="FancyButton" aria-label="fancy button">
 					{props.children}
 				</button>
 			),
@@ -100,8 +111,8 @@ describe('withMediaAnalyticsContext()', () => {
 
 		const WrappedFancyButton = withMediaAnalyticsContext(someContextData)(FancyButton);
 
-		const wrapper = mount(<WrappedFancyButton ref={someRef} />);
+		render(<WrappedFancyButton ref={someRef} />);
 
-		expect(wrapper.find(FancyButton).length).toEqual(1);
+		expect(someRef.current).toBeInstanceOf(HTMLButtonElement);
 	});
 });

@@ -10,12 +10,17 @@ import { MockTopBar } from '../common/mock-top-bar';
 export function TopNavStartLayoutExample(): React.JSX.Element {
 	return (
 		<MockTopBar>
-			<TopNavStart sideNavToggleButton={null}>
-				<SideNavToggleButton
-					defaultCollapsed
-					collapseLabel="Collapse sidebar"
-					expandLabel="Expand sidebar"
-				/>
+			<TopNavStart
+				sideNavToggleButton={
+					<SideNavToggleButton
+						defaultCollapsed
+						collapseLabel="Collapse sidebar"
+						expandLabel="Expand sidebar"
+					/>
+				}
+			>
+				{' '}
+				{null}
 				<AppSwitcher label="App switcher" />
 				<AppLogo
 					href="https://jira.atlassian.com"

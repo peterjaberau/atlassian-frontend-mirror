@@ -7,12 +7,14 @@ import { useCallback, useRef, useState } from 'react';
 
 import { jsx, styled } from '@compiled/react';
 import debounce from 'debounce-promise';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
-import { Field } from '@atlaskit/form';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import { type InputActionMeta, PopupSelect } from '@atlaskit/select';
+import { PopupSelect } from '@atlaskit/select/popup-select';
+import type { InputActionMeta } from '@atlaskit/select/types';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
 import { token } from '@atlaskit/tokens';
 
@@ -22,14 +24,13 @@ import {
 	objectSchemaKey,
 	type ObjectSchemaOption,
 } from '../../../../types/assets/types';
-
 import { objectSchemaSelectMessages } from './messages';
 import { objectSchemaToSelectOption } from './utils';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled
 const FieldContainer = styled.div({
 	flex: 1,
-	marginTop: token('space.negative.100', '-8px'),
+	marginTop: token('space.negative.100'),
 });
 
 type AssetsObjectSchemaSelectProps = {
@@ -70,7 +71,7 @@ export const AssetsObjectSchemaSelect = ({
 	initialObjectSchemas,
 	classNamePrefix: _classNamePrefix = 'assets-datasource-modal--object-schema-select',
 	testId = 'assets-datasource-modal--object-schema-select',
-}: AssetsObjectSchemaSelectProps) => {
+}: AssetsObjectSchemaSelectProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 	const { fetchObjectSchemas, objectSchemasLoading } = useObjectSchemas(workspaceId);
 	const [searchTerm, setSearchTerm] = useState('');

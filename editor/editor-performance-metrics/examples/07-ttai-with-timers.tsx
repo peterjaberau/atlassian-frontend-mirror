@@ -6,7 +6,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'reac
 
 import { css, jsx } from '@compiled/react';
 
-import { PerformanceMetrics, type OnTTAI } from '@atlaskit/editor-performance-metrics/react';
+import { PerformanceMetrics } from '@atlaskit/editor-performance-metrics/react';
+import type { OnTTAI } from '@atlaskit/editor-performance-metrics/react';
 
 const sectionOneStyle = css({
 	backgroundColor: '#FFB3BA', // Pastel Red
@@ -245,7 +246,7 @@ const SectionTen = ({ base, appCreatedAt }: { appCreatedAt: number; base: number
 };
 
 // Main App component
-export default function Example() {
+export default function Example(): JSX.Element {
 	const appCreatedAt = useMemo(() => performance.now(), []);
 	const [isTTAIReady, setIsTTAIReady] = useState(false);
 

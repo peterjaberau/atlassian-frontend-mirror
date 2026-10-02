@@ -8,15 +8,13 @@ import React from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
 
-import {
-	Banner,
-	Content,
-	LeftSidebarWithoutResize,
-	Main,
-	PageLayout,
-	RightPanel,
-	TopNavigation,
-} from '@atlaskit/page-layout';
+import { Banner } from '@atlaskit/page-layout/banner-slot';
+import { Content } from '@atlaskit/page-layout/content';
+import { LeftSidebarWithoutResize } from '@atlaskit/page-layout/left-sidebar-without-resize';
+import { Main } from '@atlaskit/page-layout/main';
+import { PageLayout } from '@atlaskit/page-layout/page-layout';
+import { RightPanel } from '@atlaskit/page-layout/right-panel';
+import { TopNavigation } from '@atlaskit/page-layout/top-navigation';
 import { token } from '@atlaskit/tokens';
 
 import { SlotLabel, SlotWrapper } from './common';

@@ -1,23 +1,33 @@
 /* eslint-disable @atlaskit/design-system/prefer-primitives */
+
 import type { MouseEvent } from 'react';
 import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 
+import {
+	ACTION_SUBJECT,
+	EVENT_TYPE,
+	INPUT_METHOD,
+	TABLE_ACTION,
+} from '@atlaskit/editor-common/analytics';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { CellSelection } from '@atlaskit/editor-tables';
 import { getSelectionRect } from '@atlaskit/editor-tables/utils';
-import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
-import { clearHoverSelection } from '../../../pm-plugins/commands';
+import { clearHoverSelection, toggleActiveTableMenu } from '../../../pm-plugins/commands';
 import { toggleDragMenuWithAnalytics } from '../../../pm-plugins/drag-and-drop/commands-with-analytics';
 import type { TriggerType } from '../../../pm-plugins/drag-and-drop/types';
 import { getPluginState as getTablePluginState } from '../../../pm-plugins/plugin-factory';
 import { getRowHeights, getRowsParams } from '../../../pm-plugins/utils/row-controls';
-import { getSelectedRowIndexes } from '../../../pm-plugins/utils/selection';
+import {
+	getSelectedRowIndexes,
+	isRowSelectionWithMergedFirstColumn,
+} from '../../../pm-plugins/utils/selection';
 import { TableCssClassName as ClassName } from '../../../types';
 import type {
 	CellHoverMeta,
@@ -48,8 +58,23 @@ type DragControlsProps = {
 	updateCellHoverLocation: (rowIndex: number) => void;
 };
 
-const getSelectedRows = (selection: Selection) => {
-	if (selection instanceof CellSelection && selection.isRowSelection()) {
+const getSelectedRows = (selection: Selection): number[] => {
+	if (!(selection instanceof CellSelection)) {
+		return [];
+	}
+
+	if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+		// New behaviour: also treat a row selection that sits to the right of a merged first-column
+		// cell as a full row selection.
+		if (!selection.isRowSelection() && !isRowSelectionWithMergedFirstColumn(selection)) {
+			return [];
+		}
+		const rect = getSelectionRect(selection);
+		return rect ? getSelectedRowIndexes(rect) : [];
+	}
+
+	// Old behaviour: only standard row selections are recognised.
+	if (selection.isRowSelection()) {
 		const rect = getSelectionRect(selection);
 		if (!rect) {
 			return [];
@@ -110,18 +135,51 @@ export const DragControls = ({
 		(
 			trigger: TriggerType,
 			event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent> | undefined,
+			handleIndex?: number,
 		) => {
 			if (event?.shiftKey) {
 				return;
 			}
-			toggleDragMenuWithAnalytics(api?.analytics?.actions)(
-				undefined,
-				'row',
-				hoveredCell?.rowIndex,
-				trigger,
-			)(editorView.state, editorView.dispatch);
+
+			// Use the clicked handle index because `hoveredCell` can point at a merged cell's first row.
+			const rowIndex = handleIndex ?? hoveredCell?.rowIndex;
+			if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+				if (rowIndex !== undefined && api) {
+					const { activeTableMenu: currentActiveTableMenu } = getTablePluginState(editorView.state);
+					const isSameActiveMenu =
+						currentActiveTableMenu?.type === 'row' && currentActiveTableMenu.index === rowIndex;
+
+					api.core.actions.execute(({ tr }) => {
+						if (!isSameActiveMenu) {
+							api.analytics?.actions?.attachAnalyticsEvent({
+								action: TABLE_ACTION.DRAG_MENU_OPENED,
+								actionSubject: ACTION_SUBJECT.TABLE,
+								actionSubjectId: null,
+								eventType: EVENT_TYPE.TRACK,
+								attributes: {
+									inputMethod: trigger === 'keyboard' ? INPUT_METHOD.KEYBOARD : INPUT_METHOD.MOUSE,
+									direction: 'row',
+								},
+							})(tr);
+						}
+
+						toggleActiveTableMenu(
+							{ type: 'row', index: rowIndex, openedBy: trigger },
+							currentActiveTableMenu,
+							api,
+						)({ tr });
+						return tr;
+					});
+				}
+				return;
+			}
+
+			toggleDragMenuWithAnalytics(api?.analytics?.actions)(undefined, 'row', rowIndex, trigger)(
+				editorView.state,
+				editorView.dispatch,
+			);
 		},
-		[editorView, hoveredCell?.rowIndex, api?.analytics?.actions],
+		[editorView, hoveredCell?.rowIndex, api],
 	);
 
 	const rowIndex = hoveredCell?.rowIndex;
@@ -231,6 +289,7 @@ export const DragControls = ({
 				data-handle-appearance={appearance}
 			>
 				<DragHandle
+					api={api}
 					isDragMenuTarget={!isHover}
 					direction="row"
 					tableLocalId={currentNodeLocalId}
@@ -243,6 +302,8 @@ export const DragControls = ({
 					onClick={handleClick}
 					onMouseOver={handleMouseOver}
 					onMouseOut={handleMouseOut}
+					onBlur={handleMouseOut}
+					onFocus={handleMouseOver}
 					toggleDragMenu={toggleDragMenuHandler}
 					editorView={editorView}
 				/>
@@ -259,19 +320,22 @@ export const DragControls = ({
 			return null;
 		}
 
+		const selectedAppearance =
+			isRowSelected && isEntireTableSelected ? (isInDanger ? 'danger' : 'selected') : 'placeholder';
+
 		// placeholder / selected need to always render at least one handle
 		// so it can be focused via keyboard shortcuts
+		const selectedGridRow = expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)
+			? // New behaviour: always position the placeholder in the first row to avoid an invalid
+				// `NaN / span 0` grid placement (which makes the handle disappear) when no rows are selected.
+				selectedAppearance === 'placeholder'
+				? '1 / span 1'
+				: `${selectedRowIndexes[0] + 1} / span ${selectedRowIndexes.length}`
+			: // Old behaviour.
+				`${selectedRowIndexes[0] + 1} / span ${selectedRowIndexes.length}`;
+
 		handles.push(
-			generateHandleByType(
-				'selected',
-				isRowSelected && isEntireTableSelected
-					? isInDanger
-						? 'danger'
-						: 'selected'
-					: 'placeholder',
-				`${selectedRowIndexes[0] + 1} / span ${selectedRowIndexes.length}`,
-				selectedRowIndexes,
-			),
+			generateHandleByType('selected', selectedAppearance, selectedGridRow, selectedRowIndexes),
 		);
 
 		if (
@@ -301,14 +365,14 @@ export const DragControls = ({
 				gridTemplateRows: heights,
 				gridTemplateColumns: isDragging
 					? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-					  `${dropTargetExtendedWidth}px ${dragRowControlsWidth}px ${tableWidth}px`
+						`${dropTargetExtendedWidth}px ${dragRowControlsWidth}px ${tableWidth}px`
 					: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
-					  `0px ${dragRowControlsWidth}px 0px`,
+						`0px ${dragRowControlsWidth}px 0px`,
 				// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
 				left: isDragging
 					? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-					  `-${dropTargetExtendedWidth + 2}px`
-					: token('space.negative.025', '-2px'),
+						`-${dropTargetExtendedWidth + 2}px`
+					: token('space.negative.025'),
 			}}
 			onMouseMove={handleMouseMove}
 			contentEditable={false}
@@ -342,6 +406,7 @@ export const DragControls = ({
 							key={`drop-target-${index}`}
 							index={index}
 							localId={currentNodeLocalId}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							style={{
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 								gridColumn: '1 / span 3',
@@ -353,7 +418,7 @@ export const DragControls = ({
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 								position: 'relative',
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								left: token('space.negative.100', '-8px'),
+								left: token('space.negative.100'),
 							}}
 						/>
 					)}

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@atlassian/testing-library';
 
 import RemovableTag from '../../internal/removable';
 
@@ -11,5 +11,32 @@ describe('<RemovableTag />', () => {
 			render(<RemovableTag text="" testId="tag" />);
 			expect(screen.getByTestId('close-button-tag')).toBeInTheDocument();
 		});
+	});
+
+	it('should use the supplied link component', () => {
+		const CustomLink = ({
+			children,
+			href,
+			testId,
+		}: {
+			children?: React.ReactNode;
+			href?: string;
+			testId?: string;
+		}) => (
+			<span data-href={href} data-testid={testId}>
+				{children}
+			</span>
+		);
+
+		render(
+			<RemovableTag
+				text="Custom link"
+				href="/custom-link"
+				linkComponent={CustomLink}
+				testId="removable-tag"
+			/>,
+		);
+
+		expect(screen.getByTestId('removable-tag--link')).toHaveAttribute('data-href', '/custom-link');
 	});
 });

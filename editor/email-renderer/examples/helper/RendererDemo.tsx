@@ -1,12 +1,13 @@
 /* eslint-disable no-console */
+
 import React from 'react';
+
 import { getSchemaBasedOnStage } from '@atlaskit/adf-schema/schema-default';
 import { token } from '@atlaskit/tokens';
 
-import { document as storyDataDocument } from './story-data';
-
-import type { MetaDataContext } from '../../src/interfaces';
 import EmailSerializer from '../../src';
+import type { MetaDataContext } from '../../src/interfaces';
+import { document as storyDataDocument } from './story-data';
 
 export interface DemoRendererProps {
 	document?: object;
@@ -66,7 +67,7 @@ const defaultSchema = getSchemaBasedOnStage('stage0');
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export default class RendererDemo extends React.Component<DemoRendererProps, DemoRendererState> {
-	emailSerializer = new EmailSerializer(defaultSchema, {
+	emailSerializer: EmailSerializer = new EmailSerializer(defaultSchema, {
 		isImageStubEnabled: true,
 		isInlineCSSEnabled: true,
 	});
@@ -107,13 +108,11 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 	render(): React.JSX.Element {
 		return (
 			<div
-				// eslint-disable-next-line react/no-string-refs -- Ignored via go/ED-25883
-				ref="root"
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				style={{ padding: token('space.250', '20px') }}
+				style={{ padding: token('space.250') }}
 			>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<fieldset style={{ marginBottom: token('space.250', '20px') }}>
+				<fieldset style={{ marginBottom: token('space.250') }}>
 					<legend>Input</legend>
 					{/* eslint-disable-next-line @atlaskit/design-system/no-html-textarea */}
 					<textarea
@@ -128,7 +127,7 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							fontSize: 16,
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							padding: token('space.150', '12px'),
+							padding: token('space.150'),
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							width: '100%',
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -187,13 +186,13 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 			return (
 				<div>
 					<h1>E-mail HTML</h1>
-					{/* eslint-disable-next-line @atlassian/a11y/iframe-has-title */}
 					<iframe
 						ref={this.onEmailRef}
 						frameBorder="0"
 						src="about:blank"
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						style={{ width: '100%', height: '800px' }}
+						title="Email HTML Preview"
 					/>
 				</div>
 			);

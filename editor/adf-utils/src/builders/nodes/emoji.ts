@@ -1,8 +1,5 @@
-import {
-	type EmojiDefinition,
-	type EmojiAttributes,
-	type AnnotationMarkDefinition,
-} from '@atlaskit/adf-schema';
+import type { AnnotationMarkDefinition } from '@atlaskit/adf-schema/annotation';
+import type { EmojiDefinition, EmojiAttributes } from '@atlaskit/adf-schema/emoji';
 
 export const emoji = (
 	attrs: EmojiAttributes,

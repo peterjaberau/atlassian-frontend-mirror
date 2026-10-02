@@ -1,6 +1,16 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const codeBidiWarningMessages = defineMessages({
+export const codeBidiWarningMessages: {
+	/**
+	 * Message taken from
+	 * https://hello.atlassian.net/wiki/spaces/~tswan/pages/1366555782/PSHELP-2943+Investigate+Trojan+Source+Attack+Vulnerability+design
+	 */
+	label: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	/**
 	 * Message taken from
 	 * https://hello.atlassian.net/wiki/spaces/~tswan/pages/1366555782/PSHELP-2943+Investigate+Trojan+Source+Attack+Vulnerability+design

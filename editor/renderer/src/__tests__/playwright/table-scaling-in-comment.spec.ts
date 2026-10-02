@@ -1,3 +1,5 @@
+import { skipAutoA11yFile } from '@atlassian/a11y-playwright-testing';
+
 import { rendererTestCase as test, expect } from './not-libra';
 import {
 	tableWithoutWidthAdf,
@@ -5,6 +7,12 @@ import {
 	tableWithWidthColumnNotResizedAdf,
 	tableWithWidthColumnResizedAdf,
 } from './table-scaling-in-comment.spec.ts-fixtures';
+
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:playwright
+skipAutoA11yFile();
 
 test.describe('table scaling in comment renderer', () => {
 	test.describe('table without width column not resized', () => {
@@ -15,9 +23,7 @@ test.describe('table scaling in comment renderer', () => {
 				UNSTABLE_allowTableResizing: true,
 			},
 			viewport: { width: 760, height: 600 },
-			editorExperiments: {
-				support_table_in_comment: true,
-			},
+			editorExperiments: {},
 		});
 		test('table should scale down when scale percent is bigger than 0.4', async ({ renderer }) => {
 			const table = renderer.page.getByRole('table');
@@ -46,9 +52,7 @@ test.describe('table scaling in comment renderer', () => {
 				UNSTABLE_allowTableResizing: true,
 			},
 			viewport: { width: 760, height: 600 },
-			editorExperiments: {
-				support_table_in_comment: true,
-			},
+			editorExperiments: {},
 		});
 
 		test('table should scale down when scale percent is bigger than 0.4', async ({ renderer }) => {
@@ -56,9 +60,13 @@ test.describe('table scaling in comment renderer', () => {
 
 			const beforeWidth = (await table.boundingBox())?.width;
 			expect(beforeWidth).toBe(760);
-			// scale percent from 760 -> 300 is 0.6
+			// Scale percent from 760 -> 300 would be 0.6, but column scaling is capped at the comment
+			// renderer's 40% maximum (MAX_SCALING_PERCENT_TABLES_WITH_FIXED_COLUMN_WIDTHS_OPTION):
+			// columns [150, 250, 360] * 0.6 = [90, 150, 216] = 456px, plus 1px of cell border = 457px.
+			// Same value as the `table with width column resized` case below, which has identical
+			// columns and also stops at the 40% cap.
 			await renderer.page.setViewportSize({ width: 300, height: 600 });
-			const targetWidth = 300;
+			const targetWidth = 457;
 
 			await renderer.page.waitForFunction(
 				(targetWidth) => {
@@ -70,7 +78,7 @@ test.describe('table scaling in comment renderer', () => {
 			);
 
 			const afterWidth = (await table.boundingBox())?.width;
-			expect(afterWidth).toBeCloseTo(300, 0);
+			expect(afterWidth).toBeCloseTo(targetWidth, 0);
 		});
 
 		test('should capture and report a11y violations', async ({ renderer }) => {
@@ -90,9 +98,7 @@ test.describe('table scaling in comment renderer', () => {
 				UNSTABLE_allowTableResizing: true,
 			},
 			viewport: { width: 760, height: 600 },
-			editorExperiments: {
-				support_table_in_comment: true,
-			},
+			editorExperiments: {},
 		});
 
 		test('table should not scale down when scale percent is bigger than 0.4', async ({
@@ -102,9 +108,11 @@ test.describe('table scaling in comment renderer', () => {
 
 			const beforeWidth = (await table.boundingBox())?.width;
 			expect(beforeWidth).toBe(760);
-			// scale percent from 760 -> 300 is 0.6
+			// The table has an explicit width, so its container query resolves to
+			// min(tableWidth, 100cqw) and the table now tracks the 300px renderer width instead of
+			// stopping at the 40% maximum column scale down.
 			await renderer.page.setViewportSize({ width: 300, height: 600 });
-			const targetWidth = 454;
+			const targetWidth = 300;
 
 			await renderer.page.waitForFunction(
 				(targetWidth) => {
@@ -116,7 +124,7 @@ test.describe('table scaling in comment renderer', () => {
 			);
 
 			const afterWidth = (await table.boundingBox())?.width;
-			expect(afterWidth).toBeCloseTo(454, 0);
+			expect(afterWidth).toBeCloseTo(300, 0);
 		});
 
 		test('table should scale down when scale percent is smaller than 0.4', async ({ renderer }) => {
@@ -150,9 +158,7 @@ test.describe('table scaling in comment renderer', () => {
 				UNSTABLE_allowTableResizing: true,
 			},
 			viewport: { width: 760, height: 600 },
-			editorExperiments: {
-				support_table_in_comment: true,
-			},
+			editorExperiments: {},
 		});
 
 		test('table should not scale down when scale percent is bigger than 0.4', async ({

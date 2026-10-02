@@ -1,15 +1,16 @@
-import { AnalyticsListener, type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import type { ReactWrapper } from 'enzyme';
 import React from 'react';
-import FileChooser from '../../../../components/common/FileChooser';
-import type { CategoryGroupKey } from '../../../../components/picker/categories';
-import EmojiPicker, { type Props } from '../../../../components/picker/EmojiPicker';
-import type { EmojiDescription } from '../../../../types';
-import { getEmojiResourcePromise, newEmojiRepository } from '../../_test-data';
+
+import { type RenderResult, screen, within } from '@testing-library/react';
+
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import type { MockEmojiResourceConfig } from '@atlaskit/util-data-test/emoji-types';
-import { type RenderResult, screen, within } from '@testing-library/react';
+
+import type { CategoryGroupKey } from '../../../../components/picker/categories';
+import EmojiPicker, { type Props } from '../../../../components/picker/EmojiPicker';
+import { getEmojiResourcePromise, newEmojiRepository } from '../../_test-data';
 import { renderWithIntl } from '../../_testing-library';
 
 export function setupPickerWithoutToneSelector(): Promise<RenderResult> {
@@ -40,7 +41,7 @@ export async function setupPicker(
 		: renderWithIntl(<EmojiPicker {...pickerProps} />);
 
 	// Wait until loaded
-	await screen.findByLabelText('Emoji picker');
+	await screen.findByRole('dialog', { name: 'Emoji picker' });
 
 	return renderResult;
 }
@@ -51,75 +52,36 @@ export const leftClick = {
 
 export const allEmojis: any = newEmojiRepository().all().emojis;
 
-export const findEmoji = (list: HTMLElement) =>
+const emojiButtonName = /^Change emoji, currently /;
+
+export const findEmoji = (list: HTMLElement): HTMLElement[] =>
 	within(list).getAllByRole('button', {
-		name: /:.*:/, // eg. :grinning:
+		name: emojiButtonName,
 	});
 
 /**
  * @param list child EmojiPickerList
  */
-export const emojisVisible = async (list: HTMLElement) =>
+export const emojisVisible = async (list: HTMLElement): Promise<HTMLElement[]> =>
 	await within(list).findAllByRole('button', {
-		name: /:.*:/, // eg. :grinning:
+		name: emojiButtonName,
 	});
 
 const findCategoryHeading = (category: CategoryGroupKey) =>
-	screen.getAllByRole('rowheader', {
-		// Key is all uppercase, lowercase everything except the first char
-		name: category.charAt(0) + category.slice(1).toLowerCase(),
-	});
+	screen.getAllByText(category.charAt(0) + category.slice(1).toLowerCase());
 
 export const categoryVisible = (category: CategoryGroupKey): boolean =>
 	findCategoryHeading(category).length > 0;
 
-export const findEmojiInCategory = (
-	emojis: ReactWrapper<any>,
-	categoryId: CategoryGroupKey,
-): EmojiDescription | undefined => {
-	const upperCategoryId = categoryId.toLocaleUpperCase();
-	for (let i = 0; i < emojis.length; i++) {
-		const emoji = emojis.at(i).prop('emoji');
-		if (emoji.category === upperCategoryId) {
-			return emoji;
-		}
-	}
-	return undefined;
-};
-
 export const findHandEmoji = (emojis: HTMLElement[]): number =>
 	emojis.findIndex((emoji) => {
-		const shortName = emoji.getAttribute('aria-label');
+		const shortName = emoji.getAttribute('data-testid');
 		// indexOf to cater for different skin tones eg. :raised_hand::skin-tone-2:
 		return !!shortName && shortName.indexOf(':raised_hand:') > -1;
 	});
 
-export const findEmojiNameInput = (component: ReactWrapper) =>
-	component.update() && component.find(`input[aria-label="Enter a name for the new emoji"]`);
-
-export const findEmojiPreview = async () => await screen.findByTestId('emoji-picker-footer');
-
-export const emojiNameInputVisible = (component: ReactWrapper): boolean =>
-	findEmojiNameInput(component).length > 0;
-
-export const emojiNameInputHasAValue = (component: ReactWrapper): boolean =>
-	emojiNameInputVisible(component) && !!findEmojiNameInput(component).prop('value');
-
-export const chooseFile = (component: ReactWrapper, file: any) => {
-	const fileChooser = component.find(FileChooser);
-	const fileOnClick = fileChooser.prop('onClick');
-	if (fileOnClick) {
-		fileOnClick();
-	}
-	const fileOnChange = fileChooser.prop('onChange');
-	expect(fileOnChange).toBeDefined();
-	fileOnChange!({
-		target: {
-			files: [file],
-		},
-	} as React.ChangeEvent<any>);
-	return fileChooser;
-};
+export const findEmojiPreview = async (): Promise<HTMLElement> =>
+	await screen.findByTestId('emoji-picker-footer');
 
 // focusIndex of list should expect tabIndex = 0, and siblings with tabIndex = -1
 export const expectTabIndexFromList = (list: HTMLElement[], focusIndex: number): void => {

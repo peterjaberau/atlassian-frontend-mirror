@@ -23,13 +23,10 @@ describe('<Rating />', () => {
 			<Rating render={renderIcon} label="GREAT" testId="item" id="great" value="great" />,
 		);
 
-		expect(getByTestId('item--icon-container').children).toMatchInlineSnapshot(`
-            HTMLCollection [
-              <div
-                data-testid="icon-unchecked"
-              />,
-            ]
-        `);
+		expect(getByTestId('item--icon-container').children[0]).toHaveAttribute(
+			'data-testid',
+			'icon-unchecked',
+		);
 
 		await expect(document.body).toBeAccessible();
 	});
@@ -39,13 +36,10 @@ describe('<Rating />', () => {
 			<Rating render={renderIcon} label="GREAT" testId="item" id="great" value="great" />,
 		);
 
-		expect(getByTestId('item--icon-checked-container').children).toMatchInlineSnapshot(`
-      HTMLCollection [
-        <div
-          data-testid="icon-checked"
-        />,
-      ]
-    `);
+		expect(getByTestId('item--icon-checked-container').children[0]).toHaveAttribute(
+			'data-testid',
+			'icon-checked',
+		);
 
 		await expect(document.body).toBeAccessible();
 	});

@@ -15,6 +15,8 @@ jest.mock('../../artifacts/token-names', () => {
 			'space.100': '--ds-space-100',
 			'radius.xsmall': '--ds-radius-xsmall',
 			'font.heading.xlarge': '--ds-font-heading-xlarge',
+			'motion.avatar.enter': '--ds-motion-avatar-enter',
+			'motion.avatar.exit': '--ds-motion-avatar-exit',
 		},
 	};
 });
@@ -81,6 +83,28 @@ jest.mock('../../artifacts/tokens-raw/atlassian-typography', () => ({
 			value:
 				'"normal 500 35px/40px ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, system-ui, "Helvetica Neue", sans-serif"',
 			cleanName: 'font.heading.xlarge',
+		},
+	],
+}));
+
+jest.mock('../../artifacts/tokens-raw/atlassian-motion', () => ({
+	__esModule: true,
+	default: [
+		{
+			value: {
+				duration: 150,
+				curve: 'cubic-bezier(0.6, 0, 0.8, 0.6)',
+				keyframes: ['ScaleIn80', 'FadeIn'],
+			},
+			cleanName: 'motion.avatar.enter',
+		},
+		{
+			value: {
+				duration: 100,
+				curve: 'cubic-bezier(0.32, 0, 0.67, 0)',
+				keyframes: ['ScaleOut80', 'FadeOut'],
+			},
+			cleanName: 'motion.avatar.exit',
 		},
 	],
 }));
@@ -152,7 +176,7 @@ describe('Tokens Babel Plugin', () => {
       token('test-token');
     `;
 
-		expect(actual).toMatchInlineSnapshot(`""var(--test-token)";"`);
+		expect(actual).toEqual(`"var(--test-token)";`);
 	});
 
 	it('converts StringLiteral second argument', () => {
@@ -161,7 +185,7 @@ describe('Tokens Babel Plugin', () => {
         token('test-token', 'blue');
       `;
 
-		expect(actual).toMatchInlineSnapshot(`""var(--test-token, blue)";"`);
+		expect(actual).toEqual(`"var(--test-token, blue)";`);
 	});
 
 	it('removes empty StringLiteral second argument', () => {
@@ -176,8 +200,8 @@ describe('Tokens Babel Plugin', () => {
         token('test-token', '');
       `;
 
-		expect(noAutoFallback).toMatchInlineSnapshot(`""var(--test-token)";"`);
-		expect(autoFallback).toMatchInlineSnapshot(`""var(--test-token)";"`);
+		expect(noAutoFallback).toEqual(`"var(--test-token)";`);
+		expect(autoFallback).toEqual(`"var(--test-token)";`);
 	});
 
 	it('handles aliased imports', () => {
@@ -186,13 +210,13 @@ describe('Tokens Babel Plugin', () => {
         getToken('test-token');
       `;
 
-		expect(actual).toMatchInlineSnapshot(`""var(--test-token)";"`);
+		expect(actual).toEqual(`"var(--test-token)";`);
 	});
 
 	it("does nothing if there's no import of @atlaskit/tokens", () => {
 		const actual = transform({})("token('test-token', color.blue);");
 
-		expect(actual).toMatchInlineSnapshot('"token(\'test-token\', color.blue);"');
+		expect(actual).toEqual("token('test-token', color.blue);");
 	});
 
 	it("doesn't remove tokens import if there are still usages left", () => {
@@ -202,11 +226,9 @@ describe('Tokens Babel Plugin', () => {
         token('test-token', 'blue');
       `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		"import { token } from '@atlaskit/tokens';
-		a = token;
-		"var(--test-token, blue)";"
-	`);
+		expect(actual).toEqual(`import { token } from '@atlaskit/tokens';
+a = token;
+"var(--test-token, blue)";`);
 	});
 
 	it('converts expression second arguments', () => {
@@ -218,12 +240,10 @@ describe('Tokens Babel Plugin', () => {
         token('test-token', getColor());
       `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		"\`var(--test-token, \${\`\${color.blue}\`})\`;
-		\`var(--test-token, \${color.blue})\`;
-		\`var(--test-token, \${condition ? "blue" : color.red})\`;
-		\`var(--test-token, \${getColor()})\`;"
-	`);
+		expect(actual).toEqual(`\`var(--test-token, \${\`\${color.blue}\`})\`;
+\`var(--test-token, \${color.blue})\`;
+\`var(--test-token, \${condition ? "blue" : color.red})\`;
+\`var(--test-token, \${getColor()})\`;`);
 	});
 
 	it('converts escape characters correctly', () => {
@@ -233,10 +253,8 @@ describe('Tokens Babel Plugin', () => {
         token('test-token-escape');
       `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		"\`var(--test-token \\\\u{54} \\\${ \\\` ' " T, \${color.blue})\`;
-		"var(--test-token \\\\u{54} \${ \` ' \\" T)";"
-	`);
+		expect(actual).toEqual(`\`var(--test-token \\\\u{54} \\\${ \\\` ' " T, \${color.blue})\`;
+"var(--test-token \\\\u{54} \${ \` ' \\" T)";`);
 	});
 
 	// If the token name has escape characters they should make it into the final result
@@ -251,14 +269,12 @@ describe('Tokens Babel Plugin', () => {
         token('test-token-escape');
       `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		""var(--test-token, ".concat("".concat(color.blue), ")");
-		"var(--test-token, ".concat(color.blue, ")");
-		"var(--test-token, ".concat(condition ? "blue" : color.red, ")");
-		"var(--test-token, ".concat(getColor(), ")");
-		"var(--test-token \\\\u{54} \${ \` ' \\" T, ".concat(color.blue, ")");
-		"var(--test-token \\\\u{54} \${ \` ' \\" T)";"
-	`);
+		expect(actual).toEqual(`"var(--test-token, ".concat("".concat(color.blue), ")");
+"var(--test-token, ".concat(color.blue, ")");
+"var(--test-token, ".concat(condition ? "blue" : color.red, ")");
+"var(--test-token, ".concat(getColor(), ")");
+"var(--test-token \\\\u{54} \${ \` ' \\" T, ".concat(color.blue, ")");
+"var(--test-token \\\\u{54} \${ \` ' \\" T)";`);
 	});
 
 	it('throws if token does not exist', () => {
@@ -306,12 +322,10 @@ describe('Tokens Babel Plugin', () => {
         });
       `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		"componentStyles = css({
-		  color: "var(--test-token)",
-		  color: \`\${"var(--test-token)"}\`
-		});"
-	`);
+		expect(actual).toEqual(`componentStyles = css({
+  color: "var(--test-token)",
+  color: \`\${"var(--test-token)"}\`
+});`);
 	});
 
 	it('correctly handles nested scopes', () => {
@@ -322,11 +336,9 @@ const getStyles = css => css\`
 \`;
     `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		"const getStyles = css => css\`
-		  \${true && \`color: \${"var(--test-token)"}\`}
-		\`;"
-	`);
+		expect(actual).toEqual(`const getStyles = css => css\`
+  \${true && \`color: \${"var(--test-token)"}\`}
+\`;`);
 	});
 
 	it('Ignores token functions from other packages', () => {
@@ -335,10 +347,8 @@ const getStyles = css => css\`
         token('test-token');
       `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		        "import { token } from 'foobar';
-		        token('test-token');"
-	      `);
+		expect(actual).toEqual(`import { token } from 'foobar';
+token('test-token');`);
 	});
 
 	it('Ignores token functions in node_modules directories', () => {
@@ -353,10 +363,8 @@ const getStyles = css => css\`
         token('test-token');
       `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		        "import { token } from '@atlaskit/tokens';
-		        token('test-token');"
-	      `);
+		expect(actual).toEqual(`import { token } from '@atlaskit/tokens';
+token('test-token');`);
 	});
 
 	it('Ignores token functions in nested node_modules directories', () => {
@@ -371,10 +379,8 @@ const getStyles = css => css\`
         token('test-token');
       `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		        "import { token } from '@atlaskit/tokens';
-		        token('test-token');"
-	      `);
+		expect(actual).toEqual(`import { token } from '@atlaskit/tokens';
+token('test-token');`);
 	});
 
 	it('formats box shadow fallback styles correctly when opacity is included in hex value', () => {
@@ -383,8 +389,8 @@ const getStyles = css => css\`
         token('test-token-shadow');
       `;
 
-		expect(actual).toMatchInlineSnapshot(
-			`""var(--test-token-shadow, 0px 0px 8px #091e423f, 0px 0px 1px #091e424f)";"`,
+		expect(actual).toEqual(
+			`"var(--test-token-shadow, 0px 0px 8px #091e423f, 0px 0px 1px #091e424f)";`,
 		);
 	});
 
@@ -394,8 +400,8 @@ const getStyles = css => css\`
         token('test-token-shadow-no-opacity');
       `;
 
-		expect(actual).toMatchInlineSnapshot(
-			`""var(--test-token-shadow-no-opacity, 0px 0px 8px #091e4240, 0px 0px 1px #091e424f)";"`,
+		expect(actual).toEqual(
+			`"var(--test-token-shadow-no-opacity, 0px 0px 8px #091e4240, 0px 0px 1px #091e424f)";`,
 		);
 	});
 
@@ -406,7 +412,7 @@ const getStyles = css => css\`
         token('test-token');
       `;
 
-			expect(actual).toMatchInlineSnapshot(`""var(--test-token, #ffffff)";"`);
+			expect(actual).toEqual(`"var(--test-token, #ffffff)";`);
 		});
 	});
 
@@ -417,7 +423,7 @@ const getStyles = css => css\`
 				token('test-token', 'red');
 			`;
 
-			expect(actual).toMatchInlineSnapshot(`""var(--test-token, #ffffff)";"`);
+			expect(actual).toEqual(`"var(--test-token, #ffffff)";`);
 		});
 
 		it('converts 1-argument usage correctly', () => {
@@ -426,7 +432,7 @@ const getStyles = css => css\`
         token('test-token');
       `;
 
-			expect(actual).toMatchInlineSnapshot(`""var(--test-token, #ffffff)";"`);
+			expect(actual).toEqual(`"var(--test-token, #ffffff)";`);
 		});
 
 		it('converts expression second arguments', () => {
@@ -438,12 +444,10 @@ const getStyles = css => css\`
         token('test-token', getColor());
       `;
 
-			expect(actual).toMatchInlineSnapshot(`
-				""var(--test-token, #ffffff)";
-				"var(--test-token, #ffffff)";
-				"var(--test-token, #ffffff)";
-				"var(--test-token, #ffffff)";"
-			`);
+			expect(actual).toEqual(`"var(--test-token, #ffffff)";
+"var(--test-token, #ffffff)";
+"var(--test-token, #ffffff)";
+"var(--test-token, #ffffff)";`);
 		});
 
 		it('should not override manual fallback usage for radius tokens', () => {
@@ -452,7 +456,7 @@ const getStyles = css => css\`
 				token('radius.xsmall', '900px');
 			`;
 
-			expect(actual).toMatchInlineSnapshot(`""var(--ds-radius-xsmall, 900px)";"`);
+			expect(actual).toEqual(`"var(--ds-radius-xsmall, 900px)";`);
 		});
 
 		it('should not override manual fallback usage for exempted tokens', () => {
@@ -464,7 +468,7 @@ const getStyles = css => css\`
 				token('font.heading.xlarge', 'Comic Sans MS');
 			`;
 
-			expect(actual).toMatchInlineSnapshot(`""var(--ds-font-heading-xlarge, Comic Sans MS)";"`);
+			expect(actual).toEqual(`"var(--ds-font-heading-xlarge, Comic Sans MS)";`);
 		});
 
 		it('should override manual fallback usage for non-exempted tokens', () => {
@@ -476,8 +480,8 @@ const getStyles = css => css\`
 				token('font.heading.xlarge', 'Comic Sans MS');
 			`;
 
-			expect(actual).toMatchInlineSnapshot(
-				`""var(--ds-font-heading-xlarge, \\"normal 500 35px/40px ui-sans-serif, -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", Ubuntu, system-ui, \\"Helvetica Neue\\", sans-serif\\")";"`,
+			expect(actual).toEqual(
+				`"var(--ds-font-heading-xlarge, \\"normal 500 35px/40px ui-sans-serif, -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", Ubuntu, system-ui, \\"Helvetica Neue\\", sans-serif\\")";`,
 			);
 		});
 	});
@@ -489,7 +493,7 @@ const getStyles = css => css\`
       token('space.075');
     `;
 
-			expect(actual).toMatchInlineSnapshot(`""var(--ds-space-075)";"`);
+			expect(actual).toEqual(`"var(--ds-space-075)";`);
 		});
 
 		it('converts 1-argument usage correctly when shouldUseAutoFallback set to true', () => {
@@ -505,12 +509,55 @@ const getStyles = css => css\`
         token('font.heading.xlarge');
       `;
 
-			expect(actual).toMatchInlineSnapshot(`
-			""var(--ds-space-075, 6px)";
-			"var(--ds-space-100, 8px)";
-			"var(--ds-radius-xsmall, 2px)";
-			"var(--ds-font-heading-xlarge, \\"normal 500 35px/40px ui-sans-serif, -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", Ubuntu, system-ui, \\"Helvetica Neue\\", sans-serif\\")";"
-		`);
+			expect(actual).toEqual(`"var(--ds-space-075, 6px)";
+"var(--ds-space-100, 8px)";
+"var(--ds-radius-xsmall, 2px)";
+"var(--ds-font-heading-xlarge, \\"normal 500 35px/40px ui-sans-serif, -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", Ubuntu, system-ui, \\"Helvetica Neue\\", sans-serif\\")";`);
+		});
+	});
+
+	describe('Motion tokens', () => {
+		it('converts motion token 1-argument usage correctly when shouldUseAutoFallback set to false', () => {
+			const actual = transform({})`
+      import { token } from '@atlaskit/tokens';
+      token('motion.avatar.enter');
+    `;
+
+			expect(actual).toEqual(`"var(--ds-motion-avatar-enter)";`);
+		});
+
+		it('converts motion token with 1-argument usage correctly when shouldUseAutoFallback set to true', () => {
+			const actual = transform({
+				shouldUseAutoFallback: true,
+				transformTemplateLiterals: false,
+				defaultTheme: 'light',
+			})`
+        import { token } from '@atlaskit/tokens';
+        token('motion.avatar.enter');
+        token('motion.avatar.exit');
+      `;
+
+			expect(actual)
+				.toEqual(`"var(--ds-motion-avatar-enter, 150ms cubic-bezier(0.6, 0, 0.8, 0.6) ScaleIn80, 150ms cubic-bezier(0.6, 0, 0.8, 0.6) FadeIn)";
+"var(--ds-motion-avatar-exit, 100ms cubic-bezier(0.32, 0, 0.67, 0) ScaleOut80, 100ms cubic-bezier(0.32, 0, 0.67, 0) FadeOut)";`);
+		});
+
+		it('converts motion token with StringLiteral second argument', () => {
+			const actual = transform({})`
+        import { token } from '@atlaskit/tokens';
+        token('motion.avatar.enter', '150ms ease-out');
+      `;
+
+			expect(actual).toEqual(`"var(--ds-motion-avatar-enter, 150ms ease-out)";`);
+		});
+
+		it('converts motion token with expression second argument', () => {
+			const actual = transform({})`
+        import { token } from '@atlaskit/tokens';
+        token('motion.avatar.enter', customDuration);
+      `;
+
+			expect(actual).toEqual(`\`var(--ds-motion-avatar-enter, \${customDuration})\`;`);
 		});
 	});
 
@@ -522,7 +569,7 @@ const getStyles = css => css\`
 				token('test-token');
 			`;
 			// shouldUseAutoFallback true means fallback is inserted
-			expect(actual).toMatchInlineSnapshot(`""var(--test-token, #ffffff)";"`);
+			expect(actual).toEqual(`"var(--test-token, #ffffff)";`);
 		});
 
 		it('shouldForceAutoFallback: defaults to true when not specified', () => {
@@ -532,7 +579,7 @@ const getStyles = css => css\`
 				token('test-token', 'red');
 			`;
 			// shouldForceAutoFallback true means manual fallback is overridden
-			expect(actual).toMatchInlineSnapshot(`""var(--test-token, #ffffff)";"`);
+			expect(actual).toEqual(`"var(--test-token, #ffffff)";`);
 		});
 	});
 });
@@ -555,9 +602,7 @@ describe('Tokens Babel Plugin with TOKENS_SKIP_BABEL=true', () => {
       token('test-token');
     `;
 
-		expect(actual).toMatchInlineSnapshot(`
-		"import { token } from '@atlaskit/tokens';
-		token('test-token');"
-	`);
+		expect(actual).toEqual(`import { token } from '@atlaskit/tokens';
+token('test-token');`);
 	});
 });

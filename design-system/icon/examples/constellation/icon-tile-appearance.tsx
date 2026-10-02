@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { IconTile, type IconTileProps } from '@atlaskit/icon';
 import GlobeIcon from '@atlaskit/icon/core/globe';
+import IconTile from '@atlaskit/icon/icon-tile';
+import type { IconTileProps } from '@atlaskit/icon/types';
 import { Inline, Stack } from '@atlaskit/primitives/compiled';
 
 const appearances: IconTileProps['appearance'][] = [
@@ -41,7 +42,6 @@ const IconSizeExample = (): React.JSX.Element => {
 							icon={GlobeIcon}
 							label=""
 							appearance={appearance}
-							shape="square"
 							size="medium"
 						/>
 					))}

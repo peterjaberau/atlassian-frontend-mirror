@@ -2,6 +2,7 @@ import type { Transform } from 'style-dictionary';
 
 import type {
 	DeprecatedTypographyToken,
+	MotionToken,
 	OpacityToken,
 	PaintToken,
 	RawToken,
@@ -10,7 +11,7 @@ import type {
 	SpacingToken,
 	TypographyToken,
 } from '../../../src/types';
-import { getTokenId } from '../../../src/utils/token-ids';
+import { getTokenId } from '../../../src/utils/get-token-id';
 
 function isHex(hex: string) {
 	return /[0-9A-Fa-f]{6}/g.test(hex);
@@ -30,6 +31,7 @@ const transform = (palette: Record<string, any>): Transform => {
 				| ShapeToken<any>
 				| TypographyToken<any>
 				| DeprecatedTypographyToken<any>
+				| MotionToken<any>
 				| OpacityToken
 				| RawToken;
 
@@ -136,6 +138,35 @@ const transform = (palette: Record<string, any>): Transform => {
 			if (originalToken.attributes.group === 'letterSpacing') {
 				const value = originalToken.value;
 				return palette.typography.letterSpacing[value].value;
+			}
+
+			if (originalToken.attributes.group === 'motion') {
+				const value = originalToken.value;
+				return {
+					duration: palette.motion.duration?.[value.duration]?.value,
+					curve: palette.motion.curve?.[value.curve]?.value,
+					keyframes: value.keyframes,
+					properties: value.properties?.map(
+						(property: string) => palette.motion.properties?.[property]?.value,
+					),
+					delay: palette.motion.duration?.[value.delay]?.value,
+					fill: palette.motion.fillMode?.[value.fill]?.value,
+				};
+			}
+
+			if (originalToken.attributes.group === 'motionDuration') {
+				const value = originalToken.value;
+				return `${palette.motion.duration?.[value]?.value}ms`;
+			}
+
+			if (originalToken.attributes.group === 'motionEasing') {
+				const value = originalToken.value;
+				return palette.motion.curve?.[value]?.value;
+			}
+
+			if (originalToken.attributes.group === 'motionKeyframe') {
+				const value = originalToken.value;
+				return value;
 			}
 		},
 	};

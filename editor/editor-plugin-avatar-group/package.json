@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-avatar-group",
-	"version": "8.0.3",
+	"version": "24.0.0",
 	"description": "Avatar Group plugin for @atlaskit/editor-core.",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -19,22 +19,17 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./avatarGroupPlugin": "./src/entry-points/avatarGroupPlugin.tsx",
+		"./avatarGroupPluginType": "./src/entry-points/avatarGroupPluginType.ts"
 	},
 	"dependencies": {
+		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/avatar-group": "workspace:^",
 		"@atlaskit/editor-plugin-analytics": "workspace:^",
 		"@atlaskit/editor-plugin-collab-edit": "workspace:^",
@@ -43,56 +38,35 @@
 		"@atlaskit/editor-prosemirror": "workspace:^",
 		"@atlaskit/editor-shared-styles": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
+		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@emotion/react": "root:*",
-		"memoize-one": "root:*",
-		"react-intl-next": "root:*"
+		"memoize-one": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
+	"platform-feature-flags": {
+		"confluence_ncs_step_diffing_version_history": {
+			"type": "boolean",
+			"referenceOnly": true
 		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
+		"platform_move_presence_agents": {
+			"type": "boolean"
 		}
 	},
-	"stricter": {
-		"no-unused-dependencies": {
-			"checkDevDependencies": true
+	"platform-experiments": {
+		"platform_editor_invite_to_edit_button_aria_pressed": {
+			"param": "isEnabled",
+			"defaultValue": false
 		}
+	},
+	"devDependencies": {
+		"react": "^19.2.0",
+		"react-intl": "root:*"
 	}
 }

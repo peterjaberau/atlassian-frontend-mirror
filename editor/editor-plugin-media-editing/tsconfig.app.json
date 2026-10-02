@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -29,9 +30,11 @@
 		"**/codemods/**/*.ts",
 		"**/codemods/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-plugin-media-editing/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-plugin-media-editing/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
@@ -42,6 +45,9 @@
 		},
 		{
 			"path": "../../design-system/css/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/dropdown-menu/tsconfig.app.json"

@@ -39,7 +39,7 @@ const CellComponent = ({
 	...props
 }: CellProps) => (
 	<CommonCell
-		indent={indentLevel ? `calc(${token('space.300', '25px')} * ${indentLevel})` : undefined}
+		indent={indentLevel ? `calc(${token('space.300')} * ${indentLevel})` : undefined}
 		width={width}
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 		className={className}
@@ -50,7 +50,8 @@ const CellComponent = ({
 	</CommonCell>
 );
 
-const Cell: (props: CellProps & import("..").CellWithColumnWidthProps) => React.JSX.Element = withColumnWidth(CellComponent);
+const Cell: (props: CellProps & import('..').CellWithColumnWidthProps) => React.JSX.Element =
+	withColumnWidth(CellComponent);
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
 export default Cell;

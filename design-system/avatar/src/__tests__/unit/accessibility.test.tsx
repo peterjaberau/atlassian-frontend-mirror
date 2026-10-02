@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { render } from '@testing-library/react';
-
 import { axe } from '@af/accessibility-testing';
 import __noop from '@atlaskit/ds-lib/noop';
+import { render } from '@atlassian/testing-library';
 
-import { Block } from '../../../examples-util/helpers';
-import Avatar, { AvatarItem } from '../../index';
+import { Block } from '../../../examples-util/block';
+import Avatar from '../../avatar';
+import AvatarItem from '../../avatar-item';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Avatar accessibility', () => {
@@ -19,7 +19,8 @@ describe('Avatar accessibility', () => {
 					<Avatar name="large" size="large" presence="offline" />
 					<Avatar name="medium" size="medium" presence="busy" />
 					<Avatar name="small" size="small" presence="focus" />
-					<Avatar name="xsmall" size="xsmall" />
+					<Avatar name="UNSAFE_xsmall" size="UNSAFE_xsmall" presence="online" />
+					<Avatar name="xxsmall" size="xxsmall" />
 				</Block>
 				<Block heading="Square">
 					<Avatar appearance="square" name="xxlarge" size="xxlarge" />
@@ -27,7 +28,8 @@ describe('Avatar accessibility', () => {
 					<Avatar appearance="square" name="large" size="large" status="declined" />
 					<Avatar appearance="square" name="medium" size="medium" status="locked" />
 					<Avatar appearance="square" name="small" size="small" />
-					<Avatar appearance="square" name="xsmall" size="xsmall" />
+					<Avatar appearance="square" name="UNSAFE_xsmall" size="UNSAFE_xsmall" status="approved" />
+					<Avatar appearance="square" name="xxsmall" size="xxsmall" />
 				</Block>
 				<Block heading="Disabled">
 					<Avatar name="xxlarge" size="xxlarge" isDisabled />
@@ -35,7 +37,7 @@ describe('Avatar accessibility', () => {
 					<Avatar name="large" size="large" presence="offline" isDisabled />
 					<Avatar name="medium" size="medium" presence="busy" isDisabled />
 					<Avatar name="small" size="small" presence="focus" isDisabled />
-					<Avatar name="xsmall" size="xsmall" isDisabled />
+					<Avatar name="xxsmall" size="xxsmall" isDisabled />
 				</Block>
 			</div>,
 		);

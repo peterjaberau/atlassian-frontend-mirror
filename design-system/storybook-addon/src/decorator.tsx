@@ -3,7 +3,8 @@ import React, { type CSSProperties, Fragment, type ReactNode } from 'react';
 import { useEffect } from '@storybook/preview-api';
 import type { Renderer, StoryContext, PartialStoryFn as StoryFunction } from '@storybook/types';
 
-import { setGlobalTheme, token } from '@atlaskit/tokens';
+import { token } from '@atlaskit/tokens';
+import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
 
 import { type Themes } from './types';
 
@@ -47,15 +48,17 @@ const withDesignTokens = (
 						spacing: 'spacing',
 						shape: 'shape',
 						typography: 'typography',
+						motion: 'motion',
 					});
 					break;
 				case 'split':
 				case 'stack':
 					await setGlobalTheme({
-						colorMode: 'light',
+						colorMode: 'auto',
 						spacing: 'spacing',
 						shape: 'shape',
 						typography: 'typography',
+						motion: 'motion',
 					});
 
 					document.documentElement.querySelectorAll('style[data-theme]').forEach((el) => {

@@ -1,22 +1,5 @@
-import { expandedState } from '@atlaskit/editor-common/expand';
-import type { EditorCommand } from '@atlaskit/editor-common/types';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-
-export const toggleExpandRange =
-	(from?: number, to?: number, open: boolean = true): EditorCommand =>
-	({ tr }) => {
-		const { expand, nestedExpand } = tr.doc.type.schema.nodes;
-		const fromClamped = from && from >= 0 ? from : 0;
-		const toClamped = to && to <= tr.doc.content.size ? to : tr.doc.content.size;
-		tr.doc.nodesBetween(fromClamped, toClamped, (node) => {
-			if ([expand, nestedExpand].includes(node.type)) {
-				expandedState.set(node, open);
-			}
-		});
-
-		if (expValEquals('platform_editor_aifc_expand_collapses_oncreate_fix', 'isEnabled', true)) {
-			return tr;
-		}
-
-		return null;
-	};
+// EDITOR-7926: implementation moved to editor-common to avoid a circular dependency; re-exported
+// here for backwards compatibility.
+/* eslint-disable @atlaskit/editor/no-re-export */
+export { TOGGLE_EXPAND_RANGE_META_KEY, toggleExpandRange } from '@atlaskit/editor-common/expand';
+/* eslint-enable @atlaskit/editor/no-re-export */

@@ -4,10 +4,10 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
 
-import type { RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
 import { calculateOffsetLeft } from '@atlaskit/editor-common/media-single';
 import type { GridType, SnapPointsProps } from '@atlaskit/editor-common/types';
 import {
@@ -22,18 +22,19 @@ import {
 } from '@atlaskit/editor-common/ui';
 import { calculateSnapPoints } from '@atlaskit/editor-common/utils';
 import type { Highlights } from '@atlaskit/editor-plugin-grid';
+import type { ResolvedPos } from '@atlaskit/editor-prosemirror/model';
 import {
 	findParentNodeOfTypeClosestToPos,
 	hasParentNodeOfType,
 } from '@atlaskit/editor-prosemirror/utils';
 import { akEditorWideLayoutWidth } from '@atlaskit/editor-shared-styles';
-import type { MediaClientConfig } from '@atlaskit/media-core';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { checkMediaType } from '../../pm-plugins/utils/check-media-type';
-
+import { leftHandleOnlyLayouts } from './constants';
 import { wrapperStyle } from './styled';
 import type { EnabledHandles, Props } from './types';
 
@@ -53,7 +54,7 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 			this.props.view.dom,
 			undefined,
 		),
-		isVideoFile: !fg('platform_editor_media_video_check_fix_new'),
+		isVideoFile: false,
 	};
 
 	componentDidUpdate(prevProps: Props) {
@@ -147,13 +148,19 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 		}
 	}
 
-	calcNewSize = (newWidth: number, stop: boolean) => {
+	calcNewSize = (
+		newWidth: number,
+		stop: boolean,
+	): {
+		layout: MediaSingleLayout;
+		width: number | null;
+	} => {
 		const {
 			layout,
 			view: { state },
 		} = this.props;
 
-		if (!this.hasResized && expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
+		if (!this.hasResized) {
 			const mediaDomEl = this.wrapper?.querySelector('div[data-prosemirror-node-name="media"]');
 			if (mediaDomEl) {
 				const event = new CustomEvent('resized');
@@ -197,7 +204,7 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 		return 'full-width';
 	};
 
-	get $pos() {
+	get $pos(): ResolvedPos | null {
 		if (typeof this.props.getPos !== 'function') {
 			return null;
 		}
@@ -215,13 +222,13 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 	/**
 	 * The maxmimum number of grid columns this node can resize to.
 	 */
-	get gridWidth() {
+	get gridWidth(): number {
 		const { gridSize } = this.props;
 
 		return !(this.wrappedLayout || this.insideInlineLike) ? gridSize / 2 : gridSize;
 	}
 
-	calcColumnLeftOffset = () => {
+	calcColumnLeftOffset = (): number => {
 		const { offsetLeft } = this.state;
 		return this.insideInlineLike
 			? calcColumnsFromPx(offsetLeft, this.props.lineLength, this.props.gridSize)
@@ -279,17 +286,20 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 		return !!findParentNodeOfTypeClosestToPos($pos, [layoutColumn]);
 	}
 
-	highlights = (newWidth: number, snapPoints: number[]) => {
+	highlights = (newWidth: number, snapPoints: number[]): string[] | number[] => {
 		const snapWidth = snapTo(newWidth, snapPoints);
-		const { layoutColumn, table, expand, nestedExpand, panel } = this.props.view.state.schema.nodes;
+		const { layoutColumn, table, expand, nestedExpand, panel, panel_c1 } =
+			this.props.view.state.schema.nodes;
 
-		if (
-			this.$pos &&
-			!!findParentNodeOfTypeClosestToPos(
-				this.$pos,
-				[layoutColumn, table, expand, nestedExpand, panel].filter(Boolean),
-			)
-		) {
+		const parentsToHideGridLines = expValEquals(
+			'platform_editor_nest_table_in_panel',
+			'isEnabled',
+			true,
+		)
+			? [layoutColumn, table, expand, nestedExpand, panel, panel_c1].filter(Boolean)
+			: [layoutColumn, table, expand, nestedExpand, panel].filter(Boolean);
+
+		if (this.$pos && !!findParentNodeOfTypeClosestToPos(this.$pos, parentsToHideGridLines)) {
 			return [];
 		}
 
@@ -320,7 +330,7 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 
 	private saveWrapper = (wrapper: HTMLDivElement) => (this.wrapper = wrapper);
 
-	render() {
+	render(): jsx.JSX.Element {
 		const {
 			width: origWidth,
 			height: origHeight,
@@ -338,15 +348,29 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 			ratio = ((origHeight / origWidth) * 100).toFixed(3);
 		}
 
+		const isLeftResizeHandleDisabled =
+			expValEquals('platform_editor_lovability_resize_dividers_panels', 'isEnabled', true) ||
+			isExperimentEnabled('platform_editor_remove_left_resize_handle');
+
 		const enable: EnabledHandles = {};
 		handleSides.forEach((side) => {
 			const oppositeSide = side === 'left' ? 'right' : 'left';
-			if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-				if (this.props.disableHandles) {
-					enable[side] = false;
-					return;
-				}
+			if (this.props.disableHandles) {
+				enable[side] = false;
+				return;
 			}
+
+			// Disable the left handle up-front (except for layouts where it is the
+			// only handle) before computing whether it would otherwise be enabled.
+			if (
+				side === 'left' &&
+				isLeftResizeHandleDisabled &&
+				leftHandleOnlyLayouts.indexOf(layout) === -1
+			) {
+				enable[side] = false;
+				return;
+			}
+
 			enable[side] =
 				['full-width', 'wide', 'center']
 					.concat(`wrap-${oppositeSide}` as MediaSingleLayout)
@@ -379,11 +403,11 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 			}
 			return {
 				left: {
-					left: `calc(${token('space.025', '0.125em')} * -0.5)`,
+					left: `calc(${token('space.025')} * -0.5)`,
 					paddingLeft: '0px',
 				},
 				right: {
-					right: `calc(${token('space.025', '0.125em')} * -0.5)`,
+					right: `calc(${token('space.025')} * -0.5)`,
 					paddingRight: '0px',
 				},
 			};
@@ -419,6 +443,7 @@ export default class ResizableMediaSingle extends React.Component<Props, State> 
 					// when cursor is located below a media with caption,
 					// press “Up“ key will result cursor focus on an invalid position, (on the resize handler)
 					// This workaround adds an empty div inside the resize handler to prevent the issue.
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					handleComponentFunc={() => <div contentEditable={false} />}
 					handleStyles={nestedInTableHandleStyles(this.isNestedInTable())}
 				>

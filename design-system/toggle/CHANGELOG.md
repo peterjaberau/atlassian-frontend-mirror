@@ -1,5 +1,287 @@
 # @atlaskit/toggle
 
+## 17.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.5
+
+### Patch Changes
+
+- [`95d4618be32ae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95d4618be32ae) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 17.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`1ae3a82b2561f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ae3a82b2561f) -
+  Cleanup feature gate 'platform-toggle-fix-disabled-zindex'
+
+## 16.0.0
+
+### Major Changes
+
+- [`d156157c9f0f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d156157c9f0f9) -
+  The feature gate `platform-toggle-atomic-styles` has been removed. Atomic styles are now always
+  applied.
+
+  The `data-checked`, `data-disabled`, and `data-size` attributes have been removed from the Toggle
+  component's rendered output.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.1
+
+### Patch Changes
+
+- [`65ac96a771383`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/65ac96a771383) -
+  Fix disabled toggle handle zIndex rendering above overlapping elements like select menus, behind
+  feature flag platform-toggle-fix-disabled-zindex
+
+## 15.6.0
+
+### Minor Changes
+
+- [`7d6e9b5e6e7c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d6e9b5e6e7c6) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.0
+
+### Minor Changes
+
+- [`2fda175ca9266`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fda175ca9266) -
+  Removed `data-checked`, `data-disabled`, and `data-size` attributes from the Toggle component's
+  rendered output. These attributes are no longer set on the label element when the
+  `platform-toggle-atomic-styles` feature flag is enabled.
+
+## 15.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.0
+
+### Minor Changes
+
+- [`bc599e912cf4b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc599e912cf4b) -
+  Removed `data-checked`, `data-disabled`, and `data-size` attributes from the Toggle component's
+  rendered output. These attributes are no longer set on the label element when the
+  `platform-toggle-atomic-styles` feature flag is enabled.
+
+## 15.3.0
+
+### Minor Changes
+
+- [`2fe4c35fe7ad6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe4c35fe7ad6) -
+  Internal refactor to toggle to eliminate nested CSS selectors in favor of an atomic-friendly
+  styling approach using CSS custom properties. This change is behind the
+  `platform-toggle-atomic-styles` feature gate.
+
+## 15.2.17
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 15.2.16
+
+### Patch Changes
+
+- [`e2085d35701ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2085d35701ca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 15.2.15
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+- Updated dependencies
+
+## 15.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 15.2.9
 
 ### Patch Changes

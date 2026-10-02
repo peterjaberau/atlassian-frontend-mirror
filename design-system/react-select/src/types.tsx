@@ -1,9 +1,11 @@
-import { type XCSSProp } from '@compiled/react';
+import type { JSX, ReactNode } from 'react';
+
+import type { CSSProperties, XCSSProp } from '@compiled/react';
 
 import type { XCSSAllProperties, XCSSAllPseudos } from '@atlaskit/css';
 
-import { type SelectProps } from './select';
-import { type StylesProps } from './styles';
+import type { default as Select, SelectProps } from './select';
+import type { StylesProps } from './styles';
 
 export interface GroupBase<Option> {
 	readonly options: readonly Option[];
@@ -146,8 +148,10 @@ export interface CreateOptionActionMeta<Option> extends ActionMetaBase<Option> {
 	option: Option;
 }
 
-export interface InitialInputFocusedActionMeta<Option, IsMulti extends boolean>
-	extends ActionMetaBase<Option> {
+export interface InitialInputFocusedActionMeta<
+	Option,
+	IsMulti extends boolean,
+> extends ActionMetaBase<Option> {
 	action: 'initial-input-focus';
 	value: OnChangeValue<Option, IsMulti>;
 	options?: Options<Option>;
@@ -183,3 +187,45 @@ export type GetOptionLabel<Option> = (option: Option) => string;
 export type GetOptionValue<Option> = (option: Option) => string;
 
 export type CSSObjectWithLabel = any;
+
+export interface MultiValueGenericProps<
+	Option = unknown,
+	IsMulti extends boolean = boolean,
+	Group extends GroupBase<Option> = GroupBase<Option>,
+> {
+	children: ReactNode;
+	// eslint-disable-next-line @repo/internal/react/consistent-props-definitions
+	data: any;
+	innerProps: {
+		className?: string;
+		ref?: JSX.IntrinsicElements['div']['ref'];
+		style?: CSSProperties;
+	};
+	selectProps: SelectProps<Option, IsMulti, Group>;
+	isFocused?: boolean;
+	isDisabled?: boolean;
+	hasEllipsis?: boolean;
+	className?: string | undefined;
+	xcss?: XCSSProp<XCSSAllProperties, XCSSAllPseudos> | undefined;
+}
+
+export interface NoticeProps<
+	Option = unknown,
+	IsMulti extends boolean = boolean,
+	Group extends GroupBase<Option> = GroupBase<Option>,
+> extends CommonPropsAndClassName<Option, IsMulti, Group> {
+	/**
+	 * The children to be rendered.
+	 */
+	children: ReactNode;
+	/**
+	 * Props to be passed on to the wrapper.
+	 */
+	innerProps: JSX.IntrinsicElements['div'];
+}
+
+export type SelectInstance<
+	Option = unknown,
+	IsMulti extends boolean = false,
+	Group extends GroupBase<Option> = GroupBase<Option>,
+> = Select<Option, IsMulti, Group>;

@@ -46,7 +46,6 @@ import TableRowDeleteIcon from '@atlaskit/icon/core/table-row-delete';
 import TableRowMoveDownIcon from '@atlaskit/icon/core/table-row-move-down';
 import TableRowMoveUpIcon from '@atlaskit/icon/core/table-row-move-up';
 import type { NewIconProps, IconProps } from '@atlaskit/icon/types';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { DraggableData, DraggableType, PluginInjectionAPI, TableDirection } from '../../types';
@@ -63,7 +62,6 @@ import {
 import { moveSourceWithAnalytics } from '../drag-and-drop/commands-with-analytics';
 import { getPluginState as getTablePluginState } from '../plugin-factory';
 import { getNewResizeStateFromSelectedColumns } from '../table-resizing/utils/resize-state';
-
 import {
 	hasMergedCellsInSelection,
 	hasMergedCellsWithColumnNextToColumnIndex,
@@ -71,8 +69,10 @@ import {
 } from './merged-cells';
 import { getSelectedColumnIndexes, getSelectedRowIndexes } from './selection';
 
-export const getTargetIndex = (selectedIndexes: number[], direction: DraggableData['direction']) =>
-	Math[direction < 0 ? 'min' : 'max'](...selectedIndexes) + direction;
+export const getTargetIndex = (
+	selectedIndexes: number[],
+	direction: DraggableData['direction'],
+): number => Math[direction < 0 ? 'min' : 'max'](...selectedIndexes) + direction;
 
 export const canMove = (
 	sourceType: DraggableType,
@@ -273,22 +273,20 @@ export const getDragMenuConfig = (
 					},
 				]
 			: [];
-	const sortConfigs = [
-		...sortOptions.map(({ label, order, icon }) => ({
-			id: `sort_column_${order}`,
-			title: `Sort ${label}`,
-			disabled: hasMergedCellsInTable,
-			icon: icon,
-			onClick: (state: EditorState, dispatch?: CommandDispatch) => {
-				sortColumnWithAnalytics(editorAnalyticsAPI)(
-					INPUT_METHOD.TABLE_CONTEXT_MENU,
-					index ?? 0,
-					order,
-				)(state, dispatch);
-				return true;
-			},
-		})),
-	];
+	const sortConfigs = sortOptions.map(({ label, order, icon }) => ({
+		id: `sort_column_${order}`,
+		title: `Sort ${label}`,
+		disabled: hasMergedCellsInTable,
+		icon: icon,
+		onClick: (state: EditorState, dispatch?: CommandDispatch) => {
+			sortColumnWithAnalytics(editorAnalyticsAPI)(
+				INPUT_METHOD.TABLE_CONTEXT_MENU,
+				index ?? 0,
+				order,
+			)(state, dispatch);
+			return true;
+		},
+	}));
 	const restConfigs = [
 		...addOptions.map(({ label, offset, icon, keymap }) => ({
 			id: `add_${direction}_${label}`,
@@ -419,10 +417,7 @@ export const getDragMenuConfig = (
 
 	const allConfigs = [...restConfigs];
 
-	if (
-		(isColumnSortingEnabled && fg('platform_editor_enable_table_dnd')) ||
-		!fg('platform_editor_enable_table_dnd')
-	) {
+	if (isColumnSortingEnabled) {
 		allConfigs.unshift(...sortConfigs);
 	}
 

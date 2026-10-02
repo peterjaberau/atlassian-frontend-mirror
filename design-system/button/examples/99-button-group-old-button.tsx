@@ -1,30 +1,40 @@
-/* eslint-disable @atlaskit/design-system/consistent-css-prop-usage */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
+import { css, jsx } from '@compiled/react';
 
-import Button, { ButtonGroup } from '@atlaskit/button';
+import Button from '@atlaskit/button/button';
+import ButtonGroup from '@atlaskit/button/button-group';
+import { cssMap } from '@atlaskit/css';
 import AudioIcon from '@atlaskit/icon/core/audio';
+import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-const Row = (props: { children: React.ReactNode }) => (
-	<div css={{ padding: token('space.100', '8px') }}>{props.children}</div>
-);
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
+
+const rowStyles = css({
+	paddingBlockEnd: token('space.100'),
+	paddingBlockStart: token('space.100'),
+	paddingInlineEnd: token('space.100'),
+	paddingInlineStart: token('space.100'),
+});
+
+const constrainedRowStyles = css({
+	width: 180,
+	overflowX: 'scroll',
+});
+
+const Row = (props: { children: React.ReactNode }) => <div css={rowStyles}>{props.children}</div>;
 const ConstrainedRow = (props: { children: React.ReactNode }) => (
-	<div
-		css={{
-			padding: token('space.100', '8px'),
-			width: 180,
-			overflowX: 'scroll',
-		}}
-	>
-		{props.children}
-	</div>
+	<div css={[rowStyles, constrainedRowStyles]}>{props.children}</div>
 );
 
 const CustomComponent = (props: { label?: string }) => {
@@ -59,7 +69,13 @@ export default (): React.JSX.Element => (
 			<ButtonGroup>
 				<Button>Good times</Button>
 				<Button iconAfter={<AudioIcon label="" />}>Boogie</Button>
-				<Button iconAfter={<AudioIcon spacing="spacious" label="Boogie more" />} />
+				<Button
+					iconAfter={
+						<Flex xcss={iconSpacingStyles.space050}>
+							<AudioIcon label="Boogie more" />
+						</Flex>
+					}
+				/>
 			</ButtonGroup>
 		</ConstrainedRow>
 	</Row>

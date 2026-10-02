@@ -9,22 +9,29 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import { css, cssMap, jsx } from '@compiled/react';
-import { FormattedMessage, useIntl } from 'react-intl-next';
 
-import { type OnEmojiEvent, type PickerSize } from '@atlaskit/emoji/types';
+import { css, cssMap, jsx } from '@compiled/react';
+import { FormattedMessage, useIntl } from 'react-intl';
+
 import { EmojiPicker } from '@atlaskit/emoji/picker';
 import { type EmojiProvider } from '@atlaskit/emoji/resource';
+import { type OnEmojiEvent, type PickerSize } from '@atlaskit/emoji/types';
+import Heading from '@atlaskit/heading/heading';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import {
-	Manager,
 	Popper,
-	Reference,
 	type PopperProps,
 	type PopperChildrenProps,
 	type Placement,
-} from '@atlaskit/popper';
-import { layers } from '@atlaskit/theme/constants';
+} from '@atlaskit/popper/main';
+import { Manager } from '@atlaskit/popper/manager';
+import { Reference } from '@atlaskit/popper/reference';
+import Portal from '@atlaskit/portal/portal';
 import { Box } from '@atlaskit/primitives/compiled';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
+import { layers } from '@atlaskit/theme/constants';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { token } from '@atlaskit/tokens';
 
 import { useCloseManagerV2 } from '../hooks/useCloseManager';
 import { useDelayedState } from '../hooks/useDelayedState';
@@ -32,13 +39,9 @@ import { useFocusTrap } from '../hooks/useFocusTrap';
 import { messages } from '../shared/i18n';
 import { type ReactionSource } from '../types';
 import { PickerRender } from '../ufo';
+import { RepositionOnUpdate } from './RepositionOnUpdate';
 import { Selector, type SelectorProps } from './Selector';
 import { Trigger, type TriggerProps } from './Trigger';
-import { RepositionOnUpdate } from './RepositionOnUpdate';
-
-import { N0, N50A, N60A } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
-import Portal from '@atlaskit/portal';
 
 const pickerStyle = css({
 	verticalAlign: 'middle',
@@ -56,15 +59,24 @@ const popupWrapperStyle = css({
 });
 
 const popupStyle = css({
-	backgroundColor: token('elevation.surface.overlay', N0),
+	backgroundColor: token('elevation.surface.overlay'),
 	borderRadius: token('radius.small', '3px'),
-	boxShadow: token('elevation.shadow.overlay', `0 4px 8px -2px ${N50A}, 0 0 1px ${N60A}`),
+	boxShadow: token('elevation.shadow.overlay'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&> div': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		boxShadow: undefined,
-		marginBottom: token('space.050', '4px'),
+		marginBottom: token('space.050'),
 	},
+});
+
+const visuallyHiddenStyle = css({
+	clip: 'rect(1px, 1px, 1px, 1px)',
+	height: '1px',
+	overflow: 'hidden',
+	position: 'absolute',
+	whiteSpace: 'nowrap',
+	width: '1px',
 });
 
 const additionalStyles = cssMap({
@@ -87,9 +99,11 @@ export const RENDER_REACTIONPICKERPANEL_TESTID = 'reactionPickerPanel-testid';
  * Emoji Picker Controller Id for Accessibility Labels
  */
 const PICKER_CONTROL_ID = 'emoji-picker';
+const PICKER_LABEL_ID = 'emoji-picker-label';
 
 export interface ReactionPickerProps
-	extends Pick<SelectorProps, 'pickerQuickReactionEmojiIds'>,
+	extends
+		Pick<SelectorProps, 'pickerQuickReactionEmojiIds'>,
 		Partial<Pick<TriggerProps, 'tooltipContent' | 'miniMode'>> {
 	/**
 	 * Optional Show the "more emoji" selector icon for choosing emoji beyond the default list of emojis (defaults to false)
@@ -99,6 +113,10 @@ export interface ReactionPickerProps
 	 * Optional class name
 	 */
 	className?: string;
+	/**
+	 * Optional content identifier forwarded to content-aware emoji picker experiences
+	 */
+	contentId?: string;
 	/**
 	 * Enable/Disable the button to be clickable (defaults to false)
 	 */
@@ -179,10 +197,13 @@ export interface ReactionPickerProps
 /**
  * Picker component for adding reactions
  */
-export const ReactionPicker = React.memo((props: ReactionPickerProps) => {
+export const ReactionPicker: React.MemoExoticComponent<
+	(props: ReactionPickerProps) => JSX.Element
+> = React.memo((props: ReactionPickerProps): JSX.Element => {
 	const {
 		miniMode,
 		className,
+		contentId,
 		emojiProvider,
 		onSelection,
 		allowAllEmojis,
@@ -390,7 +411,11 @@ export const ReactionPicker = React.memo((props: ReactionPickerProps) => {
 
 		onOpen();
 		// ufo reactions picker opened success
-		PickerRender.success();
+		PickerRender.success({
+			metadata: {
+				readingOrderInline: fg('a11y_reactions_reading_order'),
+			},
+		});
 	}, [
 		hoverableReactionPicker,
 		isPopupTrayOpen,
@@ -464,6 +489,48 @@ export const ReactionPicker = React.memo((props: ReactionPickerProps) => {
 		onCancel();
 	};
 
+	const pickerPanel = (
+		<PopperWrapper
+			settings={settings}
+			popperModifiers={popperModifiers}
+			isOpen={isPopupTrayOpen}
+			onClose={onClose}
+			triggerRef={triggerRef}
+			zIndex={reactionPickerPopperZIndex || layers.flag()}
+		>
+			{settings.showFullPicker ||
+			(hoverableReactionPicker && isHoverableReactionPickerEmojiPickerOpen) ? (
+				<Box
+					xcss={additionalStyles.selectorContainer}
+					onMouseEnter={handlePopupMouseEnter}
+					onMouseLeave={handlePopupMouseLeave}
+				>
+					<EmojiPicker
+						contentId={contentId}
+						emojiProvider={emojiProvider}
+						onSelection={onEmojiSelected}
+						size={emojiPickerSize}
+					/>
+				</Box>
+			) : (
+				<Box
+					xcss={additionalStyles.selectorContainer}
+					onMouseEnter={handlePopupMouseEnter}
+					onMouseLeave={handlePopupMouseLeave}
+				>
+					<Selector
+						emojiProvider={emojiProvider}
+						onSelection={onEmojiSelected}
+						showMore={allowAllEmojis}
+						onMoreClick={onSelectMoreClick}
+						pickerQuickReactionEmojiIds={pickerQuickReactionEmojiIds}
+						hoverableReactionPickerSelector={hoverableReactionPicker}
+					/>
+				</Box>
+			)}
+		</PopperWrapper>
+	);
+
 	return (
 		<div
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
@@ -481,6 +548,10 @@ export const ReactionPicker = React.memo((props: ReactionPickerProps) => {
 								ariaAttributes={{
 									'aria-expanded': isPopupTrayOpen,
 									'aria-controls': PICKER_CONTROL_ID,
+									...(isPopupTrayOpen &&
+									expValEquals('a11y-fixes-week3-may-2026', 'isEnabled', true)
+										? { 'aria-owns': PICKER_CONTROL_ID }
+										: {}),
 								}}
 								ref={(node: HTMLButtonElement | null) => {
 									if (node && isPopupTrayOpen) {
@@ -503,52 +574,21 @@ export const ReactionPicker = React.memo((props: ReactionPickerProps) => {
 								reactionPickerTriggerIcon={reactionPickerTriggerIcon}
 								reactionPickerTriggerText={reactionPickerTriggerText}
 								isListItem={isListItem}
+								emojiPickerSize={emojiPickerSize}
 							/>
 						</Box>
 					)}
 				</Reference>
-				{isPopupTrayOpen && (
-					<Portal zIndex={reactionPickerPopperZIndex || layers.flag()}>
-						<PopperWrapper
-							settings={settings}
-							popperModifiers={popperModifiers}
-							isOpen={isPopupTrayOpen}
-							onClose={onClose}
-							triggerRef={triggerRef}
-							zIndex={reactionPickerPopperZIndex || layers.flag()}
-						>
-							{settings.showFullPicker ||
-							(hoverableReactionPicker && isHoverableReactionPickerEmojiPickerOpen) ? (
-								<Box
-									xcss={additionalStyles.selectorContainer}
-									onMouseEnter={handlePopupMouseEnter}
-									onMouseLeave={handlePopupMouseLeave}
-								>
-									<EmojiPicker
-										emojiProvider={emojiProvider}
-										onSelection={onEmojiSelected}
-										size={emojiPickerSize}
-									/>
-								</Box>
-							) : (
-								<Box
-									xcss={additionalStyles.selectorContainer}
-									onMouseEnter={handlePopupMouseEnter}
-									onMouseLeave={handlePopupMouseLeave}
-								>
-									<Selector
-										emojiProvider={emojiProvider}
-										onSelection={onEmojiSelected}
-										showMore={allowAllEmojis}
-										onMoreClick={onSelectMoreClick}
-										pickerQuickReactionEmojiIds={pickerQuickReactionEmojiIds}
-										hoverableReactionPickerSelector={hoverableReactionPicker}
-									/>
-								</Box>
-							)}
-						</PopperWrapper>
-					</Portal>
-				)}
+				{isPopupTrayOpen &&
+					(fg('a11y_reactions_reading_order') ? (
+						// Render the picker panel inline (a DOM sibling directly after the trigger)
+						// so assistive technologies encounter the expanded content in the correct
+						// reading order. The popper still positions with `position: fixed`, so the
+						// visual placement is unchanged.
+						pickerPanel
+					) : (
+						<Portal zIndex={reactionPickerPopperZIndex || layers.flag()}>{pickerPanel}</Portal>
+					))}
 			</Manager>
 		</div>
 	);
@@ -566,7 +606,7 @@ export interface PopperWrapperProps {
 	zIndex?: number;
 }
 
-export const PopperWrapper = (props: PropsWithChildren<PopperWrapperProps>) => {
+export const PopperWrapper = (props: PropsWithChildren<PopperWrapperProps>): JSX.Element => {
 	const { triggerRef, settings, isOpen, onClose, children, popperModifiers, zIndex } = props;
 	const [popupRef, setPopupRef] = useState<HTMLDivElement | null>(null);
 	const { formatMessage } = useIntl();
@@ -595,8 +635,14 @@ export const PopperWrapper = (props: PropsWithChildren<PopperWrapperProps>) => {
 			{({ ref, style, update }) => {
 				return (
 					<div
-						role="group"
-						aria-label={formatMessage(messages.popperWrapperLabel)}
+						role="dialog"
+						aria-label={
+							fg('platform_a11y_fixes_reading_order')
+								? undefined
+								: formatMessage(messages.popperWrapperLabel)
+						}
+						aria-modal={fg('platform_a11y_fixes_reading_order') ? 'false' : undefined}
+						aria-labelledby={fg('platform_a11y_fixes_reading_order') ? PICKER_LABEL_ID : undefined}
 						id={PICKER_CONTROL_ID}
 						data-testid={RENDER_REACTIONPICKERPANEL_TESTID}
 						style={{
@@ -616,8 +662,15 @@ export const PopperWrapper = (props: PropsWithChildren<PopperWrapperProps>) => {
 						}}
 						css={popupWrapperStyle}
 						// eslint-disable-next-line @atlassian/a11y/no-noninteractive-tabindex
-						tabIndex={0}
+						tabIndex={fg('platform_suppression_removal_fix_reactions') ? undefined : 0}
 					>
+						{fg('platform_a11y_fixes_reading_order') ? (
+							<div css={visuallyHiddenStyle}>
+								<Heading as="h2" size="small" id={PICKER_LABEL_ID}>
+									<FormattedMessage {...messages.popperWrapperLabel} />
+								</Heading>
+							</div>
+						) : null}
 						<RepositionOnUpdate update={update} settings={settings}>
 							<div css={[popupStyle]}>{children}</div>
 						</RepositionOnUpdate>

@@ -1,5 +1,12 @@
 import React from 'react';
-import { IntlProvider, injectIntl, type WrappedComponentProps } from 'react-intl-next';
+
+import {
+	IntlProvider,
+	injectIntl,
+	type WithIntlProps,
+	type WrappedComponentProps,
+} from 'react-intl';
+
 import { getMessagesForLocale, type LangCode } from '../util/i18n-util';
 
 export interface Props {
@@ -22,4 +29,7 @@ class MessagesIntlProvider extends React.Component<Props & WrappedComponentProps
 	}
 }
 
-export default injectIntl(MessagesIntlProvider);
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(MessagesIntlProvider);
+export default _default_1;

@@ -2,12 +2,14 @@ import assert from 'assert';
 
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
-import { RawIntlProvider } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
+import { RawIntlProvider } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import type { MediaADFAttrs, RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
 import type { InputMethodInsertMedia, InsertMediaVia } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -16,20 +18,24 @@ import {
 	EVENT_TYPE,
 	INPUT_METHOD,
 } from '@atlaskit/editor-common/analytics';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import { mediaInlineImagesEnabled } from '@atlaskit/editor-common/media-inline';
 import {
 	CAPTION_PLACEHOLDER_ID,
 	getMaxWidthForNestedNodeNext,
 } from '@atlaskit/editor-common/media-single';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
-import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type {
+	ContextIdentifierProvider,
+	MediaProvider,
+} from '@atlaskit/editor-common/provider-factory';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type {
 	EditorContainerWidth as WidthPluginState,
 	ExtractInjectionAPI,
 } from '@atlaskit/editor-common/types';
-import { browser, ErrorReporter } from '@atlaskit/editor-common/utils';
+import { ErrorReporter } from '@atlaskit/editor-common/utils';
 import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import {
@@ -50,12 +56,13 @@ import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
 import { type Identifier, isFileIdentifier } from '@atlaskit/media-client';
 import { getMediaFeatureFlag } from '@atlaskit/media-common';
-import type { MediaClientConfig } from '@atlaskit/media-core';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
 import type { UploadParams } from '@atlaskit/media-picker/types';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { MediaNextEditorPluginType } from '../mediaPluginType';
+import { createMediaNodeUpdater } from '../nodeviews/mediaNodeUpdater';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-namespace
 import * as helpers from '../pm-plugins/commands/helpers';
@@ -80,7 +87,6 @@ import type {
 import type { MediaPluginOptions } from '../types/media-plugin-options';
 import type { PlaceholderType } from '../ui/Media/DropPlaceholder';
 import DropPlaceholder from '../ui/Media/DropPlaceholder';
-
 import { ACTIONS } from './actions';
 import { MediaTaskManager } from './mediaTaskManager';
 import type { PickerFacadeConfig } from './picker-facade';
@@ -129,11 +135,13 @@ const createDropPlaceholder = (
 const MEDIA_RESOLVED_STATES = ['ready', 'error', 'cancelled'];
 export class MediaPluginStateImplementation implements MediaPluginState {
 	allowsUploads: boolean = false;
+	uploadStatus: 'pending' | 'available' | 'unavailable' = 'pending';
 	mediaClientConfig?: MediaClientConfig;
 	uploadMediaClientConfig?: MediaClientConfig;
 	ignoreLinks: boolean = false;
 	waitForMediaUpload: boolean = true;
 	allUploadsFinished: boolean = true;
+	previewRenderedMediaIds: Set<string> = new Set();
 	showDropzone: boolean = false;
 	isFullscreen: boolean = false;
 	element?: HTMLElement;
@@ -160,6 +168,17 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 
 	private openMediaPickerBrowser?: () => void;
 	private onPopupToggleCallback: (isOpen: boolean) => void = () => {};
+
+	// When non-null, holds the file ID of the media node being replaced. Used both as a
+	// flag (non-null = replace mode) and as a cross-check to ensure the correct node is
+	// updated if the selection moves between the picker opening and the file being picked.
+	replaceMediaFileId: string | null = null;
+
+	// The display height (in pixels) of the mediaSingle being replaced, computed at replace time
+	// from its display width and the old media node's intrinsic aspect ratio.
+	// Used by the nodeview to recompute display width from the new file's aspect ratio after
+	// dimensions are fetched, preserving visual height rather than visual width.
+	replaceMediaTargetDisplayHeight: number | null = null;
 
 	private identifierCount = new Map<string, { count: number; identifier: Identifier }>();
 
@@ -200,7 +219,15 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		);
 
 		if (mediaOptions?.syncProvider) {
-			this.setMediaProvider(mediaOptions?.syncProvider);
+			this.setMediaProvider(mediaOptions.syncProvider);
+			if (mediaOptions.provider && isExperimentEnabled('platform_editor_ssr_toolbar_optimistic')) {
+				// The synchronous SSR provider may only support viewing. Keep its view
+				// config, but wait for the full provider before deciding upload availability.
+				if (!this.allowsUploads) {
+					this.uploadStatus = 'pending';
+				}
+				this.setMediaProvider(mediaOptions.provider);
+			}
 		} else if (mediaOptions?.provider) {
 			this.setMediaProvider(mediaOptions?.provider);
 		}
@@ -224,7 +251,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		this.singletonCreatedAt = (performance || Date).now();
 	}
 
-	clone() {
+	clone(): MediaPluginStateImplementation {
 		const clonedAt = (performance || Date).now();
 
 		// Prevent double wrapping
@@ -264,7 +291,14 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 
 	async setMediaProvider(mediaProvider?: Promise<MediaProvider> | MediaProvider): Promise<void> {
 		// Prevent someone trying to set the exact same provider twice for performance reasons
-		if (this.previousMediaProvider === mediaProvider) {
+		if (
+			this.previousMediaProvider === mediaProvider &&
+			!(
+				isExperimentEnabled('platform_editor_ssr_toolbar_optimistic') &&
+				this.uploadStatus === 'pending' &&
+				!mediaProvider
+			)
+		) {
 			return;
 		}
 		this.previousMediaProvider = mediaProvider;
@@ -272,7 +306,11 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 			this.destroyPickers();
 
 			this.allowsUploads = false;
-			if (!this.destroyed) {
+			this.uploadStatus = 'unavailable';
+			if (
+				!this.destroyed &&
+				(this.view || !isExperimentEnabled('platform_editor_ssr_toolbar_optimistic'))
+			) {
 				this.view.dispatch(
 					this.view.state.tr.setMeta(stateKey, {
 						allowsUploads: this.allowsUploads,
@@ -287,11 +325,15 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		// eslint-disable-next-line @atlaskit/editor/enforce-todo-comment-format
 		// TODO disable (not destroy!) pickers until mediaProvider is resolved
 		try {
-			if (mediaProvider instanceof Promise) {
-				this.mediaProvider = await mediaProvider;
-			} else {
-				this.mediaProvider = mediaProvider;
+			const resolvedProvider =
+				mediaProvider instanceof Promise ? await mediaProvider : mediaProvider;
+			if (
+				isExperimentEnabled('platform_editor_ssr_toolbar_optimistic') &&
+				(this.destroyed || this.previousMediaProvider !== mediaProvider)
+			) {
+				return;
 			}
+			this.mediaProvider = resolvedProvider;
 
 			// Ignored via go/ees007
 			// eslint-disable-next-line @atlaskit/editor/enforce-todo-comment-format
@@ -311,6 +353,12 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 				`MediaProvider promise did not resolve to a valid instance of MediaProvider - ${this.mediaProvider}`,
 			);
 		} catch (err) {
+			if (
+				isExperimentEnabled('platform_editor_ssr_toolbar_optimistic') &&
+				(this.destroyed || this.previousMediaProvider !== mediaProvider)
+			) {
+				return;
+			}
 			const wrappedError = new Error(
 				`Media functionality disabled due to rejected provider: ${
 					err instanceof Error ? err.message : String(err)
@@ -321,7 +369,11 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 			this.destroyPickers();
 
 			this.allowsUploads = false;
-			if (!this.destroyed) {
+			this.uploadStatus = 'unavailable';
+			if (
+				!this.destroyed &&
+				(this.view || !isExperimentEnabled('platform_editor_ssr_toolbar_optimistic'))
+			) {
 				this.view.dispatch(
 					this.view.state.tr.setMeta(stateKey, {
 						allowsUploads: this.allowsUploads,
@@ -335,6 +387,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		this.mediaClientConfig = this.mediaProvider.viewMediaClientConfig;
 
 		this.allowsUploads = !!this.mediaProvider.uploadMediaClientConfig;
+		this.uploadStatus = this.allowsUploads ? 'available' : 'unavailable';
 		const { view, allowsUploads } = this;
 		// make sure editable DOM node is mounted
 		if (!this.destroyed && view && view.dom.parentNode) {
@@ -355,7 +408,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		}
 	}
 
-	getMediaOptions = () => this.options;
+	getMediaOptions = (): MediaPluginOptions => this.options;
 
 	setIsResizing(isResizing: boolean): void {
 		this.isResizing = isResizing;
@@ -419,7 +472,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		return;
 	}
 
-	get contextIdentifierProvider() {
+	get contextIdentifierProvider(): ContextIdentifierProvider | undefined {
 		return this.pluginInjectionApi?.contextIdentifier?.sharedState.currentState()
 			?.contextIdentifierProvider;
 	}
@@ -455,6 +508,21 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 			return;
 		}
 
+		// If replace mode was set but the selection has moved away from a mediaSingle
+		// (e.g. the user cancelled the replace picker and then inserted media elsewhere),
+		// clear replace state so this insertion proceeds as a normal insert.
+		if (this.replaceMediaFileId !== null) {
+			const { mediaSingle } = state.schema.nodes;
+			const isStillOnTargetMedia =
+				state.selection instanceof NodeSelection &&
+				state.selection.node.type === mediaSingle &&
+				state.selection.node.firstChild?.attrs.id === this.replaceMediaFileId;
+			if (!isStillOnTargetMedia) {
+				this.replaceMediaFileId = null;
+				this.replaceMediaTargetDisplayHeight = null;
+			}
+		}
+
 		// We need to dispatch the change to event dispatcher only for successful files
 		if (mediaState.status !== 'error') {
 			this.updateAndDispatch({
@@ -468,6 +536,126 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		) {
 			this.uploadInProgressSubscriptions.forEach((fn) => fn(true));
 			this.uploadInProgressSubscriptionsNotified = true;
+		}
+
+		// Replace mode: if a media node is being replaced, update its attrs in-place
+		// rather than inserting a new node. This preserves layout, width, and caption.
+		if (this.replaceMediaFileId !== null) {
+			// Clear replace mode immediately so subsequent insertions behave normally
+			this.replaceMediaFileId = null;
+
+			const { state: currentState } = this.view;
+			const mediaSinglePos = currentState.selection.from;
+			const mediaPos = mediaSinglePos + 1;
+			const mediaNode = currentState.doc.nodeAt(mediaPos);
+
+			if (!mediaNode || mediaNode.type.name !== 'media') {
+				return;
+			}
+
+			// Build a single transaction that:
+			// 1. Updates the media child node attrs (new file identity + cleared dimensions)
+			// 2. Re-creates the NodeSelection so the toolbar picks up the fresh node
+			const tr = currentState.tr;
+			tr.step(
+				new SetAttrsStep(mediaPos, {
+					id: mediaState.id,
+					collection,
+					type: 'file',
+					__fileMimeType: mediaState.fileMimeType ?? null,
+					__fileName: mediaState.fileName ?? null,
+					__fileSize: mediaState.fileSize ?? null,
+					__mediaTraceId: null,
+					// Clear intrinsic dimensions — they'll be fetched once the file
+					// is processed and applied via updateDimensions in a single tx
+					// with the height-preserving mediaSingle width adjustment.
+					width: null,
+					height: null,
+				}),
+			);
+			// Re-create the selection so the floating toolbar picks up
+			// the updated node and renders the full set of controls.
+			tr.setSelection(NodeSelection.create(tr.doc, mediaSinglePos));
+			tr.setMeta('scrollIntoView', false);
+			this.view.dispatch(tr);
+
+			// Still register the state-change listener so upload completion is tracked
+			onMediaStateChanged(this.handleMediaState);
+
+			const isEndState = (state: MediaState) =>
+				state.status && MEDIA_RESOLVED_STATES.includes(state.status);
+
+			// After the file finishes uploading/processing, trigger a dimension fetch.
+			// getRemoteDimensions may fail if called too early (isImageRepresentationReady
+			// returns false while processing), so we wait for the ready state first.
+			const triggerDimensionFetch = () => {
+				// Find the media node in the doc by id and create a temporary
+				// MediaNodeUpdater to fetch and apply dimensions
+				const { state: editorState } = this.view;
+				const { mediaSingle: mediaSingleType } = editorState.schema.nodes;
+				let mediaChildNode: typeof editorState.doc.firstChild | null = null;
+
+				editorState.doc.descendants((node) => {
+					if (mediaChildNode) {
+						return false;
+					}
+					if (node.type === mediaSingleType) {
+						const child = node.firstChild;
+						if (child && child.attrs.id === mediaState.id) {
+							mediaChildNode = child;
+						}
+					}
+					return true;
+				});
+
+				if (mediaChildNode) {
+					const updater = createMediaNodeUpdater({
+						view: this.view,
+						mediaProvider: this.mediaProvider ? Promise.resolve(this.mediaProvider) : undefined,
+						contextIdentifierProvider: this.contextIdentifierProvider
+							? Promise.resolve(this.contextIdentifierProvider)
+							: undefined,
+						node: mediaChildNode,
+						isMediaSingle: true,
+						lineLength: this.pluginInjectionApi?.width?.sharedState.currentState()?.lineLength,
+					});
+					updater
+						.getRemoteDimensions()
+						.then((dims) => {
+							if (dims) {
+								updater.updateDimensions(dims);
+							}
+						})
+						.catch(() => {
+							// Silently ignore — if dimensions can't be fetched (e.g. network error),
+							// the image will render at its current size without the height-preserving
+							// width adjustment. This is an acceptable degraded experience.
+						});
+				}
+			};
+
+			if (!isEndState(mediaStateWithContext)) {
+				const uploadingPromise = new Promise<MediaState | null>((resolve) => {
+					onMediaStateChanged((newState) => {
+						if (isEndState(newState)) {
+							resolve(newState);
+						}
+					});
+				});
+				this.taskManager.addPendingTask(uploadingPromise, mediaStateWithContext.id).then(() => {
+					this.updateAndDispatch({ allUploadsFinished: true });
+					triggerDimensionFetch();
+				});
+			} else {
+				// File is already in a resolved state — fetch dimensions immediately
+				triggerDimensionFetch();
+			}
+
+			const { view } = this;
+			if (!view.hasFocus()) {
+				view.focus();
+			}
+			return;
 		}
 
 		switch (
@@ -530,9 +718,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 			});
 
 			this.taskManager.addPendingTask(uploadingPromise, mediaStateWithContext.id).then(() => {
-				this.updateAndDispatch({
-					allUploadsFinished: true,
-				});
+				this.updateAndDispatch({ allUploadsFinished: true });
 			});
 		}
 
@@ -557,10 +743,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 
 	private selectLastAddedMediaNode() {
 		// if preventAutoFocusOnUpload is enabled, skip auto-selection and just clear the tracking array
-		if (
-			this.mediaOptions?.preventAutoFocusOnUpload &&
-			fg('jira_kuro-jjj_disable_auto_focus_after_img_upload')
-		) {
+		if (this.mediaOptions?.preventAutoFocusOnUpload) {
 			this.lastAddedMediaSingleFileIds = [];
 			return;
 		}
@@ -609,6 +792,67 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		this.onPopupToggleCallback(true);
 	};
 
+	/**
+	 * Opens the media picker in "replace" mode. The next file selected/uploaded
+	 * will replace the currently selected mediaSingle node's media child in-place,
+	 * preserving layout, width, and caption.
+	 *
+	 * The display height is computed and stored so that after the new file's intrinsic
+	 * dimensions are fetched, the mediaSingle display width can be adjusted to maintain
+	 * visual height stability rather than width stability.
+	 */
+	showMediaPickerForReplace = (): void => {
+		const { state } = this.view;
+		const { mediaSingle } = state.schema.nodes;
+		const { selection } = state;
+
+		// Only activate replace mode when a mediaSingle is selected
+		if (!(selection instanceof NodeSelection) || selection.node.type !== mediaSingle) {
+			return;
+		}
+
+		const mediaSingleNode = selection.node;
+		const mediaNode = mediaSingleNode.firstChild;
+		if (!mediaNode) {
+			return;
+		}
+
+		// Store the current media node's id so insertFile can identify and replace it
+		this.replaceMediaFileId = mediaNode.attrs.id as string;
+
+		// Compute and store the current display height so we can preserve it after
+		// the new file's intrinsic dimensions are known.
+		// displayHeight = displayWidth * (intrinsicHeight / intrinsicWidth)
+		const widthAttr = mediaSingleNode.attrs.width as number | null;
+		const widthType = mediaSingleNode.attrs.widthType as string | undefined;
+		const intrinsicWidth = mediaNode.attrs.width as number | null;
+		const intrinsicHeight = mediaNode.attrs.height as number | null;
+
+		// Resolve actual pixel display width from mediaSingle attrs.
+		const lineLength =
+			this.pluginInjectionApi?.width?.sharedState.currentState()?.lineLength ?? 760;
+		let displayWidth: number | null = null;
+		if (widthAttr && widthType === 'pixel') {
+			displayWidth = widthAttr;
+		} else if (widthAttr) {
+			// Default widthType is 'percentage' — convert to pixels
+			displayWidth = (widthAttr / 100) * lineLength;
+		} else if (intrinsicWidth) {
+			// No width set at all (never resized) — fall back to intrinsic width
+			displayWidth = intrinsicWidth;
+		}
+
+		if (displayWidth && intrinsicWidth && intrinsicHeight && intrinsicWidth > 0) {
+			this.replaceMediaTargetDisplayHeight = displayWidth * (intrinsicHeight / intrinsicWidth);
+		} else {
+			// Can't compute display height — fall back to preserving width
+			this.replaceMediaTargetDisplayHeight = null;
+		}
+
+		// Finally, show the media picker
+		this.showMediaPicker();
+	};
+
 	setBrowseFn = (browseFn: () => void): void => {
 		this.openMediaPickerBrowser = browseFn;
 	};
@@ -623,10 +867,21 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 	 *
 	 * NOTE: The promise will resolve even if some of the media have failed to process.
 	 */
-	waitForPendingTasks = this.taskManager.waitForPendingTasks;
+	waitForPendingTasks: (
+		timeout?: number,
+		lastTask?: Promise<MediaState | null>,
+	) => Promise<MediaState | null> = this.taskManager.waitForPendingTasks;
 
 	setView(view: EditorView): void {
 		this.view = view;
+		if (
+			isExperimentEnabled('platform_editor_ssr_toolbar_optimistic') &&
+			this.uploadStatus === 'pending' &&
+			!this.previousMediaProvider
+		) {
+			// No provider was configured for this client editor. SSR has no view and stays pending.
+			this.uploadStatus = 'unavailable';
+		}
 	}
 
 	/**
@@ -817,7 +1072,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 		return;
 	};
 
-	updateMediaSingleNodeAttrs = (id: string, attrs: object) => {
+	updateMediaSingleNodeAttrs = (id: string, attrs: object): boolean | undefined => {
 		const { view } = this;
 		if (!view) {
 			return;
@@ -861,12 +1116,7 @@ export class MediaPluginStateImplementation implements MediaPluginState {
 	};
 
 	selectedMediaContainerNode = (): PMNode | undefined => {
-		let selection: Selection | undefined;
-		if (expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
-			selection = this.view?.state?.selection;
-		} else {
-			({ selection } = this.view.state);
-		}
+		const selection: Selection | undefined = this.view?.state?.selection;
 		if (selection instanceof NodeSelection && this.isMediaSchemaNode(selection.node)) {
 			return selection.node;
 		}
@@ -931,7 +1181,7 @@ export const createPlugin = (
 	nodeViewPortalProviderAPI: PortalProviderAPI,
 	dispatch?: Dispatch,
 	mediaOptions?: MediaOptions,
-) => {
+): SafePlugin<MediaPluginState> => {
 	const intl = getIntl();
 
 	return new SafePlugin({
@@ -976,12 +1226,21 @@ export const createPlugin = (
 				}
 
 				const meta = tr.getMeta(stateKey);
-				if (meta) {
+				if (meta && meta.type !== 'PREVIEW_RENDERED') {
 					const { allowsUploads } = meta;
 					pluginState.updateAndDispatch({
 						allowsUploads:
 							typeof allowsUploads === 'undefined' ? pluginState.allowsUploads : allowsUploads,
 					});
+					nextPluginState = nextPluginState.clone();
+				}
+
+				// Handle preview render notifications — add the file ID to the
+				// previewRenderedMediaIds Set so sharedState subscribers can react.
+				if (meta?.type === 'PREVIEW_RENDERED' && typeof meta.fileId === 'string') {
+					const newSet = new Set(pluginState.previewRenderedMediaIds);
+					newSet.add(meta.fileId);
+					pluginState.previewRenderedMediaIds = newSet;
 					nextPluginState = nextPluginState.clone();
 				}
 
@@ -1185,6 +1444,7 @@ export const createPlugin = (
 					`[data-id="${CAPTION_PLACEHOLDER_ID}"]`,
 				);
 
+				const browser = getBrowserInfo();
 				// Workaround for Chrome given a regression introduced in prosemirror-view@1.18.6
 				// Returning true prevents that updateSelection() is getting called in the commit below:
 				// @see https://github.com/ProseMirror/prosemirror-view/compare/1.18.5...1.18.6

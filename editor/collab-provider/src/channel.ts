@@ -1,5 +1,33 @@
+import { bind } from 'bind-event-listener';
+import type { Socket } from 'socket.io-client';
+
+import type { Metadata, UserPermitType } from '@atlaskit/editor-common/collab';
+import type { UFOExperience } from '@atlaskit/ufo/experience';
 import { utils } from '@atlaskit/util-service-support';
+
+import type AnalyticsHelper from './analytics/analytics-helper';
+import { MEASURE_NAME, startMeasure, stopMeasure } from './analytics/performance';
+import { createDocInitExp } from './analytics/ufo';
+import Network from './connectivity/network';
+import ReconnectHelper from './connectivity/reconnect-helper';
+import { socketIOReasons } from './disconnected-reason-mapper';
 import { Emitter } from './emitter';
+import { NotConnectedError, NotInitializedError } from './errors/custom-errors';
+import type {
+	CatchUpFailedError,
+	ConnectionError,
+	DocumentNotFoundError,
+	ReconnectionError,
+	ReconnectionNetworkError,
+	TokenPermissionError,
+	InternalError,
+} from './errors/internal-errors';
+import { INTERNAL_ERROR_CODE } from './errors/internal-errors';
+import type { RateLimitError } from './errors/ncs-errors';
+import { NCS_ERROR_CODE } from './errors/ncs-errors';
+import { EVENT_ACTION, EVENT_STATUS } from './helpers/const';
+import type { CatchupEventReason } from './helpers/const';
+import { createLogger, getProduct, getSubProduct } from './helpers/utils';
 import type {
 	Config,
 	ChannelEvent,
@@ -14,31 +42,6 @@ import type {
 	ReconcileResponse,
 	GenerateDiffStepsResponseBody,
 } from './types';
-import { createLogger, getProduct, getSubProduct } from './helpers/utils';
-import { MEASURE_NAME, startMeasure, stopMeasure } from './analytics/performance';
-import { EVENT_ACTION, EVENT_STATUS, type CatchupEventReason } from './helpers/const';
-import type { Socket } from 'socket.io-client';
-import ReconnectHelper from './connectivity/reconnect-helper';
-import type { UFOExperience } from '@atlaskit/ufo';
-import { createDocInitExp } from './analytics/ufo';
-import { socketIOReasons } from './disconnected-reason-mapper';
-import Network from './connectivity/network';
-import type AnalyticsHelper from './analytics/analytics-helper';
-import type {
-	CatchUpFailedError,
-	ConnectionError,
-	DocumentNotFoundError,
-	ReconnectionError,
-	ReconnectionNetworkError,
-	TokenPermissionError,
-	InternalError,
-} from './errors/internal-errors';
-import type { RateLimitError } from './errors/ncs-errors';
-import { INTERNAL_ERROR_CODE } from './errors/internal-errors';
-import { NCS_ERROR_CODE } from './errors/ncs-errors';
-import { NotConnectedError, NotInitializedError } from './errors/custom-errors';
-import type { Metadata, UserPermitType } from '@atlaskit/editor-common/collab';
-import { bind } from 'bind-event-listener';
 
 const logger = createLogger('Channel', 'green');
 
@@ -75,10 +78,10 @@ export class Channel extends Emitter<ChannelEvent> {
 	getInitialized = (): boolean => this.initialized;
 	getConnected = (): boolean => this.connected;
 	getSocket: () => Socket | null = () => this.socket;
-	getToken = () => this.token;
+	getToken = (): string | undefined => this.token;
 
 	// Used to retrieve the x-token for API requests
-	getChannelToken = async () => {
+	getChannelToken = async (): Promise<string | undefined> => {
 		if (this.token) {
 			return this.token;
 		}
@@ -179,6 +182,9 @@ export class Channel extends Emitter<ChannelEvent> {
 		});
 		this.socket.on('steps:added', (data: StepsPayload) => {
 			this.emit('steps:added', data);
+		});
+		this.socket.on('recovery:required', (data: ChannelEvent['recovery:required']) => {
+			this.emit('recovery:required', data);
 		});
 		this.socket.on('participant:telepointer', ({ timestamp, data }: BroadcastIncomingPayload) => {
 			// data is TelepointerPayload without timestamp
@@ -688,7 +694,7 @@ export class Channel extends Emitter<ChannelEvent> {
 	autoDisconnect = (
 		disconnectTimer: ReturnType<typeof setTimeout> | undefined,
 		disconnectDelay: number,
-	) => {
+	): NodeJS.Timeout | undefined => {
 		if (document.hidden) {
 			logger('visibilitychange: hidden');
 			return setTimeout(

@@ -20,11 +20,9 @@ describe('parseRgb()', () => {
 			parseRgb('rbg(1, 2, 3)');
 
 			expect(consoleError).toHaveBeenCalledTimes(1);
-			expect(consoleError.mock.lastCall).toMatchInlineSnapshot(`
-			[
-			  "parseRgb failed to parse input: 'rbg(1, 2, 3)'",
-			]
-		`);
+			expect(consoleError.mock.lastCall).toEqual([
+				"parseRgb failed to parse input: 'rbg(1, 2, 3)'",
+			]);
 
 			process.env.NODE_ENV = NODE_ENV;
 		});

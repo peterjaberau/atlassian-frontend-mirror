@@ -1,13 +1,16 @@
 import React from 'react';
+
 import { fireEvent } from '@testing-library/react';
+
 import {
 	type EmojiDescription,
 	type EmojiProvider,
 	type OnEmojiEvent,
 	toEmojiId,
 } from '@atlaskit/emoji';
-import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
 import { getTestEmojiRepository } from '@atlaskit/util-data-test/get-test-emoji-repository';
+import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
+
 import { mockReactDomWarningGlobal, renderWithIntl } from '../__tests__/_testing-library';
 import { EmojiButton, RENDER_BUTTON_TESTID } from './EmojiButton';
 
@@ -18,12 +21,16 @@ const shortName = ':smiley:';
 const smiley: EmojiDescription = emojiRepository.findByShortName(shortName) as EmojiDescription;
 const emojiId = toEmojiId(smiley);
 
-const renderButton = async (onClick: OnEmojiEvent = () => {}) => {
+const renderButton = async (
+	onClick: OnEmojiEvent = () => {},
+	hoverableReactionPickerSelectorEmoji = false,
+) => {
 	return renderWithIntl(
 		<EmojiButton
 			onClick={onClick}
 			emojiId={emojiId}
 			emojiProvider={getTestEmojiResource() as Promise<EmojiProvider>}
+			hoverableReactionPickerSelectorEmoji={hoverableReactionPickerSelectorEmoji}
 		/>,
 	);
 };

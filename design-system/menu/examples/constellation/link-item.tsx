@@ -1,8 +1,8 @@
 import React, { type MouseEvent, useState } from 'react';
 
-import { LinkItem, type LinkItemProps } from '@atlaskit/menu';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box } from '@atlaskit/primitives';
+import LinkItem from '@atlaskit/menu/link-item';
+import { type LinkItemProps } from '@atlaskit/menu/types';
+import { Box } from '@atlaskit/primitives/compiled/box';
 
 import ImgIcon from '../common/img-icon';
 import koala from '../icons/koala.png';

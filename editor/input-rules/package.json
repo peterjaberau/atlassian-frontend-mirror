@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/prosemirror-input-rules",
-	"version": "3.6.17",
+	"version": "4.1.52",
 	"description": "A package that contains helpers to create autoformatting rules for ProseMirror",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
@@ -35,21 +27,11 @@
 	"devDependencies": {
 		"@atlaskit/editor-common": "workspace:^"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"circular-dependencies": [
-				"file-level"
-			],
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion"
-			]
-		}
-	},
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./constants": "./src/entry-points/constants.ts",
+		"./plugin": "./src/entry-points/plugin.ts",
+		"./types": "./src/entry-points/types.ts",
+		"./utils": "./src/entry-points/utils.ts"
 	}
 }

@@ -1,7 +1,7 @@
 import { type VCIgnoreReason } from '../../../common/vc/types';
+import { getSelectorConfig } from '../../../config';
 import type { SearchPageConfig } from '../../types';
 import { isContainedWithinMediaWrapper } from '../media-wrapper/vc-utils';
-
 import isNonVisualStyleMutation from './non-visual-styles/is-non-visual-style-mutation';
 import { RLLPlaceholderHandlers } from './rll-placeholders';
 import { SSRPlaceholderHandlers } from './ssr-placeholders';
@@ -11,8 +11,6 @@ import type {
 	MutationRecordWithTimestamp,
 	ObservedMutationType,
 } from './types';
-
-export type { ObservedMutationType } from './types';
 
 const state = {
 	normal: 1,
@@ -100,7 +98,11 @@ export class Observers implements BrowserObservers {
 	};
 
 	constructor(opts: ConstructorOptions) {
-		this.selectorConfig = {
+		// Selector-config resolution is centralised in `getSelectorConfig()`.
+		// It enforces FedRAMP-override > caller-override > centrally
+		// configured > caller default.
+		const resolved = getSelectorConfig(opts.selectorConfig, this.selectorConfig);
+		this.selectorConfig = resolved ?? {
 			...this.selectorConfig,
 			...opts.selectorConfig,
 		};

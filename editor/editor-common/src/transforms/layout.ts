@@ -1,4 +1,5 @@
-import { Fragment, type Node, type Schema, Slice } from '@atlaskit/editor-prosemirror/model';
+import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
+import type { Node, Schema } from '@atlaskit/editor-prosemirror/model';
 
 import { flatmap, mapFragment } from '../utils/slice';
 
@@ -16,31 +17,19 @@ export function unwrapContentFromLayout(maybeLayoutSection: Node): Node | Node[]
 	return nodes;
 }
 
-export function removeLayoutFromFirstChild(node: Node, i: number) {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export function removeLayoutFromFirstChild(node: Node, i: number): Node | Node[] {
 	return i === 0 ? unwrapContentFromLayout(node) : node;
 }
 
-export function removeLayoutFromLastChild(node: Node, i: number, fragment: Fragment) {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export function removeLayoutFromLastChild(
+	node: Node,
+	i: number,
+	fragment: Fragment,
+): Node | Node[] {
 	return i === fragment.childCount - 1 ? unwrapContentFromLayout(node) : node;
 }
-
-export const transformSingleColumnLayout = (slice: Slice, schema: Schema) => {
-	if (slice.content.childCount === 1 && slice.openStart === 0 && slice.openEnd === 0) {
-		if (slice.content.firstChild?.type === schema.nodes.layoutColumn) {
-			const newSlice = new Slice(slice.content.firstChild.content, 0, 0);
-			return newSlice;
-		} else if (
-			slice.content.firstChild?.type === schema.nodes.layoutSection &&
-			slice.content.firstChild.childCount === 1 &&
-			slice.content.firstChild.firstChild?.type === schema.nodes.layoutColumn
-		) {
-			const newSlice = new Slice(slice.content.firstChild.firstChild.content, 0, 0);
-			return newSlice;
-		}
-	}
-
-	return slice;
-};
 
 /**
  * When we have a slice that cuts across a layoutSection/layoutColumn
@@ -52,7 +41,8 @@ export const transformSingleColumnLayout = (slice: Slice, schema: Schema) => {
  * We only care about slices with non-zero openStart / openEnd's here
  * as we're totally fine for people to copy/paste a full layoutSection
  */
-export function transformSliceToRemoveOpenLayoutNodes(slice: Slice, schema: Schema) {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export function transformSliceToRemoveOpenLayoutNodes(slice: Slice, schema: Schema): Slice {
 	// Case 1: A slice entirely within a single layoutSection
 	if (slice.openStart && slice.openEnd && slice.content.childCount === 1) {
 		// Ignored via go/ees005
@@ -94,3 +84,5 @@ export function transformSliceToRemoveOpenLayoutNodes(slice: Slice, schema: Sche
 
 	return slice;
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { transformSingleColumnLayout } from './transformSingleColumnLayout';

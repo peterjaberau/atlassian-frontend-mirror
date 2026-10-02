@@ -1,10 +1,9 @@
 // @ts-nocheck
 import Util from '../common/util';
-
 import ConfigurationOptions from './configuration-options';
 import documentContainer from './document-container';
 
-var size = function (width, height, container) {
+var size = function (width: any, height: any, container: any) {
 	var verticalScrollbarWidth = function () {
 		var sbWidth = window.innerWidth - container.clientWidth;
 		// sanity check only
@@ -76,7 +75,7 @@ var size = function (width, height, container) {
 			? h + horizontalScrollbarHeight()
 			: h;
 
-	return { w: w, h: h };
+	return { w: w as any, h: h as any };
 };
 
 export default size;

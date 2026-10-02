@@ -4,10 +4,9 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { type CSSObject } from '@emotion/react';
 
 import noop from '@atlaskit/ds-lib/noop';
-import { useGlobalTheme } from '@atlaskit/theme/components';
 
 import ButtonBase from './shared/button-base';
-import { getCss } from './shared/css';
+import { getCss } from './shared/get-css';
 import getIsOnlySingleIcon from './shared/get-is-only-single-icon';
 import { type BaseProps } from './types';
 
@@ -19,7 +18,7 @@ export interface ButtonProps extends BaseProps {}
 /**
  * __Button__
  *
- * @deprecated Legacy buttons are deprecated and will be removed from `atlaskit/button` in an upcoming major release. Please use the new Button components from `@atlaskit/button/new`
+ * @deprecated Legacy buttons are deprecated and will be removed from `atlaskit/button` in an upcoming major release. Please use `Button` from `@atlaskit/button/default/button`.
  *
  * Please refer to the [migration guide](https://atlassian.design/components/button/button-legacy/migration-guide) for further details.
  *
@@ -29,7 +28,9 @@ export interface ButtonProps extends BaseProps {}
  * - [Code](https://atlassian.design/components/button/button-legacy/code)
  * - [Usage](https://atlassian.design/components/button/button-legacy/usage)
  */
-const Button: React.MemoExoticComponent<React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLElement>>> = React.memo(
+const Button: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLElement>>
+> = React.memo(
 	React.forwardRef(function Button(
 		{
 			appearance = 'default',
@@ -45,7 +46,6 @@ const Button: React.MemoExoticComponent<React.ForwardRefExoticComponent<ButtonPr
 		}: ButtonProps,
 		ref: React.Ref<HTMLElement>,
 	) {
-		const { mode } = useGlobalTheme();
 		const isOnlySingleIcon: boolean = getIsOnlySingleIcon({
 			children,
 			iconBefore,
@@ -55,7 +55,7 @@ const Button: React.MemoExoticComponent<React.ForwardRefExoticComponent<ButtonPr
 		const [isActive, setIsActive] = useState<boolean>(false);
 
 		// Wrap onMouseDown / onMouseUp to manually trigger active state
-		//  in Firefox
+		// in Firefox
 		const onMouseDown = useCallback(
 			(event: React.MouseEvent<HTMLElement>) => {
 				providedOnMouseDown(event);
@@ -81,12 +81,11 @@ const Button: React.MemoExoticComponent<React.ForwardRefExoticComponent<ButtonPr
 				getCss({
 					appearance,
 					spacing,
-					mode,
 					isSelected,
 					shouldFitContainer,
 					isOnlySingleIcon,
 				}),
-			[appearance, spacing, mode, isSelected, shouldFitContainer, isOnlySingleIcon],
+			[appearance, spacing, isSelected, shouldFitContainer, isOnlySingleIcon],
 		);
 
 		return (
@@ -97,7 +96,7 @@ const Button: React.MemoExoticComponent<React.ForwardRefExoticComponent<ButtonPr
 				buttonCss={buttonCss}
 				children={children}
 				// Due to how click events are set, we need to set active styles
-				//  manually in Firefox and wrap onMouseDown/onMouseUp
+				// manually in Firefox and wrap onMouseDown/onMouseUp
 				data-firefox-is-active={isActive ? true : undefined}
 				iconAfter={iconAfter}
 				iconBefore={iconBefore}

@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { alignment } from '@atlaskit/adf-schema';
+import { alignment } from '@atlaskit/adf-schema/alignment';
 import type {
 	Command,
 	FloatingToolbarCustom,
 	ToolbarUIComponentFactory,
 } from '@atlaskit/editor-common/types';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { AlignmentPlugin } from './alignmentPluginType';
 import { keymapPlugin } from './pm-plugins/keymap';
@@ -95,10 +94,8 @@ export const alignmentPlugin: AlignmentPlugin = ({ api }) => {
 			selectionToolbar: isToolbarAIFCEnabled
 				? undefined
 				: () => {
-						const toolbarDocking = fg('platform_editor_use_preferences_plugin')
-							? api?.userPreferences?.sharedState.currentState()?.preferences
-									?.toolbarDockingPosition
-							: api?.selectionToolbar?.sharedState?.currentState()?.toolbarDocking;
+						const toolbarDocking =
+							api?.userPreferences?.sharedState.currentState()?.preferences?.toolbarDockingPosition;
 
 						if (
 							toolbarDocking === 'none' &&

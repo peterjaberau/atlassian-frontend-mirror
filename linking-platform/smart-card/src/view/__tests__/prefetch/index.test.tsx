@@ -7,26 +7,29 @@ jest.mock('uuid', () => {
 	return {
 		...actualUuid,
 		__esModule: true,
-		default: jest.fn(),
+		v4: jest.fn(),
 	};
 });
 
 import React from 'react';
 
-import { render, screen, waitFor } from '@testing-library/react';
 import * as jestExtendedMatchers from 'jest-extended';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import { type CardClient, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import type CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import {
 	MockIntersectionObserverFactory,
 	type MockIntersectionObserverOpts,
 } from '@atlaskit/link-test-helpers';
 import { type JestFunction } from '@atlaskit/media-test-helpers';
+import { render, screen, waitFor } from '@atlassian/testing-library';
 
-import * as ufoWrapper from '../../../state/analytics/ufoExperiences';
-import { fakeFactory, mocks } from '../../../utils/mocks';
+import * as startUfoExperienceModule from '../../../state/analytics/startUfoExperience';
+import * as succeedUfoExperienceModule from '../../../state/analytics/succeedUfoExperience';
+import { fakeFactory } from '../../../utils/fake-factory';
+import { mocks } from '../../../utils/mocks';
 import { Card } from '../../Card';
 // ShouldSample needs to be loaded for beforeEach inside to be picked up before test runs
 import '../../../utils/shouldSample';
@@ -42,8 +45,8 @@ describe('smart-card: prefetching of content', () => {
 	let mockIntersectionObserverOpts: MockIntersectionObserverOpts;
 
 	const mockUuid = uuid as JestFunction<typeof uuid>;
-	const mockStartUfoExperience = jest.spyOn(ufoWrapper, 'startUfoExperience');
-	const mockSucceedUfoExperience = jest.spyOn(ufoWrapper, 'succeedUfoExperience');
+	const mockStartUfoExperience = jest.spyOn(startUfoExperienceModule, 'startUfoExperience');
+	const mockSucceedUfoExperience = jest.spyOn(succeedUfoExperienceModule, 'succeedUfoExperience');
 
 	beforeEach(() => {
 		mockFetch = jest.fn(() => Promise.resolve(mocks.success));
@@ -58,7 +61,11 @@ describe('smart-card: prefetching of content', () => {
 		};
 		// Gives us access to a mock IntersectionObserver, which we can
 		// use to spoof visibility of a Smart Link.
-		window.IntersectionObserver = MockIntersectionObserverFactory(mockIntersectionObserverOpts);
+		const intersectionObserverMock = MockIntersectionObserverFactory(mockIntersectionObserverOpts);
+		window.IntersectionObserver = intersectionObserverMock;
+		(
+			globalThis as unknown as { IntersectionObserver: typeof IntersectionObserver }
+		).IntersectionObserver = intersectionObserverMock;
 	});
 
 	afterEach(() => {
@@ -134,6 +141,9 @@ describe('smart-card: prefetching of content', () => {
 		await waitFor(() => {
 			expect(mockPrefetch).toHaveBeenCalledTimes(1);
 		});
+		// Isolate this assertion from delayed observer callbacks.
+		mockStartUfoExperience.mockClear();
+		mockSucceedUfoExperience.mockClear();
 
 		// - Assertions that UFO experience has not been started or succeeded since
 		// it is not in the viewport
@@ -158,6 +168,9 @@ describe('smart-card: prefetching of content', () => {
 		expect(mockFetch).not.toHaveBeenCalled();
 		// - Assertions that prefetch was called ⬇️
 		expect(mockPrefetch).toHaveBeenCalledTimes(1);
+		// Isolate this assertion from delayed observer callbacks.
+		mockStartUfoExperience.mockClear();
+		mockSucceedUfoExperience.mockClear();
 
 		// - Assertions that UFO experience has not been started or succeeded since
 		// it is not in the viewport
@@ -177,6 +190,10 @@ describe('smart-card: prefetching of content', () => {
 		// in the viewport. The result in the DOM should be a placeholder for the link.
 		// - Assertions that we rendered the correct Smart Link ⬇️.
 		expect(lazyPlaceholderView).toBeTruthy();
+		// Clear potential late callbacks from prior observer timers; this test
+		// validates the transition behavior starting from the placeholder state.
+		mockStartUfoExperience.mockClear();
+		mockSucceedUfoExperience.mockClear();
 
 		// - Assertions that UFO experience has not been started or succeeded since
 		// it is not in the viewport

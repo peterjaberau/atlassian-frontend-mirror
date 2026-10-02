@@ -1,17 +1,15 @@
 import React, { useCallback } from 'react';
 
-import Tooltip from '@atlaskit/tooltip';
+import { EventType } from '@atlaskit/jql-editor-common/constants';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { Action, ActionSubject, ActionSubjectId, EventType } from '../../../analytics';
+import { Action, ActionSubject, ActionSubjectId } from '../../../analytics/constants';
 import { JQL_EDITOR_INPUT_ID } from '../../../common/constants';
 import { TooltipContent } from '../../../common/styled';
-import { useEditorThemeContext } from '../../../hooks/use-editor-theme';
+import { useEditorThemeContext } from '../../../hooks/use-editor-theme/useEditorThemeContext';
 import { useIntl, useScopedId, useStoreActions } from '../../../state';
-// eslint-disable-next-line @atlassian/tangerine/import/no-parent-imports
 import { TooltipTag } from '../../tooltip-tag';
-// eslint-disable-next-line @atlassian/tangerine/import/no-parent-imports
 import { BaseExpandToggle } from '../base-expand-toggle';
-
 import { messages } from './messages';
 
 export const ExpandToggle = (): React.JSX.Element => {
@@ -45,7 +43,6 @@ export const ExpandToggle = (): React.JSX.Element => {
 		<Tooltip
 			position={'bottom'}
 			content={<TooltipContent>{message}</TooltipContent>}
-			// @ts-ignore: [PIT-1685] Fails in post-office due to backwards incompatibility issue with React 18
 			tag={TooltipTag}
 		>
 			<BaseExpandToggle

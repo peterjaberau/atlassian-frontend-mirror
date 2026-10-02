@@ -2,8 +2,11 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
+
 import { type Props as EmojiProps, EmojiNodeWrapper } from './Emoji';
 import { emojiNodeStyles, commonSelectedStyles, selectOnHoverStyles } from './styles';
 
@@ -16,7 +19,7 @@ const emojiFallbackStyles = css({
 	overflow: 'hidden',
 });
 
-export const EmojiFallback = (props: React.PropsWithChildren<EmojiProps>) => {
+export const EmojiFallback = (props: React.PropsWithChildren<EmojiProps>): JSX.Element => {
 	const { emoji, selected, selectOnHover, className } = props;
 	const { fallback, shortName } = emoji;
 

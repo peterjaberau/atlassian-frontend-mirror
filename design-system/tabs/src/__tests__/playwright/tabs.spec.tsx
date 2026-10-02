@@ -19,7 +19,12 @@ const tabPanel3 = "[data-testid='tab-panel-3']";
 const tabPanel4 = "[data-testid='tab-panel-4']";
 
 test('Tabs should be able to be identified and navigated by data-testid', async ({ page }) => {
-	await page.visitExample('design-system', 'tabs', 'testing');
+	await page.visitExample<typeof import('../../../examples/99-testing.vr.ap.tsx')>(
+		'design-system',
+		'tabs',
+		'testing',
+		{ 'react-18-mode': 'modern' },
+	);
 	await expect(page.locator(tab1).first()).toBeVisible();
 	await expect(page.locator(tab2).first()).toBeVisible();
 	await expect(page.locator(tab3).first()).toBeVisible();
@@ -34,20 +39,34 @@ test('Tabs should be able to be identified and navigated by data-testid', async 
 	await expect(page.locator(tab1).first()).toHaveAttribute('aria-controls', 'testing-0-tab');
 	await expect(page.locator(tabPanel).first()).toHaveText('One');
 	await expect(page.locator(tabPanel).first()).toHaveAttribute('aria-labelledby', 'testing-0');
+	await expect(page.locator('[data-motion-capable="true"]')).toHaveCount(0);
+	await expect(page.locator('[data-motion-state]')).toHaveCount(0);
 	await page.locator(tab3).first().click();
 	await expect(page.locator(tab3).first()).toHaveAttribute('aria-selected', 'true');
 	await expect(page.locator(tabPanel3).first()).toHaveText('Three');
 });
 
 test('Content should be visible only on the focused tab', async ({ page }) => {
-	await page.visitExample('design-system', 'tabs', 'testing');
+	await page.visitExample<typeof import('../../../examples/99-testing.vr.ap.tsx')>(
+		'design-system',
+		'tabs',
+		'testing',
+		{ 'react-18-mode': 'modern' },
+	);
 
 	// Navigate between tab and check the selection, content and focus.
-	// Tab then use arrow right to navigate.
-	await page.webdriverCompatUtils.pressMultiple(['Tab', 'ArrowRight', 'ArrowRight', 'ArrowRight']);
+	// First focus on the first tab
+	await page.locator(tab1).first().focus();
+	await expect(page.locator(tab1).first()).toBeFocused();
 
-	// Tab 4 is in focus and it's content should be visible
+	// Use arrow keys to navigate to tab 4
+	await page.keyboard.press('ArrowRight');
+	await page.keyboard.press('ArrowRight');
+	await page.keyboard.press('ArrowRight');
+
+	// Wait for tab 4 to be focused and ensure it's selected
 	await expect(page.locator(tab4).first()).toBeFocused();
+	await expect(page.locator(tab4).first()).toHaveAttribute('aria-selected', 'true');
 	await expect(page.locator(tabPanel4)).toBeVisible();
 
 	// Content of rest of the three tab should not be visible

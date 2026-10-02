@@ -1,5 +1,93 @@
 # @af/ufo-types
 
+## 2.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.0
+
+### Minor Changes
+
+- [`1646c59e857d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1646c59e857d9) -
+  Add granular subpath exports for `global-stream-buffer` helpers (`experiencePayloadEvent`,
+  `getGlobalEventStream`, `setGlobalEventStream`, `subscribeEvent`, `unsubscribeEvent`) and `logger`
+  helpers (`ufolog`, `ufowarn`). These give Volt Stage-1 clean, non-deprecated homes for exports
+  that were previously only reachable through the root barrel, so consumers can migrate off the
+  deprecated public surface.
+
+## 1.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 0.4.3
+
+### Patch Changes
+
+- [`00ead4a808f68`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00ead4a808f68) -
+  Remove the `platform_ufo_enable_untilall_parent_fix` rollout flag and keep the untilAll parent fix
+  enabled by default. The original bug caused `untilAll()` to incorrectly propagate FAILED/ABORTED
+  state from unrelated experiences, allowing experiences without matching untilAll dependencies to
+  transition to FAILED even when the failing experience was not an actual dependency.
+
+## 0.4.2
+
+### Patch Changes
+
+- [`ed2bda18a9e03`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed2bda18a9e03) -
+  Fix untilAll() incorrectly propagating FAILED/ABORTED state from unrelated experiences.
+  Previously, any UFO experience failure anywhere in the product would cause parent experiences
+  using untilAll dependencies to transition to FAILED, even when the failing experience was not a
+  declared dependency. Added a doneIndexes.length > 0 guard to the priorityStateFound check to
+  ensure only actual dependency failures trigger parent state transitions.
+
 ## 0.4.1
 
 ### Patch Changes

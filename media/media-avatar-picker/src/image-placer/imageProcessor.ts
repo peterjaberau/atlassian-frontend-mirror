@@ -1,13 +1,12 @@
-import {
-	Rectangle,
-	type Bounds,
-	loadImage,
-	getOrientation,
-	type FileInfo,
-} from '@atlaskit/media-ui';
+import type { Bounds } from '@atlaskit/media-ui/bounds';
+import { getOrientation } from '@atlaskit/media-ui/imageMetaData/getOrientation';
+import type { FileInfo } from '@atlaskit/media-ui/imageMetaData/types';
+import { loadImage } from '@atlaskit/media-ui/loadImage';
+import { Rectangle } from '@atlaskit/media-ui/rectangle';
+
 import { getCanvas } from '../util';
 
-export function radians(deg: number) {
+export function radians(deg: number): number {
 	return deg * (Math.PI / 180);
 }
 

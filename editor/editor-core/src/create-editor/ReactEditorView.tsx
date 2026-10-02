@@ -1,9 +1,9 @@
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState, useEffect } from 'react';
 
-import { injectIntl } from 'react-intl-next';
-import type { WrappedComponentProps, WithIntlProps } from 'react-intl-next';
+import { injectIntl } from 'react-intl';
+import type { WrappedComponentProps, WithIntlProps } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
 import type {
@@ -22,10 +22,18 @@ import {
 import { isSSR } from '@atlaskit/editor-common/core-utils';
 import { createDispatch, EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import { useConstructor, usePreviousState } from '@atlaskit/editor-common/hooks';
+import { isPerformanceAPIAvailable } from '@atlaskit/editor-common/is-performance-api-available';
 import { nodeVisibilityManager } from '@atlaskit/editor-common/node-visibility';
 import { getEnabledFeatureFlagKeys } from '@atlaskit/editor-common/normalize-feature-flags';
 import { measureRender } from '@atlaskit/editor-common/performance/measure-render';
-import { getResponseEndTime } from '@atlaskit/editor-common/performance/navigation';
+import {
+	getRequestToResponseTime,
+	getResponseEndTime,
+} from '@atlaskit/editor-common/performance/navigation';
+import {
+	profileSSROperation,
+	SSRRenderMeasure,
+} from '@atlaskit/editor-common/performance/ssr-measures';
 import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type {
 	AllEditorPresetPluginTypes,
@@ -40,56 +48,58 @@ import type {
 	ContextIdentifierProvider,
 	ProviderFactory,
 } from '@atlaskit/editor-common/provider-factory';
-import type { OptionalPlugin, PublicPluginAPI, Transformer } from '@atlaskit/editor-common/types';
+import type { PublicPluginAPI, Transformer } from '@atlaskit/editor-common/types';
 import { ReactEditorViewContext } from '@atlaskit/editor-common/ui-react';
 import {
 	analyticsEventKey,
 	getAnalyticsEventSeverity,
 } from '@atlaskit/editor-common/utils/analytics';
 import { isEmptyDocument } from '@atlaskit/editor-common/utils/document';
-import type { CardPlugin } from '@atlaskit/editor-plugins/card';
-import type { ContextIdentifierPlugin } from '@atlaskit/editor-plugins/context-identifier';
-import { type CustomAutoformatPlugin } from '@atlaskit/editor-plugins/custom-autoformat';
-import { type EmojiPlugin } from '@atlaskit/editor-plugins/emoji';
-import type { MediaPlugin } from '@atlaskit/editor-plugins/media';
-import type { Schema, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Schema } from '@atlaskit/editor-prosemirror/model';
+import { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Plugin, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { EditorState, Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { DirectEditorProps } from '@atlaskit/editor-prosemirror/view';
 import { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { EditorSSRRenderer } from '@atlaskit/editor-ssr-renderer';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { createSSREditorState } from '@atlaskit/editor-ssr-renderer/create-ssr-editor-state';
+import { createSSRPMPlugins } from '@atlaskit/editor-ssr-renderer/create-ssr-pm-plugins';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { addUFOCustomData } from '@atlaskit/react-ufo/add-ufo-custom-data';
+import { getInteractionId } from '@atlaskit/react-ufo/get-interaction-id';
 import { abortAll, getActiveInteraction } from '@atlaskit/react-ufo/interaction-metrics';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import { useProviders } from '../composable-editor/hooks/useProviders';
-import type { EditorConfig, EditorProps } from '../types';
-import type { EditorViewStateUpdatedCallbackProps } from '../types/editor-config';
-import type { EditorNextProps } from '../types/editor-props';
+import type { EditorConfig, EditorViewStateUpdatedCallbackProps } from '../types/editor-config';
+import type { EditorNextProps, EditorProps } from '../types/editor-props';
 import { createFeatureFlagsFromProps } from '../utils/feature-flags-from-props';
-import { getNodesCount } from '../utils/getNodesCount';
+import { getEditorDomSize } from '../utils/getEditorDomSize';
+import { getNodesCountWithExtensionKeys } from '../utils/getNodesCountWithExtensionKeys';
 import { getNodesVisibleInViewport } from '../utils/getNodesVisibleInViewport';
 import { isChromeless } from '../utils/is-chromeless';
 import { isFullPage } from '../utils/is-full-page';
-import { RenderTracking } from '../utils/performance/components/RenderTracking';
 import measurements from '../utils/performance/measure-enum';
-
 import {
 	PROSEMIRROR_RENDERED_DEGRADED_SEVERITY_THRESHOLD,
 	PROSEMIRROR_RENDERED_NORMAL_SEVERITY_THRESHOLD,
 } from './consts';
-import { createErrorReporter, createPMPlugins, processPluginsList } from './create-editor';
+import { processPluginsList } from './create-editor';
 import createPluginsList from './create-plugins-list';
 import { createSchema } from './create-schema';
+import { createErrorReporter } from './createErrorReporter';
+import { createPMPlugins } from './createPMPlugins';
+import { filterPluginsForReconfigure } from './filter-plugins-for-reconfigure';
 import { editorMessages } from './messages';
-import { focusEditorElement } from './ReactEditorView/focusEditorElement';
 import { getUAPrefix } from './ReactEditorView/getUAPrefix';
 import { handleEditorFocus } from './ReactEditorView/handleEditorFocus';
 import { useDispatchTransaction } from './ReactEditorView/useDispatchTransaction';
 import { useFireFullWidthEvent } from './ReactEditorView/useFireFullWidthEvent';
 
 const EDIT_AREA_ID = 'ak-editor-textarea';
+const SSR_TRACE_SEGMENT_NAME = 'reactEditorView';
+const bootStartTime = isPerformanceAPIAvailable() ? performance.now() : undefined;
 
 export interface EditorViewProps extends WrappedComponentProps {
 	createAnalyticsEvent?: CreateUIAnalyticsEvent;
@@ -110,6 +120,11 @@ export interface EditorViewProps extends WrappedComponentProps {
 		transformer?: Transformer<string>;
 		view: EditorView;
 	}) => void;
+	onSSRMeasure?: (measure: {
+		endTimestamp: number;
+		segmentName: string;
+		startTimestamp: number;
+	}) => void;
 	portalProviderAPI: PortalProviderAPI;
 	preset: EditorPresetBuilder<string[], AllEditorPresetPluginTypes[]>;
 	providerFactory: ProviderFactory;
@@ -128,39 +143,68 @@ export interface EditorViewProps extends WrappedComponentProps {
 }
 
 interface CreateEditorStateOptions {
-	doc?: string | Object | PMNode;
+	doc?: string | object | PMNode;
 	props: EditorViewProps;
 	resetting?: boolean;
 	selectionAtStart?: boolean;
 }
 
-type ReactEditorViewPlugins = [
-	OptionalPlugin<ContextIdentifierPlugin>,
-	OptionalPlugin<MediaPlugin>,
-	OptionalPlugin<CardPlugin>,
-	OptionalPlugin<EmojiPlugin>,
-	OptionalPlugin<CustomAutoformatPlugin>,
-];
+// `markdown↔rich` toggles drop different node/mark sets, so the unique
+// name set is enough to detect when a destructive rebuild is needed.
+function sameNames(a: Iterable<string>, b: Iterable<string>): boolean {
+	const setA = new Set(a);
+	const setB = new Set(b);
+	if (setA.size !== setB.size) {
+		return false;
+	}
+	for (const name of setA) {
+		if (!setB.has(name)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function schemaShapeChanged(
+	current: Schema,
+	next: { marks: ReadonlyArray<{ name: string }>; nodes: ReadonlyArray<{ name: string }> },
+): boolean {
+	return (
+		!sameNames(
+			Object.keys(current.nodes),
+			next.nodes.map((n) => n.name),
+		) ||
+		!sameNames(
+			Object.keys(current.marks),
+			next.marks.map((m) => m.name),
+		)
+	);
+}
 
 export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
+	// Should be always the first statement in the component
+	const firstRenderStartTimestampRef = useRef(performance.now());
+
 	const {
 		preset,
 		editorProps: {
+			onSSRMeasure,
 			appearance: nextAppearance,
 			disabled,
 			featureFlags: editorPropFeatureFlags,
 			errorReporterHandler,
 			defaultValue,
 			shouldFocus,
-			__livePage,
 		},
 		onEditorCreated,
 		onEditorDestroyed,
 	} = props;
-	const [editorAPI, setEditorAPI] = useState<PublicPluginAPI<ReactEditorViewPlugins> | undefined>(
-		undefined,
-	);
-	const ssrEditorStateRef = useRef<EditorState | undefined>(undefined);
+
+	// Holds the best available EditorState before the ProseMirror EditorView has mounted.
+	// On SSR: set to the SSR-rendered state so toolbar plugins can read it via getEditorState().
+	// On client first render: set to initialEditorState for the same reason.
+	// Cleared to undefined once createEditorView runs and viewRef.current becomes available.
+	const preMountEditorStateRef = useRef<EditorState | undefined>(undefined);
 	const editorRef = useRef<HTMLDivElement | null>(null);
 	const viewRef = useRef<EditorView | undefined>();
 	const focusTimeoutId = useRef<number | undefined | void>();
@@ -186,7 +230,10 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 		() => createFeatureFlagsFromProps(editorPropFeatureFlags),
 		[editorPropFeatureFlags],
 	);
-	const getEditorState = useCallback(() => ssrEditorStateRef.current ?? viewRef.current?.state, []);
+	const getEditorState = useCallback(
+		() => preMountEditorStateRef.current ?? viewRef.current?.state,
+		[],
+	);
 	const getEditorView = useCallback(() => viewRef.current, []);
 	const dispatch = useMemo(() => createDispatch(eventDispatcher), [eventDispatcher]);
 	const errorReporter = useMemo(
@@ -216,6 +263,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 			getEditorState: getEditorState,
 			getEditorView: getEditorView,
 			fireAnalyticsEvent: handleAnalyticsEvent,
+			appearance: nextAppearance,
 		}),
 	);
 
@@ -234,11 +282,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 
 			// if the collabEdit API is set, skip this validation due to potential pm validation errors
 			// from docs that end up with invalid marks after processing (See #hot-111702 for more details)
-			if (
-				(isSSR() && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) ||
-				api?.collabEdit !== undefined ||
-				options.props.editorProps.skipValidation
-			) {
+			if (isSSR() || api?.collabEdit !== undefined || options.props.editorProps.skipValidation) {
 				return processRawValueWithoutValidation(schema, options.doc, dispatchAnalyticsEvent);
 			} else {
 				return processRawValue(
@@ -285,11 +329,9 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 						pluginInjectionAPI.current,
 					),
 				);
+				config.current.pmPlugins.push(...pluginInjectionAPI.current.getInternalPMPlugins());
 
 				schema = createSchema(config.current);
-				if (!expVal('platform_editor_no_state_plugin_injection_api', 'isEnabled', false)) {
-					setEditorAPI(pluginInjectionAPI.current.api());
-				}
 			}
 
 			const { contentTransformerProvider } = options.props.editorProps;
@@ -364,18 +406,25 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 
 	const initialEditorState = useMemo(
 		() => {
-			if (isSSR() && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+			if (isSSR()) {
 				// We don't need to create initial state in SSR, it would be done by EditorSSRRenderer,
 				// so we can save some CPU time here.
 				return undefined;
 			}
 
-			return createEditorState({
+			const state = createEditorState({
 				props,
 				doc: defaultValue,
 				// ED-4759: Don't set selection at end for full-page editor - should be at start.
 				selectionAtStart: isFullPage(nextAppearance),
 			});
+
+			if (expValEquals('platform_editor_ssr_toolbar_optimistic', 'isEnabled', true)) {
+				// CSR only, synchronously set preMountEditorStateRef so it's ready to be consumed by children including toolbar
+				preMountEditorStateRef.current = state;
+			}
+
+			return state;
 		},
 		// This is only used for the initial state - afterwards we will have `viewRef` available for use
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -397,10 +446,21 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 
 		// The selectionToDOM method uses the document selection to determine currently selected node
 		// We need to mimic blurring this as it seems doing the above is not enough.
+		// Guard against clearing selections that belong outside this editor instance.
 		// @ts-expect-error
 		const sel = (viewRef.current.root as DocumentOrShadowRoot).getSelection();
 		if (sel) {
-			sel.removeAllRanges();
+			if (!isExperimentEnabled('fix_editor_blur_issue_exp')) {
+				sel.removeAllRanges();
+				return;
+			}
+
+			if (
+				(!sel.anchorNode || viewRef.current.dom.contains(sel.anchorNode)) &&
+				(!sel.focusNode || viewRef.current.dom.contains(sel.focusNode))
+			) {
+				sel.removeAllRanges();
+			}
 		}
 	}, []);
 
@@ -449,7 +509,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 	});
 
 	useLayoutEffect(() => {
-		if (isSSR() && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+		if (isSSR()) {
 			return;
 		}
 
@@ -473,7 +533,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 
 	// Cleanup
 	useLayoutEffect(() => {
-		if (isSSR() && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+		if (isSSR()) {
 			// No cleanup in SSR should happened because SSR doesn't render a real editor.
 			return;
 		}
@@ -500,6 +560,16 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 		};
 	}, [eventDispatcher]);
 
+	// Bumped after `reconfigureState` so the render prop re-reads the
+	// in-place-mutated `config.current` (contentComponents / toolbar
+	// components from the rebuilt preset).
+	const [, bumpConfigVersion] = useState(0);
+
+	// Preset reference last processed by reconfigureState. Used to skip the
+	// destructive work (plugin filter, schema rebuild) when reconfigure is
+	// called with the same preset.
+	const lastProcessedPresetRef = useRef<unknown>(null);
+
 	const reconfigureState = useCallback(
 		(props: EditorViewProps) => {
 			if (!viewRef.current) {
@@ -511,38 +581,213 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 			// nodes that haven't been re-rendered to the document yet.
 			blur();
 
-			const editorPlugins = createPluginsList(
+			// Snapshot plugin names registered before createPluginsList runs, so
+			// we can tell which plugins are newly added by the new preset vs.
+			// which ones already coexisted with the current schema.
+			const previousPluginNames = new Set(pluginInjectionAPI.current.getRegisteredPluginNames());
+
+			let editorPlugins = createPluginsList(
 				props.preset,
 				'allowBlockType' in props.editorProps ? props.editorProps : {},
 				pluginInjectionAPI.current,
 			);
 
-			config.current = processPluginsList(editorPlugins);
+			// Capture once, before either downstream block updates the ref —
+			// both the filter and the schema rebuild are destructive and only
+			// want to run when the preset has actually changed.
+			const presetChanged = lastProcessedPresetRef.current !== props.preset;
+
+			// Build a candidate config from the *unfiltered* plugin list so we can
+			// decide whether the schema rebuild path will run. Both the rebuild
+			// decision and the drop-filter decision below depend on this answer,
+			// so it has to be computed up-front.
+			const buildConfig = (plugins: typeof editorPlugins) => {
+				const c = processPluginsList(plugins);
+				c.pmPlugins.push(...pluginInjectionAPI.current.getInternalPMPlugins());
+				return c;
+			};
+
+			let nextConfig = buildConfig(editorPlugins);
+
+			// `state.reconfigure` preserves the original schema, so a preset
+			// toggle that should change schema (markdown↔rich) needs a fresh
+			// `EditorState`. Resets all plugin state including undo history.
+			//
+			// Compare schema *shape* (node + mark name sets) rather than preset
+			// identity: consumers commonly recreate the preset object on every
+			// parent re-render, and a destructive rebuild on a no-op identity
+			// change tears down all plugin state (e.g. unmounts the AI palette).
+			const shouldRebuildSchema =
+				presetChanged &&
+				schemaShapeChanged(viewRef.current.state.schema, nextConfig) &&
+				expValEqualsNoExposure('cc-markdown-mode', 'isEnabled', true);
+
+			// `state.reconfigure` keeps the original schema, so switching presets
+			// can leave the editor inconsistent in two ways:
+			//   1. The new preset may add plugins that reference schema nodes or
+			//      marks the original schema doesn't have.
+			//   2. Plugins registered by a previous preset can linger in the
+			//      injection API even when the new preset doesn't re-register
+			//      them, so listeners still fire against a state that no longer
+			//      has their pmPlugin.
+			//
+			// When the schema is being rebuilt below, the new schema is built
+			// from the *unfiltered* plugin list — so dropping plugins whose
+			// nodes/marks the OLD schema lacks would wrongly remove the very
+			// plugins the rebuild is meant to admit. Skip the drop step in that
+			// case (purpose 1) but always reconcile the injection API
+			// (purpose 2). When NOT rebuilding, run both — even under the
+			// `cc-markdown-mode` experiment, otherwise no-op preset identity
+			// changes would silently leave a broken plugin/schema mismatch.
+			if (presetChanged) {
+				let dropped: ReturnType<typeof filterPluginsForReconfigure>['dropped'] = [];
+				if (!shouldRebuildSchema) {
+					const result = filterPluginsForReconfigure(
+						editorPlugins,
+						viewRef.current.state.schema,
+						previousPluginNames,
+					);
+					if (result.dropped.length > 0) {
+						editorPlugins = result.kept;
+						// Plugin list changed — rebuild candidate config to match.
+						nextConfig = buildConfig(editorPlugins);
+					}
+					dropped = result.dropped;
+				}
+
+				const keptPluginNames = new Set(
+					editorPlugins.map((p) => p?.name).filter((n): n is string => Boolean(n)),
+				);
+				const evictedFromApi = pluginInjectionAPI.current.retainPlugins(keptPluginNames);
+
+				if (dropped.length > 0 || evictedFromApi.length > 0) {
+					// eslint-disable-next-line no-console
+					console.warn('[reconfigureState] Cleanup summary:', {
+						dropped,
+						evictedFromApi,
+					});
+				}
+			}
+
+			config.current = nextConfig;
 
 			const state = viewRef.current.state;
 
-			const plugins = createPMPlugins({
-				schema: state.schema,
-				dispatch: dispatch,
-				errorReporter: errorReporter,
-				editorConfig: config.current,
-				eventDispatcher: eventDispatcher,
-				providerFactory: props.providerFactory,
-				portalProviderAPI: props.portalProviderAPI,
-				nodeViewPortalProviderAPI: props.nodeViewPortalProviderAPI,
-				dispatchAnalyticsEvent: dispatchAnalyticsEvent,
-				featureFlags,
-				getIntl: () => props.intl,
-				onEditorStateUpdated: pluginInjectionAPI.current.onEditorViewUpdated,
-			});
+			let newState: EditorState;
 
-			const newState = state.reconfigure({ plugins: plugins as Plugin[] });
+			if (shouldRebuildSchema) {
+				const newSchema = createSchema(config.current);
+
+				let newDoc: PMNode;
+				try {
+					newDoc = PMNode.fromJSON(newSchema, state.doc.toJSON());
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error(
+						'[reconfigureState] Failed to migrate doc to new schema; resetting to empty doc',
+						e,
+					);
+					const empty = newSchema.topNodeType.createAndFill();
+					if (!empty) {
+						throw new Error(
+							'reconfigureState: doc migration failed and new schema cannot create an empty top node',
+						);
+					}
+					newDoc = empty;
+				}
+
+				let newSelection: Selection;
+				try {
+					newSelection = Selection.fromJSON(newDoc, state.selection.toJSON());
+				} catch {
+					// Old selection's positions / node types may not map onto the new schema.
+					newSelection = Selection.atStart(newDoc);
+				}
+
+				const plugins = createPMPlugins({
+					schema: newSchema,
+					dispatch: dispatch,
+					errorReporter: errorReporter,
+					editorConfig: config.current,
+					eventDispatcher: eventDispatcher,
+					providerFactory: props.providerFactory,
+					portalProviderAPI: props.portalProviderAPI,
+					nodeViewPortalProviderAPI: props.nodeViewPortalProviderAPI,
+					dispatchAnalyticsEvent: dispatchAnalyticsEvent,
+					featureFlags,
+					getIntl: () => props.intl,
+					onEditorStateUpdated: pluginInjectionAPI.current.onEditorViewUpdated,
+				});
+
+				newState = EditorState.create({
+					schema: newSchema,
+					doc: newDoc,
+					selection: newSelection,
+					plugins: plugins as Plugin[],
+				});
+			} else {
+				const plugins = createPMPlugins({
+					schema: state.schema,
+					dispatch: dispatch,
+					errorReporter: errorReporter,
+					editorConfig: config.current,
+					eventDispatcher: eventDispatcher,
+					providerFactory: props.providerFactory,
+					portalProviderAPI: props.portalProviderAPI,
+					nodeViewPortalProviderAPI: props.nodeViewPortalProviderAPI,
+					dispatchAnalyticsEvent: dispatchAnalyticsEvent,
+					featureFlags,
+					getIntl: () => props.intl,
+					onEditorStateUpdated: pluginInjectionAPI.current.onEditorViewUpdated,
+				});
+
+				newState = state.reconfigure({ plugins: plugins as Plugin[] });
+			}
+
+			if (presetChanged) {
+				lastProcessedPresetRef.current = props.preset;
+			}
 
 			// need to update the state first so when the view builds the nodeviews it is
 			// using the latest plugins
 			viewRef.current.updateState(newState);
 
-			return viewRef.current.update({ ...viewRef.current.props, state: newState });
+			const result = viewRef.current.update({ ...viewRef.current.props, state: newState });
+
+			// The new collab-edit plugin instance starts with `isReady=false`.
+			// The rebind path in editor-plugin-collab-edit's initialize.ts is
+			// gated on `provider.getInitPayload`, which the Confluence NCS
+			// provider does not implement, so the placeholder spinner would
+			// never clear. Re-seeding here is safe: the prior state must have
+			// had `isReady=true` for the user to have triggered the toggle.
+			//
+			// Must run AFTER `view.update({ state: newState })`: that call resets
+			// the view's state to the captured `newState` reference, so a
+			// dispatch placed before it would advance `view.state` to a value
+			// that `update` then silently overwrites — discarding the meta and
+			// leaving `isReady=false`.
+			if (shouldRebuildSchema) {
+				// `state.collabEditPlugin$` is the property PM derives from the
+				// collab plugin's PluginKey; cast through `unknown` to read it.
+				const collabState = (
+					viewRef.current.state as unknown as {
+						collabEditPlugin$?: { isReady?: boolean };
+					}
+				).collabEditPlugin$;
+				if (collabState && collabState.isReady !== true) {
+					viewRef.current.dispatch(viewRef.current.state.tr.setMeta('collabInitialised', true));
+				}
+			}
+
+			// EDITOR-6702: gated until we have a broader gate; reconfigure is a
+			// low-level path so use NoExposure.
+			if (expValEqualsNoExposure('cc-markdown-mode', 'isEnabled', true)) {
+				// Force a render so PluginSlot picks up the new preset's content
+				// components against the new state.
+				bumpConfigVersion((v) => v + 1);
+			}
+
+			return result;
 		},
 		[blur, dispatchAnalyticsEvent, eventDispatcher, dispatch, errorReporter, featureFlags],
 	);
@@ -554,14 +799,16 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 			oldEditorState,
 			newEditorState,
 		}: EditorViewStateUpdatedCallbackProps) => {
-			config.current?.onEditorViewStateUpdatedCallbacks.forEach((entry) => {
-				entry.callback({
-					originalTransaction,
-					transactions,
-					oldEditorState,
-					newEditorState,
-				});
-			});
+			config.current?.onEditorViewStateUpdatedCallbacks.forEach(
+				(entry: EditorConfig['onEditorViewStateUpdatedCallbacks'][number]) => {
+					entry.callback({
+						originalTransaction,
+						transactions,
+						oldEditorState,
+						newEditorState,
+					});
+				},
+			);
 		},
 		[],
 	);
@@ -582,9 +829,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 
 	// Temporary to replace provider factory while migration to `ComposableEditor` occurs
 	useProviders({
-		editorApi: expVal('platform_editor_no_state_plugin_injection_api', 'isEnabled', false)
-			? pluginInjectionAPI.current.api()
-			: editorAPI,
+		editorApi: pluginInjectionAPI.current.api(),
 		contextIdentifierProvider: props.editorProps.contextIdentifierProvider,
 		mediaProvider: (props.editorProps as EditorProps).media?.provider,
 		mentionProvider: props.editorProps.mentionProvider,
@@ -632,6 +877,10 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 			// previously, this will contain the previous state of the editor.
 			const view = new EditorView({ mount: node }, getDirectEditorProps());
 			viewRef.current = view;
+			if (expValEquals('platform_editor_ssr_toolbar_optimistic', 'isEnabled', true)) {
+				// clears pre-mount state as soon as the final view is mounted
+				preMountEditorStateRef.current = undefined;
+			}
 
 			measureRender(
 				measurements.PROSEMIRROR_RENDERED,
@@ -643,8 +892,11 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 					);
 
 					if (viewRef.current) {
-						const nodes = getNodesCount(viewRef.current.state.doc);
+						const { nodes, extensionKeys } = getNodesCountWithExtensionKeys(
+							viewRef.current.state.doc,
+						);
 						const ttfb = getResponseEndTime();
+						const requestToResponseTime = getRequestToResponseTime();
 
 						const contextIdentifier = pluginInjectionAPI.current
 							.api()
@@ -677,25 +929,61 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 												return '50000+';
 										}
 									})(),
-							  }
+								}
 							: {};
+
+						const editorDomSize = getEditorDomSize(viewRef.current);
+
+						const interaction = getActiveInteraction();
+						const pageLoadType = interaction?.type;
+						const pageType = interaction?.routeName;
+						const timings = (() => {
+							if (requestToResponseTime === undefined && bootStartTime === undefined) {
+								return undefined;
+							}
+
+							const timingValues: {
+								bootToRender?: number;
+								'requestStart->responseEnd'?: number;
+							} = {};
+
+							if (requestToResponseTime !== undefined) {
+								timingValues['requestStart->responseEnd'] = Math.round(requestToResponseTime);
+							}
+
+							if (bootStartTime !== undefined) {
+								timingValues.bootToRender = Math.round(startTime - bootStartTime);
+							}
+
+							return timingValues;
+						})();
+
+						const attributes = {
+							duration,
+							startTime,
+							nodes,
+							nodesInViewport,
+							nodeSize,
+							nodeSizeBucket,
+							totalNodes,
+							editorDomSize,
+							ttfb,
+							severity: proseMirrorRenderedSeverity,
+							objectId: contextIdentifier?.objectId,
+							distortedDuration,
+							pageLoadType,
+							pageType,
+							timings,
+							extensionKeys,
+							ufoInteractionId: getInteractionId().current,
+						};
+
+						addUFOCustomData({ editorDomSize });
 
 						dispatchAnalyticsEvent({
 							action: ACTION.PROSEMIRROR_RENDERED,
 							actionSubject: ACTION_SUBJECT.EDITOR,
-							attributes: {
-								duration,
-								startTime,
-								nodes,
-								nodesInViewport,
-								nodeSize,
-								nodeSizeBucket,
-								totalNodes,
-								ttfb,
-								severity: proseMirrorRenderedSeverity,
-								objectId: contextIdentifier?.objectId,
-								distortedDuration,
-							},
+							attributes,
 							eventType: EVENT_TYPE.OPERATIONAL,
 						});
 					}
@@ -720,8 +1008,17 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 		isNestedEditorCalculated.current = true;
 	}
 
+	// Preconditioned on the affected population - full page, non nested editors - so that experiment
+	// exposure is not diluted by editors which never run the scroll restoration code below.
+	const scrollRestorePerfEnabled =
+		!isNestedEditor.current &&
+		isFullPage(props.editorProps.appearance) &&
+		isExperimentEnabled('cc_editor_scroll_restore_perf_improvements');
+
 	const originalScrollToRestore = React.useRef(
-		!isNestedEditor.current && isFullPage(props.editorProps.appearance)
+		// Reading scrollTop forces a synchronous layout, and this expression is re-evaluated on every
+		// render. Products restore scroll themselves after the document has rendered.
+		!isNestedEditor.current && isFullPage(props.editorProps.appearance) && !scrollRestorePerfEnabled
 			? document.querySelector('[data-editor-scroll-container]')?.scrollTop
 			: undefined,
 	);
@@ -735,53 +1032,30 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 		originalScrollToRestore.current !== 0;
 
 	useLayoutEffect(() => {
-		if (isSSR() && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+		if (isSSR()) {
 			// We don't need to focus anything in SSR.
 			return;
 		}
 
 		if (shouldFocus && editorView?.props.editable?.(editorView.state)) {
 			if (!mitigateScrollJump) {
-				const liveDocWithContent =
-					(__livePage ||
-						expValEquals('platform_editor_no_cursor_on_edit_page_init', 'isEnabled', true)) &&
-					!isEmptyDocument(editorView.state.doc);
+				const focusesImmediately =
+					isChromeless(props.editorProps.appearance) ||
+					isEmptyDocument(editorView.state.doc) ||
+					pluginInjectionAPI.current.api()?.interaction === undefined;
 
-				if (!liveDocWithContent) {
+				if (focusesImmediately) {
 					focusTimeoutId.current = handleEditorFocus(editorView);
-				}
-
-				if (
-					isChromeless(props.editorProps.appearance) &&
-					expValEquals('platform_editor_focus_on_chromeless_editor', 'isEnabled', true)
-				) {
-					focusTimeoutId.current = handleEditorFocus(editorView);
-				}
-
-				if (
-					expValEquals('platform_editor_no_cursor_on_edit_page_init', 'isEnabled', true) &&
-					fg('cc_editor_focus_before_editor_on_load')
-				) {
-					if (!disabled && shouldFocus && !isEmptyDocument(editorView.state.doc)) {
-						focusEditorElement(editorId.current);
-					}
 				}
 			}
 		}
-	}, [
-		editorView,
-		shouldFocus,
-		__livePage,
-		mitigateScrollJump,
-		disabled,
-		props.editorProps.appearance,
-	]);
+	}, [editorView, shouldFocus, mitigateScrollJump, disabled, props.editorProps.appearance]);
 
 	const scrollElement = React.useRef<Element | null>();
-	const possibleListeners = React.useRef([] as [event: string, handler: () => void][]);
+	const possibleListeners = React.useRef([] as [event: string, handler: (event: Event) => void][]);
 
 	useEffect(() => {
-		if (isSSR() && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+		if (isSSR()) {
 			// No event listeners should be attached to scroll element in SSR.
 			return;
 		}
@@ -813,7 +1087,12 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 				};
 
 				if (scrollElement.current) {
-					const wheelAbortHandler = () => {
+					const wheelAbortHandler = (event: Event) => {
+						// Programmatic scrolls are not user interactions and must not abort the load metric.
+						if (scrollRestorePerfEnabled && !event.isTrusted) {
+							return;
+						}
+
 						const activeInteraction = getActiveInteraction();
 
 						if (
@@ -828,7 +1107,12 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 					scrollElement.current.addEventListener('wheel', wheelAbortHandler);
 					possibleListeners.current.push(['wheel', wheelAbortHandler]);
 
-					const scrollAbortHandler = () => {
+					const scrollAbortHandler = (event: Event) => {
+						// Programmatic scrolls are not user interactions and must not abort the load metric.
+						if (scrollRestorePerfEnabled && !event.isTrusted) {
+							return;
+						}
+
 						const activeInteraction = getActiveInteraction();
 
 						if (
@@ -907,6 +1191,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 			onEditorDestroyed,
 			handleAnalyticsEvent,
 			mitigateScrollJump,
+			scrollRestorePerfEnabled,
 		],
 	);
 
@@ -915,54 +1200,37 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 	const createEditor = useCallback(
 		(assistiveLabel?: string, assistiveDescribedBy?: string) => {
 			return (
-				<>
-					{fg('cc_editor_focus_before_editor_on_load') && (
-						<div
-							tabIndex={-1}
-							data-focus-id={editorId.current}
-							data-testid="react-editor-view-inital-focus-element"
-						/>
-					)}
-					<div
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-						className={`ProseMirror ${getUAPrefix()}`}
-						key="ProseMirror"
-						ref={handleEditorViewRef}
-						aria-label={
-							assistiveLabel ||
-							(isPageAppearance && fg('platform_editor_a11y_9262')
-								? props.intl.formatMessage(editorMessages.fullPageEditorAssistiveLabel)
-								: props.intl.formatMessage(editorMessages.editorAssistiveLabel))
-						}
-						// setting aria-multiline to true when not mobile appearance.
-						//  because somehow mobile tests are failing when it set.
-						//  don't know why that is happening.
-						// Created https://product-fabric.atlassian.net/jira/servicedesk/projects/DTR/queues/issue/DTR-1675
-						//  to investigate further.
-						aria-multiline={true}
-						role="textbox"
-						id={EDIT_AREA_ID}
-						aria-describedby={assistiveDescribedBy}
-						data-editor-id={editorId.current}
-						data-vc-ignore-if-no-layout-shift={true}
-						data-ssr-placeholder={
-							expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-								? 'editor-view'
-								: undefined
-						}
-						data-ssr-placeholder-replace={
-							expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-								? 'editor-view'
-								: undefined
-						}
-						// eslint-disable-next-line react/no-danger -- needed for SSR and hydration so react keeps the HTML untouched
-						dangerouslySetInnerHTML={
-							expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-								? { __html: '' }
-								: undefined
-						}
-					/>
-				</>
+				<div
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+					className={`ProseMirror ${getUAPrefix()}`}
+					key="ProseMirror"
+					ref={handleEditorViewRef}
+					aria-label={
+						assistiveLabel ||
+						(isPageAppearance
+							? props.intl.formatMessage(editorMessages.fullPageEditorAssistiveLabel)
+							: props.intl.formatMessage(editorMessages.editorAssistiveLabel))
+					}
+					// setting aria-multiline to true when not mobile appearance.
+					//  because somehow mobile tests are failing when it set.
+					//  don't know why that is happening.
+					// Created https://product-fabric.atlassian.net/jira/servicedesk/projects/DTR/queues/issue/DTR-1675
+					//  to investigate further.
+					aria-multiline={true}
+					role="textbox"
+					id={EDIT_AREA_ID}
+					aria-describedby={assistiveDescribedBy}
+					data-editor-id={editorId.current}
+					data-vc-ignore-if-no-layout-shift={true}
+					data-ssr-placeholder="editor-view"
+					data-ssr-placeholder-replace="editor-view"
+					data-gramm={
+						isExperimentEnabled('platform_editor_reduce_forced_layout') ? 'false' : undefined
+					}
+					translate={isExperimentEnabled('platform_editor_reduce_forced_layout') ? 'no' : undefined}
+					// eslint-disable-next-line react/no-danger -- needed for SSR and hydration so react keeps the HTML untouched
+					dangerouslySetInnerHTML={{ __html: '' }}
+				/>
 			);
 		},
 		[handleEditorViewRef, isPageAppearance, props.intl],
@@ -971,7 +1239,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 	const previousPreset = usePreviousState(preset);
 
 	useLayoutEffect(() => {
-		if (isSSR() && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+		if (isSSR()) {
 			// No state reconfiguration is supported in SSR.
 			return;
 		}
@@ -984,7 +1252,7 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 	const previousDisabledState = usePreviousState(disabled);
 
 	useLayoutEffect(() => {
-		if (isSSR() && expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+		if (isSSR()) {
 			// We don't need to focus anything in SSR.
 			return;
 		}
@@ -995,24 +1263,19 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 				editable: (_state) => !disabled,
 			} as DirectEditorProps);
 
-			const isLivePageWithContent =
-				(__livePage ||
-					expValEquals('platform_editor_no_cursor_on_edit_page_init', 'isEnabled', true)) &&
-				!isEmptyDocument(viewRef.current.state.doc);
-			if (!disabled && shouldFocus && !isLivePageWithContent) {
+			const focusesImmediately =
+				isEmptyDocument(viewRef.current.state.doc) ||
+				pluginInjectionAPI.current.api()?.interaction === undefined;
+
+			if (!disabled && shouldFocus && focusesImmediately) {
 				focusTimeoutId.current = handleEditorFocus(viewRef.current);
 			}
-
-			if (
-				expValEquals('platform_editor_no_cursor_on_edit_page_init', 'isEnabled', true) &&
-				fg('cc_editor_focus_before_editor_on_load')
-			) {
-				if (!disabled && shouldFocus && !isEmptyDocument(viewRef.current.state.doc)) {
-					focusEditorElement(editorId.current);
-				}
-			}
 		}
-	}, [disabled, shouldFocus, previousDisabledState, __livePage]);
+	}, [disabled, shouldFocus, previousDisabledState]);
+
+	useLayoutEffect(() => {
+		pluginInjectionAPI.current.api()?.core?.actions?.updateAppearance(nextAppearance);
+	}, [nextAppearance]);
 
 	useFireFullWidthEvent(nextAppearance, dispatchAnalyticsEvent);
 
@@ -1044,24 +1307,120 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 	// In separate memo, because some props like `props.intl` that need only for rendering
 	// changes many times, but we don't want to process plugins and ADF document for each unnecessary changes.
 	const ssrDeps = useMemo(() => {
-		if (!isSSR() || !expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
+		if (!isSSR()) {
 			return null;
 		}
 
-		const plugins = createPluginsList(
-			props.preset,
-			// Don't pass props.editorProps directly, because editoProps in the dependency will lead to
-			// multiple repaints, because props.editorPros is not stable object.
-			{ allowBlockType },
-			pluginInjectionAPI.current,
+		const doCreatePluginList = () =>
+			createPluginsList(
+				props.preset,
+				// Don't pass props.editorProps directly, because editoProps in the dependency will lead to
+				// multiple repaints, because props.editorPros is not stable object.
+				{ allowBlockType },
+				pluginInjectionAPI.current,
+			);
+		const plugins = profileSSROperation(
+			`${SSR_TRACE_SEGMENT_NAME}/createPluginsList`,
+			doCreatePluginList,
+			onSSRMeasure,
 		);
-		const schema = createSchema(processPluginsList(plugins));
-		const doc = buildDoc(schema);
 
-		return { plugins, schema, doc };
-	}, [allowBlockType, buildDoc, props.preset]);
+		const doCreateSchema = () => createSchema(processPluginsList(plugins));
+		const schema = profileSSROperation(
+			`${SSR_TRACE_SEGMENT_NAME}/createSchema`,
+			doCreateSchema,
+			onSSRMeasure,
+		);
+
+		const doBuildDoc = () => buildDoc(schema);
+		const doc = profileSSROperation(`${SSR_TRACE_SEGMENT_NAME}/buildDoc`, doBuildDoc, onSSRMeasure);
+		const isViewMode =
+			pluginInjectionAPI.current.api()?.editorViewMode?.sharedState.currentState()?.mode === 'view';
+		const ariaReadonly =
+			isViewMode && isExperimentEnabled('platform_editor_viewmode_aria_readonly_a11y')
+				? ('true' as const)
+				: undefined;
+
+		// When the platform_editor_ssr_toolbar_optimistic is on, we create SSR-safe PM plugins and EditorState
+		// HERE in ssrDeps — before any children render — so that FullPageToolbarNext can read correct
+		// plugin state via useSharedPluginStateWithSelector → currentState() → getEditorState().
+		//
+		// We also pass these pre-built pmPlugins and editorState to EditorSSRRenderer so it can
+		// skip redundant creation (avoids double createPluginsList + EditorState.create).
+		if (expValEquals('platform_editor_ssr_toolbar_optimistic', 'isEnabled', true)) {
+			const ssrPMPlugins = profileSSROperation(
+				`${SSR_TRACE_SEGMENT_NAME}/createSSRPMPlugins`,
+				() =>
+					createSSRPMPlugins({
+						plugins,
+						schema,
+						portalProviderAPI: props.portalProviderAPI,
+						getIntl: () => props.intl,
+					}),
+				onSSRMeasure,
+			);
+			const ssrState = profileSSROperation(
+				`${SSR_TRACE_SEGMENT_NAME}/createSSREditorState`,
+				() =>
+					createSSREditorState({
+						doc,
+						schema,
+						pmPlugins: ssrPMPlugins,
+					}),
+				onSSRMeasure,
+			);
+			return { plugins, schema, doc, ariaReadonly, ssrPMPlugins, ssrEditorState: ssrState };
+		}
+
+		return {
+			plugins,
+			schema,
+			doc,
+			ariaReadonly,
+			ssrPMPlugins: undefined,
+			ssrEditorState: undefined,
+		};
+	}, [allowBlockType, buildDoc, props.preset, onSSRMeasure, props.portalProviderAPI, props.intl]);
+	// SSR only, synchronously set preMountEditorStateRef so it's ready to be consumed by children including toolbar
+	if (ssrDeps?.ssrEditorState) {
+		preMountEditorStateRef.current = ssrDeps.ssrEditorState;
+	}
 
 	const { assistiveLabel, assistiveDescribedBy } = props.editorProps;
+	const handleSsrEditorStateChanged = useCallback(
+		(state: EditorState) => {
+			preMountEditorStateRef.current = state;
+			// Notify listeners about the initial SSR state
+			pluginInjectionAPI.current.onEditorViewUpdated({
+				newEditorState: state,
+				oldEditorState: undefined,
+			});
+		},
+		[pluginInjectionAPI],
+	);
+	const memoizedReactEditorViewContext = useMemo(
+		() => ({
+			editorRef,
+			// Use a getter so that consumers always read the live viewRef.current at access
+			// time, not a stale snapshot captured when this memo was created.
+			get editorView() {
+				return viewRef.current;
+			},
+			popupsMountPoint: props.editorProps.popupsMountPoint,
+		}),
+		// viewRef is intentionally omitted from the deps array — it's a stable ref object; the getter reads
+		// .current lazily so there's no stale-closure risk.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[editorRef, props.editorProps.popupsMountPoint],
+	);
+	// eslint-disable-next-line @atlassian/perf-linting/no-inline-context-value, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017
+	const reactEditorViewContext = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedReactEditorViewContext
+		: {
+				editorRef,
+				editorView: viewRef.current,
+				popupsMountPoint: props.editorProps.popupsMountPoint,
+			};
 
 	const ssrEditor = useMemo(() => {
 		if (!ssrDeps) {
@@ -1081,21 +1440,31 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 				key="ProseMirror"
 				aria-label={
 					assistiveLabel ||
-					(isPageAppearance && fg('platform_editor_a11y_9262')
+					(isPageAppearance
 						? props.intl.formatMessage(editorMessages.fullPageEditorAssistiveLabel)
 						: props.intl.formatMessage(editorMessages.editorAssistiveLabel))
 				}
 				id={EDIT_AREA_ID}
 				aria-describedby={assistiveDescribedBy}
+				// eslint-disable-next-line react/jsx-props-no-spreading -- aria-readonly must be omitted unless view mode is confirmed
+				{...(ssrDeps.ariaReadonly === 'true' ? { 'aria-readonly': 'true' as const } : {})}
 				data-editor-id={editorId.current}
-				onEditorStateChanged={(state) => {
-					ssrEditorStateRef.current = state;
-					// Notify listeners about the initial SSR state
-					pluginInjectionAPI.current.onEditorViewUpdated({
-						newEditorState: state,
-						oldEditorState: undefined,
-					});
-				}}
+				onSSRMeasure={onSSRMeasure}
+				prebuiltPMPlugins={ssrDeps.ssrPMPlugins}
+				prebuiltEditorState={ssrDeps.ssrEditorState}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+				onEditorStateChanged={
+					isExperimentEnabled('platform_editor_perf_lint_cleanup')
+						? handleSsrEditorStateChanged
+						: (state) => {
+								preMountEditorStateRef.current = state;
+								// Notify listeners about the initial SSR state
+								pluginInjectionAPI.current.onEditorViewUpdated({
+									newEditorState: state,
+									oldEditorState: undefined,
+								});
+							}
+				}
 			/>
 		);
 	}, [
@@ -1103,8 +1472,10 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 		props.intl,
 		props.portalProviderAPI,
 		assistiveLabel,
-		assistiveDescribedBy,
 		isPageAppearance,
+		assistiveDescribedBy,
+		onSSRMeasure,
+		handleSsrEditorStateChanged,
 	]);
 
 	const editor = useMemo(
@@ -1123,49 +1494,32 @@ export function ReactEditorView(props: EditorViewProps): React.JSX.Element {
 		[props.editorProps.assistiveLabel, props.editorProps.assistiveDescribedBy, ssrEditor],
 	);
 
-	// Render tracking is firing too many events in Jira so we are disabling them for now. See - https://product-fabric.atlassian.net/browse/ED-25616
-	// Also firing too many events for the legacy content macro, so disabling for now. See - https://product-fabric.atlassian.net/browse/ED-26650
-	const renderTrackingEnabled =
-		!fg('platform_editor_disable_rerender_tracking_jira') && !featureFlags.lcmPreventRenderTracking;
-
 	return (
-		<ReactEditorViewContext.Provider
-			value={{
-				editorRef: editorRef,
-				editorView: viewRef.current,
-				popupsMountPoint: props.editorProps.popupsMountPoint,
-			}}
+		<SSRRenderMeasure
+			segmentName={SSR_TRACE_SEGMENT_NAME}
+			startTimestampRef={firstRenderStartTimestampRef}
+			onSSRMeasure={onSSRMeasure}
 		>
-			{renderTrackingEnabled && (
-				<RenderTracking
-					componentProps={props}
-					action={ACTION.RE_RENDERED}
-					actionSubject={ACTION_SUBJECT.REACT_EDITOR_VIEW}
-					handleAnalyticsEvent={handleAnalyticsEvent}
-					useShallow={true}
-				/>
-			)}
-
-			{props.render
-				? props.render?.({
-						editor,
-						view: viewRef.current,
-						config: config.current,
-						eventDispatcher: eventDispatcher,
-						transformer: contentTransformer.current,
-						dispatchAnalyticsEvent: dispatchAnalyticsEvent,
-						editorRef: editorRef,
-						editorAPI: expVal('platform_editor_no_state_plugin_injection_api', 'isEnabled', false)
-							? pluginInjectionAPI.current.api()
-							: editorAPI,
-				  }) ?? editor
-				: editor}
-		</ReactEditorViewContext.Provider>
+			<ReactEditorViewContext.Provider value={reactEditorViewContext}>
+				{props.render
+					? (props.render?.({
+							editor,
+							view: viewRef.current,
+							config: config.current,
+							eventDispatcher: eventDispatcher,
+							transformer: contentTransformer.current,
+							dispatchAnalyticsEvent: dispatchAnalyticsEvent,
+							editorRef: editorRef,
+							editorAPI: pluginInjectionAPI.current.api(),
+						}) ?? editor)
+					: editor}
+			</ReactEditorViewContext.Provider>
+		</SSRRenderMeasure>
 	);
 }
 
 // Preserving exact type generated by TypeScript
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-restricted-types, @atlaskit/volt-strict-mode/no-multiple-exports
 export default injectIntl(ReactEditorView) as React.FC<WithIntlProps<EditorViewProps>> & {
 	WrappedComponent: React.ComponentType<EditorViewProps>;
 };

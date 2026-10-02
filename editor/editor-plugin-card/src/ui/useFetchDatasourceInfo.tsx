@@ -4,10 +4,10 @@
  */
 import { useEffect, useState } from 'react';
 
-import type { JsonLdDatasourceResponse } from '@atlaskit/link-client-extension';
-import type { JiraIssueDatasourceParameters } from '@atlaskit/link-datasource';
-import type { CardContext } from '@atlaskit/link-provider';
-import type { DatasourceParameters } from '@atlaskit/linking-types';
+import type { JsonLdDatasourceResponse } from '@atlaskit/link-client-extension/use-data-source-client-extension/types';
+import type { JiraIssueDatasourceParameters } from '@atlaskit/link-datasource/jira-issues-modal/types';
+import type { CardContext } from '@atlaskit/link-provider/types';
+import type { DatasourceParameters } from '@atlaskit/linking-types/datasource';
 
 export interface useFetchDatasourceInfoProps {
 	cardContext?: CardContext;
@@ -21,7 +21,12 @@ export const useFetchDatasourceInfo = ({
 	url,
 	cardContext,
 	nodeParameters,
-}: useFetchDatasourceInfoProps) => {
+}: useFetchDatasourceInfoProps): {
+	datasourceId: string | undefined;
+	extensionKey: string | undefined;
+	parameters: DatasourceParameters | undefined;
+	ready: boolean;
+} => {
 	const [datasourceId, setDatasourceId] = useState<string | undefined>(undefined);
 	const [parameters, setParameters] = useState<DatasourceParameters | undefined>(nodeParameters);
 	// Since fetchData() is async, using this ready check to see if we have the parameters before passing it to the modal.

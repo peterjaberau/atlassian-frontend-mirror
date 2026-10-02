@@ -25,14 +25,16 @@ type TableWidthInCommentFixPluginState = {
 	documentHasLoadedOnce: boolean;
 };
 
-export const pluginKey = new PluginKey<TableWidthInCommentFixPluginState>(
-	'tableWidthInCommentFixPlugin',
-);
+export const pluginKey: PluginKey<TableWidthInCommentFixPluginState> =
+	new PluginKey<TableWidthInCommentFixPluginState>('tableWidthInCommentFixPlugin');
 const getPluginState = (state: EditorState): TableWidthInCommentFixPluginState | undefined | null =>
 	state && pluginKey.getState(state);
 
-const createPlugin = (dispatch: Dispatch, isTableAlignmentEnabled: boolean) => {
-	return new SafePlugin({
+const createPlugin = (
+	dispatch: Dispatch,
+	isTableAlignmentEnabled: boolean,
+): SafePlugin<TableWidthInCommentFixPluginState> => {
+	return new SafePlugin<TableWidthInCommentFixPluginState>({
 		key: pluginKey,
 		state: {
 			init() {

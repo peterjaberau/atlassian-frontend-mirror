@@ -1,8 +1,12 @@
-import { token } from '@atlaskit/tokens';
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
-import { onSelection, resourceProvider } from '../example-helpers';
+
+import { IntlProvider } from 'react-intl';
+
+import { token } from '@atlaskit/tokens';
+
+import { resourceProvider } from '../example-helpers';
 import SearchTextInput from '../example-helpers/demo-search-text-input';
+import { onSelection } from '../example-helpers/on-selection';
 import ResourcedMentionList from '../src/components/ResourcedMentionList';
 
 export interface State {
@@ -54,7 +58,7 @@ export default class DemoResourcedMentionList extends React.Component<{}, State>
 			<IntlProvider locale="en">
 				<div
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					style={{ width: '100%', padding: `${token('space.150', '12px')}` }}
+					style={{ width: '100%', padding: `${token('space.150')}` }}
 				>
 					<SearchTextInput
 						inputId="mention-input"

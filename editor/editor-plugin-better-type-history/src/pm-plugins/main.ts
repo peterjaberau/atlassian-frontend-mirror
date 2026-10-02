@@ -4,9 +4,9 @@ import type { Schema, Slice } from '@atlaskit/editor-prosemirror/model';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
-import type { Step } from '@atlaskit/editor-prosemirror/transform';
 import { ReplaceAroundStep, ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
-import { closeHistory } from '@atlaskit/prosemirror-history';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
+import { closeHistory } from '@atlaskit/prosemirror-history/closeHistory';
 
 import { pluginKey } from './plugin-key';
 
@@ -51,7 +51,7 @@ const isSliceAddingNewlineChar = (slice: Slice, schema: Schema): boolean => {
 	return slice.content.eq(newLine);
 };
 
-export default () => {
+export default (): SafePlugin => {
 	return new SafePlugin({
 		key: pluginKey,
 

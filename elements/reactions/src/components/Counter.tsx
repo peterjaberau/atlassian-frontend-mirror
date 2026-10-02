@@ -3,12 +3,15 @@
  * @jsx jsx
  */
 import { useEffect, useMemo, useRef } from 'react';
-import { css, jsx } from '@compiled/react';
-import { SlideIn, ExitingPersistence, type Durations } from '@atlaskit/motion';
-import { formatLargeNumber } from '../shared/utils';
 
+import { css, jsx } from '@compiled/react';
+
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import SlideIn from '@atlaskit/motion/slide-in';
+import type { Durations } from '@atlaskit/motion/utils/durations';
 import { token } from '@atlaskit/tokens';
-import { B400 } from '@atlaskit/theme/colors';
+
+import { formatLargeNumber } from '../shared/utils';
 
 const containerStyle = css({
 	display: 'flex',
@@ -24,16 +27,16 @@ const countStyle = css({
 	color: token('color.text.subtlest'),
 	overflow: 'hidden',
 	position: 'relative',
-	paddingTop: token('space.050', '4px'),
-	paddingRight: token('space.100', '8px'),
-	paddingBottom: token('space.050', '4px'),
+	paddingTop: token('space.050'),
+	paddingRight: token('space.100'),
+	paddingBottom: token('space.050'),
 	paddingLeft: 0,
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: '14px',
 });
 
 const highlightStyle = css({
-	color: token('color.text.selected', B400),
+	color: token('color.text.selected'),
 });
 
 const darkerFontStyle = css({
@@ -106,7 +109,7 @@ export const Counter = ({
 	animationDuration = 'medium',
 	useDarkerFont,
 	useUpdatedStyles,
-}: CounterProps) => {
+}: CounterProps): JSX.Element => {
 	const getLabel = (value: number) => {
 		// Check if reached limit
 		if (limit && overLimitLabel && value >= limit) {

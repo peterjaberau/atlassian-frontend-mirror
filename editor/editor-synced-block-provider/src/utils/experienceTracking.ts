@@ -1,10 +1,10 @@
-import {
-	type AnalyticsEventPayload as EditorAnalyticsEventPayload,
-	type DispatchAnalyticsEvent,
-	type ExperienceEventPayload,
-	type SyncBlockEventPayload,
-	type RendererSyncBlockEventPayload,
-	ACTION,
+import { ACTION } from '@atlaskit/editor-common/analytics';
+import type {
+	AnalyticsEventPayload as EditorAnalyticsEventPayload,
+	DispatchAnalyticsEvent,
+	ExperienceEventPayload,
+	SyncBlockEventPayload,
+	RendererSyncBlockEventPayload,
 } from '@atlaskit/editor-common/analytics';
 import {
 	Experience,
@@ -15,11 +15,16 @@ import {
 const TIMEOUT_DURATION = 30000;
 
 export const createExperienceDispatcher = (
-	fireAnalyticsEvent?: ((payload: SyncBlockEventPayload) => void) | ((payload: RendererSyncBlockEventPayload) => void),
+	fireAnalyticsEvent?:
+		| ((payload: SyncBlockEventPayload) => void)
+		| ((payload: RendererSyncBlockEventPayload) => void),
 ): DispatchAnalyticsEvent => {
 	return (payload: EditorAnalyticsEventPayload) => {
 		// Runtime type guard - only forward experience events
-		if (payload.action === ACTION.EXPERIENCE_MEASURED || payload.action === ACTION.EXPERIENCE_SAMPLED) {
+		if (
+			payload.action === ACTION.EXPERIENCE_MEASURED ||
+			payload.action === ACTION.EXPERIENCE_SAMPLED
+		) {
 			fireAnalyticsEvent?.(payload as ExperienceEventPayload);
 		}
 	};
@@ -32,13 +37,13 @@ export const createExperienceDispatcher = (
  * Success: When the sync block save is successful within the timeout duration of start.
  * Failure: When the timeout duration passes without the sync block being successfully saved
  */
-export const getSaveSourceExperience = (fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void) => {
+export const getSaveSourceExperience = (
+	fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void,
+): Experience => {
 	return new Experience(EXPERIENCE_ID.ASYNC_OPERATION, {
 		action: ACTION.SYNCED_BLOCK_UPDATE,
 		dispatchAnalyticsEvent: createExperienceDispatcher(fireAnalyticsEvent),
-		checks: [
-			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
-		],
+		checks: [new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION })],
 	});
 };
 
@@ -49,16 +54,15 @@ export const getSaveSourceExperience = (fireAnalyticsEvent?: (payload: SyncBlock
  * Success: When the sync block save is successful within the timeout duration of start.
  * Failure: When the timeout duration passes without the sync block being successfully saved
  */
-export const getSaveReferenceExperience = (fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void) => {
+export const getSaveReferenceExperience = (
+	fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
+): Experience => {
 	return new Experience(EXPERIENCE_ID.ASYNC_OPERATION, {
 		action: ACTION.REFERENCE_SYNCED_BLOCK_UPDATE,
 		dispatchAnalyticsEvent: createExperienceDispatcher(fireAnalyticsEvent),
-		checks: [
-			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
-		],
+		checks: [new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION })],
 	});
 };
-
 
 /**
  * This experience tracks when a reference sync block data is fetched from the BE.
@@ -67,13 +71,13 @@ export const getSaveReferenceExperience = (fireAnalyticsEvent?: (payload: Render
  * Success: When the fetching the data is successful within the timeout duration of start.
  * Failure: When the timeout duration passes without the data being successfully fetched, or the fetch fails
  */
-export const getFetchExperience = (fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void) => {
+export const getFetchExperience = (
+	fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
+): Experience => {
 	return new Experience(EXPERIENCE_ID.ASYNC_OPERATION, {
 		action: ACTION.SYNCED_BLOCK_FETCH,
 		dispatchAnalyticsEvent: createExperienceDispatcher(fireAnalyticsEvent),
-		checks: [
-			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
-		],
+		checks: [new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION })],
 	});
 };
 
@@ -84,63 +88,63 @@ export const getFetchExperience = (fireAnalyticsEvent?: (payload: RendererSyncBl
  * Success: When the fetching the data is successful within the timeout duration of start.
  * Failure: When the timeout duration passes without the data being successfully fetched, or the fetch fails
  */
-export const getFetchSourceInfoExperience = (fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void) => {
+export const getFetchSourceInfoExperience = (
+	fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
+): Experience => {
 	return new Experience(EXPERIENCE_ID.ASYNC_OPERATION, {
 		action: ACTION.SYNCED_BLOCK_GET_SOURCE_INFO,
 		dispatchAnalyticsEvent: createExperienceDispatcher(fireAnalyticsEvent),
-		checks: [
-			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
-		],
+		checks: [new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION })],
 	});
 };
 
 /**
  * This experience tracks when a source sync block is deleted from the BE.
  *
- * Start: When the fetchSourceInfo function is called.
- * Success: When the fetching the data is successful within the timeout duration of start.
- * Failure: When the timeout duration passes without the data being successfully fetched, or the fetch fails
+ * Start: When the delete source sync block function is called.
+ * Success: When the sync block deletion is successful within the timeout duration of start.
+ * Failure: When the timeout duration passes without the sync block being successfully deleted, or the deletion fails
  */
-export const getDeleteSourceExperience = (fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void) => {
+export const getDeleteSourceExperience = (
+	fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void,
+): Experience => {
 	return new Experience(EXPERIENCE_ID.ASYNC_OPERATION, {
 		action: ACTION.SYNCED_BLOCK_DELETE,
 		dispatchAnalyticsEvent: createExperienceDispatcher(fireAnalyticsEvent),
-		checks: [
-			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
-		],
+		checks: [new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION })],
 	});
 };
 
 /**
  * This experience tracks when a source sync block is created and registered to the BE.
  *
- * Start: When the fetchSourceInfo function is called.
- * Success: When the fetching the data is successful within the timeout duration of start.
- * Failure: When the timeout duration passes without the data being successfully fetched, or the fetch fails
+ * Start: When the create source sync block function is called.
+ * Success: When the sync block creation is successful within the timeout duration of start.
+ * Failure: When the timeout duration passes without the sync block being successfully created, or the creation fails
  */
-export const getCreateSourceExperience = (fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void) => {
+export const getCreateSourceExperience = (
+	fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void,
+): Experience => {
 	return new Experience(EXPERIENCE_ID.ASYNC_OPERATION, {
 		action: ACTION.SYNCED_BLOCK_CREATE,
 		dispatchAnalyticsEvent: createExperienceDispatcher(fireAnalyticsEvent),
-		checks: [
-			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
-		],
+		checks: [new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION })],
 	});
 };
 
 /**
- * This experience tracks when a source sync block is created and registered to the BE.
+ * This experience tracks when references for a sync block are fetched from the BE.
  *
- * Start: When the fetchSourceInfo function is called.
- * Success: When the fetching the data is successful within the timeout duration of start.
- * Failure: When the timeout duration passes without the data being successfully fetched, or the fetch fails
+ * Start: When the fetchReferences function is called.
+ * Success: When the fetching of references is successful within the timeout duration of start.
+ * Failure: When the timeout duration passes without references being successfully fetched, or the fetch fails
  */
-export const getFetchReferencesExperience = (fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void) => {
+export const getFetchReferencesExperience = (
+	fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void,
+): Experience => {
 	return new Experience(EXPERIENCE_ID.ASYNC_OPERATION, {
 		action: ACTION.SYNCED_BLOCK_FETCH_REFERENCES,
 		dispatchAnalyticsEvent: createExperienceDispatcher(fireAnalyticsEvent),
-		checks: [
-			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
-		],
+		checks: [new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION })],
 	});
 };

@@ -1,12 +1,11 @@
 import React from 'react';
+
 import type { Props } from '../types';
-import { SmartUserPicker } from './SmartUserPicker';
+import { UfoErrorBoundary } from '../UfoErrorBoundary';
+import { smartUserPickerRenderedUfoExperience } from '../ufoExperiences';
+import { useUFOConcurrentExperience } from '../useUFOConcurrentExperience';
 import MessagesIntlProvider from './MessagesIntlProvider';
-import {
-	useUFOConcurrentExperience,
-	smartUserPickerRenderedUfoExperience,
-	UfoErrorBoundary,
-} from '../ufoExperiences';
+import { SmartUserPicker } from './SmartUserPicker';
 
 const SmartUserPickerWithIntlProvider: React.FunctionComponent<Props> = (props) => {
 	const ufoId = props.inputId || props.fieldId;

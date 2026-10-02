@@ -1,39 +1,12 @@
-import React, {
-	createContext,
-	type FC,
-	type ReactNode,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import React, { type FC, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { bind } from 'bind-event-listener';
 
-import __noop from '@atlaskit/ds-lib/noop';
-import { useLayering } from '@atlaskit/layering';
+import { useLayering } from '@atlaskit/layering/use-layering';
 
 import { type FocusableElementRef } from '../../types';
 import handleFocus from '../utils/handle-focus';
-
-/**
- *
- *
- * Context provider which maintains the list of focusable elements and a method to
- * register new menu items.
- * This list drives the keyboard navigation of the menu.
- *
- */
-export const FocusManagerContext: React.Context<{
-    menuItemRefs: FocusableElementRef[];
-    registerRef(ref: FocusableElementRef): void;
-}> = createContext<{
-	menuItemRefs: FocusableElementRef[];
-	registerRef(ref: FocusableElementRef): void;
-}>({
-	menuItemRefs: [],
-	registerRef: __noop,
-});
+import { FocusManagerContext } from './focus-manager-context';
 
 /**
  * Focus manager logic.
@@ -75,7 +48,9 @@ const FocusManager: FC<{
 		[refresh],
 	);
 
-	const { isLayerDisabled } = useLayering();
+	const { isLayerDisabled, currentLevel } = useLayering();
+	// Root menu (from a button) is at level 1; first submenu is at level 2. ARIA: Left only closes submenus.
+	const isNestedMenu = currentLevel > 1;
 	// Intentionally rebinding on each render
 	useEffect(() => {
 		if (registerMode.current === 'ordered') {
@@ -88,9 +63,9 @@ const FocusManager: FC<{
 		() =>
 			bind(window, {
 				type: 'keydown',
-				listener: handleFocus(menuItemRefs, isLayerDisabled, onClose),
+				listener: handleFocus(menuItemRefs, isLayerDisabled, onClose, isNestedMenu),
 			}),
-		[isLayerDisabled, onClose],
+		[isLayerDisabled, onClose, isNestedMenu],
 	);
 
 	const contextValue = {

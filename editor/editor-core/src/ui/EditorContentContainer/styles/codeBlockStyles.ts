@@ -1,5 +1,9 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
@@ -10,6 +14,12 @@ import {
 	hideNativeBrowserTextSelectionStyles,
 } from './selectionStyles';
 
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const CodeBlockSharedCssClassName = {
 	CODEBLOCK_CONTAINER: 'code-block',
 	CODEBLOCK_START: 'code-block--start',
@@ -36,15 +46,20 @@ const gutterDangerOverlay: SerializedStyles = css({
 		backgroundColor: token('color.blanket.danger'),
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const codeBlockStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
 		[`.${CodeBlockSharedCssClassName.CODEBLOCK_CONTENT_WRAPPED} > .${CodeBlockSharedCssClassName.CODEBLOCK_CONTENT_WRAPPER} > .${CodeBlockSharedCssClassName.CODEBLOCK_CONTENT}`]:
 			{
-				marginRight: token('space.100', '8px'),
+				marginRight: token('space.100'),
 
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 				code: {
@@ -145,7 +160,7 @@ export const codeBlockStyles: SerializedStyles = css({
 				backgroundColor: token('color.background.neutral'),
 				position: 'relative',
 				width: 'var(--lineNumberGutterWidth, 2rem)',
-				padding: token('space.100', '8px'),
+				padding: token('space.100'),
 				flexShrink: 0,
 				// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 				fontSize: fontSize14px,
@@ -175,7 +190,7 @@ export const codeBlockStyles: SerializedStyles = css({
 					cursor: 'text',
 					color: token('color.text'),
 					borderRadius: token('radius.small', '3px'),
-					margin: token('space.100', '8px'),
+					margin: token('space.100'),
 					// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 					fontSize: fontSize14px,
 					// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
@@ -192,11 +207,11 @@ export const codeBlockStyles: SerializedStyles = css({
 				position: 'absolute',
 				// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 				fontSize: fontSize14px,
-				padding: `0px ${token('space.100', '8px')}`,
+				padding: `0px ${token('space.100')}`,
 				// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 				lineHeight: '1.5rem',
 				textAlign: 'right',
-				color: token('color.text.subtlest', '#505F79'),
+				color: token('color.text.subtlest'),
 				boxSizing: 'content-box',
 			},
 		},
@@ -274,8 +289,13 @@ export const codeBlockStyles: SerializedStyles = css({
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const codeBlockStylesWithEmUnits: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -301,8 +321,13 @@ export const codeBlockStylesWithEmUnits: SerializedStyles = css({
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const firstCodeBlockWithNoMargin: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -314,21 +339,6 @@ export const firstCodeBlockWithNoMargin: SerializedStyles = css({
 					// eslint-disable-next-line @atlaskit/design-system/use-tokens-space,@atlaskit/ui-styling-standard/no-important-styles
 					margin: '0!important',
 				},
-		},
-	},
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const firstCodeBlockWithNoMarginOld: SerializedStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'.ProseMirror': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'.ak-editor-panel__content': {
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-selectors
-			'> .code-block:first-child': {
-				// eslint-disable-next-line @atlaskit/design-system/use-tokens-space,@atlaskit/ui-styling-standard/no-important-styles
-				margin: '0!important',
-			},
 		},
 	},
 });

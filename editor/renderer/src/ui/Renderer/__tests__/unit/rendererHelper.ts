@@ -1,5 +1,6 @@
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
+
 import { removeEmptySpaceAroundContent } from '../../rendererHelper';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
 import { mockCommentData } from '../__fixtures__/mockData';
 
 describe('removeEmptySpaceAroundContent', () => {

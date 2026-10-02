@@ -22,7 +22,11 @@ import { type LozengeBaseProps, type LozengeDropdownTriggerProps } from './types
  * - Built for dropdown menu interactions
  * - Supports analytics events and UFO press interactions
  */
-const LozengeDropdownTrigger: import("react").MemoExoticComponent<import("react").ForwardRefExoticComponent<LozengeDropdownTriggerProps & import("react").RefAttributes<HTMLElement>>> = memo(
+const LozengeDropdownTrigger: import('react').MemoExoticComponent<
+	import('react').ForwardRefExoticComponent<
+		LozengeDropdownTriggerProps & import('react').RefAttributes<HTMLElement>
+	>
+> = memo(
 	forwardRef<HTMLElement, LozengeDropdownTriggerProps>(
 		(
 			{
@@ -40,6 +44,10 @@ const LozengeDropdownTrigger: import("react").MemoExoticComponent<import("react"
 				style,
 				analyticsContext,
 				interactionName,
+				'aria-controls': ariaControls,
+				'aria-expanded': ariaExpanded,
+				'aria-haspopup': ariaHaspopup,
+				'aria-label': ariaLabel,
 			},
 			ref,
 		) => {
@@ -58,6 +66,10 @@ const LozengeDropdownTrigger: import("react").MemoExoticComponent<import("react"
 				analyticsContext,
 				interactionName,
 				children,
+				'aria-controls': ariaControls,
+				'aria-expanded': ariaExpanded,
+				'aria-haspopup': ariaHaspopup,
+				'aria-label': ariaLabel,
 			};
 			return (
 				<LozengeBase ref={ref} {...baseProps}>

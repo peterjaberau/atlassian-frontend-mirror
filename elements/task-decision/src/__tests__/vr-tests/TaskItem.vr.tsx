@@ -1,10 +1,11 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	TaskItemEditor,
 	TaskItemDoneEditor,
 	TaskItemRenderer,
 	TaskItemDoneRenderer,
-} from './TaskItem.fixtures';
+} from './TaskItem.fixtures.vr.ap';
 
 snapshot(TaskItemEditor);
 snapshot(TaskItemEditor, {

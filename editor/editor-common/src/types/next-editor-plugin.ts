@@ -4,21 +4,19 @@
  * `Presets` - if the generics get too unwieldy, we may redesign how presets
  * are put together - but for now `Builder` & `Preset` aim to beinterchangeable.
  */
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 import type { Fragment, Node, Schema, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { FireAnalyticsCallback } from '../analytics';
-
+import type { EditorAppearance } from './editor-appearance';
 import type { EditorCommand, EditorCommandWithMetadata } from './editor-command';
 import type { EditorPlugin } from './editor-plugin';
 
 export interface Transformer<T> {
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	encode(node: Node): T;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	parse(content: T): Node;
+	encode: (node: Node) => T;
+	parse: (content: T) => Node;
 }
 
 export type CorePlugin = NextEditorPlugin<
@@ -39,10 +37,9 @@ export type CorePlugin = NextEditorPlugin<
 			 * @param schema Schema of the document
 			 * @returns Transformer which can be used to request a document
 			 */
-			// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-			createTransformer<Format>(
+			createTransformer: <Format>(
 				cb: (schema: Schema) => Transformer<Format>,
-			): Transformer<Format> | undefined;
+			) => Transformer<Format> | undefined;
 			/**
 			 * Dispatches an EditorCommand to ProseMirror
 			 *
@@ -80,11 +77,17 @@ export type CorePlugin = NextEditorPlugin<
 			 * @param options.addToHistory (boolean) if the replacement should be added to history. True by default
 			 * @param options.scrollIntoView (boolean) if the view should also scroll on replace. True by default
 			 * @param options.skipValidation (boolean) if the validation should be skipped. False by default
+			 * @param options.transformer (Transformer<string>) transformer to convert the replaceValue into (example is from markdown)
 			 * @returns A boolean indicating whether the replacement was successful.
 			 */
 			replaceDocument: (
 				replaceValue: Node | Fragment | Array<Node> | Object | string,
-				options?: { addToHistory?: boolean; scrollIntoView?: boolean; skipValidation?: boolean },
+				options?: {
+					addToHistory?: boolean;
+					scrollIntoView?: boolean;
+					skipValidation?: boolean;
+					transformer?: Transformer<string>;
+				},
 			) => boolean;
 
 			/**
@@ -100,14 +103,14 @@ export type CorePlugin = NextEditorPlugin<
 			 * @param options.alwaysFire If true, always return a value in `onReceive` handler rather than skipping throttled calls
 			 */
 			// Ignored via go/ees005
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/method-signature-style -- method-signature-style ignored via go/ees013 (to be fixed)
-			requestDocument<GenericTransformer extends Transformer<any> = Transformer<JSONDocNode>>(
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			requestDocument: <GenericTransformer extends Transformer<any> = Transformer<JSONDocNode>>(
 				onReceive: (document: TransformerResult<GenericTransformer> | undefined) => void,
 				options?: {
 					alwaysFire?: boolean;
 					transformer?: GenericTransformer;
 				},
-			): void;
+			) => void;
 
 			/**
 			 * Request the editor document asynchronously.
@@ -134,13 +137,29 @@ export type CorePlugin = NextEditorPlugin<
 			 * @returns (boolean) if scroll was successful
 			 */
 			scrollToPos: (pos: number, scrollOptions?: boolean | ScrollIntoViewOptions) => boolean;
+
+			/**
+			 * Updates the editor appearance in shared state. Dispatches a ProseMirror transaction
+			 * so that shared state subscribers are correctly notified of the change.
+			 *
+			 * @param appearance - The new editor appearance value
+			 * @returns true if the update was dispatched, false if the experiment is off or the view was unavailable
+			 */
+			updateAppearance: (appearance: EditorAppearance | undefined) => boolean;
 		};
 		pluginConfiguration: {
+			// Initial appearance value for the editor, used to initialize appearance tracking in shared state
+			appearance?: EditorAppearance;
 			// Optional analytics callback to fire events - core plugin isn't able to consume AnalyticsPlugin as a dependency like other plugins
 			fireAnalyticsEvent?: FireAnalyticsCallback;
 			getEditorView: () => EditorView | undefined;
 		};
 		sharedState: {
+			/**
+			 * The appearance configuration of the editor. Used as fallback when individual
+			 * plugins don't have explicit appearance configuration.
+			 */
+			appearance: EditorAppearance | undefined;
 			/**
 			 * The schema of the editor. It is guarranteed to be static for its lifecycle
 			 * so is safe to use `currentState`

@@ -4,11 +4,13 @@
  */
 
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
+
 import { token } from '@atlaskit/tokens';
 
 const articleContentInnerStyles = css({
-	paddingBottom: token('space.200', '16px'),
+	paddingBottom: token('space.200'),
 	position: 'relative',
 });
 
@@ -17,11 +19,10 @@ export const ArticleContentInner = ({ children }: { children: React.ReactNode })
 );
 
 const articleContentTitleStyles = css({
-	paddingBottom: token('space.200', '16px'),
+	paddingBottom: token('space.200'),
 });
 
 export const ArticleContentTitle = ({ children }: { children: React.ReactNode }): JSX.Element => (
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
 	<div css={articleContentTitleStyles}>{children}</div>
 );
 

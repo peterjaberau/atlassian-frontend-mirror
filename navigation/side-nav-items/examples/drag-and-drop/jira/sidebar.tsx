@@ -9,14 +9,14 @@ import { jsx } from '@compiled/react';
 import invariant from 'tiny-invariant';
 
 import useStableRef from '@atlaskit/ds-lib/use-stable-ref';
-import { SideNavContent } from '@atlaskit/navigation-system/layout/side-nav';
+import { SideNavBody } from '@atlaskit/navigation-system/layout/side-nav';
 import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element';
 import { triggerPostMoveFlash } from '@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash';
 import * as liveRegion from '@atlaskit/pragmatic-drag-and-drop-live-region';
 import {
 	dropTargetForElements,
 	monitorForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { GroupDropIndicator } from '@atlaskit/side-nav-items/drag-and-drop/group-drop-indicator';
 import {
 	extractInstruction,
@@ -97,7 +97,7 @@ function getPosition(index: number) {
 	return index + 1;
 }
 
-export function Sidebar() {
+export function Sidebar(): JSX.Element {
 	const [data, setData] = useState(getInitialData);
 	const stableData = useStableRef(data);
 	const [registry] = useState(createRegistry);
@@ -336,7 +336,7 @@ export function Sidebar() {
 	);
 
 	return (
-		<SideNavContent ref={scrollableRef}>
+		<SideNavBody ref={scrollableRef}>
 			<GetDataContext.Provider value={getData}>
 				<DispatchContext.Provider value={dispatch}>
 					<LastActionContext.Provider value={data.lastAction}>
@@ -356,6 +356,6 @@ export function Sidebar() {
 					</LastActionContext.Provider>
 				</DispatchContext.Provider>
 			</GetDataContext.Provider>
-		</SideNavContent>
+		</SideNavBody>
 	);
 }

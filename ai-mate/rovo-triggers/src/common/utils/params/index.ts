@@ -33,7 +33,7 @@ const processParams = (
 	rovoParams: Partial<BaseRovoChatParams>;
 	combinedQueryString: string;
 } => {
-	const output: { [key: string]: any } = {};
+	const output: { [key: string]: unknown } = {};
 	const safeSearchParamsInput =
 		typeof input === 'string'
 			? isValidURL(input)
@@ -88,8 +88,18 @@ export const getRovoParams = (url?: string): RovoChatParams => {
 };
 
 // Update the address bar without reloading the page
-export const updatePageRovoParams = (params: RovoChatParams): void => {
-	window.history.pushState({}, '', addRovoParamsToUrl(window.location.pathname, params));
+export const updatePageRovoParams = (
+	params: RovoChatParams,
+	{ historyMode = 'push' }: { historyMode?: 'push' | 'replace' } = {},
+): void => {
+	const updatedUrl = addRovoParamsToUrl(window.location.pathname, params);
+
+	if (historyMode === 'replace') {
+		window.history.replaceState({}, '', updatedUrl);
+		return;
+	}
+
+	window.history.pushState({}, '', updatedUrl);
 };
 
 // Add any valid rovoChat params to a URL
@@ -143,7 +153,11 @@ export const assertOnlySpecificFieldsDefined = (
 	});
 };
 
-export const getListOfRovoParams = ({ resourceRouterQuery = false } = {}): string[] => {
+export const getListOfRovoParams = ({
+	resourceRouterQuery = false,
+}: {
+	resourceRouterQuery?: boolean | undefined;
+} = {}): string[] => {
 	/*
 	For products using react-resource-router (e.g Atlas) to
 	pass as the value of `query` on the route definition. It ensures that our parameters

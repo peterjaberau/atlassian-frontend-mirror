@@ -2,11 +2,11 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports -- exports share Compiled style value(s) [compactFrameAlignStyles, compactFrameHoverStyles, compactFrameInheritDimensionsFalseStyles, compactFrameInheritDimensionsTrueStyles, compactFrameNotSelectedStyles, compactFrameStyles, expandedFrameFluidHeightFalseStyles, expandedFrameFluidHeightTrueStyles, expandedFrameHoverStyles, expandedFrameNotSelectedStyles, expandedFrameSelectedStyles, expandedFrameStyles, sharedBaseFrameStyles, sharedFrameStyles] which cannot be exported across files (UI Styling Standard: no-exported-css) */
 import React from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { B200, N20A, N30A, N40A, N50A } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 export interface FrameProps {
@@ -30,7 +30,7 @@ export const Frame = (
 		isHoverable: false,
 		isFluidHeight: false,
 	},
-) => (props.compact ? <CompactFrame {...props} /> : <ExpandedFrame {...props} />);
+): JSX.Element => (props.compact ? <CompactFrame {...props} /> : <ExpandedFrame {...props} />);
 
 const sharedBaseFrameStyles = css({
 	width: '100%',
@@ -39,13 +39,13 @@ const sharedBaseFrameStyles = css({
 
 const sharedFrameStyles = css({
 	maxWidth: '760px',
-	backgroundColor: token('elevation.surface.raised', 'white'),
+	backgroundColor: token('elevation.surface.raised'),
 });
 
 const expandedFrameHoverStyles = css({
 	'&:hover': {
 		// TODO: https://product-fabric.atlassian.net/browse/DSP-4064
-		backgroundColor: token('color.background.neutral.subtle.hovered', N20A),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
 		cursor: 'pointer',
 	},
 });
@@ -61,7 +61,7 @@ const expandedFrameFluidHeightFalseStyles = css({
 const expandedFrameSelectedStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
 	borderRadius: token('radius.small', '3px'),
-	borderColor: token('color.border.selected', B200),
+	borderColor: token('color.border.selected'),
 	borderStyle: 'solid',
 	borderWidth: token('border.width.selected'),
 });
@@ -76,7 +76,7 @@ const expandedFrameNotSelectedStyles = css({
 const expandedFrameStyles = css({
 	justifyContent: 'space-between',
 	overflow: 'hidden',
-	boxShadow: token('elevation.shadow.raised', `0 1px 1px ${N50A}, 0 0 1px 1px ${N40A}`),
+	boxShadow: token('elevation.shadow.raised'),
 });
 
 export const ExpandedFrame = ({
@@ -86,7 +86,7 @@ export const ExpandedFrame = ({
 	testId,
 	className,
 	isFluidHeight,
-}: FrameProps) => {
+}: FrameProps): JSX.Element => {
 	return (
 		<div
 			css={[
@@ -109,7 +109,7 @@ export const ExpandedFrame = ({
 
 const compactFrameHoverStyles = css({
 	'&:hover': {
-		backgroundColor: token('color.background.neutral.hovered', N30A),
+		backgroundColor: token('color.background.neutral.hovered'),
 	},
 });
 
@@ -124,7 +124,7 @@ const compactFrameInheritDimensionsFalseStyles = css({
 const compactFrameAlignStyles = css({
 	justifyContent: 'center',
 	alignItems: 'center',
-	backgroundColor: token('color.background.neutral', N20A),
+	backgroundColor: token('color.background.neutral'),
 });
 
 const compactFrameStyles = css({
@@ -143,7 +143,7 @@ export const CompactFrame = ({
 	testId,
 	className,
 	inheritDimensions,
-}: FrameProps) => {
+}: FrameProps): JSX.Element => {
 	return (
 		<div
 			css={[

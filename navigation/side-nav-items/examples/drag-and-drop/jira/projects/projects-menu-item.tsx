@@ -1,5 +1,4 @@
 /**
- * @jsxFrag
  * @jsxRuntime classic
  * @jsx jsx
  */
@@ -7,7 +6,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import invariant from 'tiny-invariant';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import { jsx } from '@atlaskit/css';
 import AddIcon from '@atlaskit/icon/core/add';
 import ProjectIcon from '@atlaskit/icon/core/project';
@@ -21,7 +20,6 @@ import {
 import { getTopLevelItemData, isTopLevelItemData, type TProject } from '../data';
 import { RegistryContext } from '../registry';
 import { TopLevelSharedMoreMenu } from '../top-level-shared-more-menu';
-
 import { ProjectGroup } from './project';
 
 export function ProjectsMenuItem({
@@ -32,7 +30,7 @@ export function ProjectsMenuItem({
 	amountOfMenuItems: number;
 	index: number;
 	projects: { recent: TProject[]; starred: TProject[] };
-}) {
+}): JSX.Element {
 	const [isExpanded, setIsExpanded] = useState<boolean>(true);
 	const wasExpandedWhenDragStartedRef = useRef<boolean | null>(null);
 	const { state, draggableButtonRef, dragPreview, dropTargetRef, dropIndicator } =
@@ -79,7 +77,7 @@ export function ProjectsMenuItem({
 	}, [registry, draggableButtonRef]);
 
 	return (
-		<>
+		<React.Fragment>
 			<ExpandableMenuItem
 				isExpanded={isExpanded}
 				onExpansionToggle={() => setIsExpanded((value) => !value)}
@@ -92,7 +90,7 @@ export function ProjectsMenuItem({
 					hasDragIndicator
 					elemBefore={<ProjectIcon label="" color="currentColor" />}
 					actionsOnHover={
-						<>
+						<React.Fragment>
 							<IconButton
 								label="Add"
 								icon={(iconProps) => <AddIcon {...iconProps} size="small" />}
@@ -104,7 +102,7 @@ export function ProjectsMenuItem({
 								amountOfMenuItems={amountOfMenuItems}
 								value="projects"
 							/>
-						</>
+						</React.Fragment>
 					}
 				>
 					Projects
@@ -115,6 +113,6 @@ export function ProjectsMenuItem({
 				</ExpandableMenuItemContent>
 			</ExpandableMenuItem>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }

@@ -1,12 +1,11 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { useCreateContainers } from '../use-create-containers';
-import { useTeamContainers } from '../use-team-containers';
-
+import { useTeamContainers } from '../use-team-containers/use-team-containers';
 import { INTERVAL_TIME, useRefreshOnContainerCreated } from './index';
 
 jest.mock('../use-create-containers');
-jest.mock('../use-team-containers');
+jest.mock('../use-team-containers/use-team-containers');
 
 const teamId = 'team-123';
 
@@ -169,9 +168,9 @@ test('will timeout if no new containers are created within the timeout period', 
 
 	for (let i = 0; i < 14; i++) {
 		act(() => {
-		  jest.advanceTimersByTime(INTERVAL_TIME);
+			jest.advanceTimersByTime(INTERVAL_TIME);
 		});
-	  }
+	}
 	expect(refetchTeamContainers).toHaveBeenCalledTimes(14);
 
 	jest.advanceTimersByTime(INTERVAL_TIME);

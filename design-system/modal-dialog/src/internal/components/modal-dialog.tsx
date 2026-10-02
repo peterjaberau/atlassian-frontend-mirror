@@ -3,28 +3,32 @@
  * @jsx jsx
  */
 
-import { type CSSProperties, useEffect, useMemo } from 'react';
+import { type CSSProperties, forwardRef, useEffect, useMemo } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { cssMap } from '@atlaskit/css';
+import { cssMap, cx } from '@atlaskit/css';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
 import useAutoFocus from '@atlaskit/ds-lib/use-auto-focus';
 import { useId } from '@atlaskit/ds-lib/use-id';
-import { useCloseOnEscapePress, useLayering } from '@atlaskit/layering';
+import { useCloseOnEscapePress } from '@atlaskit/layering/use-close-on-escape-press';
+import { useLayering } from '@atlaskit/layering/use-layering';
+import Motion from '@atlaskit/motion/entering/motion';
 import FadeIn from '@atlaskit/motion/fade-in';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { type CURRENT_SURFACE_CSS_VAR, token } from '@atlaskit/tokens';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { token } from '@atlaskit/tokens';
+import type { CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens/constants';
 
-import { ModalContext, ScrollContext } from '../context';
+import { ModalContext } from '../context';
 import useOnMotionFinish from '../hooks/use-on-motion-finish';
 import { disableDraggingToCrossOriginIFramesForElement } from '../pragmatic-drag-and-drop/disable-dragging-to-cross-origin-iframes/element';
 import { disableDraggingToCrossOriginIFramesForExternal } from '../pragmatic-drag-and-drop/disable-dragging-to-cross-origin-iframes/external';
 import { disableDraggingToCrossOriginIFramesForTextSelection } from '../pragmatic-drag-and-drop/disable-dragging-to-cross-origin-iframes/text-selection';
+import { ScrollContext } from '../scroll-context';
 import type { InternalModalDialogProps } from '../types';
-import { dialogHeight, dialogWidth } from '../utils';
-
+import { dialogHeight } from './dialog-height';
+import { dialogWidth } from './dialog-width';
 import Positioner from './positioner';
 
 const LOCAL_CURRENT_SURFACE_CSS_VAR: typeof CURRENT_SURFACE_CSS_VAR =
@@ -94,13 +98,35 @@ const dialogStyles = cssMap({
 	},
 	borderRadius: {
 		'@media (min-width: 30rem)': {
-			borderRadius: token('radius.small', '3px'),
+			borderRadius: token('radius.xlarge'),
 		},
 	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	borderRadiusT26Shape: {
+	motion: {
+		// @ts-expect-error
+		maxHeight: 'inherit',
+		// @ts-expect-error
+		maxWidth: 'inherit',
+		// On mobile (< 30rem), the modal is full-screen so the Motion wrapper should fill the viewport.
+		'@media (max-width: 29.9375rem)': {
+			height: '100%',
+		},
 		'@media (min-width: 30rem)': {
-			borderRadius: token('radius.xlarge', '12px'),
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+			// @ts-expect-error
+			height: 'var(--modal-dialog-height, auto)',
+		},
+		display: 'flex',
+	},
+	// Combine with root when platform-dst-motion-uplift-modal is cleaned up
+	rootMotion: {
+		'@media (min-width: 30rem)': {
+			marginInlineEnd: 'auto',
+			marginInlineStart: 'auto',
+		},
+	},
+	fullscreen: {
+		'@media (min-width: 30rem)': {
+			height: '100%',
 		},
 	},
 });
@@ -134,12 +160,14 @@ const bodyScrollStyles = css({
 	},
 });
 
-const ModalDialog = (props: InternalModalDialogProps): JSX.Element => {
+const ModalDialog: React.ForwardRefExoticComponent<
+	React.PropsWithoutRef<InternalModalDialogProps> & React.RefAttributes<HTMLElement>
+> = forwardRef((props: InternalModalDialogProps, ref: React.Ref<HTMLElement>) => {
 	const {
 		width = 'medium',
 		shouldScrollInViewport = false,
 		shouldCloseOnEscapePress,
-		autoFocus: providedAutoFocus,
+		autoFocus,
 		stackIndex,
 		onClose,
 		onCloseComplete,
@@ -150,34 +178,33 @@ const ModalDialog = (props: InternalModalDialogProps): JSX.Element => {
 		label,
 		testId,
 		isFullScreen = false,
+		UNSAFE_shouldDisableMotionUplift = false,
 	} = props;
 
 	const id = useId();
 	const titleId = `modal-dialog-title-${id}`;
 	const defaultTestId = testId || 'modal-dialog';
-	// https://product-fabric.atlassian.net/browse/DSP-24307
-	// If flag and falsy, use true instead.
-	const autoFocus =
-		!providedAutoFocus && fg('platform_dst_autofocus-never-false') ? true : providedAutoFocus;
 
-	useEffect(() => {
-		// Modal dialogs can appear on top of iframe elements that are on another domain.
-		// There is a Chrome bug where drag and drop in an element on top of a cross domain
-		// iframe is not working. We are applying the workaround for this bug in modal so
-		// that consumers of our modal don't have to worry about this bug and are free to
-		// create whatever drag and drop experience they like inside a modal
-		//
-		// Chrome bug: https://issues.chromium.org/issues/362301053
+	useEffect(
+		() =>
+			// Modal dialogs can appear on top of iframe elements that are on another domain.
+			// There is a Chrome bug where drag and drop in an element on top of a cross domain
+			// iframe is not working. We are applying the workaround for this bug in modal so
+			// that consumers of our modal don't have to worry about this bug and are free to
+			// create whatever drag and drop experience they like inside a modal
+			//
+			// Chrome bug: https://issues.chromium.org/issues/362301053
 
-		return combine(
-			disableDraggingToCrossOriginIFramesForElement(),
-			disableDraggingToCrossOriginIFramesForTextSelection(),
-			disableDraggingToCrossOriginIFramesForExternal(),
-		);
-	}, []);
+			combine(
+				disableDraggingToCrossOriginIFramesForElement(),
+				disableDraggingToCrossOriginIFramesForTextSelection(),
+				disableDraggingToCrossOriginIFramesForExternal(),
+			),
+		[],
+	);
 
 	useAutoFocus(
-		typeof autoFocus === 'object' ? autoFocus : undefined,
+		autoFocus,
 		// When a user supplies  a ref to focus we enable this hook
 		typeof autoFocus === 'object',
 	);
@@ -207,19 +234,24 @@ const ModalDialog = (props: InternalModalDialogProps): JSX.Element => {
 		>
 			<ModalContext.Provider value={modalDialogContext}>
 				<ScrollContext.Provider value={shouldScrollInViewport}>
-					<FadeIn
-						/**
-						 * We don't want a 'slide in' for the full screen modals.
-						 */
-						entranceDirection={isFullScreen ? undefined : 'bottom'}
-						onFinish={onMotionFinish}
-					>
-						{(bottomFadeInProps) => (
-							// TODO: Use `dialog` element instead of overriding section semantics (DSP-11588)
+					{!UNSAFE_shouldDisableMotionUplift && fg('platform-dst-motion-uplift-modal') ? (
+						<Motion
+							enteringAnimation={token('motion.modal.enter')}
+							exitingAnimation={token('motion.modal.exit')}
+							onFinish={onMotionFinish}
+							xcss={cx(dialogStyles.motion, isFullScreen && dialogStyles.fullscreen)}
+							style={
+								{
+									// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+									'--modal-dialog-width': dialogWidth(width),
+									// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+									'--modal-dialog-height': dialogHeight(height),
+								} as CSSProperties
+							}
+						>
 							<section
-								{...bottomFadeInProps}
 								aria-label={label}
-								ref={mergeRefs([bottomFadeInProps.ref, motionRef])}
+								ref={mergeRefs([motionRef, ref])}
 								style={
 									{
 										// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
@@ -230,14 +262,10 @@ const ModalDialog = (props: InternalModalDialogProps): JSX.Element => {
 								}
 								css={[
 									dialogStyles.root,
+									dialogStyles.rootMotion,
 									!isFullScreen && dialogStyles.borderRadius,
-									!isFullScreen &&
-										fg('platform-dst-shape-theme-default') &&
-										dialogStyles.borderRadiusT26Shape,
 									shouldScrollInViewport ? viewportScrollStyles : bodyScrollStyles,
 								]}
-								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
-								className={bottomFadeInProps.className}
 								role="dialog"
 								aria-labelledby={label ? undefined : titleId}
 								data-testid={defaultTestId}
@@ -248,13 +276,54 @@ const ModalDialog = (props: InternalModalDialogProps): JSX.Element => {
 							>
 								{children}
 							</section>
-						)}
-					</FadeIn>
+						</Motion>
+					) : (
+						<FadeIn
+							/**
+							 * We don't want a 'slide in' for the full screen modals.
+							 */
+							entranceDirection={isFullScreen ? undefined : 'bottom'}
+							onFinish={onMotionFinish}
+						>
+							{(bottomFadeInProps) => (
+								// TODO: Use `dialog` element instead of overriding section semantics (DSP-11588)
+								<section
+									{...bottomFadeInProps}
+									aria-label={label}
+									ref={mergeRefs([bottomFadeInProps.ref, motionRef, ref])}
+									style={
+										{
+											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+											'--modal-dialog-width': dialogWidth(width),
+											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+											'--modal-dialog-height': dialogHeight(height),
+										} as CSSProperties
+									}
+									css={[
+										dialogStyles.root,
+										!isFullScreen && dialogStyles.borderRadius,
+										shouldScrollInViewport ? viewportScrollStyles : bodyScrollStyles,
+									]}
+									// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+									className={bottomFadeInProps.className}
+									role="dialog"
+									aria-labelledby={label ? undefined : titleId}
+									data-testid={defaultTestId}
+									data-modal-stack={stackIndex}
+									tabIndex={-1}
+									aria-modal={true}
+									data-ds--level={currentLevel}
+								>
+									{children}
+								</section>
+							)}
+						</FadeIn>
+					)}
 				</ScrollContext.Provider>
 			</ModalContext.Provider>
 		</Positioner>
 	);
-};
+});
 
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export default ModalDialog;

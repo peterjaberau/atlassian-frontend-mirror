@@ -13,7 +13,7 @@ import {
 	tableCellWithNestedTableWithLocalId,
 	tableRowWithNestedTableWithLocalId,
 	tableHeaderWithNestedTableWithLocalId,
-} from '@atlaskit/adf-schema';
+} from '@atlaskit/adf-schema/tableNodes';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -22,7 +22,7 @@ import {
 	INPUT_METHOD,
 	TABLE_ACTION,
 } from '@atlaskit/editor-common/analytics';
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { IconTable } from '@atlaskit/editor-common/icons';
 import { toggleTable, tooltip } from '@atlaskit/editor-common/keymaps';
@@ -38,11 +38,13 @@ import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import { hasParentNodeOfType, safeInsert } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { tableEditing } from '@atlaskit/editor-tables/pm-plugins';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import { tableNodeSpecWithFixedToDOM } from './nodeviews/toDOM';
+import { createPlugin as createActiveCellHighlightPlugin } from './pm-plugins/active-cell-highlight/plugin';
 import { createPlugin as createTableAnalyticsPlugin } from './pm-plugins/analytics/plugin';
 import { insertTableWithNestingSupport } from './pm-plugins/commands/insert';
 import { pluginConfig } from './pm-plugins/create-plugin-config';
@@ -81,6 +83,8 @@ import { createPlugin as createViewModeSortPlugin } from './pm-plugins/view-mode
 import type { TablePlugin, TablePluginOptions } from './tablePluginType';
 import type { ColumnResizingPluginState, TableSharedStateInternal } from './types';
 import { ContentComponent } from './ui/ContentComponent';
+import { getTableQuickInsertComponents } from './ui/quick-insert/getTableQuickInsertComponents';
+import { getTableMenuComponents } from './ui/TableMenu/shared/getTableMenuComponents';
 import { getToolbarConfig } from './ui/toolbar';
 
 const defaultGetEditorFeatureFlags = () => ({});
@@ -97,9 +101,7 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 	const options: TablePluginOptions = {
 		...config,
 		tableOptions: config?.tableOptions ?? {},
-		dragAndDropEnabled: config?.dragAndDropEnabled || fg('platform_editor_enable_table_dnd'),
-		isTableScalingEnabled:
-			config?.isTableScalingEnabled || fg('platform_editor_enable_table_scaling'),
+		isTableScalingEnabled: true,
 	};
 
 	const defaultGetEditorContainerWidth: GetEditorContainerWidth = () => {
@@ -111,9 +113,7 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 	};
 	const editorAnalyticsAPI = api?.analytics?.actions;
 
-	const isTableFixedColumnWidthsOptionEnabled = fg('platform_editor_table_fixed_column_width_prop')
-		? options?.allowFixedColumnWidthOption
-		: options?.getEditorFeatureFlags?.().tableWithFixedColumnWidthsOption || false;
+	const isTableFixedColumnWidthsOptionEnabled = options?.allowFixedColumnWidthOption;
 
 	const shouldUseIncreasedScalingPercent =
 		options?.isTableScalingEnabled &&
@@ -127,6 +127,24 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 		!options?.isCommentEditor &&
 		options?.getEditorFeatureFlags?.().tableSelector &&
 		editorExperiment('platform_editor_controls', 'variant1');
+
+	if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+		api?.uiControlRegistry?.actions.register(
+			getTableMenuComponents({
+				api,
+			}),
+		);
+	}
+
+	if (isExperimentEnabled('platform_editor_slash_command')) {
+		api?.uiControlRegistry?.actions.register(
+			getTableQuickInsertComponents({
+				api,
+				isTableSelectorEnabled,
+				options,
+			}),
+		);
+	}
 
 	return {
 		name: 'table',
@@ -160,6 +178,10 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 				wasMaxWidthModeEnabled: !!options?.wasMaxWidthEnabled,
 				isHeaderRowEnabled: tablePluginState.isHeaderRowEnabled,
 				isHeaderColumnEnabled: tablePluginState.isHeaderColumnEnabled,
+				isNumberColumnEnabled: tablePluginState.isNumberColumnEnabled,
+				isCommentEditor: tablePluginState.isCommentEditor,
+				isTableScalingEnabled: tablePluginState.isTableScalingEnabled,
+				isTableFixedColumnWidthsOptionEnabled,
 				ordering: tablePluginState.ordering,
 				isResizing: !!(
 					tableResizingPluginState?.dragging || tableWidthResizingPluginState?.resizing
@@ -184,23 +206,22 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 				pluginConfig: tablePluginState.pluginConfig,
 				insertColumnButtonIndex: tablePluginState.insertColumnButtonIndex,
 				insertRowButtonIndex: tablePluginState.insertRowButtonIndex,
-				isDragAndDropEnabled: tablePluginState.isDragAndDropEnabled,
 				tableWrapperTarget: tablePluginState.tableWrapperTarget,
 				isCellMenuOpenByKeyboard: tablePluginState.isCellMenuOpenByKeyboard,
+				activeTableMenu: tablePluginState.activeTableMenu,
 				stickyHeader,
 				dragMenuDirection: dragAndDropState?.dragMenuDirection,
 				dragMenuIndex: dragAndDropState?.dragMenuIndex,
 				isDragMenuOpen: dragAndDropState?.isDragMenuOpen,
 				isSizeSelectorOpen: sizeSelectorPluginState?.isSelectorOpen,
 				sizeSelectorTargetRef: sizeSelectorPluginState?.targetRef,
-				editorContentAreaHeight:
-					expValEquals(
-						'platform_editor_table_sticky_header_improvements',
-						'cohort',
-						'test_with_overflow',
-					) && fg('platform_editor_table_sticky_header_patch_4')
-						? editorContentAreaHeightPluginState?.height
-						: undefined,
+				editorContentAreaHeight: expValEquals(
+					'platform_editor_table_sticky_header_improvements',
+					'cohort',
+					'test_with_overflow',
+				)
+					? editorContentAreaHeightPluginState?.height
+					: undefined,
 			};
 
 			return sharedStateInternal;
@@ -294,17 +315,6 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 			// TODO: ED-25901 - We need to move this into a plugin config option so we don't accidentally enable nested nodes in Jira
 			const isNestingSupported = Boolean(options?.tableOptions?.allowNestedTables);
 
-			const isTableFixedColumnWidthsOptionEnabled =
-				(fg('platform_editor_table_fixed_column_width_prop')
-					? options?.allowFixedColumnWidthOption
-					: options?.getEditorFeatureFlags?.().tableWithFixedColumnWidthsOption) || false;
-
-			const shouldUseIncreasedScalingPercent =
-				options?.isTableScalingEnabled &&
-				(isTableFixedColumnWidthsOptionEnabled ||
-					// When in comment editor, we need the scaling percent to be 40% while tableWithFixedColumnWidthsOption is not visible
-					options?.isCommentEditor);
-
 			const isTableScalingEnabled = options?.isTableScalingEnabled;
 			const isCommentEditor = options?.isCommentEditor;
 			const isChromelessEditor = options?.isChromelessEditor;
@@ -389,10 +399,10 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 							wasFullWidthEnabled,
 							tableOptions,
 							getEditorFeatureFlags,
-							dragAndDropEnabled,
 							isTableScalingEnabled,
 							isCommentEditor,
 							isChromelessEditor,
+							__livePage,
 						} = options || ({} as TablePluginOptions);
 
 						return createPlugin(
@@ -407,14 +417,14 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 							getIntl,
 							fullWidthEnabled,
 							wasFullWidthEnabled,
-							dragAndDropEnabled,
 							editorAnalyticsAPI,
 							api,
 							isTableScalingEnabled,
 							shouldUseIncreasedScalingPercent,
 							isCommentEditor,
 							isChromelessEditor,
-							options?.allowFixedColumnWidthOption,
+							isTableFixedColumnWidthsOptionEnabled,
+							__livePage,
 						);
 					},
 				},
@@ -448,7 +458,6 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 					name: 'tableKeymap',
 					plugin: ({ getIntl, nodeViewPortalProviderAPI }) => {
 						const {
-							dragAndDropEnabled,
 							isTableScalingEnabled = false,
 							fullWidthEnabled = false,
 							isCommentEditor = false,
@@ -461,7 +470,6 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 							api,
 							nodeViewPortalProviderAPI,
 							editorAnalyticsAPI,
-							dragAndDropEnabled,
 							isTableScalingEnabled,
 							tableOptions?.allowTableAlignment,
 							fullWidthEnabled,
@@ -482,8 +490,6 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 				{
 					name: 'tableEditing',
 					plugin: () => {
-						const { dragAndDropEnabled } = options || ({} as TablePluginOptions);
-
 						return tableEditing({
 							reportFixedTable: ({ tr, reason }: { reason: string; tr: Transaction }) => {
 								editorAnalyticsAPI?.attachAnalyticsEvent({
@@ -496,7 +502,6 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 									eventType: EVENT_TYPE.TRACK,
 								})(tr);
 							},
-							dragAndDropEnabled,
 						}) as SafePlugin;
 					},
 				},
@@ -510,16 +515,14 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 				{
 					name: 'tableDragAndDrop',
 					plugin: ({ dispatch }) => {
-						return options?.dragAndDropEnabled
-							? createDragAndDropPlugin(
-									dispatch,
-									editorAnalyticsAPI,
-									options?.isTableScalingEnabled,
-									isTableFixedColumnWidthsOptionEnabled,
-									options.isCommentEditor,
-									api,
-								)
-							: undefined;
+						return createDragAndDropPlugin(
+							dispatch,
+							editorAnalyticsAPI,
+							options?.isTableScalingEnabled,
+							isTableFixedColumnWidthsOptionEnabled,
+							options.isCommentEditor,
+							api,
+						);
 					},
 				},
 				{
@@ -586,41 +589,36 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 							view: (editorView) => {
 								editorViewRef.current = editorView;
 
-								let setTimeoutID: ReturnType<typeof setTimeout>;
 								let rafID: number;
 								let ricID: number;
 
-								if (expValEquals('platform_editor_editor_width_analytics', 'isEnabled', true)) {
-									// send statistics about the widths of the tables on the page for alerting
-									// only send this event once, after the editorView is first initialised
-									setTimeoutID = setTimeout(() => {
-										const requestIdleCallbackFn = () => {
-											const editorWidth = api?.width.sharedState.currentState()?.width;
+								// send statistics about the widths of the tables on the page for alerting
+								// only send this event once, after the editorView is first initialised
+								const setTimeoutID = setTimeout(() => {
+									const requestIdleCallbackFn = () => {
+										const editorWidth = api?.width.sharedState.currentState()?.width;
 
-											if (editorViewRef.current) {
-												if (editorWidth) {
-													const payload = getWidthInfoPayload(editorViewRef.current, editorWidth);
-													if (payload) {
-														dispatchAnalyticsEvent(payload);
-													}
-												}
-												if (fg('platform_editor_table_height_analytics_event')) {
-													const payloadHeight = getHeightInfoPayload(editorViewRef.current);
-													if (payloadHeight) {
-														dispatchAnalyticsEvent(payloadHeight);
-													}
+										if (editorViewRef.current) {
+											if (editorWidth) {
+												const payload = getWidthInfoPayload(editorViewRef.current, editorWidth);
+												if (payload) {
+													dispatchAnalyticsEvent(payload);
 												}
 											}
-										};
-
-										if (window && typeof window.requestIdleCallback === 'function') {
-											ricID = window.requestIdleCallback(requestIdleCallbackFn);
-										} else if (window && typeof window.requestAnimationFrame === 'function') {
-											// requestIdleCallback is not supported in safari, fallback to requestAnimationFrame
-											rafID = window.requestAnimationFrame(requestIdleCallbackFn);
+											const payloadHeight = getHeightInfoPayload(editorViewRef.current);
+											if (payloadHeight) {
+												dispatchAnalyticsEvent(payloadHeight);
+											}
 										}
-									}, TABLE_WIDTH_INFO_TIMEOUT);
-								}
+									};
+
+									if (window && typeof window.requestIdleCallback === 'function') {
+										ricID = window.requestIdleCallback(requestIdleCallbackFn);
+									} else if (window && typeof window.requestAnimationFrame === 'function') {
+										// requestIdleCallback is not supported in safari, fallback to requestAnimationFrame
+										rafID = window.requestAnimationFrame(requestIdleCallbackFn);
+									}
+								}, TABLE_WIDTH_INFO_TIMEOUT);
 
 								return {
 									destroy: () => {
@@ -652,7 +650,7 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 							'platform_editor_table_sticky_header_improvements',
 							'cohort',
 							'test_with_overflow',
-						) && fg('platform_editor_table_sticky_header_patch_1')
+						)
 							? createContentAreaHeightPlugin()
 							: undefined,
 				},
@@ -664,8 +662,7 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 					'platform_editor_table_sticky_header_improvements',
 					'cohort',
 					'test_with_overflow',
-				) &&
-				fg('platform_editor_table_sticky_header_patch_2')
+				)
 			) {
 				plugins.push({
 					name: 'tableAnchorNames',
@@ -673,9 +670,14 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 				});
 			}
 
-			const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-				? getBrowserInfo()
-				: browserLegacy;
+			if (expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)) {
+				plugins.push({
+					name: 'tableActiveCellHighlight',
+					plugin: () => createActiveCellHighlightPlugin(api),
+				});
+			}
+
+			const browser = getBrowserInfo();
 
 			// Workaround for table element breaking issue caused by composition event with an inputType of deleteCompositionText.
 			// https://github.com/ProseMirror/prosemirror/issues/934
@@ -715,82 +717,87 @@ const tablePlugin: TablePlugin = ({ config, api }) => {
 		},
 
 		pluginsOptions: {
-			quickInsert: ({ formatMessage }) => [
-				{
-					id: 'table',
-					title: formatMessage(messages.table),
-					description: formatMessage(messages.tableDescription),
-					keywords: ['cell', 'table'],
-					priority: 600,
-					keyshortcut: tooltip(toggleTable),
-					icon: () => <IconTable />,
-					action(insert, state) {
-						if (isTableSelectorEnabled) {
-							const tr = insert('');
-							tr.setMeta(sizeSelectorPluginKey, {
-								isSelectorOpen: true,
-							});
+			...(isExperimentEnabled('platform_editor_slash_command')
+				? {}
+				: {
+						quickInsert: ({ formatMessage }) => [
+							{
+								id: 'table',
+								title: formatMessage(messages.table),
+								description: formatMessage(messages.tableDescription),
+								keywords: ['cell', 'table'],
+								priority: 600,
+								keyshortcut: tooltip(toggleTable),
+								icon: () => <IconTable />,
+								action(insert, state) {
+									// Keep this legacy path aligned with insertTableFromQuickInsert during rollout.
+									if (isTableSelectorEnabled) {
+										const tr = insert('');
+										tr.setMeta(sizeSelectorPluginKey, {
+											isSelectorOpen: true,
+										});
 
-							return tr;
-						}
+										return tr;
+									}
 
-						// see comment on tablesPlugin.getSharedState on usage
-						const tableState = api?.table?.sharedState.currentState();
-						const tableNodeProps = {
-							isTableScalingEnabled: options?.isTableScalingEnabled,
-							isTableAlignmentEnabled: options?.tableOptions.allowTableAlignment,
-							isFullWidthModeEnabled: tableState?.isFullWidthModeEnabled,
-							isMaxWidthModeEnabled: tableState?.isMaxWidthModeEnabled,
-							isCommentEditor: options?.isCommentEditor,
-							isChromelessEditor: options?.isChromelessEditor,
-							isTableResizingEnabled: options?.tableOptions.allowTableResizing,
-						};
+									// see comment on tablesPlugin.getSharedState on usage
+									const tableState = api?.table?.sharedState.currentState();
+									const tableNodeProps = {
+										isTableScalingEnabled: options?.isTableScalingEnabled,
+										isTableAlignmentEnabled: options?.tableOptions.allowTableAlignment,
+										isFullWidthModeEnabled: tableState?.isFullWidthModeEnabled,
+										isMaxWidthModeEnabled: tableState?.isMaxWidthModeEnabled,
+										isCommentEditor: options?.isCommentEditor,
+										isChromelessEditor: options?.isChromelessEditor,
+										isTableResizingEnabled: options?.tableOptions.allowTableResizing,
+									};
 
-						let tableNode = createTableWithWidth(tableNodeProps)(state.schema);
+									let tableNode = createTableWithWidth(tableNodeProps)(state.schema);
 
-						let { tr } = state;
-						// If the cursor is inside a table
-						if (
-							hasParentNodeOfType(state.schema.nodes.table)(state.selection) &&
-							options?.tableOptions?.allowNestedTables
-						) {
-							// If the experiment is disabled, or we're trying to nest deeper than one level, we insert the table after the top table
-							if (
-								editorExperiment('nested-tables-in-tables', false, { exposure: true }) ||
-								getParentOfTypeCount(state.schema.nodes.table)(state.selection.$from) > 1
-							) {
-								// Nesting is too deep insert table after the top parent table
-								const positionAfterTopTable = getPositionAfterTopParentNodeOfType(
-									state.schema.nodes.table,
-								)(state.selection.$from);
-								tr = safeInsert(tableNode, positionAfterTopTable)(tr);
-								tr.scrollIntoView();
-							} else {
-								// Table can be nested in parent table
-								tableNode = createTableWithWidth({
-									...tableNodeProps,
-									isNestedTable: true,
-								})(state.schema);
-								tr = insert(tableNode);
-							}
-						} else {
-							tr = insert(tableNode);
-						}
+									let { tr } = state;
+									// If the cursor is inside a table
+									if (
+										hasParentNodeOfType(state.schema.nodes.table)(state.selection) &&
+										options?.tableOptions?.allowNestedTables
+									) {
+										// If trying to nest deeper than one level, we insert the table after the top table
+										if (getParentOfTypeCount(state.schema.nodes.table)(state.selection.$from) > 1) {
+											// Nesting is too deep insert table after the top parent table
+											const positionAfterTopTable = getPositionAfterTopParentNodeOfType(
+												state.schema.nodes.table,
+											)(state.selection.$from);
+											tr = safeInsert(tableNode, positionAfterTopTable)(tr);
+											tr.scrollIntoView();
+										} else {
+											// Table can be nested in parent table
+											tableNode = createTableWithWidth({
+												...tableNodeProps,
+												isNestedTable: true,
+											})(state.schema);
+											tr = insert(tableNode);
+										}
+									} else {
+										tr = insert(tableNode);
+									}
 
-						editorAnalyticsAPI?.attachAnalyticsEvent({
-							action: ACTION.INSERTED,
-							actionSubject: ACTION_SUBJECT.DOCUMENT,
-							actionSubjectId: ACTION_SUBJECT_ID.TABLE,
-							attributes: {
-								inputMethod: INPUT_METHOD.QUICK_INSERT,
-								localId: tableNode.attrs.localId,
+									editorAnalyticsAPI?.attachAnalyticsEvent({
+										action: ACTION.INSERTED,
+										actionSubject: ACTION_SUBJECT.DOCUMENT,
+										actionSubjectId: ACTION_SUBJECT_ID.TABLE,
+										attributes: {
+											inputMethod: INPUT_METHOD.QUICK_INSERT,
+											localId: tableNode.attrs.localId,
+											...(expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+												? { parentNode: tr.selection.$from.node(-1)?.type.name }
+												: {}),
+										},
+										eventType: EVENT_TYPE.TRACK,
+									})(tr);
+									return tr;
+								},
 							},
-							eventType: EVENT_TYPE.TRACK,
-						})(tr);
-						return tr;
-					},
-				},
-			],
+						],
+					}),
 			floatingToolbar: getToolbarConfig(
 				defaultGetEditorContainerWidth,
 				api,

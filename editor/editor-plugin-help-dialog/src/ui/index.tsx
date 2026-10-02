@@ -2,12 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, type ComponentType, type FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import {
 	type NamedPluginStatesFromInjectionAPI,
@@ -16,11 +16,11 @@ import {
 import { helpDialogMessages as messages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import AkModalDialog, { ModalTransition } from '@atlaskit/modal-dialog';
+import AkModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 
 import type { HelpDialogPlugin } from '../helpDialogPluginType';
 import { closeHelpCommand } from '../pm-plugins/commands';
-
 import type { Format } from './Format';
 import { getSupportedFormatting } from './formatting';
 import Modal from './Modal';
@@ -95,6 +95,7 @@ const HelpDialog = ({
 	return (
 		<ModalTransition>
 			{isVisible ? (
+				// eslint-disable-next-line @atlaskit/design-system/no-modal-label
 				<AkModalDialog label={label} width="large" onClose={closeDialog} testId="help-modal-dialog">
 					<Modal formatting={formatting} />
 				</AkModalDialog>
@@ -103,4 +104,7 @@ const HelpDialog = ({
 	);
 };
 
-export default injectIntl(HelpDialog);
+const _default_1: FC<WithIntlProps<HelpDialogProps & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<HelpDialogProps & WrappedComponentProps>;
+} = injectIntl(HelpDialog);
+export default _default_1;

@@ -1,10 +1,11 @@
 import React, { useCallback } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import { type CreateFlagArgs, useFlags } from '@atlaskit/flag';
+import type { CreateFlagArgs } from '@atlaskit/flag/flag-provider';
+import { useFlags } from '@atlaskit/flag/use-flags';
 import CrossCircleIcon from '@atlaskit/icon/core/cross-circle';
 import { token } from '@atlaskit/tokens';
 
@@ -52,7 +53,11 @@ const getFetchActionErrorMessage = (status?: number) => {
 	}
 };
 
-export const useDatasourceTableFlag = (options?: DatasourceTableFlagOptions) => {
+export const useDatasourceTableFlag = (
+	options?: DatasourceTableFlagOptions,
+): {
+	showErrorFlag: (args?: Partial<CreateFlagArgs> & { status?: number }) => void;
+} => {
 	const { showFlag } = useFlags();
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 

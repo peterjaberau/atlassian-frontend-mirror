@@ -1,5 +1,1709 @@
 # @atlaskit/adf-utils
 
+## 20.9.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.40
+
+### Patch Changes
+
+- [`b181dd94a6756`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b181dd94a6756) -
+  Container node transforms can now be told where the content they are transforming is destined for.
+  `transformContainerNodes` and `upgradeContainerNodes` accept an optional `parentNodes` ancestor
+  chain, and `ADFStreamer.setParentNodes` records it for streamed content. This stops a streamed
+  `panel` from being promoted to `panel_c1` when it is bound for a container that allows `panel` but
+  not `panel_c1`, such as a table cell. Behind `platform_editor_ai_streaming_panel_fix`.
+- Updated dependencies
+
+## 20.9.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.35
+
+### Patch Changes
+
+- [`74360ce048e56`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/74360ce048e56) -
+  FFCLEANUP-196833 Cleanup `platform_editor_adf_validator_stage0`
+
+## 20.9.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.33
+
+### Patch Changes
+
+- [`8e4fd6774f6ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8e4fd6774f6ec) -
+  Add Stage-0 ADF schema support for the `annotation` mark on `extension` nodes (ADF Change 111).
+  Adds the `with_annotation` and `root_only_with_annotation` Stage-0 variants and wires them into
+  the approved root and nested placements (doc root, panel, blockquote, expand, nestedExpand,
+  listItem, blockTaskItem, table cells), registers the matching validator specs, and adds
+  valid/invalid reference fixtures, with regenerated PM/JSON/validator artifacts. Scoped to
+  `extension` only (not `bodiedExtension`/`multiBodiedExtension`); the full schema is unchanged.
+  Editor/renderer acceptance of the mark is gated by `cc_maui_annotations_on_extensions`.
+
+  Allowing the `annotation` mark on `extension` requires its container nodes (panel, table cells,
+  list items, etc.) to permit the mark too, so they can hold an annotated extension child. This made
+  the renderer's `getIndexMatch` double-count text inside those containers, corrupting inline
+  text-comment anchoring. Fixed by skipping block containers during serialisation (they are still
+  walked through so their inner text is counted once); leaf nodes and media are unaffected.
+
+- Updated dependencies
+
+## 20.9.32
+
+### Patch Changes
+
+- [`23c8ebef4a389`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/23c8ebef4a389) -
+  FFCLEANUP-197356 Cleanup `platform_editor_adf_validator_no_base_override`
+
+## 20.9.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.30
+
+### Patch Changes
+
+- [`dbd54db18d753`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbd54db18d753) -
+  Clean up the shipped ADF validator input mutation fix.
+
+## 20.9.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.25
+
+### Patch Changes
+
+- [`08cc5b3a5abad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08cc5b3a5abad) -
+  EDITOR-8471 Fix the validation override that relaxes INVALID_CONTENT for container children inside
+  a panel on load. `processRawValue` passed `allowContainerInPanel` while `validateADFEntity` still
+  read `allowExpandInPanel`, so with the `platform_editor_nest_container_in_panel` experiment
+  enabled an `expand` inside a `panel` was wrapped as `unsupportedBlock`. The option is now named
+  `allowContainerInPanel` on both sides, including `ErrorCallbackOptions` in `@atlaskit/adf-utils`.
+
+## 20.9.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.11
+
+### Patch Changes
+
+- [`bbd1404101645`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bbd1404101645) -
+  Clean up the `platform_editor_adf_validator_perf` experiment, keeping the enabled behaviour: the
+  validator caches allowed content per node type, `renderDocument` compares `validationOverrides` by
+  value and ProseMirror nodes with `Node.eq`, and `Renderer` passes a stable `validationOverrides`
+  reference across re-renders.
+
+## 20.9.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.9.0
+
+### Minor Changes
+
+- [`a282017db3b85`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a282017db3b85) -
+  [EDITOR-8339] introduce new bodiedRule node and new rule node variants to support styling
+  attributes and content
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.8.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.8.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.14
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 20.7.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.7
+
+### Patch Changes
+
+- [`6158b151ca320`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6158b151ca320) -
+  Retire `platform_editor_table_in_panel_patch_1` and let the stage-0 option decide whether
+  table-in-panel is accepted.
+
+  `panel_c1` and `panel_c1_root_only` are `stage0: true` in the schema, so the stage-0 option
+  already expresses exactly what the patch flag was gating: a caller validating against stage-0
+  accepts table-in-panel at the positions those variants are wired into, `doc`, a layout column and
+  a synced block, and a caller validating against full ADF declines them. `validateADFEntity` passes
+  `{ stage0: true }` for any caller that does not name `final`, which covers every editor and
+  renderer, so table-in-panel keeps working on the paths that need it.
+
+  Removing the second flag also removes what it had to do to `meta.stage0`. `createSpec` no longer
+  clears that annotation from the gated variants, which had granted `breakout` on a root panel to
+  full-ADF callers as well, because `panel_c1_root_only` carries both capabilities and the
+  annotation is per spec rather than per capability. `withoutStage0Meta` is deleted along with it.
+
+  `createSpec` withholds the stage-0 variants entirely while `platform_editor_adf_validator_stage0`
+  is off, since nothing could decline them for a full-ADF caller and leaving them in place would
+  shadow the base `panel` candidate and reject a panel's own children. Table-in-panel therefore
+  rides on the stage-0 gate rather than on its own, and `@atlaskit/editor-common` keeps its blunt
+  `allowTableInPanel` suppression for exactly as long as that gate is off.
+
+  `full/invalid/panel-with-nested-table.json` no longer needs an ignore entry: full-ADF validation
+  rejects that document and stage-0 validation accepts it, which is what both reference suites say.
+
+## 20.7.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.5
+
+### Patch Changes
+
+- [`07c45974a615f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07c45974a615f) -
+  Reduce ADF validation cost on large documents, behind the new `platform_editor_adf_validator_perf`
+  experiment. The validator resolves the `platform_editor_fix_adf-validator_mutation_bug` gate once
+  per validator instead of once per node and per mark, and caches allowed-content lookups per node
+  type. The renderer compares `validationOverrides` by value so its validation memo stops missing on
+  every render, and compares ProseMirror documents with `Node.eq` rather than stringifying both. Its
+  memo comparator now runs the cheap checks before the document comparison. Behaviour is unchanged
+  in both cohorts.
+
+## 20.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.7.2
+
+### Patch Changes
+
+- [`249ac5d9191e0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/249ac5d9191e0) -
+  Behind `platform_editor_adf_validator_empty_marks`, accept an explicitly empty `marks` array on a
+  node that ADF gives a `marks` property no mark type may go into.
+
+  ADF spells that property `marks: { type: 'array', maxItems: 0 }`, and the JSON schema accordingly
+  accepts `"marks": []` on `paragraph`, `heading`, `extension`, `codeBlock` and `expand`. The
+  spec-based validator rejected it: mark validation has nothing to reject in an empty array, so it
+  reported the node valid with an empty `marksValidationOutput`, which reads to the parent's
+  `validateChildMarks` as every mark on the child having been rejected, and the candidate spec was
+  declined. Without an error callback that surfaced as a thrown `undefined`; with one the document
+  was silently repaired and no error was reported. The five reference documents that carry
+  `marks: []` (`paragraph-with-empty-marks`, `heading-with-empty-marks`,
+  `extension-with-empty-marks`, `nestedExpand-with-codeBlock`, `panel-with-codeBlock`) were on an
+  ignore list in `src/validator/__tests__/unit/validate.ts` because of it, and are now validated.
+
+  A node with no `marks` property at all keeps rejecting an empty array as `REDUNDANT_MARKS`,
+  because `marks` is then a property ADF does not define on it: `rule`, `panel`, `mediaGroup`,
+  `hardBreak`, `doc`, `blockquote` and the list nodes all stay invalid, as do `mention` and `emoji`,
+  which declare a mark rather than an empty list. The declaration is read off the node's base spec,
+  since a variant only widens the mark types — `doc` offers a root `extension` as
+  `extension_with_marks`, which adds `dataConsumer` and `fragment`, and that cannot make the empty
+  list illegal.
+
+  `codeBlock` and `expand` declare `noMarks` without listing any marks, and `adfToValidatorSpec`
+  compared mark lists alone, so the flag was dropped and their validator specs read as taking no
+  `marks` property — the same thing `rule` means, which is why an empty array on them was reported
+  as redundant. The generator now honours `noMarks` on its own, so both emit
+  `marks: { type: 'array', items: [], maxItems: 0, optional: true }`, matching their JSON schema.
+  That part is generated data and is not gated: a real mark on a `codeBlock` or an `expand` is still
+  rejected, now as an unsupported mark type rather than as a redundant `marks` property, so the
+  error code reported for an already-invalid document changes.
+
+  Gate off preserves today's acceptance behaviour. Covered by
+  `src/validator/__tests__/unit/empty-marks.ts`.
+
+- Updated dependencies
+
+## 20.7.1
+
+### Patch Changes
+
+- [`29c80a2a4a3fa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/29c80a2a4a3fa) -
+  Behind `platform_editor_adf_validator_no_base_override`, stop replacing base validator specs with
+  their `_root_only` variants.
+
+  `getVariantSpecOverrides` mapped `panel`, `rule`, `extension`, `bodiedExtension` and
+  `multiBodiedExtension` to their `_root_only` variant, and `applyVariantSpecOverrides` merged the
+  variant's `props` into the base spec. That was unnecessary and harmful.
+
+  Unnecessary, because `doc`'s content list already names every `_root_only` variant, so the
+  candidate loop offers them exactly where they apply. `codeBlock_root_only` and `expand_root_only`
+  were never in the map and get the same breakout-at-root behaviour from the content lists alone. A
+  root panel with a `breakout` mark validates whether or not the lovability flags are on, so
+  switching them off is not a rollback of that feature.
+
+  Harmful, because variants are supersets of their base, ADF being backward compatible, which makes
+  the base the narrowest spec and the thing the candidate loop falls back to when it declines a
+  variant. Merging a variant into the base removed that floor and made `breakout` valid on a panel
+  at every position, including nested in a layout column, which is the opposite of what `root_only`
+  means. The merge also copied `props` without `meta`, so the laundered base spec lost the variant's
+  `meta.stage0` and a caller that had not opted into stage-0 silently accepted a stage-0-only mark.
+
+  With the gate on: `breakout` on a nested `panel`, `rule`, `extension`, `bodiedExtension` or
+  `multiBodiedExtension` is now rejected, matching the `codeBlock` and `expand` behaviour; a bare
+  root panel passed to `processRawValue` is offered `panel_root_only` as a proper candidate rather
+  than inheriting the mark from a merged base spec; and with `platform_editor_adf_validator_stage0`
+  also on, `breakout` at the root requires the caller to opt into stage-0, because `panel_root_only`
+  is `stage0: true` in the schema.
+
+  Gate off preserves today's behaviour exactly. When the gate is fully rolled out,
+  `getVariantSpecOverrides`, `applyVariantSpecOverrides` and the `variantOverrides` branch in
+  `createSpec` can all be deleted. Covered by
+  `src/validator/__tests__/unit/root-only-variant-override.ts`.
+
+## 20.7.0
+
+### Minor Changes
+
+- [`da678c24b2eb7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da678c24b2eb7) -
+  Add stage-0 awareness to the ADF validator.
+
+  `ValidationOptions`, exported from `@atlaskit/adf-utils/validatorTypes`, gains an opt-in
+  `stage0?: boolean`, and `ValidatorSpec` gains `meta?: { stage0?: boolean }`. A caller that does
+  not pass `{ stage0: true }` now has any candidate spec carrying `meta.stage0` declined, so the
+  candidate loop falls through to the next spec, which is the full-ADF one. The visible effect is
+  that a stage-0-only construct is no longer silently accepted as full ADF. A one-column
+  `layoutSection`, or one with 4 or 5 columns, is now measured against `layoutSection_full` (2 to 3
+  columns) and reported invalid or repaired like any other unsupported content, instead of matching
+  the stage-0 `layoutSection_with_single_column` variant. `@atlaskit/editor-common` opts in when it
+  validates against the editor and renderer schema, which is the stage-0 superset for the features
+  those surfaces enable.
+
+  Gated by `platform_editor_adf_validator_stage0`. With the gate off, behaviour is exactly as
+  before: every stage-0 spec stays available to every caller regardless of the `stage0` option.
+
+  The `panel_c1` and `panel_c1_root_only` variants are exempt, because their `meta.stage0` is
+  stripped before the check runs. `platform_editor_table_in_panel_patch_1`, not the caller's
+  `stage0` option, keeps deciding whether table-in-panel is accepted.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.6.3
+
+### Patch Changes
+
+- [`158de476cd932`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/158de476cd932) -
+  Table-in-panel: order the `panel_c1` variant ahead of the base `panel` in `doc`, `layoutColumn`
+  and `bodiedSyncBlock` content. The validator's repairing loop returns the first candidate that
+  reports valid, so with a repairing callback the less permissive base `panel` "succeeded" by
+  wrapping a nested `table` as `unsupportedBlock` and `panel_c1` was never reached. Ordering the
+  variant first replaces a candidate-probing workaround in the validator.
+
+  `panel_c1` is placed after `blockGroup` rather than first so that `block` remains the leading
+  alternative in the ProseMirror content expression, leaving `defaultType` and fill behaviour
+  unchanged; the ProseMirror content expressions for these three nodes do change order
+  mid-expression.
+
+  Also adds two stage-0 reference fixtures covering table-in-panel inside a synced block and
+  alongside mixed panel content.
+
+  Gated by `platform_editor_table_in_panel_patch_1`.
+
+- Updated dependencies
+
+## 20.6.2
+
+### Patch Changes
+
+- [`5f996f4cd51dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5f996f4cd51dc) -
+  Behind `platform_adf-utils_validator-no-input-mutation`, stop the ADF validator from mutating the
+  document it is given.
+
+  `validateNode` built its output entity as a shallow copy of the input, so it shared `attrs` and
+  `marks` with the caller's document. The repair path deletes unsupported keys from `attrs` and
+  appends an `unsupportedNodeAttribute` mark, and those writes therefore landed in the input as
+  well. The attribute value was destroyed in both the input and the output, and a second
+  candidate-spec attempt then re-reported against the already-emptied `attrs` and overwrote the
+  repair mark's payload with `{}`. The two mutated containers are now copied, leaving the input
+  untouched.
+
+## 20.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.6.0
+
+### Minor Changes
+
+- [`710e3d9ec4c65`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/710e3d9ec4c65) -
+  Add `upgradeContainerNodes` to `@atlaskit/adf-utils/transforms` — a schema-driven, flag-free
+  transform that promotes `panel` nodes to their table-allowing `panel_c1` variant wherever the
+  schema allows it (document root, layout column, synced block), regardless of the panel's content.
+
+  `JSONTransformer.parse` now applies it so table-in-panel deserialises consistently for all
+  `JSONTransformer` consumers. It is a no-op for schemas that do not declare `panel_c1`, and it is
+  best-effort (malformed input still surfaces the canonical `nodeFromJSON` validation error).
+
+- [`710e3d9ec4c65`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/710e3d9ec4c65) -
+  Allow a table nested inside a panel, but only at the document root, inside a synced block, or
+  inside a layout column (the `panel_c1` variant).
+
+  `panel_c1` is now marked `stage0` and emitted as a standalone JSON Schema definition (via
+  `noExtend`), so table-in-panel validates in the stage-0 schema at those positions only — a plain
+  `panel` elsewhere still rejects a table.
+
+  The runtime `@atlaskit/adf-utils` validator can now accept table-in-panel via the `panel_c1` spec
+  directly, gated behind the `platform_editor_table_in_panel_patch_1` feature gate. Three validator
+  fixes make this work (all gated — when the gate is off, the validator behaves exactly as before):
+  1. A variant tuple's overridden content-item names are resolved to their base specs the same way
+     base-spec content is (e.g. `paragraph_with_no_marks` → `paragraph`). Previously they stayed
+     raw, so `panel_c1` matched only plainly-named children (`table`) and rejected variant-named
+     ones (a normal `paragraph`).
+  2. `createSpec` retains a variant whose overridden content is a nested `$or` list (e.g.
+     `panel_c1`) when the validator is built from an explicit node list (as `validateADFEntity`
+     does).
+  3. When a stored node matches several candidate specs, the multi-branch matcher prefers a branch
+     that validates cleanly over one that only "succeeds" by wrapping otherwise-valid content as
+     `unsupportedBlock` — so `panel_c1` is chosen instead of the base `panel` repairing the table
+     away.
+
+  The `allowTableInPanel` override in `@atlaskit/editor-common` is retained but gated by the same
+  feature gate: when `platform_editor_table_in_panel_patch_1` is on the override is skipped (the
+  validator fixes handle table-in-panel); when it is off the override runs as before. So the single
+  gate flips between the new validator behaviour (on) and the previous override behaviour (off).
+
+  Also adds `panel-with-nested-table` validation fixtures.
+
+  **BREAKING (`@atlaskit/adf-schema`):** marking `panel_c1` as `stage0` (correcting an earlier
+  omission) renames its generated `schema-next` exports: `panelC1` → `panelC1Stage0`, `PanelC1Node`
+  → `PanelC1Stage0Node`, `PanelC1Definition` → `PanelC1Stage0Definition`.
+
+  Migration — update imports from `@atlaskit/adf-schema/schema-next`:
+
+  ```ts
+  // Before
+  import {
+  	panelC1,
+  	type PanelC1Node,
+  	type PanelC1Definition,
+  } from '@atlaskit/adf-schema/schema-next';
+
+  // After
+  import {
+  	panelC1Stage0,
+  	type PanelC1Stage0Node,
+  	type PanelC1Stage0Definition,
+  } from '@atlaskit/adf-schema/schema-next';
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.12
+
+### Patch Changes
+
+- [`a0261ec7e679f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0261ec7e679f) -
+  Internal refactor to support tree shaking. No consumer changes.
+- Updated dependencies
+
+## 20.5.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.5.0
+
+### Minor Changes
+
+- [`3e24bdff68508`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e24bdff68508) -
+  Add expand-in-panel nesting helpers (isPanelC1SchemaEnabled, isPanelNestingExpandSupported),
+  validation and fallback-transform support for expand children inside panel_c1.
+
+### Patch Changes
+
+- [`bdea706d6a55a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bdea706d6a55a) -
+  [EDITOR-8271] Add Stage-0 breakout mark support for root-level extension, bodiedExtension, and
+  multiBodiedExtension nodes.
+- Updated dependencies
+
+## 20.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.4.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.3.0
+
+### Minor Changes
+
+- [`07f04b52fa5f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07f04b52fa5f6) -
+  [EDITOR-7979] add variants to adf-utils validator
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.0
+
+### Minor Changes
+
+- [`5fb57a983b89b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5fb57a983b89b) -
+  Remove panel_c1 fallback experiment gating
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.0
+
+### Minor Changes
+
+- [`ed550a5583074`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed550a5583074) -
+  Improve panel container fallback handling.
+
+## 20.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.12
+
+### Patch Changes
+
+- [`24d7483e9519e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/24d7483e9519e) -
+  Cleans up prefer static regex violations
+- Updated dependencies
+
+## 20.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.33.0
+
+### Minor Changes
+
+- [`38d753a24e9ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38d753a24e9ad) -
+  Promote code block wrap and line number attrs to the full ADF schema
+
+### Patch Changes
+
+- [`8f894bdeea3a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f894bdeea3a0) -
+  Add analytics event for panel_c1 transformation
+- Updated dependencies
+
+## 19.32.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.32.0
+
+### Minor Changes
+
+- [`cd85cdec5ae7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd85cdec5ae7e) -
+  EDITOR-7170 add transform for panel -> panel_c1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.31.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.31.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.31.0
+
+### Minor Changes
+
+- [`437eba4b32d0d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/437eba4b32d0d) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 19.30.2
+
+### Patch Changes
+
+- [`2ee094c6df7e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ee094c6df7e1) -
+  `nativeEmbedsFallbackTransform` now renders an `embedCard` when the parent context allows it (per
+  the supplied ProseMirror schema), and falls back to the existing `paragraph > inlineCard` shape
+  only when `embedCard` would not be valid in that position. The function now requires a `Schema`
+  argument, which the renderer passes from the schema being used for the current render.
+
+## 19.30.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.30.0
+
+### Minor Changes
+
+- [`4f2e912c65ae3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4f2e912c65ae3) -
+  Gate table-in-panel ADF validation behind experiment (EDITOR-7168)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.29.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.29.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.29.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.29.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.29.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.29.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.29.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.29.0
+
+### Minor Changes
+
+- [`2fb1c8a74a856`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fb1c8a74a856) -
+  ADF Change 101: Add wrap and hideLineNumbers attributes to codeBlock stage-0 variants
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.28.0
+
+### Minor Changes
+
+- [`9ea3b02135766`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ea3b02135766) -
+  EDITOR-5613: Remove flexible list variants and consolidate into base list types.
+
+  The `listItem` and `taskList` node specs now natively support the flexible content model (allowing
+  lists as first child of listItem, and nested taskLists without requiring taskItem first). The
+  separate `listItemWithFlexibleFirstChildStage0` and `taskListWithFlexibleFirstChildStage0`
+  variants have been removed from public exports — the flexible behavior is now the default for all
+  schema stages. Consumers importing these removed exports should switch to `listItem` / `taskList`.
+
+  This is a schema simplification: the flexible content spec is a strict superset of the old
+  restrictive spec, so all previously valid content remains valid.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.19
+
+### Patch Changes
+
+- [`a12c91a07773e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a12c91a07773e) -
+  Mechanical type-import autofix for ADF utility packages.
+- Updated dependencies
+
+## 19.27.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.17
+
+### Patch Changes
+
+- [`aa4e1fcb89ca8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa4e1fcb89ca8) -
+  Added new `platform_editor_flexible_list_schema` experiment that independently enables ADF schema
+  and CSS rendering support for flexible lists, without creation behaviour. Updated schema node
+  selection, CSS rendering, ADF validation, and task list schema to use the new gate. Indent/outdent
+  behaviour remains on the existing `platform_editor_flexible_list_indentation` gate.
+- Updated dependencies
+
+## 19.27.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.7
+
+### Patch Changes
+
+- [`1fd2b267eb592`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1fd2b267eb592) -
+  Cleanup `platform_editor_ai_aifc_patch_ga` flag
+- Updated dependencies
+
+## 19.27.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.3
+
+### Patch Changes
+
+- [`aeb46591ec80a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aeb46591ec80a) -
+  [ux] EDITOR-5627 flexible task list indentation adf schema updates
+- Updated dependencies
+
+## 19.27.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.27.1
+
+### Patch Changes
+
+- [`19274be1b1972`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19274be1b1972) -
+  [ux] EDITOR-5417 Flexible list indentation ADF schema + validator support
+- Updated dependencies
+
 ## 19.27.0
 
 ### Minor Changes

@@ -1,11 +1,16 @@
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
+
+import type { Context } from '../../interfaces';
+import { escapeHandler } from '../utils/escape';
 import type { Token } from './';
 import { TokenType, parseToken } from './';
-import type { Context } from '../../interfaces';
+import { parseMacroKeyword } from './keyword';
 import { linkFormat } from './links/link-format';
 import { parseNewlineOnly } from './whitespace';
-import { parseMacroKeyword } from './keyword';
-import { escapeHandler } from '../utils/escape';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const ALPHANUMERIC_OR_NON_ASCII_REGEX = /[a-zA-Z0-9]|[^\u0000-\u007F]/;
 
 export interface FormatterOption {
 	// The closing symbol
@@ -55,9 +60,7 @@ export function commonFormatter(
 					const charBeforeOpening = input.charAt(position - 1);
 					if (
 						!openingWrapped &&
-						// Ignored via go/ees005
-						// eslint-disable-next-line require-unicode-regexp
-						/[a-zA-Z0-9]|[^\u0000-\u007F]/.test(charBeforeOpening) &&
+						ALPHANUMERIC_OR_NON_ASCII_REGEX.test(charBeforeOpening) &&
 						charBeforeOpening !== '\u00A0'
 					) {
 						return fallback(input, index, openingSymbolLength);
@@ -119,9 +122,7 @@ export function commonFormatter(
 
 					if (
 						!closingWrapped &&
-						// Ignored via go/ees005
-						// eslint-disable-next-line require-unicode-regexp
-						/[a-zA-Z0-9]|[^\u0000-\u007F]/.test(charAfterEnd) &&
+						ALPHANUMERIC_OR_NON_ASCII_REGEX.test(charAfterEnd) &&
 						charAfterEnd !== '\u00A0'
 					) {
 						buffer.push(charsMatchClosingSymbol);

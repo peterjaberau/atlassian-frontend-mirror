@@ -3,9 +3,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { PureComponent } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
 import { imageUploadHandler } from '@atlaskit/editor-test-helpers/example-helpers';
@@ -18,7 +19,7 @@ import { Editor } from '../src';
 
 const boundary = css({
 	border: `${token('border.width.selected')} solid ${token('color.border')}`,
-	padding: `130px 60px 10px ${token('space.500', '40px')}`,
+	padding: `130px 60px 10px ${token('space.500')}`,
 });
 
 // Ignored via go/ees005
@@ -241,14 +242,14 @@ const SAVE_ACTION = () => console.log('Save');
 const mentionProvider = new Promise<any>((resolve) => resolve(mentionResourceProvider));
 const emojiProvider = getEmojiProvider();
 
-export default function Example() {
+export default function Example(): jsx.JSX.Element {
 	return (
 		<div>
 			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
 			<div css={content}>
 				<h2>Intentionally Broken Example</h2>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<p style={{ marginBottom: token('space.150', '12px') }}>
+				<p style={{ marginBottom: token('space.150') }}>
 					Boundries: document.body | Container: 300px, overflow: hidden.
 				</p>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
@@ -270,7 +271,7 @@ export default function Example() {
 			<div css={content}>
 				<h2>Basic</h2>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<p style={{ marginBottom: token('space.150', '12px') }}>
+				<p style={{ marginBottom: token('space.150') }}>
 					Boundries: document.body | Container: 300px, no overflow.
 				</p>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
@@ -290,7 +291,7 @@ export default function Example() {
 			<div css={content}>
 				<h2>Basic with Custom Boundry</h2>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<p style={{ marginBottom: token('space.150', '12px') }}>
+				<p style={{ marginBottom: token('space.150') }}>
 					Boundries: custom | Container: 500px, no overflow.
 				</p>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
@@ -312,7 +313,7 @@ export default function Example() {
 			<div css={content}>
 				<h2>Basic Portal</h2>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<p style={{ marginBottom: token('space.150', '12px') }}>
+				<p style={{ marginBottom: token('space.150') }}>
 					Boundries: document.body | Container: 300px, overflow: hidden.
 				</p>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
@@ -332,7 +333,7 @@ export default function Example() {
 			<div css={content}>
 				<h2>Portal with Custom Boundry</h2>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<p style={{ marginBottom: token('space.150', '12px') }}>
+				<p style={{ marginBottom: token('space.150') }}>
 					Boundries: custom | Container: 500px, overflow: hidden.
 				</p>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
@@ -351,7 +352,7 @@ export default function Example() {
 			<div css={content}>
 				<h2>Portal in Scroll Container</h2>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<p style={{ marginBottom: token('space.150', '12px') }}>
+				<p style={{ marginBottom: token('space.150') }}>
 					Boundries: custom | Container: 700px, overflow: hidden.
 				</p>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}

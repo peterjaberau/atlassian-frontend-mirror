@@ -1,17 +1,15 @@
 import React, { type PropsWithChildren, useEffect } from 'react';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-import { extractSmartLinkProvider } from '@atlaskit/link-extractors';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { extractSmartLinkProvider } from '@atlaskit/link-extractors/extract-smart-link-provider';
 import UFOHoldLoad from '@atlaskit/react-ufo/load-hold';
 
 import { SmartLinkStatus } from '../../constants';
 import { extractRequestAccessContextImproved } from '../../extractors/common/context/extractAccessContext';
 import { extractInlineProps } from '../../extractors/inline';
-import { getExtensionKey } from '../../state/helpers';
-import { getForbiddenJsonLd } from '../../utils/jsonld';
+import { getExtensionKey } from '../../state/getExtensionKey';
+import { getForbiddenJsonLd } from '../../utils/get-forbidden-json-ld';
 import { CardLinkView } from '../LinkView';
-
 import { InlineCardErroredView } from './ErroredView';
 import { InlineCardForbiddenView } from './ForbiddenView';
 import { InlineCardResolvedView } from './ResolvedView';
@@ -40,6 +38,8 @@ export const InlineCard = ({
 	cardState,
 	handleAuthorize,
 	handleFrameClick,
+	handleFrameAuxClick,
+	handleFrameContextMenu,
 	isSelected,
 	isHovered,
 	renderers,
@@ -72,9 +72,7 @@ export const InlineCard = ({
 				onResolve?.({
 					url,
 					title: resolvedProps.title,
-					...(fg('expose-product-details-from-smart-card') && {
-						extensionKey: details?.meta?.key,
-					}),
+					extensionKey: details?.meta?.key,
 				});
 				break;
 			case SmartLinkStatus.Errored:
@@ -117,6 +115,10 @@ export const InlineCard = ({
 					isSelected={isSelected}
 					isHovered={isHovered}
 					onClick={handleFrameClick}
+					// Support middle-/right-clicks for "resolved" only — the vast majority of clicks happen here.
+					// Other states (e.g. "resolving") could be added later for completeness.
+					onAuxClick={handleFrameAuxClick}
+					onContextMenu={handleFrameContextMenu}
 					testId={testIdWithStatus}
 					truncateInline={truncateInline}
 					hideIconLoadingSkeleton={hideIconLoadingSkeleton}
@@ -187,7 +189,7 @@ export const InlineCard = ({
 					onClick={handleFrameClick}
 					testId={testIdWithStatus || 'inline-card-errored-view'}
 					truncateInline={truncateInline}
-					{...fg('navx-2565-inline-card-error-state-underline') ? { viewType: 'errored' } : {}}
+					viewType="errored"
 				/>
 			);
 	}

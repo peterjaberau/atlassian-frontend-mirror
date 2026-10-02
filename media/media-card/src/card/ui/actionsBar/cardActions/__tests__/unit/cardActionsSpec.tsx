@@ -1,14 +1,18 @@
 import React from 'react';
+
 import { createEvent, fireEvent, render, type RenderResult, within } from '@testing-library/react';
 import { screen } from '@testing-library/react';
 
-import AnnotateIcon from '@atlaskit/icon/core/edit';
+import { FabricChannel } from '@atlaskit/analytics-listeners/types';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type { UIAnalyticsEventHandler } from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import CrossIcon from '@atlaskit/icon/core/cross';
-import { AnalyticsListener, type UIAnalyticsEventHandler } from '@atlaskit/analytics-next';
-import { FabricChannel } from '@atlaskit/analytics-listeners';
+import AnnotateIcon from '@atlaskit/icon/core/edit';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 
-import { CardActionsView } from '../..';
 import { type CardAction } from '../../../../../actions';
+import { CardActionButton } from '../../cardActionButton-compiled';
+import { CardActionsView } from '../../cardActionsView';
 
 describe('CardActions', () => {
 	const openAction = {
@@ -234,7 +238,7 @@ describe('CardActions', () => {
 			await clickIconButton(card1, 0);
 			await clickIconButton(card1, 1);
 
-			expect(analyticsEventHandler).toBeCalledTimes(2);
+			expect(analyticsEventHandler).toHaveBeenCalledTimes(2);
 			expect(analyticsEventHandler).toHaveBeenNthCalledWith(
 				1,
 				matchingPrimaryAction(twoActions[0].label),
@@ -268,7 +272,7 @@ describe('CardActions', () => {
 			openDropdownMenuIfExists(card2);
 			await clickDropdownItem(card2, 2); // dropdown[2] = fourActions[3]
 
-			expect(analyticsEventHandler).toBeCalledTimes(6);
+			expect(analyticsEventHandler).toHaveBeenCalledTimes(6);
 			expect(analyticsEventHandler).toHaveBeenNthCalledWith(
 				1,
 				matchingDropdownAnalyticsEvent,
@@ -299,6 +303,48 @@ describe('CardActions', () => {
 				matchingMenuItemAction(fourActions[3].label),
 				'media',
 			);
+		});
+	});
+
+	describe('card action button within a form', () => {
+		const setupWithForm = () => {
+			const onCardActionClick = jest.fn();
+			const onFormSubmit = jest.fn((e: React.FormEvent) => e.preventDefault());
+
+			render(
+				<form onSubmit={onFormSubmit} data-testid="test-form">
+					<CardActionButton onClick={onCardActionClick} label="Delete">
+						Delete
+					</CardActionButton>
+					<button type="submit" data-testid="submit-button">
+						Submit
+					</button>
+				</form>,
+			);
+
+			return { onCardActionClick, onFormSubmit };
+		};
+
+		ffTest.on('platform_media_card_action_button_type_fix', 'when feature flag is on', () => {
+			it('should not trigger form submission when card action button is clicked', () => {
+				const { onCardActionClick, onFormSubmit } = setupWithForm();
+
+				fireEvent.click(screen.getByTestId('media-card-primary-action'));
+
+				expect(onCardActionClick).toHaveBeenCalledTimes(1);
+				expect(onFormSubmit).not.toHaveBeenCalled();
+			});
+		});
+
+		ffTest.off('platform_media_card_action_button_type_fix', 'when feature flag is off', () => {
+			it('should trigger form submission when card action button is clicked', () => {
+				const { onCardActionClick, onFormSubmit } = setupWithForm();
+
+				fireEvent.click(screen.getByTestId('media-card-primary-action'));
+
+				expect(onCardActionClick).toHaveBeenCalledTimes(1);
+				expect(onFormSubmit).toHaveBeenCalledTimes(1);
+			});
 		});
 	});
 });

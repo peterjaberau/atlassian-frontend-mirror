@@ -2,23 +2,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { css, jsx } from '@compiled/react';
+import { FormattedMessage } from 'react-intl';
+
+import Heading from '@atlaskit/heading/heading';
 import { token } from '@atlaskit/tokens';
-import { N900 } from '@atlaskit/theme/colors';
-import { FormattedMessage } from 'react-intl-next';
-import { isMessagesKey } from '../../util/type-helpers';
+
+import { isMessagesKey } from '../../util/is-messages-key';
 import { messages } from '../i18n';
 import type { CategoryGroupKey } from './categories';
 
 const emojiCategoryTitle = css({
 	boxSizing: 'border-box',
-	color: token('color.text', N900),
+	color: token('color.text'),
 	font: token('font.body'),
-	paddingTop: token('space.075', '6px'),
-	paddingBottom: token('space.075', '6px'),
-	paddingLeft: token('space.100', '8px'),
-	paddingRight: token('space.100', '8px'),
+	paddingTop: token('space.075'),
+	paddingBottom: token('space.075'),
+	paddingLeft: token('space.100'),
+	paddingRight: token('space.100'),
 	textTransform: 'lowercase',
+	// Reset heading element default styles to avoid visual changes
+	margin: 0,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&:first-letter': {
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
@@ -37,17 +42,19 @@ export interface Props {
 	title: string;
 }
 
-const EmojiPickerCategoryHeading = ({ id, title, className }: Props) => (
+const EmojiPickerCategoryHeading = ({ id, title, className }: Props): JSX.Element => (
 	<div
 		id={id}
 		data-category-id={id}
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 		className={className}
 		data-testid={RENDER_EMOJI_PICKER_CATEGORY_HEADING_TESTID}
-		role="rowheader"
+		role="presentation"
 	>
 		<div css={emojiCategoryTitle}>
-			{isMessagesKey(title) ? <FormattedMessage {...messages[title]} /> : title}
+			<Heading size="xsmall" as="h2">
+				{isMessagesKey(title) ? <FormattedMessage {...messages[title]} /> : title}
+			</Heading>
 		</div>
 	</div>
 );

@@ -1,7 +1,6 @@
-import { type DatasourceType } from '@atlaskit/linking-types';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import type { DatasourceType } from '@atlaskit/linking-types/datasource';
 
-import { stringifyType } from '../render-type';
+import { stringifyType } from './stringifyType';
 
 let mockFormatMessage = jest.fn();
 const mockFormatDate = jest.fn();
@@ -135,43 +134,21 @@ describe('stringifyType', () => {
 		expect(result).toEqual('Header content 1');
 	});
 
-	ffTest.on('platform_navx_jira_sllv_rich_text_gate', 'when there is html present', () => {
-		it('should return an empty string for RichTextType', () => {
-			const input: DatasourceType = {
-				type: 'richtext',
-				value: {
-					type: 'adf',
-					text: JSON.stringify({
-						version: 1,
-						type: 'doc',
-						content: [{ type: 'text', text: 'Header content 1' }],
-					}),
-					html: '<p>Hello, world!</p>',
-				},
-			};
+	it('should return an empty string for RichTextType when html is present', () => {
+		const input: DatasourceType = {
+			type: 'richtext',
+			value: {
+				type: 'adf',
+				text: JSON.stringify({
+					version: 1,
+					type: 'doc',
+					content: [{ type: 'text', text: 'Header content 1' }],
+				}),
+				html: '<p>Hello, world!</p>',
+			},
+		};
 
-			const result = stringifyType(input, mockFormatMessage, mockFormatDate);
-			expect(result).toEqual('');
-		});
-	});
-
-	ffTest.off('platform_navx_jira_sllv_rich_text_gate', 'when there is html present', () => {
-		it('should return parsed text from RichTextType', () => {
-			const input: DatasourceType = {
-				type: 'richtext',
-				value: {
-					type: 'adf',
-					text: JSON.stringify({
-						version: 1,
-						type: 'doc',
-						content: [{ type: 'text', text: 'Header content 1' }],
-					}),
-					html: '<p>Hello, world!</p>',
-				},
-			};
-
-			const result = stringifyType(input, mockFormatMessage, mockFormatDate);
-			expect(result).toEqual('Header content 1');
-		});
+		const result = stringifyType(input, mockFormatMessage, mockFormatDate);
+		expect(result).toEqual('');
 	});
 });

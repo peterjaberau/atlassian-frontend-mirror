@@ -1,16 +1,20 @@
 // eslint-disable-next-line import/order
 import * as testMocks from './index.test.mock';
 
-import { renderHook } from '@testing-library/react';
-
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { type CardContext, useSmartLinkContext } from '@atlaskit/link-provider';
-import { ACTION_RESOLVING, APIError, type APIErrorKind } from '@atlaskit/linking-common';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { CardContext } from '@atlaskit/link-provider/types';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import { flushPromises } from '@atlaskit/link-test-helpers';
+import { ACTION_RESOLVING } from '@atlaskit/linking-common/actions';
+import { APIError, type APIErrorKind } from '@atlaskit/linking-common/api-error';
+import type { CardState } from '@atlaskit/linking-common/store';
 import { asMockFunction } from '@atlaskit/media-test-helpers/jestHelpers';
-import { auth } from '@atlaskit/outbound-auth-flow-client';
+import { auth } from '@atlaskit/outbound-auth-flow-client/auth';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { renderHook } from '@atlassian/testing-library';
 
 import { mocks } from '../../../utils/mocks';
-import { type CardState } from '../../types';
+import * as useActionFlags from '../../hooks/use-action-flags';
 import { useSmartCardActions } from '../index';
 
 describe('Smart Card: Actions', () => {
@@ -42,6 +46,7 @@ describe('Smart Card: Actions', () => {
 		mockContext = testMocks.mockGetContext();
 		asMockFunction(useSmartLinkContext).mockImplementation(() => mockContext);
 		asMockFunction(auth).mockResolvedValue();
+
 		url = 'https://some/url';
 		id = 'my-id';
 	});
@@ -54,18 +59,54 @@ describe('Smart Card: Actions', () => {
 		it('dispatches pending action if card not in store', async () => {
 			mockFetchData(Promise.resolve(mocks.success));
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 			await result.current.register();
 
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
+			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false, undefined);
 			expect(mockContext.store.dispatch).toHaveBeenCalledWith({
 				payload: undefined,
 				type: ACTION_RESOLVING,
 				url: 'https://some/url',
 			});
 		});
+
+		ffTest.on(
+			'platform_smartlink_inline_resolve_optimization',
+			'when FG is on, register passes appearance to fetchData',
+			() => {
+				it('passes appearance parameter to fetchData when provided', async () => {
+					mockFetchData(Promise.resolve(mocks.success));
+
+					const result = renderHook(() => {
+						return useSmartCardActions(id, url);
+					});
+					await result.current.register('inline');
+
+					expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(
+						url,
+						false,
+						'inline',
+					);
+				});
+
+				it('requests appearance-specific block data without bypassing the ORS cache', async () => {
+					mockFetchData(Promise.resolve(mocks.success));
+
+					const result = renderHook(() => {
+						return useSmartCardActions(id, url);
+					});
+					await result.current.register('block');
+
+					expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(
+						url,
+						false,
+						'block',
+					);
+				});
+			},
+		);
 	});
 
 	describe('resolve()', () => {
@@ -77,14 +118,14 @@ describe('Smart Card: Actions', () => {
 				details: undefined,
 			});
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 			const promise = result.current.register();
 			await expect(promise).rejects.toThrow(Error);
 			await expect(promise).rejects.toHaveProperty('kind', 'fatal');
 
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
+			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false, undefined);
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(3);
 			expect(mockContext.store.dispatch).toHaveBeenCalledWith({
 				payload: undefined,
@@ -107,7 +148,7 @@ describe('Smart Card: Actions', () => {
 				details: undefined,
 			});
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 			await result.current.register();
@@ -129,7 +170,7 @@ describe('Smart Card: Actions', () => {
 				details: mocks.success,
 			});
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 
@@ -137,7 +178,7 @@ describe('Smart Card: Actions', () => {
 			await deferrable.promise;
 			await deferrable.flush();
 
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, true);
+			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, true, undefined);
 		});
 
 		it('dispatches reloading action when reload API invoked', async () => {
@@ -147,7 +188,7 @@ describe('Smart Card: Actions', () => {
 				details: mocks.success,
 			});
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 
@@ -174,13 +215,13 @@ describe('Smart Card: Actions', () => {
 				details: undefined,
 			});
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 			const promise = result.current.register();
 			await expect(promise).resolves.toBeUndefined();
 
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
+			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false, undefined);
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(3);
 			expect(mockContext.store.dispatch).toHaveBeenCalledWith({
 				payload: {
@@ -218,16 +259,16 @@ describe('Smart Card: Actions', () => {
 				details: undefined,
 			});
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 
 			const promise = result.current.register();
 			await expect(promise).resolves.toBeUndefined();
 
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
+			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false, undefined);
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(3);
-			expect(mockContext.store.dispatch).nthCalledWith(3, {
+			expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(3, {
 				type: 'fallback',
 				url: 'https://some/url',
 				error: new APIError('fallback', 'https://some', 'Provider.authFlow is not set to OAuth2.'),
@@ -249,16 +290,16 @@ describe('Smart Card: Actions', () => {
 				details: undefined,
 			});
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 
 			const promise = result.current.register();
 			await expect(promise).resolves.toBeUndefined();
 
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
+			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false, undefined);
 			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(3);
-			expect(mockContext.store.dispatch).nthCalledWith(3, {
+			expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(3, {
 				type: 'fallback',
 				url: 'https://some/url',
 				error: new APIError('fallback', 'https://some', 'Provider.authFlow is not set to OAuth2.'),
@@ -273,12 +314,12 @@ describe('Smart Card: Actions', () => {
 				details: undefined,
 			});
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 
 			const promise = result.current.register();
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
+			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false, undefined);
 			await expect(promise).rejects.toBeInstanceOf(Error);
 			await expect(promise).rejects.toHaveProperty('kind', 'fatal');
 
@@ -299,137 +340,441 @@ describe('Smart Card: Actions', () => {
 			});
 		});
 
-		it('dispatches resolved metadata state for a success response', async () => {
+		it('does not fetch when metadataStatus is already resolved', async () => {
+			mockState({
+				status: 'resolved',
+				details: mocks.success,
+				metadataStatus: 'resolved',
+			});
 			mockFetchData(Promise.resolve(mocks.success));
 
-			const { result } = renderHook(() => {
+			const result = renderHook(() => {
 				return useSmartCardActions(id, url);
 			});
 
-			const promise = result.current.loadMetadata();
-			await expect(promise).resolves.toBeUndefined();
+			result.current.loadMetadata();
 
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
-			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(3);
-			expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(1, {
-				payload: undefined,
-				type: 'metadata',
-				url: url,
-				error: undefined,
-				metadataStatus: 'pending',
+			expect(mockContext.connections.client.fetchData).not.toHaveBeenCalled();
+		});
+
+		ffTest.on(
+			'platform_smartlink_inline_resolve_optimization',
+			'when FG is on, loadMetadata uses resolveNew with block appearance',
+			() => {
+				it('dispatches refreshed metadata state for a success response', async () => {
+					mockFetchData(Promise.resolve(mocks.success));
+
+					const result = renderHook(() => {
+						return useSmartCardActions(id, url);
+					});
+
+					const promise = result.current.loadMetadata();
+					await expect(promise).resolves.toBeUndefined();
+
+					// ORS caches block responses independently from optimized inline responses.
+					expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(
+						url,
+						false,
+						'block',
+					);
+					expect(mockContext.store.dispatch).toHaveBeenCalledTimes(3);
+					expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(1, {
+						payload: undefined,
+						type: 'metadata',
+						url: url,
+						error: undefined,
+						metadataStatus: 'pending',
+					});
+					expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(2, {
+						payload: undefined,
+						type: 'metadata',
+						url: url,
+						error: undefined,
+						metadataStatus: 'resolved',
+					});
+					expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(3, {
+						payload: mocks.success,
+						type: 'reloading',
+						url: url,
+						error: undefined,
+						metadataStatus: undefined,
+						ignoreStatusCheck: undefined,
+					});
+				});
+
+				const errorKinds: APIErrorKind[] = ['fatal', 'auth', 'error', 'fallback'];
+				it.each(errorKinds)(
+					'dispatches error metadata state if response is a %s error',
+					async (errorKind) => {
+						const mockError = new APIError(errorKind, url, 'error-message');
+						mockFetchData(Promise.reject(mockError));
+
+						const result = renderHook(() => {
+							return useSmartCardActions(id, url);
+						});
+
+						const promise = result.current.loadMetadata();
+
+						await expect(promise).resolves.toBeUndefined();
+						// ORS caches block responses independently from optimized inline responses.
+						expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(
+							url,
+							false,
+							'block',
+						);
+						expect(mockContext.store.dispatch).toHaveBeenCalledTimes(2);
+						expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(1, {
+							payload: undefined,
+							type: 'metadata',
+							url: url,
+							error: undefined,
+							metadataStatus: 'pending',
+						});
+						expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(2, {
+							payload: undefined,
+							type: 'metadata',
+							url: url,
+							error: undefined,
+							metadataStatus: 'errored',
+						});
+					},
+				);
+
+				const responseKinds: Array<[string, JsonLd.Response]> = [
+					['forbidden', mocks.forbidden],
+					['unauthorized', mocks.unauthorized],
+					['notFound', mocks.notFound],
+				];
+				it.each(responseKinds)(
+					'dispatches error metadata state if response is a %s response',
+					async (name, responseKind) => {
+						mockFetchData(Promise.resolve(responseKind));
+
+						const result = renderHook(() => {
+							return useSmartCardActions(id, url);
+						});
+
+						const promise = result.current.loadMetadata();
+
+						await expect(promise).resolves.toBeUndefined();
+						// ORS caches block responses independently from optimized inline responses.
+						expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(
+							url,
+							false,
+							'block',
+						);
+						expect(mockContext.store.dispatch).toHaveBeenCalledTimes(2);
+						expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(1, {
+							payload: undefined,
+							type: 'metadata',
+							url: url,
+							error: undefined,
+							metadataStatus: 'pending',
+						});
+						expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(2, {
+							payload: undefined,
+							type: 'metadata',
+							url: url,
+							error: undefined,
+							metadataStatus: 'errored',
+						});
+					},
+				);
+
+				it('dispatches error metadata status if response is undefined', async () => {
+					mockFetchData(Promise.resolve(undefined));
+
+					const result = renderHook(() => {
+						return useSmartCardActions(id, url);
+					});
+
+					const promise = result.current.loadMetadata();
+
+					await expect(promise).resolves.toBeUndefined();
+					// ORS caches block responses independently from optimized inline responses.
+					expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(
+						url,
+						false,
+						'block',
+					);
+					expect(mockContext.store.dispatch).toHaveBeenCalledTimes(2);
+					expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(1, {
+						payload: undefined,
+						type: 'metadata',
+						url: url,
+						error: undefined,
+						metadataStatus: 'pending',
+					});
+					expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(2, {
+						payload: undefined,
+						type: 'metadata',
+						url: url,
+						error: undefined,
+						metadataStatus: 'errored',
+					});
+				});
+
+				it('fetches with block appearance when metadataStatus is pending', async () => {
+					mockState({
+						status: 'resolved',
+						details: mocks.success,
+						metadataStatus: 'pending',
+					});
+					mockFetchData(Promise.resolve(mocks.success));
+
+					const result = renderHook(() => {
+						return useSmartCardActions(id, url);
+					});
+
+					const promise = result.current.loadMetadata();
+					await expect(promise).resolves.toBeUndefined();
+
+					expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(
+						url,
+						false,
+						'block',
+					);
+				});
+			}, // end ffTest.on callback
+		); // end ffTest.on
+
+		ffTest.off(
+			'platform_smartlink_inline_resolve_optimization',
+			'when FG is off, loadMetadata uses original resolve without appearance',
+			() => {
+				it('does not pass appearance when FG is off', async () => {
+					mockFetchData(Promise.resolve(mocks.success));
+
+					const result = renderHook(() => {
+						return useSmartCardActions(id, url);
+					});
+
+					const promise = result.current.loadMetadata();
+					await expect(promise).resolves.toBeUndefined();
+
+					expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(
+						url,
+						false,
+						undefined,
+					);
+				});
+			},
+		);
+	});
+
+	describe('authorize()', () => {
+		const setup = async (state: CardState) => {
+			const mockShowConnectFlag = jest.fn();
+			jest.spyOn(useActionFlags, 'default').mockImplementation(() => ({
+				showConnectFlag: mockShowConnectFlag,
+			}));
+			mockState(state);
+			mockFetchData(Promise.resolve(mocks.success));
+			const result = renderHook(() => useSmartCardActions(id, url));
+
+			result.current.authorize('inline');
+			await flushPromises();
+
+			return { mockShowConnectFlag };
+		};
+
+		it('trigger the connect account flag on unauthorized status', async () => {
+			const { mockShowConnectFlag } = await setup({
+				status: 'unauthorized',
+				details: mocks.unauthorized,
 			});
-			expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(2, {
-				payload: undefined,
-				type: 'metadata',
-				url: url,
-				error: undefined,
-				metadataStatus: 'resolved',
+
+			expect(auth).toHaveBeenCalledWith('https://outbound-auth/flow');
+			expect(mockShowConnectFlag).toHaveBeenCalledTimes(1);
+		});
+		it('does not trigger the connect account flag on forbidden status', async () => {
+			const { mockShowConnectFlag } = await setup({
+				status: 'forbidden',
+				details: mocks.forbidden,
 			});
-			expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(3, {
-				payload: mocks.success,
-				type: 'resolved',
-				url: url,
-				error: undefined,
-				metadataStatus: undefined,
-				ignoreStatusCheck: true,
+
+			expect(auth).toHaveBeenCalledWith('https://outbound-auth/flow');
+			expect(mockShowConnectFlag).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('post-auth Chat auto-open', () => {
+		beforeEach(() => {
+			jest.clearAllMocks();
+
+			const { expValEquals } = jest.requireMock('@atlaskit/tmp-editor-statsig/exp-val-equals');
+			expValEquals.mockReturnValue(false);
+		});
+
+		const gdriveMockDetails = {
+			meta: {
+				access: 'unauthorized',
+				visibility: 'restricted',
+				definitionId: 'd1',
+				key: 'google-object-provider',
+				auth: [{ key: 'gdrive-oauth', displayName: 'Connect', url: 'https://outbound-auth/flow' }],
+			},
+			data: {
+				'@context': { '@vocab': 'https://www.w3.org/ns/activitystreams#' },
+				'@type': 'Object',
+				name: 'Q3 Planning Notes',
+			},
+		};
+
+		const enabledRovoOptions = { isRovoEnabled: true, isRovoLLMEnabled: true };
+
+		const setupPostAuthTest = () => {
+			const { expValEquals } = jest.requireMock('@atlaskit/tmp-editor-statsig/exp-val-equals');
+			expValEquals.mockReturnValue(true);
+
+			mockContext.rovoOptions = enabledRovoOptions;
+			const mockPostMessage = jest.spyOn(window, 'postMessage').mockImplementation(jest.fn());
+			const mockShowConnectFlag = jest.fn();
+			jest.spyOn(useActionFlags, 'default').mockImplementation(() => ({
+				showConnectFlag: mockShowConnectFlag,
+			}));
+
+			(mockContext.store.getState as jest.Mock).mockImplementation(() => ({
+				[url]: { status: 'unauthorized', details: gdriveMockDetails },
+			}));
+
+			return { expValEquals, mockPostMessage, mockShowConnectFlag };
+		};
+
+		ffTest.on('platform_sl_3p_post_auth_chat_open_fg', '', () => {
+			it('posts chat-new message after successful GDrive auth when gate on + treatment', async () => {
+				const { mockPostMessage, mockShowConnectFlag } = setupPostAuthTest();
+				url = 'https://docs.google.com/document/d/abc123/edit';
+				mockFetchData(Promise.resolve(mocks.success));
+
+				const result = renderHook(() => useSmartCardActions(id, url));
+				await result.current.authorize('inline');
+
+				expect(mockPostMessage).toHaveBeenCalledWith(
+					{
+						eventType: 'rovo-post-message',
+						payload: {
+							type: 'chat-smartlink-3p-post-auth-launch',
+							source: 'smart-link-3p-post-auth',
+							data: {
+								extensionKey: 'google-drive',
+								provider: 'Google Drive',
+								projectContext: {
+									projectId: url,
+									projectName: 'Q3 Planning Notes',
+									projectUrl: url,
+								},
+							},
+							openChat: true,
+							openChatMode: 'mini-modal',
+						},
+						payloadId: expect.any(String),
+					},
+					'*',
+				);
+
+				expect(mockShowConnectFlag).not.toHaveBeenCalled();
 			});
 		});
 
-		const errorKinds: APIErrorKind[] = ['fatal', 'auth', 'error', 'fallback'];
-		it.each(errorKinds)(
-			'dispatches error metadata state if response is a %s error',
-			async (errorKind) => {
-				const mockError = new APIError(errorKind, url, 'error-message');
-				mockFetchData(Promise.reject(mockError));
+		it('does NOT post chat-new message when kill switch is off', async () => {
+			const { mockPostMessage, mockShowConnectFlag } = setupPostAuthTest();
+			url = 'https://docs.google.com/document/d/abc123/edit';
+			mockFetchData(Promise.resolve(mocks.success));
 
-				const { result } = renderHook(() => {
-					return useSmartCardActions(id, url);
-				});
+			const result = renderHook(() => useSmartCardActions(id, url));
+			await result.current.authorize('inline');
 
-				const promise = result.current.loadMetadata();
+			expect(mockPostMessage).not.toHaveBeenCalled();
+			expect(mockShowConnectFlag).toHaveBeenCalled();
+		});
 
-				await expect(promise).resolves.toBeUndefined();
-				expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
-				expect(mockContext.store.dispatch).toHaveBeenCalledTimes(2);
-				expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(1, {
-					payload: undefined,
-					type: 'metadata',
-					url: url,
-					error: undefined,
-					metadataStatus: 'pending',
-				});
-				expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(2, {
-					payload: undefined,
-					type: 'metadata',
-					url: url,
-					error: undefined,
-					metadataStatus: 'errored',
-				});
-			},
-		);
+		ffTest.on('platform_sl_3p_post_auth_chat_open_fg', '', () => {
+			it('does NOT post chat-new message when in experiment control group', async () => {
+				const { expValEquals, mockPostMessage, mockShowConnectFlag } = setupPostAuthTest();
+				expValEquals.mockReturnValue(false);
+				url = 'https://docs.google.com/document/d/abc123/edit';
+				mockFetchData(Promise.resolve(mocks.success));
 
-		const responseKinds: Array<[string, JsonLd.Response]> = [
-			['forbidden', mocks.forbidden],
-			['unauthorized', mocks.unauthorized],
-			['notFound', mocks.notFound],
-		];
-		it.each(responseKinds)(
-			'dispatches error metadata state if response is a %s response',
-			async (name, responseKind) => {
-				mockFetchData(Promise.resolve(responseKind));
+				const result = renderHook(() => useSmartCardActions(id, url));
+				await result.current.authorize('inline');
 
-				const { result } = renderHook(() => {
-					return useSmartCardActions(id, url);
-				});
-
-				const promise = result.current.loadMetadata();
-
-				await expect(promise).resolves.toBeUndefined();
-				expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
-				expect(mockContext.store.dispatch).toHaveBeenCalledTimes(2);
-				expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(1, {
-					payload: undefined,
-					type: 'metadata',
-					url: url,
-					error: undefined,
-					metadataStatus: 'pending',
-				});
-				expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(2, {
-					payload: undefined,
-					type: 'metadata',
-					url: url,
-					error: undefined,
-					metadataStatus: 'errored',
-				});
-			},
-		);
-
-		it('dispatches error metadata status if response is undefined', async () => {
-			mockFetchData(Promise.resolve(undefined));
-
-			const { result } = renderHook(() => {
-				return useSmartCardActions(id, url);
+				expect(expValEquals).toHaveBeenCalledWith(
+					'platform_sl_3p_post_auth_chat_open_exp',
+					'isEnabled',
+					true,
+				);
+				expect(mockPostMessage).not.toHaveBeenCalled();
+				expect(mockShowConnectFlag).toHaveBeenCalled();
 			});
+		});
 
-			const promise = result.current.loadMetadata();
+		it('does NOT post chat-new message for non-GDrive providers', async () => {
+			const { mockPostMessage, mockShowConnectFlag } = setupPostAuthTest();
+			url = 'https://gitlab.com/project/repo';
+			const gitlabDetails = {
+				...gdriveMockDetails,
+				meta: { ...gdriveMockDetails.meta, key: 'gitlab-object-provider' },
+			};
+			(mockContext.store.getState as jest.Mock).mockImplementation(() => ({
+				[url]: { status: 'unauthorized', details: gitlabDetails },
+			}));
+			mockFetchData(Promise.resolve(mocks.success));
 
-			await expect(promise).resolves.toBeUndefined();
-			expect(mockContext.connections.client.fetchData).toHaveBeenCalledWith(url, false);
-			expect(mockContext.store.dispatch).toHaveBeenCalledTimes(2);
-			expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(1, {
-				payload: undefined,
-				type: 'metadata',
-				url: url,
-				error: undefined,
-				metadataStatus: 'pending',
+			const result = renderHook(() => useSmartCardActions(id, url));
+			await result.current.authorize('inline');
+
+			expect(mockPostMessage).not.toHaveBeenCalled();
+			expect(mockShowConnectFlag).toHaveBeenCalled();
+		});
+
+		ffTest.on('platform_sl_3p_post_auth_chat_open_fg', '', () => {
+			it('does NOT post chat-new message on non-AI-enabled tenant', async () => {
+				const { mockPostMessage, mockShowConnectFlag } = setupPostAuthTest();
+				url = 'https://docs.google.com/document/d/abc123/edit';
+				(mockContext.store.getState as jest.Mock).mockImplementation(() => ({
+					[url]: { status: 'unauthorized', details: gdriveMockDetails },
+				}));
+				mockContext.rovoOptions = { isRovoEnabled: false, isRovoLLMEnabled: false };
+				mockFetchData(Promise.resolve(mocks.success));
+
+				const result = renderHook(() => useSmartCardActions(id, url));
+				await result.current.authorize('inline');
+
+				expect(mockPostMessage).not.toHaveBeenCalled();
+				expect(mockShowConnectFlag).toHaveBeenCalled();
 			});
-			expect(mockContext.store.dispatch).toHaveBeenNthCalledWith(2, {
-				payload: undefined,
-				type: 'metadata',
-				url: url,
-				error: undefined,
-				metadataStatus: 'errored',
-			});
+		});
+
+		it('does NOT post chat-new message for forbidden (try another account) status', async () => {
+			const { mockPostMessage, mockShowConnectFlag } = setupPostAuthTest();
+			url = 'https://docs.google.com/document/d/abc123/edit';
+			const forbiddenDetails = {
+				...gdriveMockDetails,
+				meta: { ...gdriveMockDetails.meta, access: 'forbidden' },
+			};
+			(mockContext.store.getState as jest.Mock).mockImplementation(() => ({
+				[url]: { status: 'forbidden', details: forbiddenDetails },
+			}));
+			mockFetchData(Promise.resolve(mocks.success));
+
+			const result = renderHook(() => useSmartCardActions(id, url));
+			await result.current.authorize('inline');
+
+			expect(mockPostMessage).not.toHaveBeenCalled();
+			expect(mockShowConnectFlag).not.toHaveBeenCalled();
+		});
+
+		it('does NOT post Smart Link post-auth launch message on auth failure', async () => {
+			const { mockPostMessage } = setupPostAuthTest();
+			url = 'https://docs.google.com/document/d/abc123/edit';
+			asMockFunction(auth).mockRejectedValue({ type: 'auth_window_closed' });
+			mockFetchData(Promise.resolve(mocks.success));
+
+			const result = renderHook(() => useSmartCardActions(id, url));
+			await result.current.authorize('inline');
+
+			expect(mockPostMessage).not.toHaveBeenCalled();
 		});
 	});
 });

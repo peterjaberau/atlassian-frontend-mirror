@@ -1,4 +1,4 @@
-import type { MediaADFAttrs } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
 import {
 	atTheBeginningOfBlock,
 	atTheBeginningOfDoc,
@@ -9,8 +9,9 @@ import {
 } from '@atlaskit/editor-common/selection';
 import { createNewParagraphBelow, createParagraphNear } from '@atlaskit/editor-common/utils';
 import { deleteSelection, splitBlock } from '@atlaskit/editor-prosemirror/commands';
+// oxlint-disable-next-line import/no-duplicates
 import type { Node as PMNode, ResolvedPos } from '@atlaskit/editor-prosemirror/model';
-import { type Node as ProseMirrorNode } from '@atlaskit/editor-prosemirror/model';
+import type { Node as ProseMirrorNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import { findPositionOfNodeBefore } from '@atlaskit/editor-prosemirror/utils';
@@ -20,7 +21,6 @@ import { type Identifier, isExternalImageIdentifier, isMediaBlobUrl } from '@atl
 import type { MediaState, getPosHandler as ProsemirrorGetPosHandler } from '../../types';
 import { isExternalMedia } from '../../ui/toolbar/utils';
 import { getMediaPluginState } from '../main';
-
 import { isVideo } from './media-single';
 
 const isTemporary = (id: string): boolean => {
@@ -285,7 +285,7 @@ const getMediaInlineNodeFromSelection = (state: EditorState): PMNode | null => {
 	return mediaNode;
 };
 
-export const isMediaSingleOrInlineNodeSelected = (state: EditorState) => {
+export const isMediaSingleOrInlineNodeSelected = (state: EditorState): boolean | undefined => {
 	const { allowInlineImages } = getMediaPluginState(state);
 	return (
 		isSelectionMediaSingleNode(state) || (allowInlineImages && isSelectionMediaInlineNode(state))
@@ -365,7 +365,7 @@ export const getIdentifier = (attrs: MediaADFAttrs): Identifier => {
 	}
 };
 
-export const extractMediaNodes = (doc: ProseMirrorNode) => {
+export const extractMediaNodes = (doc: ProseMirrorNode): PMNode[] => {
 	const mediaNodes: ProseMirrorNode[] = [];
 	doc.descendants((node) => {
 		if (node.type.name === 'media' || node.type.name === 'mediaInline') {

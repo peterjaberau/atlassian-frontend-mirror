@@ -3,21 +3,19 @@
  * @jsx jsx
  * @jsxFrag React.Fragment
  */
-import type { SyntheticEvent } from 'react';
+import type { MouseEvent, SyntheticEvent } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { FormattedMessage, injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
 
 import { css, cssMap, jsx } from '@atlaskit/css';
 import { mentionMessages as messages } from '@atlaskit/editor-common/messages';
 import EmailIcon from '@atlaskit/icon/core/email';
 import StatusErrorIcon from '@atlaskit/icon/core/status-error';
-import type { UserRole } from '@atlaskit/mention';
-import type { MentionDescription } from '@atlaskit/mention/resource';
-import { N30, N300 } from '@atlaskit/theme/colors';
+import type { UserRole, MentionDescription } from '@atlaskit/mention/types';
 import { token } from '@atlaskit/tokens';
-import { isValidEmail } from '@atlaskit/user-picker';
+import { isValidEmail } from '@atlaskit/user-picker/components/email-validation';
 
 const mentionItemStyle = css({
 	backgroundColor: 'transparent',
@@ -28,12 +26,38 @@ const mentionItemStyle = css({
 });
 
 const mentionItemSelectedStyle = css({
-	backgroundColor: token('color.background.neutral.subtle.hovered', N30),
+	backgroundColor: token('color.background.neutral.subtle.hovered'),
 });
+
+const displayNameStyles = cssMap({
+	localPart: {
+		overflowWrap: 'break-word',
+	},
+	domainPart: {
+		display: 'inline-block',
+		maxWidth: '100%',
+		overflowWrap: 'break-word',
+	},
+});
+
+const DisplayName = ({ name }: { name: string }) => {
+	const atIndex = name.indexOf('@');
+	if (atIndex === -1) {
+		return <span css={displayNameStyles.localPart}>{name}</span>;
+	}
+	const localPart = name.slice(0, atIndex);
+	const domainPart = name.slice(atIndex); // includes the @
+	return (
+		<div>
+			<span css={displayNameStyles.localPart}>{localPart}</span>
+			<span css={displayNameStyles.domainPart}>{domainPart}</span>
+		</div>
+	);
+};
 
 const style = cssMap({
 	byline: {
-		marginTop: token('space.025', '2px'),
+		marginTop: token('space.025'),
 	},
 	rowStyle: {
 		alignItems: 'center',
@@ -41,10 +65,10 @@ const style = cssMap({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		overflow: 'hidden',
-		paddingTop: token('space.075', '6px'),
-		paddingBottom: token('space.075', '6px'),
-		paddingLeft: token('space.150', '12px'),
-		paddingRight: token('space.150', '12px'),
+		paddingTop: token('space.075'),
+		paddingBottom: token('space.075'),
+		paddingLeft: token('space.150'),
+		paddingRight: token('space.150'),
 		textOverflow: 'ellipsis',
 		verticalAlign: 'middle',
 	},
@@ -61,8 +85,9 @@ const style = cssMap({
 	nameSection: {
 		flex: 1,
 		minWidth: '0px',
-		marginLeft: token('space.150', '12px'),
-		color: token('color.text.subtle', N300),
+		marginLeft: token('space.150'),
+		marginRight: token('space.100'),
+		color: token('color.text.subtle'),
 	},
 	capitalize: {
 		textTransform: 'capitalize',
@@ -75,15 +100,54 @@ const POTENTIAL_OPTION = 'POTENTIAL';
 const COMPLETE_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
 const ERROR_DELAY_MS = 750;
 
+/**
+ * Truncates an email-like string to fit within a max length by inserting an
+ * ellipsis into the middle of the local part (before the @).
+ *
+ * Preserves the full `@domain` suffix so users can always see
+ * which domain the invite targets.
+ */
+export const truncateInviteOption = (value: string, maxLength: number = 34): string => {
+	if (value.length <= maxLength) {
+		return value;
+	}
+
+	const atIndex = value.lastIndexOf('@');
+	if (atIndex === -1) {
+		// No @ — truncate to maxLength and append ellipsis
+		const ellipsis = '\u2026';
+		return `${value.slice(0, maxLength - 1)}${ellipsis}`;
+	}
+
+	const domain = value.slice(atIndex); // includes @
+	const local = value.slice(0, atIndex);
+	const ellipsis = '\u2026';
+
+	const available = maxLength - domain.length - ellipsis.length;
+	if (available <= 0) {
+		// Domain alone exceeds budget — show as much as we can
+		return `${ellipsis}${domain.slice(-(maxLength - ellipsis.length))}`;
+	}
+
+	const leading = Math.ceil(available / 2);
+	const trailing = Math.floor(available / 2);
+	const truncatedLocal =
+		trailing > 0
+			? `${local.slice(0, leading)}${ellipsis}${local.slice(local.length - trailing)}`
+			: `${local.slice(0, leading)}${ellipsis}`;
+
+	return `${truncatedLocal}${domain}`;
+};
+
 const getInviteOption = (inputValue: string, suggestedEmailDomain?: string): string => {
 	if (inputValue.includes(' ') && inputValue.includes('@')) {
-		return inputValue;
+		return truncateInviteOption(inputValue);
 	}
 	const isEmail = inputValue && [VALID_OPTION, POTENTIAL_OPTION].includes(isValidEmail(inputValue));
 	if (isEmail || !suggestedEmailDomain) {
-		return inputValue;
+		return truncateInviteOption(inputValue);
 	}
-	return `${inputValue.toLocaleLowerCase()}@${suggestedEmailDomain}`;
+	return truncateInviteOption(`${inputValue.toLocaleLowerCase()}@${suggestedEmailDomain}`);
 };
 
 const getIsEmailValid = (inputValue: string): boolean => {
@@ -107,6 +171,12 @@ interface OnMentionEvent {
 
 export const INVITE_ITEM_DESCRIPTION = { id: 'invite-teammate' };
 
+// Ignored via go/ees005
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const leftClick = (event: MouseEvent<any>): boolean => {
+	return event.button === 0 && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
+};
+
 interface Props {
 	emailDomain?: string;
 	onMount?: () => void;
@@ -129,19 +199,14 @@ const InviteItemWithEmailDomain = ({
 	emailDomain,
 	intl,
 }: Props & WrappedComponentProps) => {
-	const [showErrorIcon, setShowErrorIcon] = useState(false);
+	const [showErrorIcon, setShowErrorIcon] = useState(query.length !== 0 && !getIsEmailValid(query));
 	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
 	const possibleEmail = getInviteOption(query, emailDomain);
 	const isEmailValid = getIsEmailValid(query);
 
-	// Use debounced error state for icon and byline display
-	const shouldShowError = !isEmailValid && showErrorIcon;
-	// Use debounced error state for byline: show invalid message only after delay
-	const isValidForByline = isEmailValid || !shouldShowError;
-
 	const getByline = (): React.ReactNode => {
-		if (!isValidForByline) {
+		if (showErrorIcon) {
 			return intl.formatMessage(messages.inviteTeammateInvalidEmail);
 		}
 		if (userRole === 'admin') {
@@ -150,6 +215,7 @@ const InviteItemWithEmailDomain = ({
 					// Ignored via go/ees005
 					// eslint-disable-next-line react/jsx-props-no-spreading
 					{...messages.inviteItemTitle}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					values={{
 						userRole: userRole || 'basic',
 						productName: (
@@ -168,9 +234,12 @@ const InviteItemWithEmailDomain = ({
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		(event: React.MouseEvent<any> | React.KeyboardEvent<any>) => {
+			if (showErrorIcon) {
+				return;
+			}
 			if (onSelection) {
 				// For mouse events, only handle left click
-				if ('button' in event && event.button !== 0) {
+				if ('button' in event && !leftClick(event)) {
 					return;
 				}
 				// For keyboard events, only handle Enter and Space
@@ -181,7 +250,7 @@ const InviteItemWithEmailDomain = ({
 				onSelection(INVITE_ITEM_DESCRIPTION, event);
 			}
 		},
-		[onSelection],
+		[onSelection, showErrorIcon],
 	);
 
 	const onItemMouseEnter = useCallback(
@@ -240,34 +309,38 @@ const InviteItemWithEmailDomain = ({
 
 	const displayName = query && emailDomain ? possibleEmail : undefined;
 
-	return displayName && (
+	return (
+		displayName && (
 			<div
-			role="button"
-			tabIndex={0}
-			css={[mentionItemStyle, selected && mentionItemSelectedStyle]}
-			onMouseDown={onSelected}
-			onKeyDown={onSelected}
-			onMouseEnter={onItemMouseEnter}
-			onFocus={onItemFocus}
-			data-id={INVITE_ITEM_DESCRIPTION.id}
-		>
-			<div css={style.rowStyle}>
-				<span css={style.avatar}>
-					{shouldShowError ? (
-						<StatusErrorIcon label="Error" color={token('color.icon.danger')} />
-					) : (
-						<EmailIcon label="Email" color={token('color.icon.subtle', N300)} />
-					)}
-				</span>
-				<div css={style.nameSection} data-testid="name-section">
-						<>
-							<div>{displayName}</div>
-							<div css={style.byline}>{getByline()}</div>
-						</>
+				role="button"
+				tabIndex={0}
+				css={[mentionItemStyle, selected && mentionItemSelectedStyle]}
+				onMouseDown={onSelected}
+				onKeyDown={onSelected}
+				onMouseEnter={onItemMouseEnter}
+				onFocus={onItemFocus}
+				data-id={INVITE_ITEM_DESCRIPTION.id}
+			>
+				<div css={style.rowStyle}>
+					<span css={style.avatar}>
+						{showErrorIcon ? (
+							<StatusErrorIcon label="Error" color={token('color.icon.danger')} />
+						) : (
+							<EmailIcon label="Email" color={token('color.icon.subtle')} />
+						)}
+					</span>
+					<div css={style.nameSection} data-testid="name-section">
+						<DisplayName name={displayName} />
+						<div css={style.byline}>{getByline()}</div>
+					</div>
 				</div>
 			</div>
-		</div>
+		)
 	);
 };
 
-export default injectIntl(InviteItemWithEmailDomain);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(InviteItemWithEmailDomain);
+export default _default_1;

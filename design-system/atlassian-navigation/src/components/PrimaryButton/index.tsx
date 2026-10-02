@@ -7,12 +7,11 @@ import { forwardRef, type Ref } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import Button from '@atlaskit/button/custom-theme-button';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { useTheme } from '../../theme';
-
 import { getPrimaryButtonTheme } from './styles';
 import { type PrimaryButtonProps } from './types';
 
@@ -47,8 +46,8 @@ const buttonHighlightedStyles = css({
 		borderStartStartRadius: token('radius.xsmall', '1px'),
 		content: '""',
 		insetBlockEnd: 0,
-		insetInlineEnd: token('space.050', '4px'),
-		insetInlineStart: token('space.050', '4px'),
+		insetInlineEnd: token('space.050'),
+		insetInlineStart: token('space.050'),
 	},
 });
 
@@ -60,6 +59,8 @@ const buttonHighlightedStyles = css({
  *
  * - [Examples](https://atlassian.design/components/atlassian-navigation/examples#dropdown-menu)
  * - [Code](https://atlassian.design/components/atlassian-navigation/code)
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 export const PrimaryButton: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<PrimaryButtonProps> & React.RefAttributes<HTMLElement>

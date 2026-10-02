@@ -1,9 +1,6 @@
 import React from 'react';
 
-import PropTypes from 'prop-types';
-
 import { EditorContext } from '@atlaskit/editor-common/UNSAFE_do_not_use_editor_context';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import EditorActions from '../../actions';
 
@@ -13,57 +10,30 @@ type EditorContextInternal = {
 
 export type EditorContextProps = React.PropsWithChildren<EditorContextInternal>;
 
-export const useEditorContext = () => React.useContext<EditorContextProps>(EditorContext);
+export const useEditorContext = (): EditorContextProps =>
+	React.useContext<EditorContextProps>(EditorContext);
 
 // Ignored via go/ees005
-// eslint-disable-next-line @repo/internal/react/no-class-components, react/prefer-stateless-function
+// eslint-disable-next-line @repo/internal/react/no-class-components, react/prefer-stateless-function, @atlaskit/volt-strict-mode/no-multiple-exports
 export class LegacyEditorContext extends React.Component<EditorContextProps, Object> {
 	constructor(props: EditorContextProps) {
 		super(props);
 		this.editorActions = props.editorActions || new EditorActions();
+		this.contextValue = { editorActions: this.editorActions };
 	}
 	private editorActions: EditorActions;
+	private contextValue: EditorContextProps;
 
-	render() {
+	render(): React.JSX.Element {
 		return (
-		<EditorContext.Provider value={{ editorActions: this.editorActions }}>
-			{this.props.children}
-		</EditorContext.Provider>
-	);
-	}
-}
-
-// Ignored via go/ees005
-// eslint-disable-next-line @repo/internal/react/no-class-components
-export class LegacyEditorContextOld extends React.Component<EditorContextProps, Object> {
-	static childContextTypes = {
-		editorActions: PropTypes.object,
-	};
-
-	private editorActions: EditorActions;
-
-	constructor(props: EditorContextProps) {
-		super(props);
-		this.editorActions = props.editorActions || new EditorActions();
-	}
-
-	getChildContext() {
-		return {
-			editorActions: this.editorActions,
-		};
-	}
-
-	render() {
-		return (
-			<EditorContext.Provider value={this.getChildContext()}>
+			<EditorContext.Provider value={this.contextValue}>
 				{this.props.children}
 			</EditorContext.Provider>
 		);
 	}
 }
 
-export default (props: EditorContextProps) => expValEquals('platform_editor_context_context_types_migration', 'isEnabled', true) ? (
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export default (props: EditorContextProps): React.JSX.Element => (
 	<LegacyEditorContext editorActions={props.editorActions}>{props.children}</LegacyEditorContext>
-) : (
-	<LegacyEditorContextOld editorActions={props.editorActions}>{props.children}</LegacyEditorContextOld>
 );

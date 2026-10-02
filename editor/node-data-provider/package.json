@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/node-data-provider",
-	"version": "8.3.0",
+	"version": "24.0.0",
 	"description": "Node data provider for @atlaskit/editor-core plugins and @atlaskit/renderer",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -19,48 +19,19 @@
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./find-nodes-to-prefetch": "./src/entry-points/find-nodes-to-prefetch.ts",
+		"./node-data-provider": "./src/entry-points/node-data-provider.ts",
+		"./prefetch-node-data-providers-data": "./src/entry-points/prefetch-node-data-providers-data.ts"
 	},
 	"dependencies": {
 		"@atlaskit/editor-json-transformer": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"deprecation": "no-deprecated-imports",
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			],
-			"styling": [
-				"emotion"
-			]
-		}
-	},
-	"platform-feature-flags": {
-		"platform_synced_block_patch_1": {
-			"type": "boolean"
-		}
-	},
-	"stricter": {
-		"no-unused-dependencies": {
-			"checkDevDependencies": true
-		}
 	}
 }

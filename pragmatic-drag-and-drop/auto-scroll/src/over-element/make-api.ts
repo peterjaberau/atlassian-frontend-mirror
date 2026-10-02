@@ -1,15 +1,14 @@
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { once } from '@atlaskit/pragmatic-drag-and-drop/once';
 import type {
 	AllDragTypes,
 	BaseEventPayload,
 	CleanupFn,
 	MonitorArgs,
 } from '@atlaskit/pragmatic-drag-and-drop/types';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { once } from '@atlaskit/pragmatic-drag-and-drop/utils/once';
 
 import type { ElementAutoScrollArgs, WindowAutoScrollArgs } from '../internal-types';
 import { getScheduler } from '../shared/scheduler';
-
 import { addScrollableAttribute } from './data-attributes';
 import { tryScroll } from './try-scroll';
 
@@ -17,7 +16,10 @@ export function makeApi<DragType extends AllDragTypes>({
 	monitor,
 }: {
 	monitor: (args: MonitorArgs<DragType>) => CleanupFn;
-}) {
+}): {
+	autoScroll: (args: ElementAutoScrollArgs<DragType>) => CleanupFn;
+	autoScrollWindow: (args?: WindowAutoScrollArgs<DragType>) => CleanupFn;
+} {
 	const elementRegistry: Map<Element, ElementAutoScrollArgs<DragType>> = new Map();
 	const windowRegistry: Set<WindowAutoScrollArgs<DragType>> = new Set();
 

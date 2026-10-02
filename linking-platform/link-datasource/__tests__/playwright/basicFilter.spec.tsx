@@ -1,11 +1,27 @@
 import { expect, type Page, test } from '@af/integration-testing';
+import { skipAutoA11yFile } from '@atlassian/a11y-playwright-testing';
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:playwright
+skipAutoA11yFile({
+	exceptTests: [
+		'should be visible when switching to basic search mode',
+		'should not be visible when in JQL search mode',
+		'should show more options when scrolling to the bottom of the popup for projects and clicking showMore button',
+	],
+});
 
 const basicFilterContainerTestId = 'jlol-basic-filter-container';
 
 const loadExample = (page: Page) =>
-	page.visitExample('linking-platform', 'link-datasource', 'with-issues-modal', {
-		'react-18-mode': 'legacy',
-	});
+	page.visitExample<typeof import('../../examples/with-issues-modal.vr.ap.tsx')>(
+		'linking-platform',
+		'link-datasource',
+		'with-issues-modal',
+		{
+			'react-18-mode': 'legacy',
+		},
+	);
 
 test.describe('JiraIssuesModal: Basic Filters', () => {
 	test('should not be visible when in JQL search mode', async ({ page }) => {

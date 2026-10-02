@@ -6,8 +6,10 @@ import React, { useEffect, useState } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import Avatar from '@atlaskit/avatar';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import Avatar from '@atlaskit/avatar/avatar';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import DynamicTable from '@atlaskit/dynamic-table';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
@@ -199,7 +201,7 @@ const TokenTable = (): JSX.Element => {
 };
 
 const _default_1: {
-    example: () => JSX.Element;
-    code: string;
+	example: () => JSX.Element;
+	code: string;
 } = { example: TokenTable, code: TokenTableCodeBlock };
 export default _default_1;

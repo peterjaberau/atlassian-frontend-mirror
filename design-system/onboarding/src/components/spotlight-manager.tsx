@@ -9,9 +9,9 @@ import React, {
 import memoizeOne, { type MemoizedFn } from 'memoize-one';
 
 import noop from '@atlaskit/ds-lib/noop';
-import { ExitingPersistence, FadeIn } from '@atlaskit/motion';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Portal from '@atlaskit/portal';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import FadeIn from '@atlaskit/motion/fade-in';
+import Portal from '@atlaskit/portal/portal';
 
 import Blanket from '../styled/blanket';
 
@@ -27,18 +27,16 @@ export type GetTargetRef = (
 	name: string,
 ) => TargetRef;
 
-const dest = createContext<
-    GetTargetRef | undefined
->(undefined);
+const dest = createContext<GetTargetRef | undefined>(undefined);
 const TargetConsumer: React.Consumer<GetTargetRef | undefined> = dest.Consumer;
 const TargetProvider: React.Provider<GetTargetRef | undefined> = dest.Provider;
 
 const SpotlightContext: React.Context<{
-    opened: () => void;
-    closed: () => void;
-    targets: {
-        [key: string]: HTMLElement | undefined;
-    };
+	opened: () => void;
+	closed: () => void;
+	targets: {
+		[key: string]: HTMLElement | undefined;
+	};
 }> = createContext<{
 	opened: () => void;
 	closed: () => void;
@@ -52,22 +50,23 @@ const SpotlightContext: React.Context<{
 });
 
 const SpotlightStateConsumer: React.Consumer<{
-    opened: () => void;
-    closed: () => void;
-    targets: {
-        [key: string]: HTMLElement | undefined;
-    };
+	opened: () => void;
+	closed: () => void;
+	targets: {
+		[key: string]: HTMLElement | undefined;
+	};
 }> = SpotlightContext.Consumer;
 const SpotlightStateProvider: React.Provider<{
-    opened: () => void;
-    closed: () => void;
-    targets: {
-        [key: string]: HTMLElement | undefined;
-    };
+	opened: () => void;
+	closed: () => void;
+	targets: {
+		[key: string]: HTMLElement | undefined;
+	};
 }> = SpotlightContext.Provider;
 
 export { TargetConsumer };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export { SpotlightContext, SpotlightStateConsumer as SpotlightConsumer };
 
 interface SpotlightManagerProps {
@@ -112,7 +111,7 @@ const Container = ({
  *
  * @deprecated Use `@atlaskit/spotlight` instead.
  */
-// eslint-disable-next-line @repo/internal/react/no-class-components
+// eslint-disable-next-line @repo/internal/react/no-class-components, @atlaskit/volt-strict-mode/no-multiple-exports
 export default class SpotlightManager extends PureComponent<
 	SpotlightManagerProps,
 	{
@@ -150,25 +149,18 @@ export default class SpotlightManager extends PureComponent<
 	 * error happens.
 	 * This is to fix this error by wrapping the state update in startTransition as suggested by React: https://react.dev/errors/421?invariant=421
 	 */
-	getTargetRef: (name: string) => (element: HTMLElement | null | undefined) => void = fg('platform_fix_component_state_update_for_suspense')
-		? (name: string) => (element: HTMLElement | null | undefined): void => {
-				startTransition(() => {
-					this.setState((state) => ({
-						targets: {
-							...state.targets,
-							[name]: element || undefined,
-						},
-					}));
-				});
-			}
-		: (name: string) => (element: HTMLElement | null | undefined) => {
+	getTargetRef: (name: string) => (element: HTMLElement | null | undefined) => void =
+		(name: string) =>
+		(element: HTMLElement | null | undefined): void => {
+			startTransition(() => {
 				this.setState((state) => ({
 					targets: {
 						...state.targets,
 						[name]: element || undefined,
 					},
 				}));
-			};
+			});
+		};
 
 	spotlightOpen = (): void => {
 		this.setState((state) => ({ spotlightCount: state.spotlightCount + 1 }));
@@ -178,19 +170,28 @@ export default class SpotlightManager extends PureComponent<
 		this.setState((state) => ({ spotlightCount: state.spotlightCount - 1 }));
 	};
 
-	getStateProviderValue: MemoizedFn<(this: any, targets: any) => {
-        opened: () => void;
-        closed: () => void;
-        targets: any;
-    }> = memoizeOne((targets: any): {
-        opened: () => void;
-        closed: () => void;
-        targets: any;
-    } => ({
-		opened: this.spotlightOpen,
-		closed: this.spotlightClose,
-		targets,
-	}));
+	getStateProviderValue: MemoizedFn<
+		(
+			this: any,
+			targets: any,
+		) => {
+			opened: () => void;
+			closed: () => void;
+			targets: any;
+		}
+	> = memoizeOne(
+		(
+			targets: any,
+		): {
+			opened: () => void;
+			closed: () => void;
+			targets: any;
+		} => ({
+			opened: this.spotlightOpen,
+			closed: this.spotlightClose,
+			targets,
+		}),
+	);
 
 	render(): React.JSX.Element {
 		const { blanketIsTinted, children, component: Tag, onBlanketClicked } = this.props;
@@ -210,7 +211,6 @@ export default class SpotlightManager extends PureComponent<
 												ref={ref}
 												// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 												className={className}
-												/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */
 												style={style}
 												isTinted={blanketIsTinted}
 												onBlanketClicked={onBlanketClicked}

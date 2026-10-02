@@ -8,14 +8,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { css, jsx } from '@emotion/react';
 import invariant from 'tiny-invariant';
 
-import Link from '@atlaskit/link';
+import Link from '@atlaskit/link/link';
 import { Stack } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { draggable } from '../../src/entry-point/element/adapter';
-import { scrollJustEnoughIntoView } from '../../src/entry-point/element/scroll-just-enough-into-view';
-import { setCustomNativeDragPreview } from '../../src/entry-point/element/set-custom-native-drag-preview';
-
+import { draggable } from '../../src/adapter/element-adapter';
+import { setCustomNativeDragPreview } from '../../src/public-utils/element/custom-native-drag-preview/set-custom-native-drag-preview';
+import { scrollJustEnoughIntoView } from '../../src/public-utils/element/scroll-just-enough-into-view';
 import avatarUrl from './avatar.png';
 
 const cardStyles = css({
@@ -25,7 +24,7 @@ const cardStyles = css({
 	borderRadius: 'var(--border-radius)',
 	boxShadow: `0px 0px 1px rgba(9, 30, 66, 0.31), 0px 1px 1px rgba(9, 30, 66, 0.25)`,
 	userSelect: 'none',
-	background: token('elevation.surface.raised', '#FFF'),
+	background: token('elevation.surface.raised'),
 	width: '150px',
 	justifyContent: 'center',
 });
@@ -41,7 +40,7 @@ const cardTextStyles = css({
 	margin: 0,
 });
 const cardTextDraggingStyles = css({
-	color: token('color.text.disabled', '#091E424F'),
+	color: token('color.text.disabled'),
 });
 
 function Card() {

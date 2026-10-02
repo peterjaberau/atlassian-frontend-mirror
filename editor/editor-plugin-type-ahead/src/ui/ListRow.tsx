@@ -1,16 +1,12 @@
-import React, {
-	type ReactNode,
-	useEffect,
-	useRef,
-	forwardRef,
-	type MouseEventHandler,
-} from 'react';
+import React, { useEffect, useRef, forwardRef } from 'react';
+import type { ReactNode, MouseEventHandler } from 'react';
 
-import { type ListRowProps } from 'react-virtualized';
+import type { ListRowProps } from 'react-virtualized';
 
 type Props = {
 	children: ReactNode;
 	measure: () => void;
+	onMeasured?: () => void;
 	onMouseMove: MouseEventHandler<HTMLDivElement>;
 } & Pick<ListRowProps, 'index' | 'style' | 'isScrolling' | 'isVisible'>;
 
@@ -28,8 +24,16 @@ type Props = {
  * @example
  */
 // The `CellMeasurer` component from react-virtualized expects that his children is a `forwardRef` component.
-export const ListRow = forwardRef<HTMLDivElement, Props>(
-	({ children, measure, index, style, isVisible, isScrolling, onMouseMove }, ref) => {
+export const ListRow: React.ForwardRefExoticComponent<
+	{
+		children: ReactNode;
+		measure: () => void;
+		onMeasured?: () => void;
+		onMouseMove: MouseEventHandler<HTMLDivElement>;
+	} & Pick<ListRowProps, 'index' | 'isScrolling' | 'isVisible' | 'style'> &
+		React.RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, Props>(
+	({ children, measure, onMeasured, index, style, isVisible, isScrolling, onMouseMove }, ref) => {
 		const childElementRef = useRef<HTMLDivElement | null>(null);
 
 		useEffect(() => {
@@ -38,11 +42,14 @@ export const ListRow = forwardRef<HTMLDivElement, Props>(
 				return;
 			}
 
-			const observer = new ResizeObserver(() => measure());
+			const observer = new ResizeObserver(() => {
+				measure();
+				onMeasured?.();
+			});
 			observer.observe(childElementRef.current);
 
 			return () => observer.disconnect();
-		}, [isScrolling, isVisible, measure]);
+		}, [isScrolling, isVisible, measure, onMeasured]);
 
 		return (
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop

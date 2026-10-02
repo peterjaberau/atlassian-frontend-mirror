@@ -1,4 +1,5 @@
-import { normalizeUrl } from '../url';
+import { linkifyMatch } from '../linkifyMatch';
+import { normalizeUrl } from '../normalizeUrl';
 
 describe('normalizeUrl', () => {
 	it.each<string | { expected: string | null; input: string }>([
@@ -160,5 +161,34 @@ describe('normalizeUrl', () => {
 			const { input, expected } = testData;
 			expect(normalizeUrl(input)).toBe(expected);
 		}
+	});
+});
+
+describe('linkifyMatch', () => {
+	it('should find every URL when the input contains a lot of URLs', () => {
+		const text =
+			'https://google.com and also we should look at https://reddit.com and finally who can forget https://youtube.com and https://openai.com';
+		const matches = linkifyMatch(text);
+
+		expect(matches[0]).toMatchObject({
+			index: 0,
+			lastIndex: 18,
+			url: 'https://google.com',
+		});
+		expect(matches[1]).toMatchObject({
+			index: 46,
+			lastIndex: 64,
+			url: 'https://reddit.com',
+		});
+		expect(matches[2]).toMatchObject({
+			index: 92,
+			lastIndex: 111,
+			url: 'https://youtube.com',
+		});
+		expect(matches[3]).toMatchObject({
+			index: 116,
+			lastIndex: 134,
+			url: 'https://openai.com',
+		});
 	});
 });

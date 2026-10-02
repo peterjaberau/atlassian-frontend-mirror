@@ -1,43 +1,45 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import {
-	AnalyticsListener,
-	withAnalyticsEvents,
-	type CreateUIAnalyticsEvent,
-	type UIAnalyticsEvent,
-	createAndFireEvent,
-} from '@atlaskit/analytics-next';
-import { FabricChannel } from '@atlaskit/analytics-listeners';
-import {
-	createAndFireMediaCardEvent,
-	fireMediaCardEvent,
-	type MediaCardAnalyticsEventPayload,
-	getRenderErrorFailReason,
-	getRenderErrorErrorReason,
-	getRenderErrorErrorDetail,
-	getRenderErrorRequestMetadata,
-	getRenderErrorEventPayload,
-	extractErrorInfo,
-	type SSRStatus,
-	getAuthProviderSucceededPayload,
-	getAuthProviderFailedPayload,
-} from './analytics';
+
+import { FabricChannel } from '@atlaskit/analytics-listeners/types';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
+import { getMediaClientErrorReason } from '@atlaskit/media-client';
+import { createMediaStoreError, createRateLimitedError } from '@atlaskit/media-client/test-helpers';
 import {
 	type FileAttributes,
 	type MediaTraceContext,
 	type PerformanceAttributes,
 } from '@atlaskit/media-common';
-import { createMediaStoreError, createRateLimitedError } from '@atlaskit/media-client/test-helpers';
-import { getMediaClientErrorReason } from '@atlaskit/media-client';
-import { getRenderFailedFileStatusPayload } from './analytics';
-import { MediaCardError } from '../../errors';
+import { render, screen, userEvent } from '@atlassian/testing-library';
 
-jest.mock('@atlaskit/analytics-next', () => {
-	const actualModule = jest.requireActual('@atlaskit/analytics-next');
+import { MediaCardError } from '../../MediaCardError';
+import type { MediaCardAnalyticsEventPayload, SSRStatus } from './analytics';
+import { createAndFireMediaCardEvent } from './createAndFireMediaCardEvent';
+import { extractErrorInfo } from './extractErrorInfo';
+import { fireMediaCardEvent } from './fireMediaCardEvent';
+import { getAuthProviderFailedPayload } from './getAuthProviderFailedPayload';
+import { getAuthProviderSucceededPayload } from './getAuthProviderSucceededPayload';
+import { getRenderErrorErrorDetail } from './getRenderErrorErrorDetail';
+import { getRenderErrorErrorReason } from './getRenderErrorErrorReason';
+import { getRenderErrorEventPayload } from './getRenderErrorEventPayload';
+import { getRenderErrorFailReason } from './getRenderErrorFailReason';
+import { getRenderErrorRequestMetadata } from './getRenderErrorRequestMetadata';
+import { getRenderFailedFileStatusPayload } from './getRenderFailedFileStatusPayload';
+
+jest.mock('@atlaskit/analytics-next/createAndFireEvents', () => {
+	// The source imports the DEFAULT export of this subpath, so base the mock
+	// implementation on that default (the barrel does not re-export it as a named
+	// `createAndFireEvent`, so the previous `actualModule.createAndFireEvent` was
+	// undefined and produced "is not a function").
+	const actualModule = jest.requireActual('@atlaskit/analytics-next/createAndFireEvents');
+	const mockCreateAndFireEvent = jest.fn(actualModule.default);
+	(global as any).__mockCreateAndFireEvent = mockCreateAndFireEvent;
 	return {
-		__esModule: true,
 		...actualModule,
-		createAndFireEvent: jest.fn(actualModule.createAndFireEvent),
+		__esModule: true,
+		default: mockCreateAndFireEvent,
 	};
 });
 
@@ -63,7 +65,16 @@ describe('Media Analytics', () => {
 		jest.clearAllMocks();
 	});
 
-	it('Should provide an analytics event creator for Media Card', () => {
+	it('should capture and report a11y violations', async () => {
+		const { container } = render(
+			<AnalyticsListener channel={FabricChannel.media} onEvent={jest.fn()}>
+				<div>Hi!</div>
+			</AnalyticsListener>,
+		);
+		await expect(container).toBeAccessible();
+	});
+
+	it('Should provide an analytics event creator for Media Card', async () => {
 		// eslint-disable-next-line @atlaskit/design-system/use-primitives-text
 		const SomeComponent = ({ onClick }: any) => <span onClick={onClick}>Hi!</span>;
 		const SomeWrappedComponent = withAnalyticsEvents({
@@ -71,12 +82,13 @@ describe('Media Analytics', () => {
 		})(SomeComponent);
 
 		const analyticsEventHandler = jest.fn();
-		const listener = mount(
+		render(
 			<AnalyticsListener channel={FabricChannel.media} onEvent={analyticsEventHandler}>
 				<SomeWrappedComponent />
 			</AnalyticsListener>,
 		);
-		listener.find(SomeComponent).simulate('click');
+
+		await userEvent.click(screen.getByText('Hi!'));
 
 		expect(analyticsEventHandler).toHaveBeenCalledTimes(1);
 		const actualEvent: Partial<UIAnalyticsEvent> = analyticsEventHandler.mock.calls[0][0];
@@ -98,7 +110,7 @@ describe('Media Analytics', () => {
 		const SomeWrappedComponent = withAnalyticsEvents()(SomeComponent);
 
 		const analyticsEventHandler = jest.fn();
-		mount(
+		render(
 			<AnalyticsListener channel={FabricChannel.media} onEvent={analyticsEventHandler}>
 				<SomeWrappedComponent />
 			</AnalyticsListener>,
@@ -311,7 +323,11 @@ describe('Media Analytics', () => {
 	describe('Sanitisation', () => {
 		describe('fireMediaCardEvent', () => {
 			it('should sanitise the file id', () => {
-				const createAnalyticsEvent = jest.fn(() => ({ fire: jest.fn() }));
+				const createAnalyticsEvent = jest.fn(() => ({
+					fire: jest.fn(),
+					context: [] as unknown[],
+					clone: jest.fn(() => ({ fire: jest.fn(), context: [] as unknown[] })),
+				}));
 				const payload = {
 					attributes: {
 						fileAttributes: { fileId: 'this is an invalid file id' },
@@ -326,7 +342,11 @@ describe('Media Analytics', () => {
 			});
 
 			it('should preserve a valid file id', () => {
-				const createAnalyticsEvent = jest.fn(() => ({ fire: jest.fn() }));
+				const createAnalyticsEvent = jest.fn(() => ({
+					fire: jest.fn(),
+					context: [] as unknown[],
+					clone: jest.fn(() => ({ fire: jest.fn(), context: [] as unknown[] })),
+				}));
 				const validFileId = 'c2c581e3-8fb7-44ef-b3ed-7c9c9a29c3ef';
 				const payload = {
 					attributes: { fileAttributes: { fileId: validFileId } },
@@ -343,7 +363,7 @@ describe('Media Analytics', () => {
 		describe('createAndFireMediaCardEvent', () => {
 			it('should sanitise the file id', () => {
 				const createdEvent = jest.fn();
-				(createAndFireEvent as jest.Mock).mockReturnValueOnce(createdEvent);
+				((global as any).__mockCreateAndFireEvent as jest.Mock).mockReturnValueOnce(createdEvent);
 				const payload = {
 					attributes: {
 						fileAttributes: { fileId: 'this is an invalid file id' },
@@ -359,7 +379,7 @@ describe('Media Analytics', () => {
 
 			it('should preserve a valid file id', () => {
 				const createdEvent = jest.fn();
-				(createAndFireEvent as jest.Mock).mockReturnValueOnce(createdEvent);
+				((global as any).__mockCreateAndFireEvent as jest.Mock).mockReturnValueOnce(createdEvent);
 				const validFileId = 'c2c581e3-8fb7-44ef-b3ed-7c9c9a29c3ef';
 				const payload = {
 					attributes: { fileAttributes: { fileId: validFileId } },

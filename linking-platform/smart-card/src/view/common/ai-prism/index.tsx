@@ -4,7 +4,8 @@
  */
 import { css, cssMap, jsx } from '@compiled/react';
 
-import { token, useThemeObserver } from '@atlaskit/tokens';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import AIGlowingBorder from './ai-glowing-border';
 import { AI_BORDER_PALETTE } from './constants';
@@ -32,27 +33,37 @@ const animatedSvgContainerStyles = cssMap({
 	},
 });
 
+const borderRadiusStyles = cssMap({
+	large: {
+		borderRadius: token('radius.large', '8px'),
+	},
+	small: {
+		borderRadius: token('radius.small', '4px'),
+	},
+});
+
 const popupContainerStyles = css({
 	borderRadius: token('radius.large', '8px'),
-	backgroundColor: token('elevation.surface.overlay', 'white'),
-	boxShadow: token(
-		'elevation.shadow.overlay',
-		'0px 8px 12px rgba(9, 30, 66, 0.15),0px 0px 1px rgba(9, 30, 66, 0.31)',
-	),
+	backgroundColor: token('elevation.surface.overlay'),
+	boxShadow: token('elevation.shadow.overlay'),
 });
 
 const AIPrism = ({
+	borderRadius,
 	children,
 	isGlowing = true,
 	isMoving = true,
 	isVisible,
 	testId,
-}: AIPrismProps) => {
+}: AIPrismProps): JSX.Element => {
 	const { colorMode = 'light' } = useThemeObserver();
 
 	return (
 		<AIGlowingBorder
-			css={[animatedSvgContainerStyles[isVisible ? 'true' : 'false']]}
+			css={[
+				animatedSvgContainerStyles[isVisible ? 'true' : 'false'],
+				borderRadius && borderRadiusStyles[borderRadius],
+			]}
 			palette={AI_BORDER_PALETTE[colorMode] ?? AI_BORDER_PALETTE.light}
 			isGlowing={isGlowing}
 			isMoving={isMoving}

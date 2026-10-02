@@ -1,21 +1,43 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { asMock } from '@atlaskit/link-test-helpers/jest';
-import { mount, type ReactWrapper } from 'enzyme';
-import { IntlProvider } from 'react-intl-next';
+import { MockCardComponent } from './card.mock';
 
-import { CardClient as Client, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import React from 'react';
+
+import { render } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
+
+import type { DatasourceAttributeProperties } from '@atlaskit/adf-schema/block-card';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { WidthContext } from '@atlaskit/editor-common/ui';
+import { DatasourceTableViewWithWrappers as DatasourceTableView } from '@atlaskit/link-datasource/datasource-table-view-with-wrappers';
+import { JIRA_LIST_OF_LINKS_DATASOURCE_ID } from '@atlaskit/link-datasource/jira-issues-modal';
+import Client from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
+import { asMock } from '@atlaskit/link-test-helpers/jest';
+import { Pressable } from '@atlaskit/primitives/compiled';
 import { Card } from '@atlaskit/smart-card';
 
 import BlockCard from '../../../../react/nodes/blockCard';
-import InlineCard from '../../../../react/nodes/inlineCard';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { MockCardComponent } from './card.mock';
+import { CardErrorBoundary } from '../../../../react/nodes/fallback';
+import { getCardClickHandler } from '../../../../react/utils/getCardClickHandler';
 
-import type { DatasourceAttributeProperties } from '@atlaskit/adf-schema/schema';
-import { DatasourceTableView, JIRA_LIST_OF_LINKS_DATASOURCE_ID } from '@atlaskit/link-datasource';
-import { WidthContext } from '@atlaskit/editor-common/ui';
-import { Pressable } from '@atlaskit/primitives/compiled';
+jest.mock('../../../../react/nodes/fallback', () => {
+	const actual = jest.requireActual('../../../../react/nodes/fallback');
+	return {
+		CardErrorBoundary: jest.fn((props) => <actual.CardErrorBoundary {...props} />),
+	};
+});
+
+jest.mock('@atlaskit/link-datasource/datasource-table-view-with-wrappers', () => {
+	const actual = jest.requireActual(
+		'@atlaskit/link-datasource/datasource-table-view-with-wrappers',
+	);
+	return {
+		...jest.requireActual('@atlaskit/link-datasource/datasource-table-view-with-wrappers'),
+		DatasourceTableViewWithWrappers: jest.fn((props) => (
+			<actual.DatasourceTableViewWithWrappers {...props} />
+		)),
+	};
+});
 
 jest.mock('@atlaskit/smart-card', () => {
 	const originalModule = jest.requireActual('@atlaskit/smart-card');
@@ -29,25 +51,36 @@ jest.mock('@atlaskit/smart-card', () => {
 describe('Renderer - React/Nodes/BlockCard', () => {
 	const url = 'https://extranet.atlassian.com/pages/viewpage.action?pageId=3088533424';
 
-	let node: ReactWrapper;
-	afterEach(() => {
-		node.unmount();
+	beforeEach(() => {
+		jest.clearAllMocks();
 	});
 
 	it('should render a <div>-tag', () => {
-		node = mount(<BlockCard url={url} />);
-		expect(node.getDOMNode()['tagName']).toEqual('DIV');
+		const { container } = render(
+			<Provider client={new Client('staging')}>
+				<BlockCard url={url} />
+			</Provider>,
+		);
+
+		expect(container.querySelector('[data-block-card]')?.tagName).toEqual('DIV');
 	});
 
 	it('should render with url if prop exists', () => {
-		node = mount(<BlockCard url={url} />);
-		expect(node.find(BlockCard).prop('url')).toEqual(url);
+		render(
+			<Provider client={new Client('staging')}>
+				<BlockCard url={url} />
+			</Provider>,
+		);
+
+		expect((Card as unknown as jest.Mock).mock.lastCall?.[0]).toEqual(
+			expect.objectContaining({ url }),
+		);
 	});
 
 	it('should render with onClick if eventHandlers has correct event key', async () => {
 		const mockedOnClick = jest.fn();
 		const mockedEvent = { target: {} };
-		node = mount(
+		render(
 			<Provider client={new Client('staging')}>
 				<BlockCard
 					url={url}
@@ -60,21 +93,46 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 			</Provider>,
 		);
 
-		const onClick = node.find(Card).prop('onClick');
+		const { onClick } = asMock(Card).mock.lastCall![0];
 
 		onClick(mockedEvent);
 
 		expect(mockedOnClick).toHaveBeenCalledWith(mockedEvent, url);
 	});
 
+	it('should pass consumer onClick (not Card onClick) to CardErrorBoundary', async () => {
+		const mockedOnClick = jest.fn();
+		const mockedEvent = { target: {} } as unknown as React.MouseEvent<HTMLElement>;
+		render(
+			<Provider client={new Client('staging')}>
+				<BlockCard
+					url={url}
+					eventHandlers={{
+						smartCard: {
+							onClick: mockedOnClick,
+						},
+					}}
+				/>
+			</Provider>,
+		);
+
+		// CardErrorBoundary.onClick must be (e, url?: string) — the consumer-facing shape,
+		// not the Card/CardSSR shape (e, { destinationUrl? }).
+		// When CardErrorBoundary's fallback link is clicked, it calls onClick(e, url)
+		// using the ADF url from props.
+		asMock(CardErrorBoundary).mock.lastCall![0].onClick(mockedEvent, url);
+
+		expect(mockedOnClick).toHaveBeenCalledWith(mockedEvent, url);
+	});
+
 	it('should render with onClick as undefined if eventHandlers is not present', () => {
-		node = mount(
+		render(
 			<Provider client={new Client('staging')}>
 				<BlockCard url={url} />{' '}
 			</Provider>,
 		);
 
-		expect(node.find(Card).prop('onClick')).toBeUndefined();
+		expect(asMock(Card).mock.lastCall![0].onClick).toBeUndefined();
 	});
 
 	describe('rendering a datasource', () => {
@@ -98,16 +156,17 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 		};
 
 		it('should render a DatasourceTableView if datasource is provided with JQL and a table view', () => {
-			node = mount(
+			const { container } = render(
 				<Provider client={new Client('staging')}>
 					<BlockCard url={url} datasource={datasourceAttributeProperties} />
 				</Provider>,
 			);
-			expect(node.find(Card).length).toBe(0);
 
-			const tableView = node.find(DatasourceTableView);
-			expect(tableView.length).toBe(1);
-			expect(tableView.props()).toEqual({
+			expect(Card).not.toHaveBeenCalled();
+			expect(container.querySelectorAll('[data-testid="renderer-datasource-table"]')).toHaveLength(
+				1,
+			);
+			expect((DatasourceTableView as unknown as jest.Mock).mock.lastCall?.[0]).toEqual({
 				onVisibleColumnKeysChange: undefined,
 				onColumnResize: undefined,
 				url: 'https://extranet.atlassian.com/pages/viewpage.action?pageId=3088533424',
@@ -141,7 +200,7 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 				],
 			};
 
-			node = mount(
+			const { container } = render(
 				<Provider client={new Client('staging')}>
 					<IntlProvider locale="en">
 						<BlockCard url={url} datasource={datasourceAttributePropertiesNoCustomSizes} />
@@ -149,15 +208,15 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 				</Provider>,
 			);
 
-			expect(node.find(Card).length).toBe(0);
-
-			const tableView = node.find(DatasourceTableView);
-			expect(tableView.length).toBe(1);
-			expect(tableView.prop('columnCustomSizes')).toBeUndefined();
+			expect(Card).not.toHaveBeenCalled();
+			expect(container.querySelectorAll('[data-testid="renderer-datasource-table"]')).toHaveLength(
+				1,
+			);
+			expect(asMock(DatasourceTableView).mock.lastCall![0].columnCustomSizes).toBeUndefined();
 		});
 
 		it('should set the wrapper width as 100% when isNodeNested is set as true', () => {
-			node = mount(
+			const { container } = render(
 				<Provider client={new Client('staging')}>
 					<IntlProvider locale="en">
 						<BlockCard
@@ -170,15 +229,13 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 				</Provider>,
 			);
 
-			expect(node.html()).toMatch(
-				// Ignored via go/ees005
-				// eslint-disable-next-line require-unicode-regexp
-				/<div data-testid=\"renderer-datasource-table\" style=\"width: 100%;\".*/,
-			);
+			expect(container.querySelector('[data-testid="renderer-datasource-table"]')).toHaveStyle({
+				width: '100%',
+			});
 		});
 
 		it('should set the correct width when isNodeNested is not set', () => {
-			node = mount(
+			const { container } = render(
 				<Provider client={new Client('staging')}>
 					<IntlProvider locale="en">
 						<WidthContext.Provider value={{ width: 500, breakpoint: 'S' }}>
@@ -188,11 +245,9 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 				</Provider>,
 			);
 
-			expect(node.html()).toMatch(
-				// Ignored via go/ees005
-				// eslint-disable-next-line require-unicode-regexp
-				/<div data-testid=\"renderer-datasource-table\" style=\"width: 404px;\".*/,
-			);
+			expect(container.querySelector('[data-testid="renderer-datasource-table"]')).toHaveStyle({
+				width: '404px',
+			});
 		});
 
 		it('should render inlineCard if jira issue datasource is provided with JQL but NOT a table view', () => {
@@ -206,7 +261,7 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 				],
 			} as any;
 
-			node = mount(
+			render(
 				<Provider client={new Client('staging')}>
 					<IntlProvider locale="en">
 						<BlockCard url={url} datasource={notRenderableDatasource} />
@@ -214,8 +269,9 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 				</Provider>,
 			);
 
-			expect(node.find(InlineCard).length).toBe(1);
-			expect(node.find(InlineCard).prop('url')).toEqual(url);
+			expect((Card as unknown as jest.Mock).mock.lastCall?.[0]).toEqual(
+				expect.objectContaining({ url, appearance: 'inline' }),
+			);
 		});
 
 		it('should render a datasource when datasource ID is JLOL', () => {
@@ -224,20 +280,22 @@ describe('Renderer - React/Nodes/BlockCard', () => {
 				id: JIRA_LIST_OF_LINKS_DATASOURCE_ID,
 			};
 
-			node = mount(
+			render(
 				<Provider client={new Client('staging')}>
 					<IntlProvider locale="en">
 						<BlockCard url={url} datasource={datasourceAttributePropertiesWithRealJiraId} />
 					</IntlProvider>
 				</Provider>,
 			);
-			const tableView = node.find(DatasourceTableView);
-			expect(tableView.prop('datasourceId')).toEqual('d8b75300-dfda-4519-b6cd-e49abbd50401');
-			expect(tableView.prop('parameters')).toEqual({
+
+			const tableViewProps = asMock(DatasourceTableView).mock.lastCall![0];
+
+			expect(tableViewProps.datasourceId).toEqual('d8b75300-dfda-4519-b6cd-e49abbd50401');
+			expect(tableViewProps.parameters).toEqual({
 				cloudId: 'mock-cloud-id',
 				jql: 'JQL=MOCK',
 			});
-			expect(tableView.prop('visibleColumnKeys')).toEqual(['column-1', 'column-2']);
+			expect(tableViewProps.visibleColumnKeys).toEqual(['column-1', 'column-2']);
 		});
 	});
 });
@@ -261,7 +319,9 @@ describe('Renderer - React/Nodes/BlockCard - analytics context', () => {
 
 		render(
 			<AnalyticsListener onEvent={analyticsSpy} channel={'atlaskit'}>
-				<BlockCard url="https://atlassian.com" />
+				<Provider client={new Client('staging')}>
+					<BlockCard url="https://atlassian.com" />
+				</Provider>
 			</AnalyticsListener>,
 		);
 
@@ -298,12 +358,47 @@ describe('Renderer - React/Nodes/BlockCard - CompetitorPrompt', () => {
 			</Provider>,
 		);
 
-		expect(Card).toHaveBeenCalledWith(
+		expect((Card as unknown as jest.Mock).mock.lastCall?.[0]).toEqual(
 			expect.objectContaining({
 				CompetitorPrompt: MockCompetitorPrompt,
 				url: 'test.com',
 			}),
-			expect.anything(),
 		);
+	});
+});
+
+describe('Renderer - React/Nodes/BlockCard - getCardClickHandler with XPC URL wrapping', () => {
+	const url = 'https://extranet.atlassian.com/pages/viewpage.action?pageId=3088533424';
+
+	it('should call consumer onClick with destinationUrl from Card when provided', () => {
+		const mockedOnClick = jest.fn();
+		const mockedEvent = { target: {} } as unknown as React.MouseEvent<HTMLElement>;
+
+		// Test getCardClickHandler directly — the Card mock calls onClick(e) without the
+		// second argument, so we test the closure in isolation to verify the destinationUrl
+		// extraction logic without the mock Card interfering.
+		const onCardClick = getCardClickHandler({ smartCard: { onClick: mockedOnClick } }, url);
+
+		// Card/CardSSR now calls onClick(e, { destinationUrl }) — simulate that
+		onCardClick!(mockedEvent, {
+			destinationUrl: 'https://resolved.com',
+			url: 'https://original.com',
+		});
+
+		// Consumer (e.g. Confluence router) receives the resolved url, not the ADF url
+		expect(mockedOnClick).toHaveBeenCalledWith(mockedEvent, 'https://resolved.com');
+	});
+
+	it('should fall back to ADF url when Card onClick fires with no destinationUrl', () => {
+		const mockedOnClick = jest.fn();
+		const mockedEvent = { target: {} } as unknown as React.MouseEvent<HTMLElement>;
+
+		const onCardClick = getCardClickHandler({ smartCard: { onClick: mockedOnClick } }, url);
+
+		// Card fires onClick with empty meta (no destinationUrl)
+		onCardClick!(mockedEvent, {});
+
+		// Falls back to the ADF node's url when destinationUrl is absent
+		expect(mockedOnClick).toHaveBeenCalledWith(mockedEvent, url);
 	});
 });

@@ -4,7 +4,6 @@ import { fireEvent, render } from '@testing-library/react';
 import noop from 'lodash/noop';
 
 import { type SelectableAutocompleteOption } from '../types';
-
 import AutocompleteOption from './index';
 
 const testOption: SelectableAutocompleteOption = {
@@ -63,9 +62,9 @@ describe.skip('basic behavior', () => {
 
 const OptionsListWrapper = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<ul role="listbox" aria-label="options list">
+		<div role="listbox" aria-label="options list">
 			{children}
-		</ul>
+		</div>
 	);
 };
 

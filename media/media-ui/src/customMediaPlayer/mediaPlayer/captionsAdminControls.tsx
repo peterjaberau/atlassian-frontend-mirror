@@ -1,22 +1,28 @@
 import React, { useMemo } from 'react';
-import { type VideoTextTracks } from '../react-video-renderer';
-import UploadIcon from '@atlaskit/icon/core/upload';
+
+import { type WithIntlProps, type WrappedComponentProps, injectIntl } from 'react-intl';
+
 import DeleteIcon from '@atlaskit/icon/core/delete';
 import SettingsIcon from '@atlaskit/icon/core/settings';
-import { messages } from '../../messages';
-import Tooltip from '@atlaskit/tooltip';
-import { type WrappedComponentProps, injectIntl } from 'react-intl-next';
-import { formatLocale } from './captions';
+import UploadIcon from '@atlaskit/icon/core/upload';
+import { PopupSelect } from '@atlaskit/select/popup-select';
+import type { OptionType, ValueType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
 import MediaButton from '../../MediaButton';
-import { popupCustomStyles, createPopupSelectComponentsWithIcon } from '../dropdownControlCommon';
-import { type OptionType, PopupSelect, type ValueType } from '@atlaskit/select';
-import { popperProps } from '../dropdownControlCommon';
+import { messages } from '../../messages';
+import { createPopupSelectComponentsWithIcon } from '../createPopupSelectComponentsWithIcon';
+import { popupCustomStyles } from '../dropdownControlCommon';
+import { getPopperPropsForFullscreen } from '../getPopperPropsForFullscreen';
+import type { VideoTextTracks } from '../react-video-renderer/text';
+import { formatLocale } from './captions/formatLocale';
 
 export interface CaptionsAdminControlsProps {
 	textTracks?: VideoTextTracks;
 	onUpload: () => void;
 	onDelete: (artifactName: string) => void;
+	isFullScreen?: boolean;
 }
 
 const ADD_CAPTIONS_VALUE = 'add-captions';
@@ -35,6 +41,7 @@ export const _CaptionsAdminControls = ({
 	textTracks = {},
 	onUpload,
 	onDelete,
+	isFullScreen = false,
 }: CaptionsAdminControlsProps & WrappedComponentProps): React.JSX.Element => {
 	const manageCaptions = intl.formatMessage(messages.manage_captions);
 	const addCaptions = intl.formatMessage(messages.add_captions);
@@ -88,9 +95,13 @@ export const _CaptionsAdminControls = ({
 				</Tooltip>
 			)}
 			styles={popupCustomStyles}
-			popperProps={popperProps}
+			popperProps={getPopperPropsForFullscreen(isFullScreen)}
 		/>
 	);
 };
 
-export const CaptionsAdminControls = injectIntl(_CaptionsAdminControls);
+export const CaptionsAdminControls: React.FC<
+	WithIntlProps<CaptionsAdminControlsProps & WrappedComponentProps>
+> & {
+	WrappedComponent: React.ComponentType<CaptionsAdminControlsProps & WrappedComponentProps>;
+} = injectIntl(_CaptionsAdminControls);

@@ -1,26 +1,26 @@
 import React from 'react';
 
-import { screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import { type CardState } from '@atlaskit/linking-common';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardState } from '@atlaskit/linking-common/store';
+import type { ProductType } from '@atlaskit/linking-common/types';
 import {
 	expectFunctionToHaveBeenCalledWith,
 	type JestFunction,
 } from '@atlaskit/media-test-helpers';
 import { renderWithIntl } from '@atlaskit/media-test-helpers/renderWithIntl';
-import { setGlobalTheme } from '@atlaskit/tokens';
+import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { screen, within, userEvent } from '@atlassian/testing-library';
 
 import {
 	CONTENT_URL_3P_ACCOUNT_AUTH,
 	CONTENT_URL_SECURITY_AND_PERMISSIONS,
 } from '../../../constants';
 import { PROVIDER_KEYS_WITH_THEMING } from '../../../extractors/constants';
-import { ANALYTICS_CHANNEL } from '../../../utils/analytics';
+import { ANALYTICS_CHANNEL } from '../../../utils/analytics/analytics';
 import { EmbedCard } from '../index';
 import { type EmbedCardProps } from '../types';
 
@@ -40,7 +40,12 @@ const baseData: JsonLd.Response['data'] = {
 	},
 };
 
-const setup = (cardState: CardState, url: string, props?: Partial<EmbedCardProps>) => {
+const setup = (
+	cardState: CardState,
+	url: string,
+	props?: Partial<EmbedCardProps>,
+	product?: ProductType,
+) => {
 	const handleFrameClickMock = jest.fn();
 	const onResolveMock: JestFunction<Required<EmbedCardProps>['onResolve']> = jest.fn();
 	const ref = React.createRef<HTMLIFrameElement>();
@@ -51,7 +56,7 @@ const setup = (cardState: CardState, url: string, props?: Partial<EmbedCardProps
 
 	const renderResult = renderWithIntl(
 		<AnalyticsListener onEvent={onEventMock} channel={ANALYTICS_CHANNEL}>
-			<SmartCardProvider>
+			<SmartCardProvider product={product}>
 				<EmbedCard
 					url={url}
 					cardState={cardState}
@@ -91,7 +96,7 @@ describe('EmbedCard view component', () => {
 		const expectedName = 'some-name';
 		const expectedPreviewUrl = 'http://some-preview-url.com';
 
-		const cardStateOverride: CardState = {
+		const cardStateOverride = {
 			status: 'resolved',
 			details: {
 				meta: {
@@ -109,7 +114,7 @@ describe('EmbedCard view component', () => {
 					},
 				},
 			},
-		};
+		} satisfies CardState;
 
 		it('should render resolved view', () => {
 			const { getByTestId, iframeEl } = setup(cardStateOverride, expectedUrl);
@@ -143,7 +148,7 @@ describe('EmbedCard view component', () => {
 					const { iframeEl } = setup(cardStateOverrideWithThemeSupport, expectedUrl);
 
 					expect(iframeEl.getAttribute('src')).toEqual(
-						`${expectedPreviewUrl}/?themeState=dark%3Adark+light%3Alight+spacing%3Aspacing+typography%3Atypography+colorMode%3Adark`,
+						`${expectedPreviewUrl}/?themeState=dark%3Adark+light%3Alight+motion%3Amotion+shape%3Ashape+spacing%3Aspacing+typography%3Atypography+colorMode%3Adark`,
 					);
 				},
 			);
@@ -162,6 +167,32 @@ describe('EmbedCard view component', () => {
 				};
 				const { iframeEl } = setup(cardStateOverrideWithThemeSupport, expectedUrl);
 				expect(iframeEl.getAttribute('src')).toEqual(expectedPreviewUrl);
+			});
+
+			const avpPlatformCardState: CardState = {
+				...cardStateOverride,
+				details: {
+					...cardStateOverride.details,
+					meta: {
+						key: 'avpplatform-object-provider',
+						access: 'granted',
+						visibility: 'public',
+					},
+				},
+			};
+
+			it('does not add AVP host product context when the gate is disabled', () => {
+				failGate('platform_avp_smartlink_embed_product_context');
+				const { iframeEl } = setup(avpPlatformCardState, expectedUrl, undefined, 'CONFLUENCE');
+
+				expect(iframeEl.getAttribute('src')).not.toContain('hostProduct=');
+			});
+
+			it('adds AVP host product context when the gate is enabled', () => {
+				passGate('platform_avp_smartlink_embed_product_context');
+				const { iframeEl } = setup(avpPlatformCardState, expectedUrl, undefined, 'CONFLUENCE');
+
+				expect(iframeEl.getAttribute('src')).toContain('hostProduct=CONFLUENCE');
 			});
 		});
 
@@ -340,7 +371,7 @@ describe('EmbedCard view component', () => {
 
 			const description = getByTestId(descriptionTestId);
 			expect(description).toHaveTextContent(
-				'Connect your 3P account to collaborate on work across Atlassian products. Learn more about Smart Links.',
+				'Turn your URLs into rich, interactive previews.Learn more about Smart Links.',
 			);
 
 			const action = getByTestId(buttonTestId);
@@ -370,7 +401,7 @@ describe('EmbedCard view component', () => {
 
 			const description = getByTestId(descriptionTestId);
 			expect(description).toHaveTextContent(
-				'Connect your 3P account to collaborate on work across Atlassian products. Learn more about connecting your account to Atlassian products.',
+				'Turn your URLs into rich, interactive previews.Learn more about connecting your account to Atlassian products.',
 			);
 
 			const action = getByTestId(buttonTestId);

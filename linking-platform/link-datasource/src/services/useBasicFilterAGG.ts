@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
-import { request } from '@atlaskit/linking-common';
+import { request } from '@atlaskit/linking-common/api';
 
 import {
 	type UserHydrationAGGResponse,
@@ -11,7 +11,6 @@ import {
 	type FieldValuesResponse,
 	type HydrateResponse,
 } from '../ui/jira-issues-modal/basic-filters/types';
-
 import { fieldValuesQuery, hydrateJQLQuery, userHydration, userQuery } from './utils';
 
 interface GetFieldValuesProps {
@@ -24,7 +23,18 @@ interface GetFieldValuesProps {
 
 const AGG_BASE_URL = '/gateway/api/graphql';
 
-export const useBasicFilterAGG = () => {
+export const useBasicFilterAGG = (): {
+	getCurrentUserInfo: () => Promise<UserInfoAGGResponse>;
+	getFieldValues: ({
+		cloudId,
+		jql,
+		jqlTerm,
+		searchString,
+		pageCursor,
+	}: GetFieldValuesProps) => Promise<FieldValuesResponse>;
+	getHydratedJQL: (cloudId: string, jql: string) => Promise<HydrateResponse>;
+	getUsersFromAccountIDs: (accountIds: string[]) => Promise<UserHydrationAGGResponse>;
+} => {
 	const requestCall = useCallback(
 		async <Response>(body: object, headers?: HeadersInit) =>
 			request<Response>('post', AGG_BASE_URL, body, headers, [200, 201, 202, 203, 204]),

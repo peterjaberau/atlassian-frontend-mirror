@@ -1,35 +1,47 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { type IntlShape, useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import type { AnalyticsEventPayload } from '@atlaskit/editor-common/analytics';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
+import { IconMention } from '@atlaskit/editor-common/assets';
 import {
 	toolbarInsertBlockMessages as messages,
 	mentionMessages,
 } from '@atlaskit/editor-common/messages';
 import { WithProviders } from '@atlaskit/editor-common/provider-factory';
-import { IconMention } from '@atlaskit/editor-common/quick-insert';
-import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI, PMPluginFactoryParams } from '@atlaskit/editor-common/types';
 import type { TypeAheadInputMethod } from '@atlaskit/editor-plugin-type-ahead';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+import { isPromise } from '@atlaskit/mention/is-promise';
+import { isResolvingMentionProvider } from '@atlaskit/mention/is-resolving-mention-provider';
 import {
-	isResolvingMentionProvider,
+	MentionNameStatus,
 	type MentionNameDetails,
 	type MentionProvider,
-} from '@atlaskit/mention/resource';
-import { MentionNameStatus, isPromise } from '@atlaskit/mention/types';
-import { fg } from '@atlaskit/platform-feature-flags';
+} from '@atlaskit/mention/types';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { insertMention } from './editor-commands';
+import { isMentionTypeAheadEnabled } from './isMentionTypeAheadEnabled';
 import type { MentionsPlugin } from './mentionsPluginType';
 import { mentionNodeSpec } from './nodeviews/mentionNodeSpec';
+import { agentMentionPluginKey, createAgentMentionPlugin } from './pm-plugins/agent';
 import { mentionPluginKey } from './pm-plugins/key';
 import { ACTIONS, createMentionPlugin } from './pm-plugins/main';
-import type { FireElementsChannelEvent, MentionSharedState } from './types';
-import { InlineInviteRecaptchaContainer } from './ui/InlineInviteRecaptchaContainer';
+import type {
+	AgentRunStateByLocalId,
+	FireElementsChannelEvent,
+	MentionChange,
+	MentionSharedState,
+} from './types';
+import { InlineInvitePopupContainer } from './ui/InlineInvitePopupContainer';
+import { getMentionQuickInsertComponents } from './ui/quick-insert/getMentionQuickInsertComponents';
 import { SecondaryToolbarComponent } from './ui/SecondaryToolbarComponent';
 import { createTypeAheadConfig } from './ui/type-ahead';
 
@@ -111,13 +123,25 @@ const mentionsPlugin: MentionsPlugin = ({ config: options, api }) => {
 	};
 
 	const typeAhead = createTypeAheadConfig({
+		canOpenTypeAhead: options?.canOpenTypeAhead,
 		sanitizePrivateContent: options?.sanitizePrivateContent,
 		mentionInsertDisplayName: options?.insertDisplayName,
 		HighlightComponent: options?.HighlightComponent,
 		handleMentionsChanged: options?.handleMentionsChanged,
+		enableAgentSectioning: options?.enableAgentSectioning,
+		showAgentMentionsLabsLozenge: options?.showAgentMentionsLabsLozenge,
+		profilecardProvider: options?.profilecardProvider,
 		fireEvent,
 		api,
 	});
+	const canOpenMentionTypeAhead = () => isMentionTypeAheadEnabled(options?.canOpenTypeAhead);
+	const isRegisteredSlashCommandEnabled = isExperimentEnabled('platform_editor_slash_command');
+
+	if (isRegisteredSlashCommandEnabled) {
+		api?.uiControlRegistry?.actions.register(
+			getMentionQuickInsertComponents({ api, canOpenMentionTypeAhead, typeAhead }),
+		);
+	}
 
 	return {
 		name: 'mention',
@@ -127,13 +151,23 @@ const mentionsPlugin: MentionsPlugin = ({ config: options, api }) => {
 		},
 
 		pmPlugins() {
-			return [
+			const plugins = [
 				{
 					name: 'mention',
-					plugin: (pmPluginFactoryParams) =>
+					plugin: (pmPluginFactoryParams: PMPluginFactoryParams) =>
 						createMentionPlugin({ pmPluginFactoryParams, fireEvent, options, api }),
 				},
 			];
+
+			if (editorExperiment('platform_editor_agent_mentions', true)) {
+				plugins.push({
+					name: 'agentMention',
+					plugin: (pmPluginFactoryParams: PMPluginFactoryParams) =>
+						createAgentMentionPlugin({ pmPluginFactoryParams, options }),
+				});
+			}
+
+			return plugins;
 		},
 
 		contentComponent({ editorView, providerFactory }) {
@@ -143,17 +177,19 @@ const mentionsPlugin: MentionsPlugin = ({ config: options, api }) => {
 
 			return (
 				<WithProviders
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					providers={['mentionProvider']}
 					providerFactory={providerFactory}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					renderNode={({ mentionProvider }) => {
 						return (
 							<>
 								<Component mentionProvider={mentionProvider} api={api} />
-								{ fg('jira_invites_auto_tag_new_user_in_mentions_fg') && (
-									<InlineInviteRecaptchaContainer
+								{fg('inline_invite_from_mentions_kill_switch') && (
+									<InlineInvitePopupContainer
 										mentionProvider={mentionProvider}
 										api={api}
-										
+										editorView={editorView}
 									/>
 								)}
 							</>
@@ -195,17 +231,35 @@ const mentionsPlugin: MentionsPlugin = ({ config: options, api }) => {
 					}),
 				);
 			},
-			announceMentionsInsertion: (
-				mentionChanges: {
-					id: string;
-					localId: string;
-					taskLocalId?: string;
-					type: 'added' | 'deleted';
-				}[],
-			) => {
+			announceMentionsInsertion: (mentionChanges: MentionChange[]) => {
 				if (options?.handleMentionsChanged) {
 					options.handleMentionsChanged(mentionChanges);
 				}
+			},
+			setAgentMentionRunStates: (runStateByLocalId: AgentRunStateByLocalId) => {
+				if (
+					!(
+						editorExperiment('platform_editor_agent_mentions', true) &&
+						isExperimentEnabled('platform_editor_agent_mention_state_anim')
+					)
+				) {
+					return false;
+				}
+				return (
+					api?.core.actions.execute(({ tr }) =>
+						tr.setMeta(mentionPluginKey, {
+							action: ACTIONS.SET_AGENT_RUN_STATES,
+							params: { runStateByLocalId },
+						}),
+					) ?? false
+				);
+			},
+			updateSectionTitle: (props) => {
+				if (!options?.enableAgentSectioning) {
+					return false;
+				}
+
+				return api?.typeAhead?.actions?.updateSectionTitle?.(props) ?? false;
 			},
 			setProvider: async (providerPromise) => {
 				if (!fg('platform_editor_mention_provider_via_plugin_config')) {
@@ -235,38 +289,72 @@ const mentionsPlugin: MentionsPlugin = ({ config: options, api }) => {
 			}
 
 			const mentionPluginState = mentionPluginKey.getState(editorState);
+			const agentMentionPluginState = agentMentionPluginKey.getState(editorState);
+			// Exclude pendingPastedAgentMention — it is an @internal transient field and
+			// should not be part of the public shared state API. Exposing it would cause
+			// unnecessary re-renders in subscribers and leak implementation details.
+			const {
+				pendingPastedAgentMention: _excluded,
+				// Internal decoration-only state, kept out of the public shared state.
+				runStateDecorations: _excludedRunState,
+				...publicPluginState
+			} = mentionPluginState ?? {};
 			return {
-				...mentionPluginState,
+				...publicPluginState,
+				...(agentMentionPluginState
+					? {
+							lastAgentMentionInsertionCount:
+								agentMentionPluginState.lastAgentMentionInsertionCount,
+							lastInsertedAgentMentionContext:
+								agentMentionPluginState.lastInsertedAgentMentionContext,
+							lastInsertedAgentMentionId: agentMentionPluginState.lastInsertedAgentMentionId,
+							lastInsertedAgentMentionLocalId:
+								agentMentionPluginState.lastInsertedAgentMentionLocalId,
+							lastInsertedAgentMentionName: agentMentionPluginState.lastInsertedAgentMentionName,
+							lastInsertedAgentMentionParentNodeType:
+								agentMentionPluginState.lastInsertedAgentMentionParentNodeType,
+							lastInsertedAgentMentionPrompt:
+								agentMentionPluginState.lastInsertedAgentMentionPrompt,
+						}
+					: {}),
 				typeAheadHandler: typeAhead,
 			};
 		},
 
 		pluginsOptions: {
-			quickInsert: ({ formatMessage }) => [
-				{
-					id: 'mention',
-					title: formatMessage(messages.mention),
-					description: formatMessage(messages.mentionDescription),
-					keywords: ['team', 'user'],
-					priority: 400,
-					keyshortcut: '@',
-					icon: () => <IconMention />,
-					action(insert, state) {
-						const tr = insert(undefined);
-						const pluginState = mentionPluginKey.getState(state);
-						if (pluginState && pluginState.canInsertMention === false) {
-							return false;
-						}
+			quickInsert: isRegisteredSlashCommandEnabled
+				? undefined
+				: ({ formatMessage }) => [
+						{
+							id: 'mention',
+							title: formatMessage(messages.mention),
+							description: formatMessage(messages.mentionDescription),
+							keywords: ['team', 'user'],
+							priority: 400,
+							keyshortcut: '@',
+							icon: () => <IconMention />,
+							isHidden: () =>
+								canOpenMentionTypeAhead() === false ||
+								api?.mention.sharedState.currentState()?.canInsertMention === false,
+							action(insert, state) {
+								const pluginState = mentionPluginKey.getState(state);
+								if (pluginState && pluginState.canInsertMention === false) {
+									return false;
+								}
 
-						api?.typeAhead?.actions.openAtTransaction({
-							triggerHandler: typeAhead,
-							inputMethod: INPUT_METHOD.QUICK_INSERT,
-						})(tr);
+								const tr = insert(undefined);
+								const didOpen = api?.typeAhead?.actions.openAtTransaction({
+									triggerHandler: typeAhead,
+									inputMethod: INPUT_METHOD.QUICK_INSERT,
+								})(tr);
+								if (didOpen === false) {
+									return false;
+								}
 
-						return tr;
-					},
-				},
-			],
+								return tr;
+							},
+						},
+					],
 			typeAhead,
 		},
 	};

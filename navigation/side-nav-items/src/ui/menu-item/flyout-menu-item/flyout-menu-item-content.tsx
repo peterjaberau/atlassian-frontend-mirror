@@ -7,7 +7,6 @@ import React, {
 	useCallback,
 	useContext,
 	useEffect,
-	useId,
 	useMemo,
 	useRef,
 	useState,
@@ -15,17 +14,22 @@ import React, {
 
 import { cssMap as cssMapUnbound, jsx } from '@compiled/react';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import { cssMap } from '@atlaskit/css';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { PopupContent } from '@atlaskit/popup/experimental';
+import { useLayoutEffect } from '@atlaskit/ds-lib/use-layout-effect';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { PopupContent } from '@atlaskit/popup/compositional/popup-content';
 import { token } from '@atlaskit/tokens';
 
 import {
+	InitialFocusOriginContext,
+	IsOpenContext,
 	OnCloseContext,
+	SetInitialFocusRefContext,
 	SetIsOpenContext,
 	TitleIdContextProvider,
+	useTitleId,
 } from './flyout-menu-item-context';
 
 export type FlyoutCloseSource = 'close-button' | 'escape-key' | 'outside-click' | 'other';
@@ -50,13 +54,22 @@ const FLYOUT_MENU_VERTICAL_OFFSET_PX = 26;
  */
 const FLYOUT_MENU_MAX_HEIGHT_PX = 760;
 
+const FLYOUT_MENU_PADDING = token('space.100');
+
+/**
+ * The margin around the flyout menu popup when it has its modal appearance on mobile screen sizes.
+ */
+const FLYOUT_MENU_MODAL_MARGIN = 4;
+
+const maxHeightCssVar = '--max-height';
+
 const flyoutMenuItemContentStyles = cssMap({
 	root: {
 		// Expanding `padding` shorthand for Compiled: see eslint rule @atlaskit/platform/expand-spacing-shorthand
-		paddingBlockStart: token('space.100'),
-		paddingBlockEnd: token('space.100'),
-		paddingInlineStart: token('space.100'),
-		paddingInlineEnd: token('space.100'),
+		paddingBlockStart: FLYOUT_MENU_PADDING,
+		paddingBlockEnd: FLYOUT_MENU_PADDING,
+		paddingInlineStart: FLYOUT_MENU_PADDING,
+		paddingInlineEnd: FLYOUT_MENU_PADDING,
 		'@media (min-width: 48rem)': {
 			width: '400px',
 		},
@@ -68,6 +81,11 @@ const flyoutMenuItemContentContainerStyles = cssMapUnbound({
 		display: 'flex',
 		height: '100%',
 		flexDirection: 'column',
+		// When the popup becomes a modal we want the content to take up all available space
+		maxHeight: `calc(100vh - 2 * ${FLYOUT_MENU_PADDING} - 2 * ${FLYOUT_MENU_MODAL_MARGIN}px)`,
+		'@media (min-width: 48rem)': {
+			maxHeight: `var(${maxHeightCssVar}, 760px)`,
+		},
 	},
 });
 
@@ -101,6 +119,13 @@ export type FlyoutMenuItemContentProps = {
 	 * If you are controlling the open state of the flyout menu, use this to update your state.
 	 */
 	onClose?: () => void;
+
+	/**
+	 * ID of the heading that names the dialog, including while content is loading.
+	 * When omitted, an ID is generated and assigned to the FlyoutHeader heading.
+	 * The supplied ID is also assigned to FlyoutHeader when it renders.
+	 */
+	titleId?: string;
 };
 
 /**
@@ -112,11 +137,28 @@ export const FlyoutMenuItemContent: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<FlyoutMenuItemContentProps> & React.RefAttributes<HTMLDivElement>
 > = forwardRef<HTMLDivElement, FlyoutMenuItemContentProps>(
 	(
-		{ children, containerTestId, onClose, autoFocus, maxHeight = FLYOUT_MENU_MAX_HEIGHT_PX },
+		{
+			children,
+			containerTestId,
+			onClose,
+			autoFocus,
+			maxHeight = FLYOUT_MENU_MAX_HEIGHT_PX,
+			titleId: providedTitleId,
+		},
 		forwardedRef,
 	) => {
 		const setIsOpen = useContext(SetIsOpenContext);
 		const onCloseRef = useContext(OnCloseContext);
+		const isOpen = useContext(IsOpenContext);
+		const initialFocusOriginRef = useRef<Element | null>(null);
+		const contentRef = useRef<HTMLDivElement | null>(null);
+		useLayoutEffect(() => {
+			// Capture the opening focus before a delayed header can mount. Top-layer
+			// may leave it on the trigger when the loading content has no controls.
+			initialFocusOriginRef.current = isOpen
+				? (contentRef.current?.ownerDocument.activeElement ?? null)
+				: null;
+		}, [isOpen]);
 		const { createAnalyticsEvent } = useAnalyticsEvents();
 
 		// The source of the close is not accessible to the consumer, it is determined within the
@@ -127,35 +169,33 @@ export const FlyoutMenuItemContent: React.ForwardRefExoticComponent<
 				event: Event | React.MouseEvent<HTMLButtonElement> | KeyboardEvent | MouseEvent | null,
 				source?: FlyoutCloseSource,
 			) => {
-				if (fg('platform_dst_nav4_flyout_menu_slots_close_button')) {
-					// Use the passed source if provided, otherwise determine from event
-					let determinedSource: FlyoutCloseSource = source || 'other';
+				// Use the passed source if provided, otherwise determine from event
+				let determinedSource: FlyoutCloseSource = source || 'other';
 
-					if (!source) {
-						if (event instanceof KeyboardEvent) {
-							const keyboardEvent = event as KeyboardEvent;
-							if (keyboardEvent.key === 'Escape' || keyboardEvent.key === 'Esc') {
-								determinedSource = 'escape-key';
-							}
-						} else if (event instanceof MouseEvent) {
-							if (event && 'type' in event && event.type === 'click') {
-								determinedSource = 'outside-click';
-							}
+				if (!source) {
+					if (event instanceof KeyboardEvent) {
+						const keyboardEvent = event as KeyboardEvent;
+						if (keyboardEvent.key === 'Escape' || keyboardEvent.key === 'Esc') {
+							determinedSource = 'escape-key';
+						}
+					} else if (event instanceof MouseEvent) {
+						if (event && 'type' in event && event.type === 'click') {
+							determinedSource = 'outside-click';
 						}
 					}
-
-					// When flyout menu is closed, fire analytics event
-					const navigationAnalyticsEvent = createAnalyticsEvent({
-						source: 'sideNav',
-						actionSubject: 'flyoutMenu',
-						action: 'closed',
-						attributes: {
-							closeSource: determinedSource,
-						},
-					});
-
-					navigationAnalyticsEvent.fire('navigation');
 				}
+
+				// When flyout menu is closed, fire analytics event
+				const navigationAnalyticsEvent = createAnalyticsEvent({
+					source: 'sideNav',
+					actionSubject: 'flyoutMenu',
+					action: 'closed',
+					attributes: {
+						closeSource: determinedSource,
+					},
+				});
+
+				navigationAnalyticsEvent.fire('navigation');
 
 				onClose?.();
 				setIsOpen(false);
@@ -168,7 +208,8 @@ export const FlyoutMenuItemContent: React.ForwardRefExoticComponent<
 			onCloseRef.current = handleClose;
 		}, [handleClose, onCloseRef]);
 
-		const titleId = useId();
+		const generatedTitleId = useTitleId();
+		const titleId = providedTitleId ?? generatedTitleId;
 
 		const computedMaxHeight = useMemo(
 			() =>
@@ -181,9 +222,7 @@ export const FlyoutMenuItemContent: React.ForwardRefExoticComponent<
 				 * Not using the UNSAFE_MAIN_BLOCK_START_FOR_LEGACY_PAGES_ONLY variable from `@atlaskit/navigation-system`
 				 * to avoid a circular dependency, as that package imports this one for re-exporting components.
 				 */
-				fg('platform-dst-side-nav-layering-fixes')
-					? `min(calc(100vh - ${FLYOUT_MENU_VERTICAL_OFFSET_PX}px - var(--n_tNvM, 0px) - var(--n_bnrM, 0px)), ${maxHeight}px)`
-					: `min(calc(100vh - ${FLYOUT_MENU_VERTICAL_OFFSET_PX}px), ${maxHeight}px)`,
+				`min(calc(100vh - ${FLYOUT_MENU_VERTICAL_OFFSET_PX}px - var(--n_tNvM, 0px) - var(--n_bnrM, 0px)), ${maxHeight}px)`,
 			[maxHeight],
 		);
 
@@ -200,8 +239,8 @@ export const FlyoutMenuItemContent: React.ForwardRefExoticComponent<
 				testId={containerTestId}
 				xcss={flyoutMenuItemContentStyles.root}
 				autoFocus={autoFocus}
-				role={fg('platform_dst_nav4_flyout_menu_slots_close_button') ? 'dialog' : undefined}
-				titleId={fg('platform_dst_nav4_flyout_menu_slots_close_button') ? titleId : undefined}
+				role="dialog"
+				titleId={titleId}
 				/**
 				 * Disabling GPU acceleration removes the use of `transform` by popper.js for this popup.
 				 *
@@ -216,23 +255,28 @@ export const FlyoutMenuItemContent: React.ForwardRefExoticComponent<
 				 * need to be repositioned.
 				 */
 				shouldDisableGpuAcceleration
-				shouldRenderToParent={fg('platform_dst_nav4_flyoutmenuitem_render_to_parent')}
+				shouldRenderToParent
 			>
-				{({ update }) => (
+				{({ update, setInitialFocusRef }) => (
 					<UpdatePopperOnContentResize ref={forwardedRef} update={update}>
-						{fg('platform_dst_nav4_flyout_menu_slots_close_button') ? (
-							<TitleIdContextProvider value={titleId}>
-								<div
-									css={flyoutMenuItemContentContainerStyles.container}
-									style={{ maxHeight: computedMaxHeight }}
-									data-testid={containerTestId ? `${containerTestId}--container` : undefined}
+						<TitleIdContextProvider value={titleId}>
+							<div
+								ref={contentRef}
+								css={flyoutMenuItemContentContainerStyles.container}
+								style={{ [maxHeightCssVar as keyof React.CSSProperties]: computedMaxHeight }}
+								data-testid={containerTestId ? `${containerTestId}--container` : undefined}
+							>
+								<SetInitialFocusRefContext.Provider
+									// Top-layer reads this ref only on open. When a placeholder has
+									// no controls, a delayed header must move focus from the trigger.
+									value={fg('platform-dst-top-layer') ? undefined : setInitialFocusRef}
 								>
-									{children}
-								</div>
-							</TitleIdContextProvider>
-						) : (
-							children
-						)}
+									<InitialFocusOriginContext.Provider value={initialFocusOriginRef}>
+										{children}
+									</InitialFocusOriginContext.Provider>
+								</SetInitialFocusRefContext.Provider>
+							</div>
+						</TitleIdContextProvider>
 					</UpdatePopperOnContentResize>
 				)}
 			</PopupContent>
@@ -258,7 +302,7 @@ function createResizeObserver(update: ResizeObserverCallback) {
  */
 const UpdatePopperOnContentResize: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<{ children: React.ReactNode; update: () => void }> &
-	React.RefAttributes<HTMLDivElement>
+		React.RefAttributes<HTMLDivElement>
 > = forwardRef(
 	(
 		{ update, children }: { children: React.ReactNode; update: () => void },

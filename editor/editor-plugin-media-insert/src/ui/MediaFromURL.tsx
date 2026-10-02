@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { isSafeUrl } from '@atlaskit/adf-schema';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -16,30 +16,32 @@ import {
 } from '@atlaskit/editor-common/analytics';
 import { mediaInsertMessages } from '@atlaskit/editor-common/messages';
 import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
-import Form, {
-	ErrorMessage,
-	Field,
-	FormFooter,
-	HelperMessage,
-	MessageWrapper,
-} from '@atlaskit/form';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
+import { HelperMessage } from '@atlaskit/form/helper-message';
+import { MessageWrapper } from '@atlaskit/form/message-wrapper';
 import ExpandIcon from '@atlaskit/icon/core/grow-diagonal';
-import { getMediaClient } from '@atlaskit/media-client-react';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { getMediaClient } from '@atlaskit/media-client-react/get-media-client';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Flex, Inline, Stack, xcss } from '@atlaskit/primitives';
-import SectionMessage from '@atlaskit/section-message';
-import TextField from '@atlaskit/textfield';
+import SectionMessage from '@atlaskit/section-message/message';
+import TextField from '@atlaskit/textfield/text-field';
 
-import {
-	type CustomizedHelperMessage,
-	type InsertExternalMediaSingle,
-	type InsertMediaSingle,
+import type {
+	CustomizedHelperMessage,
+	InsertExternalMediaSingle,
+	InsertMediaSingle,
 } from '../types';
-
 import { MediaCard } from './MediaCard';
-import { type OnInsertAttrs } from './types';
+import type { OnInsertAttrs } from './types';
 import { useAnalyticsEvents } from './useAnalyticsEvents';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const WHITESPACE_REGEX = /\s/;
 
 const PreviewBoxStyles = xcss({
 	borderWidth: 'border.width',
@@ -92,13 +94,11 @@ const MAX_URL_LENGTH = 2048;
 export const isValidUrl = (value: string): boolean => {
 	try {
 		// Check for spaces and length first to avoid the expensive URL parsing
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		if (/\s/.test(value) || value.length > MAX_URL_LENGTH) {
+		if (WHITESPACE_REGEX.test(value) || value.length > MAX_URL_LENGTH) {
 			return false;
 		}
 		new URL(value);
-	} catch (e) {
+	} catch {
 		return false;
 	}
 	return isSafeUrl(value);
@@ -122,6 +122,7 @@ const previewStateReducer = (state: PreviewState, action: PreviewStateAction) =>
 };
 
 type Props = {
+	cancelMediaInsertPicker?: () => void;
 	closeMediaInsertPicker: () => void;
 	customizedHelperMessage?: CustomizedHelperMessage;
 	customizedUrlValidation?: (input: string) => boolean;
@@ -136,6 +137,7 @@ export function MediaFromURL({
 	mediaProvider,
 	dispatchAnalyticsEvent,
 	closeMediaInsertPicker,
+	cancelMediaInsertPicker = closeMediaInsertPicker,
 	insertMediaSingle,
 	insertExternalMediaSingle,
 	isOnlyExternalLinks,
@@ -190,8 +192,10 @@ export function MediaFromURL({
 						occurrenceKey: uploadableFileUpfrontIds.occurrenceKey,
 						fileMimeType: mimeType,
 					},
+					// eslint-disable-next-line no-unused-vars
 				});
 			} catch (e) {
+				// eslint-disable-line no-unused-vars
 				if (typeof e === 'string' && e === 'Could not download remote file') {
 					// TODO: ED-26962 - Make sure this gets good unit test coverage with the actual media plugin.
 					// This hard coded error message could be changed at any
@@ -287,10 +291,14 @@ export function MediaFromURL({
 					};
 					dispatchAnalyticsEvent(payload);
 				}
-				closeMediaInsertPicker();
+				if (isExperimentEnabled('platform_editor_fix_focus_mediainsertpicker')) {
+					cancelMediaInsertPicker();
+				} else {
+					closeMediaInsertPicker();
+				}
 			}
 		},
-		[dispatchAnalyticsEvent, closeMediaInsertPicker],
+		[dispatchAnalyticsEvent, cancelMediaInsertPicker, closeMediaInsertPicker],
 	);
 
 	const onCancel = React.useCallback(() => {
@@ -303,11 +311,16 @@ export function MediaFromURL({
 			};
 			dispatchAnalyticsEvent(payload);
 		}
-		closeMediaInsertPicker();
-	}, [closeMediaInsertPicker, dispatchAnalyticsEvent]);
+		if (isExperimentEnabled('platform_editor_fix_focus_mediainsertpicker')) {
+			cancelMediaInsertPicker();
+		} else {
+			closeMediaInsertPicker();
+		}
+	}, [cancelMediaInsertPicker, dispatchAnalyticsEvent, closeMediaInsertPicker]);
 
 	return (
 		<Form<{ inputUrl: string }>
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onSubmit={({ inputUrl }, form) => {
 				// This can be triggered from an enter key event on the input even when
 				// the button is disabled, so we explicitly do nothing when in loading
@@ -335,6 +348,7 @@ export function MediaFromURL({
 						<Field
 							isRequired={true}
 							name="inputUrl"
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							validate={(value) =>
 								value && isValidInput(value, customizedUrlValidation)
 									? undefined
@@ -349,17 +363,18 @@ export function MediaFromURL({
 											// eslint-disable-next-line react/jsx-props-no-spreading
 											{...rest}
 											value={value}
-											aria-label={
-												fg('platform_editor_nov_a11y_fixes') ? strings.pasteLinkToUpload : undefined
-											}
+											aria-label={strings.pasteLinkToUpload}
 											placeholder={strings.pasteLinkToUpload}
 											maxLength={MAX_URL_LENGTH}
 											onKeyPress={onInputKeyPress}
+											// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 											onPaste={(event) => onPaste(event, value)}
+											// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 											onChange={(value) => {
 												onURLChange(value);
 												onChange(value);
 											}}
+											// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 											onKeyDown={(e) => {
 												if (e.key === 'Enter') {
 													e.preventDefault();
@@ -387,9 +402,11 @@ export function MediaFromURL({
 											<Flex xcss={PreviewBoxStyles} alignItems="center" justifyContent="center">
 												<Button
 													type="button"
+													// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 													onClick={() => formProps.onSubmit()}
 													isLoading={previewState.isLoading}
 													isDisabled={!!error || !meta.dirty}
+													// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 													iconBefore={() => <ExpandIcon label="" />}
 												>
 													{strings.loadPreview}
@@ -430,6 +447,7 @@ export function MediaFromURL({
 											? !input || !isValidInput(input, customizedUrlValidation)
 											: !previewState.previewInfo && !previewState.warning
 									}
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									onClick={() => formProps.onSubmit()}
 								>
 									{strings.insert}

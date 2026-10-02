@@ -1,5 +1,5 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import type { SmartLinkResponse } from '@atlaskit/linking-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
 
 import AtlasProject from '../../../__fixtures__/atlas-project';
 import BitbucketPullRequest from '../../../__fixtures__/bitbucket-pull-request';
@@ -53,7 +53,7 @@ describe('extractFlexibleUiContext', () => {
 			createdBy: 'Angie Mccarthy',
 			createdOn: '2022-07-04T12:04:10.182Z',
 			linkIcon: {
-				label: 'bitbucket-object-provider: #61 EDM-3605: Cras ut nisi vitae lectus sagittis mattis',
+				label: 'pull request',
 				url: 'https://icon-url',
 				render: undefined,
 			},
@@ -61,7 +61,7 @@ describe('extractFlexibleUiContext', () => {
 			modifiedOn: '2022-07-04T12:05:28.601Z',
 			provider: { label: 'Bitbucket', url: 'https://icon-url' },
 			sourceBranch: 'source-branch',
-			state: { text: 'open', appearance: 'inprogress', action: undefined },
+			state: { text: 'Open', appearance: 'inprogress', action: undefined },
 			targetBranch: 'target-branch',
 			linkTitle: expect.objectContaining({
 				text: 'bitbucket-object-provider: #61 EDM-3605: Cras ut nisi vitae lectus sagittis mattis',
@@ -73,6 +73,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'pull',
 				tenantId: 'bitbucket-tenant',
 			},
+			hostName: 'link-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -129,7 +130,7 @@ describe('extractFlexibleUiContext', () => {
 			dueOn: undefined,
 			latestCommit: undefined,
 			linkIcon: {
-				label: 'Component readiness',
+				label: 'project',
 				render: undefined,
 				url: 'https://compass-ui.prod-east.frontend.public.atl-paas.net/assets/scorecard-icon.svg',
 			},
@@ -173,6 +174,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'scorecard-v2',
 				tenantId: 'compass-tenant',
 			},
+			hostName: 'ben-just-jwm.jira-dev.com',
 		});
 	});
 
@@ -218,7 +220,7 @@ describe('extractFlexibleUiContext', () => {
 			ownedBy: 'Angie Mccarthy',
 			linkIcon: {
 				icon: 'FileType:Document',
-				label: 'Everything you need to know about ShipIt53!',
+				label: 'document',
 				render: undefined,
 			},
 			provider: { icon: 'Provider:Confluence', label: 'Confluence' },
@@ -234,6 +236,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'page',
 				tenantId: 'confluence-tenant',
 			},
+			hostName: 'confluence-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -281,7 +284,7 @@ describe('extractFlexibleUiContext', () => {
 			ownedBy: 'Angie Mccarthy',
 			linkIcon: {
 				icon: 'FileType:Blog',
-				label: 'Announcing the winners of the Customer Fun Award for ShipIt 53',
+				label: 'blog',
 				render: undefined,
 			},
 			provider: { icon: 'Provider:Confluence', label: 'Confluence' },
@@ -298,6 +301,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'blog',
 				tenantId: 'confluence-tenant',
 			},
+			hostName: 'confluence-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -329,7 +333,7 @@ describe('extractFlexibleUiContext', () => {
 				AISummaryAction: undefined,
 				ViewRelatedLinksAction: undefined,
 			},
-			linkIcon: { label: 'ShipIt', url: 'https://icon-url', render: undefined },
+			linkIcon: { label: 'project', url: 'https://icon-url', render: undefined },
 			provider: { icon: 'Provider:Confluence', label: 'Confluence' },
 			linkTitle: expect.objectContaining({ text: 'ShipIt' }),
 			url: 'https://confluence-url/wiki/spaces/space-id',
@@ -339,6 +343,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'space',
 				tenantId: 'confluence-tenant',
 			},
+			hostName: 'confluence-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -373,7 +378,7 @@ describe('extractFlexibleUiContext', () => {
 			},
 			linkIcon: {
 				icon: 'FileType:Template',
-				label: 'templateName_4815162342',
+				label: 'template',
 				render: undefined,
 			},
 			provider: { icon: 'Provider:Confluence', label: 'Confluence' },
@@ -387,6 +392,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'template',
 				tenantId: 'confluence-tenant',
 			},
+			hostName: 'confluence-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -405,7 +411,7 @@ describe('extractFlexibleUiContext', () => {
 			createdBy: 'Fluffy Fluffington',
 			createdOn: '2021-10-19T11:35:10.027+1100',
 			linkIcon: {
-				label: 'Flexible UI Task',
+				label: 'Task',
 				url: 'https://icon-url',
 				render: undefined,
 			},
@@ -422,6 +428,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'issue',
 				tenantId: 'jira-tenant',
 			},
+			hostName: 'jira-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -465,7 +472,7 @@ describe('extractFlexibleUiContext', () => {
 				ViewRelatedLinksAction: undefined,
 			},
 			linkIcon: {
-				label: 'Linking Platform',
+				label: 'project',
 				url: 'https://icon-url',
 				render: undefined,
 			},
@@ -478,6 +485,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'roadmap',
 				tenantId: 'jira-tenant',
 			},
+			hostName: 'jira-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -521,7 +529,7 @@ describe('extractFlexibleUiContext', () => {
 				ViewRelatedLinksAction: undefined,
 			},
 			linkIcon: {
-				label: 'Linking Platform',
+				label: 'project',
 				url: 'https://icon-url',
 				render: undefined,
 			},
@@ -534,6 +542,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'roadmap',
 				tenantId: 'jira-tenant',
 			},
+			hostName: 'jira-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -592,7 +601,7 @@ describe('extractFlexibleUiContext', () => {
 			createdBy: 'Lois Lane',
 			dueOn: '2030-12-31',
 			linkIcon: {
-				label: 'The Superman Project',
+				label: 'project',
 				url: 'https://icon-url',
 				render: undefined,
 			},
@@ -602,6 +611,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: undefined,
 				tenantId: 'atlas-tenant',
 			},
+			hostName: 'link-url',
 			modifiedOn: '2023-03-05T08:00:00.861423',
 			provider: { label: 'Atlas', url: 'https://icon-url' },
 			snippet: 'The journey to discover the real identity of Superman?',
@@ -668,6 +678,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'file',
 				tenantId: 'figma-tenant',
 			},
+			hostName: 'figma-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -711,7 +722,7 @@ describe('extractFlexibleUiContext', () => {
 				ViewRelatedLinksAction: undefined,
 			},
 			linkIcon: {
-				label: 'The Atlassian Business Model',
+				label: undefined,
 				url: 'https://icon-url',
 				render: undefined,
 			},
@@ -728,6 +739,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'youtube',
 				tenantId: 'youtube-tenant',
 			},
+			hostName: 'youtube-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -779,7 +791,7 @@ describe('extractFlexibleUiContext', () => {
 				},
 			},
 			linkIcon: {
-				label: 'Happy Guy.gif',
+				label: 'document',
 				url: 'https://icon-url',
 				render: undefined,
 			},
@@ -794,6 +806,7 @@ describe('extractFlexibleUiContext', () => {
 				resourceType: 'sharedFile',
 				tenantId: 'dropbox-tenant',
 			},
+			hostName: 'link-url',
 			teamMemberCount: 0,
 			userAttributes: undefined,
 		});
@@ -844,194 +857,196 @@ describe('extractFlexibleUiContext', () => {
 		expect(data?.actions?.AISummaryAction?.url).toEqual('prop-url');
 	});
 
-	describe('with entity support', () => {
-		it('returns flexible ui context for Figma document with entity support', () => {
-			const data = extractFlexibleUiContext({
-				status: SmartLinkStatus.Resolved,
-				response: FigmaEntity as SmartLinkResponse,
-			});
-			expect(data).toEqual(
-				expect.objectContaining({
-					actions: {
-						CopyLinkAction: {
-							invokeAction: expect.objectContaining({
-								actionSubjectId: 'copyLink',
-								actionType: 'CopyLinkAction',
-								definitionId: '19ec1155-f5d8-45d3-ab2a-3f4a3d9d060e',
-								display: undefined,
-								extensionKey: 'figma-object-provider',
-								id: undefined,
-								resourceType: 'file',
-							}),
-						},
-						DownloadAction: undefined,
-						FollowAction: undefined,
-						PreviewAction: {
-							hasPreviewPanel: false,
-							invokeAction: expect.objectContaining({
-								actionSubjectId: 'invokePreviewScreen',
-								actionType: 'PreviewAction',
-								display: undefined,
-								extensionKey: 'figma-object-provider',
-								id: undefined,
-							}),
-						},
-						AutomationAction: undefined,
-						AISummaryAction: undefined,
-						ViewRelatedLinksAction: undefined,
-					},
-					linkIcon: { label: 'Flexible Links', url: 'https://icon-url' },
-					modifiedOn: '2025-01-08T22:26:52.501Z',
-					preview: { type: 'image', url: 'https://image-url' },
-					linkTitle: expect.objectContaining({ text: 'Flexible Links' }),
-					url: 'https://figma-url/Flexible-Links?node-id=node-id',
-					type: ['Document'],
-					meta: {
-						objectId: 'figma-id',
-						resourceType: 'file',
-						tenantId: 'figma-tenant',
-					},
-				}),
-			);
+	it('returns flexible ui context for Figma document with entity support', () => {
+		const data = extractFlexibleUiContext({
+			status: SmartLinkStatus.Resolved,
+			response: FigmaEntity as SmartLinkResponse,
 		});
+		expect(data).toEqual(
+			expect.objectContaining({
+				actions: {
+					CopyLinkAction: {
+						invokeAction: expect.objectContaining({
+							actionSubjectId: 'copyLink',
+							actionType: 'CopyLinkAction',
+							definitionId: '19ec1155-f5d8-45d3-ab2a-3f4a3d9d060e',
+							display: undefined,
+							extensionKey: 'figma-object-provider',
+							id: undefined,
+							resourceType: 'file',
+						}),
+					},
+					DownloadAction: undefined,
+					FollowAction: undefined,
+					PreviewAction: {
+						hasPreviewPanel: false,
+						invokeAction: expect.objectContaining({
+							actionSubjectId: 'invokePreviewScreen',
+							actionType: 'PreviewAction',
+							display: undefined,
+							extensionKey: 'figma-object-provider',
+							id: undefined,
+						}),
+					},
+					AutomationAction: undefined,
+					AISummaryAction: undefined,
+					ViewRelatedLinksAction: undefined,
+				},
+				linkIcon: { label: 'FILE', url: 'https://icon-url' },
+				modifiedOn: '2025-01-08T22:26:52.501Z',
+				preview: { type: 'image', url: 'https://image-url' },
+				linkTitle: expect.objectContaining({ text: 'Flexible Links' }),
+				url: 'https://figma-url/Flexible-Links?node-id=node-id',
+				type: ['Document'],
+				meta: {
+					objectId: 'figma-id',
+					resourceType: 'file',
+					tenantId: 'figma-tenant',
+				},
+				hostName: 'figma-url',
+			}),
+		);
+	});
 
-		it('returns flexible ui context for Google document with entity support', () => {
-			const data = extractFlexibleUiContext({
-				status: SmartLinkStatus.Resolved,
-				response: DocumentEntity as SmartLinkResponse,
-			});
-			expect(data).toEqual(
-				expect.objectContaining({
-					actions: {
-						CopyLinkAction: {
-							invokeAction: expect.objectContaining({
-								actionSubjectId: 'copyLink',
-								actionType: 'CopyLinkAction',
-								definitionId: 'bf155190-d90c-449f-9690-d1d1aa9910e6',
-								display: undefined,
-								extensionKey: 'google-object-provider',
-								id: undefined,
-								resourceType: 'file',
-							}),
-						},
-						DownloadAction: undefined,
-						FollowAction: undefined,
-						// TODO: Update to have PreviewAction when Embed Link for Documents is supported
-						PreviewAction: undefined,
-						AutomationAction: undefined,
-						AISummaryAction: undefined,
-						ViewRelatedLinksAction: {
-							ari: 'ari:cloud:graph::document/my-document',
-						},
+	it('returns flexible ui context for Google document with entity support', () => {
+		const data = extractFlexibleUiContext({
+			status: SmartLinkStatus.Resolved,
+			response: DocumentEntity as SmartLinkResponse,
+		});
+		expect(data).toEqual(
+			expect.objectContaining({
+				actions: {
+					CopyLinkAction: {
+						invokeAction: expect.objectContaining({
+							actionSubjectId: 'copyLink',
+							actionType: 'CopyLinkAction',
+							definitionId: 'bf155190-d90c-449f-9690-d1d1aa9910e6',
+							display: undefined,
+							extensionKey: 'google-object-provider',
+							id: undefined,
+							resourceType: 'file',
+						}),
 					},
-					linkIcon: {
-						label: 'Google Sheets: Public',
-						url: 'https://provider-icon.com/drive_icon.png',
+					DownloadAction: undefined,
+					FollowAction: undefined,
+					// TODO: Update to have PreviewAction when Embed Link for Documents is supported
+					PreviewAction: undefined,
+					AutomationAction: undefined,
+					AISummaryAction: undefined,
+					ViewRelatedLinksAction: {
+						ari: 'ari:cloud:graph::document/my-document',
 					},
-					modifiedOn: '2022-06-22T00:44:14.956Z',
-					preview: { type: 'image', url: 'https://preview-image-url' },
-					linkTitle: expect.objectContaining({ text: 'Google Sheets: Public' }),
+				},
+				linkIcon: {
+					label: 'document',
+					url: 'http://icon-url',
+				},
+				modifiedOn: '2022-06-22T00:44:14.956Z',
+				preview: { type: 'image', url: 'https://preview-image-url' },
+				linkTitle: expect.objectContaining({
+					text: 'Google Sheets: Public',
 					url: 'https://document.com',
-					type: ['Document'],
-					meta: {
-						objectId: undefined,
-						resourceType: 'file',
-						tenantId: undefined,
-					},
 				}),
-			);
-		});
+				url: 'https://document.com',
+				type: ['Document'],
+				meta: {
+					objectId: undefined,
+					resourceType: 'file',
+					tenantId: undefined,
+				},
+			}),
+		);
+	});
 
-		it('returns flexible ui context for Slack message with entity support', () => {
-			const data = extractFlexibleUiContext({
-				status: SmartLinkStatus.Resolved,
-				response: MessageEntity as SmartLinkResponse,
-			});
-			expect(data).toEqual(
-				expect.objectContaining({
-					actions: {
-						CopyLinkAction: {
-							invokeAction: expect.objectContaining({
-								actionSubjectId: 'copyLink',
-								actionType: 'CopyLinkAction',
-								definitionId: 'e1bfa9cc-ecfe-4466-bcfb-8759bf9a1c60',
-								display: undefined,
-								extensionKey: 'slack-object-provider',
-								id: undefined,
-								resourceType: 'message',
-							}),
-						},
-						DownloadAction: undefined,
-						FollowAction: undefined,
-						PreviewAction: undefined,
-						AutomationAction: undefined,
-						AISummaryAction: undefined,
-						ViewRelatedLinksAction: undefined,
+	it('returns flexible ui context for Slack message with entity support', () => {
+		const data = extractFlexibleUiContext({
+			status: SmartLinkStatus.Resolved,
+			response: MessageEntity as SmartLinkResponse,
+		});
+		expect(data).toEqual(
+			expect.objectContaining({
+				actions: {
+					CopyLinkAction: {
+						invokeAction: expect.objectContaining({
+							actionSubjectId: 'copyLink',
+							actionType: 'CopyLinkAction',
+							definitionId: 'e1bfa9cc-ecfe-4466-bcfb-8759bf9a1c60',
+							display: undefined,
+							extensionKey: 'slack-object-provider',
+							id: undefined,
+							resourceType: 'message',
+						}),
 					},
-					linkIcon: {
-						label: 'Message from Mel Policicchio in #swifties',
-						url: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
-					},
-					createdOn: '2025-05-30T15:45:15.934Z',
-					linkTitle: {
-						text: 'Message from Mel Policicchio in #swifties',
-						url: 'https://atlassian.slack.com/archives/C02NKSU9XME/p1748619915934759',
-					},
+					DownloadAction: undefined,
+					FollowAction: undefined,
+					PreviewAction: undefined,
+					AutomationAction: undefined,
+					AISummaryAction: undefined,
+					ViewRelatedLinksAction: undefined,
+				},
+				linkIcon: {
+					label: 'Slack',
+					url: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
+				},
+				createdOn: '2025-05-30T15:45:15.934Z',
+				linkTitle: expect.objectContaining({
+					text: 'Message from Mel Policicchio in #swifties',
 					url: 'https://atlassian.slack.com/archives/C02NKSU9XME/p1748619915934759',
-					type: ['schema:Message'],
-					meta: {
-						objectId: 'slack-message-12345',
-						resourceType: 'message',
-						tenantId: 'slack-tenant',
-					},
 				}),
-			);
-		});
+				url: 'https://atlassian.slack.com/archives/C02NKSU9XME/p1748619915934759',
+				type: ['schema:Message'],
+				meta: {
+					objectId: 'slack-message-12345',
+					resourceType: 'message',
+					tenantId: 'slack-tenant',
+				},
+			}),
+		);
+	});
 
-		it('returns flexible ui context for Slack channel with entity support', () => {
-			const data = extractFlexibleUiContext({
-				status: SmartLinkStatus.Resolved,
-				response: ConversationEntity as SmartLinkResponse,
-			});
-			expect(data).toEqual(
-				expect.objectContaining({
-					actions: {
-						CopyLinkAction: {
-							invokeAction: expect.objectContaining({
-								actionSubjectId: 'copyLink',
-								actionType: 'CopyLinkAction',
-								definitionId: 'e1bfa9cc-ecfe-4466-bcfb-8759bf9a1c60',
-								display: undefined,
-								extensionKey: 'slack-object-provider',
-								id: undefined,
-								resourceType: 'channel',
-							}),
-						},
-						DownloadAction: undefined,
-						FollowAction: undefined,
-						PreviewAction: undefined,
-						AutomationAction: undefined,
-						AISummaryAction: undefined,
-						ViewRelatedLinksAction: undefined,
-					},
-					linkIcon: {
-						label: '#swifties',
-						url: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
-					},
-					modifiedOn: '2025-06-07T11:15:08.398Z',
-					linkTitle: {
-						text: '#swifties',
-						url: 'https://atlassian.enterprise.slack.com/archives/C02NKSU9XME',
-					},
-					url: 'https://atlassian.enterprise.slack.com/archives/C02NKSU9XME',
-					type: ['Document'],
-					meta: {
-						objectId: 'slack-channel-67890',
-						resourceType: 'channel',
-						tenantId: 'slack-tenant',
-					},
-				}),
-			);
+	it('returns flexible ui context for Slack channel with entity support', () => {
+		const data = extractFlexibleUiContext({
+			status: SmartLinkStatus.Resolved,
+			response: ConversationEntity as SmartLinkResponse,
 		});
+		expect(data).toEqual(
+			expect.objectContaining({
+				actions: {
+					CopyLinkAction: {
+						invokeAction: expect.objectContaining({
+							actionSubjectId: 'copyLink',
+							actionType: 'CopyLinkAction',
+							definitionId: 'e1bfa9cc-ecfe-4466-bcfb-8759bf9a1c60',
+							display: undefined,
+							extensionKey: 'slack-object-provider',
+							id: undefined,
+							resourceType: 'channel',
+						}),
+					},
+					DownloadAction: undefined,
+					FollowAction: undefined,
+					PreviewAction: undefined,
+					AutomationAction: undefined,
+					AISummaryAction: undefined,
+					ViewRelatedLinksAction: undefined,
+				},
+				linkIcon: {
+					label: 'Slack',
+					url: 'https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png',
+				},
+				modifiedOn: '2025-06-07T11:15:08.398Z',
+				linkTitle: expect.objectContaining({
+					text: '#swifties',
+					url: 'https://atlassian.enterprise.slack.com/archives/C02NKSU9XME',
+				}),
+				url: 'https://atlassian.enterprise.slack.com/archives/C02NKSU9XME',
+				type: ['Document'],
+				meta: {
+					objectId: 'slack-channel-67890',
+					resourceType: 'channel',
+					tenantId: 'slack-tenant',
+				},
+			}),
+		);
 	});
 });

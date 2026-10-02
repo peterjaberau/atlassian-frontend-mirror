@@ -2,22 +2,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
+import { Component, type ComponentType, type FC } from 'react';
+
 import { jsx, css } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { Component } from 'react';
-import FieldRange from '@atlaskit/range';
-import { messages } from '@atlaskit/media-ui';
+import { injectIntl } from 'react-intl';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+
+import Button from '@atlaskit/button/standard-button';
 import ScaleLargeIcon from '@atlaskit/icon/core/image';
 import ScaleSmallIcon from '@atlaskit/icon/core/image';
-import Button from '@atlaskit/button/standard-button';
-import { injectIntl } from 'react-intl-next';
-import type { WrappedComponentProps } from 'react-intl-next';
-
+import { messages } from '@atlaskit/media-ui/messages';
+import FieldRange from '@atlaskit/range/range';
+import { token } from '@atlaskit/tokens';
 export interface SliderProps {
 	value: number;
 	onChange: (value: number) => void;
 }
-
 export const defaultProps = {
 	value: 0,
 };
@@ -29,14 +30,16 @@ const sliderWrapperStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.zoom_button svg': {
 		position: 'relative',
-		left: token('space.negative.025', '-2px'),
+		left: token('space.negative.025'),
 	},
 });
 
 export class Slider extends Component<SliderProps & WrappedComponentProps, {}> {
-	static defaultProps = defaultProps;
+	static defaultProps: {
+		value: number;
+	} = defaultProps;
 
-	render() {
+	render(): JSX.Element {
 		const {
 			value,
 			onChange,
@@ -68,4 +71,7 @@ export class Slider extends Component<SliderProps & WrappedComponentProps, {}> {
 	}
 }
 
-export default injectIntl<'intl', SliderProps & WrappedComponentProps>(Slider);
+const _default_1: FC<WithIntlProps<SliderProps & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<SliderProps & WrappedComponentProps>;
+} = injectIntl<'intl', SliderProps & WrappedComponentProps>(Slider);
+export default _default_1;

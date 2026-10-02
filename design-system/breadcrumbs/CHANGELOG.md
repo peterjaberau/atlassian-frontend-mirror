@@ -1,5 +1,415 @@
 # @atlaskit/breadcrumbs
 
+## 17.8.5
+
+### Patch Changes
+
+- [`457c77d8f6992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/457c77d8f6992) -
+  Behind `platform-dst-top-layer-tooltip`: tooltips whose content changes on press (for example
+  "Copy" to "Copied!") stay open to show the new content. `@atlaskit/editor-common` floating toolbar
+  buttons and `@atlaskit/smart-card` stack-item actions add an optional
+  `hasNewContentOnTriggerClick` prop.
+- Updated dependencies
+
+## 17.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.8.2
+
+### Patch Changes
+
+- [`94f62789cb2cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94f62789cb2cc) -
+  Improve truncation behaviour when browser font size increases in the
+  `platform_dst_breadcrumbs-refresh` path.
+
+## 17.8.1
+
+### Patch Changes
+
+- [`20016b599740c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20016b599740c) -
+  Prevent focus rings from being clipped in composed and primitive breadcrumbs, and include leading
+  icons within the focus ring, in the platform_dst_breadcrumbs-refresh feature-gated path.
+
+## 17.8.0
+
+### Minor Changes
+
+- [`7a95a3d289188`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7a95a3d289188) -
+  Add `onClick`, `target`, and `analyticsContext` to `BreadcrumbsCurrentItem` for custom navigation
+  and click analytics.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.7.3
+
+### Patch Changes
+
+- [`cc77fe2eec3a7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc77fe2eec3a7) -
+  Update styling of custom children under refreshed path.
+
+## 17.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.7.1
+
+### Patch Changes
+
+- [`d7eeefc938dd4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7eeefc938dd4) -
+  Cleaned up new shape theme styles, making new border and radius values the default.
+
+## 17.7.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.6.2
+
+### Patch Changes
+
+- [`695fcbc68ad47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/695fcbc68ad47) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 17.6.1
+
+### Patch Changes
+
+- [`9a7653523837c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a7653523837c) -
+  Use `@atlassian/testing-library` exclusively in unit tests.
+
+## 17.6.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.5
+
+### Patch Changes
+
+- [`44cfa83f61092`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44cfa83f61092) -
+  Correct the list item motion transition timing. A CSS transition is governed by the timing
+  declared on the state being transitioned **into**, so the pressed timing
+  (`motion.listitem.pressed`, 100ms) belongs on `:active`, not `:hover`. Declaring it on `:hover`
+  made `normal → hover` (and `selected → hover`) animate at 100ms instead of the intended 50ms. The
+  `:hover` state now uses `motion.listitem.hovered` (50ms) across all list item consumers so both
+  hovering and unhovering animate at 50ms, while `:active` keeps `motion.listitem.pressed` (100ms)
+  and selected variants rest at `motion.listitem.selected` (100ms). Behaviour remains behind the
+  `platform-dst-motion-uplift-list-item` feature gate.
+
+## 17.5.4
+
+### Patch Changes
+
+- [`6490d22c0d837`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6490d22c0d837) -
+  Fix list item pressed motion so the hover to pressed transition uses `motion.listitem.pressed`
+  (100ms) instead of the hover timing (50ms). The pressed timing is now declared on the `:hover`
+  state so the transition into the pressed state animates correctly. Behaviour remains behind the
+  `platform-dst-motion-uplift-list-item` feature gate.
+- Updated dependencies
+
+## 17.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.0
+
+### Minor Changes
+
+- [`b5b9917f875a8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5b9917f875a8) -
+  [ux] Add `text-decoration-color` to the `motion.listitem.*` transition tokens and consume them in
+  Breadcrumbs.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.0
+
+### Minor Changes
+
+- [`b00a6d183e0c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b00a6d183e0c4) -
+  [ux] Add `text-decoration-color` to the `motion.listitem.*` transition tokens (`hovered`,
+  `pressed`, `selected`) so list-item motion can animate underlines, and consume `motion.listitem.*`
+  in Breadcrumbs behind the `platform-dst-motion-uplift-list-item` feature gate: interactive
+  breadcrumb items (steps, ellipsis, and the current-item link) now animate their underline from
+  transparent to coloured on hover/press. Rendering is unchanged when the gate is off.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`a793998031fd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a793998031fd1) -
+  Implement refreshed Breadcrumbs behind feature flag. Mark props defaultExpanded, isExpanded,
+  maxItems, onExpand, itemsBeforeCollapse, itemsAfterCollapse, iconAfter as deprecated.
+
+## 17.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 17.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`8b1c5f296653c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8b1c5f296653c) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- [`c966e427a25c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c966e427a25c6) -
+  Moves internal type definitions to be colocated with the components that use them.
+
+## 16.0.2
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+- Updated dependencies
+
+## 16.0.0
+
+### Major Changes
+
+- [`50e3bb8a1727d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50e3bb8a1727d) - -
+  Breadcrumb items no longer use an underlying legacy `Button` from `@atlaskit/button`, and now
+  instead render primitives `Anchor`, `Pressable`, or a native `<span>` depending on interactivity
+  required. This will only apply if no `component` override prop is passed, which will still render
+  legacy `Button` during the deprecation period of `component`. Component overrides are no longer
+  necessary to implement router links, as breadcrumb will inherit and utilize router link
+  configuration from App Provider.
+  [See the documentation](https://atlassian.design/components/app-provider/examples#router-links) to
+  ensure App Provider is configured in your app in order to migrate away from the `component` prop.
+  - [ux] A spacing of `space.050` (4px) between breadrcrumb text and icons has been added to assist
+    rollout of new iconography. Previously breadcrumbs relied on consumers adding spacing manually,
+    so adjustments may need to be made to prevent excessive spacing.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.20
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 15.3.19
 
 ### Patch Changes

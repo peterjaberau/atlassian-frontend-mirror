@@ -2,17 +2,29 @@
 import type { Rule } from 'eslint';
 import { isNodeOfType } from 'eslint-codemod-utils';
 
-import { createLintRule } from '../utils/create-rule';
+import { createLintRule } from '../utils/create-lint-rule';
+import { addProp } from './add-prop';
+import { setPropToTrue } from './set-prop-to-true';
 
 export const RULE_NAME = 'use-should-render-to-parent';
 const PROP_NAME = 'shouldRenderToParent';
 
 const message = `Setting the \`${PROP_NAME}\` prop to anything other than \`true\` causes accessibility issues. Only set to \`false\` as a last resort.`;
 
-export const addProp = `Add \`${PROP_NAME}\` prop.`;
-export const setPropToTrue = `Set \`${PROP_NAME}\` prop to \`true\`.`;
+type SupportedImport = {
+	source: string;
+	allowsDefaultImport?: boolean;
+	namedImport?: string;
+};
 
-const components = ['@atlaskit/popup', '@atlaskit/dropdown-menu'];
+const supportedImports: SupportedImport[] = [
+	{ source: '@atlaskit/popup', allowsDefaultImport: true, namedImport: 'Popup' },
+	{ source: '@atlaskit/popup/popup', namedImport: 'Popup' },
+	{ source: '@atlaskit/dropdown-menu', allowsDefaultImport: true },
+	{ source: '@atlaskit/dropdown-menu/dropdown-menu', allowsDefaultImport: true },
+	{ source: '@atlassian/entry-points/dropdown-trigger', namedImport: 'DropdownTrigger' },
+	{ source: '@atlassian/entry-points/popup-trigger', namedImport: 'PopupTrigger' },
+];
 
 const rule: Rule.RuleModule = createLintRule({
 	meta: {
@@ -31,7 +43,7 @@ const rule: Rule.RuleModule = createLintRule({
 	},
 
 	create(context: Rule.RuleContext) {
-		let componentLocalName: string;
+		const componentLocalNames = new Set<string>();
 
 		return {
 			ImportDeclaration(node) {
@@ -41,7 +53,8 @@ const rule: Rule.RuleModule = createLintRule({
 					return;
 				}
 
-				if (!components.includes(source)) {
+				const supportedImport = supportedImports.find((component) => component.source === source);
+				if (!supportedImport) {
 					return;
 				}
 
@@ -52,20 +65,26 @@ const rule: Rule.RuleModule = createLintRule({
 				const defaultImport = node.specifiers.filter(
 					(spec) => spec.type === 'ImportDefaultSpecifier',
 				);
-				const namedImport = node.specifiers.filter((spec) => spec.type === 'ImportSpecifier');
+				const namedImports = node.specifiers.filter((spec) => spec.type === 'ImportSpecifier');
 
-				// If popup or dropdown menu and using a default import
-				if (defaultImport.length && defaultImport[0].local) {
-					componentLocalName = defaultImport[0].local.name;
-					// or if popup and using a named import
-				} else if (
-					namedImport.length &&
-					namedImport[0].type === 'ImportSpecifier' &&
-					'name' in namedImport[0].imported &&
-					namedImport[0].imported.name === 'Popup'
-				) {
-					componentLocalName = namedImport[0].local.name;
+				if (defaultImport.length && defaultImport[0].local && supportedImport.allowsDefaultImport) {
+					componentLocalNames.add(defaultImport[0].local.name);
 				}
+
+				if (!namedImports.length) {
+					return;
+				}
+
+				// Iterate through all of them, only one should ever be found
+				namedImports.forEach((namedImport) => {
+					if (
+						namedImport.type === 'ImportSpecifier' &&
+						'name' in namedImport.imported &&
+						namedImport.imported.name === supportedImport.namedImport
+					) {
+						componentLocalNames.add(namedImport.local.name);
+					}
+				});
 			},
 
 			JSXElement(node: Rule.Node) {
@@ -78,7 +97,7 @@ const rule: Rule.RuleModule = createLintRule({
 
 				const name = node.openingElement.name.name;
 
-				if (name === componentLocalName) {
+				if (componentLocalNames.has(name)) {
 					const prop = node.openingElement.attributes.find(
 						(attr) =>
 							isNodeOfType(attr, 'JSXAttribute') &&
@@ -134,3 +153,5 @@ const rule: Rule.RuleModule = createLintRule({
 });
 
 export default rule;
+export { addProp } from './add-prop';
+export { setPropToTrue } from './set-prop-to-true';

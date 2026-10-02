@@ -1,11 +1,12 @@
-import {
-	type NodeSerializerOpts,
-	type SmartCardWithDataAttributes,
-	type SmartCardWithUrlAttributes,
-} from '../interfaces';
+import { B400 } from '@atlaskit/adf-schema/colors';
+
 import { createTag } from '../create-tag';
+import type {
+	NodeSerializerOpts,
+	SmartCardWithDataAttributes,
+	SmartCardWithUrlAttributes,
+} from '../interfaces';
 import { createClassName } from '../styles/util';
-import { B400 } from '@atlaskit/adf-schema';
 
 const className = createClassName('inlineCard');
 

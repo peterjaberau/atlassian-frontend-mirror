@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import type { Rule } from 'eslint';
+
 import { getMetadataForFilename, getterIdentifierToFlagTypeMap } from '../util/registration-utils';
 
 const rule: Rule.RuleModule = {
@@ -29,7 +30,8 @@ const rule: Rule.RuleModule = {
 					if (node.type === 'CallExpression') {
 						const args = node.arguments;
 
-						const filename = context.getFilename();
+						// @ts-ignore - Jira's ESLint v10 types expose filename, platform still checks with ESLint v9.
+						const filename = context.filename ?? context.getFilename();
 						const { pkgJson: packageJson, fuse } = getMetadataForFilename(filename);
 						const platformFeatureFlags = packageJson['platform-feature-flags'];
 

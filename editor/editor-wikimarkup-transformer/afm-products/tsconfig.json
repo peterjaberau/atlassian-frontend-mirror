@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-wikimarkup-transformer/app",
 		"rootDir": "../",
 		"composite": true,
@@ -32,9 +30,6 @@
 		},
 		{
 			"path": "../../editor-prosemirror/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../design-system/theme/afm-products/tsconfig.json"
 		}
 	]
 }

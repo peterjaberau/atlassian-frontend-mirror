@@ -4,13 +4,13 @@
  */
 import { css, jsx } from '@compiled/react';
 
-import { type CardAuthFlowOpts, type EnvironmentsKeys } from '@atlaskit/link-provider';
-import Select, { type OptionsType } from '@atlaskit/select';
-import { N200, N40A, N50A } from '@atlaskit/theme/colors';
+import type { CardAuthFlowOpts } from '@atlaskit/link-provider/types';
+import type { EnvironmentsKeys } from '@atlaskit/linking-common/types';
+import Select from '@atlaskit/select/default';
+import type { OptionsType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 import { type CardAppearance } from '../../src';
-
 import { type ExampleUIConfig } from './types';
 
 interface ViewTypeOption {
@@ -44,11 +44,11 @@ const menuWrapperStyles = css({
 	display: 'flex',
 	flexDirection: 'column',
 	width: '240px',
-	marginRight: token('space.300', '24px'),
+	marginRight: token('space.300'),
 });
 const menuTitleStyles = css({
-	marginBottom: token('space.100', '8px'),
-	color: token('color.text.subtlest', N200),
+	marginBottom: token('space.100'),
+	color: token('color.text.subtlest'),
 });
 
 interface ShowcaseMenuProps {
@@ -65,12 +65,12 @@ const outerDivStyles = css({
 	bottom: 0,
 	left: 0,
 	width: '100%',
-	paddingTop: token('space.300', '24px'),
+	paddingTop: token('space.300'),
 	paddingRight: '60px',
-	paddingBottom: token('space.300', '24px'),
+	paddingBottom: token('space.300'),
 	paddingLeft: '60px',
-	backgroundColor: token('elevation.surface', 'white'),
-	boxShadow: token('elevation.shadow.overflow', `0 1px 1px ${N50A}, 0 0 1px 1px ${N40A}`),
+	backgroundColor: token('elevation.surface'),
+	boxShadow: token('elevation.shadow.overflow'),
 	display: 'flex',
 	zIndex: 500,
 });
@@ -82,7 +82,7 @@ export const ShowcaseMenu = ({
 	onEntityChange,
 	entities,
 	config,
-}: ShowcaseMenuProps) => {
+}: ShowcaseMenuProps): JSX.Element => {
 	return (
 		<div css={outerDivStyles}>
 			<div css={menuWrapperStyles}>

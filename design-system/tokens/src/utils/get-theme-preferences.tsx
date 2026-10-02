@@ -1,11 +1,11 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { type ThemeIdsWithOverrides, type ThemeState } from '../theme-config';
-
+import { type ThemeIdsWithOverrides } from '../theme-config';
+import { type ThemeState } from '../theme-state';
 import getIncreasedContrastTheme from './get-increased-contrast-theme';
 
 export const getThemePreferences = (themeState: ThemeState): ThemeIdsWithOverrides[] => {
-	const { colorMode, contrastMode, dark, light, shape, spacing, typography } = themeState;
+	const { colorMode, contrastMode, dark, light, shape, spacing, typography, motion } = themeState;
 
 	const autoColorModeThemes: ThemeIdsWithOverrides[] = [light, dark];
 	const themePreferences: ThemeIdsWithOverrides[] = [];
@@ -33,17 +33,11 @@ export const getThemePreferences = (themeState: ThemeState): ThemeIdsWithOverrid
 		}
 	}
 
-	[shape, spacing, typography].forEach((themeId) => {
+	[shape, spacing, typography, motion].forEach((themeId) => {
 		if (themeId) {
 			themePreferences.push(themeId);
 		}
 	});
 
 	return [...new Set(themePreferences)];
-};
-
-export const getThemeOverridePreferences = (_themeState: ThemeState): ThemeIdsWithOverrides[] => {
-	const themeOverridePreferences: ThemeIdsWithOverrides[] = [];
-
-	return [...new Set(themeOverridePreferences)];
 };

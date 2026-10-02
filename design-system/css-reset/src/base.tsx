@@ -1,4 +1,3 @@
-import { colors, typography } from '@atlaskit/theme';
 import { token } from '@atlaskit/tokens';
 
 import evaluateInner from './utils/evaluate-inner';
@@ -14,13 +13,17 @@ const _default_1: string = evaluateInner`
     width: 100%;
   }
 
-  body {
-    background-color: ${token('elevation.surface', '#fff')};
-    color: ${token('color.text', colors.N800)};
-    font: ${token('font.body', `normal 400 14px/1.42857142857143 ${fontFamily}`)};
-    -ms-overflow-style: -ms-autohiding-scrollbar;
-    text-decoration-skip-ink: auto;
-  }
+  body,
+	[data-subtree-theme] {
+		background-color: ${token('elevation.surface', '#fff')};
+		color: ${token('color.text', '#172B4D')};
+		font: ${token('font.body', `normal 400 14px/1.42857142857143 ${fontFamily}`)};
+	}
+
+	body {
+		-ms-overflow-style: -ms-autohiding-scrollbar;
+		text-decoration-skip-ink: auto;
+	}
 
   /* Default margins */
   p,
@@ -42,46 +45,46 @@ const _default_1: string = evaluateInner`
 
   /* Links */
   a {
-    color: ${token('color.link', colors.B400)};
+    color: ${token('color.link', '#0052CC')};
     text-decoration: none;
   }
   a:hover {
-    color: ${token('color.link', colors.B300)};
+    color: ${token('color.link', '#0065FF')};
     text-decoration: underline;
   }
   a:active {
-    color: ${token('color.link.pressed', colors.B500)};
+    color: ${token('color.link.pressed', '#0747A6')};
   }
   a:focus-visible {
     outline: ${token('border.width.focused', '2px')} solid ${token(
-    'color.border.focused',
-    colors.B200
-)};
+			'color.border.focused',
+			'#2684FF',
+		)};
     outline-offset: ${token('space.025', '2px')};
   }
   @supports not selector(*:focus-visible) {
     a:focus {
       outline: ${token('border.width.focused', '2px')} solid ${token(
-    'color.border.focused',
-    colors.B100
-)};
+				'color.border.focused',
+				'#4C9AFF',
+			)};
       outline-offset: ${token('space.025', '2px')};
     }
   }
   /* Headings */
   h1 {
     font: ${token(
-    'font.heading.xlarge',
-    `600 2.0714285714285716em/1.103448275862069 ${fontFamily}`
-)};
+			'font.heading.xlarge',
+			`600 2.0714285714285716em/1.103448275862069 ${fontFamily}`,
+		)};
     color: ${token('color.text')};
     margin-top: ${token('space.500')};
   }
   h2 {
     font: ${token(
-    'font.heading.large',
-    `500 1.7142857142857142em/1.1666666666666667 ${fontFamily}`
-)};
+			'font.heading.large',
+			`500 1.7142857142857142em/1.1666666666666667 ${fontFamily}`,
+		)};
     color: ${token('color.text')};
     margin-top: ${token('space.500')};
   }
@@ -102,9 +105,9 @@ const _default_1: string = evaluateInner`
   }
   h6 {
     font: ${token(
-    'font.heading.xxsmall',
-    `600 0.8571428571428571em/1.3333333333333333 ${fontFamily}`
-)};
+			'font.heading.xxsmall',
+			`600 0.8571428571428571em/1.3333333333333333 ${fontFamily}`,
+		)};
     color: ${token('color.text')};
     margin-top: ${token('space.250')};
     text-transform: uppercase;
@@ -209,7 +212,7 @@ const _default_1: string = evaluateInner`
 
   /* Other typographical elements */
   small {
-    font: ${token('font.body.small', typography.fontFallback.body.small)};
+    font: ${token('font.body.small', `normal 400 11px/16px ${fontFamily}`)};
   }
 
   code,

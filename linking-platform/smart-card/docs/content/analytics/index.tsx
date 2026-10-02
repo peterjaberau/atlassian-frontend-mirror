@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { code } from '@atlaskit/docs';
-import Link from '@atlaskit/link';
+import Link from '@atlaskit/link/link';
 import { Text } from '@atlaskit/primitives/compiled';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 
 import customMd from '../../utils/custom-md';
 
@@ -259,7 +259,7 @@ const JiraLocations = () => {
 	);
 };
 
-export default customMd`
+const _default_1: JSX.Element = customMd`
 ${(<WarningMessage />)}
 
 ## Smart Link Events
@@ -283,7 +283,7 @@ The smart-card package now uses the \`@atlaskit/analytics-next\` package to fire
 ### How to add a new analytics event
 
 1. Add the new event to the \`analytics.spec.yaml\` file.
-2. Run \`yarn workspace @atlaskit/smart-card analytics:codegen\` to regenerate the analytics types. Do not directly modify the generated files within \`src/common/analytics/generated\` directory.
+2. Run \`afm workspace @atlaskit/smart-card analytics:codegen\` to regenerate the analytics types. Do not directly modify the generated files within \`src/common/analytics/generated\` directory.
 
 The \`analytics.spec.yaml\` file follows the convention:
 
@@ -317,7 +317,7 @@ For the moment, we look for adopters to use analytics context to supply a \`loca
 in future we may look to acquire additional context.
 
 ${code`
-import { AnalyticsContext } from '@atlaskit/analytics-next';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import { SmartCardProvider } from '@atlaskit/link-provider';
 import { Card } from '@atlaskit/smart-card';
 
@@ -348,3 +348,4 @@ ${(<ConfluenceLocations />)}
 
 ${(<JiraLocations />)}
 `;
+export default _default_1;

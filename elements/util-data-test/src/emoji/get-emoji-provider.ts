@@ -1,25 +1,28 @@
 import { EmojiRepository } from '@atlaskit/emoji/resource';
-import { denormaliseEmojiServiceResponse } from '@atlaskit/emoji/utils';
 import type { EmojiProvider, EmojiServiceResponse } from '@atlaskit/emoji/types';
+import { denormaliseEmojiServiceResponse } from '@atlaskit/emoji/utils';
 
+import { loggedUser } from './logged-user';
 import { MockEmojiResource } from './mock-emoji-resource';
 import { type MockEmojiResourceConfig } from './types';
-import { loggedUser } from './logged-user';
 
 type DataFetch = () => Promise<EmojiServiceResponse>;
 
-export const currentUser = {
+export const currentUser: {
+	id: string;
+} = {
 	id: loggedUser,
 };
 
-export const defaultFetch = async () => {
-	const response = await fetch('./emoji/emoji-all.json');
-
-	if (!response.ok) {
-		throw new Error(`Could not fetch emoji data: ${response.status} ${response.statusText}`);
-	}
-
-	return response.json();
+/**
+ * Loads the mock emoji dataset.
+ *
+ * The `import()` keeps the payload in a lazily-loaded chunk, so it is only downloaded when an
+ * emoji provider is actually created.
+ */
+export const defaultFetch = async (): Promise<any> => {
+	const emojiData = await import('../json-data/emoji-all.json');
+	return emojiData?.default ?? emojiData;
 };
 
 export const getEmojiProvider = async function getEmojiProvider(

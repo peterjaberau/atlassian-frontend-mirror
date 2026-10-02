@@ -1,4 +1,6 @@
-import { createLocalizationProvider } from '@atlaskit/locale';
+import { createLocalizationProvider } from '@atlaskit/locale/localization-provider';
+
+import { partsFormatter } from './partsFormatter';
 
 export const formatterOptions: Intl.DateTimeFormatOptions = {
 	day: '2-digit',
@@ -16,18 +18,6 @@ export type PartsFormatterOptions = {
 	hour: string;
 	minute: string;
 	dayPeriod?: string;
-};
-
-export const partsFormatter = ({
-	day,
-	month,
-	year,
-	hour,
-	minute,
-	dayPeriod = '',
-}: PartsFormatterOptions) => {
-	const formattedDayPeriod = dayPeriod.replace(/\./g, '').replace(/\s/g, '');
-	return `${day} ${month} ${year}, ${hour}:${minute} ${formattedDayPeriod}`;
 };
 
 export const formatDate = (timestamp: number, locale: string = 'en'): string => {

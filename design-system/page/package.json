@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/page",
-	"version": "14.0.1",
+	"version": "15.3.0",
 	"description": "A page layout organizes sections on a page using a grid and grid columns.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,20 +12,19 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlaskit:designLink": "https://atlassian.design/foundations/grid",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
 			"name": "Page",
@@ -43,18 +42,23 @@
 		}
 	},
 	"exports": {
-		"./types": "./src/types.tsx",
 		".": "./src/index.tsx",
-		"./Grid": "./src/grid-wrapper.tsx",
-		"./GridColumn": "./src/grid-column.tsx",
-		"./Page": "./src/page.tsx"
+		"./constants": "./src/entry-points/constants.tsx",
+		"./grid-column": "./src/entry-points/grid-column.tsx",
+		"./grid": "./src/entry-points/grid.tsx",
+		"./Grid": "./src/entry-points/grid.tsx",
+		"./GridColumn": "./src/entry-points/grid-column.tsx",
+		"./page": "./src/entry-points/page.tsx",
+		"./Page": "./src/entry-points/page.tsx",
+		"./types": "./src/entry-points/types.tsx"
 	},
 	"dependencies": {
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -69,32 +73,15 @@
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
-		"react-dom": "root:*"
+		"react": "^19.0.0",
+		"react-dom": "^19.2.0"
 	},
 	"keywords": [
 		"atlaskit",
 		"react",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"analytics": "analytics-next",
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"deprecation": "no-deprecated-imports",
-			"design-system": "v1"
-		}
-	},
 	"homepage": "https://atlassian.design/components/page"
 }

@@ -2,14 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 import { useDebouncedCallback } from 'use-debounce';
 
 import { type Jast } from '@atlaskit/jql-ast';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Flex, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -17,22 +18,23 @@ import { useDatasourceAnalyticsEvents } from '../../../analytics';
 import type { JiraSearchMethod, Site } from '../../../common/types';
 import { BasicSearchInput } from '../../common/modal/basic-search-input';
 import { basicSearchInputMessages } from '../../common/modal/basic-search-input/messages';
-import { ModeSwitcher, type ModeSwitcherPropsOption } from '../../common/modal/mode-switcher';
+import {
+	ModeSwitcher,
+	type ModeSwitcherPropsOption,
+} from '../../common/modal/mode-switcher/ModeSwitcher';
 import { FILTER_SELECTION_DEBOUNCE_MS } from '../../common/modal/popup-select/constants';
 import { type SelectOption } from '../../common/modal/popup-select/types';
-import { BasicFilters } from '../basic-filters';
 import { useHydrateJqlQuery } from '../basic-filters/hooks/useHydrateJqlQuery';
 import { type BasicFilterFieldType, type SelectedOptionsMap } from '../basic-filters/types';
+import { default as BasicFilters } from '../basic-filters/ui/index';
 import { isQueryTooComplex } from '../basic-filters/utils/isQueryTooComplex';
 import { JiraJQLEditor } from '../jql-editor';
 import {
 	type JiraIssueDatasourceParameters,
 	type JiraIssueDatasourceParametersQuery,
 } from '../types';
-
 import { buildJQL } from './buildJQL';
 import { modeSwitcherMessages } from './messages';
-
 
 const styles = cssMap({
 	basicSearchInputBoxStyles: {
@@ -41,13 +43,18 @@ const styles = cssMap({
 	basicSearchInputContainerStyles: {
 		flexGrow: 1,
 	},
+	basicSearchInputContainerWrapStyles: {
+		flexGrow: 1,
+		flexWrap: 'wrap',
+		rowGap: token('space.100'),
+	},
 	inputContainerStyles: {
 		alignItems: 'flex-start',
 		display: 'flex',
 		minHeight: '72px',
 	},
 	modeSwitcherContainerStyles: {
-		marginTop: token('space.050', '4px'),
+		marginTop: token('space.050'),
 	},
 });
 
@@ -76,7 +83,7 @@ export interface SearchContainerProps {
 	site?: Site;
 }
 
-export const JiraSearchContainer = (props: SearchContainerProps) => {
+export const JiraSearchContainer = (props: SearchContainerProps): JSX.Element => {
 	const {
 		isSearching,
 		parameters,
@@ -156,9 +163,7 @@ export const JiraSearchContainer = (props: SearchContainerProps) => {
 
 	const onQueryChange = useCallback(
 		(query: string, jast: Jast) => {
-			if (fg('navx-1345-issues-modal-jql-submit-fix')) {
-				setHasJqlSyntaxErrors?.(jast.errors.length > 0);
-			}
+			setHasJqlSyntaxErrors?.(jast.errors.length > 0);
 			// determine if order keys have been set so they can be saved and persisted when changes occur in basic search
 			const fragments =
 				query
@@ -290,7 +295,14 @@ export const JiraSearchContainer = (props: SearchContainerProps) => {
 		<div css={styles.inputContainerStyles} data-testid="jira-search-container">
 			{currentSearchMethod === 'basic' && (
 				<Box xcss={styles.basicSearchInputBoxStyles}>
-					<Flex alignItems="center" xcss={styles.basicSearchInputContainerStyles}>
+					<Flex
+						alignItems="center"
+						xcss={
+							fg('platform_lp_jira_searchbar_wrap_a11y')
+								? styles.basicSearchInputContainerWrapStyles
+								: styles.basicSearchInputContainerStyles
+						}
+					>
 						<BasicSearchInput
 							isSearching={isSearching}
 							onChange={handleBasicSearchChange}

@@ -3,15 +3,16 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { cssMap, jsx } from '@compiled/react';
 
 import warnOnce from '@atlaskit/ds-lib/warn-once';
 import { Box, Stack, Text } from '@atlaskit/primitives/compiled';
-import { N500 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
-import { Container, type HeaderProps } from '../Header';
-import { CustomItem } from '../Item';
+import { type HeaderProps } from '../Header';
+import HeaderContainer from '../Header/header-container';
+import { CustomItem } from '../Item/custom-item';
 
 const styles = cssMap({
 	iconContainer: {
@@ -28,8 +29,8 @@ const styles = cssMap({
 		width: '100%',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'[data-item-elem-before]': {
-			marginRight: token('space.0', '0px'),
-			marginBottom: token('space.100', '8px'),
+			marginInlineEnd: token('space.0'),
+			marginBlockEnd: token('space.100'),
 			display: 'inline-block',
 		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -41,21 +42,21 @@ const styles = cssMap({
 		'[data-item-description]': {
 			textAlign: 'center',
 			display: 'inline-block',
-			marginTop: token('space.075', '6px'),
-			marginRight: token('space.075', '6px'),
-			marginBottom: token('space.075', '6px'),
-			marginLeft: token('space.075', '6px'),
+			marginBlockStart: token('space.075'),
+			marginInlineEnd: token('space.075'),
+			marginBlockEnd: token('space.075'),
+			marginInlineStart: token('space.075'),
 		},
 		// Will look interactive if the `component` is anything other than a div.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'div&:hover': {
-			backgroundColor: token('color.background.neutral.subtle', 'transparent'),
+			backgroundColor: token('color.background.neutral.subtle'),
 			cursor: 'default',
 		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'div&:active': {
-			backgroundColor: token('color.background.neutral.subtle', 'transparent'),
-			color: token('color.text.subtle', N500),
+			backgroundColor: token('color.background.neutral.subtle'),
+			color: token('color.text.subtle'),
 		},
 	},
 });
@@ -80,6 +81,9 @@ type FooterFacadeProps =
 			onClick?: never;
 	  });
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export type FooterProps = HeaderProps | NewFooterProps;
 
 /**
@@ -87,6 +91,8 @@ export type FooterProps = HeaderProps | NewFooterProps;
  *
  * - [Examples](https://atlassian.design/components/side-navigation/examples#header-and-footer)
  * - [Code](https://atlassian.design/components/side-navigation/code)
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 const OldFooter = (props: HeaderProps) => {
 	// https://stackoverflow.com/a/39333479
@@ -98,7 +104,11 @@ const OldFooter = (props: HeaderProps) => {
 		testId,
 	}))(props);
 	return (
-		<CustomItem {...safeProps} component={props.component || Container} css={styles.oldFooter} />
+		<CustomItem
+			{...safeProps}
+			component={props.component || HeaderContainer}
+			css={styles.oldFooter}
+		/>
 	);
 };
 
@@ -133,8 +143,18 @@ const Footer = ({ description, children, iconBefore, testId }: NewFooterProps) =
  *
  * - [Examples](https://atlassian.design/components/side-navigation/examples#header-and-footer)
  * - [Code](https://atlassian.design/components/side-navigation/code)
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const FooterFacade: ({ useDeprecatedApi, description, iconBefore, testId, children, component, onClick, }: FooterFacadeProps) => JSX.Element = ({
+export const FooterFacade: ({
+	useDeprecatedApi,
+	description,
+	iconBefore,
+	testId,
+	children,
+	component,
+	onClick,
+}: FooterFacadeProps) => JSX.Element = ({
 	useDeprecatedApi = true,
 	description,
 	iconBefore,
@@ -174,4 +194,5 @@ const FooterFacade: ({ useDeprecatedApi, description, iconBefore, testId, childr
 	);
 };
 
-export default FooterFacade;
+// Public API aliases preserved from an eliminated entry-point (volt-migrate-package).
+export { FooterFacade as Footer };

@@ -1,12 +1,16 @@
-import { renderHook, act } from '@atlassian/testing-library';
-import type { DocNode } from '@atlaskit/adf-schema';
-import { useScrollToBlock } from '../useScrollToBlock';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import * as blockMenuUtils from '@atlaskit/editor-common/block-menu';
-import * as statsig from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { renderHook, act } from '@atlassian/testing-library';
 
-// Mock the statsig experiment check
-jest.mock('@atlaskit/tmp-editor-statsig/exp-val-equals', () => ({
-	expValEquals: jest.fn(),
+import { useScrollToBlock } from '../useScrollToBlock';
+
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
+	fg: jest.fn(() => false),
+}));
+jest.mock('@atlaskit/platform-feature-flags/getBooleanFF', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/getBooleanFF'),
+	getBooleanFF: jest.fn(() => false),
 }));
 
 // Mock the block menu utilities
@@ -30,7 +34,6 @@ jest.mock('../useStableScroll', () => ({
 }));
 
 describe('useScrollToBlock', () => {
-	const mockExpValEquals = statsig.expValEquals as jest.Mock;
 	const mockFindNodeWithExpandParents = blockMenuUtils.findNodeWithExpandParents as jest.Mock;
 	const mockGetLocalIdSelector = blockMenuUtils.getLocalIdSelector as jest.Mock;
 	const mockIsExpandCollapsed = blockMenuUtils.isExpandCollapsed as jest.Mock;
@@ -66,7 +69,6 @@ describe('useScrollToBlock', () => {
 		});
 
 		// Default mock implementations
-		mockExpValEquals.mockReturnValue(true); // Enable the experiment by default
 		mockWaitForStability.mockImplementation((_container, _callback) => {
 			// Don't call callback immediately by default - let tests control when stability is achieved
 		});
@@ -91,20 +93,7 @@ describe('useScrollToBlock', () => {
 		});
 	});
 
-	describe('basic functionality (duplicated from useScrollToLocalId)', () => {
-		it('should not run when experiment is disabled', () => {
-			expect.assertions(1);
-			mockExpValEquals.mockReturnValue(false);
-
-			const containerDiv = document.createElement('div');
-			const containerRef = { current: containerDiv };
-			const adfDoc: DocNode = { type: 'doc', version: 1, content: [] };
-
-			renderHook(() => useScrollToBlock(containerRef, adfDoc));
-
-			expect(mockFindNodeWithExpandParents).not.toHaveBeenCalled();
-		});
-
+	describe('basic functionality', () => {
 		it('should not run when containerRef is null', () => {
 			expect.assertions(1);
 			const containerRef = { current: null };
@@ -153,7 +142,6 @@ describe('useScrollToBlock', () => {
 
 	describe('scrolling without expand parents', () => {
 		it('should scroll to element when node has no expand parents', () => {
-			expect.assertions(2);
 			const containerDiv = document.createElement('div');
 			const targetElement = document.createElement('div');
 			targetElement.setAttribute('data-local-id', 'test-local-id');
@@ -198,11 +186,14 @@ describe('useScrollToBlock', () => {
 				stabilityCallback?.();
 			});
 
-			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(targetElement);
+			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(
+				targetElement,
+				0,
+				expect.any(Function),
+			);
 		});
 
 		it('should retry finding element if not immediately available', () => {
-			expect.assertions(2);
 			const containerDiv = document.createElement('div');
 			const containerRef = { current: containerDiv };
 			const adfDoc: DocNode = {
@@ -261,13 +252,16 @@ describe('useScrollToBlock', () => {
 				stabilityCallback?.();
 			});
 
-			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(targetElement);
+			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(
+				targetElement,
+				0,
+				expect.any(Function),
+			);
 		});
 	});
 
 	describe('scrolling with expand parents', () => {
 		it('should expand collapsed parent expand before scrolling', () => {
-			expect.assertions(4);
 			const containerDiv = document.createElement('div');
 			const expandContainer = document.createElement('div');
 			expandContainer.setAttribute('data-local-id', 'expand-1');
@@ -337,11 +331,14 @@ describe('useScrollToBlock', () => {
 				stabilityCallback?.();
 			});
 
-			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(targetElement);
+			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(
+				targetElement,
+				0,
+				expect.any(Function),
+			);
 		});
 
 		it('should handle multiple nested expand parents', () => {
-			expect.assertions(4);
 			const containerDiv = document.createElement('div');
 
 			const outerExpand = document.createElement('div');
@@ -433,11 +430,14 @@ describe('useScrollToBlock', () => {
 				stabilityCallback?.();
 			});
 
-			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(targetElement);
+			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(
+				targetElement,
+				0,
+				expect.any(Function),
+			);
 		});
 
 		it('should not attempt to expand already expanded parents', () => {
-			expect.assertions(3);
 			const containerDiv = document.createElement('div');
 			const expandContainer = document.createElement('div');
 			expandContainer.setAttribute('data-local-id', 'expand-1');
@@ -495,13 +495,16 @@ describe('useScrollToBlock', () => {
 				stabilityCallback?.();
 			});
 
-			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(targetElement);
+			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(
+				targetElement,
+				0,
+				expect.any(Function),
+			);
 		});
 	});
 
 	describe('stability waiting integration', () => {
 		it('should wait for stability before scrolling', () => {
-			expect.assertions(3);
 			const containerDiv = document.createElement('div');
 			const targetElement = document.createElement('div');
 			targetElement.setAttribute('data-local-id', 'test-local-id');
@@ -548,7 +551,11 @@ describe('useScrollToBlock', () => {
 				stabilityCallback?.();
 			});
 
-			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(targetElement);
+			expect(mockExpandAllParentsThenScroll).toHaveBeenCalledWith(
+				targetElement,
+				0,
+				expect.any(Function),
+			);
 		});
 
 		it('should only scroll once even if stability callback is called multiple times', () => {

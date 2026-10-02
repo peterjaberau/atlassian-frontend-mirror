@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 import rafSchedule from 'raf-schd';
-import { createPortal } from 'react-dom';
 
 import { akEditorTableCellOnStickyHeaderZIndex } from '@atlaskit/editor-shared-styles';
 import { token } from '@atlaskit/tokens';
@@ -35,14 +35,14 @@ export const calcLeftPos = ({
 	cellRectLeft,
 	cellRefWidth,
 	offset,
-}: CalcLeftPosData) => {
+}: CalcLeftPosData): number => {
 	return cellRectLeft + cellRefWidth - buttonWidth - offset;
 };
 
 export const calcObserverTargetMargin = (
 	tableWrapper: HTMLElement,
 	fixedButtonRefCurrent: HTMLElement,
-) => {
+): number => {
 	const tableWrapperRect = tableWrapper.getBoundingClientRect();
 	const fixedButtonRect = fixedButtonRefCurrent.getBoundingClientRect();
 	const scrollLeft = tableWrapper.scrollLeft;
@@ -58,7 +58,7 @@ export const FixedButton = ({
 	tableWrapper,
 	targetCellPosition,
 	targetCellRef,
-}: Props) => {
+}: Props): React.ReactPortal => {
 	const fixedButtonRef = useRef<HTMLDivElement | null>(null);
 	const observerTargetRef = useRef<HTMLDivElement | null>(null);
 
@@ -165,13 +165,13 @@ export const FixedButton = ({
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				position: 'absolute',
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				top: token('space.0', '0px'),
+				top: token('space.0'),
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				left: token('space.0', '0px'),
+				left: token('space.0'),
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				width: token('space.250', '20px'), // BUTTON_WIDTH
+				width: token('space.250'), // BUTTON_WIDTH
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				height: token('space.250', '20px'), // BUTTON_WIDTH
+				height: token('space.250'), // BUTTON_WIDTH
 			}}
 		>
 			<div
@@ -186,9 +186,9 @@ export const FixedButton = ({
 					// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
 					left,
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					width: token('space.250', '20px'), // BUTTON_WIDTH
+					width: token('space.250'), // BUTTON_WIDTH
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					height: token('space.250', '20px'), // BUTTON_WIDTH
+					height: token('space.250'), // BUTTON_WIDTH
 				}}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className={ClassName.CONTEXTUAL_MENU_BUTTON_FIXED}

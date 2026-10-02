@@ -1,4 +1,4 @@
-import { createIntl, createIntlCache, type IntlShape } from 'react-intl-next';
+import { createIntl, createIntlCache, type IntlShape } from 'react-intl';
 
 import { getDocument } from '@atlaskit/browser-apis';
 
@@ -13,7 +13,7 @@ const localeMap: Record<string, string> = {
 
 const intlCacheMap = new Map<string, IntlShape>();
 
-export const getIntl = async () => {
+export const getIntl = async (): Promise<IntlShape> => {
 	const key = getDocument()?.documentElement?.lang || 'en-US';
 
 	if (!intlCacheMap.has(key)) {

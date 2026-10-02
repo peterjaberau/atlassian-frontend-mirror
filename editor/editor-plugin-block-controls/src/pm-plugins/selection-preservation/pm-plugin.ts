@@ -4,24 +4,23 @@ import { getDocument } from '@atlaskit/browser-apis';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { DRAG_HANDLE_SELECTOR } from '@atlaskit/editor-common/styles';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import {
-	type EditorState,
-	type ReadonlyTransaction,
-	type Transaction,
+import type {
+	EditorState,
+	ReadonlyTransaction,
+	Transaction,
 } from '@atlaskit/editor-prosemirror/state';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { BlockControlsPlugin } from '../../blockControlsPluginType';
 import { key } from '../main';
 import { createPreservedSelection, mapPreservedSelection } from '../utils/selection';
-
 import { stopPreservingSelection } from './editor-commands';
 import { selectionPreservationPluginKey } from './plugin-key';
 import type { SelectionPreservationPluginState } from './types';
 import {
 	compareSelections,
 	getSelectionPreservationMeta,
+	hasFormatSelectionSyncMeta,
 	hasUserSelectionChange,
 	syncDOMSelection,
 } from './utils';
@@ -57,13 +56,15 @@ import {
  * https://hello.atlassian.net/wiki/spaces/egcuc/pages/6170822503/Block+Menu+Solution+for+multi-select+and+selection+preservation
  */
 export const createSelectionPreservationPlugin =
-	(api?: ExtractInjectionAPI<BlockControlsPlugin>) => () => {
+	(api?: ExtractInjectionAPI<BlockControlsPlugin>) =>
+	(): SafePlugin<SelectionPreservationPluginState> => {
 		return new SafePlugin<SelectionPreservationPluginState>({
 			key: selectionPreservationPluginKey,
 			state: {
 				init() {
 					return {
 						preservedSelection: undefined,
+						syncDomSelectionForDoc: undefined,
 					};
 				},
 
@@ -77,10 +78,16 @@ export const createSelectionPreservationPlugin =
 							tr.doc.resolve(tr.selection.from),
 							tr.doc.resolve(tr.selection.to),
 						);
+						newState.syncDomSelectionForDoc = undefined;
 					} else if (meta?.type === 'stopPreserving') {
 						newState.preservedSelection = undefined;
-					} else if (newState.preservedSelection && tr.docChanged) {
-						newState.preservedSelection = mapPreservedSelection(newState.preservedSelection, tr);
+						newState.syncDomSelectionForDoc = undefined;
+					} else if (tr.docChanged) {
+						if (newState.preservedSelection) {
+							newState.preservedSelection = mapPreservedSelection(newState.preservedSelection, tr);
+						}
+
+						newState.syncDomSelectionForDoc = hasFormatSelectionSyncMeta(tr) ? tr.doc : undefined;
 					}
 
 					if (!compareSelections(newState.preservedSelection, pluginState.preservedSelection)) {
@@ -140,6 +147,7 @@ export const createSelectionPreservationPlugin =
 			view(initialView: EditorView) {
 				let view: EditorView = initialView;
 				const doc = getDocument();
+				let pendingFormatSelectionSyncFrame: number | undefined;
 
 				if (!doc) {
 					return {
@@ -191,60 +199,51 @@ export const createSelectionPreservationPlugin =
 					update(updateView: EditorView, prevState: EditorState) {
 						view = updateView;
 
-						// [FEATURE FLAG: platform_editor_selection_sync_fix]
-						// When enabled, syncs DOM selection even when editor doesn't have focus.
-						// This prevents ghost highlighting after moving nodes when block menu is open.
-						// To clean up: remove the if-else block and keep only the flag-on behavior.
-						if (fg('platform_editor_selection_sync_fix')) {
-							const prevPreservedSelection =
-								selectionPreservationPluginKey.getState(prevState)?.preservedSelection;
-							const currPreservedSelection = selectionPreservationPluginKey.getState(
-								view.state,
-							)?.preservedSelection;
-							const prevActiveNode = key.getState(prevState)?.activeNode;
-							const currActiveNode = key.getState(view.state)?.activeNode;
+						const prevPreservedSelection =
+							selectionPreservationPluginKey.getState(prevState)?.preservedSelection;
+						const currPluginState = selectionPreservationPluginKey.getState(view.state);
+						const currPreservedSelection = currPluginState?.preservedSelection;
+						const prevActiveNode = key.getState(prevState)?.activeNode;
+						const currActiveNode = key.getState(view.state)?.activeNode;
 
-							// Sync DOM selection when the preserved selection or active node changes
-							// AND the document has changed (e.g., nodes moved)
-							// This prevents stealing focus during menu navigation while still fixing ghost highlighting
-							const hasPreservedSelection = !!currPreservedSelection;
-							const preservedSelectionChanged = !compareSelections(
-								prevPreservedSelection,
-								currPreservedSelection,
-							);
-							const activeNodeChanged = prevActiveNode !== currActiveNode;
-							const docChanged = prevState.doc !== view.state.doc;
-							const shouldSyncDOMSelection =
-								hasPreservedSelection &&
-								(preservedSelectionChanged || activeNodeChanged) &&
-								docChanged;
+						// Sync DOM selection when the preserved selection or active node changes
+						// AND the document has changed (e.g., nodes moved)
+						// This prevents stealing focus during menu navigation while still fixing ghost highlighting
+						const hasPreservedSelection = !!currPreservedSelection;
+						const preservedSelectionChanged = !compareSelections(
+							prevPreservedSelection,
+							currPreservedSelection,
+						);
+						const activeNodeChanged = prevActiveNode !== currActiveNode;
+						const docChanged = prevState.doc !== view.state.doc;
+						const hasFormatSyncRequestForCurrentDoc =
+							currPluginState?.syncDomSelectionForDoc === view.state.doc;
+						const shouldSyncDOMSelection =
+							((hasPreservedSelection && (preservedSelectionChanged || activeNodeChanged)) ||
+								hasFormatSyncRequestForCurrentDoc) &&
+							docChanged;
 
-							if (shouldSyncDOMSelection) {
-								syncDOMSelection(view.state.selection, view);
-							}
-						} else {
-							// OLD BEHAVIOR (to be removed when flag is cleaned up)
-							// Only synced when editor had focus, causing ghost highlighting issues
-							const prevPreservedSelection =
-								selectionPreservationPluginKey.getState(prevState)?.preservedSelection;
-							const currPreservedSelection = selectionPreservationPluginKey.getState(
-								view.state,
-							)?.preservedSelection;
-							const prevActiveNode = key.getState(prevState)?.activeNode;
-							const currActiveNode = key.getState(view.state)?.activeNode;
+						if (shouldSyncDOMSelection) {
+							const syncSelection = view.state.selection;
 
-							if (
-								currPreservedSelection &&
-								view.hasFocus() &&
-								(!compareSelections(prevPreservedSelection, currPreservedSelection) ||
-									prevActiveNode !== currActiveNode)
-							) {
-								// Old syncDOMSelection signature (to be removed)
-								syncDOMSelection(view.state.selection);
+							if (hasFormatSyncRequestForCurrentDoc) {
+								if (pendingFormatSelectionSyncFrame !== undefined) {
+									cancelAnimationFrame(pendingFormatSelectionSyncFrame);
+								}
+
+								pendingFormatSelectionSyncFrame = requestAnimationFrame(() => {
+									pendingFormatSelectionSyncFrame = undefined;
+									syncDOMSelection(syncSelection, view, { focusEditor: true });
+								});
+							} else {
+								syncDOMSelection(syncSelection, view);
 							}
 						}
 					},
 					destroy() {
+						if (pendingFormatSelectionSyncFrame !== undefined) {
+							cancelAnimationFrame(pendingFormatSelectionSyncFrame);
+						}
 						unbindDocumentMouseDown();
 					},
 				};

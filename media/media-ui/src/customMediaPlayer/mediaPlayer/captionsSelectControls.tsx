@@ -1,14 +1,19 @@
 import React, { memo, useMemo } from 'react';
-import { type VideoTextTracks } from '../react-video-renderer';
-import { type WrappedComponentProps, injectIntl } from 'react-intl-next';
-import Tooltip from '@atlaskit/tooltip';
-import { SplitButton } from '@atlaskit/button/new';
+
+import { type WithIntlProps, type WrappedComponentProps, injectIntl } from 'react-intl';
+
+import { SplitButton } from '@atlaskit/button/split-button/split-button';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import { messages } from '../../messages';
-import { formatLocale } from './captions';
-import { PopupSelect, type OptionType, type ValueType } from '@atlaskit/select';
+import { PopupSelect } from '@atlaskit/select/popup-select';
+import type { OptionType, ValueType } from '@atlaskit/select/types';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
 import MediaButton from '../../MediaButton';
-import { popperProps, popupCustomStyles, popupSelectComponents } from '../dropdownControlCommon';
+import { messages } from '../../messages';
+import { popupCustomStyles, popupSelectComponents } from '../dropdownControlCommon';
+import { getPopperPropsForFullscreen } from '../getPopperPropsForFullscreen';
+import type { VideoTextTracks } from '../react-video-renderer/text';
+import { formatLocale } from './captions/formatLocale';
 
 export interface CaptionsSelectControlsProps {
 	textTracks: VideoTextTracks;
@@ -16,6 +21,7 @@ export interface CaptionsSelectControlsProps {
 	areCaptionsEnabled: boolean;
 	onCaptionsEnabledChange: (areCaptionsEnabled: boolean) => void;
 	selectedTracksIndex: number;
+	isFullScreen?: boolean;
 }
 
 const CaptionsSelectControlsWithIntl = memo(
@@ -26,6 +32,7 @@ const CaptionsSelectControlsWithIntl = memo(
 		areCaptionsEnabled,
 		onCaptionsEnabledChange,
 		selectedTracksIndex,
+		isFullScreen = false,
 	}: CaptionsSelectControlsProps & WrappedComponentProps) => {
 		const closedCaptions = useMemo(
 			() => intl.formatMessage(messages.video_captions_enable),
@@ -70,9 +77,10 @@ const CaptionsSelectControlsWithIntl = memo(
 						appearance={areCaptionsEnabled ? 'primary' : 'default'}
 						onClick={() => onCaptionsEnabledChange(!areCaptionsEnabled)}
 						aria-label={closedCaptions}
-						// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+						/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 					>
 						CC
+						{/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 					</MediaButton>
 				</Tooltip>
 				<PopupSelect
@@ -97,11 +105,15 @@ const CaptionsSelectControlsWithIntl = memo(
 						</Tooltip>
 					)}
 					styles={popupCustomStyles}
-					popperProps={popperProps}
+					popperProps={getPopperPropsForFullscreen(isFullScreen)}
 				/>
 			</SplitButton>
 		);
 	},
 );
 
-export const CaptionsSelectControls = injectIntl(CaptionsSelectControlsWithIntl);
+export const CaptionsSelectControls: React.FC<
+	WithIntlProps<CaptionsSelectControlsProps & WrappedComponentProps>
+> & {
+	WrappedComponent: React.ComponentType<CaptionsSelectControlsProps & WrappedComponentProps>;
+} = injectIntl(CaptionsSelectControlsWithIntl);

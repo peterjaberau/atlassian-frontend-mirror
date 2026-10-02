@@ -2,8 +2,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+import type { JSX } from 'react';
+
 import { cssMap, jsx } from '@atlaskit/css';
-import { Focusable } from '@atlaskit/primitives/compiled';
+import { Focusable } from '@atlaskit/primitives/compiled/focusable';
 import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({

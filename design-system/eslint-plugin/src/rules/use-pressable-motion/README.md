@@ -1,0 +1,58 @@
+Encourages semantic motion tokens when local static styles change interactive colours on `Pressable`
+or native `<button>` elements.
+
+It supports Pressable imports from `@atlaskit/primitives/compiled`,
+`@atlaskit/primitives/compiled/pressable`, and `@atlaskit/primitives/pressable`. It recognises
+styles created with `css`, `cssMap`, and `xcss`. Use `&:hover` and `&:active` with `css` or
+`cssMap`; use `:hover` and `:active` with `xcss`. Pass styles to Pressable with `xcss` and to native
+buttons with `css`.
+
+For button motion, the rule detects `backgroundColor` and colour-only `background` changes. For
+list-item motion, it also detects `color`, `borderColor`, and `textDecorationColor`. It offers
+editor suggestions for button and list-item motion; choose the family that matches the surface's
+semantics. Suggestions add `motion.button.*` or `motion.listitem.*` tokens for hover and pressed
+states, but the rule does not autofix code. The rule also accepts `motion.tab` for tab label colour
+changes; it does not cover background, border, or text-decoration colour changes.
+
+The rule does not infer semantics, follow imported or dynamic styles, or overwrite an existing
+`transition`.
+
+## Pressable example
+
+```tsx
+import { token } from '@atlaskit/tokens';
+import { Pressable } from '@atlaskit/primitives/compiled';
+import { xcss } from '@atlaskit/primitives/xcss';
+
+const styles = xcss({
+	transition: token('motion.button.hovered'),
+	':hover': { backgroundColor: 'color.background.neutral.hovered' },
+	':active': {
+		backgroundColor: 'color.background.neutral.pressed',
+		transition: token('motion.button.pressed'),
+	},
+});
+
+<Pressable xcss={styles} />;
+```
+
+## Native button example
+
+```tsx
+import { css } from '@compiled/react';
+import { token } from '@atlaskit/tokens';
+
+const styles = css({
+	transition: token('motion.button.hovered'),
+	'&:hover': { backgroundColor: token('color.background.neutral.hovered') },
+	'&:active': {
+		backgroundColor: token('color.background.neutral.pressed'),
+		transition: token('motion.button.pressed'),
+	},
+});
+
+<button css={styles}>Save</button>;
+```
+
+For custom button guidance, see the
+[Pressable motion documentation](https://atlassian.design/components/primitives/pressable/usage#apply-motion-to-pressable).

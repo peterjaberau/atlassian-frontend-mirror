@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { blockMenuMessages } from '@atlaskit/editor-common/messages';
 import {
@@ -10,14 +10,17 @@ import {
 } from '@atlaskit/editor-toolbar';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
 
+import { useBlockMenuTargetVisibility } from '../block-menu-target-visibility-context';
 import type { BlockMenuFallbacks } from './types';
 
 const FallbackNestedMenu = ({ children }: { children?: React.ReactNode }) => {
 	const { formatMessage } = useIntl();
+	const targetVisible = useBlockMenuTargetVisibility();
 	return (
 		<ToolbarNestedDropdownMenu
+			isPopupVisible={targetVisible}
 			elemBefore={undefined}
-			elemAfter={<ChevronRightIcon label="" />}
+			elemAfter={<ChevronRightIcon label="" size="small" />}
 			text={formatMessage(blockMenuMessages.fallbackNestedMenu)}
 			enableMaxHeight
 			shouldFitContainer

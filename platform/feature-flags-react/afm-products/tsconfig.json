@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__platform-feature-flags-react/app",
 		"rootDir": "../",
 		"composite": true,
@@ -25,6 +24,9 @@
 	"references": [
 		{
 			"path": "../../feature-flags/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
 		}
 	]
 }

@@ -1,6 +1,9 @@
+import type { ADFNode, ADFNodeContentOneOrMoreSpec } from '@atlaskit/adf-schema-generator';
 import { $onePlus, $or } from '@atlaskit/adf-schema-generator';
+
 import { blockCard } from '../nodes/blockCard';
 import { blockquote } from '../nodes/blockquote';
+import { bodiedRule } from '../nodes/bodiedRule';
 import { codeBlock } from '../nodes/codeBlock';
 import { decisionList } from '../nodes/decisionList';
 import { embedCard } from '../nodes/embedCard';
@@ -16,7 +19,8 @@ import { rule } from '../nodes/rule';
 import { taskList } from '../nodes/task';
 import { unsupportedBlock } from '../nodes/unsupportedBlock';
 
-export const tableCellContentNodes = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const tableCellContentNodes: Array<ADFNode<any, any>> = [
 	paragraph.use('with_no_marks'),
 	paragraph.use('with_alignment'),
 	panel,
@@ -24,6 +28,8 @@ export const tableCellContentNodes = [
 	orderedList,
 	bulletList,
 	rule,
+	rule.use('with_attrs'),
+	bodiedRule,
 	heading.use('with_no_marks'),
 	heading.use('with_alignment'),
 	heading.use('with_indentation'),
@@ -36,6 +42,7 @@ export const tableCellContentNodes = [
 	blockCard,
 	embedCard,
 	extension.use('with_marks'),
+	extension.use('with_annotation'),
 	nestedExpand.use('content'),
 	nestedExpand.use('with_no_marks'),
 ];
@@ -45,10 +52,10 @@ export const tableCellContentNodes = [
 // In PM Spec, they contain different items. (tableHeader using tableHeaderContentPseudoGroup, tableCell using tableCellContentPseudoGroup)
 // In JSON Schema, both tableHeader and tableCell points to tableCellContentPseudoGroup
 // The differences are highlighted below.
-export const tableCellContentPseudoGroup = $onePlus(
+export const tableCellContentPseudoGroup: ADFNodeContentOneOrMoreSpec = $onePlus(
 	$or(...tableCellContentNodes, unsupportedBlock),
 );
 
-export const tableHeaderContentPseudoGroup = $onePlus(
+export const tableHeaderContentPseudoGroup: ADFNodeContentOneOrMoreSpec = $onePlus(
 	$or(...tableCellContentNodes, nestedExpand),
 );

@@ -1,12 +1,14 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import { DatePicker } from '@atlaskit/datetime-picker';
-import Form, { ErrorMessage, Field, FormFooter, ValidMessage } from '@atlaskit/form';
+import Button from '@atlaskit/button/default/button';
+import DatePicker from '@atlaskit/datetime-picker/date-picker';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
 
 const validateField = (value?: string) => {
 	if (!value) {
-		return 'REQUIRED';
+		return 'This field is required.';
 	}
 };
 
@@ -18,21 +20,17 @@ const DatePickerValidationExample = (): React.JSX.Element => (
 			validate={validateField}
 			isRequired
 			defaultValue=""
-		>
-			{({ fieldProps, error, meta: { valid } }) => (
-				<>
-					<DatePicker
-						{...fieldProps}
-						clearControlLabel="Clear start day"
-						shouldShowCalendarButton
-						inputLabel="Start day"
-						openCalendarLabel="open calendar"
-					/>
-					{valid && <ValidMessage>You have entered a valid date</ValidMessage>}
-					{error === 'REQUIRED' && <ErrorMessage>This field is required</ErrorMessage>}
-				</>
+			helperMessage="You have entered a valid date."
+			component={({ fieldProps }) => (
+				<DatePicker
+					{...fieldProps}
+					clearControlLabel="Clear start day"
+					shouldShowCalendarButton
+					inputLabel="Start day"
+					openCalendarLabel="open calendar"
+				/>
 			)}
-		</Field>
+		/>
 		<FormFooter>
 			<Button type="submit" appearance="primary">
 				Submit

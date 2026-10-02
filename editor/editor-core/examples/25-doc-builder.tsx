@@ -2,14 +2,13 @@ import React from 'react';
 
 import { DevTools } from '@af/editor-examples-helpers/utils';
 import { defaultSchema as schema } from '@atlaskit/adf-schema/schema-default';
-import TextArea from '@atlaskit/textarea';
+import TextArea from '@atlaskit/textarea/text-area';
 import { token } from '@atlaskit/tokens';
 
 import { evaluateDocBuilderExpression } from '../example-helpers/evaluate-doc-builder-expression';
 import type { EditorActions } from '../src';
 import EditorContext from '../src/ui/EditorContext';
 import WithEditorActions from '../src/ui/WithEditorActions';
-
 import { ExampleEditor as FullPageEditor } from './5-full-page';
 
 interface DocBuilderState {
@@ -261,7 +260,7 @@ export default class Example extends React.Component {
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						display: 'grid',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						padding: token('space.150', '12px'),
+						padding: token('space.150'),
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						gridTemplateColumns: '1fr 1fr 1fr',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -281,7 +280,7 @@ export default class Example extends React.Component {
 								return (
 									<FullPageEditor
 										editorProps={{
-											onChange: (e) => this.handleEditorChange(),
+											onChange: () => this.handleEditorChange(),
 										}}
 									/>
 								);

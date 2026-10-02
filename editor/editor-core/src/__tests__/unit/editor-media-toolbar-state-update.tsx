@@ -6,6 +6,7 @@ import { flushPromises } from '@atlaskit/editor-test-helpers/e2e-helpers';
 import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { renderWithIntl } from '@atlaskit/editor-test-helpers/rtl';
+import { screen } from '@atlassian/testing-library';
 
 import Editor from '../../editor';
 
@@ -20,13 +21,13 @@ jest.mock('../../ui/Toolbar/hooks', () => ({
  * media plugin changes, the toolbar does not get added.
  *
  * This test confirms the behaviour that if we re-render the editor (with the media state
- * unavailable initially, then it is available) - that the toolbar button is added.
+ * unavailable initially, then it is available) - that the toolbar button is enabled.
  *
  * See `MediaEditorStateCache` for more information on how the workaround is implemented.
  */
 describe('media toolbar item', () => {
-	it('should update the toolbar if the media provider re-renders with it available', async () => {
-		const { rerender, getByRole, queryByRole } = renderWithIntl(
+	it('should enable the toolbar item if the media provider re-renders with it available', async () => {
+		const { rerender } = renderWithIntl(
 			<Editor
 				appearance="comment"
 				media={{
@@ -40,11 +41,11 @@ describe('media toolbar item', () => {
 
 		await flushPromises();
 
-		// Is initially unavailable
-		const element = queryByRole('button', {
+		// Is initially unavailable, but remains rendered to prevent a toolbar layout shift
+		const element = screen.getByRole('button', {
 			name: 'Add image, video, or file',
 		});
-		expect(element).toBeNull();
+		expect(element).toBeDisabled();
 
 		rerender(
 			<Editor
@@ -60,9 +61,9 @@ describe('media toolbar item', () => {
 		await flushPromises();
 
 		// Updates on state change
-		const newElement = getByRole('button', {
+		const newElement = screen.getByRole('button', {
 			name: 'Add image, video, or file',
 		});
-		expect(newElement).toBeInTheDocument();
+		expect(newElement).toBeEnabled();
 	});
 });

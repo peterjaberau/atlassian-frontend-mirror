@@ -3,28 +3,33 @@
  *
  * Generates Typescript types for analytics events from analytics.spec.yaml
  *
- * @codegen <<SignedSource::21ae373abad7c370a8682ddcd3a7ed21>>
- * @codegenCommand yarn workspace @atlassian/analytics-tooling run analytics:codegen link-datasource
+ * @codegen <<SignedSource::50049b97279bd4c80145082104cdbde5>>
+ * @codegenCommand afm workspace @atlassian/analytics-tooling analytics:codegen link-datasource
  */
 import { useCallback } from 'react';
 
-import { useAnalyticsEvents as useAnalyticsNextEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents as useAnalyticsNextEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 
 import { EVENT_CHANNEL } from '../constants';
-
-import { type EventKey } from './analytics.types';
+import type { EventKey } from './analytics.types';
 import createEventPayload from './create-event-payload';
 
-export const useAnalyticsEvents = () => {
+type UseAnalyticsEventsFireFn = <K extends EventKey>(
+	...params: Parameters<typeof createEventPayload<K>>
+) => void;
+
+export const useAnalyticsEvents = (): {
+	fireEvent: UseAnalyticsEventsFireFn;
+} => {
 	const { createAnalyticsEvent } = useAnalyticsNextEvents();
-	const fireEvent = useCallback(
-		<K extends EventKey>(...params: Parameters<typeof createEventPayload<K>>): void => {
+	const fireEvent: UseAnalyticsEventsFireFn = useCallback(
+		<K extends EventKey>(...params: Parameters<typeof createEventPayload<K>>) => {
 			const event = createAnalyticsEvent(createEventPayload<K>(...params));
 			event.fire(EVENT_CHANNEL);
 		},
 		[createAnalyticsEvent],
 	);
 	return {
-		fireEvent,
+		fireEvent: fireEvent,
 	};
 };

@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
+
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import type { InlineCommentSelectionComponentProps } from '@atlaskit/editor-common/types';
+
+import { RendererContext as ActionsContext } from '../../RendererActionsContext';
 import { useUserSelectionRange } from '../hooks/user-selection';
 import { SelectionInlineCommentMounter } from './mounter';
-import type { InlineCommentSelectionComponentProps } from '@atlaskit/editor-common/types';
-import { RendererContext as ActionsContext } from '../../RendererActionsContext';
-import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
 
 type Props = {
 	createAnalyticsEvent?: CreateUIAnalyticsEvent;
@@ -13,7 +15,10 @@ type Props = {
 	>;
 };
 
-export const SelectionRangeValidator = (props: Props): React.JSX.Element | null => {
+export const SelectionRangeValidator: {
+	(props: Props): React.JSX.Element | null;
+	displayName: string;
+} = (props: Props): React.JSX.Element | null => {
 	const { selectionComponent, rendererRef, createAnalyticsEvent } = props;
 	const actions = useContext(ActionsContext);
 	const [type, range, draftRange, clearRange] = useUserSelectionRange({

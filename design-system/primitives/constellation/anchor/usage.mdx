@@ -39,48 +39,50 @@ Anchors are underlined by default. This helps differentiate links from regular t
 accessibility requirement. Using color alone to differentiate links isn't accessible, especially if
 links are surrounded by other text.
 
-<DoDont
-	type="do"
-	image={{
-		url: anchor1Do,
-		alt: 'A link surrounded by regular text. The link provides color and an underline to differentiate the link from regular text.',
-	}}
->
-	Use both underlines and color for links surrounded by regular text.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: anchor1Dont,
-		alt: "A link surrounded by regular text. The link provides only color but no underline to differentiate the link from regular text, however it's insufficient.",
-	}}
->
-	Only use color to differentiate links from regular text.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: anchor1Do,
+			alt: 'A link surrounded by regular text. The link provides color and an underline to differentiate the link from regular text.',
+		}}
+	>
+		Use both underlines and color for links surrounded by regular text.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: anchor1Dont,
+			alt: "A link surrounded by regular text. The link provides only color but no underline to differentiate the link from regular text, however it's insufficient.",
+		}}
+	>
+		Only use color to differentiate links from regular text.
+	</DoDont>
+</DoDontGrid>
 
 Only remove underlines and omit other style affordances such as color if the context surrounding the
 link makes it clear that it's interactive, such as in navigation or a card layout.
 
-<DoDont
-	type="do"
-	image={{
-		url: anchor2Do,
-		alt: 'Links in a navigation section. The links use a subtle text color and no underline, which is appropriate because the surrounding context makes it clear that they are links.',
-	}}
->
-	Omit underlines and color when surrounding context makes it clear it's a link.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: anchor2Dont,
-		alt: 'Links in a navigation section. The links use a bright text color and underline, which is not required because the surrounding context makes it clear that they are links.',
-	}}
->
-	Use underlines and color when surrounding context already makes it clear it's a link.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: anchor2Do,
+			alt: 'Links in a navigation section. The links use a subtle text color and no underline, which is appropriate because the surrounding context makes it clear that they are links.',
+		}}
+	>
+		Omit underlines and color when surrounding context makes it clear it's a link.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: anchor2Dont,
+			alt: 'Links in a navigation section. The links use a bright text color and underline, which is not required because the surrounding context makes it clear that they are links.',
+		}}
+	>
+		Use underlines and color when surrounding context already makes it clear it's a link.
+	</DoDont>
+</DoDontGrid>
 
 Also, don't underline text that isn't a link. This makes the text look clickable because it looks a
 link.
@@ -90,25 +92,25 @@ For more information see
 and
 ['Failure of Success Criterion 1.4.1 due to creating links that are not visually evident without color vision'](https://www.w3.org/WAI/WCAG22/Techniques/failures/F73).
 
-<Snippet name="links-dont-confuse-with-buttons" variables={{ componentName: 'anchor' }} />
+<LinksDontConfuseWithButtonsSnippet componentName="anchor" />
 
 Don't use anchor to make custom actions rather than navigation elements. To build a custom button,
 use the [pressable primitive](/components/primitives/pressable/examples) instead.
 
-<Snippet name="links-descriptive-text" />
+<LinksDescriptiveTextSnippet />
 
-<Snippet name="links-open-new-window" variables={{ componentName: 'anchor' }} />
+<LinksOpenNewWindowSnippet componentName="anchor" />
 
-<Snippet name="links-minimum-size" />
+<LinksMinimumSizeSnippet />
 
 If anchor is used for non-textual links, ensure the clickable area is at least 24 by 24 pixels for
 accessibility. For more information see
 [Target Size (Minimum) (Level AA)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html).
 
-<Snippet name="links-content-guidelines" />
+<LinksContentGuidelinesSnippet />
 
 ## Related
 
 - Use existing components such as [link](/components/link/examples) or
   [link button](/components/button/link-button/examples) wherever possible.
-- Use [pressable primitive for custom buttons](/components/primitives/button/usage).
+- Use [pressable primitive for custom buttons](/components/primitives/pressable/usage).

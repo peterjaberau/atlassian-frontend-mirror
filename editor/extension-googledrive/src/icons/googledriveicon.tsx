@@ -2,16 +2,18 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { token } from '@atlaskit/tokens';
+
 import { css, jsx } from '@compiled/react';
 
+import { token } from '@atlaskit/tokens';
+
 const svgStyles = css({
-	fill: token('elevation.surface', '#FFFFFF'),
+	fill: token('elevation.surface'),
 	overflow: 'hidden',
 	pointerEvents: 'none',
 });
 
-export default () => {
+export default (): JSX.Element => {
 	return (
 		<span data-vc={'icon-editor-googledrive'} aria-hidden={true}>
 			<svg viewBox="0 0 24 24" css={[svgStyles]} aria-label="googledrive-icon" role="img">

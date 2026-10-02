@@ -1,29 +1,133 @@
-import { searchTokensTool } from '../../src/tools/search-tokens';
+import { searchTokensTool } from '../../src/tools/search-tokens/search-tokens-tool';
 
-jest.mock('@atlaskit/tokens/token-metadata', () => ({
-	tokens: [
-		{
-			name: 'ExactMatchToken',
-			exampleValue: '#FFFFFF',
-			description: 'example token description',
-		},
-		{
-			name: 'FuzzyMatchToken',
-			exampleValue: '#000000',
-			description: 'fuzzy example token description',
-		},
-		{
-			name: 'DuplicateToken',
-			exampleValue: '#FF0000',
-			description: 'example token description',
-		},
-		{
-			name: 'DuplicateToken',
-			exampleValue: '#FF0000',
-			description: 'example token description',
-		},
+/**
+ * Expected names for `searchTokensTool({ terms })`
+ * `[[search terms], [token names]]`
+ */
+const expectedTokenResults: [string[], string[]][] = [
+	// Font & typography
+	[['font'], ['font.code', 'font.metric.large']],
+	[['heading'], ['font.heading.xxlarge', 'font.heading.xlarge']],
+	[
+		['font', 'heading'],
+		['font.code', 'font.heading.xxlarge', 'font.heading.xlarge'],
 	],
-}));
+	[['font size'], ['font.code', 'font.weight.regular']],
+	[['font.size'], ['font.code', 'font.metric.large']],
+	[
+		['font', 'size'],
+		['font.code', 'font.metric.large'],
+	],
+	[['font weight'], ['font.weight.regular', 'font.weight.medium']],
+	[['font.weight'], ['font.weight.regular', 'font.weight.medium']],
+	[
+		['font', 'weight'],
+		['font.code', 'font.weight.regular', 'font.weight.medium'],
+	],
+	[['body text'], ['color.text', 'color.text.accent.lime']],
+	[
+		['body', 'text'],
+		['color.text.accent.gray', 'font.body.large', 'color.text', 'color.text.accent.lime'],
+	],
+
+	// Color — background & text (near each other)
+	[
+		['background', 'color'],
+		[
+			'color.chart.neutral',
+			'color.background.danger.subtle',
+			'color.background.information.subtle',
+			'color.rovo.background.brand.bold',
+		],
+	],
+	[['color.text'], ['color.text', 'color.text.accent.lime']],
+	[
+		['text', 'color'],
+		[
+			'color.chart.neutral',
+			'color.text.accent.gray',
+			'color.text.code.accent.1',
+			'color.text.code.accent.2',
+		],
+	],
+
+	// Color — icons
+	[['icon'], ['color.icon.information', 'color.icon']],
+	[
+		['icon', 'red'],
+		[
+			'color.icon.information',
+			'color.chart.red.bold.hovered',
+			'color.icon.disabled',
+			'color.icon.selected',
+		],
+	],
+	[
+		['color.icon.accent', 'red'],
+		[
+			'color.icon.accent.red',
+			'color.chart.red.bold.hovered',
+			'color.icon.accent.lime',
+			'color.icon.accent.yellow',
+		],
+	],
+
+	// Spacing
+	[['padding'], ['space.0', 'space.025']],
+	[
+		['padding', 'compact'],
+		['space.0', 'space.025'],
+	],
+	[['margin'], ['space.0', 'space.025']],
+	[
+		['margin', 'negative'],
+		['space.0', 'space.negative.025', 'space.negative.050'],
+	],
+	[['spacing'], ['space.0', 'space.025']],
+	[['space.100'], ['space.100', 'space.1000']],
+
+	// Border & radius
+	[['border radius'], ['radius.xsmall', 'radius.small']],
+	[
+		['border', 'radius'],
+		['radius.tile', 'border.width', 'radius.xsmall', 'radius.small'],
+	],
+	[['border width'], ['border.width', 'border.width.selected']],
+	[
+		['border', 'width'],
+		['border.width', 'border.width.selected'],
+	],
+
+	// Elevation & shadow
+	[
+		['overflow', 'shadow', 'box'],
+		[
+			'elevation.shadow.overflow',
+			'elevation.shadow.overflow.perimeter',
+			'elevation.shadow.overlay',
+		],
+	],
+	[['shadow'], ['elevation.shadow.overflow', 'elevation.shadow.overlay']],
+
+	// Many terms at once
+	[
+		['border', 'width', 'radius', 'color', 'background', 'text'],
+		[
+			'color.chart.neutral',
+			'radius.tile',
+			'border.width',
+			'color.background.danger.subtle',
+			'border.width.selected',
+			'color.text.accent.gray',
+			'color.background.neutral.hovered',
+			'color.background.neutral.pressed',
+			'color.background.neutral.subtle.hovered',
+			'color.background.neutral.subtle.pressed',
+			'color.background.neutral.bold.hovered',
+			'color.background.neutral.bold.pressed',
+		],
+	],
+];
 
 describe('search_tokens tool', () => {
 	it('Returns empty results if there are no search terms', async () => {
@@ -38,36 +142,69 @@ describe('search_tokens tool', () => {
 		});
 	});
 
-	it('Returns only exact matches if `exactName` is set', async () => {
-		const result = await searchTokensTool({ terms: ['ExactMatchToken'], exactName: true });
-		expect(result.content).toHaveLength(1);
-		expect(JSON.parse(result.content[0].text as string)[0].name).toEqual('ExactMatchToken');
-	});
-
 	it('Returns fuse results when there is no exact match', async () => {
 		const result = await searchTokensTool({
-			terms: ['fuzzy example token description'],
+			terms: ['Use for primary text, such as body copy'],
 		});
 		expect(result.content).toHaveLength(1);
-		expect(JSON.parse(result.content[0].text as string)[0].name).toEqual('FuzzyMatchToken');
+		expect(JSON.parse(result.content[0].text as string)[0].name).toEqual('color.text');
 	});
 
-	it('Returns empty results if there are no matches', async () => {
+	it('returns compact results by default and full metadata when requested', async () => {
+		const compactResult = await searchTokensTool({
+			terms: ['border.width.focused'],
+			limit: 1,
+		});
+		const compactToken = JSON.parse(compactResult.content[0].text as string)[0];
+		expect(compactToken).toEqual({
+			name: 'border.width.focused',
+			exampleValue: expect.any(String),
+		});
+
+		const metadataResult = await searchTokensTool({
+			terms: ['border.width.focused'],
+			limit: 1,
+			includeMetadata: true,
+		});
+		const metadataToken = JSON.parse(metadataResult.content[0].text as string)[0];
+		expect(metadataToken).toEqual({
+			name: 'border.width.focused',
+			exampleValue: expect.any(String),
+			usageGuidelines: {
+				usage: expect.any(String),
+				cssProperties: expect.arrayContaining(['border-width']),
+			},
+		});
+	});
+
+	it('Returns an error listing available tokens when there are no matches', async () => {
 		const result = await searchTokensTool({
-			terms: ['DOES NOT EXIST'],
+			terms: ['DOES NOT EXIST XYZ123'],
 		});
 		expect(result).toEqual({
 			content: [
 				{
-					text: '[]',
+					text: expect.stringContaining("Error: No tokens found for 'DOES NOT EXIST XYZ123'"),
 					type: 'text',
 				},
 			],
 		});
 	});
 
-	it('Deduplicates results', async () => {
-		const result = await searchTokensTool({ terms: ['DuplicateToken'] });
+	it('Deduplicates results when multiple terms resolve to the same token', async () => {
+		const result = await searchTokensTool({ terms: ['color.text', 'color.text'] });
 		expect(result.content).toHaveLength(1);
+		expect(JSON.parse(result.content[0].text as string)[0].name).toEqual('color.text');
 	});
+
+	it.each(expectedTokenResults)(
+		'returns fuzzy token names in order for query %s',
+		async (query, expectedNames) => {
+			const result = await searchTokensTool({ terms: query, limit: 2 });
+
+			const text = result.content[0]?.type === 'text' ? result.content[0].text : '[]';
+			const parsed = JSON.parse(text as string) as { name: string }[];
+			expect(parsed.map((t) => t.name)).toEqual(expectedNames);
+		},
+	);
 });

@@ -1,27 +1,12 @@
+import { passGate, failGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
 import { SOCKET_IO_OPTIONS, SOCKET_IO_OPTIONS_WITH_HIGH_JITTER } from '../../config';
 import { createSocketIOSocket } from '../../socket-io-provider';
-import { type InitAndAuthData } from '../../types';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { isIsolatedCloud } from '@atlaskit/atlassian-context';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-
-jest.mock('@atlaskit/platform-feature-flags', () => ({
-	fg: jest.fn(),
-}));
-const fgMock = fg as jest.Mock;
-
-jest.mock('@atlaskit/atlassian-context', () => ({
-	isIsolatedCloud: jest.fn(),
-}));
-const isIsolatedCloudMock = isIsolatedCloud as jest.Mock;
-
-jest.mock('@atlaskit/tmp-editor-statsig/exp-val-equals', () => ({
-	expValEquals: jest.fn(),
-}));
-const expValEqualsMock = expValEquals as jest.Mock;
+import type { InitAndAuthData } from '../../types';
 
 describe('Socket io provider', () => {
 	const url = 'http://localhost:8080/ccollab/sessionId/123';
+	const gcpUrl = 'http://test-gcp-cdp-bb0.jira-dev.com/ccollab/sessionId/123';
 	const presenceUrl = 'http://localhost:8080/collab-presence-confluence/sessionId/123';
 	const presencePath = '/ncs-presence/mock-cloud-id/mock-activation-id/confluence';
 	const editPath = '/ncs/mock-cloud-id/mock-activation-id/confluence';
@@ -33,106 +18,72 @@ describe('Socket io provider', () => {
 			expect((socket as any).io.engine.opts.path).toEqual('/ccollab/socket.io/');
 		});
 
-		describe('PMR routing for presence traffic', () => {
-			describe.each([true, false])(
-				'return io with correct path outside IC for FG states for presence only %s',
-				(isPresenceOnly) => {
-					const permutations = [
-						[true, true, true],
-						[true, false, true],
-						[false, true, false],
-						[false, false, false],
-					];
+		describe('Transports', () => {
+			it('use polling and websocket transports when collab editing', () => {
+				const socket = createSocketIOSocket(url);
 
-					beforeEach(() => {
-						isIsolatedCloudMock.mockReturnValue(false);
-					});
+				expect((socket as any).io.opts.transports).toEqual(['polling', 'websocket']);
+			});
 
-					afterEach(() => {
-						jest.restoreAllMocks();
-					});
+			it('use only websocket transport for presence and FG on', () => {
+				passGate('platform-editor-presence-websocket-only');
+				const socket = createSocketIOSocket(url, undefined, undefined, true);
 
-					it.each(permutations)(
-						'when nonIc FG %s and ic FG %s, PMR url should be used %s',
-						(nonIcFG, icFG, shouldUsePMR) => {
-							expValEqualsMock.mockImplementation(
-								(flag: string) =>
-									(nonIcFG && flag === 'platform_editor_use_pmr_for_collab_presence_non_ic') ||
-									(icFG && flag === 'platform_editor_use_pmr_for_collab_presence_in_ic'),
-							);
+				expect((socket as any).io.opts.transports).toEqual(['websocket']);
+			});
 
-							const socket = createSocketIOSocket(
-								presenceUrl,
-								undefined,
-								undefined,
-								isPresenceOnly,
-								undefined,
-								presencePath,
-							);
+			it('use polling and websocket transports for presence and FG off', () => {
+				failGate('platform-editor-presence-websocket-only');
+				const socket = createSocketIOSocket(url, undefined, undefined, true);
 
-							expect((socket as any).io.engine.opts.path).toEqual(
-								isPresenceOnly && shouldUsePMR
-									? '/ncs-presence/mock-cloud-id/mock-activation-id/confluence/socket.io/'
-									: '/collab-presence-confluence/socket.io/',
-							);
-						},
-					);
-				},
+				expect((socket as any).io.opts.transports).toEqual(['polling', 'websocket']);
+			});
+
+			it('use only websocket transport for collab editing on GCP and FG on', () => {
+				passGate('collab_edit_via_websocket_only_for_gcp');
+				const socket = createSocketIOSocket(gcpUrl);
+
+				expect((socket as any).io.opts.transports).toEqual(['websocket']);
+			});
+
+			it('use polling and websocket transports for collab editing on GCP and FG off', () => {
+				failGate('collab_edit_via_websocket_only_for_gcp');
+				const socket = createSocketIOSocket(gcpUrl);
+
+				expect((socket as any).io.opts.transports).toEqual(['polling', 'websocket']);
+			});
+
+			it('use only websocket transport for presence on GCP and FG on', () => {
+				passGate('platform-editor-presence-websocket-only');
+				const socket = createSocketIOSocket(gcpUrl, undefined, undefined, true);
+
+				expect((socket as any).io.opts.transports).toEqual(['websocket']);
+			});
+
+			it('use polling and websocket transports for presence on GCP and FG off', () => {
+				failGate('platform-editor-presence-websocket-only');
+				const socket = createSocketIOSocket(gcpUrl, undefined, undefined, true);
+
+				expect((socket as any).io.opts.transports).toEqual(['polling', 'websocket']);
+			});
+		});
+
+		it('return io with correct pmr path for presence', () => {
+			const socket = createSocketIOSocket(
+				presenceUrl,
+				undefined,
+				undefined,
+				true,
+				undefined,
+				presencePath,
 			);
-
-			describe.each([true, false])(
-				'return io with correct path inside IC for FG states for presence only %s',
-				(isPresenceOnly) => {
-					const permutations = [
-						[true, true, true],
-						[true, false, false],
-						[false, true, true],
-						[false, false, false],
-					];
-
-					beforeEach(() => {
-						isIsolatedCloudMock.mockReturnValue(true);
-					});
-
-					afterEach(() => {
-						jest.restoreAllMocks();
-					});
-
-					it.each(permutations)(
-						'when nonIc FG %s and ic FG %s, PMR url should be used %s',
-						(nonIcFG, icFG, shouldUsePMR) => {
-							expValEqualsMock.mockImplementation(
-								(flag: string) =>
-									(nonIcFG && flag === 'platform_editor_use_pmr_for_collab_presence_non_ic') ||
-									(icFG && flag === 'platform_editor_use_pmr_for_collab_presence_in_ic'),
-							);
-
-							const socket = createSocketIOSocket(
-								presenceUrl,
-								undefined,
-								undefined,
-								isPresenceOnly,
-								undefined,
-								presencePath,
-							);
-
-							expect((socket as any).io.engine.opts.path).toEqual(
-								isPresenceOnly && shouldUsePMR
-									? '/ncs-presence/mock-cloud-id/mock-activation-id/confluence/socket.io/'
-									: '/collab-presence-confluence/socket.io/',
-							);
-						},
-					);
-				},
+			expect((socket as any).io.engine.opts.path).toEqual(
+				'/ncs-presence/mock-cloud-id/mock-activation-id/confluence/socket.io/',
 			);
 		});
 
 		describe('PMR routing for edit traffic', () => {
-			it('should use PMR for edit traffic when experiment is enabled and path is provided', () => {
-				expValEqualsMock.mockImplementation(
-					(flag: string) => flag === 'platform_editor_to_use_pmr_for_collab_edit_none_ic',
-				);
-
+			it('should use PMR for edit traffic when path is provided', () => {
 				const socket = createSocketIOSocket(
 					url,
 					undefined,
@@ -147,24 +98,7 @@ describe('Socket io provider', () => {
 				);
 			});
 
-			it('should not use PMR for edit traffic when experiment is disabled', () => {
-				expValEqualsMock.mockReturnValue(false);
-
-				const socket = createSocketIOSocket(
-					url,
-					undefined,
-					undefined,
-					false, // isPresenceOnly = false for edit traffic
-					undefined,
-					editPath,
-				);
-
-				expect((socket as any).io.engine.opts.path).toEqual('/ccollab/socket.io/');
-			});
-
 			it('should not use PMR for edit traffic when path is not provided', () => {
-				expValEqualsMock.mockReturnValue(true);
-
 				const socket = createSocketIOSocket(
 					url,
 					undefined,
@@ -177,26 +111,7 @@ describe('Socket io provider', () => {
 				expect((socket as any).io.engine.opts.path).toEqual('/ccollab/socket.io/');
 			});
 
-			it('should not use PMR for edit traffic when isPresenceOnly is undefined and experiment is disabled', () => {
-				expValEqualsMock.mockReturnValue(false);
-
-				const socket = createSocketIOSocket(
-					url,
-					undefined,
-					undefined,
-					undefined, // isPresenceOnly is undefined (defaults to edit traffic)
-					undefined,
-					editPath,
-				);
-
-				expect((socket as any).io.engine.opts.path).toEqual('/ccollab/socket.io/');
-			});
-
-			it('should use PMR for edit traffic when isPresenceOnly is undefined and experiment is enabled', () => {
-				expValEqualsMock.mockImplementation(
-					(flag: string) => flag === 'platform_editor_to_use_pmr_for_collab_edit_none_ic',
-				);
-
+			it('should use PMR for edit traffic when isPresenceOnly is undefined', () => {
 				const socket = createSocketIOSocket(
 					url,
 					undefined,
@@ -230,23 +145,8 @@ describe('Socket io provider', () => {
 	});
 
 	describe('Product Information headers', () => {
-		beforeEach(() => {
-			// default to OFF for these tests unless explicitly enabled
-			expValEqualsMock.mockReturnValue(false);
-		});
-
-		it('should omit x-client-platform header when platform_editor_send_client_platform_header is OFF', () => {
+		it('should set x-client-platform header', () => {
 			const socket = createSocketIOSocket(url);
-			expect(socket?.io?.opts.extraHeaders).not.toHaveProperty('x-client-platform');
-		});
-
-		it('should set x-client-platform header when platform_editor_send_client_platform_header is ON', () => {
-			expValEqualsMock.mockImplementation(
-				(experimentName: string, param: string) =>
-					experimentName === 'platform_editor_send_client_platform_header'
-			);
-			const socket = createSocketIOSocket(url);
-
 			expect(socket?.io?.opts.extraHeaders).toHaveProperty('x-client-platform', 'web');
 		});
 
@@ -258,6 +158,7 @@ describe('Socket io provider', () => {
 			});
 
 			expect(socket?.io?.opts.extraHeaders).toEqual({
+				'x-client-platform': 'web',
 				'x-product': 'confluence',
 				'x-subproduct': 'none',
 			});
@@ -270,6 +171,7 @@ describe('Socket io provider', () => {
 			});
 
 			expect(socket?.io?.opts.extraHeaders).toEqual({
+				'x-client-platform': 'web',
 				'x-product': 'embeddedConfluence',
 				'x-subproduct': 'JSM',
 			});
@@ -288,7 +190,6 @@ describe('Socket io provider', () => {
 		});
 
 		it('should set high jitter reconnection options if presence client', () => {
-			fgMock.mockReturnValue(true);
 			const socket = createSocketIOSocket(url, undefined, undefined, true);
 
 			expect(socket?.io?.opts.reconnectionDelayMax).toEqual(

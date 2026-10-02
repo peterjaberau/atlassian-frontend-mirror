@@ -1,25 +1,30 @@
 import React, { useState } from 'react';
+
+import Button from '@atlaskit/button/button';
+import { Label } from '@atlaskit/form/label/default';
 import {
 	type ImageResizeMode,
 	type FileIdentifier,
 	type MediaClientConfig,
 	isErrorFileState,
 } from '@atlaskit/media-client';
-import { Card } from '../src';
-import { generateItemWithBinaries } from '@atlaskit/media-test-data';
-import { MediaClientProvider, useFileState } from '@atlaskit/media-client-react';
+import { MediaClientProvider } from '@atlaskit/media-client-react/media-client-provider';
+import { useFileState } from '@atlaskit/media-client-react/use-file-state';
 import { svgFileIds } from '@atlaskit/media-client/test-helpers';
+import { generateItemWithBinaries } from '@atlaskit/media-test-data';
 import { createStorybookMediaClientConfig } from '@atlaskit/media-test-helpers';
-import Button from '@atlaskit/button';
-import { RadioGroup } from '@atlaskit/radio';
+import RadioGroup from '@atlaskit/radio/radio-group';
+import Select from '@atlaskit/select/default';
+import { token } from '@atlaskit/tokens';
+
 import { MainWrapper } from '../example-helpers';
+import { CardBox, CardRow } from '../example-helpers/svg-helpers/cardContainer';
 import {
-	ToggleBox,
-	CardBox,
-	CardRow,
 	delayApiResponses,
 	errorApiResponses,
-} from '../example-helpers/svg-helpers';
+} from '../example-helpers/svg-helpers/mediaApiTweaks';
+import { ToggleBox } from '../example-helpers/svg-helpers/toggle';
+import Card from '../src/card/cardLoader';
 import { useCreateMockedMediaClientProviderWithBinaries } from '../src/utils/__tests__/utils/mockedMediaClientProvider/_MockedMediaClientProviderWithBinaries';
 
 const dummyMediaClientConfig = {} as MediaClientConfig;
@@ -30,10 +35,12 @@ const RenderCardBlock = ({
 	identifier,
 	identifiers,
 	disableOverlay,
+	backgroundColor,
 }: {
 	identifier: FileIdentifier;
 	identifiers: FileIdentifier[];
 	disableOverlay: boolean;
+	backgroundColor?: string;
 }) => {
 	const { fileState } = useFileState(identifier.id, { collectionName: identifier.collectionName });
 	const fileName = fileState && !isErrorFileState(fileState) ? fileState.name : 'Loading...';
@@ -52,6 +59,7 @@ const RenderCardBlock = ({
 							mediaViewerItems={identifiers}
 							disableOverlay={disableOverlay}
 							resizeMode={resizeMode}
+							backgroundColor={backgroundColor}
 						/>
 					</CardBox>
 				))}
@@ -63,9 +71,11 @@ const RenderCardBlock = ({
 const Example = ({
 	identifiers,
 	disableOverlay,
+	backgroundColor,
 }: {
 	identifiers: FileIdentifier[];
 	disableOverlay: boolean;
+	backgroundColor?: string;
 }) => {
 	return (
 		<div>
@@ -75,6 +85,7 @@ const Example = ({
 					identifier={identifier}
 					identifiers={identifiers}
 					disableOverlay={disableOverlay}
+					backgroundColor={backgroundColor}
 				/>
 			))}
 		</div>
@@ -92,18 +103,28 @@ const initialItems = [
 	binaryCorrupted(),
 ];
 
+const backgroundColorOptions = [
+	{ label: 'Default (white)', value: '' },
+	{ label: 'Transparent', value: 'transparent' },
+	{ label: 'Neutral', value: token('color.background.neutral') },
+	{ label: 'Dark (Bold)', value: token('color.background.neutral.bold') },
+	{ label: 'Accent Blue', value: token('color.background.accent.blue.subtlest') },
+];
+
 const MockedProvider = ({
 	delayedPreview,
 	uploadingFile,
 	binaryFetchError,
 	imageFetchError,
 	disableOverlay,
+	backgroundColor,
 }: {
 	delayedPreview?: boolean;
 	uploadingFile?: boolean;
 	binaryFetchError: boolean;
 	imageFetchError: boolean;
 	disableOverlay: boolean;
+	backgroundColor?: string;
 }) => {
 	const { MockedMediaClientProvider, mediaApi, uploadItem, identifiers, items } =
 		useCreateMockedMediaClientProviderWithBinaries({ initialItems });
@@ -136,18 +157,32 @@ const MockedProvider = ({
 
 	return (
 		<MockedMediaClientProvider>
-			<Example identifiers={identifiers} disableOverlay={disableOverlay} />
+			<Example
+				identifiers={identifiers}
+				disableOverlay={disableOverlay}
+				backgroundColor={backgroundColor}
+			/>
 		</MockedMediaClientProvider>
 	);
 };
 
-const BackendProvider = ({ disableOverlay }: { disableOverlay: boolean }) => {
+const BackendProvider = ({
+	disableOverlay,
+	backgroundColor,
+}: {
+	disableOverlay: boolean;
+	backgroundColor?: string;
+}) => {
 	const mediaClientConfig = createStorybookMediaClientConfig();
 	const identifiers = Object.values(svgFileIds);
 
 	return (
 		<MediaClientProvider clientConfig={mediaClientConfig}>
-			<Example identifiers={identifiers} disableOverlay={disableOverlay} />
+			<Example
+				identifiers={identifiers}
+				disableOverlay={disableOverlay}
+				backgroundColor={backgroundColor}
+			/>
 		</MediaClientProvider>
 	);
 };
@@ -160,10 +195,25 @@ export default function (): React.JSX.Element {
 	const [uploadingFile, setUploadingFile] = useState(false);
 	const [binaryFetchError, setBinaryFetchError] = useState(false);
 	const [imageFetchError, setImageFetchError] = useState(false);
+	const [backgroundColor, setBackgroundColor] = useState<string | undefined>(undefined);
 	return (
 		<MainWrapper disableFeatureFlagWrapper>
 			<ToggleBox label="Disable Overlay" isChecked={disableOverlay} onChange={setDisableOverlay} />
 			<ToggleBox label="Use mocked api" isChecked={useMockedAPI} onChange={setUseMockedAPI} />
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop */}
+			<div style={{ maxWidth: 300, marginBottom: 8 }}>
+				<Label htmlFor="select-background-color">Background Color</Label>
+				<Select
+					inputId="select-background-color"
+					classNamePrefix="react-select"
+					defaultValue={backgroundColorOptions[0]}
+					options={backgroundColorOptions}
+					placeholder="Choose background color"
+					onChange={(evt) => {
+						setBackgroundColor(evt?.value || undefined);
+					}}
+				/>
+			</div>
 			{useMockedAPI && (
 				<>
 					<RadioGroup
@@ -223,9 +273,14 @@ export default function (): React.JSX.Element {
 					binaryFetchError={binaryFetchError}
 					imageFetchError={imageFetchError}
 					disableOverlay={disableOverlay}
+					backgroundColor={backgroundColor}
 				/>
 			) : (
-				<BackendProvider key={`${reloadKey}`} disableOverlay={disableOverlay} />
+				<BackendProvider
+					key={`${reloadKey}`}
+					disableOverlay={disableOverlay}
+					backgroundColor={backgroundColor}
+				/>
 			)}
 		</MainWrapper>
 	);

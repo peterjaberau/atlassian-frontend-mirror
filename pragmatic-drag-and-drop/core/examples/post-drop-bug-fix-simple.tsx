@@ -9,7 +9,7 @@ import {
 	draggable,
 	dropTargetForElements,
 	monitorForElements,
-} from '../src/entry-point/element/adapter';
+} from '../src/adapter/element-adapter';
 import { combine } from '../src/public-utils/combine';
 
 const interactiveStyles = xcss({
@@ -57,6 +57,7 @@ const isOverCardStyles = xcss({
 	backgroundColor: 'color.background.accent.blue.subtle',
 });
 
+// oxlint-disable-next-line eslint/no-redeclare
 function Card({ cardId }: { cardId: string }) {
 	const [counts, setCounts] = useState<{
 		dragstart: number;

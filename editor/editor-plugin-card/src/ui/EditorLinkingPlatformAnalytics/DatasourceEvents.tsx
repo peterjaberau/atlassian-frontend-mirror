@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react';
 
-import { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import { useDatasourceLifecycleAnalytics } from '@atlaskit/link-analytics';
-import type { DatasourceAdf } from '@atlaskit/link-datasource';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useDatasourceLifecycleAnalytics } from '@atlaskit/link-analytics/use-datasource-lifecycle-analytics';
+import type { DatasourceAdf } from '@atlaskit/linking-common/types';
 
 import type {
 	DatasourceCreatedEvent,
@@ -10,7 +10,6 @@ import type {
 	DatasourceUpdatedEvent,
 } from '../analytics/types';
 import { EVENT, EVENT_SUBJECT } from '../analytics/types';
-
 import type { AnalyticsBindingsProps } from './common';
 import { getMethod } from './common';
 

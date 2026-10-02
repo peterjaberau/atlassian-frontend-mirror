@@ -19,9 +19,9 @@ import {
 	tr,
 	ul,
 } from '@atlaskit/editor-test-helpers/doc-builder';
+import { skipAutoA11y } from '@atlassian/a11y-playwright-testing';
 
 import { nestedNumberedListDocument, numberedListDocument } from '../../__fixtures__/base-adfs';
-
 import {
 	blockquoteAdf,
 	blockquoteInsideExpandAdf,
@@ -30,12 +30,14 @@ import {
 
 test.describe('List inside a blockquote', () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 		editorProps: {
 			appearance: 'full-page',
 		},
 	});
 	test.describe('List in a non-nested blockquote', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			adf: blockquoteAdf,
 		});
 
@@ -63,9 +65,7 @@ test.describe('List inside a blockquote', () => {
 			await expect(editor).toMatchDocument(doc(blockquote(p(''))));
 		});
 
-		test(`should insert an action item outside the blockquote on trying to add an action item in a list inside blockquote`, async ({
-			editor,
-		}) => {
+		test('should insert an action item in a list inside blockquote', async ({ editor }) => {
 			await editor.selection.set({ anchor: 2, head: 2 });
 			// Add a list item
 			await editor.keyboard.type('- item 1');
@@ -73,17 +73,15 @@ test.describe('List inside a blockquote', () => {
 			// Add an action item from the toolbar
 			const toolbar = EditorMainToolbarModel.from(editor);
 			await toolbar.clickAt('Action item');
-			// action item should be inserted outside the blockquote
 			await expect(editor).toMatchDocument(
-				doc(
-					blockquote(ul(li(p('item 1')), li(p(''), taskList({})(taskItem({ state: 'TODO' })(''))))),
-				),
+				doc(blockquote(ul(li(p('item 1')), li(taskList({})(taskItem({ state: 'TODO' })('')))))),
 			);
 		});
 	});
 
 	test.describe('List inside a blockquote nested in a table', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			adf: blockquoteInsideTableAdf,
 			editorProps: {
 				allowTables: true,
@@ -101,6 +99,7 @@ test.describe('List inside a blockquote', () => {
 
 	test.describe('List inside a blockquote nested in an expand', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			adf: blockquoteInsideExpandAdf,
 			editorProps: {
 				allowExpand: true,
@@ -108,6 +107,7 @@ test.describe('List inside a blockquote', () => {
 		});
 
 		test(`should insert a bullet list on typing - inside blockquote`, async ({ editor }) => {
+			await editor.openExpands();
 			await editor.selection.set({ anchor: 9, head: 9 });
 			await editor.keyboard.type('- ');
 			await expect(editor).toMatchDocument(
@@ -118,7 +118,11 @@ test.describe('List inside a blockquote', () => {
 
 	test.describe('Media inside list within a blockquote', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			adf: blockquoteAdf,
+			platformFeatureFlags: {
+				platform_editor_fix_focus_mediainsertpicker: true,
+			},
 			editorProps: {
 				appearance: 'full-page',
 				media: {
@@ -129,6 +133,7 @@ test.describe('List inside a blockquote', () => {
 		});
 
 		test(`should be able to add media and remove it (via backspace)`, async ({ editor }) => {
+			skipAutoA11y();
 			const uploadModel = EditorUploadMediaModel.from(editor);
 			await editor.selection.set({ anchor: 2, head: 2 });
 			await editor.keyboard.type('1. ');
@@ -141,13 +146,14 @@ test.describe('List inside a blockquote', () => {
 			});
 
 			await editor.keyboard.press('Backspace');
-			await expect(editor).toMatchDocument(doc(blockquote(ol()(li(p(''), p())))));
+			await expect(editor).toMatchDocument(doc(blockquote(ol()(li(p(''))))));
 		});
 	});
 });
 
 test.describe('quick-insert: numbered list', () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 		adf: numberedListDocument,
 	});
 
@@ -212,6 +218,7 @@ test.describe('quick-insert: numbered list', () => {
 
 test.describe('quick-insert: nested numbered list', () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 		adf: nestedNumberedListDocument,
 	});
 

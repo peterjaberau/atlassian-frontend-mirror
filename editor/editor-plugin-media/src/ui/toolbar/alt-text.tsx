@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { addAltText, ToolTipContent } from '@atlaskit/editor-common/keymaps';
@@ -15,7 +15,7 @@ import type {
 } from '@atlaskit/editor-common/types';
 import { RECENT_SEARCH_WIDTH_IN_PX as CONTAINER_WIDTH_IN_PX } from '@atlaskit/editor-common/ui';
 import type { ForceFocusSelector } from '@atlaskit/editor-plugin-floating-toolbar';
-import { type NodeType } from '@atlaskit/editor-prosemirror/model';
+import type { NodeType } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection, type EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import ImageAltTextIcon from '@atlaskit/icon-lab/core/image-alt-text';
@@ -25,7 +25,6 @@ import AltTextEdit from '../../pm-plugins/alt-text/ui/AltTextEdit';
 import { isImage } from '../../pm-plugins/utils/is-type';
 import { getMediaSingleOrInlineNodeFromSelection } from '../../pm-plugins/utils/media-common';
 import type { MediaToolbarBaseConfig } from '../../types';
-
 import { getNodeType } from './commands';
 
 const testId = 'alt-text-edit-button';

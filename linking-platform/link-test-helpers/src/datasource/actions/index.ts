@@ -1,14 +1,14 @@
 import type FetchMock from 'fetch-mock';
 import fetchMock from 'fetch-mock/cjs/client';
 
+import type { Icon } from '@atlaskit/linking-types/datasource';
 import {
 	ActionOperationStatus,
 	type ActionsServiceDiscoveryResponse,
 	type AtomicActionExecuteRequest,
 	type AtomicActionExecuteResponse,
 	type AtomicActionInterface,
-	type Icon,
-} from '@atlaskit/linking-types';
+} from '@atlaskit/linking-types/datasource-actions';
 
 import {
 	blocker,
@@ -23,11 +23,14 @@ import {
 	trivial,
 } from '../../images';
 
-export const ORS_ACTIONS_DISCOVERY_ENDPOINT = /\/gateway\/api\/object-resolver\/actions$/;
-export const ORS_ACTIONS_EXECUTION_ENDPOINT = /\/gateway\/api\/object-resolver\/actions\/execute$/;
+export const ORS_ACTIONS_DISCOVERY_ENDPOINT: RegExp = /\/gateway\/api\/object-resolver\/actions$/;
+export const ORS_ACTIONS_EXECUTION_ENDPOINT: RegExp =
+	/\/gateway\/api\/object-resolver\/actions\/execute$/;
 
 let numberOfLoads = 0;
-export const mockActionsDiscovery = (overrides?: Partial<ActionsServiceDiscoveryResponse>): void => {
+export const mockActionsDiscovery = (
+	overrides?: Partial<ActionsServiceDiscoveryResponse>,
+): void => {
 	fetchMock.post(
 		ORS_ACTIONS_DISCOVERY_ENDPOINT,
 		async (): Promise<ActionsServiceDiscoveryResponse> => {
@@ -111,22 +114,30 @@ export const mockActionsDiscovery = (overrides?: Partial<ActionsServiceDiscovery
 					permissions: {
 						data: new Array(20).fill(null).flatMap((_, i) => [
 							{
-								ari: `ari:cloud:jira:DUMMY-158c8204-ff3b-47c2-adbb-a0906ccc722b:issue/${i * 10 + numberOfLoads}`,
+								ari: `ari:cloud:jira:DUMMY-158c8204-ff3b-47c2-adbb-a0906ccc722b:issue/${
+									i * 10 + numberOfLoads
+								}`,
 								fieldKey: 'summary',
 								isEditable: i % 2 === 1,
 							},
 							{
-								ari: `ari:cloud:jira:DUMMY-158c8204-ff3b-47c2-adbb-a0906ccc722b:issue/${i * 10 + numberOfLoads}`,
+								ari: `ari:cloud:jira:DUMMY-158c8204-ff3b-47c2-adbb-a0906ccc722b:issue/${
+									i * 10 + numberOfLoads
+								}`,
 								fieldKey: 'status',
 								isEditable: i % 2 === 1,
 							},
 							{
-								ari: `ari:cloud:jira:DUMMY-158c8204-ff3b-47c2-adbb-a0906ccc722b:issue/${i * 10 + numberOfLoads}`,
+								ari: `ari:cloud:jira:DUMMY-158c8204-ff3b-47c2-adbb-a0906ccc722b:issue/${
+									i * 10 + numberOfLoads
+								}`,
 								fieldKey: 'priority',
 								isEditable: i % 2 === 1,
 							},
 							{
-								ari: `ari:cloud:jira:DUMMY-158c8204-ff3b-47c2-adbb-a0906ccc722b:issue/${i * 10 + numberOfLoads}`,
+								ari: `ari:cloud:jira:DUMMY-158c8204-ff3b-47c2-adbb-a0906ccc722b:issue/${
+									i * 10 + numberOfLoads
+								}`,
 								fieldKey: 'assignee',
 								isEditable: i % 2 === 1,
 							},
@@ -198,7 +209,14 @@ export const mockActionsExecution = (mockExecutionDelay: number): void => {
 	);
 };
 
-export const cannedStatuses = [
+export const cannedStatuses: {
+	id: string;
+	style: {
+		appearance: string;
+	};
+	text: string;
+	transitionId: string;
+}[] = [
 	{
 		id: '11',
 		transitionId: '101',
@@ -249,7 +267,12 @@ export const cannedStatuses = [
 	},
 ];
 
-export const cannedUsers = [
+export const cannedUsers: {
+	atlassianUserId: string;
+	avatarSource: string;
+	displayName: string;
+	url: string;
+}[] = [
 	{
 		atlassianUserId: '5b45501cfc9d8158972cdd2c',
 		displayName: 'Mike Dao',

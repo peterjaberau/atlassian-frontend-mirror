@@ -3,15 +3,16 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type CSSProperties, type ReactNode, type Ref } from 'react';
+
+import { type CSSProperties, type JSX, type ReactNode, type Ref } from 'react';
 
 import { cssMap, cx, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
+import { getStyleProps } from '../get-style-props';
 import { type CommonPropsAndClassName, type GroupBase } from '../types';
-import { getStyleProps } from '../utils';
 
 export interface ControlProps<
 	Option = unknown,
@@ -63,10 +64,10 @@ const styles = cssMap({
 		backgroundColor: token('color.background.input'),
 		borderColor: token('color.border.input'),
 		borderStyle: 'solid',
-		borderRadius: token('radius.small', '3px'),
-		borderWidth: token('border.width', '1px'),
+		borderRadius: token('radius.medium'),
+		borderWidth: token('border.width'),
 		'&:focus-within': {
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.input')}`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.input')}`,
 		},
 		minHeight: 40,
 		paddingBlockStart: token('space.0'),
@@ -95,9 +96,6 @@ border-color 200ms ease-in-out`,
 			backgroundColor: 'rgba(0,0,0,0.4)',
 		},
 	},
-	defaultT26Shape: {
-		borderRadius: token('radius.medium', '6px'),
-	},
 	compact: {
 		minHeight: 32,
 	},
@@ -107,12 +105,12 @@ border-color 200ms ease-in-out`,
 			borderColor: token('color.border.danger'),
 		},
 		'&:focus-within': {
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.danger')}`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.danger')}`,
 		},
-		boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.danger')}`,
+		boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.danger')}`,
 	},
 	focusedInvalid: {
-		boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.focused')}`,
+		boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.focused')}`,
 	},
 	disabled: {
 		// Turn pointer events off when disabled - this makes it so hover etc don't work.
@@ -120,15 +118,15 @@ border-color 200ms ease-in-out`,
 		backgroundColor: token('color.background.disabled'),
 		borderColor: token('color.background.disabled'),
 		'&:focus-within': {
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.background.disabled')}`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.background.disabled')}`,
 		},
 	},
 	focused: {
 		backgroundColor: token('color.background.input.pressed'),
 		borderColor: token('color.border.focused'),
-		boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.focused')}`,
+		boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.focused')}`,
 		'&:focus-within': {
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.focused')}`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.focused')}`,
 		},
 		'&:hover': {
 			backgroundColor: token('color.background.input.pressed'),
@@ -139,7 +137,7 @@ border-color 200ms ease-in-out`,
 		backgroundColor: 'transparent',
 		borderColor: 'transparent',
 		'&:focus-within': {
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} transparent`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} transparent`,
 		},
 	},
 	subtleFocused: {
@@ -149,7 +147,7 @@ border-color 200ms ease-in-out`,
 		backgroundColor: 'transparent',
 		borderColor: 'transparent',
 		'&:focus-within': {
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} transparent`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} transparent`,
 		},
 		'&:hover': {
 			backgroundColor: 'transparent',
@@ -158,9 +156,9 @@ border-color 200ms ease-in-out`,
 	},
 });
 
-export const css: () => {} = () => ({});
-
-const Control: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(props: ControlProps<Option, IsMulti, Group>) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+const Control: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+	props: ControlProps<Option, IsMulti, Group>,
+) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
 	props: ControlProps<Option, IsMulti, Group>,
 ) => {
 	const {
@@ -186,7 +184,6 @@ const Control: <Option, IsMulti extends boolean, Group extends GroupBase<Option>
 		<div
 			css={[
 				styles.default,
-				fg('platform-dst-shape-theme-default') && styles.defaultT26Shape,
 				isDisabled && styles.disabled,
 				isInvalid && styles.invalid,
 				isCompact && styles.compact,
@@ -201,7 +198,9 @@ const Control: <Option, IsMulti extends boolean, Group extends GroupBase<Option>
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 			style={css as CSSProperties}
 			{...innerProps}
-			aria-disabled={isDisabled || undefined}
+			aria-disabled={
+				fg('platform_dst_select_disabled_a11y_fix') ? undefined : isDisabled || undefined
+			}
 		>
 			{children}
 		</div>

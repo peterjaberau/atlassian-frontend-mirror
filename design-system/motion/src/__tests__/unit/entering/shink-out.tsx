@@ -1,15 +1,14 @@
 import React from 'react';
 
-import { act, render, screen, within } from '@testing-library/react';
 import { replaceRaf } from 'raf-stub';
+
+import { act, render, screen, within } from '@atlassian/testing-library';
 
 import ExitingPersistence from '../../../entering/exiting-persistence';
 import ShrinkOut from '../../../entering/shrink-out';
 import { easeIn } from '../../../utils/curves';
 import { durations } from '../../../utils/durations';
 import { ComponentStub } from '../../__utils__/component-stub';
-
-jest.mock('../../../utils/accessibility');
 
 replaceRaf();
 const raf = window.requestAnimationFrame as any;

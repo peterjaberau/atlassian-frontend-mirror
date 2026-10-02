@@ -6,11 +6,14 @@ import React, { useState } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { TabField, TabGroupField } from '@atlaskit/editor-common/extensions';
-import Tabs, { Tab, TabList, TabPanel } from '@atlaskit/tabs';
+import Tab from '@atlaskit/tabs/tab';
+import TabList from '@atlaskit/tabs/tab-list';
+import TabPanel from '@atlaskit/tabs/tab-panel';
+import Tabs from '@atlaskit/tabs/tabs';
 
 const panelWrapperStyles = css({
 	flexGrow: 1,
@@ -56,5 +59,8 @@ const TabGroupImpl = (props: Props) => {
 };
 TabGroupImpl.displayName = 'TabGroup';
 
-const TabGroup = injectIntl(TabGroupImpl);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const TabGroup: React.FC<WithIntlProps<Props>> & {
+	WrappedComponent: React.ComponentType<Props>;
+} = injectIntl(TabGroupImpl);
 export default TabGroup;

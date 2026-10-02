@@ -13,10 +13,8 @@ import type {
 import type { ExtractInjectionAPI, FeatureFlags } from '@atlaskit/editor-common/types';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { ExtensionPlugin, RejectSave } from '../../extensionPluginType';
-
 import ConfigPanel from './ConfigPanel';
 import { useStateFromPromise } from './use-state-from-promise';
 
@@ -102,6 +100,7 @@ const FieldDefinitionsPromiseResolver = (props: FieldDefsPromiseResolverProps) =
 		const promiseFn = getFieldsDefinitionFn(extensionManifest, nodeKey);
 
 		if (typeof promiseFn !== 'function') {
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			setFields(undefined);
 			return;
 		}
@@ -163,9 +162,7 @@ export default function FieldsLoader({
 
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-	const connectivityState = useSharedPluginStateSelector(api, 'connectivity.mode', {
-		disabled: editorExperiment('platform_editor_offline_editing_web', false),
-	});
+	const connectivityState = useSharedPluginStateSelector(api, 'connectivity.mode');
 
 	return (
 		<FieldDefinitionsPromiseResolver

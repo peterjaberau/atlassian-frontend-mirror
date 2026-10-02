@@ -1,10 +1,12 @@
-import { doc, paragraph, text } from '@atlaskit/adf-schema';
+import { doc } from '@atlaskit/adf-schema/doc';
+import { paragraph } from '@atlaskit/adf-schema/paragraph';
+import { text } from '@atlaskit/adf-schema/text';
 import { keymap } from '@atlaskit/editor-common/keymaps';
 import type { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { PMPluginFactory } from '@atlaskit/editor-common/types';
 import { baseKeymap } from '@atlaskit/editor-prosemirror/commands';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
-import { history } from '@atlaskit/prosemirror-history';
+import { history } from '@atlaskit/prosemirror-history/history';
 
 import type { BasePlugin, Callback } from './basePluginType';
 import { setKeyboardHeight } from './editor-commands/set-keyboard-height';
@@ -18,7 +20,12 @@ import scrollGutter from './pm-plugins/scroll-gutter/plugin';
 import { getKeyboardHeight } from './pm-plugins/scroll-gutter/util/get-keyboard-height';
 import { inputTracking } from './pm-plugins/utils/inputTrackingConfig';
 
-export function resolveCallbacks(from: number, to: number, tr: Transaction, callbacks: Callback[]): void {
+export function resolveCallbacks(
+	from: number,
+	to: number,
+	tr: Transaction,
+	callbacks: Callback[],
+): void {
 	const { doc } = tr;
 	doc.nodesBetween(from, to, (node, pos) => {
 		callbacks.forEach((cb) => cb({ tr, node, pos, from, to }));

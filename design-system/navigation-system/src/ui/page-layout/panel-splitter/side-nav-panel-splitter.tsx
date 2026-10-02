@@ -2,8 +2,7 @@ import React, { type ReactNode, useContext, useEffect, useState } from 'react';
 
 import invariant from 'tiny-invariant';
 
-import { useOpenLayerObserver } from '@atlaskit/layering/experimental/open-layer-observer';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { useOpenLayerObserver } from '@atlaskit/layering/use-open-layer-observer';
 
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
 import {
@@ -14,9 +13,9 @@ import {
 	sideNavPanelSplitterId,
 } from '../constants';
 import { useToggleSideNav } from '../side-nav/use-toggle-side-nav';
-
-import { OnDoubleClickContext, PanelSplitterContext } from './context';
+import { OnDoubleClickContext } from './on-double-click-context';
 import { PanelSplitter, type PanelSplitterProps } from './panel-splitter';
+import { PanelSplitterContext } from './panel-splitter-context';
 
 /**
  * Namespaces to check for open layers that would interfere with the panel splitter.
@@ -42,7 +41,7 @@ function useHasOpenPopupsInSideNavOrTopNav(): boolean {
 	const [hasOpenPopups, setHasOpenPopups] = useState(false);
 
 	useEffect(() => {
-		if (!openLayerObserver || !isFhsEnabled || !fg('platform-dst-side-nav-layering-fixes')) {
+		if (!openLayerObserver || !isFhsEnabled) {
 			return;
 		}
 
@@ -95,7 +94,7 @@ type SideNavPanelSplitterProps = Omit<
 	 *
 	 * If the `isSideNavShortcutEnabled` prop is enabled on `<Root />`, the built-in keyboard shortcut will be displayed with the tooltip.
 	 *
-	 * Only used if `useIsFhsEnabled` is true.
+	 * Only used if `platform-dst-keep-desired-fhs-features` or `useIsFhsEnabled` is enabled.
 	 */
 	tooltipContent?: PanelSplitterProps['tooltipContent'];
 };
@@ -134,11 +133,7 @@ export const SideNavPanelSplitter = ({
 	// re-rendering the side nav anytime the number of open popups changes.
 	const hasOpenLayersInSideNavOrTopNav = useHasOpenPopupsInSideNavOrTopNav();
 
-	if (
-		hasOpenLayersInSideNavOrTopNav &&
-		isFhsEnabled &&
-		fg('platform-dst-side-nav-layering-fixes')
-	) {
+	if (hasOpenLayersInSideNavOrTopNav && isFhsEnabled) {
 		return null;
 	}
 

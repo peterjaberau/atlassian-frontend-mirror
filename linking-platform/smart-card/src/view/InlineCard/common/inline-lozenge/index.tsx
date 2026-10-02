@@ -4,9 +4,9 @@
  */
 import { css, jsx } from '@compiled/react';
 
-import Lozenge, { type LozengeProps } from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import Lozenge, { type LozengeProps } from '@atlaskit/lozenge/lozenge';
+import type { NewLozengeProps } from '@atlaskit/lozenge/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 const wrapperStylesOld = css({
@@ -14,9 +14,9 @@ const wrapperStylesOld = css({
 	// Align the label with the text
 	verticalAlign: '1px',
 	marginTop: 0,
-	marginRight: token('space.050', '4px'),
+	marginRight: token('space.050'),
 	marginBottom: 0,
-	marginLeft: token('space.025', '2px'),
+	marginLeft: token('space.025'),
 
 	// Set max width to prevent Lozenge to overflow on top of other element in smaller space, e.g. inside table cell
 	maxWidth: '100%',
@@ -28,26 +28,29 @@ const wrapperStylesNew = css({
 	top: '-1px',
 	position: 'relative',
 	marginTop: 0,
-	marginRight: token('space.050', '4px'),
+	marginRight: token('space.050'),
 	marginBottom: 0,
-	marginLeft: token('space.025', '2px'),
+	marginLeft: token('space.025'),
 
 	// Set max width to prevent Lozenge to overflow on top of other element in smaller space, e.g. inside table cell
 	maxWidth: '100%',
 });
 
-type InlineLozengeProps = LozengeProps;
-const InlineLozenge = (props: InlineLozengeProps) => {
-	const shouldAddLozengeAttribute =
-		expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-		(expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-			fg('platform_editor_content_mode_button_mvp'));
+const wrapperStylesNewLozenge = css({
+	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+	marginRight: '1px',
+});
 
+type InlineLozengeProps = LozengeProps | NewLozengeProps;
+const InlineLozenge = (props: InlineLozengeProps): JSX.Element => {
 	if (fg('jfp-magma-platform-lozenge-jump-fix')) {
 		return (
 			<span
-				css={wrapperStylesNew}
-				{...(shouldAddLozengeAttribute && { 'data-inline-card-lozenge': true })}
+				css={[
+					wrapperStylesNew,
+					fg('platform-dst-lozenge-tag-badge-visual-uplifts') ? wrapperStylesNewLozenge : undefined,
+				]}
+				data-inline-card-lozenge
 			>
 				<Lozenge {...props} />
 			</span>
@@ -56,8 +59,11 @@ const InlineLozenge = (props: InlineLozengeProps) => {
 
 	return (
 		<span
-			css={wrapperStylesOld}
-			{...(shouldAddLozengeAttribute && { 'data-inline-card-lozenge': true })}
+			css={[
+				wrapperStylesOld,
+				fg('platform-dst-lozenge-tag-badge-visual-uplifts') ? wrapperStylesNewLozenge : undefined,
+			]}
+			data-inline-card-lozenge
 		>
 			<Lozenge {...props} />
 		</span>

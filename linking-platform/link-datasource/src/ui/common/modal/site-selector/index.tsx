@@ -5,17 +5,17 @@
 import { useMemo } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
-import { type MessageDescriptor, useIntl } from 'react-intl-next';
+import { type MessageDescriptor, useIntl } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
-import Heading from '@atlaskit/heading';
+import Button from '@atlaskit/button/default/button';
+import Heading from '@atlaskit/heading/heading';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import { Box } from '@atlaskit/primitives/compiled';
-import { type OptionType, PopupSelect, type ValueType } from '@atlaskit/select';
+import { PopupSelect } from '@atlaskit/select/popup-select';
+import type { OptionType, ValueType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 import type { Site } from '../../../../common/types';
-
 import { siteSelectorMessages } from './messages';
 
 const styles = cssMap({
@@ -36,7 +36,7 @@ export interface SiteSelectorProps {
 	testId: string;
 }
 
-export const SiteSelector = (props: SiteSelectorProps) => {
+export const SiteSelector = (props: SiteSelectorProps): JSX.Element => {
 	const { availableSites, disableSiteSelector, onSiteSelection, selectedSite, label, testId } =
 		props;
 
@@ -89,6 +89,13 @@ export const SiteSelector = (props: SiteSelectorProps) => {
 								isSelected={isOpen}
 								iconAfter={() => <ChevronDownIcon label="" color="currentColor" size="small" />}
 								testId={`${testId}__control`}
+								aria-label={
+									selectedSiteOption?.label
+										? `${formatMessage(siteSelectorMessages.chooseSite)}: ${
+												selectedSiteOption.label
+											}`
+										: formatMessage(siteSelectorMessages.chooseSite)
+								}
 								autoFocus={true}
 							>
 								{selectedSiteOption?.label || formatMessage(siteSelectorMessages.chooseSite)}

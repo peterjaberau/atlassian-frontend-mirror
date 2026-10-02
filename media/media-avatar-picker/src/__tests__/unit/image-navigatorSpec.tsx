@@ -1,18 +1,18 @@
-jest.mock('@atlaskit/media-ui', () => {
-	const actual = jest.requireActual('@atlaskit/media-ui');
-	return {
-		...actual,
-		fileToDataURI: jest.fn(async (file: File) => `data-uri-for-${file.name}`),
-	};
-});
+jest.mock('@atlaskit/media-ui/fileToDataURI', () => ({
+	...jest.requireActual('@atlaskit/media-ui/fileToDataURI'),
+	fileToDataURI: jest.fn(async (file: File) => `data-uri-for-${file.name}`),
+}));
 import React from 'react';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
+
 import { smallImage } from '@atlaskit/media-test-helpers';
-import { IntlProvider } from 'react-intl-next';
+
 import * as isImageRemoteModule from '../../image-cropper/isImageRemote';
-import * as utilModule from '../../util';
 import ImageNavigator, { viewport } from '../../image-navigator';
 import { errorIcon } from '../../image-navigator/images';
+import * as utilModule from '../../util';
 
 jest.spyOn(isImageRemoteModule, 'isImageRemote').mockImplementation(() => false);
 const fileSizeMbSpy = jest.spyOn(utilModule, 'fileSizeMb');

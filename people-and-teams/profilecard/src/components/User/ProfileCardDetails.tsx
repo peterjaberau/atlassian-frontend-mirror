@@ -1,13 +1,13 @@
 import React, { useRef } from 'react';
 
 import { cssMap, cx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import Lozenge from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import { Box, Text } from '@atlaskit/primitives/compiled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import relativeDate from '../../internal/relative-date';
 import messages from '../../messages';
@@ -24,12 +24,16 @@ import {
 	type LozengeProps,
 	type ProfilecardProps,
 } from '../../types';
-import { IconLabel } from '../Icon';
-
+import { default as IconLabel } from '../Icon/IconLabel';
 import ReportingLinesDetails from './ReportingLinesDetails';
 
 const styles = cssMap({
 	detailedListWrapperNext: {
+		display: 'grid',
+		gridTemplateColumns: 'auto minmax(0, 1fr)',
+		alignItems: 'center',
+		columnGap: token('space.100'),
+		rowGap: token('space.150'),
 		marginTop: token('space.400'),
 		marginRight: token('space.0'),
 		marginBottom: token('space.0'),
@@ -46,16 +50,6 @@ const styles = cssMap({
 		font: token('font.body.large'),
 	},
 	noMetaLabel: {
-		// Using `&` twice to increase specificity
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-		'&&': {
-			marginTop: token('space.400'),
-			marginBottom: token('space.150'),
-		},
-		marginRight: '0',
-		marginLeft: '0',
-	},
-	noMetaLabelWithHighSpecificity: {
 		// Using `&` and id attribute to increase specificity
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'&#profilecard-name-label': {
@@ -65,16 +59,6 @@ const styles = cssMap({
 		},
 	},
 	metaLabel: {
-		// Using `&` twice to increase specificity
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-		'&&': {
-			marginTop: token('space.150'),
-		},
-		marginRight: '0',
-		marginBottom: '0',
-		marginLeft: '0',
-	},
-	metaLabelWithHighSpecificity: {
 		// Using `&` and id attribute to increase specificity
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'&#profilecard-name-label': {
@@ -98,6 +82,8 @@ const renderName = (
 	fullName?: string,
 	meta?: string,
 	nameRef?: React.RefObject<HTMLHeadingElement>,
+	isRenderedInPortal?: boolean,
+	isTriggeredUsingKeyboard?: boolean,
 ) => {
 	if (!fullName && !nickname) {
 		return null;
@@ -108,7 +94,7 @@ const renderName = (
 
 	const displayName = isNicknameRedundant ? fullName : `${fullName}${shownNickname}`;
 
-	return fg('enable_profilecard_text_truncation_tooltip') ? (
+	return (
 		<Tooltip
 			content={displayName}
 			position="top"
@@ -127,39 +113,21 @@ const renderName = (
 				xcss={cx(
 					styles.fullNameLabel,
 					styles.activeAccount,
-					meta
-						? fg('enable_absolute_positioning_profile_card')
-							? styles.metaLabelWithHighSpecificity
-							: styles.metaLabel
-						: fg('enable_absolute_positioning_profile_card')
-							? styles.noMetaLabelWithHighSpecificity
-							: styles.noMetaLabel,
+					meta ? styles.metaLabel : styles.noMetaLabel,
 				)}
 				testId="profilecard-name"
 				id="profilecard-name-label"
+				tabIndex={
+					isTriggeredUsingKeyboard &&
+					isRenderedInPortal &&
+					expValEquals('editor_a11y_7152_profile_card_tab_order', 'isEnabled', true)
+						? -1
+						: undefined
+				}
 			>
 				{displayName}
 			</Box>
 		</Tooltip>
-	) : (
-		<Box
-			as="h2"
-			xcss={cx(
-				styles.fullNameLabel,
-				styles.activeAccount,
-				meta
-					? fg('enable_absolute_positioning_profile_card')
-						? styles.metaLabelWithHighSpecificity
-						: styles.metaLabel
-					: fg('enable_absolute_positioning_profile_card')
-						? styles.noMetaLabelWithHighSpecificity
-						: styles.noMetaLabel,
-			)}
-			testId="profilecard-name"
-			id="profilecard-name-label"
-		>
-			{displayName}
-		</Box>
 	);
 };
 
@@ -214,11 +182,7 @@ const ServiceAccountProfileCardDetails = (props: ProfilecardProps) => {
 			{renderName(nickname, fullName)}
 
 			<AppTitleLabel>
-				{fg('people-teams-fix-no-literal-string-in-jsx') ? (
-					<FormattedMessage {...messages.serviceAccountLabel} />
-				) : (
-					'SERVICE ACCOUNT'
-				)}
+				<FormattedMessage {...messages.serviceAccountLabel} />
 			</AppTitleLabel>
 		</DetailsGroup>
 	);
@@ -232,11 +196,7 @@ const BotProfileCardDetails = (props: ProfilecardProps) => {
 			{renderName(nickname, fullName)}
 
 			<AppTitleLabel>
-				{fg('people-teams-fix-no-literal-string-in-jsx') ? (
-					<FormattedMessage {...messages.botAccountLabel} />
-				) : (
-					'APP'
-				)}
+				<FormattedMessage {...messages.botAccountLabel} />
 			</AppTitleLabel>
 		</DetailsGroup>
 	);
@@ -273,7 +233,7 @@ const DisabledProfileCardDetails = (
 
 			{hasDisabledAccountLozenge && (
 				<LozengeWrapper>
-					<Lozenge appearance="default" isBold>
+					<Lozenge appearance="neutral" isBold>
 						{status === 'inactive' ? (
 							<FormattedMessage {...messages.inactiveAccountMsg} />
 						) : (
@@ -295,8 +255,24 @@ const DisabledProfileCardDetails = (
 export const ProfileCardDetails = (
 	props: ProfilecardProps & AnalyticsWithDurationProps,
 ): React.JSX.Element => {
-	const { meta, status } = props;
+	const { meta, status, isRenderedInPortal, isTriggeredUsingKeyboard } = props;
 	const nameRef = useRef<HTMLHeadingElement>(null);
+
+	React.useEffect(() => {
+		if (
+			nameRef?.current &&
+			isRenderedInPortal &&
+			isTriggeredUsingKeyboard &&
+			expValEquals('editor_a11y_7152_profile_card_tab_order', 'isEnabled', true)
+		) {
+			const rafId = requestAnimationFrame(() => {
+				nameRef.current?.focus();
+			});
+			return () => {
+				cancelAnimationFrame(rafId);
+			};
+		}
+	}, [isRenderedInPortal, isTriggeredUsingKeyboard]);
 
 	if (props.isServiceAccount) {
 		return <ServiceAccountProfileCardDetails {...props} />;
@@ -310,25 +286,43 @@ export const ProfileCardDetails = (
 		return <DisabledProfileCardDetails {...props} status={status} />;
 	}
 
+	const lozenges = <CustomLozenges lozenges={props.customLozenges} />;
+
 	return (
 		<DetailsGroup>
-			{renderName(props.nickname, props.fullName, meta, nameRef)}
+			{renderName(
+				props.nickname,
+				props.fullName,
+				meta,
+				nameRef,
+				isRenderedInPortal,
+				isTriggeredUsingKeyboard,
+			)}
 			{meta && <JobTitleLabel>{meta}</JobTitleLabel>}
-			<CustomLozenges lozenges={props.customLozenges} />
-			<Box xcss={styles.detailedListWrapperNext}>
-				<IconLabel icon="email" extraTopSpace={true}>
+			{meta && props.customLozenges && props.customLozenges.length > 0 ? (
+				<Box paddingBlockStart="space.150">{lozenges}</Box>
+			) : (
+				lozenges
+			)}
+			<Box as="dl" xcss={styles.detailedListWrapperNext}>
+				<IconLabel icon="email" extraTopSpace={true} isDescriptionListItem>
 					{props.email}
 				</IconLabel>
-				<IconLabel icon="time">{props.timestring}</IconLabel>
-				<IconLabel icon="companyName">{props.companyName}</IconLabel>
-				<IconLabel icon="location">{props.location}</IconLabel>
+				<IconLabel icon="time" isDescriptionListItem>
+					{props.timestring}
+				</IconLabel>
+				<IconLabel icon="companyName" isDescriptionListItem>
+					{props.companyName}
+				</IconLabel>
+				<IconLabel icon="location" isDescriptionListItem>
+					{props.location}
+				</IconLabel>
 			</Box>
 			<ReportingLinesDetails
 				reportingLines={props.reportingLines}
 				reportingLinesProfileUrl={props.reportingLinesProfileUrl}
 				onReportingLinesClick={props.onReportingLinesClick}
 				fireAnalyticsWithDuration={props.fireAnalyticsWithDuration}
-				fireAnalyticsWithDurationNext={props.fireAnalyticsWithDurationNext}
 			/>
 		</DetailsGroup>
 	);

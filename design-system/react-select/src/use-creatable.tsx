@@ -1,10 +1,10 @@
 import { type ReactNode, useCallback, useMemo } from 'react';
 
-import {
-	getOptionLabel as baseGetOptionLabel,
-	getOptionValue as baseGetOptionValue,
-} from './builtins';
-import { type PublicBaseSelectProps } from './select';
+import { getOptionLabel as baseGetOptionLabel } from './get-option-label';
+import { getOptionValue as baseGetOptionValue } from './get-option-value';
+import { cleanValue } from './internal/clean-value';
+import { valueTernary } from './internal/value-ternary';
+import type { PublicBaseSelectProps } from './select';
 import {
 	type ActionMeta,
 	type GetOptionLabel,
@@ -14,7 +14,6 @@ import {
 	type Options,
 	type OptionsOrGroups,
 } from './types';
-import { cleanValue, valueTernary } from './utils';
 
 interface Accessors<Option> {
 	getOptionValue: GetOptionValue<Option>;

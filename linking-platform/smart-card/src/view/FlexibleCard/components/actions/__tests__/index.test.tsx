@@ -1,14 +1,14 @@
 import React from 'react';
 
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { fireEvent, render, screen, userEvent } from '@atlassian/testing-library';
 
 import { type ActionProps } from '../action/types';
-import { DeleteAction, EditAction } from '../index';
+import { default as DeleteAction } from '../delete-action';
+import { default as EditAction } from '../edit-action';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
 // be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove

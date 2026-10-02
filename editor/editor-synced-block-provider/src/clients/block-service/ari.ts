@@ -1,5 +1,12 @@
 /* eslint-disable require-unicode-regexp */
-import { type SyncBlockProduct } from '../../common/types';
+
+import type { SyncBlockLocationScope, SyncBlockProduct } from '../../common/types';
+import { parseJiraFieldLocation } from '../jira/ari';
+
+const GET_LOCAL_ID_FROM_BLOCK_RESOURCE_ID_REGEX =
+	/ari:cloud:blocks:[^:]+:synced-block\/([a-zA-Z0-9-]+)/;
+const JIRA_SOURCE_ARI_REGEX = /ari:cloud:jira:.*/;
+const CONFLUENCE_SOURCE_ARI_REGEX = /ari:cloud:confluence:.*/;
 
 /**
  * Generates the block ARI from the source page ARI and the source block's resource ID.
@@ -40,24 +47,54 @@ export const generateBlockAriFromReference = ({
 };
 
 /**
- * Extracts the local ID from a block ARI.
- * @param ari - the block ARI. E.G ari:cloud:blocks:cloudId:synced-block/localId
+ * Extracts the local ID from a source block ARI.
+ * Designed for source block ARIs of the form: ari:cloud:blocks:{cloudId}:synced-block/{localId}
+ * where the localId is a UUID immediately after synced-block/.
+ * @param ari - the source block ARI. E.G ari:cloud:blocks:cloudId:synced-block/79d4f3f4-51df-451b-b9a1-751bc77b1e77
  * @returns the localId of the block node. A randomly generated UUID
  */
 export const getLocalIdFromBlockResourceId = (ari: string): string => {
-	const match = ari.match(/ari:cloud:blocks:[^:]+:synced-block\/([a-zA-Z0-9-]+)/);
+	const match = ari.match(GET_LOCAL_ID_FROM_BLOCK_RESOURCE_ID_REGEX);
 	if (match?.[1]) {
 		return match[1];
 	}
-	throw new Error(`Invalid page ARI: ${ari}`);
+	throw new Error(`Invalid block ARI: ${ari}`);
+};
+
+/**
+ * Where `documentAri` sits relative to the document hosting the editor.
+ *
+ * Jira admits two ARI forms for one work item field: `issuefieldvalue/{issueId}/{fieldId}`
+ * names any field, and a plain issue ARI names the description field. Jira's own
+ * `isParentAriValid` accepts either as a host, so the two are compared on the field they
+ * denote rather than as strings.
+ */
+export const getLocationScope = ({
+	documentAri,
+	hostAri,
+}: {
+	documentAri: string;
+	hostAri: string;
+}): SyncBlockLocationScope => {
+	if (documentAri === hostAri) {
+		return 'same-document';
+	}
+
+	const location = parseJiraFieldLocation({ ari: documentAri });
+	const hostLocation = parseJiraFieldLocation({ ari: hostAri });
+	if (!location || !hostLocation || location.issueAri !== hostLocation.issueAri) {
+		return 'elsewhere';
+	}
+
+	return location.fieldId === hostLocation.fieldId ? 'same-document' : 'same-parent-document';
 };
 
 export const getProductFromSourceAri = (ari?: string): SyncBlockProduct | undefined => {
-	const jiraMatch = ari?.search(/ari:cloud:jira:.*/);
+	const jiraMatch = ari?.search(JIRA_SOURCE_ARI_REGEX);
 	if (jiraMatch !== -1) {
 		return 'jira-work-item';
 	}
-	const confluenceMatch = ari?.search(/ari:cloud:confluence:.*/);
+	const confluenceMatch = ari?.search(CONFLUENCE_SOURCE_ARI_REGEX);
 	if (confluenceMatch !== -1) {
 		return 'confluence-page';
 	}

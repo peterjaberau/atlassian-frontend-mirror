@@ -1,15 +1,15 @@
-import { type MembershipState, type ResultWithPageInfo, type TeamMembership } from '../../types';
+import { type MembershipState, type TeamMembership } from '../../types/membership';
 import { DEFAULT_CONFIG } from '../constants';
-import { logException } from '../sentry/main';
+import { logException } from '../sentry/logException';
+import { type ResultWithPageInfo } from './types';
 
-jest.mock('@atlaskit/platform-feature-flags', () => ({
-	...jest.requireActual('@atlaskit/platform-feature-flags'),
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn(),
 }));
 
-import { MOCK_TEAM, MOCK_USER } from './mocks';
-
 import { AGGClient } from './index';
+import { MOCK_TEAM, MOCK_USER } from './mocks';
 
 describe('AGGClient', () => {
 	let aggClient: AGGClient;

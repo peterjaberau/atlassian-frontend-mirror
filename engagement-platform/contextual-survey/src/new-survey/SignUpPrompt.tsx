@@ -7,9 +7,9 @@ import { useCallback, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import Heading from '@atlaskit/heading';
-import Link from '@atlaskit/link';
+import Button from '@atlaskit/button/default/button';
+import Heading from '@atlaskit/heading/heading';
+import Link from '@atlaskit/link/link';
 import { Box, Stack, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -24,16 +24,16 @@ type PendingAnswer = 'yes' | 'no';
 type Optional<T> = T | null;
 
 const buttonContainerStyles = css({
-	marginTop: token('space.400', '32px'),
+	marginTop: token('space.400'),
 	display: 'flex',
 	justifyContent: 'flex-end',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'& > * + *': {
-		marginLeft: token('space.100', '8px'),
+		marginLeft: token('space.100'),
 	},
 });
 
-export default ({ onAnswer }: Props) => {
+export default ({ onAnswer }: Props): React.JSX.Element => {
 	const [pending, setPending] = useState<Optional<PendingAnswer>>(null);
 	const answeredWith = useCallback(
 		async (answer: boolean) => {

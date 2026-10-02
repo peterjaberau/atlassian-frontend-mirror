@@ -1,7 +1,6 @@
 // Source: https://github.com/atlassian/react-beautiful-dnd
 
 import { minScroll } from '../../constants';
-
 import { dampenValueByTime } from './dampen-value-by-time';
 import type { DistanceThresholds } from './get-distance-thresholds';
 import { getValueFromDistance } from './get-value-from-distance';
@@ -40,4 +39,5 @@ export const getValue = ({
 	return Math.max(dampenValueByTime(scroll, dragStartTime), minScroll);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default getValue;

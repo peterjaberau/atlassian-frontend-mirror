@@ -1,14 +1,20 @@
-import { ESLintUtils } from '@typescript-eslint/utils';
+import { ESLintUtils, type TSESLint } from '@typescript-eslint/utils';
+
+const TODO_KEYWORD_REGEX = /^(?:@|!|#)?(TODO|todo|FIX\s?ME|fix\s?me|FIX|fix)\b/u;
 
 type Options = [];
 
-export const rule = ESLintUtils.RuleCreator.withoutDocs<Options, 'invalidTodoFormat'>({
+const TODO_FORMAT_REGEX = /^\s*TODO: [A-Z]+-\d+ - .+/u;
+
+export const rule: TSESLint.RuleModule<'invalidTodoFormat'> = ESLintUtils.RuleCreator.withoutDocs<
+	Options,
+	'invalidTodoFormat'
+>({
 	defaultOptions: [],
 	meta: {
 		type: 'problem',
 		docs: {
 			description: 'Enforce TODO comment format',
-			recommended: 'error',
 		},
 		schema: [], // no options
 		messages: {
@@ -19,20 +25,16 @@ export const rule = ESLintUtils.RuleCreator.withoutDocs<Options, 'invalidTodoFor
 		},
 	},
 	create(context) {
-		const todoFormat = /^\s*TODO: [A-Z]+-\d+ - .+/u;
-
 		return {
 			Program() {
 				const sourceCode = context.getSourceCode();
 				const comments = sourceCode.getAllComments();
 
 				comments.forEach((comment) => {
-					const beginsWithKeyword = /^(?:@|!|#)?(TODO|todo|FIX\s?ME|fix\s?me|FIX|fix)\b/u.test(
-						comment.value.trim(),
-					);
+					const beginsWithKeyword = TODO_KEYWORD_REGEX.test(comment.value.trim());
 
 					if (comment.type === 'Line' && beginsWithKeyword) {
-						if (!todoFormat.test(comment.value)) {
+						if (!TODO_FORMAT_REGEX.test(comment.value)) {
 							context.report({
 								node: comment,
 								loc: comment.loc,
@@ -46,5 +48,7 @@ export const rule = ESLintUtils.RuleCreator.withoutDocs<Options, 'invalidTodoFor
 	},
 });
 
-// @ts-ignore - TS2742 TypeScript 5.9.2 upgrade
-export default { rule };
+const EnforceTodoCommentFormatRule: {
+	rule: TSESLint.RuleModule<'invalidTodoFormat'>;
+} = { rule };
+export default EnforceTodoCommentFormatRule;

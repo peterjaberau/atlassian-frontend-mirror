@@ -1,26 +1,22 @@
 import React, { useCallback } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl, useIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl, useIntl } from 'react-intl';
 
-import {
-	ACTION,
-	ACTION_SUBJECT,
-	EVENT_TYPE,
-	type BlockMenuEventPayload,
-} from '@atlaskit/editor-common/analytics';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import type { BlockMenuEventPayload } from '@atlaskit/editor-common/analytics';
+import { BLOCK_MENU_ACTION_TEST_ID } from '@atlaskit/editor-common/block-menu';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { copyLinkToBlock, formatShortcut } from '@atlaskit/editor-common/keymaps';
 import { blockMenuMessages as messages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { ToolbarDropdownItem, ToolbarKeyboardShortcutHint } from '@atlaskit/editor-toolbar';
 import LinkIcon from '@atlaskit/icon/core/link';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { BlockMenuPlugin, BlockMenuPluginOptions } from '../blockMenuPluginType';
 import { FLAG_ID } from '../blockMenuPluginType';
 import { blockMenuPluginKey } from '../pm-plugins/main';
-
 import { useBlockMenu } from './block-menu-provider';
 import { BLOCK_MENU_ITEM_NAME } from './consts';
 import { copyLink } from './utils/copyLink';
@@ -91,13 +87,17 @@ const CopyLinkDropdownItemContent = ({ api, config }: Props & WrappedComponentPr
 	return (
 		<ToolbarDropdownItem
 			onClick={handleClick}
-			elemBefore={<LinkIcon label="" />}
+			elemBefore={<LinkIcon label="" size="small" />}
 			elemAfter={shortcut ? <ToolbarKeyboardShortcutHint shortcut={shortcut} /> : undefined}
 			ariaKeyshortcuts={shortcut}
+			testId={BLOCK_MENU_ACTION_TEST_ID.COPY_LINK}
 		>
-			{formatMessage(messages.copyLinkToBlock)}
+			{formatMessage(messages.copyLinkToSelection)}
 		</ToolbarDropdownItem>
 	);
 };
 
-export const CopyLinkDropdownItem = injectIntl(CopyLinkDropdownItemContent);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const CopyLinkDropdownItem: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(CopyLinkDropdownItemContent);

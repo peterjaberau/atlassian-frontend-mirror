@@ -4,8 +4,8 @@ import { render, screen } from '@testing-library/react';
 
 import __noop from '@atlaskit/ds-lib/noop';
 
-import { NestedContext } from '../../../NestableNavigationContent/context';
-import LoadingItems from '../../index';
+import { NestedContext } from '../../../NestableNavigationContent/nested-context';
+import { LoadingItems } from '../../index';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('<LoadingItems />', () => {

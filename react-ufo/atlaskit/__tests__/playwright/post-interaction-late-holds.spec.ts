@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test } from './fixtures';
 
 test.describe('ReactUFO: post-interaction-log late holds', () => {
 	test.use({
 		examplePage: 'basic-with-late-hold',
-		featureFlags: ['platform_ufo_enable_late_holds_post_interaction'],
+	} satisfies {
+		examplePage: 'basic-with-late-hold';
+		__exampleDependency?: typeof import('../../examples/34-basic-with-late-hold.tsx');
 	});
 
-	test('adds postInteractionHoldInfo when FG is enabled', async ({
-		page,
-		waitForPostInteractionLogPayload,
-	}) => {
+	test('adds postInteractionHoldInfo', async ({ page, waitForPostInteractionLogPayload }) => {
 		const mainDiv = page.locator('[data-testid="main"]');
 		await expect(mainDiv).toBeVisible();
 

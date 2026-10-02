@@ -1,11 +1,19 @@
 import React from 'react';
-import { objectData, personData, containerData, makeAutocompleteData } from './mockData';
+
+import { token } from '@atlaskit/tokens';
+
 import QuickSearch from '../../src/components/QuickSearch';
 import ResultItemGroup from '../../src/components/ResultItem/ResultItemGroup';
-import ContainerResult, { type Props as ContainerResultProps } from '../../src/components/Results/ContainerResult';
-import PersonResult, { type Props as PersonResultProps } from '../../src/components/Results/PersonResult';
-import ObjectResult, { type Props as ObjectResultProps } from '../../src/components/Results/ObjectResult';
-import { token } from '@atlaskit/tokens';
+import ContainerResult, {
+	type Props as ContainerResultProps,
+} from '../../src/components/Results/ContainerResult';
+import ObjectResult, {
+	type Props as ObjectResultProps,
+} from '../../src/components/Results/ObjectResult';
+import PersonResult, {
+	type Props as PersonResultProps,
+} from '../../src/components/Results/PersonResult';
+import { objectData, personData, containerData, makeAutocompleteData } from './mockData';
 
 type DataShape = {
 	title: string;
@@ -88,7 +96,12 @@ export default class BasicQuickSearch extends React.Component<Props, State> {
 		isAutocompleteEnabled: false,
 	};
 
-	state = {
+	state: {
+		query: string;
+		results: DataShape[];
+		isLoading: boolean;
+		autocompleteText: string;
+	} = {
 		query: store.query || '',
 		results: searchData(''),
 		isLoading: false,
@@ -97,14 +110,14 @@ export default class BasicQuickSearch extends React.Component<Props, State> {
 
 	searchTimeoutId: any;
 
-	setQuery(query: string) {
+	setQuery(query: string): void {
 		store.query = query;
 		this.setState({
 			query,
 		});
 	}
 
-	search = (query: string) => {
+	search = (query: string): void => {
 		if (this.searchTimeoutId) {
 			clearTimeout(this.searchTimeoutId);
 		}
@@ -121,7 +134,7 @@ export default class BasicQuickSearch extends React.Component<Props, State> {
 		}, this.props.fakeNetworkLatency);
 	};
 
-	autocomplete = (query: string) => {
+	autocomplete = (query: string): void => {
 		const tokens = query.split(' ');
 		const lastToken = tokens.slice(-1)[0];
 		if (lastToken.length === 0) {
@@ -139,7 +152,7 @@ export default class BasicQuickSearch extends React.Component<Props, State> {
 		});
 	};
 
-	onSearchInput = ({ target }: React.FormEvent<HTMLInputElement>) => {
+	onSearchInput = ({ target }: React.FormEvent<HTMLInputElement>): void => {
 		const query = (target as HTMLInputElement).value;
 		this.search(query);
 		if (this.props.isAutocompleteEnabled) {
@@ -147,7 +160,7 @@ export default class BasicQuickSearch extends React.Component<Props, State> {
 		}
 	};
 
-	render() {
+	render(): React.JSX.Element {
 		return (
 			<QuickSearch
 				isLoading={this.state.isLoading}
@@ -158,7 +171,7 @@ export default class BasicQuickSearch extends React.Component<Props, State> {
 					this.props.isAutocompleteEnabled ? this.state.autocompleteText : undefined
 				}
 			>
-				<div style={{ paddingLeft: `${token('space.150', '12px')}` }}>
+				<div style={{ paddingLeft: `${token('space.150')}` }}>
 					{mapResultsDataToComponents(this.state.results)}
 				</div>
 			</QuickSearch>

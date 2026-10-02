@@ -3,12 +3,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { Component } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { IntlShape, WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { IntlShape, WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import ButtonGroup from '@atlaskit/button/button-group';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
@@ -34,14 +35,13 @@ import { hexToEditorBackgroundPaletteColor } from '@atlaskit/editor-palette';
 import type { Node } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import type { FloatingToolbarPlugin } from '../floatingToolbarPluginType';
 import { checkShouldForceFocusAndApply, forceFocusSelector } from '../pm-plugins/force-focus';
 import { showConfirmDialog } from '../pm-plugins/toolbar-data/commands';
-
 import Dropdown from './Dropdown';
 import { EmojiPickerButton } from './EmojiPickerButton';
 import { ExtensionsPlaceholder } from './ExtensionsPlaceholder';
@@ -53,6 +53,8 @@ import Select from './Select';
 export interface Props {
 	api: ExtractInjectionAPI<FloatingToolbarPlugin> | undefined;
 	className?: string;
+	/** See `FloatingToolbarConfig.containerSurface`. Defaults to `'default'`. */
+	containerSurface?: 'default' | 'none';
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent;
 	dispatchCommand: (command?: Function) => void;
 	editorView?: EditorView;
@@ -215,9 +217,13 @@ const ToolbarItems = React.memo(
 							appearance={item.appearance}
 							target={item.target}
 							onClick={onClickHandler}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onMouseEnter={() => dispatchCommand(item.onMouseEnter)}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onMouseLeave={() => dispatchCommand(item.onMouseLeave)}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onFocus={() => dispatchCommand(item.onFocus)}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onBlur={() => dispatchCommand(item.onBlur)}
 							onMount={item.onMount}
 							onUnmount={item.onUnmount}
@@ -226,20 +232,12 @@ const ToolbarItems = React.memo(
 							tooltipContent={item.tooltipContent}
 							testId={item.testId}
 							hideTooltipOnClick={item.hideTooltipOnClick}
+							hasNewContentOnTriggerClick={item.hasNewContentOnTriggerClick}
 							ariaHasPopup={item.ariaHasPopup}
 							tabIndex={item.tabIndex}
 							isRadioButton={item.isRadioButton}
-							ariaLabel={
-								expValEquals(
-									'platform_editor_floating_toolbar_button_aria_label',
-									'isEnabled',
-									true,
-								)
-									? item?.ariaLabel
-									: undefined
-							}
+							ariaLabel={item?.ariaLabel}
 							pulse={item.pulse}
-							spotlightConfig={item.spotlightConfig}
 							interactionName={item.interactionName}
 							areAnyNewToolbarFlagsEnabled={areAnyNewToolbarFlagsEnabled}
 						>
@@ -255,38 +253,40 @@ const ToolbarItems = React.memo(
 							boundariesElement={popupsBoundariesElement}
 							defaultValue={item.defaultValue}
 							placeholder={item.placeholder}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onSubmit={(value) => dispatchCommand(item.onSubmit(value))}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onBlur={(value) => dispatchCommand(item.onBlur(value))}
 						/>
 					);
 
 				case 'custom': {
-					return item.render(editorView, idx, dispatchAnalyticsEvent);
+					return item.render(editorView, idx, dispatchAnalyticsEvent, {
+						popupsBoundariesElement,
+						popupsMountPoint,
+						popupsScrollableElement,
+						scrollable,
+						setDisableParentScroll: scrollable ? setDisableScroll : undefined,
+					});
 				}
 
 				case 'overflow-dropdown':
-					let options;
+					// if an option has a confirmDialog, we need to replace its onClick handler
+					// to set the state to show the confirm dialog
 
-					if (fg('platform_editor_fix_confirm_table_removal')) {
-						// if an option has a confirmDialog, we need to replace its onClick handler
-						// to set the state to show the confirm dialog
+					// crudely done here to avoid greater coupling with DropdownMenuItem from `floating-toolbar`
+					// which would need knowledge of indexes, showConfirmDialog etc.
+					const options = item.options.map((option, optionIndex) => {
+						if (!('type' in option) && option.confirmDialog) {
+							const onClick = option.confirmDialog
+								? showConfirmDialog(idx, optionIndex)
+								: option.onClick;
 
-						// crudely done here to avoid greater coupling with DropdownMenuItem from `floating-toolbar`
-						// which would need knowledge of indexes, showConfirmDialog etc.
-						options = item.options.map((option, optionIndex) => {
-							if (!('type' in option) && option.confirmDialog) {
-								const onClick = option.confirmDialog
-									? showConfirmDialog(idx, optionIndex)
-									: option.onClick;
+							return { ...option, onClick };
+						}
 
-								return { ...option, onClick };
-							}
-
-							return option;
-						});
-					} else {
-						options = item.options;
-					}
+						return option;
+					});
 
 					return (
 						<Dropdown
@@ -364,6 +364,7 @@ const ToolbarItems = React.memo(
 								scrollableElement={popupsScrollableElement}
 								defaultValue={item.defaultValue}
 								placeholder={item.placeholder}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onChange={(selected) => dispatchCommand(item.onChange(selected as SelectOption))}
 								ariaLabel={ariaLabel}
 								filterOption={item.filterOption}
@@ -378,25 +379,28 @@ const ToolbarItems = React.memo(
 								skipFocusButtonAfterPick
 								key={idx}
 								isAriaExpanded={item.isAriaExpanded}
+								hideExpandIcon={item.hideExpandIcon}
 								title={item.title}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onChange={(selected) => {
 									dispatchCommand(item.onChange(selected));
 								}}
+								cols={item.cols}
 								colorPalette={item.options as PaletteColor[]}
 								currentColor={item.defaultValue ? item.defaultValue.value : undefined}
 								placement="Panels"
 								mountPoint={emojiAndColourPickerMountPoint}
 								setDisableParentScroll={scrollable ? setDisableScroll : undefined}
-								// Currently in floating toolbar, color picker is only
-								//  used in panel and table cell background color.
-								// Both uses same color palette.
-								// That's why hard-coding hexToEditorBackgroundPaletteColor
-								//  and paletteColorTooltipMessages.
-								// When we need to support different color palette
-								//  in floating toolbar, we need to set hexToPaletteColor
-								//  and paletteColorTooltipMessages in item options.
-								hexToPaletteColor={hexToEditorBackgroundPaletteColor}
-								paletteColorTooltipMessages={backgroundPaletteTooltipMessages}
+								hexToPaletteColor={
+									isExperimentEnabled('platform_editor_lovability_dividers')
+										? (item.hexToPaletteColor ?? hexToEditorBackgroundPaletteColor)
+										: hexToEditorBackgroundPaletteColor
+								}
+								paletteColorTooltipMessages={
+									isExperimentEnabled('platform_editor_lovability_dividers')
+										? (item.paletteColorTooltipMessages ?? backgroundPaletteTooltipMessages)
+										: backgroundPaletteTooltipMessages
+								}
 								returnEscToButton={item.returnEscToButton}
 							/>
 						);
@@ -409,6 +413,7 @@ const ToolbarItems = React.memo(
 								title={item.title}
 								providerFactory={providerFactory}
 								isSelected={item.selected}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onChange={(selected) => dispatchCommand(item.onChange(selected))}
 								mountPoint={emojiAndColourPickerMountPoint}
 								popupsBoundariesElement={popupsBoundariesElement}
@@ -459,6 +464,7 @@ const ToolbarItems = React.memo(
 		};
 
 		const groupedItems = groupItems(
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 			items.filter((item) => !item.hidden),
 			areAnyNewToolbarFlagsEnabled,
 		);
@@ -502,6 +508,11 @@ const ToolbarItems = React.memo(
 		return !(
 			prevProps.node.type !== nextProps.node.type ||
 			prevProps.node.attrs.localId !== nextProps.node.attrs.localId ||
+			prevProps.popupsBoundariesElement !== nextProps.popupsBoundariesElement ||
+			prevProps.popupsMountPoint !== nextProps.popupsMountPoint ||
+			prevProps.popupsScrollableElement !== nextProps.popupsScrollableElement ||
+			prevProps.scrollable !== nextProps.scrollable ||
+			prevProps.setDisableScroll !== nextProps.setDisableScroll ||
 			!areSameItems(prevProps.items, nextProps.items) ||
 			!prevProps.mounted !== !nextProps.mounted
 		);
@@ -510,12 +521,23 @@ const ToolbarItems = React.memo(
 
 const buttonGroupStyles = css({
 	display: 'flex',
-	gap: token('space.050', '4px'),
+	gap: token('space.050'),
 });
 
 const buttonGroupStylesNew = css({
 	display: 'flex',
-	gap: token('space.075', '6px'),
+	gap: token('space.075'),
+});
+
+const toolbarContainerBase = css({
+	display: 'flex',
+	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+	lineHeight: 1,
+	boxSizing: 'border-box',
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'& > div > div': {
+		alignItems: 'center',
+	},
 });
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage
@@ -524,69 +546,67 @@ const toolbarContainer = (
 	scrollable?: boolean,
 	hasSelect?: boolean,
 	firstElementIsSelect?: boolean,
+	// See `FloatingToolbarConfig.containerSurface`: 'none' is for a single custom item that
+	// already renders its own complete surface, so this wrapper's own surface is omitted.
+	containerSurface: 'default' | 'none' = 'default',
 ) =>
 	css(
-		{
-			backgroundColor: token('elevation.surface.overlay', 'white'),
-			borderRadius: token('radius.small', '3px'),
-			boxShadow: token(
-				'elevation.shadow.overlay',
-				`0 0 1px rgba(9, 30, 66, 0.31), 0 4px 8px -2px rgba(9, 30, 66, 0.25)`,
-			),
-			display: 'flex',
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 1,
-			boxSizing: 'border-box',
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-			'& > div > div': {
-				alignItems: 'center',
-			},
-		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-		scrollable
+		containerSurface === 'none'
+			? undefined
+			: {
+					backgroundColor: token('elevation.surface.overlay'),
+					borderRadius: token('radius.small', '3px'),
+					boxShadow: token('elevation.shadow.overlay'),
+				},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+		containerSurface === 'none'
 			? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-				css(
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-					hasSelect
-						? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-							css({
-								height: '40px',
-							})
-						: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-							css({
-								height: '32px',
-							}),
-					{
-						overflow: 'hidden',
-					},
-				)
-			: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-				areAnyNewToolbarFlagsEnabled
-				? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+				css({ padding: token('space.0') })
+			: scrollable
+				? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 					css(
-						{
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-							padding: `${token('space.0', '0')} 4px ${token('space.0', '0')} 4px`,
-						},
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-						firstElementIsSelect &&
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-							css({
-								paddingLeft: token('space.050', '4px'),
-							}),
+						hasSelect
+							? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+								css({
+									height: '40px',
+								})
+							: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+								css({
+									height: '32px',
+								}),
+						{
+							overflow: 'hidden',
+						},
 					)
-				: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-					css(
-						{
-							padding: `${token('space.050', '4px')} ${token('space.100', '8px')}`,
-						},
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-						firstElementIsSelect &&
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-							css({
-								paddingLeft: token('space.050', '4px'),
-							}),
-					),
+				: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+					areAnyNewToolbarFlagsEnabled
+					? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
+						css(
+							{
+								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+								padding: `${token('space.0')} 4px ${token('space.0')} 4px`,
+							},
+							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+							firstElementIsSelect &&
+								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+								css({
+									paddingLeft: token('space.050'),
+								}),
+						)
+					: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+						css(
+							{
+								padding: `${token('space.050')} ${token('space.100')}`,
+							},
+							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+							firstElementIsSelect &&
+								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+								css({
+									paddingLeft: token('space.050'),
+								}),
+						),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
 		areAnyNewToolbarFlagsEnabled
 			? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
@@ -627,22 +647,22 @@ const toolbarOverflow = ({
 					{
 						WebkitOverflowScrolling: 'touch',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-						padding: `${token('space.050', '4px')} 0 ${token('space.050', '4px')}`,
+						padding: `${token('space.050')} 0 ${token('space.050')}`,
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 						'> div': {
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 							'> div:first-child': firstElementIsSelect
 								? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 									css({
-										marginLeft: token('space.050', '4px'),
+										marginLeft: token('space.050'),
 									})
 								: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 									css({
-										marginLeft: token('space.100', '8px'),
+										marginLeft: token('space.100'),
 									}),
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-							'> div:last-child': {
-								marginRight: token('space.100', '8px'),
+							'> div:nth-last-child(1 of :not(:where([popover], dialog)))': {
+								marginRight: token('space.100'),
 							},
 						},
 					},
@@ -651,17 +671,17 @@ const toolbarOverflow = ({
 						? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 							css({
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-								padding: `${token('space.0', '0')} 4px ${token('space.600', '48px')} 4px`,
+								padding: `${token('space.0')} 4px ${token('space.600')} 4px`,
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 								'> div': {
 									minHeight: token('space.500'),
-									gap: token('space.075', '6px'),
+									gap: token('space.075'),
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 									'> div:first-child': {
 										marginLeft: 0,
 									},
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-									'> div:last-child': {
+									'> div:nth-last-child(1 of :not(:where([popover], dialog)))': {
 										marginRight: 0,
 									},
 								},
@@ -703,7 +723,7 @@ class Toolbar extends Component<Props & WrappedComponentProps, State> {
 		}
 	}
 
-	private setDisableScroll(disabled: boolean) {
+	private setDisableScroll = (disabled: boolean) => {
 		// wait before setting disabled state incase users jumping from one popup to another
 		if (disabled) {
 			requestAnimationFrame(() => {
@@ -712,7 +732,7 @@ class Toolbar extends Component<Props & WrappedComponentProps, State> {
 		} else {
 			this.setState({ scrollDisabled: disabled });
 		}
-	}
+	};
 
 	componentDidMount() {
 		this.setState({ mounted: true });
@@ -750,7 +770,9 @@ class Toolbar extends Component<Props & WrappedComponentProps, State> {
 		// focus the editorview.
 		// Event can't be stopped as they are not childnodes of floating toolbar
 
+		// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
 		const isDropdownOpen = !!document.querySelector('[data-role="droplistContent"]');
+		// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
 		const isSelectMenuOpen = !!document.querySelector('.floating-toolbar-select__menu');
 
 		if (isDropdownOpen || isSelectMenuOpen) {
@@ -803,11 +825,13 @@ class Toolbar extends Component<Props & WrappedComponentProps, State> {
 					<div
 						ref={this.toolbarContainerRef}
 						css={() => [
+							toolbarContainerBase,
 							toolbarContainer(
 								areAnyNewToolbarFlagsEnabled,
 								scrollable,
 								hasSelect !== undefined,
 								firstElementIsSelect,
+								this.props.containerSurface,
 							),
 						]}
 						aria-label={intl.formatMessage(messages.floatingToolbarAriaLabel)}
@@ -851,7 +875,7 @@ class Toolbar extends Component<Props & WrappedComponentProps, State> {
 								// Ignored via go/ees005
 								// eslint-disable-next-line react/jsx-props-no-spreading
 								{...this.props}
-								setDisableScroll={this.setDisableScroll.bind(this)}
+								setDisableScroll={this.setDisableScroll}
 								mountRef={this.mountRef}
 								mounted={this.state.mounted}
 							/>
@@ -882,4 +906,8 @@ class Toolbar extends Component<Props & WrappedComponentProps, State> {
 	}
 }
 
-export default injectIntl(Toolbar);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(Toolbar);
+export default _default_1;

@@ -26,8 +26,11 @@ import { androidFallbackText, isAndroid } from '../util/android';
 import { getInput } from '../util/get-input';
 import { textMediaType } from '../util/media-types/text-media-type';
 import { URLMediaType } from '../util/media-types/url-media-type';
-
 import { elementAdapterNativeDataKey } from './element-adapter-native-data-key';
+
+// Payload for the draggable being dragged
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports
+export type { ElementDragPayload } from '../internal-types';
 
 type DraggableGetFeedbackArgs = {
 	/**
@@ -327,9 +330,13 @@ const adapter = makeAdapter<ElementDragType>({
 	onPostDispatch: honeyPotFix.getOnPostDispatch(),
 });
 
-export const dropTargetForElements: (args: DropTargetArgs<ElementDragType>) => CleanupFn = adapter.dropTarget;
-export const monitorForElements: (args: MonitorArgs<ElementDragType>) => CleanupFn = adapter.monitor;
+export const dropTargetForElements: (args: DropTargetArgs<ElementDragType>) => CleanupFn =
+	adapter.dropTarget;
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const monitorForElements: (args: MonitorArgs<ElementDragType>) => CleanupFn =
+	adapter.monitor;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function draggable(args: DraggableArgs): CleanupFn {
 	// Guardrail: warn if the drag handle is not contained in draggable element
 	if (process.env.NODE_ENV !== 'production') {

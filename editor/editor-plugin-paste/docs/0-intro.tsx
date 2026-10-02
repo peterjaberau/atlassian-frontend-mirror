@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -14,12 +13,13 @@ ${createEditorUseOnlyNotice('Editor Plugin Paste', [
 
 
   ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
-			<AtlassianInternalWarning />
-		</div>
-	)
-	}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the paste plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,8 +30,57 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type PastePlugin = NextEditorPlugin<
-  'paste'
+export type PastePluginOptions = {
+  cardOptions?: CardOptions;
+  isFullPage?: boolean;
+  pasteWarningOptions?: PasteWarningOptions;
+  sanitizePrivateContent?: boolean;
+};
+
+export type LastContentPasted = {
+  isPlainText: boolean;
+  isShiftPressed: boolean;
+  pastedAt: number;
+  pastedSlice: Slice;
+  pasteEndPos: number;
+  pasteSource: PasteSource;
+  pasteStartPos: number;
+  sourcePastedSlice?: Slice;
+  text?: string;
+};
+
+export type ActiveFlag = FlagConfig | false;
+
+export interface PastePluginState {
+  activeFlag: ActiveFlag | null;
+  lastContentPasted: LastContentPasted | null;
+  /** map of pasted macro link positions that will to be mapped through incoming transactions */
+  pastedMacroPositions: { [key: string]: number };
+}
+
+export type PastePluginDependencies = [
+  OptionalPlugin<FeatureFlagsPlugin>,
+  OptionalPlugin<ListPlugin>,
+  BetterTypeHistoryPlugin,
+  OptionalPlugin<CardPlugin>,
+  OptionalPlugin<AnalyticsPlugin>,
+  OptionalPlugin<MediaPlugin>,
+  OptionalPlugin<ExtensionPlugin>,
+  OptionalPlugin<AnnotationPlugin>,
+  OptionalPlugin<MentionsPlugin>,
+  OptionalPlugin<ExpandPlugin>,
+];
+
+export type PastePlugin = NextEditorPlugin<
+  'paste',
+  {
+    dependencies: PastePluginDependencies;
+    pluginConfiguration: PastePluginOptions;
+    sharedState: {
+      activeFlag: ActiveFlag | null;
+      lastContentPasted: LastContentPasted | null;
+    };
+  }
 >;
 `}
 

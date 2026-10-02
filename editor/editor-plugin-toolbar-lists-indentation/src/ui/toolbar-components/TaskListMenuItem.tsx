@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { tasksAndDecisionsMessages } from '@atlaskit/editor-common/messages';
 import { useEditorToolbar } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
 import { ToolbarDropdownItem, ToolbarKeyboardShortcutHint } from '@atlaskit/editor-toolbar';
 import type { ToolbarComponentTypes } from '@atlaskit/editor-toolbar-model';
 import TaskIcon from '@atlaskit/icon/core/task';
@@ -20,7 +20,9 @@ type TaskListMenuItemProps = {
 export const TaskListMenuItem = ({ api }: TaskListMenuItemProps): React.JSX.Element | null => {
 	const { formatMessage } = useIntl();
 	const { editorView } = useEditorToolbar();
-	const taskListActive = useSharedPluginStateSelector(api, 'taskDecision.isInsideTask');
+	const { taskListActive } = useSharedPluginStateWithSelector(api, ['taskDecision'], (states) => ({
+		taskListActive: states.taskDecisionState?.isInsideTask,
+	}));
 
 	if (!editorView?.state.schema.nodes.taskItem) {
 		return null;

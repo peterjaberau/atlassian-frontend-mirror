@@ -7,7 +7,7 @@ import { useCallback, useLayoutEffect, useState } from 'react';
 import { css, jsx } from '@compiled/react';
 
 import { MediaPlacement } from '../../../../../../constants';
-import { Preview } from '../../../elements';
+import { default as Preview } from '../../../elements/preview-element';
 import Block from '../../block';
 import { type PreviewBlockProps } from '../types';
 
@@ -50,7 +50,7 @@ const PreviewBlockResolvedView = ({
 	style,
 	className,
 	...blockProps
-}: PreviewBlockProps) => {
+}: PreviewBlockProps): JSX.Element => {
 	const [dynamicStyles, setDynamicStyles] = useState<React.CSSProperties>(style ?? {});
 
 	const updateStyles = useCallback(() => {

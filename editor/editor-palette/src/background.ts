@@ -1,5 +1,6 @@
 // This import will be stripped on build
-import { getTokenValue, token } from '@atlaskit/tokens';
+import { token } from '@atlaskit/tokens';
+import { getTokenValue } from '@atlaskit/tokens/get-token-value';
 
 /**
  * This takes an adf hex color and returns a matching background palette
@@ -79,25 +80,32 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.blue.subtlest', fallback),
 		token: token(
 			'color.background.accent.blue.subtlest',
-			'#DEEBFF',
 		) as 'var(--ds-background-accent-blue-subtlest, #DEEBFF)',
 	}, // source for hex code was legacy token B50
 	/** blue - medium */
 	['#B3D4FF']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.blue.subtler', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.blue.subtler', fallback),
 		token: token(
 			'color.background.accent.blue.subtler',
-			'#B3D4FF',
 		) as 'var(--ds-background-accent-blue-subtler, #B3D4FF)',
 	}, // source for hex code was legacy token B75
 	/** blue - strong */
 	['#4C9AFF']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.blue.subtle', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.blue.subtle', fallback),
 		token: token(
 			'color.background.accent.blue.subtle',
-			'#4C9AFF',
 		) as 'var(--ds-background-accent-blue-subtle, #4C9AFF)',
 	}, // source for hex code was legacy token B100
+	/** blue - bold */
+	['#ADCBFB']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.blue.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.blue.subtler.hovered',
+		) as 'var(--ds-background-accent-blue-subtler-hovered, #ADCBFB)',
+	},
 
 	// teal
 	/** teal - light */
@@ -106,24 +114,31 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.teal.subtlest', fallback),
 		token: token(
 			'color.background.accent.teal.subtlest',
-			'#E6FCFF',
 		) as 'var(--ds-background-accent-teal-subtlest, #E6FCFF)', // source for hex code was legacy token T50,
 	},
 	/** teal - medium */
 	['#B3F5FF']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.teal.subtler', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.teal.subtler', fallback),
 		token: token(
 			'color.background.accent.teal.subtler',
-			'#B3F5FF',
 		) as 'var(--ds-background-accent-teal-subtler, #B3F5FF)', // source for hex code was legacy token T75,
 	},
 	/** teal - strong */
 	['#79E2F2']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.teal.subtle', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.teal.subtle', fallback),
 		token: token(
 			'color.background.accent.teal.subtle',
-			'#79E2F2',
 		) as 'var(--ds-background-accent-teal-subtle, #79E2F2)', // source for hex code was legacy token T100,
+	},
+	/** teal - bold */
+	['#B1E4F7']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.teal.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.teal.subtler.hovered',
+		) as 'var(--ds-background-accent-teal-subtler-hovered, #B1E4F7)',
 	},
 
 	// green
@@ -133,7 +148,6 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.green.subtlest', fallback),
 		token: token(
 			'color.background.accent.green.subtlest',
-			'#E3FCEF',
 		) as 'var(--ds-background-accent-green-subtlest, #E3FCEF)', // source for hex code was legacy token G50,
 	},
 	/** green - medium */
@@ -142,16 +156,49 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.green.subtler', fallback),
 		token: token(
 			'color.background.accent.green.subtler',
-			'#ABF5D1',
 		) as 'var(--ds-background-accent-green-subtler, #ABF5D1)', // source for hex code was legacy token G75,
 	},
 	/** green - strong */
 	['#57D9A3']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.green.subtle', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.green.subtle', fallback),
 		token: token(
 			'color.background.accent.green.subtle',
-			'#57D9A3',
 		) as 'var(--ds-background-accent-green-subtle, #57D9A3)', // source for hex code was legacy token G200,
+	},
+	/** green - bold */
+	['#97EDC9']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.green.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.green.subtler.hovered',
+		) as 'var(--ds-background-accent-green-subtler-hovered, #97EDC9)',
+	},
+
+	// lime
+	/** lime - light */
+	['#EFFFD6']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.lime.subtlest', fallback),
+		token: token(
+			'color.background.accent.lime.subtlest',
+		) as 'var(--ds-background-accent-lime-subtlest, #EFFFD6)',
+	},
+	/** lime - medium */
+	['#D3F1A7']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.lime.subtler', fallback),
+		token: token(
+			'color.background.accent.lime.subtler',
+		) as 'var(--ds-background-accent-lime-subtler, #D3F1A7)',
+	},
+	/** lime - bold */
+	['#BDE97C']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.lime.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.lime.subtler.hovered',
+		) as 'var(--ds-background-accent-lime-subtler-hovered, #BDE97C)',
 	},
 
 	// yellowOrange
@@ -161,7 +208,6 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.yellow.subtlest', fallback),
 		token: token(
 			'color.background.accent.yellow.subtlest',
-			'#FFFAE6',
 		) as 'var(--ds-background-accent-yellow-subtlest, #FFFAE6)', // source for hex code was legacy token Y50,
 	},
 	/** yellowOrange - medium */
@@ -170,7 +216,6 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.yellow.subtler', fallback),
 		token: token(
 			'color.background.accent.yellow.subtler',
-			'#FFF0B3',
 		) as 'var(--ds-background-accent-yellow-subtler, #FFF0B3)', // source for hex code was legacy token Y75,
 	},
 	/** yellowOrange - strong */
@@ -179,34 +224,101 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.orange.subtle', fallback),
 		token: token(
 			'color.background.accent.orange.subtle',
-			'#FFC400',
 		) as 'var(--ds-background-accent-orange-subtle, #FFC400)', // source for hex code was legacy token Y200,
+	},
+	/** yellow - bold */
+	['#EFDD4E']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.yellow.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.yellow.subtler.hovered',
+		) as 'var(--ds-background-accent-yellow-subtler-hovered, #EFDD4E)',
+	},
+
+	// orange
+	/** orange - light */
+	['#FFF5DB']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.orange.subtlest', fallback),
+		token: token(
+			'color.background.accent.orange.subtlest',
+		) as 'var(--ds-background-accent-orange-subtlest, #FFF5DB)',
+	},
+	/** orange - medium */
+	['#FCE4A6']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.orange.subtler', fallback),
+		token: token(
+			'color.background.accent.orange.subtler',
+		) as 'var(--ds-background-accent-orange-subtler, #FCE4A6)',
+	},
+	/** orange - bold */
+	['#FBD779']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.orange.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.orange.subtler.hovered',
+		) as 'var(--ds-background-accent-orange-subtler-hovered, #FBD779)',
 	},
 
 	// red
 	/** red - light */
 	['#FFEBE6']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.red.subtlest', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.red.subtlest', fallback),
 		token: token(
 			'color.background.accent.red.subtlest',
-			'#FFEBE6',
 		) as 'var(--ds-background-accent-red-subtlest, #FFEBE6)', // source for hex code was legacy token R50,
 	},
 	/** red - medium */
 	['#FFBDAD']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.red.subtler', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.red.subtler', fallback),
 		token: token(
 			'color.background.accent.red.subtler',
-			'#FFBDAD',
 		) as 'var(--ds-background-accent-red-subtler, #FFBDAD)', // source for hex code was legacy token R75,
 	},
 	/** red - strong */
 	['#FF8F73']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.red.subtle', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.red.subtle', fallback),
 		token: token(
 			'color.background.accent.red.subtle',
-			'#FF8F73',
 		) as 'var(--ds-background-accent-red-subtle, #FF8F73)', // source for hex code was legacy token R100,
+	},
+	/** red - bold */
+	['#FFB8B2']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.red.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.red.subtler.hovered',
+		) as 'var(--ds-background-accent-red-subtler-hovered, #FFB8B2)',
+	},
+
+	// magenta
+	/** magenta - light */
+	['#FFECF8']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.magenta.subtlest', fallback),
+		token: token(
+			'color.background.accent.magenta.subtlest',
+		) as 'var(--ds-background-accent-magenta-subtlest, #FFECF8)',
+	},
+	/** magenta - medium */
+	['#FDD0EC']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.magenta.subtler', fallback),
+		token: token(
+			'color.background.accent.magenta.subtler',
+		) as 'var(--ds-background-accent-magenta-subtler, #FDD0EC)',
+	},
+	/** magenta - bold */
+	['#FCB6E1']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.magenta.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.magenta.subtler.hovered',
+		) as 'var(--ds-background-accent-magenta-subtler-hovered, #FCB6E1)',
 	},
 
 	// purple
@@ -216,7 +328,6 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.purple.subtlest', fallback),
 		token: token(
 			'color.background.accent.purple.subtlest',
-			'#EAE6FF',
 		) as 'var(--ds-background-accent-purple-subtlest, #EAE6FF)', // source for hex code was legacy token P50,
 	},
 	/** purple - medium */
@@ -225,7 +336,6 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.purple.subtler', fallback),
 		token: token(
 			'color.background.accent.purple.subtler',
-			'#C0B6F2',
 		) as 'var(--ds-background-accent-purple-subtler, #C0B6F2)', // source for hex code was legacy token P75,
 	},
 	/** purple - strong */
@@ -234,15 +344,22 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.purple.subtle', fallback),
 		token: token(
 			'color.background.accent.purple.subtle',
-			'#998DD9',
 		) as 'var(--ds-background-accent-purple-subtle, #998DD9)', // source for hex code was legacy token P100,
+	},
+	/** purple - bold */
+	['#E3BDFA']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.purple.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.purple.subtler.hovered',
+		) as 'var(--ds-background-accent-purple-subtler-hovered, #E3BDFA)',
 	},
 
 	// whiteGray
 	/** whiteGray - light */
 	['#FFFFFF']: {
 		getValue: (fallback: string): string => getTokenValue('elevation.surface', fallback),
-		token: token('elevation.surface', '#FFFFFF') as 'var(--ds-surface, #FFFFFF)', // source for hex code was legacy token N0,
+		token: token('elevation.surface') as 'var(--ds-surface, #FFFFFF)', // source for hex code was legacy token N0,
 	},
 	/** whiteGray - medium */
 	['#F4F5F7']: {
@@ -250,15 +367,22 @@ export const editorBackgroundPalette = {
 			getTokenValue('color.background.accent.gray.subtlest', fallback),
 		token: token(
 			'color.background.accent.gray.subtlest',
-			'#F4F5F7',
 		) as 'var(--ds-background-accent-gray-subtlest, #F4F5F7)', // source for hex code was legacy token N20,
 	},
 	/** whiteGray - strong */
 	['#B3BAC5']: {
-		getValue: (fallback: string): string => getTokenValue('color.background.accent.gray.subtle', fallback),
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.gray.subtle', fallback),
 		token: token(
 			'color.background.accent.gray.subtle',
-			'#B3BAC5',
 		) as 'var(--ds-background-accent-gray-subtle, #B3BAC5)', // source for hex code was legacy token N60,
+	},
+	/** gray - bold */
+	['#B7B9BE']: {
+		getValue: (fallback: string): string =>
+			getTokenValue('color.background.accent.gray.subtler.hovered', fallback),
+		token: token(
+			'color.background.accent.gray.subtler.hovered',
+		) as 'var(--ds-background-accent-gray-subtler-hovered, #B7B9BE)',
 	},
 };

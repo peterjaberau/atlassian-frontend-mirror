@@ -11,18 +11,21 @@ import {
 	type KeyboardEvent,
 	type MouseEvent,
 	type Ref,
+	type ForwardRefExoticComponent,
+	type RefAttributes,
 } from 'react';
-import { Mode, type Palette, type ColorCardVariant } from '../types';
-import {
-	type UIAnalyticsEvent,
-	createAndFireEvent,
-	withAnalyticsContext,
-	withAnalyticsEvents,
-} from '@atlaskit/analytics-next';
-import ColorCard, { type ColorCardRef } from './ColorCard';
-import { getOptions, getWidth } from '../utils';
+
+import createAndFireEvent from '@atlaskit/analytics-next/createAndFireEvents';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
 import { css, jsx } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
+
 import {
 	COLOR_PALETTE_MENU,
 	KEY_ARROW_UP,
@@ -31,7 +34,9 @@ import {
 	KEY_ARROW_RIGHT,
 	KEY_TAB,
 } from '../constants';
-import { N0, N40 } from '@atlaskit/theme/colors';
+import { Mode, type Palette, type ColorCardVariant } from '../types';
+import { getOptions, getWidth } from '../utils';
+import ColorCard, { type ColorCardRef } from './ColorCard';
 
 export type Props = {
 	/** the toggle that decides if the selected color will be automatically focused on load */
@@ -80,7 +85,7 @@ export const ColorPaletteMenuWithoutAnalytics = ({
 	mode = Mode.Standard,
 	initialFocusRef,
 	variant = 'fill',
-}: Props) => {
+}: Props): JSX.Element => {
 	const { options, value: selectedValue } = getOptions(palette, selectedColor);
 	const fullLabel = `${label}, ${selectedValue.label} selected`;
 	const selectedColorIndex = selectedValue.value
@@ -193,48 +198,52 @@ export const ColorPaletteMenuWithoutAnalytics = ({
 	);
 };
 
-export default withAnalyticsContext({
+const ExportedDefault: ForwardRefExoticComponent<
+	Omit<Omit<Props, keyof WithAnalyticsEventsProps> & RefAttributes<any> & WithContextProps, 'ref'> &
+		RefAttributes<any>
+> = withAnalyticsContext({
 	componentName: 'color-picker',
 	packageName: process.env._PACKAGE_NAME_,
 	packageVersion: process.env._PACKAGE_VERSION_,
 })(withAnalyticsEvents()(ColorPaletteMenuWithoutAnalytics));
+export default ExportedDefault;
 
 const colorCardWrapperStyles = css({
 	display: 'flex',
-	marginTop: token('space.025', '2px'),
-	marginRight: token('space.025', '2px'),
-	marginBottom: token('space.025', '2px'),
-	marginLeft: token('space.025', '2px'),
+	marginTop: token('space.025'),
+	marginRight: token('space.025'),
+	marginBottom: token('space.025'),
+	marginLeft: token('space.025'),
 	height: '32px',
 });
 
 const colorPaletteContainerStyles = css({
 	display: 'flex',
 	flexWrap: 'wrap',
-	paddingTop: token('space.050', '4px'),
-	paddingRight: token('space.050', '4px'),
-	paddingBottom: token('space.050', '4px'),
-	paddingLeft: token('space.050', '4px'),
+	paddingTop: token('space.050'),
+	paddingRight: token('space.050'),
+	paddingBottom: token('space.050'),
+	paddingLeft: token('space.050'),
 });
 
 const colorPaletteContainerCompactStyles = css({
-	paddingTop: token('space.0', '0'),
-	paddingRight: token('space.0', '0'),
-	paddingBottom: token('space.0', '0'),
-	paddingLeft: token('space.0', '0'),
+	paddingTop: token('space.0'),
+	paddingRight: token('space.0'),
+	paddingBottom: token('space.0'),
+	paddingLeft: token('space.0'),
 });
 
 const colorPaletteMenuStyles = css({
 	display: 'flex',
 	position: 'relative',
-	marginTop: token('space.0', '0'),
-	marginRight: token('space.0', '0'),
-	marginBottom: token('space.0', '0'),
-	marginLeft: token('space.0', '0'),
-	backgroundColor: token('elevation.surface.overlay', N0),
+	marginTop: token('space.0'),
+	marginRight: token('space.0'),
+	marginBottom: token('space.0'),
+	marginLeft: token('space.0'),
+	backgroundColor: token('elevation.surface.overlay'),
 });
 
 const colorPaletteMenuStandardStyles = css({
 	borderRadius: token('radius.small', '3px'),
-	boxShadow: token('elevation.shadow.overlay', `0 0 0 1px ${N40}, 0 0 8px ${N40}`),
+	boxShadow: token('elevation.shadow.overlay'),
 });

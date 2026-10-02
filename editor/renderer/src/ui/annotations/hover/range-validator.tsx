@@ -1,13 +1,15 @@
 import React, { useContext } from 'react';
-import { Mounter } from './mounter';
+
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
 import type { InlineCommentHoverComponentProps } from '@atlaskit/editor-common/types';
+
 import { RendererContext as ActionsContext } from '../../RendererActionsContext';
-import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
+import { useAnnotationHoverContext } from '../contexts/AnnotationHoverContext';
 import {
 	useAnnotationRangeDispatch,
 	useAnnotationRangeState,
 } from '../contexts/AnnotationRangeContext';
-import { useAnnotationHoverContext } from '../contexts/AnnotationHoverContext';
+import { Mounter } from './mounter';
 
 type Props = {
 	component: React.ComponentType<InlineCommentHoverComponentProps>;
@@ -15,7 +17,10 @@ type Props = {
 	rendererRef: React.RefObject<HTMLDivElement>;
 };
 
-export const RangeValidator = (props: Props): React.JSX.Element | null => {
+export const RangeValidator: {
+	(props: Props): React.JSX.Element | null;
+	displayName: string;
+} = (props: Props): React.JSX.Element | null => {
 	const { component, rendererRef, createAnalyticsEvent } = props;
 	const actions = useContext(ActionsContext);
 	const { clearHoverRange } = useAnnotationRangeDispatch();

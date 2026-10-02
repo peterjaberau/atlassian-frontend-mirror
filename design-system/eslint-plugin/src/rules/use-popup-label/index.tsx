@@ -1,9 +1,12 @@
 import type { Rule } from 'eslint';
 import { isNodeOfType } from 'eslint-codemod-utils';
 
-import { createLintRule } from '../utils/create-rule';
+import { createLintRule } from '../utils/create-lint-rule';
 
 const elementsAccessibleNameProps = ['label', 'titleId'];
+const POPUP_PACKAGE = '@atlaskit/popup';
+const POPUP_IMPORT_SOURCE = '@atlaskit/popup/popup';
+const ENTRY_POINT_POPUP_PACKAGE = '@atlassian/entry-points/popup-trigger';
 
 const rule: Rule.RuleModule = createLintRule({
 	meta: {
@@ -32,15 +35,33 @@ const rule: Rule.RuleModule = createLintRule({
 
 		return {
 			ImportDeclaration(node) {
-				if (node.source.value === '@atlaskit/popup') {
+				if (
+					node.source.value === POPUP_PACKAGE ||
+					node.source.value === POPUP_IMPORT_SOURCE ||
+					node.source.value === ENTRY_POINT_POPUP_PACKAGE
+				) {
 					if (node.specifiers.length) {
-						const defaultImport = node.specifiers.filter(
-							(spec) => spec.type === 'ImportDefaultSpecifier',
-						);
-						if (defaultImport.length) {
-							const { local } = defaultImport[0];
-							contextLocalIdentifier.push(local.name);
-						}
+						node.specifiers.forEach((spec) => {
+							if (
+								spec.type === 'ImportDefaultSpecifier' &&
+								node.source.value !== ENTRY_POINT_POPUP_PACKAGE
+							) {
+								contextLocalIdentifier.push(spec.local.name);
+							}
+
+							if (spec.type === 'ImportSpecifier' && 'name' in spec.imported) {
+								if (node.source.value === POPUP_IMPORT_SOURCE && spec.imported.name === 'Popup') {
+									contextLocalIdentifier.push(spec.local.name);
+								}
+
+								if (
+									node.source.value === ENTRY_POINT_POPUP_PACKAGE &&
+									spec.imported.name === 'PopupTrigger'
+								) {
+									contextLocalIdentifier.push(spec.local.name);
+								}
+							}
+						});
 					}
 				}
 			},

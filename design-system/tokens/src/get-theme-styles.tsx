@@ -1,14 +1,16 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import {
 	type ThemeIdsWithOverrides,
 	themeIdsWithOverrides,
-	type ThemeState,
-	themeStateDefaults,
+	themeOverrideIds,
 } from './theme-config';
-import { isValidBrandHex } from './utils/color-utils';
-import { getThemeOverridePreferences, getThemePreferences } from './utils/get-theme-preferences';
-import { loadThemeCss } from './utils/theme-loading';
+import { type ThemeState } from './theme-state';
+import { themeStateDefaults } from './theme-state-defaults';
+import { getThemeOverridePreferences } from './utils/get-theme-override-preferences';
+import { getThemePreferences } from './utils/get-theme-preferences';
+import { isValidBrandHex } from './utils/is-valid-brand-hex';
+import { loadThemeCss } from './utils/load-theme-css';
 
 export interface ThemeStyles {
 	id: ThemeIdsWithOverrides;
@@ -24,6 +26,7 @@ export interface ThemeStyles {
  * @param {string} themeState.colorMode Determines which color theme is applied. If set to `auto`, the theme applied will be determined by the OS setting.
  * @param {string} themeState.dark The color theme to be applied when the color mode resolves to 'dark'.
  * @param {string} themeState.light The color theme to be applied when the color mode resolves to 'light'.
+ * @param {string} themeState.motion The motion theme to be applied.
  * @param {string} themeState.shape The shape theme to be applied.
  * @param {string} themeState.spacing The spacing theme to be applied.
  * @param {string} themeState.typography The typography theme to be applied.
@@ -32,7 +35,7 @@ export interface ThemeStyles {
  * @returns A Promise of an object array, containing theme IDs, data-attributes to attach to the theme, and the theme CSS.
  * If an error is encountered while loading themes, the themes array will be empty.
  */
-const getThemeStyles = async (
+export const getThemeStyles = async (
 	preferences?: Partial<ThemeState> | 'all',
 ): Promise<ThemeStyles[]> => {
 	let themePreferences: ThemeIdsWithOverrides[] | typeof themeIdsWithOverrides;
@@ -41,10 +44,20 @@ const getThemeStyles = async (
 	if (preferences === 'all') {
 		themePreferences = themeIdsWithOverrides;
 
+		if (!fg('platform-dst-tokens-finesse')) {
+			themePreferences = themePreferences.filter(
+				(themeId) => !themeOverrideIds.includes(themeId as (typeof themeOverrideIds)[number]),
+			);
+		}
+
 		// CLEANUP: Remove
 		if (!fg('platform_increased-contrast-themes')) {
 			themePreferences = themePreferences.filter(
-				(n) => n !== 'light-increased-contrast' && n !== 'dark-increased-contrast',
+				(n) =>
+					n !== 'light-increased-contrast' &&
+					n !== 'dark-increased-contrast' &&
+					n !== 'light-increased-contrast-finesse' &&
+					n !== 'dark-increased-contrast-finesse',
 			);
 		}
 	} else {
@@ -53,7 +66,8 @@ const getThemeStyles = async (
 			contrastMode: preferences?.contrastMode || themeStateDefaults['contrastMode'],
 			dark: preferences?.dark || themeStateDefaults['dark'],
 			light: preferences?.light || themeStateDefaults['light'],
-			shape: preferences?.shape || themeStateDefaults['shape'](),
+			motion: preferences?.motion || themeStateDefaults['motion'](),
+			shape: preferences?.shape || themeStateDefaults['shape'],
 			spacing: preferences?.spacing || themeStateDefaults['spacing'],
 			typography: preferences?.typography || themeStateDefaults['typography'],
 		};
@@ -88,7 +102,7 @@ const getThemeStyles = async (
 				try {
 					const { getCustomThemeStyles } = await import(
 						/* webpackChunkName: "@atlaskit-internal_atlassian-custom-theme" */
-						'./custom-theme'
+						'./get-custom-theme-styles'
 					);
 
 					const customThemeStyles = await getCustomThemeStyles({

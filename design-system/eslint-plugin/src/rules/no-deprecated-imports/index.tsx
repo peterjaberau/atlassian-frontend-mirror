@@ -25,14 +25,13 @@
  * THE SOFTWARE.
  */
 
-import { createLintRule } from '../utils/create-rule';
+import { createLintRule } from '../utils/create-lint-rule';
 import { errorBoundary } from '../utils/error-boundary';
-
 import { createChecks } from './checks';
 
 export const name = 'no-deprecated-imports';
 
-const rule: import("eslint").Rule.RuleModule = createLintRule({
+const rule: import('eslint').Rule.RuleModule = createLintRule({
 	meta: {
 		name,
 		fixable: 'code',

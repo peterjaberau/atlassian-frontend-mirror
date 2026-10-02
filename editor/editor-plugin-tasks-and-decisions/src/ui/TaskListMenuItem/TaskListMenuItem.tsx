@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { formatShortcut, toggleTaskList } from '@atlaskit/editor-common/keymaps';
@@ -37,7 +37,6 @@ export const TaskListMenuItem = ({ api }: TaskListMenuItemProps): React.JSX.Elem
 				<ToolbarKeyboardShortcutHint shortcut={formatShortcut(toggleTaskList) as string} />
 			}
 			isSelected={isInsideTask}
-			isDisabled={false}
 			onClick={handleClick}
 			ariaKeyshortcuts={formatShortcut(toggleTaskList)}
 		>

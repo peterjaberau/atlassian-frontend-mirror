@@ -1,5 +1,6 @@
 import React, { type ErrorInfo } from 'react';
-import type { UFOExperience } from '@atlaskit/ufo';
+
+import type { UFOExperience } from '@atlaskit/ufo/experience';
 
 export class UfoErrorBoundary extends React.Component<{
 	children?: React.ReactNode;
@@ -26,7 +27,7 @@ export class UfoErrorBoundary extends React.Component<{
 		}
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return this.props.children;
 	}
 }

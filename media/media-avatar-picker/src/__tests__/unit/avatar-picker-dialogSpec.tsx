@@ -1,16 +1,24 @@
-const mockedFile = new File(['dsjklDFljk'], 'nice-photo.png', {
-	type: 'image/png',
-});
-
-jest.mock('@atlaskit/media-ui', () => ({
-	...jest.requireActual('@atlaskit/media-ui'),
-	dataURItoFile: jest.fn(() => mockedFile),
+// NOTE: the source now imports `dataURItoFile` from the `@atlaskit/media-ui/dataURItoFile`
+// subpath (Volt debarrel), so the mock must target that subpath, not the `@atlaskit/media-ui`
+// barrel. `jest.mock` is hoisted above module-level `const`s, so the factory creates the
+// mocked File inline to avoid a temporal-dead-zone reference to an outer `const`.
+jest.mock('@atlaskit/media-ui/dataURItoFile', () => ({
+	...jest.requireActual('@atlaskit/media-ui/dataURItoFile'),
+	dataURItoFile: jest.fn(
+		() =>
+			new File(['dsjklDFljk'], 'nice-photo.png', {
+				type: 'image/png',
+			}),
+	),
 }));
 
 import React from 'react';
-import { smallImage } from '@atlaskit/media-test-helpers';
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import { smallImage } from '@atlaskit/media-test-helpers';
+
 import { type Avatar } from '../../avatar-list';
 import { AvatarPickerDialog, fixedCrop } from '../../avatar-picker-dialog';
 import { DEFAULT_VISIBLE_PREDEFINED_AVATARS } from '../../avatar-picker-dialog/layout-const';
@@ -223,6 +231,24 @@ describe('Avatar Picker Dialog', () => {
 		expect(onAvatarPicked).not.toHaveBeenCalled();
 		expect(onImagePicked).not.toHaveBeenCalled();
 		expect(onImagePickedDataURI).not.toHaveBeenCalled();
+	});
+
+	it('should keep the footer inside the dialog content when the submit error is shown', async () => {
+		render(
+			<AvatarPickerDialog
+				avatars={[someAvatar]}
+				onAvatarPicked={jest.fn()}
+				onImagePicked={jest.fn()}
+				onImagePickedDataURI={jest.fn()}
+				onCancel={jest.fn()}
+			/>,
+		);
+
+		fireEvent.submit(await screen.findByRole('form'));
+
+		const content = screen.getByTestId('avatar-picker-dialog-content');
+		expect(content).toContainElement(await screen.findByRole('alert'));
+		expect(content).toContainElement(screen.getByTestId('avatar-picker-dialog-footer'));
 	});
 
 	it('should alert when save button is clicked without selected image or selected avatar', async () => {

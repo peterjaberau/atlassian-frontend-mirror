@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { TopNavMiddle } from '@atlaskit/navigation-system';
-import { parseHex } from '@atlaskit/navigation-system/experimental/color-utils/parse-hex';
-import { useLegacySearchTheme } from '@atlaskit/navigation-system/experimental/use-legacy-search-theme';
 import { TopNav } from '@atlaskit/navigation-system/layout/top-nav';
+import { parseHex } from '@atlaskit/navigation-system/theming/color-utils/parse-hex';
+import { useLegacySearchTheme } from '@atlaskit/navigation-system/theming/use-legacy-search-theme';
 
 import { MockRoot } from '../../utils/mock-root';
 import { MockSearch } from '../../utils/mock-search';
@@ -17,7 +17,7 @@ const ThemedSearch = () => {
 export const CustomThemingSearchExample = (): React.JSX.Element => (
 	<MockRoot>
 		<TopNav
-			UNSAFE_theme={{ backgroundColor: parseHex('#964AC0'), highlightColor: parseHex('#F8EEFE') }}
+			customTheme={{ backgroundColor: parseHex('#964AC0'), highlightColor: parseHex('#F8EEFE') }}
 		>
 			<TopNavMiddle>
 				<ThemedSearch />

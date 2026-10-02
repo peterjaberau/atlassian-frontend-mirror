@@ -1,17 +1,16 @@
 /* eslint-disable @repo/internal/react/require-jsdoc */
+
 import type { Rule } from 'eslint';
 import { isNodeOfType, type JSXElement } from 'eslint-codemod-utils';
 
 import { getSourceCode } from '@atlaskit/eslint-utils/context-compat';
 
-import * as ast from '../../../ast-nodes';
-
-import {
-	addColorInheritAttributeFix,
-	allowedAttrs,
-	type MetaData,
-	updateTestIdAttributeFix,
-} from './common';
+import { JSXElementHelper } from '../../../ast-nodes/jsx-element-helper';
+import { Root } from '../../../ast-nodes/root';
+import { addColorInheritAttributeFix } from './add-color-inherit-attribute-fix';
+import { allowedAttrs } from './allowed-attrs';
+import type { MetaData } from './common';
+import { updateTestIdAttributeFix } from './update-test-id-attribute-fix';
 
 type CheckResult = { success: boolean; autoFixable?: boolean };
 
@@ -40,7 +39,7 @@ export const EmphasisElements = {
 			return { success: false };
 		}
 
-		const elementName = ast.JSXElement.getName(node);
+		const elementName = JSXElementHelper.getName(node);
 		if (elementName !== 'em') {
 			return { success: false };
 		}
@@ -50,12 +49,12 @@ export const EmphasisElements = {
 		}
 
 		// Element has no unallowed props
-		if (!ast.JSXElement.hasAllowedAttrsOnly(node, allowedAttrs)) {
+		if (!JSXElementHelper.hasAllowedAttrsOnly(node, allowedAttrs)) {
 			return { success: true, autoFixable: false };
 		}
 
 		// If there is more than one `@atlaskit/primitives` import, then it becomes difficult to determine which import to transform
-		const importDeclaration = ast.Root.findImportsByModule(
+		const importDeclaration = Root.findImportsByModule(
 			getSourceCode(context).ast.body,
 			'@atlaskit/primitives',
 		);
@@ -68,7 +67,7 @@ export const EmphasisElements = {
 
 	_fix(node: JSXElement, { context, config }: MetaData): Rule.ReportFixer {
 		return (fixer) => {
-			const importFix = ast.Root.upsertNamedImportDeclaration(
+			const importFix = Root.upsertNamedImportDeclaration(
 				{
 					module: '@atlaskit/primitives',
 					specifiers: ['Text'],
@@ -77,9 +76,9 @@ export const EmphasisElements = {
 				fixer,
 			);
 
-			const elementNameFixes = ast.JSXElement.updateName(node, 'Text', fixer);
+			const elementNameFixes = JSXElementHelper.updateName(node, 'Text', fixer);
 
-			const asAttributeFix = ast.JSXElement.addAttribute(node, 'as', 'em', fixer);
+			const asAttributeFix = JSXElementHelper.addAttribute(node, 'as', 'em', fixer);
 			const colorAttributeFix = addColorInheritAttributeFix(node, config, fixer);
 			const testAttributeFix = updateTestIdAttributeFix(node, fixer);
 

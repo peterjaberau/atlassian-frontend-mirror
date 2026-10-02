@@ -1,9 +1,6 @@
-import {
-	ConcurrentExperience,
-	type CustomData,
-	ExperiencePerformanceTypes,
-	ExperienceTypes,
-} from '@atlaskit/ufo';
+import { ConcurrentExperience } from '@atlaskit/ufo/concurrent-experience';
+import { ExperiencePerformanceTypes, ExperienceTypes } from '@atlaskit/ufo/experience-types';
+import type { CustomData } from '@atlaskit/ufo/types';
 
 export const ufoExperience = { mounted: 'component-mounted' } as const;
 

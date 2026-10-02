@@ -1,19 +1,21 @@
 import type { ReactElement } from 'react';
 import React, { PureComponent } from 'react';
-import type { CardEvent } from '@atlaskit/media-card';
-import { defaultImageCardDimensions } from '@atlaskit/media-card';
-import type { SizeEvent, ScrollEvent } from '@atlaskit/media-filmstrip';
-import { FilmstripView } from '@atlaskit/media-filmstrip';
+
 import type {
 	EventHandlers,
 	CardSurroundings,
 	CardEventClickHandler,
 } from '@atlaskit/editor-common/ui';
+import { defaultImageCardDimensions } from '@atlaskit/media-card/cardDimensions';
+import type { CardEvent } from '@atlaskit/media-card/types';
 import type { Identifier } from '@atlaskit/media-client';
-import type { MediaProps } from './media';
 import type { MediaFeatureFlags } from '@atlaskit/media-common';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { SizeEvent, ScrollEvent } from '@atlaskit/media-filmstrip';
+import { FilmstripView } from '@atlaskit/media-filmstrip';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { VcMediaWrapperProps } from '@atlaskit/react-ufo/vc-media';
+
+import type { MediaProps } from './media';
 
 export interface MediaGroupProps {
 	children?: React.ReactNode;
@@ -71,7 +73,7 @@ export default class MediaGroup extends PureComponent<MediaGroupProps, MediaGrou
 		);
 	}
 
-	renderSingleFile(child: ReactElement<MediaProps>) {
+	renderSingleFile(child: ReactElement<MediaProps>): ReactElement<MediaProps> {
 		return React.cloneElement(child, {
 			// the media group component renders in crop mode in editor thus this enables consistency
 			// also crop is much easier to make consistent across SSR and hydration
@@ -83,7 +85,7 @@ export default class MediaGroup extends PureComponent<MediaGroupProps, MediaGrou
 		} as MediaProps);
 	}
 
-	renderSingleLink(child: ReactElement<MediaProps>) {
+	renderSingleLink(child: ReactElement<MediaProps>): ReactElement<MediaProps> {
 		return React.cloneElement(child, {
 			appearance: 'auto',
 			featureFlags: this.props.featureFlags,
@@ -108,7 +110,10 @@ export default class MediaGroup extends PureComponent<MediaGroupProps, MediaGrou
 			cardClickHandler(event, surroundings, analyticsEvent);
 		};
 
-	cloneFileCard(child: ReactElement<MediaProps>, surroundingItems: Identifier[]) {
+	cloneFileCard(
+		child: ReactElement<MediaProps>,
+		surroundingItems: Identifier[],
+	): ReactElement<MediaProps> {
 		const cardClickHandler =
 			this.props &&
 			this.props.eventHandlers &&

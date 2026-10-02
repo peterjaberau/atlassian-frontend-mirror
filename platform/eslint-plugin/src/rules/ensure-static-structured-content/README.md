@@ -1,0 +1,42 @@
+# Require static structured content
+
+Structured content is a machine-readable inventory of package APIs and design intent. Each
+`*.docs.tsx` file must be a statically declared data file and default-export a `const` annotated
+as `StructuredContentSource` from `@atlassian/structured-docs-types/types`. The rule exits
+immediately for every other filename. The design-system guidelines manifest uses a separate
+`*.manifest.tsx` filename because it has a different schema and a named export.
+
+## Incorrect
+
+```tsx
+const buildDoc = (name: string) => ({ name });
+
+export default { components: [buildDoc('Button')] };
+```
+
+Functions, calls, conditionals, mutable bindings, dynamic imports, and arbitrary imports are
+rejected. The only call exception is `.join(...)` directly on a literal array. The only module-data
+exception is importing or requiring a `package.json`. Type-only imports are allowed, but Node
+built-ins must not be used because structured docs are loaded in browser bundles.
+
+## Correct
+
+```tsx
+import type { StructuredContentSource } from '@atlassian/structured-docs-types/types';
+import packageJson from './package.json';
+
+const packagePath = __dirname;
+const components = [
+	{
+		name: 'Button',
+		import: { package: '@atlaskit/button', packagePath, packageJson },
+	},
+];
+
+const documentation: StructuredContentSource = { components };
+export default documentation;
+```
+
+Static const composition, object/array literals, `__dirname`, template-string paths, literal-array
+`.join(...)`, and direct imports or `require()` calls for package JSON are supported. Keep every
+documented entry explicit so it remains easy to review and extract.

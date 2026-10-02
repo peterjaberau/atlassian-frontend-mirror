@@ -8,6 +8,7 @@ export function sanitizeNodes(
 	nodeNames.forEach((nodeKey) => {
 		const nodeSpec = { ...nodes[nodeKey] };
 		if (nodeSpec.marks && nodeSpec.marks !== '_') {
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			nodeSpec.marks = nodeSpec.marks
 				.split(' ')
 				.filter((mark) => !!supportedMarks[mark])
@@ -22,29 +23,31 @@ export function sanitizeNodes(
 }
 
 function sanitizeNodeSpecContent(nodes: { [key: string]: NodeSpec }, rawContent: string): string {
-	// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
 	const content = rawContent.replace(/\W/gu, ' ');
 	const contentKeys = content.split(' ');
-	const unsupportedContentKeys = contentKeys.filter(
-		(contentKey) => !isContentSupported(nodes, contentKey),
-	);
+	const unsupportedContentKeys = Array.from(
+		new Set(contentKeys.filter((contentKey) => !isContentSupported(nodes, contentKey))),
+		// Remove longer variant names first so base names like `panel` don't partially strip `panel_c1`.
+	).sort((a, b) => b.length - a.length);
 	return unsupportedContentKeys.reduce(
 		(newContent, nodeName) => sanitizedContent(newContent, nodeName),
 		rawContent,
 	);
 }
 
+const WORD_CHAR_REGEX = /\w/u;
+
 function sanitizedContent(content: string | undefined, invalidContent: string): string {
 	if (!invalidContent.length) {
 		return content || '';
 	}
 
-	// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
-	if (!content || !content.match(/\w/u)) {
+	if (!content || !content.match(WORD_CHAR_REGEX)) {
 		return '';
 	}
 
 	const pattern = `(${invalidContent}((\\s)*\\|)+)|((\\|(\\s)*)+${invalidContent}(\\+|\\*)?)|(${invalidContent}$)|(${invalidContent}(\\+|\\*))`;
+	// Ignored via go/ees019
 	return content.replace(new RegExp(pattern, 'gu'), '').replace('  ', ' ').trim();
 }
 

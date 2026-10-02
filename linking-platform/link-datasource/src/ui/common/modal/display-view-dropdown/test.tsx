@@ -1,10 +1,9 @@
 import React from 'react';
 
 import { fireEvent, render } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { type DisplayViewModes } from '../../../../common/types';
-
 import { DisplayViewDropDown } from './display-view-drop-down';
 
 describe('DisplayViewDropDown', () => {

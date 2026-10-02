@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test } from './fixtures';
 
 test.describe('ReactUFO: data-vc-ignore-if-no-layout-shift true', () => {
 	test.use({
 		examplePage: 'vc-no-layout-shift',
+	} satisfies {
+		examplePage: 'vc-no-layout-shift';
+		__exampleDependency?: typeof import('../../examples/25-vc-no-layout-shift.tsx');
 	});
 
 	test(`VC90 should match when the [main-div] is first visible`, async ({
@@ -32,8 +36,8 @@ test.describe('ReactUFO: data-vc-ignore-if-no-layout-shift true', () => {
 		for (const rev of ufoRevisions!) {
 			const revisionName = rev['revision'];
 
-			// eslint-disable-next-line playwright/no-conditional-in-test -- ignore old revisions
-			if (revisionName <= 'fy25.02') {
+			// eslint-disable-next-line playwright/no-conditional-in-test -- ignore old revisions and raw-handler
+			if (revisionName <= 'fy25.02' || revisionName === 'raw-handler') {
 				continue;
 			}
 
@@ -50,6 +54,9 @@ test.describe('ReactUFO: data-vc-ignore-if-no-layout-shift true', () => {
 test.describe('ReactUFO: data-vc-ignore-if-no-layout-shift false', () => {
 	test.use({
 		examplePage: 'vc-no-layout-shift_false',
+	} satisfies {
+		examplePage: 'vc-no-layout-shift_false';
+		__exampleDependency?: typeof import('../../examples/25-vc-no-layout-shift_false.tsx');
 	});
 
 	test(`VC90 should match when the [final-div] is first visible`, async ({
@@ -76,8 +83,8 @@ test.describe('ReactUFO: data-vc-ignore-if-no-layout-shift false', () => {
 		for (const rev of ufoRevisions!) {
 			const revisionName = rev['revision'];
 
-			// eslint-disable-next-line playwright/no-conditional-in-test -- ignore old revisions
-			if (revisionName <= 'fy25.02') {
+			// eslint-disable-next-line playwright/no-conditional-in-test -- ignore old revisions and raw-handler
+			if (revisionName <= 'fy25.02' || revisionName === 'raw-handler') {
 				continue;
 			}
 

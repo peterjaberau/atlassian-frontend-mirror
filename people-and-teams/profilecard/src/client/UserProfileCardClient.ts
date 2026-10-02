@@ -1,129 +1,38 @@
-import { print } from 'graphql';
-import gql from 'graphql-tag';
+import type { FireEventType } from '@atlaskit/teams-app-internal-analytics/types';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { type FireEventType } from '@atlaskit/teams-app-internal-analytics';
-
-import type {
-	ApiClientResponse,
-	ProfileCardClientData,
-	ProfileClientOptions,
-	TeamsUserQueryResponse,
-} from '../types';
+import type { ProfileCardClientData, ProfileClientOptions, TeamsUserQueryResponse } from '../types';
 import { PACKAGE_META_DATA } from '../util/analytics';
 import { localTime } from '../util/date';
 import { getPageTime } from '../util/performance';
-
+import { AGGQuery } from './AGGQuery';
+import { buildAggUserQuery } from './buildAggUserQuery';
 import CachingClient from './CachingClient';
-import { getErrorAttributes } from './errorUtils';
-import { AGGQuery } from './graphqlUtils';
+import { getErrorAttributes } from './getErrorAttributes';
 
-/**
- * Transform response from GraphQL
- * - Prefix `timestring` with `remoteWeekdayString` depending on `remoteWeekdayIndex`
- * - Remove properties which will be not used later
- * @ignore
- * @param  {object} response
- * @return {object}
- */
-export const modifyResponse = (response: ApiClientResponse): ProfileCardClientData => {
-	const data = {
-		...response.User,
-	};
+const buildScopedProfileAtlAttributionHeader = (cloudId: string) =>
+	JSON.stringify({
+		tenantId: `ari:cloud:townsquare::site/${cloudId}`,
+		product: 'Atlassian Home',
+		service: 'townsquare-frontend',
+	});
 
-	const localWeekdayIndex = new Date().getDay().toString();
-
-	if (data.remoteWeekdayIndex && data.remoteWeekdayIndex !== localWeekdayIndex) {
-		data.remoteTimeString = `${data.remoteWeekdayString} ${data.remoteTimeString}`;
-	}
-
-	return {
-		isBot: data.isBot,
-		isCurrentUser: data.isCurrentUser,
-		status: data.status,
-		statusModifiedDate: data.statusModifiedDate || undefined,
-		avatarUrl: data.avatarUrl || undefined,
-		email: data.email || undefined,
-		fullName: data.fullName || undefined,
-		location: data.location || undefined,
-		meta: data.meta || undefined,
-		nickname: data.nickname || undefined,
-		companyName: data.companyName || undefined,
-		timestring: data.remoteTimeString || undefined,
-		accountType: data.accountType || undefined,
-	};
-};
-
-const aggUserQuery = gql`
-	query user($userId: ID!) {
-		user(accountId: $userId) {
-			id
-			name
-			picture
-			accountStatus
-			__typename
-			... on AtlassianAccountUser {
-				email
-				nickname
-				zoneinfo
-				extendedProfile {
-					jobTitle
-					organization
-					location
-					closedDate
-					inactiveDate
-				}
-			}
-			... on CustomerUser {
-				email
-				zoneinfo
-			}
-			... on AppUser {
-				appType
-			}
-		}
-	}
-`;
-
-const aggUserQueryString = `query user($userId: ID!) {
-		user(accountId: $userId) {
-			id
-			name
-			picture
-			accountStatus
-			__typename
-			... on AtlassianAccountUser {
-				email
-				nickname
-				zoneinfo
-				extendedProfile {
-					jobTitle
-					organization
-					location
-					closedDate
-					inactiveDate
-				}
-			}
-			... on CustomerUser {
-				email
-				zoneinfo
-			}
-			... on AppUser {
-      			appType
-    		}
-		}
-	}`;
-
-export const buildAggUserQuery = (userId: string) => ({
-	query: fg('platform_agg_user_query_doc_change') ? print(aggUserQuery) : aggUserQueryString,
-	variables: {
-		userId,
-	},
-});
-
-const queryAGGUser = async (url: string, userId: string): Promise<TeamsUserQueryResponse> => {
+const queryAGGUser = async (
+	url: string,
+	userId: string,
+	cloudId: string,
+): Promise<TeamsUserQueryResponse> => {
 	const query = buildAggUserQuery(userId);
-	const { user } = await AGGQuery<{ user: TeamsUserQueryResponse }>(url, query);
+	const { user } = await AGGQuery<{ user: TeamsUserQueryResponse }>(
+		url,
+		query,
+		cloudId
+			? (headers) => {
+					// Temporary atl-attribution for scoped profiles until AGG attribution is handled upstream.
+					headers.append('atl-attribution', buildScopedProfileAtlAttributionHeader(cloudId));
+					return headers;
+				}
+			: undefined,
+	);
 	return user;
 };
 
@@ -135,10 +44,10 @@ export default class UserProfileCardClient extends CachingClient<any> {
 		this.options = options;
 	}
 
-	async makeRequest(_cloudId: string, userId: string): Promise<ProfileCardClientData> {
+	async makeRequest(cloudId: string, userId: string): Promise<ProfileCardClientData> {
 		const gatewayGraphqlUrl = this.options.gatewayGraphqlUrl || '/gateway/api/graphql';
 		const urlWithOperationName = `${gatewayGraphqlUrl}?operationName=aggUserQuery`;
-		const userQueryPromise = queryAGGUser(urlWithOperationName, userId);
+		const userQueryPromise = queryAGGUser(urlWithOperationName, userId, cloudId);
 
 		const user = await userQueryPromise;
 		let timestring: string | undefined;

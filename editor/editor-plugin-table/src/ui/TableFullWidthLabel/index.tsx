@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { tableMessages as messages } from '@atlaskit/editor-common/messages';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
@@ -8,7 +8,7 @@ import { Box, Inline, xcss } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
 
 const tableFullWidthLabelWrapperStyles = xcss({
-	height: token('space.400', '32px'),
+	height: token('space.400'),
 	display: 'flex',
 	backgroundColor: 'elevation.surface.overlay',
 	borderRadius: 'radius.small',

@@ -1,5 +1,9 @@
 import { ESLintUtils } from '@typescript-eslint/utils';
 
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const PLUGIN_NAME_REGEX = /Plugin$/;
+
 const rule = ESLintUtils.RuleCreator.withoutDocs<
 	[],
 	'onlyExportPlugin' | 'noDefaultExports' | 'exportPluginType'
@@ -9,7 +13,6 @@ const rule = ESLintUtils.RuleCreator.withoutDocs<
 		type: 'problem',
 		docs: {
 			description: 'Public API export rules from editor plugins.',
-			recommended: 'error',
 		},
 		messages: {
 			onlyExportPlugin:
@@ -40,9 +43,11 @@ const rule = ESLintUtils.RuleCreator.withoutDocs<
 				const isTypeExport = node.exportKind === 'type';
 				if (!isTypeExport) {
 					node.specifiers.forEach((specifier) => {
-						// Ignored via go/ees005
-						// eslint-disable-next-line require-unicode-regexp
-						if (/Plugin$/.test(specifier.exported.name)) {
+						const exportedName =
+							specifier.exported.type === 'Identifier'
+								? specifier.exported.name
+								: specifier.exported.value;
+						if (PLUGIN_NAME_REGEX.test(exportedName)) {
 							pluginExportCount++;
 						} else {
 							additionalExport++;
@@ -50,9 +55,11 @@ const rule = ESLintUtils.RuleCreator.withoutDocs<
 					});
 				} else {
 					node.specifiers.forEach((specifier) => {
-						// Ignored via go/ees005
-						// eslint-disable-next-line require-unicode-regexp
-						if (/Plugin$/.test(specifier.exported.name)) {
+						const exportedName =
+							specifier.exported.type === 'Identifier'
+								? specifier.exported.name
+								: specifier.exported.value;
+						if (PLUGIN_NAME_REGEX.test(exportedName)) {
 							pluginTypeExportCount++;
 						}
 					});

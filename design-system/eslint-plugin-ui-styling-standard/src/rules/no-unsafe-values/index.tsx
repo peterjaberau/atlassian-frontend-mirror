@@ -11,7 +11,6 @@ import {
 } from '@atlaskit/eslint-utils/is-supported-import';
 
 import { createLintRule } from '../utils/create-rule';
-
 import { messages } from './messages';
 import { Linter } from './utils';
 
@@ -49,7 +48,7 @@ const schema: JSONSchema4 = [
 	},
 ];
 
-export const rule: import("eslint").Rule.RuleModule = createLintRule({
+const rule: import('eslint').Rule.RuleModule = createLintRule({
 	meta: {
 		name: 'no-unsafe-values',
 		docs: {

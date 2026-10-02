@@ -7,7 +7,7 @@ import { TabName } from './utils';
 import ContentTabs from './utils/content-tabs';
 import customMd from './utils/custom-md';
 
-export default customMd`
+const _default_1: JSX.Element = customMd`
 
 ${(
 	<ContentTabs
@@ -22,3 +22,4 @@ ${(
 
 
 `;
+export default _default_1;

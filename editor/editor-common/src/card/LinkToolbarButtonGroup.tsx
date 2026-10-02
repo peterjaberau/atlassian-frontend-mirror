@@ -4,7 +4,7 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
 import ButtonGroup from '@atlaskit/button/button-group';
@@ -26,12 +26,8 @@ type DisallowedWrapperProps = React.HTMLAttributes<HTMLDivElement> & {
 	disabled?: boolean;
 };
 
-const DisallowedWrapper = ({ disabled: _disabled, ...props }: DisallowedWrapperProps) => {
-	// adding this ignore to avoid having to use compiled (can be fixed at a later date)
-	// @ts-ignore
-	// Ignored via go/ees005
-	// eslint-disable-next-line react/jsx-props-no-spreading
-	return <div {...props} />;
+const DisallowedWrapper = ({ disabled, children }: DisallowedWrapperProps) => {
+	return <div css={disabled ? disallowedWrapperStyle : defaultWrapperStyle}>{children}</div>;
 };
 
 /**
@@ -60,7 +56,9 @@ export interface LinkToolbarButtonGroupProps {
 	options: ButtonOptionProps[];
 }
 
-export const LinkToolbarButtonGroup = ({ options }: LinkToolbarButtonGroupProps) => {
+export const LinkToolbarButtonGroup = ({
+	options,
+}: LinkToolbarButtonGroupProps): jsx.JSX.Element => {
 	return (
 		<ButtonGroup>
 			{options.map(
@@ -76,11 +74,7 @@ export const LinkToolbarButtonGroup = ({ options }: LinkToolbarButtonGroupProps)
 				}) => {
 					const ButtonIcon = icon as (props: NewCoreIconProps) => JSX.Element;
 					return (
-						<DisallowedWrapper
-							css={disabled ? disallowedWrapperStyle : defaultWrapperStyle}
-							key={testId}
-							disabled={disabled}
-						>
+						<DisallowedWrapper key={testId} disabled={disabled}>
 							<Button
 								css={disabled ? buttonStyleNoneEvent : buttonStyle}
 								title={title}

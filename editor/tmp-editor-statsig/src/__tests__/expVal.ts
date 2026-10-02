@@ -1,8 +1,13 @@
-import { expVal, expValNoExposure } from '../expVal';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { addFeatureFlagAccessed } from '@atlaskit/react-ufo/feature-flags-accessed';
 
+import { expVal } from '../exp-val';
+import { expValNoExposure } from '../exp-val-no-exposure';
 import { setupEditorExperiments } from '../setup';
 
-import FeatureGates from '@atlaskit/feature-gate-js-client';
+jest.mock('@atlaskit/react-ufo/feature-flags-accessed', () => ({
+	addFeatureFlagAccessed: jest.fn(),
+}));
 
 const mockGetExperimentValue = jest.spyOn(FeatureGates, 'getExperimentValue');
 const mockInitializeCompleted = jest.spyOn(FeatureGates, 'initializeCompleted');
@@ -13,6 +18,7 @@ jest.mock('../experiments-config', () => {
 			'test-boolean': {
 				productKeys: {
 					confluence: 'confluence_boolean_example',
+					jira: 'jira_boolean_example',
 				},
 				param: 'isEnabled',
 				typeGuard: (value: unknown) => typeof value === 'boolean',
@@ -27,7 +33,20 @@ jest.mock('../experiments-config', () => {
 					['default value', 'not default value'].includes(value as string),
 				defaultValue: 'default value' as const,
 			},
+			// Experiment in the disallow list — has a different jira key so must use experiment name directly
+			'test-disallowed': {
+				productKeys: {
+					confluence: 'confluence_disallowed_example',
+					jira: 'jira_disallowed_different_key',
+				},
+				param: 'isEnabled',
+				typeGuard: (value: unknown) => typeof value === 'boolean',
+				defaultValue: false,
+			},
 		},
+		// test-boolean and test-multivariate are NOT in the disallow list, so they use product-specific keys.
+		// test-disallowed IS in the disallow list because its jira key differs — it uses the experiment name directly.
+		disallowsProductKeys: ['test-disallowed'],
 	};
 });
 
@@ -59,16 +78,23 @@ describe('expVal', () => {
 		expect(expVal('test-multivariate', 'variation', 'default value')).toBe('not default value');
 	});
 
-	test('expVal fires exposure', () => {
+	test('expVal fires exposure using the product key', () => {
 		setupEditorExperiments('confluence');
 		mockGetExperimentValue.mockReturnValueOnce(false);
 
 		// @ts-expect-error
 		expVal('test-boolean', 'isEnabled', false);
 
-		expect(mockGetExperimentValue).toHaveBeenNthCalledWith(1, 'test-boolean', 'isEnabled', false, {
-			fireExperimentExposure: true,
-		});
+		// test-boolean is NOT in disallowsProductKeys → uses the product-specific key
+		expect(mockGetExperimentValue).toHaveBeenNthCalledWith(
+			1,
+			'confluence_boolean_example',
+			'isEnabled',
+			false,
+			{
+				fireExperimentExposure: true,
+			},
+		);
 	});
 
 	test('works with group overrides', () => {
@@ -140,16 +166,23 @@ describe('expValNoExposure', () => {
 		);
 	});
 
-	test("expValNoExposure doesn't fire exposure", () => {
+	test("expValNoExposure doesn't fire exposure but uses the product key", () => {
 		setupEditorExperiments('confluence');
 		mockGetExperimentValue.mockReturnValueOnce(false);
 
 		// @ts-expect-error
 		expValNoExposure('test-boolean', 'isEnabled', false);
 
-		expect(mockGetExperimentValue).toHaveBeenNthCalledWith(1, 'test-boolean', 'isEnabled', false, {
-			fireExperimentExposure: false,
-		});
+		// test-boolean is NOT in disallowsProductKeys → uses the product-specific key
+		expect(mockGetExperimentValue).toHaveBeenNthCalledWith(
+			1,
+			'confluence_boolean_example',
+			'isEnabled',
+			false,
+			{
+				fireExperimentExposure: false,
+			},
+		);
 	});
 
 	test('works with group overrides', () => {
@@ -212,5 +245,123 @@ describe('not initialised client', () => {
 
 		// @ts-expect-error
 		expect(expVal('test-boolean', 'isEnabled', false)).toBe(false);
+	});
+});
+
+describe('expVal error handling', () => {
+	beforeEach(() => {
+		mockInitializeCompleted.mockReturnValue(true);
+		mockGetExperimentValue.mockClear();
+	});
+
+	afterEach(() => {
+		// @ts-ignore
+		setupEditorExperiments(undefined, {}, {});
+		jest.clearAllMocks();
+	});
+
+	test('expVal throws an error when experiment config is not defined', () => {
+		setupEditorExperiments('confluence');
+
+		expect(() => {
+			// @ts-expect-error - deliberately using an invalid experiment name
+			expVal('non-existent-experiment', 'isEnabled', false);
+		}).toThrow('Editor experiment configuration is not defined non-existent-experiment');
+	});
+
+	test('expVal returns default value when product has no key for the experiment', () => {
+		setupEditorExperiments('bitbucket');
+
+		// 'test-boolean' only has 'confluence' and 'jira' product keys, not 'bitbucket'
+		// @ts-expect-error
+		expect(expVal('test-boolean', 'isEnabled', false)).toBe(false);
+		expect(mockGetExperimentValue).not.toHaveBeenCalled();
+	});
+
+	test('expVal uses experiment name for disallowsProductKeys experiments on jira (not the jira-specific key)', () => {
+		setupEditorExperiments('jira');
+		mockGetExperimentValue.mockReturnValueOnce(true);
+
+		// @ts-expect-error
+		expVal('test-disallowed', 'isEnabled', false);
+
+		// In disallowsProductKeys → uses experiment name, NOT 'jira_disallowed_different_key'
+		expect(mockGetExperimentValue).toHaveBeenNthCalledWith(
+			1,
+			'test-disallowed',
+			'isEnabled',
+			false,
+			{ fireExperimentExposure: true },
+		);
+	});
+
+	test('expVal uses jira product key for experiments NOT in disallowsProductKeys', () => {
+		setupEditorExperiments('jira');
+		mockGetExperimentValue.mockReturnValueOnce(true);
+
+		// @ts-expect-error
+		expVal('test-boolean', 'isEnabled', false);
+
+		// Not in disallow list → uses jira product-specific key
+		expect(mockGetExperimentValue).toHaveBeenNthCalledWith(
+			1,
+			'jira_boolean_example',
+			'isEnabled',
+			false,
+			{ fireExperimentExposure: true },
+		);
+	});
+});
+
+describe('UFO feature flag reporting (expVal)', () => {
+	beforeEach(() => {
+		mockInitializeCompleted.mockReturnValue(true);
+		mockGetExperimentValue.mockClear();
+		(addFeatureFlagAccessed as jest.Mock).mockClear();
+	});
+
+	afterEach(() => {
+		// @ts-ignore
+		setupEditorExperiments(undefined, {}, {});
+		jest.clearAllMocks();
+	});
+
+	test('expVal calls addFeatureFlagAccessed', () => {
+		setupEditorExperiments('confluence');
+		mockGetExperimentValue.mockReturnValueOnce(true);
+
+		// @ts-expect-error
+		expVal('test-boolean', 'isEnabled', false);
+
+		expect(addFeatureFlagAccessed).toHaveBeenCalledWith(
+			'confluence_boolean_example:isEnabled',
+			true,
+		);
+	});
+
+	test('expVal reports false experiment values to addFeatureFlagAccessed', () => {
+		setupEditorExperiments('confluence');
+		mockGetExperimentValue.mockReturnValueOnce(false);
+
+		// @ts-expect-error
+		expVal('test-boolean', 'isEnabled', false);
+
+		expect(addFeatureFlagAccessed).toHaveBeenCalledWith(
+			'confluence_boolean_example:isEnabled',
+			false,
+		);
+	});
+
+	test('expValNoExposure calls addFeatureFlagAccessed', () => {
+		setupEditorExperiments('confluence');
+		mockGetExperimentValue.mockReturnValueOnce(true);
+
+		// @ts-expect-error
+		expValNoExposure('test-boolean', 'isEnabled', false);
+
+		expect(addFeatureFlagAccessed).toHaveBeenCalledWith(
+			'confluence_boolean_example:isEnabled',
+			true,
+		);
 	});
 });

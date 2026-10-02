@@ -7,13 +7,12 @@ import {
 import type { EditorAppearance, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { findOverflowScrollParent } from '@atlaskit/editor-common/ui';
 import type { MediaFeatureFlags } from '@atlaskit/media-common/mediaFeatureFlags';
-import { type MediaClientConfig } from '@atlaskit/media-core';
-import type { DropzoneConfig } from '@atlaskit/media-picker';
-import { Dropzone } from '@atlaskit/media-picker';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
+import { DropzoneLoader as Dropzone } from '@atlaskit/media-picker/dropzone';
+import type { DropzoneConfig } from '@atlaskit/media-picker/types';
 
 import type { MediaNextEditorPluginType } from '../../mediaPluginType';
 import type PickerFacade from '../../pm-plugins/picker-facade';
-
 import PickerFacadeProvider from './PickerFacadeProvider';
 
 type Props = {
@@ -72,7 +71,9 @@ const DropzoneWrapperInternal = ({
 			onError={pickerFacadeInstance.handleUploadError}
 			onPreviewUpdate={pickerFacadeInstance.handleUploadPreviewUpdate}
 			onEnd={pickerFacadeInstance.handleReady}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onDragEnter={() => handleDrag?.('enter')}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onDragLeave={() => handleDrag?.('leave')}
 			featureFlags={featureFlags}
 		/>

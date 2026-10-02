@@ -1,25 +1,170 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const toolbarMessages = defineMessages({
+export const toolbarMessages: {
+	addColumnLeft: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	addColumnRight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	alignColumn: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	alignColumnBottom: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	alignColumnMiddle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	alignColumnTop: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnOption: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	controlslayoutPlaceholder: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteColumn: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	distributeColumns: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fiveColumns: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	floatingToolbarRadioGroupAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fourColumns: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	insertColumnLeft: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	insertColumnRight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	layoutPlaceholder: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	leftSidebar: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	resizeLayout: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rightSidebar: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	singleColumn: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	singleColumnAdvancedLayout: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	threeColumns: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	threeColumnsAdvancedLayout: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	threeColumnsWithLeftSidebars: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	threeColumnsWithRightSidebars: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	threeColumnsWithSidebars: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	twoColumns: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	twoColumnsAdvancedLayout: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	singleColumn: {
 		id: 'fabric.editor.single',
 		defaultMessage: 'Single column layout',
-		description: 'Layout with one single column',
+		description:
+			'The text is shown as a label on a toolbar button when the user selects a single column layout option in the editor.',
 	},
 	twoColumns: {
 		id: 'fabric.editor.twoColumns',
 		defaultMessage: 'Two columns layout',
-		description: 'Layout with two columns of equal width',
+		description:
+			'Label for the toolbar button that applies a two equal-width columns layout to the selected content.',
 	},
 	singleColumnAdvancedLayout: {
 		id: 'fabric.editor.singleColumns',
 		defaultMessage: '1 Column layout',
-		description: 'Layout with one column of equal width',
+		description:
+			'Label for the toolbar button that applies a single-column layout to the selected content in the advanced layout options.',
 	},
 	twoColumnsAdvancedLayout: {
 		id: 'fabric.editor.twoColumns',
 		defaultMessage: '2 Column layout',
-		description: 'Layout with two columns of equal width',
+		description:
+			'Label for the advanced layout toolbar button that applies a two equal-width columns layout.',
 	},
 	threeColumns: {
 		id: 'fabric.editor.threeColumns',
@@ -34,12 +179,14 @@ export const toolbarMessages = defineMessages({
 	fourColumns: {
 		id: 'fabric.editor.fourColumns',
 		defaultMessage: '4 Column layout',
-		description: 'Layout with four columns of equal width',
+		description:
+			'Label for the advanced layout toolbar button that applies a four equal-width columns layout.',
 	},
 	fiveColumns: {
 		id: 'fabric.editor.fiveColumns',
 		defaultMessage: '5 Column layout',
-		description: 'Layout with five columns of equal width',
+		description:
+			'Label for the advanced layout toolbar button that applies a five equal-width columns layout.',
 	},
 	rightSidebar: {
 		id: 'fabric.editor.rightSidebar',
@@ -74,21 +221,85 @@ export const toolbarMessages = defineMessages({
 	layoutPlaceholder: {
 		id: 'fabric.editor.layout.placeholder',
 		defaultMessage: 'Add content',
-		description: 'Add placeholder text for empty layout',
+		description:
+			'Placeholder text shown inside an empty layout column, prompting the user to add content.',
 	},
 	controlslayoutPlaceholder: {
 		id: 'fabric.editor.layout.controls.placeholder',
 		defaultMessage: '/ to insert',
-		description: 'Add placeholder text for empty layout',
+		description:
+			'Placeholder text shown inside an empty layout column when controls are active, instructing the user to type / to open the insert menu.',
 	},
 	columnOption: {
 		id: 'fabric.editor.layout.columnOption',
 		defaultMessage: '{count, plural, one {{count} Column} other {{count} Columns}}',
-		description: 'column option text for layout',
+		description:
+			'The text is shown as a label for a layout column option in the editor toolbar. It displays the number of columns, for example "1 Column" or "3 Columns".',
 	},
 	resizeLayout: {
 		id: 'fabric.editor.layout.resizeLayout',
 		defaultMessage: 'Resize layout',
-		description: 'resize layout',
+		description:
+			'The text is shown as a label on a button or handle when the user can resize the layout columns in the editor.',
+	},
+	distributeColumns: {
+		id: 'fabric.editor.layout.distributeColumns',
+		defaultMessage: 'Distribute columns',
+		description:
+			'The text is shown as a label for an option that distributes layout columns evenly.',
+	},
+	addColumnLeft: {
+		id: 'fabric.editor.layout.addColumnLeft',
+		defaultMessage: 'Add column left',
+		description:
+			'The text is shown as a label for an option that adds a layout column to the left of the selected column.',
+	},
+	addColumnRight: {
+		id: 'fabric.editor.layout.addColumnRight',
+		defaultMessage: 'Add column right',
+		description:
+			'The text is shown as a label for an option that adds a layout column to the right of the selected column.',
+	},
+	insertColumnLeft: {
+		id: 'fabric.editor.layout.insertColumnLeft',
+		defaultMessage: 'Insert column left',
+		description:
+			'The text is shown as a label for an option that inserts a layout column to the left of the selected column.',
+	},
+	insertColumnRight: {
+		id: 'fabric.editor.layout.insertColumnRight',
+		defaultMessage: 'Insert column right',
+		description:
+			'The text is shown as a label for an option that inserts a layout column to the right of the selected column.',
+	},
+	alignColumn: {
+		id: 'fabric.editor.layout.alignColumn',
+		defaultMessage: 'Alignment',
+		description:
+			'The text is shown as a label for a nested menu that aligns content vertically inside a layout column.',
+	},
+	alignColumnTop: {
+		id: 'fabric.editor.layout.alignColumnTop',
+		defaultMessage: 'Top',
+		description:
+			'The text is shown as a label for an option that aligns layout column content to the top.',
+	},
+	alignColumnMiddle: {
+		id: 'fabric.editor.layout.alignColumnMiddle',
+		defaultMessage: 'Center',
+		description:
+			'The text is shown as a label for an option that aligns layout column content to the middle.',
+	},
+	alignColumnBottom: {
+		id: 'fabric.editor.layout.alignColumnBottom',
+		defaultMessage: 'Bottom',
+		description:
+			'The text is shown as a label for an option that aligns layout column content to the bottom.',
+	},
+	deleteColumn: {
+		id: 'fabric.editor.layout.deleteColumn',
+		defaultMessage: '{count, plural, one {Delete column} other {Delete columns}}',
+		description:
+			'The text is shown as a label for an option that deletes the selected layout column or columns and their content.',
 	},
 });

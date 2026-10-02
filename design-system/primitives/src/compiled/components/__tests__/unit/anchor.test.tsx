@@ -7,12 +7,14 @@ import { forwardRef, Fragment, type Ref } from 'react';
 import { jsx } from '@compiled/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import { AnalyticsListener, UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import AppProvider, { type RouterLinkComponentProps } from '@atlaskit/app-provider';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import AppProvider from '@atlaskit/app-provider/app-provider';
+import type { RouterLinkComponentProps } from '@atlaskit/app-provider/router-link-provider';
 import { cssMap } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
 
-import Anchor from '../../anchor';
+import { Anchor } from '../../anchor';
 
 const testId = 'test-anchor';
 const styles = cssMap({

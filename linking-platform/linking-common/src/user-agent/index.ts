@@ -38,10 +38,10 @@ if (typeof navigator !== 'undefined') {
 
 	result.safari = Boolean(
 		navigator.vendor &&
-			navigator.vendor.indexOf('Apple') > -1 &&
-			navigator.userAgent &&
-			navigator.userAgent.indexOf('CriOS') === -1 &&
-			navigator.userAgent.indexOf('FxiOS') === -1,
+		navigator.vendor.indexOf('Apple') > -1 &&
+		navigator.userAgent &&
+		navigator.userAgent.indexOf('CriOS') === -1 &&
+		navigator.userAgent.indexOf('FxiOS') === -1,
 	);
 
 	result.supportsIntersectionObserver =
@@ -54,6 +54,19 @@ if (typeof navigator !== 'undefined') {
 		typeof window !== 'undefined' && 'ResizeObserver' in window && 'ResizeObserverEntry' in window;
 }
 
-export function browser() {
+export function browser(): {
+	mac: boolean;
+	ie: boolean;
+	ie_version: number;
+	gecko: boolean;
+	chrome: boolean;
+	chrome_version: number;
+	android: boolean;
+	ios: boolean;
+	webkit: boolean;
+	safari: boolean;
+	supportsIntersectionObserver: boolean;
+	supportsResizeObserver: boolean;
+} {
 	return result;
 }

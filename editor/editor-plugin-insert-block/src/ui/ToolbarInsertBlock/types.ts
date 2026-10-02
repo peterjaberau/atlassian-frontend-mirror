@@ -14,7 +14,6 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { EmojiProvider } from '@atlaskit/emoji';
 
 import type { InsertBlockPlugin } from '../../index';
-
 import type { BlockMenuItem } from './create-items';
 
 export interface Props {
@@ -27,6 +26,7 @@ export interface Props {
 	editorActions?: EditorActions;
 	editorAppearance?: EditorAppearance;
 	editorView: EditorView;
+	emojiContentId?: string;
 	emojiDisabled?: boolean;
 	emojiProvider?: Promise<EmojiProvider>;
 	expandEnabled?: boolean;
@@ -39,6 +39,8 @@ export interface Props {
 	isEditorOffline?: boolean;
 	isReducedSpacing: boolean;
 	isTypeAheadAllowed?: boolean;
+	/** @see InsertBlockPluginOptions.itemFilter */
+	itemFilter?: (item: MenuItem) => boolean;
 	layoutSectionEnabled?: boolean;
 	linkDisabled?: boolean;
 	linkSupported?: boolean;

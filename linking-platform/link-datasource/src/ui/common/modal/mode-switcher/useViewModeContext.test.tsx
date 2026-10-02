@@ -3,8 +3,8 @@ import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 
 import { type DisplayViewModes } from '../../../../common/types';
-
-import { DatasourceViewModeProvider, useViewModeContext } from './useViewModeContext';
+import { DatasourceViewModeProvider } from './DatasourceViewModeProvider';
+import { useViewModeContext } from './useViewModeContext';
 
 describe('useViewModeContext custom hook', () => {
 	const setup = ({
@@ -62,6 +62,8 @@ describe('useViewModeContext custom hook', () => {
 		expect(result.current.disableDisplayDropdown).toBe(true);
 	});
 	it('should throw error if no context exists to wrap the component', () => {
-		expect(() => setup({ defaultViewMode: null })).toThrow(new Error('useViewModeContext must be called within DatasourceViewModeProvider'));
+		expect(() => setup({ defaultViewMode: null })).toThrow(
+			new Error('useViewModeContext must be called within DatasourceViewModeProvider'),
+		);
 	});
 });

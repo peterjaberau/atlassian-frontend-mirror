@@ -1,4 +1,5 @@
 import outdent from 'outdent';
+
 import { tester } from '../../../../__tests__/utils/_tester';
 import rule from '../index';
 
@@ -66,6 +67,65 @@ tester.run('feature-flags/no-module-level-eval', rule, {
                 }
             `,
 		},
+		{
+			name: 'expValEquals inside arrow function (editor statsig)',
+			code: outdent`
+                import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+                const Component = () => {
+                    const isEnabled = expValEquals('my_exp', 'isEnabled', true);
+                    return isEnabled;
+                }
+            `,
+		},
+		{
+			name: 'editorExperiment inside arrow function (editor statsig)',
+			code: outdent`
+                import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+
+                const Component = () => {
+                    return editorExperiment('my_exp', true);
+                }
+            `,
+		},
+		{
+			name: 'dynamicConfigStringListIncludes inside arrow function (editor statsig)',
+			code: outdent`
+                import { dynamicConfigStringListIncludes } from '@atlaskit/tmp-editor-statsig/dynamic-config-value-contains';
+
+                const Component = () => {
+                    return dynamicConfigStringListIncludes('my_config', 'value');
+                }
+            `,
+		},
+		{
+			name: 'FeatureGates.checkGate inside arrow function (statsig client)',
+			code: outdent`
+                import FeatureGates from '@atlaskit/feature-gate-js-client';
+
+                const Component = () => {
+                    return FeatureGates.checkGate('my_gate') ? 'new' : 'old';
+                }
+            `,
+		},
+		{
+			name: 'FeatureGates.checkGate inside function declaration (statsig client)',
+			code: outdent`
+                import FeatureGates from '@atlaskit/feature-gate-js-client';
+
+                function isEnabled() {
+                    return FeatureGates.checkGate('my_gate');
+                }
+            `,
+		},
+		{
+			name: 'checkGate from unrelated import is not flagged',
+			code: outdent`
+                import FeatureGates from 'some-other-lib';
+
+                const flag = FeatureGates.checkGate('my_gate');
+            `,
+		},
 	],
 	invalid: [
 		{
@@ -129,5 +189,83 @@ tester.run('feature-flags/no-module-level-eval', rule, {
 		//         `,
 		// 	errors: [{ messageId: 'noModuleLevelEval' }],
 		// },
+		{
+			name: 'expValEquals at module level (editor statsig)',
+			code: outdent`
+                import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+                const arrowsList = new Set(
+                    !expValEquals('my_exp', 'isEnabled', true)
+                        ? ['ArrowRight', 'ArrowLeft']
+                        : ['ArrowRight'],
+                );
+            `,
+			errors: [{ messageId: 'noModuleLevelEval' }],
+		},
+		{
+			name: 'expVal at module level (editor statsig)',
+			code: outdent`
+                import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
+
+                const value = expVal('my_exp', 'variant', 'control');
+            `,
+			errors: [{ messageId: 'noModuleLevelEval' }],
+		},
+		{
+			name: 'editorExperiment at module level (editor statsig)',
+			code: outdent`
+                import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+
+                const isEnabled = editorExperiment('my_exp', true);
+            `,
+			errors: [{ messageId: 'noModuleLevelEval' }],
+		},
+		{
+			name: 'expValEqualsNoExposure at module level (editor statsig)',
+			code: outdent`
+                import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+
+                const isEnabled = expValEqualsNoExposure('my_exp', 'isEnabled', true);
+            `,
+			errors: [{ messageId: 'noModuleLevelEval' }],
+		},
+		{
+			name: 'dynamicConfigStringListIncludes at module level (editor statsig)',
+			code: outdent`
+                import { dynamicConfigStringListIncludes } from '@atlaskit/tmp-editor-statsig/dynamic-config-value-contains';
+
+                const isAllowed = dynamicConfigStringListIncludes('my_config', 'value');
+            `,
+			errors: [{ messageId: 'noModuleLevelEval' }],
+		},
+		{
+			name: 'FeatureGates.checkGate stored into a module level variable (statsig client)',
+			code: outdent`
+                import FeatureGates from '@atlaskit/feature-gate-js-client';
+
+                const isEnabled = FeatureGates.checkGate('my_gate');
+            `,
+			errors: [{ messageId: 'noModuleLevelEval' }],
+		},
+		{
+			name: 'FeatureGates.checkGate in a module level ternary (statsig client)',
+			code: outdent`
+                import FeatureGates from '@atlaskit/feature-gate-js-client';
+                import { NewComp } from 'new';
+                import { OldComp } from 'old';
+
+                export const Component = FeatureGates.checkGate('my_gate') ? NewComp : OldComp;
+            `,
+			errors: [{ messageId: 'noModuleLevelEval' }],
+		},
+		{
+			name: 'FeatureGates.getExperimentValue at module level (statsig client)',
+			code: outdent`
+                import FeatureGates from '@atlaskit/feature-gate-js-client';
+
+                const variant = FeatureGates.getExperimentValue('my_exp', 'variant', 'control');
+            `,
+			errors: [{ messageId: 'noModuleLevelEval' }],
+		},
 	],
 });

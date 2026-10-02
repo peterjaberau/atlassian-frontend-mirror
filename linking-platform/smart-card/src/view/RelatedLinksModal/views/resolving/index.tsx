@@ -4,7 +4,7 @@
  */
 import { cssMap, jsx } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
 const styles = cssMap({
 	style: {
@@ -16,7 +16,7 @@ const styles = cssMap({
 	},
 });
 
-const RelatedLinksResolvingView = () => (
+const RelatedLinksResolvingView = (): JSX.Element => (
 	<Box xcss={styles.style} testId="related-links-resolving-view">
 		<Spinner size="large" testId="related-links-resolving-view-spinner" />
 	</Box>

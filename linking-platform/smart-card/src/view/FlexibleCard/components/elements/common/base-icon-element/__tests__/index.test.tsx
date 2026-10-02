@@ -5,20 +5,22 @@
 import { PureComponent } from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import type { GlyphProps } from '@atlaskit/icon/types';
+import { token } from '@atlaskit/tokens';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { render, screen } from '@atlassian/testing-library';
 
-import { IconType } from '../../../../../../../constants';
+import { IconType, SmartLinkSize } from '../../../../../../../constants';
 import IconElement from '../index';
 
 const mockAppearanceTestId = 'mock-appearance-test-id';
-jest.mock('../../../../common/image-icon', () => ({
-	...jest.requireActual('../../../../common/image-icon'),
+jest.mock('../../../../../../common/image-icon', () => ({
+	...jest.requireActual('../../../../../../common/image-icon'),
 	__esModule: true,
 	default: jest.fn((props) => {
-		const Component = jest.requireActual('../../../../common/image-icon').default;
+		const Component = jest.requireActual('../../../../../../common/image-icon').default;
 
 		return (
 			<div>
@@ -79,7 +81,7 @@ describe('Element: Icon', () => {
 		render(
 			<IntlProvider locale={'en'}>
 				<IconElement icon={IconType.Document} url="src-loaded" />
-			</IntlProvider>
+			</IntlProvider>,
 		);
 
 		const element = await screen.findByTestId('smart-element-icon-image');
@@ -91,7 +93,7 @@ describe('Element: Icon', () => {
 		render(
 			<IntlProvider locale={'en'}>
 				<IconElement icon={IconType.Document} url="src-loaded" appearance="round" />
-			</IntlProvider>
+			</IntlProvider>,
 		);
 
 		await screen.findByTestId('smart-element-icon-image');
@@ -143,7 +145,8 @@ describe('Element: Icon', () => {
 			render(
 				<IntlProvider locale={'en'}>
 					<IconElement icon={IconType.Document} render={renderCustomIcon} url="src-loaded" />
-				</IntlProvider>);
+				</IntlProvider>,
+			);
 
 			const imageIcon = await screen.findByTestId('smart-element-icon-image');
 			const akIcon = screen.queryByTestId('smart-element-icon-icon');
@@ -201,7 +204,8 @@ describe('Element: Icon', () => {
 				render(
 					<IntlProvider locale={'en'}>
 						<IconElement url="src-loading" />
-					</IntlProvider>);
+					</IntlProvider>,
+				);
 
 				const element = await screen.findByTestId('smart-element-icon-loading');
 
@@ -212,7 +216,8 @@ describe('Element: Icon', () => {
 				render(
 					<IntlProvider locale={'en'}>
 						<IconElement url="src-error" />
-					</IntlProvider>);
+					</IntlProvider>,
+				);
 
 				const element = await screen.findByTestId('smart-element-icon-default');
 
@@ -225,7 +230,7 @@ describe('Element: Icon', () => {
 				render(
 					<IntlProvider locale={'en'}>
 						<IconElement url="src-loading" hideLoadingSkeleton={true} />
-					</IntlProvider>
+					</IntlProvider>,
 				);
 
 				const loading = screen.queryByTestId('smart-element-icon-loading');
@@ -244,11 +249,76 @@ describe('Element: Icon', () => {
 		render(
 			<IntlProvider locale={'en'}>
 				<IconElement css={overrideCss} />
-			</IntlProvider>
+			</IntlProvider>,
 		);
 
 		const element = await screen.findByTestId('smart-element-icon');
 
 		expect(element).toHaveCompiledCss('background-color', 'blue');
+	});
+
+	describe('isTiledIcon with platform_sl_3p_preauth_better_hovercard_killswitch', () => {
+		ffTest.on('platform_sl_3p_preauth_better_hovercard_killswitch', '', () => {
+			it('renders Tile wrapper when killswitch is enabled', () => {
+				render(<IconElement isTiledIcon icon={IconType.Document} />);
+
+				expect(screen.getByTestId('smart-element-icon-tile')).toBeInTheDocument();
+				expect(screen.queryByTestId('smart-element-icon-box')).not.toBeInTheDocument();
+			});
+		});
+
+		ffTest.off('platform_sl_3p_preauth_better_hovercard_killswitch', '', () => {
+			it('renders Tile when killswitch is disabled', () => {
+				render(<IconElement isTiledIcon icon={IconType.Document} />);
+
+				expect(screen.getByTestId('smart-element-icon-tile')).toBeInTheDocument();
+				expect(screen.queryByTestId('smart-element-icon-box')).not.toBeInTheDocument();
+			});
+		});
+	});
+
+	describe('tile size mapping with platform_sl_3p_preauth_better_hovercard_killswitch', () => {
+		ffTest.on('platform_sl_3p_preauth_better_hovercard_killswitch', '', () => {
+			it('uses SmartLink medium size directly for tiled icons when killswitch is enabled', () => {
+				render(<IconElement isTiledIcon icon={IconType.Document} size={SmartLinkSize.Medium} />);
+
+				expect(screen.getByTestId('smart-element-icon-tile')).toHaveCompiledCss('width', '2pc');
+				expect(screen.getByTestId('smart-element-icon-tile')).toHaveCompiledCss('height', '2pc');
+			});
+
+			it('uses the small image width token for non-tiled medium url icons when killswitch is enabled', async () => {
+				render(
+					<IntlProvider locale={'en'}>
+						<IconElement url="src-loaded" size={SmartLinkSize.Medium} />
+					</IntlProvider>,
+				);
+
+				expect(await screen.findByTestId('smart-element-icon-image')).toHaveStyle({
+					width: token('space.200'),
+					height: token('space.200'),
+				});
+			});
+
+			it('uses the medium image width token for tiled medium url icons when killswitch is enabled', async () => {
+				render(
+					<IntlProvider locale={'en'}>
+						<IconElement url="src-loaded" size={SmartLinkSize.Medium} isTiledIcon />
+					</IntlProvider>,
+				);
+
+				expect(await screen.findByTestId('smart-element-icon-image')).toHaveStyle({
+					width: token('space.250'),
+					height: token('space.250'),
+				});
+			});
+		});
+
+		ffTest.off('platform_sl_3p_preauth_better_hovercard_killswitch', '', () => {
+			it('uses tile sizing when killswitch is disabled', () => {
+				render(<IconElement isTiledIcon icon={IconType.Document} size={SmartLinkSize.Large} />);
+
+				expect(screen.getByTestId('smart-element-icon-tile')).toBeInTheDocument();
+			});
+		});
 	});
 });

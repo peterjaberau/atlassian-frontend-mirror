@@ -8,14 +8,17 @@ import type {
 	UserBrowserExtensionResults,
 } from '../../utils';
 import type { FireAnalyticsEventOptions } from '../api';
-
 import type { ActiveSessionEventPayload } from './activity-session-events';
+import type { AgentEditShimmerNotShownAEP } from './agent-edit-shimmer-events';
+import type { AiAutocompleteEventPayload } from './ai-autocomplete-events';
 import type { AICommandPaletteEventPayload } from './ai-command-palette-events';
 import type { AIDefinitionsEventPayload } from './ai-definitions-events';
 import type { AIEventPayload } from './ai-events';
 import type { AIInlineSuggestionPayload } from './ai-inline-suggestion-events';
 import type { AIProactiveEventPayload } from './ai-proactive-events';
+import type { AIQuickPromptEventPayload } from './ai-quick-prompt-events';
 import type { AIStreamingEventPayload } from './ai-streaming';
+import type { AiSuggestionsEventPayload } from './ai-suggestions-events';
 import type { AIUnifiedEventPayload } from './ai-unified-events';
 import type { AlignmentEventPayload } from './alignment-events';
 import type { AvatarEventPayload } from './avatar';
@@ -23,6 +26,8 @@ import type { BlockMenuEventPayload, ElementTransformErrorAEP } from './block-me
 import type { BreakoutEventPayload } from './breakout-events';
 import type { TextColorEventPayload } from './color-events';
 import type { ConfigPanelEventPayload } from './config-panel-events';
+import type { ContainerNodeActionsEventPayload } from './container-node-events';
+import type { ContextualTypeaheadEventPayload } from './contextual-typeahead-events';
 import type { CutCopyEventPayload } from './cut-copy-events';
 import type { DatasourceClickedPayload } from './datasource-clicked-events';
 import type { DateEventPayload } from './date-events';
@@ -51,6 +56,7 @@ import type { VisitedLinkAEP } from './link-events';
 import type {
 	CreateLinkInlineDialogEventPayload,
 	EditLinkToolbarAEP,
+	OpenLinkToolbarAEP,
 	PreviewItemClickedAEP,
 	OpenSettingsToolbarAEP,
 	UnlinkToolbarAEP,
@@ -60,11 +66,12 @@ import type { LoomEventPayload } from './loom-events';
 import type { MediaEventPayload } from './media-events';
 import type { MentionEventPayload } from './mention-events';
 import type { MoveContentEventPayload } from './move-content-events';
-import type { NcsSessionStepEventAEP } from './ncs-session-step-events';
+import type { NativeEmbedResizeErroredAEP } from './native-embed-events';
 import type { NestedTableActionsEventPayload } from './nested-table-events';
 import type { NodeEventPayload } from './node-events';
 import type { OfflineEditingEventPayload } from './offline-editing-event';
-import type { PasteEventPayload } from './paste-events';
+import type { PasteActionsMenuEventPayload, PasteEventPayload } from './paste-events';
+import type { QuickInsertInformationEventPayload } from './quick-insert-events';
 import type { ReferentialityEventPayload } from './referentiality-events';
 import type { SelectionEventPayload } from './selection-events';
 import type { SelectionExtensionEventPayload } from './selection-extension-events';
@@ -101,6 +108,8 @@ export type AnalyticsEventPayload<T = void> =
 	| MediaEventPayload
 	| TableEventPayload
 	| PasteEventPayload
+	| PasteActionsMenuEventPayload
+	| QuickInsertInformationEventPayload
 	| CutCopyEventPayload
 	| ErrorEventPayload
 	| TextColorEventPayload
@@ -119,6 +128,7 @@ export type AnalyticsEventPayload<T = void> =
 	| UnlinkToolbarAEP
 	| EditLinkToolbarAEP
 	| PreviewItemClickedAEP
+	| OpenLinkToolbarAEP
 	| OpenSettingsToolbarAEP
 	| CustomPanelEventPayload
 	| FeatureExposureAEP
@@ -136,11 +146,16 @@ export type AnalyticsEventPayload<T = void> =
 	| MentionEventPayload
 	| EngagementPlatformEventPayload
 	| NestedTableActionsEventPayload
+	| ContainerNodeActionsEventPayload
 	| AICommandPaletteEventPayload
 	| AIDefinitionsEventPayload
 	| AIEventPayload
 	| AIStreamingEventPayload
 	| AIProactiveEventPayload
+	| AiAutocompleteEventPayload
+	| AiSuggestionsEventPayload
+	| ContextualTypeaheadEventPayload
+	| AIQuickPromptEventPayload
 	| AIUnifiedEventPayload
 	| BreakoutEventPayload
 	| BlockMenuEventPayload
@@ -153,7 +168,7 @@ export type AnalyticsEventPayload<T = void> =
 	| AlignmentEventPayload
 	| UndoRedoAEP
 	| OfflineEditingEventPayload
-	| NcsSessionStepEventAEP
+	| AgentEditShimmerNotShownAEP
 	| FloatingToolbarOverflowEventPayload
 	| SyncBlockEventPayload
 	| FloatingToolbarEventPayload;
@@ -179,6 +194,7 @@ type MBEEventPayload = TrackAEP<
 	ACTION_SUBJECT.MULTI_BODIED_EXTENSION,
 	undefined,
 	{
+		changedParams?: string;
 		currentFramesCount: number;
 		extensionKey: string;
 		extensionType: string;
@@ -382,6 +398,7 @@ export type ErrorEventPayload =
 	| ComponentCrashErrorAEP
 	| ComponentCrashAdditionalInfoErrorAEP
 	| SmartLinkErrorAEP
+	| NativeEmbedResizeErroredAEP
 	| ElementTransformErrorAEP;
 
 export type AnalyticsEventPayloadCallback = (

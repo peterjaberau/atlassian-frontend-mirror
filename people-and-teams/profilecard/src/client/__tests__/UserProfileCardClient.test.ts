@@ -2,15 +2,23 @@ import fetchMock from 'fetch-mock/cjs/client';
 
 import { parseAndTestGraphQLQueries } from '@atlassian/ptc-test-utils/graphql-jest';
 
-import { AGGErrors } from '../../util/errors';
-import { AGGQuery } from '../graphqlUtils';
-import UserProfileCardClient, { buildAggUserQuery } from '../UserProfileCardClient';
+import { AGGErrors } from '../../util/AGGErrors';
+import { AGGQuery } from '../AGGQuery';
+import { buildAggUserQuery } from '../buildAggUserQuery';
+import UserProfileCardClient from '../UserProfileCardClient';
 
 jest.mock('../../util/performance', () => ({
 	getPageTime: jest.fn(() => 1000),
 }));
 
+jest.mock('../AGGQuery');
+jest.mock('../HeaderProcessor');
+jest.mock('../Query');
+jest.mock('../buildHeaders');
+jest.mock('../directoryGraphqlQuery');
+jest.mock('../graphQLQuery');
 jest.mock('../graphqlUtils');
+jest.mock('../id');
 (AGGQuery as jest.Mock).mockImplementation(() =>
 	Promise.resolve({
 		user: {
@@ -86,6 +94,11 @@ describe('UserProfileCardClient', () => {
 	beforeEach(() => {
 		client = new UserProfileCardClient(options);
 		jest.clearAllMocks();
+		(AGGQuery as jest.Mock).mockResolvedValue({
+			user: {
+				zoneinfo: 'test-zoneinfo',
+			},
+		});
 	});
 
 	it('should return a cached profile if it exists', async () => {
@@ -130,6 +143,27 @@ describe('UserProfileCardClient', () => {
 			(AGGQuery as jest.Mock).mockRejectedValue(mockAggError);
 
 			await expect(client.getProfile(cloudId, userId, mockAnalytics)).rejects.toThrow('AGGErrors');
+		});
+
+		it('should add scoped profiles atl-attribution header', async () => {
+			await client.getProfile(cloudId, userId, mockAnalytics);
+
+			const processHeaders = (AGGQuery as jest.Mock).mock.calls[0][2];
+			const headers = processHeaders(new Headers());
+
+			expect(headers.get('atl-attribution')).toEqual(
+				JSON.stringify({
+					tenantId: `ari:cloud:townsquare::site/${cloudId}`,
+					product: 'Atlassian Home',
+					service: 'townsquare-frontend',
+				}),
+			);
+		});
+
+		it('should not add scoped profiles atl-attribution header when cloudId is empty', async () => {
+			await client.getProfile('', userId, mockAnalytics);
+
+			expect((AGGQuery as jest.Mock).mock.calls[0][2]).toBeUndefined();
 		});
 
 		it('should call analytics when makeRequest throws an error', async () => {

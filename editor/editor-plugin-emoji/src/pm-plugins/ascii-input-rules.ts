@@ -15,9 +15,8 @@ import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/stat
 import type { EmojiProvider } from '@atlaskit/emoji/resource';
 import type { EmojiDescription } from '@atlaskit/emoji/types';
 import { createPlugin, leafNodeReplacementCharacter } from '@atlaskit/prosemirror-input-rules';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
-import { type EmojiPlugin } from '../emojiPluginType';
+import type { EmojiPlugin } from '../emojiPluginType';
 
 let matcher: AsciiEmojiMatcher;
 
@@ -27,7 +26,7 @@ export function inputRulePlugin(
 	pluginInjectionApi: ExtractInjectionAPI<EmojiPlugin> | undefined,
 	disableAutoformat?: boolean,
 ): SafePlugin | undefined {
-	if (disableAutoformat && expValEquals('platform_editor_plain_text_support', 'isEnabled', true)) {
+	if (disableAutoformat) {
 		return;
 	}
 

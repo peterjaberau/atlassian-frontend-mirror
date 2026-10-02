@@ -5,7 +5,7 @@ import j from 'jscodeshift';
 // @ts-ignore
 import { ruleTester } from '@atlassian/eslint-utils';
 
-import * as ast from '../index';
+import { JSXElementHelper } from '../jsx-element-helper';
 
 describe('JSXElement', () => {
 	describe('getName', () => {
@@ -13,26 +13,26 @@ describe('JSXElement', () => {
 			const root = j(`<div></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.getName(node);
+			const result = JSXElementHelper.getName(node);
 			expect(result).toBe('div');
 		});
 	});
 
 	describe('containsSpreadAttributes', () => {
-		it('returns true when JSXElement contains spread attributes ', () => {
+		it('returns true when JSXElement contains spread attributes', () => {
 			const root = j(`<div {...props}></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.containsSpreadAttributes(node);
+			const result = JSXElementHelper.containsSpreadAttributes(node);
 
 			expect(result).toBe(true);
 		});
 
-		it("returns false when JSXElement doesn't contain spread attributes ", () => {
+		it("returns false when JSXElement doesn't contain spread attributes", () => {
 			const root = j(`<div></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.containsSpreadAttributes(node);
+			const result = JSXElementHelper.containsSpreadAttributes(node);
 
 			expect(result).toBe(false);
 		});
@@ -43,16 +43,16 @@ describe('JSXElement', () => {
 			const root = j(`<div css={myStyles}></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.getAttributeByName(node, 'css');
+			const result = JSXElementHelper.getAttributeByName(node, 'css');
 
 			expect(result).toBeTruthy();
 		});
 
-		it("returns undefined if attribute doesn't exist ", () => {
+		it("returns undefined if attribute doesn't exist", () => {
 			const root = j(`<div></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.getAttributeByName(node, 'css');
+			const result = JSXElementHelper.getAttributeByName(node, 'css');
 
 			expect(result).toBeUndefined();
 		});
@@ -63,7 +63,7 @@ describe('JSXElement', () => {
 			const root = j(`<div data-testid='some-test-id' css={myStyles}></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.getAttributes(node);
+			const result = JSXElementHelper.getAttributes(node);
 
 			expect(result).toHaveLength(2);
 		});
@@ -72,7 +72,7 @@ describe('JSXElement', () => {
 			const root = j(`<div></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.getAttributes(node);
+			const result = JSXElementHelper.getAttributes(node);
 
 			expect(result).toHaveLength(0);
 		});
@@ -83,7 +83,12 @@ describe('JSXElement', () => {
 			const root = j(`<div data-testid='some-test-id' css={myStyles}></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.hasAllowedAttrsOnly(node, ['key', 'id', 'data-testid', 'css']);
+			const result = JSXElementHelper.hasAllowedAttrsOnly(node, [
+				'key',
+				'id',
+				'data-testid',
+				'css',
+			]);
 
 			expect(result).toBe(true);
 		});
@@ -92,14 +97,19 @@ describe('JSXElement', () => {
 			const root = j(`<div data-test-id='some-test-id' css={myStyles}></div>`);
 			const node = root.find(j.JSXElement).get().value;
 
-			const result = ast.JSXElement.hasAllowedAttrsOnly(node, ['key', 'id', 'data-testid', 'css']);
+			const result = JSXElementHelper.hasAllowedAttrsOnly(node, [
+				'key',
+				'id',
+				'data-testid',
+				'css',
+			]);
 
 			expect(result).toBe(false);
 		});
 	});
 
 	const updateNameRuleTester = createJSXElementRuleFixTester('updateName', (node, fixer) => {
-		return ast.JSXElement.updateName(node, 'Box', fixer);
+		return JSXElementHelper.updateName(node, 'Box', fixer);
 	});
 
 	updateNameRuleTester.run([
@@ -114,7 +124,7 @@ describe('JSXElement', () => {
 	]);
 
 	const addAttributeRuleTester = createJSXElementRuleFixTester('addAttribute', (node, fixer) => {
-		return ast.JSXElement.addAttribute(node, 'test', 'myValue', fixer);
+		return JSXElementHelper.addAttribute(node, 'test', 'myValue', fixer);
 	});
 	addAttributeRuleTester.run([
 		{

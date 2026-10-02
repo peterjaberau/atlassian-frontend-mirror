@@ -3,22 +3,24 @@
  * @jsx jsx
  */
 import React, { useState } from 'react';
-import type { DocNode } from '@atlaskit/adf-schema';
-import { generateUuid } from '@atlaskit/adf-schema';
-import { Y75, Y200 } from '@atlaskit/theme/colors';
 
-import RendererDemo from './helper/RendererDemo';
-import { validDocument as storyDataDocument } from './helper/story-data';
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx, css } from '@emotion/react';
+
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import { generateUuid } from '@atlaskit/adf-schema/uuid';
+import { JSONTransformer } from '@atlaskit/editor-json-transformer/JSONTransformer-2';
+import type { Node } from '@atlaskit/editor-prosemirror/model';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { token } from '@atlaskit/tokens';
+
+import { AnnotationsWrapper } from '../src';
 import { RendererActionsContext } from '../src/ui/RendererActionsContext';
 import { WithRendererActions } from '../src/ui/RendererActionsContext/WithRendererActions';
-import type { Node } from '@atlaskit/editor-prosemirror/model';
-import { JSONTransformer } from '@atlaskit/editor-json-transformer';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
-import { token } from '@atlaskit/tokens';
-import { SmartCardProvider, CardClient } from '@atlaskit/link-provider';
-import { AnnotationsWrapper } from '../src';
 import { useAnnotationsProvider } from './21-annotations';
+import RendererDemo from './helper/RendererDemo';
+import { validDocument as storyDataDocument } from './helper/story-data';
 
 const transformer = new JSONTransformer();
 
@@ -76,12 +78,12 @@ function AnnotationSelect({ doc, onDelete }: { doc?: Node; onDelete: (id: string
 const wrapperStyle = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	"[data-mark-type='annotation']": {
-		backgroundColor: token('color.background.accent.yellow.subtler', Y75),
-		borderBottom: `${token('border.width.selected')} solid ${token('color.border.accent.yellow', Y200)}`,
+		backgroundColor: token('color.background.accent.yellow.subtler'),
+		borderBottom: `${token('border.width.selected')} solid ${token('color.border.accent.yellow')}`,
 	},
 });
 
-export default function Example() {
+export default function Example(): jsx.JSX.Element {
 	const [document, setDocument] = useState<any>(storyDataDocument);
 	const [selectionValid, setSelectionValidity] = useState(false);
 	const localRef = React.useRef<HTMLDivElement>(null);
@@ -129,7 +131,6 @@ export default function Example() {
 
 													if (result) {
 														selection.removeAllRanges();
-														// @ts-ignore
 														setDocument(result.doc);
 													}
 												}}
@@ -165,7 +166,6 @@ export default function Example() {
 													const result = actions.deleteAnnotation(annotationId, 'inlineComment');
 
 													if (result) {
-														// @ts-ignore
 														setDocument(result.doc);
 													}
 												}}

@@ -26,7 +26,7 @@ import {
 	findTable,
 	selectedRect,
 } from '@atlaskit/editor-tables/utils';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { PluginInjectionAPI } from '../../types';
 import { updateRowOrColumnMovedTransform } from '../analytics/commands';
@@ -77,7 +77,7 @@ export function addColumnAt(
 		allowAddColumnCustomStep: boolean = false,
 		view: EditorView | undefined,
 	) => {
-		return (tr: Transaction) => {
+		return (tr: Transaction): Transaction => {
 			let updatedTr = tr;
 			if (allowAddColumnCustomStep) {
 				updatedTr = addColumnAtCustomStep(column)(updatedTr);
@@ -295,7 +295,12 @@ export const createTable =
 					action: ACTION.INSERTED,
 					actionSubject: ACTION_SUBJECT.DOCUMENT,
 					actionSubjectId: ACTION_SUBJECT_ID.TABLE,
-					attributes: { inputMethod: INPUT_METHOD.SHORTCUT },
+					attributes: {
+						inputMethod: INPUT_METHOD.SHORTCUT,
+						...(expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+							? { parentNode: state.selection.$from.node(-1)?.type.name }
+							: {}),
+					},
 					eventType: EVENT_TYPE.TRACK,
 				})(tr);
 			}
@@ -345,6 +350,9 @@ export const insertTableWithSize =
 						inputMethod: inputMethod,
 						totalRowCount: rowsCount,
 						totalColumnCount: colsCount,
+						...(expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+							? { parentNode: tr.selection.$from.node(-1)?.type.name }
+							: {}),
 					},
 					eventType: EVENT_TYPE.TRACK,
 				})(newTr);
@@ -391,11 +399,8 @@ export const insertTableWithNestingSupport: InsertTableWithNestingSupportCommand
 		let insertAt: Selection | undefined;
 		let isNestedTable = false;
 		if (hasParentNodeOfType(schema.nodes.table)(tr.selection) && isNestedTablesSupported(schema)) {
-			// If the experiment is disabled, or we're trying to nest deeper than one level, we insert the table after the top table
-			if (
-				editorExperiment('nested-tables-in-tables', false, { exposure: true }) ||
-				getParentOfTypeCount(schema.nodes.table)(tr.selection.$from) > 1
-			) {
+			// If trying to nest deeper than one level, we insert the table after the top table
+			if (getParentOfTypeCount(schema.nodes.table)(tr.selection.$from) > 1) {
 				const positionAfterTopTable = getPositionAfterTopParentNodeOfType(schema.nodes.table)(
 					tr.selection.$from,
 				);
@@ -431,6 +436,9 @@ export const insertTableWithNestingSupport: InsertTableWithNestingSupportCommand
 							attributes: {
 								...analyticsPayload.attributes,
 								localId: node.attrs.localId,
+								...(expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+									? { parentNode: tr.selection.$from.node(-1)?.type.name }
+									: {}),
 							},
 						}
 					: undefined,

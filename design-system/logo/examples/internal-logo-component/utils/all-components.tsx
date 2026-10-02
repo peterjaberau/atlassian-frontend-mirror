@@ -1,151 +1,133 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::1264e71bd7b6f8e3a0287c7aa01c245d>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::4aebc1faa2b1d21904f40b374616c0ab>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
 /* eslint-disable @atlaskit/platform/use-entrypoints-in-examples */
-import { AdminIcon, AdminLogo, AdminLogoCS } from '../../../src/artifacts/logo-components/admin';
-import { AlignIcon, AlignLogo, AlignLogoCS } from '../../../src/artifacts/logo-components/align';
-import {
-	AnalyticsIcon,
-	AnalyticsLogo,
-	AnalyticsLogoCS,
-} from '../../../src/artifacts/logo-components/analytics';
-import {
-	AssetsIcon,
-	AssetsLogo,
-	AssetsLogoCS,
-} from '../../../src/artifacts/logo-components/assets';
-import { BambooIcon, BambooLogoCS } from '../../../src/artifacts/logo-components/bamboo';
-import {
-	BitbucketIcon,
-	BitbucketLogo,
-	BitbucketLogoCS,
-} from '../../../src/artifacts/logo-components/bitbucket';
-import {
-	BitbucketDataCenterIcon,
-	BitbucketDataCenterLogoCS,
-} from '../../../src/artifacts/logo-components/bitbucket-data-center';
-import { ChatIcon, ChatLogo, ChatLogoCS } from '../../../src/artifacts/logo-components/chat';
-import {
-	ChatNewIcon,
-	ChatNewLogo,
-	ChatNewLogoCS,
-} from '../../../src/artifacts/logo-components/chat-new';
-import { CompanyHubIcon, CompanyHubLogo } from '../../../src/artifacts/logo-components/company-hub';
-import {
-	CompassIcon,
-	CompassLogo,
-	CompassLogoCS,
-} from '../../../src/artifacts/logo-components/compass';
-import {
-	ConfluenceIcon,
-	ConfluenceLogo,
-	ConfluenceLogoCS,
-} from '../../../src/artifacts/logo-components/confluence';
-import {
-	ConfluenceDataCenterIcon,
-	ConfluenceDataCenterLogoCS,
-} from '../../../src/artifacts/logo-components/confluence-data-center';
-import { CrowdIcon, CrowdLogoCS } from '../../../src/artifacts/logo-components/crowd';
-import { CustomLinkIcon } from '../../../src/artifacts/logo-components/custom-link';
-import {
-	CustomerServiceManagementIcon,
-	CustomerServiceManagementLogo,
-	CustomerServiceManagementLogoCS,
-} from '../../../src/artifacts/logo-components/customer-service-management';
-import { DxIcon } from '../../../src/artifacts/logo-components/dx';
-import { FocusIcon, FocusLogo, FocusLogoCS } from '../../../src/artifacts/logo-components/focus';
-import { GoalsIcon, GoalsLogo, GoalsLogoCS } from '../../../src/artifacts/logo-components/goals';
-import { GuardIcon, GuardLogo, GuardLogoCS } from '../../../src/artifacts/logo-components/guard';
-import {
-	GuardDetectIcon,
-	GuardDetectLogo,
-} from '../../../src/artifacts/logo-components/guard-detect';
-import { HomeIcon, HomeLogo, HomeLogoCS } from '../../../src/artifacts/logo-components/home';
-import { HubIcon, HubLogoCS } from '../../../src/artifacts/logo-components/hub';
-import { JiraIcon, JiraLogo, JiraLogoCS } from '../../../src/artifacts/logo-components/jira';
-import {
-	JiraDataCenterIcon,
-	JiraDataCenterLogoCS,
-} from '../../../src/artifacts/logo-components/jira-data-center';
-import {
-	JiraProductDiscoveryIcon,
-	JiraProductDiscoveryLogo,
-	JiraProductDiscoveryLogoCS,
-} from '../../../src/artifacts/logo-components/jira-product-discovery';
-import {
-	JiraServiceManagementIcon,
-	JiraServiceManagementLogo,
-	JiraServiceManagementLogoCS,
-} from '../../../src/artifacts/logo-components/jira-service-management';
-import {
-	JiraServiceManagementDataCenterIcon,
-	JiraServiceManagementDataCenterLogoCS,
-} from '../../../src/artifacts/logo-components/jira-service-management-data-center';
-import { LoomIcon, LoomLogo, LoomLogoCS } from '../../../src/artifacts/logo-components/loom';
-import { LoomAttributionLogoCS } from '../../../src/artifacts/logo-components/loom-attribution';
-import {
-	LoomInternalIcon,
-	LoomInternalLogo,
-	LoomInternalLogoCS,
-} from '../../../src/artifacts/logo-components/loom-internal';
-import { MoreAtlassianAppsIcon } from '../../../src/artifacts/logo-components/more-atlassian-apps';
-import {
-	OpsgenieIcon,
-	OpsgenieLogo,
-	OpsgenieLogoCS,
-} from '../../../src/artifacts/logo-components/opsgenie';
-import {
-	ProjectsIcon,
-	ProjectsLogo,
-	ProjectsLogoCS,
-} from '../../../src/artifacts/logo-components/projects';
-import { RovoIcon, RovoLogo, RovoLogoCS } from '../../../src/artifacts/logo-components/rovo';
-import { RovoDevIcon, RovoDevLogoCS } from '../../../src/artifacts/logo-components/rovo-dev';
-import {
-	RovoDevAgentIcon,
-	RovoDevAgentLogoCS,
-} from '../../../src/artifacts/logo-components/rovo-dev-agent';
-import { RovoHexIcon, RovoHexLogoCS } from '../../../src/artifacts/logo-components/rovo-hex';
-import {
-	SearchIcon,
-	SearchLogo,
-	SearchLogoCS,
-} from '../../../src/artifacts/logo-components/search';
-import {
-	SearchNewIcon,
-	SearchNewLogo,
-	SearchNewLogoCS,
-} from '../../../src/artifacts/logo-components/search-new';
-import {
-	StatuspageIcon,
-	StatuspageLogo,
-	StatuspageLogoCS,
-} from '../../../src/artifacts/logo-components/statuspage';
-import {
-	StudioIcon,
-	StudioLogo,
-	StudioLogoCS,
-} from '../../../src/artifacts/logo-components/studio';
-import {
-	StudioNewIcon,
-	StudioNewLogo,
-	StudioNewLogoCS,
-} from '../../../src/artifacts/logo-components/studio-new';
-import {
-	TalentIcon,
-	TalentLogo,
-	TalentLogoCS,
-} from '../../../src/artifacts/logo-components/talent';
-import { TeamsIcon, TeamsLogo, TeamsLogoCS } from '../../../src/artifacts/logo-components/teams';
-import {
-	TrelloIcon,
-	TrelloLogo,
-	TrelloLogoCS,
-} from '../../../src/artifacts/logo-components/trello';
+import { AdminIcon } from '../../../src/artifacts/logo-components/admin/icon';
+import { AdminLogo } from '../../../src/artifacts/logo-components/admin/logo';
+import { AdminLogoCS } from '../../../src/artifacts/logo-components/admin/logo-cs';
+import { AlignIcon } from '../../../src/artifacts/logo-components/align/icon';
+import { AlignLogo } from '../../../src/artifacts/logo-components/align/logo';
+import { AlignLogoCS } from '../../../src/artifacts/logo-components/align/logo-cs';
+import { AnalyticsIcon } from '../../../src/artifacts/logo-components/analytics/icon';
+import { AnalyticsLogo } from '../../../src/artifacts/logo-components/analytics/logo';
+import { AnalyticsLogoCS } from '../../../src/artifacts/logo-components/analytics/logo-cs';
+import { ArtifactsIcon } from '../../../src/artifacts/logo-components/artifacts/icon';
+import { ArtifactsLogo } from '../../../src/artifacts/logo-components/artifacts/logo';
+import { ArtifactsLogoCS } from '../../../src/artifacts/logo-components/artifacts/logo-cs';
+import { AssetsIcon } from '../../../src/artifacts/logo-components/assets/icon';
+import { AssetsLogo } from '../../../src/artifacts/logo-components/assets/logo';
+import { AssetsLogoCS } from '../../../src/artifacts/logo-components/assets/logo-cs';
+import { BambooIcon } from '../../../src/artifacts/logo-components/bamboo/icon';
+import { BambooLogoCS } from '../../../src/artifacts/logo-components/bamboo/logo-cs';
+import { BitbucketDataCenterIcon } from '../../../src/artifacts/logo-components/bitbucket-data-center/icon';
+import { BitbucketDataCenterLogoCS } from '../../../src/artifacts/logo-components/bitbucket-data-center/logo-cs';
+import { BitbucketIcon } from '../../../src/artifacts/logo-components/bitbucket/icon';
+import { BitbucketLogo } from '../../../src/artifacts/logo-components/bitbucket/logo';
+import { BitbucketLogoCS } from '../../../src/artifacts/logo-components/bitbucket/logo-cs';
+import { ChatIcon } from '../../../src/artifacts/logo-components/chat/icon';
+import { ChatLogo } from '../../../src/artifacts/logo-components/chat/logo';
+import { ChatLogoCS } from '../../../src/artifacts/logo-components/chat/logo-cs';
+import { CodeSearchIcon } from '../../../src/artifacts/logo-components/code-search/icon';
+import { CompanyHubIcon } from '../../../src/artifacts/logo-components/company-hub/icon';
+import { CompanyHubLogo } from '../../../src/artifacts/logo-components/company-hub/logo';
+import { CompassIcon } from '../../../src/artifacts/logo-components/compass/icon';
+import { CompassLogo } from '../../../src/artifacts/logo-components/compass/logo';
+import { CompassLogoCS } from '../../../src/artifacts/logo-components/compass/logo-cs';
+import { ConfluenceDataCenterIcon } from '../../../src/artifacts/logo-components/confluence-data-center/icon';
+import { ConfluenceDataCenterLogoCS } from '../../../src/artifacts/logo-components/confluence-data-center/logo-cs';
+import { ConfluenceIcon } from '../../../src/artifacts/logo-components/confluence/icon';
+import { ConfluenceLogo } from '../../../src/artifacts/logo-components/confluence/logo';
+import { ConfluenceLogoCS } from '../../../src/artifacts/logo-components/confluence/logo-cs';
+import { CrowdIcon } from '../../../src/artifacts/logo-components/crowd/icon';
+import { CrowdLogoCS } from '../../../src/artifacts/logo-components/crowd/logo-cs';
+import { CustomLinkIcon } from '../../../src/artifacts/logo-components/custom-link/icon';
+import { CustomerServiceManagementIcon } from '../../../src/artifacts/logo-components/customer-service-management/icon';
+import { CustomerServiceManagementLogo } from '../../../src/artifacts/logo-components/customer-service-management/logo';
+import { CustomerServiceManagementLogoCS } from '../../../src/artifacts/logo-components/customer-service-management/logo-cs';
+import { DxIcon } from '../../../src/artifacts/logo-components/dx/icon';
+import { FeedbackIcon } from '../../../src/artifacts/logo-components/feedback/icon';
+import { FeedbackLogo } from '../../../src/artifacts/logo-components/feedback/logo';
+import { FeedbackLogoCS } from '../../../src/artifacts/logo-components/feedback/logo-cs';
+import { FocusIcon } from '../../../src/artifacts/logo-components/focus/icon';
+import { FocusLogo } from '../../../src/artifacts/logo-components/focus/logo';
+import { FocusLogoCS } from '../../../src/artifacts/logo-components/focus/logo-cs';
+import { GoalsIcon } from '../../../src/artifacts/logo-components/goals/icon';
+import { GoalsLogo } from '../../../src/artifacts/logo-components/goals/logo';
+import { GoalsLogoCS } from '../../../src/artifacts/logo-components/goals/logo-cs';
+import { GuardDetectIcon } from '../../../src/artifacts/logo-components/guard-detect/icon';
+import { GuardDetectLogo } from '../../../src/artifacts/logo-components/guard-detect/logo';
+import { GuardIcon } from '../../../src/artifacts/logo-components/guard/icon';
+import { GuardLogo } from '../../../src/artifacts/logo-components/guard/logo';
+import { GuardLogoCS } from '../../../src/artifacts/logo-components/guard/logo-cs';
+import { HomeIcon } from '../../../src/artifacts/logo-components/home/icon';
+import { HomeLogo } from '../../../src/artifacts/logo-components/home/logo';
+import { HomeLogoCS } from '../../../src/artifacts/logo-components/home/logo-cs';
+import { HubIcon } from '../../../src/artifacts/logo-components/hub/icon';
+import { HubLogoCS } from '../../../src/artifacts/logo-components/hub/logo-cs';
+import { InsightsIcon } from '../../../src/artifacts/logo-components/insights/icon';
+import { InsightsLogo } from '../../../src/artifacts/logo-components/insights/logo';
+import { InsightsLogoCS } from '../../../src/artifacts/logo-components/insights/logo-cs';
+import { JiraCodingAgentIcon } from '../../../src/artifacts/logo-components/jira-coding-agent/icon';
+import { JiraDataCenterIcon } from '../../../src/artifacts/logo-components/jira-data-center/icon';
+import { JiraDataCenterLogoCS } from '../../../src/artifacts/logo-components/jira-data-center/logo-cs';
+import { JiraProductDiscoveryIcon } from '../../../src/artifacts/logo-components/jira-product-discovery/icon';
+import { JiraProductDiscoveryLogo } from '../../../src/artifacts/logo-components/jira-product-discovery/logo';
+import { JiraProductDiscoveryLogoCS } from '../../../src/artifacts/logo-components/jira-product-discovery/logo-cs';
+import { JiraServiceManagementDataCenterIcon } from '../../../src/artifacts/logo-components/jira-service-management-data-center/icon';
+import { JiraServiceManagementDataCenterLogoCS } from '../../../src/artifacts/logo-components/jira-service-management-data-center/logo-cs';
+import { JiraServiceManagementIcon } from '../../../src/artifacts/logo-components/jira-service-management/icon';
+import { JiraServiceManagementLogo } from '../../../src/artifacts/logo-components/jira-service-management/logo';
+import { JiraServiceManagementLogoCS } from '../../../src/artifacts/logo-components/jira-service-management/logo-cs';
+import { JiraIcon } from '../../../src/artifacts/logo-components/jira/icon';
+import { JiraLogo } from '../../../src/artifacts/logo-components/jira/logo';
+import { JiraLogoCS } from '../../../src/artifacts/logo-components/jira/logo-cs';
+import { LoomAttributionLogoCS } from '../../../src/artifacts/logo-components/loom-attribution/logo-cs';
+import { LoomInternalIcon } from '../../../src/artifacts/logo-components/loom-internal/icon';
+import { LoomInternalLogo } from '../../../src/artifacts/logo-components/loom-internal/logo';
+import { LoomInternalLogoCS } from '../../../src/artifacts/logo-components/loom-internal/logo-cs';
+import { LoomIcon } from '../../../src/artifacts/logo-components/loom/icon';
+import { LoomLogo } from '../../../src/artifacts/logo-components/loom/logo';
+import { LoomLogoCS } from '../../../src/artifacts/logo-components/loom/logo-cs';
+import { MoreAtlassianAppsIcon } from '../../../src/artifacts/logo-components/more-atlassian-apps/icon';
+import { OpsgenieIcon } from '../../../src/artifacts/logo-components/opsgenie/icon';
+import { OpsgenieLogo } from '../../../src/artifacts/logo-components/opsgenie/logo';
+import { OpsgenieLogoCS } from '../../../src/artifacts/logo-components/opsgenie/logo-cs';
+import { ProjectsIcon } from '../../../src/artifacts/logo-components/projects/icon';
+import { ProjectsLogo } from '../../../src/artifacts/logo-components/projects/logo';
+import { ProjectsLogoCS } from '../../../src/artifacts/logo-components/projects/logo-cs';
+import { RovoClassicIcon } from '../../../src/artifacts/logo-components/rovo-classic/icon';
+import { RovoClassicLogoCS } from '../../../src/artifacts/logo-components/rovo-classic/logo-cs';
+import { RovoDevAgentIcon } from '../../../src/artifacts/logo-components/rovo-dev-agent/icon';
+import { RovoDevAgentLogoCS } from '../../../src/artifacts/logo-components/rovo-dev-agent/logo-cs';
+import { RovoDevIcon } from '../../../src/artifacts/logo-components/rovo-dev/icon';
+import { RovoDevLogoCS } from '../../../src/artifacts/logo-components/rovo-dev/logo-cs';
+import { RovoHexIcon } from '../../../src/artifacts/logo-components/rovo-hex/icon';
+import { RovoHexLogoCS } from '../../../src/artifacts/logo-components/rovo-hex/logo-cs';
+import { RovoIcon } from '../../../src/artifacts/logo-components/rovo/icon';
+import { RovoLogo } from '../../../src/artifacts/logo-components/rovo/logo';
+import { RovoLogoCS } from '../../../src/artifacts/logo-components/rovo/logo-cs';
+import { SearchIcon } from '../../../src/artifacts/logo-components/search/icon';
+import { SearchLogo } from '../../../src/artifacts/logo-components/search/logo';
+import { SearchLogoCS } from '../../../src/artifacts/logo-components/search/logo-cs';
+import { StatuspageIcon } from '../../../src/artifacts/logo-components/statuspage/icon';
+import { StatuspageLogo } from '../../../src/artifacts/logo-components/statuspage/logo';
+import { StatuspageLogoCS } from '../../../src/artifacts/logo-components/statuspage/logo-cs';
+import { StudioIcon } from '../../../src/artifacts/logo-components/studio/icon';
+import { StudioLogo } from '../../../src/artifacts/logo-components/studio/logo';
+import { StudioLogoCS } from '../../../src/artifacts/logo-components/studio/logo-cs';
+import { TalentIcon } from '../../../src/artifacts/logo-components/talent/icon';
+import { TalentLogo } from '../../../src/artifacts/logo-components/talent/logo';
+import { TalentLogoCS } from '../../../src/artifacts/logo-components/talent/logo-cs';
+import { TeamsIcon } from '../../../src/artifacts/logo-components/teams/icon';
+import { TeamsLogo } from '../../../src/artifacts/logo-components/teams/logo';
+import { TeamsLogoCS } from '../../../src/artifacts/logo-components/teams/logo-cs';
+import { TrelloIcon } from '../../../src/artifacts/logo-components/trello/icon';
+import { TrelloLogo } from '../../../src/artifacts/logo-components/trello/logo';
+import { TrelloLogoCS } from '../../../src/artifacts/logo-components/trello/logo-cs';
 import type { AppIconProps, AppLogoProps } from '../../../src/utils/types';
 /* eslint-enable @atlaskit/platform/use-entrypoints-in-examples */
 
@@ -190,6 +172,16 @@ export const rows: Array<{
 		LogoCS: (props) => <AnalyticsLogoCS {...props} />,
 	},
 	{
+		name: 'Artifacts',
+		Icon12: (props) => <ArtifactsIcon {...props} size="12" />,
+		Icon16: (props) => <ArtifactsIcon {...props} size="16" />,
+		Icon20: (props) => <ArtifactsIcon {...props} size="20" />,
+		Icon24: (props) => <ArtifactsIcon {...props} size="24" />,
+		Icon32: (props) => <ArtifactsIcon {...props} size="32" />,
+		Logo: (props) => <ArtifactsLogo {...props} />,
+		LogoCS: (props) => <ArtifactsLogoCS {...props} />,
+	},
+	{
 		name: 'Assets',
 		Icon12: (props) => <AssetsIcon {...props} size="12" />,
 		Icon16: (props) => <AssetsIcon {...props} size="16" />,
@@ -228,16 +220,6 @@ export const rows: Array<{
 		Icon32: (props) => <BitbucketIcon {...props} size="32" />,
 		Logo: (props) => <BitbucketLogo {...props} />,
 		LogoCS: (props) => <BitbucketLogoCS {...props} />,
-	},
-	{
-		name: 'Chat New',
-		Icon12: (props) => <ChatNewIcon {...props} size="12" />,
-		Icon16: (props) => <ChatNewIcon {...props} size="16" />,
-		Icon20: (props) => <ChatNewIcon {...props} size="20" />,
-		Icon24: (props) => <ChatNewIcon {...props} size="24" />,
-		Icon32: (props) => <ChatNewIcon {...props} size="32" />,
-		Logo: (props) => <ChatNewLogo {...props} />,
-		LogoCS: (props) => <ChatNewLogoCS {...props} />,
 	},
 	{
 		name: 'Chat',
@@ -300,6 +282,16 @@ export const rows: Array<{
 		LogoCS: (props) => <CustomerServiceManagementLogoCS {...props} />,
 	},
 	{
+		name: 'Feedback',
+		Icon12: (props) => <FeedbackIcon {...props} size="12" />,
+		Icon16: (props) => <FeedbackIcon {...props} size="16" />,
+		Icon20: (props) => <FeedbackIcon {...props} size="20" />,
+		Icon24: (props) => <FeedbackIcon {...props} size="24" />,
+		Icon32: (props) => <FeedbackIcon {...props} size="32" />,
+		Logo: (props) => <FeedbackLogo {...props} />,
+		LogoCS: (props) => <FeedbackLogoCS {...props} />,
+	},
+	{
 		name: 'Focus',
 		Icon12: (props) => <FocusIcon {...props} size="12" />,
 		Icon16: (props) => <FocusIcon {...props} size="16" />,
@@ -348,6 +340,16 @@ export const rows: Array<{
 		Icon32: (props) => <HubIcon {...props} size="32" />,
 		Logo: null,
 		LogoCS: (props) => <HubLogoCS {...props} />,
+	},
+	{
+		name: 'Insights',
+		Icon12: (props) => <InsightsIcon {...props} size="12" />,
+		Icon16: (props) => <InsightsIcon {...props} size="16" />,
+		Icon20: (props) => <InsightsIcon {...props} size="20" />,
+		Icon24: (props) => <InsightsIcon {...props} size="24" />,
+		Icon32: (props) => <InsightsIcon {...props} size="32" />,
+		Logo: (props) => <InsightsLogo {...props} />,
+		LogoCS: (props) => <InsightsLogoCS {...props} />,
 	},
 	{
 		name: 'Jira Data Center',
@@ -450,6 +452,16 @@ export const rows: Array<{
 		LogoCS: (props) => <ProjectsLogoCS {...props} />,
 	},
 	{
+		name: 'Rovo Classic',
+		Icon12: (props) => <RovoClassicIcon {...props} size="12" />,
+		Icon16: (props) => <RovoClassicIcon {...props} size="16" />,
+		Icon20: (props) => <RovoClassicIcon {...props} size="20" />,
+		Icon24: (props) => <RovoClassicIcon {...props} size="24" />,
+		Icon32: (props) => <RovoClassicIcon {...props} size="32" />,
+		Logo: null,
+		LogoCS: (props) => <RovoClassicLogoCS {...props} />,
+	},
+	{
 		name: 'Rovo Dev Agent',
 		Icon12: (props) => <RovoDevAgentIcon {...props} size="12" />,
 		Icon16: (props) => <RovoDevAgentIcon {...props} size="16" />,
@@ -490,16 +502,6 @@ export const rows: Array<{
 		LogoCS: (props) => <RovoLogoCS {...props} />,
 	},
 	{
-		name: 'Search New',
-		Icon12: (props) => <SearchNewIcon {...props} size="12" />,
-		Icon16: (props) => <SearchNewIcon {...props} size="16" />,
-		Icon20: (props) => <SearchNewIcon {...props} size="20" />,
-		Icon24: (props) => <SearchNewIcon {...props} size="24" />,
-		Icon32: (props) => <SearchNewIcon {...props} size="32" />,
-		Logo: (props) => <SearchNewLogo {...props} />,
-		LogoCS: (props) => <SearchNewLogoCS {...props} />,
-	},
-	{
 		name: 'Search',
 		Icon12: (props) => <SearchIcon {...props} size="12" />,
 		Icon16: (props) => <SearchIcon {...props} size="16" />,
@@ -518,16 +520,6 @@ export const rows: Array<{
 		Icon32: (props) => <StatuspageIcon {...props} size="32" />,
 		Logo: (props) => <StatuspageLogo {...props} />,
 		LogoCS: (props) => <StatuspageLogoCS {...props} />,
-	},
-	{
-		name: 'Studio New',
-		Icon12: (props) => <StudioNewIcon {...props} size="12" />,
-		Icon16: (props) => <StudioNewIcon {...props} size="16" />,
-		Icon20: (props) => <StudioNewIcon {...props} size="20" />,
-		Icon24: (props) => <StudioNewIcon {...props} size="24" />,
-		Icon32: (props) => <StudioNewIcon {...props} size="32" />,
-		Logo: (props) => <StudioNewLogo {...props} />,
-		LogoCS: (props) => <StudioNewLogoCS {...props} />,
 	},
 	{
 		name: 'Studio',
@@ -590,6 +582,16 @@ export const rows: Array<{
 		LogoCS: null,
 	},
 	{
+		name: 'Code Search',
+		Icon12: (props) => <CodeSearchIcon {...props} size="12" />,
+		Icon16: (props) => <CodeSearchIcon {...props} size="16" />,
+		Icon20: (props) => <CodeSearchIcon {...props} size="20" />,
+		Icon24: (props) => <CodeSearchIcon {...props} size="24" />,
+		Icon32: (props) => <CodeSearchIcon {...props} size="32" />,
+		Logo: null,
+		LogoCS: null,
+	},
+	{
 		name: 'Custom Link',
 		Icon12: (props) => <CustomLinkIcon {...props} size="12" label="Custom Link" />,
 		Icon16: (props) => <CustomLinkIcon {...props} size="16" label="Custom Link" />,
@@ -606,6 +608,16 @@ export const rows: Array<{
 		Icon20: (props) => <DxIcon {...props} size="20" />,
 		Icon24: (props) => <DxIcon {...props} size="24" />,
 		Icon32: (props) => <DxIcon {...props} size="32" />,
+		Logo: null,
+		LogoCS: null,
+	},
+	{
+		name: 'Jira Coding Agent',
+		Icon12: (props) => <JiraCodingAgentIcon {...props} size="12" />,
+		Icon16: (props) => <JiraCodingAgentIcon {...props} size="16" />,
+		Icon20: (props) => <JiraCodingAgentIcon {...props} size="20" />,
+		Icon24: (props) => <JiraCodingAgentIcon {...props} size="24" />,
+		Icon32: (props) => <JiraCodingAgentIcon {...props} size="32" />,
 		Logo: null,
 		LogoCS: null,
 	},

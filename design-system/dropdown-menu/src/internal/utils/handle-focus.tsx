@@ -1,10 +1,17 @@
 import { type RefObject } from 'react';
 
-import { KEY_DOWN, KEY_END, KEY_HOME, KEY_TAB, KEY_UP } from '@atlaskit/ds-lib/keycodes';
-import { fg } from '@atlaskit/platform-feature-flags';
+import {
+	KEY_DOWN,
+	KEY_END,
+	KEY_HOME,
+	KEY_LEFT,
+	KEY_RIGHT,
+	KEY_TAB,
+	KEY_UP,
+} from '@atlaskit/ds-lib/keycodes';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type Action, type FocusableElementRef } from '../../types';
-
 import { PREFIX } from './use-generated-id';
 
 const actionMap: { [key: string]: Action } = {
@@ -64,6 +71,7 @@ export default function handleFocus(
 	refs: RefObject<FocusableElementRef[]>,
 	isLayerDisabled: () => boolean,
 	onClose: (e: KeyboardEvent) => void,
+	isNestedMenu: boolean = false,
 ) {
 	return (e: KeyboardEvent): void => {
 		const currentRefs = refs.current ?? [];
@@ -94,6 +102,29 @@ export default function handleFocus(
 				return;
 			}
 		}
+		// Left arrow: only in a submenu — close and return focus to parent. No navigation within menu.
+		if (e.key === KEY_LEFT) {
+			e.preventDefault();
+			if (isNestedMenu) {
+				onClose(e);
+			}
+			return;
+		}
+
+		// Right arrow: only when item has submenu — open it. No navigation within menu.
+		if (e.key === KEY_RIGHT) {
+			const activeElement = document.activeElement;
+			if (
+				activeElement instanceof HTMLElement &&
+				(activeElement.getAttribute('aria-haspopup') === 'true' ||
+					activeElement.getAttribute('aria-haspopup') === 'menu')
+			) {
+				e.preventDefault();
+				activeElement.click();
+			}
+			return;
+		}
+
 		const action = actionMap[e.key];
 
 		switch (action) {

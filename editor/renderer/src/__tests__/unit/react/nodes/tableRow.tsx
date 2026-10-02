@@ -1,214 +1,195 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
 import { SortOrder } from '@atlaskit/editor-common/types';
-import { act } from '@testing-library/react';
+
+import { RendererCssClassName } from '../../../../consts';
 import TableRow from '../../../../react/nodes/tableRow';
 
-describe('Renderer - React/Nodes/TableRow', () => {
-	const tableRow = shallow(<TableRow />);
+type FakeCellProps = {
+	colGroupWidth?: string;
+	columnIndex?: number;
+	isHeaderRow?: boolean;
+	onSorting?: (columnIndex?: number) => void;
+	sortOrdered?: SortOrder;
+};
 
+const FakeCell = ({
+	colGroupWidth,
+	columnIndex,
+	isHeaderRow,
+	onSorting,
+	sortOrdered,
+}: FakeCellProps) => (
+	<th
+		data-col-group-width={colGroupWidth}
+		data-column-index={columnIndex}
+		data-is-header-row={isHeaderRow}
+		data-sort-ordered={sortOrdered}
+	>
+		<button type="button" onClick={() => onSorting?.(columnIndex)}>
+			sort
+		</button>
+	</th>
+);
+
+const renderInTable = (row: React.ReactNode) =>
+	render(
+		<table>
+			<tbody>{row}</tbody>
+		</table>,
+	);
+
+const cellAttributes = (attribute: string) =>
+	screen.getAllByRole('columnheader').map((cell) => cell.getAttribute(attribute));
+
+describe('Renderer - React/Nodes/TableRow', () => {
 	it('should create a <tr>-tag', () => {
-		expect(tableRow.name()).toEqual('tr');
+		renderInTable(<TableRow />);
+
+		expect(screen.getByRole('row').tagName).toEqual('TR');
+	});
+
+	it('should capture and report a11y violations', async () => {
+		const { container } = renderInTable(
+			<TableRow>
+				<FakeCell />
+				<FakeCell />
+				<FakeCell />
+			</TableRow>,
+		);
+
+		await expect(container).toBeAccessible();
 	});
 
 	describe('with allowColumnSorting', () => {
-		const FakeCell = () => (
-			<th>
-				<p>1</p>
-			</th>
-		);
 		const onSorting = jest.fn();
 		const tableOrderStatus = {
 			columnIndex: 1,
 			order: SortOrder.ASC,
 		};
 
-		it('should clone childrens and pass down the props', () => {
-			const wrapper = mount(
+		beforeEach(() => {
+			onSorting.mockClear();
+		});
+
+		const renderRow = (index?: number) =>
+			renderInTable(
 				<TableRow
 					onSorting={onSorting}
 					tableOrderStatus={tableOrderStatus}
 					allowColumnSorting={true}
+					index={index}
 				>
 					<FakeCell />
 					<FakeCell />
 					<FakeCell />
 				</TableRow>,
-				{ attachTo: document.createElement('tbody') },
 			);
 
-			wrapper.find(FakeCell).forEach((node, index) => {
-				expect(node.prop('columnIndex')).toBe(index);
-				expect(node.prop('onSorting')).toBe(onSorting);
-			});
+		it('should clone childrens and pass down the props', async () => {
+			renderRow();
+
+			expect(cellAttributes('data-column-index')).toEqual(['0', '1', '2']);
+
+			for (const sortButton of screen.getAllByRole('button', { name: 'sort' })) {
+				await userEvent.click(sortButton);
+			}
+
+			expect(onSorting.mock.calls).toEqual([[0], [1], [2]]);
 		});
 
 		describe('#isHeaderRow', () => {
 			it('should return true when rowIndex is 0', () => {
-				const wrapper = mount(
-					<TableRow
-						onSorting={onSorting}
-						tableOrderStatus={tableOrderStatus}
-						allowColumnSorting={true}
-						index={0}
-					>
-						<FakeCell />
-						<FakeCell />
-						<FakeCell />
-					</TableRow>,
-					{ attachTo: document.createElement('tbody') },
-				);
+				renderRow(0);
 
-				wrapper.find(FakeCell).forEach((node, index) => {
-					expect(node.prop('isHeaderRow')).toBeTruthy();
-				});
+				expect(cellAttributes('data-is-header-row')).toEqual(['true', 'true', 'true']);
 			});
 
 			it('should return true when rowIndex is empty', () => {
-				const wrapper = mount(
-					<TableRow
-						onSorting={onSorting}
-						tableOrderStatus={tableOrderStatus}
-						allowColumnSorting={true}
-					>
-						<FakeCell />
-						<FakeCell />
-						<FakeCell />
-					</TableRow>,
-					{ attachTo: document.createElement('tbody') },
-				);
+				renderRow();
 
-				wrapper.find(FakeCell).forEach((node, index) => {
-					expect(node.prop('isHeaderRow')).toBeTruthy();
-				});
+				expect(cellAttributes('data-is-header-row')).toEqual(['true', 'true', 'true']);
 			});
 
 			it('should return false when rowIndex is greater than zero', () => {
-				const wrapper = mount(
-					<TableRow
-						onSorting={onSorting}
-						tableOrderStatus={tableOrderStatus}
-						allowColumnSorting={true}
-						index={1}
-					>
-						<FakeCell />
-						<FakeCell />
-						<FakeCell />
-					</TableRow>,
-					{ attachTo: document.createElement('tbody') },
-				);
+				renderRow(1);
 
-				wrapper.find(FakeCell).forEach((node, index) => {
-					expect(node.prop('isHeaderRow')).toBeFalsy();
-				});
+				expect(cellAttributes('data-is-header-row')).toEqual([null, null, null]);
 			});
 		});
 
 		describe('with tableOrderStatus', () => {
 			it('should return the specific order status to the columnIndex set', () => {
-				const wrapper = mount(
-					<TableRow
-						onSorting={onSorting}
-						tableOrderStatus={tableOrderStatus}
-						allowColumnSorting={true}
-					>
-						<FakeCell />
-						<FakeCell />
-						<FakeCell />
-					</TableRow>,
-					{ attachTo: document.createElement('tbody') },
-				);
+				renderRow();
 
-				const child = wrapper.find(FakeCell).at(1);
-				expect(child.prop('sortOrdered')).toBe(tableOrderStatus.order);
+				expect(cellAttributes('data-sort-ordered')[1]).toBe(tableOrderStatus.order);
 			});
 
 			it('should return NO_ORDER for other columns', () => {
-				const wrapper = mount(
-					<TableRow
-						onSorting={onSorting}
-						tableOrderStatus={tableOrderStatus}
-						allowColumnSorting={true}
-					>
-						<FakeCell />
-						<FakeCell />
-						<FakeCell />
-					</TableRow>,
-					{ attachTo: document.createElement('tbody') },
-				);
+				renderRow();
 
-				const firstChild = wrapper.find(FakeCell).at(0);
-				expect(firstChild.prop('sortOrdered')).toBe(SortOrder.NO_ORDER);
+				const sortOrders = cellAttributes('data-sort-ordered');
 
-				const lastChild = wrapper.find(FakeCell).at(2);
-				expect(lastChild.prop('sortOrdered')).toBe(SortOrder.NO_ORDER);
+				expect(sortOrders[0]).toBe(SortOrder.NO_ORDER);
+				expect(sortOrders[2]).toBe(SortOrder.NO_ORDER);
 			});
 		});
 	});
 
-	describe('colGroupWidths', () => {
-		const FakeCell = () => (
-			<td>
-				<p>1</p>
-			</td>
+	it('forwards the row ref and preserves numbered row edge attributes', () => {
+		const innerRef = React.createRef<HTMLTableRowElement>();
+		renderInTable(
+			<TableRow innerRef={innerRef} index={3} isNumberColumnEnabled={1} isFirstRow isLastRow>
+				<td>Content</td>
+			</TableRow>,
 		);
+		expect(innerRef.current).toBe(screen.getByRole('row'));
+		const numberCell = screen.getByRole('cell', { name: '3' });
+		expect(numberCell).toHaveClass(RendererCssClassName.NUMBER_COLUMN);
+		expect(numberCell).toHaveAttribute('data-reaches-left', 'true');
+		expect(numberCell).toHaveAttribute('data-reaches-top', 'true');
+		expect(numberCell).toHaveAttribute('data-reaches-bottom', 'true');
+	});
 
-		it('should pass colGroupWidths to children when colGroupWidths has length', () => {
-			const colGroupWidths = ['100px', '200px', '300px'];
-			const wrapper = mount(
+	it('updates sorting props and callbacks when rerendered', async () => {
+		const initialSort = jest.fn();
+		const nextSort = jest.fn();
+		const row = (onSorting: typeof initialSort, columnIndex: number) => (
+			<table>
+				<tbody>
+					<TableRow
+						allowColumnSorting
+						onSorting={onSorting}
+						tableOrderStatus={{ columnIndex, order: SortOrder.DESC }}
+					>
+						<FakeCell />
+						<FakeCell />
+					</TableRow>
+				</tbody>
+			</table>
+		);
+		const { rerender } = render(row(initialSort, 0));
+		rerender(row(nextSort, 1));
+		expect(cellAttributes('data-sort-ordered')).toEqual([SortOrder.NO_ORDER, SortOrder.DESC]);
+		await userEvent.click(screen.getAllByRole('button', { name: 'sort' })[1]);
+		expect(nextSort).toHaveBeenCalledWith(1);
+		expect(initialSort).not.toHaveBeenCalled();
+	});
+
+	describe('colGroupWidths', () => {
+		it('should not pass colGroupWidths to children', () => {
+			renderInTable(
 				<TableRow>
 					<FakeCell />
 					<FakeCell />
 					<FakeCell />
 				</TableRow>,
-				{ attachTo: document.createElement('tbody') },
 			);
 
-			act(() => {
-				wrapper.setState({ colGroupWidths });
-			});
-
-			wrapper.find(FakeCell).forEach((node, index) => {
-				expect(node.props()).toEqual({ colGroupWidth: colGroupWidths[index] });
-			});
-		});
-
-		it('should not pass colGroupWidths to children when colGroupWidths is empty', () => {
-			const wrapper = mount(
-				<TableRow>
-					<FakeCell />
-					<FakeCell />
-					<FakeCell />
-				</TableRow>,
-				{ attachTo: document.createElement('tbody') },
-			);
-
-			act(() => {
-				wrapper.setState({ colGroupWidths: [] });
-			});
-
-			wrapper.find(FakeCell).forEach((node) => {
-				expect(node.props()).toEqual({});
-			});
-		});
-
-		it('should not pass colGroupWidths to children when colGroupWidths is undefined', () => {
-			const wrapper = mount(
-				<TableRow>
-					<FakeCell />
-					<FakeCell />
-					<FakeCell />
-				</TableRow>,
-				{ attachTo: document.createElement('tbody') },
-			);
-
-			act(() => {
-				wrapper.setState({ colGroupWidths: undefined });
-			});
-
-			wrapper.find(FakeCell).forEach((node) => {
-				expect(node.props()).toEqual({});
-			});
+			expect(cellAttributes('data-col-group-width')).toEqual([null, null, null]);
 		});
 	});
 });

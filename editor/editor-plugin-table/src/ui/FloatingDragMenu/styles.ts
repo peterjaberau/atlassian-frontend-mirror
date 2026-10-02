@@ -1,8 +1,9 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766 */
 
-import { tableBackgroundBorderColor } from '@atlaskit/adf-schema';
-import { N60A, N90 } from '@atlaskit/theme/colors';
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
+
+import { tableBackgroundBorderColor } from '@atlaskit/adf-schema/tableNodes';
 import { token } from '@atlaskit/tokens';
 
 import { TableCssClassName as ClassName } from '../../types';
@@ -13,7 +14,7 @@ import {
 	TABLE_DRAG_MENU_SORT_GROUP_HEIGHT,
 } from '../consts';
 
-export const cellColourPreviewStyles = (selectedColor: string) =>
+export const cellColourPreviewStyles = (selectedColor: string): SerializedStyles =>
 	css({
 		'&::before': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
@@ -22,18 +23,18 @@ export const cellColourPreviewStyles = (selectedColor: string) =>
 	});
 
 // eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression -- needs manual remediation
-export const dragMenuBackgroundColorStyles = () => css`
+export const dragMenuBackgroundColorStyles = (): SerializedStyles => css`
 	.${ClassName.DRAG_SUBMENU} {
 		border-radius: ${token('radius.small', '3px')};
-		background: ${token('elevation.surface.overlay', 'white')};
-		box-shadow: ${token('elevation.shadow.overlay', `0 4px 8px -2px ${N60A}, 0 0 1px ${N60A}`)};
+		background: ${token('elevation.surface.overlay')};
+		box-shadow: ${token('elevation.shadow.overlay')};
 		display: block;
 		position: absolute;
 		top: ${TABLE_DRAG_MENU_PADDING_TOP +
 		TABLE_DRAG_MENU_SORT_GROUP_HEIGHT +
 		TABLE_DRAG_MENU_MENU_GROUP_BEFORE_HEIGHT}px; /* move the submenu down when 'sort increasing/decreasing' appear before background color picker */
 		left: ${dragMenuDropdownWidth}px;
-		padding: ${token('space.100', '8px')};
+		padding: ${token('space.100')};
 
 		> div {
 			padding: 0;
@@ -54,9 +55,9 @@ export const dragMenuBackgroundColorStyles = () => css`
 
 		&::after {
 			content: '›';
-			margin-left: ${token('space.050', '4px')};
+			margin-left: ${token('space.050')};
 			line-height: 14px;
-			color: ${token('color.icon', N90)};
+			color: ${token('color.icon')};
 		}
 	}
 `;

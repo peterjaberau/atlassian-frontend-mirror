@@ -20,7 +20,7 @@ import {
 	OPERATOR_WAS_NOT,
 	OPERATOR_WAS_NOT_IN,
 } from '@atlaskit/jql-ast';
-import { type AutocompleteOptions } from '@atlaskit/jql-editor-common';
+import type { AutocompleteOptions } from '@atlaskit/jql-editor-common/autocomplete/types';
 
 // Opinionated order in which we want to render operators
 export const ORDERED_OPERATORS: string[] = [
@@ -43,7 +43,9 @@ export const ORDERED_OPERATORS: string[] = [
 	OPERATOR_CHANGED,
 ];
 
-export const sortOperators = (operators$: Observable<AutocompleteOptions>) => {
+export const sortOperators = (
+	operators$: Observable<AutocompleteOptions>,
+): Observable<AutocompleteOptions> => {
 	return operators$.pipe(
 		map((options) => {
 			return ORDERED_OPERATORS.reduce<AutocompleteOptions>((result, orderedOperator) => {

@@ -1,17 +1,17 @@
 import { Database } from 'kakapo';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuidV4 from 'uuid/v4';
+import { v4 as uuidV4 } from 'uuid';
 
-import { type ClientBasedAuth } from '@atlaskit/media-core';
+import { RECENTS_COLLECTION } from '@atlaskit/media-client/constants';
+import type { ClientBasedAuth } from '@atlaskit/media-core/auth';
 
+import { defaultCollectionName } from '../../collectionNames';
+import { defaultBaseUrl } from '../../mediaClientProvider';
+import { type MockCollections } from '../media-mock';
+import { type Chunk, createChunk } from './chunk';
 import { createCollection, type MediaCollection } from './collection';
 import { type CollectionItem, createCollectionItem } from './collection-item';
 import { createUpload, type Upload } from './upload';
-import { type Chunk, createChunk } from './chunk';
-import { defaultBaseUrl } from '../../mediaClientProvider';
-import { type MockCollections } from '../media-mock';
-import { defaultCollectionName } from '../../collectionNames';
-import { RECENTS_COLLECTION } from '@atlaskit/media-client/constants';
 
 export { createCollection } from './collection';
 export {
@@ -35,8 +35,8 @@ export const userAuth: ClientBasedAuth = {
 	baseUrl: defaultBaseUrl,
 };
 
-export const userAuthProvider = () => Promise.resolve(userAuth);
-export const tenantAuthProvider = () => Promise.resolve(tenantAuth);
+export const userAuthProvider = (): Promise<ClientBasedAuth> => Promise.resolve(userAuth);
+export const tenantAuthProvider = (): Promise<ClientBasedAuth> => Promise.resolve(tenantAuth);
 
 export type MediaDatabaseSchema = {
 	collection: MediaCollection;

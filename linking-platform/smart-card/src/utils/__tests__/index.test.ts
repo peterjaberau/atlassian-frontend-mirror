@@ -1,8 +1,22 @@
 // @ts-ignore - this is not a valid package entry point and cannot be resolved when using a modern Typescript 'moduleResolution' setting
 import { type ActiveThemeState } from '@atlaskit/tokens/src/theme-config';
 
-import { getPreviewUrlWithTheme, importWithRetry, isProfileType, openUrl } from '../index';
-import * as utils from '../index';
+import { IconType } from '../../constants';
+import { getLazyIcons } from '../get-lazy-icons';
+import {
+	getPreviewUrlWithEmbedContext,
+	getPreviewUrlWithTheme,
+} from '../get-preview-url-with-theme';
+import { importWithRetry } from '../import-with-retry';
+import { isProfileType } from '../is-profile-type';
+import { openUrl } from '../open-url';
+import * as sleepUtils from '../sleep';
+
+const mockPriorityHighIcon = jest.fn();
+
+jest.mock('../../common/ui/icons/priority-icons', () => ({
+	PriorityHighIcon: mockPriorityHighIcon,
+}));
 
 export class ChunkLoadError extends Error {
 	name = 'ChunkLoadError';
@@ -15,7 +29,7 @@ export class ChunkLoadError extends Error {
 
 describe('importWithRetry', () => {
 	// Jest has trouble handling async timeouts with fake timers
-	jest.spyOn(utils, 'sleep').mockImplementation(() => Promise.resolve());
+	jest.spyOn(sleepUtils, 'sleep').mockImplementation(() => Promise.resolve());
 
 	afterEach(() => {
 		jest.clearAllMocks();
@@ -82,6 +96,17 @@ describe('getPreviewUrlWithTheme', () => {
 			'http://some-preview-url.com/?spaceKey=something&themeState=colorMode%3Adark#link-url',
 		);
 	});
+
+	it('preserves the query string and fragment while replacing host product context', () => {
+		expect(
+			getPreviewUrlWithEmbedContext(
+				'http://some-preview-url.com?spaceKey=something&hostProduct=JIRA#link-url',
+				{
+					hostProduct: 'CONFLUENCE',
+				},
+			),
+		).toEqual('http://some-preview-url.com/?spaceKey=something&hostProduct=CONFLUENCE#link-url');
+	});
 });
 
 describe('openUrl', () => {
@@ -119,5 +144,14 @@ describe('isProfileType', () => {
 
 	it('should return true when type does contain Profile', () => {
 		expect(isProfileType(['Document', 'Object', 'Profile'])).toBe(true);
+	});
+});
+
+describe('getLazyIcons', () => {
+	it('loads priority icons from the shared lazy chunk', async () => {
+		const priorityHighLoader = getLazyIcons()[IconType.PriorityHigh]?.default;
+		const priorityHighIcon = await priorityHighLoader?.();
+
+		expect(priorityHighIcon).toEqual({ default: mockPriorityHighIcon });
 	});
 });

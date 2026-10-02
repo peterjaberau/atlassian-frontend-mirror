@@ -18,6 +18,7 @@ const helloWorldADF = {
 
 test.describe('editor: line navigation', () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx'),
 		adf: helloWorldADF,
 		editorProps: {
 			appearance: 'full-page',
@@ -40,19 +41,6 @@ test.describe('editor: line navigation', () => {
 				head: 1,
 				type: 'text',
 			});
-		});
-
-		test('should capture and report a11y violations', async ({ editor }) => {
-			// Put the selection right after the space in "Hello World!"
-			await editor.selection.set({ anchor: 7, head: 7 });
-			await editor.keyboard.press(arrowLeftShortcut);
-			await expect(editor).toHaveSelection({
-				anchor: 1,
-				head: 1,
-				type: 'text',
-			});
-
-			await expect(editor.page).toBeAccessible();
 		});
 	});
 

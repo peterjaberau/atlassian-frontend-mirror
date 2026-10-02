@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__rovo-agent-components/app",
 		"rootDir": "../",
 		"composite": true,
@@ -39,6 +38,9 @@
 			"path": "../../../design-system/dropdown-menu/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/flag/afm-products/tsconfig.json"
 		},
 		{
@@ -60,10 +62,19 @@
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../rovo-agent-analytics/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/skeleton/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/spinner/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../editor/tmp-editor-statsig/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

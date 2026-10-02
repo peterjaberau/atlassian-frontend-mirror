@@ -1,9 +1,8 @@
 import React, { Fragment, type SyntheticEvent, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Popup from '@atlaskit/popup';
+import Button from '@atlaskit/button/default/button';
+import Link from '@atlaskit/link/link';
+import { Popup } from '@atlaskit/popup/popup';
 import { token } from '@atlaskit/tokens';
 
 import { PageHeader, PageWrapper } from '../example-helpers/common';
@@ -73,17 +72,10 @@ function WithoutPlugins() {
 				</p>
 			</PageHeader>
 			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-			<div style={{ paddingBottom: token('space.250', '20px') }}>
-				{fg('dst-a11y__replace-anchor-with-link__linking-platfo') ? (
-					<Link id="test-link" href={link.url} target="_blank" onClick={handleClick}>
-						{link.displayText || link.url}
-					</Link>
-				) : (
-					// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-					<a id="test-link" href={link.url} target="_blank" onClick={handleClick}>
-						{link.displayText || link.url}
-					</a>
-				)}
+			<div style={{ paddingBottom: token('space.250') }}>
+				<Link id="test-link" href={link.url} target="_blank" onClick={handleClick}>
+					{link.displayText || link.url}
+				</Link>
 			</div>
 			{linkPickerInPopup}
 		</Fragment>

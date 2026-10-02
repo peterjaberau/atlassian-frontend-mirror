@@ -1,5 +1,1531 @@
 # @atlaskit/editor-plugin-placeholder
 
+## 23.0.0
+
+### Patch Changes
+
+- [`55e90d4321606`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/55e90d4321606) -
+  Clean up experiment platform_editor_sync_block_activation.
+- Updated dependencies
+
+## 22.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.0
+
+### Minor Changes
+
+- [`eb1c9f7924470`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb1c9f7924470) -
+  [ux] Subscribe the empty-document loading spinner to collab-edit initialization state using a
+  selector behind platform_editor_placeholder_collab_spinner so it clears when collaboration
+  initializes without requiring an unrelated editor render.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.0
+
+### Minor Changes
+
+- [`f8494a7feeab9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8494a7feeab9) -
+  Add animated full-sentence Library CTA placeholder prompts with Library-specific faster erase
+  timing, a static reduced-motion fallback, and screen-reader-safe presentation.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.39
+
+### Patch Changes
+
+- [`d9e8a63a60b63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d9e8a63a60b63) -
+  Keep the placeholder visible in empty source synced blocks for the sync block activation treatment
+  while preserving the existing placeholder behavior in the control.
+
+## 12.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.35
+
+### Patch Changes
+
+- [`67ae1e14e8090`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/67ae1e14e8090) -
+  Revert persistent placeholder decorations for empty source synced blocks while retaining the sync
+  block activation experiment setup.
+
+## 12.0.34
+
+### Patch Changes
+
+- [`c5a6973a90849`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5a6973a90849) -
+  Revert the multi-bodied extension empty frame placeholder.
+- Updated dependencies
+
+## 12.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.27
+
+### Patch Changes
+
+- [`6f1a8660863cb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6f1a8660863cb) -
+  Show placeholder text in empty multi bodied extension frames
+- Updated dependencies
+
+## 12.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.21
+
+### Patch Changes
+
+- [`12355710b809c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12355710b809c) -
+  Add the `platform_editor_sync_block_activation` boolean experiment API to
+  `@atlaskit/tmp-editor-statsig` for Confluence sync block activation checks. Consumers can gate
+  sync block activation behavior with
+  `expValEquals('platform_editor_sync_block_activation', 'isEnabled', true)`, for example to keep
+  source synced block placeholders visible only while the activation experiment is enabled.
+
+  Decoration-based placeholders now remain visible for empty source synced blocks while activation
+  is enabled.
+
+  The bodied synced block source nodeview now keeps its existing SSR streaming label-container fix
+  and only applies the non-SSR separate label container behavior when
+  `platform_synced_block_patch_14` is enabled.
+
+- Updated dependencies
+
+## 12.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- [`a8c135d0b7bfb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8c135d0b7bfb) -
+  Cleanup experiment `confluence_load_editor_title_on_transition`. The placeholder loading spinner
+  and the collab-not-ready placeholder skip during transitions are now always enabled, and the
+  experiment definition has been removed from the editor statsig config.
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- [`4c2645b77929d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c2645b77929d) -
+  [ux] EDITOR-7346 add ai and diff plugin support for panel_c1
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.5
+
+### Patch Changes
+
+- [`cd85cdec5ae7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd85cdec5ae7e) -
+  EDITOR-7170 add transform for panel -> panel_c1
+- Updated dependencies
+
+## 10.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`a94a013546f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a94a013546f69) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 10.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`e5cdd96dcf4f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5cdd96dcf4f9) -
+  Clean up platform_editor_hydratable_ui experiment (shipped as enabled)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- [`b10c935ca9497`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b10c935ca9497) -
+  Removed deprecated `browser` singleton from editor-common. This has been replaced with a
+  `getBrowserInfo` function that returns the same information. This change was made to avoid issues
+  with module loading order and to provide a more consistent API for accessing browser information.
+
+  Please update any imports of `browser` to use `getBrowserInfo` instead. For example, the following
+  imports have been removed:
+
+  ```javascript
+  import { browser } from '@atlaskit/editor-common/utils';
+  import { browser } from '@atlaskit/editor-common/browser';
+  ```
+
+  Instead, please use:
+
+  ```javascript
+  import { getBrowserInfo } from '@atlaskit/editor-common/browser';
+  ```
+
+  If you were previously using `browser.ie_version`, you would now use
+  `getBrowserInfo().ie_version`.
+
+- Updated dependencies
+
+## 8.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.20
+
+### Patch Changes
+
+- [`fa146e17e08d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa146e17e08d6) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 8.1.19
+
+### Patch Changes
+
+- [`aad55446552cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aad55446552cd) -
+  Cleaned up `platform_editor_ai_aifc_adf_placeholder` feature gate. The ADF placeholder is now
+  always used when applicable, without requiring a feature gate check. Removed unused imports and
+  dead code paths.
+- Updated dependencies
+
+## 8.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`403274e761790`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/403274e761790) -
+  Add Rovo enabled check to cwr_blank_object_experiment evaluations
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.4
+
+### Patch Changes
+
+- [`db37927f35395`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db37927f35395) -
+  Cleanup platform_editor_ai_aifc_patch_ga_blockers flag.
+- Updated dependencies
+
+## 7.4.3
+
+### Patch Changes
+
+- [`1fd2b267eb592`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1fd2b267eb592) -
+  Cleanup `platform_editor_ai_aifc_patch_ga` flag
+- Updated dependencies
+
+## 7.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.0
+
+### Minor Changes
+
+- [`a567137003ae6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a567137003ae6) -
+  Add in Create with Rovo blank object experience functionality
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`0a0a5831dfc2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a0a5831dfc2d) -
+  [ux] Adds isPlaceholderHidden param to placeholder plugin init. Removes isEmbedded option from
+  placeholder plugin, and removes cwr_blank_object_experiment editor experiment override
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.14
+
+### Patch Changes
+
+- [`6d74750cc8818`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d74750cc8818) -
+  Fix hydration error on empty pages by not rendering placeholder plugin spinner in SSR
+- Updated dependencies
+
+## 7.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.2.12
 
 ### Patch Changes

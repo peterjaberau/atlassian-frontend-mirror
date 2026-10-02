@@ -1,5 +1,2332 @@
 # @atlaskit/emoji
 
+## 72.4.34
+
+### Patch Changes
+
+- [`b94ae37dcc0f8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b94ae37dcc0f8) -
+  Cleanup `experiment` `tef_fix_a11y_keyboard_control_emoji_picker`. The emoji picker now always
+  moves initial keyboard focus to the active category instead of autofocusing the search field.
+- Updated dependencies
+
+## 72.4.33
+
+### Patch Changes
+
+- [`8883a41b1e85a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8883a41b1e85a) -
+  Remove the `platform_emoji_keep_picker_open_on_upload` gate. Keep the emoji picker open during
+  upload actions.
+- Updated dependencies
+
+## 72.4.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.13
+
+### Patch Changes
+
+- [`c03298c2e2f68`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c03298c2e2f68) -
+  Cleanup `experiment` `platform_emoji_fetch_in_effect`. `ResourcedEmoji` now always fetches its
+  emoji from a layout effect instead of during render, so only committed renders fetch and discarded
+  renders (for example a pass that suspends) no longer trigger emoji provider lookups.
+
+## 72.4.12
+
+### Patch Changes
+
+- [`8dc7c24a6415f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8dc7c24a6415f) -
+  Add gating for Canvas emojis
+- Updated dependencies
+
+## 72.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.8
+
+### Patch Changes
+
+- [`2d3ba49ee9cfc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d3ba49ee9cfc) -
+  Add platform_bitbucket_fix_shortname_and_ordering for gating user ID rollout
+- Updated dependencies
+
+## 72.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.4.0
+
+### Minor Changes
+
+- [`e909670f087d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e909670f087d4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.10
+
+### Patch Changes
+
+- [`590c70ad5d166`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/590c70ad5d166) -
+  Behind the `platform_emoji_fetch_in_effect` experiment, `ResourcedEmoji` resolves its emoji from a
+  layout effect instead of a `useMemo` that ran during render. A render React discards (for example
+  a pass that suspends) no longer creates a fetch whose promise callbacks set state and schedule
+  another render. With the experiment off the fetch still happens during render as before.
+
+## 72.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.3
+
+### Patch Changes
+
+- [`e29faa16e0c66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e29faa16e0c66) -
+  Migrate selected editor experiment reads and tooling from tmp-editor-statsig to
+  platform-feature-experiments, including static CSS, floating ToC, insert-menu AI, table overflow
+  shadows, and collapsible headings.
+- Updated dependencies
+
+## 72.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.3.0
+
+### Minor Changes
+
+- [`61008cdfc8e14`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/61008cdfc8e14) -
+  Added optional `isDecorative?: boolean` prop behind the `emoji_decorative_label` feature gate.
+  When set to `true`, the emoji is treated as a decorative image (removes its accessible label) so
+  it does not add noise for screen-reader users.
+
+## 72.2.8
+
+### Patch Changes
+
+- [`c53eca7e4a2bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c53eca7e4a2bf) -
+  Cleanup feature gate `add_emoji_media_size_to_media_file_upload_request`. Emoji media uploads now
+  always send file size information in the media file upload request.
+- [`5598b12df2212`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5598b12df2212) -
+  Add feature gate platform_teamoji_26_refresh_emoji_picker_user_id for teamoji changes - by
+  atlassianAccountId, for evaluation from non-tenanted products
+- Updated dependencies
+
+## 72.2.7
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 72.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.1.0
+
+### Minor Changes
+
+- [`67cb56528e699`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/67cb56528e699) -
+  Add emojiProviderLookupOrder as an optional override for the shortName-only emoji lookup priority
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.5
+
+### Patch Changes
+
+- [`955d1bbed0d78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/955d1bbed0d78) -
+  Cleaned up platform_index_emoji_just_in_time which has been enabled in Jira and Confluence for
+  over a year
+- Updated dependencies
+
+## 72.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.0
+
+### Major Changes
+
+- [`f48e83877558c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f48e83877558c) -
+  Apply Volt multi-export standards via `volt-migrate-package`. `@atlaskit/emoji` already resolved
+  its subpaths directly to `./src/*`, so the `exports` map is **unchanged** — all 35 public subpaths
+  keep their existing targets. What changed is the module layout: multi-export modules were split so
+  each shippable module owns a single export (around 140 new modules), with `@deprecated`
+  compatibility re-exports left behind on the original module.
+
+  ### Breaking — exports removed from two public subpaths
+
+  Most split-out symbols kept a deprecated re-export on their original module, so they remain
+  importable from the same subpath. Four did not:
+  - `@atlaskit/emoji/emoji` no longer exports **`SpriteEmoji`**, **`UnicodeEmoji`**, or
+    **`ImageEmoji`**. They now live in
+    `./src/components/common/{SpriteEmoji,UnicodeEmoji,ImageEmoji}.tsx`, which are not in the
+    `exports` map, so they are no longer reachable from the package at all. The default export
+    (`Emoji`), `Props`, and `EmojiNodeWrapper` are unaffected, and `unicodeEmojiCanvasSize` is newly
+    exported from this subpath.
+  - `@atlaskit/emoji/usage-frequency-tracker` no longer exports the **`Gateway`** class. It now
+    lives in `./src/api/internal/UsageFrequencyTracker`'s sibling `./Gateway` module, which is not
+    in the `exports` map. `UsageFrequencyTracker` itself is unaffected.
+
+  ### Everything else is import-compatible
+
+  Symbols that moved out of `EmojiPicker`, `EmojiUploader`, `EmojiTypeAheadItem`, `analytics`,
+  `EmojiUtils`, and `samplingUfo` are still re-exported from their original subpath, now marked
+  `@deprecated` with the import to use instead:
+
+  ```ts
+  // Still valid — no change required, but deprecated
+  import { emojiPickerLoader } from '@atlaskit/emoji/emoji-picker';
+  ```
+
+  Several subpaths also expose additional symbols as a result of the split — for example
+  `createEvent`, `extractCommonAttributes`, `getSkinTone`, and `skinTones` from `./analytics`, and
+  `calculateScale` and `denormaliseStandardRepresentation` from `./emoji-utils`.
+
+  ### Why this is a major
+
+  Consumers that `jest.mock()` one of these subpaths, or that relied on a module having a single
+  implementation instance, may observe changed resolution now that implementations live in their own
+  modules — in addition to the removals above.
+
+## 71.17.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.17.0
+
+### Minor Changes
+
+- [`a32f36ef87959`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a32f36ef87959) -
+  Gated behind `add_emoji_media_size_to_media_file_upload_request`, switches emoji upload to use
+  media client uploadExternal function.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.16.4
+
+### Patch Changes
+
+- [`e115e358fd590`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e115e358fd590) -
+  Retain onMouseLeave effect for updated emoji picker
+- Updated dependencies
+
+## 71.16.3
+
+### Patch Changes
+
+- [`6274e251b8398`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6274e251b8398) -
+  Clean up the `cache_emoji_loader_for_the_same_config` feature gate. `EmojiLoader` now always
+  shares a single in-flight/resolved load promise between loaders created for the same config url,
+  instead of refetching per loader.
+
+  The cache is skipped in test environments (Jest, and automated browsers such as Playwright), so it
+  cannot leak responses between test cases that share a provider url.
+
+## 71.16.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.16.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.16.0
+
+### Minor Changes
+
+- [`ef1f56f6c307e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef1f56f6c307e) -
+  Gated behind `add_emoji_media_size_to_media_file_upload_request`, emoji uploads pass file size to
+  media upload requests when enabled.
+
+## 71.15.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.13
+
+### Patch Changes
+
+- [`d95e6444df894`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d95e6444df894) -
+  Cleanup feature gate `platform_a11y_fixes_reaction_emoji`
+- Updated dependencies
+
+## 71.15.12
+
+### Patch Changes
+
+- [`2b6d25f854593`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2b6d25f854593) -
+  Remove legacy ReactDOM.render/hydrate/unmountComponentAtNode usage from non-production code
+  (tests, demo entries, VR fixtures) as part of the React 19 migration
+- Updated dependencies
+
+## 71.15.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.9
+
+### Patch Changes
+
+- [`8442d3ac8c58b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8442d3ac8c58b) -
+  Migrate ReactDOM.render/unmountComponentAtNode in Popup to createRoot/root.unmount() behind the
+  nike_r19_render_unmount feature gate, as part of the React 19 migration
+- Updated dependencies
+
+## 71.15.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.3
+
+### Patch Changes
+
+- [`4cdc1e5d68e9e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4cdc1e5d68e9e) -
+  Clean up platform_emoji_a11y_category_heading feature gate.
+- Updated dependencies
+
+## 71.15.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.15.1
+
+### Patch Changes
+
+- [`dd9429468d1d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dd9429468d1d0) -
+  Clean up platform_emoji_grid_presentation FG
+
+## 71.15.0
+
+### Minor Changes
+
+- [`7d37c14edffa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d37c14edffa7) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- [`22c03f298a7de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22c03f298a7de) -
+  Add an optional promise cache to `EmojiLoader`, keyed by the request URL, so that loaders created
+  for the same provider config reuse a single in-flight/resolved request instead of refetching.
+  Gated behind the `cache_emoji_loader_for_the_same_config` feature flag; behaviour is unchanged
+  when the flag is off.
+
+## 71.14.0
+
+### Minor Changes
+
+- [`a86fac88f3a5e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a86fac88f3a5e) -
+  Use lazy-loaded VanillaTooltip for emoji tooltips in the editor and render an ADS Tooltip
+  positioned above the emoji in the emoji element, gated behind the
+  platform_editor_emoji_hover_show_tooltip experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.13.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.13.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.13.1
+
+### Patch Changes
+
+- [`6177789741cb4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6177789741cb4) -
+  Correct emoji picker initial focus
+
+## 71.13.0
+
+### Minor Changes
+
+- [`5228612e884f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5228612e884f4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 71.12.0
+
+### Minor Changes
+
+- [`d68d46361e5c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d68d46361e5c5) -
+  Send the new `emoji` image generation theme to the Confluence header image backend for Create
+  emoji with Rovo instead of prepending emoji-style instructions to the prompt.
+
+## 71.11.3
+
+### Patch Changes
+
+- [`22bc749d89dc9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bc749d89dc9) -
+  Clean up platform_change_emoji_button_label FG and avoid unsupported ARIA attributes on editor
+  emoji nodes Stabilize renderer integration tests for smart cards, heading anchors, and table
+  triple-click selection
+
+## 71.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.11.1
+
+### Patch Changes
+
+- [`79c6e92d799d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79c6e92d799d3) -
+  [ux] A11Y-31084: Expose the emoji picker grid as an accessible list
+
+  Behind the `platform_a11y_fixes_emoji_picker_list` experiment, the emoji picker's scrollable grid
+  is exposed to assistive technology as a single list: the scroll container becomes `role="list"`
+  and each emoji is a `role="listitem"` (`<li>`), so screen readers announce the list and its items
+  instead of a grid. The virtualizer is left intact. Also registers the experiment in the editor
+  experiments config so it can be resolved via `expValEqualsNoExposure`.
+
+- Updated dependencies
+
+## 71.11.0
+
+### Minor Changes
+
+- [`30f196e640e18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30f196e640e18) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.10.0
+
+### Minor Changes
+
+- [`7da4b354a3633`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7da4b354a3633) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 71.9.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.9.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.9.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.9.8
+
+### Patch Changes
+
+- [`2ec64503b032d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ec64503b032d) -
+  Add teamoji parameter when fetching Atlassian emoji metadata
+- Updated dependencies
+
+## 71.9.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.9.5
+
+### Patch Changes
+
+- [`0660101e568e0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0660101e568e0) -
+  [ux] Use Twemoji for regional indicators.
+
+## 71.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.9.2
+
+### Patch Changes
+
+- [`7c2b0276e2e68`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7c2b0276e2e68) -
+  Render custom emojis with empty IDs using tokenized media URLs
+- Updated dependencies
+
+## 71.9.1
+
+### Patch Changes
+
+- [`e34ab4888aee6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e34ab4888aee6) -
+  Update the emoji picker virtual list scroll container role to presentation.
+- Updated dependencies
+
+## 71.9.0
+
+### Minor Changes
+
+- [`607477c5d6aae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/607477c5d6aae) -
+  EDITOR-7032 Remove the implementation of using VanillaTooltip for emoji tooltips
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.8.0
+
+### Minor Changes
+
+- [`4b929c7feb46b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b929c7feb46b) -
+  Add support for ignoring the emoji SSR wrapper when rendering resourced emojis.
+
+## 71.7.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.7.8
+
+### Patch Changes
+
+- [`ca797600724c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca797600724c6) -
+  Increase emoji picker height when dropzone (preview) upload errors are shown
+- Updated dependencies
+
+## 71.7.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.7.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.7.5
+
+### Patch Changes
+
+- [`2e769066c051f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e769066c051f) -
+  Stop propagation to stop Add emoji click closing picker
+- [`400e0ad47f25f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/400e0ad47f25f) -
+  Do not close picker on cancel/delete emoji in post update
+- Updated dependencies
+
+## 71.7.4
+
+### Patch Changes
+
+- [`eaa674ef4c640`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eaa674ef4c640) -
+  The popup for productivity color picker should render relative to, and move with picker
+- Updated dependencies
+
+## 71.7.3
+
+### Patch Changes
+
+- [`f294eca9448a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f294eca9448a6) -
+  If emoji upload is disabled, retain previously selected emoji in preview
+
+## 71.7.2
+
+### Patch Changes
+
+- [`209d9185455f8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/209d9185455f8) -
+  Ensure Atlassian emoji category lookups include new backend metadata format
+- Updated dependencies
+
+## 71.7.1
+
+### Patch Changes
+
+- [`b50b33c7445ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b50b33c7445ff) -
+  Cleanup feature gate `increase-emoji-client-upload-timeout`. The emoji client upload timeout is
+  now permanently set to 30 seconds.
+- Updated dependencies
+
+## 71.7.0
+
+### Minor Changes
+
+- [`cdddb84518902`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cdddb84518902) -
+  Add a "Create an emoji with Rovo" section to the emoji picker's "Add your own emoji" flow, behind
+  the `confluence_ai_generated_emojis` experiment.
+
+  When enabled (and a page `contentId` is supplied), a description input + generate button appear
+  above the Emoji name field. Generating produces an emoji-style image via the Confluence header
+  image backend (Gemini 2.5 Flash Image, 1:1 aspect ratio). The generated image flows into the
+  existing upload form — reusing the same preview, Emoji name field (auto-populated with a slugified
+  shortname) and "Add emoji" button — and is uploaded through the existing `SiteEmojiResource` path.
+  - New optional `EmojiPicker` `contentId` prop threads the current page content id down to enable
+    the AI section.
+  - New analytics events for AI emoji generation (started/completed/failed).
+  - Register the `confluence_ai_generated_emojis` experiment in `@atlaskit/tmp-editor-statsig` so it
+    can be checked via `expValEquals`.
+
+  When the experiment is off (or no `contentId` is supplied), only the existing manual upload flow
+  is shown.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.6.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.6.3
+
+### Patch Changes
+
+- [`25f3fd2950876`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25f3fd2950876) -
+  Position emoji popups correctly when the page is scrolled
+- Updated dependencies
+
+## 71.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.6.1
+
+### Patch Changes
+
+- [`ad79f1670a54c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ad79f1670a54c) -
+  Persist productivity emoji colour selection
+- [`85dc85818cf2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85dc85818cf2d) -
+  Use empty refresh emoji picker footer space for the scrollable emoji list
+- Updated dependencies
+
+## 71.6.0
+
+### Minor Changes
+
+- [`6d48bbf99477b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d48bbf99477b) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 71.5.5
+
+### Patch Changes
+
+- [`1388b698b0ad1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1388b698b0ad1) -
+  Add a public entry point for rendering unicode emoji to image URLs.
+
+## 71.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.5.3
+
+### Patch Changes
+
+- [`2b14e887d34d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2b14e887d34d1) -
+  Do not collapse emoji picker on color selected
+
+## 71.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.5.1
+
+### Patch Changes
+
+- [`488ec8f5b8696`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/488ec8f5b8696) -
+  Show the productivity emoji colour picker around productivity-related Atlassian subcategories
+- Updated dependencies
+
+## 71.5.0
+
+### Minor Changes
+
+- [`14bcafd107387`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14bcafd107387) -
+  Breaking backend changes to metadata needs category guard
+
+## 71.4.7
+
+### Patch Changes
+
+- [`4befa130b45ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4befa130b45ff) -
+  Read refresh emoji picker experiment values directly through FeatureGates.
+
+## 71.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.4.5
+
+### Patch Changes
+
+- [`3d5270635bf55`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d5270635bf55) -
+  Select color should not close picker on some pages
+- [`4cb7dec82c494`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4cb7dec82c494) -
+  Place emoji tooltip above the emoji renderer by setting position to top
+- Updated dependencies
+
+## 71.4.4
+
+### Patch Changes
+
+- [`e3db0f49354a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3db0f49354a5) -
+  Use Twemoji for flag emoji and apply Unicode 14 emoji presentation selectors for native emoji
+  rendering.
+- [`ff291d024e356`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff291d024e356) -
+  EDITOR-7032 Show emoji shortName (with fallback to name) in tooltip on hover renderer
+- Updated dependencies
+
+## 71.4.3
+
+### Patch Changes
+
+- [`af94e11b48eff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/af94e11b48eff) -
+  Use expval for evaluating experiment
+- Updated dependencies
+
+## 71.4.2
+
+### Patch Changes
+
+- [`05b9f7b19ddba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/05b9f7b19ddba) -
+  Use the platform_use_unicode_emojis experiment for native Unicode emoji rendering.
+- Updated dependencies
+
+## 71.4.1
+
+### Patch Changes
+
+- [`9a7ca4cefe634`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a7ca4cefe634) -
+  Use the platform_use_unicode_emojis experiment for native Unicode emoji rendering.
+- [`2a3076a890d07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a3076a890d07) -
+  Fix unicode emoji image rendering so generated unicode images do not fall back to alt image
+  representations at large sizes.
+- Updated dependencies
+
+## 71.4.0
+
+### Minor Changes
+
+- [`404be770a2ccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/404be770a2ccf) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- [`9e5de3ca1a915`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e5de3ca1a915) -
+  Increase z-index of the popup for color picker
+- [`2690a770de7bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2690a770de7bf) -
+  Do not focus the added emoji after uploading new emoji
+- Updated dependencies
+
+## 71.3.3
+
+### Patch Changes
+
+- [`65b9427ab9649`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/65b9427ab9649) -
+  Increase border radius of tone picker to match search input
+
+## 71.3.2
+
+### Patch Changes
+
+- [`7e7dc2539db50`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7e7dc2539db50) -
+  Persist colour choice + do not have focus on button after select, do not have focus on selected
+  colour
+- Updated dependencies
+
+## 71.3.1
+
+### Patch Changes
+
+- [`26dff0be3275b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/26dff0be3275b) -
+  Search for Atlassian emojis based on keywords
+
+## 71.3.0
+
+### Minor Changes
+
+- [`e0513f0b5178e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0513f0b5178e) -
+  Drag and drop will still work with native file explorer overlap
+
+## 71.2.2
+
+### Patch Changes
+
+- [`deb7c88f3baed`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/deb7c88f3baed) -
+  Update unicode emoji sizing so renderer typography can control text emoji scale.
+- Updated dependencies
+
+## 71.2.1
+
+### Patch Changes
+
+- [`6fbfacbeddc94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6fbfacbeddc94) -
+  Ensure scroll to Your uploads on clicking uploads category
+- Updated dependencies
+
+## 71.2.0
+
+### Minor Changes
+
+- [`5bf738fb98422`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bf738fb98422) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- [`0d9015ca0190a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d9015ca0190a) -
+  When uploading file for emoji use the filename by default if name is empty
+- Updated dependencies
+
+## 71.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.1.0
+
+### Minor Changes
+
+- [`1abdd6ae1f4aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1abdd6ae1f4aa) -
+  Add renderUnicodeEmojiAsImage prop to render unicode emojis as images via OffscreenCanvas, with
+  override to text as alternative
+
+## 71.0.1
+
+### Patch Changes
+
+- [`371b9fd7ee6fb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/371b9fd7ee6fb) -
+  Colour instead of skin tone picker when it is Atlassian emojis
+- Updated dependencies
+
+## 71.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.17.1
+
+### Patch Changes
+
+- [`0f549097540b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f549097540b7) -
+  Fix Unicode emoji rendering for standard emoji skin tone variations.
+
+## 70.17.0
+
+### Minor Changes
+
+- [`074057d77ce64`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/074057d77ce64) -
+  Display Atlassian emoji subcategories
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 70.16.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.16.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.16.4
+
+### Patch Changes
+
+- [`e0b7a42f5faaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0b7a42f5faaa) -
+  Round picker top corners.
+- Updated dependencies
+
+## 70.16.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.16.2
+
+### Patch Changes
+
+- [`3480b659bfe0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3480b659bfe0a) -
+  CEPS-7849: Add the Atlassian icon to emoji picker categories.
+
+## 70.16.1
+
+### Patch Changes
+
+- [`0cc0348368042`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0cc0348368042) -
+  Update Atlassian emoji types to include color, color group data, subcategories + hidden properties
+
+## 70.16.0
+
+### Minor Changes
+
+- [`7632f5a6d78a3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7632f5a6d78a3) -
+  [ux] Adds automatically generated emojis to the Create with Rovo flow. These are based on the
+  user's CWR content.
+
+## 70.15.3
+
+### Patch Changes
+
+- [`53b0462fc49f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/53b0462fc49f7) -
+  Swap FG usage to an experiment
+
+## 70.15.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.15.1
+
+### Patch Changes
+
+- [`9cf3c68ce80d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9cf3c68ce80d0) -
+  Clean up platform_no_noninteractive_emojis_reactions FG
+- Updated dependencies
+
+## 70.15.0
+
+### Minor Changes
+
+- [`d35341f95a68e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d35341f95a68e) -
+  The label for the change emoji button includes emoji shortname
+
+## 70.14.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.14.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.14.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.14.0
+
+### Minor Changes
+
+- [`a7e9e78cab75f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7e9e78cab75f) -
+  Prevent native page file drops behind the emoji upload chooser
+- [`6dbd7e73b32c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6dbd7e73b32c7) -
+  Update empty state for search results in emoji picker
+
+## 70.13.0
+
+### Minor Changes
+
+- [`81637ec91afd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81637ec91afd1) -
+  Represent standard emojis as native Unicode characters instead of images. Updates
+  EmojiNodeDataProvider to support Unicode representations.
+
+## 70.12.0
+
+### Minor Changes
+
+- [`5048d8b2e4dea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5048d8b2e4dea) -
+  Revert emoji empty state changes due to resolution issues
+
+## 70.11.2
+
+### Patch Changes
+
+- [`73c9a0824c93e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73c9a0824c93e) -
+  Add a new empty state for no results in emoji picker
+
+## 70.11.1
+
+### Patch Changes
+
+- [`f9457ee7bd8fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9457ee7bd8fc) -
+  Add file type validation to emoji picker.
+- Updated dependencies
+
+## 70.11.0
+
+### Minor Changes
+
+- [`447e1bfc88d10`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/447e1bfc88d10) -
+  Add UnicodeEmoji component for rendering emojis using Unicode representation. Update
+  EmojiNodeWrapper to support unicode type. Add fitToHeight support to EmojiPreviewComponent,
+  EmojiRadioButton, TonePreviewButton, and EmojiPickerEmojiRow.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.10.14
+
+### Patch Changes
+
+- [`634702b5ec206`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/634702b5ec206) -
+  Fix missing unorder list mark-up
+
+## 70.10.13
+
+### Patch Changes
+
+- [`87d80420e93ce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87d80420e93ce) -
+  Update the emoji delete button icon styling.
+- Updated dependencies
+
+## 70.10.12
+
+### Patch Changes
+
+- [`93fae868945b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93fae868945b0) -
+  Fix accessibility - inaccessible skin tones from keyboard navigation
+- Updated dependencies
+
+## 70.10.11
+
+### Patch Changes
+
+- [`2a75c1be2244e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a75c1be2244e) -
+  Removed usage of @atlaskit/elements-test-helpers from tests
+- Updated dependencies
+
+## 70.10.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.10.9
+
+### Patch Changes
+
+- [`d4f4c5fc7110e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4f4c5fc7110e) -
+  Do not announce layout table for screen reader in emoji picker dialog
+- Updated dependencies
+
+## 70.10.8
+
+### Patch Changes
+
+- [`13de78223addf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/13de78223addf) -
+  Add a feature-gated fix to keep the emoji picker open when opening custom emoji upload from picker
+  actions.
+
+## 70.10.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.10.6
+
+### Patch Changes
+
+- [`95ba1db6aa5f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95ba1db6aa5f7) -
+  Use findByEmojiId with retry for shortName-only lookups and render native unicode characters for
+  STANDARD emojis behind platform_twemoji_removal_unicode_emojis feature gate
+- Updated dependencies
+
+## 70.10.5
+
+### Patch Changes
+
+- [`1bfdb5118d1c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bfdb5118d1c7) -
+  Delete emoji screen fix scroll component at bottom
+- Updated dependencies
+
+## 70.10.4
+
+### Patch Changes
+
+- [`c5b9254ad3e07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5b9254ad3e07) -
+  The upload emoji picker copy is updated to reflect new drag and drop functionality
+- Updated dependencies
+
+## 70.10.3
+
+### Patch Changes
+
+- [`3bdfab536342f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3bdfab536342f) -
+  Updated the delete emoji screen to match the upload emoji screen
+- Updated dependencies
+
+## 70.10.2
+
+### Patch Changes
+
+- [`0ad23a9827f5d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0ad23a9827f5d) -
+  Updated the delete emoji screen to match the upload emoji screen
+
+## 70.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.10.0
+
+### Minor Changes
+
+- [`80d8df1d8b42a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/80d8df1d8b42a) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.9.2
+
+### Patch Changes
+
+- [`272f9e5d477db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/272f9e5d477db) -
+  Fix accessibility: render emoji picker category headings (e.g. "Search results") as semantic
+  `<h2>` elements instead of `<div>` elements, so screen reader users can navigate and understand
+  the picker's content structure (WCAG 1.3.1, 2.4.6).
+- [`50bf488a08bf3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50bf488a08bf3) -
+  Drag and drop for emoji upload will disable drag and drop on page content
+- Updated dependencies
+
+## 70.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.9.0
+
+### Minor Changes
+
+- [`54ec962646a89`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/54ec962646a89) -
+  Close upload emoji on category selected + hide selected category on upload emoji open
+
+## 70.8.0
+
+### Minor Changes
+
+- [`7bcc8a1cb49b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7bcc8a1cb49b5) -
+  Add unicode + emoji utilities
+
+## 70.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.7.1
+
+### Patch Changes
+
+- [`bb3fe71598a5f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb3fe71598a5f) -
+  migrate emoji styles from emotion to compiled
+- Updated dependencies
+
+## 70.7.0
+
+### Minor Changes
+
+- [`084c9f4eca75d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/084c9f4eca75d) -
+  Updated error states + new error state for adding duplicate emoji name
+
+### Patch Changes
+
+- [`8d79e063b3073`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d79e063b3073) -
+  update stargate routing for emoji routes
+- Updated dependencies
+
+## 70.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.6.0
+
+### Minor Changes
+
+- [`0ed6bb96033a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0ed6bb96033a5) -
+  Updated emoji upload experience - add dropzone for upload, full screen, updated user flow
+
+## 70.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.5.1
+
+### Patch Changes
+
+- [`26c5d3ffcad6a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/26c5d3ffcad6a) -
+  Update copy on Add Emoji button + icon
+- Updated dependencies
+
+## 70.5.0
+
+### Minor Changes
+
+- [`148bfe97e9f62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/148bfe97e9f62) -
+  Teamoji emoji picker design refresh (final)
+
+## 70.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.4.1
+
+### Patch Changes
+
+- [`c4804f9e7bdaf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4804f9e7bdaf) -
+  Update add emoji icon to use add emoji icon
+- Updated dependencies
+
+## 70.4.0
+
+### Minor Changes
+
+- [`f715c95dbc725`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f715c95dbc725) -
+  Update the emoji category picker for new styling
+
+## 70.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.3.1
+
+### Patch Changes
+
+- [`79ba3fc378726`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79ba3fc378726) -
+  A11y fixes
+- Updated dependencies
+
+## 70.3.0
+
+### Minor Changes
+
+- [`77a59d5fe3db0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77a59d5fe3db0) -
+  Add `getCachedEmojiType` optional method to `EmojiProvider` interface and implement it in
+  `EmojiResource` as a synchronous cache read (no network requests). Add `emojiIdToEmoji` shared
+  utility for converting hyphen-separated hex emoji IDs to Unicode strings (handles ZWJ sequences,
+  skin tone modifiers, flag sequences, keycap sequences, and variation selectors). Register
+  `platform_twemoji_removal_unicode_emojis` feature flag.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.2.1
+
+### Patch Changes
+
+- [`245a43ebad095`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/245a43ebad095) -
+  [EDITOR-4550] prevent inline emojis inside smart links from scaling with fontsize
+- Updated dependencies
+
+## 70.2.0
+
+### Minor Changes
+
+- [`cf3379a558a4e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf3379a558a4e) -
+  Increase emoji upload timeout from 12 to 30 seconds
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.1.0
+
+### Minor Changes
+
+- [`9e5079cbca371`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e5079cbca371) -
+  Fix accessibility issues image-alt, role-img-alt
+
+## 70.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 70.0.0
+
+### Major Changes
+
+- [`deb3d6a6498e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/deb3d6a6498e8) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 69.12.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.12.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.12.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.12.3
+
+### Patch Changes
+
+- [`dcc5e79fd2f9d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dcc5e79fd2f9d) -
+  Add platform_emoji_prevent_img_src_changing_all feature flag to prevent catalogue-arrival image
+  swap for all surfaces that provide optimisticImageURL, independently of the existing
+  platform_emoji_prevent_img_src_changing flag
+
+## 69.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.12.0
+
+### Minor Changes
+
+- [`084196ae38ba0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/084196ae38ba0) -
+  Fix noninteractive element interactions in emoji picker
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.11.0
+
+### Minor Changes
+
+- [`adc71fefc3966`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/adc71fefc3966) -
+  The emoji change button used in page title should have an accessible label
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.48
+
+### Patch Changes
+
+- [`608c375f6f9b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/608c375f6f9b9) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 69.10.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.46
+
+### Patch Changes
+
+- [`a592557c4d6a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a592557c4d6a1) -
+  [ux] A11y Updates
+- Updated dependencies
+
+## 69.10.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.37
+
+### Patch Changes
+
+- [`da938a43a7aac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da938a43a7aac) -
+  Clean up feature gate platform_emoji_ssr_width_auto_allowed, permanently enabling auto width
+  during SSR
+- Updated dependencies
+
+## 69.10.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.32
+
+### Patch Changes
+
+- [`cca57049325b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cca57049325b8) -
+  Static elements should not be interactable, or be non-static
+
+## 69.10.31
+
+### Patch Changes
+
+- [`5e648de49f54d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e648de49f54d) -
+  All mouse events must also have key events for accessibility
+
+## 69.10.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.26
+
+### Patch Changes
+
+- [`6d87d08be8526`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d87d08be8526) -
+  Add dependency for a11y testing.
+
+## 69.10.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.20
+
+### Patch Changes
+
+- [`de02dc0a51052`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/de02dc0a51052) -
+  [ux] [EDITOR-4986] change default emoji size to XXXHDPI
+- Updated dependencies
+
+## 69.10.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 69.10.14
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 69.10.13
 
 ### Patch Changes

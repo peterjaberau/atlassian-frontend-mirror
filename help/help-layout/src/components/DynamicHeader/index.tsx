@@ -3,22 +3,24 @@
  * @jsx jsx
  */
 
-import Heading from '@atlaskit/heading';
-import CloseButton from '../Header/CloseButton';
-import { Flex, Inline } from '@atlaskit/primitives/compiled';
-import { type HeaderContent } from '../../model/HelpLayout';
 import { cssMap, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { IconButton } from '@atlaskit/button/new';
-import { NewChatButton } from './NewChatButton';
+
+import IconButton from '@atlaskit/button/icon/button';
+import Heading from '@atlaskit/heading/heading';
 import ChevronLeftLargeIcon from '@atlaskit/icon/core/chevron-left';
+import { Flex, Inline } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
+import { type HeaderContent } from '../../model/HelpLayout';
+import CloseButton from '../Header/CloseButton';
+import { NewChatButton } from './NewChatButton';
 
 const styles = cssMap({
 	container: {
-		paddingTop: token('space.200', '16px'),
-		paddingRight: token('space.200', '16px'),
-		paddingBottom: token('space.200', '16px'),
-		paddingLeft: token('space.200', '16px'),
+		paddingTop: token('space.200'),
+		paddingRight: token('space.200'),
+		paddingBottom: token('space.200'),
+		paddingLeft: token('space.200'),
 		alignItems: 'center',
 	},
 });

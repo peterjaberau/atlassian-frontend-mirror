@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/css-reset",
-	"version": "7.3.12",
+	"version": "8.4.6",
 	"description": "A base stylesheet for the Atlassian Design System.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -21,70 +21,44 @@
 		}
 	},
 	"scripts": {
-		"ak-postbuild": "mkdir -p dist && cp src/bundle.css dist/bundle.css && ABS_PATH=$(pwd) && ln -sf $ABS_PATH/dist/bundle.css dist/cjs/bundle.css && ln -sf $ABS_PATH/dist/bundle.css dist/esm/bundle.css && ln -sf $ABS_PATH/dist/bundle.css dist/es2019/bundle.css",
+		"ak-postbuild": "mkdir -p dist && cp src/bundle.css dist/bundle.css && cp src/scrollbars.css dist/scrollbars.css && ABS_PATH=$(pwd) && ln -sf $ABS_PATH/dist/bundle.css dist/cjs/bundle.css && ln -sf $ABS_PATH/dist/bundle.css dist/esm/bundle.css && ln -sf $ABS_PATH/dist/bundle.css dist/es2019/bundle.css && cp $ABS_PATH/dist/scrollbars.css $ABS_PATH/dist/cjs/scrollbars.css && cp $ABS_PATH/dist/scrollbars.css $ABS_PATH/dist/esm/scrollbars.css && cp $ABS_PATH/dist/scrollbars.css $ABS_PATH/dist/es2019/scrollbars.css",
 		"build-css": "run-ts build/js-to-css.tsx"
 	},
 	"dependencies": {
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/formatting": "workspace:^",
+		"@af/root-path": "workspace:^",
 		"@af/visual-regression": "workspace:^",
 		"@atlaskit/docs": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
 		"@atlassian/ts-loader": "workspace:^",
-		"mkdirp": "root:*"
+		"@atlassian/workbench": "workspace:*",
+		"mkdirp": "root:*",
+		"react": "^19.0.0"
 	},
 	"keywords": [
 		"atlaskit",
 		"css",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"design-system": "v1",
-			"ui-components": "lite-mode",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion"
-			]
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
 		".": "./src/index.tsx",
 		"./styles": "./src/index.tsx",
 		"./base": "./src/base.tsx",
 		"./browser-fixes": "./src/browser-fixes.tsx",
 		"./bundle.css": "./src/bundle.css",
+		"./scrollbars.css": "./src/scrollbars.css",
 		"./reset": "./src/reset.tsx",
 		"./tables": "./src/tables.tsx",
 		"./utils": "./src/utils.tsx"
 	},
 	"homepage": "https://atlassian.design/components/css-reset",
-	"platform-feature-flags": {
-		"dst-a11y__replace-anchor-with-link__design-system-": {
-			"type": "boolean"
-		}
-	}
+	"platform-feature-flags": {}
 }

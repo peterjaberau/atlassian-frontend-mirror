@@ -1,8 +1,10 @@
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
 import { blockControlsMessages as messages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import { VanillaTooltip } from '@atlaskit/editor-common/vanilla-tooltip';
+import type { ViewMode } from '@atlaskit/editor-plugin-editor-viewmode';
 import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
 import type { DOMOutputSpec } from '@atlaskit/editor-prosemirror/model';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
@@ -18,10 +20,8 @@ import {
 	isSelectionInNode,
 } from '../ui/utils/document-checks';
 import { createNewLine } from '../ui/utils/editor-commands';
-
 import { calculatePosition } from './quick-insert-calculate-position';
-import { type AnchorRectCache } from './utils/anchor-utils';
-import { VanillaTooltip } from './vanilla-tooltip';
+import type { AnchorRectCache } from './utils/anchor-utils';
 
 type VanillaQuickInsertProps = {
 	anchorName: string;
@@ -103,10 +103,13 @@ export const createVanillaButton = (props: VanillaQuickInsertProps): Node => {
 		if (button instanceof HTMLButtonElement) {
 			button.onclick = () => handleQuickInsert(props);
 
+			// Flag-on (platform-dst-top-layer), positioning is async via a React root;
+			// safe here as VanillaTooltip stays hidden until positioned.
 			const tooltip = new VanillaTooltip(
 				button,
 				props.formatMessage(messages.insert),
 				'quick-insert-button-tooltip',
+				'blocks-quick-insert-tooltip',
 			);
 			props.cleanupCallbacks.push(() => {
 				tooltip.destroy();
@@ -117,12 +120,22 @@ export const createVanillaButton = (props: VanillaQuickInsertProps): Node => {
 	// Dynamically control the visibility of the node
 	let isTypeAheadOpen = props.api.typeAhead?.sharedState.currentState()?.isOpen;
 	let isEditing = props.api.blockControls?.sharedState.currentState()?.isEditing;
+	let hoverSide = props.api.blockControls?.sharedState.currentState()?.hoverSide;
+	let rightSideControlsEnabled =
+		props.api.blockControls?.sharedState.currentState()?.rightSideControlsEnabled ?? false;
+	let editorViewMode: ViewMode | undefined =
+		props.api.editorViewMode?.sharedState.currentState()?.mode;
 
 	const changeDOMVisibility = () => {
 		if (!(dom instanceof HTMLElement)) {
 			return;
 		}
-		if (isTypeAheadOpen || isEditing) {
+		const isViewMode = editorViewMode === 'view';
+		const shouldRestrictBySide = rightSideControlsEnabled && !isViewMode;
+		// Only restrict by side when hoverSide is known. When undefined, show quick insert.
+		const sideHidden =
+			shouldRestrictBySide && hoverSide !== undefined ? hoverSide !== 'left' : false;
+		if (isTypeAheadOpen || isEditing || sideHidden) {
 			dom.classList.add('blocks-quick-insert-invisible-container');
 			dom.classList.remove('blocks-quick-insert-visible-container');
 		} else {
@@ -141,9 +154,23 @@ export const createVanillaButton = (props: VanillaQuickInsertProps): Node => {
 	props.cleanupCallbacks.push(
 		props.api.blockControls?.sharedState.onChange(({ nextSharedState }) => {
 			isEditing = nextSharedState?.isEditing;
+			hoverSide = nextSharedState?.hoverSide;
+			rightSideControlsEnabled = nextSharedState?.rightSideControlsEnabled ?? false;
 			changeDOMVisibility();
 		}),
 	);
+	// Only subscribe to view mode when right-side controls are enabled (editorViewMode affects side restriction)
+	if (rightSideControlsEnabled) {
+		const unsubscribeViewMode = props.api.editorViewMode?.sharedState.onChange?.(
+			({ nextSharedState }) => {
+				editorViewMode = nextSharedState?.mode as ViewMode | undefined;
+				changeDOMVisibility();
+			},
+		);
+		if (unsubscribeViewMode) {
+			props.cleanupCallbacks.push(unsubscribeViewMode);
+		}
+	}
 	return dom;
 };
 

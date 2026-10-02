@@ -1,27 +1,53 @@
-import type { EditorAnalyticsAPI, INPUT_METHOD } from '@atlaskit/editor-common/analytics';
+import type { Valign } from '@atlaskit/adf-schema/valign';
+import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
+	INPUT_METHOD,
 	LAYOUT_TYPE,
 } from '@atlaskit/editor-common/analytics';
 import { withAnalytics } from '@atlaskit/editor-common/editor-analytics';
-import type { Command, TOOLBAR_MENU_TYPE } from '@atlaskit/editor-common/types';
+import type {
+	Command,
+	EditorCommand,
+	ExtractInjectionAPI,
+	TOOLBAR_MENU_TYPE,
+} from '@atlaskit/editor-common/types';
 import { flatmap, getStepRange, isEmptyDocument, mapChildren } from '@atlaskit/editor-common/utils';
 import type { Node, Schema } from '@atlaskit/editor-prosemirror/model';
 import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
-import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Selection, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
+import { Mapping, StepMap } from '@atlaskit/editor-prosemirror/transform';
 import { safeInsert } from '@atlaskit/editor-prosemirror/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
+import type { LayoutPlugin } from '../layoutPluginType';
 import type { Change, PresetLayout } from '../types';
-
-import { EVEN_DISTRIBUTED_COL_WIDTHS } from './consts';
+import {
+	DEFAULT_LAYOUT_COLUMN_VALIGN,
+	EVEN_DISTRIBUTED_COL_WIDTHS,
+	MAX_LAYOUT_COLUMNS,
+	MAX_STANDARD_LAYOUT_COLUMNS,
+	MIN_LAYOUT_COLUMN_WIDTH_PERCENT,
+} from './consts';
 import { pluginKey } from './plugin-key';
 import type { LayoutState } from './types';
+import {
+	calculateDistribution,
+	isDistributedUniformly,
+	redistributeAfterDeletion,
+	redistributeProportionally,
+} from './utils/layout-column-distribution';
+import {
+	getAllLayoutColumnsFromSelection,
+	getLayoutColumnsFromContentSelection,
+	getLayoutColumnValign,
+	getSelectedLayoutColumnsFromSelection,
+} from './utils/layout-column-selection';
 
 export const ONE_COL_LAYOUTS: PresetLayout[] = ['single'];
 export const TWO_COL_LAYOUTS: PresetLayout[] = [
@@ -195,9 +221,14 @@ export const insertLayoutColumns: Command = (state, dispatch) => {
 	return true;
 };
 
+export type InsertLayoutColumnsInputMethod =
+	| TOOLBAR_MENU_TYPE
+	| INPUT_METHOD.QUICK_INSERT
+	| INPUT_METHOD.ELEMENT_BROWSER;
+
 export const insertLayoutColumnsWithAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
-	(inputMethod: TOOLBAR_MENU_TYPE): Command =>
+	(inputMethod: InsertLayoutColumnsInputMethod): Command =>
 		withAnalytics(editorAnalyticsAPI, {
 			action: ACTION.INSERTED,
 			actionSubject: ACTION_SUBJECT.DOCUMENT,
@@ -400,6 +431,10 @@ function forceColumnWidths(
 	);
 }
 
+/**
+ * Forces a layout section node to match the given preset layout by adjusting
+ * its column structure and widths, then restoring the original selection.
+ */
 export function forceSectionToPresetLayout(
 	state: EditorState,
 	node: Node,
@@ -469,7 +504,8 @@ export const setPresetLayout =
 
 function layoutNeedChanges(node: Node): boolean {
 	if (editorExperiment('advanced_layouts', true)) {
-		return !getPresetLayout(node) || !isValidLayoutWidthDistributions(node);
+		// Custom widths that sum to 100% are valid and should not be forced back to presets.
+		return !isValidLayoutWidthDistributions(node);
 	}
 
 	return !getPresetLayout(node);
@@ -522,7 +558,7 @@ function getLayoutChange(node: Node, pos: number, schema: Schema): Change | unde
 	}
 }
 
-export const fixColumnSizes = (changedTr: Transaction, state: EditorState) => {
+export const fixColumnSizes = (changedTr: Transaction, state: EditorState): Change | undefined => {
 	const { layoutSection } = state.schema.nodes;
 	let change;
 	const range = getStepRange(changedTr);
@@ -558,7 +594,7 @@ export const fixColumnSizes = (changedTr: Transaction, state: EditorState) => {
 	return change;
 };
 
-export const fixColumnStructure = (state: EditorState) => {
+export const fixColumnStructure = (state: EditorState): Transaction | undefined => {
 	const { pos, selectedLayout } = pluginKey.getState(state) as LayoutState;
 
 	if (pos !== null && selectedLayout) {
@@ -566,6 +602,10 @@ export const fixColumnStructure = (state: EditorState) => {
 
 		if (node) {
 			if (node.childCount !== getWidthsForPreset(selectedLayout).length) {
+				// Valid custom widths may use a different column count from the selected preset.
+				if (editorExperiment('advanced_layouts', true) && isValidLayoutWidthDistributions(node)) {
+					return;
+				}
 				return forceSectionToPresetLayout(state, node, pos, selectedLayout);
 			}
 
@@ -641,3 +681,507 @@ const formatLayoutName = (layout: PresetLayout): LAYOUT_TYPE | undefined => {
 			return LAYOUT_TYPE.THREE_WITH_SIDEBARS;
 	}
 };
+
+export type InsertLayoutColumnSide = 'left' | 'right';
+
+export const LAYOUT_COLUMN_INSERT_META = 'layoutColumnInsert';
+export type LayoutColumnInsertMeta = {
+	insertedColumnNodeSize: number;
+	insertedColumnPos: number;
+	side: InsertLayoutColumnSide;
+};
+
+type LayoutPluginAPI = ExtractInjectionAPI<LayoutPlugin> | undefined;
+export type LayoutColumnActionInputMethod = INPUT_METHOD.LAYOUT_COLUMN_MENU | INPUT_METHOD.SHORTCUT;
+type LayoutColumnVerticalAlignValue = Valign | 'mixed';
+
+const getPreviousLayoutColumnValign = (
+	selectedLayoutColumns: { node: Node }[],
+): LayoutColumnVerticalAlignValue => {
+	const firstValign = getLayoutColumnValign(selectedLayoutColumns[0]?.node);
+	const hasMixedValign = selectedLayoutColumns.some(
+		({ node }) => getLayoutColumnValign(node) !== firstValign,
+	);
+
+	return hasMixedValign ? 'mixed' : (firstValign ?? DEFAULT_LAYOUT_COLUMN_VALIGN);
+};
+
+const hasLayoutColumnContent = (node: Node): boolean => !isEmptyDocument(node);
+
+/**
+ * Remaps a selection through a position mapping, preserving its type. Used after replacing a
+ * layout section's contents so the selection stays in its column instead of being mapped out
+ * of the layout. Returns `undefined` if no valid selection can be derived (NodeSelection
+ * whose node is no longer selectable falls back to a nearby caret).
+ */
+const remapSelectionThroughMapping = (
+	selection: Selection,
+	mapping: Mapping,
+	doc: Node,
+): Selection | undefined => {
+	const docSize = doc.content.size;
+	const clamp = (pos: number) => Math.min(Math.max(pos, 0), docSize);
+
+	if (selection instanceof NodeSelection) {
+		const mappedPos = clamp(mapping.map(selection.from));
+		const nodeAtPos = doc.nodeAt(mappedPos);
+		if (nodeAtPos && NodeSelection.isSelectable(nodeAtPos)) {
+			return NodeSelection.create(doc, mappedPos);
+		}
+		return TextSelection.findFrom(doc.resolve(mappedPos), 1, true) ?? undefined;
+	}
+
+	if (selection instanceof TextSelection) {
+		const mappedFrom = clamp(mapping.map(selection.from));
+		const mappedTo = clamp(mapping.map(selection.to));
+		try {
+			return TextSelection.create(doc, mappedFrom, mappedTo);
+		} catch {
+			return undefined;
+		}
+	}
+
+	return undefined;
+};
+
+const mapLayoutColumnPreservedSelection = (tr: Transaction, api: LayoutPluginAPI) => {
+	const insertMeta = tr.getMeta(LAYOUT_COLUMN_INSERT_META) as LayoutColumnInsertMeta | undefined;
+	if (insertMeta) {
+		const mapping =
+			insertMeta.side === 'left'
+				? new Mapping([
+						new StepMap([insertMeta.insertedColumnPos, 0, insertMeta.insertedColumnNodeSize]),
+					])
+				: new Mapping();
+		api?.blockControls?.commands.mapPreservedSelection(mapping)({ tr });
+		return;
+	}
+
+	// Width and alignment updates should keep original layout column selection unchanged.
+	if (tr.getMeta('scrollIntoView') === false && tr.docChanged) {
+		api?.blockControls?.commands.mapPreservedSelection(new Mapping())({ tr });
+	}
+};
+
+/**
+ * Returns the active maximum layout column count for the current advanced layouts experiment state.
+ */
+export function getEffectiveMaxLayoutColumns(): number {
+	return editorExperiment('advanced_layouts', true)
+		? MAX_LAYOUT_COLUMNS
+		: MAX_STANDARD_LAYOUT_COLUMNS;
+}
+
+const insertLayoutColumnAt =
+	(
+		side: InsertLayoutColumnSide,
+		editorAnalyticsAPI?: EditorAnalyticsAPI,
+		inputMethod: LayoutColumnActionInputMethod = INPUT_METHOD.LAYOUT_COLUMN_MENU,
+	): EditorCommand =>
+	({ tr }) => {
+		const selectedLayoutColumnsResult = getLayoutColumnsFromContentSelection(tr.selection);
+		if (
+			!selectedLayoutColumnsResult ||
+			selectedLayoutColumnsResult.selectedLayoutColumns.length === 0
+		) {
+			return null;
+		}
+
+		const { layoutSectionNode, layoutSectionPos, startIndex, endIndex, selectedLayoutColumns } =
+			selectedLayoutColumnsResult;
+		const selectedColumnIndex = side === 'left' ? startIndex : endIndex;
+		const selectedColumnCount = selectedLayoutColumns.length;
+		if (layoutSectionNode.childCount >= getEffectiveMaxLayoutColumns()) {
+			return null;
+		}
+
+		const insertIndex = side === 'left' ? selectedColumnIndex : selectedColumnIndex + 1;
+		const existingWidths = mapChildren(layoutSectionNode, (column) => column.attrs.width as number);
+		const redistributedWidths = redistributeProportionally(
+			existingWidths,
+			insertIndex,
+			getEffectiveMaxLayoutColumns(),
+			MIN_LAYOUT_COLUMN_WIDTH_PERCENT,
+		);
+		if (redistributedWidths === existingWidths) {
+			return null;
+		}
+
+		const { layoutColumn } = tr.doc.type.schema.nodes;
+		const newColumn = layoutColumn.createAndFill({ width: redistributedWidths[insertIndex] });
+		if (!newColumn) {
+			return null;
+		}
+
+		const updatedColumns: Node[] = [];
+		layoutSectionNode.forEach((column, _offset, index) => {
+			if (index === insertIndex) {
+				updatedColumns.push(newColumn);
+			}
+			updatedColumns.push(column);
+		});
+		if (insertIndex === layoutSectionNode.childCount) {
+			updatedColumns.push(newColumn);
+		}
+
+		const updatedLayoutSectionNode = layoutSectionNode.copy(Fragment.fromArray(updatedColumns));
+		let insertedColumnOffset = 0;
+		layoutSectionNode.forEach((column, _offset, index) => {
+			if (index < insertIndex) {
+				insertedColumnOffset += column.nodeSize;
+			}
+		});
+		const insertedColumnPos = layoutSectionPos + 1 + insertedColumnOffset;
+		tr.setMeta(LAYOUT_COLUMN_INSERT_META, {
+			insertedColumnNodeSize: newColumn.nodeSize,
+			insertedColumnPos,
+			side,
+		} satisfies LayoutColumnInsertMeta);
+
+		// Capture the selection before the section content is replaced (the replace below maps
+		// it out of the layout by default). The menu path restores its own preserved selection
+		// afterwards, so this restoration only matters for the cursor-in-column case.
+		const originalSelection = tr.selection;
+
+		tr.replaceWith(
+			layoutSectionPos + 1,
+			layoutSectionPos + layoutSectionNode.nodeSize - 1,
+			columnWidth(updatedLayoutSectionNode, tr.doc.type.schema, redistributedWidths),
+		);
+
+		// Inserting left shifts positions at/after the new column right by its size; inserting
+		// right leaves them unchanged. Remap the original selection through that mapping.
+		const insertMapping =
+			side === 'left'
+				? new Mapping([new StepMap([insertedColumnPos, 0, newColumn.nodeSize])])
+				: new Mapping();
+		const restoredSelection = remapSelectionThroughMapping(
+			originalSelection,
+			insertMapping,
+			tr.doc,
+		);
+		if (restoredSelection) {
+			tr.setSelection(restoredSelection);
+		}
+		editorAnalyticsAPI?.attachAnalyticsEvent({
+			action: ACTION.INSERTED,
+			actionSubject: ACTION_SUBJECT.DOCUMENT,
+			actionSubjectId: ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+			attributes: {
+				endIndex,
+				inputMethod,
+				newColumnCount: redistributedWidths.length,
+				previousColumnCount: layoutSectionNode.childCount,
+				selectedCount: selectedColumnCount,
+				side,
+				startIndex,
+			},
+			eventType: EVENT_TYPE.TRACK,
+		})(tr);
+		tr.setMeta('scrollIntoView', false);
+
+		return tr;
+	};
+
+export type InsertLayoutColumnOptions = {
+	inputMethod?: LayoutColumnActionInputMethod;
+	side: InsertLayoutColumnSide;
+};
+
+export const insertLayoutColumn =
+	(
+		{ side, inputMethod = INPUT_METHOD.LAYOUT_COLUMN_MENU }: InsertLayoutColumnOptions,
+		editorAnalyticsAPI?: EditorAnalyticsAPI,
+		api?: LayoutPluginAPI,
+	): EditorCommand =>
+	({ tr }) => {
+		const result = insertLayoutColumnAt(side, editorAnalyticsAPI, inputMethod)({ tr });
+		if (result) {
+			mapLayoutColumnPreservedSelection(tr, api);
+		}
+		return result;
+	};
+
+export type SetLayoutColumnValignOptions = {
+	inputMethod?: INPUT_METHOD.LAYOUT_COLUMN_MENU;
+	valign: Valign;
+};
+
+export const setLayoutColumnValign =
+	(
+		{ valign, inputMethod = INPUT_METHOD.LAYOUT_COLUMN_MENU }: SetLayoutColumnValignOptions,
+		editorAnalyticsAPI?: EditorAnalyticsAPI,
+		api?: LayoutPluginAPI,
+	): EditorCommand =>
+	({ tr }) => {
+		const selectedLayoutColumnsResult = getSelectedLayoutColumnsFromSelection(tr.selection);
+		if (!selectedLayoutColumnsResult) {
+			return null;
+		}
+
+		const { layoutSectionNode, startIndex, endIndex, selectedLayoutColumns } =
+			selectedLayoutColumnsResult;
+		const previousValign = getPreviousLayoutColumnValign(selectedLayoutColumns);
+		const columnsToUpdate = selectedLayoutColumns.filter(
+			({ node }) => getLayoutColumnValign(node) !== valign,
+		);
+		if (columnsToUpdate.length === 0) {
+			return null;
+		}
+		const updatedColumnCount = columnsToUpdate.length;
+
+		columnsToUpdate.forEach(({ node, pos }) => {
+			tr.setNodeMarkup(pos, node.type, {
+				...node.attrs,
+				valign,
+			});
+		});
+		editorAnalyticsAPI?.attachAnalyticsEvent({
+			action: ACTION.UPDATED,
+			actionSubject: ACTION_SUBJECT.DOCUMENT,
+			actionSubjectId: ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+			attributes: {
+				columnCount: layoutSectionNode.childCount,
+				endIndex,
+				inputMethod,
+				previousValign,
+				selectedCount: selectedLayoutColumns.length,
+				startIndex,
+				updatedCount: updatedColumnCount,
+				valign,
+			},
+			eventType: EVENT_TYPE.TRACK,
+		})(tr);
+		tr.setMeta('scrollIntoView', false);
+		mapLayoutColumnPreservedSelection(tr, api);
+
+		return tr;
+	};
+
+export type DistributeLayoutColumnsOptions = {
+	inputMethod?: INPUT_METHOD.LAYOUT_COLUMN_MENU | INPUT_METHOD.FLOATING_TB;
+	target?: 'selectedColumns' | 'allColumns';
+};
+
+export const distributeLayoutColumns =
+	(editorAnalyticsAPI?: EditorAnalyticsAPI, api?: LayoutPluginAPI) =>
+	({
+		inputMethod = INPUT_METHOD.LAYOUT_COLUMN_MENU,
+		target = 'selectedColumns',
+	}: DistributeLayoutColumnsOptions = {}): EditorCommand =>
+	({ tr }) => {
+		const selectedLayoutColumnsResult =
+			target === 'allColumns'
+				? getAllLayoutColumnsFromSelection(tr.selection)
+				: getSelectedLayoutColumnsFromSelection(tr.selection);
+
+		if (
+			!selectedLayoutColumnsResult ||
+			selectedLayoutColumnsResult.selectedLayoutColumns.length < 2
+		) {
+			return null;
+		}
+
+		const { layoutSectionNode, startIndex, endIndex, selectedLayoutColumns } =
+			selectedLayoutColumnsResult;
+
+		const existingWidths = mapChildren(layoutSectionNode, (column) => column.attrs.width as number);
+		const selectedWidths = selectedLayoutColumns.map(({ node }) => node.attrs.width as number);
+		const distribution = calculateDistribution(selectedWidths);
+		if (!distribution) {
+			return null;
+		}
+		const { selectedTotal, equalWidth } = distribution;
+
+		if (isDistributedUniformly(selectedWidths, distribution)) {
+			return null;
+		}
+
+		// Build new widths array: selected columns get equal share, unselected unchanged.
+		// Assign rounded (2dp) equal widths to all selected cols except the last, which absorbs
+		// the rounding remainder so the sum of selected widths equals selectedTotal exactly.
+		let assignedToSelected = 0;
+		let selectedAssignedCount = 0;
+		const newWidths = existingWidths.map((w, idx) => {
+			if (idx < startIndex || idx > endIndex) {
+				return w;
+			}
+			selectedAssignedCount += 1;
+			if (selectedAssignedCount < selectedLayoutColumns.length) {
+				assignedToSelected += equalWidth;
+				return equalWidth;
+			}
+			// Last selected column: absorb the remainder to avoid drift
+			return Number((selectedTotal - assignedToSelected).toFixed(2));
+		});
+
+		// Apply widths via setNodeMarkup per selected column — keeps nodes in place (preserves identity, marks, decorations)
+		selectedLayoutColumns.forEach(({ node, pos }, i) => {
+			const colIdx = startIndex + i;
+			tr.setNodeMarkup(pos, node.type, { ...node.attrs, width: newWidths[colIdx] });
+		});
+
+		editorAnalyticsAPI?.attachAnalyticsEvent({
+			action: ACTION.UPDATED,
+			actionSubject: ACTION_SUBJECT.DOCUMENT,
+			actionSubjectId: ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+			attributes: {
+				columnCount: layoutSectionNode.childCount,
+				endIndex,
+				inputMethod,
+				selectedCount: selectedLayoutColumns.length,
+				startIndex,
+				target,
+			},
+			eventType: EVENT_TYPE.TRACK,
+		})(tr);
+		tr.setMeta('scrollIntoView', false);
+		mapLayoutColumnPreservedSelection(tr, api);
+
+		return tr;
+	};
+
+// Omitting `isOpen` (toggle) requires `anchorPos`, so a toggle can never open the menu
+// without a valid anchor. Explicit open/close keeps `anchorPos` optional (close needs none).
+export type ToggleLayoutColumnMenuOptions =
+	| { anchorPos: number; isOpen?: undefined; openedViaKeyboard?: boolean }
+	| { anchorPos?: number; isOpen: boolean; openedViaKeyboard?: boolean };
+
+export const toggleLayoutColumnMenu =
+	(options: ToggleLayoutColumnMenuOptions): EditorCommand =>
+	({ tr }) => {
+		tr.setMeta('toggleLayoutColumnMenu', options);
+		tr.setMeta('scrollIntoView', false);
+
+		return tr;
+	};
+
+export const setLayoutColumnDangerPreview =
+	(show: boolean): EditorCommand =>
+	({ tr }) => {
+		const selectedLayoutColumnsResult = getSelectedLayoutColumnsFromSelection(tr.selection);
+		const positions = show
+			? (selectedLayoutColumnsResult?.selectedLayoutColumns.map(({ pos }) => pos) ?? [])
+			: null;
+
+		tr.setMeta('layoutColumnDangerPreview', positions);
+		tr.setMeta('addToHistory', false);
+		tr.setMeta('scrollIntoView', false);
+
+		return tr;
+	};
+
+export type DeleteLayoutColumnOptions = {
+	inputMethod?: LayoutColumnActionInputMethod;
+};
+
+export const deleteLayoutColumn =
+	(
+		{ inputMethod = INPUT_METHOD.LAYOUT_COLUMN_MENU }: DeleteLayoutColumnOptions = {},
+		editorAnalyticsAPI?: EditorAnalyticsAPI,
+		api?: LayoutPluginAPI,
+	): EditorCommand =>
+	({ tr }) => {
+		// Only delete columns that are explicitly selected (a column NodeSelection or a selection
+		// fully containing columns). This stops a bare caret inside a column — including inside
+		// nested content such as a table — from deleting the whole column via the delete shortcut.
+		const selectedLayoutColumnsResult = getSelectedLayoutColumnsFromSelection(tr.selection);
+		if (
+			!selectedLayoutColumnsResult ||
+			selectedLayoutColumnsResult.selectedLayoutColumns.length === 0
+		) {
+			return null;
+		}
+
+		const { layoutSectionNode, layoutSectionPos, selectedLayoutColumns, startIndex, endIndex } =
+			selectedLayoutColumnsResult;
+
+		const hadContent = selectedLayoutColumns.some(({ node }) => hasLayoutColumnContent(node));
+
+		const emitDeleteColumnAnalytics = (newColumnCount: number) => {
+			editorAnalyticsAPI?.attachAnalyticsEvent({
+				action: ACTION.DELETED,
+				actionSubject: ACTION_SUBJECT.DOCUMENT,
+				actionSubjectId: ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+				attributes: {
+					endIndex,
+					hadContent,
+					inputMethod,
+					newColumnCount,
+					previousColumnCount: layoutSectionNode.childCount,
+					selectedCount: selectedLayoutColumns.length,
+					startIndex,
+				},
+				eventType: EVENT_TYPE.TRACK,
+			})(tr);
+		};
+
+		// If all columns are selected, remove the entire layoutSection
+		if (selectedLayoutColumns.length === layoutSectionNode.childCount) {
+			tr.delete(layoutSectionPos, layoutSectionPos + layoutSectionNode.nodeSize);
+			emitDeleteColumnAnalytics(0);
+			tr.setMeta('scrollIntoView', false);
+			api?.blockControls?.commands.stopPreservingSelection()({ tr });
+			return tr;
+		}
+
+		// Build new column list without the selected columns
+		const remainingColumns: Node[] = [];
+		layoutSectionNode.forEach((column, _offset, index) => {
+			if (index < startIndex || index > endIndex) {
+				remainingColumns.push(column);
+			}
+		});
+
+		// Redistribute widths proportionally among remaining columns using shared utility
+		const existingWidths = mapChildren(layoutSectionNode, (column) => column.attrs.width as number);
+		const redistributed = selectedLayoutColumns
+			.map((_, i) => startIndex + i)
+			// Delete highest indices first so lower original indices still point at the same columns
+			// as each redistribution step shrinks the widths array.
+			.reverse()
+			.reduce(
+				(widths, selectedIndex) =>
+					redistributeAfterDeletion(widths, selectedIndex, MIN_LAYOUT_COLUMN_WIDTH_PERCENT),
+				existingWidths,
+			);
+
+		const updatedLayoutSectionNode = layoutSectionNode.copy(Fragment.fromArray(remainingColumns));
+
+		// A text selection can fully contain columns. Restore its caret in a remaining column;
+		// block controls own the landing for a column NodeSelection.
+		const hadTextSelection = tr.selection instanceof TextSelection;
+
+		tr.replaceWith(
+			layoutSectionPos + 1,
+			layoutSectionPos + layoutSectionNode.nodeSize - 1,
+			columnWidth(updatedLayoutSectionNode, tr.doc.type.schema, redistributed),
+		);
+
+		// Keep a text selection within the layout after the selected columns are removed.
+		const remainingColumnCount = remainingColumns.length;
+		if (hadTextSelection && remainingColumnCount > 0) {
+			const targetColumnIndex = Math.min(startIndex, remainingColumnCount - 1);
+			const updatedSectionNode = tr.doc.nodeAt(layoutSectionPos);
+			if (updatedSectionNode) {
+				let columnOffset = 1;
+				for (let columnIndex = 0; columnIndex < targetColumnIndex; columnIndex++) {
+					columnOffset += updatedSectionNode.child(columnIndex).nodeSize;
+				}
+				// +1 to land inside the column's first child rather than on the column boundary.
+				const caretPos = layoutSectionPos + columnOffset + 1;
+				if (caretPos >= 0 && caretPos <= tr.doc.content.size) {
+					const caretSelection = TextSelection.findFrom(tr.doc.resolve(caretPos), 1, true);
+					if (caretSelection) {
+						tr.setSelection(caretSelection);
+					}
+				}
+			}
+		}
+
+		emitDeleteColumnAnalytics(redistributed.length);
+		tr.setMeta('scrollIntoView', false);
+		api?.blockControls?.commands.stopPreservingSelection()({ tr });
+
+		return tr;
+	};

@@ -2,12 +2,14 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import Tooltip from '@atlaskit/tooltip';
+
 import { cssMap, cx, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { Pressable } from '@atlaskit/primitives/compiled';
+import { useIntl } from 'react-intl';
+
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
-import { useIntl } from 'react-intl-next';
+import { Pressable } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { messages } from '../shared/i18n';
 
@@ -46,7 +48,7 @@ interface ReactionsDialogTriggerProps {
 
 // Currently not in use due to Reactions Dialog trigger being moved to tooltip
 // Similar to platform/packages/elements/reactions/src/components/Trigger/Trigger.tsx
-export const ReactionsDialogTrigger = ({ onClick }: ReactionsDialogTriggerProps) => {
+export const ReactionsDialogTrigger = ({ onClick }: ReactionsDialogTriggerProps): JSX.Element => {
 	const intl = useIntl();
 
 	return (

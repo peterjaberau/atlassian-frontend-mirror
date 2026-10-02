@@ -1,5 +1,10 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import type { SerializedStyles } from '@emotion/react';
+import { css } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
@@ -11,6 +16,95 @@ import {
 
 const gridMediumMaxWidth = 1024;
 const akEditorSelectedNodeClassName = 'ak-editor-selected-node';
+
+// Class names for the column resize divider widget — must stay in sync with main.ts in editor-plugin-layout
+const layoutColumnDividerClassName = 'layout-column-divider';
+const layoutColumnDividerRailClassName = 'layout-column-divider-rail';
+const layoutColumnDividerThumbClassName = 'layout-column-divider-thumb';
+
+/**
+ * Styles for the column resize divider widget DOM elements.
+ * Mirrors the pm-breakout-resize-handle-* pattern from resizerStyles.ts.
+ * Applied only when advanced_layouts experiment is on.
+ */
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const layoutColumnDividerStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${layoutColumnDividerClassName}`]: {
+		// Negative margin removes the applied 'gap' from the parent's flex box
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		marginInline: '-15px 0px',
+		flexShrink: 0,
+		boxSizing: 'content-box',
+		cursor: 'col-resize',
+		position: 'relative',
+		zIndex: 2,
+		alignSelf: 'stretch',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+		[`&:hover .${layoutColumnDividerRailClassName}`]: {
+			background: token('color.background.selected'),
+		},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+		[`&:hover .${layoutColumnDividerThumbClassName}`]: {
+			background: token('color.border.focused'),
+		},
+	},
+
+	// Rail and thumb styles intentionally mirror the breakout resize handle
+	// (see .pm-breakout-resize-handle-rail and .pm-breakout-resize-handle-thumb in resizerStyles.ts).
+	// If updating these styles, consider keeping both in sync.
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${layoutColumnDividerRailClassName}`]: {
+		width: 7,
+		height: '100%',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		borderRadius: token('radius.small'),
+		transition: 'background-color 0.2s',
+		pointerEvents: 'none',
+	},
+
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${layoutColumnDividerThumbClassName}`]: {
+		minWidth: 3,
+		height: 'clamp(27px, calc(100% - 32px), 96px)',
+		background: token('color.border'),
+		borderRadius: token('radius.medium'),
+		pointerEvents: 'none',
+		position: 'sticky',
+		top: token('space.150'),
+		bottom: token('space.150'),
+	},
+});
+/**
+ * Override divider marginInline for nested drag-and-drop,
+ * since the layout section/column spacing changes.
+ */
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const layoutColumnDividerStylesNestedDnD: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${layoutColumnDividerClassName}`]: {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
+		marginInline: '0 -7px',
+	},
+});
+
 const selectorForNotResizedLayoutInFulllWidthEditor =
 	'.fabric-editor--full-width-mode .ProseMirror > .layoutSectionView-content-wrap';
 const selectorForNotResizedLayoutInFixedWidthEditor =
@@ -23,7 +117,12 @@ const layoutSelectedSelector = `&.selected, [data-empty-layout='true'], &:hover,
 /**
  * Layout columns styles when advanced layouts experiment is on
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutColumnStylesAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror [data-layout-section]': {
@@ -69,9 +168,38 @@ export const layoutColumnStylesAdvanced: SerializedStyles = css({
 });
 
 /**
+ * Layout column resize styles.
+ */
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const layoutColumnResizeStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror [data-layout-section]': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'> [data-layout-column][style*="--column-width"]': {
+			// Support CSS custom property for smooth resizing during drag
+			// When --column-resize-width is set, use it; otherwise fall back to the original flex-basis
+			// Using attribute selector for higher specificity than inline styles
+			flexBasis: 'var(--column-resize-width, var(--column-width))',
+			// Also ensure flex-grow and flex-shrink are reset when using custom width
+			flex: 'var(--column-resize-flex, 1)',
+		},
+	},
+});
+
+/**
  * Layout columns styles when advanced layouts experiment is off
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutColumnStylesNotAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror [data-layout-section]': {
@@ -94,13 +222,18 @@ export const layoutColumnStylesNotAdvanced: SerializedStyles = css({
 /**
  * Responsive styles for layout columns when advanced layouts experiment is on
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutColumnResponsiveStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror [data-layout-section]': {
 		display: 'flex',
 		flexDirection: 'row',
-		gap: token('space.100', '8px'),
+		gap: token('space.100'),
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'& > *': {
@@ -124,7 +257,23 @@ export const layoutColumnResponsiveStyles: SerializedStyles = css({
 /**
  * Layout section styles when advanced layouts experiment is on
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-exported-styles
+export const layoutDragHandleWrapperStylesLegacy: SerializedStyles = css({
+	// Legacy tooltips are portalled, so flattening every div does not affect their surface.
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror .layout-section-container [data-layout-section] > .ProseMirror-widget[data-blocks-drag-handle-container] div':
+		{
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			display: 'contents !important',
+		},
+});
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutSectionStylesAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror .layout-section-container [data-layout-section]': {
@@ -135,21 +284,25 @@ export const layoutSectionStylesAdvanced: SerializedStyles = css({
 			display: 'contents !important',
 
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-			'&[data-blocks-drag-handle-container] div': {
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
-				display: 'contents !important',
-			},
-
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 			'&[data-blocks-drop-target-container]': {
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
 				display: 'block !important',
-				margin: token('space.negative.050', '-4px'),
+				margin: token('space.negative.050'),
 
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 				'[data-drop-target-for-element]': {
 					position: 'absolute',
 				},
+			},
+
+			// Column resize divider: always in DOM, hidden via opacity by default
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+			[`&.${layoutColumnDividerClassName}`]: {
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+				display: 'block !important',
+				flex: 'none',
+				opacity: 0,
+				transition: 'opacity 0.2s',
 			},
 
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -163,12 +316,33 @@ export const layoutSectionStylesAdvanced: SerializedStyles = css({
 			margin: 0,
 		},
 	},
+
+	// On hover: fade in drag divider and hide the 1px separator
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+	[`.ProseMirror .layoutSectionView-content-wrap:hover .layout-section-container [data-layout-section]`]:
+		{
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+			[`> .ProseMirror-widget.${layoutColumnDividerClassName}`]: {
+				opacity: 1,
+			},
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+			[`> .ProseMirror-widget.${layoutColumnDividerClassName} ~ [data-layout-column] [data-layout-content]::before`]:
+				{
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+					display: 'none !important',
+				},
+		},
 });
 
 /**
  * Layout section styles when advanced layouts experiment is off
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutSectionStylesNotAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.ProseMirror [data-layout-section]': {
@@ -187,6 +361,11 @@ export const layoutSectionStylesNotAdvanced: SerializedStyles = css({
 			minWidth: 'initial',
 		},
 
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+		[`& > .${layoutColumnDividerClassName}`]: {
+			flex: 'none',
+		},
+
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 		[`@media screen and (max-width: ${gridMediumMaxWidth}px)`]: {
 			flexDirection: 'column',
@@ -200,7 +379,12 @@ export const layoutSectionStylesNotAdvanced: SerializedStyles = css({
 // TODO: DSP-4441 - Remove the border styles below once design tokens have been enabled and fallbacks are no longer triggered.
 //       This is because the default state already uses the same token and, as such, the hover style won't change anything.
 //       https://product-fabric.atlassian.net/browse/DSP-4441
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutSelectedStylesNotAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -259,7 +443,12 @@ const rowSeparatorBaseStyles = css({
 /**
  * Selected styles for layout when advanced layouts experiment is on
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutSelectedStylesAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -276,6 +465,11 @@ export const layoutSelectedStylesAdvanced: SerializedStyles = css({
 					// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
 					marginLeft: -25,
 				},
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+				'[data-layout-column]:is([data-valign="middle"], [data-valign="bottom"]):not(:first-of-type) [data-layout-content]::before':
+					{
+						top: token('space.150'),
+					},
 			},
 
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -312,7 +506,12 @@ export const layoutSelectedStylesAdvanced: SerializedStyles = css({
 // sometimes doesn't appear when inside a synced block.
 // Separated as a distinct style to allow feature-gating without affecting module-level styles.
 // This prevents style inconsistencies before the feature flag is initialized.
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutSelectedStylesAdvancedFix: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -335,7 +534,12 @@ export const layoutSelectedStylesAdvancedFix: SerializedStyles = css({
  * Base responsive styles for layout
  */
 // jest warning: JSDOM version (22) doesn't support the new @container CSS rule
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutResponsiveBaseStyles: SerializedStyles = css({
 	// chosen breakpoints in container queries are to make sure layout responsiveness in editor aligns with renderer
 	// not resized layout in full-width editor
@@ -400,7 +604,12 @@ export const layoutResponsiveBaseStyles: SerializedStyles = css({
 /**
  * Responsive styles for layout in view mode
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutResponsiveStylesForView: SerializedStyles = css({
 	// chosen breakpoints in container queries are to make sure layout responsiveness in editor aligns with renderer
 	// not resized layout in full-width editor
@@ -461,13 +670,18 @@ export const layoutResponsiveStylesForView: SerializedStyles = css({
 /**
  * Base styles for layout
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Needs manual remediation
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutBaseStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'[data-layout-section]': {
-			margin: `${token('space.100', '8px')} -12px 0`,
+			margin: `${token('space.100')} -12px 0`,
 			transition: 'border-color 0.3s cubic-bezier(0.15, 1, 0.3, 1)',
 			cursor: 'pointer',
 
@@ -486,6 +700,11 @@ export const layoutBaseStyles: SerializedStyles = css({
 				boxSizing: 'border-box',
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 				'> div': {
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+					'.pm-table-container': {
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+						width: '100% !important',
+					},
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 					'> .embedCardView-content-wrap:first-of-type .rich-media-item': {
 						marginTop: 0,
@@ -525,6 +744,25 @@ export const layoutBaseStyles: SerializedStyles = css({
 						clear: 'both',
 					},
 				},
+
+				// Keep the editable content wrapper stretched so blank column space remains a text hit area.
+				// Apply vertical alignment to the wrapper contents rather than shrinking the wrapper itself.
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+				'&[data-valign="middle"] > [data-layout-content], &[data-valign="bottom"] > [data-layout-content]':
+					{
+						display: 'flex',
+						flexDirection: 'column',
+					},
+
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+				'&[data-valign="middle"] > [data-layout-content]': {
+					justifyContent: 'center',
+				},
+
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+				'&[data-valign="bottom"] > [data-layout-content]': {
+					justifyContent: 'flex-end',
+				},
 			},
 		},
 	},
@@ -546,32 +784,16 @@ export const layoutBaseStyles: SerializedStyles = css({
 		},
 	},
 });
-// on exp 'platform_editor_table_excerpts_fix' cleanup, merge this style to the one above
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Needs manual remediation
-export const layoutBaseStylesWithTableExcerptsFix: SerializedStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-nested-selectors
-	'.ProseMirror': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-layout-section]': {
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-			'[data-layout-column]': {
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-				'> div': {
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-					'.pm-table-container': {
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
-						width: '100% !important',
-					},
-				},
-			},
-		},
-	},
-});
 
 /**
  * Base styles overrides for layout columns when advanced layouts experiment is on
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutBaseStylesAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror [data-layout-section] [data-layout-column]': {
@@ -580,16 +802,21 @@ export const layoutBaseStylesAdvanced: SerializedStyles = css({
 });
 
 /**
- * Spacing overrides when platform_editor_nested_dnd_styles_changes is on
+ * Spacing overrides for nested drag-and-drop
  */
 // TODO: EDF-123 - Migrate away from gridSize
 // Recommendation: Replace directly with 7px
 // Ignored via go/ees007
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const layoutBaseStylesFixesUnderNestedDnDFG: SerializedStyles = css({
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const layoutBaseStylesNestedDnd: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror [data-layout-section]': {
-		margin: `${token('space.100', '8px')} -20px 0`,
+		margin: `${token('space.100')} -20px 0`,
 	},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -599,21 +826,26 @@ export const layoutBaseStylesFixesUnderNestedDnDFG: SerializedStyles = css({
 });
 
 /**
- * Spacing overrides when platform_editor_nested_dnd_styles_changes is on,
+ * Spacing overrides for nested drag-and-drop,
  * excluding layouts inside bodied sync blocks
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const layoutBaseStylesFixesUnderNestedDnDFGExcludingBodiedSync: SerializedStyles = css({
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const layoutBaseStylesNestedDndExcludingBodiedSync: SerializedStyles = css({
 	// Apply -20px margin to all sections
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror [data-layout-section]': {
-		margin: `${token('space.100', '8px')} -20px 0`,
+		margin: `${token('space.100')} -20px 0`,
 	},
 
 	// Reset to default margin when inside bodied sync block
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror [data-prosemirror-node-name="bodiedSyncBlock"] [data-layout-section]': {
-		margin: `${token('space.100', '8px')} -12px 0`,
+		margin: `${token('space.100')} -12px 0`,
 	},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -622,12 +854,15 @@ export const layoutBaseStylesFixesUnderNestedDnDFGExcludingBodiedSync: Serialize
 	},
 });
 
-// platform_synced_block_patch_2
-
 /**
  * Layout in view mode styles for selected state when advanced layouts experiment is on.
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Needs manual remediation
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutSelectedStylesForViewAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -657,7 +892,12 @@ export const layoutSelectedStylesForViewAdvanced: SerializedStyles = css({
 /**
  * Layout in view mode styles for selected state when advanced layouts experiment is off.
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutSelectedStylesForViewNotAdvanced: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -674,7 +914,12 @@ export const layoutSelectedStylesForViewNotAdvanced: SerializedStyles = css({
 /*
  * Layout in view mode styles, overrides over layout base styles
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Needs manual remediation
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const layoutStylesForView: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -691,38 +936,19 @@ export const layoutStylesForView: SerializedStyles = css({
 });
 
 /*
- * marginTop fixes when platform_editor_nested_dnd_styles_changes is on
+ * marginTop fixes for nested drag-and-drop
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const layoutColumnMartinTopFixesNew: SerializedStyles = css({
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const layoutColumnMartinTopFixes: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror [data-layout-section] [data-layout-column] > div': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'> :nth-child(1 of :not(style, .ProseMirror-gapcursor, .ProseMirror-widget, span))': {
-			marginTop: 0,
-		},
-	},
-});
-
-/*
- * marginTop fixes when platform_editor_nested_dnd_styles_changes is off
- */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const layoutColumnMartinTopFixesOld: SerializedStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'.ProseMirror [data-layout-section] [data-layout-column] > div': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-selectors
-		'> :not(style):first-child, > style:first-child + *': {
-			marginTop: 0,
-		},
-
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-selectors
-		'> .ProseMirror-gapcursor:first-child + *, > style:first-child + .ProseMirror-gapcursor + *': {
-			marginTop: 0,
-		},
-
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-selectors
-		'> .ProseMirror-gapcursor:first-child + span + *': {
 			marginTop: 0,
 		},
 	},

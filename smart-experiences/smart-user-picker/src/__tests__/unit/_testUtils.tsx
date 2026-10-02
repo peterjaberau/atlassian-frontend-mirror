@@ -1,15 +1,11 @@
 /* eslint-env jest */
 /* eslint-disable no-console */
 
-import { type ReactWrapper } from 'enzyme';
-import {
-	UFOExperienceState,
-	UFOExperience,
-	ExperienceTypes,
-	ExperiencePerformanceTypes,
-} from '@atlaskit/ufo';
+import { UFOExperience } from '@atlaskit/ufo/experience';
+import { UFOExperienceState } from '@atlaskit/ufo/experience-state';
+import { ExperienceTypes, ExperiencePerformanceTypes } from '@atlaskit/ufo/experience-types';
 
-export const flushPromises = () => {
+export const flushPromises = (): Promise<void> => {
 	// eslint-disable-next-line @atlaskit/platform/no-set-immediate
 	return new Promise((resolve) => setImmediate(resolve));
 };
@@ -46,12 +42,6 @@ export const temporarilySilenceActAndAtlaskitDeprecationWarnings = (): void => {
 	});
 };
 
-export const waitForUpdate = async (wrapper: ReactWrapper): Promise<void> => {
-	// Wait for promises to run and component to be updated
-	await new Promise(setImmediate);
-	wrapper.update();
-};
-
 export class MockConcurrentExperienceInstance extends UFOExperience {
 	startSpy: jest.Mock;
 	successSpy: jest.Mock;
@@ -81,21 +71,21 @@ export class MockConcurrentExperienceInstance extends UFOExperience {
 		this.transitions.push(this.state.id);
 	}
 
-	async success() {
+	async success(): Promise<null> {
 		super.success();
 		this.successSpy();
 		this.transitions.push(this.state.id);
 		return null;
 	}
 
-	async failure() {
+	async failure(): Promise<null> {
 		super.failure();
 		this.failureSpy();
 		this.transitions.push(this.state.id);
 		return null;
 	}
 
-	async abort() {
+	async abort(): Promise<null> {
 		super.abort();
 		this.abortSpy();
 		this.transitions.push(this.state.id);

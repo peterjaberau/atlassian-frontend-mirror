@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test } from './fixtures';
 
 test.describe('ReactUFO: Interactions Unknown Element name', () => {
 	test.use({
 		examplePage: 'interactions-simple-button',
+	} satisfies {
+		examplePage: 'interactions-simple-button';
+		__exampleDependency?: typeof import('../../examples/23-interactions-simple-button.tsx');
 	});
 	test('get interactions unknownElementName', async ({
 		page,
@@ -21,10 +25,10 @@ test.describe('ReactUFO: Interactions Unknown Element name', () => {
 		expect(reactUFOPayload).toBeDefined();
 
 		expect(reactUFOPayload!.attributes.properties.interactionMetrics.unknownElementName).toBe(
-			'button#test-button2 > span',
+			'button#test-button2',
 		);
 		expect(reactUFOPayload!.attributes.properties.interactionMetrics.unknownElementHierarchy).toBe(
-			'UFOSegment[name=buttons-container] > Button > Button > Content',
+			'UFOSegment[name=buttons-container] > SsrRenderProfiler',
 		);
 	});
 });

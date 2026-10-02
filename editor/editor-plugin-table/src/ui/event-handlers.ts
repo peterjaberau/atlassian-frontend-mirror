@@ -2,10 +2,10 @@ import rafSchedule from 'raf-schd';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { ACTION_SUBJECT, EVENT_TYPE, TABLE_ACTION } from '@atlaskit/editor-common/analytics';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { getParentOfTypeCount } from '@atlaskit/editor-common/nesting';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import {
-	browser,
 	closestElement,
 	isElementInTableCell,
 	isLastItemMediaGroup,
@@ -25,6 +25,7 @@ import {
 	getSelectionRect,
 	removeTable,
 } from '@atlaskit/editor-tables/utils';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import {
 	addResizeHandleDecorations,
@@ -48,10 +49,12 @@ import { deleteRows } from '../pm-plugins/transforms/delete-rows';
 import { getSelectedCellInfo } from '../pm-plugins/utils/analytics';
 import {
 	convertHTMLCellIndexToColumnIndex,
+	getColumnIndexByMousePosition,
 	getColumnIndexMappedToColumnIndexInFirstRow,
 } from '../pm-plugins/utils/column-controls';
 import {
 	getColumnOrRowIndex,
+	getIndexAttributeSourceElement,
 	getMousePositionHorizontalRelativeByElement,
 	getMousePositionVerticalRelativeByElement,
 	hasResizeHandler,
@@ -66,10 +69,13 @@ import {
 	isRowControlsButton,
 	isTableContainerOrWrapper,
 	isTableControlsButton,
+	isTableDragHandleButton,
 } from '../pm-plugins/utils/dom';
 import { getAllowAddColumnCustomStep } from '../pm-plugins/utils/get-allow-add-column-custom-step';
+import { getRowIndexByMousePosition } from '../pm-plugins/utils/row-controls';
 import { TableCssClassName as ClassName, RESIZE_HANDLE_AREA_DECORATION_GAP } from '../types';
 import type { PluginInjectionAPI } from '../types';
+import { TABLE_MENU_SELECTOR } from './TableMenu/shared/consts';
 
 const isFocusingCalendar = (event: Event) =>
 	event instanceof FocusEvent &&
@@ -98,17 +104,24 @@ const isFocusingDragHandlesClickableZone = (event: Event) =>
 	event.relatedTarget.closest('button') &&
 	event.relatedTarget.classList.contains(ClassName.DRAG_HANDLE_BUTTON_CLICKABLE_ZONE);
 
+const isFocusingTableMenu = (event: Event) =>
+	expValEquals('platform_editor_table_menu_updates', 'isEnabled', true) &&
+	event instanceof FocusEvent &&
+	event.relatedTarget instanceof HTMLElement &&
+	Boolean(event.relatedTarget.closest(TABLE_MENU_SELECTOR));
+
 export const handleBlur = (view: EditorView, event: Event): boolean => {
 	const { state, dispatch } = view;
 	// IE version check for ED-4665
 	// Calendar focus check for ED-10466
 	if (
-		browser.ie_version !== 11 &&
+		getBrowserInfo().ie_version !== 11 &&
 		!isFocusingCalendar(event) &&
 		!isFocusingModal(event) &&
 		!isFocusingFloatingToolbar(event) &&
 		!isFocusingDragHandles(event) &&
-		!isFocusingDragHandlesClickableZone(event)
+		!isFocusingDragHandlesClickableZone(event) &&
+		!isFocusingTableMenu(event)
 	) {
 		setEditorFocus(false)(state, dispatch);
 	}
@@ -286,9 +299,26 @@ export const handleMouseUp = (view: EditorView, mouseEvent: Event): boolean => {
 	return false;
 };
 
+const resetDragHandleSelectedIntentOnMouseDown = (
+	event: Event,
+	api?: PluginInjectionAPI | null,
+): void => {
+	if (isTableDragHandleButton(event.target)) {
+		return;
+	}
+
+	if (api?.userIntent?.sharedState.currentState()?.currentUserIntent === 'dragHandleSelected') {
+		api?.core?.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('default'));
+	}
+};
+
 // Ignore any `mousedown` `event` from control and numbered column buttons
 // PM end up changing selection during shift selection if not prevented
-export const handleMouseDown = (_: EditorView, event: Event): boolean => {
+export const handleMouseDown = (
+	_view: EditorView,
+	event: Event,
+	api?: PluginInjectionAPI | null,
+): boolean => {
 	const isControl = !!(
 		event.target &&
 		event.target instanceof HTMLElement &&
@@ -300,6 +330,10 @@ export const handleMouseDown = (_: EditorView, event: Event): boolean => {
 
 	if (isControl) {
 		event.preventDefault();
+	}
+
+	if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+		resetDragHandleSelectedIntentOnMouseDown(event, api);
 	}
 
 	return isControl;
@@ -351,16 +385,11 @@ export const handleMouseLeave = (view: EditorView, event: Event): boolean => {
 	}
 
 	const { state, dispatch } = view;
-	const { insertColumnButtonIndex, insertRowButtonIndex, isDragAndDropEnabled, isTableHovered } =
-		getPluginState(state);
+	const { insertColumnButtonIndex, insertRowButtonIndex, isTableHovered } = getPluginState(state);
 
 	if (isTableHovered) {
-		if (isDragAndDropEnabled) {
-			const { isDragMenuOpen = false } = getDragDropPluginState(state);
-			!isDragMenuOpen && setTableHovered(false)(state, dispatch);
-		} else {
-			setTableHovered(false)(state, dispatch);
-		}
+		const { isDragMenuOpen = false } = getDragDropPluginState(state);
+		!isDragMenuOpen && setTableHovered(false)(state, dispatch);
 		return true;
 	}
 
@@ -393,11 +422,31 @@ const handleMouseMoveDebounce = (nodeViewPortalProviderAPI: PortalProviderAPI) =
 			return false;
 		}
 		const element = event.target;
+		const isTableMenuUpdatesEnabled = expValEquals(
+			'platform_editor_table_menu_updates',
+			'isEnabled',
+			true,
+		);
+
+		// Spanned cells need mouse-position-based hover indexes; normal cells already report them.
+		if (isTableMenuUpdatesEnabled) {
+			// eslint-disable-next-line @atlaskit/editor/no-as-casting
+			const tableCell = isElementInTableCell(element) as HTMLTableCellElement | null;
+			if (tableCell && (tableCell.rowSpan > 1 || tableCell.colSpan > 1)) {
+				const dragDropState = getDragDropPluginState(view.state);
+				if (dragDropState && !dragDropState.isDragging) {
+					trackCellLocation(view, event);
+				}
+			}
+		}
 
 		if (isColumnControlsDecorations(element) || isDragColumnFloatingInsertDot(element)) {
 			const { state, dispatch } = view;
 			const { insertColumnButtonIndex } = getPluginState(state);
-			const [startIndex, endIndex] = getColumnOrRowIndex(element);
+			const indexSourceElement = isTableMenuUpdatesEnabled
+				? getIndexAttributeSourceElement(element)
+				: element;
+			const [startIndex, endIndex] = getColumnOrRowIndex(indexSourceElement);
 
 			const positionColumn =
 				getMousePositionHorizontalRelativeByElement(event, offsetX, undefined) === 'right'
@@ -412,7 +461,10 @@ const handleMouseMoveDebounce = (nodeViewPortalProviderAPI: PortalProviderAPI) =
 		if (isRowControlsButton(element) || isDragRowFloatingInsertDot(element)) {
 			const { state, dispatch } = view;
 			const { insertRowButtonIndex } = getPluginState(state);
-			const [startIndex, endIndex] = getColumnOrRowIndex(element);
+			const indexSourceElement = isTableMenuUpdatesEnabled
+				? getIndexAttributeSourceElement(element)
+				: element;
+			const [startIndex, endIndex] = getColumnOrRowIndex(indexSourceElement);
 
 			const positionRow =
 				getMousePositionVerticalRelativeByElement(event) === 'bottom' ? endIndex : startIndex;
@@ -464,7 +516,8 @@ const handleMouseMoveDebounce = (nodeViewPortalProviderAPI: PortalProviderAPI) =
 	});
 
 export const handleMouseMove =
-	(nodeViewPortalProviderAPI: PortalProviderAPI) => (view: EditorView, event: Event): boolean => {
+	(nodeViewPortalProviderAPI: PortalProviderAPI) =>
+	(view: EditorView, event: Event): boolean => {
 		if (!(event.target instanceof HTMLElement)) {
 			return false;
 		}
@@ -477,7 +530,7 @@ export const handleMouseMove =
 		handleMouseMoveDebounce(nodeViewPortalProviderAPI)(
 			view,
 			event as MouseEvent,
-			browser.gecko ? (event as MouseEvent).offsetX : NaN,
+			getBrowserInfo().gecko ? (event as MouseEvent).offsetX : NaN,
 		);
 		return false;
 	};
@@ -601,6 +654,11 @@ export const whenTableInFocus =
 	};
 
 const trackCellLocation = (view: EditorView, mouseEvent: Event) => {
+	const isTableMenuUpdatesEnabled = expValEquals(
+		'platform_editor_table_menu_updates',
+		'isEnabled',
+		true,
+	);
 	const target = mouseEvent.target;
 	// Ignored via go/ees005
 	// eslint-disable-next-line @atlaskit/editor/no-as-casting
@@ -629,6 +687,14 @@ const trackCellLocation = (view: EditorView, mouseEvent: Event) => {
 	const rowElement = closestElement(target as HTMLElement, 'tr') as HTMLTableRowElement;
 	const htmlRowIndex = rowElement && rowElement.rowIndex;
 
+	const rowIndex =
+		maybeTableCell.rowSpan > 1 && mouseEvent instanceof MouseEvent && isTableMenuUpdatesEnabled
+			? (getRowIndexByMousePosition(tableRef, mouseEvent, {
+					startIndex: htmlRowIndex,
+					endIndex: htmlRowIndex + maybeTableCell.rowSpan,
+				}) ?? htmlRowIndex)
+			: htmlRowIndex;
+
 	const tableMap = tableNode && TableMap.get(tableNode);
 	let colIndex = htmlColIndex;
 	if (tableMap) {
@@ -638,24 +704,39 @@ const trackCellLocation = (view: EditorView, mouseEvent: Event) => {
 			tableMap,
 		);
 
-		colIndex = getColumnIndexMappedToColumnIndexInFirstRow(
-			convertedColIndex,
-			htmlRowIndex,
-			tableMap,
-		);
+		if (isTableMenuUpdatesEnabled) {
+			// New behaviour: the column controls grid renders one track per visual column
+			// (`getColumnsWidthsWithMergedCells`), so the hover index must be the visual column
+			// index — not the first-row-cell index. Mapping to the first-row cell would collapse
+			// every column under a merged first-row cell to the same index, leaving the drag handle
+			// stuck when hovering cells in other rows. For a colspanned cell, refine the converted
+			// (left-most) visual column to the exact visual column under the pointer.
+			colIndex = convertedColIndex;
+			if (maybeTableCell.colSpan > 1 && mouseEvent instanceof MouseEvent) {
+				colIndex =
+					getColumnIndexByMousePosition(maybeTableCell, mouseEvent, {
+						startIndex: convertedColIndex,
+						endIndex: convertedColIndex + maybeTableCell.colSpan,
+					}) ?? convertedColIndex;
+			}
+		} else {
+			// Old behaviour: the legacy grid renders one track per first-row cell, so snap to the
+			// first-row column index (a merged first-row cell collapses to a single column track).
+			colIndex = getColumnIndexMappedToColumnIndexInFirstRow(
+				convertedColIndex,
+				htmlRowIndex,
+				tableMap,
+			);
+		}
 	}
 
-	hoverCell(htmlRowIndex, colIndex)(view.state, view.dispatch);
+	hoverCell(rowIndex, colIndex)(view.state, view.dispatch);
 };
 
 export const withCellTracking =
 	(eventHandler: (view: EditorView, mouseEvent: Event) => boolean) =>
 	(view: EditorView, mouseEvent: Event): boolean => {
-		if (
-			getPluginState(view.state).isDragAndDropEnabled &&
-			getDragDropPluginState(view.state) &&
-			!getDragDropPluginState(view.state).isDragging
-		) {
+		if (getDragDropPluginState(view.state) && !getDragDropPluginState(view.state).isDragging) {
 			trackCellLocation(view, mouseEvent);
 		}
 		return eventHandler(view, mouseEvent);

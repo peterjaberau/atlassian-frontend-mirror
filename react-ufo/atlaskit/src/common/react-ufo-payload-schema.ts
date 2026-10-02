@@ -1,17 +1,23 @@
-import { type createPayloads } from '../create-payload';
+import type { LabelStackTrieLookupTable } from '../create-payload/common/utils/label-stack-registry';
+import type { createPayloads } from '../create-payload/createPayloads';
+import type { HiddenTimingItem } from '../hidden-timing';
 import { type LabelStack } from '../interaction-context';
+import type { SsrSuccessBreakdown } from '../ssr';
 import { type VCObserver } from '../vc/vc-observer';
-
 import type {
 	AbortReasonType,
 	ApdexType,
+	CustomData,
 	HoldActive,
 	InteractionError,
 	InteractionType,
+	MetricVariantCategory,
+	MetricWindow,
 	MinorInteraction,
+	Segment3pDataPayload,
 	SegmentInfo,
 } from './common/types';
-import type { RevisionPayload } from './vc/types';
+import type { RevisionPayload, RevisionPayloadEntry } from './vc/types';
 
 type ExtractPromise<T> = T extends Promise<infer U> ? U : never;
 
@@ -28,15 +34,55 @@ export type ResourceTiming = {
 		duration: number;
 		workerStart: number;
 		fetchStart: number;
-		type: 'script' | 'link';
-		ttfb: number;
-		transferType: 'network' | 'memory' | 'disk';
+		type: string;
+		count?: number;
+		ttfb?: number;
+		requestStart?: number;
+		transferType?: 'network' | 'memory' | 'disk' | null;
 		serverTime?: number;
 		networkTime?: number;
-		encodedSize?: number;
-		decodedSize?: number;
-		size: number;
+		encodedSize?: number | null;
+		decodedSize?: number | null;
+		size?: number;
 	};
+};
+
+export type CompactResourceTimingEntry = {
+	/** label */
+	l: string;
+	/** resource type */
+	rt: number | string;
+	/** startTime */
+	st: number;
+	/** duration */
+	du: number;
+	/** workerStart */
+	ws: number;
+	/** fetchStart */
+	fs: number;
+	/** ttfb */
+	tb?: number;
+	/** requestStart */
+	rq?: number;
+	/** transferType */
+	tr?: number | string | null;
+	/** serverTime */
+	sv?: number;
+	/** networkTime */
+	nw?: number;
+	/** encodedSize */
+	es?: number | null;
+	/** decodedSize */
+	ds?: number | null;
+	/** size */
+	sz?: number;
+	/** count */
+	ct?: number;
+};
+
+export type CompactResourceTimings = {
+	v: 1;
+	r: CompactResourceTimingEntry[];
 };
 
 export type ReactProfilerTiming = {
@@ -57,8 +103,27 @@ export type HoldInfo = {
 
 export type OptimizedHoldInfo = {
 	labelStack: string;
+	/** Readable name for adopted preload holds. */
+	name?: string;
 	startTime: number;
 	endTime: number;
+};
+
+export type MetricVariantOptimizedHoldInfo = Omit<OptimizedHoldInfo, 'labelStack'> & {
+	labelStack: string | number;
+};
+
+export type MetricVariantHoldInfo = Partial<
+	Record<MetricVariantCategory, MetricVariantOptimizedHoldInfo[]>
+>;
+
+export type MetricWindowsPayload = Partial<Record<string, MetricWindow>>;
+
+export type OptimizedPreloadInfo = {
+	source: string;
+	preloadStartedAt: number;
+	adoptedAt: number;
+	settledAt?: number;
 };
 
 export type VCParts = (typeof VCObserver.VCParts)[number];
@@ -96,6 +161,7 @@ export type ReactUFOPayload = {
 			'event:sizeInKb': number;
 			'event:source': { name: 'react-ufo/web'; version: '1.0.1' | '2.0.0' };
 			'event:region': string;
+			'event:isSandbox'?: boolean;
 			'experience:key': 'custom.interaction-metrics' | 'custom.experimental-interaction-metrics';
 			'experience:name': string;
 			'event:localHour': number;
@@ -110,6 +176,7 @@ export type ReactUFOPayload = {
 			'event:network:rtt': number;
 			'event:network:downlink': number;
 			'ssr:success': boolean;
+			'ssr:success:breakdown'?: SsrSuccessBreakdown;
 			'ssr:featureFlags?': Record<string, boolean | string | number>;
 			'metric:fp': number;
 			'metric:fcp': number;
@@ -143,6 +210,7 @@ export type ReactUFOPayload = {
 			'ufo:wasPageHiddenBeforeInit'?: boolean;
 			'ufo:isOpenedInBackground'?: boolean;
 			'ufo:isTabThrottled'?: boolean;
+			'ufo:pageVisibilityTimeline': HiddenTimingItem[];
 
 			// TODO: align this better with `InteractionMetrics` type - that is outdated now, this is the type as sent by the UFO payload as of 10th April 2025
 			interactionMetrics: {
@@ -169,10 +237,18 @@ export type ReactUFOPayload = {
 				start: number;
 				isBM3ConfigSSRDoneAsFmp: boolean;
 				isUFOConfigSSRDoneAsFmp: boolean;
-				resourceTimings: ResourceTiming[];
+				resourceTimings: ResourceTiming[] | CompactResourceTimings;
+				/** Third-party segment timing and metadata. */
+				segment3pData?: Segment3pDataPayload;
+				/** Diagnostic breadcrumbs for third-party segments excluded from all metric windows */
+				excluded3pSegments?: Array<CustomData>;
 				segments: SegmentInfo[] | RootSegment;
 				reactProfilerTimings: ReactProfilerTiming[];
 				holdInfo: OptimizedHoldInfo[];
+				/** Holds that are excluded from root standard metrics but retained for metric-variant segment attribution. */
+				metricVariantHoldInfo?: MetricVariantHoldInfo;
+				metricWindows?: MetricWindowsPayload;
+				preloadInfo?: OptimizedPreloadInfo[];
 				errors: InteractionError[];
 				responsiveness?: {
 					inputDelay?: number;
@@ -184,6 +260,7 @@ export type ReactUFOPayload = {
 				unknownElementName?: string;
 				unknownElementHierarchy?: string;
 				minorInteractions?: MinorInteraction[];
+				_ls?: LabelStackTrieLookupTable;
 				// TODO: fix typings here - update as necessary for integration tests
 				// marks: [];
 				// redirects: [];
@@ -253,6 +330,10 @@ export type PostInteractionLogPayload = {
 			'event:region': string;
 			'experience:key': 'custom.post-interaction-logs';
 			postInteractionLog: {
+				rawVCRevisions?: {
+					lastInteractionFinish?: RevisionPayloadEntry;
+					postInteractionFinish?: RevisionPayloadEntry;
+				};
 				lastInteractionFinish: {
 					ufoName: string;
 					start: number;
@@ -262,12 +343,12 @@ export type PostInteractionLogPayload = {
 					type: InteractionType;
 					errors: InteractionError[];
 					ttai: number;
-					vc90: number;
+					vc90: number | null;
 					vcClean: boolean;
 				};
 				revisedEndTime: number;
 				revisedTtai: number;
-				revisedVC90: number;
+				revisedVC90: number | null;
 				vcClean: boolean;
 				lateMutations: LateMutation[];
 				reactProfilerTimings: ReactProfilerTiming[];

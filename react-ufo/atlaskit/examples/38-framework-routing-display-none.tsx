@@ -8,7 +8,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { css, jsx } from '@compiled/react';
 
 import UFOLoadHold from '@atlaskit/react-ufo/load-hold';
-import UFOSegment from '@atlaskit/react-ufo/segment';
+import UFOSegment from '@atlaskit/react-ufo/ufo-segment';
 
 /**
  * This example simulates a framework routing pattern where a container element
@@ -102,11 +102,7 @@ const FrameworkRoutingContainer = ({
 	// style="" when visible, style="display: none !important;" when hidden
 	// The container uses display: contents so it has zero dimensions (triggers zero-dimension handling)
 	return (
-		<div
-			ref={containerRef}
-			data-testid={testId}
-			css={routingContainerStyle}
-		>
+		<div ref={containerRef} data-testid={testId} css={routingContainerStyle}>
 			{children}
 		</div>
 	);

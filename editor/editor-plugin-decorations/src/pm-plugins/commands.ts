@@ -5,17 +5,14 @@ import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state
 import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
 import { CellSelection, TableMap } from '@atlaskit/editor-tables';
 import { findTableClosestToPos } from '@atlaskit/editor-tables/utils';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import type { HoverDecorationCommand } from '../decorationsPluginType';
-
 import { ACTIONS, decorationStateKey } from './main';
 
 export const hoverDecorationCommand: HoverDecorationCommand =
-	({ add, className = 'danger selected' }) =>
+	({ add, className = 'danger selected', selection: providedSelection }) =>
 	({ tr }) => {
-		// Use the provided selection (e.g., preservedSelection) or fall back to tr.selection
-		const selection = tr.selection;
+		const selection = providedSelection || tr.selection;
 		const decorations: Decoration[] = [];
 
 		const handleTableSelection = (pos: ResolvedPos = selection.$from) => {
@@ -111,9 +108,7 @@ export const hoverDecorationCommand: HoverDecorationCommand =
 		tr.setMeta(decorationStateKey, {
 			action: add ? ACTIONS.DECORATION_ADD : ACTIONS.DECORATION_REMOVE,
 			data: DecorationSet.create(tr.doc, decorations),
-			hasDangerDecorations:
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true) &&
-				hasDangerDecorations,
+			hasDangerDecorations,
 		}).setMeta('addToHistory', false);
 
 		return tr;

@@ -1,15 +1,14 @@
 import React from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
-import FeatureGates from '@atlaskit/feature-gate-js-client';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
 
 import { ActionName } from '../../../../../constants';
 import { messages } from '../../../../../messages';
-import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context';
-import { importIcon } from '../../utils';
+import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context/useFlexibleUiContext';
+import { importIcon } from '../../importIcon';
 import ServerAction from '../action/server-action';
-
 import { type FollowActionProps } from './types';
 import { getFollowActionErrorMessage } from './utils';
 
@@ -36,6 +35,7 @@ const getIcon = (stackIconType: string) => {
 
 const FollowAction = (props: FollowActionProps): React.JSX.Element | null => {
 	const context = useFlexibleUiContext();
+	const intl = useIntl();
 
 	const actionData = context?.actions?.[ActionName.FollowAction];
 
@@ -89,6 +89,7 @@ const FollowAction = (props: FollowActionProps): React.JSX.Element | null => {
 	return (
 		<ServerAction
 			content={<FormattedMessage {...label} />}
+			ariaLabel={intl.formatMessage(label)}
 			icon={followIcon}
 			testId="smart-action-follow-action"
 			tooltipMessage={<FormattedMessage {...tooltipMessage} />}

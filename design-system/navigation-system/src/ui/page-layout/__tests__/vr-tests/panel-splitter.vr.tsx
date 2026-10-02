@@ -5,7 +5,7 @@ import {
 	PanelSplitterPositionStart,
 	PanelSplitterWithTooltip,
 	PanelSplitterWithTooltipAndShortcut,
-} from '../../../../../examples/panel-splitter';
+} from '../../../../../examples/panel-splitter.vr.ap';
 
 const lightModeVariant: SnapshotTestOptions<Hooks>['variants'] = [
 	{
@@ -76,7 +76,6 @@ snapshot(PanelSplitterWithTooltip, {
 	description: 'Panel splitter with tooltip content - hovered',
 	featureFlags: {
 		'navx-full-height-sidebar': true,
-		platform_dst_nav4_side_nav_resize_tooltip_feedback: true,
 	},
 	states: [
 		{
@@ -94,7 +93,6 @@ snapshot(PanelSplitterWithTooltipAndShortcut, {
 	description: 'Panel splitter with both tooltip content and shortcut - hovered',
 	featureFlags: {
 		'navx-full-height-sidebar': true,
-		platform_dst_nav4_side_nav_resize_tooltip_feedback: true,
 	},
 	states: [
 		{

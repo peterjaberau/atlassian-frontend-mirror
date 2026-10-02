@@ -1,13 +1,15 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 
-import { fireEvent, render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
+
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { fireEvent, render, screen } from '@atlassian/testing-library';
 
 import context from '../../../../../../__fixtures__/flexible-ui-data-context';
 import { getFlexibleCardTestWrapper } from '../../../../../../__tests__/__utils__/unit-testing-library-helpers';
 import { ActionName, SmartLinkDirection, SmartLinkSize } from '../../../../../../constants';
-import { Title } from '../../../elements';
+import { default as Title } from '../../../elements/title-element';
 import ActionGroup from '../../action-group';
 import ElementGroup from '../../element-group';
 import Block from '../index';
@@ -15,6 +17,10 @@ import Block from '../index';
 const testId = 'smart-block';
 
 describe('Block', () => {
+	const wrapper = ({ children }: { children: React.ReactNode }) => (
+		<SmartCardProvider>{children}</SmartCardProvider>
+	);
+
 	it('should capture and report a11y violations', async () => {
 		const { container } = render(<Block>I am a block.</Block>);
 
@@ -100,7 +106,7 @@ describe('Block', () => {
 				const element = await screen.findByTestId('smart-element-link');
 
 				expect(element).toHaveStyle(
-					'font: var(--ds-font-body-UNSAFE_small,normal 400 9pt/1pc "Atlassian Sans",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Ubuntu,"Helvetica Neue",sans-serif);',
+					'font: var(--ds-font-body-small,normal 400 9pt/1pc "Atlassian Sans",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Ubuntu,"Helvetica Neue",sans-serif);',
 				);
 			});
 
@@ -164,6 +170,7 @@ describe('Block', () => {
 							<ActionGroup items={[{ name: ActionName.DeleteAction, onClick: () => {} }]} />
 						</Block>
 					</IntlProvider>,
+					{ wrapper },
 				);
 
 				await expect(container).toBeAccessible();

@@ -1,5 +1,1793 @@
 # @atlaskit/editor-toolbar
 
+## 2.8.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.8
+
+### Patch Changes
+
+- [`064f989853cf0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/064f989853cf0) -
+  Clean up experiment `platform_editor_default_toolbar_state`
+- Updated dependencies
+
+## 2.8.7
+
+### Patch Changes
+
+- [`6728bb1f412c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6728bb1f412c2) -
+  Remove the unused `platform_editor_toolbar_aifc` experiment registration and temporary-only
+  runtime branches, preserve toolbar treatments owned by `platform_editor_ai_aifc_streaming` or
+  `aifc_create_enabled`, retain the control experience when those checks are disabled, and correctly
+  hide decorative Rovo toolbar icons from assistive technology.
+- Updated dependencies
+
+## 2.8.6
+
+### Patch Changes
+
+- [`a4fe8636fa0ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4fe8636fa0ec) -
+  Clean up the fully rolled out `platform_editor_layout_column_menu` experiment and the
+  `platform_editor_layout_column_menu_kill_switch_1` feature gate, retaining their shipped behavior.
+  Consumers must remove any direct `@atlaskit/tmp-editor-statsig` experiment override for
+  `platform_editor_layout_column_menu`.
+- Updated dependencies
+
+## 2.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.4
+
+### Patch Changes
+
+- [`a13383c3c99b2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a13383c3c99b2) -
+  [FFCLEANUP-192944] clean up code references to patch gates
+  `platform_editor_lovability_text_bg_color_patch_1` and
+  `platform_editor_lovability_text_bg_color_patch_2`.
+
+## 2.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.0
+
+### Minor Changes
+
+- [`981dd11bb4ed2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/981dd11bb4ed2) -
+  Add opt-in target visibility handling to editor popups, and use it to hide the Jira description
+  block menu while its originating node is outside the visible viewport. The popup reappears when
+  its target returns, preserving an open nested menu, behind the
+  `platform_editor_popup_target_visibility` experiment.
+
+## 2.7.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.10
+
+### Patch Changes
+
+- [`202069bab1e36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/202069bab1e36) -
+  Clean up the shipped `platform_editor_enghealth_a11y_jan_fixes` experiment. Toolbar dropdown items
+  now always render with `role="menuitem"` and without `aria-pressed`, the block menu always has
+  `role="menu"`, and show-diff deleted content always uses the a11y-fixed styles.
+- Updated dependencies
+
+## 2.7.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.3
+
+### Patch Changes
+
+- [`a1df9dd2d8f02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a1df9dd2d8f02) -
+  Add the optional `showNoResultsMessage` empty-state handler parameter and
+  `platform_editor_slash_command`-gated Ask Rovo and View more recovery for registered quick insert
+  searches with no matches. Respect registry visibility and keep Marketplace content separate from
+  listbox navigation while preserving its native keyboard controls.
+
+  Show the registered Ask Rovo action alongside Marketplace suggestions in the element browser's
+  no-match state, with a divider separating the fallback action from Marketplace content. Keep the
+  toolbar's View more footer visible while Marketplace content scrolls and preserve native Tab
+  navigation.
+
+  Respect `data-keyboard-navigation-independent` containers in both toolbar keyboard navigation
+  providers. Apply the attribute to the registered insert menu, whose rendering is gated by
+  `platform_editor_slash_command`, so its controls retain their own key handling and native tab
+  stops.
+
+- Updated dependencies
+
+## 2.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.0
+
+### Minor Changes
+
+- [`6c8c928766851`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c8c928766851) -
+  Add an optional `ariaLabelledBy` prop to `ColorPalette` and expose all of its swatches as a single
+  radio group named by that element, behind platform_editor_a11y_color_palette_radiogroup
+
+## 2.6.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.44
+
+### Patch Changes
+
+- [`6c7f03ca0f4ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c7f03ca0f4ad) -
+  Clean up experiment `editor_a11y__toolbar-item-aria-described-by_fy27`
+- Updated dependencies
+
+## 2.6.43
+
+### Patch Changes
+
+- [`9f67d7a39831c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f67d7a39831c) -
+  Clean up experiment `editor_a11y__primary-toolbar-aria-label_fy27`
+- Updated dependencies
+
+## 2.6.42
+
+### Patch Changes
+
+- [`3dd0c115a3c95`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3dd0c115a3c95) -
+  Gate absolute positioning of inline toolbar dropdowns behind
+  platform_editor_return_focus_after_text_styles_2.
+
+## 2.6.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.36
+
+### Patch Changes
+
+- [`b3f788656e6f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b3f788656e6f9) -
+  [FFCLEANUP-91521] clean up references to `platform_editor_renderer_toolbar_updates`
+- Updated dependencies
+
+## 2.6.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 2.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.0
+
+### Minor Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.0
+
+### Minor Changes
+
+- [`85c7571a0f48b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85c7571a0f48b) -
+  Return focus to the editor after selecting a text style (e.g. a heading) from the toolbar Text
+  styles dropdown, so typing continues immediately instead of focus staying on the trigger button.
+  The Text styles dropdown now renders inline via `shouldRenderToParent`, which stops the popup
+  focus-trap from returning focus to the trigger on close. `ToolbarDropdownMenu` gains an opt-in
+  `shouldRenderToParent` prop so only the Text styles menu is affected. Gated behind the
+  `platform_editor_return_focus_after_text_styles_2` feature flag.
+
+## 2.4.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.14
+
+### Patch Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+- Updated dependencies
+
+## 2.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.9
+
+### Patch Changes
+
+- [`8c1c9cf057b32`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8c1c9cf057b32) -
+  Use the suggested edits experiment for the updated full-page editor toolbar breakpoints, with the
+  large and extra-large thresholds set to 1035px and 1130px.
+- Updated dependencies
+
+## 2.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.8
+
+### Patch Changes
+
+- [`63f37967452f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63f37967452f1) -
+  A11Y-42687 remove redundant aria-described-by attributes from toolbar
+- Updated dependencies
+
+## 2.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.6
+
+### Patch Changes
+
+- [`862702aa18c98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/862702aa18c98) -
+  Remove redundant primary toolbar aria-label
+- Updated dependencies
+
+## 2.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.3
+
+### Patch Changes
+
+- [`f02f8c37640f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f02f8c37640f3) -
+  Migrate deprecated Badge appearance values to the new semantic appearances.
+- Updated dependencies
+
+## 2.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.0
+
+### Minor Changes
+
+- [`d778b282fb391`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d778b282fb391) -
+  Tighten color picker spacing and footer dimensions.
+
+  The `@atlaskit/editor-toolbar/color-palette` entry point now supports a `gap` prop to customise
+  spacing between color tile wrappers, for example: `<ColorPalette gap="space.0" {...props} />`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.1
+
+### Patch Changes
+
+- [`214dc64fb8525`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/214dc64fb8525) -
+  [ux] [EDITOR-8122] revert changes to the col-gap in the color picker
+
+## 2.2.0
+
+### Minor Changes
+
+- [`c98e0cf5cc4f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c98e0cf5cc4f6) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.9
+
+### Patch Changes
+
+- [`c2986ab2c7a01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2986ab2c7a01) -
+  Cleans up prefer static regex violations and enables e18e rule
+
+## 2.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.5
+
+### Patch Changes
+
+- [`e62296c84e38d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e62296c84e38d) -
+  Clean up feature gate `platform_editor_fix_t_at_is_not_a_function`
+- Updated dependencies
+
+## 2.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.2
+
+### Patch Changes
+
+- [`7ebb725ea5629`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ebb725ea5629) -
+  Remove pressed semantics from toolbar popup triggers, gated behind jira_editor_a11y_toolbar_fixes
+- Updated dependencies
+
+## 2.1.1
+
+### Patch Changes
+
+- [`cc7e55c918e23`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc7e55c918e23) -
+  [ux] Adds info icon next to visually disabled table column sort buttons with a tooltip explaining
+  that sort won't work when merged cells present.
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.11
+
+### Patch Changes
+
+- [`262d8099a9e63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/262d8099a9e63) -
+  [ux] [EDITOR-7851] address minor UI fixes for platform_editor_lovability_text_bg_color experiment
+  behind platform_editor_lovability_text_bg_color_patch_1
+
+## 2.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.6
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.1
+
+### Patch Changes
+
+- [`bf2fd74fd1221`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bf2fd74fd1221) -
+  Cleanup platform_editor_toolbar_split_button_ui
+- [`12f4372b86b8d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12f4372b86b8d) -
+  Add `platform_editor_menu_radius_update` experiment that bumps the editor menu surface border
+  radius from `radius.small` (4px) to `radius.large` (8px). The block menu and paste actions menu
+  now consume the shared `ToolbarMenuContainer` surface rather than rolling their own, so they
+  inherit the gated radius along with `ToolbarMenuContainer`'s existing consumers (table and layout
+  menus).
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.6
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 1.10.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.0
+
+### Minor Changes
+
+- [`84066f0a13142`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/84066f0a13142) -
+  Update table sort icons
+
+## 1.9.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.9.2
+
+### Patch Changes
+
+- [`a777e9d5513bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a777e9d5513bb) - -
+  Add exposure event for improve formatting toolbar experiment, fired only when pinned toolbar is
+  visible
+  - Swap render-path gate checks to expValEqualsNoExposure in toolbar.tsx and
+    ResponsiveContainer.tsx
+
+## 1.9.1
+
+### Patch Changes
+
+- [`a58a80f7cd055`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a58a80f7cd055) -
+  [ux] increase fullpage editor toolbar viewpoint widths for lg and xl
+
+## 1.9.0
+
+### Minor Changes
+
+- [`450368a4cccf5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/450368a4cccf5) -
+  Support optional shouldIgnoreCloseEvent prop in ToolbarNestedDropdownMenu.
+
+### Patch Changes
+
+- [`4f322a101cf47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4f322a101cf47) -
+  Adds a disabledWithoutInteractionLogic prop to the toolbar to selectively enable some buttons
+  before editor interaction
+- Updated dependencies
+
+## 1.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.8.0
+
+### Minor Changes
+
+- [`1c86d46da6101`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c86d46da6101) -
+  Address layout column alignment follow-up review feedback
+
+## 1.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.7.1
+
+### Patch Changes
+
+- [`41962dd9dccb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41962dd9dccb2) -
+  NO-ISSUE: adds a default toolbar state so we can render the toolbar on initial load without
+  relying on editor state
+- Updated dependencies
+
+## 1.7.0
+
+### Minor Changes
+
+- [`cae3f93f31a3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cae3f93f31a3f) -
+  Wire up actions with row menu refactor, add focus, blue, mouseenter and mouseleave events to
+  ToolbarDropdownItem
+
+## 1.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.6.0
+
+### Minor Changes
+
+- [`98ee7ca379f42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/98ee7ca379f42) -
+  Add experiment-gated table menu updates for cell menu
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.5.2
+
+### Patch Changes
+
+- [`0197bccd3d244`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0197bccd3d244) -
+  Add vertical alignment options to layout column menus and rendering.
+- Updated dependencies
+
+## 1.5.1
+
+### Patch Changes
+
+- [`6aa28179246c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6aa28179246c9) -
+  Support data-extension-item-key to identify the selection extension menu items.
+- Updated dependencies
+
+## 1.5.0
+
+### Minor Changes
+
+- [`593f5ee15ac0d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/593f5ee15ac0d) -
+  Add experiment-gated column handle menu surface and expose column menu icons through
+  editor-toolbar.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.4.1
+
+### Patch Changes
+
+- [`434b508cc2368`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/434b508cc2368) -
+  EDITOR-7104: Add `featured-section` placement to block menu selection extension API
+  - Add `featured-section` to `BlockMenuPlacement` type which registers a top-level section with a
+    separator
+  - Add `BLOCK_ACTIONS_TEMPLATE_SECTION` and `BLOCK_ACTIONS_FEATURED_EXTENSION_SECTION_KEYS`
+    constants to `editor-common`
+  - Render lozenge inline next to label text (not pushed to far right) for dropdown and nested
+    dropdown items
+  - Move "New" lozenge next to label for synced block dropdown items
+  - Block template/menu behaviour gated behind `platform_editor_block_menu_v2_patch_2`; synced-block
+    lozenge placement behaviour gated behind `platform_synced_block_patch_12`
+
+- Updated dependencies
+
+## 1.4.0
+
+### Minor Changes
+
+- [`7b2ab46c79d94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b2ab46c79d94) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.3.0
+
+### Minor Changes
+
+- [`89a8af72aa2c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/89a8af72aa2c9) -
+  Add reusable toolbar menu container and render the layout column menu in a popup
+
+## 1.2.0
+
+### Minor Changes
+
+- [`6403e27aa3327`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6403e27aa3327) -
+  Add the experimental table row menu structure, keyboard shortcut hints, and shared table menu
+  items. Expose table row menu icons through editor-toolbar. Ensure the UI control registry is
+  available before table row menu items are registered.
+
+### Patch Changes
+
+- [`9b17a2bfdbc92`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b17a2bfdbc92) -
+  Cleanup feature gates `platform_editor_block_menu_v2_patch_1` and
+  `platform_editor_block_menu_v2_patch_2`. The patch_1 behaviour (inline toolbar uses
+  `InlineToolbarMenuItemComponent` and block menu is only closed when
+  `extensionLocation === 'block-menu'`) and patch_2 behaviour (max-width styles on block menu,
+  tooltip/title-wrap on nested dropdown menus, truncation tooltip on dropdown items) are now
+  permanent.
+- Updated dependencies
+
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.0
+
+### Minor Changes
+
+- [`97eb246201d1f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/97eb246201d1f) -
+  Extend react and react-dom version range to include 19
+
+## 1.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.10
+
+### Patch Changes
+
+- [`bb13ee29107b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb13ee29107b7) -
+  Editor-6656: Fix TypeError: .at() is not a function in ToolbarButtonGroup by replacing
+  Array.prototype.at() calls
+- Updated dependencies
+
+## 1.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.2
+
+### Patch Changes
+
+- [`9e45c7ac76c9a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e45c7ac76c9a) -
+  Enrol editor core packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 0.20.30
+
+### Patch Changes
+
+- [`4e313eb8fb024`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4e313eb8fb024) -
+  Add TextNormalIcon for normal text block type, gate behind
+  platform_editor_change_normal_text_icon, exclude editor-toolbar from barrel ratchet
+- Updated dependencies
+
+## 0.20.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.19
+
+### Patch Changes
+
+- [`4dac2e41a9cca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4dac2e41a9cca) -
+  Clean up feature gate `platform_editor_toolbar_highlight_bug_fix` - enable toolbar highlight bug
+  fix behaviour unconditionally.
+- Updated dependencies
+
+## 0.20.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.13
+
+### Patch Changes
+
+- [`c9b7aaa42d05b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9b7aaa42d05b) -
+  Mechanical type-import autofix for editor core shell packages.
+
+## 0.20.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.8
+
+### Patch Changes
+
+- [`d7123d7a16015`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7123d7a16015) -
+  Add TextSmallIcon component for small text block type
+- Updated dependencies
+
+## 0.20.7
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 0.20.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.0
+
+### Minor Changes
+
+- [`5a8d797e50210`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a8d797e50210) -
+  [FFCLEANUP-91669] clean up platform_editor_hide_toolbar_tooltips_fix experiment to hide dropdown
+  menu item tooltips on hover of the dropdown menu button
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.35
+
+### Patch Changes
+
+- [`8b94becba79f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8b94becba79f4) -
+  [EDITOR-4640] clean up platform_editor_aifc_remove_duplicate_role experiment
+- Updated dependencies
+
+## 0.19.34
+
+### Patch Changes
+
+- [`db3bf19a55517`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db3bf19a55517) -
+  Update breakpoint values for jira editor and jsm under platform_editor_toolbar_update_jira_config
+  experiment.
+- Updated dependencies
+
+## 0.19.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.25
+
+### Patch Changes
+
+- [`25ad5c762c280`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25ad5c762c280) -
+  [ux] Add truncation on the extention label in block menu
+- Updated dependencies
+
 ## 0.19.24
 
 ### Patch Changes

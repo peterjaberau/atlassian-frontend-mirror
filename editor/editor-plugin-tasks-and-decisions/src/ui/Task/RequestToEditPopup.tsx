@@ -8,18 +8,18 @@
 import { useEffect, useState } from 'react';
 
 import { css as cssUnbounded } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { css, cssMap, jsx } from '@atlaskit/css';
 import {
 	ACTION,
 	ACTION_SUBJECT,
-	type EditorAnalyticsAPI,
 	EVENT_TYPE,
 	MODE,
 	PLATFORMS,
-	type RequestToEditAEP,
 } from '@atlaskit/editor-common/analytics';
+// oxlint-disable-next-line import/no-duplicates
+import type { EditorAnalyticsAPI, RequestToEditAEP } from '@atlaskit/editor-common/analytics';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import { tasksAndDecisionsMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
@@ -29,10 +29,11 @@ import {
 	withReactEditorViewOuterListeners as withOuterListeners,
 } from '@atlaskit/editor-common/ui-react';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorFloatingDialogZIndex } from '@atlaskit/editor-shared-styles';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import EditorDoneIcon from '@atlaskit/icon/core/check-mark';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Pressable, Stack } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -54,10 +55,10 @@ const PopupWithListeners = withOuterListeners(Popup);
 const TRYING_REQUEST_TIMEOUT = 3000;
 
 const popupContentWrapper = css({
-	paddingTop: token('space.025', '2px'),
-	paddingBottom: token('space.025', '2px'),
-	paddingLeft: token('space.025', '2px'),
-	paddingRight: token('space.025', '2px'),
+	paddingTop: token('space.025'),
+	paddingBottom: token('space.025'),
+	paddingLeft: token('space.025'),
+	paddingRight: token('space.025'),
 	borderRadius: token('radius.small', '3px'),
 	boxShadow: token('elevation.shadow.overlay'),
 	backgroundColor: token('elevation.surface.overlay'),
@@ -113,6 +114,24 @@ const pressableStyles = cssMap({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors
 		'&:active': {
 			color: token('color.link.pressed'),
+			transition: token('motion.button.pressed'),
+		},
+	},
+	pressableMotion: {
+		paddingTop: token('space.0'),
+		paddingBottom: token('space.0'),
+		paddingLeft: token('space.0'),
+		paddingRight: token('space.0'),
+		// @ts-expect-error - TODO should use token here, https://product-fabric.atlassian.net/browse/EDF-2517
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+		fontSize: '14px',
+		color: token('color.text.brand'),
+		backgroundColor: token('color.background.neutral.subtle'),
+		transition: token('motion.button.hovered'),
+		'&:hover': { textDecoration: 'underline' },
+		'&:active': {
+			color: token('color.link.pressed'),
+			transition: token('motion.button.pressed'),
 		},
 	},
 });
@@ -152,7 +171,11 @@ const RequestToEditButton = ({
 		<Box>
 			<Pressable
 				onClick={onClick}
-				xcss={pressableStyles.pressable}
+				xcss={
+					fg('platform-dst-motion-uplift-custom-button')
+						? pressableStyles.pressableMotion
+						: pressableStyles.pressable
+				}
 				testId="request-to-edit-popup-request-btn"
 			>
 				{formatMessage(tasksAndDecisionsMessages.requestToEdit)}
@@ -169,7 +192,7 @@ export const RequestToEditPopup = ({
 	mountTo,
 	boundariesElement,
 	scrollableElement,
-}: Props) => {
+}: Props): JSX.Element | null => {
 	const hasRequestedEditPermission = useSharedPluginStateSelector(
 		api,
 		'taskDecision.hasRequestedEditPermission',
@@ -276,8 +299,13 @@ export const RequestToEditPopup = ({
 									<div css={[dotStyles, dotStylesUnbounded]}></div>
 									<Box>
 										<Pressable
+											// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 											onClick={() => onHandleDismiss(api?.analytics?.actions)}
-											xcss={pressableStyles.pressable}
+											xcss={
+												fg('platform-dst-motion-uplift-custom-button')
+													? pressableStyles.pressableMotion
+													: pressableStyles.pressable
+											}
 											testId="request-to-edit-popup-cancel-btn"
 										>
 											{formatMessage(tasksAndDecisionsMessages.dismiss)}

@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { type StrictXCSSProp } from '@atlaskit/css';
-import { type Direction } from '@atlaskit/motion';
+import type { Direction } from '@atlaskit/motion/entering/types';
 
 export type DrawerWidth = 'extended' | 'full' | 'medium' | 'narrow' | 'wide';
 
@@ -94,7 +94,15 @@ export interface DrawerContentProps {
 		| 'paddingLeft'
 		| 'paddingRight'
 		| 'marginTop'
-		| 'backgroundColor',
+		| 'backgroundColor'
+		| 'marginBlockStart'
+		| 'paddingInlineStart'
+		| 'paddingInlineEnd'
+		| 'marginBlockStart'
+		| 'paddingBlockStart'
+		| 'paddingInlineEnd'
+		| 'paddingBlockEnd'
+		| 'paddingInlineStart',
 		never
 	>;
 }
@@ -151,7 +159,7 @@ export interface FocusLockSettings {
 	 * If true, focus returns to the trigger element . If false, focus remains where it was when the FocusLock was deactivated.
 	 * If ref is passed, focus returns to that specific ref element.
 	 */
-	shouldReturnFocus?: boolean | RefObject<HTMLElement>;
+	shouldReturnFocus?: boolean | RefObject<HTMLElement | null>;
 }
 
 export interface FocusLockProps extends FocusLockSettings {

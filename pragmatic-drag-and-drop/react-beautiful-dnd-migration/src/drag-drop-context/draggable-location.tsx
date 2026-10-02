@@ -1,6 +1,6 @@
 import type { DraggableLocation } from 'react-beautiful-dnd';
 
-import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge';
 import type { DragLocation } from '@atlaskit/pragmatic-drag-and-drop/types';
 
 import { type DraggableData, isDraggableData } from '../draggable/data';
@@ -130,6 +130,7 @@ export function getDraggableLocation(location: DragLocation): DraggableLocation 
 /**
  * Checks if two `DraggableLocation` values are equivalent.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function isSameLocation(a: DraggableLocation | null, b: DraggableLocation | null): boolean {
 	if (a?.droppableId !== b?.droppableId) {
 		return false;

@@ -1,10 +1,9 @@
 import React, { forwardRef, type MouseEvent, useCallback } from 'react';
 
-import { useMouseDownEvent } from '../../../state/analytics/useLinkClicked';
-
+import { useMouseDownEvent } from '../../../state/analytics/useMouseDownEvent';
 import { WrapperAnchor, WrapperSpan } from './styled';
 
-export type ViewType = 'default' | 'unauthorised' | 'errored';
+export type ViewType = 'default' | 'unauthorised' | 'errored' | 'action';
 
 export interface FrameViewProps {
 	children?: React.ReactNode;
@@ -14,8 +13,12 @@ export interface FrameViewProps {
 	/** A flag that determines whether the card is selected in edit mode. */
 	isSelected?: boolean;
 	link?: string;
+	/** Optional middle-click handler. */
+	onAuxClick?: React.EventHandler<React.MouseEvent>;
 	/** The optional click handler */
 	onClick?: React.EventHandler<React.MouseEvent | React.KeyboardEvent>;
+	/** Optional right-click handler. */
+	onContextMenu?: React.EventHandler<React.MouseEvent>;
 	/** A `testId` prop is provided for specified elements, which is a unique string that appears as a data attribute `data-testid` in the rendered code, serving as a hook for automated tests */
 	testId?: string;
 	/** A flag that determines whether a card is truncated to 1 line */
@@ -26,73 +29,78 @@ export interface FrameViewProps {
 	withoutBackground?: boolean;
 }
 
-export const Frame = forwardRef<HTMLSpanElement & null, FrameViewProps>((props, ref) => {
-	const {
-		isSelected,
-		children,
-		onClick,
-		link,
-		viewType,
-		withoutBackground,
-		testId,
-		className,
-		isHovered,
-		truncateInline,
-	} = props;
+export const Frame: React.ForwardRefExoticComponent<FrameViewProps & React.RefAttributes<never>> =
+	forwardRef<HTMLSpanElement & null, FrameViewProps>((props, ref) => {
+		const {
+			isSelected,
+			children,
+			onClick,
+			onAuxClick,
+			onContextMenu,
+			link,
+			viewType,
+			withoutBackground,
+			testId,
+			className,
+			isHovered,
+			truncateInline,
+		} = props;
 
-	const handleClick = useCallback(
-		(event: MouseEvent) => {
-			if (onClick) {
-				event.preventDefault();
-				event.stopPropagation();
-				onClick(event);
-			}
-		},
-		[onClick],
-	);
+		const handleClick = useCallback(
+			(event: MouseEvent) => {
+				if (onClick) {
+					event.preventDefault();
+					event.stopPropagation();
+					onClick(event);
+				}
+			},
+			[onClick],
+		);
 
-	const handleKeyPress = useCallback(
-		(event: React.KeyboardEvent<HTMLAnchorElement>) => {
-			if (event.key !== ' ' && event.key !== 'Enter') {
-				return;
-			}
-			if (onClick) {
-				event.preventDefault();
-				event.stopPropagation();
-				onClick(event);
-			}
-		},
-		[onClick],
-	);
+		const handleKeyPress = useCallback(
+			(event: React.KeyboardEvent<HTMLAnchorElement>) => {
+				if (event.key !== ' ' && event.key !== 'Enter') {
+					return;
+				}
+				if (onClick) {
+					event.preventDefault();
+					event.stopPropagation();
+					onClick(event);
+				}
+			},
+			[onClick],
+		);
 
-	const handleMouseDown = useMouseDownEvent();
+		const handleMouseDown = useMouseDownEvent();
 
-	const isInteractive = Boolean(onClick);
-	const isAnchor = Boolean(link || onClick);
+		const isInteractive = Boolean(onClick);
+		const isAnchor = Boolean(link || onClick);
 
-	// Depending on whenever Frame was given onClick or link itself we display span or anchor elements
-	const Wrapper = isAnchor ? WrapperAnchor : WrapperSpan;
+		// Depending on whenever Frame was given onClick or link itself we display span or anchor elements
+		const Wrapper = isAnchor ? WrapperAnchor : WrapperSpan;
 
-	return (
-		<Wrapper
-			href={link}
-			withoutBackground={withoutBackground}
-			isSelected={isSelected}
-			isInteractive={isInteractive}
-			tabIndex={isInteractive ? 0 : undefined}
-			role={isInteractive ? 'button' : undefined}
-			onClick={handleClick}
-			onMouseDown={handleMouseDown}
-			onKeyPress={handleKeyPress}
-			data-testid={testId}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-			className={className}
-			ref={ref}
-			isHovered={isHovered}
-			truncateInline={truncateInline}
-			viewType={viewType}
-		>
-			{children}
-		</Wrapper>
-	);
-});
+		return (
+			<Wrapper
+				href={link}
+				withoutBackground={withoutBackground}
+				isSelected={isSelected}
+				isInteractive={isInteractive}
+				tabIndex={isInteractive && !link ? 0 : undefined}
+				role={isInteractive && !link ? 'button' : undefined}
+				onClick={handleClick}
+				onAuxClick={onAuxClick}
+				onContextMenu={onContextMenu}
+				onMouseDown={handleMouseDown}
+				onKeyPress={handleKeyPress}
+				data-testid={testId}
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+				className={className}
+				ref={ref}
+				isHovered={isHovered}
+				truncateInline={truncateInline}
+				viewType={viewType}
+			>
+				{children}
+			</Wrapper>
+		);
+	});

@@ -11,12 +11,9 @@ import {
 	AdminIcon,
 	AlignIcon,
 	AnalyticsIcon,
-	AtlassianAccessIcon,
 	AtlassianAdminIcon,
 	AtlassianAdministrationIcon,
 	AtlassianAnalyticsIcon,
-	AtlassianIcon,
-	AtlassianMarketplaceIcon,
 	BitbucketIcon,
 	CompassIcon,
 	ConfluenceIcon,
@@ -26,8 +23,6 @@ import {
 	JiraIcon,
 	JiraProductDiscoveryIcon,
 	JiraServiceManagementIcon,
-	JiraSoftwareIcon,
-	JiraWorkManagementIcon,
 	LoomAttributionIcon,
 	LoomIcon,
 	OpsgenieIcon,
@@ -35,13 +30,20 @@ import {
 	StatuspageIcon,
 	TrelloIcon,
 } from '@atlaskit/logo';
-import { B500, DN10, N40, P300, Y300 } from '@atlaskit/theme/colors';
+import { ArtifactsIcon } from '@atlaskit/logo/artifacts/icon';
+import { AtlassianAccessIcon } from '@atlaskit/logo/atlassian-access/icon';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
+import { AtlassianMarketplaceIcon } from '@atlaskit/logo/atlassian-marketplace/icon';
+import { InsightsIcon } from '@atlaskit/logo/insights/icon';
+import { JiraSoftwareIcon } from '@atlaskit/logo/jira-software-icon';
+import { JiraWorkManagementIcon } from '@atlaskit/logo/jira-work-management/icon';
 import { token } from '@atlaskit/tokens';
 
 const logoOptions = [
 	AtlassianIcon,
 	AdminIcon,
 	AnalyticsIcon,
+	ArtifactsIcon,
 	AlignIcon,
 	BitbucketIcon,
 	CompassIcon,
@@ -49,6 +51,7 @@ const logoOptions = [
 	ConfluenceIcon,
 	FocusIcon,
 	GuardIcon,
+	InsightsIcon,
 	JiraIcon,
 	JiraProductDiscoveryIcon,
 	JiraServiceManagementIcon,
@@ -68,9 +71,9 @@ const logoOptions = [
 ];
 
 const iconVariants = [
-	{ background: B500, color: 'white' },
-	{ background: N40, color: DN10 },
-	{ background: P300, color: Y300 },
+	{ background: '#0747A6', color: 'white' },
+	{ background: '#DFE1E6', color: '#0E1624' },
+	{ background: '#6554C0', color: '#FFAB00' },
 ];
 
 interface WrapperDivProps {
@@ -88,7 +91,7 @@ const wrapperDivStyles = css({
 	background: 'var(--background)',
 	borderRadius: token('radius.small', '4px'),
 	color: 'var(--color)',
-	marginInlineEnd: token('space.250', '20px'),
+	marginInlineEnd: token('space.250'),
 });
 
 const WrapperDiv = ({ color, background, children }: WrapperDivProps) => {
@@ -116,7 +119,7 @@ const _default: () => JSX.Element = () => (
 		{logoOptions.map((Child, index) => (
 			<div
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				style={{ display: 'flex', marginBottom: token('space.250', '20px') }}
+				style={{ display: 'flex', marginBottom: token('space.250') }}
 				key={index}
 			>
 				{iconVariants.map((pairing, index2) => (

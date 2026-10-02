@@ -1,22 +1,26 @@
+import classNames from 'classnames';
 import kebabCase from 'lodash/kebabCase';
 
-import { table, tableWithNestedTable } from '@atlaskit/adf-schema';
+import { table, tableWithNestedTable } from '@atlaskit/adf-schema/tableNodes';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
+import { isTableInContentMode } from '@atlaskit/editor-common/table';
 import type { GetEditorContainerWidth } from '@atlaskit/editor-common/types';
 import type { DOMOutputSpec, NodeSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import {
 	generateColgroupFromNode,
 	getResizerMinWidth,
 } from '../pm-plugins/table-resizing/utils/colgroup';
-import { TABLE_MAX_WIDTH, TABLE_FULL_WIDTH } from '../pm-plugins/table-resizing/utils/consts';
+import { TABLE_MAX_WIDTH } from '../pm-plugins/table-resizing/utils/consts';
 import {
 	getTableResizerContainerMaxWidthInCSS,
 	getTableResizerContainerForFullPageWidthInCSS,
 	getTableResizerItemWidthInCSS,
 } from '../pm-plugins/table-resizing/utils/misc';
-
+import { isContentModeSupported } from '../pm-plugins/utils/tableMode/is-content-mode-supported';
+import { TableCssClassName as ClassName } from '../types';
 import { getAlignmentStyle } from './table-container-styles';
 
 type Config = {
@@ -38,15 +42,24 @@ export const tableNodeSpecWithFixedToDOM = (
 	return {
 		...tableNode,
 		toDOM: (node: PMNode): DOMOutputSpec => {
+			const isFullPageEditor = !config.isChromelessEditor && !config.isCommentEditor;
+			const isInContentMode = isTableInContentMode({
+				tableNode: node,
+				isSupported: isContentModeSupported({
+					allowColumnResizing: config.allowColumnResizing,
+					allowTableResizing: config.tableResizingEnabled,
+					isFullPageEditor,
+				}),
+				isTableNested: config.isNested,
+			});
+
 			const alignmentStyle = Object.entries(getAlignmentStyle(node.attrs.layout))
 				.map(([k, v]) => `${kebabCase(k)}: ${kebabCase(v)}`)
 				.join(';');
 
 			const tableMinWidth = getResizerMinWidth(node);
 
-			const isFullPageEditor = !config.isChromelessEditor && !config.isCommentEditor;
-
-			const attrs = {
+			const attrs: Record<string, string | undefined> = {
 				'data-number-column': node.attrs.isNumberColumnEnabled,
 				'data-layout': node.attrs.layout,
 				'data-autosize': node.attrs.__autoSize,
@@ -54,7 +67,12 @@ export const tableNodeSpecWithFixedToDOM = (
 				'data-table-width': node.attrs.width,
 				'data-ssr-placeholder': `table-${node.attrs.localId}`,
 				'data-ssr-placeholder-replace': `table-${node.attrs.localId}`,
+				'data-table-display-mode': node.attrs.displayMode,
 			};
+
+			if (isInContentMode) {
+				attrs['data-initial-width-mode'] = 'content';
+			}
 
 			// This would be used for table scaling in colgroup CSS
 			// cqw, or px is well supported
@@ -78,6 +96,58 @@ export const tableNodeSpecWithFixedToDOM = (
 					),
 				];
 			}
+
+			const overflowShadows: DOMOutputSpec[] = isExperimentEnabled(
+				'platform_editor_table_css_overflow_shadow',
+			)
+				? [
+						[
+							'div',
+							{
+								contenteditable: 'false',
+								'aria-hidden': 'true',
+								'data-vc-nvs': 'true',
+								'data-table-overflow-shadow': 'start',
+							},
+						],
+						[
+							'div',
+							{
+								contenteditable: 'false',
+								'aria-hidden': 'true',
+								'data-vc-nvs': 'true',
+								'data-table-overflow-shadow': 'end',
+							},
+						],
+					]
+				: [];
+
+			const roundedTableCornerMasks: DOMOutputSpec[] = expValEquals(
+				'platform_editor_table_q4_loveability',
+				'isEnabled',
+				true,
+			)
+				? [
+						[
+							'div',
+							{
+								contenteditable: 'false',
+								'aria-hidden': 'true',
+								class: ClassName.TABLE_CORNER_MASK,
+								'data-corner': 'left',
+							},
+						],
+						[
+							'div',
+							{
+								contenteditable: 'false',
+								'aria-hidden': 'true',
+								class: ClassName.TABLE_CORNER_MASK,
+								'data-corner': 'right',
+							},
+						],
+					]
+				: [];
 
 			const tableContainerDiv = [
 				'div',
@@ -104,15 +174,38 @@ export const tableNodeSpecWithFixedToDOM = (
 				[
 					'div',
 					{
-						class: 'pm-table-wrapper',
+						class: classNames(ClassName.TABLE_NODE_WRAPPER, {
+							[ClassName.TABLE_SCROLL_INLINE_SHADOW]: isExperimentEnabled(
+								'platform_editor_table_css_overflow_shadow',
+							),
+						}),
 					},
+					...roundedTableCornerMasks,
 					['table', attrs, colgroup, ['tbody', 0]],
 				],
+				...overflowShadows,
 				[
 					'div',
 					{
 						class: 'pm-table-sticky-sentinel-bottom',
 						'data-testid': 'sticky-sentinel-bottom',
+					},
+				],
+				[
+					'div',
+					{
+						contenteditable: 'false',
+						class: 'pm-table-left-border',
+						'data-with-numbered-table': node.attrs.isNumberColumnEnabled,
+						'data-testid': 'table-left-border',
+					},
+				],
+				[
+					'div',
+					{
+						contenteditable: 'false',
+						class: 'pm-table-right-border',
+						'data-testid': 'table-right-border',
 					},
 				],
 			];
@@ -145,7 +238,7 @@ export const tableNodeSpecWithFixedToDOM = (
 							'--ak-editor-table-gutter-padding': config.isTableScalingEnabled
 								? 'calc(var(--ak-editor--large-gutter-padding) * 2)'
 								: 'calc(var(--ak-editor--large-gutter-padding) * 2 - var(--ak-editor-resizer-handle-spacing))',
-							'--ak-editor-table-width': resizableTableWidth,
+							'--ak-editor-table-width': isInContentMode ? 'max-content' : resizableTableWidth,
 							width: `var(--ak-editor-table-width)`,
 						}),
 					},
@@ -157,7 +250,7 @@ export const tableNodeSpecWithFixedToDOM = (
 								position: 'relative',
 								userSelect: 'auto',
 								boxSizing: 'border-box',
-								'--ak-editor-table-max-width': `${expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) || expValEquals('confluence_max_width_content_appearance', 'isEnabled', true) ? TABLE_MAX_WIDTH : TABLE_FULL_WIDTH}px`,
+								'--ak-editor-table-max-width': `${TABLE_MAX_WIDTH}px`,
 								'--ak-editor-table-min-width': `${tableMinWidth}px`,
 								minWidth: 'var(--ak-editor-table-min-width)',
 								maxWidth: getTableResizerContainerMaxWidthInCSS(
@@ -165,11 +258,13 @@ export const tableNodeSpecWithFixedToDOM = (
 									config.isChromelessEditor,
 									config.isTableScalingEnabled,
 								),
-								width: getTableResizerItemWidthInCSS(
-									node,
-									config.isCommentEditor,
-									config.isChromelessEditor,
-								),
+								width: isInContentMode
+									? 'auto'
+									: getTableResizerItemWidthInCSS(
+											node,
+											config.isCommentEditor,
+											config.isChromelessEditor,
+										),
 							}),
 						},
 						[

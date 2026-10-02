@@ -1,21 +1,18 @@
-import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { type CardClient, SmartCardProvider } from '@atlaskit/link-provider';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { asMockFunction } from '@atlaskit/media-test-helpers';
+import '@atlaskit/link-test-helpers/jest';
 import { renderWithIntl } from '@atlaskit/media-test-helpers/renderWithIntl';
+import { screen, waitFor, waitForElementToBeRemoved, userEvent } from '@atlassian/testing-library';
 
 import useIncomingOutgoingAri from '../../../state/hooks/use-incoming-outgoing-links';
 import useResponse from '../../../state/hooks/use-response';
-import { ANALYTICS_CHANNEL } from '../../../utils/analytics';
-import { fakeFactory } from '../../../utils/mocks';
+import { ANALYTICS_CHANNEL } from '../../../utils/analytics/analytics';
+import { fakeFactory } from '../../../utils/fake-factory';
 import RelatedLinksModal from '../index';
-
 import {
 	mockErrorResponse,
 	mockForbiddenResponse,
@@ -560,7 +557,7 @@ describe('RelatedLinksModal', () => {
 	it('satisifies testId API for Search Team', async () => {
 		setup({ ari });
 
-		// IF THIS TEST ID CHANGES PLS TAG !oncall of #search-plex in the PR
+		// IF THIS TEST ID CHANGES PLS TAG !oncall of #help-search-plex in the PR
 		const modal = await screen.getByTestId('related-links-modal');
 		expect(modal).toBeInTheDocument();
 	});

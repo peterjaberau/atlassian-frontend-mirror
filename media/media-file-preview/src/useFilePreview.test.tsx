@@ -13,7 +13,7 @@ import { generateSampleFileItem, sampleBinaries } from '@atlaskit/media-test-dat
 import { ffTest } from '@atlassian/feature-flags-test-utils';
 
 import { createMockedMediaClientProvider } from './__tests__/helpers/_MockedMediaClientProvider';
-import { mediaFilePreviewCache } from './getPreview';
+import { mediaFilePreviewCache } from './getPreview/cache';
 import { type MediaFilePreview } from './types';
 import { useFilePreview, type UseFilePreviewParams } from './useFilePreview';
 
@@ -35,6 +35,7 @@ const createMediaBlobUrlAttrsObject = ({
 	id: identifier.id,
 	contextId: 'some-context',
 	collection: identifier.collectionName,
+	clientId: 'some-client-id',
 	size: 123456,
 	name: fileItem.details.name,
 	mimeType: fileItem.details.mimeType,
@@ -59,6 +60,129 @@ const createMediaBlobUrlAttrsObject = ({
 describe('useFilePreview', () => {
 	beforeEach(() => {
 		mediaFilePreviewCache.clear();
+	});
+
+	describe('Cross-client copy with auth', () => {
+		ffTest.on('platform_media_cross_client_copy_with_auth', 'when feature flag is enabled', () => {
+			it('should include clientId in remote preview blob URL via enrichAttrsWithClientId', async () => {
+				const [fileItem, identifier] = generateSampleFileItem.workingImgWithRemotePreview();
+				const { MockedMediaClientProvider, mediaApi } = createMockedMediaClientProvider({
+					initialItems: fileItem,
+				});
+
+				// Mock getClientId on mediaApi (MediaStore) — enrichAttrsWithClientId
+				// calls mediaClient.getClientId() which delegates to mediaStore.getClientId()
+				const mockGetClientId = jest.fn().mockResolvedValue('test-client-id');
+				(mediaApi as any).getClientId = mockGetClientId;
+				// getClientIdSync returns undefined (no initialAuth in test), so async fallback is used
+				(mediaApi as any).getClientIdSync = jest.fn().mockReturnValue(undefined);
+
+				const { result } = renderHook(useFilePreview, {
+					wrapper: ({ children }) => (
+						<MockedMediaClientProvider>{children}</MockedMediaClientProvider>
+					),
+					initialProps: {
+						identifier,
+					},
+				});
+
+				// Wait for preview to be complete — clientId is enriched during preview generation
+				await waitFor(() => expect(result?.current.status).toBe('complete'));
+
+				// Verify clientId is embedded in the blob URL by enrichAttrsWithClientId
+				await waitFor(() =>
+					expect(result?.current.preview?.dataURI).toContain('clientId=test-client-id'),
+				);
+			});
+
+			it('should include clientId in remote preview when getClientIdSync is available', async () => {
+				const [fileItem, identifier] = generateSampleFileItem.workingImgWithRemotePreview();
+				const { MockedMediaClientProvider, mediaApi } = createMockedMediaClientProvider({
+					initialItems: fileItem,
+				});
+
+				// Mock getClientIdSync to return clientId synchronously (simulates initialAuth being available)
+				(mediaApi as any).getClientIdSync = jest.fn().mockReturnValue('sync-client-id');
+
+				const { result } = renderHook(useFilePreview, {
+					wrapper: ({ children }) => (
+						<MockedMediaClientProvider>{children}</MockedMediaClientProvider>
+					),
+					initialProps: {
+						identifier,
+					},
+				});
+
+				// Wait for preview to be complete
+				await waitFor(() => expect(result?.current.status).toBe('complete'));
+
+				// Verify clientId is embedded via the sync path
+				await waitFor(() =>
+					expect(result?.current.preview?.dataURI).toContain('clientId=sync-client-id'),
+				);
+			});
+
+			it('should handle clientId unavailable gracefully', async () => {
+				const [fileItem, identifier] = generateSampleFileItem.workingImgWithRemotePreview();
+				const { MockedMediaClientProvider, mediaApi } = createMockedMediaClientProvider({
+					initialItems: fileItem,
+				});
+
+				// Both sync and async return undefined
+				(mediaApi as any).getClientIdSync = jest.fn().mockReturnValue(undefined);
+				const mockGetClientId = jest.fn().mockResolvedValue(undefined);
+				(mediaApi as any).getClientId = mockGetClientId;
+
+				const { result } = renderHook(useFilePreview, {
+					wrapper: ({ children }) => (
+						<MockedMediaClientProvider>{children}</MockedMediaClientProvider>
+					),
+					initialProps: {
+						identifier,
+					},
+				});
+
+				// Wait for preview to be complete
+				await waitFor(() => expect(result?.current.status).toBe('complete'));
+
+				// Preview should still work without clientId
+				expect(result?.current.preview?.dataURI).toBeDefined();
+				expect(result?.current.preview?.dataURI).not.toContain('clientId=');
+			});
+		});
+
+		ffTest.off(
+			'platform_media_cross_client_copy_with_auth',
+			'when feature flag is disabled',
+			() => {
+				it('should not enrich preview with clientId', async () => {
+					const [fileItem, identifier] = generateSampleFileItem.workingImgWithRemotePreview();
+					const { MockedMediaClientProvider, mediaApi } = createMockedMediaClientProvider({
+						initialItems: fileItem,
+					});
+
+					// Add mocks — they should NOT be called when flag is off
+					const mockGetClientId = jest.fn().mockResolvedValue('test-client-id');
+					(mediaApi as any).getClientId = mockGetClientId;
+					(mediaApi as any).getClientIdSync = jest.fn().mockReturnValue('test-client-id');
+
+					const { result } = renderHook(useFilePreview, {
+						wrapper: ({ children }) => (
+							<MockedMediaClientProvider>{children}</MockedMediaClientProvider>
+						),
+						initialProps: {
+							identifier,
+						},
+					});
+
+					// Wait for preview to be complete
+					await waitFor(() => expect(result?.current.status).toBe('complete'));
+
+					// Preview should not contain clientId when flag is off
+					expect(result?.current.preview?.dataURI).not.toContain('clientId=');
+				});
+			},
+		);
 	});
 
 	describe('Files with no preview and other errors', () => {
@@ -366,7 +490,7 @@ describe('useFilePreview', () => {
 					},
 				});
 
-				expect(getFileImageURLSync).toBeCalledTimes(1);
+				expect(getFileImageURLSync).toHaveBeenCalledTimes(1);
 				// Should not be error status
 				expect(result?.current.status).toBe('loading');
 				expect(result?.current.preview).toBeUndefined();
@@ -682,7 +806,7 @@ describe('useFilePreview', () => {
 					},
 				});
 
-				expect(getFileImageURLSync).toBeCalledTimes(1);
+				expect(getFileImageURLSync).toHaveBeenCalledTimes(1);
 				// Should not be error status
 				expect(result?.current.status).toBe('loading');
 				expect(result?.current.preview).toBeUndefined();
@@ -742,8 +866,8 @@ describe('useFilePreview', () => {
 				initialProps,
 			});
 
-			expect(getItemsSpy).not.toBeCalled();
-			expect(getImageSpy).not.toBeCalled();
+			expect(getItemsSpy).not.toHaveBeenCalled();
+			expect(getImageSpy).not.toHaveBeenCalled();
 			expect(result?.current.status).toBe('loading');
 			expect(result?.current.preview).toBeUndefined();
 
@@ -751,7 +875,7 @@ describe('useFilePreview', () => {
 			rerender({ ...initialProps, skipRemote: false });
 
 			// Items call should be performed, but we are delaying the response artificialy withing getItemsSpy
-			await waitFor(() => expect(getItemsSpy).toBeCalledTimes(1));
+			await waitFor(() => expect(getItemsSpy).toHaveBeenCalledTimes(1));
 
 			// A preview fetch should happened while waiting for a file state
 			await waitFor(() =>
@@ -766,7 +890,7 @@ describe('useFilePreview', () => {
 
 			expect(result?.current.status).toBe('complete');
 
-			expect(getImageSpy).toBeCalledTimes(1);
+			expect(getImageSpy).toHaveBeenCalledTimes(1);
 			resolveItemsPromise();
 		});
 
@@ -921,14 +1045,14 @@ describe('useFilePreview', () => {
 						initialProps,
 					});
 
-					expect(getImageSpy).not.toBeCalled();
+					expect(getImageSpy).not.toHaveBeenCalled();
 					expect(result?.current.status).toBe('complete');
 					expect(result?.current.preview).toBe(cachedPreview);
 
 					// unskip remote
 					rerender({ ...initialProps, skipRemote: false });
 
-					expect(getImageSpy).toBeCalledTimes(0);
+					expect(getImageSpy).toHaveBeenCalledTimes(0);
 				},
 			);
 
@@ -965,7 +1089,7 @@ describe('useFilePreview', () => {
 				// unskip remote
 				rerender({ ...initialProps, skipRemote: false });
 
-				expect(getImageSpy).toBeCalledTimes(0);
+				expect(getImageSpy).toHaveBeenCalledTimes(0);
 			});
 
 			// Note: Testing ssr='server' only since ssr='client' without global SSR data now skips
@@ -991,7 +1115,7 @@ describe('useFilePreview', () => {
 					initialProps,
 				});
 
-				expect(getImageSpy).not.toBeCalled();
+				expect(getImageSpy).not.toHaveBeenCalled();
 				expect(result?.current.status).toBe('complete');
 				expect(result?.current.preview).toMatchObject({
 					dataURI: `image-url-sync-${identifier.id}`,
@@ -1001,7 +1125,7 @@ describe('useFilePreview', () => {
 				// unskip remote
 				rerender({ ...initialProps, skipRemote: false });
 
-				expect(getImageSpy).toBeCalledTimes(0);
+				expect(getImageSpy).toHaveBeenCalledTimes(0);
 			});
 
 			it('ssr client preview with global SSR data', async () => {
@@ -1032,7 +1156,7 @@ describe('useFilePreview', () => {
 					initialProps,
 				});
 
-				expect(getImageSpy).not.toBeCalled();
+				expect(getImageSpy).not.toHaveBeenCalled();
 				expect(result?.current.status).toBe('complete');
 				expect(result?.current.preview).toMatchObject({
 					dataURI: `global-scope-datauri-${identifier.id}`,
@@ -1042,7 +1166,7 @@ describe('useFilePreview', () => {
 				// unskip remote
 				rerender({ ...initialProps, skipRemote: false });
 
-				expect(getImageSpy).toBeCalledTimes(0);
+				expect(getImageSpy).toHaveBeenCalledTimes(0);
 			});
 		});
 	});
@@ -1091,7 +1215,7 @@ describe('useFilePreview', () => {
 				source: 'cache-local',
 			});
 			// remote preview is called by upfront preview.
-			expect(getImageSpy).toBeCalledTimes(1);
+			expect(getImageSpy).toHaveBeenCalledTimes(1);
 		});
 
 		const rotated = sampleBinaries.jpgRotated();
@@ -1208,7 +1332,7 @@ describe('useFilePreview', () => {
 					source: 'cache-remote',
 				});
 
-				expect(getImageSpy).toBeCalledTimes(1);
+				expect(getImageSpy).toHaveBeenCalledTimes(1);
 			});
 
 			it(`should use and cache remote preview when using ssr preview and remote is unskipped (resize mode: ${resizeMode})`, async () => {
@@ -1279,7 +1403,7 @@ describe('useFilePreview', () => {
 					source: 'cache-remote',
 				});
 
-				expect(getImageSpy).toBeCalledTimes(1);
+				expect(getImageSpy).toHaveBeenCalledTimes(1);
 			});
 		});
 
@@ -1357,7 +1481,7 @@ describe('useFilePreview', () => {
 						},
 					});
 
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 				});
 
 				it(`after unskipping remote`, async () => {
@@ -1426,7 +1550,7 @@ describe('useFilePreview', () => {
 							status: 'fail',
 						},
 					});
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 				});
 			});
 
@@ -1501,7 +1625,7 @@ describe('useFilePreview', () => {
 						},
 					});
 
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 				});
 
 				it(`after unskipping remote`, async () => {
@@ -1569,7 +1693,7 @@ describe('useFilePreview', () => {
 						},
 					});
 
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 				});
 			});
 
@@ -1645,7 +1769,7 @@ describe('useFilePreview', () => {
 						source: 'cache-remote',
 					});
 
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 				});
 
 				it(`after unskipping remote`, async () => {
@@ -1687,7 +1811,7 @@ describe('useFilePreview', () => {
 					expect(result?.current.status).toBe('complete');
 
 					// remote preview is called by upfront preview. This will fail as remote is not ready
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 
 					// Trigger error
 					result?.current.onImageError(result?.current.preview);
@@ -1714,7 +1838,7 @@ describe('useFilePreview', () => {
 						source: 'cache-remote',
 					});
 
-					expect(getImageSpy).toBeCalledTimes(2);
+					expect(getImageSpy).toHaveBeenCalledTimes(2);
 				});
 			});
 
@@ -1751,7 +1875,7 @@ describe('useFilePreview', () => {
 
 				await waitFor(() => expect(result?.current.status).toBe('error'));
 				expect(result?.current.preview).toBeUndefined();
-				expect(getImageSpy).toBeCalledTimes(1);
+				expect(getImageSpy).toHaveBeenCalledTimes(1);
 			});
 		});
 
@@ -1797,12 +1921,12 @@ describe('useFilePreview', () => {
 					);
 
 					expect(result?.current.status).toBe('complete');
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 
 					// resize
 					rerender({ ...initialProps, dimensions: { width, height } });
 
-					expect(getImageSpy).toBeCalledTimes(2);
+					expect(getImageSpy).toHaveBeenCalledTimes(2);
 					await waitFor(() =>
 						expect(result?.current.preview).toMatchObject({
 							dataURI: expect.stringContaining('mock result of URL.createObjectURL()'),
@@ -1845,7 +1969,7 @@ describe('useFilePreview', () => {
 				);
 
 				expect(result?.current.status).toBe('complete');
-				expect(getImageSpy).toBeCalledTimes(1);
+				expect(getImageSpy).toHaveBeenCalledTimes(1);
 
 				// Backend will fail
 				getImageSpy.mockRejectedValueOnce(new Error('some error'));
@@ -1853,7 +1977,7 @@ describe('useFilePreview', () => {
 				// resize
 				rerender({ ...initialProps, dimensions: { width: 200, height: 200 } });
 
-				expect(getImageSpy).toBeCalledTimes(2);
+				expect(getImageSpy).toHaveBeenCalledTimes(2);
 
 				await waitFor(() =>
 					expect(result?.current.preview).toMatchObject({
@@ -1864,7 +1988,7 @@ describe('useFilePreview', () => {
 				);
 
 				// There should not be subsequent calls
-				expect(getImageSpy).toBeCalledTimes(2);
+				expect(getImageSpy).toHaveBeenCalledTimes(2);
 			});
 
 			it.each`
@@ -1902,13 +2026,13 @@ describe('useFilePreview', () => {
 					);
 
 					expect(result?.current.status).toBe('complete');
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 
 					// resize
 					rerender({ ...initialProps, dimensions: { width, height } });
 
 					// Should not refetch
-					expect(getImageSpy).toBeCalledTimes(1);
+					expect(getImageSpy).toHaveBeenCalledTimes(1);
 
 					// Preview should remain the same
 					expect(result?.current.preview).toMatchObject({
@@ -2152,7 +2276,14 @@ describe('useFilePreview', () => {
 						initialItems: fileItem,
 					});
 
+					let resolveImagePromise: (value: Blob) => void = () => {};
 					const getImageSpy = jest.spyOn(mediaApi, 'getImage');
+					getImageSpy.mockImplementation(
+						() =>
+							new Promise((resolve) => {
+								resolveImagePromise = resolve;
+							}),
+					);
 
 					const globalScopePreview = {
 						dataURI: 'global-scope-datauri',
@@ -2176,13 +2307,12 @@ describe('useFilePreview', () => {
 						initialProps,
 					});
 
-					// Should initially use SSR preview
-					await waitFor(() => expect(result?.current.status).toBe('complete'));
-					expect(result?.current.preview).toMatchObject(globalScopePreview);
-					
-					// Without feature flag, SSR preview triggers immediate refetch on mount
+					// The SSR preview remains visible while the immediate remote refetch is pending.
+					await waitFor(() => expect(result?.current.preview).toMatchObject(globalScopePreview));
 					await waitFor(() => expect(getImageSpy).toHaveBeenCalledTimes(1));
-					
+
+					resolveImagePromise(new Blob([], { type: 'image/png' }));
+
 					// Preview should be replaced with remote preview
 					await waitFor(() =>
 						expect(result?.current.preview).toMatchObject({
@@ -2199,7 +2329,7 @@ describe('useFilePreview', () => {
 
 					// Should NOT refetch because preview is now 'remote' (not SSR) with adequate dimensions
 					expect(getImageSpy).not.toHaveBeenCalled();
-					
+
 					// Preview should remain the same
 					expect(result?.current.preview?.source).toBe('remote');
 				});

@@ -42,20 +42,20 @@ type MessageProps = Pick<InternalMessageProps, 'children' | 'testId'>;
 const messageStyles = css({
 	display: 'flex',
 	justifyContent: 'baseline',
-	gap: token('space.075', '6px'),
+	gap: token('space.075'),
 	font: token('font.body.small'),
-	marginBlockStart: token('space.050', '4px'),
+	marginBlockStart: token('space.050'),
 });
 
 const messageAppearanceStyles = cssMap({
 	default: {
-		color: token('color.text.subtlest', '#6B778C'),
+		color: token('color.text.subtlest'),
 	},
 	error: {
-		color: token('color.text.danger', '#AE2A19'),
+		color: token('color.text.danger'),
 	},
 	valid: {
-		color: token('color.text.success', '#216E4E'),
+		color: token('color.text.success'),
 	},
 });
 
@@ -120,7 +120,10 @@ const Message = ({ children, appearance = 'default', fieldId, testId }: Internal
  * 'Password should be more than 4 characters'
  *
  */
-export const HelperMessage: ({ children, testId }: MessageProps) => JSX.Element = ({ children, testId }: MessageProps) => (
+export const HelperMessage: ({ children, testId }: MessageProps) => JSX.Element = ({
+	children,
+	testId,
+}: MessageProps) => (
 	<FieldId.Consumer>
 		{(fieldId) => (
 			<Message fieldId={fieldId ? `${fieldId}-helper` : undefined} testId={testId}>
@@ -137,7 +140,23 @@ export const HelperMessage: ({ children, testId }: MessageProps) => JSX.Element 
  * 'Invalid username, needs to be more than 4 characters'.
  *
  */
-export const ErrorMessage: ({ children, testId }: MessageProps) => JSX.Element = ({ children, testId }: MessageProps) => (
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+// TODO: Fill in the component {description} and ensure links point to the correct {packageName} location.
+// Remove links that the component does not have (such as usage). If there are no links remove them all.
+/**
+ * __Error message__
+ *
+ * An error message {description}.
+ *
+ * - [Examples](https://atlassian.design/components/{packageName}/examples)
+ * - [Code](https://atlassian.design/components/{packageName}/code)
+ * - [Usage](https://atlassian.design/components/{packageName}/usage)
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports, @repo/internal/react/require-jsdoc
+export const ErrorMessage: ({ children, testId }: MessageProps) => JSX.Element = ({
+	children,
+	testId,
+}: MessageProps) => (
 	<FieldId.Consumer>
 		{(fieldId) => (
 			<Message
@@ -158,7 +177,23 @@ export const ErrorMessage: ({ children, testId }: MessageProps) => JSX.Element =
  * a helper message could be 'Nice one, this username is available'.
  *
  */
-export const ValidMessage: ({ children, testId }: MessageProps) => JSX.Element = ({ children, testId }: MessageProps) => (
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+// TODO: Fill in the component {description} and ensure links point to the correct {packageName} location.
+// Remove links that the component does not have (such as usage). If there are no links remove them all.
+/**
+ * __Valid message__
+ *
+ * A valid message {description}.
+ *
+ * - [Examples](https://atlassian.design/components/{packageName}/examples)
+ * - [Code](https://atlassian.design/components/{packageName}/code)
+ * - [Usage](https://atlassian.design/components/{packageName}/usage)
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports, @repo/internal/react/require-jsdoc
+export const ValidMessage: ({ children, testId }: MessageProps) => JSX.Element = ({
+	children,
+	testId,
+}: MessageProps) => (
 	<FieldId.Consumer>
 		{(fieldId) => (
 			<Message
@@ -191,7 +226,10 @@ const MessageWrapperContext = createContext<{ isWrapper: boolean }>({
  * may not render the message.
  *
  */
-export const MessageWrapper: ({ children }: MessageProps) => JSX.Element = ({ children }: MessageProps) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports, @repo/internal/react/require-jsdoc
+export const MessageWrapper: ({ children }: MessageProps) => JSX.Element = ({
+	children,
+}: MessageProps) => {
 	const contextValue = {
 		isWrapper: true,
 	};

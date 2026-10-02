@@ -6,10 +6,10 @@ import type {
 	OperationalAEP,
 	ExperienceEventPayload,
 	TABLE_ACTION,
+	SyncedBlockSSRErrorAEP,
+	ExtensionType,
+	MediaRenderedAEP,
 } from '@atlaskit/editor-common/analytics';
-
-import type { AEP } from './enums';
-
 import type { SortOrder } from '@atlaskit/editor-common/types';
 import type {
 	SEVERITY,
@@ -18,7 +18,9 @@ import type {
 	UnsupportedContentTooltipPayload,
 } from '@atlaskit/editor-common/utils';
 import type { EditorBreakpointKey } from '@atlaskit/editor-common/utils/analytics';
+
 import type { NestedRendererType } from '../ui/Renderer/types';
+import type { AEP } from './enums';
 
 export enum PLATFORM {
 	NATIVE = 'mobileNative',
@@ -35,7 +37,7 @@ type RendererStartAEP = AEP<
 	ACTION.STARTED,
 	ACTION_SUBJECT.RENDERER,
 	undefined,
-	{ platform: PLATFORM.WEB },
+	{ platform: PLATFORM.WEB; sampleRate?: number },
 	EVENT_TYPE.UI
 >;
 
@@ -50,6 +52,7 @@ type RendererRenderedAEP = AEP<
 		nestedRendererType?: NestedRendererType;
 		nodes: Record<string, number>;
 		platform: PLATFORM.WEB;
+		sampleRate?: number;
 		severity?: SEVERITY;
 		ttfb?: number;
 	},
@@ -284,6 +287,17 @@ type ExpandAEP = AEP<
 	EVENT_TYPE.TRACK
 >;
 
+type CollapsibleHeadingToggledAEP = AEP<
+	ACTION.TOGGLED,
+	ACTION_SUBJECT.HEADING,
+	undefined,
+	{
+		expanded: boolean;
+		headingLevel: 1 | 2 | 3 | 4 | 5 | 6;
+	},
+	EVENT_TYPE.TRACK
+>;
+
 type AnnotationActionType =
 	| ACTION.INSERTED
 	| ACTION.CLOSED
@@ -342,11 +356,25 @@ type NestedTableTransformedAEP = OperationalAEP<
 	undefined
 >;
 
+type ContainerNodeTransformedAEP = OperationalAEP<
+	ACTION.CONTAINER_NODE_TRANSFORMED,
+	ACTION_SUBJECT.RENDERER,
+	undefined,
+	{ transformedNodeTypes: string[] }
+>;
+
+type NativeEmbedsTransformedAEP = OperationalAEP<
+	ACTION.NATIVE_EMBEDS_TRANSFORMED,
+	ACTION_SUBJECT.RENDERER,
+	undefined,
+	undefined
+>;
+
 export type MediaRenderErrorEvent = UIAEP<
 	ACTION.ERRORED,
 	ACTION_SUBJECT.RENDERER,
 	ACTION_SUBJECT_ID.MEDIA,
-	{ external?: boolean; reason: string }
+	{ external?: boolean; nestedUnder?: string; reason: string }
 >;
 
 type SyncedBlockFetchErrorAEP = OperationalAEP<
@@ -377,6 +405,27 @@ type ReferenceSyncedBlockUpdateErrorAEP = OperationalAEP<
 	{ error: string; resourceId?: string }
 >;
 
+type ExtensionRenderedAsInlineAEP = OperationalAEP<
+	ACTION.RENDERED,
+	ACTION_SUBJECT.EXTENSION_AS_INLINE,
+	ExtensionType,
+	{
+		extensionKey: string;
+		extensionType: string;
+	}
+>;
+
+export type MBEChangeActiveAnalyticsEvent = AEP<
+	ACTION.CHANGE_ACTIVE,
+	ACTION_SUBJECT.MULTI_BODIED_EXTENSION,
+	undefined,
+	{
+		extensionKey: string;
+		extensionType: string;
+	},
+	EVENT_TYPE.TRACK
+>;
+
 export type AnalyticsEventPayload<_T = void> =
 	| RendererStartAEP
 	| RendererRenderedAEP
@@ -398,6 +447,7 @@ export type AnalyticsEventPayload<_T = void> =
 	| VisitLinkAEP
 	| VisitMediaLinkAEP
 	| ExpandAEP
+	| CollapsibleHeadingToggledAEP
 	| UnsupportedContentPayload
 	| UnsupportedContentTooltipPayload
 	| AnnotationAEP
@@ -405,12 +455,18 @@ export type AnalyticsEventPayload<_T = void> =
 	| MediaLnkTransformedAEP
 	| InvalidProsemirrorDocumentErrorAEP
 	| NestedTableTransformedAEP
+	| ContainerNodeTransformedAEP
+	| NativeEmbedsTransformedAEP
 	| MediaRenderErrorEvent
 	| SyncedBlockFetchErrorAEP
 	| SyncedBlockGetSourceInfoErrorAEP
+	| SyncedBlockSSRErrorAEP
 	| ReferenceSyncedBlockUpdateErrorAEP
 	| SyncedBlockFetchSuccessAEP
-	| ExperienceEventPayload;
+	| ExperienceEventPayload
+	| MediaRenderedAEP
+	| ExtensionRenderedAsInlineAEP
+	| MBEChangeActiveAnalyticsEvent;
 
 export type FireAnalyticsCallback = <T = void>(
 	payload: AnalyticsEventPayload<T>,

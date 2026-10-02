@@ -1,4 +1,3 @@
-import { SLI_EVENT_TYPE } from './../util/analytics';
 import { type KeyValues, utils as serviceUtils } from '@atlaskit/util-service-support';
 
 import {
@@ -10,13 +9,15 @@ import {
 	SliNames,
 	Actions,
 } from '../types';
-import MentionResource, {
+import debug from '../util/logger';
+import { SLI_EVENT_TYPE } from './../util/analytics';
+import {
+	MentionResource,
 	type MentionContextIdentifier,
 	type MentionResourceConfig,
 	type TeamMentionResourceConfig,
 	type MentionProvider,
 } from './MentionResource';
-import debug from '../util/logger';
 
 const MAX_QUERY_TEAMS = 20;
 
@@ -63,9 +64,11 @@ export default class TeamMentionResource extends MentionResource implements Ment
 		const getUserPromise = super.remoteInitialState(contextIdentifier);
 
 		const queryParams: KeyValues = this.getQueryParamsOfTeamMentionConfig(contextIdentifier);
+		const configHeaders = this.teamMentionConfig.headers;
 		const options = {
 			path: 'bootstrap',
 			queryParams,
+			...(configHeaders && { requestInit: { headers: configHeaders } }),
 		};
 		const getTeamsPromise = serviceUtils.requestService<Team[]>(this.teamMentionConfig, options);
 
@@ -182,6 +185,7 @@ export default class TeamMentionResource extends MentionResource implements Ment
 		query: string,
 		contextIdentifier?: MentionContextIdentifier,
 	): Promise<MentionsResult> {
+		const configHeaders = this.teamMentionConfig.headers;
 		const options = {
 			path: 'search',
 			queryParams: {
@@ -189,6 +193,7 @@ export default class TeamMentionResource extends MentionResource implements Ment
 				limit: MAX_QUERY_TEAMS,
 				...this.getQueryParamsOfTeamMentionConfig(contextIdentifier),
 			},
+			...(configHeaders && { requestInit: { headers: configHeaders } }),
 		};
 		try {
 			const teamResult = await serviceUtils.requestService<Team[]>(this.teamMentionConfig, options);

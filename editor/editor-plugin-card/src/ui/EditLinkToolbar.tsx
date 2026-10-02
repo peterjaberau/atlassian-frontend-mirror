@@ -1,13 +1,8 @@
 import React from 'react';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import {
-	ACTION,
-	type ACTION_SUBJECT_ID,
-	buildEditLinkPayload,
-	type EditorAnalyticsAPI,
-	INPUT_METHOD,
-} from '@atlaskit/editor-common/analytics';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { ACTION, buildEditLinkPayload, INPUT_METHOD } from '@atlaskit/editor-common/analytics';
+import type { ACTION_SUBJECT_ID, EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { commandWithMetadata } from '@atlaskit/editor-common/card';
 import type { HyperlinkAddToolbarProps } from '@atlaskit/editor-common/link';
 import { HyperlinkAddToolbar as HyperlinkToolbar } from '@atlaskit/editor-common/link';
@@ -125,12 +120,14 @@ export class EditLinkToolbar extends React.Component<EditLinkToolbarProps> {
 				// via the floating toolbar
 				invokeMethod={INPUT_METHOD.FLOATING_TB}
 				lpLinkPicker={lpLinkPicker}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onSubmit={(href, title, displayText, inputMethod, analytic) => {
 					this.hideLinkToolbar();
 					if (onSubmit) {
 						onSubmit(href, displayText || title, inputMethod, analytic);
 					}
 				}}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onEscapeCallback={(state, dispatch) => {
 					const { tr } = state;
 					hideLinkToolbar(tr);
@@ -143,6 +140,7 @@ export class EditLinkToolbar extends React.Component<EditLinkToolbarProps> {
 					}
 					return false;
 				}}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onClickAwayCallback={(state, dispatch) => {
 					const { tr } = state;
 
@@ -219,6 +217,7 @@ export const buildEditLinkToolbar = ({
 					node={node}
 					lpLinkPicker={lpLinkPicker}
 					forceFocusSelector={pluginInjectionApi?.floatingToolbar?.actions?.forceFocusSelector}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onSubmit={(newHref, newText, inputMethod, analytic) => {
 						const urlChanged = newHref !== displayInfo.url;
 						const titleChanged = newText !== displayInfo.title;
@@ -257,12 +256,17 @@ export const buildEditLinkToolbar = ({
 export const editLinkToolbarConfig = (
 	showLinkingToolbar: boolean,
 	lpLinkPicker?: boolean,
+	linkPickerOptions?: LinkPickerOptions,
 ): Partial<FloatingToolbarConfig> => {
-	return showLinkingToolbar
-		? {
-				height: lpLinkPicker ? LINKPICKER_HEIGHT_IN_PX : RECENT_SEARCH_HEIGHT_IN_PX,
-				width: RECENT_SEARCH_WIDTH_IN_PX,
-				forcePlacement: true,
-			}
-		: {};
+	if (!showLinkingToolbar) {
+		return {};
+	}
+	return {
+		height:
+			linkPickerOptions?.popupHeight ??
+			(lpLinkPicker ? LINKPICKER_HEIGHT_IN_PX : RECENT_SEARCH_HEIGHT_IN_PX),
+		width: linkPickerOptions?.popupWidth ?? RECENT_SEARCH_WIDTH_IN_PX,
+		// forcePlacement is always true to prevent the popup from rendering off-screen
+		forcePlacement: true,
+	};
 };

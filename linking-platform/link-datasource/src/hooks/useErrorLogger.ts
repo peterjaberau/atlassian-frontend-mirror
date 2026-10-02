@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 
-import { NetworkError } from '@atlaskit/linking-common';
-import { captureException } from '@atlaskit/linking-common/sentry';
-import { getTraceId } from '@atlaskit/linking-common/utils';
+import { NetworkError } from '@atlaskit/linking-common/network-error';
+import { getTraceId } from '@atlaskit/linking-common/utils/get-trace-id';
 
 import { useDatasourceAnalyticsEvents } from '../analytics';
 import { type DatasourceOperationFailedAttributesType } from '../analytics/generated/analytics.types';
+import { logToSentry } from './logToSentry';
 
 const getNetworkFields = (
 	error: unknown,
@@ -42,22 +42,6 @@ const getNetworkFields = (
 	}
 };
 
-type Tail<T extends any[]> = T extends [infer _A, ...infer R] ? R : never;
-
-/**
- * This function is just a wrapper around captureException that checks if the enable-sentry-client FF is enabled
- * and error is instanceof Error. We have to override the type of error from captureException to unknown so we use
- * a helper Tail type which removes the first element of the tuple
- */
-export const logToSentry = (
-	error: unknown,
-	...captureExceptionParams: Tail<Parameters<typeof captureException>>
-): void => {
-	if (error instanceof Error) {
-		captureException(error, ...captureExceptionParams);
-	}
-};
-
 interface UseErrorLoggerPropsDatasource {
 	datasourceId: string;
 }
@@ -68,7 +52,14 @@ interface UseErrorLoggerPropsActions {
 
 export type UseErrorLoggerProps = UseErrorLoggerPropsDatasource | UseErrorLoggerPropsActions;
 
-const useErrorLogger = (loggerProps: UseErrorLoggerProps) => {
+const useErrorLogger = (
+	loggerProps: UseErrorLoggerProps,
+): {
+	captureError: (
+		errorLocation: DatasourceOperationFailedAttributesType['errorLocation'],
+		error: unknown,
+	) => void;
+} => {
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 
 	/**
@@ -78,7 +69,10 @@ const useErrorLogger = (loggerProps: UseErrorLoggerProps) => {
 	 * We will send to Splunk every single time, though, but we won't send PII risky fields.
 	 */
 	const captureError = useCallback(
-		(errorLocation: DatasourceOperationFailedAttributesType['errorLocation'], error: unknown): void => {
+		(
+			errorLocation: DatasourceOperationFailedAttributesType['errorLocation'],
+			error: unknown,
+		): void => {
 			const { traceId, status, reason } = getNetworkFields(error);
 
 			fireEvent('operational.datasource.operationFailed', {

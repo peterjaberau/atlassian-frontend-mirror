@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { ASC } from '../internal/constants';
-import { getPageRows, validateSortKey } from '../internal/helpers';
+import { getPageRows } from '../internal/get-page-rows';
+import { validateSortKey } from '../internal/validate-sort-key';
 import { type HeadType, type RowCellType, type RowType, type SortOrderType } from '../types';
 
 const getSortingCellValue = (cells: RowCellType[], head: HeadType, sortKey: string) => {
@@ -28,7 +28,7 @@ const getSortedRows = (
 		return [];
 	}
 
-	const modifier = sortOrder === ASC ? 1 : -1;
+	const modifier = sortOrder === 'ASC' ? 1 : -1;
 
 	// Re-initialising an I18n Collator on every sort is performance intensive, thus constructed outside
 	const collator = new Intl.Collator(undefined, {
@@ -102,9 +102,16 @@ export interface WithSortedPageRowsProps {
 export default function withSortedPageRows<
 	WrappedComponentProps extends WithSortedPageRowsProps & TableProps,
 	RefType = HTMLTableSectionElement,
->(WrappedComponent: React.ComponentType<WrappedComponentProps>): React.ForwardRefExoticComponent<React.PropsWithoutRef<Omit<WrappedComponentProps & TableProps, "pageRows"> & {
-    forwardedRef?: React.Ref<RefType>;
-}> & React.RefAttributes<RefType>> {
+>(
+	WrappedComponent: React.ComponentType<WrappedComponentProps>,
+): React.ForwardRefExoticComponent<
+	React.PropsWithoutRef<
+		Omit<WrappedComponentProps & TableProps, 'pageRows'> & {
+			forwardedRef?: React.Ref<RefType>;
+		}
+	> &
+		React.RefAttributes<RefType>
+> {
 	type InternalWithSortedPageRowsProps = Omit<WrappedComponentProps & TableProps, 'pageRows'> & {
 		forwardedRef?: React.Ref<RefType>;
 	};

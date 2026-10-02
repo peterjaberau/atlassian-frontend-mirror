@@ -1,4 +1,5 @@
 import { fromHTML, toHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
+
 import { createSchema } from '../../../../schema/create-schema';
 import { bodiedSyncBlock } from '../../../../schema/nodes/bodied-sync-block';
 
@@ -19,9 +20,9 @@ describe(`${packageName}/schema bodiedSyncBlock node`, () => {
 			selectable: true,
 			isolating: true,
 			content:
-				'(paragraph | blockCard | blockquote | bulletList | codeBlock | confluenceUnsupportedBlock | decisionList | embedCard | expand | heading | layoutSection | mediaGroup | mediaSingle | orderedList | panel | rule | table | taskList | unsupportedBlock)+',
+				'(paragraph | blockCard | blockquote | bulletList | codeBlock | confluenceUnsupportedBlock | decisionList | embedCard | expand | heading | layoutSection | mediaGroup | mediaSingle | orderedList | panel_c1 | panel | rule | bodiedRule | table | taskList | unsupportedBlock)+',
 			marks:
-				'unsupportedMark unsupportedNodeAttribute alignment indentation breakout link fragment',
+				'unsupportedMark unsupportedNodeAttribute fontSize alignment indentation breakout link fragment',
 			parseDOM: [
 				{
 					getAttrs: expect.anything(),
@@ -144,7 +145,16 @@ describe(`${packageName}/schema bodiedSyncBlock node`, () => {
 
 function makeSchema() {
 	return createSchema({
-		nodes: ['doc', 'paragraph', 'text', 'syncBlock', 'bodiedSyncBlock', 'unsupportedInline'],
+		nodes: [
+			'doc',
+			'paragraph',
+			'text',
+			'panel',
+			'panel_c1',
+			'syncBlock',
+			'bodiedSyncBlock',
+			'unsupportedInline',
+		],
 		marks: ['unsupportedMark', 'unsupportedNodeAttribute', 'breakout'],
 	});
 }

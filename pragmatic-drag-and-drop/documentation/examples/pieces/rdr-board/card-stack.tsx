@@ -3,16 +3,16 @@
  * @jsx jsx
  */
 
-import React, {type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import Badge from '@atlaskit/badge';
+import Badge from '@atlaskit/badge/badge';
 import { token } from '@atlaskit/tokens';
 
 const sharedCardStyles = css({
-	background: token('elevation.surface.raised', '#FFF'),
+	background: token('elevation.surface.raised'),
 	borderRadius: 3,
 });
 
@@ -28,7 +28,7 @@ const secondCardStyles = css({
 	//   'elevation.shadow.raised',
 	// )}`,
 
-	boxShadow: token('elevation.shadow.raised', '0px 1px 1px #091e423f, 0px 0px 1px #091e4221'),
+	boxShadow: token('elevation.shadow.raised'),
 });
 
 const secondCardInnerStyles = css({
@@ -53,7 +53,13 @@ const containerStyles = css({
 	position: 'relative',
 });
 
-export function CardStack({ children, numCards }: { children: ReactNode; numCards: number }): React.JSX.Element {
+export function CardStack({
+	children,
+	numCards,
+}: {
+	children: ReactNode;
+	numCards: number;
+}): React.JSX.Element {
 	return (
 		<div css={containerStyles}>
 			{numCards >= 3 && <div css={[sharedCardStyles, bottomCardStyles]} />}
@@ -66,7 +72,7 @@ export function CardStack({ children, numCards }: { children: ReactNode; numCard
 			{numCards >= 2 && (
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				<div style={{ position: 'absolute', top: -8, right: -8 }}>
-					<Badge appearance="primary">{numCards}</Badge>
+					<Badge appearance="informationBold">{numCards}</Badge>
 				</div>
 			)}
 		</div>

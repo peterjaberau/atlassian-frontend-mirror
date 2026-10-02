@@ -1,17 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 
-import { injectIntl, type IntlShape } from 'react-intl-next';
+import { injectIntl, type IntlShape, type WithIntlProps } from 'react-intl';
 import { di } from 'react-magnetic-di';
 
-import { useJqlEditorAnalytics } from '../../analytics';
-import { EditorThemeContext, useEditorTheme } from '../../hooks/use-editor-theme';
+import { useJqlEditorAnalytics } from '../../analytics/util';
+import { EditorThemeContext } from '../../hooks/use-editor-theme';
+import { useEditorTheme } from '../../hooks/use-editor-theme/useEditorTheme';
 import { EditorStateContainer } from '../../state';
-// eslint-disable-next-line @atlassian/tangerine/import/no-parent-imports
-import type { ExternalMessage } from '../../types';
+import type { ExternalMessage } from '../../state/types';
 import { JQLEditorPortalRenderer } from '../jql-editor-portal-provider';
-// eslint-disable-next-line @atlassian/tangerine/import/no-parent-imports
 import JQLEditorView from '../jql-editor-view';
-
 import { type JQLEditorUIProps } from './types';
 
 export type JQLEditorInnerProps = JQLEditorUIProps & {
@@ -20,7 +18,7 @@ export type JQLEditorInnerProps = JQLEditorUIProps & {
 	 */
 	intl: IntlShape;
 };
-const emptyArray: ExternalMessage[] = []
+const emptyArray: ExternalMessage[] = [];
 const JQLEditorInner = ({
 	analyticsSource,
 	query,
@@ -83,4 +81,7 @@ const JQLEditorInner = ({
 	);
 };
 
-export default injectIntl<'intl', JQLEditorInnerProps>(JQLEditorInner);
+const _default_1: React.FC<WithIntlProps<JQLEditorInnerProps>> & {
+	WrappedComponent: React.ComponentType<JQLEditorInnerProps>;
+} = injectIntl<'intl', JQLEditorInnerProps>(JQLEditorInner);
+export default _default_1;

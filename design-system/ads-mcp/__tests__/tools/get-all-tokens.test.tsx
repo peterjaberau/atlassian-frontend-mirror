@@ -1,10 +1,14 @@
-import { getAllTokensTool } from '../../src/tools/get-all-tokens';
+import { getAllTokensTool } from '../../src/tools/get-all-tokens/get-all-tokens-tool';
 
 jest.mock('@atlaskit/tokens/token-metadata', () => ({
 	tokens: [
 		{
 			name: 'test.token',
 			exampleValue: '#FFFFFF',
+			usageGuidelines: {
+				usage: 'example usage',
+				cssProperties: ['background-color'],
+			},
 		},
 	],
 }));
@@ -18,6 +22,10 @@ describe('ads_get_all_tokens tool', () => {
 				{
 					name: 'test.token',
 					exampleValue: '#FFFFFF',
+					usageGuidelines: {
+						usage: 'example usage',
+						cssProperties: ['background-color'],
+					},
 				},
 				null,
 				2,

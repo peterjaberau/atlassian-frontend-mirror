@@ -4,11 +4,20 @@ type BaseHandoffPayload = {
 	conversationId: string;
 };
 
-export type NonAppHandoffPayload = BaseHandoffPayload & {
-	type: 'ROVO_AGENT' | 'AUTOMATION_RULE';
+export type AutomationHandoffPayload = BaseHandoffPayload & {
+	type: 'AUTOMATION_RULE';
 	ari?: never;
 	buildId: string;
 	appBuilderAutoStart?: never;
+	shouldActivateAgent?: never;
+};
+
+export type AgentHandoffPayload = BaseHandoffPayload & {
+	type: 'ROVO_AGENT';
+	ari?: string | null | undefined;
+	buildId: string;
+	appBuilderAutoStart?: never;
+	shouldActivateAgent?: boolean;
 };
 
 export type AppHandoffPayload = BaseHandoffPayload & {
@@ -16,16 +25,32 @@ export type AppHandoffPayload = BaseHandoffPayload & {
 	ari: string;
 	buildId?: never;
 	appBuilderAutoStart: boolean;
+	shouldActivateAgent?: never;
 };
 
 export type SolutionArchitectHandoffPayload = PayloadCore<'solution-architect-handoff'> & {
-	data: NonAppHandoffPayload | AppHandoffPayload;
+	data: AutomationHandoffPayload | AppHandoffPayload | AgentHandoffPayload;
 };
 
 export type SolutionPlanStateUpdatePayload = PayloadCore<'solution-plan-state-updated'>;
 
 export type SolutionArchitectAgentActivationPayload = PayloadCore<
 	'solution-architect-agent-activation',
+	{
+		draftBuildId: string;
+		ari?: string | null | undefined;
+	}
+>;
+
+export type SolutionArchitectAgentActivationFlowStartedPayload = PayloadCore<
+	'solution-architect-agent-activation-flow-started',
+	{
+		draftBuildId: string;
+	}
+>;
+
+export type SolutionArchitectAgentActivationFlowStoppedPayload = PayloadCore<
+	'solution-architect-agent-activation-flow-stopped',
 	{
 		draftBuildId: string;
 	}
@@ -42,5 +67,13 @@ export type AutomationRuleUpdatePayload = PayloadCore<'automation-rule-update'> 
 export type UpdateAgentConfigurationPayload = PayloadCore<'agent-configuration-update'> & {
 	data: {
 		ari: string;
+		cloudId?: string;
+	};
+};
+
+export type StudioLandingPageRedirectPayload = PayloadCore<'studio-landing-page-redirect'> & {
+	data: {
+		ari: string;
+		prompt: string;
 	};
 };

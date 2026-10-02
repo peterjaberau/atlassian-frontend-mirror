@@ -4,24 +4,24 @@
  */
 import { useCallback, useMemo } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-import AvatarGroup, { type AvatarProps } from '@atlaskit/avatar-group';
+import AvatarGroup from '@atlaskit/avatar-group/avatar-group';
+import type { AvatarProps } from '@atlaskit/avatar-group/types';
 import { cssMap, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import LinkItem from '@atlaskit/menu/link-item';
-import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon/main';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Flex, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
-import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics';
-import TeamAvatar from '@atlaskit/teams-avatar';
-import { type TeamContainer, TeamContainers, useTeamContainers } from '@atlaskit/teams-public';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
+import TeamAvatar from '@atlaskit/teams-avatar/teams-avatar';
+import { TeamContainers } from '@atlaskit/teams-public/main';
+import type { TeamContainer } from '@atlaskit/teams-public/types';
+import { useTeamContainers } from '@atlaskit/teams-public/use-team-containers/use-team-containers';
 import { token } from '@atlaskit/tokens';
 
-import { fireEvent } from '../../util/analytics';
 import TeamAppTile from '../common/assets/TeamAppTile.svg';
-
 import { TeamActions, type TeamActionsProps } from './team-actions';
 import { TeamConnections } from './team-connections/main';
 import { TeamContainersSkeleton } from './team-containers-skeleton';
@@ -110,10 +110,9 @@ export const TeamProfileCard = ({
 	isVerified,
 	teamProfileUrl,
 	...props
-}: TeamProfileCardProps) => {
+}: TeamProfileCardProps): JSX.Element => {
 	const { teamContainers, loading } = useTeamContainers(teamId);
-	const { createAnalyticsEvent } = useAnalyticsEvents();
-	const { fireEvent: fireEventNext } = useAnalyticsEventsNext();
+	const { fireEvent } = useAnalyticsEvents();
 	// Ensure that the current container is not the only connection for this team before showing the "Where we work" section
 	const hasOtherTeamConnections = useMemo(
 		() =>
@@ -123,19 +122,8 @@ export const TeamProfileCard = ({
 	);
 
 	const onClick = useCallback(() => {
-		if (fg('ptc-enable-profile-card-analytics-refactor')) {
-			fireEventNext('ui.button.clicked.viewTeamProfileButton', {});
-		} else {
-			if (createAnalyticsEvent) {
-				fireEvent(createAnalyticsEvent, {
-					action: 'clicked',
-					actionSubject: 'button',
-					actionSubjectId: 'viewTeamProfileButton',
-					attributes: {},
-				});
-			}
-		}
-	}, [createAnalyticsEvent, fireEventNext]);
+		fireEvent('ui.button.clicked.viewTeamProfileButton', {});
+	}, [fireEvent]);
 
 	return (
 		<Box xcss={styles.wrapperStyles} testId={`team-card-${teamId}`}>
@@ -144,7 +132,7 @@ export const TeamProfileCard = ({
 				src={headerImageUrl}
 				xcss={styles.headerImageStyles}
 				testId="profile-header-image"
-				alt="team-header-image"
+				alt={fg('create_modernization_ga_fixes_drop_2') ? '' : 'team-header-image'}
 			/>
 			<Stack space="space.200" xcss={styles.containerStyles}>
 				<Inline spread="space-between" alignBlock="center">
@@ -242,3 +230,10 @@ export const TeamProfileCard = ({
 		</Box>
 	);
 };
+
+// Public API aliases preserved from an eliminated entry-point (volt-migrate-package).
+/**
+ * @deprecated Use the `TeamProfileCard` export from
+ * `@atlaskit/profilecard/team-profile-card/main` instead.
+ */
+export { TeamProfileCard as TeamProfileCardWithContainer };

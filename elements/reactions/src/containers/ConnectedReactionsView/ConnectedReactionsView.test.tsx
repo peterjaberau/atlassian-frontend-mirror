@@ -1,18 +1,20 @@
 import React from 'react';
-import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
+
 import { type EmojiProvider } from '@atlaskit/emoji';
+import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
+
 import { renderWithIntl, mockReactDomWarningGlobal } from '../../__tests__/_testing-library';
-import {
-	ConnectedReactionsView,
-	mapDispatchToPropsHelper,
-	mapStateToPropsHelper,
-} from './ConnectedReactionsView';
 import {
 	type Actions,
 	ReactionStatus,
 	type ReactionSummary,
 	type StorePropInput,
 } from '../../types';
+import {
+	ConnectedReactionsView,
+	mapDispatchToPropsHelper,
+	mapStateToPropsHelper,
+} from './ConnectedReactionsView';
 
 describe('@atlaskit/reactions/containers/ConnectedReactionsView', () => {
 	mockReactDomWarningGlobal();
@@ -157,6 +159,79 @@ describe('@atlaskit/reactions/containers/ConnectedReactionsView', () => {
 
 			expect(actions.addReaction).toHaveBeenCalledTimes(1);
 			expect(actions.addReaction).toHaveBeenCalledWith(containerAri, ari, 'emojiA');
+		});
+
+		const failureCallBack = jest.fn();
+		it('should call toggleReaction onReactionClick passing through success and failure callbacks if both present', () => {
+			mapDispatchToPropsHelper(
+				actions,
+				containerAri,
+				ari,
+				successCallBack,
+				failureCallBack,
+			).onReactionClick('emojiA');
+
+			expect(actions.toggleReaction).toHaveBeenCalledTimes(1);
+			expect(actions.toggleReaction).toHaveBeenCalledWith(
+				containerAri,
+				ari,
+				'emojiA',
+				successCallBack,
+				failureCallBack,
+			);
+		});
+
+		it('should call addReaction onSelection passing through success and failure callbacks if both present', () => {
+			mapDispatchToPropsHelper(
+				actions,
+				containerAri,
+				ari,
+				successCallBack,
+				failureCallBack,
+			).onSelection('emojiA');
+
+			expect(actions.addReaction).toHaveBeenCalledTimes(1);
+			expect(actions.addReaction).toHaveBeenCalledWith(
+				containerAri,
+				ari,
+				'emojiA',
+				successCallBack,
+				failureCallBack,
+			);
+		});
+
+		it('should call toggleReaction onReactionClick passing through only the failure callback if success callback is absent', () => {
+			mapDispatchToPropsHelper(
+				actions,
+				containerAri,
+				ari,
+				undefined,
+				failureCallBack,
+			).onReactionClick('emojiA');
+
+			expect(actions.toggleReaction).toHaveBeenCalledTimes(1);
+			expect(actions.toggleReaction).toHaveBeenCalledWith(
+				containerAri,
+				ari,
+				'emojiA',
+				undefined,
+				failureCallBack,
+			);
+		});
+
+		it('should call addReaction onSelection passing through only the failure callback if success callback is absent', () => {
+			mapDispatchToPropsHelper(actions, containerAri, ari, undefined, failureCallBack).onSelection(
+				'emojiA',
+			);
+
+			expect(actions.addReaction).toHaveBeenCalledTimes(1);
+			expect(actions.addReaction).toHaveBeenCalledWith(
+				containerAri,
+				ari,
+				'emojiA',
+				undefined,
+				failureCallBack,
+			);
 		});
 	});
 

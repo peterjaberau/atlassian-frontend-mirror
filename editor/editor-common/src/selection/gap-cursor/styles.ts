@@ -1,5 +1,7 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, keyframes, type SerializedStyles } from '@emotion/react';
+import { css, keyframes } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
@@ -19,7 +21,7 @@ const prosemirrorwidgetNotBlock =
 const wrapLeft = '[layout="wrap-left"]';
 const wrapRight = '[layout="wrap-right"]';
 
-// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766, This needs manual remediation, it autofixes seemingly safely, but the code style and readability is destroyed.
+// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression, @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766, This needs manual remediation, it autofixes seemingly safely, but the code style and readability is destroyed.
 export const gapCursorStyles: SerializedStyles = css`
 	/* =============== GAP CURSOR ================== */
 	.ProseMirror {
@@ -50,10 +52,10 @@ export const gapCursorStyles: SerializedStyles = css`
 				height: 100%;
 			}
 			&.-left span::after {
-				left: ${token('space.negative.050', '-4px')};
+				left: ${token('space.negative.050')};
 			}
 			&.-right span::after {
-				right: ${token('space.negative.050', '-4px')};
+				right: ${token('space.negative.050')};
 			}
 			& span[layout='full-width'],
 			& span[layout='wide'],

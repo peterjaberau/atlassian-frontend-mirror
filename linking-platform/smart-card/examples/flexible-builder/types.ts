@@ -1,8 +1,7 @@
-import { type CardAppearance } from '@atlaskit/linking-common';
+import type { CardAppearance } from '@atlaskit/linking-common/types';
 
 import { type CardProps, type SmartLinkSize } from '../../src';
 import { type FlexibleUiOptions } from '../../src/view/FlexibleCard/types';
-
 import { type BlockName } from './constants';
 
 export type FlexibleTemplate = {

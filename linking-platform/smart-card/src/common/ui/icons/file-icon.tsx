@@ -1,14 +1,14 @@
-import LegacyIcon from '@atlaskit/icon-file-type/glyph/generic/16';
-import LegacyIconLarge from '@atlaskit/icon-file-type/glyph/generic/24';
+import type { FC } from 'react';
+
 import FileIcon from '@atlaskit/icon/core/file';
 
-import { renderIconPerSize, renderIconTile } from './utils';
+import { renderIconTile } from './render-icon-tile';
+import type { AtlaskitIconTileProps } from './types';
 
-const FileIconWithColor = renderIconTile(
-	FileIcon,
-	'grayBold',
-	renderIconPerSize(LegacyIcon, LegacyIconLarge),
-);
+// `grayBold` is used while `platform_lp_non_bold_large_sl_icon` is off.
+// Clean up in NAVX-5752: https://hello.jira.atlassian.cloud/browse/NAVX-5752
+// When that gate is cleaned up, replace `grayBold` directly with `gray`.
+const FileIconWithColor: FC<AtlaskitIconTileProps> = renderIconTile(FileIcon, 'grayBold');
 FileIconWithColor.displayName = 'FileIconWithColor';
 
 export default FileIconWithColor;

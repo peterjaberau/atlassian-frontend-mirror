@@ -1,5 +1,1316 @@
 # @atlaskit/ufo-interaction-ignore
 
+## 8.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.13.0
+
+### Minor Changes
+
+- [`f6f3cb62ea900`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f6f3cb62ea900) -
+  `createRelayEnvironment` accepts an optional `networkMiddleware` to wrap Relay query and mutation
+  execution, and `@atlaskit/react-ufo/data-fetch-hold` adds `startDataFetchHold` to hold the active
+  UFO interaction while a fetch is in flight. Jira's Relay environment uses this to hold
+  interactions across mutation network requests, gated behind `platform_ufo_relay_operation_holds`.
+
+  ```tsx
+  createRelayEnvironment({
+  	networkMiddleware: (next) => (request, variables, cacheConfig) =>
+  		Observable.create((sink) => {
+  			const release = startDataFetchHold({ label: 'graphql', name: request.name });
+  			const subscription = next(request, variables, cacheConfig).subscribe(sink);
+
+  			return () => {
+  				subscription.unsubscribe();
+  				release?.();
+  			};
+  		}),
+  });
+  ```
+
+## 7.12.0
+
+### Minor Changes
+
+- [`40e881e735f78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/40e881e735f78) -
+  Add a direct SSR profiler flush entry point and separate profiler components from shared tracing
+  state, preserving legacy exports and lifecycle behavior. Mark the legacy profiler runtime
+  re-exports as deprecated compatibility shims; retain type exports unchanged.
+
+## 7.11.0
+
+### Minor Changes
+
+- [`5bb049fcdba7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bb049fcdba7e) -
+  Add a direct ufo-segment entry point for the existing UFOSegment implementation, and migrate
+  internal consumers to existing direct bindings while preserving shared interaction state.
+
+## 7.10.0
+
+### Minor Changes
+
+- [`b0e3825b30eb6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b0e3825b30eb6) -
+  Add RRR prefetch observation and adopt resource and entry-point preloads as React UFO interaction
+  holds.
+
+## 7.9.1
+
+### Patch Changes
+
+- [`d8079b163f0b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d8079b163f0b4) -
+  Cleanup `feature_gate` `platform_ufo_exclude_3p_extensions_from_ttvc`. Third-party browser
+  extension attributes are permanently included in the FY25.03 TTVC calculation, matching the gate's
+  disabled behaviour.
+
+## 7.9.0
+
+### Minor Changes
+
+- [`8f77dadf06bcd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f77dadf06bcd) -
+  Add public direct-import entrypoints for React UFO APIs that were previously available only
+  through internal source paths.
+  - **Timing, marks, and metrics:** `add-bm3-timings-to-ufo`, `add-timing-from-performance-mark`,
+    `add-ufo-custom-mark`, `get-bm3-timings`, `get-bm3-tracker-timings`, `get-bundle-eval-timings`,
+    `get-earliest-legacy-stop-time`, `get-timings`, `get-resource-timings`,
+    `get-react-profiler-timings-by-metric-window`, `get-react-profiler-timings-for-window`,
+    `get-stylesheet-metrics`, `get-vc-observer`, `new-vc-observer`, `vc-observer-wrapper`,
+    `ufo-custom-marks`, and `ufobm3-timings-to-ufo`.
+  - **Interaction, trace, span, and segment state:** `clear-active-trace`, `default-interaction-id`,
+    `experience-type-key`, `generate-span-id`, `get-active-trace`,
+    `get-active-trace-as-query-params`, `get-active-trace-http-request-headers`,
+    `get-interaction-id`, `get-tracing-context-data`, `set-active-trace`,
+    `set-interaction-active-trace`, `span-id-key`, `state`, `subscribe-to-interaction-id-changes`,
+    `third-party-segment`, `trace-id-key`, `trace-ufo-interaction`, `use-interaction-context`,
+    `use-interaction-id`, and `use-ufo-transition-completer`.
+  - **Payload, custom-data, and analytics helpers:** `add-ufo-custom-cohort-data`,
+    `add-ufo-custom-data`, `create-extra-search-page-interaction-payload`,
+    `create-interaction-metrics-payload`, `create-payloads`, `get-assets-metrics`,
+    `get-error-counts`, `get-metric-variant-hold-info`, `get-payload-size-and-annotate`,
+    `get-pps-metrics`, `get-resource-timings-payload`, `object-to-array`, `optimize-custom-data`,
+    `optimize-redirects`, and `redact-value`.
+  - **Rendering, SSR, visibility, and AI helpers:** `gen-ai-segment`,
+    `get-more-accurate-page-visibility-up-to-tti`, `get-page-visibility-up-to-tti`,
+    `get-segment3p-timing-abort-markers`, `get-ssr-properties`, `is-environment-supported`,
+    `ssr-render-profiler`, `startLighthouseObserver`, `timings`, `types`, and
+    `update-pageload-name`.
+  - **Lighthouse metrics:** `getLighthouseMetrics`.
+
+  Use the public subpath form, for example `@atlaskit/react-ufo/get-active-trace`, instead of
+  importing from React UFO internal source paths.
+
+## 7.8.3
+
+### Patch Changes
+
+- [`7a58648da8989`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7a58648da8989) -
+  Behind `platform_ufo_exclude_anchor_name_from_ttvc`, `style` mutations that only add or remove
+  `anchor-name` declarations are excluded from TTVC for every anchor name, not just the editor drag
+  and drop `--node-anchor` names. `anchor-name` never changes the rendering of the element it is set
+  on. `@atlaskit/top-layer` writes it to a popover's trigger when the popover opens, and that write
+  was being counted as a repaint of the trigger at hover time (COPPER-1736).
+
+## 7.8.2
+
+### Patch Changes
+
+- [`3b625cd7fecf2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b625cd7fecf2) -
+  Cleanup feature gate `platform_ufo_exclude_dark_reader_extension`. Dark Reader browser extension
+  attribute mutations are now always excluded from TTVC calculations.
+
+## 7.8.1
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+## 7.8.0
+
+### Minor Changes
+
+- [`d7c2318ff1726`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7c2318ff1726) -
+  Cleanup experiment `reuse_ssr_placeholder_dimension_collect`. `SSRPlaceholderHandlers` no longer
+  deletes `window.__SSR_PLACEHOLDERS_DIMENSIONS__` after collecting, so the SSR-measured geometry is
+  now reused by every handler built during a page load instead of only the first one. The
+  `window.__REUSE_SSR_PLACEHOLDER_DIMENSIONS__` opt-in that scoped this to Confluence is removed.
+
+  Note for consumers other than Confluence: this was previously off for you, so later VC handlers
+  will now compare against SSR geometry rather than geometry measured mid-hydration. That removes a
+  synchronous style recalc and full-document layout during hydration, but it can also shift VC/TTVC
+  numbers slightly.
+
+## 7.7.2
+
+### Patch Changes
+
+- [`b9e0d6c03a4e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9e0d6c03a4e4) -
+  Change how Forge background-script third-party holds are handled so they are excluded from
+  `ttai_include_third_party` without altering the standard metric bucket. Previously these holds
+  were dropped at creation; they are now retained and excluded only from third-party accounting.
+
+  Background-script holds (labels carrying both `type: 'third-party'` and
+  `excludeFromMetrics: true`) are kept in the extended (`hold3pActive`) bucket exactly like any
+  other third-party hold, so they continue to gate interaction completion and keep the standard
+  bucket (e.g. `vc90`, `ttai`) identical to when the hold is not excluded. They are excluded only
+  from third-party accounting: they never contribute a third-party category end, and the `end3p` /
+  `include-third-party` window end is never dragged past the real interaction end by a still-active
+  background-script hold. This is driven by the existing `excludeFromMetrics` annotation with no new
+  feature flag.
+
+  Rollout / gating: this change adds no new feature flag. It builds directly on top of the earlier
+  background-script exclusion change (which introduced the drop-at-creation behaviour), and it is
+  gated by that same existing implementing Forge feature gate,
+  `platform_forge_ufo_exclude_bg_scripts_from_3p` (platform/forge). That gate is what stamps the
+  `excludeFromMetrics` label annotation onto background-script holds; this change reacts purely to
+  that annotation, so when the gate is off the code path is inert and behaviour is unchanged.
+
+## 7.7.1
+
+### Patch Changes
+
+- [`8e8330fd91a12`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8e8330fd91a12) -
+  Fixed a circular dependency between interaction ID helpers and their public entry point that could
+  cause runtime initialization errors in bundled applications.
+
+## 7.7.0
+
+### Minor Changes
+
+- [`ec57a50c9cc90`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec57a50c9cc90) -
+  Added dedicated entry points for additional-payload metrics, resource timing, SSR scripts, and VC
+  media. These imports let consumers depend on the APIs they use directly:
+  - `import { getCacheHitRatio } from '@atlaskit/react-ufo/additional-payload/cache-hit-ratio'`
+  - `import { getResourceTimings } from '@atlaskit/react-ufo/resource-timing/main'`
+  - `import type { ResourceTiming } from '@atlaskit/react-ufo/resource-timing/types'`
+  - `import { bindAbortListeners } from '@atlaskit/react-ufo/ssr-scripts/bindAbortListeners'`
+
+## 7.6.1
+
+### Patch Changes
+
+- [`6c2d9c3b686ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c2d9c3b686ff) -
+  Reuse the SSR-measured placeholder dimensions across VC observer instances.
+
+  Several `VCObserverWrapper` instances are built per page load (the lazily created global one, the
+  per-interaction one and the post-interaction one) and each constructed its own
+  `SSRPlaceholderHandlers`. The first one deleted `window.__SSR_PLACEHOLDERS_DIMENSIONS__` after
+  collecting, so every later one fell back to `getBoundingClientRect()` for every placeholder,
+  forcing a synchronous style recalc and a full-document layout during hydration. The dimensions are
+  now kept until the page is unloaded, which also means later handlers compare against SSR geometry
+  as intended instead of geometry measured mid-hydration.
+
+  Gated on `window.__REUSE_SSR_PLACEHOLDER_DIMENSIONS__`, which Confluence's Bifrost SSR resolves
+  from the `reuse_ssr_placeholder_dimension_collect` experiment. Behaviour is unchanged when the
+  global is absent or false.
+
+## 7.6.0
+
+### Minor Changes
+
+- [`7b7dae9d27b68`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7dae9d27b68) -
+  Add a way to exclude a third-party segment subtree from all UFO metric windows, and use it for
+  Forge background modules so they no longer inflate `ttai_include_third_party`.
+
+  `@atlaskit/react-ufo`: `UFOSegment`/`UFOThirdPartySegment` now accept an `excludeFromMetrics`
+  prop. When set on a `type: 'third-party'` segment, every hold registered under that segment is
+  dropped entirely: it is not tracked in the standard or include-third-party buckets, does not gate
+  interaction completion. The flag is only honoured alongside a third-party segment, so it can never
+  remove first-party work from `ttai`/`vc90`.
+
+  `@atlassian/forge-ui`: `ForgeUIRenderer` accepts an optional `isBackgroundModule` prop. Behind the
+  `platform_forge_ufo_exclude_bg_scripts_from_3p` feature gate, background modules (flagged via
+  `isBackgroundModule` by the product, or matching the generic `*:backgroundScript` fallback) render
+  their third-party segment with `excludeFromMetrics`, so their never-releasing hold no longer
+  inflates `ttai_include_third_party` and they contribute to no metric bucket. Products own their
+  module taxonomy and opt in by passing `isBackgroundModule`.
+
+  Excluded background modules still record a small, static breadcrumb in a dedicated
+  `excluded3pSegments` payload. The breadcrumb is keyed `forgeBackgroundModule:*` and carries the
+  module identity (module type, app version, installation id, etc.) plus
+  `excludedFromMetrics: true`. It is emitted independently of iframe timings so the module identity
+  survives even when `segment3pData` is dropped. It is a pure side-channel: never read by any metric
+  window and creates no hold, so the module remains observable (and a gate revert is not an
+  unrecoverable data loss) without affecting `ttai`/`vc90`/`ttai_include_third_party`.
+
+  `@atlaskit/react-ufo`: `UFOThirdPartySegment` accepts an optional `excludedData` prop that records
+  a diagnostic breadcrumb for an excluded segment into a new `excluded3pSegments` payload field
+  (keyed internally by `segmentId` so re-renders upsert rather than duplicate). No effect on any
+  metric window.
+
+## 7.5.0
+
+### Minor Changes
+
+- [`4e87fa7c9e65f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4e87fa7c9e65f) -
+  Export `scheduleOnPaint` (default) and its `OnPaintCallback` type from a new `./schedule-on-paint`
+  entry point. It already handles SSR, the hidden-tab case (`setTimeout` fallback), and a
+  `scheduler.postTask` fast path ahead of a double-`requestAnimationFrame` fallback, so consumers
+  that need to defer work until after the next paint can use this shared primitive instead of
+  hand-rolling their own scheduling logic.
+
+## 7.4.0
+
+### Minor Changes
+
+- [`505af56cf057b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/505af56cf057b) -
+  Emit metric-variant hold attribution behind `platform_ufo_emit_metric_variant_holds` for GenAI UFO
+  segments so downstream page segment metrics can process GenAI segments like normal UFO segments
+  without changing root standard TTAI semantics.
+
+## 7.3.27
+
+### Patch Changes
+
+- [`428c5ef681458`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/428c5ef681458) -
+  Add optional `isSandbox` config field to react-ufo. When a product sets `isSandbox` on its UFO
+  config, it is emitted on the ufo metrics payload as `event:isSandbox`. The property is only
+  emitted when a product explicitly provides the signal, so events from products that have not wired
+  up a sandbox source omit the field entirely rather than reporting `false`.
+
+## 7.3.26
+
+### Patch Changes
+
+- [`1882e44987695`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1882e44987695) -
+  Clean up platform_ufo_post_interaction_raw_vc90 and always include raw VC revisions in
+  post-interaction logs
+
+## 7.3.25
+
+### Patch Changes
+
+- [`21ddeef55baf4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/21ddeef55baf4) -
+  Cleanup safe payload size feature gate
+
+## 7.3.24
+
+### Patch Changes
+
+- [`0deb2b2ba8068`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0deb2b2ba8068) -
+  Include raw-handler VC data in post-interaction-log payloads behind a feature gate.
+- [`49e1b6243cb6d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/49e1b6243cb6d) -
+  Update React UFO ownership metadata
+
+## 7.3.23
+
+### Patch Changes
+
+- [`184b158c412e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/184b158c412e4) -
+  Remove deprecated interaction extra metrics payload
+- [`0a642e4e64d88`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a642e4e64d88) -
+  Cleanup feature gate platform_ufo_always_emit_raw_handler
+
+## 7.3.22
+
+### Patch Changes
+
+- [`1b26d668ba1e7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b26d668ba1e7) -
+  Cleanup feature gate `platform_ufo_always_emit_raw_handler`. Raw handler VC data is now always
+  emitted.
+- [`bb42ae3742c33`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb42ae3742c33) -
+  Clean up a fully rolled out gate that controlled third-party iframe UFO segment timing observers,
+  cross-segment resource-timing deduplication, and sanitized/backend-aware resource timing labels.
+  This behaviour is now always enabled; no functional change is expected.
+
+## 7.3.21
+
+### Patch Changes
+
+- [`b1cf9e336f0f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1cf9e336f0f0) -
+  Migrate consumers of @atlaskit/atlassian-context from barrel imports to direct subpath imports,
+  and remove the deprecated `./domain-lookup`, `./generalized-domain-lookup`, and `./perimeter`
+  entry-point exports (all symbols remain available via their per-export subpaths).
+
+  Also extends the `no-restricted-fedramp-imports` ESLint rule to cover the new
+  `@atlaskit/atlassian-context/is-fedramp` and `@atlaskit/atlassian-context/is-isolated-cloud`
+  subpaths, so the FedRamp/IsolatedCloud deprecation guardrail keeps firing after the migration.
+
+- Updated dependencies
+
+## 7.3.20
+
+### Patch Changes
+
+- [`cfbfe7106b1bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cfbfe7106b1bf) -
+  Report client network errors as terminal errors and always include terminal error classification.
+
+## 7.3.19
+
+### Patch Changes
+
+- [`28407e5cb4af0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28407e5cb4af0) -
+  Guard UFO payload size calculations against unsafe JSON serialization
+
+## 7.3.18
+
+### Patch Changes
+
+- [`e083e53a2faf9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e083e53a2faf9) -
+  Cleanup feature gate `platform_ufo_trim_labelstack_trailing_slashes`. Trailing slashes are now
+  always trimmed from label stack names.
+- [`e51a666165605`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e51a666165605) -
+  Cleanup feature gate `ufo_vc_revision_trim_enabled`. VC debug data trimming for early viewport
+  checkpoints is now always enabled when payload size exceeds the limit.
+
+## 7.3.17
+
+### Patch Changes
+
+- [`06d103f471f2a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06d103f471f2a) -
+  Cleanup SSR abort feature gates
+
+## 7.3.16
+
+### Patch Changes
+
+- [`014e88bcc7709`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/014e88bcc7709) -
+  Cleanup feature gate `platform_ufo_filter_cls_logs_same_rects_positions`; CLS logs now always
+  exclude entries whose source rects do not change position.
+
+## 7.3.15
+
+### Patch Changes
+
+- [`2182ee870768f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2182ee870768f) -
+  Remove disabled critical metrics payload functionality from React UFO.
+- [`0eb3066bf2840`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0eb3066bf2840) -
+  Cleanup feature gate `platform_mark_ufo_segment_first_load`; first segment load marks remain
+  disabled.
+
+## 7.3.14
+
+### Patch Changes
+
+- [`6cd977a7d0e8b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6cd977a7d0e8b) -
+  Cleanup feature gate ufo_remove_featureflags_from_trimmed_fields.
+
+## 7.3.13
+
+### Patch Changes
+
+- [`62c8a4f72157c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62c8a4f72157c) -
+  Cleanup feature gate platform_ufo_gen_ai_segment
+
+## 7.3.12
+
+### Patch Changes
+
+- [`c542c6201f34c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c542c6201f34c) -
+  Cleanup feature gate `platform_ufo_ecosystem_data_in_payload`. Ecosystem data (segment3pData) is
+  now always included in the UFO payload.
+
+## 7.3.11
+
+### Patch Changes
+
+- [`37a5b3e1f36b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/37a5b3e1f36b6) -
+  [ux] Segment count threshold is now always applied when aggregating UFO experience data.
+
+## 7.3.10
+
+### Patch Changes
+
+- [`229d44fc4a334`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/229d44fc4a334) -
+  [ux] Host-side resize events for third-party segments are now always ingested.
+
+## 7.3.9
+
+### Patch Changes
+
+- [`8b0e89ffa0467`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8b0e89ffa0467) -
+  Clean up the platform_ufo_assets_check_for_nan feature gate by making the encoded size null checks
+  permanent.
+
+## 7.3.8
+
+### Patch Changes
+
+- [`acd05455db669`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acd05455db669) -
+  Deprecate the interaction extra metrics payload capability
+
+## 7.3.7
+
+### Patch Changes
+
+- [`b4d10b23fa133`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b4d10b23fa133) -
+  Cleanup feature gate `platform_ufo_disable_ufo_names_config`. The `disabledUfoNames` config
+  suppression behavior is now unconditionally active across `create-payload`,
+  `create-interaction-extra-metrics-payload`, and `create-post-interaction-log-payload`.
+
+## 7.3.6
+
+### Patch Changes
+
+- [`988b750a8dc0d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/988b750a8dc0d) -
+  Cleanup feature gate platform_enable_better_page_visibility
+
+## 7.3.4
+
+### Patch Changes
+
+- [`bb9eb81035c60`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb9eb81035c60) -
+  Clean up feature gate `platform_ufo_metric_variants`, making metric variant window behavior
+  permanent.
+
+## 7.3.3
+
+### Patch Changes
+
+- [`7ad5da8c88f95`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ad5da8c88f95) -
+  Cleanup feature gate platform_ufo_exclude_gql_timings_from_length_trim
+
+## 7.3.2
+
+### Patch Changes
+
+- [`8d1c8711c938c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d1c8711c938c) -
+  Cleanup feature gate `platform_ufo_compress_resource_timings`. Resource timings are now always
+  emitted in the compact format.
+
+## 7.3.1
+
+### Patch Changes
+
+- [`195c9c16f01b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/195c9c16f01b8) -
+  Add optional `getSsrSuccessBreakdown` callback to `SSRConfig` and expose `ssr:success:breakdown`
+  field on the UFO payload when the callback returns a non-undefined value. This is a purely
+  additive, non-breaking change.
+
+## 7.3.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`fe55e2b75abf1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fe55e2b75abf1) -
+  Add a gated UFOGenAISegment API and GenAI metric window support.
+
+## 7.1.3
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- [`0751d9c5e58bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0751d9c5e58bb) -
+  Unify third-party segment resource timing filtering behind `platform_ufo_3p_segment_timings` and
+  remove the deprecated `platform_ufo_filter_3p_resource_timings` gate.
+
+## 7.1.1
+
+### Patch Changes
+
+- [`e4fd1aa703224`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4fd1aa703224) -
+  Add a gated filter for third-party segment resource timings to limit payloads to CSS, JS,
+  query-stripped backend URLs, and broad image/file/avatar placeholders
+
+## 7.1.0
+
+### Minor Changes
+
+- [`9f501971522cb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f501971522cb) -
+  Add gated disablement for legacy interaction extra metrics payload
+
+## 7.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- [`a6df5a37d02d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a6df5a37d02d5) -
+  Reduce the extended abort timeout for third-party (Forge iframe) UFO segments from 60 s to 30 s.
+- Updated dependencies
+
+## 6.7.5
+
+### Patch Changes
+
+- [`d9b1ae2d72110`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d9b1ae2d72110) -
+  Ingest host-side `resized` events from `useResizeAnalytics` into `segment3pData`. Each emission
+  writes a `{ label: 'resized', data: { height, elapsed } }` entry against the active segment so
+  downstream consumers can correlate iframe height changes with TTAI / VC90. `measuredHeight` and
+  `viewportHeight` are intentionally excluded because they require vendor-supplied macro config that
+  is almost always null in practice.
+
+## 6.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.3
+
+### Patch Changes
+
+- [`e3addc9eaa36a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3addc9eaa36a) -
+  Bypass timing name length trim for GraphQL URLs behind a feature gate
+
+## 6.7.2
+
+### Patch Changes
+
+- [`236128665b5ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/236128665b5ee) -
+  Fix prod volume drop caused by `platform_ufo_labelstack_dedup` rollout. `LabelStackTrieNode` was a
+  TypeScript tuple `[string, number]` which serialises to a JSON array `["label", -1]`. The
+  analytics-service (Java/Jackson) re-serialises JSON arrays with numeric indices into objects
+  `{"0":"label","1":-1}`, causing the UFO service's `expandLabelStackReferences` to fail and
+  silently fall through to `splitUFOEvent` with still-numeric labelStacks, throwing "Invalid label
+  stack" and dropping events.
+
+  Fix: change `LabelStackTrieNode` to a named-property object `{ l: string; p: number }` which
+  survives all JSON serialisers/deserialisers intact.
+
+## 6.7.1
+
+### Patch Changes
+
+- [`7cc6d0c282156`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7cc6d0c282156) -
+  Cleanup feature gate `platform_ufo_abort_event_target` by always recording element names for
+  supported abort event targets.
+- [`08b18c01f9f45`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08b18c01f9f45) -
+  Reduce viewport observer recursion cost
+- [`ff29f0391c994`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff29f0391c994) -
+  cleanup platform_ufo_ignore_data_fabric_mode feature gate
+
+## 6.7.0
+
+### Minor Changes
+
+- [`e930ff988376f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e930ff988376f) -
+  Add a gated option to always emit raw-handler VC observations for server-side TTVC recalculation
+
+## 6.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.1
+
+### Patch Changes
+
+- [`8e02aad1e3b98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8e02aad1e3b98) -
+  Accept the new 3-bucket `source` values (`forge-framework` / `forge-app` / `external`) on
+  `ufo-forge-resource-timing` events emitted by forge-cdn bridge PR #775. The legacy `internal`
+  value (PR #769) is also still accepted for rollout compatibility while bridges in the wild
+  transition; `external` remains a first-class value in both schemes. Unknown / malformed values are
+  dropped, preserving the existing safety guarantee.
+
+## 6.6.0
+
+### Minor Changes
+
+- [`e7fca8b60a40b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e7fca8b60a40b) -
+  Separate standard and extended UFO breakdown timings.
+
+## 6.5.1
+
+### Patch Changes
+
+- [`719927ef93dc6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/719927ef93dc6) -
+  Adjust react-ufo to receive updated bridge events from Forge app
+
+## 6.5.0
+
+### Minor Changes
+
+- [`95bf648356347`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95bf648356347) -
+  Add compressed resource timing payload support
+
+## 6.4.4
+
+### Patch Changes
+
+- [`3a8d099474259`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a8d099474259) -
+  Cleanup feature gate `platform_ufo_trim_labelstack_slashes` so label stack leading slashes are
+  always trimmed.
+
+## 6.4.3
+
+### Patch Changes
+
+- [`f58693dfa6f50`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f58693dfa6f50) -
+  Cleanup feature gate `platform_ufo_remove_experimental_holds`. Experimental holds and experimental
+  interaction metrics are now permanently disabled.
+
+## 6.4.2
+
+### Patch Changes
+
+- [`1eff073587627`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1eff073587627) -
+  Clean up "platform_ufo_enable_terminal_errors" FG
+
+## 6.4.1
+
+### Patch Changes
+
+- [`f9cc858ef97da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9cc858ef97da) -
+  Drop segment3pData when exceeding payload limit
+
+## 6.4.0
+
+### Minor Changes
+
+- [`79d3fbb4ef569`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79d3fbb4ef569) -
+  Encode UFO label stack lookup table as a trie to reduce repeated prefixes
+
+### Patch Changes
+
+- [`573ea344b7579`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/573ea344b7579) -
+  Include abort event targets in UFO VC raw event data
+
+## 6.3.1
+
+### Patch Changes
+
+- [`c60b23689f626`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c60b23689f626) -
+  Cleanup feature gate `platform_ufo_drop_prior_fg_interactions`. For `press` interactions,
+  `priorAccessedFg` is now always `{}` as permanent behaviour.
+
+## 6.3.0
+
+### Minor Changes
+
+- [`f5c47464661f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f5c47464661f7) -
+  Optimise forge app perf data size
+
+## 6.2.0
+
+### Minor Changes
+
+- [`946a42caf78ef`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/946a42caf78ef) -
+  Optimise forge app perf data size
+
+## 6.1.1
+
+### Patch Changes
+
+- [`ec73518f378a7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec73518f378a7) -
+  Optimise forge app perf resource timing and navigation timing data in payload
+
+## 6.1.0
+
+### Minor Changes
+
+- [`6a2c84eff60b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6a2c84eff60b0) -
+  Trim trailing slashes from UFO label stack names
+
+## 6.0.1
+
+### Patch Changes
+
+- [`9d95bc2565463`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d95bc2565463) -
+  Remove unused FG in package.json
+
+## 6.0.0
+
+### Major Changes
+
+- [`32e38d1880255`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/32e38d1880255) -
+  Add shorter timeout to detect new inframe events receive for forge apps
+
+## 5.22.1
+
+### Patch Changes
+
+- [`12a399c5880e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12a399c5880e9) -
+  Capture forge app's perf data by react-ufo UFOThirdPartySegment
+
+## 5.22.0
+
+### Minor Changes
+
+- [`3f23aba4db7f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f23aba4db7f2) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 5.21.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.21.2
+
+### Patch Changes
+
+- [`1ffab2fd31cca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ffab2fd31cca) -
+  increase DOM traversal levels from 40 to 400
+
+## 5.21.1
+
+### Patch Changes
+
+- [`7fdee239d2cc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fdee239d2cc0) -
+  Capture forge app's perf data by react-ufo UFOThirdPartySegment
+
+## 5.21.0
+
+### Minor Changes
+
+- [`be1d39d698418`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be1d39d698418) -
+  Report client network errors as terminal errors and include error classification
+
+## 5.20.3
+
+### Patch Changes
+
+- [`caa0499e0b24a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/caa0499e0b24a) -
+  Enrol mercury, one-software-catalog, team-central, react-ufo, analytics and performance packages
+  into the React Compiler with platform gating via isReactCompilerActivePlatform
+
+## 5.20.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.20.1
+
+### Patch Changes
+
+- [`43cf23ba73745`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/43cf23ba73745) -
+  Clean up platform_ufo_terminal_errors_fix_missing_data
+
+## 5.20.0
+
+### Minor Changes
+
+- [`7454df4d43465`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7454df4d43465) -
+  Trim leading slashes from UFO label stack names
+
+## 5.19.0
+
+### Minor Changes
+
+- [`1541e3b95393e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1541e3b95393e) -
+  Add generic metric windows and lifecycle observations to custom.interaction-metrics.
+
+## 5.18.0
+
+### Minor Changes
+
+- [`a5bfa05e68f13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a5bfa05e68f13) -
+  Exempt Pragmatic Drag and Drop registration attributes (e.g. `draggable`,
+  `data-drop-target-for-*`, `data-auto-scrollable`, and `data-rbd-*`) from VC measurement. These
+  attributes are added in an effect after first paint as part of pdnd's standard registration
+  pattern and do not affect layout or paint. Behind feature gate
+  `platform_ufo_exclude_pdnd_attributes_from_vc`.
+
+## 5.17.1
+
+### Patch Changes
+
+- [`9f4cfdc6477b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f4cfdc6477b7) -
+  Cleanup `platform_ufo_fedramp_overrides` feature gate. The gate is now assumed to always evaluate
+  to `true`, so the FedRAMP override behaviour is now permanently driven solely by
+  `isFedrampModerate()` perimeter detection. Removed unused references, gate guards, and updated
+  tests accordingly.
+
+## 5.17.0
+
+### Minor Changes
+
+- [`d6c4c4f7f3336`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d6c4c4f7f3336) -
+  Gate-remove experimental holds and experimental interaction metrics payload.
+
+## 5.16.3
+
+### Patch Changes
+
+- [`47eaa72a51569`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47eaa72a51569) -
+  Clean up platform_ufo_3p_forge_detection_fix feature gate
+
+## 5.16.2
+
+### Patch Changes
+
+- [`15a457271c73b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/15a457271c73b) -
+  Cleanup `platform_ufo_validate_timing_name_length` feature gate. Long timing names are now always
+  truncated to 255 characters.
+
+## 5.16.1
+
+### Patch Changes
+
+- [`14515ef2d51e7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14515ef2d51e7) -
+  FedRAMP-Moderate hardening for `@atlaskit/react-ufo`, all gated behind the `isFedrampModerate()`
+  perimeter detection from `@atlaskit/atlassian-context`:
+  - `selectorConfig` is forced to all-false in both the new (`VCObserverNew`) and legacy
+    (`VCObserver`) viewport observer pipelines. Both now consult `getSelectorConfig()` when no
+    caller-provided `selectorConfig` is passed, so element-name selectors collapse to tag-name
+    chains (no `id`, `testId`, `role`, `className`, or `data-vc` content).
+  - The `raw-handler` revision payload (`RawDataHandler.getRawData()`) is scrubbed of the
+    `rawData.att`, `obs[].att`, `rawData.lbl`, and `rawData.lblMode` fields. These are
+    `MutationRecord.attributeName` strings and UFO label-stack strings that could in principle embed
+    product-specific or user-derived identifiers; they are not required for server-side TTVC
+    reconstruction (which is driven by timestamps, encoded rectangles, and mutation kind only).
+
+## 5.16.0
+
+### Minor Changes
+
+- [`cf3992de030d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf3992de030d6) -
+  Add data-comment-id to known attributes excluded from Visually Complete
+
+## 5.15.0
+
+### Minor Changes
+
+- [`3f23b70c4fcb4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f23b70c4fcb4) -
+  Fix `getEnabledVCRevisions` to honour an explicitly-empty `enabledVCRevisions.all` array when the
+  `ufo_disable_ttvc_v4` feature gate is on. Previously, passing `all: []` would fall through to the
+  default revision (`fy26.04`), causing TTVC v4 to still be calculated client-side even when
+  intentionally disabled.
+
+## 5.14.1
+
+### Patch Changes
+
+- [`cc6a486b6fc66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc6a486b6fc66) -
+  Add 3p segment timings for third-party iframe perf
+
+## 5.14.0
+
+### Minor Changes
+
+- [`270a4ff44f31c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/270a4ff44f31c) -
+  Enable raw VC observation collection when no client-side revisions are configured, behind
+  platform_ufo_vc_raw_handler_only gate
+
+## 5.13.1
+
+### Patch Changes
+
+- [`1205cd35c3b71`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1205cd35c3b71) -
+  Remove the platform_reset_post_interaction_on_new_interaction feature gate and always reset
+  post-interaction logging when a new interaction aborts the previous one.
+
+## 5.13.0
+
+### Minor Changes
+
+- [`7b70f90175e38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b70f90175e38) -
+  Add labelStack deduplication table to reduce interaction-metrics payload size
+
+## 5.12.6
+
+### Patch Changes
+
+- [`4b4aae1a28777`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b4aae1a28777) -
+  Add gated validation to truncate overly long timing names to 255 characters for resource and
+  custom timings.
+
+## 5.12.5
+
+### Patch Changes
+
+- [`71d94036332a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71d94036332a6) -
+  Remove the platform_ufo_add_segments_count_threshold feature gate and make the threshold behavior
+  always-on.
+- [`05c074d900a78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/05c074d900a78) -
+  Remove the platform_ufo_enable_late_holds_post_interaction feature gate and make late holds always
+  included in post-interaction logs.
+
+## 5.12.4
+
+### Patch Changes
+
+- [`50ff52fbb9bd9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50ff52fbb9bd9) -
+  Refactor create-payload return types: replace ~87K lines of duplicated inline type annotations
+  with a named InteractionMetricsPayloadResult type alias
+
+## 5.12.3
+
+### Patch Changes
+
+- [`7186ab86a9c5f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7186ab86a9c5f) -
+  Remove platform_ufo_raw_lbl_compaction and platform_ufo_ttvc_server_side_sync feature gates
+
+## 5.12.2
+
+### Patch Changes
+
+- [`638d0a6a42953`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/638d0a6a42953) -
+  Added `platform_ufo_3p_forge_detection_fix` feature flag that improves third-party detection for
+  Forge apps in two ways:
+  1. Increases the React fiber tree walk depth limit from 20 to 40 levels when detecting whether a
+     DOM element is inside a `UFOThirdPartySegment`. This addresses cases where deeply nested
+     component trees (e.g., Confluence Forge extensions) exceed the default 20-level limit, causing
+     third-party DOM mutations to incorrectly contribute to standard TTVC calculations.
+
+  2. Moves the `UFOThirdPartySegment` wrapper higher in the Forge editor extension component tree
+     (in `ForgeEditorExtension.tsx`) so that the `ForgeExtensionContainer` div is inside the
+     third-party segment boundary.
+
+## 5.12.1
+
+### Patch Changes
+
+- [`5481f03a3e3f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5481f03a3e3f4) -
+  Remove the platform_ufo_segment_unmount_count feature gate and make segment unmount counting
+  always-on.
+
+## 5.12.0
+
+### Minor Changes
+
+- [`793f7dc3f231f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/793f7dc3f231f) -
+  Compact raw lbl unknown entries behind a feature gate for TTVC server-side sync
+
+### Patch Changes
+
+- [`6cb3b52b44f41`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6cb3b52b44f41) -
+  Deprecate stopVCAtInteractionFinish as a compatibility no-op
+
+## 5.11.1
+
+### Patch Changes
+
+- [`cb0f154d31d82`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cb0f154d31d82) -
+  Clean up always-on SSR render profiler handling
+- [`d347b52cce4ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d347b52cce4ba) -
+  Clean up feature gate platform_ufo_send_extra_metrics_on_dirty_vc (always true): remove gate
+  guards, allow dirty VC payloads unconditionally, update tests
+
+## 5.11.0
+
+### Minor Changes
+
+- [`6817bff2f2c83`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6817bff2f2c83) -
+  Increase UFO third-party DOM walk depth behind a feature flag.
+
+## 5.10.1
+
+### Patch Changes
+
+- [`aa4a7091a0794`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa4a7091a0794) -
+  Remove the rovo search smart answers TTVC cleanup gate
+
+## 5.10.0
+
+### Minor Changes
+
+- [`981c0330e867e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/981c0330e867e) -
+  Capture previousRect in raw TTVC observations for server-side layout shift offender analysis
+
+## 5.9.0
+
+### Minor Changes
+
+- [`48386f908b915`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48386f908b915) -
+  Prepare for server-side FY26.04 TTVC calculation behind `platform_ufo_ttvc_server_side_sync`
+  feature gate. Extends the raw-handler to capture per-element labelStacks in a new `lbl` field for
+  server-side reconstruction. When the gate is enabled and `fy26.04` is removed from
+  `enabledVCRevisions`, raw data is automatically sent on every event so the server can recalculate
+  fy26.04 metrics (ssrRatio, labelStacks, speedIndex) from raw observations.
+
+## 5.8.1
+
+### Patch Changes
+
+- [`29653f924f0e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/29653f924f0e1) -
+  Remove obsolete abort timestamp raw data feature gate
+- Updated dependencies
+
+## 5.8.0
+
+### Minor Changes
+
+- [`bb3f342023003`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb3f342023003) -
+  Ignore data-fabric-mode from TTVC calculations
+
+## 5.7.1
+
+### Patch Changes
+
+- [`461e0d45a1b49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/461e0d45a1b49) -
+  Exclude fdprocessedid and data-dashlane-classification attributes from TTVC
+
+## 5.7.0
+
+### Minor Changes
+
+- [`b516e549d5e91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b516e549d5e91) -
+  Allows statusCode to be provided for terminal error metric
+
+## 5.6.1
+
+### Patch Changes
+
+- [`aa542ab5bad47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa542ab5bad47) -
+  Remove platform_ufo_detect_container_scroll and always observe container scrolls
+
+## 5.6.0
+
+### Minor Changes
+
+- [`165ad4e461379`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/165ad4e461379) -
+  Allow sending custom.interaction-extra-metrics payload when 3P-inclusive VC is dirty behind
+  platform_ufo_send_extra_metrics_on_dirty_vc feature gate. Adds vcClean and vcAbortReason fields to
+  the payload properties.
+
+## 5.5.4
+
+### Patch Changes
+
+- [`fe2db5c510193`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fe2db5c510193) -
+  Clean up feature gate platform_ufo_exclude_3p_elements_from_ttvc - gate always evaluates to true
+
+## 5.5.3
+
+### Patch Changes
+
+- [`89157b4835801`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/89157b4835801) -
+  Clean up platform_ufo_enable_vc_raw_data feature gate
+- [`dd2a8188611e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dd2a8188611e5) -
+  Clean up platform_ufo_reenable_3p_tracking feature gate, assuming always true
+
+## 5.5.2
+
+### Patch Changes
+
+- [`74b7d44630b84`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/74b7d44630b84) -
+  Clean up feature gate platform_ufo_enable_finish_interaction_transition - gate always evaluates to
+  true
+
+## 5.5.1
+
+### Patch Changes
+
+- [`d52302fe9ea1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d52302fe9ea1b) -
+- [`ac3d03af6d443`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ac3d03af6d443) -
+  Clean up feature gate platform_ufo_exclude_3p_elements_from_ttai - gate always evaluates to true
+
+## 5.5.0
+
+### Minor Changes
+
+- [`b6474459ca8ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6474459ca8ec) -
+  Improve Terminal Error Metric to internally extract statusCode & traceId
+
+## 5.4.11
+
+### Patch Changes
+
+- [`2054e5f97e932`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2054e5f97e932) -
+  Use actual page visibility hidden timestamp for browser_backgrounded abort reason in VC
+  raw-data-handler instead of hard-coded -1
+
+## 5.4.10
+
+### Patch Changes
+
+- [`3d793d41ae6c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d793d41ae6c9) -
+  Add capture-phase scroll detection for container scrollbar drags behind
+  platform_ufo_detect_container_scroll feature flag
+
+## 5.4.9
+
+### Patch Changes
+
+- [`700384b28507a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/700384b28507a) -
+  Fix this complete is not a function error SSR render profiler
+
+## 5.4.8
+
+### Patch Changes
+
+- [`d19ae6125b99c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d19ae6125b99c) -
+  Exclude Dark Reader extension attributes from TTVC
+
+## 5.4.7
+
+### Patch Changes
+
+- [`f1cd4240db95c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1cd4240db95c) -
+  Make scheduleOnPaint SSR aware
+
+## 5.4.6
+
+### Patch Changes
+
+- [`7dbaf7d23f178`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7dbaf7d23f178) -
+  Clean up platform_ufo_enable_killswitch_config feature gate (assume always true)
+
+## 5.4.5
+
+### Patch Changes
+
+- [`0f2580ac07d48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f2580ac07d48) -
+  Clean up ufo_update_and_enforce_ttvc_v4_default_version feature gate (always true)
+
+## 5.4.4
+
+### Patch Changes
+
+- [`4e77d43cefd28`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4e77d43cefd28) -
+  Bring back the displayName that was removed from the UFOLabel
+
+## 5.4.3
+
+### Patch Changes
+
+- [`d3afa1e1a9fc7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3afa1e1a9fc7) -
+  Stop sending ufo events by config
+
+## 5.4.2
+
+### Patch Changes
+
+- [`59746ec1f8366`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/59746ec1f8366) -
+  Bring back the displayNames that were removed from the ufo components
+
+## 5.4.1
+
+### Patch Changes
+
+- [`44280d02aa09f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44280d02aa09f) -
+  Fix 3P metrics silently discarded when TTVC v3 disabled: use dynamic revision resolution via
+  getMostRecentVCRevision instead of hardcoded DEFAULT_TTVC_REVISION, update default to fy26.04, and
+  fix setUFOConfig enforcement to apply regardless of byExperience presence
+
+## 5.4.0
+
+### Minor Changes
+
+- [`d95ffd10bec80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d95ffd10bec80) -
+  remove old FG used by Criterion for reading UFO payloads
+
+## 5.3.0
+
+### Minor Changes
+
+- [`f3d9985c540ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3d9985c540ec) -
+  Add page visibility timeline to UFO payload behind platform_ufo_page_visibility_timeline feature
+  gate. New getPageVisibilityTimeline export from hidden-timing module returns visibility state
+  transitions within a time window.
+
+## 5.2.10
+
+### Patch Changes
+
+- [`06d7af199b6c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06d7af199b6c7) -
+  Added experimental API to track VC offenders
+
+## 5.2.9
+
+### Patch Changes
+
+- [`9adf0a8a1c055`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9adf0a8a1c055) -
+  FG cleanup - platform_ufo_enable_late_mutation_label_stacks
+
+## 5.2.8
+
+### Patch Changes
+
+- [`1350862f67cba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1350862f67cba) -
+  FG cleanup - platform_ufo_is_tab_throttled
+
+## 5.2.7
+
+### Patch Changes
+
+- [`a059dfab456d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a059dfab456d9) -
+  Add back UFO killswitch config
+
+## 5.2.6
+
+### Patch Changes
+
+- [`33f328a1704e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/33f328a1704e1) -
+  FG cleanup - platform_ufo_browser_backgrounded_abort_timestamp
+
+## 5.2.5
+
+### Patch Changes
+
+- [`71b455c1a8ddd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71b455c1a8ddd) -
+  Trim UFO payload if size exceeds max size threshold
+
+## 5.2.4
+
+### Patch Changes
+
+- [`596fad901c189`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/596fad901c189) -
+  Add routeName to ufo terminal error metric & exclude client network errors
+- [`615a53a036cf9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/615a53a036cf9) -
+  FG cleanup - platform_ufo_ttvc_v4_speed_index
+
 ## 5.2.3
 
 ### Patch Changes

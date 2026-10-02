@@ -1,15 +1,27 @@
 import React, { Component, useContext } from 'react';
 
-import type { ADFEntity } from '@atlaskit/adf-utils/types';
+import type { MediaType } from '@atlaskit/adf-schema/media';
 import { filter } from '@atlaskit/adf-utils/traverse';
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
+import {
+	ACTION,
+	ACTION_SUBJECT,
+	ACTION_SUBJECT_ID,
+	EVENT_TYPE,
+} from '@atlaskit/editor-common/analytics';
+import type { ContextIdentifierProvider } from '@atlaskit/editor-common/provider-factory';
+import { withImageLoader } from '@atlaskit/editor-common/utils';
+import type { ImageLoaderProps, ImageStatus } from '@atlaskit/editor-common/utils';
+import { CardError } from '@atlaskit/media-card/cardError';
+import CardAsync from '@atlaskit/media-card/cardLoader';
+import { CardLoading } from '@atlaskit/media-card/cardLoading';
+import CardSync from '@atlaskit/media-card/cardSync';
 import type {
 	CardAppearance,
 	CardDimensions,
 	CardOnClickCallback,
-	NumericalCardDimensions,
-} from '@atlaskit/media-card';
-import { Card as CardAsync, CardSync, CardLoading, CardError } from '@atlaskit/media-card';
-import type { MediaClientConfig } from '@atlaskit/media-core';
+	CardProps as AtlaskitMediaCardProps,
+} from '@atlaskit/media-card/types';
 import type {
 	ImageResizeMode,
 	FileIdentifier,
@@ -18,24 +30,19 @@ import type {
 	FileState,
 	MediaClient,
 } from '@atlaskit/media-client';
-import { MediaClientContext } from '@atlaskit/media-client-react';
-import type { MediaType } from '@atlaskit/adf-schema';
-import type { ContextIdentifierProvider } from '@atlaskit/editor-common/provider-factory';
-import { withImageLoader } from '@atlaskit/editor-common/utils';
-import type { ImageStatus } from '@atlaskit/editor-common/utils';
+import { MediaClientContext } from '@atlaskit/media-client-react/media-client-provider';
 import type { MediaFeatureFlags } from '@atlaskit/media-common';
-import type { RendererAppearance } from './Renderer/types';
-import type { RendererContext } from '../react/types';
-import type { MediaSSR } from '../types/mediaOptions';
+import type { NumericalCardDimensions } from '@atlaskit/media-common/main-types';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
+import type { MediaViewerExtensions } from '@atlaskit/media-viewer';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
 import AnalyticsContext from '../analytics/analyticsContext';
 import type { AnalyticsEventPayload } from '../analytics/events';
-import {
-	ACTION,
-	ACTION_SUBJECT,
-	ACTION_SUBJECT_ID,
-	EVENT_TYPE,
-} from '@atlaskit/editor-common/analytics';
+import type { RendererContext } from '../react/types';
+import type { MediaSSR } from '../types/mediaOptions';
+import type { RendererAppearance } from './Renderer/types';
 
 export type MediaProvider = {
 	viewMediaClientConfig: MediaClientConfig;
@@ -57,13 +64,31 @@ export interface MediaCardProps {
 			onClick?: CardOnClickCallback;
 		};
 	};
+	/**
+	 * Optional fallback fetcher to retrieve the media filename from another service.
+	 * Workaround for #hot-301450 where media service is missing filenames for DC -> Cloud migrated media.
+	 * Receives the file ID and should resolve to the filename string.
+	 */
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>;
 	featureFlags?: MediaFeatureFlags;
 	id?: string;
 	imageStatus?: ImageStatus;
 	localId?: string;
+	/** Extensions for the media viewer (e.g. comment button in header). */
+	mediaViewerExtensions?: MediaViewerExtensions;
+	/**
+	 * Indicates if media node is nested under a bodiedSyncBlock
+	 */
+	nestedUnder?: string;
 	occurrenceKey?: string;
+	onError?: AtlaskitMediaCardProps['onError'];
+	onPreviewRender?: AtlaskitMediaCardProps['onPreviewRender'];
 	originalDimensions?: NumericalCardDimensions;
 	rendererAppearance?: RendererAppearance;
+	/**
+	 * Renderer context that includes nestedRendererType for detecting renderer nesting.
+	 * When nestedRendererType is 'syncedBlock', it indicates media is inside renderer inside a syncBlock.
+	 */
 	rendererContext?: RendererContext;
 	resizeMode?: ImageResizeMode;
 	shouldEnableDownloadButton?: boolean;
@@ -109,6 +134,35 @@ export const getListOfIdentifiersFromDoc = (doc?: ADFEntity): Identifier[] => {
 	);
 };
 
+/**
+ * `mediaIdentifierMap` is the Media Viewer's nav list, but a `Map` can only append —
+ * a card that unmounts and re-registers lands last, scrambling nav order. Rebuild it
+ * in document order; entries from other renderers on the page keep their old order.
+ */
+const restoreDocumentOrder = (docIdentifiers: Identifier[]): void => {
+	const documentKeys = new Set(
+		docIdentifiers
+			.map((identifier) =>
+				identifier.mediaItemType === 'file' ? (identifier.id as string) : identifier.dataURI,
+			)
+			.filter((key) => mediaIdentifierMap.has(key)),
+	);
+	const currentKeys = Array.from(mediaIdentifierMap.keys());
+	const orderedKeys = [...documentKeys, ...currentKeys.filter((key) => !documentKeys.has(key))];
+
+	if (orderedKeys.every((key, index) => key === currentKeys[index])) {
+		return;
+	}
+
+	const orderedEntries = orderedKeys.map(
+		(key) => [key, mediaIdentifierMap.get(key)] as [string, Identifier],
+	);
+	mediaIdentifierMap.clear();
+	orderedEntries.forEach(([key, identifier]) => {
+		mediaIdentifierMap.set(key, identifier);
+	});
+};
+
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export class MediaCardView extends Component<
@@ -138,7 +192,8 @@ export class MediaCardView extends Component<
 		const nodeIsInCache =
 			(id && mediaIdentifierMap.has(id)) || (url && mediaIdentifierMap.has(url));
 		if (rendererContext && rendererContext.adDoc && !nodeIsInCache) {
-			getListOfIdentifiersFromDoc(rendererContext.adDoc).forEach((identifier) => {
+			const docIdentifiers = getListOfIdentifiersFromDoc(rendererContext.adDoc);
+			docIdentifiers.forEach((identifier) => {
 				if (identifier.mediaItemType === 'file' && identifier.id === id) {
 					mediaIdentifierMap.set(identifier.id as string, {
 						...identifier,
@@ -148,6 +203,11 @@ export class MediaCardView extends Component<
 					mediaIdentifierMap.set(identifier.dataURI as string, identifier);
 				}
 			});
+			// Reordering affects prev/next nav in every overlay viewer on the page, so gate it
+			// to the media-comments sidebar experiment that needs it; otherwise keep legacy order.
+			if (isExperimentEnabled('cc_comments_media_viewer_sidebar')) {
+				restoreDocumentOrder(docIdentifiers);
+			}
 		}
 
 		if (id) {
@@ -184,12 +244,15 @@ export class MediaCardView extends Component<
 					fileState,
 				});
 			}
-		} catch (error) {
+		} catch {
 			// do not set state on error
 		}
 	};
 
-	private onError = (reason: string) => {
+	private onError: NonNullable<AtlaskitMediaCardProps['onError']> = (reason) => {
+		const { nestedUnder, rendererContext } = this.props;
+		this.props.onError?.(reason);
+
 		this.props.fireAnalyticsEvent?.({
 			action: ACTION.ERRORED,
 			actionSubject: ACTION_SUBJECT.RENDERER,
@@ -198,8 +261,23 @@ export class MediaCardView extends Component<
 			attributes: {
 				reason,
 				external: false,
+				...(nestedUnder ? { nestedUnder } : {}),
+				...(rendererContext?.nestedRendererType
+					? { nestedRendererType: rendererContext.nestedRendererType }
+					: {}),
 			},
 		});
+	};
+
+	private onConsumerError: NonNullable<AtlaskitMediaCardProps['onError']> = (reason) => {
+		this.props.onError?.(reason);
+	};
+
+	private getMediaErrorHandler = () => {
+		if (expValEquals('platform_editor_media_error_analytics', 'isEnabled', true)) {
+			return this.onError;
+		}
+		return this.props.onError ? this.onConsumerError : undefined;
 	};
 
 	private renderLoadingCard = () => {
@@ -263,11 +341,8 @@ export class MediaCardView extends Component<
 					featureFlags={featureFlags}
 					ssr={ssr?.mode}
 					shouldHideTooltip={false}
-					onError={
-						expValEquals('platform_editor_media_error_analytics', 'isEnabled', true)
-							? this.onError
-							: undefined
-					}
+					onError={this.getMediaErrorHandler()}
+					onPreviewRender={this.props.onPreviewRender}
 				/>
 			</div>
 		);
@@ -320,6 +395,8 @@ export class MediaCardView extends Component<
 			dataAttributes,
 			enableSyncMediaCard,
 			localId,
+			mediaViewerExtensions,
+			fallbackMediaNameFetcher,
 		} = this.props;
 
 		const isMobile = false;
@@ -363,9 +440,9 @@ export class MediaCardView extends Component<
 		// Quick solution to disable lazy loading of images on PDF export pages in Confluence to remedy an issue with images never loading
 		// More robust solution will be implemented as part of CCPDF-233 - Link: https://hello.jira.atlassian.cloud/browse/CCPDF-233
 		const currentUrl = window.location.href;
-		const shouldDisableLazyLoading =
-			expValEquals('platform_editor_disable_lazy_load_media', 'isEnabled', true) &&
-			currentUrl.includes('/wiki/pdf/spaces/');
+		const shouldDisableLazyLoading = currentUrl.includes('/wiki/pdf/spaces/');
+
+		const ssrMediaItem = ssr?.ssrMediaItems?.find((item) => item.id === id);
 
 		return (
 			<div
@@ -401,12 +478,13 @@ export class MediaCardView extends Component<
 					featureFlags={featureFlags}
 					shouldEnableDownloadButton={shouldEnableDownloadButton}
 					ssr={ssr?.mode}
+					// Optional SSR seed supplied by the host product. Undefined when absent,
+					ssrMediaItem={ssrMediaItem}
 					shouldHideTooltip={isMobile}
-					onError={
-						expValEquals('platform_editor_media_error_analytics', 'isEnabled', true)
-							? this.onError
-							: undefined
-					}
+					mediaViewerExtensions={mediaViewerExtensions}
+					fallbackMediaNameFetcher={fallbackMediaNameFetcher}
+					onError={this.getMediaErrorHandler()}
+					onPreviewRender={this.props.onPreviewRender}
 				/>
 			</div>
 		);
@@ -479,4 +557,5 @@ export const MediaCardInternal = (props: MediaCardProps): React.JSX.Element => {
 	);
 };
 
-export const MediaCard = withImageLoader<MediaCardProps>(MediaCardInternal);
+export const MediaCard: React.ComponentClass<MediaCardProps & ImageLoaderProps> =
+	withImageLoader<MediaCardProps>(MediaCardInternal);

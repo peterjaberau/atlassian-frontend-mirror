@@ -5,25 +5,25 @@
 import React, { useEffect } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
-import EmptyState from '@atlaskit/empty-state';
-import { type DatasourceMeta } from '@atlaskit/linking-types';
-import { AuthError, auth as outboundAuth } from '@atlaskit/outbound-auth-flow-client';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Button from '@atlaskit/button/default/button';
+import EmptyState from '@atlaskit/empty-state/empty-state';
+import type { DatasourceMeta } from '@atlaskit/linking-types/datasource';
+import { auth as outboundAuth } from '@atlaskit/outbound-auth-flow-client/auth';
+import { AuthError } from '@atlaskit/outbound-auth-flow-client/error';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Anchor, Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../analytics';
 import useErrorLogger from '../../../hooks/useErrorLogger';
-
 import { loadingErrorMessages } from './messages';
 import { ProviderAuthRequiredSVG } from './provider-auth-required-svg';
 
 const styles = cssMap({
 	buttonContainer: {
-		marginTop: token('space.200', '16px'),
+		marginTop: token('space.200'),
 	},
 });
 
@@ -46,7 +46,7 @@ export const ProviderAuthRequired = ({
 	extensionKey,
 	providerName,
 	datasourceId,
-}: ProviderAuthRequiredProps) => {
+}: ProviderAuthRequiredProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 	const { captureError } = useErrorLogger({ datasourceId });
 	const { fireEvent } = useDatasourceAnalyticsEvents();

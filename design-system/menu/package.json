@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/menu",
-	"version": "8.4.17",
+	"version": "11.0.3",
 	"description": "A list of options to help users navigate, or perform actions.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,8 +17,18 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Menu",
 			"subPages": [
 				{
@@ -45,14 +55,14 @@
 		"@atlaskit/interaction-context": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0",
+		"react-dom": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -63,58 +73,43 @@
 		"@atlaskit/ds-lib": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/icon-file-type": "workspace:^",
-		"@atlaskit/icon-object": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"ast-types": "root:*",
-		"jscodeshift": "root:*"
+		"jscodeshift": "root:*",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
 	},
 	"keywords": [
 		"atlaskit",
 		"react",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"ui-components": "lite-mode",
-			"design-system": "v1",
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports"
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
-		"./button-item": "./src/entry-points/menu-item/button-item.tsx",
-		"./link-item": "./src/entry-points/menu-item/link-item.tsx",
-		"./custom-item": "./src/entry-points/menu-item/custom-item.tsx",
-		"./heading-item": "./src/entry-points/menu-item/heading-item.tsx",
-		"./skeleton-item": "./src/entry-points/menu-item/skeleton-item.tsx",
-		"./skeleton-heading-item": "./src/entry-points/menu-item/skeleton-heading-item.tsx",
-		"./section": "./src/entry-points/menu-section/section.tsx",
-		"./menu-group": "./src/entry-points/menu-section/menu-group.tsx",
-		"./popup-menu-group": "./src/entry-points/menu-section/popup-menu-group.tsx",
-		"./types": "./src/types.tsx",
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./button-item": "./src/menu-item/button-item.tsx",
+		"./custom-item": "./src/menu-item/custom-item.tsx",
+		"./heading-item": "./src/menu-item/heading-item.tsx",
+		"./link-item": "./src/menu-item/link-item.tsx",
+		"./menu-context": "./src/internal/components/menu-context.tsx",
+		"./menu-group": "./src/menu-section/menu-group.tsx",
+		"./popup-menu-group": "./src/menu-section/popup-menu-group.tsx",
+		"./section": "./src/menu-section/section.tsx",
+		"./selection-style-context-do-not-use": "./src/internal/components/selection-style-context-do-not-use.tsx",
+		"./skeleton-heading-item": "./src/menu-item/skeleton-heading-item.tsx",
+		"./skeleton-item": "./src/menu-item/skeleton-item.tsx",
+		"./types": "./src/types.tsx"
 	},
-	"platform-feature-flags": {},
+	"platform-feature-flags": {
+		"platform-dst-top-layer": {
+			"type": "boolean"
+		},
+		"platform-dst-motion-uplift-list-item": {
+			"type": "boolean"
+		}
+	},
 	"homepage": "https://atlassian.design/components/menu/"
 }

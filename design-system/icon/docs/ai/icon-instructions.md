@@ -65,7 +65,7 @@ in `elemBefore`. This applies to `LinkMenuItem`, `ButtonMenuItem` and `FlyoutMen
 		<TeamsIcon
 			label=""
 			size="xsmall"
-			shouldUseNewLogoDesign
+
 		/>
 	}
 	elemAfter={<LinkExternalIcon label="" size="small" />}
@@ -79,7 +79,7 @@ in `elemBefore`. This applies to `LinkMenuItem`, `ButtonMenuItem` and `FlyoutMen
 For navigation links to different pages/sections:
 
 ```tsx
-import { LinkMenuItem } from '@atlaskit/navigation-system/side-nav-items/link-menu-item';
+import { LinkMenuItem } from '@atlaskit/side-nav-items/link-menu-item';
 
 <LinkMenuItem
 	href="/dashboard"
@@ -95,7 +95,7 @@ import { LinkMenuItem } from '@atlaskit/navigation-system/side-nav-items/link-me
 For actions that trigger functionality without navigation:
 
 ```tsx
-import { ButtonMenuItem } from '@atlaskit/navigation-system/side-nav-items/button-menu-item';
+import { ButtonMenuItem } from '@atlaskit/side-nav-items/button-menu-item';
 
 <ButtonMenuItem
 	onClick={handleAction}
@@ -115,7 +115,7 @@ import {
 	FlyoutMenuItem,
 	FlyoutMenuItemContent,
 	FlyoutMenuItemTrigger,
-} from '@atlaskit/navigation-system/side-nav-items/flyout-menu-item';
+} from '@atlaskit/side-nav-items/flyout-menu-item';
 
 <FlyoutMenuItem>
 	<FlyoutMenuItemTrigger elemBefore={<ProjectIcon label="" />}>Projects</FlyoutMenuItemTrigger>
@@ -133,21 +133,27 @@ import {
 Create expandable sections using state with `ButtonMenuItem`:
 
 ```tsx
-const [isExpanded, setIsExpanded] = useState(false);
+const styles = cssMap({ spacer: { width: '24px' } });
 
-<ButtonMenuItem
-	onClick={() => setIsExpanded(!isExpanded)}
-	elemBefore={<SettingsIcon label="" />}
-	elemAfter={isExpanded ? <ChevronDownIcon label="" /> : <ChevronRightIcon label="" />}
->
-	Team Settings
-</ButtonMenuItem>;
-{
-	isExpanded && (
-		<LinkMenuItem href="/team/members" elemBefore={<div style={{ width: '24px' }} />}>
-			Members
-		</LinkMenuItem>
-	);
+function Component {
+	const [isExpanded, setIsExpanded] = useState(false);
+
+	return <>
+		<ButtonMenuItem
+			onClick={() => setIsExpanded(!isExpanded)}
+			elemBefore={<SettingsIcon label="" />}
+			elemAfter={isExpanded ? <ChevronDownIcon label="" /> : <ChevronRightIcon label="" />}
+		>
+			Team Settings
+		</ButtonMenuItem>
+		{
+			isExpanded && (
+				<LinkMenuItem href="/team/members" elemBefore={<div css={styles.spacer} />}>
+					Members
+				</LinkMenuItem>
+			);
+		}
+	</>
 }
 ```
 

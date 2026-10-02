@@ -8,21 +8,20 @@ import { css, jsx } from '@compiled/react';
 
 import { token } from '@atlaskit/tokens';
 
-import { CustomBlock } from '../../../../FlexibleCard/components/blocks';
+import { LoadingSkeleton } from '../../../../common/loading-skeleton';
 import ActionGroup from '../../../../FlexibleCard/components/blocks/action-group';
-import { LoadingSkeleton } from '../../../../FlexibleCard/components/common/loading-skeleton';
+import { default as CustomBlock } from '../../../../FlexibleCard/components/blocks/block';
 import { BaseIconElement } from '../../../../FlexibleCard/components/elements/common';
 import { CARD_WIDTH_REM } from '../../../styled';
-
 import { type HoverCardLoadingViewProps } from './types';
 
 const loadingViewContainer = css({
 	display: 'flex',
 	flexDirection: 'column',
-	paddingTop: token('space.200', '1rem'),
-	paddingRight: token('space.200', '1rem'),
-	paddingBottom: token('space.200', '1rem'),
-	paddingLeft: token('space.200', '1rem'),
+	paddingTop: token('space.200'),
+	paddingRight: token('space.200'),
+	paddingBottom: token('space.200'),
+	paddingLeft: token('space.200'),
 });
 
 const skeletonContainer = css({
@@ -44,10 +43,10 @@ const titleStyle = css({
 
 const titleBlockStyles = css({
 	width: '100%',
-	gap: token('space.100', '0.5rem'),
+	gap: token('space.100'),
 });
 
-const HoverCardLoadingView = ({ titleBlockProps }: HoverCardLoadingViewProps) => {
+const HoverCardLoadingView = ({ titleBlockProps }: HoverCardLoadingViewProps): JSX.Element => {
 	const testId = 'hover-card-loading-view';
 	const lineHeightRem = 1.25;
 	const skeletonWidth = CARD_WIDTH_REM - 2;

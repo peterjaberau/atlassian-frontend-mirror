@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import {
 	EditorExampleControls,
@@ -14,14 +14,14 @@ import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { EditorContext } from '@atlaskit/editor-core/editor-context';
 import { useUniversalPreset } from '@atlaskit/editor-core/preset-universal';
 import { usePreset } from '@atlaskit/editor-core/use-preset';
-import { blockControlsPlugin } from '@atlaskit/editor-plugin-block-controls';
-import { blockMenuPlugin } from '@atlaskit/editor-plugin-block-menu';
 import { codeBlockAdvancedPlugin } from '@atlaskit/editor-plugin-code-block-advanced';
 import { editorViewModePlugin } from '@atlaskit/editor-plugin-editor-viewmode';
-import {
-	type ExtensionConfiguration,
-	type ExtensionMenuItemConfiguration,
-	selectionExtensionPlugin,
+import { selectionExtensionPlugin } from '@atlaskit/editor-plugin-selection-extension';
+import type {
+	ExtensionConfiguration,
+	ExtensionMenuItemConfiguration,
+	SelectionExtensionCallbackOptions,
+	SelectionExtensionComponentProps,
 } from '@atlaskit/editor-plugin-selection-extension';
 import { selectionMarkerPlugin } from '@atlaskit/editor-plugin-selection-marker';
 import type { SyncedBlockPluginOptions } from '@atlaskit/editor-plugin-synced-block';
@@ -38,11 +38,10 @@ import {
 } from '@atlaskit/editor-toolbar';
 import AppIcon from '@atlaskit/icon/core/app';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { exampleMediaFeatureFlags } from '@atlaskit/media-test-helpers/exampleMediaFeatureFlags';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled - go/akcss
 import { Pressable, xcss } from '@atlaskit/primitives';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import { simpleMockProfilecardClient } from '@atlaskit/util-data-test/get-mock-profilecard-client';
 import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
 
@@ -93,11 +92,11 @@ function ComposableEditorPage() {
 				profilecardProvider: undefined,
 				taskDecisionProvider: undefined,
 			},
-		providerCreator: {
-			createEmojiProvider: undefined,
-			createMediaProvider: undefined,
-			createSmartLinkProvider: undefined,
-		},
+			providerCreator: {
+				createEmojiProvider: undefined,
+				createMediaProvider: undefined,
+				createSmartLinkProvider: undefined,
+			},
 		},
 	});
 
@@ -207,6 +206,12 @@ function ComposableEditorPage() {
 				enableNewToolbarExperience: true,
 				contextualFormattingEnabled: 'controlled',
 			},
+			blockControlsPlugin: {
+				enabled: true,
+			},
+			blockMenuPlugin: {
+				enabled: true,
+			},
 		},
 	});
 	const noteSelectionExtension = useNoteSelectionExtension(editorApiRef.current);
@@ -258,7 +263,7 @@ function ComposableEditorPage() {
 				},
 			},
 			{
-				label: 'Create template',
+				label: 'This is a very long label that should be truncated',
 				icon: AppIcon,
 				lozenge: {
 					label: 'NEW',
@@ -268,7 +273,7 @@ function ComposableEditorPage() {
 				},
 			},
 			{
-				label: 'Dropdown extension item',
+				label: 'Dropdown extension item with a very long label that should be truncated',
 				icon: AppIcon,
 				getMenuItems: () => {
 					return [
@@ -314,11 +319,6 @@ function ComposableEditorPage() {
 	// Memoise the preset otherwise we will re-render the editor too often
 	const { preset, editorApi } = usePreset(() => {
 		return universalPreset
-			.add(blockControlsPlugin)
-			.maybeAdd(
-				[blockMenuPlugin, {}],
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true),
-			)
 			.add([editorViewModePlugin, { mode: 'edit' }])
 			.add(selectionMarkerPlugin)
 			.add(codeBlockAdvancedPlugin)
@@ -330,13 +330,13 @@ function ComposableEditorPage() {
 						firstParty: [
 							{
 								name: 'Create Jira Issue',
-								onClick: (params) => {
+								onClick: (params: SelectionExtensionCallbackOptions) => {
 									console.log(JSON.stringify(params));
 								},
 							},
 							{
 								name: 'Component Example',
-								component: ({ closeExtension, selection }) => {
+								component: ({ closeExtension, selection }: SelectionExtensionComponentProps) => {
 									return <ExampleForgeApp closeExtension={closeExtension} selection={selection} />;
 								},
 							},
@@ -345,14 +345,14 @@ function ComposableEditorPage() {
 							{
 								name: 'App 1',
 								icon: AppIcon,
-								onClick: (params) => {
+								onClick: (params: SelectionExtensionCallbackOptions) => {
 									console.log(JSON.stringify(params));
 								},
 							},
 							{
 								name: 'App 2',
 								icon: AppIcon,
-								component: ({ closeExtension, selection }) => {
+								component: ({ closeExtension, selection }: SelectionExtensionComponentProps) => {
 									return <ExampleForgeApp closeExtension={closeExtension} selection={selection} />;
 								},
 							},
@@ -381,7 +381,7 @@ function ComposableEditorPage() {
 
 	const existingComponents = editorApi?.blockMenu?.actions.getBlockMenuComponents();
 	const alreadyRegistered = existingComponents?.some(
-		(component) => component.key === 'deeply-nested-menu-1',
+		(component: { key: string }) => component.key === 'deeply-nested-menu-1',
 	);
 	if (!alreadyRegistered) {
 		editorApi?.blockMenu?.actions.registerBlockMenuComponents([
@@ -394,7 +394,7 @@ function ComposableEditorPage() {
 					key: BLOCK_ACTIONS_MENU_SECTION.key,
 					rank: 100,
 				},
-				component: ({ children }) => (
+				component: ({ children }: React.PropsWithChildren) => (
 					<ToolbarNestedDropdownMenu
 						text="First Level Menu"
 						elemBefore={<AddIcon label="" />}
@@ -415,7 +415,7 @@ function ComposableEditorPage() {
 					key: 'deeply-nested-menu-1',
 					rank: 0,
 				},
-				component: ({ children }) => (
+				component: ({ children }: React.PropsWithChildren) => (
 					<ToolbarDropdownItemSection title="First Section">{children}</ToolbarDropdownItemSection>
 				),
 			},
@@ -428,7 +428,7 @@ function ComposableEditorPage() {
 					key: 'deeply-nested-section-1',
 					rank: 0,
 				},
-				component: ({ children }) => (
+				component: ({ children }: React.PropsWithChildren) => (
 					<ToolbarNestedDropdownMenu
 						text="Second Level Menu"
 						elemBefore={<AppIcon label="" />}
@@ -447,7 +447,7 @@ function ComposableEditorPage() {
 					key: 'deeply-nested-menu-2',
 					rank: 0,
 				},
-				component: ({ children }) => (
+				component: ({ children }: React.PropsWithChildren) => (
 					<ToolbarDropdownItemSection title="Second Section" hasSeparator>
 						{children}
 					</ToolbarDropdownItemSection>
@@ -463,7 +463,7 @@ function ComposableEditorPage() {
 					key: 'deeply-nested-menu-2',
 					rank: 0,
 				},
-				component: ({ children }) => (
+				component: ({ children }: React.PropsWithChildren) => (
 					<ToolbarDropdownItemSection title="Third Section" hasSeparator>
 						{children}
 					</ToolbarDropdownItemSection>
@@ -512,16 +512,17 @@ function ComposableEditorPage() {
 					}
 				}}
 				onViewMode={() => {
-					editorApi?.core?.actions.execute(
-						editorApi?.editorViewMode?.commands.updateViewMode(
-							editorApi?.editorViewMode.sharedState.currentState()?.mode === 'edit'
-								? 'view'
-								: 'edit',
-						),
+					const cmd = editorApi?.editorViewMode?.commands.updateViewMode(
+						editorApi?.editorViewMode?.sharedState?.currentState()?.mode === 'edit'
+							? 'view'
+							: 'edit',
 					);
+					if (cmd) {
+						editorApi?.core?.actions.execute(cmd);
+					}
 				}}
 			/>
-			<StateMonitor getState={editorApi?.editorViewMode.sharedState.currentState} />
+			<StateMonitor getState={editorApi?.editorViewMode?.sharedState?.currentState} />
 			<IntlProvider locale={'en'} messages={enMessages}>
 				<ComposableEditor
 					appearance={appearance}
@@ -564,7 +565,7 @@ function ComposableEditorPage() {
 								});
 							}
 
-							const result = editorApi?.selectionExtension.actions.replaceWithAdf(modifiedNodeAdf);
+							const result = editorApi?.selectionExtension?.actions.replaceWithAdf(modifiedNodeAdf);
 							if (result?.status === 'document-changed') {
 								const fallbackADF = {
 									type: 'panel',
@@ -596,7 +597,7 @@ function ComposableEditorPage() {
 										},
 									],
 								};
-								editorApi?.selectionExtension.actions.insertAdfAtEndOfDoc(fallbackADF);
+								editorApi?.selectionExtension?.actions.insertAdfAtEndOfDoc(fallbackADF);
 							}
 							showCreateButton(null);
 						}}

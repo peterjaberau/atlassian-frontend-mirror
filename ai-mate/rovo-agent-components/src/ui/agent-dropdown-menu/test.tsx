@@ -1,12 +1,12 @@
 import React, { type ComponentPropsWithoutRef } from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import { DiProvider, type Injectable } from 'react-magnetic-di';
 
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 import { render, screen, userEvent, waitFor } from '@atlassian/testing-library';
 
-import { AgentDropdownMenu } from './index';
+import { AgentDropdownMenu } from './AgentDropdownMenu';
 
 describe('AgentDropdownMenu', () => {
 	const deps: Injectable[] = [];
@@ -27,7 +27,12 @@ describe('AgentDropdownMenu', () => {
 						agentId="1"
 						isForgeAgent={false}
 						loadAgentPermissions={() =>
-							Promise.resolve({ isEditEnabled: true, isDeleteEnabled: true, isCreateEnabled: true })
+							Promise.resolve({
+								isEditEnabled: true,
+								isDeleteEnabled: true,
+								isCreateEnabled: true,
+								isDuplicateEnabled: true,
+							})
 						}
 						/** Not sure how to satisfy the compiler
 						 *  because there's a union for the `showViewAgentOption` and `doesAgentHaveIdentityAccountId`
@@ -68,7 +73,7 @@ describe('AgentDropdownMenu', () => {
 		await user.click(moreActions());
 
 		const viewAgentButton = screen.queryByRole('menuitem', {
-			name: 'View Agent',
+			name: 'View agent',
 		});
 		expect(viewAgentButton).toBeNull();
 	});
@@ -83,7 +88,7 @@ describe('AgentDropdownMenu', () => {
 		await user.click(moreActions());
 
 		const viewAgentButton = screen.queryByRole('menuitem', {
-			name: 'View Agent',
+			name: 'View agent',
 		});
 		expect(viewAgentButton).toBeVisible();
 
@@ -122,17 +127,17 @@ describe('AgentDropdownMenu', () => {
 		expect(onViewAgentFullProfileClick).toHaveBeenCalled();
 	});
 
-	it("does not show duplicate agent option if it's a forge agent", async () => {
+	it('shows duplicate agent option for a forge agent when permissions allow it', async () => {
 		const user = userEvent.setup();
 
 		renderComponent({ isForgeAgent: true });
 
 		await user.click(moreActions());
 
-		const duplicateAgentButton = screen.queryByRole('menuitem', {
-			name: 'Duplicate Agent',
+		const duplicateAgentButton = screen.getByRole('menuitem', {
+			name: 'Duplicate agent',
 		});
-		expect(duplicateAgentButton).toBeNull();
+		expect(duplicateAgentButton).toBeVisible();
 	});
 
 	it('shows duplicate agent option if it is not a forge agent', async () => {
@@ -145,7 +150,7 @@ describe('AgentDropdownMenu', () => {
 		await user.click(moreActions());
 
 		const duplicateAgentButton = screen.queryByRole('menuitem', {
-			name: 'Duplicate Agent',
+			name: 'Duplicate agent',
 		});
 		expect(duplicateAgentButton).toBeVisible();
 
@@ -153,17 +158,75 @@ describe('AgentDropdownMenu', () => {
 		expect(onDuplicateAgent).toHaveBeenCalled();
 	});
 
-	it('does not show duplicate agent option if isAbleToCreateAgents is false', async () => {
+	it('does not show duplicate agent option if create permission is false', async () => {
 		const user = userEvent.setup();
 		renderComponent({
 			loadAgentPermissions: () =>
-				Promise.resolve({ isCreateEnabled: false, isEditEnabled: true, isDeleteEnabled: true }),
+				Promise.resolve({
+					isCreateEnabled: false,
+					isDuplicateEnabled: true,
+					isEditEnabled: true,
+					isDeleteEnabled: true,
+				}),
 		});
 		await user.click(moreActions());
 		const duplicateAgentButton = screen.queryByRole('menuitem', {
-			name: 'Duplicate Agent',
+			name: 'Duplicate agent',
 		});
 		expect(duplicateAgentButton).toBeNull();
+	});
+
+	it.each([
+		['denied', false],
+		['missing', undefined],
+	])('does not show duplicate agent option if duplicate permission is %s', async (_, permitted) => {
+		passGate('agent_studio_can_duplicate_permission');
+		const user = userEvent.setup();
+		renderComponent({
+			loadAgentPermissions: () =>
+				Promise.resolve({
+					isCreateEnabled: true,
+					isDuplicateEnabled: permitted,
+					isEditEnabled: true,
+					isDeleteEnabled: true,
+				}),
+		});
+
+		await user.click(moreActions());
+
+		expect(screen.queryByRole('menuitem', { name: 'Duplicate agent' })).toBeNull();
+	});
+
+	it('shows duplicate agent option when create permission is granted and duplicate permission enforcement is disabled', async () => {
+		failGate('agent_studio_can_duplicate_permission');
+		const user = userEvent.setup();
+		renderComponent({
+			loadAgentPermissions: () =>
+				Promise.resolve({
+					isCreateEnabled: true,
+					isDuplicateEnabled: false,
+					isEditEnabled: true,
+					isDeleteEnabled: true,
+				}),
+		});
+
+		await user.click(moreActions());
+
+		expect(screen.getByRole('menuitem', { name: 'Duplicate agent' })).toBeVisible();
+	});
+
+	it('does not show duplicate agent option if loading permissions fails', async () => {
+		const user = userEvent.setup();
+		renderComponent({
+			loadAgentPermissions: () => Promise.reject(new Error('permission request failed')),
+		});
+
+		await user.click(moreActions());
+
+		await waitFor(() => {
+			expect(screen.queryByRole('img', { name: 'Loading' })).toBeNull();
+		});
+		expect(screen.queryByRole('menuitem', { name: 'Duplicate agent' })).toBeNull();
 	});
 
 	it('shows copy link to profile option', async () => {
@@ -252,7 +315,7 @@ describe('AgentDropdownMenu', () => {
 		await user.click(moreActions());
 
 		const editButton = screen.queryByRole('menuitem', {
-			name: 'Edit Agent',
+			name: 'Edit agent',
 		});
 		expect(editButton).toBeVisible();
 
@@ -273,7 +336,7 @@ describe('AgentDropdownMenu', () => {
 		await user.click(moreActions());
 
 		const editButton = screen.queryByRole('menuitem', {
-			name: 'Edit Agent',
+			name: 'Edit agent',
 		});
 		expect(editButton).toBeNull();
 	});
@@ -291,7 +354,7 @@ describe('AgentDropdownMenu', () => {
 		await user.click(moreActions());
 
 		const deleteButton = screen.queryByRole('menuitem', {
-			name: 'Delete Agent',
+			name: 'Delete agent',
 		});
 		expect(deleteButton).toBeVisible();
 
@@ -312,7 +375,7 @@ describe('AgentDropdownMenu', () => {
 		await user.click(moreActions());
 
 		const deleteButton = screen.queryByRole('menuitem', {
-			name: 'Delete Agent',
+			name: 'Delete agent',
 		});
 		expect(deleteButton).toBeNull();
 	});
@@ -366,18 +429,6 @@ describe('AgentDropdownMenu', () => {
 		expect(screen.queryByTestId('agent-actions-menu-verification')).toBeNull();
 	});
 
-	ffTest.off('rovo_agents_agent_verification', 'with rovo_agents_agent_verification off', () => {
-		it('does not show verify agent option if feature flag is off', async () => {
-			const user = userEvent.setup();
-
-			renderComponent({ agentRef: {} as any, userPermissionsRef: {} as any });
-
-			await user.click(moreActions());
-
-			expect(screen.queryByTestId('agent-actions-menu-verification')).toBeNull();
-		});
-	});
-
 	it('should capture and report a11y violations', async () => {
 		const { container } = render(
 			<DiProvider use={deps}>
@@ -393,5 +444,20 @@ describe('AgentDropdownMenu', () => {
 			</DiProvider>,
 		);
 		await expect(container).toBeAccessible();
+	});
+
+	it('should render custom dropdown options if provided', async () => {
+		const user = userEvent.setup();
+		const customDropdownOptions = [
+			{ id: '1', label: 'Custom Option 1', onClick: jest.fn() },
+			{ id: '2', label: 'Custom Option 2', onClick: jest.fn() },
+		];
+
+		renderComponent({ customDropdownOptions });
+
+		await user.click(moreActions());
+
+		expect(screen.queryByRole('menuitem', { name: 'Custom Option 1' })).toBeVisible();
+		expect(screen.queryByRole('menuitem', { name: 'Custom Option 2' })).toBeVisible();
 	});
 });

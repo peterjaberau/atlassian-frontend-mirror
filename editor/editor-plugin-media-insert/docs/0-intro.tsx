@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { AtlassianInternalWarning, md } from '@atlaskit/docs';
+import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -8,36 +8,60 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
   ${createEditorUseOnlyNotice('Editor Plugin Media Insert', [
-	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
-])}
+		{ name: 'Editor Core', link: '/packages/editor/editor-core' },
+	])}
 
   ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
-			<AtlassianInternalWarning />
-		</div>
-	)
-	}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the media insert plugin used by @atlaskit/editor-core.
 
   ## Usage
 ---
-// Add in info about plugin.
 
-### Plugin dependencies
+The dependencies, configuration, commands, and state of the plugin are defined below:
 
+${code`
+export type MediaInsertPluginConfig = {
+	customizedHelperMessage?: CustomizedHelperMessage;
+	customizedUrlValidation?: (input: string) => boolean;
+	isOnlyExternalLinks?: boolean;
+};
 
-### Plugin configuration
+export type MediaInsertPluginCommands = {
+  showMediaInsertPopup: (mountInfo?: {
+    mountPoint: HTMLElement;
+    ref: HTMLElement;
+  }) => EditorCommand;
+};
 
+export type MediaInsertPluginState = {
+  isOpen?: boolean;
+  mountInfo?: { mountPoint: HTMLElement; ref: HTMLElement };
+};
 
-### Shared state
+export type MediaInsertPluginDependencies = [
+  OptionalPlugin<AnalyticsPlugin>,
+  MediaPlugin,
+  OptionalPlugin<FeatureFlagsPlugin>,
+];
 
-
-### Actions
-
-
-### Commands
+export type MediaInsertPlugin = NextEditorPlugin<
+  'mediaInsert',
+  {
+    commands: MediaInsertPluginCommands;
+    dependencies: MediaInsertPluginDependencies;
+    pluginConfiguration: MediaInsertPluginConfig | undefined;
+    sharedState: MediaInsertPluginState;
+  }
+>;
+`}
 
 
 

@@ -6,21 +6,28 @@ import { forwardRef } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
+import { cssMap } from '@atlaskit/css';
 import NestIcon from '@atlaskit/icon/core/list-numbered';
-import { type CustomItemComponentProps } from '@atlaskit/menu';
-import {
-	ButtonItem,
-	GoBackItem,
-	NavigationHeader,
-	NestableNavigationContent,
-	NestingItem,
-	SideNavigation,
-} from '@atlaskit/side-navigation';
-import { G400 } from '@atlaskit/theme/colors';
+import type { CustomItemComponentProps } from '@atlaskit/menu/types';
+import { Flex } from '@atlaskit/primitives/compiled';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { ButtonItem } from '@atlaskit/side-navigation/button-item';
+import { GoBackItem } from '@atlaskit/side-navigation/go-back-item';
+import { NavigationHeader } from '@atlaskit/side-navigation/navigation-header';
+import { NestableNavigationContent } from '@atlaskit/side-navigation/nestable-navigation-content';
+import { NestingItem } from '@atlaskit/side-navigation/nesting-item';
+import { SideNavigation } from '@atlaskit/side-navigation/side-navigation';
 import { token } from '@atlaskit/tokens';
 
 import AppFrame from './common/app-frame';
 import SampleHeader from './common/sample-header';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const btnStyles = css({
 	position: 'relative',
@@ -29,7 +36,7 @@ const btnStyles = css({
 	'&::before': {
 		width: 3,
 		position: 'absolute',
-		backgroundColor: G400,
+		backgroundColor: '#00875A',
 		content: '""',
 		insetBlockEnd: 0,
 		insetBlockStart: 0,
@@ -45,7 +52,7 @@ const btnStyles = css({
 
 const containerStyles = css({
 	width: '100%',
-	color: G400,
+	color: '#00875A',
 	fontWeight: token('font.weight.bold'),
 	overflow: 'hidden',
 	textOverflow: 'ellipsis',
@@ -80,7 +87,11 @@ const CustomisedExample: () => JSX.Element = () => {
 			id="1-1"
 			title={<div css={containerStyles}>Custom Title Component</div>}
 			css={customNestingItemStyles}
-			iconBefore={<NestIcon spacing="spacious" label="" />}
+			iconBefore={
+				<Flex xcss={iconSpacingStyles.space050}>
+					<NestIcon label="" />
+				</Flex>
+			}
 			// eslint-disable-next-line @repo/internal/react/no-unsafe-overrides, @atlaskit/design-system/no-deprecated-apis
 			overrides={{
 				GoBackItem: {
@@ -96,7 +107,11 @@ const CustomisedExample: () => JSX.Element = () => {
 		<NestingItem
 			id="1"
 			title="Styled using className"
-			iconBefore={<NestIcon spacing="spacious" label="" />}
+			iconBefore={
+				<Flex xcss={iconSpacingStyles.space050}>
+					<NestIcon label="" />
+				</Flex>
+			}
 			css={customNestingItemStyles}
 			// eslint-disable-next-line @repo/internal/react/no-unsafe-overrides, @atlaskit/design-system/no-deprecated-apis
 			overrides={{
@@ -130,19 +145,31 @@ const CustomisedExample: () => JSX.Element = () => {
 						title="NestingItem 2"
 						// @ts-expect-error - Added during @types/react@~18.3.24 upgrade.
 						component={CustomComponent}
-						iconBefore={<NestIcon spacing="spacious" label="" />}
+						iconBefore={
+							<Flex xcss={iconSpacingStyles.space050}>
+								<NestIcon label="" />
+							</Flex>
+						}
 					>
 						<NestingItem
 							id="2-1"
 							title="NestingItem 2-1"
-							iconBefore={<NestIcon spacing="spacious" label="" />}
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<NestIcon label="" />
+								</Flex>
+							}
 						>
 							<ButtonItem>2-1-Leaf</ButtonItem>
 						</NestingItem>
 						<NestingItem
 							id="2-2"
 							title="NestingItem 2-2"
-							iconBefore={<NestIcon spacing="spacious" label="" />}
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<NestIcon label="" />
+								</Flex>
+							}
 						>
 							<ButtonItem>2-2-Leaf</ButtonItem>
 						</NestingItem>

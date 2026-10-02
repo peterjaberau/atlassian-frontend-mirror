@@ -6,42 +6,41 @@ import {
 	forwardRef,
 	Fragment,
 	memo,
+	type NamedExoticComponent,
 	type Ref,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
 } from 'react';
+import ReactDOM from 'react-dom';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import ReactDOM from 'react-dom';
 import invariant from 'tiny-invariant';
 
-import Avatar from '@atlaskit/avatar';
-import Badge from '@atlaskit/badge';
-import Button from '@atlaskit/button';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import Avatar from '@atlaskit/avatar/avatar';
+import Badge from '@atlaskit/badge/badge';
+import Button from '@atlaskit/button/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 // eslint-disable-next-line @atlaskit/design-system/no-banned-imports
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
-import { IconTile } from '@atlaskit/icon';
-import StoryIcon16 from '@atlaskit/icon-object/glyph/story/16';
 import PullRequestIcon from '@atlaskit/icon/core/pull-request';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
 import StoryIcon from '@atlaskit/icon/core/story';
-import {
-	attachClosestEdge,
-	type Edge,
-	extractClosestEdge,
-} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/adapter/drop-target-for-external';
 import {
 	draggable,
 	dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { dropTargetForExternal } from '@atlaskit/pragmatic-drag-and-drop/external/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Inline, Stack, xcss } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
@@ -230,13 +229,7 @@ const CardPrimitive = forwardRef<HTMLDivElement, CardPrimitiveProps>(function Ca
 				</Inline>
 				<Inline spread="space-between" alignBlock="center">
 					<Inline space="space.050" alignBlock="center">
-						<IconTile
-							appearance="greenBold"
-							size="16"
-							label=""
-							icon={StoryIcon}
-							LEGACY_fallbackComponent={<StoryIcon16 label="story" />}
-						/>
+						<StoryIcon label="" size="medium" color={token('color.icon.accent.green')} />
 						<Box>{key}</Box>
 					</Inline>
 					<Inline space="space.050" alignBlock="center">
@@ -280,7 +273,9 @@ const CardPrimitive = forwardRef<HTMLDivElement, CardPrimitiveProps>(function Ca
 	);
 });
 
-export const Card = memo(function Card({ item }: { item: CardData }) {
+export const Card: NamedExoticComponent<{
+	item: CardData;
+}> = memo(function Card({ item }: { item: CardData }) {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const { key } = item;
 	const [closestEdge, setClosestEdge] = useState<Edge | null>(null);

@@ -6,19 +6,20 @@ import React, { useEffect, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Avatar from '@atlaskit/avatar';
-import Button from '@atlaskit/button/new';
-import { ExitingPersistence, FadeIn } from '@atlaskit/motion';
-import Spinner from '@atlaskit/spinner';
+import Avatar from '@atlaskit/avatar/avatar';
+import Button from '@atlaskit/button/default/button';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import FadeIn from '@atlaskit/motion/fade-in';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 type Phase = 'stopped' | 'loading' | 'ready';
 
 const layoutStyles = css({
 	display: 'flex',
 	justifyContent: 'center',
-	gap: token('space.200', '16px'),
+	gap: token('space.200'),
 });
 
 const columnStyles = css({
@@ -28,7 +29,7 @@ const columnStyles = css({
 });
 
 const headingStyles = css({
-	marginBlockEnd: token('space.200', '16px'),
+	marginBlockEnd: token('space.200'),
 });
 
 const loadingContainerStyles = css({

@@ -1,4 +1,5 @@
-import { BatchAttrsStep, SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { BatchAttrsStep } from '@atlaskit/adf-schema/steps/batch-attrs-step';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Mark, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
@@ -12,8 +13,8 @@ import {
 	DocAttrStep,
 	ReplaceAroundStep,
 	ReplaceStep,
-	type Step,
 } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 
 import type { LocalIdPlugin, LocalIdStatusCode } from '../localIdPluginType';
 
@@ -52,9 +53,8 @@ export type LocalIdWatchmenState = {
 	localIdStatus: Map<string, LocalIdStatusCode>;
 };
 
-export const localIdWatchmenPluginKey = new PluginKey<LocalIdWatchmenState>(
-	'localIdWatchmenPlugin',
-);
+export const localIdWatchmenPluginKey: PluginKey<LocalIdWatchmenState> =
+	new PluginKey<LocalIdWatchmenState>('localIdWatchmenPlugin');
 
 /**
  * Scans the entire document to find all active localIds
@@ -469,7 +469,9 @@ const processTransaction = (
 /**
  * Creates the localId watchmen plugin
  */
-export const createWatchmenPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined) => {
+export const createWatchmenPlugin = (
+	api: ExtractInjectionAPI<LocalIdPlugin> | undefined,
+): SafePlugin<LocalIdWatchmenState> => {
 	// Ensure limited mode is initialized
 	return new SafePlugin<LocalIdWatchmenState>({
 		key: localIdWatchmenPluginKey,

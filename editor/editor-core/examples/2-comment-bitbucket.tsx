@@ -2,17 +2,17 @@
 
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
+import Button from '@atlaskit/button/default/button';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
 import { token } from '@atlaskit/tokens';
 
 import ToolsDrawer from '../example-helpers/ToolsDrawer';
 import { name, version } from '../package.json';
-import { type EditorProps } from '../src';
+import type { EditorProps } from '../src';
 import { ComposableEditor } from '../src/composable-editor';
 import { useUniversalPreset } from '../src/preset-universal';
 import CollapsedEditor from '../src/ui/CollapsedEditor';
@@ -103,7 +103,7 @@ export default class EditorWithFeedback extends React.Component<Props, State> {
 								contextIdentifierProvider,
 							}: any) => (
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								<div style={{ padding: token('space.250', '20px') }}>
+								<div style={{ padding: token('space.250') }}>
 									<CollapsedEditor
 										placeholder="What do you want to say?"
 										isExpanded={this.state.isExpanded}

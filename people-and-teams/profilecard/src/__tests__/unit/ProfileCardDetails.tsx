@@ -1,17 +1,23 @@
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  and raise concerns in https://atlassian.enterprise.slack.com/archives/C0BD4K40BLH
+*/
+
 import React from 'react';
 
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
-
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { IntlProvider } from 'react-intl';
 
 import { ProfileCardDetails } from '../../components/User/ProfileCardDetails';
 import { type LozengeProps } from '../../types';
 
-jest.mock('react-intl-next', () => {
+jest.mock('react-intl', () => {
 	return {
-		...(jest.requireActual('react-intl-next') as any),
+		...(jest.requireActual('react-intl') as any),
 		useIntl: jest.fn().mockReturnValue({
 			locale: 'en',
 			formatMessage: (descriptor: any) => descriptor.defaultMessage,
@@ -19,11 +25,6 @@ jest.mock('react-intl-next', () => {
 		}),
 	};
 });
-
-jest.mock('@atlaskit/platform-feature-flags', () => ({
-	...jest.requireActual<any>('@atlaskit/platform-feature-flags'),
-	fg: jest.fn(),
-}));
 
 type Props = Parameters<typeof ProfileCardDetails>[0];
 
@@ -33,7 +34,6 @@ const defaultProps: Props = {
 	status: 'active',
 	nickname: 'jscrazy',
 	companyName: 'Atlassian',
-	fireAnalyticsWithDurationNext: jest.fn(),
 };
 
 const renderComponent = (props: Partial<Props> = {}) =>
@@ -42,6 +42,30 @@ const renderComponent = (props: Partial<Props> = {}) =>
 			<ProfileCardDetails {...defaultProps} {...props} />
 		</IntlProvider>,
 	);
+
+const profileDetails = {
+	email: 'profilecard@atlassian.com',
+	timestring: '10:00 AM',
+	companyName: 'Atlassian',
+	location: 'Sydney',
+};
+
+test('groups profile details in one description list', async () => {
+	renderComponent(profileDetails);
+	const descriptionLists = [
+		...new Set(
+			Object.values(profileDetails).map((profileDetail) =>
+				screen.getByText(profileDetail).closest('dl'),
+			),
+		),
+	];
+	const descriptionList = screen.getByText(profileDetails.email).closest('dl');
+
+	expect(descriptionLists).toHaveLength(1);
+	expect(descriptionList?.querySelectorAll('dt')).toHaveLength(4);
+	expect(descriptionList?.querySelectorAll('dd')).toHaveLength(4);
+	await expect(document.body).toBeAccessible();
+});
 
 describe('ProfileCardDetails', () => {
 	describe('name', () => {
@@ -54,7 +78,7 @@ describe('ProfileCardDetails', () => {
 					isBot,
 				});
 				const component = getByTestId('profilecard-name');
-				expect(component.textContent).toMatchInlineSnapshot(`"full name test (jscrazy) "`);
+				expect(component.textContent).toBe('full name test (jscrazy) ');
 
 				await expect(document.body).toBeAccessible();
 			});
@@ -65,7 +89,7 @@ describe('ProfileCardDetails', () => {
 					nickname: undefined,
 				});
 				const component = getByTestId('profilecard-name');
-				expect(component.textContent).toMatchInlineSnapshot(`"full name test"`);
+				expect(component.textContent).toBe('full name test');
 
 				await expect(document.body).toBeAccessible();
 			});
@@ -77,7 +101,7 @@ describe('ProfileCardDetails', () => {
 					nickname: 'Same name',
 				});
 				const component = getByTestId('profilecard-name');
-				expect(component.textContent).toMatchInlineSnapshot(`"Same name"`);
+				expect(component.textContent).toBe('Same name');
 
 				await expect(document.body).toBeAccessible();
 			});
@@ -114,7 +138,7 @@ describe('ProfileCardDetails', () => {
 					status: 'inactive',
 				});
 				const component = getByTestId('profilecard-name');
-				expect(component.textContent).toMatchInlineSnapshot(`"full name test"`);
+				expect(component.textContent).toBe('full name test');
 
 				await expect(document.body).toBeAccessible();
 			});
@@ -125,7 +149,7 @@ describe('ProfileCardDetails', () => {
 					fullName: undefined,
 				});
 				const component = getByTestId('profilecard-name');
-				expect(component.textContent).toMatchInlineSnapshot(`"jscrazy"`);
+				expect(component.textContent).toBe('jscrazy');
 
 				await expect(document.body).toBeAccessible();
 			});
@@ -137,7 +161,7 @@ describe('ProfileCardDetails', () => {
 					status: 'closed',
 				});
 				const component = getByTestId('profilecard-name');
-				expect(component.textContent).toMatchInlineSnapshot(`"jscrazy"`);
+				expect(component.textContent).toBe('jscrazy');
 
 				await expect(document.body).toBeAccessible();
 			});
@@ -148,7 +172,7 @@ describe('ProfileCardDetails', () => {
 					nickname: undefined,
 				});
 				const component = getByTestId('profilecard-name');
-				expect(component.textContent).toMatchInlineSnapshot(`"Former user"`);
+				expect(component.textContent).toBe('Former user');
 
 				await expect(document.body).toBeAccessible();
 			});
@@ -162,7 +186,7 @@ describe('ProfileCardDetails', () => {
 					isServiceAccount: true,
 				});
 				const component = getByTestId('profilecard-name');
-				expect(component.textContent).toMatchInlineSnapshot(`"Service account name (sa) "`);
+				expect(component.textContent).toBe('Service account name (sa) ');
 				expect(getByText('SERVICE ACCOUNT')).toBeDefined();
 
 				await expect(document.body).toBeAccessible();
@@ -170,67 +194,35 @@ describe('ProfileCardDetails', () => {
 		});
 
 		describe('for long name', () => {
-			ffTest.on('enable_profilecard_text_truncation_tooltip', 'enabled', () => {
-				it('should show tooltip if name is long and truncated', async () => {
-					const longName =
-						'This is a very long name that will definitely be truncated in the profile card';
-					const { getByTestId } = renderComponent({
-						fullName: longName,
-					});
-					const nameElement = getByTestId('profilecard-name');
-
-					// Mock the element to be truncated (scrollWidth > clientWidth)
-					Object.defineProperty(nameElement, 'scrollWidth', {
-						writable: true,
-						configurable: true,
-						value: 200,
-					});
-					Object.defineProperty(nameElement, 'clientWidth', {
-						writable: true,
-						configurable: true,
-						value: 100,
-					});
-
-					await act(async () => {
-						await userEvent.hover(nameElement);
-					});
-
-					const tooltip = await screen.findByRole('tooltip');
-					expect(tooltip).toBeInTheDocument();
-					expect(tooltip).toHaveTextContent(longName);
-
-					await expect(document.body).toBeAccessible();
+			it('should show tooltip if name is long and truncated', async () => {
+				const longName =
+					'This is a very long name that will definitely be truncated in the profile card';
+				const { getByTestId } = renderComponent({
+					fullName: longName,
 				});
-			});
-			ffTest.off('enable_profilecard_text_truncation_tooltip', 'disabled', () => {
-				it('should not show tooltip even if name is long and truncated', async () => {
-					const longName =
-						'This is a very long name that will definitely be truncated in the profile card';
-					const { getByTestId } = renderComponent({
-						fullName: longName,
-					});
-					const nameElement = getByTestId('profilecard-name');
+				const nameElement = getByTestId('profilecard-name');
 
-					// Mock the element to be truncated (scrollWidth > clientWidth)
-					Object.defineProperty(nameElement, 'scrollWidth', {
-						writable: true,
-						configurable: true,
-						value: 200,
-					});
-					Object.defineProperty(nameElement, 'clientWidth', {
-						writable: true,
-						configurable: true,
-						value: 100,
-					});
-
-					await act(async () => {
-						await userEvent.hover(nameElement);
-					});
-
-					expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-
-					await expect(document.body).toBeAccessible();
+				// Mock the element to be truncated (scrollWidth > clientWidth)
+				Object.defineProperty(nameElement, 'scrollWidth', {
+					writable: true,
+					configurable: true,
+					value: 200,
 				});
+				Object.defineProperty(nameElement, 'clientWidth', {
+					writable: true,
+					configurable: true,
+					value: 100,
+				});
+
+				await act(async () => {
+					await userEvent.hover(nameElement);
+				});
+
+				const tooltip = await screen.findByRole('tooltip');
+				expect(tooltip).toBeInTheDocument();
+				expect(tooltip).toHaveTextContent(longName);
+
+				await expect(document.body).toBeAccessible();
 			});
 		});
 	});

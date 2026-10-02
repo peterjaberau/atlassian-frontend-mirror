@@ -2,9 +2,10 @@ import React, { useCallback } from 'react';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { ToolbarDropdownItemSection } from '@atlaskit/editor-toolbar';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import type { BlockMenuPlugin } from '../blockMenuPluginType';
-
 import { checkIsFormatMenuHidden } from './utils/checkIsFormatMenuHidden';
 
 export const FormatMenuSection = ({
@@ -22,5 +23,14 @@ export const FormatMenuSection = ({
 		return null;
 	}
 
-	return <ToolbarDropdownItemSection>{children}</ToolbarDropdownItemSection>;
+	return (
+		<ToolbarDropdownItemSection
+			hasSeparator={
+				expValEqualsNoExposure('platform_editor_ai_blockmenu_integration', 'isEnabled', true) ||
+				isExperimentEnabled('platform_editor_ai_blockmenu_integration_jira')
+			}
+		>
+			{children}
+		</ToolbarDropdownItemSection>
+	);
 };

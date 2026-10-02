@@ -1,13 +1,12 @@
 import React, { lazy, useCallback } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import { useAnalyticsEvents } from '../../../../../common/analytics/generated/use-analytics-events';
 import { messages } from '../../../../../messages';
-import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context';
-import { useSmartLinkModal } from '../../../../../state/modal';
+import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context/useFlexibleUiContext';
+import { useSmartLinkModal } from '../../../../../state/modal/useSmartLinkModal';
 import Action from '../action';
-
 import RelatedLinksActionIcon from './related-links-action-icon';
 import { type ViewRelatedLinksActionProps } from './types';
 
@@ -41,7 +40,8 @@ const ViewRelatedLinksAction = ({
 	return actionData ? (
 		<Action
 			content={<FormattedMessage {...messages.related_links_view_related_links} />}
-			icon={<RelatedLinksActionIcon />}
+			tooltipMessage={<FormattedMessage {...messages.related_links_view_related_links} />}
+			icon={<RelatedLinksActionIcon iconSize={props.iconSize} />}
 			onClick={onClick}
 			testId="smart-action-view-related-links-action"
 			ariaLabel="View most recent pages or content types coming from or found on this link"

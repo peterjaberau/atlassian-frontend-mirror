@@ -1,5 +1,316 @@
 # @atlaskit/help-article
 
+## 7.2.14
+
+### Patch Changes
+
+- [`418a4542e7355`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/418a4542e7355) -
+  Cleanup `feature_gate` `asf-943-in-product-help-dark-mode`. Help article iframes now always
+  inherit the parent document's theme attributes and theme styles, so dark mode renders correctly
+  without the gate.
+
+## 7.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.1
+
+### Patch Changes
+
+- [`6ad39ad1df472`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ad39ad1df472) -
+  [ux] Fix html help articles failing to render (and their links failing to open in a new tab) when
+  the `nike_r19_render_unmount_help_article` feature gate is enabled. The `createRoot` migration
+  relied on `flushSync` to emulate the legacy `ReactDOM.render` completion callback, but `flushSync`
+  is a no-op when called from inside an effect, so the article content was written before the iframe
+  existed. The article iframe now notifies via a layout effect once React has committed it to the
+  DOM.
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`68397ac94492a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/68397ac94492a) -
+  Gate the ArticleBody iframe render (ReactDOM.render callback path) behind
+  nike_r19_render_unmount_help_article, mounting via the React 18/19 createRoot API when enabled.
+  The legacy react-dom render path is preserved on the gate-off branch for rollback.
+
+## 7.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.37
+
+### Patch Changes
+
+- [`379cf9c4c25f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/379cf9c4c25f0) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 6.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.35
+
+### Patch Changes
+
+- [`d8333dbe8ad56`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d8333dbe8ad56) -
+  Upgrade help packages for React 19 compatibility (react-next wrapper)
+  - Upgraded `react` and `react-dom` peer dependencies to support `^18.2.0 || ^19.0.0`
+  - Added `react-intl` as a peer dependency where needed for internationalization
+  - Integrated `useRef` for transition handling in BackButton, SearchResults, and RightSidePanel
+  - Updated transition components to use `nodeRef` for better performance and animation control
+  - Refactored components to use forward refs for improved flexibility with animations
+
+- Updated dependencies
+
+## 6.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 6.0.30
 
 ### Patch Changes
@@ -494,7 +805,7 @@
 
 - [#26424](https://bitbucket.org/atlassian/atlassian-frontend/pull-requests/26424)
   [`0c19f354255`](https://bitbucket.org/atlassian/atlassian-frontend/commits/0c19f354255) -
-  Consolidate In Product Help & Self-Help Experiences ownership
+  Consolidate In Product Help & PACE PS2 ownership
 
 ## 4.0.32
 

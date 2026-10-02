@@ -1,6 +1,5 @@
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-
 import { flushSync } from 'react-dom';
 
 import {
@@ -10,7 +9,7 @@ import {
 import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { ErrorReporter } from '@atlaskit/editor-common/utils';
-import type { MediaClientConfig } from '@atlaskit/media-core';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
 import type { BrowserConfig, ClipboardConfig, DropzoneConfig } from '@atlaskit/media-picker/types';
 
 import type { MediaNextEditorPluginType } from '../../mediaPluginType';
@@ -57,7 +56,12 @@ const selector = (
 	};
 };
 
-export default function PickerFacadeProvider({ api, analyticsName, children }: Props) {
+export default function PickerFacadeProvider({
+	api,
+	analyticsName,
+	children,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+}: Props): React.ReactElement<any, string | React.JSXElementConstructor<any>> | null {
 	const [state, setState] = useState<State>({
 		pickerFacadeInstance: undefined,
 		config: undefined,
@@ -111,6 +115,7 @@ export default function PickerFacadeProvider({ api, analyticsName, children }: P
 
 	useEffect(() => {
 		if (mediaProvider) {
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			handleMediaProvider('mediaProvider', Promise.resolve(mediaProvider));
 		}
 	}, [mediaProvider, handleMediaProvider]);

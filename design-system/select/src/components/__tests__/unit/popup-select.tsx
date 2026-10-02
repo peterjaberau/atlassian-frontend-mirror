@@ -1,15 +1,16 @@
 /* eslint-disable testing-library/no-node-access,testing-library/no-container */
+
 import React from 'react';
 
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
 import { skipA11yAudit } from '@af/accessibility-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { fireEvent, render, screen, userEvent, waitFor, within } from '@atlassian/testing-library';
 
-import { type OptionsType, PopupSelect } from '../../../index';
+import { PopupSelect } from '../../../popup-select/popup-select';
+import { type OptionsType } from '../../../types';
 
 const user = userEvent.setup();
+
+const testId = 'testId';
 
 const OPTIONS: OptionsType = [
 	{ label: '1', value: 'one' },
@@ -20,14 +21,12 @@ const OPTIONS: OptionsType = [
 ];
 
 const addedListeners = () => {
-	//@ts-ignore
 	const { mock } = global.window.addEventListener as jest.Mock;
 	const results = mock.calls.filter((call) => call[0] !== 'error');
 	return results;
 };
 
 const removedListeners = () => {
-	//@ts-ignore
 	const { mock } = global.window.removeEventListener as jest.Mock;
 	const results = mock.calls.filter((call) => call[0] !== 'error');
 	return results;
@@ -40,9 +39,7 @@ const PORTALED_CONTAINER = document.body;
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Popup Select', () => {
 	beforeEach(() => {
-		//@ts-ignore
 		jest.spyOn(global.window, 'addEventListener');
-		//@ts-ignore
 		jest.spyOn(global.window, 'removeEventListener');
 		skipA11yAudit();
 	});
@@ -61,7 +58,7 @@ describe('Popup Select', () => {
 				<PopupSelect
 					options={OPTIONS}
 					value={OPTIONS[0]}
-					testId={'PopupSelect'}
+					testId={testId}
 					onChange={(value) => onChangeMock(value)}
 					target={({ ref }) => (
 						<button type="button" ref={ref} data-testid="select-trigger">
@@ -91,7 +88,7 @@ describe('Popup Select', () => {
 				<PopupSelect
 					options={OPTIONS}
 					value={OPTIONS[0]}
-					testId={'PopupSelect'}
+					testId={testId}
 					onChange={(value) => onChangeMock(value)}
 					target={({ ref }) => (
 						<button type="button" ref={ref} data-testid="select-trigger">
@@ -117,84 +114,78 @@ describe('Popup Select', () => {
 		expect(selectTrigger2).toHaveFocus();
 	});
 
-	ffTest.on(
-		'platform_navx_sllv_dropdown_escape_and_focus_fix',
-		'shouldPreventEscapePropagation',
-		() => {
-			it('should stop propagation of Escape key event when shouldPreventEscapePropagation is true', async () => {
-				const parentKeyDownHandler = jest.fn();
+	it('should stop propagation of Escape key event when shouldPreventEscapePropagation is true', async () => {
+		const parentKeyDownHandler = jest.fn();
 
-				render(
-					// eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable
-					<div onKeyDown={parentKeyDownHandler} role="presentation">
-						<PopupSelect
-							options={OPTIONS}
-							value={OPTIONS[0]}
-							shouldPreventEscapePropagation
-							target={({ ref }) => (
-								<button type="button" ref={ref}>
-									Target
-								</button>
-							)}
-							label="Options"
-						/>
-					</div>,
-				);
+		render(
+			// eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable
+			<div onKeyDown={parentKeyDownHandler} role="presentation">
+				<PopupSelect
+					options={OPTIONS}
+					value={OPTIONS[0]}
+					shouldPreventEscapePropagation
+					target={({ ref }) => (
+						<button type="button" ref={ref}>
+							Target
+						</button>
+					)}
+					label="Options"
+				/>
+			</div>,
+		);
 
-				// Open the popup
-				await user.click(screen.getByText('Target'));
+		// Open the popup
+		await user.click(screen.getByText('Target'));
 
-				// Dispatch Escape key event
-				const escapeKeyDownEvent = new KeyboardEvent('keydown', {
-					key: 'Escape',
-					bubbles: true,
-				});
+		// Dispatch Escape key event
+		const escapeKeyDownEvent = new KeyboardEvent('keydown', {
+			key: 'Escape',
+			bubbles: true,
+		});
 
-				// Spy on stopPropagation
-				const stopPropagationSpy = jest.spyOn(escapeKeyDownEvent, 'stopPropagation');
+		// Spy on stopPropagation
+		const stopPropagationSpy = jest.spyOn(escapeKeyDownEvent, 'stopPropagation');
 
-				window.dispatchEvent(escapeKeyDownEvent);
+		window.dispatchEvent(escapeKeyDownEvent);
 
-				expect(stopPropagationSpy).toHaveBeenCalled();
-			});
+		expect(stopPropagationSpy).toHaveBeenCalled();
+	});
 
-			it('should not stop propagation of Escape key event when shouldPreventEscapePropagation is false or not set', async () => {
-				const parentKeyDownHandler = jest.fn();
+	it('should not stop propagation of Escape key event when shouldPreventEscapePropagation is false or not set', async () => {
+		const parentKeyDownHandler = jest.fn();
 
-				render(
-					// eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable
-					<div onKeyDown={parentKeyDownHandler} role="presentation">
-						<PopupSelect
-							options={OPTIONS}
-							value={OPTIONS[0]}
-							target={({ ref }) => (
-								<button type="button" ref={ref}>
-									Target
-								</button>
-							)}
-							label="Options"
-						/>
-					</div>,
-				);
+		render(
+			// eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable
+			<div onKeyDown={parentKeyDownHandler} role="presentation">
+				<PopupSelect
+					options={OPTIONS}
+					value={OPTIONS[0]}
+					target={({ ref }) => (
+						<button type="button" ref={ref}>
+							Target
+						</button>
+					)}
+					label="Options"
+				/>
+			</div>,
+		);
 
-				// Open the popup
-				await user.click(screen.getByText('Target'));
+		// Open the popup
+		await user.click(screen.getByText('Target'));
 
-				// Dispatch Escape key event
-				const escapeKeyDownEvent = new KeyboardEvent('keydown', {
-					key: 'Escape',
-					bubbles: true,
-				});
+		// Dispatch Escape key event
+		const escapeKeyDownEvent = new KeyboardEvent('keydown', {
+			key: 'Escape',
+			bubbles: true,
+		});
 
-				// Spy on stopPropagation
-				const stopPropagationSpy = jest.spyOn(escapeKeyDownEvent, 'stopPropagation');
+		// Spy on stopPropagation
+		const stopPropagationSpy = jest.spyOn(escapeKeyDownEvent, 'stopPropagation');
 
-				window.dispatchEvent(escapeKeyDownEvent);
+		window.dispatchEvent(escapeKeyDownEvent);
 
-				expect(stopPropagationSpy).not.toHaveBeenCalled();
-			});
-		},
-	);
+		expect(stopPropagationSpy).not.toHaveBeenCalled();
+	});
 
 	it('should stay open when cleared', async () => {
 		render(
@@ -261,7 +252,7 @@ describe('Popup Select', () => {
 				<PopupSelect
 					options={OPTIONS}
 					value={OPTIONS[0]}
-					testId={'PopupSelect'}
+					testId={testId}
 					onMenuClose={onMenuCloseMock}
 					target={({ ref }) => (
 						<button type="button" ref={ref} data-testid="select-trigger">
@@ -280,7 +271,7 @@ describe('Popup Select', () => {
 
 		await user.click(selectTrigger);
 
-		expect(screen.getByText('Select...')).toBeInTheDocument();
+		expect(screen.getByTestId(new RegExp(`${testId}.*placeholder`))).toBeInTheDocument();
 
 		await user.click(selectTrigger);
 
@@ -300,13 +291,14 @@ describe('Popup Select', () => {
 						</button>
 					)}
 					label="Options"
+					testId={testId}
 				/>
 			</div>,
 		);
 
 		await user.click(screen.getByText('Target'));
 
-		expect(screen.getByText('Select...')).toBeInTheDocument();
+		expect(screen.getByTestId(new RegExp(`${testId}.*placeholder`))).toBeInTheDocument();
 	});
 
 	const PopupSelectOpenTest = ({
@@ -493,7 +485,7 @@ describe('Popup Select', () => {
 					<PopupSelect
 						options={OPTIONS}
 						value={OPTIONS[0]}
-						testId={'PopupSelect'}
+						testId={testId}
 						onMenuOpen={onMenuOpenMock}
 						onMenuClose={onMenuCloseMock}
 						target={({ ref }) => (
@@ -513,7 +505,7 @@ describe('Popup Select', () => {
 
 			await user.click(selectTrigger);
 
-			expect(screen.getByText('Select...')).toBeInTheDocument();
+			expect(screen.getByTestId(new RegExp(`${testId}.*placeholder`))).toBeInTheDocument();
 
 			await user.click(selectTrigger);
 

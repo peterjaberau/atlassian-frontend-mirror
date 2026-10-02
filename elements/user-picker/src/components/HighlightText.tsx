@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { type HighlightRange } from '../types';
 
 type Part = {
@@ -12,7 +13,7 @@ export interface Props {
 }
 
 export class HighlightText extends React.PureComponent<Props> {
-	render() {
+	render(): (string | React.JSX.Element)[] {
 		const { children, highlights } = this.props;
 
 		const parts: Part[] = [];

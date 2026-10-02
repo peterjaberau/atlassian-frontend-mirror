@@ -5,15 +5,14 @@
 import { useMemo } from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import LockLockedIcon from '@atlaskit/icon/core/lock-locked';
-import { extractSmartLinkProvider } from '@atlaskit/link-extractors';
+import { extractSmartLinkProvider } from '@atlaskit/link-extractors/extract-smart-link-provider';
 import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../messages';
 import Text from '../../FlexibleCard/components/elements/common/base-text-element';
-
 import { type FlexibleBlockCardProps } from './types';
 import UnresolvedView from './unresolved-view';
 import { withFlexibleUIBlockCardStyle } from './utils/withFlexibleUIBlockCardStyle';
@@ -70,4 +69,6 @@ const NotFoundView = ({
 	);
 };
 
-export default withFlexibleUIBlockCardStyle(NotFoundView);
+const _default_1: (props: FlexibleBlockCardProps) => JSX.Element =
+	withFlexibleUIBlockCardStyle(NotFoundView);
+export default _default_1;

@@ -1,14 +1,16 @@
 // Avoid exporting new components in this file as they will affect the bundle size of all consumers
 // importing directly from @atlaskit/profilecard.
+
+import { modifyResponse } from './client/modifyResponse';
 import ProfileCardClient from './client/ProfileCardClient';
 // Note: when generating and updating Flow types in Jira, `TeamProfileClient` and `TeamProfileCardClient` are the same type
 import TeamProfileClient from './client/TeamProfileCardClient';
 // Note: when generating and updating Flow types in Jira, `UserProfileClient` and `UserProfileCardClient` are the same type
-import UserProfileClient, { modifyResponse } from './client/UserProfileCardClient';
+import UserProfileClient from './client/UserProfileCardClient';
 import AgentProfileCard from './components/Agent/AgentProfileCard';
-import { TeamProfileCard } from './components/team-profile-card';
+import { TeamProfileCard } from './components/team-profile-card/main';
 import TeamProfileCardTrigger from './components/Team/TeamProfileCardTrigger';
-import ProfileCard from './components/User/ProfileCard';
+import { ProfilecardInternal as ProfileCard } from './components/User/ProfilecardInternal';
 import ProfileCardResourced from './components/User/ProfileCardResourced';
 import ProfileCardTrigger from './components/User/ProfileCardTrigger';
 import { DELAY_MS_HIDE, DELAY_MS_SHOW } from './util/config';

@@ -11,10 +11,9 @@ import { token } from '@atlaskit/tokens';
 
 import doneSvg from './assets/checkIcon.svg';
 
-
 const styles = cssMap({
 	container: {
-		gap: token('space.150', '12px'),
+		gap: token('space.150'),
 		alignContent: 'center',
 		alignItems: 'center',
 		textAlign: 'center',
@@ -25,10 +24,9 @@ interface Props {
 	children: React.ReactNode;
 }
 
-export default ({ children }: Props) => (
+export default ({ children }: Props): React.JSX.Element => (
 	<Stack xcss={styles.container}>
 		<Image width="88px" height="88px" src={doneSvg} alt="Success" />
 		{children}
 	</Stack>
-
 );

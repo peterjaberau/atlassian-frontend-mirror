@@ -5,23 +5,25 @@
 import { Component } from 'react';
 import type { CSSProperties } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 
 import { getExtensionLozengeData } from '../../../utils';
-import { type ExtensionsPluginInjectionAPI } from '../../types';
+import type { ExtensionsPluginInjectionAPI } from '../../types';
 import { styledImage } from '../styles';
-
 import { LozengeComponent } from './LozengeComponent';
 
 export interface Props {
 	customContainerStyles?: CSSProperties;
+	// When true, the node exposes no configuration affordance, so the "Configure {name}"
+	// lozenge label is omitted. Decided by ExtensionComponent from the same signal the
+	// floating toolbar uses (the node module's optional `update` method).
+	hideConfigureLabel?: boolean;
 	isBodiedMacro?: boolean;
 	isNodeHovered?: boolean;
 	isNodeNested?: boolean;
-	isNodeSelected?: boolean;
 	node: PmNode;
 	pluginInjectionApi?: ExtensionsPluginInjectionAPI;
 	setIsNodeHovered?: (isHovered: boolean) => void;
@@ -41,7 +43,7 @@ export interface LozengeData {
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components, @typescript-eslint/no-explicit-any
 export default class ExtensionLozenge extends Component<Props, any> {
-	render() {
+	render(): jsx.JSX.Element {
 		const { node, showMacroInteractionDesignUpdates } = this.props;
 
 		const imageData = getExtensionLozengeData({ node, type: 'image' });
@@ -63,7 +65,6 @@ export default class ExtensionLozenge extends Component<Props, any> {
 	private renderFallback = (lozengeData?: LozengeData) => {
 		const {
 			showMacroInteractionDesignUpdates,
-			isNodeSelected,
 			isNodeHovered,
 			isNodeNested,
 			customContainerStyles,
@@ -86,10 +87,10 @@ export default class ExtensionLozenge extends Component<Props, any> {
 		return (
 			<LozengeComponent
 				isNodeHovered={isNodeHovered}
-				isNodeSelected={isNodeSelected}
 				isNodeNested={isNodeNested}
 				showMacroInteractionDesignUpdates={showMacroInteractionDesignUpdates}
 				extensionName={name}
+				hideConfigureLabel={this.props.hideConfigureLabel}
 				lozengeData={lozengeData}
 				params={params}
 				title={title}

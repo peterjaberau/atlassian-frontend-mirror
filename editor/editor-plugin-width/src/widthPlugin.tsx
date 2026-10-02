@@ -1,7 +1,7 @@
 import { createPlugin } from './pm-plugins/main';
 import { pluginKey } from './pm-plugins/plugin-key';
-import { useResizeWidthObserver } from './ui/hooks/useResizeWidthObserver';
-import { type WidthPlugin } from './widthPluginType';
+import { useWidthObserver } from './ui/hooks/useWidthObserver';
+import type { WidthPlugin } from './widthPluginType';
 
 /**
  * Width plugin to be added to an `EditorPresetBuilder` and used with `ComposableEditor`
@@ -26,6 +26,9 @@ export const widthPlugin: WidthPlugin = () => {
 			return pluginKey.getState(editorState);
 		},
 
-		usePluginHook: useResizeWidthObserver,
+		// Dispatches between the legacy hook and its replacement while
+		// `platform_editor_reduce_forced_layout` runs. On cleanup, point this at the surviving
+		// hook and delete `useWidthObserver`.
+		usePluginHook: useWidthObserver,
 	};
 };

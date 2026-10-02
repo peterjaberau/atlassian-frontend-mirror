@@ -4,9 +4,9 @@
  */
 import { useCallback } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { cardMessages as messages } from '@atlaskit/editor-common/messages';
@@ -16,15 +16,15 @@ import type { Node } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { buildDatasourceAdf } from '@atlaskit/link-datasource';
-import { type CardContext, useSmartLinkContext } from '@atlaskit/link-provider';
+import { buildDatasourceAdf } from '@atlaskit/link-datasource/utils/schema';
+import type { CardContext } from '@atlaskit/link-provider/types';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
 import type { DatasourceAdf } from '@atlaskit/linking-common/types';
 import { Flex } from '@atlaskit/primitives/compiled';
 
 import { updateCardViaDatasource } from '../pm-plugins/doc';
 import { pluginKey } from '../pm-plugins/plugin-key';
 import type { CardPluginState } from '../types';
-
 import { DatasourceIcon } from './DatasourceIcon';
 import { useFetchDatasourceInfo } from './useFetchDatasourceInfo';
 
@@ -139,7 +139,7 @@ export const DatasourceAppearanceButton = ({
 	selected,
 	inputMethod,
 	areAnyNewToolbarFlagsEnabled,
-}: DatasourceAppearanceButtonProps) => {
+}: DatasourceAppearanceButtonProps): jsx.JSX.Element => {
 	const cardContext = useSmartLinkContext();
 	return (
 		<DatasourceAppearanceButtonWithCardContext

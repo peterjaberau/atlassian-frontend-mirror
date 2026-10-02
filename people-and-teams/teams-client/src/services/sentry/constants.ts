@@ -1,4 +1,4 @@
-import { isFedRamp } from '@atlaskit/atlassian-context';
+import { isFedRamp } from '@atlaskit/atlassian-context/is-fedramp';
 
 // https://sentry.io/settings/atlassian-2y/projects/people-and-teams-directory/keys/
 export const SENTRY_PUBLIC_KEY = '1dc056d49dfe4df8961dc1b810e4620d';
@@ -8,4 +8,8 @@ export const SENTRY_FEDRAMP_PROJECT_ID = '47';
 const SENTRY_COMMERCIAL_DSN = `https://${SENTRY_PUBLIC_KEY}@o55978.ingest.sentry.io/${SENTRY_PROJECT_ID}`;
 const SENTRY_FEDRAMP_DSN = `https://${SENTRY_FEDRAMP_PUBLIC_KEY}@sentry.atlassian-us-gov-mod.com/${SENTRY_FEDRAMP_PROJECT_ID}`;
 
-export const SENTRY_DSN = isFedRamp() ? SENTRY_FEDRAMP_DSN : SENTRY_COMMERCIAL_DSN;
+export const SENTRY_DSN:
+	| 'https://1dc056d49dfe4df8961dc1b810e4620d@o55978.ingest.sentry.io/5988845'
+	| 'https://067abcc494be9a87b3cdf9416f2b97d5@sentry.atlassian-us-gov-mod.com/47' = isFedRamp()
+	? SENTRY_FEDRAMP_DSN
+	: SENTRY_COMMERCIAL_DSN;

@@ -2,12 +2,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { type ReactElement } from 'react';
+import React from 'react';
+import type { ReactElement } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
-import type { MessageDescriptor, WrappedComponentProps } from 'react-intl-next';
-import { FormattedMessage } from 'react-intl-next';
+import type { MessageDescriptor, WrappedComponentProps } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 import { toolbarMessages } from '@atlaskit/editor-common/messages';
 import { expandIconContainerStyle, wrapperStyle } from '@atlaskit/editor-common/styles';
@@ -16,11 +17,10 @@ import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import TextIcon from '@atlaskit/icon/core/text';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
 
 import { NORMAL_TEXT } from '../../block-types';
-
 import { wrapperSmallStyle } from './styled';
 
 const buttonContentStyle = xcss({
@@ -50,7 +50,7 @@ export interface BlockTypeButtonProps {
 	title: MessageDescriptor;
 }
 
-export const BlockTypeButton = (props: BlockTypeButtonProps) => {
+export const BlockTypeButton = (props: BlockTypeButtonProps): jsx.JSX.Element => {
 	const blockTypeName = props.blockTypeName || '';
 	const labelTextStyles = props.formatMessage(toolbarMessages.textStyles, {
 		blockTypeName,
@@ -59,23 +59,18 @@ export const BlockTypeButton = (props: BlockTypeButtonProps) => {
 	const toolipTextStyles = props.formatMessage(toolbarMessages.textStylesTooltip);
 
 	const icon =
-		expValEqualsNoExposure('platform_editor_controls', 'cohort', 'variant1') &&
-		props.blockTypeIcon ? (
+		editorExperiment('platform_editor_controls', 'variant1') && props.blockTypeIcon ? (
 			props.blockTypeIcon
 		) : (
 			<TextIcon label={labelTextStyles} spacing="spacious" color="currentColor" />
 		);
 
-	const chevronIconSpacing = expValEqualsNoExposure(
-		'platform_editor_controls',
-		'cohort',
-		'variant1',
-	)
+	const chevronIconSpacing = editorExperiment('platform_editor_controls', 'variant1')
 		? 'spacious'
 		: 'none';
 
 	const shouldUseIconAsButton =
-		props.isSmall || expValEqualsNoExposure('platform_editor_controls', 'cohort', 'variant1');
+		props.isSmall || editorExperiment('platform_editor_controls', 'variant1');
 
 	return (
 		<ToolbarButton
@@ -117,6 +112,7 @@ export const BlockTypeButton = (props: BlockTypeButtonProps) => {
 		>
 			{!shouldUseIconAsButton && (
 				<Box
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					xcss={[buttonContentStyle, props.isReducedSpacing && buttonContentReducedSpacingStyle]}
 				>
 					<FormattedMessage

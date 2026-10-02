@@ -2,7 +2,7 @@ import React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 
 import AnalyticsContext from '../../index';
 
@@ -17,6 +17,15 @@ jest.mock('../../ModernAnalyticsContext', () => ({
 }));
 
 describe('ExportedAnalyticsListener', () => {
+	it('has no accessibility violations', async () => {
+		const { container } = render(
+			<AnalyticsContext data={{ ticket: 'MAGMA-123' }}>
+				<div>SomeComponent</div>
+			</AnalyticsContext>,
+		);
+		await expect(container).toBeAccessible();
+	});
+
 	ffTest(
 		'analytics-next-use-legacy-context',
 		() => {

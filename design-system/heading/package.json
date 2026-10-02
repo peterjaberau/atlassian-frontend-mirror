@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/heading",
-	"version": "5.3.0",
+	"version": "8.0.0",
 	"description": "A heading is a typography component used to display text in different sizes and formats.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,20 +17,31 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Heading",
 			"category": "Text and data display"
 		}
 	},
 	"dependencies": {
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -41,41 +52,17 @@
 		"@atlaskit/css": "workspace:^",
 		"@atlassian/codegen": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
-		"react-dom": "root:*",
-		"ts-node": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions",
-			"circular-dependencies": "file-and-folder-level"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"ui-components": "lite-mode",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports"
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
+		"react": "^19.0.0",
+		"react-dom": "root:*"
 	},
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./heading": "./src/heading.tsx",
+		"./heading-context/default": "./src/heading-context.tsx",
+		"./use-heading": "./src/use-heading.tsx"
 	},
 	"homepage": "https://atlassian.design/components/heading/",
 	"platform-feature-flags": {}

@@ -1,3 +1,5 @@
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 export default {
 	meta: {
 		visibility: 'restricted',
@@ -77,4 +79,4 @@ export default {
 			url: 'https://provider-url',
 		},
 	},
-};
+} as SmartLinkResponse;

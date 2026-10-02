@@ -1,8 +1,8 @@
 import React from 'react';
 
 import Breadcrumbs, { BreadcrumbsItem } from '@atlaskit/breadcrumbs';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box } from '@atlaskit/primitives';
+import { BreadcrumbsCurrentItem } from '@atlaskit/breadcrumbs/breadcrumbs-current-item';
+import { Box } from '@atlaskit/primitives/compiled';
 
 const BreadcrumbsBeforeAfterCollapseExample = (): React.JSX.Element => {
 	return (
@@ -17,7 +17,7 @@ const BreadcrumbsBeforeAfterCollapseExample = (): React.JSX.Element => {
 				<BreadcrumbsItem href="/item" text="Item 7" />
 				<BreadcrumbsItem href="/item" text="Item 8" />
 				<BreadcrumbsItem href="/item" text="Item 9" />
-				<BreadcrumbsItem href="/item" text="Item 10" />
+				<BreadcrumbsCurrentItem href="/item" text="Item 10" />
 			</Breadcrumbs>
 		</Box>
 	);

@@ -2,10 +2,11 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useState } from 'react';
+import { type JSX, useState } from 'react';
 
 import { cssMap, cx, jsx } from '@atlaskit/css';
-import { Box, Inline } from '@atlaskit/primitives/compiled';
+import { Box } from '@atlaskit/primitives/compiled/box';
+import { Inline } from '@atlaskit/primitives/compiled/inline';
 import Toggle from '@atlaskit/toggle';
 import { token } from '@atlaskit/tokens';
 

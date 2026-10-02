@@ -1,4 +1,4 @@
-import { uuid } from '@atlaskit/adf-schema';
+import { uuid } from '@atlaskit/adf-schema/uuid';
 import type { AnalyticsEventPayload, EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -34,7 +34,6 @@ import type {
 	TaskDecisionInputMethod,
 	TaskDecisionListType,
 } from '../types';
-
 import { stateKey } from './plugin-key';
 import { ACTIONS } from './types';
 
@@ -115,7 +114,8 @@ export const insertTaskDecisionAction =
 		inputMethod:
 			| INPUT_METHOD.FORMATTING
 			| INPUT_METHOD.QUICK_INSERT
-			| TOOLBAR_MENU_TYPE = INPUT_METHOD.TOOLBAR,
+			| INPUT_METHOD.ELEMENT_BROWSER
+			| TaskDecisionInputMethod = INPUT_METHOD.TOOLBAR,
 		addItem?: AddItemTransactionCreator,
 		listLocalId?: string,
 		itemLocalId?: string,
@@ -185,6 +185,7 @@ export const insertTaskDecisionCommand =
 		inputMethod:
 			| INPUT_METHOD.FORMATTING
 			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.ELEMENT_BROWSER
 			| TOOLBAR_MENU_TYPE = INPUT_METHOD.TOOLBAR,
 		addItem?: AddItemTransactionCreator,
 		listLocalId?: string,
@@ -285,7 +286,7 @@ export const isSupportedSourceNode = (schema: Schema, selection: Selection): boo
 	);
 };
 
-export const changeInDepth = (before: ResolvedPos, after: ResolvedPos) =>
+export const changeInDepth = (before: ResolvedPos, after: ResolvedPos): number =>
 	after.depth - before.depth;
 
 export const createListAtSelection = (
@@ -393,9 +394,11 @@ export const createListAtSelection = (
 	return safeInsert(emptyList)(tr);
 };
 
-export const setProvider = (provider?: TaskDecisionProvider) => (tr: Transaction) => {
-	return tr.setMeta(stateKey, {
-		action: ACTIONS.SET_PROVIDER,
-		data: provider,
-	});
-};
+export const setProvider =
+	(provider?: TaskDecisionProvider) =>
+	(tr: Transaction): Transaction => {
+		return tr.setMeta(stateKey, {
+			action: ACTIONS.SET_PROVIDER,
+			data: provider,
+		});
+	};

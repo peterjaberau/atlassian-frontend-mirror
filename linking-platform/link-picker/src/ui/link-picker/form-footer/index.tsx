@@ -2,16 +2,17 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { memo } from 'react';
+import { memo, type MemoExoticComponent } from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { defineMessages, type MessageDescriptor, useIntl } from 'react-intl-next';
+import { defineMessages, type MessageDescriptor, useIntl } from 'react-intl';
 
-import { ButtonGroup } from '@atlaskit/button';
-import Button from '@atlaskit/button/new';
+import ButtonGroup from '@atlaskit/button/button-group';
+import Button from '@atlaskit/button/default/button';
 import EditorAddIcon from '@atlaskit/icon/core/add';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import {
 	type LinkPickerPluginAction,
@@ -19,7 +20,6 @@ import {
 	type LinkSearchListItemData,
 } from '../../../common/types';
 import { UnauthenticatedError } from '../../../common/utils/errors';
-
 import { LinkPickerSubmitButton } from './link-picker-submit-button';
 
 const formFooterStyles = css({
@@ -32,7 +32,18 @@ const formFooterActionStyles = css({
 	marginRight: 'auto',
 });
 
-export const messages = defineMessages({
+export const messages: {
+	cancelButton: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	submittingStatusMessage: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	cancelButton: {
 		id: 'fabric.linkPicker.button.cancel',
 		defaultMessage: 'Cancel',
@@ -68,9 +79,28 @@ interface FormFooterProps extends React.HTMLAttributes<HTMLElement> {
 	customSubmitButtonLabel?: MessageDescriptor;
 	submitMessageId?: string;
 	hideSubmitButton?: boolean;
+	disableManualUrlInsert?: boolean;
 }
 
-export const FormFooter = memo(
+export const FormFooter: MemoExoticComponent<
+	({
+		isLoading,
+		isSubmitting,
+		error,
+		url,
+		queryState,
+		items,
+		isEditing,
+		onCancel,
+		action,
+		customSubmitButtonLabel,
+		submitMessageId,
+		hideSubmitButton,
+		disableManualUrlInsert,
+		className,
+		...restProps
+	}: FormFooterProps) => JSX.Element | null
+> = memo(
 	({
 		isLoading,
 		isSubmitting = false,
@@ -84,9 +114,10 @@ export const FormFooter = memo(
 		customSubmitButtonLabel,
 		submitMessageId,
 		hideSubmitButton,
+		disableManualUrlInsert,
 		className,
 		...restProps
-	}: FormFooterProps) => {
+	}: FormFooterProps): JSX.Element | null => {
 		const intl = useIntl();
 
 		if (error && error instanceof UnauthenticatedError) {
@@ -108,8 +139,10 @@ export const FormFooter = memo(
 			</Button>
 		);
 
+		const FormFooterElement = fg('platform_navx_fix_nested_footer_landmark') ? 'div' : 'footer';
+
 		return (
-			<footer
+			<FormFooterElement
 				css={[formFooterStyles]}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 				className={className}
@@ -150,10 +183,11 @@ export const FormFooter = memo(
 							submitMessageId={submitMessageId}
 							testId={testIds.insertButton}
 							url={url}
+							disableManualUrlInsert={disableManualUrlInsert}
 						/>
 					)}
 				</ButtonGroup>
-			</footer>
+			</FormFooterElement>
 		);
 	},
 );

@@ -1,5 +1,57 @@
 # @atlaskit/ds-lib
 
+## 8.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 7.0.0
+
+### Major Changes
+
+- [`0e6981ca05eb0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e6981ca05eb0) -
+  Moves `useIdSeed`, `isSafari` and `IdProvider` into individual files now available via their
+  respective entrypoints at `@atlaskit/ds-lib/use-id-seed`, `@atlaskit/ds-lib/is-safari`, and
+  `@atlaskit/ds-lib/id-provider`.
+
+## 6.0.0
+
+### Major Changes
+
+- [`ff38389affe15`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff38389affe15) -
+  Tidies the react-uid => react.useId() feature gates to use concurrent safe ids n
+
+## 5.4.0
+
+### Minor Changes
+
+- [`0b9ac729e9180`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b9ac729e9180) -
+  [ux] Nested dropdown menus can now navigate throguh left and right arrow keys.
+
+## 5.3.1
+
+### Patch Changes
+
+- [`18a6ca6a0c98c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18a6ca6a0c98c) -
+  Widen React peer dependency from ^18.2.0 to ^18.2.0 || ^19.0.0 to support React 19
+
 ## 5.3.0
 
 ### Minor Changes

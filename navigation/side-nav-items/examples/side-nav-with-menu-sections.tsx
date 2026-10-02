@@ -1,5 +1,4 @@
 /**
- * @jsxFrag
  * @jsxRuntime classic
  * @jsx jsx
  */
@@ -8,7 +7,7 @@ import React, { type ReactNode } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import AssetsGraph from '@atlaskit/icon-lab/core/assets-graph';
 import AddIcon from '@atlaskit/icon/core/add';
 import AlignTextLeftIcon from '@atlaskit/icon/core/align-text-left';
@@ -35,7 +34,7 @@ import { ConfluenceIcon } from '@atlaskit/logo';
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavPanelSplitter,
 	SideNavToggleButton,
 } from '@atlaskit/navigation-system/layout/side-nav';
@@ -60,7 +59,7 @@ import { MenuList } from '@atlaskit/side-nav-items/menu-list';
 import { MenuListItem } from '@atlaskit/side-nav-items/menu-list-item';
 import { MenuSection, MenuSectionHeading } from '@atlaskit/side-nav-items/menu-section';
 import { TopLevelSpacer } from '@atlaskit/side-nav-items/top-level-spacer';
-import Textfield from '@atlaskit/textfield';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 const filterIcon = <FilterIcon label="" color="currentColor" spacing="spacious" />;
@@ -204,7 +203,7 @@ function RandomItems({
 	});
 }
 
-export default function SideNavWithMenuSections() {
+export default function SideNavWithMenuSections(): JSX.Element {
 	return (
 		<Root isSideNavShortcutEnabled>
 			<TopNav>
@@ -218,7 +217,7 @@ export default function SideNavWithMenuSections() {
 			</TopNav>
 
 			<SideNav>
-				<SideNavContent>
+				<SideNavBody>
 					<MenuList>
 						<LinkMenuItem
 							href="#"
@@ -324,10 +323,10 @@ export default function SideNavWithMenuSections() {
 							<ExpandableMenuItemTrigger
 								elemBefore={<GlobeIcon label="" color="currentColor" />}
 								actionsOnHover={
-									<>
+									<React.Fragment>
 										<AddAction />
 										<MoreAction />
-									</>
+									</React.Fragment>
 								}
 							>
 								Spaces
@@ -348,10 +347,10 @@ export default function SideNavWithMenuSections() {
 															</ProjectTile>
 														}
 														actionsOnHover={
-															<>
+															<React.Fragment>
 																<AddAction />
 																<MoreAction />
-															</>
+															</React.Fragment>
 														}
 													>
 														Design System Project
@@ -534,10 +533,10 @@ export default function SideNavWithMenuSections() {
 							<ExpandableMenuItemTrigger
 								elemBefore={<DashboardIcon label="" color="currentColor" />}
 								actionsOnHover={
-									<>
+									<React.Fragment>
 										<AddAction />
 										<MoreAction />
-									</>
+									</React.Fragment>
 								}
 							>
 								Dashboards
@@ -566,7 +565,7 @@ export default function SideNavWithMenuSections() {
 							<MenuList>
 								<LinkMenuItem
 									href="#"
-									elemBefore={<ConfluenceIcon label="" shouldUseNewLogoDesign size="xsmall" />}
+									elemBefore={<ConfluenceIcon label="" size="xsmall" />}
 									elemAfter={<LinkExternalIcon label="" size="small" />}
 								>
 									Confluence
@@ -594,7 +593,7 @@ export default function SideNavWithMenuSections() {
 							Customize sidebar
 						</ButtonMenuItem>
 					</MenuList>
-				</SideNavContent>
+				</SideNavBody>
 				<SideNavPanelSplitter label="Resize side nav" tooltipContent="Double click to collapse" />
 			</SideNav>
 		</Root>

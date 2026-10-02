@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Date as AKDate } from '@atlaskit/date';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 import Table, {
 	Cell,
 	ExpandableCell,
@@ -12,7 +12,7 @@ import Table, {
 	TBody,
 	THead,
 } from '@atlaskit/table';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 export default function Expandable(): React.JSX.Element {
 	return (

@@ -1,12 +1,12 @@
-import { type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import {
-	type DefaultValue,
-	type ExternalUser,
-	type OptionData,
-	type Team,
-	type User,
-	type UserPickerProps,
-} from '@atlaskit/user-picker';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import type {
+	DefaultValue,
+	ExternalUser,
+	OptionData,
+	Team,
+	User,
+	UserPickerProps,
+} from '@atlaskit/user-picker/types';
 
 export interface Context {
 	containerId?: string;
@@ -18,6 +18,7 @@ export interface Context {
 	productKey: string;
 	siteId: string;
 	organizationId?: string;
+	userbaseId?: string;
 	productAttributes?: ProductAttributes;
 }
 
@@ -39,6 +40,12 @@ export interface RecommendationRequest {
 	searchEmail?: boolean;
 	verifiedTeams?: boolean;
 	restrictTo?: RestrictionFilter;
+	/**
+	 * When true, URS returns only userbase-aligned teams (teams synced to Identity).
+	 * Confluence uses this for teams-as-principals to avoid errors when users select teams
+	 * that are not yet mirrored to Identity (e.g. old org-scoped teams in NonVortex orgs).
+	 */
+	isTeamSyncedToGroupDirectoryFilter?: boolean;
 }
 
 type OnError = (error: any, request: RecommendationRequest) => Promise<OptionData[]> | void;
@@ -56,7 +63,7 @@ export interface State {
 	bootstrapOptions: OptionData[];
 }
 
-export type ProductAttributes = BitbucketAttributes | ConfluenceAttributes;
+export type ProductAttributes = BitbucketAttributes | ConfluenceAttributes | JiraAttributes;
 
 export type FilterOptions = (options: OptionData[], query: string) => OptionData[];
 
@@ -80,6 +87,13 @@ export interface ConfluenceAttributes {
 	 * Identifies whether this user is part of a Confluence site that is entitled for guests
 	 */
 	isEntitledConfluenceExternalCollaborator?: boolean;
+}
+
+export interface JiraAttributes {
+	/**
+	 * Identifies whether this user is part of a Jira site that is entitled for guests
+	 */
+	isEntitledJiraGuest?: boolean;
 }
 
 export enum EntityType {
@@ -205,7 +219,7 @@ export interface SmartProps {
 	 * Prefetch the list of suggested assignees before the user picker is focused.
 	 * WARNING: please consider carefully before deciding to prefetch your suggestions
 	 * as this will increase the load on the recommendations services (has caused HOTs).
-	 * Please give #search-plex a ballpark on the expected request volume.
+	 * Please give #help-search-plex a ballpark on the expected request volume.
 	 */
 	prefetch?: boolean;
 	/**
@@ -250,9 +264,19 @@ export interface SmartProps {
 	 */
 	siteId: string;
 	/**
+	 * Identifier for the product activation.
+	 */
+	activationId?: string;
+	/**
 	 * Identifier for the organization in which to search for teams.
 	 */
 	orgId?: string;
+	/**
+	 * Identifier for the userbase scope.
+	 * Currently, this is supported for team fetching only.
+	 * When provided, team search uses this scope. Otherwise team search falls back to `orgId` and `siteId`.
+	 */
+	userbaseId?: string;
 	/**
 	 * Optional callback to customize the options shown to the user.
 	 * Called after options are loaded.
@@ -282,6 +306,12 @@ export interface SmartProps {
 	 * @example { userIds: ["123", "456"], groupIds: ["789"] }
 	 */
 	restrictTo?: RestrictionFilter;
+	/**
+	 * When true, URS returns only userbase-aligned teams (teams synced to Identity).
+	 * Confluence uses this for teams-as-principals to avoid errors when users select teams
+	 * that are not yet mirrored to Identity (e.g. old org-scoped teams in NonVortex orgs).
+	 */
+	isTeamSyncedToGroupDirectoryFilter?: boolean;
 }
 
 // Override UserPickerProps below with replacement documentation
@@ -306,7 +336,7 @@ export interface Props extends SmartProps, UserPickerProps, WithAnalyticsEventsP
 	 * generating suggestions.
 	 * All fieldId's will be bucketed into a model that provides generic smart results,
 	 * except "assignee", "mentions" which are specifically trained for Jira Assignee and
-	 * @Mentions. For specifically trained models, please contact #search-plex.
+	 * @Mentions. For specifically trained models, please contact #help-search-plex.
 	 */
 	fieldId: string;
 	/** Whether the menu is open or not. */

@@ -5,23 +5,22 @@
 import { useEffect } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedList, FormattedMessage } from 'react-intl';
 
 import Button from '@atlaskit/button/standard-button';
-import AKLink from '@atlaskit/link';
+import AKLink from '@atlaskit/link/link';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Inline, Text } from '@atlaskit/primitives/compiled';
-import { fontFallback } from '@atlaskit/theme/typography';
 import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../analytics';
 import { SpotErrorSearch } from '../../../common/ui/spot/error-state/search';
-
-import { loadingErrorMessages } from './messages';
+import { loadingErrorMessages, missingColumnsMessages } from './messages';
 
 const styles = cssMap({
 	errorContainerStyles: {
 		display: 'grid',
-		gap: token('space.200', '16px'),
+		gap: token('space.200'),
 		placeItems: 'center',
 		marginInline: 'auto',
 		maxWidth: '400px',
@@ -31,17 +30,18 @@ const styles = cssMap({
 	},
 	errorMessageContainerStyles: {
 		display: 'grid',
-		gap: token('space.100', '8px'),
+		gap: token('space.100'),
 		placeItems: 'center',
 	},
 	errorMessageStyles: {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-		font: token('font.heading.small', fontFallback.heading.small),
+		font: token('font.heading.small'),
 	},
 });
 
 interface LoadingErrorProps {
+	errorType?: 'network' | 'missing-columns';
 	onRefresh?: () => void;
+	unavailableColumnKeys?: string[];
 	url?: string;
 }
 
@@ -49,21 +49,44 @@ const isConfluenceSearch = (url: string) => !!url.match(/https:\/\/.*\/wiki\/sea
 
 const isJiraIssuesList = (url: string) => !!url.match(/https:\/\/.*\/issues\/?\?jql=/);
 
-export const LoadingError = ({ onRefresh, url }: LoadingErrorProps) => {
+export const LoadingError = ({
+	onRefresh,
+	url,
+	errorType = 'network',
+	unavailableColumnKeys = [],
+}: LoadingErrorProps): JSX.Element => {
 	const { fireEvent } = useDatasourceAnalyticsEvents();
+	const effectiveErrorType = fg('platform_datasource_missing_columns_error')
+		? errorType
+		: 'network';
 
 	useEffect(() => {
-		fireEvent('ui.error.shown', {
-			reason: 'network',
-		});
-	}, [fireEvent]);
+		if (effectiveErrorType !== 'missing-columns') {
+			fireEvent('ui.error.shown', {
+				reason: 'network',
+			});
+		}
+	}, [fireEvent, effectiveErrorType]);
 
-	let connectionErrorMessage = loadingErrorMessages.checkConnection;
-	if (url && isConfluenceSearch(url)) {
-		connectionErrorMessage = loadingErrorMessages.checkConnectionConfluence;
-	}
-	if (url && isJiraIssuesList(url)) {
-		connectionErrorMessage = loadingErrorMessages.checkConnectionJira;
+	let title = loadingErrorMessages.unableToLoadResults;
+	let description = loadingErrorMessages.checkConnection;
+
+	switch (effectiveErrorType) {
+		case 'missing-columns':
+			title = missingColumnsMessages.missingColumnsTitle;
+			description = unavailableColumnKeys.length
+				? missingColumnsMessages.missingColumnsDescriptionWithNames
+				: missingColumnsMessages.missingColumnsDescription;
+			break;
+		case 'network':
+		default:
+			if (url && isConfluenceSearch(url)) {
+				description = loadingErrorMessages.checkConnectionConfluence;
+			}
+			if (url && isJiraIssuesList(url)) {
+				description = loadingErrorMessages.checkConnectionJira;
+			}
+			break;
 	}
 
 	return (
@@ -72,12 +95,15 @@ export const LoadingError = ({ onRefresh, url }: LoadingErrorProps) => {
 				<SpotErrorSearch size={'xlarge'} alt="" />
 				<Box xcss={styles.errorMessageContainerStyles}>
 					<Inline as="span" xcss={styles.errorMessageStyles}>
-						<FormattedMessage {...loadingErrorMessages.unableToLoadResults} />
+						<FormattedMessage {...title} />
 					</Inline>
 					<Text as="p">
 						<FormattedMessage
-							{...connectionErrorMessage}
+							{...description}
 							values={{
+								...(effectiveErrorType === 'missing-columns'
+									? { columns: <FormattedList value={unavailableColumnKeys} /> }
+									: {}),
 								a: (chunks: React.ReactNode) => (
 									<AKLink href={url || ''} target="blank">
 										{chunks}
@@ -86,7 +112,7 @@ export const LoadingError = ({ onRefresh, url }: LoadingErrorProps) => {
 							}}
 						/>
 					</Text>
-					{onRefresh && (
+					{effectiveErrorType !== 'missing-columns' && onRefresh && (
 						<Button appearance="primary" onClick={onRefresh}>
 							<FormattedMessage {...loadingErrorMessages.refresh} />
 						</Button>

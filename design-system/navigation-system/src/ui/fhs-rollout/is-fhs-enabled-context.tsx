@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { Get } from './types';
 
@@ -10,6 +10,6 @@ import type { Get } from './types';
  * Tracks is FHS enabled.
  * Defaults to feature gate 'navx-full-height-sidebar'.
  */
-export const IsFhsEnabledContext: import("react").Context<boolean | Get<boolean>> = createContext<boolean | Get<boolean>>(() =>
-	fg('navx-full-height-sidebar'),
-);
+export const IsFhsEnabledContext: import('react').Context<boolean | Get<boolean>> = createContext<
+	boolean | Get<boolean>
+>(() => fg('navx-full-height-sidebar'));

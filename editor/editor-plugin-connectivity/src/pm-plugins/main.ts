@@ -1,11 +1,11 @@
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { PluginKey, type ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
 
-import { type PluginState } from '../connectivityPluginType';
+import type { PluginState } from '../connectivityPluginType';
 
-export const key = new PluginKey<PluginState>('offlineMode');
+export const key: PluginKey<PluginState> = new PluginKey<PluginState>('offlineMode');
 
-export const createPlugin = () => {
+export const createPlugin = (): SafePlugin<PluginState> => {
 	return new SafePlugin<PluginState>({
 		key,
 		state: {

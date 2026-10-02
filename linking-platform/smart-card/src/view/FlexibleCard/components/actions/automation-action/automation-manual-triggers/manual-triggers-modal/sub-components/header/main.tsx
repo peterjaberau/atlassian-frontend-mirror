@@ -2,16 +2,19 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { defineMessages, useIntl } from 'react-intl-next';
+import { defineMessages, useIntl } from 'react-intl';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import AutomationIcon from '@atlaskit/icon/core/automation';
-import { ModalHeader, useModal } from '@atlaskit/modal-dialog';
+import { useModal } from '@atlaskit/modal-dialog/hooks';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { useAutomationMenu } from '../../menu-context';
+import { useAutomationMenu } from '../../menu-context/useAutomationMenu';
 
 const styles = cssMap({
 	iconStyle: {
@@ -41,7 +44,7 @@ type AutomationModalHeaderProps = {
 export const AutomationModalHeader = ({
 	modalTitle,
 	modalDescription,
-}: AutomationModalHeaderProps) => {
+}: AutomationModalHeaderProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	const { initialised, rules } = useAutomationMenu();
@@ -65,9 +68,13 @@ export const AutomationModalHeader = ({
 							spacing="compact"
 						/>
 					</Box>
-					<Heading size="medium" id={titleId}>
-						{modalTitle}
-					</Heading>
+					{fg('platform_dst_modal-dialog-use-modal-title') ? (
+						<ModalTitle>{modalTitle}</ModalTitle>
+					) : (
+						<Heading size="medium" id={titleId}>
+							{modalTitle}
+						</Heading>
+					)}
 				</Inline>
 				{showDescription && <Box xcss={styles.modalDescriptionStyle}>{modalDescription}</Box>}
 			</Stack>

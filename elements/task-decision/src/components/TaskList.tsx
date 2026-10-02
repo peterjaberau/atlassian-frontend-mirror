@@ -3,18 +3,14 @@
  * @jsx jsx
  */
 import React, { type ReactNode } from 'react';
+
 import { css, jsx } from '@compiled/react';
-import { FabricElementsAnalyticsContext } from '@atlaskit/analytics-namespaced-context';
-import { messages } from './i18n';
+import { useIntl } from 'react-intl';
+
+import { FabricElementsAnalyticsContext } from '@atlaskit/analytics-namespaced-context/FabricElementsAnalyticsContext';
 import { token } from '@atlaskit/tokens';
-import { fg } from '@atlaskit/platform-feature-flags';
 
-import { useIntl } from 'react-intl-next';
-
-const oldListStyles = css({
-	listStyleType: 'none',
-	paddingLeft: 0,
-});
+import { messages } from './i18n';
 
 const listStyles = css({
 	listStyleType: 'none',
@@ -25,16 +21,12 @@ const listStyles = css({
 	},
 });
 
-const taskListStyles = css({
-	marginTop: token('space.050', '4px'),
-});
-
 export interface Props {
 	children?: ReactNode;
 	listId?: string;
 }
 
-const TaskList = ({ listId, children }: Props) => {
+const TaskList = ({ listId, children }: Props): JSX.Element | null => {
 	const listSize = React.Children.count(children);
 
 	const { formatMessage } = useIntl();
@@ -52,14 +44,11 @@ const TaskList = ({ listId, children }: Props) => {
 	return (
 		<div
 			role="group"
-			css={[fg('platform_editor_fix_missing_task_id') ? listStyles : oldListStyles]}
+			css={listStyles}
 			data-task-list-local-id=""
 			aria-label={formatMessage(messages.fieldsetLabel)}
 		>
 			{React.Children.map(children, (child, idx) => {
-				const { localId } = (child as React.ReactElement).props as {
-					localId: string;
-				};
 				return (
 					<FabricElementsAnalyticsContext
 						data={{
@@ -68,17 +57,7 @@ const TaskList = ({ listId, children }: Props) => {
 							position: idx,
 						}}
 					>
-						{
-							/* The data-task-local-id attribute will be moved to the Editor renderer node
-							as the localId isn't guaranteed to be in the direct React child's props) */
-							fg('platform_editor_fix_missing_task_id') ? (
-								child
-							) : (
-								<div key={idx} data-task-local-id={localId || ''} css={taskListStyles}>
-									{child}
-								</div>
-							)
-						}
+						{child}
 					</FabricElementsAnalyticsContext>
 				);
 			})}

@@ -1,36 +1,44 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { cssMap } from '@atlaskit/css';
+import { cssMap, cx } from '@atlaskit/css';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
 import InformationCircleIcon from '@atlaskit/icon/core/information-circle';
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Flex, Stack, Text } from '@atlaskit/primitives/compiled';
+import type { AgentCreatorType } from '@atlaskit/rovo-agent-components/common/types';
+import { isForgeAgentByCreatorType } from '@atlaskit/rovo-agent-components/common/utils/is-forge-agent';
 import { AgentBanner } from '@atlaskit/rovo-agent-components/ui/agent-avatar/GeneratedAvatar';
-import { AgentStarCount } from '@atlaskit/rovo-agent-components/ui/agent-profile-info/AgentStarCount';
 import { AgentAvatar } from '@atlaskit/rovo-agent-components/ui/AgentAvatar';
 import { type ConversationStarter } from '@atlaskit/rovo-agent-components/ui/AgentConversationStarters';
-import { AgentProfileCreator, AgentProfileInfo } from '@atlaskit/rovo-agent-components/ui/AgentProfileInfo';
-import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics';
+import {
+	AgentProfileCreator,
+	AgentProfileInfo,
+} from '@atlaskit/rovo-agent-components/ui/AgentProfileInfo';
+import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
+import { TeamsLink } from '@atlaskit/teams-app-internal-navigation/teams-link';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { type AgentProfileCardProps } from '../../types';
 import { PACKAGE_META_DATA } from '../../util/analytics';
 import { getPageTime } from '../../util/performance';
 import { LoadingState } from '../common/LoadingState';
-import { ErrorMessage } from '../Error';
-
+import { default as ErrorMessage } from '../Error/ErrorMessage';
 import { AgentActions } from './Actions';
 import { AgentProfileCardWrapper } from './AgentProfileCardWrapper';
 import { ConversationStarters } from './ConversationStarters';
-import { useAgentUrlActions } from './hooks/useAgentActions';
+import { useAgentUrlActions } from './hooks/useAgentUrlActions';
 import { messages } from './messages';
 
 const styles = cssMap({
-	detailWrapper: { paddingBlockStart: token('space.400'), paddingInline: token('space.200') },
-	detailWrapperRefresh: {
+	detailWrapper: {
 		paddingBlockStart: token('space.300'),
+	},
+	// Bottom padding when AgentActions is hidden (it normally supplies that space).
+	detailWrapperPreviewBottomPadding: {
+		paddingBlockEnd: token('space.300'),
 	},
 	avatarStyles: {
 		position: 'absolute',
@@ -39,23 +47,39 @@ const styles = cssMap({
 	},
 	cardContainerStyles: {
 		borderRadius: token('radius.large'),
+		position: 'relative',
+		overflow: 'hidden',
+	},
+	cardContainerStylesLegacy: {
+		borderRadius: token('radius.large'),
 		boxShadow: token('elevation.shadow.overlay'),
 		position: 'relative',
+		overflow: 'hidden',
 	},
 	agentProfileInfoWrapper: {
 		paddingInline: token('space.200'),
 	},
+	descriptionWrapper: {
+		paddingInline: token('space.200'),
+	},
+	description: {
+		marginBlock: token('space.0'),
+		overflowWrap: 'anywhere',
+		wordBreak: 'break-word',
+	},
 	conversationStartersWrapper: {
 		paddingInline: token('space.150'),
 	},
-	disclosureWrapperRefresh: {
+	disclosureWrapper: {
+		paddingInline: token('space.200'),
+		gap: token('space.050'),
+	},
+	// Legacy block padding.
+	disclosureWrapperLegacy: {
 		paddingBlockStart: token('space.150'),
 		paddingBlockEnd: token('space.150'),
 		paddingInline: token('space.200'),
 		gap: token('space.050'),
-	},
-	disclosureWrapper: {
-		paddingBlockEnd: token('space.150'),
 	},
 });
 
@@ -63,6 +87,7 @@ const AgentProfileCard = ({
 	agent,
 	isLoading,
 	cloudId,
+	email,
 	onChatClick,
 	hasError,
 	errorType,
@@ -72,6 +97,11 @@ const AgentProfileCard = ({
 	onDeleteAgent,
 	hideMoreActions,
 	hideAiDisclaimer = false,
+	hideConversationStarters = false,
+	hideAgentActions = false,
+	hideStarButton = false,
+	showCreatorNameWithoutLink = false,
+	footerComponent,
 }: AgentProfileCardProps): React.JSX.Element => {
 	const {
 		onEditAgent,
@@ -82,6 +112,7 @@ const AgentProfileCard = ({
 		onViewFullProfile,
 	} = useAgentUrlActions({
 		cloudId: cloudId || '',
+		email,
 		source: 'agentProfileCard',
 	});
 
@@ -172,44 +203,91 @@ const AgentProfileCard = ({
 		);
 	}
 
-	const isRovoDev = agent.creator_type === 'ROVO_DEV';
+	// creator_type is 'ROVO_DEV' for both the original Rovo Dev agent and the renamed Jira Coding
+	// Agent (creator_type was never updated at the source). We use the agent name to distinguish
+	// them - once the rename backfill runs, the JCA name becomes 'Jira Coding Agent' and
+	// isRovoDev naturally becomes false, falling through to the agentNamedId avatar lookup.
+	const isRovoDev = agent.creator_type === 'ROVO_DEV' && agent.name.toLowerCase() === 'rovo dev';
+
+	// Both Jira Coding Agent and Rovo Dev do not support conversations and chat.
+	// They share the same creator_type ('ROVO_DEV') but have different display names.
+	const isRovoDevOrJiraCodingAgent =
+		isRovoDev ||
+		(agent.creator_type === 'ROVO_DEV' && agent.name.toLowerCase() === 'jira coding agent');
+
+	const shouldShowConversationStarters =
+		!isRovoDevOrJiraCodingAgent &&
+		!(
+			((expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+				fg('platform_editor_agent_mentions_drop_one_fixes')) ||
+				fg('platform_editor_agent_card_fixes')) &&
+			hideConversationStarters
+		);
+
+	const shouldShowAgentActions = !isRovoDevOrJiraCodingAgent && !hideAgentActions;
+
+	// Only for M1 hideAgentActions preview cards so other consumers stay unchanged.
+	const needsBottomPaddingFallback =
+		hideAgentActions &&
+		(FeatureGates.getExperimentValue('jira_agent_recommendations_m1', 'isEnabled', false) ||
+			(expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+				fg('platform_editor_agent_mentions_drop_one_fixes')) ||
+			fg('platform_editor_agent_card_fixes'));
 
 	return (
 		<AgentProfileCardWrapper>
-			<Box xcss={styles.cardContainerStyles}>
+			<Box
+				xcss={
+					(expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+						fg('platform_editor_agent_mentions_drop_one_fixes')) ||
+					fg('platform_editor_agent_card_fixes')
+						? styles.cardContainerStyles
+						: styles.cardContainerStylesLegacy
+				}
+			>
 				<AgentBanner
 					agentId={agent.id}
 					agentNamedId={agent.external_config_reference ?? agent.named_id}
-					height={fg('rovo_agent_empty_state_refresh') ? 48 : 96}
+					height={48}
 					agentIdentityAccountId={agent.identity_account_id}
-					isRovoDev={isRovoDev && fg('rovo_dev_themed_identity_card')}
+					isRovoDev={isRovoDev}
+					creatorType={fg('jira_improve_agent_profile_for_a2a') ? agent.creator_type : undefined}
 				/>
 				<Box xcss={styles.avatarStyles}>
 					<AgentAvatar
 						agentId={agent.id}
 						agentNamedId={agent.external_config_reference ?? agent.named_id}
 						agentIdentityAccountId={agent.identity_account_id}
-						size={fg('rovo_agent_empty_state_refresh') ? 'large' : 'xlarge'}
-						isRovoDev={isRovoDev && fg('rovo_dev_themed_identity_card')}
-						isForgeAgent={agent.creator_type === 'FORGE' || agent.creator_type === 'THIRD_PARTY'}
+						size="large"
+						isRovoDev={isRovoDev}
+						isForgeAgent={
+							fg('rovo_agent_support_a2a_avatar')
+								? isForgeAgentByCreatorType(agent.creator_type as AgentCreatorType)
+								: agent.creator_type === 'FORGE' || agent.creator_type === 'THIRD_PARTY'
+						}
 						forgeAgentIconUrl={agent.icon}
 					/>
 				</Box>
 
 				<Stack
-					space="space.100"
-					xcss={
-						fg('rovo_agent_empty_state_refresh')
-							? styles.detailWrapperRefresh
-							: styles.detailWrapper
+					space={
+						(expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+							fg('platform_editor_agent_mentions_drop_one_fixes')) ||
+						fg('platform_editor_agent_card_fixes')
+							? 'space.150'
+							: 'space.100'
 					}
+					xcss={cx(
+						styles.detailWrapper,
+						needsBottomPaddingFallback && styles.detailWrapperPreviewBottomPadding,
+					)}
 				>
-					<Box xcss={fg('rovo_agent_empty_state_refresh') ? styles.agentProfileInfoWrapper : null}>
+					<Box xcss={styles.agentProfileInfoWrapper}>
 						<AgentProfileInfo
 							agentName={agent.name}
 							isStarred={isStarred}
 							onStarToggle={handleSetFavourite}
-							showStarButton={!(isRovoDev && fg('rovo_dev_themed_identity_card'))}
+							showStarButton={!isRovoDev && !hideStarButton}
 							isHidden={agent.visibility === 'PRIVATE'}
 							creatorRender={
 								agent.creatorInfo?.type && (
@@ -221,32 +299,46 @@ const AgentProfileCard = ({
 										}}
 										isLoading={false}
 										onCreatorLinkClick={() => {}}
+										showCreatorNameWithoutLink={showCreatorNameWithoutLink}
 									/>
 								)
 							}
-							starCountRender={
-								fg('rovo_agent_empty_state_refresh') ? null : (
-									<AgentStarCount starCount={starCount} isLoading={false} />
-								)
+							starCountRender={null}
+							agentDescription={
+								(expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+									fg('platform_editor_agent_mentions_drop_one_fixes')) ||
+								fg('platform_editor_agent_card_fixes')
+									? undefined
+									: agent.description
 							}
-							agentDescription={agent.description}
 						/>
 					</Box>
-					{!hideAiDisclaimer && fg('rovo_display_ai_disclaimer_on_agent_profile_card') && (
+					{!!agent.description &&
+						((expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+							fg('platform_editor_agent_mentions_drop_one_fixes')) ||
+							fg('platform_editor_agent_card_fixes')) && (
+							<Box xcss={styles.descriptionWrapper}>
+								<Box xcss={styles.description} as="p">
+									{agent.description}
+								</Box>
+							</Box>
+						)}
+					{!hideAiDisclaimer && (
 						<Flex
 							alignItems="start"
 							direction="column"
 							gap="space.050"
 							xcss={
-								fg('rovo_agent_empty_state_refresh')
-									? styles.disclosureWrapperRefresh
-									: styles.disclosureWrapper
+								(expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+									fg('platform_editor_agent_mentions_drop_one_fixes')) ||
+								fg('platform_editor_agent_card_fixes')
+									? styles.disclosureWrapper
+									: styles.disclosureWrapperLegacy
 							}
 						>
-							<Link
+							<TeamsLink
 								href="https://www.atlassian.com/trust/atlassian-intelligence"
-								target="_blank"
-								rel="noopener noreferrer"
+								intent="reference"
 								appearance="subtle"
 							>
 								<InformationCircleIcon color={token('color.icon.subtlest')} label="" size="small" />
@@ -254,15 +346,11 @@ const AgentProfileCard = ({
 								<Text size="small" color="color.text.subtlest">
 									{formatMessage(messages.aiDisclaimer)}
 								</Text>
-							</Link>
+							</TeamsLink>
 						</Flex>
 					)}
-					{!(isRovoDev && fg('rovo_dev_themed_identity_card')) && (
-						<Box
-							xcss={
-								fg('rovo_agent_empty_state_refresh') ? styles.conversationStartersWrapper : null
-							}
-						>
+					{shouldShowConversationStarters && (
+						<Box xcss={styles.conversationStartersWrapper}>
 							<ConversationStarters
 								isAgentDefault={agent.is_default}
 								userDefinedConversationStarters={userDefinedConversationStarters}
@@ -278,16 +366,21 @@ const AgentProfileCard = ({
 						</Box>
 					)}
 				</Stack>
-				{!(isRovoDev && fg('rovo_dev_themed_identity_card')) && (
+				{shouldShowAgentActions && (
 					<AgentActions
 						agent={agent}
 						onEditAgent={() => onEditAgent(agent.id)}
 						onCopyAgent={() => onCopyAgent(agent.id)}
-						onDuplicateAgent={() => onDuplicateAgent(agent.id)}
+						onDuplicateAgent={async () => await onDuplicateAgent(agent.id)}
 						onDeleteAgent={handleOnDelete}
 						onChatClick={
 							onChatClick
-								? (event: React.MouseEvent) => onChatClick(event)
+								? (event: React.MouseEvent) => {
+										onChatClick(
+											event,
+											fg('platform_editor_agent_mentions_drop_one_fixes') ? agent.id : undefined,
+										);
+									}
 								: () => onOpenChatFullScreen(agent.id, agent.name)
 						}
 						resourceClient={resourceClient}
@@ -295,6 +388,7 @@ const AgentProfileCard = ({
 						hideMoreActions={hideMoreActions}
 					/>
 				)}
+				{footerComponent}
 			</Box>
 		</AgentProfileCardWrapper>
 	);

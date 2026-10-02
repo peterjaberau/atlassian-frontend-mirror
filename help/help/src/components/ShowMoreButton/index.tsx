@@ -1,15 +1,18 @@
 import React from 'react';
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import Spinner from '@atlaskit/spinner';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
-import Button from '@atlaskit/button';
+
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import Button from '@atlaskit/button/button';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import { messages } from '../../messages';
-
 import { ToggleShowMoreArticlesContainer } from '../ArticlesList/styled';
 
+export type ItemsType = 'articles' | 'changes';
+
 export interface Props {
-	itemsType?: string;
+	itemsType?: ItemsType;
 	loading?: boolean;
 	maxItemsToDisplay: number;
 	minItemsToDisplay: number;
@@ -22,19 +25,21 @@ export const ShowMoreButton: React.FC<Props & WrappedComponentProps> = ({
 	onToggle,
 	minItemsToDisplay,
 	maxItemsToDisplay,
-	itemsType,
+	itemsType = 'articles',
 	loading = false,
 	intl: { formatMessage },
-}) =>
-	showMoreToggeled ? (
+}) => {
+	const numberOfItemsLeft =
+		maxItemsToDisplay > minItemsToDisplay ? maxItemsToDisplay - minItemsToDisplay : 0;
+	const labelMoreMessage =
+		itemsType === 'changes'
+			? messages.help_show_more_button_label_more_changes
+			: messages.help_show_more_button_label_more_articles;
+
+	return showMoreToggeled ? (
 		<ToggleShowMoreArticlesContainer>
 			<Button appearance="link" spacing="compact" onClick={onToggle}>
-				{formatMessage(messages.help_show_more_button_label_more, {
-					numberOfItemsLeft:
-						maxItemsToDisplay > minItemsToDisplay ? maxItemsToDisplay - minItemsToDisplay : 0,
-
-					itemsType: itemsType,
-				})}
+				{formatMessage(labelMoreMessage, { numberOfItemsLeft })}
 				{loading && (
 					<span>
 						{' '}
@@ -50,6 +55,7 @@ export const ShowMoreButton: React.FC<Props & WrappedComponentProps> = ({
 			</Button>
 		</ToggleShowMoreArticlesContainer>
 	);
+};
 
 const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
 	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;

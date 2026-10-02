@@ -1,35 +1,37 @@
 import isEqual from 'lodash/isEqual';
-import rafSchedule from 'raf-schd';
 
-import { type RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
-import { isSSR } from '@atlaskit/editor-common/core-utils';
+import type { RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
 import type { Experience } from '@atlaskit/editor-common/experiences';
 import { logException } from '@atlaskit/editor-common/monitoring';
-import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { ProviderFactory, MediaProvider } from '@atlaskit/editor-common/provider-factory';
+import type { ViewMode } from '@atlaskit/editor-plugin-editor-viewmode';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
-import {
-	SyncBlockError,
-	type BlockInstanceId,
-	type ResourceId,
-	type SyncBlockAttrs,
-	type SyncBlockNode,
-	type SyncBlockPrefetchData,
+import { isProviderNotReadyError, ProviderNotReadyError, SyncBlockError } from '../common/types';
+import type {
+	BlockInstanceId,
+	ResourceId,
+	SyncBlockAttrs,
+	SyncBlockNode,
+	SyncBlockPrefetchData,
 } from '../common/types';
 import type {
 	SyncBlockInstance,
 	SubscriptionCallback,
-	SyncBlockDataProvider,
+	SyncBlockDataProviderInterface,
 	TitleSubscriptionCallback,
-	SyncBlockRendererProviderCreator,
 	SyncBlockSourceInfo,
-	Unsubscribe,
+	SyncedBlockRendererProviderOptions,
 } from '../providers/types';
 import {
+	buildErrorAttribution,
+	buildFetchErrorAttribution,
+	cacheDeletionForcedPayload,
 	fetchErrorPayload,
 	fetchSuccessPayload,
 	getSourceInfoErrorPayload,
+	sourceInfoOrphanedPayload,
 	updateReferenceErrorPayload,
 } from '../utils/errorHandling';
 import {
@@ -39,7 +41,28 @@ import {
 } from '../utils/experienceTracking';
 import { resolveSyncBlockInstance } from '../utils/resolveSyncBlockInstance';
 import { parseResourceId } from '../utils/resourceId';
-import { createSyncBlockNode } from '../utils/utils';
+import {
+	createSyncBlockNode,
+	getSourceProductFromResourceIdSafe,
+	normalizeSyncBlockJSONContent,
+} from '../utils/utils';
+import type { SourceSyncBlockStoreManager } from './sourceSyncBlockStoreManager';
+import { SyncBlockBatchFetcher } from './syncBlockBatchFetcher';
+import { syncBlockInMemorySessionCache } from './syncBlockInMemorySessionCache';
+import { SyncBlockProviderFactoryManager } from './syncBlockProviderFactoryManager';
+import { SyncBlockSubscriptionManager } from './syncBlockSubscriptionManager';
+
+const CACHE_KEY_PREFIX = 'sync-block-data-';
+
+const ENTITY_NOT_FOUND_MAX_RETRIES = 3;
+const ENTITY_NOT_FOUND_INITIAL_DELAY_MS = 2000;
+
+// Grace period before a cache entry is removed after the last subscriber
+// unsubscribes. Guards are
+// re-checked at fire time; if any are positive, the timer is rescheduled.
+const CACHE_DELETION_GRACE_PERIOD_MS = 30_000;
+// Max reschedules before force-deleting with an analytics event (~5 min).
+const CACHE_DELETION_MAX_RESCHEDULES = 10;
 
 // A store manager responsible for the lifecycle and state management of reference sync blocks in an editor instance.
 // Designed to manage local in-memory state and synchronize with an external data provider.
@@ -47,35 +70,17 @@ import { createSyncBlockNode } from '../utils/utils';
 // Handles fetching source URL and title for sync blocks.
 // Can be used in both editor and renderer contexts.
 export class ReferenceSyncBlockStoreManager {
-	private dataProvider?: SyncBlockDataProvider;
-	private syncBlockCache: Map<ResourceId, SyncBlockInstance>;
+	private viewMode?: ViewMode;
+	private dataProvider?: SyncBlockDataProviderInterface;
+	private sourceManager?: SourceSyncBlockStoreManager;
 	// Keeps track of addition and deletion of reference synced blocks on the document
 	// This starts as true to always flush the cache when document is saved for the first time
 	// to cater the case when a editor session is closed without document being updated right after reference block is deleted
 	private isCacheDirty: boolean = true;
-	private subscriptions: Map<ResourceId, { [localId: BlockInstanceId]: SubscriptionCallback }>;
-	private titleSubscriptions: Map<
-		ResourceId,
-		{ [localId: BlockInstanceId]: TitleSubscriptionCallback }
-	>;
-	private providerFactories: Map<ResourceId, ProviderFactory>;
 	private fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void;
 
 	private syncBlockFetchDataRequests: Map<ResourceId, boolean>;
-	private syncBlockSourceInfoRequestsOld: Map<ResourceId, boolean>;
 	private syncBlockSourceInfoRequests: Map<ResourceId, Promise<SyncBlockSourceInfo | undefined>>;
-	private isRefreshingSubscriptions: boolean = false;
-	// Track pending cache deletions to handle block moves (unmount/remount)
-	// When a block is moved, the old component unmounts before the new one mounts,
-	// causing the cache to be deleted prematurely. We delay deletion to allow
-	// the new component to subscribe and cancel the pending deletion.
-	private pendingCacheDeletions: Map<ResourceId, ReturnType<typeof setTimeout>>;
-	// Track GraphQL subscriptions for real-time block updates
-	private graphqlSubscriptions: Map<ResourceId, Unsubscribe>;
-	// Flag to indicate if real-time subscriptions are enabled
-	private useRealTimeSubscriptions: boolean = false;
-	// Listeners for subscription changes (used by React components to know when to update)
-	private subscriptionChangeListeners: Set<() => void>;
 	// Track newly added sync blocks (resourceIds that were just subscribed to without cached data)
 	private newlyAddedSyncBlocks: Set<ResourceId>;
 	// Keep track of the last flushed subscriptions to optimize cache flushing on document save
@@ -89,50 +94,84 @@ export class ReferenceSyncBlockStoreManager {
 	// Track the setTimeout handle for queued flush so we can cancel it on destroy
 	private queuedFlushTimeout?: ReturnType<typeof setTimeout>;
 
+	// Track retry attempts for EntityNotFound errors (block may be in the process of being created)
+	private entityNotFoundRetryCount: Map<ResourceId, number> = new Map();
+	private entityNotFoundRetryTimers: Map<ResourceId, ReturnType<typeof setTimeout>> = new Map();
+
+	// Pending cache deletion timers keyed by resourceId. Cancelled when a subscriber re-attaches.
+	private pendingCacheDeletions: Map<ResourceId, ReturnType<typeof setTimeout>> = new Map();
+	// Reschedule counter per resource — reset on actual deletion or re-subscribe.
+	private cacheDeletionRescheduleCounts: Map<ResourceId, number> = new Map();
+	// Set by destroy() so in-flight timer callbacks can early-return.
+	private isDestroyed = false;
+
 	public fetchExperience: Experience | undefined;
 	private fetchSourceInfoExperience: Experience | undefined;
 	private saveExperience: Experience | undefined;
 
-	private pendingFetchRequests = new Set<string>();
-	private scheduledBatchFetch = rafSchedule(() => {
-		if (this.pendingFetchRequests.size === 0) {
-			return;
-		}
+	private _subscriptionManager: SyncBlockSubscriptionManager;
+	private _providerFactoryManager: SyncBlockProviderFactoryManager;
+	private _batchFetcher: SyncBlockBatchFetcher;
 
-		const resourceIds = Array.from(this.pendingFetchRequests);
-
-		const syncBlockNodes = resourceIds.map((resId) => {
-			const subscriptions = this.subscriptions.get(resId) || {};
-			const firstLocalId = Object.keys(subscriptions)[0] || '';
-			return createSyncBlockNode(firstLocalId, resId);
-		});
-
-		this.pendingFetchRequests.clear();
-
-		this.fetchSyncBlocksData(syncBlockNodes).catch((error) => {
-			logException(error, {
-				location:
-					'editor-synced-block-provider/referenceSyncBlockStoreManager/batchedFetchSyncBlocks',
-			});
-			resourceIds.forEach((resId) => {
-				this.fireAnalyticsEvent?.(fetchErrorPayload(error.message, resId));
-			});
-		});
-	});
-
-	constructor(dataProvider?: SyncBlockDataProvider) {
-		this.syncBlockCache = new Map();
-		this.subscriptions = new Map();
-		this.titleSubscriptions = new Map();
+	constructor(
+		dataProvider?: SyncBlockDataProviderInterface,
+		viewMode?: ViewMode,
+		sourceManager?: SourceSyncBlockStoreManager,
+	) {
 		this.dataProvider = dataProvider;
+		this.viewMode = viewMode;
+		this.sourceManager = sourceManager;
 		this.syncBlockFetchDataRequests = new Map();
-		this.syncBlockSourceInfoRequestsOld = new Map();
 		this.syncBlockSourceInfoRequests = new Map();
-		this.providerFactories = new Map();
-		this.pendingCacheDeletions = new Map();
-		this.graphqlSubscriptions = new Map();
-		this.subscriptionChangeListeners = new Set();
 		this.newlyAddedSyncBlocks = new Set();
+
+		this._subscriptionManager = new SyncBlockSubscriptionManager({
+			getDataProvider: () => this.dataProvider,
+			getFromCache: (rid) => this.getFromCache(rid),
+			updateCache: (inst) => this.updateCache(inst),
+			debouncedBatchedFetchSyncBlocks: (rid) => this.debouncedBatchedFetchSyncBlocks(rid),
+			fetchSyncBlockSourceInfo: (rid) => this.fetchSyncBlockSourceInfo(rid),
+			getFireAnalyticsEvent: () => this.fireAnalyticsEvent,
+			markCacheDirty: () => {
+				this.isCacheDirty = true;
+			},
+			// Delegate cache lifecycle to the store manager so guards can be
+			// checked atomically.
+			scheduleCacheDeletion: (rid) => this.scheduleCacheDeletion(rid),
+			cancelPendingCacheDeletion: (rid) => this.cancelPendingCacheDeletion(rid),
+		});
+
+		this._providerFactoryManager = new SyncBlockProviderFactoryManager({
+			getDataProvider: () => this.dataProvider,
+			getFromCache: (rid) => this.getFromCache(rid),
+			getFireAnalyticsEvent: () => this.fireAnalyticsEvent,
+		});
+
+		this._batchFetcher = new SyncBlockBatchFetcher({
+			getSubscriptions: () => this._subscriptionManager.getSubscriptions(),
+			fetchSyncBlocksData: (nodes) => this.fetchSyncBlocksData(nodes),
+			getFireAnalyticsEvent: () => this.fireAnalyticsEvent,
+			// EDITOR-7860: skip + re-queue fetches while not ready / torn down.
+			isProviderReady: () => this.hasDataProvider(),
+		});
+
+		// The provider might have SSR data cache already set, so we need to update the cache in session memory storage
+		this.setSSRDataInSessionCache(this.dataProvider?.getNodeDataCacheKeys());
+	}
+
+	public isReferenceBlock(node: PMNode): boolean {
+		return node.type.name === 'syncBlock';
+	}
+
+	/**
+	 * Whether the async data provider is wired and the manager is not torn down.
+	 * Consumers gate fetch/subscribe on this to avoid a false `Data provider not
+	 * set` fetch error (EDITOR-7860). The `isDestroyed` check covers managers
+	 * orphaned mid-flight during an async provider swap, where `dataProvider`
+	 * alone is insufficient.
+	 */
+	public hasDataProvider(): boolean {
+		return !this.isDestroyed && !!this.dataProvider;
 	}
 
 	/**
@@ -142,26 +181,14 @@ export class ReferenceSyncBlockStoreManager {
 	 * @param enabled - Whether to enable real-time subscriptions
 	 */
 	public setRealTimeSubscriptionsEnabled(enabled: boolean): void {
-		if (this.useRealTimeSubscriptions === enabled) {
-			return;
-		}
-
-		this.useRealTimeSubscriptions = enabled;
-
-		if (enabled) {
-			// Set up subscriptions for all currently subscribed blocks
-			this.setupGraphQLSubscriptionsForAllBlocks();
-		} else {
-			// Clean up all GraphQL subscriptions
-			this.cleanupAllGraphQLSubscriptions();
-		}
+		this._subscriptionManager.setRealTimeSubscriptionsEnabled(enabled);
 	}
 
 	/**
 	 * Checks if real-time subscriptions are currently enabled.
 	 */
 	public isRealTimeSubscriptionsEnabled(): boolean {
-		return this.useRealTimeSubscriptions;
+		return this._subscriptionManager.isRealTimeSubscriptionsEnabled();
 	}
 
 	/**
@@ -169,7 +196,7 @@ export class ReferenceSyncBlockStoreManager {
 	 * Used by React components to render subscription components.
 	 */
 	public getSubscribedResourceIds(): ResourceId[] {
-		return Array.from(this.subscriptions.keys());
+		return this._subscriptionManager.getSubscribedResourceIds();
 	}
 
 	/**
@@ -178,27 +205,7 @@ export class ReferenceSyncBlockStoreManager {
 	 * @returns Unsubscribe function to remove the listener
 	 */
 	public onSubscriptionsChanged(listener: () => void): () => void {
-		this.subscriptionChangeListeners.add(listener);
-		return () => {
-			this.subscriptionChangeListeners.delete(listener);
-		};
-	}
-
-	/**
-	 * Notifies all subscription change listeners.
-	 */
-	private notifySubscriptionChangeListeners(): void {
-		this.subscriptionChangeListeners.forEach((listener) => {
-			try {
-				listener();
-			} catch (error) {
-				logException(error as Error, {
-					location:
-						'editor-synced-block-provider/referenceSyncBlockStoreManager/notifySubscriptionChangeListeners',
-				});
-				this.fireAnalyticsEvent?.(fetchErrorPayload((error as Error).message));
-			}
-		});
+		return this._subscriptionManager.onSubscriptionsChanged(listener);
 	}
 
 	/**
@@ -207,26 +214,12 @@ export class ReferenceSyncBlockStoreManager {
 	 * @param syncBlockInstance - The updated sync block instance
 	 */
 	public handleSubscriptionUpdate(syncBlockInstance: SyncBlockInstance): void {
-		if (!syncBlockInstance.resourceId) {
-			return;
-		}
-
-		const existingSyncBlock = this.getFromCache(syncBlockInstance.resourceId);
-
-		const resolvedSyncBlockInstance = existingSyncBlock
-			? resolveSyncBlockInstance(existingSyncBlock, syncBlockInstance)
-			: syncBlockInstance;
-
-		this.updateCache(resolvedSyncBlockInstance);
-
-		if (!syncBlockInstance.error) {
-			this.fetchSyncBlockSourceInfo(resolvedSyncBlockInstance.resourceId);
-		}
+		this._subscriptionManager.handleSubscriptionUpdate(syncBlockInstance);
 	}
 
 	public setFireAnalyticsEvent(
 		fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
-	) {
+	): void {
 		this.fireAnalyticsEvent = fireAnalyticsEvent;
 
 		this.fetchExperience = getFetchExperience(fireAnalyticsEvent);
@@ -261,168 +254,110 @@ export class ReferenceSyncBlockStoreManager {
 	}
 
 	public getInitialSyncBlockData(resourceId: ResourceId): SyncBlockInstance | undefined {
-		const syncBlockNode = createSyncBlockNode('', resourceId);
-
-		if (isSSR() || fg('platform_synced_block_patch_1')) {
-			// In SSR, prefer data from data provider cache
-			// should not take from store manager cache as it may be in incomplete state
-			// will be unified to the same cache later.
-			return this.dataProvider?.getNodeDataFromCache(syncBlockNode)?.data;
+		const localReference = this.getLocalReference(resourceId);
+		if (localReference) {
+			return localReference;
 		}
-
-		return (
-			this.getFromCache(resourceId) || this.dataProvider?.getNodeDataFromCache(syncBlockNode)?.data
-		);
+		const syncBlockNode = createSyncBlockNode('', resourceId);
+		const providerData = this.dataProvider?.getNodeDataFromCache(syncBlockNode)?.data;
+		if (providerData) {
+			// Initial provider cache data can come from SSR/prefetch and bypass updateCache(),
+			// so normalize legacy reference payloads here before rendering.
+			return this.normalizeReferenceData(providerData);
+		}
+		return this.getFromSessionCache(resourceId);
 	}
 
-	/**
-	 * Refreshes the subscriptions for all sync blocks.
-	 * This is a fallback polling mechanism when real-time subscriptions are not enabled.
-	 * @returns {Promise<void>}
-	 */
-	public async refreshSubscriptions(): Promise<void> {
-		// Skip polling refresh if real-time subscriptions are enabled
-		if (this.useRealTimeSubscriptions) {
-			return;
+	private getSameDocumentReferenceParts(
+		resourceId: ResourceId,
+	): ReturnType<typeof parseResourceId> {
+		const parsed = parseResourceId(resourceId);
+		if (
+			!parsed ||
+			!this.dataProvider ||
+			this.dataProvider.generateResourceIdForReference(parsed.uuid) !== resourceId
+		) {
+			return undefined;
+		}
+		return parsed;
+	}
+
+	private getLocalReference(resourceId: ResourceId): SyncBlockInstance | undefined {
+		if (!isExperimentEnabled('editor-synced-block-same-page-sync')) {
+			return undefined;
+		}
+		const parsed = this.getSameDocumentReferenceParts(resourceId);
+		if (!parsed) {
+			return undefined;
+		}
+		const snapshot = this.sourceManager?.getLocalSourceSnapshot(parsed.uuid);
+		if (!snapshot) {
+			return undefined;
+		}
+		return {
+			resourceId,
+			data: {
+				...snapshot,
+				content: [...snapshot.content],
+			},
+			localSameDocumentSource: {
+				sourceBlockInstanceId: snapshot.blockInstanceId,
+				sourceProduct: parsed.product,
+			},
+		};
+	}
+
+	private normalizeReferenceData(syncBlock: SyncBlockInstance): SyncBlockInstance {
+		if (!syncBlock.data?.content?.length) {
+			return syncBlock;
 		}
 
-		if (this.isRefreshingSubscriptions) {
-			return;
+		const content = normalizeSyncBlockJSONContent(syncBlock.data.content);
+
+		if (content === syncBlock.data.content) {
+			return syncBlock;
 		}
 
-		this.isRefreshingSubscriptions = true;
+		return {
+			...syncBlock,
+			data: {
+				...syncBlock.data,
+				content,
+			},
+		};
+	}
 
-		const syncBlocks: SyncBlockNode[] = [];
-
-		for (const [resourceId, callbacks] of this.subscriptions.entries()) {
-			Object.keys(callbacks).forEach((localId) => {
-				syncBlocks.push(createSyncBlockNode(localId, resourceId));
-			});
+	private updateSessionCache(resourceId: ResourceId): void {
+		const latestData = this.getFromCache(resourceId);
+		if (latestData) {
+			syncBlockInMemorySessionCache.setItem(
+				`${CACHE_KEY_PREFIX}${resourceId}`,
+				JSON.stringify(latestData),
+			);
 		}
+	}
 
+	private getFromSessionCache(resourceId: ResourceId): SyncBlockInstance | undefined {
 		try {
-			// fetch latest data for all subscribed sync blocks
-			// this function will update the cache and call the subscriptions
-			await this.fetchSyncBlocksData(syncBlocks);
+			const raw = syncBlockInMemorySessionCache.getItem(`${CACHE_KEY_PREFIX}${resourceId}`);
+			if (!raw) {
+				return undefined;
+			}
+			// Session cache entries written before this sanitizer existed may still include
+			// annotation marks or panel_c1 nodes, so keep this read-time safety net for legacy data.
+			return this.normalizeReferenceData(JSON.parse(raw) as SyncBlockInstance);
 		} catch (error) {
 			logException(error as Error, {
-				location: 'editor-synced-block-provider/referenceSyncBlockStoreManager',
+				location: 'editor-synced-block-provider/referenceSyncBlockStoreManager/getFromSessionCache',
 			});
-			this.fireAnalyticsEvent?.(fetchErrorPayload((error as Error).message));
-		} finally {
-			this.isRefreshingSubscriptions = false;
+			return undefined;
 		}
-	}
-
-	/**
-	 * Sets up a GraphQL subscription for a specific block.
-	 * @param resourceId - The resource ID of the block to subscribe to
-	 */
-	private setupGraphQLSubscription(resourceId: ResourceId): void {
-		// Don't set up duplicate subscriptions
-		if (this.graphqlSubscriptions.has(resourceId)) {
-			return;
-		}
-
-		if (!this.dataProvider?.subscribeToBlockUpdates) {
-			return;
-		}
-
-		const unsubscribe = this.dataProvider.subscribeToBlockUpdates(
-			resourceId,
-			(syncBlockInstance) => {
-				// Handle the subscription update
-				this.handleGraphQLSubscriptionUpdate(syncBlockInstance);
-			},
-			(error) => {
-				logException(error, {
-					location:
-						'editor-synced-block-provider/referenceSyncBlockStoreManager/graphql-subscription',
-				});
-				this.fireAnalyticsEvent?.(fetchErrorPayload(error.message));
-			},
-		);
-
-		if (unsubscribe) {
-			this.graphqlSubscriptions.set(resourceId, unsubscribe);
-		}
-	}
-
-	/**
-	 * Handles updates received from GraphQL subscriptions.
-	 * @param syncBlockInstance - The updated sync block instance
-	 */
-	private handleGraphQLSubscriptionUpdate(syncBlockInstance: SyncBlockInstance): void {
-		if (!syncBlockInstance.resourceId) {
-			throw new Error(
-				'Sync block instance provided to graphql subscription update missing resource id',
-			);
-		}
-
-		const existingSyncBlock = this.getFromCache(syncBlockInstance.resourceId);
-
-		const resolvedSyncBlockInstance = existingSyncBlock
-			? resolveSyncBlockInstance(existingSyncBlock, syncBlockInstance)
-			: syncBlockInstance;
-
-		this.updateCache(resolvedSyncBlockInstance);
-
-		if (!syncBlockInstance.error) {
-			const callbacks = this.subscriptions.get(syncBlockInstance.resourceId);
-			const localIds = callbacks ? Object.keys(callbacks) : [];
-			localIds.forEach((localId) => {
-				this.fireAnalyticsEvent?.(
-					fetchSuccessPayload(
-						syncBlockInstance.resourceId,
-						localId,
-						syncBlockInstance.data?.product,
-					),
-				);
-			});
-			this.fetchSyncBlockSourceInfo(resolvedSyncBlockInstance.resourceId);
-		} else {
-			this.fireAnalyticsEvent?.(
-				fetchErrorPayload(syncBlockInstance.error?.type, syncBlockInstance.resourceId),
-			);
-		}
-	}
-
-	/**
-	 * Cleans up the GraphQL subscription for a specific block.
-	 * @param resourceId - The resource ID of the block to unsubscribe from
-	 */
-	private cleanupGraphQLSubscription(resourceId: ResourceId): void {
-		const unsubscribe = this.graphqlSubscriptions.get(resourceId);
-		if (unsubscribe) {
-			unsubscribe();
-			this.graphqlSubscriptions.delete(resourceId);
-		}
-	}
-
-	/**
-	 * Sets up GraphQL subscriptions for all currently subscribed blocks.
-	 */
-	private setupGraphQLSubscriptionsForAllBlocks(): void {
-		for (const resourceId of this.subscriptions.keys()) {
-			this.setupGraphQLSubscription(resourceId);
-		}
-	}
-
-	/**
-	 * Cleans up all GraphQL subscriptions.
-	 */
-	private cleanupAllGraphQLSubscriptions(): void {
-		for (const unsubscribe of this.graphqlSubscriptions.values()) {
-			unsubscribe();
-		}
-		this.graphqlSubscriptions.clear();
 	}
 
 	public fetchSyncBlockSourceInfoBySourceAri(
 		sourceAri: string,
 		hasAccess: boolean = true,
-		urlType: 'view' | 'edit' = 'view',
-	) {
+	): Promise<SyncBlockSourceInfo | undefined> {
 		try {
 			if (!this.dataProvider) {
 				throw new Error('Data provider not set');
@@ -432,9 +367,7 @@ export class ReferenceSyncBlockStoreManager {
 				undefined,
 				sourceAri,
 				undefined,
-				undefined,
 				hasAccess,
-				urlType,
 			);
 
 			return sourceInfo;
@@ -442,6 +375,27 @@ export class ReferenceSyncBlockStoreManager {
 			logException(error as Error, {
 				location:
 					'editor-synced-block-provider/referenceSyncBlockStoreManager/fetchSyncBlockSourceInfoBySourceAri',
+			});
+			this.fireAnalyticsEvent?.(getSourceInfoErrorPayload((error as Error).message));
+
+			return Promise.resolve(undefined);
+		}
+	}
+
+	public fetchSyncBlockSourceInfoByLocalId(
+		localId: BlockInstanceId,
+		hasAccess: boolean = true,
+	): Promise<SyncBlockSourceInfo | undefined> {
+		try {
+			if (!this.dataProvider) {
+				throw new Error('Data provider not set');
+			}
+
+			return this.dataProvider.fetchSyncBlockSourceInfo(localId, undefined, undefined, hasAccess);
+		} catch (error) {
+			logException(error as Error, {
+				location:
+					'editor-synced-block-provider/referenceSyncBlockStoreManager/fetchSyncBlockSourceInfoByLocalId',
 			});
 			this.fireAnalyticsEvent?.(getSourceInfoErrorPayload((error as Error).message));
 
@@ -474,7 +428,10 @@ export class ReferenceSyncBlockStoreManager {
 				sourceURL,
 				sourceTitle,
 				onSameDocument,
+				fieldName,
+				locationScope,
 				sourceSubType,
+				issueType,
 			} = existingSyncBlock.data || {};
 			// skip if source URL and title are already present
 			if (sourceURL && sourceTitle) {
@@ -484,45 +441,49 @@ export class ReferenceSyncBlockStoreManager {
 					subType: sourceSubType,
 					sourceAri: sourceAri || '',
 					onSameDocument,
+					...(fieldName !== undefined && { fieldName }),
+					...(locationScope !== undefined && { locationScope }),
 					productType: product,
+					issueType,
 				});
 			}
 
+			// Derive once per call so we don't re-parse on every analytics event below.
+			// `product` from cached data is preferred when available; fall back to parsing
+			// the resourceId.
+			const sourceProduct = product ?? getSourceProductFromResourceIdSafe(resourceId);
+
 			if (!sourceAri || !product || !blockInstanceId) {
 				this.fireAnalyticsEvent?.(
-					getSourceInfoErrorPayload('SourceAri, product or blockInstanceId missing', resourceId),
+					getSourceInfoErrorPayload(
+						'SourceAri, product or blockInstanceId missing',
+						resourceId,
+						sourceProduct,
+					),
 				);
 				return Promise.resolve(undefined);
 			}
 
 			this.fetchSourceInfoExperience?.start({});
-
-			// Only use unpublished endpoint if feature flag is enabled
-			const isUnpublished =
-				fg('platform_synced_block_patch_1') && existingSyncBlock.data?.status === 'unpublished';
-
 			const sourceInfoPromise = this.dataProvider
 				.fetchSyncBlockSourceInfo(
 					blockInstanceId,
 					sourceAri,
 					product,
-					this.fireAnalyticsEvent,
 					true, // hasAccess
-					'edit', // urlType
-					isUnpublished,
 				)
 				.then((sourceInfo) => {
 					if (!sourceInfo) {
 						this.fetchSourceInfoExperience?.failure({ reason: 'No source info returned' });
 						this.fireAnalyticsEvent?.(
-							getSourceInfoErrorPayload('No source info returned', resourceId),
+							getSourceInfoErrorPayload('No source info returned', resourceId, sourceProduct),
 						);
 						return undefined;
 					}
 					this.updateCacheWithSourceInfo(resourceId, sourceInfo);
 
 					if (sourceInfo.title) {
-						this.updateSourceTitleSubscriptions(resourceId, sourceInfo.title);
+						this._subscriptionManager.updateSourceTitleSubscriptions(resourceId, sourceInfo.title);
 					}
 
 					if (sourceInfo.title && sourceInfo.url) {
@@ -530,7 +491,7 @@ export class ReferenceSyncBlockStoreManager {
 					} else {
 						this.fetchSourceInfoExperience?.failure({ reason: 'Missing title or url' });
 						this.fireAnalyticsEvent?.(
-							getSourceInfoErrorPayload('Missing title or url', resourceId),
+							getSourceInfoErrorPayload('Missing title or url', resourceId, sourceProduct),
 						);
 					}
 
@@ -538,7 +499,9 @@ export class ReferenceSyncBlockStoreManager {
 				})
 				.catch((error) => {
 					this.fetchSourceInfoExperience?.failure({ reason: error.message });
-					this.fireAnalyticsEvent?.(getSourceInfoErrorPayload(error.message, resourceId));
+					this.fireAnalyticsEvent?.(
+						getSourceInfoErrorPayload(error.message, resourceId, sourceProduct),
+					);
 
 					return undefined;
 				})
@@ -552,7 +515,13 @@ export class ReferenceSyncBlockStoreManager {
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/referenceSyncBlockStoreManager',
 			});
-			this.fireAnalyticsEvent?.(getSourceInfoErrorPayload((error as Error).message, resourceId));
+			this.fireAnalyticsEvent?.(
+				getSourceInfoErrorPayload(
+					(error as Error).message,
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+				),
+			);
 		}
 		return Promise.resolve(undefined);
 	}
@@ -597,7 +566,7 @@ export class ReferenceSyncBlockStoreManager {
 				reason: `Prefetch promise rejected: ${(error as Error).message}`,
 			});
 		} finally {
-			// Clean up in-flight markers so subsequent fetches (e.g. refreshSubscriptions) are not blocked
+			// Clean up in-flight markers so subsequent fetches are not blocked
 			prefetchedData.resourceIds.forEach((resourceId) => {
 				this.syncBlockFetchDataRequests.delete(resourceId);
 			});
@@ -634,7 +603,9 @@ export class ReferenceSyncBlockStoreManager {
 		}
 
 		if (!this.dataProvider) {
-			throw new Error('Data provider not set');
+			// EDITOR-7860: tag the throw so catch sites can suppress the benign
+			// not-ready/torn-down case.
+			throw new ProviderNotReadyError();
 		}
 
 		nodesToFetch.forEach((node) => {
@@ -670,10 +641,22 @@ export class ReferenceSyncBlockStoreManager {
 
 		data.forEach((syncBlockInstance) => {
 			if (!syncBlockInstance.resourceId) {
+				const payload =
+					syncBlockInstance.error?.reason ||
+					syncBlockInstance.error?.type ||
+					'Returned sync block instance does not have resource id';
+				// No resourceId means we cannot derive a sourceProduct here; intentionally omit.
+				// Classify on the structured `type` first, falling back to the free-text
+				// `reason`/payload (EDITOR-7862).
 				this.fireAnalyticsEvent?.(
 					fetchErrorPayload(
-						syncBlockInstance.error?.type ||
-							'Returned sync block instance does not have resource id',
+						payload,
+						undefined,
+						undefined,
+						buildFetchErrorAttribution(
+							syncBlockInstance.error?.type || syncBlockInstance.error?.reason || payload,
+							syncBlockInstance.error?.statusCode,
+						),
 					),
 				);
 				return;
@@ -703,33 +686,77 @@ export class ReferenceSyncBlockStoreManager {
 				this.newlyAddedSyncBlocks.delete(syncBlockInstance.resourceId);
 			}
 
+			// Clear retry tracking on successful fetch — block has been created
+			if (
+				!syncBlockInstance.error &&
+				this.entityNotFoundRetryCount.has(syncBlockInstance.resourceId)
+			) {
+				const timer = this.entityNotFoundRetryTimers.get(syncBlockInstance.resourceId);
+				if (timer) {
+					clearTimeout(timer);
+					this.entityNotFoundRetryTimers.delete(syncBlockInstance.resourceId);
+				}
+				this.entityNotFoundRetryCount.delete(syncBlockInstance.resourceId);
+			}
+
 			if (syncBlockInstance.error) {
-				this.fireAnalyticsEvent?.(
-					fetchErrorPayload(syncBlockInstance.error.type, syncBlockInstance.resourceId),
-				);
+				// Skip error analytics when EntityNotFound will be retried, to avoid
+				// inflating error-rate metrics with expected transient failures
+				const isRetryingEntityNotFound =
+					syncBlockInstance.error.type === SyncBlockError.EntityNotFound &&
+					(this.entityNotFoundRetryCount.get(syncBlockInstance.resourceId) ?? 0) <
+						ENTITY_NOT_FOUND_MAX_RETRIES;
+
+				if (!isRetryingEntityNotFound) {
+					// Classify on the structured `type` (a `SyncBlockError` enum value) first,
+					// falling back to the free-text `reason` so source-state/permission strings
+					// are still bucketed (EDITOR-7862). The emitted `error` attribute is unchanged.
+					this.fireAnalyticsEvent?.(
+						fetchErrorPayload(
+							syncBlockInstance.error.reason || syncBlockInstance.error.type,
+							syncBlockInstance.resourceId,
+							syncBlockInstance.data?.product ??
+								getSourceProductFromResourceIdSafe(syncBlockInstance.resourceId),
+							buildFetchErrorAttribution(
+								syncBlockInstance.error.type || syncBlockInstance.error.reason,
+								syncBlockInstance.error.statusCode,
+							),
+						),
+					);
+				}
 
 				if (
 					syncBlockInstance.error.type === SyncBlockError.NotFound ||
 					syncBlockInstance.error.type === SyncBlockError.Forbidden
 				) {
 					hasExpectedError = true;
+				} else if (syncBlockInstance.error.type === SyncBlockError.EntityNotFound) {
+					// Schedule a retry for EntityNotFound — the source block may be in
+					// the process of being created by a collaborator (race condition
+					// between NCS propagation and Block Service createBlock call).
+					this.scheduleEntityNotFoundRetry(syncBlockInstance.resourceId);
+					if (!isRetryingEntityNotFound) {
+						hasUnexpectedError = true;
+					}
 				} else if (syncBlockInstance.error) {
 					hasUnexpectedError = true;
 				}
 				return;
-			} else {
-				const callbacks = this.subscriptions.get(syncBlockInstance.resourceId);
-				const localIds = callbacks ? Object.keys(callbacks) : [];
-				localIds.forEach((localId) => {
-					this.fireAnalyticsEvent?.(
-						fetchSuccessPayload(
-							syncBlockInstance.resourceId,
-							localId,
-							syncBlockInstance.data?.product,
-						),
-					);
-				});
 			}
+			const callbacks = this._subscriptionManager
+				.getSubscriptions()
+				.get(syncBlockInstance.resourceId);
+			const localIds = callbacks ? Object.keys(callbacks) : [];
+			localIds.forEach((localId) => {
+				this.fireAnalyticsEvent?.(
+					fetchSuccessPayload(
+						syncBlockInstance.resourceId,
+						localId,
+						syncBlockInstance.data?.product ??
+							getSourceProductFromResourceIdSafe(syncBlockInstance.resourceId),
+					),
+				);
+			});
 
 			this.fetchSyncBlockSourceInfo(resolvedSyncBlockInstance.resourceId);
 		});
@@ -739,6 +766,21 @@ export class ReferenceSyncBlockStoreManager {
 
 	private updateCacheWithSourceInfo(resourceId: ResourceId, sourceInfo: SyncBlockSourceInfo) {
 		const existingSyncBlock = this.getFromCache(resourceId);
+		// If the cache entry was deleted while the source-info request was
+		// in flight, fire an analytics event so the race is observable.
+		if (!existingSyncBlock) {
+			this.fireAnalyticsEvent?.(
+				sourceInfoOrphanedPayload(resourceId, getSourceProductFromResourceIdSafe(resourceId), {
+					hasPendingDeletion: this.pendingCacheDeletions.has(resourceId),
+					hasSubscribers: this._subscriptionManager.getSubscriptions().has(resourceId),
+				}),
+			);
+			logException(new Error('updateCacheWithSourceInfo: cache entry missing for resource'), {
+				location:
+					'editor-synced-block-provider/referenceSyncBlockStoreManager/orphaned-source-info',
+			});
+			return;
+		}
 		if (existingSyncBlock && existingSyncBlock.data) {
 			existingSyncBlock.data.sourceURL = sourceInfo?.url;
 			existingSyncBlock.data = {
@@ -746,76 +788,228 @@ export class ReferenceSyncBlockStoreManager {
 				sourceURL: sourceInfo?.url,
 				sourceTitle: sourceInfo?.title,
 				onSameDocument: sourceInfo?.onSameDocument,
+				...(sourceInfo?.fieldName !== undefined && { fieldName: sourceInfo.fieldName }),
+				...(sourceInfo?.locationScope !== undefined && { locationScope: sourceInfo.locationScope }),
 				sourceSubType: sourceInfo?.subType,
+				issueType: sourceInfo?.issueType,
 			};
 			this.updateCache(existingSyncBlock);
 		}
 	}
 
 	private updateCache(syncBlock: SyncBlockInstance) {
-		const { resourceId } = syncBlock;
+		const sanitizedSyncBlock = this.normalizeReferenceData(syncBlock);
+		const { resourceId } = sanitizedSyncBlock;
 
 		if (resourceId) {
-			if (fg('platform_synced_block_patch_1')) {
-				// Use the cache in dataProvider
-				this.dataProvider?.updateCache(
-					{ [resourceId]: syncBlock },
-					{ strategy: 'merge', source: 'network' },
-				);
-			} else {
-				this.syncBlockCache.set(resourceId, syncBlock);
-			}
-			const callbacks = this.subscriptions.get(resourceId);
-			if (callbacks) {
-				Object.values(callbacks).forEach((callback) => {
-					callback(syncBlock);
-				});
-			}
-		}
-	}
-
-	private updateSourceTitleSubscriptions(resourceId: string, title: string) {
-		const callbacks = this.titleSubscriptions.get(resourceId);
-		if (callbacks) {
-			Object.values(callbacks).forEach((callback) => {
-				callback(title);
-			});
+			this.dataProvider?.updateCache(
+				{ [resourceId]: sanitizedSyncBlock },
+				{ strategy: 'merge', source: 'network' },
+			);
+			this._subscriptionManager.notifySubscriptionCallbacks(resourceId, sanitizedSyncBlock);
+			this.updateSessionCache(resourceId);
 		}
 	}
 
 	public getFromCache(resourceId: ResourceId): SyncBlockInstance | undefined {
-		if (fg('platform_synced_block_patch_1')) {
-			// Use the cache in dataProvider
-			const syncBlockNode = createSyncBlockNode('', resourceId);
-			return this.dataProvider?.getNodeDataFromCache(syncBlockNode)?.data;
-		}
-		return this.syncBlockCache.get(resourceId);
+		const syncBlockNode = createSyncBlockNode('', resourceId);
+		return this.dataProvider?.getNodeDataFromCache(syncBlockNode)?.data;
 	}
 
 	private deleteFromCache(resourceId: ResourceId) {
-		if (fg('platform_synced_block_patch_1')) {
-			// For dataProvider cache, we update with empty/deleted state
-			// The cache is managed per-node basis via resetCache if needed
-			// For now, we don't explicitly delete from dataProvider cache
-			// as the cache is meant to persist for cache-first-then-network strategy
-			this.dataProvider?.removeFromCache([resourceId]);
+		this.dataProvider?.removeFromCache([resourceId]);
+		this._providerFactoryManager.deleteFactory(resourceId);
+		// Evict in-flight source-info promise and reset reschedule counter
+		// so a stale resolution can't silently merge into a re-fetched entry.
+		this.syncBlockSourceInfoRequests.delete(resourceId);
+		this.cacheDeletionRescheduleCounts.delete(resourceId);
+	}
+
+	/**
+	 * Returns true if the cache entry for `resourceId` is safe to delete:
+	 * no active subscribers, no in-flight source-info request, and no
+	 * queued/in-flight batch fetch.
+	 */
+	private canDeleteCache(resourceId: ResourceId): boolean {
+		if (this._subscriptionManager.getSubscriptions().has(resourceId)) {
+			return false;
 		}
-		this.providerFactories.delete(resourceId);
+		if (this.syncBlockSourceInfoRequests.has(resourceId)) {
+			return false;
+		}
+		if (this._batchFetcher.hasPendingFetch(resourceId)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Schedules cache deletion for `resourceId` after the grace period
+	 * Called when the last
+	 * subscriber unsubscribes. Guards are re-checked at fire time; if any
+	 * are positive the timer is rescheduled up to MAX_RESCHEDULES times.
+	 */
+	public scheduleCacheDeletion(resourceId: ResourceId): void {
+		if (this.isDestroyed) {
+			return;
+		}
+		// Cancel any existing timer \u2014 restart the grace period \u2014 but DO NOT
+		// reset the reschedule counter. The counter is reset only by
+		// `cancelPendingCacheDeletion` (called when a real subscriber returns)
+		// or when the cache is actually deleted.
+		const existing = this.pendingCacheDeletions.get(resourceId);
+		if (existing) {
+			clearTimeout(existing);
+			this.pendingCacheDeletions.delete(resourceId);
+		}
+
+		const timer = setTimeout(() => {
+			// Guard against timer callback running after destroy. clearTimeout
+			// is synchronous so this should be unreachable in practice, but
+			// belt-and-braces.
+			if (this.isDestroyed) {
+				return;
+			}
+			this.pendingCacheDeletions.delete(resourceId);
+			this.onCacheDeletionTimerFire(resourceId);
+		}, CACHE_DELETION_GRACE_PERIOD_MS);
+
+		this.pendingCacheDeletions.set(resourceId, timer);
+	}
+
+	/**
+	 * Cancels any pending cache deletion timer for `resourceId` and resets the
+	 * reschedule counter. Called
+	 * when a new subscriber arrives.
+	 */
+	public cancelPendingCacheDeletion(resourceId: ResourceId): void {
+		const existing = this.pendingCacheDeletions.get(resourceId);
+		if (existing) {
+			clearTimeout(existing);
+			this.pendingCacheDeletions.delete(resourceId);
+		}
+		// Subscribers returning resets the reschedule counter \u2014 the resource is
+		// active again.
+		this.cacheDeletionRescheduleCounts.delete(resourceId);
+	}
+
+	/** Returns whether a cache deletion timer is pending for `resourceId`. */
+	public hasPendingCacheDeletion(resourceId: ResourceId): boolean {
+		return this.pendingCacheDeletions.has(resourceId);
+	}
+
+	private onCacheDeletionTimerFire(resourceId: ResourceId): void {
+		if (this.canDeleteCache(resourceId)) {
+			// `deleteFromCache` resets the reschedule counter.
+			this.deleteFromCache(resourceId);
+			return;
+		}
+
+		const currentCount = this.cacheDeletionRescheduleCounts.get(resourceId) ?? 0;
+		if (currentCount >= CACHE_DELETION_MAX_RESCHEDULES) {
+			// Stuck guard — force deletion to prevent unbounded memory growth and
+			// fire analytics so the stuck state is visible in production telemetry.
+			//
+			// NOTE: If active React subscribers still exist at force-delete time
+			// (e.g. an in-flight batch fetch never settled), the cache entry is
+			// removed without notifying subscribers. Those components will
+			// continue to render with stale data until their next re-render
+			// triggers a new batch fetch — typically within ~1 frame. We accept
+			// this brief stale window in exchange for bounded memory growth.
+			this.fireAnalyticsEvent?.(
+				cacheDeletionForcedPayload(
+					currentCount,
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+				),
+			);
+			logException(
+				new Error(
+					`Cache deletion forced after ${currentCount} reschedules — stuck in-flight guard`,
+				),
+				{
+					location:
+						'editor-synced-block-provider/referenceSyncBlockStoreManager/cache-deletion-forced',
+				},
+			);
+			// `deleteFromCache` resets the reschedule counter.
+			this.deleteFromCache(resourceId);
+			// If subscribers still exist, kick off a fresh fetch so they get
+			// fresh data on the next batch tick instead of holding stale data
+			// indefinitely.
+			if (this._subscriptionManager.getSubscriptions().has(resourceId)) {
+				this.debouncedBatchedFetchSyncBlocks(resourceId);
+			}
+			return;
+		}
+
+		this.cacheDeletionRescheduleCounts.set(resourceId, currentCount + 1);
+		this.scheduleCacheDeletion(resourceId);
+	}
+
+	/**
+	 * Schedules a delayed retry for a block that returned EntityNotFound.
+	 * The block may be in the process of being created by a collaborator —
+	 * the NCS transaction propagates the bodiedSyncBlock ADF node before
+	 * the Block Service createBlock call completes.
+	 */
+	private scheduleEntityNotFoundRetry(resourceId: ResourceId): void {
+		const currentRetries = this.entityNotFoundRetryCount.get(resourceId) ?? 0;
+
+		if (currentRetries >= ENTITY_NOT_FOUND_MAX_RETRIES) {
+			// Max retries exceeded — keep count at max so future calls immediately exit
+			// (don't delete — that would reset the counter and allow unbounded retry waves)
+			return;
+		}
+
+		// If a timer is already pending, don't schedule another one — let the
+		// existing timer fire. This prevents rapid EntityNotFound responses from
+		// exhausting the retry budget through cancellations without any actual
+		// fetch completing.
+		if (this.entityNotFoundRetryTimers.has(resourceId)) {
+			return;
+		}
+
+		const delay = ENTITY_NOT_FOUND_INITIAL_DELAY_MS * Math.pow(2, currentRetries);
+
+		const timer = setTimeout(() => {
+			this.entityNotFoundRetryTimers.delete(resourceId);
+
+			// If no active subscriptions remain for this block, clean up and skip
+			const subscriptions = this._subscriptionManager.getSubscriptions().get(resourceId);
+			if (!subscriptions || Object.keys(subscriptions).length === 0) {
+				this.entityNotFoundRetryCount.delete(resourceId);
+				return;
+			}
+
+			// Increment count only when the timer fires, not when scheduled
+			this.entityNotFoundRetryCount.set(resourceId, currentRetries + 1);
+
+			// Clear the error from cache so fetchSyncBlocksData doesn't skip it
+			const cached = this.getFromCache(resourceId);
+			if (cached?.error?.type === SyncBlockError.EntityNotFound) {
+				this.deleteFromCache(resourceId);
+			}
+
+			// Trigger a re-fetch via the batch fetcher
+			this.debouncedBatchedFetchSyncBlocks(resourceId);
+		}, delay);
+
+		this.entityNotFoundRetryTimers.set(resourceId, timer);
 	}
 
 	private debouncedBatchedFetchSyncBlocks(resourceId: string): void {
-		if (fg('platform_synced_block_patch_2')) {
-			// Only add to pending requests if there are active subscriptions for this resource
-			if (this.subscriptions.has(resourceId) && Object.keys(this.subscriptions.get(resourceId) || {}).length > 0) {
-				this.pendingFetchRequests.add(resourceId);
-				this.scheduledBatchFetch();
-			} else {
-				this.pendingFetchRequests.delete(resourceId);
-			}
-		} else {
-			this.pendingFetchRequests.add(resourceId);
-			this.scheduledBatchFetch();
+		this._batchFetcher.queueFetch(resourceId);
+	}
+
+	private setSSRDataInSessionCache(resourceIds: string[] | undefined): void {
+		if (!resourceIds || resourceIds.length === 0) {
+			return;
 		}
+
+		resourceIds.forEach((resourceId) => {
+			this.updateSessionCache(resourceId);
+		});
 	}
 
 	public subscribeToSyncBlock(
@@ -823,128 +1017,47 @@ export class ReferenceSyncBlockStoreManager {
 		localId: string,
 		callback: SubscriptionCallback,
 	): () => void {
-		// Cancel any pending cache deletion for this resourceId.
-		// This handles the case where a block is moved - the old component unmounts
-		// (scheduling deletion) but the new component mounts and subscribes before
-		// the deletion timeout fires.
-		const pendingDeletion = this.pendingCacheDeletions.get(resourceId);
-		if (pendingDeletion) {
-			clearTimeout(pendingDeletion);
-			this.pendingCacheDeletions.delete(resourceId);
-		}
+		const isSamePageSyncEnabled = isExperimentEnabled('editor-synced-block-same-page-sync');
+		const sameDocumentParts = isSamePageSyncEnabled
+			? this.getSameDocumentReferenceParts(resourceId)
+			: undefined;
+		let localReference = isSamePageSyncEnabled ? this.getLocalReference(resourceId) : undefined;
 
-		// add to subscriptions map
-		const resourceSubscriptions = this.subscriptions.get(resourceId) || {};
-		const isNewResourceSubscription = Object.keys(resourceSubscriptions).length === 0;
-		this.subscriptions.set(resourceId, { ...resourceSubscriptions, [localId]: callback });
-
-		// New subscription means new reference synced block is added to the document
-		this.isCacheDirty = true;
-
-		// Notify listeners if this is a new resource subscription
-		if (isNewResourceSubscription) {
-			this.notifySubscriptionChangeListeners();
-		}
-
-		const syncBlockNode = createSyncBlockNode(localId, resourceId);
-
-		// call the callback immediately if we have cached data
-		const cachedData = fg('platform_synced_block_patch_1')
-			? // When feature flag is enabled, use dataProvider cache only
-				this.dataProvider?.getNodeDataFromCache(syncBlockNode)?.data
-			: isSSR() // in SSR, prefer data provider cache
-				? this.dataProvider?.getNodeDataFromCache(syncBlockNode)?.data ||
-					this.getFromCache(resourceId)
-				: this.getFromCache(resourceId) ||
-					this.dataProvider?.getNodeDataFromCache(syncBlockNode)?.data;
-
-		if (cachedData) {
-			callback(cachedData);
-		} else {
-			if (fg('platform_synced_block_patch_1')) {
-				this.debouncedBatchedFetchSyncBlocks(resourceId);
-			} else {
-				this.fetchSyncBlocksData([syncBlockNode]).catch((error) => {
-					logException(error, {
-						location: 'editor-synced-block-provider/referenceSyncBlockStoreManager',
-					});
-					this.fireAnalyticsEvent?.(fetchErrorPayload(error.message, resourceId));
-				});
-			}
-		}
-
-		// Set up GraphQL subscription if real-time subscriptions are enabled
-		if (this.useRealTimeSubscriptions) {
-			this.setupGraphQLSubscription(resourceId);
-		}
+		const unsubscribeRemote = this._subscriptionManager.subscribeToSyncBlock(
+			resourceId,
+			localId,
+			(instance) => {
+				if (!localReference) {
+					callback(instance);
+				}
+			},
+		);
+		const unsubscribeLocal = sameDocumentParts
+			? this.sourceManager?.subscribeToLocalSource(sameDocumentParts.uuid, () => {
+					const hadLocalReference = Boolean(localReference);
+					localReference = this.getLocalReference(resourceId);
+					if (localReference) {
+						callback(localReference);
+						return;
+					}
+					if (!hadLocalReference) {
+						return;
+					}
+					// Source left the document: keep the last local instance on screen
+					// and fetch the current backend value. Do not replay a remote
+					// value captured while the local source was authoritative.
+					this.debouncedBatchedFetchSyncBlocks(resourceId);
+				})
+			: undefined;
 
 		return () => {
-			const resourceSubscriptions = this.subscriptions.get(resourceId);
-			if (resourceSubscriptions) {
-				// Unsubscription means a reference synced block is removed from the document
-				this.isCacheDirty = true;
-
-				delete resourceSubscriptions[localId];
-				if (Object.keys(resourceSubscriptions).length === 0) {
-					this.subscriptions.delete(resourceId);
-
-					// Clean up GraphQL subscription when no more local subscribers
-					this.cleanupGraphQLSubscription(resourceId);
-
-					// Notify listeners that subscription was removed
-					this.notifySubscriptionChangeListeners();
-
-					// Delay cache deletion to handle block moves (unmount/remount).
-					// When a block is moved, the old component unmounts before the new one mounts.
-					// By delaying deletion, we give the new component time to subscribe and
-					// cancel this pending deletion, preserving the cached data.
-					// TODO: EDITOR-4152 - Rework this logic
-					const deletionTimeout = setTimeout(() => {
-						// Only delete if still no subscribers (wasn't re-subscribed)
-						if (!this.subscriptions.has(resourceId)) {
-							this.deleteFromCache(resourceId);
-						}
-						this.pendingCacheDeletions.delete(resourceId);
-					}, 1000);
-					this.pendingCacheDeletions.set(resourceId, deletionTimeout);
-				} else {
-					this.subscriptions.set(resourceId, resourceSubscriptions);
-				}
-			}
+			unsubscribeLocal?.();
+			unsubscribeRemote();
 		};
 	}
 
 	public subscribeToSourceTitle(node: PMNode, callback: TitleSubscriptionCallback): () => void {
-		// check node is a sync block, as we only support sync block subscriptions
-		if (node.type.name !== 'syncBlock') {
-			return () => {};
-		}
-		const { resourceId, localId } = node.attrs;
-
-		if (!localId || !resourceId) {
-			return () => {};
-		}
-
-		const cachedData = this.getFromCache(resourceId);
-		if (cachedData?.data?.sourceTitle) {
-			callback(cachedData.data.sourceTitle);
-		}
-
-		// add to subscriptions map
-		const resourceSubscriptions = this.titleSubscriptions.get(resourceId) || {};
-		this.titleSubscriptions.set(resourceId, { ...resourceSubscriptions, [localId]: callback });
-
-		return () => {
-			const resourceSubscriptions = this.titleSubscriptions.get(resourceId);
-			if (resourceSubscriptions) {
-				delete resourceSubscriptions[localId];
-				if (Object.keys(resourceSubscriptions).length === 0) {
-					this.titleSubscriptions.delete(resourceId);
-				} else {
-					this.titleSubscriptions.set(resourceId, resourceSubscriptions);
-				}
-			}
-		};
+		return this._subscriptionManager.subscribeToSourceTitle(node, callback);
 	}
 
 	public subscribe(node: PMNode, callback: SubscriptionCallback): () => void {
@@ -962,10 +1075,23 @@ export class ReferenceSyncBlockStoreManager {
 
 			return this.subscribeToSyncBlock(resourceId, localId, callback);
 		} catch (error) {
+			// EDITOR-7860: benign not-ready/torn-down case — suppress both the
+			// exception-tracker log and the analytics event (checked first so the
+			// benign case stays fully silent).
+			if (isProviderNotReadyError(error)) {
+				return () => {};
+			}
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/referenceSyncBlockStoreManager',
 			});
-			this.fireAnalyticsEvent?.(fetchErrorPayload((error as Error).message));
+			this.fireAnalyticsEvent?.(
+				fetchErrorPayload(
+					(error as Error).message,
+					undefined,
+					undefined,
+					buildFetchErrorAttribution((error as Error).message),
+				),
+			);
 			return () => {};
 		}
 	}
@@ -976,176 +1102,33 @@ export class ReferenceSyncBlockStoreManager {
 	 * @returns
 	 */
 	public getSyncBlockURL(resourceId: ResourceId): string | undefined {
-		const syncBlock = this.getFromCache(resourceId);
-
-		if (!syncBlock) {
-			return undefined;
-		}
-
-		return syncBlock.data?.sourceURL;
+		return this.getFromCache(resourceId)?.data?.sourceURL;
 	}
 
 	public getProviderFactory(resourceId: ResourceId): ProviderFactory | undefined {
-		if (!this.dataProvider) {
-			const error = new Error('Data provider not set');
-			logException(error, {
-				location: 'editor-synced-block-provider/referenceSyncBlockStoreManager',
-			});
-			this.fireAnalyticsEvent?.(fetchErrorPayload(error.message));
-			return undefined;
-		}
-
-		const { parentDataProviders, providerCreator } =
-			this.dataProvider.getSyncedBlockRendererProviderOptions();
-
-		let providerFactory: ProviderFactory | undefined = this.providerFactories.get(resourceId);
-		if (!providerFactory) {
-			providerFactory = ProviderFactory.create({
-				mentionProvider: parentDataProviders?.mentionProvider,
-				profilecardProvider: parentDataProviders?.profilecardProvider,
-				taskDecisionProvider: parentDataProviders?.taskDecisionProvider,
-			});
-			this.providerFactories.set(resourceId, providerFactory);
-		} else {
-			if (parentDataProviders?.mentionProvider) {
-				providerFactory.setProvider('mentionProvider', parentDataProviders?.mentionProvider);
-			}
-			if (parentDataProviders?.profilecardProvider) {
-				providerFactory.setProvider(
-					'profilecardProvider',
-					parentDataProviders?.profilecardProvider,
-				);
-			}
-			if (parentDataProviders?.taskDecisionProvider) {
-				providerFactory.setProvider(
-					'taskDecisionProvider',
-					parentDataProviders?.taskDecisionProvider,
-				);
-			}
-		}
-
-		if (providerCreator) {
-			try {
-				this.retrieveDynamicProviders(resourceId, providerFactory, providerCreator);
-			} catch (error) {
-				logException(error as Error, {
-					location: 'editor-synced-block-provider/referenceSyncBlockStoreManager',
-				});
-				this.fireAnalyticsEvent?.(fetchErrorPayload((error as Error).message, resourceId));
-			}
-		}
-		return providerFactory;
+		return this._providerFactoryManager.getProviderFactory(resourceId);
 	}
 
-	public getSSRProviders(resourceId: ResourceId) {
-		if (!this.dataProvider) {
-			return null;
-		}
-
-		const { providerCreator } = this.dataProvider.getSyncedBlockRendererProviderOptions();
-
-		if (!providerCreator?.createSSRMediaProvider) {
-			return null;
-		}
-
-		const parsedResourceId = parseResourceId(resourceId);
-
-		if (!parsedResourceId) {
-			return null;
-		}
-
-		const { contentId, product: contentProduct } = parsedResourceId;
-
-		try {
-			const mediaProvider = providerCreator.createSSRMediaProvider({
-				contentId,
-				contentProduct,
-			});
-
-			if (mediaProvider) {
-				return {
-					media: mediaProvider,
-				};
-			}
-		} catch (error) {
-			logException(error as Error, {
-				location: 'editor-synced-block-provider/referenceSyncBlockStoreManager',
-			});
-		}
-
-		return null;
+	/**
+	 * The provider options currently supplied by the host. Safe to read during
+	 * render - it notifies nobody.
+	 */
+	public getProviderOptions(): SyncedBlockRendererProviderOptions | undefined {
+		return this._providerFactoryManager.getProviderOptions();
 	}
 
-	private retrieveDynamicProviders(
-		resourceId: ResourceId,
-		providerFactory: ProviderFactory,
-		providerCreator: SyncBlockRendererProviderCreator,
-	) {
-		if (!this.dataProvider) {
-			throw new Error('Data provider not set');
-		}
+	/**
+	 * Applies the latest providers to the cached factory. Notifies subscribers, so
+	 * call from an effect rather than during render.
+	 */
+	public syncProviders(resourceId: ResourceId): void {
+		this._providerFactoryManager.syncProviders(resourceId);
+	}
 
-		const hasMediaProvider = providerFactory.hasProvider('mediaProvider');
-		const hasEmojiProvider = providerFactory.hasProvider('emojiProvider');
-		const hasCardProvider = providerFactory.hasProvider('cardProvider');
-
-		if (hasMediaProvider && hasEmojiProvider && hasCardProvider) {
-			return;
-		}
-
-		const syncBlock = this.getFromCache(resourceId);
-		if (!syncBlock?.data) {
-			return;
-		}
-
-		if (!syncBlock.data.sourceAri || !syncBlock.data.product) {
-			this.fireAnalyticsEvent?.(fetchErrorPayload('Sync block source ari or product not found'));
-			return;
-		}
-
-		const parentInfo = this.dataProvider.retrieveSyncBlockParentInfo(
-			syncBlock.data?.sourceAri,
-			syncBlock.data?.product,
-		);
-
-		if (!parentInfo) {
-			throw new Error('Unable to retrive sync block parent info');
-		}
-
-		const { contentId, contentProduct } = parentInfo;
-
-		if (!hasMediaProvider) {
-			if (providerCreator.createMediaProvider && contentId && contentProduct) {
-				const mediaProvider = providerCreator.createMediaProvider({
-					contentProduct,
-					contentId,
-				});
-				if (mediaProvider) {
-					providerFactory.setProvider('mediaProvider', mediaProvider);
-				}
-			}
-		}
-
-		if (!hasEmojiProvider) {
-			if (providerCreator.createEmojiProvider && contentId && contentProduct) {
-				const emojiProvider = providerCreator.createEmojiProvider({
-					contentProduct,
-					contentId,
-				});
-				if (emojiProvider) {
-					providerFactory.setProvider('emojiProvider', emojiProvider);
-				}
-			}
-		}
-
-		if (!hasCardProvider) {
-			if (providerCreator.createSmartLinkProvider) {
-				const smartLinkProvider = providerCreator.createSmartLinkProvider();
-				if (smartLinkProvider) {
-					providerFactory.setProvider('cardProvider', smartLinkProvider);
-				}
-			}
-		}
+	public getSSRProviders(resourceId: ResourceId): {
+		media: MediaProvider;
+	} | null {
+		return this._providerFactoryManager.getSSRProviders(resourceId);
 	}
 
 	/**
@@ -1153,23 +1136,27 @@ export class ReferenceSyncBlockStoreManager {
 	 *
 	 * @returns true if the reference synced blocks are updated successfully, false otherwise
 	 */
-	public async flush() {
+	public async flush(): Promise<boolean> {
+		if (this.viewMode === 'view') {
+			// Reference flushes are only meaningful while editing. Treat view-mode flush attempts as
+			// gated no-op successes so lifecycle/teardown calls do not report false save failures.
+			return true;
+		}
+
 		if (!this.isCacheDirty) {
 			// we use the isCacheDirty flag as a quick check.
 			return true;
 		}
 
 		// Prevent concurrent flushes to avoid race conditions with lastFlushedSyncedBlocks
-		if (fg('platform_synced_block_patch_2')) {
-			if (this.isFlushInProgress) {
-				// Mark that another flush is needed after the current one completes
-				this.flushNeededAfterCurrent = true;
+		if (this.isFlushInProgress) {
+			// Mark that another flush is needed after the current one completes
+			this.flushNeededAfterCurrent = true;
 
-				// We return true here because we know the pending flush will handle the dirty cache
-				return true;
-			} else {
-				this.isFlushInProgress = true;
-			}
+			// We return true here because we know the pending flush will handle the dirty cache
+			return true;
+		} else {
+			this.isFlushInProgress = true;
 		}
 
 		let success = true;
@@ -1184,40 +1171,29 @@ export class ReferenceSyncBlockStoreManager {
 
 			const blocks: SyncBlockAttrs[] = [];
 
-			if (fg('platform_synced_block_patch_2')) {
-				// First, build the complete subscription structure
-				for (const [resourceId, callbacks] of this.subscriptions.entries()) {
-					syncedBlocksToFlush[resourceId] = {};
+			// First, build the complete subscription structure
+			for (const [resourceId, callbacks] of this._subscriptionManager
+				.getSubscriptions()
+				.entries()) {
+				syncedBlocksToFlush[resourceId] = {};
 
-					Object.keys(callbacks).forEach((localId) => {
-						blocks.push({
-							resourceId,
-							localId,
-						});
-						syncedBlocksToFlush[resourceId][localId] = true;
+				Object.keys(callbacks).forEach((localId) => {
+					blocks.push({
+						resourceId,
+						localId,
 					});
-				}
-
-				// Then, compare with the last flushed structure to detect changes
-				// We check against the last flushed structure to prevent unnecessary flushes
-				// Note that we will always flush at least once when editor starts
-				// This is useful for eventual consistency between the editor and the BE.
-				if (isEqual(syncedBlocksToFlush, this.lastFlushedSyncedBlocks)) {
-					this.isCacheDirty = false; // Reset since we're considering this a successful no-op flush
-					return true;
-				}
-			} else {
-				// Collect all reference synced blocks on the current document
-				Array.from(this.subscriptions.entries()).forEach(([resourceId, callbacks]) => {
-					Object.keys(callbacks).forEach((localId) => {
-						blocks.push({
-							resourceId,
-							localId,
-						});
-					});
+					syncedBlocksToFlush[resourceId][localId] = true;
 				});
 			}
 
+			// Then, compare with the last flushed structure to detect changes
+			// We check against the last flushed structure to prevent unnecessary flushes
+			// Note that we will always flush at least once when editor starts
+			// This is useful for eventual consistency between the editor and the BE.
+			if (isEqual(syncedBlocksToFlush, this.lastFlushedSyncedBlocks)) {
+				this.isCacheDirty = false; // Reset since we're considering this a successful no-op flush
+				return true;
+			}
 			// reset isCacheDirty early to prevent race condition
 			// There is a race condition where if a user makes changes (create/delete) to a reference sync block
 			// on a live page and the reference sync block is being saved while the user
@@ -1237,6 +1213,9 @@ export class ReferenceSyncBlockStoreManager {
 				this.fireAnalyticsEvent?.(
 					updateReferenceErrorPayload(
 						updateResult.error || 'Failed to update reference synced blocks on the document',
+						undefined,
+						undefined,
+						buildErrorAttribution(updateResult.error, updateResult.statusCode),
 					),
 				);
 			}
@@ -1246,32 +1225,38 @@ export class ReferenceSyncBlockStoreManager {
 				location: 'editor-synced-block-provider/referenceSyncBlockStoreManager',
 			});
 			this.saveExperience?.failure({ reason: (error as Error).message });
-			this.fireAnalyticsEvent?.(updateReferenceErrorPayload((error as Error).message));
+			// No `resourceId` available in this catch — sourceProduct is intentionally omitted.
+			// No structured SyncBlockError/status here, so the attribution `reason` falls back
+			// to `unknown`.
+			this.fireAnalyticsEvent?.(
+				updateReferenceErrorPayload(
+					(error as Error).message,
+					undefined,
+					undefined,
+					buildErrorAttribution(),
+				),
+			);
 		} finally {
 			if (!success) {
 				// set isCacheDirty back to true for cases where it failed to update the reference synced blocks on the BE
 				this.isCacheDirty = true;
 			} else {
-				if (fg('platform_synced_block_patch_2')) {
-					this.lastFlushedSyncedBlocks = syncedBlocksToFlush;
-				}
+				this.lastFlushedSyncedBlocks = syncedBlocksToFlush;
 				this.saveExperience?.success();
 			}
 
-			if (fg('platform_synced_block_patch_2')) {
-				// Always reset isFlushInProgress regardless of feature flag
-				this.isFlushInProgress = false;
+			// Always reset isFlushInProgress
+			this.isFlushInProgress = false;
 
-				// If another flush was requested while this one was in progress, execute it now
-				if (this.flushNeededAfterCurrent) {
-					this.flushNeededAfterCurrent = false;
-					// Use setTimeout to avoid deep recursion and run queued flush asynchronously
-					// Note: flush() handles all exceptions internally and never rejects
-					this.queuedFlushTimeout = setTimeout(() => {
-						this.queuedFlushTimeout = undefined;
-						void this.flush();
-					}, 0);
-				}
+			// If another flush was requested while this one was in progress, execute it now
+			if (this.flushNeededAfterCurrent) {
+				this.flushNeededAfterCurrent = false;
+				// Use setTimeout to avoid deep recursion and run queued flush asynchronously
+				// Note: flush() handles all exceptions internally and never rejects
+				this.queuedFlushTimeout = setTimeout(() => {
+					this.queuedFlushTimeout = undefined;
+					void this.flush();
+				}, 0);
 			}
 		}
 
@@ -1279,41 +1264,41 @@ export class ReferenceSyncBlockStoreManager {
 	}
 
 	public destroy(): void {
+		// Mark destroyed first so in-flight timer callbacks can early-return.
+		this.isDestroyed = true;
+
 		// Cancel any queued flush to prevent it from running after destroy
 		if (this.queuedFlushTimeout) {
 			clearTimeout(this.queuedFlushTimeout);
 			this.queuedFlushTimeout = undefined;
 		}
 
-		// Clean up all GraphQL subscriptions first
-		this.cleanupAllGraphQLSubscriptions();
+		// Cancel any pending EntityNotFound retry timers
+		this.entityNotFoundRetryTimers.forEach((timer) => clearTimeout(timer));
+		this.entityNotFoundRetryTimers.clear();
+		this.entityNotFoundRetryCount.clear();
 
-		if (fg('platform_synced_block_patch_1')) {
-			// Reset cache in dataProvider
-			this.dataProvider?.resetCache();
-		} else {
-			this.syncBlockCache.clear();
-		}
-		this.scheduledBatchFetch.cancel();
-		this.pendingFetchRequests.clear();
+		// Cancel pending cache deletion timers.
+		this.pendingCacheDeletions.forEach((timer) => clearTimeout(timer));
+		this.pendingCacheDeletions.clear();
+		this.cacheDeletionRescheduleCounts.clear();
+
+		this._subscriptionManager.destroy();
+		this._providerFactoryManager.destroy();
+		this._batchFetcher.destroy();
+
+		this.dataProvider?.resetCache();
 
 		this.dataProvider = undefined;
-		this.subscriptions.clear();
-		this.titleSubscriptions.clear();
 		this.syncBlockFetchDataRequests.clear();
-		this.syncBlockSourceInfoRequestsOld.clear();
 		this.syncBlockSourceInfoRequests.clear();
-		this.providerFactories.clear();
-		this.isRefreshingSubscriptions = false;
-		this.useRealTimeSubscriptions = false;
-		this.subscriptionChangeListeners.clear();
-		this.providerFactories.forEach((providerFactory) => {
-			providerFactory.destroy();
-		});
-		this.providerFactories.clear();
 		this.saveExperience?.abort({ reason: 'editorDestroyed' });
 		this.fetchExperience?.abort({ reason: 'editorDestroyed' });
 		this.fetchSourceInfoExperience?.abort({ reason: 'editorDestroyed' });
 		this.fireAnalyticsEvent = undefined;
+
+		// `destroy()` is wired to React component unmount via
+		// `useMemoizedSyncBlockStoreManager`. Let the in-memory session cache age
+		// out naturally instead of clearing it during a view-mode transition.
 	}
 }

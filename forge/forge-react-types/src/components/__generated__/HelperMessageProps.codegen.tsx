@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - HelperMessageProps
  *
- * @codegen <<SignedSource::867186ab9065c1955019578515e5b441>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/form/__generated__/helper-message.partial.tsx <<SignedSource::03fa772bfaf53905106f1cafbb428104>>
+ * @codegen <<SignedSource::66e91cd58ea5c310a721905c9e0fa1f0>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/form/__generated__/helper-message.partial.tsx <<SignedSource::7e1f353d381763483aa4fdffdeb4c9ac>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import { HelperMessage as PlatformHelperMessage } from '@atlaskit/form';
+import { HelperMessage as PlatformHelperMessage } from '@atlaskit/form/helper-message';
 
 type PlatformHelperMessageProps = React.ComponentProps<typeof PlatformHelperMessage>;
 

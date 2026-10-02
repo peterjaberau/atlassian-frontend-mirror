@@ -3,7 +3,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import DropdownMenu, { DropdownItemRadio, DropdownItemRadioGroup } from '../../../index';
+import DropdownMenu from '../../../dropdown-menu';
+import DropdownItemRadio from '../../dropdown-item-radio';
+import DropdownItemRadioGroup from '../../dropdown-item-radio-group';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('DropdownMenu with RadioGroup and Radio', () => {
@@ -60,7 +62,7 @@ describe('DropdownMenu with RadioGroup and Radio', () => {
 		expect(radios).toEqual(['true', 'false']);
 	});
 
-	it('should have accessible description on Radio Items', async () => {
+	it('does not add a redundant description to radio items', async () => {
 		render(
 			<DropdownMenu trigger="Choices" testId="lite-mode-ddm">
 				<DropdownItemRadioGroup id="cities" title="Some cities">
@@ -72,11 +74,15 @@ describe('DropdownMenu with RadioGroup and Radio', () => {
 			</DropdownMenu>,
 		);
 
-		const trigger = await screen.findByText('Choices');
-		await userEvent.click(trigger);
+		await userEvent.click(await screen.findByText('Choices'));
 
-		expect(screen.getByRole('menuitemradio', { name: 'Sydney' })).toHaveAccessibleDescription();
-		expect(screen.getByRole('menuitemradio', { name: 'Melbourne' })).toHaveAccessibleDescription();
+		const sydney = screen.getByRole('menuitemradio', { name: 'Sydney' });
+		const melbourne = screen.getByRole('menuitemradio', { name: 'Melbourne' });
+		expect(sydney).not.toHaveAttribute('aria-describedby');
+		expect(melbourne).not.toHaveAttribute('aria-describedby');
+		expect(sydney).not.toHaveAccessibleDescription();
+		expect(melbourne).not.toHaveAccessibleDescription();
+		expect(screen.queryByText(/radio button (true|false)/)).not.toBeInTheDocument();
 	});
 
 	it('should not allow role of radio on DropdownItemRadio menu items', async () => {

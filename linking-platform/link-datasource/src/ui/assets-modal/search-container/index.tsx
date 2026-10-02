@@ -4,14 +4,14 @@
  */
 import { cssMap, jsx, styled } from '@compiled/react';
 
-import Form, { type OnSubmitHandler } from '@atlaskit/form';
-import { CloseButton } from '@atlaskit/modal-dialog';
+import Form from '@atlaskit/form/form';
+import type { OnSubmitHandler } from '@atlaskit/form/types';
+import { CloseButton } from '@atlaskit/modal-dialog/close-button';
 import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../analytics';
 import type { ObjectSchema, SearchForm } from '../../../types/assets/types';
-
 import { AqlSearchInput } from './aql-search-input';
 import { AssetsObjectSchemaSelect } from './object-schema-select';
 import { FormRowContainer } from './styled';
@@ -49,11 +49,11 @@ const SEARCH_FORM_ID = 'linkDataSource.assets.configModal.searchContainer-form';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled
 const FormContainer = styled.form({
 	display: 'grid',
-	rowGap: token('space.200', '16px'),
+	rowGap: token('space.200'),
 	width: '100%',
 });
 
-export const AssetsSearchContainer = (props: SearchContainerProps) => {
+export const AssetsSearchContainer = (props: SearchContainerProps): JSX.Element => {
 	const { onSearch, workspaceId, initialSearchData, modalTitle, isSearching, onCancel } = props;
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 

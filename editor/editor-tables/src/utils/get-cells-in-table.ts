@@ -1,9 +1,8 @@
-import { type Selection } from '@atlaskit/editor-prosemirror/state';
-import { type ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
+import type { Selection } from '@atlaskit/editor-prosemirror/state';
+import type { ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
 
 import { TableMap } from '../table-map';
-
-import { findTable } from './find';
+import { findTable } from './find-table';
 
 // Returns an array of all cells in a table.
 export const getCellsInTable = (selection: Selection): ContentNodeWithPos[] | undefined => {

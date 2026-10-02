@@ -1,13 +1,18 @@
-import React, { type PropsWithChildren, useMemo } from 'react';
+/* eslint-disable jsdoc/require-jsdoc */
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-import { FabricChannel } from '@atlaskit/analytics-listeners';
+import React, { useMemo } from 'react';
+import type { PropsWithChildren } from 'react';
+
+import { FabricChannel } from '@atlaskit/analytics-listeners/types';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import { EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import RendererActions from '../../actions/index';
 
-export const RendererContext = React.createContext(new RendererActions());
+export const RendererContext: React.Context<RendererActions> = React.createContext(
+	new RendererActions(),
+);
 
 type RendererActionsContextProps = PropsWithChildren<{
 	context?: RendererActions;
@@ -49,4 +54,5 @@ export function RendererActionsContext({
 	);
 }
 
-export const RendererActionsContextConsumer = RendererContext.Consumer;
+export const RendererActionsContextConsumer: React.Consumer<RendererActions> =
+	RendererContext.Consumer;

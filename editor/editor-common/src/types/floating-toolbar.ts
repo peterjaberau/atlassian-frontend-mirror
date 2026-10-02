@@ -1,20 +1,17 @@
 import type React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { Node, NodeType } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { EmojiId } from '@atlaskit/emoji/types';
-import type { SpotlightCard } from '@atlaskit/onboarding';
-import type { Placement } from '@atlaskit/popper';
-import type { TooltipProps } from '@atlaskit/tooltip';
+import type { TooltipProps } from '@atlaskit/tooltip/types';
 
 import type { DispatchAnalyticsEvent } from '../analytics/types/dispatch-analytics-event';
 import type { DropdownMenuItemProps } from '../floating-toolbar';
 import type { ProviderFactory } from '../provider-factory';
-import type { PaletteColor } from '../ui-color/ColorPalette/Palettes/type';
-
+import type { PaletteColor, PaletteTooltipMessages } from '../ui-color/ColorPalette/Palettes/type';
 import type { Command, CommandDispatch } from './command';
 import type { MarkOptions, NodeOptions } from './copy-button';
 
@@ -26,7 +23,7 @@ export type OverflowDropdownHeading = {
 	type: 'overflow-dropdown-heading';
 };
 
-type OverflowDropdownCustom<T extends Object> = {
+type OverflowDropdownCustom<T extends object> = {
 	fallback: Array<FloatingToolbarFallbackItem<T>>;
 	hidden?: boolean;
 	render: (
@@ -36,16 +33,16 @@ type OverflowDropdownCustom<T extends Object> = {
 	type: 'custom';
 };
 
-export type OverflowDropdownOption<T extends Object> = DropdownOptionT<T> & { rank?: number };
+export type OverflowDropdownOption<T extends object> = DropdownOptionT<T> & { rank?: number };
 
-export type FloatingToolbarOverflowDropdownOptions<T extends Object> = Array<
+export type FloatingToolbarOverflowDropdownOptions<T extends object> = Array<
 	| OverflowDropdownOption<T>
 	| FloatingToolbarSeparator
 	| OverflowDropdownHeading
 	| OverflowDropdownCustom<T>
 >;
 
-export type FloatingToolbarOverflowDropdown<T extends Object> = {
+export type FloatingToolbarOverflowDropdown<T extends object> = {
 	// A prop to align the dropdown with the floating toolbar instead of the toolbar item
 	alignDropdownWithToolbar?: boolean;
 	disabled?: boolean;
@@ -61,12 +58,12 @@ export type FloatingToolbarOverflowDropdown<T extends Object> = {
 	type: 'overflow-dropdown';
 };
 
-export interface RenderOptionsPropsT<T extends Object> {
+export interface RenderOptionsPropsT<T extends object> {
 	dispatchCommand: (command: T) => void;
 	hide: () => void;
 }
 
-export interface DropdownOptionT<T extends Object> {
+export interface DropdownOptionT<T extends object> {
 	confirmDialog?: ConfirmDialogOptions | (() => ConfirmDialogOptions);
 	description?: string;
 	disabled?: boolean;
@@ -95,7 +92,7 @@ export type typeOption =
 	 */
 	'item' | 'item-checkbox';
 
-export type DropdownOptions<T extends Object> =
+export type DropdownOptions<T extends object> =
 	| Array<DropdownOptionT<T>>
 	| {
 			height: number;
@@ -105,7 +102,7 @@ export type DropdownOptions<T extends Object> =
 			width: number;
 	  };
 
-export interface SelectOption<T extends Object = Object> {
+export interface SelectOption<T extends object = object> {
 	data?: T;
 	disabled?: boolean;
 	hidden?: boolean;
@@ -161,13 +158,6 @@ export type ConfirmationDialogProps = {
 	testId?: string;
 };
 
-export type FloatingToolbarButtonSpotlightConfig = {
-	isSpotlightOpen: boolean;
-	onTargetClick?: () => void;
-	pulse?: boolean;
-	spotlightCardOptions: React.ComponentProps<typeof SpotlightCard> & { placement?: Placement };
-};
-
 export type FloatingToolbarCopyButton = {
 	hidden?: boolean;
 	items: Array<FloatingToolbarSeparator | MarkOptions | NodeOptions>;
@@ -175,7 +165,7 @@ export type FloatingToolbarCopyButton = {
 	type: 'copy-button';
 };
 
-export type FloatingToolbarButton<T extends Object> = {
+export type FloatingToolbarButton<T extends object> = {
 	appearance?: ButtonAppearance;
 	ariaHasPopup?: boolean | 'dialog' | 'menu' | 'listbox' | 'tree' | 'grid' | undefined;
 	ariaLabel?: string; // For accessibility, aria-label for the button
@@ -204,8 +194,9 @@ export type FloatingToolbarButton<T extends Object> = {
 	/** If true, the component will have pulse onboarding effect around it. */
 	pulse?: boolean;
 	selected?: boolean;
+	/** Keep the tooltip open when the button is pressed. Set it when a press changes the tooltip content. */
+	hasNewContentOnTriggerClick?: boolean;
 	showTitle?: boolean;
-	spotlightConfig?: FloatingToolbarButtonSpotlightConfig;
 	supportsViewMode?: boolean; // TODO: MODES-3950 - Clean up this floating toolbar view mode logic
 	tabIndex?: number | null | undefined;
 	target?: string;
@@ -215,7 +206,7 @@ export type FloatingToolbarButton<T extends Object> = {
 	type: 'button';
 };
 
-export type FloatingToolbarInput<T extends Object> = {
+export type FloatingToolbarInput<T extends object> = {
 	defaultValue?: string;
 	description?: string;
 	hidden?: boolean;
@@ -231,7 +222,38 @@ export type FloatingToolbarInput<T extends Object> = {
 	type: 'input';
 };
 
-export type FloatingToolbarCustom<T extends Object> = {
+export type FloatingToolbarCustomRenderContext = {
+	/**
+	 * Element used as the boundary for positioning floating toolbar popups.
+	 * Custom toolbar items should pass this through to editor popup/dropdown primitives
+	 * so their content stays within the same visual constraints as built-in toolbar items.
+	 */
+	popupsBoundariesElement?: HTMLElement;
+	/**
+	 * Element that editor popups should be mounted into.
+	 * Use this when rendering custom dropdown or popup content outside the editor DOM
+	 * to avoid editor stacking-context issues.
+	 */
+	popupsMountPoint?: HTMLElement;
+	/**
+	 * Scroll container that editor popups should track when recalculating position.
+	 * Custom toolbar items should pass this through when they need popup content to
+	 * remain visually attached to the floating toolbar while the editor scrolls.
+	 */
+	popupsScrollableElement?: HTMLElement;
+	/**
+	 * Whether the floating toolbar can scroll its own contents.
+	 */
+	scrollable?: boolean;
+	/**
+	 * Temporarily disables or re-enables parent toolbar scrolling.
+	 * Custom dropdowns should call this while open when they need keyboard or pointer
+	 * interaction to stay inside the dropdown rather than moving the toolbar contents.
+	 */
+	setDisableParentScroll?: (disabled: boolean) => void;
+};
+
+export type FloatingToolbarCustom<T extends object> = {
 	/**
 	 * By default -- the floating toolbar supports navigating between
 	 * items using arrow keys (to meet aria guidelines).
@@ -250,12 +272,13 @@ export type FloatingToolbarCustom<T extends Object> = {
 		view?: EditorView,
 		idx?: number,
 		dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
+		context?: FloatingToolbarCustomRenderContext,
 	) => React.ReactNode;
 	supportsViewMode?: boolean; // TODO: MODES-3950 - Clean up this floating toolbar view mode logic
 	type: 'custom';
 };
 
-type FloatingToolbarSelectBase<T extends Object, V = SelectOption> = {
+type FloatingToolbarSelectBase<T extends object, V = SelectOption> = {
 	defaultValue?: V | null;
 	filterOption?: ((option: V, rawInput: string) => boolean) | null;
 	hidden?: boolean;
@@ -271,29 +294,32 @@ type FloatingToolbarSelectBase<T extends Object, V = SelectOption> = {
 	type: 'select';
 };
 
-export type FloatingToolbarListPicker<T extends Object> = FloatingToolbarSelectBase<T> & {
+export type FloatingToolbarListPicker<T extends object> = FloatingToolbarSelectBase<T> & {
 	selectType: 'list';
 };
 
-export type FloatingToolbarColorPicker<T extends Object> = FloatingToolbarSelectBase<
+export type FloatingToolbarColorPicker<T extends object> = FloatingToolbarSelectBase<
 	T,
 	PaletteColor
 > & {
+	cols?: number;
+	hexToPaletteColor?: (hexColor: string) => string | undefined;
+	paletteColorTooltipMessages?: PaletteTooltipMessages;
 	selectType: 'color';
 };
 
-export type FloatingToolbarEmojiPicker<T extends Object> = FloatingToolbarSelectBase<T, EmojiId> & {
+export type FloatingToolbarEmojiPicker<T extends object> = FloatingToolbarSelectBase<T, EmojiId> & {
 	options: never[];
 	selected?: boolean;
 	selectType: 'emoji';
 };
 
-export type FloatingToolbarDatePicker<T extends Object> = FloatingToolbarSelectBase<T, number> & {
+export type FloatingToolbarDatePicker<T extends object> = FloatingToolbarSelectBase<T, number> & {
 	options: never[];
 	selectType: 'date';
 };
 
-export type FloatingToolbarSelect<T extends Object> =
+export type FloatingToolbarSelect<T extends object> =
 	| FloatingToolbarEmojiPicker<T>
 	| FloatingToolbarColorPicker<T>
 	| FloatingToolbarListPicker<T>
@@ -308,7 +334,7 @@ export type FloatingToolbarSeparator = {
 
 export type ExtensionDropdownOptions = () => DropdownOptions<Function>;
 
-export type FloatingToolbarDropdown<T extends Object> = {
+export type FloatingToolbarDropdown<T extends object> = {
 	// A prop to align the dropdown with the floating toolbar instead of the toolbar item
 	alignDropdownWithToolbar?: boolean;
 	disabled?: boolean;
@@ -351,7 +377,7 @@ type FloatingToolbarExtensionsPlaceholder = {
  * This type is restricted with the items that can be used for fallback.
  * Make sure that this type is not a FloatingToolbarCustom type.
  */
-export type FloatingToolbarFallbackItem<T extends Object> =
+export type FloatingToolbarFallbackItem<T extends object> =
 	| FloatingToolbarButton<T>
 	| FloatingToolbarCopyButton
 	| FloatingToolbarDropdown<T>
@@ -359,7 +385,7 @@ export type FloatingToolbarFallbackItem<T extends Object> =
 	| FloatingToolbarInput<T>
 	| FloatingToolbarSeparator;
 
-export type FloatingToolbarItem<T extends Object> =
+export type FloatingToolbarItem<T extends object> =
 	| FloatingToolbarButton<T>
 	| FloatingToolbarCopyButton
 	| FloatingToolbarDropdown<T>
@@ -390,6 +416,14 @@ export interface FloatingToolbarConfig {
 
 	/** Class added to Toolbar wrapper */
 	className?: string;
+
+	/**
+	 * Controls the Toolbar wrapper's own visual surface (background, shadow, border radius,
+	 * padding). Set to `'none'` when a single custom item already renders its own complete
+	 * surface (e.g. a custom link picker component), so the wrapper's surface isn't duplicated
+	 * behind it. Defaults to `'default'` (the wrapper's surface, as today).
+	 */
+	containerSurface?: 'default' | 'none';
 
 	/**
 	 * Enable Popup component's focus trap

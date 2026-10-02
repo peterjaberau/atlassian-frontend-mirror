@@ -4,13 +4,12 @@
  */
 
 import { css, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import Link from '@atlaskit/link';
+import Link from '@atlaskit/link/link';
 import { token } from '@atlaskit/tokens';
 
 import { RichIconSearch } from '../../../../../common/ui/rich-icon/search';
-
 import { initialStateViewMessages } from './messages';
 
 const initialStateViewContainerStyles = css({
@@ -21,26 +20,26 @@ const initialStateViewContainerStyles = css({
 const svgAndTextsWrapperStyles = css({
 	textAlign: 'center',
 	alignSelf: 'center',
-	paddingTop: token('space.600', '48px'),
-	paddingBottom: token('space.600', '48px'),
-	paddingLeft: token('space.600', '48px'),
-	paddingRight: token('space.600', '48px'),
+	paddingTop: token('space.600'),
+	paddingBottom: token('space.600'),
+	paddingLeft: token('space.600'),
+	paddingRight: token('space.600'),
 	maxWidth: '400px',
 });
 const searchTitleStyles = css({
 	color: token('color.text'),
 	font: token('font.heading.medium'),
-	paddingTop: token('space.300', '24px'),
-	paddingBottom: token('space.200', '16px'),
+	paddingTop: token('space.300'),
+	paddingBottom: token('space.200'),
 });
 
 const mainTextStyles = css({
-	color: token('color.text.subtle', '#44546F'),
+	color: token('color.text.subtle'),
 });
 
 const AQLSupportDocumentLink =
 	'https://support.atlassian.com/jira-service-management-cloud/docs/use-assets-query-language-aql/';
-export const InitialStateView = () => {
+export const InitialStateView = (): JSX.Element => {
 	const { formatMessage } = useIntl();
 	return (
 		<div

@@ -5,56 +5,27 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, jsx } from '@emotion/react';
-import { useScrollToLocalId } from '../hooks/useScrollToLocalId';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- emotion jsx pragma; go/DSP-18766
+import { css, jsx, type SerializedStyles } from '@emotion/react'; // oxlint-ignore @typescript-eslint/consistent-type-imports -- classic @jsx jsx factory + jsx.JSX.Element types
+
+import { bulletListSelector } from '@atlaskit/adf-schema/bullet-list';
+import { orderedListSelector } from '@atlaskit/adf-schema/ordered-list';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import {
-	B300,
-	B400,
-	B500,
-	N20,
-	N200,
-	N30A,
-	N40A,
-	N60A,
-	N800,
-	R50,
-	R500,
-	Y300,
-	Y75,
-} from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
-import { type RendererWrapperProps } from './index';
-import { FullPagePadding } from './style';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
-import { RendererCssClassName } from '../../consts';
-import {
-	akEditorBlockquoteBorderColor,
-	akEditorCalculatedWideLayoutWidth,
-	akEditorCalculatedWideLayoutWidthSmallViewport,
-	akEditorFullPageNarrowBreakout,
-	akEditorGutterPaddingReduced,
-	akEditorDefaultLayoutWidth,
-	akEditorFullWidthLayoutWidth,
-	akEditorMaxWidthLayoutWidth,
-	akEditorGutterPadding,
-	akEditorLineHeight,
-	akEditorSelectedNodeClassName,
-	akEditorShadowZIndex,
-	akEditorStickyHeaderZIndex,
-	akEditorTableBorder,
-	akEditorTableCellMinWidth,
-	akEditorTableNumberColumnWidth,
-	akEditorTableToolbar,
-	blockNodesVerticalMargin,
-	scaledBlockNodesVerticalMargin,
-	gridMediumMaxWidth,
-	akEditorFullPageDefaultFontSize,
-	akEditorFullPageDenseFontSize,
-} from '@atlaskit/editor-shared-styles';
+	EmojiSharedCssClassName,
+	defaultEmojiHeight,
+	defaultDenseEmojiHeight,
+	defaultInlineEmojiHeight,
+	scaledEmojiHeightH1,
+	scaledEmojiHeightH2,
+	scaledEmojiHeightH3,
+	scaledEmojiHeightH4,
+	denseEmojiHeightH1,
+	denseEmojiHeightH2,
+	denseEmojiHeightH3,
+	denseEmojiHeightH4,
+} from '@atlaskit/editor-common/emoji';
 import { INLINE_IMAGE_WRAPPER_CLASS_NAME } from '@atlaskit/editor-common/media-inline';
-import { HeadingAnchorWrapperClassName } from '../../react/nodes/heading-anchor';
 import {
 	CodeBlockSharedCssClassName,
 	DateSharedCssClassName,
@@ -68,38 +39,55 @@ import {
 	TableSharedCssClassName,
 	TaskDecisionSharedCssClassName,
 } from '@atlaskit/editor-common/styles';
-import { bulletListSelector, orderedListSelector } from '@atlaskit/adf-schema';
-import { shadowClassNames, shadowObserverClassNames } from '@atlaskit/editor-common/ui';
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
-import { isStickyScrollbarEnabled, isTableResizingEnabled } from '../../react/nodes/table';
-import { SORTABLE_COLUMN_ICON_CLASSNAME } from '@atlaskit/editor-common/table';
-import { LightWeightCodeBlockCssClassName } from '../../react/nodes/codeBlock/components/lightWeightCodeBlock';
-import { editorUGCToken } from '@atlaskit/editor-common/ugc-tokens';
-import { getBaseFontSize } from './get-base-font-size';
-import {
-	EmojiSharedCssClassName,
-	defaultEmojiHeight,
-	defaultDenseEmojiHeight,
-	scaledEmojiHeightH1,
-	scaledEmojiHeightH2,
-	scaledEmojiHeightH3,
-	scaledEmojiHeightH4,
-	denseEmojiHeightH1,
-	denseEmojiHeightH2,
-	denseEmojiHeightH3,
-	denseEmojiHeightH4,
-} from '@atlaskit/editor-common/emoji';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import {
 	BodiedSyncBlockSharedCssClassName,
 	SyncBlockSharedCssClassName,
 } from '@atlaskit/editor-common/sync-block';
+import { SORTABLE_COLUMN_ICON_CLASSNAME } from '@atlaskit/editor-common/table';
+import { editorUGCTokensRefreshed } from '@atlaskit/editor-common/ugc-tokens';
+import { shadowClassNames, shadowObserverClassNames } from '@atlaskit/editor-common/ui';
+import {
+	akEditorCalculatedWideLayoutWidth,
+	akEditorCalculatedWideLayoutWidthSmallViewport,
+	akEditorFullPageNarrowBreakout,
+	akEditorGutterPaddingReduced,
+	akEditorDefaultLayoutWidth,
+	akEditorFullWidthLayoutWidth,
+	akEditorMaxWidthLayoutWidth,
+	akEditorGutterPadding,
+	akEditorLineHeight,
+	akEditorSelectedNodeClassName,
+	akEditorShadowZIndex,
+	akEditorStickyHeaderZIndex,
+	akEditorTableCellMinWidth,
+	akEditorTableNumberColumnWidth,
+	blockNodesVerticalMargin,
+	scaledBlockNodesVerticalMargin,
+	gridMediumMaxWidth,
+	akEditorFullPageDefaultFontSize,
+	akEditorFullPageDenseFontSize,
+} from '@atlaskit/editor-shared-styles';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import { token } from '@atlaskit/tokens';
+
+import { RendererCssClassName } from '../../consts';
+import { LightWeightCodeBlockCssClassName } from '../../react/nodes/codeBlock/components/lightWeightCodeBlock';
+import { HeadingAnchorWrapperClassName } from '../../react/nodes/heading-anchor';
+import { isStickyScrollbarEnabled, isTableResizingEnabled } from '../../react/nodes/table';
+import { COLLAPSED_CONTENT_OWNERS_ATTRIBUTE } from '../collapsible-headings-dom';
+import { getBaseFontSize } from './get-base-font-size';
+import type { RendererWrapperProps } from './index';
+import { FullPagePadding } from './style';
 
 const wrappedMediaBreakoutPoint = 410;
 const TELEPOINTER_ID = 'ai-streaming-telepointer';
 const tableShadowWidth = 32;
 const LAYOUT_BREAKPOINT_RENDERER = 629;
+const REMIX_BLOCK_HIGHLIGHT_CLASS_NAME = 'remix-block-highlight';
 // originally defined from packages/editor/editor-plugin-table/src/ui/common-styles.ts
 // Temporarily ignoring the below the owning team can add the ticket number for the TODO.  Context: https://atlassian.slack.com/archives/CPUEVD9MY/p1741565387326829
 // eslint-disable-next-line @atlaskit/editor/enforce-todo-comment-format
@@ -107,14 +95,32 @@ const LAYOUT_BREAKPOINT_RENDERER = 629;
 const tableRowHeight = 44;
 
 const isBackgroundClipBrowserFixNeeded = () => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 	return browser.isGecko || browser.isIE || (browser.isMac && browser.isChrome);
 };
 
 const baseFontStyle = css({
-	font: editorUGCToken('editor.font.body'),
+	font: editorUGCTokensRefreshed['editor.font.body'],
+});
+
+const fontSizeStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.fabric-editor-font-size': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		"&[data-font-size='small']": {
+			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+			font: 'var(--ak-renderer-editor-font-small-text)',
+		},
+	},
+
+	// Apply font-size to the ::marker pseudo-element of list items that have a font-size mark.
+	// Targeting ::marker directly avoids setting font on the <li> itself, which would cascade
+	// into nested lists and compound the sizing at each nesting level.
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	"li:has(> .fabric-editor-font-size[data-font-size='small'])::marker": {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+		font: 'var(--ak-renderer-editor-font-small-text)',
+	},
 });
 
 const originalBaseFontLineHeight = css({
@@ -127,7 +133,7 @@ const originalBaseFontLineHeight = css({
 const baseStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	fontSize: 'var(--ak-renderer-base-font-size)',
-	color: token('color.text', N800),
+	color: token('color.text'),
 
 	'--ak-editor--full-width-layout-width': `${akEditorFullWidthLayoutWidth}px`,
 
@@ -143,6 +149,21 @@ const baseStyles = css({
 	},
 
 	[`.${RendererCssClassName.DOCUMENT}`]: {
+		[`> [${COLLAPSED_CONTENT_OWNERS_ATTRIBUTE}][hidden='until-found']`]: {
+			display: 'block',
+			// `hidden='until-found'` maps to `content-visibility: hidden`, which skips the element's
+			// contents but keeps its own box, sized by its own specified sizes. Everything below
+			// needs `!important` because extension nodes are sized and spaced by declarations that
+			// would otherwise win: an inline `height`/`min-height` reserving macro height (see
+			// `react/nodes/extension.tsx`), and `!important` alignment margins from
+			// `@atlaskit/native-embeds-common`. Without it the collapsed section keeps a visible gap.
+			blockSize: '0 !important',
+			minBlockSize: '0 !important',
+			marginBlock: '0 !important',
+			paddingBlock: '0 !important',
+			borderBlockWidth: '0 !important',
+		},
+
 		// p, h3, and action items
 		[`.${INLINE_IMAGE_WRAPPER_CLASS_NAME}`]: {
 			height: '22px',
@@ -206,20 +227,20 @@ const baseStyles = css({
 	},
 
 	[`& span.akActionMark`]: {
-		color: token('color.link', B400),
+		color: token('color.link'),
 		textDecoration: 'none',
 		cursor: 'pointer',
 		'&:hover': {
-			color: token('color.link', B300),
+			color: token('color.link'),
 			textDecoration: 'underline',
 		},
 		'&:active': {
-			color: token('color.link.pressed', B500),
+			color: token('color.link.pressed'),
 		},
 	},
 
 	'& span[data-placeholder]': {
-		color: token('color.text.subtlest', N200),
+		color: token('color.text.subtlest'),
 	},
 });
 
@@ -227,7 +248,7 @@ const headingAnchorStylesDuplicateAnchor = css({
 	'& h1, & h2, & h3, & h4, & h5, & h6': {
 		[`.${HeadingAnchorWrapperClassName}`]: {
 			position: 'absolute',
-			marginLeft: token('space.075', '6px'),
+			marginLeft: token('space.075'),
 
 			button: {
 				paddingLeft: 0,
@@ -248,7 +269,10 @@ const headingAnchorStylesDuplicateAnchor = css({
 				'> button': {
 					opacity: 0,
 					transform: 'translate(-8px, 0px)',
-					transition: 'opacity 0.2s ease 0s, transform 0.2s ease 0s',
+					transitionProperty: 'opacity, transform',
+					transitionDuration: `${token('motion.duration.medium', '0.2s')}, ${token('motion.duration.medium', '0.2s')}`,
+					transitionTimingFunction: `${token('motion.easing.out.practical', 'ease')}, ${token('motion.easing.out.practical', 'ease')}`,
+					transitionDelay: '0s, 0s',
 				},
 			},
 
@@ -301,7 +325,7 @@ const headingAnchorStylesDuplicateAnchor = css({
 const headingAnchorStyles = css({
 	'& .renderer-heading-wrapper': {
 		[`.${HeadingAnchorWrapperClassName}`]: {
-			marginLeft: token('space.075', '6px'),
+			marginLeft: token('space.075'),
 
 			button: {
 				paddingLeft: 0,
@@ -371,6 +395,15 @@ const headingAnchorStyles = css({
 		[`.${HeadingAnchorWrapperClassName}`]: {
 			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 			lineHeight: `${16 / 11}em`,
+		},
+	},
+});
+
+const headingAnchorButtonFocusVisibleStyles = css({
+	[`.${HeadingAnchorWrapperClassName}`]: {
+		'button:focus-visible': {
+			outline: `2px solid ${token('color.border.focused')}`,
+			borderRadius: token('radius.small', '3px'),
 		},
 	},
 });
@@ -478,9 +511,29 @@ const rendererFullPageStylesWithReducedPadding = css({
 	},
 });
 
+const oldRendererFullWidthStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+	maxWidth: `${akEditorFullWidthLayoutWidth}px`,
+	margin: `0 auto`,
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.fabric-editor-breakout-mark:not([data-has-width="true"]), .ak-renderer-extension': {
+		width: '100% !important',
+	},
+});
+
 const rendererFullWidthStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
 	maxWidth: `${akEditorFullWidthLayoutWidth}px`,
+	margin: `0 auto`,
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.fabric-editor-breakout-mark:not([data-has-width="true"])': {
+		width: '100% !important',
+	},
+});
+
+const oldRendererMaxWidthStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+	maxWidth: `${akEditorMaxWidthLayoutWidth}px`,
 	margin: `0 auto`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'.fabric-editor-breakout-mark:not([data-has-width="true"]), .ak-renderer-extension': {
@@ -493,7 +546,7 @@ const rendererMaxWidthStyles = css({
 	maxWidth: `${akEditorMaxWidthLayoutWidth}px`,
 	margin: `0 auto`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'.fabric-editor-breakout-mark:not([data-has-width="true"]), .ak-renderer-extension': {
+	'.fabric-editor-breakout-mark:not([data-has-width="true"])': {
 		width: '100% !important',
 	},
 });
@@ -511,7 +564,7 @@ const rovoTelepointerStyles = css({
 		width: '1.5px',
 		height: '24px',
 		backgroundColor: token('color.background.brand.bold'),
-		marginLeft: token('space.025', '2px'),
+		marginLeft: token('space.025'),
 
 		'&::after': {
 			content: '""',
@@ -532,7 +585,7 @@ const rovoTelepointerStyles = css({
 			position: 'absolute',
 			fontFamily: token('font.family.body'),
 			fontWeight: token('font.weight.semibold'),
-			color: token('color.text.inverse', 'white'),
+			color: token('color.text.inverse'),
 			backgroundColor: token('color.text'),
 			top: 1,
 			left: 1,
@@ -560,19 +613,16 @@ const blockquoteSharedStyles = css({
 		color: 'inherit',
 		width: '100%',
 		display: 'inline-block',
-		paddingLeft: token('space.200', '16px'),
+		paddingLeft: token('space.200'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-		borderLeft: `${token('border.width.selected')} solid ${token(
-			'color.border',
-			akEditorBlockquoteBorderColor,
-		)}`,
+		borderLeft: `${token('border.width.selected')} solid ${token('color.border')}`,
 		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview, @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		margin: `${blockNodesVerticalMargin} 0 0 0`,
 		marginRight: 0,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 		"[dir='rtl'] &": {
 			paddingLeft: 0,
-			paddingRight: token('space.200', '16px'),
+			paddingRight: token('space.200'),
 		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 		'&:first-child': {
@@ -615,7 +665,7 @@ const headingsSharedStyles = css({
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
 		marginTop: '1.45833em',
 		'& strong': {
-			// set all heading bold style to token font.weight.bold, as not matter what typography is used, the editorUGCToken will return the font weight 700
+			// set all heading bold style to token font.weight.bold, as the refreshed typography tokens use font weight 700
 			fontWeight: token('font.weight.bold'),
 		},
 		'&::before': {},
@@ -627,7 +677,7 @@ const headingsSharedStyles = css({
 		marginTop: '1.4em',
 		marginBottom: 0,
 		'& strong': {
-			// set all heading bold style to token font.weight.bold, as not matter what typography is used, the editorUGCToken will return the font weight 700
+			// set all heading bold style to token font.weight.bold, as the refreshed typography tokens use font weight 700
 			fontWeight: token('font.weight.bold'),
 		},
 	},
@@ -638,16 +688,16 @@ const headingsSharedStyles = css({
 		marginTop: '1.31249em',
 		marginBottom: 0,
 		'& strong': {
-			// set all heading bold style to token font.weight.bold, as not matter what typography is used, the editorUGCToken will return the font weight 700
+			// set all heading bold style to token font.weight.bold, as the refreshed typography tokens use font weight 700
 			fontWeight: token('font.weight.bold'),
 		},
 	},
 	'& h4': {
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 		font: `var(--ak-renderer-editor-font-heading-h4)`,
-		marginTop: token('space.250', '1.25em'),
+		marginTop: token('space.250'),
 		'& strong': {
-			// set all heading bold style to token font.weight.bold, as not matter what typography is used, the editorUGCToken will return the font weight 700
+			// set all heading bold style to token font.weight.bold, as the refreshed typography tokens use font weight 700
 			fontWeight: token('font.weight.bold'),
 		},
 	},
@@ -658,7 +708,7 @@ const headingsSharedStyles = css({
 		marginTop: '1.45833em',
 		textTransform: 'none',
 		'& strong': {
-			// set all heading bold style to token font.weight.bold, as not matter what typography is used, the editorUGCToken will return the font weight 700
+			// set all heading bold style to token font.weight.bold, as the refreshed typography tokens use font weight 700
 			fontWeight: token('font.weight.bold'),
 		},
 	},
@@ -669,7 +719,7 @@ const headingsSharedStyles = css({
 		marginTop: '1.59091em',
 		textTransform: 'none',
 		'& strong': {
-			// set all heading bold style to token font.weight.bold, as not matter what typography is used, the editorUGCToken will return the font weight 700
+			// set all heading bold style to token font.weight.bold, as the refreshed typography tokens use font weight 700
 			fontWeight: token('font.weight.bold'),
 		},
 	},
@@ -719,6 +769,19 @@ const headingWrapperInlineFlowStyles = css({
 	'& .renderer-heading-wrapper[data-level="6"]': {
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
 		marginTop: '1.59091em',
+	},
+});
+
+const headingAnchorWrapperTargetSizeStyles = css({
+	'& .renderer-heading-wrapper > h1, & .renderer-heading-wrapper > h2, & .renderer-heading-wrapper > h3, & .renderer-heading-wrapper > h4, & .renderer-heading-wrapper > h5, & .renderer-heading-wrapper > h6':
+		{
+			verticalAlign: 'middle',
+		},
+	[`& .renderer-heading-wrapper > .${HeadingAnchorWrapperClassName}`]: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		verticalAlign: 'middle',
 	},
 });
 
@@ -819,35 +882,6 @@ const paragraphStylesUGCScaledMargin = css({
 	},
 });
 
-const paragraphSharedStyles = css({
-	'& p': {
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		fontSize: '1em',
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: akEditorLineHeight,
-		fontWeight: token('font.weight.regular'),
-		marginTop: blockNodesVerticalMargin,
-		marginBottom: 0,
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		letterSpacing: '-0.005em',
-	},
-});
-
-// When cleaning up `platform_editor_content_mode_button_mvp` simplify the name/ use the other paragraph style name
-const paragraphSharedStyleScaledMargin = css({
-	'& p': {
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		fontSize: '1em',
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: akEditorLineHeight,
-		fontWeight: token('font.weight.regular'),
-		marginTop: scaledBlockNodesVerticalMargin,
-		marginBottom: 0,
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		letterSpacing: '-0.005em',
-	},
-});
-
 const listsSharedStyles = css({
 	/* =============== INDENTATION SPACING ========= */
 	'ul, ol': {
@@ -945,6 +979,33 @@ const listsSharedStylesForGekko = css({
 	},
 });
 
+/**
+ * Hides list markers for "wrapper items" - list items that only contain nested lists with no other content.
+ * These wrapper items have no meaningful content themselves, only nested lists below.
+ */
+const listItemHiddenMarkerStyles = css({
+	// Hide markers and remove spacing for wrapper list items (items containing only nested lists)
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'li:has(> ul:only-child), li:has(> ol:only-child)': {
+		listStyleType: 'none',
+		marginTop: 0,
+		marginBottom: 0,
+	},
+	// Remove margin from nested lists inside wrapper list items to avoid double spacing
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'li:has(> ul:only-child) > ul, li:has(> ol:only-child) > ol': {
+		marginTop: 0,
+	},
+	// Remove top margin from nested taskLists not preceded by a sibling taskItem
+	'div[data-task-list-local-id] > div[data-task-list-local-id]': {
+		marginTop: 0,
+	},
+	// Restore margin when a nested taskList follows a taskItem
+	'div[data-task-local-id] + div[data-task-list-local-id]': {
+		marginTop: token('space.050'),
+	},
+});
+
 const indentationSharedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.fabric-editor-indentation-mark': {
@@ -1002,6 +1063,7 @@ const blockMarksSharedStylesDuplicateAnchor = css({
 	:not(.fabric-editor-indentation-mark)
 	:not(.fabric-editor-alignment),
   	.fabric-editor-alignment:first-of-type:first-child,
+  	.fabric-editor-font-size:first-of-type:first-child,
   	.ProseMirror .fabric-editor-indentation-mark:first-of-type:first-child`]: {
 		'p, h1, h2, h3, h4, h5, h6, .heading-wrapper': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
@@ -1023,6 +1085,7 @@ const blockMarksSharedStyles = css({
 	:not(.fabric-editor-indentation-mark)
 	:not(.fabric-editor-alignment),
   	.fabric-editor-alignment:first-of-type:first-child,
+  	.fabric-editor-font-size:first-of-type:first-child,
   	.ProseMirror .fabric-editor-indentation-mark:first-of-type:first-child`]: {
 		'p, .heading-wrapper': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
@@ -1050,8 +1113,8 @@ const codeMarkSharedStyles = css({
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 		fontFamily: token('font.family.code'),
 		fontWeight: token('font.weight.regular'),
-		backgroundColor: `var(--ds--code--bg-color,${token('color.background.neutral', N20)})`,
-		color: token('color.text', N800),
+		backgroundColor: `var(--ds--code--bg-color,${token('color.background.neutral')})`,
+		color: token('color.text'),
 		borderStyle: 'none',
 		borderRadius: token('radius.small', '3px'),
 		display: 'inline',
@@ -1078,7 +1141,7 @@ const extensionStyle = css({
 		},
 });
 
-const extensionAsInlineStyle = css({
+const oldExtensionAsInlineStyle = css({
 	[`.${RendererCssClassName.DOCUMENT} [data-as-inline="on"]`]: {
 		display: 'inline-block',
 	},
@@ -1095,9 +1158,66 @@ const extensionAsInlineStyle = css({
 			overflowX: 'visible',
 			containerType: 'normal',
 		},
-	[`.${RendererCssClassName.EXTENSION_AS_INLINE} div, .${RendererCssClassName.EXTENSION_AS_INLINE} p`]:
+	[`.${RendererCssClassName.EXTENSION_AS_INLINE} .${RendererCssClassName.EXTENSION_INNER_WRAPPER}`]:
 		{
 			display: 'inline-block',
+		},
+});
+
+const extensionAsInlineStyle = css({
+	[`.${RendererCssClassName.DOCUMENT} [data-as-inline="on"]`]: {
+		display: 'inline-block',
+	},
+	[`.${RendererCssClassName.DOCUMENT} .${RendererCssClassName.EXTENSION_AS_INLINE}`]: {
+		display: 'inline-block',
+		width: 'auto',
+		marginTop: 0,
+	},
+	[`.${RendererCssClassName.EXTENSION_AS_INLINE} .${RendererCssClassName.EXTENSION_OVERFLOW_CONTAINER}`]:
+		{
+			display: 'inline-block',
+			overflowX: 'visible',
+			containerType: 'normal',
+		},
+	[`.${RendererCssClassName.EXTENSION_AS_INLINE} .${RendererCssClassName.EXTENSION_INNER_WRAPPER}`]:
+		{
+			display: 'inline-block',
+		},
+});
+
+const migratedInlineBodiedFlowStyle = css({
+	[[
+		`.${RendererCssClassName.DOCUMENT} [data-migrated-inline] + [data-as-inline="on"]`,
+		`.${RendererCssClassName.DOCUMENT} [data-as-inline="on"]:has(+ [data-migrated-inline])`,
+	].join(', ')]: {
+		display: 'inline',
+	},
+});
+
+const forgeInlineBodiedSpacingStyle = css({
+	[`.${RendererCssClassName.DOCUMENT} .${RendererCssClassName.EXTENSION_AS_INLINE}[data-forge-inline]`]:
+		{
+			marginBottom: 0,
+			verticalAlign: 'baseline',
+			maxWidth: '100%',
+		},
+	[[
+		`.${RendererCssClassName.DOCUMENT} [data-forge-inline] + [data-as-inline="on"]`,
+		`.${RendererCssClassName.DOCUMENT} [data-as-inline="on"]:has(+ [data-forge-inline])`,
+	].join(', ')]: {
+		display: 'inline',
+	},
+	[`.${RendererCssClassName.EXTENSION_AS_INLINE}[data-forge-inline] *`]: {
+		maxWidth: '100%',
+	},
+	[`.${RendererCssClassName.EXTENSION_AS_INLINE}[data-forge-inline] .${RendererCssClassName.EXTENSION_OVERFLOW_CONTAINER}`]:
+		{
+			overflowX: 'auto',
+		},
+	[`.${RendererCssClassName.EXTENSION_AS_INLINE}[data-forge-inline] .${RendererCssClassName.DOCUMENT} > p`]:
+		{
+			display: 'inline',
+			margin: 0,
 		},
 });
 
@@ -1132,7 +1252,6 @@ const shadowSharedStyle = css({
 			'elevation.shadow.overflow.spread',
 		)} 140% ), linear-gradient( to right, ${token(
 			'elevation.shadow.overflow.perimeter',
-			'transparent',
 		)} 0px, transparent 1px )`,
 		top: '0px',
 		left: 0,
@@ -1144,7 +1263,6 @@ const shadowSharedStyle = css({
 			'elevation.shadow.overflow.spread',
 		)} 140% ), linear-gradient( to left, ${token(
 			'elevation.shadow.overflow.perimeter',
-			'transparent',
 		)} 0px, transparent 1px )`,
 		right: '0px',
 		top: '0px',
@@ -1193,11 +1311,6 @@ const backgroundColorStyles = css({
 		paddingBottom: '2px',
 		boxDecorationBreak: 'clone',
 	},
-	// Don't show text highlight styling when there is a hyperlink
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-	'a .fabric-background-color-mark': {
-		backgroundColor: 'unset',
-	},
 	// Don't show text highlight styling when there is an inline comment
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.fabric-background-color-mark .ak-editor-annotation': {
@@ -1205,17 +1318,26 @@ const backgroundColorStyles = css({
 	},
 });
 
+// Don't show text highlight styling when there is a hyperlink.
+// Conditionally applied when the highlight-on-links experiment is off.
+const highlightLinksUnsetStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'a .fabric-background-color-mark': {
+		backgroundColor: 'unset',
+	},
+});
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const textHighlightPaddingStyles = css({
+export const textHighlightPaddingStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'.fabric-background-color-mark:has(.background-color-padding-left)': {
-		paddingLeft: token('space.025', '2px'),
-		marginLeft: token('space.negative.025', '-2px'),
+		paddingLeft: token('space.025'),
+		marginLeft: token('space.negative.025'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'.fabric-background-color-mark:has(.background-color-padding-right)': {
-		paddingRight: token('space.025', '2px'),
-		marginRight: token('space.negative.025', '-2px'),
+		paddingRight: token('space.025'),
+		marginRight: token('space.negative.025'),
 	},
 });
 
@@ -1254,20 +1376,20 @@ const tasksAndDecisionsStyles = css({
 	},
 
 	'div[data-task-list-local-id]': {
-		marginTop: token('space.150', '12px'),
+		marginTop: token('space.150'),
 		marginRight: 0,
 		marginBottom: 0,
 		marginLeft: 0,
 		// If task item is not first in the list then set margin top to 4px.
 		'div + div': {
-			marginTop: token('space.050', '4px'),
+			marginTop: token('space.050'),
 		},
 	},
 
 	// If task list is not first in the document then set margin top to 4px.
 	'div[data-task-list-local-id] div[data-task-list-local-id]': {
-		marginTop: token('space.050', '4px'),
-		marginLeft: token('space.300', '24px'),
+		marginTop: token('space.050'),
+		marginLeft: token('space.300'),
 	},
 
 	/* When action list is inside panel */
@@ -1275,6 +1397,15 @@ const tasksAndDecisionsStyles = css({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'> div[data-task-list-local-id]:first-child': {
 			margin: '0 0 0 0 !important',
+		},
+	},
+});
+
+const headingPanelStyles = css({
+	// Removes the margin top from the first heading in a panel
+	'.ak-editor-panel__content': {
+		'> .renderer-heading-wrapper:first-child': {
+			marginTop: 0,
 		},
 	},
 });
@@ -1326,6 +1457,33 @@ const headerSmartCardStyles = css({
 	},
 });
 
+// Flex wrapper for centering without transform.
+// flex: 1 1 0% + minWidth: 0 so the wrapper takes full width when it's a flex item (full-width nodes otherwise render narrow).
+// flexShrink: 0 on child so the node keeps size.
+const centerWrapperStyles = css({
+	[`.${RendererCssClassName.FLEX_CENTER_WRAPPER}`]: {
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'flex-start',
+		width: '100%',
+		flex: '1 1 0%',
+		minWidth: 0,
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'& > *': {
+			flexShrink: 0,
+		},
+	},
+});
+
+// Reset only Expands with no preceding content sibling. Streaming SSR style/script siblings
+// are ignored so moving them to the head on the client does not change the top margin.
+const expandSsrMarginStyles = css({
+	[`.${RendererCssClassName.DOCUMENT} .${RendererCssClassName.STICKY_SAFE_BREAKOUT_INNER} > [data-node-type='expand']:not(:not(style, script) ~ *)`]:
+		{
+			marginTop: 0,
+		},
+});
+
 const baseOtherStylesDuplicateAnchor = css({
 	'& .UnknownBlock': {
 		fontFamily: token('font.family.body'),
@@ -1336,26 +1494,26 @@ const baseOtherStylesDuplicateAnchor = css({
 		wordWrap: 'break-word',
 	},
 	'& span.date-node': {
-		backgroundColor: token('color.background.neutral', N30A),
+		backgroundColor: token('color.background.neutral'),
 		borderRadius: token('radius.small', '3px'),
-		color: token('color.text', N800),
-		paddingTop: token('space.025', '2px'),
-		paddingRight: token('space.050', '4px'),
-		paddingBottom: token('space.025', '2px'),
-		paddingLeft: token('space.050', '4px'),
+		color: token('color.text'),
+		paddingTop: token('space.025'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.025'),
+		paddingLeft: token('space.050'),
 		margin: `0 1px`,
 		transition: `background 0.3s`,
 	},
 	'& span.date-node-highlighted': {
-		backgroundColor: token('color.background.danger', R50),
-		color: token('color.text.danger', R500),
+		backgroundColor: token('color.background.danger'),
+		color: token('color.text.danger'),
 	},
 	'& .renderer-image': {
 		maxWidth: '100%',
 		display: 'block',
-		marginTop: token('space.300', '24px'),
+		marginTop: token('space.300'),
 		marginRight: 0,
-		marginBottom: token('space.300', '24px'),
+		marginBottom: token('space.300'),
 		marginLeft: 0,
 	},
 
@@ -1378,7 +1536,7 @@ const baseOtherStylesDuplicateAnchor = css({
 	'& .rich-media-wrapped': {
 		'& + .renderer-heading-wrapper': {
 			'h1, h2, h3, h4, h5, h6': {
-				marginTop: token('space.100', '8px'),
+				marginTop: token('space.100'),
 			},
 		},
 	},
@@ -1417,13 +1575,34 @@ const baseOtherStylesDuplicateAnchor = css({
 		[`.${RendererCssClassName.EXTENSION}`]: {
 			marginTop: `${blockNodesVerticalMargin}`,
 		},
-
-		[`.${RendererCssClassName.EXTENSION_CENTER_ALIGN}`]: {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			marginLeft: '50%',
-			transform: 'translateX(-50%)',
+		[`.${RendererCssClassName.STICKY_SAFE_CENTER_WRAPPER} .${RendererCssClassName.EXTENSION}`]: {
+			marginBottom: 0,
 		},
-
+		/* Embed card center wrapper has margin; zero MediaSingle vertical margin when wrapped so it doesn't double */
+		[`.${RendererCssClassName.EMBED_CARD_CENTER_WRAPPER} .mediaSingleView-content-wrap`]: {
+			marginTop: 0,
+			marginBottom: 0,
+		},
+		[`.${RendererCssClassName.STICKY_SAFE_BREAKOUT_INNER} > *:first-child`]: {
+			marginTop: 0,
+		},
+		[`.${RendererCssClassName.STICKY_SAFE_BREAKOUT_INNER} > *:last-child`]: {
+			marginBottom: 0,
+		},
+		[`.${RendererCssClassName.EMBED_CARD_CENTER_WRAPPER} > .mediaSingleView-content-wrap > *:first-child`]:
+			{
+				marginTop: 0,
+			},
+		[`.${RendererCssClassName.EMBED_CARD_CENTER_WRAPPER} > .mediaSingleView-content-wrap > *:last-child`]:
+			{
+				marginBottom: 0,
+			},
+		[`.${RendererCssClassName.BLOCK_CARD_DATASOURCE_CENTER_WRAPPER} > div > *:first-child`]: {
+			marginTop: 0,
+		},
+		[`.${RendererCssClassName.BLOCK_CARD_DATASOURCE_CENTER_WRAPPER} > div > *:last-child`]: {
+			marginBottom: 0,
+		},
 		[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER}`]: {
 			overflowX: 'auto',
 		},
@@ -1432,6 +1611,12 @@ const baseOtherStylesDuplicateAnchor = css({
 			{
 				display: 'flex',
 			},
+	},
+});
+
+const hideExtensionStyles = css({
+	[`.${RendererCssClassName.EXTENSION}:has([data-extension-key='hide'])`]: {
+		marginTop: 0,
 	},
 });
 
@@ -1445,26 +1630,26 @@ const baseOtherStyles = css({
 		wordWrap: 'break-word',
 	},
 	'& span.date-node': {
-		backgroundColor: token('color.background.neutral', N30A),
+		backgroundColor: token('color.background.neutral'),
 		borderRadius: token('radius.small', '3px'),
-		color: token('color.text', N800),
-		paddingTop: token('space.025', '2px'),
-		paddingRight: token('space.050', '4px'),
-		paddingBottom: token('space.025', '2px'),
-		paddingLeft: token('space.050', '4px'),
+		color: token('color.text'),
+		paddingTop: token('space.025'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.025'),
+		paddingLeft: token('space.050'),
 		margin: `0 1px`,
 		transition: `background 0.3s`,
 	},
 	'& span.date-node-highlighted': {
-		backgroundColor: token('color.background.danger', R50),
-		color: token('color.text.danger', R500),
+		backgroundColor: token('color.background.danger'),
+		color: token('color.text.danger'),
 	},
 	'& .renderer-image': {
 		maxWidth: '100%',
 		display: 'block',
-		marginTop: token('space.300', '24px'),
+		marginTop: token('space.300'),
 		marginRight: 0,
-		marginBottom: token('space.300', '24px'),
+		marginBottom: token('space.300'),
 		marginLeft: 0,
 	},
 
@@ -1487,7 +1672,7 @@ const baseOtherStyles = css({
 	'& .rich-media-wrapped': {
 		'& + .renderer-heading-wrapper': {
 			'h1, h2, h3, h4, h5, h6': {
-				marginTop: token('space.100', '8px'),
+				marginTop: token('space.100'),
 			},
 		},
 	},
@@ -1526,13 +1711,34 @@ const baseOtherStyles = css({
 		[`.${RendererCssClassName.EXTENSION}`]: {
 			marginTop: `${blockNodesVerticalMargin}`,
 		},
-
-		[`.${RendererCssClassName.EXTENSION_CENTER_ALIGN}`]: {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			marginLeft: '50%',
-			transform: 'translateX(-50%)',
+		[`.${RendererCssClassName.STICKY_SAFE_CENTER_WRAPPER} .${RendererCssClassName.EXTENSION}`]: {
+			marginBottom: 0,
 		},
-
+		/* Embed card center wrapper has margin; zero MediaSingle vertical margin when wrapped so it doesn't double */
+		[`.${RendererCssClassName.EMBED_CARD_CENTER_WRAPPER} .mediaSingleView-content-wrap`]: {
+			marginTop: 0,
+			marginBottom: 0,
+		},
+		[`.${RendererCssClassName.STICKY_SAFE_BREAKOUT_INNER} > *:first-child`]: {
+			marginTop: 0,
+		},
+		[`.${RendererCssClassName.STICKY_SAFE_BREAKOUT_INNER} > *:last-child`]: {
+			marginBottom: 0,
+		},
+		[`.${RendererCssClassName.EMBED_CARD_CENTER_WRAPPER} > .mediaSingleView-content-wrap > *:first-child`]:
+			{
+				marginTop: 0,
+			},
+		[`.${RendererCssClassName.EMBED_CARD_CENTER_WRAPPER} > .mediaSingleView-content-wrap > *:last-child`]:
+			{
+				marginBottom: 0,
+			},
+		[`.${RendererCssClassName.BLOCK_CARD_DATASOURCE_CENTER_WRAPPER} > div > *:first-child`]: {
+			marginTop: 0,
+		},
+		[`.${RendererCssClassName.BLOCK_CARD_DATASOURCE_CENTER_WRAPPER} > div > *:last-child`]: {
+			marginBottom: 0,
+		},
 		[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER}`]: {
 			overflowX: 'auto',
 		},
@@ -1557,14 +1763,14 @@ const alignedHeadingAnchorStyleDuplicateAnchor = css({
 	'.fabric-editor-block-mark:not([data-align="center"])[data-align]': {
 		[`.${HeadingAnchorWrapperClassName}`]: {
 			marginTop: 0,
-			marginRight: token('space.075', '6px'),
+			marginRight: token('space.075'),
 			marginBottom: 0,
 			marginLeft: 0,
 			// If the anchor is right aligned then the left side of the heading
 			// is aligned with the left side of the anchor.
 			// In order to align as expected we transform it the width of the element (plus our expected 6px)
 			// to the left
-			transform: `translateX(calc(-100% - ${token('space.075', '6px')}))`,
+			transform: `translateX(calc(-100% - ${token('space.075')}))`,
 		},
 		'@media (hover: hover) and (pointer: fine)': {
 			[`.${HeadingAnchorWrapperClassName} > button`]: {
@@ -1597,14 +1803,14 @@ const alignedHeadingAnchorStyle = css({
 	'.fabric-editor-block-mark:not([data-align="center"])[data-align]': {
 		[`.${HeadingAnchorWrapperClassName}`]: {
 			marginTop: 0,
-			marginRight: token('space.075', '6px'),
+			marginRight: token('space.075'),
 			marginBottom: 0,
 			marginLeft: 0,
 			// If the anchor is right aligned then the left side of the heading
 			// is aligned with the left side of the anchor.
 			// In order to align as expected we transform it the width of the element (plus our expected 6px)
 			// to the left
-			transform: `translateX(calc(-100% - ${token('space.075', '6px')}))`,
+			transform: `translateX(calc(-100% - ${token('space.075')}))`,
 		},
 		'@media (hover: hover) and (pointer: fine)': {
 			[`.${HeadingAnchorWrapperClassName} > button`]: {
@@ -1654,15 +1860,15 @@ const mediaSingleSharedStyle = css({
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	[`table .${richMediaClassName}`]: {
-		marginTop: token('space.150', '12px'),
-		marginBottom: token('space.150', '12px'),
+		marginTop: token('space.150'),
+		marginBottom: token('space.150'),
 		clear: 'both',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		'&.image-wrap-left[data-layout], &.image-wrap-right[data-layout]': {
 			clear: 'none',
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 			'&:first-child': {
-				marginTop: token('space.150', '12px'),
+				marginTop: token('space.150'),
 			},
 		},
 	},
@@ -1683,9 +1889,9 @@ const mediaSingleSharedStyle = css({
 			{
 				float: 'none',
 				overflow: 'auto',
-				marginTop: token('space.150', '12px'),
+				marginTop: token('space.150'),
 				marginRight: 0,
-				marginBottom: token('space.150', '12px'),
+				marginBottom: token('space.150'),
 				marginLeft: 0,
 			},
 	},
@@ -1696,94 +1902,158 @@ const tableSharedStyle = css({
 	// originally from packages/editor/editor-common/src/styles/shared/tableCell.ts
 	// Hardcoding the background color for the table cells to avoid the use of inline styles
 	'td[colorname="white" i], th[colorname="white" i]': {
-		backgroundColor: `${token('elevation.surface', '#FFFFFF')} !important`,
+		backgroundColor: `${token('elevation.surface')} !important`,
 	},
 
 	'td[colorname="light blue" i], th[colorname="light blue" i]': {
-		backgroundColor: `${token('color.background.accent.blue.subtlest', '#DEEBFF')} !important`,
+		backgroundColor: `${token('color.background.accent.blue.subtlest')} !important`,
 	},
 
 	'td[colorname="light teal" i], th[colorname="light teal" i]': {
-		backgroundColor: `${token('color.background.accent.teal.subtlest', '#E6FCFF')} !important`,
+		backgroundColor: `${token('color.background.accent.teal.subtlest')} !important`,
 	},
 
 	'td[colorname="light green" i], th[colorname="light green" i]': {
-		backgroundColor: `${token('color.background.accent.green.subtlest', '#E3FCEF')} !important`,
+		backgroundColor: `${token('color.background.accent.green.subtlest')} !important`,
 	},
 
 	'td[colorname="light yellow" i], th[colorname="light yellow" i]': {
-		backgroundColor: `${token('color.background.accent.yellow.subtlest', '#FFFAE6')} !important`,
+		backgroundColor: `${token('color.background.accent.yellow.subtlest')} !important`,
 	},
 
 	'td[colorname="light red" i], th[colorname="light red" i]': {
-		backgroundColor: `${token('color.background.accent.red.subtlest', '#FFEBE6')} !important`,
+		backgroundColor: `${token('color.background.accent.red.subtlest')} !important`,
 	},
 
 	'td[colorname="light purple" i], th[colorname="light purple" i]': {
-		backgroundColor: `${token('color.background.accent.purple.subtlest', '#EAE6FF')} !important`,
+		backgroundColor: `${token('color.background.accent.purple.subtlest')} !important`,
 	},
 
 	'td[colorname="light gray" i], th[colorname="light gray" i]': {
-		backgroundColor: `${token('color.background.accent.gray.subtlest', '#F4F5F7')} !important`,
+		backgroundColor: `${token('color.background.accent.gray.subtlest')} !important`,
 	},
 
 	'td[colorname="blue" i], th[colorname="blue" i]': {
-		backgroundColor: `${token('color.background.accent.blue.subtler', '#B3D4FF')} !important`,
+		backgroundColor: `${token('color.background.accent.blue.subtler')} !important`,
 	},
 
 	'td[colorname="teal" i], th[colorname="teal" i]': {
-		backgroundColor: `${token('color.background.accent.teal.subtler', '#B3F5FF')} !important`,
+		backgroundColor: `${token('color.background.accent.teal.subtler')} !important`,
 	},
 
 	'td[colorname="green" i], th[colorname="green" i]': {
-		backgroundColor: `${token('color.background.accent.green.subtler', '#ABF5D1')} !important`,
+		backgroundColor: `${token('color.background.accent.green.subtler')} !important`,
 	},
 
 	'td[colorname="yellow" i], th[colorname="yellow" i]': {
-		backgroundColor: `${token('color.background.accent.yellow.subtler', '#FFF0B3')} !important`,
+		backgroundColor: `${token('color.background.accent.yellow.subtler')} !important`,
 	},
 
 	'td[colorname="red" i], th[colorname="red" i]': {
-		backgroundColor: `${token('color.background.accent.red.subtler', '#FFBDAD')} !important`,
+		backgroundColor: `${token('color.background.accent.red.subtler')} !important`,
 	},
 
 	'td[colorname="purple" i], th[colorname="purple" i]': {
-		backgroundColor: `${token('color.background.accent.purple.subtler', '#C0B6F2')} !important`,
+		backgroundColor: `${token('color.background.accent.purple.subtler')} !important`,
 	},
 
 	'td[colorname="gray" i], th[colorname="gray" i]': {
-		backgroundColor: `${token('color.background.accent.gray.subtle', '#B3BAC5')} !important`,
+		backgroundColor: `${token('color.background.accent.gray.subtle')} !important`,
 	},
 
 	'td[colorname="dark blue" i], th[colorname="dark blue" i]': {
-		backgroundColor: `${token('color.background.accent.blue.subtle', '#4C9AFF')} !important`,
+		backgroundColor: `${token('color.background.accent.blue.subtle')} !important`,
 	},
 
 	'td[colorname="dark teal" i], th[colorname="dark teal" i]': {
-		backgroundColor: `${token('color.background.accent.teal.subtle', '#79E2F2')} !important`,
+		backgroundColor: `${token('color.background.accent.teal.subtle')} !important`,
 	},
 
 	'td[colorname="dark green" i], th[colorname="dark green" i]': {
-		backgroundColor: `${token('color.background.accent.green.subtle', '#57D9A3')} !important`,
+		backgroundColor: `${token('color.background.accent.green.subtle')} !important`,
 	},
 
 	'td[colorname="dark yellow" i], th[colorname="dark yellow" i]': {
-		backgroundColor: `${token('color.background.accent.orange.subtle', '#FFC400')} !important`,
+		backgroundColor: `${token('color.background.accent.orange.subtle')} !important`,
 	},
 
 	'td[colorname="dark red" i], th[colorname="dark red" i]': {
-		backgroundColor: `${token('color.background.accent.red.subtle', '#FF8F73')} !important`,
+		backgroundColor: `${token('color.background.accent.red.subtle')} !important`,
 	},
 
 	'td[colorname="dark purple" i], th[colorname="dark purple" i]': {
-		backgroundColor: `${token('color.background.accent.purple.subtle', '#998DD9')} !important`,
+		backgroundColor: `${token('color.background.accent.purple.subtle')} !important`,
+	},
+
+	'td[colorname="subtle lime" i], th[colorname="subtle lime" i]': {
+		backgroundColor: `${token('color.background.accent.lime.subtlest')} !important`,
+	},
+
+	'td[colorname="subtle orange" i], th[colorname="subtle orange" i]': {
+		backgroundColor: `${token('color.background.accent.orange.subtlest')} !important`,
+	},
+
+	'td[colorname="subtle magenta" i], th[colorname="subtle magenta" i]': {
+		backgroundColor: `${token('color.background.accent.magenta.subtlest')} !important`,
+	},
+
+	'td[colorname="lime" i], th[colorname="lime" i]': {
+		backgroundColor: `${token('color.background.accent.lime.subtler')} !important`,
+	},
+
+	'td[colorname="orange" i], th[colorname="orange" i]': {
+		backgroundColor: `${token('color.background.accent.orange.subtler')} !important`,
+	},
+
+	'td[colorname="magenta" i], th[colorname="magenta" i]': {
+		backgroundColor: `${token('color.background.accent.magenta.subtler')} !important`,
+	},
+
+	'td[colorname="bold gray" i], th[colorname="bold gray" i]': {
+		backgroundColor: `${token('color.background.accent.gray.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold blue" i], th[colorname="bold blue" i]': {
+		backgroundColor: `${token('color.background.accent.blue.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold teal" i], th[colorname="bold teal" i]': {
+		backgroundColor: `${token('color.background.accent.teal.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold green" i], th[colorname="bold green" i]': {
+		backgroundColor: `${token('color.background.accent.green.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold lime" i], th[colorname="bold lime" i]': {
+		backgroundColor: `${token('color.background.accent.lime.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold yellow" i], th[colorname="bold yellow" i]': {
+		backgroundColor: `${token('color.background.accent.yellow.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold orange" i], th[colorname="bold orange" i]': {
+		backgroundColor: `${token('color.background.accent.orange.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold red" i], th[colorname="bold red" i]': {
+		backgroundColor: `${token('color.background.accent.red.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold magenta" i], th[colorname="bold magenta" i]': {
+		backgroundColor: `${token('color.background.accent.magenta.subtler.hovered')} !important`,
+	},
+
+	'td[colorname="bold purple" i], th[colorname="bold purple" i]': {
+		backgroundColor: `${token('color.background.accent.purple.subtler.hovered')} !important`,
 	},
 
 	[`.${TableSharedCssClassName.TABLE_CONTAINER}`]: {
 		position: 'relative',
 		marginTop: 0,
 		marginRight: 'auto',
-		marginBottom: token('space.200', '16px'),
+		marginBottom: token('space.200'),
 		marginLeft: 'auto',
 		boxSizing: 'border-box',
 		/**
@@ -1808,7 +2078,7 @@ const tableSharedStyle = css({
 	},
 
 	[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table`]: {
-		marginTop: token('space.300', '24px'),
+		marginTop: token('space.300'),
 		marginRight: 0,
 		marginBottom: 0,
 		marginLeft: 0,
@@ -1816,8 +2086,8 @@ const tableSharedStyle = css({
 
 	[`.${TableSharedCssClassName.TABLE_CONTAINER} > table,
 	.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]: {
-		marginTop: token('space.300', '24px'),
-		marginRight: token('space.100', '8px'),
+		marginTop: token('space.300'),
+		marginRight: token('space.100'),
 		marginBottom: 0,
 		marginLeft: 0,
 	},
@@ -1827,10 +2097,7 @@ const tableSharedStyle = css({
 	.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table,
 	.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]: {
 		borderCollapse: 'collapse',
-		border: `${tableCellBorderWidth}px solid ${token(
-			'color.background.accent.gray.subtler',
-			akEditorTableBorder,
-		)}`,
+		border: `${tableCellBorderWidth}px solid ${token('color.background.accent.gray.subtler')}`,
 		tableLayout: 'fixed',
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 		fontSize: '1em',
@@ -1838,6 +2105,11 @@ const tableSharedStyle = css({
 
 		'&[data-autosize="true"]': {
 			tableLayout: 'auto',
+		},
+
+		'&[data-initial-width-mode="content"]': {
+			tableLayout: 'auto',
+			width: 'auto',
 		},
 
 		'*': {
@@ -1850,13 +2122,13 @@ const tableSharedStyle = css({
 			borderBottom: 'none',
 		},
 		'th td': {
-			backgroundColor: token('color.background.neutral.subtle', 'white'),
+			backgroundColor: token('color.background.neutral.subtle'),
 		},
 		'> tbody > tr > td': {
 			backgroundColor: token('elevation.surface'),
 		},
 		th: {
-			backgroundColor: token('color.background.accent.gray.subtlest', akEditorTableToolbar),
+			backgroundColor: token('color.background.accent.gray.subtlest'),
 			textAlign: 'left',
 
 			/* only apply this styling to codeblocks in default background headercells */
@@ -1864,52 +2136,52 @@ const tableSharedStyle = css({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'&:not([style]):not(.danger)': {
 				[`.${CodeBlockSharedCssClassName.CODEBLOCK_CONTAINER}:not(.danger)`]: {
-					backgroundColor: token('elevation.surface.raised', 'rgb(235, 237, 240)'),
+					backgroundColor: token('elevation.surface.raised'),
 
 					[`&:not(.${akEditorSelectedNodeClassName})`]: {
-						boxShadow: `0px 0px 0px 1px ${token('color.border', 'transparent')}`,
+						boxShadow: `0px 0px 0px 1px ${token('color.border')}`,
 					},
 
 					[`.${CodeBlockSharedCssClassName.CODEBLOCK_CONTENT_WRAPPER}`]: {
 						// originally copied from packages/editor/editor-shared-styles/src/overflow-shadow/overflow-shadow.ts
 						backgroundImage: `linear-gradient(
 							to right,
-							${token('color.background.neutral')} ${token('space.300', '24px')},
-							transparent ${token('space.300', '24px')}
+							${token('color.background.neutral')} ${token('space.300')},
+							transparent ${token('space.300')}
 						  ),linear-gradient(
 							to right,
-							${token('elevation.surface.raised')} ${token('space.300', '24px')},
-							transparent ${token('space.300', '24px')}
+							${token('elevation.surface.raised')} ${token('space.300')},
+							transparent ${token('space.300')}
 						  ),linear-gradient(
 							to left,
-							${token('color.background.neutral')} ${token('space.100', '8px')},
-							transparent ${token('space.100', '8px')}
+							${token('color.background.neutral')} ${token('space.100')},
+							transparent ${token('space.100')}
 						  ),linear-gradient(
 							to left,
-							${token('elevation.surface.raised')} ${token('space.100', '8px')},
-							transparent ${token('space.100', '8px')}
+							${token('elevation.surface.raised')} ${token('space.100')},
+							transparent ${token('space.100')}
 						  ),linear-gradient(
 							to left,
 							${token('elevation.shadow.overflow.spread')} 0,
-							${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+							${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 						  ),linear-gradient(
 							to left,
 							${token('elevation.shadow.overflow.perimeter')} 0,
-							${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+							${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 						  ),linear-gradient(
 							to right,
 							${token('elevation.shadow.overflow.spread')} 0,
-							${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+							${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 						  ),linear-gradient(
 							to right,
 							${token('elevation.shadow.overflow.perimeter')} 0,
-							${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+							${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 						  )`,
-						backgroundColor: token('color.background.neutral', 'rgb(235, 237, 240)'),
+						backgroundColor: token('color.background.neutral'),
 					},
 
 					[`.${CodeBlockSharedCssClassName.CODEBLOCK_LINE_NUMBER_GUTTER}`]: {
-						backgroundColor: token('color.background.neutral', 'rgb(226, 229, 233)'),
+						backgroundColor: token('color.background.neutral'),
 					},
 
 					/* this is only relevant to the element taken care of by renderer */
@@ -1917,50 +2189,212 @@ const tableSharedStyle = css({
 						// originally copied from packages/editor/editor-shared-styles/src/overflow-shadow/overflow-shadow.ts
 						backgroundImage: `linear-gradient(
 							to right,
-							${token('color.background.neutral')} ${token('space.300', '24px')},
-							transparent ${token('space.300', '24px')}
+							${token('color.background.neutral')} ${token('space.300')},
+							transparent ${token('space.300')}
 						  ),linear-gradient(
 							to right,
-							${token('elevation.surface.raised')} ${token('space.300', '24px')},
-							transparent ${token('space.300', '24px')}
+							${token('elevation.surface.raised')} ${token('space.300')},
+							transparent ${token('space.300')}
 						  ),linear-gradient(
 							to left,
-							${token('color.background.neutral')} ${token('space.100', '8px')},
-							transparent ${token('space.100', '8px')}
+							${token('color.background.neutral')} ${token('space.100')},
+							transparent ${token('space.100')}
 						  ),linear-gradient(
 							to left,
-							${token('elevation.surface.raised')} ${token('space.100', '8px')},
-							transparent ${token('space.100', '8px')}
+							${token('elevation.surface.raised')} ${token('space.100')},
+							transparent ${token('space.100')}
 						  ),linear-gradient(
 							to left,
 							${token('elevation.shadow.overflow.spread')} 0,
-							${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+							${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 						  ),linear-gradient(
 							to left,
 							${token('elevation.shadow.overflow.perimeter')} 0,
-							${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+							${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 						  ),linear-gradient(
 							to right,
 							${token('elevation.shadow.overflow.spread')} 0,
-							${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+							${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 						  ),linear-gradient(
 							to right,
 							${token('elevation.shadow.overflow.perimeter')} 0,
-							${token('utility.UNSAFE.transparent')}  ${token('space.100', '8px')}
+							${token('utility.UNSAFE.transparent')}  ${token('space.100')}
 						  )`,
 
-						backgroundColor: `${token('color.background.neutral', 'rgb(235, 237, 240)')}!important`,
+						backgroundColor: `${token('color.background.neutral')}!important`,
 
 						// selector lives inside @atlaskit/code
-						'--ds--code--line-number-bg-color': token(
-							'color.background.neutral',
-							'rgb(226, 229, 233)',
-						),
+						'--ds--code--line-number-bg-color': token('color.background.neutral'),
 					},
 				},
 			},
 		},
 	},
+});
+
+const roundedTableRemixBlockHighlightStyles = css({
+	[`.${TableSharedCssClassName.TABLE_CONTAINER}.${REMIX_BLOCK_HIGHLIGHT_CLASS_NAME} > table,
+	.${TableSharedCssClassName.TABLE_CONTAINER}.${REMIX_BLOCK_HIGHLIGHT_CLASS_NAME} > .${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table,
+	.${TableSharedCssClassName.TABLE_CONTAINER}.${REMIX_BLOCK_HIGHLIGHT_CLASS_NAME} > .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]:
+		{
+			'&::after': {
+				borderColor: token('color.border.selected'),
+			},
+		},
+});
+
+const roundedTableOuterBorderOverlayStyles = css({
+	[`.${TableSharedCssClassName.TABLE_CONTAINER} > table,
+	.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table,
+	.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]: {
+		borderColor: 'transparent',
+		position: 'relative',
+
+		'&::after': {
+			content: "''",
+			position: 'absolute',
+			inset: '-0.5px',
+			border: `${tableCellBorderWidth}px solid ${token('color.background.accent.gray.subtler')}`,
+			borderRadius: token('radius.xlarge'),
+			pointerEvents: 'none',
+			zIndex: 1,
+		},
+
+		'> tbody > tr > th[data-reaches-top], > tbody > tr > td[data-reaches-top]': {
+			borderTopColor: 'transparent',
+		},
+
+		'> tbody > tr > th[data-reaches-bottom], > tbody > tr > td[data-reaches-bottom]': {
+			borderBottomColor: 'transparent',
+		},
+
+		'> tbody > tr > th[data-reaches-left], > tbody > tr > td[data-reaches-left]': {
+			borderLeftColor: 'transparent',
+		},
+
+		'> tbody > tr > th[data-reaches-right], > tbody > tr > td[data-reaches-right]': {
+			borderRightColor: 'transparent',
+		},
+
+		'> tbody > tr > th[data-reaches-top][data-reaches-left], > tbody > tr > td[data-reaches-top][data-reaches-left]':
+			{
+				borderTopLeftRadius: token('radius.xlarge'),
+				backgroundClip: 'border-box',
+			},
+
+		'> tbody > tr > th[data-reaches-top][data-reaches-right], > tbody > tr > td[data-reaches-top][data-reaches-right]':
+			{
+				borderTopRightRadius: token('radius.xlarge'),
+				backgroundClip: 'border-box',
+			},
+
+		'> tbody > tr > th[data-reaches-bottom][data-reaches-left], > tbody > tr > td[data-reaches-bottom][data-reaches-left]':
+			{
+				borderBottomLeftRadius: token('radius.xlarge'),
+				backgroundClip: 'border-box',
+			},
+
+		'> tbody > tr > th[data-reaches-bottom][data-reaches-right], > tbody > tr > td[data-reaches-bottom][data-reaches-right]':
+			{
+				borderBottomRightRadius: token('radius.xlarge'),
+				backgroundClip: 'border-box',
+			},
+	},
+
+	[`.${TableSharedCssClassName.TABLE_CONTAINER}.is-sticky > .${TableSharedCssClassName.TABLE_STICKY_WRAPPER}`]:
+		{
+			borderTopLeftRadius: token('radius.xlarge'),
+			borderTopRightRadius: token('radius.xlarge'),
+			borderBottomLeftRadius: 0,
+			borderBottomRightRadius: 0,
+		},
+
+	// Keep the cloned sticky header rounded at the top while preserving a square bottom edge.
+	[`.${TableSharedCssClassName.TABLE_CONTAINER}.is-sticky > .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]:
+		{
+			'&::after': {
+				borderBottomLeftRadius: 0,
+				borderBottomRightRadius: 0,
+			},
+
+			'> tbody > tr': {
+				// The sticky table clone sets a row background locally; force it off so
+				// the rounded header cells, not a square row box, own the visible fill.
+				background: 'transparent !important',
+			},
+
+			'> tbody > tr > th, > tbody > tr > td': {
+				backgroundClip: 'border-box',
+			},
+
+			'> tbody > tr > th[data-reaches-left], > tbody > tr > td[data-reaches-left]': {
+				borderTopLeftRadius: token('radius.xlarge'),
+				borderBottomLeftRadius: 0,
+			},
+
+			'> tbody > tr > th[data-reaches-right], > tbody > tr > td[data-reaches-right]': {
+				borderTopRightRadius: token('radius.xlarge'),
+				borderBottomRightRadius: 0,
+			},
+
+			'> tbody > tr > th[data-reaches-left][data-reaches-bottom], > tbody > tr > td[data-reaches-left][data-reaches-bottom]':
+				{
+					borderBottomLeftRadius: 0,
+				},
+
+			'> tbody > tr > th[data-reaches-right][data-reaches-bottom], > tbody > tr > td[data-reaches-right][data-reaches-bottom]':
+				{
+					borderBottomRightRadius: 0,
+				},
+
+			'> tbody > tr > th[data-reaches-left]::after, > tbody > tr > td[data-reaches-left]::after': {
+				borderBottomLeftRadius: 0,
+			},
+
+			'> tbody > tr > th[data-reaches-right]::after, > tbody > tr > td[data-reaches-right]::after':
+				{
+					borderBottomRightRadius: 0,
+				},
+		},
+});
+
+const tableContentModeScopedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	[`.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}:has(> table[data-initial-width-mode="content"]),
+	.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}:has(> .${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table[data-initial-width-mode="content"]),
+	.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}:has(> .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table[data-initial-width-mode="content"])`]:
+		{
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			width: 'max-content !important',
+			maxWidth: 'var(--renderer-table-max-width)',
+		},
+
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	[`.${RendererCssClassName.DOCUMENT} table[data-initial-width-mode="content"] > colgroup > col`]: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+		width: 'unset !important',
+	},
+});
+
+const tableContentModeExtensionContainmentStyles = css({
+	// Content-mode tables need extension content to participate in intrinsic width calculation.
+	// Keep containment for extensions in all other table modes so nested renderers stay constrained.
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	[`.${RendererCssClassName.DOCUMENT} table[data-initial-width-mode="content"] .${RendererCssClassName.EXTENSION_INNER_WRAPPER}`]:
+		{
+			containerType: 'normal',
+		},
+});
+
+const tableContentModeNestedTableStyles = css({
+	// Nested tables may sit inside expands, extensions, or other blocks within the parent cell.
+	[`.${RendererCssClassName.DOCUMENT} table[data-initial-width-mode="content"] > tbody > tr > :is(th, td) .${TableSharedCssClassName.TABLE_CONTAINER} > table,
+		.${RendererCssClassName.DOCUMENT} table[data-initial-width-mode="content"] > tbody > tr > :is(th, td) .${TableSharedCssClassName.TABLE_CONTAINER} > .${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table,
+		.${RendererCssClassName.DOCUMENT} table[data-initial-width-mode="content"] > tbody > tr > :is(th, td) .${TableSharedCssClassName.TABLE_CONTAINER} > .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]:
+		{
+			width: 'max-content !important',
+			maxWidth: '100%',
+		},
 });
 
 const tableRendererHeaderStylesForTableCellOnly = css({
@@ -1971,19 +2405,16 @@ const tableRendererHeaderStylesForTableCellOnly = css({
 			minWidth: `${tableCellMinWidth}px`,
 			fontWeight: token('font.weight.regular'),
 			verticalAlign: 'top',
-			border: `${token('border.width')} solid ${token(
-				'color.background.accent.gray.subtler',
-				akEditorTableBorder,
-			)}`,
+			border: `${token('border.width')} solid ${token('color.background.accent.gray.subtler')}`,
 			borderRightWidth: 0,
 			borderBottomWidth: 0,
-			paddingTop: token('space.100', '8px'),
-			paddingRight: token('space.100', '8px'),
-			paddingBottom: token('space.100', '8px'),
-			paddingLeft: token('space.100', '8px'),
+			paddingTop: token('space.100'),
+			paddingRight: token('space.100'),
+			paddingBottom: token('space.100'),
+			paddingLeft: token('space.100'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'th p:not(:first-of-type), td p:not(:first-of-type)': {
-				marginTop: token('space.150', '12px'),
+				marginTop: token('space.150'),
 			},
 		},
 	},
@@ -1991,7 +2422,7 @@ const tableRendererHeaderStylesForTableCellOnly = css({
 
 const tableRendererNestedPanelStyles = css({
 	[`.${TableSharedCssClassName.TABLE_CONTAINER} .ak-editor-panel`]: {
-		border: `${token('border.width', '1px')} solid ${token('color.border', '#d9dbea')}`,
+		border: `${token('border.width')} solid ${token('color.border')}`,
 	},
 });
 
@@ -2019,29 +2450,6 @@ const firstNodeWithNotMarginTopWithNestedDnD = css({
 	},
 });
 
-const firstNodeWithNotMarginTop = css({
-	[`.${TableSharedCssClassName.TABLE_CONTAINER} > table,
-		.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table,
-		.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]: {
-		'> tbody > tr > th, > tbody > tr > td': {
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-			'> :first-child:not(style), > style:first-child + *': {
-				marginTop: 0,
-			},
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-			'> .ProseMirror-gapcursor:first-child + *, > style:first-child + .ProseMirror-gapcursor + *':
-				{
-					marginTop: 0,
-				},
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-			'> .ProseMirror-gapcursor:first-child + span + *, > style:first-child + .ProseMirror-gapcursor + span + *':
-				{
-					marginTop: 0,
-				},
-		},
-	},
-});
-
 const rendererTableStyles = css({
 	[`.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}`]: {
 		zIndex: 0,
@@ -2057,11 +2465,11 @@ const rendererTableStyles = css({
 			background: `linear-gradient(
 					to left,
 					transparent 0,
-					${token('elevation.shadow.overflow.spread', N40A)} 140%
+					${token('elevation.shadow.overflow.spread')} 140%
 				),
 				linear-gradient(
 					to right,
-					${token('elevation.shadow.overflow.perimeter', 'transparent')} 0px,
+					${token('elevation.shadow.overflow.perimeter')} 0px,
 					transparent 1px
 				)`,
 		},
@@ -2070,11 +2478,11 @@ const rendererTableStyles = css({
 			background: `linear-gradient(
 					to right,
 					transparent 0,
-					${token('elevation.shadow.overflow.spread', N40A)} 140%
+					${token('elevation.shadow.overflow.spread')} 140%
 				),
 				linear-gradient(
 					to left,
-					${token('elevation.shadow.overflow.perimeter', 'transparent')} 0px,
+					${token('elevation.shadow.overflow.perimeter')} 0px,
 					transparent 1px
 				)`,
 			right: `0px`,
@@ -2100,7 +2508,7 @@ const stickyScrollbarStyles = css({
 			visibility: 'hidden',
 			overflowX: 'auto',
 			position: 'sticky',
-			bottom: `${token('space.0', '0px')}`,
+			bottom: `${token('space.0')}`,
 			zIndex: 1,
 		},
 
@@ -2119,7 +2527,17 @@ const stickyScrollbarStyles = css({
 			top: `${tableRowHeight * 3}px`,
 		},
 		[`> .${TableSharedCssClassName.TABLE_STICKY_SCROLLBAR_SENTINEL_BOTTOM}`]: {
-			bottom: `${token('space.250', '20px')}`, // MAX_BROWSER_SCROLLBAR_HEIGHT = 20;
+			bottom: `${token('space.250')}`, // MAX_BROWSER_SCROLLBAR_HEIGHT = 20;
+		},
+	},
+});
+
+const stickyScrollbarOverflowShadowFixStyles = css({
+	[`.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}`]: {
+		[`&.${shadowClassNames.RIGHT_SHADOW}::after, &.${shadowClassNames.LEFT_SHADOW}::before`]: {
+			// The sticky scrollbar retains this space in the table container's layout even while hidden.
+			bottom: token('space.250'),
+			height: 'auto',
 		},
 	},
 });
@@ -2154,6 +2572,7 @@ const rendererTableSortableColumnStyles = css({
 						width: '100%',
 						height: '100%',
 						padding: `${tableCellPadding}px`,
+						// eslint-disable-next-line @atlaskit/design-system/use-tokens-shape
 						borderWidth: '1.5px',
 						borderStyle: 'solid',
 						borderColor: `transparent`,
@@ -2180,7 +2599,7 @@ const rendererTableSortableColumnStyles = css({
 								outline: 'unset',
 							},
 							'&:focus-visible': {
-								borderColor: `${token('color.border.focused', B300)}`,
+								borderColor: `${token('color.border.focused')}`,
 							},
 						},
 					},
@@ -2220,16 +2639,37 @@ const rendererTableSortableColumnStyles = css({
 	},
 });
 
+// Sortable header cells render content inside an extra div, so mirror the th alignment there.
+const rendererTableSortableColumnValignStyles = css({
+	[`.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}`]: {
+		[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table, .${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]:
+			{
+				[`th[data-valign='middle'].${RendererCssClassName.SORTABLE_COLUMN_WRAPPER} > .${RendererCssClassName.SORTABLE_COLUMN}`]:
+					{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'center',
+					},
+				[`th[data-valign='bottom'].${RendererCssClassName.SORTABLE_COLUMN_WRAPPER} > .${RendererCssClassName.SORTABLE_COLUMN}`]:
+					{
+						display: 'flex',
+						flexDirection: 'column',
+						justifyContent: 'flex-end',
+					},
+			},
+	},
+});
+
 const rendererTableColumnStyles = css({
 	[`.${RendererCssClassName.DOCUMENT} .${TableSharedCssClassName.TABLE_CONTAINER}`]: {
 		'table[data-number-column="true"]': {
 			[`.${RendererCssClassName.NUMBER_COLUMN}`]: {
 				backgroundColor: `${token('color.background.accent.gray.subtlest')}`,
 				borderRight: `${token('border.width')} solid
-								${token('color.background.accent.gray.subtler', akEditorTableBorder)}`,
+								${token('color.background.accent.gray.subtler')}`,
 				width: `${akEditorTableNumberColumnWidth}px`,
 				textAlign: 'center',
-				color: `${token('color.text.subtlest', N200)}`,
+				color: `${token('color.text.subtlest')}`,
 				// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 				fontSize: `${14 / 16} rem`,
 			},
@@ -2292,14 +2732,8 @@ const stickyHeaderStyles = css({
 		overflow: 'hidden',
 		zIndex: `${akEditorStickyHeaderZIndex}`,
 
-		borderRight: `${token('border.width')} solid ${token(
-			'color.background.accent.gray.subtler',
-			akEditorTableBorder,
-		)}`,
-		borderBottom: `${token('border.width')} solid ${token(
-			'color.background.accent.gray.subtler',
-			akEditorTableBorder,
-		)}`,
+		borderRight: `${token('border.width')} solid ${token('color.background.accent.gray.subtler')}`,
+		borderBottom: `${token('border.width')} solid ${token('color.background.accent.gray.subtler')}`,
 
 		/* this is to compensate for the table border */
 		transform: 'translateX(-1px)',
@@ -2321,10 +2755,10 @@ const stickyHeaderStyles = css({
  and work around background-clip: padding-box
  bug for FF causing box-shadow bug in Chrome */
 	'.sticky th, .sticky td': {
-		boxShadow: `0px 1px ${token('color.background.accent.gray.subtler', akEditorTableBorder)},
-			0px -0.5px ${token('color.background.accent.gray.subtler', akEditorTableBorder)},
-			inset -1px 0px ${token('color.background.accent.gray.subtler', akEditorTableToolbar)},
-			0px -1px ${token('color.background.accent.gray.subtler', akEditorTableToolbar)}`,
+		boxShadow: `0px 1px ${token('color.background.accent.gray.subtler')},
+			0px -0.5px ${token('color.background.accent.gray.subtler')},
+			inset -1px 0px ${token('color.background.accent.gray.subtler')},
+			0px -1px ${token('color.background.accent.gray.subtler')}`,
 	},
 
 	/* this will remove jumpiness caused in Chrome for sticky headers */
@@ -2373,9 +2807,9 @@ const codeBlockAndLayoutStyles = css({
 	},
 
 	'& [data-layout-section]': {
-		marginTop: token('space.250', '20px'),
+		marginTop: token('space.250'),
 		'& > div + div': {
-			marginLeft: token('space.400', '32px'),
+			marginLeft: token('space.400'),
 		},
 
 		[`@media screen and (max-width: ${gridMediumMaxWidth}px)`]: {
@@ -2407,6 +2841,37 @@ const codeBlockAndLayoutStyles = css({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'> div:last-of-type.code-block': {
 			marginBottom: blockNodesVerticalMargin,
+		},
+	},
+});
+
+// Match the first content sibling throughout streaming SSR and hydration. Emotion moves
+// style elements to the head, which must not change code block or media group spacing.
+// Keep these selectors less specific than the top-level lightweight code block override.
+const blockSsrMarginStyles = css({
+	'& .MediaGroup:not(:not(style, script) ~ *), & .code-block:not(:not(style, script) ~ *)': {
+		marginTop: 0,
+	},
+	'& [data-layout-section] .MediaGroup:not(:not(style, script) ~ *), & [data-layout-section] .code-block:not(:not(style, script) ~ *), & li > .code-block:not(:not(style, script) ~ *)':
+		{
+			marginTop: 0,
+		},
+});
+
+// Layout columns start with an empty margin-reset element. Ignore only streamed siblings
+// between that element and the first code block/media group, preserving later block spacing.
+const layoutBlockSsrMarginStyles = css({
+	'& [data-layout-column-start] ~ .code-block:not([data-layout-column-start] ~ :not(style, script) ~ *), & [data-layout-column-start] ~ .MediaGroup:not([data-layout-column-start] ~ :not(style, script) ~ *)':
+		{
+			marginTop: 0,
+		},
+});
+
+const codeBlockInListSsrMarginSafariFixStyles = css({
+	[`&:not([data-node-type='decisionList']) > li,
+		&:not(.${SmartCardSharedCssClassName.BLOCK_CARD_CONTAINER}) > li`]: {
+		'> .code-block:not(:not(style, script) ~ *)': {
+			marginTop: `-${akEditorLineHeight}em !important`,
 		},
 	},
 });
@@ -2476,7 +2941,7 @@ const columnLayoutResponsiveSharedStyle = css({
 	'[data-layout-section]': {
 		display: 'flex',
 		flexDirection: 'row',
-		gap: token('space.100', '8px'),
+		gap: token('space.100'),
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'& > *': {
@@ -2499,29 +2964,45 @@ const columnLayoutResponsiveSharedStyle = css({
 const columnLayoutResponsiveRendererStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.layout-section-container [data-layout-section]': {
-		gap: token('space.600', '48px'),
+		gap: token('space.600'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-container-queries
 		[`@container layout-area (max-width: ${LAYOUT_BREAKPOINT_RENDERER}px)`]: {
 			flexDirection: 'column',
-			gap: token('space.400', '32px'),
+			gap: token('space.400'),
 		},
 	},
 });
 
-const rendererAnnotationStyles = css({
+const rendererAnnotationStylesOld = css({
 	"& [data-mark-type='annotation'][data-mark-annotation-state='active'] [data-annotation-mark], & [data-annotation-draft-mark][data-annotation-inline-node]":
 		{
-			background: token('color.background.accent.yellow.subtler', Y75),
+			background: token('color.background.accent.yellow.subtler'),
 			borderBottom: `${token('border.width.selected')} solid ${token(
 				'color.border.accent.yellow',
-				Y300,
 			)}`,
-			boxShadow: token('elevation.shadow.overlay', `1px 2px 3px ${N60A}, -1px 2px 3px ${N60A}`),
+			boxShadow: token('elevation.shadow.overlay'),
 			cursor: 'pointer',
-			paddingTop: token('space.050', '4px'),
-			paddingRight: token('space.025', '2px'),
-			paddingBottom: token('space.050', '4px'),
-			paddingLeft: token('space.025', '2px'),
+			paddingTop: token('space.050'),
+			paddingRight: token('space.025'),
+			paddingBottom: token('space.050'),
+			paddingLeft: token('space.025'),
+		},
+});
+
+const rendererAnnotationStyles = css({
+	"& [data-mark-type='annotation'][data-mark-annotation-state='active'] [data-annotation-mark]": {
+		background: token('color.background.accent.yellow.subtlest'),
+		borderBottom: `${token('border.width.selected')} solid ${token('color.border.accent.yellow')}`,
+		cursor: 'pointer',
+		paddingTop: token('space.050'),
+		paddingRight: token('space.025'),
+		paddingBottom: token('space.050'),
+		paddingLeft: token('space.025'),
+	},
+	"& [data-mark-type='annotation'][data-mark-annotation-state='active'][data-has-focus='true'] [data-annotation-mark]":
+		{
+			background: token('color.background.accent.yellow.subtlest.pressed'),
+			boxShadow: token('elevation.shadow.overlay'),
 		},
 });
 
@@ -2535,9 +3016,9 @@ const rendererAnnotationStylesCommentHeightFix = css({
 		paddingRight: 0,
 		paddingBottom: token('space.025'),
 		paddingLeft: 0,
-		backgroundColor: token('color.background.accent.yellow.subtler', Y75),
-		borderBottomColor: token('color.border.accent.yellow', Y300),
-		boxShadow: token('elevation.shadow.overlay', `1px 2px 3px ${N60A}, -1px 2px 3px ${N60A}`),
+		backgroundColor: token('color.background.accent.yellow.subtler'),
+		borderBottomColor: token('color.border.accent.yellow'),
+		boxShadow: token('elevation.shadow.overlay'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'& [data-annotation-draft-mark][data-annotation-inline-node][data-inline-card]': {
@@ -2545,7 +3026,7 @@ const rendererAnnotationStylesCommentHeightFix = css({
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'& [data-annotation-draft-mark][data-annotation-inline-node].date-lozenger-container': {
-		paddingTop: token('space.025', '2px'),
+		paddingTop: token('space.025'),
 	},
 });
 
@@ -2591,6 +3072,35 @@ const scaledDenseEmojiStyles = css({
 			height: `${defaultDenseEmojiHeight}px`,
 			width: `${defaultDenseEmojiHeight}px`,
 		},
+	// sync with platform/packages/linking-platform/smart-card/src/view/InlineCard/IconAndTitleLayout/index.tsx
+	[`[data-testid="icon-wrapper"] :is(.${EmojiSharedCssClassName.EMOJI_IMAGE}, .${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_PLACEHOLDER})`]:
+		{
+			minHeight: `${defaultInlineEmojiHeight}px`,
+			minWidth: `${defaultInlineEmojiHeight}px`,
+			height: `${defaultInlineEmojiHeight}px`,
+			width: `${defaultInlineEmojiHeight}px`,
+		},
+});
+
+const scaledDenseUnicodeEmojiStylesNew = css({
+	[`[data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${defaultDenseEmojiHeight}px`,
+	},
+	[`h1 [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${denseEmojiHeightH1}px`,
+	},
+	[`h2 [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${denseEmojiHeightH2}px`,
+	},
+	[`h3 [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${denseEmojiHeightH3}px`,
+	},
+	[`h4 [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${denseEmojiHeightH4}px`,
+	},
+	[`:is(h5, h6, p) [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${defaultDenseEmojiHeight}px`,
+	},
 });
 
 const scaledEmojiStyles = css({
@@ -2632,6 +3142,35 @@ const scaledEmojiStyles = css({
 			height: `${defaultEmojiHeight}px`,
 			width: `${defaultEmojiHeight}px`,
 		},
+	// sync with platform/packages/linking-platform/smart-card/src/view/InlineCard/IconAndTitleLayout/index.tsx
+	[`[data-testid="icon-wrapper"] :is(.${EmojiSharedCssClassName.EMOJI_IMAGE}, .${EmojiSharedCssClassName.EMOJI_SPRITE}, .${EmojiSharedCssClassName.EMOJI_PLACEHOLDER})`]:
+		{
+			minHeight: `${defaultInlineEmojiHeight}px`,
+			minWidth: `${defaultInlineEmojiHeight}px`,
+			height: `${defaultInlineEmojiHeight}px`,
+			width: `${defaultInlineEmojiHeight}px`,
+		},
+});
+
+const scaledUnicodeEmojiStylesNew = css({
+	[`[data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${defaultEmojiHeight}px`,
+	},
+	[`h1 [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH1}px`,
+	},
+	[`h2 [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH2}px`,
+	},
+	[`h3 [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH3}px`,
+	},
+	[`h4 [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${scaledEmojiHeightH4}px`,
+	},
+	[`:is(h5, h6, p) [data-emoji-type="unicode"]`]: {
+		'--emoji-common-unicode-size': `${defaultEmojiHeight}px`,
+	},
 });
 
 const denseStyles = css({
@@ -2655,8 +3194,8 @@ const denseStyles = css({
 	// Scale panel icon
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	[`.${RendererCssClassName.DOCUMENT} .ak-editor-panel .ak-editor-panel__icon`]: {
-		height: token('space.250', '20px'),
-		width: token('space.250', '20px'),
+		height: token('space.250'),
+		width: token('space.250'),
 	},
 
 	// Condense spacing across lists, tasks and decisions
@@ -2695,12 +3234,77 @@ const denseStyles = css({
 	},
 });
 
+const syncBlockRendererStyles = css({
+	margin: 0,
+	maxWidth: 'none',
+	padding: 0,
+});
+
+/**
+ * Fake left/right table borders.
+ *
+ * Adapted from the editor-plugin-table behavior (see editor-common's
+ * `tableSharedStyle()` in `editor-common/src/styles/shared/table.ts`). The
+ * visible vertical edges of the table are painted by these absolutely-positioned
+ * 1px divs that live inside the (non-scrolling) TABLE_CONTAINER, while the real
+ * <table> left/right borders are made `transparent`. Because the divs are not
+ * inside the horizontally scrolling TABLE_NODE_WRAPPER, they remain visible
+ * regardless of scroll position — fixing the missing right border when an
+ * overflowing table inside a reference synced block is scrolled all the way to
+ * the left.
+ *
+ * The `height` formula adjusted for table in renderer
+ */
+const tableFakeBorderStyles = css({
+	[`.${TableSharedCssClassName.TABLE_CONTAINER}`]: {
+		// Mirror the editor's tableSharedStyle() rule from
+		// `editor-common/src/styles/shared/table.ts` (lines 142-150). The fake
+		// borders are absolutely positioned inside pm-table-container;
+		// their height is adjusted for renderer to `100% - space.300 - space.250` so the border runs from
+		// the top of the table to the bottom of the container
+		[`.${TableSharedCssClassName.TABLE_RIGHT_BORDER},
+		.${TableSharedCssClassName.TABLE_LEFT_BORDER}`]: {
+			display: 'block',
+			width: '1px',
+			height: `calc(100% - ${token('space.300')} - ${token('space.250')})`,
+			background: token('color.background.accent.gray.subtler'),
+			position: 'absolute',
+			top: token('space.300'),
+		},
+		[`.${TableSharedCssClassName.TABLE_RIGHT_BORDER}`]: {
+			right: 0,
+		},
+		[`.${TableSharedCssClassName.TABLE_LEFT_BORDER},
+		.${TableSharedCssClassName.TABLE_LEFT_BORDER}[data-with-numbered-table='true']`]: {
+			left: 0,
+		},
+	},
+	// Make the real left/right table borders transparent so the fake border
+	// divs above are the only painted vertical edges. Top/bottom borders on the
+	// <table> element remain visible.
+	[`.${TableSharedCssClassName.TABLE_NODE_WRAPPER} > table,
+	.${TableSharedCssClassName.TABLE_STICKY_WRAPPER} > table`]: {
+		borderLeftColor: 'transparent',
+		borderRightColor: 'transparent',
+	},
+});
+
+const roundedTableFakeBorderOverlayStyles = css({
+	[`.${TableSharedCssClassName.TABLE_CONTAINER}`]: {
+		[`.${TableSharedCssClassName.TABLE_RIGHT_BORDER},
+		.${TableSharedCssClassName.TABLE_LEFT_BORDER}`]: {
+			display: 'none',
+		},
+	},
+});
+
 const syncBlockStyles = css({
 	[`.${SyncBlockSharedCssClassName.renderer}, .${BodiedSyncBlockSharedCssClassName.renderer}, .${SyncBlockSharedCssClassName.error}, .${SyncBlockSharedCssClassName.loading}`]:
 		{
 			borderRadius: token('radius.small', '3px'),
-			marginTop: token('space.075', '6px'),
-			paddingBlock: token('space.150', '12px'),
+			marginTop: token('space.075'),
+			paddingBlock: token('space.150'),
+			overflow: 'visible',
 		},
 
 	[`.${SyncBlockSharedCssClassName.renderer}`]: {
@@ -2726,21 +3330,6 @@ const syncBlockStyles = css({
 	},
 });
 
-const syncBlockOverflowStyles = css({
-	[`.${SyncBlockSharedCssClassName.renderer}, .${BodiedSyncBlockSharedCssClassName.renderer}, .${SyncBlockSharedCssClassName.error}, .${SyncBlockSharedCssClassName.loading}`]:
-		{
-			// Contain floated elements (wrap-left/wrap-right) within synced block borders
-			overflow: 'hidden',
-		},
-});
-
-const syncBlockPatch2Styles = css({
-	[`.${SyncBlockSharedCssClassName.renderer}, .${BodiedSyncBlockSharedCssClassName.renderer}, .${SyncBlockSharedCssClassName.error}, .${SyncBlockSharedCssClassName.loading}`]:
-	{
-		overflow: 'visible',
-	}
-});
-
 type RendererStyleContainerProps = Pick<
 	RendererWrapperProps,
 	| 'onClick'
@@ -2756,10 +3345,12 @@ type RendererStyleContainerProps = Pick<
 	| 'children'
 	| 'allowRendererContainerStyles'
 > & {
+	isInsideOfSyncBlock?: boolean;
+	isInsideSyncBlock?: boolean;
 	testId?: string;
 };
 
-export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
+export const RendererStyleContainer = (props: RendererStyleContainerProps): jsx.JSX.Element => {
 	const {
 		onClick,
 		onMouseDown,
@@ -2771,13 +3362,8 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 		children,
 		innerRef,
 		testId,
+		isInsideSyncBlock,
 	} = props;
-
-	// Scroll to localId functionality
-	useScrollToLocalId(
-		innerRef,
-		expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true),
-	);
 
 	const isAdvancedLayoutsOn = editorExperiment('advanced_layouts', true);
 	const isPreviewPanelResponsivenessOn = editorExperiment(
@@ -2785,33 +3371,29 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 		true,
 		{ exposure: true },
 	);
-
-	const isCompactModeSupported =
-		expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-		(expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-			fg('platform_editor_content_mode_button_mvp'));
-	const isCompactModeEnabled = contentMode === 'compact' && isCompactModeSupported;
-
+	const isStickyScrollbarOn = isStickyScrollbarEnabled(appearance);
 	const baseFontSize = getBaseFontSize(appearance, contentMode);
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
+
 	return (
-		// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 		<div
+			role="none"
 			ref={innerRef}
 			onClick={onClick}
 			onMouseDown={onMouseDown}
 			style={
 				{
 					'--ak-renderer-base-font-size': `${baseFontSize}px`,
-					'--ak-renderer-editor-font-heading-h1': `${editorUGCToken('editor.font.heading.h1')}`,
-					'--ak-renderer-editor-font-heading-h2': `${editorUGCToken('editor.font.heading.h2')}`,
-					'--ak-renderer-editor-font-heading-h3': `${editorUGCToken('editor.font.heading.h3')}`,
-					'--ak-renderer-editor-font-heading-h4': `${editorUGCToken('editor.font.heading.h4')}`,
-					'--ak-renderer-editor-font-heading-h5': `${editorUGCToken('editor.font.heading.h5')}`,
-					'--ak-renderer-editor-font-heading-h6': `${editorUGCToken('editor.font.heading.h6')}`,
-					'--ak-renderer-editor-font-normal-text': `${editorUGCToken('editor.font.body')}`,
+					'--ak-renderer-editor-font-heading-h1': `${editorUGCTokensRefreshed['editor.font.heading.h1']}`,
+					'--ak-renderer-editor-font-heading-h2': `${editorUGCTokensRefreshed['editor.font.heading.h2']}`,
+					'--ak-renderer-editor-font-heading-h3': `${editorUGCTokensRefreshed['editor.font.heading.h3']}`,
+					'--ak-renderer-editor-font-heading-h4': `${editorUGCTokensRefreshed['editor.font.heading.h4']}`,
+					'--ak-renderer-editor-font-heading-h5': `${editorUGCTokensRefreshed['editor.font.heading.h5']}`,
+					'--ak-renderer-editor-font-heading-h6': `${editorUGCTokensRefreshed['editor.font.heading.h6']}`,
+					'--ak-renderer-editor-font-normal-text': `${editorUGCTokensRefreshed['editor.font.body']}`,
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- CSS custom properties for UGC font tokens
+					'--ak-renderer-editor-font-small-text':
+						editorUGCTokensRefreshed['editor.font.body.small'],
 				} as React.CSSProperties
 			}
 			css={[
@@ -2819,9 +3401,11 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 					? baseFontStyle
 					: originalBaseFontLineHeight,
 				baseStyles,
+				fontSizeStyles,
 				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
 					? headingAnchorStyles
 					: headingAnchorStylesDuplicateAnchor,
+				headingAnchorButtonFocusVisibleStyles,
 				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
 					? hideHeadingCopyLinkWrapperStyles
 					: hideHeadingCopyLinkWrapperStylesDuplicateAnchor,
@@ -2829,40 +3413,39 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 					isPreviewPanelResponsivenessOn &&
 					rendererFullPageStylesWithReducedPadding,
 				appearance === 'full-page' && !isPreviewPanelResponsivenessOn && rendererFullPageStyles,
-				appearance === 'full-width' && rendererFullWidthStyles,
-				(appearance === 'full-width' ||
-					(appearance === 'max' &&
-						(expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-							expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)))) &&
+				appearance === 'full-width' &&
+					(expValEquals('platform_editor_remove_important_in_render_ext', 'isEnabled', true)
+						? rendererFullWidthStyles
+						: oldRendererFullWidthStyles),
+				(appearance === 'full-width' || appearance === 'max') &&
 					!isTableResizingEnabled(appearance) &&
 					rendererFullWidthStylesForTableResizing,
 				appearance === 'max' &&
-					(expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-						expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)) &&
-					rendererMaxWidthStyles,
+					(expValEquals('platform_editor_remove_important_in_render_ext', 'isEnabled', true)
+						? rendererMaxWidthStyles
+						: oldRendererMaxWidthStyles),
+
 				rovoTelepointerStyles,
 				whitespaceSharedStyles,
 				blockquoteSharedStyles,
 				headingsSharedStyles,
 				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true) &&
 					headingWrapperInlineFlowStyles,
+				isExperimentEnabled('platform_editor_heading_link_target_size') &&
+					headingAnchorWrapperTargetSizeStyles,
 				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
 					? headingWithAlignmentStyles
 					: headingWithAlignmentStylesDuplicateAnchor,
 				ruleSharedStyles,
-				contentMode === 'compact' && isCompactModeSupported && extensionStyle,
-				fg('platform_editor_typography_ugc')
-					? isCompactModeSupported
-						? paragraphStylesUGCScaledMargin
-						: paragraphSharedStylesWithEditorUGC
-					: isCompactModeSupported
-					? paragraphSharedStyleScaledMargin
-					: paragraphSharedStyles,
+				contentMode === 'compact' && extensionStyle,
+				contentMode === 'compact'
+					? paragraphStylesUGCScaledMargin
+					: paragraphSharedStylesWithEditorUGC,
 				listsSharedStyles,
 				browser.gecko && listsSharedStylesForGekko,
+				listItemHiddenMarkerStyles,
 				indentationSharedStyles,
-				fg('platform_editor__renderer_indentation_text_margin') &&
-					indentationSharedStylesWithMarginFix,
+				indentationSharedStylesWithMarginFix,
 				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
 					? blockMarksSharedStyles
 					: blockMarksSharedStylesDuplicateAnchor,
@@ -2871,44 +3454,66 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 				dateSharedStyle,
 				textColorStyles,
 				backgroundColorStyles,
+				!expValEquals('platform_editor_lovability_text_bg_color', 'isEnabled', true) &&
+					highlightLinksUnsetStyles,
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values
 				textHighlightPaddingStyles,
 				tasksAndDecisionsStyles,
+				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true) &&
+					headingPanelStyles,
 				smartCardStyles,
 				smartCardStylesAvatarFix,
-				editorExperiment('platform_editor_preview_panel_linking_exp', true) &&
-					headerSmartCardStyles,
+				headerSmartCardStyles,
 				smartCardStylesAvatarMarginFix,
 				smartCardStylesAvatarListZeroMarginTop,
-				fg('editor_inline_comments_on_inline_nodes') && rendererAnnotationStyles,
+				fg('editor_inline_comments_on_inline_nodes') &&
+					(expValEquals('confluence_fe_renderer_inline_node_mark_color_fix', 'isEnabled', true)
+						? rendererAnnotationStyles
+						: rendererAnnotationStylesOld),
 				// eslint-disable-next-line @atlaskit/platform/no-preconditioning
 				fg('editor_inline_comments_on_inline_nodes') && rendererAnnotationStylesCommentHeightFix,
 				expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
 					? baseOtherStyles
 					: baseOtherStylesDuplicateAnchor,
+				expandSsrMarginStyles,
 				// this should be placed after baseOtherStyles
 				expValEquals('platform_editor_render_bodied_extension_as_inline', 'isEnabled', true) &&
-					extensionAsInlineStyle,
-				expValEquals('confluence_insert_excerpt_inline_vertical_align', 'isEnabled', true) &&
-					inlineExtensionRendererMarginFix,
+					(expValEquals('platform_editor_remove_important_in_render_ext', 'isEnabled', true)
+						? extensionAsInlineStyle
+						: oldExtensionAsInlineStyle),
+				fg('platform_forge_inline_bodied_macro') && [
+					migratedInlineBodiedFlowStyle,
+					forgeInlineBodiedSpacingStyle,
+				],
+				inlineExtensionRendererMarginFix,
 				allowNestedHeaderLinks &&
 					(expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
 						? alignedHeadingAnchorStyle
 						: alignedHeadingAnchorStyleDuplicateAnchor),
 				mediaSingleSharedStyle,
-				// merge firstWrappedMediaStyles with mediaSingleSharedStyle when clean up platform_editor_fix_media_in_renderer
-				fg('platform_editor_fix_media_in_renderer') && firstWrappedMediaStyles,
+				firstWrappedMediaStyles,
 				tableSharedStyle,
+				expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true) &&
+					roundedTableOuterBorderOverlayStyles,
+				expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true) &&
+					roundedTableRemixBlockHighlightStyles,
+				tableContentModeScopedStyles,
+				tableContentModeExtensionContainmentStyles,
+				tableContentModeNestedTableStyles,
 				tableRendererHeaderStylesForTableCellOnly,
 				fg('platform_editor_bordered_panel_nested_in_table') && tableRendererNestedPanelStyles,
 				isBackgroundClipBrowserFixNeeded() && tableStylesBackGroundClipForGeckoForTableCellOnly,
-				fg('platform_editor_nested_dnd_styles_changes')
-					? firstNodeWithNotMarginTopWithNestedDnD
-					: firstNodeWithNotMarginTop,
+				firstNodeWithNotMarginTopWithNestedDnD,
 				rendererTableStyles,
-				isStickyScrollbarEnabled(appearance) && stickyScrollbarStyles,
+				isStickyScrollbarOn && stickyScrollbarStyles,
+				isStickyScrollbarOn &&
+					isExperimentEnabled('platform_editor_table_css_overflow_shadow') &&
+					stickyScrollbarOverflowShadowFixStyles,
 				rendererTableHeaderEqualHeightStylesForTableCellOnly,
 				allowColumnSorting && rendererTableSortableColumnStyles,
+				allowColumnSorting &&
+					expValEqualsNoExposure('platform_editor_table_menu_updates', 'isEnabled', true) &&
+					rendererTableSortableColumnValignStyles,
 				allowColumnSorting &&
 					allowNestedHeaderLinks &&
 					(expValEquals('platform_editor_copy_link_a11y_inconsistency_fix', 'isEnabled', true)
@@ -2923,25 +3528,33 @@ export const RendererStyleContainer = (props: RendererStyleContainerProps) => {
 				isAdvancedLayoutsOn && layoutSectionForAdvancedLayoutsStyles,
 				!useBlockRenderForCodeBlock && gridRenderForCodeBlockStyles,
 				browser.safari && codeBlockInListSafariFixStyles,
+				fg('platform_renderer_ssr_block_margin_fix') && [
+					blockSsrMarginStyles,
+					layoutBlockSsrMarginStyles,
+					browser.safari && codeBlockInListSsrMarginSafariFixStyles,
+				],
 				appearance === 'full-page' && !isPreviewPanelResponsivenessOn && responsiveBreakoutWidth,
 				appearance === 'full-page' &&
 					isPreviewPanelResponsivenessOn &&
 					responsiveBreakoutWidthWithReducedPadding,
-				(appearance === 'full-width' ||
-					(appearance === 'max' &&
-						(expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-							expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)))) &&
-					responsiveBreakoutWidthFullWidth,
+				(appearance === 'full-width' || appearance === 'max') && responsiveBreakoutWidthFullWidth,
 				expValEquals('platform_editor_lovability_emoji_scaling', 'isEnabled', true)
-					? isCompactModeEnabled
+					? contentMode === 'compact'
 						? scaledDenseEmojiStyles
 						: scaledEmojiStyles
-					: isCompactModeEnabled
-					? denseStyles
-					: undefined,
-				editorExperiment('platform_synced_block', true) && syncBlockStyles,
-				editorExperiment('platform_synced_block', true) && syncBlockOverflowStyles,
-                editorExperiment('platform_synced_block', true) && fg('platform_synced_block_patch_2') && syncBlockPatch2Styles,
+					: contentMode === 'compact'
+						? denseStyles
+						: undefined,
+				contentMode === 'compact' ? scaledDenseUnicodeEmojiStylesNew : scaledUnicodeEmojiStylesNew,
+				syncBlockStyles,
+				centerWrapperStyles,
+				isInsideSyncBlock ? syncBlockRendererStyles : null,
+				isInsideSyncBlock && tableFakeBorderStyles,
+				isInsideSyncBlock && expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+					? roundedTableFakeBorderOverlayStyles
+					: null,
+				expValEquals('platform_editor_hide_extension_renderer_support', 'isEnabled', true) &&
+					hideExtensionStyles,
 			]}
 			data-testid={testId}
 		>

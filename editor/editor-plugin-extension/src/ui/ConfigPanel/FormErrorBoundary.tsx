@@ -1,10 +1,12 @@
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import { withAnalyticsContext, withAnalyticsEvents } from '@atlaskit/analytics-next';
+import type { WithContextProps } from '@atlaskit/analytics-next/withAnalyticsContext';
+import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
 import type { AnalyticsEventPayload } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -16,7 +18,7 @@ import type { FieldDefinition } from '@atlaskit/editor-common/extensions';
 import { configPanelMessages as messages } from '@atlaskit/editor-common/extensions';
 import type { ContextIdentifierProvider } from '@atlaskit/editor-common/provider-factory';
 import { Stack, Text } from '@atlaskit/primitives/compiled';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 
 interface ErrorInfo {
 	componentStack: string;
@@ -130,9 +132,28 @@ class FormErrorBoundaryInner extends React.Component<
 	}
 }
 
-export const FormErrorBoundaryImpl = injectIntl(FormErrorBoundaryInner);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const FormErrorBoundaryImpl: React.FC<
+	WithIntlProps<Props & WithAnalyticsEventsProps & WrappedComponentProps>
+> & {
+	WrappedComponent: React.ComponentType<Props & WithAnalyticsEventsProps & WrappedComponentProps>;
+} = injectIntl(FormErrorBoundaryInner);
 
-export const FormErrorBoundary = withAnalyticsContext()(
-	withAnalyticsEvents()(FormErrorBoundaryImpl),
-);
+export const FormErrorBoundary: React.ForwardRefExoticComponent<
+	Omit<
+		Omit<
+			Omit<Props & WithAnalyticsEventsProps & WrappedComponentProps, 'intl'> & {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				forwardedRef?: React.Ref<any>;
+			},
+			keyof WithAnalyticsEventsProps
+		> &
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			React.RefAttributes<any> &
+			WithContextProps,
+		'ref'
+	> &
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		React.RefAttributes<any>
+> = withAnalyticsContext()(withAnalyticsEvents()(FormErrorBoundaryImpl));
 FormErrorBoundary.displayName = 'FormErrorBoundary';

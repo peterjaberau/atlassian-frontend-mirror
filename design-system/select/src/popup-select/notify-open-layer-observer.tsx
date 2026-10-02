@@ -1,4 +1,4 @@
-import { useNotifyOpenLayerObserver } from '@atlaskit/layering/experimental/open-layer-observer';
+import { useNotifyOpenLayerObserver } from '@atlaskit/layering/use-notify-open-layer-observer';
 
 type NotifyOpenLayerObserverProps = {
 	isOpen: boolean;
@@ -18,7 +18,6 @@ type NotifyOpenLayerObserverProps = {
  * concern is that the observer can know if there are _any_ open layers (0, or 1+), and how to close them.
  */
 export function NotifyOpenLayerObserver({ isOpen, onClose }: NotifyOpenLayerObserverProps): null {
-	// @ts-ignore error TS2353: Object literal may only specify known properties, and &#39;onClose&#39; does not exist in type &#39;{ isOpen?: boolean | undefined; }&#39;.
 	useNotifyOpenLayerObserver({ isOpen, onClose });
 
 	return null;

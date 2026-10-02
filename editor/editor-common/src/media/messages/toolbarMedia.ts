@@ -1,6 +1,12 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const toolbarMediaMessages = defineMessages({
+export const toolbarMediaMessages: {
+	toolbarMediaTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	toolbarMediaTitle: {
 		id: 'fabric.editor.toolbarMediaTitle',
 		defaultMessage: 'Add image, video, or file',

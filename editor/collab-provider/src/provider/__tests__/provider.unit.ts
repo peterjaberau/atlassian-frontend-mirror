@@ -23,6 +23,7 @@ jest.mock('../../channel', () => {
 				return this;
 			}),
 			connect: jest.fn(),
+			getConnected: () => true,
 			broadcast: () => jest.fn(),
 			fetchCatchupv2: () => jest.fn(),
 			sendMetadata: () => jest.fn(),
@@ -47,28 +48,28 @@ import type { UserPermitType } from '@atlaskit/editor-common/collab';
 import { Node } from '@atlaskit/editor-prosemirror/model';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { nextTick } from '@atlaskit/editor-test-helpers/next-tick';
+// eslint-disable-next-line import/default
+import ProseMirrorCollab from '@atlaskit/prosemirror-collab';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
 import type { Provider } from '../';
 import { MAX_STEP_REJECTED_ERROR } from '../';
 import AnalyticsHelper from '../../analytics/analytics-helper';
+import { Api } from '../../api/api';
+import { NullApi } from '../../api/null-api';
 import { Channel } from '../../channel';
 import { catchupv2 } from '../../document/catchupv2';
+import { DocumentService } from '../../document/document-service';
+import { NullDocumentService } from '../../document/null-document-service';
+import { ProviderInitialisationError } from '../../errors/custom-errors';
+import type { InternalError } from '../../errors/internal-errors';
+import { INTERNAL_ERROR_CODE } from '../../errors/internal-errors';
+import { NCS_ERROR_CODE } from '../../errors/ncs-errors';
 import { ACK_MAX_TRY, CatchupEventReason } from '../../helpers/const';
 import * as Utilities from '../../helpers/utils';
 import * as Telepointer from '../../participants/telepointers-helper';
 import { createSocketIOCollabProvider } from '../../socket-io-provider';
 import { CommitStepService } from '../commit-step';
-// @ts-ignore only used for mock
-// eslint-disable-next-line import/default
-import ProseMirrorCollab from '@atlaskit/prosemirror-collab';
-import { ProviderInitialisationError } from '../../errors/custom-errors';
-import type { InternalError } from '../../errors/internal-errors';
-import { INTERNAL_ERROR_CODE } from '../../errors/internal-errors';
-import { NCS_ERROR_CODE } from '../../errors/ncs-errors';
-import { NullDocumentService } from '../../document/null-document-service';
-import { NullApi } from '../../api/null-api';
-import { DocumentService } from '../../document/document-service';
-import { Api } from '../../api/api';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
 
 const testProviderConfig = {
 	url: `http://provider-url:66661`,
@@ -145,6 +146,33 @@ describe('Provider', () => {
 	afterEach(jest.clearAllMocks);
 
 	describe('setup', () => {
+		it('forwards channel recovery requests to the host product', () => {
+			const provider = createSocketIOCollabProvider(testProviderConfig);
+			const onRecoveryRequired = jest.fn();
+			provider.on('recovery:required', onRecoveryRequired);
+			provider.setup({ getState: () => editorState });
+
+			const payload = { reason: 'steps_migration' };
+			channel.emit('recovery:required', payload);
+
+			expect(onRecoveryRequired).toHaveBeenCalledTimes(1);
+			expect(onRecoveryRequired).toHaveBeenCalledWith(payload);
+		});
+
+		it.each([undefined, null, {}, { reason: 404 }])(
+			'ignores malformed recovery requests: %p',
+			(payload) => {
+				const provider = createSocketIOCollabProvider(testProviderConfig);
+				const onRecoveryRequired = jest.fn();
+				provider.on('recovery:required', onRecoveryRequired);
+				provider.setup({ getState: () => editorState });
+
+				channel.emit('recovery:required', payload);
+
+				expect(onRecoveryRequired).not.toHaveBeenCalled();
+			},
+		);
+
 		it('Should throw an error when cookies are not enabled', () => {
 			const sendErrorEventSpy = jest.spyOn(AnalyticsHelper.prototype, 'sendErrorEvent');
 			Object.defineProperty(global.navigator, 'cookieEnabled', {
@@ -154,9 +182,7 @@ describe('Provider', () => {
 			const provider = createSocketIOCollabProvider(testProviderConfig);
 			expect(() => {
 				provider.setup({ getState: () => editorState });
-			}).toThrowErrorMatchingInlineSnapshot(
-				`"Cookies are not enabled. Please enable cookies to use collaborative editing."`,
-			);
+			}).toThrow('Cookies are not enabled. Please enable cookies to use collaborative editing.');
 			expect(sendErrorEventSpy).toHaveBeenCalledWith(
 				new ProviderInitialisationError(
 					'Cookies are not enabled. Please enable cookies to use collaborative editing.',
@@ -251,9 +277,7 @@ describe('Provider', () => {
 			const provider = createSocketIOCollabProvider(testProviderPresenceConfig);
 			expect(() => {
 				provider.setupForPresenceOnly(clientId);
-			}).toThrowErrorMatchingInlineSnapshot(
-				`"Cookies are not enabled. Please enable cookies to use collaborative editing."`,
-			);
+			}).toThrow('Cookies are not enabled. Please enable cookies to use collaborative editing.');
 			expect(sendErrorEventSpy).toHaveBeenCalledWith(
 				new ProviderInitialisationError(
 					'Cookies are not enabled. Please enable cookies to use collaborative editing.',
@@ -389,7 +413,7 @@ describe('Provider', () => {
 			provider.initialize(() => editorState);
 			try {
 				await provider.fetchMore();
-			} catch (err) {
+			} catch {
 				expect(participantsService.enrichParticipants).not.toHaveBeenCalled();
 			}
 		});
@@ -458,6 +482,53 @@ describe('Provider', () => {
 			});
 			provider.initialize(() => editorState);
 			channel.emit('connected', { sid, initialized: true });
+		});
+	});
+
+	describe('getInitPayload', () => {
+		it('Should return undefined before the provider has been initialised', () => {
+			const provider = createSocketIOCollabProvider(testProviderConfig);
+			expect(provider.getInitPayload()).toBeUndefined();
+		});
+
+		it('Should return the cached init payload after the channel emits init', () => {
+			const provider = createSocketIOCollabProvider(testProviderConfig);
+			provider.initialize(() => editorState);
+			channel.emit('connected', { sid: 'sid-123' });
+			channel.emit('init', {
+				doc: 'cached-doc',
+				version: 7,
+				userId: 'user-123',
+				metadata: { title: 'cached-title' },
+			});
+
+			expect(provider.getInitPayload()).toEqual({
+				doc: 'cached-doc',
+				version: 7,
+				metadata: { title: 'cached-title' },
+				caller: 'initHandler',
+			});
+		});
+
+		it('Should return the cached init payload from initialDraft (early init)', async () => {
+			const testProviderConfigWithDraft = {
+				initialDraft: {
+					document: 'early-init-doc' as any,
+					version: 3,
+					metadata: { title: 'early-init-title' },
+				},
+				...testProviderConfig,
+			};
+			const provider = createSocketIOCollabProvider(testProviderConfigWithDraft);
+			provider.initialize(() => editorState);
+			channel.emit('connected', { sid: 'sid-123', initialized: true });
+
+			expect(provider.getInitPayload()).toEqual({
+				doc: 'early-init-doc',
+				version: 3,
+				metadata: { title: 'early-init-title' },
+				caller: 'connectedHandler',
+			});
 		});
 	});
 
@@ -793,71 +864,9 @@ describe('Provider', () => {
 					disconnectionPeriodSeconds: 3,
 					unconfirmedStepsLength: 0,
 				},
-				undefined,
+				'pweq3Q7NOPY4y88QAGyr',
 			);
 		});
-
-		ffTest(
-			'add_session_id_to_catchup_query',
-			async () => {
-				const provider = createSocketIOCollabProvider(testProviderConfig);
-				const throttledCatchupv2Spy = jest.spyOn(
-					// @ts-ignore
-					provider.documentService as any,
-					'throttledCatchupv2',
-				);
-				provider.initialize(() => editorState);
-
-				jest.spyOn(Date, 'now').mockReturnValueOnce(Date.now() - 3 * 1000); // Time travel 3s to the past
-				channel.emit('disconnect', {
-					reason: 'Testing - Faking that we got disconnected 3s ago, HAHAHA, take that code',
-				});
-
-				channel.emit('connected', {
-					sid: 'pweq3Q7NOPY4y88QAGyr',
-					initialized: true,
-				});
-
-				expect(throttledCatchupv2Spy).toHaveBeenCalledTimes(1);
-				expect(throttledCatchupv2Spy).toHaveBeenCalledWith(
-					CatchupEventReason.RECONNECTED,
-					{
-						disconnectionPeriodSeconds: 3,
-						unconfirmedStepsLength: 0,
-					},
-					'pweq3Q7NOPY4y88QAGyr',
-				);
-			},
-			async () => {
-				const provider = createSocketIOCollabProvider(testProviderConfig);
-				const throttledCatchupv2Spy = jest.spyOn(
-					// @ts-ignore
-					provider.documentService as any,
-					'throttledCatchupv2',
-				);
-				provider.initialize(() => editorState);
-
-				jest.spyOn(Date, 'now').mockReturnValueOnce(Date.now() - 3 * 1000); // Time travel 3s to the past
-				channel.emit('disconnect', {
-					reason: 'Testing - Faking that we got disconnected 3s ago, HAHAHA, take that code',
-				});
-
-				channel.emit('connected', {
-					sid: 'pweq3Q7NOPY4y88QAGyr',
-					initialized: true,
-				});
-
-				expect(throttledCatchupv2Spy).toHaveBeenCalledTimes(1);
-				expect(throttledCatchupv2Spy).toHaveBeenCalledWith(
-					CatchupEventReason.RECONNECTED,
-					{
-						disconnectionPeriodSeconds: 3,
-						unconfirmedStepsLength: 0,
-					},
-					undefined,
-				);
-			},
-		);
 
 		it('Should be triggered when initial draft is present and is reconnecting after being disconnected for more than 3s', async () => {
 			// ensure that if initial draft exists, any reconnections do not attempt to re-update document/metadata with initial draft
@@ -898,7 +907,7 @@ describe('Provider', () => {
 					disconnectionPeriodSeconds: 3,
 					unconfirmedStepsLength: 0,
 				},
-				undefined,
+				'pweq3Q7NOPY4y88QAGyr',
 			);
 		});
 		it('Should be triggered when confirmed steps from other participants were received from NCS that are further in the future than the local steps (aka some changes got lost before reaching us)', async () => {
@@ -1049,6 +1058,44 @@ describe('Provider', () => {
 			);
 
 			jest.spyOn(global.Math, 'random').mockRestore();
+		});
+	});
+
+	describe('AI provider change messages', () => {
+		it('sends the AI provider change when platform_move_presence_agents is disabled', () => {
+			failGate('platform_move_presence_agents');
+			const provider = createSocketIOCollabProvider(testProviderConfig);
+			const sendAIProviderChangedSpy = jest.spyOn(
+				// @ts-ignore Accessing the service to verify the provider boundary.
+				provider.participantsService,
+				'sendAIProviderChanged',
+			);
+
+			provider.sendMessage({
+				type: 'ai-provider:change',
+				action: 'add',
+				providerId: 'agent:test-agent',
+			});
+
+			expect(sendAIProviderChangedSpy).toHaveBeenCalledTimes(1);
+		});
+
+		it('does not send the AI provider change when platform_move_presence_agents is enabled', () => {
+			passGate('platform_move_presence_agents');
+			const provider = createSocketIOCollabProvider(testProviderConfig);
+			const sendAIProviderChangedSpy = jest.spyOn(
+				// @ts-ignore Accessing the service to verify the provider boundary.
+				provider.participantsService,
+				'sendAIProviderChanged',
+			);
+
+			provider.sendMessage({
+				type: 'ai-provider:change',
+				action: 'add',
+				providerId: 'agent:test-agent',
+			});
+
+			expect(sendAIProviderChangedSpy).not.toHaveBeenCalled();
 		});
 	});
 
@@ -1425,7 +1472,7 @@ describe('Provider', () => {
 				'getUnconfirmedSteps',
 			);
 			expect(provider.getUnconfirmedSteps()).toEqual([]);
-			expect(documentServiceGetUnconfirmedStepsSpy).toBeCalledTimes(1);
+			expect(documentServiceGetUnconfirmedStepsSpy).toHaveBeenCalledTimes(1);
 		});
 
 		it('getCurrentPmVersion: Should return current ProseMirror version', () => {
@@ -1450,7 +1497,7 @@ describe('Provider', () => {
 			const sampleMetadata = { title: 'hello', editorWidth: '300' };
 			provider.setMetadata(sampleMetadata);
 			expect(provider.getMetadata()).toEqual(sampleMetadata);
-			expect(setMetadataSpy).toBeCalledWith(sampleMetadata);
+			expect(setMetadataSpy).toHaveBeenCalledWith(sampleMetadata);
 		});
 
 		it('getIsNamespaceLocked: Should get namespace lock status', () => {
@@ -1459,7 +1506,7 @@ describe('Provider', () => {
 				'getIsNamespaceLocked',
 			);
 			provider.getIsNamespaceLocked();
-			expect(getIsNamespaceLockedSpy).toBeCalled();
+			expect(getIsNamespaceLockedSpy).toHaveBeenCalled();
 		});
 
 		it('getDocumentAri: Should return documentAri from config', () => {
@@ -1510,8 +1557,8 @@ describe('Provider', () => {
 			provider.send(null, null, {} as any);
 			provider.setMetadata({});
 			provider.setTitle('title');
-			expect(setMetadataSpy).toBeCalledTimes(0);
-			expect(getIsNamespaceLockedSpy).toBeCalledTimes(0);
+			expect(setMetadataSpy).toHaveBeenCalledTimes(0);
+			expect(getIsNamespaceLockedSpy).toHaveBeenCalledTimes(0);
 		});
 	});
 
@@ -1534,6 +1581,7 @@ describe('Provider', () => {
 						}),
 					},
 					steps: [],
+					stepOrigins: [],
 					emit: jest.fn(),
 					lockSteps: jest.fn(),
 				});

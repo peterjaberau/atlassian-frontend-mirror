@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test } from './fixtures';
 
 test.describe('ReactUFO: Responsiveness', () => {
 	test.use({
 		examplePage: 'interactions-simple-button',
+	} satisfies {
+		examplePage: 'interactions-simple-button';
+		__exampleDependency?: typeof import('../../examples/23-interactions-simple-button.tsx');
 	});
 	test('get interactions responsiveness', async ({ page, waitForReactUFOInteractionPayload }) => {
 		const mainDiv = page.locator('[id="app-main"]');

@@ -1,18 +1,35 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ * @jsxFrag React.Fragment
+ */
+
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+
+import { css, jsx } from '@compiled/react';
 
 import type { StrictXCSSProp } from '@atlaskit/css';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import type { EmojiProvider } from '../../api/EmojiResource';
 import type { EmojiLoadSuccessCallback, EmojiLoadFailCallback } from '../../api/EmojiUtils';
+import { EmojiCommonProvider } from '../../context/EmojiCommonProvider';
+import {
+	type EmojiId,
+	type EmojiProviderLookupOrder,
+	type OptionalEmojiDescription,
+	UfoEmojiTimings,
+} from '../../types';
+import { hasUfoMarked } from '../../util/analytics/hasUfoMarked';
+import { sampledUfoRenderedEmoji } from '../../util/analytics/sampledUfoRenderedEmoji';
 import { defaultEmojiHeight } from '../../util/constants';
-import { isImageRepresentation, isMediaRepresentation, isPromise } from '../../util/type-helpers';
-import { type EmojiId, type OptionalEmojiDescription, UfoEmojiTimings } from '../../types';
+import { emojiIdToEmoji } from '../../util/emojiIdToEmoji';
+import { isImageRepresentation } from '../../util/is-image-representation';
+import { isMediaRepresentation } from '../../util/is-media-representation';
+import { isPromise } from '../../util/is-promise';
 import Emoji from './Emoji';
 import EmojiPlaceholder from './EmojiPlaceholder';
-import { sampledUfoRenderedEmoji } from '../../util/analytics';
-import { EmojiCommonProvider } from '../../context/EmojiCommonProvider';
-import { hasUfoMarked } from '../../util/analytics/ufoExperiences';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 export interface BaseResourcedEmojiProps {
 	/**
@@ -34,10 +51,20 @@ export interface BaseResourcedEmojiProps {
 	 */
 	emojiId: EmojiId;
 	/**
+	 * Preferred emoji provider type order when resolving shortName-only emoji.
+	 * The first matching type wins.
+	 */
+	emojiProviderLookupOrder?: EmojiProviderLookupOrder;
+	/**
 	 * Scales the emoji proportionally to provided hight.
 	 * Defaults to `undefined`.
 	 */
 	fitToHeight?: number;
+	/**
+	 * Ignores the SSR wrapper when laying out the emoji.
+	 * Defaults to `false`.
+	 */
+	ignoreWrapper?: boolean;
 	/**
 	 * Optimistic will call the fetch interface first and not wait for the entire emoji collection
 	 * to be available before rendering. This is useful for views or pages that show a select set of
@@ -51,7 +78,6 @@ export interface BaseResourcedEmojiProps {
 	 * Defaults to `undefined`.
 	 */
 	optimisticImageURL?: string;
-
 	/**
 	 * Indicates that this emoji is being rendered in a page title context.
 	 * This is used to adjust certain behaviors to reduce TTVC issues.
@@ -63,6 +89,12 @@ export interface BaseResourcedEmojiProps {
 	 * allows custom styling to the placeholder component while the emoji is loading.
 	 */
 	placeholderXcss?: StrictXCSSProp<'backgroundColor', never>;
+
+	/**
+	 * Renders unicode emoji through an image representation when a fixed height is supplied.
+	 * Defaults to `true`.
+	 */
+	renderUnicodeEmojiAsImage?: boolean;
 
 	/**
 	 * Allows to show the tooltip.
@@ -88,6 +120,10 @@ export interface Props extends BaseResourcedEmojiProps {
 	onEmojiLoadSuccess?: EmojiLoadSuccessCallback;
 }
 
+const ignoreWrapperStyles = css({
+	display: 'contents',
+});
+
 enum ResourcedEmojiComponentRenderStatesEnum {
 	INITIAL = 'INITIAL',
 	FALLBACK = 'FALLBACK',
@@ -97,12 +133,15 @@ enum ResourcedEmojiComponentRenderStatesEnum {
 export const ResourcedEmojiComponent = ({
 	emojiProvider,
 	emojiId,
+	emojiProviderLookupOrder,
 	showTooltip = false,
 	customFallback = undefined,
 	fitToHeight = defaultEmojiHeight,
+	ignoreWrapper = false,
 	optimistic = false,
 	optimisticImageURL = undefined,
 	editorEmoji,
+	renderUnicodeEmojiAsImage = true,
 	pageTitleEmoji = false,
 	placeholderXcss,
 	onEmojiLoadSuccess,
@@ -128,7 +167,29 @@ export const ResourcedEmojiComponent = ({
 				});
 			}
 
-			const foundEmoji = _emojiProvider.fetchByEmojiId(emojiId, optimisticFetch);
+			const useUnicodeEmojis = expValEqualsNoExposure(
+				'platform_use_unicode_emojis',
+				'isEnabled',
+				true,
+			);
+			const normalizedEmojiId = useUnicodeEmojis
+				? {
+						...emojiId,
+						id: emojiId.id || undefined,
+					}
+				: emojiId;
+			// A shortName-only optimistic request can resolve without an emoji before the catalogue loads.
+			// Use the non-optimistic path so it waits for the catalogue and tokenizes custom emoji media.
+			const shouldFetchOptimistically = useUnicodeEmojis
+				? optimisticFetch && Boolean(emojiId.id)
+				: optimisticFetch;
+
+			const foundEmoji = _emojiProvider.fetchByEmojiId(
+				normalizedEmojiId,
+				shouldFetchOptimistically,
+				fg('platform_bitbucket_fix_shortname_and_ordering') ? emojiProviderLookupOrder : undefined,
+			);
+
 			sampledUfoRenderedEmoji(emojiId).mark(UfoEmojiTimings.METADATA_START);
 			if (isPromise<OptionalEmojiDescription>(foundEmoji)) {
 				setLoaded(false);
@@ -174,7 +235,7 @@ export const ResourcedEmojiComponent = ({
 				sampledUfoRenderedEmoji(emojiId).mark(UfoEmojiTimings.METADATA_END);
 			}
 		},
-		[onEmojiLoadFail],
+		[emojiProviderLookupOrder, onEmojiLoadFail],
 	);
 
 	useEffect(() => {
@@ -186,7 +247,11 @@ export const ResourcedEmojiComponent = ({
 		}
 	}, [emojiId]);
 
-	useMemo(() => {
+	// Fetching during render means a render React later discards (for example a pass that suspends)
+	// still creates a promise whose callbacks set state and schedule yet another render. This layout
+	// effect only runs for committed renders, and being pre-paint it keeps the synchronous cache-hit
+	// path from flashing the placeholder.
+	useLayoutEffect(() => {
 		if (!resolvedEmojiProvider || !emojiId) {
 			return;
 		}
@@ -203,18 +268,60 @@ export const ResourcedEmojiComponent = ({
 	}, [emojiProvider]);
 
 	const emojiRenderState = useMemo<ResourcedEmojiComponentRenderStatesEnum>(() => {
-		if (!emoji && !loaded && !optimisticImageURL) {
+		if (
+			(!emoji && !loaded && !optimisticImageURL) ||
+			(optimisticImageURL &&
+				!emoji &&
+				!id &&
+				expValEqualsNoExposure('platform_use_unicode_emojis', 'isEnabled', true))
+		) {
 			return ResourcedEmojiComponentRenderStatesEnum.INITIAL;
 		} else if ((!emoji && loaded) || imageLoadError) {
 			return ResourcedEmojiComponentRenderStatesEnum.FALLBACK;
 		}
 
 		return ResourcedEmojiComponentRenderStatesEnum.EMOJI;
-	}, [emoji, loaded, optimisticImageURL, imageLoadError]);
+	}, [emoji, loaded, optimisticImageURL, imageLoadError, id]);
 
 	const optimisticEmojiDescription = useMemo(() => {
+		// For STANDARD emojis, use native unicode character instead of optimistic image.
+		if (expValEqualsNoExposure('platform_use_unicode_emojis', 'isEnabled', true)) {
+			const resolvedId = id || emoji?.id;
+			if (!resolvedId) return undefined;
+			const unicodeEmoji = emojiIdToEmoji(resolvedId);
+			if (unicodeEmoji) {
+				return {
+					...(emoji ?? {
+						id,
+						shortName,
+						fallback,
+						type: 'STANDARD',
+						category: '',
+						searchable: true,
+					}),
+					representation: { unicodeEmoji },
+				};
+			}
+		}
+
 		// reduce blast radius by targeting page title
 		if (pageTitleEmoji && optimisticImageURL && fg('platform_emoji_prevent_img_src_changing')) {
+			return {
+				id,
+				shortName,
+				fallback,
+				type: '',
+				category: '',
+				searchable: true,
+				representation: {
+					height: fitToHeight || defaultEmojiHeight,
+					width: fitToHeight || defaultEmojiHeight,
+					imagePath: optimisticImageURL,
+				},
+			};
+		}
+		// extend prevention to all surfaces
+		if (optimisticImageURL && fg('platform_emoji_prevent_img_src_changing_all')) {
 			return {
 				id,
 				shortName,
@@ -293,6 +400,7 @@ export const ResourcedEmojiComponent = ({
 	return (
 		<EmojiCommonProvider emojiProvider={resolvedEmojiProvider}>
 			<span
+				css={[ignoreWrapper && ignoreWrapperStyles]}
 				data-emoji-id={id}
 				data-emoji-short-name={shortName}
 				data-emoji-text={fallback || shortName}
@@ -321,6 +429,7 @@ export const ResourcedEmojiComponent = ({
 							fitToHeight={fitToHeight}
 							autoWidth={autoWidth}
 							editorEmoji={editorEmoji}
+							renderUnicodeEmojiAsImage={renderUnicodeEmojiAsImage}
 						/>
 					)}
 			</span>

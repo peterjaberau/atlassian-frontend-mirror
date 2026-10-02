@@ -1,4 +1,9 @@
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import React, { type FC, useEffect, useMemo, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
+
+import { createIntl, injectIntl, IntlProvider, type WrappedComponentProps } from 'react-intl';
+
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import {
 	FileFetcherError,
 	toCommonMediaClientError,
@@ -7,29 +12,28 @@ import {
 	type Identifier,
 	type MediaClient,
 } from '@atlaskit/media-client';
+import { useCopyIntent } from '@atlaskit/media-client-react/use-copy-intent';
 import {
-	MediaInlineCardErroredView,
-	MediaInlineCardLoadedView,
-	MediaInlineCardLoadingView,
-	messages,
-} from '@atlaskit/media-ui';
+	mapSsrMediaItemToFileState,
+	type SsrMediaItem,
+} from '@atlaskit/media-client/ssr-media-item';
+import { MediaInlineCardErroredView } from '@atlaskit/media-ui/ErroredView';
 import { formatDate } from '@atlaskit/media-ui/formatDate';
+import { MediaInlineCardLoadedView } from '@atlaskit/media-ui/LoadedView';
+import { MediaInlineCardLoadingView } from '@atlaskit/media-ui/LoadingView';
+import { messages } from '@atlaskit/media-ui/messages';
 import { MimeTypeIcon } from '@atlaskit/media-ui/mime-type-icon';
 import { MediaViewer, type ViewerOptionsProps } from '@atlaskit/media-viewer';
-import Tooltip from '@atlaskit/tooltip';
-import React, { type FC, useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
-import { createIntl, injectIntl, IntlProvider, type WrappedComponentProps } from 'react-intl-next';
-import { MediaCardError } from '../errors';
-import { type InlineCardEvent, type InlineCardOnClickCallback } from '../types';
-import { fireMediaCardEvent } from '../utils/analytics';
-import {
-	getErrorStatusPayload,
-	getFailedProcessingStatusPayload,
-	getSucceededStatusPayload,
-} from './mediaInlineCardAnalytics';
-import { useCopyIntent } from '@atlaskit/media-client-react';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import usePressTracing from '@atlaskit/react-ufo/use-press-tracing';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
+import { MediaCardError } from '../MediaCardError';
+import { type InlineCardEvent, type InlineCardOnClickCallback } from '../types';
+import { fireMediaCardEvent } from '../utils/analytics/fireMediaCardEvent';
+import { getErrorStatusPayload } from './getErrorStatusPayload';
+import { getFailedProcessingStatusPayload } from './getFailedProcessingStatusPayload';
+import { getSucceededStatusPayload } from './getSucceededStatusPayload';
 
 export interface MediaInlineCardProps {
 	identifier: FileIdentifier;
@@ -40,6 +44,27 @@ export interface MediaInlineCardProps {
 	onClick?: InlineCardOnClickCallback;
 	mediaViewerItems?: Identifier[];
 	viewerOptions?: ViewerOptionsProps;
+	/**
+	 * Optional fallback fetcher to retrieve the media filename from another service
+	 * Workaround for #hot-301450 where media service is missing filenames for DC -> Cloud migrated media
+	 * Receives the file ID and should resolve to the filename string.
+	 * TODO: Remove this prop when fallback-fetcher usage is sufficiently low.
+	 */
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>;
+	/**
+	 * Pre-hydrated SSR metadata from a Relay fragment (Media Platform Phase 5b).
+	 * When provided and `fg('platform_media_ssr_data_seed')` is on, the card seeds
+	 * `useFileState` with this data and skips the `items()` API call for files
+	 * whose `processingStatus` is `succeeded`.
+	 * @see https://product-fabric.atlassian.net/browse/BMPT-7914
+	 */
+	readonly ssrFileState?: FileState;
+	/**
+	 * Raw SSR media item from a host payload (e.g. Confluence recorded media nodes).
+	 * Used when `ssrFileState` is not provided. Converted to FileState internally
+	 * when `fg('platform_media_ssr_data_seed')` is on.
+	 */
+	readonly ssrMediaItem?: SsrMediaItem;
 }
 
 // UI component which renders an inline link in the appropiate state based on a media file
@@ -53,12 +78,31 @@ export const MediaInlineCardInternal: FC<MediaInlineCardProps & WrappedComponent
 	mediaViewerItems,
 	intl,
 	viewerOptions,
+	fallbackMediaNameFetcher,
+	ssrFileState,
+	ssrMediaItem,
 }) => {
-	const [fileState, setFileState] = useState<FileState | undefined>();
+	// ssrFileState (Relay / explicit seed) wins over converting ssrMediaItem.
+	const initialFileState = useMemo(
+		() =>
+			fg('platform_media_ssr_data_seed')
+				? (ssrFileState ?? mapSsrMediaItemToFileState(ssrMediaItem))
+				: undefined,
+		[ssrFileState, ssrMediaItem],
+	);
+	// Capture as a ref so it's a stable one-time SSR seed that doesn't affect
+	// the useEffect dependency array (including it would cause repeated
+	// unsubscribe/resubscribe cycles whenever ssrFileState changes reference).
+	const initialFileStateRef = useRef(initialFileState);
+
+	const [fileState, setFileState] = useState<FileState | undefined>(initialFileState);
 	const [subscribeError, setSubscribeError] = useState<Error>();
 	const [isSucceededEventSent, setIsSucceededEventSent] = useState(false);
 	const [isFailedEventSent, setIsFailedEventSent] = useState(false);
 	const [isMediaViewerVisible, setMediaViewerVisible] = useState(false);
+	const [fallbackMediaName, setFallbackMediaName] = useState<string | undefined>();
+	const [fallbackMediaNameFetchFailed, setFallbackMediaNameFetchFailed] = useState(false);
+	const fallbackMediaNameFetchAttempted = useRef(false);
 	const { createAnalyticsEvent } = useAnalyticsEvents();
 	const pressTracing = usePressTracing('click-media-inline-card');
 
@@ -113,6 +157,7 @@ export const MediaInlineCardInternal: FC<MediaInlineCardProps & WrappedComponent
 					selectedItem={identifier}
 					onClose={onMediaViewerClose}
 					viewerOptions={viewerOptions}
+					fallbackMediaNameFetcher={fallbackMediaNameFetcher}
 				/>,
 				document.body,
 			);
@@ -128,6 +173,9 @@ export const MediaInlineCardInternal: FC<MediaInlineCardProps & WrappedComponent
 	useEffect(() => {
 		const subscription = mediaClient.file
 			.getFileState(identifier.id, {
+				// Use the ref value so this effect doesn't re-run when ssrFileState
+				// changes object reference — initialFileState is a one-time SSR seed.
+				initialFileState: initialFileStateRef.current,
 				collectionName: identifier.collectionName,
 			})
 			.subscribe({
@@ -143,6 +191,22 @@ export const MediaInlineCardInternal: FC<MediaInlineCardProps & WrappedComponent
 			subscription?.unsubscribe();
 		};
 	}, [identifier.collectionName, identifier.id, mediaClient.file]);
+
+	useEffect(() => {
+		if (
+			fileState &&
+			fileState.status !== 'error' &&
+			!fileState.name &&
+			fallbackMediaNameFetcher &&
+			!fallbackMediaNameFetchAttempted.current
+		) {
+			fallbackMediaNameFetchAttempted.current = true;
+			fallbackMediaNameFetcher(fileState.id).then(
+				(name) => setFallbackMediaName(name),
+				() => setFallbackMediaNameFetchFailed(true),
+			);
+		}
+	}, [fileState, fallbackMediaNameFetcher]);
 
 	if (subscribeError) {
 		const errorMessage =
@@ -179,24 +243,38 @@ export const MediaInlineCardInternal: FC<MediaInlineCardProps & WrappedComponent
 		);
 	}
 
-	// Empty file handling
+	// Empty file handling — try the fallback name fetcher first if available
 	if (fileState && !fileState.name) {
-		const error = new MediaCardError(
-			'metadata-fetch',
-			new FileFetcherError('emptyFileName', { id: fileState.id }),
-		);
-		fireFailedOperationalEvent(error);
-		return renderContent(
-			<>
-				<MediaInlineCardErroredView
+		if (fallbackMediaNameFetcher && !fallbackMediaNameFetchFailed && !fallbackMediaName) {
+			// Fetch not yet attempted or in flight — show loading
+			return (
+				<MediaInlineCardLoadingView
 					innerRef={copyNodeRef}
-					message={(intl || defaultIntl).formatMessage(messages.couldnt_load_file)}
+					message={(intl || defaultIntl).formatMessage(messages.loading_file)}
 					isSelected={isSelected}
-					onClick={onMediaInlineCardClick}
 				/>
-				{renderMediaViewer()}
-			</>,
-		);
+			);
+		}
+
+		if (!fallbackMediaName) {
+			// No fetcher provided or fetch failed — show error
+			const error = new MediaCardError(
+				'metadata-fetch',
+				new FileFetcherError('emptyFileName', { id: fileState.id }),
+			);
+			fireFailedOperationalEvent(error);
+			return renderContent(
+				<>
+					<MediaInlineCardErroredView
+						innerRef={copyNodeRef}
+						message={(intl || defaultIntl).formatMessage(messages.couldnt_load_file)}
+						isSelected={isSelected}
+						onClick={onMediaInlineCardClick}
+					/>
+					{renderMediaViewer()}
+				</>,
+			);
+		}
 	}
 
 	if (fileState?.status === 'uploading') {
@@ -224,7 +302,8 @@ export const MediaInlineCardInternal: FC<MediaInlineCardProps & WrappedComponent
 		fireFailedOperationalEvent(undefined, 'failed-processing');
 	}
 
-	const { mediaType, name, mimeType } = fileState;
+	const { mediaType, name: fileStateName, mimeType } = fileState;
+	const name = fileStateName || fallbackMediaName;
 	const linkIcon = (
 		<MimeTypeIcon
 			testId={'media-inline-card-file-type-icon'}

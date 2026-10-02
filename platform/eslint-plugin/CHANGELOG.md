@@ -1,5 +1,467 @@
 # @atlaskit/eslint-plugin-platform
 
+## 4.5.0
+
+### Minor Changes
+
+- [`815de5e445bad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/815de5e445bad) -
+  Add the `@atlaskit/platform/no-inline-images` rule. It reports images inlined into source as an
+  image `data:` URI, in both string and template literals, including inside a CSS `url(...)` string
+  and as a JSX attribute value. Non-image `data:` URIs are not reported, and neither is SVG in any
+  other form — shipping an icon as a JSX element or as an SVG markup string is legitimate; only the
+  data-URI encoding defeats caching and inflates the bundle. The rule self-skips non-shipping code
+  (tests, mocks, fixtures, examples, stories, VR entry points) and codegen artifacts, which cannot
+  carry a disable comment without invalidating their signature.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.4.8
+
+### Patch Changes
+
+- [`10a65c0011171`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/10a65c0011171) -
+  Require package `*.docs.tsx` files to default-export a `StructuredContentSource`-typed constant.
+
+## 4.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.4.5
+
+### Patch Changes
+
+- [`c4bdf98d5a6c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4bdf98d5a6c2) -
+  Reject Node built-ins in structured content by default
+- Updated dependencies
+
+## 4.4.4
+
+### Patch Changes
+
+- [`98d68443fc958`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/98d68443fc958) -
+  Handle TypeScript satisfies and assertion wrappers without rejecting safe inline style values or
+  imported type references. Update the Platform ESLint plugin's Compiled ESLint dependency to
+  ^0.20.2 to fix shorthand-property sorting crashes on inline satisfies expressions.
+- Updated dependencies
+
+## 4.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.4.2
+
+### Patch Changes
+
+- [`3b78768eefc81`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b78768eefc81) -
+  Only enforce specific entry-point imports for Volt packages after their consumers have been
+  migrated in Stage 2.
+- Updated dependencies
+
+## 4.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.4.0
+
+### Minor Changes
+
+- [`213dfa8ef5b57`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/213dfa8ef5b57) -
+  Add an opt-in migratePendingConsumers option for scoped consumer codemods while preserving normal
+  lint behavior for Stage 1 packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.0
+
+### Minor Changes
+
+- [`18a2f04aa88ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18a2f04aa88ec) -
+  Add `ensure-product-collection-name-prefix`, an optionless rule requiring packages inside
+  `packages/product-collection` to be named with the `@atlassian/product-collection__` prefix.
+  Enable it with `'@atlaskit/platform/ensure-product-collection-name-prefix': 'error'`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.0
+
+### Minor Changes
+
+- [`8b652a46c3ead`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8b652a46c3ead) -
+  Add `ensure-static-structured-content`, an optionless rule requiring `*.docs.tsx` default exports
+  to be composed from statically declared const objects and arrays. Enable it with
+  `'@atlaskit/platform/ensure-static-structured-content': 'error'`.
+
+## 4.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.0
+
+### Major Changes
+
+- [`6836f34d90b0e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6836f34d90b0e) -
+  Default `preferImportedPackageSubpath` to `true` on `@atlaskit/platform/no-barrel-entry-imports`
+  and `@atlaskit/platform/no-barrel-entry-jest-mock`.
+
+  Configs that omit the option now keep consumers on the imported package's bridge subpath (or leave
+  the import/mock unchanged when no bridge exists) instead of rewriting to the dependency package.
+
+  **Migration:** pass `{ preferImportedPackageSubpath: false }` to restore the previous
+  rewrite-to-dependency behaviour.
+
+## 3.5.0
+
+### Minor Changes
+
+- [`74954113d3c2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/74954113d3c2d) -
+  Add a Native Embeds-owned lint rule preventing new packages from copying its private bridge query
+  parameter protocol, and enable it through the Platform ESLint configuration.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.4.1
+
+### Patch Changes
+
+- [`b1cf9e336f0f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1cf9e336f0f0) -
+  Migrate consumers of @atlaskit/atlassian-context from barrel imports to direct subpath imports,
+  and remove the deprecated `./domain-lookup`, `./generalized-domain-lookup`, and `./perimeter`
+  entry-point exports (all symbols remain available via their per-export subpaths).
+
+  Also extends the `no-restricted-fedramp-imports` ESLint rule to cover the new
+  `@atlaskit/atlassian-context/is-fedramp` and `@atlaskit/atlassian-context/is-isolated-cloud`
+  subpaths, so the FedRamp/IsolatedCloud deprecation guardrail keeps firing after the migration.
+
+- Updated dependencies
+
+## 3.4.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.0
+
+### Minor Changes
+
+- [`ee831ea250a74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee831ea250a74) -
+  Adds new `no-direct-web-storage-usage` rule that disallows direct `window.localStorage` /
+  `window.sessionStorage` usage, supporting the CSM EG CM-04 compliance work. The rule fires on
+  every linted source file (test and example files are skipped). It is registered by
+  `@atlaskit/eslint-plugin-platform` but intentionally left out of the shared `recommended` /
+  `recommended/flat` / Jira preset configs, and is enabled at severity `'error'` only for the
+  platform product via `platform/eslint.config.cjs`. Use `AtlBrowserStorageLocal` /
+  `AtlBrowserStorageSession` from `@atlassian/browser-storage-controls` instead.
+
+## 3.2.0
+
+### Minor Changes
+
+- [`14f03d61ed044`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14f03d61ed044) -
+  Created new rule `@atlaskit/platform/no-internal-dependencies-in-public-packages` which ensures
+  that internal dependencies are not used in public packages
+
+## 3.1.2
+
+### Patch Changes
+
+- [`0af52c9020b98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0af52c9020b98) -
+  Add `expand-motion-shorthand` rule to `@atlaskit/eslint-plugin-design-system` so it is documented
+  on the design system website. Expands `transition` and `animation` CSS shorthand properties into
+  their individual sub-properties so values can be replaced with motion tokens.
+
+  Deprecate the `compiled/expand-motion-shorthand` rule in `@atlaskit/eslint-plugin-platform` in
+  favour of `@atlaskit/design-system/expand-motion-shorthand`.
+
+- Updated dependencies
+
+## 3.1.1
+
+### Patch Changes
+
+- [`b268bb62fa803`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b268bb62fa803) -
+  Update ownership metadata for Loop Experiences reviewer routing.
+
+## 3.1.0
+
+### Minor Changes
+
+- [`2795e10c04333`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2795e10c04333) -
+  `no-module-level-eval` now flags module-level `FeatureGates.checkGate` and
+  `FeatureGates.getExperimentValue` calls imported from `@atlaskit/feature-gate-js-client`.
+  Evaluating these statsig client APIs at module load time can spam logs in tests and cause
+  production incidents, so they must be called inside a function/component body.
+
+## 3.0.4
+
+### Patch Changes
+
+- [`c1ed4b4f82735`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c1ed4b4f82735) -
+  Tighten barrel-file linting and update affected packages.
+
+  The lint rule now catches local re-export patterns that previously looked safe. This changeset
+  covers the rule update plus the package import cleanup required by the stricter detection:
+  - avoid relative imports through local barrel files
+  - avoid Jest mocks that target barrel modules
+  - use concrete module paths for skeleton, dialog, no-results, product filter, and AI Mate type
+    imports
+
+## 3.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.2
+
+### Patch Changes
+
+- [`c0033c3fe63b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c0033c3fe63b3) -
+  Raise AI Mate double type assertion linting to error for new violations. Keep the current AI Mate
+  double assertion baseline explicit with targeted inline ESLint disable comments.
+
+## 3.0.1
+
+### Patch Changes
+
+- [`c6fce4a43355c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c6fce4a43355c) -
+  Deprecate `compiled/use-motion-token-values` rule. Use `@atlaskit/design-system/use-tokens-motion`
+  instead.
+
+## 3.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Minor Changes
+
+- [`db434cbb579d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db434cbb579d2) -
+  Add a Platform ESLint rule that warns on double type assertions through `unknown` or `any` in AI
+  Mate production code.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.11.1
+
+### Patch Changes
+
+- [`a4f97c853dccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4f97c853dccf) -
+  Extend `no-module-level-eval` lint rule to cover editor experiment APIs (`expValEquals`, `expVal`,
+  `editorExperiment`, `expValEqualsNoExposure`) imported from `@atlaskit/tmp-editor-statsig`
+  subpaths. Module-level evaluation of these functions causes flakiness because experiment values
+  may not be resolved yet at import time.
+
+  Fix existing violations in `editor-plugin-block-controls` (`global-styles.tsx`) and
+  `editor-plugin-table` (`ContextualMenu.tsx`) by converting module-level experiment evaluations to
+  lazy function calls.
+
+  Clean up fully-launched experiment `platform_editor_unify_native_dnd_selectors` — replace
+  conditional selector logic with the winning `dragHandlerAnchorSelectorWithTaskExclusion` value and
+  remove the experiment from `experiments-config.ts`.
+
+## 2.11.0
+
+### Minor Changes
+
+- [`6118ee73944d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6118ee73944d2) -
+  Adds new `no-direct-web-storage-usage` rule that disallows direct `window.localStorage` /
+  `window.sessionStorage` usage in CSM (Customer Service Management) packages, supporting the CSM EG
+  CM-04 compliance work. The rule is **team-scoped** — it only fires when the nearest
+  `package.json`'s `atlassian.team` value is one of `Boysenberry`, `Dropbears`, `CSM AI`, or
+  `CSM AI Exp` (together covering ~196 packages across `platform/`, `jira/`, and `help-center/`). It
+  is wired into the `commonConfig` shared by the `recommended`, `recommended/flat`, and Jira preset
+  configs of `@atlaskit/eslint-plugin-platform` at severity `'warn'`, mirroring the analogous
+  `no-direct-document-usage` rule. Use `AtlBrowserStorageLocal` / `AtlBrowserStorageSession` from
+  `@atlassian/browser-storage-controls` instead.
+
+## 2.10.7
+
+### Patch Changes
+
+- [`f1a0e418f9f72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1a0e418f9f72) -
+  Fix `no-barrel-entry-imports` and `no-relative-barrel-file-imports` autofixes emitting invalid
+  TypeScript when a type-only import resolves to both a default export and a named export from the
+  same subpath. Previously the rules produced `import type Default, { Named } from '...';` which TS
+  rejects with TS1363. The default is now rebound as `{ default as <local> }` so the resulting
+  type-only import is legal.
+
+## 2.10.6
+
+### Patch Changes
+
+- [`e5fbe8f03cdbf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5fbe8f03cdbf) -
+  Fix `no-barrel-entry-imports` and `no-barrel-entry-jest-mock` rules under
+  `preferImportedPackageSubpath`: when a barrel bridge subpath re-exports a cross-package symbol
+  whose deepest source is a `default` export (e.g. `export { panelPlugin } from '@pkg/dep'` where
+  `@pkg/dep` does `export { default as panelPlugin } from './panelPlugin'`), the autofix no longer
+  carries the deep `originalName: 'default'` across the bridge and corrupts the consumer's named
+  import into a default import. Also short-circuit when the bridge resolves back to the exact
+  subpath already in use so the rule no longer rewrites an already-optimal import in place.
+
+## 2.10.5
+
+### Patch Changes
+
+- [`2ba922a9037cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ba922a9037cc) -
+  Fix `no-barrel-entry-imports` autofix silently dropping an aliased default re-export when the file
+  already imports the same subpath default under a different local name. The aliased binding is now
+  preserved by emitting it as `{ default as <alias> }` on the merged subpath import statement.
+
+## 2.10.4
+
+### Patch Changes
+
+- [`c2aa6b2ec9080`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2aa6b2ec9080) -
+  adds eslint isGCP rule
+- Updated dependencies
+
+## 2.10.3
+
+### Patch Changes
+
+- [`7affa87ae5857`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7affa87ae5857) -
+  Add ESLint v9/v10 RuleContext compatibility for platform ESLint packages consumed by Jira.
+- Updated dependencies
+
+## 2.10.2
+
+### Patch Changes
+
+- [`7925fe6968153`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7925fe6968153) -
+  Add `@adminhub/feature-gating` and `@adminhub/feature-experimenting` to the shared
+  `FEATURE_API_IMPORT_SOURCES` constant consumed by `isAPIimport()`.
+
+  This extends every `feature-gating/*` lint rule that resolves call sites via the import-tracking
+  helper to Admin Hub usages of `fg()`, `expVal()`, `expValEquals()`, `UNSAFE_noExposureExp()` and
+  related functions imported from `@adminhub/feature-gating` / `@adminhub/feature-experimenting`.
+  Affected rules include (non-exhaustive):
+  - `no-preconditioning`
+  - `inline-usage`
+  - `prefer-fg`
+  - `no-alias`
+  - `valid-gate-name`
+  - `no-module-level-eval`
+  - `static-feature-flags`
+  - `use-recommended-utils`
+
+  Any future rule that uses `isAPIimport()` will automatically apply to Admin Hub call sites without
+  further changes.
+
+## 2.10.1
+
+### Patch Changes
+
+- [`503354c8d7fd7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/503354c8d7fd7) -
+  add `use-motion-token-values` and `expand-motion-shorthand` eslint rules to the plugin without
+  enabling them in the recommended config. the `use-motion-token-values` rule is suggestion-only (no
+  autofix) — values with an exact token match offer an IDE quick-fix suggestion, and values with no
+  exact match warn without any fix.
+
+## 2.10.0
+
+### Minor Changes
+
+- [`ed426d1a0955c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed426d1a0955c) -
+  Add `one-value-export-per-file` ESLint rule for reporting files with multiple local value exports.
+
+## 2.9.3
+
+### Patch Changes
+
+- [`a1196120ab924`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a1196120ab924) -
+  Add `use-motion-token-values` and `expand-motion-shorthand` lint rules to enforce motion token
+  usage.
+
+## 2.9.2
+
+### Patch Changes
+
+- [`48fa19b8ba41a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48fa19b8ba41a) -
+  Add `no-xcss-in-cx` ESLint rule to prevent `xcss()` from `@atlaskit/primitives` being called
+  inline inside `cx()` in an `xcss` prop. Calling `xcss()` inline produces a StyleRule opaque object
+  rather than a Compiled atomic class string, which causes runtime errors. The rule is import-aware
+  and recurses into logical (`&&`) and conditional (`?:`) expressions.
+
+## 2.9.1
+
+### Patch Changes
+
+- [`5fed54075f1b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5fed54075f1b8) -
+  add eslint rule for restricting isFedramp and isIsolatedCloud imports
+
+## 2.9.0
+
+### Minor Changes
+
+- [`50be0b9fcf83d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50be0b9fcf83d) -
+  Added new ESLint rule `ensure-use-sync-external-store-server-snapshot` that enforces all
+  `useSyncExternalStore` calls include the third argument (`getServerSnapshot`) for SSR
+  compatibility. The rule is enabled as an error in all platform, jira, and confluence configs.
+
+## 2.8.0
+
+### Minor Changes
+
+- [`390e72480c2f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/390e72480c2f2) -
+  Updated references to de-barreling eslint rules to point to new @atlaskit/platform rule prefix.
+
 ## 2.7.2
 
 ### Patch Changes

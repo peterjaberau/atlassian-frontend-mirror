@@ -1,5 +1,342 @@
 # @atlaskit/teams-client
 
+## 6.1.0
+
+### Minor Changes
+
+- [`0ce9c55149824`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0ce9c55149824) -
+  Changing endpoint from no scoped to team scoped
+
+## 6.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.0
+
+### Minor Changes
+
+- [`5b39d8c208f0f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5b39d8c208f0f) -
+  Migrate `TeamsInSlackClient` to Staffy Global Edge URL with staff auth handling.
+
+  When `ptc-onboard-teams-slack-app-to-global-edge-url` is ON, all `/api/team/{teamId}` calls (GET,
+  POST, DELETE) are routed to `https://teams-slack-app.services.atlassian.com` instead of the
+  Stargate path `/gateway/api/teamsslack/api/team`.
+
+  To handle the case where the user has no Staffy SST cookie (which would cause a silent fetch
+  failure due to a `302 → Okta` redirect being followed inside `fetch()`), a pre-flight
+  `GET /api/authping` probe is made before each call. If the probe fails, the client performs a
+  top-level `window.location.assign()` to `/staffy/login?return_to=<current URL>` so the browser
+  completes the Okta SSO flow and sets the SST cookie before retrying. An in-memory flag prevents
+  infinite redirect loops.
+
+  Falls back to Stargate when the gate is OFF. No changes to `RestClient` or any other client.
+
+  Also adds `teamsInSlackServiceUrl` to `TeamsClientConfig` to allow per-environment URL overrides.
+
+## 5.5.0
+
+### Minor Changes
+
+- [`04c2bee47b7d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04c2bee47b7d0) -
+  Migrate `TeamsInSlackClient` to use the Staffy Global Edge URL behind the feature gate
+  `ptc-onboard-teams-slack-app-to-global-edge-url`.
+
+  When the gate is enabled, all `/api/team/{teamId}` calls (GET, POST, DELETE) are routed to
+  `https://teams-slack-app.services.atlassian.com` instead of the Stargate path
+  `/gateway/api/teamsslack/api/team`. Falls back to Stargate when the gate is off.
+
+  Also adds `teamsInSlackServiceUrl` to `TeamsClientConfig` to allow per-environment URL overrides.
+
+## 5.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`f14ed32129aff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f14ed32129aff) -
+  Apply the Volt one-export-per-file standard via `volt-migrate-package` to
+  `@atlaskit/teams-client`.
+
+  **No symbol was added to or removed from the public API.** The set of symbols reachable through
+  the package `exports` map is byte-identical to before the migration (161 symbols). What changed is
+  how you can reach them: the map grows from 43 to 90 subpaths, so each split module now has a
+  direct import path, and 2 subpaths (`./client`, `./user-info-provider`) were retargeted from a
+  re-export barrel to the module that already owned their symbols. Every previous home keeps a
+  `@deprecated` re-export shim naming the new subpath; VOLTC-139 tracks removing those shims.
+
+  ### No public API was removed or added
+
+  Every import that worked before still works, unchanged:
+
+  ```ts
+  import { teamsClient } from '@atlaskit/teams-client/client';
+  import { hasPermission, userCan } from '@atlaskit/teams-client/has-permission';
+  import { isMember } from '@atlaskit/teams-client/team';
+  ```
+
+  Helpers that the split had to hoist into their own modules are exported at the file level but are
+  deliberately **not** on the `exports` map, so they stay package-private exactly as before — for
+  example `CommonError`, `HttpErrorArguments`, `V1_URL`, `Context`, `logMessage`, `MockConfig` and
+  the individual `mock*Endpoint` helpers.
+
+  ### New subpaths for symbols you can already import
+
+  Each split module now has its own subpath, so you can import a single symbol without pulling in a
+  barrel. These are new _paths_ to existing public symbols, not new symbols — prefer them over the
+  `@deprecated` barrels:
+
+  ```ts
+  // instead of '@atlaskit/teams-client/team'
+  import { isMember } from '@atlaskit/teams-client/is-member';
+  // instead of '@atlaskit/teams-client/sentry'
+  import { logException } from '@atlaskit/teams-client/log-exception';
+  // instead of '@atlaskit/teams-client/use-query-light'
+  import { useQueryLight } from '@atlaskit/teams-client/use-query-light/use-query-light';
+  ```
+
+  ### Note for consumers that mock these modules
+
+  Symbols moved between modules. A `jest.mock()` or `jest.spyOn()` aimed at a module that no longer
+  owns the export silently stops intercepting — the test keeps passing against real code, or fails
+  with `mockReturnValue is not a function`. Mock the module that now owns the export instead:
+
+  | Symbol                                                     | Was mocked via                       | Now owned by                                                           |
+  | ---------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------- |
+  | `withExponentialBackoff`, `is5xx`, `isFetchResponse`       | `common/utils/http`                  | `common/utils/{with-exponential-backoff,is5xx,is-fetch-response}`      |
+  | `isMember`, `isInvited`, `isNonMember`, `isRequestingJoin` | `common/utils/team`                  | `common/utils/{is-member,is-invited,is-non-member,is-requesting-join}` |
+  | `handleGraphQLRequest`, `makeGraphQLRequestWithoutRetries` | `services/graphql-client/utils`      | `services/graphql-client/utils/<symbol>`                               |
+  | `getPermissionMap`, `allPermissions`                       | `common/utils/permissions/constants` | `common/utils/permissions/{get-permission-map,all-permissions}`        |
+  | `PublicApiClient`                                          | `services/public-api-client`         | `services/public-api-client/PublicApiClient`                           |
+  | `useQueryLight`, `useLazyQueryLight`                       | `services/use-query-light/main`      | `services/use-query-light/{useQueryLight,useLazyQueryLight}`           |
+  | the `mock*Endpoint` helpers and `mock*Regex` matchers      | `mocks/endpoints`                    | `mocks/<helper>` and `mocks/endpoint-regexes`                          |
+
+  The private barrels `services/graphql-client/index.ts`, `services/graphql-client/utils/index.ts`
+  and `services/team-central-client/utils.ts` were deleted. None was reachable through the `exports`
+  map, so only deep-relative imports and mock paths are affected.
+
+  ### Internal-only renames
+  - `common/utils/ufo/utils.ts` → `common/utils/ufo/createErrorMetadata.ts`
+  - `services/object-resolver-client/utils.ts` →
+    `services/object-resolver-client/formatLinkIconData.ts`
+
+  Neither path is reachable through the `exports` map. No behaviour change.
+
+## 5.2.0
+
+### Minor Changes
+
+- [`a9a8208446bfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9a8208446bfa) -
+  Support React 19 for people-and-teams packages.
+
+## 5.1.1
+
+### Patch Changes
+
+- [`b1cf9e336f0f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1cf9e336f0f0) -
+  Migrate consumers of @atlaskit/atlassian-context from barrel imports to direct subpath imports,
+  and remove the deprecated `./domain-lookup`, `./generalized-domain-lookup`, and `./perimeter`
+  entry-point exports (all symbols remain available via their per-export subpaths).
+
+  Also extends the `no-restricted-fedramp-imports` ESLint rule to cover the new
+  `@atlaskit/atlassian-context/is-fedramp` and `@atlaskit/atlassian-context/is-isolated-cloud`
+  subpaths, so the FedRamp/IsolatedCloud deprecation guardrail keeps firing after the migration.
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+## 5.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.33.3
+
+### Patch Changes
+
+- [`58ca65317cf75`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/58ca65317cf75) -
+  Migrated TeamMember, TeamMembership, TeamWithMemberships, TeamSearchMember and InvitedUser types
+  to be sourced from @atlaskit/teams-client/types.
+
+## 4.33.2
+
+### Patch Changes
+
+- [`3ae085a9629b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3ae085a9629b3) -
+  Migrate `Team` type from `ptc-common` to `teams-client` as part of `ptc-common` deprecation.
+  - **`@atlaskit/teams-client`**: Made `restriction` field optional on the `Team` interface
+    (consistent with its `@deprecated` status). Exported `TeamAvatarImage` from the `types` subpath
+    entry point.
+  - **`@atlassian/ptc-common`**: Removed local `Team` and `TeamAvatarImage` interface definitions.
+    Both are now imported from `@atlaskit/teams-client/types` and re-exported for backward
+    compatibility. `Team` is re-exported as `@deprecated` — consumers should migrate to
+    `TeamWithImageUrls` from `@atlaskit/teams-client`. `TeamWithImageUrls` is also now exported
+    directly from `@atlassian/ptc-common`.
+  - **`@atlassian/ptc-embeddable-directory`**: Updated all internal usages of `Team` from
+    `@atlassian/ptc-common` to `TeamWithImageUrls` from `@atlaskit/teams-client/types`.
+  - **`@atlassian/team-profile`**: Updated all internal usages of `Team` from
+    `@atlassian/ptc-common` to `TeamWithImageUrls` from `@atlaskit/teams-client/types`. Defined
+    `TeamListItemUiElement` locally (derived from `TeamWithImageUrls`) to remove the `ptc-common`
+    dependency for that type.
+
+## 4.33.1
+
+### Patch Changes
+
+- [`709a5ce76e72d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/709a5ce76e72d) -
+  Migrated MembershipRole, MembershipState and TeamAvatarImage types to be sourced from
+  @atlaskit/teams-client/types.
+
+## 4.33.0
+
+### Minor Changes
+
+- [`93de3f3243bc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93de3f3243bc0) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 4.32.5
+
+### Patch Changes
+
+- [`759719a07dfd0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/759719a07dfd0) -
+  Clean up teams-app_client_fix-invalid-ari feature gate
+
+## 4.32.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.32.3
+
+### Patch Changes
+
+- [`238ba9dc63a10`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/238ba9dc63a10) -
+  Fix ARCHIVE_TEAM/UNARCHIVE_TEAM permission logic for ORG_ADMIN_MANAGED, EXTERNAL and
+  OPEN/MEMBER_INVITE teams, and stop fg() mock state leaking between test describe blocks.
+
+## 4.32.2
+
+### Patch Changes
+
+- [`7fb5bfbafb83e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fb5bfbafb83e) -
+  Enrol people-and-teams packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 4.32.1
+
+### Patch Changes
+
+- [`a45dd5a6666e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a45dd5a6666e8) -
+  Fix invalid ARI being sent in X-Query-Context header when cloudId is unavailable. Previously, an
+  uninitialised cloudId defaulted to the string 'None', causing requests to include a malformed
+  header value of `ari:cloud:platform::site/None`. The client now defaults to an empty string so no
+  header is sent until a valid cloudId is set.
+
+## 4.32.0
+
+### Minor Changes
+
+- [`2f909e7624d7f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f909e7624d7f) -
+  Align getAllTeams request with pagination parameter
+
+## 4.31.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.31.0
+
+### Minor Changes
+
+- [`a8d191380f754`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8d191380f754) -
+  Remove dead code from teams-client package
+
+## 4.30.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.30.2
+
+### Patch Changes
+
+- [`cf41ce07edce7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf41ce07edce7) -
+  Clean up new_team_profile experiment
+
 ## 4.30.1
 
 ### Patch Changes

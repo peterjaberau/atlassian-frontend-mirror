@@ -4,26 +4,26 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
+import type { ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
 import { layoutBreakpointWidth } from '@atlaskit/editor-shared-styles';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
-import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { B200 } from '@atlaskit/theme/colors';
+import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import type { BlockControlsPlugin } from '../blockControlsPluginType';
 import { getNodeAnchor } from '../pm-plugins/decorations-common';
 import { useActiveAnchorTracker } from '../pm-plugins/utils/active-anchor-tracker';
-import { type AnchorRectCache, isAnchorSupported } from '../pm-plugins/utils/anchor-utils';
+import { isAnchorSupported } from '../pm-plugins/utils/anchor-utils';
+import type { AnchorRectCache } from '../pm-plugins/utils/anchor-utils';
 import { getInsertLayoutStep, updateSelection } from '../pm-plugins/utils/update-selection';
-
 import { getAnchorAttrName } from './utils/dom-attr-name';
 
 // 8px gap + 16px on left and right
@@ -49,7 +49,7 @@ const dropTargetLayoutStyle = css({
 const dropTargetLayoutHintStyle = css({
 	height: '100%',
 	position: 'relative',
-	borderRight: `${token('border.width')} dashed ${token('color.border.focused', B200)}`,
+	borderRight: `${token('border.width')} dashed ${token('color.border.focused')}`,
 	width: 0,
 });
 
@@ -57,7 +57,7 @@ export const DropTargetLayout = (
 	props: DropTargetLayoutProps & {
 		anchorRectCache?: AnchorRectCache;
 	},
-) => {
+): jsx.JSX.Element | null => {
 	const { api, getPos, parent, anchorRectCache } = props;
 
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -83,7 +83,7 @@ export const DropTargetLayout = (
 		[`@container layout-area (max-width:${layoutBreakpointWidth.MEDIUM - 1}px)`]: {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
 			height,
-			marginTop: `${token('space.050', '4px')}`,
+			marginTop: `${token('space.050')}`,
 		},
 	});
 	const [isActiveAnchor] = useActiveAnchorTracker(anchorName);
@@ -144,7 +144,8 @@ export const DropTargetLayout = (
 				<DropIndicator edge="right" gap={`-${DROP_TARGET_LAYOUT_DROP_ZONE_WIDTH}px`} />
 			) : (
 				(isActiveAnchor ||
-					expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) && (
+					expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+					isExperimentEnabled('platform_editor_block_control_migration')) && (
 					<div data-testid="block-ctrl-drop-hint" css={dropTargetLayoutHintStyle}></div>
 				)
 			)}
@@ -156,7 +157,7 @@ export const DropTargetLayoutNativeAnchorSupport = (
 	props: DropTargetLayoutProps & {
 		anchorRectCache?: AnchorRectCache;
 	},
-) => {
+): jsx.JSX.Element | null => {
 	const { api, getPos, parent, anchorRectCache } = props;
 
 	const ref = useRef<HTMLDivElement | null>(null);
@@ -196,7 +197,7 @@ export const DropTargetLayoutNativeAnchorSupport = (
 		[`@container layout-area (max-width:${layoutBreakpointWidth.MEDIUM - 1}px)`]: {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
 			height,
-			marginTop: `${token('space.050', '4px')}`,
+			marginTop: `${token('space.050')}`,
 		},
 	});
 	const [isActiveAnchor] = useActiveAnchorTracker(anchorName);
@@ -258,7 +259,8 @@ export const DropTargetLayoutNativeAnchorSupport = (
 				<DropIndicator edge="right" gap={`-${DROP_TARGET_LAYOUT_DROP_ZONE_WIDTH}px`} />
 			) : (
 				(isActiveAnchor ||
-					expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) && (
+					expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+					isExperimentEnabled('platform_editor_block_control_migration')) && (
 					<div data-testid="block-ctrl-drop-hint" css={dropTargetLayoutHintStyle}></div>
 				)
 			)}

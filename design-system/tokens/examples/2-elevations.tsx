@@ -6,9 +6,17 @@
 import { cssMap, type CSSProperties, jsx } from '@compiled/react';
 
 import StarStarredIcon from '@atlaskit/icon/core/star-starred';
+import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { useVrGlobalTheme } from './utils/use-vr-global-theme';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const nonInteractiveStyles = {
 	sunken: {
@@ -46,6 +54,13 @@ const interactiveBackgroundStyles = {
 		surfaceHovered: token('elevation.surface.overlay.hovered'),
 		surfacePressed: token('elevation.surface.overlay.pressed'),
 		shadow: token('elevation.shadow.overlay'),
+	},
+	container: {
+		label: 'elevation.surface.container',
+		surface: token('elevation.surface.container'),
+		surfaceHovered: token('elevation.surface.container.hovered'),
+		surfacePressed: token('elevation.surface.container.pressed'),
+		shadow: 'none',
 	},
 };
 
@@ -138,7 +153,9 @@ const Box = ({ text, style }: { text: string; style: Record<string, string> }) =
 				} as CSSProperties
 			}
 		>
-			<StarStarredIcon label="Star icon" spacing="spacious" />
+			<Flex xcss={iconSpacingStyles.space050}>
+				<StarStarredIcon label="Star icon" />
+			</Flex>
 			{text}
 		</ComponentType>
 	);

@@ -1,7 +1,10 @@
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css } from '@emotion/react';
+import type { DetailedHTMLProps, HTMLAttributes } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import styled from '@emotion/styled';
+import { css, type Theme } from '@emotion/react';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import styled, { type StyledComponent } from '@emotion/styled';
 
 import { token } from '@atlaskit/tokens';
 
@@ -11,17 +14,25 @@ type HelpContainerProps = {
 	isVisible: boolean;
 };
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const HelpContainer = styled.div<HelpContainerProps>(
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+export const HelpContainer: StyledComponent<
+	{
+		as?: React.ElementType;
+		theme?: Theme;
+	} & HelpContainerProps,
+	DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
+	{}
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+> = styled.div<HelpContainerProps>(
 	{
 		display: 'flex',
 		marginLeft: 'auto',
 		marginRight: 0,
 		flexShrink: 0,
-		padding: `0 ${token('space.100', '8px')}`,
+		padding: `0 ${token('space.100')}`,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		'> * + *': {
-			marginLeft: token('space.200', '16px'),
+			marginLeft: token('space.200'),
 		},
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-dynamic-styles -- Ignored via go/DSP-18766

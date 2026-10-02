@@ -6,10 +6,9 @@ import {
 	ToolbarWidthsFullPageNext,
 	ToolbarWidthsNext,
 } from '@atlaskit/editor-common/types';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { isFullPage } from '../../utils/is-full-page';
-
 import type { ToolbarBreakPoint } from './toolbar-types';
 
 // Toolbar sizes for full page editor a little bit different, because it has more buttons e.g. actions button...
@@ -64,7 +63,10 @@ const toolbarSizesForAppearance = (appearance?: EditorAppearance) =>
 			? toolbarSizesNext
 			: toolbarSizes;
 
-export const toolbarSizeToWidth = (toolbarSize: ToolbarSize, appearance?: EditorAppearance) => {
+export const toolbarSizeToWidth = (
+	toolbarSize: ToolbarSize,
+	appearance?: EditorAppearance,
+): number => {
 	return (
 		toolbarSizesForAppearance(appearance).find(({ size }) => toolbarSize === size) || {
 			width: ToolbarWidths.S,
@@ -72,7 +74,11 @@ export const toolbarSizeToWidth = (toolbarSize: ToolbarSize, appearance?: Editor
 	).width;
 };
 
-export const widthToToolbarSize = (toolbarWidth: number, appearance?: EditorAppearance) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const widthToToolbarSize = (
+	toolbarWidth: number,
+	appearance?: EditorAppearance,
+): ToolbarSize => {
 	return (
 		toolbarSizesForAppearance(appearance).find(({ width }) => toolbarWidth > width) || {
 			size: ToolbarSize.XXXS,

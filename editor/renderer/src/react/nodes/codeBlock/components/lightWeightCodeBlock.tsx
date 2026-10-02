@@ -5,27 +5,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { forwardRef, useMemo } from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
 
+import React, { forwardRef, useMemo } from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import { css, jsx, type SerializedStyles } from '@emotion/react';
+
+import { CodeBlockSharedCssClassName } from '@atlaskit/editor-common/styles';
 import {
 	akEditorTableCellMinWidth,
 	blockNodesVerticalMargin,
 	overflowShadow,
 } from '@atlaskit/editor-shared-styles';
-import { CodeBlockSharedCssClassName } from '@atlaskit/editor-common/styles';
+import { token } from '@atlaskit/tokens';
 
-import { useBidiWarnings } from '../../../hooks/use-bidi-warnings';
 import { RendererCssClassName } from '../../../../consts';
 import type { Props as CodeBlockProps } from '../codeBlock';
-import { token } from '@atlaskit/tokens';
 
 const codeBlockSharedStyles = css({
 	[`.${CodeBlockSharedCssClassName.CODEBLOCK_CONTENT_WRAPPED}
 		> .${CodeBlockSharedCssClassName.CODEBLOCK_CONTENT_WRAPPER}
 		> .${CodeBlockSharedCssClassName.CODEBLOCK_CONTENT}`]: {
-		marginRight: token('space.100', '8px'),
+		marginRight: token('space.100'),
 		code: {
 			display: 'block',
 			wordBreak: 'break-word',
@@ -89,13 +90,13 @@ const codeBlockSharedStyles = css({
 			backgroundImage: 'var(--ak-renderer-codeblock-content-wrapper-bg-img)',
 			backgroundRepeat: 'no-repeat',
 			backgroundAttachment: 'local, local, local, local, scroll, scroll, scroll, scroll',
-			backgroundSize: `${token('space.300', '24px')} 100%,
-				${token('space.300', '24px')} 100%,
-				${token('space.100', '8px')} 100%,
-				${token('space.100', '8px')} 100%,
-				${token('space.100', '8px')} 100%,
+			backgroundSize: `${token('space.300')} 100%,
+				${token('space.300')} 100%,
+				${token('space.100')} 100%,
+				${token('space.100')} 100%,
+				${token('space.100')} 100%,
 				1px 100%,
-				${token('space.100', '8px')} 100%,
+				${token('space.100')} 100%,
 				1px 100%`,
 			backgroundPosition: `0 0,
 				0 0,
@@ -114,7 +115,7 @@ const codeBlockSharedStyles = css({
 			backgroundColor: token('color.background.neutral'),
 			position: 'relative',
 			width: 'var(--lineNumberGutterWidth, 2rem)',
-			padding: token('space.100', '8px'),
+			padding: token('space.100'),
 			flexShrink: 0,
 			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 			fontSize: `${14 / 16}rem`,
@@ -141,7 +142,7 @@ const codeBlockSharedStyles = css({
 				cursor: 'text',
 				color: token('color.text'),
 				borderRadius: token('radius.small', '3px'),
-				margin: token('space.100', '8px'),
+				margin: token('space.100'),
 				// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 				fontSize: `${14 / 16}rem`,
 				// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
@@ -157,11 +158,11 @@ const codeBlockSharedStyles = css({
 			position: 'absolute',
 			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 			fontSize: `${14 / 16}rem`,
-			padding: `0px ${token('space.100', '8px')}`,
+			padding: `0px ${token('space.100')}`,
 			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 			lineHeight: '1.5rem',
 			textAlign: 'right',
-			color: token('color.text.subtlest', '#505F79'),
+			color: token('color.text.subtlest'),
 			boxSizing: 'content-box',
 		},
 	},
@@ -181,7 +182,7 @@ export const LightWeightCodeBlockCssClassName = {
  * @private
  * @deprecated styles are moved to RendererStyleContainer
  */
-export const getLightWeightCodeBlockStylesForRootRendererStyleSheet = () => {
+export const getLightWeightCodeBlockStylesForRootRendererStyleSheet = (): SerializedStyles => {
 	// We overwrite the rule that clears margin-top for first nested codeblocks, as
 	// our lightweight codeblock dom structure will always nest the codeblock inside
 	// an extra container div which would constantly be targeted. Now, top-level
@@ -198,22 +199,22 @@ export const getLightWeightCodeBlockStylesForRootRendererStyleSheet = () => {
 	`;
 };
 
-const LightWeightCodeBlock = forwardRef(
+const LightWeightCodeBlock: React.ForwardRefExoticComponent<
+	Pick<CodeBlockProps, 'text' | 'className' | 'hideLineNumbers'> &
+		React.RefAttributes<HTMLDivElement>
+> = forwardRef(
 	(
 		{
 			text,
-			codeBidiWarningTooltipEnabled = true,
+			hideLineNumbers = false,
 			className,
-		}: Pick<CodeBlockProps, 'text' | 'codeBidiWarningTooltipEnabled' | 'className'>,
+		}: Pick<CodeBlockProps, 'text' | 'className' | 'hideLineNumbers'>,
 		ref: React.Ref<HTMLDivElement>,
 	) => {
 		const textRows = useMemo(() => (text ?? '').split('\n'), [text]);
-		const { renderBidiWarnings } = useBidiWarnings({
-			enableWarningTooltip: codeBidiWarningTooltipEnabled,
-		});
 		const classNames = [LightWeightCodeBlockCssClassName.CONTAINER, className].join(' ');
 		const codeBlockBackgroundImage = overflowShadow({
-			leftCoverWidth: token('space.300', '24px'),
+			leftCoverWidth: token('space.300'),
 		});
 
 		return (
@@ -235,20 +236,22 @@ const LightWeightCodeBlock = forwardRef(
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 						className={CodeBlockSharedCssClassName.CODEBLOCK_CONTENT_WRAPPER}
 					>
-						<div
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-							className={CodeBlockSharedCssClassName.CODEBLOCK_LINE_NUMBER_GUTTER}
-						>
-							{textRows.map((_, index) => (
-								// Ignored via go/ees005
-								// eslint-disable-next-line react/no-array-index-key
-								<span key={index} />
-							))}
-						</div>
+						{!hideLineNumbers && (
+							<div
+								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+								className={CodeBlockSharedCssClassName.CODEBLOCK_LINE_NUMBER_GUTTER}
+							>
+								{textRows.map((_, index) => (
+									// Ignored via go/ees005
+									// eslint-disable-next-line react/no-array-index-key
+									<span key={index} />
+								))}
+							</div>
+						)}
 						{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766 */}
 						<div className={CodeBlockSharedCssClassName.CODEBLOCK_CONTENT}>
 							{/* eslint-disable-next-line @atlaskit/design-system/no-html-code */}
-							<code>{renderBidiWarnings(text)}</code>
+							<code>{text}</code>
 						</div>
 					</div>
 				</div>

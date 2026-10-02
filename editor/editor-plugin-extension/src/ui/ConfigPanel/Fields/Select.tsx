@@ -1,14 +1,13 @@
 import React, { Fragment } from 'react';
 
 import type { EnumSelectField, Option } from '@atlaskit/editor-common/extensions';
-import { Field } from '@atlaskit/form';
-import type { ValueType } from '@atlaskit/select';
-import Select from '@atlaskit/select';
+import Field from '@atlaskit/form/field';
+import Select from '@atlaskit/select/default';
+import type { ValueType } from '@atlaskit/select/types';
 
 import FieldMessages from '../FieldMessages';
 import type { OnFieldChange } from '../types';
 import { getOptionFromValue, validate } from '../utils';
-
 import { formatOptionLabel } from './SelectItem';
 
 export default function SelectField({
@@ -39,6 +38,7 @@ export default function SelectField({
 			defaultValue={getOptionFromValue(field.items, field.defaultValue) as ValueType<Option, false>}
 			testId={`config-panel-select-${name}`}
 			isRequired={field.isRequired}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value: ValueType<Option> | null | undefined) => {
 				// Ignored via go/ees005
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -57,6 +57,7 @@ export default function SelectField({
 							inputId: fieldProps.id,
 							id: undefined,
 						}}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onChange={(value) => {
 							fieldProps.onChange(value);
 							onFieldChange(name, true);

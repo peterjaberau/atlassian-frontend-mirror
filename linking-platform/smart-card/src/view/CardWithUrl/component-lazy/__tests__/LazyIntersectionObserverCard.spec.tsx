@@ -1,26 +1,46 @@
+import '@atlaskit/link-test-helpers/jest';
 import React from 'react';
 
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import { renderWithIntl } from '@atlaskit/link-test-helpers';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { renderWithIntl, ResolvedClient } from '@atlaskit/link-test-helpers';
 
+import { ANALYTICS_CHANNEL } from '../../../../utils/analytics/analytics';
+import * as componentModule from '../../component';
 import { LazyIntersectionObserverCard } from '../LazyIntersectionObserverCard';
+
+type CardAppearance = React.ComponentProps<typeof LazyIntersectionObserverCard>['appearance'];
+
+const mockUsePrefetch = jest.fn((_url: string, _appearance: CardAppearance) => jest.fn());
+jest.mock('../../../../state/hooks/usePrefetch', () => ({
+	usePrefetch: (url: string, appearance: CardAppearance) => mockUsePrefetch(url, appearance),
+}));
 
 describe('LazyIntersectionObserverCard', () => {
 	afterEach(() => {
 		jest.clearAllMocks();
 	});
 
-	const setup = (props: Partial<React.ComponentProps<typeof LazyIntersectionObserverCard>> = {}) =>
-		renderWithIntl(
-			<SmartCardProvider>
-				<LazyIntersectionObserverCard
-					appearance="block"
-					url="http://example.com"
-					id="123"
-					{...props}
-				/>
+	const setup = (
+		props: Partial<React.ComponentProps<typeof LazyIntersectionObserverCard>> = {},
+	) => {
+		const onEvent = jest.fn();
+
+		const renderResult = renderWithIntl(
+			<SmartCardProvider client={new ResolvedClient()}>
+				<AnalyticsListener onEvent={onEvent} channel={ANALYTICS_CHANNEL}>
+					<LazyIntersectionObserverCard
+						appearance="block"
+						url="http://example.com"
+						id="123"
+						{...props}
+					/>
+				</AnalyticsListener>
 			</SmartCardProvider>,
 		);
+
+		return { ...renderResult, onEvent };
+	};
 
 	describe('when not intersecting', () => {
 		const observe = jest.fn();
@@ -50,6 +70,12 @@ describe('LazyIntersectionObserverCard', () => {
 
 			expect(disconnect).toHaveBeenCalledTimes(1);
 		});
+
+		it('should prefetch data for the card appearance', () => {
+			setup({ appearance: 'inline' });
+
+			expect(mockUsePrefetch).toHaveBeenCalledWith('http://example.com', 'inline');
+		});
 	});
 
 	describe('when intersecting', () => {
@@ -66,6 +92,7 @@ describe('LazyIntersectionObserverCard', () => {
 				value: class MockIntersectionObserver implements IntersectionObserver {
 					readonly root!: Element | null;
 					readonly rootMargin!: string;
+					readonly scrollMargin!: string;
 					readonly thresholds!: ReadonlyArray<number>;
 
 					constructor(callback: IntersectionObserverCallback) {
@@ -99,6 +126,21 @@ describe('LazyIntersectionObserverCard', () => {
 			 * also calls disconnect
 			 */
 			expect(disconnect).toHaveBeenCalledTimes(2);
+		});
+
+		it('should render the wrapped component after intersection', async () => {
+			const spy = jest
+				.spyOn(componentModule, 'CardWithUrlContent')
+				.mockImplementation(() => <div />);
+
+			const { unmount } = setup();
+
+			expect(spy).toHaveBeenLastCalledWith(
+				expect.objectContaining({ appearance: 'block', url: 'http://example.com' }),
+				expect.anything(),
+			);
+
+			unmount();
 		});
 	});
 });

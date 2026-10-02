@@ -9,8 +9,8 @@ import { render, screen } from '@testing-library/react';
 import { axe } from '@af/accessibility-testing';
 
 import ButtonGroup from '../../../containers/button-group';
-import Button from '../../../index';
-import CustomThemeButton from '../../../old-button/custom-theme-button';
+import Button from '../../../old-button/button';
+import CustomThemeButton from '../../../old-button/custom-theme-button/custom-theme-button';
 import LoadingButton from '../../../old-button/loading-button';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage

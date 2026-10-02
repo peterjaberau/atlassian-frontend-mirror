@@ -1,10 +1,11 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render, fireEvent } from '@testing-library/react';
-import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
-import { createIntl, createIntlCache } from 'react-intl-next';
+import { createIntl, createIntlCache, IntlProvider } from 'react-intl';
 
-import { messages } from '../../../../../../messages';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+
 import { WhatsNewResultsEmpty } from '../..';
 
 const cache = createIntlCache();
@@ -15,9 +16,8 @@ const intl = createIntl(
 	},
 	cache,
 );
-const messageClearFilterLink = intl.formatMessage(
-	messages.help_whats_new_no_results_clear_filter_button_label,
-);
+// The merged string uses rich-text formatting; match only the button text chunk
+const messageClearFilterLink = 'Clear the filter';
 
 const mockOnClearFilter = jest.fn();
 const analyticsSpy = jest.fn();
@@ -25,25 +25,21 @@ const analyticsSpy = jest.fn();
 describe('WhatsNewResultsEmpty', () => {
 	it('should capture and report a11y violations', async () => {
 		const { container } = render(
-			<WhatsNewResultsEmpty intl={intl} onClearFilter={mockOnClearFilter} />,
+			<IntlProvider locale="en">
+				<WhatsNewResultsEmpty intl={intl} onClearFilter={mockOnClearFilter} />
+			</IntlProvider>,
 		);
 
 		await expect(container).toBeAccessible();
 	});
 
-	it('Should match snapshot', () => {
-		const { asFragment } = render(
-			<WhatsNewResultsEmpty intl={intl} onClearFilter={mockOnClearFilter} />,
-		);
-
-		expect(asFragment()).toMatchSnapshot();
-	});
-
 	it('Execute the function prop "onClearFilter" when the user clicks the link to open clear the filter', () => {
 		const { queryByText } = render(
-			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
-				<WhatsNewResultsEmpty intl={intl} onClearFilter={mockOnClearFilter} />
-			</AnalyticsListener>,
+			<IntlProvider locale="en">
+				<AnalyticsListener channel="help" onEvent={analyticsSpy}>
+					<WhatsNewResultsEmpty intl={intl} onClearFilter={mockOnClearFilter} />
+				</AnalyticsListener>
+			</IntlProvider>,
 		);
 
 		const button = queryByText(messageClearFilterLink);

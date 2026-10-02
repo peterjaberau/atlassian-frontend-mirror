@@ -1,4 +1,5 @@
-import { type LinkPerson } from '@atlaskit/link-extractors';
+import type { LinkPerson } from '@atlaskit/link-extractors/types';
+import type { ProductType } from '@atlaskit/linking-common/types';
 
 import {
 	type ActionName,
@@ -43,13 +44,13 @@ export type FlexibleUiDataContext = {
 	 * @see AvatarGroup
 	 */
 	assignedToGroup?: LinkPerson[];
-
 	/**
 	 * Contains the number of attachments on the linked resource.
 	 * @type number
 	 * @see AttachmentCount
 	 */
 	attachmentCount?: number;
+
 	/**
 	 * An array containing data used to populate the AuthorGroup element.
 	 * @see AvatarGroup
@@ -116,7 +117,6 @@ export type FlexibleUiDataContext = {
 	 * @see Location
 	 */
 	location?: LinkLocation;
-
 	/**
 	 * Contains metadata about the linked resource.
 	 */
@@ -133,6 +133,7 @@ export type FlexibleUiDataContext = {
 	 * @see ModifiedBy
 	 */
 	modifiedBy?: string;
+
 	/**
 	 * Contains the ISO timestamp of when the resource was last modified.
 	 * @type string - ISO Timestamp
@@ -280,7 +281,11 @@ export type FlexibleUiDataContext = {
 };
 
 export type LinkTitle = {
+	/** Optional middle-click handler. */
+	onAuxClick?: React.EventHandler<React.MouseEvent>;
 	onClick?: React.EventHandler<React.MouseEvent | React.KeyboardEvent>;
+	/** Optional right-click handler. */
+	onContextMenu?: React.EventHandler<React.MouseEvent>;
 	text?: string;
 	url?: string;
 };
@@ -308,6 +313,7 @@ export type FlexibleUiActions = {
 	[ActionName.FollowAction]?: ServerActionProp<boolean>;
 	/* Contains data needed to show a preview action that open embed modal.*/
 	[ActionName.PreviewAction]?: PreviewActionData;
+	[ActionName.RovoChatAction]?: RovoChatActionData;
 	[InternalActionName.AISummaryAction]?: AISummaryActionData;
 	[InternalActionName.UnresolvedAction]?: UnresolvedActionData;
 	[InternalActionName.ViewRelatedLinksAction]?: ViewRelatedLinksActionData;
@@ -343,6 +349,12 @@ export type AutomationActionData = {
 	product: string;
 	resourceType: string;
 	siteAri: any;
+};
+
+export type RovoChatActionData = {
+	invokeAction: Omit<InvokeClientActionProps, 'actionFn' | 'prompt'>;
+	product?: ProductType;
+	url?: string;
 };
 
 export type UnresolvedActionData = RetryOptions;

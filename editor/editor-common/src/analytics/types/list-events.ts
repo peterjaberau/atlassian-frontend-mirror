@@ -6,6 +6,7 @@ export enum DELETE_DIRECTION {
 	FORWARD = 'forward',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum LIST_TEXT_SCENARIOS {
 	JOIN_SIBLINGS = 'joinSiblings',
 	JOIN_DESCENDANT_TO_PARENT = 'joinDescendantToParent',
@@ -15,12 +16,14 @@ export enum LIST_TEXT_SCENARIOS {
 	JOIN_LIST_ITEM_WITH_PARAGRAPH = 'joinListItemWithParagraph',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum JOIN_SCENARIOS_WHEN_TYPING_TO_INSERT_LIST {
 	NO_JOIN = 'noJoin',
 	JOINED_TO_LIST_ABOVE = 'joinedToListAbove',
 	JOINED_TO_LIST_BELOW = 'joinedToListBelow',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum OUTDENT_SCENARIOS {
 	SPLIT_LIST = 'splitList',
 }
@@ -109,7 +112,9 @@ type ListInsertedAEP = TrackAEP<
 			| INPUT_METHOD.FORMATTING
 			| INPUT_METHOD.KEYBOARD
 			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.INSERT_MENU
 			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.ELEMENT_BROWSER
 			| INPUT_METHOD.FLOATING_TB;
 		joinScenario?: JOIN_SCENARIOS_WHEN_TYPING_TO_INSERT_LIST;
 		listStartNumber?: number;

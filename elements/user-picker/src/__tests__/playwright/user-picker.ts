@@ -1,10 +1,21 @@
+import type {
+	TestType,
+	PlaywrightTestArgs,
+	PlaywrightTestOptions,
+	PlaywrightWorkerArgs,
+	PlaywrightWorkerOptions,
+} from 'playwright/test';
+
 import { test as baseTest, type Locator, type Page } from '@af/integration-testing';
-import { PageRequestController } from '@af/search-test-utils';
+import type { PlaywrightCoverageOptions } from '@af/integration-testing/fixtures';
+import { PageRequestController } from '@af/search-test-utils/PageRequestController';
 
 const Selectors = {
 	SELECTED_SINGLE_VALUE: '[class*="singleValue"]',
-	SELECTED_MULTI_VALUE: '[class*="multiValue"]',
-	MULTI_VALUE_CLEAR_BUTTON: '[data-testid="show-clear-icon"]',
+	// Legacy: [class*="multiValue"]; AvatarTag (ff-on): [data-user-picker-multi-value]
+	SELECTED_MULTI_VALUE: '[class*="multiValue"], [data-user-picker-multi-value]',
+	// Legacy MultiValue uses data-testid; AvatarTag path (platform-dst-lozenge-tag-badge-visual-uplifts) uses aria-label "Remove ..."
+	MULTI_VALUE_CLEAR_BUTTON: '[data-testid="show-clear-icon"], button[aria-label^="Remove "]',
 };
 
 /**
@@ -56,7 +67,14 @@ type UserPickerTest = {
 	userPicker: UserPicker;
 };
 
-export const test = baseTest.extend<UserPickerTest>({
+export const test: TestType<
+	PlaywrightTestArgs &
+		PlaywrightTestOptions & {
+			skipAxeCheck: () => void;
+		} & PlaywrightCoverageOptions &
+		UserPickerTest,
+	PlaywrightWorkerArgs & PlaywrightWorkerOptions
+> = baseTest.extend<UserPickerTest>({
 	userPicker: async ({ page }, use) => {
 		const userPicker = new UserPicker(page);
 		await use(userPicker);

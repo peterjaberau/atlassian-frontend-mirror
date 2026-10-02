@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import {
@@ -148,58 +148,19 @@ export const ListsIndentationHeroButtonNew = ({
 	);
 };
 
-export const ListsIndentationHeroButton = ({ api, parents }: ListsIndentationHeroButtonProps): React.JSX.Element => {
-	const { formatMessage } = useIntl();
-
-	const { bulletListActive, bulletListDisabled, orderedListActive, taskListActive } =
-		useSharedPluginStateWithSelector(api, ['list', 'taskDecision'], (states) => ({
-			bulletListActive: states.listState?.bulletListActive,
-			bulletListDisabled: states.listState?.bulletListDisabled,
-			orderedListActive: states.listState?.orderedListActive,
-			taskListActive: states.taskDecisionState?.isInsideTask,
-		}));
-
-	const taskListKeymap = toggleTaskListKeymap;
-
-	const shortcut = taskListActive
-		? formatShortcut(taskListKeymap)
-		: orderedListActive
-			? formatShortcut(toggleOrderedListKeymap)
-			: formatShortcut(toggleBulletListKeymap);
-
-	const onClick = () => {
-		const inputMethod = getInputMethodFromParentKeys(parents);
-		if (taskListActive) {
-			api?.core.actions.execute(api?.taskDecision?.commands.toggleTaskList());
-		} else if (orderedListActive) {
-			api?.core.actions.execute(api?.list.commands.toggleOrderedList(inputMethod));
-		} else {
-			api?.core.actions.execute(api?.list.commands.toggleBulletList(inputMethod));
-		}
-	};
+export const ListsIndentationHeroButton = ({
+	api,
+	parents,
+}: ListsIndentationHeroButtonProps): React.JSX.Element => {
+	const { shortcut, message, onClick, iconBefore, isSelected, isDisabled } =
+		useListsIndentationHeroButtonInfo({ api, parents, defaultListType: 'bulletList' });
 
 	return (
-		<ToolbarTooltip
-			content={
-				taskListActive
-					? formatMessage(tasksAndDecisionsMessages.taskList)
-					: orderedListActive
-						? formatMessage(listMessages.orderedList)
-						: formatMessage(listMessages.bulletedList)
-			}
-		>
+		<ToolbarTooltip content={message}>
 			<ToolbarButton
-				iconBefore={
-					taskListActive ? (
-						<TaskIcon label={formatMessage(tasksAndDecisionsMessages.taskList)} size="small" />
-					) : orderedListActive ? (
-						<ListNumberedIcon label={formatMessage(listMessages.orderedList)} size="small" />
-					) : (
-						<ListBulletedIcon label={formatMessage(listMessages.bulletedList)} size="small" />
-					)
-				}
-				isSelected={bulletListActive || orderedListActive || taskListActive}
-				isDisabled={!orderedListActive && !taskListActive && bulletListDisabled}
+				iconBefore={iconBefore}
+				isSelected={isSelected}
+				isDisabled={isDisabled}
 				ariaKeyshortcuts={shortcut}
 				onClick={onClick}
 			/>

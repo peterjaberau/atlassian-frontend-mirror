@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 
-import Button from '@atlaskit/button';
+import Button from '@atlaskit/button/button';
 import CheckIcon from '@atlaskit/icon/core/check-mark';
 import ChevronLeftLargeIcon from '@atlaskit/icon/core/chevron-left';
 import ChevronRightLargeIcon from '@atlaskit/icon/core/chevron-right';
 import CrossIcon from '@atlaskit/icon/core/cross';
-import { Radio } from '@atlaskit/radio';
-import Spinner from '@atlaskit/spinner';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
+import { Flex, xcss } from '@atlaskit/primitives';
+import Radio from '@atlaskit/radio/radio';
+import Spinner from '@atlaskit/spinner/spinner';
+import { token } from '@atlaskit/tokens';
+
 import {
 	Answer,
 	Footer,
@@ -20,9 +24,6 @@ import {
 	NavAction,
 } from './styled';
 import { type QuizElement, type QuizInterface } from './types';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Flex, xcss } from '@atlaskit/primitives';
-import { token } from '@atlaskit/tokens';
 
 const boxWrapperStyles = xcss({
 	width: '32px',
@@ -154,9 +155,10 @@ const QuizWidget = (props: Props): React.JSX.Element => {
 					</Flex>
 				</NavQuiz>
 				{isLastQuestion && !props.score ? (
-					// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+					/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 					<Button appearance="primary" onClick={onSubmitButtonClick} isDisabled={isDisabledSubmit}>
 						Submit
+						{/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 					</Button>
 				) : isLastSlide ? (
 					<NavQuiz>

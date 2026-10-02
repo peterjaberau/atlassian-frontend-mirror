@@ -1,0 +1,52 @@
+/**
+ * Testing structured MCP docs for review — ignore this file.
+ * Contact #dst-structured-content in Slack with questions.
+ */
+
+import type { StructuredContentSource } from '@atlassian/structured-docs-types/types';
+
+import packageJson from './package.json';
+
+const packagePath = __dirname;
+
+const documentation: StructuredContentSource = {
+	components: [
+		{
+			name: 'PerformanceMetrics',
+			description:
+				'Experimental code to track Editor Full Page performance on some particular scenarios',
+			status: 'general-availability',
+			import: {
+				name: 'PerformanceMetrics',
+				package: '@atlaskit/editor-performance-metrics/react',
+				type: 'named',
+				packagePath,
+				packageJson,
+			},
+			usageGuidelines: [],
+			contentGuidelines: [],
+			accessibilityGuidelines: [],
+			keywords: ['editor', 'editor-performance-metrics', 'atlaskit'],
+			categories: ['editor'],
+			examples: [
+				{
+					name: 'VC observer next',
+					description: 'Viewport visibility observer (next API).',
+					source: `${packagePath}/examples/01-vc-observer-next.tsx`,
+				},
+				{
+					name: 'Editor full page',
+					description: 'Full page editor with performance metrics.',
+					source: `${packagePath}/examples/05-editor-full-page.tsx`,
+				},
+				{
+					name: 'Basic React',
+					description: 'Basic React render performance example.',
+					source: `${packagePath}/examples/06-basic-react.tsx`,
+				},
+			],
+		},
+	],
+};
+
+export default documentation;

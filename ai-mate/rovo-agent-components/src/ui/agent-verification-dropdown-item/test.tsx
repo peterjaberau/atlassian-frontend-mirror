@@ -1,14 +1,13 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import { graphql, RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
 import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
 
-import { FlagsProvider } from '@atlaskit/flag';
+import { FlagsProvider } from '@atlaskit/flag/flags-provider';
 import { act, render, screen, userEvent } from '@atlassian/testing-library';
 
 import type { testAgentVerificationDropdownItemQuery } from './__generated__/testAgentVerificationDropdownItemQuery.graphql';
-
 import { AgentVerificationDropdownItem } from './index';
 
 type RenderProps = {
@@ -25,6 +24,7 @@ const TestWrapper = (props: RenderProps) => {
 				agentStudio_agentById(id: "test-agent-id") @required(action: THROW) {
 					... on AgentStudioAssistant {
 						...agentVerificationDropdownItem_AtlaskitRovoAgentComponents_agentRef
+							@dangerously_unaliased_fixme
 					}
 				}
 				atlassianStudio_userSiteContext(cloudId: "test-cloud-id") {

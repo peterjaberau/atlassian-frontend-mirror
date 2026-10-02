@@ -7,14 +7,13 @@ import { memo } from 'react';
 
 import { css } from '@compiled/react';
 
-import Button from '@atlaskit/button/standard-button';
-import { cssMap, jsx } from '@atlaskit/css';
+import { cssMap, cx, jsx } from '@atlaskit/css';
 import __noop from '@atlaskit/ds-lib/noop';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Pressable } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { type EllipsisItemProps } from '../types';
+import { useBreadcrumbsSize } from './internal/use-breadcrumbs-size';
 
 const noop = __noop;
 
@@ -24,33 +23,24 @@ const itemWrapperStyles = css({
 	maxWidth: '100%',
 	height: `${24 / 14}em`,
 	flexDirection: 'row',
-	marginBlockEnd: token('space.0', '0px'),
-	marginBlockStart: token('space.0', '0px'),
-	marginInlineEnd: token('space.0', '0px'),
-	marginInlineStart: token('space.0', '0px'),
-	paddingBlockEnd: token('space.0', '0px'),
-	paddingBlockStart: token('space.0', '0px'),
-	paddingInlineEnd: token('space.0', '0px'),
-	paddingInlineStart: token('space.0', '0px'),
+	marginBlockEnd: token('space.0'),
+	marginBlockStart: token('space.0'),
+	marginInlineEnd: token('space.0'),
+	marginInlineStart: token('space.0'),
+	paddingBlockEnd: token('space.0'),
+	paddingBlockStart: token('space.0'),
+	paddingInlineEnd: token('space.0'),
+	paddingInlineStart: token('space.0'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&:not(:last-child)::after': {
-		width: token('space.100', '8px'),
+		width: token('space.100'),
 		flexShrink: 0,
+		color: token('color.text.subtlest'),
 		content: '"/"',
 		paddingBlock: token('space.025'),
 		paddingInline: token('space.100'),
 		textAlign: 'center',
 	},
-});
-
-const staticItemStyles = css({
-	// TODO: Replace fontWeight and lineHeight with "font: token('font.body')" and remove all the !important once Button is migrated to compiled
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
-	fontWeight: `${token('font.weight.regular')} !important`,
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles, @atlaskit/design-system/use-tokens-typography
-	lineHeight: `20px !important`,
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
-	paddingBlock: `${token('space.025')} !important`,
 });
 
 const styles = cssMap({
@@ -62,9 +52,11 @@ const styles = cssMap({
 		border: 'none',
 		display: 'inline-flex',
 		alignItems: 'center',
+		alignSelf: 'center',
 		gap: token('space.050'),
 		borderRadius: token('radius.small'),
 		textDecoration: 'none',
+		marginBlockStart: token('space.0'),
 
 		'&:hover': {
 			textDecoration: 'underline',
@@ -79,28 +71,59 @@ const styles = cssMap({
 			color: token('color.text'),
 		},
 	},
+	rootSmall: {
+		font: token('font.body.small'),
+	},
+	interactiveMotion: {
+		textDecorationLine: 'underline',
+		textDecorationColor: 'transparent',
+		transition: token('motion.listitem.hovered'),
+		'&:hover': {
+			textDecorationColor: token('color.text.subtlest'),
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
+			textDecorationColor: token('color.text'),
+		},
+	},
 });
 
-const EllipsisItem: import("react").MemoExoticComponent<({ label, onClick, testId }: EllipsisItemProps) => JSX.Element> = memo(({ label, onClick = noop, testId }: EllipsisItemProps) => (
-	<li css={itemWrapperStyles}>
-		{fg('platform_dst_breadcrumbs_step_conversion') ? (
-			<Pressable aria-label={label} onClick={onClick} xcss={styles.root} testId={testId}>
-				&hellip;
-			</Pressable>
-		) : (
-			<Button
-				appearance="subtle-link"
+interface EllipsisItemProps {
+	onClick?: (event: React.MouseEvent<Element>) => void;
+	/**
+	 * A `testId` prop is provided for specified elements, which is a unique string that appears as a data attribute `data-testid` in the rendered code, serving as a hook for automated tests.
+	 */
+	testId?: string;
+	/**
+	 * A `label` prop is used as aria-label for ellipsis button.
+	 */
+	label: string;
+}
+
+const EllipsisItem: import('react').MemoExoticComponent<
+	({ label, onClick, testId }: EllipsisItemProps) => JSX.Element
+> = memo(({ label, onClick = noop, testId }: EllipsisItemProps) => {
+	const breadcrumbsSize = useBreadcrumbsSize();
+	const isSmall = breadcrumbsSize === 'small';
+
+	return (
+		<li css={itemWrapperStyles}>
+			<Pressable
 				aria-label={label}
-				css={staticItemStyles}
 				onClick={onClick}
-				spacing="none"
+				xcss={cx(
+					styles.root,
+					isSmall && styles.rootSmall,
+					fg('platform-dst-motion-uplift-list-item') && styles.interactiveMotion,
+				)}
 				testId={testId}
 			>
 				&hellip;
-			</Button>
-		)}
-	</li>
-));
+			</Pressable>
+		</li>
+	);
+});
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
 export default EllipsisItem;

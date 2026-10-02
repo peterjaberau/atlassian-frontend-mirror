@@ -3,17 +3,30 @@
  * @jsx jsx
  */
 
-import { Children, createContext, type ReactElement, useContext, useMemo } from 'react';
+import { Children, type ReactElement, useEffect, useMemo, useRef } from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
+import { bind } from 'bind-event-listener';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { getDocument } from '@atlaskit/browser-apis';
+import { cssMap as cssMapAK, cx } from '@atlaskit/css';
 import noop from '@atlaskit/ds-lib/noop';
-import { ExitingPersistence, SlideIn } from '@atlaskit/motion';
-import Portal from '@atlaskit/portal';
+import Motion from '@atlaskit/motion/entering/motion';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import SlideIn from '@atlaskit/motion/slide-in';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Portal from '@atlaskit/portal/portal';
+import { Box } from '@atlaskit/primitives/compiled';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import { Popover } from '@atlaskit/top-layer/popover/popover';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
+
+import { defaultFlagGroupContext } from './internal/default-flag-group-context';
+import { FlagGroupContext, type FlagGroupAPI } from './internal/flag-group-context';
 
 type FlagGroupProps = {
 	/**
@@ -47,31 +60,11 @@ type FlagGroupProps = {
 	shouldRenderToParent?: boolean;
 };
 
-export const flagWidth = 400;
-
-type FlagGroupAPI = {
-	onDismissed: (id: number | string, analyticsEvent: UIAnalyticsEvent) => void;
-	isDismissAllowed: boolean;
-};
-
-const defaultFlagGroupContext = {
-	onDismissed: noop,
-	isDismissAllowed: false,
-};
-
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
-export const FlagGroupContext: import("react").Context<FlagGroupAPI> = createContext<FlagGroupAPI>(defaultFlagGroupContext);
-
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
-export function useFlagGroup(): FlagGroupAPI {
-	return useContext(FlagGroupContext);
-}
-
 // transition: none is set on first-of-type to prevent a bug in Firefox
 // that causes a broken transition
 const groupStyles = cssMap({
 	root: {
-		width: flagWidth,
+		width: 400,
 		position: 'absolute',
 		insetBlockEnd: 0,
 		transition: 'transform 350ms ease-in-out',
@@ -96,6 +89,37 @@ const groupStyles = cssMap({
 	},
 });
 
+// transition: none is set on first-of-type to prevent a bug in Firefox
+// that causes a broken transition
+const groupStylesNew = cssMapAK({
+	root: {
+		position: 'absolute',
+		insetBlockEnd: 0,
+		transition: token('motion.flag.reposition'),
+		width: '400px',
+		//@ts-ignore
+		'@media (max-width: 560px)': {
+			width: '100vw',
+		},
+	},
+	first: {
+		transform: 'translate(0,0)',
+		//@ts-ignore
+		zIndex: 5,
+	},
+	second: {
+		transform: 'translateY(100%) translateY(16px)',
+		//@ts-ignore
+		zIndex: 4,
+	},
+	nth: {
+		transform: 'translateY(200%) translateY(32px)',
+	},
+	hidden: {
+		visibility: 'hidden',
+	},
+});
+
 // Transform needed to push up while 1st flag is leaving
 // Exiting time should match the exiting time of motion so is halved
 const dismissAllowedStyles = css({
@@ -108,12 +132,32 @@ const dismissAllowedStyles = css({
 const flagGroupContainerStyles = css({
 	position: 'fixed',
 	zIndex: 'flag',
-	insetBlockEnd: token('space.600', '48px'),
-	insetInlineStart: token('space.1000', '80px'),
+	insetBlockEnd: token('space.600'),
+	insetInlineStart: token('space.1000'),
 	// TODO: Use new breakpoints
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (max-width: 560px)': {
 		insetBlockEnd: 0,
+		insetInlineStart: 0,
+	},
+});
+
+// When rendering in top layer, z-index is redundant (top layer stacks above everything).
+// Override to avoid leaving an explicit z-index on the container.
+const flagGroupContainerStylesTopLayer = css({
+	zIndex: 'initial',
+});
+
+// cc_mohiti_flag_anchoring: update left inset from space.1000 (80px) to space.600 (48px)
+// to match the bottom inset and produce a symmetric 48px × 48px anchor.
+// The 80px left offset was a legacy artefact from the old left-rail nav sidebar.
+// The mobile reset is mirrored from the base style so the override is self-contained
+// and doesn't depend on @compiled's atomic CSS emit order at the ≤560px breakpoint.
+const flagGroupContainerStylesSymmetric = css({
+	insetInlineStart: token('space.600'),
+	// TODO: Use new breakpoints
+	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
+	'@media (max-width: 560px)': {
 		insetInlineStart: 0,
 	},
 });
@@ -126,7 +170,7 @@ const flagGroupContainerStyles = css({
  * - [Examples](https://atlassian.design/components/flag/flag-group/examples)
  * - [Code](https://atlassian.design/components/flag/flag-group/code)
  */
-const FlagGroup = (props: FlagGroupProps): JSX.Element => {
+export const FlagGroup = (props: FlagGroupProps): JSX.Element => {
 	const {
 		id,
 		label = 'Flag notifications',
@@ -146,12 +190,114 @@ const FlagGroup = (props: FlagGroupProps): JSX.Element => {
 		[onDismissed],
 	);
 
+	// Keep a stable reference to the latest children, dismiss handler, and
+	// analytics creator so the keydown listener never reads stale closures.
+	const { createAnalyticsEvent } = useAnalyticsEvents();
+	const latestRef = useRef<{
+		children: FlagGroupProps['children'];
+		onDismissed: FlagGroupProps['onDismissed'];
+		createAnalyticsEvent: typeof createAnalyticsEvent;
+	}>({ children, onDismissed, createAnalyticsEvent });
+	latestRef.current = { children, onDismissed, createAnalyticsEvent };
+
+	// Accessibility (JRACLOUD-97876): allow keyboard-only and assistive
+	// technology users to dismiss the topmost (and only dismissable) flag with
+	// the Escape key, without having to tab through the entire page to reach
+	// the dismiss button. Behaviour is gated behind a feature flag so it can
+	// be rolled out and validated incrementally.
+	useEffect(() => {
+		if (!fg('platform_dst_flag_keyboard_dismiss')) {
+			return;
+		}
+		if (!hasFlags) {
+			return;
+		}
+
+		const doc = getDocument();
+		if (!doc) {
+			return;
+		}
+
+		const timeoutIds = new Set<ReturnType<typeof setTimeout>>();
+		const unbind = bind(doc, {
+			type: 'keydown',
+			listener: (event: KeyboardEvent) => {
+				if (event.key !== 'Escape' || event.defaultPrevented) {
+					return;
+				}
+
+				const currentChildren = latestRef.current.children;
+				const firstFlag = Array.isArray(currentChildren)
+					? currentChildren.find(Boolean)
+					: currentChildren;
+
+				if (!firstFlag || typeof firstFlag !== 'object') {
+					return;
+				}
+
+				const id = (firstFlag as ReactElement).props?.id;
+				if (id === undefined || id === null || id === '') {
+					return;
+				}
+
+				const analyticsEvent = latestRef.current.createAnalyticsEvent({
+					action: 'dismissed',
+					actionSubject: 'flag',
+					attributes: { dismissedVia: 'keyboardShortcut', key: 'Escape' },
+				});
+
+				const timeoutId = setTimeout(() => {
+					timeoutIds.delete(timeoutId);
+					if (event.defaultPrevented) {
+						return;
+					}
+
+					event.preventDefault();
+					latestRef.current.onDismissed?.(id, analyticsEvent);
+				});
+				timeoutIds.add(timeoutId);
+			},
+			options: { capture: true },
+		});
+
+		return () => {
+			unbind();
+			timeoutIds.forEach(clearTimeout);
+			timeoutIds.clear();
+		};
+	}, [hasFlags]);
+
 	const renderChildren = () => {
 		return children && typeof children === 'object'
 			? Children.map(children, (flag: ReactElement, index: number) => {
 					const isDismissAllowed = index === 0;
 
-					return (
+					return fg('platform-dst-motion-uplift') ? (
+						<Box
+							xcss={cx(
+								groupStylesNew.root,
+								index === 0 && groupStylesNew.first,
+								index === 1 && groupStylesNew.second,
+								index >= 2 && groupStylesNew.nth,
+								index >= 3 && groupStylesNew.hidden,
+							)}
+							data-vc-oob
+						>
+							<Motion
+								enteringAnimation={token('motion.flag.enter')}
+								exitingAnimation={token('motion.flag.exit')}
+							>
+								<FlagGroupContext.Provider
+									value={
+										// Only the first flag should be able to be dismissed.
+										isDismissAllowed ? dismissFlagContext : defaultFlagGroupContext
+									}
+								>
+									{flag}
+								</FlagGroupContext.Provider>
+							</Motion>
+						</Box>
+					) : (
 						<SlideIn
 							enterFrom="left"
 							fade="inout"
@@ -189,12 +335,28 @@ const FlagGroup = (props: FlagGroupProps): JSX.Element => {
 			: false;
 	};
 
+	const useTopLayer = fg('platform-dst-top-layer');
+	const useSymmetricAnchor = fg('cc_mohiti_flag_anchoring');
+
+	const isKeyboardDismissEnabled = fg('platform_dst_flag_keyboard_dismiss');
+	// When the keyboard dismiss shortcut is available, surface it to assistive
+	// technology users via the existing visually-hidden landmark heading so they
+	// know they can press Escape to dismiss the topmost flag.
+	const screenReaderLabel = isKeyboardDismissEnabled ? `${label}. Press Escape to dismiss.` : label;
+
 	const flags = (
-		<div id={id} css={flagGroupContainerStyles} data-vc-oob>
+		<div
+			id={id}
+			css={[
+				flagGroupContainerStyles,
+				useTopLayer && flagGroupContainerStylesTopLayer,
+				useSymmetricAnchor && flagGroupContainerStylesSymmetric,
+			]}
+			data-vc-oob
+		>
 			{hasFlags ? (
 				<VisuallyHidden>
-					{/* @ts-ignore - TS2604/TS2786: LabelTag type union causing issues for help-center local consumption with TS 5.9.2 */}
-					<LabelTag>{label}</LabelTag>
+					<LabelTag>{screenReaderLabel}</LabelTag>
 				</VisuallyHidden>
 			) : null}
 
@@ -202,7 +364,20 @@ const FlagGroup = (props: FlagGroupProps): JSX.Element => {
 		</div>
 	);
 
+	if (useTopLayer) {
+		return (
+			<Popover mode="manual" isOpen={true}>
+				{flags}
+			</Popover>
+		);
+	}
+
 	return shouldRenderToParent ? flags : <Portal zIndex={layers.flag()}>{flags}</Portal>;
 };
 
+/* eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of this deprecated default export shim. */
+/**
+ * @deprecated Use `import { FlagGroup } from '@atlaskit/flag/flag-group'` instead.
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- VOLTC-139 tracks removal of this deprecated default export shim.
 export default FlagGroup;

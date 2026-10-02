@@ -1,6 +1,8 @@
-import type { DecisionItemDefinition as DecisionItemNode } from './decision-item';
-import { uuid } from '../../utils/uuid';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { decisionList as decisionListFactory } from '../../next-schema/generated/nodeTypes';
+import { uuid } from '../../utils/uuid';
+import type { DecisionItemDefinition as DecisionItemNode } from './decision-item';
 
 /**
  * @name decisionList_node
@@ -10,7 +12,9 @@ export interface DecisionListDefinition {
 		localId: string;
 	};
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 1
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @allowUnsupportedBlock true
 	 */
 	content: Array<DecisionItemNode>;
@@ -19,9 +23,9 @@ export interface DecisionListDefinition {
 
 const name = 'decisionList';
 
-export const decisionListSelector = `[data-node-type="${name}"]`;
+export const decisionListSelector: '[data-node-type="decisionList"]' = `[data-node-type="${name}"]`;
 
-export const decisionList = decisionListFactory({
+export const decisionList: NodeSpec = decisionListFactory({
 	parseDOM: [
 		{
 			tag: `ol${decisionListSelector}`,

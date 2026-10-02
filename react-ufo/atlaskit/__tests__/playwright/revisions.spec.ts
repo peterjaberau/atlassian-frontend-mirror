@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
-import { expect, test, viewports } from './fixtures';
+
+import { expect, getClientCalculatedVCRevisions, test, viewports } from './fixtures';
 
 test.describe('ReactUFO: Revisions - basic', () => {
 	test.use({
 		examplePage: 'basic',
+	} satisfies {
+		examplePage: 'basic';
+		__exampleDependency?: typeof import('../../examples/01-basic.tsx');
 	});
 
 	for (const viewport of viewports) {
@@ -34,8 +38,8 @@ test.describe('ReactUFO: Revisions - basic', () => {
 				const ufoRevisions = reactUFOPayload!.attributes.properties['ufo:vc:rev'];
 				expect(ufoRevisions).toBeDefined();
 
-				const applicableRevisions = ufoRevisions?.filter((rev) => rev['revision'] >= 'fy25.03');
-				for (const rev of applicableRevisions!) {
+				const applicableRevisions = getClientCalculatedVCRevisions(ufoRevisions);
+				for (const rev of applicableRevisions) {
 					const vc90Result = rev['metric:vc90'];
 					const revisionName = rev['revision'];
 					expect(vc90Result).toBeDefined();
@@ -63,6 +67,9 @@ test.describe('ReactUFO: Revisions - basic', () => {
 test.describe('ReactUFO: Revisions - nested', () => {
 	test.use({
 		examplePage: 'nested-elements',
+	} satisfies {
+		examplePage: 'nested-elements';
+		__exampleDependency?: typeof import('../../examples/05-nested-elements.tsx');
 	});
 
 	for (const viewport of viewports) {
@@ -91,8 +98,8 @@ test.describe('ReactUFO: Revisions - nested', () => {
 				const ufoRevisions = reactUFOPayload!.attributes.properties['ufo:vc:rev'];
 				expect(ufoRevisions).toBeDefined();
 
-				const applicableRevisions = ufoRevisions?.filter((rev) => rev['revision'] >= 'fy25.03');
-				for (const rev of applicableRevisions!) {
+				const applicableRevisions = getClientCalculatedVCRevisions(ufoRevisions);
+				for (const rev of applicableRevisions) {
 					const vc90Result = rev['metric:vc90'];
 					const revisionName = rev['revision'];
 					expect(vc90Result).toBeDefined();

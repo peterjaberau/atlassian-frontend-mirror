@@ -1,0 +1,30 @@
+import React from 'react';
+
+import { Root } from '@atlaskit/navigation-system/layout/root';
+import { SideNavToggleButton } from '@atlaskit/navigation-system/layout/side-nav';
+import { TopNav, TopNavStart } from '@atlaskit/navigation-system/layout/top-nav';
+
+const SideNavToggleButtonExample = ({
+	isSideNavShortcutEnabled,
+}: {
+	isSideNavShortcutEnabled?: boolean;
+}) => (
+	<Root isSideNavShortcutEnabled={isSideNavShortcutEnabled}>
+		<TopNav>
+			<TopNavStart
+				sideNavToggleButton={
+					<SideNavToggleButton collapseLabel="Collapse sidebar" expandLabel="Expand sidebar" />
+				}
+			>
+				{null}
+			</TopNavStart>
+		</TopNav>
+	</Root>
+);
+
+export const SideNavToggleButtonVR = (): React.JSX.Element => <SideNavToggleButtonExample />;
+export const SideNavToggleButtonWithShortcutVR = (): React.JSX.Element => (
+	<SideNavToggleButtonExample isSideNavShortcutEnabled />
+);
+
+export default SideNavToggleButtonWithShortcutVR;

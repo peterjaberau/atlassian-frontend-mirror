@@ -1,15 +1,68 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const placeholderTextMessages = defineMessages({
+export const placeholderTextMessages: {
+	longEmptyNodePlaceholderADFPrefix: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	longEmptyNodePlaceholderADFSlashShortcut: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	longEmptyNodePlaceholderADFSuffix: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	longEmptyNodePlaceholderText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	multiBodiedExtensionEmptyFramePlaceholderText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	placeholderTextPlaceholder: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	shortEmptyNodePlaceholderADFSlashShortcut: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	shortEmptyNodePlaceholderADFSuffix: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	shortEmptyNodePlaceholderText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	sourceSyncBlockPlaceholderText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	placeholderTextPlaceholder: {
 		id: 'fabric.editor.placeholderTextPlaceholder',
 		defaultMessage: 'Add placeholder text',
-		description: '',
+		description:
+			'Placeholder text shown in the editor when a placeholder text node is inserted, prompting the user to add custom placeholder content.',
 	},
 	shortEmptyNodePlaceholderText: {
 		id: 'fabric.editor.shortEmptyNodePlaceholderText',
 		defaultMessage: '/ to insert',
-		description: 'Short placeholder text for empty nodes',
+		description:
+			'Short placeholder text shown inside empty editor nodes, instructing users to type / to open the quick-insert menu.',
 	},
 	shortEmptyNodePlaceholderADFSlashShortcut: {
 		id: 'fabric.editor.shortEmptyNodePlaceholderSlash',
@@ -24,7 +77,8 @@ export const placeholderTextMessages = defineMessages({
 	longEmptyNodePlaceholderText: {
 		id: 'fabric.editor.longEmptyNodePlaceholderText',
 		defaultMessage: 'Type / to insert elements',
-		description: 'Long placeholder text for empty nodes',
+		description:
+			'Longer placeholder text shown inside empty editor nodes, instructing users to type / to open the quick-insert menu and add elements.',
 	},
 	longEmptyNodePlaceholderADFPrefix: {
 		id: 'fabric.editor.longEmptyNodePlaceholderPrefix',
@@ -43,7 +97,15 @@ export const placeholderTextMessages = defineMessages({
 	},
 	sourceSyncBlockPlaceholderText: {
 		id: 'fabric.editor.sourceSyncBlockPlaceholderText',
-		defaultMessage: 'Add content you want to reuse. Copy and paste this block to sync in other locations.',
-		description: 'Placeholder text for source sync block',
+		defaultMessage:
+			'Add content you want to reuse. Copy and paste this block to sync in other locations.',
+		description:
+			'Placeholder text shown inside an empty source sync block, prompting users to add reusable content that can be synced across multiple locations.',
+	},
+	multiBodiedExtensionEmptyFramePlaceholderText: {
+		id: 'fabric.editor.multiBodiedExtensionEmptyFramePlaceholderText',
+		defaultMessage: 'Type / to insert elements',
+		description:
+			'Placeholder text shown inside an empty multi-bodied extension frame, prompting users to type / to open the quick-insert menu and add elements.',
 	},
 });

@@ -1,5 +1,5 @@
-import { fg } from '@atlaskit/platform-feature-flags';
-import { type FireEventType } from '@atlaskit/teams-app-internal-analytics';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import type { FireEventType } from '@atlaskit/teams-app-internal-analytics/types';
 
 import type {
 	AgentIdType,
@@ -11,10 +11,12 @@ import type {
 } from '../types';
 import { PACKAGE_META_DATA } from '../util/analytics';
 import { getPageTime } from '../util/performance';
-
+import { USER_ARI_PREFIX } from '../util/rovoAgentUtils';
+import { AgentForbiddenError } from './AgentForbiddenError';
+import { AGGQuery } from './AGGQuery';
 import CachingClient from './CachingClient';
-import { getErrorAttributes } from './errorUtils';
-import { AGGQuery } from './graphqlUtils';
+import { getErrorAttributes } from './getErrorAttributes';
+import { SHARED_CACHE_MAX_AGE, sharedAgentProfileCache } from './sharedAgentProfileCache';
 
 const buildActivationIdQuery = (cloudId: string, product: string) => ({
 	query: `
@@ -55,8 +57,8 @@ const buildRovoAgentQueryByAri = (agentAri: string) => ({
 
 const buildRovoAgentQueryByAccountId = (identityAccountId: string, cloudId: string) => ({
 	query: `
-		query RovoAgentProfileCard_AgentQueryByAccountId($identityAccountId: ID!, $cloudId: ID!) {
-			agentStudio_agentByIdentityAccountId(identityAccountId: $identityAccountId, cloudId: $cloudId) @optIn(to: "AgentStudio") {
+		query RovoAgentProfileCard_AgentQueryByAccountId($id: ID!, $cloudId: String!) {
+			agentStudio_agentByIdentityAccountId(cloudId: $cloudId, id: $id) @optIn(to: "AgentStudio") {
 			  __typename
 				... on AgentStudioAssistant {
 					authoringTeam {
@@ -71,7 +73,9 @@ const buildRovoAgentQueryByAccountId = (identityAccountId: string, cloudId: stri
 		}
 	`,
 	variables: {
-		identityAccountId,
+		id: identityAccountId.startsWith(USER_ARI_PREFIX)
+			? identityAccountId
+			: `${USER_ARI_PREFIX}${identityAccountId}`,
 		cloudId,
 	},
 });
@@ -108,9 +112,31 @@ export default class RovoAgentCardClient extends CachingClient<RovoAgentCardClie
 	}
 
 	private basePath() {
-		return fg('pt-deprecate-assistance-service')
-			? '/gateway/api/assist/rovo/v1/agents'
-			: '/gateway/api/assist/agents/v1';
+		return '/gateway/api/assist/rovo/v1/agents';
+	}
+
+	private sharedCacheKey(idValue: string): string {
+		return `${this.options.cloudId ?? ''}:${idValue}`;
+	}
+
+	getCachedProfile(idValue: string): RovoAgentCardClientResult | null {
+		const key = this.sharedCacheKey(idValue);
+		const cached = sharedAgentProfileCache.get(key);
+		if (!cached) {
+			return null;
+		}
+		if (cached.expire < Date.now()) {
+			sharedAgentProfileCache.delete(key);
+			return null;
+		}
+		return cached.profile;
+	}
+
+	setCachedProfile(idValue: string, profile: RovoAgentCardClientResult): void {
+		sharedAgentProfileCache.set(this.sharedCacheKey(idValue), {
+			expire: Date.now() + (this.config.cacheMaxAge || SHARED_CACHE_MAX_AGE),
+			profile,
+		});
 	}
 
 	private async getActivationId(cloudId: string, product: string): Promise<string | null> {
@@ -175,7 +201,19 @@ export default class RovoAgentCardClient extends CachingClient<RovoAgentCardClie
 					mode: 'cors',
 					headers,
 				}),
-			).then((response) => response.json());
+			).then((response) => {
+				if (
+					response.status === 403 &&
+					FeatureGates.getExperimentValue(
+						'platform_editor_reduced_agent_profile_cards',
+						'isEnabled',
+						false,
+					)
+				) {
+					throw new AgentForbiddenError();
+				}
+				return response.json();
+			});
 		} else {
 			restPromise = fetch(
 				new Request(`${this.basePath()}/${id.value}`, {
@@ -184,7 +222,19 @@ export default class RovoAgentCardClient extends CachingClient<RovoAgentCardClie
 					mode: 'cors',
 					headers,
 				}),
-			).then((response) => response.json());
+			).then((response) => {
+				if (
+					response.status === 403 &&
+					FeatureGates.getExperimentValue(
+						'platform_editor_reduced_agent_profile_cards',
+						'isEnabled',
+						false,
+					)
+				) {
+					throw new AgentForbiddenError();
+				}
+				return response.json();
+			});
 		}
 
 		const aggStartTime = getPageTime();
@@ -261,9 +311,7 @@ export default class RovoAgentCardClient extends CachingClient<RovoAgentCardClie
 
 			this.makeRequest(id, analytics)
 				.then((data) => {
-					if (this.cache) {
-						this.setCachedProfile(id.value, data);
-					}
+					this.setCachedProfile(id.value, data);
 					if (analytics) {
 						analytics('operational.rovoAgentProfilecard.succeeded.request', {
 							duration: getPageTime() - startTime,
@@ -388,6 +436,8 @@ export default class RovoAgentCardClient extends CachingClient<RovoAgentCardClie
 						});
 					}
 
+					this.syncFavouriteToCache(agentId, isFavourite);
+
 					resolve();
 				})
 				.catch((error: unknown) => {
@@ -403,6 +453,45 @@ export default class RovoAgentCardClient extends CachingClient<RovoAgentCardClie
 
 					reject(error);
 				});
+		});
+	}
+
+	/**
+	 * Keeps the shared agent profile cache in sync with the favourite state
+	 */
+	private syncFavouriteToCache(agentId: string, isFavourite: boolean): void {
+		const prefix = `${this.options.cloudId ?? ''}:`;
+		const keysToUpdate: string[] = [];
+		sharedAgentProfileCache.forEach((cached, key) => {
+			if (key.startsWith(prefix) && cached.profile?.restData?.id === agentId) {
+				keysToUpdate.push(key);
+			}
+		});
+
+		keysToUpdate.forEach((key) => {
+			const cached = sharedAgentProfileCache.get(key);
+			if (!cached) {
+				return;
+			}
+
+			const { restData } = cached.profile;
+			const wasFavourite = restData.favourite;
+			const currentCount = restData.favourite_count ?? 0;
+			const favouriteCount = isFavourite
+				? currentCount + (wasFavourite ? 0 : 1)
+				: Math.max(0, currentCount - (wasFavourite ? 1 : 0));
+
+			sharedAgentProfileCache.set(key, {
+				...cached,
+				profile: {
+					...cached.profile,
+					restData: {
+						...restData,
+						favourite: isFavourite,
+						favourite_count: favouriteCount,
+					},
+				},
+			});
 		});
 	}
 
@@ -433,6 +522,7 @@ export default class RovoAgentCardClient extends CachingClient<RovoAgentCardClie
 					body: JSON.stringify({
 						permission_ids: [
 							'AGENT_CREATE',
+							'AGENT_DUPLICATE',
 							'AGENT_UPDATE',
 							'AGENT_DELETE',
 							'AGENT_DEACTIVATE',

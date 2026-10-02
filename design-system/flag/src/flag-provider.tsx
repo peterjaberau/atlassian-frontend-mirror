@@ -1,11 +1,6 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react';
-
-import AutoDismissFlag from './auto-dismiss-flag';
-import Flag from './flag';
-import FlagGroup from './flag-group';
 import { type FlagPropsWithoutId } from './types';
 
-type FlagId = string | number;
+export type FlagId = string | number;
 
 export type Combine<First, Second> = Omit<First, keyof Second> & Second;
 
@@ -28,87 +23,30 @@ export type DismissFn = () => void;
 
 export type FlagAPI = {
 	showFlag: (args: CreateFlagArgs) => DismissFn;
+	/**
+	 * Programmatically dismiss a flag by id. No-op if the flag isn't currently shown.
+	 */
+	hideFlag: (id: FlagId) => void;
 };
 
-const FlagContext = React.createContext<FlagAPI | null>(null);
-
+/* eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
 /**
- * useFlags is used to access the `showFlags` function which can be used to programatically display flags.
- * - [Examples](https://atlassian.design/components/flag/flags-provider/examples#using-showflags)
+ * @deprecated Use `import { FlagContext } from '@atlaskit/flag/flag-context'` instead.
  */
-export function useFlags(): FlagAPI {
-	const api: FlagAPI | null = useContext(FlagContext);
-	if (api == null) {
-		throw new Error('Unable to find FlagProviderContext');
-	}
+export { FlagContext } from './flag-context';
 
-	return api;
-}
-
-const getUniqueId = (() => {
-	let count: number = 0;
-	return () => `flag-provider-unique-id:${count++}`;
-})();
-
-export function FlagsProvider({
-	children,
-	shouldRenderToParent,
-}: {
-	children: React.ReactNode;
-	shouldRenderToParent?: boolean;
-}): React.JSX.Element {
-	const [flags, setFlags] = useState<FlagArgs[]>([]);
-
-	const removeFlag = useCallback((id: FlagId) => {
-		setFlags((current) => {
-			return current.slice(0).filter((flag) => flag.id !== id);
-		});
-	}, []);
-
-	const api: FlagAPI = useMemo(
-		() => ({
-			showFlag: function show(value: CreateFlagArgs) {
-				const flag: FlagArgs = {
-					...value,
-					id: value.id || getUniqueId(),
-				};
-
-				setFlags((current): FlagArgs[] => {
-					const index: number = current.findIndex((value) => value.id === flag.id);
-
-					// If flag is not found add it
-					if (index === -1) {
-						return [flag, ...current];
-					}
-
-					// If flag already exists with the same id, then replace it
-					const shallow: FlagArgs[] = [...current];
-					shallow[index] = flag;
-					return shallow;
-				});
-
-				return function dismiss() {
-					removeFlag(flag.id);
-				};
-			},
-		}),
-		[removeFlag],
-	);
-
-	return (
-		<>
-			<FlagContext.Provider value={api}>{children}</FlagContext.Provider>
-			<FlagGroup onDismissed={removeFlag} shouldRenderToParent={shouldRenderToParent}>
-				{flags.map((flag) => {
-					const { isAutoDismiss, ...restProps } = flag;
-					const FlagType = isAutoDismiss ? AutoDismissFlag : Flag;
-					return <FlagType {...restProps} key={flag.id} />;
-				})}
-			</FlagGroup>
-		</>
-	);
-}
-
-export const withFlagsProvider: (fn: () => React.ReactNode) => React.JSX.Element = (fn: () => React.ReactNode): React.JSX.Element => (
-	<FlagsProvider>{fn()}</FlagsProvider>
-);
+/* eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+/**
+ * @deprecated Use `import { useFlags } from '@atlaskit/flag/use-flags'` instead.
+ */
+export { useFlags } from './use-flags';
+/* eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+/**
+ * @deprecated Use `import { FlagsProvider } from '@atlaskit/flag/flags-provider'` instead.
+ */
+export { FlagsProvider } from './flags-provider';
+/* eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+/**
+ * @deprecated Use `import { withFlagsProvider } from '@atlaskit/flag/with-flags-provider'` instead.
+ */
+export { withFlagsProvider } from './with-flags-provider';

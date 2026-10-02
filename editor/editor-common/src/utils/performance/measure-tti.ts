@@ -1,8 +1,8 @@
-import { SEVERITY } from '../analytics';
-
+import { SEVERITY } from '../SEVERITY';
 import { isPerformanceObserverLongTaskAvailable } from './is-performance-api-available';
 import { getDistortedDurationMonitor } from './measure-render';
-
+import { TTI_FROM_INVOCATION_SEVERITY_THRESHOLD_DEFAULTS } from './TTI_FROM_INVOCATION_SEVERITY_THRESHOLD_DEFAULTS';
+import { TTI_SEVERITY_THRESHOLD_DEFAULTS } from './TTI_SEVERITY_THRESHOLD_DEFAULTS';
 export function measureTTI(
 	onMeasureComplete: (
 		tti: number,
@@ -83,16 +83,7 @@ export function measureTTI(
 	setTimeout(checkIdle, idleThreshold);
 }
 
-export const TTI_SEVERITY_THRESHOLD_DEFAULTS = {
-	NORMAL: 40000,
-	DEGRADED: 60000,
-};
-
-export const TTI_FROM_INVOCATION_SEVERITY_THRESHOLD_DEFAULTS = {
-	NORMAL: 5000,
-	DEGRADED: 8000,
-};
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function getTTISeverity(
 	tti: number,
 	ttiFromInvocation: number,
@@ -133,3 +124,7 @@ export function getTTISeverity(
 
 	return { ttiSeverity, ttiFromInvocationSeverity };
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { TTI_SEVERITY_THRESHOLD_DEFAULTS } from './TTI_SEVERITY_THRESHOLD_DEFAULTS';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { TTI_FROM_INVOCATION_SEVERITY_THRESHOLD_DEFAULTS } from './TTI_FROM_INVOCATION_SEVERITY_THRESHOLD_DEFAULTS';

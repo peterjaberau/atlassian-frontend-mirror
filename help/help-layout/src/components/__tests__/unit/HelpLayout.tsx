@@ -1,11 +1,12 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render, fireEvent } from '@testing-library/react';
+import { createIntl, createIntlCache, IntlProvider } from 'react-intl';
+
 import QuestionCircleIcon from '@atlaskit/icon/core/question-circle';
-import { createIntl, createIntlCache, IntlProvider } from 'react-intl-next';
 
 import { messages } from '../../../messages';
-
 import { HelpLayout } from '../../HelpLayout';
 
 // Messages
@@ -26,6 +27,17 @@ const mockOnCloseButtonClick = jest.fn();
 const mockOnBackButtonClick = jest.fn();
 
 const defaultContentText = <div id="mock-content">Mock Content</div>;
+
+it('uses the parent message bundle for the header title', () => {
+	const localizedTitle = 'Localized Help';
+	const { getByText } = render(
+		<IntlProvider locale="zh" messages={{ [messages.help_panel_header_title.id]: localizedTitle }}>
+			<HelpLayout />
+		</IntlProvider>,
+	);
+
+	expect(getByText(localizedTitle)).toBeInTheDocument();
+});
 
 describe('BackButton', () => {
 	afterEach(() => {

@@ -4,22 +4,21 @@
  */
 import React, { forwardRef, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { cssMap, jsx, keyframes } from '@compiled/react';
+import { cssMap, jsx } from '@compiled/react';
 
 import useStableRef from '@atlaskit/ds-lib/use-stable-ref';
-import { OpenLayerObserverNamespaceProvider } from '@atlaskit/layering/experimental/open-layer-observer';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { OpenLayerObserverNamespaceProvider } from '@atlaskit/layering/open-layer-observer-namespace-provider';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { UNSAFE_useMediaQuery } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { TopNavStartAttachRef } from '../../../context/top-nav-start/top-nav-start-context';
+import { TopNavStartAttachRef } from '../../../context/top-nav-start/top-nav-start-attach-ref';
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
-import {
-	openLayerObserverTopNavStartNamespace,
-	sideNavContentScrollTimelineVar,
-} from '../constants';
+import { useHasCustomTheme } from '../../top-nav-items/themed/has-custom-theme-context';
+import { HasDefaultBackgroundColorContext } from '../../top-nav-items/themed/has-default-background-color-context';
+import { openLayerObserverTopNavStartNamespace } from '../constants';
+import { SideNavVisibilityState } from '../side-nav/side-nav-visibility-state';
 import { useSideNavVisibility } from '../side-nav/use-side-nav-visibility';
-import { SideNavVisibilityState } from '../side-nav/visibility-context';
 
 /**
  * Firefox does support these reorder animations, but only partially enabling layout animations would look odd.
@@ -28,7 +27,7 @@ import { SideNavVisibilityState } from '../side-nav/visibility-context';
  * CSS at-rules when at-rules are nested: https://github.com/atlassian-labs/compiled/blob/e04a325915e1d13010205089e4915de0e53bc2d4/packages/css/src/plugins/merge-duplicate-at-rules.ts#L5
  * Avoiding nesting the `@supports` at-rule inside of `@media` means Compiled can remove duplicate styles from the generated CSS.
  */
-const isFirefox: boolean =
+let isFirefox: boolean =
 	typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 // Placed in a variable, as the value is used in the translateX value for the children wrapper animation.
@@ -70,12 +69,6 @@ const innerStyles = cssMap({
 			boxSizing: 'border-box',
 		},
 	},
-	fullHeightSidebar: {
-		// Note: no longer applied when fg('platform-dst-side-nav-layering-fixes') is enabled.
-		// Pointer events are disabled on the top nav
-		// So we need to restore them for the slot
-		pointerEvents: 'auto',
-	},
 	fullHeightSidebarExpanded: {
 		'@media (min-width: 64rem)': {
 			// When the full height sidebar is visible, the regular min width should not be applied
@@ -83,22 +76,6 @@ const innerStyles = cssMap({
 			minWidth: 'unset',
 			width: '100%',
 		},
-	},
-});
-
-/**
- * The scroll indicator is usually applied in SideNavContent, but if there is no SideNavHeader it is
- * applied in TopNavStart instead for layering reasons. See the comment in SideNavHeader for more details.
- */
-const scrolledShadow = keyframes({
-	from: {
-		boxShadow: `inset 0 -1px 0 0 transparent`,
-	},
-	'0.1%': {
-		boxShadow: `inset 0 -1px 0 0 ${token('color.border')}`,
-	},
-	to: {
-		boxShadow: `inset 0 -1px 0 0 ${token('color.border')}`,
 	},
 });
 
@@ -115,14 +92,6 @@ const wrapperStyles = cssMap({
 		paddingInlineStart: token('space.150'),
 		// Taking up the full height of top bar to allow for monitoring mouse events, for improving the side nav flyout experience
 		height: '100%',
-	},
-	fullHeightSidebarExpanded: {
-		'@media (min-width: 64rem)': {
-			width: `var(--n_sNvlw, 100%)`,
-			paddingInlineEnd: token('space.200'),
-		},
-	},
-	fullHeightSidebarWithLayeringFixes: {
 		'@media (min-width: 64rem)': {
 			position: 'relative',
 			// We are using a pseudo-element to add a border, instead of doing it on the TopNavStart wrapper
@@ -142,26 +111,15 @@ const wrapperStyles = cssMap({
 			},
 		},
 	},
-	fullHeightSidebarExpandedWithLayeringFixes: {
+	fullHeightSidebarExpanded: {
 		'@media (min-width: 64rem)': {
+			width: `var(--n_sNvlw, 100%)`,
+			paddingInlineEnd: token('space.150'),
 			// Set the background color to the same as the side nav, to make it appear full height.
 			backgroundColor: token('elevation.surface'),
 			// When expanded, show the pseudo element (vertical border that makes the sidebar appear full height).
 			'&::after': {
 				opacity: 1,
-			},
-			// Only apply the scroll indicator styles if supported. Otherwise, the shadow would always be applied, even when not scrolled.
-			'@supports (scroll-timeline-axis: block)': {
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-				'html:not(:has([data-private-side-nav-header])) &': {
-					// Consumes the scroll timeline from SideNavContent to show a bottom shadow when scrolled.
-					// This is only applied if there is no SideNavHeader. See the comment in SideNavHeader for more details.
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-					animationTimeline: sideNavContentScrollTimelineVar,
-					animationName: scrolledShadow,
-					// This shouldn't be required, but without it, the animation (shadow) stopped being applied at the end of the scroll timeline.
-					animationFillMode: 'both',
-				},
 			},
 		},
 	},
@@ -172,6 +130,16 @@ const wrapperStyles = cssMap({
 				transitionProperty: 'opacity',
 				transitionDuration: '0.2s',
 				transitionTimingFunction: 'ease-in',
+			},
+		},
+	},
+	fullHeightSidebarCustomTheming: {
+		'@media (min-width: 64rem)': {
+			// Use the themed top nav background color, instead of overlaying it
+			backgroundColor: 'revert',
+			'&::after': {
+				// Hide the border that makes the sidebar appear full height when a custom background color is used
+				display: 'none',
 			},
 		},
 	},
@@ -315,12 +283,9 @@ type TopNavStartProps = {
 	 *
 	 * You should only render `<SideNavToggleButton>` inside this slot, not as a child.
 	 *
-	 * After `platform_dst_nav4_side_nav_toggle_button_slot` rolls out,
-	 * this prop will become required.
-	 *
 	 * Consumers that do not need a toggle button can explicitly pass `null`.
 	 */
-	sideNavToggleButton?: React.ReactNode;
+	sideNavToggleButton: React.ReactNode;
 };
 
 const TopNavStartInnerOld = forwardRef(function TopNavStartInner(
@@ -346,10 +311,6 @@ const TopNavStartInnerFHS = forwardRef(function TopNavStartInnerFHS(
 
 	const isFirstRenderRef = useRef(true);
 	useEffect(() => {
-		if (!fg('platform-dst-side-nav-layering-fixes')) {
-			return;
-		}
-
 		// Ignore renders until the side nav state is initialized
 		// So that apps using the legacy API for setting side nav default state do not see
 		// animations when they shouldn't
@@ -362,38 +323,31 @@ const TopNavStartInnerFHS = forwardRef(function TopNavStartInnerFHS(
 		}
 	}, [sideNavState]);
 
+	const hasCustomTheme = useHasCustomTheme();
+	const hasDefaultBackgroundColor = useContext(HasDefaultBackgroundColorContext);
+
 	return (
 		<div
 			css={[
 				wrapperStyles.root,
 				isExpandedOnDesktop && wrapperStyles.fullHeightSidebarExpanded,
-				fg('platform-dst-side-nav-layering-fixes') &&
-					wrapperStyles.fullHeightSidebarWithLayeringFixes,
 				!isFirstRenderRef.current &&
 					isExpandedOnDesktop &&
-					fg('platform-dst-side-nav-layering-fixes') &&
 					wrapperStyles.fullHeightSidebarBorderTransition,
-				isExpandedOnDesktop &&
-					fg('platform-dst-side-nav-layering-fixes') &&
-					wrapperStyles.fullHeightSidebarExpandedWithLayeringFixes,
+				hasCustomTheme &&
+					!hasDefaultBackgroundColor &&
+					fg('platform_dst_nav4_custom_theming_fhs_1') &&
+					wrapperStyles.fullHeightSidebarCustomTheming,
 			]}
 		>
 			<div
 				ref={ref}
 				data-testid={testId}
-				css={[
-					innerStyles.root,
-					!fg('platform-dst-side-nav-layering-fixes') && innerStyles.fullHeightSidebar,
-					isExpandedOnDesktop && innerStyles.fullHeightSidebarExpanded,
-				]}
+				css={[innerStyles.root, isExpandedOnDesktop && innerStyles.fullHeightSidebarExpanded]}
 			>
-				{fg('platform-dst-side-nav-layering-fixes') ? (
-					<OpenLayerObserverNamespaceProvider namespace={openLayerObserverTopNavStartNamespace}>
-						{children}
-					</OpenLayerObserverNamespaceProvider>
-				) : (
-					children
-				)}
+				<OpenLayerObserverNamespaceProvider namespace={openLayerObserverTopNavStartNamespace}>
+					{children}
+				</OpenLayerObserverNamespaceProvider>
 			</div>
 		</div>
 	);
@@ -404,7 +358,11 @@ const TopNavStartInnerFHS = forwardRef(function TopNavStartInnerFHS(
  *
  * Wrapper for the top navigation actions on the inline-start (left) side of the top navigation.
  */
-export function TopNavStart({ children, testId, sideNavToggleButton }: TopNavStartProps): JSX.Element {
+export function TopNavStart({
+	children,
+	testId,
+	sideNavToggleButton,
+}: TopNavStartProps): JSX.Element {
 	const isFhsEnabled = useIsFhsEnabled();
 	const ref = useContext(TopNavStartAttachRef);
 	const elementRef = useRef(null);

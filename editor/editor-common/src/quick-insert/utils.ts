@@ -1,9 +1,12 @@
 import Fuse from 'fuse.js';
 import memoizeOne from 'memoize-one';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
+
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { QuickInsertItem } from '../provider-factory';
 import type { QuickInsertHandler, QuickInsertHandlerFn } from '../types';
+import { boostNativeResultsAboveSkills } from './boost-native-results-above-skills';
 
 const processQuickInsertItems = (
 	items: Array<QuickInsertHandler>,
@@ -60,10 +63,11 @@ const options = {
  * This function is used to find and sort QuickInsertItems based on a given query string.
  *
  * @export
- * @param {string} query - The query string to be used in the search.
- * @param {QuickInsertItem[]} items - An array of QuickInsertItems to be searched.
- * @returns {QuickInsertItem[]} - Returns a sorted array of QuickInsertItems based on the priority. If the query string is empty, it will return the array sorted by priority. If a query string is provided, it will return an array of QuickInsertItems that match the query string, sorted by relevance to the query.
+ * @param query - The query string to be used in the search.
+ * @param items - An array of QuickInsertItems to be searched.
+ * @returns Returns a sorted array of QuickInsertItems based on the priority. If the query string is empty, it will return the array sorted by priority. If a query string is provided, it will return an array of QuickInsertItems that match the query string, sorted by relevance to the query.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function find(
 	query: string,
 	items: QuickInsertItem[],
@@ -91,6 +95,35 @@ export function find(
 	}
 
 	const fuse = new Fuse(items, fuseOptions);
+	const results = fuse.search(query);
 
-	return fuse.search(query).map((result) => result.item);
+	// platform_editor_insert_menu_ai: boost native editor elements above skills
+	const rerankedResults = isExperimentEnabled('platform_editor_insert_menu_ai')
+		? boostNativeResultsAboveSkills(results)
+		: results;
+
+	// searching for jira work items macro first
+	const datasourceIndex = rerankedResults.findIndex(
+		(r) => r.item.id === 'datasource' && r.item.keywords?.includes('jira'),
+	);
+
+	//  then searching for the legacy jira macro
+	const legacyIndex = rerankedResults.findIndex(
+		(r) => typeof r.item.key === 'string' && r.item.key.endsWith(':jira'),
+	);
+
+	// the jira legcy macro is found before the jira work items macro then swap the two
+	if (
+		datasourceIndex > 0 &&
+		legacyIndex >= 0 &&
+		legacyIndex < datasourceIndex &&
+		Math.abs(
+			(rerankedResults[datasourceIndex].score ?? 0) - (rerankedResults[legacyIndex].score ?? 0),
+		) < 0.2
+	) {
+		const [datasource] = rerankedResults.splice(datasourceIndex, 1);
+		rerankedResults.splice(legacyIndex, 0, datasource);
+	}
+
+	return rerankedResults.map((result) => result.item);
 }

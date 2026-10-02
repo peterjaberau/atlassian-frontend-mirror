@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/json-ld-types",
-	"version": "1.4.1",
+	"version": "2.0.1",
 	"description": "A set of types for the Atlassian Object Vocabulary",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -10,6 +10,9 @@
 	"atlassian": {
 		"team": "Bandicoots",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "jsonLdTypes"
 		}
 	},
@@ -18,59 +21,20 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./default-states": "./src/defaults.ts",
+		"./jsonld": "./src/jsonld.ts",
+		"./jsonld-response-types": "./src/objects.ts"
 	},
 	"dependencies": {
 		"@babel/runtime": "root:*",
 		"schema-dts": "root:*"
 	},
 	"devDependencies": {
+		"@atlassian/structured-docs-types": "workspace:^",
 		"react-dom": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
 	}
 }

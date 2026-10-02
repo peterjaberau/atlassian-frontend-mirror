@@ -1,8 +1,8 @@
 import fetchMock from 'fetch-mock/cjs/client';
+import { type IntlShape } from 'react-intl';
 
 import getUserRecommendations from '../../../service/recommendation-client';
 import { type RecommendationRequest } from '../../../types';
-import { type IntlShape } from 'react-intl-next';
 
 const URS_URL = '/gateway/api/v1/recommendations';
 
@@ -85,7 +85,9 @@ describe('default-value-hydration-client', () => {
 		try {
 			await getUserRecommendations(exampleRequest, intl);
 		} catch (error) {
-			expect((error as any).message).toMatchSnapshot('URS error');
+			expect((error as Error).message).toBe(
+				'error calling smart service, statusCode=504, statusText=Gateway Timeout',
+			);
 		}
 	});
 
@@ -109,9 +111,42 @@ describe('default-value-hydration-client', () => {
 
 		const users = await getUserRecommendations(exampleRequest, intl);
 
-		expect(fetchMock.called()).toBeTruthy();
-		expect(requestBody).toMatchSnapshot('URS query');
-		expect(users).toMatchSnapshot('URS users');
+		expect(fetchMock.called()).toBe(true);
+		expect(requestBody).toEqual({
+			context: mockBitbucketContext,
+			includeGroups: true,
+			includeNonLicensedUsers: false,
+			includeTeams: true,
+			includeUsers: true,
+			maxNumberOfResults: 50,
+			performSearchQueryOnly: false,
+			searchQuery: {
+				cpusQueryHighlights: { field: '', query: '' },
+				customQuery: '',
+				customerDirectoryId: '',
+				filter: '',
+				minimumAccessLevel: 'APPLICATION',
+				queryString: 'query',
+				restrictTo: { groupIds: [], userIds: [] },
+				searchUserbase: false,
+			},
+		});
+		expect(users).toEqual([
+			expect.objectContaining({
+				id: '5ee0adc79583380ab0afec31',
+				name: 'John Smith',
+				type: 'user',
+				tooltip: 'John Smith',
+				userType: 'DEFAULT',
+			}),
+			expect.objectContaining({
+				id: '5ee0adc79583380ab0afec32',
+				name: 'John Doe',
+				type: 'user',
+				tooltip: 'John Doe',
+				userType: 'DEFAULT',
+			}),
+		]);
 	});
 });
 

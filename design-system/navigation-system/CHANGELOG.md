@@ -1,5 +1,1106 @@
 # @atlassian/navigation-system
 
+## 11.1.2
+
+### Patch Changes
+
+- [`457c77d8f6992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/457c77d8f6992) -
+  Behind `platform-dst-top-layer-tooltip`: the side nav toggle tooltip stays open when pressed and
+  shows its new label.
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- [`0f780b942b35d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f780b942b35d) -
+  Use Popup's shared trigger types for existing trigger ARIA contracts.
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`204d513238b0e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/204d513238b0e) -
+  Implement new Chat Panel layout slot and responsive/resizing behaviour behind
+  `platform-dst-chat-panel-layout` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`ae5c32fe7bfd6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae5c32fe7bfd6) -
+  Record the rollback of the DSP-25935 popup trigger type expansion in PR #487935. This restores
+  compatibility with existing consumers, including Jira Assets audit logs and linked objects.
+
+  Popup's `aria-haspopup` trigger contract returns to `boolean | 'dialog'`. The affected public
+  trigger props in Dropdown Menu, Avatar, Lozenge, Universal Create, Rovo Pins, and Navigation
+  System also return to their earlier contracts. Consumers using the newly added role-specific
+  string values must return to values supported by those earlier contracts. Popup no longer exports
+  `AriaHasPopup` or `TriggerAriaProps`; use `TriggerProps['aria-haspopup']` and
+  `Pick<TriggerProps, 'aria-controls' | 'aria-expanded' | 'aria-haspopup'>` instead.
+
+  Popup and Dropdown Menu retain their existing top-layer runtime ARIA values through the prior
+  compatibility adapters. Conversation Assistant returns to its previous internal trigger type
+  annotation without changing its public API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.17.9
+
+### Patch Changes
+
+- [`1ea8784eeb880`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ea8784eeb880) -
+  Use Popup's `TriggerAriaProps` for optional trigger ARIA attributes in Conversation Assistant and
+  Navigation System. Conversation Assistant can now forward Popup's role-specific `aria-haspopup`
+  values.
+- Updated dependencies
+
+## 10.17.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.17.7
+
+### Patch Changes
+
+- [`8d868002eb182`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d868002eb182) -
+  Add Apache-2.0 license
+- Updated dependencies
+
+## 10.17.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.17.5
+
+### Patch Changes
+
+- [`1715d48a722a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1715d48a722a2) -
+  Migrate responsive styling to typed canonical CSS media-query keys. Allow those keys in the UI
+  Styling Standard and report non-canonical queries used with `satisfies`.
+- Updated dependencies
+
+## 10.17.4
+
+### Patch Changes
+
+- [`c2ade13e4c9d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2ade13e4c9d9) -
+  Cleaned up `platform-dst-main-print-styles` feature gate, `Main` print styles are now default.
+- Updated dependencies
+
+## 10.17.3
+
+### Patch Changes
+
+- [`14307d3138fd3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14307d3138fd3) -
+  Refactor styles to use statically analyzable values and type-checked inline constants for Compiled
+  and Atlaspack incremental builds, preserving existing styling behavior.
+- Updated dependencies
+
+## 10.17.2
+
+### Patch Changes
+
+- [`5017f4bf49edf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5017f4bf49edf) -
+  [ux] Adjusted main content to snap when 60% of the entry or exit animation of the panel and side
+  nav have completed. Changes are behind the `platform-dst-motion-uplift-panel` and
+  `platform-dst-motion-uplift-sidenav` feature gates.
+
+## 10.17.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.17.0
+
+### Minor Changes
+
+- [`c7333edc6dfa2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7333edc6dfa2) -
+  Add content change motion to Panel behind the `platform-dst-motion-uplift-panel` feature flag.
+  Consumers can provide a contentKey to exit the previous content before entering the next while
+  preserving the panel shell.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.16.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.16.10
+
+### Patch Changes
+
+- [`e890c4bb5e772`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e890c4bb5e772) -
+  Updated panel splitter interaction colors to use semantic border tokens behind the
+  `platform-dst-tokens-finesse` feature gate.
+- Updated dependencies
+
+## 10.16.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.16.8
+
+### Patch Changes
+
+- [`73b74955b8418`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73b74955b8418) -
+  Added `color.border.input.search` for search input borders. Navigation System Search uses the new
+  token when `platform-dst-tokens-finesse` is enabled; the existing border is unchanged when the
+  gate is disabled.
+- Updated dependencies
+
+## 10.16.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.16.6
+
+### Patch Changes
+
+- [`d20edab2fda3a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d20edab2fda3a) -
+  Cleaned up new shape theme styles, making new border and radius values the default.
+
+## 10.16.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.16.4
+
+### Patch Changes
+
+- [`1cfdd8f6d54e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1cfdd8f6d54e6) -
+  Behind `platform-dst-motion-uplift-sidenav`, the side nav now holds `grid-area: main` for the
+  first 150ms of its desktop enter animation instead of switching immediately, so the main content
+  reflows shortly into the animation rather than at the very start.
+
+  Behind `platform-dst-motion-uplift-panel`, the panel holds `position: fixed` for the first 150ms
+  of its enter animation, and its enter and exit animations are now disabled under
+  `prefers-reduced-motion: reduce`.
+
+## 10.16.3
+
+### Patch Changes
+
+- [`24a22ba9f2d72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/24a22ba9f2d72) -
+  [ux] Panel on open snaps main content when animation ends. On close the main content snaps on
+  animation start. Changes are behind the `platform-dst-motion-uplift-panel` feature gate.
+- Updated dependencies
+
+## 10.16.2
+
+### Patch Changes
+
+- Use `@atlassian/testing-library` exclusively in unit tests.
+- Updated dependencies
+
+## 10.16.1
+
+### Patch Changes
+
+- [`547e06541deb3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/547e06541deb3) -
+  Added specific print styles to the `Main` component which resets the height to `auto`. This
+  ensures when printing a page that the content can extend beyond the viewport height.
+
+## 10.16.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.15.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.14.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.14.0
+
+### Minor Changes
+
+- [`2309581c02076`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2309581c02076) -
+  Decouple the built-in side nav shortcut, toggle tooltip shortcut, and side nav splitter tooltip
+  from the full height sidebar rollout behind `platform-dst-keep-desired-fhs-features`.
+
+## 10.13.0
+
+### Minor Changes
+
+- [`0195cea826a48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0195cea826a48) -
+  Use directional motion tokens for RTL-aware panel slide animations. Adds new
+  `motion.panel.content.enter` and `motion.panel.content.exit` motion tokens, applied to the Panel
+  to soften the content when opening and closing.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.12.1
+
+### Patch Changes
+
+- [`8cd40349d33ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8cd40349d33ee) -
+  Fix Aside slot appearing below other content when the `platform-dst-motion-uplift-panel` feature
+  gate is enabled. The root grid now uses `overflow: clip` instead of `overflow: hidden` to avoid
+  creating a scroll container that breaks `position: sticky` on descendant elements.
+
+## 10.12.0
+
+### Minor Changes
+
+- [`5bca82622e866`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bca82622e866) -
+  [ux] `@atlaskit/navigation-system`: the side nav expand, collapse and flyout animations now use
+  the new Side Nav motion tokens (CSS keyframe animations) instead of `transform` transitions with
+  `@starting-style`, behind the `platform-dst-motion-uplift-sidenav` feature gate. When the gate is
+  off, the animations are unchanged.
+
+## 10.11.1
+
+### Patch Changes
+
+- [`a4d2562b27fc6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4d2562b27fc6) -
+  Cleanup feature gate `platform_dst_nav4_side_nav_grid_area_fix`. The side nav's mobile `grid-area`
+  is now always scoped to `@media not (min-width: 64rem)`, the exact inverse of its desktop rule, so
+  the two can never both match at a given viewport and the side nav can no longer render in the
+  wrong grid area when Compiled's atomic rule ordering is non-deterministic (local development /
+  streaming SSR).
+- Updated dependencies
+
+## 10.11.0
+
+### Minor Changes
+
+- [`1960192b10121`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1960192b10121) -
+  Cleanup feature gate `platform-ads-nav-fixed-height`. The `Main` component in `navigation-system`
+  now always applies a fixed height at smaller viewports (the gate-on behaviour is now permanent).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.10.0
+
+### Minor Changes
+
+- [`b7302e44fd76d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7302e44fd76d) -
+  [ux] Adjusts TopNav header height. Gated by the fg: platform_dst_ads_appswitcher_improvements
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.9.1
+
+### Patch Changes
+
+- [`ae45184d2cd0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae45184d2cd0b) -
+  Fix `Panel` enter/exit animation so a panel with a default width of `0` starts hidden instead of
+  flashing visible. The panel now uses `useMotion`'s new `initialState` to begin in the `hidden`
+  state (behind the `platform-dst-motion-uplift-panel` gate). The `animationFillMode` overrides on
+  the entering/exiting styles have been removed, as this is now set within the motion tokens
+  themselves.
+
+  Additionally, a `overflow: hidden` rule is now applied to the page layout root (behind the same
+  `platform-dst-motion-uplift-panel` gate) so that the panel transforming off screen no longer
+  causes scroll bars to appear.
+
+- Updated dependencies
+
+## 10.9.0
+
+### Minor Changes
+
+- [`994b264c96af8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/994b264c96af8) -
+  `AppLogo` now accepts an optional `secondaryName` prop, which renders supporting text below the
+  app name in wider viewports. This can be used to provide extra context for an app or experience
+  while keeping the existing `name`, `label`, and small-screen behavior unchanged.
+
+  ```tsx
+  import { ConfluenceIcon } from '@atlaskit/logo/confluence-icon';
+  import { AppLogo } from '@atlaskit/navigation-system/top-nav-items';
+
+  <AppLogo
+  	href="http://www.atlassian.design"
+  	icon={ConfluenceIcon}
+  	name="Confluence"
+  	secondaryName="Documentation"
+  	label="Home page"
+  />;
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.8.0
+
+### Minor Changes
+
+- [`5dd6269af3c70`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd6269af3c70) -
+  Add an opt-in `maxWidth` to the `Panel` layout slot and preview panel `Panel` config, letting a
+  single consumer request a wider resize bound (e.g. `70vw`) than the default cap of half the
+  viewport width. Defaults are unchanged, so all existing consumers remain capped at the default.
+
+  **`@atlaskit/navigation-system`** — the `Panel` layout slot accepts a `maxWidth` (`vw`/`px`),
+  applied to both the rendered width and the resize bounds (mouse and keyboard):
+
+  ```tsx
+  import { Panel } from '@atlaskit/navigation-system/layout/panel';
+
+  <Panel defaultWidth={600} maxWidth="70vw">
+  	{/* ...panel content... */}
+  </Panel>;
+  ```
+
+  **`@atlassian/preview-panels-api`** — the opened panel config takes the same `maxWidth`:
+
+  ```tsx
+  import { usePreviewPanelsActions } from '@atlassian/preview-panels-api';
+
+  const { open } = usePreviewPanelsActions();
+
+  open({
+  	panel: {
+  		id: 'issue-123',
+  		type: 'issue',
+  		product: 'jira',
+  		content: () => <IssuePreview />,
+  		maxWidth: '70vw',
+  	},
+  });
+  ```
+
+  **`@atlassian/preview-panel-global-objects`** — `useGlobalObjectPreviewPanels` accepts a
+  `maxWidth` option that it forwards onto the panel it opens, so global-object preview panels
+  (Confluence page, goals, teams, CMDB object, etc.) share the same wider bound. Omitting it keeps
+  the default cap:
+
+  ```tsx
+  const previewPanels = useGlobalObjectPreviewPanels('jira', cloudId, { maxWidth: '70vw' });
+  ```
+
+## 10.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.7.0
+
+### Minor Changes
+
+- [`90aa712679ee0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90aa712679ee0) -
+  `AppSwitcher` now accepts a custom `icon` component via the `icon` prop, allowing image-backed
+  visuals (such as a product logo) to be rendered in place of the default Atlassian app switcher
+  icon. The `icon` prop is optional and defaults to the standard app switcher icon, so existing
+  usage is unaffected.
+
+  ```tsx
+  import { AppSwitcher } from '@atlaskit/navigation-system/top-nav-items';
+  import { UnitTile } from '@atlassian/unit-tile';
+
+  const CustomAppSwitcherIcon = () => (
+  	<UnitTile unitName="Confluence" size="small" iconUrl={dstLogo} />
+  );
+
+  <AppSwitcher
+  	icon={CustomAppSwitcherIcon}
+  	label="App switcher"
+  	onClick={() => {
+  		/* open app switcher */
+  	}}
+  />;
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.6.0
+
+### Minor Changes
+
+- [`95ff9f0742fb9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95ff9f0742fb9) -
+  [ux] Added motion to `Panel` entry and exit behind the `platform-dst-motion-uplift-panel` feature
+  gate.
+
+  When the gate is enabled, `Panel` animates on entry automatically. To get the exit animation,
+  consumers must render the conditionally-mounted `Panel` inside an `ExitingPersistence` boundary so
+  the panel stays mounted until its exit motion finishes:
+
+  ```tsx
+  import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+  import { Panel } from '@atlaskit/navigation-system/layout/panel';
+
+  function Example({ isPanelOpen }: { isPanelOpen: boolean }) {
+  	return (
+  		<ExitingPersistence>
+  			{isPanelOpen && <Panel defaultWidth={320}>{/* panel content */}</Panel>}
+  		</ExitingPersistence>
+  	);
+  }
+  ```
+
+  Without the `ExitingPersistence` wrapper the panel is removed immediately on close and the exit
+  animation is skipped. Entry animation works with or without the wrapper.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.5.4
+
+### Patch Changes
+
+- [`88a1176b97a25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88a1176b97a25) -
+  Internal TypeScript typecheck fixes for ts7 (tsgo) adoption. No functional or API changes.
+- Updated dependencies
+
+## 10.5.3
+
+### Patch Changes
+
+- [`f2ec2ee8b495e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2ec2ee8b495e) -
+  Update `@atlaskit/spotlight` imports to use de-barrelled entry-points.
+- [`5d91339612c3b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5d91339612c3b) -
+  Fix side nav rendering in the wrong grid area under streaming SSR, where Compiled could emit the
+  mobile and desktop `grid-area` atomic rules out of order. The mobile rule is now scoped to
+  `@media not (min-width: 64rem)` so it can never conflict with the desktop rule. Behind the
+  `platform_dst_nav4_side_nav_grid_area_fix` feature gate.
+- Updated dependencies
+
+## 10.5.2
+
+### Patch Changes
+
+- [`c84bd629439e0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c84bd629439e0) -
+  Opt `IconRenderer` out of React Compiler memoization (`'use no memo'`). This file is a copy of
+  `@atlaskit/button`'s `IconRenderer`, sharing the same `isIconRenderProp()` heuristic that
+  misclassifies icon components missing a `displayName` as render-props and invokes them as plain
+  functions instead of JSX. Under React Compiler, memoization of this render could skip re-invoking
+  an already-compiled icon component on some renders, dropping a hook call and causing a hook-count
+  mismatch (React error #300).
+- Updated dependencies
+
+## 10.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.5.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.4.0
+
+### Minor Changes
+
+- [`5ad834eeed183`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ad834eeed183) -
+  Main component now has a fixed height on smaller viewports behind a feature gate. This is to
+  enable in-app panels with correct scroll and overlay behaviour.
+
+## 10.3.0
+
+### Minor Changes
+
+- [`a3b0e6c4eeab7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3b0e6c4eeab7) -
+  Apply button motion tokens (motion.button.hovered / motion.button.pressed) to top-nav
+  ThemedAnchor, gated behind platform-dst-motion-uplift-button, for parity with ThemedPressable.
+  Also enables the gate by default in the top nav button constellation example so the motion is
+  previewed in the docs.
+
+## 10.2.0
+
+### Minor Changes
+
+- [`015a98b324278`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/015a98b324278) -
+  Adopt motion.button.hovered / motion.button.pressed tokens for hover/press background transitions
+  in custom button-like components (inline-edit read view, navigation-system top-nav pressable, and
+  page-layout resize control grab area), gated behind the platform-dst-motion-uplift-button feature
+  flag.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.3
+
+### Patch Changes
+
+- [`f9eceea16e433`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9eceea16e433) -
+  Fix `Root` safety-rail selector hiding native top-layer elements (`<dialog>` and elements with the
+  `popover` attribute) rendered as direct children of `Root`. These elements are now excluded from
+  the `display: none !important` rule so the browser can promote them into the top layer when
+  opened. Adds VR coverage for both cases.
+
+## 9.4.2
+
+### Patch Changes
+
+- [`8f6296fa87d19`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f6296fa87d19) -
+  Deprecate the Aside export.
+- [`cc4a66306965d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc4a66306965d) -
+  Cleanup feature gate `platform_dst_nav4_flyout_menu_slots_close_button`. Flyout menu slot
+  subcomponents (header, body, footer) and close button are now permanently enabled.
+- Updated dependencies
+
+## 9.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.0
+
+### Minor Changes
+
+- [`c9a83a4b370b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9a83a4b370b5) -
+  Focus will now move to the first item in the side nav after expanding via the toggle button or
+  when navigating via the skip link. This change is behind the `platform_dst_nav4_skip_link_a11y_1`
+  feature gate.
+
+## 9.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.3.0
+
+### Minor Changes
+
+- [`a229f9efdb819`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a229f9efdb819) -
+  Add entrypoint for consuming Nav 3 CSS variables
+
+## 9.2.1
+
+### Patch Changes
+
+- [`ca5f7e8e2a556`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca5f7e8e2a556) -
+  Dev-only dependencies have been added.
+
+## 9.2.0
+
+### Minor Changes
+
+- [`b46825ac6c66c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b46825ac6c66c) -
+  Cleans up the `platform_dst_nav4_top_nav_increase_height` feature gate. The top nav height is now
+  always 56px when the full-height sidebar is enabled.
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- [`0d8519bedea15`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d8519bedea15) -
+  Cleanup feature gate `platform_themed_button_use_icon_renderer`. Icon renderer is now always used
+  for themed button icons.
+
+## 9.1.0
+
+### Minor Changes
+
+- [`c47d9797de1d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c47d9797de1d4) -
+  Skip links are now rendered inside of a popup. This change is behind the
+  `platform_dst_nav4_skip_link_a11y_1` feature gate.
+
+### Patch Changes
+
+- [`36a98dddcf5af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/36a98dddcf5af) -
+  Cleanup of feature gate navx-4418-fix-effect-state-updates-in-gsn (true)
+
+## 9.0.0
+
+### Major Changes
+
+- [`2d4e2aa315dc1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d4e2aa315dc1) -
+  Renamed the experimental theming entrypoints from `/experimental/*` to `/theming/*`. The
+  `/experimental/ribbon` entrypoint is unaffected.
+
+  Migration:
+  - `@atlaskit/navigation-system/experimental/top-nav-button` →
+    `@atlaskit/navigation-system/theming/top-nav-button`
+  - `@atlaskit/navigation-system/experimental/use-has-custom-theme` →
+    `@atlaskit/navigation-system/theming/use-has-custom-theme`
+  - `@atlaskit/navigation-system/experimental/use-legacy-search-theme` →
+    `@atlaskit/navigation-system/theming/use-legacy-search-theme`
+  - `@atlaskit/navigation-system/experimental/color-utils/parse-hex` →
+    `@atlaskit/navigation-system/theming/color-utils/parse-hex`
+  - `@atlaskit/navigation-system/experimental/color-utils/parse-hsl` →
+    `@atlaskit/navigation-system/theming/color-utils/parse-hsl`
+  - `@atlaskit/navigation-system/experimental/color-utils/parse-rgb` →
+    `@atlaskit/navigation-system/theming/color-utils/parse-rgb`
+  - `@atlaskit/navigation-system/experimental/color-utils/parse-user-color` →
+    `@atlaskit/navigation-system/theming/color-utils/parse-user-color`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`0535fe6d19c87`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0535fe6d19c87) -
+  Cleans up the `platform_dst_nav4_side_nav_resize_tooltip_feedback` feature gate. The
+  `SideNavPanelSplitter` tooltip now has improved visuals.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`6a19433e19f86`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6a19433e19f86) -
+  Changes to skip links behind the `platform_dst_nav4_skip_link_a11y_1` feature gate:
+  - Visual improvements
+  - Removes skip links for `Banner`, `TopNav`, `Aside` and `Panel` slots
+  - Renames default skip link label for `Main` to 'Main content' (from 'Main Content')
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Major Changes
+
+- [`90dc3406ea1eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90dc3406ea1eb) -
+  Renames `UNSAFE_theme` prop to `customTheme` on `TopNav` component.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`1a76aa4057f18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a76aa4057f18) -
+  Cleans up the `platform_dst_nav4_ribbon_slot` feature gate. The 'ribbon' CSS grid area is now
+  always present on the page layout. There should be no perceivable change unless the Ribbon slot is
+  being rendered.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`71834d94559e2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71834d94559e2) -
+  Implements custom theming support when the full height sidebar is enabled. This change is behind
+  the `platform_dst_nav4_custom_theming_fhs_1` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.6
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 7.1.5
+
+### Patch Changes
+
+- [`f54d8707590da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f54d8707590da) -
+  The `platform-dst-nav-app-icon-height-fix` feature gate has been cleaned up. The app logo icon now
+  always has a maximum height of 24px applied to prevent custom App Logos from extending beyond the
+  edges of the container.
+
+## 7.1.4
+
+### Patch Changes
+
+- [`e2085d35701ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2085d35701ca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 7.1.3
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- [`5aec10fd5955e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5aec10fd5955e) -
+  Wrap useEffect->set-state call in startTransition, to avoid potential hydration rework.
+
+## 7.1.1
+
+### Patch Changes
+
+- [`3088f1c2a117a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3088f1c2a117a) -
+  Cleanup platform_editor_topnavstart_delay_browser_check flag
+
+## 7.1.0
+
+### Minor Changes
+
+- [`15acec25cc47f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/15acec25cc47f) -
+  Cleans up the `platform_dst_nav4_fhs_feedback_1` feature gate. Scroll lines are now removed, as
+  well as other minor visual changes.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`f48c03e011b92`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f48c03e011b92) -
+  Renamed `SideNavContent` to `SideNavBody` to align with other slot component naming.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.0
+
+### Minor Changes
+
+- [`12424cd3197be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12424cd3197be) -
+  Cleans up the `platform_dst_nav4_flyoutmenuitem_render_to_parent` feature gate. Flyout menu item
+  popups now always use `shouldRenderToParent` and are not rendered in a portal.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.0
+
+### Minor Changes
+
+- [`1db8c4b3de440`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1db8c4b3de440) -
+  Allows an optional sideNavContentRef to be passed into GSN from the usage parent.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.1
+
+### Patch Changes
+
+- [`394b61e0b5b80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/394b61e0b5b80) -
+  delay browser detection to when component is actually rendered
+
+## 6.2.0
+
+### Minor Changes
+
+- [`7719c436631e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7719c436631e8) -
+  The feature gate `platform-dst-side-nav-layering-fixes` has been cleaned up.
+  - Layers inside the side nav that are rendered to parent (`shouldRenderToParent`) will be layered
+    below the top nav and banner.
+  - Refactors have been made to the positioning and render location of the side nav panel splitter.
+
+### Patch Changes
+
+- [`ff38389affe15`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff38389affe15) -
+  Tidies the react-uid => react.useId() feature gates to use concurrent safe ids n
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`7ae800ebd066d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ae800ebd066d) -
+  Cleans up the `platform_dst_nav4_side_nav_toggle_button_slot` feature gate. The
+  `sideNavToggleButton` prop on `TopNavStart` is now required, but can be explicitly set to `null`.
+
+## 6.0.0
+
+### Major Changes
+
+- [`929ebbf40230e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/929ebbf40230e) -
+  The re-exports of side nav item components has been removed. The components must now be imported
+  from `@atlaskit/side-nav-items`.
+
+  This includes all exports from the previous entrypoints beginning with
+  `@atlaskit/navigation-system/side-nav-items/`:
+  - ContainerAvatar
+  - ExpandableMenuItem, ExpandableMenuItemTrigger, ExpandableMenuItemContentg
+  - FlyoutMenuItem, FlyoutMenuItemTrigger, FlyoutMenuItemContent, FlyoutHeader, FlyoutBody,
+    FlyoutFooter
+  - ButtonMenuItem
+  - LinkMenuItem
+  - MenuList
+  - MenuListItem
+  - MenuSection, MenuSectionHeading, Divider
+  - TopLevelSpacer
+  - LazyDragHandle, DragPreview, DropIndicator, GroupDropIndicator, useMenuItemDragAndDrop
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.40.0
+
+### Minor Changes
+
+- [`d181fe4b076de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d181fe4b076de) -
+  Tidies the `platform_dst_nav4_fhs_instrumentation_1` feature gate. Analytics events for
+  `sideNavMenu viewedOnLoad` + `sideNavButton hovered` + `sideNav expanded` + `sideNav collapsed`
+  are now always fired.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.39.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.39.0
+
+### Minor Changes
+
+- [`c987f6814195b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c987f6814195b) -
+  Fixes a bug where the panel splitter would not be resizable when some browser extensions were
+  installed. This change was previousuly behind the feature flag
+  `platform-dst-panel-splitter-drag-start-client-x`, which has now been cleaned up.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.38.1
+
+### Patch Changes
+
+- [`ceba2f0da51d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ceba2f0da51d4) -
+  Add @starting-style to ESLint ignoredAtRules to allow usage without eslint-disable comments
+
+## 5.38.0
+
+### Minor Changes
+
+- [`0739fc0341b20`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0739fc0341b20) -
+  Increases the default height of the top navigation to `56px` when the
+  `platform_dst_nav4_top_nav_increase_height` gate is enabled.
+
+## 5.37.0
+
+### Minor Changes
+
+- [`accbbfe68dc49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/accbbfe68dc49) -
+  Decreases the padding to the right of the toggle button when the full height sidebar is enabled,
+  so that it aligns with the other `elemAfter` items in the side navigation. This change is behind
+  the `platform_dst_nav4_fhs_feedback_1` feature gate.
+
+## 5.36.0
+
+### Minor Changes
+
+- [`621d85336693f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/621d85336693f) -
+  Adds a ribbon grid area to the page layout, and introduces an experimental Ribbon slot component
+  through the `/experimental/ribbon` entrypoint. This change is behind the
+  `platform_dst_nav4_ribbon_slot` feature gate.
+
+## 5.35.0
+
+### Minor Changes
+
+- [`9d7ed6ce1ff7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d7ed6ce1ff7b) -
+  Removes the scrolled indicator on the side nav content, behind the
+  `platform_dst_nav4_fhs_feedback_1` feature gate.
+
+## 5.34.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 5.34.0
 
 ### Minor Changes

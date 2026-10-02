@@ -1,27 +1,40 @@
-import { type Placement } from '@atlaskit/popper';
-import Range from '@atlaskit/range';
-import Select from '@atlaskit/select';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import styled from '@emotion/styled';
 import React, { useState } from 'react';
-import { IntlProvider } from 'react-intl-next';
-import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
-import { PopupUserPicker } from '../src';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
+import type { Theme } from '@emotion/react';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import styled, { type StyledComponent } from '@emotion/styled';
+import { IntlProvider } from 'react-intl';
+
+import type { Placement } from '@atlaskit/popper/main';
+import Range from '@atlaskit/range/range';
+import Select from '@atlaskit/select/default';
 import { token } from '@atlaskit/tokens';
 
+import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
+import { PopupUserPicker } from '../src/components/PopupUserPicker';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/ui-styling-standard/no-dynamic-styles -- Ignored via go/DSP-18766
-export const MenuPlaceholder = styled.div((props) => ({
-	minWidth: token('space.150', '12px'),
+export const MenuPlaceholder: StyledComponent<
+	{
+		as?: React.ElementType;
+		theme?: Theme;
+	},
+	React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
+	{}
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/ui-styling-standard/no-dynamic-styles -- Ignored via go/DSP-18766
+> = styled.div((props) => ({
+	minWidth: token('space.150'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	visibility: props ? 'visible' : 'hidden',
-	marginLeft: token('space.050', '4px'),
+	marginLeft: token('space.050'),
 	position: 'relative',
 }));
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled -- To migrate as part of go/ui-styling-standard
 const SelectContainer = styled.div({
 	width: '250px',
-	paddingLeft: token('space.150', '12px'),
+	paddingLeft: token('space.150'),
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled -- To migrate as part of go/ui-styling-standard
@@ -187,7 +200,6 @@ const Example = (): React.JSX.Element => {
 							checked={Boolean(state.shouldFlip)}
 							id="shouldFlip"
 							onChange={(e) => {
-								// @ts-ignore
 								setState({
 									...state,
 									shouldFlip: !state.shouldFlip,

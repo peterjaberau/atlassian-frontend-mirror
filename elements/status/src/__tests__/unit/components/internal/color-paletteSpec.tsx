@@ -1,7 +1,9 @@
 import React from 'react';
+
+import { fireEvent, screen } from '@testing-library/react';
+
 import ColorPalette from '../../../../components/internal/color-palette';
 import { renderWithIntl } from '../../helpers/_testing-library';
-import { fireEvent, screen } from '@testing-library/react';
 
 describe('ColorPalette', () => {
 	it('should render 6 colors', () => {
@@ -39,68 +41,86 @@ describe('ColorPalette', () => {
 	});
 });
 
+describe('ColorPalette with the extended palette', () => {
+	const pressedTitle = () => screen.getByRole('button', { pressed: true }).getAttribute('title');
+
+	it('marks the Lime swatch selected for an existing named green', () => {
+		renderWithIntl(<ColorPalette palette="extended" onClick={jest.fn()} selectedColor={'green'} />);
+		expect(pressedTitle()).toBe('Lime');
+	});
+
+	it('marks the Orange swatch selected for an existing named yellow', () => {
+		renderWithIntl(
+			<ColorPalette palette="extended" onClick={jest.fn()} selectedColor={'yellow'} />,
+		);
+		expect(pressedTitle()).toBe('Orange');
+	});
+
+	it('marks the Green swatch selected for the green hex, not Lime', () => {
+		renderWithIntl(
+			<ColorPalette palette="extended" onClick={jest.fn()} selectedColor={'#abf5d1'} />,
+		);
+		expect(pressedTitle()).toBe('Green');
+	});
+});
+
 describe('ColorPalette keyboard navigation', () => {
 	it('should focus next color on right arrow', async () => {
 		renderWithIntl(<ColorPalette onClick={jest.fn()} selectedColor={'neutral'} />);
 		// Simulate pressing of right arrow. Colors order defined internally in color-palette.tsx
-		const list = screen.getByRole('list');
-		fireEvent.keyDown(list, {
+		const colorButtons = screen.getAllByRole('button');
+		fireEvent.keyDown(colorButtons[0], {
 			key: 'ArrowRight',
 			code: 'ArrowRight',
 			keyCode: 39,
 		});
 
-		const colorButtons = screen.getAllByRole('button');
 		expect(colorButtons[1]).toHaveFocus(); // Purple
 	});
 
 	it('should select first color on when reaches the last one', () => {
 		renderWithIntl(<ColorPalette onClick={jest.fn()} selectedColor={'green'} />);
-		const list = screen.getByRole('list');
+		const colorButtons = screen.getAllByRole('button');
 		for (let i = 0; i < 6; i++) {
-			fireEvent.keyDown(list, {
+			fireEvent.keyDown(colorButtons[i], {
 				key: 'ArrowRight',
 				code: 'ArrowRight',
 				keyCode: 39,
 			});
 		}
-		const colorButtons = screen.getAllByRole('button');
-		expect(colorButtons[0]).toHaveFocus(); // Grey
+		expect(colorButtons[0]).toHaveFocus(); // Gray
 	});
 
 	it('should select last color on leftArrow press at first color', () => {
 		renderWithIntl(<ColorPalette onClick={jest.fn()} selectedColor={'neutral'} />);
-		const list = screen.getByRole('list');
-		fireEvent.keyDown(list, {
+		const colorButtons = screen.getAllByRole('button');
+		fireEvent.keyDown(colorButtons[0], {
 			key: 'ArrowLeft',
 			code: 'ArrowLeft',
 			keyCode: 37,
 		});
-		const colorButtons = screen.getAllByRole('button');
 		expect(colorButtons[5]).toHaveFocus(); //green
 	});
 
 	it('should focus next color on down arrow', () => {
 		renderWithIntl(<ColorPalette onClick={jest.fn()} selectedColor={'neutral'} />);
-		const list = screen.getByRole('list');
-		fireEvent.keyDown(list, {
+		const colorButtons = screen.getAllByRole('button');
+		fireEvent.keyDown(colorButtons[0], {
 			key: 'ArrowDown',
 			code: 'ArrowDown',
 			keyCode: 40,
 		});
-		const colorButtons = screen.getAllByRole('button');
 		expect(colorButtons[1]).toHaveFocus(); // Purple
 	});
 
 	it('should select last color on up arrow press at first color', () => {
 		renderWithIntl(<ColorPalette onClick={jest.fn()} selectedColor={'neutral'} />);
-		const list = screen.getByRole('list');
-		fireEvent.keyDown(list, {
+		const colorButtons = screen.getAllByRole('button');
+		fireEvent.keyDown(colorButtons[0], {
 			key: 'ArrowUp',
 			code: 'ArrowUp',
 			keyCode: 38,
 		});
-		const colorButtons = screen.getAllByRole('button');
 		expect(colorButtons[5]).toHaveFocus(); //green
 	});
 });

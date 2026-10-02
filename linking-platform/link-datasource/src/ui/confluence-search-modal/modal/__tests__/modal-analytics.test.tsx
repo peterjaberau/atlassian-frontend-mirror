@@ -1,13 +1,12 @@
 import { act, waitFor } from '@testing-library/react';
 
 import { asMock } from '@atlaskit/link-test-helpers/jest';
-import { type DatasourceTableStatusType } from '@atlaskit/linking-types';
+import type { DatasourceTableStatusType } from '@atlaskit/linking-types/datasource';
 
-import { EVENT_CHANNEL } from '../../../../analytics';
+import { EVENT_CHANNEL } from '../../../../analytics/constants';
 import { DatasourceSearchMethod } from '../../../../analytics/types';
 import { type DatasourceTableState } from '../../../../hooks/useDatasourceTableState';
 import { useCurrentUserInfo } from '../../basic-filters/hooks/useCurrentUserInfo';
-
 import {
 	getDefaultHookState,
 	getEmptyHookState,
@@ -257,7 +256,9 @@ describe('Analytics: ConfluenceSearchConfigModal', () => {
 
 					const { visibleColumnKeys } = getLatestIssueLikeTableProps();
 
-					updateVisibleColumnList([...visibleColumnKeys, 'additionalColumn']);
+					await act(async () => {
+						updateVisibleColumnList([...visibleColumnKeys, 'additionalColumn']);
+					});
 
 					await assertAnalyticsAfterButtonClick(
 						buttonName,
@@ -417,7 +418,9 @@ describe('Analytics: ConfluenceSearchConfigModal', () => {
 
 					const { assertAnalyticsAfterButtonClick, searchWithNewBasic } = await setup();
 
-					searchWithNewBasic('new_search');
+					await act(async () => {
+						searchWithNewBasic('new_search');
+					});
 					await assertAnalyticsAfterButtonClick(INSERT_BUTTON_NAME, expectedPayload);
 				});
 

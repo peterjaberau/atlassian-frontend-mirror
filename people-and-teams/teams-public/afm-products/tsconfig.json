@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__teams-public/app",
 		"rootDir": "../",
 		"composite": true,
@@ -27,9 +26,6 @@
 			"path": "../../../analytics/analytics-next/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../uip/atlassian-context/afm-products/tsconfig.json"
-		},
-		{
 			"path": "../../../design-system/avatar/afm-products/tsconfig.json"
 		},
 		{
@@ -43,12 +39,6 @@
 		},
 		{
 			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../design-system/flag/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../helpers/frontend-utilities/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/heading/afm-products/tsconfig.json"
@@ -75,10 +65,16 @@
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/skeleton/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../teams-app-internal-analytics/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../teams-app-internal-navigation/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../teams-app-internal-product-permissions/afm-products/tsconfig.json"
@@ -87,7 +83,7 @@
 			"path": "../../teams-client/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/theme/afm-products/tsconfig.json"
+			"path": "../../../design-system/tile/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

@@ -1,25 +1,29 @@
 import type { ReactNode } from 'react';
 import React, { createContext, useState, useContext, useMemo, useRef, useCallback } from 'react';
 
+// oxlint-disable-next-line eslint/no-redeclare
 interface AnnotationHoverStateContext {
 	isWithinRange: boolean;
 }
 
+// oxlint-disable-next-line eslint/no-redeclare
 interface AnnotationHoverDispatchContext {
 	cancelTimeout: () => void;
 	initiateTimeout: () => void;
 	setIsWithinRange: (isWithinRange: boolean) => void;
 }
 
-const AnnotationHoverStateContext = createContext<AnnotationHoverStateContext>({
-	isWithinRange: false,
-});
+const AnnotationHoverStateContext: React.Context<AnnotationHoverStateContext> =
+	createContext<AnnotationHoverStateContext>({
+		isWithinRange: false,
+	});
 
-const AnnotationHoverDispatchContext = createContext<AnnotationHoverDispatchContext>({
-	cancelTimeout: () => {},
-	initiateTimeout: () => {},
-	setIsWithinRange: () => {},
-});
+const AnnotationHoverDispatchContext: React.Context<AnnotationHoverDispatchContext> =
+	createContext<AnnotationHoverDispatchContext>({
+		cancelTimeout: () => {},
+		initiateTimeout: () => {},
+		setIsWithinRange: () => {},
+	});
 
 export const AnnotationHoverContext = ({
 	children,
@@ -58,10 +62,10 @@ export const AnnotationHoverContext = ({
 	);
 };
 
-export const useAnnotationHoverContext = () => {
+export const useAnnotationHoverContext = (): AnnotationHoverStateContext => {
 	return useContext(AnnotationHoverStateContext);
 };
 
-export const useAnnotationHoverDispatch = () => {
+export const useAnnotationHoverDispatch = (): AnnotationHoverDispatchContext => {
 	return useContext(AnnotationHoverDispatchContext);
 };

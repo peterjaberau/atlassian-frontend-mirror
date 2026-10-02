@@ -1,19 +1,19 @@
-import type { EmojiProvider } from '../api/EmojiResource';
-import type { EmojiDescription, OptionalEmojiDescription } from '../types';
+import type { EmojiDescription } from '../types';
 
-const toneEmojiShortName = ':raised_hand:';
+export const toneEmojiShortName: any = ':raised_hand:';
 
 const byShortName = (emojis: EmojiDescription[], shortName: string): EmojiDescription =>
 	emojis.filter((emoji) => emoji.shortName === shortName)[0];
 
-const toneEmoji = (emojis: EmojiDescription[]) => byShortName(emojis, toneEmojiShortName);
+const toneEmoji = (emojis: EmojiDescription[]): EmojiDescription =>
+	byShortName(emojis, toneEmojiShortName);
 
-export const getToneEmoji = (
-	provider: EmojiProvider,
-): OptionalEmojiDescription | Promise<OptionalEmojiDescription> =>
-	provider.findByShortName(toneEmojiShortName);
-
-export default {
+const _default_1: {
+	byShortName: (emojis: EmojiDescription[], shortName: string) => EmojiDescription;
+	toneEmoji: (emojis: EmojiDescription[]) => EmojiDescription;
+} = {
 	byShortName,
 	toneEmoji,
 };
+
+export default _default_1;

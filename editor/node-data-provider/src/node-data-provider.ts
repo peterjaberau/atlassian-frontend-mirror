@@ -1,8 +1,6 @@
 import { isSSR } from '@atlaskit/editor-common/core-utils';
-import type { JSONNode } from '@atlaskit/editor-json-transformer';
+import type { JSONNode } from '@atlaskit/editor-json-transformer/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
-
 /**
  * Represents the SSR data for a single provider.
  * It's a map where each key is a unique node data key and the value is the prefetched data for that node.
@@ -115,15 +113,7 @@ export abstract class NodeDataProvider<Node extends JSONNode, Data> {
 	 * @param ssrData A map of node data keys to their corresponding data.
 	 */
 	setSSRData(ssrData: SSRData<Data> = {}): void {
-		if (fg('platform_synced_block_patch_1')) {
-			this.updateCache(ssrData, { strategy: 'replace', source: 'ssr' });
-			return;
-		}
-
-		this.cacheVersion++;
-		this.cache = Object.fromEntries(
-			Object.entries(ssrData).map(([key, data]) => [key, { data, source: 'ssr' }]),
-		);
+		this.updateCache(ssrData, { strategy: 'replace', source: 'ssr' });
 	}
 
 	/**
@@ -242,14 +232,7 @@ export abstract class NodeDataProvider<Node extends JSONNode, Data> {
 				// because it could be stale data.
 				if (cacheVersionBeforeRequest === this.cacheVersion) {
 					// Replace promise with the resolved data in the cache
-					if (fg('platform_synced_block_patch_1')) {
-						this.updateCache({ [dataKey]: data }, { strategy: 'merge', source: 'network' });
-					} else {
-						this.cache[dataKey] = {
-							data,
-							source: 'network',
-						};
-					}
+					this.updateCache({ [dataKey]: data }, { strategy: 'merge', source: 'network' });
 				}
 			} catch (error) {
 				// If an error occurs, we call the callback with the error
@@ -327,6 +310,15 @@ export abstract class NodeDataProvider<Node extends JSONNode, Data> {
 
 		const dataKey = this.nodeDataKey(jsonNode as Node);
 		return this.cache[dataKey];
+	}
+
+	/**
+	 * Returns the keys of the cache.
+	 *
+	 * @returns An array of the keys of the cache.
+	 */
+	getNodeDataCacheKeys(): string[] {
+		return Object.keys(this.cache);
 	}
 
 	/**

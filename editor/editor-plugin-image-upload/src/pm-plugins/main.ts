@@ -16,7 +16,6 @@ import type {
 import { isClipboardEvent } from '../ui/hooks/clipboard';
 import { isDragEvent, isDroppedFile } from '../ui/hooks/drag-drop';
 import { canInsertMedia, isMediaSelected } from '../ui/hooks/utils';
-
 import { insertExternalImage, startImageUpload } from './commands';
 import { stateKey } from './plugin-key';
 
@@ -130,7 +129,7 @@ const getNewActiveUpload = (tr: ReadonlyTransaction, pluginState: ImageUploadPlu
 
 export const createPlugin =
 	(uploadHandlerReference: UploadHandlerReference) =>
-	({ dispatch, providerFactory }: PMPluginFactoryParams) => {
+	({ dispatch, providerFactory }: PMPluginFactoryParams): SafePlugin<ImageUploadPluginState> => {
 		return new SafePlugin({
 			state: {
 				init(_config, state: EditorState): ImageUploadPluginState {

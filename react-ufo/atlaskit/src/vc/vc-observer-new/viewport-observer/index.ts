@@ -1,17 +1,18 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { SearchPageConfig } from '../../types';
 import { isContainedWithinMediaWrapper } from '../../vc-observer/media-wrapper/vc-utils';
-import isDnDStyleMutation from '../../vc-observer/observers/non-visual-styles/is-dnd-style-mutation';
+import isAnchorNameStyleMutation from '../../vc-observer/observers/non-visual-styles/is-anchor-name-style-mutation';
 import isNonVisualStyleMutation from '../../vc-observer/observers/non-visual-styles/is-non-visual-style-mutation';
+import isPdndAttribute from '../../vc-observer/observers/non-visual-styles/is-pdnd-attribute';
 import { RLLPlaceholderHandlers } from '../../vc-observer/observers/rll-placeholders';
 import { type VCObserverEntryType } from '../types';
-
 import { createIntersectionObserver, type VCIntersectionObserver } from './intersection-observer';
 import createMutationObserver from './mutation-observer';
-import createPerformanceObserver from './performance-observer';
-import { type MutationData } from './types';
-import checkWithinComponent, { cleanupCaches } from './utils/check-within-component';
+import { default as createPerformanceObserver } from './performance-observer/index';
+import { type MutationData, type MutationDataWithTimestamp } from './types';
+import checkWithinComponent from './utils/check-within-component';
+import { cleanupCaches } from './utils/cleanup-caches';
 import { isContainedWithinSmartAnswers } from './utils/is-contained-within-smart-answers';
 import { isElementVisible } from './utils/is-element-visible';
 import isInVCIgnoreIfNoLayoutShiftMarker from './utils/is-in-vc-ignore-if-no-layout-shift-marker';
@@ -31,6 +32,7 @@ export type ViewPortObserverConstructorArgs = {
 	}): void;
 	getSSRState?: () => any;
 	getSSRPlaceholderHandler?: () => any;
+	trackLayoutShiftOffenders?: boolean;
 	searchPageConfig?: SearchPageConfig;
 };
 
@@ -38,6 +40,7 @@ const createElementMutationsWatcher =
 	(
 		removedNodeRects: (DOMRect | undefined)[],
 		isWithinThirdPartySegment: boolean,
+		isWithinGenAISegment: boolean,
 		isWithinSmartAnswersSegment: boolean,
 		hasSameDeletedNode: boolean,
 		timestamp: number,
@@ -45,7 +48,7 @@ const createElementMutationsWatcher =
 		getSSRState?: () => any,
 		getSSRPlaceholderHandler?: () => any,
 	) =>
-	({ target, rect }: { rect: DOMRectReadOnly; target: HTMLElement }) => {
+	({ target, rect }: { rect: DOMRectReadOnly; target: HTMLElement }): VCObserverEntryType => {
 		if (getSSRState) {
 			const ssrState = getSSRState();
 			const SSRStateEnum = { normal: 1, waitingForFirstRender: 2, ignoring: 3 };
@@ -109,6 +112,10 @@ const createElementMutationsWatcher =
 			return 'mutation:third-party-element';
 		}
 
+		if (isWithinGenAISegment) {
+			return 'mutation:gen-ai-element';
+		}
+
 		if (isWithinSmartAnswersSegment) {
 			return 'mutation:smart-answers-element';
 		}
@@ -133,16 +140,192 @@ const createElementMutationsWatcher =
 		return 'mutation:element';
 	};
 
+const createElementMutationsWatcherNew =
+	(
+		removedNodeRects: (DOMRect | undefined)[],
+		isWithinThirdPartySegment: boolean,
+		isWithinGenAISegment: boolean,
+		isWithinSmartAnswersSegment: boolean,
+		hasSameDeletedNode: boolean,
+		timestamp: number,
+		isTargetReactRoot: boolean,
+		getSSRState?: () => any,
+		getSSRPlaceholderHandler?: () => any,
+	) =>
+	({
+		target,
+		rect,
+	}: {
+		rect: DOMRectReadOnly;
+		target: HTMLElement;
+	}): { type: VCObserverEntryType; mutationData: MutationDataWithTimestamp } => {
+		if (getSSRState) {
+			const ssrState = getSSRState();
+			const SSRStateEnum = { normal: 1, waitingForFirstRender: 2, ignoring: 3 };
+
+			if (
+				ssrState.state === SSRStateEnum.waitingForFirstRender &&
+				timestamp > ssrState.renderStart &&
+				isTargetReactRoot
+			) {
+				ssrState.state = SSRStateEnum.ignoring;
+				if (ssrState.renderStop === -1) {
+					// arbitrary 500ms DOM update window
+					ssrState.renderStop = timestamp + 500;
+				}
+				return {
+					type: 'ssr-hydration',
+					mutationData: {
+						timestamp,
+					},
+				};
+			}
+
+			if (
+				ssrState.state === SSRStateEnum.ignoring &&
+				timestamp > ssrState.renderStart &&
+				isTargetReactRoot
+			) {
+				if (timestamp <= ssrState.renderStop) {
+					return {
+						type: 'ssr-hydration',
+						mutationData: {
+							timestamp,
+						},
+					};
+				} else {
+					ssrState.state = SSRStateEnum.normal;
+				}
+			}
+		}
+
+		if (getSSRPlaceholderHandler) {
+			const ssrPlaceholderHandler = getSSRPlaceholderHandler();
+			if (ssrPlaceholderHandler) {
+				if (
+					(ssrPlaceholderHandler.isPlaceholderV4(target) ||
+						ssrPlaceholderHandler.isPlaceholderIgnored(target)) &&
+					ssrPlaceholderHandler.checkIfExistedAndSizeMatchingV3(target)
+				) {
+					return {
+						type: 'mutation:ssr-placeholder',
+						mutationData: {
+							timestamp,
+						},
+					};
+				}
+
+				if (
+					(ssrPlaceholderHandler.isPlaceholderReplacementV4(target) ||
+						ssrPlaceholderHandler.isPlaceholderIgnored(target)) &&
+					ssrPlaceholderHandler.validateReactComponentMatchToPlaceholderV4(target)
+				) {
+					return {
+						type: 'mutation:ssr-placeholder',
+						mutationData: {
+							timestamp,
+						},
+					};
+				}
+			}
+		}
+
+		if (hasSameDeletedNode && isInVCIgnoreIfNoLayoutShiftMarker(target)) {
+			return {
+				type: 'mutation:remount',
+				mutationData: {
+					timestamp,
+				},
+			};
+		}
+
+		if (isContainedWithinMediaWrapper(target)) {
+			return {
+				type: 'mutation:media',
+				mutationData: {
+					timestamp,
+				},
+			};
+		}
+
+		if (isWithinThirdPartySegment) {
+			return {
+				type: 'mutation:third-party-element',
+				mutationData: {
+					timestamp,
+				},
+			};
+		}
+
+		if (isWithinGenAISegment) {
+			return {
+				type: 'mutation:gen-ai-element',
+				mutationData: {
+					timestamp,
+				},
+			};
+		}
+
+		if (isWithinSmartAnswersSegment) {
+			return {
+				type: 'mutation:smart-answers-element',
+				mutationData: {
+					timestamp,
+				},
+			};
+		}
+
+		const isInIgnoreLsMarker = isInVCIgnoreIfNoLayoutShiftMarker(target);
+
+		if (!isInIgnoreLsMarker) {
+			return {
+				type: 'mutation:element',
+				mutationData: {
+					timestamp,
+				},
+			};
+		}
+
+		const isRLLPlaceholder = RLLPlaceholderHandlers.getInstance().isRLLPlaceholderHydration(rect);
+		if (isRLLPlaceholder && isInIgnoreLsMarker) {
+			return {
+				type: 'mutation:rll-placeholder',
+				mutationData: {
+					timestamp,
+				},
+			};
+		}
+
+		const wasDeleted = removedNodeRects.some((nr) => isSameRectDimensions(nr, rect));
+
+		if (wasDeleted && isInIgnoreLsMarker) {
+			return {
+				type: 'mutation:element-replacement',
+				mutationData: {
+					timestamp,
+				},
+			};
+		}
+
+		return {
+			type: 'mutation:element',
+			mutationData: {
+				timestamp,
+			},
+		};
+	};
+
 export default class ViewportObserver {
 	private intersectionObserver: VCIntersectionObserver | null;
 	private mutationObserver: MutationObserver | null;
 	private performanceObserver: PerformanceObserver | null;
 	private mapVisibleNodeRects: WeakMap<Element, DOMRect>;
 	private mapIs3pResult: WeakMap<HTMLElement, boolean>;
+	private mapIsGenAIResult: WeakMap<HTMLElement, boolean>;
 	private onChange: ViewPortObserverConstructorArgs['onChange'];
 	private isStarted: boolean;
+	private trackLayoutShiftOffenders: boolean;
 	private searchPageConfig: SearchPageConfig | undefined;
-
 	// SSR context functions
 	private getSSRState?: () => any;
 	private getSSRPlaceholderHandler?: () => any;
@@ -151,15 +334,18 @@ export default class ViewportObserver {
 		onChange,
 		getSSRState,
 		getSSRPlaceholderHandler,
+		trackLayoutShiftOffenders = false,
 		searchPageConfig,
 	}: ViewPortObserverConstructorArgs) {
 		this.mapVisibleNodeRects = new WeakMap();
 		this.mapIs3pResult = new WeakMap();
+		this.mapIsGenAIResult = new WeakMap();
 		this.onChange = onChange;
 		this.isStarted = false;
 		this.intersectionObserver = null;
 		this.mutationObserver = null;
 		this.performanceObserver = null;
+		this.trackLayoutShiftOffenders = trackLayoutShiftOffenders;
 
 		// Initialize SSR context functions
 		this.getSSRState = getSSRState;
@@ -241,6 +427,11 @@ export default class ViewportObserver {
 				'UFOThirdPartySegment',
 				this.mapIs3pResult,
 			);
+			const { isWithin: isWithinGenAISegment } = checkWithinComponent(
+				addedNode,
+				'UFOGenAISegment',
+				this.mapIsGenAIResult,
+			);
 
 			const isWithinSmartAnswersSegment = Boolean(
 				this.shouldCheckSmartAnswersMutations() && isContainedWithinSmartAnswers(addedNode),
@@ -250,9 +441,12 @@ export default class ViewportObserver {
 
 			this.intersectionObserver?.watchAndTag(
 				addedNode,
-				createElementMutationsWatcher(
+				(this.trackLayoutShiftOffenders
+					? createElementMutationsWatcherNew
+					: createElementMutationsWatcher)(
 					removedNodeRects,
 					isWithinThirdPartySegment,
+					isWithinGenAISegment,
 					isWithinSmartAnswersSegment,
 					!!hasSameDeletedNode,
 					timestamp,
@@ -269,11 +463,13 @@ export default class ViewportObserver {
 		attributeName,
 		oldValue,
 		newValue,
+		timestamp,
 	}: {
 		target: HTMLElement;
 		attributeName: string;
 		oldValue?: string | undefined | null;
 		newValue?: string | undefined | null;
+		timestamp: DOMHighResTimeStamp;
 	}) => {
 		this.intersectionObserver?.watchAndTag(target, ({ target, rect }) => {
 			if (isContainedWithinMediaWrapper(target)) {
@@ -283,26 +479,43 @@ export default class ViewportObserver {
 						attributeName,
 						oldValue,
 						newValue,
+						timestamp,
 					},
 				};
 			}
 
-			if (fg('platform_ufo_exclude_3p_attribute_changes')) {
-				const { isWithin: isWithinThirdPartySegment } = checkWithinComponent(
-					target,
-					'UFOThirdPartySegment',
-					this.mapIs3pResult,
-				);
-				if (isWithinThirdPartySegment) {
-					return {
-						type: 'mutation:third-party-attribute',
-						mutationData: {
-							attributeName,
-							oldValue,
-							newValue,
-						},
-					};
-				}
+			const { isWithin: isWithinThirdPartySegment } = checkWithinComponent(
+				target,
+				'UFOThirdPartySegment',
+				this.mapIs3pResult,
+			);
+			const { isWithin: isWithinGenAISegment } = checkWithinComponent(
+				target,
+				'UFOGenAISegment',
+				this.mapIsGenAIResult,
+			);
+			if (isWithinThirdPartySegment) {
+				return {
+					type: 'mutation:third-party-attribute',
+					mutationData: {
+						attributeName,
+						oldValue,
+						newValue,
+						timestamp,
+					},
+				};
+			}
+
+			if (isWithinGenAISegment) {
+				return {
+					type: 'mutation:gen-ai-attribute',
+					mutationData: {
+						attributeName,
+						oldValue,
+						newValue,
+						timestamp,
+					},
+				};
 			}
 
 			if (this.shouldCheckSmartAnswersMutations() && isContainedWithinSmartAnswers(target)) {
@@ -316,13 +529,14 @@ export default class ViewportObserver {
 				};
 			}
 
-			if (isDnDStyleMutation({ target, attributeName, oldValue, newValue })) {
+			if (isAnchorNameStyleMutation({ target, attributeName, oldValue, newValue })) {
 				return {
 					type: 'mutation:attribute:non-visual-style',
 					mutationData: {
 						attributeName,
 						oldValue,
 						newValue,
+						timestamp,
 					},
 				};
 			}
@@ -334,6 +548,24 @@ export default class ViewportObserver {
 						attributeName,
 						oldValue,
 						newValue,
+						timestamp,
+					},
+				};
+			}
+
+			// Pragmatic Drag and Drop attributes added during post-paint
+			// registration; do not affect layout or paint.
+			if (
+				isPdndAttribute({ target, attributeName }) &&
+				fg('platform_ufo_exclude_pdnd_attributes_from_vc')
+			) {
+				return {
+					type: 'mutation:attribute:non-visual-style',
+					mutationData: {
+						attributeName,
+						oldValue,
+						newValue,
+						timestamp,
 					},
 				};
 			}
@@ -345,6 +577,7 @@ export default class ViewportObserver {
 						attributeName,
 						oldValue,
 						newValue,
+						timestamp,
 					},
 				};
 			}
@@ -357,6 +590,7 @@ export default class ViewportObserver {
 						attributeName,
 						oldValue,
 						newValue,
+						timestamp,
 					},
 				};
 			}
@@ -369,6 +603,7 @@ export default class ViewportObserver {
 						attributeName,
 						oldValue,
 						newValue,
+						timestamp,
 					},
 				};
 			}
@@ -379,6 +614,7 @@ export default class ViewportObserver {
 					attributeName,
 					oldValue,
 					newValue,
+					timestamp,
 				},
 			};
 		});
@@ -439,8 +675,7 @@ export default class ViewportObserver {
 			this.searchPageConfig?.enableSmartAnswersMutations &&
 			this.searchPageConfig?.searchPageRoute &&
 			window?.location?.pathname &&
-			window.location.pathname === this.searchPageConfig.searchPageRoute &&
-			fg('rovo_search_page_ttvc_ignoring_smart_answers_fix')
+			window.location.pathname === this.searchPageConfig.searchPageRoute
 		);
 	};
 

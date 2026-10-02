@@ -7,8 +7,7 @@ import { resetMatchMedia } from '@atlassian/test-utils';
 import { PanelSplitter } from '../../panel-splitter/panel-splitter';
 import { Root } from '../../root';
 import { SideNav } from '../../side-nav/side-nav';
-import { SideNavContent } from '../../side-nav/side-nav-content';
-
+import { SideNavBody } from '../../side-nav/side-nav-content';
 import {
 	filterFromConsoleErrorOutput,
 	parseCssErrorRegex,
@@ -36,7 +35,7 @@ test('panel splitter works with suspense', async () => {
 	await expect(() => (
 		<Root>
 			<SideNav>
-				<SideNavContent>Side navigation content</SideNavContent>
+				<SideNavBody>Side navigation content</SideNavBody>
 				<PanelSplitter label="Resize side nav" />
 			</SideNav>
 		</Root>

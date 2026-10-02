@@ -1,5 +1,553 @@
 # @atlaskit/button
 
+## 25.4.4
+
+### Patch Changes
+
+- [`457c77d8f6992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/457c77d8f6992) -
+  `IconButton` and icon `LinkButton` pass `hasNewContentOnTriggerClick` through to their tooltip.
+- Updated dependencies
+
+## 25.4.3
+
+### Patch Changes
+
+- [`386d5a0f3c98d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/386d5a0f3c98d) -
+  Removed the `platform-dst-legacy-button-anchor-text-color` feature flag. Legacy `Button` instances
+  rendered as links via `href` now always apply explicit `color` and `text-decoration` values in the
+  base, `:hover`, and `:active` states for the `default`, `primary`, `subtle`, `warning`, `danger`,
+  `link`, and `subtle-link` appearances. This prevents browser defaults or surrounding anchor styles
+  from changing button text colors or adding unintended underlines.
+
+## 25.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.4.0
+
+### Minor Changes
+
+- [`eb547a68ff7dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb547a68ff7dc) -
+  [ux] Add a `newWindowLabel` prop to LinkIconButton so products can localize the announcement for
+  links that open in a new window.
+
+## 25.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.3.3
+
+### Patch Changes
+
+- [`accbb9b60a2f5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/accbb9b60a2f5) -
+  Update legacy default button hover and active background colors.
+
+## 25.3.2
+
+### Patch Changes
+
+- [`89e0a018eabc9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/89e0a018eabc9) -
+  Cleaned up new shape theme styles, making new border and radius values the default.
+
+## 25.3.1
+
+### Patch Changes
+
+- [`d015a4f16b993`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d015a4f16b993) -
+  Keep loading buttons focusable with `aria-disabled` semantics.
+- Updated dependencies
+
+## 25.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.2.1
+
+### Patch Changes
+
+- [`695fcbc68ad47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/695fcbc68ad47) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 25.2.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.1.0
+
+### Minor Changes
+
+- [`4e92e18998c08`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4e92e18998c08) -
+  Apply Volt Standards (One Export Per File) to `@atlaskit/button`.
+
+  No existing entry point changes behaviour and none are removed — every current import path keeps
+  working.
+  - Flattened 11 single-target entry-point shims: their `package.json` subpaths now point directly
+    at the source module instead of hopping through `src/entry-points/*`.
+  - Added 7 subpaths so the symbols behind the remaining multi-source entry points can be imported
+    individually: `./divider`, `./theme`, `./split-button-container`, `./split-button-with-slots`,
+    `./custom-theme-button-types`, `./split-button/split-button` and
+    `./custom-theme-button/custom-theme-button`.
+  - Marked the re-exports in `./new`, `./types`, `./split-button` and `./custom-theme-button` as
+    `@deprecated`, each pointing at the specific subpath to import from instead. These barrels
+    continue to work; they are scheduled for removal in a later change.
+
+## 25.0.4
+
+### Patch Changes
+
+- [`6c993c7e13767`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c993c7e13767) -
+  wrap workbench examples with wb api
+- Updated dependencies
+
+## 25.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.1
+
+### Patch Changes
+
+- [`261b59cb3277d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/261b59cb3277d) -
+  Add pressed motion to legacy buttons
+
+## 25.0.0
+
+### Major Changes
+
+- [`97d8cde4bcb72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/97d8cde4bcb72) -
+  Apply Volt entry-point and multi-export standards via `volt-migrate-package`. This is a **major**
+  change to `@atlaskit/button`: the package `exports` map has been restructured so every public
+  subpath now resolves **directly** to its `./src/*` implementation instead of going through an
+  intermediate `./src/entry-points/*` re-export. It also introduces new public subpaths:
+  `@atlaskit/button/custom-theme-button/custom-theme-button`,
+  `@atlaskit/button/custom-theme-button-types`, `@atlaskit/button/divider`,
+  `@atlaskit/button/split-button/split-button`, `@atlaskit/button/split-button-container`,
+  `@atlaskit/button/split-button-with-slots`, `@atlaskit/button/theme`.
+
+  ### Why this is breaking
+
+  Because each subpath now points straight at its implementation module, a subpath and the package
+  root can resolve to the **same module instance**. Consumers that deep-import the internal
+  `entry-points/*` files, or that `jest.mock()` a specific subpath, may observe changed
+  resolution/behaviour and need updating.
+
+  ### Migration — public imports are unchanged
+
+  Importing the published subpaths (or the package root) continues to work as before:
+
+  ```ts
+  // Still valid — no change required
+  import Button from '@atlaskit/button/button';
+  ```
+
+  If you were reaching into the internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Button from '@atlaskit/button/entry-points/button';
+  +import Button from '@atlaskit/button/button';
+  ```
+
+  ### Before / after `exports` map
+
+  ```diff
+    "exports": {
+      ".": "./src/index.tsx",
+  -   "./button": "./src/entry-points/button.tsx",
+  +   "./button": "./src/old-button/button.tsx",
+  -   "./button-group": "./src/entry-points/button-group.tsx",
+  +   "./button-group": "./src/containers/button-group.tsx",
+  -   "./containers/button-group": "./src/entry-points/containers-button-group.tsx",
+  +   "./containers/button-group": "./src/containers/button-group.tsx",
+      "./custom-theme-button": "./src/entry-points/custom-theme-button.tsx",
+  +   "./custom-theme-button-types": "./src/old-button/custom-theme-button/custom-theme-button-types.tsx",
+  +   "./custom-theme-button/custom-theme-button": "./src/old-button/custom-theme-button/custom-theme-button.tsx",
+  -   "./default/button": "./src/entry-points/default-button.tsx",
+  +   "./default/button": "./src/new-button/variants/default/button.tsx",
+  +   "./divider": "./src/new-button/containers/split-button/divider.tsx",
+  -   "./icon/button": "./src/entry-points/icon-button.tsx",
+  +   "./icon/button": "./src/new-button/variants/icon/button.tsx",
+  -   "./icon/link": "./src/entry-points/icon-link.tsx",
+  +   "./icon/link": "./src/new-button/variants/icon/link.tsx",
+  -   "./link": "./src/entry-points/link.tsx",
+  +   "./link": "./src/new-button/variants/default/link.tsx",
+  -   "./loading-button": "./src/entry-points/loading-button.tsx",
+  +   "./loading-button": "./src/old-button/loading-button.tsx",
+      "./new": "./src/entry-points/new.tsx",
+  -   "./old-button/types": "./src/entry-points/old-button-types.tsx",
+  +   "./old-button/types": "./src/old-button/types.tsx",
+      "./split-button": "./src/entry-points/split-button.tsx",
+  +   "./split-button-container": "./src/new-button/containers/split-button/split-button-container.tsx",
+  +   "./split-button-with-slots": "./src/new-button/containers/split-button/split-button-with-slots.tsx",
+  +   "./split-button/split-button": "./src/new-button/containers/split-button/split-button.tsx",
+  -   "./standard-button": "./src/entry-points/standard-button.tsx",
+  +   "./standard-button": "./src/old-button/button.tsx",
+  +   "./theme": "./src/old-button/custom-theme-button/theme.tsx",
+      "./types": "./src/entry-points/types.tsx",
+  -   "./variants/types": "./src/entry-points/variants-types.tsx",
+  +   "./variants/types": "./src/new-button/variants/types.tsx",
+    }
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.7
+
+### Patch Changes
+
+- [`2f0267b89e66f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f0267b89e66f) -
+  [ux] Removed references to 'platform-visual-refresh-icons' feature flag
+
+## 24.3.6
+
+### Patch Changes
+
+- [`12b6bd4a9c6e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12b6bd4a9c6e1) -
+  Fix: Behind the `platform-dst-legacy-button-anchor-text-color` feature gate, the legacy `Button`
+  now applies explicit `color` and `text-decoration` values on the base, `:hover`, and `:active`
+  states across the interactive appearances (`default`, `primary`, `subtle`, `warning`, `danger`,
+  `link`, `subtle-link`). When a `Button` is rendered as an `<a>` via `href`, this prevents browser
+  default or ambient anchor styles from overriding the button's text color or adding an unwanted
+  underline on interactive states. The `link` and `subtle-link` variants keep their intentional
+  underline on `:hover` / `:active`; button-like appearances stay underline-free. The `selected`
+  appearance is unaffected \u2014 it does not declare hover/active blocks today.
+
+## 24.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.2
+
+### Patch Changes
+
+- [`a49f283ca98c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a49f283ca98c6) -
+  Opt `IconRenderer` out of React Compiler memoization (`'use no memo'`).
+  `IconRenderer.isIconRenderProp()` misclassifies icon components missing a `displayName` as
+  render-props and invokes them as plain functions instead of JSX; under React Compiler, memoization
+  of this render could skip re-invoking an already-compiled icon component on some renders, dropping
+  a hook call and causing a hook-count mismatch (React error #300).
+- Updated dependencies
+
+## 24.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.0
+
+### Minor Changes
+
+- [`65bef1e41e5fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/65bef1e41e5fd) -
+  Add motion.button.hovered and motion.button.pressed motion tokens, and apply button background
+  motion uplift behind the platform-dst-motion-uplift-button feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 24.1.0
+
+### Minor Changes
+
+- [`b7327182ba010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7327182ba010) -
+  Add `rovo` appearance to new Button, LinkButton, and IconButton using Rovo primary background
+  color tokens with inverse text, including documentation examples for each supported variant.
+
+## 24.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.11.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.11.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.11.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.11.5
+
+### Patch Changes
+
+- [`4c5585a34d950`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c5585a34d950) -
+  Fixed spacing compact styling overriding circle button styling
+
+## 23.11.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.11.0
+
+### Minor Changes
+
+- [`8fdea38bd31f8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8fdea38bd31f8) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.10.10
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 23.10.9
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 23.10.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.10.7
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- Updated dependencies
+
+## 23.10.6
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+- Updated dependencies
+
+## 23.10.5
+
+### Patch Changes
+
+- [`0daada0469ab8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0daada0469ab8) -
+  Remove `eslint-disable` comment for `@atlaskit/design-system/no-legacy-icons` rule which no longer
+  exists.
+- Updated dependencies
+
+## 23.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.10.2
+
+### Patch Changes
+
+- [`236ae1160f1a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/236ae1160f1a0) -
+  Clean up platform-button-icon-spacing-cleanup FG
+
+## 23.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.10.0
+
+### Minor Changes
+
+- [`4d78aaa844538`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4d78aaa844538) -
+  Hard-codes color-mode light as the default color scheme for legacy buttons. These buttons were
+  dependant on an old @ak/theming API which is non-functional and will be removed entirely in a
+  following release
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.9.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.9.8
+
+### Patch Changes
+
+- [`c085330e0dde8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c085330e0dde8) -
+  Remove new icon button styling hack
+
+## 23.9.7
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 23.9.6
 
 ### Patch Changes

@@ -1,9 +1,10 @@
 import React from 'react';
+
+import { MOCK_USERS } from '../example-helpers/MockData';
 import {
 	MockProvider as ConversationResource,
 	getDataProviderFactory,
 } from '../example-helpers/MockProvider';
-import { MOCK_USERS } from '../example-helpers/MockData';
 import { Conversation } from '../src';
 
 const provider = new ConversationResource({
@@ -11,7 +12,7 @@ const provider = new ConversationResource({
 	user: MOCK_USERS[3],
 });
 
-export default function Example() {
+export default function Example(): React.JSX.Element {
 	return (
 		<Conversation
 			objectId="ari:cloud:platform::conversation/demo"

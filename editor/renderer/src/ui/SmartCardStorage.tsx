@@ -1,11 +1,14 @@
 import React from 'react';
+
 import type { Diff } from '@atlaskit/editor-common/utils';
 
 export interface WithSmartCardStorageProps {
 	smartCardStorage: Map<string, string>;
 }
 
-export const Context = React.createContext<Map<string, string>>(new Map());
+export const Context: React.Context<Map<string, string>> = React.createContext<Map<string, string>>(
+	new Map(),
+);
 
 export const Provider = function ({
 	children,
@@ -15,7 +18,7 @@ export const Provider = function ({
 
 export const withSmartCardStorage = <Props extends WithSmartCardStorageProps>(
 	WrappedComponent: React.ComponentType<React.PropsWithChildren<Props>>,
-) => {
+): React.ComponentClass<Diff<Props, WithSmartCardStorageProps>> => {
 	// Ignored via go/ees005
 	// eslint-disable-next-line react/prefer-stateless-function
 	return class extends React.Component<Diff<Props, WithSmartCardStorageProps>> {

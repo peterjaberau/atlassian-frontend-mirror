@@ -1,12 +1,14 @@
 import React from 'react';
+
 import { type MediaClient, type FileState } from '@atlaskit/media-client';
-import { Outcome } from '../../domain';
-import { type MediaViewerError } from '../../errors';
-import { BaseViewer } from '../base-viewer';
 import { type MediaTraceContext } from '@atlaskit/media-common';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { Outcome } from '../../domain/outcome';
 import { ZoomLevel } from '../../domain/zoomLevel';
-import { DocViewer as DocViewerComponent } from './doc-viewer';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { MediaViewerError } from '../../MediaViewerError';
+import { BaseViewer } from '../base-viewer';
+import { DocViewer as DocViewerComponent } from './DocViewer';
 
 export type Props = {
 	mediaClient: MediaClient;
@@ -27,7 +29,12 @@ export type State = {
 };
 export class DocViewer extends BaseViewer<string, Props, State> {
 	private isObjectUrl = false;
-	protected get initialState() {
+	protected get initialState(): {
+		content: Outcome<string, MediaViewerError>;
+		zoomLevel: ZoomLevel;
+		isPasswordProtected: boolean;
+		hasPasswordError: boolean;
+	} {
 		return {
 			content: Outcome.pending<string, MediaViewerError>(),
 			zoomLevel: new ZoomLevel(1.75),

@@ -1,18 +1,18 @@
-import { BatchAttrsStep } from '@atlaskit/adf-schema/steps';
+import { OverrideDocumentStep } from '@atlaskit/adf-schema/steps/override-document-step';
 import { tintDirtyTransaction } from '@atlaskit/editor-common/collab';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { stepHasSlice } from '@atlaskit/editor-common/utils';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { PluginKey, type Transaction } from '@atlaskit/editor-prosemirror/state';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { PluginKey } from '@atlaskit/editor-prosemirror/state';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
+import { addMissingLocalIds } from '../editor-commands';
 import type { LocalIdPlugin } from '../localIdPluginType';
-
+import { batchAddLocalIdToNodes, localIdNotEmpty } from './add-missing-local-ids';
 import { generateShortUUID, generatedShortUUIDs } from './generateShortUUID';
 
-export const localIdPluginKey = new PluginKey('localIdPlugin');
+export const localIdPluginKey: PluginKey = new PluginKey('localIdPlugin');
 
 const generateUUID = () => {
 	return generateShortUUID();
@@ -28,7 +28,7 @@ const requestIdleCallbackWithFallback = (callback: () => void) => {
 	}
 };
 
-export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined) => {
+export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined): SafePlugin => {
 	// Track if we've initialized existing UUIDs for this plugin instance
 	let hasInitializedExistingUUIDs = false;
 
@@ -47,8 +47,12 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 			}
 
 			requestIdleCallbackWithFallback(() => {
+				if (isExperimentEnabled('platform_editor_local_id_reliability')) {
+					api?.core.actions.execute(addMissingLocalIds());
+					return;
+				}
+
 				const tr = editorView.state.tr;
-				let localIdWasAdded = false;
 				const nodesToUpdate = new Map<number, string>(); // position -> localId
 
 				const { text, hardBreak, mediaGroup } = editorView.state.schema.nodes;
@@ -64,24 +68,13 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 						!node.attrs.localId &&
 						!!node.type.spec.attrs?.localId
 					) {
-						if (fg('platform_editor_localid_improvements')) {
-							nodesToUpdate.set(pos, generateUUID());
-						} else {
-							localIdWasAdded = true;
-							addLocalIdToNode(pos, tr);
-						}
+						nodesToUpdate.set(pos, generateUUID());
 					}
 					return true; // Continue traversing
 				});
 
-				if (fg('platform_editor_localid_improvements')) {
-					if (nodesToUpdate.size > 0) {
-						batchAddLocalIdToNodes(nodesToUpdate, tr);
-						tintDirtyTransaction(tr);
-						editorView.dispatch(tr);
-					}
-				} else if (localIdWasAdded) {
-					tr.setMeta('addToHistory', false);
+				if (nodesToUpdate.size > 0) {
+					batchAddLocalIdToNodes(nodesToUpdate, tr);
 					tintDirtyTransaction(tr);
 					editorView.dispatch(tr);
 				}
@@ -96,10 +89,7 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 		 * This ensures uniqueness of localIds on nodes being created or edited
 		 */
 		appendTransaction: (transactions, _oldState, newState) => {
-			if (
-				api?.composition.sharedState.currentState()?.isComposing &&
-				expValEquals('platform_editor_localid_ime_composition_fix', 'isEnabled', true)
-			) {
+			if (api?.composition.sharedState.currentState()?.isComposing) {
 				return undefined;
 			}
 
@@ -110,7 +100,10 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 			// https://bitbucket.org/atlassian/adf-schema/src/fb2236147a0c2bc9c8efbdb75fd8f8c411df44ba/packages/adf-schema/src/next-schema/nodes/mediaGroup.ts#lines-12
 			const ignoredNodeTypes = [text?.name, hardBreak?.name, mediaGroup?.name];
 			const addedNodes = new Set<PMNode>();
-			const addedNodePos = new Map<PMNode, number>();
+			// A single PMNode reference can appear at multiple positions in the doc (e.g.
+			// `createTable` from `prosemirror-utils` reuses cell node objects across
+			// non-header rows), so we track every position per node identity.
+			const positionsByNode = new Map<PMNode, Set<number>>();
 			const localIds = new Set<string>();
 			const nodesToUpdate = new Map<number, string>(); // position -> localId
 
@@ -122,12 +115,20 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 
 				if (
 					transaction.getMeta('uiEvent') === 'cut' ||
-					// We skip remote transactions as we don't want to affect transactions created
-					// by other users
-					Boolean(transaction.getMeta('isRemote'))
+					// We skip remote transactions as we don't want to affect transactions
+					// created by other collaborators.
+					//
+					// Applying a template to a blank page arrives as a remote
+					// OverrideDocumentStep (a full-document replacement with no localIds).
+					// We still want those template nodes to get localIds, so we let such
+					// transactions through. Ordinary remote edits are still skipped, and
+					// existing localIds are never overwritten.
+					(Boolean(transaction.getMeta('isRemote')) &&
+						!transaction.steps.some((step) => step instanceof OverrideDocumentStep))
 				) {
 					return;
 				}
+
 				// Ignore local ID updates for certain transactions
 				// this is purposely not a public API as we should not use
 				// this except in some circumstances (ie. streaming)
@@ -136,7 +137,12 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 				}
 
 				transaction.steps.forEach((step) => {
-					if (!stepHasSlice(step)) {
+					// Steps with a slice are scanned for nodes that need localIds.
+					// OverrideDocumentStep (template replacement) has no `slice`, so we also
+					// scan it so the inserted template nodes get localIds.
+					const isTemplateOverrideStep = step instanceof OverrideDocumentStep;
+
+					if (!stepHasSlice(step) && !isTemplateOverrideStep) {
 						return;
 					}
 					step.getMap().forEach((oldStart, oldEnd, newStart, newEnd) => {
@@ -148,20 +154,11 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 
 							modified = true;
 
-							if (fg('platform_editor_use_localid_dedupe')) {
-								// Always add to addedNodes for duplicate prevention
-								addedNodes.add(node);
-								addedNodePos.set(node, pos);
-							} else {
-								if (!node?.attrs.localId) {
-									if (fg('platform_editor_localid_improvements')) {
-										nodesToUpdate.set(pos, generateUUID());
-									} else {
-										// Legacy behavior - individual steps
-										addLocalIdToNode(pos, tr);
-									}
-								}
-							}
+							// Always add to addedNodes for duplicate prevention
+							addedNodes.add(node);
+							const positions = positionsByNode.get(node) ?? new Set<number>();
+							positions.add(pos);
+							positionsByNode.set(node, positions);
 
 							return true;
 						});
@@ -169,12 +166,12 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 				});
 			});
 
-			if (addedNodes.size > 0 && fg('platform_editor_use_localid_dedupe')) {
+			if (addedNodes.size > 0) {
 				newState.doc.descendants((node) => {
 					// Also track existing UUIDs in the global Set for short UUID collision detection
-				if (node.attrs?.localId && !hasInitializedExistingUUIDs) {
-					generatedShortUUIDs.add(node.attrs.localId);
-				}
+					if (node.attrs?.localId && !hasInitializedExistingUUIDs) {
+						generatedShortUUIDs.add(node.attrs.localId);
+					}
 
 					if (addedNodes.has(node)) {
 						return true;
@@ -188,74 +185,51 @@ export const createPlugin = (api: ExtractInjectionAPI<LocalIdPlugin> | undefined
 				const seenIds = new Set<string>();
 
 				for (const node of addedNodes) {
-				if (
-					!node.attrs.localId ||
-					localIds.has(node.attrs.localId) ||
-					seenIds.has(node.attrs.localId)
-				) {
-						const pos = addedNodePos.get(node);
-						if (pos !== undefined) {
-							if (fg('platform_editor_localid_improvements')) {
-								const newId = generateUUID();
-								nodesToUpdate.set(pos, newId);
-								seenIds.add(newId);
-							} else {
-								addLocalIdToNode(pos, tr);
-							}
+					const positions = positionsByNode.get(node);
+					if (!positions || positions.size === 0) {
+						continue;
+					}
+
+					const existingId = node.attrs.localId;
+					const needsNewIds =
+						(isExperimentEnabled('platform_editor_local_id_reliability')
+							? !localIdNotEmpty(existingId)
+							: !existingId) ||
+						localIds.has(existingId) ||
+						seenIds.has(existingId);
+
+					if (needsNewIds) {
+						// No usable localId: assign a fresh unique one to every position.
+						for (const pos of positions) {
+							const newId = generateUUID();
+							nodesToUpdate.set(pos, newId);
+							seenIds.add(newId);
 							modified = true;
 						}
-					}
-					if (node.attrs.localId) {
-						seenIds.add(node.attrs.localId);
+					} else if (positions.size > 1) {
+						// Shared node reference: keep the existing id at the first position,
+						// assign fresh ones to the rest so they don't share the same localId.
+						seenIds.add(existingId);
+						const [_first, ...rest] = Array.from(positions);
+						for (const pos of rest) {
+							const newId = generateUUID();
+							nodesToUpdate.set(pos, newId);
+							seenIds.add(newId);
+							modified = true;
+						}
+					} else if (existingId) {
+						seenIds.add(existingId);
 					}
 				}
 			}
 			// Apply local ID updates based on the improvements feature flag:
 			// - When enabled: Batch all updates into a single BatchAttrsStep
 			// - When disabled: Individual steps were already applied above during node processing
-			if (modified && nodesToUpdate.size > 0 && fg('platform_editor_localid_improvements')) {
+			if (modified && nodesToUpdate.size > 0) {
 				batchAddLocalIdToNodes(nodesToUpdate, tr);
 			}
 
 			return modified ? tr : undefined;
 		},
 	});
-};
-/**
- * Adds a local ID to a ProseMirror node
- *
- * This utility function updates a node's attributes to include a unique local ID.
- *
- * @param pos - The position of the node in the document
- * @param tr - The transaction to apply the change to
- * @param node - Node reference for integer ID generator
- */
-export const addLocalIdToNode = (pos: number, tr: Transaction): void => {
-	tr.setNodeAttribute(pos, 'localId', generateUUID());
-	tr.setMeta('addToHistory', false);
-};
-
-/**
- * Batch adds local IDs to nodes using a BatchAttrsStep
- * @param nodesToUpdate Map of position -> localId for nodes that need updates
- * @param tr
- */
-export const batchAddLocalIdToNodes = (
-	nodesToUpdate: Map<number, string>,
-	tr: Transaction,
-): void => {
-	const batchData = Array.from(nodesToUpdate.entries()).map(([pos, localId]) => {
-		const node = tr.doc.nodeAt(pos);
-		if (!node) {
-			throw new Error(`Node does not exist at position ${pos}`);
-		}
-		return {
-			position: pos,
-			attrs: { localId },
-			nodeType: node.type.name,
-		};
-	});
-
-	tr.step(new BatchAttrsStep(batchData));
-	tr.setMeta('addToHistory', false);
 };

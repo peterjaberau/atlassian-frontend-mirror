@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-show-diff",
-	"version": "4.0.9",
+	"version": "21.0.2",
 	"description": "ShowDiff plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,6 +8,11 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"website": {
+			"tags": [
+				"platform-labs"
+			]
+		},
 		"team": "Editor: Lego",
 		"releaseModel": "continuous",
 		"singleton": true
@@ -17,76 +22,93 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./show-diff-plugin": "./src/entry-points/show-diff-plugin.tsx",
+		"./show-diff-plugin-type": "./src/entry-points/show-diff-plugin-type.ts",
+		"./calculate-diff": "./src/entry-points/calculate-diff.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
+		"@atlaskit/agent-color": "workspace:^",
+		"@atlaskit/avatar": "workspace:^",
+		"@atlaskit/custom-steps": "workspace:^",
+		"@atlaskit/editor-plugin-accessibility-utils": "workspace:^",
+		"@atlaskit/editor-plugin-analytics": "workspace:^",
+		"@atlaskit/editor-plugin-limited-mode": "workspace:^",
+		"@atlaskit/editor-plugin-user-intent": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
+		"@atlaskit/editor-shared-styles": "workspace:^",
 		"@atlaskit/editor-tables": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
+		"@compiled/react": "root:*",
+		"bind-event-listener": "root:*",
 		"lodash": "root:*",
 		"memoize-one": "root:*",
 		"prosemirror-changeset": "root:*"
 	},
+	"devDependencies": {
+		"@atlaskit/adf-utils": "workspace:^",
+		"@atlaskit/button": "workspace:^",
+		"@atlaskit/css": "workspace:^",
+		"@atlaskit/dropdown-menu": "workspace:^",
+		"@atlaskit/editor-core": "workspace:^",
+		"@atlaskit/editor-json-transformer": "workspace:^",
+		"@atlaskit/editor-plugins": "workspace:^",
+		"@atlaskit/form": "workspace:^",
+		"@atlaskit/section-message": "workspace:^",
+		"@atlaskit/textarea": "workspace:^",
+		"@atlaskit/textfield": "workspace:^",
+		"@atlaskit/util-data-test": "workspace:^",
+		"@atlassian/confluence-presets": "workspace:^",
+		"@atlassian/content-reconciliation": "root:*",
+		"@atlassian/editor-ai-injected-editors": "workspace:^",
+		"@atlassian/editor-plugin-ai": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"react-intl": "root:*"
+	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"emotion"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"platform-feature-flags": {
-		"platform_editor_ai_aifc_patch_ga": {
+		"platform_editor_diff_reveal_animation": {
 			"type": "boolean"
 		},
-		"platform_editor_ai_aifc_patch_ga_blockers": {
+		"platform_editor_diff_hide_pure_deletions": {
+			"type": "boolean"
+		},
+		"platform_editor_ai_show_diff_patch_1": {
+			"type": "boolean"
+		},
+		"platform_editor_ai_show_diff_patch_2": {
+			"type": "boolean"
+		},
+		"platform_editor_ai_smart_diff": {
+			"type": "boolean"
+		},
+		"platform_editor_ai_suggested_edits_smart_diff": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"confluence_ncs_step_diffing_version_history": {
+			"type": "boolean"
+		},
+		"platform_editor_normalize_excerpt_diff": {
+			"type": "boolean"
+		},
+		"platform_editor_diff_inline_mark_changes": {
 			"type": "boolean"
 		}
 	}

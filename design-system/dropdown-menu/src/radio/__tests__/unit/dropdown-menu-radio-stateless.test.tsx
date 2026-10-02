@@ -4,7 +4,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 import __noop from '@atlaskit/ds-lib/noop';
 
-import DropdownMenu, { DropdownItemRadio, DropdownItemRadioGroup } from '../../../index';
+import DropdownMenu from '../../../dropdown-menu';
+import DropdownItemRadio from '../../dropdown-item-radio';
+import DropdownItemRadioGroup from '../../dropdown-item-radio-group';
 
 const DropdownMenuWithRadio = () => {
 	const [selected, setSelected] = useState('');
@@ -67,6 +69,25 @@ describe('DropdownMenu with RadioGroup and Radio', () => {
 			);
 
 			expect(radios).toEqual(['true', 'false']);
+		});
+	});
+});
+
+// eslint-disable-next-line @atlassian/a11y/require-jest-coverage
+describe('DropdownItemRadio accessibility', () => {
+	it('should not have aria-current attribute when selected (A11Y-37930)', async () => {
+		render(<DropdownMenuWithRadio />);
+
+		const trigger = await screen.findByText('Choices');
+		fireEvent.click(trigger);
+
+		const london = await screen.findByText('London');
+		fireEvent.click(london);
+
+		const radios = await screen.findAllByRole('menuitemradio');
+		// aria-current is inappropriate for menuitemradio elements; aria-checked is used instead
+		radios.forEach((radio) => {
+			expect(radio).not.toHaveAttribute('aria-current');
 		});
 	});
 });

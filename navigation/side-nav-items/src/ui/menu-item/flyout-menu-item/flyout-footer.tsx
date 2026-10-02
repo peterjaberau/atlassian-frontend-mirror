@@ -17,7 +17,7 @@ const footerStyles = cssMap({
 		borderBlockStartColor: token('color.border'),
 		marginBlockStart: token('space.100'),
 		paddingBlockStart: token('space.100'),
-	}
+	},
 });
 
 export interface FlyoutFooterProps {
@@ -41,12 +41,12 @@ export interface FlyoutFooterProps {
  * supplementary actions or information at the bottom of the flyout menu. This
  * component should be placed after FlyoutBody within the FlyoutMenuItemContent.
  */
-export const FlyoutFooter = (props: FlyoutFooterProps) => {
+export const FlyoutFooter = (props: FlyoutFooterProps): JSX.Element => {
 	const { children, testId } = props;
 
 	return (
 		<div data-testid={testId} css={footerStyles.root}>
 			{children}
 		</div>
-	)
+	);
 };

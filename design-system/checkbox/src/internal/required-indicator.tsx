@@ -3,12 +3,11 @@
  * @jsx jsx
  */
 import { css, jsx } from '@atlaskit/css';
-import { R500 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 const requiredIndicatorStyles = css({
-	color: token('color.text.danger', R500),
-	paddingInlineStart: token('space.025', '2px'),
+	color: token('color.text.danger'),
+	paddingInlineStart: token('space.025'),
 });
 
 export default function RequiredIndicator(): JSX.Element {

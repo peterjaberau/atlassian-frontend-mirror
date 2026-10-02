@@ -11,7 +11,6 @@ import { token } from '@atlaskit/tokens';
 
 import { useTheme } from '../../theme';
 import { stripEmptyProperties } from '../../utils';
-
 import { type SkeletonPrimaryButtonProps } from './types';
 
 const VAR_PRIMARY_BUTTON_BEFORE_HIGHLIGHTED_BACKGROUND_COLOR =
@@ -20,8 +19,8 @@ const VAR_PRIMARY_BUTTON_AFTER_DROPDOWN_BORDER_COLOR =
 	'--primary-button-after-dropdown-border-color';
 
 const primaryButtonSkeletonStyles = css({
-	margin: `0 ${token('space.075', '6px')}`,
-	padding: `0 ${token('space.050', '4px')}`,
+	margin: `0 ${token('space.075')}`,
+	padding: `0 ${token('space.050')}`,
 	position: 'relative',
 	appearance: 'none',
 	border: 0,
@@ -50,7 +49,7 @@ const isHighlightedStyles = css({
 		borderStartStartRadius: token('radius.xsmall', '1px'),
 		content: '""',
 		insetBlockEnd: 0,
-		insetInlineStart: token('space.025', '2px'),
+		insetInlineStart: token('space.025'),
 	},
 });
 
@@ -64,7 +63,7 @@ const isHighlightedAndDropdownButtonStyles = css({
 const isHighlightedNotDropdownButtonStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&:before': {
-		insetInlineEnd: token('space.025', '2px'),
+		insetInlineEnd: token('space.025'),
 	},
 });
 
@@ -85,7 +84,7 @@ const isDropdownButtonStyles = css({
 		content: '""',
 		insetBlockStart: 'calc(50% - 4px)',
 		insetInlineStart: 'calc(100% - 3px)',
-		marginInlineStart: token('space.050', '4px'),
+		marginInlineStart: token('space.050'),
 		transform: 'rotate(45deg) scale(1.05)',
 		verticalAlign: 'middle',
 	},

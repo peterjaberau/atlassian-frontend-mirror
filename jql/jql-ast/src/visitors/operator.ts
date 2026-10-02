@@ -1,15 +1,15 @@
 import { type RuleNode } from 'antlr4ts/tree';
 
-import {
-	type JqlChangedOperatorContext,
-	type JqlComparisonOperatorContext,
-	type JqlEqualsOperatorContext,
-	type JqlInOperatorContext,
-	type JqlIsOperatorContext,
-	type JqlLikeOperatorContext,
-	type JqlWasInOperatorContext,
-	type JqlWasOperatorContext,
-} from '@atlaskit/jql-parser';
+import type {
+	JqlChangedOperatorContext,
+	JqlComparisonOperatorContext,
+	JqlEqualsOperatorContext,
+	JqlInOperatorContext,
+	JqlIsOperatorContext,
+	JqlLikeOperatorContext,
+	JqlWasInOperatorContext,
+	JqlWasOperatorContext,
+} from '@atlaskit/jql-parser/JQLParser';
 
 import { internalCreators } from '../creators';
 import {
@@ -24,7 +24,6 @@ import {
 	isWasOperator,
 	type Operator,
 } from '../types';
-
 import {
 	getPositionFromContext,
 	getPositionFromToken,
@@ -33,7 +32,7 @@ import {
 } from './common';
 
 export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
-	visitJqlEqualsOperator(ctx: JqlEqualsOperatorContext) {
+	visitJqlEqualsOperator(ctx: JqlEqualsOperatorContext): Operator {
 		const text = this.tokens.getText(ctx);
 		if (!isEqualsOperator(text)) {
 			throw new Error(`'${text}' does not match any of the recognised equals operators`);
@@ -41,7 +40,7 @@ export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
 		return internalCreators.operator(text, text, getPositionFromContext(ctx));
 	}
 
-	visitJqlLikeOperator(ctx: JqlLikeOperatorContext) {
+	visitJqlLikeOperator(ctx: JqlLikeOperatorContext): Operator {
 		const text = this.tokens.getText(ctx);
 		if (!isLikeOperator(text)) {
 			throw new Error(`'${text}' does not match any of the recognised like operators`);
@@ -49,7 +48,7 @@ export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
 		return internalCreators.operator(text, text, getPositionFromContext(ctx));
 	}
 
-	visitJqlComparisonOperator(ctx: JqlComparisonOperatorContext) {
+	visitJqlComparisonOperator(ctx: JqlComparisonOperatorContext): Operator {
 		const text = this.tokens.getText(ctx);
 		if (!isComparisonOperator(text)) {
 			throw new Error(`'${text}' does not match any of the recognised comparison operators`);
@@ -57,7 +56,7 @@ export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
 		return internalCreators.operator(text, text, getPositionFromContext(ctx));
 	}
 
-	visitJqlInOperator(ctx: JqlInOperatorContext) {
+	visitJqlInOperator(ctx: JqlInOperatorContext): Operator | undefined {
 		const text = this.tokens.getText(ctx);
 		const value = normalizeText(text);
 		if (!isInOperator(value)) {
@@ -67,7 +66,7 @@ export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
 		return internalCreators.operator(value, text, getPositionFromContext(ctx));
 	}
 
-	visitJqlIsOperator(ctx: JqlIsOperatorContext) {
+	visitJqlIsOperator(ctx: JqlIsOperatorContext): Operator {
 		const text = this.tokens.getText(ctx);
 		const value = normalizeText(text);
 		if (!isIsOperator(value)) {
@@ -76,7 +75,7 @@ export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
 		return internalCreators.operator(value, text, getPositionFromContext(ctx));
 	}
 
-	visitJqlWasOperator(ctx: JqlWasOperatorContext) {
+	visitJqlWasOperator(ctx: JqlWasOperatorContext): Operator {
 		const text = this.tokens.getText(ctx);
 		const value = normalizeText(text);
 		if (!isWasOperator(value)) {
@@ -85,7 +84,7 @@ export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
 		return internalCreators.operator(value, text, getPositionFromContext(ctx));
 	}
 
-	visitJqlWasInOperator(ctx: JqlWasInOperatorContext) {
+	visitJqlWasInOperator(ctx: JqlWasInOperatorContext): Operator {
 		const text = this.tokens.getText(ctx);
 		const value = normalizeText(text);
 		if (!isWasInOperator(value)) {
@@ -94,7 +93,7 @@ export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
 		return internalCreators.operator(value, text, getPositionFromContext(ctx));
 	}
 
-	visitJqlChangedOperator(ctx: JqlChangedOperatorContext) {
+	visitJqlChangedOperator(ctx: JqlChangedOperatorContext): Operator {
 		const text = this.tokens.getText(ctx);
 		const value = normalizeText(text);
 		if (!isChangedOperator(value)) {
@@ -104,7 +103,7 @@ export class OperatorVisitor extends JastBuildingVisitor<Operator | void> {
 	}
 
 	// Recover from clause type ambiguities, e.g. "issuetype was " (which can be a WAS or WAS IN clause)
-	visitChildren = (node: RuleNode) => {
+	visitChildren = (node: RuleNode): Operator | undefined => {
 		const { sourceInterval } = node;
 		const text = this.tokens.getText(sourceInterval);
 		if (text) {

@@ -2,23 +2,22 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-/* eslint-disable jsdoc/check-tag-names */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
-import { useContext, useState, useRef } from 'react';
-import type { ComponentProps } from 'react';
-import { Card, EmbedResizeMessageListener } from '@atlaskit/smart-card';
-import { CardSSR } from '@atlaskit/smart-card/ssr';
-import { SmartCardContext } from '@atlaskit/link-provider';
-import type { SmartLinksOptions } from '../../types/smartLinksOptions';
 
+import { useContext, useState, useRef } from 'react';
+import type { ComponentProps, FC } from 'react';
+
+/* eslint-disable jsdoc/check-tag-names */
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx, css } from '@emotion/react';
+
+import type { Layout as RichMediaLayout } from '@atlaskit/adf-schema/rich-media-common';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import {
 	WidthConsumer,
 	UnsupportedBlock,
 	MediaSingle as UIMediaSingle,
 	WidthContext,
 } from '@atlaskit/editor-common/ui';
-
 import type { EventHandlers } from '@atlaskit/editor-common/ui';
 import {
 	akEditorDefaultLayoutWidth,
@@ -27,19 +26,27 @@ import {
 	DEFAULT_EMBED_CARD_HEIGHT,
 	DEFAULT_EMBED_CARD_WIDTH,
 } from '@atlaskit/editor-shared-styles';
-import type { RichMediaLayout } from '@atlaskit/adf-schema';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { componentWithCondition } from '@atlaskit/platform-feature-flags-react';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import {
+	SmartLinkDraggable,
+	SMART_LINK_DRAG_TYPES,
+	SMART_LINK_APPEARANCE,
+} from '@atlaskit/editor-smart-link-draggable';
+import { SmartCardContext } from '@atlaskit/link-provider/context';
+import { componentWithCondition } from '@atlaskit/platform-feature-flags-react/component-with-condition';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Card, EmbedResizeMessageListener } from '@atlaskit/smart-card';
+import { CardSSR } from '@atlaskit/smart-card/ssr';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
-import { CardErrorBoundary } from './fallback';
-
-import type { RendererAppearance } from '../../ui/Renderer/types';
-import { FullPagePadding } from '../../ui/Renderer/style';
-import { getCardClickHandler } from '../utils/getCardClickHandler';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
+import { RendererCssClassName } from '../../consts';
+import type { SmartLinksOptions } from '../../types/smartLinksOptions';
 import { usePortal } from '../../ui/Renderer/PortalContext';
+import { FullPagePadding } from '../../ui/Renderer/style';
+import type { RendererAppearance } from '../../ui/Renderer/types';
+import { getEventHandler } from '../../utils';
+import { getCardClickHandler } from '../utils/getCardClickHandler';
 import BlockCard from './blockCard';
+import { CardErrorBoundary } from './fallback';
 
 const embedCardWrapperStyles = css({
 	width: '100%',
@@ -55,11 +62,10 @@ const embedCardWrapperStyles = css({
 	margin: '0 auto',
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-const uIMediaSingleLayoutStyles = css({
-	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-	marginLeft: '50%',
-	transform: 'translateX(-50%)',
+const embedCardCenterWrapperStyles = css({
+	// Match MediaSingle calcMargin(layout) default for wide/full-width: 24px top/bottom (so wrapper participates in collapse)
+	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space -- Matches editor-common MediaSingle calcMargin
+	margin: '24px 0',
 });
 
 type EmbedCardInternalProps = {
@@ -93,7 +99,11 @@ function EmbedCardInternal(props: EmbedCardInternalProps) {
 	} = props;
 	const portal = usePortal(props);
 	const embedIframeRef = useRef(null);
+	// Card/CardSSR's onClick — (e, { destinationUrl?, url? })
 	const onClick = getCardClickHandler(eventHandlers, url);
+	// SmartCardEventClickHandler — (e, url?) => void — for CardErrorBoundary.
+	// When the gate is off, fall back to the old behaviour (pass the same onClick as Card).
+	const onConsumerClick = getEventHandler(eventHandlers, 'smartCard');
 	const { actionOptions } = smartLinks || {};
 
 	const platform = 'web';
@@ -191,9 +201,6 @@ function EmbedCardInternal(props: EmbedCardInternalProps) {
 						? Math.min(akEditorFullWidthLayoutWidth, containerWidth - padding)
 						: nonFullWidthSize;
 
-					const uiMediaSingleStyles =
-						layout === 'full-width' || layout === 'wide' ? uIMediaSingleLayoutStyles : '';
-
 					const onError = ({ err }: { err?: Error }) => {
 						if (err) {
 							throw err;
@@ -244,46 +251,72 @@ function EmbedCardInternal(props: EmbedCardInternalProps) {
 
 					return (
 						// Ignored via go/ees005
-						<CardErrorBoundary
-							unsupportedComponent={UnsupportedBlock}
-							onSetLinkTarget={onSetLinkTarget}
-							// eslint-disable-next-line react/jsx-props-no-spreading
-							{...cardProps}
+						<SmartLinkDraggable
+							url={url || ''}
+							appearance={SMART_LINK_APPEARANCE.EMBED}
+							source={SMART_LINK_DRAG_TYPES.RENDERER}
 						>
-							<EmbedResizeMessageListener
-								embedIframeRef={embedIframeRef}
-								onHeightUpdate={setLiveHeight}
+							<CardErrorBoundary
+								unsupportedComponent={UnsupportedBlock}
+								onSetLinkTarget={onSetLinkTarget}
+								// eslint-disable-next-line react/jsx-props-no-spreading
+								{...cardProps}
+								onClick={onConsumerClick}
 							>
-								<UIMediaSingle
-									css={uiMediaSingleStyles}
-									layout={layout}
-									width={originalWidth}
-									containerWidth={containerWidth}
-									pctWidth={width}
-									height={originalHeight}
-									fullWidthMode={isFullWidth}
-									nodeType="embedCard"
-									lineLength={isInsideOfBlockNode ? containerWidth : lineLength}
-									hasFallbackContainer={hasPreview}
-									isInsideOfInlineExtension={isInsideOfInlineExtension}
+								<EmbedResizeMessageListener
+									embedIframeRef={embedIframeRef}
+									onHeightUpdate={setLiveHeight}
 								>
-									<div css={embedCardWrapperStyles}>
-										<div
-											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-											className="embedCardView-content-wrap"
-											data-embed-card
-											data-layout={layout}
-											data-width={width}
-											data-card-data={data ? JSON.stringify(data) : undefined}
-											data-card-url={url}
-											data-card-original-height={originalHeight}
-										>
-											{cardComponent}
-										</div>
-									</div>
-								</UIMediaSingle>
-							</EmbedResizeMessageListener>
-						</CardErrorBoundary>
+									{(() => {
+										const useCenterWrapper = layout === 'full-width' || layout === 'wide';
+										const mediaSingle = (
+											<UIMediaSingle
+												layout={layout}
+												width={originalWidth}
+												containerWidth={containerWidth}
+												pctWidth={width}
+												height={originalHeight}
+												fullWidthMode={isFullWidth}
+												nodeType="embedCard"
+												lineLength={isInsideOfBlockNode ? containerWidth : lineLength}
+												hasFallbackContainer={hasPreview}
+												isInsideOfInlineExtension={isInsideOfInlineExtension}
+											>
+												<div css={embedCardWrapperStyles}>
+													<div
+														// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+														className="embedCardView-content-wrap"
+														data-embed-card
+														data-layout={layout}
+														data-width={width}
+														data-card-data={data ? JSON.stringify(data) : undefined}
+														data-card-url={url}
+														data-card-original-height={originalHeight}
+													>
+														{cardComponent}
+													</div>
+												</div>
+											</UIMediaSingle>
+										);
+										return useCenterWrapper ? (
+											<div
+												// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+												className={
+													RendererCssClassName.EMBED_CARD_CENTER_WRAPPER +
+													' ' +
+													RendererCssClassName.FLEX_CENTER_WRAPPER
+												}
+												css={embedCardCenterWrapperStyles}
+											>
+												{mediaSingle}
+											</div>
+										) : (
+											mediaSingle
+										);
+									})()}
+								</EmbedResizeMessageListener>
+							</CardErrorBoundary>
+						</SmartLinkDraggable>
 					);
 				}}
 			</WidthConsumer>
@@ -305,7 +338,7 @@ export const EmbedOrBlockCardInternal = ({
 	smartLinks,
 	isInsideOfInlineExtension,
 	onSetLinkTarget,
-}: EmbedCardInternalProps) => {
+}: EmbedCardInternalProps): jsx.JSX.Element => {
 	const { width } = useContext(WidthContext);
 	const viewAsBlockCard = width && width <= akEditorFullPageNarrowBreakout;
 
@@ -339,7 +372,7 @@ export const EmbedOrBlockCardInternal = ({
 	);
 };
 
-const EmbedCardWithCondition = componentWithCondition(
+const EmbedCardWithCondition: FC<EmbedCardInternalProps> = componentWithCondition(
 	() =>
 		editorExperiment('platform_editor_preview_panel_responsiveness', true, {
 			exposure: true,

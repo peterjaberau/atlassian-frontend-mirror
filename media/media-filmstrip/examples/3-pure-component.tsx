@@ -1,8 +1,10 @@
-import Link from '@atlaskit/link';
 import React from 'react';
-import { FilmstripView } from '../src/filmstripView';
-import { type FilmstripState } from '../src';
+
+import Link from '@atlaskit/link/link';
+
 import { PureComponentBox } from '../example-helpers/wrapper';
+import { type FilmstripState } from '../src';
+import { FilmstripView } from '../src/filmstripView';
 
 export interface StoryProps {}
 
@@ -17,8 +19,10 @@ export class Story extends React.PureComponent<StoryProps, StoryState> {
 		offset: 0,
 	};
 
-	handleSizeChange = ({ offset }: Pick<FilmstripState, 'offset'>): void => this.setState({ offset });
-	handleScrollChange = ({ offset, animate }: FilmstripState): void => this.setState({ offset, animate });
+	handleSizeChange = ({ offset }: Pick<FilmstripState, 'offset'>): void =>
+		this.setState({ offset });
+	handleScrollChange = ({ offset, animate }: FilmstripState): void =>
+		this.setState({ offset, animate });
 
 	render(): React.JSX.Element {
 		const { animate, offset } = this.state;

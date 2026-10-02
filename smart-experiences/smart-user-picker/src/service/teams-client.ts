@@ -1,4 +1,4 @@
-import { type Team } from '@atlaskit/user-picker';
+import type { Team } from '@atlaskit/user-picker/types';
 
 import { config } from '../config';
 import { UNKNOWN_TEAM } from './constants';
@@ -9,10 +9,13 @@ type LegionRequest = {
 	siteId?: string;
 };
 
+export type LegionTeamState = 'ACTIVE' | 'DISBANDED' | 'PURGED';
+
 export type LegionResponse = {
 	id: string;
 	displayName: string;
 	smallAvatarImageUrl: string;
+	state?: LegionTeamState;
 };
 
 const transformTeam = (team: LegionResponse, id: string): Team => {
@@ -21,6 +24,7 @@ const transformTeam = (team: LegionResponse, id: string): Team => {
 		name: team.displayName,
 		type: 'team',
 		avatarUrl: team.smallAvatarImageUrl,
+		...(team.state && { state: team.state }), // State to determine if the team is active/disbanded
 	};
 };
 

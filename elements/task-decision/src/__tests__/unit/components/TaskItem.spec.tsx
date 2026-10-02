@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
-import { renderWithIntl } from '@atlaskit/elements-test-helpers/rtl';
 
 import { TaskItem } from '../../../';
+import { renderWithIntl } from '../_testing-library';
 
 describe('A11y', () => {
 	it('aria label for not completed task', async () => {

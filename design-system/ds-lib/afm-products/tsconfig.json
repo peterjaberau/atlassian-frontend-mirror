@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__ds-lib/app",
 		"rootDir": "../",
 		"composite": true,
@@ -23,9 +21,5 @@
 		"../src/**/stories/*",
 		"../src/**/stories/**/*"
 	],
-	"references": [
-		{
-			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
-		}
-	]
+	"references": []
 }

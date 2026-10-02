@@ -1,4 +1,4 @@
-import { type AnnotationId, AnnotationTypes } from '@atlaskit/adf-schema';
+import { type AnnotationId, AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import type {
 	ApplyDraftResult,
 	ClearAnnotationResult,
@@ -13,7 +13,7 @@ import {
 	getRangeInlineNodeNames,
 } from '@atlaskit/editor-common/utils';
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import {
 	setInlineCommentDraftState,
@@ -24,7 +24,6 @@ import {
 	removeInlineCommentFromDoc,
 } from '../editor-commands';
 import { AnnotationSelectionType } from '../types';
-
 import type { InlineCommentPluginOptions } from './types';
 import { inlineCommentPluginKey, isSelectionValid } from './utils';
 
@@ -64,7 +63,13 @@ export const allowAnnotation =
 			return false;
 		}
 
-		return isSelectionValid(editorView.state) === AnnotationSelectionType.VALID;
+		return (
+			isSelectionValid(
+				editorView.state,
+				options.provider.supportedBlockNodes,
+				options.provider.isBlockNodeSupported,
+			) === AnnotationSelectionType.VALID
+		);
 	};
 
 export const startDraft =
@@ -97,10 +102,12 @@ export const startDraft =
 			});
 		}
 
-		setInlineCommentDraftState(options.editorAnalyticsAPI, undefined, options.api)(true)(
-			editorView.state,
-			editorView.dispatch,
-		);
+		setInlineCommentDraftState(
+			options.editorAnalyticsAPI,
+			options.provider.supportedBlockNodes,
+			options.api,
+			options.provider.isBlockNodeSupported,
+		)(true)(editorView.state, editorView.dispatch);
 
 		const { draftDecorationSet } = inlineCommentPluginKey.getState(editorView.state) || {};
 
@@ -201,6 +208,7 @@ export const applyDraft =
 			id,
 			AnnotationTypes.INLINE_COMMENT,
 			options.provider.supportedBlockNodes,
+			options.provider.isBlockNodeSupported,
 		)(editorView.state, editorView.dispatch);
 
 		!editorView.hasFocus() && editorView.focus();
@@ -230,7 +238,7 @@ export const applyDraft =
 	};
 
 export const getDraft =
-	(editorView: EditorView, options: InlineCommentPluginOptions) => (): GetDraftResult => {
+	(editorView: EditorView, _options: InlineCommentPluginOptions) => (): GetDraftResult => {
 		const { isDrafting, draftDecorationSet } =
 			inlineCommentPluginKey.getState(editorView.state) || {};
 
@@ -343,7 +351,7 @@ export const setIsAnnotationSelected =
 	};
 
 export const setIsAnnotationHovered =
-	(editorView: EditorView, options: InlineCommentPluginOptions) =>
+	(editorView: EditorView, _options: InlineCommentPluginOptions) =>
 	(id: AnnotationId, isHovered: boolean): HoverAnnotationResult => {
 		const { annotations, hoveredAnnotations } =
 			inlineCommentPluginKey.getState(editorView.state) || {};
@@ -393,6 +401,7 @@ export const clearAnnotation =
 		removeInlineCommentFromDoc(options.editorAnalyticsAPI)(
 			id,
 			options.provider.supportedBlockNodes,
+			options.provider.isBlockNodeSupported,
 		)(editorView.state, editorView.dispatch);
 
 		return {

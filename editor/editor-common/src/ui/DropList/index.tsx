@@ -2,17 +2,20 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import type { ReactNode } from 'react';
+import type { ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react';
 import { Component } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, keyframes } from '@emotion/react';
 
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
 import createAndFireEvent from '@atlaskit/analytics-next/createAndFireEvents';
-import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
-import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
-import { fg } from '@atlaskit/platform-feature-flags';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import Layer from '../Layer';
@@ -89,7 +92,7 @@ class DropList extends Component<Props> {
 			boxShadow: token('elevation.shadow.overlay'),
 			boxSizing: 'border-box',
 			overflow: 'auto',
-			padding: `${token('space.050', '4px')} 0`,
+			padding: `${token('space.050')} 0`,
 			maxHeight: '90vh',
 		});
 	};
@@ -221,7 +224,13 @@ class DropList extends Component<Props> {
 
 const createAndFireEventOnAtlaskit = createAndFireEvent('atlaskit');
 
-export default withAnalyticsContext({
+const _default_1: ForwardRefExoticComponent<
+	Omit<
+		Omit<Props, keyof WithAnalyticsEventsProps> & RefAttributes<unknown> & WithContextProps,
+		'ref'
+	> &
+		RefAttributes<unknown>
+> = withAnalyticsContext({
 	componentName: 'droplist',
 	packageName,
 	packageVersion,
@@ -239,3 +248,4 @@ export default withAnalyticsContext({
 		}),
 	})(DropList),
 );
+export default _default_1;

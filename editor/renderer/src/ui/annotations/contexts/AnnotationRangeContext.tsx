@@ -5,6 +5,7 @@ import type { Position } from '../types';
 
 export type RangeType = 'selection' | 'hover' | null;
 
+// oxlint-disable-next-line eslint/no-redeclare
 interface AnnotationRangeStateContext {
 	hoverDraftDocumentPosition: Position | null;
 
@@ -30,6 +31,7 @@ interface AnnotationRangeStateContext {
 	 */
 	type: RangeType;
 }
+// oxlint-disable-next-line eslint/no-redeclare
 interface AnnotationRangeDispatchContext {
 	clearHoverDraft: () => void;
 	clearHoverRange: () => void;
@@ -142,24 +144,26 @@ function reducer(state: State, action: Action): State {
 	}
 }
 
-export const AnnotationRangeStateContext = createContext<AnnotationRangeStateContext>({
-	range: null,
-	type: null,
-	selectionDraftRange: null,
-	hoverDraftRange: null,
-	selectionDraftDocumentPosition: null,
-	hoverDraftDocumentPosition: null,
-});
+export const AnnotationRangeStateContext: React.Context<AnnotationRangeStateContext> =
+	createContext<AnnotationRangeStateContext>({
+		range: null,
+		type: null,
+		selectionDraftRange: null,
+		hoverDraftRange: null,
+		selectionDraftDocumentPosition: null,
+		hoverDraftDocumentPosition: null,
+	});
 
-export const AnnotationRangeDispatchContext = createContext<AnnotationRangeDispatchContext>({
-	clearSelectionRange: () => {},
-	clearHoverRange: () => {},
-	setSelectionRange: () => {},
-	promoteSelectionToDraft: () => {},
-	promoteHoverToDraft: () => {},
-	clearSelectionDraft: () => {},
-	clearHoverDraft: () => {},
-});
+export const AnnotationRangeDispatchContext: React.Context<AnnotationRangeDispatchContext> =
+	createContext<AnnotationRangeDispatchContext>({
+		clearSelectionRange: () => {},
+		clearHoverRange: () => {},
+		setSelectionRange: () => {},
+		promoteSelectionToDraft: () => {},
+		promoteHoverToDraft: () => {},
+		clearSelectionDraft: () => {},
+		clearHoverDraft: () => {},
+	});
 
 export const AnnotationRangeProviderInner = ({
 	children,
@@ -195,6 +199,7 @@ export const AnnotationRangeProviderInner = ({
 		if (!mediaNode) {
 			return;
 		}
+		// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage -- range for media hover highlight
 		const range = document.createRange();
 		range.setStartBefore(mediaNode);
 		range.setEndAfter(mediaNode);
@@ -294,10 +299,10 @@ export const AnnotationRangeProvider = ({
 	);
 };
 
-export const useAnnotationRangeState = () => {
+export const useAnnotationRangeState = (): AnnotationRangeStateContext => {
 	return useContext(AnnotationRangeStateContext);
 };
 
-export const useAnnotationRangeDispatch = () => {
+export const useAnnotationRangeDispatch = (): AnnotationRangeDispatchContext => {
 	return useContext(AnnotationRangeDispatchContext);
 };

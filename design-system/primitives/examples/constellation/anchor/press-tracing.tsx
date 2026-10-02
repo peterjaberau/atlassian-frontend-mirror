@@ -2,17 +2,29 @@ import React from 'react';
 
 import { cssMap } from '@atlaskit/css';
 import __noop from '@atlaskit/ds-lib/noop';
-import { FlagsProvider, useFlags } from '@atlaskit/flag';
-import Heading from '@atlaskit/heading';
+import { FlagsProvider } from '@atlaskit/flag/flags-provider';
+import { useFlags } from '@atlaskit/flag/use-flags';
+import Heading from '@atlaskit/heading/heading';
 import InformationIcon from '@atlaskit/icon/core/status-information';
 import Image from '@atlaskit/image';
 import InteractionContext from '@atlaskit/interaction-context';
-import { Anchor, Box, Inline, Stack } from '@atlaskit/primitives/compiled';
+import { Anchor } from '@atlaskit/primitives/compiled/anchor';
+import { Box } from '@atlaskit/primitives/compiled/box';
+import { Flex } from '@atlaskit/primitives/compiled/flex';
+import { Inline } from '@atlaskit/primitives/compiled/inline';
+import { Stack } from '@atlaskit/primitives/compiled/stack';
 import { token } from '@atlaskit/tokens';
 
 import ButtonIcon from '../../images/button.png';
 import ThemesIcon from '../../images/themes.png';
 import WatermelonIcon from '../../images/watermelon.png';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const styles = cssMap({
 	anchor: {
@@ -68,11 +80,9 @@ const Projects = () => {
 						title: `Traced a press!`,
 						description: name,
 						icon: (
-							<InformationIcon
-								label="Info"
-								color={token('color.icon.information')}
-								spacing="spacious"
-							/>
+							<Flex xcss={iconSpacingStyles.space050}>
+								<InformationIcon label="Info" color={token('color.icon.information')} />
+							</Flex>
 						),
 						isAutoDismiss: true,
 					});

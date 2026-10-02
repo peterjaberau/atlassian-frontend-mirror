@@ -1,4 +1,5 @@
 /* eslint-disable testing-library/prefer-screen-queries */
+
 import invariant from 'tiny-invariant';
 
 import { expect, type Locator, type Page, test } from '@af/integration-testing';
@@ -84,7 +85,11 @@ test.beforeEach(async ({ page }) => {
 
 test.describe('legacy CSS variables', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.visitExample('design-system', 'navigation-system', 'legacy-var-testing');
+		await page.visitExample<typeof import('../../../examples/legacy-var-testing.tsx')>(
+			'design-system',
+			'navigation-system',
+			'legacy-var-testing',
+		);
 	});
 
 	test('panel CSS variable updates during a drag', async ({ page }) => {
@@ -226,7 +231,11 @@ test.describe('legacy CSS variables', () => {
 	});
 
 	test('sidenav CSS variable does not update until drag finishes', async ({ page }) => {
-		await page.visitExample('design-system', 'navigation-system', 'legacy-var-testing');
+		await page.visitExample<typeof import('../../../examples/legacy-var-testing.tsx')>(
+			'design-system',
+			'navigation-system',
+			'legacy-var-testing',
+		);
 
 		// Only Main + SideNav will be mounted
 		await page.getByRole('radio', { name: 'SideNav' }).click();
@@ -262,7 +271,11 @@ test.describe('legacy CSS variables', () => {
 		// Small viewport so that the SideNav is an overlay
 		await page.setViewportSize(viewportSize.small);
 
-		await page.visitExample('design-system', 'navigation-system', 'legacy-var-testing');
+		await page.visitExample<typeof import('../../../examples/legacy-var-testing.tsx')>(
+			'design-system',
+			'navigation-system',
+			'legacy-var-testing',
+		);
 
 		// Only Main + SideNav will be mounted
 		await page.getByRole('radio', { name: 'SideNav' }).click();

@@ -5,7 +5,7 @@ import {
 	UnsupportedSharedCssClassName,
 } from '@atlaskit/editor-common/styles';
 import type { Node as PMNode, ResolvedPos, Schema } from '@atlaskit/editor-prosemirror/model';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 export const isLeftCursor = (side: Side): side is Side.LEFT => side === Side.LEFT;
 
@@ -45,7 +45,12 @@ export function getMediaNearPos(
 	return null;
 }
 
-export const isTextBlockNearPos = (doc: PMNode, schema: Schema, $pos: ResolvedPos, dir: number): boolean => {
+export const isTextBlockNearPos = (
+	doc: PMNode,
+	schema: Schema,
+	$pos: ResolvedPos,
+	dir: number,
+): boolean => {
 	let $currentPos = $pos;
 	let currentNode: PMNode | null | undefined =
 		dir === -1 ? $currentPos.nodeBefore : $currentPos.nodeAfter;
@@ -112,7 +117,7 @@ export function getLayoutModeFromTargetNode(node: PMNode): string {
 	return layout;
 }
 
-export const isIgnoredClick = (elem: HTMLElement | null) => {
+export const isIgnoredClick = (elem: HTMLElement | null): boolean | null => {
 	if (elem?.nodeName === 'BUTTON' || elem?.closest('button')) {
 		return true;
 	}
@@ -166,7 +171,7 @@ export const getComputedStyleForLayoutMode = (
 	dom: HTMLElement,
 	node: PMNode | undefined | null,
 	style: CSSStyleDeclaration,
-) => {
+): CSSStyleDeclaration => {
 	if (node && node.type.name === 'table') {
 		const tableContainer = dom.querySelector('.pm-table-container');
 		if (tableContainer) {

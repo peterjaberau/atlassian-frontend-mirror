@@ -7,9 +7,15 @@ export enum BlockName {
 	PreviewBlock = 'PreviewBlock',
 	SnippetBlock = 'SnippetBlock',
 	TitleBlock = 'TitleBlock',
+	AIFooterBlock = 'AIFooterBlock',
+	ResolvedHoverCardFooterBlock = 'ResolvedHoverCardFooterBlock',
 }
 
-export const FlexibleDefaultTemplate = {
+export const FlexibleDefaultTemplate: {
+	blocks: {
+		name: BlockName;
+	}[];
+} = {
 	blocks: [{ name: BlockName.TitleBlock }],
 };
 

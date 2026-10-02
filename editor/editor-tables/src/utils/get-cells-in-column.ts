@@ -1,9 +1,8 @@
-import { type Selection } from '@atlaskit/editor-prosemirror/state';
-import { type ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
+import type { Selection } from '@atlaskit/editor-prosemirror/state';
+import type { ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
 
 import { TableMap } from '../table-map';
-
-import { findTable } from './find';
+import { findTable } from './find-table';
 
 // Returns an array of cells in a column(s), where `columnIndex` could be a column index or an array of column indexes.
 export const getCellsInColumn =

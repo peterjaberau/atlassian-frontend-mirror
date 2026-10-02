@@ -1,0 +1,130 @@
+import type { StructuredContentSource } from '@atlassian/structured-docs-types/types';
+
+const documentation: StructuredContentSource = {
+	components: [
+		{
+			name: 'DatePicker',
+			description: 'A component for selecting date values with calendar support.',
+			status: 'general-availability',
+			designSource: {
+				figmaUrl: 'https://go.atlassian.com/figma-library-ads-13285-45993',
+			},
+			import: {
+				name: 'DatePicker',
+				package: '@atlaskit/datetime-picker/date-picker',
+				type: 'default',
+				packagePath: __dirname,
+				packageJson: require('./package.json'),
+			},
+			usageGuidelines: [
+				'Use for date selection only',
+				'Provide clear date formats',
+				'Handle date validation appropriately',
+				'Consider calendar button visibility',
+			],
+			contentGuidelines: [
+				'Use clear, descriptive labels',
+				'Provide helpful placeholder text',
+				'Keep labels concise but descriptive',
+				'Use locale prop for date format localization',
+			],
+			accessibilityGuidelines: [
+				'Ensure proper keyboard navigation',
+				'Use appropriate date formats',
+				'Provide clear date labels',
+				'Consider screen reader announcements',
+			],
+			examples: [
+				{
+					name: 'Date Picker',
+					description: 'Date Picker example',
+					source: `${__dirname}/examples/ai/date-picker.tsx`,
+				},
+			],
+			keywords: ['date', 'picker', 'input', 'calendar', 'selection', 'form'],
+			categories: ['form'],
+		},
+		{
+			name: 'TimePicker',
+			description: 'A component for selecting time values with clock interface.',
+			status: 'general-availability',
+			import: {
+				name: 'TimePicker',
+				package: '@atlaskit/datetime-picker/time-picker',
+				type: 'default',
+				packagePath: __dirname,
+				packageJson: require('./package.json'),
+			},
+			usageGuidelines: [
+				'Use for time selection only',
+				'Provide clear time formats',
+				'Handle time validation appropriately',
+				'Consider editable time input',
+			],
+			contentGuidelines: [
+				'Use clear, descriptive labels',
+				'Provide helpful placeholder text',
+				'Use appropriate time formats',
+				'Keep labels concise but descriptive',
+				'Use locale prop for time format localization (e.g. 12h vs 24h)',
+			],
+			accessibilityGuidelines: [
+				'Ensure proper keyboard navigation',
+				'Use appropriate time formats',
+				'Provide clear time labels',
+				'Consider screen reader announcements',
+			],
+			examples: [
+				{
+					name: 'Time Picker',
+					description: 'Time Picker example',
+					source: `${__dirname}/examples/ai/time-picker.tsx`,
+				},
+			],
+			keywords: ['time', 'picker', 'input', 'clock', 'selection', 'form'],
+			categories: ['form'],
+		},
+		{
+			name: 'DateTimePicker',
+			description: 'A component for selecting both date and time values.',
+			status: 'general-availability',
+			import: {
+				name: 'DateTimePicker',
+				package: '@atlaskit/datetime-picker/date-time-picker',
+				type: 'default',
+				packagePath: __dirname,
+				packageJson: require('./package.json'),
+			},
+			usageGuidelines: [
+				'Use for combined date and time selection',
+				'Provide clear date/time formats',
+				'Handle timezone considerations',
+				'Consider validation requirements',
+			],
+			contentGuidelines: [
+				'Use clear, descriptive labels',
+				'Provide helpful placeholder text',
+				'Use appropriate date/time formats',
+				'Keep labels concise but descriptive',
+				'Use locale prop for date and time format localization',
+			],
+			accessibilityGuidelines: [
+				'Ensure proper keyboard navigation',
+				'Use appropriate date/time formats',
+				'Provide clear date/time labels',
+				'Consider screen reader announcements',
+			],
+			examples: [
+				{
+					name: 'Datetime Picker',
+					description: 'Datetime Picker example',
+					source: `${__dirname}/examples/ai/datetime-picker.tsx`,
+				},
+			],
+			keywords: ['datetime', 'picker', 'date', 'time', 'input', 'calendar'],
+			categories: ['form'],
+		},
+	],
+};
+
+export default documentation;

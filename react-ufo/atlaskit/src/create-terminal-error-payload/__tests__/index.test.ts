@@ -24,6 +24,7 @@ describe('createTerminalErrorPayload', () => {
 		previousInteractionType: null,
 		timeSincePreviousInteraction: null,
 		labelStack: null,
+		routeName: null,
 	};
 
 	beforeEach(() => {
@@ -116,7 +117,10 @@ describe('createTerminalErrorPayload', () => {
 			timeSincePreviousInteraction: 1500,
 		};
 
-		const result = createTerminalErrorPayload(mockTerminalErrorData, contextWithPreviousInteraction);
+		const result = createTerminalErrorPayload(
+			mockTerminalErrorData,
+			contextWithPreviousInteraction,
+		);
 
 		expect(result?.attributes.properties.previousInteractionId).toBe('prev-interaction-456');
 		expect(result?.attributes.properties.previousInteractionName).toBe('previous-ufo-interaction');
@@ -154,6 +158,19 @@ describe('createTerminalErrorPayload', () => {
 		expect(result?.attributes.properties.terminalError).toEqual(dataWithAttributes);
 	});
 
+	it('should include errorCategory in the terminalError payload', () => {
+		const dataWithCategory: TerminalErrorData = {
+			...mockTerminalErrorData,
+			errorCategory: 'network-server' as const,
+		};
+
+		const result = createTerminalErrorPayload(dataWithCategory, mockTerminalErrorContext);
+
+		expect(result?.attributes.properties.terminalError).toEqual(
+			expect.objectContaining({ errorCategory: 'network-server' }),
+		);
+	});
+
 	it('should include labelStack from context in payload', () => {
 		const labelStack = [
 			{ name: 'app-root', segmentId: 'seg-1' },
@@ -174,5 +191,22 @@ describe('createTerminalErrorPayload', () => {
 		const result = createTerminalErrorPayload(mockTerminalErrorData, mockTerminalErrorContext);
 
 		expect(result?.attributes.properties.labelStack).toBeNull();
+	});
+
+	it('should include routeName from context in payload', () => {
+		const contextWithRouteName: TerminalErrorContext = {
+			...mockTerminalErrorContext,
+			routeName: 'test-route-name',
+		};
+
+		const result = createTerminalErrorPayload(mockTerminalErrorData, contextWithRouteName);
+
+		expect(result?.attributes.properties.routeName).toBe('test-route-name');
+	});
+
+	it('should set routeName to null when not provided in context', () => {
+		const result = createTerminalErrorPayload(mockTerminalErrorData, mockTerminalErrorContext);
+
+		expect(result?.attributes.properties.routeName).toBeNull();
 	});
 });

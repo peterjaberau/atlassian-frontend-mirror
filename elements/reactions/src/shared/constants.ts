@@ -13,6 +13,18 @@ export const DefaultReactions: EmojiId[] = [
 ];
 
 /**
+ * Initial list of emoji to pick from when the Teamoji picker refresh is enabled.
+ */
+export const TeamojiDefaultReactions: EmojiId[] = [
+	{ id: 'atlassian-thumbs_up', shortName: ':thumbs_up:' },
+	{ id: 'atlassian-clap', shortName: ':clap:' },
+	{ id: 'atlassian-fire', shortName: ':fire:' },
+	{ id: 'atlassian-red_heart', shortName: ':red_heart:' },
+	{ id: 'atlassian-surprise', shortName: ':surprise:' },
+	{ id: 'atlassian-thinking', shortName: ':thinking:' },
+];
+
+/**
  * Extended list of reactions used only for examples
  */
 export const ExtendedReactions: EmojiId[] = [
@@ -35,15 +47,18 @@ export const ExtendedReactions: EmojiId[] = [
 /**
  * ES6 Map object from default emoji reactions (with key => shortName, value => entire emoji item)
  */
-export const DefaultReactionsByShortName = new Map<string, EmojiId>(
+export const DefaultReactionsByShortName: Map<string, EmojiId> = new Map<string, EmojiId>(
 	DefaultReactions.map((reaction) => [reaction.shortName, reaction]),
 );
+
+export const getDefaultReactions = (isTeamojiPickerRefreshEnabled = false): EmojiId[] =>
+	isTeamojiPickerRefreshEnabled ? TeamojiDefaultReactions : DefaultReactions;
 
 /**
  * ES6 Map object from default emoji reactions (with key => shortName, value => entire emoji item)
  * Only for use in extended reaction examples
  */
-export const ExtendedReactionsByShortName = new Map<string, EmojiId>(
+export const ExtendedReactionsByShortName: Map<string, EmojiId> = new Map<string, EmojiId>(
 	ExtendedReactions.map((reaction) => [reaction.shortName, reaction]),
 );
 

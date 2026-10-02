@@ -1,10 +1,19 @@
 import memoizeOne from 'memoize-one';
+import type { MemoizedFn } from 'memoize-one';
 
 import { getParentOfTypeCount, isNestedTablesSupported } from '@atlaskit/editor-common/nesting';
-import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
-import type { NodeType, Node as PMNode, ResolvedPos } from '@atlaskit/editor-prosemirror/model';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
+import {
+	Fragment,
+	Slice,
+	type Schema,
+	type NodeType,
+	type Node as PMNode,
+	type ResolvedPos,
+} from '@atlaskit/editor-prosemirror/model';
 import { findChildrenByType } from '@atlaskit/editor-prosemirror/utils';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 export const isInsideTable = (nodeType: NodeType): Boolean => {
 	const { tableCell, tableHeader } = nodeType.schema.nodes;
@@ -25,6 +34,10 @@ export const isExpand = (nodeType: NodeType): Boolean => {
 
 export const isNestedExpand = (nodeType: NodeType): Boolean => {
 	return nodeType === nodeType.schema.nodes.nestedExpand;
+};
+
+export const isFontSizeMarkActive = (node: PMNode): boolean => {
+	return node.type.name === 'paragraph' && node.marks.some((mark) => mark.type.name === 'fontSize');
 };
 
 export const isInSameLayout = ($from: ResolvedPos, $to: ResolvedPos): boolean => {
@@ -78,6 +91,55 @@ export const transformFragmentExpandToNestedExpand = (fragment: Fragment): Fragm
 	return Fragment.fromArray(children);
 };
 
+/**
+ * Generic fragment transformer — converts all nodes of `fromType` to `toType`,
+ * preserving attrs, content, and marks.
+ */
+export const transformFragmentNodeType = (
+	fragment: Fragment,
+	schema: Schema,
+	fromType: string,
+	toType: string,
+): Fragment | null => {
+	const children = [] as PMNode[];
+	const targetType = schema.nodes[toType];
+	if (!targetType) {
+		return null;
+	}
+
+	try {
+		fragment.forEach((node) => {
+			if (node.type.name === fromType) {
+				children.push(targetType.create(node.attrs, node.content, node.marks));
+			} else {
+				children.push(node);
+			}
+		});
+	} catch (e) {
+		return null;
+	}
+
+	return Fragment.fromArray(children);
+};
+
+/**
+ * Generic slice transformer — converts all nodes of `fromType` to `toType`.
+ */
+export const transformSliceNodeType = (
+	slice: Slice,
+	schema: Schema,
+	fromType: string,
+	toType: string,
+): Slice | null => {
+	const fragment = transformFragmentNodeType(slice.content, schema, fromType, toType);
+
+	if (!fragment) {
+		return null;
+	}
+
+	return new Slice(fragment, slice.openStart, slice.openEnd);
+};
+
 export const transformSliceExpandToNestedExpand = (slice: Slice): Slice | null => {
 	const fragment = transformFragmentExpandToNestedExpand(slice.content);
 
@@ -88,13 +150,14 @@ export const transformSliceExpandToNestedExpand = (slice: Slice): Slice | null =
 	return new Slice(fragment, slice.openStart, slice.openEnd);
 };
 
-export const memoizedTransformExpandToNestedExpand = memoizeOne((node: PMNode) => {
-	try {
-		return transformExpandToNestedExpand(node);
-	} catch (e) {
-		return null;
-	}
-});
+export const memoizedTransformExpandToNestedExpand: MemoizedFn<(node: PMNode) => PMNode | null> =
+	memoizeOne((node: PMNode): PMNode | null => {
+		try {
+			return transformExpandToNestedExpand(node);
+		} catch (e) {
+			return null;
+		}
+	});
 
 export const canCreateNodeWithContentInsideAnotherNode = (
 	nodeTypesToCreate: NodeType[],
@@ -126,15 +189,14 @@ export function canMoveNodeToIndex(
 		nestedExpand,
 		doc,
 		panel,
+		panel_c1,
 		layoutColumn,
 		layoutSection,
 	} = schema.nodes;
 	const destParentNodeType = destParent?.type;
 	const activeNodeType = srcNode?.type;
 	const layoutColumnContent = srcNode.content;
-	const isNestingTablesSupported =
-		isNestedTablesSupported(schema) &&
-		editorExperiment('nested-tables-in-tables', true, { exposure: true });
+	const isNestingTablesSupported = isNestedTablesSupported(schema);
 
 	if (activeNodeType === layoutColumn && editorExperiment('advanced_layouts', true)) {
 		// Allow drag layout column and drop into layout section
@@ -156,7 +218,11 @@ export function canMoveNodeToIndex(
 
 			return canCreateNodeWithContentInsideAnotherNode([tableCell, tableHeader], convertedFragment);
 		}
-		if (destParentNodeType === panel) {
+		if (
+			destParentNodeType === panel ||
+			(expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true) &&
+				destParentNodeType === panel_c1)
+		) {
 			return canCreateNodeWithContentInsideAnotherNode([panel], layoutColumnContent);
 		}
 
@@ -193,6 +259,23 @@ export function canMoveNodeToIndex(
 	) {
 		srcNodeType = expand;
 	}
+
+	// Downgrade variant node (e.g. panel_c1 → panel) when dest doesn't support it
+	if (expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)) {
+		const baseName = getBaseNodeTypeName(srcNodeType);
+		if (
+			baseName !== srcNodeType.name &&
+			!destParent.canReplaceWith(indexIntoParent, indexIntoParent, srcNodeType)
+		) {
+			const baseType = schema.nodes[baseName];
+			// Check if the node's content is valid in the base type (e.g. panel with table can't be downgraded)
+			if (!baseType || !baseType.validContent(srcNode.content)) {
+				return false;
+			}
+			srcNodeType = baseType;
+		}
+	}
+
 	return destParent.canReplaceWith(indexIntoParent, indexIntoParent, srcNodeType);
 }
 

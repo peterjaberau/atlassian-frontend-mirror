@@ -1,9 +1,9 @@
 import React, { type ChangeEvent, type FC, type FormEvent, useState } from 'react';
 
-import Avatar from '@atlaskit/avatar';
-import Button from '@atlaskit/button/new';
+import Avatar from '@atlaskit/avatar/avatar';
+import Button from '@atlaskit/button/default/button';
 import { Box, Inline, Text } from '@atlaskit/primitives/compiled';
-import Textfield from '@atlaskit/textfield';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 type State = {
@@ -48,11 +48,11 @@ const ExternalSrcAvatar: FC = () => {
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 					display: 'flex',
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					gap: token('space.100', '8px'),
+					gap: token('space.100'),
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					marginBottom: token('space.100', '8px'),
+					marginBottom: token('space.100'),
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					marginTop: token('space.100', '8px'),
+					marginTop: token('space.100'),
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 					alignItems: 'end',
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766

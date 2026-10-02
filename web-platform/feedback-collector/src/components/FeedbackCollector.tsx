@@ -2,12 +2,11 @@ import { Buffer } from 'buffer';
 
 import React, { Component } from 'react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type FormFields, type SelectOptionDetails, type SelectValue } from '../types';
 import { isApiGatewayUrl } from '../utils/is-api-gateway-url';
 import truncate from '../utils/Truncate';
-
 import FeedbackForm, { type OptionType } from './FeedbackForm';
 
 type FieldValueType = string | Object | Object[];
@@ -98,8 +97,18 @@ export interface Props {
 	cancelButtonLabel?: string;
 	/**  Message for select option labels and field labels */
 	feedbackGroupLabels?: Partial<Record<SelectValue, SelectOptionDetails>>;
-	/** Function that will be called to initiate the exit transition. */
-	onClose: () => void;
+	/**
+	 * Function that will be called to initiate the exit transition.
+	 * When triggered by the cancel button the originating event and Atlaskit UI analytics
+	 * event are forwarded; programmatic close paths (e.g. after submit) invoke it with no
+	 * arguments. Typed as a variadic `any[]` to maximise backward compatibility with
+	 * consumers that declared any conceivable signature for this callback.
+	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	onClose: (...args: any[]) => void;
+	/** Optional function that will be called when the cancel button is clicked, in addition to onClose. */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	onCancel?: (...args: any[]) => void;
 	/** Function that will be called optimistically after a delay when the feedback is submitted. */
 	onSubmit: (formFields: FormFields) => void;
 	/**  Locale for i18n */
@@ -122,6 +131,8 @@ export interface Props {
 	customFeedbackOptions?: OptionType[];
 	/** Optional ref to return focus to after feedback form is closed */
 	shouldReturnFocusRef?: React.RefObject<HTMLElement>;
+	/** Ref to the rendered feedback dialog container */
+	dialogRef?: React.RefObject<HTMLElement>;
 	/** Disable submit button to allow custom content to handle validation */
 	disableSubmitButton?: boolean;
 	/** Optional to show or hide the required fields summary */
@@ -145,7 +156,56 @@ export default class FeedbackCollector extends Component<Props> {
 		this.setState({ anonymousFeedback });
 	}
 
-	static defaultProps = {
+	static defaultProps: {
+		locale: string;
+		url: string;
+		shouldGetEntitlementDetails: boolean;
+		canBeContactedFieldId: string;
+		canBeContactedAgreeValue: {
+			id: string;
+		}[];
+		canBeContactedDeclineValue: {
+			id: string;
+		}[];
+		additionalFields: never[];
+		customerNameFieldId: string;
+		customerNameDefaultValue: string;
+		descriptionFieldId: string;
+		descriptionDefaultValue: string;
+		enrollInResearchFieldId: string;
+		enrollInResearchAgreeValue: {
+			id: string;
+		}[];
+		enrollInResearchDeclineValue: {
+			id: string;
+		}[];
+		summaryFieldId: string;
+		summaryDefaultValue: string;
+		summaryTruncateLength: number;
+		timeoutOnSubmit: number;
+		typeFieldId: string;
+		typeBugDefaultValue: {
+			id: string;
+		};
+		typeCommentDefaultValue: {
+			id: string;
+		};
+		typeSuggestionDefaultValue: {
+			id: string;
+		};
+		typeQuestionDefaultValue: {
+			id: string;
+		};
+		typeEmptyDefaultValue: {
+			id: string;
+		};
+		showTypeField: boolean;
+		showDefaultTextFields: boolean;
+		anonymousFeedback: boolean;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		onClose: (...args: any[]) => void;
+		onSubmit: () => void;
+	} = {
 		locale: 'en',
 		url: '/gateway/api',
 		shouldGetEntitlementDetails: true,
@@ -281,7 +341,7 @@ export default class FeedbackCollector extends Component<Props> {
 		return entitlementInformation;
 	}
 
-	getTypeFieldValue(dtype: SelectValue) {
+	getTypeFieldValue(dtype: SelectValue): FieldValueType {
 		switch (dtype) {
 			case 'bug':
 				return this.props.typeBugDefaultValue;
@@ -356,18 +416,18 @@ export default class FeedbackCollector extends Component<Props> {
 		});
 	}
 
-	getDescription(formValues: FormFields) {
+	getDescription(formValues: FormFields): FieldValueType {
 		return formValues.description || this.props.descriptionDefaultValue;
 	}
 
-	getSummary(formValues: FormFields) {
+	getSummary(formValues: FormFields): FieldValueType {
 		return (
 			singleLineTruncatedText(formValues.description, this.props.summaryTruncateLength) ||
 			this.props.summaryDefaultValue
 		);
 	}
 
-	getCustomerName() {
+	getCustomerName(): FieldValueType {
 		return this.props.name ?? this.props.customerNameDefaultValue;
 	}
 
@@ -398,7 +458,7 @@ export default class FeedbackCollector extends Component<Props> {
 		}
 	}
 
-	async mapFormToJSD(formValues: FormFields) {
+	async mapFormToJSD(formValues: FormFields): Promise<FeedbackType> {
 		let entitlementInformation: FieldType[] | [] | null = null;
 
 		if (this.props?.shouldGetEntitlementDetails) {
@@ -521,6 +581,7 @@ export default class FeedbackCollector extends Component<Props> {
 				feedbackGroupLabels={this.props.feedbackGroupLabels}
 				onSubmit={this.postFeedback}
 				onClose={this.props.onClose}
+				onCancel={this.props.onCancel}
 				locale={this.props.locale}
 				anonymousFeedback={
 					fg('platform.proforma-form-builder-feedback_hupaz')
@@ -531,6 +592,7 @@ export default class FeedbackCollector extends Component<Props> {
 				customTextAreaLabel={this.props.customTextAreaLabel}
 				customFeedbackOptions={this.props.customFeedbackOptions}
 				shouldReturnFocusRef={this.props.shouldReturnFocusRef}
+				dialogRef={this.props.dialogRef}
 				disableSubmitButton={this.props.disableSubmitButton}
 				{...(fg('jfp_a11y_team_feedback_collector_nested_elements') && {
 					enrolInResearchLink: this.props.enrolInResearchLink,

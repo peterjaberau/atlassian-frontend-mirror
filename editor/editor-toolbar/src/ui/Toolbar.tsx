@@ -1,18 +1,19 @@
 /* eslint-disable @atlaskit/ui-styling-standard/no-unsafe-selectors */
 /* eslint-disable @atlaskit/ui-styling-standard/no-nested-selectors */
-import React, { type ReactNode } from 'react';
+
+import React from 'react';
+import type { ReactNode } from 'react';
 
 import { cssMap, cx } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { useToolbarUI } from '../hooks/ui-context';
-
 import type { ResponsiveContainerProps } from './ResponsiveContainer';
 import { ResponsiveContainer, ResponsiveWrapper } from './ResponsiveContainer';
 import { ToolbarKeyboardNavigationProvider } from './ToolbarKeyboardNavigationProvider';
-import { ACTION_SUBJECT, ViewEventEmitter, type ViewEventEmitterProps } from './ViewEventEmitter';
+import { ACTION_SUBJECT, ViewEventEmitter } from './ViewEventEmitter';
+import type { ViewEventEmitterProps } from './ViewEventEmitter';
 
 const styles = cssMap({
 	toolbarBase: {
@@ -101,11 +102,6 @@ export const Toolbar = ({
 				styles.toolbarSeparator,
 				styles.hiddenSelectorsPatch,
 			)}
-			role={
-				expValEquals('platform_editor_aifc_remove_duplicate_role', 'isEnabled', true)
-					? undefined
-					: 'toolbar'
-			}
 			aria-label={label}
 			testId={testId}
 			data-toolbar-type="inline"
@@ -147,27 +143,22 @@ export const Toolbar = ({
 	return <ResponsiveWrapper>{wrappedToolbar}</ResponsiveWrapper>;
 };
 
-type PrimaryToolbarProps = ToolbarProps & ResponsiveContainerProps;
+type PrimaryToolbarProps = Omit<ToolbarProps, 'label'> & ResponsiveContainerProps;
 
 /**
  *  A simple component representing a toolbar without box shadows - used to represent a primary toolbar
  */
 export const PrimaryToolbar = ({
 	children,
-	label,
 	breakpointPreset,
+	testId,
 }: PrimaryToolbarProps): React.JSX.Element => {
 	return (
 		<ResponsiveContainer breakpointPreset={breakpointPreset}>
 			<Box
 				xcss={cx(styles.toolbarBase, styles.primaryToolbar, styles.hiddenSelectors)}
-				role={
-					expValEquals('platform_editor_aifc_remove_duplicate_role', 'isEnabled', true)
-						? undefined
-						: 'toolbar'
-				}
-				aria-label={label}
 				data-toolbar-type="primary"
+				testId={testId}
 			>
 				{children}
 			</Box>

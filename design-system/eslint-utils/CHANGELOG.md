@@ -1,5 +1,49 @@
 # @atlaskit/eslint-utils
 
+## 3.1.1
+
+### Patch Changes
+
+- [`85a3e1ec4b6ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85a3e1ec4b6ff) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 3.1.0
+
+### Minor Changes
+
+- [`153f1b982bd5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/153f1b982bd5c) -
+  Expose cached style-function resolution for UI Styling Standard rules
+
+## 3.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 2.0.1
+
+### Patch Changes
+
+- [`7affa87ae5857`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7affa87ae5857) -
+  Add ESLint v9/v10 RuleContext compatibility for platform ESLint packages consumed by Jira.
+
 ## 2.0.0
 
 ### Major Changes

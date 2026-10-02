@@ -1,17 +1,17 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { Checkbox } from '@atlaskit/checkbox';
-import { CheckboxField, Field } from '@atlaskit/form';
-import Select from '@atlaskit/select/Select';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import { CheckboxField } from '@atlaskit/form/checkbox-field';
+import Field from '@atlaskit/form/field';
+import Select from '@atlaskit/select/default';
 import { type CardProps } from '@atlaskit/smart-card';
 
 import { type CardActionOptions } from '../../../src/view/Card/types';
 import { EmbedModalSize } from '../../../src/view/EmbedModal/types';
 import { type TemplateDisplay } from '../types';
-
 import Fieldset from './fieldset';
 import CheckboxOption from './inputs/checkbox-option';
-import Label from './inputs/label';
+import CustomLabel from './inputs/custom-label';
 import SelectOption from './inputs/select-option';
 import TextOption from './inputs/text-option';
 
@@ -225,8 +225,7 @@ const CardBuilder = ({
 			/>
 			<Field<{ label: string; value: string }>
 				name="previewSize"
-				// eslint-disable-next-line @atlassian/a11y/label-has-associated-control -- See https://go/a11y-label-has-associated-control for more details
-				label={<Label content="Preview size (preview action)" />}
+				label={<CustomLabel content="Preview size (preview action)" />}
 			>
 				{({ fieldProps: { id, ...rest } }) => (
 					<Select
@@ -252,8 +251,7 @@ const CardBuilder = ({
 					<Checkbox
 						{...fieldProps}
 						isChecked={template.actionOptions?.previewAction?.hideBlanket || false}
-						// eslint-disable-next-line @atlassian/a11y/label-has-associated-control -- See https://go/a11y-label-has-associated-control for more details
-						label={<Label content="Hide blanket (preview action)" />}
+						label={<CustomLabel content="Hide blanket (preview action)" />}
 						onChange={(e: React.SyntheticEvent<HTMLInputElement>) => {
 							handleHideBlanketChange(e.currentTarget.checked);
 						}}

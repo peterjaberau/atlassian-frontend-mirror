@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,37 +8,49 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Toolbar Lists Indentation', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the toolbar lists and indentation plugin used by \`@atlaskit/editor-core\`.
 
   ## Usage
 ---
 
-The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\` of the plugin are defined
-below:
+The \`dependencies\` and \`configuration\` of the plugin are defined below:
 
 ${code`
+type ToolbarListsIndentationPluginOptions = {
+  allowHeadingAndParagraphIndentation: boolean;
+  showIndentationButtons: boolean;
+};
+
+type ToolbarListsIndentationPluginDependencies = [
+  OptionalPlugin<FeatureFlagsPlugin>,
+  ListPlugin,
+  OptionalPlugin<IndentationPlugin>,
+  OptionalPlugin<TasksAndDecisionsPlugin>,
+  OptionalPlugin<AnalyticsPlugin>,
+  OptionalPlugin<PrimaryToolbarPlugin>,
+  OptionalPlugin<SelectionToolbarPlugin>,
+  OptionalPlugin<UserPreferencesPlugin>,
+  OptionalPlugin<ToolbarPlugin>,
+];
+
 type ToolbarListsIndentationPlugin = NextEditorPlugin<
   'toolbarListsIndentation',
   {
-    pluginConfiguration: Config;
-    dependencies: [
-      OptionalPlugin<FeatureFlagsPlugin>,
-      ListPlugin,
-      OptionalPlugin<AnalyticsPlugin>,
-    ];
-    sharedState: IndentationButtons | undefined;
+    dependencies: ToolbarListsIndentationPluginDependencies;
+    pluginConfiguration: ToolbarListsIndentationPluginOptions;
   }
 >
 `}

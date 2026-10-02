@@ -4,35 +4,37 @@
  */
 import React, { useCallback, useLayoutEffect, useMemo } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx, type SerializedStyles } from '@emotion/react';
-import { useIntl } from 'react-intl-next';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports, @atlaskit/design-system/no-unsafe-style-overrides */
+import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
+import { useIntl } from 'react-intl';
 
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { IconFallback } from '@atlaskit/editor-common/quick-insert';
 import { SelectItemMode, typeAheadListMessages } from '@atlaskit/editor-common/type-ahead';
-import {
-	type ExtractInjectionAPI,
-	type TypeAheadItem,
-	type TypeAheadItemRenderProps,
+import type {
+	ExtractInjectionAPI,
+	TypeAheadItem,
+	TypeAheadItemRenderProps,
 } from '@atlaskit/editor-common/types';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import { relativeFontSizeToBase16 } from '@atlaskit/editor-shared-styles';
 import { shortcutStyle } from '@atlaskit/editor-shared-styles/shortcut';
-import { ButtonItem } from '@atlaskit/menu';
-import { B400, N30, N800 } from '@atlaskit/theme/colors';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import ButtonItem from '@atlaskit/menu/button-item';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
-import { type TypeAheadPlugin } from '../typeAheadPluginType';
+import type { TypeAheadPlugin } from '../typeAheadPluginType';
+import { parseSkillTagTitle, SkillTagLabel } from './SkillTagLabel';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
 export const itemIcon: SerializedStyles = css({
-	width: token('space.500', '40px'),
-	height: token('space.500', '40px'),
+	width: token('space.500'),
+	height: token('space.500'),
 	overflow: 'hidden',
-	border: `${token('border.width')} solid ${token('color.border', 'rgba(223, 225, 229, 0.5)')}` /* N60 at 50% */,
+	border: `${token('border.width')} solid ${token('color.border')}` /* N60 at 50% */,
 	borderRadius: token('radius.small', '3px'),
 	boxSizing: 'border-box',
 
@@ -42,20 +44,20 @@ export const itemIcon: SerializedStyles = css({
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	div: {
-		width: token('space.500', '40px'),
-		height: token('space.500', '40px'),
+		width: token('space.500'),
+		height: token('space.500'),
 	},
 });
 
 const itemIconSizeUpdated = css({
-	width: token('space.400', '32px'),
-	height: token('space.400', '32px'),
+	width: token('space.400'),
+	height: token('space.400'),
 
 	// AI icons may contain div as container of the icon
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	div: {
-		width: token('space.400', '32px'),
-		height: token('space.400', '32px'),
+		width: token('space.400'),
+		height: token('space.400'),
 	},
 });
 
@@ -69,7 +71,7 @@ const itemBody = css`
 
 const itemText = css({
 	whiteSpace: 'initial',
-	color: `${token('color.text', N800)}`,
+	color: `${token('color.text')}`,
 });
 const itemTitle = css({
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
@@ -83,7 +85,7 @@ const itemDescription = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/design-system/use-tokens-typography
 	fontSize: `${relativeFontSizeToBase16(12)};`,
 	color: `${token('color.text.subtle')};`,
-	marginTop: `${token('space.050', '4px')};`,
+	marginTop: `${token('space.050')};`,
 });
 const itemDescriptionOverride = css({
 	font: token('font.body.small'),
@@ -99,8 +101,8 @@ const itemAfter = css`
 const customRenderItemDivStyle = css`
 	overflow: hidden;
 	&:focus {
-		box-shadow: inset 2px 0px 0px ${token('color.border.focused', B400)};
-		background-color: ${token('color.background.neutral.subtle.hovered', N30)};
+		box-shadow: inset 2px 0px 0px ${token('color.border.focused')};
+		background-color: ${token('color.background.neutral.subtle.hovered')};
 		outline: none;
 	}
 `;
@@ -112,8 +114,8 @@ const customRenderItemDivStyle = css`
  */
 const selectionFrame = {
 	'& > button:focus': {
-		boxShadow: `inset 2px 0px 0px ${token('color.border.focused', B400)};`,
-		backgroundColor: `${token('color.background.neutral.subtle.hovered', N30)}`,
+		boxShadow: `inset 2px 0px 0px ${token('color.border.focused')};`,
+		backgroundColor: `${token('color.background.neutral.subtle.hovered')}`,
 		outline: 'none',
 		'&:active': {
 			boxShadow: 'none',
@@ -127,8 +129,8 @@ const selectionFrame = {
 
 // eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression -- Ignored via go/DSP-18766
 const selectedStyle = css`
-	background-color: ${token('color.background.neutral.subtle.hovered', N30)};
-	box-shadow: inset 2px 0px 0px ${token('color.border.focused', B400)};
+	background-color: ${token('color.background.neutral.subtle.hovered')};
+	box-shadow: inset 2px 0px 0px ${token('color.border.focused')};
 `;
 
 const disabledStyle = css({
@@ -138,7 +140,11 @@ const disabledStyle = css({
 const titleWithLozengeStyle = css({
 	display: 'flex',
 	alignItems: 'center',
-	gap: `${token('space.050', '4px')}`,
+	gap: `${token('space.050')}`,
+});
+
+const lozengeWrapperStyle = css({
+	flexShrink: 0,
 });
 
 const FallbackIcon = React.memo(() => {
@@ -154,6 +160,7 @@ type TypeAheadListItemProps = {
 	item: TypeAheadItem;
 	itemIndex: number;
 	itemsLength: number;
+	lastInputMethodRef?: React.MutableRefObject<'mouse' | 'keyboard'>;
 	moreElementsInQuickInsertViewEnabled?: boolean;
 	onItemClick: (mode: SelectItemMode, index: number) => void;
 	selectedIndex: number;
@@ -219,7 +226,7 @@ const CustomItemComponentWrapper = React.memo((props: CustomItemComponentWrapper
 	);
 });
 
-export const TypeAheadListItem = React.memo(
+export const TypeAheadListItem: React.MemoExoticComponent<
 	({
 		item,
 		itemsLength,
@@ -230,7 +237,23 @@ export const TypeAheadListItem = React.memo(
 		moreElementsInQuickInsertViewEnabled,
 		api,
 		firstOnlineSupportedIndex,
-	}: TypeAheadListItemProps) => {
+		lastInputMethodRef,
+	}: TypeAheadListItemProps) => jsx.JSX.Element
+> = React.memo(
+	({
+		item,
+		itemsLength,
+		selectedIndex,
+		onItemClick,
+		itemIndex,
+		ariaLabel,
+		moreElementsInQuickInsertViewEnabled,
+		api,
+		firstOnlineSupportedIndex,
+		lastInputMethodRef,
+	}: TypeAheadListItemProps): jsx.JSX.Element => {
+		const isSafari = getBrowserInfo().safari;
+
 		const { connectivityMode } = useSharedPluginStateWithSelector(
 			api,
 			['connectivity'],
@@ -242,7 +265,10 @@ export const TypeAheadListItem = React.memo(
 		);
 		const isItemDisabled = (item: TypeAheadItem | undefined) =>
 			isOfflineMode(connectivityMode) && (item?.isDisabledOffline ?? false);
-		const itemIsDisabled = isItemDisabled(item);
+		const itemIsDisabled =
+			(isExperimentEnabled('platform_editor_mention_search_order') &&
+				item?.isNonInteractive === true) ||
+			isItemDisabled(item);
 		const isFirstEnabledIndex =
 			isOfflineMode(connectivityMode) &&
 			itemIndex === firstOnlineSupportedIndex &&
@@ -271,6 +297,13 @@ export const TypeAheadListItem = React.memo(
 		const descriptionId = `typeahead-item-description-${itemIndex}`;
 
 		const { icon, title, render: customRenderItem } = item;
+		const skillTag = useMemo(
+			() =>
+				isExperimentEnabled('display_skill_lozenge_in_editor')
+					? parseSkillTagTitle(title)
+					: undefined,
+			[title],
+		);
 		const elementIcon = useMemo(() => {
 			return (
 				<div css={[itemIcon, moreElementsInQuickInsertViewEnabled && itemIconSizeUpdated]}>
@@ -288,22 +321,36 @@ export const TypeAheadListItem = React.memo(
 
 		const customItemRef = React.useRef<HTMLDivElement>(null);
 		const buttonItemRef = React.useRef<HTMLDivElement>(null);
-		const shouldUpdateFocus = selectedIndex === itemIndex && !isFirstEnabledIndex;
+		const shouldUpdateFocus =
+			selectedIndex === itemIndex &&
+			!isFirstEnabledIndex &&
+			!(
+				isExperimentEnabled('platform_editor_mention_search_order') &&
+				item?.isNonInteractive === true
+			);
 		const listItemClasses = useMemo(() => {
 			return [selectionFrame, isSelected && !itemIsDisabled && selectedStyle];
 		}, [isSelected, itemIsDisabled]);
 
 		useLayoutEffect(() => {
 			if (shouldUpdateFocus) {
-				customItemRef?.current?.focus();
+				const skipFocusOnSafariHover = isSafari && lastInputMethodRef?.current === 'mouse';
+
+				if (!skipFocusOnSafariHover) {
+					customItemRef?.current?.focus();
+				}
 			}
-		}, [customItemRef, shouldUpdateFocus]);
+		}, [customItemRef, shouldUpdateFocus, lastInputMethodRef, isSafari]);
 
 		useLayoutEffect(() => {
 			if (shouldUpdateFocus) {
-				buttonItemRef?.current?.focus();
+				const skipFocusOnSafariHover = isSafari && lastInputMethodRef?.current === 'mouse';
+
+				if (!skipFocusOnSafariHover) {
+					buttonItemRef?.current?.focus();
+				}
 			}
-		}, [buttonItemRef, shouldUpdateFocus]);
+		}, [buttonItemRef, shouldUpdateFocus, lastInputMethodRef, isSafari]);
 
 		if (customRenderItem) {
 			return (
@@ -333,14 +380,14 @@ export const TypeAheadListItem = React.memo(
 					iconBefore={elementIcon}
 					isSelected={isSelected}
 					aria-selected={isSelected}
-					aria-label={title}
+					aria-label={skillTag?.name ?? title}
 					aria-describedby={descriptionText || shortcutText ? descriptionId : undefined}
 					aria-setsize={itemsLength}
 					aria-posinset={itemIndex + 1}
 					role="option"
 					ref={buttonItemRef}
 					isDisabled={itemIsDisabled}
-					testId={editorExperiment('platform_synced_block', true) ? item.testId : undefined}
+					testId={item.testId}
 					// @ts-ignore
 					css={listItemClasses}
 				>
@@ -353,13 +400,15 @@ export const TypeAheadListItem = React.memo(
 										itemTitle,
 										moreElementsInQuickInsertViewEnabled && itemTitleOverride,
 										itemIsDisabled && disabledStyle,
-										item.lozenge &&
-											editorExperiment('platform_synced_block', true) &&
-											titleWithLozengeStyle,
+										item.lozenge && titleWithLozengeStyle,
 									]}
 								>
-									{item.title}
-									{editorExperiment('platform_synced_block', true) && item.lozenge}
+									{skillTag ? (
+										<SkillTagLabel color={skillTag.color} slug={skillTag.slug} />
+									) : (
+										item.title
+									)}
+									{item.lozenge && <span css={lozengeWrapperStyle}>{item.lozenge}</span>}
 								</div>
 								<div css={itemAfter}>
 									{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}

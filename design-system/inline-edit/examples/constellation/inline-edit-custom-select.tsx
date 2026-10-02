@@ -5,11 +5,12 @@
 import { useState } from 'react';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import InlineEdit from '@atlaskit/inline-edit';
+import InlineEdit from '@atlaskit/inline-edit/inline-edit';
 import { Box } from '@atlaskit/primitives/compiled';
-import Select, { type OptionType, type ValueType } from '@atlaskit/select';
-import Tag from '@atlaskit/tag';
-import Group from '@atlaskit/tag-group';
+import Select from '@atlaskit/select/default';
+import type { OptionType, ValueType } from '@atlaskit/select/types';
+import Group from '@atlaskit/tag-group/tag-group';
+import Tag from '@atlaskit/tag/removable-tag';
 import { token } from '@atlaskit/tokens';
 
 const containerStyles = cssMap({
@@ -31,17 +32,15 @@ const readViewContainerStyles = cssMap({
 const editViewContainerStyles = cssMap({
 	root: {
 		position: 'relative',
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-		zIndex: 'dialog' as any,
 	},
 });
 
 const tagGroupContainerStyles = cssMap({
 	root: {
-		paddingTop: token('space.050'),
-		paddingRight: token('space.050'),
-		paddingBottom: token('space.050'),
-		paddingLeft: token('space.050'),
+		paddingBlockStart: token('space.050'),
+		paddingInlineEnd: token('space.050'),
+		paddingBlockEnd: token('space.050'),
+		paddingInlineStart: token('space.050'),
 	},
 });
 const selectOptions = [

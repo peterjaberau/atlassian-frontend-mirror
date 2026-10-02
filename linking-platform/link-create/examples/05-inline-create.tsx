@@ -2,10 +2,12 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import fetchMock from 'fetch-mock/cjs/client';
 
-import Button from '@atlaskit/button/new';
-import { Drawer, DrawerCloseButton, DrawerContent, DrawerSidebar } from '@atlaskit/drawer';
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Button from '@atlaskit/button/default/button';
+import { Drawer } from '@atlaskit/drawer/drawer';
+import { DrawerCloseButton } from '@atlaskit/drawer/drawer-close-button';
+import { DrawerContent } from '@atlaskit/drawer/drawer-content';
+import { DrawerSidebar } from '@atlaskit/drawer/drawer-sidebar';
+import Link from '@atlaskit/link/link';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -20,7 +22,7 @@ import {
 	type Validator,
 } from '../src';
 import { type CreatePayload } from '../src/common/types';
-import { InlineCreate } from '../src/ui';
+import { default as InlineCreate } from '../src/ui/inline-create';
 
 const fetchMockNetworkRequest = () => {
 	const search = new URLSearchParams(window.location.search);
@@ -171,26 +173,19 @@ const Example = () => {
 
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ padding: token('space.250', '20px') }}>
+		<div style={{ padding: token('space.250') }}>
 			{ari && (
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				<div style={{ marginBottom: token('space.400', '2rem') }}>
+				<div style={{ marginBottom: token('space.400') }}>
 					<p>ARI: {ari}</p>
 				</div>
 			)}
 			{link && (
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				<div style={{ marginBottom: token('space.200', '1rem') }}>
-					{fg('dst-a11y__replace-anchor-with-link__linking-platfo') ? (
-						<Link href={link} target="_blank" rel="noopener noreferrer nofollow">
-							{link}
-						</Link>
-					) : (
-						// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-						<a href={link} target="_blank" rel="noopener noreferrer nofollow">
-							{link}
-						</a>
-					)}
+				<div style={{ marginBottom: token('space.200') }}>
+					<Link href={link} target="_blank" rel="noopener noreferrer nofollow">
+						{link}
+					</Link>
 				</div>
 			)}
 			<Drawer

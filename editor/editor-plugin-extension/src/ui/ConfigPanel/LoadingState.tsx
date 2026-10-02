@@ -2,25 +2,26 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import type { ReactNode } from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { type IntlShape, injectIntl } from 'react-intl-next';
+import { type IntlShape, injectIntl } from 'react-intl';
 import type { LoadingComponentProps } from 'react-loadable';
 
 import { messages } from '@atlaskit/editor-common/extensions';
-import SectionMessage from '@atlaskit/section-message';
-import Spinner from '@atlaskit/spinner';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import SectionMessage from '@atlaskit/section-message/message';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 
 const spinnerWrapperStyles = css({
 	display: 'flex',
 	justifyContent: 'center',
-	marginTop: token('space.800', '64px'),
+	marginTop: token('space.800'),
 });
 
 const errorWrapperStyles = css({
-	marginTop: token('space.400', '32px'), // Add some padding to the top to make sure we place this below the offline status banner
+	marginTop: token('space.400'), // Add some padding to the top to make sure we place this below the offline status banner
 });
 
 const LoadingStateWithErrorHandling = injectIntl(
@@ -42,15 +43,9 @@ const LoadingStateWithErrorHandling = injectIntl(
 	},
 );
 
-const LoadingStateWithoutErrorHandling = () => (
-	<div css={spinnerWrapperStyles} data-testid="ConfigPanelLoading">
-		<Spinner size="small" interactionName="config-panel-spinner" />
-	</div>
-);
-
-const LoadingState = (props: Partial<LoadingComponentProps>) =>
-	editorExperiment('platform_editor_offline_editing_web', true)
-		? LoadingStateWithErrorHandling(props)
-		: LoadingStateWithoutErrorHandling();
+const LoadingState = (
+	props: Partial<LoadingComponentProps>,
+): string | number | boolean | jsx.JSX.Element | Iterable<ReactNode> | null | undefined =>
+	LoadingStateWithErrorHandling(props);
 
 export default LoadingState;

@@ -6,8 +6,8 @@ import { PureComponent } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { Label } from '@atlaskit/form';
-import Select from '@atlaskit/select';
+import { Label } from '@atlaskit/form/label/default';
+import Select from '@atlaskit/select/default';
 import TableTree, {
 	Cell,
 	Header,
@@ -52,16 +52,19 @@ const performanceTweakContainerStyles = css({
 	backgroundColor: token('elevation.surface'),
 	border: `5px solid ${token('color.border')}`,
 	borderWidth: '5px 0 0 5px',
-	insetBlockEnd: token('space.0', '0px'),
-	insetInlineEnd: token('space.0', '0px'),
-	paddingBlockEnd: token('space.250', '20px'),
-	paddingBlockStart: token('space.250', '20px'),
-	paddingInlineEnd: token('space.250', '20px'),
-	paddingInlineStart: token('space.250', '20px'),
+	insetBlockEnd: token('space.0'),
+	insetInlineEnd: token('space.0'),
+	paddingBlockEnd: token('space.250'),
+	paddingBlockStart: token('space.250'),
+	paddingInlineEnd: token('space.250'),
+	paddingInlineStart: token('space.250'),
 });
 
 const childCountPerItem = 100;
-const childCountOptions = [
+const childCountOptions: {
+	label: number;
+	value: number;
+}[] = [
 	{
 		label: 10,
 		value: 10,
@@ -94,9 +97,17 @@ const childCountOptions = [
 
 type ChildCount = (typeof childCountOptions)[number];
 
-// eslint-disable-next-line import/no-anonymous-default-export, @repo/internal/react/no-class-components
+// eslint-disable-next-line @repo/internal/react/no-class-components
 export default class extends PureComponent {
-	state = {
+	state: {
+		childCount: number;
+		totalCount: number;
+		selectedChildCountOption: {
+			label: number;
+			value: number;
+		};
+		items: Item[];
+	} = {
 		childCount: childCountPerItem,
 		totalCount: childCountPerItem,
 		selectedChildCountOption: childCountOptions[3],
@@ -120,7 +131,7 @@ export default class extends PureComponent {
 		});
 	};
 
-	render() {
+	render(): JSX.Element {
 		const { items } = this.state;
 		return (
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -153,7 +164,7 @@ export default class extends PureComponent {
 							style={{
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 								width: '90px',
-								margin: `0 ${token('space.250', '20px')} 0 10px`,
+								margin: `0 ${token('space.250')} 0 10px`,
 							}}
 						>
 							<Select

@@ -1,10 +1,12 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { getAgentCreator } from '@atlaskit/rovo-agent-components/ui/AgentProfileInfo';
-import { navigateToTeamsApp } from '@atlaskit/teams-app-config/navigation';
-import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics';
+import { navigateToTeamsApp } from '@atlaskit/teams-app-config/utils/teams-app-navigation/navigate-to-teams-app';
+import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
 
+import { AgentForbiddenError } from '../../client/AgentForbiddenError';
 import {
 	type AgentActionsType,
 	type Flag,
@@ -15,7 +17,6 @@ import {
 } from '../../types';
 import { getAAIDFromARI } from '../../util/rovoAgentUtils';
 import ErrorMessage from '../Error/ErrorMessage';
-
 import { AgentProfileCardWrapper } from './AgentProfileCardWrapper';
 import { AgentProfileCardLazy } from './lazyAgentProfileCard';
 
@@ -27,18 +28,35 @@ export type AgentProfileCardResourcedProps = {
 	children?: React.ReactNode;
 	addFlag?: (flag: Flag) => void;
 	onDeleteAgent?: (agentId: string) => { restore: () => void };
-	/** Hide the Agent more actions dropdown when true */
+	/** Hide the Agent more actions dropdown when true, is also hidden when hideAgentActions is true */
 	hideMoreActions?: boolean;
 	/** Hide the AI disclaimer. Defaults to false (disclaimer is shown by default). */
 	hideAiDisclaimer?: boolean;
+	/** Hide the conversation starters. Defaults to false (conversation starters are shown by default). */
+	hideConversationStarters?: boolean;
+	/** Hide the agent actions (chat button and dropdown menu). Defaults to false (agent actions are shown by default). */
+	hideAgentActions?: boolean;
+	/** Hide the favourite (star) button. Defaults to false (the star is shown). */
+	hideStarButton?: boolean;
+	/** Render the creator/author as plain text with no link. Defaults to false. */
+	showCreatorNameWithoutLink?: boolean;
+	/** Name shown in reduced card when user lacks permission */
+	agentName?: string;
+	/** Optional component rendered at the bottom of the agent profile card. */
+	footerComponent?: React.ReactNode;
 } & AgentActionsType;
 
 export const AgentProfileCardResourced = (
 	props: AgentProfileCardResourcedProps,
 ): React.JSX.Element => {
 	const [agentData, setAgentData] = useState<RovoAgentProfileCardInfo>();
-	const [isLoading, setIsLoading] = useState<boolean>(false);
+	// Initialize as true when fix is enabled since we fetch immediately on mount,
+	// avoiding a brief error screen flash before the useEffect fires.
+	const [isLoading, setIsLoading] = useState<boolean>(
+		fg('confluence_fix_agent_profile_card_flash'),
+	);
 	const [error, setError] = useState();
+	const [isPermitted, setIsPermitted] = useState<boolean>(true);
 
 	const { fireEvent } = useAnalyticsEventsNext();
 	const creatorUserId = useMemo(
@@ -48,76 +66,15 @@ export const AgentProfileCardResourced = (
 				: '',
 		[agentData?.creator_type, agentData?.creator],
 	);
-	const { href: profileHref } = navigateToTeamsApp({
+
+	const navResult = navigateToTeamsApp({
 		type: 'USER',
 		payload: {
 			userId: creatorUserId || '',
 		},
 		cloudId: props.cloudId,
 	});
-
-	/**
-	 * @TODO replace with `getAgentCreator` from `@atlassian/rovo-agent-components`
-	 * @deprecated use `getAgentCreator` from `@atlassian/rovo-agent-components`
-	 */
-	const getCreatorDeprecated = useCallback(
-		async ({
-			creator_type,
-			creator,
-			authoringTeam,
-		}: {
-			creator_type: string;
-			creator?: string;
-			authoringTeam?: RovoAgentAgg['authoringTeam'];
-		}) => {
-			if (!creator) {
-				return undefined;
-			}
-			switch (creator_type) {
-				case 'SYSTEM':
-					return { type: 'SYSTEM' as const };
-
-				case 'THIRD_PARTY':
-					return { type: 'THIRD_PARTY' as const, name: creator ?? '' };
-
-				case 'CUSTOMER':
-					try {
-						if (!creatorUserId || !props.cloudId) {
-							return undefined;
-						}
-
-						if (authoringTeam) {
-							return {
-								type: 'CUSTOMER' as const,
-								name: authoringTeam.displayName ?? '',
-								profileLink: authoringTeam.profileUrl ?? '',
-							};
-						}
-
-						const creatorInfo = await props.resourceClient.getProfile(
-							props.cloudId,
-							creatorUserId,
-							fireEvent,
-						);
-
-						return {
-							type: 'CUSTOMER' as const,
-							name: creatorInfo.fullName,
-							profileLink: fg('platform-adopt-teams-nav-config')
-								? profileHref
-								: `/people/${creatorUserId}`,
-							id: creatorUserId,
-						};
-					} catch {
-						return undefined;
-					}
-
-				default:
-					return undefined;
-			}
-		},
-		[creatorUserId, fireEvent, props.cloudId, props.resourceClient, profileHref],
-	);
+	let profileHref = navResult.href;
 
 	const getCreator = useCallback(
 		async ({
@@ -131,16 +88,32 @@ export const AgentProfileCardResourced = (
 		}) => {
 			try {
 				let userCreatorInfo;
-				if (creatorUserId && props.cloudId) {
+				const currentCreatorUserId = fg('confluence_fix_agent_profile_card_flash')
+					? creator_type === 'CUSTOMER' && creator
+						? getAAIDFromARI(creator)
+						: undefined
+					: creatorUserId;
+
+				if (currentCreatorUserId && props.cloudId) {
 					userCreatorInfo = await props.resourceClient.getProfile(
 						props.cloudId,
-						creatorUserId,
+						currentCreatorUserId,
 						fireEvent,
 					);
+
+					if (fg('confluence_fix_agent_profile_card_flash')) {
+						profileHref = navigateToTeamsApp({
+							type: 'USER',
+							payload: {
+								userId: currentCreatorUserId,
+							},
+							cloudId: props.cloudId,
+						}).href;
+					}
 				}
 
 				const creatorInfo = getAgentCreator({
-					creatorType: creator_type ?? '',
+					creatorType: creator_type,
 					authoringTeam: authoringTeam
 						? {
 								displayName: authoringTeam.displayName ?? '',
@@ -152,7 +125,7 @@ export const AgentProfileCardResourced = (
 								name: userCreatorInfo.fullName ?? '',
 								profileLink: fg('platform-adopt-teams-nav-config')
 									? profileHref
-									: `/people/${creatorUserId}`,
+									: `/people/${currentCreatorUserId}`,
 							}
 						: undefined,
 					forgeCreator: creator ?? undefined,
@@ -182,29 +155,116 @@ export const AgentProfileCardResourced = (
 				authoringTeam: profileResult.aggData?.authoringTeam ?? undefined,
 			};
 
-			if (fg('rovo_agent_show_creator_on_profile_card_fix')) {
-				const agentCreatorInfo = await getCreator(creatorInfoProps);
-				setAgentData({
-					...profileData,
-					creatorInfo: agentCreatorInfo,
-				});
-			} else {
-				const agentCreatorInfoDeprecated = await getCreatorDeprecated(creatorInfoProps);
-				setAgentData({
-					...profileData,
-					creatorInfo: agentCreatorInfoDeprecated,
-				});
-			}
+			const agentCreatorInfo = await getCreator(creatorInfoProps);
+
+			setAgentData({
+				...profileData,
+				creatorInfo: agentCreatorInfo,
+			});
 		} catch (err: any) {
-			setError(err);
+			if (
+				err instanceof AgentForbiddenError &&
+				FeatureGates.getExperimentValue(
+					'platform_editor_reduced_agent_profile_cards',
+					'isEnabled',
+					false,
+				)
+			) {
+				setIsPermitted(false);
+			} else {
+				setError(err);
+			}
 		} finally {
 			setIsLoading(false);
 		}
-	}, [fireEvent, getCreator, props.accountId, props.resourceClient, getCreatorDeprecated]);
+	}, [fireEvent, getCreator, props.accountId, props.resourceClient]);
+
+	// Depend on accountId rather than fetchData to avoid a re-fetch loop:
+	// agentData changes → creatorUserId → getCreator → fetchData ref changes → useEffect re-fires.
+	// Reset state on accountId change so stale data from the previous agent isn't briefly shown.
+	useEffect(() => {
+		if (!fg('confluence_fix_agent_profile_card_flash')) {
+			return;
+		}
+		setAgentData(undefined);
+		setError(undefined);
+		setIsLoading(true);
+		fetchData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [props.accountId]);
 
 	useEffect(() => {
+		if (fg('confluence_fix_agent_profile_card_flash')) {
+			return;
+		}
 		fetchData();
 	}, [fetchData]);
+
+	const forbiddenAgent = useMemo(
+		() =>
+			fg('platform_editor_agent_mentions_drop_one_fixes')
+				? ({
+						id: '',
+						named_id: '',
+						name: props.agentName ?? '',
+						description: '\u00A0',
+						creator_type: 'CUSTOMER',
+						is_default: false,
+						actor_type: 'AGENT',
+						user_defined_conversation_starters: null,
+						favourite: false,
+						favourite_count: 0,
+						identity_account_id: props.accountId,
+						creatorInfo: undefined,
+					} satisfies RovoAgentProfileCardInfo)
+				: undefined,
+		[props.agentName, props.accountId],
+	);
+
+	if (
+		!isPermitted &&
+		FeatureGates.getExperimentValue(
+			'platform_editor_reduced_agent_profile_cards',
+			'isEnabled',
+			false,
+		)
+	) {
+		return (
+			<AgentProfileCardWrapper>
+				<Suspense fallback={null}>
+					<AgentProfileCardLazy
+						agent={
+							fg('platform_editor_agent_mentions_drop_one_fixes')
+								? forbiddenAgent
+								: {
+										id: '',
+										named_id: '',
+										name: props.agentName ?? '',
+										description: '\u00A0',
+										creator_type: 'CUSTOMER',
+										is_default: false,
+										actor_type: 'AGENT',
+										user_defined_conversation_starters: null,
+										favourite: false,
+										favourite_count: 0,
+										identity_account_id: props.accountId,
+										creatorInfo: undefined,
+									}
+						}
+						isLoading={false}
+						resourceClient={props.resourceClient}
+						cloudId={props.cloudId}
+						hideAgentActions={true}
+						hideConversationStarters={true}
+						hideAiDisclaimer={true}
+						hideStarButton={props.hideStarButton}
+						showCreatorNameWithoutLink={props.showCreatorNameWithoutLink}
+						footerComponent={props.footerComponent}
+					/>
+				</Suspense>
+			</AgentProfileCardWrapper>
+		);
+	}
 
 	if (error || (!isLoading && !agentData)) {
 		return (
@@ -234,6 +294,11 @@ export const AgentProfileCardResourced = (
 				onDeleteAgent={props.onDeleteAgent}
 				hideMoreActions={props.hideMoreActions}
 				hideAiDisclaimer={props.hideAiDisclaimer}
+				hideConversationStarters={props.hideConversationStarters}
+				hideAgentActions={props.hideAgentActions}
+				hideStarButton={props.hideStarButton}
+				showCreatorNameWithoutLink={props.showCreatorNameWithoutLink}
+				footerComponent={props.footerComponent}
 			/>
 		</Suspense>
 	);

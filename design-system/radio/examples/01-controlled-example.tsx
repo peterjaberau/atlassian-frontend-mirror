@@ -6,9 +6,11 @@ import { useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import Form, { Field, FormFooter } from '@atlaskit/form';
-import { RadioGroup } from '@atlaskit/radio';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
+import RadioGroup from '@atlaskit/radio/radio-group';
 import { token } from '@atlaskit/tokens';
 
 const options = [

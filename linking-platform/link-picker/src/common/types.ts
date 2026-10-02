@@ -1,8 +1,9 @@
 import type { ReactNode, Ref } from 'react';
 
-import type { MessageDescriptor } from 'react-intl-next';
+import type { MessageDescriptor } from 'react-intl';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import type { CardAppearance } from '@atlaskit/linking-common/types';
 
 export type LinkInputType = 'manual' | 'typeAhead';
 
@@ -107,6 +108,13 @@ export interface PickerState {
 interface Meta {
 	/** Indicates how the link was picked. */
 	inputMethod: LinkInputType;
+	/**
+	 * Optional hint requesting a specific card appearance for the inserted link.
+	 * The link picker itself never sets this; consumers (e.g. an editor adapter)
+	 * may populate it when calling `onSubmit` to request, for example, an embed
+	 * appearance for a link inserted from a dedicated embed entry point.
+	 */
+	appearance?: CardAppearance;
 }
 
 interface OnSubmitParameter {
@@ -186,6 +194,14 @@ export interface LinkPickerProps {
 	recentSearchListSize?: number;
 	/** Controls showing the image in the no results state */
 	shouldRenderNoResultsImage?: boolean;
+	/** When true, tabs are displayed even if there is only one plugin. */
+	alwaysShowTabs?: boolean;
+	/**
+	 * When true, disables the Insert button when the user has manually typed a URL but no search
+	 * result has been selected. This prevents inserting external/manual links when only
+	 * result-based links are desired.
+	 */
+	disableManualUrlInsert?: boolean;
 }
 
 type CustomLinkPickerMessages = {

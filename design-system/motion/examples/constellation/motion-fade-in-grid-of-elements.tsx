@@ -3,26 +3,47 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { cloneElement, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import { cssMap } from '@atlaskit/css';
 import {
 	BitbucketIcon,
 	ConfluenceIcon,
 	JiraIcon,
 	JiraServiceManagementIcon,
-	JiraSoftwareIcon,
-	JiraWorkManagementIcon,
 	OpsgenieIcon,
 	StatuspageIcon,
 	TrelloIcon,
 } from '@atlaskit/logo';
-import { FadeIn, StaggeredEntrance } from '@atlaskit/motion';
+import { JiraSoftwareIcon } from '@atlaskit/logo/jira-software-icon';
+import { JiraWorkManagementIcon } from '@atlaskit/logo/jira-work-management/icon';
+import Motion from '@atlaskit/motion/entering/motion';
+import StaggeredEntrance from '@atlaskit/motion/staggered-entrance';
 import { token } from '@atlaskit/tokens';
 
-import { Block, RetryContainer } from '../utils';
+import { Block } from '../utils/blocks';
+import { RetryContainer } from '../utils/containers';
+
+const styles = cssMap({
+	entering: {
+		animationDuration: token('motion.duration.xlong'),
+		animationTimingFunction: token('motion.easing.out.practical'),
+		animationName: `${token('motion.keyframe.scale.in.medium')}, ${token(
+			'motion.keyframe.fade.in',
+		)}`,
+	},
+	exiting: {
+		animationDuration: token('motion.duration.long'),
+		animationTimingFunction: token('motion.easing.in.practical'),
+		animationName: `${token('motion.keyframe.scale.out.medium')}, ${token(
+			'motion.keyframe.fade.out',
+		)}`,
+	},
+});
 
 const MotionFadeInGridOfElementsExample = (): JSX.Element => {
 	const [state, setState] = useState(() => ({
@@ -55,25 +76,19 @@ const MotionFadeInGridOfElementsExample = (): JSX.Element => {
 						{Array(state.numOfChildren)
 							.fill(undefined)
 							.map((_, index) => (
-								<FadeIn key={index}>
-									{(props) => (
-										<li
-											ref={props.ref}
-											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
-											className={props.className}
-											// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-											style={props.style}
-											css={listItemStyles}
-										>
-											<Block appearance={state.size}>
-												{/* eslint-disable-next-line @repo/internal/react/no-clone-element */}
-												{cloneElement(logos[index % logos.length], {
-													size: state.numOfChildren > 9 ? 'small' : 'xlarge',
-												})}
-											</Block>
-										</li>
-									)}
-								</FadeIn>
+								<Motion
+									enteringAnimationXcss={styles.entering}
+									exitingAnimationXcss={styles.exiting}
+								>
+									<li css={listItemStyles}>
+										<Block appearance={state.size}>
+											{/* eslint-disable-next-line @repo/internal/react/no-clone-element */}
+											{cloneElement(logos[index % logos.length], {
+												size: state.numOfChildren > 9 ? 'small' : 'xlarge',
+											})}
+										</Block>
+									</li>
+								</Motion>
 							))}
 					</StaggeredEntrance>
 				</ul>

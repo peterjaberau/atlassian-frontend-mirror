@@ -1,8 +1,10 @@
 import React, { useLayoutEffect, useState } from 'react';
 
 import { TRIGGER_METHOD } from '@atlaskit/editor-common/analytics';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { Command } from '@atlaskit/editor-common/types';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { UNSAFE_expValNoExposure } from '@atlaskit/platform-feature-experiments/unsafe-exp-val-no-exposure';
+import { conditionalHooksFactory } from '@atlaskit/platform-feature-flags-react/conditional-hooks-factory/conditional-hooks-factory';
 
 import { blur, toggleMatchCase } from '../pm-plugins/commands';
 import {
@@ -15,7 +17,6 @@ import {
 	replaceWithAnalytics,
 } from '../pm-plugins/commands-with-analytics';
 import type { FindReplaceToolbarButtonWithStateProps } from '../types';
-
 import FindReplaceDropdown from './FindReplaceDropdown';
 import FindReplaceToolbarButton from './FindReplaceToolbarButton';
 
@@ -39,6 +40,17 @@ const useSharedPluginStateNoDebounce = (api: FindReplaceToolbarButtonWithStatePr
 	return { findReplaceState: state };
 };
 
+const useEditorViewMode = conditionalHooksFactory(
+	() => UNSAFE_expValNoExposure('platform_editor_collapsible_headings', 'isEnabled', false),
+	(api: FindReplaceToolbarButtonWithStateProps['api']) =>
+		useSharedPluginStateWithSelector(
+			api,
+			['editorViewMode'],
+			(states) => states.editorViewModeState?.mode,
+		),
+	() => undefined,
+);
+
 const FindReplaceToolbarButtonWithState = ({
 	popupsBoundariesElement,
 	popupsMountPoint,
@@ -55,6 +67,9 @@ const FindReplaceToolbarButtonWithState = ({
 	const editorAnalyticsAPI = api?.analytics?.actions;
 
 	const { findReplaceState } = useSharedPluginStateNoDebounce(api);
+	const editorViewMode = useEditorViewMode(api);
+
+	const allowReplace = editorViewMode !== 'view';
 
 	const shouldMatchCase = findReplaceState?.shouldMatchCase;
 	const isActive = findReplaceState?.isActive;
@@ -80,13 +95,16 @@ const FindReplaceToolbarButtonWithState = ({
 
 	const dispatchCommand = (cmd: Command) => {
 		const { state, dispatch } = editorView;
-		cmd(state, dispatch);
+		cmd(state, dispatch, editorView);
 	};
 
 	const handleActivate = () => {
 		runWithEditorFocused(() =>
 			dispatchCommand(
-				activateWithAnalytics(editorAnalyticsAPI)({
+				activateWithAnalytics(
+					editorAnalyticsAPI,
+					api?.editorViewMode,
+				)({
 					triggerMethod: TRIGGER_METHOD.TOOLBAR,
 				}),
 			),
@@ -178,15 +196,10 @@ const FindReplaceToolbarButtonWithState = ({
 			findText={findText}
 			index={index}
 			numMatches={matches.length}
-			isReplaceable={
-				expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-					? matches[index]?.canReplace
-					: undefined
-			}
+			isReplaceable={matches[index]?.canReplace}
 			numReplaceable={
-				expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-					? matches.filter((match) => match.canReplace === true).length
-					: undefined
+				// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
+				matches.filter((match) => match.canReplace === true).length
 			}
 			replaceText={replaceText}
 			shouldFocus={shouldFocus}
@@ -205,8 +218,24 @@ const FindReplaceToolbarButtonWithState = ({
 			onReplaceAll={handleReplaceAll}
 			takeFullWidth={!!takeFullWidth}
 			isButtonHidden={isButtonHidden}
+			allowReplace={allowReplace}
 		/>
 	);
 };
 
-export default React.memo(FindReplaceToolbarButtonWithState);
+const _default_1: React.MemoExoticComponent<
+	({
+		popupsBoundariesElement,
+		popupsMountPoint,
+		popupsScrollableElement,
+		isToolbarReducedSpacing,
+		editorView,
+		containerElement,
+		dispatchAnalyticsEvent,
+		takeFullWidth,
+		api,
+		isButtonHidden,
+		doesNotHaveButton,
+	}: FindReplaceToolbarButtonWithStateProps) => React.JSX.Element | null
+> = React.memo(FindReplaceToolbarButtonWithState);
+export default _default_1;

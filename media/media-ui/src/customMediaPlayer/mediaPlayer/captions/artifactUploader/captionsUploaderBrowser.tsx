@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { useMediaClient } from '@atlaskit/media-client-react';
-import type { ArtifactUploaderProps } from './types';
-import { BrowserPicker } from './filePickers/browser';
-import { createUploadCaptionsFn, UploadCaptionsForm } from './captions';
-import ApiFeedback, { type NotificationTypes } from '../apiFeedback';
+
+import { type WithIntlProps, type WrappedComponentProps, injectIntl } from 'react-intl';
+
 import { type MediaItemDetails } from '@atlaskit/media-client';
-import { messages } from '../../../../messages';
-import { type WrappedComponentProps, injectIntl } from 'react-intl-next';
+import { useMediaClient } from '@atlaskit/media-client-react/use-media-client';
 import { type MediaTraceContext } from '@atlaskit/media-common';
+
+import { messages } from '../../../../messages';
+import ApiFeedback, { type NotificationTypes } from '../apiFeedback';
+import { createUploadCaptionsFn } from './captions/uploader';
+import { default as UploadCaptionsForm } from './captions/uploadForm';
+import { BrowserPicker } from './filePickers/browser';
+import type { ArtifactUploaderProps } from './types';
 
 export type CaptionsUploaderBrowserProps = ArtifactUploaderProps & {
 	isOpen: boolean;
@@ -75,4 +79,19 @@ const CaptionsUploaderBrowser = ({
 	);
 };
 
-export default injectIntl(CaptionsUploaderBrowser);
+const _default_1: React.FC<
+	WithIntlProps<
+		ArtifactUploaderProps & {
+			isOpen: boolean;
+			onClose: () => void;
+		} & WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		ArtifactUploaderProps & {
+			isOpen: boolean;
+			onClose: () => void;
+		} & WrappedComponentProps
+	>;
+} = injectIntl(CaptionsUploaderBrowser);
+export default _default_1;

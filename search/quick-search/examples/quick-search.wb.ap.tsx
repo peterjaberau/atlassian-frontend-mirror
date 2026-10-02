@@ -1,0 +1,31 @@
+import { wb, type WorkbenchExample } from '@atlassian/workbench';
+
+import NavigationExampleExample from './0-Navigation-Example';
+import ObjectResultsExample from './1-Object-Results';
+import PeopleResultsExample from './2-People-Results';
+import ContainerResultsExample from './3-Container-Results';
+import CustomResultsExample from './4-Custom-Results';
+import KeyboardNavigationWithNestedDOMExample from './5-Keyboard-Navigation-with-Nested-DOM';
+import AnalyticsLoggingExample from './6-Analytics-Logging';
+import ResultsWithOnSelectedIconExample from './8-Results-with-onSelectedIcon';
+import InputControlsExample from './9-Input-Controls';
+import AutocompleteExample from './10-Autocomplete';
+
+export const NavigationExample: WorkbenchExample = wb(NavigationExampleExample);
+export const ObjectResults: WorkbenchExample<typeof ObjectResultsExample> =
+	wb(ObjectResultsExample);
+export const Autocomplete: WorkbenchExample = wb(AutocompleteExample);
+export const PeopleResults: WorkbenchExample<typeof PeopleResultsExample> =
+	wb(PeopleResultsExample);
+export const ContainerResults: WorkbenchExample<typeof ContainerResultsExample> =
+	wb(ContainerResultsExample);
+export const CustomResults: WorkbenchExample<typeof CustomResultsExample> =
+	wb(CustomResultsExample);
+export const KeyboardNavigationWithNestedDOM: WorkbenchExample<
+	typeof KeyboardNavigationWithNestedDOMExample
+> = wb(KeyboardNavigationWithNestedDOMExample);
+export const AnalyticsLogging: WorkbenchExample<typeof AnalyticsLoggingExample> =
+	wb(AnalyticsLoggingExample);
+export const ResultsWithOnSelectedIcon: WorkbenchExample<typeof ResultsWithOnSelectedIconExample> =
+	wb(ResultsWithOnSelectedIconExample);
+export const InputControls: WorkbenchExample = wb(InputControlsExample);

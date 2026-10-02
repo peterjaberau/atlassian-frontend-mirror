@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
-import { Card } from '../src';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Flex, xcss } from '@atlaskit/primitives';
-import Heading from '@atlaskit/heading';
+
+import Button from '@atlaskit/button/default/button';
+import Heading from '@atlaskit/heading/heading';
 import type { FileIdentifier, MediaClientConfig } from '@atlaskit/media-client';
+import { MediaProvider } from '@atlaskit/media-client-react/media-provider';
 import { generateItemWithBinaries } from '@atlaskit/media-test-data';
-import { MainWrapper } from '../example-helpers';
 import {
 	I18NWrapper,
 	createStorybookMediaClientConfig,
 	createUploadMediaClientConfig,
 	videoMp4SaganAliensId,
 } from '@atlaskit/media-test-helpers';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
+import { Flex, xcss } from '@atlaskit/primitives';
+
+import { MainWrapper } from '../example-helpers';
+import { errorApiResponses } from '../example-helpers/svg-helpers/mediaApiTweaks';
+import { ToggleBox } from '../example-helpers/svg-helpers/toggle';
+import Card from '../src/card/cardLoader';
 import { useCreateMockedMediaProviderWithBinaries } from '../src/utils/__tests__/utils/mockedMediaClientProvider/_MockedMediaProviderWithBinaries';
-import Button from '@atlaskit/button/new';
-import { ToggleBox, errorApiResponses } from '../example-helpers/svg-helpers';
-import { MediaProvider } from '@atlaskit/media-client-react';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 const flexStyles = xcss({ marginBottom: 'space.300' });
 const dummyMediaClientConfig = {} as MediaClientConfig;

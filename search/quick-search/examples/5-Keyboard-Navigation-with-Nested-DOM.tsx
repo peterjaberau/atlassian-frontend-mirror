@@ -1,8 +1,9 @@
 import React from 'react';
-import { randomJiraIconUrl, randomConfluenceIconUrl } from './utils/mockData';
+
 import QuickSearch from '../src/components/QuickSearch';
 import ResultItemGroup from '../src/components/ResultItem/ResultItemGroup';
 import ObjectResult from '../src/components/Results/ObjectResult';
+import { randomJiraIconUrl, randomConfluenceIconUrl } from './utils/mockData';
 
 const ResultWrapperStateless = () => (
 	<ObjectResult
@@ -33,7 +34,7 @@ class ResultWrapperClass extends React.Component {
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default class extends React.Component {
-	render() {
+	render(): React.JSX.Element {
 		return (
 			<QuickSearch isLoading={false}>
 				<div>

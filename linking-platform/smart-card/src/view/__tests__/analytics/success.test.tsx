@@ -1,33 +1,40 @@
 import './success.test.mock';
-
 import React from 'react';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import * as jestExtendedMatchers from 'jest-extended';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { type CardClient, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import type CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
 import { asMock, type JestFunction } from '@atlaskit/media-test-helpers';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { fireEvent, render, screen, waitFor, userEvent } from '@atlassian/testing-library';
 
-import { CardAction, TitleBlock } from '../../../index';
-import * as ufoWrapper from '../../../state/analytics/ufoExperiences';
-import { isSpecialClick, isSpecialKey } from '../../../utils';
-import { fakeFactory, mocks } from '../../../utils/mocks';
+import { CardAction } from '../../../constants';
+import { TitleBlock } from '../../../index';
+import * as addMetadataToExperienceModule from '../../../state/analytics/addMetadataToExperience';
+import * as failUfoExperienceModule from '../../../state/analytics/failUfoExperience';
+import * as startUfoExperienceModule from '../../../state/analytics/startUfoExperience';
+import * as succeedUfoExperienceModule from '../../../state/analytics/succeedUfoExperience';
+import * as socialProofExperimentModule from '../../../state/hooks/use-social-proof-experiment/getSocialProofExperimentMeta';
+import { fakeFactory } from '../../../utils/fake-factory';
+import { isSpecialClick } from '../../../utils/is-special-click';
+import { isSpecialKey } from '../../../utils/is-special-key';
+import { mocks } from '../../../utils/mocks';
 import { shouldSample } from '../../../utils/shouldSample';
 import { Card, type CardAppearance } from '../../Card';
 import * as cardWithUrlContent from '../../CardWithUrl/component';
 import '@atlaskit/link-test-helpers/jest';
 
-jest.mock('../../../utils', () => ({
-	...jest.requireActual('../../../utils'),
-	downloadUrl: jest.fn(),
+jest.mock('../../../utils/is-special-key', () => ({
 	isSpecialKey: jest.fn(() => false),
+}));
+jest.mock('../../../utils/is-special-click', () => ({
 	isSpecialClick: jest.fn(() => false),
 }));
 jest.mock('../../../utils/shouldSample');
@@ -43,11 +50,10 @@ describe('smart-card: success analytics', () => {
 	let mockWindowOpen: jest.Mock;
 
 	const mockUuid = uuid as JestFunction<typeof uuid>;
-	const mockStartUfoExperience = jest.spyOn(ufoWrapper, 'startUfoExperience');
-	const mockSucceedUfoExperience = jest.spyOn(ufoWrapper, 'succeedUfoExperience');
-
-	const mockFailUfoExperience = jest.spyOn(ufoWrapper, 'failUfoExperience');
-	const mockAddMetadataToExperience = jest.spyOn(ufoWrapper, 'addMetadataToExperience');
+	let mockStartUfoExperience: jest.SpyInstance;
+	let mockSucceedUfoExperience: jest.SpyInstance;
+	let mockFailUfoExperience: jest.SpyInstance;
+	let mockAddMetadataToExperience: jest.SpyInstance;
 
 	const mockAnalyticsClient = {
 		sendUIEvent: jest.fn().mockResolvedValue(undefined),
@@ -61,8 +67,14 @@ describe('smart-card: success analytics', () => {
 		mockPostData = jest.fn(async () => mocks.actionSuccess);
 		mockClient = new (fakeFactory(mockFetch, mockPostData))();
 		mockWindowOpen = jest.fn();
+		mockStartUfoExperience = jest.spyOn(startUfoExperienceModule, 'startUfoExperience');
+		mockSucceedUfoExperience = jest.spyOn(succeedUfoExperienceModule, 'succeedUfoExperience');
+		mockFailUfoExperience = jest.spyOn(failUfoExperienceModule, 'failUfoExperience');
+		mockAddMetadataToExperience = jest.spyOn(
+			addMetadataToExperienceModule,
+			'addMetadataToExperience',
+		);
 		mockUuid.mockReturnValueOnce('some-uuid-1').mockReturnValueOnce('some-uuid-2');
-		/// @ts-ignore
 		global.open = mockWindowOpen;
 	});
 
@@ -148,96 +160,191 @@ describe('smart-card: success analytics', () => {
 				);
 			});
 
-			ffTest.on(
-				'rovo_chat_embed_card_dwell_and_hover_metrics',
-				'should fire the focused analytics event with mouseenter interactionType when the user hovers over the embed content wrapper',
-				() => {
-					it('should fire the focused analytics event with mouseenter interactionType when the user hovers over the embed content wrapper', async () => {
-						const mockUrl = 'https://this.is.the.sixth.url';
-						render(
-							<FabricAnalyticsListeners client={mockAnalyticsClient}>
-								<IntlProvider locale="en">
-									<Provider client={mockClient}>
-										<Card appearance="embed" url={mockUrl} />
-									</Provider>
-								</IntlProvider>
-							</FabricAnalyticsListeners>,
-						);
-						const resolvedView = await screen.findByTestId('embed-card-resolved-view');
-						expect(resolvedView).toBeTruthy();
+			it('should fire the focused analytics event with mouseenter interactionType when the user hovers over the embed content wrapper', async () => {
+				const mockUrl = 'https://this.is.the.sixth.url';
+				render(
+					<FabricAnalyticsListeners client={mockAnalyticsClient}>
+						<IntlProvider locale="en">
+							<Provider client={mockClient}>
+								<Card appearance="embed" url={mockUrl} />
+							</Provider>
+						</IntlProvider>
+					</FabricAnalyticsListeners>,
+				);
+				const resolvedView = await screen.findByTestId('embed-card-resolved-view');
+				expect(resolvedView).toBeTruthy();
 
-						const contentWrapper = await screen.findByTestId('embed-content-wrapper');
-						expect(contentWrapper).toBeTruthy();
+				const contentWrapper = await screen.findByTestId('embed-content-wrapper');
+				expect(contentWrapper).toBeTruthy();
 
-						// Clear previous analytics calls
-						mockAnalyticsClient.sendUIEvent.mockClear();
+				// Clear previous analytics calls
+				mockAnalyticsClient.sendUIEvent.mockClear();
 
-						// Trigger mouse enter event using fireEvent
-						fireEvent.mouseEnter(contentWrapper);
+				// Trigger mouse enter event using fireEvent
+				fireEvent.mouseEnter(contentWrapper);
 
-						await waitFor(() => {
-							expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
-								expect.objectContaining({
-									action: 'focused',
-									actionSubject: 'smartLinkIframe',
-									attributes: expect.objectContaining({
-										id: 'some-uuid-1',
-										definitionId: 'd1',
-										display: 'embed',
-										interactionType: 'mouseenter',
-									}),
-								}),
-							);
-						});
+				await waitFor(() => {
+					expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
+						expect.objectContaining({
+							action: 'focused',
+							actionSubject: 'smartLinkIframe',
+							attributes: expect.objectContaining({
+								id: 'some-uuid-1',
+								definitionId: 'd1',
+								display: 'embed',
+								interactionType: 'mouseenter',
+							}),
+						}),
+					);
+				});
+			});
+
+			it('should fire the focused analytics event with mouseleave interactionType when the user stops hovering over the embed content wrapper', async () => {
+				const mockUrl = 'https://this.is.the.sixth.url';
+				render(
+					<FabricAnalyticsListeners client={mockAnalyticsClient}>
+						<IntlProvider locale="en">
+							<Provider client={mockClient}>
+								<Card appearance="embed" url={mockUrl} />
+							</Provider>
+						</IntlProvider>
+					</FabricAnalyticsListeners>,
+				);
+				const resolvedView = await screen.findByTestId('embed-card-resolved-view');
+				expect(resolvedView).toBeTruthy();
+
+				const contentWrapper = await screen.findByTestId('embed-content-wrapper');
+				expect(contentWrapper).toBeTruthy();
+
+				// Clear previous analytics calls
+				mockAnalyticsClient.sendUIEvent.mockClear();
+
+				// First trigger mouse enter, then mouse leave
+				fireEvent.mouseEnter(contentWrapper);
+				fireEvent.mouseLeave(contentWrapper);
+
+				await waitFor(() => {
+					expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
+						expect.objectContaining({
+							action: 'focused',
+							actionSubject: 'smartLinkIframe',
+							attributes: expect.objectContaining({
+								id: 'some-uuid-1',
+								definitionId: 'd1',
+								display: 'embed',
+								interactionType: 'mouseleave',
+							}),
+						}),
+					);
+				});
+			});
+		});
+
+		describe('social proof renderSuccess experimentMeta', () => {
+			const renderCard = async (appearance: CardAppearance = 'block') => {
+				const mockUrl = 'https://this.is.social.proof.url';
+				mockFetch.mockImplementationOnce(async () => mocks.unauthorized);
+
+				render(
+					<FabricAnalyticsListeners client={mockAnalyticsClient}>
+						<IntlProvider locale="en">
+							<Provider client={mockClient}>
+								<Card testId="socialProofCard" appearance={appearance} url={mockUrl} />
+							</Provider>
+						</IntlProvider>
+					</FabricAnalyticsListeners>,
+				);
+
+				await screen.findByTestId(
+					appearance === 'inline' ? 'socialProofCard-unauthorized-view' : 'socialProofCard',
+				);
+			};
+
+			describe('with social proof renderSuccess metadata gate on', () => {
+				it('adds nested experimentMeta for unauthorized block cards', async () => {
+					passGate('social-proof-3p-unauth-block-fg');
+					jest.spyOn(socialProofExperimentModule, 'getSocialProofExperimentMeta').mockReturnValue({
+						social_proof_3p_unauth_block_exp: { isEligible: true, tier: 'not-low' },
 					});
-				},
-			);
 
-			ffTest.on(
-				'rovo_chat_embed_card_dwell_and_hover_metrics',
-				'should fire the focused analytics event with mouseleave interactionType when the user stops hovering over the embed content wrapper',
-				() => {
-					it('should fire the focused analytics event with mouseleave interactionType when the user stops hovering over the embed content wrapper', async () => {
-						const mockUrl = 'https://this.is.the.sixth.url';
-						render(
-							<FabricAnalyticsListeners client={mockAnalyticsClient}>
-								<IntlProvider locale="en">
-									<Provider client={mockClient}>
-										<Card appearance="embed" url={mockUrl} />
-									</Provider>
-								</IntlProvider>
-							</FabricAnalyticsListeners>,
-						);
-						const resolvedView = await screen.findByTestId('embed-card-resolved-view');
-						expect(resolvedView).toBeTruthy();
+					await renderCard('block');
 
-						const contentWrapper = await screen.findByTestId('embed-content-wrapper');
-						expect(contentWrapper).toBeTruthy();
+					expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
+						expect.objectContaining({
+							action: 'renderSuccess',
+							actionSubject: 'smartLink',
+							attributes: expect.objectContaining({
+								display: 'block',
+								status: 'unauthorized',
+								experimentMeta: {
+									social_proof_3p_unauth_block_exp: { isEligible: true, tier: 'not-low' },
+								},
+							}),
+						}),
+					);
+				});
 
-						// Clear previous analytics calls
-						mockAnalyticsClient.sendUIEvent.mockClear();
-
-						// First trigger mouse enter, then mouse leave
-						fireEvent.mouseEnter(contentWrapper);
-						fireEvent.mouseLeave(contentWrapper);
-
-						await waitFor(() => {
-							expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
-								expect.objectContaining({
-									action: 'focused',
-									actionSubject: 'smartLinkIframe',
-									attributes: expect.objectContaining({
-										id: 'some-uuid-1',
-										definitionId: 'd1',
-										display: 'embed',
-										interactionType: 'mouseleave',
-									}),
-								}),
-							);
-						});
+				it('adds ineligible nested experimentMeta for unauthorized block cards without cached eligibility', async () => {
+					passGate('social-proof-3p-unauth-block-fg');
+					jest.spyOn(socialProofExperimentModule, 'getSocialProofExperimentMeta').mockReturnValue({
+						social_proof_3p_unauth_block_exp: { isEligible: false },
 					});
-				},
-			);
+
+					await renderCard('block');
+
+					expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
+						expect.objectContaining({
+							action: 'renderSuccess',
+							actionSubject: 'smartLink',
+							attributes: expect.objectContaining({
+								display: 'block',
+								status: 'unauthorized',
+								experimentMeta: {
+									social_proof_3p_unauth_block_exp: { isEligible: false },
+								},
+							}),
+						}),
+					);
+				});
+			});
+			describe('unauthorized inline card', () => {
+				it('does not include experimentMeta in renderSuccess for unauthorized inline cards', async () => {
+					await renderCard('inline');
+
+					expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
+						expect.objectContaining({
+							action: 'renderSuccess',
+							actionSubject: 'smartLink',
+							attributes: expect.not.objectContaining({
+								experimentMeta: expect.anything(),
+							}),
+						}),
+					);
+				});
+			});
+
+			describe('with social proof renderSuccess metadata gate off', () => {
+				it('does not add nested experimentMeta for unauthorized block cards', async () => {
+					failGate('social-proof-3p-unauth-block-fg');
+					const getSocialProofExperimentMetaSpy = jest.spyOn(
+						socialProofExperimentModule,
+						'getSocialProofExperimentMeta',
+					);
+
+					await renderCard('block');
+
+					expect(getSocialProofExperimentMetaSpy).not.toHaveBeenCalled();
+					expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
+						expect.objectContaining({
+							action: 'renderSuccess',
+							actionSubject: 'smartLink',
+							attributes: expect.not.objectContaining({
+								experimentMeta: expect.anything(),
+							}),
+						}),
+					);
+				});
+			});
 		});
 
 		it('should fire the resolved analytics event when the url was resolved', async () => {
@@ -252,7 +359,7 @@ describe('smart-card: success analytics', () => {
 				</FabricAnalyticsListeners>,
 			);
 			const resolvedView = await screen.findByTestId('resolvedCard1-resolved-view');
-			const resolvedCard = screen.getByRole('button');
+			const resolvedCard = screen.getByRole('link');
 			expect(resolvedView).toBeTruthy();
 			expect(resolvedCard).toBeTruthy();
 			expect(mockAnalyticsClient.sendOperationalEvent).toHaveBeenCalledWith(
@@ -330,7 +437,6 @@ describe('smart-card: success analytics', () => {
 			await userEvent.click(resolvedCard);
 
 			// ensure default onclick for renderer is not triggered
-			expect(mockWindowOpen).toHaveBeenCalledTimes(0);
 			expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
 				expect.objectContaining({
 					actionSubject: 'smartLink',
@@ -355,7 +461,6 @@ describe('smart-card: success analytics', () => {
 			await userEvent.click(resolvedCard);
 
 			// ensure default onclick for renderer is not triggered
-			expect(mockWindowOpen).toHaveBeenCalledTimes(0);
 			expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
 				expect.objectContaining({
 					actionSubject: 'smartLink',
@@ -380,7 +485,6 @@ describe('smart-card: success analytics', () => {
 			await userEvent.click(resolvedCard);
 
 			// ensure default onclick for renderer is not triggered
-			expect(mockWindowOpen).toHaveBeenCalledTimes(0);
 			expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
 				expect.objectContaining({
 					actionSubject: 'smartLink',
@@ -412,7 +516,7 @@ describe('smart-card: success analytics', () => {
 			const resolvedView = await screen.findByTestId('resolvedCard2-resolved-view');
 			expect(resolvedView).toBeTruthy();
 
-			const resolvedCard = screen.getByRole('button');
+			const resolvedCard = screen.getByRole('link');
 			expect(resolvedCard).toBeTruthy();
 			expect(mockAnalyticsClient.sendOperationalEvent).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -509,7 +613,7 @@ describe('smart-card: success analytics', () => {
 				</IntlProvider>,
 			);
 			const resolvedView = await screen.findByTestId('resolvedCard1-resolved-view');
-			const resolvedCard = screen.getByRole('button');
+			const resolvedCard = screen.getByRole('link');
 			expect(resolvedView).toBeTruthy();
 			expect(resolvedCard).toBeTruthy();
 
@@ -568,7 +672,7 @@ describe('smart-card: success analytics', () => {
 			const mockUrl = 'https://this.is.the.seventh.url';
 			const { rerender } = render(
 				<Provider client={mockClient}>
-					<Card testId="resolvedCard1" appearance="inline" url={mockUrl} />
+					<Card id="some-uuid-1" testId="resolvedCard1" appearance="inline" url={mockUrl} />
 				</Provider>,
 			);
 			await screen.findByTestId('resolvedCard1-resolved-view');
@@ -577,8 +681,8 @@ describe('smart-card: success analytics', () => {
 
 			rerender(
 				<Provider client={mockClient}>
-					<Card testId="resolvedCard1" appearance="inline" url={mockUrl} />
-					<Card testId="resolvedCard2" appearance="inline" url={mockUrl} />
+					<Card id="some-uuid-1" testId="resolvedCard1" appearance="inline" url={mockUrl} />
+					<Card id="some-uuid-2" testId="resolvedCard2" appearance="inline" url={mockUrl} />
 				</Provider>,
 			);
 

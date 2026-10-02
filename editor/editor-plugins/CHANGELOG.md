@@ -1,5 +1,5353 @@
 # @atlaskit/editor-plugins
 
+## 16.1.200
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.199
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.198
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.197
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.196
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.195
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.194
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.193
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.192
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.191
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.190
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.189
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.188
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.187
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.186
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.185
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.184
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.183
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.182
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.181
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.180
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.179
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.178
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.177
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.176
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.175
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.174
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.173
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.172
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.171
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.170
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.169
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.168
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.167
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.166
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.165
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.164
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.163
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.162
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.161
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.160
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.159
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.158
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.157
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.156
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.155
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.154
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.153
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.152
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.151
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.150
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.149
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.148
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.147
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.146
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.145
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.144
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.143
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.142
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.141
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.140
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.139
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.138
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.137
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.136
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.135
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.134
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.133
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.132
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.131
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.130
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.129
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.128
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.127
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.126
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.125
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.124
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.123
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.122
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.121
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.120
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.119
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.118
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.117
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.116
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.115
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.114
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.113
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.112
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.111
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.110
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.109
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.108
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.107
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.106
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.105
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.104
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.103
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.102
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.101
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.100
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.99
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.98
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.97
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.96
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.95
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.94
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.93
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.92
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.91
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.90
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.89
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.88
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.87
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.86
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.85
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.84
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.83
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.82
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.81
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.80
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.79
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.78
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.77
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.76
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.75
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.74
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`40071c3a1e51d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/40071c3a1e51d) -
+  Add the interactivity plugin package and register it in the Confluence full page presets behind
+  the platform_editor_editor_interactivity experiment. The plugin is a stub for now — it collects
+  nothing.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Major Changes
+
+- [`94ddcfaca6b5d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94ddcfaca6b5d) -
+  Improve client-only contextual typeahead confidence and responsiveness, and extend it to bigram
+  and phrase completions.
+
+  All of this ships inside the autocomplete plugin, which is only ever added to a preset behind an
+  experiment that defaults to off: `platform_editor_ai_autocomplete_rovo_chat_editor` for Rovo chat,
+  with a Confluence `productKey` check ahead of the read, and
+  `platform_editor_ai_autocomplete_conf_comments` for Confluence comments. The on-device model path
+  these changes concentrate on is additionally behind
+  `platform_editor_ai_autocomplete_conf_local_setup`, which selects the slow-lane client. With those
+  experiments off the plugin is never constructed, so nothing here runs.
+
+  **Confidence.** Candidates competing at the same word boundary are normalised into a posterior
+  over that shortlist, so a suggestion's confidence is the share of probability mass the model puts
+  on it rather than its distance from whichever candidate happens to lead. The comparison is made on
+  each surface's sequence log-likelihood rather than its per-token mean, which is not comparable
+  across surfaces of different token counts. A shortlist is normalised over its minimal members
+  only, so a surface and its own extension are no longer double-counted. A surface must additionally
+  clear an absolute plausibility floor, anchored at the uniform distribution over the model's
+  49,152-token vocabulary (about -10.8 nats) rather than read off a histogram, hold a clear lead
+  over the runner-up, and come from a shortlist that offered a real alternative. Completions shorter
+  than three characters are no longer offered, and multi-word terms are held to the same
+  previous-word grammar transition as single words.
+
+  **Responsiveness.** Candidate work starts at two typed characters while ghost text stays gated at
+  three and must arrive within a 100 ms decision window. Queued scoring work is drained in an order
+  that keeps the engine's decoded sequence alive, so continuing a prefix costs a single decode step
+  instead of a full prompt prefill, and work no live decision would accept is discarded rather than
+  run. Contexts keep their prefilled model state until 128 are resident rather than 32, which stops
+  contexts being evicted while still in use. Once displayed, a ghost is an immutable snapshot shared
+  by rendering, Tab insertion, analytics and cooldown, so a later model result cannot make the
+  visible completion disagree with the inserted one.
+
+  **Per-keystroke cost.** One keystroke runs `predict()` several times — once when the decision
+  opens and again for each async evidence signal that lands inside the budget — and only the
+  evidence differs between those runs. Trie recall and the canonical context derived per candidate
+  are computed once and reused across them, invalidated when an artifact load changes what the tries
+  can return. Within one derivation the position-dependent half of a candidate's context is shared
+  by every candidate starting at the same offset, rather than being rebuilt a couple of hundred
+  times. A distribution's log-partition is memoised per logits buffer, since it does not depend on
+  the token being scored and the two full-vocabulary passes behind it previously ran once per
+  candidate for an answer that could not change. None of this changes which suggestion is chosen.
+
+  **Multi-word completions.** Bigrams and phrases are surfaced from a first-word or in-progress
+  window, frequency is normalised per term type, and selection runs a per-type precision floor
+  followed by expected-value arbitration, so the longest confident unit wins and a shaky long unit
+  self-demotes to a safer shorter one. Phrases surface only once the on-device continuation LM has
+  vouched for them. A whole-surface repetition guard and a post-accept cooldown together prevent
+  echoes such as `end to end` becoming `end to end to end`.
+
+  **Artifacts.** `bigrams.json`, `phrases.json` and `phrase-continuation-tokens.json` are resolved
+  from the artifacts manifest alongside the vocabulary and grammar payloads, so they are served from
+  the CDN rather than bundled. Each is fetched independently, so an unpublished payload disables
+  only its own term type. Every artifact is shape-checked as it downloads, failing at the boundary
+  naming the artifact rather than degrading later into an empty trie.
+
+  **Diagnostics.** Debug output is unified under a single `[CTC]` namespace behind
+  `__atlCtcDebug__.enable()`, with one collapsed group per keystroke and an opt-in verbose level for
+  the scored candidate table. All informational console output is routed behind the flag.
+
+  **Breaking change.** `@atlaskit/editor-plugin-autocomplete` no longer exposes its pm-plugin
+  modules as subpaths. The `./src/pm-plugins/autocomplete-plugin`,
+  `./src/pm-plugins/slow-lane-client` and `./src/pm-plugins/text-predictor` entry points are
+  removed, along with the `CANONICAL_FIX__DO_NOT_USE_ME_A`, `_B` and `_C` subpaths that exposed the
+  same three modules in raw form. The matching `./autocomplete/*` re-export wrappers in
+  `@atlaskit/editor-plugins` are removed too. No product consumed any of them; they were reachable
+  only from this plugin's own test package and the generated aggregator.
+
+  Removing both sets together is deliberate. The curated subpaths were named after real file paths,
+  so each one shadowed the module it wrapped and left two files claiming the same bundler canonical
+  id — which is what the `CANONICAL_FIX` subpaths existed to disambiguate. Keeping either set alone
+  reintroduces the collision. With both gone, nothing shadows a source path, and because the
+  wrappers mirrored the raw modules under an exact export-parity test, `@atlaskit/editor-plugins` is
+  no longer coupled to this plugin's internal module layout. `./autocompletePlugin` and
+  `./autocompletePluginType` are unaffected.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.23
+
+### Patch Changes
+
+- [`42931028bd815`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42931028bd815) -
+  [FFCLEANUP-138148] clean up experiment `platform_editor_find_and_replace_improvements`
+- Updated dependencies
+
+## 15.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.21
+
+### Patch Changes
+
+- [`e8deaf0aa0506`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8deaf0aa0506) -
+  Add the block collapse editor plugin package scaffold.
+- Updated dependencies
+
+## 15.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Major Changes
+
+- [`4cc8b22d77107`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4cc8b22d77107) -
+  Remove the legacy JavaScript shadow logic (observer, sentinel elements, and supporting styles)
+  which was no longer in use.
+
+  ### What has changed
+
+  Removes the following public APIs, even though they no longer represented elements rendered by the
+  editor:
+  - `@atlaskit/editor-plugin-table` (also re-exported by `@atlaskit/editor-plugins`):
+    - `ShadowEvent`
+    - `TableCssClassName.TABLE_LEFT_SHADOW`
+    - `TableCssClassName.TABLE_RIGHT_SHADOW`
+    - `TableCssClassName.TABLE_SHADOW_SENTINEL_LEFT`
+    - `TableCssClassName.TABLE_SHADOW_SENTINEL_RIGHT`
+    - `TableCssClassName.TABLE_STICKY_SHADOW`
+  - `@atlaskit/editor-common`:
+    - `TableSharedCssClassName.TABLE_LEFT_SHADOW`
+    - `TableSharedCssClassName.TABLE_RIGHT_SHADOW`
+    - `TableSharedCssClassName.TABLE_SHADOW_SENTINEL_LEFT`
+    - `TableSharedCssClassName.TABLE_SHADOW_SENTINEL_RIGHT`
+    - `TableSharedCssClassName.TABLE_STICKY_SHADOW`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.0
+
+### Minor Changes
+
+- [`e8998a7218347`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8998a7218347) -
+  Exposes editor plugin entry points through the `@atlaskit/editor-plugins` facade and regenerate
+  the corresponding wrappers and export-parity tests.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.85
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.84
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.83
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.82
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.81
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.80
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.79
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.78
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.77
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.76
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.75
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.74
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.62
+
+### Patch Changes
+
+- [`c2986ab2c7a01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2986ab2c7a01) -
+  Cleans up prefer static regex violations and enables e18e rule
+- Updated dependencies
+
+## 14.0.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.171
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.170
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.169
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.168
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.167
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.166
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.165
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.164
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.163
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.162
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.161
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.160
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.159
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.158
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.157
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.156
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.155
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.154
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.153
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.152
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.151
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.150
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.149
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.148
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.147
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.146
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.145
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.144
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.143
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.142
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.141
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.140
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.139
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.138
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.137
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.136
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.135
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.134
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.133
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.132
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.131
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.130
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.129
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.128
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.127
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.126
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.125
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.124
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.123
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.122
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.121
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.120
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.119
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.118
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.117
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.116
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.115
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.114
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.113
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.112
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.111
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.110
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.109
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.108
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.107
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.106
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.105
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.104
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.103
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.102
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.101
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.100
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.99
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.98
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.97
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.96
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.95
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.94
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.93
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.92
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.91
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.90
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.89
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.88
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.87
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.86
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.85
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.84
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.83
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.82
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.81
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.80
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.79
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.78
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.77
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.76
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.75
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.74
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`1b208e1f7d8f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b208e1f7d8f7) -
+  [ux] Adds the entry point for ai image generation to the media insert picker plugin as a new tab.
+  This feature is fully behind an experiment gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.171
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.170
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.169
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.168
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.167
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.166
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.165
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.164
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.163
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.162
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.161
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.160
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.159
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.158
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.157
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.156
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.155
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.154
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.153
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.152
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.151
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.150
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.149
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.148
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.147
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.146
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.145
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.144
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.143
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.142
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.141
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.140
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.139
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.138
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.137
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.136
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.135
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.134
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.133
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.132
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.131
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.130
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.129
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.128
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.127
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.126
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.125
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.124
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.123
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.122
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.121
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.120
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.119
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.118
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.117
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.116
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.115
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.114
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.113
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.112
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.111
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.110
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.109
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.108
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.107
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.106
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.105
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.104
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.103
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.102
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.101
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.100
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.99
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.98
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.97
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.96
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.95
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.94
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.93
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.92
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.91
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.90
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.89
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.88
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.87
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.86
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.85
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.84
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.83
+
+### Patch Changes
+
+- [`ef40f467da8e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef40f467da8e6) -
+  Fix drag handle not appearing in last layout column and remix button not showing correctly when
+  confluence_remix_button_right_side_block_fg is enabled. Layout column drag handles now always show
+  regardless of hover side, remix button correctly shows on right-side hover only, and layoutSection
+  is always remixable regardless of content.
+- Updated dependencies
+
+## 13.0.82
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.81
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.80
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.79
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.78
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.77
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.76
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.75
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.74
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.39
+
+### Patch Changes
+
+- [`73c46b71987a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73c46b71987a0) -
+  [ux] Fix remix button sticky for tables right side
+- Updated dependencies
+
+## 13.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`71de71e52182e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71de71e52182e) -
+  Remove @atlaskit/editor-plugin-ncs-metrics
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.1
+
+### Patch Changes
+
+- [`9398ad3ad409c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9398ad3ad409c) -
+  [ux] [EDITOR-5376] change single player expands feature gate to the new
+  `platform_editor_single_player_expand` experiment
+- Updated dependencies
+
+## 12.3.0
+
+### Minor Changes
+
+- [`8cb8a3e42b2c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8cb8a3e42b2c2) -
+  [ux] EDITOR-5668 Introducing configurable visibility rules to determine which AI actions should
+  display in on-paste menu
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.13
+
+### Patch Changes
+
+- [`35fd4b17a4355`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/35fd4b17a4355) -
+  EDITOR-5598 Create initial implementation of Editor UI Control Registry, implementing its API for
+  adding elements to the registry and retrieving menu elements for a surface.
+- Updated dependencies
+
+## 12.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.8
+
+### Patch Changes
+
+- [`f5af4a28f2237`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f5af4a28f2237) -
+  Add node decoration registration API to block-controls plugin
+- Updated dependencies
+
+## 12.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.0
+
+### Minor Changes
+
+- [`a0aa8f73bbd02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0aa8f73bbd02) -
+  [ux] EDITOR-5466 Introduce new popup menu for paste actions which includes existing functionality
+  used by the existing floatingToolbar implementation
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`53b2139bd64f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/53b2139bd64f1) -
+  Add @atlaskit/editor-plugin-ui-control-registry package
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 12.0.30
 
 ### Patch Changes

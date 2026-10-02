@@ -1,11 +1,8 @@
 // packages/react-ufo/atlaskit/src/create-payload/utils/get-vc-metrics.test.ts
 
-import { fg } from '@atlaskit/platform-feature-flags';
-
 import type { InteractionMetrics } from '../../common';
 import { getConfig, getMostRecentVCRevision, isVCRevisionEnabled } from '../../config';
 import type { VCObserverInterface } from '../../vc/types';
-
 import getInteractionStatus from './get-interaction-status';
 import getPageVisibilityUpToTTAI from './get-page-visibility-up-to-ttai';
 import getSSRDoneTimeValue from './get-ssr-done-time-value';
@@ -14,7 +11,6 @@ import getVCMetrics from './get-vc-metrics';
 // Mock dependencies
 jest.mock('../../config');
 jest.mock('../../interaction-metrics');
-jest.mock('@atlaskit/platform-feature-flags');
 jest.mock('./get-interaction-status');
 jest.mock('./get-page-visibility-up-to-ttai');
 jest.mock('./get-ssr-done-time-value');
@@ -49,10 +45,6 @@ const createMockVCObserver = (): jest.Mocked<VCObserverInterface> => ({
 describe('getVCMetrics', () => {
 	// Setup common mocks
 	const mockGetConfig = getConfig as jest.MockedFunction<typeof getConfig>;
-	const mockFg = fg as jest.MockedFunction<typeof fg>;
-
-	const enabledFg = new Set<string>();
-
 	beforeEach(() => {
 		jest.clearAllMocks();
 
@@ -62,7 +54,6 @@ describe('getVCMetrics', () => {
 				enabled: true,
 				enabledVCRevisions: ['fy25.01', 'fy25.02'],
 			},
-			experimentalInteractionMetrics: { enabled: false },
 		} as unknown as ReturnType<typeof getConfig>);
 
 		(getInteractionStatus as jest.Mock).mockReturnValue({
@@ -70,10 +61,6 @@ describe('getVCMetrics', () => {
 		});
 
 		(getPageVisibilityUpToTTAI as jest.Mock).mockReturnValue('visible');
-
-		mockFg.mockImplementation((flag: string) => enabledFg.has(flag));
-
-		enabledFg.clear();
 	});
 
 	it('should return empty object if VC is not enabled', async () => {
@@ -227,28 +214,6 @@ describe('getVCMetrics', () => {
 		await getVCMetrics(interaction);
 		expect(getSSRDoneTimeValue).toHaveBeenCalled();
 	});
-
-	it('should stop VC observer when experimental metrics are enabled', async () => {
-		mockGetConfig.mockReturnValue({
-			product: 'test',
-			region: 'unknown',
-			vc: { enabled: true },
-			experimentalInteractionMetrics: { enabled: true },
-		});
-
-		const mockVCObserver = createMockVCObserver();
-		const interaction: InteractionMetrics = {
-			type: 'page_load',
-			start: 0,
-			end: 100,
-			ufoName: 'test',
-			vcObserver: mockVCObserver,
-		} as unknown as InteractionMetrics;
-
-		await getVCMetrics(interaction);
-		expect(mockVCObserver.stop).toHaveBeenCalledWith('test');
-	});
-
 	it('should handle VC revisions by experience', async () => {
 		const mockGetMostRecentVCRevision = getMostRecentVCRevision as jest.MockedFunction<
 			typeof getMostRecentVCRevision
@@ -396,6 +361,25 @@ describe('getVCMetrics', () => {
 
 		const result = await getVCMetrics(interaction);
 		expect(result).toEqual(expectedVCResult);
+	});
+
+	it('should always pass includeRawData to preserve raw-handler data', async () => {
+		const mockVCObserver = createMockVCObserver();
+		const interaction: InteractionMetrics = {
+			type: 'page_load',
+			start: 0,
+			end: 100,
+			ufoName: 'test',
+			vcObserver: mockVCObserver,
+		} as unknown as InteractionMetrics;
+
+		await getVCMetrics(interaction);
+
+		expect(mockVCObserver.getVCResult).toHaveBeenCalledWith(
+			expect.objectContaining({
+				includeRawData: true,
+			}),
+		);
 	});
 
 	it('should pass rawDataStopTime when end3p is set on interaction', async () => {

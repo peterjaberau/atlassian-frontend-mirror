@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__media-picker/app",
 		"rootDir": "../",
 		"composite": true,
@@ -49,7 +47,7 @@
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/theme/afm-products/tsconfig.json"
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

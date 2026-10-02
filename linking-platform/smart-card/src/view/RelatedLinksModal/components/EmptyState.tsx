@@ -3,7 +3,7 @@
  * @jsx jsx
  */
 import { cssMap, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -33,7 +33,12 @@ type EmptyStateProps = {
 	testId?: string;
 };
 
-export const EmptyState = ({ testId, header, description, renderImage }: EmptyStateProps) => {
+export const EmptyState = ({
+	testId,
+	header,
+	description,
+	renderImage,
+}: EmptyStateProps): JSX.Element => {
 	return (
 		<Box xcss={styles.emptyState} testId={testId}>
 			{renderImage?.()}

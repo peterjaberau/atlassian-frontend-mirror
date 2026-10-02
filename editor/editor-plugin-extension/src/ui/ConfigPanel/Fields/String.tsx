@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 
 import type { StringField } from '@atlaskit/editor-common/extensions';
-import { Field } from '@atlaskit/form';
-import TextArea from '@atlaskit/textarea';
-import TextField from '@atlaskit/textfield';
+import Field from '@atlaskit/form/field';
+import TextArea from '@atlaskit/textarea/text-area';
+import TextField from '@atlaskit/textfield/text-field';
 
 import FieldMessages from '../FieldMessages';
 import type { OnFieldChange } from '../types';
@@ -30,6 +30,7 @@ export default function String({
 			label={label}
 			defaultValue={defaultValue || ''}
 			isRequired={isRequired}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value?: string) => validate<string>(field, value || '')}
 			testId={`config-panel-string-${name}`}
 			isDisabled={isDisabled}
@@ -48,7 +49,9 @@ export default function String({
 								// Ignored via go/ees005
 								// eslint-disable-next-line react/jsx-props-no-spreading
 								{...options}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onChange={(e) => onChange(e.currentTarget.value)}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onBlur={() => {
 									fieldProps.onBlur();
 									onFieldChange(name, meta.dirty);
@@ -69,6 +72,7 @@ export default function String({
 							{...fieldProps}
 							type="text"
 							autoFocus={autoFocus}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onBlur={() => {
 								fieldProps.onBlur();
 								onFieldChange(name, meta.dirty);

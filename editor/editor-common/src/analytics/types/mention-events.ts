@@ -1,11 +1,7 @@
-import {
-	type ComponentNames,
-	type Actions as MentionActions,
-	type SliNames,
-} from '@atlaskit/mention/types';
+import type { ComponentNames, Actions as MentionActions, SliNames } from '@atlaskit/mention/types';
 
-import { type ACTION, type ACTION_SUBJECT, type ACTION_SUBJECT_ID } from './enums';
-import { type OperationalAEP, type UIAEP } from './utils';
+import type { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID } from './enums';
+import type { OperationalAEP, UIAEP } from './utils';
 
 type MentionTypeaheadCancelledEventPayload = UIAEP<
 	ACTION.CANCELLED,
@@ -31,6 +27,7 @@ type MentionTypeaheadInviteItemViewedPayload = UIAEP<
 		childObjectId?: string;
 		componentName: string;
 		containerId: string;
+		isInlineInviteMentionsEnabled?: boolean;
 		objectId: string;
 		sessionId: string;
 		source: string;
@@ -49,6 +46,7 @@ type MentionTypeaheadInviteItemClickedPayload = UIAEP<
 		containerId: string;
 		downKeyCount: number;
 		duration: number;
+		isInlineInviteMentionsEnabled?: boolean;
 		keyboardKey?: string;
 		objectId: string;
 		queryLength?: number;
@@ -66,11 +64,13 @@ type MentionTypeaheadInsertedPayload = UIAEP<
 	undefined,
 	{
 		accessLevel: string;
+		agentSectioningEnabled?: boolean;
 		childObjectId?: string;
 		containerId?: string;
 		downKeyCount: number;
 		duration: number;
 		includesYou?: boolean | null;
+		isAgent?: boolean;
 		isSpecial: boolean;
 		keyboardKey?: string;
 		localId?: string;
@@ -98,8 +98,12 @@ type MentionTypeaheadRenderedPayload = OperationalAEP<
 	ACTION_SUBJECT.MENTION_TYPEAHEAD | ACTION_SUBJECT.TEAM_MENTION_TYPEAHEAD,
 	undefined,
 	{
+		agentCount?: number;
+		agentSectioningEnabled?: boolean;
+		agentsShown?: boolean;
 		componentName: string;
 		duration: number;
+		mentionTypeaheadSessionId: string;
 		queryLength?: number;
 		spaceInQuery?: boolean;
 		teams: Array<{

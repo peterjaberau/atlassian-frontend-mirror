@@ -1,7 +1,6 @@
 import React, { forwardRef, type Ref } from 'react';
 
 import { IconButton } from '../IconButton';
-
 import { type ProfileProps } from './types';
 
 /**
@@ -12,6 +11,8 @@ import { type ProfileProps } from './types';
  *
  * - [Examples](https://atlassian.design/components/atlassian-navigation/examples#profile)
  * - [Code](https://atlassian.design/components/atlassian-navigation/code)
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 export const Profile: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<ProfileProps> & React.RefAttributes<HTMLElement>
@@ -72,4 +73,5 @@ export const Profile: React.ForwardRefExoticComponent<
 
 // This exists only to extract props.
 // eslint-disable-next-line import/no-anonymous-default-export
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default (_props: ProfileProps): void => {};

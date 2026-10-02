@@ -4,8 +4,8 @@
  */
 import { keyframes, jsx, css, cssMap } from '@compiled/react';
 
-import { B50, N30, N40, N50, N60 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
+
 import { type SkeletonProps } from './types';
 
 const placeholderShimmer = keyframes({
@@ -19,13 +19,13 @@ const placeholderShimmer = keyframes({
 
 const appearanceValues = {
 	darkGray: {
-		animation: token('color.background.accent.gray.subtle', N60),
+		animation: token('color.background.accent.gray.subtle'),
 	},
 	gray: {
-		animation: token('color.skeleton', N40),
+		animation: token('color.skeleton'),
 	},
 	blue: {
-		animation: token('color.background.information.hovered', '#cce0ff'),
+		animation: token('color.background.information.hovered'),
 	},
 };
 
@@ -41,47 +41,15 @@ const spanSkeletonStyles = css({
 
 const spanSkeletonBackgroundStyleMap = cssMap({
 	gray: {
-		backgroundColor: token('color.background.accent.gray.subtlest', N30),
+		backgroundColor: token('color.background.accent.gray.subtlest'),
 	},
 	blue: {
-		backgroundColor: token('color.background.accent.blue.subtlest', B50),
+		backgroundColor: token('color.background.accent.blue.subtlest'),
 	},
 	darkGray: {
-		backgroundColor: token('color.background.accent.gray.subtler', N50),
+		backgroundColor: token('color.background.accent.gray.subtler'),
 	},
 });
-
-export const SpanSkeleton = ({
-	width,
-	appearance = 'gray',
-	height = 14,
-	borderRadius = 0,
-	isShimmering = true,
-	testId,
-	style = {},
-}: SkeletonProps): JSX.Element => {
-	return (
-		<span
-			data-testid={testId}
-			css={[spanSkeletonStyles, spanSkeletonBackgroundStyleMap[appearance]]}
-			style={{
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-				...style,
-				height: (typeof height === 'number' ? `${height}px` : height) || 'auto',
-				width: (typeof width === 'number' ? `${width}px` : width) || 'auto',
-				borderRadius: (typeof borderRadius === 'number' ? `${borderRadius}px` : borderRadius) || 0,
-				backgroundImage: `linear-gradient(
-    to right,
-    transparent 0%,
-    ${appearanceValues[appearance].animation} 20%,
-    transparent 40%,
-    transparent 100%
-  )`,
-				backgroundSize: isShimmering ? `40px ${height}` : '0px',
-			}}
-		></span>
-	);
-};
 
 export const Skeleton = ({
 	width,
@@ -115,4 +83,7 @@ export const Skeleton = ({
 	);
 };
 
+/**
+ * @deprecated Use `import { Skeleton } from '@atlaskit/linking-common/skeleton'` instead.
+ */
 export default Skeleton;

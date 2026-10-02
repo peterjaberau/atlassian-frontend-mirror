@@ -5,6 +5,15 @@ Current state: Early Access
 The official Model Context Protocol (MCP) server for the Atlassian Design System. This server
 provides tools to access design tokens, icons, and components/primitives programmatically.
 
+**New: Remote MCP Server** A hosted version of the ADS MCP server is now available at
+`https://mcp.atlassian.com/v1/ads/public/mcp`. Simply point your MCP client to this URL to get
+started. See the [Usage](#usage) section for per-IDE configuration examples.
+
+Or, just click one of the buttons below to easily add the server to Cursor or VS Code.
+
+[![Install in Cursor](https://img.shields.io/badge/Cursor-Install_ads--mcp-000000?style=for-the-badge&logo=cursor&logoColor=ffffff)](vscode:mcp/install?%7B%22name%22%3A%22ads-mcp%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.atlassian.com%2Fv1%2Fads%2Fpublic%2Fmcp%22%7D)
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_ads--mcp-0098FF?style=for-the-badge&logo=githubcopilot&logoColor=ffffff)](vscode:mcp/install?%7B%22name%22%3A%22ads-mcp%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.atlassian.com%2Fv1%2Fads%2Fpublic%2Fmcp%22%7D)
+
 **New: Accessibility Analysis & Guidance** The server now includes comprehensive accessibility tools
 to help ensure your interfaces are accessible to all users.
 
@@ -12,6 +21,7 @@ to help ensure your interfaces are accessible to all users.
 
 - [Available Tools](#available-tools)
   - [Design System Tools](#design-system-tools)
+  - [Atlaskit Fallback Research Tools](#atlaskit-fallback-research-tools)
   - [Accessibility Tools](#accessibility-tools)
 - [Accessibility Features](#accessibility-features)
   - [Example Usage](#example-usage)
@@ -19,10 +29,18 @@ to help ensure your interfaces are accessible to all users.
   - [For AFM Users (internal Atlassians only)](#for-afm-users-internal-atlassians-only)
   - [For non-AFM Users](#for-non-afm-users)
     - [Cursor IDE](#cursor-ide)
+      - [Local (stdio)](#local-stdio)
+      - [Remote](#remote)
     - [Visual Studio Code](#visual-studio-code)
       - [Github Copilot](#github-copilot)
+        - [Local (stdio)](#local-stdio-1)
+        - [Remote](#remote-1)
       - [Codelassian](#codelassian)
+        - [Local (stdio)](#local-stdio-2)
+        - [Remote](#remote-2)
     - [Rovodev](#rovodev)
+      - [Local (stdio)](#local-stdio-3)
+      - [Remote](#remote-3)
     - [MCP Plugin for Atlas CLI](#mcp-plugin-for-atlas-cli)
   - [Environment Variables](#environment-variables)
 - [Analytics](#analytics)
@@ -37,46 +55,74 @@ to help ensure your interfaces are accessible to all users.
 
 - `ads_get_all_tokens` - Get all available design tokens for colors, spacing, typography, etc.
 - `ads_search_tokens` - Search for specific design tokens by name, description, or example values
-- `ads_get_components` - Get a list of all available components with basic information
-- `ads_search_components` - Search for components by name, description, category, or package name
+- `ads_get_all_components` - Get all canonical ADS components with basic information (full catalog)
+- `ads_search_components` - Search canonical ADS components by name, description, category, or
+  package name
 - `ads_get_all_icons` - Get all available icons from the design system
 - `ads_search_icons` - Search for specific icons by name, keywords, or categorization
 - `ads_plan` - Search for multiple design system resources (tokens, icons, components) in a single
   efficient operation
 
+Use `ads_*` tools first for standard UI work. They are the canonical source for ADS components,
+tokens, icons, foundations, accessibility, lint rules, i18n, and migrations.
+
+### Atlaskit Fallback Research Tools
+
+- `atlaskit_get_components` - Get a compact inventory of public `@atlaskit/*` component packages
+  outside the ADS catalog
+- `atlaskit_search_components` - Search non-ADS public `@atlaskit/*` components with examples and
+  props
+- `atlaskit_get_hooks` - Get a compact inventory of public `@atlaskit/*` hooks outside the ADS
+  catalog
+- `atlaskit_search_hooks` - Search non-ADS public `@atlaskit/*` hooks with usage details
+- `atlaskit_get_utilities` - Get a compact inventory of public `@atlaskit/*` utilities outside the
+  ADS catalog
+- `atlaskit_search_utilities` - Search non-ADS public `@atlaskit/*` utilities with usage details
+
+Use `atlaskit_*` tools for fallback research when an ADS search has no useful match, or when you are
+looking for a public `@atlaskit/*` package that is not part of ADS. Do not treat Atlaskit results as
+equal-priority replacements for ADS components in standard UI decisions.
+
 #### Design System Tools Usage
 
 ```typescript
-// Search for components (recommended approach)
-const buttonComponents = await search_components({
+// Search for canonical ADS components (recommended approach)
+const buttonComponents = await ads_search_components({
 	terms: ['button', 'click'],
 	limit: 3,
 });
 
 // Search for specific tokens
-const colorTokens = await search_tokens({
+const colorTokens = await ads_search_tokens({
 	terms: ['color.text', 'primary'],
 	limit: 5,
 });
 
 // Search for icons
-const addIcons = await search_icons({
+const addIcons = await ads_search_icons({
 	terms: ['add', 'plus', 'create'],
 	limit: 2,
 });
 
 // Search for multiple resources at once (most efficient for complex UI patterns)
-const designResources = await plan({
-	tokens_search: ['color.text', 'space.100', 'radius.small'],
-	icons_search: ['add', 'edit', 'delete'],
-	components_search: ['Button', 'TextField', 'Modal'],
+const designResources = await ads_plan({
+	tokens: ['color.text', 'space.100', 'radius.small'],
+	icons: ['add', 'edit', 'delete'],
+	components: ['Button', 'TextField', 'Modal'],
+	atlaskitComponents: [],
+	limit: 2,
+});
+
+// Search public @atlaskit/* packages only when ADS has no useful match
+const atlaskitComponents = await atlaskit_search_components({
+	terms: ['editor-core', 'onboarding'],
 	limit: 2,
 });
 
 // Get all available items (fallback when search doesn't find what you need)
-const allComponents = await get_components();
-const allTokens = await get_all_tokens();
-const allIcons = await get_all_icons();
+const allComponents = await ads_get_all_components();
+const allTokens = await ads_get_all_tokens();
+const allIcons = await ads_get_all_icons();
 ```
 
 ### Accessibility Tools
@@ -107,19 +153,19 @@ The ADS MCP server includes comprehensive accessibility analysis and guidance:
 
 ```typescript
 // Analyze a component for accessibility issues using axe-core
-const analysis = await analyze_a11y({
+const analysis = await ads_analyze_a11y({
 	code: `<button onClick={handleClose}><CloseIcon /></button>`,
 	componentName: 'CloseButton',
 	includePatternAnalysis: true, // Also include pattern-based analysis
 });
 
 // Get specific accessibility guidelines
-const guidelines = await get_a11y_guidelines({
+const guidelines = await ads_get_a11y_guidelines({
 	topic: 'buttons',
 });
 
 // Get fix suggestions for a violation
-const fixes = await suggest_a11y_fixes({
+const fixes = await ads_suggest_a11y_fixes({
 	violation: 'Button missing accessible label',
 	code: `<button onClick={handleClose}><CloseIcon /></button>`,
 });
@@ -142,6 +188,8 @@ ads-mcp.
 
 #### Cursor IDE
 
+##### Local (stdio)
+
 Add the following entry to your `mcp.json` file (located at `~/.cursor/mcp.json` for user-level or
 `.cursor/mcp.json` in your workspace):
 
@@ -159,9 +207,27 @@ Add the following entry to your `mcp.json` file (located at `~/.cursor/mcp.json`
 }
 ```
 
+##### Remote
+
+Click
+[![Install in Cursor](https://img.shields.io/badge/Cursor-Install_ads--mcp-000000?style=for-the-badge&logo=cursor&logoColor=ffffff)](vscode:mcp/install?%7B%22name%22%3A%22ads-mcp%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.atlassian.com%2Fv1%2Fads%2Fpublic%2Fmcp%22%7D)
+to add or add the following to the same `mcp.json` file:
+
+```json
+{
+	"mcpServers": {
+		"ads-mcp": {
+			"url": "https://mcp.atlassian.com/v1/ads/public/mcp"
+		}
+	}
+}
+```
+
 #### Visual Studio Code
 
 ##### Github Copilot
+
+###### Local (stdio)
 
 Add the following entry to your `mcp.json` file (located at
 `~/Library/Application Support/Code/User/mcp.json` for user-level or `.vscode/mcp.json` in your
@@ -182,7 +248,26 @@ workspace):
 }
 ```
 
+###### Remote
+
+Click
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_ads--mcp-0098FF?style=for-the-badge&logo=githubcopilot&logoColor=ffffff)](vscode:mcp/install?%7B%22name%22%3A%22ads-mcp%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.atlassian.com%2Fv1%2Fads%2Fpublic%2Fmcp%22%7D)
+or add the following to the same `mcp.json` file:
+
+```json
+{
+	"servers": {
+		"ads-mcp": {
+			"type": "http",
+			"url": "https://mcp.atlassian.com/v1/ads/public/mcp"
+		}
+	}
+}
+```
+
 ##### Codelassian
+
+###### Local (stdio)
 
 Add the following entry to your `mcp.json` file (located at `~/.codelassian/mcp.json` for user-level
 or `.codelassian/mcp.json` in your workspace):
@@ -201,7 +286,25 @@ or `.codelassian/mcp.json` in your workspace):
 }
 ```
 
+###### Remote
+
+No local installation required. Add the following to the same `mcp.json` file:
+
+```json
+{
+	"mcpServers": {
+		"ads-mcp": {
+			"type": "streamableHttp",
+			"url": "https://mcp.atlassian.com/v1/ads/public/mcp",
+			"disabled": false
+		}
+	}
+}
+```
+
 #### Rovodev
+
+##### Local (stdio)
 
 Add the following entry to your `mcp.json` file (located at `~/.rovodev/mcp.json` for user-level or
 `mcp.json` in your workspace):
@@ -225,6 +328,20 @@ Add the following entry to your `mcp.json` file (located at `~/.rovodev/mcp.json
 > `"timeout": 300` will specify the maximum time in **seconds** that the MCP server will wait before
 > terminating the process if it becomes unresponsive. Adjust this value as needed for your
 > environment or workflow.
+
+##### Remote
+
+No local installation required. Add the following to the same `mcp.json` file:
+
+```json
+{
+	"mcpServers": {
+		"ads-mcp": {
+			"url": "https://mcp.atlassian.com/v1/ads/public/mcp"
+		}
+	}
+}
+```
 
 #### MCP Plugin for Atlas CLI
 
@@ -337,6 +454,29 @@ running it from, but you should force it like so:
 	}
 }
 ```
+
+## Maintainer release workflow (AFM)
+
+When ADS structured content changes:
+
+1. From `platform/`, run combined codegen once:
+
+```bash
+afm workspace @af/ads-ai-tooling codegen
+```
+
+2. Commit updated generated MCP outputs in this package.
+3. Add a `platform/.changeset/*.md` entry for `@atlaskit/ads-mcp` in the same PR. Use `patch` for
+   catalog or documentation refreshes; use `minor` or `major` when the package API changes.
+4. Create and ship the `@atlaskit/ads-mcp` release as usual.
+5. Wait for the package publish.
+6. Renovate should bump it in
+   [atlassian-mcp-micros](https://bitbucket.org/atlassian/atlassian-mcp-micros/).
+7. Redeploy `atlassian-mcp-micros` after the bump lands (async pipeline).
+
+For generated skills and DESIGN.md output, use the cross-repository sync workflow in
+`packages/design-system/ai-tooling/README.md`, then follow the destination README in
+`atlassian/skills`. The codegen runner does not create instruction files under `platform/tmp/`.
 
 ## FAQs
 

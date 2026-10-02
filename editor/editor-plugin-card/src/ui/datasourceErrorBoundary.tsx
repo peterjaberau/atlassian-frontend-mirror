@@ -1,10 +1,11 @@
 /* eslint-disable @repo/internal/react/no-class-components */
+
 import React from 'react';
 
-import { isSafeUrl } from '@atlaskit/adf-schema';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
 import type { DatasourceModalType } from '@atlaskit/editor-common/types';
-import { LazyLoadedDatasourceRenderFailedAnalyticsWrapper } from '@atlaskit/link-datasource';
-import type { APIError } from '@atlaskit/linking-common';
+import { LazyLoadedDatasourceRenderFailedAnalyticsWrapper } from '@atlaskit/link-datasource/analytics/render-failed';
+import type { APIError } from '@atlaskit/linking-common/api-error';
 
 import type { DatasourceProps } from '../nodeviews/datasource';
 import { setSelectedCardAppearance } from '../pm-plugins/doc';
@@ -25,7 +26,10 @@ export class DatasourceErrorBoundary extends React.Component<DatasourceErrorBoun
 		error: null,
 	};
 
-	static getDerivedStateFromError(error: Error | APIError) {
+	static getDerivedStateFromError(error: Error | APIError): {
+		error: Error | APIError;
+		isError: boolean;
+	} {
 		return { isError: true, error };
 	}
 
@@ -39,7 +43,14 @@ export class DatasourceErrorBoundary extends React.Component<DatasourceErrorBoun
 		}
 	}
 
-	render() {
+	render():
+		| string
+		| number
+		| boolean
+		| Iterable<React.ReactNode>
+		| React.JSX.Element
+		| null
+		| undefined {
 		const {
 			url,
 			unsupportedComponent: UnsupportedComponent,

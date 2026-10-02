@@ -1,4 +1,4 @@
-import { PanelType } from '@atlaskit/adf-schema';
+import { PanelType } from '@atlaskit/adf-schema/panel';
 import { hexToEditorBackgroundPaletteColor } from '@atlaskit/editor-palette';
 
 const lightPanelColors = {
@@ -11,13 +11,19 @@ const lightPanelColors = {
 };
 
 const prefix = 'ak-editor-panel';
-export const PanelSharedCssClassName = {
+export const PanelSharedCssClassName: {
+	content: string;
+	icon: string;
+	noIcon: string;
+	prefix: string;
+} = {
 	prefix,
 	content: `${prefix}__content`,
 	icon: `${prefix}__icon`,
 	noIcon: `${prefix}__no-icon`,
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const PanelSharedSelectors = {
 	infoPanel: `.${prefix}[data-panel-type=${PanelType.INFO}]`,
 	notePanel: `.${prefix}[data-panel-type=${PanelType.NOTE}]`,
@@ -35,7 +41,7 @@ export const PanelSharedSelectors = {
 	addYourOwnEmoji: `#add-custom-emoji`,
 	emojiNameInCustomEmoji: `[aria-label="Enter a name for the new emoji"]`,
 	title: `#editor-title`,
-	emojiPopup: `[aria-label="Popup"]`,
+	emojiPopup: `[data-testid="popup-wrapper"]`,
 	searchEmoji: `[aria-label="Emoji name"]`,
 	orangeWarningIcon: `[aria-label=":warning:"]`,
 	yellowWarningIcon: `[aria-label=":warning:"]  span:nth-child(1)`,
@@ -43,9 +49,11 @@ export const PanelSharedSelectors = {
 };
 
 // Provides the color without tokens, used when converting to a custom panel
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getPanelTypeBackgroundNoTokens = (
 	panelType: Exclude<PanelType, PanelType.CUSTOM>,
 ): string => lightPanelColors[panelType] || 'none';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getPanelTypeBackground = (panelType: Exclude<PanelType, PanelType.CUSTOM>): string =>
 	hexToEditorBackgroundPaletteColor(lightPanelColors[panelType]) || 'none';

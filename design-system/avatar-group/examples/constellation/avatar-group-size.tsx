@@ -1,9 +1,10 @@
 import React from 'react';
 
-import AvatarGroup from '@atlaskit/avatar-group';
+import AvatarGroup from '@atlaskit/avatar-group/avatar-group';
 import { Stack } from '@atlaskit/primitives/compiled';
 
-import { appearances, RANDOM_USERS } from '../../examples-util/data';
+import { appearances } from '../../examples-util/appearances';
+import { RANDOM_USERS } from '../../examples-util/random-users';
 
 const data = RANDOM_USERS.slice(0, 8).map((d, i) => ({
 	key: d.email,

@@ -1,7 +1,9 @@
 import React from 'react';
+
 import { render } from '@testing-library/react';
-import Paragraph from '../../../../react/nodes/paragraph';
+
 import ReactSerializer from '../../../../react';
+import Paragraph from '../../../../react/nodes/paragraph';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Renderer - React/Nodes/Paragraph', () => {
@@ -21,20 +23,22 @@ describe('Renderer - React/Nodes/Paragraph', () => {
 		expect(container.querySelector('p')).toBeInTheDocument();
 	});
 
-	it('should render <br> tags in empty paragraphs', () => {
-		const { container } = render(
+	const renderEmptyAndFilledParagraphs = (plainTextFastPath?: boolean) =>
+		render(
 			<>
 				<Paragraph
 					marks={[]}
 					serializer={serialiser}
 					nodeType="paragraph"
 					dataAttributes={{ 'data-renderer-start-pos': 0 }}
+					plainTextFastPath={plainTextFastPath}
 				/>
 				<Paragraph
 					marks={[]}
 					serializer={serialiser}
 					nodeType="paragraph"
 					dataAttributes={{ 'data-renderer-start-pos': 1 }}
+					plainTextFastPath={plainTextFastPath}
 				>
 					This is a paragraph
 				</Paragraph>
@@ -43,16 +47,27 @@ describe('Renderer - React/Nodes/Paragraph', () => {
 					serializer={serialiser}
 					nodeType="paragraph"
 					dataAttributes={{ 'data-renderer-start-pos': 19 }}
+					plainTextFastPath={plainTextFastPath}
 				/>
 			</>,
 		);
 
+	const expectEmptyParagraphsRendered = (container: HTMLElement) => {
 		const paragraphs = container.querySelectorAll('p');
 
 		expect(paragraphs[0].innerHTML).toEqual('&nbsp;');
 		expect(paragraphs[0]).toHaveAttribute('data-renderer-start-pos', '0');
 		expect(paragraphs[2].innerHTML).toEqual('&nbsp;');
 		expect(paragraphs[2]).toHaveAttribute('data-renderer-start-pos', '19');
+	};
+
+	// Both branches must keep the non-breaking space in empty paragraphs. The branch is selected
+	// by the prop that `ReactSerializer` threads down, not by reading the experiment here.
+	it.each([
+		['fast path prop set', true],
+		['fast path prop unset', undefined],
+	])('should render &nbsp; in empty paragraphs with %s', (_label, plainTextFastPath) => {
+		expectEmptyParagraphsRendered(renderEmptyAndFilledParagraphs(plainTextFastPath).container);
 	});
 
 	it('should render data-as-inline attribute when asInline is on', () => {

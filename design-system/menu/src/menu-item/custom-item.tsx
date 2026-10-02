@@ -29,6 +29,10 @@ interface CustomItemTypeGenericHackProps {
 /**
  * __Custom item__
  *
+ * @deprecated
+ * CustomItem must not be used and will be deleted soon. Custom menu items are not supported.
+ * Use ButtonItem or LinkItem instead. If you need a custom list item, do not use `@atlaskit/menu`.
+ *
  * A custom item is used to populate a menu with items that can be any element.
  *
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/menu/docs/custom-item)
@@ -101,7 +105,7 @@ const CustomItem = memo(
 							onMouseDown={isDisabled ? preventEvent : onMouseDownHandler}
 							onClick={isDisabled ? preventEvent : handleClick}
 							tabIndex={isDisabled ? -1 : undefined}
-							aria-disabled={isDisabled}
+							aria-disabled={isDisabled || undefined}
 						>
 							{children}
 						</Component>

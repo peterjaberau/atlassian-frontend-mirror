@@ -1,7 +1,8 @@
 import { type ReactNode } from 'react';
 
-import { type CodeBidiWarningConfig, type RefractorNode } from '../../types';
+import type { RefractorNode } from 'refractor';
 
+import type { CodeBidiWarningConfig } from '../../types';
 import createElement from './create-element';
 
 export default function createChildren(

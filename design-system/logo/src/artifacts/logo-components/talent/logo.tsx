@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::d551593b8677ea578dab8c3272c8e061>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::978d3838f29d2573e0f8cdc0d56b8f46>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -20,11 +20,11 @@ const svg = `<svg height="100%" viewBox="0 0 73 24">
 /**
  * __TalentLogo__
  *
- * A temporary component to represent the logo for Talent.
+ * A component to represent the logo for Talent.
  *
  */
 export function TalentLogo({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Talent',
 	testId,

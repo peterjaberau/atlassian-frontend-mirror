@@ -1,4 +1,4 @@
-import { SmartLinkActionType } from '@atlaskit/linking-types';
+import { SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
 
 import { ActionName, type IconType, MediaType } from '../constants';
 import { type FlexibleUiDataContext } from '../state/flexible-ui-context/types';
@@ -45,6 +45,19 @@ const context: FlexibleUiDataContext = {
 			analyticsSource: 'smart-card',
 			product: 'confluence',
 			resourceType: 'page',
+		},
+		RovoChatAction: {
+			invokeAction: {
+				actionSubjectId: 'rovoChatPrompt',
+				actionType: ActionName.RovoChatAction,
+				definitionId: 'd1',
+				display: 'hoverCardPreview',
+				extensionKey: 'google-object-provider',
+				id: 'uid',
+				resourceType: 'r1',
+			},
+			product: 'CONFLUENCE',
+			url: 'https://www.link-url.com',
 		},
 		ViewRelatedLinksAction: {
 			ari: 'ari:cloud:link:1234:example:abcd',

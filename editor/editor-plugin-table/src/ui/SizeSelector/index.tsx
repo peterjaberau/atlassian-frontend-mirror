@@ -4,17 +4,20 @@
  */
 import { useCallback } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
 import { jsx } from '@emotion/react';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { TableSelectorPopup, type TableSelectorPopupProps } from '@atlaskit/editor-common/ui';
+import { TableSelectorPopup } from '@atlaskit/editor-common/ui';
+import type { TableSelectorPopupProps } from '@atlaskit/editor-common/ui';
 
 import { pluginKey } from '../../pm-plugins/table-size-selector';
 import type { TablePlugin } from '../../tablePluginType';
 
-interface SizeSelectorProps
-	extends Omit<TableSelectorPopupProps, 'handleClickOutside' | 'onSelection' | 'unUnmount'> {
+interface SizeSelectorProps extends Omit<
+	TableSelectorPopupProps,
+	'handleClickOutside' | 'onSelection' | 'unUnmount'
+> {
 	api?: ExtractInjectionAPI<TablePlugin>;
 }
 
@@ -27,7 +30,7 @@ export const SizeSelector = ({
 	popupsMountPoint,
 	popupsBoundariesElement,
 	popupsScrollableElement,
-}: SizeSelectorProps) => {
+}: SizeSelectorProps): jsx.JSX.Element => {
 	const closeSelectorPopup = useCallback(() => {
 		api?.core.actions.execute(({ tr }) => {
 			tr.setMeta(pluginKey, {
@@ -59,6 +62,7 @@ export const SizeSelector = ({
 
 	return (
 		<TableSelectorPopup
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			defaultSize={{ row: DEFAULT_TABLE_SELECTOR_ROWS, col: DEFAULT_TABLE_SELECTOR_COLS }}
 			target={target}
 			onUnmount={onUnmount}

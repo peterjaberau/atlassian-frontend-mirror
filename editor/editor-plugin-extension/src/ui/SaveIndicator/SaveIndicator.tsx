@@ -4,15 +4,14 @@
  */
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import { messages } from '@atlaskit/editor-common/extensions';
 import CheckCircleIcon from '@atlaskit/icon/core/status-success';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Text, xcss } from '@atlaskit/primitives';
-import { G300, N0 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import type { SaveIndicatorProps } from './types';
@@ -27,18 +26,15 @@ const saveIndicatorWrapperStyles = css({
 const saveIndicatorContentStyles = css({
 	position: 'fixed',
 	width: '256px',
-	bottom: token('space.250', '20px'),
+	bottom: token('space.250'),
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	padding: `${token('space.075', '6px')} ${token('space.150', '12px')}`,
-	background: token('elevation.surface.overlay', N0),
+	padding: `${token('space.075')} ${token('space.150')}`,
+	background: token('elevation.surface.overlay'),
 
 	/* E300 */
-	boxShadow: token(
-		'elevation.shadow.overlay',
-		`0px 8px 12px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.31)`,
-	),
+	boxShadow: token('elevation.shadow.overlay'),
 	borderRadius: token('radius.xxlarge'),
 });
 
@@ -46,7 +42,11 @@ const saveIndicatorTextStyles = xcss({
 	paddingLeft: 'space.075',
 });
 
-export const SaveIndicator = ({ children, duration, visible = true }: SaveIndicatorProps) => {
+export const SaveIndicator = ({
+	children,
+	duration,
+	visible = true,
+}: SaveIndicatorProps): jsx.JSX.Element => {
 	const [saving, setSaving] = useState(false);
 	const shown = useRef(false);
 
@@ -73,11 +73,7 @@ export const SaveIndicator = ({ children, duration, visible = true }: SaveIndica
 			{visible && saving && (
 				<div css={saveIndicatorWrapperStyles}>
 					<div css={saveIndicatorContentStyles} data-testid="save-indicator-content">
-						<CheckCircleIcon
-							label="Saving"
-							color={token('color.icon.success', G300)}
-							spacing="none"
-						/>
+						<CheckCircleIcon label="Saving" color={token('color.icon.success')} spacing="none" />
 						<Box xcss={saveIndicatorTextStyles}>
 							<Text>
 								<FormattedMessage

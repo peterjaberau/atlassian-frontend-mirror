@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/blanket",
-	"version": "15.0.24",
+	"version": "16.4.4",
 	"description": "A blanket covers the underlying UI for a layered component, such as a modal dialog or a tooltip.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,41 +12,45 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"homepage": "https://atlassian.design/components/blanket",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Blanket",
 			"category": "Overlays and layering"
 		}
 	},
 	"exports": {
 		".": "./src/index.tsx",
-		"./types": "./src/entry-points/types.tsx"
+		"./blanket": "./src/blanket.tsx",
+		"./types": "./src/types.tsx"
 	},
 	"dependencies": {
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/ds-lib": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -61,12 +65,15 @@
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/toggle": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/dom": "root:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"bind-event-listener": "root:*",
 		"jscodeshift": "root:*",
-		"react-dom": "root:*",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
 		"react-lorem-component": "root:*",
 		"storybook-addon-performance": "root:*"
 	},
@@ -74,25 +81,5 @@
 		"atlaskit",
 		"react",
 		"ui"
-	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"ui-components": "lite-mode",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports"
-		}
-	}
+	]
 }

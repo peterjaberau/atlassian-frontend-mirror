@@ -1,468 +1,1090 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-// These messages are only to be used when showSomewhatSemanticTooltips is true.
-export const lightTextPaletteTooltipMessages = defineMessages({
-	'#FFFFFF': {
-		id: 'fabric.theme.white',
-		defaultMessage: 'White',
-		description: 'Name of a color',
-	},
-	'#B3D4FF': {
-		id: 'fabric.theme.subtle-blue',
-		defaultMessage: 'Subtle blue',
-		description: 'Name of a color',
-	},
-	'#B3F5FF': {
-		id: 'fabric.theme.subtle-teal',
-		defaultMessage: 'Subtle teal',
-		description: 'Name of a color',
-	},
-	'#ABF5D1': {
-		id: 'fabric.theme.subtle-green',
-		defaultMessage: 'Subtle green',
-		description: 'Name of a color',
-	},
-	'#FFF0B3': {
-		id: 'fabric.theme.subtle-yellow',
-		defaultMessage: 'Subtle yellow',
-		description: 'Name of a color',
-	},
-	'#FFBDAD': {
-		id: 'fabric.theme.subtle-red',
-		defaultMessage: 'Subtle red',
-		description: 'Name of a color',
-	},
-	'#EAE6FF': {
-		id: 'fabric.theme.subtle-purple',
-		defaultMessage: 'Subtle purple',
-		description: 'Name of a color',
-	},
-	'#97A0AF': {
-		id: 'fabric.theme.gray',
-		defaultMessage: 'Gray',
-		description: 'Name of a color',
-	},
-	'#4C9AFF': {
-		id: 'fabric.theme.blue',
-		defaultMessage: 'Blue',
-		description: 'Name of a color',
-	},
-	'#00B8D9': {
-		id: 'fabric.theme.teal',
-		defaultMessage: 'Teal',
-		description: 'Name of a color',
-	},
-	'#36B37E': {
-		id: 'fabric.theme.green',
-		defaultMessage: 'Green',
-		description: 'Name of a color',
-	},
-	'#FFC400': {
-		id: 'fabric.theme.yellow',
-		defaultMessage: 'Yellow',
-		description: 'Name of a color',
-	},
-	'#FF5630': {
-		id: 'fabric.theme.red',
-		defaultMessage: 'Red',
-		description: 'Name of a color.',
-	},
-	'#FF991F': {
-		id: 'fabric.theme.bold-orange',
-		defaultMessage: 'Bold orange',
-		description: 'Name of a color.',
-	},
-	'#6554C0': {
-		id: 'fabric.theme.purple',
-		defaultMessage: 'Purple',
-		description: 'Name of a color',
-	},
-	'#0747A6': {
-		id: 'fabric.theme.bold-blue',
-		defaultMessage: 'Bold blue',
-		description: 'Name of a color',
-	},
-	'#008DA6': {
-		id: 'fabric.theme.bold-teal',
-		defaultMessage: 'Bold teal',
-		description: 'Name of a color',
-	},
-	'#006644': {
-		id: 'fabric.theme.bold-green',
-		defaultMessage: 'Bold green',
-		description: 'Name of a color',
-	},
-	'#BF2600': {
-		id: 'fabric.theme.bold-red',
-		defaultMessage: 'Bold red',
-		description: 'Name of a color',
-	},
-	'#403294': {
-		id: 'fabric.theme.bold-purple',
-		defaultMessage: 'Bold purple',
-		description: 'Name of a color',
-	},
-	'#172B4D': {
-		id: 'fabric.theme.default',
-		defaultMessage: 'Default',
-		description: 'Name of a color',
-	},
-});
+import { lightBackgroundPaletteTooltipMessages } from './lightBackgroundPaletteTooltipMessages';
+import { lightChartsColorPaletteTooltipMessages } from './lightChartsColorPaletteTooltipMessages';
+import { lightTextPaletteTooltipMessages } from './lightTextPaletteTooltipMessages';
 
 const darkModeTextPaletteOverrides = defineMessages({
 	'#FFFFFF': {
 		id: 'fabric.theme.dark-gray',
 		defaultMessage: 'Dark gray',
-		description: 'Name of a color',
+		description:
+			'The text is shown as a tooltip label for a color swatch in the editor text color picker in dark mode when the user hovers over the dark gray color option.',
 	},
 });
 
-export const darkTextPaletteTooltipMessages = {
+export const darkTextPaletteTooltipMessages: {
+	'#FFFFFF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#B3D4FF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#B3F5FF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#ABF5D1': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FFF0B3': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FFBDAD': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#EAE6FF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#97A0AF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#4C9AFF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#00B8D9': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#36B37E': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FFC400': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FF5630': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FF991F': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#6554C0': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#0747A6': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#008DA6': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#006644': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#BF2600': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#403294': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#172B4D': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = {
 	...lightTextPaletteTooltipMessages,
 	...darkModeTextPaletteOverrides,
 };
 
-export const textPaletteTooltipMessages = {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const textPaletteTooltipMessages: {
+	light: {
+		'#FFFFFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3D4FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3F5FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#ABF5D1': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFF0B3': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFBDAD': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#EAE6FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#97A0AF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#4C9AFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#00B8D9': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#36B37E': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFC400': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FF5630': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FF991F': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#6554C0': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#0747A6': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#008DA6': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#006644': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#BF2600': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#403294': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#172B4D': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+	};
+	dark: {
+		'#FFFFFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3D4FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3F5FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#ABF5D1': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFF0B3': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFBDAD': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#EAE6FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#97A0AF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#4C9AFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#00B8D9': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#36B37E': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFC400': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FF5630': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FF991F': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#6554C0': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#0747A6': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#008DA6': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#006644': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#BF2600': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#403294': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#172B4D': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+	};
+} = {
+	// eslint-disable-next-line @atlaskit/editor/no-re-export
 	light: lightTextPaletteTooltipMessages,
 	dark: darkTextPaletteTooltipMessages,
 };
-
-export const lightBackgroundPaletteTooltipMessages = defineMessages({
-	'#DEEBFF': {
-		id: 'fabric.theme.subtle-blue',
-		defaultMessage: 'Subtle blue',
-		description: 'Name of a color',
-	},
-	'#B3D4FF': {
-		id: 'fabric.theme.blue',
-		defaultMessage: 'Blue',
-		description: 'Name of a color',
-	},
-	'#4C9AFF': {
-		id: 'fabric.theme.bold-blue',
-		defaultMessage: 'Bold blue',
-		description: 'Name of a color',
-	},
-	'#E6FCFF': {
-		id: 'fabric.theme.subtle-teal',
-		defaultMessage: 'Subtle teal',
-		description: 'Name of a color',
-	},
-	'#B3F5FF': {
-		id: 'fabric.theme.teal',
-		defaultMessage: 'Teal',
-		description: 'Name of a color',
-	},
-	'#79E2F2': {
-		id: 'fabric.theme.bold-teal',
-		defaultMessage: 'Bold teal',
-		description: 'Name of a color',
-	},
-	'#E3FCEF': {
-		id: 'fabric.theme.subtle-green',
-		defaultMessage: 'Subtle green',
-		description: 'Name of a color',
-	},
-	'#ABF5D1': {
-		id: 'fabric.theme.green',
-		defaultMessage: 'Green',
-		description: 'Name of a color',
-	},
-	'#57D9A3': {
-		id: 'fabric.theme.bold-green',
-		defaultMessage: 'Bold green',
-		description: 'Name of a color',
-	},
-	'#FFFAE6': {
-		id: 'fabric.theme.subtle-yellow',
-		defaultMessage: 'Subtle yellow',
-		description: 'Name of a color',
-	},
-	'#FFF0B3': {
-		id: 'fabric.theme.yellow',
-		defaultMessage: 'Yellow',
-		description: 'Name of a color',
-	},
-	'#FFC400': {
-		id: 'fabric.theme.bold-yellow',
-		defaultMessage: 'Bold yellow',
-		description: 'Name of a color',
-	},
-	'#FFEBE6': {
-		id: 'fabric.theme.subtle-red',
-		defaultMessage: 'Subtle red',
-		description: 'Name of a color',
-	},
-	'#FFBDAD': {
-		id: 'fabric.theme.red',
-		defaultMessage: 'Red',
-		description: 'Name of a color.',
-	},
-	'#FF8F73': {
-		id: 'fabric.theme.bold-red',
-		defaultMessage: 'Bold red',
-		description: 'Name of a color',
-	},
-	'#EAE6FF': {
-		id: 'fabric.theme.subtle-purple',
-		defaultMessage: 'Subtle purple',
-		description: 'Name of a color',
-	},
-	'#C0B6F2': {
-		id: 'fabric.theme.purple',
-		defaultMessage: 'Purple',
-		description: 'Name of a color',
-	},
-	'#998DD9': {
-		id: 'fabric.theme.bold-purple',
-		defaultMessage: 'Bold purple',
-		description: 'Name of a color',
-	},
-	'#FFFFFF': {
-		id: 'fabric.theme.white',
-		defaultMessage: 'White',
-		description: 'Name of a color',
-	},
-	'#F4F5F7': {
-		id: 'fabric.theme.gray',
-		defaultMessage: 'Gray',
-		description: 'Name of a color',
-	},
-	'#B3BAC5': {
-		id: 'fabric.theme.bold-gray',
-		defaultMessage: 'Bold gray',
-		description: 'Name of a color',
-	},
-});
 
 const darkModeBackgroundPaletteOverrides = defineMessages({
 	'#FFFFFF': {
 		id: 'fabric.theme.subtle-gray',
 		defaultMessage: 'Subtle gray',
-		description: 'Name of a color',
+		description:
+			'The text is shown as a tooltip label for a color swatch in the editor background color picker in dark mode when the user hovers over the subtle gray color option.',
 	},
 	'#B3BAC5': {
 		id: 'fabric.theme.bold-gray',
 		defaultMessage: 'Bold gray',
-		description: 'Name of a color',
+		description:
+			'The text is shown as a tooltip label for a color swatch in the editor background color picker in dark mode when the user hovers over the bold gray color option.',
 	},
 });
 
-export const darkBackgroundPaletteTooltipMessages = {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const darkBackgroundPaletteTooltipMessages: {
+	'#FFFFFF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#B3BAC5': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#DEEBFF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#B3D4FF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#4C9AFF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#E6FCFF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#B3F5FF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#79E2F2': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#E3FCEF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#ABF5D1': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#57D9A3': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FFFAE6': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FFF0B3': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FFC400': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FFEBE6': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FFBDAD': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#FF8F73': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#EAE6FF': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#C0B6F2': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#998DD9': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	'#F4F5F7': {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = {
 	...lightBackgroundPaletteTooltipMessages,
 	...darkModeBackgroundPaletteOverrides,
 };
 
-export const backgroundPaletteTooltipMessages = {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const backgroundPaletteTooltipMessages: {
+	light: {
+		'#DEEBFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3D4FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#4C9AFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#E6FCFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3F5FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#79E2F2': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#E3FCEF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#ABF5D1': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#57D9A3': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFFAE6': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFF0B3': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFC400': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFEBE6': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFBDAD': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FF8F73': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#EAE6FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#C0B6F2': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#998DD9': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFFFFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#F4F5F7': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3BAC5': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+	};
+	dark: {
+		'#FFFFFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3BAC5': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#DEEBFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3D4FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#4C9AFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#E6FCFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B3F5FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#79E2F2': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#E3FCEF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#ABF5D1': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#57D9A3': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFFAE6': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFF0B3': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFC400': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFEBE6': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFBDAD': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FF8F73': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#EAE6FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#C0B6F2': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#998DD9': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#F4F5F7': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+	};
+} = {
+	// eslint-disable-next-line @atlaskit/editor/no-re-export
 	light: lightBackgroundPaletteTooltipMessages,
 	dark: darkBackgroundPaletteTooltipMessages,
 };
-
-export const lightChartsColorPaletteTooltipMessages = defineMessages({
-	// Blue color
-	'#7AB2FF': {
-		id: 'fabric.theme.subtle-blue',
-		defaultMessage: 'Subtle blue',
-		description: 'Name of a color',
-	},
-	'#247FFF': {
-		id: 'fabric.theme.blue',
-		defaultMessage: 'Blue',
-		description: 'Name of a color',
-	},
-	'#0055CC': {
-		id: 'fabric.theme.bold-blue',
-		defaultMessage: 'Bold blue',
-		description: 'Name of a color',
-	},
-	'#003884': {
-		id: 'fabric.theme.bolder-blue',
-		defaultMessage: 'Bolder blue',
-		description: 'Name of a color',
-	},
-
-	// Teal color
-	'#60C6D2': {
-		id: 'fabric.theme.subtle-teal',
-		defaultMessage: 'Subtle teal',
-		description: 'Name of a color',
-	},
-	'#1D9AAA': {
-		id: 'fabric.theme.teal',
-		defaultMessage: 'Teal',
-		description: 'Name of a color',
-	},
-	'#1D7F8C': {
-		id: 'fabric.theme.bold-teal',
-		defaultMessage: 'Bold teal',
-		description: 'Name of a color',
-	},
-	'#206B74': {
-		id: 'fabric.theme.bolder-teal',
-		defaultMessage: 'Bolder teal',
-		description: 'Name of a color',
-	},
-
-	// Green color
-	'#6BE1B0': {
-		id: 'fabric.theme.subtle-green',
-		defaultMessage: 'Subtle green',
-		description: 'Name of a color',
-	},
-	'#23A971': {
-		id: 'fabric.theme.green',
-		defaultMessage: 'Green',
-		description: 'Name of a color',
-	},
-	'#177D52': {
-		id: 'fabric.theme.bold-green',
-		defaultMessage: 'Bold green',
-		description: 'Name of a color',
-	},
-	'#055C3F': {
-		id: 'fabric.theme.bolder-green',
-		defaultMessage: 'Bolder green',
-		description: 'Name of a color',
-	},
-
-	// Yellow color
-	'#FFDB57': {
-		id: 'fabric.theme.subtle-yellow',
-		defaultMessage: 'Subtle yellow',
-		description: 'Name of a color',
-	},
-	'#FFBE33': {
-		id: 'fabric.theme.yellow',
-		defaultMessage: 'Yellow',
-		description: 'Name of a color',
-	},
-	'#FF9D00': {
-		id: 'fabric.theme.bold-yellow',
-		defaultMessage: 'Bold yellow',
-		description: 'Name of a color',
-	},
-	'#946104': {
-		id: 'fabric.theme.bolder-yellow',
-		defaultMessage: 'Bolder yellow',
-		description: 'Name of a color',
-	},
-
-	// Red color
-	'#FF8F73': {
-		id: 'fabric.theme.subtle-red',
-		defaultMessage: 'Subtle red',
-		description: 'Name of a color',
-	},
-	'#FC552C': {
-		id: 'fabric.theme.red',
-		defaultMessage: 'Red',
-		description: 'Name of a color.',
-	},
-	'#D32D03': {
-		id: 'fabric.theme.bold-red',
-		defaultMessage: 'Bold red',
-		description: 'Name of a color',
-	},
-	'#A32000': {
-		id: 'fabric.theme.bolder-red',
-		defaultMessage: 'Bolder red',
-		description: 'Name of a color',
-	},
-
-	// Orange color
-	'#FAA53D': {
-		id: 'fabric.theme.subtle-orange',
-		defaultMessage: 'Subtle orange',
-		description: 'Name of a color',
-	},
-	'#D97008': {
-		id: 'fabric.theme.orange',
-		defaultMessage: 'Orange',
-		description: 'Name of a color.',
-	},
-	'#B65C02': {
-		id: 'fabric.theme.bold-orange',
-		defaultMessage: 'Bold orange',
-		description: 'Name of a color.',
-	},
-	'#974F0C': {
-		id: 'fabric.theme.bolder-orange',
-		defaultMessage: 'Bolder orange',
-		description: 'Name of a color',
-	},
-
-	// Magenta color
-	'#E774BB': {
-		id: 'fabric.theme.subtle-magenta',
-		defaultMessage: 'Subtle magenta',
-		description: 'Name of a color',
-	},
-	'#DA62AC': {
-		id: 'fabric.theme.magenta',
-		defaultMessage: 'Magenta',
-		description: 'Name of a color',
-	},
-	'#CD519D': {
-		id: 'fabric.theme.bold-magenta',
-		defaultMessage: 'Bold magenta',
-		description: 'Name of a color',
-	},
-	'#943D73': {
-		id: 'fabric.theme.bolder-magenta',
-		defaultMessage: 'Bolder magenta',
-		description: 'Name of a color',
-	},
-
-	// Purple color
-	'#B5A7FB': {
-		id: 'fabric.theme.subtle-purple',
-		defaultMessage: 'Subtle purple',
-		description: 'Name of a color',
-	},
-	'#8B77EE': {
-		id: 'fabric.theme.purple',
-		defaultMessage: 'Purple',
-		description: 'Name of a color',
-	},
-	'#5A43D0': {
-		id: 'fabric.theme.bold-purple',
-		defaultMessage: 'Bold purple',
-		description: 'Name of a color',
-	},
-	'#44368B': {
-		id: 'fabric.theme.bolder-purple',
-		defaultMessage: 'Bolder purple',
-		description: 'Name of a color',
-	},
-
-	// Gray color
-	'#8993A5': {
-		id: 'fabric.theme.subtle-gray',
-		defaultMessage: 'Subtle gray',
-		description: 'Name of a color',
-	},
-	'#8590A2': {
-		id: 'fabric.theme.gray',
-		defaultMessage: 'Gray',
-		description: 'Name of a color',
-	},
-	'#758195': {
-		id: 'fabric.theme.bold-gray',
-		defaultMessage: 'Bold gray',
-		description: 'Name of a color',
-	},
-	'#44546F': {
-		id: 'fabric.theme.bolder-gray',
-		defaultMessage: 'Bolder gray',
-		description: 'Name of a color',
-	},
-});
 
 const darkChartsColorPaletteTooltipMessages = {
 	...lightChartsColorPaletteTooltipMessages,
 };
 
-export const chartsColorPaletteTooltipMessages = {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const chartsColorPaletteTooltipMessages: {
+	light: {
+		// Blue color
+		'#7AB2FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#247FFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#0055CC': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#003884': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Teal color
+		'#60C6D2': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#1D9AAA': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#1D7F8C': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#206B74': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Green color
+		'#6BE1B0': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#23A971': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#177D52': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#055C3F': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Yellow color
+		'#FFDB57': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFBE33': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FF9D00': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#946104': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Red color
+		'#FF8F73': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FC552C': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#D32D03': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#A32000': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Orange color
+		'#FAA53D': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#D97008': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B65C02': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#974F0C': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Magenta color
+		'#E774BB': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#DA62AC': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#CD519D': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#943D73': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Purple color
+		'#B5A7FB': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#8B77EE': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#5A43D0': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#44368B': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Gray color
+		'#8993A5': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#8590A2': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#758195': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#44546F': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+	};
+	dark: {
+		// Blue color
+		'#7AB2FF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#247FFF': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#0055CC': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#003884': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Teal color
+		'#60C6D2': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#1D9AAA': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#1D7F8C': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#206B74': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Green color
+		'#6BE1B0': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#23A971': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#177D52': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#055C3F': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Yellow color
+		'#FFDB57': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FFBE33': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FF9D00': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#946104': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Red color
+		'#FF8F73': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#FC552C': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#D32D03': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#A32000': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Orange color
+		'#FAA53D': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#D97008': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#B65C02': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#974F0C': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Magenta color
+		'#E774BB': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#DA62AC': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#CD519D': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#943D73': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Purple color
+		'#B5A7FB': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#8B77EE': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#5A43D0': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#44368B': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		// Gray color
+		'#8993A5': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#8590A2': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#758195': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#44546F': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+	};
+} = {
+	// eslint-disable-next-line @atlaskit/editor/no-re-export
 	light: lightChartsColorPaletteTooltipMessages,
 	dark: darkChartsColorPaletteTooltipMessages,
 };
@@ -471,17 +1093,20 @@ const lightBorderPaletteTooltipMessages = defineMessages({
 	'#091E4224': {
 		id: 'fabric.theme.subtle-gray',
 		defaultMessage: 'Subtle gray',
-		description: 'Name of a color',
+		description:
+			'The text is shown as a tooltip label for a color swatch in the editor border color picker when the user hovers over the subtle gray color option.',
 	},
 	'#758195': {
 		id: 'fabric.theme.gray',
 		defaultMessage: 'Gray',
-		description: 'Name of a color',
+		description:
+			'The text is shown as a tooltip label for a color swatch in the editor border color picker when the user hovers over the gray color option.',
 	},
 	'#172B4D': {
 		id: 'fabric.theme.bold-gray',
 		defaultMessage: 'Bold gray',
-		description: 'Name of a color',
+		description:
+			'The text is shown as a tooltip label for a color swatch in the editor border color picker when the user hovers over the bold gray color option.',
 	},
 });
 
@@ -489,7 +1114,49 @@ const darkBorderPaletteTooltipMessages = {
 	...lightBorderPaletteTooltipMessages,
 };
 
-export const borderPaletteTooltipMessages = {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const borderPaletteTooltipMessages: {
+	light: {
+		'#091E4224': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#758195': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#172B4D': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+	};
+	dark: {
+		'#091E4224': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#758195': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+		'#172B4D': {
+			id: string;
+			defaultMessage: string;
+			description: string;
+		};
+	};
+} = {
 	light: lightBorderPaletteTooltipMessages,
 	dark: darkBorderPaletteTooltipMessages,
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { lightTextPaletteTooltipMessages } from './lightTextPaletteTooltipMessages';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { lightBackgroundPaletteTooltipMessages } from './lightBackgroundPaletteTooltipMessages';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { lightChartsColorPaletteTooltipMessages } from './lightChartsColorPaletteTooltipMessages';

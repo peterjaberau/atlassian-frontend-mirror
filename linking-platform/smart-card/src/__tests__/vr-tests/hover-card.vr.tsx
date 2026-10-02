@@ -1,12 +1,13 @@
 import { snapshot } from '@af/visual-regression';
 
-import HoverCardActions from '../../../examples/vr-hover-card/vr-hover-card-actions';
-import HoverCardPositioning from '../../../examples/vr-hover-card/vr-hover-card-can-open-positioning';
-import HoverCard from '../../../examples/vr-hover-card/vr-hover-cards';
-import HoverCardWithEntities from '../../../examples/vr-hover-card/vr-hover-cards-entities';
-import HoverCardSSRError from '../../../examples/vr-hover-card/vr-hover-cards-ssr-error';
-import HoverCardSSRLoading from '../../../examples/vr-hover-card/vr-hover-cards-ssr-loading';
-import HoverCardUnauthorised from '../../../examples/vr-hover-card/vr-unauthorised-hover-cards';
+import HoverCardActions from '../../../examples/vr-hover-card/vr-hover-card-actions.vr.ap';
+import HoverCardPositioning from '../../../examples/vr-hover-card/vr-hover-card-can-open-positioning.vr.ap';
+import HoverCardWithEntities from '../../../examples/vr-hover-card/vr-hover-cards-entities.vr.ap';
+import HoverCardSSRError from '../../../examples/vr-hover-card/vr-hover-cards-ssr-error.vr.ap';
+import HoverCardSSRLoading from '../../../examples/vr-hover-card/vr-hover-cards-ssr-loading.vr.ap';
+import HoverCard from '../../../examples/vr-hover-card/vr-hover-cards.vr.ap';
+import HoverCardUnauthorised from '../../../examples/vr-hover-card/vr-unauthorised-hover-cards.vr.ap';
+import { mockPersonalizationRequests } from './mock-personalization-requests';
 
 snapshot(HoverCard, {
 	drawsOutsideBounds: true,
@@ -24,9 +25,6 @@ snapshot(HoverCard, {
 			},
 		},
 	],
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
@@ -59,9 +57,6 @@ snapshot(HoverCardActions, {
 		},
 	],
 	variants: [{ name: 'light mode', environment: { colorScheme: 'light' } }],
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
@@ -74,13 +69,11 @@ snapshot(HoverCardActions, {
 			selector: { byTestId: 'hover-card-trigger-wrapper' },
 		},
 	],
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
 snapshot(HoverCardUnauthorised, {
+	mockRequests: mockPersonalizationRequests,
 	drawsOutsideBounds: true,
 	states: [
 		{
@@ -88,6 +81,10 @@ snapshot(HoverCardUnauthorised, {
 			selector: { byTestId: 'hover-card-trigger-wrapper' },
 		},
 	],
+	featureFlags: {
+		platform_sl_3p_preauth_better_hovercard_killswitch: true,
+		platform_sl_3p_preauth_better_hovercard: [true, false],
+	},
 	waitForReactLazy: true,
 });
 
@@ -122,9 +119,6 @@ snapshot(HoverCardPositioning, {
 			selector: { byTestId: 'hover-test-can-open-left' },
 		},
 	],
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 
@@ -149,8 +143,5 @@ snapshot(HoverCardPositioning, {
 			selector: { byTestId: 'hover-test-can-open-right' },
 		},
 	],
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });

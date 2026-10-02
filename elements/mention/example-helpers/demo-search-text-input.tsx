@@ -1,7 +1,9 @@
-import { token } from '@atlaskit/tokens';
 import React, { type ChangeEventHandler, Component, type FocusEventHandler } from 'react';
+
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v1';
+import { v1 as uuid } from 'uuid';
+
+import { token } from '@atlaskit/tokens';
 
 function noModifiers(event: React.KeyboardEvent<HTMLInputElement>) {
 	return !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey;
@@ -63,7 +65,7 @@ class SearchTextInput extends Component<Props, {}> {
 		}
 	};
 
-	render() {
+	render(): React.JSX.Element {
 		// /* eslint no-unused-vars: 0 */
 		// const { onUp, onDown, onEnter, onEscape, label, inputRef, inputId, ...other } = this.props;
 		const { label, inputId, onBlur, onChange, onFocus } = this.props;
@@ -86,8 +88,8 @@ class SearchTextInput extends Component<Props, {}> {
 					onKeyDown={this.handleKeyDown}
 					ref={this.inputRefUpdate}
 					style={{
-						height: `${token('space.250', '20px')}`,
-						marginLeft: `${token('space.150', '12px')}`,
+						height: `${token('space.250')}`,
+						marginLeft: `${token('space.150')}`,
 					}}
 				/>
 			</div>

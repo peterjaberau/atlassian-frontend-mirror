@@ -1,9 +1,8 @@
-import { type NodeType, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { NodeType, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 
 import type { TableContext, TableMap } from '../table-map';
 import type { CellAttributes } from '../types';
-
 import { tableNodeTypes } from './table-node-types';
 
 function rowIsHeader(map: TableMap, table: PMNode, row: number): boolean {

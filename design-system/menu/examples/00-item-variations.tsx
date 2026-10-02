@@ -4,25 +4,32 @@
  */
 import { css, jsx } from '@compiled/react';
 
+import { cssMap } from '@atlaskit/css';
 import EmojiCustomIcon from '@atlaskit/icon/core/add';
 import StarIcon from '@atlaskit/icon/core/star-unstarred';
-import {
-	ButtonItem,
-	CustomItem,
-	type CustomItemComponentProps,
-	HeadingItem,
-	LinkItem,
-	Section,
-	SkeletonHeadingItem,
-	SkeletonItem,
-} from '@atlaskit/menu';
+import ButtonItem from '@atlaskit/menu/button-item';
+import CustomItem from '@atlaskit/menu/custom-item';
+import HeadingItem from '@atlaskit/menu/heading-item';
+import LinkItem from '@atlaskit/menu/link-item';
+import Section from '@atlaskit/menu/section';
+import SkeletonHeadingItem from '@atlaskit/menu/skeleton-heading-item';
+import SkeletonItem from '@atlaskit/menu/skeleton-item';
+import type { CustomItemComponentProps } from '@atlaskit/menu/types';
+import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
+
 const overrideStyles = css({
-	paddingBlockEnd: token('space.150', '12px'),
-	paddingBlockStart: token('space.150', '12px'),
-	paddingInlineEnd: token('space.250', '20px'),
-	paddingInlineStart: token('space.250', '20px'),
+	paddingBlockEnd: token('space.150'),
+	paddingBlockStart: token('space.150'),
+	paddingInlineEnd: token('space.250'),
+	paddingInlineStart: token('space.250'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/design-system/no-nested-styles
 	'[data-item-elem-after]': {
 		opacity: 0,
@@ -35,7 +42,11 @@ const overrideStyles = css({
 
 // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 const Emphasis = (props: CustomItemComponentProps) => <em {...props} />;
-const Star = <StarIcon spacing="spacious" label="" />;
+const Star = (
+	<Flex xcss={iconSpacingStyles.space050}>
+		<StarIcon label="" />
+	</Flex>
+);
 
 const ItemVariants: () => JSX.Element = () => {
 	return (
@@ -62,8 +73,16 @@ const ItemVariants: () => JSX.Element = () => {
 				instrument.
 			</ButtonItem>
 			<ButtonItem
-				iconBefore={<StarIcon spacing="spacious" label="" />}
-				iconAfter={<StarIcon spacing="spacious" label="" />}
+				iconBefore={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<StarIcon label="" />
+					</Flex>
+				}
+				iconAfter={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<StarIcon label="" />
+					</Flex>
+				}
 				testId="item-button-at-scale-before-after"
 				description="The long title is intended to provide a summarised description of the purpose or scope of the instrument."
 			>
@@ -90,16 +109,38 @@ const ItemVariants: () => JSX.Element = () => {
 				the head of a statute (such as an act of Parliament or of Congress) or other legislative
 				instrument.
 			</ButtonItem>
-			<ButtonItem testId="item-button-before" iconBefore={<EmojiCustomIcon spacing="spacious" label="" />}>
+			<ButtonItem
+				testId="item-button-before"
+				iconBefore={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<EmojiCustomIcon label="" />
+					</Flex>
+				}
+			>
 				With iconBefore prop
 			</ButtonItem>
-			<ButtonItem testId="item-button-after" iconAfter={<StarIcon spacing="spacious" label="" />}>
+			<ButtonItem
+				testId="item-button-after"
+				iconAfter={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<StarIcon label="" />
+					</Flex>
+				}
+			>
 				With iconAfter prop
 			</ButtonItem>
 			<ButtonItem
 				testId="item-button-before-after"
-				iconBefore={<EmojiCustomIcon spacing="spacious" label="" />}
-				iconAfter={<StarIcon spacing="spacious" label="" />}
+				iconBefore={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<EmojiCustomIcon label="" />
+					</Flex>
+				}
+				iconAfter={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<StarIcon label="" />
+					</Flex>
+				}
 			>
 				With both iconAfter and iconBefore prop
 			</ButtonItem>
@@ -146,7 +187,6 @@ const ItemVariants: () => JSX.Element = () => {
 				Custom element using em tag, but with some extra text to make the content a bit longer than
 				usual.
 			</CustomItem>
-
 			<Section>
 				<SkeletonHeadingItem testId="skeleton-heading-item" />
 				<SkeletonItem testId="skeleton-item" />

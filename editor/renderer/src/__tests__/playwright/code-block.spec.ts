@@ -1,5 +1,7 @@
-import { rendererTestCase as test, expect } from './not-libra';
 import * as adfCodeBlockOutsideViewport from '../__fixtures__/code-block-outside-viewport.adf.json';
+import { rendererTestCase as test, expect } from './not-libra';
+
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
 
 test.describe('code block', () => {
 	test.use({
@@ -23,13 +25,6 @@ test.describe('code block', () => {
 			await renderer.codeBlock.lightWeightCodeBlock.scrollIntoViewIfNeeded();
 			await expect(renderer.codeBlock.block).toBeVisible();
 			await expect(renderer.codeBlock.block).toBeInViewport();
-		});
-
-		test('should capture and report a11y violations', async ({ renderer }) => {
-			await renderer.codeBlock.lightWeightCodeBlock.scrollIntoViewIfNeeded();
-			await expect(renderer.codeBlock.block).toBeVisible();
-
-			await expect(renderer.page).toBeAccessible();
 		});
 	});
 });

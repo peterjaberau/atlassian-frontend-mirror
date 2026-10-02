@@ -1,4 +1,5 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	SyncBlockGenericError,
 	SyncBlockInvalidRequestError,
@@ -6,8 +7,9 @@ import {
 	SyncBlockNotFound,
 	SyncBlockUnsyncNotFound,
 	SyncBlockWithParagraphAndPanelRenderer,
+	SyncBlockWithParagraphAndPanelRendererCompact,
 	SyncBlockWithPermissionDenied,
-} from './sync-block.fixture';
+} from './sync-block.fixture.vr.ap';
 
 const mockRequest = [
 	{
@@ -66,5 +68,14 @@ snapshot(SyncBlockInvalidRequestError, {
 
 snapshot(SyncBlockLoadingState, {
 	description: 'should render sync block loading state',
+	mockRequests: mockRequest,
+});
+
+snapshot(SyncBlockWithParagraphAndPanelRendererCompact, {
+	featureFlags: {
+		cc_editor_ai_content_mode: 'test',
+		confluence_compact_text_format: true,
+	},
+	description: 'should render sync block with paragraph and panel in compact mode',
 	mockRequests: mockRequest,
 });

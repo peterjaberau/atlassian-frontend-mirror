@@ -1,15 +1,10 @@
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import type { Datasource } from '@atlaskit/linking-common/types';
+import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags/setBooleanFeatureFlagResolver';
+import { passGate, failGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 
-import FeatureGates from '@atlaskit/feature-gate-js-client';
-import { type Datasource } from '@atlaskit/linking-common';
-import { CardClient } from '@atlaskit/link-provider';
-import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags';
-import { setupEditorExperiments } from '@atlaskit/tmp-editor-statsig/setup';
-import { type EditorExperimentsConfig } from '@atlaskit/tmp-editor-statsig/experiments-config';
-import { type LinkAppearance, type UserPreferences } from '../types';
-import { mocks } from './__fixtures__/mocks';
-import { eeTest } from '@atlaskit/tmp-editor-statsig/editor-experiments-test-utils';
 import { EditorCardProvider, isJiraWorkItem } from '../provider';
+import type { LinkAppearance, UserPreferences } from '../types';
+import { mocks } from './__fixtures__/mocks';
 import {
 	getMockProvidersResponse,
 	expectedInlineAdf,
@@ -299,6 +294,46 @@ describe('providers > editor', () => {
 			expect.stringContaining('/providers'),
 			expect.any(Object),
 		);
+	});
+
+	it('should support card nodes when url filter allows the url', () => {
+		const provider = new EditorCardProvider(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			(url) => url.includes('atlassian.net'),
+		);
+
+		expect(
+			provider.isNodeSupported({
+				type: 'inlineCard',
+				attrs: {
+					url: 'https://example.atlassian.net/wiki/spaces/TEST/pages/1',
+				},
+			}),
+		).toBe(true);
+	});
+
+	it('should reject card nodes when url filter blocks the url', () => {
+		const provider = new EditorCardProvider(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			(url) => url.includes('atlassian.net'),
+		);
+
+		expect(
+			provider.isNodeSupported({
+				type: 'inlineCard',
+				attrs: {
+					url: 'https://external-site.example.com/page',
+				},
+			}),
+		).toBe(false);
 	});
 
 	it('calls /providers endpoint again if the first request fails', async () => {
@@ -1156,42 +1191,22 @@ describe('providers > editor', () => {
 			expect(adf).toEqual(expectedInlineAdf(url));
 		});
 
-		describe('should return inline card if unauthenticated and restricted 3P link is inserted inside ', () => {
-			let url: string;
-
-			const setup = async () => {
-				url = getUniqueURL('https://drive.google.com/file/d/123/view?usp=sharing');
-				const provider = new EditorCardProvider();
-				// Mocking call to /providers
-				mockFetch.mockResolvedValueOnce({
-					json: async () => getMockProvidersResponse(),
-					ok: true,
-				});
-				// Mocking call to /resolve/batch
-				mockFetch.mockResolvedValueOnce({
-					json: async () => [{ body: mocks.unauthorized, status: 200 }],
-					ok: true,
-				});
-
-				const adf = await provider.resolve(url, 'inline', false, false);
-
-				return adf;
-			};
-
-			eeTest('platform_sl_3p_unauth_paste_as_block_card', {
-				card_by_default_only: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
-				card_by_default_and_new_design: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
-				control: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
+		it('should return inline card if unauthenticated and restricted 3P link is inserted inside non-embed-friendly location', async () => {
+			const url = getUniqueURL('https://drive.google.com/file/d/123/view?usp=sharing');
+			const provider = new EditorCardProvider();
+			// Mocking call to /providers
+			mockFetch.mockResolvedValueOnce({
+				json: async () => getMockProvidersResponse(),
+				ok: true,
 			});
+			// Mocking call to /resolve/batch
+			mockFetch.mockResolvedValueOnce({
+				json: async () => [{ body: mocks.unauthorized, status: 200 }],
+				ok: true,
+			});
+
+			const adf = await provider.resolve(url, 'inline', false, false);
+			expect(adf).toEqual(expectedInlineAdf(url));
 		});
 	});
 
@@ -1234,8 +1249,8 @@ describe('providers > editor', () => {
 			expect(adf).toEqual(expectedInlineAdf(url));
 		});
 
-		it('should not use embed appearance for AVP Visualization URLs when FF is off', async () => {
-			setBooleanFeatureFlagResolver(() => false);
+		it('should use embed appearance for dashboards chart URLs', async () => {
+			setBooleanFeatureFlagResolver((flag) => flag === 'platform_avp_viz_dashboard_link_embed');
 			const provider = new EditorCardProvider();
 			mockFetch.mockResolvedValueOnce({
 				json: async () =>
@@ -1253,33 +1268,8 @@ describe('providers > editor', () => {
 				ok: true,
 			});
 
-			const url = 'https://hello.atlassian.net/avpviz/c/12345';
-			const adf = await provider.resolve(url, 'inline', false, true);
-			expect(adf).toEqual(expectedInlineAdf(url));
-		});
-
-		it('should use embed appearance for AVP Visualization URLs when FF is on', async () => {
-			setBooleanFeatureFlagResolver(
-				(flag) => flag === 'avp_unfurl_shared_charts_embed_by_default_2',
-			);
-			const provider = new EditorCardProvider();
-			mockFetch.mockResolvedValueOnce({
-				json: async () =>
-					getMockProvidersResponse({
-						userPreferences: {
-							defaultAppearance: 'inline',
-							appearances: [],
-						},
-					}),
-				ok: true,
-			});
-			// Mocking call to /resolve/batch
-			mockFetch.mockResolvedValueOnce({
-				json: async () => [{ body: mocks.success, status: 200 }],
-				ok: true,
-			});
-
-			const url = 'https://hello.atlassian.net/avpviz/c/12345';
+			const url =
+				'https://hello.atlassian.net/dashboards/c/cloud-id/w/workspace-id/d/dashboard-id/chart/chart-id';
 			const adf = await provider.resolve(url, 'inline', false, true);
 			expect(adf).toEqual(expectedEmbedAdf(url));
 		});
@@ -1304,134 +1294,81 @@ describe('providers > editor', () => {
 			expect(adf).toEqual(expectedEmbedAdf(url));
 		});
 
-		describe('should return block card if unauthenticated and restricted 3P link is inserted', () => {
-			let url: string;
+		it('should return block card if unauthenticated and restricted 3P link is inserted', async () => {
+			const url = getUniqueURL('https://drive.google.com/file/d/123/view?usp=sharing');
 
-			const setup = async () => {
-				url = getUniqueURL('https://drive.google.com/file/d/123/view?usp=sharing');
-
-				const provider = new EditorCardProvider();
-				// Mocking call to /providers
-				mockFetch.mockResolvedValueOnce({
-					json: async () => getMockProvidersResponse(),
-					ok: true,
-				});
-				// Mocking call to /resolve/batch
-				mockFetch.mockResolvedValueOnce({
-					json: async () => [{ body: mocks.unauthorized, status: 200 }],
-					ok: true,
-				});
-
-				const adf = await provider.resolve(url, 'inline', false, true);
-				return adf;
-			};
-
-			eeTest('platform_sl_3p_unauth_paste_as_block_card', {
-				card_by_default_only: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedBlockAdf(url));
-				},
-				card_by_default_and_new_design: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedBlockAdf(url));
-				},
-				control: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
+			const provider = new EditorCardProvider();
+			// Mocking call to /providers
+			mockFetch.mockResolvedValueOnce({
+				json: async () => getMockProvidersResponse(),
+				ok: true,
 			});
+			// Mocking call to /resolve/batch
+			mockFetch.mockResolvedValueOnce({
+				json: async () => [{ body: mocks.unauthorized, status: 200 }],
+				ok: true,
+			});
+
+			const adf = await provider.resolve(url, 'inline', false, true);
+			expect(adf).toEqual(expectedBlockAdf(url));
 		});
 
-		describe('should not do block card if unauthenticated and forbidden when 3P link is inserted inside', () => {
-			let url: string;
-
-			const setup = async () => {
-				url = getUniqueURL('https://drive.google.com/file/d/123/view?usp=sharing');
-				const provider = new EditorCardProvider();
-				// Mocking call to /providers
-				mockFetch.mockResolvedValueOnce({
-					json: async () => getMockProvidersResponse(),
-					ok: true,
-				});
-				// Mocking call to /resolve/batch
-				mockFetch.mockResolvedValueOnce({
-					json: async () => [{ body: mocks.forbidden, status: 200 }],
-					ok: true,
-				});
-
-				const adf = await provider.resolve(url, 'inline', false, true);
-				return adf;
-			};
-
-			eeTest('platform_sl_3p_unauth_paste_as_block_card', {
-				card_by_default_only: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
-				card_by_default_and_new_design: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
-				control: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
+		it('should not do block card if unauthenticated and forbidden when 3P link is inserted inside', async () => {
+			const url = getUniqueURL('https://drive.google.com/file/d/123/view?usp=sharing');
+			const provider = new EditorCardProvider();
+			// Mocking call to /providers
+			mockFetch.mockResolvedValueOnce({
+				json: async () => getMockProvidersResponse(),
+				ok: true,
 			});
+			// Mocking call to /resolve/batch
+			mockFetch.mockResolvedValueOnce({
+				json: async () => [{ body: mocks.forbidden, status: 200 }],
+				ok: true,
+			});
+
+			const adf = await provider.resolve(url, 'inline', false, true);
+			expect(adf).toEqual(expectedInlineAdf(url));
 		});
 
-		describe('should prefer user preference even if unauthenticated and restricted 3P link is inserted inside', () => {
-			let url: string;
+		it('should prefer user preference even if unauthenticated and restricted 3P link is inserted inside', async () => {
+			const url = getUniqueURL('https://app.box.com/foo');
+			const provider = new EditorCardProvider();
 
-			const setup = async () => {
-				url = getUniqueURL('https://app.box.com/foo');
-				const provider = new EditorCardProvider();
-
-				// Mocking call to /providers
-				mockFetch.mockResolvedValueOnce({
-					json: async () =>
-						getMockProvidersResponse({
-							userPreferences: {
-								defaultAppearance: 'inline',
-								appearances: [
-									{
-										urlSegment: 'box.com',
-										appearance: 'inline',
-									},
-								],
-							},
-						}),
-					ok: true,
-				});
-
-				// Mocking call to /resolve/batch
-				mockFetch.mockResolvedValueOnce({
-					json: async () => [{ body: mocks.unauthorized, status: 200 }],
-					ok: true,
-				});
-
-				const adf = await provider.resolve(url, 'inline', false, true);
-				return adf;
-			};
-
-			eeTest('platform_sl_3p_unauth_paste_as_block_card', {
-				card_by_default_only: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
-				card_by_default_and_new_design: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
-				control: async () => {
-					const adf = await setup();
-					expect(adf).toEqual(expectedInlineAdf(url));
-				},
+			// Mocking call to /providers
+			mockFetch.mockResolvedValueOnce({
+				json: async () =>
+					getMockProvidersResponse({
+						userPreferences: {
+							defaultAppearance: 'inline',
+							appearances: [
+								{
+									urlSegment: 'box.com',
+									appearance: 'inline',
+								},
+							],
+						},
+					}),
+				ok: true,
 			});
+
+			// Mocking call to /resolve/batch
+			mockFetch.mockResolvedValueOnce({
+				json: async () => [{ body: mocks.unauthorized, status: 200 }],
+				ok: true,
+			});
+
+			const adf = await provider.resolve(url, 'inline', false, true);
+			expect(adf).toEqual(expectedInlineAdf(url));
 		});
 	});
 
 	describe('prompt linked issues experiment', () => {
-		ffTest.on('issue-link-suggestions-in-comments', 'fg on', () => {
+		describe('fg on', () => {
+			beforeEach(() => {
+				passGate('issue-link-suggestions-in-comments');
+			});
+
 			it('should call onResolve for issue links', async () => {
 				const baseUrl = 'https://jdog.jira-dev.com';
 				const onResolveMock = jest.fn();
@@ -1510,7 +1447,11 @@ describe('providers > editor', () => {
 			});
 		});
 
-		ffTest.off('issue-link-suggestions-in-comments', 'fg off', () => {
+		describe('fg off', () => {
+			beforeEach(() => {
+				failGate('issue-link-suggestions-in-comments');
+			});
+
 			it('should not call onResolve for an issue link', async () => {
 				const baseUrl = 'https://jdog.jira-dev.com';
 				const onResolveMock = jest.fn();
@@ -1561,116 +1502,5 @@ describe('providers > editor', () => {
 		])('should return false for invalid work item url: %s', (url) => {
 			expect(isJiraWorkItem(url)).toBe(false);
 		});
-	});
-
-	describe('platform_sl_3p_unauth_paste_as_block_card experiment exposure', () => {
-		const mockGetExperimentValue = jest.spyOn(FeatureGates, 'getExperimentValue');
-		const mockInitializeCompleted = jest.spyOn(FeatureGates, 'initializeCompleted');
-		const mockCardClientFetchData = jest.spyOn(CardClient.prototype, 'fetchData');
-
-		beforeEach(() => {
-			// Clear all overrides to ensure FeatureGates.getExperimentValue is called
-			setupEditorExperiments('confluence', {});
-			mockInitializeCompleted.mockReturnValue(true);
-		});
-
-		afterEach(() => {
-			mockGetExperimentValue.mockReset();
-			mockInitializeCompleted.mockReset();
-			mockCardClientFetchData.mockReset();
-			setupEditorExperiments('test', {});
-		});
-
-		ffTest.on(
-			'platform_sl_3p_unauth_paste_as_block_card_gate',
-			'when feature flag is on',
-			() => {
-				it.each<EditorExperimentsConfig['platform_sl_3p_unauth_paste_as_block_card']['defaultValue']>([
-					'control',
-					'card_by_default_only',
-					'card_by_default_and_new_design',
-				])(
-					'should fire exposure for %s variant when unauthorized 3P link is inserted',
-					async (variant) => {
-						mockGetExperimentValue.mockImplementation((experimentName, _param, defaultValue) => {
-							if (experimentName === 'platform_sl_3p_unauth_paste_as_block_card') {
-								return variant;
-							}
-							// Return default value for other experiments
-							return defaultValue;
-						});
-
-						// Mock CardClient.fetchData to return unauthorized response
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						mockCardClientFetchData.mockResolvedValue(mocks.unauthorized as any);
-
-						const url = getUniqueURL('https://drive.google.com/file/d/123/view?usp=sharing');
-						const provider = new EditorCardProvider();
-
-						mockFetch.mockResolvedValueOnce({
-							json: async () => getMockProvidersResponse(),
-							ok: true,
-						});
-
-						await provider.resolve(url, 'inline', false, true);
-
-						expect(mockGetExperimentValue).toHaveBeenCalledWith(
-							'platform_sl_3p_unauth_paste_as_block_card',
-							'cohort',
-							'control',
-							{ fireExperimentExposure: true },
-						);
-					},
-				);
-			},
-		);
-
-		ffTest.off(
-			'platform_sl_3p_unauth_paste_as_block_card_gate',
-			'when feature flag is off',
-			() => {
-				const setup = async () => {
-					mockGetExperimentValue.mockImplementation((experimentName, _param, defaultValue) => {
-						if (experimentName === 'platform_sl_3p_unauth_paste_as_block_card') {
-							return 'card_by_default_only';
-						}
-						return defaultValue;
-					});
-
-					// Mock CardClient.fetchData to return unauthorized response
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					mockCardClientFetchData.mockResolvedValue(mocks.unauthorized as any);
-
-					const url = getUniqueURL('https://drive.google.com/file/d/123/view?usp=sharing');
-					const provider = new EditorCardProvider();
-
-					mockFetch.mockResolvedValueOnce({
-						json: async () => getMockProvidersResponse(),
-						ok: true,
-					});
-
-					const adf = await provider.resolve(url, 'inline', false, true);
-
-					return { url, adf };
-				};
-
-				it('should not return block card even with treatment variant', async () => {
-					const { url, adf } = await setup();
-
-					expect(adf).toEqual(expectedInlineAdf(url));
-				});
-
-				it('should not fire experiment exposure', async () => {
-					await setup();
-
-					expect(mockGetExperimentValue).not.toHaveBeenCalledWith(
-						'platform_sl_3p_unauth_paste_as_block_card',
-						'cohort',
-						'control',
-						{ fireExperimentExposure: true },
-					);
-				});
-			},
-		);
 	});
 });

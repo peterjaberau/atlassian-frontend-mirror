@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { getAriaKeyshortcuts, tooltip } from '@atlaskit/editor-common/keymaps';
@@ -12,7 +12,6 @@ import type { ToolbarComponentTypes } from '@atlaskit/editor-toolbar-model';
 import type { AlignmentPlugin } from '../../alignmentPluginType';
 import { changeAlignmentTr } from '../../editor-commands';
 import type { AlignmentState } from '../../pm-plugins/types';
-
 import type { OptionInfo } from './types';
 
 export const AlignmentMenuItem = ({
@@ -39,6 +38,7 @@ export const AlignmentMenuItem = ({
 			elemBefore={<Icon size="small" label="" />}
 			elemAfter={shortcut && <ToolbarKeyboardShortcutHint shortcut={shortcut} />}
 			ariaKeyshortcuts={getAriaKeyshortcuts(keymap)}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onClick={() => {
 				api?.core.actions.execute(
 					changeAlignmentTr(api, alignment, getInputMethodFromParentKeys(parents)),

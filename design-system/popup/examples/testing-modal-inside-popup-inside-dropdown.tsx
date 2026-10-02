@@ -1,16 +1,28 @@
 import React, { forwardRef, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-import { Label } from '@atlaskit/form';
-import Heading from '@atlaskit/heading';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import { Label } from '@atlaskit/form/label/default';
+import Heading from '@atlaskit/heading/heading';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
-import Modal, { ModalBody, ModalHeader, ModalTitle } from '@atlaskit/modal-dialog';
-import Popup from '@atlaskit/popup';
-import { Box, Stack, Text } from '@atlaskit/primitives/compiled';
-import Textfield from '@atlaskit/textfield';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import { Popup } from '@atlaskit/popup/popup';
+import { Box, Flex, Stack, Text } from '@atlaskit/primitives/compiled';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
+
+const iconSpacingStyles = cssMap({
+	space075: {
+		paddingBlock: token('space.075'),
+		paddingInline: token('space.075'),
+	},
+});
 
 const wrapperStyles = cssMap({
 	root: {
@@ -83,7 +95,11 @@ const PopupComponent = () => {
 					testId="popup-trigger"
 					onClick={() => setIsOpen(!isOpen)}
 					isSelected={isOpen}
-					elemAfter={<ChevronRightIcon size="small" spacing="spacious" color={token('color.icon.subtle', '')} label="" />}
+					elemAfter={
+						<Flex xcss={iconSpacingStyles.space075}>
+							<ChevronRightIcon size="small" color={token('color.icon.subtle')} label="" />
+						</Flex>
+					}
 				>
 					<Text>Open Popup</Text>
 				</DropdownItem>

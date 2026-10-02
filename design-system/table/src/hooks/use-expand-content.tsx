@@ -1,25 +1,25 @@
 import React, { createContext, useContext } from 'react';
 
+// oxlint-disable-next-line eslint/no-redeclare
 type ExpandContentContext = {
 	isExpandableContent: boolean;
 };
 
-const ExpandContentContext = createContext<ExpandContentContext>({
-	isExpandableContent: false,
-});
+const ExpandContentContext: React.Context<ExpandContentContext> =
+	createContext<ExpandContentContext>({
+		isExpandableContent: false,
+	});
 
 /**
  * __Expand content provider__
  *
  * An expand content provider allows `<Row>` to determine if it is a subitem.
  */
-export const ExpandContentContextProvider: ({ children, }: {
-    children: React.ReactNode;
-}) => React.JSX.Element = ({
+export const ExpandContentContextProvider: ({
 	children,
 }: {
 	children: React.ReactNode;
-}): React.JSX.Element => {
+}) => React.JSX.Element = ({ children }: { children: React.ReactNode }): React.JSX.Element => {
 	return (
 		<ExpandContentContext.Provider value={{ isExpandableContent: true }}>
 			{children}
@@ -31,4 +31,5 @@ const useExpandContent: () => ExpandContentContext = () => {
 	return useContext(ExpandContentContext);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default useExpandContent;

@@ -1,4 +1,4 @@
-import { type NewCoreIconProps } from '@atlaskit/icon';
+import type { NewCoreIconProps } from '@atlaskit/icon/types';
 
 export type IconComponent = (props: NewCoreIconProps) => JSX.Element;
 
@@ -14,4 +14,4 @@ export type ToolbarKeyboardNavigationProviderConfig = {
 
 export type DataAttributes = {
 	[K in `data-${string}`]?: string | number | boolean | undefined;
-  };
+};

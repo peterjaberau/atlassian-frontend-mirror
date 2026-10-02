@@ -2,21 +2,20 @@ import React, { Fragment } from 'react';
 
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { axe } from '@af/accessibility-testing';
 import { flushPromises } from '@atlaskit/link-test-helpers';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 
 import { type Validator } from '../../common/types';
-import { LinkCreateCallbackProvider } from '../../controllers/callback-context';
-import { FormContextProvider } from '../../controllers/form-context';
-
-import { AsyncSelect } from './async-select';
+import { LinkCreateCallbackProvider } from '../../controllers/callback-context/main';
+import { FormContextProvider } from '../../controllers/form-context/main';
+import { AsyncSelect } from './async-select/main';
 import { CreateForm, type CreateFormProps } from './main';
-import { Select } from './select';
-import { TextField } from './textfield';
-import { UserPicker } from './user-picker';
+import { Select } from './select/main';
+import { TextField } from './textfield/main';
+import { UserPicker } from './user-picker/main';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
 // be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
@@ -82,14 +81,14 @@ describe('<CreateForm />', () => {
 		setUpCreateForm();
 
 		await userEvent.click(screen.getByTestId('link-create-form-button-submit'));
-		expect(handleSubmitMock).toBeCalled();
+		expect(handleSubmitMock).toHaveBeenCalled();
 	});
 
 	it('should cancel the form the form when cancel button is clicked', async () => {
 		setUpCreateForm();
 
 		await userEvent.click(screen.getByTestId('link-create-form-button-cancel'));
-		expect(handleCancelMock).toBeCalled();
+		expect(handleCancelMock).toHaveBeenCalled();
 	});
 
 	it('should hide the footer buttons when the prop is passed', async () => {

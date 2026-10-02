@@ -1,15 +1,13 @@
-import { type ResolvedPos } from '@atlaskit/editor-prosemirror/model';
-import {
-	type EditorState,
-	NodeSelection,
-	type Selection,
-	TextSelection,
-	type Transaction,
-} from '@atlaskit/editor-prosemirror/state';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import type { ResolvedPos } from '@atlaskit/editor-prosemirror/model';
+import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Selection, Transaction } from '@atlaskit/editor-prosemirror/state';
 
 import { CellSelection } from '../cell-selection';
 import { TableMap } from '../table-map';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const ROW_OR_TABLE_ROLE_REGEX = /row|table/;
 
 type RangePos = {
 	$from: ResolvedPos;
@@ -30,8 +28,6 @@ export function normalizeSelection(
 		role = sel.node.type.spec.tableRole;
 	}
 
-	const isMultiSelect = editorExperiment('platform_editor_element_drag_and_drop_multiselect', true);
-
 	if (sel instanceof NodeSelection && role) {
 		if (role === 'cell' || role === 'header_cell') {
 			normalize = CellSelection.create(doc, sel.from);
@@ -46,10 +42,7 @@ export function normalizeSelection(
 		}
 	} else if (sel instanceof TextSelection && isCellBoundarySelection(sel)) {
 		normalize = TextSelection.create(doc, sel.from);
-	} else if (
-		sel instanceof TextSelection &&
-		(isMultiSelect ? isTextSelectionAcrossSameTableCells(sel) : isTextSelectionAcrossCells(sel))
-	) {
+	} else if (sel instanceof TextSelection && isTextSelectionAcrossSameTableCells(sel)) {
 		normalize = TextSelection.create(doc, sel.$from.start(), sel.$from.end());
 	}
 	if (normalize) {
@@ -75,29 +68,9 @@ function isCellBoundarySelection({ $from, $to }: RangePos): boolean {
 			break;
 		}
 	}
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	return afterFrom === beforeTo && /row|table/.test($from.node(depth).type.spec.tableRole);
-}
-
-function isTextSelectionAcrossCells({ $from, $to }: RangePos): boolean {
-	let fromCellBoundaryNode;
-	let toCellBoundaryNode;
-	for (let i = $from.depth; i > 0; i--) {
-		const node = $from.node(i);
-		if (node.type.spec.tableRole === 'cell' || node.type.spec.tableRole === 'header_cell') {
-			fromCellBoundaryNode = node;
-			break;
-		}
-	}
-	for (let i = $to.depth; i > 0; i--) {
-		const node = $to.node(i);
-		if (node.type.spec.tableRole === 'cell' || node.type.spec.tableRole === 'header_cell') {
-			toCellBoundaryNode = node;
-			break;
-		}
-	}
-	return fromCellBoundaryNode !== toCellBoundaryNode && $to.parentOffset === 0;
+	return (
+		afterFrom === beforeTo && ROW_OR_TABLE_ROLE_REGEX.test($from.node(depth).type.spec.tableRole)
+	);
 }
 
 function isTextSelectionAcrossSameTableCells({ $from, $to }: RangePos): boolean {

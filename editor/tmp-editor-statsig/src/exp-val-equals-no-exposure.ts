@@ -1,9 +1,8 @@
 import { expValEqualsInternal } from './exp-val-equals-internal';
-
-import {
-	type EditorExperimentsConfig,
-	type ExperimentDefaultValue,
-	type ExperimentExpectedValue,
+import type {
+	EditorExperimentsConfig,
+	ExperimentDefaultValue,
+	ExperimentExpectedValue,
 } from './experiments-config';
 
 /**

@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import { bind, bindAll, type UnbindFn } from 'bind-event-listener';
+import { bind, bindAll } from 'bind-event-listener';
+import type { UnbindFn } from 'bind-event-listener';
 
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import {
 	akEditorDefaultLayoutWidth,
 	akEditorFullWidthLayoutWidth,
@@ -11,21 +12,19 @@ import {
 	akEditorGutterPaddingReduced,
 	akEditorFullPageNarrowBreakout,
 } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { EditorAnalyticsAPI } from '../analytics';
 import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '../analytics';
-import { type BreakoutEventPayload } from '../analytics/types/breakout-events';
-import { type GuidelineConfig } from '../guideline';
-import { LAYOUT_COLUMN_PADDING, LAYOUT_SECTION_MARGIN } from '../styles';
-import { type EditorContainerWidth, type getPosHandlerNode } from '../types';
-import { browser as browserLegacy, getBrowserInfo } from '../utils/browser';
-
+import type { BreakoutEventPayload } from '../analytics/types/breakout-events';
+import type { GuidelineConfig } from '../guideline';
+import { LAYOUT_SECTION_MARGIN } from '../styles';
+import type { EditorContainerWidth, getPosHandlerNode } from '../types';
+import { getBrowserInfo } from '../utils/browser';
 import Resizer from './Resizer';
 import { ResizerBreakoutModeLabel } from './ResizerBreakoutModeLabel';
-import { type HandleResize, type HandleResizeStart } from './types';
+import type { HandleResize, HandleResizeStart } from './types';
 import { SNAP_GAP, useBreakoutGuidelines } from './useBreakoutGuidelines';
 
 type ResizingState = { isResizing: boolean; maxWidth?: number; minWidth?: number };
@@ -46,9 +45,7 @@ const getHandleStyle = (node: BreakoutSupportedNodes, hidden: boolean) => {
 			return { left: { left: '-12px' }, right: { right: '-12px' } };
 		// expand and layout section elements have a negative margin applied
 		default:
-			const handleOffset = fg('platform_editor_nested_dnd_styles_changes')
-				? LAYOUT_SECTION_MARGIN * 2 + layoutMarginOffset
-				: LAYOUT_COLUMN_PADDING * 2;
+			const handleOffset = LAYOUT_SECTION_MARGIN * 2 + layoutMarginOffset;
 			return {
 				left: {
 					left: `-${handleOffset}px`,
@@ -87,6 +84,7 @@ const defaultStyles = { display: 'grid' };
 type ResizerNextHandler = React.ElementRef<typeof Resizer>;
 
 const RESIZE_STEP_VALUE = 10;
+const RESIZER_ENABLE_HANDLES = { left: true, right: true };
 
 type BreakoutResizerProps = {
 	disabled?: boolean;
@@ -156,9 +154,7 @@ const BreakoutResizer = ({
 		dynamicFullWidthGuidelineOffset,
 	);
 
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 
 	useEffect(() => {
 		if (displayGuidelines) {
@@ -405,7 +401,11 @@ const BreakoutResizer = ({
 	return (
 		<Resizer
 			ref={resizerRef}
-			enable={{ left: true, right: true }}
+			enable={
+				isExperimentEnabled('platform_editor_perf_lint_cleanup')
+					? RESIZER_ENABLE_HANDLES
+					: { left: true, right: true }
+			}
 			snap={snaps || undefined}
 			snapGap={SNAP_GAP}
 			handleStyles={getHandleStyle(nodeType, hidden)}
@@ -434,4 +434,5 @@ const BreakoutResizer = ({
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export { BreakoutResizer };

@@ -1,6 +1,6 @@
-import { renderHook } from '@testing-library/react';
-
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardState } from '@atlaskit/linking-common/store';
+import { renderHook } from '@atlassian/testing-library';
 
 import {
 	TEST_RESPONSE_WITH_DOWNLOAD,
@@ -8,23 +8,27 @@ import {
 	TEST_RESPONSE_WITH_VIEW,
 	TEST_URL,
 } from '../../../extractors/common/__mocks__/jsonld';
-import { downloadUrl, openUrl } from '../../../utils';
+import { downloadUrl } from '../../../utils/download-url';
+import { openUrl } from '../../../utils/open-url';
 import { EmbedModalSize } from '../../../view/EmbedModal/types';
 import { openEmbedModal } from '../../../view/EmbedModal/utils';
 import { useSmartCardState } from '../../store';
-import { type CardState } from '../../types';
 import { useSmartLinkActions } from '../useSmartLinkActions';
 
 const url = 'https://start.atlassian.com';
 const appearance = 'block';
 const origin = 'smartLinkCard';
 
-jest.mock('../../store', () => ({
+jest.mock('../../store/index', () => ({
 	useSmartCardState: jest.fn(),
 }));
 
-jest.mock('@atlaskit/link-provider', () => ({
+jest.mock('@atlaskit/link-provider/smart-card-provider', () => ({
+	...jest.requireActual('@atlaskit/link-provider/smart-card-provider'),
 	SmartCardProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+jest.mock('@atlaskit/link-provider/use-smart-link-context', () => ({
+	...jest.requireActual('@atlaskit/link-provider/use-smart-link-context'),
 	useSmartLinkContext: jest.fn().mockReturnValue({
 		isPreviewPanelAvailable: undefined,
 		openPreviewPanel: undefined,
@@ -34,10 +38,6 @@ jest.mock('@atlaskit/link-provider', () => ({
 jest.mock('../../hooks/use-resolve', () => ({
 	__esModule: true,
 	default: jest.fn(),
-}));
-
-jest.mock('@atlaskit/platform-feature-flags', () => ({
-	fg: jest.fn(),
 }));
 
 // used directly by refactored hook
@@ -51,8 +51,10 @@ jest.mock('../../hooks/use-invoke-client-action', () => ({
 }));
 
 // mock downloadUrl and openUrl for download and view actions
-jest.mock('../../../utils', () => ({
+jest.mock('../../../utils/download-url', () => ({
 	downloadUrl: jest.fn(),
+}));
+jest.mock('../../../utils/open-url', () => ({
 	openUrl: jest.fn(),
 }));
 
@@ -72,7 +74,7 @@ describe('actions', () => {
 
 		jest.mocked(useSmartCardState).mockReturnValueOnce(state);
 
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance }), {
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }), {
 			wrapper: SmartCardProvider,
 		});
 
@@ -91,7 +93,7 @@ describe('actions', () => {
 		};
 
 		jest.mocked(useSmartCardState).mockReturnValueOnce(state);
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance }), {
+		const result = renderHook(() => useSmartLinkActions({ url, appearance }), {
 			wrapper: SmartCardProvider,
 		});
 
@@ -111,7 +113,7 @@ describe('actions', () => {
 		};
 
 		jest.mocked(useSmartCardState).mockReturnValueOnce(state);
-		const { result } = renderHook(() => useSmartLinkActions({ url, appearance, origin }), {
+		const result = renderHook(() => useSmartLinkActions({ url, appearance, origin }), {
 			wrapper: SmartCardProvider,
 		});
 		const previewAction = result.current?.[0];
@@ -133,7 +135,6 @@ describe('actions', () => {
 				isSupportTheming: false,
 				isTrusted: true,
 				linkIcon: {
-					label: 'my name',
 					url: TEST_URL,
 					render: undefined,
 				},
@@ -147,11 +148,8 @@ describe('actions', () => {
 		);
 	});
 
-	it('should invoke preview method with expected parameters and action options with feature flag enabled', async () => {
+	it('should invoke preview method with expected parameters and action options', async () => {
 		const details = TEST_RESPONSE_WITH_PREVIEW;
-
-		const { fg } = require('@atlaskit/platform-feature-flags');
-		fg.mockReturnValue(true);
 
 		const state: CardState = {
 			details,
@@ -159,7 +157,7 @@ describe('actions', () => {
 		};
 
 		jest.mocked(useSmartCardState).mockReturnValueOnce(state);
-		const { result } = renderHook(
+		const result = renderHook(
 			() =>
 				useSmartLinkActions({
 					url,
@@ -195,7 +193,6 @@ describe('actions', () => {
 				isSupportTheming: false,
 				isTrusted: true,
 				linkIcon: {
-					label: 'my name',
 					url: TEST_URL,
 					render: undefined,
 				},

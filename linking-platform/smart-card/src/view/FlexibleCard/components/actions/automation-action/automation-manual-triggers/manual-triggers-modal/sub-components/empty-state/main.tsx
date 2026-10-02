@@ -2,16 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { defineMessages, FormattedMessage, useIntl } from 'react-intl-next';
+import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import { cssMap, jsx } from '@atlaskit/css';
-import Link from '@atlaskit/link';
+import Link from '@atlaskit/link/link';
 import { Box, Stack } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { useAutomationMenu } from '../../menu-context';
-
+import { useAutomationMenu } from '../../menu-context/useAutomationMenu';
 import EmptyIcon from './empty-icon';
 
 const styles = cssMap({
@@ -59,7 +58,7 @@ const i18n = defineMessages({
 	},
 });
 
-export const AutomationModalEmptyState = () => {
+export const AutomationModalEmptyState = (): JSX.Element => {
 	const { formatMessage } = useIntl();
 	const { createAnalyticsEvent } = useAnalyticsEvents();
 	const {

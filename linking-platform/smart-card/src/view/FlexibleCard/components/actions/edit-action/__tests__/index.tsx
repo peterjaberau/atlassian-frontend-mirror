@@ -1,14 +1,12 @@
 import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { render, screen } from '@atlassian/testing-library';
 
 import mockContext from '../../../../../../__fixtures__/flexible-ui-data-context';
 import { getFlexibleCardTestWrapper } from '../../../../../../__tests__/__utils__/unit-testing-library-helpers';
-import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics';
+import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics/analytics';
 import EditAction from '../index';
 import { type EditActionProps } from '../types';
 

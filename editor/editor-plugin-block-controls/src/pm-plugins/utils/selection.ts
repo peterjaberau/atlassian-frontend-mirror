@@ -1,18 +1,19 @@
+import { INSERTED_TRAILING_PARAGRAPH_TO_LAST_NODE_META } from '@atlaskit/editor-common/block-type';
 import { expandToBlockRange, isMultiBlockRange } from '@atlaskit/editor-common/selection';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { ResolvedPos } from '@atlaskit/editor-prosemirror/model';
-import {
+import { TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type {
 	NodeSelection,
-	TextSelection,
-	type ReadonlyTransaction,
-	type Selection,
-	type Transaction,
+	ReadonlyTransaction,
+	Selection,
+	Transaction,
 } from '@atlaskit/editor-prosemirror/state';
+import type { CellSelection } from '@atlaskit/editor-tables';
 import { getTableSelectionClosesToPos } from '@atlaskit/editor-tables/utils';
 
 import type { BlockControlsPlugin } from '../../blockControlsPluginType';
 import { getBlockControlsMeta, key } from '../main';
-
 import { newGetSelection } from './getSelection';
 
 export const getMultiSelectionIfPosInside = (
@@ -50,7 +51,10 @@ export const getSelectedSlicePosition = (
 	handlePos: number,
 	tr: Transaction,
 	api: ExtractInjectionAPI<BlockControlsPlugin>,
-) => {
+): {
+	from: number;
+	to: number;
+} => {
 	const { anchor, head } = getMultiSelectionIfPosInside(api, handlePos, tr);
 	const inSelection = anchor !== undefined && head !== undefined;
 	const from = inSelection ? Math.min(anchor || 0, head || 0) : handlePos;
@@ -60,41 +64,6 @@ export const getSelectedSlicePosition = (
 	const to = inSelection ? Math.max(anchor || 0, head || 0) : activeNodeEndPos;
 
 	return { from, to };
-};
-
-/**
- * Takes a position and expands the selection to encompass the node at that position. Ignores empty or out of range selections.
- * Ignores positions that are in text blocks (i.e. not start of a node)
- * @returns TextSelection if expanded, otherwise returns Selection that was passed in.
- */
-export const expandSelectionHeadToNodeAtPos = (
-	selection: Selection,
-	nodePos: number,
-): Selection => {
-	const doc = selection.$anchor.doc;
-	if (nodePos < 0 || nodePos > doc.nodeSize - 2 || selection.empty) {
-		return selection;
-	}
-	const $pos = doc.resolve(nodePos);
-	const node = $pos.nodeAfter;
-	if ($pos.node().isTextblock || !node) {
-		return selection;
-	}
-
-	const $newHead = nodePos < selection.anchor ? $pos : doc.resolve(node.nodeSize + nodePos);
-	const textSelection = new TextSelection(selection.$anchor, $newHead);
-	return textSelection;
-};
-
-/**
- * This swaps the anchor/head for NodeSelections when its anchor > pos.
- * This is because NodeSelection always has an anchor at the start of the node,
- * which may not align with the existing selection.
- */
-export const alignAnchorHeadInDirectionOfPos = (selection: Selection, pos: number): Selection => {
-	return selection instanceof NodeSelection && Math.max(pos, selection.anchor) === selection.anchor
-		? new TextSelection(selection.$head, selection.$anchor)
-		: selection;
 };
 
 /**
@@ -113,7 +82,14 @@ export const mapPreservedSelection = (
 	const mapping = preservedSelectionMapping || tr.mapping;
 
 	const from = mapping.map(selection.from);
-	const to = mapping.map(selection.to);
+	// When lastNodeMustBeParagraph inserts a trailing paragraph exactly at the end boundary
+	// of a preserved block selection, keep the mapped end position on the left side of the
+	// inserted paragraph so it is not included in the preserved selection.
+	const shouldTrimTrailingParagraph =
+		tr.getMeta(INSERTED_TRAILING_PARAGRAPH_TO_LAST_NODE_META) === true;
+	const to = shouldTrimTrailingParagraph
+		? mapping.map(selection.to, -1)
+		: mapping.map(selection.to);
 
 	const isSelectionEmpty = from === to;
 	const wasSelectionEmpty = selection.from === selection.to;
@@ -188,7 +164,10 @@ export const adjustSelectionBoundsForEdgePositions = (
  * @param $to The resolved position of the end of the selection
  * @returns A Selection or undefined if selection is invalid
  */
-export const createPreservedSelection = ($from: ResolvedPos, $to: ResolvedPos) => {
+export const createPreservedSelection = (
+	$from: ResolvedPos,
+	$to: ResolvedPos,
+): TextSelection | CellSelection | NodeSelection | undefined => {
 	const { doc } = $from;
 
 	const isCollapsed = $from.pos === $to.pos;

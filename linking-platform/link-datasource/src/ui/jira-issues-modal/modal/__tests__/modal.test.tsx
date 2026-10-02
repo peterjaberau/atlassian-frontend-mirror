@@ -2,10 +2,10 @@ import React from 'react';
 
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import invariant from 'tiny-invariant';
 
-import { type JQLEditorProps } from '@atlaskit/jql-editor';
+import type { JQLEditorProps } from '@atlaskit/jql-editor/ui/types';
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
 import {
 	fieldValuesResponseForStatusesMapped,
@@ -14,16 +14,15 @@ import {
 import { asMock } from '@atlaskit/link-test-helpers/jest';
 import { type InlineCardAdf } from '@atlaskit/linking-common/types';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 
 import { useBasicFilterAGG } from '../../../../services/useBasicFilterAGG';
 import { type SelectOption } from '../../../common/modal/popup-select/types';
 import { LINK_TYPE_TEST_ID } from '../../../issue-like-table/render-type/link';
 import { type IssueLikeDataTableViewProps } from '../../../issue-like-table/types';
 import { useFilterOptions } from '../../basic-filters/hooks/useFilterOptions';
-import JiraIssuesConfigModal from '../../index'; // Using async one to test lazy integration at the same time
+import { JiraIssuesConfigModalWithWrappers as JiraIssuesConfigModal } from '../../JiraIssuesConfigModalWithWrappers'; // Using async one to test lazy integration at the same time
 import { type JiraIssuesDatasourceAdf } from '../../types';
-
 import {
 	getAvailableSites,
 	getDefaultHookState,
@@ -248,7 +247,7 @@ describe('JiraIssuesConfigModal', () => {
 		await user.click(await screen.findByTestId('mode-toggle-basic'));
 
 		// open the status dropdown
-		const triggerButton = await screen.findByTestId(`jlol-basic-filter-status-trigger`);
+		const triggerButton = await screen.findByTestId(`jlol-basic-filter-status-trigger--button`);
 		invariant(triggerButton);
 
 		await user.click(triggerButton);
@@ -1040,6 +1039,24 @@ describe('JiraIssuesConfigModal', () => {
 	});
 
 	describe('when user provides callback for when wrapped changed', () => {
+		it('should not pass onWrappedColumnsChange when the table settings menu gate is off', async () => {
+			failGate('platform_lp_sllv_table_settings_menu');
+			const { getLatestIssueLikeTableProps } = await setup({
+				visibleColumnKeys: ['myColumn'],
+			});
+
+			expect(getLatestIssueLikeTableProps().onWrappedColumnsChange).toBeUndefined();
+		});
+
+		it('should pass onWrappedColumnsChange when the table settings menu gate is on', async () => {
+			passGate('platform_lp_sllv_table_settings_menu');
+			const { getLatestIssueLikeTableProps } = await setup({
+				visibleColumnKeys: ['myColumn'],
+			});
+
+			expect(getLatestIssueLikeTableProps().onWrappedColumnsChange).toEqual(expect.any(Function));
+		});
+
 		it('should use updated isWrapped column attributes in resulting ADF', async () => {
 			const { getLatestIssueLikeTableProps, assertInsertResult } = await setup({
 				visibleColumnKeys: ['myColumn'],
@@ -1182,6 +1199,32 @@ describe('JiraIssuesConfigModal', () => {
 	});
 
 	describe('when no issues are returned', () => {
+		const getNoResultsHookState = () => ({
+			...getDefaultHookState(),
+			responseItems: [],
+			responseItemIds: [],
+			totalCount: 0,
+		});
+
+		it('should replace the whole table with the no results screen when the feature gate is off', async () => {
+			failGate('platform_lp_sllv_ux_improvements');
+			await setup({ hookState: getNoResultsHookState() });
+
+			expect(screen.getByTestId('datasource-modal--no-results')).toBeInTheDocument();
+		});
+
+		it('should keep rendering the table so it can show the no results screen in place of the rows when the feature gate is on', async () => {
+			passGate('platform_lp_sllv_ux_improvements');
+			const { getLatestIssueLikeTableProps } = await setup({
+				hookState: getNoResultsHookState(),
+			});
+
+			expect(screen.queryByTestId('datasource-modal--no-results')).not.toBeInTheDocument();
+			expect(getLatestIssueLikeTableProps()).toEqual(
+				expect.objectContaining({ items: [], status: 'resolved' }),
+			);
+		});
+
 		it('should show no results screen in issue view mode', async () => {
 			const { onInsert } = await setup({
 				hookState: { ...getDefaultHookState(), responseItems: [] },
@@ -1424,143 +1467,77 @@ describe('JiraIssuesConfigModal', () => {
 		await expect(container).toBeAccessible();
 	});
 
-	describe('navx-1345-issues-modal-jql-submit-fix feature flag', () => {
-		ffTest.on(
-			'navx-1345-issues-modal-jql-submit-fix',
-			'JQL submit fix behavior when feature flag is ON',
-			() => {
-				it('should disable insert button when JQL has syntax errors', async () => {
-					const hookState = getDefaultHookState();
-					const { getLatestJQLEditorProps } = await setup({
-						hookState,
-					});
+	describe('JQL persistence', () => {
+		it('should disable insert button when JQL has syntax errors', async () => {
+			const hookState = getDefaultHookState();
+			const { getLatestJQLEditorProps } = await setup({
+				hookState,
+			});
 
-					// Simulate JQL input with errors
-					act(() => {
-						getLatestJQLEditorProps().onUpdate!('invalid jql with errors', {
-							represents: '',
-							errors: [{ description: 'error', message: 'error', name: 'error' }],
-							query: undefined,
-						});
-					});
-
-					const insertButton = screen.getByTestId('jira-datasource-modal--insert-button');
-					expect(insertButton).toBeDisabled();
+			// Simulate JQL input with errors
+			act(() => {
+				getLatestJQLEditorProps().onUpdate!('invalid jql with errors', {
+					represents: '',
+					errors: [{ description: 'error', message: 'error', name: 'error' }],
+					query: undefined,
 				});
+			});
 
-				it('should enable insert button when JQL has no syntax errors', async () => {
-					const hookState = getDefaultHookState();
-					const { getLatestJQLEditorProps } = await setup({
-						hookState,
-					});
+			const insertButton = screen.getByTestId('jira-datasource-modal--insert-button');
+			expect(insertButton).toBeDisabled();
+		});
 
-					// Simulate JQL input without errors
-					act(() => {
-						getLatestJQLEditorProps().onUpdate!('status = Done', {
-							represents: '',
-							errors: [],
-							query: undefined,
-						});
-					});
+		it('should enable insert button when JQL has no syntax errors', async () => {
+			const hookState = getDefaultHookState();
+			const { getLatestJQLEditorProps } = await setup({
+				hookState,
+			});
 
-					const insertButton = screen.getByTestId('jira-datasource-modal--insert-button');
-					expect(insertButton).not.toBeDisabled();
+			// Simulate JQL input without errors
+			act(() => {
+				getLatestJQLEditorProps().onUpdate!('status = Done', {
+					represents: '',
+					errors: [],
+					query: undefined,
 				});
+			});
 
-				it('should update parameters.jql with searchBarJql value when onBeforeInsert is called', async () => {
-					const hookState = getDefaultHookState();
-					const { getLatestJQLEditorProps, onInsert } = await setup({
-						hookState,
-					});
+			const insertButton = screen.getByTestId('jira-datasource-modal--insert-button');
+			expect(insertButton).not.toBeDisabled();
+		});
 
-					// Simulate JQL input change (not yet searched)
-					act(() => {
-						getLatestJQLEditorProps().onUpdate!('updated-jql-query', {
-							represents: '',
-							errors: [],
-							query: undefined,
-						});
-					});
+		it('should update parameters.jql with searchBarJql value when onBeforeInsert is called', async () => {
+			const hookState = getDefaultHookState();
+			const { getLatestJQLEditorProps, onInsert } = await setup({
+				hookState,
+			});
 
-					// Click insert button
-					const insertButton = screen.getByTestId('jira-datasource-modal--insert-button');
-					await user.click(insertButton);
+			// Simulate JQL input change (not yet searched)
+			act(() => {
+				getLatestJQLEditorProps().onUpdate!('updated-jql-query', {
+					represents: '',
+					errors: [],
+					query: undefined,
+				});
+			});
 
-					// Verify onInsert was called with the updated JQL
-					expect(onInsert).toHaveBeenCalledWith(
-						expect.objectContaining({
-							attrs: expect.objectContaining({
-								datasource: expect.objectContaining({
-									parameters: expect.objectContaining({
-										jql: 'updated-jql-query',
-									}),
-								}),
+			// Click insert button
+			const insertButton = screen.getByTestId('jira-datasource-modal--insert-button');
+			await user.click(insertButton);
+
+			// Verify onInsert was called with the updated JQL
+			expect(onInsert).toHaveBeenCalledWith(
+				expect.objectContaining({
+					attrs: expect.objectContaining({
+						datasource: expect.objectContaining({
+							parameters: expect.objectContaining({
+								jql: 'updated-jql-query',
 							}),
 						}),
-						expect.anything(),
-					);
-				});
-			},
-		);
-
-		ffTest.off(
-			'navx-1345-issues-modal-jql-submit-fix',
-			'JQL submit fix behavior when feature flag is OFF',
-			() => {
-				it('should not disable insert button when JQL has syntax errors (flag off)', async () => {
-					const hookState = getDefaultHookState();
-					const { getLatestJQLEditorProps } = await setup({
-						hookState,
-					});
-
-					// Simulate JQL input with errors
-					act(() => {
-						getLatestJQLEditorProps().onUpdate!('invalid jql with errors', {
-							represents: '',
-							errors: [{ description: 'error', message: 'error', name: 'error' }],
-							query: undefined,
-						});
-					});
-
-					const insertButton = screen.getByTestId('jira-datasource-modal--insert-button');
-					// When flag is off, hasErrors is not passed to InsertButton, so it should be enabled
-					expect(insertButton).not.toBeDisabled();
-				});
-
-				it('should use original parameters.jql value on insert (not searchBarJql)', async () => {
-					const hookState = getDefaultHookState();
-					const { getLatestJQLEditorProps, onInsert } = await setup({
-						hookState,
-					});
-
-					// Simulate JQL input change (not yet searched)
-					act(() => {
-						getLatestJQLEditorProps().onUpdate!('updated-jql-query', {
-							represents: '',
-							errors: [],
-							query: undefined,
-						});
-					});
-
-					// Click insert button
-					const insertButton = screen.getByTestId('jira-datasource-modal--insert-button');
-					await user.click(insertButton);
-
-					// Verify onInsert was called with the original JQL from parameters (not the updated searchBarJql)
-					expect(onInsert).toHaveBeenCalledWith(
-						expect.objectContaining({
-							attrs: expect.objectContaining({
-								datasource: expect.objectContaining({
-									parameters: expect.objectContaining({
-										jql: 'some-query', // Original value from getDefaultParameters
-									}),
-								}),
-							}),
-						}),
-						expect.anything(),
-					);
-				});
-			},
-		);
+					}),
+				}),
+				expect.anything(),
+			);
+		});
 	});
 });

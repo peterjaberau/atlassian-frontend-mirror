@@ -2,11 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { css, jsx } from '@compiled/react';
 
 import { token } from '@atlaskit/tokens';
 
-import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context';
+import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context/useFlexibleUiContext';
 import { BaseTextElement, type BaseTextElementProps } from '../common';
 
 const SNIPPET_DEFAULT_MAX_LINES = 3;
@@ -22,7 +23,7 @@ const snippetBaseStyle = css({
 
 export type SnippetElementProps = BaseTextElementProps;
 
-const SnippetElement = (props: SnippetElementProps) => {
+const SnippetElement = (props: SnippetElementProps): JSX.Element => {
 	const {
 		content: overrideContent,
 		maxLines = SNIPPET_DEFAULT_MAX_LINES,

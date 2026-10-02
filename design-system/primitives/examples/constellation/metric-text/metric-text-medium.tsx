@@ -2,9 +2,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+import type { JSX } from 'react';
+
 import { cssMap, jsx } from '@compiled/react';
 
-import { MetricText, Stack, Text } from '@atlaskit/primitives/compiled';
+import { MetricText } from '@atlaskit/primitives/compiled/metric-text';
+import { Stack } from '@atlaskit/primitives/compiled/stack';
+import { Text } from '@atlaskit/primitives/compiled/text';
 import { token } from '@atlaskit/tokens';
 
 export default (): JSX.Element => {
@@ -30,14 +34,14 @@ const styles = cssMap({
 		height: '140px',
 		borderRadius: token('radius.full'),
 		backgroundColor: token('elevation.surface'),
-		borderLeftColor: token('color.border.accent.orange'),
-		borderLeftWidth: '16px',
-		borderRightColor: token('color.border.accent.teal'),
-		borderRightWidth: '16px',
-		borderTopColor: token('color.border.accent.magenta'),
-		borderTopWidth: '16px',
-		borderBottomColor: token('color.border.accent.lime'),
-		borderBottomWidth: '16px',
+		borderInlineStartColor: token('color.border.accent.orange'),
+		borderInlineStartWidth: '16px',
+		borderInlineEndColor: token('color.border.accent.teal'),
+		borderInlineEndWidth: '16px',
+		borderBlockStartColor: token('color.border.accent.magenta'),
+		borderBlockStartWidth: '16px',
+		borderBlockEndColor: token('color.border.accent.lime'),
+		borderBlockEndWidth: '16px',
 		borderStyle: 'solid',
 	},
 });

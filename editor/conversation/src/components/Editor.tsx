@@ -1,11 +1,14 @@
 /* eslint-disable @atlaskit/design-system/no-styled-tagged-template-expression -- needs manual remediation */
+
 import React from 'react';
+
 import debounce from 'lodash/debounce';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import styled from 'styled-components';
-import AkAvatar from '@atlaskit/avatar';
-import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 
+import AkAvatar from '@atlaskit/avatar/avatar';
+import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorActions, EditorProps } from '@atlaskit/editor-core';
 import {
 	EditorContext,
@@ -16,13 +19,10 @@ import {
 	version as packageVersion,
 } from '@atlaskit/editor-core';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
-import {
-	useUniversalPreset,
-	type InitialPluginConfiguration,
-} from '@atlaskit/editor-core/preset-universal';
+import { useUniversalPreset } from '@atlaskit/editor-core/preset-universal';
+import type { InitialPluginConfiguration } from '@atlaskit/editor-core/preset-universal';
 import { usePreset } from '@atlaskit/editor-core/use-preset';
-import { type HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
 
 import type { User } from '../model/User';
 
@@ -332,6 +332,7 @@ export default class Editor extends React.Component<Props, State> {
 				<Container>
 					{this.renderAvatar()}
 					<EditorSection>
+						{/* eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed) */}
 						<WithEditorActions render={(actions) => this.renderEditor(actions)} />
 					</EditorSection>
 				</Container>

@@ -2,13 +2,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import type { CSSProperties, DragEvent, KeyboardEvent, MouseEvent } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type CSSProperties,
+	type DragEvent,
+	type KeyboardEvent,
+	type MouseEvent,
+	type ReactNode,
+} from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 import { bind } from 'bind-event-listener';
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { getDocument } from '@atlaskit/browser-apis';
 import {
@@ -17,7 +27,7 @@ import {
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import {
 	dragToMoveDown,
@@ -26,15 +36,13 @@ import {
 	dragToMoveUp,
 	getAriaKeyshortcuts,
 	TooltipContentWithMultipleShortcuts,
+	type Keymap,
 } from '@atlaskit/editor-common/keymaps';
 import { blockControlsMessages } from '@atlaskit/editor-common/messages';
-import { expandToBlockRange, isMultiBlockRange } from '@atlaskit/editor-common/selection';
 import { DRAG_HANDLE_WIDTH, tableControlsSpacing } from '@atlaskit/editor-common/styles';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
-import type { NodeRange, Node as PMNode, ResolvedPos } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
-import { type Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import {
@@ -42,25 +50,25 @@ import {
 	akEditorTableToolbarSize,
 	relativeSizeToBaseFontSize,
 } from '@atlaskit/editor-shared-styles/consts';
-import { selectTableClosestToPos } from '@atlaskit/editor-tables/utils';
 import DragHandleVerticalIcon from '@atlaskit/icon/core/drag-handle-vertical';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import type { BlockControlsPlugin, HandleOptions, TriggerByNode } from '../blockControlsPluginType';
+import type { BlockControlsPlugin, HandleOptions } from '../blockControlsPluginType';
 import { getNodeTypeWithLevel } from '../pm-plugins/decorations-common';
 import { key } from '../pm-plugins/main';
 import { selectionPreservationPluginKey } from '../pm-plugins/selection-preservation/plugin-key';
 import { getMultiSelectAnalyticsAttributes } from '../pm-plugins/utils/analytics';
-import { type AnchorRectCache } from '../pm-plugins/utils/anchor-utils';
+import type { AnchorRectCache } from '../pm-plugins/utils/anchor-utils';
 import {
 	getControlBottomCSSValue,
 	getControlHeightCSSValue,
@@ -70,17 +78,13 @@ import {
 	shouldBeSticky,
 	shouldMaskNodeControls,
 } from '../pm-plugins/utils/drag-handle-positions';
+import { expandAndUpdateSelection } from '../pm-plugins/utils/expand-and-update-selection';
 import { isHandleCorrelatedToSelection, selectNode } from '../pm-plugins/utils/getSelection';
 import {
-	adjustSelectionBoundsForEdgePositions,
-	alignAnchorHeadInDirectionOfPos,
-	expandSelectionHeadToNodeAtPos,
-} from '../pm-plugins/utils/selection';
-
-import {
+	ACTIVE_DRAG_HANDLE_ATTR,
+	ACTIVE_DRAG_HANDLE_FALLBACK_ANCHOR_NAME,
 	DRAG_HANDLE_BORDER_RADIUS,
 	DRAG_HANDLE_HEIGHT,
-	DRAG_HANDLE_MAX_SHIFT_CLICK_DEPTH,
 	DRAG_HANDLE_ZINDEX,
 	dragHandleGap,
 	nodeMargins,
@@ -90,8 +94,8 @@ import {
 	topPositionAdjustment,
 } from './consts';
 import { DragHandleNestedIcon } from './drag-handle-nested-icon';
-import type { DragPreviewContent } from './drag-preview';
-import { dragPreview } from './drag-preview';
+import { dragPreview, type DragPreviewContent } from './drag-preview';
+import { shouldUseNestedDragHandleIcon } from './should-use-nested-drag-handle-icon';
 import { refreshAnchorName } from './utils/anchor-name';
 import { getAnchorAttrName } from './utils/dom-attr-name';
 import { VisibilityContainer } from './visibility-container';
@@ -102,33 +106,31 @@ const iconWrapperStyles = xcss({
 	alignItems: 'center',
 });
 
-const buttonWrapperStyles = css({
+const buttonWrapperStylesNoBackground = css({
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'[data-blocks-drag-handle-container]:has(+ [data-prosemirror-node-name="table"] .pm-table-with-controls tr.sticky) &':
 		{
-			background: `linear-gradient(to bottom, ${token('elevation.surface')} 90%, transparent)`,
-			marginBottom: token('space.negative.200', '-16px'),
-			paddingBottom: token('space.200', '16px'),
-			marginTop: token('space.negative.400', '-32px'),
-			paddingTop: `calc(${token('space.400', '32px')} - 1px)`,
-			marginRight: token('space.negative.150', '-12px'),
-			paddingRight: token('space.150', '12px'),
+			marginBottom: token('space.negative.200'),
+			paddingBottom: token('space.200'),
+			marginTop: token('space.negative.400'),
+			paddingTop: `calc(${token('space.400')} - 1px)`,
+			marginRight: token('space.negative.150'),
+			paddingRight: token('space.150'),
 			boxSizing: 'border-box',
 		},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'[data-prosemirror-mark-name="breakout"]:has([data-blocks-drag-handle-container]):has(+ [data-prosemirror-node-name="table"] .pm-table-with-controls tr.sticky) &':
 		{
-			background: `linear-gradient(to bottom, ${token('elevation.surface')} 90%, transparent)`,
-			marginBottom: token('space.negative.200', '-16px'),
-			paddingBottom: token('space.200', '16px'),
-			marginTop: token('space.negative.400', '-32px'),
-			paddingTop: `calc(${token('space.400', '32px')} - 1px)`,
-			marginRight: token('space.negative.150', '-12px'),
-			paddingRight: token('space.150', '12px'),
+			marginBottom: token('space.negative.200'),
+			paddingBottom: token('space.200'),
+			marginTop: token('space.negative.400'),
+			paddingTop: `calc(${token('space.400')} - 1px)`,
+			marginRight: token('space.negative.150'),
+			paddingRight: token('space.150'),
 			boxSizing: 'border-box',
 		},
 });
@@ -172,33 +174,33 @@ const dragHandleButtonStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	borderRadius: DRAG_HANDLE_BORDER_RADIUS,
 	// when platform_editor_controls is enabled, the drag handle color is overridden. Update color here when experiment is cleaned up.
-	color: token('color.icon', '#44546F'),
+	color: token('color.icon'),
 	cursor: 'grab',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	zIndex: DRAG_HANDLE_ZINDEX,
 	outline: 'none',
 	'&:hover': {
-		backgroundColor: token('color.background.neutral.subtle.hovered', '#091E420F'),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
 	},
 
 	'&:active': {
-		backgroundColor: token('color.background.neutral.subtle.pressed', '#091E4224'),
+		backgroundColor: token('color.background.neutral.subtle.pressed'),
 	},
 
 	'&:disabled': {
-		color: token('color.icon.disabled', '#8993A4'),
+		color: token('color.icon.disabled'),
 		backgroundColor: 'transparent',
 	},
 
 	'&:hover:disabled': {
-		backgroundColor: token('color.background.disabled', 'transparent'),
+		backgroundColor: token('color.background.disabled'),
 	},
 });
 
 // Calculate scaled dimensions based on the base font size using CSS calc()
 // Default font size is 16px, scale proportionally
-// Standard: 16px -> 24h x 12w, Dense: 13px -> 18h x 9w
-const dragHandleButtonDenseModeStyles = css({
+// Standard: 16px -> 24h x 12w, Dense: 13px -> 18h x 9w, Jira: 14px -> 21h x 12w
+const dragHandleButtonScaledStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
 	height: relativeSizeToBaseFontSize(DRAG_HANDLE_HEIGHT),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
@@ -215,8 +217,8 @@ const dragHandleButtonSmallScreenStyles = css({
 
 const dragHandleButtonStylesOld = css({
 	position: 'absolute',
-	paddingTop: `${token('space.025', '2px')}`,
-	paddingBottom: `${token('space.025', '2px')}`,
+	paddingTop: `${token('space.025')}`,
+	paddingBottom: `${token('space.025')}`,
 	paddingLeft: '0',
 	paddingRight: '0',
 	boxSizing: 'border-box',
@@ -233,48 +235,42 @@ const dragHandleButtonStylesOld = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	borderRadius: DRAG_HANDLE_BORDER_RADIUS,
 	// when platform_editor_controls is enabled, the drag handle color is overridden. Update color here when experiment is cleaned up.
-	color: token('color.icon', '#44546F'),
+	color: token('color.icon'),
 	cursor: 'grab',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	zIndex: DRAG_HANDLE_ZINDEX,
 	outline: 'none',
 
 	'&:hover': {
-		backgroundColor: token('color.background.neutral.subtle.hovered', '#091E420F'),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
 	},
 
 	'&:active': {
-		backgroundColor: token('color.background.neutral.subtle.pressed', '#091E4224'),
+		backgroundColor: token('color.background.neutral.subtle.pressed'),
 	},
 
 	'&:focus': {
-		outline: `${token('border.width.focused')} solid ${token('color.border.focused', '#388BFF')}`,
+		outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
 	},
 
 	'&:disabled': {
-		color: token('color.icon.disabled', '#8993A4'),
+		color: token('color.icon.disabled'),
 		backgroundColor: 'transparent',
 	},
 
 	'&:hover:disabled': {
-		backgroundColor: token('color.background.disabled', 'transparent'),
-	},
-});
-
-const focusedStylesOld = css({
-	'&:focus': {
-		outline: `${token('border.width.focused')} solid ${token('color.border.focused', '#388BFF')}`,
+		backgroundColor: token('color.background.disabled'),
 	},
 });
 
 const focusedStyles = css({
 	'&:focus-visible': {
-		outline: `${token('border.width.focused')} solid ${token('color.border.focused', '#388BFF')}`,
+		outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
 	},
 });
 
 const keyboardFocusedDragHandleStyles = css({
-	outline: `${token('border.width.focused')} solid ${token('color.border.focused', '#388BFF')}`,
+	outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
 });
 
 const dragHandleContainerStyles = xcss({
@@ -384,17 +380,15 @@ const layoutColumnDragHandleStyles = css({
 });
 
 const selectedStyles = css({
-	backgroundColor: token('color.background.selected', '#E9F2FF'),
-	color: token('color.icon.selected', '#0C66E4'),
+	backgroundColor: token('color.background.selected'),
+	color: token('color.icon.selected'),
 });
 
 // [Chrome only] When selection contains multiple nodes and then drag a drag handle that is within the selection range,
 // icon span receives dragStart event, instead of button, and since it is not registered as a draggable element
 // with pragmatic DnD and pragmatic DnD is not triggered
 const handleIconDragStart = (e: DragEvent<HTMLSpanElement>) => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 	if (!browser.chrome) {
 		return;
 	}
@@ -440,6 +434,12 @@ const getNodeMargins = (node?: PMNode): { bottom: number; top: number } => {
 	return nodeMargins[nodeTypeName] || nodeMargins['default'];
 };
 
+// Omit `isOpen` so the reducer toggles the menu for a re-clicked layout column.
+const buildToggleLayoutColumnMenuMeta = (anchorPos: number, openedViaKeyboard: boolean) => ({
+	anchorPos,
+	openedViaKeyboard,
+});
+
 type DragHandleProps = {
 	anchorName: string;
 	anchorRectCache?: AnchorRectCache;
@@ -452,92 +452,18 @@ type DragHandleProps = {
 	view: EditorView;
 };
 
-const isPosWithinRange = (pos: number, range: NodeRange): boolean => {
-	return range.start <= pos && range.end >= pos + 1;
-};
-
-type CalculateSelectionBlockRangeOptions = {
-	doc: PMNode;
-	isShiftPressed: boolean;
-	resolvedStartPos: ResolvedPos;
-	selection: Selection;
-};
-
-/**
- * From the current selection and the position of the drag handle being clicked,
- * calculate the expanded block range up to the common ancestor.
- */
-const getExpandedSelectionRange = ({
-	selection,
-	doc,
-	resolvedStartPos,
-	isShiftPressed,
-}: CalculateSelectionBlockRangeOptions) => {
-	// When not pressing shift, expand the current selection
-	// When shift selecting upwards, expand from start of node to selection end
-	// When shift selecting downwards, expand from selection start to end of node
-	const selectUp = resolvedStartPos.pos < selection.from;
-	const $from = isShiftPressed && selectUp ? resolvedStartPos : selection.$from;
-	const $to = isShiftPressed && !selectUp ? doc.resolve(resolvedStartPos.pos + 1) : selection.$to;
-
-	const adjusted = isShiftPressed
-		? { $from, $to }
-		: adjustSelectionBoundsForEdgePositions($from, $to);
-
-	return expandToBlockRange(adjusted.$from, adjusted.$to);
-};
-
-type ExpandAndUpdateSelectionOptions = {
-	api: ExtractInjectionAPI<BlockControlsPlugin>;
-	isShiftPressed: boolean;
-	nodeType: string;
-	selection: Selection;
-	startPos: number;
-	tr: Transaction;
-};
-
-/**
- * Updates the transaction with preserved selection logic.
- * Sets selection to expanded selection range if it encompasses the clicked drag handle,
- * otherwise selects the clicked drag handle's node only.
- */
-const expandAndUpdateSelection = ({
-	tr,
-	selection,
-	startPos,
-	isShiftPressed,
-	nodeType,
-	api,
-}: ExpandAndUpdateSelectionOptions): void => {
-	const resolvedStartPos = tr.doc.resolve(startPos);
-
-	const expandedRange = getExpandedSelectionRange({
-		doc: tr.doc,
-		selection,
-		resolvedStartPos,
-		isShiftPressed,
-	});
-
-	// Set selection to expanded selection range if it encompases the clicked drag handle
-	if (
-		expandedRange.range &&
-		isPosWithinRange(startPos, expandedRange.range) &&
-		isMultiBlockRange(expandedRange.range)
-	) {
-		// Then create a selection from the start of the first node to the end of the last node
-		tr.setSelection(
-			TextSelection.create(
-				tr.doc,
-				Math.min(selection.from, expandedRange.$from.pos),
-				Math.max(selection.to, expandedRange.$to.pos),
-			),
-		);
-	} else if (nodeType === 'table') {
-		selectTableClosestToPos(tr, tr.doc.resolve(startPos + 1));
-	} else {
-		// Select the clicked drag handle's node only
-		selectNode(tr, startPos, nodeType, api);
+const getDragHandleAnchorReference = ({
+	edge,
+	safeAnchorName,
+}: {
+	edge: 'start' | 'end' | 'left' | 'right' | 'top';
+	safeAnchorName: string;
+}): string => {
+	if (expValEquals('platform_editor_controls_reliable_anchor', 'isEnabled', true)) {
+		return `anchor(${safeAnchorName} ${edge}, anchor(${ACTIVE_DRAG_HANDLE_FALLBACK_ANCHOR_NAME} ${edge}))`;
 	}
+
+	return `anchor(${safeAnchorName} ${edge})`;
 };
 
 export const DragHandle = ({
@@ -548,59 +474,44 @@ export const DragHandle = ({
 	anchorName,
 	nodeType,
 	handleOptions,
-	isTopLevelNode = true,
 	anchorRectCache,
-}: DragHandleProps) => {
+}: DragHandleProps): jsx.JSX.Element => {
 	const buttonRef = useRef<HTMLButtonElement>(null);
+	const mouseDownRef = useRef(false);
 	const [dragHandleSelected, setDragHandleSelected] = useState(false);
-	const [dragHandleDisabled, setDragHandleDisabled] = useState(false);
 	const [blockCardWidth, setBlockCardWidth] = useState(768);
-	const [recalculatePosition, setRecalculatePosition] = useState<boolean>(false);
 	const [positionStylesOld, setPositionStylesOld] = useState<CSSProperties>({ display: 'none' });
+	// Tracks whether the initial position calculation has been performed at least once.
+	// The reliable-anchor early-return optimisation must not fire before the first calculation,
+	// otherwise positionStylesOld stays as { display: 'none' } and the handle is never shown.
+	const hasCalculatedInitialPosition = useRef(false);
 	const [isFocused, setIsFocused] = useState(Boolean(handleOptions?.isFocused));
-	const { macroInteractionUpdates } = useSharedPluginStateWithSelector(
-		api,
-		['featureFlags'],
-		(states) => ({
-			macroInteractionUpdates: states.featureFlagsState?.macroInteractionUpdates,
-		}),
-	);
-	const selection = useSharedPluginStateSelector(api, 'selection.selection');
-	const isShiftDown = useSharedPluginStateSelector(api, 'blockControls.isShiftDown');
-	const interactionState = useSharedPluginStateSelector(api, 'interaction.interactionState');
+	const { macroInteractionUpdates, selection, interactionState, currentUserIntent } =
+		useSharedPluginStateWithSelector(
+			api,
+			['featureFlags', 'selection', 'blockControls', 'interaction', 'userIntent'],
+			(states) => ({
+				macroInteractionUpdates: states.featureFlagsState?.macroInteractionUpdates,
+				selection: states.selectionState?.selection,
+				interactionState: states.interactionState?.interactionState,
+				currentUserIntent: states.userIntentState?.currentUserIntent,
+			}),
+		);
 
 	const start = getPos();
 	const isLayoutColumn = nodeType === 'layoutColumn';
-	const isMultiSelect = editorExperiment('platform_editor_element_drag_and_drop_multiselect', true);
 
-	// Dynamically calculate if node is top-level based on current position (gated by experiment)
-	const isTopLevelNodeDynamic = useMemo(() => {
-		if (!expValEquals('platform_editor_nested_drag_handle_icon', 'isEnabled', true)) {
-			return isTopLevelNode;
-		}
+	// Dynamically calculate if node is top-level based on current position
+	const isTopLevelNodeValue = useMemo(() => {
 		const pos = getPos();
 		if (typeof pos === 'number') {
 			const $pos = view.state.doc.resolve(pos);
 			return $pos?.parent.type.name === 'doc';
 		}
 		return true;
-	}, [getPos, view.state.doc, isTopLevelNode]);
-
-	// Use the dynamic value when experiment is on, otherwise use the prop
-	// When cleaning up the experiment, you can safely remove the isTopLevelNode as an prop and
-	// just rely on the dynamic value (rename it to isTopLevelNode for simplicitiy)
-	const isTopLevelNodeValue = expValEquals(
-		'platform_editor_nested_drag_handle_icon',
-		'isEnabled',
-		true,
-	)
-		? isTopLevelNodeDynamic
-		: isTopLevelNode;
+	}, [getPos, view.state.doc]);
 
 	useEffect(() => {
-		if (editorExperiment('platform_editor_block_control_optimise_render', true)) {
-			return;
-		}
 		// blockCard/datasource width is rendered correctly after this decoraton does. We need to observe for changes.
 		if (nodeType === 'blockCard') {
 			const dom: HTMLElement | null = view.dom.querySelector(
@@ -618,11 +529,38 @@ export const DragHandle = ({
 		}
 	}, [anchorName, nodeType, view.dom]);
 
+	useEffect(() => {
+		if (
+			!expValEqualsNoExposure('platform_editor_selection_toolbar_block_handle', 'isEnabled', true)
+		) {
+			return;
+		}
+
+		const unbind = bind(window, {
+			type: 'mouseUp',
+			listener: () => (mouseDownRef.current = false),
+		});
+		return () => unbind();
+	}, []);
+
+	const handleMouseDown = useCallback(() => {
+		mouseDownRef.current = true;
+	}, []);
+
 	const handleMouseUp = useCallback((e: MouseEvent<HTMLButtonElement>) => {
 		// Stop propagation so that for drag handles in nested scenarios the click is captured
 		// and doesn't propagate to the edge of the element and trigger a node selection
 		// on the parent element
-		e.stopPropagation();
+		if (
+			!expValEqualsNoExposure('platform_editor_selection_toolbar_block_handle', 'isEnabled', true)
+		) {
+			e.stopPropagation();
+		}
+
+		// Fixes bug where selection toolbar is blocked when mouse is released on drag handle
+		if (mouseDownRef.current) {
+			e.stopPropagation();
+		}
 	}, []);
 
 	const handleOnClickNew = useCallback(
@@ -631,6 +569,10 @@ export const DragHandle = ({
 				const startPos = getPos();
 				if (startPos === undefined) {
 					return tr;
+				}
+
+				if (nodeType === 'layoutColumn') {
+					tr.setMeta('toggleLayoutColumnMenu', buildToggleLayoutColumnMenuMeta(startPos, false));
 				}
 
 				const resolvedStartPos = tr.doc.resolve(startPos);
@@ -644,7 +586,7 @@ export const DragHandle = ({
 					actionSubjectId: ACTION_SUBJECT_ID.ELEMENT_DRAG_HANDLE,
 					attributes: {
 						nodeDepth: resolvedStartPos.depth,
-						nodeType: resolvedStartPos.nodeAfter?.type.name || '',
+						nodeTypes: resolvedStartPos.nodeAfter?.type.name || '',
 					},
 				})(tr);
 
@@ -662,9 +604,7 @@ export const DragHandle = ({
 				api?.blockControls?.commands.toggleBlockMenu({
 					anchorName,
 					openedViaKeyboard: false,
-					triggerByNode: editorExperiment('platform_synced_block', true)
-						? { nodeType, pos: startPos, rootPos: tr.doc.resolve(startPos).before(1) }
-						: undefined,
+					triggerByNode: { nodeType, pos: startPos, rootPos: tr.doc.resolve(startPos).before(1) },
 				})({ tr });
 
 				tr.setMeta('scrollIntoView', false);
@@ -675,86 +615,6 @@ export const DragHandle = ({
 			view.focus();
 		},
 		[api, view, getPos, nodeType, anchorName],
-	);
-
-	const handleOnClick = useCallback(
-		(e: MouseEvent<HTMLButtonElement>) => {
-			if (!isMultiSelect) {
-				setDragHandleSelected(!dragHandleSelected);
-			}
-			api?.core?.actions.execute(({ tr }) => {
-				const startPos = getPos();
-				if (startPos === undefined) {
-					return tr;
-				}
-				const mSelect = api?.blockControls.sharedState.currentState()?.multiSelectDnD;
-				const $anchor =
-					mSelect?.anchor !== undefined ? tr.doc.resolve(mSelect?.anchor) : tr.selection.$anchor;
-				if (!isMultiSelect || tr.selection.empty || !e.shiftKey) {
-					tr = selectNode(tr, startPos, nodeType, api);
-				} else if (
-					isTopLevelNodeValue &&
-					$anchor.depth <= DRAG_HANDLE_MAX_SHIFT_CLICK_DEPTH &&
-					e.shiftKey &&
-					fg('platform_editor_elements_dnd_shift_click_select')
-				) {
-					const alignAnchorHeadToSel = alignAnchorHeadInDirectionOfPos(tr.selection, startPos);
-					const selectionWithExpandedHead = expandSelectionHeadToNodeAtPos(
-						alignAnchorHeadToSel,
-						startPos,
-					);
-					tr.setSelection(selectionWithExpandedHead);
-					api?.blockControls?.commands.setMultiSelectPositions()({ tr });
-				}
-				const resolvedMovingNode = tr.doc.resolve(startPos);
-				const maybeNode = resolvedMovingNode.nodeAfter;
-
-				tr.setMeta('scrollIntoView', false);
-				api?.analytics?.actions.attachAnalyticsEvent({
-					eventType: EVENT_TYPE.UI,
-					action: ACTION.CLICKED,
-					actionSubject: ACTION_SUBJECT.BUTTON,
-					actionSubjectId: ACTION_SUBJECT_ID.ELEMENT_DRAG_HANDLE,
-					attributes: {
-						nodeDepth: resolvedMovingNode.depth,
-						nodeType: maybeNode?.type.name || '',
-					},
-				})(tr);
-				return tr;
-			});
-
-			view.focus();
-		},
-		[isMultiSelect, api, view, dragHandleSelected, getPos, isTopLevelNodeValue, nodeType],
-	);
-
-	const handleKeyDown = useCallback(
-		(e: KeyboardEvent<HTMLButtonElement>) => {
-			// allow user to use spacebar to select the node
-			if (!e.repeat && e.key === ' ') {
-				const startPos = getPos();
-				api?.core?.actions.execute(({ tr }) => {
-					if (startPos === undefined) {
-						return tr;
-					}
-
-					const node = tr.doc.nodeAt(startPos);
-					if (!node) {
-						return tr;
-					}
-					const $startPos = tr.doc.resolve(startPos + node.nodeSize);
-					const selection = new TextSelection($startPos);
-					tr.setSelection(selection);
-					!isMultiSelect && tr.setMeta(key, { pos: startPos });
-					return tr;
-				});
-			} else if (![e.altKey, e.ctrlKey, e.shiftKey].some((pressed) => pressed)) {
-				// If not trying to press shortcut keys,
-				// return focus to editor to resume editing from caret position
-				view.focus();
-			}
-		},
-		[getPos, api?.core?.actions, isMultiSelect, view],
 	);
 
 	const handleKeyDownNew = useCallback(
@@ -788,16 +648,15 @@ export const DragHandle = ({
 
 					api?.blockControls?.commands.startPreservingSelection()({ tr });
 
-					const rootPos = editorExperiment('platform_synced_block', true)
-						? tr.doc.resolve(startPos).before(1)
-						: undefined;
-					const triggerByNode: TriggerByNode | undefined = expValEqualsNoExposure(
-						'platform_synced_block',
-						'isEnabled',
-						true,
-					)
-						? { nodeType, pos: startPos, rootPos }
-						: undefined;
+					if (nodeType === 'layoutColumn') {
+						tr.setMeta('toggleLayoutColumnMenu', buildToggleLayoutColumnMenuMeta(startPos, true));
+					}
+
+					const triggerByNode = {
+						nodeType,
+						pos: startPos,
+						rootPos: tr.doc.resolve(startPos).before(1),
+					};
 					api?.blockControls?.commands.toggleBlockMenu({
 						anchorName,
 						triggerByNode,
@@ -832,26 +691,24 @@ export const DragHandle = ({
 			}),
 
 			onGenerateDragPreview: ({ nativeSetDragImage }) => {
-				if (isMultiSelect) {
-					api?.core?.actions.execute(({ tr }) => {
-						const handlePos = getPos();
-						if (typeof handlePos !== 'number') {
-							return tr;
-						}
-						const newHandlePosCheck = isHandleCorrelatedToSelection(
-							view.state,
-							tr.selection,
-							handlePos,
-						);
-						if (!tr.selection.empty && newHandlePosCheck) {
-							api?.blockControls?.commands.setMultiSelectPositions()({ tr });
-						} else {
-							tr = selectNode(tr, handlePos, nodeType, api);
-						}
-
+				api?.core?.actions.execute(({ tr }) => {
+					const handlePos = getPos();
+					if (typeof handlePos !== 'number') {
 						return tr;
-					});
-				}
+					}
+					const newHandlePosCheck = isHandleCorrelatedToSelection(
+						view.state,
+						tr.selection,
+						handlePos,
+					);
+					if (!tr.selection.empty && newHandlePosCheck) {
+						api?.blockControls?.commands.setMultiSelectPositions()({ tr });
+					} else {
+						tr = selectNode(tr, handlePos, nodeType, api);
+					}
+
+					return tr;
+				});
 
 				const startPos = getPos();
 				const state = view.state;
@@ -867,7 +724,6 @@ export const DragHandle = ({
 				const expandedSlice = doc.slice(sliceFrom, sliceTo);
 
 				const isDraggingMultiLine =
-					isMultiSelect &&
 					startPos !== undefined &&
 					startPos >= sliceFrom &&
 					startPos < sliceTo &&
@@ -985,8 +841,8 @@ export const DragHandle = ({
 						actionSubjectId: ACTION_SUBJECT_ID.ELEMENT_DRAG_HANDLE,
 						attributes: {
 							nodeDepth: resolvedMovingNode.depth,
-							nodeType: maybeNode?.type.name || '',
-							...(isMultiSelect && { nodeTypes, hasSelectedMultipleNodes }),
+							nodeTypes: nodeTypes || '',
+							hasSelectedMultipleNodes,
 						},
 					})(tr);
 					return tr;
@@ -995,125 +851,16 @@ export const DragHandle = ({
 				view.focus();
 			},
 		});
-	}, [anchorName, api, getPos, isMultiSelect, nodeType, start, view]);
-
-	const positionStyles = useMemo(() => {
-		if (!editorExperiment('platform_editor_block_control_optimise_render', true)) {
-			return {};
-		}
-
-		// This is a no-op to allow recalculatePosition to be used as a dependency
-		if (recalculatePosition) {
-			setRecalculatePosition(recalculatePosition);
-		}
-
-		const pos = getPos();
-		const $pos = expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
-			? typeof pos === 'number' && view.state.doc.resolve(pos)
-			: pos && view.state.doc.resolve(pos);
-		const parentPos = $pos && $pos.depth ? $pos.before() : undefined;
-		const node = parentPos !== undefined ? view.state.doc.nodeAt(parentPos) : undefined;
-		const parentNodeType = node?.type.name;
-		const supportsAnchor =
-			CSS.supports('top', `anchor(${anchorName} start)`) &&
-			CSS.supports('left', `anchor(${anchorName} start)`);
-
-		const safeAnchorName = editorExperiment('platform_editor_controls', 'variant1')
-			? refreshAnchorName({ getPos, view, anchorName })
-			: anchorName;
-
-		const dom: HTMLElement | null = view.dom.querySelector(
-			`[${getAnchorAttrName()}="${safeAnchorName}"]`,
-		);
-
-		const hasResizer = nodeType === 'table' || nodeType === 'mediaSingle';
-		const isExtension =
-			nodeType === 'extension' ||
-			nodeType === 'bodiedExtension' ||
-			nodeType === 'multiBodiedExtension';
-		const isBlockCard = nodeType === 'blockCard';
-
-		const isEmbedCard = nodeType === 'embedCard';
-
-		const isMacroInteractionUpdates = macroInteractionUpdates && isExtension;
-
-		let innerContainer: HTMLElement | null = null;
-		if (dom) {
-			if (isEmbedCard) {
-				innerContainer = dom.querySelector('.rich-media-item');
-			} else if (hasResizer) {
-				innerContainer = dom.querySelector('.resizer-item');
-			} else if (isExtension) {
-				innerContainer = dom.querySelector('.extension-container[data-layout]');
-			} else if (isBlockCard) {
-				//specific to datasource blockCard
-				innerContainer = dom.querySelector('.datasourceView-content-inner-wrap');
-			}
-		}
-
-		const isEdgeCase = (hasResizer || isExtension || isEmbedCard || isBlockCard) && innerContainer;
-		const isSticky = shouldBeSticky(nodeType);
-
-		if (supportsAnchor) {
-			const bottom = editorExperiment('platform_editor_controls', 'variant1')
-				? getControlBottomCSSValue(safeAnchorName, isSticky, isTopLevelNodeValue, isLayoutColumn)
-				: {};
-
-			return {
-				left: isEdgeCase
-					? `calc(anchor(${safeAnchorName} start) + ${getLeftPosition(dom, nodeType, innerContainer, isMacroInteractionUpdates, parentNodeType)})`
-					: editorExperiment('advanced_layouts', true) && isLayoutColumn
-						? `calc((anchor(${safeAnchorName} right) + anchor(${safeAnchorName} left))/2 - ${DRAG_HANDLE_HEIGHT / 2}px)`
-						: `calc(anchor(${safeAnchorName} start) - ${DRAG_HANDLE_WIDTH}px - ${dragHandleGap(nodeType, parentNodeType)}px)`,
-
-				top:
-					editorExperiment('advanced_layouts', true) && isLayoutColumn
-						? `calc(anchor(${safeAnchorName} top) - ${DRAG_HANDLE_WIDTH}px)`
-						: `calc(anchor(${safeAnchorName} start)+ ${topPositionAdjustment(
-								expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
-									? ($pos && $pos.nodeAfter && getNodeTypeWithLevel($pos.nodeAfter)) || nodeType
-									: nodeType,
-							)}px)`,
-
-				...bottom,
-			};
-		}
-
-		const height = editorExperiment('platform_editor_controls', 'variant1')
-			? getControlHeightCSSValue(
-					getNodeHeight(dom, safeAnchorName, anchorRectCache) || 0,
-					isSticky,
-					isTopLevelNodeValue,
-					`${DRAG_HANDLE_HEIGHT}`,
-					isLayoutColumn,
-				)
-			: {};
-		return {
-			left: isEdgeCase
-				? `calc(${dom?.offsetLeft || 0}px + ${getLeftPosition(dom, nodeType, innerContainer, isMacroInteractionUpdates, parentNodeType)})`
-				: getLeftPosition(dom, nodeType, innerContainer, isMacroInteractionUpdates, parentNodeType),
-			top: getTopPosition(dom, nodeType),
-			...height,
-		};
-	}, [
-		anchorName,
-		getPos,
-		view,
-		nodeType,
-		macroInteractionUpdates,
-		anchorRectCache,
-		isTopLevelNodeValue,
-		isLayoutColumn,
-		recalculatePosition,
-	]);
+	}, [anchorName, api, getPos, nodeType, start, view]);
 
 	const calculatePositionOld = useCallback(() => {
 		const pos = getPos();
-		const $pos = expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
-			? typeof pos === 'number' && view.state.doc.resolve(pos)
-			: pos && view.state.doc.resolve(pos);
+		const $pos = typeof pos === 'number' ? view.state.doc.resolve(pos) : undefined;
 		const parentPos = $pos && $pos.depth ? $pos.before() : undefined;
 		const node = parentPos !== undefined ? view.state.doc.nodeAt(parentPos) : undefined;
+		const nodeTypeWithLevel = $pos?.nodeAfter?.isBlock
+			? getNodeTypeWithLevel($pos.nodeAfter)
+			: nodeType;
 		const parentNodeType = node?.type.name;
 		const supportsAnchor =
 			CSS.supports('top', `anchor(${anchorName} start)`) &&
@@ -1122,16 +869,26 @@ export const DragHandle = ({
 		const safeAnchorName = editorExperiment('platform_editor_controls', 'variant1')
 			? refreshAnchorName({ getPos, view, anchorName })
 			: anchorName;
-
 		const dom: HTMLElement | null = view.dom.querySelector(
 			`[${getAnchorAttrName()}="${safeAnchorName}"]`,
 		);
+
+		// Defence-in-depth guard: since the node decoration sets data-active-drag-handle on the
+		// active node, we check for it directly. This is a cheap DOM attribute read (no reflow,
+		// no style recalculation) and hides the control if the decoration hasn't been applied yet.
+		if (
+			expValEquals('platform_editor_controls_reliable_anchor', 'isEnabled', true) &&
+			!dom?.hasAttribute(ACTIVE_DRAG_HANDLE_ATTR)
+		) {
+			return { display: 'none' };
+		}
 
 		const hasResizer = nodeType === 'table' || nodeType === 'mediaSingle';
 		const isExtension =
 			nodeType === 'extension' ||
 			nodeType === 'bodiedExtension' ||
-			nodeType === 'multiBodiedExtension';
+			(nodeType === 'multiBodiedExtension' &&
+				expValEquals('confluence_native_tabs_experiment', 'isEnabled', true));
 		const isBlockCard = nodeType === 'blockCard' && !!blockCardWidth;
 		const isEmbedCard = nodeType === 'embedCard';
 
@@ -1155,24 +912,45 @@ export const DragHandle = ({
 		const isSticky = shouldBeSticky(nodeType);
 
 		if (supportsAnchor) {
+			const anchorStart = getDragHandleAnchorReference({
+				edge: 'start',
+				safeAnchorName,
+			});
+			const anchorTop = getDragHandleAnchorReference({
+				edge: 'top',
+				safeAnchorName,
+			});
+			const anchorLeft = getDragHandleAnchorReference({
+				edge: 'left',
+				safeAnchorName,
+			});
+			const anchorRight = getDragHandleAnchorReference({
+				edge: 'right',
+				safeAnchorName,
+			});
 			const bottom = editorExperiment('platform_editor_controls', 'variant1')
-				? getControlBottomCSSValue(safeAnchorName, isSticky, isTopLevelNodeValue, isLayoutColumn)
+				? getControlBottomCSSValue(
+						safeAnchorName,
+						isSticky,
+						isTopLevelNodeValue,
+						isLayoutColumn,
+						ACTIVE_DRAG_HANDLE_FALLBACK_ANCHOR_NAME,
+					)
 				: {};
 
 			return {
 				left: isEdgeCase
-					? `calc(anchor(${safeAnchorName} start) + ${getLeftPosition(dom, nodeType, innerContainer, isMacroInteractionUpdates, parentNodeType)})`
+					? `calc(${anchorStart} + ${getLeftPosition(dom, nodeType, innerContainer, isMacroInteractionUpdates, parentNodeType)})`
 					: editorExperiment('advanced_layouts', true) && isLayoutColumn
-						? `calc((anchor(${safeAnchorName} right) + anchor(${safeAnchorName} left))/2 - ${DRAG_HANDLE_HEIGHT / 2}px)`
-						: `calc(anchor(${safeAnchorName} start) - ${DRAG_HANDLE_WIDTH}px - ${dragHandleGap(nodeType, parentNodeType)}px)`,
+						? `calc((${anchorRight} + ${anchorLeft})/2 - ${DRAG_HANDLE_HEIGHT / 2}px)`
+						: `calc(${anchorStart} - ${DRAG_HANDLE_WIDTH}px - ${dragHandleGap(nodeType, parentNodeType)}px)`,
 
 				top:
 					editorExperiment('advanced_layouts', true) && isLayoutColumn
-						? `calc(anchor(${safeAnchorName} top) - ${DRAG_HANDLE_WIDTH}px)`
-						: `calc(anchor(${safeAnchorName} start) + ${topPositionAdjustment(
-								expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
-									? ($pos && $pos.nodeAfter && getNodeTypeWithLevel($pos.nodeAfter)) || nodeType
-									: nodeType,
+						? `calc(${anchorTop} - ${DRAG_HANDLE_WIDTH}px)`
+						: `calc(${anchorStart} + ${topPositionAdjustment(
+								nodeTypeWithLevel,
+								dom?.getAttribute('layout') || '',
 							)}px)`,
 
 				...bottom,
@@ -1192,7 +970,7 @@ export const DragHandle = ({
 			left: isEdgeCase
 				? `calc(${dom?.offsetLeft || 0}px + ${getLeftPosition(dom, nodeType, innerContainer, isMacroInteractionUpdates, parentNodeType)})`
 				: getLeftPosition(dom, nodeType, innerContainer, isMacroInteractionUpdates, parentNodeType),
-			top: getTopPosition(dom, nodeType),
+			top: getTopPosition(dom, nodeTypeWithLevel),
 			...height,
 		};
 	}, [
@@ -1207,8 +985,19 @@ export const DragHandle = ({
 		isLayoutColumn,
 	]);
 
+	const isReliableAnchorEnabled = expValEquals(
+		'platform_editor_controls_reliable_anchor',
+		'isEnabled',
+		true,
+	);
+	const docDepForReliableAnchor = isReliableAnchorEnabled ? view.state.doc : undefined;
+
+	// Effect 1 (reliable-anchor ON): fires when non-doc deps change (e.g. blockCardWidth,
+	// anchorRectCache, macroInteractionUpdates, isTopLevelNodeValue, isLayoutColumn via
+	// calculatePositionOld) — always recalculates without the doc guard, so non-doc position
+	// changes are never incorrectly skipped.
 	useEffect(() => {
-		if (editorExperiment('platform_editor_block_control_optimise_render', true)) {
+		if (!isReliableAnchorEnabled) {
 			return;
 		}
 
@@ -1230,19 +1019,41 @@ export const DragHandle = ({
 		}
 		const calcPos = requestAnimationFrame(() => {
 			setPositionStylesOld(calculatePositionOld());
+			hasCalculatedInitialPosition.current = true;
 		});
 
 		return () => {
 			cancelAnimationFrame(calcPos);
 			cleanUpTransitionListener?.();
 		};
-	}, [calculatePositionOld, view.dom, anchorName, nodeType]);
+	}, [isReliableAnchorEnabled, calculatePositionOld, view.dom, anchorName, nodeType]);
 
+	// Effect 2 (reliable-anchor ON): fires when the doc changes — carries the DOM-attribute
+	// guard to skip recalc when a drag handle is active (pure keystroke during drag).
+	// Effect (reliable-anchor OFF): single combined effect, original behaviour.
 	useEffect(() => {
-		if (!editorExperiment('platform_editor_block_control_optimise_render', true)) {
-			return;
+		if (isReliableAnchorEnabled) {
+			// Doc-change only effect: apply the DOM-attribute guard.
+			// React's dep comparison already ensures this only runs when docDepForReliableAnchor
+			// (i.e. view.state.doc) changed, so no manual ref tracking is needed.
+			if (!hasCalculatedInitialPosition.current) {
+				return;
+			}
+
+			const calcPos = requestAnimationFrame(() => {
+				const dom = view.dom.querySelector(`[${getAnchorAttrName()}="${anchorName}"]`);
+				if (dom?.hasAttribute(ACTIVE_DRAG_HANDLE_ATTR)) {
+					return;
+				}
+				setPositionStylesOld(calculatePositionOld());
+			});
+
+			return () => {
+				cancelAnimationFrame(calcPos);
+			};
 		}
 
+		// reliable-anchor OFF: original single-effect behaviour (no guard).
 		let cleanUpTransitionListener: () => void;
 
 		if (nodeType === 'extension' || nodeType === 'embedCard') {
@@ -1255,111 +1066,138 @@ export const DragHandle = ({
 			cleanUpTransitionListener = bind(dom, {
 				type: 'transitionend',
 				listener: () => {
-					setRecalculatePosition(!recalculatePosition);
+					setPositionStylesOld(calculatePositionOld());
 				},
 			});
 		}
+		const calcPos = requestAnimationFrame(() => {
+			setPositionStylesOld(calculatePositionOld());
+			hasCalculatedInitialPosition.current = true;
+		});
 
 		return () => {
+			cancelAnimationFrame(calcPos);
 			cleanUpTransitionListener?.();
 		};
-	}, [view, anchorName, nodeType, recalculatePosition]);
+	}, [
+		isReliableAnchorEnabled,
+		calculatePositionOld,
+		view.dom,
+		anchorName,
+		nodeType,
+		docDepForReliableAnchor,
+	]);
+
+	const isHandleShown = positionStylesOld.display !== 'none';
 
 	useEffect(() => {
+		if (isExperimentEnabled('platform_editor_react19_migration')) {
+			return;
+		}
 		if (handleOptions?.isFocused && buttonRef.current) {
 			const id = requestAnimationFrame(() => {
 				buttonRef.current?.focus();
 			});
 			return () => {
 				cancelAnimationFrame(id);
-				if (!editorExperiment('platform_editor_block_control_optimise_render', true)) {
-					view.focus();
-				}
+				view.focus();
 			};
 		}
 	}, [buttonRef, handleOptions?.isFocused, view]);
 
 	useEffect(() => {
-		if (!isMultiSelect || typeof start !== 'number' || !selection) {
+		if (!isExperimentEnabled('platform_editor_react19_migration')) {
+			return;
+		}
+		if (!(handleOptions?.isFocused && isHandleShown && buttonRef.current)) {
+			return;
+		}
+
+		// isHandleShown means the handle has been positioned, but an ancestor can still be
+		// visibility:hidden or display:none for a frame, in which case focus() is a silent no-op.
+		// Focus now, and if activeElement shows it did not land, retry on the next few frames.
+		let rafId: number | undefined;
+		let attempts = 0;
+		const MAX_ATTEMPTS = 5;
+
+		const focusHandle = () => {
+			const button = buttonRef.current;
+			if (!button) {
+				return;
+			}
+			button.focus();
+			// getDocument() is the same document handleKeyDownNew reads activeElement from, so
+			// this confirms Space/Enter will act on the handle rather than silently no-op.
+			if (getDocument()?.activeElement === button || attempts >= MAX_ATTEMPTS) {
+				return;
+			}
+			attempts++;
+			rafId = requestAnimationFrame(focusHandle);
+		};
+
+		focusHandle();
+
+		return () => {
+			if (rafId !== undefined) {
+				cancelAnimationFrame(rafId);
+			}
+			view.focus();
+		};
+	}, [buttonRef, handleOptions?.isFocused, view, isHandleShown]);
+
+	useEffect(() => {
+		if (typeof start !== 'number' || !selection) {
 			return;
 		}
 
 		setDragHandleSelected(isHandleCorrelatedToSelection(view.state, selection, start));
-	}, [start, selection, view, isMultiSelect]);
+	}, [start, selection, view]);
 
-	useEffect(() => {
-		if (
-			!isMultiSelect ||
-			isShiftDown === undefined ||
-			view.state.selection.empty ||
-			!fg('platform_editor_elements_dnd_shift_click_select')
-		) {
-			return;
-		}
-		const mSelect = api?.blockControls.sharedState.currentState()?.multiSelectDnD;
-		const $anchor =
-			mSelect?.anchor !== undefined
-				? view.state.doc.resolve(mSelect?.anchor)
-				: view.state.selection.$anchor;
-		if (
-			isShiftDown &&
-			(!isTopLevelNodeValue ||
-				(isTopLevelNodeValue && $anchor.depth > DRAG_HANDLE_MAX_SHIFT_CLICK_DEPTH))
-		) {
-			setDragHandleDisabled(true);
-		} else {
-			setDragHandleDisabled(false);
-		}
-	}, [api?.blockControls.sharedState, isMultiSelect, isShiftDown, isTopLevelNodeValue, view]);
-
-	const dragHandleMessage = expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-		? formatMessage(blockControlsMessages.dragToMoveClickToOpen, { br: <br /> })
-		: formatMessage(blockControlsMessages.dragToMove);
+	const dragHandleMessage = formatMessage(blockControlsMessages.dragToMoveClickToOpen, {
+		br: <br />,
+	});
 
 	// Create a string version for aria-label
-	const dragHandleAriaLabel = expValEqualsNoExposure(
-		'platform_editor_block_menu',
-		'isEnabled',
-		true,
-	)
-		? formatMessage(blockControlsMessages.dragToMoveClickToOpen, { br: ' ' })
-		: formatMessage(blockControlsMessages.dragToMove);
+	const dragHandleAriaLabel = formatMessage(blockControlsMessages.dragToMoveClickToOpen, {
+		br: ' ',
+	});
 
-	let helpDescriptors = isTopLevelNodeValue
-		? [
-				{
-					description: dragHandleMessage,
-				},
-				{
-					description: formatMessage(blockControlsMessages.moveUp),
-					keymap: dragToMoveUp,
-				},
-				{
-					description: formatMessage(blockControlsMessages.moveDown),
-					keymap: dragToMoveDown,
-				},
-				{
-					description: formatMessage(blockControlsMessages.moveLeft),
-					keymap: dragToMoveLeft,
-				},
-				{
-					description: formatMessage(blockControlsMessages.moveRight),
-					keymap: dragToMoveRight,
-				},
-			]
-		: [
-				{
-					description: dragHandleMessage,
-				},
-				{
-					description: formatMessage(blockControlsMessages.moveUp),
-					keymap: dragToMoveUp,
-				},
-				{
-					description: formatMessage(blockControlsMessages.moveDown),
-					keymap: dragToMoveDown,
-				},
-			];
+	let helpDescriptors: Array<{ description?: string | ReactNode; keymap?: Keymap }> =
+		isTopLevelNodeValue
+			? [
+					{
+						description: dragHandleMessage,
+					},
+					{
+						description: formatMessage(blockControlsMessages.moveUp),
+						keymap: dragToMoveUp,
+					},
+					{
+						description: formatMessage(blockControlsMessages.moveDown),
+						keymap: dragToMoveDown,
+					},
+					{
+						description: formatMessage(blockControlsMessages.moveLeft),
+						keymap: dragToMoveLeft,
+					},
+					{
+						description: formatMessage(blockControlsMessages.moveRight),
+						keymap: dragToMoveRight,
+					},
+				]
+			: [
+					{
+						description: dragHandleMessage,
+					},
+					{
+						description: formatMessage(blockControlsMessages.moveUp),
+						keymap: dragToMoveUp,
+					},
+					{
+						description: formatMessage(blockControlsMessages.moveDown),
+						keymap: dragToMoveDown,
+					},
+				];
 
 	let isParentNodeOfTypeLayout;
 
@@ -1427,15 +1265,12 @@ export const DragHandle = ({
 		.join('. ');
 
 	const handleOnDrop = (event: MouseEvent<HTMLButtonElement>) => {
-		editorExperiment('platform_editor_element_drag_and_drop_multiselect', true) &&
-			event.stopPropagation();
+		event.stopPropagation();
 	};
 
 	const hasHadInteraction = interactionState !== 'hasNotHadInteraction';
 
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 
 	const renderButton = () => (
 		// eslint-disable-next-line @atlaskit/design-system/no-html-button
@@ -1456,60 +1291,52 @@ export const DragHandle = ({
 				editorExperiment('platform_editor_preview_panel_responsiveness', true) &&
 					editorExperiment('platform_editor_controls', 'control') &&
 					dragHandleButtonSmallScreenStyles,
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true) &&
-					isFocused &&
-					keyboardFocusedDragHandleStyles,
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-					? focusedStyles
-					: focusedStylesOld,
-				(expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-					(expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-						fg('platform_editor_content_mode_button_mvp'))) &&
-					dragHandleButtonDenseModeStyles,
+				isFocused && keyboardFocusedDragHandleStyles,
+				focusedStyles,
+				dragHandleButtonScaledStyles,
 			]}
 			ref={buttonRef}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			style={
-				!editorExperiment('platform_editor_controls', 'variant1')
-					? editorExperiment('platform_editor_block_control_optimise_render', true)
-						? positionStyles
-						: positionStylesOld
-					: {}
-			}
-			onMouseUp={
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-					? handleMouseUp
+			style={!editorExperiment('platform_editor_controls', 'variant1') ? positionStylesOld : {}}
+			onMouseDown={
+				expValEqualsNoExposure('platform_editor_selection_toolbar_block_handle', 'isEnabled', true)
+					? handleMouseDown
 					: undefined
 			}
-			onClick={
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-					? handleOnClickNew
-					: handleOnClick
-			}
-			onKeyDown={
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-					? handleKeyDownNew
-					: handleKeyDown
-			}
+			onMouseUp={handleMouseUp}
+			onClick={handleOnClickNew}
+			onKeyDown={handleKeyDownNew}
 			// eslint-disable-next-line @atlaskit/design-system/no-direct-use-of-web-platform-drag-and-drop
 			onDrop={handleOnDrop}
-			disabled={dragHandleDisabled}
 			data-editor-block-ctrl-drag-handle
+			data-blocks-drag-handle={fg('confluence_remix_button_right_side_block_fg') || undefined}
 			data-testid="block-ctrl-drag-handle"
 			aria-label={dragHandleAriaLabel}
-			onBlur={
-				expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-					? () => setIsFocused(false)
-					: undefined
-			}
+			onBlur={() => {
+				setIsFocused(false);
+
+				const pos = getPos();
+				if (pos !== undefined) {
+					api?.core?.actions.execute(({ tr }: { tr: Transaction }) => {
+						tr.setMeta(key, {
+							activeNode: {
+								pos,
+								anchorName,
+								nodeType,
+								handleOptions: { isFocused: false },
+							},
+						});
+						return tr;
+					});
+				}
+			}}
 		>
 			<Box
 				xcss={iconWrapperStyles}
 				// eslint-disable-next-line @atlaskit/design-system/no-direct-use-of-web-platform-drag-and-drop
 				onDragStart={handleIconDragStart}
 			>
-				{expValEquals('platform_editor_nested_drag_handle_icon', 'isEnabled', true) &&
-				!isTopLevelNodeValue ? (
+				{shouldUseNestedDragHandleIcon(isTopLevelNodeValue, isLayoutColumn) ? (
 					<DragHandleNestedIcon />
 				) : (
 					<DragHandleVerticalIcon spacing="spacious" label="" size="small" />
@@ -1521,11 +1348,8 @@ export const DragHandle = ({
 	const stickyWithTooltip = () => (
 		<Box
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-			style={
-				editorExperiment('platform_editor_block_control_optimise_render', true)
-					? positionStyles
-					: positionStylesOld
-			}
+			style={positionStylesOld}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			xcss={[dragHandleContainerStyles]}
 			as="span"
 			testId="block-ctrl-drag-handle-container"
@@ -1538,7 +1362,7 @@ export const DragHandle = ({
 							'platform_editor_table_sticky_header_improvements',
 							'cohort',
 							'test_with_overflow',
-						) && fg('platform_editor_table_sticky_header_patch_6')
+						)
 							? tooltipContainerStylesImprovedStickyHeaderWithMask
 							: tooltipContainerStylesStickyHeaderWithMask),
 					!shouldMaskNodeControls(nodeType, isTopLevelNodeValue) &&
@@ -1546,16 +1370,19 @@ export const DragHandle = ({
 				]}
 			>
 				<Tooltip
-					content={<TooltipContentWithMultipleShortcuts helpDescriptors={helpDescriptors} />}
+					content={tooltipContent}
 					ignoreTooltipPointerEvents={true}
 					position={'top'}
+					tag={fg('platform-dst-top-layer-tooltip') ? 'span' : 'div'}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onShow={() => {
 						api?.accessibilityUtils?.actions.ariaNotify(message, { priority: 'important' });
 					}}
 				>
 					<span
 						css={[
-							shouldMaskNodeControls(nodeType, isTopLevelNodeValue) && buttonWrapperStyles,
+							shouldMaskNodeControls(nodeType, isTopLevelNodeValue) &&
+								buttonWrapperStylesNoBackground,
 							buttonWrapperStylesPatch,
 						]}
 					>
@@ -1566,43 +1393,11 @@ export const DragHandle = ({
 		</Box>
 	);
 
-	const stickyWithoutTooltip = () => (
-		<Box
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-			style={
-				editorExperiment('platform_editor_block_control_optimise_render', true)
-					? positionStyles
-					: positionStylesOld
-			}
-			xcss={[dragHandleContainerStyles]}
-			as="span"
-			testId="block-ctrl-drag-handle-container"
-		>
-			<span
-				css={[
-					tooltipContainerStyles,
-					shouldMaskNodeControls(nodeType, isTopLevelNodeValue) &&
-						tooltipContainerStylesStickyHeaderWithMask,
-					!shouldMaskNodeControls(nodeType, isTopLevelNodeValue) &&
-						tooltipContainerStylesStickyHeaderWithoutMask,
-				]}
-			>
-				<span
-					css={[
-						shouldMaskNodeControls(nodeType, isTopLevelNodeValue) && buttonWrapperStyles,
-						buttonWrapperStylesPatch,
-					]}
-				>
-					{renderButton()}
-				</span>
-			</span>
-		</Box>
-	);
-
 	const buttonWithTooltip = () => (
 		<Tooltip
-			content={<TooltipContentWithMultipleShortcuts helpDescriptors={helpDescriptors} />}
+			content={tooltipContent}
 			ignoreTooltipPointerEvents={true}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onShow={() => {
 				api?.accessibilityUtils?.actions.ariaNotify(message, { priority: 'important' });
 			}}
@@ -1611,11 +1406,14 @@ export const DragHandle = ({
 		</Tooltip>
 	);
 
-	const isTooltip = !dragHandleDisabled;
-	const stickyRender = isTooltip ? stickyWithTooltip() : stickyWithoutTooltip();
-	const render = isTooltip ? buttonWithTooltip() : renderButton();
+	const tooltipContent =
+		isLayoutColumn && currentUserIntent === 'layoutColumnMenuPopupOpen' ? null : (
+			<TooltipContentWithMultipleShortcuts helpDescriptors={helpDescriptors} />
+		);
 
-	return editorExperiment('platform_editor_controls', 'variant1') ? stickyRender : render;
+	return editorExperiment('platform_editor_controls', 'variant1')
+		? stickyWithTooltip()
+		: buttonWithTooltip();
 };
 
 export const DragHandleWithVisibility = ({
@@ -1628,9 +1426,39 @@ export const DragHandleWithVisibility = ({
 	handleOptions,
 	isTopLevelNode,
 	anchorRectCache,
-}: DragHandleProps) => {
+}: DragHandleProps): jsx.JSX.Element => {
+	const rightSideControlsEnabled = useSharedPluginStateWithSelector(
+		api,
+		['blockControls'],
+		(states) => ({
+			rightSideControlsEnabled: states.blockControlsState?.rightSideControlsEnabled ?? false,
+		}),
+	).rightSideControlsEnabled;
+	// Layout column drag handles sit at the top-centre of each column, not on a left/right edge.
+	// Don't restrict by hoverSide for layout columns — the drag handle should always be visible
+	// when hovering anywhere over the column, regardless of which side of the layoutSection the
+	// column is on. (The right-side remix button is a separate node decoration and is unaffected.)
+	const isLayoutColumn = nodeType === 'layoutColumn';
+
+	// Skip the right-side controlSide restriction for non-top-level nodes. The restriction exists
+	// to avoid showing the drag handle and remix button simultaneously — but remix only applies to
+	// top-level nodes, so non-top-level nodes should never be restricted.
+	// Gated behind platform_editor_controls_reliable_anchor.
+	const skipControlSideRestriction =
+		expValEquals('platform_editor_controls_reliable_anchor', 'isEnabled', true) &&
+		isTopLevelNode === false;
+
 	return (
-		<VisibilityContainer api={api}>
+		<VisibilityContainer
+			api={api}
+			controlSide={
+				!isLayoutColumn && !skipControlSideRestriction && rightSideControlsEnabled
+					? 'left'
+					: undefined
+			}
+			forceVisibleOnMouseOut={!!handleOptions?.isFocused}
+			shouldUseDisplayContents={isLayoutColumn && fg('platform-dst-top-layer-tooltip')}
+		>
 			<DragHandle
 				view={view}
 				api={api}
@@ -1639,7 +1467,6 @@ export const DragHandleWithVisibility = ({
 				anchorName={anchorName}
 				nodeType={nodeType}
 				handleOptions={handleOptions}
-				isTopLevelNode={isTopLevelNode}
 				anchorRectCache={anchorRectCache}
 			/>
 		</VisibilityContainer>

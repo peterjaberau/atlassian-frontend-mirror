@@ -1,12 +1,69 @@
 /* eslint-disable @repo/internal/dom-events/no-unsafe-event-listeners */
-import React from 'react';
+/* eslint-disable @repo/internal/react/require-jsdoc */
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
 
-import Spinner from '@atlaskit/spinner';
+import React, { type FC, forwardRef, type HTMLProps, type ReactNode } from 'react';
+
+import { css, jsx } from '@compiled/react';
+
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 
-import { LARGE, LOADING_CONTENTS_OPACITY } from '../internal/constants';
-import { Container, SpinnerBackdrop, SpinnerContainer } from '../styled/loading-container-advanced';
 import type { SpinnerSizeType } from '../types';
+
+const containerStyles = css({
+	position: 'relative',
+	marginBlockEnd: token('space.300'),
+});
+
+type ContainerProps = HTMLProps<HTMLDivElement> & { testId?: string };
+
+const Container: React.ForwardRefExoticComponent<
+	React.PropsWithoutRef<ContainerProps> & React.RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, ContainerProps>((props, ref) => {
+	const { children, testId, ...rest } = props;
+	return (
+		<div css={containerStyles} {...rest} data-testid={testId} ref={ref}>
+			{children}
+		</div>
+	);
+});
+
+const spinnerBackdropStyles = css({
+	display: 'flex',
+	position: 'absolute',
+	inset: 0,
+	alignItems: 'center',
+	justifyContent: 'center',
+	pointerEvents: 'none',
+});
+
+type SpinnerBackdropProps = {
+	testId?: string;
+	children: ReactNode;
+};
+
+const SpinnerBackdrop: FC<SpinnerBackdropProps> = ({ children, testId }) => (
+	<div css={spinnerBackdropStyles} data-testid={testId && `${testId}--spinner-backdrop`}>
+		{children}
+	</div>
+);
+
+const spinnerContainerStyles = css({
+	position: 'relative',
+	insetBlockStart: 0,
+});
+
+const SpinnerContainer: React.ForwardRefExoticComponent<
+	React.PropsWithoutRef<HTMLProps<HTMLDivElement>> & React.RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, HTMLProps<HTMLDivElement>>(({ children }, ref) => (
+	<div css={spinnerContainerStyles} ref={ref}>
+		{children}
+	</div>
+));
 
 interface LoadingContainerAdvancedProps {
 	children?: React.ReactNode;
@@ -23,13 +80,18 @@ export default class LoadingContainerAdvanced extends React.Component<
 	LoadingContainerAdvancedProps,
 	{}
 > {
-	spinnerRef = React.createRef<HTMLDivElement>();
-	containerRef = React.createRef<HTMLDivElement>();
+	spinnerRef: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>();
+	containerRef: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>();
 
-	static defaultProps = {
+	static defaultProps: {
+		isLoading: boolean;
+		spinnerSize: string;
+		contentsOpacity: 'var(--ds-opacity-loading)';
+		loadingLabel: string;
+	} = {
 		isLoading: true,
-		spinnerSize: LARGE,
-		contentsOpacity: token('opacity.loading', `${LOADING_CONTENTS_OPACITY}`),
+		spinnerSize: 'large',
+		contentsOpacity: token('opacity.loading'),
 		loadingLabel: 'Loading table',
 	};
 
@@ -64,15 +126,21 @@ export default class LoadingContainerAdvanced extends React.Component<
 		this.detachListeners();
 	};
 
-	getTargetNode = (nextProps: LoadingContainerAdvancedProps = this.props) => {
+	getTargetNode = (
+		nextProps: LoadingContainerAdvancedProps = this.props,
+	): HTMLDivElement | null => {
 		const { targetRef } = nextProps;
 		const target = targetRef?.();
 		return target || this.containerRef.current;
 	};
 
-	hasTargetNode = (nextProps?: LoadingContainerAdvancedProps): boolean => !!this.getTargetNode(nextProps);
+	hasTargetNode = (nextProps?: LoadingContainerAdvancedProps): boolean =>
+		!!this.getTargetNode(nextProps);
 
-	isVerticallyVisible = (elementRect: { top: number; bottom: number }, viewportHeight: number): boolean => {
+	isVerticallyVisible = (
+		elementRect: { top: number; bottom: number },
+		viewportHeight: number,
+	): boolean => {
 		const { top, bottom } = elementRect;
 		if (bottom <= 0) {
 			return false;

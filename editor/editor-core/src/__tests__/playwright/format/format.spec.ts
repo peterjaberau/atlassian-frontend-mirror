@@ -18,6 +18,7 @@ import {
 
 test.describe('format.ts', () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 		editorProps: {
 			appearance: 'full-page',
 		},
@@ -89,12 +90,5 @@ test.describe('format.ts', () => {
 				p(),
 			),
 		);
-	});
-
-	test('should capture and report a11y violations', async ({ editor }) => {
-		await editor.keyboard.type('[Atlassian](https://www.atlassian.com)');
-		await editor.page.waitForSelector('a');
-
-		await expect(editor.page).toBeAccessible();
 	});
 });

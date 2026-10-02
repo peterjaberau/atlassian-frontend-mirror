@@ -5,12 +5,12 @@
 import type { FormEvent, KeyboardEvent } from 'react';
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
 import { BreadcrumbsMiscActions } from '@af/editor-examples-helpers/utils';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
 import type { EditorAppearance } from '@atlaskit/editor-common/types';
 import type { MediaOptions } from '@atlaskit/editor-plugins/media/types';
@@ -22,7 +22,7 @@ import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
 import { createEditorMediaMock } from '@atlaskit/editor-test-helpers/media-mock';
 import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
 import { macroProvider } from '@atlaskit/editor-test-helpers/mock-macro-provider';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import {
 	defaultCollectionName,
 	defaultMediaPickerCollectionName,
@@ -34,8 +34,8 @@ import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decis
 
 import quickInsertProviderFactory from '../example-helpers/quick-insert-provider';
 import type { EditorActions } from '../src';
-import type { EditorProps } from '../src/editor';
 import Editor from '../src/editor';
+import type { EditorProps } from '../src/types/editor-props';
 import EditorContext from '../src/ui/EditorContext';
 import WithEditorActions from '../src/ui/WithEditorActions';
 
@@ -261,7 +261,7 @@ class ExampleEditorComponent extends React.Component<EditorProps & ExampleProps,
 		}
 	};
 
-	renderEditor = (collectionName: string, doc: Object | undefined = undefined) => {
+	renderEditor = (collectionName: string, doc: object | undefined = undefined) => {
 		const SaveAndCancelButtons = createSaveAndCancelButtons(collectionName);
 		const { mediaOptions } = this.state;
 		const providers = mediaOptions.get(collectionName);
@@ -364,7 +364,7 @@ class ExampleEditorComponent extends React.Component<EditorProps & ExampleProps,
 	}
 }
 
-export default function Example(props: EditorProps & ExampleProps) {
+export default function Example(props: EditorProps & ExampleProps): jsx.JSX.Element {
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 		<div style={{ height: '100%' }}>

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/notification-log-client",
-	"version": "6.4.0",
+	"version": "10.1.0",
 	"description": "Client APIs for notification-log service",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -11,35 +11,24 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
-		"team": "Work Platform: Incoming Work",
+		"team": "Post Office - Engagement",
 		"website": {
 			"name": "Notification Log Client"
 		}
 	},
-	"platform-feature-flags": {
-		"post-office_enable-notification-components-graphql": {
-			"type": "boolean"
-		}
-	},
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./notification-log-client": "./src/NotificationLogClient.ts",
+		"./types": "./src/types.ts"
 	},
 	"dependencies": {
-		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/util-service-support": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"devDependencies": {
+		"@atlassian/workbench": "workspace:^",
 		"fetch-mock": "root:*",
 		"react": "root:*"
 	}

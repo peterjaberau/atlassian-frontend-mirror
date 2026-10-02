@@ -2,8 +2,11 @@ import React from 'react';
 
 import { di } from 'react-magnetic-di';
 
-import { ErrorMessage, Field } from '@atlaskit/form';
-import Textfield from '@atlaskit/textfield';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import Field from '@atlaskit/form/field';
+import { MessageWrapper } from '@atlaskit/form/message-wrapper';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Textfield from '@atlaskit/textfield/text-field';
 
 import messages from '../../common/messages';
 import type { UserInputTextPrompt } from '../../common/types';
@@ -35,8 +38,16 @@ const TextInputPrompt = ({ userInputPrompt }: TextInputPromptProps): React.JSX.E
 			{({ fieldProps, error }) => (
 				<>
 					<Textfield {...fieldProps} />
-					{error === Errors.EMPTY && (
-						<ErrorMessage>{messages.errorInputMustNotBeEmpty.defaultMessage}</ErrorMessage>
+					{fg('platform_navx_3298_message_wrapper') ? (
+						<MessageWrapper>
+							{error === Errors.EMPTY && (
+								<ErrorMessage>{messages.errorInputMustNotBeEmpty.defaultMessage}</ErrorMessage>
+							)}
+						</MessageWrapper>
+					) : (
+						error === Errors.EMPTY && (
+							<ErrorMessage>{messages.errorInputMustNotBeEmpty.defaultMessage}</ErrorMessage>
+						)
 					)}
 				</>
 			)}

@@ -1,23 +1,25 @@
-import React from 'react';
-import {
-	Truncate as CompiledTruncate,
-	TruncateLeft as CompiledTruncateLeft,
-	TruncateRight as CompiledTruncateRight,
-	type TruncateStyledProps,
-} from './truncateText-compiled';
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
 
-export const Truncate: typeof CompiledTruncate = (props) => <CompiledTruncate {...props} />;
+/**
+ * @deprecated Use `import { calculateTruncation } from '@atlaskit/media-ui/calculateTruncation'` instead.
+ */
 
-export const TruncateLeft = (
-	props: TruncateStyledProps &
-		React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>,
-): React.JSX.Element => <CompiledTruncateLeft {...props} />;
+export { calculateTruncation } from './calculateTruncation';
 
-export const TruncateRight = (
-	props: TruncateStyledProps &
-		React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>,
-): React.JSX.Element => <CompiledTruncateRight {...props} />;
+/**
+ * @deprecated Use `import type { TruncateStyledProps, TruncateProps, TruncateOutput } from '@atlaskit/media-ui/truncateText/types'` instead.
+ */
+export type { TruncateStyledProps, TruncateProps, TruncateOutput } from './truncateTextTypes';
 
-export { calculateTruncation } from './truncateText-compiled';
-
-export type { TruncateStyledProps, TruncateProps, TruncateOutput } from './truncateText-compiled';
+/**
+ * @deprecated Use `import { Truncate } from '@atlaskit/media-ui/truncateText/truncate'` instead.
+ */
+export { Truncate } from './Truncate';
+/**
+ * @deprecated Use `import { TruncateLeft } from '@atlaskit/media-ui/truncateText/truncateLeft'` instead.
+ */
+export { TruncateLeft } from './TruncateLeft';
+/**
+ * @deprecated Use `import { TruncateRight } from '@atlaskit/media-ui/truncateText/truncateRight'` instead.
+ */
+export { TruncateRight } from './TruncateRight';

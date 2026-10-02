@@ -6,7 +6,10 @@ import { type ReactNode } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Tabs, { Tab, TabList, TabPanel } from '@atlaskit/tabs';
+import Tab from '@atlaskit/tabs/tab';
+import TabList from '@atlaskit/tabs/tab-list';
+import TabPanel from '@atlaskit/tabs/tab-panel';
+import Tabs from '@atlaskit/tabs/tabs';
 import { token } from '@atlaskit/tokens';
 
 const panelStyles = css({
@@ -28,9 +31,12 @@ const panelStyles = css({
 	paddingInlineStart: token('space.400'),
 });
 
-export const Panel: ({ children, testId }: {
-    children: ReactNode;
-    testId?: string;
+export const Panel: ({
+	children,
+	testId,
+}: {
+	children: ReactNode;
+	testId?: string;
 }) => JSX.Element = ({ children, testId }: { children: ReactNode; testId?: string }) => (
 	<div css={panelStyles} data-testid={testId}>
 		{children}

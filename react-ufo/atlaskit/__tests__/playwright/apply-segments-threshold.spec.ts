@@ -3,9 +3,9 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import type { SegmentInfo } from '../../src/common';
 import type { RootSegment } from '../../src/common/react-ufo-payload-schema';
-
 import { expect, test } from './fixtures';
 
 /**
@@ -57,7 +57,13 @@ test.describe('React UFO: Segments threshold configuration', () => {
 			width: 1920,
 			height: 1080,
 		},
-		featureFlags: ['platform_ufo_add_segments_count_threshold'],
+	} satisfies {
+		examplePage: 'multiple-segments-labelstack-tree';
+		viewport: {
+			width: number;
+			height: number;
+		};
+		__exampleDependency?: typeof import('../../examples/31-multiple-segments-labelstack-tree.tsx');
 	});
 
 	test(`UFO Segment threshold is applied correctly`, async ({ page, waitForReactUFOPayload }) => {
@@ -72,35 +78,12 @@ test.describe('React UFO: Segments threshold configuration', () => {
 	});
 });
 
-test.describe('React UFO: Segments threshold configuration fg disabled', () => {
-	test.use({
-		examplePage: 'multiple-segments-labelstack-tree',
-		viewport: {
-			width: 1920,
-			height: 1080,
-		},
-		featureFlags: [],
-	});
-
-	test(`UFO Segment threshold is applied correctly fg disabled`, async ({
-		page,
-		waitForReactUFOPayload,
-	}) => {
-		const mainDiv = page.locator('[data-testid="page-container"]');
-		await expect(mainDiv).toBeVisible();
-		const payload = await waitForReactUFOPayload();
-		expect(payload).toBeDefined();
-		const segments = payload?.attributes.properties.interactionMetrics.segments as RootSegment;
-
-		const level1_3_count = countObjectsWithName(segments, 'level1-3');
-		expect(level1_3_count).toBe(6);
-	});
-});
-
 test.describe('ReactUFO: Interactions Segments threshold configuration', () => {
 	test.use({
 		examplePage: 'multiple-segments-labelstack-tree',
-		featureFlags: ['platform_ufo_add_segments_count_threshold'],
+	} satisfies {
+		examplePage: 'multiple-segments-labelstack-tree';
+		__exampleDependency?: typeof import('../../examples/31-multiple-segments-labelstack-tree.tsx');
 	});
 	test('segments limited to 3', async ({ page, waitForReactUFOInteractionPayload }) => {
 		const mainDiv = page.locator('[data-testid="page-container"]');
@@ -114,25 +97,5 @@ test.describe('ReactUFO: Interactions Segments threshold configuration', () => {
 			.segments as SegmentInfo[];
 		const level1_3_count = countObjectsWithNameInInteraction(segments, 'level1-3');
 		expect(level1_3_count).toBe(3);
-	});
-});
-
-test.describe('ReactUFO: Interactions Segments threshold configuration fg disabled', () => {
-	test.use({
-		examplePage: 'multiple-segments-labelstack-tree',
-		featureFlags: [],
-	});
-	test('segments no limited', async ({ page, waitForReactUFOInteractionPayload }) => {
-		const mainDiv = page.locator('[data-testid="page-container"]');
-		await expect(mainDiv).toBeVisible();
-
-		await page.getByText('Toggle new segments').click();
-
-		const reactUFOPayload = await waitForReactUFOInteractionPayload();
-		expect(reactUFOPayload).toBeDefined();
-		const segments = reactUFOPayload?.attributes.properties.interactionMetrics
-			.segments as SegmentInfo[];
-		const level1_3_count = countObjectsWithNameInInteraction(segments, 'level1-3');
-		expect(level1_3_count).toBe(6);
 	});
 });

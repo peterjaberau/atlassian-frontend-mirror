@@ -1,5 +1,9 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+
 import { type AnyAction } from 'redux';
+
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+
 import type Environments from './environments';
 
 export interface InvokePayload<T> {
@@ -118,6 +122,9 @@ export type CardAdf = InlineCardAdf | BlockCardAdf | EmbedCardAdf;
 
 export type EnvironmentsKeys = keyof typeof Environments | 'custom';
 
+/**
+ * @deprecated Use `import { AvailableSite, AvailableSitesProductType } from '@atlaskit/linking-common/types'` instead.
+ */
 export { type AvailableSite, AvailableSitesProductType } from './hooks/useAvailableSites/types';
 
 export type ProductType =

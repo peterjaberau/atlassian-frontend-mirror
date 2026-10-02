@@ -1,5 +1,117 @@
 # @atlaskit/editor-bitbucket-transformer
 
+## 10.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.2
+
+### Patch Changes
+
+- [`60c176d408119`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/60c176d408119) -
+  Serialize Bitbucket emoji metadata into markdown attr-list suffixes when the
+  platform_bitbucket_fix_shortname_and_ordering feature gate is enabled.
+
+## 10.2.1
+
+### Patch Changes
+
+- [`473d013d188b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/473d013d188b3) -
+  Fix emoji markdown serialization under platform_bitbucket_fix_shortname_and_ordering so emoji
+  metadata remains in ADF without being emitted into Bitbucket markdown.
+
+## 10.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+
+## 10.1.1
+
+### Patch Changes
+
+- [`67cb56528e699`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/67cb56528e699) -
+  Preserve emoji `id` and `text` attrs in the Bitbucket transformer
+
+## 10.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+## 10.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- [`eb0de97776ce5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb0de97776ce5) -
+  cleanup to prefer static regex as part of ees019
+- Updated dependencies
+
+## 9.6.4
+
+### Patch Changes
+
+- [`42a9772eb71b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42a9772eb71b8) -
+  replace 'react-intl-next' alias with 'react-intl'
+
+## 9.6.3
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+
+## 9.6.2
+
+### Patch Changes
+
+- [`d497cbb2d150f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d497cbb2d150f) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 9.6.1
+
+### Patch Changes
+
+- [`c15b7a3426c66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c15b7a3426c66) -
+  [ux] EDITOR-5626 Flexible list behaviour
+
 ## 9.6.0
 
 ### Minor Changes

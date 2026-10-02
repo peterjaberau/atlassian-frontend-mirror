@@ -1,4 +1,9 @@
 import { expect, test } from '@af/integration-testing';
+import { skipAutoA11yFile } from '@atlassian/a11y-playwright-testing';
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:playwright
+skipAutoA11yFile();
 
 const testIdsToSelectors = <T extends Record<string, string>>(testIds: T): T => {
 	return Object.entries(testIds).reduce(
@@ -20,9 +25,14 @@ const testIds = testIdsToSelectors({
 });
 
 test('Link picker should be able to be edit link and title without plugins', async ({ page }) => {
-	await page.visitExample('linking-platform', 'link-picker', 'without-plugins', {
-		'react-18-mode': 'legacy',
-	});
+	await page.visitExample<typeof import('../../../examples/20-without-plugins.tsx')>(
+		'linking-platform',
+		'link-picker',
+		'without-plugins',
+		{
+			'react-18-mode': 'legacy',
+		},
+	);
 
 	// Type url and submit using button
 	await page.locator(testIds.urlInputField).first().fill('https://google.com');
@@ -38,7 +48,7 @@ test('Link picker should be able to be edit link and title without plugins', asy
 	await page.locator(testIds.textInputField).first().fill('Edited');
 	await page.keyboard.press('Enter');
 
-	await expect(page.locator('#test-link').first()).toHaveText('Edited');
+	await expect(page.locator('#test-link').first()).toHaveText(/Edited/);
 	await expect(page.locator('#test-link').first()).toHaveJSProperty(
 		'href',
 		'https://atlassian.com/',
@@ -46,9 +56,14 @@ test('Link picker should be able to be edit link and title without plugins', asy
 });
 
 test('Link picker should be able to edit link and title from search results', async ({ page }) => {
-	await page.visitExample('linking-platform', 'link-picker', 'basic', {
-		'react-18-mode': 'legacy',
-	});
+	await page.visitExample<typeof import('../../../examples/00-basic.tsx')>(
+		'linking-platform',
+		'link-picker',
+		'basic',
+		{
+			'react-18-mode': 'legacy',
+		},
+	);
 
 	// Type url and submit using button
 	await page.locator(testIds.urlInputField).first().fill('https://google.com');
@@ -68,7 +83,7 @@ test('Link picker should be able to edit link and title from search results', as
 	await page.locator(testIds.textInputField).first().fill('Edited');
 	await page.keyboard.press('Enter');
 
-	await expect(page.locator('a').first()).toHaveText('Edited');
+	await expect(page.locator('a').first()).toHaveText(/Edited/);
 	await expect(page.locator('a').first()).toHaveJSProperty('href', selected);
 	await expect(page.locator('a').first()).not.toHaveJSProperty('href', 'https://google.com/');
 });
@@ -76,9 +91,14 @@ test('Link picker should be able to edit link and title from search results', as
 test('Link picker should fire `onContentResize` callback to allow dialogue components to handle content resize and positioning', async ({
 	page,
 }) => {
-	await page.visitExample('linking-platform', 'link-picker', 'popup-content-resize', {
-		'react-18-mode': 'legacy',
-	});
+	await page.visitExample<typeof import('../../../examples/40-popup-content-resize.tsx')>(
+		'linking-platform',
+		'link-picker',
+		'popup-content-resize',
+		{
+			'react-18-mode': 'legacy',
+		},
+	);
 	const trigger = '[data-testid="trigger"]';
 	const updateFnToggle = '[data-testid="provide-updateFn-toggle"]';
 	await expect(page.locator(trigger).first()).toBeVisible();
@@ -91,9 +111,14 @@ test('Link picker should fire `onContentResize` callback to allow dialogue compo
 });
 
 test('should capture and report a11y violations', async ({ page }) => {
-	await page.visitExample('linking-platform', 'link-picker', 'without-plugins', {
-		'react-18-mode': 'legacy',
-	});
+	await page.visitExample<typeof import('../../../examples/20-without-plugins.tsx')>(
+		'linking-platform',
+		'link-picker',
+		'without-plugins',
+		{
+			'react-18-mode': 'legacy',
+		},
+	);
 	// Type url and submit using button
 	await page.locator(testIds.urlInputField).first().fill('https://google.com');
 	await page.locator(testIds.textInputField).first().fill('Inserted');

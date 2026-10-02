@@ -1,14 +1,18 @@
 import React from 'react';
+
+import AudioIcon from '@atlaskit/icon/core/audio';
 import {
 	type ProcessedFileState,
 	type MediaClient,
 	type FileState,
 	globalMediaEventEmitter,
 } from '@atlaskit/media-client';
-import AudioIcon from '@atlaskit/icon/core/audio';
+import { type MediaTraceContext } from '@atlaskit/media-common';
+import { CustomMediaPlayer } from '@atlaskit/media-ui/customMediaPlayer';
+import type { WithShowControlMethodProp } from '@atlaskit/media-ui/types';
 
-import { Outcome } from '../domain';
-import { MediaViewerError } from '../errors';
+import { Outcome } from '../domain/outcome';
+import { MediaViewerError } from '../MediaViewerError';
 import {
 	AudioPlayer,
 	AudioCover,
@@ -16,11 +20,9 @@ import {
 	DefaultCoverWrapper,
 	CustomAudioPlayerWrapper,
 } from '../styleWrappers';
-import { type BaseState, BaseViewer } from './base-viewer';
-import { isIE } from '../utils/isIE';
-import { CustomMediaPlayer, type WithShowControlMethodProp } from '@atlaskit/media-ui';
 import { getObjectUrlFromFileState } from '../utils/getObjectUrlFromFileState';
-import { type MediaTraceContext } from '@atlaskit/media-common';
+import { isIE } from '../utils/isIE';
+import { type BaseState, BaseViewer } from './base-viewer';
 
 export type Props = Readonly<
 	{
@@ -54,7 +56,9 @@ const getCoverUrl = (
 	});
 
 export class AudioViewer extends BaseViewer<string, Props, State> {
-	protected get initialState() {
+	protected get initialState(): {
+		content: Outcome<string, MediaViewerError>;
+	} {
 		return {
 			content: Outcome.pending<string, MediaViewerError>(),
 		};

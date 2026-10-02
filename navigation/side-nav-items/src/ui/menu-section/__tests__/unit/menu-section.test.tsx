@@ -2,9 +2,16 @@ import React from 'react';
 
 import { render, screen } from '@testing-library/react';
 
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+
 import { Divider } from '../../divider';
 import { MenuSection } from '../../menu-section';
 import { MenuSectionHeading } from '../../menu-section-heading';
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 describe('Divider', () => {
 	// We have VR coverage in addition to this
@@ -55,6 +62,19 @@ describe('MenuSection', () => {
 		expect(screen.getByRole('group', { name: 'Test title' })).toBeVisible();
 	});
 
+	it('should use aria-label when provided', () => {
+		render(
+			<MenuSection ariaLabel="Section label">
+				<MenuSectionHeading>Test title</MenuSectionHeading>
+			</MenuSection>,
+		);
+
+		const group = screen.getByRole('group', { name: 'Test title' });
+
+		expect(group).toHaveAttribute('aria-label', 'Section label');
+		expect(group).toHaveAttribute('aria-labelledby');
+	});
+
 	describe('isMenuListItem', () => {
 		it('should not be a list item when false', () => {
 			render(
@@ -92,5 +112,25 @@ describe('MenuSectionHeading', () => {
 		);
 
 		expect(screen.getByText('Test title')).toBeVisible();
+	});
+
+	it('should not render a heading by default', () => {
+		render(
+			<MenuSection>
+				<MenuSectionHeading>Test title</MenuSectionHeading>
+			</MenuSection>,
+		);
+
+		expect(screen.queryByRole('heading')).not.toBeInTheDocument();
+	});
+
+	it('should render a semantic heading at the given level when headingLevel is provided', () => {
+		render(
+			<MenuSection>
+				<MenuSectionHeading headingLevel={3}>Test title</MenuSectionHeading>
+			</MenuSection>,
+		);
+
+		expect(screen.getByRole('heading', { level: 3, name: 'Test title' })).toBeVisible();
 	});
 });

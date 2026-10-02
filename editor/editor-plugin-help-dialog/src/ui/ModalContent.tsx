@@ -3,18 +3,17 @@
  * @jsx jsx
  */
 /** @jsxFrag */
-import React from 'react';
+import { Fragment } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { helpDialogMessages as messages } from '@atlaskit/editor-common/messages';
-import Heading from '@atlaskit/heading';
-import type { OnCloseHandler } from '@atlaskit/modal-dialog';
+import Heading from '@atlaskit/heading/heading';
+import type { OnCloseHandler } from '@atlaskit/modal-dialog/types';
 import { Text } from '@atlaskit/primitives/compiled';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { Format } from './Format';
 import ModalFooter from './ModalFooter';
@@ -27,15 +26,19 @@ interface ModalContentProps {
 	onClose: OnCloseHandler | undefined;
 }
 
-export const ModalContent = ({ formatting, onClose }: ModalContentProps) => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+export const ModalContent = ({ formatting, onClose }: ModalContentProps): jsx.JSX.Element => {
+	const browser = getBrowserInfo();
+	const intl = useIntl();
 	return (
-		<>
+		<Fragment>
 			<ModalHeader onClose={onClose} />
-			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage, @atlassian/a11y/no-noninteractive-tabindex -- Ignored via go/DSP-18766 */}
-			<div css={contentWrapper} tabIndex={0}>
+			<div
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
+				css={contentWrapper}
+				tabIndex={0}
+				role={'region'}
+				aria-label={intl.formatMessage(messages.editorHelp)}
+			>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
 				<div css={line} />
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
@@ -50,6 +53,7 @@ export const ModalContent = ({ formatting, onClose }: ModalContentProps) => {
 							/>
 						</Heading>
 						<ul>
+							{/* eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed) */}
 							{formatting
 								.filter((form) => {
 									const keymap = form.keymap && form.keymap();
@@ -68,6 +72,7 @@ export const ModalContent = ({ formatting, onClose }: ModalContentProps) => {
 									);
 								})}
 
+							{/* eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed) */}
 							{formatting
 								.filter((form) => shortcutNamesWithoutKeymap.indexOf(form.type) !== -1)
 								.filter((form) => form.autoFormatting)
@@ -97,6 +102,7 @@ export const ModalContent = ({ formatting, onClose }: ModalContentProps) => {
 							/>
 						</Heading>
 						<ul>
+							{/* eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed) */}
 							{formatting
 								.filter((form) => shortcutNamesWithoutKeymap.indexOf(form.type) === -1)
 								.map(
@@ -114,7 +120,7 @@ export const ModalContent = ({ formatting, onClose }: ModalContentProps) => {
 				</div>
 			</div>
 			<ModalFooter />
-		</>
+		</Fragment>
 	);
 };
 

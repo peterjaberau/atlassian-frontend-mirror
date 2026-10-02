@@ -1,11 +1,16 @@
-import type { JsonLd } from '@atlaskit/json-ld-types';
-import { SmartLinkActionType } from '@atlaskit/linking-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
 
 import jiraTask from '../../../__fixtures__/jira-task';
 import { ActionName } from '../../../index';
+import * as previewAction from '../../action/extract-invoke-preview-action';
 import extractState from '../extract-state';
 
 describe('extractState', () => {
+	afterEach(() => {
+		jest.clearAllMocks();
+	});
+
 	const response = (serverAction = {}, preview = {}): JsonLd.Response =>
 		({
 			...jiraTask,
@@ -26,9 +31,15 @@ describe('extractState', () => {
 
 	describe('server action', () => {
 		const id = 'link-id';
-		const url = jiraTask.data.url;
+		const jiraTaskData = jiraTask.data as JsonLd.Data.Task & {
+			'atlassian:serverAction': Array<{
+				resourceIdentifiers: Record<string, string>;
+			}>;
+			url: string;
+		};
+		const url = jiraTaskData.url;
 		const providerKey = jiraTask.meta.key;
-		const resourceIdentifiers = jiraTask.data['atlassian:serverAction'][0].resourceIdentifiers;
+		const resourceIdentifiers = jiraTaskData['atlassian:serverAction'][0].resourceIdentifiers;
 
 		const previewData = {
 			isSupportTheming: true,
@@ -238,6 +249,38 @@ describe('extractState', () => {
 					actionType: ActionName.PreviewAction,
 				}),
 			});
+		});
+
+		it('passes transformUrl to extractInvokePreviewAction', () => {
+			const transformUrl = jest.fn();
+			const extractInvokePreviewActionSpy = jest.spyOn(previewAction, 'extractInvokePreviewAction');
+			extractState(
+				response([
+					{
+						'@type': 'UpdateAction',
+						name: 'UpdateAction',
+						dataUpdateAction: {
+							'@type': 'UpdateAction',
+							name: SmartLinkActionType.StatusUpdateAction,
+						},
+						refField: 'tag',
+						resourceIdentifiers,
+					},
+				]),
+				{ hide: false },
+				id,
+				'block',
+				'smartLinkCard',
+				jest.fn(),
+				jest.fn(),
+				undefined,
+				undefined,
+				transformUrl,
+			);
+
+			expect(extractInvokePreviewActionSpy).toHaveBeenCalledWith(
+				expect.objectContaining({ transformUrl }),
+			);
 		});
 
 		it('should pass preview panel parameters when provided', () => {

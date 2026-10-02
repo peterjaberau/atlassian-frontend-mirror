@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::8df011d9377f177256bf7d26047eeb8a>>
+ * @codegen <<SignedSource::3f115ec92ef9dc2ca096f126d0bfe309>>
  * @codegenCommand yarn build:icon-glyphs
  */
 "use strict";
@@ -10,17 +10,18 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _react = _interopRequireDefault(require("react"));
-var _baseNew = _interopRequireDefault(require("@atlaskit/icon/base-new"));
+var _iconNew = _interopRequireDefault(require("@atlaskit/icon/components/icon-new"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 /**
  * Icon: "PlusCircle".
  * Category: multi-purpose
- * Location: @atlaskit/icon-lab
- * Usage guidance: Known uses: add task in Loom
+ * Location: @atlaskit/icon-lab/core/plus-circle
+ * Usage guidance:
+ * Known uses: add task in Loom
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/icon)
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/icon/docs/custom-icons)
  */
-const PlusCircleIcon = props => /*#__PURE__*/_react.default.createElement(_baseNew.default, Object.assign({
+const PlusCircleIcon = props => /*#__PURE__*/_react.default.createElement(_iconNew.default, Object.assign({
   name: "PlusCircleIcon",
   dangerouslySetGlyph: `<path fill="currentcolor" fill-rule="evenodd" d="M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.25.682v3.25h1.5v-3.25H12v-1.5H8.75v-3.25h-1.5v3.25H4v1.5z" clip-rule="evenodd"/>`
   // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props

@@ -1,72 +1,9 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-// @ts-ignore - This was added due to this import failing with 'no declaration file found for 'fetch-mock/cjs/client' in the Jira Typecheck when the platform is being locally consumed, as Jira does not contain the 'platform/fetch-mock.d.ts' typing. Additionally since this is a custom typing with no properties set it is already adding no type value
-import fetchMock from 'fetch-mock/cjs/client';
-import {
-	mockedAvailableSitesResult,
-	mockedAvailableSitesResultWithGatewayBaseUrl,
-} from './available-sites-result';
-import {
-	mockedAccessibleProductsResult,
-	mockedAccessibleResultWithGatewayBaseUrl,
-} from './accessible-products-result';
+export const AVAILABLE_SITES_ENDPOINT: any = '/gateway/api/available-sites';
 
-const fetchAvailableSiteEndpoint = /\/gateway\/api\/available-sites/;
-const fetchAccessibleProductsEndpoint = /\/gateway\/api\/v2\/accessible-products/;
+export const AVAILABLE_SITES_UNIT_COMPLIANT_ENDPOINT: any =
+	'/gateway/api/experimental/available-sites';
 
-export const mockAvailableSites = (responseData?: any): void => {
-	fetchMock.post(fetchAvailableSiteEndpoint, responseData || mockedAvailableSitesResult, {
-		delay: 10,
-		overwriteRoutes: true,
-	});
-};
+export const ACCESSIBLE_PRODUCTS_ENDPOINT: any = '/gateway/api/v2/accessible-products';
 
-export const mockAccessibleProducts = (responseData?: any): void => {
-	fetchMock.post(fetchAccessibleProductsEndpoint, responseData || mockedAccessibleProductsResult, {
-		delay: 10,
-		overwriteRoutes: true,
-	});
-};
-
-/**
- * Mock availableSites for a specific gatewayBaseUrl. Only matches requests with the gatewayBaseUrl in the url.
- * @param gatewayBaseUrl Base url without trailing slash
- */
-export const mockAvailableSitesForGatewayUrl = (gatewayBaseUrl: string): void => {
-	fetchMock.post(
-		`${gatewayBaseUrl}/gateway/api/available-sites`,
-		mockedAvailableSitesResultWithGatewayBaseUrl,
-		{
-			delay: 10,
-			overwriteRoutes: true,
-		},
-	);
-};
-
-/**
- * Mock accessibleProducts for a specific gatewayBaseUrl. Only matches requests with the gatewayBaseUrl in the url.
- * @param gatewayBaseUrl Base url without trailing slash
- */
-export const mockAccessibleProductsForGatewayUrl = (gatewayBaseUrl: string): void => {
-	fetchMock.post(
-		`${gatewayBaseUrl}/gateway/api/v2/accessible-products`,
-		mockedAccessibleResultWithGatewayBaseUrl,
-		{
-			delay: 10,
-			overwriteRoutes: true,
-		},
-	);
-};
-
-export const mockAvailableSitesWithError = (): void => {
-	fetchMock.post(fetchAvailableSiteEndpoint, 503, {
-		delay: 10,
-		overwriteRoutes: true,
-	});
-};
-
-export const mockAccessibleProductsWithError = (): void => {
-	fetchMock.post(fetchAccessibleProductsEndpoint, 503, {
-		delay: 10,
-		overwriteRoutes: true,
-	});
-};
+export const ACCESSIBLE_PRODUCTS_UNIT_COMPLIANT_ENDPOINT: any =
+	'/gateway/api/experimental/v2/accessible-products';

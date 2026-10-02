@@ -5,16 +5,15 @@
 import { memo } from 'react';
 
 import { css, jsx } from '@atlaskit/css';
-import { N300 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import type { HeadingItemProps } from '../types';
 
 const headingStyles = css({
-	color: token('color.text.subtle', N300),
+	color: token('color.text.subtle'),
 	font: token('font.heading.xxsmall'),
-	paddingBlock: token('space.0', '0px'),
-	paddingInline: token('space.200', '16px'),
+	paddingBlock: token('space.0'),
+	paddingInline: token('space.200'),
 });
 
 /**
@@ -25,7 +24,16 @@ const headingStyles = css({
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/menu/docs/heading-item)
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/menu)
  */
-const HeadingItem: import("react").MemoExoticComponent<({ children, testId, headingLevel, id, className: UNSAFE_className, ...rest }: HeadingItemProps) => JSX.Element> = memo(
+const HeadingItem: import('react').MemoExoticComponent<
+	({
+		children,
+		testId,
+		headingLevel,
+		id,
+		className: UNSAFE_className,
+		...rest
+	}: HeadingItemProps) => JSX.Element
+> = memo(
 	({
 		children,
 		testId,

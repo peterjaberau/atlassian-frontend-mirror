@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -27,15 +28,27 @@
 		"**/codemods/**/*.tsx",
 		"./src/mocks/team-link.ts",
 		"./src/mocks/team.ts",
-		"./src/mocks/with-faker.ts"
+		"./src/mocks/with-faker.ts",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx",
+		"./scripts/*.ts"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__teams-client/app"
+		"outDir": "../../../tsDist/@atlaskit__teams-client/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
 			"path": "../../uip/atlassian-context/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
 		},
 		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
@@ -45,6 +58,9 @@
 		},
 		{
 			"path": "../../design-system/codegen/tsconfig.app.json"
+		},
+		{
+			"path": "../ptc-test-utils/tsconfig.app.json"
 		}
 	]
 }

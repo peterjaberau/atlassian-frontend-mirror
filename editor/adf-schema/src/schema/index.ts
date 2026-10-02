@@ -1,4 +1,5 @@
 /* eslint-disable @atlaskit/editor/no-re-export */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export {
 	PanelType,
 	blockCard,
@@ -7,6 +8,7 @@ export {
 	extendedBlockquote,
 	extendedBlockquoteWithLocalId,
 	bodiedExtension,
+	bodiedExtensionRootOnlyStage0,
 	bulletList,
 	bulletListSelector,
 	bulletListWithLocalId,
@@ -33,6 +35,7 @@ export {
 	expandWithNestedExpandLocalId,
 	expandToJSON,
 	extension,
+	extensionRootOnlyStage0,
 	hardBreak,
 	heading,
 	image,
@@ -40,13 +43,13 @@ export {
 	inlineCardWithLocalId,
 	inlineExtension,
 	layoutColumn,
+	layoutColumnStage0,
 	layoutColumnWithLocalId,
 	layoutSection,
 	layoutSectionWithLocalId,
 	layoutSectionWithSingleColumn,
 	layoutSectionWithSingleColumnLocalId,
 	listItem,
-	listItemWithDecisionStage0,
 	listItemWithLocalId,
 	media,
 	mediaGroup,
@@ -69,6 +72,10 @@ export {
 	orderedListWithOrder,
 	orderedListWithOrderAndLocalId,
 	extendedPanel,
+	extendedPanelC1,
+	extendedPanelC1WithLocalId,
+	extendedPanelRootOnlyStage0,
+	extendedPanelC1RootOnlyStage0,
 	extendedPanelWithLocalId,
 	paragraph,
 	placeholder,
@@ -84,6 +91,7 @@ export {
 	tableBackgroundBorderColor,
 	tableBackgroundColorNames,
 	tableBackgroundColorPalette,
+	tableBackgroundColorPaletteNew,
 	tableCell,
 	tableCellContentDomSelector,
 	tableCellContentWrapperSelector,
@@ -105,12 +113,17 @@ export {
 	unsupportedInline,
 	extensionFrame,
 	multiBodiedExtension,
+	multiBodiedExtensionRootOnlyStage0,
 	syncBlock,
 	bodiedSyncBlock,
 	tableWithNestedTable,
 	tableRowWithNestedTable,
 	tableCellWithNestedTable,
 	tableHeaderWithNestedTable,
+	tableCellStage0,
+	tableHeaderStage0,
+	tableCellWithNestedTableStage0,
+	tableHeaderWithNestedTableStage0,
 	tableRowWithLocalId,
 	tableCellWithLocalId,
 	tableHeaderWithLocalId,
@@ -118,11 +131,13 @@ export {
 	tableCellWithNestedTableWithLocalId,
 	tableHeaderWithNestedTableWithLocalId,
 } from './nodes';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export type {
 	BlockCardDefinition,
 	BlockContent,
 	BlockQuoteDefinition,
 	BodiedExtensionDefinition,
+	BodiedExtensionRootOnlyDefinition,
 	BulletListDefinition,
 	CaptionDefinition,
 	CardAttributes,
@@ -144,6 +159,7 @@ export type {
 	EmojiDefinition,
 	ExpandDefinition,
 	ExtensionDefinition,
+	ExtensionRootOnlyDefinition,
 	ExtensionLayout,
 	ExternalMediaAttributes,
 	HardBreakDefinition,
@@ -217,17 +233,21 @@ export type {
 	CellDomAttrs,
 	ExtensionFrameDefinition,
 	MultiBodiedExtensionDefinition,
+	MultiBodiedExtensionRootOnlyDefinition,
 	SyncBlockDefinition,
 	BodiedSyncBlockDefinition,
 } from './nodes';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export {
 	AnnotationTypes,
 	alignment,
 	alignmentPositionMap,
 	annotation,
+	fontSize,
 	breakout,
 	code,
 	colorPalette,
+	colorPaletteNew,
 	// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
 	/** @deprecated [ED-15849] The extended palette is now rolled into the main one. Use `colorPalette` instead. */
 	colorPaletteExtended,
@@ -254,7 +274,9 @@ export {
 	borderColorPalette,
 	backgroundColor,
 	backgroundColorPalette,
+	backgroundColorPaletteNew,
 } from './marks';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export type {
 	AlignmentAttributes,
 	AlignmentMarkDefinition,
@@ -264,6 +286,8 @@ export type {
 	BreakoutMarkDefinition,
 	CodeDefinition,
 	EmDefinition,
+	FontSizeMarkAttrs,
+	FontSizeMarkDefinition,
 	FragmentAttributes,
 	FragmentDefinition,
 	IndentationMarkAttributes,
@@ -285,12 +309,20 @@ export type {
 	BorderMarkDefinition,
 	BackgroundColorDefinition,
 } from './marks';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export { unsupportedNodeTypesForMediaCards } from './unsupported';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export { inlineNodes } from './inline-nodes';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export { createSchema } from './create-schema';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export { sanitizeNodes } from './sanitizeNodes';
 
 // ADF createPMSpecFactory
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
 export type { NodeSpecOptions, MarkSpecOptions } from './createPMSpecFactory';
-export { createPMNodeSpecFactory, createPMMarkSpecFactory } from './createPMSpecFactory';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { createPMMarkSpecFactory } from './create-pm-mark-spec-factory';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { createPMNodeSpecFactory } from './create-pm-node-spec-factory';

@@ -1,7 +1,6 @@
 import type { GapCursorSelection } from '@atlaskit/editor-common/selection';
 import { Side } from '@atlaskit/editor-common/selection';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { getComputedStyleForLayoutMode, getLayoutModeFromTargetNode, isLeftCursor } from '../utils';
@@ -20,9 +19,19 @@ const nestedCases: Record<string, string> = {
 	'datasourceView-content-wrap': '.datasourceView-content-inner-wrap',
 };
 
+const getNestedSelector = (key: string): string => {
+	if (
+		key === 'multiBodiedExtensionView-content-wrap' &&
+		expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)
+	) {
+		return '.multiBodiedExtension--wrapper';
+	}
+	return nestedCases[key];
+};
+
 const computeNestedStyle = (dom: HTMLElement) => {
 	const foundKey = Object.keys(nestedCases).find((className) => dom.classList.contains(className));
-	const nestedSelector = foundKey && nestedCases[foundKey];
+	const nestedSelector = foundKey && getNestedSelector(foundKey);
 
 	if (nestedSelector) {
 		const nestedElement = dom.querySelector(nestedSelector);
@@ -86,49 +95,26 @@ const mutateElementStyle = (element: HTMLElement, style: CSSStyleDeclaration, si
 	}
 };
 
-export const toDOMOld = (view: EditorView, getPos: () => number | undefined) => {
-	const selection = view.state.selection as GapCursorSelection;
-	const { $from, side } = selection;
-	const isRightCursor = side === Side.RIGHT;
-	const node = isRightCursor ? $from.nodeBefore : $from.nodeAfter;
-	const nodeStart = getPos();
-	// @ts-ignore - [unblock prosemirror bump] nodeStart can be undefined
-	const dom = view.nodeDOM(nodeStart);
+/**
+ * For nested elements (e.g. .extension-container inside
+ * .extensionView-content-wrap), use getBoundingClientRect to compute
+ * the exact pixel offset between the gap cursor's position in the
+ * flow and the inner element's visual position.
+ */
+const positionFromRect = (
+	gapCursor: HTMLElement,
+	cursorParent: HTMLElement,
+	nestedElement: Element,
+) => {
+	const cursorRect = cursorParent.getBoundingClientRect();
+	const innerRect = nestedElement.getBoundingClientRect();
 
-	const element = document.createElement('span');
-	element.className = `ProseMirror-gapcursor ${isRightCursor ? '-right' : '-left'}`;
-	element.appendChild(document.createElement('span'));
-
-	if (dom instanceof HTMLElement && element.firstChild) {
-		const style = computeNestedStyle(dom) || window.getComputedStyle(dom);
-
-		const gapCursor = element.firstChild as HTMLSpanElement;
-		gapCursor.style.height = `${measureHeight(style)}px`;
-
-		const layoutMode = node && getLayoutModeFromTargetNode(node);
-
-		if (nodeStart !== 0 || layoutMode || node?.type.name === 'table') {
-			gapCursor.style.marginTop = style.getPropertyValue('margin-top');
-		}
-
-		// Tables nested inside other elements such as layouts, expands and other tables do not have fixed width
-		const isNestedTable = fg('platform_editor_nested_tables_gap_cursor')
-			? node?.type.name === 'table' && selection.$to.depth > 0
-			: false;
-
-		if (layoutMode && !isNestedTable) {
-			gapCursor.setAttribute('layout', layoutMode);
-			const breakoutModeStyle = getComputedStyleForLayoutMode(dom, node, style);
-			gapCursor.style.width = `${measureWidth(breakoutModeStyle)}px`;
-		} else {
-			mutateElementStyle(gapCursor, style, selection.side);
-		}
-	}
-
-	return element;
+	gapCursor.style.marginTop = `${innerRect.top - cursorRect.top}px`;
+	gapCursor.style.left = `${innerRect.left - cursorRect.left}px`;
+	gapCursor.style.width = `${innerRect.width}px`;
 };
 
-export const toDOMNew = (view: EditorView, getPos: () => number | undefined) => {
+export const toDOM = (view: EditorView, getPos: () => number | undefined): HTMLSpanElement => {
 	const selection = view.state.selection as GapCursorSelection;
 	const { $from, side } = selection;
 	const isRightCursor = side === Side.RIGHT;
@@ -157,6 +143,21 @@ export const toDOMNew = (view: EditorView, getPos: () => number | undefined) => 
 			const dom = view.nodeDOM(nodeStart);
 
 			if (dom instanceof HTMLElement) {
+				// For native embed extensions only, use getBoundingClientRect
+				// to position the gap cursor precisely relative to the inner
+				// .extension-container
+				if (dom.classList.contains('extensionView-content-wrap')) {
+					const nativeEmbed = dom.querySelector(
+						'.extension-container:has([data-native-embed-alignment])',
+					);
+					if (nativeEmbed) {
+						const nativeEmbedStyle = window.getComputedStyle(nativeEmbed);
+						gapCursor.style.height = `${measureHeight(nativeEmbedStyle)}px`;
+						positionFromRect(gapCursor, element, nativeEmbed);
+						return;
+					}
+				}
+
 				const style = computeNestedStyle(dom) || window.getComputedStyle(dom);
 				gapCursor.style.height = `${measureHeight(style)}px`;
 
@@ -165,9 +166,7 @@ export const toDOMNew = (view: EditorView, getPos: () => number | undefined) => 
 					gapCursor.style.marginTop = style.getPropertyValue('margin-top');
 				}
 
-				const isNestedTable = fg('platform_editor_nested_tables_gap_cursor')
-					? node?.type.name === 'table' && selection.$to.depth > 0
-					: false;
+				const isNestedTable = node?.type.name === 'table' && selection.$to.depth > 0;
 
 				if (layoutMode && !isNestedTable) {
 					gapCursor.setAttribute('layout', layoutMode);
@@ -181,10 +180,4 @@ export const toDOMNew = (view: EditorView, getPos: () => number | undefined) => 
 	}
 
 	return element;
-};
-
-export const toDOM = (view: EditorView, getPos: () => number | undefined) => {
-	return expValEquals('platform_editor_fix_gapcursor_on_paste', 'isEnabled', true)
-		? toDOMNew(view, getPos)
-		: toDOMOld(view, getPos);
 };

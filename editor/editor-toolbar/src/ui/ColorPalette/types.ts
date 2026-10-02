@@ -1,6 +1,6 @@
-import { type ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
-import { type MessageDescriptor } from 'react-intl-next';
+import type { MessageDescriptor } from 'react-intl';
 
 /**
  * Represents a single color in the palette
@@ -31,6 +31,8 @@ export type PaletteTooltipMessages = {
 	light: Record<string, MessageDescriptor>;
 };
 
+export type ColorPaletteGap = 'space.0' | 'space.050';
+
 /**
  * Configuration options for the color palette
  */
@@ -53,10 +55,14 @@ export interface PaletteOptions {
  * Props for the main ColorPalette component
  */
 export interface ColorPaletteProps {
+	/** Id of the element whose text labels the palette's radio group */
+	ariaLabelledBy?: string;
 	/** Optional CSS class name */
 	className?: string;
 	/** Number of columns in the palette grid */
 	cols?: number;
+	/** Gap between color tile wrappers */
+	gap?: ColorPaletteGap;
 	/** Callback when a color is clicked */
 	onClick: (value: string, label: string, event: React.MouseEvent | React.KeyboardEvent) => void;
 	/** Optional callback for keyboard navigation */

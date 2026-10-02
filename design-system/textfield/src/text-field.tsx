@@ -6,8 +6,8 @@ import React, { forwardRef, useCallback, useRef } from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
 
-import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import { type TextfieldProps } from './types';
@@ -65,7 +65,7 @@ const invalidStyle = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'&, &:hover': {
 		borderColor: token('color.border.danger'),
-		boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.danger')}`,
+		boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.danger')}`,
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'&:has(input:focus)': {
@@ -79,7 +79,7 @@ const focusWithinStyle = cssMap({
 		'&&:has(input:focus)': {
 			backgroundColor: token('color.background.input.pressed'),
 			borderColor: token('color.border.focused'),
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.focused')}`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.focused')}`,
 		},
 	},
 	subtle: {
@@ -87,7 +87,7 @@ const focusWithinStyle = cssMap({
 		'&&:has(input:focus)': {
 			backgroundColor: token('color.background.input.pressed'),
 			borderColor: token('color.border.focused'),
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.focused')}`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.focused')}`,
 		},
 	},
 	none: {
@@ -95,7 +95,7 @@ const focusWithinStyle = cssMap({
 		'&&:has(input:focus)': {
 			backgroundColor: 'transparent',
 			borderColor: 'transparent',
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} transparent`,
+			boxShadow: `inset 0 0 0 ${token('border.width')} transparent`,
 		},
 	},
 });
@@ -118,6 +118,15 @@ const hoverStyle = cssMap({
 			backgroundColor: 'transparent',
 			borderColor: 'transparent',
 		},
+	},
+});
+
+const inputMotionStyles = cssMap({
+	legacy: {
+		transition: `background-color 0.2s ease-in-out, border-color 0.2s ease-in-out`,
+	},
+	base: {
+		transition: token('motion.input'),
 	},
 });
 
@@ -209,25 +218,15 @@ const containerStyles = css({
 	alignItems: 'center',
 	justifyContent: 'space-between',
 	flex: '1 1 100%',
-	borderWidth: token('border.width', '1px'),
+	borderWidth: token('border.width'),
 	font: token('font.body'),
 	overflow: 'hidden',
 	pointerEvents: 'auto',
-	transition: `background-color 0.2s ease-in-out, border-color 0.2s ease-in-out`,
 	verticalAlign: 'top',
 	wordWrap: 'break-word',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/design-system/no-nested-styles
 	'&&': {
-		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
-		borderRadius: token('radius.small', '3px'),
-	},
-});
-
-const containerStylesT26Shape = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/design-system/no-nested-styles
-	'&&': {
-		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
-		borderRadius: token('radius.medium', '6px'),
+		borderRadius: token('radius.medium'),
 	},
 });
 
@@ -241,17 +240,17 @@ const inputDisabledStyle = css({
 const inputCompactStyle = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/design-system/no-nested-styles
 	'&[data-compact]': {
-		paddingBlockEnd: token('space.025'),
-		paddingBlockStart: token('space.025'),
+		paddingBlockEnd: token('space.050'),
+		paddingBlockStart: token('space.050'),
 		paddingInlineEnd: token('space.075'),
 		paddingInlineStart: token('space.075'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
-	'@media (min-width: 30rem)': {
+	'@media (pointer: coarse) and (max-width: 30rem)': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/design-system/no-nested-styles
 		'&[data-compact]': {
-			paddingBlockEnd: token('space.050'),
-			paddingBlockStart: token('space.050'),
+			paddingBlockEnd: token('space.025'),
+			paddingBlockStart: token('space.025'),
 			paddingInlineEnd: token('space.075'),
 			paddingInlineStart: token('space.075'),
 		},
@@ -261,15 +260,15 @@ const inputCompactStyle = css({
 const inputMonospacedStyle = css({
 	fontFamily: token('font.family.code'),
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
-	// Must reapply font family here, otherwise it gets overridden by font.body in inputStyle's media query
-	'@media (min-width: 30rem)': {
+	// Must reapply font family here, otherwise it gets overridden by font.body.large in inputStyle's media query
+	'@media (pointer: coarse) and (max-width: 30rem)': {
 		fontFamily: token('font.family.code'),
 	},
 });
 
 // iOS Safari automatically zooms into form inputs on focus when the font size is less than 16px.
-// To prevent this zoom behaviour on mobile devices, the textfield uses font.body.large (16px) by default,
-// then switches to the smaller font.body on screens wider than 30rem (desktop).
+// To prevent this zoom behaviour on touch devices with small viewports, the textfield uses font.body (default),
+// and font.body.large (16px) for touch devices (pointer: coarse) with screens narrower than 30rem.
 // @see: https://medium.com/@rares.popescu/2-ways-to-avoid-the-automatic-zoom-in-on-input-fields-8a71479e542e
 
 const inputStyle = css({
@@ -280,12 +279,12 @@ const inputStyle = css({
 	border: 0,
 	color: 'inherit',
 	cursor: 'inherit',
-	font: token('font.body.large'),
+	font: token('font.body'),
 	outline: 'none',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'&:not([data-compact])': {
-		paddingBlockEnd: token('space.075'),
-		paddingBlockStart: token('space.075'),
+		paddingBlockEnd: token('space.100'),
+		paddingBlockStart: token('space.100'),
 		paddingInlineEnd: token('space.075'),
 		paddingInlineStart: token('space.075'),
 	},
@@ -303,16 +302,20 @@ const inputStyle = css({
 		color: token('color.text.subtlest'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
-	'@media (min-width: 30rem)': {
-		font: token('font.body'),
+	'@media (pointer: coarse) and (max-width: 30rem)': {
+		font: token('font.body.large'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'&:not([data-compact])': {
-			paddingBlockEnd: token('space.100'),
-			paddingBlockStart: token('space.100'),
+			paddingBlockEnd: token('space.075'),
+			paddingBlockStart: token('space.075'),
 			paddingInlineEnd: token('space.075'),
 			paddingInlineStart: token('space.075'),
 		},
 	},
+});
+
+const finessePlaceholderStyle = css({
+	'&::placeholder': { color: token('color.text.subtle') },
 });
 
 /**
@@ -348,6 +351,8 @@ const Textfield: React.ForwardRefExoticComponent<
 		width,
 		...spreadProps
 	} = props;
+	const isInputMotionEnabled = fg('platform-dst-motion-uplift-input');
+	const isInteractive = !isDisabled && !isReadOnly;
 
 	const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -429,7 +434,8 @@ const Textfield: React.ForwardRefExoticComponent<
 			}}
 			css={[
 				containerStyles,
-				fg('platform-dst-shape-theme-default') && containerStylesT26Shape,
+				!isInputMotionEnabled && inputMotionStyles.legacy,
+				isInputMotionEnabled && isInteractive && inputMotionStyles.base,
 				getContainerTextBgAndBorderColor[appearance],
 				containerStyleAppearance[appearance],
 				!isDisabled && focusWithinStyle[appearance],
@@ -450,6 +456,7 @@ const Textfield: React.ForwardRefExoticComponent<
 				// TODO: When removing legacy theming fix this.
 				css={[
 					inputStyle,
+					fg('platform-dst-tokens-finesse') && finessePlaceholderStyle,
 					isMonospaced && inputMonospacedStyle,
 					isCompact && inputCompactStyle,
 					isDisabled && inputDisabledStyle,

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
@@ -32,7 +32,8 @@ import ImageFullscreenIcon from '@atlaskit/icon/core/image-fullscreen';
 import ImageInlineIcon from '@atlaskit/icon/core/image-inline';
 import MaximizeIcon from '@atlaskit/icon/core/maximize';
 import SmartLinkCardIcon from '@atlaskit/icon/core/smart-link-card';
-import { messages } from '@atlaskit/media-ui';
+import { messages } from '@atlaskit/media-ui/messages';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { MediaNextEditorPluginType } from '../../mediaPluginType';
 import { showLinkingToolbar } from '../../pm-plugins/commands/linking';
@@ -43,7 +44,6 @@ import { currentMediaOrInlineNodeBorderMark } from '../../pm-plugins/utils/curre
 import { isImage } from '../../pm-plugins/utils/is-type';
 import type { MediaFloatingToolbarOptions } from '../../types';
 import ImageBorderItem from '../../ui/ImageBorder';
-
 import { altTextButton } from './alt-text';
 import {
 	changeInlineToMediaCard,
@@ -53,6 +53,7 @@ import {
 	toggleBorderMark,
 } from './commands';
 import { shouldShowImageBorder } from './imageBorder';
+import { handleShowMediaViewer } from './index';
 import { getOpenLinkToolbarButtonOption, shouldShowMediaLinkToolbar } from './linking';
 import { LinkToolbarAppearance } from './linking-toolbar-appearance';
 import {
@@ -61,8 +62,6 @@ import {
 	getMediaSingleAndMediaInlineSwitcherDropdown,
 } from './utils';
 
-import { handleShowMediaViewer } from './index';
-
 export const generateMediaInlineFloatingToolbar = (
 	state: EditorState,
 	intl: IntlShape,
@@ -70,7 +69,7 @@ export const generateMediaInlineFloatingToolbar = (
 	hoverDecoration: HoverDecorationHandler | undefined,
 	pluginInjectionApi: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined,
 	options: MediaFloatingToolbarOptions = {},
-) => {
+): FloatingToolbarItem<Command>[] => {
 	const editorAnalyticsAPI = pluginInjectionApi?.analytics?.actions as EditorAnalyticsAPI;
 	const forceFocusSelector = pluginInjectionApi?.floatingToolbar?.actions?.forceFocusSelector;
 
@@ -94,13 +93,15 @@ export const generateMediaInlineFloatingToolbar = (
 	const items: FloatingToolbarItem<Command>[] = [];
 
 	const areAnyNewToolbarFlagsEnabled = areToolbarFlagsEnabled(Boolean(pluginInjectionApi?.toolbar));
+	const mauiToolbarSeparatorsUpdateEnabled =
+		fg('cc-maui-toolbar-separators-update') && areAnyNewToolbarFlagsEnabled;
 
 	const preview: FloatingToolbarButton<Command> = {
 		id: 'editor.media.viewer',
 		testId: 'file-preview-toolbar-button',
 		type: 'button',
 		icon: areAnyNewToolbarFlagsEnabled ? GrowDiagonalIcon : MaximizeIcon,
-		title: intl.formatMessage(messages.preview),
+		title: intl.formatMessage(messages.expand),
 		onClick: () => {
 			return handleShowMediaViewer({ mediaPluginState, api: pluginInjectionApi }) ?? false;
 		},
@@ -209,14 +210,17 @@ export const generateMediaInlineFloatingToolbar = (
 
 		items.push(
 			switcherDropdown,
-			{ type: 'separator', fullHeight: true },
+			...(mauiToolbarSeparatorsUpdateEnabled
+				? []
+				: [{ type: 'separator', fullHeight: true } as const]),
 			download,
-			{ type: 'separator', supportsViewMode: true },
+			...(mauiToolbarSeparatorsUpdateEnabled
+				? []
+				: [{ type: 'separator', supportsViewMode: true } as const]),
 			preview,
-			{
-				type: 'separator',
-				fullHeight: true,
-			},
+			...(mauiToolbarSeparatorsUpdateEnabled
+				? []
+				: [{ type: 'separator', fullHeight: true } as const]),
 		);
 	}
 
@@ -243,6 +247,9 @@ const getMediaInlineImageToolbar = (
 	const isEditorControlsEnabled = areToolbarFlagsEnabled(Boolean(pluginInjectionApi?.toolbar));
 	const { isViewOnly, allowAltTextOnImages, allowLinking, allowImagePreview } = options;
 
+	const mauiToolbarSeparatorsUpdateEnabled =
+		fg('cc-maui-toolbar-separators-update') && isEditorControlsEnabled;
+
 	if (shouldShowImageBorder(state)) {
 		inlineImageItems.push({
 			type: 'custom',
@@ -255,9 +262,11 @@ const getMediaInlineImageToolbar = (
 				const borderMark = currentMediaOrInlineNodeBorderMark(state);
 				return (
 					<ImageBorderItem
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						toggleBorder={() => {
 							toggleBorderMark(pluginInjectionApi?.analytics?.actions)(state, dispatch);
 						}}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						setBorder={(attrs) => {
 							setBorderMark(pluginInjectionApi?.analytics?.actions)(attrs)(state, dispatch);
 						}}
@@ -371,13 +380,20 @@ const getMediaInlineImageToolbar = (
 			pluginInjectionApi,
 		);
 
-		inlineImageItems.push(switchFromInlineToBlock, { type: 'separator', fullHeight: true });
+		inlineImageItems.push(
+			switchFromInlineToBlock,
+			...(mauiToolbarSeparatorsUpdateEnabled
+				? []
+				: [{ type: 'separator', fullHeight: true } as const]),
+		);
 
 		if (isViewOnly) {
-			inlineImageItems.push(download, {
-				type: 'separator',
-				supportsViewMode: true,
-			});
+			inlineImageItems.push(
+				download,
+				...(mauiToolbarSeparatorsUpdateEnabled
+					? []
+					: [{ type: 'separator', supportsViewMode: true } as const]),
+			);
 		}
 	}
 
@@ -389,16 +405,15 @@ const getMediaInlineImageToolbar = (
 				testId: 'file-preview-toolbar-button',
 				type: 'button',
 				icon: isEditorControlsEnabled ? GrowDiagonalIcon : MaximizeIcon,
-				title: intl.formatMessage(messages.preview),
+				title: intl.formatMessage(messages.expand),
 				onClick: () => {
 					return handleShowMediaViewer({ mediaPluginState, api: pluginInjectionApi }) ?? false;
 				},
 				supportsViewMode: true,
 			},
-			{
-				type: 'separator',
-				supportsViewMode: true,
-			},
+			...(mauiToolbarSeparatorsUpdateEnabled
+				? []
+				: [{ type: 'separator', supportsViewMode: true } as const]),
 		);
 	}
 
@@ -412,10 +427,9 @@ const getMediaInlineImageToolbar = (
 	) {
 		inlineImageItems.push(
 			getOpenLinkToolbarButtonOption(intl, mediaLinkingState, pluginInjectionApi),
-			{
-				type: 'separator',
-				supportsViewMode: true,
-			},
+			...(mauiToolbarSeparatorsUpdateEnabled
+				? []
+				: [{ type: 'separator', supportsViewMode: true } as const]),
 		);
 	}
 

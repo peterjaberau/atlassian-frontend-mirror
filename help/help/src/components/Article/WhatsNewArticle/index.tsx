@@ -1,18 +1,18 @@
 import React from 'react';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
+
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import Button from '@atlaskit/button/button';
 import { BODY_FORMAT_TYPES } from '@atlaskit/help-article';
 import HelpArticleContent from '@atlaskit/help-article';
-import { token } from '@atlaskit/tokens';
 import ShortcutIcon from '@atlaskit/icon/core/link-external';
-import { AnalyticsContext } from '@atlaskit/analytics-next';
-import Button from '@atlaskit/button';
+import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../messages';
-
 import { type WhatsNewArticle as WhatsNewArticleType } from '../../../model/WhatsNew';
 import { getTypeIcon, getTypeTitle } from '../../../util';
 import { WhatsNewTypeIcon, DividerLine } from '../../../util/styled';
-
 import Loading from './Loading';
 import {
 	WhatsNewTypeTitle,
@@ -60,7 +60,7 @@ export const WhatsNewArticle: React.FC<Props & WrappedComponentProps> = ({
 					<>
 						<DividerLine
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							style={{ marginTop: 0, marginBottom: token('space.200', '16px') }}
+							style={{ marginTop: 0, marginBottom: token('space.200') }}
 						/>
 						{/* eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx */}
 						<WhatsNewTitleText>RELATED LINKS</WhatsNewTitleText>

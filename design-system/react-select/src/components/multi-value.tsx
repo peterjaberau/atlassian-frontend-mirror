@@ -2,17 +2,29 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ComponentType, type CSSProperties, type ReactNode } from 'react';
+// Renders default multi-value content while the shared wrapper owns layout motion and truncation.
+import {
+	type ComponentType,
+	type CSSProperties,
+	type JSX,
+	type MouseEvent,
+	type ReactNode,
+} from 'react';
 
-import { css, cssMap, cx, jsx, type XCSSProp } from '@compiled/react';
+import { css, cssMap, cx, jsx } from '@compiled/react';
 
-import type { XCSSAllProperties, XCSSAllPseudos } from '@atlaskit/css';
-import CrossIcon from '@atlaskit/icon/core/cross';
+import type { UseMotionResult } from '@atlaskit/motion/entering/use-motion';
+import Tag from '@atlaskit/tag/removable-tag';
+import type { NewTagColor } from '@atlaskit/tag/tag-new/types';
 import { token } from '@atlaskit/tokens';
 
-import { type SelectProps } from '../select';
-import { type CommonPropsAndClassName, type GroupBase } from '../types';
-import { getStyleProps } from '../utils';
+import { getStyleProps } from '../get-style-props';
+import { useSelectGetStyles } from '../internal/use-select-get-styles';
+import type { CommonPropsAndClassName, GroupBase, MultiValueGenericProps } from '../types';
+import { MultiValueContainer as DefaultMultiValueContainer } from './containers/multi-value-container';
+import { MultiValueLabel } from './multi-value-label';
+import MultiValueMotion from './multi-value-motion';
+import type { MultiValueRemoveProps } from './multi-value-remove';
 
 interface MultiValueComponents<Option, IsMulti extends boolean, Group extends GroupBase<Option>> {
 	Container: ComponentType<MultiValueGenericProps<Option, IsMulti, Group>>;
@@ -36,38 +48,97 @@ export interface MultiValueProps<
 	isDisabled: boolean;
 	removeProps: JSX.IntrinsicElements['div'];
 	index: number;
+	isMotionEnabled?: boolean;
+	onMotionFinish?: () => void;
 }
 
-const multiValueStyles = cssMap({
+type MultiValueContentProps<Option, IsMulti extends boolean, Group extends GroupBase<Option>> = {
+	hasEllipsis?: boolean;
+	multiValueProps: MultiValueProps<Option, IsMulti, Group>;
+	motionState?: UseMotionResult['state'];
+	truncationRef?: (node: HTMLDivElement | null) => void;
+};
+
+const multiValueTagWrapperStyles = cssMap({
 	root: {
-		display: 'flex',
-		minWidth: token('space.0'), // resolves flex/text-overflow bug
-		marginBlockStart: token('space.025'),
-		marginInlineEnd: token('space.025'),
-		marginBlockEnd: token('space.025'),
-		marginInlineStart: token('space.025'),
-		borderColor: '#B7B9BE',
-		borderRadius: token('radius.small'),
+		// Preserve React Select's compatibility element and its DOM attributes without letting it
+		// hold the Tag's settled width. Tag's own motion wrapper participates in flex layout instead.
+		display: 'contents',
+	},
+});
+
+// Tag-like color styles
+const tagLikeColorStyles = cssMap({
+	gray: { '--tag-border-token': token('color.border.accent.gray.subtle') },
+	blue: { '--tag-border-token': token('color.border.accent.blue.subtle') },
+	green: { '--tag-border-token': token('color.border.accent.green.subtle') },
+	red: { '--tag-border-token': token('color.border.accent.red.subtle') },
+	yellow: { '--tag-border-token': token('color.border.accent.yellow.subtle') },
+	purple: { '--tag-border-token': token('color.border.accent.purple.subtle') },
+	lime: { '--tag-border-token': token('color.border.accent.lime.subtle') },
+	magenta: { '--tag-border-token': token('color.border.accent.magenta.subtle') },
+	orange: { '--tag-border-token': token('color.border.accent.orange.subtle') },
+	teal: { '--tag-border-token': token('color.border.accent.teal.subtle') },
+});
+
+const tagLikeBorderFilterStyles = css({
+	borderColor: 'var(--tag-border-token)',
+});
+
+// Tag-like styles for custom content values (not plain text) when FF is on.
+// Mirrors the TagNew component's visual appearance (padding, margins, sizing, colors).
+// The container uses tag-like styling while Label/Remove sub-components are preserved
+// so custom overrides (e.g. custom aria-labels, rendering objects as data) continue to work.
+const multiValueTagLikeStyles = cssMap({
+	root: {
+		display: 'inline-flex',
+		boxSizing: 'border-box',
+		position: 'relative',
+		alignItems: 'center',
+		alignSelf: 'center',
+		minWidth: token('space.0'),
+		flexShrink: 1,
+		maxWidth: '11.25rem',
+		height: '1.25rem',
+		overflow: 'hidden',
+		borderRadius: token('radius.small', '4px'),
 		borderStyle: 'solid',
 		borderWidth: token('border.width'),
-		backgroundColor: token('color.background.input'),
-		maxWidth: '100%',
+		backgroundColor: token('color.background.neutral.subtle'),
+		font: token('font.body.small'),
+		color: token('color.text'),
+		cursor: 'default',
+		marginBlock: token('space.0'),
+		marginInline: token('space.0'),
 		'@media screen and (-ms-high-contrast: active)': {
 			border: 'none',
 		},
-		color: token('color.text', 'hsl(0, 0%, 20%)'),
+	},
+	// Wrapper around Label: flex 1 1 0 = take remaining space, shrink first (Remove has flexShrink: 0).
+	// Text truncates, X stays visible. minWidth: 0 required for flex child to shrink below content size.
+	labelWrapper: {
+		display: 'flex',
+		alignItems: 'center',
+		flex: '1 1 0',
+		minWidth: token('space.0'),
+		minHeight: 0,
+		overflow: 'hidden',
+		font: token('font.body.small'),
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- force custom Label content to inherit tag typography
+		'& *': {
+			font: 'inherit',
+		},
 	},
 	disabled: {
 		color: token('color.text.disabled'),
 		backgroundColor: token('color.background.neutral'),
 	},
 	focused: {
-		color: token('color.text.selected', 'hsl(0, 0%, 20%)'),
-		backgroundColor: token('color.background.selected'),
-		boxShadow: `0 0 0 2px ${token(
-			'elevation.surface',
-			'transparent',
-		)}, 0 0 0 4px ${token('color.border.focused', 'transparent')}`,
+		color: token('color.text.selected'),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
+		boxShadow: `0 0 0 2px ${token('elevation.surface')}, 0 0 0 4px ${token(
+			'color.border.focused',
+		)}`,
 		'@media screen and (-ms-high-contrast: active)': {
 			borderWidth: token('border.width'),
 			borderColor: 'transparent',
@@ -76,190 +147,20 @@ const multiValueStyles = cssMap({
 	},
 });
 
-export const multiValueCSS: () => {} = () => ({});
-
-export const multiValueLabelCSS: () => {} = () => ({});
-
-const multiValueLabelStyles = cssMap({
-	root: {
-		overflow: 'hidden',
-		whiteSpace: 'nowrap',
-		borderRadius: token('radius.xsmall', '2px'),
-		font: token('font.body'),
-		paddingInlineEnd: token('space.025', '2px'),
-		paddingInlineStart: token('space.050'),
-		color: 'inherit',
-	},
-	disabled: {
-		color: token('color.text.disabled'),
-	},
-	ellipsis: {
-		textOverflow: 'ellipsis',
-	},
-});
-
-export const multiValueRemoveCSS: () => {} = () => ({});
-
-const multiValueRemoveStyles = cssMap({
-	focused: {
-		backgroundColor: token('utility.UNSAFE.transparent'),
-		fill: token('color.text.selected', '#000'),
-	},
-	root: {
-		alignItems: 'center',
-		justifyContent: 'center',
-		alignSelf: 'center',
-		appearance: 'none',
-		backgroundColor: token('color.background.neutral.subtle'),
-		color: token('color.text'),
-		display: 'flex',
-		fill: token('color.text', '#000'),
-		paddingBlockStart: token('space.025'),
-		paddingInlineEnd: token('space.025'),
-		paddingBlockEnd: token('space.025'),
-		paddingInlineStart: token('space.025'),
-		marginInlineEnd: token('space.025'),
-		border: 'none',
-		borderRadius: token('radius.small'),
-
-		// DSP-6470 we should style like Tag once we have the :has selector
-		'&:hover': {
-			backgroundColor: token('color.background.neutral.subtle.hovered'),
-			fill: token('color.text.danger', '#000'),
-		},
-		'&:active': {
-			backgroundColor: token('color.background.neutral.subtle.pressed'),
-			fill: token('color.text.danger', '#000'),
-		},
-		'&:focus-visible': {
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-			outlineOffset: -2,
-		},
-	},
-});
-
-export interface MultiValueGenericProps<
-	Option = unknown,
-	IsMulti extends boolean = boolean,
-	Group extends GroupBase<Option> = GroupBase<Option>,
-> {
-	children: ReactNode;
-	// eslint-disable-next-line @repo/internal/react/consistent-props-definitions
-	data: any;
-	innerProps: { className?: string; style?: CSSProperties };
-	selectProps: SelectProps<Option, IsMulti, Group>;
-	isFocused?: boolean;
-	isDisabled?: boolean;
-	hasEllipsis?: boolean;
-	className?: string | undefined;
-	xcss?: XCSSProp<XCSSAllProperties, XCSSAllPseudos> | undefined;
-}
-
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
-export const MultiValueContainer: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>({ children, innerProps, isFocused, isDisabled, className, xcss, }: MultiValueGenericProps<Option, IsMulti, Group>) => JSX.Element = <
-	Option,
-	IsMulti extends boolean,
-	Group extends GroupBase<Option>,
->({
-	children,
-	innerProps,
-	isFocused,
-	isDisabled,
-	className,
-	xcss,
-}: MultiValueGenericProps<Option, IsMulti, Group>) => {
-	return (
-		<div
-			css={[
-				multiValueStyles.root,
-				isDisabled && multiValueStyles.disabled,
-				isFocused && multiValueStyles.focused,
-			]}
-			{...innerProps}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
-			className={cx(className as any, xcss, '-multiValue')}
-		>
-			{children}
-		</div>
-	);
+const getMultiValueLabelText = (children: ReactNode, data: unknown): string => {
+	if (typeof children === 'string') {
+		return children;
+	}
+	const label = (data as { label?: string })?.label;
+	return typeof label === 'string' ? label : '';
 };
 
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
-export const MultiValueLabel: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>({ children, innerProps, isDisabled, hasEllipsis, className, xcss, }: MultiValueGenericProps<Option, IsMulti, Group>) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>({
-	children,
-	innerProps,
-	isDisabled,
-	hasEllipsis,
-	className,
-	xcss,
-}: MultiValueGenericProps<Option, IsMulti, Group>) => {
-	return (
-		<div
-			css={[
-				multiValueLabelStyles.root,
-				isDisabled && multiValueLabelStyles.disabled,
-				hasEllipsis && multiValueLabelStyles.ellipsis,
-			]}
-			{...innerProps}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
-			className={cx(className as any, xcss, '-MultiValueLabel')}
-		>
-			{children}
-		</div>
-	);
-};
-export interface MultiValueRemoveProps<
-	Option = unknown,
-	IsMulti extends boolean = boolean,
-	Group extends GroupBase<Option> = GroupBase<Option>,
-> {
-	children?: ReactNode;
-	// eslint-disable-next-line @repo/internal/react/consistent-props-definitions
-	data: Option;
-	innerProps: JSX.IntrinsicElements['div'];
-	selectProps: SelectProps<Option, IsMulti, Group>;
-	isDisabled: boolean;
-	isFocused?: boolean;
-	className?: string | undefined;
-	xcss?: XCSSProp<XCSSAllProperties, XCSSAllPseudos> | undefined;
-}
-
-const disabledStyles = css({
-	display: 'none',
-});
-
-const enabledStyles = css({
-	display: 'inherit',
-});
-
-export function MultiValueRemove<Option, IsMulti extends boolean, Group extends GroupBase<Option>>({
-	isDisabled,
-	isFocused,
-	innerProps,
-	className,
-	xcss,
-}: MultiValueRemoveProps<Option, IsMulti, Group>): JSX.Element {
-	return (
-		// The Remove button is intentionally excluded from the tab order, please avoid assigning a non-negative tabIndex to it. Context: https://hello.atlassian.net/wiki/spaces/A11YKB/pages/3031993460/Clear+Options+on+an+Input+Field
-		<div
-			css={[multiValueRemoveStyles.root, isFocused && multiValueRemoveStyles.focused]}
-			{...innerProps}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
-			className={cx(className as any, xcss, '-MultiValueRemove')}
-		>
-			<div
-				css={[isDisabled && disabledStyles, !isDisabled && enabledStyles]}
-				data-testid={isDisabled ? 'hide-clear-icon' : 'show-clear-icon'}
-			>
-				<CrossIcon label="" color="currentColor" size="small" />
-			</div>
-		</div>
-	);
-}
-
-const MultiValue: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(props: MultiValueProps<Option, IsMulti, Group>) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
-	props: MultiValueProps<Option, IsMulti, Group>,
+const MultiValueContent: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+	contentProps: MultiValueContentProps<Option, IsMulti, Group>,
+) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+	contentProps: MultiValueContentProps<Option, IsMulti, Group>,
 ) => {
+	const { hasEllipsis, multiValueProps: props, motionState, truncationRef } = contentProps;
 	const {
 		children,
 		components,
@@ -273,7 +174,11 @@ const MultiValue: <Option, IsMulti extends boolean, Group extends GroupBase<Opti
 	} = props;
 
 	const { Container, Label, Remove } = components;
-	const ariaLabel = typeof children === 'string' ? children : (data as { label?: string }).label;
+	const labelText = getMultiValueLabelText(children, data);
+	const isPlainLabel = typeof children === 'string';
+	const isEnteringWithMotion = motionState === 'entering';
+	const isExitingWithMotion = motionState === 'exiting';
+	const isWidthAnimating = isEnteringWithMotion || isExitingWithMotion;
 
 	const { css: containerCss, className: containerClassName } = getStyleProps(props, 'multiValue', {
 		'multi-value': true,
@@ -287,6 +192,131 @@ const MultiValue: <Option, IsMulti extends boolean, Group extends GroupBase<Opti
 	const { css: removeCss, className: removeClassName } = getStyleProps(props, 'multiValueRemove', {
 		'multi-value__remove': true,
 	});
+	const hasCustomLabel = Label !== MultiValueLabel;
+	const hasCustomContainer = Container !== DefaultMultiValueContainer;
+	const selectStyles = selectProps.styles;
+	const hasCustomMultiValueStyles = Boolean(
+		selectStyles?.multiValue || selectStyles?.multiValueLabel || selectStyles?.multiValueRemove,
+	);
+	const selectClassNames = selectProps.classNames;
+	const hasCustomMultiValueClassNames = Boolean(
+		selectClassNames?.multiValue ||
+		selectClassNames?.multiValueLabel ||
+		selectClassNames?.multiValueRemove,
+	);
+	// Detect if getStyles was overridden directly on this component instance (e.g. via the
+	// components prop wrapper passing a custom getStyles). The context holds the original
+	// Select instance's getStyles — a reference inequality means a custom override was passed.
+	// When context is absent (e.g. in mocked/test contexts), assume no override.
+	const selectGetStyles = useSelectGetStyles();
+	const hasOverriddenGetStyles =
+		selectGetStyles !== undefined && props.getStyles !== selectGetStyles;
+	const hasCustomContainerStyles =
+		hasCustomMultiValueStyles || hasCustomMultiValueClassNames || hasOverriddenGetStyles;
+
+	if (isPlainLabel && !hasCustomLabel && !hasCustomContainer && !hasCustomContainerStyles) {
+		const { elemBefore, color: tagColor } = (data ?? {}) as {
+			elemBefore?: ReactNode;
+			color?: NewTagColor;
+		};
+
+		return (
+			<div
+				css={multiValueTagWrapperStyles.root}
+				{...innerProps}
+				role="presentation"
+				onMouseDown={(event) => {
+					if (event.target instanceof Element && event.target.closest('button')) {
+						removeProps.onMouseDown?.(event);
+					}
+				}}
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+				className={cx(props.className as any, containerClassName, props.xcss, '-multiValue')}
+			>
+				<Tag
+					text={labelText}
+					isRemovable={!isDisabled}
+					removeButtonLabel={`${labelText}, remove`}
+					onBeforeRemoveAction={() => {
+						removeProps.onClick?.({} as MouseEvent<HTMLDivElement>);
+						return false;
+					}}
+					color={tagColor ?? 'gray'}
+					elemBefore={elemBefore}
+					hasMargin={false}
+				/>
+			</div>
+		);
+	}
+
+	// tag-like path for custom content
+	if (!hasCustomContainer) {
+		const colorKey = (data as { color?: string })?.color;
+
+		return (
+			<div
+				data-multi-value-tag-like="true"
+				css={[
+					multiValueTagLikeStyles.root,
+					tagLikeColorStyles.gray,
+					colorKey === 'blue' && tagLikeColorStyles.blue,
+					colorKey === 'green' && tagLikeColorStyles.green,
+					colorKey === 'red' && tagLikeColorStyles.red,
+					colorKey === 'yellow' && tagLikeColorStyles.yellow,
+					colorKey === 'purple' && tagLikeColorStyles.purple,
+					colorKey === 'lime' && tagLikeColorStyles.lime,
+					colorKey === 'magenta' && tagLikeColorStyles.magenta,
+					colorKey === 'orange' && tagLikeColorStyles.orange,
+					colorKey === 'teal' && tagLikeColorStyles.teal,
+					tagLikeBorderFilterStyles,
+					isDisabled && multiValueTagLikeStyles.disabled,
+					isFocused && multiValueTagLikeStyles.focused,
+				]}
+				{...innerProps}
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- custom styles.multiValue overrides (e.g. colored borders) must be preserved
+				style={containerCss as CSSProperties}
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+				className={cx(props.className as any, containerClassName, props.xcss, '-multiValue')}
+			>
+				<div css={multiValueTagLikeStyles.labelWrapper}>
+					<Label
+						data={data}
+						innerProps={{
+							style: labelCss as CSSProperties,
+							className: labelClassName,
+							ref: truncationRef,
+						}}
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+						className={labelClassName}
+						hasEllipsis={
+							(cropWithEllipsis || cropWithEllipsis === undefined) &&
+							(!isWidthAnimating || hasEllipsis)
+						}
+						selectProps={selectProps}
+					>
+						{children}
+					</Label>
+				</div>
+				<Remove
+					data={data}
+					innerProps={{
+						style: removeCss as CSSProperties,
+						className: removeClassName,
+						role: 'button',
+						tabIndex: -1,
+						'aria-label': `${labelText || 'option'}, remove`,
+						...removeProps,
+					}}
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+					className={removeClassName}
+					isDisabled={isDisabled}
+					selectProps={selectProps}
+				/>
+			</div>
+		);
+	}
+
+	// FF off → default styles
 	return (
 		<Container
 			data={data}
@@ -306,6 +336,7 @@ const MultiValue: <Option, IsMulti extends boolean, Group extends GroupBase<Opti
 				innerProps={{
 					style: labelCss as CSSProperties,
 					className: labelClassName,
+					ref: truncationRef,
 				}}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 				className={labelClassName}
@@ -321,7 +352,7 @@ const MultiValue: <Option, IsMulti extends boolean, Group extends GroupBase<Opti
 					className: removeClassName,
 					role: 'button',
 					tabIndex: -1,
-					'aria-label': `${ariaLabel || 'option'}, remove`,
+					'aria-label': `${labelText || 'option'}, remove`,
 					...removeProps,
 				}}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
@@ -331,6 +362,56 @@ const MultiValue: <Option, IsMulti extends boolean, Group extends GroupBase<Opti
 			/>
 		</Container>
 	);
+};
+type MotionMultiValueProps<Option, IsMulti extends boolean, Group extends GroupBase<Option>> = {
+	multiValueProps: MultiValueProps<Option, IsMulti, Group>;
+};
+
+const MotionMultiValue: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+	props: MotionMultiValueProps<Option, IsMulti, Group>,
+) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>({
+	multiValueProps,
+}: MotionMultiValueProps<Option, IsMulti, Group>) => (
+	<MultiValueMotion onMotionFinish={multiValueProps.onMotionFinish} shouldMeasureTruncation={true}>
+		{({ hasEllipsis, motionState, truncationRef }) => (
+			<MultiValueContent
+				hasEllipsis={hasEllipsis}
+				multiValueProps={multiValueProps}
+				motionState={motionState}
+				truncationRef={truncationRef}
+			/>
+		)}
+	</MultiValueMotion>
+);
+
+const MultiValue: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+	props: MultiValueProps<Option, IsMulti, Group>,
+) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+	props: MultiValueProps<Option, IsMulti, Group>,
+) => {
+	const { Container, Label } = props.components;
+	const selectStyles = props.selectProps.styles;
+	const selectClassNames = props.selectProps.classNames;
+	const selectGetStyles = useSelectGetStyles();
+	// The standard Tag already owns its width and truncation motion. Tag-like custom values do not,
+	// so they continue through MultiValueMotion below.
+	const hasSelfManagedTagMotion =
+		typeof props.children === 'string' &&
+		Label === MultiValueLabel &&
+		Container === DefaultMultiValueContainer &&
+		!selectStyles?.multiValue &&
+		!selectStyles?.multiValueLabel &&
+		!selectStyles?.multiValueRemove &&
+		!selectClassNames?.multiValue &&
+		!selectClassNames?.multiValueLabel &&
+		!selectClassNames?.multiValueRemove &&
+		(selectGetStyles === undefined || props.getStyles === selectGetStyles);
+
+	if (props.isMotionEnabled && !hasSelfManagedTagMotion) {
+		return <MotionMultiValue multiValueProps={props} />;
+	}
+
+	return <MultiValueContent multiValueProps={props} />;
 };
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/onboarding",
-	"version": "14.5.3",
+	"version": "15.4.5",
 	"description": "An onboarding spotlight introduces new features to users through focused messages or multi-step tours.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,44 +12,59 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
 		".": "./src/index.tsx",
-		"./types": "./src/types.tsx"
+		"./modal": "./src/entry-points/modal.tsx",
+		"./modal-transition": "./src/entry-points/modal-transition.tsx",
+		"./spotlight": "./src/entry-points/spotlight.tsx",
+		"./spotlight-card": "./src/entry-points/spotlight-card.tsx",
+		"./spotlight-manager": "./src/entry-points/spotlight-manager.tsx",
+		"./spotlight-target": "./src/entry-points/spotlight-target.tsx",
+		"./spotlight-transition": "./src/entry-points/spotlight-transition.tsx",
+		"./target": "./src/entry-points/target.tsx",
+		"./theme": "./src/entry-points/theme.tsx",
+		"./types": "./src/entry-points/types.tsx",
+		"./use-spotlight": "./src/entry-points/use-spotlight.tsx"
 	},
 	"homepage": "https://atlassian.design/components/onboarding/",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Onboarding (spotlight)",
 			"category": "Messaging",
 			"status": {
-				"type": "deprecated"
+				"type": "deprecated",
+				"description": "This package is deprecated. Use [@atlaskit/spotlight](https://atlassian.design/components/spotlight/examples)."
 			},
 			"subPages": [
 				{
 					"title": "Benefits modal",
 					"id": "benefits-modal",
 					"status": {
-						"type": "deprecated"
+						"type": "deprecated",
+						"description": "This package is deprecated. Use [@atlaskit/modal-dialog](https://atlassian.design/components/modal-dialog/examples)."
 					}
 				},
 				{
 					"title": "Spotlight card",
 					"id": "spotlight-card",
 					"status": {
-						"type": "deprecated"
+						"type": "deprecated",
+						"description": "This package is deprecated. Use [@atlaskit/spotlight](https://atlassian.design/components/spotlight/examples)."
 					}
 				}
 			]
@@ -67,6 +82,7 @@
 		"@atlaskit/popper": "workspace:^",
 		"@atlaskit/portal": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
@@ -86,13 +102,22 @@
 		"@af/accessibility-testing": "workspace:^",
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
+		"@atlaskit/avatar": "workspace:^",
+		"@atlaskit/code": "workspace:^",
+		"@atlaskit/dropdown-menu": "workspace:^",
+		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/image": "workspace:^",
+		"@atlaskit/menu": "workspace:^",
+		"@atlaskit/progress-indicator": "workspace:^",
+		"@atlaskit/tabs": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
-		"@testing-library/react": "root:*",
-		"@testing-library/user-event": "root:*",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@types/exenv": "root:*",
 		"@types/react-node-resolver": "root:*",
 		"raf-stub": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*",
 		"react-lorem-component": "root:*"
 	},
@@ -106,28 +131,6 @@
 		"platform_design_system_team_transition_group_r18": {
 			"type": "boolean",
 			"referenceOnly": true
-		},
-		"platform_fix_component_state_update_for_suspense": {
-			"type": "boolean"
-		}
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"design-system": "v1",
-			"deprecation": "no-deprecated-imports"
 		}
 	}
 }

@@ -11,9 +11,9 @@ import type {
 } from '@atlaskit/editor-prosemirror/view';
 
 import type { DispatchAnalyticsEvent } from '../analytics';
-
 import { cancelCallback, scheduleCallback } from './lazy-scheduler';
-import { LazyNodeView, makeNodePlaceholderId } from './node-view';
+import { makeNodePlaceholderId } from './makeNodePlaceholderId';
+import { LazyNodeView } from './node-view';
 import type { LazyNodeViewToDOMConfiguration, NodeViewConstructor } from './types';
 
 export { convertToInlineCss } from './css-helper';
@@ -26,7 +26,8 @@ export { LazyNodeView };
  *
  * Communication channel between LazyNodeView loader and LazyNodeViewDecorationPlugin.
  */
-export const lazyNodeViewDecorationPluginKey = new PluginKey('lazyNodeViewDecoration');
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const lazyNodeViewDecorationPluginKey: PluginKey = new PluginKey('lazyNodeViewDecoration');
 
 /**
  * 📢 Public Type
@@ -105,6 +106,7 @@ const testOnlyIgnoreLazyNodeViewSet = new WeakSet<EditorView>();
  *
  * @deprecated DO NOT USE THIS OUTSIDE TESTS.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function testOnlyIgnoreLazyNodeView(view: EditorView): void {
 	testOnlyIgnoreLazyNodeViewSet.add(view);
 }
@@ -150,6 +152,7 @@ export function testOnlyIgnoreLazyNodeView(view: EditorView): void {
  * // Then, use `lazyTableView` in ProseMirror editor setup to enhance 'table' nodes with lazy loading
  */
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const withLazyLoading = <Options>({
 	nodeName,
 	loader,

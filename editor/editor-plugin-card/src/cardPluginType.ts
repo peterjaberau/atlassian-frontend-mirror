@@ -1,6 +1,13 @@
-import type { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
-import type { CardPluginActions } from '@atlaskit/editor-common/card';
-import type { NextEditorPlugin, OptionalPlugin, Command } from '@atlaskit/editor-common/types';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import type { ACTION, INPUT_METHOD } from '@atlaskit/editor-common/analytics';
+import type { CardPluginActions, CardReplacementInputMethod } from '@atlaskit/editor-common/card';
+import type { CardAppearance } from '@atlaskit/editor-common/provider-factory';
+import type {
+	Command,
+	EditorCommand,
+	NextEditorPlugin,
+	OptionalPlugin,
+} from '@atlaskit/editor-common/types';
 import type { AnalyticsPlugin } from '@atlaskit/editor-plugin-analytics';
 import type { InlineCommentPluginState } from '@atlaskit/editor-plugin-annotation';
 import type { BasePlugin } from '@atlaskit/editor-plugin-base';
@@ -13,6 +20,8 @@ import type { FloatingToolbarPlugin } from '@atlaskit/editor-plugin-floating-too
 import type { GridPlugin } from '@atlaskit/editor-plugin-grid';
 import type { SelectionPlugin } from '@atlaskit/editor-plugin-selection';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugin-toolbar';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugin-ui-control-registry';
+import type { UserIntentPlugin } from '@atlaskit/editor-plugin-user-intent/user-intent-plugin-type';
 import type { WidthPlugin } from '@atlaskit/editor-plugin-width';
 
 import type { CardPluginOptions, CardPluginState } from './types';
@@ -44,12 +53,26 @@ export type CardPluginDependencies = [
 	OptionalPlugin<ConnectivityPlugin>,
 	OptionalPlugin<BasePlugin>,
 	OptionalPlugin<ToolbarPlugin>,
+	OptionalPlugin<UiControlRegistryPlugin>,
+	OptionalPlugin<UserIntentPlugin>,
 ];
 
 export type CardPlugin = NextEditorPlugin<
 	'card',
 	{
 		actions: CardPluginActions;
+		commands: {
+			/** EditorCommand form of `queueCardsFromRange`. Prefer over the action. */
+			queueCardsFromRange: (
+				from: number,
+				to: number,
+				source: CardReplacementInputMethod,
+				analyticsAction?: ACTION,
+				normalizeLinkText?: boolean,
+				sourceEvent?: UIAnalyticsEvent | null,
+				appearance?: CardAppearance,
+			) => EditorCommand;
+		};
 		dependencies: CardPluginDependencies;
 		pluginConfiguration: CardPluginOptions | undefined;
 		sharedState: CardPluginState | null;

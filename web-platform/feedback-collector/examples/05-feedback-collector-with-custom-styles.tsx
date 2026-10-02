@@ -1,17 +1,18 @@
 import React, { Component, Fragment } from 'react';
 
-import Button from '@atlaskit/button/new';
-import { Checkbox } from '@atlaskit/checkbox';
-import { FlagGroup } from '@atlaskit/flag';
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import FlagGroup from '@atlaskit/flag/flag-group';
 import { CheckboxField } from '@atlaskit/form/CheckboxField';
+import { ErrorMessage } from '@atlaskit/form/error-message';
 import Field from '@atlaskit/form/Field';
-import { ErrorMessage, HelperMessage } from '@atlaskit/form/Messages';
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
-import SectionMessage from '@atlaskit/section-message/section-message';
-import Select from '@atlaskit/select';
-import TextArea from '@atlaskit/textarea';
-import Textfield from '@atlaskit/textfield';
+import { HelperMessage } from '@atlaskit/form/helper-message';
+import { MessageWrapper } from '@atlaskit/form/message-wrapper';
+import Link from '@atlaskit/link/link';
+import SectionMessage from '@atlaskit/section-message/message';
+import Select from '@atlaskit/select/default';
+import TextArea from '@atlaskit/textarea/text-area';
+import Textfield from '@atlaskit/textfield/text-field';
 
 import FeedbackCollector, { FeedbackFlag } from '../src';
 
@@ -46,7 +47,9 @@ const FormContent = (
 			{({ fieldProps, error }) => (
 				<Fragment>
 					<Textfield autoComplete="off" {...fieldProps} />
-					{error === 'SUMMARY_EMPTY' && <ErrorMessage>Summary is invalid.</ErrorMessage>}
+					<MessageWrapper>
+						{error === 'SUMMARY_EMPTY' && <ErrorMessage>Summary is invalid.</ErrorMessage>}
+					</MessageWrapper>
 				</Fragment>
 			)}
 		</Field>
@@ -54,12 +57,14 @@ const FormContent = (
 			{({ fieldProps, error }) => (
 				<Fragment>
 					<Select {...fieldProps} />
-					<HelperMessage>
-						Start typing to get a list of possible matches or press down to select.
-					</HelperMessage>
-					{error === 'SELECT_COMPONENT_EMPTY' && (
-						<ErrorMessage>Please select a component.</ErrorMessage>
-					)}
+					<MessageWrapper>
+						<HelperMessage>
+							Start typing to get a list of possible matches or press down to select.
+						</HelperMessage>
+						{error === 'SELECT_COMPONENT_EMPTY' && (
+							<ErrorMessage>Please select a component.</ErrorMessage>
+						)}
+					</MessageWrapper>
 				</Fragment>
 			)}
 		</Field>
@@ -67,10 +72,12 @@ const FormContent = (
 			{({ fieldProps }) => (
 				<Fragment>
 					<TextArea minimumRows={4} resize="auto" />
-					<HelperMessage>
-						Please include a full description of how to replicate the problem you are experiencing.
-						This may be the steps to replicate, or the data that caused the problem.
-					</HelperMessage>
+					<MessageWrapper>
+						<HelperMessage>
+							Please include a full description of how to replicate the problem you are
+							experiencing. This may be the steps to replicate, or the data that caused the problem.
+						</HelperMessage>
+					</MessageWrapper>
 				</Fragment>
 			)}
 		</Field>
@@ -92,27 +99,13 @@ const WarningContent = () => (
 		</p>
 		<span>
 			Please check{' '}
-			{fg('dst-a11y__replace-anchor-with-link__belugas-feedba') ? (
-				<Link href="https://ops.internal.atlassian.com/jira/issues/?filter=16189" target="_blank">
-					currently open incidents
-				</Link>
-			) : (
-				// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-				<a href="https://ops.internal.atlassian.com/jira/issues/?filter=16189" target="_blank">
-					currently open incidents
-				</a>
-			)}{' '}
+			<Link href="https://ops.internal.atlassian.com/jira/issues/?filter=16189" target="_blank">
+				currently open incidents
+			</Link>{' '}
 			and raise a ticket at{' '}
-			{fg('dst-a11y__replace-anchor-with-link__belugas-feedba') ? (
-				<Link href="http://go.atlassian.com/incident" target="_blank">
-					go/incident
-				</Link>
-			) : (
-				// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-				<a href="http://go.atlassian.com/incident" target="_blank">
-					go/incident
-				</a>
-			)}
+			<Link href="http://go.atlassian.com/incident" target="_blank">
+				go/incident
+			</Link>
 			.
 		</span>
 		<p>
@@ -120,35 +113,18 @@ const WarningContent = () => (
 		</p>
 		<span>
 			For the best results, make sure you are logged into{' '}
-			{fg('dst-a11y__replace-anchor-with-link__belugas-feedba') ? (
-				<Link href="https://jira.atlassian.com/browse" target="_blank">
-					JAC
-				</Link>
-			) : (
-				// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-				<a href="https://jira.atlassian.com/browse" target="_blank">
-					JAC
-				</a>
-			)}{' '}
+			<Link href="https://jira.atlassian.com/browse" target="_blank">
+				JAC
+			</Link>{' '}
 			before launching this form.
 		</span>
 		<p>
-			{fg('dst-a11y__replace-anchor-with-link__belugas-feedba') ? (
-				<Link
-					href="https://hello.atlassian.net/wiki/spaces/CONF/blog/2019/04/03/430286923/What+happened+to+Hello+Confluence+feedback+collector"
-					target="_blank"
-				>
-					Learn more about how your feedback is triaged.
-				</Link>
-			) : (
-				// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-				<a
-					href="https://hello.atlassian.net/wiki/spaces/CONF/blog/2019/04/03/430286923/What+happened+to+Hello+Confluence+feedback+collector"
-					target="_blank"
-				>
-					Learn more about how your feedback is triaged.
-				</a>
-			)}
+			<Link
+				href="https://hello.atlassian.net/wiki/spaces/CONF/blog/2019/04/03/430286923/What+happened+to+Hello+Confluence+feedback+collector"
+				target="_blank"
+			>
+				Learn more about how your feedback is triaged.
+			</Link>
 		</p>
 	</SectionMessage>
 );

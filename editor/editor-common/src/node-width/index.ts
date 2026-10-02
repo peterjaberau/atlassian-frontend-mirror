@@ -7,11 +7,8 @@ import {
 	akEditorGutterPadding,
 	akEditorGutterPaddingDynamic,
 	akEditorWideLayoutWidth,
-	akLayoutGutterOffset,
 	gridMediumMaxWidth,
 } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { BODIED_EXT_PADDING } from '../styles/shared/extension';
 import { LAYOUT_COLUMN_PADDING, LAYOUT_SECTION_MARGIN } from '../styles/shared/layout';
@@ -23,7 +20,14 @@ const GRID_SIZE = 8;
 const NESTED_DND_GUTTER_OFFSET = 8;
 const NESTED_DND_MARGIN_OFFSET = 12;
 
-export const layoutToWidth = {
+export const layoutToWidth: {
+	// eslint-disable-next-line @atlaskit/editor/no-re-export
+	default: number;
+	// eslint-disable-next-line @atlaskit/editor/no-re-export
+	'full-width': number;
+	// eslint-disable-next-line @atlaskit/editor/no-re-export
+	wide: number;
+} = {
 	// eslint-disable-next-line @atlaskit/editor/no-re-export
 	default: akEditorDefaultLayoutWidth,
 	// eslint-disable-next-line @atlaskit/editor/no-re-export
@@ -36,12 +40,13 @@ export const layoutToWidth = {
  * Calculates width of parent node of a nested node (inside layouts, extension)
  * If current node selection is not nested will return undefined
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getParentNodeWidth = (
 	pos: number | undefined,
 	state: EditorState,
 	containerWidth: EditorContainerWidth,
 	isFullWidthModeEnabled?: boolean,
-) => {
+): number | undefined => {
 	if (!pos) {
 		return;
 	}
@@ -78,11 +83,6 @@ export const getParentNodeWidth = (
 
 	switch (node.type) {
 		case schema.nodes.layoutSection:
-			// the extra width of the layout does not add to the width of the area the table can be inside
-			if (!expValEquals('platform_editor_nested_table_refresh_width_fix', 'isEnabled', true)) {
-				parentWidth += akLayoutGutterOffset * 2; // extra width that gets added to layout
-			}
-
 			// Calculate width of parent layout column when
 			// Parallel layout with viewport greater than 1024px
 			// OR side panel of an extension is open and change the node width to smaller than containerWidth
@@ -93,10 +93,7 @@ export const getParentNodeWidth = (
 			) {
 				// margin between sections
 				parentWidth -=
-					expValEquals('platform_editor_nested_table_refresh_width_fix', 'isEnabled', true) &&
-					fg('platform_editor_nested_dnd_styles_changes')
-						? (LAYOUT_SECTION_MARGIN + NESTED_DND_MARGIN_OFFSET + 2) * (node.childCount - 1)
-						: (LAYOUT_SECTION_MARGIN + 2) * (node.childCount - 1);
+					(LAYOUT_SECTION_MARGIN + NESTED_DND_MARGIN_OFFSET + 2) * (node.childCount - 1);
 				const $pos = state.doc.resolve(pos);
 				const column = findParentNodeOfTypeClosestToPos($pos, [state.schema.nodes.layoutColumn]);
 				if (column && column.node && !isNaN(column.node.attrs.width)) {
@@ -106,11 +103,7 @@ export const getParentNodeWidth = (
 			}
 
 			// account for the padding of the parent node
-			parentWidth -=
-				expValEquals('platform_editor_nested_table_refresh_width_fix', 'isEnabled', true) &&
-				fg('platform_editor_nested_dnd_styles_changes')
-					? (LAYOUT_COLUMN_PADDING + NESTED_DND_GUTTER_OFFSET) * 2
-					: LAYOUT_COLUMN_PADDING * 2;
+			parentWidth -= (LAYOUT_COLUMN_PADDING + NESTED_DND_GUTTER_OFFSET) * 2;
 
 			break;
 
@@ -150,12 +143,14 @@ export const getParentNodeWidth = (
 	return parentWidth;
 };
 
-const getNestedParentNode = (tablePos: number, state: EditorState): PMNode | null => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const getNestedParentNode = (tablePos: number, state: EditorState): PMNode | null => {
 	if (tablePos === undefined) {
 		return null;
 	}
 
 	const $pos = state.doc.resolve(tablePos);
+
 	const parent = findParentNodeOfTypeClosestToPos($pos, [
 		state.schema.nodes.bodiedExtension,
 		state.schema.nodes.extensionFrame,
@@ -163,6 +158,7 @@ const getNestedParentNode = (tablePos: number, state: EditorState): PMNode | nul
 		state.schema.nodes.expand,
 		state.schema.nodes.tableCell,
 		state.schema.nodes.tableHeader,
+		state.schema.nodes.bodiedSyncBlock,
 	]);
 
 	return parent ? parent.node : null;
@@ -174,10 +170,7 @@ const calcBreakoutNodeWidth = (
 	isFullWidthModeEnabled?: boolean,
 	breakoutWidth?: number,
 ) => {
-	if (
-		breakoutWidth &&
-		expValEquals('platform_editor_nested_table_refresh_width_fix', 'isEnabled', true)
-	) {
+	if (breakoutWidth) {
 		return isFullWidthModeEnabled
 			? Math.min(containerWidth.lineLength as number, breakoutWidth)
 			: // container width minus breakout padding
@@ -192,6 +185,7 @@ const calcBreakoutNodeWidth = (
 		: absoluteBreakoutWidth(layout, containerWidth.width);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getTableContainerWidth = (node?: PMNode): number => {
 	if (node?.attrs.width) {
 		return node.attrs.width;
@@ -203,6 +197,7 @@ export const getTableContainerWidth = (node?: PMNode): number => {
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getTableWidthWithNumberColumn = (node: PMNode, offset: number): number => {
 	const isNumberColumnEnabled = node.attrs.isNumberColumnEnabled;
 	if (isNumberColumnEnabled && offset > 0) {

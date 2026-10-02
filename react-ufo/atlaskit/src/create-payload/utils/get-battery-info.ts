@@ -1,5 +1,3 @@
-import { fg } from '@atlaskit/platform-feature-flags';
-
 // Type definitions for battery info
 export interface BatteryInfo {
 	level?: number;
@@ -13,10 +11,6 @@ export interface LegacyBatteryInfo {
 
 // Main function returns compact nested format
 export default async function getBatteryInfo(): Promise<BatteryInfo> {
-	if (!fg('react_ufo_battery_info')) {
-		return {};
-	}
-
 	if (typeof navigator === 'undefined') {
 		return {};
 	}
@@ -37,19 +31,4 @@ export default async function getBatteryInfo(): Promise<BatteryInfo> {
 	}
 
 	return {};
-}
-
-// Helper function to get battery info in legacy colon format for backward compatibility
-export async function getBatteryInfoToLegacyFormat(): Promise<LegacyBatteryInfo> {
-	const battery = await getBatteryInfo();
-	const legacyFormat: LegacyBatteryInfo = {};
-
-	if (battery.level !== undefined) {
-		legacyFormat['event:battery:level'] = battery.level;
-	}
-	if (battery.charging !== undefined) {
-		legacyFormat['event:battery:charging'] = battery.charging;
-	}
-
-	return legacyFormat;
 }

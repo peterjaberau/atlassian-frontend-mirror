@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 
 import type { RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
 import { logException } from '@atlaskit/editor-common/monitoring';
@@ -7,9 +7,12 @@ import {
 	fetchErrorPayload,
 	getContentIdAndProductFromResourceId,
 	SyncBlockError,
-	type SyncBlockInstance,
 } from '@atlaskit/editor-synced-block-provider';
+import type { SyncBlockInstance } from '@atlaskit/editor-synced-block-provider';
+import { buildFetchErrorAttribution } from '@atlaskit/editor-synced-block-provider/errorHandling';
+import { getSourceProductFromResourceIdSafe } from '@atlaskit/editor-synced-block-provider/utils';
 
+import { SyncedBlockEntityNotFoundError } from './SyncedBlockEntityNotFoundError';
 import { SyncedBlockGenericError } from './SyncedBlockGenericError';
 import { SyncedBlockLoadError } from './SyncedBlockLoadError';
 import { SyncedBlockNotFoundError } from './SyncedBlockNotFoundError';
@@ -20,6 +23,7 @@ import { SyncedBlockUnpublishedError } from './SyncedBlockUnpublishedError';
 const getForbiddenErrorContent = (
 	resourceId?: string,
 	fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
+	getAccountId?: () => string | null,
 ) => {
 	try {
 		if (!resourceId) {
@@ -31,6 +35,7 @@ const getForbiddenErrorContent = (
 			<SyncedBlockPermissionDenied
 				sourceContentId={sourceContentId}
 				sourceProduct={sourceProduct}
+				accountId={getAccountId?.() ?? null}
 			/>
 		);
 	} catch (error) {
@@ -49,24 +54,57 @@ export const SyncedBlockErrorComponent = ({
 	resourceId,
 	fireAnalyticsEvent,
 	sourceURL,
+	getAccountId,
 }: {
 	error: SyncBlockInstance['error'];
 	fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void;
+	getAccountId?: () => string | null;
 	isLoading?: boolean;
 	onRetry?: () => void;
 	resourceId?: string;
 	sourceURL?: string;
 }): React.JSX.Element => {
+	useEffect(() => {
+		// Emit structured attribution via the shared builder instead of an opaque
+		// `errored`-only blob. Prefer the PII-safe `originalMessage` so the classifier
+		// can bucket the real cause; fall back to `reason` then the bare `type`.
+		const rawError = error?.originalMessage || error?.reason || error?.type || 'unknown';
+
+		fireAnalyticsEvent?.(
+			fetchErrorPayload(
+				`${rawError}: error component rendered`,
+				resourceId,
+				getSourceProductFromResourceIdSafe(resourceId),
+				buildFetchErrorAttribution(rawError, error?.statusCode),
+			),
+		);
+	}, [
+		error?.originalMessage,
+		error?.reason,
+		error?.type,
+		error?.statusCode,
+		resourceId,
+		fireAnalyticsEvent,
+	]);
+
 	const getErrorContent = useMemo(() => {
 		switch (error?.type) {
+			case SyncBlockError.EntityNotFound:
+				return <SyncedBlockEntityNotFoundError />;
 			case SyncBlockError.Offline:
 				return <SyncedBlockOfflineError />;
 			case SyncBlockError.Forbidden:
-				return getForbiddenErrorContent(resourceId, fireAnalyticsEvent);
+				return getForbiddenErrorContent(resourceId, fireAnalyticsEvent, getAccountId);
 			case SyncBlockError.NotFound:
 				return <SyncedBlockNotFoundError reason={error.reason} sourceAri={error.sourceAri} />;
-			case SyncBlockError.Unpublished:
-				return <SyncedBlockUnpublishedError sourceURL={sourceURL} />;
+			case SyncBlockError.Unpublished: {
+				return (
+					<SyncedBlockUnpublishedError
+						sourceURL={sourceURL}
+						sourceProduct={getSourceProductFromResourceIdSafe(resourceId)}
+					/>
+				);
+			}
 			case SyncBlockError.Errored:
 			case SyncBlockError.RateLimited:
 			case SyncBlockError.ServerError:
@@ -74,7 +112,7 @@ export const SyncedBlockErrorComponent = ({
 			default:
 				return <SyncedBlockGenericError />;
 		}
-	}, [error, isLoading, onRetry, resourceId, fireAnalyticsEvent, sourceURL]);
+	}, [error, isLoading, onRetry, resourceId, fireAnalyticsEvent, sourceURL, getAccountId]);
 
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop

@@ -1,5 +1,278 @@
 # @atlaskit/inline-edit
 
+## 16.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.1
+
+### Patch Changes
+
+- [`680ed4ddc61bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/680ed4ddc61bf) -
+  Cleaned up new shape theme styles, making new border and radius values the default.
+
+## 16.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.3.1
+
+### Patch Changes
+
+- [`b61d0befff3b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b61d0befff3b3) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 16.3.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.0
+
+### Minor Changes
+
+- [`015a98b324278`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/015a98b324278) -
+  Adopt motion.button.hovered / motion.button.pressed tokens for hover/press background transitions
+  in custom button-like components (inline-edit read view, navigation-system top-nav pressable, and
+  page-layout resize control grab area), gated behind the platform-dst-motion-uplift-button feature
+  flag.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 16.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.13
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 15.6.12
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 15.6.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.10
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+- Updated dependencies
+
+## 15.6.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.6
+
+### Patch Changes
+
+- [`b8934c531e413`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b8934c531e413) -
+  Internal refactoring
+
+## 15.6.5
+
+### Patch Changes
+
+- [`1dc3b51d1f95e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1dc3b51d1f95e) -
+  Fix accessible edit button label rendering as [object Object] when a ReactNode is provided for the
+  label prop
+
+## 15.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 15.6.3
 
 ### Patch Changes

@@ -1,19 +1,43 @@
 import { DRAG_HANDLE_WIDTH } from '@atlaskit/editor-common/styles';
-import { breakoutResizableNodes as breakoutResizableNodesNew } from '@atlaskit/editor-common/utils';
+import {
+	breakoutResizableNodes as breakoutResizableNodesNew,
+	getBreakoutResizableNodes,
+} from '@atlaskit/editor-common/utils';
 import { akEditorUnitZIndex, akRichMediaResizeZIndex } from '@atlaskit/editor-shared-styles';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import { token } from '@atlaskit/tokens';
+
+export const ACTIVE_DRAG_HANDLE_ATTR = 'data-active-drag-handle';
+export const ACTIVE_QUICK_INSERT_ATTR = 'data-active-quick-insert';
+export const BLOCK_CONTROLS_SURFACE_SELECTOR = '[data-editor-block-controls-surface]';
+export const ACTIVE_DRAG_HANDLE_FALLBACK_ANCHOR_NAME =
+	'--editor-block-controls-active-drag-handle-anchor';
+export const ACTIVE_QUICK_INSERT_FALLBACK_ANCHOR_NAME =
+	'--editor-block-controls-active-quick-insert-anchor';
 
 export const DRAG_HANDLE_HEIGHT = 24;
 
 export const DRAG_HANDLE_BORDER_RADIUS = 4;
-export const DRAG_HANDLE_ZINDEX = akRichMediaResizeZIndex + akEditorUnitZIndex; //place above legacy resizer
-export const DRAG_HANDLE_DEFAULT_GAP = 8;
+export const DRAG_HANDLE_ZINDEX: number = akRichMediaResizeZIndex + akEditorUnitZIndex; //place above legacy resizer
+const LEGACY_DRAG_HANDLE_DEFAULT_GAP = 8;
+const MIGRATED_DRAG_HANDLE_DEFAULT_GAP = 12;
 export const DRAG_HANDLE_NARROW_GAP = 4;
 export const DRAG_HANDLE_MAX_GAP = 12;
-export const DRAG_HANDLE_MAX_WIDTH_PLUS_GAP = DRAG_HANDLE_WIDTH + DRAG_HANDLE_MAX_GAP;
+export const DRAG_HANDLE_SYNCED_BLOCK_GAP = 2.5;
+export const DRAG_HANDLE_MAX_WIDTH_PLUS_GAP: number = DRAG_HANDLE_WIDTH + DRAG_HANDLE_MAX_GAP;
 
-export const DRAG_HANDLE_DIVIDER_TOP_ADJUSTMENT = 4 + 2; // 4px for the divider vertical padding and 2px for the divider height
+// Non-resizable/default-sized nodes get the same gap as resizable/breakout nodes
+// (DRAG_HANDLE_MAX_GAP) once the registry-backed surfaces are on; kept at the legacy value
+// otherwise to avoid an unrelated visual change for consumers still on the old decoration path.
+const getDragHandleDefaultGap = (): number =>
+	isExperimentEnabled('platform_editor_block_control_migration')
+		? MIGRATED_DRAG_HANDLE_DEFAULT_GAP
+		: LEGACY_DRAG_HANDLE_DEFAULT_GAP;
+
+export const DRAG_HANDLE_DIVIDER_TOP_ADJUSTMENT: number = 4 + 2; // 4px for the divider vertical padding and 2px for the divider height
 export const DRAG_HANDLE_H1_TOP_ADJUSTMENT = 5;
 export const DRAG_HANDLE_H2_TOP_ADJUSTMENT = 2;
 export const DRAG_HANDLE_H3_TOP_ADJUSTMENT = 1;
@@ -22,33 +46,43 @@ export const DRAG_HANDLE_H5_TOP_ADJUSTMENT = 3;
 export const DRAG_HANDLE_H6_TOP_ADJUSTMENT = 3;
 export const DRAG_HANDLE_LAYOUT_SECTION_TOP_ADJUSTMENT = 8;
 export const DRAG_HANDLE_PARAGRAPH_TOP_ADJUSTMENT = 2;
+export const DRAG_HANDLE_PARAGRAPH_SMALL_TOP_ADJUSTMENT = 0;
+export const DRAG_HANDLE_WRAPPED_MEDIA_EMBED_TOP_ADJUSTMENT = 8;
 
-/** We only want to shift-select nodes that are at the top level of a document.
- *  This is because funky things happen when selecting inside of tableCells, but we
- *  also want to avoid heavily nested cases to descope potential corner cases.
- *  Various top level nodes have their selection 'from' at depths other than 0,
- *  so we allow for some leniency to capture them all. e.g. Table is depth 3.
- */
-export const DRAG_HANDLE_MAX_SHIFT_CLICK_DEPTH = 3;
 export const STICKY_CONTROLS_TOP_MARGIN = 8;
-export const STICKY_CONTROLS_TOP_MARGIN_FOR_STICKY_HEADER = 24
+export const STICKY_CONTROLS_TOP_MARGIN_FOR_STICKY_HEADER = 24;
 
 export const QUICK_INSERT_HEIGHT = 24;
 export const QUICK_INSERT_WIDTH = 24;
-export const QUICK_INSERT_DIMENSIONS = { width: QUICK_INSERT_WIDTH, height: QUICK_INSERT_HEIGHT };
+export const QUICK_INSERT_DIMENSIONS: {
+	height: number;
+	width: number;
+} = { width: QUICK_INSERT_WIDTH, height: QUICK_INSERT_HEIGHT };
 export const QUICK_INSERT_LEFT_OFFSET = 16;
 
 const nodeTypeExcludeList = ['embedCard', 'mediaSingle', 'table'];
-const breakoutResizableNodes = ['expand', 'layoutSection', 'codeBlock'];
 
-export const dragHandleGap = (nodeType: string, parentNodeType?: string) => {
+export const dragHandleGap = (nodeType: string, parentNodeType?: string): number => {
+	if (parentNodeType === 'syncBlock' || parentNodeType === 'bodiedSyncBlock') {
+		return DRAG_HANDLE_SYNCED_BLOCK_GAP;
+	}
+
 	if (parentNodeType && parentNodeType !== 'doc') {
 		return DRAG_HANDLE_NARROW_GAP;
 	}
 
-	const breakoutResizableNodesList = editorExperiment('platform_synced_block', true)
-								? breakoutResizableNodesNew
-								: breakoutResizableNodes;
+	let breakoutResizableNodesList: string[] = [];
+	if (isExperimentEnabled('platform_editor_lovability_resize_extensions')) {
+		breakoutResizableNodesList = getBreakoutResizableNodes();
+	} else {
+		breakoutResizableNodesList = expValEqualsNoExposure(
+			'platform_editor_lovability_resize_dividers_panels',
+			'isEnabled',
+			true,
+		)
+			? [...breakoutResizableNodesNew, 'rule', 'panel']
+			: breakoutResizableNodesNew;
+	}
 
 	if (
 		editorExperiment('platform_editor_breakout_resizing', true) &&
@@ -61,21 +95,30 @@ export const dragHandleGap = (nodeType: string, parentNodeType?: string) => {
 		}
 	}
 	if (nodeType === 'layoutSection') {
-		return DRAG_HANDLE_DEFAULT_GAP + 20;
+		return getDragHandleDefaultGap() + 20;
 	}
 
 	if (nodeTypeExcludeList.includes(nodeType)) {
 		return DRAG_HANDLE_MAX_GAP;
 	}
 
-	return DRAG_HANDLE_DEFAULT_GAP;
+	return getDragHandleDefaultGap();
 };
 
-// use for returning hap only for root level elements
-export const rootElementGap = (nodeType: string) => {
-	const breakoutResizableNodesList = editorExperiment('platform_synced_block', true)
-								? breakoutResizableNodesNew
-								: breakoutResizableNodes;
+// use for returning gap only for root level elements
+export const rootElementGap = (nodeType: string): number => {
+	let breakoutResizableNodesList: string[] = [];
+	if (isExperimentEnabled('platform_editor_lovability_resize_extensions')) {
+		breakoutResizableNodesList = getBreakoutResizableNodes();
+	} else {
+		breakoutResizableNodesList = expValEqualsNoExposure(
+			'platform_editor_lovability_resize_dividers_panels',
+			'isEnabled',
+			true,
+		)
+			? [...breakoutResizableNodesNew, 'rule', 'panel']
+			: breakoutResizableNodesNew;
+	}
 
 	if (
 		nodeTypeExcludeList.includes(nodeType) ||
@@ -93,13 +136,20 @@ export const rootElementGap = (nodeType: string) => {
 		return DRAG_HANDLE_MAX_GAP + 12;
 	}
 
-	return DRAG_HANDLE_DEFAULT_GAP;
+	return getDragHandleDefaultGap();
 };
 
-export const getNestedNodeLeftPaddingMargin = (nodeType?: string) => {
+export const getNestedNodeLeftPaddingMargin = (
+	nodeType?: string,
+): '24px' | '8px' | '16px' | '20px' | '28px' | '40px' => {
 	switch (nodeType) {
 		case 'bodiedExtension':
 			return '28px';
+		case 'multiBodiedExtension':
+			if (expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)) {
+				return '28px';
+			}
+			return `${DRAG_HANDLE_WIDTH + DRAG_HANDLE_NARROW_GAP}px`;
 		case 'expand':
 		case 'nestedExpand':
 			return '24px';
@@ -116,12 +166,20 @@ export const getNestedNodeLeftPaddingMargin = (nodeType?: string) => {
 	}
 };
 
-export const topPositionAdjustment = (nodeType: string) => {
+export const topPositionAdjustment = (nodeType: string, layout?: string): number => {
 	if (editorExperiment('advanced_layouts', true)) {
 		switch (nodeType) {
 			case 'layoutSection':
 				return DRAG_HANDLE_LAYOUT_SECTION_TOP_ADJUSTMENT;
 		}
+	}
+
+	if (
+		(nodeType === 'mediaSingle' || nodeType === 'embedCard') &&
+		layout &&
+		['wrap-left', 'wrap-right'].includes(layout)
+	) {
+		return DRAG_HANDLE_WRAPPED_MEDIA_EMBED_TOP_ADJUSTMENT;
 	}
 
 	switch (nodeType) {
@@ -131,6 +189,8 @@ export const topPositionAdjustment = (nodeType: string) => {
 			return DRAG_HANDLE_HEIGHT;
 		case 'paragraph':
 			return DRAG_HANDLE_PARAGRAPH_TOP_ADJUSTMENT;
+		case 'paragraph-small':
+			return DRAG_HANDLE_PARAGRAPH_SMALL_TOP_ADJUSTMENT;
 		case 'heading-1':
 			return DRAG_HANDLE_H1_TOP_ADJUSTMENT;
 		case 'heading-2':
@@ -149,23 +209,23 @@ export const topPositionAdjustment = (nodeType: string) => {
 };
 
 export const dropTargetMarginMap: { [key: number]: string } = {
-	[-24]: token('space.negative.300', '-24px'),
-	[-20]: token('space.negative.250', '-20px'),
-	[-16]: token('space.negative.200', '-16px'),
-	[-12]: token('space.negative.150', '-12px'),
-	[-8]: token('space.negative.100', '-8px'),
-	[-6]: token('space.negative.075', '-6px'),
-	[-4]: token('space.negative.050', '-4px'),
-	[-2]: token('space.negative.025', '-2px'),
-	0: token('space.0', '0'),
-	2: token('space.025', '2px'),
-	4: token('space.050', '4px'),
-	6: token('space.075', '6px'),
-	8: token('space.100', '8px'),
-	12: token('space.150', '12px'),
-	16: token('space.200', '16px'),
-	20: token('space.250', '20px'),
-	24: token('space.300', '24px'),
+	[-24]: token('space.negative.300'),
+	[-20]: token('space.negative.250'),
+	[-16]: token('space.negative.200'),
+	[-12]: token('space.negative.150'),
+	[-8]: token('space.negative.100'),
+	[-6]: token('space.negative.075'),
+	[-4]: token('space.negative.050'),
+	[-2]: token('space.negative.025'),
+	0: token('space.0'),
+	2: token('space.025'),
+	4: token('space.050'),
+	6: token('space.075'),
+	8: token('space.100'),
+	12: token('space.150'),
+	16: token('space.200'),
+	20: token('space.250'),
+	24: token('space.300'),
 };
 
 /**
@@ -173,7 +233,9 @@ export const dropTargetMarginMap: { [key: number]: string } = {
  * to the table provided above.
  * For instance, the number 1 will correspond to \{0: token('space.0', '0')\}.
  */
-export const spaceLookupMap = Object.fromEntries(
+export const spaceLookupMap: {
+	[k: string]: string;
+} = Object.fromEntries(
 	// 49 = -24 -> 0 -> 24 totaling 49 entries.
 	Array.from({ length: 49 }, (_, index) => {
 		const currKeyValue = index - 24;
@@ -206,6 +268,7 @@ export const spacingBetweenNodesForPreview: { [key: string]: { bottom: string; t
 	mediaSingle: { top: '24px', bottom: '24px' },
 	media: { top: '24px', bottom: '24px' },
 	bodiedExtension: { top: '0', bottom: '0' },
+	multiBodiedExtension: { top: '0', bottom: '0' },
 	extension: { top: '0', bottom: '0' },
 	layoutSection: { top: '0', bottom: '0' },
 	blockquote: { top: '0', bottom: '0' },
@@ -231,6 +294,7 @@ export const nodeMargins: { [key: string]: { bottom: number; top: number } } = {
 	mediaSingle: { top: 24, bottom: 24 },
 	media: { top: 24, bottom: 24 },
 	bodiedExtension: { top: 0, bottom: 0 },
+	multiBodiedExtension: { top: 0, bottom: 0 },
 	extension: { top: 12, bottom: 12 },
 	heading1: { top: 40, bottom: 0 },
 	heading2: { top: 40, bottom: 0 },

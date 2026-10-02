@@ -25,7 +25,6 @@ import { useCleanupFn } from '../hooks/use-cleanup-fn';
 import { attributes, getAttribute } from '../utils/attributes';
 import { findDragHandle } from '../utils/find-drag-handle';
 import { getClosestPositionedElement } from '../utils/get-closest-positioned-element';
-
 import { cancelPointerDrag } from './cancel-drag';
 import { isSameLocation } from './draggable-location';
 import { type DroppableRegistryEntry, useDroppableRegistry } from './droppable-registry';
@@ -66,6 +65,7 @@ function getOffset(args: { element: HTMLElement; mode: DroppableMode }) {
 	};
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function DragDropContext({
 	children,
 	dragHandleUsageInstructions = defaultDragHandleUsageInstructions,

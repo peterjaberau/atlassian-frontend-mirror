@@ -1,6 +1,17 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const modeSwitcherMessages = defineMessages({
+export const modeSwitcherMessages: {
+	basicTextSearchLabel: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	basicModeSwitchDisabledTooltipText: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+} = defineMessages({
 	basicTextSearchLabel: {
 		id: 'linkDataSource.jira-issues.configmodal.basicModeText',
 		description: 'Display text for basic text search toggle button',

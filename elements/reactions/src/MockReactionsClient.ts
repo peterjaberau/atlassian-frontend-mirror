@@ -1,6 +1,7 @@
 import { type EmojiId } from '@atlaskit/emoji/types';
-import { type Reactions, type Client, type ReactionSummary } from './types';
+
 import { DefaultReactionsByShortName, ExtendedReactionsByShortName } from './shared/constants';
+import { type Reactions, type Client, type ReactionSummary } from './types';
 
 export const containerAri = 'ari:cloud:owner:demo-cloud-id:container/1';
 export const ari = 'ari:cloud:owner:demo-cloud-id:item/1';
@@ -23,7 +24,16 @@ export const getReactionSummary: (
 	};
 };
 
-export const getUser = (id: string, displayName: string) => ({
+export const getUser = (
+	id: string,
+	displayName: string,
+): {
+	displayName: string;
+	id: string;
+	profilePicture: {
+		path: string;
+	};
+} => ({
 	id,
 	displayName,
 	profilePicture: {

@@ -3,27 +3,27 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { Profiler, useEffect, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 import { createRoot } from 'react-dom/client';
 
 import { FabricChannel } from '@atlaskit/analytics-listeners/types';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import type { EditorAppearance } from '@atlaskit/editor-common/types';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags';
-import Spinner from '@atlaskit/spinner';
+import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags/setBooleanFeatureFlagResolver';
+import Spinner from '@atlaskit/spinner/spinner';
 import { setupEditorExperiments } from '@atlaskit/tmp-editor-statsig/setup';
 
 import SidebarContainer from '../example-helpers/SidebarContainer';
 import { PresetContextProvider } from '../src/presets/context';
 import type { EditorNextProps } from '../src/types/editor-props';
 import { version } from '../src/version-wrapper';
-
 import FullPageExample, { getAppearance } from './5-full-page';
 
 type ReactPerformanceEntry = {
@@ -211,7 +211,7 @@ function createEditorExampleForRovodev() {
 /**
  * Editor example component for rovodev with __mountEditor support.
  */
-export default function EditorExampleForRovodev() {
+export default function EditorExampleForRovodev(): jsx.JSX.Element {
 	React.useLayoutEffect(() => {
 		createEditorExampleForRovodev();
 	}, []);

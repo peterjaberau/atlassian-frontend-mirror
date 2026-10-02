@@ -5,8 +5,8 @@ import { useEffect, useRef } from 'react';
 import { bind, bindAll } from 'bind-event-listener';
 
 import noop from '@atlaskit/ds-lib/noop';
-import { useLayering } from '@atlaskit/layering';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { useLayering } from '@atlaskit/layering/use-layering';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type CloseManagerHook } from './types';
 import { isInteractiveElement } from './utils/is-element-interactive';
@@ -20,6 +20,7 @@ export const useCloseManager = ({
 	autoFocus,
 	shouldDisableFocusTrap,
 	shouldUseCaptureOnOutsideClick: capture,
+	shouldIgnoreCloseEvent,
 	shouldCloseOnTab,
 	shouldRenderToParent,
 }: CloseManagerHook): void => {
@@ -33,6 +34,10 @@ export const useCloseManager = ({
 		}
 
 		const closePopup = (event: Event | React.MouseEvent | React.KeyboardEvent) => {
+			if (shouldIgnoreCloseEvent?.(event) && fg('cc_blocks_changeboarding')) {
+				return;
+			}
+
 			if (onClose) {
 				let currentLevel: string | null = null;
 				if (event.target instanceof HTMLElement) {
@@ -69,20 +74,21 @@ export const useCloseManager = ({
 				return;
 			}
 
-			if (isLayerDisabled()) {
-				if (target instanceof HTMLElement) {
-					const layeredElement = target.closest?.(`[data-ds--level]`);
-					if (layeredElement) {
-						const closeType = layeredElement.getAttribute('[data-ds--close--type]');
-						if (closeType === 'single') {
-							// if the close type is single, we won't close other disabled layers when clicking outside
-							return;
-						}
-						const levelOfClickedLayer = layeredElement.getAttribute('data-ds--level');
-						if (levelOfClickedLayer && Number(levelOfClickedLayer) > currentLevel) {
-							// won't trigger onClick event when we click in a higher layer.
-							return;
-						}
+			if (target instanceof HTMLElement) {
+				const layeredElement = target.closest?.(`[data-ds--level]`);
+				if (layeredElement) {
+					const closeType = layeredElement.getAttribute('data-ds--close--type');
+					if (closeType === 'single' && isLayerDisabled()) {
+						// if the close type is single, we won't close other disabled layers when clicking outside
+						return;
+					}
+					const levelOfClickedLayer = layeredElement.getAttribute('data-ds--level');
+					if (levelOfClickedLayer && Number(levelOfClickedLayer) > currentLevel) {
+						// Don't close this popup when the click landed inside a higher-level layer
+						// (e.g. a Drawer or Modal that portals to <body>). Such nodes are not DOM
+						// descendants of popupRef, so the contains() checks below would wrongly
+						// classify them as "outside" clicks and close the popup prematurely.
+						return;
 					}
 				}
 			}
@@ -277,6 +283,7 @@ export const useCloseManager = ({
 		autoFocus,
 		shouldDisableFocusTrap,
 		capture,
+		shouldIgnoreCloseEvent,
 		isLayerDisabled,
 		shouldCloseOnTab,
 		currentLevel,

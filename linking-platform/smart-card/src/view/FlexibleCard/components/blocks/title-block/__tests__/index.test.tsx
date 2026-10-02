@@ -5,10 +5,9 @@
 import { PureComponent } from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import type { GlyphProps } from '@atlaskit/icon/types';
+import { fireEvent, render, screen, userEvent } from '@atlassian/testing-library';
 
 import {
 	makeCustomActionItem,
@@ -26,8 +25,8 @@ import {
 } from '../../../../../../constants';
 import { messages } from '../../../../../../messages';
 import type { FlexibleUiDataContext } from '../../../../../../state/flexible-ui-context/types';
+import * as LoadingSkeletonBundle from '../../../../../common/loading-skeleton';
 import type { InternalFlexibleUiOptions } from '../../../../types';
-import * as LoadingSkeletonBundle from '../../../common/loading-skeleton';
 import { type NamedActionItem } from '../../types';
 import TitleBlock from '../index';
 import { type TitleBlockProps } from '../types';
@@ -109,7 +108,10 @@ describe('TitleBlock', () => {
 		];
 
 		describe.each<[SmartLinkStatus, ActionName[]]>([
-			[SmartLinkStatus.Resolved, Object.values(ActionName)],
+			[
+				SmartLinkStatus.Resolved,
+				Object.values(ActionName).filter((action) => action !== ActionName.RovoChatAction),
+			],
 			[SmartLinkStatus.Resolving, nonResolvedAllowedActions],
 			[SmartLinkStatus.Forbidden, nonResolvedAllowedActions],
 			[SmartLinkStatus.Errored, nonResolvedAllowedActions],
@@ -127,11 +129,17 @@ describe('TitleBlock', () => {
 							? makeCustomActionItem({
 									testId: `${testId}-1`,
 								})
-							: {
-									name: allowedActionName,
-									testId: `${testId}-1`,
-									onClick: () => {},
-								};
+							: allowedActionName === ActionName.RovoChatAction
+								? {
+										name: allowedActionName,
+										testId: `${testId}`,
+										onClick: () => {},
+									}
+								: {
+										name: allowedActionName,
+										testId: `${testId}-1`,
+										onClick: () => {},
+									};
 
 					renderTitleBlock({ actions: [action] }, undefined, status);
 
@@ -311,7 +319,7 @@ describe('TitleBlock', () => {
 				const element = await screen.findByTestId(titleTestId);
 				expect(element).toHaveTextContent('Spaghetti');
 
-				expect(element).toHaveCompiledCss('color', 'var(--ds-text-subtle,#44546f)');
+				expect(element).toHaveCompiledCss('color', 'var(--ds-text-subtle,#505258)');
 			},
 		);
 	});
@@ -561,10 +569,10 @@ describe('TitleBlock', () => {
 
 	describe('with loading skeleton', () => {
 		it.each<[SmartLinkSize, string]>([
-			[SmartLinkSize.XLarge, 'var(--ds-space-300)'],
-			[SmartLinkSize.Large, 'var(--ds-space-300)'],
-			[SmartLinkSize.Medium, 'var(--ds-space-200)'],
-			[SmartLinkSize.Small, 'var(--ds-space-200)'],
+			[SmartLinkSize.XLarge, 'var(--ds-space-300, 24px)'],
+			[SmartLinkSize.Large, 'var(--ds-space-300, 24px)'],
+			[SmartLinkSize.Medium, 'var(--ds-space-200, 16px)'],
+			[SmartLinkSize.Small, 'var(--ds-space-200, 16px)'],
 		])('renders by size %s', async (size: SmartLinkSize, dimension: string) => {
 			const LoadingSkeletonNewMock = jest.spyOn(LoadingSkeletonBundle, 'LoadingSkeleton');
 			LoadingSkeletonNewMock.mockClear();

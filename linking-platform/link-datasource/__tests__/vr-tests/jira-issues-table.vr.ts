@@ -1,6 +1,8 @@
 import { snapshot } from '@af/visual-regression';
 
-import JiraIssuesTable, { JiraIssuesTableDaterange } from '../../examples/vr/jira-issues-table-vr';
+import JiraIssuesTable, {
+	JiraIssuesTableDaterange,
+} from '../../examples/vr/jira-issues-table-vr.vr.ap';
 
 snapshot(JiraIssuesTable, {
 	description: 'Jira Issues Table',
@@ -12,7 +14,7 @@ snapshot(JiraIssuesTable, {
 		},
 	],
 	featureFlags: {
-		'platform-component-visual-refresh': true,
+		electric_issue_like_table_xpc_url_wrapping: [true, false],
 	},
 });
 
@@ -25,8 +27,4 @@ snapshot(JiraIssuesTableDaterange, {
 			jiraIssueId: 'NONE-123',
 		},
 	],
-	featureFlags: {
-		'platform-component-visual-refresh': true,
-		jpd_confluence_date_fields_improvements: true,
-	},
 });

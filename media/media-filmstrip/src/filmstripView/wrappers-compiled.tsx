@@ -2,20 +2,24 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { jsx } from '@compiled/react';
+
 import React, { type ReactNode, type MouseEvent, forwardRef } from 'react';
+
+import { jsx } from '@compiled/react';
+import { css } from '@compiled/react';
+
 import ArrowLeft from '@atlaskit/icon/core/arrow-left';
 import ArrowRight from '@atlaskit/icon/core/arrow-right';
-import { MediaFilmStripListItemSelector } from '.';
-import { css } from '@compiled/react';
-import { N20, N40, B400, B50 } from '@atlaskit/theme/colors';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
+
+import { MediaFilmStripListItemSelector } from '.';
 
 const filmStripViewStyles = css({
 	position: 'relative',
-	paddingTop: token('space.025', '3px'),
+	paddingTop: token('space.025'),
 	paddingRight: 0,
-	paddingBottom: token('space.025', '3px'),
+	paddingBottom: token('space.025'),
 	paddingLeft: 0,
 	// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
 	borderRadius: token('radius.small', '3px'),
@@ -32,10 +36,10 @@ const filmStripViewStyles = css({
 const filmStripListWrapperStyles = css({
 	width: 'inherit',
 	overflow: 'hidden',
-	paddingTop: token('space.025', '2px'),
-	paddingRight: token('space.025', '3px'),
-	paddingBottom: token('space.025', '2px'),
-	paddingLeft: token('space.025', '3px'),
+	paddingTop: token('space.025'),
+	paddingRight: token('space.025'),
+	paddingBottom: token('space.025'),
+	paddingLeft: token('space.025'),
 });
 
 const filmStripListStyles = css({
@@ -52,9 +56,9 @@ const filmStripListItemStyles = css({
 	listStyleType: 'none',
 	margin: 0,
 	paddingTop: 0,
-	paddingRight: token('space.050', '4px'),
+	paddingRight: token('space.050'),
 	paddingBottom: 0,
-	paddingLeft: token('space.050', '4px'),
+	paddingLeft: token('space.050'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':first-of-type': {
 		paddingLeft: 0,
@@ -70,24 +74,25 @@ const arrowWrapperStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
 	top: '50%',
 	transform: 'translateY(-50%)',
-	backgroundColor: token('elevation.surface.overlay', N20),
+	backgroundColor: token('elevation.surface.overlay'),
 	borderRadius: token('radius.full'),
 	display: 'flex',
 	cursor: 'pointer',
-	transition: 'opacity 0.3s',
-	boxShadow: token('elevation.shadow.overlay', '0 1px 6px 0 rgba(0, 0, 0, 0.6)'),
-	color: token('color.icon', 'black'),
+	transition: token('motion.button.hovered'),
+	boxShadow: token('elevation.shadow.overlay'),
+	color: token('color.icon'),
 	width: '30px',
 	height: '30px',
 	justifyContent: 'center',
 	opacity: 0,
 	'&:hover': {
-		color: token('color.text.subtle', 'black'),
-		backgroundColor: token('elevation.surface.overlay.hovered', N40),
+		color: token('color.text.subtle'),
+		backgroundColor: token('elevation.surface.overlay.hovered'),
 	},
 	'&:active': {
-		color: token('color.text.selected', B400),
-		backgroundColor: token('color.background.selected', B50),
+		transition: token('motion.button.pressed'),
+		color: token('color.text.selected'),
+		backgroundColor: token('color.background.selected'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	svg: {
@@ -96,19 +101,26 @@ const arrowWrapperStyles = css({
 	},
 });
 
+const arrowWrapperMotionStyles = css({
+	transition: token('motion.button.hovered'),
+	'&:active': {
+		transition: token('motion.button.pressed'),
+	},
+});
+
 const arrowLeftWrapperStyles = css({
-	left: token('space.100', '8px'),
+	left: token('space.100'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	svg: {
-		paddingRight: token('space.025', '2px'),
+		paddingRight: token('space.025'),
 	},
 });
 
 const arrowRightWrapperStyles = css({
-	right: token('space.100', '8px'),
+	right: token('space.100'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	svg: {
-		paddingLeft: token('space.025', '2px'),
+		paddingLeft: token('space.025'),
 	},
 });
 
@@ -118,7 +130,12 @@ const shadowStyles = css({
 	height: '100%',
 	top: 0,
 	width: '2px',
-	backgroundColor: token('color.border', 'rgba(0, 0, 0, 0.2)'),
+	backgroundColor: token('color.border'),
+});
+
+const resetButtonStyle = css({
+	all: 'unset',
+	display: 'block',
 });
 
 const shadowLeftStyles = css({
@@ -142,14 +159,25 @@ export const ArrowLeftWrapper = ({
 	onClick,
 }: {
 	children: ReactNode;
-} & OnClick) => (
-	// eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlaskit/ui-styling-standard/no-classname-prop, @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/no-static-element-interactions -- Ignored via go/DSP-18766
-	<div css={[arrowWrapperStyles, arrowLeftWrapperStyles]} className="arrow" onClick={onClick}>
-		{children}
-	</div>
-);
+} & OnClick): JSX.Element => {
+	return (
+		<button
+			css={[
+				resetButtonStyle,
+				arrowWrapperStyles,
+				arrowLeftWrapperStyles,
+				fg('platform-dst-motion-uplift-custom-button') && arrowWrapperMotionStyles,
+			]}
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+			className="arrow"
+			onClick={(event) => onClick && onClick(event as unknown as React.MouseEvent<HTMLDivElement>)}
+		>
+			{children}
+		</button>
+	);
+};
 
-export const ShadowRight = ({ children }: { children: ReactNode }) => (
+export const ShadowRight = ({ children }: { children: ReactNode }): JSX.Element => (
 	<div css={[shadowStyles, shadowRightStyles]}>{children}</div>
 );
 
@@ -158,12 +186,23 @@ export const ArrowRightWrapper = ({
 	onClick,
 }: {
 	children: ReactNode;
-} & OnClick) => (
-	// eslint-disable-next-line @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlaskit/ui-styling-standard/no-classname-prop, @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/no-static-element-interactions -- Ignored via go/DSP-18766
-	<div css={[arrowWrapperStyles, arrowRightWrapperStyles]} className="arrow" onClick={onClick}>
-		{children}
-	</div>
-);
+} & OnClick): JSX.Element => {
+	return (
+		<button
+			css={[
+				resetButtonStyle,
+				arrowWrapperStyles,
+				arrowRightWrapperStyles,
+				fg('platform-dst-motion-uplift-custom-button') && arrowWrapperMotionStyles,
+			]}
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+			className="arrow"
+			onClick={(event) => onClick && onClick(event as unknown as React.MouseEvent<HTMLDivElement>)}
+		>
+			{children}
+		</button>
+	);
+};
 
 export const LeftArrow: React.FC<OnClick> = ({ onClick }: OnClick) => (
 	<ShadowLeft>
@@ -186,7 +225,7 @@ export const FilmStripViewWrapper = ({
 }: {
 	children: ReactNode;
 	'data-testid': string | undefined;
-}) => (
+}): JSX.Element => (
 	<div css={filmStripViewStyles} data-testid={dataTestId}>
 		{children}
 	</div>
@@ -201,7 +240,9 @@ export type FilmStripListWrapperProps = {
 	'data-testid': string | undefined;
 };
 
-export const FilmStripListWrapper = forwardRef<HTMLDivElement, FilmStripListWrapperProps>(
+export const FilmStripListWrapper: React.ForwardRefExoticComponent<
+	FilmStripListWrapperProps & React.RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, FilmStripListWrapperProps>(
 	(
 		{ children, onWheel, onTouchStart, onTouchMove, onTouchEnd, 'data-testid': dataTestId },
 		ref,
@@ -229,18 +270,18 @@ export type FilmStripListProps = {
 	};
 };
 
-export const FilmStripList = React.forwardRef<HTMLUListElement, FilmStripListProps>(
-	({ children, style }, ref) => (
-		<ul
-			css={[filmStripListStyles]}
-			ref={ref as React.RefObject<HTMLUListElement>}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			style={style}
-		>
-			{children}
-		</ul>
-	),
-);
+export const FilmStripList: React.ForwardRefExoticComponent<
+	FilmStripListProps & React.RefAttributes<HTMLUListElement>
+> = React.forwardRef<HTMLUListElement, FilmStripListProps>(({ children, style }, ref) => (
+	<ul
+		css={[filmStripListStyles]}
+		ref={ref as React.RefObject<HTMLUListElement>}
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+		style={style}
+	>
+		{children}
+	</ul>
+));
 
 export const FilmStripListItem = ({
 	children,
@@ -248,7 +289,7 @@ export const FilmStripListItem = ({
 }: {
 	children: ReactNode;
 	index: React.Key;
-}) => (
+}): JSX.Element => (
 	<li
 		css={filmStripListItemStyles}
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766

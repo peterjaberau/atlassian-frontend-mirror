@@ -3,21 +3,20 @@
  * @jsx jsx
  */
 import { css, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { ButtonGroup } from '@atlaskit/button';
+import ButtonGroup from '@atlaskit/button/button-group';
 import ErrorIcon from '@atlaskit/icon/core/status-error';
 import { token } from '@atlaskit/tokens';
 
 import { Button } from '../../../common/ui/Button';
-
 import { EditButton } from './edit-button';
 import { messages } from './messages';
 import { SubmitButton } from './submit-button';
 
 const formFooterWrapperStyles = css({
 	display: 'flex',
-	marginTop: token('space.300', '24px'),
+	marginTop: token('space.300'),
 	justifyContent: 'flex-end',
 });
 
@@ -50,7 +49,7 @@ export const CreateFormFooter = ({
 				<div role="alert" css={errorStyles} data-testid={`${testId}-error`}>
 					<ErrorIcon
 						label={formErrorMessage}
-						color={token('color.icon.danger', '#E34935')}
+						color={token('color.icon.danger')}
 						spacing="spacious"
 					/>
 					{formErrorMessage}

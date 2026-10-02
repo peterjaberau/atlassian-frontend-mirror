@@ -6,7 +6,7 @@ import React from 'react';
 
 import { cssMap, jsx } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 
 import { type InlinePreloaderStyle } from '../../types';
@@ -55,7 +55,7 @@ export const InlineCardResolvingView = ({
 	const renderSpinner = React.useCallback(
 		() => (
 			<Box as="span" xcss={styles.spinnerWrapper}>
-				<Spinner size={14} interactionName='smart-card-inline-card-spinner' />
+				<Spinner size={14} interactionName="smart-card-inline-card-spinner" />
 			</Box>
 		),
 		[],

@@ -1,15 +1,14 @@
-import { Rectangle } from '@atlaskit/media-ui';
+import { Rectangle } from '@atlaskit/media-ui/rectangle';
 
 export const DEFAULT_VISIBLE_PREDEFINED_AVATARS = 5;
 export const AVATAR_DIALOG_WIDTH = 375;
-export const AVATAR_DIALOG_HEIGHT = 470;
 export const PREDEFINED_AVATARS_VIEW_WIDTH = 343;
 export const PREDEFINED_AVATARS_VIEW_HEIGHT = 290;
 
-export const CONTAINER_SIZE = 8 * 32;
-export const CONTAINER_INNER_SIZE = 8 * 25;
-export const CONTAINER_PADDING = (CONTAINER_SIZE - CONTAINER_INNER_SIZE) / 2;
+export const CONTAINER_SIZE: number = 8 * 32;
+export const CONTAINER_INNER_SIZE: number = 8 * 25;
+export const CONTAINER_PADDING: number = (CONTAINER_SIZE - CONTAINER_INNER_SIZE) / 2;
 
-export const CONTAINER_RECT = new Rectangle(CONTAINER_SIZE, CONTAINER_SIZE);
+export const CONTAINER_RECT: Rectangle = new Rectangle(CONTAINER_SIZE, CONTAINER_SIZE);
 
 export const IMAGE_MOVE_UNIT = 5;

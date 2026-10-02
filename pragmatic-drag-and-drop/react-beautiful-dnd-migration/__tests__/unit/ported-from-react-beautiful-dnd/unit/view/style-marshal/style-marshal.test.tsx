@@ -92,8 +92,8 @@ it('should have the expected styles', () => {
 	const { contextId, unmount } = renderApp();
 
 	const styleTag = getStyleTag(contextId);
-	expect(styleTag.innerHTML).toMatchInlineSnapshot(
-		`"[data-rbd-drag-handle-context-id="2"] { cursor: grab; -webkit-touch-callout: none; }"`,
+	expect(styleTag.innerHTML).toBe(
+		`[data-rbd-drag-handle-context-id="2"] { cursor: grab; -webkit-touch-callout: none; }`,
 	);
 
 	unmount();

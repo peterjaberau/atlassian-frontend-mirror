@@ -1,43 +1,52 @@
-import { isFedRamp } from '@atlaskit/atlassian-context';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { isFedRamp } from '@atlaskit/atlassian-context/is-fedramp';
 
 import type {
 	NavigationAction,
 	NavigationActionCommon,
 	RequireOrgIdOrCloudId,
 } from '../../common/types';
-import { hostname, openInNewTab, pathname, redirect } from '../../common/utils';
-import { isTeamsAppEnabled } from '../../common/utils/is-teams-app-enabled';
+import { hostname } from '../../common/utils/hostname';
+import { openInNewTab } from '../../common/utils/openInNewTab';
+import { pathname } from '../../common/utils/pathname';
+import { redirect } from '../../common/utils/redirect';
+import { generatePath } from './generatePath';
+import { generateTeamsAppPath } from './generateTeamsAppPath';
+import { getHostProductFromPath } from './getHostProductFromPath';
+import { getPathAndQuery } from './getPathAndQuery';
+import { onNavigateBase } from './onNavigateBase';
 
-import {
-	generatePath,
-	generateTeamsAppPath,
-	getHostProductFromPath,
-	getPathAndQuery,
-	onNavigateBase,
-} from './utils';
-
-jest.mock('@atlaskit/atlassian-context', () => ({
+jest.mock('@atlaskit/atlassian-context/get-atl-context-url', () => ({
+	...jest.requireActual('@atlaskit/atlassian-context/get-atl-context-url'),
 	getATLContextUrl: jest.fn((product: string) => {
 		if (product === 'home') {
 			return 'https://home.atlassian.com';
 		}
 		return `https://${product}.atlassian.net`;
 	}),
+}));
+jest.mock('@atlaskit/atlassian-context/is-fedramp', () => ({
+	...jest.requireActual('@atlaskit/atlassian-context/is-fedramp'),
 	isFedRamp: jest.fn(() => false),
+}));
+jest.mock('@atlaskit/atlassian-context/is-isolated-cloud', () => ({
+	...jest.requireActual('@atlaskit/atlassian-context/is-isolated-cloud'),
 	isIsolatedCloud: jest.fn(() => false),
 }));
 
-jest.mock('../../common/utils', () => ({
-	openInNewTab: jest.fn(),
-	redirect: jest.fn(),
+jest.mock('../../common/utils/hostname', () => ({
 	hostname: jest.fn(() => 'hello.atlassian.net'),
+}));
+jest.mock('../../common/utils/openInNewTab', () => ({
+	openInNewTab: jest.fn(),
+}));
+jest.mock('../../common/utils/origin', () => ({
 	origin: jest.fn(() => 'https://hello.atlassian.net'),
+}));
+jest.mock('../../common/utils/pathname', () => ({
 	pathname: jest.fn(() => '/jira/somepath'),
 }));
-
-jest.mock('../../common/utils/is-teams-app-enabled', () => ({
-	isTeamsAppEnabled: jest.fn(() => true),
+jest.mock('../../common/utils/redirect', () => ({
+	redirect: jest.fn(),
 }));
 
 const orgAndCloudId: RequireOrgIdOrCloudId = {
@@ -116,67 +125,7 @@ describe('teams app navigation utils', () => {
 		});
 	});
 	describe('generatePath', () => {
-		describe('teams app disabled', () => {
-			beforeEach(() => {
-				(isTeamsAppEnabled as jest.Mock).mockReturnValue(false);
-			});
-			afterAll(() => {
-				(isTeamsAppEnabled as jest.Mock).mockReturnValue(true);
-			});
-			it('should generate the correct path for Jira', () => {
-				const config = {
-					...baseConfig,
-				};
-				const path = 'somepath';
-				const expectedPath = `https://hello.atlassian.net/jira/people/${path}`;
-				expect(generatePath(path, config)).toEqual(expectedPath);
-			});
-			it('should generate the correct path for Confluence', () => {
-				const config: NavigationActionCommon = {
-					...baseConfig,
-					hostProduct: 'confluence',
-				};
-				const path = 'somepath';
-				const expectedPath = `https://hello.atlassian.net/wiki/people/${path}`;
-				expect(generatePath(path, config)).toEqual(expectedPath);
-			});
-
-			it('should generate the correct path for Home', () => {
-				const config: NavigationActionCommon = {
-					...baseConfig,
-					hostProduct: 'home',
-				};
-				const path = 'somepath';
-				const expectedPath = `https://home.atlassian.com/o/${config.orgId}/people/${path}?cloudId=${config.cloudId}`;
-				expect(generatePath(path, config)).toEqual(expectedPath);
-			});
-
-			it('should generate the correct path for Home with no hostProduct', () => {
-				const config: NavigationActionCommon = {
-					...baseConfig,
-					hostProduct: undefined,
-				};
-				const path = 'somepath';
-				const expectedPath = `https://home.atlassian.com/o/${config.orgId}/people/${path}?cloudId=${config.cloudId}`;
-				expect(generatePath(path, config)).toEqual(expectedPath);
-			});
-
-			it('should generate the correct path for Home with anchor', () => {
-				const config: NavigationActionCommon = {
-					...baseConfig,
-					hostProduct: 'home',
-				};
-				const path = 'somepath';
-				const anchor = 'workswith';
-				const expectedPath = `https://home.atlassian.com/o/${config.orgId}/people/${path}#${anchor}?cloudId=${config.cloudId}`;
-				expect(generatePath(path, config, undefined, anchor)).toEqual(expectedPath);
-			});
-		});
-
-		describe('teams app enabled', () => {
-			beforeEach(() => {
-				(isTeamsAppEnabled as jest.Mock).mockReturnValue(true);
-			});
+		describe('Teams app', () => {
 			it('should generate the correct path for Jira', () => {
 				const config = {
 					...baseConfig,
@@ -276,82 +225,21 @@ describe('teams app navigation utils', () => {
 					expect(generatePath(path, config)).toEqual(expectedPath);
 				});
 
-				ffTest.on('teams-app-fedramp-stg-fedm-hostname-support', 'with feature flag on', () => {
-					it('should generate a staging path for Confluence', () => {
-						(hostname as jest.Mock).mockReturnValue('hello-fedm.atlassian-stg-fedm.net');
-						const config: NavigationActionCommon = {
-							...baseConfig,
-							hostProduct: 'confluence',
-						};
-						const path = 'somepath';
-						const expectedPath = `https://teams.stg.atlassian-us-gov-mod.com/${path}?cloudId=${config.cloudId}`;
-						expect(generatePath(path, config)).toEqual(expectedPath);
-					});
+				it('should generate a staging path for Confluence', () => {
+					(hostname as jest.Mock).mockReturnValue('hello-fedm.atlassian-stg-fedm.net');
+					const config: NavigationActionCommon = {
+						...baseConfig,
+						hostProduct: 'confluence',
+					};
+					const path = 'somepath';
+					const expectedPath = `https://teams.stg.atlassian-us-gov-mod.com/${path}?cloudId=${config.cloudId}`;
+					expect(generatePath(path, config)).toEqual(expectedPath);
 				});
 			});
 		});
 	});
 	describe('onNavigateBase', () => {
-		describe('teams app disabled', () => {
-			beforeEach(() => {
-				(isTeamsAppEnabled as jest.Mock).mockReturnValue(false);
-			});
-			afterAll(() => {
-				(isTeamsAppEnabled as jest.Mock).mockReturnValue(true);
-			});
-			it('should call push with the correct href when push is provided', () => {
-				const pushMock = jest.fn();
-				const config = {
-					...baseConfig,
-					shouldOpenInSameTab: true,
-					push: pushMock,
-				};
-				const href = 'https://example.com';
-				const redirectMock = jest.fn();
-				(redirect as jest.Mock).mockImplementation(redirectMock);
-
-				const onNavigate = onNavigateBase(href, config);
-				onNavigate();
-
-				expect(redirectMock).not.toHaveBeenCalled();
-				expect(pushMock).toHaveBeenCalledWith(href);
-			});
-
-			it('should call openInNewTab with the correct href when open in new tab is set', () => {
-				const config = {
-					...baseConfig,
-					shouldOpenInSameTab: false,
-				};
-				const href = 'https://example.com';
-				const openInNewTabMock = jest.fn();
-				(openInNewTab as jest.Mock).mockImplementation(openInNewTabMock);
-
-				const onNavigate = onNavigateBase(href, config);
-				onNavigate();
-
-				expect(openInNewTabMock).toHaveBeenCalledWith(href);
-			});
-
-			it('should call redirect with the correct href when push is not provided', () => {
-				const config = {
-					...baseConfig,
-					shouldOpenInSameTab: true,
-				};
-				const href = 'https://example.com';
-				const redirectMock = jest.fn();
-				(redirect as jest.Mock).mockImplementation(redirectMock);
-				config.push = undefined;
-
-				const onNavigate = onNavigateBase(href, config);
-				onNavigate();
-
-				expect(redirectMock).toHaveBeenCalledWith(href);
-			});
-		});
-		describe('teams app enabled', () => {
-			beforeEach(() => {
-				(isTeamsAppEnabled as jest.Mock).mockReturnValue(true);
-			});
+		describe('Teams app', () => {
 			it('should call redirect with the correct href when shouldOpenInSameTab is true', () => {
 				const pushMock = jest.fn();
 				const config = {
@@ -504,8 +392,8 @@ describe('teams app navigation utils', () => {
 			};
 			const result = getPathAndQuery(action);
 			expect(result).toEqual({
-				path: 'search/people',
-				query: new URLSearchParams('search term'),
+				path: '',
+				query: new URLSearchParams({ screen: 'SEARCH_PEOPLE' }),
 			});
 		});
 		it('should return the correct path and query for people directory without query', () => {
@@ -516,8 +404,8 @@ describe('teams app navigation utils', () => {
 			};
 			const result = getPathAndQuery(action);
 			expect(result).toEqual({
-				path: 'search/people',
-				query: new URLSearchParams(),
+				path: '',
+				query: new URLSearchParams({ screen: 'SEARCH_PEOPLE' }),
 			});
 		});
 		it('should return the correct path and query for user work', () => {

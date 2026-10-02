@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/user-picker",
-	"version": "11.21.1",
+	"version": "14.0.3",
 	"description": "Fabric component for display a dropdown to select a user from",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,13 +12,27 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
+	"devDependencies": {
+		"@af/integration-testing": "workspace:^",
+		"@af/search-test-utils": "workspace:^",
+		"@af/visual-regression": "workspace:^",
+		"@atlaskit/button": "workspace:^",
+		"@atlaskit/heading": "workspace:^",
+		"@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/a11y-playwright-testing": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"@emotion/styled": "root:*",
+		"@testing-library/dom": "root:*",
+		"@testing-library/jest-dom": "root:*",
+		"@testing-library/react": "root:*",
+		"@testing-library/user-event": "root:*",
+		"mock-apollo-client": "root:*",
+		"react": "root:*",
+		"react-dom": "root:*",
+		"react-intl": "root:*",
+		"react-select-event": "root:*"
 	},
 	"sideEffects": [
 		"*.compiled.css"
@@ -27,14 +41,76 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./analytics": "./src/analytics.ts",
+		"./call-callback": "./src/components/callCallback.ts",
+		"./cancel-event": "./src/cancelEvent.ts",
+		"./check-valid-id": "./src/checkValidId.ts",
+		"./clear-event": "./src/clearEvent.ts",
+		"./components/custom-option/main": "./src/components/CustomOption/main.tsx",
+		"./components/custom-option": "./src/components/CustomOption/index.ts",
+		"./components/email-option/main": "./src/components/EmailOption/main.tsx",
+		"./components/email-option": "./src/components/EmailOption/index.ts",
+		"./components/email-validation": "./src/components/emailValidation.ts",
+		"./components/group-option/main": "./src/components/GroupOption/main.tsx",
+		"./components/group-option": "./src/components/GroupOption/index.ts",
+		"./components/option": "./src/components/Option.tsx",
+		"./components/popup-user-picker": "./src/components/PopupUserPicker.tsx",
+		"./components/single-value": "./src/components/SingleValue.tsx",
+		"./components/team-option/main": "./src/components/TeamOption/main.tsx",
+		"./components/team-option": "./src/components/TeamOption/index.ts",
+		"./components/user-option": "./src/components/UserOption.tsx",
+		"./components/user-picker": "./src/components/UserPicker.tsx",
+		"./create-default-picker-attributes": "./src/createDefaultPickerAttributes.ts",
+		"./create-event": "./src/createEvent.ts",
+		"./delete-event": "./src/deleteEvent.ts",
+		"./down-key-count": "./src/downKeyCount.ts",
+		"./extract-option-value": "./src/components/extractOptionValue.ts",
+		"./failed-event": "./src/failedEvent.ts",
+		"./focus-event": "./src/focusEvent.ts",
+		"./get-avatar-size": "./src/components/getAvatarSize.ts",
+		"./get-avatar-url": "./src/components/getAvatarUrl.ts",
+		"./has-value": "./src/components/hasValue.ts",
 		"./i18n/*": {
 			"publish": null,
 			"default": "./src/i18n/*.ts"
 		},
-		"./option": "./src/option.ts",
-		"./types": "./src/types.ts"
+		"./is-child-input": "./src/components/isChildInput.ts",
+		"./is-custom": "./src/components/isCustom.ts",
+		"./is-default-value-populated": "./src/components/isDefaultValuePopulated.ts",
+		"./is-email": "./src/components/isEmail.ts",
+		"./is-external-user": "./src/components/isExternalUser.ts",
+		"./is-group": "./src/components/isGroup.ts",
+		"./is-iterable": "./src/components/isIterable.ts",
+		"./is-lozenge-text": "./src/components/isLozengeText.ts",
+		"./is-popup-user-picker-by-component": "./src/components/isPopupUserPickerByComponent.ts",
+		"./is-popup-user-picker-by-props": "./src/components/isPopupUserPickerByProps.ts",
+		"./is-single-value": "./src/components/isSingleValue.ts",
+		"./is-team": "./src/components/isTeam.ts",
+		"./is-user": "./src/components/isUser.ts",
+		"./number-of-results": "./src/numberOfResults.ts",
+		"./option-data2-analytics": "./src/optionData2Analytics.ts",
+		"./optionToSelectableOption": "./src/components/optionToSelectableOption.ts",
+		"./query-length": "./src/queryLength.ts",
+		"./searched-event": "./src/searchedEvent.ts",
+		"./select-event": "./src/selectEvent.ts",
+		"./session-duration": "./src/sessionDuration.ts",
+		"./session-id": "./src/sessionId.ts",
+		"./space-in-query": "./src/spaceInQuery.ts",
+		"./start-session": "./src/startSession.ts",
+		"./types": "./src/types.ts",
+		"./up-key-count": "./src/upKeyCount.ts",
+		"./user-info-event": "./src/userInfoEvent.ts",
+		"./utils": "./src/components/utils.ts",
+		"./values": "./src/values.ts",
+		"./option": "./src/option.ts"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Search Platform: Search Experience",
 		"slack": {
 			"channel": "#search-plex-prs",
@@ -45,6 +121,9 @@
 			}
 		},
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "User Picker"
 		}
 	},
@@ -60,13 +139,16 @@
 		"@atlaskit/logo": "workspace:^",
 		"@atlaskit/lozenge": "workspace:^",
 		"@atlaskit/people-teams-ui-public": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/popper": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/react-select": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/spinner": "workspace:^",
+		"@atlaskit/tag": "workspace:^",
 		"@atlaskit/teams-avatar": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlaskit/ufo": "workspace:^",
@@ -80,34 +162,7 @@
 	"peerDependencies": {
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-intl-next": "*"
-	},
-	"devDependencies": {
-		"@af/integration-testing": "workspace:^",
-		"@af/search-test-utils": "workspace:^",
-		"@af/visual-regression": "workspace:^",
-		"@atlaskit/elements-test-helpers": "workspace:^",
-		"@atlaskit/heading": "workspace:^",
-		"@atlassian/a11y-jest-testing": "workspace:^",
-		"@atlassian/feature-flags-test-utils": "workspace:^",
-		"@emotion/styled": "root:*",
-		"@testing-library/dom": "root:*",
-		"@testing-library/jest-dom": "root:*",
-		"@testing-library/react": "root:*",
-		"@testing-library/user-event": "root:*",
-		"@types/uuid": "root:*",
-		"enzyme": "root:*",
-		"mock-apollo-client": "root:*",
-		"react-beautiful-dnd": "root:*",
-		"react-intl-next": "root:*",
-		"react-select-event": "root:*"
-	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color"
-			]
-		}
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"keywords": [
 		"fabric",
@@ -117,19 +172,13 @@
 		"platform-component-visual-refresh": {
 			"type": "boolean"
 		},
-		"platform_user_picker_firefox_tab_fix": {
+		"platform-dst-lozenge-tag-badge-visual-uplifts": {
 			"type": "boolean"
 		},
-		"twcg-444-invite-usd-improvements-m2-gate": {
+		"platform-dst-motion-uplift-labels": {
 			"type": "boolean"
 		},
-		"product-terminology-refresh": {
-			"type": "boolean"
-		},
-		"jira_ai_agent_avatar_user_picker_user_option": {
-			"type": "boolean"
-		},
-		"a11y-create-team-is-not-focusable-and-has-no-btn": {
+		"jsm_routing_recommended_agent_minor_fix": {
 			"type": "boolean"
 		}
 	}

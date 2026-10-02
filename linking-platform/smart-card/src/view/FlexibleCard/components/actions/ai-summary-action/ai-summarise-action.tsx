@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import AiIcon from '@atlaskit/icon/core/atlassian-intelligence';
+import RovoIcon from '@atlaskit/icon-lab/core/rovo';
 
 import { useAnalyticsEvents } from '../../../../../common/analytics/generated/use-analytics-events';
 import { messages } from '../../../../../messages';
@@ -12,7 +12,6 @@ import type {
 	AISummaryStatus,
 } from '../../../../../state/hooks/use-ai-summary/ai-summary-service/types';
 import Action from '../action';
-
 import type { AISummaryActionProps } from './types';
 import { getErrorMessage } from './utils';
 
@@ -55,12 +54,19 @@ export function AISummariseAction({
 
 	return (
 		<Action
-			content={<FormattedMessage {...messages.ai_summary_action} />}
-			icon={<AiIcon spacing="spacious" color="currentColor" label="Summarise with AI" />}
+			content={<FormattedMessage {...messages.ai_summary_action_rebrand} />}
+			icon={
+				<RovoIcon
+					spacing="spacious"
+					color="currentColor"
+					label="Summarise with AI"
+					size={props.iconSize}
+				/>
+			}
 			onClick={handleActionClick}
 			testId={`${testId}-summarise-action`}
 			isLoading={status === 'loading'}
-			tooltipMessage={<FormattedMessage {...messages.ai_summary_action_description} />}
+			tooltipMessage={<FormattedMessage {...messages.ai_summary_action_description_rebrand} />}
 			{...props}
 		/>
 	);

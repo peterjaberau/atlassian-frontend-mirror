@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/help",
-	"version": "9.4.3",
+	"version": "12.2.6",
 	"description": "A cross-product help component",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
@@ -31,11 +23,26 @@
 			"publish": null,
 			"default": "./src/i18n/*.ts"
 		},
-		"./messages": "./src/messages.ts"
+		"./messages": "./src/messages.ts",
+		"./Article": "./src/entry-points/Article.ts",
+		"./ArticlesListItem": "./src/entry-points/ArticlesListItem.tsx",
+		"./Help": "./src/entry-points/Help.tsx",
+		"./HelpContentButton": "./src/entry-points/HelpContentButton.tsx",
+		"./helpers": "./src/entry-points/helpers.ts",
+		"./model/Help": "./src/entry-points/model-Help.ts",
+		"./RelatedArticles": "./src/entry-points/RelatedArticles.tsx",
+		"./styled": "./src/entry-points/styled.tsx",
+		"./WhatsNew": "./src/entry-points/WhatsNew.ts"
 	},
 	"atlassian": {
-		"team": "Self-Help Experiences",
+		"team": "PACE PS2",
+		"slack": {
+			"channel": "#pace-ps2"
+		},
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Help"
 		}
 	},
@@ -58,9 +65,9 @@
 		"@atlaskit/spinner": "workspace:^",
 		"@atlaskit/textarea": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
+		"@atlassian/afm-i18n-platform-help-help": "root:*",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
 		"date-fns": "root:*",
@@ -69,16 +76,20 @@
 		"react-transition-group": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"react-intl-next": "*"
+		"react": "^18.2.0 || ^19.0.0",
+		"react-dom": "^18.2.0 || ^19.0.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@types/react-transition-group": "root:*",
 		"algoliasearch": "root:*",
-		"enzyme": "root:*",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-intl": "root:*",
 		"react-test-renderer": "root:*"
 	},
 	"keywords": [
@@ -87,22 +98,11 @@
 		"ui",
 		"help"
 	],
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"styling": [
-				"compiled"
-			]
-		}
-	},
 	"platform-feature-flags": {
-		"platform-visual-refresh-icons": {
+		"jfp_a11y_fix_sr_accessibility_for_button_group": {
 			"type": "boolean"
 		},
-		"jfp_a11y_fix_sr_accessibility_for_button_group": {
+		"platform-dst-motion-uplift-custom-button": {
 			"type": "boolean"
 		}
 	}

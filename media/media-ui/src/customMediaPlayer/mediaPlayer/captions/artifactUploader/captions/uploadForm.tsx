@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { type IntlShape, injectIntl, type WrappedComponentProps } from 'react-intl-next';
-import Button from '@atlaskit/button/new';
-import Modal, {
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import LocaleSelect, { defaultLocales, type Locale } from '@atlaskit/locale/LocaleSelect';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box, Inline } from '@atlaskit/primitives';
+
+import {
+	type IntlShape,
+	injectIntl,
+	type WrappedComponentProps,
+	type WithIntlProps,
+} from 'react-intl';
+
+import Button from '@atlaskit/button/default/button';
+import { Label } from '@atlaskit/form/label/default';
 import FileIcon from '@atlaskit/icon/core/file';
+import defaultLocales from '@atlaskit/locale/default-locales';
+import LocaleSelect, { type Locale } from '@atlaskit/locale/LocaleSelect';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
+import { Box, Inline } from '@atlaskit/primitives/compiled';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
-import { Label } from '@atlaskit/form';
-import Spinner from '@atlaskit/spinner';
+
 import { messages } from '../../../../../messages';
 import { formatLocale } from '../../formatLocale';
 import { detectLanguage } from './languageDetector';
@@ -133,4 +141,7 @@ function UploadCaptionsForm({
 		</ModalTransition>
 	);
 }
-export default injectIntl(UploadCaptionsForm);
+const _default_1: React.FC<WithIntlProps<UploadCaptionsFormProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<UploadCaptionsFormProps & WrappedComponentProps>;
+} = injectIntl(UploadCaptionsForm);
+export default _default_1;

@@ -2,13 +2,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
 import { jsx } from '@emotion/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { startColumnResizing, ToolTipContent } from '@atlaskit/editor-common/keymaps';
 import { tableMessages as messages } from '@atlaskit/editor-common/messages';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { TableCssClassName } from '../../types';
 
@@ -18,7 +18,11 @@ type Props = {
 	startIndex: number;
 };
 
-export const ColumnResizeWidget = ({ startIndex, endIndex, includeTooltip }: Props) => {
+export const ColumnResizeWidget = ({
+	startIndex,
+	endIndex,
+	includeTooltip,
+}: Props): jsx.JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	if (!includeTooltip) {

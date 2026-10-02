@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { IconType } from '../../../../../constants';
 import { messages } from '../../../../../messages';
-import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context';
+import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context/useFlexibleUiContext';
 import { BaseBadgeElement, type BaseBadgeElementProps } from '../common';
 
 export type AppliedToComponentsCountElementProps = BaseBadgeElementProps;

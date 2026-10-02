@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
-import { expect, test, viewports } from './fixtures';
+
+import { expect, getClientCalculatedVCRevisions, test, viewports } from './fixtures';
 
 test.describe('ReactUFO: Full precision - Full Vertical Pixel Page', () => {
 	test.use({
 		examplePage: 'full-vertical-pixel-page',
 		featureFlags: ['platform_ufo_canvas_heatmap_full_precision'],
+	} satisfies {
+		examplePage: 'full-vertical-pixel-page';
+		featureFlags: string[];
+		__exampleDependency?: typeof import('../../examples/03-full-vertical-pixel-page.tsx');
 	});
 
 	for (const viewport of viewports) {
@@ -20,7 +25,6 @@ test.describe('ReactUFO: Full precision - Full Vertical Pixel Page', () => {
 				waitForReactUFOPayload,
 				getSectionVisibleAt,
 			}) => {
-				await test.slow();
 				const mainDiv = page.locator('[data-testid="main"]');
 				await expect(mainDiv).toBeVisible();
 
@@ -57,9 +61,9 @@ test.describe('ReactUFO: Full precision - Full Vertical Pixel Page', () => {
 				const ufoRevisions = reactUFOPayload!.attributes.properties['ufo:vc:rev'];
 				expect(ufoRevisions).toBeDefined();
 
-				const applicableRevisions = ufoRevisions?.filter((rev) => rev['revision'] >= 'fy25.03');
+				const applicableRevisions = getClientCalculatedVCRevisions(ufoRevisions);
 
-				for (const rev of applicableRevisions!) {
+				for (const rev of applicableRevisions) {
 					const vc90Result = rev['metric:vc90'];
 					const revisionName = rev['revision'];
 					expect(vc90Result).toBeDefined();
@@ -70,12 +74,7 @@ test.describe('ReactUFO: Full precision - Full Vertical Pixel Page', () => {
 				}
 			});
 
-			test('should capture and report a11y violations', async ({
-				page,
-				waitForReactUFOPayload,
-				getSectionVisibleAt,
-			}) => {
-				await test.slow();
+			test('should capture and report a11y violations', async ({ page }) => {
 				const mainDiv = page.locator('[data-testid="main"]');
 				await expect(mainDiv).toBeVisible();
 
@@ -101,7 +100,6 @@ test.describe('ReactUFO: Scaled (with margin error)- Full Vertical Pixel Page', 
 				waitForReactUFOPayload,
 				getSectionVisibleAt,
 			}) => {
-				await test.slow();
 				const mainDiv = page.locator('[data-testid="main"]');
 				await expect(mainDiv).toBeVisible();
 
@@ -142,9 +140,9 @@ test.describe('ReactUFO: Scaled (with margin error)- Full Vertical Pixel Page', 
 				const ufoRevisions = reactUFOPayload!.attributes.properties['ufo:vc:rev'];
 				expect(ufoRevisions).toBeDefined();
 
-				const applicableRevisions = ufoRevisions?.filter((rev) => rev['revision'] >= 'fy25.03');
+				const applicableRevisions = getClientCalculatedVCRevisions(ufoRevisions);
 
-				for (const rev of applicableRevisions!) {
+				for (const rev of applicableRevisions) {
 					const vc90Result = rev['metric:vc90'];
 					const revisionName = rev['revision'];
 					expect(vc90Result).toBeDefined();

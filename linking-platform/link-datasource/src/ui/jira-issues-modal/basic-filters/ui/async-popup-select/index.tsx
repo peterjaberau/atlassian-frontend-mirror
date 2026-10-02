@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import isEqual from 'lodash/isEqual';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { type ValueType } from '@atlaskit/select';
+import type { ValueType } from '@atlaskit/select/types';
 
 import type { Site } from '../../../../../common/types';
 import { FilterPopupSelect } from '../../../../common/modal/popup-select';
@@ -12,7 +12,6 @@ import { SEARCH_DEBOUNCE_MS } from '../../../../common/modal/popup-select/consta
 import { type SelectOption } from '../../../../common/modal/popup-select/types';
 import { useFilterOptions } from '../../hooks/useFilterOptions';
 import { type BasicFilterFieldType } from '../../types';
-
 import { asyncPopupSelectMessages } from './messages';
 
 export interface AsyncPopupSelectProps {

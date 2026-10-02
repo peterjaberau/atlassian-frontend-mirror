@@ -3,45 +3,53 @@
  * @jsx jsx
  */
 import React, { type FormEvent, Fragment, createRef } from 'react';
-import { jsx, css } from '@compiled/react';
-import { cssMap } from '@atlaskit/css';
-
-import { token } from '@atlaskit/tokens';
 import { PureComponent } from 'react';
-import ModalDialog, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-} from '@atlaskit/modal-dialog';
-import Button from '@atlaskit/button/standard-button';
+
+import { jsx, css } from '@compiled/react';
 import {
 	FormattedMessage,
 	IntlProvider,
 	injectIntl,
+	type MessageDescriptor,
 	type WrappedComponentProps,
-} from 'react-intl-next';
-import { Field, HelperMessage } from '@atlaskit/form';
-import { fileToDataURI, dataURItoFile, messages } from '@atlaskit/media-ui';
-import { Box } from '@atlaskit/primitives/compiled';
-import Textfield from '@atlaskit/textfield';
+} from 'react-intl';
+
+import ButtonGroup from '@atlaskit/button/button-group';
+import LoadingButton from '@atlaskit/button/loading-button';
+import Button from '@atlaskit/button/standard-button';
+import { cssMap } from '@atlaskit/css';
+import Field from '@atlaskit/form/field';
+import { HelperMessage } from '@atlaskit/form/helper-message';
+import { dataURItoFile } from '@atlaskit/media-ui/dataURItoFile';
+import { fileToDataURI } from '@atlaskit/media-ui/fileToDataURI';
+import { messages } from '@atlaskit/media-ui/messages';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import { Box, Stack } from '@atlaskit/primitives/compiled';
+import Textfield from '@atlaskit/textfield/text-field';
+import { token } from '@atlaskit/tokens';
+
 import { type Avatar } from '../avatar-list';
 import ImageNavigator, { type CropProperties } from '../image-navigator';
+import { type LoadParameters } from '../image-navigator/index';
 import { PredefinedAvatarList } from '../predefined-avatar-list';
 import { PredefinedAvatarView } from '../predefined-avatar-view';
-import { type LoadParameters } from '../image-navigator/index';
-import ButtonGroup from '@atlaskit/button/button-group';
-
 import { DEFAULT_VISIBLE_PREDEFINED_AVATARS } from './layout-const';
-import { AVATAR_DIALOG_WIDTH, AVATAR_DIALOG_HEIGHT, CONTAINER_INNER_SIZE } from './layout-const';
-import { type AvatarPickerDialogProps, type AvatarPickerDialogState, Mode } from './types';
+import { AVATAR_DIALOG_WIDTH, CONTAINER_INNER_SIZE } from './layout-const';
 import { SRLiveTitle } from './SRLiveTitle';
-import LoadingButton from '@atlaskit/button/loading-button';
 import { SubmitErrorDialog } from './SubmitErrorDialog';
+import { type AvatarPickerDialogProps, type AvatarPickerDialogState, Mode } from './types';
 
 export const MAX_SIZE_MB = 10;
 
-export const ERROR = {
+export const ERROR: {
+	URL: MessageDescriptor;
+	FORMAT: MessageDescriptor;
+	SIZE: MessageDescriptor;
+} = {
 	URL: messages.image_url_invalid_error,
 	FORMAT: messages.image_format_invalid_error,
 	SIZE: messages.image_size_too_large_error,
@@ -58,8 +66,20 @@ export const fixedCrop = {
 export type AvatarPickerDialogWithIntlProps = AvatarPickerDialogProps &
 	Partial<WrappedComponentProps>;
 
+// Preferred dialog height (470px); grows beyond this so the submit error flag cannot push the footer outside the modal.
+const AVATAR_DIALOG_HEIGHT = 470;
+
+const dialogContentStyles = cssMap({
+	root: {
+		minHeight: `${AVATAR_DIALOG_HEIGHT}px`,
+	},
+});
+
 const formStyles = css({
 	margin: 0,
+	display: 'flex',
+	flexDirection: 'column',
+	flexGrow: 1,
 });
 
 const avatarPickerViewWrapperStyles = css({
@@ -95,7 +115,9 @@ export class AvatarPickerDialog extends PureComponent<
 	AvatarPickerDialogWithIntlProps,
 	AvatarPickerDialogState
 > {
-	static defaultProps = {
+	static defaultProps: {
+		avatars: never[];
+	} = {
 		avatars: [],
 	};
 
@@ -244,38 +266,39 @@ export class AvatarPickerDialog extends PureComponent<
 		this.setErrorState(errorMessage);
 	};
 
-	render() {
+	render(): JSX.Element {
 		const content = (
 			<ModalDialog
-				height={`${AVATAR_DIALOG_HEIGHT}px`}
 				width={`${AVATAR_DIALOG_WIDTH}px`}
 				shouldScrollInViewport
 				onClose={this.props.onCancel}
 			>
-				{this.props.avatars.length > 0 && <SRLiveTitle mode={this.state.mode} />}
+				<Stack xcss={dialogContentStyles.root} testId="avatar-picker-dialog-content">
+					{this.props.avatars.length > 0 && <SRLiveTitle mode={this.state.mode} />}
 
-				<ModalHeader testId="modal-header" hasCloseButton>
-					<ModalTitle>
-						{this.props.title || <FormattedMessage {...messages.upload_an_avatar} />}
-					</ModalTitle>
-				</ModalHeader>
+					<ModalHeader testId="modal-header" hasCloseButton>
+						<ModalTitle>
+							{this.props.title || <FormattedMessage {...messages.upload_an_avatar} />}
+						</ModalTitle>
+					</ModalHeader>
 
-				{this.state.isSubmitted && <SubmitErrorDialog />}
+					{this.state.isSubmitted && <SubmitErrorDialog />}
 
-				{/* eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx */}
-				<form aria-label="form" onSubmit={this.onSave} css={formStyles}>
-					<ModalBody>
-						<div css={avatarPickerViewWrapperStyles}>{this.renderBody()}</div>
-					</ModalBody>
-					{this.footerContent()}
-				</form>
+					{/* eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx */}
+					<form aria-label="form" onSubmit={this.onSave} css={formStyles}>
+						<ModalBody>
+							<div css={avatarPickerViewWrapperStyles}>{this.renderBody()}</div>
+						</ModalBody>
+						{this.footerContent()}
+					</form>
+				</Stack>
 			</ModalDialog>
 		);
 
 		return this.props.intl ? content : <IntlProvider locale="en">{content}</IntlProvider>;
 	}
 
-	footerContent = () => {
+	footerContent = (): JSX.Element => {
 		const { primaryButtonText, onCancel, isLoading } = this.props;
 		return (
 			<ModalFooter testId="avatar-picker-dialog-footer">
@@ -301,7 +324,7 @@ export class AvatarPickerDialog extends PureComponent<
 		return avatarsSubset;
 	}
 
-	renderPredefinedAvatarList() {
+	renderPredefinedAvatarList(): JSX.Element | null {
 		const { isLoading, selectAvatarLabel, showMoreAvatarsButtonLabel } = this.props;
 		const { selectedAvatar, selectedImage, selectedImageSource } = this.state;
 		const avatars = this.getPredefinedAvatars();
@@ -355,7 +378,7 @@ export class AvatarPickerDialog extends PureComponent<
 		this.updatePrevAltText('');
 	}
 
-	renderAltTextField() {
+	renderAltTextField(): JSX.Element {
 		const { altText } = this.state;
 
 		return (
@@ -380,7 +403,7 @@ export class AvatarPickerDialog extends PureComponent<
 		);
 	}
 
-	renderBody() {
+	renderBody(): JSX.Element {
 		const { avatars, isLoading, predefinedAvatarsText, requireAltText } = this.props;
 		const { mode, selectedImageSource, selectedAvatar, errorMessage } = this.state;
 

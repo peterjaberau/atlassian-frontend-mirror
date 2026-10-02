@@ -1,11 +1,9 @@
 import React from 'react';
-import keycode from 'keycode';
-import { withAnalytics } from '@atlaskit/analytics';
-import { type ResultData, type SelectedResultId, type ResultId } from './Results/types';
-import AkSearch from './Search/Search';
-import { ResultContext, SelectedResultIdContext, type ResultContextType } from './context';
 
-import decorateWithAnalyticsData from './decorateWithAnalyticsData';
+import keycode from 'keycode';
+
+import { withAnalytics } from '@atlaskit/analytics';
+
 import {
 	QS_ANALYTICS_EV_CLOSE,
 	QS_ANALYTICS_EV_KB_CTRLS_USED,
@@ -13,7 +11,12 @@ import {
 	QS_ANALYTICS_EV_QUERY_ENTERED,
 	QS_ANALYTICS_EV_SUBMIT,
 } from './constants';
+import { ResultContext, type ResultContextType } from './context';
+import decorateWithAnalyticsData from './decorateWithAnalyticsData';
 import { type ResultBase } from './Results/ResultBase';
+import { type ResultData, type SelectedResultId, type ResultId } from './Results/types';
+import AkSearch from './Search/Search';
+import { SelectedResultIdContext } from './selected-result-id-context';
 
 /**
  * Get the result ID of a result by its index in the flatResults array
@@ -464,7 +467,8 @@ export class QuickSearch extends React.Component<Props, State> {
  * `withAnalytics` - Injects analytics firing methods that are picked up by
  * @atlaskit/analytics/AnalyticsListener.
  */
-export default decorateWithAnalyticsData(
+const _default_1: React.ComponentClass<Props> = decorateWithAnalyticsData(
 	// @ts-ignore
 	withAnalytics<typeof QuickSearch>(QuickSearch, {}, {}),
 );
+export default _default_1;

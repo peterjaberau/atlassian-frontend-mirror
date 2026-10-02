@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import type { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type { SelectItemMode } from '@atlaskit/editor-common/type-ahead';
 import type {
@@ -6,6 +8,7 @@ import type {
 	TypeAheadStats,
 	UiComponentFactoryParams,
 } from '@atlaskit/editor-common/types';
+import type { TypeAheadSectionTitleDisplay } from '@atlaskit/editor-common/types/type-ahead';
 import type {
 	EditorState,
 	ReadonlyTransaction,
@@ -46,6 +49,11 @@ export interface TypeAheadStatsMobileModifier extends TypeAheadStatsSerializable
 	resetTime: () => void;
 }
 
+export type TypeAheadSectionTitleUpdateState = Pick<
+	TypeAheadResolvedSection,
+	'sectionTitleDisplay' | 'title'
+>;
+
 export type TypeAheadPluginState = {
 	decorationElement: HTMLElement | null;
 	decorationSet: DecorationSet;
@@ -57,10 +65,24 @@ export type TypeAheadPluginState = {
 	 * If true, removes the trigger character from query when typeahead is closed
 	 */
 	removePrefixTriggerOnCancel?: boolean;
+	sections: Array<TypeAheadResolvedSection>;
+	sectionTitleUpdates: Record<string, TypeAheadSectionTitleUpdateState>;
 	selectedIndex: number;
 	stats: TypeAheadStatsSerializable | null;
 	triggerHandler?: TypeAheadHandler;
 	typeAheadHandlers: Array<TypeAheadHandler>;
+};
+
+export type TypeAheadResolvedSection = {
+	endIndex: number;
+	id: string;
+	lozenge?: ReactNode;
+	/**
+	 * Section title display rules copied from the section definition and optional runtime updates.
+	 */
+	sectionTitleDisplay?: TypeAheadSectionTitleDisplay;
+	startIndex: number;
+	title: string;
 };
 
 export type OnInsertSelectedItemProps = {
@@ -130,6 +152,7 @@ export interface TypeAheadPluginSharedState {
 	isOpen: boolean;
 	items: Array<TypeAheadItem>;
 	query: string;
+	sections: Array<TypeAheadResolvedSection>;
 	selectedIndex: number;
 	triggerHandler?: TypeAheadHandler;
 }

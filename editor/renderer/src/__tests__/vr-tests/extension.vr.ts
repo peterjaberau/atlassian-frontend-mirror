@@ -1,3 +1,5 @@
+import { snapshot } from '@af/visual-regression';
+
 import {
 	ExtensionAwesomeList,
 	ExtensionBlockEh,
@@ -7,18 +9,13 @@ import {
 	ExtensionInlineEh,
 	ExtensionInlineEhPlainTextMacroLongText,
 	ExtensionInlineEhPlainTextMacro,
-} from './extension.fixture';
-import { snapshot } from '@af/visual-regression';
+} from './extension.fixture.vr.ap';
 
 snapshot(ExtensionAwesomeList);
 snapshot(ExtensionBlockEh);
 snapshot(ExtensionsWithLayout);
 snapshot(ExtensionsWithinTable);
-snapshot(ExtensionIframeNested, {
-	featureFlags: {
-		platform_editor_dec_a11y_fixes: true,
-	},
-});
+snapshot(ExtensionIframeNested);
 snapshot(ExtensionInlineEh);
 snapshot(ExtensionInlineEhPlainTextMacro);
 snapshot(ExtensionInlineEhPlainTextMacroLongText);

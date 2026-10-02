@@ -2,19 +2,25 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useIntl } from 'react-intl-next';
+
+import { cssMap, jsx } from '@compiled/react';
+import { useIntl } from 'react-intl';
+
 import {
+	defaultEmojiHeight,
 	type EmojiId,
 	type OnEmojiEvent,
 	type EmojiProvider,
 	ResourcedEmoji,
 } from '@atlaskit/emoji';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Pressable } from '@atlaskit/primitives/compiled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { token } from '@atlaskit/tokens';
+
+import { RESOURCED_EMOJI_COMPACT_HEIGHT } from '../shared/constants';
 import { messages } from '../shared/i18n';
 import { isLeftClick } from '../shared/utils';
-import { RESOURCED_EMOJI_COMPACT_HEIGHT } from '../shared/constants';
-import { Pressable } from '@atlaskit/primitives/compiled';
-import { cssMap, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
 	emojiButton: {
@@ -42,10 +48,10 @@ const styles = cssMap({
 		outline: 'none',
 		display: 'flex',
 		transformOrigin: 'center center 0',
-		paddingTop: token('space.025', '2px'),
-		paddingRight: token('space.050', '4px'),
-		paddingBottom: token('space.050', '4px'),
-		paddingLeft: token('space.050', '4px'),
+		paddingTop: token('space.025'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.050'),
+		paddingLeft: token('space.050'),
 		backgroundColor: token('color.background.neutral.subtle'),
 		borderWidth: token('border.width'),
 		borderStyle: 'solid',
@@ -62,11 +68,49 @@ const styles = cssMap({
 		},
 		'&:active': {
 			backgroundColor: token('color.background.neutral.subtle.pressed'),
+			transition: token('motion.button.pressed'),
 		},
+		transition: token('motion.button.hovered'),
+	},
+	hoverableReactionPickerSelectorEmojiButtonMotion: {
+		outline: 'none',
+		display: 'flex',
+		transformOrigin: 'center center 0',
+		paddingTop: token('space.025'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.050'),
+		paddingLeft: token('space.050'),
+		backgroundColor: token('color.background.neutral.subtle'),
+		borderWidth: token('border.width'),
+		borderStyle: 'solid',
+		borderColor: token('color.border'),
+		borderRadius: token('radius.small'),
+		color: token('color.text.subtle'),
+		marginTop: token('space.0'),
+		marginRight: token('space.0'),
+		marginBottom: token('space.0'),
+		marginLeft: token('space.0'),
+		transition: token('motion.button.hovered'),
+		'&:hover': {
+			backgroundColor: token('color.background.neutral.subtle.hovered'),
+		},
+		'&:active': {
+			backgroundColor: token('color.background.neutral.subtle.pressed'),
+			transition: token('motion.button.pressed'),
+		},
+	},
+
+	emojiSlot: {
+		minWidth: '20px',
+	},
+
+	hoverableReactionPickerSelectorEmojiSlot: {
+		minWidth: '16px',
 	},
 });
 
 export const RENDER_BUTTON_TESTID = 'button-emoji-id';
+export const RENDER_BUTTON_EMOJI_SLOT_TESTID = 'button-emoji-slot-id';
 
 export interface EmojiButtonProps {
 	/**
@@ -95,7 +139,7 @@ export const EmojiButton = ({
 	onClick,
 	emojiProvider,
 	hoverableReactionPickerSelectorEmoji,
-}: EmojiButtonProps) => {
+}: EmojiButtonProps): JSX.Element => {
 	const onButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		if (onClick && isLeftClick(event)) {
@@ -104,6 +148,30 @@ export const EmojiButton = ({
 	};
 
 	const intl = useIntl();
+	const emojiHeight = hoverableReactionPickerSelectorEmoji
+		? RESOURCED_EMOJI_COMPACT_HEIGHT
+		: defaultEmojiHeight;
+	const emoji = (
+		<ResourcedEmoji
+			emojiProvider={emojiProvider}
+			emojiId={emojiId}
+			fitToHeight={
+				hoverableReactionPickerSelectorEmoji ? RESOURCED_EMOJI_COMPACT_HEIGHT : undefined
+			}
+		/>
+	);
+	const reservedEmoji = hoverableReactionPickerSelectorEmoji ? (
+		<span
+			css={styles.hoverableReactionPickerSelectorEmojiSlot}
+			data-testid={RENDER_BUTTON_EMOJI_SLOT_TESTID}
+		>
+			<ResourcedEmoji emojiProvider={emojiProvider} emojiId={emojiId} fitToHeight={emojiHeight} />
+		</span>
+	) : (
+		<span css={styles.emojiSlot} data-testid={RENDER_BUTTON_EMOJI_SLOT_TESTID}>
+			<ResourcedEmoji emojiProvider={emojiProvider} emojiId={emojiId} fitToHeight={emojiHeight} />
+		</span>
+	);
 
 	return (
 		<Pressable
@@ -114,17 +182,16 @@ export const EmojiButton = ({
 			})}
 			xcss={
 				hoverableReactionPickerSelectorEmoji
-					? styles.hoverableReactionPickerSelectorEmojiButton
+					? fg('platform-dst-motion-uplift-custom-button')
+						? styles.hoverableReactionPickerSelectorEmojiButtonMotion
+						: styles.hoverableReactionPickerSelectorEmojiButton
 					: styles.emojiButton
 			}
 		>
-			<ResourcedEmoji
-				emojiProvider={emojiProvider}
-				emojiId={emojiId}
-				fitToHeight={
-					hoverableReactionPickerSelectorEmoji ? RESOURCED_EMOJI_COMPACT_HEIGHT : undefined
-				}
-			/>
+			{expValEquals('platform_teamoji_26_refresh_emoji_picker', 'isEnabled', true) ||
+			fg('platform_teamoji_26_refresh_emoji_picker_user_id')
+				? reservedEmoji
+				: emoji}
 		</Pressable>
 	);
 };

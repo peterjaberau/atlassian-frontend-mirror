@@ -1,6 +1,12 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const mediaLinkToolbarMessages = defineMessages({
+export const mediaLinkToolbarMessages: {
+	backLink: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	backLink: {
 		id: 'fabric.editor.backLink',
 		defaultMessage: 'Go back',

@@ -1,8 +1,10 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import Form, { ErrorMessage, Field, FormFooter } from '@atlaskit/form';
-import TextArea from '@atlaskit/textarea';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
+import TextArea from '@atlaskit/textarea/text-area';
 
 interface FormData {
 	[key: string]: string;
@@ -18,7 +20,7 @@ const validateOnSubmit = (data: FormData) => {
 const requiredValidator = (data: FormData, key: string) => {
 	if (data[key] !== 'open sesame') {
 		return {
-			[key]: 'INCORRECT_PHRASE',
+			[key]: 'Incorrect, try ‘open sesame’',
 		};
 	}
 };
@@ -36,16 +38,8 @@ export default (): React.JSX.Element => {
 				isRequired
 				name="textarea-validation"
 				defaultValue=""
-			>
-				{({ fieldProps, error }: any) => (
-					<Fragment>
-						<TextArea {...fieldProps} />
-						{error === 'INCORRECT_PHRASE' && (
-							<ErrorMessage>Incorrect, try &lsquo;open sesame&rsquo;</ErrorMessage>
-						)}
-					</Fragment>
-				)}
-			</Field>
+				component={({ fieldProps }: any) => <TextArea {...fieldProps} />}
+			/>
 			<FormFooter>
 				<Button type="submit">Submit</Button>
 			</FormFooter>

@@ -1,7 +1,10 @@
+import type { ADFNodeGroup } from '@atlaskit/adf-schema-generator';
 import { adfNodeGroup } from '@atlaskit/adf-schema-generator';
+
 import { blockCard } from '../nodes/blockCard';
 import { blockquote } from '../nodes/blockquote';
 import { bodiedExtension } from '../nodes/bodiedExtension';
+import { bodiedRule } from '../nodes/bodiedRule';
 import { codeBlock } from '../nodes/codeBlock';
 import { confluenceUnsupportedBlock } from '../nodes/confluenceUnsupportedBlock';
 import { decisionList } from '../nodes/decisionList';
@@ -19,7 +22,7 @@ import { table } from '../nodes/tableNodes';
 import { taskList } from '../nodes/task';
 import { unsupportedBlock } from '../nodes/unsupportedBlock';
 
-export const blockGroup = adfNodeGroup(
+export const blockGroup: ADFNodeGroup = adfNodeGroup(
 	'block',
 	[
 		blockCard,
@@ -41,13 +44,17 @@ export const blockGroup = adfNodeGroup(
 		embedCard,
 		extension,
 		extension.use('with_marks'),
+		extension.use('with_annotation'),
 		heading,
 		heading.use('with_indentation'),
 		heading.use('with_no_marks'),
 		heading.use('with_alignment'),
 		mediaGroup,
 		rule,
+		rule.use('with_attrs'),
+		bodiedRule,
 		panel,
+		panel.use('c1'),
 		table,
 		// @ts-expect-error - types don't deal well with circular references for the variant
 		table.use('with_nested_table'),

@@ -1,19 +1,20 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import styled from '@emotion/styled';
-import Button from '@atlaskit/button/new';
-import { Checkbox } from '@atlaskit/checkbox';
+
+import { styled } from '@compiled/react';
+import { IntlProvider } from 'react-intl';
+
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import { token } from '@atlaskit/tokens';
 
-import accessibleSites from '../src/mocks/accessibleSites';
-import { catherineHirons } from '../src/mocks/users';
-import StatefulInlineDialog from '../src/components/StatefulInlineDialog';
 import {
 	FocusedTaskCloseAccount,
 	DeleteUserOverviewScreen,
 	DeleteUserContentPreviewScreen,
 } from '../src';
+import StatefulInlineDialog from '../src/components/StatefulInlineDialog';
+import accessibleSites from '../src/mocks/accessibleSites';
+import { catherineHirons } from '../src/mocks/users';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled -- To migrate as part of go/ui-styling-standard
 const Controls = styled.div({
@@ -21,7 +22,7 @@ const Controls = styled.div({
 	alignItems: 'center',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'>': {
-		paddingRight: token('space.050', '4px'),
+		paddingRight: token('space.050'),
 	},
 });
 
@@ -48,7 +49,8 @@ export default class DeleteUserDrawerExample extends React.Component {
 		// do nothing
 	};
 
-	toggleIsCurrentUser = (event: any): void => this.setState({ isCurrentUser: event.target.checked });
+	toggleIsCurrentUser = (event: any): void =>
+		this.setState({ isCurrentUser: event.target.checked });
 
 	toggleIsUserDeactivated = (event: any): void =>
 		this.setState({ isUserDeactivated: event.target.checked });
@@ -81,6 +83,7 @@ export default class DeleteUserDrawerExample extends React.Component {
 							label={
 								<StatefulInlineDialog
 									placement="right"
+									label="More information"
 									content="Toggles between 2nd and 3rd person text."
 								>
 									Is current user
@@ -93,6 +96,7 @@ export default class DeleteUserDrawerExample extends React.Component {
 							label={
 								<StatefulInlineDialog
 									placement="right"
+									label="More information"
 									content="Toggles between active and deactivated user."
 								>
 									Is user deactivated

@@ -1,10 +1,14 @@
 jest.mock('../../../util/getPreviewFromBlob');
 jest.mock('../../../util/getPreviewFromImage');
 
-jest.mock('uuid/v4', () => ({
+jest.mock('uuid', () => ({
 	__esModule: true, // this property makes it work
-	default: jest.fn().mockReturnValue('some-scope'),
+	v4: jest.fn().mockReturnValue('some-scope'),
 }));
+
+import { waitFor } from '@testing-library/react';
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+import { v4 as uuidV4 } from 'uuid';
 
 import {
 	type MediaClient,
@@ -18,20 +22,19 @@ import {
 	fromObservable,
 	RequestError,
 } from '@atlaskit/media-client';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuidV4 from 'uuid/v4';
 import { asMock, fakeMediaClient } from '@atlaskit/media-test-helpers';
-import { UploadServiceImpl } from '../../uploadServiceImpl';
-import * as getPreviewModule from '../../../util/getPreviewFromBlob';
-import * as getPreviewFromImage from '../../../util/getPreviewFromImage';
+import { ffTest } from '@atlassian/feature-flags-test-utils';
+
+import { LocalFileSource, type LocalFileWithSource } from '../../../service/types';
 import {
 	type Preview,
 	type UploadParams,
 	type UploadPreviewUpdateEventPayload,
 	type UploadsStartEventPayload,
 } from '../../../types';
-import { LocalFileSource, type LocalFileWithSource } from '../../../service/types';
-import { waitFor } from '@testing-library/react';
+import * as getPreviewModule from '../../../util/getPreviewFromBlob';
+import * as getPreviewFromImage from '../../../util/getPreviewFromImage';
+import { UploadServiceImpl } from '../../uploadServiceImpl';
 
 describe('UploadService', () => {
 	const baseUrl = 'some-api-url';
@@ -632,6 +635,99 @@ describe('UploadService', () => {
 					traceContext: expect.any(Object),
 				});
 			});
+		});
+
+		describe('when the upload fails with a non-Error throwable (FileReader leak)', () => {
+			const setupNonError = () => {
+				const mediaClient = getMediaClient();
+				const { uploadService, fileStateObservable } = setup(mediaClient, {
+					collection: 'some-collection',
+				});
+				const fileUploadErrorCallback = jest.fn();
+				uploadService.on('file-upload-error', fileUploadErrorCallback);
+				uploadService.addFiles([file]);
+				return { fileStateObservable, fileUploadErrorCallback };
+			};
+
+			ffTest.on(
+				'platform_media_filereader_error_surfacing',
+				'surfaces the underlying DOMException name',
+				() => {
+					it('surfaces the name from a FileReader ProgressEvent-like object', async () => {
+						const { fileStateObservable, fileUploadErrorCallback } = setupNonError();
+
+						const progressEventLike = {
+							isTrusted: true,
+							target: { error: new DOMException('not found', 'NotFoundError') },
+						};
+						fileStateObservable.error(progressEventLike as any);
+
+						await waitFor(() => {
+							expect(fileUploadErrorCallback).toHaveBeenCalledWith({
+								fileId: 'uuid1',
+								error: {
+									fileId: 'uuid1',
+									name: 'upload_fail',
+									description: 'NotFoundError',
+									rawError: expect.objectContaining({
+										name: 'NotFoundError',
+										message: 'NotFoundError',
+									}),
+								},
+								traceContext: expect.any(Object),
+							});
+						});
+					});
+
+					it('falls back to "unknown" when no DOMException can be extracted', async () => {
+						const { fileStateObservable, fileUploadErrorCallback } = setupNonError();
+
+						fileStateObservable.error({ isTrusted: true } as any);
+
+						await waitFor(() => {
+							expect(fileUploadErrorCallback).toHaveBeenCalledWith({
+								fileId: 'uuid1',
+								error: {
+									fileId: 'uuid1',
+									name: 'upload_fail',
+									description: 'unknown',
+									rawError: undefined,
+								},
+								traceContext: expect.any(Object),
+							});
+						});
+					});
+				},
+			);
+
+			ffTest.off(
+				'platform_media_filereader_error_surfacing',
+				'passes the raw event through (legacy behaviour)',
+				() => {
+					it('leaves rawError undefined and passes the raw event as description', async () => {
+						const { fileStateObservable, fileUploadErrorCallback } = setupNonError();
+
+						const progressEventLike = {
+							isTrusted: true,
+							target: { error: new DOMException('cannot read', 'NotReadableError') },
+						};
+						fileStateObservable.error(progressEventLike as any);
+
+						await waitFor(() => {
+							expect(fileUploadErrorCallback).toHaveBeenCalledWith({
+								fileId: 'uuid1',
+								error: {
+									fileId: 'uuid1',
+									name: 'upload_fail',
+									description: progressEventLike,
+									rawError: undefined,
+								},
+								traceContext: expect.any(Object),
+							});
+						});
+					});
+				},
+			);
 		});
 
 		it('should not call the file rejection handler when all uploads are successful', async () => {
@@ -1546,5 +1642,232 @@ describe('UploadService', () => {
 
 			expect(Object.keys((uploadService as any).cancellableFilesUploads)).toHaveLength(0);
 		});
+	});
+
+	describe('sequential upload batching', () => {
+		const setupWithBatching = (uploadBatchSize?: number, uploadBatchDelayMs: number = 0) => {
+			const mediaClient = getMediaClient();
+			asMock(mediaClient.file.touchFiles).mockResolvedValue(successfulTouchedFiles);
+
+			const fileStateSubjects: ReturnType<typeof createMediaSubject>[] = [];
+			asMock(mediaClient.file.upload).mockImplementation(() => {
+				const subject = createMediaSubject();
+				fileStateSubjects.push(subject);
+				return fromObservable(subject);
+			});
+
+			(getPreviewFromImage.getPreviewFromImage as any).mockReturnValue(
+				Promise.resolve({ someImagePreview: true }),
+			);
+
+			const uploadService = new UploadServiceImpl(
+				mediaClient,
+				{ collection: 'some-collection', expireAfter: 2 },
+				true,
+				255,
+				uploadBatchSize,
+				uploadBatchDelayMs,
+			);
+
+			return { uploadService, mediaClient, fileStateSubjects };
+		};
+
+		const createFiles = (count: number): LocalFileWithSource[] =>
+			Array.from({ length: count }, (_, i) => ({
+				file: { size: 100 + i, name: `file-${i}`, type: 'video/mp4' } as File,
+				source: LocalFileSource.LocalUpload,
+			}));
+
+		it('should not batch sequentially when uploadBatchSize is not set', async () => {
+			const { uploadService, mediaClient } = setupWithBatching(undefined);
+
+			const files = createFiles(4);
+			uploadService.addFilesWithSource(files);
+
+			await waitFor(() => {
+				expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(1);
+				expect(mediaClient.file.upload).toHaveBeenCalledTimes(4);
+			});
+		});
+
+		ffTest.on(
+			'platform_media_picker_upload_batching',
+			'when upload batching flag is enabled',
+			() => {
+				it('should process files in sequential batches that complete before next batch starts', async () => {
+					const { uploadService, mediaClient, fileStateSubjects } = setupWithBatching(2);
+
+					const files = createFiles(4);
+
+					const addPromise = uploadService.addFilesWithSource(files);
+
+					// First batch (2 files) should have started
+					await waitFor(() => {
+						expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(1);
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(2);
+					});
+
+					// Second batch should NOT have started yet
+					expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(1);
+
+					// Complete the first batch uploads
+					fileStateSubjects[0].next({
+						status: 'processing',
+						id: 'file-0',
+					} as FileState);
+					fileStateSubjects[1].next({
+						status: 'processing',
+						id: 'file-1',
+					} as FileState);
+
+					// Now second batch should start
+					await waitFor(() => {
+						expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(2);
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(4);
+					});
+
+					// Complete second batch
+					fileStateSubjects[2].next({
+						status: 'processing',
+						id: 'file-2',
+					} as FileState);
+					fileStateSubjects[3].next({
+						status: 'processing',
+						id: 'file-3',
+					} as FileState);
+
+					await addPromise;
+				});
+
+				it('should continue to next batch even when a file in the current batch errors', async () => {
+					const { uploadService, mediaClient, fileStateSubjects } = setupWithBatching(2);
+
+					const files = createFiles(4);
+					const addPromise = uploadService.addFilesWithSource(files);
+
+					await waitFor(() => {
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(2);
+					});
+
+					// First file succeeds, second errors
+					fileStateSubjects[0].next({
+						status: 'processing',
+						id: 'file-0',
+					} as FileState);
+					fileStateSubjects[1].error(new Error('upload failed'));
+
+					// Second batch should still start
+					await waitFor(() => {
+						expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(2);
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(4);
+					});
+
+					fileStateSubjects[2].next({
+						status: 'processing',
+						id: 'file-2',
+					} as FileState);
+					fileStateSubjects[3].next({
+						status: 'processing',
+						id: 'file-3',
+					} as FileState);
+
+					await addPromise;
+				});
+
+				it('should handle single file with batching enabled', async () => {
+					const { uploadService, mediaClient, fileStateSubjects } = setupWithBatching(2);
+
+					const files = createFiles(1);
+					const addPromise = uploadService.addFilesWithSource(files);
+
+					await waitFor(() => {
+						expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(1);
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(1);
+					});
+
+					fileStateSubjects[0].next({
+						status: 'processing',
+						id: 'file-0',
+					} as FileState);
+
+					await addPromise;
+				});
+
+				it('should wait for the configured delay between batches', async () => {
+					jest.useFakeTimers();
+					const delayMs = 500;
+					const { uploadService, mediaClient, fileStateSubjects } = setupWithBatching(2, delayMs);
+
+					const files = createFiles(4);
+					const addPromise = uploadService.addFilesWithSource(files);
+
+					// First batch starts immediately (no delay before first batch)
+					await waitFor(() => {
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(2);
+					});
+
+					// Complete first batch
+					fileStateSubjects[0].next({ status: 'processing', id: 'file-0' } as FileState);
+					fileStateSubjects[1].next({ status: 'processing', id: 'file-1' } as FileState);
+
+					// Flush microtasks so the await Promise.allSettled resolves
+					await Promise.resolve();
+
+					// Second batch should NOT have started — delay timer is pending
+					expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(1);
+
+					// Advance timer past the delay
+					jest.advanceTimersByTime(delayMs);
+
+					// Now second batch should start
+					await waitFor(() => {
+						expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(2);
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(4);
+					});
+
+					// Complete second batch
+					fileStateSubjects[2].next({ status: 'processing', id: 'file-2' } as FileState);
+					fileStateSubjects[3].next({ status: 'processing', id: 'file-3' } as FileState);
+
+					await addPromise;
+					jest.useRealTimers();
+				});
+
+				it('should not delay before the first batch', async () => {
+					const { uploadService, mediaClient, fileStateSubjects } = setupWithBatching(2, 5000);
+
+					const files = createFiles(2);
+					const addPromise = uploadService.addFilesWithSource(files);
+
+					// First batch should start immediately despite large delay value
+					await waitFor(() => {
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(2);
+					});
+
+					fileStateSubjects[0].next({ status: 'processing', id: 'file-0' } as FileState);
+					fileStateSubjects[1].next({ status: 'processing', id: 'file-1' } as FileState);
+
+					await addPromise;
+				});
+			},
+		);
+
+		ffTest.off(
+			'platform_media_picker_upload_batching',
+			'when upload batching flag is disabled',
+			() => {
+				it('should process all files in parallel regardless of uploadBatchSize', async () => {
+					const { uploadService, mediaClient } = setupWithBatching(2);
+
+					const files = createFiles(4);
+					uploadService.addFilesWithSource(files);
+
+					await waitFor(() => {
+						expect(mediaClient.file.touchFiles).toHaveBeenCalledTimes(1);
+						expect(mediaClient.file.upload).toHaveBeenCalledTimes(4);
+					});
+				});
+			},
+		);
 	});
 });

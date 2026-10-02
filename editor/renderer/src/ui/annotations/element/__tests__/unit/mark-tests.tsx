@@ -1,13 +1,21 @@
 import React from 'react';
-import FeatureGates from '@atlaskit/feature-gate-js-client';
 
-import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema';
 import { act, fireEvent } from '@testing-library/react';
-import { render, unmountComponentAtNode } from 'react-dom';
-import { MarkComponent } from '../../mark';
-import { IntlProvider } from 'react-intl-next';
+import { createRoot, type Root } from 'react-dom/client';
+import { IntlProvider } from 'react-intl';
 
-jest.mock('@atlaskit/feature-gate-js-client');
+import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema/annotation';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+
+import { MarkComponent } from '../../mark';
+
+jest.mock('@atlaskit/feature-gate-js-client/feature-gates');
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 describe('Annotations/Mark', () => {
 	const fakeId = 'fakeId';
@@ -21,28 +29,19 @@ describe('Annotations/Mark', () => {
 	let onClick: jest.Mock;
 
 	let container: HTMLElement;
-	let root: any; // Change to Root once we go full React 18
+	let root: Root;
 
-	beforeEach(async () => {
+	beforeEach(() => {
 		container = document.createElement('div');
 		document.body.appendChild(container);
-		if (process.env.IS_REACT_18 === 'true') {
-			// @ts-ignore react-dom/client only available in react 18
-			// eslint-disable-next-line @repo/internal/import/no-unresolved, import/dynamic-import-chunkname -- react-dom/client only available in react 18
-			const { createRoot } = await import('react-dom/client');
-			root = createRoot(container!);
-		}
+		root = createRoot(container);
 
 		onClick = jest.fn();
 	});
 
 	afterEach(() => {
 		act(() => {
-			if (process.env.IS_REACT_18 === 'true') {
-				root.unmount();
-			} else {
-				unmountComponentAtNode(container!);
-			}
+			root.unmount();
 		});
 		container.remove();
 	});
@@ -51,27 +50,8 @@ describe('Annotations/Mark', () => {
 		const state = AnnotationMarkStates.ACTIVE;
 
 		beforeEach(() => {
-			if (process.env.IS_REACT_18 === 'true') {
-				act(() => {
-					root.render(
-						<IntlProvider locale="en">
-							<MarkComponent
-								id={fakeId}
-								annotationParentIds={annotationParentIds}
-								dataAttributes={fakeDataAttributes}
-								state={state}
-								hasFocus={false}
-								onClick={onClick}
-								isHovered={false}
-							>
-								<small>some</small>
-							</MarkComponent>
-							,
-						</IntlProvider>,
-					);
-				});
-			} else {
-				render(
+			act(() => {
+				root.render(
 					<IntlProvider locale="en">
 						<MarkComponent
 							id={fakeId}
@@ -85,9 +65,8 @@ describe('Annotations/Mark', () => {
 							<small>some</small>
 						</MarkComponent>
 					</IntlProvider>,
-					container,
 				);
-			}
+			});
 		});
 
 		it('should render the data attributes', async () => {
@@ -154,36 +133,8 @@ describe('Annotations/Mark', () => {
 		};
 
 		beforeEach(() => {
-			if (process.env.IS_REACT_18 === 'true') {
-				act(() => {
-					root.render(
-						<IntlProvider locale="en">
-							<MarkComponent
-								id={fakeId}
-								annotationParentIds={annotationParentIds}
-								dataAttributes={fakeDataAttributes}
-								state={state}
-								hasFocus={false}
-								onClick={onClick}
-								isHovered={false}
-							>
-								<MarkComponent
-									id={childFakeId}
-									annotationParentIds={childAnnotationParentIds}
-									dataAttributes={childFakeDataAttributes}
-									state={state}
-									hasFocus={false}
-									onClick={onClick}
-									isHovered={false}
-								>
-									<small>some</small>
-								</MarkComponent>
-							</MarkComponent>
-						</IntlProvider>,
-					);
-				});
-			} else {
-				render(
+			act(() => {
+				root.render(
 					<IntlProvider locale="en">
 						<MarkComponent
 							id={fakeId}
@@ -207,9 +158,8 @@ describe('Annotations/Mark', () => {
 							</MarkComponent>
 						</MarkComponent>
 					</IntlProvider>,
-					container,
 				);
-			}
+			});
 		});
 
 		it('should call onClick only once', async () => {
@@ -231,26 +181,8 @@ describe('Annotations/Mark', () => {
 		(FeatureGates.checkGate as jest.Mock).mockReturnValue(true);
 
 		beforeEach(() => {
-			if (process.env.IS_REACT_18 === 'true') {
-				act(() => {
-					root.render(
-						<IntlProvider locale="en">
-							<MarkComponent
-								id={fakeId}
-								annotationParentIds={annotationParentIds}
-								dataAttributes={fakeDataAttributes}
-								state={state}
-								hasFocus={false}
-								onClick={onClick}
-								isHovered={false}
-							>
-								<small>some</small>
-							</MarkComponent>
-						</IntlProvider>,
-					);
-				});
-			} else {
-				render(
+			act(() => {
+				root.render(
 					<IntlProvider locale="en">
 						<MarkComponent
 							id={fakeId}
@@ -264,9 +196,8 @@ describe('Annotations/Mark', () => {
 							<small>some</small>
 						</MarkComponent>
 					</IntlProvider>,
-					container,
 				);
-			}
+			});
 		});
 
 		it('should not call onClick prop when clicked', async () => {

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+
 import { type MediaType, type FileState, type FileIdentifier } from '@atlaskit/media-client';
+
 import {
 	FileStateFactory,
 	type MediaClientMockOptions,
@@ -51,7 +53,17 @@ export type Simulation = (fileStateFactory: FileStateFactory, utils: SimulationU
 export const useRunSimulation = (
 	simulation: Simulation,
 	simulationSettings: SimulationSettings = {},
-) => {
+): {
+	identifier: FileIdentifier;
+	fileStateFactory: FileStateFactory;
+	fileState:
+		| FileState
+		| {
+				status: string;
+		  }
+		| undefined;
+	updateIdentifier: (newMediaType?: MediaType) => void;
+} => {
 	const { identifier, fileStateFactory, updateIdentifier } =
 		useSimulationSettings(simulationSettings);
 

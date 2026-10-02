@@ -1,5 +1,7 @@
-import { tsRuleTester } from './utils/_tester';
+/** @jest-environment node */
+
 import { rule } from '../rules/no-htmlElement-assignment';
+import { tsRuleTester } from './utils/_tester';
 
 describe('no-htmlElement-assignment', () => {
 	tsRuleTester.run('no-htmlelement-assignment-in-different-scope', rule, {

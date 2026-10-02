@@ -2,32 +2,46 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type CSSProperties, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+	type CSSProperties,
+	type Key,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
 import type { StrictXCSSProp } from '@atlaskit/css';
-import { media } from '@atlaskit/primitives/responsive';
+import type MediaAboveLg from '@atlaskit/css/at-rules/media-above-lg';
+import mergeRefs from '@atlaskit/ds-lib/merge-refs';
+import { useMotion } from '@atlaskit/motion/entering/use-motion';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import { Reanimate } from '@atlaskit/motion/reanimate';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { token } from '@atlaskit/tokens';
 
-import { useSkipLinkInternal } from '../../context/skip-links/skip-links-context';
-
+import { useSkipLinkInternal } from '../../context/skip-links/use-skip-link-internal';
 import {
-	contentHeightWhenFixed,
-	contentInsetBlockStart,
-	localSlotLayers,
+	UNSAFE_panelLayoutVar,
+	type contentHeightWhenFixed,
+	type contentInsetBlockStart,
+	type localSlotLayers,
 	panelPanelSplitterId,
 	panelVar,
 	sideNavLiveWidthVar,
-	UNSAFE_panelLayoutVar,
 } from './constants';
+import { DangerouslyHoistCssVarToDocumentRoot } from './dangerously-hoist-css-var-to-document-root';
 import { DangerouslyHoistSlotSizes } from './hoist-slot-sizes-context';
-import { DangerouslyHoistCssVarToDocumentRoot } from './hoist-utils';
-import { useLayoutId } from './id-utils';
 import { PanelSplitterProvider } from './panel-splitter/provider';
-import type { ResizeBounds } from './panel-splitter/types';
-import { useSideNavRef } from './side-nav/element-context';
+import type { ResizeBound, ResizeBounds } from './panel-splitter/types';
+import { useSideNavRef } from './side-nav/use-side-nav-ref';
 import type { CommonSlotProps } from './types';
+import { useLayoutId } from './use-layout-id';
 import { useResizingWidthCssVarOnRootElement } from './use-resizing-width-css-var-on-root-element';
 import { useSafeDefaultWidth } from './use-safe-default-width';
 
@@ -50,18 +64,20 @@ const styles = cssMap({
 		boxSizing: 'border-box',
 		// On small viewports the panel is displayed above other slots so we set its zindex.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-		zIndex: localSlotLayers.panelSmallViewports,
+		zIndex: 1 satisfies typeof localSlotLayers.panelSmallViewports,
 		// Height is set so it takes up all of the available viewport space minus top bar + banner.
 		// Since panel is always rendered ontop of other grid items across all viewports height is
 		// always set.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		height: contentHeightWhenFixed,
+		height:
+			'calc(100vh - var(--n_bnrM, 0px) - var(--n_tNvM, 0px))' satisfies typeof contentHeightWhenFixed,
 		position: 'sticky',
 		// This sets the sticky point to be just below top bar + banner. It's needed to ensure the stick
 		// point is exactly where this element is rendered to with no wiggle room. Unfortunately the CSS
 		// spec for sticky doesn't support "stick to where I'm initially rendered" so we need to tell it.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		insetBlockStart: contentInsetBlockStart,
+		insetBlockStart:
+			'calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px))' satisfies typeof contentInsetBlockStart,
 		backgroundColor: token('elevation.surface.overlay'),
 		/**
 		 * For mobile viewports, the panel will try to take the minimum width, but no larger than 90% of the screen width.
@@ -76,7 +92,7 @@ const styles = cssMap({
 		width: `min(90%, var(--minWidth))`,
 		'@media (min-width: 48rem)': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			width: `var(${panelSplitterResizingVar}, var(${panelVar}))`,
+			width: `var(${panelSplitterResizingVar}, var(${'--n_pnlW' satisfies typeof panelVar}))`,
 		},
 		'@media (min-width: 64rem)': {
 			backgroundColor: token('elevation.surface'),
@@ -116,7 +132,63 @@ const styles = cssMap({
 		 */
 		display: 'none',
 	},
+	entering: {
+		'@media (prefers-reduced-motion: no-preference)': {
+			animation: token('motion.panel.enter.right'),
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+			"[dir='rtl'] &": {
+				animation: token('motion.panel.enter.left'),
+			},
+			transitionProperty: 'position',
+			transitionDuration: token('motion.duration.instant'),
+			transitionDelay: '24ms', // Snaps main content when 60% of the panel has entered
+			transitionBehavior: 'allow-discrete',
+			'@starting-style': {
+				position: 'fixed',
+			},
+		},
+	},
+	exiting: {
+		'@media (prefers-reduced-motion: no-preference)': {
+			animation: token('motion.panel.exit.right'),
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+			"[dir='rtl'] &": {
+				animation: token('motion.panel.exit.left'),
+			},
+			transitionProperty: 'position',
+			transitionDuration: token('motion.duration.instant'),
+			transitionDelay: '19ms', // Snaps main content when 60% of the panel has exited
+			transitionBehavior: 'allow-discrete',
+			position: 'fixed',
+		},
+	},
+	contentEntering: {
+		animation: token('motion.panel.content.enter'),
+	},
+	contentExiting: {
+		animation: token('motion.panel.content.exit'),
+	},
+	contentChangeContainer: {
+		height: '100%',
+	},
 });
+
+const PanelContentMotion = ({ children }: { children: React.ReactNode }): JSX.Element => {
+	const { state, ref } = useMotion<HTMLDivElement>();
+
+	return (
+		<div
+			css={[
+				styles.contentChangeContainer,
+				state === 'entering' && styles.contentEntering,
+				state === 'exiting' && styles.contentExiting,
+			]}
+			ref={ref}
+		>
+			{children}
+		</div>
+	);
+};
 
 /**
  * The Panel layout area is rendered to the right (inline end) of the Main area, or the Aside area if it is present.
@@ -134,6 +206,8 @@ export function Panel({
 	id: providedId,
 	xcss,
 	hasBorder = true,
+	maxWidth,
+	contentKey,
 }: CommonSlotProps & {
 	/**
 	 * The content of the layout area.
@@ -153,6 +227,24 @@ export function Panel({
 	 */
 	defaultWidth?: number;
 	/**
+	 * Opt-in override for the maximum width the panel can be resized to, applied to both the rendered
+	 * width and the resize bounds (mouse and keyboard).
+	 *
+	 * When omitted, the panel defaults to half the viewport width (after removing the sidebar width),
+	 * which keeps it from growing larger than the page content. Provide a `vw` or `px` value (e.g.
+	 * `'70vw'`) to allow a wider panel.
+	 *
+	 * This is currently used by Jira's Issue Navigator native issue preview panel; other consumers
+	 * should leave it unset to keep the default cap.
+	 */
+	maxWidth?: ResizeBound;
+	/**
+	 * Identifies the content currently displayed in the panel. Changing this value animates the
+	 * previous content out before animating the next content in. When omitted, content updates
+	 * immediately.
+	 */
+	contentKey?: Key;
+	/**
 	 * Bounded style overrides.
 	 */
 	xcss?: StrictXCSSProp<'backgroundColor', never>;
@@ -170,26 +262,53 @@ export function Panel({
 	const dangerouslyHoistSlotSizes = useContext(DangerouslyHoistSlotSizes);
 	const id = useLayoutId({ providedId });
 
+	const isMotionUpliftEnabled = fg('platform-dst-motion-uplift-panel');
 	const defaultWidth = useSafeDefaultWidth({
 		defaultWidthProp,
 		fallbackDefaultWidth,
 		slotName: 'Panel',
 	});
 
+	// useMotion is applied only when the `platform-dst-motion-uplift-panel` gate is enabled.
+	const {
+		state,
+		ref: motionRef,
+		reanimate,
+	} = useMotion<HTMLElement>({
+		onFinish: (state) => {
+			if (state === 'exiting' && defaultWidthRef.current === 0) {
+				// Set width to 0 as animation is complete
+				setWidth(0);
+			}
+		},
+		initialState: defaultWidth === 0 ? 'hidden' : undefined,
+	});
+
 	/**
 	 * Don't show the skip link if the slot has 0 width.
 	 *
 	 * Remove `isHidden` usage after https://jplat.atlassian.net/browse/BLU-3951
+	 *
+	 * TODO: when cleaning up 'platform_dst_nav4_skip_link_a11y_1' remove this call entirely
 	 */
 	useSkipLinkInternal({
 		id,
 		label: skipLinkLabel,
-		isHidden: defaultWidth === 0,
+		isHidden: defaultWidth === 0 || fg('platform_dst_nav4_skip_link_a11y_1'),
 	});
 	const ref = useRef<HTMLDivElement | null>(null);
 	const [width, setWidth] = useState(defaultWidth);
 	// Used to track the previous value of the `defaultWidth` prop, for logging dev warnings when it changes.
 	const defaultWidthRef = useRef(defaultWidth);
+
+	// `mergeRefs` returns a new callback ref on every call, and combined with a new array literal
+	// this would cause React to detach/re-attach the ref on every render. Memoise it so the merged
+	// ref is stable across renders.
+	const mergedRef = useMemo(
+		() => (isMotionUpliftEnabled ? mergeRefs([ref, motionRef]) : ref),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[isMotionUpliftEnabled, motionRef],
+	);
 
 	/**
 	 * TODO: Remove this useEffect once the `width: 0` usage is removed from Jira.
@@ -199,6 +318,17 @@ export function Panel({
 	useEffect(() => {
 		if (defaultWidthRef.current === defaultWidth) {
 			return;
+		}
+
+		if (isMotionUpliftEnabled) {
+			if (defaultWidth === 0) {
+				reanimate(Reanimate.exit);
+				defaultWidthRef.current = defaultWidth;
+				// Set width to 0 once the exit animation is complete
+				return;
+			} else if (defaultWidthRef.current === 0) {
+				reanimate(Reanimate.enter);
+			}
 		}
 
 		defaultWidthRef.current = defaultWidth;
@@ -212,7 +342,7 @@ export function Panel({
 				'In the future, changes to the `defaultWidth` prop will not be respected. It is only supported as a stopgap to enable migration from Nav3 to Nav4.\n\n',
 			);
 		}
-	}, [defaultWidth]);
+	}, [defaultWidth, isMotionUpliftEnabled, reanimate]);
 
 	const sideNavRef = useSideNavRef();
 
@@ -232,19 +362,22 @@ export function Panel({
 	const getResizeBounds = useCallback((): ResizeBounds => {
 		const sideNavWidth = sideNavRef.current?.offsetWidth ?? 0;
 		/**
-		 * The panel should not resize larger than the page content, equivalent to the `Main` + `Aside` slots.
+		 * By default the panel should not resize larger than the page content, equivalent to the `Main` + `Aside` slots.
 		 *
 		 * This maximum width is equivalent to half the viewport width, after removing the sidebar width.
+		 *
+		 * Consumers can opt in to a larger maximum via the `maxWidth` prop.
 		 */
-		const maxWidth = Math.round((window.innerWidth - sideNavWidth) / 2);
+		const defaultMaxWidth: ResizeBound = `${Math.round((window.innerWidth - sideNavWidth) / 2)}px`;
 
-		return { min: `${minWidth}px`, max: `${maxWidth}px` };
-	}, [minWidth, sideNavRef]);
+		return { min: `${minWidth}px`, max: maxWidth ?? defaultMaxWidth };
+	}, [maxWidth, minWidth, sideNavRef]);
 
 	const panelWidthSlotBounds = {
 		min: `${minWidth}px`,
 		// `sideNavLiveWidthVar` is not defined if the `SideNav` is not mounted, so we fallback to `0px`.
-		max: `round(nearest, calc((100vw - var(${sideNavLiveWidthVar}, 0px)) / 2), 1px)`,
+		// Consumers can opt in to a larger maximum via the `maxWidth` prop.
+		max: maxWidth ?? `round(nearest, calc((100vw - var(${sideNavLiveWidthVar}, 0px)) / 2), 1px)`,
 	};
 
 	const panelVariableWidth = `clamp(${panelWidthSlotBounds.min}, ${width}px, ${panelWidthSlotBounds.max})`;
@@ -260,8 +393,16 @@ export function Panel({
 			id={id}
 			data-layout-slot
 			aria-label={label}
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 			className={xcss}
-			css={[styles.root, defaultWidth === 0 && styles.hidden, hasBorder && styles.border]}
+			css={[
+				styles.root,
+				isMotionUpliftEnabled && state === 'hidden' && styles.hidden,
+				isMotionUpliftEnabled && state === 'entering' && styles.entering,
+				isMotionUpliftEnabled && state === 'exiting' && styles.exiting,
+				!isMotionUpliftEnabled && defaultWidth === 0 && styles.hidden,
+				hasBorder && styles.border,
+			]}
 			style={
 				{
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop, @atlaskit/ui-styling-standard/no-imported-style-values
@@ -270,7 +411,7 @@ export function Panel({
 				} as CSSProperties
 			}
 			data-testid={testId}
-			ref={ref}
+			ref={mergedRef}
 		>
 			{dangerouslyHoistSlotSizes && (
 				// ------ START UNSAFE STYLES ------
@@ -279,7 +420,7 @@ export function Panel({
 				<DangerouslyHoistCssVarToDocumentRoot
 					variableName={UNSAFE_panelLayoutVar}
 					value="0px"
-					mediaQuery={media.above.lg}
+					mediaQuery={'@media (min-width: 90rem)' satisfies MediaAboveLg}
 					responsiveValue={`var(${panelSplitterResizingVar}, ${panelVariableWidth})`}
 				/>
 				// ------ END UNSAFE STYLES ------
@@ -297,7 +438,21 @@ export function Panel({
 				 * Overflow scroll styles are added here rather than on the `section` container element, so that the panel splitter
 				 * component can overflow out of the `Panel` container, to increase the interactive grab area
 				 */}
-				<div css={styles.scrollContainer}>{children}</div>
+				<div
+					css={[
+						styles.scrollContainer,
+						isMotionUpliftEnabled && state === 'entering' && styles.contentEntering,
+						isMotionUpliftEnabled && state === 'exiting' && styles.contentExiting,
+					]}
+				>
+					{isMotionUpliftEnabled && contentKey !== undefined ? (
+						<ExitingPersistence exitThenEnter>
+							<PanelContentMotion key={contentKey}>{children}</PanelContentMotion>
+						</ExitingPersistence>
+					) : (
+						children
+					)}
+				</div>
 			</PanelSplitterProvider>
 		</section>
 	);

@@ -1,17 +1,27 @@
 import React, { useMemo, useRef, useLayoutEffect } from 'react';
-import type { IntlShape } from 'react-intl-next';
-import type { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { DecorationSet, type NodeView } from '@atlaskit/editor-prosemirror/view';
+
+import type { IntlShape } from 'react-intl';
+
 import type { NodeViewConstructor } from '@atlaskit/editor-common/lazy-node-view';
-import { EditorState } from '@atlaskit/editor-prosemirror/state';
+import {
+	profileSSROperation,
+	SSRRenderMeasure,
+} from '@atlaskit/editor-common/performance/ssr-measures';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
+import type { EditorPlugin } from '@atlaskit/editor-common/types';
+// oxlint-disable-next-line import/no-duplicates
 import type { Node as PMNode, Slice } from '@atlaskit/editor-prosemirror/model';
 import { DOMSerializer, type Mark, type Schema } from '@atlaskit/editor-prosemirror/model';
-import type { PMPluginFactoryParams, EditorPlugin } from '@atlaskit/editor-common/types';
-import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
-import { EventDispatcher, createDispatch } from '@atlaskit/editor-common/event-dispatcher';
-import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+// oxlint-disable-next-line import/no-duplicates
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { DecorationSet, type NodeView } from '@atlaskit/editor-prosemirror/view';
+
+import { createSSREditorState } from './create-ssr-editor-state';
+import { createSSRPMPlugins } from './create-ssr-pm-plugins';
+
+const SSR_TRACE_SEGMENT_NAME = 'reactEditorView/editorSSRRenderer';
 
 // The copy of type from prosemirror-view.
 // Probably, we need to fix this package exports and add `NodeViewConstructor` and `MarkViewConstructor` types here.
@@ -20,14 +30,30 @@ type MarkViewConstructor = (mark: Mark, view: EditorView, inline: boolean) => No
 interface Props {
 	'aria-describedby'?: string;
 	'aria-label': string;
+	'aria-readonly'?: 'true';
 	className: string;
 	'data-editor-id': string;
 	doc: PMNode | undefined;
 	id: string;
 	intl: IntlShape;
 	onEditorStateChanged?: (state: EditorState) => void;
+	onSSRMeasure?: (measure: {
+		endTimestamp: number;
+		segmentName: string;
+		startTimestamp: number;
+	}) => void;
 	plugins: EditorPlugin[];
 	portalProviderAPI: PortalProviderAPI;
+	/**
+	 * Pre-built EditorState from ReactEditorView's ssrDeps.
+	 * When provided, skips internal EditorState creation to avoid double work.
+	 */
+	prebuiltEditorState?: EditorState;
+	/**
+	 * Pre-built SafePlugins from ReactEditorView's ssrDeps.
+	 * When provided, skips internal PM plugin creation to avoid double work.
+	 */
+	prebuiltPMPlugins?: SafePlugin[];
 	schema: Schema;
 }
 
@@ -126,21 +152,21 @@ class SSREditorView implements Pick<EditorView, keyof EditorView> {
 	}
 }
 
-class SSREventDispatcher extends EventDispatcher {
-	override emit() {
-		// Don't notify about events in SSR
-	}
-}
-
 export function EditorSSRRenderer({
 	plugins,
 	schema,
 	doc,
 	portalProviderAPI,
 	intl,
+	onSSRMeasure,
 	onEditorStateChanged,
+	prebuiltPMPlugins,
+	prebuiltEditorState,
 	...divProps
 }: Props): React.JSX.Element {
+	// Should be always the first statement in the component
+	const firstRenderStartTimestampRef = useRef(performance.now());
+
 	// PMPluginFactoryParams use `getIntl` function to get current intl instance,
 	// so we don't need to add `intl` as a dependency to `useMemo`.
 	// We will store intl in ref and access to it dynamically in `getIntl` function call.
@@ -148,34 +174,16 @@ export function EditorSSRRenderer({
 	intlRef.current = intl;
 
 	const pmPlugins = useMemo(() => {
-		const eventDispatcher = new SSREventDispatcher();
-		const providerFactory = new ProviderFactory();
-
-		const pmPluginFactoryParams: PMPluginFactoryParams = {
-			dispatch: createDispatch(eventDispatcher),
-			dispatchAnalyticsEvent: () => {},
-			eventDispatcher,
-			featureFlags: {},
-			getIntl: () => intlRef.current,
-			nodeViewPortalProviderAPI: portalProviderAPI,
-			portalProviderAPI: portalProviderAPI,
-			providerFactory,
-			schema,
-		};
-
-		return plugins.reduce((acc, editorPlugin) => {
-			editorPlugin.pmPlugins?.().forEach(({ plugin }) => {
-				try {
-					const pmPlugin = plugin(pmPluginFactoryParams);
-					if (pmPlugin) {
-						acc.push(pmPlugin);
-					}
-				} catch {}
-			});
-
-			return acc;
-		}, [] as SafePlugin[]);
-	}, [plugins, portalProviderAPI, schema]);
+		if (prebuiltPMPlugins) {
+			return prebuiltPMPlugins;
+		}
+		return profileSSROperation(
+			`${SSR_TRACE_SEGMENT_NAME}/createPMPlugins`,
+			() =>
+				createSSRPMPlugins({ plugins, schema, portalProviderAPI, getIntl: () => intlRef.current }),
+			onSSRMeasure,
+		);
+	}, [plugins, portalProviderAPI, schema, onSSRMeasure, prebuiltPMPlugins]);
 
 	const nodeViews = useMemo(() => {
 		return pmPlugins.reduce<Record<string, NodeViewConstructor>>((acc, plugin) => {
@@ -190,12 +198,16 @@ export function EditorSSRRenderer({
 	}, [pmPlugins]);
 
 	const editorState = useMemo(() => {
-		return EditorState.create({
-			doc,
-			schema,
-			plugins: pmPlugins,
-		});
-	}, [doc, pmPlugins, schema]);
+		if (prebuiltEditorState) {
+			return prebuiltEditorState;
+		}
+
+		return profileSSROperation(
+			`${SSR_TRACE_SEGMENT_NAME}/createSSREditorState`,
+			() => createSSREditorState({ doc, schema, pmPlugins }),
+			onSSRMeasure,
+		);
+	}, [doc, pmPlugins, schema, onSSRMeasure, prebuiltEditorState]);
 
 	// In React 19 could be replaced by `useEffectEvent` hook.
 	const onEditorStateChangedRef = useRef(onEditorStateChanged);
@@ -211,178 +223,222 @@ export function EditorSSRRenderer({
 	}, [editorState]);
 
 	const { serializer, nodePositions } = useMemo(() => {
-		const nodePositions = new WeakMap<PMNode, number>();
+		const createSerializerAndNodePositions = () => {
+			const nodePositions = new WeakMap<PMNode, number>();
 
-		// ProseMirror View adds <br class="ProseMirror-trailingBreak" /> to empty nodes. Because we are using
-		// DOMSerializer, we should simulate the same behaviour to get the same HTML document.
-		//
-		// There are a lot of conditions that check for adding `<br />` but we could implement only the case when we
-		// are adding `<br />` to empty texblock, because if we add `<br />` in other cases it will change order of DOM nodes inside
-		// this node (`<br />`) will be the first, after will be other nodes. It's because we are adding `<br />` to root node before
-		// we are rendering child node.
-		//
-		// See: https://discuss.prosemirror.net/t/where-can-i-read-about-prosemirror-trailingbreak/6665
-		// See: https://github.com/ProseMirror/prosemirror-view/blob/76c7c47f03730b18397b94bd269ece8a9cb7f486/src/viewdesc.ts#L803
-		// See: https://github.com/ProseMirror/prosemirror-view/blob/76c7c47f03730b18397b94bd269ece8a9cb7f486/src/viewdesc.ts#L1365
-		const addTrailingBreakIfNeeded = (node: PMNode, contentDOM: HTMLElement | null | undefined) => {
-			if (contentDOM && node.isTextblock && !node.lastChild) {
-				const br = document.createElement('br');
-				br.classList.add('ProseMirror-trailingBreak');
-				contentDOM.appendChild(br);
-			}
-		};
+			// ProseMirror View adds <br class="ProseMirror-trailingBreak" /> to empty nodes. Because we are using
+			// DOMSerializer, we should simulate the same behaviour to get the same HTML document.
+			//
+			// There are a lot of conditions that check for adding `<br />` but we could implement only the case when we
+			// are adding `<br />` to empty texblock, because if we add `<br />` in other cases it will change order of DOM nodes inside
+			// this node (`<br />`) will be the first, after will be other nodes. It's because we are adding `<br />` to root node before
+			// we are rendering child node.
+			//
+			// See: https://discuss.prosemirror.net/t/where-can-i-read-about-prosemirror-trailingbreak/6665
+			// See: https://github.com/ProseMirror/prosemirror-view/blob/76c7c47f03730b18397b94bd269ece8a9cb7f486/src/viewdesc.ts#L803
+			// See: https://github.com/ProseMirror/prosemirror-view/blob/76c7c47f03730b18397b94bd269ece8a9cb7f486/src/viewdesc.ts#L1365
+			const addTrailingBreakIfNeeded = (
+				node: PMNode,
+				contentDOM: HTMLElement | null | undefined,
+			) => {
+				if (contentDOM && node.isTextblock && !node.lastChild) {
+					const br = document.createElement('br');
+					br.classList.add('ProseMirror-trailingBreak');
+					contentDOM.appendChild(br);
+				}
+			};
 
-		const toDomNodeRenderers = Object.fromEntries(
-			Object.entries(schema.nodes)
-				.map(([nodeName, nodeType]) => {
-					return [nodeName, nodeType.spec.toDOM];
-				})
-				.filter(([, toDOM]) => !!toDOM),
-		);
-		const toDomMarkRenderers = Object.fromEntries(
-			Object.entries(schema.marks)
-				.map(([markName, markType]) => {
-					return [markName, markType.spec.toDOM];
-				})
-				.filter(([, toDOM]) => !!toDOM),
-		);
+			const toDomNodeRenderers = Object.fromEntries(
+				Object.entries(schema.nodes)
+					.map(([nodeName, nodeType]) => {
+						return [nodeName, nodeType.spec.toDOM];
+					})
+					.filter(([, toDOM]) => !!toDOM),
+			);
+			const toDomMarkRenderers = Object.fromEntries(
+				Object.entries(schema.marks)
+					.map(([markName, markType]) => {
+						return [markName, markType.spec.toDOM];
+					})
+					.filter(([, toDOM]) => !!toDOM),
+			);
 
-		const nodeViewRenderers = Object.fromEntries(
-			Object.entries(nodeViews).map(([nodeName, nodeViewFactory]) => {
-				return [
-					nodeName,
-					(node: PMNode) => {
-						const nodeViewInstance = nodeViewFactory(
-							node,
-							editorView,
-							() => nodePositions.get(node) ?? 0,
-							[],
-							DecorationSet.create(node, []),
-						);
-
-						addTrailingBreakIfNeeded(node, nodeViewInstance.contentDOM);
-
-						return {
-							dom: nodeViewInstance.dom,
-							// Leaf nodes have no content, ProseMirror will throw an error if we pass contentDOM
-							contentDOM: node.isLeaf ? undefined : nodeViewInstance.contentDOM,
-						};
-					},
-				];
-			}),
-		);
-
-		// Create renderers for textblock nodes that don't have custom NodeViews (e.g. paragraph, heading)
-		const textblockRenderers = Object.fromEntries(
-			Object.entries(schema.nodes)
-				.filter(([nodeName, nodeType]) => {
-					// Only handle textblock nodes
-					return nodeType.spec.toDOM && nodeType.isTextblock && !nodeViews[nodeName];
-				})
-				.map(([nodeName, nodeType]) => {
-					const toDOM = nodeType.spec.toDOM;
-					if (!toDOM) {
-						return [nodeName, undefined];
-					}
-
+			const nodeViewRenderers = Object.fromEntries(
+				Object.entries(nodeViews).map(([nodeName, nodeViewFactory]) => {
 					return [
 						nodeName,
 						(node: PMNode) => {
-							if (!node.lastChild) {
-								const result = DOMSerializer.renderSpec(document, toDOM(node));
-								addTrailingBreakIfNeeded(node, result.contentDOM);
-								return result;
-							}
+							try {
+								const nodeViewInstance = nodeViewFactory(
+									node,
+									editorView,
+									() => nodePositions.get(node) ?? 0,
+									[],
+									DecorationSet.create(node, []),
+								);
 
-							return toDOM(node);
+								addTrailingBreakIfNeeded(node, nodeViewInstance.contentDOM);
+
+								return {
+									dom: nodeViewInstance.dom,
+									// Leaf nodes have no content, ProseMirror will throw an error if we pass contentDOM
+									contentDOM: node.isLeaf ? undefined : nodeViewInstance.contentDOM,
+								};
+							} catch (error) {
+								if (process.env.NODE_ENV !== 'production') {
+									// eslint-disable-next-line no-console
+									console.warn(
+										`[EditorSSR] Failed to instantiate "${nodeName}" nodeView during SSR. ` +
+											'Falling back to schema toDOM for this node.',
+										error,
+									);
+								}
+
+								// Fall back to schema-level toDOM for this node
+								const toDOM = schema.nodes[nodeName]?.spec.toDOM;
+								if (toDOM) {
+									return DOMSerializer.renderSpec(document, toDOM(node));
+								}
+								// Last resort: empty div
+								return { dom: document.createElement('div') };
+							}
 						},
 					];
-				})
-				.filter(([, renderer]) => !!renderer),
+				}),
+			);
+
+			// Create renderers for textblock nodes that don't have custom NodeViews (e.g. paragraph, heading)
+			const textblockRenderers = Object.fromEntries(
+				Object.entries(schema.nodes)
+					.filter(([nodeName, nodeType]) => {
+						// Only handle textblock nodes
+						return nodeType.spec.toDOM && nodeType.isTextblock && !nodeViews[nodeName];
+					})
+					.map(([nodeName, nodeType]) => {
+						const toDOM = nodeType.spec.toDOM;
+						if (!toDOM) {
+							return [nodeName, undefined];
+						}
+
+						return [
+							nodeName,
+							(node: PMNode) => {
+								if (!node.lastChild) {
+									const result = DOMSerializer.renderSpec(document, toDOM(node));
+									addTrailingBreakIfNeeded(node, result.contentDOM);
+									return result;
+								}
+
+								return toDOM(node);
+							},
+						];
+					})
+					.filter(([, renderer]) => !!renderer),
+			);
+
+			const markViewRenderers = Object.fromEntries(
+				Object.entries(markViews).map(([markName, markViewFactory]) => {
+					return [
+						markName,
+						(mark: Mark) => {
+							const markViewInstance = markViewFactory(mark, editorView, false);
+
+							return {
+								dom: markViewInstance.dom,
+								contentDOM: markViewInstance.contentDOM,
+							};
+						},
+					];
+				}),
+			);
+
+			const serializer = new DOMSerializer(
+				{
+					...toDomNodeRenderers,
+					...textblockRenderers,
+					...nodeViewRenderers,
+					text: renderText,
+				},
+				{
+					...toDomMarkRenderers,
+					...markViewRenderers,
+				},
+			);
+
+			return { serializer, nodePositions };
+		};
+
+		return profileSSROperation(
+			`${SSR_TRACE_SEGMENT_NAME}/createSerializerAndNodePositions`,
+			createSerializerAndNodePositions,
+			onSSRMeasure,
 		);
-
-		const markViewRenderers = Object.fromEntries(
-			Object.entries(markViews).map(([markName, markViewFactory]) => {
-				return [
-					markName,
-					(mark: Mark) => {
-						const markViewInstance = markViewFactory(mark, editorView, false);
-
-						return {
-							dom: markViewInstance.dom,
-							contentDOM: markViewInstance.contentDOM,
-						};
-					},
-				];
-			}),
-		);
-
-		const serializer = new DOMSerializer(
-			{
-				...toDomNodeRenderers,
-				...textblockRenderers,
-				...nodeViewRenderers,
-				text: renderText,
-			},
-			{
-				...toDomMarkRenderers,
-				...markViewRenderers,
-			},
-		);
-
-		return { serializer, nodePositions };
-	}, [editorView, markViews, nodeViews, schema.marks, schema.nodes]);
+	}, [editorView, markViews, nodeViews, schema.marks, schema.nodes, onSSRMeasure]);
 
 	const editorHTML = useMemo(() => {
-		if (!doc) {
-			return undefined;
-		}
+		const serializeFragment = () => {
+			if (!doc) {
+				return undefined;
+			}
 
-		try {
 			doc.descendants((node, pos) => {
 				nodePositions.set(node, pos);
 			});
 
-			return serializer.serializeFragment(doc.content);
-		} catch {
+			const fragment = serializer.serializeFragment(doc.content);
+			const wrapper = document.createElement('div');
+			wrapper.appendChild(fragment);
+			return wrapper.innerHTML;
+		};
+
+		try {
+			return profileSSROperation(
+				`${SSR_TRACE_SEGMENT_NAME}/serializeFragment`,
+				serializeFragment,
+				onSSRMeasure,
+			);
+		} catch (error) {
+			if (process.env.NODE_ENV !== 'production') {
+				// eslint-disable-next-line no-console
+				console.warn('[EditorSSR] Failed to serialize editor document during SSR.', error);
+			}
 			return undefined;
 		}
-	}, [doc, serializer, nodePositions]);
-
-	const containerRef = useRef<HTMLDivElement>(null);
-
-	useLayoutEffect(() => {
-		if (containerRef.current && editorHTML) {
-			containerRef.current.innerHTML = '';
-			containerRef.current.appendChild(editorHTML);
-		}
-	}, [editorHTML]);
+		// eslint-disable-next-line @atlassian/perf-linting/no-unstable-usememo-deps -- Ignored via go/ees017 (to be fixed)
+	}, [doc, serializer, nodePositions, onSSRMeasure]);
 
 	return (
-		<div
-			ref={containerRef}
-			id={divProps.id}
-			// For some reason on SSR, the result `class` has a trailing space, that broke UFO,
-			// because ReactEditorView produces a div with `class` without space.
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-			className={divProps.className.trim()}
-			aria-label={divProps['aria-label']}
-			aria-describedby={divProps['aria-describedby']}
-			data-editor-id={divProps['data-editor-id']}
-			data-vc-ignore-if-no-layout-shift={true}
-			data-ssr-placeholder={
-				expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) ? 'editor-view' : undefined
-			}
-			data-ssr-placeholder-replace={
-				expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) ? 'editor-view' : undefined
-			}
-			aria-multiline={true}
-			role="textbox"
-			// @ts-expect-error - contenteditable is not exist in div attributes
-			contenteditable="true"
-			data-gramm="false"
-			translate="no"
-		/>
+		<SSRRenderMeasure
+			segmentName={SSR_TRACE_SEGMENT_NAME}
+			startTimestampRef={firstRenderStartTimestampRef}
+			onSSRMeasure={onSSRMeasure}
+		>
+			<div
+				id={divProps.id}
+				// eslint-disable-next-line react/no-danger -- It's intentional by design
+				dangerouslySetInnerHTML={
+					typeof editorHTML === 'string' ? { __html: editorHTML } : undefined
+				}
+				// For some reason on SSR, the result `class` has a trailing space, that broke UFO,
+				// because ReactEditorView produces a div with `class` without space.
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+				className={divProps.className.trim()}
+				aria-label={divProps['aria-label']}
+				aria-describedby={divProps['aria-describedby']}
+				// eslint-disable-next-line react/jsx-props-no-spreading -- aria-readonly must be omitted unless its value is true
+				{...(divProps['aria-readonly'] === 'true' ? { 'aria-readonly': 'true' } : {})}
+				data-editor-id={divProps['data-editor-id']}
+				data-vc-ignore-if-no-layout-shift={true}
+				data-ssr-placeholder="editor-view"
+				data-ssr-placeholder-replace="editor-view"
+				aria-multiline={true}
+				role="textbox"
+				// @ts-expect-error - contenteditable is not exist in div attributes
+				contenteditable="true"
+				data-gramm="false"
+				translate="no"
+			/>
+		</SSRRenderMeasure>
 	);
 }
 

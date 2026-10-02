@@ -16,18 +16,16 @@ import invariant from 'tiny-invariant';
 
 import { token } from '@atlaskit/tokens';
 
-import { HasTextAncestorProvider, useHasTextAncestor } from '../utils/has-text-ancestor-context';
+import { HasTextAncestorProvider } from '../utils/has-text-ancestor-provider';
 import { useSurface } from '../utils/surface-provider';
-import {
-	inverseColorMap,
-	type TextColor,
-	textColorStylesMap,
-	type TextSize,
-	textSizeStylesMap,
-	type TextWeight,
-	textWeightStylesMap,
-} from '../xcss/style-maps.partial';
-
+import { useHasTextAncestor } from '../utils/use-has-text-ancestor';
+import { inverseColorMap } from '../xcss/inverse-color';
+import { type TextColor } from '../xcss/text-color';
+import { textColorStylesMap } from '../xcss/text-color-styles-map';
+import { type TextSize } from '../xcss/text-size';
+import { textSizeStylesMap } from '../xcss/text-size-styles-map';
+import { type TextWeight } from '../xcss/text-weight';
+import { textWeightStylesMap } from '../xcss/text-weight-styles-map';
 import type { BasePrimitiveProps } from './types';
 
 const asAllowlist = ['span', 'p', 'strong', 'em'] as const;
@@ -97,9 +95,9 @@ const emStyles = css({
 
 type TextAlign = keyof typeof textAlignMap;
 const textAlignMap: {
-    center: SerializedStyles;
-    end: SerializedStyles;
-    start: SerializedStyles;
+	center: SerializedStyles;
+	end: SerializedStyles;
+	start: SerializedStyles;
 } = {
 	center: css({ textAlign: 'center' }),
 	end: css({ textAlign: 'end' }),
@@ -153,7 +151,7 @@ const useColor = (
  *
  * @internal
  */
-const Text: React.ForwardRefExoticComponent<
+export const Text: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<TextProps<ElementType>> & React.RefAttributes<any>
 > = forwardRef(
 	<T extends ElementType = 'span'>(
@@ -218,4 +216,5 @@ const Text: React.ForwardRefExoticComponent<
 	},
 );
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Text;

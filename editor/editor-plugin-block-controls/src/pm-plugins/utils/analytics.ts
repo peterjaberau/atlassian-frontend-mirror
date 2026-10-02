@@ -6,23 +6,21 @@ import {
 	INPUT_METHOD,
 } from '@atlaskit/editor-common/analytics';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type Transaction } from '@atlaskit/editor-prosemirror/state';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 
-import { type BlockControlsPlugin } from '../../blockControlsPluginType';
+import type { BlockControlsPlugin } from '../../blockControlsPluginType';
 
 export const attachMoveNodeAnalytics = (
 	tr: Transaction,
 	inputMethod: string,
 	fromDepth: number,
-	fromNodeType: string,
+	fromNodeTypes: string | undefined,
 	toDepth?: number,
 	toNodeType?: string,
 	isSameParent?: boolean,
 	api?: ExtractInjectionAPI<BlockControlsPlugin>,
-	fromNodeTypes?: string,
 	hasSelectedMultipleNodes?: boolean,
-) => {
+): boolean | undefined => {
 	return api?.analytics?.actions?.attachAnalyticsEvent({
 		eventType: EVENT_TYPE.TRACK,
 		action: ACTION.MOVED,
@@ -30,7 +28,6 @@ export const attachMoveNodeAnalytics = (
 		actionSubjectId: ACTION_SUBJECT_ID.ELEMENT_DRAG_HANDLE,
 		attributes: {
 			nodeDepth: fromDepth,
-			nodeType: fromNodeType,
 			nodeTypes: fromNodeTypes,
 			hasSelectedMultipleNodes,
 			destinationNodeDepth: toDepth,
@@ -69,7 +66,10 @@ export const getMultiSelectAnalyticsAttributes = (
 	tr: Transaction,
 	anchor: number,
 	head: number,
-) => {
+): {
+	hasSelectedMultipleNodes: boolean;
+	nodeTypes: string | undefined;
+} => {
 	const nodeTypes: string[] = [];
 	const from = Math.min(anchor, head);
 	const to = Math.max(anchor, head);
@@ -86,9 +86,7 @@ export const getMultiSelectAnalyticsAttributes = (
 	});
 
 	return {
-		nodeTypes: fg('platform_editor_track_node_types')
-			? [...new Set(nodeTypes)].sort().join(',')
-			: undefined,
+		nodeTypes: [...new Set(nodeTypes)].sort().join(','),
 		hasSelectedMultipleNodes: nodeTypes.length > 1,
 	};
 };

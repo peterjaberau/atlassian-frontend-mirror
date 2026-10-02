@@ -4,52 +4,26 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
 import { di } from 'react-magnetic-di';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
-import { MediaPlacement, SmartLinkSize } from '../../../../constants';
-import { useFlexibleUiContext } from '../../../../state/flexible-ui-context';
+import { SmartLinkSize } from '../../../../constants';
+import type { FlexibleCardContextType } from '../../../../state/flexible-ui-context';
 import { type FlexibleUiDataContext } from '../../../../state/flexible-ui-context/types';
-import { isFlexUiPreviewPresent } from '../../../../state/flexible-ui-context/utils';
-import {
-	isFlexibleUiBlock,
-	isFlexibleUiPreviewBlock,
-	isStyleCacheProvider,
-} from '../../../../utils/flexible';
-import { TitleBlock } from '../blocks';
+import { useFlexibleCardContext } from '../../../../state/flexible-ui-context/useFlexibleCardContext';
+import { isFlexibleUiBlock } from '../../../../utils/is-flexible-ui-block';
 import { type TitleBlockProps } from '../blocks/title-block/types';
-
+import { getChildrenOptions } from './getChildrenOptions';
+import { getFlexibleUiBlock } from './getFlexibleUiBlock';
 import HoverCardControl from './hover-card-control';
 import LayeredLink from './layered-link';
-import { type ChildrenOptions, type ContainerProps } from './types';
-
-export const getChildrenOptions = (
-	children: React.ReactNode,
-	context?: FlexibleUiDataContext,
-): ChildrenOptions => {
-	let options: ChildrenOptions = {};
-	if (isFlexUiPreviewPresent(context)) {
-		React.Children.map(children, (child) => {
-			if (React.isValidElement(child)) {
-				if (isFlexibleUiPreviewBlock(child)) {
-					const { placement } = child.props;
-					if (placement === MediaPlacement.Left) {
-						options.previewOnLeft = true;
-					}
-					if (placement === MediaPlacement.Right) {
-						options.previewOnRight = true;
-					}
-				}
-			}
-		});
-	}
-	return options;
-};
+import { type ContainerProps } from './types';
 
 const filterChildren = (children: React.ReactNode, removeBlockRestriction?: boolean) => {
 	if (removeBlockRestriction) {
@@ -59,34 +33,6 @@ const filterChildren = (children: React.ReactNode, removeBlockRestriction?: bool
 	return React.Children.map(children, (child) =>
 		React.isValidElement(child) && isFlexibleUiBlock(child) ? child : undefined,
 	);
-};
-
-/**
- * Note: This function is only necessary for CompiledCSS within Jest tests due to the way it handles Styles.
- * CompiledCSS will inject a StyleCacheProvider around the component tree, which
- * causes the children to be wrapped in a StyleCacheProvider as well. This function recursively
- * searches for the first valid TitleBlock within the children of the StyleCacheProvider.
- */
-export const getFlexibleUiBlock = (node: React.ReactNode): React.ReactNode | undefined => {
-	if (!React.isValidElement(node)) {
-		return undefined;
-	}
-
-	if (node.type === TitleBlock) {
-		return node;
-	}
-
-	if (isStyleCacheProvider(node)) {
-		// Component wrapped with compiled at runtime, check for children
-		let isChildrenValid: React.ReactNode | undefined;
-		React.Children.map(node.props.children, (child) => {
-			if (typeof child.type !== 'string' && child.type?.name !== 'Style') {
-				isChildrenValid = getFlexibleUiBlock(child);
-			}
-		});
-		return isChildrenValid;
-	}
-	return undefined;
 };
 
 const getTitleBlockProps = (children: React.ReactNode): TitleBlockProps | undefined => {
@@ -104,16 +50,25 @@ const getLayeredLink = (
 	context?: FlexibleUiDataContext,
 	children?: React.ReactNode,
 	onClick?: React.EventHandler<React.MouseEvent | React.KeyboardEvent>,
+	onAuxClick?: React.EventHandler<React.MouseEvent>,
+	onContextMenu?: React.EventHandler<React.MouseEvent>,
+	title?: string,
+	navigation?: FlexibleCardContextType['navigation'],
 ): React.ReactNode => {
 	const { linkTitle, url = '' } = context || {};
+	// SSR cannot reliably extract TitleBlock props from children, so `title` is
+	// provided from CardSSR as a stable server/client value to prevent hydration
+	// text mismatches for the clickable container link.
 	const { anchorTarget: target, text } = getTitleBlockProps(children) || {};
 	return (
 		<LayeredLink
 			onClick={onClick}
-			target={target}
+			onAuxClick={onAuxClick}
+			onContextMenu={onContextMenu}
+			target={fg('confluence_ep_shim_macro_links_v2') ? (target ?? navigation?.target) : target}
 			testId={testId}
-			text={text || linkTitle?.text}
-			url={url}
+			text={title || text || linkTitle?.text}
+			url={fg('confluence_ep_shim_macro_links_v2') ? (navigation?.url ?? url) : url}
 		/>
 	);
 };
@@ -130,7 +85,7 @@ const baseStyleCommon = css({
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'a:focus, .has-action:focus': {
-		outlineOffset: token('space.negative.025', '-2px'),
+		outlineOffset: token('space.negative.025'),
 	},
 });
 
@@ -256,6 +211,8 @@ const Container = ({
 	hideElevation = false,
 	hidePadding = false,
 	onClick,
+	onAuxClick,
+	onContextMenu,
 	retry,
 	showHoverPreview = false,
 	hoverPreviewOptions,
@@ -264,20 +221,17 @@ const Container = ({
 	size = SmartLinkSize.Medium,
 	status,
 	testId = 'smart-links-container',
-}: ContainerProps) => {
+	title,
+}: ContainerProps): JSX.Element => {
 	di(HoverCardControl);
 
 	const padding = hidePadding ? '0px' : getPadding(size);
 	const gap = getGap(size);
 
-	const context = useFlexibleUiContext();
+	const cardContext = useFlexibleCardContext();
+	const context = cardContext?.data;
 
 	const { previewOnLeft, previewOnRight } = getChildrenOptions(children, context);
-	const canShowHoverPreview =
-		showHoverPreview && (status === 'resolved' || hoverPreviewOptions?.render !== undefined);
-	// `retry` object contains action that can be performed on
-	// unresolved link (unauthorized, forbidden, not found, etc.)
-	const canShowAuthTooltip = showHoverPreview && status === 'unauthorized' && retry !== undefined;
 
 	const isResolved = status === 'resolved';
 	const isUnresolvedWithAuthFlow = status !== 'resolved' && retry !== undefined;
@@ -308,29 +262,27 @@ const Container = ({
 			data-smart-link-container
 			data-testid={testId}
 		>
-			{clickableContainer ? getLayeredLink(testId, context, children, onClick) : null}
+			{clickableContainer
+				? getLayeredLink(
+						testId,
+						context,
+						children,
+						onClick,
+						onAuxClick,
+						onContextMenu,
+						title,
+						cardContext?.navigation,
+					)
+				: null}
 			{filterChildren(children, removeBlockRestriction)}
 		</div>
 	);
 
-	if (
-		context?.url &&
-		(fg('navx-2478-sl-fix-hover-card-unresolved-view')
-			? canShowHoverCard
-			: canShowHoverPreview || canShowAuthTooltip)
-	) {
+	if (context?.url && canShowHoverCard) {
 		return (
 			<HoverCardControl
-				isHoverPreview={
-					fg('navx-2478-sl-fix-hover-card-unresolved-view')
-						? isResolved || hasHoverCardOverride
-						: canShowHoverPreview
-				}
-				isAuthTooltip={
-					fg('navx-2478-sl-fix-hover-card-unresolved-view')
-						? isUnresolvedWithAuthFlow
-						: canShowAuthTooltip
-				}
+				isHoverPreview={isResolved || hasHoverCardOverride}
+				isAuthTooltip={isUnresolvedWithAuthFlow}
 				actionOptions={actionOptions}
 				testId={testId}
 				url={context.url}

@@ -1,7 +1,9 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuidV4 from 'uuid/v4';
+import { v4 as uuidV4 } from 'uuid';
 
-import type { MediaAttributes, MediaInlineAttributes } from '@atlaskit/adf-schema';
+import type { MediaAttributes } from '@atlaskit/adf-schema/media';
+import type { MediaInlineAttributes } from '@atlaskit/adf-schema/media-inline';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
 import { DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH } from '@atlaskit/editor-common/media-single';
@@ -10,11 +12,12 @@ import type {
 	MediaProvider,
 } from '@atlaskit/editor-common/provider-factory';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type {
-	FileState,
-	CopySourceFile,
 	CopyDestination,
+	CopySourceFile,
+	FileState,
 	MediaClient,
 } from '@atlaskit/media-client';
 import {
@@ -22,9 +25,9 @@ import {
 	isImageRepresentationReady,
 	isMediaBlobUrl,
 } from '@atlaskit/media-client';
-import { getMediaClient } from '@atlaskit/media-client-react';
-import type { MediaTraceContext } from '@atlaskit/media-common';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { getMediaClient } from '@atlaskit/media-client-react/get-media-client';
+import { getClientIdForFile, type MediaTraceContext } from '@atlaskit/media-common';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import {
 	replaceExternalMedia,
@@ -35,11 +38,12 @@ import { stateKey as mediaStateKey } from '../pm-plugins/plugin-key';
 import { batchMediaNodeAttrsUpdate } from '../pm-plugins/utils/batchMediaNodeAttrs';
 import { getIdentifier } from '../pm-plugins/utils/media-common';
 import type {
+	getPosHandler as ProsemirrorGetPosHandler,
 	MediaOptions,
 	MediaPluginState,
-	getPosHandler as ProsemirrorGetPosHandler,
 	SupportedMediaAttributes,
 } from '../types';
+import { computeReplacementDisplayWidth } from './nodeviewHelpers';
 
 type RemoteDimensions = { height: number; id: string; width: number };
 
@@ -47,6 +51,8 @@ export interface MediaNodeUpdaterProps {
 	contextIdentifierProvider?: Promise<ContextIdentifierProvider>;
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent;
 	isMediaSingle: boolean;
+	/** Content column width in pixels, used to clamp display width on media replacement. */
+	lineLength?: number;
 	mediaOptions?: MediaOptions;
 	mediaProvider?: Promise<MediaProvider>;
 	node: PMNode; // assumed to be media type node (ie. child of MediaSingle, MediaGroup)
@@ -151,7 +157,7 @@ export class MediaNodeUpdater {
 			if (fileState.status === 'error') {
 				return;
 			}
-		} catch (err) {
+		} catch {
 			return;
 		}
 
@@ -242,7 +248,7 @@ export class MediaNodeUpdater {
 					width: dimensions.width,
 					occurrenceKey: uploadableFileUpfrontIds.occurrenceKey,
 				})(this.props.view.state, this.props.view.dispatch);
-			} catch (e) {
+			} catch {
 				//keep it as external media
 				if (this.props.dispatchAnalyticsEvent) {
 					this.props.dispatchAnalyticsEvent({
@@ -265,7 +271,87 @@ export class MediaNodeUpdater {
 	};
 
 	updateDimensions = (dimensions: RemoteDimensions): void => {
-		batchMediaNodeAttrsUpdate(this.props.view, {
+		const { view } = this.props;
+		const mediaPluginState = mediaStateKey.getState(view.state);
+		const targetDisplayHeight = mediaPluginState?.replaceMediaTargetDisplayHeight;
+
+		if (targetDisplayHeight !== null && targetDisplayHeight !== undefined && dimensions.width > 0) {
+			// Replace mode: combine intrinsic dimension update on the media node AND
+			// display width update on the mediaSingle into a single transaction so they
+			// are never out of sync and don't cause two separate renders/layout shifts.
+
+			// Clear the stored target height — this is a one-shot adjustment
+			if (mediaPluginState) {
+				mediaPluginState.replaceMediaTargetDisplayHeight = null;
+			}
+
+			// Clamp to the layout's maximum width so the image never overflows its container.
+			const lineLength: number = this.props.lineLength ?? 760;
+
+			const { state } = view;
+			const { mediaSingle } = state.schema.nodes;
+			// Typed explicitly because TypeScript can't track mutations inside
+			// the descendants callback closure and would narrow these to `never`.
+			let mediaSinglePos = null as number | null;
+			let mediaSingleNode = null as PMNode | null;
+			let mediaPos = null as number | null;
+
+			state.doc.descendants((node, pos) => {
+				if (mediaSinglePos !== null) {
+					return false;
+				}
+				if (node.type === mediaSingle) {
+					const mediaChild = node.firstChild;
+					if (mediaChild && mediaChild.attrs.id === dimensions.id) {
+						mediaSinglePos = pos;
+						mediaSingleNode = node;
+						mediaPos = pos + 1;
+					}
+				}
+				return true;
+			});
+
+			const layout = mediaSingleNode?.attrs?.layout ?? 'center';
+			const newDisplayWidth = computeReplacementDisplayWidth(
+				targetDisplayHeight,
+				dimensions.width,
+				dimensions.height,
+				layout,
+				lineLength,
+			);
+
+			if (mediaSinglePos !== null && mediaSingleNode !== null && mediaPos !== null) {
+				const tr = state.tr;
+
+				// Update intrinsic dimensions on the media child node
+				tr.step(
+					new SetAttrsStep(mediaPos, {
+						height: dimensions.height,
+						width: dimensions.width,
+					}),
+				);
+
+				// Update display width on the mediaSingle parent
+				tr.setNodeMarkup(mediaSinglePos, undefined, {
+					...mediaSingleNode.attrs,
+					width: Math.round(newDisplayWidth),
+					widthType: 'pixel',
+				});
+
+				// Re-create the NodeSelection so the floating toolbar picks up
+				// the updated node and renders the full set of controls.
+				if (state.selection instanceof NodeSelection) {
+					tr.setSelection(NodeSelection.create(tr.doc, mediaSinglePos));
+				}
+
+				tr.setMeta('scrollIntoView', false);
+				view.dispatch(tr);
+				return;
+			}
+		}
+
+		// Normal (non-replace) path: use the existing batched update mechanism
+		batchMediaNodeAttrsUpdate(view, {
 			id: dimensions.id,
 			nextAttributes: {
 				height: dimensions.height,
@@ -325,7 +411,7 @@ export class MediaNodeUpdater {
 		};
 	}
 
-	shouldNodeBeDeepCopied = async () => {
+	shouldNodeBeDeepCopied = async (): Promise<boolean> => {
 		const scope =
 			this.props.mediaOptions?.mediaShallowCopyScope ??
 			this.mediaPluginState?.mediaOptions?.mediaShallowCopyScope ??
@@ -381,7 +467,7 @@ export class MediaNodeUpdater {
 		if (this.isMediaBlobUrl()) {
 			try {
 				await this.copyNodeFromBlobUrl(getPos);
-			} catch (e) {
+			} catch {
 				await this.uploadExternalMedia(getPos);
 			}
 		} else {
@@ -434,7 +520,7 @@ export class MediaNodeUpdater {
 			return;
 		}
 		const currentCollectionName = mediaProvider.uploadParams.collection;
-		const { contextId, id, collection, height, width, mimeType, name, size } = mediaAttrs;
+		const { contextId, clientId, id, collection, height, width, mimeType, name, size } = mediaAttrs;
 		const uploadMediaClientConfig = mediaProvider.uploadMediaClientConfig;
 		if (!uploadMediaClientConfig || !uploadMediaClientConfig.getAuthFromContext) {
 			return;
@@ -448,6 +534,7 @@ export class MediaNodeUpdater {
 				id,
 				collection,
 				authProvider: () => getAuthFromContext(contextId),
+				clientId: fg('platform_media_cross_client_copy_with_auth') ? clientId : undefined,
 			},
 			destination: {
 				collection: currentCollectionName,
@@ -474,7 +561,10 @@ export class MediaNodeUpdater {
 	};
 
 	// Copies the pasted node into the current collection using a getPos handler
-	copyNodeFromPos = async (getPos: ProsemirrorGetPosHandler, traceContext?: MediaTraceContext): Promise<void> => {
+	copyNodeFromPos = async (
+		getPos: ProsemirrorGetPosHandler,
+		traceContext?: MediaTraceContext,
+	): Promise<void> => {
 		const attrs = this.getAttrs() as MediaAttributes;
 		if (!attrs || (attrs && !isMediaTypeSupported(attrs.type))) {
 			return;
@@ -525,6 +615,9 @@ export class MediaNodeUpdater {
 		}
 
 		const mediaClient = getMediaClient(uploadMediaClientConfig);
+		const clientId = fg('platform_media_cross_client_copy_with_auth')
+			? getClientIdForFile(id)
+			: undefined;
 
 		const currentCollectionName = mediaProvider.uploadParams.collection;
 		const objectId = await this.getObjectId();
@@ -537,6 +630,7 @@ export class MediaNodeUpdater {
 				id,
 				collection,
 				authProvider: () => getAuthFromContext(nodeContextId),
+				clientId,
 			},
 			destination: {
 				collection: currentCollectionName,
@@ -567,7 +661,7 @@ const hasPrivateAttrsChanged = (
 	);
 };
 
-export const createMediaNodeUpdater = (props: MediaNodeUpdaterProps) => {
+export const createMediaNodeUpdater = (props: MediaNodeUpdaterProps): MediaNodeUpdater => {
 	const updaterProps = {
 		...props,
 	};

@@ -3,18 +3,28 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import Button from '@atlaskit/button/standard-button';
-import DropdownMenu, { DropdownItemRadio, DropdownItemRadioGroup } from '@atlaskit/dropdown-menu';
+import DropdownItemRadio from '@atlaskit/dropdown-menu/dropdown-item-radio';
+import DropdownItemRadioGroup from '@atlaskit/dropdown-menu/dropdown-item-radio-group';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { EnvironmentsKeys } from '@atlaskit/linking-common/types';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
 import Range from '@atlaskit/range/range';
 import { token } from '@atlaskit/tokens';
 
 import { Card } from '../../src';
-import * as Blocks from '../../src/view/FlexibleCard/components/blocks';
+import ActionBlock from '../../src/view/FlexibleCard/components/blocks/action-block';
+import AIFooterBlock from '../../src/view/FlexibleCard/components/blocks/ai-footer-block';
+import FooterBlock from '../../src/view/FlexibleCard/components/blocks/footer-block';
+import ResolvedHoverCardFooterBlock from '../../src/view/FlexibleCard/components/blocks/hover-card-footer-block';
+import MetadataBlock from '../../src/view/FlexibleCard/components/blocks/metadata-block';
+import PreviewBlock from '../../src/view/FlexibleCard/components/blocks/preview-block';
+import SnippetBlock from '../../src/view/FlexibleCard/components/blocks/snippet-block';
+import TitleBlock from '../../src/view/FlexibleCard/components/blocks/title-block';
 import withJsonldEditorProvider from '../jsonld-editor/jsonld-editor-provider';
 import FlexibleDataView from '../utils/flexible-data-view';
-
 import { type BlockTemplate, type FlexibleTemplate } from './types';
 
 const backColor = token('color.background.neutral.subtle');
@@ -46,6 +56,17 @@ const toggleContainerStyles = xcss({
 	position: 'absolute',
 	right: '0.5rem',
 });
+
+const Blocks = {
+	ActionBlock,
+	AIFooterBlock,
+	FooterBlock,
+	MetadataBlock,
+	PreviewBlock,
+	SnippetBlock,
+	TitleBlock,
+	ResolvedHoverCardFooterBlock,
+};
 
 const renderBlock = ({ name, ...props }: BlockTemplate, key: string) => {
 	const Block = Blocks[name];
@@ -119,4 +140,21 @@ const TemplateRenderer = ({ template, url }: { template: FlexibleTemplate; url?:
 	);
 };
 
-export default withJsonldEditorProvider(TemplateRenderer);
+const _default_1: (
+	props: {
+		template: FlexibleTemplate;
+		url?: string;
+	} & {
+		ari?: string;
+		branchDeploy?: string;
+		envKey?: EnvironmentsKeys;
+		json?: JsonLd.Response;
+		onError?: (error: Error) => void;
+		onFetch?: () => JsonLd.Response | undefined;
+		onResolve?: (json: JsonLd.Response) => void;
+		url: string;
+	} & {
+		children?: React.ReactNode | undefined;
+	},
+) => React.JSX.Element = withJsonldEditorProvider(TemplateRenderer);
+export default _default_1;

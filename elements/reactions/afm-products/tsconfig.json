@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__reactions/app",
 		"rootDir": "../",
 		"composite": true,
@@ -46,6 +44,9 @@
 			"path": "../../emoji/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/heading/afm-products/tsconfig.json"
 		},
 		{
@@ -59,6 +60,9 @@
 		},
 		{
 			"path": "../../../design-system/motion/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
@@ -76,6 +80,9 @@
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../react-ufo/atlaskit/afm-products/tsconfig.json"
 		},
 		{
@@ -86,6 +93,9 @@
 		},
 		{
 			"path": "../../../design-system/theme/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../editor/tmp-editor-statsig/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

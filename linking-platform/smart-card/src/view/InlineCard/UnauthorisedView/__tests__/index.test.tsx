@@ -1,14 +1,67 @@
 import React from 'react';
 
-import { fireEvent, screen } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
+import { DiProvider, injectable } from 'react-magnetic-di';
 
 import { renderWithIntl } from '@atlaskit/link-test-helpers';
+import { fireEvent, render, screen, userEvent } from '@atlassian/testing-library';
 
+import { getCachedProviderPctMapAndRefresh } from '../../../../state/services/personalization/getCachedProviderPctMapAndRefresh';
 import { InlineCardUnauthorizedView } from '../index';
+
+const mockFireEvent = jest.fn();
+jest.mock('../../../../common/analytics/generated/use-analytics-events', () => ({
+	useAnalyticsEvents: () => ({ fireEvent: mockFireEvent }),
+}));
+
+const mockGetProviderPctMapSyncLoaded = injectable(getCachedProviderPctMapAndRefresh, () => ({
+	'figma-object-provider': 52,
+}));
+
+const mockGetProviderPctMapSyncExploratoryShare = injectable(
+	getCachedProviderPctMapAndRefresh,
+	() => ({
+		'figma-object-provider': 15,
+	}),
+);
+
+const mockGetProviderPctMapSyncThirtyPct = injectable(getCachedProviderPctMapAndRefresh, () => ({
+	'figma-object-provider': 30,
+}));
+
+const mockGetProviderPctMapSyncTwentyNinePct = injectable(
+	getCachedProviderPctMapAndRefresh,
+	() => ({
+		'figma-object-provider': 29,
+	}),
+);
+
+const mockGetProviderPctMapSyncNoPercentage = injectable(
+	getCachedProviderPctMapAndRefresh,
+	() => null,
+);
+const mockGetProviderPctMapSyncLoadedNoPercentage = injectable(
+	getCachedProviderPctMapAndRefresh,
+	() => ({}),
+);
+
+const mockGetProviderPctMapSyncUnexpected = injectable(getCachedProviderPctMapAndRefresh, () => {
+	throw new Error('getCachedProviderPctMapAndRefresh should not be called');
+});
+
+type Injectable = ReturnType<typeof injectable>;
+
+const renderWithSocialProofDi = (ui: React.ReactElement, socialProofMock: Injectable) =>
+	render(
+		<DiProvider use={[socialProofMock]}>
+			<IntlProvider locale="en">{ui}</IntlProvider>
+		</DiProvider>,
+	);
 
 describe('Unauthorised View', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
+		mockFireEvent.mockClear();
 	});
 
 	it('should have correct text', () => {
@@ -63,5 +116,226 @@ describe('Unauthorised View', () => {
 		const testUrl = 'http://unauthorised-test/';
 		const { container } = renderWithIntl(<InlineCardUnauthorizedView url={testUrl} />);
 		await expect(container).toBeAccessible();
+	});
+
+	describe('social proof', () => {
+		describe('connect CTA', () => {
+			it('should show "Connect" (short label) instead of "Connect your X account" when social proof is shown', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						context="Figma"
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+					/>,
+					mockGetProviderPctMapSyncLoaded,
+				);
+				expect(container).toHaveTextContent('Connect');
+				expect(container).not.toHaveTextContent('Connect your Figma account');
+			});
+
+			it('authorises once from the nested "Connect" button without opening the Smart Link', async () => {
+				const testUrl = 'http://unauthorised-test/';
+				const onAuthorise = jest.fn();
+				const onClick = jest.fn();
+				renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						context="Figma"
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={onAuthorise}
+						onClick={onClick}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncLoaded,
+				);
+
+				const connectButton = screen.getByTestId('button-connect-account');
+				expect(connectButton).toHaveTextContent('Connect');
+
+				const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+				await user.click(connectButton);
+
+				expect(onAuthorise).toHaveBeenCalledTimes(1);
+				expect(onClick).not.toHaveBeenCalled();
+				expect(mockFireEvent).toHaveBeenCalledTimes(1);
+				expect(mockFireEvent).toHaveBeenCalledWith('track.applicationAccount.authStarted', {});
+			});
+
+			it('shows social proof pill with percentage when social proof data is present', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { getByTestId, container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						context="Figma"
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncLoaded,
+				);
+				expect(getByTestId('inline-card-unauthorized-view-social-proof-tag')).toBeInTheDocument();
+				expect(container).toHaveTextContent('52% of your team sees Figma previews');
+			});
+
+			it('uses exploratory preview copy when connected share is below 30%', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { getByTestId, container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						context="Figma"
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncExploratoryShare,
+				);
+				expect(getByTestId('inline-card-unauthorized-view-social-proof-tag')).toBeInTheDocument();
+				expect(container).toHaveTextContent('Your team sees richer Figma previews');
+			});
+
+			it('uses no-context exploratory copy when exploratory share has no provider display name', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { getByTestId, container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncExploratoryShare,
+				);
+				expect(getByTestId('inline-card-unauthorized-view-social-proof-tag')).toBeInTheDocument();
+				expect(container).toHaveTextContent('Your team sees richer previews');
+				expect(container).toHaveTextContent('Connect');
+			});
+
+			it('starts percentage headline messaging at exactly 30% adoption', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						context="Figma"
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncThirtyPct,
+				);
+				expect(container).toHaveTextContent('30% of your team sees Figma previews');
+			});
+
+			it('uses exploratory copy at 29% adoption', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						context="Figma"
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncTwentyNinePct,
+				);
+				expect(container).toHaveTextContent('Your team sees richer Figma previews');
+			});
+
+			it('uses high-share no-context copy when provider display name is missing', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncLoaded,
+				);
+				expect(container).toHaveTextContent('52% of your team sees richer previews');
+			});
+
+			it('omits the pill when context and personalization are both unavailable before traits load', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { queryByTestId, container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncNoPercentage,
+				);
+				expect(
+					queryByTestId('inline-card-unauthorized-view-social-proof-tag'),
+				).not.toBeInTheDocument();
+				expect(container).not.toHaveTextContent('previewing');
+				expect(container).not.toHaveTextContent('% of your team');
+			});
+
+			it('shows no-context low-share copy when traits are loaded but provider percentage is missing', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { getByTestId, container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncLoadedNoPercentage,
+				);
+				expect(getByTestId('inline-card-unauthorized-view-social-proof-tag')).toBeInTheDocument();
+				expect(container).toHaveTextContent('Your team sees richer previews');
+				expect(container).toHaveTextContent('Connect');
+			});
+
+			it('shows exploratory context copy when traits are loaded but provider percentage is missing', () => {
+				const testUrl = 'http://unauthorised-test/';
+				const { getByTestId, container } = renderWithSocialProofDi(
+					<InlineCardUnauthorizedView
+						context="Figma"
+						extensionKey="figma-object-provider"
+						url={testUrl}
+						onAuthorise={jest.fn()}
+						testId="inline-card-unauthorized-view"
+					/>,
+					mockGetProviderPctMapSyncLoadedNoPercentage,
+				);
+				expect(getByTestId('inline-card-unauthorized-view-social-proof-tag')).toBeInTheDocument();
+				expect(container).toHaveTextContent('Your team sees richer Figma previews');
+				expect(container).toHaveTextContent('Connect');
+			});
+		});
+
+		it('does not show social proof pill when onAuthorise is not provided', () => {
+			const testUrl = 'http://unauthorised-test/';
+			const { queryByTestId } = renderWithSocialProofDi(
+				<InlineCardUnauthorizedView
+					context="Figma"
+					extensionKey="figma-object-provider"
+					url={testUrl}
+					testId="inline-card-unauthorized-view"
+				/>,
+				mockGetProviderPctMapSyncUnexpected,
+			);
+			expect(
+				queryByTestId('inline-card-unauthorized-view-social-proof-tag'),
+			).not.toBeInTheDocument();
+		});
+
+		it('shows the long connect label until personalization data is available', () => {
+			const { container } = renderWithSocialProofDi(
+				<InlineCardUnauthorizedView
+					context="Figma"
+					extensionKey="figma-object-provider"
+					url="http://unauthorised-test/"
+					onAuthorise={jest.fn()}
+				/>,
+				mockGetProviderPctMapSyncNoPercentage,
+			);
+			expect(container).toHaveTextContent('Connect your Figma account');
+			expect(
+				screen.queryByTestId('inline-card-unauthorized-view-social-proof-tag'),
+			).not.toBeInTheDocument();
+		});
 	});
 });

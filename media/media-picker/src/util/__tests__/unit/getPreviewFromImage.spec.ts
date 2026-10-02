@@ -1,9 +1,12 @@
-jest.mock('@atlaskit/media-ui');
+jest.mock('@atlaskit/media-ui/getFileInfo');
+jest.mock('@atlaskit/media-ui/imageMetaData/getImageInfo');
 
-import { getFileInfo, getImageInfo } from '@atlaskit/media-ui';
 import { asMock } from '@atlaskit/media-test-helpers';
-import { getPreviewFromImage } from '../../getPreviewFromImage';
+import { getFileInfo } from '@atlaskit/media-ui/getFileInfo';
+import { getImageInfo } from '@atlaskit/media-ui/imageMetaData/getImageInfo';
+
 import { type ImagePreview, type Preview } from '../../../types';
+import { getPreviewFromImage } from '../../getPreviewFromImage';
 
 describe('getPreviewFromImage()', () => {
 	const file = new File([], 'some-filename');
@@ -19,7 +22,7 @@ describe('getPreviewFromImage()', () => {
 
 	it('should get imagepreview from file', async () => {
 		const preview = (await getPreviewFromImage(file)) as ImagePreview;
-		expect(getImageInfo).toBeCalledWith('some-file-info');
+		expect(getImageInfo).toHaveBeenCalledWith('some-file-info');
 		expect(preview.dimensions.width).toBe(1);
 		expect(preview.dimensions.height).toBe(2);
 		expect(preview.scaleFactor).toBe(3);

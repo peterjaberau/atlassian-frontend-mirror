@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/grid",
-	"version": "0.18.20",
+	"version": "1.3.4",
 	"description": "A responsive layout grid is a component designed to manage the content of a page.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,6 +17,13 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
 			"name": "Layout grid",
@@ -30,13 +37,14 @@
 	"dependencies": {
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
 		"tiny-invariant": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -48,35 +56,16 @@
 		"@atlaskit/page-layout": "workspace:^",
 		"@atlaskit/table": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
-		"@testing-library/react": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions",
-			"circular-dependencies": "file-and-folder-level"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"ui-components": "lite-mode",
-			"analytics": "analytics-next",
-			"deprecation": "no-deprecated-imports"
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
+		"@atlassian/workbench": "workspace:*",
+		"@testing-library/react": "root:*",
+		"react": "^19.0.0"
 	},
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./grid": "./src/entry-points/grid.tsx",
+		"./grid-container": "./src/entry-points/grid-container.tsx",
+		"./grid-item": "./src/entry-points/grid-item.tsx",
+		"./types": "./src/entry-points/types.tsx"
 	},
 	"homepage": "https://atlassian.design/components/grid/"
 }

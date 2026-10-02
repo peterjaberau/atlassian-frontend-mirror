@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Context Identifier', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the context identifier plugin used by \`@atlaskit/editor-core\`.
 
@@ -33,9 +33,9 @@ ${code`
 type ContextIdentifierPlugin = NextEditorPlugin<
   'contextIdentifier',
   {
-    config: Configuration | undefined;
-    sharedState: Configuration | undefined;
     commands: { setProvider: (config: Configuration) => EditorCommand };
+    pluginConfiguration: ContextIdentifierPluginOptions | undefined;
+    sharedState: Configuration | undefined;
   }
 >;
 

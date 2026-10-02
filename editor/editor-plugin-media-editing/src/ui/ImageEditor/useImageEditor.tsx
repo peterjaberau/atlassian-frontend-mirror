@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { bind } from 'bind-event-listener';
-import { useIntl, type MessageDescriptor } from 'react-intl-next';
+import { useIntl, type MessageDescriptor } from 'react-intl';
 
 import type { ErrorReporter } from '@atlaskit/editor-common/error-reporter';
 
@@ -114,6 +114,7 @@ export const useImageEditor = (): UseImageEditorReturn => {
 			};
 
 			// Call once to set initial value
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			handleSelectionChange();
 
 			// Attach change listener to selection element

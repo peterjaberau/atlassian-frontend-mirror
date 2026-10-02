@@ -4,31 +4,30 @@
  */
 
 import React, { useRef, useCallback } from 'react';
-import {
-	useAnalyticsEvents,
-	type UIAnalyticsEvent,
-	AnalyticsContext,
-} from '@atlaskit/analytics-next';
-import Textfield from '@atlaskit/textfield';
-import Button from '@atlaskit/button/custom-theme-button';
-import Spinner from '@atlaskit/spinner';
-import SearchIcon from '@atlaskit/icon/core/search';
-import EditorCloseIcon from '@atlaskit/icon/core/cross';
+
 import { css, jsx } from '@compiled/react';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
 
-import { REQUEST_STATE } from '../../../model/Requests';
-import { useSearchContext } from '../../contexts/searchContext';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
+import EditorCloseIcon from '@atlaskit/icon/core/cross';
+import SearchIcon from '@atlaskit/icon/core/search';
+import Spinner from '@atlaskit/spinner/spinner';
+import Textfield from '@atlaskit/textfield/text-field';
+
 import { messages } from '../../../messages';
+import { REQUEST_STATE } from '../../../model/Requests';
 import { VIEW } from '../../constants';
-
+import { useNavigationContext } from '../../contexts/navigationContext';
+import { useSearchContext } from '../../contexts/searchContext';
 import {
 	SearchInputContainer,
 	SearchInputContainerAi,
 	SearchIconContainer,
 	CloseButtonAndSpinnerContainer,
 } from './styled';
-import { useNavigationContext } from '../../contexts/navigationContext';
 
 const ANALYTICS_CONTEXT_DATA = {
 	componentName: 'searchInput',

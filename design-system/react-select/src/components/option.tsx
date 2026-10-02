@@ -2,14 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type CSSProperties, type ReactNode, type RefCallback } from 'react';
+import { type CSSProperties, type JSX, type ReactNode, type RefCallback } from 'react';
 
 import { cssMap, cx, jsx } from '@compiled/react';
 
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
+import { getStyleProps } from '../get-style-props';
 import { type CommonPropsAndClassName, type GroupBase } from '../types';
-import { getStyleProps } from '../utils';
 
 export interface OptionProps<
 	Option = unknown,
@@ -56,8 +57,6 @@ export interface OptionProps<
 	isSelected: boolean;
 }
 
-export const optionCSS: () => {} = () => ({});
-
 const optionStyles = cssMap({
 	root: {
 		color: token('color.text'),
@@ -93,6 +92,12 @@ const optionStyles = cssMap({
 			borderInlineStart: `${token('border.width.selected')} solid transparent`,
 		},
 	},
+	finesseFocused: {
+		boxShadow: 'none',
+		'@media screen and (-ms-high-contrast: active)': {
+			borderInlineStart: 'none',
+		},
+	},
 	selected: {
 		'&:active': {
 			backgroundColor: token('color.background.selected.pressed'),
@@ -107,9 +112,26 @@ const optionStyles = cssMap({
 	focusedSelected: {
 		backgroundColor: token('color.background.selected.hovered'),
 	},
+	motion: {
+		transition: token('motion.listitem.hovered'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
+		},
+	},
+	motionSelected: {
+		transition: token('motion.listitem.selected'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+	},
 });
 
-const Option: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(props: OptionProps<Option, IsMulti, Group>) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+const Option: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+	props: OptionProps<Option, IsMulti, Group>,
+) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
 	props: OptionProps<Option, IsMulti, Group>,
 ) => {
 	const { children, isDisabled, isFocused, isSelected, innerRef, innerProps, xcss } = props;
@@ -124,9 +146,21 @@ const Option: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>
 		<div
 			css={[
 				optionStyles.root,
+				!isDisabled &&
+					!isSelected &&
+					fg('platform-dst-motion-uplift-list-item') &&
+					optionStyles.motion,
 				isFocused && optionStyles.focused,
+				isFocused &&
+					!isSelected &&
+					fg('platform-dst-tokens-finesse') &&
+					optionStyles.finesseFocused,
 				isSelected && optionStyles.selected,
 				isFocused && isSelected && optionStyles.focusedSelected,
+				!isDisabled &&
+					isSelected &&
+					fg('platform-dst-motion-uplift-list-item') &&
+					optionStyles.motionSelected,
 				isDisabled && optionStyles.disabled,
 			]}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop

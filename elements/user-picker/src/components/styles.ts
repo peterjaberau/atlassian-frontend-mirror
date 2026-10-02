@@ -1,13 +1,15 @@
-import { B100, N0, N10, N20, N30, N100, R50, R400, N90 } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
-import memoizeOne from 'memoize-one';
-import { mergeStyles, type StylesConfig } from '@atlaskit/select';
+import memoizeOne, { type MemoizedFn } from 'memoize-one';
 
-export const BORDER_PADDING = token('space.075', '6px');
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { mergeStyles } from '@atlaskit/react-select/styles';
+import type { StylesConfig } from '@atlaskit/select/types';
+import { token } from '@atlaskit/tokens';
+
+export const BORDER_PADDING: 'var(--ds-space-075)' = token('space.075');
 export const AVATAR_PADDING = 6;
 export const INDICATOR_WIDTH = 39;
 
-export const getStyles = memoizeOne(
+export const getStyles: MemoizedFn<
 	(
 		width: string | number,
 		isMulti?: boolean,
@@ -16,6 +18,18 @@ export const getStyles = memoizeOne(
 		isVisualRefresh?: boolean,
 		isPopupStyles?: boolean,
 		height?: number | string,
+		minHeight?: number | string,
+	) => StylesConfig
+> = memoizeOne(
+	(
+		width: string | number,
+		isMulti?: boolean,
+		isCompact?: boolean,
+		overrideStyles?: StylesConfig,
+		isVisualRefresh?: boolean,
+		isPopupStyles?: boolean,
+		height?: number | string,
+		minHeight?: number | string,
 	): StylesConfig => {
 		let styles: StylesConfig = {
 			menu: (css, state) => ({
@@ -34,51 +48,60 @@ export const getStyles = memoizeOne(
 					...css,
 					width,
 					borderColor: state.isFocused
-						? token('color.border.focused', css.borderColor)
+						? token('color.border.focused')
 						: state.isInvalid
-							? token('color.border.danger', R400)
+							? token('color.border.danger')
 							: state.selectProps.subtle || state.selectProps.noBorder
 								? 'transparent'
-								: token('color.border.input', N90),
+								: token('color.border.input'),
 					backgroundColor: state.isFocused
-						? token('color.background.input', css['backgroundColor'])
+						? token('color.background.input')
 						: state.selectProps.subtle
 							? 'transparent'
-							: state.selectProps.textFieldBackgroundColor
-								? token('color.background.input', N10)
-								: token('color.background.input', N20),
+							: state.isDisabled && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+								? token('color.background.disabled')
+								: state.selectProps.textFieldBackgroundColor
+									? token('color.background.input')
+									: token('color.background.input'),
 					'&:hover .fabric-user-picker__clear-indicator': { opacity: 1 },
 					':hover': {
 						...css[':hover'],
 						borderColor: state.isFocused
 							? css[':hover']
-								? token('color.border.focused', css[':hover'].borderColor)
-								: token('color.border.focused', B100)
+								? token('color.border.focused')
+								: token('color.border.focused')
 							: state.isInvalid
-								? token('color.border.danger', R400)
+								? token('color.border.danger')
 								: state.selectProps.subtle
 									? 'transparent'
-									: token('color.border.input', N90),
+									: token('color.border.input'),
 						backgroundColor:
 							state.selectProps.subtle && state.selectProps.hoveringClearIndicator
-								? token('color.background.danger', R50)
+								? token('color.background.danger')
 								: state.isFocused
 									? css[':hover']
-										? token('color.background.input', css[':hover'].backgroundColor)
-										: token('color.background.input', N0)
+										? token('color.background.input')
+										: token('color.background.input')
 									: state.isDisabled
-										? token('color.background.disabled', N10)
-										: token('color.background.input.hovered', N30),
+										? token('color.background.disabled')
+										: token('color.background.input.hovered'),
 					},
 					padding: 0,
-					minHeight: (height) || isCompact ? 'none' : 44,
+					minHeight: minHeight
+						? minHeight
+						: height || isCompact
+							? isMulti && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+								? 30
+								: 'none'
+							: isMulti && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+								? 42
+								: 44,
 					/* IE 11 needs to set height explicitly to be vertical align when being in not compact mode */
-					height:
-						height ? height : isCompact || isMulti ? '100%' : 44,
+					height: height ? height : isCompact || isMulti ? '100%' : 44,
 					maxWidth: '100%',
 				};
 			},
-			clearIndicator: ({ paddingTop, paddingBottom, paddingLeft, paddingRight, ...css }) => ({
+			clearIndicator: ({ _paddingTop, _paddingBottom, _paddingLeft, _paddingRight, ...css }) => ({
 				...css,
 				// By default show clear indicator, except for on devices where "hover" is supported.
 				// This means mobile devices (which do not support hover) will be able to see the clear indicator.
@@ -90,22 +113,44 @@ export const getStyles = memoizeOne(
 				paddingTop: 0,
 				padding: 0,
 				':hover': {
-					color: token('color.icon.danger', R400),
+					color: token('color.icon.danger'),
 				},
 			}),
 			indicatorsContainer: (css) => ({
 				...css,
-				paddingRight: token('space.050', '4px'),
+				paddingRight: token('space.050'),
 			}),
-			valueContainer: ({ paddingTop, paddingBottom, position, ...css }, state) => {
+			valueContainer: ({ _paddingTop, _paddingBottom, _position, ...css }, state) => {
 				const isMulti = state.selectProps.isMulti;
-
 				return {
 					...css,
 					gridTemplateColumns: 'auto 1fr',
-					paddingTop: isCompact ? 0 : BORDER_PADDING,
-					paddingBottom: isCompact ? 0 : BORDER_PADDING,
-					paddingLeft: isMulti ? BORDER_PADDING : 0,
+					paddingTop: isCompact
+						? isMulti && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+							? token('space.025')
+							: 0
+						: isMulti && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+							? token('space.100')
+							: BORDER_PADDING,
+					paddingBottom: isCompact
+						? isMulti && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+							? token('space.025')
+							: 0
+						: isMulti && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+							? token('space.100')
+							: BORDER_PADDING,
+					// Match pre–tag-uplift leading inset when only the placeholder shows (share dialog VR, etc.).
+					paddingLeft: isMulti
+						? state.hasValue &&
+							state.selectProps.controlShouldRenderValue !== false &&
+							fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+							? token('space.100')
+							: BORDER_PADDING
+						: 0,
+					gap:
+						isMulti && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+							? token('space.050')
+							: undefined,
 					overflowX: 'hidden',
 					overflowY: 'auto',
 					scrollbarWidth: 'none',
@@ -155,8 +200,8 @@ export const getStyles = memoizeOne(
 					return {
 						...css,
 						overflow: 'hidden',
-						paddingLeft: isPopupStyles ? token('space.200', '16px') : token('space.100', '8px'),
-						paddingRight: isPopupStyles ? token('space.200', '16px') : token('space.100', '8px'),
+						paddingLeft: isPopupStyles ? token('space.200') : token('space.100'),
+						paddingRight: isPopupStyles ? token('space.200') : token('space.100'),
 					};
 				}
 				return {
@@ -169,20 +214,27 @@ export const getStyles = memoizeOne(
 				gridArea: '1/2/2/3',
 				gridTemplateColumns: isMulti && state.placeholder ? '0 123px' : css.gridTemplateColumns,
 				/* Necessary to make input height and tag height the same. */
-				margin: `${token('space.050', '4px')} 0`,
+				margin:
+					isMulti && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+						? 0
+						: `${token('space.050')} 0`,
 				/* Padding top and bottom of 2 is set by default. */
 				paddingTop: 0,
 				paddingBottom: 0,
-
+				...(isMulti &&
+					fg('platform-dst-lozenge-tag-badge-visual-uplifts') && {
+						height: token('space.250'),
+						alignItems: 'center',
+					}),
 				paddingLeft: state.selectProps.isMulti ? 0 : BORDER_PADDING,
 				'& input::placeholder': {
 					/* Chrome, Firefox, Opera, Safari 10.1+ */
-					color: token('color.text.subtlest', N100),
+					color: token('color.text.subtlest'),
 					opacity: 1 /* Firefox */,
 				},
 				'& input:-ms-input-placeholder': {
 					/* Internet Explorer 10-11 */
-					color: token('color.text.subtlest', N100),
+					color: token('color.text.subtlest'),
 				},
 			}),
 			singleValue: (css) => ({
@@ -196,7 +248,14 @@ export const getStyles = memoizeOne(
 	},
 );
 
-export const getPopupStyles = memoizeOne(
+export const getPopupStyles: MemoizedFn<
+	(
+		width: string | number,
+		isMulti?: boolean,
+		overrideStyles?: StylesConfig,
+		isVisualRefresh?: boolean,
+	) => StylesConfig
+> = memoizeOne(
 	(
 		width: string | number,
 		isMulti?: boolean,

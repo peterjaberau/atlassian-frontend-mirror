@@ -1,13 +1,16 @@
-import { chunkinator, type Chunk, type ChunkinatorFile } from '@atlaskit/chunkinator';
 import { from } from 'rxjs/observable/from';
 import { concatMap } from 'rxjs/operators/concatMap';
-import { type MediaStore } from '../client/media-store';
-import { createHasher } from '../utils/hashing/hasherCreator';
-import { UploaderError } from './error';
-import { CHUNK_SIZE, PROCESSING_BATCH_SIZE } from '../constants';
-import { calculateChunkSize, fileSizeError } from './calculateChunkSize';
+
+import { chunkinator } from '@atlaskit/chunkinator/chunkinator';
+import type { Chunk, ChunkinatorFile } from '@atlaskit/chunkinator/domain';
 import { type MediaTraceContext } from '@atlaskit/media-common';
-import { type ChunkHashAlgorithm } from '@atlaskit/media-core';
+import type { ChunkHashAlgorithm } from '@atlaskit/media-core/chunk-hash-algorithm';
+
+import type { MediaStore } from '../client/media-store/MediaStore';
+import { CHUNK_SIZE, PROCESSING_BATCH_SIZE } from '../constants';
+import { createHasher } from '../utils/hashing/hasherCreator';
+import { calculateChunkSize, fileSizeError } from './calculateChunkSize';
+import { UploaderError } from './UploaderError';
 
 // TODO: Allow to pass multiple files
 export type UploadableFile = {
@@ -15,7 +18,7 @@ export type UploadableFile = {
 	name?: string;
 	mimeType?: string;
 	collection?: string;
-	size?: number;
+	size: number;
 };
 
 export type UploadableFileUpfrontIds = {
@@ -62,6 +65,7 @@ const createProcessingFunction = (
 	deferredUploadId: Promise<string>,
 	collection?: string,
 	traceContext?: MediaTraceContext,
+	size?: number,
 ) => {
 	let offset = 0;
 	return async (chunks: Chunk[]) => {
@@ -73,6 +77,7 @@ const createProcessingFunction = (
 			},
 			collection,
 			traceContext,
+			{ expectedFileSize: size },
 		);
 		offset += chunks.length;
 	};
@@ -85,21 +90,23 @@ const createFileFromUpload = async (
 	uploadId: string,
 	traceContext?: MediaTraceContext,
 ) => {
-	const { collection, name, mimeType } = file;
+	const { collection, name, mimeType, content } = file;
 	const { id, occurrenceKey } = uploadableFileUpfrontIds;
 
-	const body = file.size
-		? { uploadId, name, mimeType, conditions: { size: file.size } }
-		: { uploadId, name, mimeType };
+	// If the file is a Blob and the size is not passed from consumer, set the file size from file content
+	if (content instanceof Blob && !file.size) {
+		file.size = content.size;
+	}
 
 	return store.createFileFromUpload(
-		body,
+		{ uploadId, name, mimeType, conditions: { size: file.size } },
 		{
 			occurrenceKey,
 			collection,
 			replaceFileId: id,
 		},
 		traceContext,
+		{ expectedFileSize: file.size },
 	);
 };
 
@@ -149,6 +156,7 @@ export const uploadFile = (
 				deferredUploadId,
 				collection,
 				traceContext,
+				file.size,
 			),
 		},
 		{

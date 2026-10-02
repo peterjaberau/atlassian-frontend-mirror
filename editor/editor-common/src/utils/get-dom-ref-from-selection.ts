@@ -1,6 +1,7 @@
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
+// oxlint-disable-next-line import/no-duplicates
 import type { AnalyticsEventPayload, EditorAnalyticsAPI } from '../analytics';
 import { ACTION, ACTION_SUBJECT, type ACTION_SUBJECT_ID, EVENT_TYPE } from '../analytics';
 
@@ -11,7 +12,7 @@ export const getDomRefFromSelection = (
 		| ACTION_SUBJECT_ID.PICKER_TABLE_SIZE
 		| ACTION_SUBJECT_ID.PICKER_EMOJI,
 	editorAnalyticsAPI?: EditorAnalyticsAPI,
-) => {
+): HTMLElement | undefined => {
 	try {
 		const domRef = findDomRefAtPos(view.state.selection.from, view.domAtPos.bind(view));
 		if (domRef instanceof HTMLElement) {

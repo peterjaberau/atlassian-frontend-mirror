@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/contextual-survey",
-	"version": "6.0.2",
+	"version": "7.3.4",
 	"description": "A React component used to ask the user for feedback",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
@@ -27,11 +19,17 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./types": "./src/types.ts",
-		"./new": "./src/new.tsx"
+		"./new": "./src/new.tsx",
+		"./ContextualSurvey": "./src/entry-points/ContextualSurvey.tsx",
+		"./new/ContextualSurvey": "./src/entry-points/new-ContextualSurvey.tsx",
+		"./SurveyMarshal": "./src/entry-points/SurveyMarshal.tsx"
 	},
 	"atlassian": {
 		"team": "Personalization",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Contextual Survey"
 		}
 	},
@@ -44,6 +42,7 @@
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/image": "workspace:^",
 		"@atlaskit/link": "workspace:^",
+		"@atlaskit/motion": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/textarea": "workspace:^",
@@ -52,30 +51,22 @@
 		"@atlaskit/tooltip": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
-		"@emotion/react": "root:*",
-		"react-transition-group": "root:*"
+		"@emotion/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
-		"@types/react-transition-group": "root:*"
+		"react": "^19.0.0"
+	},
+	"scripts": {
+		"ak-postbuild": "ls -d dist/* | grep -v dist/types | xargs -n 1 copyfiles -u 1 -V 'src/**/assets/**/*.svg'"
 	},
 	"keywords": [
 		"atlaskit",
 		"react",
 		"ui"
-	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			]
-		}
-	}
+	]
 }

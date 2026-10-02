@@ -1,13 +1,14 @@
-import { type SecurityOptions } from '@atlaskit/util-service-support';
-import 'es6-promise/auto'; // 'whatwg-fetch' needs a Promise polyfill
-
 import fetchMock from 'fetch-mock/cjs/client';
-import * as queryString from 'query-string';
-import MentionResource, { type MentionResourceConfig } from '../../../api/MentionResource';
-import { type MentionDescription } from '../../../types';
-import { checkOrder } from '../_test-helpers';
-import { resultC, resultCr, resultCraig, resultPolly } from '../_mention-search-results';
+import 'es6-promise/auto'; // 'whatwg-fetch' needs a Promise polyfill
 import debounce from 'lodash/debounce';
+import * as queryString from 'query-string';
+
+import { type SecurityOptions } from '@atlaskit/util-service-support';
+
+import { MentionResource, type MentionResourceConfig } from '../../../api/MentionResource';
+import { type MentionDescription } from '../../../types';
+import { resultC, resultCr, resultCraig, resultPolly } from '../_mention-search-results';
+import { checkOrder } from '../_test-helpers';
 
 // 'lodash/debounce' is already spied on via __mocks__/lodash.debounce.ts
 const debounceSpy = debounce as jest.Mock<ReturnType<typeof debounce>>;
@@ -402,7 +403,7 @@ describe('MentionResource', () => {
 						done(ex);
 					}
 				},
-				(err) => {
+				() => {
 					fail('listener error called');
 				},
 			);
@@ -498,5 +499,51 @@ describe('MentionResource', () => {
 			expect(resource.onInviteItemClick).toBe(mockOnInviteItemClick);
 			expect(resource.userRole).toBe('admin');
 		});
+	});
+
+	it('should include custom headers in search requests when flag is on', async () => {
+		const customHeaders = { 'X-Custom-Header': 'test-value', 'X-Product-Version': '1.0.0' };
+		const resource = new MentionResource({
+			...apiConfig,
+			headers: customHeaders,
+		});
+
+		const resultPromise = new Promise<void>((resolve, reject) => {
+			resource.subscribe('test', () => {
+				try {
+					const calls = fetchMock.calls();
+					const searchCall = calls.filter(
+						(call: unknown[]) => typeof call[0] === 'string' && call[0].includes('/search'),
+					);
+					expect(searchCall.length).toBeGreaterThan(0);
+					const lastCall = searchCall[searchCall.length - 1];
+					expect(lastCall[1]?.headers).toEqual(expect.objectContaining(customHeaders));
+					resolve();
+				} catch (err) {
+					reject(err);
+				}
+			});
+		});
+		resource.filter('craig', FULL_CONTEXT);
+		await resultPromise;
+	});
+
+	it('should include custom headers in bootstrap requests when flag is on', async () => {
+		const customHeaders = { 'X-Custom-Header': 'test-value', 'X-Product-Version': '1.0.0' };
+		const resource = new MentionResource({
+			...apiConfig,
+			headers: customHeaders,
+		});
+
+		resource.subscribe('test', () => {});
+		await resource.filter('', FULL_CONTEXT);
+
+		const calls = fetchMock.calls();
+		const bootstrapCall = calls.filter(
+			(call: any) => typeof call[0] === 'string' && call[0].includes('/bootstrap'),
+		);
+		expect(bootstrapCall.length).toBeGreaterThan(0);
+		const lastCall = bootstrapCall[bootstrapCall.length - 1];
+		expect(lastCall[1]?.headers).toEqual(expect.objectContaining(customHeaders));
 	});
 });

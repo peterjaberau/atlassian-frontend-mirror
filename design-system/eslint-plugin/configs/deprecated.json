@@ -64,6 +64,18 @@
 		"@atlaskit/field-text-area": {
 			"message": "field-text-area is deprecated. Please use '@atlaskit/textarea' instead."
 		},
+		"@atlaskit/focus-ring": {
+			"message": "FocusRing is deprecated. Use Focusable from @atlaskit/primitives/compiled/focusable instead."
+		},
+		"@atlaskit/focus-ring/focus-ring": {
+			"message": "FocusRing is deprecated. Use Focusable from @atlaskit/primitives/compiled/focusable instead."
+		},
+		"@atlaskit/focus-ring/use-focus-ring": {
+			"message": "useFocusRing is deprecated with FocusRing. Use Focusable from @atlaskit/primitives/compiled/focusable instead."
+		},
+		"@atlaskit/focus-ring/types": {
+			"message": "FocusRing types are deprecated. Use Focusable from @atlaskit/primitives/compiled/focusable instead."
+		},
 		"@atlaskit/navigation": {
 			"message": "navigation is deprecated. Please use '@atlaskit/atlassian-navigation' instead."
 		},
@@ -87,6 +99,17 @@
 		},
 		"@atlaskit/item": {
 			"message": "item is deprecated. Please use '@atlaskit/menu' instead."
+		},
+		"@atlaskit/width-detector": {
+			"importSpecifiers": [
+				{
+					"importName": "default",
+					"message": "WidthDetector is deprecated. Please use WidthObserver from '@atlaskit/width-detector/width-observer' instead."
+				}
+			]
+		},
+		"@atlaskit/width-detector/width-detector": {
+			"message": "WidthDetector is deprecated. Please use WidthObserver from '@atlaskit/width-detector/width-observer' instead."
 		},
 		"@atlaskit/theme/elevation": {
 			"importSpecifiers": [
@@ -124,7 +147,7 @@
 				},
 				{
 					"importName": "focusRing",
-					"message": "The focusRing mixin is deprecated. Please use `@atlaskit/focus-ring` instead."
+					"message": "The focusRing mixin is deprecated. Use Focusable from @atlaskit/primitives/compiled/focusable instead."
 				},
 				{
 					"importName": "gridSize",
@@ -247,7 +270,7 @@
 				},
 				{
 					"importName": "focusRing",
-					"message": "The focusRing mixin is deprecated. Please use `@atlaskit/focus-ring` instead."
+					"message": "The focusRing mixin is deprecated. Use Focusable from @atlaskit/primitives/compiled/focusable instead."
 				},
 				{
 					"importName": "gridSize",
@@ -272,6 +295,66 @@
 		},
 		"@atlaskit/logo": {
 			"importSpecifiers": []
+		},
+		"@atlaskit/atlassian-navigation": {
+			"message": "Atlassian navigation (Nav 3) is deprecated. Please use `@atlaskit/navigation-system` instead."
+		},
+		"@atlaskit/page-layout": {
+			"message": "Page layout (Nav 3) is deprecated. Please use `@atlaskit/navigation-system` instead."
+		},
+		"@atlaskit/side-navigation": {
+			"message": "Side navigation (Nav 3) is deprecated. Please use `@atlaskit/navigation-system` instead."
+		},
+		"@atlassian/preview-panel": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel-action": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel-action-group": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel-body": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel-expand": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel-header": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel-more-dropdown": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel-new-tab-link": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panel/preview-panel-title": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panels-api": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panels-api/preview-panel-context": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panels-api/preview-panel-navigation": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panels-api/types": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panels-api/use-current-preview-panel": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panels-api/use-is-preview-panel-open": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
+		},
+		"@atlassian/preview-panels-api/use-preview-panel-actions": {
+			"message": "Global Preview Panel is deprecated. Please use `@atlassian/panel-system` instead. See https://atlassian.design/components/panel-system/examples"
 		}
 	}
 }

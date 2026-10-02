@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { parseUserColor } from '@atlaskit/navigation-system/experimental/color-utils/parse-user-color';
 import { TopNav } from '@atlaskit/navigation-system/layout/top-nav';
+import { parseUserColor } from '@atlaskit/navigation-system/theming/color-utils/parse-user-color';
 
 import { MockRoot } from '../../utils/mock-root';
 import { MockContent } from '../common/mock-content';
@@ -9,7 +9,7 @@ import { MockContent } from '../common/mock-content';
 export const CustomThemingParseUserColorExample = (): React.JSX.Element => (
 	<MockRoot>
 		<TopNav
-			UNSAFE_theme={{
+			customTheme={{
 				backgroundColor: parseUserColor('#F8EEFE'),
 				highlightColor: parseUserColor('rgb(150, 74, 192)'),
 			}}

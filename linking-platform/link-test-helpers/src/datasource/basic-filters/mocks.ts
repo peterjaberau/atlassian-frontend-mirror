@@ -11,7 +11,71 @@ import {
 	sasha,
 } from '../../images';
 
-export const hydrateJqlStandardResponse = {
+export const hydrateJqlStandardResponse: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				hydrateJqlQuery: {
+					fields: (
+						| {
+								jqlTerm: string;
+								values: {
+									values: {
+										displayName: string;
+										issueTypes: {
+											avatar: {
+												small: string;
+											};
+										}[];
+										jqlTerm: string;
+									}[];
+								}[];
+						  }
+						| {
+								jqlTerm: string;
+								values: {
+									values: {
+										displayName: string;
+										jqlTerm: string;
+										project: {
+											avatar: {
+												small: string;
+											};
+										};
+									}[];
+								}[];
+						  }
+						| {
+								jqlTerm: string;
+								values: {
+									values: {
+										displayName: string;
+										isSquare: boolean;
+										jqlTerm: string;
+										user: {
+											picture: string;
+										};
+									}[];
+								}[];
+						  }
+						| {
+								jqlTerm: string;
+								values: {
+									values: {
+										displayName: string;
+										jqlTerm: string;
+										statusCategory: {
+											colorName: string;
+										};
+									}[];
+								}[];
+						  }
+					)[];
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -115,7 +179,71 @@ export const hydrateJqlStandardResponse = {
 	},
 };
 
-export const hydrateJqlStandardResponseForVRTesting = {
+export const hydrateJqlStandardResponseForVRTesting: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				hydrateJqlQuery: {
+					fields: (
+						| {
+								jqlTerm: string;
+								values: {
+									values: {
+										displayName: string;
+										issueTypes: {
+											avatar: {
+												small: string;
+											};
+										}[];
+										jqlTerm: string;
+									}[];
+								}[];
+						  }
+						| {
+								jqlTerm: string;
+								values: {
+									values: {
+										displayName: string;
+										jqlTerm: string;
+										project: {
+											avatar: {
+												small: string;
+											};
+										};
+									}[];
+								}[];
+						  }
+						| {
+								jqlTerm: string;
+								values: {
+									values: {
+										displayName: string;
+										isSquare: boolean;
+										jqlTerm: string;
+										user: {
+											picture: string;
+										};
+									}[];
+								}[];
+						  }
+						| {
+								jqlTerm: string;
+								values: {
+									values: {
+										displayName: string;
+										jqlTerm: string;
+										statusCategory: {
+											colorName: string;
+										};
+									}[];
+								}[];
+						  }
+					)[];
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -190,6 +318,19 @@ export const hydrateJqlStandardResponseForVRTesting = {
 										},
 									],
 								},
+								{
+									values: [
+										{
+											jqlTerm: '"Sample Scrum Project A"',
+											displayName: 'Sample Scrum Project A',
+											project: {
+												avatar: {
+													small: rocket,
+												},
+											},
+										},
+									],
+								},
 							],
 						},
 						{
@@ -243,7 +384,33 @@ export const hydrateJqlStandardResponseForVRTesting = {
 	},
 };
 
-export const hydrateJqlStandardResponseMapped = {
+export const hydrateJqlStandardResponseMapped: {
+	assignee: {
+		avatar: string;
+		isSquare: boolean;
+		label: string;
+		optionType: string;
+		value: string;
+	}[];
+	project: {
+		icon: string;
+		label: string;
+		optionType: string;
+		value: string;
+	}[];
+	status: {
+		appearance: string;
+		label: string;
+		optionType: string;
+		value: string;
+	}[];
+	type: {
+		icon: string;
+		label: string;
+		optionType: string;
+		value: string;
+	}[];
+} = {
 	type: [
 		{
 			icon: alert,
@@ -285,7 +452,17 @@ export const hydrateJqlStandardResponseMapped = {
 	],
 };
 
-export const hydrateJqlEmptyResponse = {
+export const hydrateJqlEmptyResponse: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				hydrateJqlQuery: {
+					fields: never[];
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -299,7 +476,31 @@ export const hydrateJqlEmptyResponse = {
 
 export const hydrateJqlEmptyResponseMapped = {};
 
-export const fieldValuesResponseForTypes = {
+export const fieldValuesResponseForTypes: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				fieldValues: {
+					edges: {
+						node: {
+							displayName: string;
+							issueTypes: {
+								avatar: {
+									small: string;
+								};
+							}[];
+							jqlTerm: string;
+						};
+					}[];
+					pageInfo: {
+						endCursor: string;
+					};
+					totalCount: number;
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -446,7 +647,12 @@ export const fieldValuesResponseForTypes = {
 	},
 };
 
-export const fieldValuesResponseForTypesMapped = [
+export const fieldValuesResponseForTypesMapped: {
+	icon: string;
+	label: string;
+	optionType: string;
+	value: string;
+}[] = [
 	{
 		icon: alert,
 		label: '[System] Change',
@@ -509,7 +715,31 @@ export const fieldValuesResponseForTypesMapped = [
 	},
 ];
 
-export const fieldValuesResponseForTypesWithRelativeUrls = {
+export const fieldValuesResponseForTypesWithRelativeUrls: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				fieldValues: {
+					edges: {
+						node: {
+							displayName: string;
+							issueTypes: {
+								avatar: {
+									small: string;
+								};
+							}[];
+							jqlTerm: string;
+						};
+					}[];
+					pageInfo: {
+						endCursor: string;
+					};
+					totalCount: number;
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -555,7 +785,12 @@ export const fieldValuesResponseForTypesWithRelativeUrls = {
 	},
 };
 
-export const fieldValuesResponseForTypesWithRelativeUrlsMapped = [
+export const fieldValuesResponseForTypesWithRelativeUrlsMapped: {
+	icon: string;
+	label: string;
+	optionType: string;
+	value: string;
+}[] = [
 	{
 		icon: 'https://forge-smart-link-battleground.jira-dev.com/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium',
 		label: '[System] Change',
@@ -570,7 +805,29 @@ export const fieldValuesResponseForTypesWithRelativeUrlsMapped = [
 	},
 ];
 
-export const fieldValuesResponseForStatuses = {
+export const fieldValuesResponseForStatuses: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				fieldValues: {
+					edges: {
+						node: {
+							displayName: string;
+							jqlTerm: string;
+							statusCategory: {
+								colorName: string;
+							};
+						};
+					}[];
+					pageInfo: {
+						endCursor: string;
+					};
+					totalCount: number;
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -677,7 +934,12 @@ export const fieldValuesResponseForStatuses = {
 	},
 };
 
-export const fieldValuesResponseForStatusesMapped = [
+export const fieldValuesResponseForStatusesMapped: {
+	appearance: string;
+	label: string;
+	optionType: string;
+	value: string;
+}[] = [
 	{
 		appearance: 'inprogress',
 		label: 'Authorize',
@@ -740,7 +1002,29 @@ export const fieldValuesResponseForStatusesMapped = [
 	},
 ];
 
-export const fieldValuesResponseForStatusesSearched = {
+export const fieldValuesResponseForStatusesSearched: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				fieldValues: {
+					edges: {
+						node: {
+							displayName: string;
+							jqlTerm: string;
+							statusCategory: {
+								colorName: string;
+							};
+						};
+					}[];
+					pageInfo: {
+						endCursor: string;
+					};
+					totalCount: number;
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -784,7 +1068,31 @@ export const fieldValuesResponseForStatusesSearched = {
 	},
 };
 
-export const fieldValuesResponseForProjects = {
+export const fieldValuesResponseForProjects: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				fieldValues: {
+					edges: {
+						node: {
+							displayName: string;
+							jqlTerm: string;
+							project: {
+								avatar: {
+									small: string;
+								};
+							};
+						};
+					}[];
+					pageInfo: {
+						endCursor: string;
+					};
+					totalCount: number;
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -904,6 +1212,17 @@ export const fieldValuesResponseForProjects = {
 								},
 							},
 						},
+						{
+							node: {
+								jqlTerm: '"Sample Scrum Project A"',
+								displayName: 'Sample Scrum Project A',
+								project: {
+									avatar: {
+										small: rocket,
+									},
+								},
+							},
+						},
 					],
 				},
 			},
@@ -911,7 +1230,12 @@ export const fieldValuesResponseForProjects = {
 	},
 };
 
-export const fieldValuesResponseForProjectsMapped = [
+export const fieldValuesResponseForProjectsMapped: {
+	icon: string;
+	label: string;
+	optionType: string;
+	value: string;
+}[] = [
 	{
 		icon: handshake,
 		label: 'My IT TEST',
@@ -972,9 +1296,39 @@ export const fieldValuesResponseForProjectsMapped = [
 		optionType: 'iconLabel',
 		value: 'Test8',
 	},
+	{
+		icon: rocket,
+		label: 'Sample Scrum Project A',
+		optionType: 'iconLabel',
+		value: 'Sample Scrum Project A',
+	},
 ];
 
-export const fieldValuesResponseForProjectsMoreData = {
+export const fieldValuesResponseForProjectsMoreData: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				fieldValues: {
+					edges: {
+						node: {
+							displayName: string;
+							jqlTerm: string;
+							project: {
+								avatar: {
+									small: string;
+								};
+							};
+						};
+					}[];
+					pageInfo: {
+						endCursor: string;
+					};
+					totalCount: number;
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -1013,7 +1367,44 @@ export const fieldValuesResponseForProjectsMoreData = {
 	},
 };
 
-export const fieldValuesResponseForAssignees = {
+export const fieldValuesResponseForAssignees: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				fieldValues: {
+					edges: (
+						| {
+								node: {
+									displayName: string;
+									group: {
+										name: string;
+									};
+									isSquare?: undefined;
+									jqlTerm: string;
+									user?: undefined;
+								};
+						  }
+						| {
+								node: {
+									displayName: string;
+									group?: undefined;
+									isSquare: boolean;
+									jqlTerm: string;
+									user: {
+										picture: string;
+									};
+								};
+						  }
+					)[];
+					pageInfo: {
+						endCursor: string;
+					};
+					totalCount: number;
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -1123,7 +1514,24 @@ export const fieldValuesResponseForAssignees = {
 	},
 };
 
-export const fieldValuesResponseForAssigneesMapped = [
+export const fieldValuesResponseForAssigneesMapped: (
+	| {
+			avatar?: undefined;
+			isGroup: boolean;
+			isSquare?: undefined;
+			label: string;
+			optionType: string;
+			value: string;
+	  }
+	| {
+			avatar: string;
+			isGroup?: undefined;
+			isSquare: boolean;
+			label: string;
+			optionType: string;
+			value: string;
+	  }
+)[] = [
 	{
 		isGroup: true,
 		label: 'administrators',
@@ -1189,7 +1597,19 @@ export const fieldValuesResponseForAssigneesMapped = [
 	},
 ];
 
-export const fieldValuesEmptyResponse = {
+export const fieldValuesEmptyResponse: {
+	data: {
+		jira: {
+			jqlBuilder: {
+				fieldValues: {
+					edges: never[];
+					pageInfo: {};
+					totalCount: number;
+				};
+			};
+		};
+	};
+} = {
 	data: {
 		jira: {
 			jqlBuilder: {
@@ -1203,7 +1623,21 @@ export const fieldValuesEmptyResponse = {
 	},
 };
 
-export const fieldValuesErrorResponse = {
+export const fieldValuesErrorResponse: {
+	data: {
+		jira: null;
+	};
+	errors: {
+		extensions: {
+			aggUgcPiiSafe: boolean;
+			classification: string;
+			errorSource: string;
+			statusCode: number;
+		};
+		locations: never[];
+		message: string;
+	}[];
+} = {
 	errors: [
 		{
 			message: 'CloudId a436116f-02ce-4520-8fbb-7301462a1674d is not found',
@@ -1221,7 +1655,7 @@ export const fieldValuesErrorResponse = {
 	},
 };
 
-export const fieldValuesEmptyResponseMapped = [];
+export const fieldValuesEmptyResponseMapped: never[] = [];
 
 export const successfulUserQueryResponse = {
 	data: {
@@ -1234,7 +1668,15 @@ export const successfulUserQueryResponse = {
 	},
 };
 
-export const successfuluserHydrationResponse = {
+export const successfuluserHydrationResponse: {
+	data: {
+		users: {
+			accountId: string;
+			name: string;
+			picture: string;
+		}[];
+	};
+} = {
 	data: {
 		users: [
 			{
@@ -1247,7 +1689,61 @@ export const successfuluserHydrationResponse = {
 	},
 };
 
-export const successfulRecommendationAPIResponse = {
+export const successfulRecommendationAPIResponse: {
+	recommendedUsers: (
+		| {
+				accessLevel: string;
+				accountStatus: string;
+				attributes: {
+					isConfluenceExternalCollaborator: boolean;
+				};
+				avatarUrl: string;
+				email?: undefined;
+				entityType: string;
+				id: string;
+				locale?: undefined;
+				matchPositions: {};
+				name: string;
+				nickname: string;
+				notMentionable: boolean;
+				userType: string;
+		  }
+		| {
+				accessLevel: string;
+				accountStatus: string;
+				attributes: {
+					isConfluenceExternalCollaborator: boolean;
+				};
+				avatarUrl: string;
+				email: string;
+				entityType: string;
+				id: string;
+				locale: string;
+				matchPositions: {};
+				name: string;
+				nickname: string;
+				notMentionable: boolean;
+				userType: string;
+		  }
+		| {
+				accessLevel: string;
+				accountStatus: string;
+				attributes: {
+					isConfluenceExternalCollaborator: boolean;
+				};
+				avatarUrl: string;
+				email?: undefined;
+				entityType: string;
+				id: string;
+				locale: string;
+				matchPositions: {};
+				name: string;
+				nickname: string;
+				notMentionable: boolean;
+				userType: string;
+		  }
+	)[];
+} = {
 	recommendedUsers: [
 		{
 			entityType: 'USER',
@@ -1410,7 +1906,14 @@ export const successfulRecommendationAPIResponse = {
 	],
 };
 
-export const failedUserQueryResponse = {
+export const failedUserQueryResponse: {
+	errors: {
+		extensions: {};
+		locations: never[];
+		message: string;
+	}[];
+	extensions: {};
+} = {
 	errors: [
 		{
 			message: 'failed to fetch or some other error message',
@@ -1421,11 +1924,18 @@ export const failedUserQueryResponse = {
 	extensions: {},
 };
 
-export const failedRecommendationAPIResponse = {
+export const failedRecommendationAPIResponse: {
+	errors: never[];
+} = {
 	errors: [],
 };
 
-export const transformedRecommendationMockFilterOptions = [
+export const transformedRecommendationMockFilterOptions: {
+	avatar: string;
+	label: string;
+	optionType: string;
+	value: string;
+}[] = [
 	{
 		optionType: 'avatarLabel',
 		label: 'Atlassian Assist (staging)',

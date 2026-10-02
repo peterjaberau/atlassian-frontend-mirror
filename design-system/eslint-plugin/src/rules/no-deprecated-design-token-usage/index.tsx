@@ -1,9 +1,9 @@
 import type { Rule } from 'eslint';
 
 import renameMapping from '@atlaskit/tokens/rename-mapping';
-import { getTokenId } from '@atlaskit/tokens/token-ids';
+import { getTokenId } from '@atlaskit/tokens/utils/get-token-id';
 
-import { createLintRule } from '../utils/create-rule';
+import { createLintRule } from '../utils/create-lint-rule';
 
 const rule: Rule.RuleModule = createLintRule({
 	meta: {
@@ -13,7 +13,7 @@ const rule: Rule.RuleModule = createLintRule({
 			recommended: true,
 			severity: 'warn',
 		},
-		fixable: 'code',
+		hasSuggestions: true,
 		type: 'problem',
 		messages: {
 			tokenDeprecated:
@@ -61,7 +61,12 @@ const rule: Rule.RuleModule = createLintRule({
 							name: tokenKey,
 							replacement,
 						},
-						fix: (fixer) => fixer.replaceText(node.arguments[0], `'${replacement}'`),
+						suggest: [
+							{
+								desc: `Replace with '${replacement}'`,
+								fix: (fixer) => fixer.replaceText(node.arguments[0], `'${replacement}'`),
+							},
+						],
 					});
 					return;
 				}

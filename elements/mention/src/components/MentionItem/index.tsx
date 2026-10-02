@@ -1,21 +1,32 @@
-import Avatar, { getAppearanceForAppType } from '@atlaskit/avatar';
-import Lozenge from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { N30 } from '@atlaskit/theme/colors';
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+
 import React from 'react';
-import { token } from '@atlaskit/tokens';
+
 import EditorPanelIcon from '@atlaskit/icon/core/status-information';
-import {
-	isRestricted,
-	type MentionDescription,
-	type OnMentionEvent,
-	type Presence,
-	type LozengeProps,
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Tag from '@atlaskit/tag/removable-tag';
+import type { TagColor } from '@atlaskit/tag/types';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { token } from '@atlaskit/tokens';
+
+import { isAgentMention } from '../../is-agent-mention';
+import { isRestricted } from '../../is-restricted';
+import type {
+	MentionDescription,
+	OnMentionEvent,
+	Presence,
+	LozengeProps,
+	LozengeColor,
 } from '../../types';
 import { NoAccessLabel } from '../../util/i18n';
-import { leftClick } from '../../util/mouse';
-import AsyncNoAccessTooltip from '../NoAccessTooltip';
+import { leftClick } from '../../util/left-click';
 import AsyncLockCircleIcon from '../LockCircleIcon';
+import { MentionAvatar } from '../MentionAvatar';
+import MentionDescriptionByline from '../MentionDescriptionByline';
+import MessagesIntlProvider from '../MessagesIntlProvider';
+import AsyncNoAccessTooltip from '../NoAccessTooltip';
+import { renderHighlight } from './MentionHighlightHelpers';
 import {
 	AccessSectionStyle,
 	AvatarStyle,
@@ -23,15 +34,48 @@ import {
 	InfoSectionStyle,
 	MentionItemStyle,
 	NameSectionStyle,
-	RowStyle,
+	RowStyle as RowStyleLegacy,
+	RowStyleNext,
 	TimeStyle,
 } from './styles';
-import { renderHighlight } from './MentionHighlightHelpers';
-import MentionDescriptionByline from '../MentionDescriptionByline';
-import MessagesIntlProvider from '../MessagesIntlProvider';
-import { MentionAvatar } from '../MentionAvatar';
 
-export { MENTION_ITEM_HEIGHT } from './styles';
+// Lazy-loaded so `@atlaskit/skeleton` (only needed for the loading
+// placeholder) doesn't enter the bundle for every `@atlaskit/mention`
+// consumer — only when an `isPlaceholder` mention is actually rendered.
+const MentionItemPlaceholder = React.lazy(
+	() =>
+		import(
+			/* webpackChunkName: "@atlaskit-internal_mention-item-placeholder" */ './MentionItemPlaceholder'
+		),
+);
+
+/**
+ * @deprecated Use `import { MENTION_ITEM_HEIGHT, MENTION_ITEM_HEIGHT_REFRESHED } from '@atlaskit/mention/mention-item/styles'` instead.
+ */
+export { MENTION_ITEM_HEIGHT, MENTION_ITEM_HEIGHT_REFRESHED } from './styles';
+
+const lozengeAppearanceToTagColor: Record<LozengeColor, TagColor> = {
+	default: 'standard',
+	success: 'lime',
+	removed: 'red',
+	inprogress: 'blue',
+	new: 'purple',
+	moved: 'orange',
+};
+
+function renderTag(lozenge?: string | LozengeProps) {
+	if (typeof lozenge === 'string') {
+		return <Tag text={lozenge} color="standard" isRemovable={false} migration_fallback="lozenge" />;
+	}
+	if (typeof lozenge === 'object') {
+		const { appearance, text } = lozenge;
+		const color = appearance ? lozengeAppearanceToTagColor[appearance] : 'standard';
+		return (
+			<Tag text={text as string} color={color} isRemovable={false} migration_fallback="lozenge" />
+		);
+	}
+	return null;
+}
 
 function renderLozenge(lozenge?: string | LozengeProps) {
 	if (typeof lozenge === 'string') {
@@ -53,6 +97,7 @@ function renderTime(time?: string) {
 
 export interface Props {
 	forwardedRef?: React.Ref<HTMLDivElement>;
+	height?: number;
 	mention: MentionDescription;
 	onMouseEnter?: OnMentionEvent;
 	// TODO: Remove onMouseMove -> https://product-fabric.atlassian.net/browse/FS-3897
@@ -83,32 +128,43 @@ export default class MentionItem extends React.PureComponent<Props, {}> {
 	};
 
 	render(): React.JSX.Element {
-		const { mention, selected, forwardedRef } = this.props;
-		const {
-			id,
-			highlight,
-			avatarUrl,
-			presence,
-			name,
-			mentionName,
-			lozenge,
-			accessLevel,
-			isXProductUser,
-		} = mention;
-		const { status, time } = presence || ({} as Presence);
+		const { mention, selected, forwardedRef, height } = this.props;
+		const { id, highlight, presence, name, mentionName, lozenge, accessLevel, isXProductUser } =
+			mention;
+
+		if (mention.isPlaceholder) {
+			return (
+				<MessagesIntlProvider>
+					{/* Height-preserving fallback so the row doesn't collapse and jump
+					 * while the lazy placeholder chunk loads. */}
+					<React.Suspense fallback={<MentionItemStyle height={height} aria-hidden />}>
+						<MentionItemPlaceholder height={height} forwardedRef={forwardedRef} id={id} />
+					</React.Suspense>
+				</MessagesIntlProvider>
+			);
+		}
+		const { time } = presence || ({} as Presence);
 		const restricted = isRestricted(accessLevel);
 
 		const nameHighlights = highlight && highlight.name;
 
-		const borderColor = selected ? token('color.border', N30) : undefined;
-		const xProductUserInfoIconColor = selected
-			? token('color.icon.selected', '#0C66E4')
-			: token('color.icon', '#44546F');
+		const xProductUserInfoIconColor = selected ? token('color.icon.selected') : token('color.icon');
+
+		let RowStyle = RowStyleLegacy;
+		let isAgent = false;
+		if (
+			expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+			fg('platform_editor_agent_mentions_drop_one_fixes')
+		) {
+			RowStyle = RowStyleNext;
+			isAgent = isAgentMention(mention);
+		}
 
 		return (
 			<MessagesIntlProvider>
 				<MentionItemStyle
 					selected={selected}
+					height={height}
 					onMouseDown={this.onMentionSelected}
 					onMouseMove={this.onMentionMenuItemMouseMove}
 					onMouseEnter={this.onMentionMenuItemMouseEnter}
@@ -116,33 +172,22 @@ export default class MentionItem extends React.PureComponent<Props, {}> {
 					data-testid={`mention-item-${id}`}
 					data-mention-id={id}
 					data-mention-name={mentionName}
+					data-mention-is-agent={isAgent ? 'true' : undefined}
 					data-selected={selected}
 					ref={forwardedRef}
 				>
 					<RowStyle>
 						<AvatarStyle restricted={restricted}>
-							{fg('team-avatar-in-mention-picker') ? (
-								<MentionAvatar selected={selected} mention={mention} />
-							) : (
-								<Avatar
-									src={avatarUrl}
-									size="medium"
-									presence={status}
-									borderColor={borderColor}
-									appearance={
-										fg('jira_ai_agent_avatar_issue_view_comment_mentions')
-											? getAppearanceForAppType(mention.appType)
-											: undefined
-									}
-								/>
-							)}
+							<MentionAvatar selected={selected} mention={mention} />
 						</AvatarStyle>
 						<NameSectionStyle restricted={restricted}>
 							{renderHighlight(FullNameStyle, name, nameHighlights)}
 							<MentionDescriptionByline mention={mention} />
 						</NameSectionStyle>
 						<InfoSectionStyle restricted={restricted}>
-							{renderLozenge(lozenge)}
+							{fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+								? renderTag(lozenge)
+								: renderLozenge(lozenge)}
 							{renderTime(time)}
 						</InfoSectionStyle>
 						{restricted ? (
@@ -168,8 +213,8 @@ export default class MentionItem extends React.PureComponent<Props, {}> {
 	}
 }
 
-export const MentionItemWithRef = React.forwardRef<HTMLDivElement, Omit<Props, 'forwardedRef'>>(
-	(props, ref) => {
-		return <MentionItem {...props} forwardedRef={ref} />;
-	},
-);
+export const MentionItemWithRef: React.ForwardRefExoticComponent<
+	Omit<Props, 'forwardedRef'> & React.RefAttributes<HTMLDivElement>
+> = React.forwardRef<HTMLDivElement, Omit<Props, 'forwardedRef'>>((props, ref) => {
+	return <MentionItem {...props} forwardedRef={ref} />;
+});

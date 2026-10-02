@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ComponentClass } from 'react';
+
 import type { EmojiProvider } from '../../api/EmojiResource';
 import type { RelativePosition } from '../../types';
 import debug from '../../util/logger';
@@ -33,7 +34,9 @@ export default class EmojiTypeahead extends LoadingEmojiComponent<Props, Loading
 	// rerender when the module has already been loaded
 	static AsyncLoadedComponent?: ComponentClass<ComponentProps>;
 	private typeAheadRef = React.createRef<EmojiTypeAheadComponent>();
-	state = {
+	state: {
+		asyncLoadedComponent: React.ComponentClass<ComponentProps, any> | undefined;
+	} = {
 		asyncLoadedComponent: EmojiTypeahead.AsyncLoadedComponent,
 	};
 

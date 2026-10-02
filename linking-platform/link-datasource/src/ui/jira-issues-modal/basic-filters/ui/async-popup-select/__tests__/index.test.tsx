@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { fireEvent, render, waitFor, within } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import invariant from 'tiny-invariant';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 import {
 	fieldValuesResponseForAssigneesMapped,
 	fieldValuesResponseForProjectsMapped,
@@ -69,7 +69,9 @@ const setup = ({
 		</AnalyticsListener>,
 	);
 
-	const triggerButton = renderResult.queryByTestId(`jlol-basic-filter-${filterType}-trigger`);
+	const triggerButton = renderResult.queryByTestId(
+		`jlol-basic-filter-${filterType}-trigger--button`,
+	);
 
 	if (openPicker) {
 		invariant(triggerButton);
@@ -185,9 +187,10 @@ describe('Testing AsyncPopupSelect', () => {
 	});
 	describe('popup footer', () => {
 		it('should render the popup footer when the popup is opened', () => {
+			const totalCount = fieldValuesResponseForProjectsMapped.length;
 			const { queryByTestId } = setup({
 				openPicker: true,
-				totalCount: 10,
+				totalCount,
 				filterOptions: fieldValuesResponseForProjectsMapped as SelectOption[],
 				status: 'resolved',
 			});
@@ -208,16 +211,17 @@ describe('Testing AsyncPopupSelect', () => {
 		});
 
 		it('should render the popup footer with correct pagination info', () => {
+			const totalCount = fieldValuesResponseForProjectsMapped.length;
 			const { queryByTestId } = setup({
 				openPicker: true,
-				totalCount: 10,
+				totalCount,
 				filterOptions: fieldValuesResponseForProjectsMapped as SelectOption[],
 				status: 'resolved',
 			});
 
 			const footer = queryByTestId('jlol-basic-filter-project--footer');
 
-			expect(footer).toHaveTextContent('10 of 10');
+			expect(footer).toHaveTextContent(`${totalCount} of ${totalCount}`);
 		});
 	});
 
@@ -594,7 +598,7 @@ describe('Testing AsyncPopupSelect', () => {
 		);
 
 		// after rerender, open the popup again
-		const triggerButton = queryByTestId(`jlol-basic-filter-status-trigger`);
+		const triggerButton = queryByTestId(`jlol-basic-filter-status-trigger--button`);
 
 		invariant(triggerButton);
 		fireEvent.click(triggerButton);
@@ -801,7 +805,7 @@ describe('Analytics: AsyncPopupSelect', () => {
 			status: 'resolved',
 		});
 
-		const triggerButton = queryByTestId(`jlol-basic-filter-status-trigger`);
+		const triggerButton = queryByTestId(`jlol-basic-filter-status-trigger--button`);
 
 		invariant(triggerButton);
 		fireEvent.click(triggerButton);
@@ -847,7 +851,7 @@ describe('Analytics: AsyncPopupSelect', () => {
 			status: 'resolved',
 		});
 
-		const triggerButton = queryByTestId(`jlol-basic-filter-status-trigger`);
+		const triggerButton = queryByTestId(`jlol-basic-filter-status-trigger--button`);
 
 		invariant(triggerButton);
 		fireEvent.click(triggerButton);

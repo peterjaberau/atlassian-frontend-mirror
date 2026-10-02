@@ -7,20 +7,19 @@ import { type ComponentType, type FC, useRef, useState } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import { IconTile } from '@atlaskit/icon';
-import legacyIconMetadata, { type coreIconMetadata } from '@atlaskit/icon/metadata';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button/default/button';
+import IconTile from '@atlaskit/icon/icon-tile';
+import type coreIconMetadata from '@atlaskit/icon/metadata-core';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Inline, Pressable, Stack, Text, xcss } from '@atlaskit/primitives';
-import Textfield from '@atlaskit/textfield';
-import Tooltip from '@atlaskit/tooltip';
+import Textfield from '@atlaskit/textfield/text-field';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 const pressableStyles = xcss({
 	borderRadius: 'radius.small',
@@ -52,7 +51,6 @@ const IconExplorerCell: FC<IconExplorerCellProps> = ({
 	componentName,
 	package: packageName,
 	isNamedImport,
-	oldName,
 	categorization,
 	team,
 	usage,
@@ -89,30 +87,11 @@ const IconExplorerCell: FC<IconExplorerCellProps> = ({
 		'Recommended usage': usage || '',
 	};
 
-	if (oldName && typeof oldName === 'string') {
-		((metadata['Legacy Icon name'] = oldName),
-			(metadata['Legacy Icon import'] =
-				Object.entries(legacyIconMetadata).find(
-					([_, value]) => value.componentName === oldName,
-				)?.[1].package || ''));
-	} else if (Array.isArray(oldName)) {
-		metadata['Legacy Icon names'] = oldName.join(', ');
-		metadata['Legacy Icon imports'] = oldName.reduce((acc, name) => {
-			const legacyIconImport =
-				Object.values(legacyIconMetadata).find((value) => value.componentName === name)?.package ||
-				undefined;
-			if (!acc && legacyIconImport) {
-				return legacyIconImport;
-			}
-			return legacyIconImport ? `${acc}, ${legacyIconImport}` : acc;
-		}, '');
-	}
-
 	const modal = (
 		<Modal onClose={closeModal}>
 			<ModalHeader hasCloseButton>
 				<Inline space="space.100" alignBlock="center">
-					<IconTile label={componentName} appearance={'blue'} icon={Icon} size="32" />
+					<IconTile label={componentName} appearance={'blue'} icon={Icon} size="medium" />
 					<ModalTitle>{componentName}</ModalTitle>
 				</Inline>
 			</ModalHeader>

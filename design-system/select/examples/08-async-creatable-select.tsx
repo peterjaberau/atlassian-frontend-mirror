@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 
-import { Checkbox } from '@atlaskit/checkbox';
-import { Label } from '@atlaskit/form';
-import { AsyncCreatableSelect as AsyncCreatable, type OptionsType } from '@atlaskit/select';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import { Label } from '@atlaskit/form/label/default';
+import AsyncCreatable from '@atlaskit/select/async-creatable-select';
+import type { OptionsType } from '@atlaskit/select/types';
 
 import { cities } from './common/data';
 
@@ -59,14 +60,12 @@ class AsyncCreatableExample extends Component<{}, State> {
 		return (
 			<>
 				<Label htmlFor="async-creatable-example">Which city do you live in?</Label>
-				{/* eslint-disable-next-line @atlaskit/design-system/no-placeholder */}
 				<AsyncCreatable
 					testId="react-select"
 					inputId="async-creatable-example"
 					loadOptions={this.loadOptions}
 					allowCreateWhileLoading={allowCreateWhileLoading}
 					onCreateOption={this.handleCreateOption}
-					placeholder=""
 				/>
 				<Checkbox
 					value="allowCreateWhileLoading"

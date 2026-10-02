@@ -16,6 +16,7 @@ export const DEFAULT_BLOCK_LINK_HASH_PREFIX = 'block-';
  * @param prefix - The prefix to look for (default is 'block-').
  * @returns True if the hash matches the block link pattern, false otherwise.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const isBlockLinkHash = (
 	hash: string,
 	prefix: string = DEFAULT_BLOCK_LINK_HASH_PREFIX,
@@ -24,10 +25,12 @@ export const isBlockLinkHash = (
 		return false;
 	}
 	// Match either UUID format (8-4-4-4-12) or short hex ID format (exactly 12 hex chars without dashes).
+	// Ignored via go/ees019
 	const uuidRegex = new RegExp(
 		`^#?${prefix}[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`,
 		'iu',
 	);
+	// Ignored via go/ees019
 	const shortIdRegex = new RegExp(`^#?${prefix}[0-9a-f]{12}$`, 'iu');
 	return uuidRegex.test(hash) || shortIdRegex.test(hash);
 };
@@ -42,10 +45,11 @@ export const isBlockLinkHash = (
  * @param prefix - The prefix to look for (default is 'block-').
  * @returns The extracted block ID if the hash is valid, null otherwise.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const extractBlockIdFromLinkHash = (
 	hash: string,
 	prefix: string = DEFAULT_BLOCK_LINK_HASH_PREFIX,
-) => {
+): string | null => {
 	if (!isBlockLinkHash(hash, prefix)) {
 		return null;
 	}
@@ -61,6 +65,7 @@ export const extractBlockIdFromLinkHash = (
  * @param prefix - The prefix to use (default is 'block-').
  * @returns The constructed block link hash value (e.g., 'block-123e4567-e89b-12d3-a456-426614174000').
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const createBlockLinkHashValue = (
 	blockId: string,
 	prefix: string = DEFAULT_BLOCK_LINK_HASH_PREFIX,

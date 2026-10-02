@@ -6,14 +6,16 @@ import React, { useCallback, useRef, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { type UIAnalyticsEvent, usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
 import Field from '@atlaskit/form/Field';
 import Form from '@atlaskit/form/Form';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Pressable } from '@atlaskit/primitives/compiled';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import Buttons from './internal/buttons';
+import getTextFromReactNode from './internal/get-text-from-react-node';
 import useButtonFocusHook from './internal/hooks/use-button-focus-hook';
 import ReadView from './internal/read-view';
 import { type InlineEditProps } from './types';
@@ -166,7 +168,8 @@ const InnerInlineEdit = <FieldValue extends unknown>(props: InlineEditProps<Fiel
 
 	const concatenatedEditButtonLabel = () => {
 		if (label) {
-			return `${editButtonLabel}, ${label}, ${editLabel}`;
+			const labelText = typeof label === 'string' ? label : getTextFromReactNode(label);
+			return `${editButtonLabel}, ${labelText}, ${editLabel}`;
 		}
 		return `${editButtonLabel}, ${editLabel}`;
 	};
@@ -287,7 +290,9 @@ const InnerInlineEdit = <FieldValue extends unknown>(props: InlineEditProps<Fiel
 	);
 };
 
-const InlineEdit: <FieldValue extends unknown = string>(props: InlineEditProps<FieldValue>) => JSX.Element = <FieldValue extends unknown = string>(props: InlineEditProps<FieldValue>) => {
+const InlineEdit: <FieldValue extends unknown = string>(
+	props: InlineEditProps<FieldValue>,
+) => JSX.Element = <FieldValue extends unknown = string>(props: InlineEditProps<FieldValue>) => {
 	// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 	return <InnerInlineEdit<FieldValue> {...props} />;
 };

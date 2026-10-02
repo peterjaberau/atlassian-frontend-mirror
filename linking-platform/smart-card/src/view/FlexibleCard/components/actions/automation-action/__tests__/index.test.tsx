@@ -1,20 +1,20 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { render, screen, userEvent } from '@atlassian/testing-library';
 import '@atlaskit/link-test-helpers/jest';
+
 import mockContext from '../../../../../../__fixtures__/flexible-ui-data-context';
-import { SmartLinkModalProvider } from '../../../../../../state/modal';
-import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics';
+import { SmartLinkModalProvider } from '../../../../../../state/modal/SmartLinkModalProvider';
+import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics/analytics';
 import type { LinkActionProps } from '../../types';
 import AutomationAction from '../index';
 
-jest.mock('../../../../../../state/flexible-ui-context', () => ({
-	...jest.requireActual('../../../../../../state/flexible-ui-context'),
+jest.mock('../../../../../../state/flexible-ui-context/useFlexibleUiContext', () => ({
+	...jest.requireActual('../../../../../../state/flexible-ui-context/useFlexibleUiContext'),
 	useFlexibleUiContext: jest.fn().mockReturnValue(mockContext),
 }));
 
@@ -25,13 +25,15 @@ describe('AutomationAction', () => {
 		const onEvent = jest.fn();
 
 		return render(
-			<AnalyticsListener onEvent={onEvent} channel={ANALYTICS_CHANNEL}>
-				<IntlProvider locale="en">
-					<SmartLinkModalProvider>
-						<AutomationAction {...props} as="button" />
-					</SmartLinkModalProvider>
-				</IntlProvider>
-			</AnalyticsListener>,
+			<SmartCardProvider>
+				<AnalyticsListener onEvent={onEvent} channel={ANALYTICS_CHANNEL}>
+					<IntlProvider locale="en">
+						<SmartLinkModalProvider>
+							<AutomationAction {...props} as="button" />
+						</SmartLinkModalProvider>
+					</IntlProvider>
+				</AnalyticsListener>
+			</SmartCardProvider>,
 		);
 	};
 

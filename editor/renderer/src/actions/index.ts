@@ -1,41 +1,59 @@
-import type { AnnotationId } from '@atlaskit/adf-schema';
-import { AnnotationTypes } from '@atlaskit/adf-schema';
-import type { AnnotationActionResult, AnnotationByMatches } from '@atlaskit/editor-common/types';
-import {
-	canApplyAnnotationOnRange,
-	getAnnotationIdsFromRange,
-	getAnnotationInlineNodeTypes,
-	isEmptyTextSelectionRenderer,
-} from '@atlaskit/editor-common/utils';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
-import { JSONTransformer } from '@atlaskit/editor-json-transformer';
-import type { Mark, Node, Schema } from '@atlaskit/editor-prosemirror/model';
-import { TextSelection } from '@atlaskit/editor-prosemirror/state';
-import type { Step } from '@atlaskit/editor-prosemirror/transform';
-
+import type { AnnotationId } from '@atlaskit/adf-schema/annotation';
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import {
 	ACTION,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
+import type {
+	AnnotationActionResult,
+	AnnotationByMatches,
+	SelectionContext,
+} from '@atlaskit/editor-common/types';
+import {
+	canApplyAnnotationOnRange,
+	getAnnotationIdsFromRange,
+	getAnnotationInlineNodeTypes,
+	isEmptyTextSelectionRenderer,
+} from '@atlaskit/editor-common/utils';
+import { JSONTransformer } from '@atlaskit/editor-json-transformer/JSONTransformer-2';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
+import type { Mark, Node, Schema } from '@atlaskit/editor-prosemirror/model';
+import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import {
 	AddNodeMarkStep,
 	RemoveMarkStep,
 	RemoveNodeMarkStep,
 } from '@atlaskit/editor-prosemirror/transform';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
 import type { AnalyticsEventPayload, AnnotationDeleteAEP } from '../analytics/events';
 import { createAnnotationStep, getPosFromRange } from '../steps';
 import {
 	getRendererRangeInlineNodeNames,
 	getRendererRangeAncestorNodeNames,
 } from './get-renderer-range-inline-node-names';
-import { getIndexMatch } from './matches-utils';
+import { getIndexMatch, isBlockAnnotationTarget } from './matches-utils';
+import { getSelectionContext } from './selection';
 
 type ActionResult = { doc: JSONDocNode; step: Step } | false;
 type Position = { from: number; to: number };
 type Annotation = { annotationId: string; annotationType: AnnotationTypes };
+
+export type MediaNodeContext = {
+	annotationIds: AnnotationId[];
+	displayText?: string;
+	fileId: string;
+	occurrenceKey?: string;
+	position: number;
+};
+
+export type MediaNodeContextResult =
+	| { context: MediaNodeContext; status: 'resolved' }
+	| { status: 'missing' }
+	| { status: 'ambiguous' };
 
 interface RendererActionsOptions {
 	annotate: (range: Range, annotationId: string, annotationType: 'inlineComment') => ActionResult;
@@ -55,11 +73,16 @@ interface PositionRendererActionsOptions {
 	getPositionFromRange: (range: Range) => Position | false;
 }
 
+interface SelectionRendererActionsOptions {
+	getSelectionContext: () => SelectionContext | null;
+}
+
 export default class RendererActions
 	implements
 		RendererActionsOptions,
 		AnnotationsRendererActionsOptions,
-		PositionRendererActionsOptions
+		PositionRendererActionsOptions,
+		SelectionRendererActionsOptions
 {
 	// This is our psuedo feature flag for now
 	// This module can only be used when wrapped with
@@ -126,7 +149,15 @@ export default class RendererActions
 
 	//#endregion
 
-	deleteAnnotation(annotationId: string, annotationType: 'inlineComment') {
+	deleteAnnotation(
+		annotationId: string,
+		annotationType: 'inlineComment',
+	):
+		| false
+		| {
+				doc: JSONDocNode;
+				step: RemoveNodeMarkStep | RemoveMarkStep;
+		  } {
 		if (!this.doc || !this.schema || !this.schema.marks.annotation) {
 			return false;
 		}
@@ -202,7 +233,11 @@ export default class RendererActions
 		return false;
 	}
 
-	annotate(range: Range, annotationId: string, _annotationType: 'inlineComment') {
+	annotate(
+		range: Range,
+		annotationId: string,
+		_annotationType: 'inlineComment',
+	): AnnotationActionResult {
 		if (!this.doc || !this.schema || !this.schema.marks.annotation) {
 			return false;
 		}
@@ -310,7 +345,11 @@ export default class RendererActions
 		return getPosFromRange(range);
 	}
 
-	getAnnotationMarks() {
+	getSelectionContext(): SelectionContext | null {
+		return getSelectionContext({ doc: this.doc, schema: this.schema });
+	}
+
+	getAnnotationMarks(): Mark[] {
 		const { schema, doc } = this;
 		if (!schema || !doc) {
 			return [];
@@ -344,6 +383,56 @@ export default class RendererActions
 		return Array.from(uniqueMarks.values());
 	}
 
+	getMediaNodeContext(identifier: { id: string; occurrenceKey?: string }): MediaNodeContextResult {
+		if (!this.doc) {
+			return { status: 'missing' };
+		}
+
+		const candidates: MediaNodeContext[] = [];
+		this.doc.descendants((node, position) => {
+			if (
+				node.type.name !== 'media' ||
+				node.attrs.type !== 'file' ||
+				node.attrs.id !== identifier.id
+			) {
+				return true;
+			}
+
+			candidates.push({
+				fileId: identifier.id,
+				annotationIds: node.marks
+					.filter(
+						(mark) =>
+							mark.type.name === 'annotation' &&
+							mark.attrs.annotationType === AnnotationTypes.INLINE_COMMENT,
+					)
+					.map((mark) => mark.attrs.id)
+					.filter((id): id is AnnotationId => typeof id === 'string'),
+				position,
+				displayText:
+					node.attrs.alt || node.attrs.__fileName || node.attrs.fileName || node.attrs.name,
+				occurrenceKey:
+					typeof node.attrs.occurrenceKey === 'string' ? node.attrs.occurrenceKey : undefined,
+			});
+
+			return false;
+		});
+
+		const exactMatches = identifier.occurrenceKey
+			? candidates.filter((candidate) => candidate.occurrenceKey === identifier.occurrenceKey)
+			: [];
+		const matches = exactMatches.length > 0 ? exactMatches : candidates;
+
+		if (matches.length === 0) {
+			return { status: 'missing' };
+		}
+		if (matches.length > 1) {
+			return { status: 'ambiguous' };
+		}
+
+		return { status: 'resolved', context: matches[0] };
+	}
+
 	getAnnotationsByPosition(range: Range): string[] {
 		if (!this.doc || !this.schema) {
 			return [];
@@ -369,8 +458,10 @@ export default class RendererActions
 		// hence, -1 is not needed
 		const beforeNodePos = from;
 		const possibleNode = this.doc.nodeAt(beforeNodePos);
-		if (possibleNode?.type.name === 'media') {
-			targetNodeType = 'media';
+		const isBlockTarget = possibleNode ? isBlockAnnotationTarget(possibleNode, this.schema) : false;
+
+		if (possibleNode && isBlockTarget) {
+			targetNodeType = possibleNode.type.name;
 			step = new AddNodeMarkStep(
 				beforeNodePos,
 				this.schema.marks.annotation.create({
@@ -418,7 +509,7 @@ export default class RendererActions
 			numMatches,
 			matchIndex,
 			pos: blockNodePos,
-			...{ targetNodeType },
+			targetNodeType,
 		};
 	}
 

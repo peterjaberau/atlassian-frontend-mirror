@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
+
+import { render, screen } from '@atlassian/testing-library';
 
 import context from '../../../../../../__fixtures__/flexible-ui-data-context';
 import { getFlexibleCardTestWrapper } from '../../../../../../__tests__/__utils__/unit-testing-library-helpers';
@@ -14,7 +15,8 @@ describe('Element: Preview', () => {
 		render(
 			<IntlProvider locale={'en'}>
 				<Preview overrideUrl="src-loaded" />
-			</IntlProvider>);
+			</IntlProvider>,
+		);
 
 		const element = await screen.findByTestId(testId);
 		const image = await screen.findByTestId(`${testId}-image-image`);
@@ -41,7 +43,8 @@ describe('Element: Preview', () => {
 		const { container } = render(
 			<IntlProvider locale={'en'}>
 				<Preview overrideUrl="src-loaded" />
-			</IntlProvider>);
+			</IntlProvider>,
+		);
 		await expect(container).toBeAccessible();
 	});
 });

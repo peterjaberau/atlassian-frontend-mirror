@@ -1,4 +1,4 @@
-import { type ProviderProps } from '@atlaskit/link-provider';
+import type { CardProviderProps as ProviderProps } from '@atlaskit/link-provider/types';
 
 import type { CardProps } from '../../src/view/Card';
 
@@ -10,6 +10,8 @@ type XOR<T1, T2> =
 			[k in Exclude<keyof T1, keyof T2>]?: never;
 	  });
 
-export type MultiCardViewProps = Pick<ProviderProps, 'client'> &
+export type MultiCardViewProps = Partial<
+	Pick<ProviderProps, 'client' | 'product' | 'rovoOptions'>
+> &
 	Omit<CardProps, 'url'> &
 	XOR<{ urls?: string[] }, { url?: string }>;

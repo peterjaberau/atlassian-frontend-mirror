@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-bitbucket-transformer",
-	"version": "9.6.0",
+	"version": "10.2.3",
 	"description": "Editor Bitbucket transformer",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,49 +12,43 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
 		"team": "Editor: Collaboration",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Editor Bitbucket Transformer"
 		}
 	},
 	"dependencies": {
 		"@atlaskit/editor-prosemirror": "workspace:^",
+		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0"
 	},
 	"devDependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
 		"@atlaskit/editor-json-transformer": "workspace:^",
-		"@atlaskit/editor-test-helpers": "workspace:^"
-	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion"
-			]
-		}
+		"@atlaskit/editor-test-helpers": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"react": "^19.2.0"
 	},
 	"exports": {
 		".": "./src/index.ts",
 		"./serializer": "./src/serializer.ts",
 		"./tableSerializer": "./src/tableSerializer.ts",
 		"./util": "./src/util.ts"
+	},
+	"platform-feature-flags": {
+		"platform_bitbucket_fix_shortname_and_ordering": {
+			"type": "boolean"
+		}
 	}
 }

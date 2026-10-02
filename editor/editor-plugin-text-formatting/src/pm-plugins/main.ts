@@ -11,18 +11,17 @@ import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { TextFormattingState } from '@atlaskit/editor-common/types';
 import { shallowEqual } from '@atlaskit/editor-common/utils';
 import { toggleMark } from '@atlaskit/editor-prosemirror/commands';
-import { type Mark, MarkType } from '@atlaskit/editor-prosemirror/model';
+import { MarkType } from '@atlaskit/editor-prosemirror/model';
+import type { Mark } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Selection } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { createInlineCodeFromTextInputWithAnalytics } from '../editor-commands/text-formatting';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-namespace
 import * as commands from '../editor-commands/text-formatting';
-
 import { pluginKey } from './plugin-key';
 
 const isSelectionInlineCursor = (selection: Selection) => {
@@ -47,12 +46,14 @@ const checkNodeSelection = (
 
 const getTextFormattingState = (
 	editorState: EditorState,
-	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+	_editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
 ): TextFormattingState => {
 	const { em, code, strike, strong, subsup, underline } = editorState.schema.marks;
 	const state: TextFormattingState = { isInitialised: true };
 
-	const showOnlyCommonMarks = expValEquals('platform_editor_controls', 'cohort', 'variant1');
+	const showOnlyCommonMarks = editorExperiment('platform_editor_controls', 'variant1', {
+		exposure: true,
+	});
 
 	if (showOnlyCommonMarks) {
 		// Code marks will disable all other formatting options when they are included in a
@@ -132,7 +133,10 @@ const getTextFormattingState = (
 	return state;
 };
 
-export const plugin = (dispatch: Dispatch, editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
+export const plugin = (
+	dispatch: Dispatch,
+	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+): SafePlugin<TextFormattingState> =>
 	new SafePlugin({
 		state: {
 			init(_config, state: EditorState): TextFormattingState {

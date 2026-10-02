@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::b1fdf93317430cb701429972e6c41dc4>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::0ea086034c610975f86a0f7a528f8984>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -20,14 +20,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __RovoHexIcon__
  *
- * A temporary component to represent the icon for Rovo.
- * @deprecated This component has been replaced by the component `RovoHexIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Rovo.
+ * Import `RovoHexIcon` from `@atlaskit/logo/rovo-hex/icon`.
  *
  */
 export function RovoHexIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Rovo',
 	testId,

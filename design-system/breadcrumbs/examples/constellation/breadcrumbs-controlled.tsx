@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
 import Breadcrumbs, { BreadcrumbsItem } from '@atlaskit/breadcrumbs';
-import Button from '@atlaskit/button/new';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box } from '@atlaskit/primitives';
+import { BreadcrumbsCurrentItem } from '@atlaskit/breadcrumbs/breadcrumbs-current-item';
+import Button from '@atlaskit/button/default/button';
+import { Box } from '@atlaskit/primitives/compiled';
 
 const BreadcrumbsControlledExample = (): React.JSX.Element => {
 	const [isExpanded, setExpanse] = useState(false);
@@ -19,7 +19,7 @@ const BreadcrumbsControlledExample = (): React.JSX.Element => {
 				<BreadcrumbsItem href="/item" text="Item 7" />
 				<BreadcrumbsItem href="/item" text="Item 8" />
 				<BreadcrumbsItem href="/item" text="Item 9" />
-				<BreadcrumbsItem href="/item" text="Item 10" />
+				<BreadcrumbsCurrentItem href="/item" text="Item 10" />
 			</Breadcrumbs>
 			<Button appearance="primary" onClick={() => setExpanse(!isExpanded)}>
 				Toggle

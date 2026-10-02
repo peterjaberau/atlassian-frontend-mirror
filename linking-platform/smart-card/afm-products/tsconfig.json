@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__smart-card/app",
 		"rootDir": "../",
 		"composite": true,
@@ -25,6 +23,12 @@
 	],
 	"references": [
 		{
+			"path": "../../../editor/adf-utils/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../atlassian-analytics-pipeline/analytics-cross-product/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../analytics/analytics-gas-types/afm-products/tsconfig.json"
 		},
 		{
@@ -38,6 +42,9 @@
 		},
 		{
 			"path": "../../../design-system/badge/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../helpers/browser-apis/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/button/afm-products/tsconfig.json"
@@ -58,6 +65,9 @@
 			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/flag/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/form/afm-products/tsconfig.json"
 		},
 		{
@@ -73,7 +83,7 @@
 			"path": "../../../media/icon-file-type/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/icon-object/afm-products/tsconfig.json"
+			"path": "../../../design-system/icon-lab/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/image/afm-products/tsconfig.json"
@@ -115,7 +125,16 @@
 			"path": "../../../design-system/modal-dialog/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/motion/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/object/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../teamwork-ecosystem/outbound-auth-flow-client/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
@@ -128,6 +147,9 @@
 		},
 		{
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../react-ufo/atlaskit/afm-products/tsconfig.json"
@@ -143,6 +165,12 @@
 		},
 		{
 			"path": "../../../design-system/spinner/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/tabs/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/tag/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/textarea/afm-products/tsconfig.json"
@@ -167,6 +195,9 @@
 		},
 		{
 			"path": "../../../data/ufo-external/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/width-detector/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../link-provider/afm-products/tsconfig.json"

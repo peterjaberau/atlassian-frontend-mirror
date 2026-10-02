@@ -1,0 +1,170 @@
+import type { Schema } from '@atlaskit/editor-prosemirror/model';
+
+import { traverse } from '../traverse/traverse';
+import type { ADFEntity, EntityParent } from '../types';
+
+// A Legacy Content Macro (LCM) is a Confluence macro stored as an ADF `extension`.
+// Its handler renders an editable nested editor, so wrapping a table in an LCM keeps
+// it visible/editable inside a plain `panel` (which permits `extension` children) —
+// unlike `unsupportedBlock`, which only shows a placeholder.
+// @see confluence/next/packages/experiment-legacy-content-macro
+const LCM_EXTENSION_TYPE = 'com.atlassian.confluence.migration';
+const LCM_EXTENSION_KEY = 'legacy-content';
+const PANEL_C1_FALLBACK_MARKER = '__platformEditorPanelC1Fallback';
+
+// Parents a wrapped table may be restored into. A plain `panel` doesn't yet allow a
+// `table`, but it's the pre-promotion wrapper this transform emits: the shared
+// container transform restores the table here, then promotes `panel` -> `panel_c1`.
+// Restricting to panel-family parents avoids unwrapping tables wrapped elsewhere.
+const TABLE_RESTORE_PARENT_TYPES = new Set(['panel', 'panel_c1']);
+
+const safeParseAdf = (adf: unknown): ADFEntity | undefined => {
+	if (typeof adf !== 'string') {
+		return undefined;
+	}
+	try {
+		return JSON.parse(adf) as ADFEntity;
+	} catch {
+		return undefined;
+	}
+};
+
+const wrapAsLcm = (node: ADFEntity): ADFEntity => {
+	const nestedContent: ADFEntity = { version: 1, type: 'doc', content: [node] };
+	return {
+		type: 'extension',
+		attrs: {
+			extensionType: LCM_EXTENSION_TYPE,
+			extensionKey: LCM_EXTENSION_KEY,
+			layout: 'default',
+			parameters: {
+				nestedContent,
+				adf: JSON.stringify(nestedContent),
+				[PANEL_C1_FALLBACK_MARKER]: true,
+			},
+		},
+	};
+};
+
+const isLcm = (node: ADFEntity): boolean =>
+	node.type === 'extension' &&
+	node.attrs?.extensionType === LCM_EXTENSION_TYPE &&
+	node.attrs?.extensionKey === LCM_EXTENSION_KEY &&
+	node.attrs?.parameters?.[PANEL_C1_FALLBACK_MARKER] === true;
+
+/** Single wrapped block from an LCM, preferring `nestedContent` then parsed `adf`. */
+const getLcmWrappedNode = (node: ADFEntity): ADFEntity | undefined => {
+	const params = node.attrs?.parameters;
+	const nested = params?.nestedContent ?? safeParseAdf(params?.adf);
+	return nested?.content?.length === 1 ? (nested.content[0] as ADFEntity) : undefined;
+};
+
+const wrappedNodeIsTable = (node: ADFEntity): boolean =>
+	(isLcm(node) && getLcmWrappedNode(node)?.type === 'table') ||
+	(node.type === 'unsupportedBlock' && node.attrs?.originalValue?.type === 'table');
+
+const isTableInPanelSupported = (schema: Schema): boolean => {
+	const { table, panel_c1 } = schema.nodes;
+
+	if (!table || !panel_c1) {
+		return false;
+	}
+
+	return true;
+};
+
+/**
+ * Schema-driven fallback for `panel_c1` (a panel that may hold a table), mirroring
+ * `syncBlockFallbackTransform`. Schemas that do not declare `panel_c1` cannot load
+ * documents containing it and would otherwise throw `Unknown node type: panel_c1`.
+ *
+ * - Unsupported schema: rename `panel_c1` -> `panel` and wrap any `table` child in
+ *   an LCM `extension` (keeps it visible/editable). Falls back to
+ *   `unsupportedBlock` when `extension` is unavailable; no-ops when neither escape
+ *   hatch exists.
+ * - Supported schema: leave `panel_c1` untouched and restore wrapped tables.
+ *   Restoration only fires inside a panel parent so tables wrapped elsewhere are
+ *   left untouched.
+ *
+ * @private
+ * @deprecated Handles `table` children only. Use `panelC1FallbackTransformV2`, which
+ * generalises this to all `panel_c1` extended children (`table`, `expand`, nested `panel`,
+ * `blockquote`, `bodiedExtension`), when the `platform_editor_nest_container_in_panel`
+ * experiment is enabled. This function is kept unchanged for the already-in-production
+ * table-in-panel path and should be removed once `platform_editor_nest_container_in_panel`
+ * is fully rolled out (V2 then covers `table` too).
+ */
+export const panelC1FallbackTransform = (
+	schema: Schema,
+	adf: ADFEntity,
+): {
+	isTransformed: boolean;
+	transformedAdf: false | ADFEntity;
+} => {
+	let isTransformed = false;
+
+	const { extension, unsupportedBlock } = schema.nodes;
+	const tableInPanelSupported = isTableInPanelSupported(schema);
+	const shouldDowngrade = !tableInPanelSupported;
+	const shouldRestore = tableInPanelSupported;
+
+	const hasRelevantNode = (node: ADFEntity): boolean =>
+		(shouldDowngrade && node.type === 'panel_c1') ||
+		(shouldRestore && wrappedNodeIsTable(node)) ||
+		(Array.isArray(node.content) && node.content.some((c) => !!c && hasRelevantNode(c)));
+
+	if (!hasRelevantNode(adf)) {
+		return { isTransformed, transformedAdf: adf };
+	}
+
+	// Prefer the LCM (visible/editable); fall back to a preserved-but-hidden unsupportedBlock.
+	const wrapTable = (tableNode: ADFEntity): ADFEntity =>
+		extension
+			? wrapAsLcm(tableNode)
+			: (unsupportedBlock.createChecked({ originalValue: tableNode }).toJSON() as ADFEntity);
+
+	const downgradePanel = (node: ADFEntity): ADFEntity => {
+		if (!Array.isArray(node.content)) {
+			return node;
+		}
+		const hasTableChild = node.content.some((child) => child?.type === 'table');
+		if (hasTableChild && !extension && !unsupportedBlock) {
+			return node;
+		}
+		const content = node.content.map((child) => {
+			if (child?.type === 'table') {
+				isTransformed = true;
+				return wrapTable(child);
+			}
+			return child;
+		});
+		isTransformed = true;
+		return { ...node, type: 'panel', content };
+	};
+
+	const restoreWrappedTable = (node: ADFEntity, parent: EntityParent): ADFEntity => {
+		if (!TABLE_RESTORE_PARENT_TYPES.has(parent?.node?.type ?? '')) {
+			return node;
+		}
+
+		const restored = isLcm(node)
+			? getLcmWrappedNode(node)
+			: (node.attrs?.originalValue as ADFEntity | undefined);
+
+		if (restored?.type === 'table') {
+			isTransformed = true;
+			return restored;
+		}
+		return node;
+	};
+
+	const transformedAdf = traverse(adf, {
+		// Unsupported schema: downgrade to a plain `panel`, wrapping table children.
+		panel_c1: (node) => (shouldDowngrade ? downgradePanel(node) : node),
+		// Supported schema: restore tables wrapped as an LCM / unsupportedBlock.
+		extension: (node, parent) => (shouldRestore ? restoreWrappedTable(node, parent) : node),
+		unsupportedBlock: (node, parent) => (shouldRestore ? restoreWrappedTable(node, parent) : node),
+	});
+
+	return { transformedAdf, isTransformed };
+};

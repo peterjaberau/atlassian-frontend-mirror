@@ -1,11 +1,12 @@
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { statusMessages as messages } from '@atlaskit/editor-common/messages';
 import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { NodeView } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
+import { normalizeStatusColorAttr } from '../utils/normalizeStatusColor';
 import { statusToDOM } from './statusNodeSpec';
 
 /**
@@ -62,25 +63,22 @@ export class StatusNodeView implements NodeView {
 		if (this.textContainer && node.attrs.text !== this.node.attrs.text) {
 			this.textContainer.textContent = node.attrs.text;
 			// Also update data-text on outer wrapper for parseDOM extraction when copying
-			if (expValEquals(
-				'platform_editor_copy_paste_issue_fix',
-				'isEnabled',
-				true,
-			)) {
-				this.domElement?.setAttribute('data-text', node.attrs.text);
-			}
+			this.domElement?.setAttribute('data-text', node.attrs.text);
+		}
+
+		if (
+			this.textContainer &&
+			node.attrs.style !== this.node.attrs.style &&
+			fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+		) {
+			this.textContainer.style.textTransform = node.attrs.style !== 'mixedCase' ? 'uppercase' : '';
 		}
 
 		if (node.attrs.color !== this.node.attrs.color) {
-			this.box?.setAttribute('data-color', node.attrs.color);
+			const dataColor = normalizeStatusColorAttr(node.attrs.color);
+			this.box?.setAttribute('data-color', dataColor);
 			// Also update data-color on outer wrapper for parseDOM extraction when copying
-			if (expValEquals(
-				'platform_editor_copy_paste_issue_fix',
-				'isEnabled',
-				true,
-			)) {
-				this.domElement?.setAttribute('data-color', node.attrs.color);
-			}
+			this.domElement?.setAttribute('data-color', dataColor);
 		}
 
 		if (!node.attrs.text) {

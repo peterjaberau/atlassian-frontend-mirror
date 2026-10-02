@@ -1,9 +1,11 @@
 /* eslint-disable @repo/internal/react/require-jsdoc */
+
 import type { Rule } from 'eslint';
 import { isNodeOfType, type Property } from 'eslint-codemod-utils';
 
-import { isDecendantOfStyleBlock, isDecendantOfType } from '../../utils/is-node';
-import { type RuleConfig } from '../config';
+import { isDecendantOfStyleBlock } from '../../utils/is-decendant-of-style-block';
+import { isDecendantOfType } from '../../utils/is-decendant-of-type';
+import type { RuleConfig } from '../config/types';
 
 interface MetaData {
 	context: Rule.RuleContext;

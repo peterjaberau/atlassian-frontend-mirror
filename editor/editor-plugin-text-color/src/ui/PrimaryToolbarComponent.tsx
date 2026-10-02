@@ -1,16 +1,13 @@
 import React from 'react';
 
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
-import {
-	useSharedPluginStateWithSelector,
-	type NamedPluginStatesFromInjectionAPI,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { TextColorPlugin } from '../textColorPluginType';
 import { ToolbarType } from '../types';
-
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-named-as-default
 import ToolbarTextColor from './ToolbarTextColor';
@@ -59,6 +56,7 @@ export const PrimaryToolbarComponent = ({
 	}
 	return (
 		<ToolbarTextColor
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			pluginState={{ color, defaultColor, palette, disabled: textColorDisabled }}
 			isReducedSpacing={isReducedSpacing}
 			editorView={editorView}

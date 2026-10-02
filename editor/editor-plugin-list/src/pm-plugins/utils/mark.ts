@@ -6,6 +6,24 @@ type NodesSanitized = Array<{
 	node: Node;
 }>;
 
+const listContainerTypes = new Set(['bulletList', 'orderedList']);
+
+/**
+ * When wrapping in a list, the paragraph's direct parent will be listItem,
+ * not the list container itself. For fontSize marks, resolve to listItem
+ * so mark compatibility is checked against the actual parent.
+ */
+const resolveEffectiveParentType = (newParentType?: NodeType): NodeType | undefined => {
+	if (newParentType && listContainerTypes.has(newParentType.name)) {
+		return newParentType.schema.nodes.listItem;
+	}
+	return newParentType;
+};
+
+const isMarkDisallowed = (mark: Mark, parent: Node | null, effectiveParentType?: NodeType) =>
+	!parent?.type.allowsMarkType(mark.type) ||
+	(effectiveParentType && !effectiveParentType.allowsMarkType(mark.type));
+
 export const sanitiseMarksInSelection = (
 	tr: Transaction,
 	newParentType?: NodeType,
@@ -23,10 +41,9 @@ export const sanitiseMarksInSelection = (
 			return true;
 		}
 		node.marks.forEach((mark) => {
-			if (
-				!parent?.type.allowsMarkType(mark.type) ||
-				(newParentType && !newParentType.allowsMarkType(mark.type))
-			) {
+			const effectiveParentType = resolveEffectiveParentType(newParentType);
+
+			if (isMarkDisallowed(mark, parent, effectiveParentType)) {
 				const filteredMarks = node.marks.filter((m) => m.type !== mark.type);
 				const position = pos > 0 ? pos : 0;
 

@@ -1,8 +1,9 @@
-import { isSafeUrl } from '@atlaskit/adf-schema';
-import Link from '@atlaskit/link';
-import { LazyLoadedDatasourceRenderFailedAnalyticsWrapper } from '@atlaskit/link-datasource';
-import { fg } from '@atlaskit/platform-feature-flags';
 import React from 'react';
+
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
+import { LazyLoadedDatasourceRenderFailedAnalyticsWrapper } from '@atlaskit/link-datasource/analytics/render-failed';
+import Link from '@atlaskit/link/link';
+
 import { InlineCard } from './';
 
 type CardErrorBoundaryProps = {
@@ -36,11 +37,21 @@ export class CardErrorBoundary extends React.PureComponent<
 		}
 	};
 
-	static getDerivedStateFromError(error: Error) {
+	static getDerivedStateFromError(error: Error): {
+		error: Error;
+		isError: boolean;
+	} {
 		return { isError: true, error };
 	}
 
-	render() {
+	render():
+		| string
+		| number
+		| boolean
+		| Iterable<React.ReactNode>
+		| React.JSX.Element
+		| null
+		| undefined {
 		if (this.state.isError) {
 			const {
 				url,
@@ -52,7 +63,7 @@ export class CardErrorBoundary extends React.PureComponent<
 			if (url) {
 				let actualTarget;
 
-				if (onSetLinkTarget && fg('rovo_chat_deep_linking_enabled')) {
+				if (onSetLinkTarget) {
 					try {
 						actualTarget = onSetLinkTarget(url);
 					} catch {
@@ -66,7 +77,7 @@ export class CardErrorBoundary extends React.PureComponent<
 					...(actualTarget === '_blank' && { target: '_blank', rel: 'noreferrer noopener' }),
 				};
 
-				const fallback = fg('dst-a11y__replace-anchor-with-link__editor') ? (
+				const fallback = (
 					<Link
 						href={linkProps.href}
 						onClick={linkProps.onClick}
@@ -75,16 +86,6 @@ export class CardErrorBoundary extends React.PureComponent<
 					>
 						{url}
 					</Link>
-				) : (
-					// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-					<a
-						href={linkProps.href}
-						onClick={linkProps.onClick}
-						target={linkProps.target}
-						rel={linkProps.rel}
-					>
-						{url}
-					</a>
 				);
 
 				if (isDatasource) {

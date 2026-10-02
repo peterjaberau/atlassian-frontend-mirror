@@ -1,8 +1,10 @@
 /* eslint-disable compat/compat */
+
 import { getEventCategory, searchAncestors } from './dom';
 import { DOMObservers } from './DOMObservers';
 import { FirstInteractionObserver } from './firstInteractionObserver';
-import { getElementName, type SelectorConfig } from './getElementName';
+import { getElementName } from './getElementName';
+import type { SelectorConfig } from './getElementName';
 import type {
 	OnIdleBufferFlushCallback,
 	TimelineClock,
@@ -17,8 +19,7 @@ export type StartProps = {
 	startTime: DOMHighResTimeStamp;
 };
 export interface ObserverInterface {
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	start(props: StartProps): void;
+	start: (props: StartProps) => void;
 }
 export type CalculateVCOptions = {
 	heatmapSize: number;

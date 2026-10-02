@@ -1,5 +1,12 @@
 import React from 'react';
 
-import Lozenge from '@atlaskit/lozenge';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { Inline } from '@atlaskit/primitives/compiled';
 
-export default (): React.JSX.Element => <Lozenge appearance="danger">Danger</Lozenge>;
+export default (): React.JSX.Element => (
+	<Inline space="space.100">
+		<Lozenge appearance="danger">Blocked</Lozenge>
+		<Lozenge appearance="danger">Failed</Lozenge>
+		<Lozenge appearance="danger">Overdue</Lozenge>
+	</Inline>
+);

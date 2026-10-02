@@ -6,30 +6,29 @@ import { forwardRef } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { ButtonItem as Button, type ButtonItemProps } from '@atlaskit/menu';
-import { B400, B50, N30, N500 } from '@atlaskit/theme/colors';
+import Button from '@atlaskit/menu/button-item';
+import type { ButtonItemProps } from '@atlaskit/menu/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
-import { useShouldNestedElementRender } from '../NestableNavigationContent/context';
-
-export type { ButtonItemProps } from '@atlaskit/menu';
+import { useShouldNestedElementRender } from '../NestableNavigationContent/use-should-nested-element-render';
 
 const styles = cssMap({
 	root: {
 		// This padding is set to ensure that the center of the left icon
 		// is approximately center aligned with the horizontal app switcher.
-		paddingBlock: token('space.100', '8px'),
-		paddingInline: token('space.100', '8px'),
+		paddingBlock: token('space.100'),
+		paddingInline: token('space.100'),
 		borderRadius: token('radius.small', '3px'),
-		backgroundColor: token('color.background.neutral.subtle', 'transparent'),
+		backgroundColor: token('color.background.neutral.subtle'),
 		'&:hover': {
-			color: token('color.text.subtle', N500),
-			backgroundColor: token('color.background.neutral.subtle.hovered', N30),
+			color: token('color.text.subtle'),
+			backgroundColor: token('color.background.neutral.subtle.hovered'),
 		},
 		'&:active': {
 			'&:active': {
-				color: token('color.text.subtle', B400),
-				backgroundColor: token('color.background.neutral.subtle.pressed', B50),
+				color: token('color.text.subtle'),
+				backgroundColor: token('color.background.neutral.subtle.pressed'),
 			},
 		},
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -39,18 +38,36 @@ const styles = cssMap({
 		},
 	},
 	selectedStyles: {
-		backgroundColor: token('color.background.selected', N30),
-		color: token('color.text.selected', B400),
+		backgroundColor: token('color.background.selected'),
+		color: token('color.text.selected'),
 		'&:visited': {
-			color: token('color.text.selected', B400),
+			color: token('color.text.selected'),
 		},
 		'&:hover': {
-			backgroundColor: token('color.background.selected.hovered', N30),
-			color: token('color.text.selected', N500),
+			backgroundColor: token('color.background.selected.hovered'),
+			color: token('color.text.selected'),
 		},
 		'&:active': {
-			backgroundColor: token('color.background.selected.pressed', B50),
-			color: token('color.text.selected', B400),
+			backgroundColor: token('color.background.selected.pressed'),
+			color: token('color.text.selected'),
+		},
+	},
+	rootMotion: {
+		transition: token('motion.listitem.hovered'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
+		},
+	},
+	selectedMotion: {
+		transition: token('motion.listitem.selected'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
 		},
 	},
 });
@@ -63,25 +80,31 @@ const styles = cssMap({
  *
  * - [Examples](https://atlassian.design/components/side-navigation/examples#button-item)
  * - [Code](https://atlassian.design/components/side-navigation/code)
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const ButtonItem: React.ForwardRefExoticComponent<
+export const ButtonItem: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<ButtonItemProps> & React.RefAttributes<HTMLElement>
 > = forwardRef<HTMLElement, ButtonItemProps>(({ className, ...props }, ref) => {
 	const { shouldRender } = useShouldNestedElementRender();
 	if (!shouldRender) {
 		return null;
 	}
+	const isMotionEnabled = fg('platform-dst-motion-uplift-list-item');
 
 	return (
 		<Button
 			ref={ref}
 			// eslint-disable-next-line @atlaskit/design-system/no-unsafe-style-overrides
-			css={[styles.root, props.isSelected && styles.selectedStyles]}
+			css={[
+				styles.root,
+				isMotionEnabled && styles.rootMotion,
+				props.isSelected && styles.selectedStyles,
+				props.isSelected && isMotionEnabled && styles.selectedMotion,
+			]}
 			// eslint-disable-next-line @atlaskit/design-system/no-unsafe-style-overrides, @atlaskit/ui-styling-standard/no-classname-prop
 			className={className}
 			{...props}
 		/>
 	);
 });
-
-export default ButtonItem;

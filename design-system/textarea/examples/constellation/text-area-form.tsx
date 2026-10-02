@@ -1,20 +1,20 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import Form, { Field, FormFooter, HelperMessage } from '@atlaskit/form';
-import TextArea from '@atlaskit/textarea';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
+import TextArea from '@atlaskit/textarea/text-area';
 
 export default function TextAreaFormExample(): React.JSX.Element {
 	return (
 		<Form onSubmit={(formState: unknown) => console.log('form submitted', formState)}>
-			<Field label="Field label" name="example-text">
-				{({ fieldProps }: any) => (
-					<Fragment>
-						<TextArea placeholder="" {...fieldProps} />
-						<HelperMessage>Help or instruction text goes here</HelperMessage>
-					</Fragment>
-				)}
-			</Field>
+			<Field
+				label="Field label"
+				name="example-text"
+				helperMessage="Help or instruction text goes here"
+				component={({ fieldProps }: any) => <TextArea {...fieldProps} />}
+			/>
 			<FormFooter>
 				<Button type="submit" appearance="primary">
 					Submit

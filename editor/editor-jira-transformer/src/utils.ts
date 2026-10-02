@@ -1,26 +1,22 @@
-import { normalizeHexColor } from '@atlaskit/adf-schema';
-import {
-	isSchemaWithLists,
-	isSchemaWithMentions,
-	isSchemaWithLinks,
-	isSchemaWithAdvancedTextFormattingMarks,
-	isSchemaWithCodeBlock,
-	isSchemaWithBlockQuotes,
-	isSchemaWithMedia,
-	isSchemaWithSubSupMark,
-	isSchemaWithTextColor,
-	isSchemaWithTables,
-} from '@atlaskit/adf-schema/schema-jira';
-
-import {
-	Fragment,
-	type Mark,
-	type Node as PMNode,
-	type Schema,
-	type NodeType,
-} from '@atlaskit/editor-prosemirror/model';
+import { isSchemaWithAdvancedTextFormattingMarks } from '@atlaskit/adf-schema/is-schema-with-advanced-text-formatting-marks';
+import { isSchemaWithBlockQuotes } from '@atlaskit/adf-schema/is-schema-with-block-quotes';
+import { isSchemaWithCodeBlock } from '@atlaskit/adf-schema/is-schema-with-code-block';
+import { isSchemaWithLinks } from '@atlaskit/adf-schema/is-schema-with-links';
+import { isSchemaWithLists } from '@atlaskit/adf-schema/is-schema-with-lists';
+import { isSchemaWithMedia } from '@atlaskit/adf-schema/is-schema-with-media';
+import { isSchemaWithMentions } from '@atlaskit/adf-schema/is-schema-with-mentions';
+import { isSchemaWithSubSupMark } from '@atlaskit/adf-schema/is-schema-with-sub-sup-mark';
+import { isSchemaWithTables } from '@atlaskit/adf-schema/is-schema-with-tables';
+import { isSchemaWithTextColor } from '@atlaskit/adf-schema/is-schema-with-text-color';
+import { normalizeHexColor } from '@atlaskit/adf-schema/normalize-hex-color';
+import { Fragment } from '@atlaskit/editor-prosemirror/model';
+import type { Mark, Node as PMNode, Schema, NodeType } from '@atlaskit/editor-prosemirror/model';
 
 import { mapImageToEmoji } from './emojiHelper';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const WHITESPACE_ONLY_REGEX = /^\s*$/;
 
 /**
  * Ensure that each node in the fragment is a block, wrapping
@@ -63,7 +59,11 @@ export function ensureBlocks(fragment: Fragment, schema: Schema, nodeType?: Node
 /**
  * This function will convert all content to inline nodes
  */
-export const ensureInline = (schema: Schema, content: Fragment, supportedMarks: Mark[]) => {
+export const ensureInline = (
+	schema: Schema,
+	content: Fragment,
+	supportedMarks: Mark[],
+): Fragment => {
 	const result: PMNode[] = [];
 	content.forEach((node: PMNode) => {
 		if (node.isInline) {
@@ -252,9 +252,7 @@ export function convert(
 						if (child.type === schema.nodes.media) {
 							mediaArray.push(child);
 							return;
-							// Ignored via go/ees005
-							// eslint-disable-next-line require-unicode-regexp
-						} else if (!(child.isText && /^\s*$/.test(child.text || ''))) {
+						} else if (!(child.isText && WHITESPACE_ONLY_REGEX.test(child.text || ''))) {
 							hasNonMediaChildren = true;
 						}
 						contentArray.push(child);

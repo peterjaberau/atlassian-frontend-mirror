@@ -5,13 +5,14 @@
 import type { ChangeEvent } from 'react';
 import { Fragment, useCallback } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
-import { Checkbox as AKCheckbox } from '@atlaskit/checkbox';
+import { Checkbox as AKCheckbox } from '@atlaskit/checkbox/checkbox';
 import type { EnumCheckboxField, Option } from '@atlaskit/editor-common/extensions';
-import type { FieldProps } from '@atlaskit/form';
-import { Fieldset as AKFieldset, Field } from '@atlaskit/form';
+import type { FieldProps } from '@atlaskit/form/field';
+import Field from '@atlaskit/form/field';
+import { Fieldset as AKFieldset } from '@atlaskit/form/fieldset';
 import { token } from '@atlaskit/tokens';
 
 import FieldMessages from '../FieldMessages';
@@ -25,7 +26,7 @@ function validate(value: string[] | undefined, isRequired: boolean) {
 }
 
 const requiredIndicatorStyles = css({
-	color: token('color.text.danger', '#bf2600'),
+	color: token('color.text.danger'),
 });
 
 function CheckboxGroupInner({
@@ -95,7 +96,7 @@ export default function CheckboxGroup({
 	field: EnumCheckboxField;
 	name: string;
 	onFieldChange: OnFieldChange;
-}) {
+}): jsx.JSX.Element {
 	const {
 		label: labelBase,
 		description,
@@ -125,6 +126,7 @@ export default function CheckboxGroup({
 			name={name}
 			isRequired={isRequired}
 			defaultValue={defaultValue}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value?: string[]) => validate(value, isRequired)}
 			isDisabled={isDisabled}
 		>

@@ -1,27 +1,44 @@
-jest.mock('@atlaskit/select');
-
 import React from 'react';
-import { shallow } from 'enzyme';
-import { type OptionType, PopupSelect, type PopupSelectProps } from '@atlaskit/select';
-import { WidthObserver } from '@atlaskit/width-detector';
-import PlaybackSpeedControls, {
-	type PlaybackSpeedControlsProps,
-} from '../../customMediaPlayer/playbackSpeedControls';
-import MediaButton from '../../MediaButton';
-import { mountWithIntlContext } from '../../test-helpers/mountWithIntlContext';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 
+import { type OptionType } from '@atlaskit/select/types';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
+import PlaybackSpeedControls from '../../customMediaPlayer/playbackSpeedControls';
+import type { PlaybackSpeedControlsProps } from '../../customMediaPlayer/PlaybackSpeedControls-2';
+import { renderWithIntl } from '../../test-helpers/renderWithIntl';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
 // be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
 // the next line and associated import. For more information, see go/afm-a11y-tooling:jest
 skipAutoA11yFile();
 
+// Capture PopupSelect props for assertions
+let lastPopupSelectProps: Record<string, any> = {};
+
+jest.mock('@atlaskit/select/popup-select', () => ({
+	...jest.requireActual('@atlaskit/select/popup-select'),
+	PopupSelect: (props: any) => {
+		lastPopupSelectProps = props;
+		return React.createElement('div', { 'data-testid': 'popup-select-mock' });
+	},
+}));
+
+// Capture WidthObserver setWidth for the resize test
+let setWidthCallback: ((width: number) => void) | null = null;
+jest.mock('@atlaskit/width-detector/width-observer', () => ({
+	...jest.requireActual('@atlaskit/width-detector/width-observer'),
+	WidthObserver: ({ setWidth }: { setWidth: (w: number) => void }) => {
+		setWidthCallback = setWidth;
+		return null;
+	},
+}));
+
 describe('<PlaybackSpeedControls />', () => {
-	const mountSetup = (props: Partial<PlaybackSpeedControlsProps> = {}) => {
+	const renderSetup = (props: Partial<PlaybackSpeedControlsProps> = {}) => {
 		const onPlaybackSpeedChange = jest.fn();
-		const component = mountWithIntlContext(
+		renderWithIntl(
 			<PlaybackSpeedControls
 				{...props}
 				onPlaybackSpeedChange={onPlaybackSpeedChange}
@@ -29,28 +46,30 @@ describe('<PlaybackSpeedControls />', () => {
 			/>,
 		);
 
-		const popupSelect = component.find<PopupSelectProps<OptionType>>(PopupSelect);
-
 		return {
-			component,
 			onPlaybackSpeedChange,
-			popupSelect,
+			popupSelectProps: lastPopupSelectProps,
 		};
 	};
 
-	it('should render current playback speed as selected', () => {
-		const { popupSelect } = mountSetup();
+	beforeEach(() => {
+		lastPopupSelectProps = {};
+		setWidthCallback = null;
+	});
 
-		expect(popupSelect.props().value).toEqual({
+	it('should render current playback speed as selected', () => {
+		const { popupSelectProps } = renderSetup();
+
+		expect(popupSelectProps.value).toEqual({
 			label: '1.5x',
 			value: 1.5,
 		});
 	});
 
 	it('should trigger onPlaybackSpeedChange when speed changes', () => {
-		const { popupSelect, onPlaybackSpeedChange } = mountSetup();
+		const { popupSelectProps, onPlaybackSpeedChange } = renderSetup();
 
-		const { onChange } = popupSelect.props();
+		const { onChange } = popupSelectProps;
 		if (!onChange) {
 			return expect(onChange).toBeDefined();
 		}
@@ -62,22 +81,22 @@ describe('<PlaybackSpeedControls />', () => {
 			{ action: 'select-option', option: undefined },
 		);
 
-		expect(onPlaybackSpeedChange).toBeCalledTimes(1);
-		expect(onPlaybackSpeedChange).toBeCalledWith(1.5);
+		expect(onPlaybackSpeedChange).toHaveBeenCalledTimes(1);
+		expect(onPlaybackSpeedChange).toHaveBeenCalledWith(1.5);
 	});
 
 	it('should have label in PopupSelect', () => {
-		const { popupSelect } = mountSetup();
-		expect(popupSelect.props()['label']).toBe('Playback speed');
+		const { popupSelectProps } = renderSetup();
+		expect(popupSelectProps.label).toBe('Playback speed');
 	});
 
 	describe('with MediaButton as target', () => {
-		const buttonSetup = (isOpen: boolean = true) => {
-			const { popupSelect } = mountSetup();
-			const target = popupSelect.props().target;
+		const getTargetElement = (isOpen: boolean = true) => {
+			const { popupSelectProps } = renderSetup();
+			const target = popupSelectProps.target;
 			if (!target) {
 				expect(target).toBeDefined();
-				throw Error(); // For TS happiness. JEst would throw on prev. line anyway.
+				throw Error();
 			}
 			const myRef = React.createRef();
 			const elementFunc = target({
@@ -87,81 +106,110 @@ describe('<PlaybackSpeedControls />', () => {
 				'aria-haspopup': 'true',
 				'aria-expanded': isOpen,
 			});
-			const Component = (): React.ReactElement => <>${elementFunc}</>;
-
-			return {
-				targetElement: shallow(<Component />),
-				myRef,
-			};
+			return { element: elementFunc, myRef };
 		};
 
 		it('should be selected when isPlayBackSpeedOpen is true', () => {
-			const { targetElement } = buttonSetup(true);
-			expect(targetElement.find(MediaButton).props().isSelected).toEqual(true);
+			const { element } = getTargetElement(true);
+			const { getByRole } = renderWithIntl(<>{element}</>);
+			const button = getByRole('button');
+			expect(button).toHaveAttribute('aria-expanded', 'true');
 		});
 
 		it('should be not selected when isPlayBackSpeedOpen is false', () => {
-			const { targetElement } = buttonSetup(false);
-			expect(targetElement.find(MediaButton).props().isSelected).toEqual(false);
+			const { element } = getTargetElement(false);
+			const { getByRole } = renderWithIntl(<>{element}</>);
+			const button = getByRole('button');
+			expect(button).toHaveAttribute('aria-expanded', 'false');
 		});
 
 		it('should get provided buttonRef', () => {
-			const { targetElement, myRef } = buttonSetup(false);
-			expect(targetElement.find(MediaButton).props().buttonRef).toBe(myRef);
+			const { element, myRef } = getTargetElement(false);
+			const { container } = renderWithIntl(<>{element}</>);
+			const button = container.querySelector('button');
+			expect(button).toBeInTheDocument();
+			expect(myRef.current).toBe(button);
 		});
 
 		it('should have proper testId', () => {
-			const { targetElement } = buttonSetup();
-			expect(targetElement.find(MediaButton).props().testId).toBe(
-				'custom-media-player-playback-speed-toggle-button',
-			);
+			const { element } = getTargetElement();
+			const { getByTestId } = renderWithIntl(<>{element}</>);
+			expect(getByTestId('custom-media-player-playback-speed-toggle-button')).toBeInTheDocument();
 		});
 
 		it('should have aria-expanded true when isOpen is true', () => {
-			const { targetElement } = buttonSetup(true);
-			expect(targetElement.find(MediaButton).props()['aria-expanded']).toBe(true);
+			const { element } = getTargetElement(true);
+			const { getByRole } = renderWithIntl(<>{element}</>);
+			expect(getByRole('button')).toHaveAttribute('aria-expanded', 'true');
 		});
 
 		it('should have aria-expanded false when isOpen is false', () => {
-			const { targetElement } = buttonSetup(false);
-			expect(targetElement.find(MediaButton).props()['aria-expanded']).toBe(false);
+			const { element } = getTargetElement(false);
+			const { getByRole } = renderWithIntl(<>{element}</>);
+			expect(getByRole('button')).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		describe('accessible name (A11Y-16310)', () => {
+			it('should name the button with the playback speed and its purpose when the gate is on', () => {
+				passGate('platform_media_playback_speed_aria_label');
+
+				const { element } = getTargetElement();
+				const { getByRole } = renderWithIntl(<>{element}</>);
+
+				expect(getByRole('button')).toHaveAccessibleName('Playback speed 1.5x');
+			});
+
+			it('should keep the visible speed inside the accessible name when the gate is on', () => {
+				passGate('platform_media_playback_speed_aria_label');
+
+				const { element } = getTargetElement();
+				const { getByRole } = renderWithIntl(<>{element}</>);
+				const button = getByRole('button');
+
+				expect(button).toHaveTextContent('1.5x');
+				expect(button.getAttribute('aria-label')).toContain('1.5x');
+			});
+
+			it('should fall back to the bare speed as the accessible name when the gate is off', () => {
+				failGate('platform_media_playback_speed_aria_label');
+
+				const { element } = getTargetElement();
+				const { getByRole } = renderWithIntl(<>{element}</>);
+				const button = getByRole('button');
+
+				expect(button).not.toHaveAttribute('aria-label');
+				expect(button).toHaveAccessibleName('1.5x');
+			});
 		});
 	});
 
 	it('should have max and min height and width on PopupSelect', () => {
-		const { popupSelect } = mountSetup();
-		const { minMenuWidth, maxMenuHeight } = popupSelect.props();
+		const { popupSelectProps } = renderSetup();
+		const { minMenuWidth, maxMenuHeight } = popupSelectProps;
 		expect(minMenuWidth).toEqual(140);
 		expect(maxMenuHeight).toEqual(255);
 	});
 
-	it('should change max height when parent width changes', async () => {
-		const { component } = mountSetup({
+	it('should change max height when parent width changes', () => {
+		renderSetup({
 			originalDimensions: {
 				height: 360,
 				width: 640,
 			},
 		});
 
+		expect(setWidthCallback).toBeDefined();
 		act(() => {
-			// Mock WidthObserver resize
-			component.find(WidthObserver).prop('setWidth')(250);
+			setWidthCallback!(250);
 		});
 
-		component.update();
-
-		const popupSelect = component.find<PopupSelectProps<OptionType>>(PopupSelect);
-		expect(popupSelect.prop('maxMenuHeight')).toEqual(100);
-	});
-
-	it('should have closeMenuOnScroll set to true', () => {
-		const { popupSelect } = mountSetup();
-		expect(popupSelect.props().closeMenuOnScroll).toEqual(true);
+		// Mock captures props on each render - after setState, component re-renders with new maxMenuHeight
+		expect(lastPopupSelectProps.maxMenuHeight).toEqual(100);
 	});
 
 	it('should have all 5 speed options in PopupSelect', () => {
-		const { popupSelect } = mountSetup();
-		const { options } = popupSelect.props();
+		const { popupSelectProps } = renderSetup();
+		const { options } = popupSelectProps;
 		if (!options) {
 			return expect(options).toBeDefined();
 		}

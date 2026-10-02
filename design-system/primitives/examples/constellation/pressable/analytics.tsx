@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
 
-import { AnalyticsListener, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import { ButtonGroup } from '@atlaskit/button';
-import Pressable from '@atlaskit/primitives/pressable';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import ButtonGroup from '@atlaskit/button/button-group';
+import { Pressable } from '@atlaskit/primitives/compiled/pressable';
 
 export default function Analytics(): React.JSX.Element {
 	const handleEvent = useCallback((event: UIAnalyticsEvent, channel?: string) => {

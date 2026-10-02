@@ -14,16 +14,14 @@ import {
 	type GasPayload,
 	type GasScreenEventPayload,
 } from '@atlaskit/analytics-gas-types';
-import { AI_MATE_CONTEXT } from '@atlaskit/analytics-namespaced-context';
+import { AI_MATE_CONTEXT } from '@atlaskit/analytics-namespaced-context/AIMateAnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 
-import {
-	getSources,
-	getExtraAttributes,
-	getPackageInfo,
-	getComponents,
-} from '../helpers/extract-data-from-event';
+import { getComponents } from '../helpers/get-components';
+import { getExtraAttributes } from '../helpers/get-extra-attributes';
+import { getPackageInfo } from '../helpers/get-package-info';
+import { getSources } from '../helpers/get-sources';
 import type Logger from '../helpers/logger';
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
 
 const AI_MATE_TAG = 'aiMate';
 const listenerVersion = process.env._PACKAGE_VERSION_ as string;
@@ -82,7 +80,8 @@ export default (
 		objectType,
 		containerType,
 		containerId,
-		source: payloadSource,
+		path,
+		url,
 	} = event.payload;
 	const attributes = {
 		listenerVersion,
@@ -103,7 +102,7 @@ export default (
 			case TRACK_EVENT_TYPE:
 				return {
 					eventType,
-					source: payloadSource || source,
+					source: source,
 					actionSubject,
 					action,
 					actionSubjectId,
@@ -120,6 +119,8 @@ export default (
 					name,
 					attributes,
 					tags: Array.from(tags),
+					...(path && { path }),
+					...(url && { url }),
 				};
 			default:
 				logger.error('Invalid event type', eventType);

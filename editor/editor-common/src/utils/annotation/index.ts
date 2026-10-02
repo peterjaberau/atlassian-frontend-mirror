@@ -1,4 +1,6 @@
-import { AnnotationTypes } from '@atlaskit/adf-schema';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import type {
 	Mark,
 	Node as PMNode,
@@ -7,7 +9,7 @@ import type {
 	Slice,
 } from '@atlaskit/editor-prosemirror/model';
 import type { AllSelection, EditorState, TextSelection } from '@atlaskit/editor-prosemirror/state';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 type Range = {
 	from: number;
 	to: number;
@@ -133,7 +135,7 @@ export function getRangeInlineNodeNames({
 }: {
 	doc: PMNode;
 	pos: { from: number; to: number };
-}) {
+}): string[] | undefined {
 	if (!fg('editor_inline_comments_on_inline_nodes')) {
 		return undefined;
 	}
@@ -168,7 +170,7 @@ export function getRangeAncestorNodeNames({
 }: {
 	doc: PMNode;
 	pos: { from: number; to: number };
-}) {
+}): string[] | undefined {
 	if (!fg('cc_comments_log_draft_annotation_ancestor_nodes')) {
 		return undefined;
 	}
@@ -272,7 +274,10 @@ export function getAnnotationMarksForPos(pos: ResolvedPos): Mark[] | undefined {
  * Checks if selection contains only empty text
  * e.g. when you select across multiple empty paragraphs
  */
-export function isEmptyTextSelection(selection: TextSelection | AllSelection, schema: Schema): boolean {
+export function isEmptyTextSelection(
+	selection: TextSelection | AllSelection,
+	schema: Schema,
+): boolean {
 	const { text, paragraph } = schema.nodes;
 	let hasContent = false;
 	selection.content().content.descendants((node) => {

@@ -12,7 +12,7 @@
  * These changes will then be picked up by our tooling which will attempt to
  * migrate as many of these renames as possible.
  *
- * @codegen <<SignedSource::400f0ecf8657b2dcb96d24d2f0aed049>>
+ * @codegen <<SignedSource::047b57f2d22a7675431a9f6acb147bf6>>
  * @codegenCommand yarn build tokens
  */
 import type tokens from './token-names';
@@ -26,9 +26,8 @@ type RenameMap = {
 
 const replacementMapper: RenameMap[] = [
   {
-    "path": "font.body.UNSAFE_small",
-    "state": "deprecated",
-    "replacement": "font.body.small"
+    "path": "motion.easing.spring",
+    "state": "experimental"
   }
 ];
 

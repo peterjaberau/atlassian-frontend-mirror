@@ -7,8 +7,6 @@ import React from 'react';
 
 import { css, cssMap, jsx, keyframes } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { N40A, } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { type DefaultProgressBarProps } from '../types';
@@ -30,13 +28,9 @@ const containerStyles = css({
 	width: '100%',
 	height: 6,
 	position: 'relative',
-	backgroundColor: token('color.background.neutral', N40A),
-	borderRadius: token('radius.small', '3px'),
-	overflow: 'hidden',
-});
-
-const containerStylesT26Shape = css({
+	backgroundColor: token('color.background.neutral'),
 	borderRadius: token('radius.full'),
+	overflow: 'hidden',
 });
 
 const containerAppearance = cssMap({
@@ -50,17 +44,13 @@ const containerAppearance = cssMap({
 const barAppearance = cssMap({
 	default: { backgroundColor: token('color.background.neutral.bold') },
 	success: { backgroundColor: token('color.background.success.bold') },
-	inverse: { backgroundColor: token('elevation.surface', 'white') },
+	inverse: { backgroundColor: token('elevation.surface') },
 });
 
 const barStyles = css({
 	display: 'block',
 	height: 6,
 	position: 'absolute',
-	borderRadius: token('radius.small', '3px'),
-});
-
-const barStylesT26Shape = css({
 	borderRadius: token('radius.full'),
 });
 
@@ -90,7 +80,13 @@ const decreasingBarStyles = css({
  * - [Code](https://atlassian.design/components/progress-bar/code)
  * - [Usage](https://atlassian.design/components/progress-bar/usage)
  */
-const ProgressBar: ({ appearance, ariaLabel, isIndeterminate, testId, value, }: DefaultProgressBarProps) => JSX.Element = ({
+const ProgressBar: ({
+	appearance,
+	ariaLabel,
+	isIndeterminate,
+	testId,
+	value,
+}: DefaultProgressBarProps) => JSX.Element = ({
 	appearance = 'default',
 	ariaLabel,
 	isIndeterminate = false,
@@ -101,11 +97,7 @@ const ProgressBar: ({ appearance, ariaLabel, isIndeterminate, testId, value, }: 
 
 	return (
 		<div
-			css={[
-				containerStyles,
-				fg('platform-dst-shape-theme-default') && containerStylesT26Shape,
-				containerAppearance[appearance],
-			]}
+			css={[containerStyles, containerAppearance[appearance]]}
 			role="progressbar"
 			aria-label={ariaLabel}
 			aria-valuemin={MIN_VALUE}
@@ -115,32 +107,13 @@ const ProgressBar: ({ appearance, ariaLabel, isIndeterminate, testId, value, }: 
 		>
 			{isIndeterminate ? (
 				<React.Fragment>
-					<span
-						css={[
-							barStyles,
-							barAppearance[appearance],
-							increasingBarStyles,
-							fg('platform-dst-shape-theme-default') && barStylesT26Shape,
-						]}
-					/>
-					<span
-						css={[
-							barStyles,
-							barAppearance[appearance],
-							decreasingBarStyles,
-							fg('platform-dst-shape-theme-default') && barStylesT26Shape,
-						]}
-					/>
+					<span css={[barStyles, barAppearance[appearance], increasingBarStyles]} />
+					<span css={[barStyles, barAppearance[appearance], decreasingBarStyles]} />
 				</React.Fragment>
 			) : (
 				<span
 					style={{ width: `${Number(value) * 100}%` }}
-					css={[
-						barStyles,
-						barAppearance[appearance],
-						determinateBarStyles,
-						fg('platform-dst-shape-theme-default') && barStylesT26Shape,
-					]}
+					css={[barStyles, barAppearance[appearance], determinateBarStyles]}
 				/>
 			)}
 		</div>

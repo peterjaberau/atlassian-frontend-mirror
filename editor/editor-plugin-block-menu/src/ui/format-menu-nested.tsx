@@ -1,22 +1,28 @@
 import React, { useCallback } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import {
-	ACTION,
-	ACTION_SUBJECT,
-	EVENT_TYPE,
-	type BlockMenuEventPayload,
-} from '@atlaskit/editor-common/analytics';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import type { BlockMenuEventPayload } from '@atlaskit/editor-common/analytics';
 import { blockMenuMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { ToolbarNestedDropdownMenu } from '@atlaskit/editor-toolbar';
 import ChangesIcon from '@atlaskit/icon/core/changes';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { BlockMenuPlugin } from '../blockMenuPluginType';
-
+import { useBlockMenuTargetVisibility } from './block-menu-target-visibility-context';
 import { BLOCK_MENU_ITEM_NAME } from './consts';
+
+const BLOCK_MENU_TRANSFORM_SPOTLIGHT_PORTAL_SELECTOR =
+	'[data-test-id="block-menu-transform-spotlight-portal-container"]';
+
+const shouldIgnoreBlockMenuTransformSpotlightCloseEvent = (
+	event: Event | React.MouseEvent | React.KeyboardEvent,
+) =>
+	event.target instanceof Element &&
+	event.target.closest(BLOCK_MENU_TRANSFORM_SPOTLIGHT_PORTAL_SELECTOR) !== null;
 
 export const FormatMenuComponent = ({
 	api,
@@ -26,6 +32,9 @@ export const FormatMenuComponent = ({
 	children: React.ReactNode;
 }): React.JSX.Element => {
 	const { formatMessage } = useIntl();
+	const targetVisible = useBlockMenuTargetVisibility();
+
+	const formatMenuLabel = blockMenuMessages.changeFormat;
 
 	const handleClick = useCallback(() => {
 		api?.core.actions.execute(({ tr }) => {
@@ -44,13 +53,20 @@ export const FormatMenuComponent = ({
 
 	return (
 		<ToolbarNestedDropdownMenu
-			text={formatMessage(blockMenuMessages.turnInto)}
-			elemBefore={<ChangesIcon label="" />}
-			elemAfter={<ChevronRightIcon label="" />}
+			isPopupVisible={targetVisible}
+			text={formatMessage(formatMenuLabel)}
+			elemBefore={<ChangesIcon label="" size="small" />}
+			elemAfter={<ChevronRightIcon label="" size="small" />}
 			enableMaxHeight={true}
 			onClick={handleClick}
 			dropdownTestId="editor-turn-into-menu"
+			testId={fg('cc_blocks_changeboarding') ? 'turn-into-block-menu-btn' : undefined}
 			shouldFitContainer
+			shouldIgnoreCloseEvent={
+				fg('cc_blocks_changeboarding')
+					? shouldIgnoreBlockMenuTransformSpotlightCloseEvent
+					: undefined
+			}
 		>
 			{children}
 		</ToolbarNestedDropdownMenu>

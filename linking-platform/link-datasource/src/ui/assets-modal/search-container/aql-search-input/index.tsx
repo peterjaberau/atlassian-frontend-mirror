@@ -5,30 +5,31 @@
 import { Fragment } from 'react';
 
 import { css, cssMap, jsx, styled } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { IconButton } from '@atlaskit/button/new';
-import { ErrorMessage, Field } from '@atlaskit/form';
+import IconButton from '@atlaskit/button/icon/button';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import Field from '@atlaskit/form/field';
+import { MessageWrapper } from '@atlaskit/form/message-wrapper';
 import CrossCircleIcon from '@atlaskit/icon/core/cross-circle';
 import QuestionCircleIcon from '@atlaskit/icon/core/question-circle';
 import SearchIcon from '@atlaskit/icon/core/search';
 import CheckCircleIcon from '@atlaskit/icon/core/status-success';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
-import Textfield from '@atlaskit/textfield';
-import { G300, N500, R400 } from '@atlaskit/theme/colors';
+import Spinner from '@atlaskit/spinner/spinner';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { type AqlValidationResult, useValidateAqlText } from '../../../../hooks/useValidateAqlText';
 import { aqlKey } from '../../../../types/assets/types';
-
 import { searchInputMessages } from './messages';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled
 const FieldContainer = styled.div({
 	flex: 1,
-	marginTop: token('space.negative.100', '-8px'),
+	marginTop: token('space.negative.100'),
 });
 
 const buttonBaseStyles = css({
@@ -38,7 +39,7 @@ const buttonBaseStyles = css({
 	alignItems: 'center',
 	justifyContent: 'center',
 	flexDirection: 'column',
-	marginRight: token('space.100', '0.5em'),
+	marginRight: token('space.100'),
 });
 
 const AQLSupportDocumentLink =
@@ -51,7 +52,7 @@ export interface AqlSearchInputProps {
 }
 
 const styles = cssMap({
-	searchButtonContainer: { marginRight: token('space.075', '6px') },
+	searchButtonContainer: { marginRight: token('space.075') },
 });
 
 const renderValidatorIcon = (lastValidationResult: AqlValidationResult) => {
@@ -62,7 +63,7 @@ const renderValidatorIcon = (lastValidationResult: AqlValidationResult) => {
 		return (
 			<CrossCircleIcon
 				label="label"
-				color={token('color.icon.danger', R400)}
+				color={token('color.icon.danger')}
 				testId="assets-datasource-modal--aql-invalid"
 				spacing="spacious"
 			/>
@@ -72,7 +73,7 @@ const renderValidatorIcon = (lastValidationResult: AqlValidationResult) => {
 		return (
 			<CheckCircleIcon
 				label="label"
-				color={token('color.icon.success', G300)}
+				color={token('color.icon.success')}
 				testId="assets-datasource-modal--aql-valid"
 				spacing="spacious"
 			/>
@@ -93,7 +94,7 @@ export const AqlSearchInput = ({
 	workspaceId,
 	testId = 'assets-datasource-modal--aql-search-input',
 	isSearching,
-}: AqlSearchInputProps) => {
+}: AqlSearchInputProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	const { debouncedValidation, lastValidationResult } = useValidateAqlText(workspaceId, value);
@@ -108,7 +109,7 @@ export const AqlSearchInput = ({
 							elemBeforeInput={
 								<span
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-									style={{ paddingLeft: token('space.075', '6px'), width: 24, display: 'flex' }}
+									style={{ paddingLeft: token('space.075'), width: 24, display: 'flex' }}
 								>
 									{renderValidatorIcon(lastValidationResult)}
 								</span>
@@ -123,7 +124,7 @@ export const AqlSearchInput = ({
 										<a href={AQLSupportDocumentLink} target="_blank" css={buttonBaseStyles}>
 											<QuestionCircleIcon
 												label="label"
-												color={token('color.icon', N500)}
+												color={token('color.icon')}
 												testId="assets-datasource-modal-help"
 												spacing="spacious"
 											/>
@@ -150,8 +151,17 @@ export const AqlSearchInput = ({
 							testId={testId}
 							aria-label={formatMessage(searchInputMessages.placeholder)}
 						/>
-						{lastValidationResult.type === 'invalid' && lastValidationResult.error && (
-							<ErrorMessage>{lastValidationResult.error}</ErrorMessage>
+						{fg('platform_navx_3298_message_wrapper') ? (
+							<MessageWrapper>
+								{lastValidationResult.type === 'invalid' && lastValidationResult.error && (
+									<ErrorMessage>{lastValidationResult.error}</ErrorMessage>
+								)}
+							</MessageWrapper>
+						) : (
+							lastValidationResult.type === 'invalid' &&
+							lastValidationResult.error && (
+								<ErrorMessage>{lastValidationResult.error}</ErrorMessage>
+							)
 						)}
 					</Fragment>
 				)}

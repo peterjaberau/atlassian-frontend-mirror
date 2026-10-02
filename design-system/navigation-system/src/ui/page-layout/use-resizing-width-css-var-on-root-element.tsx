@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 
-import { isPanelSplitterDragData } from './panel-splitter/panel-splitter';
+import { isPanelSplitterDragData } from './panel-splitter/is-panel-splitter-drag-data';
 
 /**
  * Monitors resizing on the panel splitter with the provided `panelId`

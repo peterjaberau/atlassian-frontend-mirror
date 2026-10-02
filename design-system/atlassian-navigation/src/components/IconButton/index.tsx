@@ -1,10 +1,9 @@
 import React, { forwardRef, type Ref } from 'react';
 
-import Button from '@atlaskit/button/custom-theme-button';
-import Tooltip from '@atlaskit/tooltip';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { useTheme } from '../../theme';
-
 import { getIconButtonTheme } from './styles';
 import { type IconButtonProps } from './types';
 
@@ -16,6 +15,7 @@ import { type IconButtonProps } from './types';
  * pass into `AtlassianNavigation`'s render props, but where possible you should
  * rely on the defaults.
  *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 export const IconButton: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<IconButtonProps> & React.RefAttributes<HTMLElement>

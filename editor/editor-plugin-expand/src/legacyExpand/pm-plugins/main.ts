@@ -1,7 +1,7 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { createSelectionClickHandler } from '@atlaskit/editor-common/selection';
 import { expandClassNames } from '@atlaskit/editor-common/styles';
@@ -11,16 +11,15 @@ import {
 	transformSliceNestedExpandToExpand,
 } from '@atlaskit/editor-common/transforms';
 import type { EditorAppearance, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type Slice } from '@atlaskit/editor-prosemirror/model';
+import type { Slice } from '@atlaskit/editor-prosemirror/model';
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
-import type { ExpandPlugin } from '../../types';
+import type { ExpandPlugin, ExpandPluginState } from '../../types';
 import { setExpandRef } from '../commands';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-named-as-default
 import ExpandNodeView from '../nodeviews';
-
 import { createPluginState, getPluginState, pluginKey } from './plugin-factory';
 
 export function containsClass(element: Element | null, className: string): boolean {
@@ -30,13 +29,13 @@ export function containsClass(element: Element | null, className: string): boole
 export const createPlugin = (
 	dispatch: Dispatch,
 	getIntl: () => IntlShape,
-	appearance: EditorAppearance = 'full-page',
+	appearance: EditorAppearance | undefined = 'full-page',
 	useLongPressSelection: boolean = false,
 	api: ExtractInjectionAPI<ExpandPlugin> | undefined,
 	nodeViewPortalProviderAPI: PortalProviderAPI,
 	allowInteractiveExpand: boolean = true,
 	__livePage: boolean = false,
-) => {
+): SafePlugin<ExpandPluginState> => {
 	const state = createPluginState(dispatch, {});
 	const isMobile = false;
 
@@ -76,7 +75,7 @@ export const createPlugin = (
 				(target) => target.classList.contains(expandClassNames.prefix),
 				{ useLongPressSelection },
 			),
-			handleDrop(view, event, slice, moved) {
+			handleDrop(view, event, slice, _moved) {
 				return handleExpandDrag(view, event, slice);
 			},
 		},

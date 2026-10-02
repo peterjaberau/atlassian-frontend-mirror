@@ -1,8 +1,9 @@
 import type { EditorState, PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
-import { ACTION, ACTION_SUBJECT, type AnalyticsEventPayload, EVENT_TYPE } from '../analytics';
-import { startMeasure, stopMeasure } from '../performance-measures';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '../analytics';
+import type { AnalyticsEventPayload } from '../analytics';
+import { stopMeasure } from '../performance-measures';
 
 // This was existing logic when converting from ReactNodeView
 // our current sampling for this event is not bound by node.type
@@ -44,18 +45,14 @@ export function getPerformanceOptions(view: EditorView): {
 	};
 }
 
-export function startMeasureReactNodeViewRendered({ nodeTypeName }: { nodeTypeName: string }): void {
-	startMeasure(`🦉${nodeTypeName}::ReactNodeView`);
-}
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function stopMeasureReactNodeViewRendered({
 	nodeTypeName,
 	dispatchAnalyticsEvent,
 	samplingRate,
 	slowThreshold,
 }: {
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	dispatchAnalyticsEvent(payload: AnalyticsEventPayload): void;
+	dispatchAnalyticsEvent: (payload: AnalyticsEventPayload) => void;
 	nodeTypeName: string;
 	// NOTE: the use of sampling rate with a global nodeView counter
 	// means that will be unequal weighting given to nodes which are
@@ -79,3 +76,5 @@ export function stopMeasureReactNodeViewRendered({
 		}
 	});
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { startMeasureReactNodeViewRendered } from './startMeasureReactNodeViewRendered';

@@ -1,13 +1,14 @@
-import type { ExtensionLayout } from '@atlaskit/adf-schema';
+import type { Layout as ExtensionLayout } from '@atlaskit/adf-schema/extensions';
 
 import type { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, INPUT_METHOD } from './enums';
-import type { SELECTION_TYPE, TrackAEP } from './utils';
+import type { SELECTION_TYPE, OperationalAEP, TrackAEP, UIAEP } from './utils';
 
 export enum GAP_CURSOR_POSITION {
 	LEFT = 'left',
 	RIGHT = 'right',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum TARGET_SELECTION_SOURCE {
 	CURRENT_SELECTION = 'currentSelection',
 	HTML_ELEMENT = 'htmlElement',
@@ -63,6 +64,18 @@ type ExtensionDeletedAEP = TrackAEP<
 	INPUT_METHOD.TOOLBAR | INPUT_METHOD.FLOATING_TB
 >;
 
+type ExtensionCopyFailedAEP = OperationalAEP<
+	ACTION.COPY_FAILED,
+	ACTION_SUBJECT.EXTENSION,
+	ExtensionType,
+	{
+		errorMessage: string;
+		errorStack?: string;
+		extensionKey: string;
+		extensionType: string;
+	}
+>;
+
 type ExtensionAPICalledPayload = TrackAEP<
 	ACTION.INVOKED,
 	ACTION_SUBJECT.EXTENSION,
@@ -73,7 +86,20 @@ type ExtensionAPICalledPayload = TrackAEP<
 	INPUT_METHOD.EXTENSION_API
 >;
 
+type ExtensionCopyAEP = UIAEP<
+	ACTION.CLICKED,
+	ACTION_SUBJECT.COPY_BUTTON,
+	ACTION_SUBJECT_ID.EXTENSION,
+	{
+		extensionDynamicType: ExtensionType;
+		extensionKey: string;
+		extensionType: string;
+	}
+>;
+
 export type ExtensionEventPayload =
 	| ExtensionUpdateAEP
 	| ExtensionDeletedAEP
+	| ExtensionCopyFailedAEP
+	| ExtensionCopyAEP
 	| ExtensionAPICalledPayload;

@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import * as colors from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
-import toDate from 'date-fns/toDate';
-import isYesterday from 'date-fns/isYesterday';
-import isToday from 'date-fns/isToday';
+
 import formatDate from 'date-fns/format';
+import isToday from 'date-fns/isToday';
+import isYesterday from 'date-fns/isYesterday';
+import toDate from 'date-fns/toDate';
+
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { token } from '@atlaskit/tokens';
 
 import { type WhatsNewArticleItem } from '../../../../model/WhatsNew';
-
-import WhatsNewResultItem from './WhatsNewResultItem';
 import { type WhatsNewResultsList as WhatsNewResultsListInterface } from './model/WhatsNewResultsList';
 import { WhatsNewResultsListGroupTitle, WhatsNewResultsListGroupWrapper } from './styled';
+import WhatsNewResultItem from './WhatsNewResultItem';
 
 export interface Props {
 	/* Number of "What's new" articles to diplay. This prop is optional (default value is 5) */
@@ -66,16 +66,12 @@ const WhatsNewResultsList: React.FC<Partial<WhatsNewResultsListInterface> & Prop
 								(whatsNewArticle: WhatsNewArticleItem, i: number) => (
 									<WhatsNewResultItem
 										styles={{
-											border:
-												style === 'secondary'
-													? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-														`2px solid ${token('color.border', colors.N30)}`
-													: 0,
+											border: style === 'secondary' ? `2px solid ${token('color.border')}` : 0,
 											padding:
 												style === 'secondary'
-													? `${token('space.100', '8px')} ${token('space.200', '16px')}`
-													: `${token('space.100', '8px')}`,
-											marginBottom: style === 'secondary' ? `${token('space.150', '12px')}` : 0,
+													? `${token('space.100')} ${token('space.200')}`
+													: `${token('space.100')}`,
+											marginBottom: style === 'secondary' ? `${token('space.150')}` : 0,
 										}}
 										id={whatsNewArticle.id}
 										onClick={(

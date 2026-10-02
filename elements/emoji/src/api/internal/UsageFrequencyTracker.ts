@@ -1,9 +1,10 @@
-import { isEmojiVariationDescription } from '../../util/type-helpers';
-import { localStoragePrefix } from '../../util/constants';
 import type { EmojiDescription } from '../../types';
+import { localStoragePrefix } from '../../util/constants';
 import DuplicateLimitedQueue from '../../util/DuplicateLimitedQueue';
-import StoredDuplicateLimitedQueue from '../../util/StoredDuplicateLimitedQueue';
+import { isEmojiVariationDescription } from '../../util/is-emoji-variation-description';
 import storageAvailable from '../../util/storage-available';
+import StoredDuplicateLimitedQueue from '../../util/StoredDuplicateLimitedQueue';
+import { Gateway } from './Gateway';
 
 /**
  * Keeps track of the last 150 emoji usages, although limiting the maximum count for a single emoji to 25 to
@@ -16,6 +17,7 @@ import storageAvailable from '../../util/storage-available';
  */
 export class UsageFrequencyTracker {
 	private static readonly queueOptions = {
+		// eslint-disable-next-line @atlaskit/platform/no-direct-web-storage-usage -- existing usage
 		storage: storageAvailable('localStorage') ? window.localStorage : undefined,
 		storagePrefix: localStoragePrefix,
 		maxDuplicates: 25,
@@ -75,49 +77,5 @@ export class UsageFrequencyTracker {
 	 */
 	clear(): void {
 		this.queue.clear();
-	}
-}
-
-export class Gateway {
-	private maximumPermitted: number;
-	private count: number;
-
-	constructor(maximumPermitted: number) {
-		if (maximumPermitted < 1) {
-			throw new RangeError('The maximumPermitted parameter must be 1 or more.');
-		}
-
-		this.maximumPermitted = maximumPermitted;
-		this.count = 0;
-	}
-
-	/**
-	 * Run the supplied function if the count of already submitted work allows it. Drop the work
-	 * if it's not allowed to run.
-	 *
-	 * Will return true if the function has been submitted or false if it was not submitted.
-	 */
-	submit(f: () => void): boolean {
-		if (this.count >= this.maximumPermitted) {
-			return false;
-		}
-
-		this.count++;
-		const wrappedFunc = () => {
-			try {
-				f();
-			} finally {
-				this.completed();
-			}
-		};
-		if (typeof window !== 'undefined') {
-			window.setTimeout(wrappedFunc);
-		}
-
-		return true;
-	}
-
-	private completed(): void {
-		this.count--;
 	}
 }

@@ -2,17 +2,25 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { cssMap, jsx } from '@compiled/react';
-import { type Option, type OptionData } from '../types';
-import { components, type SingleValueProps } from '@atlaskit/select';
-import { AvatarOrIcon } from './AvatarOrIcon';
-import { SizeableAvatar } from './SizeableAvatar';
-import { getAvatarUrl, isTeam, isGroup } from './utils';
-import { getAppearanceForAppType } from '@atlaskit/avatar';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { token } from '@atlaskit/tokens';
-import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon';
+import { FormattedMessage } from 'react-intl';
+
+import getAppearanceForAppType from '@atlaskit/avatar/get-appearance';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon/main';
 import { Box, Flex, Inline } from '@atlaskit/primitives/compiled';
+import { components } from '@atlaskit/react-select/components';
+import type { SingleValueProps } from '@atlaskit/select/types';
+import { token } from '@atlaskit/tokens';
+
+import { type Option, type OptionData } from '../types';
+import { AvatarOrIcon } from './AvatarOrIcon';
+import { getAvatarUrl } from './getAvatarUrl';
+import { messages } from './i18n';
+import { isGroup } from './isGroup';
+import { isTeam } from './isTeam';
+import { SizeableAvatar } from './SizeableAvatar';
 
 const styles = cssMap({
 	avatarItem: {
@@ -33,6 +41,10 @@ const styles = cssMap({
 		overflowX: 'hidden',
 		textOverflow: 'ellipsis',
 		whiteSpace: 'nowrap',
+	},
+	archivedLozengeWrapper: {
+		display: 'flex',
+		paddingLeft: token('space.050'),
 	},
 });
 
@@ -57,12 +69,12 @@ const ElementAfter = (props: Props) => {
 	return null;
 };
 
-export const SingleValue = (props: Props) => {
+export const SingleValue = (props: Props): JSX.Element | null => {
 	const {
 		data: { label, data },
-		//@ts-ignore react-select unsupported props
 		selectProps: { appearance, isFocused },
 	} = props;
+	const canShowArchivedLozenge = isTeam(data) && data?.state === 'DISBANDED';
 
 	return !isFocused ? (
 		<components.SingleValue {...(props as any)}>
@@ -74,22 +86,14 @@ export const SingleValue = (props: Props) => {
 						src={getAvatarUrl(data)}
 						appearance={appearance}
 						type={isTeam(data) ? 'team' : 'person'}
-						avatarAppearanceShape={
-							fg('jira_ai_agent_avatar_user_picker_user_option')
-								? getAppearanceForAppType(data.appType)
-								: undefined
-						}
+						avatarAppearanceShape={getAppearanceForAppType(data.appType)}
 					/>
 				) : (
 					<SizeableAvatar
 						src={getAvatarUrl(data)}
 						appearance={appearance}
 						type={isTeam(data) ? 'team' : 'person'}
-						avatarAppearanceShape={
-							fg('jira_ai_agent_avatar_user_picker_user_option')
-								? getAppearanceForAppType(data.appType)
-								: undefined
-						}
+						avatarAppearanceShape={getAppearanceForAppType(data.appType)}
 					/>
 				)}
 				<Box xcss={styles.avatarItem}>
@@ -99,6 +103,13 @@ export const SingleValue = (props: Props) => {
 								<Inline alignBlock="center">
 									{label}
 									<ElementAfter {...props} />
+									{canShowArchivedLozenge ? (
+										<Box xcss={styles.archivedLozengeWrapper}>
+											<Lozenge appearance="neutral">
+												<FormattedMessage {...messages.archivedLozenge} />
+											</Lozenge>
+										</Box>
+									) : null}
 								</Inline>
 							}
 						</Box>

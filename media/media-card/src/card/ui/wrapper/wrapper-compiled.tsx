@@ -3,17 +3,16 @@
  * @jsx jsx
  */
 import { jsx, css, cssMap } from '@compiled/react';
-import { newFileExperienceClassName } from '../../cardConstants';
-import { type WrapperProps } from './types';
-import { VcMediaWrapperProps } from '@atlaskit/react-ufo/vc-media';
 
-import { N0, N100, N20, N60A, N90A, B100 } from '@atlaskit/theme/colors';
+import UFOCustomData from '@atlaskit/react-ufo/custom-data';
+import { VcMediaWrapperProps } from '@atlaskit/react-ufo/vc-media';
 import { token } from '@atlaskit/tokens';
 
 import { getDefaultCardDimensions } from '../../../utils/cardDimensions';
 import { getCSSUnitValue } from '../../../utils/getCSSUnitValue';
+import { newFileExperienceClassName } from '../../cardConstants';
 import { type Breakpoint } from '../common';
-import UFOCustomData from '@atlaskit/react-ufo/custom-data';
+import { type WrapperProps } from './types';
 
 export const LOCAL_WIDTH_VARIABLE = '--media-wrapper-width';
 export const LOCAL_HEIGHT_VARIABLE = '--media-wrapper-height';
@@ -36,7 +35,7 @@ const wrapperStyles = cssMap({
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'&:hover .media-card-blanket': {
-			backgroundColor: token('color.blanket', N90A),
+			backgroundColor: token('color.blanket'),
 		},
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -46,27 +45,24 @@ const wrapperStyles = cssMap({
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'button:focus + &': {
-			outline: `solid ${token('border.width.focused')} ${token('color.border.focused', B100)}`,
+			outline: `solid ${token('border.width.focused')} ${token('color.border.focused')}`,
 		},
 	},
 });
 
 const backgroundStyle = css({
-	backgroundColor: token('color.background.neutral', N20),
+	backgroundColor: token('elevation.surface.sunken'),
 });
 
 const shadowStyleMap = cssMap({
 	withOverlay: {
-		boxShadow: `${token('elevation.shadow.raised', `0 1px 1px ${N60A}, 0 0 1px 0 ${N60A}`)}`,
+		boxShadow: `${token('elevation.shadow.raised')}`,
 	},
 	selected: {
 		boxShadow: `0 0 0 1px ${token('color.border.selected')}`,
 	},
 	selectedWithOverlay: {
-		boxShadow: `0 0 0 1px ${token('color.border.selected')}, ${token(
-			'elevation.shadow.raised',
-			`0 1px 1px ${N60A}, 0 0 1px 0 ${N60A}`,
-		)}`,
+		boxShadow: `0 0 0 1px ${token('color.border.selected')}, ${token('elevation.shadow.raised')}`,
 	},
 });
 
@@ -108,14 +104,15 @@ const clickableButtonPlayButtonStyles = css({
 const selectableTickboxStyle = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'&:hover .media-card-tickbox': {
-		backgroundColor: token('color.background.input', N0),
-		color: token('color.icon.subtle', N100),
+		backgroundColor: token('color.background.input'),
+		color: token('color.icon.subtle'),
 	},
 });
 
 const tooltipStyle = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'& > div': {
+	// Don't style top-layer elements (eg tooltip, modal). `:where()` keeps specificity unchanged.
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'& > div:not(:where([popover], dialog))': {
 		width: '100%',
 		height: '100%',
 	},
@@ -140,13 +137,17 @@ const getResponsiveStyles = (breakpoint: Breakpoint) => {
 		: { ['fontSize']: '14px', ['lineHeight']: '22px' };
 };
 
-export const Wrapper = (props: WrapperProps) => {
+export const Wrapper: {
+	(props: WrapperProps): JSX.Element;
+	displayName: string;
+} = (props: WrapperProps): JSX.Element => {
 	const {
 		testId,
 		dimensions,
 		appearance,
 		onClick,
 		onMouseEnter,
+		onFocus,
 		innerRef,
 		breakpoint,
 		disableOverlay,
@@ -165,7 +166,6 @@ export const Wrapper = (props: WrapperProps) => {
 	const wrapperShadowKey = getShadowKey(disableOverlay, selected);
 
 	return (
-		// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 		<div
 			id="newFileExperienceWrapper"
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
@@ -191,9 +191,10 @@ export const Wrapper = (props: WrapperProps) => {
 			]}
 			ref={innerRef}
 			onClick={onClick}
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 			onMouseEnter={onMouseEnter}
+			onFocus={onFocus}
 			{...VcMediaWrapperProps}
+			role="none"
 		>
 			<UFOCustomData data={{ hasMediaComponent: true }} />
 			{props.children}

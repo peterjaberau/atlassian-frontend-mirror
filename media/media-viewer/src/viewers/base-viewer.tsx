@@ -1,14 +1,17 @@
 import React, { Fragment } from 'react';
-import { FormattedMessage } from 'react-intl-next';
-import { messages } from '@atlaskit/media-ui';
+
 import deepEqual from 'deep-equal';
+import { FormattedMessage } from 'react-intl';
+
 import { type MediaClient, type FileState, globalMediaEventEmitter } from '@atlaskit/media-client';
-import { type Outcome } from '../domain';
-import ErrorMessage from '../errorMessage';
-import { Spinner } from '../loading';
-import { ErrorViewDownloadButton } from '../download';
-import { type MediaViewerError } from '../errors';
 import { type MediaTraceContext } from '@atlaskit/media-common';
+import { messages } from '@atlaskit/media-ui/messages';
+
+import type { Outcome } from '../domain/outcome';
+import ErrorMessage from '../errorMessageWithAnalytics';
+import { ErrorViewDownloadButton } from '../ErrorViewDownloadButton';
+import { Spinner } from '../loading';
+import type { MediaViewerError } from '../MediaViewerError';
 
 export type BaseProps = {
 	mediaClient: MediaClient;
@@ -26,7 +29,7 @@ export abstract class BaseViewer<
 	Props extends BaseProps,
 	State extends BaseState<Content> = BaseState<Content>,
 > extends React.Component<Props, State> {
-	state = this.getInitialState();
+	state: State = this.getInitialState();
 	protected mounted: boolean = false;
 
 	componentDidMount(): void {
@@ -45,20 +48,10 @@ export abstract class BaseViewer<
 		}
 	}
 
-	// NOTE: We've moved parts of the logic to reset a component into this method
-	// to optimise the performance. Resetting the state before the `componentDidUpdate`
-	// lifecycle event allows us avoid one additional render cycle.
-	// However, this lifecycle method might eventually be deprecated, so be careful
-	// when working with it.
-	UNSAFE_componentWillReceiveProps(nextProps: Readonly<Props>): void {
-		if (this.needsReset(nextProps, this.props)) {
-			this.release();
-			this.setState(this.initialState);
-		}
-	}
-
 	componentDidUpdate(prevProps: Props): void {
 		if (this.needsReset(prevProps, this.props)) {
+			this.release();
+			this.setState(this.initialState);
 			this.init();
 		}
 	}

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useMemo, type ReactNode } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
+import type { ReactNode } from 'react';
 
 export interface SyncBlockActionsContextValue {
 	deleteSyncBlock?: () => void;
@@ -10,7 +11,7 @@ export interface SyncBlockActionsContextValue {
 
 const SyncBlockActionsContext = createContext<SyncBlockActionsContextValue | null>(null);
 
-export const useSyncBlockActions = () => {
+export const useSyncBlockActions = (): SyncBlockActionsContextValue | null => {
 	return useContext(SyncBlockActionsContext);
 };
 
@@ -22,11 +23,12 @@ interface SyncBlockActionsProviderProps {
 	removeSyncBlock?: () => void;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const SyncBlockActionsProvider = ({
 	children,
 	removeSyncBlock,
 	fetchSyncBlockSourceInfo,
-}: SyncBlockActionsProviderProps) => {
+}: SyncBlockActionsProviderProps): React.JSX.Element => {
 	const value = useMemo(
 		() => ({
 			deleteSyncBlock: removeSyncBlock,

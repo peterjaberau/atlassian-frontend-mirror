@@ -1,6 +1,5 @@
-import { STORAGE_MOCK } from '../local-storage';
-
-import StorageClient from './main';
+import { STORAGE_MOCK } from '../local-storage/main';
+import { StorageClient } from './StorageClient';
 
 const CLIENT_KEY = 'storage_client';
 const KEY = 'test_key';
@@ -215,9 +214,9 @@ describe('storage-client', () => {
 				handlers: { captureException: captureExceptionHandler },
 			}).getItem(KEY);
 
-			expect(localStorage.removeItem).toBeCalledTimes(0);
-			expect(localStorage.getItem).toBeCalledTimes(1);
-			expect(localStorage.getItem).toBeCalledWith(`${CLIENT_KEY}_${KEY}`);
+			expect(localStorage.removeItem).toHaveBeenCalledTimes(0);
+			expect(localStorage.getItem).toHaveBeenCalledTimes(1);
+			expect(localStorage.getItem).toHaveBeenCalledWith(`${CLIENT_KEY}_${KEY}`);
 			expect(response).toEqual(VALUE);
 		});
 
@@ -230,9 +229,9 @@ describe('storage-client', () => {
 				handlers: { captureException: captureExceptionHandler },
 			}).getItem(KEY);
 
-			expect(localStorage.removeItem).toBeCalledTimes(0);
-			expect(localStorage.getItem).toBeCalledTimes(1);
-			expect(localStorage.getItem).toBeCalledWith(`${CLIENT_KEY}_${KEY}`);
+			expect(localStorage.removeItem).toHaveBeenCalledTimes(0);
+			expect(localStorage.getItem).toHaveBeenCalledTimes(1);
+			expect(localStorage.getItem).toHaveBeenCalledWith(`${CLIENT_KEY}_${KEY}`);
 			expect(response).toEqual(undefined);
 		});
 
@@ -245,9 +244,9 @@ describe('storage-client', () => {
 				handlers: { captureException: captureExceptionHandler },
 			}).getItem(KEY, { useExpiredItem: true });
 
-			expect(localStorage.removeItem).toBeCalledTimes(0);
-			expect(localStorage.getItem).toBeCalledTimes(1);
-			expect(localStorage.getItem).toBeCalledWith(`${CLIENT_KEY}_${KEY}`);
+			expect(localStorage.removeItem).toHaveBeenCalledTimes(0);
+			expect(localStorage.getItem).toHaveBeenCalledTimes(1);
+			expect(localStorage.getItem).toHaveBeenCalledWith(`${CLIENT_KEY}_${KEY}`);
 			expect(response).toEqual(VALUE);
 		});
 

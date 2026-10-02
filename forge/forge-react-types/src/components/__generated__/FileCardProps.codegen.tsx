@@ -3,9 +3,9 @@
  *
  * Extract component prop types from UIKit 2 components - FileCardProps
  *
- * @codegen <<SignedSource::5e4cd4ee511a47757b164e01f7e9df18>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/filecard/index.tsx <<SignedSource::299b4e55a3fa01b21b492cf98c3de2f2>>
+ * @codegen <<SignedSource::4e953e60d3f46d6824d442673e3e59b4>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/filecard/index.tsx <<SignedSource::9c18d9da5af3b9373f4c28f4864484e4>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
@@ -41,9 +41,11 @@ export type FileCardProps = {
 	onDelete?: () => void;
 
 	/**
-	 * Callback when the file is downloaded
+	 * Callback when the file is downloaded.
+	 * Can return a Blob or Promise<Blob> to have FileCard trigger the browser download automatically,
+	 * or return void to handle the download manually.
 	 */
-	onDownload?: () => void;
+	onDownload?: () => Blob | Promise<Blob | void> | void;
 
 	/**
 	 * Test ID for testing

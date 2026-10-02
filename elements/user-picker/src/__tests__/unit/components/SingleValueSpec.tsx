@@ -1,14 +1,15 @@
-import { shallow } from 'enzyme';
+import React from 'react';
+
 import { render, screen } from '@testing-library/react';
 import noop from 'lodash/noop';
-import React from 'react';
+import { IntlProvider } from 'react-intl';
+
+import getAppearanceForAppType from '@atlaskit/avatar/get-appearance';
+
 import { type Props } from '../../../components/SingleValue';
 import { SingleValue } from '../../../components/SingleValue';
-import { SizeableAvatar } from '../../../components/SizeableAvatar';
-import { type Team, type Group } from '../../../types';
 import { type Props as SizeableAvatarProps } from '../../../components/SizeableAvatar';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-import { getAppearanceForAppType } from '@atlaskit/avatar';
+import { type Team, type Group } from '../../../types';
 
 const data = {
 	label: 'Jace Beleren',
@@ -55,39 +56,41 @@ jest.mock('../../../components/AvatarOrIcon', () => ({
 	AvatarOrIcon: (props: any) => <div>AvatarOrIcon - {JSON.stringify(props)}</div>,
 }));
 
-jest.mock('@atlaskit/people-teams-ui-public/verified-team-icon', () => ({
+jest.mock('@atlaskit/people-teams-ui-public/verified-team-icon/main', () => ({
+	...jest.requireActual('@atlaskit/people-teams-ui-public/verified-team-icon/main'),
 	VerifiedTeamIcon: () => <div>VerifiedTeamIcon</div>,
 }));
 
-jest.mock('@atlaskit/avatar', () => ({
-	...jest.requireActual('@atlaskit/avatar'),
-	getAppearanceForAppType: jest.fn(),
+jest.mock('@atlaskit/avatar/get-appearance', () => ({
+	...jest.requireActual('@atlaskit/avatar/get-appearance'),
+	__esModule: true,
+	default: jest.fn(),
 }));
 
 describe('SingleValue', () => {
-	const shallowSingleValue = (props = {}) =>
-		shallow(<SingleValue {...defaultSingleValueProps} {...props} />);
-
 	it('should render SingleValue', async () => {
-		const component = shallowSingleValue();
-		expect(component.find(SizeableAvatar).props()).toMatchObject({
-			src: 'http://avatars.atlassian.com/jace.png',
-			appearance: 'normal',
-		});
+		render(<SingleValue {...defaultSingleValueProps} />);
+		expect(
+			await screen.findByText(
+				'SizeableAvatar - {"src":"http://avatars.atlassian.com/jace.png","appearance":"normal","type":"person"}',
+			),
+		).toBeInTheDocument();
 
 		await expect(document.body).toBeAccessible();
 	});
 
 	it('should render SizeableAvatar when the appearance is compact', async () => {
-		const component = shallowSingleValue({
-			selectProps: {
-				appearance: 'compact',
-			},
-		});
-		expect(component.find(SizeableAvatar).props()).toMatchObject({
-			src: 'http://avatars.atlassian.com/jace.png',
-			appearance: 'compact',
-		});
+		render(
+			<SingleValue
+				{...defaultSingleValueProps}
+				selectProps={{ appearance: 'compact' } as unknown as Props['selectProps']}
+			/>,
+		);
+		expect(
+			await screen.findByText(
+				'SizeableAvatar - {"src":"http://avatars.atlassian.com/jace.png","appearance":"compact","type":"person"}',
+			),
+		).toBeInTheDocument();
 
 		await expect(document.body).toBeAccessible();
 	});
@@ -151,6 +154,74 @@ describe('SingleValue', () => {
 			});
 			expect(screen.queryByText('VerifiedTeamIcon')).not.toBeInTheDocument();
 
+			await expect(document.body).toBeAccessible();
+		});
+	});
+
+	describe('archived team lozenge', () => {
+		const renderWithIntl = (props: Partial<Props> = {}) =>
+			render(
+				<IntlProvider locale="en">
+					<SingleValue {...defaultSingleValueProps} {...props} />
+				</IntlProvider>,
+			);
+
+		it('should render Archived lozenge when team state is DISBANDED', async () => {
+			const disbandedTeam: Team = {
+				name: 'Archived Team',
+				type: 'team',
+				id: 'team-disbanded',
+				state: 'DISBANDED',
+			};
+
+			renderWithIntl({
+				data: {
+					label: disbandedTeam.name,
+					value: disbandedTeam.id,
+					data: disbandedTeam,
+				},
+			});
+
+			expect(screen.getByText('Archived')).toBeInTheDocument();
+			await expect(document.body).toBeAccessible();
+		});
+
+		it('should not render Archived lozenge when team state is ACTIVE', async () => {
+			const activeTeam: Team = {
+				name: 'Active Team',
+				type: 'team',
+				id: 'team-active',
+				state: 'ACTIVE',
+			};
+
+			renderWithIntl({
+				data: {
+					label: activeTeam.name,
+					value: activeTeam.id,
+					data: activeTeam,
+				},
+			});
+
+			expect(screen.queryByText('Archived')).not.toBeInTheDocument();
+			await expect(document.body).toBeAccessible();
+		});
+
+		it('should not render Archived lozenge for user (non-team) option', async () => {
+			const user = {
+				name: 'John Doe',
+				type: 'user' as const,
+				id: 'user-1',
+			};
+
+			renderWithIntl({
+				data: {
+					label: user.name,
+					value: user.id,
+					data: user,
+				},
+			});
+
+			expect(screen.queryByText('Archived')).not.toBeInTheDocument();
 			await expect(document.body).toBeAccessible();
 		});
 	});
@@ -276,72 +347,44 @@ describe('SingleValue', () => {
 			jest.clearAllMocks();
 		});
 
-		ffTest.on('jira_ai_agent_avatar_user_picker_user_option', 'on', () => {
-			it('should set avatarAppearanceShape', async () => {
-				(getAppearanceForAppType as jest.Mock).mockReturnValue('hexagon');
+		it('should set avatarAppearanceShape', async () => {
+			(getAppearanceForAppType as jest.Mock).mockReturnValue('hexagon');
 
-				render(
-					<SingleValue
-						{...defaultSingleValueProps}
-						data={{
-							label: 'Jace Beleren',
-							value: 'abc-123',
-							data: {
-								id: 'abc-123',
-								name: 'Jace Beleren',
-								avatarUrl: 'http://avatars.atlassian.com/jace.png',
-								appType: 'agent',
-							},
-						}}
-					/>,
-				);
+			render(
+				<SingleValue
+					{...defaultSingleValueProps}
+					data={{
+						label: 'Jace Beleren',
+						value: 'abc-123',
+						data: {
+							id: 'abc-123',
+							name: 'Jace Beleren',
+							avatarUrl: 'http://avatars.atlassian.com/jace.png',
+							appType: 'agent',
+						},
+					}}
+				/>,
+			);
 
-				expect(getAppearanceForAppType).toHaveBeenCalledWith('agent');
-				expect(
-					await screen.findByText(
-						'SizeableAvatar - {"src":"http://avatars.atlassian.com/jace.png","appearance":"normal","type":"person","avatarAppearanceShape":"hexagon"}',
-					),
-				).toBeInTheDocument();
+			expect(getAppearanceForAppType).toHaveBeenCalledWith('agent');
+			expect(
+				await screen.findByText(
+					'SizeableAvatar - {"src":"http://avatars.atlassian.com/jace.png","appearance":"normal","type":"person","avatarAppearanceShape":"hexagon"}',
+				),
+			).toBeInTheDocument();
 
-				await expect(document.body).toBeAccessible();
-			});
-		});
-
-		ffTest.off('jira_ai_agent_avatar_user_picker_user_option', 'off', () => {
-			it('should not set avatarAppearanceShape when jira_ai_agent_avatar_user_picker_user_option gate is disabled', async () => {
-				(getAppearanceForAppType as jest.Mock).mockReturnValue('hexagon');
-
-				render(
-					<SingleValue
-						{...defaultSingleValueProps}
-						data={{
-							label: 'Jace Beleren',
-							value: 'abc-123',
-							data: {
-								id: 'abc-123',
-								name: 'Jace Beleren',
-								avatarUrl: 'http://avatars.atlassian.com/jace.png',
-								appType: 'agent',
-							},
-						}}
-					/>,
-				);
-
-				expect(getAppearanceForAppType).not.toHaveBeenCalled();
-				expect(
-					await screen.findByText(
-						'SizeableAvatar - {"src":"http://avatars.atlassian.com/jace.png","appearance":"normal","type":"person"}',
-					),
-				).toBeInTheDocument();
-
-				await expect(document.body).toBeAccessible();
-			});
+			await expect(document.body).toBeAccessible();
 		});
 	});
 
 	describe('icon support', () => {
 		const mockIcon = <div data-testid="test-icon">Icon</div>;
-		const iconAsString = '{"type":"div","key":null,"ref":null,"props":{"data-testid":"test-icon","children":"Icon"},"_owner":null,"_store":{}}';
+		const iconAsString =
+			'{"type":"div","key":null,"ref":null,"props":{"data-testid":"test-icon","children":"Icon"},"_owner":null,"_store":{}}';
+
+		beforeEach(() => {
+			jest.resetAllMocks();
+		});
 
 		it('should render AvatarOrIcon when icon is provided', async () => {
 			const userWithIcon = {

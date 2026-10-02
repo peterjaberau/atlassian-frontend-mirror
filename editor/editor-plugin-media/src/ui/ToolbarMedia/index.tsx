@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import {
 	type NamedPluginStatesFromInjectionAPI,
@@ -66,4 +66,8 @@ const ToolbarMedia = ({
 	);
 };
 
-export default injectIntl(ToolbarMedia);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(ToolbarMedia);
+export default _default_1;

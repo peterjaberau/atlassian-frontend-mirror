@@ -1,12 +1,37 @@
+import type { DetailedHTMLProps, HTMLAttributes, InputHTMLAttributes } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import styled, { css } from 'styled-components';
-import { N0, N200, N500, B200, N50 } from '@atlaskit/theme/colors';
+import styled, { type StyledComponentClass } from 'styled-components';
+
 import { token } from '@atlaskit/tokens';
 
-const inputRightPadding = token('space.200', '16px');
+import { getPlaceholderColor } from './get-placeholder-color';
+import { getPlaceholderStyle } from './get-placeholder-style';
+import { SearchInputControlsContainer } from './search-input-controls-container';
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { SearchInner } from './search-inner';
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { getPlaceholderStyle } from './get-placeholder-style';
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { getPlaceholderColor } from './get-placeholder-color';
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { SearchInputControlsContainer } from './search-input-controls-container';
+
+// Copied from `@atlaskit/theme` to allow removal of that package
+const B200 = '#2684FF';
+const N0 = '#FFFFFF';
+const N500 = '#42526E';
+const N50 = '#C1C7D0';
+
+const inputRightPadding = token('space.200');
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const SearchBox = styled.div({
+export const SearchBox: StyledComponentClass<
+	DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
+	any,
+	DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+> = styled.div({
 	position: 'sticky',
 	top: 0,
 	backgroundColor: N0,
@@ -17,16 +42,26 @@ export const SearchBox = styled.div({
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const SearchFieldBaseOuter = styled.div({
+export const SearchFieldBaseOuter: StyledComponentClass<
+	DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
+	any,
+	DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+> = styled.div({
 	display: 'flex',
 	flex: 1,
 	marginRight: 'auto',
-	paddingBottom: token('space.025', '2px'),
+	paddingBottom: token('space.025'),
 	borderBottom: `2px solid ${B200}`,
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const SearchFieldBaseInner = styled.div({
+export const SearchFieldBaseInner: StyledComponentClass<
+	DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>,
+	any,
+	DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+> = styled.div({
 	position: 'relative',
 	alignItems: 'center',
 	paddingRight: inputRightPadding /* pad search text from FieldBase's isLoading spinner */,
@@ -34,41 +69,13 @@ export const SearchFieldBaseInner = styled.div({
 	flexGrow: 1,
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const SearchInner = styled.div({
-	paddingRight: token('space.300', '24px'),
-});
-
-// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression -- needs manual remediation
-export const getPlaceholderStyle = (style: any) => css`
-	&::-webkit-input-placeholder {
-		${style};
-	}
-	&::-moz-placeholder {
-		/* Mozilla Firefox 19+ */
-		${style} opacity: 1;
-	}
-	&::-ms-input-placeholder {
-		/* Microsoft Edge */
-		${style};
-	}
-	&:-moz-placeholder {
-		/* Mozilla Firefox 4 to 18 */
-		${style} opacity: 1;
-	}
-	&:-ms-input-placeholder {
-		/* Internet Explorer 10-11 */
-		${style};
-	}
-`;
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const getPlaceholderColor = css({
-	color: token('color.text.subtlest', N200),
-});
-
 // eslint-disable-next-line @atlaskit/design-system/no-styled-tagged-template-expression, @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const SearchInput = styled.input`
+export const SearchInput: StyledComponentClass<
+	DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>,
+	any,
+	DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
+	// eslint-disable-next-line @atlaskit/design-system/no-styled-tagged-template-expression, @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+> = styled.input`
 	background-color: transparent;
 	border: 0;
 	color: ${N500};
@@ -81,15 +88,16 @@ export const SearchInput = styled.input`
 `;
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const SearchInputTypeAhead = styled(SearchInput)({
+export const SearchInputTypeAhead: StyledComponentClass<
+	DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>,
+	any,
+	DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+> = styled(SearchInput)({
 	color: N50,
 	position: 'absolute',
 	width: `calc(100% - ${inputRightPadding})`,
 	zIndex: -1,
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const SearchInputControlsContainer = styled.span({
-	paddingLeft: token('space.300', '24px'),
-});
 SearchInputControlsContainer.displayName = 'SearchInputControlsContainer'; // required for testing

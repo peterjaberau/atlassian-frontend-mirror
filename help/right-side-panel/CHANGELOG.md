@@ -1,5 +1,137 @@
 # @atlaskit/right-side-panel
 
+## 5.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 4.0.0
+
+### Major Changes
+
+- [`770f036c93884`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/770f036c93884) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 3.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.17
+
+### Patch Changes
+
+- [`379cf9c4c25f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/379cf9c4c25f0) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 3.0.16
+
+### Patch Changes
+
+- [`d8333dbe8ad56`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d8333dbe8ad56) -
+  Upgrade help packages for React 19 compatibility (react-next wrapper)
+  - Upgraded `react` and `react-dom` peer dependencies to support `^18.2.0 || ^19.0.0`
+  - Added `react-intl` as a peer dependency where needed for internationalization
+  - Integrated `useRef` for transition handling in BackButton, SearchResults, and RightSidePanel
+  - Updated transition components to use `nodeRef` for better performance and animation control
+  - Refactored components to use forward refs for improved flexibility with animations
+
+## 3.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.0.14
 
 ### Patch Changes
@@ -341,7 +473,7 @@
 
 - [#26424](https://bitbucket.org/atlassian/atlassian-frontend/pull-requests/26424)
   [`0c19f354255`](https://bitbucket.org/atlassian/atlassian-frontend/commits/0c19f354255) -
-  Consolidate In Product Help & Self-Help Experiences ownership
+  Consolidate In Product Help & PACE PS2 ownership
 
 ## 1.1.7
 

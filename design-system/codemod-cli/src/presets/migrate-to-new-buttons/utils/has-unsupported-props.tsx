@@ -1,15 +1,15 @@
 import type { JSXAttribute, JSXSpreadAttribute } from 'jscodeshift';
 
-import { unsupportedProps } from './constants';
+import { unsupportedProps } from './unsupported-props';
 
 export const ifHasUnsupportedProps = (
 	attributes: (JSXAttribute | JSXSpreadAttribute)[] | undefined,
 ): boolean => {
 	let hasUnsupportedProps = Boolean(
 		attributes &&
-			attributes?.some(
-				(node) => node.type === 'JSXAttribute' && unsupportedProps.includes(String(node.name.name)),
-			),
+		attributes?.some(
+			(node) => node.type === 'JSXAttribute' && unsupportedProps.includes(String(node.name.name)),
+		),
 	);
 
 	const hasUnmigratableIcon = () => {

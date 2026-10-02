@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import {
 	failedRecommendationAPIResponse,
@@ -9,11 +9,11 @@ import {
 	transformedRecommendationMockFilterOptions,
 } from '@atlaskit/link-test-helpers/datasource';
 import { asMock } from '@atlaskit/link-test-helpers/jest';
-import { getUserRecommendations } from '@atlaskit/smart-user-picker';
+import getUserRecommendations from '@atlaskit/smart-user-picker/recommendation-client';
 
 import useRecommendation from '../useRecommendation';
 
-jest.mock('@atlaskit/smart-user-picker');
+jest.mock('@atlaskit/smart-user-picker/recommendation-client');
 
 const mockFetchFilterOptionsProps = (searchTerm = '') => {
 	return {
@@ -140,7 +140,10 @@ describe('Testing: useRecommendation', () => {
 		});
 
 		await waitFor(() => {
-			expect(getUserRecommendations).toHaveBeenCalledWith(expectedRequestParams(), expect.anything());
+			expect(getUserRecommendations).toHaveBeenCalledWith(
+				expectedRequestParams(),
+				expect.anything(),
+			);
 		});
 	});
 
@@ -171,7 +174,6 @@ describe('Testing: useRecommendation', () => {
 		act(() => {
 			result.current.fetchFilterOptions(mockFetchFilterOptionsProps());
 		});
-
 
 		await waitFor(() => {
 			expect(result.current).toEqual({
@@ -359,7 +361,6 @@ describe('Testing: useRecommendation', () => {
 		act(() => {
 			result.current.fetchFilterOptions(mockFetchFilterOptionsProps('SOME_SEARCH_TERM'));
 		});
-
 
 		await waitFor(() => {
 			expect(result.current).toEqual({

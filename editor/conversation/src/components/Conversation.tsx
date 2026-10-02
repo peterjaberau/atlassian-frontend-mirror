@@ -1,17 +1,13 @@
 import React from 'react';
-import CommentContainer from '../containers/Comment';
+
 import Comment from '../components/Comment';
+import CommentContainer from '../containers/Comment';
+import type { SuccessHandler } from '../internal/actions';
+import { actionSubjectIds, fireEvent, trackEventActions, eventTypes } from '../internal/analytics';
+import type { createAnalyticsEvent } from '../internal/analytics';
+import type { Conversation as ConversationType } from '../model/Conversation';
 import Editor from './Editor';
-import { type Conversation as ConversationType } from '../model/Conversation';
-import { type SharedProps, type SendAnalyticsEvent } from './types';
-import {
-	type createAnalyticsEvent,
-	actionSubjectIds,
-	fireEvent,
-	trackEventActions,
-	eventTypes,
-} from '../internal/analytics';
-import { type SuccessHandler } from '../internal/actions';
+import type { SharedProps, SendAnalyticsEvent } from './types';
 
 export interface Props extends SharedProps {
 	canModerateComments?: boolean;
@@ -139,6 +135,7 @@ export default class Conversation extends React.PureComponent<Props, State> {
 				onCancel={onCancel}
 				onUserClick={onUserClick}
 				dataProviders={dataProviders}
+				// eslint-disable-next-line @atlassian/perf-linting/detect-unnecessary-rerenders, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				renderComment={(props) => (
 					<Comment
 						// Ignored via go/ees005

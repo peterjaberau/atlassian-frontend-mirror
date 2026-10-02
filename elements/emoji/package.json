@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/emoji",
-	"version": "69.10.13",
+	"version": "72.4.34",
 	"description": "Fabric emoji React components",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
@@ -27,7 +19,13 @@
 	"atlassian": {
 		"team": "Editor: Collaboration",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Emoji"
+		},
+		"react-compiler": {
+			"disabled": true
 		}
 	},
 	"config": {
@@ -36,14 +34,23 @@
 	"dependencies": {
 		"@atlaskit/afm-i18n-platform-elements-emoji": "root:*",
 		"@atlaskit/analytics-next": "workspace:^",
+		"@atlaskit/browser-apis": "workspace:^",
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/css": "workspace:^",
+		"@atlaskit/feature-gate-js-client": "workspace:^",
+		"@atlaskit/form": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/icon-lab": "workspace:^",
+		"@atlaskit/image": "workspace:^",
+		"@atlaskit/logo": "workspace:^",
 		"@atlaskit/media-client": "workspace:^",
 		"@atlaskit/media-client-react": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/pragmatic-drag-and-drop": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/radio": "workspace:^",
 		"@atlaskit/spinner": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
@@ -67,31 +74,35 @@
 	"peerDependencies": {
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-intl-next": "*"
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
-		"@atlaskit/elements-test-helpers": "workspace:^",
 		"@atlaskit/media-core": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/experiment-test-utils": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/ufo": "workspace:^",
+		"@atlassian/ufo-experimental": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@emotion/jest": "root:*",
 		"@testing-library/dom": "root:*",
 		"@testing-library/jest-dom": "root:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/js-search": "root:*",
+		"@types/react-test-renderer": "root:*",
 		"dotenv": "root:*",
-		"enzyme": "root:*",
 		"es6-promise": "root:*",
 		"fetch-mock": "root:*",
 		"jest-axe": "root:*",
 		"p-wait-for": "root:*",
 		"react": "root:*",
 		"react-addons-perf": "root:*",
-		"react-intl-next": "root:*",
+		"react-dom": "root:*",
+		"react-intl": "root:*",
 		"react-test-renderer": "root:*",
 		"rxjs": "root:*",
 		"sinon": "root:*",
@@ -105,36 +116,77 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./admin": "./src/admin.ts",
+		"./analytics": "./src/util/analytics/analytics.ts",
+		"./categories": "./src/components/picker/categories.ts",
+		"./constants": "./src/util/constants.ts",
 		"./element": "./src/element.ts",
+		"./emoji": "./src/components/common/Emoji.tsx",
+		"./emoji-common-provider": "./src/context/EmojiCommonProvider.tsx",
+		"./emoji-context-provider": "./src/context/EmojiContextProvider.tsx",
+		"./emoji-id-to-emoji": "./src/util/emojiIdToEmoji.ts",
+		"./emoji-loader": "./src/api/EmojiLoader.ts",
+		"./emoji-picker": "./src/components/picker/EmojiPicker.tsx",
+		"./emoji-placeholder": "./src/components/common/EmojiPlaceholder.tsx",
+		"./emoji-repository": "./src/api/EmojiRepository.ts",
+		"./emoji-resource": "./src/api/EmojiResource.ts",
+		"./emoji-type-ahead": "./src/components/typeahead/EmojiTypeAhead.tsx",
+		"./emoji-type-ahead-item": "./src/components/typeahead/EmojiTypeAheadItem.tsx",
+		"./emoji-type-ahead-list": "./src/components/typeahead/EmojiTypeAheadList.tsx",
+		"./emoji-uploader": "./src/components/uploader/EmojiUploader.tsx",
+		"./emoji-utils": "./src/api/EmojiUtils.ts",
 		"./i18n/*": {
 			"publish": null,
 			"default": "./src/i18n/*.ts"
 		},
 		"./picker": "./src/picker.ts",
 		"./resource": "./src/resource.ts",
+		"./resourced-emoji": "./src/components/common/ResourcedEmoji.tsx",
+		"./sampling-ufo": "./src/util/analytics/samplingUfo.ts",
+		"./styles": "./src/components/common/styles.ts",
+		"./type-helpers": "./src/util/type-helpers.ts",
 		"./typeahead": "./src/typeahead.ts",
 		"./types": "./src/types.ts",
+		"./ufo-experiences": "./src/util/analytics/ufoExperiences.ts",
+		"./unicode-emoji-image": "./src/util/renderUnicodeEmojiToImagePath.ts",
+		"./usage-frequency-tracker": "./src/api/internal/UsageFrequencyTracker.ts",
+		"./use-emoji": "./src/hooks/useEmoji.ts",
+		"./use-emoji-context": "./src/hooks/useEmojiContext.ts",
 		"./utils": "./src/utils.ts"
 	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color"
-			],
-			"styling": [
-				"compiled"
-			]
-		}
-	},
 	"platform-feature-flags": {
-		"platform_index_emoji_just_in_time": {
-			"type": "boolean"
-		},
-		"platform_emoji_ssr_width_auto_allowed": {
+		"nike_r19_render_unmount": {
 			"type": "boolean"
 		},
 		"platform_emoji_prevent_img_src_changing": {
 			"type": "boolean"
+		},
+		"platform_emoji_prevent_img_src_changing_all": {
+			"type": "boolean"
+		},
+		"platform_suppression_removal_fix_reactions": {
+			"type": "boolean"
+		},
+		"platform_bitbucket_fix_shortname_and_ordering": {
+			"type": "boolean"
+		},
+		"use-elements-stargate-emoji-path": {
+			"type": "boolean"
+		},
+		"platform_teamoji_26_refresh_emoji_picker_user_id": {
+			"type": "boolean"
+		},
+		"emoji_decorative_label": {
+			"type": "boolean"
+		}
+	},
+	"platform-experiments": {
+		"platform_teamoji_26_refresh_emoji_picker": {
+			"param": "isEnabled",
+			"defaultValue": false
+		},
+		"platform_teamoji_26_refresh_emoji_picker_canvas": {
+			"param": "isEnabled",
+			"defaultValue": false
 		}
 	},
 	"scripts": {

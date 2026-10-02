@@ -3,22 +3,22 @@
  * @jsx jsx
  */
 import React from 'react';
-import { css, cssMap, jsx } from '@atlaskit/css';
-import { token } from '@atlaskit/tokens';
-import ImageIcon from '@atlaskit/icon-file-type/glyph/image/24';
-import AudioIcon from '@atlaskit/icon-file-type/glyph/audio/24';
-import VideoIcon from '@atlaskit/icon-file-type/glyph/video/24';
-import DocIcon from '@atlaskit/icon-file-type/glyph/document/24';
-import ArchiveIcon from '@atlaskit/icon-file-type/glyph/archive/24';
-import GenericIcon from '@atlaskit/icon-file-type/glyph/generic/24';
 
-import ImageIconSmall from '@atlaskit/icon-file-type/glyph/image/16';
-import AudioIconSmall from '@atlaskit/icon-file-type/glyph/audio/16';
-import VideoIconSmall from '@atlaskit/icon-file-type/glyph/video/16';
-import DocIconSmall from '@atlaskit/icon-file-type/glyph/document/16';
+import { css, cssMap, jsx } from '@atlaskit/css';
 import ArchiveIconSmall from '@atlaskit/icon-file-type/glyph/archive/16';
+import ArchiveIcon from '@atlaskit/icon-file-type/glyph/archive/24';
+import AudioIconSmall from '@atlaskit/icon-file-type/glyph/audio/16';
+import AudioIcon from '@atlaskit/icon-file-type/glyph/audio/24';
+import DocIconSmall from '@atlaskit/icon-file-type/glyph/document/16';
+import DocIcon from '@atlaskit/icon-file-type/glyph/document/24';
 import GenericIconSmall from '@atlaskit/icon-file-type/glyph/generic/16';
+import GenericIcon from '@atlaskit/icon-file-type/glyph/generic/24';
+import ImageIconSmall from '@atlaskit/icon-file-type/glyph/image/16';
+import ImageIcon from '@atlaskit/icon-file-type/glyph/image/24';
+import VideoIconSmall from '@atlaskit/icon-file-type/glyph/video/16';
+import VideoIcon from '@atlaskit/icon-file-type/glyph/video/24';
 import { type MediaType } from '@atlaskit/media-common';
+import { token } from '@atlaskit/tokens';
 
 export interface IconWrapperProps {
 	type: MediaType;
@@ -34,10 +34,10 @@ export interface FileIconProps {
 const iconStyleMap = cssMap({
 	small: {},
 	large: {
-		paddingTop: token('space.050', '4px'),
-		paddingRight: token('space.050', '4px'),
-		paddingBottom: token('space.050', '4px'),
-		paddingLeft: token('space.050', '4px'),
+		paddingTop: token('space.050'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.050'),
+		paddingLeft: token('space.050'),
 	},
 });
 
@@ -72,7 +72,7 @@ export class MediaTypeIcon extends React.Component<FileIconProps, {}> {
 		size: 'large',
 	};
 
-	render() {
+	render(): JSX.Element {
 		const { type, size, testId } = this.props;
 		const typeWithDefault = type || defaultType;
 		const icons = size === 'large' ? largeIcons : smallIcons;

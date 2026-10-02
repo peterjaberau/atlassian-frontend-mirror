@@ -2,7 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useReducer,
+	useRef,
+	useState,
+} from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
@@ -15,8 +23,8 @@ import {
 	type ItemMode,
 } from '@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item';
 import * as liveRegion from '@atlaskit/pragmatic-drag-and-drop-live-region';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 import { token } from '@atlaskit/tokens';
 
 import {
@@ -38,7 +46,7 @@ const treeStyles = css({
 	width: 280,
 	padding: 8,
 	flexDirection: 'column',
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 });
 
 type CleanupFn = () => void;

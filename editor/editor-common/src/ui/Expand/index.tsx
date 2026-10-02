@@ -1,37 +1,100 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import type { Ref } from 'react';
 import React, { forwardRef } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx, type SerializedStyles } from '@emotion/react';
-import { defineMessages } from 'react-intl-next';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
+import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
+import { defineMessages } from 'react-intl';
 
 import { akEditorSwoopCubicBezier } from '@atlaskit/editor-shared-styles';
 import { token } from '@atlaskit/tokens';
 
-export const messages = defineMessages({
+export const messages: {
+	collapseNode: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandArialabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandBodyAriaDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandBodyAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandBodyAriaLabelOriginal: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandBodyAriaLabelUntitled: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandBodyRoleDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandDefaultTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandNode: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	expandPlaceholderText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	loading: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	loading: {
 		id: 'fabric.editor.expand.loading',
 		defaultMessage: 'Loading...',
-		description: 'Loading text for an expand node',
+		description:
+			'Text shown inside an expand node while its content is being loaded, indicating to the user that data is still being fetched.',
 	},
 	collapseNode: {
 		id: 'fabric.editor.collapseNode',
 		defaultMessage: 'Collapse content',
-		description: 'Collapse the node',
+		description:
+			'The text is shown as a tooltip on a button when the user clicks to collapse an expand node in the editor, hiding its content.',
 	},
 	expandDefaultTitle: {
 		id: 'fabric.editor.expandDefaultTitle',
 		defaultMessage: 'Click here to expand...',
-		description: 'Placeholder text for an expand node',
+		description:
+			'Placeholder text shown in the title field of an expand node when no title has been entered, prompting the user to click and expand the content.',
 	},
 	expandNode: {
 		id: 'fabric.editor.expandNode',
 		defaultMessage: 'Expand content',
-		description: 'Expand the node',
+		description:
+			'The text is shown as a tooltip on a button when the user clicks to expand a collapsed expand node in the editor, revealing its content.',
 	},
 	expandPlaceholderText: {
 		id: 'fabric.editor.expandPlaceholder',
@@ -43,12 +106,39 @@ export const messages = defineMessages({
 		defaultMessage: 'Give this expand a title',
 		description: 'aria label for an expand node title input field',
 	},
+	// Clean up with platform_editor_expand_content_a11y_2.
+	expandBodyAriaLabelOriginal: {
+		id: 'fabric.editor.expandBodyAriaLabel',
+		defaultMessage: 'Expand body content',
+		description: 'Aria label for the body content of an expand node',
+	},
+	expandBodyAriaLabel: {
+		id: 'editor-common.Expand.expandBodyAriaLabel',
+		defaultMessage: 'Body content for {title}',
+		description: 'Aria label for the body content of an expand node',
+	},
+	expandBodyAriaLabelUntitled: {
+		id: 'editor-common.Expand.expandBodyAriaLabelUntitled',
+		defaultMessage: 'untitled expand',
+		description: 'Fallback title for the body content of an expand node without a title',
+	},
+	expandBodyAriaDescription: {
+		id: 'fabric.editor.expandBodyAriaDescription',
+		defaultMessage: 'Enter the content that will be revealed when this expand is opened.',
+		description: 'Aria description for the body content of an expand node',
+	},
+	expandBodyRoleDescription: {
+		id: 'fabric.editor.expandBodyRoleDescription',
+		defaultMessage: 'macro',
+		description: 'Aria role description for the body content of an expand node',
+	},
 });
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const ExpandIconWrapper = ({
 	children,
 	expanded,
-}: React.HTMLAttributes<HTMLDivElement> & { expanded: boolean }) => {
+}: React.HTMLAttributes<HTMLDivElement> & { expanded: boolean }): jsx.JSX.Element => {
 	return (
 		<div
 			css={() =>
@@ -87,21 +177,31 @@ const expandIconWrapperExpandedStyle = css({
 	},
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const expandLayoutWrapperStyle: SerializedStyles = css({
-	width: token('space.300', '24px'),
-	height: token('space.300', '24px'),
+	width: token('space.300'),
+	height: token('space.300'),
 });
 
-export const ExpandLayoutWrapperWithRef = forwardRef(
-	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	(props: React.HTMLAttributes<HTMLDivElement>, ref: Ref<any>) => {
-		const { children, ...rest } = props;
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const ExpandLayoutWrapperWithRef: React.ForwardRefExoticComponent<
+	React.HTMLAttributes<HTMLDivElement> & React.RefAttributes<unknown>
+> = forwardRef(
+	(
+		{ children, ...otherProps }: React.HTMLAttributes<HTMLDivElement>,
+		// Ignored via go/ees005
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		ref: Ref<any>,
+	) => {
 		return (
-			// Ignored via go/ees005
-			// eslint-disable-next-line react/jsx-props-no-spreading, @typescript-eslint/no-explicit-any
-			<div css={expandLayoutWrapperStyle as any} {...rest} ref={ref}>
+			<div
+				// Ignored via go/ees005
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				css={expandLayoutWrapperStyle as any}
+				ref={ref}
+				// eslint-disable-next-line react/jsx-props-no-spreading -- Spreading otherProps to pass through HTML attributes (aria-*, data-*, event handlers, etc.) to the native div element
+				{...otherProps}
+			>
 				{children}
 			</div>
 		);

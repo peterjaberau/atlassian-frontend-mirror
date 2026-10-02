@@ -1,0 +1,54 @@
+import React from 'react';
+
+import { IntlProvider } from 'react-intl';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { getMockEmojis } from '@atlaskit/editor-test-helpers/mock-emojis';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
+import { layers } from '@atlaskit/theme/constants';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { currentUser, getEmojiProvider } from '@atlaskit/util-data-test/get-emoji-provider';
+
+import EmojiTypeAhead from '../../components/typeahead/EmojiTypeAhead';
+
+const noop = () => {};
+const emojiProvider = getEmojiProvider(
+	{
+		currentUser,
+		uploadSupported: false,
+	},
+	getMockEmojis,
+);
+
+export function StandardEmojiTypeAhead(): React.JSX.Element {
+	const position = 'below';
+	const id = 'demo-input';
+
+	return (
+		<IntlProvider locale="en">
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop */}
+			<div style={{ padding: '10px' }}>
+				<input
+					id={id}
+					aria-label="Demo Input"
+					style={{
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+						height: '20px',
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+						margin: '10px',
+					}}
+				/>
+				<EmojiTypeAhead
+					target={`#${id}`}
+					position={position}
+					onSelection={noop}
+					onOpen={noop}
+					onClose={noop}
+					query={''}
+					emojiProvider={emojiProvider}
+					zIndex={layers.modal()}
+				/>
+			</div>
+		</IntlProvider>
+	);
+}

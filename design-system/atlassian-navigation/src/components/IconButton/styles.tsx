@@ -1,4 +1,4 @@
-import { type ThemeProps, type ThemeTokens } from '@atlaskit/button/types';
+import type { ThemeProps, ThemeTokens } from '@atlaskit/button/custom-theme-button-types';
 import { token } from '@atlaskit/tokens';
 
 import { type NavigationTheme } from '../../theme';
@@ -13,9 +13,8 @@ export const getIconButtonTheme =
 				...buttonStyles,
 				borderRadius: token('radius.full', '100%'),
 				display: 'flex',
-				margin: `0 ${token('space.025', '2px')}`,
-				// TODO Delete this comment after verifying space token -> previous value `4`
-				padding: token('space.050', '4px'),
+				margin: `0 ${token('space.025')}`,
+				padding: token('space.050'),
 				height: 'auto',
 				fontWeight: token('font.weight.medium'),
 				...iconButton.default,
@@ -25,7 +24,6 @@ export const getIconButtonTheme =
 				// e.preventDefault() on mouse down in Button.
 				// '&&' is required to add more CSS specificity
 				// && it not a valid CSSObject property
-				// @ts-ignore
 				'&&': {
 					...(props.state === 'active' && iconButton.active),
 				},

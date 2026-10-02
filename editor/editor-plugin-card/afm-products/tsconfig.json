@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-card/app",
 		"rootDir": "../",
 		"composite": true,
@@ -30,10 +29,22 @@
 			"path": "../../../analytics/analytics-next/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/button/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/css/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../custom-steps/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-card-provider/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-plugin-analytics/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-annotation/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-base/afm-products/tsconfig.json"
@@ -60,7 +71,16 @@
 			"path": "../../editor-plugin-grid/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-plugin-selection/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-plugin-toolbar/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-ui-control-registry/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-user-intent/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-width/afm-products/tsconfig.json"
@@ -72,10 +92,22 @@
 			"path": "../../editor-shared-styles/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-smart-link-draggable/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-toolbar/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-ui-control-model/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../helpers/frontend-utilities/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/icon/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../linking-platform/json-ld-types/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/link/afm-products/tsconfig.json"
@@ -102,6 +134,9 @@
 			"path": "../../../design-system/menu/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
@@ -115,9 +150,6 @@
 		},
 		{
 			"path": "../../../linking-platform/smart-card/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../design-system/theme/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"

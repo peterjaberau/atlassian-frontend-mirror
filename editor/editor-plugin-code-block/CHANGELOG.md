@@ -1,5 +1,1712 @@
 # @atlaskit/editor-plugin-code-block
 
+## 25.0.1
+
+### Patch Changes
+
+- [`457c77d8f6992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/457c77d8f6992) -
+  Behind `platform-dst-top-layer-tooltip`: tooltips whose content changes on press (for example
+  "Copy" to "Copied!") stay open to show the new content. `@atlaskit/editor-common` floating toolbar
+  buttons and `@atlaskit/smart-card` stack-item actions add an optional
+  `hasNewContentOnTriggerClick` prop.
+- Updated dependencies
+
+## 25.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.3
+
+### Patch Changes
+
+- [`f0dbb923807b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0dbb923807b7) -
+  Clean up feature gate `platform_editor_code_block_add_line_number_button`
+- Updated dependencies
+
+## 24.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- [`a034f535638cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a034f535638cc) -
+  Add structured Quick Insert previews with localised title, description and attribution under
+  platform_editor_slash_command.
+
+  Exclude footer and category navigation actions from previews. Left-align attribution, use subtle
+  title and attribution text, and default description text.
+
+  Show text previews even without preview metadata, and reserve a fixed image area while images load
+  or when they fail. Keep previews within the viewport, flipping left when needed, with compact
+  panel dimensions and typography.
+
+  Replace baked panel screenshots with image-only assets. Remove image fields from text-only legacy
+  previews while preserving their attribution.
+
+  Let extension providers own their preview images and attribution. Pass preview metadata through
+  the Company Hub manifest factory and remove Editor's fallback preview registry.
+
+  Localize provider attribution names and display Confluence and Jira product icons instead of the
+  attribution prefix when an icon is present. Allow the Dropbox manifest to receive the host's
+  message formatter.
+
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+- [`8864ef7070f02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8864ef7070f02) -
+  Use the precise code-block copy accessible name behind platform_editor_a11y_codeblock_copy_name.
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.11
+
+### Patch Changes
+
+- [`88fb7a8d4013a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88fb7a8d4013a) -
+  [ux] Add optional light and dark preview URLs to slash-command menu items and pass theme-aware
+  previews to supported commands when the `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 20.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- [`4603ff962783f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4603ff962783f) -
+  Clean up feature gate `platform_editor_code_block_language_detection_flow`
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- [`b615f1183f88d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b615f1183f88d) -
+  Clean up feature gate `platform_editor_code_block_ga_patch_1`
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- [`d82ea790b5c1c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82ea790b5c1c) -
+  Update registered slash-command menu icons, including the Jira datasource WorkItems icon, when the
+  `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.15
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 17.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- [`4d7433f9c93d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4d7433f9c93d8) -
+  Clean up the enabled `platform_editor_code_block_fold_gutter` experiment for Confluence.
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- [`4273da2e1a648`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4273da2e1a648) -
+  Register native Quick Insert items behind `platform_editor_slash_command`.
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.0
+
+### Minor Changes
+
+- [`6891ca32d94cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6891ca32d94cc) -
+  Add `Mermaid` as a selectable language in the code block language picker, behind the
+  `platform_editor_code_block_mermaid_language` feature gate. When the gate is enabled, Mermaid
+  appears in the picker and the advanced (CodeMirror) code block provides Mermaid syntax
+  highlighting via `codemirror-lang-mermaid`. The language is intentionally kept out of the shared
+  `@atlaskit/code` supported-languages list so it is fully gated and does not leak into other
+  consumers.
+
+## 14.1.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.21
+
+### Patch Changes
+
+- [`eea5a45d85ede`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eea5a45d85ede) -
+  Clean up feature gate `platform_editor_code_block_dogfooding_patch`
+
+## 14.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.19
+
+### Patch Changes
+
+- [`b76b433b0c9ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b76b433b0c9ec) -
+  Fix code block detect language recent-language handling
+- Updated dependencies
+
+## 14.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.15
+
+### Patch Changes
+
+- [`be1ffe44994f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be1ffe44994f0) -
+  Fix code block language picker trigger focus and overflow behavior
+- Updated dependencies
+
+## 14.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.13
+
+### Patch Changes
+
+- [`c2986ab2c7a01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2986ab2c7a01) -
+  Cleans up prefer static regex violations and enables e18e rule
+- Updated dependencies
+
+## 14.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.6
+
+### Patch Changes
+
+- [`73743eb8b36e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73743eb8b36e6) -
+  CLeanup prefer static regex violations
+- Updated dependencies
+
+## 14.1.5
+
+### Patch Changes
+
+- [`a07646d6c829b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a07646d6c829b) -
+  Fix code block language selection analytics attributes
+- Updated dependencies
+
+## 14.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.1
+
+### Patch Changes
+
+- [`5bb7d8aa14c4e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bb7d8aa14c4e) -
+  Fix code block language picker trigger height in legacy toolbar
+- [`49b8e9a322976`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/49b8e9a322976) -
+  Reduce q4 lovability experiment exposure noise in code block setup and bookkeeping paths
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`b483e293da76f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b483e293da76f) -
+  Add a gated `isSuggested` attribute to block menu element transformed analytics events so
+  suggested and non-suggested transform selections can be distinguished. The event attribute is
+  gated behind the `platform_editor_blocks_patch_2` feature gate.
+
+### Patch Changes
+
+- [`64a0b50380570`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64a0b50380570) - -
+  Improve TypeScript auto-detection for class fields and typed arrow function params/return types.
+  - Avoid unnecessary code block node updates when auto-detection re-detects the same language.
+  - Prevent wrap toggles from scrolling long code blocks to the top.
+  - Keep the language picker placement stable while it is open.
+  - Reset language picker search state on reopen so recent selections are not reported as search
+    selections.
+  - Prevent language picker close/selection from scrolling partially visible code blocks while
+    restoring editor focus.
+  - Add auto-detection analytics metadata to distinguish initial detection from re-detection.
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- [`4543a53261907`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4543a53261907) -
+  Fix code block language picker behaviour for auto-detection state, cap the picker trigger width,
+  keep detected labels stable across toolbar updates, and avoid selecting the whole code block when
+  dragging across multiple code lines.
+- Updated dependencies
+
+## 14.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- [`81545f4d0e189`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81545f4d0e189) -
+  Add code block format provider plumbing for Confluence editor presets and align code block
+  formatting state with the shared provider result type.
+- Updated dependencies
+
+## 13.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.13
+
+### Patch Changes
+
+- [`ff0d47c808e14`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff0d47c808e14) -
+  Add provider-based opt-in for the code block formatting button.
+
+## 13.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.7
+
+### Patch Changes
+
+- [`38d753a24e9ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38d753a24e9ad) -
+  Promote code block wrap and line number attrs to the full ADF schema
+- Updated dependencies
+
+## 13.1.6
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 13.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- [`44ba0da4e85d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44ba0da4e85d7) -
+  Gate the code block formatting button behind platform_editor_code_block_formatting
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`75daf19dd12b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/75daf19dd12b0) -
+  Add format code control for code blocks
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- [`3e2877f105afc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e2877f105afc) -
+  Gate code block auto-detection behind the q4 lovability experiment and
+  platform_editor_code_block_language_detection_flow kill switch.
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.11
+
+### Patch Changes
+
+- [`52a08b0d14e39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52a08b0d14e39) -
+  Add code block language auto-detection experiment
+- Updated dependencies
+
+## 12.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.7
+
+### Patch Changes
+
+- [`a0dc04472d27b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0dc04472d27b) -
+  Add recently used code block languages and analytics metadata
+- Updated dependencies
+
+## 12.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.5
+
+### Patch Changes
+
+- [`47e7189edb428`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47e7189edb428) -
+  Refresh code block language picker UI
+- Updated dependencies
+
+## 12.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- [`7e8145e6a7ce6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7e8145e6a7ce6) -
+  Add ADF-backed code block line number visibility
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`f1eebdf4ed96b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1eebdf4ed96b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.17
+
+### Patch Changes
+
+- [`ded95ac7efcc4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ded95ac7efcc4) -
+  Persist code block wrap state in ADF, default code blocks created across editor runtime paths to
+  wrapped, and update the wrap toolbar tooltip behind platform_editor_code_block_q4_lovability.
+- Updated dependencies
+
+## 12.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- [`2fb1c8a74a856`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fb1c8a74a856) -
+  ADF Change 101: Add wrap and hideLineNumbers attributes to codeBlock stage-0 variants
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.34
+
+### Patch Changes
+
+- [`1bd298ad0a152`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bd298ad0a152) -
+  [ux] EDITOR-6280 Clean up platform_editor_block_menu_v2_patch_3 to fix icon and copy in jira block
+  menu
+- Updated dependencies
+
+## 10.0.33
+
+### Patch Changes
+
+- [`73b2fc243f544`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73b2fc243f544) -
+  Cleaning up getBrowserInfo which was behind experiment platform_editor_hydratable_ui and is now
+  rolled out
+- Updated dependencies
+
+## 10.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.29
+
+### Patch Changes
+
+- [`48a64b7bbac82`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48a64b7bbac82) -
+  Clean up stale experiment platform_editor_plain_text_support (always-enabled path)
+- Updated dependencies
+
+## 10.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.24
+
+### Patch Changes
+
+- [`ce68e4cf353de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce68e4cf353de) -
+  Clean up feature gate `editor_a11y_remove_unwrap_button` - always show 'Turn on wrap' as the wrap
+  button title (final value: true).
+- Updated dependencies
+
+## 10.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.15
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 10.0.14
+
+### Patch Changes
+
+- [`86fd5ef0f1d07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/86fd5ef0f1d07) -
+  Mechanical type-import autofix for text formatting editor plugins.
+
+## 10.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.10
+
+### Patch Changes
+
+- [`9ed32aea2c1d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ed32aea2c1d3) -
+  Replace feature experiment util with cross platform alternative for platform_editor_block_menu
+- Updated dependencies
+
+## 10.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`f444a0d3e2c0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f444a0d3e2c0b) -
+  [FFCLEANUP-79468] clean up platform_editor_dec_a11y_fixes feature gate
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.20
+
+### Patch Changes
+
+- [`7ea2e225c0abb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ea2e225c0abb) -
+  [ux] Minor styling, wording changes for block menu and sync blocks
+- Updated dependencies
+
+## 9.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 9.0.13
 
 ### Patch Changes

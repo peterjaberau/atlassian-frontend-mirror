@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-layout/app",
 		"rootDir": "../",
 		"composite": true,
@@ -27,7 +26,13 @@
 			"path": "../../adf-schema/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/css/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-plugin-analytics/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-block-controls/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-block-menu/afm-products/tsconfig.json"
@@ -51,6 +56,12 @@
 			"path": "../../editor-plugin-toolbar/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-plugin-ui-control-registry/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-user-intent/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-plugin-width/afm-products/tsconfig.json"
 		},
 		{
@@ -63,10 +74,16 @@
 			"path": "../../editor-toolbar/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-ui-control-model/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/icon/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/icon-lab/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"

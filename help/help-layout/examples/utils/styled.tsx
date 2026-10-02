@@ -4,8 +4,9 @@
  */
 
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
-import { N200 } from '@atlaskit/theme/colors';
+
 import { token } from '@atlaskit/tokens';
 
 const exampleWrapperStyles = css({
@@ -20,21 +21,20 @@ export const ExampleWrapper = ({ children }: { children: React.ReactNode }): JSX
 );
 
 const exampleDefaultContentStyles = css({
-	paddingTop: token('space.200', '16px'),
-	paddingRight: token('space.200', '16px'),
-	paddingBottom: token('space.200', '16px'),
-	paddingLeft: token('space.200', '16px'),
+	paddingTop: token('space.200'),
+	paddingRight: token('space.200'),
+	paddingBottom: token('space.200'),
+	paddingLeft: token('space.200'),
 });
 
 export const ExampleDefaultContent = ({ children }: { children: React.ReactNode }): JSX.Element => (
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
 	<div css={exampleDefaultContentStyles}>{children}</div>
 );
 
 const footerContentStyles = css({
 	textAlign: 'center',
 	fontSize: '11px',
-	color: token('color.text.subtlest', N200),
+	color: token('color.text.subtlest'),
 });
 
 export const FooterContent = ({ children }: { children: React.ReactNode }): JSX.Element => (

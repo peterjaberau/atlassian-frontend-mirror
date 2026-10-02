@@ -1,6 +1,7 @@
-import { type CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import {
@@ -11,8 +12,7 @@ import {
 } from '../ui/consts';
 import { refreshAnchorName } from '../ui/utils/anchor-name';
 import { getAnchorAttrName } from '../ui/utils/dom-attr-name';
-
-import { type AnchorRectCache } from './utils/anchor-utils';
+import type { AnchorRectCache } from './utils/anchor-utils';
 import {
 	getControlBottomCSSValue,
 	getControlHeightCSSValue,
@@ -55,7 +55,11 @@ export const calculatePosition = ({
 	);
 
 	const hasResizer = rootNodeType === 'table' || rootNodeType === 'mediaSingle';
-	const isExtension = rootNodeType === 'extension' || rootNodeType === 'bodiedExtension';
+	const isExtension =
+		rootNodeType === 'extension' ||
+		rootNodeType === 'bodiedExtension' ||
+		(rootNodeType === 'multiBodiedExtension' &&
+			expValEquals('confluence_native_tabs_experiment', 'isEnabled', true));
 	const isBlockCard = rootNodeType === 'blockCard';
 	const isEmbedCard = rootNodeType === 'embedCard';
 

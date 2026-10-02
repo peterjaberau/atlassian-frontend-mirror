@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__teams-app-internal-product-permissions/app",
 		"rootDir": "../",
 		"composite": true,
@@ -22,5 +21,9 @@
 		"../src/**/stories/*",
 		"../src/**/stories/**/*"
 	],
-	"references": []
+	"references": [
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		}
+	]
 }

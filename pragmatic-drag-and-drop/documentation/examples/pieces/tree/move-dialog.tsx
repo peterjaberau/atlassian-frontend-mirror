@@ -9,10 +9,15 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import { jsx } from '@emotion/react';
 import invariant from 'tiny-invariant';
 
-import Button from '@atlaskit/button/new';
-import Form, { Field } from '@atlaskit/form';
-import Modal, { ModalBody, ModalFooter, ModalHeader, ModalTitle } from '@atlaskit/modal-dialog';
-import Select from '@atlaskit/select';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import Select from '@atlaskit/select/default';
 
 import { TreeContext } from './tree-context';
 
@@ -21,7 +26,13 @@ type FormData = {
 	position: { value: number };
 };
 
-export function MoveDialog({ onClose, itemId }: { onClose: () => void; itemId: string }): React.JSX.Element {
+export function MoveDialog({
+	onClose,
+	itemId,
+}: {
+	onClose: () => void;
+	itemId: string;
+}): React.JSX.Element {
 	const { dispatch, getChildrenOfItem, getMoveTargets, getPathToItem } = useContext(TreeContext);
 
 	const options = useMemo(() => {

@@ -1,6 +1,6 @@
 import type { Rule } from 'eslint';
 
-import * as ast from '../../../../ast-nodes';
+import { JSXElementHelper } from '../../../../ast-nodes/jsx-element-helper';
 import { isSupportedForLint } from '../supported';
 
 interface MetaData {
@@ -17,7 +17,7 @@ export const JSXElement = {
 			node: node.openingElement,
 			messageId: 'noHtmlButton',
 			data: {
-				name: ast.JSXElement.getName(node),
+				name: JSXElementHelper.getName(node),
 			},
 		});
 	},

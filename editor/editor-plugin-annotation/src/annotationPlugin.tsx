@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
 import {
@@ -8,11 +9,17 @@ import {
 } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI, SelectionToolbarGroup } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { AnnotationPlugin } from './annotationPluginType';
-import { setInlineCommentDraftState, showInlineCommentForBlockNode } from './editor-commands';
+import {
+	createAnnotation,
+	removeInlineCommentFromDoc,
+	setInlineCommentDraftState,
+	setSelectedAnnotation,
+	setPendingSelectedAnnotation,
+	showInlineCommentForBlockNode,
+} from './editor-commands';
 import { annotationWithToDOMFix } from './nodeviews/annotationMark';
 import { inlineCommentPlugin } from './pm-plugins/inline-comment';
 import { keymapPlugin } from './pm-plugins/keymap';
@@ -21,9 +28,11 @@ import {
 	buildToolbar,
 	shouldSuppressFloatingToolbar,
 } from './pm-plugins/toolbar';
+import { ACTIONS } from './pm-plugins/types';
 import {
 	getPluginState,
 	hasAnyUnResolvedAnnotationInPage,
+	inlineCommentPluginKey,
 	stripNonExistingAnnotations,
 } from './pm-plugins/utils';
 import type { AnnotationProviders } from './types';
@@ -33,6 +42,34 @@ import { getToolbarComponents } from './ui/toolbar-components';
 export const annotationPlugin: AnnotationPlugin = ({ config: annotationProviders, api }) => {
 	const featureFlags = api?.featureFlags?.sharedState.currentState();
 	const isToolbarAIFCEnabled = Boolean(api?.toolbar);
+	/**
+	 * Allows external editor UI, currently AI suggestions, to safely close an inline comment
+	 * without bypassing the provider's unsaved-content guard.
+	 */
+	const requestCloseInlineComment = async (): Promise<boolean> => {
+		try {
+			const requestClose = annotationProviders?.inlineComment.requestClose;
+			if (!requestClose) {
+				return true;
+			}
+
+			const canClose = await requestClose();
+
+			if (!canClose) {
+				return false;
+			}
+
+			return (
+				api?.core.actions.execute(({ tr }) => {
+					tr.setMeta(inlineCommentPluginKey, { type: ACTIONS.CLOSE_COMPONENT });
+					return tr;
+				}) ?? false
+			);
+		} catch {
+			// Preserve the active comment if its close guard cannot complete.
+			return false;
+		}
+	};
 
 	if (isToolbarAIFCEnabled) {
 		api?.toolbar?.actions.registerComponents(getToolbarComponents(api, annotationProviders));
@@ -52,14 +89,31 @@ export const annotationPlugin: AnnotationPlugin = ({ config: annotationProviders
 
 		actions: {
 			hasAnyUnResolvedAnnotationInPage,
+			requestCloseInlineComment,
 			stripNonExistingAnnotations,
+			applyInlineCommentDraft: (annotationId: string) =>
+				createAnnotation(api?.analytics?.actions, api)(
+					annotationId,
+					AnnotationTypes.INLINE_COMMENT,
+					annotationProviders?.inlineComment.supportedBlockNodes,
+				),
+			removeInlineCommentAnnotation: (annotationId: string) =>
+				removeInlineCommentFromDoc(api?.analytics?.actions)(
+					annotationId,
+					annotationProviders?.inlineComment.supportedBlockNodes ?? [],
+				),
 			setInlineCommentDraftState: setInlineCommentDraftState(
 				api?.analytics?.actions,
 				annotationProviders?.inlineComment.supportedBlockNodes,
+				undefined,
+				annotationProviders?.inlineComment.isBlockNodeSupported,
 			),
 			showCommentForBlockNode: showInlineCommentForBlockNode(
 				annotationProviders?.inlineComment.supportedBlockNodes,
+				annotationProviders?.inlineComment.isBlockNodeSupported,
 			),
+			setSelectedAnnotation,
+			setPendingSelectedAnnotation,
 		},
 
 		getSharedState(editorState) {
@@ -109,7 +163,7 @@ export const annotationPlugin: AnnotationPlugin = ({ config: annotationProviders
 				const bookmark = pluginState?.bookmark;
 
 				if (shouldSuppressFloatingToolbar({ state, bookmark })) {
-					return buildSuppressedToolbar(state, api);
+					return buildSuppressedToolbar(state);
 				}
 			},
 
@@ -157,11 +211,7 @@ export const annotationPlugin: AnnotationPlugin = ({ config: annotationProviders
 		},
 
 		contentComponent({ editorView, dispatchAnalyticsEvent }) {
-			if (
-				!annotationProviders ||
-				!editorView ||
-				(isSSR() && expValEquals('platform_editor_hydratable_ui', 'isEnabled', true))
-			) {
+			if (!annotationProviders || !editorView || isSSR()) {
 				return null;
 			}
 			return (

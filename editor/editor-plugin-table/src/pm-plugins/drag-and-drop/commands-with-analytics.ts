@@ -1,4 +1,4 @@
-import { type IntlShape } from 'react-intl-next/src/types';
+import type { IntlShape } from 'react-intl/src/types';
 
 import {
 	ACTION_SUBJECT,
@@ -19,7 +19,6 @@ import type { DraggableData, DraggableType, TableDirection } from '../../types';
 import { getSelectedTableInfo, withEditorAnalyticsAPI } from '../utils/analytics';
 import { canMove, getTargetIndex } from '../utils/drag-menu';
 import { getSelectedColumnIndexes, getSelectedRowIndexes } from '../utils/selection';
-
 import { clearDropTarget, cloneSource, moveSource, toggleDragMenu } from './commands';
 import { getPluginState } from './plugin-factory';
 import type { TriggerType } from './types';
@@ -32,7 +31,7 @@ export const clearDropTargetWithAnalytics =
 		sourceIndexes: number[] | undefined,
 		status: TABLE_STATUS.CANCELLED | TABLE_STATUS.INVALID,
 		tr?: Transaction,
-	) => {
+	): Command => {
 		return withEditorAnalyticsAPI(({ selection }: EditorState) => {
 			const { totalRowCount, totalColumnCount } = getSelectedTableInfo(selection);
 			return {
@@ -72,7 +71,7 @@ export const moveSourceWithAnalytics =
 		sourceIndexes: number[],
 		targetIndex: number,
 		tr?: Transaction,
-	) => {
+	): Command => {
 		return withEditorAnalyticsAPI(({ selection }: EditorState) => {
 			const direction = sourceIndexes[0] > targetIndex ? -1 : 1;
 			const { totalRowCount, totalColumnCount } = getSelectedTableInfo(selection);
@@ -192,7 +191,7 @@ export const cloneSourceWithAnalytics =
 		targetIndex: number,
 		targetDirection: 'start' | 'end',
 		tr?: Transaction,
-	) => {
+	): Command => {
 		return withEditorAnalyticsAPI(({ selection }: EditorState) => {
 			const direction = sourceIndexes[0] > targetIndex ? -1 : 1;
 			const { totalRowCount, totalColumnCount } = getSelectedTableInfo(selection);
@@ -223,6 +222,7 @@ export const cloneSourceWithAnalytics =
 		});
 	};
 
+// remove when 'platform_editor_table_menu_updates' is cleaned up
 export const toggleDragMenuWithAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null) =>
 	(
@@ -230,7 +230,7 @@ export const toggleDragMenuWithAnalytics =
 		direction?: TableDirection,
 		index?: number,
 		trigger: TriggerType = 'mouse',
-	) => {
+	): Command => {
 		return withEditorAnalyticsAPI((state) => {
 			const {
 				isDragMenuOpen: previousOpenState,

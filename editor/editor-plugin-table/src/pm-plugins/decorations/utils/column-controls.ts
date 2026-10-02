@@ -1,20 +1,16 @@
-// @ts-ignore -- ReadonlyTransaction is a local declaration and will cause a TS2305 error in CCFE typecheck
 import type { ReadonlyTransaction, Transaction } from '@atlaskit/editor-prosemirror/state';
 import type { DecorationSet } from '@atlaskit/editor-prosemirror/view';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
-import { findTable } from '@atlaskit/editor-tables/utils';
 
 import { TableDecorations } from '../../../types';
 import {
-	createColumnControlsDecoration,
 	createColumnSelectedDecoration,
 	findColumnControlSelectedDecoration,
 	findControlsHoverDecoration,
 	updateDecorations,
 } from '../../utils/decoration';
-
 import { composeDecorations } from './compose-decorations';
-import type { BuildDecorationTransformerParams, DecorationTransformer } from './types';
+import type { DecorationTransformer, DecorationTransformerParams } from './types';
 
 const isColumnSelected = (tr: Transaction | ReadonlyTransaction): boolean =>
 	tr.selection instanceof CellSelection && tr.selection.isColSelection();
@@ -33,21 +29,6 @@ const maybeUpdateColumnSelectedDecoration: DecorationTransformer = ({ decoration
 		decorationSet,
 		createColumnSelectedDecoration(tr),
 		TableDecorations.COLUMN_SELECTED,
-	);
-};
-
-const maybeUpdateColumnControlsDecoration: DecorationTransformer = ({ decorationSet, tr }) => {
-	const table = findTable(tr.selection);
-
-	if (!table) {
-		return decorationSet;
-	}
-
-	return updateDecorations(
-		tr.doc,
-		decorationSet,
-		createColumnControlsDecoration(tr.selection),
-		TableDecorations.COLUMN_CONTROLS_DECORATIONS,
 	);
 };
 
@@ -72,20 +53,10 @@ export const maybeUpdateColumnControlsSelectedDecoration: DecorationTransformer 
 export const buildColumnControlsDecorations = ({
 	decorationSet,
 	tr,
-	options,
-}: BuildDecorationTransformerParams): DecorationSet => {
-	if (options.isDragAndDropEnabled) {
-		return composeDecorations([
-			removeColumnControlsSelectedDecoration,
-			removeControlsHoverDecoration,
-			maybeUpdateColumnSelectedDecoration,
-		])({ decorationSet, tr });
-	}
-
+}: DecorationTransformerParams): DecorationSet => {
 	return composeDecorations([
 		removeColumnControlsSelectedDecoration,
 		removeControlsHoverDecoration,
 		maybeUpdateColumnSelectedDecoration,
-		maybeUpdateColumnControlsDecoration,
 	])({ decorationSet, tr });
 };

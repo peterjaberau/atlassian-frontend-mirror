@@ -11,9 +11,8 @@ import { token } from '@atlaskit/tokens';
 
 const triggerWrapperStylesWithPadding = css({
 	display: 'flex',
-	paddingRight: token('space.025', '2px'),
+	paddingRight: token('space.025'),
 });
-
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- This rule thinks this isn't a `css()` call due to the name mapping
 const triggerWrapperStylesUnbounded = cssUnbounded({
@@ -26,15 +25,12 @@ const triggerWrapperStylesUnbounded = cssUnbounded({
 	},
 });
 
-export function ToolbarDropdownTriggerWrapper({ children }: { children?: React.ReactNode }) {
+export function ToolbarDropdownTriggerWrapper({
+	children,
+}: {
+	children?: React.ReactNode;
+}): JSX.Element {
 	return (
-		<div
-			css={[
-				triggerWrapperStylesWithPadding,
-				triggerWrapperStylesUnbounded,
-			]}
-		>
-			{children}
-		</div>
+		<div css={[triggerWrapperStylesWithPadding, triggerWrapperStylesUnbounded]}>{children}</div>
 	);
 }

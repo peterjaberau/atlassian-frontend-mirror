@@ -1,5 +1,167 @@
 # @atlaskit/email-renderer
 
+## 10.3.0
+
+### Minor Changes
+
+- [`8ea8fcc9c0723`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8ea8fcc9c0723) -
+  Add `./main` and `./common` entry points, exposing `EmailSerializer` and `commonStyle`
+  respectively. Both symbols were previously declared inline in the package's root barrel with no
+  subpath export, so consumers had no way to import them without going through the barrel.
+  `EmailSerializer` now lives in `src/main.ts` and `commonStyle` sits alongside the other font
+  constants it is built from in `src/styles/common.ts`. The root barrel re-exports both, so existing
+  imports continue to work unchanged.
+
+## 10.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- [`44b753b05a3ce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44b753b05a3ce) -
+  Resolve the new hexadecimal status color identifiers (teal `#B3F5FF`, green `#ABF5D1`, lime
+  `#D3F1A7`, yellow `#FFF0B3`, orange `#FCE4A6`, magenta `#FDD0EC`), so a status keeps its color
+  when content is delivered as an email notification or exported to wiki markup. Each identifier
+  resolves to its own hue; where a package already rendered that hue for one of the six legacy named
+  colors, the existing value is reused rather than adding a second near-identical one, so twelve
+  identifiers resolve to ten colors. The six legacy named colors are unchanged, and an unregistered
+  identifier still falls back to neutral in email and grey in wiki markup.
+
+## 10.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- [`a43d57f0217c0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a43d57f0217c0) -
+  Remove orphaned static image generator files and unused dependencies after deleting the image
+  build script
+
+## 10.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.12.0
+
+### Minor Changes
+
+- [`7b2ab46c79d94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b2ab46c79d94) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 9.11.11
+
+### Patch Changes
+
+- [`5979ce2baa3ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5979ce2baa3ea) -
+  Mechanical type-import autofix for rendering and provider packages.
+
+## 9.11.10
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 9.11.9
+
+### Patch Changes
+
+- [`a58ccd06e5753`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a58ccd06e5753) -
+  Added comprehensive task list test coverage for email-renderer and wikimarkup-transformer.
+
+## 9.11.8
+
+### Patch Changes
+
+- [`44735c0add67f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44735c0add67f) -
+  [ux] EDITOR-5420 Handle wrapper list items in email renderer. Wrapper list items (listItem nodes
+  whose only children are nested lists) no longer produce empty bullet points or numbers. Task lists
+  nested inside list items render with correct indentation.
+- Updated dependencies
+
+## 9.11.7
+
+### Patch Changes
+
+- [`70c7cd51a2800`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70c7cd51a2800) -
+  The iframe for the demo must have a title
+
+## 9.11.6
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 9.11.5
 
 ### Patch Changes

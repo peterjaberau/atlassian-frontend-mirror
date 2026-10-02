@@ -7,19 +7,17 @@ import { Fragment, useMemo, useState } from 'react';
 import { cssMap, jsx } from '@compiled/react';
 import { VariableSizeList as List } from 'react-window';
 
-import Button from '@atlaskit/button/new';
-import { Checkbox } from '@atlaskit/checkbox';
-import Heading from '@atlaskit/heading';
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import Heading from '@atlaskit/heading/heading';
 import SearchIcon from '@atlaskit/icon/core/search';
 import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
-import SectionMessage from '@atlaskit/section-message';
-import TextField from '@atlaskit/textfield';
+import SectionMessage from '@atlaskit/section-message/message';
+import TextField from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
+import rawTokensDark from '@atlaskit/tokens/atlassian-dark';
+import rawTokensLight from '@atlaskit/tokens/atlassian-light';
 
-// eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
-import rawTokensDark from '../../../src/artifacts/tokens-raw/atlassian-dark';
-// eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
-import rawTokensLight from '../../../src/artifacts/tokens-raw/atlassian-light';
 import checkThemePairContrasts, {
 	darkResults,
 	darkResultsAAA,
@@ -28,7 +26,6 @@ import checkThemePairContrasts, {
 } from '../utils/check-pair-contrasts';
 import { downloadResultsAsCSV } from '../utils/csv-generator';
 import { type ColorMode, type Theme, type TokenName } from '../utils/types';
-
 import Accordion from './accordion';
 import { baseTokens } from './base-token-editor';
 import ContrastCard from './contrast-card';
@@ -98,7 +95,6 @@ const ResultsAccordion = ({
 		return (
 			<ContrastCard
 				key={pairing}
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				style={style}
 				foregroundName={foreground as TokenName}
 				middleLayerName={middleLayer as TokenName}
@@ -173,53 +169,58 @@ export function getCustomTheme(
 	customBaseTokens: typeof baseTokens,
 	baseThemeType: ColorMode,
 ): {
-    value: string | number | {
-        radius: number;
-        offset: {
-            x: number;
-            y: number;
-        };
-        color: string;
-        opacity: number;
-        spread?: number;
-        inset?: boolean;
-    }[];
-    filePath: string;
-    isSource: boolean;
-    attributes: {
-        group: string;
-        state: string;
-        introduced: string;
-        description: string;
-        suggest?: string[];
-        deprecated?: string;
-        replacement?: string;
-    };
-    original: {
-        value: string | {
-            radius: number;
-            offset: {
-                x: number;
-                y: number;
-            };
-            color: string;
-            opacity: number;
-            spread?: number;
-            inset?: boolean;
-        }[];
-        attributes: {
-            group: string;
-            state: string;
-            introduced: string;
-            description: string;
-            suggest?: string[];
-            deprecated?: string;
-            replacement?: string;
-        };
-    };
-    name: string;
-    path: string[];
-    cleanName: string;
+	value:
+		| string
+		| number
+		| {
+				radius: number;
+				offset: {
+					x: number;
+					y: number;
+				};
+				color: string;
+				opacity: number;
+				spread?: number;
+				inset?: boolean;
+		  }[];
+	filePath: string;
+	isSource: boolean;
+	attributes: {
+		group: string;
+		state: string;
+		introduced: string;
+		description: string;
+		suggest?: string[];
+		deprecated?: string;
+		replacement?: string;
+	};
+	original: {
+		value:
+			| string
+			| {
+					radius: number;
+					offset: {
+						x: number;
+						y: number;
+					};
+					color: string;
+					opacity: number;
+					spread?: number;
+					inset?: boolean;
+			  }[];
+		attributes: {
+			group: string;
+			state: string;
+			introduced: string;
+			description: string;
+			suggest?: string[];
+			deprecated?: string;
+			replacement?: string;
+		};
+	};
+	name: string;
+	path: string[];
+	cleanName: string;
 }[] {
 	const baseRawTokens = baseThemeType === 'light' ? rawTokensLight : rawTokensDark;
 

@@ -1,5 +1,12 @@
 {
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "People and Teams Collective",
 		"website": {
 			"name": "TeamsAppInternalAnalytics",
@@ -11,83 +18,49 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./analytics-context": "./src/ui/analytics-context/index.tsx",
+		"./analytics/types": "./src/common/utils/generated/analytics.types.ts",
+		"./create-event-payload": "./src/common/utils/generated/create-event-payload.ts",
+		"./types": "./src/common/utils/types.ts",
+		"./use-analytics-events": "./src/common/utils/generated/use-analytics-events.ts"
 	},
 	"scripts": {
-		"analytics:codegen": "yarn workspace @atlassian/analytics-tooling run analytics:codegen teams-app-internal-analytics --output ./src/common/utils/generated"
+		"analytics:codegen": "afm workspace @atlassian/analytics-tooling analytics:codegen teams-app-internal-analytics --output ./src/common/utils/generated"
 	},
 	"dependencies": {
 		"@atlaskit/analytics-listeners": "workspace:^",
 		"@atlaskit/analytics-namespaced-context": "workspace:^",
 		"@atlaskit/analytics-next": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0"
 	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
+		"@atlaskit/analytics-gas-types": "workspace:^",
+		"@atlaskit/button": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/ptc-test-utils": "workspace:^",
+		"@atlassian/teams-app-internal-playground": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
-		"react-dom": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"tangerine-next"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0"
 	},
 	"name": "@atlaskit/teams-app-internal-analytics",
-	"version": "1.24.1",
+	"version": "2.4.2",
 	"description": "A package used by the teams app and platform packages to handle people and teams analytics",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",

@@ -1,0 +1,1488 @@
+# @atlaskit/editor-presets
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- [`a4fe8636fa0ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4fe8636fa0ec) -
+  Clean up the fully rolled out `platform_editor_layout_column_menu` experiment and the
+  `platform_editor_layout_column_menu_kill_switch_1` feature gate, retaining their shipped behavior.
+  Consumers must remove any direct `@atlaskit/tmp-editor-statsig` experiment override for
+  `platform_editor_layout_column_menu`.
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- [`1ee5ac1d4338d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ee5ac1d4338d) -
+  Cleaning up cc_editor_focus_before_editor_on_load and platform_editor_no_cursor_on_edit_page_init
+
+  Cursor suppression on load is now driven by the presence of the interaction plugin rather than the
+  experiment, so only editors that opt into that plugin skip focus on a document with content.
+  `cc_editor_focus_before_editor_on_load` shipped disabled, so the pre-editor focus element has been
+  removed.
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- [`0920715a6b9fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0920715a6b9fc) -
+  Clean up feature gate `platform_editor_use_preferences_plugin`
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`d3a7f9016da28`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3a7f9016da28) -
+  Add media render lifecycle callbacks for Remix-generated media behind
+  cc-maui-add-mark-for-remix-generated-images.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.10
+
+### Patch Changes
+
+- [`08bf773f7599a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08bf773f7599a) -
+  Migrate experiments to use the new platform experiment API. This major release removes the
+  migrated experiment entries from `@atlaskit/tmp-editor-statsig`'s `editorExperimentsConfig` and
+  test overrides. Consumers must replace legacy `expVal`/`expValEquals` calls with
+  `@atlaskit/platform-feature-experiments` APIs, using `isExperimentEnabled` for boolean `isEnabled`
+  experiments and `expVal` for parameterized experiments; use `mockExpEnabled`/`mockExpDisabled` in
+  tests.
+- Updated dependencies
+
+## 10.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- [`0841b102bfe4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0841b102bfe4a) -
+  Add a PM-state-backed multi-location left block-controls surface and register the display-only
+  heading collapse button behind `platform_editor_block_control_migration` and
+  `platform_editor_collapsible_headings`.
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.13
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 9.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.3
+
+### Patch Changes
+
+- [`1eb42bae392d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1eb42bae392d7) -
+  Clean up experiment `platform_editor_remove_bidi_char_warning`. Bidirectional character warnings
+  are no longer rendered in code blocks: `codeBidiWarningPlugin` is no longer registered by any
+  preset, and the renderer passes `hasBidiWarnings={false}` to `@atlaskit/code` code blocks. Bidi
+  warnings on inline `code` marks are unaffected.
+
+  `codeBidiWarning` has been removed from the plugin lists and plugin options of the Confluence
+  full-page, Confluence markdown, and Company Hub presets, so consumers no longer need to pass
+  `pluginOptions.codeBidiWarning` or `enabledOptionalPlugins.codeBidiWarning`.
+
+  `@atlaskit/editor-plugin-code-bidi-warning` is retained but now has no consumers; it is scheduled
+  for removal in a follow-up.
+
+- Updated dependencies
+
+## 9.1.2
+
+### Patch Changes
+
+- [`4d7433f9c93d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4d7433f9c93d8) -
+  Clean up the enabled `platform_editor_code_block_fold_gutter` experiment for Confluence.
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`40071c3a1e51d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/40071c3a1e51d) -
+  Add the interactivity plugin package and register it in the Confluence full page presets behind
+  the platform_editor_editor_interactivity experiment. The plugin is a stub for now — it collects
+  nothing.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.1
+
+### Patch Changes
+
+- [`7a8d5e478d5d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7a8d5e478d5d1) -
+  Clean up feature gate `platform_editor_table_fixed_column_width_prop`
+- Updated dependencies
+
+## 7.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.2
+
+### Patch Changes
+
+- [`4bc741a70d678`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4bc741a70d678) -
+  Add the first registry-backed Quick Insert slice with Table
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.3
+
+### Patch Changes
+
+- [`f596f4ca80078`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f596f4ca80078) -
+  Clean up feature gate `platform_editor_table_auto_convert_fix`
+- Updated dependencies
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`2cfc0f295c39a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2cfc0f295c39a) -
+  [ux] FG cleanup - Removes `confluence_frontend_content_wrapper` from platform (treated as
+  permanently launched / implicitly true).
+
+  ## Breaking change
+
+  The `confluence_frontend_content_wrapper` gate previously guarded a scroll-gutter tweak in
+  `basePluginOptions` that only read the `base` builder's `__livePage` field. With the gate
+  launched, that field is no longer read, so the now-dead `base` option was removed rather than left
+  as vestigial API.
+
+  For `@atlaskit/editor-presets` (published):
+  - The `base` option was removed from the public preset plugin options type
+    (`AllPublicPluginOptions.base` is now `never`).
+  - `basePluginOptions()` no longer takes an argument (was `basePluginOptions({ options })`).
+
+  This is a **type-level** breaking change only. At runtime it is a no-op: the `base` option (and
+  the `__livePage` value passed through it) was already unused once the gate was on, so removing it
+  does not change editor behaviour. It is scored `major` for `@atlaskit/editor-presets` because that
+  package is published and the type contract change will break the builds of external TypeScript
+  consumers that still pass `base`. `@atlassian/confluence-presets` is `private` (not published) and
+  receives the same code change, so it is scored `minor`.
+
+  ## Migration
+
+  Stop passing the `base` option to the preset, and call `basePluginOptions()` with no arguments:
+
+  ```diff
+   fullPagePreset({
+     intl,
+     pluginOptions: {
+  -    base: { __livePage },
+       // ...other plugin options unchanged
+     },
+   });
+  ```
+
+  ```diff
+  - basePluginOptions({ options: { __livePage } });
+  + basePluginOptions();
+  ```
+
+  Note: `__livePage` itself is not removed — it remains a valid, live field on the other plugin
+  option builders (e.g. `selection`, `selectionMarker`, `collabEdit`, `card`). Only the unused
+  `base.__livePage` passthrough is gone. All in-repo consumers have been migrated as part of this
+  PR.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.3
+
+### Patch Changes
+
+- [`7bbeb928e7b97`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7bbeb928e7b97) -
+  Passes editor context from agent profile card action to rovo chat
+- Updated dependencies
+
+## 5.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`554b23dd7f5e7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/554b23dd7f5e7) -
+  [ux] Make Labs Lozenge Opt-In
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`f8280f6b24eec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8280f6b24eec) -
+  Allow editor surfaces to control agent mention picker sectioning independently.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.20
+
+### Patch Changes
+
+- [`d8df4ec19d384`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d8df4ec19d384) -
+  Suppresses nudge from agent mention when rovo chat is open
+- Updated dependencies
+
+## 5.0.19
+
+### Patch Changes
+
+- [`d129b4a5b7e21`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d129b4a5b7e21) -
+  Clean up feature gate `platform_editor_ai_aifc_space_shortcut`
+
+## 5.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.16
+
+### Patch Changes
+
+- [`46ee61dd53e91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/46ee61dd53e91) -
+  Remove stale experiment confluence_compact_text_format (FFCLEANUP-85812): inline final values
+  (flag enabled), simplify conditions, remove experiment config entries.
+- Updated dependencies
+
+## 5.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.12
+
+### Patch Changes
+
+- [`346f91cfe1997`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/346f91cfe1997) -
+  Clean up prefer static regex violations
+- Updated dependencies
+
+## 5.0.11
+
+### Patch Changes
+
+- [`a8c135d0b7bfb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8c135d0b7bfb) -
+  Cleanup experiment `confluence_load_editor_title_on_transition`. The placeholder loading spinner
+  and the collab-not-ready placeholder skip during transitions are now always enabled, and the
+  experiment definition has been removed from the editor statsig config.
+- Updated dependencies
+
+## 5.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.3
+
+### Patch Changes
+
+- [`137ce6a6d525e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/137ce6a6d525e) -
+  Prevent automatic table fit-to-content conversion from rewriting resized tables
+- Updated dependencies
+
+## 5.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- [`81545f4d0e189`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81545f4d0e189) -
+  Add code block format provider plumbing for Confluence editor presets and align code block
+  formatting state with the shared provider result type.
+- Updated dependencies
+
+## 4.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.1
+
+### Patch Changes
+
+- [`6403e27aa3327`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6403e27aa3327) -
+  Add the experimental table row menu structure, keyboard shortcut hints, and shared table menu
+  items. Expose table row menu icons through editor-toolbar. Ensure the UI control registry is
+  available before table row menu items are registered.
+- Updated dependencies
+
+## 3.2.0
+
+### Minor Changes
+
+- [`edd5d6d4c23ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/edd5d6d4c23ec) -
+  Add SSR streaming supporting to Editor starmt cards and extensions
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.0
+
+### Minor Changes
+
+- [`136d15a32935f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/136d15a32935f) -
+  [ux] Adding initial scaffolding (non-functional) for agent-managed blocks as an editor
+  extension/plugin and use in Confluence
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.0
+
+### Major Changes
+
+- [`34d7b445ae298`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/34d7b445ae298) -
+  [ux] EDITOR-6294 Removing tableDragAndDrop from plugin presets and cleaning up unused table code
+  for menus
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`c939283d6f41a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c939283d6f41a) -
+  [EDITOR-6181](https://hello.jira.atlassian.cloud/browse/EDITOR-6181) - fix inline smart cards in
+  SSR streaming
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.2
+
+### Patch Changes
+
+- [`acce33a5519e2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acce33a5519e2) -
+  Clean up stale experiment `platform_editor_ai_quickstart_command` - enable the quickstart command
+  behaviour by default.
+- Updated dependencies
+
+## 2.0.1
+
+### Patch Changes
+
+- [`b47ee185c5ac4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b47ee185c5ac4) -
+  Remove deprecated dragAndDropEnabled plugin option Drag and drop table rows/ columns and advanced
+  table controls used to be toggled with dragAndDropEnabled table plugin option however we're
+  deprecating this prop to make this the default behaviour.
+
+  ```
+  // Before - to turn on drag and drop:
+
+  const createPreset = () =>
+    createDefaultPreset({ featureFlags: {}, paste: {} })
+      .add([tablePlugin, {tableOptions: {}, dragAndDropEnabled: true}])
+
+  const { preset } = usePreset(createPreset);
+
+  // Now - drag and drop enabled even without prop
+  const createPreset = () =>
+    createDefaultPreset({ featureFlags: {}, paste: {} })
+      .add([tablePlugin, {tableOptions: {}}])
+
+  const { preset } = usePreset(createPreset);
+  ```
+
+  The `dragAndDropEnabled` property has also been removed from the `TablePluginOptions` TypeScript
+  interface.
+
+  **Note:** If you previously set `dragAndDropEnabled: false` to explicitly disable drag and drop,
+  this is no longer supported — drag and drop is now always enabled and cannot be turned off via
+  this option.
+
+  If issues occur when bumping editor package, please check if dragAndDropEnabled is still present
+  in editor integration.
+
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.3
+
+### Patch Changes
+
+- [`2df767cd2e0e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2df767cd2e0e9) -
+  Remove deprecated dragAndDropEnabled plugin option - table drag and drop is now always
+  enabled(EDITOR-6287)
+- Updated dependencies
+
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.0
+
+### Minor Changes
+
+- [`375155c440374`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/375155c440374) -
+  Add FullPagePresetNext
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.4
+
+### Patch Changes
+
+- [`aad55446552cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aad55446552cd) -
+  Cleaned up `platform_editor_ai_aifc_adf_placeholder` feature gate. The ADF placeholder is now
+  always used when applicable, without requiring a feature gate check. Removed unused imports and
+  dead code paths.
+- Updated dependencies
+
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.0
+
+### Minor Changes
+
+- [`ecfa369efa682`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ecfa369efa682) -
+  Create @atlaskit/editor-presets

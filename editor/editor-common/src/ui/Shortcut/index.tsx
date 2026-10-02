@@ -11,10 +11,10 @@ import { token } from '@atlaskit/tokens';
 
 const shortcutStyle = css({
 	alignSelf: 'flex-end',
-	paddingTop: token('space.050', '4px'),
-	paddingBottom: token('space.050', '4px'),
-	paddingLeft: token('space.050', '4px'),
-	paddingRight: token('space.050', '4px'),
+	paddingTop: token('space.050'),
+	paddingBottom: token('space.050'),
+	paddingLeft: token('space.050'),
+	paddingRight: token('space.050'),
 	color: token('color.text.subtle'),
 	backgroundColor: token('color.background.neutral'),
 	borderRadius: token('radius.small', '3px'),
@@ -39,6 +39,6 @@ const shortcutStyleUnbounded = cssUnbounded({
 	fontSize: `${11.67 / 16}rem`,
 });
 
-export function Shortcut({ children }: { children?: React.ReactNode }) {
+export function Shortcut({ children }: { children?: React.ReactNode }): JSX.Element {
 	return <div css={[shortcutStyle, shortcutStyleUnbounded]}>{children}</div>;
 }

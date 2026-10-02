@@ -1,7 +1,6 @@
 import { createContext } from 'react';
 
-import { defaultGridColumns, defaultSpacing } from './constants';
-import { type GridSpacing } from './types';
+import { defaultGridColumns, defaultSpacing, type GridSpacing } from './constants';
 
 type GridContextProps = {
 	isRoot: boolean;
@@ -18,9 +17,10 @@ type GridContextProps = {
  *
  * @internal
  */
-export const GridContext: import("react").Context<GridContextProps> = createContext<GridContextProps>({
-	isRoot: true,
-	isNested: false,
-	spacing: defaultSpacing,
-	columns: defaultGridColumns,
-});
+export const GridContext: import('react').Context<GridContextProps> =
+	createContext<GridContextProps>({
+		isRoot: true,
+		isNested: false,
+		spacing: defaultSpacing,
+		columns: defaultGridColumns,
+	});

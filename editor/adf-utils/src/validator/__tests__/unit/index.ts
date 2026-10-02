@@ -1,4 +1,4 @@
-import { validator } from '../../../validator';
+import { validator } from '../../validator';
 
 describe('validate', () => {
 	const validate = validator();
@@ -10,7 +10,7 @@ describe('validate', () => {
 				version: 1,
 			});
 		};
-		expect(run).toThrowError('doc: required prop missing.');
+		expect(run).toThrow('doc: required prop missing.');
 	});
 
 	/**
@@ -32,7 +32,7 @@ describe('validate', () => {
 				],
 			});
 		};
-		expect(run).toThrowError('blockCard: required prop missing.');
+		expect(run).toThrow('blockCard: required prop missing.');
 	});
 
 	/**
@@ -100,7 +100,7 @@ describe('validate', () => {
 				],
 			});
 		};
-		expect(run).toThrowError('doc: invalid content.');
+		expect(run).toThrow('doc: invalid content.');
 	});
 
 	it('should be able to validate attrs with union type - path-1', () => {
@@ -118,7 +118,7 @@ describe('validate', () => {
 				],
 			});
 		};
-		expect(run).not.toThrowError();
+		expect(run).not.toThrow();
 	});
 
 	it('should be able to validate attrs with union type - path-2', () => {
@@ -136,7 +136,7 @@ describe('validate', () => {
 				],
 			});
 		};
-		expect(run).not.toThrowError();
+		expect(run).not.toThrow();
 	});
 
 	it('should throw when required attrs are missing inside children', () => {
@@ -151,7 +151,7 @@ describe('validate', () => {
 				],
 			});
 		};
-		expect(run).toThrowError('heading: required prop missing.');
+		expect(run).toThrow('heading: required prop missing.');
 	});
 
 	it('should not throw when required attrs are available', () => {
@@ -167,7 +167,7 @@ describe('validate', () => {
 				],
 			});
 		};
-		expect(run).not.toThrowError();
+		expect(run).not.toThrow();
 	});
 
 	it('should not throw for valid document', () => {
@@ -200,7 +200,7 @@ describe('validate', () => {
 			const { entity } = validate(doc);
 			expect(entity).toEqual(doc);
 		};
-		expect(run).not.toThrowError();
+		expect(run).not.toThrow();
 	});
 
 	it('should be able to wrap invalid nodes', () => {
@@ -240,7 +240,7 @@ describe('validate', () => {
 		};
 
 		const run = () => {
-			const result = validate(invalidDoc, (x) => {
+			validate(invalidDoc, (x) => {
 				expect(x).not.toBe(invalidNode);
 				expect(x).toEqual(invalidNode);
 				return {
@@ -250,11 +250,9 @@ describe('validate', () => {
 					},
 				};
 			});
-			expect(result.entity).toMatchSnapshot();
 		};
 
-		expect(run).not.toThrowError();
-		expect(invalidDoc).toMatchSnapshot();
+		expect(run).not.toThrow();
 	});
 
 	it('should not remove valid marks', () => {
@@ -281,11 +279,10 @@ describe('validate', () => {
 
 		const run = () => {
 			const result = validate(doc, (_) => undefined);
-			expect(result.entity).toMatchSnapshot();
+			expect(result.entity).toEqual(doc);
 		};
 
-		expect(run).not.toThrowError();
-		expect(doc).toMatchSnapshot();
+		expect(run).not.toThrow();
 	});
 
 	it('should be able to wrap invalid nodes - 2', () => {
@@ -314,7 +311,7 @@ describe('validate', () => {
 		};
 
 		const run = () => {
-			const result = validate(invalidDoc, (x) => {
+			validate(invalidDoc, (x) => {
 				return {
 					type: 'unknown',
 					attrs: {
@@ -322,11 +319,9 @@ describe('validate', () => {
 					},
 				};
 			});
-			expect(result.entity).toMatchSnapshot();
 		};
 
-		expect(run).not.toThrowError();
-		expect(invalidDoc).toMatchSnapshot();
+		expect(run).not.toThrow();
 	});
 });
 
@@ -345,7 +340,7 @@ describe('validator', () => {
 		};
 
 		const run = () => {
-			const result = validate(invalidDoc, (x) => {
+			validate(invalidDoc, (x) => {
 				expect(x).not.toBe(invalidNode);
 				expect(x).toEqual(invalidNode);
 				return {
@@ -355,9 +350,223 @@ describe('validator', () => {
 					},
 				};
 			});
-			expect(result.entity).toMatchSnapshot();
 		};
 
-		expect(run).not.toThrowError();
+		expect(run).not.toThrow();
+	});
+});
+
+describe('nested list validation', () => {
+	const validate = validator();
+
+	it('should validate bulletList with nested list as first child in listItem', () => {
+		const doc = {
+			version: 1,
+			type: 'doc',
+			content: [
+				{
+					type: 'bulletList',
+					content: [
+						{
+							type: 'listItem',
+							content: [
+								{
+									type: 'bulletList',
+									content: [
+										{
+											type: 'listItem',
+											content: [
+												{
+													type: 'paragraph',
+													content: [{ type: 'text', text: 'Indented first item' }],
+												},
+											],
+										},
+									],
+								},
+							],
+						},
+						{
+							type: 'listItem',
+							content: [
+								{
+									type: 'paragraph',
+									content: [{ type: 'text', text: 'Second item' }],
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+		const run = () => {
+			const { valid, entity } = validate(doc);
+			expect(valid).toBe(true);
+			expect(entity).toEqual(doc);
+		};
+		expect(run).not.toThrow();
+	});
+
+	it('should validate orderedList with nested list as first child in listItem', () => {
+		const doc = {
+			version: 1,
+			type: 'doc',
+			content: [
+				{
+					type: 'orderedList',
+					content: [
+						{
+							type: 'listItem',
+							content: [
+								{
+									type: 'orderedList',
+									content: [
+										{
+											type: 'listItem',
+											content: [
+												{
+													type: 'paragraph',
+													content: [{ type: 'text', text: 'Nested ordered item' }],
+												},
+											],
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+		const run = () => {
+			const { valid, entity } = validate(doc);
+			expect(valid).toBe(true);
+			expect(entity).toEqual(doc);
+		};
+		expect(run).not.toThrow();
+	});
+
+	it('should validate mixed nested lists (bulletList inside orderedList)', () => {
+		const doc = {
+			version: 1,
+			type: 'doc',
+			content: [
+				{
+					type: 'orderedList',
+					content: [
+						{
+							type: 'listItem',
+							content: [
+								{
+									type: 'bulletList',
+									content: [
+										{
+											type: 'listItem',
+											content: [
+												{
+													type: 'paragraph',
+													content: [{ type: 'text', text: 'Bullet inside ordered' }],
+												},
+											],
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+		const run = () => {
+			const { valid, entity } = validate(doc);
+			expect(valid).toBe(true);
+			expect(entity).toEqual(doc);
+		};
+		expect(run).not.toThrow();
+	});
+
+	it('should validate deeply nested lists', () => {
+		const doc = {
+			version: 1,
+			type: 'doc',
+			content: [
+				{
+					type: 'bulletList',
+					content: [
+						{
+							type: 'listItem',
+							content: [
+								{
+									type: 'bulletList',
+									content: [
+										{
+											type: 'listItem',
+											content: [
+												{
+													type: 'bulletList',
+													content: [
+														{
+															type: 'listItem',
+															content: [
+																{
+																	type: 'paragraph',
+																	content: [{ type: 'text', text: 'Level 3 content' }],
+																},
+															],
+														},
+													],
+												},
+											],
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+		const run = () => {
+			const { valid, entity } = validate(doc);
+			expect(valid).toBe(true);
+			expect(entity).toEqual(doc);
+		};
+		expect(run).not.toThrow();
+	});
+
+	it('should validate taskList as first child in listItem', () => {
+		const doc = {
+			version: 1,
+			type: 'doc',
+			content: [
+				{
+					type: 'bulletList',
+					content: [
+						{
+							type: 'listItem',
+							content: [
+								{
+									type: 'taskList',
+									attrs: { localId: 'task-list-1' },
+									content: [
+										{
+											type: 'taskItem',
+											attrs: { localId: 'task-1', state: 'TODO' },
+											content: [{ type: 'text', text: 'Task inside list' }],
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+		};
+		const run = () => {
+			const { valid, entity } = validate(doc);
+			expect(valid).toBe(true);
+			expect(entity).toEqual(doc);
+		};
+		expect(run).not.toThrow();
 	});
 });

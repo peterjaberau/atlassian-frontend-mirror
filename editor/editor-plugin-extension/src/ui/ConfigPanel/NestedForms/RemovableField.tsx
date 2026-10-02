@@ -6,14 +6,13 @@ import React from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { configPanelMessages as messages } from '@atlaskit/editor-common/extensions';
 import CrossCircleIcon from '@atlaskit/icon/core/cross-circle';
-import { N80, R300 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 const removableFieldWrapperStyles = css({
 	position: 'relative',
@@ -21,7 +20,7 @@ const removableFieldWrapperStyles = css({
 });
 
 const wrapperWithMarginBottomStyles = css({
-	marginBottom: token('space.200', '16px'),
+	marginBottom: token('space.200'),
 });
 
 const removeButtonWrapperStyles = css({
@@ -30,10 +29,10 @@ const removeButtonWrapperStyles = css({
 	top: 0,
 	cursor: 'pointer',
 
-	color: token('color.icon.subtle', N80),
+	color: token('color.icon.subtle'),
 
 	'&:hover': {
-		color: token('color.icon.danger', R300),
+		color: token('color.icon.danger'),
 	},
 });
 
@@ -68,11 +67,14 @@ const RemovableField = ({
 		>
 			{children}
 			{canRemoveField && (
-				// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 				<div
+					role="button"
 					css={removeButtonWrapperStyles}
 					data-testid={`remove-field-${name}`}
 					onClick={onClickCallback}
+					onKeyDown={onClickCallback}
+					onFocus={onClickCallback}
+					tabIndex={0}
 				>
 					<Tooltip content={intl.formatMessage(messages.removeField)} position="left">
 						<CrossCircleIcon spacing="none" label={intl.formatMessage(messages.removeField)} />
@@ -83,4 +85,8 @@ const RemovableField = ({
 	);
 };
 
-export default injectIntl(RemovableField);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props>> & {
+	WrappedComponent: React.ComponentType<Props>;
+} = injectIntl(RemovableField);
+export default _default_1;

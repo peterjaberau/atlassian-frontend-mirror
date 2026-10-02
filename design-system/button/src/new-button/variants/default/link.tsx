@@ -7,14 +7,13 @@ import { forwardRef, useRef } from 'react';
 import { cssMap, cx, jsx } from '@atlaskit/css';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
 import useAutoFocus from '@atlaskit/ds-lib/use-auto-focus';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Anchor } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import Content from '../shared/content';
 import IconRenderer from '../shared/icon-renderer';
 import type { AdditionalDefaultLinkVariantProps, CommonLinkVariantProps } from '../types';
-
 import type { CommonDefaultButtonProps } from './types';
 
 export type LinkButtonProps<RouterLinkConfig extends Record<string, any> = never> =
@@ -32,7 +31,7 @@ const styles = cssMap({
 		alignItems: 'baseline',
 		justifyContent: 'center',
 		columnGap: token('space.050'),
-		borderRadius: token('radius.small', '3px'),
+		borderRadius: token('radius.medium'),
 		borderWidth: 0,
 		flexShrink: 0,
 		height: '2rem',
@@ -53,9 +52,11 @@ const styles = cssMap({
 			position: 'absolute',
 		},
 	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	baseT26Shape: {
-		borderRadius: token('radius.medium', '6px'),
+	interactiveMotion: {
+		transition: token('motion.button.hovered'),
+		'&:active': {
+			transition: token('motion.button.pressed'),
+		},
 	},
 	// Required due to Jira's AUI CSS reset: https://product-fabric.atlassian.net/browse/DSP-15687
 	linkDecorationUnset: {
@@ -93,10 +94,12 @@ const styles = cssMap({
 		verticalAlign: 'middle',
 	},
 	buttonIconBefore: {
-		paddingInlineStart: token('space.100'),
+		paddingInlineStart: token('space.150'),
+		columnGap: token('space.075'),
 	},
 	buttonIconAfter: {
-		paddingInlineEnd: token('space.100'),
+		paddingInlineEnd: token('space.150'),
+		columnGap: token('space.075'),
 	},
 	fullWidth: {
 		width: '100%',
@@ -144,6 +147,25 @@ const primaryStyles = cssMap({
 			// @ts-expect-error
 			color: token('color.text.inverse'),
 			backgroundColor: token('color.background.brand.bold.pressed'),
+		},
+		'&:focus': {
+			color: token('color.text.inverse'),
+		},
+	},
+});
+
+const rovoStyles = cssMap({
+	root: {
+		backgroundColor: token('color.rovo.background.brand.bold'),
+		color: token('color.text.inverse'),
+		'&:visited': {
+			color: token('color.text.inverse'),
+		},
+		'&:hover': {
+			backgroundColor: token('color.rovo.background.brand.bold.hovered'),
+		},
+		'&:active': {
+			backgroundColor: token('color.rovo.background.brand.bold.pressed'),
 		},
 		'&:focus': {
 			color: token('color.text.inverse'),
@@ -388,9 +410,10 @@ const LinkButtonBase = <RouterLinkConfig extends Record<string, any> = never>(
 			{...saferRest}
 			xcss={cx(
 				styles.base,
-				fg('platform-dst-shape-theme-default') && styles.baseT26Shape,
+				!isDisabled && fg('platform-dst-motion-uplift-button') && styles.interactiveMotion,
 				appearance === 'default' && defaultStyles.root,
 				appearance === 'primary' && primaryStyles.root,
+				appearance === 'rovo' && rovoStyles.root,
 				appearance === 'warning' && warningStyles.root,
 				appearance === 'danger' && dangerStyles.root,
 				appearance === 'discovery' && discoveryStyles.root,

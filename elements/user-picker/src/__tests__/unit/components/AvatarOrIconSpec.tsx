@@ -1,5 +1,7 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
+
+import { render, screen } from '@testing-library/react';
+
 import { AvatarOrIcon, type AvatarOrIconProps } from '../../../components/AvatarOrIcon';
 import { type Props as SizeableAvatarProps } from '../../../components/SizeableAvatar';
 
@@ -126,7 +128,9 @@ describe('AvatarOrIcon', () => {
 			});
 			const sizeableAvatar = screen.getByTestId('sizeable-avatar');
 
-			expect(sizeableAvatar).toHaveTextContent(`"avatarAppearanceShape":"${avatarAppearanceShape}"`);
+			expect(sizeableAvatar).toHaveTextContent(
+				`"avatarAppearanceShape":"${avatarAppearanceShape}"`,
+			);
 		});
 
 		it('should use default type "person" when type is not provided', () => {
@@ -168,4 +172,3 @@ describe('AvatarOrIcon', () => {
 		});
 	});
 });
-

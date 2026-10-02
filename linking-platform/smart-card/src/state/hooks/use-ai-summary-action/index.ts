@@ -1,18 +1,29 @@
 import { useCallback } from 'react';
 
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { extractAri, extractLink } from '@atlaskit/link-extractors';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { extractAri } from '@atlaskit/link-extractors/extract-ari';
+import { extractLink } from '@atlaskit/link-extractors/extract-link';
 
 import { useAnalyticsEvents } from '../../../common/analytics/generated/use-analytics-events';
-import { failUfoExperience, startUfoExperience, succeedUfoExperience } from '../../analytics';
+import { failUfoExperience } from '../../analytics/failUfoExperience';
+import { startUfoExperience } from '../../analytics/startUfoExperience';
+import { succeedUfoExperience } from '../../analytics/succeedUfoExperience';
 import { useSmartCardState } from '../../store';
 import { useAISummary } from '../use-ai-summary';
 import { useAISummaryConfig } from '../use-ai-summary-config';
-import type { AISummaryServiceProps } from '../use-ai-summary/ai-summary-service/types';
+import type {
+	AISummaryServiceProps,
+	AISummaryState,
+} from '../use-ai-summary/ai-summary-service/types';
 
 const EXPERIENCE_NAME = 'smart-link-ai-summary';
 
-const useAISummaryAction = (url: string) => {
+const useAISummaryAction = (
+	url: string,
+): {
+	state: AISummaryState;
+	summariseUrl: () => Promise<AISummaryState> | undefined;
+} => {
 	const { baseUrl, envKey, product } = useAISummaryConfig();
 	const cardState = useSmartCardState(url);
 	const { fireEvent } = useAnalyticsEvents();

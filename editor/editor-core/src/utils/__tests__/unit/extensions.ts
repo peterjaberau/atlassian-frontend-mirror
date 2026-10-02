@@ -6,20 +6,17 @@ import type {
 	ExtensionProvider,
 } from '@atlaskit/editor-common/extensions';
 import { DefaultExtensionProvider } from '@atlaskit/editor-common/extensions';
-import { type PublicPluginAPI } from '@atlaskit/editor-common/types';
+import type { PublicPluginAPI } from '@atlaskit/editor-common/types';
 import { findInsertLocation } from '@atlaskit/editor-common/utils/analytics';
 import type { ExtensionPlugin } from '@atlaskit/editor-plugins/extension';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
-// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { createFakeExtensionManifest } from '@atlaskit/editor-test-helpers/extensions';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { mockExpDisabled } from '@atlassian/experiment-test-utils/mock-exp-disabled';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
+// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 
 import type EditorActions from '../../../actions';
 import { extensionProviderToQuickInsertProvider } from '../../extensions';
-
-jest.mock('@atlaskit/platform-feature-flags', () => ({
-	fg: jest.fn(),
-}));
 
 function replaceCustomQuickInsertModules(
 	manifest: ExtensionManifest,
@@ -47,27 +44,133 @@ function setup(customManifests: ExtensionManifest[] = []) {
 
 jest.mock('@atlaskit/editor-common/utils/analytics');
 
-afterEach(() => {
-	jest.restoreAllMocks();
-});
-
 describe('#extensionProviderToQuickInsertProvider', () => {
 	let dummyExtensionProvider: ExtensionProvider;
 	beforeEach(() => {
 		dummyExtensionProvider = setup();
 	});
-	it('should returns quickInsert items from all extensions', async () => {
+
+	describe('slash command representations', () => {
+		const createExtensionProviderWithKeywords = () =>
+			new DefaultExtensionProvider([
+				replaceCustomQuickInsertModules(
+					createFakeExtensionManifest({
+						title: 'User item',
+						type: 'com.atlassian.test',
+						extensionKey: 'keyword-extension',
+					}),
+					{
+						key: 'user-item',
+						title: 'User item',
+						keywords: ['template', 'block'],
+						action: jest.fn(),
+					},
+				),
+			]);
+
+		it('exposes extension items through the legacy provider when slash command is disabled', async () => {
+			mockExpDisabled('platform_editor_slash_command');
+			const quickInsertProvider = await extensionProviderToQuickInsertProvider(
+				createExtensionProviderWithKeywords(),
+				{} as EditorActions,
+				{ current: undefined },
+			);
+
+			await expect(quickInsertProvider.getItems()).resolves.toEqual([
+				expect.objectContaining({
+					key: 'keyword-extension:user-item',
+					keywords: ['template', 'block'],
+					title: 'User item',
+				}),
+			]);
+			await expect(quickInsertProvider.getComponents?.()).resolves.toEqual([]);
+		});
+
+		it.each(['template', 'block'])(
+			'exposes extension items through the registered provider and matches the %s keyword when slash command is enabled',
+			async (query) => {
+				mockExpEnabled('platform_editor_slash_command');
+				const quickInsertProvider = await extensionProviderToQuickInsertProvider(
+					createExtensionProviderWithKeywords(),
+					{} as EditorActions,
+					{ current: undefined },
+				);
+
+				const components = await quickInsertProvider.getComponents?.();
+				const component = components?.[0];
+				const formatMessage = jest.fn(({ defaultMessage }) => defaultMessage ?? '');
+
+				expect(component).toEqual(
+					expect.objectContaining({
+						key: 'keyword-extension:user-item',
+						type: 'menu-item',
+					}),
+				);
+				expect(component?.match?.({ formatMessage, query })).not.toBeNull();
+			},
+		);
+	});
+
+	it.each([
+		[false, false, false],
+		[true, false, true],
+		[false, true, true],
+		[true, true, true],
+	])(
+		'forwards app identity when category analytics is %s and slash command is %s',
+		async (categoryAnalytics, slashCommand, shouldIncludeApp) => {
+			(categoryAnalytics ? mockExpEnabled : mockExpDisabled)(
+				'platform_editor_slash_app_category_analytics',
+			);
+			(slashCommand ? mockExpEnabled : mockExpDisabled)('platform_editor_slash_command');
+			const quickInsertProvider = await extensionProviderToQuickInsertProvider(
+				dummyExtensionProvider,
+				{} as EditorActions,
+				{ current: undefined },
+			);
+
+			const items = await quickInsertProvider.getItems();
+
+			if (shouldIncludeApp) {
+				expect(items).toMatchObject([
+					{ app: { key: 'first' }, title: 'First dummy extension' },
+					{ app: { key: 'second' }, title: 'Second dummy extension' },
+				]);
+			} else {
+				expect(items[0]).not.toHaveProperty('app');
+				expect(items[1]).not.toHaveProperty('app');
+			}
+		},
+	);
+
+	it('forwards an extension preview through the legacy quick-insert item', async () => {
+		const preview = {
+			image: { light: 'https://example.com/preview.png' },
+			attribution: { name: 'Example app' },
+		};
+		const extensionProvider = new DefaultExtensionProvider([
+			replaceCustomQuickInsertModules(
+				createFakeExtensionManifest({
+					title: 'Preview item',
+					type: 'com.atlassian.test',
+					extensionKey: 'preview-extension',
+				}),
+				{
+					key: 'preview-item',
+					title: 'Preview item',
+					preview,
+					action: jest.fn(),
+				},
+			),
+		]);
 		const quickInsertProvider = await extensionProviderToQuickInsertProvider(
-			dummyExtensionProvider,
+			extensionProvider,
 			{} as EditorActions,
 			{ current: undefined },
 		);
 
-		const items = await quickInsertProvider.getItems();
-
-		expect(items).toMatchObject([
-			{ title: 'First dummy extension' },
-			{ title: 'Second dummy extension' },
+		await expect(quickInsertProvider.getItems()).resolves.toEqual([
+			expect.objectContaining({ preview, title: 'Preview item' }),
 		]);
 	});
 
@@ -352,19 +455,39 @@ describe('#extensionProviderToQuickInsertProvider', () => {
 		});
 	});
 
-	describe('priority parsing & passthrough via `getItems()`', () => {
-		it('should include priority property when feature gate is enabled and priority is set', async () => {
-			const mockFg = fg as jest.MockedFunction<typeof fg>;
-			mockFg.mockImplementation((gateName) => {
-				if (
-					gateName === 'cc_fd_wb_create_priority_in_slash_menu_enabled' ||
-					gateName === 'rovo_chat_enable_skills_ui_m1'
-				) {
-					return true;
-				}
-				return false;
-			});
+	describe('lozenge passthrough via `getItems()`', () => {
+		it('should include lozenge on quick insert item when extension module has lozenge', async () => {
+			const lozengeContent = 'New';
+			const extensionWithLozenge = replaceCustomQuickInsertModules(
+				createFakeExtensionManifest({
+					title: 'Extension with lozenge',
+					type: 'com.atlassian.forge',
+					extensionKey: 'with-lozenge',
+				}),
+				{
+					key: 'default',
+					action: jest.fn(),
+					lozenge: lozengeContent,
+				},
+			);
 
+			const provider = setup([extensionWithLozenge]);
+
+			const quickInsertProvider = await extensionProviderToQuickInsertProvider(
+				provider,
+				{} as EditorActions,
+				{ current: undefined },
+			);
+
+			const items = await quickInsertProvider.getItems();
+
+			// First two items are from default dummy extensions, third is our custom one
+			expect(items[2]).toHaveProperty('lozenge', lozengeContent);
+		});
+	});
+
+	describe('priority parsing & passthrough via `getItems()`', () => {
+		it('should include priority property when priority is set', async () => {
 			// Create extensions with priority values
 			const extensionWithPriority1 = replaceCustomQuickInsertModules(
 				createFakeExtensionManifest({
@@ -407,55 +530,7 @@ describe('#extensionProviderToQuickInsertProvider', () => {
 			expect(items[3]).toHaveProperty('priority', 50);
 		});
 
-		it('should not include priority property when feature gate is disabled', async () => {
-			const mockFg = fg as jest.MockedFunction<typeof fg>;
-			mockFg.mockImplementation((gateName) => {
-				if (
-					gateName === 'cc_fd_wb_create_priority_in_slash_menu_enabled' ||
-					gateName === 'rovo_chat_enable_skills_ui_m1'
-				) {
-					return false;
-				}
-				return false;
-			});
-
-			// Create extensions with priority values
-			const extensionWithPriority = replaceCustomQuickInsertModules(
-				createFakeExtensionManifest({
-					title: 'Extension with priority',
-					type: 'com.atlassian.forge',
-					extensionKey: 'priority-test',
-				}),
-				{
-					key: 'default',
-					priority: 100,
-					action: jest.fn(),
-				},
-			);
-
-			const priorityExtensionProvider = setup([extensionWithPriority]);
-
-			const quickInsertProvider = await extensionProviderToQuickInsertProvider(
-				priorityExtensionProvider,
-				{} as EditorActions,
-				{ current: undefined },
-			);
-
-			const items = await quickInsertProvider.getItems();
-
-			// Check that priority is not included when feature flag is disabled
-			expect(items[2]).not.toHaveProperty('priority');
-		});
-
-		it('should not include priority property when feature gate is enabled but priority is not set', async () => {
-			const mockFg = fg as jest.MockedFunction<typeof fg>;
-			mockFg.mockImplementation((gateName) => {
-				return (
-					gateName === 'cc_fd_wb_create_priority_in_slash_menu_enabled' ||
-					gateName === 'rovo_chat_enable_skills_ui_m1'
-				);
-			});
-
+		it('should set priority to undefined when priority is not set', async () => {
 			const quickInsertProvider = await extensionProviderToQuickInsertProvider(
 				dummyExtensionProvider,
 				{} as EditorActions,
@@ -464,7 +539,7 @@ describe('#extensionProviderToQuickInsertProvider', () => {
 
 			const items = await quickInsertProvider.getItems();
 
-			// Check that priority is not included when not set on extension modules
+			// Check that priority is undefined when not set on extension modules
 			expect(items[0]).toHaveProperty('priority', undefined);
 			expect(items[1]).toHaveProperty('priority', undefined);
 		});

@@ -3,7 +3,7 @@
  * @jsx jsx
  */
 
-import { Fragment, memo, type ReactNode, useEffect, useRef } from 'react';
+import { Fragment, memo, type MemoExoticComponent, type ReactNode, useEffect, useRef } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
@@ -12,7 +12,7 @@ import invariant from 'tiny-invariant';
 import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element';
 import { autoScrollForExternal } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/external';
 import { unsafeOverflowAutoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/unsafe-overflow/element';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 import { token } from '@atlaskit/tokens';
 
 import { columnGap } from '../../util/constants';
@@ -32,7 +32,7 @@ const boardStyles = css({
 });
 
 const scrollContainerStyles = css({
-	border: `${token('border.width', '2px')} solid ${token('color.chart.purple.bold', 'purple')}`,
+	border: `${token('border.width')} solid ${token('color.chart.purple.bold')}`,
 	// maxWidth: 600,
 	maxWidth: '80vw',
 	overflowY: 'auto',
@@ -90,4 +90,5 @@ function Board({ children }: { children: ReactNode }): React.JSX.Element {
 	);
 }
 
-export default memo(Board);
+const _default_1: MemoExoticComponent<typeof Board> = memo(Board);
+export default _default_1;

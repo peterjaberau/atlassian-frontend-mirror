@@ -3,14 +3,14 @@ import React, { type ErrorInfo, useCallback } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { di } from 'react-magnetic-di';
 
-import { withAnalyticsEvents } from '@atlaskit/analytics-next';
+import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
 
 import { useAnalyticsEvents } from '../../common/analytics/generated/use-analytics-events';
 import { CardDisplay } from '../../constants';
-import { failUfoExperience, startUfoExperience } from '../../state/analytics';
-import { SmartLinkModalProvider } from '../../state/modal';
-import { useSmartLinkAnalyticsContext } from '../../utils/analytics/SmartLinkAnalyticsContext';
-
+import { failUfoExperience } from '../../state/analytics/failUfoExperience';
+import { startUfoExperience } from '../../state/analytics/startUfoExperience';
+import { SmartLinkModalProvider } from '../../state/modal/SmartLinkModalProvider';
+import { useSmartLinkAnalyticsContext } from '../../utils/analytics/useSmartLinkAnalyticsContext';
 import { HOVER_CARD_SOURCE, HoverCardComponent } from './components/HoverCardComponent';
 import { type HoverCardInternalProps, type HoverCardProps } from './types';
 
@@ -62,13 +62,6 @@ const HoverCardWithoutAnalyticsContext = withAnalyticsEvents()(HoverCardWithErro
  * This component contains additional props that smart-card internal components
  * use to configure hover preview behaviour.
  */
-export const HoverCard = (props: HoverCardProps & HoverCardInternalProps): React.JSX.Element => {
+export const HoverCard = (props: HoverCardProps): React.JSX.Element => {
 	return <HoverCardWithoutAnalyticsContext {...props} />;
 };
-
-/**
- * A standalone hover preview component
- */
-export const StandaloneHoverCard = (props: HoverCardProps): React.JSX.Element => (
-	<HoverCard {...props} />
-);

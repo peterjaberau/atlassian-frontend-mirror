@@ -1,229 +1,29 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
-import rafSchedule from 'raf-schd';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
-
-import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import type { EditorCardProvider } from '@atlaskit/editor-card-provider';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type {
 	InlineNodeViewComponentProps,
 	getInlineNodeViewProducer,
 } from '@atlaskit/editor-common/react-node-view';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { UnsupportedInline, findOverflowScrollParent } from '@atlaskit/editor-common/ui';
+import { UnsupportedInline } from '@atlaskit/editor-common/ui';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import type { Decoration, EditorView } from '@atlaskit/editor-prosemirror/view';
-import { Card as SmartCard } from '@atlaskit/smart-card';
-import { useSmartLinkReload } from '@atlaskit/smart-card/hooks';
-import { CardSSR } from '@atlaskit/smart-card/ssr';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import type { Decoration, EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
+import {
+	SmartLinkDraggable,
+	SMART_LINK_DRAG_TYPES,
+	SMART_LINK_APPEARANCE,
+} from '@atlaskit/editor-smart-link-draggable';
 
-import { type cardPlugin } from '../cardPlugin';
-import { registerCard, removeCard } from '../pm-plugins/actions';
+import type { cardPlugin } from '../cardPlugin';
 import { getAwarenessProps } from '../pm-plugins/utils';
-import { visitCardLinkAnalytics } from '../ui/toolbar';
-
+import { SmartCardSSRReactContextsProvider } from '../ui/SmartCardSSRReactContextsProvider';
 import type { SmartCardProps } from './genericCard';
 import { Card } from './genericCard';
-import {
-	InlineCardWithAwareness,
-	type InlineCardWithAwarenessProps,
-} from './inlineCardWithAwareness';
-
-export const InlineCard = memo(
-	({
-		node,
-		cardContext,
-		actionOptions,
-		useAlternativePreloader,
-		view,
-		getPos,
-		onClick: propsOnClick,
-		onResolve: onRes,
-		isHovered,
-		showHoverPreview,
-		hoverPreviewOptions,
-		isPageSSRed,
-		pluginInjectionApi,
-		disablePreviewPanel,
-	}: SmartCardProps): React.JSX.Element | null => {
-		const { url, data } = node.attrs;
-		// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-		const refId = useRef(uuid());
-		const reload = useSmartLinkReload({ url });
-
-		useEffect(() => {
-			const id = refId.current;
-			return () => {
-				const { tr } = view.state;
-				removeCard({ id })(tr);
-				view.dispatch(tr);
-			};
-		}, [getPos, view]);
-
-		useEffect(() => {
-			// if we render from cache, we want to make sure we reload the data in the background
-			const cardState = cardContext?.value?.store?.getState()[url || ''];
-			if (
-				expValEquals('platform_editor_smartlink_local_cache', 'isEnabled', true) &&
-				!isPageSSRed &&
-				cardState?.status === 'resolved'
-			) {
-				reload();
-			}
-		});
-
-		const scrollContainer: HTMLElement | undefined = useMemo(
-			// Ignored via go/ees005
-			// eslint-disable-next-line @atlaskit/editor/no-as-casting
-			() => findOverflowScrollParent(view.dom as HTMLElement) || undefined,
-			[view.dom],
-		);
-
-		const onResolve = useCallback(
-			(data: { title?: string; url?: string }) => {
-				if (!getPos || typeof getPos === 'boolean') {
-					return;
-				}
-
-				const { title, url } = data;
-				// don't dispatch immediately since we might be in the middle of
-				// rendering a nodeview
-				rafSchedule(() => {
-					// prosemirror-bump-fix
-					const pos = getPos();
-
-					if (typeof pos !== 'number') {
-						return;
-					}
-
-					const tr = view.state.tr;
-
-					registerCard({
-						title,
-						url,
-						pos,
-						id: refId.current,
-					})(tr);
-
-					onRes?.(tr, title);
-
-					view.dispatch(tr);
-				})();
-			},
-			[getPos, view, onRes],
-		);
-
-		const onError = useCallback(
-			(data: { err?: Error; url?: string }) => {
-				const { url, err } = data;
-				if (err) {
-					throw err;
-				}
-				onResolve({ url });
-			},
-			[onResolve],
-		);
-
-		const handleOnClick = useCallback(
-			(event: React.MouseEvent<HTMLSpanElement>) => {
-				if (event.metaKey || event.ctrlKey) {
-					const { actions: editorAnalyticsApi } = pluginInjectionApi?.analytics ?? {};
-
-					visitCardLinkAnalytics(editorAnalyticsApi, INPUT_METHOD.META_CLICK)(
-						view.state,
-						view.dispatch,
-					);
-
-					window.open(url, '_blank');
-				} else {
-					// only trigger the provided onClick callback if the meta key or ctrl key is not pressed
-					propsOnClick?.(event);
-				}
-			},
-			[propsOnClick, url, view, pluginInjectionApi],
-		);
-
-		const onClick = editorExperiment('platform_editor_controls', 'variant1')
-			? handleOnClick
-			: propsOnClick;
-
-		const card = useMemo(() => {
-			const cardState = cardContext?.value?.store?.getState()[url || ''];
-			if (
-				(isPageSSRed ||
-					(expValEquals('platform_editor_smartlink_local_cache', 'isEnabled', true) &&
-						cardState)) &&
-				url
-			) {
-				return (
-					<CardSSR
-						key={url}
-						url={url}
-						appearance="inline"
-						onClick={onClick}
-						container={scrollContainer}
-						onResolve={onResolve}
-						onError={onError}
-						inlinePreloaderStyle={useAlternativePreloader ? 'on-right-without-skeleton' : undefined}
-						actionOptions={actionOptions}
-						isHovered={isHovered}
-						showHoverPreview={showHoverPreview}
-						hoverPreviewOptions={hoverPreviewOptions}
-						disablePreviewPanel={disablePreviewPanel}
-						hideIconLoadingSkeleton
-					/>
-				);
-			}
-
-			return (
-				<SmartCard
-					key={url}
-					url={url ?? data.url}
-					appearance="inline"
-					onClick={onClick}
-					container={scrollContainer}
-					onResolve={onResolve}
-					onError={onError}
-					inlinePreloaderStyle={useAlternativePreloader ? 'on-right-without-skeleton' : undefined}
-					actionOptions={actionOptions}
-					isHovered={isHovered}
-					showHoverPreview={showHoverPreview}
-					hoverPreviewOptions={hoverPreviewOptions}
-					disablePreviewPanel={disablePreviewPanel}
-				/>
-			);
-		}, [
-			url,
-			data,
-			onClick,
-			scrollContainer,
-			onResolve,
-			onError,
-			useAlternativePreloader,
-			actionOptions,
-			isHovered,
-			showHoverPreview,
-			hoverPreviewOptions,
-			isPageSSRed,
-			disablePreviewPanel,
-			cardContext?.value?.store,
-		]);
-
-		// [WS-2307]: we only render card wrapped into a Provider when the value is ready,
-		// otherwise if we got data, we can render the card directly since it doesn't need the Provider
-		return cardContext && cardContext.value ? (
-			<cardContext.Provider value={cardContext.value}>{card}</cardContext.Provider>
-		) : data ? (
-			card
-		) : null;
-	},
-);
+import { InlineCardWithAwareness } from './inlineCardWithAwareness';
+import type { InlineCardWithAwarenessProps } from './inlineCardWithAwareness';
 
 const WrappedInlineCardWithAwareness = Card(InlineCardWithAwareness, UnsupportedInline);
 
@@ -239,20 +39,22 @@ export type InlineCardNodeViewProps = Pick<
 	| 'isPageSSRed'
 	| 'CompetitorPrompt'
 	| 'provider'
+	| 'intl'
+	| 'smartCardContext'
 >;
 
-const selector = (
+const selectorWithCard = (
 	states: NamedPluginStatesFromInjectionAPI<
 		ExtractInjectionAPI<typeof cardPlugin>,
-		'editorViewMode'
+		'editorViewMode' | 'card'
 	>,
-) => {
-	return {
-		mode: states.editorViewModeState?.mode,
-	};
-};
+) => ({
+	mode: states.editorViewModeState?.mode,
+	resolvedInlineSmartLinks: states.cardState?.resolvedInlineSmartLinks,
+});
 
 /**
+ * Inline card node view component that renders a Smart Link inline card within the editor.
  *
  * @param props
  * @example
@@ -274,19 +76,38 @@ export function InlineCardNodeView(
 		isPageSSRed,
 		provider,
 		CompetitorPrompt,
+		intl,
+		smartCardContext,
 	} = props;
 
-	const { mode } = useSharedPluginStateWithSelector(
+	const { mode, resolvedInlineSmartLinks } = useSharedPluginStateWithSelector(
 		pluginInjectionApi,
-		['editorViewMode'],
-		selector,
+		['editorViewMode', 'card'],
+		selectorWithCard,
 	);
 
 	const url = node.attrs.url;
+
 	const CompetitorPromptComponent =
 		CompetitorPrompt && url ? <CompetitorPrompt sourceUrl={url} linkType="inline" /> : null;
 
-	return (
+	useEffect(() => {
+		provider?.then((providerInstance) => {
+			(providerInstance as EditorCardProvider).refreshCache?.(props.node);
+		});
+	}, [provider, props.node]);
+
+	const linkPosition = useMemo(() => {
+		if (!getPos || typeof getPos === 'boolean') {
+			return undefined;
+		}
+		const pos = getPos();
+		return typeof pos === 'number' ? pos : undefined;
+	}, [getPos]);
+
+	const isChangeboardTarget =
+		linkPosition !== undefined && resolvedInlineSmartLinks?.[0]?.pos === linkPosition;
+	const inlineCardContent = (
 		<>
 			<WrappedInlineCardWithAwareness
 				node={node}
@@ -307,6 +128,19 @@ export function InlineCardNodeView(
 			{CompetitorPromptComponent}
 		</>
 	);
+
+	return (
+		<SmartCardSSRReactContextsProvider intl={intl} smartCardContext={smartCardContext}>
+			<SmartLinkDraggable
+				url={url}
+				appearance={SMART_LINK_APPEARANCE.INLINE}
+				source={SMART_LINK_DRAG_TYPES.EDITOR}
+				isChangeboardTarget={isChangeboardTarget}
+			>
+				{inlineCardContent}
+			</SmartLinkDraggable>
+		</SmartCardSSRReactContextsProvider>
+	);
 }
 
 export interface InlineCardNodeViewProperties {
@@ -321,6 +155,6 @@ export const inlineCardNodeView =
 		view: EditorView,
 		getPos: () => number | undefined,
 		decorations: readonly Decoration[],
-	) => {
+	): NodeView => {
 		return inlineCardViewProducer(node, view, getPos, decorations);
 	};

@@ -2,13 +2,16 @@ import { type FocusEvent, type MouseEvent } from 'react';
 
 import clamp from 'lodash/clamp';
 import groupBy from 'lodash/groupBy';
-import { createIntl, type IntlShape } from 'react-intl-next';
+import { createIntl, type IntlShape } from 'react-intl';
 import {
 	type Action,
+	type BoundActions,
 	createContainer,
 	createHook,
 	createSelector,
 	createStore,
+	type HookFunction,
+	type OverrideContainerComponent,
 } from 'react-sweet-state';
 import { type Observable } from 'rxjs/Observable';
 import { merge } from 'rxjs/observable/merge';
@@ -18,50 +21,61 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { type EditorState, type Transaction } from '@atlaskit/editor-prosemirror/state';
 import { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { computeJqlInsights, isListOperator, type JQLParseError } from '@atlaskit/jql-ast';
-import { JQLAutocomplete, type JQLRuleSuggestion } from '@atlaskit/jql-autocomplete';
-
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
 import {
-	ActionSubject,
-	ActionSubjectId,
-	Action as AnalyticsAction,
-	EventType,
-	type JqlEditorAnalyticsEvent,
-} from '../analytics';
+	computeJqlInsights,
+	isListOperator,
+	type JQLParseError,
+	normaliseJqlString,
+} from '@atlaskit/jql-ast';
+import { JQLAutocomplete } from '@atlaskit/jql-autocomplete/jql-autocomplete';
+import type { JQLRuleSuggestion } from '@atlaskit/jql-autocomplete/jql-autocomplete/types';
+import { type AutocompleteOptions } from '@atlaskit/jql-editor-common/autocomplete/types';
+import type { AutocompleteProvider } from '@atlaskit/jql-editor-common/autocomplete/types';
+import { EventType } from '@atlaskit/jql-editor-common/constants';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { ActionSubject, ActionSubjectId, Action as AnalyticsAction } from '../analytics/constants';
+import { type JqlEditorAnalyticsEvent } from '../analytics/types';
 import { selectErrorCommand } from '../commands/select-error-command';
 import { JQL_EDITOR_MAIN_ID } from '../common/constants';
-import {
-	type AutocompleteOptionGroup,
-	type AutocompleteOptions,
-	type AutocompleteOptionType,
-	type SelectableAutocompleteOption,
-	type SelectableAutocompleteOptions,
+import type {
+	AutocompleteOptionGroup,
+	AutocompleteOptionType,
+	SelectableAutocompleteOption,
+	SelectableAutocompleteOptions,
 } from '../plugins/autocomplete/components/types';
 import {
 	defaultAutocompleteProvider,
 	JQLAutocompletePluginKey,
 } from '../plugins/autocomplete/constants';
-import { getJastFromState } from '../plugins/jql-ast';
-import { type AutocompleteProvider } from '../plugins/types';
-import {
-	clipboardTextParser,
-	clipboardTextSerializer,
-	configurePlugins,
-	defaultEditorState,
-	type JQLEditorCommand,
-} from '../schema';
+import { getJastFromState } from '../plugins/jql-ast/getJastFromState';
+import { defaultEditorState, type JQLEditorCommand } from '../schema';
+import { clipboardTextParser } from '../schema/clipboardTextParser';
+import { clipboardTextSerializer } from '../schema/clipboardTextSerializer';
+import { configurePlugins } from '../schema/configurePlugins';
 import { type PortalActions } from '../ui/jql-editor-portal-provider/types';
 import {
+	type HydratedAssets,
 	type HydratedDeprecatedField,
+	type HydratedProject,
+	type HydratedGoal,
+	type HydratedLozengeWithAvatar,
 	type HydratedTeam,
 	type HydratedUser,
 	type HydratedValue,
 } from '../ui/jql-editor/types';
-import { getNodeText } from '../utils/document-text';
-
+import { getNodeText } from '../utils/document-text/getNodeText';
 import { onStartAutocompleteEvent } from './analytics';
 import { sortOperators } from './autocomplete';
+import { getAutocompleteOptionId } from './getAutocompleteOptionId';
+import { getAutocompletePosition } from './getAutocompletePosition';
+import { getFieldNodes } from './getFieldNodes';
+import { getReplacePositionStart } from './getReplacePositionStart';
 import { hydrateQuery } from './hydration';
+import { normaliseHydrationKey } from './hydration/normaliseHydrationKey';
+import { sendDebugMessage } from './sendDebugMessage';
+import { tokensToAutocompleteOptions } from './tokensToAutocompleteOptions';
 import {
 	type AutocompletePosition,
 	type AutocompleteState,
@@ -75,14 +89,6 @@ import {
 	type Props,
 	type State,
 } from './types';
-import {
-	getAutocompleteOptionId,
-	getAutocompletePosition,
-	getFieldNodes,
-	getReplacePositionStart,
-	sendDebugMessage,
-	tokensToAutocompleteOptions,
-} from './util';
 
 const initialIntl = createIntl({ locale: 'en' });
 
@@ -93,8 +99,6 @@ const defaultAutocompleteOptions: AutocompleteOptionGroup = {
 	values: [],
 	functions: [],
 };
-
-type Actions = typeof actions;
 
 export const initialState: State = {
 	controlledQuery: '',
@@ -137,7 +141,51 @@ export const initialState: State = {
  */
 const isLineNumbersVisible = (editorState: EditorState) => editorState.doc.childCount > 1;
 
-export const actions = {
+// Explicit type declaration for actions is required for IsoDec compliance
+type Actions = {
+	appendOptionsForObservable: (
+		key: OptionsKey,
+		observable: Observable<AutocompleteOptions>,
+		rule: JQLRuleSuggestion,
+		type: AutocompleteOptionType,
+	) => Action<State, void, Observable<AutocompleteOptions>>;
+	callAutocompleteProviders: ({ rules, tokens }: ContextAwareJQLSuggestions) => Action<State>;
+	cancelSubscription: () => Action<State>;
+	closeAutocomplete: () => Action<State>;
+	configurePlugins: (portalActions: PortalActions | void) => Action<State, Props>;
+	createAndFireAnalyticsEvent: (payload: JqlEditorAnalyticsEvent) => Action<State, Props>;
+	externalErrorMessageViewed: () => Action<State, Props>;
+	getAutocompleteOptions: (suggestions: ContextAwareJQLSuggestions) => Action<State>;
+	getAutocompleteSuggestions: (editorState: EditorState) => Action<State>;
+	initialiseEditorState: () => Action<State, Props>;
+	initialiseEditorView: (
+		editorViewNode: HTMLElement,
+		attributes: { [key: string]: string },
+		portalActions: PortalActions,
+	) => Action<State, Props>;
+	onApplyEditorTransaction: (transaction: Transaction) => Action<State, Props>;
+	onEditorViewBlur: () => Action<State>;
+	onEditorViewFocus: (event: FocusEvent<HTMLElement>) => Action<State, Props>;
+	onSearch: () => Action<State>;
+	onSearchCommand: (
+		pmState: EditorState,
+		pmDispatch: ((tr: Transaction) => void) | undefined,
+		pmView: EditorView | undefined,
+		keyboardShortcut: boolean,
+	) => Action<State, Props, boolean>;
+	openAutocompleteOnNextUpdate: () => Action<State>;
+	resetEditorState: (query: string, addToHistory?: boolean) => Action<State>;
+	setAutocompleteContainer: (container: HTMLElement | null) => Action<State>;
+	setAutocompleteOptions: (options: AutocompleteOptionGroup) => Action<State>;
+	setEditorViewContainer: (editorViewContainer: HTMLElement) => Action<State>;
+	setEditorViewContainerScroll: (scroll: number) => Action<State>;
+	setLoading: (loading: boolean) => Action<State>;
+	setSelectedAutocompleteOptionId: (selectedOptionId: string | undefined) => Action<State>;
+	updateEditorView: (attributes: { [key: string]: string }) => Action<State, Props>;
+	updateValidationState: () => Action<State>;
+};
+
+export const actions: Actions = {
 	onEditorViewBlur:
 		(): Action<State> =>
 		({ setState, dispatch }) => {
@@ -377,12 +425,39 @@ export const actions = {
 	callAutocompleteProviders:
 		({ rules, tokens }: ContextAwareJQLSuggestions): Action<State> =>
 		({ getState, setState, dispatch }) => {
-			const { onFields, onOperators, onValues, onFunctions } = getState().autocompleteProvider;
+			const { onFields, onOperators, onValues, onFunctions, onFunctionArguments } =
+				getState().autocompleteProvider;
 
 			const optionTypes: OptionsKey[] = [];
 			const observables: Observable<AutocompleteOptions>[] = [];
+			let functionName: string | undefined;
 
 			if (
+				rules.functionArgument &&
+				onFunctionArguments &&
+				fg('enable-jql-membersof-autocomplete')
+			) {
+				// When the caret is inside a function argument (e.g. membersOf("...")), we call
+				// onFunctionArguments unconditionally in preference to the generic value/function
+				// providers. rules.functionArgument can co-exist with rules.function so we must check it
+				// first — before the outer rules.value/rules.function block — to avoid it being
+				// swallowed by the else-if chain.
+				const { matchedText, context } = rules.functionArgument;
+				const fieldName = context?.field ?? '';
+				functionName = context?.functionName;
+				const functionArguments$ = onFunctionArguments(fieldName, matchedText, functionName ?? '');
+				optionTypes.push('values');
+				observables.push(
+					dispatch(
+						actions.appendOptionsForObservable(
+							'values',
+							functionArguments$,
+							rules.functionArgument,
+							'functionArgument',
+						),
+					),
+				);
+			} else if (
 				rules.value ||
 				rules.function ||
 				// If EMPTY is suggested as a token, we are also in "operand mode" and we don't want to call other providers
@@ -450,11 +525,11 @@ export const actions = {
 					hasOptions = true;
 				},
 				error() {
-					onStopAutocompleteEvent(false, optionTypes, hasOptions);
+					onStopAutocompleteEvent(false, optionTypes, hasOptions, functionName);
 					dispatch(actions.setLoading(false));
 				},
 				complete() {
-					onStopAutocompleteEvent(true, optionTypes, hasOptions);
+					onStopAutocompleteEvent(true, optionTypes, hasOptions, functionName);
 					dispatch(actions.setLoading(false));
 				},
 			});
@@ -799,65 +874,118 @@ const Store = createStore<State, Actions>({
 	actions,
 });
 
-export const useStoreActions = createHook<State, Actions, null>(Store, {
+export const useStoreActions: HookFunction<null, BoundActions<State, Actions>, void> = createHook<
+	State,
+	Actions,
+	null
+>(Store, {
 	selector: null,
 });
 
-export const useEditorState = createHook<State, Actions, EditorState>(Store, {
+export const useEditorState: HookFunction<
+	EditorState,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, EditorState>(Store, {
 	selector: (state) => state.editorState,
 });
 
-export const useEditorView = createHook<State, Actions, EditorView | undefined>(Store, {
+export const useEditorView: HookFunction<
+	EditorView | undefined,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, EditorView | undefined>(Store, {
 	selector: (state) => state.editorView,
 });
 
-export const useIsSearching = createHook<State, Actions, boolean | undefined>(Store, {
+export const useIsSearching: HookFunction<
+	boolean | undefined,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, boolean | undefined>(Store, {
 	selector: (state) => state.isSearching,
 });
 
-export const useIntl = createHook<State, Actions, IntlShape>(Store, {
+export const useIntl: HookFunction<IntlShape, BoundActions<State, Actions>, void> = createHook<
+	State,
+	Actions,
+	IntlShape
+>(Store, {
 	selector: (state) => state.intlRef.current,
 });
 
-export const useAutocompleteProvider = createHook<State, Actions, AutocompleteProvider>(Store, {
+export const useAutocompleteProvider: HookFunction<
+	AutocompleteProvider,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, AutocompleteProvider>(Store, {
 	selector: (state) => state.autocompleteProvider,
 });
 
 const getScopedId = (state: State, idSuffix: string): string => `${state.idPrefix}_${idSuffix}`;
 
-export const useScopedId = createHook<State, Actions, string, string>(Store, {
+export const useScopedId: HookFunction<string, BoundActions<State, Actions>, string> = createHook<
+	State,
+	Actions,
+	string,
+	string
+>(Store, {
 	selector: getScopedId,
 });
 
-export const useIdPrefix = createHook<State, Actions, string>(Store, {
+export const useIdPrefix: HookFunction<string, BoundActions<State, Actions>, void> = createHook<
+	State,
+	Actions,
+	string
+>(Store, {
 	selector: (state) => state.idPrefix,
 });
 
-export const useEditorViewHasFocus = createHook<State, Actions, boolean>(Store, {
+export const useEditorViewHasFocus: HookFunction<
+	boolean,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, boolean>(Store, {
 	selector: ({ editorViewHasFocus }) => editorViewHasFocus,
 });
 
-export const useLineNumbersVisible = createHook<State, Actions, boolean>(Store, {
+export const useLineNumbersVisible: HookFunction<
+	boolean,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, boolean>(Store, {
 	selector: ({ lineNumbersVisible }) => lineNumbersVisible,
 });
 
 const getAutocomplete = (state: State): AutocompleteState => state.autocomplete;
 
-export const useAutocomplete = createHook<State, Actions, AutocompleteState>(Store, {
+export const useAutocomplete: HookFunction<
+	AutocompleteState,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, AutocompleteState>(Store, {
 	selector: getAutocomplete,
 });
 
 /**
  * Returns the JQL error from the last query that was searched, or {@code null} if there were none.
  */
-export const useJqlError = createHook<State, Actions, JQLParseError | null>(Store, {
+export const useJqlError: HookFunction<
+	JQLParseError | null,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, JQLParseError | null>(Store, {
 	selector: (state) => state.jqlError,
 });
 
 /**
  * Returns whether there are any JQL errors in the current Prosemirror editor state.
  */
-export const useEditorStateHasJqlError = createHook<State, Actions, boolean>(Store, {
+export const useEditorStateHasJqlError: HookFunction<
+	boolean,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, boolean>(Store, {
 	selector: (state) => getJastFromState(state.editorState).errors.length > 0,
 });
 
@@ -879,18 +1007,23 @@ const memoizedExternalMessagesSelector = createSelector<
 	},
 );
 
-export const useExternalMessages = createHook<State, Actions, ExternalMessagesNormalized>(Store, {
+export const useExternalMessages: HookFunction<
+	ExternalMessagesNormalized,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, ExternalMessagesNormalized>(Store, {
 	selector: memoizedExternalMessagesSelector,
 });
 
-export const useCustomErrorComponent = createHook<State, Actions, CustomErrorComponent | undefined>(
-	Store,
-	{
-		selector: (state) => {
-			return state.customComponents?.ErrorMessage;
-		},
+export const useCustomErrorComponent: HookFunction<
+	CustomErrorComponent | undefined,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, CustomErrorComponent | undefined>(Store, {
+	selector: (state) => {
+		return state.customComponents?.ErrorMessage;
 	},
-);
+});
 
 const memoizedAutocompleteOptionsSelector = createSelector<
 	State,
@@ -916,16 +1049,21 @@ const memoizedAutocompleteOptionsSelector = createSelector<
 	],
 );
 
-export const useAutocompleteOptions = createHook<State, Actions, SelectableAutocompleteOption[]>(
-	Store,
-	{
-		selector: memoizedAutocompleteOptionsSelector,
-	},
-);
+export const useAutocompleteOptions: HookFunction<
+	SelectableAutocompleteOption[],
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, SelectableAutocompleteOption[]>(Store, {
+	selector: memoizedAutocompleteOptionsSelector,
+});
 
 const autocompleteIsLoadingSelector = (state: State): boolean => state.autocomplete.loading;
 
-export const useAutocompleteLoading = createHook<State, Actions, boolean>(Store, {
+export const useAutocompleteLoading: HookFunction<
+	boolean,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, boolean>(Store, {
 	selector: autocompleteIsLoadingSelector,
 });
 
@@ -946,11 +1084,19 @@ const memoizedAutocompleteIsOpenSelector = createSelector<
 		!shouldStayClosed && hasFocus && (options.length > 0 || loading),
 );
 
-export const useAutocompleteIsOpen = createHook<State, Actions, boolean>(Store, {
+export const useAutocompleteIsOpen: HookFunction<
+	boolean,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, boolean>(Store, {
 	selector: memoizedAutocompleteIsOpenSelector,
 });
 
-export const useAutocompletePosition = createHook<State, Actions, AutocompletePosition>(Store, {
+export const useAutocompletePosition: HookFunction<
+	AutocompletePosition,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, AutocompletePosition>(Store, {
 	selector: (state) => {
 		const { autocomplete, editorView, editorViewContainerRect, onDebugUnsafeMessage, editorState } =
 			state;
@@ -1001,77 +1147,210 @@ export const useAutocompletePosition = createHook<State, Actions, AutocompletePo
 	},
 });
 
-export const useHydratedValue = createHook<
-	State,
-	Actions,
+// IMPORTANT: All hydration lookup hooks below must normalise fieldName using normaliseHydrationKey.
+// This ensures consistent matching regardless of quoting or casing differences between the hydration API
+// response (storage) and ProseMirror node attributes (lookup). Both sides must use the same normalisation.
+// See normaliseHydrationKey in ./hydration/util.ts for details.
+export const useHydratedValue: HookFunction<
 	HydratedValue | undefined,
-	{ fieldName: string; id: string }
->(Store, {
-	selector: (state, { id, fieldName }) => {
-		return state.hydratedValues[fieldName]?.get(id);
-	},
-});
-
-export const useHydratedUser = createHook<
-	State,
-	Actions,
-	HydratedUser | undefined,
-	{ fieldName: string; id: string }
->(Store, {
-	selector: (state, { id, fieldName }) => {
-		const user = state.hydratedValues[fieldName]?.get(id);
-		return user && user.type === 'user' ? user : undefined;
-	},
-});
-
-export const useHydratedTeam = createHook<
-	State,
-	Actions,
-	HydratedTeam | undefined,
-	{ fieldName: string; id: string }
->(Store, {
-	selector: (state, { id, fieldName }) => {
-		const team = state.hydratedValues[fieldName]?.get(id);
-		return team && team.type === 'team' ? team : undefined;
-	},
-});
-
-export const useHydratedDeprecations = createHook<State, Actions, HydratedDeprecatedField[]>(
+	BoundActions<State, Actions>,
+	{
+		fieldName: string;
+		id: string;
+	}
+> = createHook<State, Actions, HydratedValue | undefined, { fieldName: string; id: string }>(
 	Store,
 	{
-		selector: (state) => {
-			const ast = getJastFromState(state.editorState);
-			const fieldsInQuery = getFieldNodes(ast);
-
-			const toReturn: HydratedDeprecatedField[] = [];
-
-			Object.entries(state.hydratedValues).forEach(([fieldName]) => {
-				state.hydratedValues[fieldName]?.forEach((value: HydratedValue) => {
-					if (value.type === 'deprecated-field') {
-						if (fieldsInQuery.has(value.id.toLowerCase())) {
-							toReturn.push(value);
-						}
-					}
-				});
-			});
-			return toReturn;
+		selector: (state, { id, fieldName }) => {
+			if (
+				FeatureGates.getExperimentValue(
+					'atlassian_projects_-_native_integration',
+					'releaseVersion',
+					-1,
+				) >= 1
+			) {
+				return state.hydratedValues[normaliseHydrationKey(fieldName)]?.get(normaliseJqlString(id));
+			}
+			return state.hydratedValues[fieldName]?.get(id);
 		},
 	},
 );
 
-export const useRichInlineNodesEnabled = createHook<State, Actions, boolean>(Store, {
+export const useHydratedUser: HookFunction<
+	HydratedUser | undefined,
+	BoundActions<State, Actions>,
+	{
+		fieldName: string;
+		id: string;
+	}
+> = createHook<State, Actions, HydratedUser | undefined, { fieldName: string; id: string }>(Store, {
+	selector: (state, { id, fieldName }) => {
+		const user =
+			FeatureGates.getExperimentValue(
+				'atlassian_projects_-_native_integration',
+				'releaseVersion',
+				-1,
+			) >= 1
+				? state.hydratedValues[normaliseHydrationKey(fieldName)]?.get(normaliseJqlString(id))
+				: state.hydratedValues[fieldName]?.get(id);
+		return user && user.type === 'user' ? user : undefined;
+	},
+});
+
+export const useHydratedTeam: HookFunction<
+	HydratedTeam | undefined,
+	BoundActions<State, Actions>,
+	{
+		fieldName: string;
+		id: string;
+	}
+> = createHook<State, Actions, HydratedTeam | undefined, { fieldName: string; id: string }>(Store, {
+	selector: (state, { id, fieldName }) => {
+		// Field names come from ProseMirror node attributes exactly as written in the query, so a quoted
+		// field (e.g. `"Team[Team]"`) must be unquoted to match the hydration API's jqlTerm.
+		const teamFieldName = fg('jira-descendants-of-team-jql-function')
+			? normaliseJqlString(fieldName)
+			: fieldName;
+		const team =
+			FeatureGates.getExperimentValue(
+				'atlassian_projects_-_native_integration',
+				'releaseVersion',
+				-1,
+			) >= 1
+				? state.hydratedValues[normaliseHydrationKey(fieldName)]?.get(normaliseJqlString(id))
+				: state.hydratedValues[teamFieldName]?.get(id);
+		return team && team.type === 'team' ? team : undefined;
+	},
+});
+
+export const useHydratedProject: HookFunction<
+	HydratedProject | undefined,
+	BoundActions<State, Actions>,
+	{
+		fieldName: string;
+		id: string;
+	}
+> = createHook<State, Actions, HydratedProject | undefined, { fieldName: string; id: string }>(
+	Store,
+	{
+		selector: (state, { id, fieldName }) => {
+			const project =
+				FeatureGates.getExperimentValue(
+					'atlassian_projects_-_native_integration',
+					'releaseVersion',
+					-1,
+				) >= 1
+					? state.hydratedValues[normaliseHydrationKey(fieldName)]?.get(normaliseJqlString(id))
+					: state.hydratedValues[normaliseJqlString(fieldName)]?.get(normaliseJqlString(id));
+			return project && project.type === 'project' ? project : undefined;
+		},
+	},
+);
+
+export const useHydratedGoal: HookFunction<
+	HydratedGoal | undefined,
+	BoundActions<State, Actions>,
+	{
+		fieldName: string;
+		id: string;
+	}
+> = createHook<State, Actions, HydratedGoal | undefined, { fieldName: string; id: string }>(Store, {
+	selector: (state, { id, fieldName }) => {
+		const goal = state.hydratedValues[normaliseHydrationKey(fieldName)]?.get(
+			normaliseJqlString(id),
+		);
+		return goal && goal.type === 'goal' ? goal : undefined;
+	},
+});
+
+export const useHydratedLozengeWithAvatar: HookFunction<
+	HydratedLozengeWithAvatar | undefined,
+	BoundActions<State, Actions>,
+	{
+		fieldName: string;
+		id: string;
+	}
+> = createHook<
+	State,
+	Actions,
+	HydratedLozengeWithAvatar | undefined,
+	{ fieldName: string; id: string }
+>(Store, {
+	selector: (state, { id, fieldName }) => {
+		const value = state.hydratedValues[normaliseHydrationKey(fieldName)]?.get(
+			normaliseJqlString(id),
+		);
+		return value && value.type === 'lozengeWithAvatar' ? value : undefined;
+	},
+});
+
+export const useHydratedAssets: HookFunction<
+	HydratedAssets | undefined,
+	BoundActions<State, Actions>,
+	{
+		fieldName: string;
+		id: string;
+	}
+> = createHook<State, Actions, HydratedAssets | undefined, { fieldName: string; id: string }>(
+	Store,
+	{
+		selector: (state, { id, fieldName }) => {
+			// The store only normalises its field name keys while the projects experiment is on, so a node
+			// carrying the key it was stored under needs the unnormalised form too. Ids need no such
+			// fallback: normalising only strips quotes, so it is identity on an already unquoted id.
+			const valuesForField =
+				state.hydratedValues[normaliseHydrationKey(fieldName)] ?? state.hydratedValues[fieldName];
+			const value = valuesForField?.get(normaliseJqlString(id));
+			return value && value.type === 'assets' ? value : undefined;
+		},
+	},
+);
+
+export const useHydratedDeprecations: HookFunction<
+	HydratedDeprecatedField[],
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, HydratedDeprecatedField[]>(Store, {
+	selector: (state) => {
+		const ast = getJastFromState(state.editorState);
+		const fieldsInQuery = getFieldNodes(ast);
+
+		const toReturn: HydratedDeprecatedField[] = [];
+
+		Object.entries(state.hydratedValues).forEach(([fieldName]) => {
+			state.hydratedValues[fieldName]?.forEach((value: HydratedValue) => {
+				if (value.type === 'deprecated-field') {
+					if (fieldsInQuery.has(value.id.toLowerCase())) {
+						toReturn.push(value);
+					}
+				}
+			});
+		});
+		return toReturn;
+	},
+});
+
+export const useRichInlineNodesEnabled: HookFunction<
+	boolean,
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, boolean>(Store, {
 	selector: (state) => state.enableRichInlineNodes,
 });
 
-export const useOnSyntaxHelp = createHook<
-	State,
-	Actions,
-	((e: MouseEvent<HTMLElement>) => boolean) | void
->(Store, {
+export const useOnSyntaxHelp: HookFunction<
+	void | ((e: MouseEvent<HTMLElement>) => boolean),
+	BoundActions<State, Actions>,
+	void
+> = createHook<State, Actions, ((e: MouseEvent<HTMLElement>) => boolean) | void>(Store, {
 	selector: (state) => state.onSyntaxHelp,
 });
 
-export const EditorStateContainer = createContainer<State, Actions, Props>(Store, {
+export const EditorStateContainer: OverrideContainerComponent<Props> = createContainer<
+	State,
+	Actions,
+	Props
+>(Store, {
 	onInit:
 		() =>
 		(

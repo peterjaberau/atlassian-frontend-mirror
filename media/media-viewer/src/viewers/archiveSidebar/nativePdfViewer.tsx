@@ -2,8 +2,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { jsx, css } from '@compiled/react';
+
 import React from 'react';
+
+import { jsx, css } from '@compiled/react';
 
 type Props = {
 	src: string;
@@ -22,7 +24,7 @@ const headerStyles = css({
 	width: '100%',
 });
 
-export const NativePdfViewer = ({ src, children, onSuccess, onError }: Props) => {
+export const NativePdfViewer = ({ src, children, onSuccess, onError }: Props): JSX.Element => {
 	const ref = (element: HTMLDivElement | null) => {
 		if (!element) {
 			return;

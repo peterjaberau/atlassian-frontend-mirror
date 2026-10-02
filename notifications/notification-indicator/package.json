@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/notification-indicator",
-	"version": "10.0.1",
+	"version": "11.2.1",
 	"description": "A wrapped React component used to display whether user has any new notifications.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -11,18 +11,20 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
-		"team": "Work Platform: Incoming Work",
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
+		"team": "Post Office - Engagement",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Notification Indicator"
 		}
 	},
@@ -33,20 +35,17 @@
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/badge": "workspace:^",
 		"@atlaskit/notification-log-client": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@babel/runtime": "root:*"
-	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color"
-			]
-		}
 	},
 	"peerDependencies": {
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
-		"@testing-library/react": "root:*"
+		"@atlassian/workbench": "workspace:^",
+		"@testing-library/react": "root:*",
+		"react": "root:*",
+		"react-dom": "root:*"
 	}
 }

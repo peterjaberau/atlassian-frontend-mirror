@@ -1,13 +1,14 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { mediaInsertMessages } from '@atlaskit/editor-common/messages';
 import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
-import { Card, CardLoading } from '@atlaskit/media-card';
+import Card from '@atlaskit/media-card/cardLoader';
+import { CardLoading } from '@atlaskit/media-card/cardLoading';
 import type { Identifier } from '@atlaskit/media-client';
 
-import { type OnInsertAttrs } from './types';
+import type { OnInsertAttrs } from './types';
 const maxDimensions = {
 	width: '100%',
 	height: '100%',

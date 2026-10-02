@@ -2,14 +2,19 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import Avatar from '@atlaskit/avatar';
+import type { JSX } from 'react';
+
+import Avatar from '@atlaskit/avatar/avatar';
 import { cssMap, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import PullRequestIcon from '@atlaskit/icon/core/pull-request';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
-import { AtlassianIcon } from '@atlaskit/logo';
-import Lozenge from '@atlaskit/lozenge';
-import { Box, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { Box } from '@atlaskit/primitives/compiled/box';
+import { Inline } from '@atlaskit/primitives/compiled/inline';
+import { Stack } from '@atlaskit/primitives/compiled/stack';
+import { Text } from '@atlaskit/primitives/compiled/text';
 import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
@@ -17,10 +22,10 @@ const styles = cssMap({
 		display: 'flex',
 		flexDirection: 'column',
 		backgroundColor: token('elevation.surface.raised'),
-		paddingTop: token('space.150'),
-		paddingRight: token('space.150'),
-		paddingBottom: token('space.150'),
-		paddingLeft: token('space.150'),
+		paddingBlockStart: token('space.150'),
+		paddingInlineEnd: token('space.150'),
+		paddingBlockEnd: token('space.150'),
+		paddingInlineStart: token('space.150'),
 		transition: '200ms',
 		borderRadius: token('radius.small'),
 		boxShadow: token('elevation.shadow.raised'),
@@ -48,7 +53,7 @@ export default function Example(): JSX.Element {
 				Dropdown menu items in Modal are not accessible to keyboard/screen readers in Safari
 			</Text>
 			<Box as="span">
-				<Lozenge appearance="new">Accelerate Cloud Accessibility</Lozenge>
+				<Lozenge appearance="discovery">Accelerate Cloud Accessibility</Lozenge>
 			</Box>
 			<Box xcss={styles.extraInfo}>
 				<Box xcss={styles.inline}>

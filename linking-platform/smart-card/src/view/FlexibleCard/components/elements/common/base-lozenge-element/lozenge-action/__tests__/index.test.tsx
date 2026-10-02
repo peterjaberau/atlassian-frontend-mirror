@@ -1,16 +1,23 @@
 /* eslint-disable testing-library/no-unnecessary-act */
+
 import React from 'react';
 
-import { act, fireEvent, render, screen, waitForElementToBeRemoved } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
 import { flushPromises } from '@atlaskit/link-test-helpers';
 import { InvokeError, SmartLinkActionType } from '@atlaskit/linking-types/smart-link-actions';
 import { Text } from '@atlaskit/primitives/compiled';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import {
+	act,
+	fireEvent,
+	render,
+	screen,
+	waitForElementToBeRemoved,
+	userEvent,
+} from '@atlassian/testing-library';
 
 import extractLozengeActionItems from '../../../../../../../../extractors/action/extract-lozenge-action-items';
 import { ActionName } from '../../../../../../../../index';
@@ -440,7 +447,7 @@ describe('LozengeAction', () => {
 
 		// making sure the reload was called with correct parameters
 		expect(mockResolve).toHaveBeenCalledTimes(1);
-		expect(mockResolve).toHaveBeenCalledWith(url, true, undefined, id);
+		expect(mockResolve).toHaveBeenCalledWith({ url, isReloading: true, id });
 	});
 
 	it('renders error with a default message when update fails for an unknown reason', async () => {
@@ -1001,30 +1008,11 @@ describe('LozengeAction', () => {
 		expect(onAfterChanged).toHaveBeenCalledTimes(1);
 	});
 
-	ffTest.on(
-		'platform_navx_flex_card_status_dropdown_a11y_fix',
-		'',
-		async () => {
-			it('should render aria-label when feature flag is enabled', async () => {
-				renderComponent();
+	it('should render aria-label', async () => {
+		renderComponent();
 
-				const element = await screen.findByTestId(triggerTestId);
-		
-				expect(element).toHaveAttribute('aria-label', `Change status: ${text}`);
-			});
-		},
-	);	
+		const element = await screen.findByTestId(triggerTestId);
 
-	ffTest.off(
-		'platform_navx_flex_card_status_dropdown_a11y_fix',
-		'',
-		async () => {
-			it('should not render aria-label when feature flag is disabled', async () => {	
-				renderComponent();
-
-				const element = await screen.findByTestId(triggerTestId);
-
-				expect(element).not.toHaveAttribute('aria-label');
-			},);
+		expect(element).toHaveAttribute('aria-label', `Change status: ${text}`);
 	});
 });

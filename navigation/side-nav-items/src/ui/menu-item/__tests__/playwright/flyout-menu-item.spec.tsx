@@ -1,10 +1,10 @@
 import { expect, test } from '@af/integration-testing';
 
 test.describe('flyout menu item', () => {
-	test('popper should not repeatedly update', async ({ page, skipAxeCheck }) => {
-		skipAxeCheck();
-
-		await page.visitExample('navigation', 'side-nav-items', 'flyout-menu-item-async-content');
+	test('popper should not repeatedly update', async ({ page }) => {
+		await page.visitExample<
+			typeof import('../../../../../examples/flyout-menu-item-async-content.vr.ap.tsx')
+		>('navigation', 'side-nav-items', 'flyout-menu-item-async-content');
 
 		const callCountRef = await page.evaluateHandle(() => {
 			const callCountRef = { current: 0 };
@@ -51,9 +51,14 @@ test.describe('flyout menu item', () => {
 	});
 
 	test('should open and close flyout content when trigger is clicked', async ({ page }) => {
-		await page.visitExample('navigation', 'side-nav-items', 'menu-item-integration', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../../../../examples/menu-item-integration.tsx')>(
+			'navigation',
+			'side-nav-items',
+			'menu-item-integration',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		const flyoutMenuItemTrigger = page.getByRole('button', { name: /Recent/ });
 		const flyoutMenuItemContent = page.getByRole('button', { name: /View all recent items/ });

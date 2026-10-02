@@ -1,9 +1,11 @@
-import { getExtensionAttrs } from '../../utils/extensions';
-import type { InlineExtensionAttributes } from './types/extensions';
-import type { MarksObject } from './types/mark';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
+import { inlineExtensionWithMarks as inlineExtensionWithMarksFactory } from '../../next-schema/generated/nodeTypes';
+import { getExtensionAttrs } from '../../utils/get-extension-attrs';
 import type { DataConsumerDefinition } from '../marks/data-consumer';
 import type { FragmentDefinition } from '../marks/fragment';
-import { inlineExtensionWithMarks as inlineExtensionWithMarksFactory } from '../../next-schema/generated/nodeTypes';
+import type { InlineExtensionAttributes } from './types/extensions';
+import type { MarksObject } from './types/mark';
 
 /**
  * @name inlineExtension_node
@@ -21,7 +23,7 @@ export interface InlineExtensionBaseDefinition {
 export type InlineExtensionDefinition = InlineExtensionBaseDefinition &
 	MarksObject<DataConsumerDefinition | FragmentDefinition>;
 
-export const inlineExtension = inlineExtensionWithMarksFactory({
+export const inlineExtension: NodeSpec = inlineExtensionWithMarksFactory({
 	parseDOM: [
 		{
 			tag: 'span[data-extension-type]',

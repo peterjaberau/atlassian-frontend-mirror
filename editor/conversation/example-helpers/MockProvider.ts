@@ -3,10 +3,9 @@ import { MemoryReactionsStore } from '@atlaskit/reactions';
 import { MockReactionsClient } from '@atlaskit/reactions/MockReactionsClient';
 import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
 import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
-import {
-	AbstractConversationResource,
-	type ConversationResourceConfig,
-} from '../src/api/ConversationResource';
+
+import { AbstractConversationResource } from '../src/api/ConversationResource';
+import type { ResourceProvider, ConversationResourceConfig } from '../src/api/ConversationResource';
 import { HttpError } from '../src/api/HttpError';
 import {
 	ADD_COMMENT_ERROR,
@@ -27,9 +26,9 @@ import {
 	UPDATE_USER_SUCCESS,
 } from '../src/internal/actions';
 import { uuid } from '../src/internal/uuid';
-import { type Comment } from '../src/model/Comment';
-import { type Conversation } from '../src/model/Conversation';
-import { type User } from '../src/model/User';
+import type { Comment } from '../src/model/Comment';
+import type { Conversation } from '../src/model/Conversation';
+import type { User } from '../src/model/User';
 import {
 	generateMockConversation,
 	mockInlineConversation,
@@ -54,7 +53,7 @@ const RESPONSE_MESSAGES = {
 	503: 'Service Unavailable',
 };
 
-export const getDataProviderFactory = (onlyInclude: string[] = []) => {
+export const getDataProviderFactory = (onlyInclude: string[] = []): ProviderFactory => {
 	const dataProviderFactory = new ProviderFactory();
 	(Object.keys(MockDataProviders) as Array<keyof typeof MockDataProviders>).forEach((provider) => {
 		if (onlyInclude.length === 0 || onlyInclude.indexOf(provider) !== -1) {
@@ -64,14 +63,13 @@ export const getDataProviderFactory = (onlyInclude: string[] = []) => {
 	return dataProviderFactory;
 };
 
-export class MockProvider extends AbstractConversationResource {
+export class MockProvider extends AbstractConversationResource implements ResourceProvider {
 	private config: ConversationResourceConfig;
 	private responseCode: keyof typeof RESPONSE_MESSAGES;
 
 	constructor(config: ConversationResourceConfig) {
 		super();
 		this.config = config;
-		//@ts-ignore
 		this.updateUser(config.user);
 		this.responseCode = 200;
 	}
@@ -279,7 +277,7 @@ export class MockProvider extends AbstractConversationResource {
 	 */
 	// Ignored via go/ees005
 	// eslint-disable-next-line require-await
-	async updateUser(user: User): Promise<User> {
+	async updateUser(user?: User): Promise<User | undefined> {
 		const { dispatch } = this;
 		dispatch({ type: UPDATE_USER_SUCCESS, payload: { user } });
 		this.config.user = user;

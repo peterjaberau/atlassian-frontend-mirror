@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -14,12 +13,13 @@ ${createEditorUseOnlyNotice('Editor Plugin Alignment', [
 
 
   ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
-			<AtlassianInternalWarning />
-		</div>
-	)
-	}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the alignment plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,7 +30,23 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type AlignmentPlugin = NextEditorPlugin<'alignment'>;
+type AlignmentPluginDependencies = [
+  OptionalPlugin<PrimaryToolbarPlugin>,
+  OptionalPlugin<SelectionToolbarPlugin>,
+  OptionalPlugin<AnalyticsPlugin>,
+  OptionalPlugin<UserPreferencesPlugin>,
+  OptionalPlugin<ToolbarPlugin>,
+];
+
+type AlignmentPlugin = NextEditorPlugin<
+  'alignment',
+  {
+    dependencies: AlignmentPluginDependencies;
+    sharedState: AlignmentPluginState | undefined;
+  }
+>;
+
+type InputMethod = INPUT_METHOD.TOOLBAR | INPUT_METHOD.FLOATING_TB | INPUT_METHOD.SHORTCUT;
 `}
 
 

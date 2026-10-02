@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import Textfield from '@atlaskit/textfield';
-import { type MediaFeatureFlags } from '@atlaskit/media-common/mediaFeatureFlags';
-import { getMediaFeatureFlags, clearAllLocalFeatureFlags, setLocalFeatureFlag } from './helpers';
-import SelectClearIcon from '@atlaskit/icon/core/cross-circle';
-import HipchatChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import Button from '@atlaskit/button/standard-button';
-import { fg } from '@atlaskit/platform-feature-flags';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Stack, xcss } from '@atlaskit/primitives';
-import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import styled from '@emotion/styled';
 
-import Popup from '@atlaskit/popup';
-import { Checkbox } from '@atlaskit/checkbox';
+import Button from '@atlaskit/button/standard-button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import HipchatChevronDownIcon from '@atlaskit/icon/core/chevron-down';
+import SelectClearIcon from '@atlaskit/icon/core/cross-circle';
 import { debounce } from '@atlaskit/media-common';
+import { type MediaFeatureFlags } from '@atlaskit/media-common/mediaFeatureFlags';
+import { Popup } from '@atlaskit/popup/popup';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
+import { Stack, xcss } from '@atlaskit/primitives';
+import Textfield from '@atlaskit/textfield/text-field';
+import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
+import { getMediaFeatureFlags, clearAllLocalFeatureFlags, setLocalFeatureFlag } from './helpers';
 
 const camelCaseToSentenceCase = (text: string) => {
 	var result = text.replace(/([A-Z])/g, ' $1');
@@ -26,7 +27,7 @@ const camelCaseToSentenceCase = (text: string) => {
 const Container = styled.div({
 	display: 'flex',
 	flexDirection: 'row',
-	margin: `${token('space.250', '20px')} auto`,
+	margin: `${token('space.250')} auto`,
 });
 
 const CheckboxItem = ({
@@ -152,7 +153,7 @@ const MediaFeatureFlagsDropdown = ({
 						Media Feature Flags
 					</Button>
 				)}
-				shouldRenderToParent={fg('should-render-to-parent-should-be-true-media-exif')}
+				shouldRenderToParent
 			/>
 			<Tooltip content="Reset all flags">
 				<Button

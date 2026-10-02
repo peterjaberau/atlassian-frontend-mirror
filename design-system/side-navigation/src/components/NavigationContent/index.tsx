@@ -9,8 +9,11 @@ import { css, cssMap, jsx } from '@compiled/react';
 import useScrollbarWidth from '@atlaskit/ds-lib/use-scrollbar-width';
 import { token } from '@atlaskit/tokens';
 
-import { useShouldNestedElementRender } from '../NestableNavigationContent/context';
+import { useShouldNestedElementRender } from '../NestableNavigationContent/use-should-nested-element-render';
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface NavigationContentProps {
 	children: React.ReactNode;
 
@@ -123,8 +126,10 @@ const containerCSS = cssMap({
  *
  * - [Examples](https://atlassian.design/components/side-navigation/examples#content)
  * - [Code](https://atlassian.design/components/side-navigation/code)
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const NavigationContent: React.ForwardRefExoticComponent<
+export const NavigationContent: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<NavigationContentProps & HTMLAttributes<HTMLElement>> &
 		React.RefAttributes<HTMLElement>
 > = forwardRef<
@@ -157,5 +162,3 @@ const NavigationContent: React.ForwardRefExoticComponent<
 		</div>
 	);
 });
-
-export default NavigationContent;

@@ -1,13 +1,18 @@
+import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
+import type { Command } from '@atlaskit/editor-common/types';
 import { pluginFactory, stepHasSlice } from '@atlaskit/editor-common/utils';
-import type { ReadonlyTransaction, Transaction } from '@atlaskit/editor-prosemirror/state';
-import type { Step } from '@atlaskit/editor-prosemirror/transform';
+import type {
+	EditorState,
+	ReadonlyTransaction,
+	SafeStateField,
+	Transaction,
+} from '@atlaskit/editor-prosemirror/state';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 import type { Decoration } from '@atlaskit/editor-prosemirror/view';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import type { FindReplacePluginState, Match } from '../types';
-
+import type { FindReplaceAction } from './actions';
 import { initialState } from './main';
 import { findReplacePluginKey } from './plugin-key';
 import reducer from './reducer';
@@ -16,13 +21,12 @@ import {
 	findClosestMatch,
 	findDecorationFromMatch,
 	findMatches,
-	findSearchIndex,
+	findUniqueItemsIn,
 	getSelectionForMatch,
 	isMatchAffectedByStep,
 	removeDecorationsFromSet,
 	removeMatchesFromSet,
 } from './utils';
-import { findUniqueItemsIn } from './utils/array'; // TODO: ED-26959 - move into index export
 
 const handleDocChanged = (
 	tr: ReadonlyTransaction,
@@ -121,9 +125,7 @@ const handleDocChanged = (
 		newIndex = newMatches.findIndex((match) => match.start === selectedMatch.start);
 	}
 	if (newIndex === undefined || newIndex === -1) {
-		newIndex = expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-			? findClosestMatch(tr.selection.from, newMatches)
-			: findSearchIndex(tr.selection.from, newMatches);
+		newIndex = findClosestMatch(tr.selection.from, newMatches);
 	}
 	const newSelectedMatch = newMatches[newIndex];
 
@@ -132,11 +134,8 @@ const handleDocChanged = (
 		decorationSet = decorationSet.add(tr.doc, createDecorations(0, [newSelectedMatch]));
 	}
 
-	if (expValEqualsNoExposure('platform_editor_toggle_expand_on_match_found', 'isEnabled', true)) {
-		const newSelection = getSelectionForMatch(tr.selection, tr.doc, newIndex, newMatches);
-		// the exposure is fired inside toggleExpandWithMatch when user is exposed to the experiment
-		api?.expand?.commands.toggleExpandWithMatch(newSelection)({ tr: tr as unknown as Transaction });
-	}
+	const newSelection = getSelectionForMatch(tr.selection, tr.doc, newIndex, newMatches);
+	api?.expand?.commands.toggleExpandWithMatch(newSelection)({ tr: tr as unknown as Transaction });
 
 	return {
 		...pluginState,
@@ -146,10 +145,19 @@ const handleDocChanged = (
 	};
 };
 
-export const { createCommand, getPluginState, createPluginState } = pluginFactory(
+const dest = pluginFactory(
 	findReplacePluginKey,
 	reducer(() => initialState),
 	{
 		onDocChanged: handleDocChanged,
 	},
 );
+export const createCommand: <A = FindReplaceAction>(
+	action: A | ((state: Readonly<EditorState>) => false | A),
+	transform?: (tr: Transaction, state: EditorState) => Transaction,
+) => Command = dest.createCommand;
+export const getPluginState: (state: EditorState) => FindReplacePluginState = dest.getPluginState;
+export const createPluginState: (
+	dispatch: Dispatch,
+	initialState: FindReplacePluginState | ((state: EditorState) => FindReplacePluginState),
+) => SafeStateField<FindReplacePluginState> = dest.createPluginState;

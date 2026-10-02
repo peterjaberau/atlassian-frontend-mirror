@@ -1,14 +1,17 @@
 import React from 'react';
+
 import { fireEvent, screen } from '@testing-library/react';
+
 import { type EmojiProvider } from '@atlaskit/emoji';
 import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
+
 import {
 	mockReactDomWarningGlobal,
 	renderWithIntl,
 	useFakeTimers,
 } from '../../__tests__/_testing-library';
-import { type StorePropInput } from '../../types';
 import { RENDER_BUTTON_TESTID } from '../../components/EmojiButton';
+import { type StorePropInput } from '../../types';
 import { ConnectedReactionPicker } from './ConnectedReactionPicker';
 
 describe('@atlaskit/reactions/containers/ConnectedReactionPicker', () => {
@@ -40,7 +43,7 @@ describe('@atlaskit/reactions/containers/ConnectedReactionPicker', () => {
 				emojiProvider={getTestEmojiResource() as Promise<EmojiProvider>}
 			/>,
 		);
-		const triggerPickerButton = await screen.findByLabelText('Add reaction');
+		const triggerPickerButton = await screen.findByLabelText('Add a reaction');
 
 		const btn = triggerPickerButton.closest('button');
 		expect(btn).toBeInTheDocument();

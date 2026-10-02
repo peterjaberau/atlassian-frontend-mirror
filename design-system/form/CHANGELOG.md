@@ -1,5 +1,367 @@
 # @atlaskit/form
 
+## 18.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- [`85a3e1ec4b6ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85a3e1ec4b6ff) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- [`9a7653523837c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a7653523837c) -
+  Use `@atlassian/testing-library` exclusively in unit tests.
+
+## 17.1.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Major Changes
+
+- [`11ace7dc73878`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/11ace7dc73878) -
+  Apply Volt entry-point and multi-export standards via `volt-migrate-package`. This is a **major**
+  change to `@atlaskit/form`: the package `exports` map has been restructured so every public
+  subpath now resolves **directly** to its `./src/*` implementation instead of going through an
+  intermediate `./src/entry-points/*` re-export. It also introduces new public subpaths:
+  `@atlaskit/form/error-message`, `@atlaskit/form/helper-message`, `@atlaskit/form/label/default`,
+  `@atlaskit/form/legend`, `@atlaskit/form/message-wrapper`, `@atlaskit/form/valid-message`.
+
+  ### Why this is breaking
+
+  Because each subpath now points straight at its implementation module, a subpath and the package
+  root can resolve to the **same module instance**. Consumers that deep-import the internal
+  `entry-points/*` files, or that `jest.mock()` a specific subpath, may observe changed
+  resolution/behaviour and need updating.
+
+  Internally, components that were `export default` are now named exports (`CharacterCounter`,
+  `CharacterCounterField`, `CheckboxField`, `Fieldset`, `FormFooter`, `FormHeader`, `FormSection`,
+  `RangeField`, `RequiredAsterisk`). The published subpaths and the package root already exposed
+  these as **named** exports, so their public shape is unchanged; `@atlaskit/form/field` and
+  `@atlaskit/form/form` keep their default exports.
+
+  ### Migration — public imports are unchanged
+
+  Importing the published subpaths (or the package root) continues to work as before:
+
+  ```ts
+  // Still valid — no change required
+  import { CheckboxField } from '@atlaskit/form/checkbox-field';
+  ```
+
+  If you were reaching into the internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import { CheckboxField } from '@atlaskit/form/entry-points/checkbox-field';
+  +import { CheckboxField } from '@atlaskit/form/checkbox-field';
+  ```
+
+  ### Before / after `exports` map
+
+  ```diff
+    "exports": {
+      ".": "./src/index.tsx",
+  -   "./character-counter": "./src/entry-points/character-counter.tsx",
+  +   "./character-counter": "./src/character-counter.tsx",
+  -   "./character-counter-field": "./src/entry-points/character-counter-field.tsx",
+  +   "./character-counter-field": "./src/character-counter-field.tsx",
+  -   "./checkbox-field": "./src/entry-points/checkbox-field.tsx",
+  +   "./checkbox-field": "./src/checkbox-field.tsx",
+  -   "./CheckboxField": "./src/entry-points/checkbox-field.tsx",
+  +   "./CheckboxField": "./src/checkbox-field.tsx",
+  +   "./error-message": "./src/error-message.tsx",
+  -   "./field": "./src/entry-points/field.tsx",
+  +   "./field": "./src/field.tsx",
+  -   "./Field": "./src/entry-points/field.tsx",
+  +   "./Field": "./src/field.tsx",
+  -   "./fieldset": "./src/entry-points/fieldset.tsx",
+  +   "./fieldset": "./src/fieldset.tsx",
+  -   "./Fieldset": "./src/entry-points/fieldset.tsx",
+  +   "./Fieldset": "./src/fieldset.tsx",
+  -   "./form": "./src/entry-points/form.tsx",
+  +   "./form": "./src/form.tsx",
+  -   "./Form": "./src/entry-points/form.tsx",
+  +   "./Form": "./src/form.tsx",
+  -   "./form-footer": "./src/entry-points/form-footer.tsx",
+  +   "./form-footer": "./src/form-footer.tsx",
+  -   "./form-header": "./src/entry-points/form-header.tsx",
+  +   "./form-header": "./src/form-header.tsx",
+  -   "./form-section": "./src/entry-points/form-section.tsx",
+  +   "./form-section": "./src/form-section.tsx",
+  -   "./FormFooter": "./src/entry-points/form-footer.tsx",
+  +   "./FormFooter": "./src/form-footer.tsx",
+  -   "./FormHeader": "./src/entry-points/form-header.tsx",
+  +   "./FormHeader": "./src/form-header.tsx",
+  -   "./FormSection": "./src/entry-points/form-section.tsx",
+  +   "./FormSection": "./src/form-section.tsx",
+  +   "./helper-message": "./src/helper-message.tsx",
+      "./label": "./src/entry-points/label.tsx",
+      "./Label": "./src/entry-points/label.tsx",
+  +   "./label/default": "./src/label.tsx",
+  +   "./legend": "./src/legend.tsx",
+  +   "./message-wrapper": "./src/message-wrapper.tsx",
+      "./messages": "./src/entry-points/messages.tsx",
+      "./Messages": "./src/entry-points/messages.tsx",
+  -   "./range-field": "./src/entry-points/range-field.tsx",
+  +   "./range-field": "./src/range-field.tsx",
+  -   "./RangeField": "./src/entry-points/range-field.tsx",
+  +   "./RangeField": "./src/range-field.tsx",
+  -   "./required-asterisk": "./src/entry-points/required-asterisk.tsx",
+  +   "./required-asterisk": "./src/required-asterisk.tsx",
+      "./types": "./src/types.tsx",
+  -   "./use-form-state": "./src/entry-points/use-form-state.tsx",
+  +   "./use-form-state": "./src/use-form-state.tsx",
+  +   "./valid-message": "./src/valid-message.tsx",
+    }
+  ```
+
+  The `./label` and `./messages` shims remain in place and their re-exports are now marked
+  `@deprecated`, each pointing at the per-export subpath to use instead — `./label/default` for
+  `Label`, `./legend` for `Legend`, and `./error-message`, `./helper-message`, `./message-wrapper`,
+  `./valid-message` for the message components. VOLTC-139 tracks their removal.
+
+### Patch Changes
+
+- [`6c993c7e13767`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c993c7e13767) -
+  wrap workbench examples with wb api
+- Updated dependencies
+
+## 16.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 16.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.3
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 15.5.2
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 15.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.0
+
+### Minor Changes
+
+- [`b9829b6cd7780`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9829b6cd7780) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.4.0
+
+### Minor Changes
+
+- [`d8406f8f9043e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d8406f8f9043e) -
+  Removed FG which provides resetFieldState to form consumers
+
+## 15.3.7
+
+### Patch Changes
+
+- [`dcf8070f2b6ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dcf8070f2b6ca) -
+  Cleans-up internal platform feature flag `platform_dst_form_fix_isrequired_effect`. Resolving a
+  bug where form fields were not marked as required when the `isRequired` prop was changed.
+
+## 15.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 15.3.4
 
 ### Patch Changes

@@ -7,14 +7,17 @@ import KeyframesMotion, { type KeyframesMotionProps } from './keyframes-motion';
  *
  * Will over zoom an element into position.
  *
- * - [Examples](https://atlaskit.atlassian.com/packages/design-system/motion/docs/entering-motions)
+ * - [Examples](https://atlaskit.atlassian.com/packages/design-system/motion/docs/entering-motion)
  */
 const ZoomIn = ({
 	children,
 	duration = 'small',
 	isPaused,
 	onFinish,
-}: Omit<KeyframesMotionProps, 'animationTimingFunction' | 'animationTimingFunctionExiting'>): React.JSX.Element => {
+}: Omit<
+	KeyframesMotionProps,
+	'animationTimingFunction' | 'animationTimingFunctionExiting'
+>): React.JSX.Element => {
 	return (
 		<KeyframesMotion
 			duration={duration}

@@ -1,24 +1,18 @@
 import { context } from '@opentelemetry/api';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
+import { clearActiveTrace } from '../clear-active-trace';
 import { setContextManager, UFOContextManager } from '../context-manager';
-import {
-	clearActiveTrace,
-	generateSpanId,
-	getActiveTraceAsQueryParams,
-	getActiveTraceHttpRequestHeaders,
-	setActiveTrace,
-} from '../index';
+import { generateSpanId } from '../generate-span-id';
+import { getActiveTraceAsQueryParams } from '../get-active-trace-as-query-params';
+import { getActiveTraceHttpRequestHeaders } from '../get-active-trace-http-request-headers';
+import { setActiveTrace } from '../set-active-trace';
 
-
-jest.mock('@atlaskit/platform-feature-flags');
+jest.mock('@atlaskit/platform-feature-flags/fg');
 const mockFg = fg as jest.Mock;
 
-const fg_combinations = [
-	[],
-	['platform_ufo_enable_otel_context_manager']
-]
+const fg_combinations = [[], ['platform_ufo_enable_otel_context_manager']];
 
 // Configure global context manager or the OTel Context API will just undefined for the tests
 const contextManager = new UFOContextManager();
@@ -27,7 +21,6 @@ setContextManager(contextManager);
 // Register the context manager with the global OTel API
 contextManager.enable();
 context.setGlobalContextManager(contextManager);
-
 
 describe(`Trace context operation test suite`, () => {
 	for (const fg_set of fg_combinations) {
@@ -83,7 +76,7 @@ describe(`Trace context operation test suite`, () => {
 				// then
 				expect(headers).toMatchObject({
 					'X-B3-TraceId': 'trace-id',
-					'X-B3-SpanId': 'span-id'
+					'X-B3-SpanId': 'span-id',
 				});
 			});
 

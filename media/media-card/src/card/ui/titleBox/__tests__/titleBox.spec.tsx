@@ -1,8 +1,10 @@
 import React from 'react';
+
 import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
-import { TitleBox } from '../titleBox';
+import { IntlProvider } from 'react-intl';
+
 import { Breakpoint } from '../../common';
+import { TitleBox } from '../titleBox';
 
 const headerTestId = 'title-box-header';
 const footerTestId = 'title-box-footer';

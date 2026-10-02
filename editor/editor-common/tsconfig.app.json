@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -23,11 +24,19 @@
 		"./__mocks__/**/*",
 		"**/mock.*",
 		"**/codemods/**/*.ts",
-		"**/codemods/**/*.tsx"
+		"**/codemods/**/*.tsx",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-common/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-common/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
@@ -52,7 +61,13 @@
 			"path": "../../uip/atlassian-context/tsconfig.app.json"
 		},
 		{
+			"path": "../../helpers/browser-apis/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/button/tsconfig.app.json"
+		},
+		{
+			"path": "../../monorepo-tooling/codemod-utils/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/css/tsconfig.app.json"
@@ -85,13 +100,13 @@
 			"path": "../editor-toolbar-model/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-ui-control-model/tsconfig.app.json"
+		},
+		{
 			"path": "../../elements/emoji/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/icon/tsconfig.app.json"
-		},
-		{
-			"path": "../../design-system/icon-object/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/link/tsconfig.app.json"
@@ -104,6 +119,9 @@
 		},
 		{
 			"path": "../../linking-platform/linking-common/tsconfig.app.json"
+		},
+		{
+			"path": "../../design-system/logo/tsconfig.app.json"
 		},
 		{
 			"path": "../../media/media-card/tsconfig.app.json"
@@ -139,13 +157,16 @@
 			"path": "../../design-system/menu/tsconfig.app.json"
 		},
 		{
+			"path": "../../design-system/object/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/onboarding/tsconfig.app.json"
 		},
 		{
-			"path": "../../platform/feature-flags/tsconfig.app.json"
+			"path": "../../platform/feature-experiments/tsconfig.app.json"
 		},
 		{
-			"path": "../../platform/feature-flags-react/tsconfig.app.json"
+			"path": "../../platform/feature-flags/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/popper/tsconfig.app.json"
@@ -158,6 +179,9 @@
 		},
 		{
 			"path": "../prosemirror-history/tsconfig.app.json"
+		},
+		{
+			"path": "../../react-compiler/react-compiler-gating/tsconfig.app.json"
 		},
 		{
 			"path": "../../react-ufo/atlaskit/tsconfig.app.json"
@@ -175,16 +199,13 @@
 			"path": "../../design-system/spinner/tsconfig.app.json"
 		},
 		{
-			"path": "../../elements/status/tsconfig.app.json"
-		},
-		{
 			"path": "../../elements/task-decision/tsconfig.app.json"
 		},
 		{
-			"path": "../../design-system/textfield/tsconfig.app.json"
+			"path": "../../people-and-teams/teams-app-config/tsconfig.app.json"
 		},
 		{
-			"path": "../../design-system/theme/tsconfig.app.json"
+			"path": "../../design-system/textfield/tsconfig.app.json"
 		},
 		{
 			"path": "../tmp-editor-statsig/tsconfig.app.json"

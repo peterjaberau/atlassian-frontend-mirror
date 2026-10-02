@@ -1,6 +1,197 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	feedbackTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	enrolInResearchLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	canBeContactedLabelWithResponse: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	canBeContactedLabelWithResponseWithoutLink: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	privacyPolicy: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	summaryPlaceholder: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formCommentLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	submitButtonLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	cancelButtonLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	giveFeedback: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formBugLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formSuggestionLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formQuestionLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formEmptyLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formNotRelevantLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formNotAccurateLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formTooSlowLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formUnhelpfulLinksLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	formOtherLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	selectionOptionQuestionLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	selectionOptionCommentLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	selectionOptionBugLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	selectionOptionSuggestionLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	selectionOptionDefaultLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	selectionOptionDefaultPlaceholder: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	feedbackIconLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	feedbackSuccessFlagDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	feedbackSuccessFlagTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	feedbackIsAnonymousTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	feedbackIsAnonymous: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	requiredFieldsSummary: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	defaultCustomTextAreaLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	canBeContactedLabelAppifyWithResponse: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	canBeContactedLabelAppifyWithResponseWithoutLink: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	feedbackSuccessFlagDescriptionAppify: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	validationErrorTypeRequired: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	validationErrorDescriptionRequired: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	optInOptionsLegend: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	feedbackTitle: {
 		id: 'feedback-collector.feedback-title',
 		defaultMessage: 'Share your thoughts',
@@ -13,17 +204,19 @@ export const messages = defineMessages({
 		description:
 			'The checkbox label letting users enrol themselves in future product research interviews',
 	},
-	canBeContactedLabel: {
-		id: 'feedback-collector.can-be-contacted.label',
+	canBeContactedLabelWithResponse: {
+		id: 'feedback-collector.can-be-contacted.label-with-response',
 		defaultMessage:
-			'Yes, Atlassian teams can contact me to learn about my experiences to improve Atlassian products and services. I acknowledge the <a>Atlassian Privacy Policy</a>.',
-		description: 'The checkbox label to give consent to be contacted about their feedback',
+			"Yes, Atlassian teams can reply to my feedback and ask for more details about my experience to improve Atlassian products and services. Without this, I won't get a response. I acknowledge the <a>Atlassian Privacy Policy</a>.",
+		description:
+			'The checkbox label to give consent to be contacted about their feedback, explaining that consent is needed to receive a reply',
 	},
-	canBeContactedLabelWithoutLink: {
-		id: 'feedback-collector.can-be-contacted.label-without-link',
+	canBeContactedLabelWithResponseWithoutLink: {
+		id: 'feedback-collector.can-be-contacted.label-with-response-without-link',
 		defaultMessage:
-			'Yes, Atlassian teams can contact me to learn about my experiences to improve Atlassian products and services. I acknowledge the Atlassian Privacy Policy.',
-		description: 'The checkbox label to give consent to be contacted about their feedback',
+			"Yes, Atlassian teams can reply to my feedback and ask for more details about my experience to improve Atlassian products and services. Without this, I won't get a response. I acknowledge the Atlassian Privacy Policy.",
+		description:
+			'The checkbox label to give consent to be contacted about their feedback, explaining that consent is needed to receive a reply',
 	},
 	privacyPolicy: {
 		id: 'feedback-collector.privacy-policy',
@@ -44,7 +237,8 @@ export const messages = defineMessages({
 	submitButtonLabel: {
 		id: 'feedback-collector.submit-button.label',
 		defaultMessage: 'Send feedback',
-		description: 'The button to submit the feedback form',
+		description:
+			"The text is shown on a primary submit button at the bottom of the feedback collector form. When clicked, it submits the user's feedback to Atlassian.",
 	},
 	cancelButtonLabel: {
 		id: 'feedback-collector.cancel-button.label',
@@ -74,7 +268,8 @@ export const messages = defineMessages({
 	formEmptyLabel: {
 		id: 'feedback-collector.form.empty.label',
 		defaultMessage: 'Select an option',
-		description: 'The default dropdown list option',
+		description:
+			'The text is shown as the default empty/placeholder option in the feedback type drop-down list when no option has been selected yet.',
 	},
 	formNotRelevantLabel: {
 		id: 'feedback-collector.form.not-relevant.label',
@@ -124,12 +319,14 @@ export const messages = defineMessages({
 	selectionOptionDefaultLabel: {
 		id: 'feedback-collector.option.default.label',
 		defaultMessage: 'Select feedback',
-		description: 'The feedback dropdown list label',
+		description:
+			'The text is shown as the visible label of the feedback type drop-down selector in the feedback collector form, prompting the user to choose a feedback category.',
 	},
 	selectionOptionDefaultPlaceholder: {
 		id: 'feedback-collector.option.default.placeholder',
 		defaultMessage: 'Choose one',
-		description: 'The feedback dropdown list placeholder',
+		description:
+			'The text is shown as the placeholder inside the feedback type drop-down selector before the user makes a selection, prompting them to pick one of the available feedback categories.',
 	},
 	feedbackIconLabel: {
 		id: 'proforma-form-builder.feedback-icon-label',
@@ -155,7 +352,8 @@ export const messages = defineMessages({
 		id: 'feedback-collector.anonymous',
 		defaultMessage:
 			'This feedback is being submitted anonymously. Atlassian will not be able to contact you directly regarding this feedback',
-		description: 'Notice that feedback is anonymous',
+		description:
+			'The text is shown as an informational notice in the feedback collector form when the user is submitting feedback anonymously, informing them that Atlassian will not be able to follow up with them directly.',
 	},
 	requiredFieldsSummary: {
 		id: 'feedback-collector.required.fields.summary',
@@ -168,17 +366,19 @@ export const messages = defineMessages({
 		description:
 			'The textarea label where users can write their suggestion for custom feedback collector',
 	},
-	canBeContactedLabelAppify: {
-		id: 'feedback-collector.can-be-contacted.label-appify',
+	canBeContactedLabelAppifyWithResponse: {
+		id: 'feedback-collector.can-be-contacted.label-appify-with-response',
 		defaultMessage:
-			'Yes, Atlassian teams can contact me to learn about my experiences to improve Atlassian apps and services. I acknowledge the <a>Atlassian Privacy Policy</a>.',
-		description: 'The checkbox label to give consent to be contacted about their feedback',
+			"Yes, Atlassian teams can reply to my feedback and ask for more details about my experience to improve Atlassian apps and services. Without this, I won't get a response. I acknowledge the <a>Atlassian Privacy Policy</a>.",
+		description:
+			'The checkbox label to give consent to be contacted about their feedback, explaining that consent is needed to receive a reply',
 	},
-	canBeContactedLabelAppifyWithoutLink: {
-		id: 'feedback-collector.can-be-contacted.label-appify-without-link',
+	canBeContactedLabelAppifyWithResponseWithoutLink: {
+		id: 'feedback-collector.can-be-contacted.label-appify-with-response-without-link',
 		defaultMessage:
-			'Yes, Atlassian teams can contact me to learn about my experiences to improve Atlassian apps and services. I acknowledge the Atlassian Privacy Policy.',
-		description: 'The checkbox label to give consent to be contacted about their feedback',
+			"Yes, Atlassian teams can reply to my feedback and ask for more details about my experience to improve Atlassian apps and services. Without this, I won't get a response. I acknowledge the Atlassian Privacy Policy.",
+		description:
+			'The checkbox label to give consent to be contacted about their feedback, explaining that consent is needed to receive a reply',
 	},
 	feedbackSuccessFlagDescriptionAppify: {
 		id: 'feedback-collector.success-flag.description-appify',

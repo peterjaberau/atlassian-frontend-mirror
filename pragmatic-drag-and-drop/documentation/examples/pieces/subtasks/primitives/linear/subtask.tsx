@@ -2,12 +2,18 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import {
+	forwardRef,
+	type ForwardRefExoticComponent,
+	type HTMLAttributes,
+	type ReactNode,
+	type RefAttributes,
+} from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, type SerializedStyles } from '@emotion/react';
 
-import Avatar from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
 import DragHandleVerticalIcon from '@atlaskit/icon/core/drag-handle-vertical';
 import { token } from '@atlaskit/tokens';
 
@@ -99,7 +105,14 @@ export type SubtaskProps = HTMLAttributes<HTMLDivElement> & {
 	isHovering?: boolean;
 };
 
-export const Subtask = forwardRef<HTMLDivElement, SubtaskProps>(function Subtask(
+export const Subtask: ForwardRefExoticComponent<
+	HTMLAttributes<HTMLDivElement> & {
+		id: string;
+		title: string;
+		appearance?: SubtaskAppearance;
+		isHovering?: boolean;
+	} & RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, SubtaskProps>(function Subtask(
 	{ id, title, appearance = 'default', isHovering = false, children, ...props },
 	ref,
 ) {
@@ -124,7 +137,7 @@ export const Subtask = forwardRef<HTMLDivElement, SubtaskProps>(function Subtask
 				<span>{title}</span>
 				<SubtaskGroup>
 					<time css={subtaskTimeStyles}>25 Apr</time>
-					<Avatar size="xsmall" />
+					<Avatar size="xxsmall" />
 				</SubtaskGroup>
 			</div>
 			{children}
@@ -140,7 +153,14 @@ const subtaskPreviewStyles = css({
 	borderRadius: 4,
 });
 
-export const SubtaskPreview = forwardRef<HTMLDivElement, SubtaskProps>(function SubtaskPreview(
+export const SubtaskPreview: ForwardRefExoticComponent<
+	HTMLAttributes<HTMLDivElement> & {
+		id: string;
+		title: string;
+		appearance?: SubtaskAppearance;
+		isHovering?: boolean;
+	} & RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, SubtaskProps>(function SubtaskPreview(
 	{ id, title, appearance = 'default', isHovering = false, children, ...props },
 	ref,
 ) {

@@ -1,7 +1,10 @@
-import { type CardAuthFlowOpts, type CardProviderRenderers } from '@atlaskit/link-provider';
+import type { CardAuthFlowOpts, CardProviderRenderers } from '@atlaskit/link-provider/types';
+import type { CardState } from '@atlaskit/linking-common/store';
 
-import { type CardState } from '../../state/types';
-import { type CardActionOptions, type OnResolveCallback } from '../Card/types';
+import {
+	type InternalCardActionOptions as CardActionOptions,
+	type OnResolveCallback,
+} from '../Card/types';
 import { type OnErrorCallback } from '../types';
 
 export type BlockCardProps = {
@@ -10,7 +13,11 @@ export type BlockCardProps = {
 	cardState: CardState;
 	CompetitorPrompt?: React.ComponentType<{ linkType?: string; sourceUrl: string }>;
 	handleAuthorize: (() => void) | undefined;
+	/** Optional middle-click handler. */
+	handleFrameAuxClick?: React.EventHandler<React.MouseEvent>;
 	handleFrameClick: React.EventHandler<React.MouseEvent | React.KeyboardEvent>;
+	/** Optional right-click handler. */
+	handleFrameContextMenu?: React.EventHandler<React.MouseEvent>;
 	hideIconLoadingSkeleton?: boolean;
 	id: string;
 	isSelected?: boolean;

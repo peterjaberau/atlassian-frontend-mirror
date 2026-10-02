@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-media/app",
 		"rootDir": "../",
 		"composite": true,
@@ -34,6 +33,9 @@
 		},
 		{
 			"path": "../../../design-system/button/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/css/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-palette/afm-products/tsconfig.json"
@@ -70,6 +72,12 @@
 		},
 		{
 			"path": "../../editor-plugin-interaction/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-limited-mode/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-media-editing/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-selection/afm-products/tsconfig.json"
@@ -123,6 +131,9 @@
 			"path": "../../../media/media-viewer/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
@@ -130,9 +141,6 @@
 		},
 		{
 			"path": "../../../design-system/textfield/afm-products/tsconfig.json"
-		},
-		{
-			"path": "../../../design-system/theme/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"

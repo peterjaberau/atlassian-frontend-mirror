@@ -1,7 +1,8 @@
 import React from 'react';
 
 import { code, md } from '@atlaskit/docs';
-import { durations, easeOut } from '@atlaskit/motion';
+import { easeOut } from '@atlaskit/motion/curves';
+import { durations } from '@atlaskit/motion/utils/durations';
 
 import { MovesRightBlock } from './utils/blocks';
 
@@ -10,17 +11,17 @@ export default (): any => md`
 <SlideIn duration="small">...</SlideIn>
   `}
 
-  ${(<MovesRightBlock appearance="small" curve={easeOut} duration={durations.small} />)}
+  ${<MovesRightBlock appearance="small" curve={easeOut} duration={durations.small} />}
 
   ${code`
 <SlideIn duration="medium">...</SlideIn>
   `}
 
-  ${(<MovesRightBlock curve={easeOut} duration={durations.medium} />)}
+  ${<MovesRightBlock curve={easeOut} duration={durations.medium} />}
 
   ${code`
 <SlideIn duration="large">...</SlideIn>
   `}
 
-  ${(<MovesRightBlock appearance="large" curve={easeOut} duration={durations.large} />)}
+  ${<MovesRightBlock appearance="large" curve={easeOut} duration={durations.large} />}
 `;

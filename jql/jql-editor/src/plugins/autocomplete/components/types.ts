@@ -1,5 +1,6 @@
-import { type JQLRuleContext, type Position } from '@atlaskit/jql-autocomplete';
-import { type AutocompleteOption } from '@atlaskit/jql-editor-common';
+import type { JQLRuleContext } from '@atlaskit/jql-autocomplete/jql-autocomplete/types';
+import type { Position } from '@atlaskit/jql-autocomplete/types';
+import type { AutocompleteOption } from '@atlaskit/jql-editor-common/autocomplete/types';
 
 import { type PluginKeymap } from '../../common/plugin-keymap';
 
@@ -11,7 +12,13 @@ export type {
 	AutocompleteValueType,
 } from '@atlaskit/jql-editor-common';
 
-export type AutocompleteOptionType = 'field' | 'operator' | 'value' | 'function' | 'keyword';
+export type AutocompleteOptionType =
+	| 'field'
+	| 'operator'
+	| 'value'
+	| 'function'
+	| 'functionArgument'
+	| 'keyword';
 
 export type AutocompleteOptionExtra = {
 	context: JQLRuleContext | null;
@@ -49,6 +56,7 @@ export type AutocompleteAnalyticsAttributes = {
 	keyboard: boolean;
 	nodeType: string;
 	numberOfOptions: number;
+	optionFunctionName?: string;
 	optionIndex: number;
 	optionType: AutocompleteOptionType;
 	queryLength: number;

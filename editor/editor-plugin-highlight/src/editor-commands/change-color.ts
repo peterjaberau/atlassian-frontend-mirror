@@ -9,19 +9,33 @@ import type {
 	EditorAnalyticsAPI,
 	INPUT_METHOD,
 } from '@atlaskit/editor-common/analytics';
-import { removeMark, toggleMark } from '@atlaskit/editor-common/mark';
+import { getHadMarkAttributes, removeMark, toggleMark } from '@atlaskit/editor-common/mark';
+import { FORMAT_SELECTION_SYNC_META } from '@atlaskit/editor-common/selection';
 import type { EditorCommand } from '@atlaskit/editor-common/types';
-import { highlightColorPalette, REMOVE_HIGHLIGHT_COLOR } from '@atlaskit/editor-common/ui-color';
+import {
+	REMOVE_HIGHLIGHT_COLOR,
+	highlightColorPalette,
+	highlightColorPaletteNew,
+} from '@atlaskit/editor-common/ui-color';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import { HighlightPluginAction, highlightPluginKey } from '../pm-plugins/main';
-
 import { getActiveColor } from './color';
+
+const maybeSyncSelectionAfterFormat = (tr: Transaction) => {
+	if (tr.docChanged) {
+		tr.setMeta(FORMAT_SELECTION_SYNC_META, true);
+	}
+};
 
 export const changeColor =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
 	({ color, inputMethod }: { color: string; inputMethod: INPUT_METHOD }): EditorCommand =>
 	({ tr }) => {
+		const { marks } = tr.doc.type.schema;
 		const { backgroundColor } = tr.doc.type.schema.marks;
 
 		if (!backgroundColor) {
@@ -35,6 +49,17 @@ export const changeColor =
 		if (color === REMOVE_HIGHLIGHT_COLOR) {
 			removeMark(backgroundColor)({ tr });
 		} else {
+			if (
+				isExperimentEnabled('platform_editor_lovability_color_schema_change') &&
+				!expValEquals('platform_editor_lovability_text_bg_color', 'isEnabled', true)
+			) {
+				const overrideMarks = ['textColor'];
+				overrideMarks.forEach((mark) => {
+					if (marks[mark]) {
+						removeMark(marks[mark])({ tr });
+					}
+				});
+			}
 			tr.setMeta(highlightPluginKey, {
 				type: HighlightPluginAction.CHANGE_COLOR,
 				color,
@@ -42,6 +67,8 @@ export const changeColor =
 
 			toggleMark(backgroundColor, { color })({ tr });
 		}
+
+		maybeSyncSelectionAfterFormat(tr);
 
 		return tr;
 	};
@@ -52,17 +79,24 @@ const createAnalyticsEvent = (
 	tr: Transaction,
 ): AnalyticsEventPayload => {
 	const previousColor = getActiveColor(tr) ?? REMOVE_HIGHLIGHT_COLOR;
+	const highlightPalette = expValEqualsNoExposure(
+		'platform_editor_lovability_text_bg_color',
+		'isEnabled',
+		true,
+	)
+		? highlightColorPaletteNew
+		: highlightColorPalette;
+
 	// get color names from palette
-	const newColorFromPalette = highlightColorPalette.find(({ value }) => value === color);
-	const previousColorFromPalette = highlightColorPalette.find(
-		({ value }) => value === previousColor,
-	);
+	const newColorFromPalette = highlightPalette.find(({ value }) => value === color);
+	const previousColorFromPalette = highlightPalette.find(({ value }) => value === previousColor);
 
 	const newColorLabel = newColorFromPalette ? newColorFromPalette.label : color;
 
 	const previousColorLabel = previousColorFromPalette
 		? previousColorFromPalette.label
 		: previousColor;
+	const { textColor, link } = tr.doc.type.schema.marks;
 
 	return {
 		action: ACTION.FORMATTED,
@@ -73,6 +107,7 @@ const createAnalyticsEvent = (
 			newColor: newColorLabel.toLowerCase(),
 			previousColor: previousColorLabel ? previousColorLabel.toLowerCase() : '',
 			inputMethod,
+			...(color === REMOVE_HIGHLIGHT_COLOR ? {} : getHadMarkAttributes(tr, [textColor, link])),
 		},
 	};
 };

@@ -1,5 +1,60 @@
 # @atlaskit/media-core
 
+## 39.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+## 38.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 38.1.0
+
+### Minor Changes
+
+- [`ae3b452f54cbe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae3b452f54cbe) -
+  Add clean granular subpath exports `@atlaskit/media-core/auth-to-owner`,
+  `@atlaskit/media-core/is-asap-based-auth` and `@atlaskit/media-core/is-client-based-auth`, so
+  `authToOwner`, `isAsapBasedAuth` and `isClientBasedAuth` each have a non-deprecated import target
+  (Volt Stage-1). The `@atlaskit/media-core/auth` shim's `@deprecated` messages now point at these
+  subpaths instead of the root package barrel.
+
+## 38.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 37.1.0
+
+### Minor Changes
+
+- [`93de3f3243bc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93de3f3243bc0) -
+  Autofix: add explicit package exports (barrel removal)
+
 ## 37.0.0
 
 ### Major Changes
@@ -296,7 +351,6 @@
 ### Minor Changes
 
 - [minor][6dcad31e41](https://bitbucket.org/atlassian/atlassian-frontend/commits/6dcad31e41):
-
   - Added Stargate integration to MediaPicker popup.
   - Added `useMediaPickerPopup` option to Editor which enables using MediaPicker popup even when
     userAuthProvider is not provided.
@@ -378,7 +432,6 @@
 
   Remove namespace imports from React, ReactDom, and PropTypes- Updated dependencies
   [6548261c9a](https://bitbucket.org/atlassian/atlassian-frontend/commits/6548261c9a):
-
   - @atlaskit/docs@8.3.2
   - @atlaskit/button@13.3.7
   - @atlaskit/media-card@67.0.3
@@ -594,7 +647,6 @@ const config: MediaClientConfig = {
 - [patch][18dfac7332](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/18dfac7332):
 
   In this PR, we are:
-
   - Re-introducing dist build folders
   - Adding back cjs
   - Replacing es5 by cjs and es2015 by esm
@@ -635,7 +687,6 @@ const config: MediaClientConfig = {
 ## 30.0.4
 
 - [patch][b0ef06c685](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/b0ef06c685):
-
   - This is just a safety release in case anything strange happened in in the previous one. See Pull
     Request #5942 for details
 
@@ -650,7 +701,6 @@ const config: MediaClientConfig = {
 ## 30.0.2
 
 - [patch][af1cbd4ce4](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/af1cbd4ce4):
-
   - Removing unnecessary deps and dev deps in media-core and media-client
 
 ## 30.0.1
@@ -664,14 +714,12 @@ const config: MediaClientConfig = {
 ## 30.0.0
 
 - [major][7c17b35107](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/7c17b35107):
-
   - Updates react and react-dom peer dependencies to react@^16.8.0 and react-dom@^16.8.0. To use
     this package, please ensure you use at least this version of react and react-dom.
 
 ## 29.3.0
 
 - [minor][a1192ef860](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/a1192ef860):
-
   - Add event emitter api to context + add first known event 'file-added'
 
   Integrators can now do:
@@ -691,7 +739,6 @@ const config: MediaClientConfig = {
 ## 29.2.0
 
 - [minor][e7292ab444](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/e7292ab444):
-
   - Export new media-store interfaces and methods: `ClientAltBasedAuth`, `MediaClientConfig` and
     `authToOwner`. Also introduce cache related members related to future migration to media-client:
     `mediaState`, `CachedMediaState`, `StateDeferredValue`.
@@ -699,7 +746,6 @@ const config: MediaClientConfig = {
 ## 29.1.5
 
 - [patch][0a4ccaafae](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/0a4ccaafae):
-
   - Bump tslib
 
 ## 29.1.4
@@ -714,7 +760,6 @@ const config: MediaClientConfig = {
 ## 29.1.3
 
 - [patch][30a9a7177e](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/30a9a7177e):
-
   - [MS-1791] Make fileState.representations optional, since media api might not return that value
     in all cases and we want to prevent a runtime error
 
@@ -729,13 +774,11 @@ const config: MediaClientConfig = {
 ## 29.1.1
 
 - [patch][d13fad66df](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/d13fad66df):
-
   - Enable esModuleInterop for typescript, this allows correct use of default exports
 
 ## 29.1.0
 
 - [minor][c2c36de22b](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/c2c36de22b):
-
   - Fix missing annotated images in recent uploads within media picker
 
 ## 29.0.2
@@ -749,26 +792,22 @@ const config: MediaClientConfig = {
 ## 29.0.1
 
 - [patch][1bcaa1b991](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/1bcaa1b991):
-
   - Add npmignore for index.ts to prevent some jest tests from resolving that instead of index.js
 
 ## 29.0.0
 
 - [major][9d5cc39394](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/9d5cc39394):
-
   - Dropped ES5 distributables from the typescript packages
 
 ## 28.0.0
 
 - [major][7ab3e93996](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/7ab3e93996):
-
   - Move checkWebpSupport util from media-core to media-store and use it to request webp from
     backend
 
 ## 27.2.4
 
 - [patch][ff3f40bc38](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/ff3f40bc38):
-
   - Fix remove from cache function, which fixes issue when user is deleting recent image in media
     picker
 
@@ -785,31 +824,26 @@ const config: MediaClientConfig = {
 ## 27.2.2
 
 - [patch][9b0f6671ae](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/9b0f6671ae):
-
   - ED-6244: Fix Resizable Media to allow images go smaller size than videos
 
 ## 27.2.1
 
 - [patch][5a01d648a3](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/5a01d648a3):
-
   - Fixing download binary file content in Safari browsers due CORS issue "safari error [Error]
     Refused to display in a frame because it set 'X-Frame-Options' to 'SAMEORIGIN'."
 
 ## 27.2.0
 
 - [patch][6bd4c428e2](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/6bd4c428e2):
-
   - load image preview as soon representation is present instead of waiting for file status to be
     processed
 
 - [minor][4aee5f3cec](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/4aee5f3cec):
-
   - added representations to file metadata
 
 ## 27.1.0
 
 - [minor][fc6164c8c2](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/fc6164c8c2):
-
   - Expose Identifier type and utilities from media-core instead of media-card
 
 - Updated dependencies
@@ -829,13 +863,11 @@ const config: MediaClientConfig = {
 ## 27.0.1
 
 - [patch][a9dc1278c4](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/a9dc1278c4):
-
   - add error handling in CollectionFetcher for getItems call
 
 ## 27.0.0
 
 - [major][69c8d0c19c](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/69c8d0c19c):
-
   - Rename fileState.preview.blob to fileState.preview.value and support string + Blob as value
 
 ## 26.2.1
@@ -849,13 +881,11 @@ const config: MediaClientConfig = {
 ## 26.2.0
 
 - [minor][85d5d168fd](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/85d5d168fd):
-
   - Expose new getCurrentState method to context
 
 ## 26.1.0
 
 - [minor][dadef80](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/dadef80):
-
   - Introduce getImageUrl method and FileFetcher TS interface
 
 - Updated dependencies [3ad16f3](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/3ad16f3):
@@ -866,13 +896,11 @@ const config: MediaClientConfig = {
 ## 26.0.0
 
 - [major][cbb8cb5](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/cbb8cb5):
-
   - Remove redundant fileStreamCache createKey() method and replace the cache key with id everywhere
 
 ## 25.0.0
 
 - [major][72d37fb](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/72d37fb):
-
   - Remove deprecated methods from media-core
   - Use context.collection methods in MediaViewer
   - Remove link support from media-card
@@ -891,13 +919,11 @@ const config: MediaClientConfig = {
 ## 24.7.1
 
 - [patch][ca16fa9](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/ca16fa9):
-
   - Add SSR support to media components
 
 ## 24.7.0
 
 - [minor][b3738ea](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/b3738ea):
-
   - New method context.file.touchFiles is added; Optional third parameter is added to
     context.file.upload - loadableFileUpfrontIds where you can define file id, and promise of upload
     id upfront
@@ -909,7 +935,6 @@ const config: MediaClientConfig = {
 ## 24.6.0
 
 - [minor][80f765b](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/80f765b):
-
   - Add stretchy-fit resize mode that acts as full-fit but scales up small image in big container
 
 ## 24.5.3
@@ -935,20 +960,17 @@ const config: MediaClientConfig = {
 ## 24.5.0
 
 - [minor][7e8b4b9](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/7e8b4b9):
-
   - Context.collection.removeFile has been added; occurrenceKey was added to all FileState flavours
     and filled as part of observable during upload;
 
 ## 24.4.1
 
 - [patch][705dcf3](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/705dcf3):
-
   - pass collectionName to MediaStore in order to use right auth token
 
 ## 24.4.0
 
 - [minor][2c21466](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/2c21466):
-
   - Allow to inline play video files in media-card
 
 ## 24.3.1

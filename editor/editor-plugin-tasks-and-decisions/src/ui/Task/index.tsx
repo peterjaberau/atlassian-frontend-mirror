@@ -1,19 +1,18 @@
 import type { ReactElement, Ref } from 'react';
 import React, { PureComponent } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { tasksAndDecisionsMessages } from '@atlaskit/editor-common/messages';
 import { ProviderFactory, WithProviders } from '@atlaskit/editor-common/provider-factory';
 import type { Providers } from '@atlaskit/editor-common/provider-factory';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
 import type { ContentRef } from '@atlaskit/task-decision';
 
 import type { TasksAndDecisionsPlugin } from '../../tasksAndDecisionsPluginType';
-import { type TaskAndDecisionsSharedState } from '../../types';
-
+import type { TaskAndDecisionsSharedState } from '../../types';
 import TaskItemWithProviders from './task-item-with-providers';
 
 export interface TaskProps {
@@ -103,4 +102,8 @@ const TaskItemWrapper = (props: TaskProps & WrappedComponentProps) => {
 	return <TaskItem taskDecisionProvider={provider} {...props} />;
 };
 
-export default injectIntl(TaskItemWrapper);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<TaskProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<TaskProps & WrappedComponentProps>;
+} = injectIntl(TaskItemWrapper);
+export default _default_1;

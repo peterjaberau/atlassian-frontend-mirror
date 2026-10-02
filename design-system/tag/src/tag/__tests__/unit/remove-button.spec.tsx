@@ -1,9 +1,7 @@
 import React from 'react';
 
-import { fireEvent, render, screen } from '@testing-library/react';
-
 import { skipA11yAudit } from '@af/accessibility-testing';
-
+import { fireEvent, render, screen } from '@atlassian/testing-library';
 
 import RemoveButton from '../../internal/removable/remove-button';
 

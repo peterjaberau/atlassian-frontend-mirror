@@ -1,19 +1,20 @@
+/* eslint-disable jsdoc/require-jsdoc, react/jsx-props-no-spreading -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import type { ReactNode } from 'react';
 import React, { Fragment, useEffect, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import type { SerializedStyles } from '@emotion/react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
 import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { BreadcrumbsMiscActions } from '@af/editor-examples-helpers/utils';
-import type { DocNode } from '@atlaskit/adf-schema';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import type { EditorAppearance } from '@atlaskit/editor-common/types';
@@ -25,20 +26,23 @@ import { TitleInput, MockActivityResource } from '@atlaskit/editor-test-helpers/
 import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
 import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
 import { macroProvider } from '@atlaskit/editor-test-helpers/mock-macro-provider';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import type { MediaClientConfig } from '@atlaskit/media-core/auth';
-import type { ImagePreview, UploadPreviewUpdateEventPayload } from '@atlaskit/media-picker';
-import { Clipboard } from '@atlaskit/media-picker';
+import { ClipboardLoader as Clipboard } from '@atlaskit/media-picker/clipboard';
+import type { ImagePreview, UploadPreviewUpdateEventPayload } from '@atlaskit/media-picker/types';
 import {
 	defaultCollectionName,
 	defaultMediaPickerCollectionName,
 } from '@atlaskit/media-test-helpers/collectionNames';
 import { videoFileId } from '@atlaskit/media-test-helpers/exampleMediaItems';
-import { fileToDataURI } from '@atlaskit/media-ui';
-import Modal, { ModalBody, ModalHeader, ModalTitle, ModalTransition } from '@atlaskit/modal-dialog';
+import { fileToDataURI } from '@atlaskit/media-ui/fileToDataURI';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { Box } from '@atlaskit/primitives/compiled';
 import { ReactRenderer } from '@atlaskit/renderer';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 import { currentUser, getEmojiProvider } from '@atlaskit/util-data-test/get-emoji-provider';
 import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
@@ -47,7 +51,7 @@ import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decis
 import quickInsertProviderFactory from '../example-helpers/quick-insert-provider';
 import type { EditorActions } from '../src';
 import { Editor } from '../src';
-import type { EditorProps } from '../src/editor';
+import type { EditorProps } from '../src/types/editor-props';
 import EditorContext from '../src/ui/EditorContext';
 import WithEditorActions from '../src/ui/WithEditorActions';
 
@@ -77,7 +81,7 @@ const rendererWrapper = css({
 
 const externalClipboardWrapper = css({
 	width: '500px',
-	padding: token('space.150', '12px'),
+	padding: token('space.150'),
 	border: `${token('border.width')} dashed #ccc`,
 });
 
@@ -354,12 +358,7 @@ class ExampleEditorComponent extends React.Component<EditorProps & ExampleProps,
 
 	private setFullWidthMode = (appearance: 'full-page' | 'full-width' | 'max') => {
 		this.setState({
-			appearance:
-				appearance === 'max' &&
-				!expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) &&
-				!expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-					? 'full-width'
-					: appearance,
+			appearance,
 		});
 	};
 
@@ -509,7 +508,7 @@ class ExampleEditorComponent extends React.Component<EditorProps & ExampleProps,
 						<ClipboardWidthPopup
 							content={
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								<div style={{ padding: token('space.250', '24px') }}>
+								<div style={{ padding: token('space.250') }}>
 									<h3>Clipboard in popup: </h3>
 									{this.renderEditor(defaultCollectionName, fullWidthEditorStyles)}
 									<ExampleExternalClipboard />
@@ -642,9 +641,9 @@ const ExampleExternalClipboard = () => {
 					</Button>
 					{pastedImgSrc && (
 						<p>
-							{/* eslint-disable-next-line @atlassian/a11y/alt-text */}
 							<img
 								src={pastedImgSrc}
+								alt="Pasted preview"
 								width={Math.round(pastedImgWidth / pastedImgScaleFactor)}
 								height={Math.round(pastedImgHeight / pastedImgScaleFactor)}
 								css={pastedImageStyles}
@@ -657,7 +656,7 @@ const ExampleExternalClipboard = () => {
 	);
 };
 
-export default function Example(props: EditorProps & ExampleProps) {
+export default function Example(props: EditorProps & ExampleProps): jsx.JSX.Element {
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 		<div style={{ height: '100%' }}>

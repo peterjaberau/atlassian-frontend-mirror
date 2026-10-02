@@ -1,10 +1,9 @@
 import React from 'react';
 
-// @ts-ignore - TS1192 TypeScript 5.9.2 upgrade
 import fetchMock from 'fetch-mock/cjs/client';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
 import { Popup as EditorPopup } from '@atlaskit/editor-common/ui';
 import { withReactEditorViewOuterListeners } from '@atlaskit/editor-common/ui-react';
@@ -16,7 +15,6 @@ import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { getEmojiProviderForCloudId } from '../src/provider';
-
 import adfDoc from './__mocks__/adfDoc.json';
 import emojiMockData from './__mocks__/emojiData.json';
 

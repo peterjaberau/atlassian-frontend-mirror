@@ -12,12 +12,12 @@ import {
 	waitFor,
 	type waitForOptions,
 } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 import { asMock } from '@atlaskit/link-test-helpers/jest';
 
-import { EVENT_CHANNEL } from '../../../../analytics';
+import { EVENT_CHANNEL } from '../../../../analytics/constants';
 import { useAssetsClient, type UseAssetsClientState } from '../../../../hooks/useAssetsClient';
 import {
 	type DatasourceTableState,
@@ -230,7 +230,11 @@ export const setup = async (
 	assertAnalyticsAfterButtonClick: (buttonName: string, payload: any) => Promise<void>;
 	clickSearchButton: () => Promise<void>;
 	component: RenderResult<typeof queries, HTMLElement, HTMLElement>;
-	findByRole: (role: ByRoleMatcher, options?: queries.ByRoleOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
+	findByRole: (
+		role: ByRoleMatcher,
+		options?: queries.ByRoleOptions | undefined,
+		waitForElementOptions?: waitForOptions | undefined,
+	) => Promise<HTMLElement>;
 	getByRole: (role: ByRoleMatcher, options?: queries.ByRoleOptions | undefined) => HTMLElement;
 	getByTestId: (id: Matcher, options?: MatcherOptions | undefined) => HTMLElement;
 	getByText: (id: Matcher, options?: SelectorMatcherOptions | undefined) => HTMLElement;
@@ -238,8 +242,10 @@ export const setup = async (
 	onCancel: jest.Mock<any, any, any>;
 	onInsert: jest.Mock<any, any, any>;
 	queryByTestId: (id: Matcher, options?: MatcherOptions | undefined) => HTMLElement | null;
+	rerenderModal: () => void;
 	searchWithNewAql: (aqlString: string) => void;
 	selectNewSchema: (option: string) => Promise<void>;
+	setDatasourceTableHookState: (state: DatasourceTableState) => void;
 }> => {
 	asMock(useDatasourceTableState).mockReturnValue(
 		args.datasourceTableHookState || getDefaultDataSourceTableHookState(),
@@ -258,31 +264,27 @@ export const setup = async (
 	const onInsert = jest.fn();
 	const onAnalyticFireEvent = jest.fn();
 
-	let renderFunction = render;
-	const renderComponent = (): RenderResult<typeof queries, HTMLElement, HTMLElement> =>
-		renderFunction(
-			<AnalyticsListener channel={EVENT_CHANNEL} onEvent={onAnalyticFireEvent}>
-				<IntlProvider locale="en">
-					<AssetsConfigModal
-						datasourceId={'some-assets-datasource-id'}
-						parameters={
-							Object.keys(args).includes('parameters') ? args.parameters : getDefaultParameters()
-						}
-						onCancel={onCancel}
-						onInsert={onInsert}
-						visibleColumnKeys={
-							Object.keys(args).includes('visibleColumnKeys')
-								? args.visibleColumnKeys
-								: ['myColumn']
-						}
-					/>
-				</IntlProvider>
-				,
-			</AnalyticsListener>,
-		);
-	const component = renderComponent();
+	const modalTree = () => (
+		<AnalyticsListener channel={EVENT_CHANNEL} onEvent={onAnalyticFireEvent}>
+			<IntlProvider locale="en">
+				<AssetsConfigModal
+					datasourceId={'some-assets-datasource-id'}
+					parameters={
+						Object.keys(args).includes('parameters') ? args.parameters : getDefaultParameters()
+					}
+					onCancel={onCancel}
+					onInsert={onInsert}
+					visibleColumnKeys={
+						Object.keys(args).includes('visibleColumnKeys') ? args.visibleColumnKeys : ['myColumn']
+					}
+				/>
+			</IntlProvider>
+			,
+		</AnalyticsListener>
+	);
+	const component = render(modalTree());
 
-	// Unfortunately can no longer spread ...renderComponent() due to typing issue
+	// Unfortunately can no longer spread ...component due to typing issue
 	const { findByRole, findByTestId, getByRole, getByTestId, queryByTestId, getByText } = component;
 
 	const assertAnalyticsAfterButtonClick = async (buttonName: string, payload: any) => {
@@ -302,6 +304,17 @@ export const setup = async (
 		fireEvent.click(objectSchemaSelect.children[0]);
 
 		(await findByText(option)).click();
+	};
+
+	// Lets a test change what the hook reports part-way through a journey
+	const setDatasourceTableHookState = (state: DatasourceTableState) => {
+		asMock(useDatasourceTableState).mockReturnValue(state);
+	};
+
+	// Stands in for the modal re-rendering because the hook's own state changed, which is how it
+	// picks up a `setDatasourceTableHookState` that no user interaction triggered
+	const rerenderModal = () => {
+		component.rerender(modalTree());
 	};
 
 	const searchWithNewAql = (aqlString: string) => {
@@ -331,6 +344,8 @@ export const setup = async (
 		assertAnalyticsAfterButtonClick,
 		selectNewSchema,
 		searchWithNewAql,
+		setDatasourceTableHookState,
+		rerenderModal,
 		clickSearchButton,
 	};
 };

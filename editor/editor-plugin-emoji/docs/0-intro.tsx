@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Emoji', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the emoji plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,21 +30,55 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+interface EmojiPluginOptions {
+  disableAutoformat?: boolean;
+  emojiNodeDataProvider?: EmojiNodeDataProvider;
+  emojiProvider?: Promise<EmojiProvider>;
+  headless?: boolean;
+}
+
+type EmojiPluginState = {
+  asciiMap?: Map<string, EmojiDescription>;
+  emojiProvider?: EmojiProvider;
+  emojiProviderPromise?: Promise<EmojiProvider>;
+  emojiResourceConfig?: EmojiResourceConfig;
+  inlineEmojiPopupOpen?: boolean;
+};
+
+type EmojiPluginSharedState = EmojiPluginState & {
+  typeAheadHandler: TypeAheadHandler;
+};
+
+type EmojiPluginCommands = {
+  insertEmoji: (
+    emojiId: EmojiId,
+    inputMethod?: INPUT_METHOD.PICKER | INPUT_METHOD.ASCII | INPUT_METHOD.TYPEAHEAD,
+  ) => EditorCommand;
+};
+
+type EmojiPluginActions = {
+  openTypeAhead: (inputMethod: TypeAheadInputMethod) => boolean;
+  setProvider: (provider: Promise<EmojiProvider>) => Promise<boolean>;
+};
+
+type EmojiPluginDependencies = [
+  OptionalPlugin<AnalyticsPlugin>,
+  TypeAheadPlugin,
+  OptionalPlugin<AnnotationPluginType>,
+  OptionalPlugin<EditorViewModePluginType>,
+  OptionalPlugin<BasePlugin>,
+  OptionalPlugin<MetricsPlugin>,
+  OptionalPlugin<ConnectivityPlugin>,
+];
+
 type EmojiPlugin = NextEditorPlugin<
   'emoji',
   {
+    actions: EmojiPluginActions;
+    commands: EmojiPluginCommands;
+    dependencies: EmojiPluginDependencies;
     pluginConfiguration: EmojiPluginOptions | undefined;
-    dependencies: [OptionalPlugin<AnalyticsPlugin>, TypeAheadPlugin];
-    sharedState: EmojiPluginState | undefined;
-    commands: {
-      insertEmoji: (
-        emojiId: EmojiId,
-        inputMethod?:
-          | INPUT_METHOD.PICKER
-          | INPUT_METHOD.ASCII
-          | INPUT_METHOD.TYPEAHEAD,
-      ) => EditorCommand;
-    };
+    sharedState: EmojiPluginSharedState | undefined;
   }
 >;
 `}

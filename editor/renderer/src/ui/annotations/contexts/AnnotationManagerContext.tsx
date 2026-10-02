@@ -1,14 +1,8 @@
-import React, {
-	createContext,
-	type ReactNode,
-	useContext,
-	useEffect,
-	useMemo,
-	useReducer,
-	useRef,
-} from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useRef } from 'react';
+import type { ReactNode } from 'react';
 
-import { type AnnotationId, AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema';
+import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema/annotation';
+import type { AnnotationId } from '@atlaskit/adf-schema/annotation';
 import type {
 	AnnotationManager,
 	GetDraftResult,
@@ -17,11 +11,11 @@ import type {
 	HoverAnnotationResult,
 	SelectAnnotationResult,
 } from '@atlaskit/editor-common/annotation';
-import {
-	AnnotationUpdateEvent,
-	type AnnotationUpdateEventPayloads,
-	type AnnotationUpdateEmitter,
-	type OnAnnotationClickPayload,
+import { AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
+import type {
+	AnnotationUpdateEventPayloads,
+	AnnotationUpdateEmitter,
+	OnAnnotationClickPayload,
 } from '@atlaskit/editor-common/types';
 
 import { RendererContext } from '../../../ui/RendererActionsContext';
@@ -33,6 +27,7 @@ interface AnnotationState {
 
 type AnnotationsStateRecord = Record<AnnotationId, AnnotationState>;
 
+// oxlint-disable-next-line eslint/no-redeclare
 interface AnnotationManagerStateContext {
 	annotations: AnnotationsStateRecord;
 	currentHoveredAnnotationId: AnnotationId | undefined;
@@ -45,6 +40,7 @@ interface AnnotationManagerStateContext {
 	isDrafting: boolean;
 }
 
+// oxlint-disable-next-line eslint/no-redeclare
 interface AnnotationManagerDispatchContext {
 	annotationManager: AnnotationManager | undefined;
 	dispatch: React.Dispatch<AnnotationManagerAction>;
@@ -62,12 +58,14 @@ const initState: AnnotationManagerStateContext = {
 	currentHoveredAnnotationId: undefined,
 };
 
-const AnnotationManagerStateContext = createContext<AnnotationManagerStateContext>(initState);
+const AnnotationManagerStateContext: React.Context<AnnotationManagerStateContext> =
+	createContext<AnnotationManagerStateContext>(initState);
 
-const AnnotationManagerDispatchContext = createContext<AnnotationManagerDispatchContext>({
-	annotationManager: undefined,
-	dispatch: () => {},
-});
+const AnnotationManagerDispatchContext: React.Context<AnnotationManagerDispatchContext> =
+	createContext<AnnotationManagerDispatchContext>({
+		annotationManager: undefined,
+		dispatch: () => {},
+	});
 
 type AnnotationManagerAction =
 	| { type: 'reset' }
@@ -425,6 +423,7 @@ export const AnnotationManagerProvider = ({
 				dispatch({
 					type: 'setSelectedMarkRef',
 					data: {
+						// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage -- resolve mark node by id in the document
 						markRef: document.getElementById(id) || undefined,
 					},
 				});
@@ -689,10 +688,10 @@ export const AnnotationManagerProvider = ({
 	);
 };
 
-export const useAnnotationManagerState = () => {
+export const useAnnotationManagerState = (): AnnotationManagerStateContext => {
 	return useContext(AnnotationManagerStateContext);
 };
 
-export const useAnnotationManagerDispatch = () => {
+export const useAnnotationManagerDispatch = (): AnnotationManagerDispatchContext => {
 	return useContext(AnnotationManagerDispatchContext);
 };

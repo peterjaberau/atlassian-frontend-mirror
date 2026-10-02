@@ -1,12 +1,14 @@
 import React, {
 	Children,
+	type Context,
 	createContext,
 	memo,
 	type ReactNode,
-	useContext,
 	useEffect,
 	useState,
 } from 'react';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 /**
  * Internally we will be playing with an element that will always have a key defined.
@@ -39,7 +41,12 @@ export interface ExitingPersistenceProps {
 /**
  * Internal data passed to child motions.
  */
-interface ExitingChildContext {
+export interface ExitingChildContext {
+	/**
+	 * Whether this value was provided by an ExitingPersistence boundary.
+	 */
+	isInsideExitingPersistence: boolean;
+
 	/**
 	 * Will perform an exit animation instead of an enter animation.
 	 */
@@ -60,6 +67,7 @@ interface ExitingChildContext {
 const emptyContext: ExitingChildContext = {
 	// Motions will always appear if not inside a exiting persistence component.
 	appear: true,
+	isInsideExitingPersistence: false,
 	isExiting: false,
 };
 
@@ -68,7 +76,8 @@ const emptyContext: ExitingChildContext = {
  *
  * An exiting context.
  */
-const ExitingContext = createContext<ExitingChildContext>(emptyContext);
+export const ExitingContext: Context<ExitingChildContext> =
+	createContext<ExitingChildContext>(emptyContext);
 
 /**
  * This method will wrap any React element with a context provider. We're using context (instead of
@@ -162,94 +171,111 @@ const getMissingKeys = (current: ElementWithKey[], previous: ElementWithKey[]) =
  *
  * Useful for enabling elements to persist and animate away when they are removed from the DOM.
  *
- * - [Examples](https://atlaskit.atlassian.com/packages/design-system/motion/docs/entering-motions)
+ * - [Examples](https://atlaskit.atlassian.com/packages/design-system/motion/docs/entering-motion)
  */
-const ExitingPersistence: React.MemoExoticComponent<({ appear, children, exitThenEnter }: ExitingPersistenceProps) => any> = memo(
-	({ appear = false, children, exitThenEnter }: ExitingPersistenceProps): any => {
-		const [stateChildren, setChildren] = useState<[React.ReactNode | null, React.ReactNode]>([
-			null,
-			children,
-		]);
+const ExitingPersistence: React.MemoExoticComponent<
+	({ appear, children, exitThenEnter }: ExitingPersistenceProps) => any
+> = memo(({ appear = false, children, exitThenEnter }: ExitingPersistenceProps): any => {
+	const [stateChildren, setChildren] = useState<[React.ReactNode | null, React.ReactNode]>([
+		null,
+		children,
+	]);
 
-		const [exitingChildren, setExitingChildren] = useState<ElementWithKey[]>([]);
+	const [exitingChildren, setExitingChildren] = useState<ElementWithKey[]>([]);
 
-		const [defaultContext, setDefaultContext] = useState(() => ({ appear, isExiting: false }));
+	const [defaultContext, setDefaultContext] = useState<ExitingChildContext>(() => ({
+		appear,
+		isExiting: false,
+		isInsideExitingPersistence: true,
+	}));
 
-		useEffect(() => {
-			if (!defaultContext.appear) {
-				setDefaultContext({ appear: true, isExiting: false });
-			}
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, []);
-
-		/**
-		 * NOTE: This is a workaround for the test case written in Jira where the stateChildren is a boolean value because
-		 * useState is mocked to return a boolean value.
-		 */
-		if (typeof stateChildren === 'boolean') {
-			return children;
+	useEffect(() => {
+		if (!defaultContext.appear) {
+			setDefaultContext({
+				appear: true,
+				isExiting: false,
+				isInsideExitingPersistence: true,
+			});
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
-		const [previousChildren, currentChildren] = stateChildren;
+	/**
+	 * NOTE: This is a workaround for the test case written in Jira where the stateChildren is a boolean value because
+	 * useState is mocked to return a boolean value.
+	 */
+	if (typeof stateChildren === 'boolean') {
+		return children;
+	}
 
-		const previous = childrenToArray(previousChildren);
-		const current = childrenToArray(currentChildren);
+	const [previousChildren, currentChildren] = stateChildren;
 
-		if (currentChildren !== children) {
-			setChildren([currentChildren as any, children]);
-		}
+	const previous = childrenToArray(previousChildren);
+	const current = childrenToArray(currentChildren);
 
-		const missingKeys = getMissingKeys(current, previous);
-		const isSomeChildRemoved = !!missingKeys.size;
+	if (currentChildren !== children) {
+		// Parent updates can rerender this boundary before its children finish exiting. Keep
+		// the previous children until their onFinish callbacks release them.
+		const hasPendingExit =
+			fg('platform-dst-motion-uplift-labels') && getMissingKeys(current, previous).size > 0;
+		setChildren([hasPendingExit ? previousChildren : (currentChildren as any), children]);
+	}
 
-		let visibleChildren = current;
+	const nextChildren = currentChildren !== children ? childrenToArray(children) : current;
+	const missingKeys = getMissingKeys(nextChildren, previous);
+	const isSomeChildRemoved = !!missingKeys.size;
 
-		if (isSomeChildRemoved) {
-			visibleChildren = spliceNewElementsIntoPrevious(current, previous);
-		}
+	let visibleChildren =
+		!isSomeChildRemoved && currentChildren !== children ? nextChildren : current;
 
-		if (exitThenEnter) {
-			if (exitingChildren.length) {
-				visibleChildren = exitingChildren;
-			} else {
-				const nextExitingChildren = visibleChildren.filter((child) => missingKeys.has(child.key));
-				if (nextExitingChildren.length) {
-					setExitingChildren(nextExitingChildren);
-				}
-			}
-		}
+	if (isSomeChildRemoved) {
+		visibleChildren = spliceNewElementsIntoPrevious(current, previous);
+	}
 
-		if (missingKeys.size) {
-			visibleChildren = visibleChildren.map((child) => {
-				const isExiting = missingKeys.has(child.key);
-				return wrapChildWithContextProvider(child, {
-					appear: true,
-					isExiting,
-					onFinish: isExiting
-						? () => {
-								missingKeys.delete(child.key);
-								if (missingKeys.size === 0) {
-									setChildren([null, children]);
-									setExitingChildren([]);
-								}
-							}
-						: undefined,
-				});
-			}) as ElementWithKey[];
+	if (exitThenEnter) {
+		if (exitingChildren.length) {
+			visibleChildren = fg('platform-dst-motion-uplift') ? previous : exitingChildren;
 		} else {
-			visibleChildren = visibleChildren.map((child) =>
-				wrapChildWithContextProvider(child, defaultContext),
-			) as ElementWithKey[];
+			const nextExitingChildren = visibleChildren.filter((child) => missingKeys.has(child.key));
+			if (nextExitingChildren.length) {
+				setExitingChildren(nextExitingChildren);
+			}
 		}
+	}
 
-		return visibleChildren;
-	},
-);
+	if (missingKeys.size) {
+		visibleChildren = visibleChildren.map((child) => {
+			const isExiting = missingKeys.has(child.key);
+			// Retained exits can span several parent renders. Unchanged siblings should
+			// keep their context identity instead of receiving redundant updates.
+			if (fg('platform-dst-motion-uplift-labels') && !isExiting) {
+				return wrapChildWithContextProvider(child, defaultContext);
+			}
+			return wrapChildWithContextProvider(child, {
+				appear: true,
+				isInsideExitingPersistence: true,
+				isExiting,
+				onFinish: isExiting
+					? () => {
+							missingKeys.delete(child.key);
+							if (missingKeys.size === 0) {
+								setChildren([null, children]);
+								setExitingChildren([]);
+							}
+						}
+					: undefined,
+			});
+		}) as ElementWithKey[];
+	} else {
+		visibleChildren = visibleChildren.map((child) =>
+			wrapChildWithContextProvider(child, defaultContext),
+		) as ElementWithKey[];
+	}
 
-export const useExitingPersistence = (): ExitingChildContext => {
-	return useContext(ExitingContext);
-};
+	return visibleChildren;
+});
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export default ExitingPersistence;
 
 ExitingPersistence.displayName = 'ExitingPersistence';
-
-export default ExitingPersistence;

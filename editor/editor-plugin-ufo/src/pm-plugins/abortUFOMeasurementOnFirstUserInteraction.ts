@@ -1,4 +1,5 @@
 /* eslint-disable @repo/internal/dom-events/no-unsafe-event-listeners */
+
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { abortAll } from '@atlaskit/react-ufo/interaction-metrics';
 
@@ -54,7 +55,8 @@ const AbortEvent: ReadonlyArray<FirstUserInteractionEvents> = [
 	'mouseover',
 ];
 
-export const abortUFOMeasurementOnFirstUserInteraction = () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const abortUFOMeasurementOnFirstUserInteraction = (): SafePlugin<any> | undefined => {
 	if (typeof window.AbortController !== 'function') {
 		return;
 	}

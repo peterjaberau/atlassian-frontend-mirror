@@ -1,18 +1,17 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import {
-	extractSmartLinkEmbed,
-	extractSmartLinkTitle,
-	extractSmartLinkUrl,
-	extractType,
-} from '@atlaskit/link-extractors';
-import type { SmartLinkResponse } from '@atlaskit/linking-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { extractSmartLinkEmbed } from '@atlaskit/link-extractors/extract-smart-link-embed';
+import { extractSmartLinkTitle } from '@atlaskit/link-extractors/extract-smart-link-title';
+import { extractSmartLinkUrl } from '@atlaskit/link-extractors/extract-smart-link-url';
+import { extractType } from '@atlaskit/link-extractors/extract-type';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
 
-import { getEmptyJsonLd } from '../../utils/jsonld';
+import { getEmptyJsonLd } from '../../utils/get-empty-json-ld';
 import { type CardPlatform, type EmbedIframeUrlType } from '../../view/Card/types';
 import { type EmbedCardResolvedViewProps } from '../../view/EmbedCard/views/ResolvedView';
-import { extractSmartLinkContext } from '../common/context';
+import { extractIsSupportProductContext } from '../common/meta/extractIsSupportProductContext';
 import { extractIsSupportTheming } from '../common/meta/extractIsSupportTheming';
 import { extractIsTrusted } from '../common/meta/extractIsTrusted';
+import { extractSmartLinkContext } from './extract-smart-link-context';
 
 export const extractEmbedProps = (
 	response?: SmartLinkResponse,
@@ -28,6 +27,7 @@ export const extractEmbedProps = (
 		context: extractSmartLinkContext(response),
 		preview: extractSmartLinkEmbed(response, iframeUrlType),
 		isTrusted: extractIsTrusted(meta),
+		isSupportProductContext: extractIsSupportProductContext(meta),
 		isSupportTheming: extractIsSupportTheming(meta),
 		type: extractType(jsonLd),
 	};

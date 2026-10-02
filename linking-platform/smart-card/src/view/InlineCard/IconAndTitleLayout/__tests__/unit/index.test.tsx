@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { fireEvent, screen } from '@testing-library/react';
-
 import { renderWithIntl } from '@atlaskit/media-test-helpers/renderWithIntl';
+import { fireEvent, screen } from '@atlassian/testing-library';
 
 import { expectElementWithText } from '../../../../../__tests__/__utils__/unit-helpers';
 import { IconAndTitleLayout } from '../../index';
@@ -50,6 +49,30 @@ describe('IconAndTitleLayout', () => {
 			const urlIcon = screen.getByTestId('inline-card-icon-image');
 
 			expect(urlIcon).toBeDefined();
+		});
+
+		it('renders a Jira issue subtype label from a tuple', () => {
+			renderWithIntl(
+				<IconAndTitleLayout title="title" icon={['src-loaded', 'Bug']} testId="inline-card-icon" />,
+			);
+
+			const urlIcon = screen.getByTestId('inline-card-icon-image');
+			expect(urlIcon).toHaveAttribute('src', 'src-loaded');
+			expect(urlIcon).toHaveAttribute('alt', 'Bug');
+		});
+
+		it('renders tuple icon source and label', () => {
+			renderWithIntl(
+				<IconAndTitleLayout
+					title="title"
+					icon={['src-loaded', 'document']}
+					testId="inline-card-icon"
+				/>,
+			);
+
+			const urlIcon = screen.getByTestId('inline-card-icon-image');
+			expect(urlIcon).toHaveAttribute('src', 'src-loaded');
+			expect(urlIcon).toHaveAttribute('alt', 'document');
 		});
 
 		it('should render round image if profile type', () => {

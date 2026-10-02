@@ -2,13 +2,13 @@ import React from 'react';
 
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import * as closestEdge from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import * as closestEdge from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge';
 import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/types';
 import type { CleanupFn } from '@atlaskit/pragmatic-drag-and-drop/types';
 
-import { RankableBody } from '../../rankable/body';
-
-import { headMock1, rowsWithKeys } from './_data';
+import { RankableBody } from '../../rankable/rankable-body';
+import { rowsWithKeys } from './_data';
+import { headMock1 } from './_head-mock';
 
 const createProps = () => ({
 	head: headMock1,

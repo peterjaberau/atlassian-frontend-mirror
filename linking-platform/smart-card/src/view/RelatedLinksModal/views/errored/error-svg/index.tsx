@@ -10,12 +10,12 @@ const errorStyles = css({
 	width: '80px',
 	marginTop: 0,
 	marginRight: 'auto',
-	marginBottom: token('space.300', '24px'),
+	marginBottom: token('space.300'),
 	marginLeft: 'auto',
 	display: 'block',
 });
 
-export const ErrorSVG = (props: React.SVGProps<SVGSVGElement>) => {
+export const ErrorSVG = (props: React.SVGProps<SVGSVGElement>): JSX.Element => {
 	const id = 'related-links-error-svg';
 
 	return (

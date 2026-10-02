@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { expandWithNestedExpand, nestedExpand } from '@atlaskit/adf-schema';
+import { expandWithNestedExpand } from '@atlaskit/adf-schema/expand';
+import { nestedExpand } from '@atlaskit/adf-schema/nested-expand';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -8,19 +9,20 @@ import {
 	EVENT_TYPE,
 	INPUT_METHOD,
 } from '@atlaskit/editor-common/analytics';
+import { IconExpand } from '@atlaskit/editor-common/assets';
 import {
 	TRANSFORM_STRUCTURE_EXPAND_MENU_ITEM,
 	TRANSFORM_STRUCTURE_MENU_SECTION,
 	TRANSFORM_STRUCTURE_MENU_SECTION_RANK,
 } from '@atlaskit/editor-common/block-menu';
 import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/messages';
-import { IconExpand } from '@atlaskit/editor-common/quick-insert';
 import { createWrapSelectionTransaction } from '@atlaskit/editor-common/utils';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import { toggleExpandRange } from '../editor-commands/toggleExpandRange';
 import type { ExpandPlugin } from '../types';
 import { createExpandBlockMenuItem } from '../ui/ExpandBlockMenuItem';
+import { getExpandQuickInsertComponents } from '../ui/quick-insert/getExpandQuickInsertComponents';
 
 const EXPAND_NODE_NAME = 'expand';
 
@@ -37,21 +39,27 @@ import { getToolbarConfig } from './toolbar';
 // Ignored via go/ees005
 // eslint-disable-next-line prefer-const
 export let expandPlugin: ExpandPlugin = ({ config: options = {}, api }) => {
-	if (expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) {
-		api?.blockMenu?.actions.registerBlockMenuComponents([
-			{
-				type: 'block-menu-item',
-				key: TRANSFORM_STRUCTURE_EXPAND_MENU_ITEM.key,
-				parent: {
-					type: 'block-menu-section' as const,
-					key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
-					rank: TRANSFORM_STRUCTURE_MENU_SECTION_RANK[TRANSFORM_STRUCTURE_EXPAND_MENU_ITEM.key],
-				},
-				component: createExpandBlockMenuItem(api),
-				isHidden: () =>
-					Boolean(api?.blockMenu?.actions.isTransformOptionDisabled(EXPAND_NODE_NAME)),
+	const isRegisteredSlashCommandEnabled = isExperimentEnabled('platform_editor_slash_command');
+	api?.blockMenu?.actions.registerBlockMenuComponents([
+		{
+			type: 'block-menu-item',
+			key: TRANSFORM_STRUCTURE_EXPAND_MENU_ITEM.key,
+			parent: {
+				type: 'block-menu-section' as const,
+				key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
+				rank: (TRANSFORM_STRUCTURE_MENU_SECTION_RANK as Record<string, number>)[
+					TRANSFORM_STRUCTURE_EXPAND_MENU_ITEM.key
+				],
 			},
-		]);
+			component: createExpandBlockMenuItem(api),
+			isHidden: () => Boolean(api?.blockMenu?.actions.isTransformOptionDisabled(EXPAND_NODE_NAME)),
+		},
+	]);
+
+	if (isRegisteredSlashCommandEnabled && options.allowInsertion === true) {
+		api?.uiControlRegistry?.actions.register(
+			getExpandQuickInsertComponents({ api, isLegacy: true }),
+		);
 	}
 
 	return {
@@ -75,6 +83,12 @@ export let expandPlugin: ExpandPlugin = ({ config: options = {}, api }) => {
 		commands: {
 			toggleExpandWithMatch: (selection) => toggleExpandWithMatch(selection),
 			toggleExpandRange,
+		},
+
+		getSharedState() {
+			return {
+				allowInsertion: options?.allowInsertion ?? true,
+			};
 		},
 
 		pmPlugins() {
@@ -104,44 +118,46 @@ export let expandPlugin: ExpandPlugin = ({ config: options = {}, api }) => {
 		pluginsOptions: {
 			floatingToolbar: getToolbarConfig(api),
 
-			quickInsert: ({ formatMessage }) => {
-				if (options && options.allowInsertion !== true) {
-					return [];
-				}
-				return [
-					{
-						id: 'expand',
-						title: formatMessage(messages.expand),
-						description: formatMessage(messages.expandDescription),
-						keywords: ['accordion', 'collapse'],
-						priority: 600,
-						icon: () => <IconExpand />,
-						action(insert, state) {
-							const node = createExpandNode(state);
-							if (!node) {
-								return false;
-							}
-							const tr = state.selection.empty
-								? insert(node)
-								: createWrapSelectionTransaction({
-										state,
-										type: node.type,
-									});
-							api?.analytics?.actions.attachAnalyticsEvent({
-								action: ACTION.INSERTED,
-								actionSubject: ACTION_SUBJECT.DOCUMENT,
-								actionSubjectId:
-									node.type === state.schema.nodes.nestedExpand
-										? ACTION_SUBJECT_ID.NESTED_EXPAND
-										: ACTION_SUBJECT_ID.EXPAND,
-								attributes: { inputMethod: INPUT_METHOD.QUICK_INSERT },
-								eventType: EVENT_TYPE.TRACK,
-							})(tr);
-							return tr;
+			...(!isRegisteredSlashCommandEnabled && {
+				quickInsert: ({ formatMessage }) => {
+					if (options && options.allowInsertion !== true) {
+						return [];
+					}
+					return [
+						{
+							id: 'expand',
+							title: formatMessage(messages.expand),
+							description: formatMessage(messages.expandDescription),
+							keywords: ['accordion', 'collapse'],
+							priority: 600,
+							icon: () => <IconExpand />,
+							action(insert, state) {
+								const node = createExpandNode(state);
+								if (!node) {
+									return false;
+								}
+								const tr = state.selection.empty
+									? insert(node)
+									: createWrapSelectionTransaction({
+											state,
+											type: node.type,
+										});
+								api?.analytics?.actions.attachAnalyticsEvent({
+									action: ACTION.INSERTED,
+									actionSubject: ACTION_SUBJECT.DOCUMENT,
+									actionSubjectId:
+										node.type === state.schema.nodes.nestedExpand
+											? ACTION_SUBJECT_ID.NESTED_EXPAND
+											: ACTION_SUBJECT_ID.EXPAND,
+									attributes: { inputMethod: INPUT_METHOD.QUICK_INSERT },
+									eventType: EVENT_TYPE.TRACK,
+								})(tr);
+								return tr;
+							},
 						},
-					},
-				];
-			},
+					];
+				},
+			}),
 		},
 	};
 };

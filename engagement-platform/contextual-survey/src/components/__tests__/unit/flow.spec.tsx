@@ -6,8 +6,6 @@ import { type FormValues } from '../../../types';
 import ContextualSurvey, { AUTO_DISAPPEAR_DURATION } from '../../ContextualSurvey';
 import SurveyMarshal from '../../SurveyMarshal';
 
-jest.useFakeTimers();
-
 type Props = {
 	hasUserAnswered: boolean;
 	onDismiss: () => void;
@@ -40,6 +38,10 @@ function App({ hasUserAnswered, onSubmit, onDismiss }: Props) {
 		</StrictMode>
 	);
 }
+
+beforeEach(() => {
+	jest.useFakeTimers();
+});
 
 it('should allow a standard signup flow', async () => {
 	const onSubmit = jest.fn().mockImplementation(() => {

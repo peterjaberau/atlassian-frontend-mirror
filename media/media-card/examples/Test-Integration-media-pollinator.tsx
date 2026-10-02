@@ -2,26 +2,32 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx, css } from '@emotion/react';
+
 import React from 'react';
 import { useState, useRef, useCallback, useMemo } from 'react';
-import { defaultCollectionName, createUploadMediaClientConfig } from '@atlaskit/media-test-helpers';
-import { Browser, type BrowserConfig, type UploadsStartEventPayload } from '@atlaskit/media-picker';
-import Button from '@atlaskit/button/new';
-import { Card } from '../src';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import { jsx, css } from '@emotion/react';
+
+import Button from '@atlaskit/button/default/button';
 import { type FileIdentifier, MediaClient } from '@atlaskit/media-client';
+import { BrowserLoader as Browser } from '@atlaskit/media-picker/browser';
+import type { BrowserConfig, UploadsStartEventPayload } from '@atlaskit/media-picker/types';
+import { defaultCollectionName, createUploadMediaClientConfig } from '@atlaskit/media-test-helpers';
 import { token } from '@atlaskit/tokens';
-import { cardFlowHeaderStyles } from '../example-helpers/styles';
+
 import { MainWrapper } from '../example-helpers';
+import { cardFlowHeaderStyles } from '../example-helpers/styles';
+import Card from '../src/card/cardLoader';
+
 const env = 'staging';
 const mediaClientConfig = createUploadMediaClientConfig(undefined, env);
 const mediaClient = new MediaClient(mediaClientConfig);
 
 const cardWrapperStyles = css({
 	border: `${token('border.width')} solid`,
-	padding: token('space.100', '8px'),
-	margin: token('space.050', '4px'),
+	padding: token('space.100'),
+	margin: token('space.050'),
 	overflow: 'auto',
 	display: 'inline-block',
 });

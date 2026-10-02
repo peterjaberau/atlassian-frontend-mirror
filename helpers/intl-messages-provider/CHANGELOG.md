@@ -1,5 +1,158 @@
 # @atlaskit/intl-messages-provider
 
+## 5.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- [`fe698b4d726b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fe698b4d726b8) -
+  Restore legacy source entry points still required by Atlaskit documentation loaders and pragmatic
+  drag and drop tests after the deprecated re-export cleanup.
+- Updated dependencies
+
+## 4.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.0
+
+### Minor Changes
+
+- [`db050139d16aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db050139d16aa) -
+  Added explicit subpath exports so consumers can import directly from the relevant entry point:
+  - `import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';`
+  - `import { createAsyncIntlProvider } from '@atlaskit/intl-messages-provider/async';`
+  - `import type { I18NMessages } from '@atlaskit/intl-messages-provider/types';`
+
+  The package root (`@atlaskit/intl-messages-provider`) continues to export `IntlMessagesProvider`,
+  `IntlMessagesProviderProps` and `I18NMessages`, so existing imports keep working. New code should
+  prefer the subpath exports.
+
+## 4.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 4.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.1
+
+### Patch Changes
+
+- [`72290778b16ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72290778b16ca) -
+  Enrol mixed platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 3.3.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.0
+
+### Minor Changes
+
+- [`686c1cdc2b177`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/686c1cdc2b177) -
+  Introduce `createAsyncIntlProvider` factory in `@atlaskit/intl-messages-provider/async` and adopt
+  it in the `global-*` navigation packages to remove duplicated async i18n loader boilerplate. Also
+  fixes `GlobalMoreMenu` which previously had translated messages but no `IntlMessagesProvider`
+  wrapping them, so its localized strings were not loading.
+
+## 3.1.1
+
+### Patch Changes
+
+- [`ba1f755aa8863`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba1f755aa8863) -
+  Cleanup navx-4615-fix-async-intl-for-gsn feature gate (enabled)
+
+## 3.1.0
+
+### Minor Changes
+
+- [`aa5bf3f26299b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa5bf3f26299b) -
+  Refactors the AsyncIntlProvider to reduce calls to the async loader function and sets the default
+  language to en-US, improving the happy-path hit-rate for language loading
+
+## 3.0.0
+
+### Major Changes
+
+- [`d2e14ba5ae9fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2e14ba5ae9fc) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
 ## 2.0.1
 
 ### Patch Changes

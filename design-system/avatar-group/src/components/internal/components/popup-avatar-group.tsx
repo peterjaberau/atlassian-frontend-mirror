@@ -1,10 +1,9 @@
 import React, { useContext, useEffect } from 'react';
 
-import { MenuGroup } from '@atlaskit/menu';
+import MenuGroup from '@atlaskit/menu/menu-group';
 
 import { type PopupAvatarGroupProps } from '../../types';
-
-import { FocusManagerContext } from './focus-manager';
+import { FocusManagerContext } from './focus-manager-context';
 
 /**
  * It sets focus to the first avatar when popup is open.

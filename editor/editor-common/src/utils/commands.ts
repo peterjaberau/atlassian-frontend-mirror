@@ -1,48 +1,23 @@
-import {
-	Fragment,
-	type Node as PMNode,
-	type ResolvedPos,
-} from '@atlaskit/editor-prosemirror/model';
-import {
-	type EditorState,
-	NodeSelection,
-	TextSelection,
-	type Transaction,
-} from '@atlaskit/editor-prosemirror/state';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
 
-import {
-	ACTION,
-	ACTION_SUBJECT,
-	ACTION_SUBJECT_ID,
-	type EditorAnalyticsAPI,
-	EVENT_TYPE,
-} from '../analytics';
+import type { Node as PMNode, ResolvedPos } from '@atlaskit/editor-prosemirror/model';
+import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+
+import { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, EVENT_TYPE } from '../analytics';
+import type { EditorAnalyticsAPI } from '../analytics';
 import { withAnalytics } from '../editor-analytics';
 import { GapCursorSelection } from '../selection';
-import type { Command, Predicate } from '../types';
-
-import { isEmptyParagraph } from './editor-core-utils';
-import { isMediaNode } from './nodes';
-
+import type { Command } from '../types';
+import { atTheBeginningOfDoc } from './atTheBeginningOfDoc';
+import { atTheEndOfDoc } from './atTheEndOfDoc';
+import { filter } from './filter';
+import { insertNewLine } from './insertNewLine';
+import { isEmptyParagraph } from './isEmptyParagraph';
+import { isMediaNode } from './isMediaNode';
 export type WalkNode = {
 	$pos: ResolvedPos;
 	foundNode: boolean;
-};
-
-export const filter = (predicates: Predicate[] | Predicate, cmd: Command): Command => {
-	return function (state, dispatch, view): boolean {
-		if (!Array.isArray(predicates)) {
-			predicates = [predicates];
-		}
-
-		if (predicates.some((pred) => !pred(state, view))) {
-			return false;
-		}
-
-		return cmd(state, dispatch, view) || false;
-	};
 };
 
 /**
@@ -93,35 +68,9 @@ export const walkPrevNode = ($startPos: ResolvedPos): WalkNode => {
 	};
 };
 
-export function insertNewLine(): Command {
-	return function (state, dispatch) {
-		const { $from } = state.selection;
-		const parent = $from.parent;
-		const { hardBreak } = state.schema.nodes;
-
-		if (hardBreak) {
-			const hardBreakNode = hardBreak.createChecked();
-
-			if (parent && parent.type.validContent(Fragment.from(hardBreakNode))) {
-				if (dispatch) {
-					dispatch(state.tr.replaceSelectionWith(hardBreakNode, false));
-				}
-				return true;
-			}
-		}
-
-		if (state.selection instanceof TextSelection) {
-			if (dispatch) {
-				dispatch(state.tr.insertText('\n'));
-			}
-			return true;
-		}
-
-		return false;
-	};
-}
-
-export const insertNewLineWithAnalytics = (editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
+export const insertNewLineWithAnalytics = (
+	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+): Command =>
 	withAnalytics(editorAnalyticsAPI, {
 		action: ACTION.INSERTED,
 		actionSubject: ACTION_SUBJECT.TEXT,
@@ -237,15 +186,6 @@ function canMoveUp(state: EditorState): boolean {
 		return true;
 	}
 
-	if (
-		selection instanceof TextSelection &&
-		!expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-	) {
-		if (!selection.empty) {
-			return true;
-		}
-	}
-
 	return !atTheBeginningOfDoc(state);
 }
 
@@ -259,26 +199,7 @@ function canMoveDown(state: EditorState): boolean {
 		return true;
 	}
 
-	if (
-		selection instanceof TextSelection &&
-		!expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-	) {
-		if (!selection.empty) {
-			return true;
-		}
-	}
-
 	return !atTheEndOfDoc(state);
-}
-
-export function atTheEndOfDoc(state: EditorState): boolean {
-	const { selection, doc } = state;
-	return doc.nodeSize - selection.$to.pos - 2 === selection.$to.depth;
-}
-
-export function atTheBeginningOfDoc(state: EditorState): boolean {
-	const { selection } = state;
-	return selection.$from.pos === selection.$from.depth;
 }
 
 /**
@@ -323,27 +244,6 @@ export const deleteEmptyParagraphAndMoveBlockUp = (
 	};
 };
 
-export const insertContentDeleteRange = (
-	tr: Transaction,
-	getSelectionResolvedPos: (tr: Transaction) => ResolvedPos,
-	insertions: [Fragment, number][],
-	deletions: [number, number][],
-): void => {
-	insertions.forEach((contentInsert) => {
-		const [content, pos] = contentInsert;
-
-		tr.insert(tr.mapping.map(pos), content);
-	});
-
-	deletions.forEach((deleteRange) => {
-		const [firstPos, lastPos] = deleteRange;
-
-		tr.delete(tr.mapping.map(firstPos), tr.mapping.map(lastPos));
-	});
-
-	tr.setSelection(new TextSelection(getSelectionResolvedPos(tr)));
-};
-
 /**
  * Check if the selection is empty and at the start of a task or list item
  * @param state Editor state
@@ -355,7 +255,7 @@ export const isEmptySelectionAtStart = (state: EditorState): boolean => {
 
 	// If blockTaskItem is in the schema,
 	// we need to check if the selection is inside a blockTaskItem
-	if (blockTaskItem && empty && fg('platform_editor_blocktaskitem_patch_2')) {
+	if (blockTaskItem && empty) {
 		// If the parent is in a textblock,
 		// check if it's nested inside a blockTaskItem
 		if ($from.parent.isTextblock) {
@@ -379,18 +279,8 @@ export const isEmptySelectionAtStart = (state: EditorState): boolean => {
 		// Else, check if the parent is a blockTaskItem
 		else if ($from.parent.type === blockTaskItem) {
 			// Check if the selection is at the start of the blockTaskItem
-			let firstPosInBlockTaskItem = 0;
-			if (fg('platform_editor_blocktaskitem_patch_2')) {
-				const blockTaskItemDepth = $from.depth;
-
-				// When cleaning up platform_editor_blocktaskitem_patch_2, set firstPosInBlockTaskItem as const
-				firstPosInBlockTaskItem = $from.start(blockTaskItemDepth);
-			} else {
-				const blockTaskItemDepth = $from.depth - 1;
-				const DISTANCE_FROM_PARENT_FOR_GAP_CURSOR = 1;
-				firstPosInBlockTaskItem =
-					$from.start(blockTaskItemDepth) + DISTANCE_FROM_PARENT_FOR_GAP_CURSOR;
-			}
+			const blockTaskItemDepth = $from.depth;
+			const firstPosInBlockTaskItem = $from.start(blockTaskItemDepth);
 
 			// Is the selection at the first possible position inside the blockTaskItem
 			return $from.pos === firstPosInBlockTaskItem;
@@ -406,7 +296,7 @@ export const isEmptySelectionAtEnd = (state: EditorState): boolean => {
 
 	// If blockTaskItem is in the schema,
 	// we need to check if the selection is inside a blockTaskItem
-	if (blockTaskItem && empty && fg('platform_editor_blocktaskitem_patch_3')) {
+	if (blockTaskItem && empty) {
 		// If the parent is in a textblock,
 		// check if it's nested inside a blockTaskItem
 		if ($from.parent.isTextblock) {
@@ -439,4 +329,15 @@ export const isEmptySelectionAtEnd = (state: EditorState): boolean => {
 	return empty && ($from.end() === $from.pos || state.selection instanceof GapCursorSelection);
 };
 
+// eslint-disable-next-line @atlaskit/editor/no-re-export
 export { filter as filterCommand };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { filter } from './filter';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { insertNewLine } from './insertNewLine';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { atTheEndOfDoc } from './atTheEndOfDoc';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { atTheBeginningOfDoc } from './atTheBeginningOfDoc';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { insertContentDeleteRange } from './insertContentDeleteRange';

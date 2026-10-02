@@ -6,7 +6,7 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { TypeAheadPlugin } from '../typeAheadPluginType';
 import type { PopupMountPointReference } from '../types';
-
+import { getTypeAheadSurface } from './registered-menu/typeAheadSurfaces';
 import { TypeAheadMenu } from './TypeAheadMenu';
 
 interface ContentComponentProps {
@@ -15,10 +15,15 @@ interface ContentComponentProps {
 	popupMountRef: PopupMountPointReference;
 }
 
-export function ContentComponent({ api, editorView, popupMountRef }: ContentComponentProps): React.JSX.Element | null {
+export function ContentComponent({
+	api,
+	editorView,
+	popupMountRef,
+}: ContentComponentProps): React.JSX.Element | null {
 	const {
 		triggerHandler,
 		items,
+		sections,
 		errorInfo,
 		decorationElement,
 		decorationSet,
@@ -27,6 +32,7 @@ export function ContentComponent({ api, editorView, popupMountRef }: ContentComp
 	} = useSharedPluginStateWithSelector(api, ['typeAhead'], (states) => ({
 		triggerHandler: states.typeAheadState?.triggerHandler,
 		items: states.typeAheadState?.items,
+		sections: states.typeAheadState?.sections,
 		errorInfo: states.typeAheadState?.errorInfo,
 		decorationElement: states.typeAheadState?.decorationElement,
 		decorationSet: states.typeAheadState?.decorationSet,
@@ -35,6 +41,7 @@ export function ContentComponent({ api, editorView, popupMountRef }: ContentComp
 	}));
 	if (
 		items === undefined ||
+		sections === undefined ||
 		decorationSet === undefined ||
 		errorInfo === undefined ||
 		decorationElement === undefined ||
@@ -44,13 +51,19 @@ export function ContentComponent({ api, editorView, popupMountRef }: ContentComp
 		return null;
 	}
 
+	if (getTypeAheadSurface(triggerHandler?.id)) {
+		return null;
+	}
+
 	return (
 		<TypeAheadMenu
 			editorView={editorView}
 			popupMountRef={popupMountRef}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			typeAheadState={{
 				triggerHandler,
 				items,
+				sections,
 				errorInfo,
 				decorationElement,
 				decorationSet,

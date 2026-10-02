@@ -1,8 +1,11 @@
-import { token } from '@atlaskit/tokens';
-import { Text } from '@atlaskit/primitives/compiled';
 import React from 'react';
+
 import serializeJavascript from 'serialize-javascript';
-import MentionResource, { type MentionResourceConfig } from '../src/api/MentionResource';
+
+import { Text } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
+import { MentionResource, type MentionResourceConfig } from '../src/api/MentionResource';
 
 export interface Props {
 	children?: any;
@@ -21,11 +24,11 @@ export default class ConfigurableMentionPicker extends React.Component<Props, St
 		};
 	}
 
-	UNSAFE_componentWillReceiveProps(nextProps: Props) {
+	UNSAFE_componentWillReceiveProps(nextProps: Props): void {
 		this.refreshMentions(nextProps.config);
 	}
 
-	refreshMentions(config: MentionResourceConfig) {
+	refreshMentions(config: MentionResourceConfig): void {
 		this.setState({
 			resourceProvider: new MentionResource(config),
 		});
@@ -37,11 +40,11 @@ export default class ConfigurableMentionPicker extends React.Component<Props, St
 		this.refreshMentions(config);
 	};
 
-	render() {
+	render(): React.JSX.Element {
 		const { resourceProvider } = this.state;
 
 		return (
-			<div style={{ padding: `${token('space.150', '12px')}` }}>
+			<div style={{ padding: `${token('space.150')}` }}>
 				{React.cloneElement(this.props.children, { resourceProvider })}
 				<Text as="p">
 					<label htmlFor="mention-urls">MentionResource config</label>

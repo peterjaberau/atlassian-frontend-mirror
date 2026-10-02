@@ -1,5 +1,533 @@
 # @atlaskit/flag
 
+## 19.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.5.2
+
+### Patch Changes
+
+- [`3092a20b51b97`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3092a20b51b97) -
+  Fix the Flag collapse animation behind the `platform-dst-flag-collapse-animation-fix` feature
+  gate.
+
+## 18.5.1
+
+### Patch Changes
+
+- [`680ed4ddc61bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/680ed4ddc61bf) -
+  Cleaned up new shape theme styles, making new border and radius values the default.
+
+## 18.5.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.4.1
+
+### Patch Changes
+
+- [`36fca63b896aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/36fca63b896aa) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 18.4.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.10
+
+### Patch Changes
+
+- [`9356675edac18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9356675edac18) -
+  Replace generated `./src/*` subpath export keys with lint-safe equivalents. The de-barreling
+  migration produced export keys containing a `src` segment (e.g. `@atlaskit/select`
+  `"./src/select"`), which are forbidden by `no-restricted-imports` (`@atlaskit/*/src/*`) in
+  downstream products.
+
+  Renamed keys:
+  - `@atlaskit/select`: `./src/select` → `./default`
+  - `@atlaskit/icon`: `./src/constants` → `./constants/default`
+  - `@atlaskit/react-select`: `./src/async` → `./async/default`, `./src/creatable` →
+    `./creatable/default`
+  - `@atlaskit/heading`: `./src/heading-context` → `./heading-context/default`
+  - `@atlaskit/flag`: removed the redundant `./src/flag-group` key (duplicate of the existing
+    `./flag-group` export)
+
+  The underlying source targets are unchanged.
+
+- Updated dependencies
+
+## 18.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.4
+
+### Patch Changes
+
+- [`6ee8cd1f53196`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ee8cd1f53196) -
+  Fix action padding for normal and bold flag appearances.
+
+## 18.2.3
+
+### Patch Changes
+
+- [`6a036e3f13ffc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6a036e3f13ffc) -
+  Fix flag Escape dismissal from focused inputs
+
+## 18.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.0
+
+### Minor Changes
+
+- [`30436e761cb48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30436e761cb48) -
+  Fixes text truncation in custom elements inside flag body
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.1
+
+### Patch Changes
+
+- [`820f00bd7db09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/820f00bd7db09) -
+  Enable platform-dst-motion-uplift-button by default in constellation examples so button motion is
+  previewed in component demos. Docs/examples-only; no change to shipped component behaviour.
+
+## 18.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 18.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.13.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.13.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.13.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.13.2
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+
+## 17.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.13.0
+
+### Minor Changes
+
+- [`d3c301db190de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3c301db190de) -
+  [CCCEMAU-2964] Behind feature gate `cc_mohiti_flag_anchoring`, anchor `FlagGroup` symmetrically at
+  48px from the bottom-left of the viewport (was 80px left / 48px bottom). The 80px left offset was
+  a legacy artefact from the old left-rail navigation sidebar. Part of Mohiti surface modernization.
+  Mobile breakpoint (≤560px) is unaffected — both insets remain 0.
+
+## 17.12.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.12.8
+
+### Patch Changes
+
+- [`a7925184f55e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7925184f55e1) -
+  Fixes min-width issue in flags causing content to exceed container's width
+
+## 17.12.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.12.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.12.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.12.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.12.0
+
+### Minor Changes
+
+- [`b52ee6820e33a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b52ee6820e33a) -
+  Add hideFlag(id) API to useFlags() for programmatically dismissing flags by id. Useful when an
+  action button on a flag needs to dismiss the flag itself, or when the code dismissing the flag
+  does not have a reference to the dismiss callback returned by showFlag.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.11.0
+
+### Minor Changes
+
+- [`523cde9208825`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/523cde9208825) -
+  Add Escape key shortcut to dismiss the topmost flag, behind the platform_dst_flag_keyboard_dismiss
+  feature gate. Improves keyboard and screen-reader accessibility (JRACLOUD-97876) by removing the
+  need to tab through the entire page to reach the flag's dismiss button. The visually-hidden
+  landmark label also announces the new shortcut when the gate is on.
+
+## 17.10.0
+
+### Minor Changes
+
+- [`436b89822a386`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/436b89822a386) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 17.9.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.9.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.9.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.9.5
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 17.9.4
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 17.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.9.2
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- Updated dependencies
+
+## 17.9.1
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+- Updated dependencies
+
+## 17.9.0
+
+### Minor Changes
+
+- [`7118a6dc08262`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7118a6dc08262) -
+  [ux] Updated animations in Flag Group behind fg platform-dst-motion-uplift
+
+## 17.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.8.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.8.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 17.8.4
 
 ### Patch Changes

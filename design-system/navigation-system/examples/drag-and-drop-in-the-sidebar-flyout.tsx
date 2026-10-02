@@ -9,7 +9,7 @@ import { jsx } from '@compiled/react';
 import invariant from 'tiny-invariant';
 
 import { cssMap } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import StarUnstarredIcon from '@atlaskit/icon/core/star-unstarred';
 import { ConfluenceIcon } from '@atlaskit/logo';
 import { Main } from '@atlaskit/navigation-system/layout/main';
@@ -18,7 +18,7 @@ import { PanelSplitter } from '@atlaskit/navigation-system/layout/panel-splitter
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavFooter,
 	SideNavToggleButton,
 } from '@atlaskit/navigation-system/layout/side-nav';
@@ -27,13 +27,13 @@ import { AppLogo, AppSwitcher } from '@atlaskit/navigation-system/top-nav-items'
 import {
 	draggable,
 	dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { Stack } from '@atlaskit/primitives/compiled';
 import { ButtonMenuItem } from '@atlaskit/side-nav-items/button-menu-item';
 import { MenuList } from '@atlaskit/side-nav-items/menu-list';
 import { token } from '@atlaskit/tokens';
 
-import { WithResponsiveViewport } from './utils/example-utils'
+import { WithResponsiveViewport } from './utils/example-utils';
 
 const headingStyles = cssMap({
 	root: {
@@ -130,7 +130,7 @@ export default function SidebarExample(): JSX.Element {
 					</TopNavStart>
 				</TopNav>
 				<SideNav defaultCollapsed testId="side-nav">
-					<SideNavContent>
+					<SideNavBody>
 						<MenuList>
 							<ButtonMenuItem
 								ref={buttonRef}
@@ -140,7 +140,7 @@ export default function SidebarExample(): JSX.Element {
 								Draggable MenuItemButton
 							</ButtonMenuItem>
 						</MenuList>
-					</SideNavContent>
+					</SideNavBody>
 					<SideNavFooter>
 						<DropTarget testId="side-nav-drop-target">Sidebar drop target</DropTarget>
 					</SideNavFooter>

@@ -4,28 +4,21 @@
  */
 import { Fragment, useCallback } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx } from '@emotion/react';
 
 import type { TableColumnOrdering } from '@atlaskit/custom-steps';
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { findTable } from '@atlaskit/editor-tables/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { hoverCell, hoverRows, selectRow, selectRows } from '../../pm-plugins/commands';
 import type { RowStickyState } from '../../pm-plugins/sticky-headers/types';
-import { isTableNested } from '../../pm-plugins/utils/nodes';
 import type { TablePlugin } from '../../tablePluginType';
 import { TableCssClassName as ClassName } from '../../types';
 import type { CellHoverMeta } from '../../types';
-
-import { DragCornerControlsWithSelection } from './CornerControls/DragCornerControls';
-import { FloatingControlsWithSelection } from './FloatingControlsWithSelection';
 import NumberColumn from './NumberColumn';
 import { DragControlsWithSelection } from './RowControls/DragControls';
 
@@ -54,13 +47,6 @@ interface TableFloatingControlsProps {
 	tableWrapperWidth?: number;
 }
 
-const styles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&:has(~ .pm-table-wrapper-no-overflow)': {
-		marginTop: 0,
-	},
-});
-
 // Row controls
 export const TableFloatingControls = ({
 	editorView,
@@ -69,25 +55,23 @@ export const TableFloatingControls = ({
 	isInDanger,
 	isResizing,
 	isNumberColumnEnabled,
-	isHeaderRowEnabled,
-	isHeaderColumnEnabled,
+	isDragAndDropEnabled,
 	tableActive,
 	hasHeaderRow,
 	hoveredRows,
 	stickyHeader,
-	isDragAndDropEnabled,
 	hoveredCell,
 	isTableHovered,
 	tableWrapperWidth,
 	api,
 	isChromelessEditor,
-}: TableFloatingControlsProps & { api?: ExtractInjectionAPI<TablePlugin> }) => {
+}: TableFloatingControlsProps & {
+	api?: ExtractInjectionAPI<TablePlugin>;
+}): jsx.JSX.Element | null => {
 	const _selectRow = useCallback(
 		(row: number, expand: boolean) => {
 			const { state, dispatch } = editorView;
-			const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-				? getBrowserInfo()
-				: browserLegacy;
+			const browser = getBrowserInfo();
 			if (browser.ie_version === 11) {
 				// Ignored via go/ees005
 				// eslint-disable-next-line @atlaskit/editor/no-as-casting
@@ -101,9 +85,7 @@ export const TableFloatingControls = ({
 	const _selectRows = useCallback(
 		(rowIndexes: number[]) => {
 			const { state, dispatch } = editorView;
-			const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-				? getBrowserInfo()
-				: browserLegacy;
+			const browser = getBrowserInfo();
 			if (browser.ie_version === 11) {
 				// Ignored via go/ees005
 				// eslint-disable-next-line @atlaskit/editor/no-as-casting
@@ -151,28 +133,12 @@ export const TableFloatingControls = ({
 			: ClassName.DRAG_ROW_CONTROLS_WRAPPER
 		: ClassName.ROW_CONTROLS_WRAPPER;
 
-	const tablePos = findTable(editorView.state.selection)?.pos;
-	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	const isNested = tablePos !== undefined && isTableNested(editorView.state, tablePos!);
-	const shouldShowCornerControls = isNested && !fg('platform_editor_nested_dnd_styles_changes');
-
 	return (
 		<div
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={wrapperClassName}
-			css={[
-				expValEquals(
-					'platform_editor_table_sticky_header_improvements',
-					'cohort',
-					'test_with_overflow',
-				) &&
-					!fg('platform_editor_table_sticky_header_patch_7') &&
-					styles,
-			]}
 		>
-			{/* eslint-disable-next-line @atlassian/a11y/no-static-element-interactions */}
-			<div onMouseDown={(e) => !isDragAndDropEnabled && e.preventDefault()}>
+			<div role="none" onMouseDown={(e) => !isDragAndDropEnabled && e.preventDefault()}>
 				{isNumberColumnEnabled ? (
 					<NumberColumn
 						editorView={editorView}
@@ -192,52 +158,24 @@ export const TableFloatingControls = ({
 
 				{tableActive && (
 					<Fragment>
-						{isDragAndDropEnabled ? (
-							<Fragment>
-								{shouldShowCornerControls && (
-									<DragCornerControlsWithSelection
-										editorView={editorView}
-										tableRef={tableRef}
-										isInDanger={isInDanger}
-										isResizing={isResizing}
-										api={api}
-									/>
-								)}
-								<DragControlsWithSelection
-									tableRef={tableRef}
-									tableNode={tableNode}
-									hoveredCell={hoveredCell}
-									isTableHovered={isTableHovered}
-									editorView={editorView}
-									tableActive={tableActive}
-									isInDanger={isInDanger}
-									isResizing={isResizing}
-									// Ignored via go/ees005
-									// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-									tableWidth={tableWrapperWidth!}
-									hoverRows={_hoverRows}
-									selectRow={_selectRow}
-									selectRows={_selectRows}
-									updateCellHoverLocation={updateCellHoverLocation}
-									api={api}
-								/>
-							</Fragment>
-						) : (
-							<FloatingControlsWithSelection
-								editorView={editorView}
-								tableRef={tableRef}
-								isInDanger={isInDanger}
-								isResizing={isResizing}
-								isHeaderRowEnabled={isHeaderRowEnabled}
-								isHeaderColumnEnabled={isHeaderColumnEnabled}
-								hoveredRows={hoveredRows}
-								stickyTop={tableActive ? stickyTop : undefined}
-								tableActive={tableActive}
-								hoverRows={_hoverRows}
-								selectRow={_selectRow}
-								api={api}
-							/>
-						)}
+						<DragControlsWithSelection
+							tableRef={tableRef}
+							tableNode={tableNode}
+							hoveredCell={hoveredCell}
+							isTableHovered={isTableHovered}
+							editorView={editorView}
+							tableActive={tableActive}
+							isInDanger={isInDanger}
+							isResizing={isResizing}
+							// Ignored via go/ees005
+							// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+							tableWidth={tableWrapperWidth!}
+							hoverRows={_hoverRows}
+							selectRow={_selectRow}
+							selectRows={_selectRows}
+							updateCellHoverLocation={updateCellHoverLocation}
+							api={api}
+						/>
 					</Fragment>
 				)}
 			</div>

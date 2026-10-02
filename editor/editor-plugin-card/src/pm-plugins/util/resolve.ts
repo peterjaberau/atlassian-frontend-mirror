@@ -1,11 +1,17 @@
-import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
-import type { CardOptions } from '@atlaskit/editor-common/card';
+import type { CardOptions, EmbedCardNodeTransformer } from '@atlaskit/editor-common/card';
 import type { CardProvider } from '@atlaskit/editor-common/provider-factory';
 import { canRenderDatasource, hasDocAsParent } from '@atlaskit/editor-common/utils';
 import type { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import type { CardAdf, DatasourceAdf } from '@atlaskit/linking-common';
+import type {
+	BlockCardAdf,
+	CardAdf,
+	DatasourceAdf,
+	EmbedCardAdf,
+	InlineCardAdf,
+} from '@atlaskit/linking-common/types';
 
 import type { Request } from '../../types';
 import { setProvider } from '../actions';
@@ -47,7 +53,10 @@ export const resolveWithProvider = (
 	options: CardOptions,
 	editorAnalyticsApi: EditorAnalyticsAPI | undefined,
 	createAnalyticsEvent: CreateUIAnalyticsEvent | undefined,
-) => {
+	embedCardNodeTransformer?: EmbedCardNodeTransformer,
+): Promise<
+	void | DatasourceAdf<Record<string, unknown>> | InlineCardAdf | BlockCardAdf | EmbedCardAdf
+> => {
 	const isEmbedFriendlyLocation = isFreshlyPastedOnNewLine(view);
 
 	// When user manually changes appearance from blue link to smart link, we should respect that,
@@ -60,7 +69,14 @@ export const resolveWithProvider = (
 	const handleResolve = provider
 		.resolve(request.url, request.appearance, shouldForceAppearance, isEmbedFriendlyLocation)
 		.then(
-			handleResolved(view, request, editorAnalyticsApi, createAnalyticsEvent, options),
+			handleResolved(
+				view,
+				request,
+				editorAnalyticsApi,
+				createAnalyticsEvent,
+				options,
+				embedCardNodeTransformer,
+			),
 			handleRejected(view, request, editorAnalyticsApi),
 		);
 
@@ -98,6 +114,7 @@ const handleResolved =
 		editorAnalyticsApi: EditorAnalyticsAPI | undefined,
 		createAnalyticsEvent: CreateUIAnalyticsEvent | undefined,
 		options: CardOptions,
+		embedCardNodeTransformer?: EmbedCardNodeTransformer,
 	) =>
 	(resolvedCard: CardAdf | DatasourceAdf) => {
 		updateCardType(resolvedCard, options);
@@ -107,6 +124,7 @@ const handleResolved =
 			request.analyticsAction,
 			editorAnalyticsApi,
 			createAnalyticsEvent,
+			embedCardNodeTransformer,
 		)(view.state, view.dispatch);
 		return resolvedCard;
 	};

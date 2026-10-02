@@ -1,60 +1,6 @@
-import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
-import { hexToEditorBackgroundPaletteRawValue } from '../../utils/editor-palette';
-import {
-	B100,
-	B50,
-	B75,
-	G200,
-	G50,
-	G75,
-	hexToRgba,
-	isHex,
-	isRgb,
-	N0,
-	N20,
-	N60,
-	N800,
-	P100,
-	P50,
-	P75,
-	R100,
-	R50,
-	R75,
-	rgbToHex,
-	T100,
-	T50,
-	T75,
-	Y200,
-	Y50,
-	Y75,
-} from '../../utils/colors';
-import type { PanelDefinition as Panel } from './panel';
-import type {
-	ParagraphDefinition as Paragraph,
-	ParagraphWithAlignmentDefinition as ParagraphWithMarks,
-} from './paragraph';
-import type { BlockQuoteDefinition as Blockquote } from './blockquote';
-import type {
-	OrderedListDefinition as OrderedList,
-	BulletListDefinition as BulletList,
-} from './types/list';
-import type { RuleDefinition as Rule } from './rule';
-import type {
-	HeadingDefinition as Heading,
-	HeadingWithMarksDefinition as HeadingWithMarks,
-} from './heading';
-import type { CodeBlockDefinition as CodeBlock } from './code-block';
-import type { MediaGroupDefinition as MediaGroup } from './media-group';
-import type { MediaSingleDefinition as MediaSingle } from './media-single';
-import type { DecisionListDefinition as DecisionList } from './decision-list';
-import type { TaskListDefinition as TaskList } from './task-list';
-import type { ExtensionDefinition as Extension } from './extension';
-import type { BlockCardDefinition as BlockCard } from './block-card';
-import type { EmbedCardDefinition as EmbedCard } from './embed-card';
-import type { NestedExpandDefinition as NestedExpand } from './nested-expand';
-import { uuid } from '../../utils/uuid';
-import type { FragmentDefinition } from '../marks/fragment';
-import { getDarkModeLCHColor } from '../../utils/lch-color-inversion';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports -- exports reassign shared mutable module local(s) [testGlobalTheme]; splitting would fork the singleton and is forbidden by TS2632 */
+
+import type { NodeSpec, Node as PmNode, Attrs } from '@atlaskit/editor-prosemirror/model';
 
 import {
 	table as tableFactory,
@@ -66,7 +12,6 @@ import {
 	tableCell as tableCellFactory,
 	tableCellWithNestedTable as tableCellWithNestedTableFactory,
 } from '../../next-schema/generated/nodeTypes';
-
 import type {
 	TableNode,
 	TableWithNestedTableNode,
@@ -77,8 +22,82 @@ import type {
 	TableCellNode,
 	TableCellWithNestedTableNode,
 } from '../../next-schema/generated/nodeTypes';
-
+import {
+	B100,
+	B50,
+	B75,
+	BlueBold,
+	G200,
+	G50,
+	G75,
+	GrayBold,
+	GreenBold,
+	L200,
+	L400,
+	L50,
+	M200,
+	M400,
+	M50,
+	N0,
+	N20,
+	N60,
+	N800,
+	Orange200,
+	Orange400,
+	Orange50,
+	P100,
+	P50,
+	P75,
+	PurpleBold,
+	R100,
+	R50,
+	R75,
+	RedBold,
+	T100,
+	T50,
+	T75,
+	TealBold,
+	Y200,
+	Y50,
+	Y75,
+	YellowBold,
+} from '../../utils/colors';
+import { getDarkModeLCHColor } from '../../utils/get-dark-mode-lch-color';
+import { hexToEditorBackgroundPaletteRawValue } from '../../utils/hex-to-editor-background-palette-raw-value';
+import { hexToRgba } from '../../utils/hex-to-rgba';
+import { isHex } from '../../utils/is-hex';
+import { isRgb } from '../../utils/is-rgb';
+import { rgbToHex } from '../../utils/rgb-to-hex';
+import { uuid } from '../../utils/uuid';
 import type { NodeSpecOptions } from '../createPMSpecFactory';
+import type { FragmentDefinition } from '../marks/fragment';
+import type { BlockCardDefinition as BlockCard } from './block-card';
+import type { BlockQuoteDefinition as Blockquote } from './blockquote';
+import type { BodiedRuleDefinition as BodiedRule } from './bodied-rule';
+import type { CodeBlockDefinition as CodeBlock } from './code-block';
+import type { DecisionListDefinition as DecisionList } from './decision-list';
+import type { EmbedCardDefinition as EmbedCard } from './embed-card';
+import type { ExtensionDefinition as Extension } from './extension';
+import type {
+	HeadingDefinition as Heading,
+	HeadingWithMarksDefinition as HeadingWithMarks,
+} from './heading';
+import type { MediaGroupDefinition as MediaGroup } from './media-group';
+import type { MediaSingleDefinition as MediaSingle } from './media-single';
+import type { NestedExpandDefinition as NestedExpand } from './nested-expand';
+import type { PanelDefinition as Panel } from './panel';
+import type {
+	ParagraphDefinition as Paragraph,
+	ParagraphWithAlignmentDefinition as ParagraphWithMarks,
+} from './paragraph';
+import type { RuleDefinition as Rule } from './rule';
+import type { TaskListDefinition as TaskList } from './task-list';
+import type {
+	OrderedListDefinition as OrderedList,
+	BulletListDefinition as BulletList,
+} from './types/list';
+import { parseValign } from './types/valign';
+import type { Valign } from './types/valign';
 
 export interface CellAttributes {
 	background?: string;
@@ -86,14 +105,17 @@ export interface CellAttributes {
 	colwidth?: number[];
 	localId?: string;
 	rowspan?: number;
+	valign?: Valign;
 }
 
 export const tablePrefixSelector = 'pm-table';
 
-export const tableCellSelector = `${tablePrefixSelector}-cell-content-wrap`;
-export const tableHeaderSelector = `${tablePrefixSelector}-header-content-wrap`;
-export const tableCellContentWrapperSelector = `${tablePrefixSelector}-cell-nodeview-wrapper`;
-export const tableCellContentDomSelector = `${tablePrefixSelector}-cell-nodeview-content-dom`;
+const COL_WIDTH_ATTR_REGEX = /^\d+(,\d+)*$/u;
+
+export const tableCellSelector: 'pm-table-cell-content-wrap' = `${tablePrefixSelector}-cell-content-wrap`;
+export const tableHeaderSelector: 'pm-table-header-content-wrap' = `${tablePrefixSelector}-header-content-wrap`;
+export const tableCellContentWrapperSelector: 'pm-table-cell-nodeview-wrapper' = `${tablePrefixSelector}-cell-nodeview-wrapper`;
+export const tableCellContentDomSelector: 'pm-table-cell-nodeview-content-dom' = `${tablePrefixSelector}-cell-nodeview-content-dom`;
 
 const DEFAULT_TABLE_HEADER_CELL_BACKGROUND = N20.toLocaleLowerCase();
 
@@ -106,11 +128,11 @@ export const getCellAttrs: (
 	colwidth: number[] | null;
 	localId?: string;
 	rowspan: number;
+	valign?: Valign;
 } = (dom: HTMLElement, defaultValues: CellAttributes = {}) => {
 	const widthAttr = dom.getAttribute('data-colwidth');
 	const width =
-		// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
-		widthAttr && /^\d+(,\d+)*$/u.test(widthAttr)
+		widthAttr && COL_WIDTH_ATTR_REGEX.test(widthAttr)
 			? widthAttr.split(',').map((str) => Number(str))
 			: null;
 	const colspan = Number(dom.getAttribute('colspan') || 1);
@@ -144,6 +166,7 @@ export const getCellAttrs: (
 		(backgroundColor && backgroundColor !== defaultValues['background'] ? backgroundColor : null);
 
 	const localId = defaultValues?.localId;
+	const valign = parseValign(dom.getAttribute('data-valign'));
 
 	return {
 		colspan,
@@ -151,6 +174,7 @@ export const getCellAttrs: (
 		colwidth: width && width.length === colspan ? width : null,
 		background: backgroundHexCode,
 		...(localId && { localId }),
+		...(valign && { valign }),
 	};
 };
 
@@ -161,13 +185,14 @@ export type CellDomAttrs = {
 	'data-cell-background'?: string;
 	'data-colwidth'?: string;
 	'data-local-id'?: string;
+	'data-valign'?: Valign;
 	rowspan?: string;
 	style?: string;
 };
 
 // these are for test only
 let testGlobalTheme: string;
-export const setGlobalTheme = (theme: string) => {
+export const setGlobalTheme = (theme: string): void => {
 	testGlobalTheme = theme;
 };
 // This is a minimal duplication of the method from @atlaskit/tokens
@@ -186,7 +211,6 @@ const getGlobalTheme = () => {
 	return { colorMode };
 };
 
-// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
 const cssVariablePattern = /^var\(--.*\)$/u;
 
 /**
@@ -284,7 +308,7 @@ export const getCellDomAttrs = (node: PmNode): CellDomAttrs => {
 			}
 
 			if (typeof color === 'string') {
-				attrs.colorname = tableBackgroundColorPalette.get(color.toLowerCase());
+				attrs.colorname = tableBackgroundColorNameByHex.get(color.toLowerCase());
 			}
 		}
 	}
@@ -299,14 +323,45 @@ export const getCellDomAttrs = (node: PmNode): CellDomAttrs => {
 		attrs['data-local-id'] = node.attrs.localId;
 	}
 
+	if (node.attrs.valign) {
+		attrs['data-valign'] = node.attrs.valign;
+	}
+
 	return attrs;
 };
 
-export const tableBackgroundColorPalette = new Map<string, string>();
+export const tableBackgroundColorPalette: Map<string, string> = new Map<string, string>();
+/**
+ * Expanded 10-column (30-entry) palette. Compared with {@link tableBackgroundColorPalette} it adds
+ * lime, orange and magenta columns, and replaces the `Gray` / `Dark *` row with a bold row built on
+ * `subtler.hovered` design tokens.
+ *
+ * NOTE: it is *not* a superset of {@link tableBackgroundColorPalette} — the bold row uses different
+ * hex codes, so the earlier row's colours are absent here. Use this map only to build the colour
+ * picker. To resolve a colour a document may already contain, use
+ * {@link tableBackgroundColorNameByHex}, which spans both palettes.
+ */
+export const tableBackgroundColorPaletteNew: Map<string, string> = new Map<string, string>();
 
-export const tableBackgroundBorderColor = hexToRgba(N800, 0.12) || N0;
-export const tableBackgroundColorNames = new Map<string, string>();
+export const tableBackgroundBorderColor: string = hexToRgba(N800, 0.12) || N0;
+/**
+ * Colour name -> hex, and its inverse {@link tableBackgroundColorNameByHex}, covering the colours of
+ * {@link tableBackgroundColorPalette} and {@link tableBackgroundColorPaletteNew} together.
+ *
+ * These drive the themed CSS variables and `td[colorname=...]` overrides in editor-core and
+ * renderer, so they must span both palettes: the hex is stored in ADF, which outlives whichever
+ * palette produced it, and is read back by the editor, the renderer and Confluence export. Resolving
+ * against only one palette would leave cells coloured from the other rendering untokenised, or with
+ * no background at all.
+ */
+export const tableBackgroundColorNames: Map<string, string> = new Map<string, string>();
+/**
+ * Hex -> colour name, the inverse of {@link tableBackgroundColorNames}. Also spans both palettes.
+ */
+export const tableBackgroundColorNameByHex: Map<string, string> = new Map<string, string>();
 
+// Original 7-column palette — kept as the default export so external consumers
+// are not broken. When cleaning up the platform_editor_lovability_text_bg_color experiment, check if this can be removed
 [
 	[N0, 'White'],
 	[B50, 'Light blue'],
@@ -334,6 +389,46 @@ export const tableBackgroundColorNames = new Map<string, string>();
 ].forEach(([colorValue, colorName]) => {
 	tableBackgroundColorPalette.set(colorValue.toLowerCase(), colorName);
 	tableBackgroundColorNames.set(colorName.toLowerCase(), colorValue.toLowerCase());
+	tableBackgroundColorNameByHex.set(colorValue.toLowerCase(), colorName);
+});
+
+[
+	[N0, 'White'],
+	[B50, 'Light blue'],
+	[T50, 'Light teal'],
+	[G50, 'Light green'],
+	[L50, 'Subtle lime'],
+	[Y50, 'Light yellow'],
+	[Orange50, 'Subtle orange'],
+	[R50, 'Light red'],
+	[M50, 'Subtle magenta'],
+	[P50, 'Light purple'],
+
+	[N20, 'Light gray'],
+	[B75, 'Blue'],
+	[T75, 'Teal'],
+	[G75, 'Green'],
+	[L200, 'Lime'],
+	[Y75, 'Yellow'],
+	[Orange200, 'Orange'],
+	[R75, 'Red'],
+	[M200, 'Magenta'],
+	[P75, 'Purple'],
+
+	[GrayBold, 'Bold gray'],
+	[BlueBold, 'Bold blue'],
+	[TealBold, 'Bold teal'],
+	[GreenBold, 'Bold green'],
+	[L400, 'Bold lime'],
+	[YellowBold, 'Bold yellow'],
+	[Orange400, 'Bold orange'],
+	[RedBold, 'Bold red'],
+	[M400, 'Bold magenta'],
+	[PurpleBold, 'Bold purple'],
+].forEach(([colorValue, colorName]) => {
+	tableBackgroundColorPaletteNew.set(colorValue.toLowerCase(), colorName);
+	tableBackgroundColorNames.set(colorName.toLowerCase(), colorValue.toLowerCase());
+	tableBackgroundColorNameByHex.set(colorValue.toLowerCase(), colorName);
 });
 
 export type DisplayMode = 'default' | 'fixed';
@@ -345,6 +440,7 @@ export interface TableAttributes {
 	isNumberColumnEnabled?: boolean;
 	layout?: Layout;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minLength 1
 	 */
 	localId?: string;
@@ -357,6 +453,7 @@ export interface TableAttributes {
 export interface TableDefinition {
 	attrs?: TableAttributes;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 1
 	 */
 	content: Array<TableRow>;
@@ -374,7 +471,9 @@ export interface TableRow {
 
 /**
  * @name table_cell_content
+ // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
  * @minItems 1
+ // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
  * @allowUnsupportedBlock true
  */
 export type TableCellContent = Array<
@@ -385,6 +484,7 @@ export type TableCellContent = Array<
 	| OrderedList
 	| BulletList
 	| Rule
+	| BodiedRule
 	| Heading
 	| HeadingWithMarks
 	| CodeBlock
@@ -420,6 +520,7 @@ export interface TableHeader {
 export interface TableWithNestedTableDefinition {
 	attrs?: TableAttributes;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 1
 	 */
 	content: Array<TableRow>;
@@ -486,16 +587,22 @@ const createTableSpec = () => tableFactory(tableNodeSpecOptions);
 
 // TODO: ED-29537 - assuming breaking changes aren't allowed, so retaining both exports
 /** Includes table width attribute */
-export const table = createTableSpec();
+export const table: NodeSpec = createTableSpec();
 // eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
-/** @deprecated Do not use, instead use the regular `table` export */
-export const tableWithCustomWidth = createTableSpec();
-export const tableStage0 = createTableSpec();
+/**
+ * @deprecated Do not use, instead use the regular `table` export
+ **/
+export const tableWithCustomWidth: NodeSpec = createTableSpec();
+export const tableStage0: NodeSpec = createTableSpec();
 
 const shouldIncludeAttribute = (key: string, value?: string) =>
 	!key.startsWith('__') && (key !== 'localId' || !!value);
 
-export const tableToJSON = (node: PmNode) => ({
+export const tableToJSON = (
+	node: PmNode,
+): {
+	attrs: Attrs;
+} => ({
 	attrs: Object.keys(node.attrs)
 		.filter((key) => shouldIncludeAttribute(key, node.attrs[key]))
 		.reduce<typeof node.attrs>((obj, key) => {
@@ -512,7 +619,7 @@ const tableRowNodeSpecOptions: NodeSpecOptions<TableRowNode | TableRowWithNested
 		return ['tr', 0];
 	},
 };
-export const tableRow = tableRowFactory(tableRowNodeSpecOptions);
+export const tableRow: NodeSpec = tableRowFactory(tableRowNodeSpecOptions);
 
 const cellAttrs = {
 	colspan: { default: 1 },
@@ -520,6 +627,7 @@ const cellAttrs = {
 	colwidth: { default: null },
 	background: { default: null },
 	localId: { default: null, optional: true },
+	valign: { default: null, optional: true },
 };
 
 const tableCellNodeSpecOptions: NodeSpecOptions<TableCellNode | TableCellWithNestedTableNode> = {
@@ -537,21 +645,25 @@ const tableCellNodeSpecOptions: NodeSpecOptions<TableCellNode | TableCellWithNes
 	],
 	toDOM: (node) => ['td', getCellDomAttrs(node), 0],
 };
-export const tableCell = tableCellFactory(tableCellNodeSpecOptions);
+export const tableCell: NodeSpec = tableCellFactory(tableCellNodeSpecOptions);
 
-export const toJSONTableCell = (node: PmNode) => ({
+export const toJSONTableCell = (
+	node: PmNode,
+): {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	attrs: (Object.keys(node.attrs) as Array<keyof CellAttributes>).reduce<Record<string, any>>(
-		(obj, key) => {
-			// Only process keys that are defined in cellAttrs
-			if (cellAttrs[key] && cellAttrs[key].default !== node.attrs[key]) {
-				obj[key] = node.attrs[key];
-			}
+	attrs: Record<string, any>;
+} => ({
+	attrs: (Object.keys(node.attrs) as Array<keyof CellAttributes>).reduce<
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		Record<string, any>
+	>((obj, key) => {
+		// Only process keys that are defined in cellAttrs
+		if (cellAttrs[key] && cellAttrs[key].default !== node.attrs[key]) {
+			obj[key] = node.attrs[key];
+		}
 
-			return obj;
-		},
-		{},
-	),
+		return obj;
+	}, {}),
 });
 
 const tableHeaderNodeSpecOptions: NodeSpecOptions<
@@ -570,18 +682,24 @@ const tableHeaderNodeSpecOptions: NodeSpecOptions<
 
 	toDOM: (node) => ['th', getCellDomAttrs(node), 0],
 };
-export const tableHeader = tableHeaderFactory(tableHeaderNodeSpecOptions);
+export const tableHeader: NodeSpec = tableHeaderFactory(tableHeaderNodeSpecOptions);
 
-export const toJSONTableHeader = toJSONTableCell;
+export const toJSONTableHeader: (node: PmNode) => {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	attrs: Record<string, any>;
+} = toJSONTableCell;
 
 // table nodes with nested table support
-export const tableWithNestedTable = tableWithNestedTableFactory(tableNodeSpecOptions);
+export const tableWithNestedTable: NodeSpec = tableWithNestedTableFactory(tableNodeSpecOptions);
 
-export const tableRowWithNestedTable = tableRowWithNestedTableFactory(tableRowNodeSpecOptions);
-export const tableCellWithNestedTable = tableCellWithNestedTableFactory(tableCellNodeSpecOptions);
-export const tableHeaderWithNestedTable = tableHeaderWithNestedTableFactory(
+export const tableRowWithNestedTable: NodeSpec =
+	tableRowWithNestedTableFactory(tableRowNodeSpecOptions);
+export const tableCellWithNestedTable: NodeSpec =
+	tableCellWithNestedTableFactory(tableCellNodeSpecOptions);
+export const tableHeaderWithNestedTable: NodeSpec = tableHeaderWithNestedTableFactory(
 	tableHeaderNodeSpecOptions,
 );
+
 // table nodes with localId support
 const tableRowNodeSpecOptionsWithLocalId: NodeSpecOptions<
 	TableRowNode | TableRowWithNestedTableNode
@@ -592,7 +710,7 @@ const tableRowNodeSpecOptionsWithLocalId: NodeSpecOptions<
 	},
 };
 
-export const tableRowWithLocalId = tableRowFactory(tableRowNodeSpecOptionsWithLocalId);
+export const tableRowWithLocalId: NodeSpec = tableRowFactory(tableRowNodeSpecOptionsWithLocalId);
 
 const tableCellNodeSpecOptionsWithLocalId: NodeSpecOptions<
 	TableCellNode | TableCellWithNestedTableNode
@@ -609,7 +727,7 @@ const tableCellNodeSpecOptionsWithLocalId: NodeSpecOptions<
 		return ['td', getCellDomAttrs(node), 0];
 	},
 };
-export const tableCellWithLocalId = tableCellFactory(tableCellNodeSpecOptionsWithLocalId);
+export const tableCellWithLocalId: NodeSpec = tableCellFactory(tableCellNodeSpecOptionsWithLocalId);
 
 const tableHeaderNodeSpecOptionsWithLocalId: NodeSpecOptions<
 	TableHeaderNode | TableHeaderWithNestedTableNode
@@ -628,15 +746,47 @@ const tableHeaderNodeSpecOptionsWithLocalId: NodeSpecOptions<
 	toDOM: (node) => ['th', getCellDomAttrs(node), 0],
 };
 
-export const tableHeaderWithLocalId = tableHeaderFactory(tableHeaderNodeSpecOptionsWithLocalId);
-
-// nested table nodes with localId support
-export const tableRowWithNestedTableWithLocalId = tableRowWithNestedTableFactory(
-	tableRowNodeSpecOptionsWithLocalId,
-);
-export const tableCellWithNestedTableWithLocalId = tableCellWithNestedTableFactory(
-	tableCellNodeSpecOptionsWithLocalId,
-);
-export const tableHeaderWithNestedTableWithLocalId = tableHeaderWithNestedTableFactory(
+export const tableHeaderWithLocalId: NodeSpec = tableHeaderFactory(
 	tableHeaderNodeSpecOptionsWithLocalId,
 );
+
+// nested table nodes with localId support
+export const tableRowWithNestedTableWithLocalId: NodeSpec = tableRowWithNestedTableFactory(
+	tableRowNodeSpecOptionsWithLocalId,
+);
+export const tableCellWithNestedTableWithLocalId: NodeSpec = tableCellWithNestedTableFactory(
+	tableCellNodeSpecOptionsWithLocalId,
+);
+export const tableHeaderWithNestedTableWithLocalId: NodeSpec = tableHeaderWithNestedTableFactory(
+	tableHeaderNodeSpecOptionsWithLocalId,
+);
+
+// `valign` is now in the full schema; the `*Stage0` exports are kept as aliases
+// of the `*WithLocalId` specs for backwards compatibility.
+// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
+/**
+ * @deprecated [EDITOR-7723] use `tableCellWithLocalId`
+ **/
+export const tableCellStage0: NodeSpec = tableCellWithLocalId;
+// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
+/**
+ * @deprecated [EDITOR-7723] use `tableHeaderWithLocalId`
+ **/
+export const tableHeaderStage0: NodeSpec = tableHeaderWithLocalId;
+// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
+/**
+ * @deprecated [EDITOR-7723] use `tableCellWithNestedTableWithLocalId`
+ **/
+export const tableCellWithNestedTableStage0: NodeSpec = tableCellWithNestedTableWithLocalId;
+// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
+/**
+ * @deprecated [EDITOR-7723] use `tableHeaderWithNestedTableWithLocalId`
+ **/
+export const tableHeaderWithNestedTableStage0: NodeSpec = tableHeaderWithNestedTableWithLocalId;
+
+// Public API aliases preserved from an eliminated entry-point (volt-migrate-package).
+export { type TableCell as TableCellDefinition };
+export { type DisplayMode as TableDisplayMode };
+export { type TableHeader as TableHeaderDefinition };
+export { type Layout as TableLayout };
+export { type TableRow as TableRowDefinition };

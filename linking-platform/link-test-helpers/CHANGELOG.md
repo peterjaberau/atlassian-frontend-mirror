@@ -1,5 +1,233 @@
 # @atlaskit/link-test-helpers
 
+## 11.2.2
+
+### Patch Changes
+
+- [`7f8048d956848`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f8048d956848) -
+  [ux] Behind the `platform_lp_jira_searchbar_wrap_a11y` feature gate, the Jira search container now
+  wraps the basic search input above the basic filters when space is limited (e.g. at 200% zoom with
+  a long project name selected), so the search input remains visible. Adds a long project name to
+  the basic filter test mocks.
+
+## 11.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- [`650f4c7ce7fb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/650f4c7ce7fb2) -
+  Type-only fixes for TypeScript 7 (tsgo) compatibility with the updated DOM lib. No runtime or
+  public API changes.
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- [`afb39c4b5d049`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/afb39c4b5d049) -
+  Add scrollMargin to IntersectionObserver test mocks for TypeScript 7 (tsgo) compatibility. The
+  refreshed lib.dom.d.ts requires a readonly scrollMargin member on IntersectionObserver.
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.4.0
+
+### Minor Changes
+
+- [`c3816dafd4629`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3816dafd4629) -
+  Mark mocks from @atlaskit/linking-common as deprecated and move to @atlaskit/link-test-helpers
+
+## 10.3.0
+
+### Minor Changes
+
+- [`f9123ffa00072`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9123ffa00072) -
+  Debarrel @atlaskit/link-test-helpers. Add new entry points and mark barrel files as deprecated.
+
+  New entry points:
+  - `@atlaskit/link-test-helpers/intersection-observer`
+  - `@atlaskit/link-test-helpers/jest/as-mock`
+  - `@atlaskit/link-test-helpers/jest/to-be-fired-with-analytic-event-once`
+  - `@atlaskit/link-test-helpers/promise/flush-promises`
+  - `@atlaskit/link-test-helpers/promise/manual-promise`
+  - `@atlaskit/link-test-helpers/react-testing-library`
+  - `@atlaskit/link-test-helpers/smart-card/images`
+  - `@atlaskit/link-test-helpers/smart-card/images/avatar-1`
+  - `@atlaskit/link-test-helpers/smart-card/images/avatar-2`
+  - `@atlaskit/link-test-helpers/smart-card/images/avatar-3`
+  - `@atlaskit/link-test-helpers/smart-card/images/avatar-square`
+  - `@atlaskit/link-test-helpers/smart-card/images/forbidden-jira`
+  - `@atlaskit/link-test-helpers/smart-card/images/forbidden-jira-embed`
+  - `@atlaskit/link-test-helpers/smart-card/images/slack-logo`
+  - `@atlaskit/link-test-helpers/smart-card/images/rectangle`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/clients`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/asana`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/atlas`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/bitbucket`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/confluence`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/dynamic-icons`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/embed-content`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/gdrive`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/github`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/jira`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/profile`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/slack`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/trello`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/youtube`
+  - `@atlaskit/link-test-helpers/smart-card/mocks/unicorn`
+  - `@atlaskit/link-test-helpers/with-wait-for-item`
+
+  Updated entry points:
+  - `@atlaskit/link-test-helpers/assets` — moved from `src/datasource/assets/index.ts` to
+    `src/entry-points/assets.ts`
+  - `@atlaskit/link-test-helpers/datasource` — moved from `src/datasource/index.ts` to
+    `src/entry-points/datasource.ts`
+  - `@atlaskit/link-test-helpers/images` — moved from `src/images/index.ts` to
+    `src/entry-points/images.ts`
+
+  Deprecating entry points:
+  - `@atlaskit/link-test-helpers` (root barrel — use the specific entry points instead)
+  - `@atlaskit/link-test-helpers/jest` — use `@atlaskit/link-test-helpers/jest/as-mock` or
+    `@atlaskit/link-test-helpers/jest/to-be-fired-with-analytic-event-once` instead
+  - `@atlaskit/link-test-helpers/smart-card` — use the specific
+    `@atlaskit/link-test-helpers/smart-card/*` entry points instead
+
+## 10.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- [`b6c31533f2cd2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6c31533f2cd2) -
+  Render Jira issue type icons as links to their issue URLs.
+
+  All changes behind feature gate: platform_lp_sllv_jira_type_as_link.
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`5e63427d4e3b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e63427d4e3b8) -
+  Align the jira datasource mock with production behaviour and improve test fixture a11y.
+  - `mockDatasourceFetchRequests` for `type: 'jira'` now mirrors production: when no
+    `initialVisibleColumnKeys` option is passed, `/data` returns only the default visible columns
+    (`defaultInitialVisibleColumnKeys`) for `items`, `schema.defaultProperties`, and
+    `schema.properties`. Previously the mock returned a wider superset.
+  - `/data` now honours the `fields` field on the request body. When `fields` is non-empty, the mock
+    filters its response to only those keys (matching how the production datasource API behaves).
+    This is what allows the dedicated rich-text VR test to opt into the `description-richtext`
+    column via `visibleColumnKeys`.
+  - Add a `description-richtext` column to jira mocks for the dedicated rich-text VR test, while
+    keeping the `description` column as plain ADF (no HTML) so non-rich-text VR tests render
+    unchanged.
+  - Fix a11y violations in mock HTML: replace deprecated `<font>` and `<tt>` elements with
+    `<span style>` and `<code>`; remove empty anchor tags and duplicate `rel` attributes; correct
+    heading-order so headings progress h1 → h2 → h3 → h4 (was previously h1 → h2 → h4 → h4).
+  - Remove the `allAvailableColumnKeys` export. The rich-text column is reachable via the schema's
+    full property catalog (column picker) and via explicit `fields` requests, never as a default.
+
+## 10.1.0
+
+### Minor Changes
+
+- [`6a42c22d8ea62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6a42c22d8ea62) -
+  Export new member - iconTestUrls. List of urls that when tested with mocked ResolvedClient will
+  give various icons
+
+## 10.0.0
+
+### Major Changes
+
+- [`9f6bcd21611f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f6bcd21611f3) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`b41bc78e107d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b41bc78e107d1) -
+  Make support for daterange data type in link-datasource stable to better represents data ranges
+  like day, month or quarter
+
 ## 9.0.2
 
 ### Patch Changes

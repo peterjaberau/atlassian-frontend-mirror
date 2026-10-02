@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { defineMessages, FormattedMessage } from 'react-intl-next';
+import { defineMessages, FormattedMessage } from 'react-intl';
 
 import { cssMap } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -53,7 +53,7 @@ const messages = defineMessages({
 	teamContainerEmptyStateDescription: {
 		id: 'ptc.team-profile-page.team-containers.empty-state.description',
 		defaultMessage:
-			'Your team can link their Jira projects, Confluence spaces here to show where they work',
+			'Your team can link their Jira spaces, Confluence spaces here to show where they work',
 		description: 'Empty state description when user has no product access',
 	},
 });

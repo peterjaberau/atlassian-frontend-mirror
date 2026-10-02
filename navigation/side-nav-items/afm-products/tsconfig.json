@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__side-nav-items/app",
 		"rootDir": "../",
 		"composite": true,
@@ -44,6 +43,9 @@
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-flags-react/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/popup/afm-products/tsconfig.json"
 		},
 		{
@@ -57,6 +59,12 @@
 		},
 		{
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/skeleton/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

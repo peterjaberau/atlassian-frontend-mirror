@@ -1,3 +1,5 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+
 export const TOOLBARS = {
 	INLINE_TEXT_TOOLBAR: 'inline-text-toolbar',
 	PRIMARY_TOOLBAR: 'primary-toolbar',
@@ -181,6 +183,16 @@ export const ADD_POLISH_MENU_ITEM = {
 	type: 'menu-item',
 } as const;
 
+export const AI_SUGGESTIONS_GROUP = {
+	key: 'ai-suggestions-group',
+	type: 'group',
+} as const;
+
+export const AI_SUGGESTIONS_BUTTON = {
+	key: 'ai-suggestions-button',
+	type: 'button',
+} as const;
+
 /**
  * Text section
  */
@@ -233,6 +245,11 @@ export const TEXT_STYLES_MENU_SECTION = {
 
 export const NORMAL_TEXT_MENU_ITEM = {
 	key: 'normal-text-menu-item',
+	type: 'menu-item',
+} as const;
+
+export const SMALL_TEXT_MENU_ITEM = {
+	key: 'small-text-menu-item',
 	type: 'menu-item',
 } as const;
 
@@ -405,6 +422,11 @@ export const HIGHLIGHT_MENU_ITEM = {
 
 export const CLEAR_COLOR_MENU_ITEM = {
 	key: 'clear-color-menu-item',
+	type: 'menu-item',
+} as const;
+
+export const COLOR_ACCESSIBILITY_MENU_ITEM = {
+	key: 'color-accessibility-menu-item',
 	type: 'menu-item',
 } as const;
 
@@ -777,6 +799,23 @@ export const PIN_BUTTON = {
 } as const;
 
 /**
+ * View-mode toggle section
+ * - Holds the Markdown view-mode toggle (source / wysiwyg / preview) on the
+ *   right edge of the primary toolbar, just before the overflow `…` menu.
+ * - Currently only registered by `@atlassian/editor-plugin-markdown-mode`
+ *   from Confluence's live-doc Markdown Mode editor preset.
+ *
+ * The plugin renders the entire toggle UI inside the section's `component`
+ * itself rather than registering child groups/buttons through the toolbar
+ * model, because the toggle is a self-contained 3-button segmented control
+ * with shared internal state.
+ */
+export const VIEW_MODE_TOGGLE_SECTION = {
+	key: 'view-mode-toggle-section',
+	type: 'section',
+} as const;
+
+/**
  * Loom section
  * - Only rendered in dropdown menu in primary toolbar
  */
@@ -821,6 +860,54 @@ export const FIRST_PARTY_EXTENSIONS_MENU_ITEM = {
 export const EXTERNAL_EXTENSIONS_MENU_ITEM = {
 	key: 'external-extensions-menu-item',
 	type: 'menu-item',
+} as const;
+
+/**
+ * Paste options section
+ */
+export const PASTE_MENU = {
+	key: 'paste-menu',
+	type: 'menu',
+} as const;
+
+export const PASTE_MENU_SECTION = {
+	key: 'paste-menu-section',
+	type: 'menu-section',
+} as const;
+
+export const PASTE_NESTED_MENU = {
+	key: 'paste-nested-menu',
+	type: 'nested-menu',
+} as const;
+
+export const PASTE_MENU_NESTED_SECTION = {
+	key: 'paste-menu-nested-section',
+	type: 'menu-section',
+} as const;
+
+export const PASTE_RICH_TEXT_MENU_ITEM = {
+	key: 'rich-text-menu-item',
+	type: 'menu-item',
+} as const;
+
+export const PASTE_MARKDOWN_MENU_ITEM = {
+	key: 'markdown-menu-item',
+	type: 'menu-item',
+} as const;
+
+export const PASTE_PLAIN_TEXT_MENU_ITEM = {
+	key: 'plain-text-menu-item',
+	type: 'menu-item',
+} as const;
+
+export const AI_PASTE_MENU_SECTION = {
+	key: 'ai-paste-menu-section',
+	type: 'menu-section',
+} as const;
+
+export const SMART_LINK_DISPLAY_AS_PASTE_MENU_SECTION = {
+	key: 'smart-link-display-as-paste-menu-section',
+	type: 'menu-section',
 } as const;
 
 export const TOOLBAR_BUTTON_TEST_ID = {

@@ -2,16 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { jsx, css } from '@compiled/react';
+
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
-import { calculateDimensions, calculateInitialDimensions } from './helpers';
-import type { ImageRendererProps } from './types';
-import { useCurrentValueRef } from '../../../utils/useCurrentValueRef';
-import { ImageRendererWrapper } from './wrapper';
+
+import { jsx, css } from '@compiled/react';
+
 import { isFileIdentifier } from '@atlaskit/media-client';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import UFOCustomData from '@atlaskit/react-ufo/custom-data';
-import { useInteractionContext } from '@atlaskit/react-ufo/interaction-context';
+import { useInteractionContext } from '@atlaskit/react-ufo/use-interaction-context';
+
+import { useCurrentValueRef } from '../../../utils/useCurrentValueRef';
+import { calculateDimensions } from './calculateDimensions';
+import { calculateInitialDimensions } from './calculateInitialDimensions';
+import type { ImageRendererProps } from './types';
+import { ImageRendererWrapper } from './wrapper';
 const baseStyles = css({
 	objectFit: 'contain',
 });
@@ -34,8 +39,9 @@ export const ImageRenderer = ({
 	identifier,
 	wrapperRef,
 	useWhiteBackground,
+	backgroundColor,
 	testId,
-}: ImageRendererProps) => {
+}: ImageRendererProps): JSX.Element | null => {
 	const onDisplayImageRef = useCurrentValueRef(onDisplayImage);
 	const ufoContext = useInteractionContext();
 
@@ -51,10 +57,13 @@ export const ImageRenderer = ({
 	);
 
 	useLayoutEffect(() => {
-		if (!didRender && fg('platfrom_close_blindspot_for_img')) {
+		if (!didRender) {
+			if (!cardPreview) {
+				return;
+			}
 			return ufoContext?.hold('img-loading');
 		}
-	}, [didRender, ufoContext]);
+	}, [didRender, cardPreview, ufoContext]);
 
 	const imgRef = useRef<HTMLImageElement | null>(null);
 
@@ -66,6 +75,7 @@ export const ImageRenderer = ({
 	};
 
 	const onError = () => {
+		setDidRender(true);
 		onImageError && cardPreview && onImageError(cardPreview);
 	};
 
@@ -103,6 +113,7 @@ export const ImageRenderer = ({
 				loading={nativeLazyLoad ? 'lazy' : undefined}
 				css={[baseStyles, useWhiteBackground && backgroundStyles]}
 				style={{
+					backgroundColor,
 					visibility: didRender || forceSyncDisplay ? 'visible' : 'hidden',
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 					...resolvedDimensions,

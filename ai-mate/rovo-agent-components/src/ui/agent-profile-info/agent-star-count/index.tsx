@@ -2,7 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { cssMap, jsx } from '@atlaskit/css';
 import StarIcon from '@atlaskit/icon/core/star-unstarred';
@@ -29,7 +29,7 @@ export const AgentStarCount = ({
 }: {
 	starCount: number | null | undefined;
 	isLoading: boolean;
-}) => {
+}): JSX.Element | null => {
 	const { formatMessage } = useIntl();
 
 	if ((starCount === null || starCount === undefined) && !isLoading) {
@@ -45,7 +45,6 @@ export const AgentStarCount = ({
 					isShimmering
 					height={16}
 					width={75}
-					borderRadius={3}
 				/>
 			) : (
 				formatMessage(messages.starredCount, { starCount: formatNumber(starCount ?? 0) })

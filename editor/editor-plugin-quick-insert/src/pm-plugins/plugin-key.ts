@@ -1,4 +1,12 @@
-import type { QuickInsertPluginState } from '@atlaskit/editor-common/types';
+import type { QuickInsertPluginState as CommonQuickInsertPluginState } from '@atlaskit/editor-common/types';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 
-export const pluginKey = new PluginKey<QuickInsertPluginState>('quickInsertPluginKey');
+export type QuickInsertPluginState = CommonQuickInsertPluginState & {
+	elementBrowserInitialCategory?: string;
+};
+
+export type QuickInsertPluginStateKeys = keyof QuickInsertPluginState;
+
+export const pluginKey: PluginKey<QuickInsertPluginState> = new PluginKey<QuickInsertPluginState>(
+	'quickInsertPluginKey',
+);

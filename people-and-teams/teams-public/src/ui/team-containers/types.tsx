@@ -3,10 +3,8 @@ import { type ComponentType } from 'react';
 import type { GridProps } from '@atlaskit/primitives/compiled';
 
 import { type TeamContainersSkeletonProps } from '../../common/ui/team-containers-skeleton';
-import { type OnRequestedContainerTimeout } from '../../controllers/hooks/use-requested-container';
-
-import type { AddContainerCardProps } from './add-container-card';
-import { type LinkedContainerCardProps } from './linked-container-card';
+import type { AddContainerCardProps } from './add-container-card/AddContainerCard';
+import { type TeamLinkCardProps } from './team-link-card';
 
 export type FlagType = FlagAppearance;
 
@@ -71,11 +69,6 @@ export interface TeamContainerProps {
 	 * The maximum number of containers to show
 	 */
 	maxNumberOfContainersToShow?: number;
-	/**
-	 * The function to call when the requested container times out
-	 */
-	onRequestedContainerTimeout?: OnRequestedContainerTimeout;
-
 	addFlag?: (flag: Flag) => void;
 	isReadOnly?: boolean;
 
@@ -90,6 +83,7 @@ export interface TeamContainerProps {
 	hideSubTextIcon?: boolean;
 }
 
+// oxlint-disable-next-line eslint/no-redeclare
 export interface TeamContainersEmptyStateProps {
 	hasNoPermissions?: boolean;
 }
@@ -98,7 +92,7 @@ export interface TeamContainersEmptyStateProps {
 	hasNoPermissions?: boolean;
 }
 export interface TeamContainersComponent {
-	ContainerCard?: ComponentType<LinkedContainerCardProps>;
+	ContainerCard?: ComponentType<TeamLinkCardProps>;
 	TeamContainersSkeleton?: ComponentType<TeamContainersSkeletonProps>;
 	TeamContainersEmptyState?: ComponentType<TeamContainersEmptyStateProps>;
 	AddContainerCard?: ComponentType<AddContainerCardProps>;

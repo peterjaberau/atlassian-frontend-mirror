@@ -1,7 +1,13 @@
 import { expect, editorTestCase as test } from '@af/editor-libra';
 import { fixTest } from '@af/integration-testing';
 
-export const emptyDoc = {
+export const emptyDoc: {
+	content: {
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -14,6 +20,7 @@ export const emptyDoc = {
 test.describe('Jira Create', () => {
 	test.describe('Full Page', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			adf: emptyDoc,
 			editorProps: {
 				appearance: 'full-page',

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 import DynamicTable from '@atlaskit/dynamic-table';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Stack } from '@atlaskit/primitives';
-import SectionMessage from '@atlaskit/section-message';
+import { Stack } from '@atlaskit/primitives/compiled';
+import SectionMessage from '@atlaskit/section-message/message';
 
 const caption = 'Hello';
 const head = {

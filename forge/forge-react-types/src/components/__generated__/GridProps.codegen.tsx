@@ -3,9 +3,9 @@
  *
  * Extract component prop types from UIKit 2 components - GridProps
  *
- * @codegen <<SignedSource::07521208ceecb2f983ac27cfe7466068>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/grid/__generated__/index.partial.tsx <<SignedSource::60c78d870736339df6ff194f55503b37>>
+ * @codegen <<SignedSource::064c47a594b3a589a2ea44ba8aa0086d>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/grid/__generated__/index.partial.tsx <<SignedSource::2267318e0e84444d6c7d36dda2d6c568>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 

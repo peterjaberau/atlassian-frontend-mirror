@@ -3,9 +3,10 @@ import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 // eslint-disable-next-line no-duplicate-imports
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { EditorCommand } from '../types';
+import { entireSelectionContainsMark } from './entireSelectionContainsMark';
 
 const SMART_TO_ASCII: { [char: string]: string } = {
 	'…': '...',
@@ -22,21 +23,6 @@ const SMART_TO_ASCII: { [char: string]: string } = {
 // eslint-disable-next-line require-unicode-regexp
 const FIND_SMART_CHAR = new RegExp(`[${Object.keys(SMART_TO_ASCII).join('')}]`, 'g');
 
-export function filterChildrenBetween(
-	doc: PMNode,
-	from: number,
-	to: number,
-	predicate: (node: PMNode, pos: number, parent: PMNode | null) => boolean | undefined,
-) {
-	const results = [] as { node: PMNode; pos: number }[];
-	doc.nodesBetween(from, to, (node, pos, parent) => {
-		if (predicate(node, pos, parent)) {
-			results.push({ node, pos });
-		}
-	});
-	return results;
-}
-
 export function transformNonTextNodesToText(from: number, to: number, tr: Transaction): void {
 	const { doc } = tr;
 	const { schema } = doc.type;
@@ -48,7 +34,7 @@ export function transformNonTextNodesToText(from: number, to: number, tr: Transa
 	} = schema.nodes;
 
 	const nodesToChange: { node: PMNode; pos: number }[] = [];
-	doc.nodesBetween(from, to, (node, pos, parent) => {
+	doc.nodesBetween(from, to, (node, pos, _parent) => {
 		if ([mentionNodeType, textNodeType, emojiNodeType, inlineCardNodeType].includes(node.type)) {
 			nodesToChange.push({ node, pos });
 		}
@@ -71,6 +57,7 @@ export function transformNonTextNodesToText(from: number, to: number, tr: Transa
 
 			const textForReplacing = doc.textBetween(startPositionInSelection, endPositionInSelection);
 
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			const newText = textForReplacing.replace(
 				FIND_SMART_CHAR,
 				(match) => SMART_TO_ASCII[match] ?? match,
@@ -84,13 +71,14 @@ export function transformNonTextNodesToText(from: number, to: number, tr: Transa
 	});
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const applyMarkOnRange = (
 	from: number,
 	to: number,
 	removeMark: boolean,
 	mark: Mark,
 	tr: Transaction,
-) => {
+): Transaction => {
 	const { schema } = tr.doc.type;
 	const { code } = schema.marks;
 	if (mark.type === code) {
@@ -130,26 +118,6 @@ export const applyMarkOnRange = (
 	});
 
 	return tr;
-};
-
-export const entireSelectionContainsMark = (
-	mark: Mark | MarkType,
-	doc: PMNode,
-	fromPos: number,
-	toPos: number,
-): boolean => {
-	let onlyContainsMark = true;
-
-	doc.nodesBetween(fromPos, toPos, (node) => {
-		// Skip recursion once we've found text which doesn't include the mark
-		if (!onlyContainsMark) {
-			return false;
-		}
-		if (node.isText) {
-			onlyContainsMark && (onlyContainsMark = !!mark?.isInSet(node.marks));
-		}
-	});
-	return onlyContainsMark;
 };
 
 const toggleMarkInRange =
@@ -198,6 +166,7 @@ const toggleMarkInRange =
  * @param markType
  * @param attrs
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const toggleMark =
 	(
 		markType: MarkType,
@@ -221,27 +190,9 @@ export const toggleMark =
 
 		return toggleMarkInRange(mark)({ tr });
 	};
-
-/**
- * A wrapper around ProseMirror removeMark and removeStoredMark, which handles mark removal in text, CellSelections and cursor stored marks.
- */
-export const removeMark =
-	(mark: MarkType | Mark): EditorCommand =>
-	({ tr }) => {
-		const { selection } = tr;
-
-		if (selection instanceof CellSelection) {
-			selection.forEachCell((cell, cellPos) => {
-				const from = cellPos;
-				const to = cellPos + cell.nodeSize;
-				tr.removeMark(from, to, mark);
-			});
-		} else if (selection instanceof TextSelection && selection.$cursor) {
-			tr.removeStoredMark(mark);
-		} else {
-			const { from, to } = selection;
-			tr.removeMark(from, to, mark);
-		}
-
-		return tr;
-	};
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { filterChildrenBetween } from './filterChildrenBetween';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { entireSelectionContainsMark } from './entireSelectionContainsMark';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { removeMark } from './removeMark';

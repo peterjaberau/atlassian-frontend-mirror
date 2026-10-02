@@ -1,4 +1,4 @@
-import type { MediaADFAttrs } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
 import type {
 	EditorAnalyticsAPI,
 	InputMethodInsertMedia,
@@ -7,9 +7,13 @@ import type {
 import type { EditorCommand } from '@atlaskit/editor-common/types';
 
 import { ACTIONS } from '../pm-plugins/actions';
+import {
+	setAIGeneratingMeta,
+	clearAIGeneratingMeta,
+	type AIGeneratingSource,
+} from '../pm-plugins/ai-generating-decoration';
 import { stateKey } from '../pm-plugins/plugin-key';
 import { getIdentifier } from '../pm-plugins/utils/media-common';
-
 import { createInsertMediaAsMediaSingleCommand } from './utils/media-single';
 
 export const showMediaViewer =
@@ -43,12 +47,35 @@ export const trackMediaPaste =
 		return tr;
 	};
 
+/**
+ * Sets the AI-generating decoration on a media node identified by `mediaId`.
+ * The decoration triggers the AI border visual on the media's NodeView.
+ *
+ * Decorations live in the view layer only and never affect the document model
+ * or undo/redo history.
+ */
+export const setAIGenerating =
+	(mediaId: string, source?: AIGeneratingSource): EditorCommand =>
+	({ tr }) =>
+		setAIGeneratingMeta(tr, mediaId, source);
+
+/**
+ * Clears the AI-generating decoration for a specific media node identified by
+ * `mediaId`. Removes the AI border visual from that media's NodeView.
+ */
+export const clearAIGenerating =
+	(mediaId: string): EditorCommand =>
+	({ tr }) =>
+		clearAIGeneratingMeta(tr, mediaId);
+
 export const insertMediaAsMediaSingleCommand =
 	(editorAnalyticsAPI?: EditorAnalyticsAPI, allowPixelResizing?: boolean) =>
 	(
 		mediaAttrs: MediaADFAttrs,
 		inputMethod: InputMethodInsertMedia,
 		insertMediaVia?: InsertMediaVia,
+		positions?: [number, number],
+		dataConsumerSource?: string,
 	): EditorCommand =>
 		createInsertMediaAsMediaSingleCommand(
 			mediaAttrs,
@@ -56,4 +83,6 @@ export const insertMediaAsMediaSingleCommand =
 			editorAnalyticsAPI,
 			insertMediaVia,
 			allowPixelResizing,
+			positions,
+			dataConsumerSource,
 		);

@@ -1,12 +1,13 @@
 import type React from 'react';
 
 import { durations } from '../utils/durations';
-import { useRequestAnimationFrame, useSetTimeout } from '../utils/timer-hooks';
+import { isReducedMotion } from '../utils/is-reduced-motion';
 import { useElementRef } from '../utils/use-element-ref';
 import { useLayoutEffect } from '../utils/use-layout-effect';
-
-import { useExitingPersistence } from './exiting-persistence';
+import { useRequestAnimationFrame } from '../utils/use-request-animation-frame';
+import { useSetTimeout } from '../utils/use-set-timeout';
 import { type MotionProps } from './types';
+import { useExitingPersistence } from './use-exiting-persistence';
 
 export interface ShrinkOutProps extends MotionProps<{ ref: React.Ref<any> }> {}
 
@@ -16,7 +17,7 @@ export interface ShrinkOutProps extends MotionProps<{ ref: React.Ref<any> }> {}
  * Will shrink an element down to nothing when exiting.
  * Works best with flex children as collapsing margins can come with undesired behaviour.
  *
- * - [Examples](https://atlaskit.atlassian.com/packages/design-system/motion/docs/entering-motions)
+ * - [Examples](https://atlaskit.atlassian.com/packages/design-system/motion/docs/entering-motion)
  */
 const ShrinkOut = ({ children, duration = 'small', onFinish }: ShrinkOutProps): any => {
 	const [element, setElementRef] = useElementRef();
@@ -27,6 +28,12 @@ const ShrinkOut = ({ children, duration = 'small', onFinish }: ShrinkOutProps): 
 
 	useLayoutEffect(() => {
 		if (exiting.isExiting && element) {
+			if (isReducedMotion()) {
+				exiting.onFinish && exiting.onFinish();
+				onFinish && onFinish('exiting');
+				return;
+			}
+
 			const newStyles: React.CSSProperties = {
 				// We fix both width and height because when changing box sizing to border-box.
 				width: `${element.offsetWidth}px`,

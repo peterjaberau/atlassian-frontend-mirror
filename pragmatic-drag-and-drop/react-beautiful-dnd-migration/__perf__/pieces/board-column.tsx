@@ -2,17 +2,16 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { memo } from 'react';
+import { memo, type MemoExoticComponent } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
 import { easeInOut } from '@atlaskit/motion/curves';
-import { durations } from '@atlaskit/motion/durations';
+import { durations } from '@atlaskit/motion/utils/durations';
 import { token } from '@atlaskit/tokens';
 
 import type { ColumnType } from '../../examples/data/tasks';
-
 import { Card } from './board-card';
 import type { RbdApi } from './types';
 
@@ -20,18 +19,15 @@ const columnStyles = css({
 	display: 'flex',
 	width: 250,
 	flexDirection: 'column',
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 	borderRadius: token('radius.xxlarge'),
 	position: 'relative',
 	overflow: 'hidden',
-	marginRight: token('space.200', '16px'),
+	marginRight: token('space.200'),
 });
 
 const columnDraggingStyles = css({
-	boxShadow: token(
-		'elevation.shadow.overlay',
-		'0px 8px 12px rgba(9, 30, 66, 0.15),0px 0px 1px rgba(9, 30, 66, 0.31)',
-	),
+	boxShadow: token('elevation.shadow.overlay'),
 });
 
 const scrollContainerStyles = css({
@@ -43,7 +39,7 @@ const cardListStyles = css({
 	display: 'flex',
 	boxSizing: 'border-box',
 	minHeight: '100%',
-	padding: token('space.100', '8px'),
+	padding: token('space.100'),
 	flexDirection: 'column',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 	transition: `background ${durations.medium}ms ${easeInOut}`,
@@ -51,23 +47,20 @@ const cardListStyles = css({
 
 const columnHeaderStyles = css({
 	display: 'flex',
-	padding: `${token('space.200', '16px')} ${token('space.200', '16px')} ${token(
-		'space.100',
-		'8px',
-	)}`,
+	padding: `${token('space.200')} ${token('space.200')} ${token('space.100')}`,
 	justifyContent: 'space-between',
 	flexDirection: 'row',
-	color: token('color.text.subtlest', '#626F86'),
+	color: token('color.text.subtlest'),
 	userSelect: 'none',
 });
 
 const columnHeaderIdStyles = css({
-	color: token('color.text.disabled', '#091E424F'),
+	color: token('color.text.disabled'),
 	fontSize: '10px',
 });
 
 const isDraggingOverColumnStyles = css({
-	background: token('color.background.selected.hovered', '#CCE0FF'),
+	background: token('color.background.selected.hovered'),
 });
 
 type ColumnProps = {
@@ -77,7 +70,9 @@ type ColumnProps = {
 	rbdApi: RbdApi;
 };
 
-export const Column = memo(({ column, droppableId, index, rbdApi }: ColumnProps) => {
+export const Column: MemoExoticComponent<
+	({ column, droppableId, index, rbdApi }: ColumnProps) => jsx.JSX.Element
+> = memo(({ column, droppableId, index, rbdApi }: ColumnProps): jsx.JSX.Element => {
 	const { Draggable, Droppable } = rbdApi;
 
 	const columnId = column.columnId;

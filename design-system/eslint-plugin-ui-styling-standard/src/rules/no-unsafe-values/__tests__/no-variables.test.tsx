@@ -1,4 +1,4 @@
-import { typescriptEslintTester } from '../../__tests__/utils/_tester';
+import { typescriptEslintTester } from '../../__tests__/utils/_ts-tester';
 import rule from '../index';
 
 typescriptEslintTester.run(
@@ -16,6 +16,18 @@ typescriptEslintTester.run(
           const styles = css({
             margin
           })
+				`,
+			},
+			{
+				name: 'identifier resolves to a literal wrapped in a satisfies expression',
+				code: `
+          import { css } from '@compiled/react';
+          import type { Height } from './types';
+
+          const height = 56 as const satisfies Height;
+          const styles = css({
+            height,
+          });
         `,
 			},
 			{
@@ -35,6 +47,17 @@ typescriptEslintTester.run(
 			},
 		],
 		invalid: [
+			{
+				name: 'undefined wrapped in a satisfies expression is blocked',
+				code: `
+          import { css } from '@compiled/react';
+
+          const styles = css({
+            margin: (undefined as string | undefined) satisfies string | undefined
+          })
+        `,
+				errors: [{ messageId: 'no-variables' }],
+			},
 			{
 				name: 'undefined is blocked',
 				code: `

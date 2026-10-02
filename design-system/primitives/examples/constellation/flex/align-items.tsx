@@ -2,10 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ReactNode } from 'react';
+import { type JSX, type ReactNode } from 'react';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import { Box, Flex, Stack } from '@atlaskit/primitives/compiled';
+import { Box } from '@atlaskit/primitives/compiled/box';
+import { Flex } from '@atlaskit/primitives/compiled/flex';
+import { Stack } from '@atlaskit/primitives/compiled/stack';
 import { token } from '@atlaskit/tokens';
 
 import ExampleBox from '../shared/example-box';

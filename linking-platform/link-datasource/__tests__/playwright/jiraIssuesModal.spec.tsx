@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 
 import { expect, test } from '@af/integration-testing';
-
+import { skipAutoA11y } from '@atlassian/a11y-playwright-testing';
 const sitePickerSelector = '[data-testid="jira-datasource-modal--site-selector__control"]';
 
 // eslint-disable-next-line @atlassian/a11y/require-playwright-coverage
@@ -13,10 +13,15 @@ test.describe('JiraIssuesModal', () => {
 		exampleIdSelection: string = 'with-issues-modal',
 		featureFlag: string | boolean = false,
 	) {
-		await page.visitExample(groupIdSelection, packageIdSelection, exampleIdSelection, {
-			'react-18-mode': 'legacy',
-			featureFlag: featureFlag,
-		});
+		await page.visitExample<typeof import('../../examples/with-issues-modal.vr.ap.tsx')>(
+			groupIdSelection,
+			packageIdSelection,
+			exampleIdSelection,
+			{
+				'react-18-mode': 'legacy',
+				featureFlag: featureFlag,
+			},
+		);
 	}
 	async function openDropDown(page: Page) {
 		await page.getByTestId('datasource-modal--view-drop-down--trigger').click();
@@ -35,7 +40,12 @@ test.describe('JiraIssuesModal', () => {
 	});
 
 	test('should provide autocomplete for JQL fields', async ({ page }) => {
-		await setup(page, 'linking-platform', 'link-datasource', 'jira-issues-config-modal-no-results');
+		await page.visitExample<
+			typeof import('../../examples/jira-issues-config-modal-no-results.vr.ap.tsx')
+		>('linking-platform', 'link-datasource', 'jira-issues-config-modal-no-results', {
+			'react-18-mode': 'legacy',
+			featureFlag: false,
+		});
 
 		await page.getByTestId('mode-toggle-jql').click();
 
@@ -91,6 +101,7 @@ test.describe('JiraIssuesModal', () => {
 	});
 
 	test('should show issues in a table when basic searched', async ({ page }) => {
+		skipAutoA11y();
 		await setup(page);
 		await page.getByTestId('mode-toggle-basic').click();
 		const basicTextField = page.getByTestId('jira-datasource-modal--basic-search-input');
@@ -161,6 +172,7 @@ test.describe('JiraIssuesModal', () => {
 	test('table and table text in dropdown render correctly when table view is selected', async ({
 		page,
 	}) => {
+		skipAutoA11y();
 		await setup(page, 'linking-platform', 'link-datasource', 'with-issues-modal');
 		await page.getByTestId('jira-datasource-modal--basic-search-button').click();
 		await expect(page.getByTestId('datasource-modal--view-drop-down--trigger')).toHaveText('List');

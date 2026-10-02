@@ -155,7 +155,9 @@ export interface MenuItemPrimitiveProps {
 
 export interface MenuItemProps {
 	/**
-	 * Not recommended for general use as it enables unsafe style overrides.
+	 * @deprecated
+	 * This prop must not be used and will be deleted soon. Style overrides are not supported.
+	 * If you need a custom list item, do not use `@atlaskit/menu`.
 	 */
 	className?: string;
 
@@ -231,6 +233,9 @@ export interface MenuItemProps {
 	interactionName?: string;
 }
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface ButtonItemProps extends MenuItemProps {
 	/**
 	 * Unique identifier for the element.
@@ -243,6 +248,9 @@ export interface ButtonItemProps extends MenuItemProps {
 	role?: string;
 }
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface LinkItemProps extends MenuItemProps {
 	/**
 	 * Link to another page.
@@ -279,6 +287,9 @@ export interface LinkItemProps extends MenuItemProps {
 	UNSAFE_isDraggable?: boolean;
 }
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface CustomItemComponentProps {
 	/**
 	 * The children of the item.
@@ -286,8 +297,9 @@ export interface CustomItemComponentProps {
 	children: React.ReactNode;
 
 	/**
-	 * Class to apply to the root container of the custom component.
-	 * Ensure this has been applied so the item styling is consistent.
+	 * @deprecated
+	 * This prop must not be used and will be deleted soon. Style overrides are not supported.
+	 * If you need a custom list item, do not use `@atlaskit/menu`.
 	 */
 	className?: string;
 
@@ -338,8 +350,12 @@ export interface CustomItemComponentProps {
 	disabled?: boolean;
 }
 
-export interface CustomItemProps<TCustomComponentProps = CustomItemComponentProps>
-	extends MenuItemProps {
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
+export interface CustomItemProps<
+	TCustomComponentProps = CustomItemComponentProps,
+> extends MenuItemProps {
 	/**
 	 * Custom component to render as an item. This can be both a functional component or a class component.
 	 *
@@ -362,6 +378,9 @@ export interface CustomItemProps<TCustomComponentProps = CustomItemComponentProp
 	UNSAFE_isDraggable?: boolean;
 }
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface SkeletonItemProps {
 	/**
 	 * Renders a skeleton circle in the `iconBefore` location.

@@ -4,11 +4,11 @@
  */
 import { jsx } from '@compiled/react';
 
-import { AVATAR_SIZES, type SizeType } from '@atlaskit/avatar';
+import { AVATAR_SIZES } from '@atlaskit/avatar/avatar-sizes';
+import type { SizeType } from '@atlaskit/avatar/types';
 import { Box } from '@atlaskit/primitives/compiled';
 import Skeleton from '@atlaskit/skeleton';
 
-// eslint-disable-next-line @atlassian/tangerine/import/no-parent-imports
 import { AGENT_AVATAR_CLIP_PATH } from '../index';
 
 type AgentAvatarSkeletonProps = {
@@ -44,7 +44,7 @@ export const AgentAvatarSkeleton = ({
 	color,
 	shimmeringEndColor,
 	testId,
-}: AgentAvatarSkeletonProps) => {
+}: AgentAvatarSkeletonProps): JSX.Element => {
 	return (
 		<Box
 			style={{

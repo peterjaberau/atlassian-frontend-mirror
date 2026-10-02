@@ -1,21 +1,19 @@
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import {
 	AbstractResource,
 	type OnProviderChange,
 	type ServiceConfig,
 	utils as serviceUtils,
 } from '@atlaskit/util-service-support';
+
 import type { CategoryId } from '../components/picker/categories';
-import {
-	SAMPLING_RATE_EMOJI_RESOURCE_FETCHED_EXP,
-	selectedToneStorageKey,
-} from '../util/constants';
-import debug from '../util/logger';
-import { isMediaEmoji, isPromise, toEmojiId } from '../util/type-helpers';
-import storageAvailable from '../util/storage-available';
 import {
 	type EmojiDescription,
 	type EmojiId,
 	type EmojiProvider,
+	type EmojiProviderLookupOrder,
 	type EmojiResponse,
 	type EmojiSearchResult,
 	type EmojiUpload,
@@ -29,9 +27,21 @@ import {
 	type UploadingEmojiProvider,
 	type User,
 } from '../types';
+import { sampledUfoEmojiResourceFetched } from '../util/analytics/sampledUfoEmojiResourceFetched';
+import { ufoExperiences } from '../util/analytics/ufoExperiences';
+import {
+	SAMPLING_RATE_EMOJI_RESOURCE_FETCHED_EXP,
+	selectedToneStorageKey,
+} from '../util/constants';
+import { isMediaEmoji } from '../util/is-media-emoji';
+import { isPromise } from '../util/is-promise';
+import debug from '../util/logger';
+import storageAvailable from '../util/storage-available';
+import { isTeamoji26RefreshEmojiPickerEnabled } from '../util/teamoji26RefreshEmojiPicker';
+import { promiseWithTimeout } from '../util/timed-promise';
+import { toEmojiId } from '../util/to-emoji-id';
 import EmojiLoader from './EmojiLoader';
 import EmojiRepository from './EmojiRepository';
-import SiteEmojiResource from './media/SiteEmojiResource';
 import type {
 	EmojiLoaderConfig,
 	OptimisticImageApiLoaderConfig,
@@ -40,8 +50,22 @@ import type {
 	EmojiLoadSuccessCallback,
 	EmojiLoadFailCallback,
 } from './EmojiUtils';
-import { sampledUfoEmojiResourceFetched, ufoExperiences } from '../util/analytics/ufoExperiences';
-import { promiseWithTimeout } from '../util/timed-promise';
+import SiteEmojiResource from './media/SiteEmojiResource';
+
+const teamoji26QueryParam = 'useTeamoji26=true';
+
+const addTeamoji26QueryParam = (url: string): string => {
+	if (!url.includes('/atlassian') || /[?&]useTeamoji26=/.test(url)) {
+		return url;
+	}
+
+	const hashIndex = url.indexOf('#');
+	const urlWithoutHash = hashIndex === -1 ? url : url.slice(0, hashIndex);
+	const hash = hashIndex === -1 ? '' : url.slice(hashIndex);
+	const separator = urlWithoutHash.includes('?') ? '&' : '?';
+
+	return `${urlWithoutHash}${separator}${teamoji26QueryParam}${hash}`;
+};
 
 interface GetEmojiProviderOptions {
 	/**
@@ -51,9 +75,10 @@ interface GetEmojiProviderOptions {
 	fetchAtStart?: boolean;
 }
 
-export type { EmojiProvider, UploadingEmojiProvider } from '../types'; // Re-exporting to not cause a breaking change
-// Re-exporting to not cause a breaking change
+export type { EmojiProvider, UploadingEmojiProvider } from '../types';
 
+// Re-exporting to not cause a breaking change
+// Re-exporting to not cause a breaking change
 export interface EmojiResourceConfig {
 	/**
 	 * Must be set to true to enable upload support in the emoji components.
@@ -123,24 +148,6 @@ export interface ResolveReject<T> {
 	resolve(result: T): void;
 }
 
-/**
- * Checks if the emojiProvider can support uploading at a feature level.
- *
- * Follow this up with an isUploadSupported() check to see if the provider is actually
- * configured to support uploads.
- * https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates
- */
-export const supportsUploadFeature = (
-	emojiProvider: EmojiProvider,
-): emojiProvider is UploadingEmojiProvider => {
-	const emojiUploadProvider = emojiProvider as UploadingEmojiProvider;
-	return (
-		!!emojiUploadProvider.isUploadSupported &&
-		!!emojiUploadProvider.uploadCustomEmoji &&
-		!!emojiUploadProvider.prepareForUpload
-	);
-};
-
 export interface LastQuery {
 	options?: SearchOptions;
 	query?: string;
@@ -166,7 +173,42 @@ export class EmojiResource
 
 	constructor(config: EmojiResourceConfig) {
 		super();
-		this.emojiProviderConfig = config;
+		const rewriteEmojiGatewayPath = (url: string): string =>
+			url.replace('/gateway/api/emoji', '/gateway/api/elements/emoji');
+		const stargateEmojiPathEnabled = fg('use-elements-stargate-emoji-path');
+		const teamoji26RefreshEmojiPickerEnabled = isTeamoji26RefreshEmojiPickerEnabled();
+		const singleEmojiApi = config.singleEmojiApi;
+		const optimisticImageApi = config.optimisticImageApi;
+		const providers = config.providers.map((provider) => {
+			const rewrittenUrl = stargateEmojiPathEnabled
+				? rewriteEmojiGatewayPath(provider.url)
+				: provider.url;
+			return {
+				...provider,
+				url: teamoji26RefreshEmojiPickerEnabled
+					? addTeamoji26QueryParam(rewrittenUrl)
+					: rewrittenUrl,
+			};
+		});
+
+		this.emojiProviderConfig = {
+			...config,
+			providers,
+			singleEmojiApi:
+				stargateEmojiPathEnabled && singleEmojiApi
+					? {
+							...singleEmojiApi,
+							getUrl: (emojiId) => rewriteEmojiGatewayPath(singleEmojiApi.getUrl(emojiId)),
+						}
+					: singleEmojiApi,
+			optimisticImageApi:
+				stargateEmojiPathEnabled && optimisticImageApi
+					? {
+							...optimisticImageApi,
+							getUrl: (emojiId) => rewriteEmojiGatewayPath(optimisticImageApi.getUrl(emojiId)),
+						}
+					: optimisticImageApi,
+		};
 		this.recordConfig = config.recordConfig;
 		this.currentUser = config.currentUser;
 
@@ -238,7 +280,7 @@ export class EmojiResource
 		}
 	}
 
-	public async fetchEmojiProvider(force = false) {
+	public async fetchEmojiProvider(force = false): Promise<EmojiRepository | undefined> {
 		// unless (re-)fetch is being forced, fetching will only
 		// happen if no emojiRepository exists
 		// in case this method is called and emojiRepository has already been populated
@@ -266,10 +308,15 @@ export class EmojiResource
 	public async fetchByEmojiId(
 		emojiId: EmojiId,
 		optimistic: boolean,
+		emojiProviderLookupOrder?: EmojiProviderLookupOrder,
 	): Promise<OptionalEmojiDescriptionWithVariations> {
+		const shortNameLookupOrder = fg('platform_bitbucket_fix_shortname_and_ordering')
+			? emojiProviderLookupOrder
+			: undefined;
+
 		// Check if repository exists and emoji is defined.
 		if (this.isLoaded() && this.isRepositoryAvailable<EmojiRepository>(this.emojiRepository)) {
-			const emoji = await this.findByEmojiId(emojiId);
+			const emoji = await this.findByEmojiId(emojiId, shortNameLookupOrder);
 			if (emoji) {
 				return await this.getMediaEmojiDescriptionURLWithInlineToken(emoji);
 			}
@@ -293,7 +340,7 @@ export class EmojiResource
 				}
 				return this.getMediaEmojiDescriptionURLWithInlineToken(loadEmoji.emojis[0]);
 			} catch {
-				const emoji = await this.findByEmojiId(emojiId);
+				const emoji = await this.findByEmojiId(emojiId, shortNameLookupOrder);
 				if (!emoji) {
 					return;
 				}
@@ -301,7 +348,7 @@ export class EmojiResource
 			}
 		}
 
-		const emoji = await this.findByEmojiId(emojiId);
+		const emoji = await this.findByEmojiId(emojiId, shortNameLookupOrder);
 		if (!emoji) {
 			return;
 		}
@@ -396,6 +443,7 @@ export class EmojiResource
 		if (typeof window === 'undefined') {
 			return undefined;
 		}
+		// eslint-disable-next-line @atlaskit/platform/no-direct-web-storage-usage -- existing usage
 		const storedToneString = window.localStorage.getItem(selectedToneStorageKey);
 		if (storedToneString) {
 			const storedTone = parseInt(storedToneString, 10);
@@ -505,15 +553,24 @@ export class EmojiResource
 		}
 	}
 
-	findByShortName(shortName: string): OptionalEmojiDescription | Promise<OptionalEmojiDescription> {
+	findByShortName(
+		shortName: string,
+		emojiProviderLookupOrder?: EmojiProviderLookupOrder,
+	): OptionalEmojiDescription | Promise<OptionalEmojiDescription> {
 		if (this.isLoaded() && this.isRepositoryAvailable<EmojiRepository>(this.emojiRepository)) {
 			// Wait for all emoji to load before looking by shortName (to ensure correct priority)
-			return this.emojiRepository.findByShortName(shortName);
+			return this.emojiRepository.findByShortName(shortName, emojiProviderLookupOrder);
 		}
-		return this.retryIfLoading<any>(() => this.findByShortName(shortName), undefined);
+		return this.retryIfLoading<any>(
+			() => this.findByShortName(shortName, emojiProviderLookupOrder),
+			undefined,
+		);
 	}
 
-	findByEmojiId(emojiId: EmojiId): OptionalEmojiDescription | Promise<OptionalEmojiDescription> {
+	findByEmojiId(
+		emojiId: EmojiId,
+		emojiProviderLookupOrder?: EmojiProviderLookupOrder,
+	): OptionalEmojiDescription | Promise<OptionalEmojiDescription> {
 		const { id, shortName } = emojiId;
 		if (this.isRepositoryAvailable<EmojiRepository>(this.emojiRepository)) {
 			if (id) {
@@ -529,7 +586,7 @@ export class EmojiResource
 							if (!emoji) {
 								// if not, fallback to searching by shortName to
 								// at least render an alternative
-								return this.findByShortName(shortName);
+								return this.findByShortName(shortName, emojiProviderLookupOrder);
 							}
 							this.addUnknownEmoji(emoji);
 							return emoji;
@@ -538,14 +595,17 @@ export class EmojiResource
 
 					// if not, fallback to searching by shortName to
 					// at least render an alternative
-					return this.findByShortName(shortName);
+					return this.findByShortName(shortName, emojiProviderLookupOrder);
 				}
 			} else {
 				// no id fallback to shortName
-				return this.findByShortName(shortName);
+				return this.findByShortName(shortName, emojiProviderLookupOrder);
 			}
 		}
-		return this.retryIfLoading(() => this.findByEmojiId(emojiId), undefined);
+		return this.retryIfLoading(
+			() => this.findByEmojiId(emojiId, emojiProviderLookupOrder),
+			undefined,
+		);
 	}
 
 	findById(id: string): OptionalEmojiDescription | Promise<OptionalEmojiDescription> {
@@ -554,6 +614,31 @@ export class EmojiResource
 		}
 
 		return this.retryIfLoading(() => this.findById(id), undefined);
+	}
+
+	/**
+	 * Synchronously reads the emoji type from the local cache for the given emojiId.
+	 * Returns `undefined` when the emoji is not in the cache or no repository is initialised.
+	 * This is a pure cache read — no network requests are made.
+	 */
+	getCachedEmojiType(emojiId: EmojiId): string | undefined {
+		if (!this.isRepositoryAvailable<EmojiRepository>(this.emojiRepository)) {
+			return undefined;
+		}
+		const { id, shortName } = emojiId;
+		if (id) {
+			const emoji = this.emojiRepository!.findById(id);
+			if (emoji) {
+				return emoji.type;
+			}
+		}
+		if (shortName) {
+			const result = this.emojiRepository!.findByShortName(shortName);
+			if (result && !('then' in result)) {
+				return result.type;
+			}
+		}
+		return undefined;
 	}
 
 	findInCategory(categoryId: CategoryId): Promise<EmojiDescription[]> {
@@ -638,6 +723,7 @@ export class EmojiResource
 		}
 		if (storageAvailable('localStorage')) {
 			try {
+				// eslint-disable-next-line @atlaskit/platform/no-direct-web-storage-usage -- existing usage
 				window.localStorage.setItem(selectedToneStorageKey, tone ? tone.toString() : '');
 			} catch (e) {
 				// eslint-disable-next-line no-console
@@ -688,10 +774,10 @@ export default class UploadingEmojiResource
 
 	uploadCustomEmoji(
 		upload: EmojiUpload,
-		retry = false,
-		timeout = 12_000,
+		retry: boolean = false,
+		timeout: number = 30_000,
 	): Promise<EmojiDescription> {
-		return this.isUploadSupported().then((supported) => {
+		return this.isUploadSupported().then((supported: boolean) => {
 			if (!supported || !this.isRepositoryAvailable<SiteEmojiResource>(this.siteEmojiResource)) {
 				return Promise.reject('No media api support is configured');
 			}
@@ -717,3 +803,8 @@ export default class UploadingEmojiResource
 		return this.retryIfLoading(() => this.prepareForUpload(), undefined);
 	}
 }
+
+/**
+ * @deprecated Use `import { supportsUploadFeature } from '@atlaskit/emoji/emoji-resource'` instead.
+ */
+export { supportsUploadFeature } from './supportsUploadFeature';

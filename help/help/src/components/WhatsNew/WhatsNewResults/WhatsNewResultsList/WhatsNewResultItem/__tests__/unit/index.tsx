@@ -1,14 +1,15 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render, fireEvent } from '@testing-library/react';
+import { createIntl, createIntlCache } from 'react-intl';
+
 import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
-import { createIntl, createIntlCache } from 'react-intl-next';
 
-import { getMockWhatsNewArticleItem } from '../../../../../../../util/testing/mock';
-
-import { WhatsNewResultListItem } from '../../index';
 import { messages } from '../../../../../../../messages';
 import { WHATS_NEW_ITEM_TYPES } from '../../../../../../../model/WhatsNew';
+import { getMockWhatsNewArticleItem } from '../../../../../../../util/testing/mock';
+import { WhatsNewResultListItem } from '../../index';
 
 // Messages
 const cache = createIntlCache();
@@ -35,15 +36,6 @@ describe('WhatsNewResultListItem', () => {
 		);
 
 		await expect(container).toBeAccessible();
-	});
-
-	it.skip('Should match snapshot', () => {
-		const mockWhatsNewArticleItem = getMockWhatsNewArticleItem('1');
-		const { container } = render(
-			<WhatsNewResultListItem intl={intl} {...mockWhatsNewArticleItem} onClick={mockOnClick} />,
-		);
-
-		expect(container.firstChild).toMatchSnapshot();
 	});
 
 	it(`Should display the type "New Feature" if the type isn't defined `, () => {

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AtlassianInternalWarning, code, Example, md } from '@atlaskit/docs';
 
-export default md`
+const _default_1: any = md`
 ${(<AtlassianInternalWarning />)}
 
   ## Confluence Search Configuration Modal Props
@@ -86,9 +86,10 @@ overrideParameters?: Pick<
   ${(
 		<Example
 			packageName="@atlaskit/link-datasource"
-			Component={require('./examples/basic-confluence-search-config-modal').default}
+			Component={require('../examples/content/basic-confluence-search-config-modal').default}
 			title="Confluence Search Configuration Modal"
-			source={require('!!raw-loader!./examples/basic-confluence-search-config-modal')}
+			source={require('!!raw-loader!../examples/content/basic-confluence-search-config-modal')}
 		/>
 	)}
 `;
+export default _default_1;

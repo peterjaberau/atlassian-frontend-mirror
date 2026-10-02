@@ -1,29 +1,19 @@
 import { snapshot } from '@af/visual-regression';
 
-import EmbedModal from '../../../examples/vr-embed-modal/vr-embed-modal';
-import EmbedModalConfluence from '../../../examples/vr-embed-modal/vr-embed-modal-confluence';
-import EmbedModalWithFlexibleUiIcon from '../../../examples/vr-embed-modal/vr-embed-modal-with-flexible-ui-icon';
+import EmbedModalConfluence from '../../../examples/vr-embed-modal/vr-embed-modal-confluence.vr.ap';
+import EmbedModalWithFlexibleUiIcon from '../../../examples/vr-embed-modal/vr-embed-modal-with-flexible-ui-icon.vr.ap';
+import EmbedModal from '../../../examples/vr-embed-modal/vr-embed-modal.vr.ap';
 
-snapshot(EmbedModal, {
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(EmbedModal, {
 	description: 'renders embed modal',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-		platform_navx_sl_a11y_embed_modal: true,
-		'platform-dst-shape-theme-default': true,
-	},
 });
 
 snapshot(EmbedModalWithFlexibleUiIcon, {
 	description: 'renders embed modal with flexible ui icon',
-	featureFlags: {
-		'platform-dst-shape-theme-default': true,
-	},
 });
 
-snapshot(EmbedModalConfluence, {
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(EmbedModalConfluence, {
 	description: 'renders embed modal with Confluence icon',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-		'platform-dst-shape-theme-default': true,
-	},
 });

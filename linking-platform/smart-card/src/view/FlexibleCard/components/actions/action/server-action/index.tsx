@@ -2,11 +2,10 @@ import React, { useCallback, useState } from 'react';
 
 import { useAnalyticsEvents } from '../../../../../../common/analytics/generated/use-analytics-events';
 import useInvoke from '../../../../../../state/hooks/use-invoke';
-import { getInvokeFailureReason } from '../../../../../../state/hooks/use-invoke/utils';
+import { getInvokeFailureReason } from '../../../../../../state/hooks/use-invoke/getInvokeFailureReason';
 import useResolve from '../../../../../../state/hooks/use-resolve';
 import createInvokeRequest from '../../../../../../utils/actions/create-invoke-request';
 import Action from '../index';
-
 import type { ServerActionProps } from './types';
 
 const ServerAction = ({
@@ -43,7 +42,11 @@ const ServerAction = ({
 					smartLinkActionType,
 				});
 				if (action.reload && action.reload.url) {
-					await reload(action.reload.url, true, undefined, action.reload.id);
+					await reload({
+						url: action.reload.url,
+						isReloading: true,
+						id: action.reload.id,
+					});
 				}
 				setIsLoading(false);
 				if (onClick) {

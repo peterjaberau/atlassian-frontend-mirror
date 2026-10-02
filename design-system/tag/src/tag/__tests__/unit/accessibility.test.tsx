@@ -1,12 +1,11 @@
 import React from 'react';
 
-import { render } from '@testing-library/react';
-
 import { axe } from '@af/accessibility-testing';
-import Avatar from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
+import { render } from '@atlassian/testing-library';
 
-import RemovableTag from '../../removable-tag';
-import Tag from '../../simple-tag';
+import { default as RemovableTag } from '../../internal/removable';
+import { default as Tag } from '../../internal/simple';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Tag component accessibility', () => {
@@ -23,7 +22,7 @@ describe('Tag component accessibility', () => {
 
 		it('should not fail an aXe audit when containing an elemBefore', async () => {
 			const { container } = render(
-				<Tag text="Testing" elemBefore={<Avatar borderColor="transparent" size="xsmall" />} />,
+				<Tag text="Testing" elemBefore={<Avatar borderColor="transparent" size="xxsmall" />} />,
 			);
 
 			await axe(container);
@@ -48,7 +47,7 @@ describe('Tag component accessibility', () => {
 				<RemovableTag
 					text="Testing"
 					removeButtonLabel="Remove"
-					elemBefore={<Avatar borderColor="transparent" size="xsmall" />}
+					elemBefore={<Avatar borderColor="transparent" size="xxsmall" />}
 				/>,
 			);
 

@@ -9,28 +9,11 @@ test.describe('skip links', () => {
 	});
 
 	test('should move focus after clicking the skip link', async ({ page }) => {
-		await page.visitExample('design-system', 'navigation-system', 'composition');
-
-		const bannerSkipLink = page.getByRole('link', { name: 'Banner', includeHidden: true });
-
-		await bannerSkipLink.focus();
-		await bannerSkipLink.click();
-
-		const skipLinkHref = await bannerSkipLink.getAttribute('href');
-		const activeElementId = await page.evaluate(() => document.activeElement?.id);
-
-		expect(`#${activeElementId}`).toEqual(skipLinkHref);
-	});
-
-	test('should move focus after clicking the skip link (with React 18 useId)', async ({ page }) => {
-		/**
-		 * This test case exists because the `useId()` hook in React 18 has ids with `:` characters.
-		 *
-		 * This previously broke our skip links.
-		 */
-		await page.visitExample('design-system', 'navigation-system', 'composition', {
-			featureFlag: 'platform-dst-react-18-use-id',
-		});
+		await page.visitExample<typeof import('../../../examples/composition.vr.ap.tsx')>(
+			'design-system',
+			'navigation-system',
+			'composition',
+		);
 
 		const bannerSkipLink = page.getByRole('link', { name: 'Banner', includeHidden: true });
 
@@ -44,7 +27,11 @@ test.describe('skip links', () => {
 	});
 
 	test('should not be visible until it has focus', async ({ page }) => {
-		await page.visitExample('design-system', 'navigation-system', 'composition');
+		await page.visitExample<typeof import('../../../examples/composition.vr.ap.tsx')>(
+			'design-system',
+			'navigation-system',
+			'composition',
+		);
 
 		const skipLinkContainer = page.getByTestId('root--skip-links-container');
 		const firstSkipLink = skipLinkContainer.getByRole('link').first();
@@ -60,7 +47,11 @@ test.describe('skip links', () => {
 	});
 
 	test('should be hidden when pressing escape while focus is inside', async ({ page }) => {
-		await page.visitExample('design-system', 'navigation-system', 'composition');
+		await page.visitExample<typeof import('../../../examples/composition.vr.ap.tsx')>(
+			'design-system',
+			'navigation-system',
+			'composition',
+		);
 
 		const skipLinkContainer = page.getByTestId('root--skip-links-container');
 		const firstSkipLink = skipLinkContainer.getByRole('link').first();
@@ -79,7 +70,11 @@ test.describe('skip links', () => {
 	test('should expand side navigation when navigating by skip link on desktop', async ({
 		page,
 	}) => {
-		await page.visitExample('design-system', 'navigation-system', 'composition');
+		await page.visitExample<typeof import('../../../examples/composition.vr.ap.tsx')>(
+			'design-system',
+			'navigation-system',
+			'composition',
+		);
 
 		const collapseSidebarButton = page.getByRole('button', { name: 'Collapse sidebar' });
 		const sidebar = page.getByLabel('Sidebar');
@@ -94,7 +89,11 @@ test.describe('skip links', () => {
 	});
 
 	test('should expand side navigation when navigating by skip link on mobile', async ({ page }) => {
-		await page.visitExample('design-system', 'navigation-system', 'composition');
+		await page.visitExample<typeof import('../../../examples/composition.vr.ap.tsx')>(
+			'design-system',
+			'navigation-system',
+			'composition',
+		);
 
 		const sidebar = page.getByLabel('Sidebar');
 		const sidebarSkipLink = page.getByRole('link', { name: 'Sidebar' });

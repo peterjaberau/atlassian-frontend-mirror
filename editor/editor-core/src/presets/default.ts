@@ -13,6 +13,8 @@ import { analyticsPlugin } from '@atlaskit/editor-plugins/analytics';
 import type { BasePluginOptions } from '@atlaskit/editor-plugins/base';
 import { basePlugin } from '@atlaskit/editor-plugins/base';
 import { betterTypeHistoryPlugin } from '@atlaskit/editor-plugins/better-type-history';
+import type { BlockMenuPluginOptions } from '@atlaskit/editor-plugins/block-menu';
+import { blockMenuPlugin } from '@atlaskit/editor-plugins/block-menu';
 import type { BlockTypePluginOptions } from '@atlaskit/editor-plugins/block-type';
 import { blockTypePlugin } from '@atlaskit/editor-plugins/block-type';
 import { clearMarksOnEmptyDocPlugin } from '@atlaskit/editor-plugins/clear-marks-on-empty-doc';
@@ -28,35 +30,33 @@ import { featureFlagsPlugin } from '@atlaskit/editor-plugins/feature-flags';
 import { floatingToolbarPlugin } from '@atlaskit/editor-plugins/floating-toolbar';
 import { focusPlugin } from '@atlaskit/editor-plugins/focus';
 import { historyPlugin } from '@atlaskit/editor-plugins/history';
-import { hyperlinkPlugin, type HyperlinkPluginOptions } from '@atlaskit/editor-plugins/hyperlink';
+import type { HyperlinkPluginOptions } from '@atlaskit/editor-plugins/hyperlink';
+import { hyperlinkPlugin } from '@atlaskit/editor-plugins/hyperlink';
 import { interactionPlugin } from '@atlaskit/editor-plugins/interaction';
 import type { PastePluginOptions } from '@atlaskit/editor-plugins/paste';
 import { pastePlugin } from '@atlaskit/editor-plugins/paste';
 import type { PlaceholderPluginOptions } from '@atlaskit/editor-plugins/placeholder';
 import { placeholderPlugin } from '@atlaskit/editor-plugins/placeholder';
 import { primaryToolbarPlugin } from '@atlaskit/editor-plugins/primary-toolbar';
-import { quickInsertPlugin } from '@atlaskit/editor-plugins/quick-insert';
 import type { QuickInsertPluginOptions } from '@atlaskit/editor-plugins/quick-insert';
+import { quickInsertPlugin } from '@atlaskit/editor-plugins/quick-insert';
 import { selectionPlugin } from '@atlaskit/editor-plugins/selection';
 import { selectionToolbarPlugin } from '@atlaskit/editor-plugins/selection-toolbar';
 import { submitEditorPlugin } from '@atlaskit/editor-plugins/submit-editor';
-import { textFormattingPlugin } from '@atlaskit/editor-plugins/text-formatting';
 import type { TextFormattingPluginOptions } from '@atlaskit/editor-plugins/text-formatting';
+import { textFormattingPlugin } from '@atlaskit/editor-plugins/text-formatting';
 import type { ToolbarPluginOptions } from '@atlaskit/editor-plugins/toolbar';
 import { toolbarPlugin } from '@atlaskit/editor-plugins/toolbar';
 import type { TypeAheadPluginOptions } from '@atlaskit/editor-plugins/type-ahead';
 import { typeAheadPlugin } from '@atlaskit/editor-plugins/type-ahead';
+import { uiControlRegistryPlugin } from '@atlaskit/editor-plugins/ui-control-registry';
 import { undoRedoPlugin } from '@atlaskit/editor-plugins/undo-redo';
 import { unsupportedContentPlugin } from '@atlaskit/editor-plugins/unsupported-content';
 import { userIntentPlugin } from '@atlaskit/editor-plugins/user-intent';
 import { widthPlugin } from '@atlaskit/editor-plugins/width';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { expValNoExposure } from '@atlaskit/tmp-editor-statsig/expVal';
 
 import { isFullPage as fullPageCheck } from '../utils/is-full-page';
-
 import type { DefaultPresetBuilder } from './default-preset-type';
 // #endregion
 
@@ -75,6 +75,7 @@ export type DefaultPresetPluginOptions = {
 	allowUndoRedoButtons?: boolean;
 	appearance?: EditorAppearance | undefined;
 	base?: BasePluginOptions;
+	blockMenu?: BlockMenuPluginOptions & { enabled?: boolean };
 	blockType?: BlockTypePluginOptions;
 	codeBlock?: CodeBlockPluginOptions;
 	contextIdentifierProvider?: Promise<ContextIdentifierProvider>;
@@ -118,22 +119,15 @@ export function createDefaultPreset(options: DefaultPresetPluginOptions): Defaul
 		.add([pastePlugin, { ...options?.paste, isFullPage }])
 		.add(clipboardPlugin)
 		.add(focusPlugin)
-		.maybeAdd(
-			[
-				userPreferencesPlugin,
-				{
-					initialUserPreferences: {
-						toolbarDockingPosition: isFullPage ? 'none' : 'top',
-					},
+		.add([
+			userPreferencesPlugin,
+			{
+				initialUserPreferences: {
+					toolbarDockingPosition: isFullPage ? 'none' : 'top',
 				},
-			],
-			() => fg('platform_editor_use_preferences_plugin'),
-		)
-		.maybeAdd(
-			interactionPlugin,
-			Boolean(options?.__livePage) ||
-				expValEquals('platform_editor_no_cursor_on_edit_page_init', 'isEnabled', true),
-		)
+			},
+		])
+		.maybeAdd(interactionPlugin, Boolean(options?.__livePage))
 		.add(compositionPlugin)
 		.add([
 			contextIdentifierPlugin,
@@ -143,18 +137,27 @@ export function createDefaultPreset(options: DefaultPresetPluginOptions): Defaul
 		.add(decorationsPlugin)
 		.add([typeAheadPlugin, options.typeAhead])
 		.maybeAdd(historyPlugin, Boolean(options.allowUndoRedoButtons))
-		.maybeAdd(
-			userIntentPlugin,
-			expValNoExposure('platform_editor_lovability_user_intent', 'isEnabled', false),
-		)
+		.add(userIntentPlugin)
 		.maybeAdd(
 			[toolbarPlugin, options.toolbar || {}],
 			Boolean(options.toolbar?.enableNewToolbarExperience),
 		)
 		.add([primaryToolbarPlugin, { contextualFormattingEnabled: isFullPage }])
+		.add(uiControlRegistryPlugin)
 		.maybeAdd(
 			undoRedoPlugin,
 			Boolean(options.featureFlags?.undoRedoButtons ?? options.allowUndoRedoButtons),
+		)
+		.maybeAdd(
+			[
+				blockMenuPlugin,
+				{
+					useStandardNodeWidth: options.blockMenu?.useStandardNodeWidth ?? false,
+					blockLinkHashPrefix: options.blockMenu?.blockLinkHashPrefix,
+					getLinkPath: options.blockMenu?.getLinkPath,
+				},
+			],
+			Boolean(options.blockMenu?.enabled ?? false),
 		)
 		.add([
 			blockTypePlugin,
@@ -195,7 +198,8 @@ export function createDefaultPreset(options: DefaultPresetPluginOptions): Defaul
  * @param props
  * @example
  */
-export function useDefaultPreset(props: DefaultPresetPluginOptions) {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export function useDefaultPreset(props: DefaultPresetPluginOptions): DefaultPresetBuilder[] {
 	const preset = createDefaultPreset(props);
 	return [preset];
 }

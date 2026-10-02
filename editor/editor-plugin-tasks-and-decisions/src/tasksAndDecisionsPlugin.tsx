@@ -2,7 +2,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { decisionList, taskList } from '@atlaskit/adf-schema';
+import { decisionItem } from '@atlaskit/adf-schema/decision-item';
+import { decisionList } from '@atlaskit/adf-schema/decision-list';
+import { blockTaskItem, taskItem } from '@atlaskit/adf-schema/task-item';
+import { taskList } from '@atlaskit/adf-schema/task-list';
 import { css, jsx } from '@atlaskit/css';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import {
@@ -16,22 +19,16 @@ import { toolbarInsertBlockMessages as insertBlockMessages } from '@atlaskit/edi
 import { IconAction, IconDecision } from '@atlaskit/editor-common/quick-insert';
 import type { ExtractInjectionAPI, UiComponentFactoryParams } from '@atlaskit/editor-common/types';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
+import type { BlockMenuItemComponentProps } from '@atlaskit/editor-plugin-block-menu/blockMenuPluginType';
 import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import type { TaskDecisionProvider } from '@atlaskit/task-decision/types';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
-import { taskItemNodeSpec, blockTaskItemNodeSpec } from './nodeviews/taskItemNodeSpec';
-import { decisionItemSpecWithFixedToDOM } from './nodeviews/toDOM-fixes/decisionItem';
-import {
-	closeRequestEditPopupAt,
-	getCurrentIndentLevel,
-	getTaskItemIndex,
-	isInsideTask,
-} from './pm-plugins/helpers';
+import { closeRequestEditPopupAt, getCurrentIndentLevel, isInsideTask } from './pm-plugins/helpers';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-named-as-default
 import inputRulePlugin from './pm-plugins/input-rules';
@@ -48,6 +45,7 @@ import { toggleTaskList } from './pm-plugins/toggle-tasklist-commands';
 import type { TasksAndDecisionsPlugin } from './tasksAndDecisionsPluginType';
 import type { TaskDecisionListType } from './types';
 import { DecisionListBlockMenuItem } from './ui/DecisionListBlockMenuItem/DecisionListBlockMenuItem';
+import { getTasksAndDecisionsQuickInsertComponents } from './ui/quick-insert/getTasksAndDecisionsQuickInsertComponents';
 import { RequestToEditPopup } from './ui/Task/RequestToEditPopup';
 import { TaskListBlockMenuItem } from './ui/TaskListBlockMenuItem/TaskListBlockMenuItem';
 import { getTasksAndDecisionsToolbarComponents } from './ui/toolbar-components';
@@ -102,11 +100,7 @@ function ContentComponent({
 		'taskDecision.hasEditPermission',
 	);
 
-	if (expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) && !editorView) {
-		return null;
-	}
-
-	if (hasEditPermission || !openRequestToEditPopupAt) {
+	if (!editorView || hasEditPermission || !openRequestToEditPopupAt) {
 		return null;
 	}
 
@@ -154,10 +148,18 @@ export const tasksAndDecisionsPlugin: TasksAndDecisionsPlugin = ({
 	let previousTaskAndDecisionProvider: TaskDecisionProvider | undefined;
 
 	const isToolbarAIFCEnabled = Boolean(api?.toolbar);
+	const isRegisteredSlashCommandEnabled = isExperimentEnabled('platform_editor_slash_command');
 
-	if (
-		isToolbarAIFCEnabled
-	) {
+	if (isRegisteredSlashCommandEnabled) {
+		api?.uiControlRegistry?.actions.register(
+			getTasksAndDecisionsQuickInsertComponents({
+				api,
+				quickInsertActionDescription,
+			}),
+		);
+	}
+
+	if (isToolbarAIFCEnabled) {
 		api?.toolbar?.actions.registerComponents(getTasksAndDecisionsToolbarComponents({ api }));
 	}
 
@@ -167,53 +169,55 @@ export const tasksAndDecisionsPlugin: TasksAndDecisionsPlugin = ({
 		});
 	}
 
-	if (expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) {
-		api?.blockMenu?.actions.registerBlockMenuComponents([
-			{
-				type: 'block-menu-item',
-				key: TRANSFORM_STRUCTURE_TASK_LIST_MENU_ITEM.key,
-				parent: {
-					type: 'block-menu-section' as const,
-					key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
-					rank: TRANSFORM_STRUCTURE_MENU_SECTION_RANK[TRANSFORM_STRUCTURE_TASK_LIST_MENU_ITEM.key],
-				},
-				component: () => {
-					return <TaskListBlockMenuItem api={api} />;
-				},
-				isHidden: () =>
-					Boolean(api?.blockMenu?.actions.isTransformOptionDisabled(TASK_LIST_NODE_NAME)),
+	api?.blockMenu?.actions.registerBlockMenuComponents([
+		{
+			type: 'block-menu-item',
+			key: TRANSFORM_STRUCTURE_TASK_LIST_MENU_ITEM.key,
+			parent: {
+				type: 'block-menu-section' as const,
+				key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
+				rank: (TRANSFORM_STRUCTURE_MENU_SECTION_RANK as Record<string, number>)[
+					TRANSFORM_STRUCTURE_TASK_LIST_MENU_ITEM.key
+				],
 			},
-			{
-				type: 'block-menu-item',
-				key: TRANSFORM_STRUCTURE_DECISION_MENU_ITEM.key,
-				parent: {
-					type: 'block-menu-section' as const,
-					key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
-					rank: TRANSFORM_STRUCTURE_MENU_SECTION_RANK[TRANSFORM_STRUCTURE_DECISION_MENU_ITEM.key],
-				},
-				component: () => {
-					return <DecisionListBlockMenuItem api={api} />;
-				},
-				isHidden: () =>
-					Boolean(api?.blockMenu?.actions.isTransformOptionDisabled(DECISION_LIST_NODE_NAME)),
+			component: ({ isSuggested }: BlockMenuItemComponentProps = {}) => {
+				return <TaskListBlockMenuItem api={api} isSuggested={isSuggested} />;
 			},
-		]);
-	}
+			isHidden: () =>
+				Boolean(api?.blockMenu?.actions.isTransformOptionDisabled(TASK_LIST_NODE_NAME)),
+		},
+		{
+			type: 'block-menu-item',
+			key: TRANSFORM_STRUCTURE_DECISION_MENU_ITEM.key,
+			parent: {
+				type: 'block-menu-section' as const,
+				key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
+				rank: (TRANSFORM_STRUCTURE_MENU_SECTION_RANK as Record<string, number>)[
+					TRANSFORM_STRUCTURE_DECISION_MENU_ITEM.key
+				],
+			},
+			component: ({ isSuggested }: BlockMenuItemComponentProps = {}) => {
+				return <DecisionListBlockMenuItem api={api} isSuggested={isSuggested} />;
+			},
+			isHidden: () =>
+				Boolean(api?.blockMenu?.actions.isTransformOptionDisabled(DECISION_LIST_NODE_NAME)),
+		},
+	]);
 
 	return {
 		name: 'taskDecision',
 		nodes() {
 			return [
 				{ name: 'decisionList', node: decisionList },
-				{ name: 'decisionItem', node: decisionItemSpecWithFixedToDOM() },
+				{ name: 'decisionItem', node: decisionItem },
 				{
 					name: 'taskList',
 					node: taskList,
 				},
-				{ name: 'taskItem', node: taskItemNodeSpec() },
+				{ name: 'taskItem', node: taskItem },
 				...(expValEquals('platform_editor_blocktaskitem_node_tenantid', 'isEnabled', true) &&
 				allowBlockTaskItem
-					? [{ name: 'blockTaskItem', node: blockTaskItemNodeSpec() }]
+					? [{ name: 'blockTaskItem', node: blockTaskItem }]
 					: []),
 			];
 		},
@@ -225,13 +229,12 @@ export const tasksAndDecisionsPlugin: TasksAndDecisionsPlugin = ({
 
 			const pluginState = taskPluginKey.getState(editorState);
 			const indentLevel = getCurrentIndentLevel(editorState.selection) || 0;
-			const itemIndex = getTaskItemIndex(editorState);
 
 			return {
 				focusedTaskItemLocalId: pluginState?.focusedTaskItemLocalId || null,
 				isInsideTask: isInsideTask(editorState),
-				indentDisabled: itemIndex === 0 || indentLevel >= MAX_INDENTATION_LEVEL,
-				outdentDisabled: indentLevel <= 1,
+				indentDisabled: indentLevel >= MAX_INDENTATION_LEVEL,
+				outdentDisabled: indentLevel <= 0,
 				// hasEditPermission is assumed to be true if pluginState.hasEditPermission is undefined
 				// this allows the default plugin state to initialise as true if the extra configuration is not provided
 				hasEditPermission:
@@ -244,7 +247,8 @@ export const tasksAndDecisionsPlugin: TasksAndDecisionsPlugin = ({
 		},
 
 		commands: {
-			toggleTaskList,
+			toggleTaskList: (targetType?: 'orderedList' | 'bulletList' | 'paragraph') =>
+				toggleTaskList(api?.analytics?.actions)(targetType),
 			updateEditPermission:
 				(hasEditPermission: boolean | undefined) =>
 				({ tr }) =>
@@ -347,42 +351,44 @@ export const tasksAndDecisionsPlugin: TasksAndDecisionsPlugin = ({
 		},
 
 		pluginsOptions: {
-			quickInsert: ({ formatMessage }) => [
-				{
-					id: 'action',
-					title: formatMessage(insertBlockMessages.action),
-					description:
-						quickInsertActionDescription ?? formatMessage(insertBlockMessages.actionDescription),
-					priority: 100,
-					keywords: ['checkbox', 'task', 'todo'],
-					keyshortcut: '[]',
-					icon: () => <IconAction />,
-					action(insert, state) {
-						return insertTaskDecisionAction(api?.analytics?.actions, getIdentifierProvider)(
-							state,
-							'taskList',
-							INPUT_METHOD.QUICK_INSERT,
-							addItem(insert, 'taskList', state.schema),
-						);
+			...(!isRegisteredSlashCommandEnabled && {
+				quickInsert: ({ formatMessage }) => [
+					{
+						id: 'action',
+						title: formatMessage(insertBlockMessages.action),
+						description:
+							quickInsertActionDescription ?? formatMessage(insertBlockMessages.actionDescription),
+						priority: 100,
+						keywords: ['checkbox', 'task', 'todo'],
+						keyshortcut: '[]',
+						icon: () => <IconAction />,
+						action(insert, state, source) {
+							return insertTaskDecisionAction(api?.analytics?.actions, getIdentifierProvider)(
+								state,
+								'taskList',
+								source ?? INPUT_METHOD.QUICK_INSERT,
+								addItem(insert, 'taskList', state.schema),
+							);
+						},
 					},
-				},
-				{
-					id: 'decision',
-					title: formatMessage(insertBlockMessages.decision),
-					description: formatMessage(insertBlockMessages.decisionDescription),
-					priority: 900,
-					keyshortcut: '<>',
-					icon: () => <IconDecision />,
-					action(insert, state) {
-						return insertTaskDecisionAction(api?.analytics?.actions, getIdentifierProvider)(
-							state,
-							'decisionList',
-							INPUT_METHOD.QUICK_INSERT,
-							addItem(insert, 'decisionList', state.schema),
-						);
+					{
+						id: 'decision',
+						title: formatMessage(insertBlockMessages.decision),
+						description: formatMessage(insertBlockMessages.decisionDescription),
+						priority: 900,
+						keyshortcut: '<>',
+						icon: () => <IconDecision />,
+						action(insert, state, source) {
+							return insertTaskDecisionAction(api?.analytics?.actions, getIdentifierProvider)(
+								state,
+								'decisionList',
+								source ?? INPUT_METHOD.QUICK_INSERT,
+								addItem(insert, 'decisionList', state.schema),
+							);
+						},
 					},
-				},
-			],
+				],
+			}),
 		},
 	};
 };

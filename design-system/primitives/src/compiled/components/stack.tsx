@@ -11,14 +11,14 @@ import {
 	type MemoExoticComponent,
 	type ReactNode,
 	type Ref,
-    type RefAttributes,
+	type RefAttributes,
 } from 'react';
 
 import { jsx } from '@compiled/react';
 
 import { cssMap, cx } from '@atlaskit/css';
 
-import Flex, { type FlexProps } from './flex';
+import { Flex, type FlexProps } from './flex';
 import type { AlignBlock, AlignInline, BasePrimitiveProps, Grow, Spread } from './types';
 
 export type StackProps<T extends ElementType = 'div'> = {
@@ -85,7 +85,9 @@ const styles = cssMap({
  * ```
  *
  */
-const Stack: MemoExoticComponent<ForwardRefExoticComponent<Omit<StackProps<ElementType>, "ref"> & RefAttributes<any>>> = memo(
+export const Stack: MemoExoticComponent<
+	ForwardRefExoticComponent<Omit<StackProps<ElementType>, 'ref'> & RefAttributes<any>>
+> = memo(
 	forwardRef(
 		<T extends ElementType = 'div'>(
 			{
@@ -124,5 +126,3 @@ const Stack: MemoExoticComponent<ForwardRefExoticComponent<Omit<StackProps<Eleme
 );
 
 Stack.displayName = 'Stack';
-
-export default Stack;

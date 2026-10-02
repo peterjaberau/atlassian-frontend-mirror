@@ -11,8 +11,7 @@ import { token } from '@atlaskit/tokens';
 import type { UNSAFE_NewGlyphProps } from '../types';
 
 /**
- * We are hiding this props from consumers as it's reserved
- * for use by Icon Tile.
+ * We are hiding this props from consumers as it's reserved for use by Icon Tile.
  */
 export type InternalIconPropsNew = UNSAFE_NewGlyphProps & {
 	/**
@@ -123,7 +122,9 @@ const paddingMap = {
  *
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/icon)
  */
-export const Icon: import("react").NamedExoticComponent<import("../types").UNSAFE_NewCoreGlyphProps> = memo(function Icon(props: UNSAFE_NewGlyphProps) {
+export const Icon: import('react').NamedExoticComponent<
+	import('../types').UNSAFE_NewCoreGlyphProps
+> = memo(function Icon(props: UNSAFE_NewGlyphProps) {
 	const {
 		color = 'currentColor',
 		testId,
@@ -191,4 +192,5 @@ export const Icon: import("react").NamedExoticComponent<import("../types").UNSAF
 	);
 });
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Icon;

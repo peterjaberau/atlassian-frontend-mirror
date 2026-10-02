@@ -2,16 +2,24 @@ import type { LinkPickerProps } from '@atlaskit/link-picker';
 
 import type { INPUT_METHOD } from '../analytics';
 import type { CardOptions } from '../card';
-
 import type { EditorAppearance } from './editor-appearance';
 
 export type LinkInputType = INPUT_METHOD.MANUAL | INPUT_METHOD.TYPEAHEAD;
 
 /**
  * Configuration for the link picker
- * Extends `LinkPickerProps` to provide future extensibility out-of-the-box
+ * Extends `LinkPickerProps` to provide future extensibility out-of-the-box.
+ * Use `popupWidth` and `popupHeight` to control the editor popup container size
+ * when providing a custom `component` with non-standard dimensions.
+ * Use `popupContainerSurface: 'none'` when that `component` renders its own complete
+ * surface (background, shadow, border radius, padding), so the popup wrapper's own
+ * surface isn't duplicated behind it. Defaults to `'default'` (the wrapper's surface).
  */
-export type LinkPickerOptions = Partial<LinkPickerProps>;
+export type LinkPickerOptions = Partial<LinkPickerProps> & {
+	popupContainerSurface?: 'default' | 'none';
+	popupHeight?: number;
+	popupWidth?: number;
+};
 
 /**
  * Configuration for editor linking behaviours

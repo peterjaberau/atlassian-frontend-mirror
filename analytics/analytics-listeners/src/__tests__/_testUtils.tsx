@@ -1,11 +1,12 @@
-import {
-	AnalyticsContext,
-	createAndFireEvent,
-	withAnalyticsEvents,
-	type WithAnalyticsEventsProps,
-} from '@atlaskit/analytics-next';
-import { token } from '@atlaskit/tokens';
 import React from 'react';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import createAndFireEvent from '@atlaskit/analytics-next/createAndFireEvents';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import { token } from '@atlaskit/tokens';
+
 import type Logger from '../helpers/logger';
 import { LOG_LEVEL } from '../helpers/logger';
 
@@ -51,10 +52,18 @@ class DummyComponent extends React.Component<Props> {
 	}
 }
 
-export const createDummyComponentWithAnalytics = (channel?: string): React.ForwardRefExoticComponent<Omit<{
-    onClick: (e: React.SyntheticEvent) => void;
-    text?: string;
-}, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>> =>
+export const createDummyComponentWithAnalytics = (
+	channel?: string,
+): React.ForwardRefExoticComponent<
+	Omit<
+		{
+			onClick: (e: React.SyntheticEvent) => void;
+			text?: string;
+		},
+		keyof WithAnalyticsEventsProps
+	> &
+		React.RefAttributes<any>
+> =>
 	withAnalyticsEvents({
 		onClick: createAndFireEvent(channel)({
 			action: 'someAction',

@@ -1,7 +1,17 @@
 {
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "MediaDocumentViewer",
 			"category": "Layout and structure"
 		}
@@ -11,20 +21,14 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./document-viewer": "./src/documentViewer.tsx",
+		"./get-document-root": "./src/utils/constants.ts"
 	},
 	"dependencies": {
 		"@atlaskit/browser-apis": "workspace:^",
@@ -32,6 +36,7 @@
 		"@atlaskit/media-common": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/spinner": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
@@ -46,52 +51,19 @@
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*"
 	},
 	"platform-feature-flags": {
-		"media-document-viewer-clear-render": {
+		"platform_media_doc_viewer_smooth_render": {
 			"type": "boolean"
 		}
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
 	"name": "@atlaskit/media-document-viewer",
-	"version": "0.6.7",
+	"version": "2.2.2",
 	"description": "Modern and fast document viewer",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",

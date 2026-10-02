@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo, useRef } from 'react';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import { captureException } from '@atlaskit/linking-common/sentry';
 
 import { ANALYTICS_CHANNEL } from '../../constants';
@@ -129,4 +129,4 @@ export const Experience = ({ children }: ExperienceProps): React.JSX.Element => 
 	return <ExperienceContext.Provider value={value}>{children}</ExperienceContext.Provider>;
 };
 
-export const useExperience = () => useContext(ExperienceContext);
+export const useExperience = (): ExperienceContextValue => useContext(ExperienceContext);

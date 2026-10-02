@@ -5,10 +5,11 @@ import {
 	MediaClient,
 	type MediaClientConfig,
 } from '@atlaskit/media-client';
-import { createMediaStore, type MediaStore } from '@atlaskit/media-state';
+import { createMediaStore } from '@atlaskit/media-state/create-media-store';
+import type { MediaStore } from '@atlaskit/media-state/media-store';
 
 import { MediaContext } from '../MediaProvider';
-import { type MediaSettings, useMediaParsedSettings } from '../mediaSettings';
+import { type MediaSettings, useMediaParsedSettings } from '../mediaSettings/mediaParsedSettings';
 
 export interface MockedMediaProviderProps {
 	children: React.ReactNode;
@@ -19,7 +20,11 @@ export interface MockedMediaProviderProps {
 }
 
 export const mockedMediaClientConfig = {
-	authProvider: async () => {
+	authProvider: async (): Promise<{
+		clientId: string;
+		token: string;
+		baseUrl: string;
+	}> => {
 		return {
 			clientId: 'MockedMediaProvider-client-id',
 			token: 'MockedMediaProvider-token',

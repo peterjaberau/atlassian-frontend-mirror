@@ -1,0 +1,518 @@
+import { dirname, join } from 'path';
+
+import * as ts from 'typescript';
+
+import { isRelativeImport, readFileContent, resolveImportPath } from './file-system';
+import { isExportNameDeprecatedInFile, isNodeDeprecated } from './jsdoc';
+import { findPackageInRegistry } from './package-registry';
+import type { FileSystem } from './types';
+
+const ENTRY_POINT_FOLDER_NAMES = new Set([
+	'entry-points',
+	'entrypoints',
+	'entrypoint',
+	'entry-point',
+]);
+
+function isInEntryPointsFolder(filePath: string): boolean {
+	const parts = filePath.split(/[/\\]/);
+	return parts.some((part) => ENTRY_POINT_FOLDER_NAMES.has(part));
+}
+
+interface EntryPointReExport {
+	sourcePath: string;
+	/** Maps source export name → entry-point export name.
+	 * E.g. `export { default as Foo }` → Map { 'default' → 'Foo' }
+	 * Empty for star exports (`export * from`). */
+	nameMap: Map<string, string>;
+	/** Entry-point export names (the re-exported name) re-exported via a `@deprecated`
+	 * named re-export. Used to exclude deprecated shim subpaths as rewrite targets. */
+	deprecatedNames: Set<string>;
+	/** True when this is a `@deprecated export * from '...'` star re-export, which would
+	 * otherwise expose every export of the source file. */
+	deprecatedStar: boolean;
+}
+
+/**
+ * Parse an entry-point wrapper file and resolve the source files it re-exports from,
+ * along with name mappings (source export name → entry-point export name).
+ */
+function resolveEntryPointReExports({
+	entryPointFilePath,
+	fs,
+}: {
+	entryPointFilePath: string;
+	fs: FileSystem;
+}): EntryPointReExport[] {
+	const content = readFileContent({ filePath: entryPointFilePath, fs });
+	if (!content) {
+		return [];
+	}
+
+	try {
+		const sourceFile = ts.createSourceFile(
+			entryPointFilePath,
+			content,
+			ts.ScriptTarget.Latest,
+			true,
+		);
+		const basedir = dirname(entryPointFilePath);
+		const results: EntryPointReExport[] = [];
+
+		for (const statement of sourceFile.statements) {
+			if (
+				ts.isExportDeclaration(statement) &&
+				statement.moduleSpecifier &&
+				ts.isStringLiteral(statement.moduleSpecifier)
+			) {
+				const modulePath = statement.moduleSpecifier.text;
+				if (!isRelativeImport(modulePath)) {
+					continue;
+				}
+
+				const resolved = resolveImportPath({ basedir, importPath: modulePath, fs });
+				if (!resolved) {
+					continue;
+				}
+
+				const nameMap = new Map<string, string>();
+				const deprecatedNames = new Set<string>();
+				const statementDeprecated = isNodeDeprecated(statement, content);
+				if (statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+					for (const element of statement.exportClause.elements) {
+						const exportedName = element.name.text;
+						const sourceName = element.propertyName ? element.propertyName.text : exportedName;
+						nameMap.set(sourceName, exportedName);
+						if (statementDeprecated || isNodeDeprecated(element, content)) {
+							deprecatedNames.add(exportedName);
+						}
+					}
+				}
+				// A star re-export (`export * from '...'`) has an empty nameMap and exposes
+				// every export of the source file; flag it when the whole statement is deprecated.
+				const deprecatedStar =
+					statementDeprecated &&
+					(!statement.exportClause || !ts.isNamedExports(statement.exportClause));
+
+				results.push({ sourcePath: resolved, nameMap, deprecatedNames, deprecatedStar });
+			}
+		}
+
+		return results;
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * Parse the package.json exports field and return a map of export paths to resolved file paths.
+ */
+export function parsePackageExports({
+	packageDir,
+	fs,
+}: {
+	packageDir: string;
+	fs: FileSystem;
+}): Map<string, string> {
+	// Memoize per-package to avoid repeated reads/parses during IDE lint runs.
+	// Additionally, invalidate per-package if the package.json mtime changes
+	// (covers unstaged local edits in IDE).
+	if (!fs.cache.packageExportsByDir) {
+		fs.cache.packageExportsByDir = new Map();
+	}
+
+	const packageJsonPath = join(packageDir, 'package.json');
+	let currentMtimeMs: number | null = null;
+	try {
+		currentMtimeMs = fs.statSync(packageJsonPath).mtimeMs ?? null;
+	} catch {
+		// If package.json can't be stat'ed (missing/inaccessible), use null to force re-read
+		currentMtimeMs = null;
+	}
+
+	const cached = fs.cache.packageExportsByDir.get(packageDir);
+	// Only use cache if we have a valid mtime and it matches
+	if (cached && currentMtimeMs !== null && cached.packageJsonMtimeMs === currentMtimeMs) {
+		return cached.exportsMap;
+	}
+
+	const exportsMap = new Map<string, string>();
+
+	try {
+		const content = readFileContent({ filePath: packageJsonPath, fs });
+		if (!content) {
+			return exportsMap;
+		}
+
+		const packageJson = JSON.parse(content);
+		const exports = packageJson.exports;
+
+		if (!exports || typeof exports !== 'object') {
+			return exportsMap;
+		}
+
+		for (const [exportPath, exportValue] of Object.entries(exports)) {
+			// Handle both simple string values and conditional exports objects
+			let resolvedPath: string | null = null;
+
+			if (typeof exportValue === 'string') {
+				resolvedPath = exportValue;
+			} else if (typeof exportValue === 'object' && exportValue !== null) {
+				// Handle conditional exports like { "import": "./...", "require": "./..." }
+				// Prefer "import" or "default" or first available
+				const condExports = exportValue as Record<string, string>;
+				resolvedPath =
+					condExports['import'] || condExports['default'] || Object.values(condExports)[0];
+			}
+
+			if (resolvedPath && typeof resolvedPath === 'string') {
+				// Resolve the path relative to the package directory
+				const absolutePath = resolveImportPath({
+					basedir: packageDir,
+					importPath: resolvedPath,
+					fs,
+				});
+				if (absolutePath) {
+					exportsMap.set(exportPath, absolutePath);
+				}
+			}
+		}
+	} catch {
+		// Ignore parsing errors
+	}
+
+	// Cache even empty maps to avoid re-reading invalid/missing exports repeatedly.
+	fs.cache.packageExportsByDir.set(packageDir, {
+		packageJsonMtimeMs: currentMtimeMs,
+		exportsMap,
+	});
+	return exportsMap;
+}
+
+export interface ExportMatchResult {
+	exportPath: string;
+	/**
+	 * When resolved through an entry-point wrapper, the name under which
+	 * the symbol is exported from the entry-point file.
+	 * Callers use this to override the barrel's `originalName` so the
+	 * generated import matches the entry-point's export shape.
+	 */
+	entryPointExportName?: string;
+}
+
+/**
+ * Check whether a subpath export key (e.g. `"./checkbox-select"`) is kebab-case.
+ *
+ * A key is considered kebab-case when the portion after the leading `"./"` prefix
+ * consists only of lowercase letters, digits, hyphens, dots, and forward-slash
+ * separators — i.e. no uppercase letters, underscores, or camelCase humps.
+ */
+export function isKebabCaseExportKey(key: string): boolean {
+	const body = key.replace(/^\.\//, '');
+	if (body.length === 0) {
+		return false;
+	}
+	return /^[a-z0-9][a-z0-9\-./]*$/.test(body);
+}
+
+/**
+ * Given a list of candidate {@link ExportMatchResult}s that all resolve to the same
+ * source file, pick the best one.  When any candidate's export path is kebab-case
+ * and points to an entry-point file, prefer it over non-kebab-case alternatives.
+ * Falls back to the first candidate if no kebab-case entry-point candidate is found.
+ */
+function pickBestMatch(
+	candidates: ExportMatchResult[],
+	exportsMap: Map<string, string>,
+): ExportMatchResult {
+	if (candidates.length === 1) {
+		return candidates[0];
+	}
+
+	// Among candidates whose value is an entry-point file, prefer kebab-case keys.
+	const entryPointKebab = candidates.filter((c) => {
+		const resolved = exportsMap.get(c.exportPath);
+		return resolved && isInEntryPointsFolder(resolved) && isKebabCaseExportKey(c.exportPath);
+	});
+	if (entryPointKebab.length > 0) {
+		return entryPointKebab[0];
+	}
+
+	// Fall back to the first candidate (preserves previous behaviour).
+	return candidates[0];
+}
+
+/**
+ * Find a matching export entry for a given source file path.
+ * Returns the export path (e.g., "./controllers/analytics") or null if not found.
+ *
+ * When multiple export paths resolve to the same source file **and** point to an
+ * entry-point file, kebab-case keys are preferred over other casing styles.
+ *
+ * When `fs` is provided, also checks entry-point wrapper files. If an export resolves
+ * to a file inside a recognized entry-points folder (entry-points, entrypoints, etc.),
+ * the wrapper is parsed to see if it re-exports from `sourceFilePath`.
+ *
+ * `sourceExportName` is the name under which the symbol is exported from the source file
+ * (e.g. `'default'`). Used to look up the corresponding entry-point export name so the
+ * caller can generate the correct import style.
+ */
+export function findExportForSourceFile({
+	sourceFilePath,
+	exportsMap,
+	fs,
+	sourceExportName,
+}: {
+	sourceFilePath: string;
+	exportsMap: Map<string, string>;
+	fs?: FileSystem;
+	sourceExportName?: string;
+}): ExportMatchResult | null {
+	// Deprecated subpaths (backward-compat re-export shims marked `@deprecated`) must never
+	// be chosen as a rewrite target while a non-deprecated twin exists. We collect deprecated
+	// candidates separately in each phase and only fall back to them as a last resort.
+	const deprecatedFallbacks: ExportMatchResult[] = [];
+
+	// --- Phase 1: direct matches (export value === sourceFilePath) ---
+	const directMatches: ExportMatchResult[] = [];
+	for (const [exportPath, resolvedPath] of exportsMap) {
+		if (resolvedPath !== sourceFilePath) {
+			continue;
+		}
+		// Only a `@deprecated` re-export (a path/shim deprecation) disqualifies this subpath
+		// as a rewrite target. A `@deprecated` on the symbol's local declaration is an API
+		// deprecation that says nothing about which import path to use, so it must not
+		// exclude an otherwise-clean subpath — hence `reExportsOnly: true`.
+		const deprecated =
+			fs !== undefined &&
+			sourceExportName !== undefined &&
+			isExportNameDeprecatedInFile({
+				filePath: resolvedPath,
+				exportName: sourceExportName,
+				fs,
+				reExportsOnly: true,
+			});
+		if (deprecated) {
+			deprecatedFallbacks.push({ exportPath });
+		} else {
+			directMatches.push({ exportPath });
+		}
+	}
+	if (directMatches.length > 0) {
+		return pickBestMatch(directMatches, exportsMap);
+	}
+
+	// --- Phase 2: entry-point wrapper re-export matches ---
+	if (fs) {
+		const entryPointMatches: ExportMatchResult[] = [];
+		for (const [exportPath, resolvedPath] of exportsMap) {
+			if (isInEntryPointsFolder(resolvedPath)) {
+				const reExports = resolveEntryPointReExports({
+					entryPointFilePath: resolvedPath,
+					fs,
+				});
+				for (const reExport of reExports) {
+					if (reExport.sourcePath !== sourceFilePath) {
+						continue;
+					}
+					// When the wrapper uses explicit named re-exports (nameMap is populated),
+					// the specific symbol we're looking up must actually appear in that list.
+					// Star re-exports (`export * from '../foo'`) keep an empty nameMap and
+					// continue to match because they expose every export of the source file.
+					// Without this guard, a wrapper that re-exports `from '../types'` but
+					// only lists a subset of names would be picked as a valid target for any
+					// symbol that originates from `../types`, producing imports that fail
+					// to resolve at runtime / typecheck (e.g. `@atlaskit/icon/base-new` being
+					// chosen for `GlyphProps` when only `NewIconProps` / `NewCoreIconProps`
+					// are re-exported there).
+					if (
+						sourceExportName !== undefined &&
+						reExport.nameMap.size > 0 &&
+						!reExport.nameMap.has(sourceExportName)
+					) {
+						continue;
+					}
+					let entryPointExportName: string | undefined;
+					if (sourceExportName !== undefined && reExport.nameMap.has(sourceExportName)) {
+						entryPointExportName = reExport.nameMap.get(sourceExportName);
+					}
+					// The re-export is deprecated when the whole `export * from '...'` is
+					// deprecated, or when the specific re-exported name is.
+					const entryPointName = entryPointExportName ?? sourceExportName;
+					const deprecated =
+						reExport.deprecatedStar ||
+						(entryPointName !== undefined && reExport.deprecatedNames.has(entryPointName));
+					if (deprecated) {
+						deprecatedFallbacks.push({ exportPath, entryPointExportName });
+					} else {
+						entryPointMatches.push({ exportPath, entryPointExportName });
+					}
+				}
+			}
+		}
+		if (entryPointMatches.length > 0) {
+			return pickBestMatch(entryPointMatches, exportsMap);
+		}
+	}
+
+	// No clean (non-deprecated) subpath exposes the symbol. Fall back to a deprecated shim
+	// only if one exists — the "every deprecated export has a non-deprecated twin" invariant
+	// means this is rarely hit, but returning it preserves previous behaviour for packages
+	// that only ship a deprecated subpath.
+	if (deprecatedFallbacks.length > 0) {
+		return pickBestMatch(deprecatedFallbacks, exportsMap);
+	}
+
+	return null;
+}
+
+/**
+ * When a symbol reaches the consumer through a barrel package that re-exports from
+ * `crossPackageName`, find a `package.json` export subpath of that barrel whose entry
+ * file directly re-exports the symbol from `crossPackageName` (named exports only).
+ *
+ * This enables rewriting imports to `@scope/barrel/subpath` instead of
+ * `@scope/cross-package/...` when the barrel exposes such a subpath (e.g. `@atlaskit/select/react-select`).
+ *
+ * Both value re-exports (`export { Foo } from '@scope/dep'`) and type-only re-exports
+ * (`export type { Foo } from '@scope/dep'`, `export { type Foo } from '@scope/dep'`)
+ * are treated as valid bridges. The barrel's subpath is preferred regardless of
+ * whether the symbol crosses the boundary as a value or as a type.
+ */
+export function findCrossPackageBridgeExportPath({
+	exportsMap,
+	crossPackageName,
+	exportedName,
+	fs,
+}: {
+	exportsMap: Map<string, string>;
+	crossPackageName: string;
+	exportedName: string;
+	fs: FileSystem;
+}): ExportMatchResult | null {
+	// A deprecated bridge re-export shim must not be chosen while a non-deprecated bridge
+	// exists; keep any deprecated match as a last-resort fallback only.
+	let deprecatedFallback: ExportMatchResult | null = null;
+
+	for (const [exportPath, resolvedPath] of exportsMap) {
+		const content = readFileContent({ filePath: resolvedPath, fs });
+		if (!content) {
+			continue;
+		}
+
+		try {
+			const sourceFile = ts.createSourceFile(resolvedPath, content, ts.ScriptTarget.Latest, true);
+
+			for (const statement of sourceFile.statements) {
+				if (!ts.isExportDeclaration(statement)) {
+					continue;
+				}
+				if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) {
+					continue;
+				}
+				if (statement.moduleSpecifier.text !== crossPackageName) {
+					continue;
+				}
+				if (!statement.exportClause || ts.isNamespaceExport(statement.exportClause)) {
+					continue;
+				}
+				if (!ts.isNamedExports(statement.exportClause)) {
+					continue;
+				}
+
+				const statementDeprecated = isNodeDeprecated(statement, content);
+				for (const element of statement.exportClause.elements) {
+					const publicName = element.name.text;
+					if (publicName !== exportedName) {
+						continue;
+					}
+
+					const entryPointExportName = element.propertyName ? element.propertyName.text : undefined;
+					const match: ExportMatchResult = { exportPath, entryPointExportName };
+
+					if (statementDeprecated || isNodeDeprecated(element, content)) {
+						deprecatedFallback = deprecatedFallback ?? match;
+						continue;
+					}
+
+					return match;
+				}
+			}
+		} catch {
+			// Ignore parse errors for individual export entry files
+		}
+	}
+
+	return deprecatedFallback;
+}
+
+/**
+ * Extract the package name and subpath from an import specifier.
+ * Returns null if the import is not a scoped package import.
+ */
+export function extractPackageNameFromImport(
+	moduleSpecifier: string,
+): { packageName: string; subPath: string } | null {
+	const match = moduleSpecifier.match(/^(@[^/]+\/[^/]+)(\/.*)?$/);
+	if (!match) {
+		return null;
+	}
+	return {
+		packageName: match[1],
+		subPath: match[2] || '',
+	};
+}
+
+/**
+ * Resolve a cross-package import to its package directory and export info.
+ * Returns null if the package is not in the target folder or cannot be resolved.
+ */
+export function resolveCrossPackageImport({
+	moduleSpecifier,
+	workspaceRoot,
+	fs,
+}: {
+	moduleSpecifier: string;
+	workspaceRoot: string;
+	fs: FileSystem;
+}): {
+	packageName: string;
+	packageDir: string;
+	exportPath: string;
+	entryFilePath: string;
+} | null {
+	// Only handle @atlassian/* scoped packages
+	const parsed = extractPackageNameFromImport(moduleSpecifier);
+	if (!parsed) {
+		return null;
+	}
+
+	const { packageName, subPath } = parsed;
+
+	// Check if package is in target folder
+	const packageDir = findPackageInRegistry({ packageName, workspaceRoot, fs });
+	if (!packageDir) {
+		return null;
+	}
+
+	// Parse package.json exports
+	const exportsMap = parsePackageExports({ packageDir, fs });
+	if (exportsMap.size === 0) {
+		return null;
+	}
+
+	// Determine the export path (e.g., '.' or './utils')
+	const exportPath = subPath ? '.' + subPath : '.';
+	const entryFilePath = exportsMap.get(exportPath);
+
+	if (!entryFilePath) {
+		return null;
+	}
+
+	return {
+		packageName,
+		packageDir,
+		exportPath,
+		entryFilePath,
+	};
+}

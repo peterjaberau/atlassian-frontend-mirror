@@ -1,16 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { cssMap } from '@atlaskit/css';
-import FeatureGates, { FeatureGateEnvironment } from '@atlaskit/feature-gate-js-client';
 import { Box, Stack } from '@atlaskit/primitives/compiled';
 
-const experimentConfig: Record<string, { cohort: string }> = {
-	platform_sl_3p_unauth_paste_as_block_card: {
-		cohort: 'card_by_default_and_new_design',
-	},
-};
+import useFeatureGateOverrideConfig from './use-feature-gate-override-config';
 
 const boxStyles = cssMap({
 	root: {
@@ -24,43 +19,24 @@ const ExampleContainer = ({
 	children,
 	maxWidth = DEFAULT_MAX_WIDTH,
 	title,
+	withExperiments = true,
 }: {
 	children: React.ReactNode;
 	maxWidth?: string;
-	title: string;
+	title?: string;
+	withExperiments?: boolean;
 }): React.JSX.Element => {
-	const [initialized, setInitialized] = useState(FeatureGates.initializeCompleted());
+	const gateRevision = useFeatureGateOverrideConfig(withExperiments);
 
-	const initFGs = useCallback(async () => {
-		if (initialized) {
-			return;
-		}
-		const formValues = {
-			environment: FeatureGateEnvironment.Development,
-			localMode: true,
-			targetApp: '',
-		};
-		await FeatureGates.initializeFromValues(formValues, {});
-		setInitialized(true);
-		Object.entries(experimentConfig).forEach(([name, config]) => {
-			FeatureGates.overrideConfig(name, config);
-		});
-	}, [initialized]);
-
-	useEffect(() => {
-		void initFGs();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	if (!initialized) {
+	if (!gateRevision) {
 		return <div>Loading...</div>;
 	}
 
 	return (
 		<IntlProvider locale="en">
-			<Box paddingBlock="space.400" style={{ maxWidth }} xcss={boxStyles.root}>
+			<Box key={gateRevision} paddingBlock="space.400" style={{ maxWidth }} xcss={boxStyles.root}>
 				<Stack space="space.200">
-					<h1>{title}</h1>
+					{title && <h1>{title}</h1>}
 					{children}
 				</Stack>
 			</Box>

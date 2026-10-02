@@ -1,7 +1,7 @@
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import format from 'date-fns/format';
 import formatDistance from 'date-fns/formatDistance';
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import messages from '../../messages';
 
@@ -37,7 +37,18 @@ export const transformTimeStamp = (
 	intl: IntlShape,
 	lastViewedDate?: Date,
 	lastUpdatedDate?: Date,
-) => {
+):
+	| {
+			pageAction: string;
+			dateString: string;
+			timeSince?: undefined;
+	  }
+	| {
+			pageAction: string;
+			dateString: string;
+			timeSince: string;
+	  }
+	| undefined => {
 	if (lastViewedDate) {
 		return renderAbsoluteOrRelativeDate(lastViewedDate, 'viewed', intl);
 	}

@@ -1,63 +1,67 @@
-/* eslint-disable @atlaskit/design-system/no-html-button */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+import {
+	forwardRef,
+	type ForwardRefExoticComponent,
+	type HTMLAttributes,
+	type RefAttributes,
+} from 'react';
+
+/* eslint-disable @atlaskit/design-system/no-html-button */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx, css } from '@emotion/react';
-import { B400, N500, N30A, N20 } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
-import { MentionType } from '../../types';
-import { forwardRef, type HTMLAttributes } from 'react';
 
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { token } from '@atlaskit/tokens';
+
+import type { MentionType } from '../../types';
+import { mentionStyle } from './mention-style';
 export interface PrimitiveMentionProps extends HTMLAttributes<HTMLSpanElement> {
+	isAvatarVisible?: boolean;
+	isRovoChat?: boolean;
 	mentionType: MentionType;
 }
 
-const mentionStyle = {
-	[MentionType.SELF]: {
-		background: token('color.background.brand.bold', B400),
-		borderColor: 'transparent',
-		text: token('color.text.inverse', N20),
-		hoveredBackground: token('color.background.brand.bold.hovered', B400),
-		pressedBackground: token('color.background.brand.bold.pressed', B400),
-	},
-	[MentionType.RESTRICTED]: {
-		background: 'transparent',
-		borderColor: token('color.border.bold', N500),
-		text: token('color.text', N500),
-		hoveredBackground: 'transparent',
-		pressedBackground: 'transparent',
-	},
-	[MentionType.DEFAULT]: {
-		background: token('color.background.neutral', N30A),
-		borderColor: 'transparent',
-		text: token('color.text.subtle', N500),
-		hoveredBackground: token('color.background.neutral.hovered', N30A),
-		pressedBackground: token('color.background.neutral.pressed', N30A),
-	},
-} as const;
-
 const getStyle = (
-	{ mentionType }: PrimitiveMentionProps,
+	{ mentionType, isRovoChat }: Pick<PrimitiveMentionProps, 'mentionType' | 'isRovoChat'>,
 	property: 'background' | 'borderColor' | 'text' | 'hoveredBackground' | 'pressedBackground',
 ) => {
-	const obj = mentionStyle[mentionType][property];
+	const isRovoChatEnabled = isRovoChat && isExperimentEnabled('platform_editor_mention_rovo');
 
-	return typeof obj === 'string' ? obj : obj;
+	if (isRovoChatEnabled) {
+		if (property === 'text') {
+			return token('color.text.inverse');
+		}
+		if (property === 'background') {
+			return token('color.background.neutral.bold');
+		}
+		if (property === 'hoveredBackground') {
+			return token('color.background.neutral.bold.hovered');
+		}
+		if (property === 'pressedBackground') {
+			return token('color.background.neutral.bold.pressed');
+		}
+	}
+
+	return mentionStyle[mentionType][property];
 };
 
-const PrimitiveMention = forwardRef<HTMLSpanElement, PrimitiveMentionProps>(
-	({ mentionType, ...other }, ref) => {
+const PrimitiveMention: ForwardRefExoticComponent<
+	PrimitiveMentionProps & RefAttributes<HTMLSpanElement>
+> = forwardRef<HTMLSpanElement, PrimitiveMentionProps>(
+	({ isAvatarVisible = false, isRovoChat = false, mentionType, ...other }, ref) => {
 		return (
 			<span
 				ref={ref}
+				data-avatar-visible={isAvatarVisible || undefined}
 				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/design-system/no-css-tagged-template-expression, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 				css={css`
 					display: inline;
 					border: ${token('border.width')} solid ${getStyle({ mentionType }, 'borderColor')};
-					background: ${getStyle({ mentionType }, 'background')};
-					color: ${getStyle({ mentionType }, 'text')};
+					background: ${getStyle({ mentionType, isRovoChat }, 'background')};
+					color: ${getStyle({ mentionType, isRovoChat }, 'text')};
 					border-radius: 20px;
 					cursor: pointer;
 					padding: 0 0.3em 2px 0.23em;
@@ -65,11 +69,16 @@ const PrimitiveMention = forwardRef<HTMLSpanElement, PrimitiveMentionProps>(
 					font-size: 1em;
 					font-weight: ${token('font.weight.regular')};
 					word-break: break-word;
+					&[data-avatar-visible='true'] {
+						padding: 1px 0.3em 1px 0.23em;
+					}
 					&:hover {
-						background: ${getStyle({ mentionType }, 'hoveredBackground')};
+						background: ${getStyle({ mentionType, isRovoChat }, 'hoveredBackground')};
+						color: ${getStyle({ mentionType, isRovoChat }, 'text')};
 					}
 					&:active {
-						background: ${getStyle({ mentionType }, 'pressedBackground')};
+						background: ${getStyle({ mentionType, isRovoChat }, 'pressedBackground')};
+						color: ${getStyle({ mentionType, isRovoChat }, 'text')};
 					}
 				`}
 				{...other}

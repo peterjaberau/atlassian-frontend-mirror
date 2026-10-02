@@ -10,7 +10,7 @@ import type {
 	NodeOptions,
 } from '@atlaskit/editor-common/types';
 import type { HoverDecorationHandler } from '@atlaskit/editor-plugin-decorations';
-import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import CopyIcon from '@atlaskit/icon/core/copy';
 
 import type { CopyButtonPlugin } from '../copyButtonPluginType';
@@ -32,6 +32,23 @@ function isNodeOptions(options: MarkOptions | NodeOptions): options is NodeOptio
 	return 'nodeType' in options && options.nodeType !== undefined;
 }
 
+/**
+ * Performs the actions after a copy operation.
+ * - Sets the copied state in the editor state
+ * - Announces the copied message to the user
+ */
+export const afterCopy =
+	(api?: ExtractInjectionAPI<CopyButtonPlugin>) =>
+	(message: string): void => {
+		api?.core.actions.execute(({ tr }: { tr: Transaction }) => {
+			return tr.setMeta(copyButtonPluginKey, { copied: true }).setMeta('scrollIntoView', false);
+		});
+
+		api?.accessibilityUtils?.actions.ariaNotify(message, {
+			priority: 'important',
+		});
+	};
+
 export function getCopyButtonConfig(
 	options: MarkOptions | NodeOptions,
 	hoverDecoration: HoverDecorationHandler | undefined,
@@ -44,6 +61,8 @@ export function getCopyButtonConfig(
 	let buttonActionHandlers;
 
 	if (isNodeOptions(options)) {
+		const { onClick } = options;
+
 		buttonActionHandlers = {
 			onClick: createToolbarCopyCommandForNode(
 				options.nodeType,
@@ -62,6 +81,16 @@ export function getCopyButtonConfig(
 			onMouseLeave: resetCopiedState(options.nodeType, hoverDecoration, onMouseLeave),
 			onBlur: resetCopiedState(options.nodeType, hoverDecoration, onBlur),
 		};
+
+		if (onClick) {
+			buttonActionHandlers.onClick = (editorState, dispatch, editorView) => {
+				if (onClick(editorState, dispatch, editorView)) {
+					afterCopy(api)(formatMessage(commonMessages.copiedToClipboard));
+					return true;
+				}
+				return false;
+			};
+		}
 	} else {
 		buttonActionHandlers = {
 			onClick: createToolbarCopyCommandForMark(options.markType, editorAnalyticsApi),
@@ -84,6 +113,7 @@ export function getCopyButtonConfig(
 		),
 		...buttonActionHandlers,
 		hideTooltipOnClick: false,
+		hasNewContentOnTriggerClick: true,
 		tabIndex: null,
 	};
 }
@@ -99,7 +129,7 @@ export const processCopyButtonItems: (
 ) => (
 	items: Array<FloatingToolbarItem<Command>>,
 	hoverDecoration: HoverDecorationHandler | undefined,
-) => Array<FloatingToolbarItem<Command>> = (editorAnalyticsApi, api) => (state) => {
+) => Array<FloatingToolbarItem<Command>> = (editorAnalyticsApi, api) => (_state) => {
 	return (
 		items: Array<FloatingToolbarItem<Command>>,
 		hoverDecoration: HoverDecorationHandler | undefined,

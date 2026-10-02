@@ -1,37 +1,44 @@
-import { getExtensionAttrs } from '../../utils/extensions';
-import type { ExtensionAttributes } from './types/extensions';
-import type { BodiedExtensionDefinition as BodiedExtension } from './bodied-extension';
-import type { PanelDefinition as Panel } from './panel';
-import type { ParagraphDefinition as Paragraph } from './paragraph';
-import type { BlockQuoteDefinition as Blockquote } from './blockquote';
-import type {
-	OrderedListDefinition as OrderedList,
-	BulletListDefinition as BulletList,
-} from './types/list';
-import type { RuleDefinition as Rule } from './rule';
-import type { HeadingDefinition as Heading } from './heading';
-import type { CodeBlockDefinition as CodeBlock } from './code-block';
-import type { MediaGroupDefinition as MediaGroup } from './media-group';
-import type { MediaSingleDefinition as MediaSingle } from './media-single';
-import type { DecisionListDefinition as DecisionList } from './decision-list';
-import type { TaskListDefinition as TaskList } from './task-list';
-import type { TableDefinition as Table } from './tableNodes';
-import type { ExtensionDefinition as Extension } from './extension';
-import type { BlockCardDefinition as BlockCard } from './block-card';
-import type { EmbedCardDefinition as EmbedCard } from './embed-card';
-import type { DataConsumerDefinition, FragmentDefinition } from '../marks';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import {
 	multiBodiedExtensionStage0 as multiBodiedExtensionStage0Factory,
 	extensionFrameStage0 as extensionFrameStage0Factory,
 } from '../../next-schema/generated/nodeTypes';
+import { getExtensionAttrs } from '../../utils/get-extension-attrs';
+import type { DataConsumerDefinition, FragmentDefinition } from '../marks';
+import type { BreakoutMarkDefinition } from '../marks/breakout';
+import type { BlockCardDefinition as BlockCard } from './block-card';
+import type { BlockQuoteDefinition as Blockquote } from './blockquote';
+import type { BodiedExtensionDefinition as BodiedExtension } from './bodied-extension';
+import type { BodiedRuleDefinition as BodiedRule } from './bodied-rule';
+import type { CodeBlockDefinition as CodeBlock } from './code-block';
+import type { DecisionListDefinition as DecisionList } from './decision-list';
+import type { EmbedCardDefinition as EmbedCard } from './embed-card';
+import type { ExtensionDefinition as Extension } from './extension';
+import type { HeadingDefinition as Heading } from './heading';
+import type { MediaGroupDefinition as MediaGroup } from './media-group';
+import type { MediaSingleDefinition as MediaSingle } from './media-single';
+import type { PanelDefinition as Panel } from './panel';
+import type { ParagraphDefinition as Paragraph } from './paragraph';
+import type { RuleDefinition as Rule } from './rule';
+import type { TableDefinition as Table } from './tableNodes';
+import type { TaskListDefinition as TaskList } from './task-list';
+import type { ExtensionAttributes } from './types/extensions';
+import type {
+	OrderedListDefinition as OrderedList,
+	BulletListDefinition as BulletList,
+} from './types/list';
+import type { MarksObject } from './types/mark';
 
 /**
+ // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
  * @stage 0
  * @name extensionFrame_node
  * @description Wraps the block content
  */
 export interface ExtensionFrameDefinition {
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 1
 	 */
 	// Excplicitly listed all the non-nestable block content types, to avoid cyclically referencing
@@ -44,6 +51,7 @@ export interface ExtensionFrameDefinition {
 		| OrderedList
 		| BulletList
 		| Rule
+		| BodiedRule
 		| Heading
 		| CodeBlock
 		| MediaGroup
@@ -62,7 +70,7 @@ export interface ExtensionFrameDefinition {
 /**
  * @returns NodeSpec for ExtensionFrameDefinition
  */
-export const extensionFrame = extensionFrameStage0Factory({
+export const extensionFrame: NodeSpec = extensionFrameStage0Factory({
 	parseDOM: [
 		{
 			context: 'extensionFrame//',
@@ -76,6 +84,11 @@ export const extensionFrame = extensionFrameStage0Factory({
 	toDOM() {
 		const attrs: Record<string, string> = {
 			'data-extension-frame': 'true',
+			// Frames are hidden by default and the active frame is revealed via CSS.
+			// Using an inline style ensures frames are invisible from the moment
+			// ProseMirror inserts them into the DOM, preventing a flash of all
+			// frames before the styles are injected.
+			style: 'display:none',
 		};
 
 		return ['div', attrs, 0];
@@ -83,6 +96,7 @@ export const extensionFrame = extensionFrameStage0Factory({
 });
 
 /**
+ // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
  * @stage 0
  * @name multiBodiedExtension_node
  * @description Wraps multiple extensionFrame objects.
@@ -90,6 +104,7 @@ export const extensionFrame = extensionFrameStage0Factory({
 export interface MultiBodiedExtensionDefinition {
 	attrs: ExtensionAttributes;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minLength 1
 	 */
 	content: Array<ExtensionFrameDefinition>;
@@ -98,7 +113,15 @@ export interface MultiBodiedExtensionDefinition {
 	type: 'multiBodiedExtension';
 }
 
-export const multiBodiedExtension = multiBodiedExtensionStage0Factory({
+/**
+ // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
+ * @stage 0
+ * @name multiBodiedExtension_root_only_node
+ */
+export type MultiBodiedExtensionRootOnlyDefinition = MultiBodiedExtensionDefinition &
+	MarksObject<BreakoutMarkDefinition>;
+
+export const multiBodiedExtension: NodeSpec = multiBodiedExtensionStage0Factory({
 	parseDOM: [
 		{
 			context: 'multiBodiedExtension//',
@@ -123,3 +146,8 @@ export const multiBodiedExtension = multiBodiedExtensionStage0Factory({
 		return ['div', attrs, 0];
 	},
 });
+
+export const multiBodiedExtensionRootOnlyStage0: NodeSpec = {
+	...multiBodiedExtension,
+	marks: `breakout ${multiBodiedExtension.marks}`,
+};

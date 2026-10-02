@@ -1,8 +1,14 @@
-import { type DatasourceDataResponseItem } from '@atlaskit/linking-types';
+import type { DatasourceDataResponseItem } from '@atlaskit/linking-types/datasource';
 
 import { profile as profileBase64Image } from '../../images';
 
-export const defaultInitialVisibleColumnKeys: string[] = ['id', 'title', 'space', 'type', 'ownedBy'];
+export const defaultInitialVisibleColumnKeys: string[] = [
+	'id',
+	'title',
+	'space',
+	'type',
+	'ownedBy',
+];
 
 const mockData: Array<DatasourceDataResponseItem> = [
 	{
@@ -1108,7 +1114,11 @@ const mockData: Array<DatasourceDataResponseItem> = [
 	},
 ];
 
-export const mockConfluenceData = {
+export const mockConfluenceData: {
+	data: DatasourceDataResponseItem[];
+	nextPageCursor: string;
+	totalIssues: number;
+} = {
 	nextPageCursor: '_f_MjA=_sa_WyJkdW1teS1zb3J0LXZhbHVlcyJd',
 	totalIssues: 1357,
 	data: mockData,

@@ -1,5 +1,1758 @@
 # @atlaskit/media-card
 
+## 82.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.1.0
+
+### Minor Changes
+
+- [`a432278c5cb5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a432278c5cb5c) -
+  [ux] Add opt-in consumer extension points so a product can host its own sidebar content — such as
+  Confluence comments — inside Media Viewer, and restore that viewer state across remounts. All of
+  the new behaviour is gated behind the `cc_comments_media_viewer_sidebar` experiment; with the
+  experiment off both packages behave exactly as before.
+
+  `@atlaskit/media-viewer` adds nine optional fields to `MediaViewerExtensions` and exports the new
+  `MediaViewerNavigationDirection` type. Consumers can intercept the close and navigate paths with
+  `onPreviewClose`, `onSidebarClose` and `onNavigation` — each receives a `proceed()` callback, so a
+  consumer can defer or swallow the action while, for example, prompting about an unsaved comment.
+  Viewer state can be persisted and restored through `getMediaViewerSelectedItem`,
+  `onSelectedItemChange`, `defaultSidebarVisible` and `onSidebarVisibilityChange`, and the existing
+  `sidebar` extension accepts `label` and `title`. The previously shipped `sidebar` and
+  `headerActions` fields are unchanged and are not gated.
+
+  `@atlaskit/media-card` adds no new prop of its own, but `Card`/`FileCard` consumers can now pass
+  `getMediaViewerSelectedItem` and `onSelectedItemChange` through the existing
+  `mediaViewerExtensions` prop to seed the Media Viewer selected item on mount and be notified when
+  it opens or closes — new remount-restore behaviour that also requires this release of
+  `@atlaskit/media-viewer` to typecheck.
+
+  Both packages add `@atlaskit/platform-feature-experiments` as a runtime dependency.
+
+### Patch Changes
+
+- [`ae39a248bd118`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae39a248bd118) -
+  FFCLEANUP-147994 clean up fg relating to fallback media name fetcher
+  platform_editor_media_name_fallback, platform_editor_media_file_rename_on_fallback,
+  platform_editor_media_file_rename_on_fallback, platform_editor_media_name_fallback_viewer_card
+- Updated dependencies
+
+## 82.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.10
+
+### Patch Changes
+
+- [`22e02fb26ca02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22e02fb26ca02) -
+  Make the shipped media border radius styling permanent and remove the obsolete feature gate.
+
+## 81.12.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.5
+
+### Patch Changes
+
+- [`5bb049fcdba7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bb049fcdba7e) -
+  Use the direct React UFO segment entry point, preserving the existing component implementation and
+  instrumentation behavior.
+- Updated dependencies
+
+## 81.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.12.0
+
+### Minor Changes
+
+- [`2a1e8245a006e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a1e8245a006e) -
+  Clean up experiment `cc-maui-ai-edit-loading-experiment`. The enabled behaviour is now permanent:
+  media cards and MAUI embeds always render the simple loading bar instead of the spinner/icon
+  carousel, and the AI-edit blanket overlay is always applied when a MAUI app is replaced from the
+  toolbar.
+
+  `@atlaskit/tmp-editor-statsig` removes the `cc-maui-ai-edit-loading-experiment` key from
+  `editorExperimentsConfig`, so reading it via `expValEquals`/`expValEqualsNoExposure` is now a type
+  error — remove those call sites.
+
+  `@atlaskit/media-card` drops its now-unused `@atlaskit/spinner` dependency, and
+  `@atlassian/native-embeds-maui-experience` drops its now-unused `@atlaskit/icon-lab` dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.11.0
+
+### Minor Changes
+
+- [`2d026706450c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d026706450c6) -
+  Add the `allowAIGeneratedMediaMotion` media plugin option and the `hasLoadingMotion` card prop, so
+  media that arrives mid-flight opens the document out to make room for itself and then fades its
+  preview in, instead of drawing a loading indicator and snapping into place. Behind
+  `aifc_page_create_defer_generated_visuals`.
+
+## 81.10.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.10.0
+
+### Minor Changes
+
+- [`be8a71519cbc2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be8a71519cbc2) -
+  Add support for seeding media card file state from SSR media node metadata, behind the
+  `platform_media_ssr_data_seed` feature gate.
+
+  `@atlaskit/media-client` gains a Relay-free `mapSsrMediaItemToFileState`. Malformed, partial, or
+  non-array input yields `undefined` rather than throwing.
+
+  `@atlaskit/media-card` accepts an optional `ssrMediaItem` prop. When `ssrFileState` is absent and
+  the gate is on, the card converts `ssrMediaItem` to FileState via `mapSsrMediaItemToFileState` and
+  seeds `useFileState`. `ssrFileState` still wins when both are provided (Relay / media-card-relay).
+
+  `@atlaskit/renderer` extends `MediaSSR` with `ssrMediaItems` — the host's SSR media payload,
+  passed through untouched. The renderer finds the matching item by id and forwards it as
+  `ssrMediaItem` to Card. Hosts need no knowledge of `FileState` or of media internals. The field is
+  optional and additive: hosts that do not supply it, and media ids without an entry, keep the
+  current fetch behaviour.
+
+  `@atlaskit/media-card-relay`'s `MediaCardRelay` / `MediaInlineCardRelay` now call the shared
+  `mapSsrMediaItemToFileState` mapper directly (the Relay fragment data is structurally assignable
+  to `SsrMediaItem`, so no cast or wrapper is needed). Its public API and behaviour are unchanged.
+
+  `@atlaskit/media-file-preview` now forwards an SSR-seeded pre-signed `previewCdnUrl` to the new
+  optional `MediaClient.getImageUrlSync(id, params, seededCdnUrl)` argument when
+  `platform_media_ssr_data_seed` is enabled and CDN delivery is in use. `@atlaskit/media-client`
+  preserves the signed CDN asset URL and inserts supported image parameters before the `wm-ari` /
+  `wm-v` watermark anchor, avoiding query-string rebuilding or re-encoding that can invalidate
+  CloudFront signatures. Path-based routing, isolated cloud, GCP, and callers without a seeded URL
+  retain the existing URL-generation behaviour.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.9.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.9.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.5
+
+### Patch Changes
+
+- [`0643729dd349b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0643729dd349b) -
+  Make DownloadIcon decorative when parent button already has aria-label (WCAG 1.1.1). Gated behind
+  feature flag `platform-a11y-media-card-download-icon-decorative`.
+- Updated dependencies
+
+## 81.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.8.0
+
+### Minor Changes
+
+- [`8808c4948a2a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8808c4948a2a1) -
+  [BMPT-8191] Add an `onFocus` callback to media Card. The prop is threaded through `CardView` and
+  the `Wrapper` component so consumers can react to focus moving onto a media card. The callback
+  receives a `CardFocusEvent` (`{ event, mediaItemDetails? }`), mirroring the existing
+  `onMouseEnter` behaviour.
+
+  `onFocus` fires only for keyboard focus entering the card from outside. Focus caused by a pointer
+  interaction is ignored, so mouse users keep exactly the existing `onMouseEnter`/`onClick`
+  behaviour. Because focus events bubble, focus moving between elements within the same card is also
+  ignored, so the callback fires once per card entry rather than once per focusable descendant.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.7.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.6.1
+
+### Patch Changes
+
+- [`be5f53435795e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be5f53435795e) -
+  Cleanup feature gate `platform_media_a11y_suppression_fixes`. The accessible wrapper behavior is
+  now permanent in media card, viewer, and filmstrip.
+- Updated dependencies
+
+## 81.6.0
+
+### Minor Changes
+
+- [`8043a37357f34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8043a37357f34) -
+  Added an `isCWR` prop to the media `Card`/`FileCard`. When set, the AI-generating loading state
+  renders an opaque `elevation.surface.sunken` overlay (instead of the translucent blanket) so the
+  generic media type icon isn't shown while a create-with-Rovo infographic streams in. Behaviour is
+  gated by the `aifc_page_create_with_rovo_include_infographics` experiment.
+
+  ```tsx
+  <FileCard identifier={identifier} isAIGenerating isCWR />
+  ```
+
+## 81.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.5.0
+
+### Minor Changes
+
+- [`8a3600f3f196b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8a3600f3f196b) -
+  [ux] Fixed unsafe styles that distorted the inline (top-layer) tooltip popover by excluding
+  top-layer elements from the offending selectors via `:not(:where([popover], dialog, ...))`. The
+  `:where()` wrapper keeps the guard at zero specificity, so matching is otherwise unchanged, and
+  the guards are no-ops for the legacy portalled tooltip.
+
+## 81.4.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.16
+
+### Patch Changes
+
+- [`e3550afc43327`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3550afc43327) -
+  [ux] EDITOR-7679 bug fix for media name fallback falling back to "download" when the media name
+  was not being passed
+- Updated dependencies
+
+## 81.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.4.0
+
+### Minor Changes
+
+- [`0b760dd03456e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b760dd03456e) -
+  clean up media blind spot fg
+
+## 81.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.3.0
+
+### Minor Changes
+
+- [`c2d43ab375005`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2d43ab375005) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- [`ca7a91886092f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca7a91886092f) -
+  Clean up feature gate `platform_editor_maui_edit`
+- Updated dependencies
+
+## 81.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.1.2
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- [`3a1dcbc4999da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a1dcbc4999da) -
+  A11Y fix (A11Y-41905): Add new `open_file_in_viewer_aria_label` message
+  (`'Open {name} in fullscreen'`) to provide screen reader users with clearer context about the
+  button action. The original `open_file_in_viewer` message is unchanged. `OpenMediaViewerButton`
+  now applies this aria-label when the `create_modernization_ga_fixes_drop_2` gate is enabled.
+- Updated dependencies
+
+## 81.1.1
+
+### Patch Changes
+
+- [`49f682f5edc7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/49f682f5edc7b) -
+  Clean up experiment `cc_editor_ttvc_media_hold_fix`
+- Updated dependencies
+
+## 81.1.0
+
+### Minor Changes
+
+- [`19773530cd51c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19773530cd51c) -
+  Add fallbackMediaNameFetcher support to MediaCard (FileCard) and MediaViewer (header display),
+  gated behind the platform_editor_media_name_fallback_viewer_card experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.5
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 80.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.8.0
+
+### Minor Changes
+
+- [`a826d67f22cc9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a826d67f22cc9) -
+  Replace the legacy circular spinner in `CardView` and `CardLoading` with a bottom-aligned grey
+  loading bar when `cc-maui-ai-edit-loading-experiment.isEnabled` is on. The bar is 6px to match the
+  native-embed loading bar, and the media card loading/placeholder background now uses
+  `elevation.surface.sunken`. Registers `cc-maui-ai-edit-loading-experiment` in
+  `@atlaskit/tmp-editor-statsig`.
+
+  Round the ends (pill radius) of the MAUI loading bars so the media-card loading bar, native-embed
+  loading bar, and AI generating overlay bars are visually consistent.
+
+  The loading bar now holds a named UFO interaction while shown (matching the spinner's
+  `interactionName`) so media loading stays attributed in performance metrics.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.7.2
+
+### Patch Changes
+
+- [`a9b08a7c87017`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9b08a7c87017) -
+  Add `LoadingOverlay` variant (`'simple-bar'`) and `source` prop on `LoadingComponentProps` for
+  AI-edited MAUI embeds.
+
+  Under the new `cc-maui-ai-edit-loading-experiment`, all MAUI chart/viz embeds use the simple
+  bottom progress bar. The blanket overlay is shown only when the embed is being replaced by an AI
+  edit (matching the visual handoff from the Rovo thinking overlay). Normal page-load and insertion
+  show the bar alone.
+
+  `editor-plugin-malleable-ui` adds `aiEditReplacementLocalIds: Set<string>` to plugin state with
+  add/remove meta actions, and exposes `malleableUiPluginKey` via a new `./pm-plugins/plugin-key`
+  subpath export. `native-embeds-editor-extension` reads this state to derive `source: 'ai-edit'`
+  per-node and clears it on iframe load.
+
+  `RainbowProgressBar` gains a new `thickness?: 'default' | 'thick'` prop (default `'default'`,
+  3px). The 4 AI generating overlays (`rovo-platform-ui-components`, `smart-creation`, `media-card`,
+  `native-embeds-core`) opt into `'thick'` (6px) so they visually align with the simple loading bar
+  at the same screen position.
+
+## 80.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.7.0
+
+### Minor Changes
+
+- [`2c10000a3bba9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c10000a3bba9) -
+  Adding `backgroundColor` prop to allow overriding background color
+- [`a68f551856a81`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a68f551856a81) -
+  Add ssrFileState prop to FileCard and MediaInlineCard for SSR metadata seeding via Relay
+  fragments. Deprecate ssrItemDetails in favour of ssrFileState. Cards now use initialFileState in
+  useFileState to display pre-hydrated data immediately without an items() API call when
+  platform_media_ssr_data_seed gate is on.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.6.0
+
+### Minor Changes
+
+- [`330e005b44aa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/330e005b44aa7) -
+  [ux] Adding support for loading state on media nodes during CWR with image gen. We reuse the
+  ai-generating-decoration and make gated changes to rebuild logic for this use case. We add
+  onPreviewRender callback to media-card to signal when the image has rendered.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.5.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.5.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.5.7
+
+### Patch Changes
+
+- [`d2724a33cb299`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2724a33cb299) -
+  [ux] Bottom-align Rovo gradient loading bar (matches image-upload bottom-inset and 95% width).
+  Applies to the AI loading overlay shared by `@atlassian/rovo-platform-ui-components`,
+  `@atlaskit/media-card`, `@atlassian/native-embeds-core` (inline editing), and
+  `@atlassian/smart-creation` (`DynamicUiLoadingOverlay` in the Rovo Chat ephemeral preview /
+  staging area, behind `cc-maui-phase-2`).
+- Updated dependencies
+
+## 80.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.5.3
+
+### Patch Changes
+
+- [`a27d2174bbdbb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a27d2174bbdbb) -
+  Fixes a permanent blue 1px border appearing on every inline video media card in Confluence, even
+  when the card was not selected.
+- Updated dependencies
+
+## 80.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.5.0
+
+### Minor Changes
+
+- [`64bd49d58dcd8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64bd49d58dcd8) -
+  Remove cc-maui-phase-2-loading fg references. Replace with cc-maui-phase-2
+
+## 80.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.7
+
+### Patch Changes
+
+- [`2fe9a9909d2ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe9a9909d2ac) -
+  Enrol media packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 80.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.2
+
+### Patch Changes
+
+- [`e8a04d9738c5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8a04d9738c5a) -
+  Add a rainbow `AIGeneratingOverlay` shown over media nodes during AI inline edits, gated by
+  `fg('cc-maui-phase-2-loading')` layered on top of the existing MAUI gates and killswitch.
+
+## 80.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.4.0
+
+### Minor Changes
+
+- [`5653e8be24c05`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5653e8be24c05) -
+  Replace `uuid-validate` with an inlined, browser-only `isValidUuid` helper in
+  `@atlaskit/media-common`. Removes the `uuid-validate` dependency from `media-card`,
+  `media-client`, `media-common` and `media-picker` so consumers no longer pull in the Node `Buffer`
+  polyfill purely for a `Buffer.isBuffer` check that always returned `false` in the browser.
+
+  Adds a new `@atlaskit/media-common/isValidUuid` subpath export so consumers can import the helper
+  without going through the package's barrel file (in line with the Debarreling Platform Packages
+  initiative).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.3.3
+
+### Patch Changes
+
+- [`83abdc123b304`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83abdc123b304) -
+  Remove platform_trace_id_tooltip_attachment_failures experiment gate - trace ID tooltip on
+  attachment failures is now always enabled
+
+## 80.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.3.0
+
+### Minor Changes
+
+- [`818d7e656a226`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/818d7e656a226) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.2.3
+
+### Patch Changes
+
+- [`87c390129e175`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87c390129e175) -
+  [ux] Fix accessibility suppression for media components behind feature gate
+  `platform_media_a11y_suppression_fixes`. Replaces `role="presentation"` with `role="none"` and
+  removes `tabIndex={-1}`, `onKeyDown`, and `onFocus` handlers from non-interactive media wrappers
+  to prevent focus being stolen from the editor when media cards are clicked.
+- Updated dependencies
+
+## 80.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.2.0
+
+### Minor Changes
+
+- [`a0b1822615d7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0b1822615d7e) -
+  Refactor inline editor AI image generation loading state to use ProseMirror decorations:
+  - Add AI generating decoration plugin to editor-plugin-media for transient visual state tracking
+    via ProseMirror decorations instead of ADF schema attributes
+  - Remove \_\_isAIGenerating transient attribute from ADF media node schema
+  - Update editor-rovo-bridge to dispatch decoration meta instead of mutating node attributes
+  - Media NodeView reads decoration state and passes isAIGenerating prop to media-card
+  - AIBorder component with pulsing gradient border and translucent blanket during AI image
+    generation
+  - Internationalized AI generating progress bar aria label
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.1.0
+
+### Minor Changes
+
+- [`b6bb07e5d72ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6bb07e5d72ac) -
+  [ux] Fix for #hot-301450, add new media option for fallback media name fetcher to allow confluence
+  to use the attachment service instead of the media service to get filenames. After DC -> Cloud
+  migration filenames were not properly copied across to the media service causing inline media to
+  show an error.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 80.0.0
+
+### Major Changes
+
+- [`770f036c93884`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/770f036c93884) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.18
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 79.16.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.13
+
+### Patch Changes
+
+- [`9896ce8e69e57`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9896ce8e69e57) -
+  Improve accessibility across media packages with semantic button elements and i18n support, all
+  changes are behind feature flag
+- Updated dependencies
+
+## 79.16.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.10
+
+### Patch Changes
+
+- [`a418385029dc5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a418385029dc5) -
+  Clean up jfp-magma-fix-attachments-hydration-error feature gate
+- Updated dependencies
+
+## 79.16.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.7
+
+### Patch Changes
+
+- [`715629fc18fc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/715629fc18fc8) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 79.16.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.16.2
+
+### Patch Changes
+
+- [`b512cc17bab98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b512cc17bab98) -
+  Added change to avoid adding ufo hold if the the cardpreview is not available
+- Updated dependencies
+
+## 79.16.1
+
+### Patch Changes
+
+- [`ca2338799c141`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca2338799c141) -
+  [ux] Fix media cards and media singles to use the correct border radius in the editor, renderer
+  and inline media player.
+- Updated dependencies
+
+## 79.16.0
+
+### Minor Changes
+
+- [`6e25e8bbb01c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e25e8bbb01c3) -
+  [ux] Adds mediaViewerExtensions prop to media-viewer/src/header and threads it through parents.
+  Allows callers to pass in additional buttons to the image / video preview'
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.15.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.15.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.15.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.15.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.15.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.15.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 79.15.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 79.15.2
 
 ### Patch Changes

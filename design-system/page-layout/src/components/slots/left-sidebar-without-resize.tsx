@@ -8,10 +8,9 @@ import { useEffect } from 'react';
 import { jsx } from '@emotion/react';
 
 import { VAR_LEFT_SIDEBAR_WIDTH } from '../../common/constants';
-import { type SlotWidthProps } from '../../common/types';
-import { resolveDimension } from '../../common/utils';
+import { resolveDimension } from '../../common/resolve-dimension';
+import type { SlotWidthProps } from '../../common/types';
 import { publishGridState, useSkipLink } from '../../controllers';
-
 import LeftSidebarInner from './internal/left-sidebar-inner';
 import LeftSidebarOuter from './internal/left-sidebar-outer';
 import SlotDimensions from './slot-dimensions';
@@ -23,6 +22,8 @@ import SlotDimensions from './slot-dimensions';
  *
  * - [Examples](https://atlassian.design/components/page-layout/examples)
  * - [Code](https://atlassian.design/components/page-layout/code)
+ *
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 const LeftSidebarWithoutResize = (props: SlotWidthProps): jsx.JSX.Element => {
 	const { children, id, width, isFixed, shouldPersistWidth, testId, skipLinkTitle } = props;

@@ -1,5 +1,7 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, type SerializedStyles } from '@emotion/react';
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
@@ -10,11 +12,11 @@ export const inputWrapper: SerializedStyles = css({
 	display: 'flex',
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: 0,
-	padding: `${token('space.075', '6px')} 0`,
+	padding: `${token('space.075')} 0`,
 	alignItems: 'center',
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const container: SerializedStyles = css({
 	display: 'flex',
 	flexDirection: 'column',
@@ -26,14 +28,14 @@ export const container: SerializedStyles = css({
 	lineHeight: 'initial',
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const containerWithProvider: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	width: `${RECENT_SEARCH_WIDTH_IN_PX}px`,
 });
 
 // Link picker in Jira will be 324px = 292 + 2*8 + 2*8 (8px are side paddings on the parents)
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const narrowContainerWidth: SerializedStyles = css({
 	width: '292px',
 });

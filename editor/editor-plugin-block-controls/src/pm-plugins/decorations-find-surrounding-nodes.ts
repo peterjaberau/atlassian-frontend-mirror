@@ -13,7 +13,7 @@ type SurroundingNodes = {
 
 const IGNORE_NODES = ['tableRow', 'listItem', 'caption', 'media'];
 
-const blockLeafNodes = ['blockCard', 'rule', 'extension'];
+const blockLeafNodeNext = ['blockCard', 'rule', 'extension', 'syncBlock'];
 
 const DISABLE_CHILD_DROP_TARGET = ['orderedList', 'bulletList'];
 
@@ -32,7 +32,7 @@ export const findSurroundingNodes = (
 	nodeType?: string | null,
 ): SurroundingNodes => {
 	const depth = $pos.depth;
-	const blockLeafNodeList = blockLeafNodes;
+	const blockLeafNodeList = blockLeafNodeNext;
 
 	// special cases like hr rule here
 	if (blockLeafNodeList.includes(nodeType || '') || $pos.pos === 0) {

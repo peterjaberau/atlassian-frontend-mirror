@@ -1,18 +1,20 @@
 import React from 'react';
 
 import { cssMap } from '@atlaskit/css';
+import { isSSR } from '@atlaskit/editor-common/core-utils';
 import { isEmptyDocument } from '@atlaskit/editor-common/utils/document';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
 import Spinner from '@atlaskit/spinner/spinner';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
+import { PlaceholderLoadingSpinner } from './PlaceholderLoadingSpinner';
 import type { PlaceholderPlugin } from './placeholderPluginType';
 import createPlugin from './pm-plugins/main';
 
 export const EMPTY_PARAGRAPH_TIMEOUT_DELAY = 2000; // Delay before showing placeholder on empty paragraph
 
-export const pluginKey = new PluginKey('placeholderPlugin');
+export const pluginKey: PluginKey = new PluginKey('placeholderPlugin');
 
 export const placeholderPlugin: PlaceholderPlugin = ({ config: options, api }) => {
 	let currentPlaceholder = options?.placeholder;
@@ -54,48 +56,48 @@ export const placeholderPlugin: PlaceholderPlugin = ({ config: options, api }) =
 							options && options.emptyLinePlaceholder,
 							options && options.placeholderPrompts,
 							options?.withEmptyParagraph,
+							options?.isPlaceholderHidden,
 							options && options.placeholderADF,
+							options && options.placeholderPromptAnimationOptions,
+							options?.isRovoLLMEnabled,
 							api,
 						),
 				},
 			];
 		},
-		contentComponent: expValEquals(
-			'confluence_load_editor_title_on_transition',
-			'contentPlaceholder',
-			true,
-		)
-			? (params) => {
-					// If loading spinner is explicitly disabled (e.g., for DiffEditor/version history), skip
-					if (options?.enableLoadingSpinner === false) {
-						return null;
-					}
+		contentComponent: (params) => {
+			if (isSSR()) {
+				return null;
+			}
 
-					const doc = params.editorView?.state.doc;
+			// If loading spinner is explicitly disabled (e.g., for DiffEditor/version history), skip
+			if (options?.enableLoadingSpinner === false) {
+				return null;
+			}
 
-					// @ts-ignore fix which needs follow up to use standard apis
-					const collabEditPluginState = params.editorView?.state?.collabEditPlugin$;
+			if (fg('platform_editor_placeholder_collab_spinner')) {
+				return <PlaceholderLoadingSpinner api={api} editorView={params.editorView} />;
+			}
 
-					if (collabEditPluginState && collabEditPluginState.isReady !== true) {
-						if (doc && !isEmptyDocument(doc)) {
-							// If we have a document, and it's not empty - we should not show a loading component
-							return null;
-						}
+			const doc = params.editorView?.state.doc;
 
-						// In this scenario
-						// - the collab plugin exists - but we don't have a "initial/placeholder" document
-						// - and the collab plugin is not yet ready
-						// So we show a placeholder spinner to indicate the content is still loading
-						return (
-							<Box xcss={spinnerContainerStyles.spinnerContainer}>
-								<Spinner interactionName="live-pages-loading-spinner" size="medium" />
-							</Box>
-						);
-					}
+			// @ts-ignore fix which needs follow up to use standard apis
+			const collabEditPluginState = params.editorView?.state?.collabEditPlugin$;
 
+			if (collabEditPluginState && collabEditPluginState.isReady !== true) {
+				if (doc && !isEmptyDocument(doc)) {
 					return null;
-			  }
-			: undefined,
+				}
+
+				return (
+					<Box xcss={spinnerContainerStyles.spinnerContainer}>
+						<Spinner interactionName="live-pages-loading-spinner" size="medium" />
+					</Box>
+				);
+			}
+
+			return null;
+		},
 	};
 };
 

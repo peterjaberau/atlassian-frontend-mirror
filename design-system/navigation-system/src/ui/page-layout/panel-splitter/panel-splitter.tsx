@@ -12,45 +12,43 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import { createPortal, flushSync } from 'react-dom';
 
 import { cssMap, jsx } from '@compiled/react';
 import { bind } from 'bind-event-listener';
-import { createPortal } from 'react-dom';
 import invariant from 'tiny-invariant';
 
-import noop from '@atlaskit/ds-lib/noop';
 import { useId } from '@atlaskit/ds-lib/use-id';
 import useStableRef from '@atlaskit/ds-lib/use-stable-ref';
-import { useOpenLayerObserver } from '@atlaskit/layering/experimental/open-layer-observer';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { blockDraggingToIFrames } from '@atlaskit/pragmatic-drag-and-drop/element/block-dragging-to-iframes';
-import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview';
-import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/prevent-unhandled';
+import { useOpenLayerObserver } from '@atlaskit/layering/use-open-layer-observer';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { blockDraggingToIFrames } from '@atlaskit/pragmatic-drag-and-drop/utils/block-dragging-to-iframes';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/disable-native-drag-preview';
+import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/utils/prevent-unhandled';
 import { token } from '@atlaskit/tokens';
-import Tooltip, { type TooltipProps } from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 import TooltipContainer, { type TooltipContainerProps } from '@atlaskit/tooltip/TooltipContainer';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import type { TooltipProps } from '@atlaskit/tooltip/types';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
 import { contentInsetBlockStart } from '../constants';
-
-import {
-	OnDoubleClickContext,
-	PanelSplitterContext,
-	type PanelSplitterContextType,
-} from './context';
 import { convertResizeBoundToPixels } from './convert-resize-bound-to-pixels';
 import { getPercentageWithinPixelBounds } from './get-percentage-within-pixel-bounds';
-import { getPixelWidth, getWidthFromDragLocation } from './get-width';
+import { getPixelWidth } from './get-pixel-width';
+import { getWidthFromDragLocation } from './get-width-from-drag-location';
+import { isPanelSplitterDragData, type PanelSplitterDragData } from './is-panel-splitter-drag-data';
 import { createKeyboardResizeManager } from './keyboard-resize-manager';
-import type {
-	PixelResizeBounds,
-	ResizeBounds,
-	ResizeEndCallback,
-	ResizeStartCallback,
-} from './types';
+import { OnDoubleClickContext } from './on-double-click-context';
+import { PanelSplitterContext, type PanelSplitterContextType } from './panel-splitter-context';
+import { panelSplitterDragDataSymbol } from './panel-splitter-drag-symbol';
+import type { PixelResizeBounds, ResizeEndCallback, ResizeStartCallback } from './types';
+
+function signPanelSplitterDragData(data: PanelSplitterDragData) {
+	return { ...data, [panelSplitterDragDataSymbol]: true };
+}
 
 const containerStyles = cssMap({
 	root: {
@@ -93,6 +91,10 @@ const grabAreaStyles = cssMap({
 		paddingInlineStart: token('space.0'),
 		color: 'transparent',
 		backgroundColor: 'transparent',
+		// Intent is to align with tooltip timings so the resizer appears in sync with the tooltip
+		transitionDuration: '150ms',
+		transitionDelay: '300ms',
+		transitionTimingFunction: 'ease-in-out',
 		transitionProperty: 'color',
 		'&:hover': {
 			// We are setting the cursor within the :hover pseudo to ensure the specifity is higher than Pressable's cursor.
@@ -109,27 +111,19 @@ const grabAreaStyles = cssMap({
 			transition: 'none',
 		},
 	},
+	// platform-dst-tokens-finesse cleanup: merge into root after rollout.
+	rootFinesse: {
+		'&:hover, &:focus-within': {
+			color: token('color.border.bold'),
+		},
+		'&:active': {
+			color: token('color.border.selected'),
+		},
+	},
 	fullHeightSidebar: {
 		'&:hover': {
 			cursor: 'col-resize',
 		},
-	},
-	oldTransition: {
-		transitionDuration: '100ms',
-		transitionDelay: '0ms',
-		'&:hover': {
-			transitionDelay: '200ms',
-		},
-		'&:hover, &:focus-within': {
-			transitionProperty: 'color',
-			transitionDuration: '200ms',
-		},
-	},
-	newTransition: {
-		// Intent is to align with tooltip timings so the resizer appears in sync with the tooltip
-		transitionDuration: '150ms',
-		transitionDelay: '300ms',
-		transitionTimingFunction: 'ease-in-out',
 	},
 });
 
@@ -152,10 +146,8 @@ const tooltipStyles = cssMap({
 		// The panel splitter is 17px wide, but the visual representation is 3px wide, so there's an extra 7px of space between the tooltip and the splitter.
 		// We use a negative margin to offset this extra space, resulting in only an extra 1px of space between the tooltip and the splitter.
 		marginInlineStart: token('space.negative.075'),
-	},
-	fullHeightSidebarWithLayeringFixes: {
-		// With UNSAFE_shouldRenderToParent, the tooltip is rendered alongside the panel splitter in the DOM.
-		// With fg('platform-dst-side-nav-layering-fixes'), the side nav's panel splitter is rendered outside of the side nav element.
+		// With shouldRenderToParent, the tooltip is rendered alongside the panel splitter in the DOM.
+		// The side nav's panel splitter is rendered outside of the side nav element.
 		// The side nav panel splitter's container (portal target) uses `transform` for positioning, which makes it the containing block
 		// (https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Display/Containing_block) for the tooltip.
 		// This means its width will constrain the tooltip's width, causing the tooltip label to wrap.
@@ -163,53 +155,6 @@ const tooltipStyles = cssMap({
 		width: 'max-content',
 	},
 });
-
-export type PanelSplitterProps = {
-	/**
-	 * The accessible label for the panel splitter. It is visually hidden, but is required for accessibility.
-	 */
-	label: React.ReactNode;
-
-	/**
-	 * Called when the user begins resizing the panel.
-	 * Intended for analytics.
-	 */
-	onResizeStart?: ResizeStartCallback;
-
-	/**
-	 * Called when the user finishes resizing the panel.
-	 */
-	onResizeEnd?: ResizeEndCallback;
-
-	/**
-	 * A unique string that appears as data attribute `data-testid` in the rendered code, serving as a hook for automated tests.
-	 */
-	testId?: string;
-
-	/**
-	 * Displays a tooltip with the provided content.
-	 *
-	 * The `tooltipContent` will not be announced by screen readers because it pertains to the draggable element, which lacks keyboard functionality.
-	 * Use the `label` prop to provide accessible information about the panel splitter.
-	 *
-	 * Only used if `useIsFhsEnabled` is true.
-	 */
-	tooltipContent?: TooltipProps['content'];
-};
-
-type PanelSplitterDragData = {
-	panelId: string | symbol | undefined;
-	initialWidth: number;
-	resizingWidth: string;
-	resizeBounds: ResizeBounds;
-	direction: 'ltr' | 'rtl';
-};
-
-const panelSplitterDragDataSymbol = Symbol('panel-splitter-drag-data');
-
-function signPanelSplitterDragData(data: PanelSplitterDragData) {
-	return { ...data, [panelSplitterDragDataSymbol]: true };
-}
 
 type MaybeTooltipProps = Pick<PanelSplitterProps, 'tooltipContent'> & {
 	children: ReactNode;
@@ -238,7 +183,9 @@ const PanelSplitterTooltip = forwardRef<HTMLDivElement, TooltipContainerProps>(
 			 * Adjusts the translate Y to keep the tooltip within the main content area,
 			 * so that it does not appear over the banner or top navigation.
 			 */
-			const newTranslateY = `max(calc(${contentInsetBlockStart} + ${token('space.100')}), ${translateY})`;
+			const newTranslateY = `max(calc(${contentInsetBlockStart} + ${token(
+				'space.100',
+			)}), ${translateY})`;
 			const newTransform = `translate3d(${translateX}, ${newTranslateY}, 0)`;
 
 			return {
@@ -255,11 +202,7 @@ const PanelSplitterTooltip = forwardRef<HTMLDivElement, TooltipContainerProps>(
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/no-unsafe-style-overrides
 				className={className}
 				// eslint-disable-next-line @atlaskit/design-system/no-unsafe-style-overrides
-				css={[
-					tooltipStyles.root,
-					fg('platform-dst-side-nav-layering-fixes') &&
-						tooltipStyles.fullHeightSidebarWithLayeringFixes,
-				]}
+				css={tooltipStyles.root}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 				style={style}
 			>
@@ -275,22 +218,18 @@ const PanelSplitterTooltip = forwardRef<HTMLDivElement, TooltipContainerProps>(
 const MaybeTooltip = ({ tooltipContent, shortcut, children, testId }: MaybeTooltipProps) => {
 	const isFhsEnabled = useIsFhsEnabled();
 
-	if (tooltipContent && isFhsEnabled) {
+	if (tooltipContent && (isFhsEnabled || fg('platform-dst-keep-desired-fhs-features'))) {
 		return (
 			<Tooltip
 				testId={testId}
 				content={tooltipContent}
 				shortcut={shortcut}
-				position={fg('platform_dst_nav4_side_nav_resize_tooltip_feedback') ? 'mouse-y' : 'mouse'}
+				position="mouse-y"
 				mousePosition="right"
 				isScreenReaderAnnouncementDisabled
-				component={
-					fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')
-						? PanelSplitterTooltip
-						: undefined
-				}
-				UNSAFE_shouldAlwaysFadeIn={fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')}
-				UNSAFE_shouldRenderToParent={fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')}
+				component={PanelSplitterTooltip}
+				shouldAlwaysFadeIn
+				shouldRenderToParent
 			>
 				{children}
 			</Tooltip>
@@ -299,12 +238,6 @@ const MaybeTooltip = ({ tooltipContent, shortcut, children, testId }: MaybeToolt
 
 	return children;
 };
-
-export function isPanelSplitterDragData(
-	data: Record<string | symbol, unknown>,
-): data is PanelSplitterDragData {
-	return data[panelSplitterDragDataSymbol] === true;
-}
 
 function getTextDirection(element: HTMLElement): 'ltr' | 'rtl' {
 	const { direction } = window.getComputedStyle(element);
@@ -319,10 +252,13 @@ const PortaledPanelSplitter = ({
 	panelId,
 	panelWidth,
 	onCompleteResize,
+	onResizeStartInternal,
+	onResizeInternal,
 	getResizeBounds,
 	panel,
 	portal,
 	resizingCssVar,
+	resizingElementRef,
 	position,
 	tooltipContent,
 	shortcut,
@@ -331,8 +267,11 @@ const PortaledPanelSplitter = ({
 		| 'panelId'
 		| 'panelWidth'
 		| 'onCompleteResize'
+		| 'onResizeStartInternal'
+		| 'onResizeInternal'
 		| 'getResizeBounds'
 		| 'resizingCssVar'
+		| 'resizingElementRef'
 		| 'position'
 		| 'shortcut'
 	>): ReactNode => {
@@ -365,10 +304,14 @@ const PortaledPanelSplitter = ({
 	// Storing the initial `clientX` on `mousedown` events, to workaround a bug caused by some browser extensions
 	// where the `dragstart` event incorrectly returns `0` for the `clientX` location.
 	const initialClientXRef = useRef<number | null>(null);
+	// Live allocation changes panelWidth on every frame. Only the legacy path should
+	// rebind the drag listeners when this value changes.
+	const legacyPanelWidth = fg('platform-dst-chat-panel-layout') ? undefined : panelWidth;
 
 	useEffect(() => {
 		const splitter = splitterRef.current;
 		invariant(splitter, 'Splitter ref must be set');
+		let lastManagedResizeWidth: number | undefined;
 
 		return combine(
 			blockDraggingToIFrames({ element: splitter }),
@@ -385,14 +328,12 @@ const PortaledPanelSplitter = ({
 			 * I also tried only binding an event listener inside pragmatic-drag-and-drop's `onDragStart`, which seemd to work
 			 * but did not feel as robust, and might have timing issues as it happens slightly later.
 			 */
-			fg('platform-dst-panel-splitter-drag-start-client-x')
-				? bind(splitter, {
-						type: 'mousedown',
-						listener: (event) => {
-							initialClientXRef.current = event.clientX;
-						},
-					})
-				: noop,
+			bind(splitter, {
+				type: 'mousedown',
+				listener: (event) => {
+					initialClientXRef.current = event.clientX;
+				},
+			}),
 			draggable({
 				element: splitter,
 				onGenerateDragPreview: ({ nativeSetDragImage }) => {
@@ -427,7 +368,14 @@ const PortaledPanelSplitter = ({
 					 */
 					invariant(isPanelSplitterDragData(source.data));
 
-					onResizeStart?.({ initialWidth: source.data.initialWidth });
+					const resizeStartData = { initialWidth: source.data.initialWidth };
+					// The layout allocation system needs to know which area is actively being
+					// resized before the first drag update. Committing this synchronously keeps
+					// the actively dragged area protected from automatic compression.
+					if (onResizeStartInternal) {
+						flushSync(() => onResizeStartInternal(resizeStartData));
+					}
+					onResizeStart?.(resizeStartData);
 
 					// Close any open layers when the user starts resizing
 					openLayerObserver?.closeLayers();
@@ -441,9 +389,7 @@ const PortaledPanelSplitter = ({
 
 					const { initialWidth, resizeBounds, direction } = source.data;
 
-					if (fg('platform-dst-panel-splitter-drag-start-client-x')) {
-						invariant(initialClientXRef.current !== null, 'initialClientX must be set');
-					}
+					invariant(initialClientXRef.current !== null, 'initialClientX must be set');
 
 					/**
 					 * How wide the element would be if there were no width constraints,
@@ -459,8 +405,20 @@ const PortaledPanelSplitter = ({
 					});
 
 					const resizingWidth = `clamp(${resizeBounds.min}, ${targetWidth}px, ${resizeBounds.max})`;
-
-					panel.style.setProperty(resizingCssVar, resizingWidth);
+					if (fg('platform-dst-chat-panel-layout') && onResizeInternal) {
+						// Let the sizing provider constrain the width against Main's available space.
+						const width = Math.max(
+							convertResizeBoundToPixels(resizeBounds.min),
+							Math.min(targetWidth, convertResizeBoundToPixels(resizeBounds.max)),
+						);
+						if (width !== lastManagedResizeWidth) {
+							lastManagedResizeWidth = width;
+							onResizeInternal(width);
+						}
+					} else {
+						panel.style.setProperty(resizingCssVar, resizingWidth);
+						resizingElementRef?.current?.style.setProperty(resizingCssVar, resizingWidth);
+					}
 
 					source.data.resizingWidth = resizingWidth;
 				},
@@ -469,24 +427,41 @@ const PortaledPanelSplitter = ({
 
 					preventUnhandled.stop();
 
+					// PDD may deliver its final throttled drag update immediately before drop.
+					// Commit that update once before measuring; do not persist a previous frame.
+					if (onResizeInternal && lastManagedResizeWidth !== undefined) {
+						const width = lastManagedResizeWidth;
+						flushSync(() => onResizeInternal(width));
+						lastManagedResizeWidth = undefined;
+					}
 					const finalWidth = getPixelWidth(panel);
-					onCompleteResize(finalWidth);
+					// Persist the final preferred width before removing the imperative drag
+					// variable, so the rendered width is continuous across pointer release.
+					if (fg('platform-dst-chat-panel-layout')) {
+						flushSync(() => onCompleteResize(finalWidth));
+					} else {
+						onCompleteResize(finalWidth);
+					}
 					onResizeEnd?.({
 						initialWidth: source.data.initialWidth,
 						finalWidth,
 					});
 
 					panel.style.removeProperty(resizingCssVar);
+					resizingElementRef?.current?.style.removeProperty(resizingCssVar);
 				},
 			}),
 		);
 	}, [
 		onCompleteResize,
+		onResizeStartInternal,
+		onResizeInternal,
 		onResizeStart,
 		onResizeEnd,
 		panel,
 		resizingCssVar,
-		panelWidth,
+		resizingElementRef,
+		legacyPanelWidth,
 		position,
 		openLayerObserver,
 		panelId,
@@ -510,7 +485,17 @@ const PortaledPanelSplitter = ({
 
 	const handleSliderInputChange = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
-			const value = parseInt(event.target.value);
+			const isManagedResize = fg('platform-dst-chat-panel-layout') && onResizeInternal;
+			let value = isManagedResize ? parseFloat(event.target.value) : parseInt(event.target.value);
+			if (isManagedResize) {
+				// The available region may have changed since focus, including without a
+				// window resize. Use the allocator's current bounds for the public payload.
+				const bounds = getResizeBounds();
+				const min = convertResizeBoundToPixels(bounds.min);
+				const max = convertResizeBoundToPixels(bounds.max);
+				value = Math.max(min, Math.min(value, max));
+				setRangeInputBounds({ min, max });
+			}
 			setRangeInputValue(value);
 
 			/**
@@ -520,7 +505,7 @@ const PortaledPanelSplitter = ({
 			onCompleteResize(value);
 			keyboardResizeManager.onResize({ initialWidth: panelWidth, finalWidth: value });
 		},
-		[onCompleteResize, panelWidth, keyboardResizeManager],
+		[getResizeBounds, onCompleteResize, onResizeInternal, panelWidth, keyboardResizeManager],
 	);
 
 	const resizeEventListenerCleanupFn = useRef<(() => void) | null>(null);
@@ -579,7 +564,10 @@ const PortaledPanelSplitter = ({
 
 	const ariaValueText = useMemo(
 		() =>
-			`${getPercentageWithinPixelBounds({ currentWidth: rangeInputValue, resizeBounds: rangeInputBounds })}% width`,
+			`${getPercentageWithinPixelBounds({
+				currentWidth: rangeInputValue,
+				resizeBounds: rangeInputBounds,
+			})}% width`,
 		[rangeInputValue, rangeInputBounds],
 	);
 
@@ -595,11 +583,7 @@ const PortaledPanelSplitter = ({
 			<MaybeTooltip
 				tooltipContent={tooltipContent}
 				shortcut={shortcut}
-				testId={
-					testId && fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')
-						? `${testId}-tooltip`
-						: undefined
-				}
+				testId={testId ? `${testId}-tooltip` : undefined}
 			>
 				{/* eslint-disable-next-line @atlassian/a11y/no-static-element-interactions --
 				We intentionally do not add keyboard event listeners to this element, as keyboard accessibility
@@ -608,10 +592,8 @@ const PortaledPanelSplitter = ({
 					ref={splitterRef}
 					css={[
 						grabAreaStyles.root,
+						fg('platform-dst-tokens-finesse') && grabAreaStyles.rootFinesse,
 						isFhsEnabled && grabAreaStyles.fullHeightSidebar,
-						fg('platform_dst_nav4_side_nav_resize_tooltip_feedback')
-							? grabAreaStyles.newTransition
-							: grabAreaStyles.oldTransition,
 					]}
 					data-testid={testId}
 					onDoubleClick={onDoubleClick}
@@ -637,6 +619,39 @@ const PortaledPanelSplitter = ({
 		</div>,
 		portal,
 	);
+};
+
+export type PanelSplitterProps = {
+	/**
+	 * The accessible label for the panel splitter. It is visually hidden, but is required for accessibility.
+	 */
+	label: React.ReactNode;
+
+	/**
+	 * Called when the user begins resizing the panel.
+	 * Intended for analytics.
+	 */
+	onResizeStart?: ResizeStartCallback;
+
+	/**
+	 * Called when the user finishes resizing the panel.
+	 */
+	onResizeEnd?: ResizeEndCallback;
+
+	/**
+	 * A unique string that appears as data attribute `data-testid` in the rendered code, serving as a hook for automated tests.
+	 */
+	testId?: string;
+
+	/**
+	 * Displays a tooltip with the provided content.
+	 *
+	 * The `tooltipContent` will not be announced by screen readers because it pertains to the draggable element, which lacks keyboard functionality.
+	 * Use the `label` prop to provide accessible information about the panel splitter.
+	 *
+	 * Only used if `useIsFhsEnabled` is true.
+	 */
+	tooltipContent?: TooltipProps['content'];
 };
 
 /**
@@ -673,8 +688,11 @@ export const PanelSplitter = ({
 		panelId,
 		panelWidth,
 		onCompleteResize,
+		onResizeStartInternal,
+		onResizeInternal,
 		getResizeBounds,
 		resizingCssVar,
+		resizingElementRef,
 		position,
 		shortcut,
 	} = context;
@@ -774,8 +792,11 @@ export const PanelSplitter = ({
 			portal={portal}
 			panelWidth={panelWidth}
 			onCompleteResize={onCompleteResize}
+			onResizeStartInternal={onResizeStartInternal}
+			onResizeInternal={onResizeInternal}
 			getResizeBounds={getResizeBounds}
 			resizingCssVar={resizingCssVar}
+			resizingElementRef={resizingElementRef}
 			position={position}
 			tooltipContent={tooltipContent}
 			shortcut={shortcut}

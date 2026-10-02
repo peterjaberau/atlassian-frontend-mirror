@@ -4,11 +4,11 @@
  */
 import React, { Fragment, useEffect, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { isSafeUrl } from '@atlaskit/adf-schema';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
 import { addLink, ToolTipContent } from '@atlaskit/editor-common/keymaps';
 import { linkMessages, linkToolbarMessages } from '@atlaskit/editor-common/messages';
 import {
@@ -54,7 +54,7 @@ export const LinkToolbarAppearance = ({
 	isInlineNode,
 	isViewOnly,
 	areAnyNewToolbarFlagsEnabled,
-}: LinkingToolbarProps) => {
+}: LinkingToolbarProps): jsx.JSX.Element | null => {
 	const [showLinkingControls, setShowLinkingControls] = useState(true);
 
 	useEffect(() => {

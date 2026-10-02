@@ -1,14 +1,15 @@
 /* eslint-disable no-console */
+
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { createPartialSignedArtifact } from '@atlassian/codegen';
 
 import { createSpacingStylesFromTemplate } from './spacing-codegen-template';
 
-const spacingTokensDependencyPath = require.resolve(
-	'../../../tokens/src/artifacts/tokens-raw/atlassian-spacing',
-);
+const spacingTokensDependencyPath =
+	require.resolve('../../../tokens/src/artifacts/tokens-raw/atlassian-spacing');
 
 const targetPath = join(__dirname, '../', '../', 'src', 'common', 'token-maps.partial.tsx');
 
@@ -21,7 +22,7 @@ const sourceFns = [
 	() =>
 		createPartialSignedArtifact(
 			createSpacingStylesFromTemplate,
-			'yarn workspace @atlaskit/eslint-plugin-design-system codegen-token-maps',
+			'afm workspace @atlaskit/eslint-plugin-design-system codegen-token-maps',
 			{
 				id: 'spacing',
 				absoluteFilePath: targetPath,

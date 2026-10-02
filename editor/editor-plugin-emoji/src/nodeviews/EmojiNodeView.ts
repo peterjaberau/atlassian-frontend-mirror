@@ -1,6 +1,9 @@
+import { bind } from 'bind-event-listener';
 import isEqual from 'lodash/isEqual';
-import type { IntlShape } from 'react-intl-next';
+import uniqueId from 'lodash/uniqueId';
+import type { IntlShape } from 'react-intl';
 
+import { getDocument } from '@atlaskit/browser-apis';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
 import {
 	messages,
@@ -9,10 +12,16 @@ import {
 } from '@atlaskit/editor-common/emoji';
 import { logException } from '@atlaskit/editor-common/monitoring';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import { isSingleEmoji } from '@atlaskit/editor-common/utils/isSingleEmoji';
+import {
+	VANILLA_TOOLTIP_DEFAULT_CLASS,
+	VanillaTooltip,
+} from '@atlaskit/editor-common/vanilla-tooltip';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
 import type { NodeView } from '@atlaskit/editor-prosemirror/view';
+import { emojiIdToEmoji } from '@atlaskit/emoji/emoji-id-to-emoji';
 import type {
 	EmojiDescription,
 	ImageRepresentation,
@@ -22,12 +31,14 @@ import type {
 	EmojiRepresentation,
 	OptionalEmojiDescriptionWithVariations,
 } from '@atlaskit/emoji/types';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import { token } from '@atlaskit/tokens';
 
 import type { EmojiPlugin } from '../emojiPluginType';
 import type { EmojiNodeDataProvider } from '../pm-plugins/providers/EmojiNodeDataProvider';
-
 import { emojiToDom } from './emojiNodeSpec';
 
 interface Params {
@@ -37,32 +48,53 @@ interface Params {
 }
 
 /**
- * Check if we can nicely fallback to the nodes text
- *
- * @param fallbackText string of the nodes fallback text
- *
- * @example
- * isSingleEmoji('😀') // true
- */
-export function isSingleEmoji(fallbackText: string): boolean {
-	// Regular expression to match a single emoji character
-	const emojiRegex =
-		// @ts-ignore - TS1501 TypeScript 5.9.2 upgrade
-		/^(\p{Emoji_Presentation}|\p{Extended_Pictographic}\u{FE0F}?(?:\u{200D}\p{Extended_Pictographic}\u{FE0F}?)+|\p{Regional_Indicator}\p{Regional_Indicator})$/u;
-	return emojiRegex.test(fallbackText);
-}
-
-/**
  * Emoji node view for renderering emoji nodes
  */
+const EMOJI_TOOLTIP_CLASS = 'emoji-tooltip-editor';
+
+/**
+ * Shared default look plus our own hook, replacing the inline styles the control arm passes.
+ */
+const EMOJI_TOOLTIP_CLASS_NAMES = `${VANILLA_TOOLTIP_DEFAULT_CLASS} ${EMOJI_TOOLTIP_CLASS}`;
+
+/**
+ * Control arm only — `VanillaTooltip` generates its own id when none is supplied.
+ * `crypto.randomUUID()` is undefined outside a secure context, hence the `uniqueId` fallback.
+ */
+const nextFallbackTooltipId = (): string =>
+	typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+		? `emoji-tooltip-${crypto.randomUUID()}`
+		: uniqueId('emoji-tooltip-');
+
 export class EmojiNodeView implements NodeView {
 	dom: Node;
 	domElement: HTMLElement | undefined;
 	private readonly node: PMNode;
 	private readonly intl: IntlShape;
 	private renderingFallback: boolean = false;
+	private tooltipInstance: VanillaTooltip | undefined;
+	private tooltipTarget: HTMLElement | undefined;
+	private destroyLazyTooltipListeners: (() => void) | undefined;
 
-	readonly destroy = (): void => {};
+	readonly destroy = (): void => {
+		if (this.tooltipInstance || this.tooltipTarget || this.destroyLazyTooltipListeners) {
+			this.destroyTooltip();
+		}
+	};
+
+	private destroyTooltip(): void {
+		this.destroyLazyTooltipListeners?.();
+		this.tooltipInstance?.destroy();
+		// with platform_editor_use_vanilla_components the tooltipInstance?.destroy()
+		// will remove the popovertarget and aria-describedby attributes from the tooltipTarget
+		if (!isExperimentEnabled('platform_editor_use_vanilla_components')) {
+			this.tooltipTarget?.removeAttribute('popovertarget');
+			this.tooltipTarget?.removeAttribute('aria-describedby');
+		}
+		this.destroyLazyTooltipListeners = undefined;
+		this.tooltipInstance = undefined;
+		this.tooltipTarget = undefined;
+	}
 
 	private static logError(error: Error) {
 		void logException(error, {
@@ -158,8 +190,7 @@ export class EmojiNodeView implements NodeView {
 					if (
 						isOfflineMode(prevSharedState?.mode) &&
 						nextSharedState?.mode === 'online' &&
-						this.renderingFallback &&
-						editorExperiment('platform_editor_offline_editing_web', true)
+						this.renderingFallback
 					) {
 						this.updateDom(sharedState.currentState()?.emojiProvider);
 					}
@@ -169,6 +200,7 @@ export class EmojiNodeView implements NodeView {
 			this.destroy = () => {
 				unsubscribe();
 				subscribeToConnection?.();
+				this.destroyTooltip();
 			};
 		}
 	}
@@ -201,7 +233,15 @@ export class EmojiNodeView implements NodeView {
 				return;
 			}
 
-			const emojiRepresentation = emojiDescription?.representation;
+			const unicodeEmoji =
+				id && expValEqualsNoExposure('platform_use_unicode_emojis', 'isEnabled', true)
+					? emojiIdToEmoji(id)
+					: undefined;
+			const emojiRepresentation = unicodeEmoji
+				? {
+						unicodeEmoji,
+					}
+				: emojiDescription?.representation;
 			if (!EmojiNodeView.isEmojiRepresentationSupported(emojiRepresentation)) {
 				EmojiNodeView.logError(new Error('Emoji representation is not supported'));
 
@@ -225,13 +265,25 @@ export class EmojiNodeView implements NodeView {
 	): representation is Exclude<EmojiRepresentation, undefined> {
 		return (
 			!!representation &&
-			('sprite' in representation || 'imagePath' in representation || 'mediaPath' in representation)
+			('sprite' in representation ||
+				'imagePath' in representation ||
+				'mediaPath' in representation ||
+				'unicodeEmoji' in representation)
 		);
+	}
+
+	private static shouldRecordUnicodeEmojiExposure(
+		description: EmojiDescription,
+		representation: Exclude<EmojiRepresentation, undefined>,
+	): boolean {
+		return description.type === 'STANDARD' || 'unicodeEmoji' in representation;
 	}
 
 	// Pay attention, this method should be called only when the emoji provider returns
 	// emoji data to prevent rendering empty emoji during loading.
 	private cleanUpAndRenderCommonAttributes() {
+		this.destroyTooltip();
+
 		// Clean up the DOM before rendering the new emoji
 		if (this.domElement) {
 			this.domElement.innerHTML = '';
@@ -242,16 +294,126 @@ export class EmojiNodeView implements NodeView {
 		}
 	}
 
+	/**
+	 * Lazily creates a VanillaTooltip on the given element showing the emoji shortName.
+	 * Gated behind the platform_editor_emoji_hover_show_tooltip experiment.
+	 * When the tooltip is active, the native `title` attribute is removed to avoid
+	 * showing both the browser tooltip and the custom tooltip.
+	 */
+	private createTooltip(element: HTMLElement, shortName: string): void {
+		if (!expValEquals('platform_editor_emoji_hover_show_tooltip', 'isEnabled', true)) {
+			return;
+		}
+
+		if (isSSR()) {
+			return;
+		}
+
+		const initTooltip = (event: Event) => {
+			this.destroyLazyTooltipListeners?.();
+			this.destroyLazyTooltipListeners = undefined;
+
+			// `undefined` lets `VanillaTooltip` generate the id.
+			const tooltipId = isExperimentEnabled('platform_editor_use_vanilla_components')
+				? undefined
+				: nextFallbackTooltipId();
+
+			// Control arm only — the experiment arm gets the same declarations from
+			// `VANILLA_TOOLTIP_DEFAULT_CLASS`.
+			const tooltipStyles = isExperimentEnabled('platform_editor_use_vanilla_components')
+				? undefined
+				: {
+						boxSizing: 'border-box',
+						maxWidth: '240px',
+						backgroundColor: token('color.background.neutral.bold'),
+						border: 'none',
+						borderRadius: token('radius.small', '3px'),
+						color: token('color.text.inverse'),
+						font: token('font.body.small'),
+						fontFamily: token('font.family.body'),
+						insetBlockStart: token('space.0', '0px'),
+						insetInlineStart: token('space.0', '0px'),
+						overflowWrap: 'break-word',
+						paddingBlockStart: token('space.050', '4px'),
+						paddingBlockEnd: token('space.050', '4px'),
+						paddingInlineEnd: token('space.075', '6px'),
+						paddingInlineStart: token('space.075', '6px'),
+						whiteSpace: 'normal',
+					};
+
+			try {
+				// Flag-on (platform-dst-top-layer), positioning is async via a React root;
+				// safe here as VanillaTooltip stays hidden until positioned.
+				const tooltipInstance = new VanillaTooltip(
+					element,
+					shortName,
+					tooltipId,
+					isExperimentEnabled('platform_editor_use_vanilla_components')
+						? EMOJI_TOOLTIP_CLASS_NAMES
+						: EMOJI_TOOLTIP_CLASS,
+					// default timeout
+					300,
+					tooltipStyles,
+				);
+
+				this.tooltipInstance = tooltipInstance;
+				this.tooltipTarget = element;
+				element.removeAttribute('title');
+				element.dispatchEvent(new Event(event.type));
+			} catch (error) {
+				element.removeAttribute('popovertarget');
+				element.removeAttribute('aria-describedby');
+				EmojiNodeView.logError(error instanceof Error ? error : new Error(String(error)));
+			}
+		};
+
+		const unbindMouseEnter = bind(element, {
+			type: 'mouseenter',
+			listener: initTooltip,
+			options: { once: true },
+		});
+		const unbindFocus = bind(element, {
+			type: 'focus',
+			listener: initTooltip,
+			options: { once: true },
+		});
+		this.destroyLazyTooltipListeners = () => {
+			unbindMouseEnter();
+			unbindFocus();
+		};
+	}
+
 	private renderFallback() {
 		this.renderingFallback = true;
 		this.cleanUpAndRenderCommonAttributes();
 
-		const fallbackElement = document.createElement('span');
-		fallbackElement.innerText = this.node.attrs.text || this.node.attrs.shortName;
-		fallbackElement.setAttribute('data-testid', `fallback-emoji-${this.node.attrs.shortName}`);
+		let doc = getDocument();
+		if (!doc) {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+			doc = document;
+		}
+		const fallbackElement = doc.createElement('span');
+
+		const { text, shortName } = this.node.attrs;
+
+		// When the gate is enabled and the emoji is "custom" (i.e. its fallback
+		// text is not a single standard Unicode emoji), render the Unicode
+		// Replacement Character (U+FFFD) instead of the shortName text. Standard
+		// emojis continue to fall back to their Unicode text representation.
+		const fallbackText = text || shortName;
+		const useReplacementChar =
+			fg('platform_editor_custom_emoji_unicode_fallback') && !isSingleEmoji(fallbackText);
+		const renderedFallbackText = useReplacementChar ? '\uFFFD' : fallbackText;
+
+		fallbackElement.innerText = renderedFallbackText;
+		fallbackElement.setAttribute('role', 'img');
+		fallbackElement.setAttribute('title', shortName);
+		fallbackElement.setAttribute('aria-label', shortName);
+		fallbackElement.setAttribute('data-testid', `fallback-emoji-${shortName}`);
 		fallbackElement.setAttribute('data-emoji-type', 'fallback');
 
 		this.dom.appendChild(fallbackElement);
+		this.createTooltip(fallbackElement, shortName);
 	}
 
 	private renderEmoji(
@@ -261,14 +423,23 @@ export class EmojiNodeView implements NodeView {
 		this.renderingFallback = false;
 		this.cleanUpAndRenderCommonAttributes();
 
-		const emojiType = 'sprite' in representation ? 'sprite' : 'image';
+		const emojiType =
+			'unicodeEmoji' in representation
+				? 'unicode'
+				: 'sprite' in representation
+					? 'sprite'
+					: 'image';
+
+		let doc = getDocument();
+		if (!doc) {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+			doc = document;
+		}
 
 		// Add wrapper for the emoji
-		const containerElement = document.createElement('span');
+		const containerElement = doc.createElement('span');
 		containerElement.setAttribute('role', 'img');
-		if (expValEquals('platform_editor_emoji_tooltips_on_hover', 'isEnabled', true)) {
-			containerElement.setAttribute('title', description.shortName);
-		}
+		containerElement.setAttribute('title', description.shortName);
 		containerElement.classList.add(EmojiSharedCssClassName.EMOJI_CONTAINER);
 		containerElement.setAttribute('data-testid', `${emojiType}-emoji-${description.shortName}`);
 		containerElement.setAttribute('data-emoji-type', emojiType);
@@ -278,17 +449,51 @@ export class EmojiNodeView implements NodeView {
 		);
 
 		const emojiElement =
-			'sprite' in representation
-				? this.createSpriteEmojiElement(representation)
-				: this.createImageEmojiElement(description, representation);
+			'unicodeEmoji' in representation
+				? this.createUnicodeEmojiElement(representation.unicodeEmoji)
+				: 'sprite' in representation
+					? this.createSpriteEmojiElement(representation)
+					: this.createImageEmojiElement(description, representation);
 
 		containerElement.appendChild(emojiElement);
 
 		this.dom.appendChild(containerElement);
+
+		if (EmojiNodeView.shouldRecordUnicodeEmojiExposure(description, representation)) {
+			expValEquals('platform_use_unicode_emojis', 'isEnabled', true);
+		}
+
+		this.createTooltip(containerElement, description.shortName);
+	}
+
+	private createUnicodeEmojiElement(emoji: string): HTMLSpanElement {
+		let doc = getDocument();
+		if (!doc) {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+			doc = document;
+		}
+		const spanElement = doc.createElement('span');
+
+		spanElement.classList.add(EmojiSharedCssClassName.EMOJI_UNICODE);
+		spanElement.textContent = emoji;
+		spanElement.style.display = 'inline-flex';
+		spanElement.style.fontSize = `var(--emoji-common-unicode-size, ${defaultEmojiHeight}px)`;
+		spanElement.style.alignItems = 'center';
+		spanElement.style.aspectRatio = '1/1';
+		spanElement.style.lineHeight = '1em';
+		spanElement.style.margin = '-1px 0';
+		spanElement.style.verticalAlign = 'middle'; // to keep vertical alignment consistent with images
+
+		return spanElement;
 	}
 
 	private createSpriteEmojiElement(representation: SpriteRepresentation): HTMLSpanElement {
-		const spriteElement = document.createElement('span');
+		let doc = getDocument();
+		if (!doc) {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+			doc = document;
+		}
+		const spriteElement = doc.createElement('span');
 
 		spriteElement.classList.add(EmojiSharedCssClassName.EMOJI_SPRITE);
 
@@ -314,7 +519,12 @@ export class EmojiNodeView implements NodeView {
 		emojiDescription: EmojiDescription,
 		representation: ImageRepresentation | MediaApiRepresentation,
 	): HTMLImageElement {
-		const imageElement = document.createElement('img');
+		let doc = getDocument();
+		if (!doc) {
+			// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage
+			doc = document;
+		}
+		const imageElement = doc.createElement('img');
 
 		imageElement.classList.add(EmojiSharedCssClassName.EMOJI_IMAGE);
 
@@ -328,17 +538,13 @@ export class EmojiNodeView implements NodeView {
 		imageElement.height = defaultEmojiHeight;
 
 		imageElement.onerror = () => {
-			if (editorExperiment('platform_editor_offline_editing_web', true)) {
-				// If there's an error (ie. offline) render the ascii fallback if possible, otherwise
-				// mark the node to refresh when returning online.
-				// Create a check that confirms if this.node.attrs.text if an ascii emoji
-				if (isSingleEmoji(this.node.attrs.text)) {
-					this.renderFallback();
-				} else {
-					this.renderingFallback = true;
-				}
-			} else {
+			// If there's an error (ie. offline) render the ascii fallback if possible, otherwise
+			// mark the node to refresh when returning online.
+			// Create a check that confirms if this.node.attrs.text if an ascii emoji
+			if (isSingleEmoji(this.node.attrs.text)) {
 				this.renderFallback();
+			} else {
+				this.renderingFallback = true;
 			}
 		};
 

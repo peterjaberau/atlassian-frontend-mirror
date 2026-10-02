@@ -3,20 +3,23 @@ import React, { useCallback, useState } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { type CSSObject } from '@emotion/react';
 
-import GlobalTheme from '@atlaskit/theme/components';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
+import GlobalTheme from '@atlaskit/theme/theme';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { type ThemeModes } from '@atlaskit/theme/types';
 
 import ButtonBase from '../shared/button-base';
 import getIsOnlySingleIcon from '../shared/get-is-only-single-icon';
 import LoadingSpinner from '../shared/loading-spinner';
 import type { BaseProps } from '../types';
-
 import {
-    type CustomThemeButtonOwnProps,
+	type CustomThemeButtonOwnProps,
 	type InteractionState,
 	type CustomThemeButtonProps as Props,
 } from './custom-theme-button-types';
-import Theme, { defaultThemeFn, getSpecifiers } from './theme';
+import { defaultThemeFn } from './default-theme-fn';
+import { getSpecifiers } from './get-specifiers';
+import Theme from './theme';
 
 type State = {
 	isHover: boolean;
@@ -59,7 +62,7 @@ const initial: State = { isHover: false, isActive: false, isFocus: false };
 /**
  * __Custom theme button__
  *
- * @deprecated Legacy buttons are deprecated and will be removed from `atlaskit/button` in an upcoming major release. Please use the new Button components from `@atlaskit/button/new`
+ * @deprecated Legacy buttons are deprecated and will be removed from `atlaskit/button` in an upcoming major release. Please use `Button` from `@atlaskit/button/default/button`.
  *
  * Please refer to the [migration guide](https://atlassian.design/components/button/button-legacy/migration-guide) for further details.
  *
@@ -67,7 +70,11 @@ const initial: State = { isHover: false, isActive: false, isFocus: false };
  *
  * - [Examples](https://atlassian.design/components/button/examples#custom-theme-button)
  */
-const CustomThemeButton: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<BaseProps, "overlay"> & CustomThemeButtonOwnProps & React.RefAttributes<HTMLElement>>> = React.memo(
+const CustomThemeButton: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<
+		Omit<BaseProps, 'overlay'> & CustomThemeButtonOwnProps & React.RefAttributes<HTMLElement>
+	>
+> = React.memo(
 	React.forwardRef<HTMLElement, Props>(function CustomThemeButton(
 		{
 			// Calculate default props for use in custom themes

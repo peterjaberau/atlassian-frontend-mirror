@@ -1,9 +1,10 @@
-import { JSONTransformer } from '@atlaskit/editor-json-transformer';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
+import { JSONTransformer } from '@atlaskit/editor-json-transformer/JSONTransformer-2';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 import { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
-import { ACTION, ACTION_SUBJECT, EVENT_TYPE, type FireAnalyticsCallback } from '../../analytics';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '../../analytics';
+import type { FireAnalyticsCallback } from '../../analytics';
 import type {
 	DefaultTransformerResultCallback,
 	InferTransformerResultCallback,
@@ -18,11 +19,22 @@ export function toJSON(node: PMNode): JSONDocNode {
 /**
  * This throttles the callback with requestIdleCallback.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function createThrottleSchedule<
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	GenericTransformer extends Transformer<any> = Transformer<JSONDocNode>,
->(callback: typeof returnDocumentRequest<GenericTransformer>) {
+>(
+	callback: typeof returnDocumentRequest<GenericTransformer>,
+): (
+	editorView: EditorView | null,
+	callback: GenericTransformer extends undefined
+		? DefaultTransformerResultCallback
+		: InferTransformerResultCallback<GenericTransformer>,
+	transformer?: GenericTransformer | undefined,
+	fireAnalyticsEvent?: FireAnalyticsCallback | undefined,
+	_alwaysFire?: boolean | undefined,
+) => void {
 	let frameId: number | undefined;
 	let lastArgs: Parameters<typeof returnDocumentRequest<GenericTransformer>> | undefined;
 	const delayedCallbacks: Parameters<typeof returnDocumentRequest<GenericTransformer>>[] = [];
@@ -60,7 +72,7 @@ export function createThrottleSchedule<
 	return wrapperFn;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @atlaskit/volt-strict-mode/no-multiple-exports
 export function returnDocumentRequest<GenericTransformer extends Transformer<any> | undefined>(
 	editorView: EditorView | null,
 	callback: GenericTransformer extends undefined
@@ -68,9 +80,8 @@ export function returnDocumentRequest<GenericTransformer extends Transformer<any
 		: InferTransformerResultCallback<GenericTransformer>,
 	transformer?: GenericTransformer,
 	fireAnalyticsEvent?: FireAnalyticsCallback,
-	// eslint-disable-next-line no-unused-vars
 	_alwaysFire?: boolean,
-) {
+): undefined {
 	const { doc, schema } = editorView?.state ?? {};
 	if (!doc || !schema) {
 		return undefined;
@@ -104,6 +115,7 @@ export function returnDocumentRequest<GenericTransformer extends Transformer<any
 	}
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function returnDocumentRequestNoThrowError<
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	GenericTransformer extends Transformer<any> | undefined,
@@ -115,7 +127,7 @@ export function returnDocumentRequestNoThrowError<
 	transformer?: GenericTransformer,
 	fireAnalyticsEvent?: FireAnalyticsCallback,
 	_alwaysFire?: boolean,
-) {
+): undefined {
 	try {
 		return returnDocumentRequest(
 			editorView,
@@ -124,8 +136,7 @@ export function returnDocumentRequestNoThrowError<
 			fireAnalyticsEvent,
 			_alwaysFire,
 		);
-		// eslint-disable-next-line no-unused-vars
-	} catch (_) {
+	} catch {
 		callback(undefined);
 	}
 }

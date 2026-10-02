@@ -1,10 +1,11 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	MediaInlineADF,
 	MediaInlineInParagraphADF,
 	MediaInlineMultipleInParagraphADF,
 	MediaInlineADFWithReactLooselyLazy,
-} from './media-inline.fixtures';
+} from './media-inline.fixtures.vr.ap';
 
 snapshot(MediaInlineADF, {
 	description: 'should render standalone component',

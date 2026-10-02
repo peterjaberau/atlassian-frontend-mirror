@@ -4,16 +4,28 @@
  */
 import { useMemo } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-global-styles, @atlaskit/ui-styling-standard/use-compiled
-import { css, Global, jsx } from '@emotion/react';
-import { useIntl } from 'react-intl-next';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-global-styles, @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
+import { Global, css, jsx } from '@emotion/react';
+import { useIntl } from 'react-intl';
 
 import { layoutMessages as messages } from '@atlaskit/editor-common/messages';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
 
 const PLACEHOLDER_SELECTOR =
 	'.ProseMirror-focused .layoutSectionView-content-wrap.selected [data-layout-column] > [data-layout-content] > p:only-child:has(.ProseMirror-trailingBreak:only-child)';
+
+const layoutColumnDangerPreviewStyle = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
+	'.ProseMirror [data-layout-column].layout-column-danger-preview': {
+		backgroundColor: token('color.blanket.danger'),
+		boxShadow: `inset 0 0 0 1px ${token('color.border.danger')}`,
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
+		'&::before': {
+			visibility: 'hidden',
+		},
+	},
+});
 
 const getPlaceholderStyle = (message: string) => {
 	if (editorExperiment('platform_editor_controls', 'variant1')) {
@@ -43,16 +55,16 @@ const getPlaceholderStyle = (message: string) => {
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
 					content: `"${message}"`,
 					position: 'absolute',
-					color: token('color.text.disabled', '#A5ADBA'),
+					color: token('color.text.disabled'),
 					font: token('font.body'),
-					marginTop: token('space.050', '4px'),
+					marginTop: token('space.050'),
 					pointerEvents: 'none',
 				},
 			},
 	});
 };
 
-export const GlobalStylesWrapper = () => {
+export const GlobalStylesWrapper = (): jsx.JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	const placeholderStyle = useMemo(() => {
@@ -62,5 +74,10 @@ export const GlobalStylesWrapper = () => {
 		return getPlaceholderStyle(formatMessage(placeholderText));
 	}, [formatMessage]);
 
-	return <Global styles={placeholderStyle} />;
+	const globalStyles = useMemo(
+		() => [placeholderStyle, layoutColumnDangerPreviewStyle],
+		[placeholderStyle],
+	);
+
+	return <Global styles={globalStyles} />;
 };

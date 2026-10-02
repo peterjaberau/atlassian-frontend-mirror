@@ -1,16 +1,18 @@
 import React from 'react';
 
-import { Checkbox } from '@atlaskit/checkbox';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import { cssMap } from '@atlaskit/css';
-import { HelperMessage } from '@atlaskit/form';
+import { HelperMessage } from '@atlaskit/form/helper-message';
+import { iconTestUrls } from '@atlaskit/link-test-helpers/smart-card';
 import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
-import Range from '@atlaskit/range';
-import Select from '@atlaskit/select';
+import Range from '@atlaskit/range/range';
+import Select from '@atlaskit/select/default';
 import { Card } from '@atlaskit/smart-card';
 import { token } from '@atlaskit/tokens';
 
 import CardViewExample from './card-view';
 import ExampleContainer from './utils/example-container';
+import { useLocalStorageState } from './utils/use-local-storage-state';
 
 const styles = cssMap({
 	boxStyles: {
@@ -19,10 +21,43 @@ const styles = cssMap({
 });
 
 type FontOptions = { label: string; value: string | undefined };
+
+const FONT_OPTIONS: FontOptions[] = [
+	{ label: 'none', value: undefined },
+	{ label: 'font.body.small', value: token('font.body.small') },
+	{ label: 'font.body', value: token('font.body') },
+	{ label: 'font.body.large', value: token('font.body.large') },
+	{ label: 'font.heading.xxsmall', value: token('font.heading.xxsmall') },
+	{ label: 'font.heading.xsmall', value: token('font.heading.xsmall') },
+	{ label: 'font.heading.small', value: token('font.heading.small') },
+	{ label: 'font.heading.medium', value: token('font.heading.medium') },
+	{ label: 'font.heading.large', value: token('font.heading.large') },
+	{ label: 'font.heading.xlarge', value: token('font.heading.xlarge') },
+	{ label: 'font.heading.xxlarge', value: token('font.heading.xxlarge') },
+];
+
+const FONT_OPTION_STORAGE_KEY = 'atlaskit-examples-lp-inline-card-views-font-option-label';
+const WIDTH_STORAGE_KEY = 'atlaskit-examples-lp-inline-card-views-width-percentage';
+const TRUNCATE_STORAGE_KEY = 'atlaskit-examples-lp-inline-card-views-truncate-inline';
+
 export default (): React.JSX.Element => {
-	const [fontOption, setFontOption] = React.useState<FontOptions | undefined>();
-	const [widthPercentage, setWidthPercentage] = React.useState<number>(100);
-	const [truncateInline, setTruncateInline] = React.useState(false);
+	const [fontOptionLabel, setFontOptionLabel] = useLocalStorageState<string>({
+		storageKey: FONT_OPTION_STORAGE_KEY,
+		defaultValue: 'none',
+		type: 'string',
+	});
+	const [widthPercentage, setWidthPercentage] = useLocalStorageState<number>({
+		storageKey: WIDTH_STORAGE_KEY,
+		defaultValue: 100,
+		type: 'number',
+	});
+	const [truncateInline, setTruncateInline] = useLocalStorageState<boolean>({
+		storageKey: TRUNCATE_STORAGE_KEY,
+		defaultValue: false,
+		type: 'boolean',
+	});
+
+	const fontOption = FONT_OPTIONS.find((option) => option.label === fontOptionLabel);
 
 	return (
 		<ExampleContainer title="InlineCard Views">
@@ -30,20 +65,10 @@ export default (): React.JSX.Element => {
 				<Inline space="space.200" alignBlock="start">
 					<Box xcss={styles.boxStyles}>
 						<Select<FontOptions>
-							options={[
-								{ label: 'none', value: undefined },
-								{ label: 'font.body.small', value: token('font.body.small') },
-								{ label: 'font.body', value: token('font.body') },
-								{ label: 'font.body.large', value: token('font.body.large') },
-								{ label: 'font.heading.xxsmall', value: token('font.heading.xxsmall') },
-								{ label: 'font.heading.xsmall', value: token('font.heading.xsmall') },
-								{ label: 'font.heading.small', value: token('font.heading.small') },
-								{ label: 'font.heading.medium', value: token('font.heading.medium') },
-								{ label: 'font.heading.large', value: token('font.heading.large') },
-								{ label: 'font.heading.xlarge', value: token('font.heading.xlarge') },
-								{ label: 'font.heading.xxlarge', value: token('font.heading.xxlarge') },
-							]}
-							onChange={(option) => option && setFontOption(option)}
+							options={FONT_OPTIONS}
+							onChange={(newValue: FontOptions | null) =>
+								setFontOptionLabel(newValue?.label ?? 'none')
+							}
 							value={fontOption}
 						/>
 						<HelperMessage>Set parent container font token.</HelperMessage>
@@ -71,6 +96,7 @@ export default (): React.JSX.Element => {
 					<CardViewExample
 						appearance="inline"
 						showHoverPreview={true}
+						urls={iconTestUrls}
 						truncateInline={truncateInline}
 						CardComponent={Card}
 					/>

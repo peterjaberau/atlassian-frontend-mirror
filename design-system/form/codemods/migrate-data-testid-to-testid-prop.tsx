@@ -7,13 +7,11 @@ import {
 } from 'jscodeshift';
 import { type Collection } from 'jscodeshift/src/Collection';
 
-import {
-	addJSXAttributeToJSXElement,
-	getImportDeclarationCollection,
-	getImportDefaultSpecifierCollection,
-	getImportDefaultSpecifierName,
-	hasImportDeclaration,
-} from './utils/helpers';
+import { addJSXAttributeToJSXElement } from './utils/add-jsx-attribute-to-jsx-element';
+import { getImportDeclarationCollection } from './utils/get-import-declaration-collection';
+import { getImportDefaultSpecifierCollection } from './utils/get-import-default-specifier-collection';
+import { getImportDefaultSpecifierName } from './utils/get-import-default-specifier-name';
+import { hasImportDeclaration } from './utils/has-import-declaration';
 
 const importPath = '@atlaskit/form';
 
@@ -144,7 +142,11 @@ const migrateDataTestIdToTestIdProp = (j: JSCodeshift, collection: Collection<an
 	return;
 };
 
-export default function transformer(fileInfo: FileInfo, { jscodeshift: j }: API, options: Options): string {
+export default function transformer(
+	fileInfo: FileInfo,
+	{ jscodeshift: j }: API,
+	options: Options,
+): string {
 	const { source } = fileInfo;
 	const collection = j(source);
 

@@ -16,7 +16,6 @@ import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
 
 import type { SelectionToolbarPlugin } from '../selectionToolbarPluginType';
-
 import { MenuSection } from './MenuSection';
 import { PinButton } from './PinButton';
 import { PinMenuItem } from './PinMenuItem';
@@ -24,6 +23,7 @@ import { PinMenuItem } from './PinMenuItem';
 export const getToolbarComponents = (
 	api?: ExtractInjectionAPI<SelectionToolbarPlugin>,
 	contextualFormattingEnabled?: boolean,
+	disablePin?: boolean,
 ): RegisterComponent[] => {
 	const components: RegisterComponent[] = [
 		{
@@ -51,7 +51,7 @@ export const getToolbarComponents = (
 				},
 			],
 			component: () => {
-				return <PinMenuItem api={api} />;
+				return <PinMenuItem api={api} disablePin={disablePin} />;
 			},
 		},
 	];

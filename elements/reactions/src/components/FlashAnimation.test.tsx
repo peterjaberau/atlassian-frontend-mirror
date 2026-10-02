@@ -1,6 +1,9 @@
 import React from 'react';
-import { Text } from '@atlaskit/primitives/compiled';
+
 import { screen } from '@testing-library/react';
+
+import { Text } from '@atlaskit/primitives/compiled';
+
 import { mockReactDomWarningGlobal, renderWithIntl } from '../__tests__/_testing-library';
 import {
 	FlashAnimation,
@@ -30,7 +33,7 @@ describe('@atlaskit/reactions/components/FlashAnimation', () => {
 		renderWithIntl(renderFlash({ flash: true }));
 		const elem = await screen.findByTestId(RENDER_FLASHANIMATION_TESTID);
 		expect(elem).toHaveCompiledCss({
-			animationName: 'k1qrjcqm',
+			animationName: 'k9373e0',
 			animationDuration: '.7s',
 			animationTimingFunction: 'ease-in-out',
 		});

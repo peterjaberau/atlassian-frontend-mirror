@@ -1,23 +1,28 @@
 import React, { forwardRef } from 'react';
 
-import { type IconButtonProps } from '@atlaskit/button/new';
+import type { IconButtonProps } from '@atlaskit/button/icon/button';
 import AppSwitcherIcon from '@atlaskit/icon/core/app-switcher';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import type { TriggerProps } from '@atlaskit/popup/types';
 
-import { IconButton } from './themed/migration';
+import { IconButton } from './themed/icon-button';
 
-interface AppSwitcherProps
-	extends Partial<
-		Omit<
-			TriggerProps,
-			| 'ref' // not necessary because we're using forwardRef
-			| 'data-ds--level' // this doesn't look like it should be exposed
-		>
-	> {
+interface AppSwitcherProps extends Partial<
+	Omit<
+		TriggerProps,
+		| 'ref' // not necessary because we're using forwardRef
+		| 'data-ds--level' // this doesn't look like it should be exposed
+	>
+> {
 	/**
 	 * Provide an accessible label, often used by screen readers.
 	 */
 	label: React.ReactNode;
+	/**
+	 * Allows a custom visual to be used instead of the Atlassian AppSwitcher icon.
+	 * Defaults to the Atlassian app switcher icon.
+	 */
+	icon?: IconButtonProps['icon'];
 	/**
 	 * Handler called on click.
 	 */
@@ -35,6 +40,10 @@ interface AppSwitcherProps
 	 * Indicates that the button is selected.
 	 */
 	isSelected?: boolean;
+	/**
+	 * A `testId` prop is provided for specified elements, which is a unique string that appears as a data attribute `data-testid` in the rendered code, serving as a hook for automated tests.
+	 */
+	testId?: string;
 }
 
 const toggleButtonTooltipOptions: IconButtonProps['tooltip'] = {
@@ -54,30 +63,39 @@ export const AppSwitcher: React.ForwardRefExoticComponent<
 	(
 		{
 			label,
+			icon,
 			onClick,
 			onMouseEnter,
 			interactionName,
 			isSelected,
+			testId,
 			'aria-controls': ariaControls,
 			'aria-expanded': ariaExpanded,
 			'aria-haspopup': ariaHasPopup,
 		},
 		ref,
-	) => (
-		<IconButton
-			ref={ref}
-			aria-controls={ariaControls}
-			aria-expanded={ariaExpanded}
-			aria-haspopup={ariaHasPopup}
-			icon={AppSwitcherIcon}
-			label={label}
-			appearance="subtle"
-			onClick={onClick}
-			onMouseEnter={onMouseEnter}
-			interactionName={interactionName}
-			isTooltipDisabled={false}
-			tooltip={toggleButtonTooltipOptions}
-			isSelected={isSelected}
-		/>
-	),
+	) => {
+		const pickedAppSwitcherIcon = fg('platform_dst_ads_appswitcher_improvements')
+			? (icon ?? AppSwitcherIcon)
+			: AppSwitcherIcon;
+
+		return (
+			<IconButton
+				ref={ref}
+				aria-controls={ariaControls}
+				aria-expanded={ariaExpanded}
+				aria-haspopup={ariaHasPopup}
+				icon={pickedAppSwitcherIcon}
+				label={label}
+				appearance="subtle"
+				onClick={onClick}
+				onMouseEnter={onMouseEnter}
+				interactionName={interactionName}
+				isTooltipDisabled={false}
+				tooltip={toggleButtonTooltipOptions}
+				isSelected={isSelected}
+				testId={testId}
+			/>
+		);
+	},
 );

@@ -2,9 +2,9 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 import classnames from 'classnames';
 
@@ -14,8 +14,9 @@ import {
 	akEditorGutterPaddingReduced,
 	akEditorFullPageNarrowBreakout,
 } from '@atlaskit/editor-shared-styles';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 import { token } from '@atlaskit/tokens';
 
 import { useSharedPluginStateWithSelector } from '../../../hooks';
@@ -23,11 +24,11 @@ import { createWidthContext, WidthContext } from '../../../ui';
 import type { ExtensionsPluginInjectionAPI, MacroInteractionDesignFeatureFlags } from '../../types';
 import ExtensionLozenge from '../Lozenge';
 import { overlay } from '../styles';
-
 import { wrapperStyle } from './styles';
 
 export interface Props {
 	children?: React.ReactNode;
+	hideConfigureLabel?: boolean;
 	isLivePageViewMode?: boolean;
 	isNodeHovered?: boolean;
 	isNodeSelected?: boolean;
@@ -49,24 +50,74 @@ const inlineWrapperStyles = css({
 	},
 });
 
+const flowingInlineWrapperStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- The child marker lets an inline extension opt into text-flow layout without coupling editor-common to the skill feature gate.
+	'&:has([data-inline-extension-layout="flow"])': {
+		background: 'transparent',
+		boxShadow: 'none',
+		display: 'inline',
+		margin: 0,
+		verticalAlign: 'baseline',
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- The legacy wrapper decorations must be removed only when its child opts into text-flow layout.
+	'&:has([data-inline-extension-layout="flow"])::after, &:has([data-inline-extension-layout="flow"])::before':
+		{
+			display: 'none',
+		},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- The legacy overlay must be hidden only when its child opts into text-flow layout.
+	'&:has([data-inline-extension-layout="flow"]) > .extension-overlay': {
+		display: 'none',
+	},
+});
+
 const hoverStyles = css({
 	'&:hover': {
 		boxShadow: `0 0 0 1px ${token('color.border.input')}`,
 	},
 });
 
-const InlineExtension = (props: Props) => {
+const MemoizedWidthContextProvider = ({
+	rendererContainerWidth,
+	children,
+}: {
+	children: React.ReactNode;
+	rendererContainerWidth: number;
+}): jsx.JSX.Element => {
+	const widthContextValue = useMemo(
+		() => createWidthContext(rendererContainerWidth),
+		[rendererContainerWidth],
+	);
+
+	return <WidthContext.Provider value={widthContextValue}>{children}</WidthContext.Provider>;
+};
+
+const LegacyWidthContextProvider = ({
+	rendererContainerWidth,
+	children,
+}: {
+	children: React.ReactNode;
+	rendererContainerWidth: number;
+}): jsx.JSX.Element => {
+	return (
+		<WidthContext.Provider value={createWidthContext(rendererContainerWidth)}>
+			{children}
+		</WidthContext.Provider>
+	);
+};
+
+const InlineExtension = (props: Props): jsx.JSX.Element => {
 	const {
 		node,
 		pluginInjectionApi,
 		macroInteractionDesignFeatureFlags,
-		isNodeSelected,
 		children,
 		isNodeHovered,
 		setIsNodeHovered,
 		isLivePageViewMode,
+		hideConfigureLabel,
 	} = props;
 	const { showMacroInteractionDesignUpdates } = macroInteractionDesignFeatureFlags || {};
+	const shouldUseFlowingInlineWrapper = fg('rovo_skill_tag_label_wrapping');
 
 	const { width } = useSharedPluginStateWithSelector(pluginInjectionApi, ['width'], (states) => {
 		return {
@@ -80,13 +131,6 @@ const InlineExtension = (props: Props) => {
 		'with-overlay': !showMacroInteractionDesignUpdates,
 		'with-children': hasChildren,
 		'with-danger-overlay': showMacroInteractionDesignUpdates,
-		'with-hover-border': expValEquals(
-			'cc_editor_ttvc_release_bundle_one',
-			'extensionHoverRefactor',
-			true,
-		)
-			? false
-			: showMacroInteractionDesignUpdates && isNodeHovered,
 	});
 
 	let rendererContainerWidth = 0;
@@ -118,11 +162,11 @@ const InlineExtension = (props: Props) => {
 			{showMacroInteractionDesignUpdates && !isLivePageViewMode && (
 				<ExtensionLozenge
 					node={node}
-					isNodeSelected={isNodeSelected}
 					isNodeHovered={isNodeHovered}
 					showMacroInteractionDesignUpdates={showMacroInteractionDesignUpdates}
 					setIsNodeHovered={setIsNodeHovered}
 					pluginInjectionApi={pluginInjectionApi}
+					hideConfigureLabel={hideConfigureLabel}
 				/>
 			)}
 			<div
@@ -131,17 +175,25 @@ const InlineExtension = (props: Props) => {
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 					wrapperStyle,
 					inlineWrapperStyles,
-					showMacroInteractionDesignUpdates &&
-						!isLivePageViewMode &&
-						expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true) &&
-						hoverStyles,
+					showMacroInteractionDesignUpdates && !isLivePageViewMode && hoverStyles,
+					shouldUseFlowingInlineWrapper && flowingInlineWrapperStyles,
 				]}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className={classNames}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 				onMouseEnter={() => handleMouseEvent(true)}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
+				// @atlassian/a11y/mouse-events-have-key-events: hover border is also accessible via keyboard selection.
+				// No-ops here satisfy the rule without duplicating state updates.
+				onFocus={
+					expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+						? () => {}
+						: undefined
+				}
 				onMouseLeave={() => handleMouseEvent(false)}
+				onBlur={
+					expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+						? () => {}
+						: undefined
+				}
 			>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766  */}
 				<div css={overlay} className="extension-overlay" />
@@ -150,18 +202,23 @@ const InlineExtension = (props: Props) => {
 				) : (
 					<ExtensionLozenge
 						node={node}
-						isNodeSelected={isNodeSelected}
 						showMacroInteractionDesignUpdates={showMacroInteractionDesignUpdates}
 						pluginInjectionApi={pluginInjectionApi}
+						hideConfigureLabel={hideConfigureLabel}
 					/>
 				)}
 			</div>
 		</Fragment>
 	);
-	return (
-		<WidthContext.Provider value={createWidthContext(rendererContainerWidth)}>
+
+	return expValEquals('enghealth-53346_fix_redaction_marker_editor', 'isEnabled', true) ? (
+		<MemoizedWidthContextProvider rendererContainerWidth={rendererContainerWidth}>
 			{inlineExtensionInternal}
-		</WidthContext.Provider>
+		</MemoizedWidthContextProvider>
+	) : (
+		<LegacyWidthContextProvider rendererContainerWidth={rendererContainerWidth}>
+			{inlineExtensionInternal}
+		</LegacyWidthContextProvider>
 	);
 };
 

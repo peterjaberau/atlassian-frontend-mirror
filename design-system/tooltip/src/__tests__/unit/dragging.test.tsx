@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@atlassian/testing-library';
 
 import { register } from '../../internal/drag-manager';
 import Tooltip from '../../tooltip';
@@ -48,7 +48,9 @@ const scenarios = [
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('behavior during drags', () => {
 	beforeEach(() => {
-		HTMLElement.prototype.matches = jest.fn().mockReturnValue(true);
+		HTMLElement.prototype.matches = jest
+			.fn()
+			.mockReturnValue(true) as unknown as typeof HTMLElement.prototype.matches;
 
 		jest.useFakeTimers();
 	});
@@ -120,12 +122,10 @@ describe('behavior during drags', () => {
 		const removeEventListener = jest.spyOn(window, 'removeEventListener');
 
 		function hasBoundListenerForEvent(eventName: string) {
-			// @ts-ignore UTEST-1630
 			return addEventListener.mock.calls.some((args) => args[0] === eventName);
 		}
 
 		function hasRemovedListenerForEvent(eventName: string) {
-			// @ts-ignore UTEST-1630
 			return removeEventListener.mock.calls.some((args) => args[0] === eventName);
 		}
 
@@ -205,7 +205,6 @@ describe('behavior during drags', () => {
 			fireEvent.dragStart(screen.getByTestId('trigger'));
 
 			const addEventListenerCalls = addEventListener.mock.calls.filter(
-				// @ts-ignore UTEST-1630
 				([eventName]) =>
 					eventName === 'dragend' || eventName === 'pointerdown' || eventName === 'pointermove',
 			);
@@ -214,7 +213,6 @@ describe('behavior during drags', () => {
 
 			fireEvent.dragEnd(window);
 
-			// @ts-ignore UTEST-1630
 			addEventListenerCalls.forEach((args) => {
 				expect(removeEventListener).toHaveBeenCalledWith(...args);
 			});
@@ -228,14 +226,12 @@ describe('behavior during drags', () => {
 			);
 
 			const addEventListenerCalls = addEventListener.mock.calls.filter(
-				// @ts-ignore UTEST-1630
 				([eventName]) => eventName === 'dragstart' || eventName === 'dragenter',
 			);
 			expect(addEventListenerCalls).toHaveLength(2);
 
 			rerender(<div />);
 
-			// @ts-ignore UTEST-1630
 			addEventListenerCalls.forEach((args) => {
 				expect(removeEventListener).toHaveBeenCalledWith(...args);
 			});

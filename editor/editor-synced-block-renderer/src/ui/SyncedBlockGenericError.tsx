@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
 
@@ -10,8 +10,6 @@ export const SyncedBlockGenericError = (): React.JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	return (
-		<SyncedBlockErrorStateCard
-			description={formatMessage(messages.generalErrorDescription)}
-		/>
+		<SyncedBlockErrorStateCard description={formatMessage(messages.generalErrorDescription)} />
 	);
 };

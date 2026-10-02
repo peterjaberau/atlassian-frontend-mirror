@@ -1,5 +1,725 @@
 # @atlaskit/user-picker
 
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.13.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.13.3
+
+### Patch Changes
+
+- [`78264aeafd321`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78264aeafd321) -
+  Add an onStart lifecycle callback to useMotion so Tag, Select, and User Picker consumers can
+  determine settled truncation before tokenized grid-column motion runs behind
+  platform-dst-motion-uplift-labels.
+- Updated dependencies
+
+## 13.13.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.13.0
+
+### Minor Changes
+
+- [`e909670f087d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e909670f087d4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.12.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.12.2
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+## 13.12.1
+
+### Patch Changes
+
+- [`3516c9fac5ea8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3516c9fac5ea8) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall`.
+- Updated dependencies
+
+## 13.12.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.11.1
+
+### Patch Changes
+
+- [`127ce4da7c607`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/127ce4da7c607) -
+  Cleanup feature gate jsm-wfo-assignee-recommendation-on-queues.
+- [`37a3cff4dac8d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/37a3cff4dac8d) -
+  Remove `product-terminology-refresh` and permanently use app terminology for external user
+  sources.
+
+## 13.11.0
+
+### Minor Changes
+
+- [`d2606563c5559`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2606563c5559) -
+  Add direct entry points for user-picker utilities and analytics helpers. Consumers can import
+  individual APIs instead of importing from aggregate utility modules:
+  - Utilities: `@atlaskit/user-picker/call-callback`, `@atlaskit/user-picker/extract-option-value`,
+    `@atlaskit/user-picker/get-avatar-size`, `@atlaskit/user-picker/get-avatar-url`, and
+    `@atlaskit/user-picker/has-value`.
+  - Option predicates: `@atlaskit/user-picker/is-custom`, `@atlaskit/user-picker/is-email`,
+    `@atlaskit/user-picker/is-external-user`, `@atlaskit/user-picker/is-group`,
+    `@atlaskit/user-picker/is-team`, and `@atlaskit/user-picker/is-user`.
+  - Analytics helpers: `@atlaskit/user-picker/create-event`, `@atlaskit/user-picker/start-session`,
+    `@atlaskit/user-picker/select-event`, `@atlaskit/user-picker/searched-event`, and
+    `@atlaskit/user-picker/user-info-event`.
+
+## 13.10.1
+
+### Patch Changes
+
+- [`fae4f6a53e4be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fae4f6a53e4be) -
+  Render label enter and exit animations through `cssMap` in Tag, React Select, Select, and User
+  Picker. Motion now measures concurrent CSS animation lists correctly so the label scale and fade
+  animations complete together.
+- Updated dependencies
+
+## 13.10.0
+
+### Minor Changes
+
+- [`ef98af289c49b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef98af289c49b) -
+  Add motion to Tag, AvatarTag, TagDropdownTrigger, Tag Group, Select, React Select, and User Picker
+  tag values. Tags use `motion.label.enter` and `motion.label.exit` for entry and exit, while
+  interactive tags and dropdown triggers use the button hover and pressed motion tokens; Tag
+  Dropdown Trigger also fades between its content and loading spinner. The remove control is removed
+  when exit begins so it cannot linger while the tag collapses.
+
+  Motion is gated by `platform-dst-motion-uplift-labels`. Compatibility and adoption paths for the
+  visually uplifted Tag, Tag Group, Select, React Select, and User Picker additionally remain behind
+  `platform-dst-lozenge-tag-badge-visual-uplifts`.
+
+  `@atlaskit/react-select` also adds an optional `onMotionFinish` callback to the exported
+  `MultiValueProps` interface so the Select can restore its placeholder after the final multi-value
+  exit completes.
+
+  ```tsx
+  import Tag from '@atlaskit/tag/new';
+
+  <Tag text="Status" />;
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.9.0
+
+### Minor Changes
+
+- [`079dc2326a811`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/079dc2326a811) -
+  Added an optional `renderOptionContent` prop to `Option`'s props, letting consumers wrap the
+  default rendered option content (e.g. to add a profile card) without losing the built-in avatar,
+  name, and email rendering.
+
+  ```tsx
+  <Option
+  	renderOptionContent={(content) => <ProfileCard accountId={accountId}>{content}</ProfileCard>}
+  />
+  ```
+
+## 13.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.8.7
+
+### Patch Changes
+
+- [`e0edc05cd52d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0edc05cd52d7) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall` as a 1:1 size rename with no visual
+  change.
+- Updated dependencies
+
+## 13.8.6
+
+### Patch Changes
+
+- [`e9153fd2bb41f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e9153fd2bb41f) -
+  Migrate user picker feature gate unit tests to the supported mock-gates test utilities.
+- [`1457e7f84155e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1457e7f84155e) -
+  Cleanup feature gate platform_user_picker_fix_redundant_labelledby. Stop promoting
+  aria-describedby to aria-labelledby when aria-label is present (A11Y-37267).
+- Updated dependencies
+
+## 13.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.8.4
+
+### Patch Changes
+
+- [`f834c7d669731`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f834c7d669731) -
+  Removed feature gate TWCG-444 for Unified Share Dialogue experiment. No change in functionality
+- Updated dependencies
+
+## 13.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.8.2
+
+### Patch Changes
+
+- [`6902b31db1608`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6902b31db1608) -
+  Consolidate direct Popper.js callers behind `@atlaskit/popper` compatibility entry points and
+  feature-gated consumer adapters.
+
+  `@atlaskit/popper` now exposes compatibility entry points so existing direct `popper.js` /
+  `react-popper` callers can move their dependency ownership onto `@atlaskit/popper` without a full
+  rewrite:
+  - `@atlaskit/popper/react-popper` re-exports the React `usePopper` hook and `Manager` / `Popper` /
+    `Reference` render-prop components.
+  - `@atlaskit/popper/unsafe-imperative` re-exports the raw Popper.js v2 `createPopper` for
+    non-React, imperative callers. This is an escape hatch for existing callers only. Do not use it
+    for new code; build new overlays on `@atlaskit/top-layer` instead.
+
+  ```ts
+  // Imperative callers (migrating away from a direct `@popperjs/core` / `popper.js` import):
+  import { createPopper } from '@atlaskit/popper/unsafe-imperative';
+
+  const instance = createPopper(referenceElement, popperElement, {
+  	placement: 'bottom-start',
+  });
+
+  // React callers (migrating away from a direct `react-popper` import):
+  import { usePopper } from '@atlaskit/popper/react-popper';
+
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  	placement: 'bottom-start',
+  });
+  ```
+
+- Updated dependencies
+
+## 13.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.8.0
+
+### Minor Changes
+
+- [`7d37c14edffa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d37c14edffa7) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 13.7.2
+
+### Patch Changes
+
+- [`0e7deed0f8954`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e7deed0f8954) -
+  Clean up feature gate `enable-sup-archive-experience`. The archived team lozenge for DISBANDED
+  teams is now always shown.
+
+## 13.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.7.0
+
+### Minor Changes
+
+- [`5228612e884f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5228612e884f4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 13.6.0
+
+### Minor Changes
+
+- [`30f196e640e18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30f196e640e18) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.0
+
+### Minor Changes
+
+- [`7da4b354a3633`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7da4b354a3633) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 13.4.6
+
+### Patch Changes
+
+- [`0a1dac0483f0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a1dac0483f0a) -
+  Internal type fix: constrain the avatar `size` passed to `TeamAvatar` to the supported
+  `TeamAvatarSize` set (excludes the new private `UNSAFE_xsmall` 20px size, which has no team-avatar
+  artwork). No runtime behaviour change.
+- Updated dependencies
+
+## 13.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.3
+
+### Patch Changes
+
+- [`c259ffbd14ffc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c259ffbd14ffc) -
+  Migrate deprecated Lozenge appearance values to the new semantic appearances, and migrate
+  deprecated `SimpleTag`/`RemovableTag` to the default `Tag` export (SimpleTag with
+  `isRemovable={false}`).
+- Updated dependencies
+
+## 13.4.2
+
+### Patch Changes
+
+- [`38ef9b4fcf137`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38ef9b4fcf137) -
+  Behind gate `platform_user_picker_fix_redundant_labelledby`, stop promoting `aria-describedby` to
+  `aria-labelledby` on the user-picker input when an `aria-label` is present while still preserving
+  any explicit `aria-labelledby`, so screen readers announce the field's accessible name instead of
+  the description (A11Y-37267).
+- Updated dependencies
+
+## 13.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.0
+
+### Minor Changes
+
+- [`6d48bbf99477b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d48bbf99477b) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 13.2.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`404be770a2ccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/404be770a2ccf) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 13.1.0
+
+### Minor Changes
+
+- [`5bf738fb98422`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bf738fb98422) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- [`e0487eae0dec6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0487eae0dec6) -
+  Removed skipped ssr tests
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- [`72290778b16ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72290778b16ca) -
+  Enrol mixed platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`d4e632fa57116`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4e632fa57116) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- [`0039f15f6734f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0039f15f6734f) -
+  Clean up platform_user_picker_firefox_tab_fix FG (treated as off / control)
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- [`42a9772eb71b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42a9772eb71b8) -
+  replace 'react-intl-next' alias with 'react-intl'
+
+## 12.0.5
+
+### Patch Changes
+
+- [`01bfb2823034b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01bfb2823034b) -
+  Expands automatic accessibility (a11y) Playwright test coverage for Platform
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- [`7c17bccdb5fb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7c17bccdb5fb8) -
+  Fixes bug where tags were overlapping in multi-select in smaller screen sizes.
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- [`c23fa87416661`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c23fa87416661) -
+  Fixes bug where tags were overlapping in multi-select in smaller screen sizes.
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- [`ea970883e4943`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea970883e4943) -
+  Fixes bug where tags were overlapping in multi-select in smaller screen sizes.
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`deb3d6a6498e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/deb3d6a6498e8) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 11.25.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.25.9
+
+### Patch Changes
+
+- [`2c91b4048c838`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c91b4048c838) -
+  Bump i18n packages
+- Updated dependencies
+
+## 11.25.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.25.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.25.6
+
+### Patch Changes
+
+- [`56b3ad1028c58`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/56b3ad1028c58) -
+  Clean up feature gate jira_ai_agent_avatar_user_picker_user_option
+
+## 11.25.5
+
+### Patch Changes
+
+- [`608c375f6f9b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/608c375f6f9b9) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 11.25.4
+
+### Patch Changes
+
+- [`a4ffaeb7622b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4ffaeb7622b6) -
+  Fixed the wrong order of verified icon and Archived lozenge
+
+## 11.25.3
+
+### Patch Changes
+
+- [`16328bcd2e7f8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/16328bcd2e7f8) -
+  Accessibility fix to prevent auto menu open on focus
+
+## 11.25.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.25.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.25.0
+
+### Minor Changes
+
+- [`e40e50d76e29c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e40e50d76e29c) -
+  [ux] Updates user picker to use ADS tags in cases where we see icons in tags, insead of using ADS
+  Avatar tags.
+
+## 11.24.0
+
+### Minor Changes
+
+- [`1ad583e025c33`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ad583e025c33) -
+  [ux] Updates User picker, behind a feature gate, to use @atlaski/tag component when isMulti is
+  true.
+
+## 11.23.3
+
+### Patch Changes
+
+- [`1d0fcc9c19260`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d0fcc9c19260) -
+  Document manual translation updates for user-picker team byline messages.
+
+  Translations were updated manually in locale files (en, en_GB, and other languages) to support the
+  dynamic `{teamTypeName}` parameter in official/verified team byline messages. This allows the UI
+  to display server-provided team type labels (e.g. "Managed team", "Official team") instead of a
+  single hardcoded string. The manual update was done because these message key changes and new
+  placeholder usage required coordinated updates across the translation files outside of the normal
+  code-driven flow.
+
+## 11.23.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.23.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.23.0
+
+### Minor Changes
+
+- [`4222fa748c46e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4222fa748c46e) -
+  [ux] Feature flag clean up to enable keyboard interactions in with header prop plugin in
+  Confluence
+
+## 11.22.0
+
+### Minor Changes
+
+- [`c474c86e4ed4d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c474c86e4ed4d) -
+  Add isHeaderFocused prop to enable tabbing through header plugin in user picker.
+
+## 11.21.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 11.21.1
 
 ### Patch Changes

@@ -1,6 +1,9 @@
-import { token } from '@atlaskit/tokens';
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
+
+import { IntlProvider } from 'react-intl';
+
+import { token } from '@atlaskit/tokens';
+
 import { type MentionProvider } from '../src/api/MentionResource';
 import { type PresenceProvider } from '../src/api/PresenceResource';
 import MentionPicker, { type Position } from '../src/components/MentionPicker';
@@ -71,7 +74,7 @@ export default class MentionTextInput extends React.Component<Props, State> {
 		this.mentionPickerRef = ref;
 	};
 
-	render() {
+	render(): React.JSX.Element {
 		debug('demo-mention-text-input.render');
 		/* eslint no-unused-vars: 0 */
 		const { label, relativePosition, resourceProvider, presenceProvider, zIndex } = this.props;
@@ -110,7 +113,7 @@ export default class MentionTextInput extends React.Component<Props, State> {
 
 		return (
 			<IntlProvider locale="en">
-				<div style={{ padding: `${token('space.150', '12px')}` }}>
+				<div style={{ padding: `${token('space.150')}` }}>
 					{searchInput}
 					{mentionPicker}
 				</div>

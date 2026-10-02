@@ -1,13 +1,32 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { getGlobalTheme, ThemeMutationObserver } from '@atlaskit/tokens';
+import { getGlobalTheme } from '@atlaskit/tokens/get-global-theme';
+import { ThemeMutationObserver } from '@atlaskit/tokens/theme-mutation-observer';
 
 import { ColorModeContext, type ReconciledColorMode } from '../context/color-mode';
 
 /**
  * __useColorMode()__
  *
- * Returns the current color mode when inside the app provider.
+ * Returns the active (reconciled) color mode for the current theme context.
+ *
+ * When the color mode is set to `'auto'`, this hook returns the resolved value
+ * (`'light'` or `'dark'`) based on the system color scheme preference.
+ * it will never return `'auto'`. Use `useSetColorMode` to change the color mode.
+ *
+ * This hook can be used both inside and outside `AppProvider`. When used inside
+ * a nested `ThemeProvider`, it reflects the color mode of that sub-tree.
+ *
+ * @returns The current reconciled color mode: `'light'` or `'dark'`.
+ *
+ * @example
+ * ```tsx
+ * function MyComponent() {
+ *   const colorMode = useColorMode();
+ *
+ *   return <p>Current color mode: {colorMode}</p>;
+ * }
+ * ```
  */
 export function useColorMode(): ReconciledColorMode {
 	const value = useContext(ColorModeContext);

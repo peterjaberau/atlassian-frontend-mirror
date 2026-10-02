@@ -1,5 +1,7 @@
-import { tsRuleTester } from './utils/_tester';
+/** @jest-environment node */
+
 import { rule } from '../rules/enforce-editor-view-state-scope';
+import { tsRuleTester } from './utils/_tester';
 
 describe('enforce-editor-view-state-scope', () => {
 	tsRuleTester.run('enforce-editor-view-state-scope', rule, {

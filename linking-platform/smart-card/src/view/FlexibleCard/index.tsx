@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 
-import { useSmartLinkContext } from '@atlaskit/link-provider';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import UFOHoldLoad from '@atlaskit/react-ufo/load-hold';
 
 import { useAnalyticsEvents } from '../../common/analytics/generated/use-analytics-events';
@@ -10,10 +10,11 @@ import { extractPlaceHolderCardState } from '../../extractors/flexible/extract-p
 import { FlexibleCardContext, type FlexibleCardContextType } from '../../state/flexible-ui-context';
 import { useAISummaryConfig } from '../../state/hooks/use-ai-summary-config';
 import useResolve from '../../state/hooks/use-resolve';
-
+import useRovoConfig from '../../state/hooks/use-rovo-config';
+import { useSmartLinkCrossProductUrlWrapper } from '../../state/hooks/use-smart-link-cross-product-url-wrapper';
 import Container from './components/container';
+import { getContextByStatus } from './getContextByStatus';
 import { type FlexibleCardProps } from './types';
-import { getContextByStatus } from './utils';
 
 const PENDING_LINK_STATUSES = [SmartLinkStatus.Pending, SmartLinkStatus.Resolving];
 
@@ -25,11 +26,14 @@ const PENDING_LINK_STATUSES = [SmartLinkStatus.Pending, SmartLinkStatus.Resolvin
  */
 const FlexibleCard = ({
 	appearance = 'flexible',
+	navigation,
 	cardState,
 	children,
 	id,
 	onAuthorize,
 	onClick,
+	onAuxClick,
+	onContextMenu,
 	onError,
 	onResolve,
 	origin,
@@ -41,15 +45,25 @@ const FlexibleCard = ({
 	testId,
 	ui,
 	url,
+	title: ssrTitle,
 }: FlexibleCardProps): React.JSX.Element => {
 	const aiSummaryConfig = useAISummaryConfig();
 	const resolve = useResolve();
-	const { isPreviewPanelAvailable, openPreviewPanel } = useSmartLinkContext();
+	const { isPreviewPanelAvailable, isPreviewRestricted, openPreviewPanel, product } =
+		useSmartLinkContext();
+
+	const rovoConfig = useRovoConfig();
 
 	const { fireEvent } = useAnalyticsEvents();
 
 	const { status: cardType, details } = cardState;
 	const status = cardType as SmartLinkStatus;
+
+	const appendCrossProductAnalyticsParams = useSmartLinkCrossProductUrlWrapper({ details });
+	const transformUrl = useCallback(
+		(destinationUrl = url) => appendCrossProductAnalyticsParams(destinationUrl),
+		[appendCrossProductAnalyticsParams, url],
+	);
 
 	// if we have placeholder state it means we can internally use it
 	// as temporary resolved data until the actual data comes back as one of the final statuses
@@ -74,14 +88,20 @@ const FlexibleCard = ({
 				id,
 				onAuthorize,
 				onClick,
+				onAuxClick,
+				onContextMenu,
 				origin,
 				renderers,
 				resolve,
+				product,
+				rovoConfig,
 				actionOptions,
 				status: placeholderCardState ? placeHolderStatus : status,
 				url,
 				isPreviewPanelAvailable,
+				...(fg('preview_panel_unit_check') ? { isPreviewRestricted } : undefined),
 				openPreviewPanel,
+				transformUrl,
 			}),
 		[
 			aiSummaryConfig,
@@ -90,15 +110,21 @@ const FlexibleCard = ({
 			details,
 			id,
 			isPreviewPanelAvailable,
+			isPreviewRestricted,
 			onAuthorize,
 			onClick,
+			onAuxClick,
+			onContextMenu,
 			openPreviewPanel,
 			origin,
 			placeholderCardState,
 			placeHolderStatus,
+			product,
 			renderers,
 			resolve,
+			rovoConfig,
 			status,
+			transformUrl,
 			url,
 			fireEvent,
 		],
@@ -107,10 +133,11 @@ const FlexibleCard = ({
 	const flexibleCardContext = useMemo<FlexibleCardContextType>(
 		() => ({
 			data: context,
+			navigation: context ? navigation : undefined,
 			status: placeHolderStatus ?? status,
 			ui,
 		}),
-		[context, placeHolderStatus, status, ui],
+		[context, placeHolderStatus, status, ui, navigation],
 	);
 
 	const { linkTitle } = context || {};
@@ -123,9 +150,7 @@ const FlexibleCard = ({
 					onResolve({
 						title,
 						url,
-						...(fg('expose-product-details-from-smart-card') && {
-							extensionKey: details?.meta?.key,
-						}),
+						extensionKey: details?.meta?.key,
 					});
 				}
 				break;
@@ -145,11 +170,16 @@ const FlexibleCard = ({
 
 	return (
 		<FlexibleCardContext.Provider value={flexibleCardContext}>
-			{PENDING_LINK_STATUSES.includes(status) && !Boolean(placeholderCardState) && <UFOHoldLoad name="smart-card-flexible-card" />}
+			{PENDING_LINK_STATUSES.includes(status) && !Boolean(placeholderCardState) && (
+				<UFOHoldLoad name="smart-card-flexible-card" />
+			)}
 			<Container
 				testId={testId}
 				{...ui}
+				title={ssrTitle}
 				onClick={onClick}
+				onAuxClick={onAuxClick}
+				onContextMenu={onContextMenu}
 				showHoverPreview={showHoverPreview}
 				hoverPreviewOptions={hoverPreviewOptions}
 				actionOptions={actionOptions}

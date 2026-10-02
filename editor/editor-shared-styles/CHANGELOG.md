@@ -1,5 +1,1352 @@
 # @atlaskit/editor-shared-styles
 
+## 4.3.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.32
+
+### Patch Changes
+
+- [`6728bb1f412c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6728bb1f412c2) -
+  Remove the unused `platform_editor_toolbar_aifc` experiment registration and temporary-only
+  runtime branches, preserve toolbar treatments owned by `platform_editor_ai_aifc_streaming` or
+  `aifc_create_enabled`, retain the control experience when those checks are disabled, and correctly
+  hide decorative Rovo toolbar icons from assistive technology.
+- Updated dependencies
+
+## 4.3.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.27
+
+### Patch Changes
+
+- [`dec0b5dd31b2f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dec0b5dd31b2f) -
+  Add Figma, Lovable, and Replit contributor tags behind
+  confluence_ncs_step_diffing_version_history.
+- Updated dependencies
+
+## 4.3.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.24
+
+### Patch Changes
+
+- [`6fc3ffdbe2bf3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6fc3ffdbe2bf3) -
+  Use Rovo's registered brand colour in its fixed participant palette slot.
+- Updated dependencies
+
+## 4.3.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.20
+
+### Patch Changes
+
+- [`b378d1dd86483`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b378d1dd86483) -
+  Brand ChatGPT contributor tags with the ChatGPT icon and a fixed colour.
+
+  Centralised agent brand metadata in `@atlaskit/agent-color`: added `agent-brand-claude`,
+  `agent-brand-chatgpt` and `agent-brand-rovo` colour schemes, and extended
+  `getThirdPartyAgentColor` (`./get-third-party-agent-color`) to also resolve the
+  `claude`/`chatgpt`/`rovo`/`rovo_chat` aliases and return a canonical display `name`. Removed the
+  now-redundant `./chatgpt-brand-color` export (`CHATGPT_BRAND_COLOR`) — its value is now the
+  `agent-brand-chatgpt` scheme's `bold`/`boldText` fields, reachable through
+  `getThirdPartyAgentColor`.
+
+  `editor-shared-styles` and `editor-plugin-show-diff` now resolve their brand colours and
+  contributor-tag names through this shared lookup instead of maintaining their own per-package
+  brand tables, with no behaviour change.
+
+- Updated dependencies
+
+## 4.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.18
+
+### Patch Changes
+
+- [`05f62aecc1387`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/05f62aecc1387) -
+  Use the lime diff colour for agents assigned the lime Agent Studio colour.
+
+## 4.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.15
+
+### Patch Changes
+
+- [`1351b0fb49e7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1351b0fb49e7d) -
+  Support branded Claude and ChatGPT contributor tags, use the ChatGPT Presence artwork, and assign
+  Claude and ChatGPT their fixed orange and gray diff colours.
+
+## 4.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.13
+
+### Patch Changes
+
+- [`5ea393c04c702`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ea393c04c702) -
+  [ux] Reserve red for deleted content: telepointers and collab avatars now skip the red participant
+  palette slots. Behind `confluence_ncs_step_diffing_version_history`.
+- Updated dependencies
+
+## 4.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.5
+
+### Patch Changes
+
+- [`3f76a4ffe41c8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f76a4ffe41c8) -
+  Cleanup `platform_editor_controls_increase_full_page_gutter` and the fully rolled-out
+  `platform_editor_controls` checks directly stacked with it, retaining the larger full-page gutter
+  permanently. Other controls experiment checks remain for iterative cleanup.
+
+## 4.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.0
+
+### Minor Changes
+
+- [`a8b0726ce1e34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8b0726ce1e34) -
+  Adds shared semantic agent colour resolution and aligns diff history with agent telepointers
+  behind `confluence_ncs_step_diffing_version_history`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.0
+
+### Minor Changes
+
+- [`920a9bc294e07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/920a9bc294e07) -
+  Show names for supported external agents, plus Claude branding and its consistent orange diff
+  colour. Share the Claude colour override through getParticipantColor for diff attribution and
+  collaboration telepointers behind confluence_ncs_step_diffing_version_history.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.58
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 4.0.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.30
+
+### Patch Changes
+
+- [`00f3166426df4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00f3166426df4) -
+  adopt cssMapScoped for editor core compiled css migration
+- Updated dependencies
+
+## 4.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.10
+
+### Patch Changes
+
+- [`ae8f78f39a5d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae8f78f39a5d2) -
+  Fix white masking wrapper (from sticky headers) visible when tables are nested inside coloured
+  panels
+- Updated dependencies
+
+## 3.11.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.11.0
+
+### Minor Changes
+
+- [`7b2ab46c79d94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b2ab46c79d94) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.74
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.37
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 3.10.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.10.17
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.10.16
 
 ### Patch Changes

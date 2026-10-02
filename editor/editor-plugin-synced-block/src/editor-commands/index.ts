@@ -1,13 +1,14 @@
 import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
-import type { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import {
+	type INPUT_METHOD,
 	ACTION,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 	type DispatchAnalyticsEvent,
 } from '@atlaskit/editor-common/analytics';
-import { copyDomNode, toDOM } from '@atlaskit/editor-common/copy-button';
+import { copyDomNodeWithResult, toDOM } from '@atlaskit/editor-common/copy-button';
+import { getSourceNodesFromSelectionRange } from '@atlaskit/editor-common/selection';
 import type {
 	Command,
 	CommandDispatch,
@@ -15,13 +16,18 @@ import type {
 	ExtractInjectionAPI,
 	TypeAheadInsert,
 } from '@atlaskit/editor-common/types';
-import type { Schema } from '@atlaskit/editor-prosemirror/model';
-import { DOMSerializer, Fragment, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import {
+	type Schema,
+	DOMSerializer,
+	Fragment,
+	type Node as PMNode,
+} from '@atlaskit/editor-prosemirror/model';
+import {
+	NodeSelection,
+	Selection,
+	TextSelection,
 	type EditorState,
 	type Transaction,
-	TextSelection,
-	type Selection,
 } from '@atlaskit/editor-prosemirror/state';
 import {
 	findSelectedNodeOfType,
@@ -31,25 +37,90 @@ import {
 } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { SyncBlockStoreManager } from '@atlaskit/editor-synced-block-provider';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { getSourceProductFromResourceIdSafe } from '@atlaskit/editor-synced-block-provider/utils';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { syncedBlockPluginKey } from '../pm-plugins/main';
+import { creationMetaKey, deleteMechanismMetaKey, syncedBlockPluginKey } from '../pm-plugins/main';
 import {
 	canBeConvertedToSyncBlock,
+	deferDispatch,
 	findSyncBlock,
 	findSyncBlockOrBodiedSyncBlock,
 	isBodiedSyncBlockNode,
 } from '../pm-plugins/utils/utils';
 import type { SyncedBlockPlugin } from '../syncedBlockPluginType';
 import { FLAG_ID } from '../types';
-
-import { pasteSyncBlockHTMLContent } from './utils';
+import { findBodiedSyncBlockByLocalId, pasteSyncBlockHTMLContent } from './utils';
 
 type createSyncedBlockProps = {
 	fireAnalyticsEvent?: DispatchAnalyticsEvent;
+	/**
+	 * Creating surface, stashed on the transaction to attach to the async
+	 * `syncedBlockCreate` event. Optional so legacy callers still type-check.
+	 */
+	inputMethod?: INPUT_METHOD;
 	syncBlockStore: SyncBlockStoreManager;
 	tr: Transaction;
 	typeAheadInsert?: TypeAheadInsert;
+};
+
+/**
+ * Place the caret on the first editable position inside the newly created bodied
+ * sync block, identified by its unique localId.
+ *
+ * - Empty selection: lands inside the block's empty paragraph.
+ * - Converted content: lands at the start of the first editable child.
+ *
+ * `createSyncedBlock` builds the node but neither `safeInsert` (empty case) nor
+ * `replaceWith` (convert case) leaves the selection inside the new block, so
+ * without this the caret ends up outside/adjacent to the block after creation
+ * from the block menu or toolbar (EDITOR-7949). The typeahead path avoids this
+ * because `typeAheadInsert` positions the caret for us.
+ *
+ * Note: when created from the block menu, block-controls' selection preservation
+ * is active and will restore a whole-node NodeSelection over this caret. The
+ * caller (block-menu item) is responsible for calling `stopPreservingSelection`
+ * in the same flow so the caret survives — mirroring the block-menu delete item.
+ */
+const placeCaretInsideBodiedSyncBlock = (tr: Transaction, localId: string): Transaction => {
+	const bodiedSyncBlockType = tr.doc.type.schema.nodes.bodiedSyncBlock;
+
+	let blockPos: number | undefined;
+	tr.doc.descendants((node, pos) => {
+		if (blockPos !== undefined) {
+			return false;
+		}
+		if (node.type === bodiedSyncBlockType && node.attrs.localId === localId) {
+			blockPos = pos;
+			return false;
+		}
+		return true;
+	});
+
+	if (blockPos === undefined) {
+		return tr;
+	}
+
+	// Find the first valid text position at or after the block's start. `findFrom`
+	// with textOnly=true descends into the first editable child (empty paragraph or
+	// start of the converted content), which is exactly what we want for both cases.
+	const selection = Selection.findFrom(tr.doc.resolve(blockPos), 1, true);
+	if (selection) {
+		tr.setSelection(selection).scrollIntoView();
+	} else {
+		// Fallback: `bodiedSyncBlock` is always created with a paragraph as its first
+		// child, so a text position should always be found above. This guards against
+		// future schema changes where the first child isn't immediately text-editable
+		// — place the caret just inside the block rather than leaving it outside.
+		// `blockPos + 1` is the position immediately after the block's opening token,
+		// which is a node boundary rather than a valid text position, so use
+		// `TextSelection.near` to snap forward to the nearest selectable cursor. It
+		// also clamps to the document bounds internally, so no explicit end-of-doc
+		// check is required.
+		tr.setSelection(TextSelection.near(tr.doc.resolve(blockPos + 1), 1)).scrollIntoView();
+	}
+	return tr;
 };
 
 export const createSyncedBlock = ({
@@ -57,12 +128,19 @@ export const createSyncedBlock = ({
 	syncBlockStore,
 	typeAheadInsert,
 	fireAnalyticsEvent,
+	inputMethod,
 }: createSyncedBlockProps): false | Transaction => {
 	const {
 		schema: {
 			nodes: { bodiedSyncBlock, paragraph },
 		},
 	} = tr.doc.type;
+
+	// Capture createdEmpty before any insertion mutates the selection. The meta is
+	// set on the final transaction before returning (see below), since the
+	// typeahead path may reassign `tr` and drop meta set here.
+	const createdEmpty = tr.selection.empty;
+	let nodeTypes: string[] | undefined;
 
 	// If the selection is empty, we want to insert the sync block on a new line
 	if (tr.selection.empty) {
@@ -86,16 +164,14 @@ export const createSyncedBlock = ({
 			return false;
 		}
 
-		// Save the new node with empty content to backend
-		// This is so that the node can be copied and referenced without the source being saved/published
-		if (!fg('platform_synced_block_patch_1')) {
-			syncBlockStore.sourceManager.createBodiedSyncBlockNode(attrs, () => {});
-		}
-
 		if (typeAheadInsert) {
 			tr = typeAheadInsert(newBodiedSyncBlockNode);
 		} else {
 			tr = safeInsert(newBodiedSyncBlockNode)(tr).scrollIntoView();
+			// safeInsert does not move the selection into the new block, so place the
+			// caret inside the block's empty paragraph so typing continues inside the
+			// synced block (EDITOR-7949).
+			tr = placeCaretInsideBodiedSyncBlock(tr, newBodiedSyncBlockNode.attrs.localId);
 		}
 	} else {
 		const conversionInfo = canBeConvertedToSyncBlock(tr.selection);
@@ -112,10 +188,21 @@ export const createSyncedBlock = ({
 			return false;
 		}
 
+		if (isExperimentEnabled('platform_editor_sync_block_node_types')) {
+			nodeTypes = [
+				...new Set(
+					getSourceNodesFromSelectionRange(tr, tr.selection).map((node) => node.type.name),
+				),
+			].sort();
+		}
+
 		const attrs = syncBlockStore.sourceManager.generateBodiedSyncBlockAttrs();
 		const newBodiedSyncBlockNode = bodiedSyncBlock.createAndFill(
 			attrs,
 			conversionInfo.contentToInclude,
+			fg('platform_editor_blocks_patch_8') && conversionInfo.breakoutMark
+				? [conversionInfo.breakoutMark]
+				: undefined,
 		);
 
 		if (!newBodiedSyncBlockNode) {
@@ -131,22 +218,16 @@ export const createSyncedBlock = ({
 			return false;
 		}
 
-		// Save the new node with empty content to backend
-		// This is so that the node can be copied and referenced without the source being saved/published
-		if (!fg('platform_synced_block_patch_1')) {
-			// Moved to appendTransaction
-			syncBlockStore.sourceManager.createBodiedSyncBlockNode(
-				attrs,
-				() => {},
-				newBodiedSyncBlockNode,
-			);
-		}
-
 		tr.replaceWith(conversionInfo.from, conversionInfo.to, newBodiedSyncBlockNode).scrollIntoView();
 
-		// set selection to the start of the previous selection for the position taken up by the start of the new synced block
-		tr.setSelection(TextSelection.create(tr.doc, conversionInfo.from));
+		// Place the caret on the first editable position inside the converted
+		// content so typing continues inside the synced block (EDITOR-7949).
+		tr = placeCaretInsideBodiedSyncBlock(tr, newBodiedSyncBlockNode.attrs.localId);
 	}
+
+	// Stash creation-type signals on the final transaction after any typeahead
+	// reassignment. nodeTypes is populated only for gated non-empty conversions.
+	tr.setMeta(creationMetaKey, { createdEmpty, inputMethod, nodeTypes });
 
 	return tr;
 };
@@ -155,11 +236,13 @@ export const copySyncedBlockReferenceToClipboardEditorCommand: (
 	syncBlockStore: SyncBlockStoreManager,
 	inputMethod: INPUT_METHOD,
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>,
+	isLivePage?: boolean,
 ) => EditorCommand =
 	(
 		syncBlockStore: SyncBlockStoreManager,
 		inputMethod: INPUT_METHOD,
 		api?: ExtractInjectionAPI<SyncedBlockPlugin>,
+		isLivePage?: boolean,
 	) =>
 	({ tr }) => {
 		if (
@@ -169,6 +252,7 @@ export const copySyncedBlockReferenceToClipboardEditorCommand: (
 				syncBlockStore,
 				inputMethod,
 				api,
+				isLivePage,
 			)
 		) {
 			return tr;
@@ -181,21 +265,23 @@ export const copySyncedBlockReferenceToClipboard: (
 	syncBlockStore: SyncBlockStoreManager,
 	inputMethod: INPUT_METHOD,
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>,
+	isLivePage?: boolean,
 ) => Command =
 	(
 		syncBlockStore: SyncBlockStoreManager,
 		inputMethod: INPUT_METHOD,
 		api?: ExtractInjectionAPI<SyncedBlockPlugin>,
+		isLivePage?: boolean,
 	) =>
-	(state: EditorState, _dispatch?: CommandDispatch, _view?: EditorView) => {
-		return copySyncedBlockReferenceToClipboardInternal(
+	(state: EditorState, _dispatch?: CommandDispatch, _view?: EditorView) =>
+		copySyncedBlockReferenceToClipboardInternal(
 			state.tr.doc.type.schema,
 			state.tr.selection,
 			syncBlockStore,
 			inputMethod,
 			api,
+			isLivePage,
 		);
-	};
 
 const copySyncedBlockReferenceToClipboardInternal = (
 	schema: Schema,
@@ -203,21 +289,20 @@ const copySyncedBlockReferenceToClipboardInternal = (
 	syncBlockStore: SyncBlockStoreManager,
 	inputMethod: INPUT_METHOD,
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>,
+	isLivePage?: boolean,
 ): boolean => {
 	const syncBlockFindResult = findSyncBlockOrBodiedSyncBlock(schema, selection);
 	if (!syncBlockFindResult) {
-		if (fg('platform_synced_block_patch_1')) {
-			api?.analytics?.actions?.fireAnalyticsEvent({
-				eventType: EVENT_TYPE.OPERATIONAL,
-				action: ACTION.ERROR,
-				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
-				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
-				attributes: {
-					error: 'No sync block found in selection',
-					inputMethod,
-				},
-			});
-		}
+		api?.analytics?.actions?.fireAnalyticsEvent({
+			eventType: EVENT_TYPE.OPERATIONAL,
+			action: ACTION.ERROR,
+			actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+			actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+			attributes: {
+				error: 'No sync block found in selection',
+				inputMethod,
+			},
+		});
 		return false;
 	}
 
@@ -239,19 +324,17 @@ const copySyncedBlockReferenceToClipboardInternal = (
 			),
 		});
 		if (!referenceSyncBlockNode) {
-			if (fg('platform_synced_block_patch_1')) {
-				api?.analytics?.actions?.fireAnalyticsEvent({
-					eventType: EVENT_TYPE.OPERATIONAL,
-					action: ACTION.ERROR,
-					actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
-					actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
-					attributes: {
-						error: 'Failed to create reference sync block node',
-						resourceId: syncBlockFindResult.node.attrs.resourceId,
-						inputMethod,
-					},
-				});
-			}
+			api?.analytics?.actions?.fireAnalyticsEvent({
+				eventType: EVENT_TYPE.OPERATIONAL,
+				action: ACTION.ERROR,
+				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+				attributes: {
+					error: 'Failed to create reference sync block node',
+					resourceId: syncBlockFindResult.node.attrs.resourceId,
+					inputMethod,
+				},
+			});
 			return false;
 		}
 	} else {
@@ -259,45 +342,70 @@ const copySyncedBlockReferenceToClipboardInternal = (
 	}
 
 	if (!referenceSyncBlockNode) {
-		if (fg('platform_synced_block_patch_1')) {
-			api?.analytics?.actions?.fireAnalyticsEvent({
-				eventType: EVENT_TYPE.OPERATIONAL,
-				action: ACTION.ERROR,
-				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
-				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
-				attributes: {
-					error: 'No reference sync block node available',
-					inputMethod,
-				},
-			});
-		}
+		api?.analytics?.actions?.fireAnalyticsEvent({
+			eventType: EVENT_TYPE.OPERATIONAL,
+			action: ACTION.ERROR,
+			actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+			actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+			attributes: {
+				error: 'No reference sync block node available',
+				inputMethod,
+			},
+		});
 		return false;
 	}
 
 	const domNode = toDOM(referenceSyncBlockNode, schema);
-	copyDomNode(domNode, referenceSyncBlockNode.type, selection);
 
-	// Use setTimeout to dispatch transaction in next tick and avoid re-entrant dispatch
-	setTimeout(() => {
+	// Bare-uuid join key shared with the create/delete events: for a source
+	// bodiedSyncBlock its `localId` is the source uuid (copy was page-form only).
+	const sourceJoinKey = isBodiedSyncBlock ? syncBlockFindResult.node.attrs.localId : undefined;
+	const isSourceContentUnpublished = isBodiedSyncBlock
+		? syncBlockStore.sourceManager.getStatus(syncBlockFindResult.node.attrs.resourceId) !== 'active'
+		: syncBlockStore.referenceManager.getFromCache(referenceSyncBlockNode.attrs.resourceId)?.data
+				?.status === 'unpublished';
+	const sourceProduct = getSourceProductFromResourceIdSafe(referenceSyncBlockNode.attrs.resourceId);
+
+	const copyResult = copyDomNodeWithResult(domNode, referenceSyncBlockNode.type, selection);
+	if (copyResult === false) {
+		api?.analytics?.actions?.fireAnalyticsEvent({
+			eventType: EVENT_TYPE.OPERATIONAL,
+			action: ACTION.ERROR,
+			actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+			actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+			attributes: {
+				error: 'Failed to copy synced block to clipboard',
+				resourceId: referenceSyncBlockNode.attrs.resourceId,
+				inputMethod,
+			},
+		});
+		return false;
+	}
+
+	deferDispatch(() => {
 		api?.core.actions.execute(({ tr }) => {
-			if (fg('platform_synced_block_patch_1')) {
-				api?.analytics?.actions?.fireAnalyticsEvent({
-					eventType: EVENT_TYPE.OPERATIONAL,
-					action: ACTION.COPIED,
-					actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
-					actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
-					attributes: {
-						resourceId: referenceSyncBlockNode.attrs.resourceId,
-						inputMethod,
-					},
-				});
-			}
+			api?.analytics?.actions?.fireAnalyticsEvent({
+				eventType: EVENT_TYPE.OPERATIONAL,
+				action: ACTION.COPIED,
+				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_COPY,
+				attributes: {
+					resourceId: referenceSyncBlockNode.attrs.resourceId,
+					inputMethod,
+					...(sourceJoinKey && { blockInstanceId: sourceJoinKey }),
+				},
+			});
 
 			return tr.setMeta(syncedBlockPluginKey, {
-				activeFlag: { id: FLAG_ID.SYNC_BLOCK_COPIED },
+				activeFlag: {
+					id: FLAG_ID.SYNC_BLOCK_COPIED,
+					isLivePage,
+					isSourceContentUnpublished,
+					sourceProduct,
+				},
 			});
 		});
-	}, 0);
+	});
 
 	return true;
 };
@@ -313,23 +421,36 @@ export const editSyncedBlockSource =
 		}
 
 		const syncBlockURL = syncBlockStore.referenceManager.getSyncBlockURL(resourceId);
+		const syncBlockData = syncBlockStore.referenceManager.getFromCache(resourceId)?.data;
+		const isOnSameDocument = syncBlockData?.onSameDocument === true;
+		const sourceBlock =
+			isOnSameDocument && syncBlockData
+				? findBodiedSyncBlockByLocalId(state, syncBlockData.blockInstanceId)
+				: undefined;
 
 		if (syncBlockURL) {
-			if (fg('platform_synced_block_patch_1')) {
-				api?.analytics?.actions.fireAnalyticsEvent({
-					eventType: EVENT_TYPE.OPERATIONAL,
-					action: ACTION.SYNCED_BLOCK_EDIT_SOURCE,
-					actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
-					actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_SOURCE_URL,
-					attributes: {
-						resourceId: resourceId,
-					},
-				});
+			api?.analytics?.actions.fireAnalyticsEvent({
+				eventType: EVENT_TYPE.OPERATIONAL,
+				action: ACTION.SYNCED_BLOCK_EDIT_SOURCE,
+				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_SOURCE_URL,
+				attributes: {
+					resourceId: resourceId,
+					sameDocument: isOnSameDocument,
+				},
+			});
+
+			if (sourceBlock) {
+				const tr = state.tr
+					.setSelection(NodeSelection.create(state.doc, sourceBlock.pos))
+					.scrollIntoView();
+				dispatch?.(tr);
+				return true;
 			}
 
 			window.open(syncBlockURL, '_blank');
 		} else {
-			const tr = state.tr;
+			const { tr } = state;
 			api?.analytics?.actions?.attachAnalyticsEvent({
 				eventType: EVENT_TYPE.OPERATIONAL,
 				action: ACTION.ERROR,
@@ -371,6 +492,10 @@ export const removeSyncedBlock =
 			return false;
 		}
 
+		// Tag the transaction so analytics can report this as `deleteButton` rather
+		// than a keyboard delete (both produce a plain ReplaceStep).
+		removeTr.setMeta(deleteMechanismMetaKey, 'deleteButton');
+
 		dispatch(removeTr);
 		api?.core.actions.focus();
 
@@ -380,12 +505,14 @@ export const removeSyncedBlock =
 export const removeSyncedBlockAtPos = (
 	api: ExtractInjectionAPI<SyncedBlockPlugin> | undefined,
 	pos: number,
-) => {
+): void => {
 	api?.core.actions.execute(({ tr }) => {
 		const node = tr.doc.nodeAt(pos);
 
 		if (node?.type.name === 'syncBlock') {
-			return tr.replace(pos, pos + (node?.nodeSize ?? 0));
+			const removeTr = tr.replace(pos, pos + (node?.nodeSize ?? 0));
+			removeTr.setMeta(deleteMechanismMetaKey, 'deleteButton');
+			return removeTr;
 		}
 		return tr;
 	});
@@ -397,7 +524,7 @@ export const unsync = (
 	storeManager: SyncBlockStoreManager,
 	isBodiedSyncBlock: boolean,
 	view?: EditorView,
-) => {
+): boolean => {
 	if (!view) {
 		return false;
 	}
@@ -409,8 +536,14 @@ export const unsync = (
 	}
 
 	if (isBodiedSyncBlock) {
+		// Signal the unsync intent. This transaction is intercepted by the plugin's
+		// filterTransaction, which shows the deletion-confirmation modal and, on confirm,
+		// recomputes the actual document change from the live document keyed off the
+		// `deletionReason: 'source-block-unsynced'` meta (see handleBodiedSyncBlockRemoval /
+		// recomputeUnsyncTransaction). The real unwrap-vs-delete decision therefore lives in the
+		// confirm path, not here (EDITOR-8230).
 		const content = syncBlock?.node.content;
-		const tr = state.tr;
+		const { tr } = state;
 		tr.replaceWith(syncBlock.pos, syncBlock.pos + syncBlock.node.nodeSize, content).setMeta(
 			'deletionReason',
 			'source-block-unsynced',

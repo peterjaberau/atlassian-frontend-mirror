@@ -1,5 +1,687 @@
 # @atlaskit/icon-lab
 
+## 7.11.0
+
+### Minor Changes
+
+- [`3fbc5931c675b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3fbc5931c675b) -
+  This release adds and updates icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `ai-generative-fix`
+  - `modal`
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `dock-window-bottom-left`
+  - `dock-window-bottom-right`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.10.0
+
+### Minor Changes
+
+- [`3648fe5f144ed`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3648fe5f144ed) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `conversation`
+
+## 7.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.9.0
+
+### Minor Changes
+
+- [`93685755a235e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93685755a235e) -
+  This release adds and updates icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `ai-filter`
+  - `end-call`
+  - `enterprise-certified`
+  - `guitar`
+  - `hand-wave`
+  - `headset`
+  - `piano`
+  - `rovo-digest`
+  - `sine-wave`
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `assets-graph`
+  - `capability`
+  - `diagram-arrowhead-aggregation-up-right`
+  - `diagram-arrowhead-association-left`
+  - `diagram-arrowhead-association-right`
+  - `diagram-arrowhead-association-up-right`
+  - `diagram-arrowhead-circle-up-right`
+  - `diagram-symbol-decision`
+  - `diagram-symbol-manual-input`
+  - `diagram-symbol-sort`
+  - `hardware-ship`
+  - `hardware-transfer`
+  - `if-else`
+  - `incognito`
+  - `link-restricted-access`
+  - `milestone-complete`
+  - `milestone-incomplete`
+  - `milestone-multiple`
+  - `milestone-overdue`
+  - `randomize`
+  - `repeat`
+  - `skip-unskip`
+  - `spaces`
+  - `step-through`
+  - `stroke-curvature-straight`
+  - `studio`
+  - `tab`
+  - `video-record`
+  - `video-skip-backward-five`
+  - `video-skip-forward-five`
+  - `video-watch-later-saved`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.8.0
+
+### Minor Changes
+
+- [`7b6da1701c25a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b6da1701c25a) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `hardware-insights`
+  - `question-circle-filled`
+
+## 7.7.2
+
+### Patch Changes
+
+- [`85a3e1ec4b6ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85a3e1ec4b6ff) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 7.7.1
+
+### Patch Changes
+
+- [`4612437357f61`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4612437357f61) -
+  Remove references to the unused @atlassian/icon-private package. Its value is dropped from the
+  icon metadata location union, the ensure-icon-color lint rule no longer matches it, and the
+  adoption scanner no longer scans its entrypoint.
+- Updated dependencies
+
+## 7.7.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.6.0
+
+### Minor Changes
+
+- [`19f67a13fde54`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19f67a13fde54) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `block-quote`
+  - `hardware-assignment`
+  - `pull-quote`
+  - `step-through`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.5.0
+
+### Minor Changes
+
+- [`9f6f84dd3db72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f6f84dd3db72) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `curve-ease-in`
+  - `curve-ease-out`
+  - `curve-linear`
+  - `hardware-cleanse`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.4.1
+
+### Patch Changes
+
+- [`edeb4ec55e98c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/edeb4ec55e98c) -
+  Remove `ts-node` dependency. Regenerate icon glypths.
+- Updated dependencies
+
+## 7.4.0
+
+### Minor Changes
+
+- [`1502a8099fc80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1502a8099fc80) -
+  This release adds and updates icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `calendar-unavailable`
+  - `carousel`
+  - `rovo-chat-dashed`
+  - `table-of-content`
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `text-review`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`220103ecf27a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/220103ecf27a6) -
+  This release updates icons in `@atlaskit/icon` and `@atlaskit/icon-lab`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+
+  **`@atlaskit/icon-lab/core`**
+  - `text-rephrase`
+  - `text-review`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`47fda51eceac5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47fda51eceac5) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `text-review`
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.14.0
+
+### Minor Changes
+
+- [`1cf6739aac60c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1cf6739aac60c) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `loom`
+
+## 6.13.0
+
+### Minor Changes
+
+- [`9c0155c00d835`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9c0155c00d835) -
+  This release updates icons in `@atlaskit/icon-lab`.
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `playlist-added`
+  - `teamwork-graph`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.12.0
+
+### Minor Changes
+
+- [`16804116e2d36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/16804116e2d36) -
+  This release adds and updates icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `arrow-up-circle`
+  - `cloud-fortified`
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `tabs`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.11.0
+
+### Minor Changes
+
+- [`14dec73701a1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14dec73701a1e) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `atlassian`
+  - `image-ratio-auto`
+  - `image-ratio-narrow`
+  - `image-ratio-portrait`
+  - `image-ratio-wide`
+  - `tabs`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.10.0
+
+### Minor Changes
+
+- [`28617d8f348d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28617d8f348d3) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `atlassian`
+  - `image-ratio-auto`
+  - `image-ratio-narrow`
+  - `image-ratio-portrait`
+  - `image-ratio-wide`
+  - `tabs`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.0
+
+### Minor Changes
+
+- [`3324f4e01c411`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3324f4e01c411) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `ai-agent-add`
+  - `emoji-sad`
+
+## 6.8.0
+
+### Minor Changes
+
+- [`2839666e3fb27`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2839666e3fb27) -
+  This release updates icons in `@atlaskit/icon-lab`.
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `hierarchy`
+  - `speedometer-up`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.0
+
+### Minor Changes
+
+- [`0e2b29db61e0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e2b29db61e0a) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `bed`
+  - `bird`
+  - `clock-alarm`
+  - `fire-alarm`
+  - `fire`
+  - `folder-add`
+  - `keyboard`
+  - `lasso`
+  - `risk`
+  - `speedometer-left-down`
+  - `speedometer-left-up`
+  - `speedometer-right-down`
+  - `speedometer-right-up`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.0
+
+### Minor Changes
+
+- [`a8a1708dfe5e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8a1708dfe5e6) -
+  This release adds and updates icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `data-lake`
+  - `deployed-service`
+  - `file-markdown`
+  - `file-text`
+  - `hierarchy`
+  - `view-split`
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `teamwork-graph`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.0
+
+### Minor Changes
+
+- [`a42fb7e88fcfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a42fb7e88fcfa) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `text-normal`
+  - `text-small`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.0
+
+### Minor Changes
+
+- [`bc0f40e9c0883`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc0f40e9c0883) -
+  This release updates icons in `@atlaskit/icon-lab`.
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `video-timeline-clip-split`
+  - `video-timeline-editor`
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 6.3.0
+
+### Minor Changes
+
+- [`0df4c28466a02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0df4c28466a02) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `person-assignee`
+  - `video-timeline-clip-insert-end`
+  - `video-timeline-clip-insert-playhead`
+  - `video-timeline-clip-insert-start`
+
+## 6.2.2
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 6.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.0
+
+### Minor Changes
+
+- [`0daada0469ab8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0daada0469ab8) -
+  Remove `@atlaskit/icon/migration-map` entry point, `IconMigrationMap` and
+  `IconMigrationSizeGuidance` types from `@atlaskit/icon`, and `@atlaskit/icon-lab/migration-map`
+  entry point. These were only needed to support the legacy glyph icon migration path which has now
+  been fully completed. Remove the `no-legacy-icons` ESLint rule from
+  `@atlaskit/eslint-plugin-design-system` as `@atlaskit/icon/glyph` and
+  `@atlaskit/icon/core/migration` no longer exist.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`f27204c42a94f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f27204c42a94f) -
+  This release adds icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `ai-generative-remix`
+  - `ai-generative-slides`
+
+### Patch Changes
+
+- [`c426ad3d11c7c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c426ad3d11c7c) -
+  Fixes to icon build process
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`f1ef2305b8862`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1ef2305b8862) -
+  Remove legacy icon glyphs and oldName prop support from metadata core.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.18.0
+
+### Minor Changes
+
+- [`99726ea06a76c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/99726ea06a76c) -
+  This release adds and updates icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `approval-start`
+  - `dock-toolbar-bottom`
+  - `dock-window-bottom-left`
+  - `dock-window-bottom-right`
+  - `hardware-audit`
+  - `hardware-configuration`
+  - `hardware-defect`
+  - `hardware-dispose`
+  - `hardware-fulfil`
+  - `hardware-new`
+  - `hardware-procure`
+  - `hardware-refresh`
+  - `hardware-repair`
+  - `hardware-return`
+  - `hardware-ship`
+  - `hardware-transfer`
+  - `person-lock-locked`
+  - `person-lock-unlocked`
+  - `registry-service`
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `person-voiceover`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.17.0
+
+### Minor Changes
+
+- [`f3af0f1353dd5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3af0f1353dd5) -
+  Remove legacy icon glyphs and oldName prop support from metadata core.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.16.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.16.0
+
+### Minor Changes
+
+- [`ea7a01d023b36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea7a01d023b36) -
+  This release adds and updates icons in `@atlaskit/icon-lab`.
+
+  ### Added:
+
+  **`@atlaskit/icon-lab/core`**
+  - `ask`
+
+  ### Updated:
+
+  **`@atlaskit/icon-lab/core`**
+  - `editions`
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 5.15.1
 
 ### Patch Changes

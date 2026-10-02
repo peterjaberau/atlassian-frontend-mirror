@@ -1,13 +1,19 @@
-import type { Schema } from '@atlaskit/editor-prosemirror/model';
-import { type Node as PMNode, Fragment } from '@atlaskit/editor-prosemirror/model';
+import { type Schema, Fragment, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 
 import { isListWithIndentation } from '../nodeChecks';
 import type { TransformStep } from '../types';
 
-const extractNestedLists = (node: PMNode, schema: Schema): PMNode[] => {
+const extractNestedLists = (
+	node: PMNode,
+	schema: Schema,
+	includeBlockTaskItems: boolean,
+): PMNode[] => {
 	const items: PMNode[] = [];
 	const paragraph = schema.nodes.paragraph;
 	const itemTypes = [schema.nodes.listItem, schema.nodes.taskItem, schema.nodes.decisionItem];
+	if (includeBlockTaskItems && schema.nodes.blockTaskItem) {
+		itemTypes.push(schema.nodes.blockTaskItem);
+	}
 
 	const extract = (currentNode: PMNode): void => {
 		currentNode.forEach((child) => {
@@ -81,7 +87,11 @@ const extractNestedLists = (node: PMNode, schema: Schema): PMNode[] => {
 export const flattenListStep: TransformStep = (nodes, context) => {
 	return nodes.map((node) => {
 		if (isListWithIndentation(node.type.name, context.schema)) {
-			return node.copy(Fragment.from(extractNestedLists(node, context.schema)));
+			return node.copy(
+				Fragment.from(
+					extractNestedLists(node, context.schema, Boolean(context.includeBlockTaskItems)),
+				),
+			);
 		}
 
 		return node;

@@ -1,8 +1,9 @@
 {
 	"name": "@atlaskit/navigation-system",
-	"version": "5.34.0",
+	"version": "11.1.2",
 	"description": "The latest navigation system for Atlassian apps.",
 	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-mirror",
+	"license": "Apache-2.0",
 	"author": "Atlassian Pty Ltd",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -11,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
@@ -33,23 +26,10 @@
 		"./top-nav-items/log-in": "./src/entry-points/top-nav-items/log-in.tsx",
 		"./top-nav-items/custom-title": "./src/entry-points/top-nav-items/custom-title.tsx",
 		"./top-nav-items": "./src/entry-points/top-nav-items/index.tsx",
-		"./side-nav-items/container-avatar": "./src/entry-points/side-nav-items/container-avatar.tsx",
-		"./side-nav-items/expandable-menu-item": "./src/entry-points/side-nav-items/expandable-menu-item.tsx",
-		"./side-nav-items/flyout-menu-item": "./src/entry-points/side-nav-items/flyout-menu-item.tsx",
-		"./side-nav-items/button-menu-item": "./src/entry-points/side-nav-items/button-menu-item.tsx",
-		"./side-nav-items/link-menu-item": "./src/entry-points/side-nav-items/link-menu-item.tsx",
-		"./side-nav-items/menu-list": "./src/entry-points/side-nav-items/menu-list.tsx",
-		"./side-nav-items/menu-list-item": "./src/entry-points/side-nav-items/menu-list-item.tsx",
-		"./side-nav-items/menu-section": "./src/entry-points/side-nav-items/menu-section.tsx",
-		"./side-nav-items/top-level-spacer": "./src/entry-points/side-nav-items/top-level-spacer.tsx",
-		"./side-nav-items/drag-and-drop/hitbox": "./src/entry-points/side-nav-items/drag-and-drop/hitbox.tsx",
-		"./side-nav-items/drag-and-drop/drag-handle": "./src/entry-points/side-nav-items/drag-and-drop/drag-handle.tsx",
-		"./side-nav-items/drag-and-drop/drag-preview": "./src/entry-points/side-nav-items/drag-and-drop/drag-preview.tsx",
-		"./side-nav-items/drag-and-drop/drop-indicator": "./src/entry-points/side-nav-items/drag-and-drop/drop-indicator.tsx",
-		"./side-nav-items/drag-and-drop/group-drop-indicator": "./src/entry-points/side-nav-items/drag-and-drop/group-drop-indicator.tsx",
-		"./side-nav-items/drag-and-drop/use-menu-item-drag-and-drop": "./src/entry-points/side-nav-items/drag-and-drop/use-menu-item-drag-and-drop.tsx",
 		"./layout/aside": "./src/entry-points/layout/aside.tsx",
 		"./layout/banner": "./src/entry-points/layout/banner.tsx",
+		"./layout/chat-panel": "./src/entry-points/layout/chat-panel.tsx",
+		"./layout/layout-sizing": "./src/entry-points/layout/layout-sizing.tsx",
 		"./layout/main": "./src/entry-points/layout/main.tsx",
 		"./layout/panel-splitter": "./src/entry-points/layout/panel-splitter.tsx",
 		"./layout/panel": "./src/entry-points/layout/panel.tsx",
@@ -57,46 +37,46 @@
 		"./layout/side-nav": "./src/entry-points/layout/side-nav.tsx",
 		"./layout/top-nav": "./src/entry-points/layout/top-nav.tsx",
 		"./layout/skip-links": "./src/entry-points/layout/skip-links.tsx",
-		"./experimental/top-nav-button": "./src/entry-points/experimental/top-nav-button.tsx",
-		"./experimental/use-has-custom-theme": "./src/entry-points/experimental/use-has-custom-theme.tsx",
-		"./experimental/use-legacy-search-theme": "./src/entry-points/experimental/use-legacy-search-theme.tsx",
-		"./experimental/color-utils/parse-hex": "./src/entry-points/experimental/color-utils/parse-hex.tsx",
-		"./experimental/color-utils/parse-hsl": "./src/entry-points/experimental/color-utils/parse-hsl.tsx",
-		"./experimental/color-utils/parse-rgb": "./src/entry-points/experimental/color-utils/parse-rgb.tsx",
-		"./experimental/color-utils/parse-user-color": "./src/entry-points/experimental/color-utils/parse-user-color.tsx"
+		"./theming/top-nav-button": "./src/entry-points/theming/top-nav-button.tsx",
+		"./theming/use-has-custom-theme": "./src/entry-points/theming/use-has-custom-theme.tsx",
+		"./theming/use-legacy-search-theme": "./src/entry-points/theming/use-legacy-search-theme.tsx",
+		"./theming/color-utils/parse-hex": "./src/entry-points/theming/color-utils/parse-hex.tsx",
+		"./theming/color-utils/parse-hsl": "./src/entry-points/theming/color-utils/parse-hsl.tsx",
+		"./theming/color-utils/parse-rgb": "./src/entry-points/theming/color-utils/parse-rgb.tsx",
+		"./theming/color-utils/parse-user-color": "./src/entry-points/theming/color-utils/parse-user-color.tsx",
+		"./experimental/ribbon": "./src/entry-points/experimental/ribbon.tsx",
+		"./legacy/css-variables": "./src/entry-points/legacy/css-variables.tsx"
 	},
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "ADS: nav4",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Navigation system",
 			"category": "Navigation",
-			"status": {
-				"type": "beta"
-			},
 			"subPages": [
 				{
 					"title": "Layout",
 					"id": "layout",
-					"status": {
-						"type": "beta"
-					},
 					"sortKey": 1
 				},
 				{
 					"title": "Side nav items",
 					"id": "side-nav-items",
-					"status": {
-						"type": "beta"
-					},
 					"sortKey": 2
 				},
 				{
 					"title": "Top nav items",
 					"id": "top-nav-items",
-					"status": {
-						"type": "beta"
-					},
 					"sortKey": 3
 				}
 			]
@@ -110,6 +90,7 @@
 	},
 	"dependencies": {
 		"@atlaskit/analytics-next": "workspace:^",
+		"@atlaskit/app-provider": "workspace:^",
 		"@atlaskit/avatar": "workspace:^",
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/css": "workspace:^",
@@ -117,10 +98,13 @@
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/layering": "workspace:^",
 		"@atlaskit/logo": "workspace:^",
+		"@atlaskit/motion": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/platform-feature-flags-react": "workspace:^",
 		"@atlaskit/popup": "workspace:^",
 		"@atlaskit/pragmatic-drag-and-drop": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/side-nav-items": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
@@ -139,13 +123,15 @@
 		"@af/accessibility-testing": "workspace:^",
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
-		"@atlaskit/app-provider": "workspace:^",
 		"@atlaskit/badge": "workspace:^",
 		"@atlaskit/banner": "workspace:^",
 		"@atlaskit/breadcrumbs": "workspace:^",
 		"@atlaskit/dropdown-menu": "workspace:^",
+		"@atlaskit/flag": "workspace:^",
 		"@atlaskit/form": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
+		"@atlaskit/image": "workspace:^",
+		"@atlaskit/inline-dialog": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/lozenge": "workspace:^",
 		"@atlaskit/menu": "workspace:^",
@@ -155,77 +141,75 @@
 		"@atlaskit/page-layout": "workspace:^",
 		"@atlaskit/popper": "workspace:^",
 		"@atlaskit/pragmatic-drag-and-drop-auto-scroll": "workspace:^",
+		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/skeleton": "workspace:^",
+		"@atlaskit/spotlight": "workspace:^",
+		"@atlaskit/tabs": "workspace:^",
+		"@atlaskit/tag": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
+		"@atlaskit/top-layer": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/gemini": "workspace:^",
+		"@atlassian/panel-system": "workspace:^",
+		"@atlassian/react-async": "workspace:^",
+		"@atlassian/react-entrypoint": "workspace:^",
 		"@atlassian/search-dialog": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
 		"@atlassian/test-utils": "workspace:^",
 		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@axe-core/playwright": "root:*",
-		"@testing-library/react": "root:*",
-		"@testing-library/user-event": "root:*",
 		"raf-stub": "root:*",
-		"react-dom": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports",
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			],
-			"styling": [
-				"emotion"
-			]
-		}
+		"react": "root:*",
+		"react-dom": "root:*",
+		"react-relay": "root:*",
+		"relay-test-utils": "root:*"
 	},
 	"platform-feature-flags": {
-		"platform_dst_nav4_side_nav_resize_tooltip_feedback": {
+		"platform-dst-chat-panel-layout": {
 			"type": "boolean"
 		},
-		"platform_dst_nav4_fhs_instrumentation_1": {
+		"platform-dst-tokens-finesse": {
 			"type": "boolean"
+		},
+		"platform-dst-top-layer": {
+			"type": "boolean",
+			"referenceOnly": true
 		},
 		"platform-component-visual-refresh": {
 			"type": "boolean",
 			"referenceOnly": true
 		},
-		"platform_dst_nav4_flyoutmenuitem_render_to_parent": {
-			"type": "boolean"
-		},
 		"navx-full-height-sidebar": {
 			"type": "boolean"
 		},
-		"platform_themed_button_use_icon_renderer": {
+		"platform-dst-keep-desired-fhs-features": {
 			"type": "boolean"
 		},
 		"platform_dst_button_chevron_sizing": {
 			"type": "boolean"
 		},
-		"platform-dst-nav-app-icon-height-fix": {
+		"platform_dst_nav4_custom_theming_fhs_1": {
 			"type": "boolean"
 		},
-		"platform-dst-side-nav-layering-fixes": {
+		"platform_dst_nav4_skip_link_a11y_1": {
 			"type": "boolean"
 		},
-		"platform-dst-shape-theme-default": {
+		"platform-dst-motion-uplift-sidenav": {
 			"type": "boolean"
 		},
-		"platform_dst_nav4_flyout_menu_slots_close_button": {
-			"type": "boolean"
+		"platform-dst-motion-uplift-button": {
+			"type": "boolean",
+			"referenceOnly": true
 		},
-		"platform-dst-panel-splitter-drag-start-client-x": {
-			"type": "boolean"
+		"platform-dst-motion-uplift-panel": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"platform_dst_ads_appswitcher_improvements": {
+			"type": "boolean",
+			"referenceOnly": true
 		}
 	},
 	"homepage": "https://atlassian.design/components/navigation-system"

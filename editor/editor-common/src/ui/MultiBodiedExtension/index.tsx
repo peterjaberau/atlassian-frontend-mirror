@@ -1,25 +1,29 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, type SerializedStyles } from '@emotion/react';
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 // Wraps the navigation bar and extensionFrames
-const mbeExtensionContainer = css({
+const mbeExtensionContainerOld = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
 	background: 'transparent !important',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'padding:': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-		left: `${token('space.100', '8px')} !important`,
+		left: `${token('space.100')} !important`,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-		right: `${token('space.100', '8px')} !important`,
+		right: `${token('space.100')} !important`,
 	},
-	paddingBottom: token('space.100', '8px'),
+	paddingBottom: token('space.100'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&.remove-padding': {
 		paddingBottom: 0,
@@ -29,7 +33,7 @@ const mbeExtensionContainer = css({
 	cursor: 'pointer',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.multiBodiedExtension-handler-result': {
-		marginLeft: token('space.100', '8px'),
+		marginLeft: token('space.100'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	".multiBodiedExtension-content-dom-wrapper > [data-extension-frame='true'], .multiBodiedExtension--frames > [data-extension-frame='true']":
@@ -46,6 +50,45 @@ const mbeExtensionContainer = css({
 	},
 });
 
+// Wraps the navigation bar and extensionFrames when Native Tabs can insert block-control
+// widget decorations before frame content.
+const mbeExtensionContainerNew = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+	background: 'transparent !important',
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
+	'padding:': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+		left: `${token('space.100')} !important`,
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+		right: `${token('space.100')} !important`,
+	},
+	paddingBottom: token('space.100'),
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'&.remove-padding': {
+		paddingBottom: 0,
+	},
+	position: 'relative',
+	verticalAlign: 'middle',
+	cursor: 'pointer',
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'.multiBodiedExtension-handler-result': {
+		marginLeft: token('space.100'),
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	".multiBodiedExtension-content-dom-wrapper > [data-extension-frame='true'], .multiBodiedExtension--frames > [data-extension-frame='true']":
+		{
+			display: 'none',
+		},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'.multiBodiedExtension-content-dom-wrapper, .multiBodiedExtension--frames': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
+		"[data-extension-frame='true'] > :not(.ProseMirror-widget):first-of-type, [data-extension-frame='true'] > .ProseMirror-widget + :not(.ProseMirror-widget):first-of-type":
+			{
+				marginTop: 0,
+			},
+	},
+});
+
 const mbeNavigation = css({
 	borderTopLeftRadius: token('radius.small', '3px'),
 	borderTopRightRadius: token('radius.small', '3px'),
@@ -53,12 +96,12 @@ const mbeNavigation = css({
 	WebkitUserModify: 'read-only',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
 	borderBottom: 'none !important',
-	background: token('elevation.surface', 'white'),
-	marginLeft: token('space.100', '8px'),
-	marginRight: token('space.100', '8px'),
+	background: token('elevation.surface'),
+	marginLeft: token('space.100'),
+	marginRight: token('space.100'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&.remove-margins': {
-		margin: token('space.negative.100', '-8px'),
+		margin: token('space.negative.100'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&.remove-border': {
@@ -68,31 +111,94 @@ const mbeNavigation = css({
 
 const extensionFrameContent = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-	padding: `${token('space.100', '8px')} !important`,
-	display: 'block',
+	display: 'block !important',
 	minHeight: '100px',
 	background: 'transparent',
 	borderBottomLeftRadius: token('radius.small', '3px'),
 	borderBottomRightRadius: token('radius.small', '3px'),
-	marginLeft: token('space.100', '8px'),
-	marginRight: token('space.100', '8px'),
+	marginLeft: token('space.100'),
+	marginRight: token('space.100'),
 	cursor: 'initial',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.pm-table-with-controls': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-		marginLeft: `${token('space.150', '12px')} !important`,
+		marginLeft: `${token('space.150')} !important`,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-		paddingRight: `${token('space.150', '12px')} !important`,
+		paddingRight: `${token('space.150')} !important`,
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.bodiedExtensionView-content-wrap': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-		marginTop: `${token('space.150', '12px')} !important`,
+		marginTop: `${token('space.150')} !important`,
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'.extensionView-content-wrap': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-		marginTop: `${token('space.100', '8px')} !important`,
+		marginTop: `${token('space.100')} !important`,
+	},
+});
+
+// Block spacing hook variant of extensionFrameContent. Identical to extensionFrameContent except
+// the extension content margins read from the `--ak-editor-extension-block-spacing` CSS custom
+// property (falling back to the original token values). Selected only when
+// isExperimentEnabled('platform_editor_extension_block_spacing') is enabled.
+const extensionFrameContentWithBlockSpacing = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+	display: 'block !important',
+	minHeight: '100px',
+	background: 'transparent',
+	borderBottomLeftRadius: token('radius.small', '3px'),
+	borderBottomRightRadius: token('radius.small', '3px'),
+	marginLeft: token('space.100'),
+	marginRight: token('space.100'),
+	cursor: 'initial',
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'.pm-table-with-controls': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+		marginLeft: `${token('space.150')} !important`,
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+		paddingRight: `${token('space.150')} !important`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'.bodiedExtensionView-content-wrap': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+		marginTop: `var(--ak-editor-extension-block-spacing, ${token('space.150')}) !important`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'.extensionView-content-wrap': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+		marginTop: `var(--ak-editor-extension-block-spacing, ${token('space.100')}) !important`,
+	},
+});
+
+const extensionFrameContentOld = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+	padding: `${token('space.100')} !important`,
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+	display: 'block !important',
+	minHeight: '100px',
+	background: 'transparent',
+	borderBottomLeftRadius: token('radius.small', '3px'),
+	borderBottomRightRadius: token('radius.small', '3px'),
+	marginLeft: token('space.100'),
+	marginRight: token('space.100'),
+	cursor: 'initial',
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'.pm-table-with-controls': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+		marginLeft: `${token('space.150')} !important`,
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+		paddingRight: `${token('space.150')} !important`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'.bodiedExtensionView-content-wrap': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+		marginTop: `${token('space.150')} !important`,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
+	'.extensionView-content-wrap': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+		marginTop: `${token('space.100')} !important`,
 	},
 });
 
@@ -103,9 +209,27 @@ export const removeMarginsAndBorder: SerializedStyles = css({
 	border: 'none',
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const sharedMultiBodiedExtensionStyles = {
-	mbeExtensionContainer,
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
+export const sharedMultiBodiedExtensionStyles: {
+	extensionFrameContent: SerializedStyles;
+	mbeExtensionContainer: SerializedStyles;
+	mbeNavigation: SerializedStyles;
+} = {
 	mbeNavigation,
-	extensionFrameContent,
+	get mbeExtensionContainer() {
+		return expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)
+			? mbeExtensionContainerNew
+			: mbeExtensionContainerOld;
+	},
+	get extensionFrameContent() {
+		if (!expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)) {
+			return extensionFrameContentOld;
+		}
+		// Block spacing hook — when the experiment is on, use the variant whose extension content
+		// margins read from --ak-editor-extension-block-spacing (falling back to the originals).
+		// isExperimentEnabled always fires an exposure event.
+		return isExperimentEnabled('platform_editor_extension_block_spacing')
+			? extensionFrameContentWithBlockSpacing
+			: extensionFrameContent;
+	},
 };

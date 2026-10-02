@@ -1,10 +1,13 @@
 import React from 'react';
-import { Frame } from '../Frame';
-import Spinner from '@atlaskit/spinner';
-import { IconAndTitleLayout } from '../IconAndTitleLayout';
-import { SpinnerWrapper } from './styled';
-import { IconTitleWrapper, RightIconPositionWrapper } from '../IconAndTitleLayout/styled';
+
+import Spinner from '@atlaskit/spinner/spinner';
+
 import { type InlinePreloaderStyle } from '../../types';
+import { Frame } from '../Frame';
+import { IconAndTitleLayout } from '../IconAndTitleLayout';
+import { IconTitleWrapper } from '../IconAndTitleLayout/icon-title-wrapper';
+import { RightIconPositionWrapper } from '../IconAndTitleLayout/right-icon-position-wrapper';
+import { SpinnerWrapper } from './styled';
 
 export interface MediaInlineCardLoadingViewProps {
 	/** The file name to display */
@@ -39,7 +42,7 @@ export class MediaInlineCardLoadingView extends React.Component<MediaInlineCardL
 						<RightIconPositionWrapper>
 							{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766 */}
 							<SpinnerWrapper className="inline-loading-spinner">
-								<Spinner size={14} />
+								<Spinner size={14} interactionName="media-inline-card-loading-view" />
 							</SpinnerWrapper>
 						</RightIconPositionWrapper>
 					</IconTitleWrapper>
@@ -51,7 +54,7 @@ export class MediaInlineCardLoadingView extends React.Component<MediaInlineCardL
 					<IconAndTitleLayout title={message}>
 						{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766 */}
 						<SpinnerWrapper className="inline-loading-spinner">
-							<Spinner size={14} />
+							<Spinner size={14} interactionName="media-inline-card-loading-view" />
 						</SpinnerWrapper>
 					</IconAndTitleLayout>
 				</Frame>

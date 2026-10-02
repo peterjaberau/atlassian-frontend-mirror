@@ -9,42 +9,49 @@ import {
 	forwardRef,
 	useCallback,
 	useEffect,
+	useMemo,
 	useReducer,
 	useRef,
 	useState,
 } from 'react';
 
+// oxlint-disable-next-line @atlassian/no-restricted-imports
 import { isValid, parseISO } from 'date-fns';
 
-import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
-import { IconButton } from '@atlaskit/button/new';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
+import IconButton from '@atlaskit/button/icon/button';
 import { cssMap, cx, jsx } from '@atlaskit/css';
 import { useId } from '@atlaskit/ds-lib/use-id';
 import CalendarIcon from '@atlaskit/icon/core/calendar';
-import { createLocalizationProvider, type LocalizationProvider } from '@atlaskit/locale';
+import {
+	createLocalizationProvider,
+	type LocalizationProvider,
+} from '@atlaskit/locale/localization-provider';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
-import Select, {
-	type ActionMeta,
-	type DropdownIndicatorProps,
-	type GroupType,
-	type IndicatorsContainerProps,
-	type InputActionMeta,
-	mergeStyles,
-	type OptionType,
-} from '@atlaskit/select';
+import { mergeStyles } from '@atlaskit/react-select/styles';
+import Select from '@atlaskit/select/default';
+import type {
+	ActionMeta,
+	DropdownIndicatorProps,
+	GroupType,
+	IndicatorsContainerProps,
+	InputActionMeta,
+	OptionType,
+} from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
-import { EmptyComponent } from '../internal';
-import {
-	formatDate,
-	getParsedISO,
-	getPlaceholder,
-	isDateDisabled,
-	parseDate,
-} from '../internal/date-picker-migration';
+import { EmptyComponent } from '../internal/empty-component';
+import { formatDate } from '../internal/format-date';
+import { getParsedISO } from '../internal/get-parsed-iso';
+import { getPlaceholder } from '../internal/get-placeholder';
+import { getSafeCalendarValue } from '../internal/get-safe-calendar-value';
+import { getShortISOString } from '../internal/get-short-iso-string';
 import { IndicatorsContainer } from '../internal/indicators-container';
+import { isDateDisabled } from '../internal/is-date-disabled';
 import { Menu } from '../internal/menu';
-import { getSafeCalendarValue, getShortISOString } from '../internal/parse-date';
+import { MenuTopLayer } from '../internal/menu-top-layer';
+import { parseDate } from '../internal/parse-date';
 import { makeSingleValue } from '../internal/single-value';
 import {
 	type Appearance,
@@ -112,6 +119,10 @@ const DatePicker: React.ForwardRefExoticComponent<
 	const containerRef: React.MutableRefObject<HTMLElement | null> = useRef<HTMLElement>(null);
 	const calendarRef: React.RefObject<HTMLDivElement | null> = useRef<HTMLDivElement>(null);
 	const calendarButtonRef: React.RefObject<HTMLButtonElement> = useRef<HTMLButtonElement>(null);
+	// Track whether focus was caused by an active pointer gesture. Pointer-driven focus must defer
+	// opening a top-layer popover until click, while keyboard and programmatic focus can open it now.
+	const isPointerInteractionRef = useRef(false);
+	const focusRestorationTargetRef = useRef<HTMLElement | null>(null);
 
 	const {
 		appearance = 'default' as Appearance,
@@ -167,7 +178,24 @@ const DatePicker: React.ForwardRefExoticComponent<
 	const [locale, setLocale] = useState(propLocale);
 	const [shouldSetFocusOnCurrentDay, setShouldSetFocusOnCurrentDay] = useState(false);
 	const [isKeyDown, setIsKeyDown] = useState(false);
+	const isTopLayerEnabled = fg('platform-dst-top-layer');
+	const { MenuPortal: customMenuPortal, ...selectComponentOverrides } =
+		selectProps.components ?? {};
+	const { menuRenderMode: _menuRenderMode, ...selectPropsWithoutMenuRenderMode } = selectProps;
+
+	if (
+		process.env.NODE_ENV !== 'production' &&
+		isTopLayerEnabled &&
+		(selectProps.menuRenderMode === 'inline' || customMenuPortal)
+	) {
+		throw new Error(
+			'DatePicker does not support selectProps.menuRenderMode="inline" or selectProps.components.MenuPortal when platform-dst-top-layer is enabled.',
+		);
+	}
+
+	const selectPropsForSelect = isTopLayerEnabled ? selectPropsWithoutMenuRenderMode : selectProps;
 	const [wasOpenedFromCalendarButton, setWasOpenedFromCalendarButton] = useState(false);
+	const additionalInsideElementRefs = useMemo(() => [calendarButtonRef], [calendarButtonRef]);
 
 	// Hack to force update: https://legacy.reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
 	const [, forceUpdate] = useReducer((x) => !x, true);
@@ -185,7 +213,7 @@ const DatePicker: React.ForwardRefExoticComponent<
 	}
 
 	useEffect(() => {
-		// We don't want the focus to move if this is a click event
+		// Only move focus when the dedicated calendar button opened the menu.
 		if (!isKeyDown) {
 			return;
 		}
@@ -211,18 +239,16 @@ const DatePicker: React.ForwardRefExoticComponent<
 		setWasOpenedFromCalendarButton(false);
 		onChangePropWithAnalytics(iso);
 
-		// Yes, this is not ideal. The alternative is to be able to place a ref
-		// on the inner input of Select itself, which would require a lot of
-		// extra stuff in the Select component for only this one thing. While
-		// this would be more "React-y", it doesn't seem to pose any other
-		// benefits. Performance-wise, we are only searching within the
-		// container, so it's quick.
-		if (wasOpenedFromCalendarButton) {
-			calendarButtonRef.current?.focus();
-		} else {
-			const innerCombobox: HTMLInputElement | undefined | null =
-				containerRef?.current?.querySelector('[role="combobox"]');
-			innerCombobox?.focus();
+		// When using top-layer, PopupContent handles focus restoration automatically
+		// on close based on the role. Only manually restore focus for the legacy path.
+		if (!fg('platform-dst-top-layer')) {
+			if (wasOpenedFromCalendarButton) {
+				calendarButtonRef.current?.focus();
+			} else {
+				const innerCombobox: HTMLInputElement | undefined | null =
+					containerRef?.current?.querySelector('[role="combobox"]');
+				innerCombobox?.focus();
+			}
 		}
 		setIsOpen(false);
 	};
@@ -236,6 +262,7 @@ const DatePicker: React.ForwardRefExoticComponent<
 
 	const onContainerBlur = (event: React.FocusEvent<HTMLInputElement>) => {
 		const newlyFocusedElement = event.relatedTarget as HTMLElement;
+		isPointerInteractionRef.current = false;
 
 		if (!containerRef?.current?.contains(newlyFocusedElement)) {
 			setIsOpen(false);
@@ -271,8 +298,12 @@ const DatePicker: React.ForwardRefExoticComponent<
 			// Don't open menu if focussing after the user has clicked clear
 			setClearingFromIcon(false);
 		} else {
-			// Don't open when focused into via keyboard if the calendar button is present
-			setIsOpen(!shouldShowCalendarButton);
+			// Opening an auto popover during pointer focus allows the matching pointerup
+			// to immediately light-dismiss it. Let the subsequent click open it instead.
+			if (!fg('platform-dst-top-layer') || !isPointerInteractionRef.current) {
+				// Don't open when focused into via keyboard if the calendar button is present
+				setIsOpen(!shouldShowCalendarButton);
+			}
 			setCalendarValue(value);
 			setIsFocused(true);
 			setWasOpenedFromCalendarButton(false);
@@ -312,14 +343,21 @@ const DatePicker: React.ForwardRefExoticComponent<
 			setWasOpenedFromCalendarButton(false);
 		}
 
+		const shouldDeferEscapeHandling = event.key === 'Escape' && isTopLayerEnabled && getIsOpen();
+
+		if (shouldDeferEscapeHandling) {
+			// Select owns Escape cancellation and dismissal for its default top-layer popup.
+			// Defer DatePicker's focus and state cleanup until the menu has closed.
+			const focusRestorationTarget = wasOpenedFromCalendarButton
+				? calendarButtonRef.current
+				: (containerRef.current?.querySelector<HTMLElement>('[role="combobox"]') ?? null);
+			focusRestorationTargetRef.current = event.defaultPrevented ? null : focusRestorationTarget;
+			return;
+		}
+
 		switch (keyPressed) {
 			case 'escape':
-				// Yes, this is not ideal. The alternative is to be able to place a ref
-				// on the inner input of Select itself, which would require a lot of
-				// extra stuff in the Select component for only this one thing. While
-				// this would be more "React-y", it doesn't seem to pose any other
-				// benefits. Performance-wise, we are only searching within the
-				// container, so it's quick.
+				// Restore focus because it may have moved from the input into the calendar.
 				if (wasOpenedFromCalendarButton) {
 					calendarButtonRef.current?.focus();
 				} else {
@@ -381,6 +419,20 @@ const DatePicker: React.ForwardRefExoticComponent<
 		}
 	};
 
+	const onMenuClose = () => {
+		const focusTarget = focusRestorationTargetRef.current;
+		focusRestorationTargetRef.current = null;
+
+		if (fg('platform-dst-top-layer') && focusTarget) {
+			focusTarget.focus();
+			setIsOpen(false);
+			setShouldSetFocusOnCurrentDay(false);
+			setWasOpenedFromCalendarButton(false);
+		}
+
+		selectProps.onMenuClose?.();
+	};
+
 	const onCalendarButtonKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
 		// Don't allow an arrow up or down to open the menu, since the input key
 		// down handler is actually on the parent.
@@ -399,6 +451,9 @@ const DatePicker: React.ForwardRefExoticComponent<
 
 	// This event handler is triggered from both keydown and click. It's weird.
 	const onCalendarButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+		if (!getIsOpen() && fg('platform-dst-top-layer')) {
+			setIsKeyDown(true);
+		}
 		setIsOpen((isOpen) => {
 			if (isOpen) {
 				props.selectProps?.onMenuClose?.();
@@ -478,7 +533,7 @@ const DatePicker: React.ForwardRefExoticComponent<
 	const SingleValue = makeSingleValue({ id: valueId, lang: propLocale });
 
 	const selectComponents = {
-		...selectProps.components,
+		...(isTopLayerEnabled ? selectComponentOverrides : selectProps.components),
 		DropdownIndicator: shouldShowCalendarButton ? EmptyComponent : dropDownIcon,
 		// Only use this new container component if the calendar button is shown.
 		// Otherwise, it throws errors downstream for some reason
@@ -489,7 +544,7 @@ const DatePicker: React.ForwardRefExoticComponent<
 					),
 				}
 			: {}),
-		Menu,
+		Menu: fg('platform-dst-top-layer') ? MenuTopLayer : Menu,
 		SingleValue,
 		...(!showClearIndicator && { ClearIndicator: EmptyComponent }),
 	};
@@ -498,7 +553,7 @@ const DatePicker: React.ForwardRefExoticComponent<
 	const disabledStyle: CSSProperties = isDisabled
 		? {
 				pointerEvents: 'none',
-				color: token('color.icon.disabled', 'inherit'),
+				color: token('color.icon.disabled'),
 			}
 		: {};
 
@@ -514,7 +569,9 @@ const DatePicker: React.ForwardRefExoticComponent<
 		onCalendarChange,
 		onCalendarSelect,
 		calendarLocale: locale,
-		calendarWeekStartDay: weekStartDay,
+		calendarWeekStartDay:
+			weekStartDay ??
+			(fg('platform-dst-locale-week-start-day') ? l10n.getFirstDayOfWeek() : undefined),
 		shouldSetFocusOnCurrentDay,
 		/**
 		 * This overrides the inner wrapper the Calendar.
@@ -523,7 +580,6 @@ const DatePicker: React.ForwardRefExoticComponent<
 		menuInnerWrapper: props?.menuInnerWrapper,
 	};
 
-	// @ts-ignore -- Argument of type 'StylesConfig<OptionType, false, GroupBase<OptionType>>' is not assignable to parameter of type 'StylesConfig<OptionType, boolean, GroupBase<OptionType>>'.
 	const mergedStyles = mergeStyles<OptionType, boolean, GroupType<OptionType>>(selectStyles, {
 		control: (base: any) => ({
 			...base,
@@ -531,8 +587,8 @@ const DatePicker: React.ForwardRefExoticComponent<
 		}),
 		indicatorsContainer: (base) => ({
 			...base,
-			paddingLeft: token('space.025', '2px'), // ICON_PADDING = 2
-			paddingRight: token('space.075', '6px'), // 8 - ICON_PADDING = 6
+			paddingLeft: token('space.025'), // ICON_PADDING = 2
+			paddingRight: token('space.075'), // 8 - ICON_PADDING = 6
 		}),
 	});
 
@@ -562,10 +618,24 @@ const DatePicker: React.ForwardRefExoticComponent<
 			css={styles.pickerContainerStyle}
 			data-testid={testId && `${testId}--container`}
 			onBlur={onContainerBlur}
+			// Reset before descendant click handlers run: click happens after native light-dismiss, so
+			// any focus they move is safe to treat as non-pointer focus. Capture also guarantees cleanup
+			// when a descendant stops the bubbling click.
+			onClickCapture={() => {
+				isPointerInteractionRef.current = false;
+			}}
 			onFocus={onContainerFocus}
 			onClick={onInputClick}
 			onInput={onTextInput}
 			onKeyDown={onInputKeyDown}
+			// A cancelled pointer produces no click, so clear the tracking state here instead.
+			onPointerCancelCapture={() => {
+				isPointerInteractionRef.current = false;
+			}}
+			// Capture pointerdown before it moves focus into a descendant Select control.
+			onPointerDownCapture={() => {
+				isPointerInteractionRef.current = true;
+			}}
 			ref={getContainerRef}
 			// Since the onclick, onfocus are passed down, adding role="presentation" prevents typecheck errors.
 			role="presentation"
@@ -602,7 +672,9 @@ const DatePicker: React.ForwardRefExoticComponent<
 				// eslint-disable-next-line @atlaskit/design-system/no-unsafe-style-overrides
 				styles={mergedStyles}
 				value={initialValue}
-				{...selectProps}
+				{...selectPropsForSelect}
+				additionalInsideElementRefs={isTopLayerEnabled ? additionalInsideElementRefs : undefined}
+				onMenuClose={onMenuClose}
 				// For some reason, this and the below `styles` type error _only_ show
 				// up when you alter some of the properties in the `selectComponents`
 				// object. These errors are still present, and I suspect have always
@@ -617,7 +689,6 @@ const DatePicker: React.ForwardRefExoticComponent<
 				spacing={spacing}
 				testId={testId}
 				// These aren't part of `Select`'s API, but we're using them here.
-				// @ts-ignore --  Property 'calendarContainerRef' does not exist on type 'IntrinsicAttributes & LibraryManagedAttributes<(<Option extends unknown = OptionType, IsMulti extends boolean = false>(props: AtlaskitSelectProps<Option, IsMulti> & { ...; }) => Element), AtlaskitSelectProps<...> & { ...; }>'.
 				calendarContainerRef={calendarProps.calendarContainerRef}
 				calendarDisabled={calendarProps.calendarDisabled}
 				calendarDisabledDateFilter={calendarProps.calendarDisabledDateFilter}

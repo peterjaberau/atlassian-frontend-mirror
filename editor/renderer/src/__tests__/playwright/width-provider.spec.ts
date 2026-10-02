@@ -1,5 +1,18 @@
-import { tableADF, tableWithCustomWidthADF } from './width-provider.spec.ts-fixtures';
+import { skipAutoA11yFile } from '@atlassian/a11y-playwright-testing';
+
 import { rendererTestCase as test, expect } from './not-libra';
+import { tableADF, tableWithCustomWidthADF } from './width-provider.spec.ts-fixtures';
+
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:playwright
+skipAutoA11yFile({
+	exceptTests: [
+		'should be resized on page width change',
+		'should resize table on page width change',
+	],
+});
 
 test.describe('width-provider when table resizing is disabled', () => {
 	test.use({
@@ -84,15 +97,17 @@ test.describe('width-provider when table resizing is enabled', () => {
 			expect(beforeWidth).toBe(ADFTableWidth);
 			await renderer.page.setViewportSize({ width: newViwportWidth, height: 600 });
 
-			// NOTE: this tests uses 30% as MAX_SCALING_PERCENT because our Renderer Playwright tests
-			// do not support feature flags yet. When tablePreserveWidth is enabled,
-			// Comment Renderer should use 40% scaling.
-
-			// tableWidthDiff = (ADFTableWidth - newViwportWidth) / ADFTableWidth =
-			// 				  = (880 - 600) / 880 = 0.318;
-			// Scale table by = tableWidthDiff > MAX_SCALING_PERCENT ? MAX_SCALING_PERCENT : tableWidthDiff;
-			// New table width will be using max scaling percent (30%). So new target width is equal:
-			const targetWidth = 0.7 * ADFTableWidth;
+			// NOTE: Comment Renderer uses 40% as MAX_SCALING_PERCENT
+			// (MAX_SCALING_PERCENT_TABLES_WITH_FIXED_COLUMN_WIDTHS_OPTION) because
+			// isTableScalingEnabled is always true for comment appearance, which would cap the
+			// rendered width at 526px (floor(880/3) = 293 per column, 293 * 3 = 879,
+			// 879 * 0.6 = 527.4 → 526px).
+			//
+			// The table has an explicit `width` attribute, so the comment renderer's container
+			// query resolves its width to min(tableWidth, 100cqw). The 100cqw clamp is the tighter
+			// of the two, so the table tracks the 500px renderer width rather than stopping at the
+			// 40% maximum column scale down.
+			const targetWidth = newViwportWidth;
 
 			await renderer.page.waitForFunction(
 				(targetWidth) => {
@@ -110,7 +125,5 @@ test.describe('width-provider when table resizing is enabled', () => {
 });
 
 test('should capture and report a11y violations', async ({ renderer }) => {
-	renderer.page.getByRole('table');
-
 	await expect(renderer.page).toBeAccessible({ violationCount: 1 });
 });

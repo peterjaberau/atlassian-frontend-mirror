@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button, { IconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import CommentAddIcon from '@atlaskit/icon/core/comment-add';
 import CopyIcon from '@atlaskit/icon/core/copy';
+// eslint-disable-next-line @atlaskit/design-system/use-spotlight-package
 import {
 	Spotlight,
 	SpotlightManager,
 	SpotlightTarget,
 	SpotlightTransition,
 } from '@atlaskit/onboarding';
-import { N0 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 const SpotlightTargetBackground = (): React.JSX.Element => {
@@ -39,7 +40,7 @@ const SpotlightTargetBackground = (): React.JSX.Element => {
 				out on the page.
 			</Spotlight>,
 			<Spotlight
-				targetBgColor={N0}
+				targetBgColor={'#FFFFFF'}
 				actions={[
 					{ onClick: () => end(), text: 'OK' },
 					{ onClick: () => back(), text: 'Go back', appearance: 'subtle' },

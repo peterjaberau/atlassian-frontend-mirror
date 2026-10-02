@@ -1,8 +1,8 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { ApdexType, BM3Event } from '../../common';
 import { setUFOConfig } from '../../config';
-import { DefaultInteractionID } from '../../interaction-id-context';
+import DefaultInteractionID from '../../interaction-id-context/defaultInteractionId';
 import { interactions } from '../common/constants';
 import {
 	abort,
@@ -12,9 +12,10 @@ import {
 	addNewInteraction,
 	PreviousInteractionLog,
 	tryComplete,
+	sinkInteractionHandler,
 } from '../index';
 
-jest.mock('@atlaskit/platform-feature-flags');
+jest.mock('@atlaskit/platform-feature-flags/fg');
 const mockFg = fg as jest.Mock;
 
 // Mock performance.now() for consistent testing
@@ -452,8 +453,7 @@ describe('interaction-metrics timeout behavior', () => {
 			PreviousInteractionLog.timestamp = undefined;
 		});
 
-		it('should set id, type, and timestamp when feature flag is enabled', () => {
-			mockFg.mockImplementation((flag: string) => flag === 'platform_ufo_enable_terminal_errors');
+		it('should set id, type, and timestamp', () => {
 			mockPerformanceNow.mockReturnValue(2000);
 
 			const interactionId = 'test-prev-interaction-1';
@@ -479,47 +479,13 @@ describe('interaction-metrics timeout behavior', () => {
 			expect(PreviousInteractionLog.timestamp).toBe(2000);
 		});
 
-		it('should NOT set id, type, and timestamp when feature flag is disabled', () => {
-			mockFg.mockReturnValue(false);
-			mockPerformanceNow.mockReturnValue(2000);
-
-			const interactionId = 'test-prev-interaction-2';
-			const startTime = 1000;
-
-			addNewInteraction(
-				interactionId,
-				'test-ufo-name',
-				'transition',
-				startTime,
-				1,
-				null,
-				null,
-				null,
-			);
-
-			tryComplete(interactionId, 2000);
-
-			expect(PreviousInteractionLog.id).toBeUndefined();
-			expect(PreviousInteractionLog.type).toBeUndefined();
-			expect(PreviousInteractionLog.timestamp).toBeUndefined();
-		});
-
 		it('should always set name and isAborted', () => {
 			mockPerformanceNow.mockReturnValue(2000);
 
 			const interactionId = 'test-prev-interaction-3';
 			const startTime = 1000;
 
-			addNewInteraction(
-				interactionId,
-				'test-ufo-name',
-				'press',
-				startTime,
-				1,
-				null,
-				null,
-				null,
-			);
+			addNewInteraction(interactionId, 'test-ufo-name', 'press', startTime, 1, null, null, null);
 
 			tryComplete(interactionId, 2000);
 
@@ -550,12 +516,19 @@ describe('interaction-metrics timeout behavior', () => {
 		});
 
 		it('should update PreviousInteractionLog for different interaction types', () => {
-			mockFg.mockImplementation((flag: string) => flag === 'platform_ufo_enable_terminal_errors');
-
 			const transitionId = 'test-prev-interaction-6';
 			mockPerformanceNow.mockReturnValue(3000);
 
-			addNewInteraction(transitionId, 'transition-interaction', 'transition', 1000, 1, null, null, null);
+			addNewInteraction(
+				transitionId,
+				'transition-interaction',
+				'transition',
+				1000,
+				1,
+				null,
+				null,
+				null,
+			);
 			tryComplete(transitionId, 3000);
 
 			expect(PreviousInteractionLog.id).toBe(transitionId);
@@ -575,5 +548,42 @@ describe('interaction-metrics timeout behavior', () => {
 			expect(PreviousInteractionLog.type).toBe('press');
 			expect(PreviousInteractionLog.timestamp).toBe(4000);
 		});
+	});
+});
+
+describe('deprecated stopVCAtInteractionFinish config', () => {
+	it('does not populate vc raw data when interactions finish', () => {
+		const sink = jest.fn();
+		sinkInteractionHandler(sink);
+		sink.mockClear();
+
+		setUFOConfig({
+			enabled: true,
+			product: 'test-product',
+			region: 'test-region',
+			vc: {
+				stopVCAtInteractionFinish: true,
+			},
+		});
+
+		const interactionId = 'deprecated-stop-vc-flag';
+		const startTime = 1000;
+		const getVCRawData = jest.fn(() => ({ some: 'vc-data' }));
+
+		addNewInteraction(interactionId, 'test-ufo-name', 'transition', startTime, 1, null, null, null);
+
+		const interaction = interactions.get(interactionId);
+		expect(interaction).toBeDefined();
+		interaction!.vcObserver = { getVCRawData } as any;
+
+		tryComplete(interactionId, 2000);
+
+		expect(getVCRawData).not.toHaveBeenCalled();
+		expect(sink).toHaveBeenCalledTimes(1);
+
+		const [, completedInteraction] = sink.mock.calls[0];
+		expect(completedInteraction.id).toBe(interactionId);
+		expect(completedInteraction.vc).toBeUndefined();
+		expect(Object.prototype.hasOwnProperty.call(completedInteraction, 'vc')).toBe(false);
 	});
 });

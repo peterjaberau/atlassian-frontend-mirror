@@ -1,6 +1,7 @@
-import { isAIProviderID } from '../helpers/utils';
-import { type ParticipantsMap } from './participants-helper';
 import type { ProviderParticipant } from '@atlaskit/editor-common/collab';
+
+import { isAIProviderID } from '../helpers/utils';
+import type { ParticipantsMap } from './participants-helper';
 
 export type ParticipantFilter = {
 	isHydrated: boolean;

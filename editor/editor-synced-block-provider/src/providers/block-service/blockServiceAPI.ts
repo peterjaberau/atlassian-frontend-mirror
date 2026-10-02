@@ -1,13 +1,20 @@
 /* eslint-disable require-unicode-regexp  */
+
 import { useMemo } from 'react';
 
 import type { ADFEntity } from '@atlaskit/adf-utils/types';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
-import { generateBlockAri, generateBlockAriFromReference } from '../../clients/block-service/ari';
+import {
+	generateBlockAri,
+	generateBlockAriFromReference,
+	getProductFromSourceAri,
+} from '../../clients/block-service/ari';
 import {
 	batchRetrieveSyncedBlocks,
 	BlockError,
+	BlockNotFoundError,
+	BlockTimeoutError,
 	createSyncedBlock,
 	deleteSyncedBlock,
 	getReferenceSyncedBlocks,
@@ -15,31 +22,39 @@ import {
 	getSyncedBlockContent,
 	updateReferenceSyncedBlockOnDocument,
 	updateSyncedBlock,
-	type ErrorResponse,
-	type BlockContentResponse,
+	updateSyncedBlocks,
 } from '../../clients/block-service/blockService';
-import { subscribeToBlockUpdates as subscribeToBlockUpdatesWS } from '../../clients/block-service/blockSubscription';
-import {
-	SyncBlockError,
-	type ReferenceSyncBlockData,
-	type ResourceId,
-	type SyncBlockAttrs,
-	type SyncBlockData,
-	type SyncBlockProduct,
-	type SyncBlockStatus,
+import type {
+	ErrorResponse,
+	BlockContentResponse,
+	BatchUpdateSyncedBlockRequest,
+} from '../../clients/block-service/blockService';
+import { SyncBlockError } from '../../common/types';
+import type {
+	ReferenceSyncBlockData,
+	ResourceId,
+	SyncBlockAttrs,
+	SyncBlockData,
+	SyncBlockProduct,
+	SyncBlockStatus,
 } from '../../common/types';
-import { stringifyError } from '../../utils/errorHandling';
+import { getPiiSafeOriginalError, stringifyError } from '../../utils/errorHandling';
+import { getFieldAwareLocationScope } from '../../utils/fieldAwareLocations';
 import { createResourceIdForReference } from '../../utils/resourceId';
 import { convertContentUpdatedAt } from '../../utils/utils';
 import type {
 	ADFFetchProvider,
 	ADFWriteProvider,
+	BatchFetchConfig,
 	BlockNodeIdentifiers,
 	DeleteSyncBlockResult,
 	SyncBlockInstance,
 	UpdateReferenceSyncBlockResult,
 	WriteSyncBlockResult,
 } from '../types';
+
+const BLOCK_ARI_TO_RESOURCE_ID_REGEX = /^ari:cloud:blocks:.*:synced-block\/(.+)$/;
+const EXTRACT_RESOURCE_ID_FROM_BLOCK_ARI_REGEX = /ari:cloud:blocks:[^:]+:synced-block\/(.+)$/;
 
 const mapBlockError = (error: BlockError): SyncBlockError => {
 	switch (error.status) {
@@ -66,8 +81,11 @@ const mapErrorResponseCode = (errorCode: string): SyncBlockError => {
 	switch (errorCode) {
 		case 'FORBIDDEN':
 			return SyncBlockError.Forbidden;
+		case 'RESOURCE_NOT_FOUND':
 		case 'NOT_FOUND':
 			return SyncBlockError.NotFound;
+		case 'EntityNotFound':
+			return SyncBlockError.EntityNotFound;
 		case 'INVALID_REQUEST':
 			return SyncBlockError.InvalidRequest;
 		case 'CONFLICT':
@@ -105,7 +123,7 @@ export const blockAriToResourceId = (blockAri: string): ResourceId | null => {
 	// The regex captures the full path after synced-block/
 	// e.g. ari:cloud:blocks:DUMMY-a5a01d21-1cc3-4f29-9565-f2bb8cd969f5:synced-block/confluence-page/455232061495/e8cf64e3-1b6e-489b-ad86-8465b0905bb4
 	// should return confluence-page/455232061495/e8cf64e3-1b6e-489b-ad86-8465b0905bb4
-	const match = blockAri.match(/^ari:cloud:blocks:.*:synced-block\/(.+)$/);
+	const match = blockAri.match(BLOCK_ARI_TO_RESOURCE_ID_REGEX);
 	return match?.[1] || null;
 };
 
@@ -192,7 +210,7 @@ export const fetchReferences = async (
 			({
 				error: { type: SyncBlockError.Errored },
 				resourceId: errorBlock.blockAri,
-			} as SyncBlockInstance),
+			}) as SyncBlockInstance,
 	);
 
 	return [...blocksInstances, ...errorInstances];
@@ -203,7 +221,7 @@ export const fetchReferences = async (
  * Block ARI format: ari:cloud:blocks:<cloudId>:synced-block/<resourceId>
  */
 export const extractResourceIdFromBlockAri = (blockAri: string): string | undefined => {
-	const match = blockAri.match(/ari:cloud:blocks:[^:]+:synced-block\/(.+)$/);
+	const match = blockAri.match(EXTRACT_RESOURCE_ID_FROM_BLOCK_ARI_REGEX);
 	return match?.[1];
 };
 
@@ -212,12 +230,14 @@ export const extractResourceIdFromBlockAri = (blockAri: string): string | undefi
  * @param cloudId - The cloudId of the block. E.G the cloudId of the confluence page, or the cloudId of the Jira instance
  * @param parentAri - The ARI of the parent of the block. E.G the ARI of the confluence page, or the ARI of the Jira work item
  * @param blockNodeIdentifiers - Array of block node identifiers to fetch
+ * @param config - Optional batch fetch configuration
  * @returns Array of SyncBlockInstance results
  */
 export const batchFetchData = async (
 	cloudId: string,
 	parentAri: string | undefined,
 	blockNodeIdentifiers: BlockNodeIdentifiers[],
+	config?: BatchFetchConfig,
 ): Promise<SyncBlockInstance[]> => {
 	const blockIdentifiers = blockNodeIdentifiers.map((blockIdentifier) => ({
 		blockAri: generateBlockAriFromReference({
@@ -241,14 +261,14 @@ export const batchFetchData = async (
 				({
 					error: { type: SyncBlockError.Errored },
 					resourceId: blockNodeIdentifier.resourceId,
-				} as SyncBlockInstance),
+				}) as SyncBlockInstance,
 		);
 	}
 
 	try {
 		const response = await batchRetrieveSyncedBlocks({
-			documentAri: parentAri,
 			blockIdentifiers,
+			config,
 		});
 		const results: SyncBlockInstance[] = [];
 
@@ -302,7 +322,13 @@ export const batchFetchData = async (
 						resourceId,
 					});
 				} catch {
-					results.push({ error: { type: SyncBlockError.Errored }, resourceId });
+					results.push({
+						error: {
+							type: SyncBlockError.Errored,
+							reason: `parsing JSON content response failed for resourceId: ${resourceId} localId: ${blockAri}`,
+						},
+						resourceId,
+					});
 				}
 			}
 		}
@@ -319,7 +345,7 @@ export const batchFetchData = async (
 				processedResourceIds.add(resourceId);
 
 				results.push({
-					error: { type: mapErrorResponseCode(errorResponse.code) },
+					error: { type: mapErrorResponseCode(errorResponse.code), reason: errorResponse.reason },
 					resourceId,
 				});
 			}
@@ -337,13 +363,126 @@ export const batchFetchData = async (
 
 		return results;
 	} catch (error) {
-		// If batch request fails, return error for all resourceIds
+		if (
+			error instanceof BlockTimeoutError &&
+			expValEquals('platform_editor_sync_block_ssr_config', 'isEnabled', true)
+		) {
+			return blockNodeIdentifiers.map((blockNodeIdentifier) => ({
+				error: {
+					type: SyncBlockError.Aborted,
+					reason: (error as Error).message,
+				},
+				resourceId: blockNodeIdentifier.resourceId,
+			}));
+		}
+
+		// If batch request fails, return error for all resourceIds. Capture the HTTP
+		// status from `BlockError` so fetch analytics can break failures down by
+		// statusCode (EDITOR-7862); undefined for non-HTTP failures. Thread the PII-safe
+		// original message/name so the renderer can de-opaque the `errored` bucket.
 		return blockNodeIdentifiers.map((blockNodeIdentifier) => ({
 			error: {
 				type: error instanceof BlockError ? mapBlockError(error) : SyncBlockError.Errored,
+				reason: (error as Error).message,
+				...(error instanceof BlockError && { statusCode: error.status }),
+				...getPiiSafeOriginalError(error),
 			},
 			resourceId: blockNodeIdentifier.resourceId,
 		}));
+	}
+};
+
+/**
+ * Batch writes multiple synced blocks.
+ * @param cloudId - The cloudId of the block. E.G the cloudId of the confluence page, or the cloudId of the Jira instance
+ * @param parentAri - The ARI of the parent of the block. E.G the ARI of the confluence page, or the ARI of the Jira work item
+ * @param parentId - The parentId of the block. E.G the pageId for a confluence page, or the issueId for a Jira work item
+ * @param product - The product of the block. E.G 'confluence-page', 'jira-work-item'
+ * @param data - Array of SyncBlockData to write
+ * @param stepVersion - Optional version number
+ * @returns Array of WriteSyncBlockResult results
+ */
+export const writeDataBatch = async (
+	cloudId: string,
+	parentAri: string | undefined,
+	parentId: string | undefined,
+	product: SyncBlockProduct,
+	data: SyncBlockData[],
+	stepVersion?: number,
+): Promise<WriteSyncBlockResult[]> => {
+	if (!parentAri || !parentId) {
+		return data.map((block) => ({ error: SyncBlockError.Errored, resourceId: block.resourceId }));
+	}
+
+	try {
+		// Create a map from blockAri to original resourceId for matching responses
+		const blockAriToResourceIdMap = new Map<string, string>();
+
+		const blocks: BatchUpdateSyncedBlockRequest[] = data.map((block) => {
+			const blockAri = generateBlockAri({
+				cloudId,
+				parentId,
+				product,
+				resourceId: block.resourceId,
+			});
+
+			blockAriToResourceIdMap.set(blockAri, block.resourceId);
+
+			return {
+				blockAri,
+				content: JSON.stringify(block.content),
+				status: block.status,
+				stepVersion,
+			};
+		});
+
+		const response = await updateSyncedBlocks({ blocks });
+
+		const results: WriteSyncBlockResult[] = [];
+
+		// Process successful updates
+		if (response.success) {
+			const successResourceIds = new Set(
+				response.success.map((block) => blockAriToResourceIdMap.get(block.blockAri)),
+			);
+
+			for (const block of data) {
+				if (successResourceIds.has(block.resourceId)) {
+					results.push({ resourceId: block.resourceId });
+				}
+			}
+		}
+
+		if (response.error) {
+			const errorResourceIds = new Map<string, SyncBlockError>(
+				response.error.map((err) => [
+					// Use the map to get the original resourceId
+					blockAriToResourceIdMap.get(err.blockAri) || '',
+					mapErrorResponseCode(err.code),
+				]),
+			);
+
+			for (const block of data) {
+				const error = errorResourceIds.get(block.resourceId);
+				if (error) {
+					results.push({ error, resourceId: block.resourceId });
+				} else if (!results.some((r) => r.resourceId === block.resourceId)) {
+					// If not in success or error lists, mark as errored
+					results.push({ error: SyncBlockError.Errored, resourceId: block.resourceId });
+				}
+			}
+		}
+
+		return results;
+	} catch (error) {
+		if (error instanceof BlockError) {
+			return data.map((block) => ({
+				error: mapBlockError(error),
+				resourceId: block.resourceId,
+				statusCode: error.status,
+			}));
+		}
+		return data.map((block) => ({ error: stringifyError(error), resourceId: block.resourceId }));
 	}
 };
 
@@ -372,7 +511,6 @@ class BlockServiceADFFetchProvider implements ADFFetchProvider {
 		try {
 			const blockContentResponse = await getSyncedBlockContent({
 				blockAri,
-				documentAri: this.parentAri,
 			});
 
 			const {
@@ -410,9 +548,27 @@ class BlockServiceADFFetchProvider implements ADFFetchProvider {
 			};
 		} catch (error) {
 			if (error instanceof BlockError) {
-				return { error: { type: mapBlockError(error) }, resourceId };
+				// Capture the HTTP status so fetch analytics can break failures down by
+				// statusCode (EDITOR-7862). Thread the PII-safe original message/name so
+				// the renderer can de-opaque failures.
+				return {
+					error: {
+						type: mapBlockError(error),
+						reason: error.message,
+						statusCode: error.status,
+						...getPiiSafeOriginalError(error),
+					},
+					resourceId,
+				};
 			}
-			return { error: { type: SyncBlockError.Errored }, resourceId };
+			return {
+				error: {
+					type: SyncBlockError.Errored,
+					reason: (error as Error).message,
+					...getPiiSafeOriginalError(error),
+				},
+				resourceId,
+			};
 		}
 	}
 
@@ -424,12 +580,20 @@ class BlockServiceADFFetchProvider implements ADFFetchProvider {
 			});
 			const response = await getReferenceSyncedBlocksByBlockAri({ blockAri });
 
+			const locationScopeOf = (documentAri: string) =>
+				getFieldAwareLocationScope({
+					documentAri,
+					hostAri: this.parentAri,
+					productType: getProductFromSourceAri(documentAri),
+				});
+
 			const references: ReferenceSyncBlockData['references'] = [];
 			response.references.forEach((reference) => {
 				references.push({
 					...reference,
 					hasAccess: true,
 					onSameDocument: this.parentAri === reference.documentAri,
+					...locationScopeOf(reference.documentAri),
 				});
 			});
 			response.errors.forEach((reference) => {
@@ -439,6 +603,7 @@ class BlockServiceADFFetchProvider implements ADFFetchProvider {
 						documentAri: reference.documentAri,
 						hasAccess: false,
 						onSameDocument: false,
+						...locationScopeOf(reference.documentAri),
 					});
 				}
 			});
@@ -455,10 +620,14 @@ class BlockServiceADFFetchProvider implements ADFFetchProvider {
 	/**
 	 * Batch fetches multiple synced blocks by their resource IDs.
 	 * @param blockNodeIdentifiers - Array of block node identifiers to fetch
+	 * @param config - Optional batch fetch configuration
 	 * @returns Array of SyncBlockInstance results
 	 */
-	async batchFetchData(blockNodeIdentifiers: BlockNodeIdentifiers[]): Promise<SyncBlockInstance[]> {
-		return await batchFetchData(this.cloudId, this.parentAri, blockNodeIdentifiers);
+	async batchFetchData(
+		blockNodeIdentifiers: BlockNodeIdentifiers[],
+		config?: BatchFetchConfig,
+	): Promise<SyncBlockInstance[]> {
+		return await batchFetchData(this.cloudId, this.parentAri, blockNodeIdentifiers, config);
 	}
 
 	/**
@@ -472,38 +641,66 @@ class BlockServiceADFFetchProvider implements ADFFetchProvider {
 		resourceId: ResourceId,
 		onUpdate: (data: SyncBlockInstance) => void,
 		onError?: (error: Error) => void,
+		onComplete?: () => void,
 	): () => void {
 		const blockAri = generateBlockAriFromReference({ cloudId: this.cloudId, resourceId });
 
-		return subscribeToBlockUpdatesWS(
-			blockAri,
-			(parsedData) => {
-				// Convert ParsedBlockSubscriptionData to SyncBlockInstance
-				const syncBlockInstance: SyncBlockInstance = {
-					data: {
-						content: parsedData.content,
-						resourceId: parsedData.blockAri,
-						blockInstanceId: parsedData.blockInstanceId,
-						sourceAri: parsedData.sourceAri,
-						product: parsedData.product,
-						createdAt: parsedData.createdAt,
-						contentUpdatedAt: parsedData.contentUpdatedAt,
-						createdBy: parsedData.createdBy,
-						status: parsedData.status as SyncBlockStatus,
+		// Track the real unsubscribe fn once the dynamic import resolves
+		let unsubscribe: (() => void) | undefined;
+		let cancelled = false;
+
+		// Dynamically import blockSubscription so that graphql-ws is NOT pulled
+		// into the SSR/preload bundle that imports this subpath.
+		void import(
+			/* webpackChunkName: "@atlaskit-internal_editor-synced-block-subscription" */ '../../clients/block-service/blockSubscription'
+		)
+			.then(({ subscribeToBlockUpdates: subscribeToBlockUpdatesWS }) => {
+				if (cancelled) {
+					return;
+				}
+
+				unsubscribe = subscribeToBlockUpdatesWS(
+					blockAri,
+					(parsedData) => {
+						// Convert ParsedBlockSubscriptionData to SyncBlockInstance
+						const syncBlockInstance: SyncBlockInstance = {
+							data: {
+								content: parsedData.content,
+								resourceId: parsedData.blockAri,
+								blockInstanceId: parsedData.blockInstanceId,
+								sourceAri: parsedData.sourceAri,
+								product: parsedData.product,
+								createdAt: parsedData.createdAt,
+								contentUpdatedAt: parsedData.contentUpdatedAt,
+								createdBy: parsedData.createdBy,
+								status: parsedData.status as SyncBlockStatus,
+							},
+							resourceId: parsedData.resourceId,
+						};
+						onUpdate(syncBlockInstance);
 					},
-					resourceId: parsedData.resourceId,
-				};
-				onUpdate(syncBlockInstance);
-			},
-			onError,
-		);
+					onError,
+					onComplete,
+				);
+			})
+			.catch((err: unknown) => {
+				if (cancelled) {
+					return;
+				}
+				onError?.(err instanceof Error ? err : new Error('Failed to load subscription module'));
+			});
+
+		// Return an unsubscribe fn that works whether the import has resolved or not
+		return () => {
+			cancelled = true;
+			unsubscribe?.();
+		};
 	}
 }
 
 interface BlockServiceADFWriteProviderProps {
 	cloudId: string; // the cloudId of the block. E.G the cloudId of the confluence page, or the cloudId of the Jira instance
 	getVersion?: () => Promise<number | undefined>; // get the version of the block. E.G the version of the confluence page, or the version of the Jira work item
-	isParentUnpublished?: () => boolean; // function to check if the parent is unpublished
 	parentAri: string | undefined; // the ARI of the parent of the block. E.G the ARI of the confluence page, or the ARI of the Jira work item
 	parentId?: string; // the parentId of the block. E.G the pageId for a confluence page, or the issueId for a Jira work item
 	product: SyncBlockProduct; // the product of the block. E.G 'confluence-page', 'jira-work-item'
@@ -516,7 +713,6 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 	private cloudId: string;
 	private parentId?: string;
 	private getVersion?: () => Promise<number | undefined>;
-	private isParentUnpublished?: () => boolean;
 
 	product: SyncBlockProduct;
 	parentAri: string | undefined;
@@ -527,17 +723,14 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 		parentId,
 		product,
 		getVersion,
-		isParentUnpublished,
 	}: BlockServiceADFWriteProviderProps) {
 		this.cloudId = cloudId;
 		this.parentAri = parentAri;
 		this.parentId = parentId;
 		this.product = product;
 		this.getVersion = getVersion;
-		this.isParentUnpublished = isParentUnpublished;
 	}
 
-	// it will first try to update and if it can't (404) then it will try to create
 	async writeData(data: SyncBlockData): Promise<WriteSyncBlockResult> {
 		if (!this.parentAri || !this.parentId) {
 			return { error: SyncBlockError.Errored };
@@ -553,11 +746,16 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 
 		try {
 			const status = data.status;
-			await updateSyncedBlock({ blockAri, content: JSON.stringify(data.content), stepVersion, status });
+			await updateSyncedBlock({
+				blockAri,
+				content: JSON.stringify(data.content),
+				stepVersion,
+				status,
+			});
 			return { resourceId };
 		} catch (error) {
 			if (error instanceof BlockError) {
-				return { error: mapBlockError(error), resourceId };
+				return { error: mapBlockError(error), resourceId, statusCode: error.status };
 			}
 			return { error: stringifyError(error), resourceId };
 		}
@@ -575,11 +773,7 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 			resourceId,
 		});
 		const stepVersion = this.getVersion ? await this.getVersion() : undefined;
-		const status = fg('platform_synced_block_patch_1')
-			? 'unpublished'
-			: this.isParentUnpublished?.()
-			? 'unpublished'
-			: data.status || 'active';
+		const status = 'unpublished';
 
 		try {
 			await createSyncedBlock({
@@ -595,7 +789,7 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 			return { resourceId };
 		} catch (error) {
 			if (error instanceof BlockError) {
-				return { error: mapBlockError(error), resourceId };
+				return { error: mapBlockError(error), resourceId, statusCode: error.status };
 			}
 			return { error: stringifyError(error), resourceId };
 		}
@@ -619,13 +813,86 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 			await deleteSyncedBlock({ blockAri, deleteReason });
 			return { resourceId, success: true, error: undefined };
 		} catch (error) {
+			if (error instanceof BlockNotFoundError && this.parentAri) {
+				return this.deleteOrphanBlock({
+					blockAri,
+					resourceId,
+					parentAri: this.parentAri,
+					deleteReason,
+				});
+			}
 			if (error instanceof BlockError) {
 				if (error.status === 404) {
 					// User should not be blocked by not_found error when deleting,
 					// hence returns successful result for 404 error
 					return { resourceId, success: true };
 				}
-				return { resourceId, success: false, error: mapBlockError(error) };
+				return {
+					resourceId,
+					success: false,
+					error: mapBlockError(error),
+					statusCode: error.status,
+				};
+			}
+			return { resourceId, success: false, error: stringifyError(error) };
+		}
+	}
+
+	// The block is an orphan (e.g. from a copied page) — it doesn't exist in Block Service.
+	// Block Service uses soft-deletes, so we must first create the block then delete it,
+	// ensuring a deletion-reason record is stored (used to display errors in reference blocks).
+	private async deleteOrphanBlock({
+		blockAri,
+		resourceId,
+		parentAri,
+		deleteReason,
+	}: {
+		blockAri: string;
+		deleteReason: string | undefined;
+		parentAri: string;
+		resourceId: string;
+	}): Promise<DeleteSyncBlockResult> {
+		try {
+			const stepVersion = this.getVersion ? await this.getVersion() : undefined;
+			try {
+				await createSyncedBlock({
+					blockAri,
+					blockInstanceId: resourceId,
+					sourceAri: parentAri,
+					product: this.product,
+					content: '[]',
+					stepVersion,
+				});
+			} catch (createError) {
+				// "Conditional check failed" means the block already exists in Block Service.
+				// This can happen when an orphan block is copied and pasted — a reference block repair
+				// in the backend may have already created it. We can proceed directly to delete it.
+				if (
+					createError instanceof Error &&
+					createError.message.includes('Conditional check failed')
+				) {
+					// block already exists, proceed to delete
+				} else if (createError instanceof BlockError) {
+					return {
+						resourceId,
+						success: false,
+						error: mapBlockError(createError),
+						statusCode: createError.status,
+					};
+				} else {
+					return { resourceId, success: false, error: stringifyError(createError) };
+				}
+			}
+			await deleteSyncedBlock({ blockAri, deleteReason });
+			return { resourceId, success: true, error: undefined };
+		} catch (error) {
+			if (error instanceof BlockError) {
+				return {
+					resourceId,
+					success: false,
+					error: mapBlockError(error),
+					statusCode: error.status,
+				};
 			}
 			return { resourceId, success: false, error: stringifyError(error) };
 		}
@@ -638,6 +905,15 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 
 	generateResourceId(): ResourceId {
 		return crypto.randomUUID();
+	}
+
+	generateBlockAri(resourceId: ResourceId): string {
+		return generateBlockAri({
+			cloudId: this.cloudId,
+			parentId: this.parentId || '',
+			product: this.product,
+			resourceId,
+		});
 	}
 
 	async updateReferenceData(
@@ -662,9 +938,89 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 			return { success: true };
 		} catch (error) {
 			if (error instanceof BlockError) {
-				return { success: false, error: mapBlockError(error) };
+				return { success: false, error: mapBlockError(error), statusCode: error.status };
 			}
 			return { success: false, error: stringifyError(error) };
+		}
+	}
+
+	async writeDataBatch(data: SyncBlockData[]): Promise<WriteSyncBlockResult[]> {
+		if (!this.parentAri || !this.parentId) {
+			return data.map((block) => ({ error: SyncBlockError.Errored, resourceId: block.resourceId }));
+		}
+
+		const stepVersion = this.getVersion ? await this.getVersion() : undefined;
+
+		try {
+			// Create a map from blockAri to original resourceId for matching responses
+			const blockAriToResourceIdMap = new Map<string, string>();
+
+			const blocks: BatchUpdateSyncedBlockRequest[] = data.map((block) => {
+				const blockAri = this.generateBlockAri(block.resourceId);
+
+				blockAriToResourceIdMap.set(blockAri, block.resourceId);
+
+				return {
+					blockAri,
+					content: JSON.stringify(block.content),
+					status: block.status,
+					stepVersion,
+				};
+			});
+
+			const response = await updateSyncedBlocks({ blocks });
+
+			const results: WriteSyncBlockResult[] = [];
+
+			// Process successful updates
+			if (response.success) {
+				const successBlocks = new Map(
+					response.success.map((block) => [blockAriToResourceIdMap.get(block.blockAri), block]),
+				);
+
+				for (const block of data) {
+					const successBlock = successBlocks.get(block.resourceId);
+					if (successBlock) {
+						results.push({
+							resourceId: block.resourceId,
+							status: successBlock.status,
+						});
+					}
+				}
+			}
+
+			if (response.error) {
+				const errorResourceIds = new Map<string, SyncBlockError>(
+					response.error.map((err) => [
+						// Use the map to get the original resourceId
+						blockAriToResourceIdMap.get(err.blockAri) || '',
+						mapErrorResponseCode(err.code),
+					]),
+				);
+
+				for (const block of data) {
+					const error = errorResourceIds.get(block.resourceId);
+					if (error) {
+						if (error !== SyncBlockError.NotFound) {
+							results.push({ error, resourceId: block.resourceId });
+						}
+					} else if (!results.some((r) => r.resourceId === block.resourceId)) {
+						// If not in success or error lists, mark as errored
+						results.push({ error: SyncBlockError.Errored, resourceId: block.resourceId });
+					}
+				}
+			}
+
+			return results;
+		} catch (error) {
+			if (error instanceof BlockError) {
+				return data.map((block) => ({
+					error: mapBlockError(error),
+					resourceId: block.resourceId,
+					statusCode: error.status,
+				}));
+			}
+			return data.map((block) => ({ error: stringifyError(error), resourceId: block.resourceId }));
 		}
 	}
 }
@@ -672,7 +1028,6 @@ class BlockServiceADFWriteProvider implements ADFWriteProvider {
 interface BlockServiceAPIProvidersProps {
 	cloudId: string; // the cloudId of the block. E.G the cloudId of the confluence page, or the cloudId of the Jira instance
 	getVersion?: () => Promise<number | undefined>; // get the version of the block. E.G the version of the confluence page, or the version of the Jira work item
-	isParentUnpublished?: () => boolean; // function to check if the parent is unpublished
 	parentAri: string | undefined; // the ARI of the parent of the block. E.G the ARI of the confluence page, or the ARI of the Jira work item
 	parentId?: string; // the parentId of the block. E.G the pageId for a confluence page, or the issueId for a Jira work item
 	product: SyncBlockProduct; // the product of the block. E.G 'confluence-page', 'jira-work-item'
@@ -684,7 +1039,6 @@ const createBlockServiceAPIProviders = ({
 	parentId,
 	product,
 	getVersion,
-	isParentUnpublished,
 }: BlockServiceAPIProvidersProps): {
 	fetchProvider: BlockServiceADFFetchProvider;
 	writeProvider: BlockServiceADFWriteProvider;
@@ -700,7 +1054,6 @@ const createBlockServiceAPIProviders = ({
 			parentId,
 			product,
 			getVersion,
-			isParentUnpublished,
 		}),
 	};
 };
@@ -711,7 +1064,6 @@ export const useMemoizedBlockServiceAPIProviders = ({
 	parentId,
 	product,
 	getVersion,
-	isParentUnpublished,
 }: BlockServiceAPIProvidersProps): {
 	fetchProvider: BlockServiceADFFetchProvider;
 	writeProvider: BlockServiceADFWriteProvider;
@@ -723,9 +1075,8 @@ export const useMemoizedBlockServiceAPIProviders = ({
 			parentId,
 			product,
 			getVersion,
-			isParentUnpublished,
 		});
-	}, [cloudId, parentAri, parentId, product, getVersion, isParentUnpublished]);
+	}, [cloudId, parentAri, parentId, product, getVersion]);
 };
 
 interface BlockServiceFetchOnlyAPIProviderProps {

@@ -1,5 +1,4 @@
 import type { InteractionMetrics } from '../../common';
-
 import { getTTI } from './get-tti';
 
 // Mock the config module
@@ -31,9 +30,7 @@ describe('getTTI', () => {
 		spans: [],
 		requestInfo: [],
 		holdInfo: [],
-		holdExpInfo: [],
 		holdActive: new Map(),
-		holdExpActive: new Map(),
 		reactProfilerTimings: [],
 		measureStart: 1000,
 		cancelCallbacks: [],
@@ -48,6 +45,7 @@ describe('getTTI', () => {
 		trace: null,
 		routeName: 'test-route',
 		...overrides,
+		preloadInfo: overrides.preloadInfo ?? [],
 	});
 
 	describe('TTI calculation', () => {

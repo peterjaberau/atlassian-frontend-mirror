@@ -1,22 +1,31 @@
 import React from 'react';
 
 import { cssMap } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
-import { type IconProps } from '@atlaskit/icon';
-import Blog24Icon from '@atlaskit/icon-object/glyph/blog/24';
-import Improvement24Icon from '@atlaskit/icon-object/glyph/improvement/24';
-import Page24Icon from '@atlaskit/icon-object/glyph/page/24';
-import { Anchor, Box, Grid, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
+import Heading from '@atlaskit/heading/heading';
+import type { IconProps } from '@atlaskit/icon/types';
+import BlogObjectTile from '@atlaskit/object/tile/blog';
+import ImprovementObjectTile from '@atlaskit/object/tile/improvement';
+import PageObjectTile from '@atlaskit/object/tile/page';
+import { Anchor } from '@atlaskit/primitives/compiled/anchor';
+import { Box } from '@atlaskit/primitives/compiled/box';
+import { Grid } from '@atlaskit/primitives/compiled/grid';
+import { Inline } from '@atlaskit/primitives/compiled/inline';
+import { Stack } from '@atlaskit/primitives/compiled/stack';
+import { Text } from '@atlaskit/primitives/compiled/text';
 import { token } from '@atlaskit/tokens';
+
+const BlogIcon = () => <BlogObjectTile size="small" />;
+const PageIcon = () => <PageObjectTile size="small" label="" />;
+const ImprovementIcon = () => <ImprovementObjectTile size="small" label="" />;
 
 const styles = cssMap({
 	anchor: {
 		color: token('color.text'),
 		backgroundColor: token('elevation.surface'),
-		paddingTop: token('space.200'),
-		paddingRight: token('space.200'),
-		paddingBottom: token('space.200'),
-		paddingLeft: token('space.200'),
+		paddingBlockStart: token('space.200'),
+		paddingInlineEnd: token('space.200'),
+		paddingBlockEnd: token('space.200'),
+		paddingInlineStart: token('space.200'),
 		textDecoration: 'none',
 		borderColor: token('color.border'),
 		borderStyle: 'solid',
@@ -87,28 +96,28 @@ export default function Styled(): React.JSX.Element {
 			<Grid xcss={styles.grid}>
 				<PageLink
 					href="/components/primitives/overview"
-					icon={Blog24Icon}
+					icon={BlogIcon}
 					title="Anchor primitive is now in beta!"
 					space="Design System Team"
 					lastVisited="1 hour ago"
 				/>
 				<PageLink
 					href="/components/primitives/overview"
-					icon={Page24Icon}
+					icon={PageIcon}
 					title="Impact & release planning"
 					space="Design System Team"
 					lastVisited="1 day ago"
 				/>
 				<PageLink
 					href="/components/primitives/overview"
-					icon={Page24Icon}
+					icon={PageIcon}
 					title="How to implement dark mode"
 					space="Design System Team"
 					lastVisited="12 May 2024"
 				/>
 				<PageLink
 					href="/components/primitives/overview"
-					icon={Improvement24Icon}
+					icon={ImprovementIcon}
 					title="New Bitbucket pull requests"
 					space="Bitbucket Cloud"
 					lastVisited="10 May 2024"

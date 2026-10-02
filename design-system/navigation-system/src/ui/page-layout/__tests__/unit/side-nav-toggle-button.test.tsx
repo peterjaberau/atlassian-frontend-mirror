@@ -3,6 +3,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 
 import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 import { resetMatchMedia, setMediaQuery } from '@atlassian/test-utils';
 import { act, fireEvent, render, screen, userEvent } from '@atlassian/testing-library';
 
@@ -11,7 +12,6 @@ import { SideNav } from '../../side-nav/side-nav';
 import { SideNavToggleButton } from '../../side-nav/toggle-button';
 import { TopNav } from '../../top-nav/top-nav';
 import { TopNavStart } from '../../top-nav/top-nav-start';
-
 import {
 	filterFromConsoleErrorOutput,
 	parseCssErrorRegex,
@@ -218,6 +218,33 @@ describe('SideNavToggleButton', () => {
 				expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 			});
 		});
+	});
+
+	it('should use the built-in shortcut in the tooltip and close it when clicked', async () => {
+		failGate('navx-full-height-sidebar');
+		passGate('platform-dst-keep-desired-fhs-features');
+		const user = createUser();
+
+		render(
+			<Root isSideNavShortcutEnabled>
+				<TopNav>
+					<SideNavToggleButton collapseLabel="Collapse sidebar" expandLabel="Expand sidebar" />
+				</TopNav>
+			</Root>,
+		);
+
+		await user.hover(screen.getByRole('button', { name: 'Expand sidebar' }));
+		act(() => {
+			jest.runAllTimers();
+		});
+
+		expect(
+			await screen.findByRole('tooltip', { name: 'Expand sidebar Ctrl [' }),
+		).toBeInTheDocument();
+
+		await user.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+
+		expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 	});
 
 	ffTest.off('navx-full-height-sidebar', 'FHS flag disabled', () => {

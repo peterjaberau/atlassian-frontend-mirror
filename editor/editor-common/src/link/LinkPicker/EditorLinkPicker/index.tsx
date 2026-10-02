@@ -1,21 +1,28 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
+import FocusLock from 'react-focus-lock';
+
 import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { LazyLinkPicker } from '@atlaskit/link-picker/lazy';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { Command, EditorAppearance } from '../../../types';
 import { getAnalyticsEditorAppearance } from '../../../utils';
-
 import { useEscapeClickaway } from './useEscapeClickaway';
+
+const PREVENT_SCROLL = { preventScroll: true };
 
 /**
  * Returns a type that matches T but where keys (K) are now optional
  */
 type OptionalKeys<T extends Object, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export interface EditorLinkPickerProps
-	extends OptionalKeys<React.ComponentProps<typeof LazyLinkPicker>, 'onCancel'> {
+export interface EditorLinkPickerProps extends OptionalKeys<
+	React.ComponentProps<typeof LazyLinkPicker>,
+	'onCancel'
+> {
 	editorAppearance?: EditorAppearance;
 	/**
 	 * Used for analytics purposes to describe how the link picker was invoked
@@ -82,6 +89,32 @@ export const EditorLinkPicker = ({
 		}),
 		[invokeMethod, analyticsEditorAppearance],
 	);
+
+	const returnFocus = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? PREVENT_SCROLL
+		: // eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- intentional fallback for experiment off path
+			{ preventScroll: true };
+	const focusOptions = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? PREVENT_SCROLL
+		: // eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- intentional fallback for experiment off path
+			{ preventScroll: true };
+
+	if (expValEquals('platform_editor_a11y_escape_link_dialog', 'isEnabled', true)) {
+		return (
+			<div ref={ref}>
+				<AnalyticsContext data={analyticsData}>
+					<FocusLock returnFocus={returnFocus} focusOptions={focusOptions}>
+						<LazyLinkPicker
+							// Ignored via go/ees005
+							// eslint-disable-next-line react/jsx-props-no-spreading
+							{...restProps}
+							onCancel={onEscape}
+						/>
+					</FocusLock>
+				</AnalyticsContext>
+			</div>
+		);
+	}
 
 	return (
 		<div ref={ref}>

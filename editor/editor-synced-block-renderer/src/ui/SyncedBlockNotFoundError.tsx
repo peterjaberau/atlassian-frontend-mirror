@@ -1,9 +1,11 @@
-import React, { useEffect, useState, type ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 
 import { cssMap } from '@compiled/react';
-import { useIntl, type MessageDescriptor } from 'react-intl-next';
+import { useIntl } from 'react-intl';
+import type { MessageDescriptor } from 'react-intl';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import commonMessages, { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
 import { useSyncBlockActions } from '@atlaskit/editor-common/sync-block';
 import CrossIcon from '@atlaskit/icon/core/cross';
@@ -11,7 +13,7 @@ import EyeOpenStrikethroughIcon from '@atlaskit/icon/core/eye-open-strikethrough
 import LinkBrokenIcon from '@atlaskit/icon/core/link-broken';
 import type { NewCoreIconProps } from '@atlaskit/icon/types';
 import { Anchor, Box } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 
 import { SyncedBlockErrorStateCard } from './SyncedBlockErrorStateCard';
@@ -46,6 +48,10 @@ const errorMap: Record<string, ErrorInfo> = {
 		description: messages.sourceDeletedDescription,
 		icon: LinkBrokenIcon,
 	},
+	'source-block-unpublished': {
+		description: messages.sourceDeletedDescription,
+		icon: LinkBrokenIcon,
+	},
 	'source-document-deleted': {
 		description: messages.notFoundDescription,
 		icon: EyeOpenStrikethroughIcon,
@@ -68,12 +74,12 @@ const useErrorInfo = (reason?: string, url?: string, title?: string) => {
 		return { description: formatMessage(description), icon };
 	}
 
-	const { icon, description } = errorMap[reason || 'generic'];
+	const { icon, description } = errorMap[reason || 'generic'] ?? errorMap['generic'];
 	return {
 		description: formatMessage(description, {
 			title,
 			a: (chunk: ReactNode) => (
-				<Anchor href={url} target="_blank" xcss={styles.link}>
+				<Anchor href={url} target="_blank" rel={'noopener noreferrer'} xcss={styles.link}>
 					{chunk}
 				</Anchor>
 			),
@@ -98,8 +104,10 @@ export const SyncedBlockNotFoundError = ({
 	useEffect(() => {
 		if (
 			!sourceAri ||
-			// Only fetch source info for these 2 cases
-			!['source-block-deleted', 'source-block-unsynced'].includes(reason)
+			// Only fetch source info for these 3 cases
+			!['source-block-deleted', 'source-block-unsynced', 'source-block-unpublished'].includes(
+				reason,
+			)
 		) {
 			setSourceInfo({});
 			return;

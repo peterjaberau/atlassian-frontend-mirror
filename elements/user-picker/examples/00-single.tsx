@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+
 import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
-import UserPicker, { type OptionData } from '../src';
+import { UserPicker } from '../src/components/UserPicker';
+import { type OptionData } from '../src/types';
 
 const Example = (): React.JSX.Element => {
 	const [selectedUser, setSelectedUser] = useState<OptionData>();
@@ -19,6 +21,7 @@ const Example = (): React.JSX.Element => {
 					onInputChange={onInputChange}
 					onSelection={onSelection}
 					value={selectedUser}
+					openMenuOnFocus={false}
 				/>
 			)}
 		</ExampleWrapper>

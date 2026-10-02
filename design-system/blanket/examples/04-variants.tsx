@@ -5,12 +5,12 @@
 
 import { useCallback, useState } from 'react';
 
-import Badge from '@atlaskit/badge';
-import Blanket from '@atlaskit/blanket';
-import Button from '@atlaskit/button/new';
+import Badge from '@atlaskit/badge/badge';
+import Blanket from '@atlaskit/blanket/blanket';
+import Button from '@atlaskit/button/default/button';
 import { css, cssMap, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
-import { useCloseOnEscapePress } from '@atlaskit/layering';
+import Heading from '@atlaskit/heading/heading';
+import { useCloseOnEscapePress } from '@atlaskit/layering/use-close-on-escape-press';
 import { Box, Inline, Text } from '@atlaskit/primitives/compiled';
 import Toggle from '@atlaskit/toggle';
 import { token } from '@atlaskit/tokens';
@@ -19,9 +19,9 @@ const labelStyles = css({
 	display: 'inline-block',
 	color: token('color.text.subtlest'),
 	font: token('font.body.small'),
-	fontWeight: token('font.weight.semibold', '600'),
-	marginBlockEnd: token('space.050', '4px'),
-	marginBlockStart: token('space.0', '0px'),
+	fontWeight: token('font.weight.semibold'),
+	marginBlockEnd: token('space.050'),
+	marginBlockStart: token('space.0'),
 });
 
 const blanketStyles = cssMap({

@@ -1,7 +1,9 @@
+import type { ADFNode, ADFNodeGroup } from '@atlaskit/adf-schema-generator';
 import { adfNodeGroup } from '@atlaskit/adf-schema-generator';
 
 import { blockCard } from '../nodes/blockCard';
 import { blockquote } from '../nodes/blockquote';
+import { bodiedRule } from '../nodes/bodiedRule';
 import { codeBlock } from '../nodes/codeBlock';
 import { decisionList } from '../nodes/decisionList';
 import { embedCard } from '../nodes/embedCard';
@@ -19,13 +21,17 @@ import { unsupportedBlock } from '../nodes/unsupportedBlock';
 
 // Not an actual group, but a collection of nodes that can't be nested inside each other
 // TODO: ED-29537 - make it an actual group
-export const nonNestableBlockContent = [
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const nonNestableBlockContent: Array<ADFNode<any, any>> = [
 	paragraph.use('with_no_marks'),
+	paragraph.use('with_font_size'),
 	panel,
 	blockquote,
 	orderedList,
 	bulletList,
 	rule,
+	rule.use('with_attrs'),
+	bodiedRule,
 	heading.use('with_no_marks'),
 	codeBlock,
 	mediaGroup,
@@ -43,11 +49,12 @@ export const nonNestableBlockContent = [
 ];
 
 /**
+ // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
  * @DSLCompatibilityException
  *
  * Pseudo group used to match existing validator and json schema specs.
  */
-export const nonNestableBlockContentGroup = adfNodeGroup(
+export const nonNestableBlockContentGroup: ADFNodeGroup = adfNodeGroup(
 	'non_nestable_block_content',
 	nonNestableBlockContent,
 );

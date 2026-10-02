@@ -1,9 +1,12 @@
 import { type EventHandler, type KeyboardEvent, type MouseEvent } from 'react';
 
-import { type CardProviderRenderers } from '@atlaskit/link-provider';
+import type { CardProviderRenderers } from '@atlaskit/link-provider/types';
+import type { CardState } from '@atlaskit/linking-common/store';
 
-import { type CardState } from '../../state/types';
-import type { CardActionOptions, OnResolveCallback } from '../Card/types';
+import type {
+	InternalCardActionOptions as CardActionOptions,
+	OnResolveCallback,
+} from '../Card/types';
 import { type HoverPreviewOptions } from '../HoverCard/types';
 import { type InlinePreloaderStyle, type OnErrorCallback } from '../types';
 
@@ -11,7 +14,11 @@ export type InlineCardProps = {
 	actionOptions?: CardActionOptions;
 	cardState: CardState;
 	handleAuthorize: (() => void) | undefined;
+	/** Optional middle-click handler. */
+	handleFrameAuxClick?: EventHandler<MouseEvent>;
 	handleFrameClick: EventHandler<MouseEvent | KeyboardEvent>;
+	/** Optional right-click handler. */
+	handleFrameContextMenu?: EventHandler<MouseEvent>;
 	hideIconLoadingSkeleton?: boolean;
 	hoverPreviewOptions?: HoverPreviewOptions;
 	id: string;

@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__navigation-system/app",
 		"rootDir": "../",
 		"composite": true,
@@ -28,6 +26,9 @@
 			"path": "../../../analytics/analytics-next/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../app-provider/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../avatar/afm-products/tsconfig.json"
 		},
 		{
@@ -49,7 +50,13 @@
 			"path": "../../logo/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../motion/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-flags-react/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../popup/afm-products/tsconfig.json"
@@ -59,6 +66,9 @@
 		},
 		{
 			"path": "../../primitives/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../navigation/side-nav-items/afm-products/tsconfig.json"

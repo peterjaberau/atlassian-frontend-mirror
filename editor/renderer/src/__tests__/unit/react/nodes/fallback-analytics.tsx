@@ -1,9 +1,13 @@
 import React from 'react';
+
 import { render, waitFor } from '@testing-library/react';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { CardClient as Client, SmartCardProvider as Provider } from '@atlaskit/link-provider';
-import { CardErrorBoundary } from '../../../../react/nodes/fallback';
+
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import Client from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { captureException } from '@atlaskit/linking-common/sentry';
+
+import { CardErrorBoundary } from '../../../../react/nodes/fallback';
 
 jest.mock('@atlaskit/linking-common/sentry', () => {
 	const originalModule = jest.requireActual('@atlaskit/link-client-extension');
@@ -87,7 +91,7 @@ describe('Renderer - Fallback analytics', () => {
 				expect(captureException).toHaveBeenCalled();
 			});
 			expect(onAnalyticFireEvent).toHaveBeenCalledTimes(1);
-			expect(onAnalyticFireEvent).toBeCalledWith(
+			expect(onAnalyticFireEvent).toHaveBeenCalledWith(
 				expect.objectContaining(renderFailedPayload),
 				EVENT_CHANNEL,
 			);
@@ -109,7 +113,7 @@ describe('Renderer - Fallback analytics', () => {
 				expect(captureException).toHaveBeenCalled();
 			});
 			expect(onAnalyticFireEvent).toHaveBeenCalledTimes(1);
-			expect(onAnalyticFireEvent).toBeCalledWith(
+			expect(onAnalyticFireEvent).toHaveBeenCalledWith(
 				expect.objectContaining(renderFailedPayload),
 				EVENT_CHANNEL,
 			);
@@ -130,7 +134,7 @@ describe('Renderer - Fallback analytics', () => {
 				datasourceId,
 			});
 			expect(onAnalyticFireEvent).toHaveBeenCalledTimes(1);
-			expect(onAnalyticFireEvent).toBeCalledWith(
+			expect(onAnalyticFireEvent).toHaveBeenCalledWith(
 				expect.objectContaining(renderFailedPayload),
 				EVENT_CHANNEL,
 			);

@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__profilecard/app",
 		"rootDir": "../",
 		"composite": true,
@@ -25,9 +23,6 @@
 	],
 	"references": [
 		{
-			"path": "../../../analytics/analytics-next/afm-products/tsconfig.json"
-		},
-		{
 			"path": "../../../uip/atlassian-context/afm-products/tsconfig.json"
 		},
 		{
@@ -47,6 +42,9 @@
 		},
 		{
 			"path": "../../../design-system/empty-state/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../team-central/give-kudos/afm-products/tsconfig.json"
@@ -76,13 +74,13 @@
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../platform/feature-flags-react/afm-products/tsconfig.json"
-		},
-		{
 			"path": "../../../design-system/popup/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../ai-mate/rovo-agent-components/afm-products/tsconfig.json"
@@ -100,6 +98,9 @@
 			"path": "../../teams-app-internal-analytics/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../teams-app-internal-navigation/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../teams-avatar/afm-products/tsconfig.json"
 		},
 		{
@@ -107,6 +108,9 @@
 		},
 		{
 			"path": "../../../design-system/theme/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../editor/tmp-editor-statsig/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

@@ -5,6 +5,10 @@ import type { PaletteColor } from './types';
  */
 export const DEFAULT_COLOR_PICKER_COLUMNS = 7;
 
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const CSS_VAR_REGEX = /var\(([^,\)]+)(,.*)?/;
+
 /**
  * Splits a palette array into rows based on the specified number of columns
  * @param palette - Array of palette colors
@@ -34,7 +38,10 @@ export function getColorsPerRowFromPalette(
 export function getSelectedRowAndColumn(
 	colorsPerRow: PaletteColor[][],
 	selectedColor: string | null,
-) {
+): {
+	selectedColumnIndex: number;
+	selectedRowIndex: number;
+} {
 	let selectedRowIndex = -1;
 	let selectedColumnIndex = -1;
 
@@ -64,7 +71,10 @@ export function getSelectedRowAndColumnFromPalette(
 	palette: PaletteColor[],
 	selectedColor: string | null,
 	cols: number = DEFAULT_COLOR_PICKER_COLUMNS,
-) {
+): {
+	selectedColumnIndex: number;
+	selectedRowIndex: number;
+} {
 	const colorsPerRow = getColorsPerRowFromPalette(palette, cols);
 	return getSelectedRowAndColumn(colorsPerRow, selectedColor);
 }
@@ -77,9 +87,7 @@ export function getSelectedRowAndColumnFromPalette(
  */
 export const getTokenCSSVariableValue = (variableExpression: string): string => {
 	// Match CSS variable pattern: var(--variable-name, fallback)
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const matcher = variableExpression.match(/var\(([^,\)]+)(,.*)?/);
+	const matcher = variableExpression.match(CSS_VAR_REGEX);
 	if (matcher) {
 		const variable = matcher[1].trim();
 		const fallback = matcher[2] ? matcher[2].replace(',', '').trim() : '';

@@ -5,27 +5,28 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { FormattedMessage, useIntl } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-import { IconButton } from '@atlaskit/button/new';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { getDocument } from '@atlaskit/browser-apis';
+import IconButton from '@atlaskit/button/icon/button';
 import Button from '@atlaskit/button/standard-button';
 import { cssMap, jsx } from '@atlaskit/css';
-import { Drawer } from '@atlaskit/drawer';
+import { Drawer } from '@atlaskit/drawer/drawer';
 import ArrowLeft from '@atlaskit/icon/core/arrow-left';
 import LinkExternalIcon from '@atlaskit/icon/core/link-external';
-import { IntlMessagesProvider } from '@atlaskit/intl-messages-provider';
-import Link from '@atlaskit/link';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Portal from '@atlaskit/portal';
+import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';
+import Link from '@atlaskit/link/link';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Portal from '@atlaskit/portal/portal';
 import { Inline } from '@atlaskit/primitives/compiled';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
 import { token } from '@atlaskit/tokens';
 
@@ -40,6 +41,8 @@ import {
 	isFlagEventTypeValue,
 	KudosType,
 } from '../../types';
+import { isSafeHttpsUrl } from './isSafeHttpsUrl';
+import { isTrustedOrigin } from './isTrustedOrigin';
 
 const styles = cssMap({
 	drawerCloseButtonContainer: {
@@ -57,9 +60,11 @@ const ANALYTICS_CHANNEL = 'atlas';
 const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 	const [isCloseConfirmModalOpen, setIsCloseConfirmModalOpen] = useState(false);
 	const [isDirty, setIsDirty] = useState(false);
-	const iframeEl = useRef(null);
-	const messageListenerEventHandler = useRef((_e: any) => { });
-	const unloadEventHandler = useRef((_e: any) => { });
+	const iframeEl = useRef<HTMLIFrameElement>(null);
+	const backButtonRef = useRef<HTMLButtonElement>(null);
+	const messageListenerEventHandler = useRef((_e: any) => {});
+	const unloadEventHandler = useRef((_e: any) => {});
+	const focusGuardCleanupRef = useRef<(() => void) | null>(null);
 	const intl = useIntl();
 	const { createAnalyticsEvent } = useAnalyticsEvents();
 
@@ -72,9 +77,9 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 		onCreateKudosSuccess,
 		isActionsEnabled,
 		zIndex = layers.modal(),
+		triggerRef,
+		onCloseComplete,
 	} = props;
-
-	const zIndexNext = fg('people-teams-kudos-launcher-z-index') ? zIndex : layers.modal();
 
 	const shouldBlockTransition = useCallback(
 		(e: Event & { returnValue: any }) => {
@@ -110,9 +115,70 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 		onClose();
 	}, [onClose]);
 
+	const focusBackButton = useCallback(() => {
+		backButtonRef.current?.focus();
+	}, []);
+
+	// After the iframe loads, its form autofocuses an input and steals focus from
+	// the back button. Focus the back button and, for a short grace period,
+	// restore it whenever focus moves into the iframe.
+	const handleIframeLoad = useCallback(() => {
+		focusGuardCleanupRef.current?.();
+		focusBackButton();
+
+		const handleWindowBlur = () => {
+			window.setTimeout(() => {
+				if (getDocument()?.activeElement === iframeEl.current) {
+					focusBackButton();
+				}
+			}, 0);
+		};
+
+		window.addEventListener('blur', handleWindowBlur);
+
+		const gracePeriodTimer = window.setTimeout(() => {
+			window.removeEventListener('blur', handleWindowBlur);
+			focusGuardCleanupRef.current = null;
+		}, 1000);
+
+		focusGuardCleanupRef.current = () => {
+			window.clearTimeout(gracePeriodTimer);
+			window.removeEventListener('blur', handleWindowBlur);
+		};
+	}, [focusBackButton]);
+
+	useEffect(() => () => focusGuardCleanupRef.current?.(), []);
+
 	const closeWarningModal = () => {
 		setIsCloseConfirmModalOpen(false);
 	};
+
+	// Closing from the confirm modal is a two step close. The drawer's focus lock only returns focus
+	// to whatever opened the drawer if focus is still inside the drawer when the lock is torn down,
+	// and opening the confirm modal moves focus out of it. So the modal is dismissed first, focus is
+	// put back on the drawer's own close button, and only then is the drawer closed.
+	const shouldCloseDrawerAfterConfirmModalRef = useRef(false);
+
+	const requestDrawerCloseFromConfirmModal = useCallback(() => {
+		if (!fg('teams_a11y_focus_high_priority')) {
+			closeDrawer();
+			return;
+		}
+
+		shouldCloseDrawerAfterConfirmModalRef.current = true;
+		setIsDirty(false);
+		setIsCloseConfirmModalOpen(false);
+	}, [closeDrawer]);
+
+	const handleConfirmModalCloseComplete = useCallback(() => {
+		if (!shouldCloseDrawerAfterConfirmModalRef.current) {
+			return;
+		}
+
+		shouldCloseDrawerAfterConfirmModalRef.current = false;
+		focusBackButton();
+		closeDrawer();
+	}, [closeDrawer, focusBackButton]);
 
 	const createFlagWithJsonStringifiedInput = useCallback(
 		(flagEvent: FlagEvent) => {
@@ -141,18 +207,18 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 						),
 						actions: isActionsEnabled
 							? [
-								{
-									content: (
-										<Inline space="space.050" alignBlock="center">
-											<FormattedMessage {...messages.kudosCreatedActionFlag} />
-											<LinkExternalIcon label="" color="currentColor" />
-										</Inline>
-									),
-									href: `${teamCentralBaseUrl}/people/kudos/${flagEvent.kudosUuid}`,
-									target: '_blank',
-									onClick: () => undefined,
-								},
-							]
+									{
+										content: (
+											<Inline space="space.050" alignBlock="center">
+												<FormattedMessage {...messages.kudosCreatedActionFlag} />
+												<LinkExternalIcon label="" color="currentColor" />
+											</Inline>
+										),
+										href: `${teamCentralBaseUrl}/people/kudos/${flagEvent.kudosUuid}`,
+										target: '_blank',
+										onClick: () => undefined,
+									},
+								]
 							: undefined,
 						type: 'success',
 					});
@@ -165,7 +231,10 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 						type: 'error',
 					});
 					break;
-				case FlagEventType.JIRA_KUDOS_CREATED:
+				case FlagEventType.JIRA_KUDOS_CREATED: {
+					if (!isSafeHttpsUrl(flagEvent.jiraKudosUrl)) {
+						return;
+					}
 					handleCreateOrFail({
 						title: <FormattedMessage {...messages.JiraKudosCreatedFlag} />,
 						id: `kudosCreatedFlag-${flagEvent.kudosUuid}`,
@@ -174,7 +243,7 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 						actions: [
 							{
 								content: 'Track gift request',
-								href: flagEvent.jiraKudosUrl,
+								href: flagEvent.jiraKudosUrl ?? '',
 							},
 							{
 								content: 'View kudos',
@@ -183,7 +252,11 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 						],
 					});
 					break;
-				case FlagEventType.JIRA_KUDOS_FAILED:
+				}
+				case FlagEventType.JIRA_KUDOS_FAILED: {
+					if (!isSafeHttpsUrl(flagEvent.jiraKudosFormUrl)) {
+						return;
+					}
 					handleCreateOrFail({
 						title: <FormattedMessage {...messages.JiraKudosCreationFailedFlag} />,
 						id: `jiraKudosCreationFailedFlag-${flagEvent.kudosUuid}`,
@@ -210,6 +283,7 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 						],
 					});
 					break;
+				}
 				case FlagEventType.DIRTY:
 					setIsDirty(true);
 					break;
@@ -230,6 +304,10 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 				return;
 			}
 
+			if (!isTrustedOrigin(teamCentralBaseUrl, event.origin)) {
+				return;
+			}
+
 			if (event.data === 'dirty') {
 				setIsDirty(true);
 			} else if (event.data === 'close') {
@@ -245,7 +323,7 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 				}
 			}
 		},
-		[props.isOpen, closeDrawer, createFlagWithJsonStringifiedInput],
+		[props.isOpen, teamCentralBaseUrl, closeDrawer, createFlagWithJsonStringifiedInput],
 	);
 
 	useEffect(() => {
@@ -299,8 +377,9 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 	const populateRecipientsViaParam = props.prepopulateRecipientsVia
 		? `&entityType=${props.prepopulateRecipientsVia.entityType}&entityARI=${props.prepopulateRecipientsVia.entityARI}`
 		: '';
-	const giveKudosUrl = `${props.teamCentralBaseUrl}/give-kudos?cloudId=${props.cloudId
-		}${recipientParam}${populateRecipientsViaParam}&unsavedMessage=${intl.formatMessage(messages.unsavedKudosWarning)}`;
+	const giveKudosUrl = `${props.teamCentralBaseUrl}/give-kudos?cloudId=${
+		props.cloudId
+	}${recipientParam}${populateRecipientsViaParam}&unsavedMessage=${intl.formatMessage(messages.unsavedKudosWarning)}`;
 
 	const renderDrawer = useMemo(() => {
 		if (props.isOpen) {
@@ -310,11 +389,16 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 			<Drawer
 				width="full"
 				isOpen={props.isOpen}
-				zIndex={zIndexNext}
+				zIndex={zIndex}
 				onClose={handleCloseDrawerClicked}
+				onCloseComplete={onCloseComplete}
+				shouldReturnFocus={
+					fg('teams_a11y_focus_high_priority') && triggerRef ? triggerRef : undefined
+				}
 			>
 				<div css={styles.drawerCloseButtonContainer}>
 					<IconButton
+						ref={backButtonRef}
 						onClick={handleCloseDrawerClicked}
 						icon={ArrowLeft}
 						label={intl.formatMessage(messages.closeDrawerButtonLabel)}
@@ -322,7 +406,6 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 						appearance="subtle"
 					/>
 				</div>
-				{/* eslint-disable-next-line @atlassian/a11y/iframe-has-title */}
 				<iframe
 					src={giveKudosUrl}
 					ref={iframeEl}
@@ -331,6 +414,8 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 					frameBorder="0"
 					allow="camera;microphone"
 					css={styles.iframe}
+					title={intl.formatMessage(messages.giveKudosButton)}
+					onLoad={handleIframeLoad}
 				/>
 			</Drawer>
 		);
@@ -338,12 +423,19 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 	}, [props.recipient?.recipientId, props.isOpen]);
 
 	return (
-		<Portal zIndex={zIndexNext}>
+		<Portal zIndex={zIndex}>
 			<div data-testid={testId}>
 				<ModalTransition>
 					{isCloseConfirmModalOpen && (
-						<Modal onClose={closeWarningModal} width="small">
-							<ModalHeader>
+						<Modal
+							onClose={closeWarningModal}
+							width="small"
+							shouldReturnFocus={fg('teams_a11y_focus_high_priority') ? backButtonRef : undefined}
+							onCloseComplete={
+								fg('teams_a11y_focus_high_priority') ? handleConfirmModalCloseComplete : undefined
+							}
+						>
+							<ModalHeader hasCloseButton>
 								<ModalTitle>
 									<FormattedMessage {...messages.confirmCloseTitle} />
 								</ModalTitle>
@@ -359,7 +451,7 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 									appearance="primary"
 									onClick={() => {
 										sendCancelAnalytic();
-										closeDrawer();
+										requestDrawerCloseFromConfirmModal();
 									}}
 								>
 									<FormattedMessage {...messages.unsavedKudosWarningCloseButton} />
@@ -374,7 +466,7 @@ const GiveKudosLauncher = (props: GiveKudosDrawerProps) => {
 	);
 };
 
-const ComposedGiveKudosLauncher = (props: GiveKudosDrawerProps) => {
+const ComposedGiveKudosLauncher = (props: GiveKudosDrawerProps): JSX.Element => {
 	return (
 		<IntlMessagesProvider loaderFn={fetchMessagesForLocale} defaultMessages={i18nEN}>
 			<GiveKudosLauncher {...props} />

@@ -1,7 +1,8 @@
 /* eslint-disable @atlaskit/editor/no-re-export */
 // Entry file in package.json
 
-import type { MediaADFAttrs, MediaInlineAttributes } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
+import type { MediaInlineAttributes } from '@atlaskit/adf-schema/media-inline';
 import type {
 	MediaProvider,
 	ProviderFactory,
@@ -14,8 +15,9 @@ import type { NodeType } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { FileIdentifier } from '@atlaskit/media-client';
 import type { MediaFeatureFlags } from '@atlaskit/media-common';
-import type { MediaClientConfig } from '@atlaskit/media-core';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
 import type { MediaFile, UploadParams } from '@atlaskit/media-picker/types';
+import type { MediaViewerExtensions } from '@atlaskit/media-viewer';
 // TODO: ED-26962 - Once we extract the placeholder-text we should import this type again
 //import type { PlaceholderTextOptions } from '../../plugins/placeholder-text/types';
 
@@ -35,9 +37,29 @@ export type MediaSingleWithType = 'pixel' | 'percentage';
 
 export type MediaCopyScope = 'editor' | 'context';
 
+export type MediaRenderEventPayload =
+	| { type: 'mounted' | 'unmounted' }
+	| { renderedMediaId?: string; type: 'preview-rendered' }
+	| { reason: string; type: 'error' };
+
+export type MediaRenderEvent = {
+	dataConsumerSource?: string;
+	mediaId?: string;
+	mediaInstance: object;
+} & MediaRenderEventPayload;
+
 export interface MediaPluginOptions {
 	alignLeftOnInsert?: boolean;
 	allowAdvancedToolBarOptions?: boolean;
+	/**
+	 * Animates media nodes into the document: the content opens out to make room for the node
+	 * once its preview is ready, then the preview fades in. For surfaces where media arrives
+	 * mid-flight, e.g. AI-generated images inserted into the Create with Rovo preview after the
+	 * surrounding content has streamed in.
+	 *
+	 * Also behind `aifc_page_create_defer_generated_visuals`.
+	 */
+	allowAIGeneratedMediaMotion?: boolean;
 	// This enables the option to add an alt-text attribute to images contained in the Editor.
 	allowAltTextOnImages?: boolean;
 	allowBreakoutSnapPoints?: boolean;
@@ -70,12 +92,32 @@ export interface MediaPluginOptions {
 	allowTemplatePlaceholders?: boolean | PlaceholderTextOptions;
 	// returns array of validation errors based on value, if no errors returned - value is considered to be valid
 	altTextValidator?: (value: string) => string[];
+	createCommentExperience?: {
+		initExperience: {
+			start: () => void;
+		};
+		start: (_: {
+			attributes: {
+				annotationId?: undefined;
+				blockType: 'media';
+				commentType: 'block';
+				entryPoint?: 'highlightActionsSimple';
+				pageClass: 'editor';
+			};
+		}) => void;
+	};
 	customDropzoneContainer?: HTMLElement;
 	customMediaPicker?: CustomMediaPicker;
 	disableQuickInsert?: boolean;
 	editorAppearance?: EditorAppearance;
 	editorSelectionAPI?: EditorSelectionAPI;
 	enableDownloadButton?: boolean;
+	/**
+	 * Optional fallback fetcher to retrieve the media filename from another service
+	 * Workaround for #hot-301450 where media service is missing filenames for DC -> Cloud migrated media
+	 * Receives the file ID and should resolve to the filename string.
+	 */
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>;
 	featureFlags?: MediaFeatureFlags;
 	// Allows consumer products to always force the positioning of resize handles when resizing media.
 	// eg: inline comment editor (chromeless) can force a smaller gap between content and resize handles
@@ -103,7 +145,11 @@ export interface MediaPluginOptions {
 	// Allows consumer products to choose if they want referential copies to occur at a context or editor level.
 	// default is context
 	mediaShallowCopyScope?: MediaCopyScope;
+	/** Extensions for the media viewer header (e.g. comment navigation button). */
+	mediaViewerExtensions?: MediaViewerExtensions;
 	onCommentButtonMount?: () => void;
+	/** Receives lifecycle events for each rendered media node. */
+	onMediaRenderEvent?: (event: MediaRenderEvent) => void;
 	/**
 	 * When enabled, prevents automatic focus/selection of media nodes after upload completion.
 	 * The existing focus will be preserved instead of switching to the uploaded media.
@@ -122,6 +168,7 @@ export interface MediaPluginOptions {
  * @deprecated Use {@link MediaPluginOptions} instead.
  * @see https://product-fabric.atlassian.net/browse/ED-27496
  */
+
 export type MediaOptions = MediaPluginOptions;
 
 export interface MediaSingleOptions {
@@ -154,18 +201,15 @@ export interface MediaState {
 export type Listener = (data: any) => void;
 
 export interface CustomMediaPicker {
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	destroy(): void;
+	destroy: () => void;
 	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/method-signature-style -- method-signature-style ignored via go/ees013 (to be fixed)
-	emit(event: string, data: any): void;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	on(event: string, cb: Listener): void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	emit: (event: string, data: any) => void;
+	on: (event: string, cb: Listener) => void;
 	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/method-signature-style -- method-signature-style ignored via go/ees013 (to be fixed)
-	removeAllListeners(event: any): void;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	setUploadParams(uploadParams: UploadParams): void;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	removeAllListeners: (event: any) => void;
+	setUploadParams: (uploadParams: UploadParams) => void;
 }
 
 export type MobileUploadEndEventPayload = {
@@ -208,6 +252,7 @@ export type MediaFloatingToolbarOptions = {
 	allowResizing?: boolean;
 	allowResizingInTables?: boolean;
 	altTextValidator?: (value: string) => string[];
+	createCommentExperience?: MediaPluginOptions['createCommentExperience'];
 	fullWidthEnabled?: boolean;
 	isViewOnly?: boolean;
 	onCommentButtonMount?: () => void;

@@ -3,7 +3,7 @@
  * @jsx jsx
  */
 import { css, jsx } from '@compiled/react';
-import { defineMessages, useIntl } from 'react-intl-next';
+import { defineMessages, useIntl } from 'react-intl';
 
 import { token } from '@atlaskit/tokens';
 
@@ -29,7 +29,7 @@ const messages = defineMessages({
 	},
 });
 
-export const ErrorBoundaryFallback = () => {
+export const ErrorBoundaryFallback = (): JSX.Element => {
 	const intl = useIntl();
 	const header = intl.formatMessage(messages.heading);
 	const description = intl.formatMessage(messages.description);

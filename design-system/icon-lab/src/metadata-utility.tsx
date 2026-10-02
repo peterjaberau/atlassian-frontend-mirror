@@ -6,6 +6,7 @@
  * @codegen <<SignedSource::04af6dfad1ade5135739e980e9e566f4>>
  * @codegenCommand yarn build:icon-glyphs
  */
+// oxlint-disable-next-line eslint/no-redeclare
 interface metadata {
 	/**
 	 * Default component name for the icon
@@ -54,11 +55,6 @@ interface metadata {
 	 * Contact slack channel for the team owning the icon
 	 */
 	slackChannel?: string;
-
-	/**
-	 * A list of keys for old icons that have been replaced by this icon
-	 */
-	oldName?: string[];
 
 	/**
 	 * A replacement icon if this icon has been deprecated

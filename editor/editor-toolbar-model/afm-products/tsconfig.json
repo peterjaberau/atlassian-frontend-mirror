@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-toolbar-model/app",
 		"rootDir": "../",
 		"composite": true,
@@ -19,6 +18,12 @@
 		"../src/**/*.stories.*"
 	],
 	"references": [
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"
+		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"
 		}

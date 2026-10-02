@@ -1,42 +1,56 @@
 import { snapshot } from '@af/visual-regression';
 
-import EmbedCardErrorView from '../../../examples/vr-embed-card/vr-embed-card-error';
-import EmbedCardForbiddenView from '../../../examples/vr-embed-card/vr-embed-card-forbidden';
-import EmbedCardForbiddenFixBlurring from '../../../examples/vr-embed-card/vr-embed-card-forbidden-fix-blurring';
-import EmbedCardForbiddenViewFrameHide from '../../../examples/vr-embed-card/vr-embed-card-forbidden-frame-hide';
-import EmbedCardForbiddenObjectRequestAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-object-request-access';
-import EmbedCardForbiddenSiteDeniedAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-denied-access';
-import EmbedCardForbiddenSiteDirectAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-direct-access';
-import EmbedCardForbiddenSiteForbiddenAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-forbidden-access';
-import EmbedCardForbiddenSitePendingAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-pending-access';
-import EmbedCardForbiddenSiteRequestAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-request-access';
-import EmbedCardFrameStyleHide from '../../../examples/vr-embed-card/vr-embed-card-frame-style-hide';
-import EmbedCardFrameStyleHideAndSelected from '../../../examples/vr-embed-card/vr-embed-card-frame-style-hide-and-selected';
-import EmbedCardFrameStyleShow from '../../../examples/vr-embed-card/vr-embed-card-frame-style-show';
-import EmbedCardFrameStyleShowAndSelected from '../../../examples/vr-embed-card/vr-embed-card-frame-style-show-and-selected';
-import EmbedCardFrameStyleShowOnHover from '../../../examples/vr-embed-card/vr-embed-card-frame-style-show-on-hover';
-import EmbedCardFrameStyleShowOnHoverAndSelected from '../../../examples/vr-embed-card/vr-embed-card-frame-style-show-on-hover-and-selected';
-import EmbedCardFrameWithHref from '../../../examples/vr-embed-card/vr-embed-card-frame-with-href';
-import EmbedCardFrameWithNoHref from '../../../examples/vr-embed-card/vr-embed-card-frame-with-no-href';
-import EmbedCardFrameWithNoPlaceholderWithHref from '../../../examples/vr-embed-card/vr-embed-card-frame-with-no-placeholder-with-href';
-import EmbedCardFrameWithNoPlaceholderWithOnClick from '../../../examples/vr-embed-card/vr-embed-card-frame-with-no-placeholder-with-on-click';
-import EmbedCardFrameWithPlaceholderAndHref from '../../../examples/vr-embed-card/vr-embed-card-frame-with-placeholder-and-href';
-import EmbedCardFrameWithPlaceholderAndOnClick from '../../../examples/vr-embed-card/vr-embed-card-frame-with-placeholder-and-on-click';
-import EmbedCardNotFoundView from '../../../examples/vr-embed-card/vr-embed-card-not-found';
-import EmbedCardNotFoundViewFrameHide from '../../../examples/vr-embed-card/vr-embed-card-not-found-frame-hide';
-import EmbedCardNotFoundSiteAccessExists from '../../../examples/vr-embed-card/vr-embed-card-not-found-site-access-exists';
-import EmbedCardResolvedView from '../../../examples/vr-embed-card/vr-embed-card-resolved';
-import EmbedCardResolvedViewCompetitorPrompt from '../../../examples/vr-embed-card/vr-embed-card-resolved-competitor-prompt';
-import EmbedCardResolvedViewEntities from '../../../examples/vr-embed-card/vr-embed-card-resolved-entities';
-import EmbedCardResolvedViewNoPreview from '../../../examples/vr-embed-card/vr-embed-card-resolved-no-preview';
-import EmbedCardResolvedSmall from '../../../examples/vr-embed-card/vr-embed-card-resolved-small';
-import EmbedCardResolvingView from '../../../examples/vr-embed-card/vr-embed-card-resolving';
-import EmbedCardSelected from '../../../examples/vr-embed-card/vr-embed-card-selected';
-import EmbedCardUnauthorisedView from '../../../examples/vr-embed-card/vr-embed-card-unauthorised';
-import EmbedCardUnauthorisedViewFrameHide from '../../../examples/vr-embed-card/vr-embed-card-unauthorised-frame-hide';
-import EmbedCardUnauthorisedViewWithNoAuth from '../../../examples/vr-embed-card/vr-embed-card-unauthorised-no-auth';
-import EmbedCardUnauthorisedViewWithProviderImage from '../../../examples/vr-embed-card/vr-embed-card-unauthorised-with-provider-image';
-import { VREmbedProfileObject } from '../../../examples/vr-embed-card/vr-embed-profile-object';
+import EmbedCardErrorView from '../../../examples/vr-embed-card/vr-embed-card-error.vr.ap';
+import EmbedCardForbiddenFixBlurring from '../../../examples/vr-embed-card/vr-embed-card-forbidden-fix-blurring.vr.ap';
+import EmbedCardForbiddenViewFrameHide from '../../../examples/vr-embed-card/vr-embed-card-forbidden-frame-hide.vr.ap';
+import EmbedCardForbiddenObjectRequestAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-object-request-access.vr.ap';
+import EmbedCardForbiddenSiteDeniedAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-denied-access.vr.ap';
+import EmbedCardForbiddenSiteDirectAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-direct-access.vr.ap';
+import EmbedCardForbiddenSiteForbiddenAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-forbidden-access.vr.ap';
+import EmbedCardForbiddenSitePendingAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-pending-access.vr.ap';
+import EmbedCardForbiddenSiteRequestAccess from '../../../examples/vr-embed-card/vr-embed-card-forbidden-site-request-access.vr.ap';
+import EmbedCardForbiddenView from '../../../examples/vr-embed-card/vr-embed-card-forbidden.vr.ap';
+import EmbedCardFrameStyleHideAndSelected from '../../../examples/vr-embed-card/vr-embed-card-frame-style-hide-and-selected.vr.ap';
+import EmbedCardFrameStyleHide from '../../../examples/vr-embed-card/vr-embed-card-frame-style-hide.vr.ap';
+import EmbedCardFrameStyleShowAndSelected from '../../../examples/vr-embed-card/vr-embed-card-frame-style-show-and-selected.vr.ap';
+import EmbedCardFrameStyleShowOnHoverAndSelected from '../../../examples/vr-embed-card/vr-embed-card-frame-style-show-on-hover-and-selected.vr.ap';
+import EmbedCardFrameStyleShowOnHover from '../../../examples/vr-embed-card/vr-embed-card-frame-style-show-on-hover.vr.ap';
+import EmbedCardFrameStyleShow from '../../../examples/vr-embed-card/vr-embed-card-frame-style-show.vr.ap';
+import EmbedCardFrameWithHref from '../../../examples/vr-embed-card/vr-embed-card-frame-with-href.vr.ap';
+import EmbedCardFrameWithNoHref from '../../../examples/vr-embed-card/vr-embed-card-frame-with-no-href.vr.ap';
+import EmbedCardFrameWithNoPlaceholderWithHref from '../../../examples/vr-embed-card/vr-embed-card-frame-with-no-placeholder-with-href.vr.ap';
+import EmbedCardFrameWithNoPlaceholderWithOnClick from '../../../examples/vr-embed-card/vr-embed-card-frame-with-no-placeholder-with-on-click.vr.ap';
+import EmbedCardFrameWithPlaceholderAndHref from '../../../examples/vr-embed-card/vr-embed-card-frame-with-placeholder-and-href.vr.ap';
+import EmbedCardFrameWithPlaceholderAndOnClick from '../../../examples/vr-embed-card/vr-embed-card-frame-with-placeholder-and-on-click.vr.ap';
+import EmbedCardNotFoundViewFrameHide from '../../../examples/vr-embed-card/vr-embed-card-not-found-frame-hide.vr.ap';
+import EmbedCardNotFoundSiteAccessExists from '../../../examples/vr-embed-card/vr-embed-card-not-found-site-access-exists.vr.ap';
+import EmbedCardNotFoundView from '../../../examples/vr-embed-card/vr-embed-card-not-found.vr.ap';
+import EmbedCardResolvedViewCompetitorPrompt from '../../../examples/vr-embed-card/vr-embed-card-resolved-competitor-prompt.vr.ap';
+import EmbedCardResolvedViewEntities from '../../../examples/vr-embed-card/vr-embed-card-resolved-entities.vr.ap';
+import EmbedCardResolvedViewNoPreview from '../../../examples/vr-embed-card/vr-embed-card-resolved-no-preview.vr.ap';
+import VREmbedCardResolvedRovoActionsFooter, {
+	VREmbedCardResolvedRovoActionsFooterDisabled,
+	VREmbedCardResolvedRovoActionsFooterExperimentOff,
+	VREmbedCardResolvedRovoActionsFooterKillSwitchOff,
+} from '../../../examples/vr-embed-card/vr-embed-card-resolved-rovo-actions-footer.vr.ap';
+import EmbedCardResolvedSmall from '../../../examples/vr-embed-card/vr-embed-card-resolved-small.vr.ap';
+import EmbedCardResolvedView from '../../../examples/vr-embed-card/vr-embed-card-resolved.vr.ap';
+import EmbedCardResolvingView from '../../../examples/vr-embed-card/vr-embed-card-resolving.vr.ap';
+import EmbedCardSelected from '../../../examples/vr-embed-card/vr-embed-card-selected.vr.ap';
+import EmbedCardUnauthorisedViewFrameHide from '../../../examples/vr-embed-card/vr-embed-card-unauthorised-frame-hide.vr.ap';
+import EmbedCardUnauthorisedViewWithNoAuth from '../../../examples/vr-embed-card/vr-embed-card-unauthorised-no-auth.vr.ap';
+import EmbedCardUnauthorisedViewWithProviderImage from '../../../examples/vr-embed-card/vr-embed-card-unauthorised-with-provider-image.vr.ap';
+import EmbedCardUnauthorisedView from '../../../examples/vr-embed-card/vr-embed-card-unauthorised.vr.ap';
+import {
+	EmbedCardUnauthorizedCarouselGoogleInConfluenceSlide1,
+	EmbedCardUnauthorizedCarouselGoogleInConfluenceSlide2,
+	EmbedCardUnauthorizedCarouselGoogleInConfluenceSlide3,
+	EmbedCardUnauthorizedCarouselFigmaInTrelloSlide1,
+	EmbedCardUnauthorizedCarouselFigmaInTrelloSlide2,
+	EmbedCardUnauthorizedCarouselFigmaInTrelloSlide3,
+	EmbedCardUnauthorizedCarouselDropboxInAtlasSlide1,
+} from '../../../examples/vr-embed-card/vr-embed-card-unauthorized-carousel.vr.ap';
+import { VREmbedProfileObject } from '../../../examples/vr-embed-card/vr-embed-profile-object.vr.ap';
 
 const EmbedCardForbiddenDefault = EmbedCardForbiddenView;
 const EmbedCardNotFoundDefault = EmbedCardNotFoundView;
@@ -45,52 +59,51 @@ snapshot(EmbedCardErrorView);
 snapshot(EmbedCardForbiddenView);
 snapshot(EmbedCardForbiddenFixBlurring);
 snapshot(EmbedCardForbiddenDefault);
-snapshot(EmbedCardForbiddenObjectRequestAccess, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
-});
-snapshot(EmbedCardForbiddenSiteDeniedAccess, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
-});
-snapshot(EmbedCardForbiddenSiteDirectAccess, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
-});
-snapshot(EmbedCardForbiddenSiteForbiddenAccess, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
-});
-snapshot(EmbedCardForbiddenSitePendingAccess, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
-});
-snapshot(EmbedCardForbiddenSiteRequestAccess, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
-});
+snapshot(EmbedCardForbiddenObjectRequestAccess);
+snapshot(EmbedCardForbiddenSiteDeniedAccess);
+snapshot(EmbedCardForbiddenSiteDirectAccess);
+snapshot(EmbedCardForbiddenSiteForbiddenAccess);
+snapshot(EmbedCardForbiddenSitePendingAccess);
+snapshot(EmbedCardForbiddenSiteRequestAccess);
 snapshot(EmbedCardNotFoundView);
 snapshot(EmbedCardNotFoundDefault);
-snapshot(EmbedCardNotFoundSiteAccessExists, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
-});
-snapshot(EmbedCardResolvedSmall);
-snapshot(EmbedCardResolvedView);
-snapshot(EmbedCardResolvedViewCompetitorPrompt);
+snapshot(EmbedCardNotFoundSiteAccessExists);
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(EmbedCardResolvedSmall);
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(EmbedCardResolvedView);
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(EmbedCardResolvedViewCompetitorPrompt);
 snapshot(EmbedCardResolvedViewNoPreview);
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(VREmbedCardResolvedRovoActionsFooter, {
+	description: 'embed card resolved view with Rovo actions footer FG on EXP on',
+});
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(VREmbedCardResolvedRovoActionsFooterExperimentOff, {
+	description: 'embed card resolved view with Rovo actions footer FG on EXP off',
+});
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(VREmbedCardResolvedRovoActionsFooterKillSwitchOff, {
+	description: 'embed card resolved view with Rovo actions footer FG off EXP on',
+});
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(VREmbedCardResolvedRovoActionsFooterDisabled, {
+	description: 'embed card resolved view with Rovo actions footer FG off EXP off',
+});
 snapshot(EmbedCardResolvingView);
-snapshot(EmbedCardSelected);
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(EmbedCardSelected);
 snapshot(EmbedCardUnauthorisedView);
 snapshot(EmbedCardUnauthorisedViewWithProviderImage);
 snapshot(EmbedCardUnauthorisedViewWithNoAuth);
+snapshot(EmbedCardUnauthorizedCarouselGoogleInConfluenceSlide1);
+snapshot(EmbedCardUnauthorizedCarouselGoogleInConfluenceSlide2);
+snapshot(EmbedCardUnauthorizedCarouselGoogleInConfluenceSlide3);
+snapshot(EmbedCardUnauthorizedCarouselFigmaInTrelloSlide1);
+snapshot(EmbedCardUnauthorizedCarouselFigmaInTrelloSlide2);
+snapshot(EmbedCardUnauthorizedCarouselFigmaInTrelloSlide3);
+snapshot(EmbedCardUnauthorizedCarouselDropboxInAtlasSlide1);
 
 snapshot(EmbedCardFrameWithHref, {
 	description: 'embed card frame should render as a link when there is an href',
@@ -134,5 +147,6 @@ snapshot(EmbedCardFrameStyleShowOnHoverAndSelected);
 snapshot(EmbedCardForbiddenViewFrameHide);
 snapshot(EmbedCardNotFoundViewFrameHide);
 snapshot(EmbedCardUnauthorisedViewFrameHide);
-snapshot(EmbedCardResolvedViewEntities);
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(EmbedCardResolvedViewEntities);
 snapshot(VREmbedProfileObject);

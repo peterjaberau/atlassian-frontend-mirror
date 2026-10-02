@@ -3,20 +3,24 @@ import React, { type ErrorInfo, lazy, Suspense, useCallback, useEffect, useState
 import { ErrorBoundary } from 'react-error-boundary';
 import { di } from 'react-magnetic-di';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { useAnalyticsEvents } from '../../common/analytics/generated/use-analytics-events';
-import { failUfoExperience, startUfoExperience } from '../../state/analytics';
-import { importWithRetry } from '../../utils';
-import { useSmartLinkAnalyticsContext } from '../../utils/analytics/SmartLinkAnalyticsContext';
-import { isFlexibleUiCard } from '../../utils/flexible';
-import { clearMarks, clearMeasures } from '../../utils/performance';
+import { failUfoExperience } from '../../state/analytics/failUfoExperience';
+import { startUfoExperience } from '../../state/analytics/startUfoExperience';
+import { useSmartLinkAnalyticsContext } from '../../utils/analytics/useSmartLinkAnalyticsContext';
+import { clearMarks } from '../../utils/clear-marks';
+import { clearMeasures } from '../../utils/clear-measures';
+import { importWithRetry } from '../../utils/import-with-retry';
+import { isFlexibleUiCard } from '../../utils/is-flexible-ui-card';
 import { type CardProps } from '../Card/types';
-
 import { LoadingCardLink } from './component-lazy/LoadingCardLink';
 import { type CardWithUrlContentProps } from './types';
-
-export const LazyCardWithUrlContent = lazy(() =>
+export const LazyCardWithUrlContent: React.LazyExoticComponent<
+	typeof import('./component-lazy/index').default
+> = lazy(() =>
 	importWithRetry(
 		() =>
 			import(
@@ -121,10 +125,16 @@ export function CardWithURLRenderer(props: CardProps): React.JSX.Element {
 	const FallbackComponent = fallbackComponent ?? defaultFallBackComponent;
 	const ErrorFallback = () => <FallbackComponent />;
 
+	// FlexibleCards always need full ORS data regardless of appearance prop,
+	// because they render custom blocks (TitleBlock etc.) requiring complete response.
+	// Override appearance to 'block' for all FlexibleCards when FG is enabled.
+	const effectiveAppearance =
+		isFlexibleUi && fg('platform_smartlink_inline_resolve_optimization') ? 'block' : appearance;
+
 	const cardWithUrlProps: CardWithUrlContentProps = {
 		id,
 		url,
-		appearance,
+		appearance: effectiveAppearance,
 		onClick,
 		isSelected,
 		isHovered,

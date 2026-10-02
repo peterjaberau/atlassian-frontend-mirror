@@ -3,17 +3,18 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useCallback } from 'react';
+
+import { useCallback, type ComponentType, type FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { INPUT_METHOD, type EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { addLink, getAriaKeyshortcuts } from '@atlaskit/editor-common/keymaps';
 import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/messages';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { ToolbarButton } from '@atlaskit/editor-common/ui-menu';
 import LinkIcon from '@atlaskit/icon/core/link';
 
@@ -50,4 +51,6 @@ const PrimaryToolbarComponentWithIntl = ({
 	);
 };
 
-export const PrimaryToolbarComponent = injectIntl(PrimaryToolbarComponentWithIntl);
+export const PrimaryToolbarComponent: FC<WithIntlProps<PrimaryToolbarComponentProps>> & {
+	WrappedComponent: ComponentType<PrimaryToolbarComponentProps>;
+} = injectIntl(PrimaryToolbarComponentWithIntl);

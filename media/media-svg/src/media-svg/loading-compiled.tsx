@@ -4,7 +4,7 @@
  */
 import { css, jsx } from '@compiled/react';
 
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import type { MediaSvgProps } from './types';
 
@@ -18,7 +18,7 @@ const loadingStyles = css({
 export type LoadingProps = {
 	dimensions: MediaSvgProps['dimensions'];
 };
-export const Loading = ({ dimensions: { width, height } = {} }: LoadingProps) => (
+export const Loading = ({ dimensions: { width, height } = {} }: LoadingProps): JSX.Element => (
 	<span
 		data-testid={'media-svg-loading'}
 		role="status"

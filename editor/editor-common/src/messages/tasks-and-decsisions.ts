@@ -1,6 +1,62 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const tasksAndDecisionsMessages = defineMessages({
+export const tasksAndDecisionsMessages: {
+	taskPlaceholder: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	decisionPlaceholder: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	editAccessTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	requestToEditDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	requestToEdit: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dismiss: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	markTaskAsCompleted: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	markTaskAsNotCompleted: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	taskList: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	decisionAriaLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	undefinedDecisionAriaLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	taskPlaceholder: {
 		id: 'fabric.editor.taskPlaceholder',
 		defaultMessage: "Type your action, use '@' to assign to someone.",
@@ -46,6 +102,18 @@ export const tasksAndDecisionsMessages = defineMessages({
 	taskList: {
 		id: 'fabric.editor.taskList',
 		defaultMessage: 'Task list',
-		description: 'Label for the task list in the editor',
+		description:
+			'Accessible label for the task list container element in the editor, used by screen readers to identify a list of action items.',
+	},
+	decisionAriaLabel: {
+		id: 'fabric.editor.decisionAriaLabel',
+		defaultMessage: 'Decision',
+		description:
+			'Accessible ARIA label for a decision element in the editor, announced by screen readers to identify the element as a decision.',
+	},
+	undefinedDecisionAriaLabel: {
+		id: 'fabric.editor.undefinedDecisionAriaLabel',
+		defaultMessage: 'Undefined decision',
+		description: 'Descriptive text for an undefined decision element',
 	},
 });

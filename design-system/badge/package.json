@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/badge",
-	"version": "18.4.0",
+	"version": "22.0.0",
 	"description": "A badge is a visual indicator for numeric values such as tallies and scores.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,48 +12,43 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Badge",
-			"category": "Status indicators",
-			"subPages": [
-				{
-					"title": "Badge",
-					"id": "badge",
-					"status": {
-						"type": "beta",
-						"description": "New and ready to use. We'll provide comms and support for any major changes."
-					}
-				}
-			]
+			"category": "Labels"
 		}
 	},
 	"exports": {
-		"./types": "./src/entry-points/types.tsx",
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./badge": "./src/badge.tsx",
+		"./badge-new": "./src/badge-new.tsx",
+		"./types": "./src/types.tsx",
+		"./new": "./src/entry-points/new.tsx"
 	},
 	"dependencies": {
-		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -63,39 +58,12 @@
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
-		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:*",
+		"@atlassian/structured-docs-types": "workspace:^",
 		"@atlassian/testing-library": "workspace:*",
-		"react-dom": "root:*"
+		"@atlassian/workbench": "workspace:*",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions",
-			"circular-dependencies": "file-and-folder-level"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"ui-components": [
-				"primitives",
-				"lite-mode"
-			],
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports"
-		}
-	},
-	"homepage": "https://atlassian.design/components/badge/",
-	"platform-feature-flags": {
-		"platform-dst-lozenge-tag-badge-visual-uplifts": {
-			"type": "boolean"
-		}
-	}
+	"homepage": "https://atlassian.design/components/badge/"
 }

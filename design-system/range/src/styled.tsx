@@ -6,8 +6,6 @@ import { type CSSProperties, forwardRef } from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { B200, B300, B400, N30, N40, N50A, N60A } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
@@ -30,14 +28,14 @@ const webkitStyles = css({
 		boxSizing: 'border-box',
 		width: thumbSize,
 		height: thumbSize,
-		backgroundColor: `var(--thumb-bg, ${token('color.background.neutral.bold', B400)})`,
+		backgroundColor: `var(--thumb-bg, ${token('color.background.neutral.bold')})`,
 		border: 'none',
-		borderRadius: token('radius.full', '50%'),
+		borderRadius: token('radius.full'),
 		boxShadow: 'var(--thumb-shadow)',
 		cursor: 'pointer',
-		marginBlockStart: token('space.negative.075', '-6px'),
+		marginBlockStart: token('space.negative.075'),
 		outline: `solid ${token('border.width.selected')} var(--thumb-border)`,
-		outlineOffset: token('space.025', '2px'),
+		outlineOffset: token('space.025'),
 		transition: 'background-color 0.2s ease-in-out',
 		WebkitAppearance: 'none',
 	},
@@ -50,7 +48,7 @@ const webkitStyles = css({
 		backgroundRepeat: 'no-repeat',
 		backgroundSize: 'var(--track-fg-width) 100%',
 		border: 0,
-		borderRadius: token('radius.xsmall'),
+		borderRadius: token('radius.full'),
 		cursor: 'pointer',
 		transition: 'background-color 0.2s ease-in-out',
 	},
@@ -74,13 +72,13 @@ const firefoxStyles = css({
 		boxSizing: 'border-box',
 		width: thumbSize,
 		height: thumbSize,
-		backgroundColor: `var(--thumb-bg, ${token('color.background.neutral.bold', B400)})`,
+		backgroundColor: `var(--thumb-bg, ${token('color.background.neutral.bold')})`,
 		border: 'none',
-		borderRadius: token('radius.full', '50%'),
+		borderRadius: token('radius.full'),
 		boxShadow: 'var(--thumb-shadow)',
 		cursor: 'pointer',
 		outline: `solid ${token('border.width.selected')} var(--thumb-border)`,
-		outlineOffset: token('space.025', '2px'),
+		outlineOffset: token('space.025'),
 		transition: 'background-color 0.2s ease-in-out',
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Required for this browser styling
@@ -103,7 +101,7 @@ const firefoxStyles = css({
 		height: 4,
 		backgroundColor: 'var(--track-bg)',
 		border: 0,
-		borderRadius: token('radius.xsmall'),
+		borderRadius: token('radius.full'),
 		cursor: 'pointer',
 		transition: 'background-color 0.2s ease-in-out',
 	},
@@ -124,26 +122,26 @@ const baseStyles = css({
 	},
 	'&:disabled': {
 		cursor: 'not-allowed',
-		opacity: token('opacity.disabled', '0.4'),
+		opacity: token('opacity.disabled'),
 	},
 });
 
 const themeStyles = css({
-	'--thumb-shadow': token('utility.UNSAFE.transparent', `0 4px 8px -2px ${N50A}, 0 0 1px ${N60A}`),
-	'--track-bg': token('color.background.neutral', N30),
-	'--track-fg': token('color.background.neutral.bold', B400),
+	'--thumb-shadow': token('utility.UNSAFE.transparent'),
+	'--track-bg': token('color.background.neutral'),
+	'--track-fg': token('color.background.neutral.bold'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Required for this browser styling
 	'&:hover:not(:disabled)': {
-		'--thumb-bg': token('color.background.neutral.bold.hovered', B300),
-		'--track-bg': token('color.background.neutral.hovered', N40),
-		'--track-fg': token('color.background.neutral.bold.hovered', B300),
+		'--thumb-bg': token('color.background.neutral.bold.hovered'),
+		'--track-bg': token('color.background.neutral.hovered'),
+		'--track-fg': token('color.background.neutral.bold.hovered'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Required for this browser styling
 	'&:active:not(:disabled)': {
-		'--thumb-bg': token('color.background.neutral.bold.pressed', B200),
+		'--thumb-bg': token('color.background.neutral.bold.pressed'),
 	},
 	'&:focus-visible': {
-		'--thumb-border': token('color.border.focused', B200),
+		'--thumb-border': token('color.border.focused'),
 	},
 });
 
@@ -158,7 +156,7 @@ const trackStyles = cssMap({
 			height: '4px',
 			position: 'absolute',
 			backgroundColor: token('color.background.neutral.bold.pressed'),
-			borderRadius: token('radius.full', '50%'),
+			borderRadius: token('radius.full'),
 			content: '',
 			insetBlockStart: '50%',
 			insetInlineStart: 'calc(100% - 3px)',
@@ -166,7 +164,7 @@ const trackStyles = cssMap({
 	},
 	disabled: {
 		'&::after': {
-			opacity: token('opacity.disabled', '0.4'),
+			opacity: token('opacity.disabled'),
 		},
 	},
 });
@@ -185,35 +183,18 @@ const rangeA11yStyles = css({
 	'&::-webkit-slider-runnable-track': {
 		height: trackHeight,
 		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
-		borderRadius: token('radius.small', '3px'),
+		borderRadius: token('radius.full'),
 	},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'&::-moz-range-progress': {
 		height: trackHeight,
 		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
-		borderRadius: token('radius.small', '3px'),
+		borderRadius: token('radius.full'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'&:hover:not(:disabled)': {
 		'--track-bg': token('color.background.inverse.subtle.hovered'),
-	},
-});
-
-const stylesT26Shape = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&::-webkit-slider-runnable-track': {
-		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
-		borderRadius: token('radius.full'),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&::-moz-range-progress': {
-		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
-		borderRadius: token('radius.full'),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Required for this browser styling
-	'&::-moz-range-track': {
-		borderRadius: token('radius.full'),
 	},
 });
 
@@ -236,14 +217,7 @@ const Input: React.ForwardRefExoticComponent<
 				} as CSSProperties
 			}
 			ref={ref}
-			css={[
-				baseStyles,
-				webkitStyles,
-				firefoxStyles,
-				themeStyles,
-				rangeA11yStyles,
-				fg('platform-dst-shape-theme-default') && stylesT26Shape,
-			]}
+			css={[baseStyles, webkitStyles, firefoxStyles, themeStyles, rangeA11yStyles]}
 		/>
 	);
 

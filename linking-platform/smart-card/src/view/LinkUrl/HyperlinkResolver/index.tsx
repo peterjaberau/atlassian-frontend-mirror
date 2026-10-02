@@ -1,22 +1,18 @@
 import React, { type ComponentType, useCallback } from 'react';
 
 import { withErrorBoundary as withReactErrorBoundary } from 'react-error-boundary';
-import { injectIntl } from 'react-intl-next';
+import { injectIntl } from 'react-intl';
 
-import FeatureGates from '@atlaskit/feature-gate-js-client';
-import { extractSmartLinkProvider } from '@atlaskit/link-extractors';
-import { fg } from '@atlaskit/platform-feature-flags';
-
-import { getFirstPartyIdentifier, getServices, getThirdPartyARI } from '../../../state/helpers';
+import { getFirstPartyIdentifier } from '../../../state/getFirstPartyIdentifier';
+import { getThirdPartyARI } from '../../../state/getThirdPartyARI';
 import useResolveHyperlink from '../../../state/hooks/use-resolve-hyperlink';
-import useResolveHyperlinkValidator from '../../../state/hooks/use-resolve-hyperlink/useResolveHyperlinkValidator';
+import { default as useResolveHyperlinkValidator } from '../../../state/hooks/use-resolve-hyperlink/useResolveHyperlinkValidator';
 import { SmartLinkAnalyticsContext } from '../../../utils/analytics/SmartLinkAnalyticsContext';
+import { isAuxClick } from '../../../utils/is-aux-click';
 import withIntlProvider from '../../common/intl-provider';
-import { useFire3PWorkflowsClickEvent } from '../../SmartLinkEvents/useSmartLinkEvents';
+import { useFire3PWorkflowsClickEvent } from '../../SmartLinkEvents/useFire3PWorkflowsClickEvent';
 import Hyperlink from '../Hyperlink';
 import type { LinkUrlProps } from '../types';
-
-import HyperlinkUnauthorizedView from './unauthorize-view';
 
 const HyperlinkFallbackComponent = () => null;
 
@@ -37,88 +33,57 @@ const HyperlinkWithSmartLinkResolverInner = ({
 	onClick: onClickCallback,
 	...props
 }: LinkUrlProps) => {
-	const { actions, state } = useResolveHyperlink({ href: props.href || '' });
+	const { state } = useResolveHyperlink({ href: props.href || '' });
 
-	const services = getServices(state?.details);
 	const thirdPartyARI = getThirdPartyARI(state?.details);
 	const firstPartyIdentifier = getFirstPartyIdentifier();
 
-	const fire3PClickEvent = fg('platform_smartlink_3pclick_analytics')
-		? // eslint-disable-next-line react-hooks/rules-of-hooks
-			useFire3PWorkflowsClickEvent(firstPartyIdentifier, thirdPartyARI)
-		: undefined;
+	const fire3PClickEvent = useFire3PWorkflowsClickEvent(firstPartyIdentifier, thirdPartyARI);
+
+	// Shared scope guard for all 3P-click handlers.
+	const shouldFire3PClickEvent = state?.status === 'resolved' && fire3PClickEvent;
 
 	const onClick = useCallback(
 		(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-			// Only fire the event if the feature flag is on and other conditions are met
-			if (
-				state?.status === 'resolved' &&
-				e?.button === 0 &&
-				fire3PClickEvent &&
-				fg('platform_smartlink_3pclick_analytics')
-			) {
-				// 0 taken from button state representation -
-				// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
-				fire3PClickEvent();
+			// button === 0 is left-click, see
+			// https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+			if (shouldFire3PClickEvent && e?.button === 0) {
+				fire3PClickEvent?.();
 			}
 			onClickCallback?.(e);
 		},
-		[onClickCallback, fire3PClickEvent, state?.status],
+		[onClickCallback, fire3PClickEvent, shouldFire3PClickEvent],
 	);
 
-	const onAuthorize = useCallback(() => actions.authorize('url'), [actions]);
-
-	const shouldRenderConnectBtn = () => {
-		if (!props.children || !Array.isArray(props.children) || props.children.length === 0) {
-			return false;
-		}
-
-		const firstChild = props.children[0];
-
-		try {
-			// Check if first child has a string matching href
-			if (typeof firstChild === 'string') {
-				return props.href === firstChild;
+	const onAuxClick = useCallback(
+		(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+			// isAuxClick guards against Windows right-clicks firing onAuxClick with button === 2.
+			if (isAuxClick(e) && shouldFire3PClickEvent) {
+				fire3PClickEvent?.({ isAuxClick: true });
 			}
+		},
+		[fire3PClickEvent, shouldFire3PClickEvent],
+	);
 
-			// Check if first child has another child object containing matching href. This aligns with the behavior of the TextWrapper component used by editor to render link nodes
-			if (firstChild?.props?.children && typeof firstChild.props.children === 'string') {
-				return props.href === firstChild.props.children;
+	const onContextMenu = useCallback(
+		(_e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+			if (shouldFire3PClickEvent) {
+				fire3PClickEvent?.({ isContextMenu: true });
 			}
-		} catch (_) {
-			return false;
-		}
-	};
+		},
+		[fire3PClickEvent, shouldFire3PClickEvent],
+	);
 
-	if (
-		state?.status === 'unauthorized' &&
-		shouldRenderConnectBtn() &&
-		(FeatureGates.getExperimentValue(
-			'platform_linking_bluelink_connect_confluence',
-			'isEnabled',
-			false,
-		) ||
-			FeatureGates.getExperimentValue('platform_linking_bluelink_connect_jira', 'isEnabled', false))
-	) {
-		const provider = extractSmartLinkProvider(state?.details);
-		return (
-			<HyperlinkUnauthorizedView
-				{...props}
-				onAuthorize={services?.length ? onAuthorize : undefined}
-				onClick={onClick}
-				showConnectBtn={services?.length > 0}
-				provider={provider}
-			/>
-		);
-	}
-
-	return <Hyperlink {...props} onClick={onClick} />;
+	return (
+		<Hyperlink {...props} onClick={onClick} onAuxClick={onAuxClick} onContextMenu={onContextMenu} />
+	);
 };
 
-export const HyperlinkWithSmartLinkResolver = withReactErrorBoundary(
-	withValidator(
-		injectIntl(withIntlProvider(HyperlinkWithSmartLinkResolverInner), { enforceContext: false }),
-		Hyperlink,
-	),
-	{ FallbackComponent: HyperlinkFallbackComponent },
-);
+export const HyperlinkWithSmartLinkResolver: React.ComponentType<LinkUrlProps> =
+	withReactErrorBoundary(
+		withValidator(
+			injectIntl(withIntlProvider(HyperlinkWithSmartLinkResolverInner), { enforceContext: false }),
+			Hyperlink,
+		),
+		{ FallbackComponent: HyperlinkFallbackComponent },
+	);

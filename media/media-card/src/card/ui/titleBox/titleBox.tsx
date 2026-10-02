@@ -1,24 +1,24 @@
 import React from 'react';
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
+
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
 
 import LockFilledIcon from '@atlaskit/icon/core/lock-locked';
-import { Truncate } from '@atlaskit/media-ui/truncateText';
 import { formatDate } from '@atlaskit/media-ui/formatDate';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { Truncate } from '@atlaskit/media-ui/truncateText/truncate';
 
+import { TitleBoxFooter } from './TitleBoxFooter';
+import { TitleBoxHeader } from './TitleBoxHeader';
+import { TitleBoxIcon } from './TitleBoxIcon';
+import { TitleBoxWrapper } from './TitleBoxWrapper';
 import { type TitleBoxProps } from './types';
-import {
-	TitleBoxWrapper,
-	TitleBoxFooter,
-	TitleBoxHeader,
-	TitleBoxIcon,
-} from './titleBoxComponents';
 
 const placeholderText = ' ';
 
 const isValidTimestamp = (timeStamp: number) => new Date(timeStamp).getTime() > 0;
 
-export const TitleBox = injectIntl(
+export const TitleBox: React.FC<WithIntlProps<TitleBoxProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<TitleBoxProps & WrappedComponentProps>;
+} = injectIntl(
 	({
 		name,
 		createdAt,
@@ -36,7 +36,7 @@ export const TitleBox = injectIntl(
 				hasIconOverlap={!!titleBoxIcon}
 				// Suppressing it here because of a timezone mismatch in the createdAt text
 				// that can cause a late mutation in the attachments strip view
-				suppressHydrationWarning={fg('jfp-magma-fix-attachments-hydration-error') ? true : false}
+				suppressHydrationWarning
 			>
 				{createdAt !== undefined && isValidTimestamp(createdAt)
 					? formatDate(createdAt, intl?.locale ?? 'en')

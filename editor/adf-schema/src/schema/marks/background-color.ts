@@ -1,12 +1,24 @@
 import type { Mark, MarkSpec } from '@atlaskit/editor-prosemirror/model';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+
 import { backgroundColor as backgroundColorFactory } from '../../next-schema/generated/markTypes';
-
-import { hexToEditorTextBackgroundPaletteColor } from '../../utils/editor-palette';
-
-import { rgbToHex, L200, T200, P200, M200, Neutral300, O200, Yellow200 } from '../../utils/colors';
+import {
+	B75,
+	G75,
+	L200,
+	M200,
+	Neutral300,
+	O200,
+	P200,
+	R200,
+	T200,
+	Yellow200,
+} from '../../utils/colors';
+import { getDarkModeLCHColor } from '../../utils/get-dark-mode-lch-color';
+import { hexToEditorTextBackgroundPaletteColor } from '../../utils/hex-to-editor-text-background-palette-color';
+import { rgbToHex } from '../../utils/rgb-to-hex';
 import type { TextColorAttributes } from './text-color';
 import { getGlobalTheme } from './text-color';
-import { getDarkModeLCHColor } from '../../utils/lch-color-inversion';
 
 /**
  * @name backgroundColor_mark
@@ -26,8 +38,11 @@ export type BackgroundColorKey =
 	| 'Lime'
 	| 'Yellow'
 	| 'Orange'
+	| 'Red'
 	| 'Magenta'
-	| 'Purple';
+	| 'Purple'
+	| 'Blue'
+	| 'Green';
 
 const colorArrayPalette: Array<[string, BackgroundColorKey]> = [
 	[Neutral300, 'Gray'], // token: color.background.accent.gray.subtler
@@ -39,11 +54,48 @@ const colorArrayPalette: Array<[string, BackgroundColorKey]> = [
 	[T200, 'Teal'], // token: color.background.accent.teal.subtler
 ];
 
+const colorArrayPaletteNew: Array<[string, BackgroundColorKey]> = [
+	[Neutral300, 'Gray'], // token: color.background.accent.gray.subtler
+	[B75, 'Blue'], // token: color.background.accent.blue.subtler
+	[T200, 'Teal'], // token: color.background.accent.teal.subtler
+	[G75, 'Green'], // token: color.background.accent.green.subtler
+	[L200, 'Lime'], // token: color.background.accent.lime.subtler
+	[Yellow200, 'Yellow'], // token: color.background.accent.yellow.subtler
+	[O200, 'Orange'], // token: color.background.accent.orange.subtler
+	[R200, 'Red'], // token: color.background.accent.red.subtler
+	[M200, 'Magenta'], // token: color.background.accent.magenta.subtler
+	[P200, 'Purple'], // token: color.background.accent.purple.subtler
+];
+
 // @see https://product-fabric.atlassian.net/wiki/spaces/E/pages/55979455/Colour+picker+decisions#Colourpickerdecisions-Visualdesigndecisions
-export const backgroundColorPalette = new Map<string, BackgroundColorKey>();
+export const backgroundColorPalette: Map<string, BackgroundColorKey> = new Map<
+	string,
+	BackgroundColorKey
+>();
 colorArrayPalette.forEach(([color, label]) =>
 	backgroundColorPalette.set(color.toLowerCase(), label),
 );
+
+const RGB_PREFIX_BG_COLOR_REGEX = /^rgb/iu;
+
+export const backgroundColorPaletteNew: Map<string, BackgroundColorKey> = new Map<
+	string,
+	BackgroundColorKey
+>();
+colorArrayPaletteNew.forEach(([color, label]) =>
+	backgroundColorPaletteNew.set(color.toLowerCase(), label),
+);
+
+const isSupportedBackgroundColor = (hexColor: string): boolean => {
+	if (backgroundColorPalette.has(hexColor)) {
+		return true;
+	}
+
+	return (
+		expValEqualsNoExposure('platform_editor_lovability_text_bg_color', 'isEnabled', true) &&
+		backgroundColorPaletteNew.has(hexColor)
+	);
+};
 
 export const backgroundColor: MarkSpec = backgroundColorFactory({
 	parseDOM: [
@@ -52,14 +104,13 @@ export const backgroundColor: MarkSpec = backgroundColorFactory({
 			getAttrs: (maybeValue) => {
 				const value = maybeValue as string;
 				let hexColor;
-				// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
-				if (value.match(/^rgb/iu)) {
+				if (value.match(RGB_PREFIX_BG_COLOR_REGEX)) {
 					hexColor = rgbToHex(value);
 				} else if (value[0] === '#') {
 					hexColor = value.toLowerCase();
 				}
 				// else handle other colour formats
-				return hexColor && backgroundColorPalette.has(hexColor) ? { color: hexColor } : false;
+				return hexColor && isSupportedBackgroundColor(hexColor) ? { color: hexColor } : false;
 			},
 		},
 		// This rule ensures when loading from a renderer or editor where the
@@ -77,7 +128,7 @@ export const backgroundColor: MarkSpec = backgroundColorFactory({
 
 				const hexColor = maybeElement.dataset.backgroundCustomColor;
 
-				return hexColor && backgroundColorPalette.has(hexColor) ? { color: hexColor } : false;
+				return hexColor && isSupportedBackgroundColor(hexColor) ? { color: hexColor } : false;
 			},
 		},
 	],

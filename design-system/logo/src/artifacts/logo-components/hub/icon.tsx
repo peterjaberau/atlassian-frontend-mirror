@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::459e9cba95b1e0b094b9b0a89db30ecd>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::c831eb8a6cf5fca995245755d66cb034>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -30,14 +30,12 @@ const svg = `<svg height="100%" viewBox="0 0 32 32">
 /**
  * __HubIcon__
  *
- * A temporary component to represent the icon for Hub.
- * @deprecated This component has been replaced by the component `HubIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Hub.
+ * Import `HubIcon` from `@atlaskit/logo/hub/icon`.
  *
  */
 export function HubIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Hub',
 	testId,

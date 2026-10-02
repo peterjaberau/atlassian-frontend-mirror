@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Inline, xcss } from '@atlaskit/primitives';
@@ -10,7 +10,7 @@ import { breakoutMessages as messages } from '../messages';
 import type { BreakoutMode } from '../types';
 
 const fullWidthLabelWrapperStyles = xcss({
-	height: token('space.400', '32px'),
+	height: token('space.400'),
 	display: 'flex',
 	backgroundColor: 'elevation.surface.overlay',
 	borderRadius: 'radius.small',
@@ -32,7 +32,9 @@ type props = {
 	layout: BreakoutMode;
 };
 
-export const ResizerBreakoutModeLabel = ({ layout: breakoutLayout }: props) => {
+export const ResizerBreakoutModeLabel = ({
+	layout: breakoutLayout,
+}: props): '' | React.JSX.Element | null => {
 	const { formatMessage } = useIntl();
 
 	const message = React.useMemo(() => {

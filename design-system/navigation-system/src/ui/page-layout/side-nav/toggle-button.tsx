@@ -7,23 +7,23 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import { css, jsx } from '@compiled/react';
 import { bind } from 'bind-event-listener';
 
-import { type UIAnalyticsEvent, useAnalyticsEvents } from '@atlaskit/analytics-next';
-import { type IconButtonProps } from '@atlaskit/button/new';
-import { type NewCoreIconProps } from '@atlaskit/icon';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import type { IconButtonProps } from '@atlaskit/button/icon/button';
 import SidebarCollapseIcon from '@atlaskit/icon/core/sidebar-collapse';
 import SidebarExpandIcon from '@atlaskit/icon/core/sidebar-expand';
-import { useOpenLayerObserver } from '@atlaskit/layering/experimental/open-layer-observer';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { NewCoreIconProps } from '@atlaskit/icon/types';
+import { useOpenLayerObserver } from '@atlaskit/layering/use-open-layer-observer';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { useIsFhsEnabled } from '../../fhs-rollout/use-is-fhs-enabled';
-import { IconButton } from '../../top-nav-items/themed/migration';
-
-import { useIsSideNavShortcutEnabled } from './is-side-nav-shortcut-enabled-context';
+import { IconButton } from '../../top-nav-items/themed/icon-button';
+import { SideNavToggleButtonAttachRef } from './side-nav-toggle-button-attach-ref';
 import { sideNavToggleTooltipKeyboardShortcut } from './side-nav-toggle-tooltip-keyboard-shortcut';
-import { SideNavToggleButtonAttachRef } from './toggle-button-context';
+import { SideNavVisibilityState } from './side-nav-visibility-state';
+import { useIsSideNavShortcutEnabled } from './use-is-side-nav-shortcut-enabled';
 import { useSideNavVisibility } from './use-side-nav-visibility';
 import { useToggleSideNav } from './use-toggle-side-nav';
-import { SideNavVisibilityState } from './visibility-context';
 
 export type SideNavVisibilityChangeAnalyticsAttributes = {
 	isSideNavVisible: boolean;
@@ -33,6 +33,9 @@ const toggleButtonTooltipOptions: IconButtonProps['tooltip'] = {
 	// We're disabling pointer events on the tooltip to prevent it from blocking mouse events, so that the side nav flyout stays open
 	// when moving the mouse from the top bar to the side nav.
 	ignoreTooltipPointerEvents: true,
+	// A press swaps the label between `collapseLabel` and `expandLabel`, so keep the
+	// tooltip open to show the new label.
+	hasNewContentOnTriggerClick: true,
 };
 
 // For duplicate "mouseenter" issue when changing icons (see below)
@@ -48,43 +51,54 @@ const silentIconStyles = css({
  *
  * Button for toggling the side nav. It should be used in the top bar.
  */
-export const SideNavToggleButton: ({ defaultCollapsed, expandLabel, collapseLabel, testId, interactionName, onClick, }: {
-    /**
-     * @deprecated
-     *
-     * This prop is being replaced by `defaultSideNavCollapsed` on the `Root` element,
-     * and will be removed in the future.
-     *
-     * ---
-     *
-     * Whether the side nav should be collapsed by default __on desktop screens__.
-     *
-     * It is always collapsed by default for mobile screens.
-     *
-     * __Note:__ If using this prop, ensure that it is also provided to the `SideNav` slot.
-     * This is to ensure the state is in sync before post-SSR hydration.
-     */
-    defaultCollapsed?: boolean;
-    /**
-     * The label when the toggle button will expand the side nav.
-     */
-    expandLabel: React.ReactNode;
-    /**
-     * The label when the toggle button will collapse the side nav.
-     */
-    collapseLabel: React.ReactNode;
-    /**
-     * A unique string that appears as data attribute `data-testid` in the rendered code, serving as a hook for automated tests.
-     */
-    testId?: string;
-    /**
-     * An optional name used to identify events for [React UFO (Unified Frontend Observability) press interactions](https://developer.atlassian.com/platform/ufo/react-ufo/react-ufo/getting-started/#quick-start--press-interactions). For more information, see [React UFO integration into Design System components](https://go.atlassian.com/react-ufo-dst-integration).
-     */
-    interactionName?: string;
-    /**
-     * The callback function that is called when the toggle button is clicked.
-     */
-    onClick?: (e: React.MouseEvent<HTMLElement>, analyticsEvent: UIAnalyticsEvent, attributes?: SideNavVisibilityChangeAnalyticsAttributes) => void;
+export const SideNavToggleButton: ({
+	defaultCollapsed,
+	expandLabel,
+	collapseLabel,
+	testId,
+	interactionName,
+	onClick,
+}: {
+	/**
+	 * @deprecated
+	 *
+	 * This prop is being replaced by `defaultSideNavCollapsed` on the `Root` element,
+	 * and will be removed in the future.
+	 *
+	 * ---
+	 *
+	 * Whether the side nav should be collapsed by default __on desktop screens__.
+	 *
+	 * It is always collapsed by default for mobile screens.
+	 *
+	 * __Note:__ If using this prop, ensure that it is also provided to the `SideNav` slot.
+	 * This is to ensure the state is in sync before post-SSR hydration.
+	 */
+	defaultCollapsed?: boolean;
+	/**
+	 * The label when the toggle button will expand the side nav.
+	 */
+	expandLabel: React.ReactNode;
+	/**
+	 * The label when the toggle button will collapse the side nav.
+	 */
+	collapseLabel: React.ReactNode;
+	/**
+	 * A unique string that appears as data attribute `data-testid` in the rendered code, serving as a hook for automated tests.
+	 */
+	testId?: string;
+	/**
+	 * An optional name used to identify events for [React UFO (Unified Frontend Observability) press interactions](https://developer.atlassian.com/platform/ufo/react-ufo/react-ufo/getting-started/#quick-start--press-interactions). For more information, see [React UFO integration into Design System components](https://go.atlassian.com/react-ufo-dst-integration).
+	 */
+	interactionName?: string;
+	/**
+	 * The callback function that is called when the toggle button is clicked.
+	 */
+	onClick?: (
+		e: React.MouseEvent<HTMLElement>,
+		analyticsEvent: UIAnalyticsEvent,
+		attributes?: SideNavVisibilityChangeAnalyticsAttributes,
+	) => void;
 }) => JSX.Element = ({
 	defaultCollapsed = false,
 	expandLabel,
@@ -193,7 +207,7 @@ export const SideNavToggleButton: ({ defaultCollapsed, expandLabel, collapseLabe
 
 			toggleVisibility();
 
-			if (isFhsEnabled) {
+			if (isFhsEnabled || fg('platform-dst-keep-desired-fhs-features')) {
 				openLayerObserver?.closeLayers();
 			}
 		},
@@ -201,10 +215,6 @@ export const SideNavToggleButton: ({ defaultCollapsed, expandLabel, collapseLabe
 	);
 
 	const handlePointerEnter = useCallback(() => {
-		if (!fg('platform_dst_nav4_fhs_instrumentation_1')) {
-			return;
-		}
-
 		// Hovers don't do anything on mobile, so not capturing
 		const isDesktop = window.matchMedia('(min-width: 64rem)').matches;
 		if (!isDesktop) {
@@ -249,7 +259,7 @@ export const SideNavToggleButton: ({ defaultCollapsed, expandLabel, collapseLabe
 	const isShortcutEnabled = useIsSideNavShortcutEnabled();
 
 	const tooltipProps = useMemo(() => {
-		if (isFhsEnabled) {
+		if (isFhsEnabled || fg('platform-dst-keep-desired-fhs-features')) {
 			return {
 				...toggleButtonTooltipOptions,
 				shortcut: isShortcutEnabled ? sideNavToggleTooltipKeyboardShortcut : undefined,

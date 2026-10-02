@@ -4,11 +4,11 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
 import { MediaBorderGapFiller } from '@atlaskit/editor-common/ui';
-import type { NumericalCardDimensions } from '@atlaskit/media-card';
+import type { NumericalCardDimensions } from '@atlaskit/media-common/main-types';
 
 export const MediaSingleNodeSelector = 'media-single-node';
 
@@ -41,8 +41,10 @@ export const MediaCardWrapper = ({
 	selected,
 	borderWidth = 0,
 	onContextMenu,
-}: MediaCardWrapperProps) => {
+}: MediaCardWrapperProps): jsx.JSX.Element => {
 	const calculatedBorderWidth = selected && borderWidth > 0 ? borderWidth + 1 : borderWidth;
+	const borderRadius = `${calculatedBorderWidth + 8}px`;
+
 	return (
 		<div
 			data-testid="media-card-wrapper"
@@ -54,7 +56,8 @@ export const MediaCardWrapper = ({
 				borderWidth: `${calculatedBorderWidth}px`,
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				borderStyle: 'solid',
-				borderRadius: `${calculatedBorderWidth * 2}px`,
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+				borderRadius,
 			}}
 		>
 			<div

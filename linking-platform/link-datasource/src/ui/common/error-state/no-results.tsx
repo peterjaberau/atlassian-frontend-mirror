@@ -5,7 +5,7 @@
 import { useEffect } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
-import { FormattedMessage, useIntl } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import Button from '@atlaskit/button/standard-button';
 import { Grid, Text } from '@atlaskit/primitives/compiled';
@@ -13,7 +13,6 @@ import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../analytics';
 import { SpotSearchNoResult } from '../../../common/ui/spot/error-state/search-no-result';
-
 import { loadingErrorMessages } from './messages';
 
 const styles = cssMap({
@@ -21,6 +20,14 @@ const styles = cssMap({
 		marginTop: token('space.600'),
 		marginRight: token('space.600'),
 		marginBottom: token('space.600'),
+		marginLeft: token('space.600'),
+		placeItems: 'center',
+		placeSelf: 'center',
+	},
+	noResultsCompactContainerStyles: {
+		marginTop: token('space.300'),
+		marginRight: token('space.600'),
+		marginBottom: token('space.300'),
 		marginLeft: token('space.600'),
 		placeItems: 'center',
 		placeSelf: 'center',
@@ -38,10 +45,12 @@ const styles = cssMap({
 });
 
 interface NoResultsProps {
+	/** Tightens the vertical spacing, for when there is less room than a full view to fill. */
+	isCompact?: boolean;
 	onRefresh?: () => void;
 }
 
-export const NoResults = ({ onRefresh }: NoResultsProps) => {
+export const NoResults = ({ isCompact, onRefresh }: NoResultsProps): JSX.Element => {
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 
 	const { formatMessage } = useIntl();
@@ -51,7 +60,10 @@ export const NoResults = ({ onRefresh }: NoResultsProps) => {
 	}, [fireEvent]);
 
 	return (
-		<Grid xcss={styles.noResultsContainerStyles} testId="datasource-modal--no-results">
+		<Grid
+			xcss={isCompact ? styles.noResultsCompactContainerStyles : styles.noResultsContainerStyles}
+			testId="datasource-modal--no-results"
+		>
 			<Grid xcss={styles.noResultsContentStyles}>
 				<SpotSearchNoResult
 					size={'xlarge'}

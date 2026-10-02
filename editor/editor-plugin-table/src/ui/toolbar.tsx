@@ -32,7 +32,11 @@ import type {
 	Icon,
 	typeOption,
 } from '@atlaskit/editor-common/types';
-import { DEFAULT_BORDER_COLOR, cellBackgroundColorPalette } from '@atlaskit/editor-common/ui-color';
+import {
+	DEFAULT_BORDER_COLOR,
+	cellBackgroundColorPalette,
+	cellBackgroundColorPaletteNew,
+} from '@atlaskit/editor-common/ui-color';
 import {
 	closestElement,
 	getChildrenInfo,
@@ -58,10 +62,11 @@ import AlignImageLeftIcon from '@atlaskit/icon/core/align-image-left';
 import CopyIcon from '@atlaskit/icon/core/copy';
 import CustomizeIcon from '@atlaskit/icon/core/customize';
 import DeleteIcon from '@atlaskit/icon/core/delete';
+import ShrinkHorizontalIcon from '@atlaskit/icon/core/shrink-horizontal';
 import TableColumnsDistributeIcon from '@atlaskit/icon/core/table-columns-distribute';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import {
 	clearHoverSelection,
@@ -101,6 +106,8 @@ import { normaliseAlignment } from '../pm-plugins/utils/alignment';
 import { isTableNested } from '../pm-plugins/utils/nodes';
 import { getSelectedColumnIndexes, getSelectedRowIndexes } from '../pm-plugins/utils/selection';
 import { getMergedCellsPositions } from '../pm-plugins/utils/table';
+import { applyMeasuredWidthToSelectedTable } from '../pm-plugins/utils/tableMode/apply-measured-width-to-selected-table';
+import { isContentModeSupported } from '../pm-plugins/utils/tableMode/is-content-mode-supported';
 import type { TablePluginOptions } from '../tablePluginType';
 import type {
 	AlignmentOptions,
@@ -111,7 +118,7 @@ import type {
 	ToolbarMenuState,
 } from '../types';
 import { TableCssClassName } from '../types';
-
+import { colorPaletteColumns, colorPalletteColumns } from './consts';
 import { FloatingAlignmentButtons } from './FloatingAlignmentButtons/FloatingAlignmentButtons';
 
 export const getToolbarMenuConfig = (
@@ -151,11 +158,7 @@ export const getToolbarMenuConfig = (
 		},
 		{
 			id: 'editor.table.numberedColumn',
-			title: formatMessage(
-				fg('platform_editor_rename_numbered_rows_label')
-					? messages.numberedRows
-					: messages.numberedColumn,
-			),
+			title: formatMessage(messages.numberedRows),
 			onClick: toggleNumberColumnWithAnalytics(editorAnalyticsAPI),
 			selected: state.isNumberColumnEnabled,
 			hidden: !config.allowNumberColumn,
@@ -175,28 +178,16 @@ export const getToolbarMenuConfig = (
 	const tableOptionsDropdownWidth = isTableScalingWithFixedColumnWidthsOptionShown
 		? 192
 		: undefined;
-	if (state.isDragAndDropEnabled) {
-		return {
-			id: 'editor.table.tableOptions',
-			type: 'dropdown',
-			testId: 'table_options',
-			iconBefore: CustomizeIcon,
-			title: formatMessage(messages.tableOptions),
-			hidden: options.every((option) => option.hidden),
-			options,
-			dropdownWidth: tableOptionsDropdownWidth,
-		};
-	} else {
-		return {
-			id: 'editor.table.tableOptions',
-			type: 'dropdown',
-			testId: 'table_options',
-			title: formatMessage(messages.tableOptions),
-			hidden: options.every((option) => option.hidden),
-			options,
-			dropdownWidth: tableOptionsDropdownWidth,
-		};
-	}
+	return {
+		id: 'editor.table.tableOptions',
+		type: 'dropdown',
+		testId: 'table_options',
+		iconBefore: CustomizeIcon,
+		title: formatMessage(messages.tableOptions),
+		hidden: options.every((option) => option.hidden),
+		options,
+		dropdownWidth: tableOptionsDropdownWidth,
+	};
 };
 
 // Added these options for mobile. Mobile bridge translates this menu and
@@ -335,66 +326,27 @@ export const getToolbarCellOptionsConfig = (
 	}
 
 	if (pluginState?.pluginConfig?.allowDistributeColumns) {
-		let wouldChange = true; // Default to enabled - show the button.
-		let newResizeStateWithAnalytics: ReturnType<typeof getNewResizeStateFromSelectedColumns>;
-
-		// Performance optimization: Skip expensive getTableScalingPercent() DOM query when limited mode is enabled.
-		// This avoids layout reflows on every transaction. Instead, button stays enabled and calculates on-demand when clicked.
-		if (
-			!isLimitedModeEnabled &&
-			!expValEquals('platform_editor_table_toolbar_perf_fix', 'isEnabled', true)
-		) {
-			newResizeStateWithAnalytics = editorView
-				? getNewResizeStateFromSelectedColumns(
-						initialSelectionRect,
-						editorState,
-						editorView.domAtPos.bind(editorView),
-						getEditorContainerWidth,
-						isTableScalingEnabled,
-						isTableFixedColumnWidthsOptionEnabled,
-						isCommentEditor,
-					)
-				: undefined;
-			wouldChange = newResizeStateWithAnalytics?.changed ?? false;
-		}
-
 		const distributeColumnWidths: Command = (state, dispatch, view) => {
-			// When optimization is enabled, calculate on-demand when clicked
-			if (
-				isLimitedModeEnabled ||
-				expValEquals('platform_editor_table_toolbar_perf_fix', 'isEnabled', true)
-			) {
-				if (view) {
-					const resizeState = getNewResizeStateFromSelectedColumns(
-						initialSelectionRect,
-						state,
-						view.domAtPos.bind(view),
-						getEditorContainerWidth,
-						isTableScalingEnabled,
-						isTableFixedColumnWidthsOptionEnabled,
-						isCommentEditor,
-					);
+			if (view) {
+				const resizeState = getNewResizeStateFromSelectedColumns(
+					initialSelectionRect,
+					state,
+					view.domAtPos.bind(view),
+					getEditorContainerWidth,
+					isTableScalingEnabled,
+					isTableFixedColumnWidthsOptionEnabled,
+					isCommentEditor,
+				);
 
-					if (resizeState) {
-						distributeColumnsWidthsWithAnalytics(editorAnalyticsAPI, api)(
-							INPUT_METHOD.FLOATING_TB,
-							resizeState,
-						)(state, dispatch);
-						return true;
-					}
-				}
-				return false;
-			} else {
-				// Original behavior: use pre-calculated state
-				if (newResizeStateWithAnalytics) {
+				if (resizeState) {
 					distributeColumnsWidthsWithAnalytics(editorAnalyticsAPI, api)(
 						INPUT_METHOD.FLOATING_TB,
-						newResizeStateWithAnalytics,
+						resizeState,
 					)(state, dispatch);
 					return true;
 				}
-				return false;
 			}
+			return false;
 		};
 
 		options.push({
@@ -402,7 +354,7 @@ export const getToolbarCellOptionsConfig = (
 			title: formatMessage(messages.distributeColumns),
 			onClick: distributeColumnWidths,
 			selected: false,
-			disabled: !wouldChange,
+			disabled: false,
 		});
 	}
 
@@ -538,6 +490,51 @@ const getTableWrapperFromParentImpl = (parent: Node | undefined) => {
 	return closestElement(tableRef, `.${TableCssClassName.TABLE_NODE_WRAPPER}`) || undefined;
 };
 
+let cachedTableWrapperParent: Node | undefined;
+let cachedTableWrapperEditorRoot: HTMLElement | undefined;
+let cachedTableWrapper: HTMLElement | undefined;
+
+const getCachedTableWrapperFromParent = (parent: Node | undefined, editorView: EditorView) => {
+	const editorRoot = editorView.dom;
+	if (
+		parent &&
+		parent === cachedTableWrapperParent &&
+		editorRoot === cachedTableWrapperEditorRoot &&
+		cachedTableWrapper?.isConnected &&
+		editorRoot.isConnected &&
+		editorRoot.contains(parent) &&
+		editorRoot.contains(cachedTableWrapper) &&
+		parent.contains(cachedTableWrapper) &&
+		cachedTableWrapper.querySelector('table')
+	) {
+		return cachedTableWrapper;
+	}
+
+	cachedTableWrapperParent = parent;
+	cachedTableWrapperEditorRoot = editorRoot;
+	cachedTableWrapper = undefined;
+
+	if (!parent || !parent.isConnected || !editorRoot.isConnected || !editorRoot.contains(parent)) {
+		return undefined;
+	}
+
+	if (!(parent instanceof HTMLElement)) {
+		return undefined;
+	}
+
+	const tableWrapper = getTableWrapperFromParentImpl(parent);
+	if (
+		tableWrapper?.isConnected &&
+		editorRoot.contains(tableWrapper) &&
+		parent.contains(tableWrapper)
+	) {
+		cachedTableWrapper = tableWrapper;
+	}
+
+	return cachedTableWrapper;
+};
+
+// Remove this function when cleaning up `platform_editor_table_toolbar_position_fix`
 // Create memoized version ONCE - reused across all calls
 const getMemoizedTableWrapperFromParent = memoizeOne(getTableWrapperFromParentImpl);
 
@@ -563,13 +560,10 @@ export const getToolbarConfig =
 		const areAnyNewToolbarFlagsEnabled = areToolbarFlagsEnabled(Boolean(api?.toolbar));
 
 		if (editorExperiment('platform_editor_controls', 'variant1')) {
-			let isDragHandleMenuOpened = false;
-			let isTableRowOrColumnDragged = false;
-			if (options?.dragAndDropEnabled) {
-				const { isDragMenuOpen = false, isDragging = false } = getDragDropPluginState(state);
-				isDragHandleMenuOpened = isDragMenuOpen;
-				isTableRowOrColumnDragged = isDragging;
-			}
+			const {
+				isDragMenuOpen: isDragHandleMenuOpened = false,
+				isDragging: isTableRowOrColumnDragged = false,
+			} = getDragDropPluginState(state);
 
 			const isTableOrColumnResizing = !!(resizeState?.dragging || tableWidthState?.resizing);
 			const isTableMenuOpened = pluginState.isContextualMenuOpen || isDragHandleMenuOpened;
@@ -582,15 +576,10 @@ export const getToolbarConfig =
 			const shouldSuppressAllToolbars = isTableState && pluginState.editorHasFocus && !isViewMode;
 
 			if (shouldSuppressAllToolbars) {
-				const userIntentEnabled = Boolean(
-					api?.userIntent &&
-						expValEquals('platform_editor_lovability_user_intent', 'isEnabled', true),
-				);
 				return {
 					title: toolbarTitle,
 					items: [],
 					nodeType,
-					__suppressAllToolbars: userIntentEnabled ? undefined : true,
 				};
 			}
 		}
@@ -605,30 +594,13 @@ export const getToolbarConfig =
 			const areTableColumWidthsFixed = tableObject.node.attrs.displayMode === 'fixed';
 			const editorView = getEditorView();
 
-			const getDomRef = expValEquals('platform_editor_table_toolbar_perf_fix', 'isEnabled', true)
-				? (editorView: EditorView) => {
-						const domAtPos = editorView.domAtPos.bind(editorView);
-						const parent = findParentDomRefOfType(nodeType, domAtPos)(state.selection);
-						return getMemoizedTableWrapperFromParent(parent);
-					}
-				: (editorView: EditorView) => {
-						let element: HTMLElement | undefined;
-						const domAtPos = editorView.domAtPos.bind(editorView);
-						const parent = findParentDomRefOfType(nodeType, domAtPos)(state.selection);
-
-						if (parent) {
-							const tableRef =
-								// Ignored via go/ees005
-								// eslint-disable-next-line @atlaskit/editor/no-as-casting
-								(parent as HTMLElement).querySelector<HTMLTableElement>('table') || undefined;
-							if (tableRef) {
-								element =
-									closestElement(tableRef, `.${TableCssClassName.TABLE_NODE_WRAPPER}`) || undefined;
-							}
-						}
-
-						return element;
-					};
+			const getDomRef = (editorView: EditorView) => {
+				const domAtPos = editorView.domAtPos.bind(editorView);
+				const parent = findParentDomRefOfType(nodeType, domAtPos)(state.selection);
+				return isExperimentEnabled('platform_editor_table_toolbar_position_fix')
+					? getCachedTableWrapperFromParent(parent, editorView)
+					: getMemoizedTableWrapperFromParent(parent);
+			};
 
 			const menu = getToolbarMenuConfig(
 				config,
@@ -656,40 +628,47 @@ export const getToolbarConfig =
 
 			const isLimitedModeEnabled = api?.limitedMode?.sharedState.currentState()?.enabled ?? false;
 
-			const cellItems = pluginState.isDragAndDropEnabled
-				? []
-				: getCellItems(
-						state,
-						editorView,
-						intl,
-						getEditorContainerWidth,
-						api,
-						editorAnalyticsAPI,
-						isTableScalingEnabled,
-						isTableFixedColumnWidthsOptionEnabled,
-						shouldUseIncreasedScalingPercent,
-						options?.isCommentEditor,
-						isLimitedModeEnabled,
-					);
-
-			const columnSettingsItems = pluginState.isDragAndDropEnabled
-				? getColumnSettingItems(
-						state,
-						editorView,
-						intl,
-						getEditorContainerWidth,
-						api,
-						editorAnalyticsAPI,
-						isTableScalingEnabled,
-						isTableFixedColumnWidthsOptionEnabled,
-						options?.isCommentEditor,
-						isLimitedModeEnabled,
-					)
-				: [];
+			const columnSettingsItems = getColumnSettingItems(
+				state,
+				editorView,
+				intl,
+				getEditorContainerWidth,
+				api,
+				editorAnalyticsAPI,
+				isTableScalingEnabled,
+				isTableFixedColumnWidthsOptionEnabled,
+				options?.isCommentEditor,
+				isLimitedModeEnabled,
+			);
 
 			const colorPicker = !areAnyNewToolbarFlagsEnabled
 				? getColorPicker(state, menu, intl, editorAnalyticsAPI, getEditorView)
 				: [];
+
+			const fitToContentButton: Array<FloatingToolbarItem<Command>> =
+				isContentModeSupported({
+					allowColumnResizing: !!pluginState.pluginConfig.allowColumnResizing,
+					allowTableResizing: !!pluginState.pluginConfig.allowTableResizing,
+					isFullPageEditor: !pluginState.isChromelessEditor && !pluginState.isCommentEditor,
+				}) &&
+				!isNested &&
+				api?.editorViewMode?.sharedState.currentState()?.mode !== 'view' &&
+				expValEquals('platform_editor_table_fit_to_content_on_demand', 'isEnabled', true)
+					? [
+							{
+								id: 'editor.table.fitToContent',
+								type: 'button',
+								title: intl.formatMessage(messages.fitToContent),
+								icon: () => <ShrinkHorizontalIcon spacing={'spacious'} label={''} />,
+								onClick: (_state, _dispatch, view) => {
+									if (view) {
+										applyMeasuredWidthToSelectedTable(view, api ?? undefined);
+									}
+									return true;
+								},
+							},
+						]
+					: [];
 
 			// Check if we need to show confirm dialog for delete button
 			let confirmDialog;
@@ -772,8 +751,8 @@ export const getToolbarConfig =
 					...(!areAnyNewToolbarFlagsEnabled ? [separator(menu.hidden)] : []),
 					...alignmentMenu,
 					...(!areAnyNewToolbarFlagsEnabled ? [separator(alignmentMenu.length === 0)] : []),
-					...cellItems,
 					...columnSettingsItems,
+					...fitToContentButton,
 					...colorPicker,
 					...((!areAnyNewToolbarFlagsEnabled
 						? ([
@@ -808,6 +787,7 @@ export const getToolbarConfig =
 													<DropdownMenuExtensionItems
 														node={tableObject.node}
 														editorView={editorView}
+														// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 														extension={{
 															extensionProvider: extensionState?.extensionProvider
 																? Promise.resolve(extensionState.extensionProvider)
@@ -815,6 +795,7 @@ export const getToolbarConfig =
 															extensionApi: extensionApi,
 														}}
 														dropdownOptions={dropdownOptions}
+														// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 														disabled={(key: string) => {
 															return (
 																isNestedTable &&
@@ -851,9 +832,7 @@ export const getToolbarConfig =
 											onClick: deleteTableWithAnalytics(editorAnalyticsAPI),
 											icon: <DeleteIcon label={intl.formatMessage(commonMessages.delete)} />,
 											...hoverTableProps(true),
-											confirmDialog: fg('platform_editor_fix_confirm_table_removal')
-												? confirmDialog
-												: undefined,
+											confirmDialog,
 										},
 									],
 								},
@@ -871,42 +850,6 @@ const separator = (hidden?: boolean): FloatingToolbarItem<Command> => {
 		type: 'separator',
 		hidden: hidden,
 	};
-};
-
-const getCellItems = (
-	state: EditorState,
-	view: EditorView | null,
-	{ formatMessage }: ToolbarMenuContext,
-	getEditorContainerWidth: GetEditorContainerWidth,
-	api: PluginInjectionAPI | undefined | null,
-	editorAnalyticsAPI: EditorAnalyticsAPI | undefined | null,
-	isTableScalingEnabled = false,
-	isTableFixedColumnWidthsOptionEnabled = false,
-	shouldUseIncreasedScalingPercent = false,
-	isCommentEditor = false,
-	isLimitedModeEnabled = false,
-): Array<FloatingToolbarItem<Command>> => {
-	const initialSelectionRect = getClosestSelectionRect(state);
-	if (initialSelectionRect) {
-		const cellOptions = getToolbarCellOptionsConfig(
-			state,
-			view,
-			initialSelectionRect,
-			{ formatMessage },
-			getEditorContainerWidth,
-			api,
-			editorAnalyticsAPI,
-			isTableScalingEnabled,
-			isTableFixedColumnWidthsOptionEnabled,
-			shouldUseIncreasedScalingPercent,
-			isCommentEditor,
-			isLimitedModeEnabled,
-		);
-		// Ignored via go/ees005
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		return [cellOptions, separator(cellOptions.hidden!)];
-	}
-	return [];
 };
 
 const getDistributeConfig =
@@ -961,35 +904,11 @@ const getColumnSettingItems = (
 	const pluginState = getPluginState(editorState);
 	const items: Array<FloatingToolbarItem<Command>> = [];
 
-	let wouldChange = true; // Default to enabled - show the button.
-	let newResizeStateWithAnalytics: ReturnType<typeof getNewResizeStateFromSelectedColumns>;
-
-	if (expValEquals('platform_editor_table_toolbar_perf_fix', 'isEnabled', true)) {
-		if (!editorView) {
-			return [];
-		}
-	} else {
-		const selectionOrTableRect = getClosestSelectionOrTableRect(editorState);
-		if (!selectionOrTableRect || !editorView) {
-			return [];
-		}
-		// Performance optimization: Skip expensive getTableScalingPercent() DOM query when limited mode is enabled.
-		// This avoids layout reflows on every transaction. Instead, button stays enabled and calculates on-demand when clicked.
-		if (!isLimitedModeEnabled) {
-			newResizeStateWithAnalytics = getNewResizeStateFromSelectedColumns(
-				selectionOrTableRect,
-				editorState,
-				editorView.domAtPos.bind(editorView),
-				getEditorContainerWidth,
-				isTableScalingEnabled,
-				isTableFixedColumnWidthsOptionEnabled,
-				isCommentEditor,
-			);
-			wouldChange = newResizeStateWithAnalytics?.changed ?? false;
-		}
+	if (!editorView) {
+		return [];
 	}
 
-	if (pluginState?.pluginConfig?.allowDistributeColumns && pluginState.isDragAndDropEnabled) {
+	if (pluginState?.pluginConfig?.allowDistributeColumns) {
 		items.push({
 			id: 'editor.table.distributeColumns',
 			type: 'button',
@@ -1004,7 +923,7 @@ const getColumnSettingItems = (
 					isTableFixedColumnWidthsOptionEnabled,
 					isCommentEditor,
 				)(state, dispatch, view),
-			disabled: !wouldChange,
+			disabled: false,
 		});
 	}
 
@@ -1030,9 +949,15 @@ const getColorPicker = (
 	}
 	const node = targetCellPosition ? state.doc.nodeAt(targetCellPosition) : undefined;
 	const currentBackground = node?.attrs?.background || '#ffffff';
-	const defaultPalette = cellBackgroundColorPalette.find(
-		(item) => item.value === currentBackground,
-	) || {
+	const isMoreColorsEnabled = expValEquals(
+		'platform_editor_lovability_text_bg_color',
+		'isEnabled',
+		true,
+	);
+	const activePalette = isMoreColorsEnabled
+		? cellBackgroundColorPaletteNew
+		: cellBackgroundColorPalette;
+	const defaultPalette = activePalette.find((item) => item.value === currentBackground) || {
 		// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-object
 		label: 'Custom',
 		value: currentBackground,
@@ -1046,8 +971,9 @@ const getColorPicker = (
 			type: 'select',
 			isAriaExpanded: true,
 			selectType: 'color',
+			cols: isMoreColorsEnabled ? colorPaletteColumns : colorPalletteColumns,
 			defaultValue: defaultPalette,
-			options: cellBackgroundColorPalette,
+			options: activePalette,
 			returnEscToButton: true,
 			// Ignored via go/ees005
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1157,25 +1083,13 @@ const getAlignmentOptionsConfig = (
 		const { id, value, icon } = alignmentIcon;
 		const currentLayout = tableObject.node.attrs.layout;
 
-		const shouldDisableLayoutOption = expValEquals(
-			'platform_editor_table_toolbar_perf_fix',
-			'isEnabled',
-			true,
-		)
-			? getMemoizedIsLayoutOptionDisabled(
-					tableObject.node,
-					getEditorContainerWidth,
-					editorView !== null,
-					shouldUseIncreasedScalingPercent,
-					isFullWidthEditor,
-				)
-			: isLayoutOptionDisabled(
-					tableObject.node,
-					getEditorContainerWidth,
-					editorView,
-					shouldUseIncreasedScalingPercent,
-					isFullWidthEditor,
-				);
+		const shouldDisableLayoutOption = getMemoizedIsLayoutOptionDisabled(
+			tableObject.node,
+			getEditorContainerWidth,
+			editorView !== null,
+			shouldUseIncreasedScalingPercent,
+			isFullWidthEditor,
+		);
 
 		return {
 			id: id,
@@ -1272,33 +1186,3 @@ const getMemoizedIsLayoutOptionDisabled = memoizeOne(
 		return nodeEqual && restEqual;
 	},
 );
-
-const isLayoutOptionDisabled = (
-	selectedNode: PMNode,
-	getEditorContainerWidth: GetEditorContainerWidth,
-	editorView: EditorView | null,
-	shouldUseIncreasedScalingPercent: boolean,
-	isFullWidthEditor: boolean | undefined,
-) => {
-	const { lineLength } = getEditorContainerWidth();
-	let tableContainerWidth = getTableContainerWidth(selectedNode);
-
-	// table may be scaled, use the scale percent to calculate the table width
-	if (editorView) {
-		const tableWrapperWidth = tableContainerWidth;
-		const scalePercent = getStaticTableScalingPercent(
-			selectedNode,
-			tableWrapperWidth,
-			shouldUseIncreasedScalingPercent,
-		);
-		tableContainerWidth = tableContainerWidth * scalePercent;
-	}
-
-	// If fixed-width editor, we disable 'left-alignment' when table width is 760px.
-	// tableContainerWidth +1 here because tableContainerWidth is 759 in fixed-width editor
-	if (selectedNode && !isFullWidthEditor && lineLength && tableContainerWidth + 1 >= lineLength) {
-		return true;
-	}
-
-	return false;
-};

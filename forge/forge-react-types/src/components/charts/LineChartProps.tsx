@@ -1,4 +1,4 @@
-import { type ActiveTokens } from '@atlaskit/tokens';
+import type { ActiveTokens } from '@atlaskit/tokens/artifacts/types';
 import type { ThemeElementProps } from '@atlassian/viz-platform-charts/primitives';
 
 type MarginValue = Extract<ActiveTokens, `space.${string}`>;
@@ -69,6 +69,10 @@ export type LineChartProps = {
 	 * key and value properties to map specific data categories to colors.
 	 */
 	colorPalette?: ThemeElementProps['fillStyles'];
+	/**
+	 * Hide or show menu in the top right corner.
+	 */
+	hideMenu?: boolean;
 };
 
 /**

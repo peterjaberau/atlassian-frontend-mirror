@@ -4,7 +4,6 @@ import { di } from 'react-magnetic-di';
 
 import type { AISummaryActionData } from '../../../../../state/flexible-ui-context/types';
 import useAISummaryAction from '../../../../../state/hooks/use-ai-summary-action';
-
 import { AISummariseAction } from './ai-summarise-action';
 import { CopySummaryAction } from './copy-summary-action';
 import type { AISummaryActionProps } from './types';
@@ -26,7 +25,7 @@ export const AISummaryActionComponent = (
 	}, [onLoadingChange, status]);
 
 	return status === 'done' ? (
-		<CopySummaryAction {...props} testId={testId} content={content} />
+		<CopySummaryAction {...props} summary={content} testId={testId} />
 	) : (
 		<AISummariseAction {...props} testId={testId} summariseUrl={summariseUrl} status={status} />
 	);

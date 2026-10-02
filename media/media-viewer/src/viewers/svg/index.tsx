@@ -6,22 +6,31 @@ import React, {
 	useCallback,
 	useLayoutEffect,
 } from 'react';
-import { Camera, Vector2 } from '@atlaskit/media-ui';
-import { ANALYTICS_MEDIA_CHANNEL, type MediaTraceContext } from '@atlaskit/media-common';
+
+import { useIntl } from 'react-intl';
+
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
 import { type FileIdentifier } from '@atlaskit/media-client';
+import { ANALYTICS_MEDIA_CHANNEL, type MediaTraceContext } from '@atlaskit/media-common';
+import MediaSvg from '@atlaskit/media-svg/media-svg';
+import type { MediaSVGError } from '@atlaskit/media-svg/media-svg-error';
+import { Camera } from '@atlaskit/media-ui/camera/camera';
+import { messages } from '@atlaskit/media-ui/messages';
+import { Vector2 } from '@atlaskit/media-ui/vector2';
 
-import { withAnalyticsEvents, type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-
-import { BaselineExtend } from '../../styleWrappers';
-import { ZoomLevel } from '../../domain/zoomLevel';
-
-import { ZoomControls } from '../../zoomControls';
 import { createClosedEvent } from '../../analytics/events/ui/closed';
-import MediaSvg, { type MediaSVGError } from '@atlaskit/media-svg';
-import { MediaViewerError } from '../../errors';
-import { clientRectangle, naturalSizeRectangle, zoomLevelAfterResize } from './utils';
-import { ImageWrapper } from './ImageWrapper';
+import { ZoomLevel } from '../../domain/zoomLevel';
+import { useIsInsetViewer } from '../../insetViewerContext';
+import { MediaViewerError } from '../../MediaViewerError';
+import { BaselineExtend } from '../../styleWrappers';
+import { ZoomControls } from '../../zoomControls';
+import { clientRectangle } from './clientRectangle';
 import { getErrorReason } from './errors';
+import { ImageWrapper } from './ImageWrapper';
+import { naturalSizeRectangle } from './naturalSizeRectangle';
+import { zoomLevelAfterResize } from './zoomLevelAfterResize';
 
 type WrapperScroll = {
 	scrollLeft: number;
@@ -50,6 +59,8 @@ const SvgViewerBase = ({
 	const [camera, setCamera] = useState<Camera>();
 	const wrapperRef = useRef<HTMLDivElement>(null);
 	const [wrapperScroll, setWrapperScroll] = useState<WrapperScroll>();
+	const intl = useIntl();
+	const isInsetViewer = useIsInsetViewer();
 
 	const onResize = useCallback(() => {
 		if (!wrapperRef.current || !camera) {
@@ -114,6 +125,9 @@ const SvgViewerBase = ({
 	};
 
 	const onSvgClicked = (e: React.MouseEvent) => {
+		if (isInsetViewer) {
+			return;
+		}
 		if (e.target === e.currentTarget) {
 			onBlanketClicked?.();
 			onClose?.();
@@ -177,6 +191,7 @@ const SvgViewerBase = ({
 		<ImageWrapper onClick={onSvgClicked} ref={wrapperRef} isHidden={isHidden}>
 			<MediaSvg
 				testId={'media-viewer-svg'}
+				alt={intl.formatMessage(messages.svg_base_alt)}
 				identifier={identifier}
 				dimensions={imgDimensions}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -201,7 +216,9 @@ const SvgViewerBase = ({
 	);
 };
 
-export const SvgViewer = withAnalyticsEvents({
+export const SvgViewer: React.ForwardRefExoticComponent<
+	Omit<SvgViewerProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>
+> = withAnalyticsEvents({
 	onBlanketClicked: (createAnalyticsEvent) => {
 		const event = createAnalyticsEvent(createClosedEvent('blanket'));
 		event.fire(ANALYTICS_MEDIA_CHANNEL);

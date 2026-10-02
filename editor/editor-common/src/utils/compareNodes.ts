@@ -1,27 +1,14 @@
-import {
-	type CardAttributes,
-	type DateDefinition,
-	type MentionAttributes,
-	type StatusDefinition,
-	type UrlType,
-} from '@atlaskit/adf-schema';
-import { type Mark, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { CardAttributes, UrlType } from '@atlaskit/adf-schema/block-card';
+import type { DateDefinition } from '@atlaskit/adf-schema/date';
+import type { MentionAttributes } from '@atlaskit/adf-schema/mention';
+import type { StatusDefinition } from '@atlaskit/adf-schema/status';
+import type { Mark, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 
 import { SortOrder } from '../types';
-
-export enum ContentType {
-	NUMBER = 0,
-	TEXT = 5,
-	MENTION = 10,
-	DATE = 15,
-	STATUS = 20,
-	LINK = 25,
-}
+import { ContentType } from './ContentType';
 
 interface CompareOptions {
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	getInlineCardTextFromStore(attrs: CardAttributes): string | null; // null means that could not find the title
+	getInlineCardTextFromStore: (attrs: CardAttributes) => string | null; // null means that could not find the title
 }
 
 interface NodeMetaGenerator<Type, Value> {
@@ -69,11 +56,9 @@ export function createNormalizeTextParser(): NormalizeTextParser {
 	const locale = window.navigator.language;
 	const thousandSeparator = Intl.NumberFormat(locale)
 		.format(11111)
-		// @ts-ignore - TS1501 TypeScript 5.9.2 upgrade
 		.replace(/\p{Number}/gu, '');
 	const decimalSeparator = Intl.NumberFormat(locale)
 		.format(1.1)
-		// @ts-ignore - TS1501 TypeScript 5.9.2 upgrade
 		.replace(/\p{Number}/gu, '');
 
 	// Ignored via go/ees005
@@ -134,6 +119,7 @@ export function createNormalizeTextParser(): NormalizeTextParser {
 	};
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function extractMetaFromTextNode(
 	textNode: PMNode,
 	normalizeTextParser: NormalizeTextParser,
@@ -276,6 +262,7 @@ function compareValue(valueA: string | number, valueB: string | number): 1 | 0 |
  * If no order is provided the method defaults to Ascending order,
  * like a regular JS sort method.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const createCompareNodes = (
 	options: CompareOptions,
 	order: SortOrder = SortOrder.ASC,
@@ -304,13 +291,11 @@ function compareMetaFromNode(metaNodeA: NodeMeta | null, metaNodeB: NodeMeta | n
 		return metaNodeB === null ? -1 : 1;
 	}
 
-	if (fg('platform_editor_fix_mixed_types_column_sort')) {
-		if (
-			(metaNodeA.type === ContentType.TEXT && metaNodeB.type === ContentType.NUMBER) ||
-			(metaNodeA.type === ContentType.NUMBER && metaNodeB.type === ContentType.TEXT)
-		) {
-			return compareValue(String(metaNodeA.value), String(metaNodeB.value));
-		}
+	if (
+		(metaNodeA.type === ContentType.TEXT && metaNodeB.type === ContentType.NUMBER) ||
+		(metaNodeA.type === ContentType.NUMBER && metaNodeB.type === ContentType.TEXT)
+	) {
+		return compareValue(String(metaNodeA.value), String(metaNodeB.value));
 	}
 
 	if (metaNodeA.type !== metaNodeB.type) {
@@ -319,3 +304,5 @@ function compareMetaFromNode(metaNodeA: NodeMeta | null, metaNodeB: NodeMeta | n
 
 	return compareValue(metaNodeA.value, metaNodeB.value);
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { ContentType } from './ContentType';

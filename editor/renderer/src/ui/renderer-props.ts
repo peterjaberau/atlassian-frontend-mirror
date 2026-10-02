@@ -1,18 +1,19 @@
-import type { DocNode } from '@atlaskit/adf-schema';
-import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import type { GetPMNodeHeight } from '@atlaskit/editor-common/extensibility';
 import type {
 	ExtensionHandlers,
 	ExtensionParams,
 	Parameters,
 } from '@atlaskit/editor-common/extensions';
+import type { MentionNodeDataProvider } from '@atlaskit/editor-common/mention';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import type { AnnotationProviders } from '@atlaskit/editor-common/types';
 import type { EventHandlers } from '@atlaskit/editor-common/ui';
 import type { UnsupportedContentLevelsTracking } from '@atlaskit/editor-common/utils';
 import type { ADFStage } from '@atlaskit/editor-common/validator';
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
-import type { EmojiResourceConfig } from '@atlaskit/emoji/resource';
-import type { GetPMNodeHeight } from '@atlaskit/editor-common/extensibility';
+import type { EmojiProviderLookupOrder, EmojiResourceConfig } from '@atlaskit/emoji/resource';
 
 import type { ReactSerializerInit, RendererContext, Serializer } from '../';
 import type { TextHighlighter, ExtensionViewportSize } from '../react/types';
@@ -31,6 +32,20 @@ interface RawObjectFeatureFlags {
 	['renderer-render-tracking']: string;
 }
 
+/**
+ * Information about a completed renderer render pass, provided to the `onRendered` callback.
+ */
+export type RendererRenderedInfo = {
+	/** Whether the render duration measurement may be distorted (e.g. tab not visible). */
+	distortedDuration: boolean;
+	/** Time taken for the render pass, in milliseconds (as measured by the renderer). */
+	duration: number;
+	/** Count of rendered nodes, keyed by node type. */
+	nodes: Record<string, number>;
+	/** Time to first byte for the document response, when available. */
+	ttfb?: number;
+};
+
 export interface RendererProps {
 	/**
 	 * When enabled a trailing telepointer will be added to the rendered document
@@ -45,9 +60,17 @@ export interface RendererProps {
 	adfStage?: ADFStage;
 	allowAltTextOnImages?: boolean;
 	allowAnnotations?: boolean;
+	/**
+	 * **WARNING** this attribute is not supported outside of Confluence Full Page editors
+	 * Until `platform_renderer_collapsible_headings` is cleaned up.
+	 *
+	 * Enables collapsing top-level heading sections in a full-page, full-width, max renderer only.
+	 */
+	allowCollapsibleHeadings?: boolean;
 	allowColumnSorting?: boolean;
 	allowCopyToClipboard?: boolean;
 	allowCustomPanels?: boolean;
+	allowDownloadCodeBlock?: boolean;
 	allowFixedColumnWidthOption?: boolean;
 	allowHeadingAnchorLinks?: HeadingAnchorLinksProps;
 	allowPlaceholderText?: boolean;
@@ -102,6 +125,11 @@ export interface RendererProps {
 	 */
 	disableTableOverflowShadow?: boolean;
 	document: DocNode;
+	/**
+	 * Preferred emoji provider type order when resolving shortName-only emoji.
+	 * The first matching type wins.
+	 */
+	emojiProviderLookupOrder?: EmojiProviderLookupOrder;
 	emojiResourceConfig?: EmojiResourceConfig;
 	// Enables inline scripts to add support for breakout nodes,
 	// before main JavaScript bundle is available.
@@ -140,19 +168,56 @@ export interface RendererProps {
 	 */
 	featureFlags?: { [featureFlag: string]: boolean } | Partial<RawObjectFeatureFlags>;
 	getExtensionHeight?: GetPMNodeHeight;
+	/**
+	 * Optional prefix to prepend to all generated heading IDs.
+	 * Used by nested renderers to namespace heading IDs and avoid collisions with the host page.
+	 */
+	headingIdPrefix?: string;
+	/**
+	 * @default undefined
+	 * @description
+	 * Extension keys whose default placeholder content should be hidden (render
+	 * nothing) while their extension provider promise is still pending. Products
+	 * opt specific extensions in by passing their keys; when omitted, behaviour is
+	 * unchanged.
+	 */
+	hideExtensionKeysWhilePending?: string[];
 	includeNodesCountInStats?: boolean;
 	innerRef?: React.RefObject<HTMLDivElement>;
 	isInsideOfInlineExtension?: boolean;
 	isTopLevelRenderer?: boolean;
 	maxHeight?: number;
 	media?: MediaOptions;
+	mentionNodeDataProvider?: MentionNodeDataProvider;
 	nodeComponents?: NodeComponentsProps;
 	// Enables inline scripts from above on client for first render for hydration to prevent mismatch.
 	noOpSSRInlineScript?: boolean;
+	/**
+	 * Called synchronously during the render phase (before paint) each time the document is
+	 * successfully rendered, with statistics about the rendered output. Not called when the
+	 * render throws (see `onError`).
+	 *
+	 * Because it fires during render rather than after paint, prefer `onRendered` for
+	 * post-paint lifecycle signals (e.g. releasing a UFO load hold).
+	 *
+	 * @param stat - Statistics about the rendered output (e.g. node counts).
+	 */
 	onComplete?: (stat: RenderOutputStat) => void;
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	onError?: (error: any) => void;
+	/**
+	 * Called when the renderer completes a render pass — on the animation frame following
+	 * mount (i.e. after paint), exposing basic information about the render.
+	 *
+	 * Unlike the `renderer` `rendered` analytics event, which is sampled and therefore only
+	 * fires for a fraction of renders, this callback ALWAYS fires on every render pass
+	 * regardless of analytics sampling. Use it for reliable lifecycle signals — for example
+	 * releasing a UFO load hold — rather than depending on the sampled analytics event.
+	 *
+	 * @param info - Basic information about the completed render.
+	 */
+	onRendered?: (info: RendererRenderedInfo) => void;
 	/**
 	 * Optional callback to programatically determine the link target for rendered links. Controls whether a link should render as external or not.
 	 * Return _blank if the url should render as an external link.
@@ -166,6 +231,12 @@ export interface RendererProps {
 	rendererContext?: RendererContext;
 	schema?: Schema;
 	/**
+	 * Optional callback to scroll an element into view when using block links (#block-xxx).
+	 * When provided, this is used instead of the default scrollIntoView for accurate positioning
+	 * in product-specific scroll containers (e.g. Confluence view page).
+	 */
+	scrollToBlock?: (element: HTMLElement) => void;
+	/**
 	 * Determines if the extension should be displayed as inline based on the extension parameters.
 	 * @param extensionParams - The extension parameters.
 	 * @returns True if the extension should be displayed as inline, false otherwise.
@@ -177,6 +248,7 @@ export interface RendererProps {
 	smartLinks?: SmartLinksOptions;
 	stickyHeaders?: StickyHeaderProps;
 	textHighlighter?: TextHighlighter;
+	timeZone?: string;
 	truncated?: boolean;
 	UNSTABLE_allowTableAlignment?: boolean;
 
@@ -191,7 +263,4 @@ export interface RendererProps {
 	/** @deprecated {@link https://hello.atlassian.net/browse/ENGHEALTH-26490 Internal documentation for deprecation (no external access)}  This prop has been marked stable and therefore replaced by the `textHighlighter` prop. Please use `textHighlighter` prop instead. */
 	UNSTABLE_textHighlighter?: TextHighlighter;
 	unsupportedContentLevelsTracking?: UnsupportedContentLevelsTracking;
-
-	/** @deprecated {@link https://hello.atlassian.net/browse/ENGHEALTH-3649 Internal documentation for deprecation (no external access)} This prop will be removed and set as default enabled, as the same flag on the Editor is also now default enabled. */
-	useSpecBasedValidator?: boolean;
 }

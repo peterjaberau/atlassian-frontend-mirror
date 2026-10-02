@@ -1,19 +1,22 @@
 import React, { useLayoutEffect, useRef } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { ModalBody, ModalHeader, ModalTitle, ModalTransition } from '@atlaskit/modal-dialog';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { Box } from '@atlaskit/primitives/compiled';
 
 import { CREATE_FORM_MAX_WIDTH_IN_PX, DEFAULT_TEST_ID, SCREEN_ID } from '../../common/constants';
 import type { LinkCreateWithModalProps } from '../../common/types';
-import { ConfirmDismissDialog } from '../../common/ui/confirm-dismiss-dialog';
+import { ConfirmDismissDialog } from '../../common/ui/confirm-dismiss-dialog/main';
 import { EditModal } from '../../common/ui/edit-modal';
 import { ErrorBoundary } from '../../common/ui/error-boundary';
 import { LinkCreateContent } from '../../common/ui/link-create-content';
 import { ModalHero } from '../../common/ui/modal-hero';
 import { Modal } from '../../common/ui/ModalDialog';
-import { LinkCreateCallbackProvider } from '../../controllers/callback-context';
+import { LinkCreateCallbackProvider } from '../../controllers/callback-context/main';
 import {
 	EditPostCreateModalProvider,
 	useEditPostCreateModal,
@@ -22,9 +25,8 @@ import {
 	ExitWarningModalProvider,
 	useExitWarningModal,
 } from '../../controllers/exit-warning-modal-context';
-import { FormContextProvider } from '../../controllers/form-context';
+import { FormContextProvider } from '../../controllers/form-context/main';
 import { LinkCreatePluginsProvider, useLinkCreatePlugins } from '../../controllers/plugin-context';
-
 import { messages } from './messages';
 
 const LinkCreateWithModal = ({

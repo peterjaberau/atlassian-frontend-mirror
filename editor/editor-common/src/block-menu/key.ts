@@ -1,3 +1,4 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
 // Transformation
 
 export const TRANSFORM_MENU_SECTION = {
@@ -12,9 +13,12 @@ export const TRANSFORM_CREATE_MENU_SECTION = {
 	key: 'transform-create-menu-section',
 };
 
-export const TRANSFORM_HEADINGS_MENU_SECTION = {
+export const TRANSFORM_TEXTFORMATTING_MENU_SECTION = {
 	key: 'transform-headings-menu-secion',
 };
+
+export const TRANSFORM_HEADINGS_MENU_SECTION: typeof TRANSFORM_TEXTFORMATTING_MENU_SECTION =
+	TRANSFORM_TEXTFORMATTING_MENU_SECTION;
 
 export const TRANSFORM_HEADINGS_H1_MENU_ITEM = {
 	key: 'transform-headings-h1-menu-item',
@@ -84,12 +88,24 @@ export const TRANSFORM_STRUCTURE_QUOTE_MENU_ITEM = {
 	key: 'transform-structure-quote-menu-item',
 };
 
+export const TRANSFORM_STRUCTURE_EXTENSION_SLOT_MENU_ITEM = {
+	key: 'transform-structure-extension-slot-menu-item',
+};
+
 export const TRANSFORM_STRUCTURE_DECISION_MENU_ITEM = {
 	key: 'transform-structure-decision-menu-item',
 };
 
+export const TRANSFORM_STRUCTURE_STATUS_MENU_ITEM = {
+	key: 'transform-structure-status-menu-item',
+};
+
 export const TRANSFORM_STRUCTURE_PARAGRAPH_MENU_ITEM = {
 	key: 'transform-structure-paragraph-menu-item',
+};
+
+export const TRANSFORM_TEXT_FORMATTING_SMALL_TEXT_MENU_ITEM = {
+	key: 'transform-text-formatting-small-text-menu-item',
 };
 
 export const TRANSFORM_CLEAR_MENU_SECTION = {
@@ -110,6 +126,14 @@ export const BLOCK_ACTIONS_FEATURED_EXTENSION_SLOT_MENU_ITEM = {
 	key: 'block-actions-featured-extension-slot-menu-item',
 };
 
+export const BLOCK_ACTIONS_TEMPLATE_SECTION = {
+	key: 'block-actions-template-section' as const,
+};
+
+export const BLOCK_ACTIONS_FEATURED_EXTENSION_SECTION_KEYS: readonly [
+	typeof BLOCK_ACTIONS_TEMPLATE_SECTION.key,
+] = ['block-actions-template-section'];
+
 export const BLOCK_ACTIONS_MENU_SECTION = {
 	key: 'block-actions-menu-section',
 };
@@ -120,6 +144,10 @@ export const BLOCK_ACTIONS_CREATE_SYNCED_BLOCK_MENU_ITEM = {
 
 export const BLOCK_ACTIONS_COPY_LINK_TO_BLOCK_MENU_ITEM = {
 	key: 'block-actions-copy-link-to-block-menu-item',
+};
+
+export const BLOCK_ACTIONS_COPY_MENU_SECTION = {
+	key: 'block-actions-copy-menu-section',
 };
 
 // Position
@@ -146,6 +174,8 @@ export const DELETE_MENU_ITEM = {
 	key: 'delete-menu-item',
 };
 
+export const BLOCK_MENU_TEST_ID = 'editor-block-menu';
+
 // Experience tracking test IDs
 // Used by experience tracking to detect menu action clicks
 
@@ -153,4 +183,36 @@ export const BLOCK_MENU_ACTION_TEST_ID = {
 	MOVE_UP: 'block-menu-move-up',
 	MOVE_DOWN: 'block-menu-move-down',
 	DELETE: 'block-menu-delete',
+	COPY_LINK: 'block-menu-copy-link',
 } as const;
+
+/** Test ID for extension menu items (used to skip block transform experience tracking) */
+
+export const EXTENSION_MENU_ITEM_TEST_ID = 'extension-menu-item';
+
+// AI
+export const AI_MENU_SECTION = {
+	key: 'ai-menu-section',
+};
+
+/**
+ * Minimum text length (in characters) for AI block menu actions
+ * (e.g. "Improve formatting", "Remix") to be visible.
+ */
+export const AI_BLOCK_MENU_LARGE_TEXT_THRESHOLD = 300;
+
+export const AI_ASK_ROVO_MENU_ITEM = {
+	key: 'block-menu-ai-ask-rovo-menu-item',
+};
+
+export const AI_IMPROVE_WRITING_MENU_ITEM = {
+	key: 'block-menu-ai-improve-writing-menu-item',
+};
+
+export const AI_POLISH_MENU_ITEM = {
+	key: 'block-menu-ai-polish-menu-item',
+};
+
+export const AI_REMIX_MENU_ITEM = {
+	key: 'block-menu-ai-remix-menu-item',
+};

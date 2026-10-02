@@ -11,19 +11,22 @@ jest.mock('@atlaskit/media-client', () => {
 	};
 });
 import React from 'react';
+
 import { render, screen, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
+
 import {
 	globalMediaEventEmitter,
 	type NonErrorFileState,
 	type ProcessedFileState,
 } from '@atlaskit/media-client';
+import { sleep } from '@atlaskit/media-common/test-helpers';
 import { fakeMediaClient } from '@atlaskit/media-test-helpers';
 import type { CustomRendererConfig, CustomRendererProps } from '@atlaskit/media-viewer';
-import { sleep } from '@atlaskit/media-common/test-helpers';
-import { MediaViewerError } from '../../../../../errors';
 
-jest.mock('../../../../../viewers/codeViewer/msg-parser', () => ({
+import { MediaViewerError } from '../../../../../MediaViewerError';
+
+jest.mock('../../../../../viewers/codeViewer/msgToText', () => ({
 	__esModule: true,
 	msgToText: jest.fn(),
 }));

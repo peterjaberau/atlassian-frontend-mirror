@@ -1,6 +1,8 @@
+import type { JSX } from 'react';
+
 import { createExample } from '../example-helpers/createExample';
 
-const TextExample = createExample({
+const TextExample: () => JSX.Element = createExample({
 	version: 1,
 	type: 'doc',
 	content: [

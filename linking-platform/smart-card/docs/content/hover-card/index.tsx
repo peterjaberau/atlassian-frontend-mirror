@@ -6,7 +6,7 @@ import HoverCardExample from '../../../examples/content/hover-card';
 import customMd from '../../utils/custom-md';
 import prerequisites from '../prerequisites';
 
-export default customMd`
+const _default_1: JSX.Element = customMd`
 
 Hover cards can be used as a standalone component to wrap any other React component to display information about a supplied URL upon hovering on
 the child component. Depending on the resource type, different actions will be displayed.
@@ -24,7 +24,7 @@ ${prerequisites}
 ### Usage
 
 ${code`
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
 import { HoverCard } from '@atlaskit/smart-card/hover-card';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
@@ -41,3 +41,4 @@ import { Box } from '@atlaskit/primitives';
 </IntlProvider>
 `}
 `;
+export default _default_1;

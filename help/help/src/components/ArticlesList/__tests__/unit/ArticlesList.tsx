@@ -1,10 +1,10 @@
 import React from 'react';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { render } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { getMockArticleItemList } from '../../../../util/testing/mock';
-
 import ArticlesList from '../../ArticlesList';
 import { type ArticlesList as ArticlesListInterface } from '../../model/ArticlesListItem';
 
@@ -29,15 +29,5 @@ describe('ArticleContent', () => {
 		);
 
 		await expect(container).toBeAccessible();
-	});
-
-	it.skip('Should match snapshot', () => {
-		const { container } = render(
-			<IntlProvider locale="en">
-				<ArticlesList {...ArticlesListProps} />
-			</IntlProvider>,
-		);
-
-		expect(container.firstChild).toMatchSnapshot();
 	});
 });

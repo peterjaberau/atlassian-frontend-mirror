@@ -2,19 +2,18 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { type MouseEvent } from 'react';
 
 // eslint-disable-next-line no-unused-vars
 import { cssMap, jsx } from '@compiled/react';
 
-import { componentWithFG } from '@atlaskit/platform-feature-flags-react';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { useMouseDownEvent } from '../../../state/analytics/useLinkClicked';
+import { useMouseDownEvent } from '../../../state/analytics/useMouseDownEvent';
 import { handleClickCommon } from '../../common/utils';
 import { type FrameStyle } from '../types';
-
 import { className } from './styled';
 
 export interface ExpandedFrameProps {
@@ -40,8 +39,16 @@ export interface ExpandedFrameProps {
 	isSelected?: boolean;
 	maxWidth?: number;
 	minWidth?: number;
+	/** Optional middle-click handler. */
+	onAuxClick?: React.EventHandler<React.MouseEvent>;
 	/** The optional click handler */
 	onClick?: (evt: React.MouseEvent) => void;
+	/** Callback for when mouse enters the content wrapper - for dwell tracking */
+	onContentMouseEnter?: () => void;
+	/** Callback for when mouse leaves the content wrapper - for dwell tracking */
+	onContentMouseLeave?: () => void;
+	/** Optional right-click handler. */
+	onContextMenu?: React.EventHandler<React.MouseEvent>;
 	/**
 	 * Should the CSS `overflow` property be set to hidden or auto (clipping or
 	 * supporting a scroll bar), or left out altogether.
@@ -57,123 +64,6 @@ export interface ExpandedFrameProps {
 	text?: React.ReactNode;
 }
 
-export interface ExpandedFrameUpdatedProps extends ExpandedFrameProps {
-	/** Callback for when mouse enters the content wrapper - for dwell tracking */
-	onContentMouseEnter?: () => void;
-	/** Callback for when mouse leaves the content wrapper - for dwell tracking */
-	onContentMouseLeave?: () => void;
-}
-
-const ExpandedFrame = ({
-	isPlaceholder = false,
-	children,
-	onClick,
-	icon,
-	text,
-	isSelected,
-	frameStyle = 'showOnHover',
-	href,
-	minWidth,
-	maxWidth,
-	testId = 'expanded-frame',
-	inheritDimensions,
-	allowScrollBar = false,
-	setOverflow = true,
-	CompetitorPrompt,
-}: ExpandedFrameProps) => {
-	const isInteractive = () => !isPlaceholder && (Boolean(href) || Boolean(onClick));
-	const handleClick = (event: MouseEvent) => handleClickCommon(event, onClick);
-	const handleMouseDown = useMouseDownEvent();
-
-	const CompetitorPromptComponent =
-		CompetitorPrompt && href ? (
-			<CompetitorPrompt sourceUrl={href} linkType="embed" />
-		) : null;
-
-	const renderHeader = () => {
-		return (
-			frameStyle !== 'hide' && (
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
-				<div className="embed-header" css={styles.header}>
-					<div css={styles.leftSection}>
-						<div css={styles.headerIcon}>{icon}</div>
-						<div css={styles.tooltipWrapper}>
-							{!isPlaceholder && (
-								<Tooltip content={text} hideTooltipOnMouseDown>
-									{/* eslint-disable-next-line @atlaskit/design-system/no-html-anchor */}
-									<a
-										css={styles.headerAnchor}
-										href={href}
-										onClick={handleClick}
-										onMouseDown={handleMouseDown}
-									>
-										{text}
-									</a>
-								</Tooltip>
-							)}
-						</div>
-					</div>
-					{CompetitorPromptComponent}
-				</div>
-			)
-		);
-	};
-
-	const interactive = isInteractive();
-	const showBackgroundAlways = frameStyle === 'show' || (isSelected && frameStyle !== 'hide');
-	const showBackgroundOnHover = interactive && frameStyle !== 'hide';
-
-	const renderContent = () => {
-		return (
-			<div
-				data-testid="embed-content-wrapper"
-				css={[
-					styles.contentStyle,
-					setOverflow && allowScrollBar && styles.contentOverflowAuto,
-					interactive &&
-						!showBackgroundAlways &&
-						!showBackgroundOnHover &&
-						styles.contentInteractiveActiveBorder,
-				]}
-				// This fixes an issue with input fields in cross domain iframes (ie. databases and jira fields from different domains)
-				// See: HOT-107830
-				contentEditable={false}
-			>
-				{children}
-			</div>
-		);
-	};
-
-	return (
-		<div
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-			className={className}
-			style={{
-				minWidth: minWidth ? `${minWidth}px` : '',
-				maxWidth: maxWidth ? `${maxWidth}px` : '',
-			}}
-			css={[
-				styles.linkWrapper,
-				inheritDimensions && styles.linkWrapperInheritDimensions,
-				isSelected && frameStyle !== 'hide' && styles.linkWrapperSelected,
-				showBackgroundAlways && styles.linkWrapperBorderAndBackground,
-				showBackgroundOnHover && !showBackgroundAlways && styles.linkWrapperInteractiveNotHidden,
-			]}
-			data-testid={testId}
-			data-trello-do-not-use-override={testId}
-			// Due to limitations of testing library, we can't assert ::after
-			data-is-selected={isSelected}
-			{...((isPlaceholder || !href) && {
-				'data-wrapper-type': 'default',
-				'data-is-interactive': isInteractive(),
-			})}
-		>
-			{renderHeader()}
-			{renderContent()}
-		</div>
-	);
-};
-
 const styles = cssMap({
 	linkWrapper: {
 		position: 'relative',
@@ -181,10 +71,10 @@ const styles = cssMap({
 		flexDirection: 'column',
 		gap: token('space.100'),
 		height: '432px',
-		paddingTop: token('space.100', '8px'),
-		paddingRight: token('space.100', '8px'),
-		paddingBottom: token('space.100', '8px'),
-		paddingLeft: token('space.100', '8px'),
+		paddingTop: token('space.100'),
+		paddingRight: token('space.100'),
+		paddingBottom: token('space.100'),
+		paddingLeft: token('space.100'),
 		userSelect: 'none',
 		'&::after': {
 			content: '',
@@ -287,10 +177,12 @@ const styles = cssMap({
 	},
 });
 
-const ExpandedFrameUpdated = ({
+export const ExpandedFrame = ({
 	isPlaceholder = false,
 	children,
 	onClick,
+	onAuxClick,
+	onContextMenu,
 	icon,
 	text,
 	isSelected,
@@ -305,15 +197,13 @@ const ExpandedFrameUpdated = ({
 	CompetitorPrompt,
 	onContentMouseEnter,
 	onContentMouseLeave,
-}: ExpandedFrameUpdatedProps) => {
+}: ExpandedFrameProps): React.JSX.Element => {
 	const isInteractive = () => !isPlaceholder && (Boolean(href) || Boolean(onClick));
 	const handleClick = (event: MouseEvent) => handleClickCommon(event, onClick);
 	const handleMouseDown = useMouseDownEvent();
 
 	const CompetitorPromptComponent =
-		CompetitorPrompt && href ? (
-			<CompetitorPrompt sourceUrl={href} linkType="embed" />
-		) : null;
+		CompetitorPrompt && href ? <CompetitorPrompt sourceUrl={href} linkType="embed" /> : null;
 
 	const renderHeader = () => {
 		return (
@@ -330,6 +220,8 @@ const ExpandedFrameUpdated = ({
 										css={styles.headerAnchor}
 										href={href}
 										onClick={handleClick}
+										onAuxClick={onAuxClick}
+										onContextMenu={onContextMenu}
 										onMouseDown={handleMouseDown}
 									>
 										{text}
@@ -402,11 +294,3 @@ const ExpandedFrameUpdated = ({
 		</div>
 	);
 };
-
-const ExpandedFrameWithFG = componentWithFG(
-	'rovo_chat_embed_card_dwell_and_hover_metrics',
-	ExpandedFrameUpdated,
-	ExpandedFrame,
-);
-
-export { ExpandedFrameWithFG as ExpandedFrame };

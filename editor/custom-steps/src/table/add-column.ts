@@ -2,8 +2,8 @@ import memoizeOne from 'memoize-one';
 
 import type { Node as ProseMirrorNode, Schema } from '@atlaskit/editor-prosemirror/model';
 import type { Mappable } from '@atlaskit/editor-prosemirror/transform';
-import { Step, StepMap, StepResult, Transform } from '@atlaskit/editor-prosemirror/transform';
-
+import { StepMap, StepResult, Transform } from '@atlaskit/editor-prosemirror/transform';
+import { Step } from '@atlaskit/editor-prosemirror/transform-override';
 import type { TableRect } from '@atlaskit/editor-tables/table-map';
 
 import type {
@@ -268,7 +268,7 @@ export class AddColumnStep<_S extends Schema = any> extends Step {
 	 * includes the step type's [JSON id](#transform.Step^jsonID) under
 	 * the `stepType` property.
 	 */
-	toJSON() {
+	toJSON(): AddColumnStepJson {
 		const addColumnStepJson: AddColumnStepJson = {
 			stepType: ADD_COLUMN_STEP,
 			tablePos: this.tablePos,
@@ -324,7 +324,12 @@ export class AddColumnStep<_S extends Schema = any> extends Step {
 		return new AddColumnStep(json.tablePos, { cells, sideEffects }, json.isDelete);
 	}
 
-	static create(doc: ProseMirrorNode, tablePos: number, column: number, isDelete = false) {
+	static create(
+		doc: ProseMirrorNode,
+		tablePos: number,
+		column: number,
+		isDelete = false,
+	): AddColumnStep {
 		const tableRect = getTableRectFromDoc(doc, tablePos);
 
 		// By default add column will rely on default behaviour (add empty cell).

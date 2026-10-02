@@ -1,16 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import isEqual from 'lodash/isEqual';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { type InputActionMeta, PopupSelect, type ValueType } from '@atlaskit/select';
+import { PopupSelect } from '@atlaskit/select/popup-select';
+import type { InputActionMeta, ValueType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../../analytics';
-
-import CustomControl from './control';
 import { CustomCheckboxOption } from './custom-checkbox-option';
+import { CustomControl } from './CustomControl';
 import CustomDropdownIndicator from './dropdownIndicator';
 import PopupFooter from './footer';
 import formatOptionLabel from './formatOptionLabel';
@@ -190,7 +189,6 @@ export const FilterPopupSelect = ({
 					? searchPlaceholder
 					: formatMessage(asyncPopupSelectMessages.selectPlaceholder)
 			}
-			// @ts-ignore - https://product-fabric.atlassian.net/browse/DSP-21000
 			menuListProps={menuListProps}
 			components={{
 				Option: CustomCheckboxOption,
@@ -220,7 +218,7 @@ export const FilterPopupSelect = ({
 			onInputChange={handleInputChange}
 			onOpen={handleMenuOpen}
 			onClose={handleMenuClose}
-			shouldPreventEscapePropagation={fg('platform_navx_sllv_dropdown_escape_and_focus_fix')}
+			shouldPreventEscapePropagation
 			target={({ isOpen, ...triggerProps }) => (
 				<PopupTrigger
 					{...triggerProps}

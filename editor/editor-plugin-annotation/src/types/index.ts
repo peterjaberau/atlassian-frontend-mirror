@@ -1,11 +1,12 @@
 import type React from 'react';
 
-import type { AnnotationTypes } from '@atlaskit/adf-schema';
+import type { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import type { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type {
 	AnnotationUpdateEmitter,
 	AnnotationManager,
 } from '@atlaskit/editor-common/annotation';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 
 /**
  * type of target that annotation apply to.
@@ -57,7 +58,10 @@ export type InlineCommentCreateComponentProps = AnnotationComponentProps & {
 	 * Creates an annotation mark in the document with the given id.
 	 */
 	onCreate: (id: string) => void;
-	wasNewAnnotationSelected?: boolean;
+	/**
+	 * Deletes an annotation mark in the document with the given id.
+	 */
+	onCreateError?: (id: string) => void;
 };
 
 export type InlineCommentViewComponentProps = AnnotationComponentProps & {
@@ -119,10 +123,20 @@ export type InlineCommentAnnotationProvider = AnnotationTypeProvider<
 	contentType?: string;
 	createComponent?: React.ComponentType<React.PropsWithChildren<InlineCommentCreateComponentProps>>;
 	getCanAddComments?: () => boolean;
+	/**
+	 * @experimental Still under development. Do not use.
+	 *
+	 * Determines whether a specific block node supports inline comments.
+	 * This is additive to `supportedBlockNodes`; a node is supported when either configuration
+	 * matches it.
+	 */
+	isBlockNodeSupported?: (node: PMNode) => boolean;
 
 	// always position toolbar above the selection
 	isToolbarAbove?: boolean;
 	onCommentButtonMount?: () => void;
+	/** Checks whether the active inline comment can be safely closed. */
+	requestClose?: () => Promise<boolean>;
 	/**
 	 * @experimental Still under development. Do not use.
 	 *
@@ -175,7 +189,13 @@ export enum AnnotationSelectionType {
 }
 
 const prefix = 'ak-editor-annotation';
-export const AnnotationTestIds = {
+export const AnnotationTestIds: {
+	componentClose: string;
+	componentSave: string;
+	floatingComponent: string;
+	floatingToolbarCreateButton: string;
+	prefix: string;
+} = {
 	prefix,
 	floatingComponent: `${prefix}-floating-component`,
 	floatingToolbarCreateButton: `${prefix}-toolbar-create-button`,

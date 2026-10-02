@@ -1,5 +1,1234 @@
 # @atlaskit/mention
 
+## 30.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.6
+
+### Patch Changes
+
+- [`534c9253b7fab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/534c9253b7fab) -
+  Add operational mention avatar failure events and reasons behind
+  `platform_editor_mention_avatar_observability`, covering image failures, provider failures,
+  missing avatar URLs, and missing providers. Events identify the editor or renderer surface without
+  adding mention user data. Successful image loads emit no events.
+- Updated dependencies
+
+## 30.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.6
+
+### Patch Changes
+
+- [`90cc9e3c7fc0c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90cc9e3c7fc0c) -
+  Support gated dark-background styling for the configured Rovo Chat agent mention in editors and
+  the renderer.
+
+## 29.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.0
+
+### Minor Changes
+
+- [`2bbc1c84de468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bbc1c84de468) -
+  Expose direct entry points for existing mention resources and predicates, linking errors, site
+  hooks, URL helpers, Pulse, and preview-panel detection. Existing entry points remain compatible.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.0
+
+### Minor Changes
+
+- [`e909670f087d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e909670f087d4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.0.0
+
+### Major Changes
+
+- [`9cc27b07a28d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9cc27b07a28d0) -
+  Change exports to adhere to Volt Component Standards
+
+  Remove default exports from `@atlaskit/mention/mention-resource` and
+  `@atlaskit/mention/presence-resource` Remove `@atlaskit/mention/typeahead`.
+
+  For MentionResource use:
+
+  ```
+  import { MentionResource } from '@atlaskit/mention/mention-resource'
+  ```
+
+  For PresenceResource use:
+
+  ```
+  import { PresenceResource } from '@atlaskit/mention/presence-resource'
+  ```
+
+  For `@atlaskit/mention/typeahead` use:
+
+  ```
+  import { MentionPickerWithAnalytics } from '@atlaskit/mention/mention-picker';
+  ```
+
+## 28.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.0
+
+### Major Changes
+
+- [`c263d4de33054`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c263d4de33054) -
+  Render retryable agent mention load errors in the typeahead menu behind
+  `platform_editor_agent_mentions_rovo_query_timeout`.
+
+## 27.19.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.8
+
+### Patch Changes
+
+- [`5a0128690a065`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a0128690a065) -
+  Add mention avatars to Rovo editor and renderer surfaces behind
+  platform_editor_rovo_editor_mention_node_avatar
+
+## 27.19.7
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+## 27.19.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.19.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.2
+
+### Patch Changes
+
+- [`e7f1b919fb426`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e7f1b919fb426) -
+  Keep mention avatars and their error fallback vertically aligned and proportional to surrounding
+  text, including headings, under the `platform_editor_mention_node_avatar` experiment.
+
+## 27.18.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.18.0
+
+### Minor Changes
+
+- [`febe6719dffd4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/febe6719dffd4) -
+  Apply Volt multi-export standards via `volt-migrate-package`. `@atlaskit/mention` already resolved
+  its subpaths directly to `./src/*`, so the `exports` map is **unchanged** — all 24 public subpaths
+  keep their existing targets. What changed is the module layout: multi-export modules were split so
+  each shippable module owns a single export (for example `api/AbstractResource.ts`,
+  `api/DefaultMentionNameResolver.ts`, `api/HttpError.ts`, `is-special-mention.ts`,
+  `is-promise.ts`), with `@deprecated` compatibility re-exports left behind on the original module.
+
+  ### No public API was removed
+
+  Every symbol that moved is still exported from the subpath that previously exposed it, so existing
+  imports keep working:
+
+  ```ts
+  // Still valid — no change required, but deprecated
+  import { AbstractMentionResource } from '@atlaskit/mention/resource';
+  ```
+
+  A few subpaths now expose additional symbols as a result of the split:
+  - `./analytics` — `MENTION_ANALYTICS_PREFIX`, `packageName`, `packageVersion`
+  - `./mention-name-resolver` — the `Callback` and `Queue` types
+  - `./presence-resource` — `PresenceResource` as a named export alongside its default
+
+  ### Note for consumers that mock these modules
+
+  Internal cross-module imports now point at the split modules rather than the module that used to
+  declare everything. If your tests `jest.mock()` a `@atlaskit/mention` subpath to intercept a
+  symbol that mention itself consumes internally, the mock may no longer take effect — mock the
+  module that now owns the export instead.
+
+## 27.17.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.17.0
+
+### Minor Changes
+
+- [`6997a74055219`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6997a74055219) -
+  Add profile card on hover in the mentions typeahead for agent mentions
+
+## 27.16.0
+
+### Minor Changes
+
+- [`13e86ff9f1588`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/13e86ff9f1588) -
+  [ux] Display avatars for mention nodes.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.15.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.15.0
+
+### Minor Changes
+
+- [`50992b74009d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50992b74009d1) -
+  Add InlineInvitePopup provider hook, replacing InlineInviteRecaptcha slot
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.14.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.14.0
+
+### Minor Changes
+
+- [`e801feda9c00b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e801feda9c00b) -
+  [ux] Add `isAgentMention` to `@atlaskit/mention/types`, and mark agent mention items with a
+  `data-mention-is-agent` attribute for typeahead spotlight targeting.
+  ```ts
+  import { isAgentMention } from '@atlaskit/mention/types';
+  isAgentMention(mention); // true for AGENT userType, or APP with an agent appType
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.13.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.13.0
+
+### Minor Changes
+
+- [`0adaa36b0a6bc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0adaa36b0a6bc) -
+  Add InlineInvitePopup provider hook, replacing InlineInviteRecaptcha slot
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.7
+
+### Patch Changes
+
+- [`63f19f077a0d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63f19f077a0d1) -
+  Consolidate mention avatar rollout controls under the rovo_chat_mention_agents experiment.
+- Updated dependencies
+
+## 27.12.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.12.0
+
+### Minor Changes
+
+- [`eb6534b29cb7a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb6534b29cb7a) -
+  [ux] Fix alignment of NameSectionStyle with AvatarStyle and Add spacing between mention typeahead
+  sections
+
+## 27.11.0
+
+### Minor Changes
+
+- [`7d37c14edffa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d37c14edffa7) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 27.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.10.0
+
+### Minor Changes
+
+- [`5228612e884f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5228612e884f4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 27.9.0
+
+### Minor Changes
+
+- [`30f196e640e18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30f196e640e18) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.8.0
+
+### Minor Changes
+
+- [`7da4b354a3633`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7da4b354a3633) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 27.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.7.0
+
+### Minor Changes
+
+- [`d6596dc895420`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d6596dc895420) -
+  Show a loading shimmer in the mention typeahead Agents section while the (slower) agent source
+  resolves. The Rovo chat mention provider now emits a non-selectable loading placeholder in the
+  agents slot until agents arrive (gated by rovo_chat_agent_selection); @atlaskit/mention renders it
+  as a skeleton row, and the editor mention plugin guards it from selection/analytics.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.6.0
+
+### Minor Changes
+
+- [`2aa9853a2c07d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2aa9853a2c07d) -
+  `ResourcedMention` and the editor-common `Mention` now accept an `isDisabled` (and
+  `disabledTooltip`) prop, forwarding the disabled mention visual state through the layered mention
+  components. A disabled mention bypasses the profile-card wrapper as it is non-interactive, while
+  retaining a readable neutral visual treatment so meaningful mention text remains perceivable.
+
+  Example usage:
+
+  ```tsx
+  <Mention
+  	id="agent-2"
+  	text="@Researcher"
+  	isDisabled
+  	disabledTooltip="Only one agent can be active at a time"
+  />
+  ```
+
+  Used in Rovo chat to grey out inactive (non-responding) agent @mentions in sent user messages: the
+  agent that responded to the turn stays fully styled while other mentioned agents render disabled.
+
+## 27.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.5.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.4.0
+
+### Minor Changes
+
+- [`6d48bbf99477b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d48bbf99477b) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 27.3.0
+
+### Minor Changes
+
+- [`1e60d10b9bddf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e60d10b9bddf) -
+  Fix agent mention chip not rendering as disabled after the last @-mentioned agent is dismissed via
+  the input hat (TREX-1692). An agent chip is now enabled only when its id is the active agent
+  (selectedAgentIds.at(-1)) and disabled otherwise; the rule is scoped to agent chips via the
+  mention node's userType (now forwarded through MentionDisabledStateInput) so people mentions are
+  never affected.
+
+## 27.2.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 27.2.0
+
+### Minor Changes
+
+- [`404be770a2ccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/404be770a2ccf) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 27.1.0
+
+### Minor Changes
+
+- [`5bf738fb98422`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bf738fb98422) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 27.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.3.0
+
+### Minor Changes
+
+- [`e205c30ddd565`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e205c30ddd565) -
+  Render Rovo agent avatars for agent mention suggestions.
+
+## 26.2.0
+
+### Minor Changes
+
+- [`971e92e232624`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/971e92e232624) -
+  Added a new `DISABLED` visual variant for mention chips so rendering surfaces (such as the editor
+  mentions plugin) can render a chip in a non-interactive disabled state with an explanatory
+  tooltip. Includes optional `MentionProvider` hooks that let consumers drive the disabled state
+  reactively and observe mention deletions.
+
+  **`@atlaskit/mention`**
+  - New `MentionType.DISABLED` enum value and matching style on `PrimitiveMention`.
+  - New optional `isDisabled` and `disabledTooltip` props on the React `<Mention>` component. When
+    `isDisabled` is set the chip becomes non-clickable, exposes `aria-disabled="true"`, remains
+    keyboard-focusable (`tabindex="0"`), and — when `disabledTooltip` is also set — is wrapped in an
+    ADS `<Tooltip>` whose content is mirrored into `aria-label` for screen readers.
+  - New `MentionDisabledState` (`{ disabled: boolean; tooltip?: string }`) and
+    `MentionDisabledStateInput` (`{ id: string }`) types, re-exported from `@atlaskit/mention` and
+    `@atlaskit/mention/resource`.
+  - New optional `MentionResource` config option `getMentionDisabledState` (forwarded by
+    `ContextMentionResource`) that surfaces through three new optional methods on the
+    `MentionProvider` interface:
+    - `getMentionDisabledState?(mention)` — predicate the editor calls to determine whether a chip
+      should render disabled.
+    - `subscribeToDisabledStateChanges?(listener)` — lets the editor re-evaluate the predicate when
+      the consumer's inputs change.
+    - `notifyMentionDestroyed?(mention)` — lets the consumer observe chip removals (e.g. to update
+      its source of truth).
+
+    All three methods are optional so existing `MentionProvider` implementations continue to compile
+    and behave identically.
+
+  **`@atlaskit/editor-plugin-mentions` + `@atlaskit/editor-core`**
+  - The mention `NodeView` now reads `MentionProvider.getMentionDisabledState?.({ id })` on every
+    state update and re-evaluates whenever `subscribeToDisabledStateChanges` notifies. When the
+    predicate returns `{ disabled: true }` the chip gets a new `.mention-disabled` class,
+    `aria-disabled="true"`, and an ADS `<Tooltip>` (anchored to the chip via `portalProviderAPI`)
+    carrying the `tooltip` text. The chip remains keyboard-focusable.
+  - The mention `NodeView.destroy()` calls `notifyMentionDestroyed?.({ id })` on the subscribed
+    provider so consumers can react to chip removals without depending on the editor's `onChange`.
+  - Added a matching `.editor-mention-primitive.mention-disabled` style in `@atlaskit/editor-core`
+    so the new class renders correctly inside the editor content container.
+  - Providers that don't implement the new optional methods are entirely unaffected.
+
+  **`@atlassian/conversation-assistant`, `@atlassian/conversation-assistant-widget` (chat store)**
+  - New `addSelectedAgentId({ conversationId, agentId })` action — append-only, no-dedup push onto
+    the conversation's `selectedAgentIds` history. Each call adds exactly one entry; duplicates are
+    preserved so the history is a 1-to-1 log of every agent chip currently in the editor.
+  - New `removeSelectedAgentId({ conversationId, agentId })` action — removes the **rightmost**
+    occurrence of an id (preserving order of other entries) for use when a single agent chip is
+    deleted from the editor.
+  - `setSelectedAgentIds` retains its wholesale-replace semantics (unchanged externally).
+  - The picker callback in `chat-input-refresh` is now wired to `addSelectedAgentId`; chip-deletion
+    is wired to `removeSelectedAgentId`. The active agent is always `selectedAgentIds.at(-1)`.
+
+  **`@atlassian/conversation-assistant-chat-prompt-input`**
+  - `useChatMentionResource` accepts new options `getSelectedAgentIds`, `disabledAgentTooltip`, and
+    `onAgentMentionDestroyed` that wire the new `MentionProvider` capabilities described above.
+  - `withAgentSupport` extended with the same options, plus a `notifyMentionDestroyed`
+    implementation that forwards to the consumer when a known agent chip is destroyed (sourced from
+    the editor `NodeView` rather than from `onChange`, which is not reliably called on every chat
+    surface).
+  - `<RovoChatPromptInput>` exposes new optional `selectedAgentIds`, `disabledAgentTooltip`, and
+    `onAgentMentionDeleted` props for consumers that want to drive the disabled-agent chip state
+    from their own store.
+
+  **`@atlassian/conversation-assistant-store`**
+  - JSDoc on the `selectedAgentIds` conversation field updated to document the new append-only /
+    rightmost-remove semantics and the canonical read pattern (`.at(-1)` for the active agent). No
+    runtime or type-shape change.
+
+## 26.1.0
+
+### Minor Changes
+
+- [`7567557c596c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7567557c596c7) -
+  [ux] Update mention item styling platform_editor_agent_mentions
+
+## 26.0.4
+
+### Patch Changes
+
+- [`2a75c1be2244e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a75c1be2244e) -
+  Removed usage of @atlaskit/elements-test-helpers from tests
+- Updated dependencies
+
+## 26.0.3
+
+### Patch Changes
+
+- [`e0487eae0dec6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0487eae0dec6) -
+  Removed skipped ssr tests
+- Updated dependencies
+
+## 26.0.2
+
+### Patch Changes
+
+- [`72290778b16ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72290778b16ca) -
+  Enrol mixed platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 26.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.0
+
+### Major Changes
+
+- [`041c8e5937beb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/041c8e5937beb) -
+  Removed the `./i18n` package export, which was a duplicate of `./i18n/index` resolved via the
+  `./i18n/*` wildcard. Consumers must now import the i18n entry point explicitly as
+  `@atlaskit/mention/i18n/index` (or a specific locale, e.g. `@atlaskit/mention/i18n/en`). Removing
+  the duplicate export ensures the canonical source for `@atlaskit/mention/i18n/*` resolves
+  unambiguously to a single file.
+
+## 25.1.0
+
+### Minor Changes
+
+- [`302503d41b736`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/302503d41b736) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.0.1
+
+### Patch Changes
+
+- [`01bfb2823034b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01bfb2823034b) -
+  Expands automatic accessibility (a11y) Playwright test coverage for Platform
+- Updated dependencies
+
+## 25.0.0
+
+### Major Changes
+
+- [`deb3d6a6498e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/deb3d6a6498e8) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 24.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.6.4
+
+### Patch Changes
+
+- [`2c91b4048c838`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c91b4048c838) -
+  Bump i18n packages
+- Updated dependencies
+
+## 24.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.6.1
+
+### Patch Changes
+
+- [`608c375f6f9b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/608c375f6f9b9) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 24.6.0
+
+### Minor Changes
+
+- [`f86d75095ae8e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f86d75095ae8e) -
+  Clean up mentions_custom_headers FG
+
+## 24.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.5.2
+
+### Patch Changes
+
+- [`570b29ea65e1d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/570b29ea65e1d) -
+  [ux] [PTC-15461]: FG Cleanup - Remove team-avatar-in-mention-picker
+
+## 24.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.5.0
+
+### Minor Changes
+
+- [`7c31932dc85c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7c31932dc85c7) -
+  Adds ability to send custom headers to API requests and adds atl-attribution header to
+  PresenceResource API requests
+
+## 24.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 24.4.10
 
 ### Patch Changes

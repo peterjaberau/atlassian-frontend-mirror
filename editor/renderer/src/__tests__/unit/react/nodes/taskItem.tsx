@@ -1,10 +1,14 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
-import { mount, shallow } from 'enzyme';
-import { ResourcedTaskItem as AkTaskItem } from '@atlaskit/task-decision';
-import FabricAnalyticsListener, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import TaskItem from '../../../../react/nodes/taskItem';
+
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import FabricAnalyticsListener from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import { renderWithIntl } from '@atlaskit/editor-test-helpers/rtl';
+
 import ReactSerializer from '../../../../react';
+import TaskItem from '../../../../react/nodes/taskItem';
 
 describe('Renderer - React/Nodes/TaskItem', () => {
 	let analyticsWebClientMock: AnalyticsWebClient;
@@ -19,58 +23,71 @@ describe('Renderer - React/Nodes/TaskItem', () => {
 		};
 	});
 
-	it('should wrap content with <AkTaskItem>-tag', () => {
-		const text = 'This is a task item';
-		const taskItem = mount(
-			<IntlProvider locale="en">
-				<TaskItem
-					marks={[]}
-					serializer={serialiser}
-					nodeType="taskItem"
-					dataAttributes={{ 'data-renderer-start-pos': 0 }}
-					localId="task-1"
-				>
-					{text}
-				</TaskItem>
-			</IntlProvider>,
+	it('should render the task as a checkbox with its content', () => {
+		renderWithIntl(
+			<TaskItem
+				marks={[]}
+				serializer={serialiser}
+				nodeType="taskItem"
+				dataAttributes={{ 'data-renderer-start-pos': 0 }}
+				localId="task-1"
+			>
+				This is a task item
+			</TaskItem>,
 		);
-		expect(taskItem.find(AkTaskItem).length).toEqual(1);
-		taskItem.unmount();
+
+		expect(screen.getByRole('checkbox')).toBeInTheDocument();
+		expect(screen.getByText('This is a task item')).toBeInTheDocument();
+	});
+
+	it('should capture and report a11y violations', async () => {
+		const { container } = renderWithIntl(
+			<TaskItem
+				marks={[]}
+				serializer={serialiser}
+				nodeType="taskItem"
+				dataAttributes={{ 'data-renderer-start-pos': 0 }}
+				localId="task-1"
+			>
+				This is a task item
+			</TaskItem>,
+		);
+
+		await expect(container).toBeAccessible();
 	});
 
 	it('should render if no children', () => {
-		const taskItem = shallow(
-			<IntlProvider locale="en">
-				<TaskItem
-					marks={[]}
-					serializer={serialiser}
-					nodeType="taskItem"
-					dataAttributes={{ 'data-renderer-start-pos': 0 }}
-					localId="task-2"
-				/>
-			</IntlProvider>,
+		renderWithIntl(
+			<TaskItem
+				marks={[]}
+				serializer={serialiser}
+				nodeType="taskItem"
+				dataAttributes={{ 'data-renderer-start-pos': 0 }}
+				localId="task-2"
+			/>,
 		);
-		expect(taskItem.isEmptyRender()).toEqual(false);
+
+		expect(screen.getByRole('checkbox')).toBeInTheDocument();
 	});
 
 	describe('analytics', () => {
-		it('check action fires an event', () => {
-			const component = mount(
-				<IntlProvider locale="en">
-					<FabricAnalyticsListener client={analyticsWebClientMock}>
-						<TaskItem
-							marks={[]}
-							serializer={serialiser}
-							nodeType="taskItem"
-							dataAttributes={{ 'data-renderer-start-pos': 0 }}
-							localId="task-1"
-						>
-							Hello <b>world</b>
-						</TaskItem>
-					</FabricAnalyticsListener>
-				</IntlProvider>,
+		it('check action fires an event', async () => {
+			renderWithIntl(
+				<FabricAnalyticsListener client={analyticsWebClientMock}>
+					<TaskItem
+						marks={[]}
+						serializer={serialiser}
+						nodeType="taskItem"
+						dataAttributes={{ 'data-renderer-start-pos': 0 }}
+						localId="task-1"
+					>
+						Hello <b>world</b>
+					</TaskItem>
+				</FabricAnalyticsListener>,
 			);
-			component.find('input').simulate('change');
+
+			await userEvent.click(screen.getByRole('checkbox'));
+
 			expect(analyticsWebClientMock.sendUIEvent).toHaveBeenCalledTimes(1);
 			expect(analyticsWebClientMock.sendUIEvent).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -85,24 +102,24 @@ describe('Renderer - React/Nodes/TaskItem', () => {
 			);
 		});
 
-		it('uncheck action fires an event', () => {
-			const component = mount(
-				<IntlProvider locale="en">
-					<FabricAnalyticsListener client={analyticsWebClientMock}>
-						<TaskItem
-							marks={[]}
-							serializer={serialiser}
-							nodeType="taskItem"
-							dataAttributes={{ 'data-renderer-start-pos': 0 }}
-							localId="task-1"
-							state="DONE"
-						>
-							Hello <b>world</b>
-						</TaskItem>
-					</FabricAnalyticsListener>
-				</IntlProvider>,
+		it('uncheck action fires an event', async () => {
+			renderWithIntl(
+				<FabricAnalyticsListener client={analyticsWebClientMock}>
+					<TaskItem
+						marks={[]}
+						serializer={serialiser}
+						nodeType="taskItem"
+						dataAttributes={{ 'data-renderer-start-pos': 0 }}
+						localId="task-1"
+						state="DONE"
+					>
+						Hello <b>world</b>
+					</TaskItem>
+				</FabricAnalyticsListener>,
 			);
-			component.find('input').simulate('change');
+
+			await userEvent.click(screen.getByRole('checkbox'));
+
 			expect(analyticsWebClientMock.sendUIEvent).toHaveBeenCalledTimes(1);
 			expect(analyticsWebClientMock.sendUIEvent).toHaveBeenCalledWith(
 				expect.objectContaining({

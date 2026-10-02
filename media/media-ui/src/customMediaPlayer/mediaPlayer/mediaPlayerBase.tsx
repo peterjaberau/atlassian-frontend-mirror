@@ -1,74 +1,81 @@
 /* eslint-disable @atlaskit/design-system/ensure-design-token-usage */
 // Keep media player components used in media-viewer to use static colors from the new color palette to
 // support the hybrid theming in media viewer https://product-fabric.atlassian.net/browse/DSP-6067
+
 import React from 'react';
 import { Component } from 'react';
-import { type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import PlayIcon from '@atlaskit/icon/core/video-play';
-import PauseIcon from '@atlaskit/icon/core/video-pause';
+
+import { injectIntl, type WithIntlProps } from 'react-intl';
+import { type WrappedComponentProps } from 'react-intl';
+
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import { cssMap } from '@atlaskit/css';
+import DownloadIcon from '@atlaskit/icon/core/download';
 import FullScreenIconOn from '@atlaskit/icon/core/fullscreen-enter';
 import FullScreenIconOff from '@atlaskit/icon/core/shrink-diagonal';
-import SoundIcon from '@atlaskit/icon/core/volume-high';
-import DownloadIcon from '@atlaskit/icon/core/download';
-import { injectIntl } from 'react-intl-next';
-import { Box, Flex } from '@atlaskit/primitives/compiled';
-import { cssMap } from '@atlaskit/css';
-import MediaButton from '../../MediaButton';
-import Spinner from '@atlaskit/spinner';
-import { WidthObserver } from '@atlaskit/width-detector';
-import MediaPlayer, { type VideoState, type VideoActions } from '../react-video-renderer';
-import { TimeRange } from '../timeRange';
-import VolumeRange from '../volumeRange';
-import {
-	CurrentTime,
-	VolumeWrapper,
-	LeftControls,
-	RightControls,
-	VolumeToggleWrapper,
-	MutedIndicator,
-	VolumeTimeRangeWrapper,
-} from '../styled';
-import { ControlsWrapper } from '../styled-compiled';
-import {
-	type CustomMediaPlayerUIEvent,
-	type CustomMediaPlayerAnalyticsEventPayload,
-	fireAnalyticsEvent,
-	createCustomMediaPlayerScreenEvent,
-	createMediaButtonClickedEvent,
-	createMediaShortcutPressedEvent,
-	createPlayPauseBlanketClickedEvent,
-	createTimeRangeNavigatedEvent,
-	createPlaybackSpeedChangedEvent,
-	createCaptionUploadSucceededEventPayload,
-	createCaptionDeleteSucceededEventPayload,
-	createCaptionUploadFailedEventPayload,
-	createCaptionDeleteFailedEventPayload,
-	createCaptionDisplaySucceededEventPayload,
-	createCaptionDisplayFailedEventPayload,
-	createFirstPlayedTrackEvent,
-	createPlayedTrackEvent,
-	type PlaybackState,
-} from '../analytics';
-import { formatDuration } from '../../formatDuration';
-import { Shortcut, keyCodes } from '../../shortcut';
-import { toggleFullscreen, getFullscreenElement } from '../fullscreen';
-import { type WrappedComponentProps } from 'react-intl-next';
-import { messages } from '../../messages';
-import simultaneousPlayManager from '../simultaneousPlayManager';
-import { TimeSaver } from '../timeSaver';
-import PlaybackSpeedControls from '../playbackSpeedControls';
-import { CaptionsSelectControls } from './captionsSelectControls';
-import { CaptionsAdminControls } from './captionsAdminControls';
-import { PlayPauseBlanket } from '../playPauseBlanket';
-import Tooltip from '@atlaskit/tooltip';
-import { fg } from '@atlaskit/platform-feature-flags';
-import VideoSkipForwardTenIcon from '@atlaskit/icon/core/video-skip-forward-ten';
+import PauseIcon from '@atlaskit/icon/core/video-pause';
+import PlayIcon from '@atlaskit/icon/core/video-play';
 import VideoSkipBackwardTenIcon from '@atlaskit/icon/core/video-skip-backward-ten';
-import { token } from '@atlaskit/tokens';
-import { CaptionsUploaderBrowser } from './captions/artifactUploader';
-import CaptionDeleteConfirmationModal from './captions/captionDeleteConfirmationModal';
-import { type MediaPlayerBaseProps } from './types';
+import VideoSkipForwardTenIcon from '@atlaskit/icon/core/video-skip-forward-ten';
+import SoundIcon from '@atlaskit/icon/core/volume-high';
 import { type MediaTraceContext } from '@atlaskit/media-common';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Box, Flex } from '@atlaskit/primitives/compiled';
+import Spinner from '@atlaskit/spinner/spinner';
+import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import { WidthObserver } from '@atlaskit/width-detector/width-observer';
+
+import { formatDuration } from '../../formatDuration';
+import MediaButton from '../../MediaButton';
+import { messages } from '../../messages';
+import { Shortcut, keyCodes } from '../../shortcut';
+import { createCaptionDeleteFailedEventPayload } from '../analytics/events/operational/createCaptionDeleteFailedEventPayload';
+import { createCaptionDeleteSucceededEventPayload } from '../analytics/events/operational/createCaptionDeleteSucceededEventPayload';
+import { createCaptionDisplayFailedEventPayload } from '../analytics/events/operational/createCaptionDisplayFailedEventPayload';
+import { createCaptionDisplaySucceededEventPayload } from '../analytics/events/operational/createCaptionDisplaySucceededEventPayload';
+import { createCaptionUploadFailedEventPayload } from '../analytics/events/operational/createCaptionUploadFailedEventPayload';
+import { createCaptionUploadSucceededEventPayload } from '../analytics/events/operational/createCaptionUploadSucceededEventPayload';
+import { createCustomMediaPlayerScreenEvent } from '../analytics/events/screen/customMediaPlayer';
+import { createFirstPlayedTrackEvent } from '../analytics/events/track/playCount';
+import { createPlayedTrackEvent } from '../analytics/events/track/played';
+import { createMediaButtonClickedEvent } from '../analytics/events/ui/mediaButtonClicked';
+import { createPlaybackSpeedChangedEvent } from '../analytics/events/ui/playbackSpeedChanged';
+import { createPlayPauseBlanketClickedEvent } from '../analytics/events/ui/playPauseBlanketClicked';
+import { createMediaShortcutPressedEvent } from '../analytics/events/ui/shortcutPressed';
+import { createTimeRangeNavigatedEvent } from '../analytics/events/ui/timeRangeNavigated';
+import type {
+	CustomMediaPlayerUIEvent,
+	CustomMediaPlayerAnalyticsEventPayload,
+} from '../analytics/utils/analytics';
+import { fireAnalyticsEvent } from '../analytics/utils/fireAnalyticsEvent';
+import type { PlaybackState } from '../analytics/utils/playbackAttributes';
+import { CurrentTime } from '../CurrentTime-2';
+import { getFullscreenElement } from '../getFullscreenElement';
+import { LeftControls } from '../LeftControls-2';
+import { MutedIndicator } from '../MutedIndicator-2';
+import PlaybackSpeedControls from '../playbackSpeedControls';
+import { PlayPauseBlanket } from '../playPauseBlanket';
+import {
+	type VideoState,
+	type VideoActions,
+	Video as MediaPlayer,
+} from '../react-video-renderer/video';
+import { RightControls } from '../RightControls-2';
+import simultaneousPlayManager from '../simultaneousPlayManager';
+import { ControlsWrapper } from '../styled-compiled';
+import { TimeRange } from '../timeRange';
+import { TimeSaver } from '../timeSaver';
+import { toggleFullscreen } from '../toggleFullscreen';
+import VolumeRange from '../volumeRange';
+import { VolumeTimeRangeWrapper } from '../VolumeTimeRangeWrapper-2';
+import { VolumeToggleWrapper } from '../VolumeToggleWrapper-2';
+import { VolumeWrapper } from '../VolumeWrapper-2';
+import CaptionsUploaderBrowser from './captions/artifactUploader/captionsUploaderBrowser';
+import CaptionDeleteConfirmationModal from './captions/captionDeleteConfirmationModal';
+import { CaptionsAdminControls } from './captionsAdminControls';
+import { CaptionsSelectControls } from './captionsSelectControls';
+import { type MediaPlayerBaseProps } from './types';
 
 export interface CustomMediaPlayerState {
 	playerWidth: number;
@@ -335,7 +342,7 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 		breakpointControls.speedControls(this.state.playerWidth);
 
 	private renderSpeedControls = () => {
-		const { playbackSpeed } = this.state;
+		const { playbackSpeed, isFullScreenEnabled } = this.state;
 		const { originalDimensions } = this.props;
 
 		return (
@@ -344,6 +351,7 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 				playbackSpeed={playbackSpeed}
 				onPlaybackSpeedChange={this.onPlaybackSpeedChange}
 				onClick={() => this.createAndFireUIEvent('mediaButtonClick', 'playbackSpeedButton')}
+				isFullScreen={isFullScreenEnabled}
 			/>
 		);
 	};
@@ -511,6 +519,7 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 			<Tooltip
 				content={formatMessage(this.isPlaying ? messages.pause : messages.play)}
 				position="top"
+				hasNewContentOnTriggerClick
 			>
 				<MediaButton
 					testId="custom-media-player-play-toggle-button"
@@ -898,6 +907,7 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 		const { textTracks } = this.props;
 		const { selectedTrackIndex = -1 } = textTracks?.captions || {};
 		const { areCaptionsEnabled } = this.props;
+		const { isFullScreenEnabled } = this.state;
 
 		return (
 			textTracks && (
@@ -907,6 +917,7 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 					areCaptionsEnabled={!!areCaptionsEnabled}
 					onCaptionsEnabledChange={this.onCaptionsEnabledChange}
 					selectedTracksIndex={selectedTrackIndex}
+					isFullScreen={isFullScreenEnabled}
 				/>
 			)
 		);
@@ -922,7 +933,7 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 	};
 
 	renderCaptionsAdminControls = () => {
-		const { isArtifactUploaderOpen, artifactToDelete } = this.state;
+		const { isArtifactUploaderOpen, artifactToDelete, isFullScreenEnabled } = this.state;
 		const { textTracks, identifier } = this.props;
 		return (
 			<>
@@ -930,6 +941,7 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 					textTracks={textTracks}
 					onUpload={() => this.setState({ isArtifactUploaderOpen: true })}
 					onDelete={this.onCaptionDelete}
+					isFullScreen={isFullScreenEnabled}
 				/>
 				<CaptionsUploaderBrowser
 					identifier={identifier}
@@ -993,7 +1005,7 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 					onCanPlay={onCanPlay}
 					defaultTime={this.getDefaultTime}
 					onTimeChange={this.onCurrentTimeChange}
-					onError={onError}
+					onError={(event) => onError?.(event?.currentTarget?.error)}
 					poster={poster}
 					textTracks={textTracks}
 					textTracksPosition={areControlsVisible ? -3.7 : undefined}
@@ -1071,4 +1083,6 @@ class _MediaPlayerBase extends Component<MediaPlayerBaseOwnProps, CustomMediaPla
 	}
 }
 
-export const MediaPlayerBase = injectIntl(_MediaPlayerBase);
+export const MediaPlayerBase: React.FC<WithIntlProps<MediaPlayerBaseOwnProps>> & {
+	WrappedComponent: React.ComponentType<MediaPlayerBaseOwnProps>;
+} = injectIntl(_MediaPlayerBase);

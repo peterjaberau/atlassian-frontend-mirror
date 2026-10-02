@@ -1,16 +1,16 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports -- exports share Compiled style value(s) [styles] which cannot be exported across files (UI Styling Standard: no-exported-css) */
 // PLEASE NOTE: This file is sync-loaded with the trigger components. Only add components here that
 // are necessary for the main render of the trigger component to help maintain bundle size.
 
 /* eslint-disable @atlaskit/design-system/no-styled-tagged-template-expression -- needs manual remediation */
+
 import React, { type ReactNode } from 'react';
 
 import { cssMap, cx } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
-import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
 	cardWrapper: {
-		borderRadius: token('radius.small'),
 		width: '360px',
 	},
 	spinnerContainer: {

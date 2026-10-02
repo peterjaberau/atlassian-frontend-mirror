@@ -1,35 +1,33 @@
 /**
  * @jsxRuntime classic
  * @jsx jsx
+ * @jsxFrag React.Fragment
  */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { bind } from 'bind-event-listener';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
-import {
-	getThemeHtmlAttrs,
-	setGlobalTheme,
-	SUBTREE_THEME_ATTRIBUTE,
-	type ThemeColorModes,
-} from '@atlaskit/tokens';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { SUBTREE_THEME_ATTRIBUTE } from '@atlaskit/tokens/constants';
+import { getThemeHtmlAttrs } from '@atlaskit/tokens/get-theme-html-attrs';
+import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
+import type { ThemeColorModes } from '@atlaskit/tokens/theme-color-modes';
 
-import { useIsAppProviderThemingEnabled, useIsInsideAppProvider } from '../context';
-
-import {
-	ColorModeContext,
-	type ReconciledColorMode,
-	SetColorModeContext,
-} from './context/color-mode';
+import { useIsAppProviderThemingEnabled } from '../use-is-app-provider-theming-enabled';
+import { useIsInsideAppProvider } from '../use-is-inside-app-provider';
+import { ColorModeContext, type ReconciledColorMode } from './context/color-mode';
 import { InsideThemeProviderContext } from './context/inside-theme-provider';
+import { SetColorModeContext } from './context/set-color-mode-context';
 import { SetThemeContext, type Theme, ThemeContext } from './context/theme';
 import { useIsInsideThemeProvider } from './hooks/use-is-inside-theme-provider';
+import { getInlineThemeStyles } from './utils/get-inline-theme-styles';
 import { loadAndMountThemes } from './utils/load-and-mount-themes';
 
 const defaultThemeSettings: Theme = {
 	dark: 'dark',
 	light: 'light',
+	shape: 'shape',
 	spacing: 'spacing',
 	typography: 'typography',
 };
@@ -67,7 +65,11 @@ export interface ThemeProviderProps {
  *
  * Provides global theming configuration.
  */
-function ThemeProvider({ children, defaultColorMode = 'auto', defaultTheme }: ThemeProviderProps): JSX.Element {
+export function ThemeProvider({
+	children,
+	defaultColorMode = 'auto',
+	defaultTheme,
+}: ThemeProviderProps): JSX.Element {
 	const [chosenColorMode, setChosenColorMode] = useState<ThemeColorModes>(defaultColorMode);
 	const [reconciledColorMode, setReconciledColorMode] = useState<ReconciledColorMode>(
 		getReconciledColorMode(defaultColorMode),
@@ -77,6 +79,7 @@ function ThemeProvider({ children, defaultColorMode = 'auto', defaultTheme }: Th
 		...defaultThemeSettings,
 		...defaultTheme,
 	}));
+	const [hasHoistedInlineThemeStyles, setHasHoistedInlineThemeStyles] = useState(false);
 
 	const setColorMode = useCallback((colorMode: ThemeColorModes) => {
 		setChosenColorMode(colorMode);
@@ -92,34 +95,41 @@ function ThemeProvider({ children, defaultColorMode = 'auto', defaultTheme }: Th
 	const isInsideAppProvider = useIsInsideAppProvider();
 	const isAppProviderThemingEnabled = useIsAppProviderThemingEnabled();
 	const isInsideThemeProvider = useIsInsideThemeProvider();
-	const isRootThemeProvider = isInsideAppProvider && !isInsideThemeProvider && isAppProviderThemingEnabled;
+	/**
+	 * A top-level ThemeProvider is detected by being the first ThemeProvider inside an AppProvider.
+	 *
+	 * This will not use sub-tree theming but instead set the global theme state using the
+	 * `@atlaskit/tokens` APIs, as it's required for styling root `html` and `body` elements
+	 * for compatibility with `@atlaskit/css-reset`.
+	 *
+	 * In the future we could consider moving away from DOM mutations and require AppProvider to wrap
+	 * `html` in order to apply global theme state, which would allow a more consistent approach to
+	 * theme loading.
+	 */
+	const isRootThemeProvider =
+		isInsideAppProvider && !isInsideThemeProvider && isAppProviderThemingEnabled;
 
-	const shouldUseGlobalTheming =
-		/**
-		 * When not behind feature flag, partially revert to legacy behavior.
-		 * This only affects theme providers that are not inside an AppProvider or a ThemeProvider,
-		 * as we still need to set global theme state to prevent breaking existing apps,
-		 * but also prevent multiple theme providers from loading conflicting theme states.
-		 *
-		 * At some point this should be removed as we will
-		 * only support sub-tree theming when used inside of AppProvider.
-		 */
-		(!fg('platform_dst_subtree_theming') && !isInsideAppProvider && !isInsideThemeProvider) ||
-		/**
-		 * A top-level ThemeProvider is detected by being the first ThemeProvider inside an AppProvider.
-		 *
-		 * This will not use sub-tree theming but instead set the global theme state using the
-		 * `@atlaskit/tokens` APIs, as it's required for styling root `html` and `body` elements
-		 * for compatibility with `@atlaskit/css-reset`.
-		 *
-		 * In the future we could consider moving away from DOM mutations and require AppProvider to wrap
-		 * `html` in order to apply global theme state, which would allow a more consistent approach to
-		 * theme loading.
-		 */
-		isRootThemeProvider;
+	useLayoutEffect(() => {
+		if (!fg('platform-static-theme-loading') || hasHoistedInlineThemeStyles) {
+			return;
+		}
+
+		getInlineThemeStyles(theme, chosenColorMode).forEach(({ id, css }) => {
+			if (document.head.querySelector(`style[data-theme="${id}"]`)) {
+				return;
+			}
+
+			const style = document.createElement('style');
+			style.dataset.theme = id;
+			style.textContent = css;
+			document.head.appendChild(style);
+		});
+
+		setHasHoistedInlineThemeStyles(true);
+	}, [chosenColorMode, hasHoistedInlineThemeStyles, theme]);
 
 	useEffect(() => {
-		if (shouldUseGlobalTheming) {
+		if (isRootThemeProvider) {
 			/**
 			 * We need to wait for any previous `setGlobalTheme` calls to finish before calling it again.
 			 * This is to prevent race conditions as `setGlobalTheme` is async and mutates the DOM (e.g. sets the
@@ -159,12 +169,11 @@ function ThemeProvider({ children, defaultColorMode = 'auto', defaultTheme }: Th
 			return function cleanup() {
 				cleanupLastFnCall();
 			};
-		} else {
-			// For other theme providers (whether outside AppProvider or nested inside a ThemeProvider),
-			// we treat them as sub-tree themes that do not load global theme state.
-			loadAndMountThemes(theme);
 		}
-	}, [isInsideAppProvider, isInsideThemeProvider, isRootThemeProvider, reconciledColorMode, shouldUseGlobalTheming, theme,]);
+		// For other theme providers (whether outside AppProvider or nested inside a ThemeProvider),
+		// we treat them as sub-tree themes that do not load global theme state.
+		loadAndMountThemes(theme);
+	}, [isInsideAppProvider, isInsideThemeProvider, isRootThemeProvider, reconciledColorMode, theme]);
 
 	useEffect(() => {
 		if (!prefersDarkModeMql) {
@@ -190,6 +199,10 @@ function ThemeProvider({ children, defaultColorMode = 'auto', defaultTheme }: Th
 		}),
 		[SUBTREE_THEME_ATTRIBUTE]: true,
 	};
+	const inlineThemeStyles =
+		fg('platform-static-theme-loading') && !hasHoistedInlineThemeStyles
+			? getInlineThemeStyles(theme, chosenColorMode)
+			: [];
 
 	return (
 		<InsideThemeProviderContext.Provider value={true}>
@@ -197,11 +210,27 @@ function ThemeProvider({ children, defaultColorMode = 'auto', defaultTheme }: Th
 				<SetColorModeContext.Provider value={setColorMode}>
 					<ThemeContext.Provider value={theme}>
 						<SetThemeContext.Provider value={setPartialTheme}>
-							{!shouldUseGlobalTheming && fg('platform_dst_subtree_theming') ? (
+							{!isRootThemeProvider ? (
 								<div {...attrs} css={contentStyles.body}>
+									{inlineThemeStyles.map(({ id, css }) => (
+										// eslint-disable-next-line @atlaskit/ui-styling-standard/no-global-styles
+										<style data-theme={id} key={id}>
+											{css}
+										</style>
+									))}
 									{children}
 								</div>
-							) : children}
+							) : (
+								<>
+									{inlineThemeStyles.map(({ id, css }) => (
+										// eslint-disable-next-line @atlaskit/ui-styling-standard/no-global-styles
+										<style data-theme={id} key={id}>
+											{css}
+										</style>
+									))}
+									{children}
+								</>
+							)}
 						</SetThemeContext.Provider>
 					</ThemeContext.Provider>
 				</SetColorModeContext.Provider>
@@ -209,5 +238,3 @@ function ThemeProvider({ children, defaultColorMode = 'auto', defaultTheme }: Th
 		</InsideThemeProviderContext.Provider>
 	);
 }
-
-export default ThemeProvider;

@@ -1,5 +1,2618 @@
 # @atlaskit/editor-plugin-block-controls
 
+## 24.0.1
+
+### Patch Changes
+
+- [`6b9023d88752e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6b9023d88752e) -
+  Restore left-gutter hover for top-level blocks, nested blocks, layout columns, and tables or media
+  wider than the line length under platform_editor_block_control_migration, matching the legacy
+  hover zone sizes.
+- Updated dependencies
+
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- [`a4fe8636fa0ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4fe8636fa0ec) -
+  Clean up the fully rolled out `platform_editor_layout_column_menu` experiment and the
+  `platform_editor_layout_column_menu_kill_switch_1` feature gate, retaining their shipped behavior.
+  Consumers must remove any direct `@atlaskit/tmp-editor-statsig` experiment override for
+  `platform_editor_layout_column_menu`.
+- [`618d89a102880`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/618d89a102880) -
+  Clean up experiment `remix_iw_block_menu_table_calc_fix`
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- [`50c2251fcc095`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50c2251fcc095) -
+  Clean up feature gate `platform_editor_elements_dnd_shift_click_select`. The gate is removed as
+  `false`, so shift-click multi-select via the drag handle, the associated `isShiftDown` plugin
+  state, and the unused `expandSelectionHeadToNodeAtPos` / `alignAnchorHeadInDirectionOfPos` helpers
+  are removed.
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- [`806c750c64957`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/806c750c64957) -
+  Clean up experiment `platform_editor_diff_plugin_extended`
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- [`d13ba24ba86e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d13ba24ba86e8) -
+  Hide the block controls drag handle in view mode when platform_editor_block_control_migration is
+  enabled
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.5
+
+### Patch Changes
+
+- [`b03ff8f616c5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b03ff8f616c5c) -
+  EDITOR-9229: Fixed the block-controls surface anchor for `table` nodes matching any
+  `.resizer-item` in the table's subtree, which caused the table's anchor-name to be assigned to a
+  nested `mediaSingle`/ embed resizer inside a table cell instead of the table's own resize-handle.
+
+## 20.1.4
+
+### Patch Changes
+
+- [`48f6e385c3e64`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48f6e385c3e64) -
+  Wrap visible left and right block controls in registry order and, under
+  platform_editor_collapsible_headings, hide lower-ranked left controls when a top-level gutter only
+  has room for two.
+- Updated dependencies
+
+## 20.1.3
+
+### Patch Changes
+
+- [`2a3bb6864b8fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a3bb6864b8fe) -
+  Clean up the `platform_editor_fix_selection_text_color_change` experiment.
+- Updated dependencies
+
+## 20.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.0
+
+### Minor Changes
+
+- [`fc26bfc51dd5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fc26bfc51dd5c) -
+  Add sparse block-control surface anchors, intersection-driven candidates, and explicit visibility
+  invalidation for registry-backed block controls. Expose registration change subscriptions from the
+  UI control registry model, and refresh cached visibility from suggestion and collapse transaction
+  metadata. Under `platform_editor_block_control_migration`, use native node-anchor identity across
+  Editor and Block Controls, and route expand keyboard focus through the shared Block Controls
+  command. Preserve Show Diff visibility checks in both migration cohorts so block controls stay
+  hidden while a diff is displayed. Keep the block menu closed when a migrated layout-column handle
+  opens the layout menu, and close the layout menu when the selection moves away from its selected
+  columns.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- [`4acfc5de0ce75`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4acfc5de0ce75) -
+  Stop registering the `firstNodeDec` ProseMirror plugin when
+  the`platform_editor_block_control_migration` experiment is enabled. It is no longer needed after
+  migration, and causing issues with diffing margins.
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- [`9e6211ceb4ceb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e6211ceb4ceb) -
+  Clean up the fully rolled-out `platform_editor_small_font_size` experiment and make its permanent
+  `true` behavior unconditional across editor formatting, task and list handling, paste behavior,
+  controls, and rendering.
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.3
+
+### Patch Changes
+
+- [`cab51c9396669`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cab51c9396669) -
+  Use the React root API when `platform_editor_react19_migration` is enabled or the legacy ReactDOM
+  API is unavailable.
+- Updated dependencies
+
+## 18.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.0
+
+### Minor Changes
+
+- [`cc32ee1bcd20b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc32ee1bcd20b) -
+  Behind the `platform_editor_controls_reliable_anchor` experiment and the
+  `platform_editor_controls_reliable_anchor_patch_1` feature gate, reduce active node decoration
+  recreation for reliable anchor.
+
+  Previously every document change scanned the full decoration set to find and recreate the active
+  drag handle and quick insert node decorations, which regressed VC90 on Edit and Live pages because
+  the scan ran on every keystroke.
+
+  `DecorationSet.map()` already validates node decorations as it maps them and drops any whose range
+  no longer exactly covers a node. This change records those removals via the `onRemove` callback of
+  the existing `map()` call, so the decorations are only recreated when they were actually
+  invalidated. The full-range scan is still used when the active node itself changes, since no
+  mapping runs in that case.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.7
+
+### Patch Changes
+
+- [`e8d06b88688a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8d06b88688a5) -
+  Use the React root API when `platform_editor_react19_migration` is enabled or the legacy ReactDOM
+  API is unavailable.
+- Updated dependencies
+
+## 18.2.6
+
+### Patch Changes
+
+- [`80f8db8984c15`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/80f8db8984c15) -
+  Fix collapsible headings causing invalid css anchors
+- Updated dependencies
+
+## 18.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.4
+
+### Patch Changes
+
+- [`5403eacb2945d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5403eacb2945d) -
+  [ux] Position the left and right block controls surfaces with CSS anchor positioning instead of
+  measured pixel offsets. Anchored surfaces stay attached to their block without re-rendering and
+  bind no scroll or resize listeners. This applies within the existing
+  `platform_editor_block_control_migration` rollout, which is the only place these surfaces render,
+  and falls back to the measured path on browsers without `anchor-name` support. Nodes whose visible
+  box belongs to an inner container, such as resized tables, media and extensions, stay on the
+  measured path.
+- Updated dependencies
+
+## 18.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.1
+
+### Patch Changes
+
+- [`0cec43eb08826`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0cec43eb08826) -
+  Clean up experiment platform_editor_nested_drag_handle_icon
+- Updated dependencies
+
+## 18.2.0
+
+### Minor Changes
+
+- [`00fc2f11bb42e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00fc2f11bb42e) -
+  [ux] Support dragging and changing the format of complete collapsed heading sections under
+  `platform_editor_collapsible_headings`.
+
+### Patch Changes
+
+- [`834dc6bee730b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/834dc6bee730b) -
+  [ux] Keep collapsed heading controls visible under `platform_editor_collapsible_headings` when
+  another editor node is active.
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`aec3fcfe13ff9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aec3fcfe13ff9) -
+  EDITOR-8303 Add runtime input-latency trigger for limited mode behind
+  platform_editor_dynamic_limited_mode. Limited mode can now latch mid-session when sustained slow
+  input or repeated browser freezes indicate the device is struggling, in addition to the existing
+  document-size decision. The latch is one-way. Nothing is constructed when the experiment is off.
+
+  How much evidence is needed is a single tunable, `requiredConfirmations`: that many qualifying
+  windows, each separated from the last by `confirmationGapMs`. The hardware no longer feeds into
+  the decision — `navigator.hardwareConcurrency` and `navigator.deviceMemory` are reported with the
+  `limitedModeLatched` event instead, so which devices latch can be answered from the data rather
+  than assumed up front.
+
+  `LimitedModePluginState` gains a derived `enabled` flag, which is now the single thing consumers
+  should branch on — the individual reasons (`documentSizeBreachesThreshold`, `latchPolicyBreached`)
+  no longer need to be combined at each call site, so a future reason needs no change outside this
+  plugin. `sharedState.enabled` reads from it.
+
+  Under the experiment the document decision is also evaluated on load and on document replacement
+  only, rather than on every transaction that changes the document. That check walks the whole
+  document, so it was a full-document scan per keystroke on exactly the pages least able to afford
+  one. The trade-off is that a document editing its way past the thresholds is not re-judged until
+  it next loads.
+
+  Consumers updated to react to a mid-session change: table sticky headers now subscribe instead of
+  reading once at construction, block-controls resets rather than freezes its state on entry, and
+  the expand, media and table nodeviews read the derived flag so they no longer miss a runtime
+  latch.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.4
+
+### Patch Changes
+
+- [`f3766cc0ca65e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3766cc0ca65e) -
+  Fix drag handle incorrectly showing on the first child of a `panel_c1` node. The hover guard that
+  suppresses block controls for the first child of a panel with an icon only matched the `panel`
+  node type, so the nestable `panel_c1` variant fell through and rendered a drag handle behind the
+  panel icon. Both panel node types are now treated the same when the
+  `platform_editor_controls_reliable_anchor` experiment and the
+  `platform_editor_controls_reliable_anchor_patch_1` feature gate are enabled.
+
+## 17.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.2
+
+### Patch Changes
+
+- [`3531759a623d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3531759a623d1) -
+  Move the registry-backed right block-control surface and released Remix button under
+  `platform_editor_block_control_migration`, while keeping AI Suggestions behind
+  `platform_editor_block_control_right_surface`. Avoid legacy widget work and empty-surface
+  measurement in the migrated path, and preserve registry controls across hover transitions.
+
+## 17.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.0
+
+### Minor Changes
+
+- [`6d830aac99d6d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d830aac99d6d) -
+  Add deprecation tag to blockControlsPlugin quickInsertButtonEnabled property - this has been
+  replaced with a new `blockControlButtonEnabled` plugin config in the quickInsertPlugin, which is
+  currently gated under `platform_editor_block_control_migration` and will be removed in future
+  update.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.11
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 17.3.10
+
+### Patch Changes
+
+- [`42ff8dffbdf01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42ff8dffbdf01) -
+  EDITOR-8771: Buttons registered on the same surface position now stay visible independently of
+  eachother: a button that renders without hover (e.g. an AI suggestions icon) no longer
+  hides/showstogether with a hover-only button (e.g. Remix) that shares its position.Increase the
+  default drag-handle/surface gap for non-resizable, default-sized nodes from 8px to12px, matching
+  the gap already used for resizable/breakout nodes, so spacing is consistent acrossnode
+  types.Simplify `surfaceNodePositionsEnabled` (which controls whether the "stored" whole-doc
+  surface scanruns) to depend only on `platform_editor_block_control_migration`, dropping the
+  extra`platform_editor_collapsible_headings` OR-condition now
+  that`platform_editor_block_control_right_surface` consumers need the same behavior.
+- Updated dependencies
+
+## 17.3.9
+
+### Patch Changes
+
+- [`09b54fe3854bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/09b54fe3854bd) -
+  Keep Quick Insert stationary when the drag handle moves to a nested block under
+  `platform_editor_block_control_migration`, and keep layout-column drag handles visible across the
+  full editor width.
+- Updated dependencies
+
+## 17.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.7
+
+### Patch Changes
+
+- [`bcfe498b206d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcfe498b206d5) -
+  Adopt button and list-item motion tokens behind the use-pressable-motion rollout.
+- Updated dependencies
+
+## 17.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.5
+
+### Patch Changes
+
+- [`68c9e797f649f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/68c9e797f649f) -
+  EDITOR-8771: Registry-backed left and right block-controls surfaces now stay sticky within the
+  target node while scrolling long tables, panels, expands, etc., matching the legacy decoration
+  controls' sticky behavior. Also fix legacy registerNodeDecoration consumers that were missing due
+  to incorrect gating behind the quick insert button flag.
+
+## 17.3.4
+
+### Patch Changes
+
+- [`f81d0745374cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f81d0745374cd) -
+  Fix createSurfaceContext imports to use the dedicated editor UI control model entry point.
+- Updated dependencies
+
+## 17.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.3.0
+
+### Minor Changes
+
+- [`14f10ff093c15`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14f10ff093c15) -
+  EDITOR-8770: Add the right control surface - currently only used in example page and behind
+  platform_editor_block_control_right_surface
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.5
+
+### Patch Changes
+
+- [`6304662fbdf4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6304662fbdf4a) -
+  Use the supported `createRoot` API when `platform_editor_react19_migration` is enabled.
+- Updated dependencies
+
+## 17.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.1
+
+### Patch Changes
+
+- [`c5ff0c329170a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5ff0c329170a) -
+  Add a dedicated createSurfaceContext entrypoint and use it in editor runtime packages.
+- Updated dependencies
+
+## 17.2.0
+
+### Minor Changes
+
+- [`dce725fd04593`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dce725fd04593) -
+  [ux] make right block nudge remix stable gated by cc-ce-maui-remix-menu-multivariant
+
+## 17.1.5
+
+### Patch Changes
+
+- [`0841b102bfe4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0841b102bfe4a) -
+  Add a PM-state-backed multi-location left block-controls surface and register the display-only
+  heading collapse button behind `platform_editor_block_control_migration` and
+  `platform_editor_collapsible_headings`.
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- [`f745000fb169b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f745000fb169b) -
+  Permanently apply the first editor node margin fix and remove the `platform_editor_first_node_fix`
+  experiment.
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- [`e62dacf4416fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e62dacf4416fd) -
+  Add the shared popup-anchor contract, registry-backed drag handle, and menu integrations behind
+  `platform_editor_block_control_migration`.
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`5f66a8c3706e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5f66a8c3706e3) -
+  Add the registry-backed Block Controls Quick Insert surface behind
+  `platform_editor_block_control_migration`, including typed surface context, cached registry
+  lookup, stable left/right surface identities, and experiment-gated Quick Insert registration.
+
+### Patch Changes
+
+- [`63734bcc6ac05`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63734bcc6ac05) -
+  Clean up feature gate `platform_editor_fix_widget_destroy`
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 16.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.12
+
+### Patch Changes
+
+- [`7d9913d23d739`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d9913d23d739) -
+  Clean up feature gate `platform_editor_track_node_types`
+- Updated dependencies
+
+## 16.0.11
+
+### Patch Changes
+
+- [`6cf283ca60155`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6cf283ca60155) -
+  Clean up experiment `platform_editor_table_col_insert`
+- Updated dependencies
+
+## 16.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- [`698eb28037b8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/698eb28037b8a) -
+  Clean up experiment `platform_editor_drag_handle_keyboard_a11y`
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`47b2ae576b031`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47b2ae576b031) -
+  [ux] Under the `cc_maui_remix_button_hover_corridor` experiment, replace the Remix button's
+  rendered hover corridor and fixed right-margin exclusion with the existing click-wrapper hover
+  tracking. Hide block controls over the marked object sidebar container and its control surfaces.
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- [`0cdf73fdf7d3e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0cdf73fdf7d3e) -
+  [ux] [EDITOR-8273] add breakout resizing to extension nodes behind
+  `platform_editor_lovability_resize_extensions` with graceful rendering behind
+  `platform_editor_lovability_resize_ext_gracefully`
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- [`2857e277050c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2857e277050c6) -
+  Behind the `platform-dst-top-layer` feature gate, `@atlaskit/popper/unsafe-imperative`'s
+  `createPopper` now renders and positions in the browser top layer via `@atlaskit/top-layer`
+  instead of running the Popper.js engine. Positioning and teardown are applied asynchronously, as
+  Popper.js' own first update is. Flag-off behaviour is unchanged.
+
+  `@atlaskit/top-layer`: the JavaScript positioning fallback no longer clears a consumer's own
+  inline positioning and visibility styles.
+
+- [`d1b5e85073e48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1b5e85073e48) -
+  [ED-7926] Fix block controls hover jitter when viewing an AI Suggested Edits diff.
+
+  While a diff is on screen the block controls UI is hidden, but the hover handlers kept running:
+  `handleMouseOver` dispatched `showDragHandleAt` (flip-flopping the active node between
+  neighbouring blocks) and the right-side hover-side tracker kept dispatching
+  `setHoverSide`/`mouseEnter`, both causing visible jitter. Block controls now suppress both hover
+  paths (and hide the drag handle) while a diff is displayed, detected via the show-diff plugin's
+  `isDisplayingChanges` shared state (plus the `reviewing` user intent for AI suggestions with no
+  diff decorations), gated behind `platform_editor_diff_plugin_extended`.
+
+  To let block controls read that state without forming a circular project reference
+  (`block-controls -> show-diff -> expand -> block-controls`), the `toggleExpandRange` command and
+  `TOGGLE_EXPAND_RANGE_META_KEY` were moved from `@atlaskit/editor-plugin-expand` into
+  `@atlaskit/editor-common` (re-exported from expand for backwards compatibility).
+  `@atlaskit/editor-plugin-show-diff` no longer depends on `@atlaskit/editor-plugin-expand`, and
+  `@atlaskit/editor-plugin-block-controls` now takes an optional dependency on
+  `@atlaskit/editor-plugin-show-diff`.
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.3
+
+### Patch Changes
+
+- [`e4a610e4c20f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4a610e4c20f3) -
+  Clean up experiment `remix_button_right_margin_hover`
+- Updated dependencies
+
+## 13.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.1
+
+### Patch Changes
+
+- [`82270dfb1e67e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/82270dfb1e67e) -
+  Migrate block-controls drag-handle render/unmount to the React 18/19 createRoot API behind
+  nike_r19_render_unmount
+- Updated dependencies
+
+## 13.4.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.4
+
+### Patch Changes
+
+- [`069c5c0253ba5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/069c5c0253ba5) -
+  [ux] Improve Remix button hover reliability near the right edge of narrow editor layouts behind
+  the `cc_maui_remix_button_hover_corridor` experiment.
+
+  Consumers can check the new typed boolean experiment at the behavior callsite:
+
+  ```ts
+  import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+  if (expValEquals('cc_maui_remix_button_hover_corridor', 'isEnabled', true)) {
+  	// Apply the treatment behavior.
+  }
+  ```
+
+- Updated dependencies
+
+## 13.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.0
+
+### Minor Changes
+
+- [`fee74586b3125`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fee74586b3125) -
+  Improve block controls anchor reliability by adding control-specific fallback anchor names for
+  active drag-handle and quick-insert nodes.
+
+  When reliable-anchor mode is enabled, active nodes now expose fallback anchor names in addition to
+  `data-node-anchor`, so controls can resolve positioning even when primary anchor lookup is
+  temporarily out of sync.
+
+  Example of resulting CSS anchor usage:
+  - Drag handle:
+    `anchor(<data-node-anchor> start, anchor(--editor-block-controls-active-drag-handle-anchor start))`
+  - Quick insert:
+    `anchor(<data-node-anchor> start, anchor(--editor-block-controls-active-quick-insert-anchor start))`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.17
+
+### Patch Changes
+
+- [`161922d5b8cee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/161922d5b8cee) -
+  Fix editor tooltips affected by inline top-layer rendering. Table cell menu tooltips are no longer
+  constrained by the button background selector, and layout column drag handles now own their
+  wrapper layout without flattening the tooltip's visual surface.
+- Updated dependencies
+
+## 13.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.15
+
+### Patch Changes
+
+- [`0a6b16efd7f45`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a6b16efd7f45) -
+  Clean up sticky header patch feature gates and experiments.
+- Updated dependencies
+
+## 13.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.8
+
+### Patch Changes
+
+- [`a3bbfab896310`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3bbfab896310) -
+  Replace feature gate `confluence_frontend_native_tabs_extension` with experiment
+  `confluence_native_tabs_experiment` using `expValEquals` from
+  `@atlaskit/tmp-editor-statsig/exp-val-equals`. Usage:
+  `expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)`.
+- Updated dependencies
+
+## 13.2.7
+
+### Patch Changes
+
+- [`d86bd1324d82b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d86bd1324d82b) -
+  Fix table cell selection when moving a table with the keyboard shortcut behind the
+  `platform_editor_fix_table_move_shortcut` experiment.
+- Updated dependencies
+
+## 13.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.5
+
+### Patch Changes
+
+- [`ce7966a423f4c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce7966a423f4c) -
+  Fix first-node top margin not being reset when a leading ProseMirror widget is present (e.g.
+  non-editable editor), behind the platform_editor_first_node_fix experiment.
+- Updated dependencies
+
+## 13.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.14
+
+### Patch Changes
+
+- [`79402109ef24e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79402109ef24e) -
+  fix block controls reliable anchor glitch
+- Updated dependencies
+
+## 13.1.13
+
+### Patch Changes
+
+- [`0b938a9924936`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b938a9924936) -
+  Clean up feature gate `platform_editor_block_menu_jira_patch_2`.
+- Updated dependencies
+
+## 13.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.11
+
+### Patch Changes
+
+- [`92638385edd0e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92638385edd0e) -
+  [ux] [EDITOR-7888] add breakout resizing support for panel and rule nodes behind experiment
+  `platform_editor_lovability_resize_dividers_panels`.
+- Updated dependencies
+
+## 13.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.8
+
+### Patch Changes
+
+- [`46ee61dd53e91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/46ee61dd53e91) -
+  Remove stale experiment confluence_compact_text_format (FFCLEANUP-85812): inline final values
+  (flag enabled), simplify conditions, remove experiment config entries.
+- Updated dependencies
+
+## 13.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.4
+
+### Patch Changes
+
+- [`283c55290e6cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/283c55290e6cc) -
+  Preserve visual selection after applying text color or highlight
+- Updated dependencies
+
+## 13.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- [`0aced23fb1739`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0aced23fb1739) -
+  Clean up experiment platform_editor_fix_selection_wrapped_media_embed
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- [`b2f53114889ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b2f53114889ac) -
+  Clean up feature gate `platform_editor_block_menu_jira_patch_1`
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`bb48c26acb8ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb48c26acb8ba) -
+  Add platform_editor_layout_column_menu_kill_switch_1 kill switch and render the full block drag
+  handle icon for layout columns when the new behaviour is enabled (gate OFF). When the new
+  behaviour is enabled, re-clicking the layout column whose menu is already open now closes the
+  menu, while clicking a different column switches the menu to that column. The layout column menu
+  now opens below the drag handle with left-aligned edges (relying on the popup's built-in placement
+  to invert horizontally or nudge up when space is tight) instead of the previous centred
+  prefer-above behaviour. The layout column Delete hover/focus danger preview now matches the table
+  delete affordance exactly, using the translucent color.blanket.danger fill and a 1px
+  color.border.danger border instead of the previous low-alpha fill with a 2px border, and clears
+  the concurrent blue selected blanket while the danger preview is active so the preview reads as
+  pure red with no blue cast.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- [`c664929c3f15d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c664929c3f15d) -
+  Clean up experiment `platform_editor_clean_up_widget_mark_logic`
+- [`5c279743e9b74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c279743e9b74) -
+  Fire an exposure event for the `remix_button_right_margin_hover` experiment.
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- [`e850980f5a66f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e850980f5a66f) -
+  [EDITOR-6790] Block-controls drag-handle wrapper's background is removed and instead set
+  on`::before` on `.pm-table-container.pm-table-sticky` to keep masking the row insert dots when
+  legacy sticky header is activated while also not overlapping the column insert button.
+- [`7754772ebfa47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7754772ebfa47) -
+  Fix table text length calculation for Remix/Improve Writing hero prompts: use
+  tableNode.textContent for CellSelection instead of textBetween which only spans anchor/head cell
+  range
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- [`086e779e3490c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/086e779e3490c) -
+  Add drag and drop support for panel_c1 - allow tables to be dropped into panel_c1, allow panel_c1
+  -> panel when dropping in parents that allow panel (e.g., expand, table) via generic transform
+  functions for future variants
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Minor Changes
+
+- [`2f16223a8aa3a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f16223a8aa3a) -
+  Extend the right-side Remix button hover zone into the empty right margin beside a block, with a
+  reserved gap for the Rovo button on the far right.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.0
+
+### Minor Changes
+
+- [`a3a227e567efe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3a227e567efe) -
+  [ux] [EDITOR-7662] disabled block controls when viewing diffs
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.3
+
+### Patch Changes
+
+- [`993241a125f8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/993241a125f8a) -
+  [EDITOR-7652] Configure blockControl action getTextLength to return textLength and textContent and
+  renaming it to getTextInfo
+- Updated dependencies
+
+## 12.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.0
+
+### Minor Changes
+
+- [`293a0d6eaab12`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/293a0d6eaab12) -
+  Fix Remix block menu item visibility to match Improve formatting
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.5
+
+### Patch Changes
+
+- [`a4f97c853dccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4f97c853dccf) -
+  Extend `no-module-level-eval` lint rule to cover editor experiment APIs (`expValEquals`, `expVal`,
+  `editorExperiment`, `expValEqualsNoExposure`) imported from `@atlaskit/tmp-editor-statsig`
+  subpaths. Module-level evaluation of these functions causes flakiness because experiment values
+  may not be resolved yet at import time.
+
+  Fix existing violations in `editor-plugin-block-controls` (`global-styles.tsx`) and
+  `editor-plugin-table` (`ContextualMenu.tsx`) by converting module-level experiment evaluations to
+  lazy function calls.
+
+  Clean up fully-launched experiment `platform_editor_unify_native_dnd_selectors` — replace
+  conditional selector logic with the winning `dragHandlerAnchorSelectorWithTaskExclusion` value and
+  remove the experiment from `experiments-config.ts`.
+
+- Updated dependencies
+
+## 12.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.1
+
+### Patch Changes
+
+- [`4c2645b77929d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c2645b77929d) -
+  [ux] EDITOR-7346 add ai and diff plugin support for panel_c1
+- Updated dependencies
+
+## 12.2.0
+
+### Minor Changes
+
+- [`1f87c5cc71aa3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f87c5cc71aa3) -
+  Improve reliability of editor controls positioning by using ProseMirror node decorations to apply
+  CSS anchor-name, replacing fragile CSS adjacency selectors. Gated behind
+  platform_editor_controls_reliable_anchor experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`5182f0ffac22f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5182f0ffac22f) -
+  Add keyboard shortcuts and danger preview to layout column menu actions.
+
+  Fix keyboard navigation in the layout column menu.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- [`4c8035c5703fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c8035c5703fd) -
+  Add multiBodiedExtension support to block controls
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.5.7
+
+### Patch Changes
+
+- [`fae885a16a206`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fae885a16a206) -
+  FFCLEANUP-97994 clean up experiment platform_editor_fix_table_row_drag_drop_target
+- Updated dependencies
+
+## 11.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.5.5
+
+### Patch Changes
+
+- [`523f77de83059`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/523f77de83059) -
+  Suppress drag handle tooltip while layout column menu is open. Adds layoutColumnMenuPopupOpen user
+  intent and wraps LayoutColumnMenu with UserIntentPopupWrapper.
+- Updated dependencies
+
+## 11.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.5.3
+
+### Patch Changes
+
+- [`cd85cdec5ae7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd85cdec5ae7e) -
+  EDITOR-7170 add transform for panel -> panel_c1
+- Updated dependencies
+
+## 11.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.5.0
+
+### Minor Changes
+
+- [`71eaad00529a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71eaad00529a1) -
+  Support multi-column layout column menu selections
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.6
+
+### Patch Changes
+
+- [`32dce97f78584`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/32dce97f78584) -
+  Fix preserved selection mapping when comment editors append a trailing paragraph after block menu
+  transforms.
+- Updated dependencies
+
+## 11.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.1
+
+### Patch Changes
+
+- [`4c459a2718b67`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c459a2718b67) -
+  Clean up synced block feature gates
+- Updated dependencies
+
+## 11.4.0
+
+### Minor Changes
+
+- [`f1eebdf4ed96b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1eebdf4ed96b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.1
+
+### Patch Changes
+
+- [`4c22fe79f104e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c22fe79f104e) -
+  Guard against undefined plugin state when reading shared state in floating-toolbar handler
+  (layout) and useEffect deps array (block-controls drag handle); fixes intermittent crash during
+  editor reconfigure / partial-preset transitions.
+
+## 11.3.0
+
+### Minor Changes
+
+- [`89a8af72aa2c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/89a8af72aa2c9) -
+  Add reusable toolbar menu container and render the layout column menu in a popup
+
+## 11.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.17
+
+### Patch Changes
+
+- [`2023cac0fd36f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2023cac0fd36f) -
+  Add column drag handle context menu placeholder, gated behind the
+  platform_editor_layout_column_menu experiment flag.
+- Updated dependencies
+
+## 11.2.16
+
+### Patch Changes
+
+- [`38fb4916b9085`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38fb4916b9085) -
+  Add `@atlaskit/editor-common/node-selection` entry-point with platform-level node selection
+  utilities. Under `platform_editor_maui_jira_updates`, `open-remix-modal` and
+  `editor-plugin-block-controls` delegate to these utilities, fixing remix selection in environments
+  where `blockControls` is not present.
+- Updated dependencies
+
+## 11.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.11
+
+### Patch Changes
+
+- [`ab837b5646256`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab837b5646256) -
+  [ux] EDITOR-6274 Clean up platform_editor_element_drag_and_drop_multiselect
+- Updated dependencies
+
+## 11.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.9
+
+### Patch Changes
+
+- [`f35afb9a5ed6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f35afb9a5ed6e) -
+  Fix getMatchingBlockMarks to check both adjacent siblings before returning marks
+- Updated dependencies
+
+## 11.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.1
+
+### Patch Changes
+
+- [`4642f37c59f0f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4642f37c59f0f) -
+  Fix Remix button not appearing when hovering over tables in live page view mode. When the
+  `platform_editor_native_anchor_with_dnd` experiment is disabled, table rows only have
+  `data-node-anchor` (not `data-drag-handler-anchor-name`), so hover detection and anchor resolution
+  now fall back to `data-node-anchor`. Also fixes right-edge positioning for wide/max breakout
+  tables using `getBoundingClientRect`.
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`64134fd6d8fee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64134fd6d8fee) -
+  clean up platform_editor_block_control_optimise_render
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`675d310a49c28`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/675d310a49c28) -
+  Remix entrypoints: ensure `cc-maui-experiment` exposures only fire on user-interactive surfaces.
+  - Fire exposure for: editor toolbar remix button, right-side hover button, highlight toolbar,
+    inline comment nudge, whiteboard AI action badge
+  - Use no-exposure for: props/infrastructure/layout-only checks (e.g., embedded header padding,
+    native-embed extension registration)
+  - Fix drag-handle controlSide ordering to avoid right-side controls on layout columns
+  - Restore layout column drag-handle VR test file
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- [`140f356e0c8c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/140f356e0c8c5) -
+  Fix RangeError: Position -1 outside of fragment when activeNode.rootPos is undefined
+  (keyboard-triggered drag handle). Guarded behind platform_editor_block_menu_jira_patch_1 feature
+  gate.
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.19
+
+### Patch Changes
+
+- [`7aff76124fe7f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aff76124fe7f) -
+  [ux] [EDITOR-6282] scale the size of the drag handle with the base font size
+- Updated dependencies
+
+## 9.1.18
+
+### Patch Changes
+
+- [`1bd298ad0a152`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bd298ad0a152) -
+  [ux] EDITOR-6280 Clean up platform_editor_block_menu_v2_patch_3 to fix icon and copy in jira block
+  menu
+- Updated dependencies
+
+## 9.1.17
+
+### Patch Changes
+
+- [`73b2fc243f544`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73b2fc243f544) -
+  Cleaning up getBrowserInfo which was behind experiment platform_editor_hydratable_ui and is now
+  rolled out
+- Updated dependencies
+
+## 9.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.15
+
+### Patch Changes
+
+- [`0eb1eed9871ef`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0eb1eed9871ef) -
+  [ux] [EDITOR-6279] update the block menu experiment's code check to also check jira. this fixes
+  the transform behaviour on a moved node in jira.
+- Updated dependencies
+
+## 9.1.14
+
+### Patch Changes
+
+- [`7acd06d35fdd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7acd06d35fdd1) -
+  Editor-5933: Fixed unable to create synced block from embed
+- Updated dependencies
+
+## 9.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.12
+
+### Patch Changes
+
+- [`38f6b2fea945a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38f6b2fea945a) -
+  Remove dragAndDropEnabled from test fixtures and audit false usages - prop is being deprecated
+
+## 9.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.9
+
+### Patch Changes
+
+- [`840d3970b9d8c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/840d3970b9d8c) -
+  Fix paragraph spacing in panels for small font-size block marks
+
+  Fix drag handle positioning around small text
+
+  Fix drag handles not appearing on small text in panels
+
+- Updated dependencies
+
+## 9.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.7
+
+### Patch Changes
+
+- [`c82f7b4cbe1fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c82f7b4cbe1fd) -
+  Fix drag handle keyboard accessibility: Shift+Ctrl+H now correctly shows and focuses the drag
+  handle for keyboard users when mouse is outside the editor. Gated behind
+  platform_editor_drag_handle_keyboard_a11y experiment.
+- Updated dependencies
+
+## 9.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.5
+
+### Patch Changes
+
+- [`1e1ca592da4fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e1ca592da4fd) -
+  Clean up feature gate editor_native_anchor_remove_decoration_in_apply (gate is true)
+- Updated dependencies
+
+## 9.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.3
+
+### Patch Changes
+
+- [`d1a0ee6dbcefd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1a0ee6dbcefd) -
+  Clean up feature gate platform_editor_native_anchor_patch_2
+- Updated dependencies
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- [`ef40f467da8e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef40f467da8e6) -
+  Fix drag handle not appearing in last layout column and remix button not showing correctly when
+  confluence_remix_button_right_side_block_fg is enabled. Layout column drag handles now always show
+  regardless of hover side, remix button correctly shows on right-side hover only, and layoutSection
+  is always remixable regardless of content.
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`81e6d01a5d2b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81e6d01a5d2b5) -
+  Expose expandAndUpdateSelection as a plugin command so other plugins can update the ProseMirror
+  selection using the same block-control click logic
+
+## 9.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.30
+
+### Patch Changes
+
+- [`ad4c50d62f411`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ad4c50d62f411) -
+  Cleanup fg: platform_editor_controls_block_controls_state_fix
+
+## 9.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.26
+
+### Patch Changes
+
+- [`13ec7df78a017`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/13ec7df78a017) -
+  Editor-4477: Removed the heading with alignment patch in the newGetSelection
+- Updated dependencies
+
+## 9.0.25
+
+### Patch Changes
+
+- [`12e112a137d5f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12e112a137d5f) -
+  Clean up platform_editor_table_fw_numcol_overflow_fix feature flag
+
+## 9.0.24
+
+### Patch Changes
+
+- [`88a7ee0806123`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88a7ee0806123) -
+  Mechanical type-import autofix for block, layout, and control packages.
+- Updated dependencies
+
+## 9.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.22
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 9.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.20
+
+### Patch Changes
+
+- [`a64a0cad8103d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a64a0cad8103d) -
+  Cleanup stale feature flag `platform_editor_quick_insert_image_wrap_right_fix`. The enabled
+  behaviour (setting `clear: unset` on the quick insert button element to prevent interference with
+  floated wrap-right images) is now always active.
+- Updated dependencies
+
+## 9.0.19
+
+### Patch Changes
+
+- [`73c46b71987a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73c46b71987a0) -
+  [ux] Fix remix button sticky for tables right side
+
+## 9.0.18
+
+### Patch Changes
+
+- [`bd008993d07cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd008993d07cd) -
+  Reuse the same selectors for determinig hover locations and location to draw drag handle
+- Updated dependencies
+
+## 9.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.16
+
+### Patch Changes
+
+- [`9ed32aea2c1d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ed32aea2c1d3) -
+  Replace feature experiment util with cross platform alternative for platform_editor_block_menu
+- Updated dependencies
+
+## 9.0.15
+
+### Patch Changes
+
+- [`c9d8de9fd5a33`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9d8de9fd5a33) -
+  Avoid wrapping block controls in any block mark - fixes issues with font size mark.
+- Updated dependencies
+
+## 9.0.14
+
+### Patch Changes
+
+- [`3895f6d32cc49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3895f6d32cc49) -
+  Replace expValEquals with editorExperiment for platform_synced_block experiment to ensure
+  consistent exposure firing
+- Updated dependencies
+
+## 9.0.13
+
+### Patch Changes
+
+- [`3d01a5983dae9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d01a5983dae9) -
+  [ux] Make quick insert button optional (backward compatible, enabled by default)
+- Updated dependencies
+
+## 9.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.11
+
+### Patch Changes
+
+- [`029e47b456b89`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/029e47b456b89) -
+  Fixing a bug where we expect the selection toolbar to show when selecting text and releasing on
+  the block controls handle.
+- Updated dependencies
+
+## 9.0.10
+
+### Patch Changes
+
+- [`3bc16a4221f74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3bc16a4221f74) -
+  [ux] EDITOR-5746 fix bug where drop targets appeared (and never cleared) after table row drag
+- Updated dependencies
+
+## 9.0.9
+
+### Patch Changes
+
+- [`97fd2b35b4ba3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/97fd2b35b4ba3) -
+  Editor-5020: fix inline drop hint outside synced block
+- Updated dependencies
+
+## 9.0.8
+
+### Patch Changes
+
+- [`57160c29bc79d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/57160c29bc79d) -
+  Fix exposure for remix button block
+
+## 9.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- [`da18116d80cad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da18116d80cad) -
+  Refactor to inline experiment checks
+- [`d84e100ff2136`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d84e100ff2136) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- [`ae28f2e6bb741`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae28f2e6bb741) -
+  Editor-4477: Removed the heading with alignment patch in the newGetSelection
+- [`ae28f2e6bb741`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae28f2e6bb741) -
+  Editor-5020-fix-inline-drop-hints-not-visible-in-sync-block
+- Updated dependencies
+
+## 8.12.0
+
+### Minor Changes
+
+- [`c78234abd2778`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c78234abd2778) -
+  EDITOR-5792 fix drop target for sync blocks
+
+## 8.11.0
+
+### Minor Changes
+
+- [`b5390019c2609`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5390019c2609) -
+  Optimizations for node visibility for remix button checks
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.10.3
+
+### Patch Changes
+
+- [`5d27d5dc155ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5d27d5dc155ff) -
+  Editor-5020: Fix the column drop hint not visible inside sync block
+- Updated dependencies
+
+## 8.10.2
+
+### Patch Changes
+
+- [`31ee998a097db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31ee998a097db) -
+  Replace expValEquals/expValEqualsNoExposure with editorExperiment for platform_synced_block
+  experiment checks
+- [`07a6b579ea15d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07a6b579ea15d) -
+  remove unused dependencies
+- Updated dependencies
+
+## 8.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.10.0
+
+### Minor Changes
+
+- [`cb0904030093f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cb0904030093f) -
+  [ux] Restricting blocks from showing remix button
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.9.1
+
+### Patch Changes
+
+- [`1d0fcc9c19260`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d0fcc9c19260) -
+  Clean up flag to make links more accessible.
+- Updated dependencies
+
+## 8.9.0
+
+### Minor Changes
+
+- [`e15637c7f5994`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e15637c7f5994) -
+  [ux] Fix hover logic for block
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.2
+
+### Patch Changes
+
+- [`47211917d90fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47211917d90fc) -
+  Editor-4477: Removed the heading with alignment patch in the newGetSelection
+
+## 8.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.8.0
+
+### Minor Changes
+
+- [`884dc5b015901`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/884dc5b015901) -
+  [ux] Update hover logic for edit mode in edit/live pages
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.2
+
+### Patch Changes
+
+- [`6a189c569f766`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6a189c569f766) -
+  updated deprecated token to use the stable token
+- Updated dependencies
+
+## 8.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.7.0
+
+### Minor Changes
+
+- [`f5af4a28f2237`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f5af4a28f2237) -
+  Add node decoration registration API to block-controls plugin
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.2
+
+### Patch Changes
+
+- [`ddbc57daa880f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddbc57daa880f) -
+  EDITOR-4477 Removed the heading with alignment patch in the newGetSelection
+- Updated dependencies
+
+## 8.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.0
+
+### Minor Changes
+
+- [`0190ead71b6e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0190ead71b6e6) -
+  [ux] Cleanup fg: platform_editor_selection_sync_fix
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.1
+
+### Patch Changes
+
+- [`85444e8a5672a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85444e8a5672a) -
+  EDITOR-5526 clean up platform_synced_block_patch_2
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`db19daf3a712a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db19daf3a712a) -
+  [ux] Add remix button to platform
+
+## 8.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.3
+
+### Patch Changes
+
+- [`a040c03082274`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a040c03082274) -
+  [ux] EDITOR-507 Clean up main nested tables experiment `platform_editor_nested_tables`
+- Updated dependencies
+
+## 8.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.0
+
+### Minor Changes
+
+- [`a287a6035ed71`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a287a6035ed71) -
+  [EDITOR-5005] export VanillaTooltip from the editor-common package and update references
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.3.2
 
 ### Patch Changes

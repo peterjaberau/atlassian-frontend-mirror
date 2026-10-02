@@ -1,8 +1,9 @@
-import React, { type ReactNode, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 
 import debounce from 'lodash/debounce';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
@@ -28,7 +29,6 @@ const containerStyles = xcss({
 // toolbar, where the z-index is "2". We have to hack in our own z-index less
 // than that to ensure our badge appears under the toolbar when scrolled.
 const hackedZIndexStyles = xcss({
-	// @ts-ignore
 	zIndex: '1',
 });
 
@@ -100,6 +100,7 @@ export const MediaBadges = ({
 			testId="media-badges"
 			data-media-badges="true"
 			contentEditable={false}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			xcss={[
 				containerStyles,
 				useMinimumZIndex && hackedZIndexStyles,

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/mobile-header",
-	"version": "7.0.28",
+	"version": "8.1.4",
 	"description": "A React component rendering a mobile header",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
@@ -44,16 +36,14 @@
 		"react": "^18.2.0"
 	},
 	"devDependencies": {
+		"@atlaskit/banner": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*",
 		"react-test-renderer": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		}
 	},
 	"sideEffects": [
 		"*.compiled.css"

@@ -2,15 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { type ReactNode } from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+
+// oxlint-disable-next-line typescript(consistent-type-imports) -- `jsx` is the runtime factory required by the classic JSX pragma.
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import Lozenge from '@atlaskit/lozenge';
+
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Tag from '@atlaskit/tag/removable-tag';
+import type { TagColor } from '@atlaskit/tag/types';
 import { token } from '@atlaskit/tokens';
 
-import { type LozengeProps } from '../types';
-import { isLozengeText } from './utils';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { type LozengeColor, type LozengeProps } from '../types';
+import { isLozengeText } from './isLozengeText';
 
 const AsyncTooltip = React.lazy(() =>
 	import(/* webpackChunkName: "@atlaskit-internal_@atlaskit/tooltip" */ '@atlaskit/tooltip').then(
@@ -22,23 +28,8 @@ const AsyncTooltip = React.lazy(() =>
 	),
 );
 
-const wrapper = (isDisabled?: boolean) => {
-	if (fg('platform_user_picker_firefox_tab_fix')) {
-		return css({
-			alignItems: 'center',
-			boxSizing: 'border-box',
-			display: 'flex',
-			outline: 'none',
-			margin: 0,
-			width: '100%',
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-			cursor: isDisabled ? 'not-allowed' : 'pointer',
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-			opacity: isDisabled ? token('opacity.disabled', '0.4') : undefined,
-		});
-	}
-
-	return css({
+const wrapper = (isDisabled?: boolean) =>
+	css({
 		alignItems: 'center',
 		boxSizing: 'border-box',
 		display: 'flex',
@@ -50,40 +41,19 @@ const wrapper = (isDisabled?: boolean) => {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		cursor: isDisabled ? 'not-allowed' : 'pointer',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-		opacity: isDisabled ? token('opacity.disabled', '0.4') : undefined,
+		opacity: isDisabled ? token('opacity.disabled') : undefined,
 	});
-};
 
 const optionWrapper = css({
 	maxWidth: '100%',
 	minWidth: 0,
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: '1.4',
-	paddingLeft: token('space.100', '8px'),
-});
-
-const optionWrapperFix = css({
-	display: 'inline-block',
-	overflow: 'hidden',
-	minWidth: 0,
-	maxWidth: '100%',
-	paddingLeft: token('space.100', '8px'),
+	paddingLeft: token('space.100'),
 });
 
 const getTextStyle = (isSecondary?: boolean) => {
 	const secondaryCssArgs = isSecondary ? { font: token('font.body.small') } : {};
-
-	if (fg('platform_user_picker_firefox_tab_fix')) {
-		return css({
-			margin: 0,
-			maxWidth: '100%',
-			overflow: 'hidden',
-			textOverflow: 'ellipsis',
-			whiteSpace: 'nowrap',
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-			...secondaryCssArgs,
-		});
-	}
 
 	return css({
 		margin: 0,
@@ -97,30 +67,16 @@ const getTextStyle = (isSecondary?: boolean) => {
 
 const additionalInfo = css({
 	float: 'right',
-	marginLeft: token('space.100', '8px'),
+	marginLeft: token('space.100'),
 });
 
-export const textWrapper = (color?: string) => {
-	if (fg('platform_user_picker_firefox_tab_fix')) {
-		return css({
-			display: 'inline-block',
-			verticalAlign: 'bottom',
-			maxWidth: '100%',
-			overflow: 'hidden',
-			textOverflow: 'ellipsis',
-			whiteSpace: 'nowrap',
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-			color,
-		});
-	}
-
-	return css({
-		overflow: 'hidden',
-		textOverflow: 'ellipsis',
-		display: 'inline',
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-		color,
-	});
+const lozengeAppearanceToTagColor: Record<LozengeColor, TagColor> = {
+	default: 'standard',
+	success: 'lime',
+	removed: 'red',
+	inprogress: 'blue',
+	new: 'purple',
+	moved: 'orange',
 };
 
 export type AvatarItemOptionProps = {
@@ -137,8 +93,31 @@ export const AvatarItemOption = ({
 	lozenge,
 	primaryText,
 	secondaryText,
-}: AvatarItemOptionProps) => {
-	const renderLozenge = () => {
+}: AvatarItemOptionProps): jsx.JSX.Element => {
+	const renderTag = (): ReactNode => {
+		if (isLozengeText(lozenge) && !lozenge.isBold) {
+			const color = lozenge.appearance
+				? lozengeAppearanceToTagColor[lozenge.appearance]
+				: 'standard';
+			const tag = (
+				<Tag text={lozenge.text} color={color} isRemovable={false} migration_fallback="lozenge" />
+			);
+
+			if (lozenge.tooltip) {
+				return (
+					<React.Suspense fallback={tag}>
+						<AsyncTooltip content={lozenge.tooltip}>{tag}</AsyncTooltip>
+					</React.Suspense>
+				);
+			}
+
+			return tag;
+		}
+
+		return renderLozenge();
+	};
+
+	const renderLozenge = (): ReactNode => {
 		if (isLozengeText(lozenge)) {
 			if (lozenge?.tooltip) {
 				// Note that entire Lozenge must be wrapped in the Tooltip (rather than just the
@@ -162,7 +141,7 @@ export const AvatarItemOption = ({
 		// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 		<span css={wrapper(isDisabled)}>
 			{avatar}
-			<div css={fg('platform_user_picker_firefox_tab_fix') ? optionWrapperFix : optionWrapper}>
+			<div css={optionWrapper}>
 				<div>
 					{/* eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
 					<div css={getTextStyle()}>{primaryText}</div>
@@ -170,7 +149,11 @@ export const AvatarItemOption = ({
 					{secondaryText && <div css={getTextStyle(true)}>{secondaryText}</div>}
 				</div>
 			</div>
-			{lozenge && <div css={additionalInfo}>{renderLozenge()}</div>}
+			{lozenge && (
+				<div css={additionalInfo}>
+					{fg('platform-dst-lozenge-tag-badge-visual-uplifts') ? renderTag() : renderLozenge()}
+				</div>
+			)}
 		</span>
 	);
 };

@@ -6,9 +6,9 @@ import React, { useCallback } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import Button from '@atlaskit/button/custom-theme-button';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
 import { expandClassNames } from '@atlaskit/editor-common/styles';
 import {
 	expandLayoutWrapperStyle,
@@ -17,7 +17,7 @@ import {
 } from '@atlaskit/editor-common/ui';
 import { akEditorSwoopCubicBezier } from '@atlaskit/editor-shared-styles';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 interface ExpandIconButtonProps {
 	allowInteractiveExpand: boolean;
@@ -76,7 +76,7 @@ export const withTooltip = (
 		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 		setState: <K extends never>(
 			state: // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-			| {}
+				| {}
 				| ((
 						// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 						prevState: Readonly<{}>,

@@ -3,7 +3,6 @@ import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import deburr from 'lodash/deburr';
 import noop from 'lodash/noop';
 
-import { type NewCoreIconProps } from '@atlaskit/icon';
 import DataFormulaIcon from '@atlaskit/icon-lab/core/data-formula';
 import AlignTextLeftIcon from '@atlaskit/icon/core/align-text-left';
 import CalendarIcon from '@atlaskit/icon/core/calendar';
@@ -15,15 +14,14 @@ import InfoIcon from '@atlaskit/icon/core/status-information';
 import TagIcon from '@atlaskit/icon/core/tag';
 import CheckboxIcon from '@atlaskit/icon/core/task';
 import TextIcon from '@atlaskit/icon/core/text';
+import type { NewCoreIconProps } from '@atlaskit/icon/types';
 import { normaliseJqlString } from '@atlaskit/jql-ast';
-import { type Position } from '@atlaskit/jql-autocomplete';
-import { N400 } from '@atlaskit/theme/colors';
+import type { Position } from '@atlaskit/jql-autocomplete/types';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { useIntl } from '../../../../state';
 import { type SelectableAutocompleteOption } from '../types';
-
 import { messages } from './messages';
 import {
 	DeprecatedOptionContainer,
@@ -101,7 +99,9 @@ const getDeprecatedTooltipMessage = (deprecatedSearcherKey: string | undefined) 
 	}
 };
 
-const AutocompleteOption = forwardRef<HTMLLIElement, Props>((props, ref) => {
+const AutocompleteOption: React.ForwardRefExoticComponent<
+	Props & React.RefAttributes<HTMLDivElement | HTMLLIElement>
+> = forwardRef<HTMLDivElement | HTMLLIElement, Props>((props, ref) => {
 	const {
 		option: { id, name, fieldType, matchedText, isDeprecated = false, deprecatedSearcherKey },
 		isSelected,
@@ -171,7 +171,7 @@ const AutocompleteOption = forwardRef<HTMLLIElement, Props>((props, ref) => {
 							spacing="spacious"
 							testId="jql-editor-deprecated-icon"
 							label=""
-							color={token('color.icon', N400)}
+							color={token('color.icon')}
 						/>
 					</Tooltip>
 				</DeprecatedOptionContainer>

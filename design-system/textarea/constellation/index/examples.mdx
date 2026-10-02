@@ -2,6 +2,7 @@
 order: 0
 ---
 
+import SectionMessage from '@atlaskit/section-message';
 import TextareaDefault from '../../examples/constellation/text-area-default';
 import TextareaForm from '../../examples/constellation/text-area-form';
 import TextareaValidation from '../../examples/constellation/text-area-validation';
@@ -9,21 +10,34 @@ import TextareaResize from '../../examples/constellation/text-area-resize';
 import TextAreaAppearanceStandard from '../../examples/constellation/text-area-appearance-standard';
 import TextAreaAppearanceSubtle from '../../examples/constellation/text-area-appearance-subtle';
 
+<SectionMessage title="Motion in Early Access" appearance="warning">
+	Motion has been updated in Text Area and is in Early Access. The motion updates are currently
+	behind the feature flag: platform-dst-motion-uplift-input.
+</SectionMessage>
+
 ## Default
 
 The default text area.
 
-<Example Component={TextareaDefault} packageName="@atlaskit/textarea" />
+<Example
+	Component={TextareaDefault}
+	packageName="@atlaskit/textarea"
+	featureFlagSwitchers={['motionInput']}
+/>
 
 ## Form
 
 You'll often use text areas as a [form field](/components/form/examples#field).
 
-<Example Component={TextareaForm} packageName="@atlaskit/textarea" />
+<Example
+	Component={TextareaForm}
+	packageName="@atlaskit/textarea"
+	featureFlagSwitchers={['motionInput']}
+/>
 
 ## Validation
 
-This is how the text area will behave within [forms](/patterns/forms).
+This is how the text area will behave within [forms](/components/form).
 
 Validation displays an error message related to the restrictions of the text area.
 
@@ -33,9 +47,14 @@ For example, helper text becomes an error message when the input content doesn't
 Error and warning messages disappear when the criteria is met.
 
 Keep helper text as short as possible. For complex information, provide a link to more information
-in a new browser tab. For more help, use the [messaging guidelines](/content/messaging-guidelines).
+in a new browser tab. For more help, use the
+[messaging guidelines](/foundations/content/designing-messages).
 
-<Example Component={TextareaValidation} packageName="@atlaskit/textarea" />
+<Example
+	Component={TextareaValidation}
+	packageName="@atlaskit/textarea"
+	featureFlagSwitchers={['motionInput']}
+/>
 
 ## Resize
 
@@ -61,7 +80,11 @@ horizontally only.
 Use `none` for a text area that does not resize and uses a scroll bar if the user enters text that
 exceeds the size of the text area.
 
-<Example Component={TextareaResize} packageName="@atlaskit/textarea" />
+<Example
+	Component={TextareaResize}
+	packageName="@atlaskit/textarea"
+	featureFlagSwitchers={['motionInput']}
+/>
 
 ## Appearance
 
@@ -69,13 +92,21 @@ exceeds the size of the text area.
 
 The default text area appearance.
 
-<Example Component={TextAreaAppearanceStandard} packageName="@atlaskit/textarea" />
+<Example
+	Component={TextAreaAppearanceStandard}
+	packageName="@atlaskit/textarea"
+	featureFlagSwitchers={['motionInput']}
+/>
 
 ### Subtle
 
 A text area that's transparent until interaction or error.
 
-<Example Component={TextAreaAppearanceSubtle} packageName="@atlaskit/textarea" />
+<Example
+	Component={TextAreaAppearanceSubtle}
+	packageName="@atlaskit/textarea"
+	featureFlagSwitchers={['motionInput']}
+/>
 
 ## Character counter
 
@@ -85,4 +116,5 @@ many characters are remaining or have been exceeded.
 Use it when there are constraints on text length, such as database limits, technical requirements,
 or design constraints.
 
-View [details and examples of character counters](https://atlassian.design/components/form/examples#charactercounterfield).
+View
+[details and examples of character counters](https://atlassian.design/components/form/examples#charactercounterfield).

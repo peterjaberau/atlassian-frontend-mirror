@@ -6,10 +6,14 @@ import React from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { ExitingPersistence, FadeIn } from '@atlaskit/motion';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import FadeIn from '@atlaskit/motion/fade-in';
 
-import { useShouldNestedElementRender } from '../NestableNavigationContent/context';
+import { useShouldNestedElementRender } from '../NestableNavigationContent/use-should-nested-element-render';
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface LoadingItemsProps {
 	/**
 	 * Child items that will be loaded asynchronously.
@@ -61,8 +65,20 @@ const enteringStyles = css({
  * __Loading items__
  *
  * Loading items conditionally render based on the useShouldNestedElementRender() hook.
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const LoadingItems: ({ children, isLoading, fallback, testId }: LoadingItemsProps) => JSX.Element = ({ children, isLoading, fallback, testId }: LoadingItemsProps) => {
+export const LoadingItems: ({
+	children,
+	isLoading,
+	fallback,
+	testId,
+}: LoadingItemsProps) => JSX.Element = ({
+	children,
+	isLoading,
+	fallback,
+	testId,
+}: LoadingItemsProps) => {
 	const { shouldRender } = useShouldNestedElementRender();
 	if (!shouldRender) {
 		return children as JSX.Element;
@@ -84,5 +100,3 @@ const LoadingItems: ({ children, isLoading, fallback, testId }: LoadingItemsProp
 		</ExitingPersistence>
 	);
 };
-
-export default LoadingItems;

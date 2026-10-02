@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
@@ -13,8 +13,7 @@ import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { Flex } from '@atlaskit/primitives/compiled';
 
-import { type CardPlugin } from '../cardPluginType';
-
+import type { CardPlugin } from '../cardPluginType';
 import { DatasourceAppearanceButton } from './DatasourceAppearanceButton';
 import { LinkToolbarAppearance } from './LinkToolbarAppearance';
 
@@ -28,7 +27,9 @@ export interface HyperlinkToolbarAppearanceProps {
 	url: string;
 }
 
-export function HyperlinkToolbarAppearance(props: HyperlinkToolbarAppearanceProps): React.JSX.Element | null {
+export function HyperlinkToolbarAppearance(
+	props: HyperlinkToolbarAppearanceProps,
+): React.JSX.Element | null {
 	const [supportedUrlsMap, setSupportedUrlsMap] = useState<Map<string, boolean>>(new Map());
 	const cardProvider = useRef<CardProvider | undefined>(undefined);
 

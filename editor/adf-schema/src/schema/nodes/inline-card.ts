@@ -1,7 +1,9 @@
-import type { CardAttributes } from './block-card';
-import type { AnnotationMarkDefinition } from '../marks/annotation';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { inlineCard as inlineCardFactory } from '../../next-schema/generated/nodeTypes';
 import { uuid } from '../../utils/uuid';
+import type { AnnotationMarkDefinition } from '../marks/annotation';
+import type { CardAttributes } from './block-card';
 
 /**
  * @name inlineCard_node
@@ -9,13 +11,14 @@ import { uuid } from '../../utils/uuid';
 export interface InlineCardDefinition {
 	attrs: CardAttributes;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @stage 0
 	 */
 	marks?: Array<AnnotationMarkDefinition>;
 	type: 'inlineCard';
 }
 
-export const inlineCard = inlineCardFactory({
+export const inlineCard: NodeSpec = inlineCardFactory({
 	parseDOM: [
 		{
 			tag: 'a[data-inline-card], span[data-inline-card]',
@@ -64,7 +67,7 @@ export const inlineCard = inlineCardFactory({
 	},
 });
 
-export const inlineCardWithLocalId = inlineCardFactory({
+export const inlineCardWithLocalId: NodeSpec = inlineCardFactory({
 	parseDOM: [
 		{
 			tag: 'a[data-inline-card], span[data-inline-card]',

@@ -3,33 +3,34 @@
  * @jsx jsx
  */
 
-import React, { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 import { bind } from 'bind-event-listener';
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { ToolTipContent } from '@atlaskit/editor-common/keymaps';
 import { blockControlsMessages as messages } from '@atlaskit/editor-common/messages';
 import { tableControlsSpacing } from '@atlaskit/editor-common/styles';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNode, findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { relativeSizeToBaseFontSize } from '@atlaskit/editor-shared-styles';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
 import AddIcon from '@atlaskit/icon/core/add';
-import { fg } from '@atlaskit/platform-feature-flags';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Pressable, xcss } from '@atlaskit/primitives';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import type { BlockControlsPlugin } from '../blockControlsPluginType';
-import { type AnchorRectCache } from '../pm-plugins/utils/anchor-utils';
+import { getNodeTypeWithLevel } from '../pm-plugins/decorations-common';
+import type { AnchorRectCache } from '../pm-plugins/utils/anchor-utils';
 import {
 	getControlBottomCSSValue,
 	getControlHeightCSSValue,
@@ -38,8 +39,9 @@ import {
 	shouldBeSticky,
 } from '../pm-plugins/utils/drag-handle-positions';
 import { getLeftPositionForRootElement } from '../pm-plugins/utils/widget-positions';
-
 import {
+	ACTIVE_QUICK_INSERT_ATTR,
+	ACTIVE_QUICK_INSERT_FALLBACK_ANCHOR_NAME,
 	QUICK_INSERT_DIMENSIONS,
 	QUICK_INSERT_HEIGHT,
 	QUICK_INSERT_LEFT_OFFSET,
@@ -86,7 +88,7 @@ const stickyButtonStyles = xcss({
 	},
 
 	':focus': {
-		outline: `${token('border.width.focused')} solid ${token('color.border.focused', '#388BFF')}`,
+		outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
 	},
 });
 
@@ -200,6 +202,28 @@ type Props = {
 	view: EditorView;
 };
 
+const getQuickInsertAnchorReference = ({
+	edge,
+	safeAnchorName,
+}: {
+	edge: 'start' | 'end';
+	safeAnchorName: string;
+}): string => {
+	if (expValEquals('platform_editor_controls_reliable_anchor', 'isEnabled', true)) {
+		return `anchor(${safeAnchorName} ${edge}, anchor(${ACTIVE_QUICK_INSERT_FALLBACK_ANCHOR_NAME} ${edge}))`;
+	}
+
+	return `anchor(${safeAnchorName} ${edge})`;
+};
+
+/**
+ * Legacy widget-decoration Quick Insert implementation.
+ *
+ * Its behavior is intentionally duplicated by the registry-backed control in
+ * `editor-plugin-quick-insert`. Remove this implementation when
+ * `platform_editor_block_control_migration` is cleaned up; until then this path remains unchanged
+ * for users outside the experiment.
+ */
 export const TypeAheadControl = ({
 	view,
 	api,
@@ -209,10 +233,13 @@ export const TypeAheadControl = ({
 	rootAnchorName,
 	rootNodeType,
 	anchorRectCache,
-}: Props) => {
-	const macroInteractionUpdates = useSharedPluginStateSelector(
+}: Props): jsx.JSX.Element => {
+	const { macroInteractionUpdates } = useSharedPluginStateWithSelector(
 		api,
-		'featureFlags.macroInteractionUpdates',
+		['featureFlags'],
+		(states) => ({
+			macroInteractionUpdates: states.featureFlagsState?.macroInteractionUpdates,
+		}),
 	);
 
 	const [positionStyles, setPositionStyles] = useState<React.CSSProperties>({ display: 'none' });
@@ -226,15 +253,29 @@ export const TypeAheadControl = ({
 		const supportsAnchor =
 			CSS.supports('top', `anchor(${rootAnchorName} start)`) &&
 			CSS.supports('left', `anchor(${rootAnchorName} start)`);
+		const pos = getPos();
+		const node = pos !== undefined ? view.state.doc.nodeAt(pos) : undefined;
 
 		const safeAnchorName = refreshAnchorName({ getPos, view, anchorName: rootAnchorName });
-
 		const dom: HTMLElement | null = view.dom.querySelector(
 			`[${getAnchorAttrName()}="${safeAnchorName}"]`,
 		);
 
+		// Defence-in-depth guard: the node decoration sets data-active-quick-insert on the
+		// active root node. Check for it directly — cheap DOM attribute read, no reflow.
+		if (
+			expValEquals('platform_editor_controls_reliable_anchor', 'isEnabled', true) &&
+			!dom?.hasAttribute(ACTIVE_QUICK_INSERT_ATTR)
+		) {
+			return { display: 'none' };
+		}
+
 		const hasResizer = rootNodeType === 'table' || rootNodeType === 'mediaSingle';
-		const isExtension = rootNodeType === 'extension' || rootNodeType === 'bodiedExtension';
+		const isExtension =
+			rootNodeType === 'extension' ||
+			rootNodeType === 'bodiedExtension' ||
+			(rootNodeType === 'multiBodiedExtension' &&
+				expValEquals('confluence_native_tabs_experiment', 'isEnabled', true));
 		const isBlockCard = rootNodeType === 'blockCard';
 		const isEmbedCard = rootNodeType === 'embedCard';
 
@@ -256,15 +297,25 @@ export const TypeAheadControl = ({
 
 		const isEdgeCase = (hasResizer || isExtension || isEmbedCard || isBlockCard) && innerContainer;
 		const isSticky = shouldBeSticky(rootNodeType);
-		const bottom = getControlBottomCSSValue(safeAnchorName || anchorName, isSticky, true);
+		const anchorStart = getQuickInsertAnchorReference({
+			edge: 'start',
+			safeAnchorName,
+		});
+		const bottom = getControlBottomCSSValue(
+			safeAnchorName || anchorName,
+			isSticky,
+			true,
+			false,
+			ACTIVE_QUICK_INSERT_FALLBACK_ANCHOR_NAME,
+		);
 
 		if (supportsAnchor) {
 			return {
 				left: isEdgeCase
-					? `calc(anchor(${safeAnchorName} start) + ${getLeftPositionForRootElement(dom, rootNodeType, QUICK_INSERT_DIMENSIONS, innerContainer, isMacroInteractionUpdates)} + -${QUICK_INSERT_LEFT_OFFSET}px)`
-					: `calc(anchor(${safeAnchorName} start) - ${QUICK_INSERT_DIMENSIONS.width}px - ${rootElementGap(rootNodeType)}px + -${QUICK_INSERT_LEFT_OFFSET}px)`,
-
-				top: `calc(anchor(${safeAnchorName} start) + ${topPositionAdjustment(rootNodeType)}px)`,
+					? `calc(${anchorStart} + ${getLeftPositionForRootElement(dom, rootNodeType, QUICK_INSERT_DIMENSIONS, innerContainer, isMacroInteractionUpdates)} + -${QUICK_INSERT_LEFT_OFFSET}px)`
+					: `calc(${anchorStart} - ${QUICK_INSERT_DIMENSIONS.width}px - ${rootElementGap(rootNodeType)}px + -${QUICK_INSERT_LEFT_OFFSET}px)`,
+				// small text requires further tweaking to positioning, re-using existing methods to calculate to keep it unified with drag handle
+				top: `calc(${anchorStart} + ${topPositionAdjustment(node && node.type.name === 'paragraph' ? getNodeTypeWithLevel(node) : rootNodeType)}px)`,
 				...bottom,
 			} as CSSProperties;
 		}
@@ -424,13 +475,8 @@ export const TypeAheadControl = ({
 				testId="editor-quick-insert-button"
 				type="button"
 				aria-label={formatMessage(messages.insert)}
-				xcss={[
-					stickyButtonStyles,
-					(expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-						(expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-							fg('platform_editor_content_mode_button_mvp'))) &&
-						stickyButtonDenseModeStyles,
-				]}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+				xcss={[stickyButtonStyles, stickyButtonDenseModeStyles]}
 				onClick={handleQuickInsert}
 				onMouseDown={handleMouseDown}
 			>
@@ -443,6 +489,7 @@ export const TypeAheadControl = ({
 		<Box
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 			style={positionStyles}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			xcss={[containerStaticStyles]}
 		>
 			<span
@@ -452,14 +499,14 @@ export const TypeAheadControl = ({
 						'platform_editor_table_sticky_header_improvements',
 						'cohort',
 						'test_with_overflow',
-					) && fg('platform_editor_table_sticky_header_patch_6')
+					)
 						? tooltipContainerImprovedStylesStickyHeader
 						: tooltipContainerStylesStickyHeader,
 					expValEquals(
 						'platform_editor_table_sticky_header_improvements',
 						'cohort',
 						'test_with_overflow',
-					) && fg('platform_editor_table_sticky_header_patch_6')
+					)
 						? tooltipContainerStylesImprovedStickyHeaderWithMarksFix
 						: tooltipContainerStylesStickyHeaderWithMarksFix,
 				]}
@@ -480,9 +527,16 @@ export const QuickInsertWithVisibility = ({
 	rootAnchorName,
 	rootNodeType,
 	anchorRectCache,
-}: Props) => {
+}: Props): jsx.JSX.Element => {
+	const rightSideControlsEnabled = useSharedPluginStateWithSelector(
+		api,
+		['blockControls'],
+		(states) => ({
+			rightSideControlsEnabled: states.blockControlsState?.rightSideControlsEnabled ?? false,
+		}),
+	).rightSideControlsEnabled;
 	return (
-		<VisibilityContainer api={api}>
+		<VisibilityContainer api={api} controlSide={rightSideControlsEnabled ? 'left' : undefined}>
 			<TypeAheadControl
 				view={view}
 				api={api}

@@ -6,21 +6,20 @@ import type {
 	PMPluginFactoryParams,
 } from '@atlaskit/editor-common/types';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { CodeBidiWarningPlugin } from '../codeBidiWarningPluginType';
-
 import { codeBidiWarningPluginKey } from './plugin-key';
 import {
 	createBidiWarningsDecorationSetFromDoc as reactCreateBidiWarningsDecorationSetFromDoc,
 	pluginFactoryCreator as reactPluginFactoryCreator,
 } from './react-plugin-factory';
+import type { CodeBidiWarningPluginState } from './types';
 
 export const createPlugin = (
 	api: ExtractInjectionAPI<CodeBidiWarningPlugin> | undefined,
 	{ dispatch, getIntl, nodeViewPortalProviderAPI }: PMPluginFactoryParams,
 	{ appearance }: { appearance?: EditorAppearance },
-) => {
+): SafePlugin<CodeBidiWarningPluginState> => {
 	const intl = getIntl();
 
 	const codeBidiWarningLabel = intl.formatMessage(codeBidiWarningMessages.label);
@@ -31,14 +30,6 @@ export const createPlugin = (
 	return new SafePlugin({
 		key: codeBidiWarningPluginKey,
 		state: createPluginState(dispatch, (state) => {
-			if (expValEquals('platform_editor_remove_bidi_char_warning', 'isEnabled', true)) {
-				return {
-					decorationSet: DecorationSet.empty,
-					codeBidiWarningLabel: '',
-					tooltipEnabled: false,
-				};
-			}
-
 			if (api?.limitedMode?.sharedState.currentState()?.enabled) {
 				return {
 					decorationSet: DecorationSet.empty,
@@ -60,10 +51,6 @@ export const createPlugin = (
 		}),
 		props: {
 			decorations: (state) => {
-				if (expValEquals('platform_editor_remove_bidi_char_warning', 'isEnabled', true)) {
-					return DecorationSet.empty;
-				}
-
 				const { decorationSet } = getPluginState(state);
 
 				return decorationSet;

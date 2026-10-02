@@ -6,40 +6,36 @@ export {
 	removeLayoutFromFirstChild,
 	removeLayoutFromLastChild,
 	transformSliceToRemoveOpenLayoutNodes,
-	transformSingleColumnLayout,
 } from './layout';
-export {
-	findExpand,
-	transformSliceToRemoveOpenExpand,
-	transformSliceToRemoveOpenNestedExpand,
-	transformSliceNestedExpandToExpand,
-	transformSliceExpandToNestedExpand,
-} from './expand';
+export { transformSingleColumnLayout } from './transformSingleColumnLayout';
+export { findExpand } from './findExpand';
+export { transformSliceExpandToNestedExpand } from './transformSliceExpandToNestedExpand';
+export { transformSliceNestedExpandToExpand } from './transformSliceNestedExpandToExpand';
+export { transformSliceToRemoveOpenExpand } from './transformSliceToRemoveOpenExpand';
+export { transformSliceToRemoveOpenNestedExpand } from './transformSliceToRemoveOpenNestedExpand';
 export {
 	transformSliceToRemoveOpenBodiedExtension,
 	transformSliceToRemoveOpenMultiBodiedExtension,
 	transformSliceToRemoveLegacyContentMacro,
-	transformSliceToRemoveMacroId,
 } from './extension';
-export {
-	transformSliceToJoinAdjacentCodeBlocks,
-	transformSingleLineCodeBlockToCodeMark,
-	findCodeBlock,
-} from './code-block';
+export { transformSliceToRemoveMacroId } from './transformSliceToRemoveMacroId';
+export { transformSliceToJoinAdjacentCodeBlocks } from './code-block';
+export { findCodeBlock } from './findCodeBlock';
+export { transformSingleLineCodeBlockToCodeMark } from './transformSingleLineCodeBlockToCodeMark';
 export { transformSliceToDecisionList } from './decision-list';
+export { createBlockTaskItem } from './createBlockTaskItem';
+export { getFormattedNode } from './getFormattedNode';
 export {
-	transformListStructure,
 	transformBetweenListTypes,
 	transformListRecursively,
 	transformToTaskList,
-	transformTaskListToBlockNodes,
-	getFormattedNode,
 } from './list-transforms';
-export {
-	isBulletOrOrderedList,
-	isTaskList,
-	getSupportedListTypesSet,
-	convertBlockToInlineContent,
-} from './list-utils';
+export { transformListStructure } from './transformListStructure';
+export { transformSliceEnsureListItemParagraphFirst } from './transformSliceEnsureListItemParagraphFirst';
+export { transformTaskListToBlockNodes } from './transformTaskListToBlockNodes';
+export { convertBlockToInlineContent } from './convertBlockToInlineContent';
+export { isBulletOrOrderedList } from './isBulletOrOrderedList';
+export { isTaskList } from './isTaskList';
+export { getSupportedListTypesSet } from './list-utils';
 export { removeBreakoutFromRendererSyncBlockHTML } from './sync-block';
 export type { TransformContext, TransformFunction } from './list-types';

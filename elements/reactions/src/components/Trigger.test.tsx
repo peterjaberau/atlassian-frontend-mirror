@@ -1,5 +1,8 @@
 import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
+
+import { screen, fireEvent, render } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
+
 import { mockReactDomWarningGlobal, renderWithIntl } from '../__tests__/_testing-library';
 import { Trigger } from './Trigger';
 
@@ -7,15 +10,21 @@ const mockIcon = <div>CoolIcon</div>;
 
 describe('@atlaskit/reactions/components/Trigger', () => {
 	mockReactDomWarningGlobal();
+
+	it('should not have accessibility violations', async () => {
+		const { container } = renderWithIntl(<Trigger tooltipContent="" />);
+		await expect(container).toBeAccessible();
+	});
+
 	it('should render a button', async () => {
 		renderWithIntl(<Trigger tooltipContent="" />);
-		const btn = await screen.findByLabelText('Add reaction');
+		const btn = await screen.findByTestId('render-trigger-button');
 		expect(btn).toBeInTheDocument();
 	});
 
 	it('should render "Add a reaction" text when showAddReactionText is true', async () => {
 		renderWithIntl(<Trigger tooltipContent="" showAddReactionText />);
-		await screen.findByLabelText('Add reaction');
+		await screen.findByTestId('render-trigger-button');
 		const addReactionText = screen.getByText('Add a reaction');
 		expect(addReactionText).toBeInTheDocument();
 		expect(addReactionText).toHaveCompiledCss('margin-left', 'var(--ds-space-050,4px)');
@@ -41,7 +50,7 @@ describe('@atlaskit/reactions/components/Trigger', () => {
 		renderWithIntl(
 			<Trigger tooltipContent="" showAddReactionText reactionPickerTriggerText="Add new" />,
 		);
-		await screen.findByLabelText('Add reaction');
+		await screen.findByLabelText('Add a reaction');
 		const customReactionText = screen.getByText('Add new');
 		expect(customReactionText).toBeInTheDocument();
 	});
@@ -70,7 +79,7 @@ describe('@atlaskit/reactions/components/Trigger', () => {
 	it('should call "onClick" when clicked', async () => {
 		const mockOnClick = jest.fn();
 		renderWithIntl(<Trigger tooltipContent="" onClick={mockOnClick} />);
-		const button = await screen.findByLabelText('Add reaction');
+		const button = await screen.findByLabelText('Add a reaction');
 		fireEvent.click(button);
 		expect(mockOnClick).toHaveBeenCalled();
 	});
@@ -78,7 +87,7 @@ describe('@atlaskit/reactions/components/Trigger', () => {
 	it('should disable button', async () => {
 		const mockOnClick = jest.fn();
 		renderWithIntl(<Trigger tooltipContent="" disabled onClick={mockOnClick} />);
-		fireEvent.click(await screen.findByLabelText('Add reaction'));
+		fireEvent.click(await screen.findByLabelText('Add a reaction'));
 		expect(mockOnClick).not.toHaveBeenCalled();
 	});
 
@@ -123,5 +132,20 @@ describe('@atlaskit/reactions/components/Trigger', () => {
 			minWidth: '24px',
 			borderStyle: 'none',
 		});
+	});
+
+	it('should use the localized accessible label', async () => {
+		render(
+			<IntlProvider
+				locale="ja"
+				messages={{ 'reaction-picker-trigger.add.reaction.message': 'リアクションを追加' }}
+			>
+				<Trigger tooltipContent="" />
+			</IntlProvider>,
+		);
+
+		const icon = await screen.findByTestId('emoji-add-icon');
+		expect(icon).toHaveAttribute('aria-label', 'リアクションを追加');
+		expect(icon).not.toHaveAttribute('lang');
 	});
 });

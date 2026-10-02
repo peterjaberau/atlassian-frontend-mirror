@@ -1,13 +1,63 @@
 /* eslint-disable @atlaskit/editor/no-re-export */
 // Entry file in package.json
 
-import { defineMessages } from 'react-intl-next';
+import { defineMessages, type MessageDescriptor } from 'react-intl';
 
-export const headingAnchorLinkMessages = defineMessages({
+export const collapsibleHeadingMessages: Record<
+	'collapseSection' | 'expandSection',
+	MessageDescriptor
+> = defineMessages({
+	collapseSection: {
+		id: 'fabric.editor.collapsibleHeading.collapseSection.ai-non-final',
+		defaultMessage: 'Collapse section',
+		description:
+			'Accessible label and tooltip for the button beside an expanded renderer heading. Activating the button hides the content in that heading section.',
+	},
+	expandSection: {
+		id: 'fabric.editor.collapsibleHeading.expandSection.ai-non-final',
+		defaultMessage: 'Expand section',
+		description:
+			'Accessible label and tooltip for the button beside a collapsed renderer heading. Activating the button reveals the content in that heading section.',
+	},
+});
+
+export const headingAnchorLinkMessages: {
+	copiedHeadingLinkToClipboard: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copyAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copyHeadingLinkLabelledBy: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copyHeadingLinkToClipboard: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copyLinkToClipboard: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	failedToCopyHeadingLink: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	copyHeadingLinkToClipboard: {
 		id: 'fabric.editor.headingLink.copyAnchorLink',
 		defaultMessage: 'Copy link to heading',
-		description: 'Copy heading link to clipboard',
+		description:
+			'Tooltip and aria-label for the button that copies an anchor link to a heading in the rendered document to the clipboard.',
 	},
 	copyLinkToClipboard: {
 		id: 'fabric.editor.headingLink.copyAnchorLinkTo',
@@ -24,7 +74,8 @@ export const headingAnchorLinkMessages = defineMessages({
 	copiedHeadingLinkToClipboard: {
 		id: 'fabric.editor.headingLink.copied',
 		defaultMessage: 'Copied!',
-		description: 'Copied heading link to clipboard',
+		description:
+			'Confirmation text shown briefly on the copy button after the heading anchor link has been successfully copied to the clipboard.',
 	},
 	failedToCopyHeadingLink: {
 		id: 'fabric.editor.headingLink.failedToCopy',
@@ -34,15 +85,33 @@ export const headingAnchorLinkMessages = defineMessages({
 	copyAriaLabel: {
 		id: 'fabric.editor.headingLink.copyAriaLabel',
 		defaultMessage: 'Copy',
-		description: 'copy aria label for link icon',
+		description:
+			'Aria label for the copy link button displayed next to a heading. Used by screen readers to describe the button that copies the heading anchor link to the clipboard.',
 	},
 });
 
-export const tableCellMessages = defineMessages({
+export const tableCellMessages: {
+	ascSortingLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	descSortingLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	noneSortingLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	noneSortingLabel: {
 		id: 'fabric.editor.headingLink.noneSortingLabel',
 		defaultMessage: 'none',
-		description: 'this table column is not sorted',
+		description:
+			'Accessible label for a table column sort indicator when no sorting is applied to that column.',
 	},
 	ascSortingLabel: {
 		id: 'fabric.editor.headingLink.ascSortingLabel',
@@ -56,7 +125,18 @@ export const tableCellMessages = defineMessages({
 	},
 });
 
-export const inlineCommentMessages = defineMessages({
+export const inlineCommentMessages: {
+	contentRendererInlineCommentMarkerEnd: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	contentRendererInlineCommentMarkerStart: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	contentRendererInlineCommentMarkerStart: {
 		id: 'fabric.editor.inlineComment.marker.start',
 		defaultMessage: 'inline comment start',

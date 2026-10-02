@@ -1,7 +1,8 @@
 // Simple component which wraps stories and creates a styled list out of it
 import React from 'react';
-import { token } from '@atlaskit/tokens';
 import { Component, type ReactNode, type CSSProperties } from 'react';
+
+import { token } from '@atlaskit/tokens';
 
 interface UnitStyle {
 	statesWrapper: CSSProperties;
@@ -28,9 +29,9 @@ const styles: {
 			margin: token('space.100'),
 		},
 		stateTitle: {
-			borderBottom: `${token('border.width')} solid ${token('color.border', '#ccc')}`,
+			borderBottom: `${token('border.width')} solid ${token('color.border')}`,
 			marginBottom: token('space.100'),
-			color: token('color.text', '#606369'),
+			color: token('color.text'),
 			width: '100%',
 			textTransform: 'capitalize',
 		},
@@ -50,9 +51,9 @@ const styles: {
 			margin: token('space.100'),
 		},
 		stateTitle: {
-			borderBottom: `${token('border.width')} solid ${token('color.border', '#ccc')}`,
+			borderBottom: `${token('border.width')} solid ${token('color.border')}`,
 			marginBottom: token('space.100'),
-			color: token('color.text', '#606369'),
+			color: token('color.text'),
 			width: '100%',
 			textTransform: 'capitalize',
 		},

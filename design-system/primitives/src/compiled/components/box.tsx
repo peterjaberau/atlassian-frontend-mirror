@@ -6,6 +6,7 @@ import {
 	type ComponentPropsWithoutRef,
 	type ComponentPropsWithRef,
 	forwardRef,
+	type JSX,
 	type ReactElement,
 	type ReactNode,
 } from 'react';
@@ -21,9 +22,8 @@ import {
 } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
 
-import { SurfaceContext } from '../../utils/surface-provider';
+import { SurfaceContext } from '../../utils/surface-context';
 import type { BackgroundColorToken, SVGElements } from '../../utils/types';
-
 import type { BasePrimitiveProps, PaddingToken, StyleProp, SurfaceColorToken } from './types';
 
 // Can either Exclude or Extract - here we're excluding all SVG-related elements, <button> elements (handled by Pressable), and <a> elements (handled by Anchor)
@@ -783,7 +783,7 @@ const paddingInlineEndMap = cssMap({
  * - [Code](https://atlassian.design/components/primitives/box/code)
  * - [Usage](https://atlassian.design/components/primitives/box/usage)
  */
-const Box = forwardRef(
+export const Box = forwardRef(
 	<T extends CustomElementType>(
 		{
 			as: Component = 'div' as T,
@@ -810,7 +810,6 @@ const Box = forwardRef(
 		const node = (
 			// @ts-expect-error Expression produces a union type that is too complex to represent. I think this is unavoidable
 			<Component
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				style={style}
 				// @ts-ignore -- Expression produces a union type that is too complex to represent. We may be able to narrow the type here but unsure.
 				ref={ref}
@@ -837,11 +836,8 @@ const Box = forwardRef(
 
 		return node;
 	},
-	// @ts-ignore This typescript error has been surpessed while locally enrolling `@atlaskit/primitives` into Jira
 	// The return type of `BoxComponent` does not match the return type of `forwardRef` in React 18
 ) as BoxComponent;
-
-export default Box;
 
 function isSurfaceToken(
 	backgroundColor: string,

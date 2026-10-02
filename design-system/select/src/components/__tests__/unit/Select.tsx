@@ -1,20 +1,28 @@
 /* eslint-disable @repo/internal/fs/filename-pattern-match */
-import React from 'react';
+/* eslint-disable testing-library/no-container, testing-library/no-node-access */
 
-import { act, render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import React, { type ReactNode } from 'react';
+
 import cases from 'jest-in-case';
 import selectEvent from 'react-select-event';
 
 import { skipA11yAudit } from '@af/accessibility-testing';
+import { components } from '@atlaskit/react-select/components';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { act, render, screen, userEvent, waitFor, within } from '@atlassian/testing-library';
 
-import AtlaskitSelect from '../../../index';
+import AsyncSelect from '../../../async-select';
+import { CheckboxSelect } from '../../../checkbox-select';
+import CreatableSelect from '../../../creatable-select';
+import AtlaskitSelect from '../../../select';
 interface Option {
 	readonly label: string;
 	readonly value: string;
 }
 
 const user = userEvent.setup();
+
+const testId = 'testId';
 
 const OPTIONS = [
 	{ label: '0', value: 'zero' },
@@ -74,17 +82,115 @@ describe('Select', () => {
 	});
 
 	it('should toggle the menu on dropdown indicator click', async () => {
-		render(<AtlaskitSelect classNamePrefix="react-select" label="Options" />);
+		render(<AtlaskitSelect classNamePrefix="react-select" label="Options" testId={testId} />);
 
 		// Menu closed by default
 		expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
 
 		act(() => {
-			selectEvent.openMenu(screen.getByText('Select...'));
+			selectEvent.openMenu(screen.getByTestId(new RegExp(`${testId}.*placeholder`)));
 		});
 
 		// Menu to open
 		expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
+	});
+
+	describe('menu render mode', () => {
+		const popupMenuRenderModes: Array<[string, 'popup' | undefined]> = [
+			['the default', undefined],
+			['popup', 'popup'],
+		];
+
+		// The inline Menu wrapper receives the same ID as MenuList. If the wrapper forwards it,
+		// the combobox's aria-controls value points to two elements with the same listbox ID.
+		it('associates the combobox with exactly one listbox in inline mode', () => {
+			render(<AtlaskitSelect menuRenderMode="inline" options={OPTIONS} label="Assignee" />);
+
+			const combobox = screen.getByRole('combobox');
+			const listbox = screen.getByRole('listbox');
+
+			expect(listbox.id).not.toBe('');
+			expect(combobox).toHaveAttribute('aria-controls', listbox.id);
+			expect(document.querySelectorAll(`[id="${listbox.id}"]`)).toHaveLength(1);
+		});
+
+		it.each(popupMenuRenderModes)(
+			'does not force the menu open in %s mode',
+			(_name, menuRenderMode) => {
+				render(
+					<AtlaskitSelect
+						menuRenderMode={menuRenderMode}
+						menuIsOpen={false}
+						options={OPTIONS}
+						label="Assignee"
+					/>,
+				);
+
+				expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+			},
+		);
+
+		type MenuPortalComponent = ({ children }: { children: ReactNode }) => ReactNode;
+		type SelectRenderer = (MenuPortal: MenuPortalComponent) => ReactNode;
+		const selectRenderers: Array<[string, SelectRenderer]> = [
+			[
+				'Select',
+				(MenuPortal) => (
+					<AtlaskitSelect
+						menuRenderMode="inline"
+						menuIsOpen={false}
+						components={{ MenuPortal }}
+						options={OPTIONS}
+						label="Assignee"
+					/>
+				),
+			],
+			[
+				'AsyncSelect',
+				(MenuPortal) => (
+					<AsyncSelect
+						menuRenderMode="inline"
+						menuIsOpen={false}
+						components={{ MenuPortal }}
+						options={OPTIONS}
+						label="Assignee"
+					/>
+				),
+			],
+			[
+				'CreatableSelect',
+				(MenuPortal) => (
+					<CreatableSelect
+						menuRenderMode="inline"
+						menuIsOpen={false}
+						components={{ MenuPortal }}
+						options={OPTIONS}
+						label="Assignee"
+					/>
+				),
+			],
+			[
+				'CheckboxSelect',
+				(MenuPortal) => (
+					<CheckboxSelect
+						menuRenderMode="inline"
+						menuIsOpen={false}
+						components={{ MenuPortal }}
+						options={OPTIONS}
+						label="Assignee"
+					/>
+				),
+			],
+		];
+
+		it.each(selectRenderers)('applies persistent inline rendering to %s', (_name, renderSelect) => {
+			const MenuPortal = jest.fn(({ children }: { children: ReactNode }) => children);
+
+			render(renderSelect(MenuPortal));
+
+			expect(screen.getByRole('listbox')).toBeInTheDocument();
+			expect(MenuPortal).not.toHaveBeenCalled();
+		});
 	});
 
 	describe('single value select', () => {
@@ -216,9 +322,9 @@ describe('Select', () => {
 				/>,
 			);
 
-			const clearIcons = screen.getAllByTestId('show-clear-icon');
-
-			expect(clearIcons.length).toBe(2);
+			expect(screen.getByRole('button', { name: '3, remove 3' })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: '4, remove 4' })).toBeInTheDocument();
+			expect(screen.getByRole('button', { name: 'clear' })).toBeInTheDocument();
 		});
 
 		it('disabled multiselect should not show clear icon on selections or select itself', () => {
@@ -233,9 +339,9 @@ describe('Select', () => {
 				/>,
 			);
 
-			const clearIcons = screen.getAllByTestId('hide-clear-icon');
-
-			expect(clearIcons.length).toBe(2);
+			expect(screen.queryByRole('button', { name: '3, remove 3' })).not.toBeInTheDocument();
+			expect(screen.queryByRole('button', { name: '4, remove 4' })).not.toBeInTheDocument();
+			expect(screen.queryByRole('button', { name: 'clear' })).not.toBeInTheDocument();
 		});
 	});
 
@@ -247,10 +353,11 @@ describe('Select', () => {
 				options={OPTIONS}
 				isMulti
 				label="Options"
+				testId={testId}
 			/>,
 		);
 
-		expect(screen.getByText('Select...')).toBeInTheDocument();
+		expect(screen.getByTestId(new RegExp(`${testId}.*placeholder`))).toBeInTheDocument();
 
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
 		const selectControl = container.getElementsByClassName('react-select__control--is-disabled');
@@ -267,11 +374,12 @@ describe('Select', () => {
 				options={OPTIONS}
 				isMulti
 				label="Options"
+				testId={testId}
 			/>,
 		);
 
 		act(() => {
-			selectEvent.openMenu(screen.getByText('Select...'));
+			selectEvent.openMenu(screen.getByTestId(new RegExp(`${testId}.*placeholder`)));
 		});
 
 		expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
@@ -406,10 +514,17 @@ describe('Select', () => {
 	 */
 	it.skip('should call filterOption when input of select is changed', async () => {
 		const filterOptionSpy = jest.fn();
-		render(<AtlaskitSelect options={OPTIONS} filterOption={filterOptionSpy} label="Options" />);
+		render(
+			<AtlaskitSelect
+				options={OPTIONS}
+				filterOption={filterOptionSpy}
+				label="Options"
+				testId={testId}
+			/>,
+		);
 
 		await user.keyboard('5');
-		await user.clear(screen.getByText('Select...'));
+		await user.clear(screen.getByTestId(`${testId}-select--input`));
 		await user.keyboard('1');
 
 		expect(filterOptionSpy).toHaveBeenCalledTimes(2);
@@ -551,4 +666,139 @@ it('UNSAFE_is_experimental_generic should pass down and replace semantics', asyn
 	const list = within(dialog).getByRole('list');
 	expect(within(list).queryAllByRole('listitem')).toHaveLength(OPTIONS.length);
 	expect(within(list).queryAllByRole('option')).toHaveLength(0);
+});
+
+describe('Select dropdown indicator voice-control accessibility', () => {
+	ffTest.on(
+		'platform_dst_select_dropdown_voice_control',
+		'when the voice-control accessible dropdown gate is enabled',
+		() => {
+			it('renders a button with tabIndex=-1 and an aria-label so voice control can target it', () => {
+				const testId = 'select';
+				render(<AtlaskitSelect options={OPTIONS} testId={testId} />);
+
+				const indicator = screen.getByTestId(`${testId}-select--dropdown-indicator`);
+				const button = within(indicator).getByRole('button', {
+					name: /toggle select menu/i,
+				});
+
+				expect(button).toBeInTheDocument();
+				expect(button).toHaveAttribute('type', 'button');
+				expect(button).toHaveAttribute('tabindex', '-1');
+				// The wrapper must NOT be aria-hidden when the gate is on,
+				// otherwise the inner button is hidden from the AT tree.
+				expect(indicator).not.toHaveAttribute('aria-hidden');
+			});
+
+			it('disables the voice-control button when the select is disabled', () => {
+				const testId = 'select';
+				render(<AtlaskitSelect options={OPTIONS} testId={testId} isDisabled />);
+
+				const indicator = screen.getByTestId(`${testId}-select--dropdown-indicator`);
+				const button = within(indicator).getByRole('button', {
+					name: /toggle select menu/i,
+				});
+
+				expect(button).toBeDisabled();
+			});
+
+			it('opens the menu when the voice-control button is clicked (mousedown bubbles to wrapper handler)', async () => {
+				const testId = 'select';
+				render(<AtlaskitSelect options={OPTIONS} testId={testId} />);
+
+				expect(screen.queryByTestId(`${testId}-select--listbox`)).not.toBeInTheDocument();
+
+				const button = screen.getByRole('button', { name: /toggle select menu/i });
+				await user.click(button);
+
+				expect(await screen.findByTestId(`${testId}-select--listbox`)).toBeInTheDocument();
+			});
+
+			it('keeps the button out of the keyboard tab order', () => {
+				const testId = 'select';
+				render(<AtlaskitSelect options={OPTIONS} testId={testId} />);
+
+				const button = screen.getByRole('button', {
+					name: /toggle select menu/i,
+				});
+
+				// Static assertion (per code-review feedback): the contract is
+				// "this button must NEVER be reachable via Tab", which is
+				// fully expressed by the tabindex value. We don't simulate a
+				// Tab keypress here because the document focus state in jsdom
+				// after click-based interactions earlier in the suite is not
+				// fully deterministic; the equivalent end-to-end behaviour is
+				// covered by the Playwright integration test.
+				expect(button).toHaveAttribute('tabindex', '-1');
+			});
+
+			it('applies an inline size reset so consumer global button styles cannot stretch the chevron (JPO-42328)', () => {
+				// Guards the inline size reset in @atlaskit/react-select's DropdownIndicator
+				// (see that component + JPO-42328). Fails if the reset is removed.
+				const testId = 'select';
+				render(<AtlaskitSelect options={OPTIONS} testId={testId} />);
+
+				const button = screen.getByRole('button', { name: /toggle select menu/i });
+
+				// Assert on the raw inline style attribute rather than toHaveStyle: the
+				// reset uses `min-width: 0`, which React serialises without a unit and
+				// jsdom's getComputedStyle does not normalise to `0px`. The attribute
+				// string is deterministic and stays green whether the reset is written
+				// as `0` or `0px`.
+				const inlineStyle = button.getAttribute('style') ?? '';
+				expect(inlineStyle).toMatch(/min-width:\s*0(px)?\b/);
+				expect(inlineStyle).toMatch(/width:\s*auto\b/);
+			});
+		},
+	);
+
+	ffTest.off(
+		'platform_dst_select_dropdown_voice_control',
+		'when the voice-control accessible dropdown gate is disabled',
+		() => {
+			it('does not render a voice-control button and retains legacy aria-hidden behaviour', () => {
+				const testId = 'select';
+				render(<AtlaskitSelect options={OPTIONS} testId={testId} />);
+
+				const indicator = screen.getByTestId(`${testId}-select--dropdown-indicator`);
+
+				expect(
+					within(indicator).queryByRole('button', { name: /toggle select menu/i }),
+				).not.toBeInTheDocument();
+				expect(indicator).toHaveAttribute('aria-hidden', 'true');
+				expect(within(indicator).getByLabelText('open')).toBeInTheDocument();
+			});
+		},
+	);
+
+	ffTest.on(
+		'platform_dst_select_dropdown_voice_control',
+		'when the voice-control gate is enabled',
+		() => {
+			it('wraps consumer-supplied children in aria-hidden to preserve legacy AT behaviour', () => {
+				const testId = 'select';
+				render(
+					<AtlaskitSelect
+						options={OPTIONS}
+						testId={testId}
+						components={{
+							DropdownIndicator: (innerProps) => (
+								<components.DropdownIndicator {...innerProps}>
+									<button type="button" data-testid="legacy-unnamed-button" />
+								</components.DropdownIndicator>
+							),
+						}}
+					/>,
+				);
+
+				const indicator = screen.getByTestId(`${testId}-select--dropdown-indicator`);
+				expect(indicator).not.toHaveAttribute('aria-hidden');
+				const childrenWrapper = within(indicator).getByTestId(
+					`${testId}-select--dropdown-indicator-children`,
+				);
+				expect(childrenWrapper).toHaveAttribute('aria-hidden', 'true');
+				expect(within(childrenWrapper).getByTestId('legacy-unnamed-button')).toBeInTheDocument();
+			});
+		},
+	);
 });

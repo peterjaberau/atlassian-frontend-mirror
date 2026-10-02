@@ -1,7 +1,8 @@
 import { bind } from 'bind-event-listener';
 import type { UnbindFn } from 'bind-event-listener';
 
-import { type AbortableTask, backgroundTask } from './backgroundTasks';
+import { backgroundTask } from './backgroundTasks';
+import type { AbortableTask } from './backgroundTasks';
 import type {
 	Cleanable,
 	Timeline,
@@ -438,7 +439,7 @@ export class TimelineController
 		};
 	}
 
-	serialise() {
+	serialise(): EventsGroupedSerialized {
 		const result: EventsGroupedSerialized = [];
 		for (const [key, value] of this.eventsPerType.entries()) {
 			// TODO: ED-26959 - maybe implement a proper clone?

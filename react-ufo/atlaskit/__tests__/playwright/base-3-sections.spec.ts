@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test, viewports } from './fixtures';
 
 test.describe('TTVC: basic page (3 congruent sections)', () => {
@@ -9,8 +10,15 @@ test.describe('TTVC: basic page (3 congruent sections)', () => {
 	for (const featureFlags of featureFlagsCombos) {
 		test.describe(`with feature flags ${featureFlags.join(', ')}`, () => {
 			test.use({
-				examplePage: 'basic-three-sections',
 				featureFlags,
+			});
+
+			test.beforeEach(async ({ page }) => {
+				await page.visitExample<typeof import('../../examples/02-basic-three-sections.tsx')>(
+					'react-ufo',
+					'atlaskit',
+					'basic-three-sections',
+				);
 			});
 
 			for (const viewport of viewports) {
@@ -69,11 +77,7 @@ test.describe('TTVC: basic page (3 congruent sections)', () => {
 						expect(vc90Result).toMatchTimestamp(sectionThreeVisibleAt);
 					});
 
-					test('should capture and report a11y violations', async ({
-						page,
-						waitForReactUFOPayload,
-						getSectionDOMAddedAt,
-					}) => {
+					test('should capture and report a11y violations', async ({ page }) => {
 						const mainDiv = page.locator('[data-testid="main"]');
 						await expect(mainDiv).toBeVisible();
 

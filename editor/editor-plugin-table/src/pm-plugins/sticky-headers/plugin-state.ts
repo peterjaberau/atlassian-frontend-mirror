@@ -1,4 +1,7 @@
+import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
+import type { Command } from '@atlaskit/editor-common/types';
 import { pluginFactory } from '@atlaskit/editor-common/utils';
+import type { EditorState, SafeStateField, Transaction } from '@atlaskit/editor-prosemirror/state';
 
 import { pluginKey } from './plugin-key';
 import type { StickyPluginAction, StickyPluginState } from './types';
@@ -29,7 +32,7 @@ const reducer = (pluginState: StickyPluginState, action: StickyPluginAction): St
 	return pluginState;
 };
 
-const { createPluginState, createCommand } = pluginFactory(pluginKey, reducer, {
+const dest = pluginFactory(pluginKey, reducer, {
 	mapping: (tr, pluginState) => {
 		if (tr.docChanged) {
 			return pluginState
@@ -48,5 +51,13 @@ const { createPluginState, createCommand } = pluginFactory(pluginKey, reducer, {
 		return pluginState;
 	},
 });
+const createPluginState: (
+	dispatch: Dispatch,
+	initialState: StickyPluginState | ((state: EditorState) => StickyPluginState),
+) => SafeStateField<StickyPluginState> = dest.createPluginState;
+const createCommand: <A = StickyPluginAction>(
+	action: A | ((state: Readonly<EditorState>) => false | A),
+	transform?: (tr: Transaction, state: EditorState) => Transaction,
+) => Command = dest.createCommand;
 
 export { createPluginState, createCommand };

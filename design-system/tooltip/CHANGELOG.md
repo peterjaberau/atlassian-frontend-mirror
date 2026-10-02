@@ -1,5 +1,839 @@
 # @atlaskit/tooltip
 
+## 24.4.0
+
+### Minor Changes
+
+- [`457c77d8f6992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/457c77d8f6992) -
+  Adds `hasNewContentOnTriggerClick`, which keeps the tooltip open when its trigger is pressed so
+  new content (for example "Copied!") shows. Deprecates `hideTooltipOnClick` and
+  `hideTooltipOnMouseDown`. Both changes only affect behaviour with
+  `platform-dst-top-layer-tooltip`.
+- [`457c77d8f6992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/457c77d8f6992) -
+  Adds a `@atlaskit/tooltip/testing` entrypoint exporting `waitForTooltipToHide()`. With
+  `platform-dst-top-layer-tooltip` on, the tooltip renders through a top-layer `Popover`, and in
+  jsdom the exit settles in a native promise microtask that Jest fake timers do not drain. After
+  flushing the hide delay, `await waitForTooltipToHide()` runs the pending fake timers and yields
+  once inside an async `act`, so `onHide` has fired and the tooltip has left the document before the
+  test asserts. Requires React 18.3 or newer.
+
+### Patch Changes
+
+- [`457c77d8f6992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/457c77d8f6992) -
+  Behind `platform-dst-top-layer-tooltip`: the top-layer tooltip sets `role="tooltip"` and
+  `data-placement` on the Popover host. Inside it, `TooltipPrimitive` now defaults to
+  `role="presentation"` through an internal context, so custom `component` wrappers that do not
+  forward `role` no longer produce two `role="tooltip"` nodes. An explicit `role` prop still wins,
+  and a `TooltipPrimitive` rendered inside tooltip content keeps the `role="tooltip"` default when
+  the tooltip's `component` is built on `TooltipPrimitive`. The `component` now always receives a
+  `ref`, so wrappers that render nothing without one now render their content. The legacy path and
+  standalone `TooltipPrimitive` and `TooltipContainer` usage are unchanged.
+- Updated dependencies
+
+## 24.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.3.1
+
+### Patch Changes
+
+- [`a7ec100f7d560`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7ec100f7d560) -
+  The top-layer code path now uses `@atlaskit/top-layer`'s `useAnchoredPopover`, so these popovers
+  are capped to the viewport and one too wide for the space beside its trigger moves to a roomier
+  side rather than wrapping into it. No public API change. Behind the `platform-dst-top-layer` gate
+  (`platform-dst-top-layer-tooltip` for `@atlaskit/tooltip`, `platform-dst-top-layer-spotlight` for
+  `@atlaskit/spotlight`); legacy (flag-off) behaviour is unchanged.
+- Updated dependencies
+
+## 24.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.2.1
+
+### Patch Changes
+
+- Use `@atlassian/testing-library` exclusively in unit tests.
+- Updated dependencies
+
+## 24.2.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+- [`005037db2dcaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/005037db2dcaa) -
+  Autofix: update cross-package imports away from barrel entries
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.9
+
+### Patch Changes
+
+- [`14c01c9b4877b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14c01c9b4877b) -
+  Behind `platform-dst-top-layer-tooltip`, a pointer press now dismisses the tooltip until the
+  trigger is re-entered, instead of the tooltip re-showing itself on the next pointer movement. No
+  change when the gate is off.
+
+## 24.0.8
+
+### Patch Changes
+
+- [`d84401aa08ea3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d84401aa08ea3) -
+  Behind `platform-dst-top-layer-tooltip`, a pointer press now dismisses the tooltip until the
+  trigger is re-entered, instead of the tooltip re-showing itself on the next pointer movement. No
+  change when the gate is off.
+
+## 24.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.5
+
+### Patch Changes
+
+- [`ecfe7c468ff78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ecfe7c468ff78) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 24.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.2
+
+### Patch Changes
+
+- [`6902b31db1608`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6902b31db1608) -
+  Consolidate direct Popper.js callers behind `@atlaskit/popper` compatibility entry points and
+  feature-gated consumer adapters.
+
+  `@atlaskit/popper` now exposes compatibility entry points so existing direct `popper.js` /
+  `react-popper` callers can move their dependency ownership onto `@atlaskit/popper` without a full
+  rewrite:
+  - `@atlaskit/popper/react-popper` re-exports the React `usePopper` hook and `Manager` / `Popper` /
+    `Reference` render-prop components.
+  - `@atlaskit/popper/unsafe-imperative` re-exports the raw Popper.js v2 `createPopper` for
+    non-React, imperative callers. This is an escape hatch for existing callers only. Do not use it
+    for new code; build new overlays on `@atlaskit/top-layer` instead.
+
+  ```ts
+  // Imperative callers (migrating away from a direct `@popperjs/core` / `popper.js` import):
+  import { createPopper } from '@atlaskit/popper/unsafe-imperative';
+
+  const instance = createPopper(referenceElement, popperElement, {
+  	placement: 'bottom-start',
+  });
+
+  // React callers (migrating away from a direct `react-popper` import):
+  import { usePopper } from '@atlaskit/popper/react-popper';
+
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  	placement: 'bottom-start',
+  });
+  ```
+
+- Updated dependencies
+
+## 24.0.1
+
+### Patch Changes
+
+- [`3da013cc133e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3da013cc133e5) -
+  Internal refactor for safer feature flag usage.
+
+## 24.0.0
+
+### Major Changes
+
+- [`c9014b843f7ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9014b843f7ea) -
+  Apply Volt entry-point and multi-export standards via `volt-migrate-package`. This is a **major**
+  change to `@atlaskit/tooltip`: the package `exports` map has been restructured so every public
+  subpath now resolves **directly** to its `./src/*` implementation instead of going through an
+  intermediate `./src/entry-points/*` re-export. No public subpaths were removed.
+
+  ### Why this is breaking
+
+  Because each subpath now points straight at its implementation module, a subpath and the package
+  root can resolve to the **same module instance**. Consumers that deep-import the internal
+  `entry-points/*` files, or that `jest.mock()` a specific subpath, may observe changed
+  resolution/behaviour and need updating. For example, this package's `/Tooltip` mock must handle
+  render-prop function children (see the accompanying Confluence blog-tree test fix).
+
+  ### Migration — public imports are unchanged
+
+  Importing the published subpaths (or the package root) continues to work as before:
+
+  ```ts
+  // Still valid — no change required
+  import Tooltip from '@atlaskit/tooltip/Tooltip';
+  ```
+
+  If you were reaching into the internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Tooltip from '@atlaskit/tooltip/entry-points/Tooltip';
+  +import Tooltip from '@atlaskit/tooltip/Tooltip';
+  ```
+
+  ### Before / after `exports` map
+
+  ```diff
+    "exports": {
+      ".": "./src/index.tsx",
+  -   "./Tooltip": "./src/entry-points/tooltip.tsx",
+  +   "./Tooltip": "./src/tooltip.tsx",
+  -   "./TooltipContainer": "./src/entry-points/tooltip-container.tsx",
+  +   "./TooltipContainer": "./src/tooltip-container.tsx",
+  -   "./TooltipPrimitive": "./src/entry-points/tooltip-primitive.tsx",
+  +   "./TooltipPrimitive": "./src/tooltip-primitive.tsx",
+  -   "./types": "./src/entry-points/types.tsx",
+  +   "./types": "./src/types.tsx",
+    }
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.2.0
+
+### Minor Changes
+
+- [`3f6f3bd7da074`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f6f3bd7da074) -
+  Updates usage of the Top Layer primitives to consume changes to animation API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.1.2
+
+### Patch Changes
+
+- [`d2f4cf19d246d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2f4cf19d246d) -
+  Move Tooltip top-layer rendering behind the platform-dst-top-layer-tooltip feature gate
+
+## 23.1.1
+
+### Patch Changes
+
+- [`7793dc62dd564`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7793dc62dd564) -
+  Internal refactor of upcoming top-layer usage
+- Updated dependencies
+
+## 23.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 23.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.6.3
+
+### Patch Changes
+
+- [`6d0485dce81c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d0485dce81c4) -
+  Internal: updated to the new `@atlaskit/top-layer` `Popover`/`Dialog` behaviour where the host
+  element unmounts after the exit animation completes. No consumer action required.
+- Updated dependencies
+
+## 22.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.6.0
+
+### Minor Changes
+
+- [`cf4af9aa9a2fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf4af9aa9a2fe) -
+  Fix tooltip with `position="mouse-x"` / `position="mouse-y"` not respecting the `mousePosition`
+  prop when the `platform-dst-top-layer` feature flag is enabled.
+
+  The cursor-anchored tooltip is now positioned via a new `useAnchorPositionAtPoint` hook in
+  `@atlaskit/top-layer`, which delegates to `useAnchorPosition` against a hidden anchor element
+  placed once at the cursor location at show time. The popover stays anchored at that location and
+  does not follow subsequent pointer movement.
+
+  `useAnchorPosition` now also accepts an optional `isEnabled` prop (defaults to `true`); when
+  `false`, the hook is a no-op.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.5.0
+
+### Minor Changes
+
+- [`c8015d2d4c09c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c8015d2d4c09c) -
+  Restore the 8px gap between a tooltip and its trigger on the `platform-dst-top-layer` rendering
+  path. The initial top-layer migration used a 4px gap, which visibly tightened the spacing compared
+  to the legacy popper rendering.
+
+## 22.4.0
+
+### Minor Changes
+
+- [`260b756c2509d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/260b756c2509d) -
+  Restore the 8px gap between a tooltip and its trigger on the `platform-dst-top-layer` rendering
+  path. The initial top-layer migration used a 4px gap, which visibly tightened the spacing compared
+  to the legacy popper rendering.
+
+## 22.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.3.0
+
+### Minor Changes
+
+- [`8e9ab10567283`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8e9ab10567283) -
+  When `platform-dst-top-layer` is enabled, the open layer observer registration now happens inside
+  the `Dialog` and `Popover` primitives directly, so `popup`, `modal-dialog`, and `tooltip` no
+  longer register with the open layer observer separately (avoiding double-counting).
+  - `Dialog` registers as `type: 'modal'`, with a no-op `onClose`, as there is no current use case
+    for programmatic close of modals via the open layer observer.
+  - `Popover` registers as `type: 'popup'` for interactive overlay roles (`dialog`, `alertdialog`,
+    `menu`, `listbox`, `tree`, `grid`) and omits `type` for other roles (e.g. `tooltip`).
+  - A new `programmatic` value has been added to `TPopoverCloseReason` to distinguish programmatic
+    closes, such as those from the open layer observer's `closeLayers()` calls.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.2.0
+
+### Minor Changes
+
+- [`7250582895c0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7250582895c0b) -
+  Top-layer adoption work behind the `platform-dst-top-layer` feature flag. Public adopter APIs are
+  intentionally kept narrow while the top-layer API surface settles, with one exception called out
+  below.
+
+  Highlights:
+  - Pass the full `[along, away]` legacy popper offset through to the new top-layer
+    `placement.offset` API (via `fromLegacyPlacement`). Previously only the `away` axis was
+    forwarded, which dropped the `along` offset for consumers of `Popup`, `PopupSelect`,
+    `Spotlight`, and `Tooltip` when `platform-dst-top-layer` is enabled.
+  - Fix broken import of `dialogHeight` and `dialogWidth` from the removed utils module in
+    `@atlaskit/modal-dialog`.
+
+  Public API:
+  - **`@atlaskit/tooltip`** (`minor`): add an optional `testId?: string` field to `TriggerProps`.
+    This is additive (no existing prop changes shape). Required because `@atlaskit/button/new` (and
+    other `Pressable`-backed primitives) overwrite `data-testid` from spread, so the legacy
+    `(triggerProps as any)['data-testid']` workaround is silently absorbed by those consumers. A
+    typed `testId` field flows through their own `testId` destructure instead, restoring
+    `data-testid` propagation onto the rendered trigger element.
+  - **`@atlaskit/popup`**, **`@atlaskit/dropdown-menu`** (`patch`): no public type changes. Wider
+    `aria-haspopup` unions that the FF-on path produces are bridged at the package boundary into
+    `@atlaskit/top-layer` with localised `FUDGE(top-layer-api)` casts, documented in
+    `packages/design-system/top-layer/notes/decisions/migration-roadmap.md` ("Open API decisions
+    deferred to a follow-up PR"). They will be widened in a follow-up `minor` PR once the top-layer
+    API is committed.
+  - **`@atlaskit/modal-dialog`**, **`@atlaskit/select`**, **`@atlaskit/spotlight`**
+    (`patch`/`minor`): no public type changes; bug fixes only.
+
+  Merge-readiness fixes (FF-on test wiring + adopter behavior):
+  - **`@atlaskit/popup`** (`minor`): wire the compositional `PopupContent` to delegate to
+    `PopupContentTopLayer` when `platform-dst-top-layer` is enabled. Previously only the legacy
+    `Popup` component had the FF branch, leaving consumers of the compositional API on the legacy
+    popper path.
+  - **`@atlaskit/select`** (`minor`): add an `onClick` handler to the `PopupSelect` top-layer
+    trigger so clicks open/close the menu (mirrors the legacy global click handler in
+    `popup-select.tsx`). Add explicit Escape handling on the menu's `onKeyDown` so the menu closes
+    and focus returns to the trigger.
+  - **`@atlaskit/top-layer`** (`patch`): the `<dialog>` rendered by the Dialog primitive now sets
+    `aria-modal="true"` explicitly. Modern browsers infer modal semantics from `.showModal()` but
+    some assistive tech still keys off the explicit attribute.
+  - **`@atlaskit/top-layer`** (`patch`): guard `use-anchor-positioning` against environments where
+    `ResizeObserver` is not defined (e.g. jest's `node` environment, used by the post-office test
+    suite). The observer is used to wait for the popover's first valid layout before measuring;
+    consumers in non-DOM jest environments now get a no-op observer and the scroll/resize listeners
+    still apply if the host environment polyfills `showPopover`. Real browsers always have
+    `ResizeObserver`.
+  - **`@atlaskit/modal-dialog`** (`patch`): on the FF-on path, drop the `tabIndex={-1}` (and unused
+    `:focus-visible` outline) from the modal content wrapper. The native `<dialog>.showModal()`
+    focus-delegate algorithm picks the first focusable descendant (including `tabindex=-1`), and the
+    wrapper was hijacking initial focus from the close button. Also honor `shouldReturnFocus={ref}`
+    on the FF-on path (an unmount-cleanup focuses the ref after `dialog.close()` so it overrides the
+    browser's automatic return-to-trigger). Boolean `shouldReturnFocus={false}` is not yet honored
+    on the FF-on path — see `top-layer/notes/merge-blockers.md`.
+  - **`@atlaskit/datetime-picker`** (`patch`): on the FF-on path, set `mode="manual"` on the
+    `Popup.Content` rendered by both `internal/menu-top-layer.tsx` (date-picker calendar) and
+    `internal/fixed-layer-menu-top-layer.tsx` (time-picker menu). With the default `mode="auto"`,
+    the same click event that opens the menu (which targets the react-select combobox input —
+    outside the popover element) bubbles to the browser's native popover light-dismiss handler and
+    immediately closes the menu. react-select / DateTimePicker already own outside-click and Esc
+    dismissal via their own state, so opting out of the native auto-dismiss is the correct
+    integration. Also extend the existing Esc → trigger-focus restoration in
+    `components/date-picker.tsx` to the FF-on path (manual mode disables the browser's built-in
+    focus return, and the legacy code path was already handling this for itself behind an FF
+    negation).
+  - **`@atlaskit/popup`** (no public API change): no source changes — only FF-on Playwright
+    spec/example fixes drove the suite from 21/3/2 to 27/0/0. Notable: the two `test.fixme`'d
+    nested-popover cases were not browser limitations; `popover="auto"` chains correctly via DOM
+    ancestry (the original fixmes had the wrong testId selector). Added `testId` props to two
+    examples (`16-popup-with-a11y-props`, `18-should-fit-container`) so default-shape tests can
+    reach the trigger.
+  - Test alignment for FF-on Playwright suites across `popup`, `select`, `datetime-picker`,
+    `inline-dialog`, `inline-message`, and `modal-dialog`: selector updates to match the new
+    top-layer testId convention (`${testId}--content`, `[role="dialog"][aria-label="calendar"]`),
+    per-spec `skipAxeCheck()` for example-level color-contrast violations unrelated to the
+    migration, and focus assertions adjusted to match native `<dialog>` / `Popup.Content` auto-focus
+    semantics (focus lands on the first focusable child, not the dialog container itself).
+  - **`@atlassian/capacity-planning-capacity-graph`**, **`@atlaskit/color-picker`**,
+    **`@atlassian/timeline-table`**, **`@atlassian/global-side-navigation`** (`patch`): scope `fg`
+    mocks in unit tests so `platform-dst-top-layer` returns `false`. JSDOM does not implement the
+    native Popover API (`showPopover`/`hidePopover`/`toggle` events), so leaving the gate ON in unit
+    tests caused popover content to remain in the DOM after close and broke close-behaviour
+    assertions. Browser coverage for the FF-on path is provided by the Playwright suites listed
+    above.
+  - **`@atlaskit/dropdown-menu`** (no public API change): test/example-only fixes for the FF-on
+    Playwright suite. Added `role="menuitem"` to the nested-trigger `ButtonItem` in
+    `examples/93-testing-nested-keyboard-navigation-top-layer.tsx` to satisfy axe's
+    `aria-required-children` rule on the parent menu. Added a `test.beforeEach(skipAxeCheck)` to
+    `dropdown-menu.spec.tsx` (FF-on suite) for example-level `color-contrast` violations on the
+    pre-existing `color.text.selected`/`color.background.selected` token pair (3.91:1). Replaced a
+    deadlocking `await expect(moveItem).not.toBeFocused()` pre-open assertion (Playwright's
+    auto-wait blocks 5s on the absent element) with `await expect(moveItem).not.toBeVisible()`.
+    Suite result: 22/22 passing.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.1.0
+
+### Minor Changes
+
+- [`2bed6255731de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bed6255731de) -
+  Top-layer adoption work behind the `platform-dst-top-layer` feature flag. Public adopter APIs are
+  intentionally kept narrow while the top-layer API surface settles, with one exception called out
+  below.
+
+  Highlights:
+  - Pass the full `[along, away]` legacy popper offset through to the new top-layer
+    `placement.offset` API (via `fromLegacyPlacement`). Previously only the `away` axis was
+    forwarded, which dropped the `along` offset for consumers of `Popup`, `PopupSelect`,
+    `Spotlight`, and `Tooltip` when `platform-dst-top-layer` is enabled.
+  - Fix broken import of `dialogHeight` and `dialogWidth` from the removed utils module in
+    `@atlaskit/modal-dialog`.
+
+  Public API:
+  - **`@atlaskit/tooltip`** (`minor`): add an optional `testId?: string` field to `TriggerProps`.
+    This is additive (no existing prop changes shape). Required because `@atlaskit/button/new` (and
+    other `Pressable`-backed primitives) overwrite `data-testid` from spread, so the legacy
+    `(triggerProps as any)['data-testid']` workaround is silently absorbed by those consumers. A
+    typed `testId` field flows through their own `testId` destructure instead, restoring
+    `data-testid` propagation onto the rendered trigger element.
+  - **`@atlaskit/popup`**, **`@atlaskit/dropdown-menu`** (`patch`): no public type changes. Wider
+    `aria-haspopup` unions that the FF-on path produces are bridged at the package boundary into
+    `@atlaskit/top-layer` with localised `FUDGE(top-layer-api)` casts, documented in
+    `packages/design-system/top-layer/notes/decisions/migration-roadmap.md` ("Open API decisions
+    deferred to a follow-up PR"). They will be widened in a follow-up `minor` PR once the top-layer
+    API is committed.
+  - **`@atlaskit/modal-dialog`**, **`@atlaskit/select`**, **`@atlaskit/spotlight`**
+    (`patch`/`minor`): no public type changes; bug fixes only.
+
+  Merge-readiness fixes (FF-on test wiring + adopter behavior):
+  - **`@atlaskit/popup`** (`minor`): wire the compositional `PopupContent` to delegate to
+    `PopupContentTopLayer` when `platform-dst-top-layer` is enabled. Previously only the legacy
+    `Popup` component had the FF branch, leaving consumers of the compositional API on the legacy
+    popper path.
+  - **`@atlaskit/select`** (`minor`): add an `onClick` handler to the `PopupSelect` top-layer
+    trigger so clicks open/close the menu (mirrors the legacy global click handler in
+    `popup-select.tsx`). Add explicit Escape handling on the menu's `onKeyDown` so the menu closes
+    and focus returns to the trigger.
+  - **`@atlaskit/top-layer`** (`patch`): the `<dialog>` rendered by the Dialog primitive now sets
+    `aria-modal="true"` explicitly. Modern browsers infer modal semantics from `.showModal()` but
+    some assistive tech still keys off the explicit attribute.
+  - **`@atlaskit/top-layer`** (`patch`): guard `use-anchor-positioning` against environments where
+    `ResizeObserver` is not defined (e.g. jest's `node` environment, used by the post-office test
+    suite). The observer is used to wait for the popover's first valid layout before measuring;
+    consumers in non-DOM jest environments now get a no-op observer and the scroll/resize listeners
+    still apply if the host environment polyfills `showPopover`. Real browsers always have
+    `ResizeObserver`.
+  - **`@atlaskit/modal-dialog`** (`patch`): on the FF-on path, drop the `tabIndex={-1}` (and unused
+    `:focus-visible` outline) from the modal content wrapper. The native `<dialog>.showModal()`
+    focus-delegate algorithm picks the first focusable descendant (including `tabindex=-1`), and the
+    wrapper was hijacking initial focus from the close button. Also honor `shouldReturnFocus={ref}`
+    on the FF-on path (an unmount-cleanup focuses the ref after `dialog.close()` so it overrides the
+    browser's automatic return-to-trigger). Boolean `shouldReturnFocus={false}` is not yet honored
+    on the FF-on path — see `top-layer/notes/merge-blockers.md`.
+  - **`@atlaskit/datetime-picker`** (`patch`): on the FF-on path, set `mode="manual"` on the
+    `Popup.Content` rendered by both `internal/menu-top-layer.tsx` (date-picker calendar) and
+    `internal/fixed-layer-menu-top-layer.tsx` (time-picker menu). With the default `mode="auto"`,
+    the same click event that opens the menu (which targets the react-select combobox input —
+    outside the popover element) bubbles to the browser's native popover light-dismiss handler and
+    immediately closes the menu. react-select / DateTimePicker already own outside-click and Esc
+    dismissal via their own state, so opting out of the native auto-dismiss is the correct
+    integration. Also extend the existing Esc → trigger-focus restoration in
+    `components/date-picker.tsx` to the FF-on path (manual mode disables the browser's built-in
+    focus return, and the legacy code path was already handling this for itself behind an FF
+    negation).
+  - **`@atlaskit/popup`** (no public API change): no source changes — only FF-on Playwright
+    spec/example fixes drove the suite from 21/3/2 to 27/0/0. Notable: the two `test.fixme`'d
+    nested-popover cases were not browser limitations; `popover="auto"` chains correctly via DOM
+    ancestry (the original fixmes had the wrong testId selector). Added `testId` props to two
+    examples (`16-popup-with-a11y-props`, `18-should-fit-container`) so default-shape tests can
+    reach the trigger.
+  - Test alignment for FF-on Playwright suites across `popup`, `select`, `datetime-picker`,
+    `inline-dialog`, `inline-message`, and `modal-dialog`: selector updates to match the new
+    top-layer testId convention (`${testId}--content`, `[role="dialog"][aria-label="calendar"]`),
+    per-spec `skipAxeCheck()` for example-level color-contrast violations unrelated to the
+    migration, and focus assertions adjusted to match native `<dialog>` / `Popup.Content` auto-focus
+    semantics (focus lands on the first focusable child, not the dialog container itself).
+  - **`@atlassian/capacity-planning-capacity-graph`**, **`@atlaskit/color-picker`**,
+    **`@atlassian/timeline-table`**, **`@atlassian/global-side-navigation`** (`patch`): scope `fg`
+    mocks in unit tests so `platform-dst-top-layer` returns `false`. JSDOM does not implement the
+    native Popover API (`showPopover`/`hidePopover`/`toggle` events), so leaving the gate ON in unit
+    tests caused popover content to remain in the DOM after close and broke close-behaviour
+    assertions. Browser coverage for the FF-on path is provided by the Playwright suites listed
+    above.
+  - **`@atlaskit/dropdown-menu`** (no public API change): test/example-only fixes for the FF-on
+    Playwright suite. Added `role="menuitem"` to the nested-trigger `ButtonItem` in
+    `examples/93-testing-nested-keyboard-navigation-top-layer.tsx` to satisfy axe's
+    `aria-required-children` rule on the parent menu. Added a `test.beforeEach(skipAxeCheck)` to
+    `dropdown-menu.spec.tsx` (FF-on suite) for example-level `color-contrast` violations on the
+    pre-existing `color.text.selected`/`color.background.selected` token pair (3.91:1). Replaced a
+    deadlocking `await expect(moveItem).not.toBeFocused()` pre-open assertion (Playwright's
+    auto-wait blocks 5s on the absent element) with `await expect(moveItem).not.toBeVisible()`.
+    Suite result: 22/22 passing.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Major Changes
+
+- [`4659a23161b03`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4659a23161b03) - -
+  Removes the `FakeMouseElement` exported type
+  - Renames `UNSAFE_shouldRenderToParent` to `shouldRenderToParent`
+  - Renames `UNSAFE_shouldAlwaysFadeIn` to `shouldAlwaysFadeIn`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.0
+
+### Minor Changes
+
+- [`0535fe6d19c87`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0535fe6d19c87) -
+  Cleans up the `platform_dst_nav4_side_nav_resize_tooltip_feedback` feature gate. Tooltip now
+  supports the `UNSAFE_shouldRenderToParent` and `UNSAFE_shouldAlwaysFadeIn` props, as well as
+  `mouse-x` and `mouse-y` positions.
+
+## 21.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.3
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 21.1.2
+
+### Patch Changes
+
+- [`e2085d35701ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2085d35701ca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 21.1.1
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- Updated dependencies
+
+## 21.1.0
+
+### Minor Changes
+
+- [`a4ea57d27e111`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4ea57d27e111) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+- Updated dependencies
+
+## 21.0.0
+
+### Major Changes
+
+- [`38f89455de21d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38f89455de21d) -
+  Removes `tooltip/utilities` entrypoint from public API. Use the utility exports from
+  `@atlaskit/tooltip` directly.
+
+  Removes redundant utility files, split-out multi-export modules and restructures internal files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.14.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.14.6
+
+### Patch Changes
+
+- [`28cd2d5ab44fa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28cd2d5ab44fa) -
+  doc tool changes
+
+## 20.14.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.14.4
+
+### Patch Changes
+
+- [`5db9e3f21a52f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5db9e3f21a52f) -
+  Internal refactoring
+- Updated dependencies
+
 ## 20.14.3
 
 ### Patch Changes

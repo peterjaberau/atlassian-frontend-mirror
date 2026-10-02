@@ -1,33 +1,41 @@
 import { snapshot } from '@af/visual-regression';
 
-import VRInlineCardAllExamplesInText from '../../../examples/vr-inline-card/vr-inline-card-all-examples-in-text';
-import InlineCardDefaultWithEntities from '../../../examples/vr-inline-card/vr-inline-card-default-entities';
-import InlineCardDefault from '../../../examples/vr-inline-card/vr-inline-card-default-icon';
-import InlineCardDefaultTruncate from '../../../examples/vr-inline-card/vr-inline-card-default-truncate';
-import InlineCardError from '../../../examples/vr-inline-card/vr-inline-card-error';
-import InlineCardErrorTruncate from '../../../examples/vr-inline-card/vr-inline-card-error-truncate';
-import InlineCardFontSize16 from '../../../examples/vr-inline-card/vr-inline-card-font-size-16';
-import InlineCardFontSize24 from '../../../examples/vr-inline-card/vr-inline-card-font-size-24';
-import InlineCardFontSize32 from '../../../examples/vr-inline-card/vr-inline-card-font-size-32';
-import InlineCardFontSizeDefault from '../../../examples/vr-inline-card/vr-inline-card-font-size-default';
-import InlineCardForbidden from '../../../examples/vr-inline-card/vr-inline-card-forbidden';
-import InlineCardForbiddenDefaultIcon from '../../../examples/vr-inline-card/vr-inline-card-forbidden-default-icon';
-import InlineCardForbiddenRequestAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-request-access';
-import InlineCardForbiddenDeniedSiteAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-denied-access';
-import InlineCardForbiddenDirectAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-direct-access';
-import InlineCardForbiddenPendingSiteAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-pending-access';
-import InlineCardForbiddenSiteRequestAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-request-access';
-import InlineCardForbiddenSiteRequestAccessTruncate from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-request-access-truncate';
-import InlineCardForbiddenTruncate from '../../../examples/vr-inline-card/vr-inline-card-forbidden-truncate';
-import InlineCardIcons from '../../../examples/vr-inline-card/vr-inline-card-icons';
-import InlineCardNotFound from '../../../examples/vr-inline-card/vr-inline-card-not-found';
-import InlineCardNotFoundTruncate from '../../../examples/vr-inline-card/vr-inline-card-not-found-truncate';
-import InlineCardSelected from '../../../examples/vr-inline-card/vr-inline-card-selected';
-import InlineCardTextWrap from '../../../examples/vr-inline-card/vr-inline-card-text-wrap';
-import InlineCardUnauthorised from '../../../examples/vr-inline-card/vr-inline-card-unauthorised';
-import InlineCardUnauthorisedDefaultIcon from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-default-icon';
-import InlineCardUnauthorisedNoAuth from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-no-auth';
-import InlineCardUnauthorisedTruncate from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-truncate';
+import VRInlineCardResolvedRovoActions from '../../../examples/vr-inline-card-resolved-rovo-actions.vr.ap';
+import InlineCardWithStatus from '../../../examples/vr-inline-card-with-status.vr.ap';
+import VRInlineCardAllExamplesInText from '../../../examples/vr-inline-card/vr-inline-card-all-examples-in-text.vr.ap';
+import InlineCardDefaultWithEntities from '../../../examples/vr-inline-card/vr-inline-card-default-entities.vr.ap';
+import InlineCardDefault from '../../../examples/vr-inline-card/vr-inline-card-default-icon.vr.ap';
+import InlineCardDefaultTruncate from '../../../examples/vr-inline-card/vr-inline-card-default-truncate.vr.ap';
+import InlineCardErrorTruncate from '../../../examples/vr-inline-card/vr-inline-card-error-truncate.vr.ap';
+import InlineCardError from '../../../examples/vr-inline-card/vr-inline-card-error.vr.ap';
+import InlineCardFontSize16 from '../../../examples/vr-inline-card/vr-inline-card-font-size-16.vr.ap';
+import InlineCardFontSize24 from '../../../examples/vr-inline-card/vr-inline-card-font-size-24.vr.ap';
+import InlineCardFontSize32 from '../../../examples/vr-inline-card/vr-inline-card-font-size-32.vr.ap';
+import InlineCardFontSizeDefault from '../../../examples/vr-inline-card/vr-inline-card-font-size-default.vr.ap';
+import InlineCardForbiddenDefaultIcon from '../../../examples/vr-inline-card/vr-inline-card-forbidden-default-icon.vr.ap';
+import InlineCardForbiddenRequestAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-request-access.vr.ap';
+import InlineCardForbiddenDeniedSiteAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-denied-access.vr.ap';
+import InlineCardForbiddenDirectAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-direct-access.vr.ap';
+import InlineCardForbiddenPendingSiteAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-pending-access.vr.ap';
+import InlineCardForbiddenSiteRequestAccessTruncate from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-request-access-truncate.vr.ap';
+import InlineCardForbiddenSiteRequestAccess from '../../../examples/vr-inline-card/vr-inline-card-forbidden-site-request-access.vr.ap';
+import InlineCardForbiddenTruncate from '../../../examples/vr-inline-card/vr-inline-card-forbidden-truncate.vr.ap';
+import InlineCardForbidden from '../../../examples/vr-inline-card/vr-inline-card-forbidden.vr.ap';
+import InlineCardIcons from '../../../examples/vr-inline-card/vr-inline-card-icons.vr.ap';
+import InlineCardNotFoundTruncate from '../../../examples/vr-inline-card/vr-inline-card-not-found-truncate.vr.ap';
+import InlineCardNotFound from '../../../examples/vr-inline-card/vr-inline-card-not-found.vr.ap';
+import InlineCardResolvedIconVariations from '../../../examples/vr-inline-card/vr-inline-card-resolved-icon-variations.vr.ap';
+import InlineCardSelected from '../../../examples/vr-inline-card/vr-inline-card-selected.vr.ap';
+import InlineCardTextWrap from '../../../examples/vr-inline-card/vr-inline-card-text-wrap.vr.ap';
+import InlineCardUnauthorisedDefaultIcon from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-default-icon.vr.ap';
+import InlineCardUnauthorisedNoAuth from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-no-auth.vr.ap';
+import InlineCardUnauthorisedSocialProofLoaded from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-social-proof-loaded.vr.ap';
+import InlineCardUnauthorisedSocialProofLowExplore from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-social-proof-low-explore.vr.ap';
+import InlineCardUnauthorisedSocialProofLowNoContext from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-social-proof-low-no-context.vr.ap';
+import InlineCardUnauthorisedSocialProofNarrow from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-social-proof-narrow.vr.ap';
+import InlineCardUnauthorisedSocialProofNoContext from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-social-proof-no-context.vr.ap';
+import InlineCardUnauthorisedTruncate from '../../../examples/vr-inline-card/vr-inline-card-unauthorised-truncate.vr.ap';
+import InlineCardUnauthorised from '../../../examples/vr-inline-card/vr-inline-card-unauthorised.vr.ap';
 import {
 	InlineCardWordWrapForbidden,
 	InlineCardWordWrapForbiddenWithSitePendingRequest,
@@ -36,8 +44,9 @@ import {
 	InlineCardWordWrapResolved,
 	InlineCardWordWrapResolving,
 	InlineCardWordWrapUnAuth,
-} from '../../../examples/vr-inline-card/vr-inline-card-word-wrap';
-import { VRInlineProfileCard } from '../../../examples/vr-inline-card/vr-inline-profile-card';
+} from '../../../examples/vr-inline-card/vr-inline-card-word-wrap.vr.ap';
+import { VRInlineProfileCard } from '../../../examples/vr-inline-card/vr-inline-profile-card.vr.ap';
+import { mockPersonalizationRequests } from './mock-personalization-requests';
 
 snapshot(InlineCardDefault, {
 	description: 'inline card with default icon',
@@ -112,22 +121,13 @@ snapshot(InlineCardTextWrap, {
 });
 snapshot(InlineCardError, {
 	description: 'inline card error view',
-	featureFlags: {
-		'navx-2565-inline-card-error-state-underline': true
-	},
 });
 snapshot(InlineCardError, {
 	description: 'inline card error view renders correctly when hovering over url in errored view',
-	featureFlags: {
-		'navx-2565-inline-card-error-state-underline': true,
-	},
 	states: [{ state: 'hovered', selector: { byTestId: 'inline-card-errored-view' } }],
 });
 snapshot(InlineCardErrorTruncate, {
 	description: 'inline card error view with truncation',
-	featureFlags: {
-		'navx-2565-inline-card-error-state-underline': true,
-	},
 });
 snapshot(InlineCardForbidden, {
 	description: 'inline card forbidden view',
@@ -150,41 +150,23 @@ snapshot(InlineCardForbiddenTruncate, {
 
 snapshot(InlineCardForbiddenRequestAccess, {
 	description: 'inline card forbidden view with request access to object',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshot(InlineCardForbiddenSiteRequestAccess, {
 	description: 'inline card forbidden view with request access to site',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 
 snapshot(InlineCardForbiddenSiteRequestAccessTruncate, {
 	description: 'inline card forbidden view with request access to site and truncation',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 
 snapshot(InlineCardForbiddenDirectAccess, {
 	description: 'inline card forbidden view with direct access',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshot(InlineCardForbiddenPendingSiteAccess, {
 	description: 'inline card forbidden view with pending site access',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshot(InlineCardForbiddenDeniedSiteAccess, {
 	description: 'inline card forbidden view with denied site access',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 
 // Design refresh: emotion + legacy icon
@@ -199,7 +181,6 @@ snapshot(InlineCardForbiddenDefaultIcon, {
 snapshot(InlineCardForbiddenDefaultIcon, {
 	description: 'inline card forbidden view with default icon',
 	featureFlags: {
-		'platform-visual-refresh-icons': true,
 		'platform-component-visual-refresh': true,
 		'jfp-magma-platform-lozenge-jump-fix': [true, false],
 	},
@@ -223,12 +204,14 @@ snapshot(InlineCardNotFoundTruncate, {
 snapshot(InlineCardUnauthorised, {
 	description: `inline card unauthorised view`,
 	featureFlags: {},
+	mockRequests: mockPersonalizationRequests,
 });
 
 snapshot(InlineCardUnauthorised, {
 	description:
 		'inline card unauthorised view renders correctly when hovering over url in unauthorized view',
 	featureFlags: {},
+	mockRequests: mockPersonalizationRequests,
 	states: [
 		{
 			state: 'hovered',
@@ -240,46 +223,74 @@ snapshot(InlineCardUnauthorised, {
 snapshot(InlineCardUnauthorisedTruncate, {
 	description: `inline card unauthorised view with truncation`,
 	featureFlags: {},
+	mockRequests: mockPersonalizationRequests,
 });
 
 snapshot(InlineCardUnauthorised, {
 	description: 'inline card unauthorised view renders correctly when hovering over connect account',
 	featureFlags: {},
+	mockRequests: mockPersonalizationRequests,
 	states: [{ state: 'hovered', selector: { byTestId: 'button-connect-account' } }],
 });
 snapshot(InlineCardUnauthorisedNoAuth, {
 	description: 'inline card unauthorised view with no auth',
 });
 
+snapshot(InlineCardUnauthorisedSocialProofLowExplore, {
+	description: 'inline card unauthorised with social proof but low percentage',
+	mockRequests: mockPersonalizationRequests,
+});
+
+snapshot(InlineCardUnauthorisedSocialProofLoaded, {
+	description: 'inline card unauthorised with social proof',
+	mockRequests: mockPersonalizationRequests,
+});
+
+snapshot(InlineCardUnauthorisedSocialProofNarrow, {
+	description: 'inline card unauthorised with social proof in narrow container',
+	mockRequests: mockPersonalizationRequests,
+});
+
+snapshot(InlineCardUnauthorisedSocialProofNoContext, {
+	description: 'inline card unauthorised social proof but no context available',
+	mockRequests: mockPersonalizationRequests,
+});
+
+snapshot(InlineCardUnauthorisedSocialProofLowNoContext, {
+	description:
+		'inline card unauthorised social proof with no context and no provider-specific percentage',
+	mockRequests: mockPersonalizationRequests,
+});
+
 snapshot(InlineCardFontSizeDefault, {
 	description: 'inline card with default font size',
+	mockRequests: mockPersonalizationRequests,
 	featureFlags: {
 		'jfp-magma-platform-lozenge-jump-fix': [true, false],
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 
 snapshot(InlineCardFontSize32, {
 	description: 'inline card with 32 font size',
+	mockRequests: mockPersonalizationRequests,
 	featureFlags: {
 		'jfp-magma-platform-lozenge-jump-fix': [true, false],
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 
 snapshot(InlineCardFontSize24, {
 	description: 'inline card with 24 font size',
+	mockRequests: mockPersonalizationRequests,
 	featureFlags: {
 		'jfp-magma-platform-lozenge-jump-fix': [true, false],
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 
 snapshot(InlineCardFontSize16, {
 	description: 'inline card with 16 font size',
+	mockRequests: mockPersonalizationRequests,
 	featureFlags: {
 		'jfp-magma-platform-lozenge-jump-fix': [true, false],
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 
@@ -300,53 +311,69 @@ snapshot(InlineCardWordWrapForbidden, {
 	waitForReactLazy: true,
 });
 snapshot(InlineCardWordWrapForbiddenWithSiteRequestAccess, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 snapshot(InlineCardWordWrapForbiddenWithSitePendingRequest, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 snapshot(InlineCardWordWrapNotFoundWithSiteAccessExists, {
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 	waitForReactLazy: true,
 });
 snapshot(InlineCardWordWrapUnAuth, {
 	featureFlags: {},
+	mockRequests: mockPersonalizationRequests,
 	waitForReactLazy: true,
 });
 // Design refresh: emotion + legacy icon
 snapshot(InlineCardUnauthorisedDefaultIcon, {
 	description: 'inline card unauthorised view with default legacy icon',
+	mockRequests: mockPersonalizationRequests,
 });
 
 // Design refresh: compiled + DS visual refresh
 snapshot(InlineCardUnauthorisedDefaultIcon, {
 	description: 'inline card unauthorised view with default icon',
+	mockRequests: mockPersonalizationRequests,
 	featureFlags: {
-		'platform-visual-refresh-icons': true,
 		'platform-component-visual-refresh': true,
 	},
 });
 
+// Will be re-enabled as part of UTEST-2316.
 snapshot.skip(InlineCardIcons, {
 	description: `inline card icons`,
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 });
 
-snapshot(VRInlineCardAllExamplesInText, {
+snapshot(InlineCardResolvedIconVariations, {
+	description:
+		'inline card resolved icon variations (ResolvedClient iconTestUrls - extractIcon document / non-document paths)',
+	featureFlags: {
+		platform_sl_3p_preauth_better_hovercard_killswitch: true,
+		platform_sl_3p_preauth_better_hovercard: true,
+	},
+	ignoredErrors: [
+		{
+			pattern: /Failed to load resource/,
+			ignoredBecause: 'Icon test fixtures use external image URLs; dev build may log load noise',
+			jiraIssueId: 'TODO-1',
+		},
+	],
+});
+
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(VRInlineCardAllExamplesInText, {
 	description: `inline card with all card examples in text`,
 	featureFlags: {
 		'platform-component-visual-refresh': true,
 		'jfp-magma-platform-lozenge-jump-fix': [true, false],
+	},
+});
+
+snapshot(InlineCardWithStatus, {
+	description: 'inline card with status lozenge',
+	featureFlags: {
+		'platform-dst-lozenge-tag-badge-visual-uplifts': [true, false],
 	},
 });
 
@@ -359,4 +386,11 @@ snapshot(VRInlineProfileCard, {
 			selector: { byTestId: 'hover-card-trigger-wrapper' },
 		},
 	],
+});
+
+snapshot(VRInlineCardResolvedRovoActions, {
+	description: 'inline card resolved view with Rovo actions CTA (treatment)',
+	featureFlags: {
+		'smart-card-inline-resolved-view-refactor': true,
+	},
 });

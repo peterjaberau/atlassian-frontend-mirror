@@ -1,8 +1,8 @@
+import { verifyDarkColor, verifyLightColor } from './brand-refresh-assertion-helper.mock';
+
 import { THEME_DATA_ATTRIBUTE } from '../../constants';
 import { type ThemeIdsWithOverrides } from '../../theme-config';
 import { loadAndAppendThemeCss } from '../../utils/theme-loading';
-
-import { verifyDarkColor, verifyLightColor } from './brand-refresh-assertion-helper.mock';
 
 describe('loadAndAppendThemeCss', () => {
 	beforeEach(() => {
@@ -28,6 +28,12 @@ describe('loadAndAppendThemeCss', () => {
 		});
 		it('should add dark theme', async () => {
 			await verifyTheme('dark', verifyDarkColor);
+		});
+		it('should add an increased-contrast override for explicit and automatic contrast modes', async () => {
+			await verifyTheme('light-increased-contrast-finesse', (content) => {
+				expect(content).toContain('[data-theme~="light:light-increased-contrast"]');
+				expect(content).toContain('[data-contrast-mode="more"][data-theme~="light:light"]');
+			});
 		});
 	});
 

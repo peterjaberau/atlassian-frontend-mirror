@@ -1,4 +1,4 @@
-import { typescriptEslintTester } from '../../__tests__/utils/_tester';
+import { typescriptEslintTester } from '../../__tests__/utils/_ts-tester';
 import rule from '../index';
 
 typescriptEslintTester.run(
@@ -7,6 +7,46 @@ typescriptEslintTester.run(
 	rule,
 	{
 		valid: [
+			{
+				name: 'Type-only satisfies reference is not a style value',
+				code: `
+          import { css } from '@compiled/react';
+          import type MediaAboveSm from '@atlaskit/css/at-rules/media-above-sm';
+
+          const styles = css({
+            ['@media (min-width: 48rem)' satisfies MediaAboveSm]: {
+              padding: '8px',
+            },
+          });
+        `,
+			},
+			{
+				name: 'Imported type provenance in satisfies property values is not a style value',
+				code: `
+          import { cssMap } from '@compiled/react';
+          import type { height } from './constants';
+
+          const styles = cssMap({
+            root: {
+              height: '5px' satisfies typeof height,
+            },
+          });
+				`,
+			},
+			{
+				name: 'Local literal constrained by an imported type is not a style value',
+				code: `
+          import { cssMap } from '@atlaskit/css';
+          import type { height } from './constants';
+
+          const panelHeight = 56 as const satisfies typeof height;
+          const styles = cssMap({
+            root: {
+              height: \`\${panelHeight}px\`,
+            },
+          });
+        `,
+			},
 			{
 				name: 'Basic valid test for css',
 				code: `

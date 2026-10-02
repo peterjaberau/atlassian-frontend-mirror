@@ -4,29 +4,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type MouseEvent } from 'react';
+
+import type { MouseEvent } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
 import ChevronRight from '@atlaskit/icon/core/chevron-right';
 import { easeOut } from '@atlaskit/motion/curves';
-import { durations } from '@atlaskit/motion/durations';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { durations } from '@atlaskit/motion/utils/durations';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { UNSAFE_media } from '@atlaskit/primitives/responsive';
-import { B100, B200, N0, N200, N30A } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { RESIZE_BUTTON_SELECTOR } from '../../common/constants';
-
-import { type ResizeButtonProps } from './types';
+import type { ResizeButtonProps } from './types';
 
 const hitAreaSpanStyles = css({
 	position: 'absolute',
-	insetBlockEnd: `${token('space.negative.300', '-24px')}`,
-	insetBlockStart: `${token('space.negative.300', '-24px')}`,
-	insetInlineEnd: `${token('space.negative.150', '-12px')}`,
-	insetInlineStart: `${token('space.negative.100', '-8px')}`,
+	insetBlockEnd: `${token('space.negative.300')}`,
+	insetBlockStart: `${token('space.negative.300')}`,
+	insetInlineEnd: `${token('space.negative.150')}`,
+	insetInlineStart: `${token('space.negative.100')}`,
 });
 
 const mobileStyles = css({
@@ -39,15 +38,15 @@ const mobileStyles = css({
 const resizeIconButtonStyles = css({
 	width: 24,
 	height: 24,
-	padding: token('space.0', '0px'),
+	padding: token('space.0'),
 	position: 'absolute',
-	backgroundColor: token('elevation.surface.overlay', N0),
+	backgroundColor: token('elevation.surface.overlay'),
 	border: 0,
 	borderRadius: token('radius.full', '50%'),
-	boxShadow: `0 0 0 1px ${N30A}, 0 2px 4px 1px ${N30A}`,
-	color: token('color.text.subtle', N200),
+	boxShadow: `0 0 0 1px ${'rgba(9, 30, 66, 0.08)'}, 0 2px 4px 1px ${'rgba(9, 30, 66, 0.08)'}`,
+	color: token('color.text.subtle'),
 	cursor: 'pointer',
-	insetBlockStart: token('space.400', '32px'),
+	insetBlockStart: token('space.400'),
 	insetInlineStart: 0,
 	/**
 	 * The fallback value of 0 ensures that the button is hidden by default,
@@ -63,14 +62,14 @@ const resizeIconButtonStyles = css({
   `,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':hover': {
-		backgroundColor: token('color.background.selected.bold', B100),
-		color: token('color.text.inverse', N0),
+		backgroundColor: token('color.background.selected.bold'),
+		color: token('color.text.inverse'),
 		opacity: 1,
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':active, :focus': {
-		backgroundColor: token('color.background.selected.bold.hovered', B200),
-		color: token('color.text.inverse', N0),
+		backgroundColor: token('color.background.selected.bold.hovered'),
+		color: token('color.text.inverse'),
 		opacity: 1,
 	},
 });
@@ -89,7 +88,7 @@ const ResizeButton = ({
 	onClick,
 	testId,
 	...props
-}: ResizeButtonProps): jsx.JSX.Element => {
+}: ResizeButtonProps): JSX.Element => {
 	// Extract css from props if it exists to avoid conflicts
 	const { css: _ignoredCss, ...restProps } = props as any;
 
@@ -108,7 +107,7 @@ const ResizeButton = ({
 			// Prevents focus staying attached to the button when pressed
 			onMouseDown={preventDefault}
 			onClick={onClick}
-			{...(fg('platform_dst_spread-props-page-layout') ? {} : restProps)}
+			{...restProps}
 		>
 			<ChevronRight label="" color="currentColor" size="small" />
 			<span css={hitAreaSpanStyles} />

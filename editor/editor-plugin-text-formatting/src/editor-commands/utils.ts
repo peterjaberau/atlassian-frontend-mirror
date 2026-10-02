@@ -3,7 +3,6 @@ import type { Mark as PMMark } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 
 import type { MenuIconItem } from '../ui/Toolbar/types';
-
 import { FORMATTING_MARK_TYPES, FORMATTING_NODE_TYPES } from './clear-formatting';
 
 export const hasCode = (state: EditorState, pos: number): boolean => {
@@ -65,7 +64,10 @@ export const checkFormattingIsPresent = (state: EditorState): boolean => {
 	return marksArePresent(state) || blockStylingIsPresent(state);
 };
 
-export const compareItemsArrays = (items: MenuIconItem[], prevItems: MenuIconItem[]) => {
+export const compareItemsArrays = (
+	items: MenuIconItem[],
+	prevItems: MenuIconItem[],
+): MenuIconItem[] => {
 	return items && items.filter((item) => !prevItems.includes(item));
 };
 

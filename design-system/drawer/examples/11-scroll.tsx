@@ -6,11 +6,15 @@
 import { useCallback, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
-import Lorem from 'react-lorem-component';
 
-import Button from '@atlaskit/button/new';
-import { Drawer, DrawerCloseButton, DrawerContent, DrawerSidebar } from '@atlaskit/drawer';
+import Button from '@atlaskit/button/default/button';
+import { Drawer } from '@atlaskit/drawer/drawer';
+import { DrawerCloseButton } from '@atlaskit/drawer/drawer-close-button';
+import { DrawerContent } from '@atlaskit/drawer/drawer-content';
+import { DrawerSidebar } from '@atlaskit/drawer/drawer-sidebar';
 import { token } from '@atlaskit/tokens';
+
+import { Lorem } from './lorem';
 
 /**
  * Styles to allow the body to be scrollable and placed for the VR snapshot.
@@ -19,10 +23,10 @@ const containerStyles = css({
 	display: 'flex',
 	height: '200%',
 	justifyContent: 'flex-end',
-	paddingBlockEnd: token('space.200', '16px'),
-	paddingBlockStart: token('space.200', '16px'),
-	paddingInlineEnd: token('space.200', '16px'),
-	paddingInlineStart: token('space.200', '16px'),
+	paddingBlockEnd: token('space.200'),
+	paddingBlockStart: token('space.200'),
+	paddingInlineEnd: token('space.200'),
+	paddingInlineStart: token('space.200'),
 });
 
 export default function DrawerExample(): JSX.Element {

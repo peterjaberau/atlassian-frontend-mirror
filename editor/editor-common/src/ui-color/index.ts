@@ -3,20 +3,30 @@
 
 export { default as ColorPalette } from './ColorPalette';
 export { default as Color } from './ColorPalette/Color';
+export { SelectedTextColorProvider } from './ColorPalette/SelectedTextColorProvider';
+export { useSelectedTextColor } from './ColorPalette/useSelectedTextColor';
+export { getSelectedRowAndColumn } from './ColorPalette/getSelectedRowAndColumn';
 export {
 	DEFAULT_COLOR_PICKER_COLUMNS,
 	getColorsPerRowFromPalette,
-	getSelectedRowAndColumn,
 	getSelectedRowAndColumnFromPalette,
+	getTokenCSSVariableValue,
+	getTokenCSSVariableValueForNonActiveTheme,
 } from './ColorPalette/utils';
+export { getHighlightColorInNonActiveTheme } from './ColorPalette/getHighlightColorInNonActiveTheme';
+export { getTextColorInNonActiveTheme } from './ColorPalette/getTextColorInNonActiveTheme';
 export { default as cellBackgroundColorPalette } from './ColorPalette/Palettes/cellBackgroundColorPalette';
+export { default as cellBackgroundColorPaletteNew } from './ColorPalette/Palettes/cellBackgroundColorPaletteNew';
 export { default as colorPaletteMessages } from './ColorPalette/Palettes/paletteMessages';
 export { panelBackgroundPalette } from './ColorPalette/Palettes/panelBackgroundPalette';
+export { panelBackgroundPaletteNew } from './ColorPalette/Palettes/panelBackgroundPaletteNew';
 export { textColorPalette } from './ColorPalette/Palettes/textColorPalette';
+export { textColorPaletteNew } from './ColorPalette/Palettes/textColorPaletteNew';
 export {
 	highlightColorPalette,
 	REMOVE_HIGHLIGHT_COLOR,
 } from './ColorPalette/Palettes/highlightColorPalette';
+export { highlightColorPaletteNew } from './ColorPalette/Palettes/highlightColorPaletteNew';
 export {
 	backgroundPaletteTooltipMessages,
 	borderPaletteTooltipMessages,

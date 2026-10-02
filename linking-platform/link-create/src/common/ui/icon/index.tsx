@@ -5,21 +5,20 @@
 import React from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import Document16Icon from '@atlaskit/icon-file-type/glyph/document/16';
-import PageLiveDoc16Icon from '@atlaskit/icon-object/glyph/page-live-doc/16';
-import { N20A } from '@atlaskit/theme/colors';
+import PageLiveDocObject from '@atlaskit/object/page-live-doc';
 import { token } from '@atlaskit/tokens';
 
 import { iconLabelMessages } from './messages';
 
 const baseStyles = css({
-	backgroundColor: token('color.skeleton', N20A),
+	backgroundColor: token('color.skeleton'),
 	backgroundSize: 'contain',
 	backgroundRepeat: 'no-repeat',
-	height: token('space.200', '16px'),
-	width: token('space.200', '16px'),
+	height: token('space.200'),
+	width: token('space.200'),
 	borderRadius: token('radius.small', '3px'),
 	flexShrink: 0,
 });
@@ -42,14 +41,14 @@ export const UrlIcon = ({ url, children }: UrlIconProps): JSX.Element => {
 	);
 };
 
-export const PageIcon = () => {
+export const PageIcon = (): JSX.Element => {
 	const intl = useIntl();
 
 	return <Document16Icon label={intl.formatMessage(iconLabelMessages.pageIconLabel)} />;
 };
 
-export const LiveDocIcon = () => {
+export const LiveDocIcon = (): JSX.Element => {
 	const intl = useIntl();
 
-	return <PageLiveDoc16Icon label={intl.formatMessage(iconLabelMessages.pageIconLabel)} />;
+	return <PageLiveDocObject label={intl.formatMessage(iconLabelMessages.pageIconLabel)} />;
 };

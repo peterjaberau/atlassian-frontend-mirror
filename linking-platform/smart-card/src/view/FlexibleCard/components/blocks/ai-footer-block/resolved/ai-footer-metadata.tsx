@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 import { di } from 'react-magnetic-di';
 
-import AIIcon from '@atlaskit/icon/core/atlassian-intelligence';
+import RovoIcon from '@atlaskit/icon-lab/core/rovo';
 import { Box, Inline } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { messages } from '../../../../../../messages';
 import type { AISummaryActionData } from '../../../../../../state/flexible-ui-context/types';
@@ -40,7 +40,7 @@ export const AIFooterMetadata = ({
 				)}
 			</Tooltip>
 
-			<AIIcon label="AI" color={token('color.icon.subtle')} />
+			<RovoIcon label="AI" color={token('color.icon.subtle')} />
 		</Inline>
 	);
 };

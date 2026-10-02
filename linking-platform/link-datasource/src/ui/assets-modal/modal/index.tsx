@@ -2,49 +2,60 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	type ForwardRefExoticComponent,
+	type RefAttributes,
+} from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import { type UIAnalyticsEvent, withAnalyticsContext } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
 import Button from '@atlaskit/button/standard-button';
-import { IntlMessagesProvider } from '@atlaskit/intl-messages-provider';
-import { type Link } from '@atlaskit/linking-types';
-import {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
+import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';
+import type { Link } from '@atlaskit/linking-types/datasource';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { EVENT_CHANNEL, useDatasourceAnalyticsEvents } from '../../../analytics';
+import { EVENT_CHANNEL } from '../../../analytics/constants';
 import { componentMetadata } from '../../../analytics/constants';
 import type {
 	AnalyticsContextAttributesType,
 	AnalyticsContextType,
 	ComponentMetaDataType,
 } from '../../../analytics/generated/analytics.types';
+import { useDatasourceAnalyticsEvents } from '../../../analytics/index';
 import {
 	DatasourceAction,
 	DatasourceDisplay,
 	DatasourceSearchMethod,
 } from '../../../analytics/types';
-import { startUfoExperience } from '../../../analytics/ufoExperiences';
 import { useColumnPickerRenderedFailedUfoExperience } from '../../../analytics/ufoExperiences/hooks/useColumnPickerRenderedFailedUfoExperience';
 import { useDataRenderedUfoExperience } from '../../../analytics/ufoExperiences/hooks/useDataRenderedUfoExperience';
+import { startUfoExperience } from '../../../analytics/ufoExperiences/startUfoExperience';
 import { fetchMessagesForLocale } from '../../../common/utils/locale/fetch-messages-for-locale';
 import { buildDatasourceAdf } from '../../../common/utils/schema-utils';
-import {
-	DatasourceExperienceIdProvider,
-	useDatasourceExperienceId,
-} from '../../../contexts/datasource-experience-id';
-import { UserInteractionsProvider, useUserInteractions } from '../../../contexts/user-interactions';
+import { DatasourceExperienceIdProvider } from '../../../contexts/datasource-experience-id/datasource-experience-id-provider';
+import { useDatasourceExperienceId } from '../../../contexts/datasource-experience-id/use-datasource-experience-id';
+import { useUserInteractions } from '../../../contexts/user-interactions/use-user-interactions';
+import { UserInteractionsProvider } from '../../../contexts/user-interactions/user-interactions-provider';
 import { useAssetsClient } from '../../../hooks/useAssetsClient';
 import { useDatasourceTableState } from '../../../hooks/useDatasourceTableState';
 import i18nEN from '../../../i18n/en';
-import { PermissionError } from '../../../services/cmdbService.utils';
+import { PermissionError } from '../../../services/PermissionError';
 import { StoreContainer } from '../../../state';
 import { AccessRequired } from '../../../ui/common/error-state/access-required';
 import { ModalLoadingError } from '../../common/error-state/modal-loading-error';
@@ -53,7 +64,6 @@ import { DatasourceModal } from '../../common/modal/datasource-modal';
 import { AssetsSearchContainer } from '../search-container';
 import { AssetsSearchContainerLoading } from '../search-container/loading-state';
 import { type AssetsConfigModalProps, type AssetsDatasourceParameters } from '../types';
-
 import { modalMessages } from './messages';
 import { RenderAssetsContent } from './render-assets-content';
 
@@ -89,6 +99,8 @@ const PlainAssetsConfigModal = (props: AssetsConfigModalProps) => {
 		apiVersion !== VERSION_TWO ? [] : initialVisibleColumnKeys,
 	);
 	const [isNewSearch, setIsNewSearch] = useState<boolean>(false);
+	// State rather than a ref because the reconciliation below reads it during render
+	const [hasPreservedColumns, setHasPreservedColumns] = useState(false);
 	const [errorState, setErrorState] = useState<ErrorState | undefined>();
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 	const experienceId = useDatasourceExperienceId();
@@ -164,6 +176,26 @@ const PlainAssetsConfigModal = (props: AssetsConfigModalProps) => {
 		parameters: isParametersSet ? parameters : undefined,
 		fieldKeys: isNewSearch ? [] : visibleColumnKeys,
 	});
+
+	// A preserved selection must drop whatever the edited query stopped reporting. This is adjusted
+	// during render, not in an effect: the table hook is called before this component's own effects
+	// are registered, so its effects run first and would read the columns still awaiting removal as
+	// newly selected ones - refetching for them, and throwing away the results just received. The
+	// re-render this schedules is discarded before commit, so the hook only ever sees the reconciled
+	// selection.
+	if (
+		fg('platform_lp_sllv_preserve_assets_columns') &&
+		hasPreservedColumns &&
+		status === 'resolved' &&
+		columns.length > 0
+	) {
+		const availableKeys = new Set(columns.map(({ key }) => key));
+		const selectedKeys = visibleColumnKeys ?? [];
+		const retainedKeys = selectedKeys.filter((key) => availableKeys.has(key));
+		if (retainedKeys.length !== selectedKeys.length) {
+			setVisibleColumnKeys(retainedKeys.length > 0 ? retainedKeys : defaultVisibleColumnKeys);
+		}
+	}
 
 	/* ------------------------------ OBSERVABILITY ------------------------------ */
 	const searchCount = useRef(0);
@@ -241,12 +273,34 @@ const PlainAssetsConfigModal = (props: AssetsConfigModalProps) => {
 	}, []);
 
 	useEffect(() => {
+		// A preserved selection owns the columns, so restoring the saved or default ones would undo it
+		if (fg('platform_lp_sllv_preserve_assets_columns') && hasPreservedColumns) {
+			return;
+		}
 		const newVisibleColumnKeys =
 			initialVisibleColumnKeys && initialVisibleColumnKeys.length > 0 && apiVersion === VERSION_TWO
 				? initialVisibleColumnKeys
 				: defaultVisibleColumnKeys;
 		setVisibleColumnKeys(newVisibleColumnKeys);
-	}, [initialVisibleColumnKeys, defaultVisibleColumnKeys, apiVersion]);
+	}, [initialVisibleColumnKeys, defaultVisibleColumnKeys, apiVersion, hasPreservedColumns]);
+
+	useEffect(() => {
+		// The response described none of the requested fields, so there is nothing valid to keep and
+		// no reported defaults to fall back to. Give up preserving and re-request the schema's own
+		// defaults. This one has to stay an effect because it issues a request.
+		if (
+			!fg('platform_lp_sllv_preserve_assets_columns') ||
+			!hasPreservedColumns ||
+			status !== 'resolved' ||
+			columns.length > 0
+		) {
+			return;
+		}
+		setHasPreservedColumns(false);
+		setVisibleColumnKeys([]);
+		setIsNewSearch(true);
+		reset({ shouldForceRequest: true, shouldResetColumns: true });
+	}, [columns, hasPreservedColumns, reset, status]);
 
 	useEffect(() => {
 		if (isNewSearch) {
@@ -354,14 +408,23 @@ const PlainAssetsConfigModal = (props: AssetsConfigModalProps) => {
 				if (aql !== searchAql) {
 					userInteractions.add(DatasourceAction.QUERY_UPDATED);
 				}
+				// An empty selection has nothing worth preserving, and keeping it would stop the
+				// response's defaults from being adopted
+				const shouldPreserveColumns =
+					fg('platform_lp_sllv_preserve_assets_columns') &&
+					schemaId === searchSchemaId &&
+					(visibleColumnKeys ?? []).length > 0;
+				setHasPreservedColumns(shouldPreserveColumns);
 				setAql(searchAql);
 				setSchemaId(searchSchemaId);
-				setVisibleColumnKeys([]);
-				setIsNewSearch(true);
-				reset({ shouldForceRequest: true, shouldResetColumns: true });
+				if (!shouldPreserveColumns) {
+					setVisibleColumnKeys([]);
+				}
+				setIsNewSearch(!shouldPreserveColumns);
+				reset({ shouldForceRequest: true, shouldResetColumns: !shouldPreserveColumns });
 			}
 		},
-		[aql, reset, schemaId, status, userInteractions],
+		[aql, reset, schemaId, status, userInteractions, visibleColumnKeys],
 	);
 
 	const renderErrorState = useCallback(() => {
@@ -423,6 +486,7 @@ const PlainAssetsConfigModal = (props: AssetsConfigModalProps) => {
 		<IntlMessagesProvider defaultMessages={i18nEN} loaderFn={fetchMessagesForLocale}>
 			<ModalTransition>
 				<DatasourceModal testId="asset-datasource-modal" onClose={onCancel}>
+					{/* eslint-disable-next-line @atlaskit/design-system/use-modal-title */}
 					<ModalHeader>{renderModalTitleContent()}</ModalHeader>
 					<ModalBody>
 						{errorState ? (
@@ -490,14 +554,14 @@ const contextData = {
 	},
 };
 
-export const AssetsConfigModal = withAnalyticsContext(contextData)(
-	(props: AssetsConfigModalProps) => (
-		<StoreContainer>
-			<DatasourceExperienceIdProvider>
-				<UserInteractionsProvider>
-					<PlainAssetsConfigModal {...props} />
-				</UserInteractionsProvider>
-			</DatasourceExperienceIdProvider>
-		</StoreContainer>
-	),
-);
+export const AssetsConfigModal: ForwardRefExoticComponent<
+	AssetsConfigModalProps & WithContextProps & RefAttributes<any>
+> = withAnalyticsContext(contextData)((props: AssetsConfigModalProps) => (
+	<StoreContainer>
+		<DatasourceExperienceIdProvider>
+			<UserInteractionsProvider>
+				<PlainAssetsConfigModal {...props} />
+			</UserInteractionsProvider>
+		</DatasourceExperienceIdProvider>
+	</StoreContainer>
+));

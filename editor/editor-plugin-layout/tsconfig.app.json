@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -24,21 +25,38 @@
 		"./__mocks__/**/*",
 		"**/mock.*",
 		"**/codemods/**/*.ts",
-		"**/codemods/**/*.tsx"
+		"**/codemods/**/*.tsx",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-plugin-layout/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-plugin-layout/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
 			"path": "../adf-schema/tsconfig.app.json"
 		},
 		{
+			"path": "../../design-system/css/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
+		},
+		{
 			"path": "../editor-common/tsconfig.app.json"
 		},
 		{
 			"path": "../editor-plugin-analytics/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-plugin-block-controls/tsconfig.app.json"
 		},
 		{
 			"path": "../editor-plugin-block-menu/tsconfig.app.json"
@@ -62,6 +80,12 @@
 			"path": "../editor-plugin-toolbar/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-plugin-ui-control-registry/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-plugin-user-intent/tsconfig.app.json"
+		},
+		{
 			"path": "../editor-plugin-width/tsconfig.app.json"
 		},
 		{
@@ -74,10 +98,16 @@
 			"path": "../editor-toolbar/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-ui-control-model/tsconfig.app.json"
+		},
+		{
 			"path": "../../design-system/icon/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/icon-lab/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/feature-experiments/tsconfig.app.json"
 		},
 		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"

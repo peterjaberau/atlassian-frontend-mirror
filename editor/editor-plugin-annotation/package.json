@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-annotation",
-	"version": "7.1.9",
+	"version": "23.0.0",
 	"description": "Annotation plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -16,18 +16,14 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./annotationPlugin": "./src/entry-points/annotationPlugin.tsx",
+		"./annotationPluginType": "./src/entry-points/annotationPluginType.ts",
+		"./pm-plugins/types": "./src/entry-points/pm-plugins-types.ts",
+		"./types": "./src/entry-points/types.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
@@ -43,65 +39,31 @@
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
-		"@babel/runtime": "root:*",
-		"react-intl-next": "root:*"
+		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@testing-library/react": "root:*",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"react-intl": "root:*",
 		"wait-for-expect": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
 	"platform-feature-flags": {
+		"cc_maui_annotations_on_extensions": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
 		"platform_editor_comments_api_manager": {
 			"type": "boolean",
 			"referenceOnly": true
 		},
 		"editor_inline_comments_on_inline_nodes": {
-			"type": "boolean"
-		},
-		"confluence_frontend_preload_inline_comment_editor": {
-			"type": "boolean"
-		},
-		"confluence_frontend_new_dangling_comments_ux": {
 			"type": "boolean"
 		}
 	}

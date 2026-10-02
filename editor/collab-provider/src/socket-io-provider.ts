@@ -1,14 +1,13 @@
 import type { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { isIsolatedCloud } from '@atlaskit/atlassian-context';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import type AnalyticsHelper from './analytics/analytics-helper';
+import { SOCKET_IO_OPTIONS, SOCKET_IO_OPTIONS_WITH_HIGH_JITTER } from './config';
+import { getProduct, getSubProduct, isGCPtenant } from './helpers/utils';
 import { Provider } from './provider';
 import type { Config, ProductInformation, InitAndAuthData, AuthCallback } from './types';
-import { getProduct, getSubProduct } from './helpers/utils';
-import { SOCKET_IO_OPTIONS, SOCKET_IO_OPTIONS_WITH_HIGH_JITTER } from './config';
-import type AnalyticsHelper from './analytics/analytics-helper';
 
 export function createSocketIOSocket(
 	url: string,
@@ -19,64 +18,54 @@ export function createSocketIOSocket(
 	path?: string,
 	documentAri?: string,
 ): Socket {
-	const { pathname } = new URL(url);
+	const { pathname, hostname } = new URL(url);
 	let socketIOOptions = SOCKET_IO_OPTIONS;
-	// Polling first
-	let transports = ['polling', 'websocket'];
-	let usePMR = false;
+	// Default: polling first, with WebSocket upgrade fallback
+	let transports: string[] = ['polling', 'websocket'];
 
-	if (isPresenceOnly) {
-		// Presence-specific configuration
-		if (fg('platform-editor-presence-websocket-only')) {
-			// https://socket.io/docs/v4/client-options/#transports
-			// WebSocket first, if fails, try polling
-			transports = ['websocket'];
-		}
-		socketIOOptions = SOCKET_IO_OPTIONS_WITH_HIGH_JITTER;
+	// Determine transport strategy based on connection type and tenant.
+	// https://socket.io/docs/v4/client-options/#transports
+	type ConnectionCase = 'presence' | 'gcp-collab' | 'default';
 
-		// PMR routing for presence traffic
-		if (
-			(isIsolatedCloud() &&
-				expValEquals(
-					'platform_editor_use_pmr_for_collab_presence_in_ic',
-					'isEnabled',
-					true,
-					false,
-				)) ||
-			(!isIsolatedCloud() &&
-				expValEquals(
-					'platform_editor_use_pmr_for_collab_presence_non_ic',
-					'isEnabled',
-					true,
-					false,
-				))
-		) {
-			usePMR = true;
+	const getConnectionCase = (): ConnectionCase => {
+		if (isPresenceOnly) {
+			// Presence connections: all tenants (commercial, GCP, IC, etc.)
+			return 'presence';
+		} else if (isGCPtenant(hostname)) {
+			// Collab editing: GCP tenant
+			return 'gcp-collab';
+		} else {
+			// Collab editing: commercial and all other tenants — polling first, with WebSocket upgrade fallback
+			return 'default';
 		}
-	} else {
-		// PMR routing for edit traffic
-		if (
-			expValEquals('platform_editor_to_use_pmr_for_collab_edit_none_ic', 'isEnabled', true, false)
-		) {
-			usePMR = true;
-		}
+	};
+
+	switch (getConnectionCase()) {
+		case 'presence':
+			// Presence for all tenants (commercial, GCP, IC, …): WebSocket only when flag is enabled
+			socketIOOptions = SOCKET_IO_OPTIONS_WITH_HIGH_JITTER;
+			if (fg('platform-editor-presence-websocket-only')) {
+				transports = ['websocket'];
+			}
+			break;
+
+		case 'gcp-collab':
+			// GCP: use WebSocket for all collab editing as well
+			if (fg('collab_edit_via_websocket_only_for_gcp')) {
+				transports = ['websocket'];
+			}
+			break;
+
+		default:
+			// Default: polling first, with WebSocket upgrade fallback
+			break;
 	}
 
 	const extraHeaders: Record<string, string> = {
 		'x-product': getProduct(productInfo),
 		'x-subproduct': getSubProduct(productInfo),
+		'x-client-platform': 'web',
 	};
-
-	if (
-		expValEquals(
-			'platform_editor_send_client_platform_header',
-			'isEnabled',
-			true,
-			false,
-		)
-	) {
-		extraHeaders['x-client-platform'] = 'web';
-	}
 
 	const client = io(url, {
 		reconnectionDelayMax: socketIOOptions.RECONNECTION_DELAY_MAX,
@@ -85,17 +74,17 @@ export function createSocketIOSocket(
 		closeOnBeforeunload: false,
 		withCredentials: true,
 		transports,
-		path: usePMR && path ? `${path}/socket.io` : `/${pathname.split('/')[1]}/socket.io`,
+		path: path ? `${path}/socket.io` : `/${pathname.split('/')[1]}/socket.io`,
 		auth,
 		extraHeaders,
 		query: {
-			sourceId: documentAri?.split('/')[1]
-		}
+			sourceId: documentAri?.split('/')[1],
+		},
 	});
 
 	return client;
 }
 
-export function createSocketIOCollabProvider(config: Omit<Config, 'createSocket'>) {
+export function createSocketIOCollabProvider(config: Omit<Config, 'createSocket'>): Provider {
 	return new Provider({ ...config, createSocket: createSocketIOSocket });
 }

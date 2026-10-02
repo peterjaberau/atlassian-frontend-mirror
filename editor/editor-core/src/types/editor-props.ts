@@ -34,7 +34,7 @@ import type { DatePluginOptions } from '@atlaskit/editor-plugins/date';
 import type { FindReplaceOptions } from '@atlaskit/editor-plugins/find-replace';
 import type { LayoutPluginOptions } from '@atlaskit/editor-plugins/layout';
 import type { MediaPluginOptions, MediaState } from '@atlaskit/editor-plugins/media/types';
-import type { MentionPluginConfig } from '@atlaskit/editor-plugins/mentions';
+import type { MentionPluginConfig, MentionsPluginOptions } from '@atlaskit/editor-plugins/mentions';
 import type { PanelPluginConfig } from '@atlaskit/editor-plugins/panel';
 import type { PlaceholderTextPluginOptions } from '@atlaskit/editor-plugins/placeholder-text';
 import type { SyncedBlockPluginOptions } from '@atlaskit/editor-plugins/synced-block';
@@ -44,11 +44,10 @@ import type { TextFormattingPluginOptions } from '@atlaskit/editor-plugins/text-
 import type { Node, Schema } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { SyncedBlockProvider } from '@atlaskit/editor-synced-block-provider';
-import type { MentionProvider } from '@atlaskit/mention/resource';
+import type { MentionProvider } from '@atlaskit/mention/types';
 import type { TaskDecisionProvider } from '@atlaskit/task-decision';
 
 import type EditorActions from '../actions';
-
 import type { EditorOnChangeHandler } from './editor-onchange';
 import type { ExtensionConfig } from './extension-config';
 
@@ -77,6 +76,9 @@ export type BeforeAndAfterContentComponents = {
 };
 
 export type ContentComponents = BeforeAndAfterContentComponents | ReactComponents;
+
+type EditorMentionOptions = MentionPluginConfig &
+	Pick<MentionsPluginOptions, 'mentionNodeDataProvider'>;
 
 interface EditorBaseProps {
 	/**
@@ -124,7 +126,6 @@ interface EditorBaseProps {
 	contentMode?: 'standard' | 'compact' | undefined;
 
 	contentTransformerProvider?: (schema: Schema) => Transformer<string>;
-
 	// Content to appear in the context panel. Displays as a right sidebar in the full-page appearance.
 	// You'll want to pass it a `ContextPanel` component from this package, and your content as its children.
 	contextPanel?: ReactComponents;
@@ -181,6 +182,9 @@ interface EditorBaseProps {
 	 */
 	inputSamplingLimit?: number;
 
+	// Enables modernised comment editor chrome and spacing styles.
+	isEditorModernisationEnabled?: boolean;
+
 	// Set to configure the maximum editor height in pixels for `comment` and `chromeless` editor modes.
 	maxHeight?: number;
 
@@ -198,6 +202,33 @@ interface EditorBaseProps {
 	// Set a callback for the editor when users are able to interact.
 	// Also provides access to `EditorActions` for controlling editor.
 	onEditorReady?: (editorActions: EditorActions) => void;
+
+	/**
+	 * Callback for measuring Server-Side Rendering (SSR) performance metrics.
+	 * Invoked during SSR to track timing information for different segments of the rendering process.
+	 *
+	 * @param measure - Performance measurement data
+	 * @param measure.startTimestamp - Absolute timestamp when the segment started (from `performance.now()`)
+	 * @param measure.endTimestamp - Absolute timestamp when the segment completed (from `performance.now()`)
+	 * @param measure.segmentName - Name identifier of the SSR segment being measured
+	 *
+	 * @remarks
+	 * Both timestamps are absolute values from `performance.now()`, not relative to measurement start.
+	 * Calculate duration as: `measure.endTimestamp - measure.startTimestamp`
+	 *
+	 * @example
+	 * ```typescript
+	 * onSSRMeasure={(measure) => {
+	 *   const duration = measure.endTimestamp - measure.startTimestamp;
+	 *   console.log(`${measure.segmentName}: ${duration}ms`);
+	 * }}
+	 * ```
+	 */
+	onSSRMeasure?: (measure: {
+		endTimestamp: number;
+		segmentName: string;
+		startTimestamp: number;
+	}) => void;
 
 	persistScrollGutter?: boolean;
 
@@ -225,6 +256,13 @@ interface EditorBaseProps {
 	shouldFocus?: boolean;
 
 	skipValidation?: boolean;
+
+	/**
+	 * Passing this prop enables `contain: strict` mode
+	 * which drastically improves layout performance,
+	 * but it requires that the size of a container is set, otherwise height will be 0.
+	 */
+	UNSAFE_containLayout?: boolean;
 
 	// Experimental support for modern React Context for @atlaskit/analytics-next.
 	// Enables re-providing of AnalyticsContext for all ReactNodeViews.
@@ -269,19 +307,18 @@ export interface EditorSharedPropsWithPlugins {
 }
 
 export interface EditorProps
-	extends EditorBaseProps,
-	EditorPluginFeatureProps,
-	EditorSharedPropsWithPlugins,
-	EditorProviderProps {
+	extends
+		EditorBaseProps,
+		EditorPluginFeatureProps,
+		EditorSharedPropsWithPlugins,
+		EditorProviderProps {
 	// Editor assitive describedby. Set aria-describedby to make the editor announcement to include the information
 	// the associated component's content
 	assistiveDescribedBy?: string;
 }
 
 export interface EditorNextProps
-	extends EditorBaseProps,
-	EditorSharedPropsWithPlugins,
-	EditorProviderProps {
+	extends EditorBaseProps, EditorSharedPropsWithPlugins, EditorProviderProps {
 	// Editor assitive describedby. Set aria-describedby to make the editor announcement to include the information
 	// the associated component's content
 	assistiveDescribedBy?: string;
@@ -422,10 +459,10 @@ export interface EditorPluginFeatureProps {
 
 	// Enable status, if menuDisabled is passed then plugin is enabled by default
 	allowStatus?:
-	| boolean
-	| {
-		menuDisabled: boolean;
-	};
+		| boolean
+		| {
+				menuDisabled: boolean;
+		  };
 
 	// Enables tables. You can enable individual table features like table header rows and cell background colour.
 	// You will most likely need backend ADF storage for the advanced table features.
@@ -484,7 +521,7 @@ export interface EditorPluginFeatureProps {
 	// which is probably what you want. Media group refers to a filmstrip, thumbnail view of media files which was used in Stride.
 	media?: MediaPluginOptions;
 
-	mention?: MentionPluginConfig;
+	mention?: EditorMentionOptions;
 
 	// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- Ignored via go/ED-25883
 	/**
@@ -501,7 +538,7 @@ export interface EditorPluginFeatureProps {
 	// 	     title: messages.cannotPasteSyncedBlockTitle,
 	// 	     description: messages.cannotPasteSyncedBlockDescription,
 	// 	     urlText: messages.cannotPasteSyncedBlockAction,
-	// 	     urlHref: 'https://hello.atlassian.net/wiki/x/tAtCeAE'
+	// 	     urlHref: SYNCED_BLOCKS_DOCUMENTATION_URL
 	//   }}
 	//}
 	pasteWarningOptions?: PasteWarningOptions;

@@ -2,6 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- LENS1-245 tracks @atlaskit/focus-ring deprecation. */
 import { Children, cloneElement, type FC, memo } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
@@ -14,16 +15,16 @@ import type { FocusRingProps } from './types';
 const BORDER_WIDTH = 2;
 
 const baseFocusOutsideStyles = css({
-	outline: `${token('border.width.focused')} solid ${token('color.border.focused', '#2684FF')}`,
+	outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
 	outlineOffset: BORDER_WIDTH,
 });
 
 const baseInsetStyles = css({
-	outlineColor: token('color.border.focused', '#2684FF'),
+	outlineColor: token('color.border.focused'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	outlineOffset: -BORDER_WIDTH,
 	outlineStyle: 'solid',
-	outlineWidth: token('border.width.focused', '2px'),
+	outlineWidth: token('border.width.focused'),
 });
 
 const focusRingStyles = css({
@@ -81,6 +82,8 @@ const insetFocusRingStyles = css({
  *   </FocusRing>
  * )
  * ```
+ *
+ * @deprecated FocusRing is deprecated. Use Focusable from @atlaskit/primitives/compiled/focusable instead.
  */
 const FocusRing: FC<FocusRingProps> = memo(({ children, isInset, focus }) => {
 	const controlledStyles = isInset ? baseInsetStyles : baseFocusOutsideStyles;

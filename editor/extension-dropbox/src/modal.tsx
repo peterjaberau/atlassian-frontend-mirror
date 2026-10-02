@@ -3,22 +3,23 @@
  * @jsx jsx
  */
 import React, { useState } from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx, css } from '@emotion/react';
 
-import ModalDialog, {
-	ModalTransition,
-	CloseButton,
-	useModal,
-	ModalBody as AKModalBody,
-} from '@atlaskit/modal-dialog';
-
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
+import { CloseButton } from '@atlaskit/modal-dialog/close-button';
+import { useModal } from '@atlaskit/modal-dialog/hooks';
+import AKModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
+import { xcss, Box } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
 
 import { DROPBOX_IFRAME_NAME } from './constants';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { xcss, Box } from '@atlaskit/primitives';
 
 const ModalBody = React.forwardRef<HTMLDivElement, React.AllHTMLAttributes<HTMLDivElement>>(
 	(props, ref) => {
@@ -56,9 +57,17 @@ const Header = () => {
 			{/* This div is offsetting the button to the right */}
 			<div css={spacingDivStyle} />
 			<Box xcss={headingStyle}>
-				<Heading id={titleId} size="xsmall">
-					Dropbox
-				</Heading>
+				{fg('platform_dst_modal-dialog-use-modal-title') ? (
+					<ModalTitle>
+						<Heading size="xsmall" as="span">
+							Dropbox
+						</Heading>
+					</ModalTitle>
+				) : (
+					<Heading id={titleId} size="xsmall">
+						Dropbox
+					</Heading>
+				)}
 			</Box>
 			<div>
 				<CloseButton onClick={onClose} />
@@ -77,7 +86,7 @@ const Modal = ({
 	onClose: () => any;
 	showModal?: boolean;
 	TEST_ONLY_src?: string;
-}) => {
+}): jsx.JSX.Element => {
 	const [isOpen, setIsOpen] = useState(true);
 
 	if (typeof showModal === 'boolean' && isOpen !== showModal) {
@@ -90,6 +99,7 @@ const Modal = ({
 				<ModalDialog
 					height="100%"
 					width="large"
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onClose={() => {
 						setIsOpen(false);
 						onClose();
@@ -99,16 +109,20 @@ const Modal = ({
 					<AKModalBody>
 						<ModalBody>
 							{TEST_ONLY_src ? (
-								// eslint-disable-next-line @atlassian/a11y/iframe-has-title
 								<iframe
 									css={iframeStyle}
 									name={DROPBOX_IFRAME_NAME}
+									title="Dropbox file chooser"
 									frameBorder={0}
 									src={TEST_ONLY_src}
 								/>
 							) : (
-								// eslint-disable-next-line @atlassian/a11y/iframe-has-title
-								<iframe css={iframeStyle} name={DROPBOX_IFRAME_NAME} frameBorder={0} />
+								<iframe
+									css={iframeStyle}
+									name={DROPBOX_IFRAME_NAME}
+									title="Dropbox file chooser"
+									frameBorder={0}
+								/>
 							)}
 						</ModalBody>
 					</AKModalBody>

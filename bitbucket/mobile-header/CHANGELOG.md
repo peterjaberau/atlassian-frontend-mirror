@@ -1,5 +1,168 @@
 # @atlaskit/mobile-header
 
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.0.28
 
 ### Patch Changes

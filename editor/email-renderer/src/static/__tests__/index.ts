@@ -1,6 +1,5 @@
 import { processImages, createContentId } from '..';
 import * as icons from '../icons';
-import { base64Prefix, imageOutputType } from '../generator/constants';
 
 describe('static asset rendering tests', () => {
 	it('processImages: should have expected embeddedImages array', () => {
@@ -15,7 +14,7 @@ describe('static asset rendering tests', () => {
 		expect(output.embeddedImages).toEqual([
 			{
 				contentId: 'csg-icon-info',
-				contentType: `image/${imageOutputType}`,
+				contentType: 'image/png',
 				data: icons.info,
 			},
 		]);
@@ -27,18 +26,10 @@ describe('static asset rendering tests', () => {
 		const output = processImages(htmlTestString, true);
 
 		// image src should be base64 inline data uri
-		expect(output.result).toMatch(`<html><img src="${base64Prefix}${icons.info}" /></html>`);
+		expect(output.result).toMatch(`<html><img src="data:image/png;base64,${icons.info}" /></html>`);
 
 		// embeddedImages is irrelevant for mock mode
 		expect(output.embeddedImages).toEqual([]);
-	});
-
-	// these tests make sure that the generator does not spew out something unexpected
-	it('generator: icons match snapshots', () => {
-		// eslint-disable-next-line guard-for-in
-		for (const icon in icons.IconName) {
-			expect(icons[icon as icons.IconString]).toMatchSnapshot(icon);
-		}
 	});
 
 	it('createContentId: should create contentIds as expected', () => {

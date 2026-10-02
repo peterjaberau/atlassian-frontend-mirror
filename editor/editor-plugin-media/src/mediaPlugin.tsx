@@ -26,7 +26,9 @@ import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection, PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { getMediaFeatureFlag } from '@atlaskit/media-common';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { MediaViewerExtensions } from '@atlaskit/media-viewer';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { MediaNextEditorPluginType } from './mediaPluginType';
 import { lazyMediaGroupView } from './nodeviews/lazy-media-group';
@@ -37,11 +39,14 @@ import { mediaSpecWithFixedToDOM } from './nodeviews/toDOM-fixes/media';
 import { mediaGroupSpecWithFixedToDOM } from './nodeviews/toDOM-fixes/mediaGroup';
 import { mediaInlineSpecWithFixedToDOM } from './nodeviews/toDOM-fixes/mediaInline';
 import { mediaSingleSpecWithFixedToDOM } from './nodeviews/toDOM-fixes/mediaSingle';
+import { createAIGeneratingDecorationPlugin } from './pm-plugins/ai-generating-decoration';
 import { createPlugin as createMediaAltTextPlugin } from './pm-plugins/alt-text';
 import keymapMediaAltTextPlugin from './pm-plugins/alt-text/keymap';
 import {
+	clearAIGenerating,
 	hideMediaViewer,
 	insertMediaAsMediaSingleCommand,
+	setAIGenerating,
 	showMediaViewer,
 	trackMediaPaste,
 } from './pm-plugins/commands';
@@ -68,6 +73,8 @@ type MediaPickerFunctionalComponentProps = {
 type MediaViewerFunctionalComponentProps = {
 	api: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined;
 	editorView: EditorView;
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>;
+	mediaViewerExtensions?: MediaViewerExtensions;
 };
 
 const selector = (
@@ -119,6 +126,8 @@ const mediaViewerStateSelector = (
 const MediaViewerFunctionalComponent = ({
 	api,
 	editorView,
+	mediaViewerExtensions,
+	fallbackMediaNameFetcher,
 }: MediaViewerFunctionalComponentProps) => {
 	// Only traverse document once when media viewer is visible, media viewer items will not update
 	// when document changes are made while media viewer is open
@@ -149,6 +158,8 @@ const MediaViewerFunctionalComponent = ({
 			onClose={handleOnClose}
 			selectedNodeAttrs={mediaViewerSelectedMedia}
 			items={mediaItems}
+			extensions={mediaViewerExtensions}
+			fallbackMediaNameFetcher={fallbackMediaNameFetcher}
 		/>
 	);
 };
@@ -168,19 +179,31 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 		},
 
 		actions: {
-			handleMediaNodeRenderError: (node: PMNode, reason: string) => {
-				// Only fire the errored event once per media node
-				if (mediaErrorLocalIds.has(node.attrs.localId)) {
-					return;
+			handleMediaNodeRenderError: (node: PMNode, reason: string, nestedUnder?: string) => {
+				let isDuplicateError = false;
+
+				if (isExperimentEnabled('platform_editor_media_reliability_observability')) {
+					if (mediaErrorLocalIds.has(node.attrs.localId)) {
+						// we mark duplicate errors in the case of nested media nodes
+						// renderering to avoid firing multiple errored events for the same underlying issue,
+						// which can happen more often with nested media nodes
+						isDuplicateError = true;
+					} else {
+						mediaErrorLocalIds.add(node.attrs.localId);
+					}
 				}
-				mediaErrorLocalIds.add(node.attrs.localId);
 
 				api?.analytics?.actions.fireAnalyticsEvent({
 					action: ACTION.ERRORED,
 					actionSubject: ACTION_SUBJECT.EDITOR,
 					actionSubjectId: ACTION_SUBJECT_ID.MEDIA,
 					eventType: EVENT_TYPE.UI,
-					attributes: { reason, external: node.attrs.__external },
+					attributes: {
+						reason,
+						external: node.attrs.__external,
+						...(nestedUnder ? { nestedUnder } : {}),
+						isDuplicateError,
+					},
 				});
 			},
 
@@ -210,6 +233,8 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 			showMediaViewer,
 			hideMediaViewer,
 			trackMediaPaste,
+			setAIGenerating,
+			clearAIGenerating,
 			insertMediaSingle: insertMediaAsMediaSingleCommand(
 				api?.analytics?.actions,
 				options.allowPixelResizing,
@@ -283,6 +308,7 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 										providerFactory,
 										options,
 										api,
+										getIntl(),
 									),
 									mediaSingle: ReactMediaSingleNode(
 										portalProviderAPI,
@@ -291,6 +317,7 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 										api,
 										dispatchAnalyticsEvent,
 										options,
+										getIntl(),
 									),
 									media: ReactMediaNode(
 										portalProviderAPI,
@@ -298,12 +325,16 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 										providerFactory,
 										options,
 										api,
+										getIntl(),
 									),
 									mediaInline: lazyMediaInlineView(
 										portalProviderAPI,
 										eventDispatcher,
 										providerFactory,
 										api,
+										undefined,
+										options?.fallbackMediaNameFetcher,
+										getIntl(),
 									),
 								},
 								errorReporter,
@@ -312,6 +343,7 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 								customDropzoneContainer: options && options.customDropzoneContainer,
 								customMediaPicker: options && options.customMediaPicker,
 								allowResizing: !!(options && options.allowResizing),
+								fallbackMediaNameFetcher: options && options.fallbackMediaNameFetcher,
 							},
 							getIntl,
 							api,
@@ -377,6 +409,11 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 			}
 
 			pmPlugins.push({
+				name: 'mediaAIGeneratingDecoration',
+				plugin: () => createAIGeneratingDecorationPlugin(),
+			});
+
+			pmPlugins.push({
 				name: 'mediaSelectionHandler',
 				plugin: () => {
 					const mediaSelectionHandlerPlugin = new SafePlugin({
@@ -419,7 +456,12 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 
 			return (
 				<>
-					<MediaViewerFunctionalComponent api={api} editorView={editorView} />
+					<MediaViewerFunctionalComponent
+						api={api}
+						editorView={editorView}
+						mediaViewerExtensions={options?.mediaViewerExtensions}
+						fallbackMediaNameFetcher={options?.fallbackMediaNameFetcher}
+					/>
 					<MediaPickerFunctionalComponent
 						editorDomElement={editorView.dom}
 						appearance={appearance}
@@ -435,32 +477,33 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 
 		pluginsOptions: {
 			quickInsert: ({ formatMessage }) =>
-				!api?.mediaInsert && fg('platform_editor_media_insert_check') ?
-					[
-						{
-							id: 'media',
-							title: formatMessage(messages.mediaFiles),
-							description: formatMessage(messages.mediaFilesDescription),
-							priority: 400,
-							keywords: ['attachment', 'gif', 'media', 'picture', 'image', 'video', 'file'],
-							icon: () => <IconImages />,
-							isDisabledOffline: true,
-							action(insert, state) {
-								const pluginState = stateKey.getState(state);
-								pluginState?.showMediaPicker();
-								const tr = insert('');
-								api?.analytics?.actions.attachAnalyticsEvent({
-									action: ACTION.OPENED,
-									actionSubject: ACTION_SUBJECT.PICKER,
-									actionSubjectId: ACTION_SUBJECT_ID.PICKER_CLOUD,
-									attributes: { inputMethod: INPUT_METHOD.QUICK_INSERT },
-									eventType: EVENT_TYPE.UI,
-								})(tr);
+				!api?.mediaInsert
+					? [
+							{
+								id: 'media',
+								title: formatMessage(messages.mediaFiles),
+								description: formatMessage(messages.mediaFilesDescription),
+								priority: 400,
+								keywords: ['attachment', 'gif', 'media', 'picture', 'image', 'video', 'file'],
+								icon: () => <IconImages />,
+								isDisabledOffline: true,
+								action(insert, state) {
+									const pluginState = stateKey.getState(state);
+									pluginState?.showMediaPicker();
+									const tr = insert('');
+									api?.analytics?.actions.attachAnalyticsEvent({
+										action: ACTION.OPENED,
+										actionSubject: ACTION_SUBJECT.PICKER,
+										actionSubjectId: ACTION_SUBJECT_ID.PICKER_CLOUD,
+										attributes: { inputMethod: INPUT_METHOD.QUICK_INSERT },
+										eventType: EVENT_TYPE.UI,
+									})(tr);
 
-								return tr;
+									return tr;
+								},
 							},
-						},
-					] : [],
+						]
+					: [],
 
 			floatingToolbar: (state, intl, providerFactory) =>
 				floatingToolbar(
@@ -483,6 +526,7 @@ export const mediaPlugin: MediaNextEditorPluginType = ({ config: options = {}, a
 						isViewOnly: api?.editorViewMode?.sharedState.currentState()?.mode === 'view',
 						allowPixelResizing: options?.allowPixelResizing,
 						onCommentButtonMount: options?.onCommentButtonMount,
+						createCommentExperience: options?.createCommentExperience,
 					},
 					api,
 				),

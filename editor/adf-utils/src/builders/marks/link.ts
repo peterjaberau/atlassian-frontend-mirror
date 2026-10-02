@@ -1,10 +1,8 @@
-import {
-	type LinkDefinition,
-	type LinkAttributes,
-	type TextDefinition,
-} from '@atlaskit/adf-schema';
+import type { LinkDefinition, LinkAttributes } from '@atlaskit/adf-schema/link';
+import type { TextDefinition } from '@atlaskit/adf-schema/text';
+
+import type { WithMark } from '../types';
 import { applyMark } from '../utils/apply-mark';
-import { type WithMark } from '../types';
 
 export const link =
 	(attrs: LinkAttributes) =>

@@ -2,8 +2,7 @@ import fs from 'fs';
 
 import { THEME_INPUT_DIR } from '../../../scripts/style-dictionary/constants';
 import tokens from '../../artifacts/token-names';
-import type { Themes } from '../../index';
-import themeConfig from '../../theme-config';
+import themeConfig, { type Themes } from '../../theme-config';
 
 const tokenPath = `../../../${THEME_INPUT_DIR}`;
 
@@ -87,6 +86,7 @@ describe('tokens', () => {
 					result.name !== 'atlassian-spacing' &&
 					result.name !== 'atlassian-typography' &&
 					result.name !== 'atlassian-shape' &&
+					result.name !== 'atlassian-motion' &&
 					result.name !== 'default' &&
 					!extensionThemes.includes(result.name) &&
 					!themeOverrides.includes(result.name),

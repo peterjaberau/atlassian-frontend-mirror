@@ -1,5 +1,5 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { type SmartLinkResponse } from '@atlaskit/linking-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
 
 export interface ErrorResponseBody {
 	message: string;
@@ -78,7 +78,103 @@ const entityDataResponse = {
 	},
 };
 
-export const mocks = {
+export const mocks: {
+	datasourceSuccess: {
+		data: {
+			'@context': {
+				'@vocab': string;
+				atlassian: string;
+				schema: string;
+			};
+			'@type': string;
+			name: string;
+			preview: {
+				href: string;
+			};
+			'schema:potentialAction': {
+				'@id': string;
+				'@type': string;
+				identifier: string;
+				name: string;
+			};
+			summary: string;
+			url: string;
+		};
+		datasources: {
+			ari: string;
+			description: string;
+			id: string;
+			key: string;
+			name: string;
+			parameters: {
+				cloudId: string;
+				jql: string;
+			};
+		}[];
+		meta: {
+			access: string;
+			auth: never[];
+			definitionId: string;
+			key: string;
+			visibility: string;
+		};
+	};
+	entityDataSuccess: SmartLinkResponse;
+	forbidden: JsonLd.Response;
+	invokeInternalServerError: {
+		error: {
+			message: string;
+			status: number;
+			type: string;
+		};
+		status: number;
+	};
+	invokeSearchAuthError: {
+		error: {
+			message: string;
+			status: number;
+			type: string;
+		};
+		status: number;
+	};
+	invokeSearchFailedError: {
+		error: {
+			message: string;
+			status: number;
+			type: string;
+		};
+		status: number;
+	};
+	invokeSearchRateLimitError: {
+		error: {
+			message: string;
+			status: number;
+			type: string;
+		};
+		status: number;
+	};
+	invokeSearchTimeoutError: {
+		error: {
+			message: string;
+			status: number;
+			type: string;
+		};
+		status: number;
+	};
+	invokeSearchUnsupportedError: {
+		error: {
+			message: string;
+			status: number;
+			type: string;
+		};
+		status: number;
+	};
+	notFound: JsonLd.Response;
+	notSupported: ErrorResponseBody;
+	searchSuccess: JsonLd.Response;
+	success: JsonLd.Response;
+	unauthorized: JsonLd.Response;
+} = {
 	success: jsonLdResponse as JsonLd.Response,
 	datasourceSuccess: {
 		...jsonLdResponse,

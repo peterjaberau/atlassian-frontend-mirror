@@ -3,8 +3,7 @@ import React from 'react';
 import ChatIcon from '@atlaskit/icon/core/ai-chat';
 
 import { ListItem } from '../../components/list-item';
-
-import { Button } from './themed/migration';
+import { Button } from './themed/button';
 
 /**
  * __Chat button__

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace, import/export */
+
 import type {
 	Action as ActionSchema,
 	AssignAction,
@@ -534,6 +535,7 @@ export namespace JsonLd {
 			category?: any;
 			containerId?: any;
 			follow?: boolean;
+			is1PLink?: boolean;
 			objectId?: any;
 			product?: any;
 			resourceType?: any;

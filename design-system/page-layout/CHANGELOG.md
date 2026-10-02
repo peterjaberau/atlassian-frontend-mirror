@@ -1,5 +1,305 @@
 # @atlaskit/page-layout
 
+## 5.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.3
+
+### Patch Changes
+
+- [`1715d48a722a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1715d48a722a2) -
+  Migrate responsive styling to typed canonical CSS media-query keys. Allow those keys in the UI
+  Styling Standard and report non-canonical queries used with `satisfies`.
+- Updated dependencies
+
+## 5.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.7
+
+### Patch Changes
+
+- [`a81800766ffa8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a81800766ffa8) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 5.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`015a98b324278`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/015a98b324278) -
+  Adopt motion.button.hovered / motion.button.pressed tokens for hover/press background transitions
+  in custom button-like components (inline-edit read view, navigation-system top-nav pressable, and
+  page-layout resize control grab area), gated behind the platform-dst-motion-uplift-button feature
+  flag.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.2
+
+### Patch Changes
+
+- [`40a0c6a050287`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/40a0c6a050287) -
+  Add deprecation notices to code exports
+
+## 4.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.0
+
+### Minor Changes
+
+- [`b6726adedaa66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6726adedaa66) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 4.2.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.39
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 4.2.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.36
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 4.2.35
+
+### Patch Changes
+
+- [`e2085d35701ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2085d35701ca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 4.2.34
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+- Updated dependencies
+
+## 4.2.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.30
+
+### Patch Changes
+
+- [`3ab7f43a5b43d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3ab7f43a5b43d) -
+  Abandon flag to clean up spread props because of usability regressions.
+
+## 4.2.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.28
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 4.2.27
 
 ### Patch Changes

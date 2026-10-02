@@ -1,18 +1,28 @@
+import type { MemoizedFn } from 'memoize-one';
 import memoizeOne from 'memoize-one';
 
+import type { Schema } from '@atlaskit/editor-prosemirror/model';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import type { SchemaConfig } from './create-schema';
+import { createSchema } from './create-schema';
 import {
 	extensionFrame,
 	layoutSectionWithSingleColumn,
-	multiBodiedExtension,
+	multiBodiedExtensionRootOnlyStage0,
+	bodiedExtensionRootOnlyStage0,
+	extensionRootOnlyStage0,
 	expandWithNestedExpand,
 	tableWithNestedTable,
-	listItemWithDecisionStage0,
 	tableRowWithNestedTable,
-	tableCellWithNestedTable,
-	tableHeaderWithNestedTable,
+	tableCellWithNestedTableStage0,
+	tableHeaderWithNestedTableStage0,
 } from './nodes';
-import type { SchemaConfig } from './create-schema';
-import { createSchema } from './create-schema';
+import { bodiedRuleRootOnlyStage0 } from './nodes/bodied-rule';
+import { extendedPanelC1RootOnlyStage0 } from './nodes/extended-panel-c1-root-only-stage0';
+import { extendedPanelRootOnlyStage0 } from './nodes/extended-panel-root-only-stage0';
+import { extensionRootOnlyWithAnnotationStage0 } from './nodes/extension';
+import { ruleWithAttrsRootOnlyStage0 } from './nodes/rule';
 
 type DefaultSchemaNodes =
 	| 'doc'
@@ -25,7 +35,9 @@ type DefaultSchemaNodes =
 	| 'blockquote'
 	| 'codeBlock'
 	| 'panel'
+	| 'panel_c1'
 	| 'rule'
+	| 'bodiedRule'
 	| 'image'
 	| 'mention'
 	| 'media'
@@ -82,6 +94,7 @@ type DefaultSchemaMarks =
 	| 'indentation'
 	| 'annotation'
 	| 'border'
+	| 'fontSize'
 	| 'unsupportedMark'
 	| 'unsupportedNodeAttribute'
 	| 'typeAheadQuery'
@@ -101,6 +114,7 @@ const getDefaultSchemaConfig = (): SchemaConfig<DefaultSchemaNodes, DefaultSchem
 			'blockquote',
 			'codeBlock',
 			'panel',
+			'panel_c1',
 			'rule',
 			'image',
 			'caption',
@@ -157,6 +171,7 @@ const getDefaultSchemaConfig = (): SchemaConfig<DefaultSchemaNodes, DefaultSchem
 			'alignment',
 			'indentation',
 			'annotation',
+			'fontSize',
 			'dataConsumer',
 			'border',
 			'unsupportedMark',
@@ -171,23 +186,38 @@ const getDefaultSchemaConfig = (): SchemaConfig<DefaultSchemaNodes, DefaultSchem
 export const defaultSchemaConfig: SchemaConfig<DefaultSchemaNodes, DefaultSchemaMarks> =
 	getDefaultSchemaConfig();
 
-export const getSchemaBasedOnStage = memoizeOne((stage = 'final') => {
-	const defaultSchemaConfig = getDefaultSchemaConfig();
-	if (stage === 'stage0') {
-		defaultSchemaConfig.customNodeSpecs = {
-			layoutSection: layoutSectionWithSingleColumn,
-			multiBodiedExtension: multiBodiedExtension,
-			extensionFrame: extensionFrame,
-			expand: expandWithNestedExpand,
-			listItem: listItemWithDecisionStage0,
-			table: tableWithNestedTable,
-			tableRow: tableRowWithNestedTable,
-			tableCell: tableCellWithNestedTable,
-			tableHeader: tableHeaderWithNestedTable,
-		};
-	}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getSchemaBasedOnStage: MemoizedFn<
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	(this: any, stage?: any) => Schema<DefaultSchemaNodes, DefaultSchemaMarks>
+> = memoizeOne(
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	(stage: any = 'final'): Schema<DefaultSchemaNodes, DefaultSchemaMarks> => {
+		const defaultSchemaConfig = getDefaultSchemaConfig();
+		if (stage === 'stage0') {
+			defaultSchemaConfig.customNodeSpecs = {
+				layoutSection: layoutSectionWithSingleColumn,
+				extension: fg('cc_maui_annotations_on_extensions')
+					? extensionRootOnlyWithAnnotationStage0
+					: extensionRootOnlyStage0,
+				bodiedExtension: bodiedExtensionRootOnlyStage0,
+				multiBodiedExtension: multiBodiedExtensionRootOnlyStage0,
+				extensionFrame: extensionFrame,
+				expand: expandWithNestedExpand,
+				table: tableWithNestedTable,
+				tableRow: tableRowWithNestedTable,
+				tableCell: tableCellWithNestedTableStage0,
+				tableHeader: tableHeaderWithNestedTableStage0,
+				panel: extendedPanelRootOnlyStage0(true),
+				panel_c1: extendedPanelC1RootOnlyStage0(true),
+				rule: ruleWithAttrsRootOnlyStage0,
+				bodiedRule: bodiedRuleRootOnlyStage0,
+			};
+		}
 
-	return createSchema(defaultSchemaConfig);
-});
+		return createSchema(defaultSchemaConfig);
+	},
+);
 
-export const defaultSchema = getSchemaBasedOnStage();
+export const defaultSchema: Schema<DefaultSchemaNodes, DefaultSchemaMarks> =
+	getSchemaBasedOnStage();

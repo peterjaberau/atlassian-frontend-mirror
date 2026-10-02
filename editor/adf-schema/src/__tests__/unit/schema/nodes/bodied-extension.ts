@@ -1,6 +1,8 @@
 import { schema, toDOM, fromHTML, toContext } from '@af/adf-test-helpers/src/adf-schema';
-import { bodiedExtension, bodiedExtension as bodiedExtensionNodeSpec } from '../../../..';
 import { doc, bodiedExtension as bodiedExt, p } from '@af/adf-test-helpers/src/doc-builder';
+
+import { bodiedExtension, bodiedExtension as bodiedExtensionNodeSpec } from '../../../..';
+import { bodiedExtensionRootOnlyStage0 } from '../../../../schema/nodes/bodied-extension';
 
 const packageName = process.env.npm_package_name as string;
 
@@ -33,11 +35,11 @@ describe(`${packageName}/schema bodiedExtension node`, () => {
 				},
 			},
 			content:
-				'(paragraph | panel | blockquote | orderedList | bulletList | rule | heading | codeBlock | mediaGroup | mediaSingle | decisionList | taskList | table | blockCard | embedCard | extension | unsupportedBlock)+',
+				'(paragraph | panel | blockquote | orderedList | bulletList | rule | bodiedRule | heading | codeBlock | mediaGroup | mediaSingle | decisionList | taskList | table | blockCard | embedCard | extension | unsupportedBlock)+',
 			defining: true,
 			group: 'block',
 			isolating: true,
-			marks: 'dataConsumer fragment unsupportedMark unsupportedNodeAttribute',
+			marks: 'dataConsumer fontSize fragment unsupportedMark unsupportedNodeAttribute',
 			parseDOM: [
 				{
 					context: 'bodiedExtension//',
@@ -51,6 +53,13 @@ describe(`${packageName}/schema bodiedExtension node`, () => {
 			],
 			selectable: true,
 			toDOM: expect.anything(),
+		});
+	});
+
+	it('should return correct stage-0 root-only node spec', () => {
+		expect(bodiedExtensionRootOnlyStage0).toStrictEqual({
+			...bodiedExtension,
+			marks: 'breakout dataConsumer fontSize fragment unsupportedMark unsupportedNodeAttribute',
 		});
 	});
 

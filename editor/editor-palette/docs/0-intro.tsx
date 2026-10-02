@@ -1,10 +1,11 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 import { token } from '@atlaskit/tokens';
 
-export default md`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- md template from @atlaskit/docs
+const _default_1: any = md`
 ${(<AtlassianInternalWarning />)}
 
 # Editor Palettes:
@@ -36,10 +37,10 @@ or reach out to the Design System Team via the [Atlassian Developer Community fo
 
 ## API documentation
 
-${
-	(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
+${(
+	<>
+		{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+		<div style={{ marginTop: token('space.100') }}>
 			<SectionMessage
 				title="Design token names and values are an implementation detail."
 				appearance="warning"
@@ -66,8 +67,8 @@ ${
 				</ul>
 			</SectionMessage>
 		</div>
-	)
-}
+	</>
+)}
 
 ### \`hexToTextPaletteColor\`
 
@@ -126,3 +127,4 @@ ${code`
 `}
 
 `;
+export default _default_1;

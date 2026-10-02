@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import {
@@ -24,7 +24,10 @@ type NumberedListMenuItemType = {
 	parents: ToolbarComponentTypes;
 };
 
-export const NumberedListMenuItem = ({ api, parents }: NumberedListMenuItemType): React.JSX.Element => {
+export const NumberedListMenuItem = ({
+	api,
+	parents,
+}: NumberedListMenuItemType): React.JSX.Element => {
 	const { formatMessage } = useIntl();
 	const { orderedListActive, orderedListDisabled, taskListActive } =
 		useSharedPluginStateWithSelector(api, ['list', 'taskDecision'], (states) => ({

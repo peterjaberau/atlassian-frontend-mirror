@@ -2,20 +2,21 @@ import React from 'react';
 
 import { act, render, type RenderResult, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import invariant from 'tiny-invariant';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { JQLEditor, type JQLEditorProps } from '@atlaskit/jql-editor';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import JQLEditor from '@atlaskit/jql-editor/ui';
+import type { JQLEditorProps } from '@atlaskit/jql-editor/ui/types';
 import {
 	fieldValuesResponseForStatusesMapped,
 	mockSite,
 } from '@atlaskit/link-test-helpers/datasource';
 import { asMock } from '@atlaskit/link-test-helpers/jest';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 
-import { EVENT_CHANNEL } from '../../../../analytics';
+import { EVENT_CHANNEL } from '../../../../analytics/constants';
 import { type SelectOption } from '../../../common/modal/popup-select/types';
 import { useFilterOptions } from '../../basic-filters/hooks/useFilterOptions';
 import {
@@ -31,12 +32,15 @@ jest.mock('../../basic-filters/hooks/useHydrateJqlQuery');
 
 jest.mock('../../basic-filters/hooks/useFilterOptions');
 
-jest.mock('@atlaskit/jql-editor-autocomplete-rest', () => ({
+jest.mock('@atlaskit/jql-editor-autocomplete-rest/use-autocomplete-provider', () => ({
+	...jest.requireActual('@atlaskit/jql-editor-autocomplete-rest/use-autocomplete-provider'),
 	useAutocompleteProvider: jest.fn().mockReturnValue('useAutocompleteProvider-call-result'),
 }));
 
-jest.mock('@atlaskit/jql-editor', () => ({
-	JQLEditor: jest.fn().mockReturnValue(<div data-testid={'mocked-jql-editor'}></div>),
+jest.mock('@atlaskit/jql-editor/ui', () => ({
+	...jest.requireActual('@atlaskit/jql-editor/ui'),
+	__esModule: true,
+	default: jest.fn().mockReturnValue(<div data-testid={'mocked-jql-editor'}></div>),
 }));
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
@@ -46,13 +50,10 @@ skipAutoA11yFile();
 
 let mockRequest = jest.fn();
 
-jest.mock('@atlaskit/linking-common', () => {
-	const originalModule = jest.requireActual('@atlaskit/linking-common');
-	return {
-		...originalModule,
-		request: (...args: any) => mockRequest(...args),
-	};
-});
+jest.mock('@atlaskit/linking-common/api', () => ({
+	...jest.requireActual('@atlaskit/linking-common/api'),
+	request: (...args: any) => mockRequest(...args),
+}));
 
 const onAnalyticFireEvent = jest.fn();
 
@@ -152,7 +153,9 @@ const setupBasicFilter = async ({
 	// in current implementation JQL doesn't have basic filters
 	await userEvent.click(screen.getByTestId('mode-toggle-basic'));
 
-	const triggerButton = screen.queryByTestId(`jlol-basic-filter-${filterType}-trigger`);
+	const triggerButton =
+		screen.queryByTestId(`jlol-basic-filter-${filterType}-trigger--button`) ??
+		screen.queryByTestId(`jlol-basic-filter-${filterType}-trigger--loading-button`);
 
 	if (openPicker) {
 		invariant(triggerButton);
@@ -726,14 +729,18 @@ describe('JiraSearchContainer', () => {
 		await userEvent.click(firstStatus);
 
 		// Close menu
-		const statusTriggerButton = await screen.findByTestId(`jlol-basic-filter-status-trigger`);
+		const statusTriggerButton = await screen.findByTestId(
+			`jlol-basic-filter-status-trigger--button`,
+		);
 		await userEvent.click(statusTriggerButton);
 
 		expect(screen.queryByTestId('jlol-basic-filter-container')).toHaveTextContent(
 			'ProjectWork typeStatus: AuthorizeAssignee',
 		);
 
-		const projectTriggerButton = await screen.findByTestId(`jlol-basic-filter-project-trigger`);
+		const projectTriggerButton = await screen.findByTestId(
+			`jlol-basic-filter-project-trigger--button`,
+		);
 		await userEvent.click(projectTriggerButton);
 
 		const projectSelectMenu = await screen.findByTestId(
@@ -773,7 +780,9 @@ describe('JiraSearchContainer', () => {
 		await userEvent.click(firstStatus);
 
 		// Close menu
-		const statusTriggerButton = await screen.findByTestId(`jlol-basic-filter-status-trigger`);
+		const statusTriggerButton = await screen.findByTestId(
+			`jlol-basic-filter-status-trigger--button`,
+		);
 		await userEvent.click(statusTriggerButton);
 
 		expect(screen.queryByTestId('jlol-basic-filter-container')).toHaveTextContent(
@@ -877,7 +886,9 @@ describe('JiraSearchContainer', () => {
 			);
 
 			// Open menu
-			const newInstanceOfTriggerButton = screen.queryByTestId(`jlol-basic-filter-status-trigger`);
+			const newInstanceOfTriggerButton = screen.queryByTestId(
+				`jlol-basic-filter-status-trigger--button`,
+			);
 
 			invariant(newInstanceOfTriggerButton);
 			await userEvent.click(newInstanceOfTriggerButton);
@@ -1262,88 +1273,75 @@ describe('Analytics: JiraSearchContainer', () => {
 	});
 });
 
-describe('setHasJqlSyntaxErrors with feature flag', () => {
+describe('basic search input container wrapping (platform_lp_jira_searchbar_wrap_a11y)', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
 
-	ffTest.on(
-		'navx-1345-issues-modal-jql-submit-fix',
-		'setHasJqlSyntaxErrors behavior when feature flag is ON',
-		() => {
-			it('should call setHasJqlSyntaxErrors with true when JQL has syntax errors', async () => {
-				const mockSetHasJqlSyntaxErrors = jest.fn();
-				const { getLatestJQLEditorProps } = setup({
-					setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
-				});
+	// The container holding the basic search input and the basic filters is their closest common ancestor.
+	const getBasicSearchInputContainer = (): HTMLElement => {
+		const searchInput = screen.getByTestId('jira-datasource-modal--basic-search-input');
+		const basicFilters = screen.getByTestId('jlol-basic-filter-container');
 
-				act(() => {
-					getLatestJQLEditorProps().onUpdate!('invalid jql query', {
-						represents: '',
-						errors: [{ description: 'error', message: 'error', name: 'error' }],
-						query: undefined,
-					});
-				});
+		let ancestor: HTMLElement | null = searchInput.parentElement;
+		while (ancestor && !ancestor.contains(basicFilters)) {
+			ancestor = ancestor.parentElement;
+		}
+		invariant(ancestor);
+		return ancestor;
+	};
 
-				expect(mockSetHasJqlSyntaxErrors).toHaveBeenCalledWith(true);
+	it('allows the search input and basic filters to wrap when the gate is enabled', () => {
+		passGate('platform_lp_jira_searchbar_wrap_a11y');
+		setup({ initialSearchMethod: 'basic' });
+
+		expect(getBasicSearchInputContainer()).toHaveCompiledCss('flex-wrap', 'wrap');
+	});
+
+	it('does not allow the search input and basic filters to wrap when the gate is disabled', () => {
+		failGate('platform_lp_jira_searchbar_wrap_a11y');
+		setup({ initialSearchMethod: 'basic' });
+
+		expect(getBasicSearchInputContainer()).not.toHaveCompiledCss('flex-wrap', 'wrap');
+	});
+});
+
+describe('setHasJqlSyntaxErrors behaviour', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('should call setHasJqlSyntaxErrors with true when JQL has syntax errors', async () => {
+		const mockSetHasJqlSyntaxErrors = jest.fn();
+		const { getLatestJQLEditorProps } = setup({
+			setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
+		});
+
+		act(() => {
+			getLatestJQLEditorProps().onUpdate!('invalid jql query', {
+				represents: '',
+				errors: [{ description: 'error', message: 'error', name: 'error' }],
+				query: undefined,
 			});
+		});
 
-			it('should call setHasJqlSyntaxErrors with false when JQL has no syntax errors', async () => {
-				const mockSetHasJqlSyntaxErrors = jest.fn();
-				const { getLatestJQLEditorProps } = setup({
-					setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
-				});
+		expect(mockSetHasJqlSyntaxErrors).toHaveBeenCalledWith(true);
+	});
 
-				act(() => {
-					getLatestJQLEditorProps().onUpdate!('valid jql query', {
-						represents: '',
-						errors: [],
-						query: undefined,
-					});
-				});
+	it('should call setHasJqlSyntaxErrors with false when JQL has no syntax errors', async () => {
+		const mockSetHasJqlSyntaxErrors = jest.fn();
+		const { getLatestJQLEditorProps } = setup({
+			setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
+		});
 
-				expect(mockSetHasJqlSyntaxErrors).toHaveBeenCalledWith(false);
+		act(() => {
+			getLatestJQLEditorProps().onUpdate!('valid jql query', {
+				represents: '',
+				errors: [],
+				query: undefined,
 			});
-		},
-	);
+		});
 
-	ffTest.off(
-		'navx-1345-issues-modal-jql-submit-fix',
-		'setHasJqlSyntaxErrors behavior when feature flag is OFF',
-		() => {
-			it('should not call setHasJqlSyntaxErrors when JQL has syntax errors', async () => {
-				const mockSetHasJqlSyntaxErrors = jest.fn();
-				const { getLatestJQLEditorProps } = setup({
-					setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
-				});
-
-				act(() => {
-					getLatestJQLEditorProps().onUpdate!('invalid jql query', {
-						represents: '',
-						errors: [{ description: 'error', message: 'error', name: 'error' }],
-						query: undefined,
-					});
-				});
-
-				expect(mockSetHasJqlSyntaxErrors).not.toHaveBeenCalled();
-			});
-
-			it('should not call setHasJqlSyntaxErrors when JQL has no syntax errors', async () => {
-				const mockSetHasJqlSyntaxErrors = jest.fn();
-				const { getLatestJQLEditorProps } = setup({
-					setHasJqlSyntaxErrors: mockSetHasJqlSyntaxErrors,
-				});
-
-				act(() => {
-					getLatestJQLEditorProps().onUpdate!('valid jql query', {
-						represents: '',
-						errors: [],
-						query: undefined,
-					});
-				});
-
-				expect(mockSetHasJqlSyntaxErrors).not.toHaveBeenCalled();
-			});
-		},
-	);
+		expect(mockSetHasJqlSyntaxErrors).toHaveBeenCalledWith(false);
+	});
 });

@@ -1,7 +1,8 @@
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { Slice } from '@atlaskit/editor-prosemirror/model';
 import type { Mappable } from '@atlaskit/editor-prosemirror/transform';
-import { ReplaceStep, Step, StepMap, StepResult } from '@atlaskit/editor-prosemirror/transform';
+import { ReplaceStep, StepMap, StepResult } from '@atlaskit/editor-prosemirror/transform';
+import { Step } from '@atlaskit/editor-prosemirror/transform-override';
 
 export const stepType = 'editor-linking-meta';
 export const invertStepType = 'editor-linking-meta-invert';
@@ -14,8 +15,10 @@ export type LinkStepMetadata = {
 	/**
 	 * The applicable card action for this step
 	 * if is RESOLVE then the undo/redo steps should be considered "updates" of a link
+	 * if is AUTO_CONVERT then the transaction is converting a link to a non-link node (e.g. extension)
+	 * and the link removal should not be tracked as a deletion
 	 */
-	cardAction?: 'RESOLVE';
+	cardAction?: 'RESOLVE' | 'AUTO_CONVERT';
 	/**
 	 * Editor input method that triggered the transaction
 	 */
@@ -40,14 +43,14 @@ export class LinkMetaStep extends Step {
 		super();
 	}
 
-	public getMetadata() {
+	public getMetadata(): LinkStepMetadata {
 		return this.metadata;
 	}
 
 	/**
 	 * Generate new undo/redo analytics event when step is inverted
 	 */
-	invert() {
+	invert(): LinkMetaStep {
 		/**
 		 * Omit sourceEvent in history
 		 */
@@ -57,11 +60,11 @@ export class LinkMetaStep extends Step {
 	}
 
 	// Should make no modifications to the doc
-	apply(doc: PMNode) {
+	apply(doc: PMNode): StepResult {
 		return StepResult.ok(doc);
 	}
 
-	map(mapping: Mappable) {
+	map(mapping: Mappable): LinkMetaStep {
 		let newPos = this.pos;
 		if (typeof newPos === 'number') {
 			newPos = mapping.map(newPos);
@@ -69,7 +72,7 @@ export class LinkMetaStep extends Step {
 		// Return the same events, this step will never be removed
 		return new LinkMetaStep(newPos, this.metadata, this.isInverted);
 	}
-	getMap() {
+	getMap(): StepMap {
 		return new StepMap([this.pos || 0, 0, 0]);
 	}
 
@@ -87,7 +90,7 @@ export class LinkMetaStep extends Step {
 		};
 	}
 
-	static fromJSON() {
+	static fromJSON(): ReplaceStep {
 		// This is a "local custom step" once serialized
 		// we need to transform it in a no-operation action
 		return new ReplaceStep(0, 0, Slice.empty);

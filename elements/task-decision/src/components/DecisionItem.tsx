@@ -3,19 +3,21 @@
  * @jsx jsx
  */
 import { css, jsx } from '@compiled/react';
+import { useIntl } from 'react-intl';
 
 import DecisionIcon from '@atlaskit/icon/core/decision';
-
-import Item from './Item';
-import { type Appearance, type ContentRef } from '../types';
 import { token } from '@atlaskit/tokens';
+
+import { type Appearance, type ContentRef } from '../types';
+import { messages } from './i18n';
+import Item from './Item';
 
 const iconStyles = css({
 	flex: '0 0 16px',
 	height: '16px',
 	width: '16px',
-	marginTop: token('space.050', '4px'),
-	marginRight: token('space.150', '12px'),
+	marginTop: token('space.050'),
+	marginRight: token('space.150'),
 	marginBottom: 0,
 	marginLeft: 0,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
@@ -45,10 +47,20 @@ const DecisionItem = ({
 	placeholder,
 	showPlaceholder,
 	dataAttributes,
-}: Props) => {
+}: Props): JSX.Element => {
+	const { formatMessage } = useIntl();
+
 	const icon = (
 		<span contentEditable={false} css={[iconStyles, showPlaceholder && iconStylesWithPlaceholder]}>
-			<DecisionIcon label="Decision" spacing="spacious" color="currentColor" />
+			<DecisionIcon
+				label={
+					showPlaceholder && children === undefined
+						? formatMessage(messages.undefinedDecisionAriaLabel)
+						: formatMessage(messages.decisionAriaLabel)
+				}
+				spacing="spacious"
+				color="currentColor"
+			/>
 		</span>
 	);
 

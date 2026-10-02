@@ -1,0 +1,113 @@
+import { type RefObject, useEffect } from 'react';
+
+import { bind } from 'bind-event-listener';
+
+import { getFirstFocusable } from '../focus/get-first-focusable';
+import { getLastFocusable } from '../focus/get-last-focusable';
+import { getNextFocusable } from '../focus/get-next-focusable';
+import { isNestedLayerFocused } from '../focus/is-nested-layer-focused';
+import { type TPhase } from './use-animated-visibility';
+
+/**
+ * Roles that require focus wrapping per WAI-ARIA APG.
+ *
+ * - `dialog`: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+ * - `alertdialog`: same keyboard pattern as dialog
+ *
+ * `menu` is intentionally excluded. Menus are composite widgets
+ * (https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/#kbd_general_within)
+ * that manage their own internal keyboard navigation via arrow keys,
+ * not Tab. Tab/Shift+Tab should move focus OUT of a menu entirely.
+ *
+ * Menu keyboard behavior (arrow keys, Home/End, type-ahead, Enter/Space)
+ * is context-dependent. It varies by orientation, nesting depth, item
+ * type, and control pattern (menu button vs menubar). This makes it
+ * impossible to implement generically here. The consumer component
+ * (e.g. `dropdown-menu`) owns all menu keyboard navigation.
+ *
+ * See: notes/outputs/menu-keyboard-decision.md
+ */
+function roleRequiresFocusWrap(role: string | undefined): boolean {
+	return role === 'dialog' || role === 'alertdialog';
+}
+
+/**
+ * Wraps Tab/Shift+Tab focus within a popover element when its role
+ * semantically requires it (dialog, alertdialog).
+ *
+ * While the popover is open, Tab and Shift+Tab are intercepted
+ * (via `preventDefault`) and remapped to cycle through focusable
+ * elements within the container using wrapping navigation.
+ *
+ * Light dismiss (Escape, click outside) continues to work natively
+ * via `popover="auto"` - this hook only intercepts Tab.
+ *
+ * Always call this hook unconditionally. The listener is only
+ * attached when the role requires focus wrapping, and is cleaned
+ * up and re-evaluated when the role changes.
+ */
+export function useFocusWrap({
+	elementRef,
+	role,
+	phase,
+}: {
+	elementRef: RefObject<HTMLElement | null>;
+	role: string | undefined;
+	/**
+	 * Whether the element is open. Used to attach the Tab listener.
+	 */
+	phase: TPhase;
+}): void {
+	const isVisible = phase !== 'closed';
+	useEffect(() => {
+		const element = elementRef.current;
+		if (!element || !roleRequiresFocusWrap(role) || !isVisible) {
+			return;
+		}
+
+		const unbind = bind(element, {
+			type: 'keydown',
+			listener: (event: KeyboardEvent) => {
+				if (event.key !== 'Tab') {
+					return;
+				}
+
+				// If focus is already in a nested layer, then
+				// we continue to let that nested layer own focus
+				if (isNestedLayerFocused({ container: element })) {
+					return;
+				}
+
+				// Prevent the browser giving focus to where it wants to
+				// (we will be handling it, including with wrapping)
+				event.preventDefault();
+
+				const direction = event.shiftKey ? 'backwards' : 'forwards';
+
+				// Try to move to the next/previous focusable element relative
+				// to the currently focused element within the container.
+				const next = getNextFocusable({ container: element, direction });
+
+				if (next) {
+					next.focus();
+					return;
+				}
+
+				// Nothing is currently focused inside the container (or the
+				// focused element is not in the focusable list). Fall back to
+				// the first or last focusable element depending on direction.
+				const fallback =
+					direction === 'forwards'
+						? getFirstFocusable({ container: element })
+						: getLastFocusable({ container: element });
+
+				if (fallback) {
+					fallback.focus();
+				}
+			},
+			options: { capture: true },
+		});
+
+		return unbind;
+	}, [elementRef, role, isVisible]);
+}

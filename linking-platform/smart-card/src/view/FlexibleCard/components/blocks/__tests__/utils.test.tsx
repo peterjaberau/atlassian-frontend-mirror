@@ -1,14 +1,15 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@atlassian/testing-library';
 
 import context from '../../../../../__fixtures__/flexible-ui-data-context';
 import { getFlexibleCardTestWrapper } from '../../../../../__tests__/__utils__/unit-testing-library-helpers';
 import { ElementName, SmartLinkStatus } from '../../../../../constants';
 import { type ElementItem } from '../../blocks/types';
 import Block from '../block';
-import { MetadataBlock } from '../index';
-import { ElementDisplaySchema, type ElementDisplaySchemaType, renderElementItems } from '../utils';
+import { default as MetadataBlock } from '../metadata-block';
+import { renderElementItems } from '../renderElementItems';
+import { ElementDisplaySchema, type ElementDisplaySchemaType } from '../utils';
 
 const TestRenderElementItemBlock = ({
 	display,

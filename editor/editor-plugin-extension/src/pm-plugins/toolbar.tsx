@@ -1,10 +1,25 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-
-import { INPUT_METHOD, type EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
-import { messages } from '@atlaskit/editor-common/extensions';
+import {
+	INPUT_METHOD,
+	type EditorAnalyticsAPI,
+	ACTION,
+	ACTION_SUBJECT,
+	EVENT_TYPE,
+	type ExtensionType,
+	ACTION_SUBJECT_ID,
+} from '@atlaskit/editor-common/analytics';
+import {
+	messages,
+	AGENT_MANAGED_EXTENSION_KEY,
+	NATIVE_EMBED_EXTENSION_KEY,
+	NATIVE_EMBED_EXTENSION_TYPE,
+	type ExtensionParams,
+	type ExtensionProvider,
+	type Parameters,
+} from '@atlaskit/editor-common/extensions';
 import commonMessages from '@atlaskit/editor-common/messages';
 import { BODIED_EXT_MBE_MARGIN_TOP } from '@atlaskit/editor-common/styles';
 import { areToolbarFlagsEnabled } from '@atlaskit/editor-common/toolbar-flag-check';
@@ -23,7 +38,9 @@ import type { AnalyticsPlugin } from '@atlaskit/editor-plugin-analytics';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import type { ConnectivityPlugin } from '@atlaskit/editor-plugin-connectivity';
 import type { ApplyChangeHandler, ContextPanelPlugin } from '@atlaskit/editor-plugin-context-panel';
+import type { CopyButtonPlugin } from '@atlaskit/editor-plugin-copy-button';
 import type { DecorationsPlugin } from '@atlaskit/editor-plugin-decorations';
+import type { MentionsPlugin } from '@atlaskit/editor-plugin-mentions';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType, hasParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
@@ -34,8 +51,8 @@ import DeleteIcon from '@atlaskit/icon/core/delete';
 import EditIcon from '@atlaskit/icon/core/edit';
 import ExpandHorizontalIcon from '@atlaskit/icon/core/expand-horizontal';
 import type { NewCoreIconProps } from '@atlaskit/icon/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import { editExtension } from '../editor-actions/actions';
 import {
@@ -43,29 +60,36 @@ import {
 	removeExtension,
 	updateExtensionLayout,
 } from '../editor-commands/commands';
-import type { ExtensionPlugin, ExtensionState } from '../extensionPluginType';
-
+import type {
+	ExtensionPlugin,
+	ExtensionPluginOptions,
+	ExtensionState,
+} from '../extensionPluginType';
 import { pluginKey as macroPluginKey } from './macro/plugin-key';
 import { getPluginState } from './plugin-factory';
 import type { Position } from './utils';
-import { getSelectedExtension } from './utils';
+import { copyUnsupportedContentToClipboard, getSelectedExtension, onCopyFailed } from './utils';
 
 // non-bodied extensions nested inside panels, blockquotes and lists do not support layouts
 const isNestedNBM = (state: EditorState, selectedExtNode: { node: PMNode; pos: number }) => {
 	const {
-		schema: {
-			nodes: { extension, panel, blockquote, listItem },
-		},
+		schema: { nodes },
 		selection,
 	} = state;
+
+	const { extension, panel, blockquote, listItem, panel_c1 } = nodes;
 
 	if (!selectedExtNode) {
 		return false;
 	}
 
+	const parentNodeTypes = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? [panel, panel_c1, blockquote, listItem]
+		: [panel, blockquote, listItem];
+
 	return (
 		selectedExtNode.node.type === extension &&
-		hasParentNodeOfType([panel, blockquote, listItem].filter(Boolean))(selection)
+		hasParentNodeOfType(parentNodeTypes.filter(Boolean))(selection)
 	);
 };
 
@@ -80,6 +104,13 @@ const isLayoutSupported = (state: EditorState, selectedExtNode: { node: PMNode; 
 	if (!selectedExtNode) {
 		return false;
 	}
+
+	// Skip agent-managed-block extension until it supports the layout controls in its custom node
+	const extensionKey = selectedExtNode.node.attrs.extensionKey as string | undefined;
+	if (AGENT_MANAGED_EXTENSION_KEY === extensionKey) {
+		return false;
+	}
+
 	const isMultiBodiedExtension = selectedExtNode.node.type === multiBodiedExtension;
 	const isNonEmbeddedBodiedExtension =
 		selectedExtNode.node.type === bodiedExtension &&
@@ -388,26 +419,123 @@ const calculateToolbarPosition = (
 	};
 };
 
+/**
+ * Creates a function that copies the text content of the unsupported content extension to the clipboard
+ * if the current selected extension is an unsupported content extension.
+ */
+export const createOnClickCopyButton = ({
+	formatMessage,
+	extensionApi,
+	extensionProvider,
+	getUnsupportedContent,
+	state,
+	locale,
+}: {
+	extensionApi: GetToolbarConfigProps['extensionApi'];
+	extensionProvider?: ExtensionProvider;
+	formatMessage: IntlShape['formatMessage'];
+	getUnsupportedContent?: ExtensionPluginOptions['getUnsupportedContent'];
+	locale: string;
+	state: EditorState;
+}): Command | undefined => {
+	if (!extensionProvider) {
+		return;
+	}
+
+	const nodeWithPos = getSelectedExtension(state, true);
+	if (!nodeWithPos) {
+		return;
+	}
+
+	const { node } = nodeWithPos;
+	const { extensionType, extensionKey } = node.attrs;
+
+	const extensionParams: ExtensionParams<Parameters> = {
+		type: node.type.name as ExtensionParams<Parameters>['type'],
+		extensionKey,
+		extensionType,
+		parameters: node.attrs.parameters,
+		content: node.content,
+		localId: node.attrs.localId,
+	};
+
+	const adf = getUnsupportedContent?.(extensionParams);
+	if (!adf) {
+		return;
+	}
+
+	// this command copies the text content of the unsupported content extension to the clipboard
+	return (editorState) => {
+		extensionApi?.analytics?.actions.fireAnalyticsEvent({
+			action: ACTION.CLICKED,
+			actionSubject: ACTION_SUBJECT.COPY_BUTTON,
+			eventType: EVENT_TYPE.UI,
+			actionSubjectId: ACTION_SUBJECT_ID.EXTENSION,
+			attributes: {
+				extensionDynamicType: node.type.name as ExtensionType,
+				extensionType: node.attrs.extensionType,
+				extensionKey: node.attrs.extensionKey,
+			},
+		});
+		copyUnsupportedContentToClipboard({
+			locale,
+			unsupportedContent: adf,
+			schema: state.schema,
+			api: extensionApi,
+		})
+			.then(() => {
+				extensionApi?.copyButton?.actions.afterCopy(
+					formatMessage(commonMessages.copiedToClipboard),
+				);
+			})
+			.catch((error) => {
+				onCopyFailed({ error, extensionApi, state: editorState });
+			});
+
+		return true;
+	};
+};
+
 interface GetToolbarConfigProps {
 	breakoutEnabled: boolean | undefined;
+	copyEnabled?: boolean | undefined;
+	deleteEnabled?: boolean | undefined;
 	extensionApi?:
-		| PublicPluginAPI<[ContextPanelPlugin, AnalyticsPlugin, DecorationsPlugin, ConnectivityPlugin]>
+		| PublicPluginAPI<
+				[
+					ContextPanelPlugin,
+					AnalyticsPlugin,
+					DecorationsPlugin,
+					ConnectivityPlugin,
+					MentionsPlugin,
+					CopyButtonPlugin,
+				]
+		  >
 		| undefined;
+	getUnsupportedContent?: ExtensionPluginOptions['getUnsupportedContent'];
 }
 
 export const getToolbarConfig =
-	({ breakoutEnabled = true, extensionApi }: GetToolbarConfigProps): FloatingToolbarHandler =>
+	({
+		breakoutEnabled = true,
+		copyEnabled = true,
+		deleteEnabled = true,
+		extensionApi,
+		getUnsupportedContent,
+	}: GetToolbarConfigProps): FloatingToolbarHandler =>
 	(state, intl) => {
-		const { formatMessage } = intl;
+		const { formatMessage, locale } = intl;
 		const extensionState = getPluginState(state);
-
-		const hoverDecoration = extensionApi?.decorations?.actions.hoverDecoration;
-		const applyChangeToContextPanel = extensionApi?.contextPanel?.actions.applyChange;
-		const editorAnalyticsAPI = extensionApi?.analytics?.actions;
 
 		if (!extensionState || extensionState.showContextPanel || !extensionState.element) {
 			return;
 		}
+
+		const { extensionProvider } = extensionState;
+
+		const hoverDecoration = extensionApi?.decorations?.actions.hoverDecoration;
+		const applyChangeToContextPanel = extensionApi?.contextPanel?.actions.applyChange;
+		const editorAnalyticsAPI = extensionApi?.analytics?.actions;
 
 		const nodeType = [
 			state.schema.nodes.extension,
@@ -420,8 +548,7 @@ export const getToolbarConfig =
 			extensionState,
 			applyChangeToContextPanel,
 			editorAnalyticsAPI,
-			editorExperiment('platform_editor_offline_editing_web', true) &&
-				isOfflineMode(extensionApi?.connectivity?.sharedState?.currentState()?.mode),
+			isOfflineMode(extensionApi?.connectivity?.sharedState?.currentState()?.mode),
 			extensionApi as ExtractInjectionAPI<ExtensionPlugin>,
 		);
 		const breakoutItems = breakoutOptions(
@@ -433,6 +560,15 @@ export const getToolbarConfig =
 			extensionApi as ExtractInjectionAPI<ExtensionPlugin>,
 		);
 		const extensionObj = getSelectedExtension(state, true);
+
+		// If this is a native-embed extension, skip providing a toolbar config to allow
+		// the native-embed plugin to provide a custom toolbar config.
+		if (
+			extensionObj?.node.attrs.extensionType === NATIVE_EMBED_EXTENSION_TYPE &&
+			extensionObj?.node.attrs.extensionKey.includes(NATIVE_EMBED_EXTENSION_KEY)
+		) {
+			return;
+		}
 
 		// Check if we need to show confirm dialog for delete button
 		let confirmDialog;
@@ -453,6 +589,25 @@ export const getToolbarConfig =
 			};
 		}
 
+		// Hide the copy button when the host disables it for every extension
+		// (`copyEnabled`), when the extension's manifest node opts out via
+		// `hideCopyButton` (e.g. redactions), or for the legacy content macro.
+		//
+		// The host check is deliberately evaluated before the gate, so the gate is
+		// only read — and so only exposed — for hosts that opted in. Reading it
+		// unconditionally would report an exposure on every extension toolbar in
+		// every product, drowning the rollout metric in traffic it cannot affect.
+		const shouldHideCopyButton =
+			(!copyEnabled && fg('platform_editor_extension_hide_toolbar_actions')) ||
+			(!extensionState.showCopyButton && fg('platform_editor_extension_hide_copy_button')) ||
+			(extensionObj?.node.attrs.extensionType === 'com.atlassian.confluence.migration' &&
+				extensionObj?.node.attrs.extensionKey === 'legacy-content');
+		const shouldHideDeleteButton =
+			!deleteEnabled && fg('platform_editor_extension_hide_toolbar_actions');
+		// With both trailing actions gone the toolbar ends after the breakout
+		// options, so the divider that used to introduce them would be an orphan.
+		const hasTrailingActions = !shouldHideCopyButton || !shouldHideDeleteButton;
+
 		return {
 			title: 'Extension floating controls',
 			// Ignored via go/ees005
@@ -466,7 +621,8 @@ export const getToolbarConfig =
 				...breakoutItems,
 				{
 					type: 'separator',
-					hidden: editButtonItems.length === 0 && breakoutItems.length === 0,
+					hidden:
+						(editButtonItems.length === 0 && breakoutItems.length === 0) || !hasTrailingActions,
 				},
 				{
 					type: 'extensions-placeholder',
@@ -479,11 +635,23 @@ export const getToolbarConfig =
 							state,
 							formatMessage: intl.formatMessage,
 							nodeType,
+							onClick: createOnClickCopyButton({
+								formatMessage,
+								extensionApi,
+								extensionProvider,
+								getUnsupportedContent,
+								state,
+								locale,
+							}),
 						},
 					],
+					...(shouldHideCopyButton && { hidden: shouldHideCopyButton }),
 				},
-				{ type: 'separator' },
+				// Hide this separator when either neighbour is hidden, otherwise it
+				// renders as an orphaned divider before or after the delete button.
+				{ type: 'separator', hidden: shouldHideCopyButton || shouldHideDeleteButton },
 				{
+					...(shouldHideDeleteButton && { hidden: true }),
 					id: 'editor.extension.delete',
 					type: 'button',
 					icon: DeleteIcon,

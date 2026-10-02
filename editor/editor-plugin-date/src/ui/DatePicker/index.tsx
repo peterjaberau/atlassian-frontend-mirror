@@ -4,10 +4,10 @@
  */
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import Calendar from '@atlaskit/calendar';
+import Calendar from '@atlaskit/calendar/calendar';
 import type { WeekDay } from '@atlaskit/calendar/types';
 import { css, jsx } from '@atlaskit/css';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
@@ -20,10 +20,9 @@ import {
 } from '@atlaskit/editor-common/ui';
 import { timestampToIsoFormat, timestampToUTCDate } from '@atlaskit/editor-common/utils';
 import { akEditorFloatingDialogZIndex } from '@atlaskit/editor-shared-styles';
-import { N0, N60A } from '@atlaskit/theme/colors';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import type { DateType } from '../../types';
 
@@ -34,13 +33,13 @@ import { getDFLocale } from './utils/internal';
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage
 const popupContentWrapper = css({
-	paddingTop: token('space.025', '2px'),
-	paddingBottom: token('space.025', '2px'),
-	paddingLeft: token('space.025', '2px'),
-	paddingRight: token('space.025', '2px'),
+	paddingTop: token('space.025'),
+	paddingBottom: token('space.025'),
+	paddingLeft: token('space.025'),
+	paddingRight: token('space.025'),
 	borderRadius: token('radius.small', '3px'),
-	boxShadow: token('elevation.shadow.overlay', `0 4px 8px -2px ${N60A}, 0 0 1px ${N60A}`),
-	backgroundColor: token('elevation.surface.overlay', N0),
+	boxShadow: token('elevation.shadow.overlay'),
+	backgroundColor: token('elevation.surface.overlay'),
 });
 
 export interface Props {
@@ -138,6 +137,7 @@ class DatePicker extends React.Component<Props & WrappedComponentProps, State> {
 				// Ignored via go/ees005
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				target={element!}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				offset={[0, 8]}
 				fitHeight={370}
 				fitWidth={340}
@@ -167,6 +167,7 @@ class DatePicker extends React.Component<Props & WrappedComponentProps, State> {
 							/>
 							<Calendar
 								onChange={this.handleOnChange}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onSelect={(date: DateType) => onSelect(date, INPUT_METHOD.PICKER)}
 								day={day}
 								month={month}
@@ -225,4 +226,8 @@ class DatePicker extends React.Component<Props & WrappedComponentProps, State> {
 	};
 }
 
-export default injectIntl(DatePicker);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(DatePicker);
+export default _default_1;

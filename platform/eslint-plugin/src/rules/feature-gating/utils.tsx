@@ -1,6 +1,7 @@
-import { FEATURE_API_IMPORT_SOURCES } from '../constants';
 import type { Rule, Scope } from 'eslint';
 import type { Node as EstreeNode } from 'estree';
+
+import { FEATURE_API_IMPORT_SOURCES } from '../constants';
 import { getScope } from '../util/context-compat';
 
 export function isIdentifierImportedFrom(
@@ -8,14 +9,29 @@ export function isIdentifierImportedFrom(
 	sources: Set<string>,
 	context: Rule.RuleContext,
 	node: EstreeNode,
+	options?: { includeSubpaths?: boolean },
 ): boolean {
 	if (sources.size > 0) {
+		const matches = (src: string): boolean => {
+			if (sources.has(src)) {
+				return true;
+			}
+			if (!options?.includeSubpaths) {
+				return false;
+			}
+			for (const root of sources) {
+				if (src.startsWith(root + '/')) {
+					return true;
+				}
+			}
+			return false;
+		};
 		return (
 			getScope(context, node)
 				.references.find((ref) => ref.identifier.name === identifierName)
 				?.resolved?.defs.some(
 					(def) =>
-						def.parent?.type === 'ImportDeclaration' && sources.has(def.parent.source.value + ''),
+						def.parent?.type === 'ImportDeclaration' && matches(def.parent.source.value + ''),
 				) ?? false
 		);
 	}
@@ -23,12 +39,20 @@ export function isIdentifierImportedFrom(
 	return false;
 }
 
-export function isAPIimport(functionName: string, context: Rule.RuleContext, node: EstreeNode): boolean {
+export function isAPIimport(
+	functionName: string,
+	context: Rule.RuleContext,
+	node: EstreeNode,
+): boolean {
 	return isIdentifierImportedFrom(functionName, FEATURE_API_IMPORT_SOURCES, context, node);
 }
 
 // returns the definition node of a variable if it's declared within the scope of the file
-export function getDef(name: string, context: Rule.RuleContext, node: EstreeNode) {
+export function getDef(
+	name: string,
+	context: Rule.RuleContext,
+	node: EstreeNode,
+): Scope.Definition | null | undefined {
 	let scope: Scope.Scope | null = getScope(context, node);
 
 	while (scope && scope.type !== 'global') {

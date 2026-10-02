@@ -1,20 +1,13 @@
 import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { Node } from '@atlaskit/editor-prosemirror/model';
 
-/**
- * A helper to get the underlying array of a fragment.
- */
-export function getFragmentBackingArray(fragment: Fragment): ReadonlyArray<Node> {
-	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	return (fragment as any).content as Node[];
-}
+import { getFragmentBackingArray } from './getFragmentBackingArray';
 
 export function mapFragment(
 	content: Fragment,
 	callback: (node: Node, parent: Node | null, index: number) => Node | Node[] | Fragment | null,
 	parent: Node | null = null,
-) {
+): Fragment {
 	const children = [] as Node[];
 	for (let i = 0, size = content.childCount; i < size; i++) {
 		const node = content.child(i);
@@ -34,6 +27,7 @@ export function mapFragment(
 	return Fragment.fromArray(children);
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function mapSlice(
 	slice: Slice,
 	callback: (node: Node, parent: Node | null, index: number) => Node | Node[] | Fragment | null,
@@ -44,6 +38,7 @@ export function mapSlice(
 
 export type FlatMapCallback = (node: Node, index: number, fragment: Fragment) => Node | Node[];
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function flatmap(fragment: Fragment, callback: FlatMapCallback): Fragment {
 	const fragmentContent = [] as Node[];
 	for (let i = 0; i < fragment.childCount; i++) {
@@ -59,6 +54,7 @@ export function flatmap(fragment: Fragment, callback: FlatMapCallback): Fragment
 
 export type MapWithCallback<T> = (node: Node, index: number, fragment: Fragment) => T;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function mapChildren<T>(node: Node | Fragment, callback: MapWithCallback<T>): Array<T> {
 	const array: Array<T> = [];
 	for (let i = 0; i < node.childCount; i++) {
@@ -82,8 +78,11 @@ const findNode =
 		return foundNode;
 	};
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const hasNode =
 	(predicate: (node: Node) => boolean) =>
 	(slice: Slice): boolean => {
 		return !!findNode(predicate)(slice);
 	};
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { getFragmentBackingArray } from './getFragmentBackingArray';

@@ -6,9 +6,9 @@ import { type FC, useState } from 'react';
 
 import { jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import Popup from '@atlaskit/popup';
+import { Popup } from '@atlaskit/popup/popup';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -62,7 +62,12 @@ const PopupExampleWithLabel = () => {
 			onClose={() => setIsOpen(false)}
 			content={() => <PopupContent />}
 			trigger={(triggerProps) => (
-				<Button id="popup-trigger-1" {...triggerProps} onClick={() => setIsOpen(!isOpen)}>
+				<Button
+					id="popup-trigger-1"
+					testId="popup-trigger"
+					{...triggerProps}
+					onClick={() => setIsOpen(!isOpen)}
+				>
 					{isOpen ? 'Close' : 'Open'} Popup
 				</Button>
 			)}
@@ -83,7 +88,12 @@ const PopupExampleWithTitleId = () => {
 			onClose={() => setIsOpen(false)}
 			content={() => <PopupContent hasTitle />}
 			trigger={(triggerProps) => (
-				<Button id="popup-trigger-2" {...triggerProps} onClick={() => setIsOpen(!isOpen)}>
+				<Button
+					id="popup-trigger-2"
+					testId="popup-trigger-with-title"
+					{...triggerProps}
+					onClick={() => setIsOpen(!isOpen)}
+				>
 					{isOpen ? 'Close' : 'Open'} Popup
 				</Button>
 			)}

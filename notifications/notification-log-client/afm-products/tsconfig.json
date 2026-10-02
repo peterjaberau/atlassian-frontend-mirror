@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__notification-log-client/app",
 		"rootDir": "../",
 		"composite": true,
@@ -23,9 +22,6 @@
 		"../src/**/stories/**/*"
 	],
 	"references": [
-		{
-			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
-		},
 		{
 			"path": "../../../elements/util-service-support/afm-products/tsconfig.json"
 		}

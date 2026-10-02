@@ -1,5 +1,216 @@
 # @atlaskit/eslint-plugin-ui-styling-standard
 
+## 2.4.0
+
+### Minor Changes
+
+- [`187f8c82f1f1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/187f8c82f1f1e) -
+  Raise `no-atlaskit-theme` from a warning to an error in the recommended config. Imports from
+  `@atlaskit/theme` now fail lint unless they are removed or disabled.
+
+### Patch Changes
+
+- [`9ca54438f46bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ca54438f46bf) -
+  `no-unsafe-selectors` now honours chained pseudos in its allowlist. `&:focus:not(:focus-visible)`
+  was allowlisted but still reported, because each pseudo was checked on its own and `:not` is not
+  allowed alone. Other uses of `:not`, such as `&:hover:not(:focus-visible)`, are still reported.
+- [`9ca54438f46bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ca54438f46bf) -
+  `no-unsafe-selectors` now allows the vendor pseudo-elements that have no standard equivalent:
+  `::-moz-focus-inner`, `::-moz-focus-outer`, `::-moz-range-progress`, `::-moz-range-thumb`,
+  `::-moz-range-track`, `::-webkit-slider-runnable-track`, and `::-webkit-slider-thumb`. Other
+  vendor pseudos, such as `::-webkit-scrollbar` and `::-ms-clear`, are still reported.
+
+## 2.3.0
+
+### Minor Changes
+
+- [`0418e1c376844`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0418e1c376844) -
+  Add the `no-top-layer-unsafe-selectors` rule. It reports selectors that a Design System layering
+  surface rendered in the browser top layer can wrongly match or wrongly displace, and autofixes
+  most of them to a guarded form with the same specificity. Positional pseudo-classes such as
+  `:first-child` are reported without a fix, because no guard form for them survives the build.
+
+  The rule is not in the `recommended` preset, so `recommended` users see no change. It is in the
+  `all` and `all-flat` presets at `error`, so users of those presets get new errors.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`a5d06059c9ac7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a5d06059c9ac7) -
+  Add the no-atlaskit-theme lint rule and enable it as a warning in the recommended config. Imports
+  from @atlaskit/theme are flagged without failing lint.
+
+## 2.1.10
+
+### Patch Changes
+
+- [`62aaaa3da8184`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62aaaa3da8184) -
+  Speed up the atlaskit-theme lint rule by skipping files that do not import the banned theme
+  mixins, and by checking each Compiled call once instead of every nested identifier.
+
+## 2.1.9
+
+### Patch Changes
+
+- [`a4c26c5edfc0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4c26c5edfc0b) -
+  Allow local literal style values constrained with TypeScript `satisfies` expressions.
+- [`1715d48a722a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1715d48a722a2) -
+  Migrate responsive styling to typed canonical CSS media-query keys. Allow those keys in the UI
+  Styling Standard and report non-canonical queries used with `satisfies`.
+
+## 2.1.8
+
+### Patch Changes
+
+- [`2808e38fa97f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2808e38fa97f7) -
+  Allow static style keys and values annotated with TypeScript `satisfies` expressions
+- [`98d68443fc958`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/98d68443fc958) -
+  Handle TypeScript satisfies and assertion wrappers without rejecting safe inline style values or
+  imported type references. Update the Platform ESLint plugin's Compiled ESLint dependency to
+  ^0.20.2 to fix shorthand-property sorting crashes on inline satisfies expressions.
+
+## 2.1.7
+
+### Patch Changes
+
+- [`f0c3543359684`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0c3543359684) -
+  Allow safe local named dimension-based container queries
+
+## 2.1.6
+
+### Patch Changes
+
+- [`eac2b82a415cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eac2b82a415cd) -
+  Allow statically written style keys annotated with TypeScript `satisfies` expressions.
+  `no-unsafe-values` no longer reports a computed key that unwraps to a string literal, and
+  `no-imported-style-values` no longer reports imported identifiers used in type positions.
+
+## 2.1.5
+
+### Patch Changes
+
+- [`fdedfb06aa229`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fdedfb06aa229) -
+  Allow canonical typed media queries and typed container-query exceptions in styling lint rules.
+- Updated dependencies
+
+## 2.1.4
+
+### Patch Changes
+
+- [`4b07551b64b89`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b07551b64b89) -
+  Improve the performance of the `no-important-styles`, `no-nested-selectors`, and
+  `no-unsafe-selectors` rules.
+
+## 2.1.3
+
+### Patch Changes
+
+- [`153f1b982bd5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/153f1b982bd5c) -
+  Improve selector parsing and style-import resolution performance
+- Updated dependencies
+
+## 2.1.2
+
+### Patch Changes
+
+- [`00f3166426df4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00f3166426df4) -
+  add eslint rule for cssMapScope and ratcheting rule
+- Updated dependencies
+
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.6.4
+
+### Patch Changes
+
+- [`7affa87ae5857`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7affa87ae5857) -
+  Add ESLint v9/v10 RuleContext compatibility for platform ESLint packages consumed by Jira.
+- Updated dependencies
+
+## 1.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.6.2
+
+### Patch Changes
+
+- [`2c00950ad9e0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c00950ad9e0b) -
+  Align no-unsafe-selectors allowed pseudos with @compiled/react CSSPseudos: add &:popover-open and
+  chained pseudos (e.g. &:hover::after, &:focus::before, &:visited:focus) so the constants tuple
+  type-checks. Rule behavior unchanged; only type-sync with the platform.
+
+## 1.6.1
+
+### Patch Changes
+
+- [`000d0a2d3aca2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/000d0a2d3aca2) -
+  Remove non-erasable syntax (e.g. enums, namespaces with runtime code) from package
+- Updated dependencies
+
+## 1.6.0
+
+### Minor Changes
+
+- [`5db9e3f21a52f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5db9e3f21a52f) -
+  Changes the `@atlaskit/ui-styling-standard/enforce-style-prop` ESLint rule to allow pass-through
+  styles.
+
+## 1.5.1
+
+### Patch Changes
+
+- [`ceba2f0da51d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ceba2f0da51d4) -
+  Add @starting-style to ESLint ignoredAtRules to allow usage without eslint-disable comments
+
 ## 1.5.0
 
 ### Minor Changes

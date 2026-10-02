@@ -3,7 +3,7 @@
 ## Purpose
 
 This guide instructs LLM agents to convert hardcoded strings to use `formatMessage` from
-`@atlassian/jira-intl`. The goal is to find all hardcoded strings in JSX and convert them to
+`@jira/platform__react-intl`. The goal is to find all hardcoded strings in JSX and convert them to
 internationalized messages.
 
 **⚠️ CRITICAL SCOPE**: This process should **ONLY** focus on converting hardcoded strings (literal
@@ -99,21 +99,22 @@ searching yourself. Only search if violations are not provided.
 runtime errors.
 
 - [ ] **Add imports when converting**: When converting hardcoded strings, add the required imports
-  - **If converting strings**: Add `import { useIntl, defineMessage } from '@atlassian/jira-intl';`
+  - **If converting strings**: Add
+    `import { useIntl, defineMessage } from '@jira/platform__react-intl';`
   - **If using multiple messages**: Can use `defineMessages` instead of multiple `defineMessage`
     calls
   - **Add eslint-disable**: Add `// eslint-disable-next-line jira/deprecations/ban-identifiers`
     above the import if it includes `defineMessage` or `defineMessages`
 - [ ] **Import placement**: Place imports at the top of the file, before message constants
-  - `@atlassian/jira-intl` imports should come before type imports (`import type`)
-  - `@atlassian/jira-intl` imports should come before relative imports
+  - `@jira/platform__react-intl` imports should come before type imports (`import type`)
+  - `@jira/platform__react-intl` imports should come before relative imports
 - [ ] **Example import**:
   ```typescript
   // eslint-disable-next-line jira/deprecations/ban-identifiers
-  import { useIntl, defineMessage } from '@atlassian/jira-intl';
+  import { useIntl, defineMessage } from '@jira/platform__react-intl';
   ```
 - [ ] **Add `useIntl` import**: If `formatMessage` is used, add
-      `import { useIntl } from '@atlassian/jira-intl'`
+      `import { useIntl } from '@jira/platform__react-intl'`
   - **Action**: Search for `formatMessage(` in the file, then add `import { useIntl }` if missing
 - [ ] **Add `defineMessage` import**: If `defineMessage` is used anywhere in the file, add the
       import
@@ -122,7 +123,7 @@ runtime errors.
     missing
   - **Common mistake**: File uses `defineMessage({...})` but forgets to import it → **MUST ADD**
   - **Example**: If you see `const myMessage = defineMessage({...})`, add
-    `import { defineMessage } from '@atlassian/jira-intl';`
+    `import { defineMessage } from '@jira/platform__react-intl';`
   - **Note**: Messages are now colocated directly in component files using `defineMessage` calls
   - Each message is defined as: `const messageKey = defineMessage({...})`
 - [ ] **Add ESLint disable for import**: Add
@@ -135,7 +136,7 @@ runtime errors.
   - **Example**:
     ```typescript
     // eslint-disable-next-line jira/deprecations/ban-identifiers
-    import { useIntl, defineMessages, defineMessage } from '@atlassian/jira-intl';
+    import { useIntl, defineMessages, defineMessage } from '@jira/platform__react-intl';
     ```
   - **Note**: This should be added even if individual message constants don't trigger the rule, as
     the import itself may be flagged
@@ -144,16 +145,16 @@ runtime errors.
   - **Action**: Search for `defineMessages({` in the file, then add `import { defineMessages }` if
     missing
 - [ ] **Remove duplicate imports**: Remove any duplicate `useIntl` or `defineMessage` imports
-  - ❌ Bad: `import { useIntl } from '@atlassian/jira-intl';` appears twice
+  - ❌ Bad: `import { useIntl } from '@jira/platform__react-intl';` appears twice
   - ✅ Good: Single import statement:
-    `import { useIntl, defineMessage } from '@atlassian/jira-intl';`
+    `import { useIntl, defineMessage } from '@jira/platform__react-intl';`
 - [ ] **Add semicolons**: Ensure import statements have proper semicolons
 - [ ] **Fix import ordering**: Follow project linting rules for import order
-  - `@atlassian/jira-intl` imports should come before type imports (`import type`)
-  - `@atlassian/jira-intl` imports should come before relative imports
+  - `@jira/platform__react-intl` imports should come before type imports (`import type`)
+  - `@jira/platform__react-intl` imports should come before relative imports
   - Example correct order:
     ```typescript
-    import { useIntl, defineMessage } from '@atlassian/jira-intl';
+    import { useIntl, defineMessage } from '@jira/platform__react-intl';
     import type { SomeType } from '../types.tsx';
     import { SomeComponent } from './SomeComponent';
     ```
@@ -236,14 +237,17 @@ strings. Do NOT modify pre-existing message constants that were already in the c
   - **NO `messages.tsx` files**: Messages are NOT in separate `messages.tsx` files
   - Each message is a separate constant: `const myMessage = defineMessage({...})`
   - Usage: `formatMessage(myMessage)` NOT `formatMessage(messages.myMessage)`
-- [ ] **CRITICAL: Always use .ai-non-final suffix**: ALL new message IDs MUST end with `.ai-non-final` suffix
+- [ ] **CRITICAL: Always use .ai-non-final suffix**: ALL new message IDs MUST end with
+      `.ai-non-final` suffix
   - **REQUIRED**: Every newly created message ID must end with `.ai-non-final`
   - Format: `{message-key}.ai-non-final`
   - Example: `applinks.administration.list.applinks-table.system-label.ai-non-final`
-  - **This applies even if existing messages in the file don't have this suffix** - new messages must always include it
+  - **This applies even if existing messages in the file don't have this suffix** - new messages
+    must always include it
   - The suffix indicates the message is AI-generated and may need review before finalization
   - ❌ Bad: `id: 'applinks.administration.list.applinks-table.system-label'` (missing suffix)
-  - ✅ Good: `id: 'applinks.administration.list.applinks-table.system-label.ai-non-final'` (has suffix)
+  - ✅ Good: `id: 'applinks.administration.list.applinks-table.system-label.ai-non-final'` (has
+    suffix)
 - [ ] **Reuse existing constants**: Before creating new message constants, check if similar ones
       exist in the same file
   - Look for existing `defineMessage` calls at the top of the file that might match the use case
@@ -253,10 +257,11 @@ strings. Do NOT modify pre-existing message constants that were already in the c
   - **No component name needed**: Since messages are colocated in the component file, don't include
     the component name in the constant name or message ID
     - ❌ Bad: `onboardingwizardinnerLoading` (includes component name unnecessarily)
-    - ❌ Bad: `id: 'admin.pages.onboarding-hub-wizard.onboardingwizardinner-loading.ai-non-final'` (includes
-      component name in ID)
+    - ❌ Bad: `id: 'admin.pages.onboarding-hub-wizard.onboardingwizardinner-loading.ai-non-final'`
+      (includes component name in ID)
     - ✅ Good: `loading` (simple, context is already clear from file location)
-    - ✅ Good: `id: 'admin.pages.onboarding-hub-wizard.loading.ai-non-final'` (no component name in ID)
+    - ✅ Good: `id: 'admin.pages.onboarding-hub-wizard.loading.ai-non-final'` (no component name in
+      ID)
   - **Component context**: Look at component name, file path, and surrounding code for understanding
     context, but don't duplicate it in the key name
   - **Example**: In `UserProfile.tsx`, a key like `userName` is better than `name`, but don't use
@@ -531,7 +536,7 @@ strings** with variables. Do NOT modify placeholders in pre-existing messages.
 
 - **Do NOT fix linting errors** as part of the i18n conversion process
 - Common linting errors that may appear but should be ignored:
-  - Import ordering issues (e.g., `@atlassian/jira-intl` import order)
+  - Import ordering issues (e.g., `@jira/platform__react-intl` import order)
   - Primitive component suggestions (e.g., using `<span>` instead of `<Text>`)
   - Other style/formatting linting rules
 - Focus only on converting hardcoded strings to i18n format
@@ -577,7 +582,7 @@ strings** with variables. Do NOT modify placeholders in pre-existing messages.
 **Good Code ✅**:
 
 ```typescript
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const taskLabel = defineMessage({
   id: 'work-item.field.time-tracking.task-label.ai-non-final',
@@ -623,7 +628,7 @@ export function MyComponent() {
 **Good Code ✅**:
 
 ```typescript
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const exitButton = defineMessage({
   id: 'whiteboard.version.exit-button.ai-non-final',
@@ -655,7 +660,7 @@ return <Box>Loading...</Box>;
 **Good Code ✅**:
 
 ```typescript
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const loading = defineMessage({
   id: 'work-item.tab.loading.ai-non-final',
@@ -691,7 +696,7 @@ export function MyComponent() {
 **Good Code ✅**:
 
 ```typescript
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const errorMessage = defineMessage({
   id: 'work-item.comments.error.ai-non-final',
@@ -737,7 +742,7 @@ export function MyComponent() {
 **Good Code ✅**:
 
 ```typescript
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const editSummaryLabel = defineMessage({
   id: 'work-item.table.edit-summary-label.ai-non-final',
@@ -775,7 +780,7 @@ export function MyComponent() {
 **Good Code ✅**:
 
 ```typescript
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const loadingMore = defineMessage({
   id: 'work-item.comments.loading-more.ai-non-final',
@@ -828,7 +833,7 @@ export function MyComponent() {
 **Good Code ✅** (Option 2 - Using FormattedMessage with ICU):
 
 ```typescript
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const scorePercentage = defineMessage({
   id: 'scorecard.score.percentage.ai-non-final',
@@ -866,7 +871,7 @@ locale formatting.
 **Good Code ✅**:
 
 ```typescript
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const dateFormat = defineMessage({
   id: 'timeline.key-dates.date-format.ai-non-final',
@@ -996,7 +1001,7 @@ const Component = () => {
 
 // ✅ Good: Import added with eslint-disable
 // eslint-disable-next-line jira/deprecations/ban-identifiers
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 
 const myMessage = defineMessage({
   id: 'app.message.ai-non-final',
@@ -1013,25 +1018,25 @@ const Component = () => {
 
 ```typescript
 // Missing useIntl import - add this if formatMessage is used
-import { useIntl } from '@atlassian/jira-intl';
+import { useIntl } from '@jira/platform__react-intl';
 
 // Missing defineMessage import - add this if defineMessage is used
 // eslint-disable-next-line jira/deprecations/ban-identifiers
-import { defineMessage } from '@atlassian/jira-intl';
+import { defineMessage } from '@jira/platform__react-intl';
 
 // Missing defineMessages import - add this if defineMessages is used
 // eslint-disable-next-line jira/deprecations/ban-identifiers
-import { defineMessages } from '@atlassian/jira-intl';
+import { defineMessages } from '@jira/platform__react-intl';
 
 // Combined import (preferred when multiple are needed)
 // eslint-disable-next-line jira/deprecations/ban-identifiers
-import { useIntl, defineMessage } from '@atlassian/jira-intl';
+import { useIntl, defineMessage } from '@jira/platform__react-intl';
 // or
 // eslint-disable-next-line jira/deprecations/ban-identifiers
-import { useIntl, defineMessages } from '@atlassian/jira-intl';
+import { useIntl, defineMessages } from '@jira/platform__react-intl';
 // or
 // eslint-disable-next-line jira/deprecations/ban-identifiers
-import { useIntl, defineMessage, defineMessages } from '@atlassian/jira-intl';
+import { useIntl, defineMessage, defineMessages } from '@jira/platform__react-intl';
 
 // Example with eslint-disable for banned identifiers
 // eslint-disable-next-line jira/deprecations/ban-identifiers
@@ -1057,8 +1062,9 @@ calls:
 
 **Duplicate Import Issue**:
 
-- ❌ Bad: `import { useIntl } from '@atlassian/jira-intl';` appears multiple times
-- ✅ Good: Single import statement: `import { useIntl, defineMessage } from '@atlassian/jira-intl';`
+- ❌ Bad: `import { useIntl } from '@jira/platform__react-intl';` appears multiple times
+- ✅ Good: Single import statement:
+  `import { useIntl, defineMessage } from '@jira/platform__react-intl';`
 
 ### Pattern 4: Converting Conditional Strings
 
@@ -1357,7 +1363,7 @@ const Component = () => {
 
 // Check imports at top:
 // eslint-disable-next-line jira/deprecations/ban-identifiers
-import { useIntl, defineMessage } from '@atlassian/jira-intl'; // ✅ All imports present with eslint-disable
+import { useIntl, defineMessage } from '@jira/platform__react-intl'; // ✅ All imports present with eslint-disable
 ```
 
 ### Step 1: Create Message Constants
@@ -1393,7 +1399,7 @@ import { useIntl, defineMessage } from '@atlassian/jira-intl'; // ✅ All import
    - If missing, add hook at the top of the component function body
    - Convert arrow function expressions to body form if needed (to use hooks)
 2. **Add imports**: Add required imports if missing:
-   - `import { useIntl, defineMessage } from '@atlassian/jira-intl';`
+   - `import { useIntl, defineMessage } from '@jira/platform__react-intl';`
    - Add `// eslint-disable-next-line jira/deprecations/ban-identifiers` above the import if it
      includes `defineMessage`
 3. **Check parent components**: If converting strings in nested components:

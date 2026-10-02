@@ -6,9 +6,10 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import UFOCustomData, { addUFOCustomData } from '@atlaskit/react-ufo/custom-data';
+import { addUFOCustomData } from '@atlaskit/react-ufo/add-ufo-custom-data';
+import UFOCustomData from '@atlaskit/react-ufo/custom-data';
 import UFOLoadHold from '@atlaskit/react-ufo/load-hold';
-import UFOSegment from '@atlaskit/react-ufo/segment';
+import UFOSegment from '@atlaskit/react-ufo/ufo-segment';
 
 const sectionOneStyle = css({
 	backgroundColor: '#FFB3BA', // Pastel Red

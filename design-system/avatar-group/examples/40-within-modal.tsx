@@ -1,10 +1,14 @@
 import React from 'react';
 
-import AvatarGroup from '@atlaskit/avatar-group';
-import Modal, { ModalBody, ModalHeader, ModalTitle } from '@atlaskit/modal-dialog';
+import AvatarGroup from '@atlaskit/avatar-group/avatar-group';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
 
-import { appearances, RANDOM_USERS } from '../examples-util/data';
+import { appearances } from '../examples-util/appearances';
 import ExampleImage from '../examples-util/nucleus.png';
+import { RANDOM_USERS } from '../examples-util/random-users';
 
 const data = RANDOM_USERS.slice(0, 8).map((d, i) => ({
 	key: d.email,

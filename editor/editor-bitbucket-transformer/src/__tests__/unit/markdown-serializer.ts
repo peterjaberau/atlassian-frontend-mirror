@@ -1,5 +1,3 @@
-import { MarkdownSerializer, marks, nodes } from '../../serializer';
-import { stringRepeat } from '../../util';
 import {
 	a,
 	blockquote,
@@ -36,6 +34,10 @@ import {
 	extension,
 } from '@atlaskit/editor-test-helpers/doc-builder';
 import { defaultSchema } from '@atlaskit/editor-test-helpers/schema';
+import { passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
+import { MarkdownSerializer, marks, nodes } from '../../serializer';
+import { stringRepeat } from '../../util';
 
 // @ts-expect-error - Our node definitions are not compatible with prosemirror-markdown types
 const markdownSerializer = new MarkdownSerializer(nodes, marks);
@@ -156,6 +158,51 @@ describe('BitbucketTransformer: serializer', () => {
 			const node = doc(p(emoji({ shortName: ':grinning:' })()))(defaultSchema);
 			const test = markdownSerializer.serialize(node);
 			expect(test).toEqual(':grinning:');
+		});
+
+		it('should only serialize emoji shortName when id and text are present and the feature gate is off', () => {
+			const node = doc(
+				p(
+					emoji({
+						shortName: ':grinning:',
+						id: '1f600',
+						text: '😀',
+					})(),
+				),
+			)(defaultSchema);
+			const test = markdownSerializer.serialize(node);
+			expect(test).toEqual(':grinning:');
+		});
+
+		it('should serialize emoji id and text as an attr-list suffix when the feature gate is on', () => {
+			passGate('platform_bitbucket_fix_shortname_and_ordering');
+
+			const node = doc(
+				p(
+					emoji({
+						shortName: ':grinning:',
+						id: '1f600',
+						text: '😀',
+					})(),
+				),
+			)(defaultSchema);
+			const test = markdownSerializer.serialize(node);
+			expect(test).toEqual(":grinning:{: data-emoji-id='1f600' data-emoji-text='😀' }");
+		});
+
+		it('should serialize emoji id without text as an attr-list suffix when the feature gate is on', () => {
+			passGate('platform_bitbucket_fix_shortname_and_ordering');
+
+			const node = doc(
+				p(
+					emoji({
+						shortName: ':grinning:',
+						id: '1f600',
+					})(),
+				),
+			)(defaultSchema);
+			const test = markdownSerializer.serialize(node);
+			expect(test).toEqual(":grinning:{: data-emoji-id='1f600' }");
 		});
 	});
 

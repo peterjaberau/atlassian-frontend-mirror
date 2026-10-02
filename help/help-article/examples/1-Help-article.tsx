@@ -1,6 +1,8 @@
 import React from 'react';
-import Button from '@atlaskit/button/new';
+
+import Button from '@atlaskit/button/default/button';
 import { token } from '@atlaskit/tokens';
+
 import HelpArticle from '../src';
 
 interface Props {}
@@ -27,7 +29,7 @@ export default class extends React.Component<Props, State> {
 	render(): React.JSX.Element {
 		return (
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			<div style={{ padding: token('space.100', '8px') }}>
+			<div style={{ padding: token('space.100') }}>
 				<HelpArticle title="Article Title" body={this.state.body} />
 				<Button type="button" onClick={() => this.changeContent()}>
 					Change content

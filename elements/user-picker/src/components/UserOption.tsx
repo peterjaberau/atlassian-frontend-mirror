@@ -2,19 +2,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { getAppearanceForAppType } from '@atlaskit/avatar';
-import { B400, N800, N200 } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
+
 import React from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766
+import { jsx } from '@emotion/react';
+
+import getAppearanceForAppType from '@atlaskit/avatar/get-appearance';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+
 import { type User } from '../types';
-import { AvatarItemOption, textWrapper } from './AvatarItemOption';
-import { HighlightText } from './HighlightText';
+import { AvatarItemOption } from './AvatarItemOption';
 import { AvatarOrIcon } from './AvatarOrIcon';
+import { hasValue } from './hasValue';
+import { HighlightText } from './HighlightText';
 import { SizeableAvatar } from './SizeableAvatar';
-import { hasValue } from './utils';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { textWrapper } from './textWrapper';
 
 export type UserOptionProps = {
 	isSelected: boolean;
@@ -22,18 +26,8 @@ export type UserOptionProps = {
 	user: User;
 };
 
-const styles = (color: string) =>
-	css({
-		display: 'inline',
-		verticalAlign: 'top',
-		overflow: 'hidden',
-		whiteSpace: 'nowrap',
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-		color,
-	});
-
 export class UserOption extends React.PureComponent<UserOptionProps> {
-	getPrimaryText = () => {
+	getPrimaryText = (): jsx.JSX.Element[] => {
 		const {
 			user: { name, publicName, highlight },
 		} = this.props;
@@ -43,7 +37,7 @@ export class UserOption extends React.PureComponent<UserOptionProps> {
 				key="name"
 				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 				css={textWrapper(
-					this.props.isSelected ? token('color.text.selected', B400) : token('color.text', N800),
+					this.props.isSelected ? token('color.text.selected') : token('color.text'),
 				)}
 			>
 				<HighlightText highlights={highlight && highlight.name}>{name}</HighlightText>
@@ -51,18 +45,18 @@ export class UserOption extends React.PureComponent<UserOptionProps> {
 		];
 		if (hasValue(publicName) && name.trim() !== publicName.trim()) {
 			const color = this.props.isSelected
-				? token('color.text.selected', B400)
-				: token('color.text.subtlest', N200);
+				? token('color.text.selected')
+				: token('color.text.subtlest');
 
 			result.push(
 				<React.Fragment key="publicName">
 					{' '}
 					<span
 						// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-						css={fg('platform_user_picker_firefox_tab_fix') ? styles(color) : textWrapper(color)}
-						// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+						css={textWrapper(color)}
+						/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 					>
-						(
+						({/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 						<HighlightText highlights={highlight && highlight.publicName}>
 							{publicName}
 						</HighlightText>
@@ -74,14 +68,12 @@ export class UserOption extends React.PureComponent<UserOptionProps> {
 		return result;
 	};
 
-	renderSecondaryText = () =>
+	renderSecondaryText = (): jsx.JSX.Element | undefined =>
 		this.props.user.byline ? (
 			<span
 				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 				css={textWrapper(
-					this.props.isSelected
-						? token('color.text.selected', B400)
-						: token('color.text.subtlest', N200),
+					this.props.isSelected ? token('color.text.selected') : token('color.text.subtlest'),
 				)}
 			>
 				{this.props.user.byline}
@@ -103,11 +95,7 @@ export class UserOption extends React.PureComponent<UserOptionProps> {
 					iconColor={iconColor}
 					src={avatarUrl}
 					presence={status}
-					avatarAppearanceShape={
-						fg('jira_ai_agent_avatar_user_picker_user_option')
-							? getAppearanceForAppType(appType)
-							: undefined
-					}
+					avatarAppearanceShape={getAppearanceForAppType(appType)}
 				/>
 			);
 		}
@@ -117,11 +105,7 @@ export class UserOption extends React.PureComponent<UserOptionProps> {
 				appearance={appearance}
 				src={avatarUrl}
 				presence={status}
-				avatarAppearanceShape={
-					fg('jira_ai_agent_avatar_user_picker_user_option')
-						? getAppearanceForAppType(appType)
-						: undefined
-				}
+				avatarAppearanceShape={getAppearanceForAppType(appType)}
 			/>
 		);
 	};

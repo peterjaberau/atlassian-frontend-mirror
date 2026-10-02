@@ -34,6 +34,11 @@ larger sizes and increased legibility and visual prominence, use
 
 <Image src={objectSizeLight} srcDark={objectSizeDark} alt="Object size" />
 
+## Accessibility
+
+Use objects in combination with a title and meta-information, such as author, creation date, or
+sub-heading.
+
 ## Best practices
 
 ### Larger than 16px - use an Object tile
@@ -41,58 +46,57 @@ larger sizes and increased legibility and visual prominence, use
 Do not scale objects. For use cases that require a larger object, use
 [Object tile](/components/object/object-tile/examples).
 
-<DoDont
-	type="do"
-	image={{
-		url: objectLargerDo,
-		alt: '',
-	}}
->
-	Use an object at either 12px or 16px.
-</DoDont>
-<DoDont
-	type="dont"
-	image={{
-		url: objectLargerDont,
-		alt: '',
-	}}
->
-	Scale objects beyond 16px.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: objectLargerDo,
+			alt: '',
+		}}
+	>
+		Use an object at either 12px or 16px.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: objectLargerDont,
+			alt: '',
+		}}
+	>
+		Scale objects beyond 16px.
+	</DoDont>
+</DoDontGrid>
 
 ### Don’t change object colors
 
 Objects are assigned specific colors. For consistency across our apps, don’t change the color of the
 object.
 
-<DoDont
-	type="do"
-	image={{
-		url: objectColorsDo,
-		alt: '',
-	}}
->
-	Maintain the assigned color.
-</DoDont>
-<DoDont
-	type="dont"
-	image={{
-		url: objectColorsDont,
-		alt: '',
-	}}
->
-	Switch color tokens or use custom fills.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: objectColorsDo,
+			alt: '',
+		}}
+	>
+		Maintain the assigned color.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: objectColorsDont,
+			alt: '',
+		}}
+	>
+		Switch color tokens or use custom fills.
+	</DoDont>
+</DoDontGrid>
 
 ## Contributing and adding new objects
 
 Atlassian teams may request a new object for their apps. Please follow the
 [request process](https://go.atlassian.com/ads-request-object) (Atlassian employees only).
-
-## Accessibility
-
-Use objects in combination with a title and meta-information, such as author, creation date, or
-sub-heading.
 
 ## Related
 

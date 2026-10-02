@@ -8,14 +8,14 @@ import { css } from '@compiled/react';
 
 import { jsx } from '@atlaskit/css';
 import { useStaticCallback } from '@atlaskit/media-common';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Spinner from '@atlaskit/spinner';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import { Annotations } from './annotations';
 import { DocumentLinks } from './documentLinks';
+// oxlint-disable-next-line eslint/no-redeclare
 import { type Font, type PageContent, type Span } from './types';
 import { getDocumentRoot } from './utils/getDocumentRoot';
-import { getImageZoom } from './utils/useCachedGetImage';
 import { useIntersectionObserver } from './utils/useIntersectionObserver';
 
 const Span = ({ span, font }: { span: Span; font: Font }) => {
@@ -109,14 +109,20 @@ const pageWrapperStyles = css({
 
 type PageProps = {
 	getPageSrc: (pageIndex: number, zoom: number) => Promise<string>;
-	maxPageImageZoom: number;
 	content?: PageContent;
 	fonts: readonly Font[];
 	pageIndex: number;
 	zoom: number;
 	defaultDimensions?: { width: number; height: number };
-	onVisible: () => void;
+	onVisible: (pageIndex: number) => void;
 	onLoad?: () => void;
+	/**
+	 * Called when a local `#page-N` anchor inside this page is clicked.
+	 * Fast-forwards the lazy page count so the target page exists in the DOM
+	 * before the browser performs the native anchor scroll.
+	 * Only provided when `enableLazyPageRendering` is true.
+	 */
+	appendUpTo?: (n: number) => void;
 };
 
 type PageViewProps = {
@@ -127,12 +133,14 @@ type PageViewProps = {
 	pageIndex: number;
 	zoom: number;
 	onImageLoad: (event: React.SyntheticEvent<HTMLImageElement>) => void;
+	/** @see PageProps.appendUpTo */
+	appendUpTo?: (n: number) => void;
 };
 
 const a4Dimensions = { height: 595, width: 842 };
 
 const PageView = forwardRef<HTMLDivElement, PageViewProps>(
-	({ dimensions, imageSrc, content, fonts, pageIndex, zoom, onImageLoad }, ref) => {
+	({ dimensions, imageSrc, content, fonts, pageIndex, zoom, onImageLoad, appendUpTo }, ref) => {
 		const style: Record<string, string> = {};
 		if (dimensions) {
 			// contents endpoint has loaded so dimensions are available
@@ -169,7 +177,9 @@ const PageView = forwardRef<HTMLDivElement, PageViewProps>(
 						src={imageSrc}
 						css={[
 							pageImageStyles,
-							fg('media-document-viewer-clear-render') ? undefined : pixelatedImageRendering,
+							// Pixelated rendering is crisper at 100% zoom, but breaks sub-pixel
+							// rendering at non-integer browser/OS zoom levels.
+							fg('platform_media_doc_viewer_smooth_render') ? undefined : pixelatedImageRendering,
 						]}
 						alt=""
 						onLoad={onImageLoad}
@@ -192,7 +202,7 @@ const PageView = forwardRef<HTMLDivElement, PageViewProps>(
 							/>
 						))}
 						{content.annotations && <Annotations annotations={content.annotations} />}
-						{content.links && <DocumentLinks links={content.links} />}
+						{content.links && <DocumentLinks links={content.links} appendUpTo={appendUpTo} />}
 					</svg>
 				)}
 			</div>
@@ -202,7 +212,6 @@ const PageView = forwardRef<HTMLDivElement, PageViewProps>(
 
 export const Page = ({
 	getPageSrc,
-	maxPageImageZoom,
 	content,
 	fonts,
 	pageIndex,
@@ -210,7 +219,8 @@ export const Page = ({
 	defaultDimensions,
 	onVisible,
 	onLoad,
-}: PageProps) => {
+	appendUpTo,
+}: PageProps): JSX.Element => {
 	const [imageSrc, setImageSrc] = useState<string | undefined>();
 	const { observedRef, isVisibleRef } = useIntersectionObserver(
 		{
@@ -221,7 +231,7 @@ export const Page = ({
 			threshold: 0.1,
 		},
 		() => {
-			onVisible();
+			onVisible(pageIndex);
 			getPageSrc(pageIndex, zoom).then(setImageSrc);
 		},
 	);
@@ -234,7 +244,7 @@ export const Page = ({
 
 		if (!content) {
 			const zoom = image.dataset.zoom ? Number(image.dataset.zoom) : 1;
-			const imageZoom = getImageZoom(zoom, maxPageImageZoom);
+			const imageZoom = zoom;
 			const contentWidth = image.naturalWidth / imageZoom;
 			const contentHeight = image.naturalHeight / imageZoom;
 			setDimensions({ width: contentWidth, height: contentHeight });
@@ -257,6 +267,7 @@ export const Page = ({
 			pageIndex={pageIndex}
 			zoom={zoom}
 			onImageLoad={onImageLoad}
+			appendUpTo={appendUpTo}
 		/>
 	);
 };

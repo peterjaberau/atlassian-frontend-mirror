@@ -1,5 +1,5 @@
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import {
@@ -8,26 +8,33 @@ import {
 	AddMarkStep,
 	RemoveMarkStep,
 	AttrStep,
-	type Step,
 } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { TrackChangesPlugin } from '../trackChangesPluginType';
-
 import { filterSteps } from './filterSteps';
 import { InvertableStep } from './invertableStep';
 import { TOGGLE_TRACK_CHANGES_ACTION as ACTION } from './types';
 
-export const trackChangesPluginKey = new PluginKey<TrackChangesPluginState>('trackChangesPlugin');
+export const trackChangesPluginKey: PluginKey<TrackChangesPluginState> =
+	new PluginKey<TrackChangesPluginState>('trackChangesPlugin');
 
 type TrackChangesPluginState = {
 	allocations: Set<number>;
 	isShowDiffAvailable: boolean;
+	/**
+	 * Set by other plugins (via the `setToggleChangesDisabled` command) while they own the
+	 * diff decorations — e.g. the AI Review moment. While true the toolbar button and the
+	 * keyboard shortcut must not toggle track changes.
+	 */
+	isToggleChangesDisabled: boolean;
 	shouldChangesBeDisplayed: boolean;
 	steps: InvertableStep[];
 };
 
 // Exported for test purposes
-export const getBaselineFromSteps = (doc: PMNode, steps: InvertableStep[]) => {
+export const getBaselineFromSteps = (doc: PMNode, steps: InvertableStep[]): PMNode | undefined => {
 	try {
 		// Filter out AttrStep's since attribute changes shouldn't affect baseline content comparison
 		const contentSteps = steps.filter((step) => !(step.step instanceof AttrStep));
@@ -39,7 +46,7 @@ export const getBaselineFromSteps = (doc: PMNode, steps: InvertableStep[]) => {
 			}
 		}
 		return doc;
-	} catch (e) {
+	} catch {
 		// Temporary - we need to understand how this happens - but we want to unblock issues where this crashes the editor
 		return undefined;
 	}
@@ -47,7 +54,7 @@ export const getBaselineFromSteps = (doc: PMNode, steps: InvertableStep[]) => {
 
 export const createTrackChangesPlugin = (
 	api: ExtractInjectionAPI<TrackChangesPlugin> | undefined,
-) => {
+): SafePlugin<TrackChangesPluginState> => {
 	// Mark the state to be reset on next time the document has a meaningful change
 	let resetBaseline = false;
 
@@ -59,11 +66,18 @@ export const createTrackChangesPlugin = (
 					steps: [],
 					shouldChangesBeDisplayed: false,
 					isShowDiffAvailable: false,
+					isToggleChangesDisabled: false,
 					allocations: new Set<number>(),
 				};
 			},
 			apply(tr, state) {
 				const metadata = tr.getMeta(trackChangesPluginKey);
+				if (metadata && metadata.action === ACTION.SET_TOGGLE_CHANGES_DISABLED) {
+					return {
+						...state,
+						isToggleChangesDisabled: Boolean(metadata.isDisabled),
+					};
+				}
 				if (metadata && metadata.action === ACTION.RESET_BASELINE) {
 					return {
 						...state,
@@ -163,6 +177,8 @@ export const createTrackChangesPlugin = (
 								api?.showDiff?.commands?.showDiff({
 									originalDoc,
 									steps: steps.map((s) => s.step),
+									diffType: fg('platform_editor_ai_smart_diff') ? 'smart' : 'inline',
+									showIndicators: fg('platform_editor_diff_plugin_show_indicators'),
 								}),
 							);
 						}

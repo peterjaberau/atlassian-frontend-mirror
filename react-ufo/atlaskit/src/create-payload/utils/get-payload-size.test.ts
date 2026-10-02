@@ -71,4 +71,58 @@ describe('getPayloadSize', () => {
 
 		expect(Number.isInteger(result)).toBe(true);
 	});
+
+	describe('safe serializer', () => {
+		it('calculates size metadata for circular payloads', () => {
+			const payload: { circular?: unknown } = {};
+			payload.circular = payload;
+
+			const result = getPayloadSize(payload, { includeMetadata: true });
+
+			expect(result).toEqual({
+				sizeInKb: expect.any(Number),
+				usedSafeSerializer: true,
+				serializationFailed: false,
+			});
+			expect(result.sizeInKb).toBe(getPayloadSize(payload));
+		});
+
+		it('replaces DOM nodes and React internal properties when calculating size', () => {
+			const element = document.createElement('a') as HTMLAnchorElement & {
+				__reactFiber$test?: unknown;
+			};
+			const fiber = { stateNode: element };
+			element.__reactFiber$test = fiber;
+
+			const result = getPayloadSize({ element }, { includeMetadata: true });
+
+			expect(result.usedSafeSerializer).toBe(true);
+			expect(result.serializationFailed).toBe(false);
+			expect(result.sizeInKb).toBeGreaterThanOrEqual(0);
+		});
+
+		it('replaces BigInt values when calculating size', () => {
+			const result = getPayloadSize({ value: BigInt(123) }, { includeMetadata: true });
+
+			expect(result.usedSafeSerializer).toBe(true);
+			expect(result.serializationFailed).toBe(false);
+			expect(result.sizeInKb).toBeGreaterThanOrEqual(0);
+		});
+
+		it('returns an over-budget fallback if safe JSON serialization still fails', () => {
+			const payload = {
+				toJSON() {
+					throw new Error('serialization failed');
+				},
+			};
+
+			const result = getPayloadSize(payload, { includeMetadata: true });
+
+			expect(result).toEqual({
+				sizeInKb: 1024,
+				usedSafeSerializer: true,
+				serializationFailed: true,
+			});
+		});
+	});
 });

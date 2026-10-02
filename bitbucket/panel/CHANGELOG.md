@@ -1,5 +1,299 @@
 # @atlaskit/panel
 
+## 2.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.0
+
+### Minor Changes
+
+- [`3f092027a5956`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f092027a5956) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.8.0
+
+### Minor Changes
+
+- [`243f107ca4fc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/243f107ca4fc8) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.0
+
+### Minor Changes
+
+- [`d83cb6c1f23f8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d83cb6c1f23f8) -
+  Add support for aria-label
+
+## 2.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.0
+
+### Minor Changes
+
+- [`d82e5d7f2fe7c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e5d7f2fe7c) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.0
+
+### Minor Changes
+
+- [`6ec59d952d937`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ec59d952d937) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 2.3.0
+
+### Minor Changes
+
+- [`e8b3f04d788a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8b3f04d788a2) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 2.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`84e6b9695a7ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/84e6b9695a7ca) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`fa57ab7543ad8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa57ab7543ad8) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 1.1.0
+
+### Minor Changes
+
+- [`f8631829a2320`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8631829a2320) -
+  Remove flag to increase accessibility in links.
+
+## 1.0.0
+
+### Major Changes
+
+- [`d2e14ba5ae9fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2e14ba5ae9fc) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 0.13.0
+
+### Minor Changes
+
+- [`e52fd53a473c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e52fd53a473c5) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 0.12.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.12.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.12.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.12.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.12.8
+
+### Patch Changes
+
+- [`255cf43792087`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/255cf43792087) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 0.12.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.12.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.12.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.12.3
 
 ### Patch Changes

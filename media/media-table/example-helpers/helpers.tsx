@@ -2,14 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
+
 import React, { useState } from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766
+import { jsx } from '@emotion/react';
 import dateFnsFormat from 'date-fns/format';
+import { IntlProvider } from 'react-intl';
+
 import { type MediaType } from '@atlaskit/media-client';
-import { exampleWrapperStyles, ROW_HIGHLIGHT_CLASSNAME } from './styles';
-import Range from '@atlaskit/range';
-import { toHumanReadableMediaSize } from '@atlaskit/media-ui';
 import {
 	largeImageFileId,
 	smallImageFileId,
@@ -18,10 +19,12 @@ import {
 	docFileId,
 	videoProcessingFailedId,
 } from '@atlaskit/media-test-helpers';
-import { type MediaTableItem, NameCell } from '../src';
-import { IntlProvider } from 'react-intl-next';
+import { toHumanReadableMediaSize } from '@atlaskit/media-ui/humanReadableSize';
+import Range from '@atlaskit/range/range';
 
-export const createMockFileData = (name: string, mediaType: MediaType) => {
+import { type MediaTableItem, NameCell } from '../src';
+import { exampleWrapperStyles, ROW_HIGHLIGHT_CLASSNAME } from './styles';
+export const createMockFileData = (name: string, mediaType: MediaType): jsx.JSX.Element => {
 	return <NameCell text={name} mediaType={mediaType} endFixedChars={4} />;
 };
 
@@ -29,7 +32,9 @@ const dateformat = (date: number, format = 'E MMM dd yyyy kk:mm:ss') => {
 	return dateFnsFormat(date, format);
 };
 
-export const RenderMediaTableWithFieldRange = (MediaTableNode: React.ReactNode) => {
+export const RenderMediaTableWithFieldRange = (
+	MediaTableNode: React.ReactNode,
+): jsx.JSX.Element => {
 	const [width, setWidth] = useState(1000);
 
 	return (
@@ -104,7 +109,21 @@ export const items: MediaTableItem[] = [
 	},
 ];
 
-export const generateItems = (numItems: number) => {
+export const generateItems = (
+	numItems: number,
+): {
+	data: {
+		file: jsx.JSX.Element;
+		size: string;
+		date: string;
+	};
+	identifier: {
+		id: string;
+		mediaItemType: 'file';
+		occurrenceKey?: string;
+		collectionName?: string;
+	};
+}[] => {
 	const items = [];
 	for (let i = 1; i <= numItems; i++) {
 		items.push({

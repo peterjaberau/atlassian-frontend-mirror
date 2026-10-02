@@ -1,11 +1,45 @@
-import {
-	type AuthContext,
-	type MediaApiConfig,
-	type Auth,
-	isClientBasedAuth,
-} from '@atlaskit/media-core';
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+
 import { type MediaTraceContext } from '@atlaskit/media-common';
-import { type MediaFileArtifacts } from '@atlaskit/media-state';
+import type { AuthContext, MediaApiConfig, Auth } from '@atlaskit/media-core/auth';
+import { ChunkHashAlgorithm } from '@atlaskit/media-core/chunk-hash-algorithm';
+import { isClientBasedAuth } from '@atlaskit/media-core/is-client-based-auth';
+import type { MediaFileArtifacts } from '@atlaskit/media-state/file-state';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { FILE_CACHE_MAX_AGE } from '../../constants';
+import { getArtifactUrl } from '../../models/artifacts';
+import {
+	type GetDocumentPageImage,
+	type DocumentPageRangeContent,
+	type GetDocumentContentOptions,
+} from '../../models/document';
+import { type MediaFile, type MediaUpload } from '../../models/media';
+import { isCDNEnabled } from '../../utils/isCDNEnabled';
+import { isPathBasedEnabled } from '../../utils/isPathBasedEnabled';
+import { mapToMediaCdnUrl } from '../../utils/mapToMediaCdnUrl';
+import { mapToPathBasedUrl } from '../../utils/mapToPathBasedUrl';
+import { mapToSeedBasedCdnUrl } from '../../utils/mapToSeedBasedCdnUrl';
+import { isRequestError, request } from '../../utils/request';
+import { createMapResponseToBlob } from '../../utils/request/createMapResponseToBlob';
+import { createMapResponseToJson } from '../../utils/request/createMapResponseToJson';
+import { createUrl } from '../../utils/request/createUrl';
+import { defaultShouldRetryError } from '../../utils/request/defaultShouldRetryError';
+import { extendTraceContext } from '../../utils/request/extendTraceContext';
+import {
+	type RequestHeaders,
+	type RequestMetadata,
+	type CreateUrlOptions,
+	type RequestOptions,
+} from '../../utils/request/types';
+import { getWatermarkVersionFromToken } from '../../utils/watermarkVersion';
+import { cdnFeatureFlag } from './cdnFeatureFlag';
+import { decodeJwtToken } from './decodeJwtToken';
+import { extendImageParams } from './extendImageParams';
+import { jsonHeaders } from './jsonHeaders';
+import { resolveAuth } from './resolveAuth';
+import { resolveInitialAuth } from './resolveInitialAuth';
+import { setKeyValueInSessionStorage } from './setKeyValueInSessionStorage';
 import type {
 	ItemsPayload,
 	ImageMetadata,
@@ -26,66 +60,44 @@ import type {
 	MediaApi,
 	CopyFileParams,
 } from './types';
-import { FILE_CACHE_MAX_AGE, MAX_RESOLUTION } from '../../constants';
-import { getArtifactUrl } from '../../models/artifacts';
-import { type MediaFile, type MediaUpload } from '../../models/media';
-import { isRequestError, request } from '../../utils/request';
-import {
-	createUrl,
-	createMapResponseToJson,
-	createMapResponseToBlob,
-	defaultShouldRetryError,
-	extendTraceContext,
-} from '../../utils/request/helpers';
-import { isCDNEnabled, mapToMediaCdnUrl } from '../../utils/mediaCdn';
-import {
-	type RequestHeaders,
-	type RequestMetadata,
-	type CreateUrlOptions,
-	type RequestOptions,
-} from '../../utils/request/types';
-import { resolveAuth, resolveInitialAuth } from './resolveAuth';
-import { ChunkHashAlgorithm } from '@atlaskit/media-core';
-import {
-	type GetDocumentPageImage,
-	type DocumentPageRangeContent,
-	type GetDocumentContentOptions,
-} from '../../models/document';
-import { isPathBasedEnabled, mapToPathBasedUrl } from '../../utils/pathBasedUrl';
 
-const MEDIA_API_REGION = 'media-api-region';
-const MEDIA_API_ENVIRONMENT = 'media-api-environment';
+export const MEDIA_API_REGION: any = 'media-api-region';
 
-const extendImageParams = (
-	params?: MediaStoreGetFileImageParams,
-	fetchMaxRes: boolean = false,
-): MediaStoreGetFileImageParams => {
-	return {
-		...params,
-		'max-age': params?.['max-age'] ?? FILE_CACHE_MAX_AGE,
-		allowAnimated: params?.allowAnimated ?? true,
-		mode: params?.mode ?? 'crop',
-		...(fetchMaxRes ? { width: MAX_RESOLUTION, height: MAX_RESOLUTION } : {}),
-	};
-};
-
-const jsonHeaders = {
-	Accept: 'application/json',
-	'Content-Type': 'application/json',
-};
-
-const cdnFeatureFlag = (endpoint: string) => {
-	let result = endpoint;
-	if (isCDNEnabled()) {
-		result += '/cdn';
-	}
-	return result;
-};
+export const MEDIA_API_ENVIRONMENT: any = 'media-api-environment';
 
 export class MediaStore implements MediaApi {
 	private readonly _chunkHashAlgorithm: ChunkHashAlgorithm;
 	constructor(private readonly config: MediaApiConfig) {
 		this._chunkHashAlgorithm = config.chunkHashAlgorithm || ChunkHashAlgorithm.Sha256;
+	}
+
+	async getClientId(collectionName?: string): Promise<string | undefined> {
+		const auth = await this.resolveAuth({ collectionName });
+		return MediaStore.extractClientIdFromAuth(auth);
+	}
+
+	getClientIdSync(): string | undefined {
+		try {
+			const auth = this.resolveInitialAuth();
+			return MediaStore.extractClientIdFromAuth(auth);
+		} catch {
+			// initialAuth may not be available, return undefined
+			return undefined;
+		}
+	}
+
+	private static extractClientIdFromAuth(auth: Auth): string | undefined {
+		if (isClientBasedAuth(auth)) {
+			return auth.clientId;
+		}
+		// decode JWT token and get clientId (or iss) from payload
+		try {
+			const jwtPayload = decodeJwtToken(auth.token);
+			return jwtPayload.clientId;
+		} catch {
+			// leave clientId as undefined
+		}
+		return undefined;
 	}
 
 	async removeCollectionFile(
@@ -180,22 +192,34 @@ export class MediaStore implements MediaApi {
 		body: MediaStoreCreateFileFromUploadBody,
 		params: MediaStoreCreateFileFromUploadParams = {},
 		traceContext?: MediaTraceContext,
+		options?: { expectedFileSize?: number },
 	): Promise<MediaStoreResponse<MediaFile>> {
 		const metadata: RequestMetadata = {
 			method: 'POST',
 			endpoint: '/file/upload',
 		};
 
-		const options: MediaStoreRequestOptions = {
+		const headers: RequestHeaders = {
+			...jsonHeaders,
+		};
+
+		if (
+			options?.expectedFileSize !== undefined &&
+			fg('platform_media_upload_expected_size_header')
+		) {
+			headers['x-expected-size'] = options.expectedFileSize.toString();
+		}
+
+		const requestOptions: MediaStoreRequestOptions = {
 			...metadata,
 			authContext: { collectionName: params.collection },
 			params,
-			headers: jsonHeaders,
+			headers,
 			body: JSON.stringify(body),
 			traceContext,
 		};
 
-		return this.request('/file/upload', options).then(createMapResponseToJson(metadata));
+		return this.request('/file/upload', requestOptions).then(createMapResponseToJson(metadata));
 	}
 
 	getRejectedResponseFromDescriptor(
@@ -218,16 +242,28 @@ export class MediaStore implements MediaApi {
 		body: MediaStoreTouchFileBody,
 		params: MediaStoreTouchFileParams = {},
 		traceContext?: MediaTraceContext,
+		options?: { expectedFileSize?: number },
 	): Promise<MediaStoreResponse<TouchedFiles>> {
 		const metadata: RequestMetadata = {
 			method: 'POST',
 			endpoint: '/upload/createWithFiles',
 		};
 
-		const options: MediaStoreRequestOptions = {
+		const headers: RequestHeaders = {
+			...jsonHeaders,
+		};
+
+		if (
+			options?.expectedFileSize !== undefined &&
+			fg('platform_media_upload_expected_size_header')
+		) {
+			headers['x-expected-size'] = options.expectedFileSize.toString();
+		}
+
+		const requestOptions: MediaStoreRequestOptions = {
 			...metadata,
 			authContext: { collectionName: params.collection },
-			headers: jsonHeaders,
+			headers,
 			body: JSON.stringify(body),
 			traceContext,
 			params: {
@@ -235,7 +271,9 @@ export class MediaStore implements MediaApi {
 			},
 		};
 
-		return this.request('/upload/createWithFiles', options).then(createMapResponseToJson(metadata));
+		return this.request('/upload/createWithFiles', requestOptions).then(
+			createMapResponseToJson(metadata),
+		);
 	}
 
 	getFile(
@@ -265,22 +303,37 @@ export class MediaStore implements MediaApi {
 	}
 
 	// TODO Create ticket in case Trace Id can be supported through query params
-	getFileImageURLSync(id: string, params?: MediaStoreGetFileImageParams): string {
+	getFileImageURLSync(
+		id: string,
+		params?: MediaStoreGetFileImageParams,
+		seededCdnUrl?: string,
+	): string {
 		const auth = this.resolveInitialAuth();
-		return this.createFileImageURL(id, auth, params);
+		return this.createFileImageURL(id, auth, params, seededCdnUrl);
 	}
 
 	private createFileImageURL(
 		id: string,
 		auth: Auth,
 		params?: MediaStoreGetFileImageParams,
+		seededCdnUrl?: string,
 	): string {
+		const wmv = fg('confluence_watermark_admin_ui')
+			? getWatermarkVersionFromToken(auth.token)
+			: undefined;
 		const options: CreateUrlOptions = {
-			params: extendImageParams(params),
+			params: {
+				...extendImageParams(params),
+				...(wmv ? { wmv } : {}),
+			},
 			auth,
 		};
 
 		const imageEndpoint = cdnFeatureFlag('image');
+
+		if (seededCdnUrl && isCDNEnabled()) {
+			return mapToSeedBasedCdnUrl(seededCdnUrl, options.params);
+		}
 
 		if (isPathBasedEnabled()) {
 			return mapToPathBasedUrl(createUrl(`${auth.baseUrl}/file/${id}/${imageEndpoint}`, options));
@@ -326,6 +379,7 @@ export class MediaStore implements MediaApi {
 		id: string,
 		collectionName?: string,
 		maxAge: number = FILE_CACHE_MAX_AGE,
+		name?: string,
 	): Promise<string> {
 		const auth = await this.resolveAuth({ collectionName });
 
@@ -334,6 +388,7 @@ export class MediaStore implements MediaApi {
 				dl: true,
 				collection: collectionName,
 				'max-age': maxAge,
+				...(name ? { name } : {}),
 			},
 			auth,
 		};
@@ -504,10 +559,27 @@ export class MediaStore implements MediaApi {
 			endpoint: `/file/{fileId}/${imageEndpoint}`,
 		};
 
+		let wmvParams = {};
+		let authOptions: Pick<MediaStoreRequestOptions, 'authContext' | 'resolvedAuth'> = {
+			authContext: { collectionName: params && params.collection },
+		};
+
+		if (fg('confluence_watermark_admin_ui')) {
+			const auth = await this.resolveAuth(authOptions.authContext);
+			const wmv = getWatermarkVersionFromToken(auth.token);
+			if (wmv) {
+				wmvParams = { wmv };
+			}
+			authOptions = { resolvedAuth: auth };
+		}
+
 		const options: MediaStoreRequestOptions = {
 			...metadata,
-			authContext: { collectionName: params && params.collection },
-			params: extendImageParams(params, fetchMaxRes),
+			...authOptions,
+			params: {
+				...extendImageParams(params, fetchMaxRes),
+				...wmvParams,
+			},
 			headers,
 			traceContext,
 			addMediaClientParam: true,
@@ -653,21 +725,33 @@ export class MediaStore implements MediaApi {
 		body: AppendChunksToUploadRequestBody,
 		collectionName?: string,
 		traceContext?: MediaTraceContext,
+		options?: { expectedFileSize?: number },
 	): Promise<void> {
 		const metadata: RequestMetadata = {
 			method: 'PUT',
 			endpoint: '/upload/{uploadId}/chunks',
 		};
 
-		const options: MediaStoreRequestOptions = {
+		const headers: RequestHeaders = {
+			...jsonHeaders,
+		};
+
+		if (
+			options?.expectedFileSize !== undefined &&
+			fg('platform_media_upload_expected_size_header')
+		) {
+			headers['x-expected-size'] = options.expectedFileSize.toString();
+		}
+
+		const requestOptions: MediaStoreRequestOptions = {
 			...metadata,
 			authContext: { collectionName },
-			headers: jsonHeaders,
+			headers,
 			body: JSON.stringify(body),
 			traceContext,
 		};
 
-		await this.request(`/upload/${uploadId}/chunks`, options);
+		await this.request(`/upload/${uploadId}/chunks`, requestOptions);
 	}
 
 	copyFileWithToken(
@@ -696,6 +780,7 @@ export class MediaStore implements MediaApi {
 		id: string,
 		params: CopyFileParams,
 		traceContext?: MediaTraceContext,
+		clientId?: string,
 	): Promise<MediaStoreResponse<MediaFile>> {
 		const metadata: RequestMetadata = {
 			method: 'POST',
@@ -707,7 +792,7 @@ export class MediaStore implements MediaApi {
 			authContext: { collectionName: params.collection },
 			params,
 			headers: jsonHeaders,
-			body: JSON.stringify({ id }),
+			body: JSON.stringify({ id, clientId }),
 			traceContext,
 			clientOptions: {
 				retryOptions: {
@@ -808,35 +893,24 @@ export class MediaStore implements MediaApi {
 		});
 	}
 
-	resolveAuth = (authContext?: AuthContext) =>
+	resolveAuth = (authContext?: AuthContext): Promise<Auth> =>
 		resolveAuth(this.config.authProvider, authContext, this.config.authProviderTimeout);
 
-	resolveInitialAuth = () => resolveInitialAuth(this.config.initialAuth);
-	get chunkHashAlgorithm() {
+	resolveInitialAuth = (): Auth => resolveInitialAuth(this.config.initialAuth);
+	get chunkHashAlgorithm(): ChunkHashAlgorithm {
 		return this._chunkHashAlgorithm;
 	}
 }
 
-const getValueFromSessionStorage = (key: string): string | undefined => {
-	return (window && window.sessionStorage && window.sessionStorage.getItem(key)) || undefined;
-};
-
-const setKeyValueInSessionStorage = (key: string, value: string | null) => {
-	if (!value || !(window && window.sessionStorage)) {
-		return;
-	}
-
-	const currentValue = window.sessionStorage.getItem(key);
-
-	if (currentValue !== value) {
-		window.sessionStorage.setItem(key, value);
-	}
-};
-
-export const getMediaEnvironment = (): string | undefined => {
-	return getValueFromSessionStorage(MEDIA_API_ENVIRONMENT);
-};
-
-export const getMediaRegion = (): string | undefined => {
-	return getValueFromSessionStorage(MEDIA_API_REGION);
-};
+/**
+ * @deprecated Use `import { getMediaEnvironment } from '@atlaskit/media-client'` instead.
+ */
+export { getMediaEnvironment } from './getMediaEnvironment';
+/**
+ * @deprecated Use `import { getMediaRegion } from '@atlaskit/media-client'` instead.
+ */
+export { getMediaRegion } from './getMediaRegion';
+/**
+ * @deprecated Use `import { getValueFromSessionStorage } from '@atlaskit/media-client/media-store'` instead.
+ */
+export { getValueFromSessionStorage } from './getValueFromSessionStorage';

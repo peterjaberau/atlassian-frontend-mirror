@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Annotation', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the annotation plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,17 +30,35 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+type AnnotationPluginDependencies = [
+  OptionalPlugin<AnalyticsPlugin>,
+  OptionalPlugin<EditorViewModeEffectsPlugin>,
+  OptionalPlugin<EditorViewModePlugin>,
+  OptionalPlugin<FeatureFlagsPlugin>,
+  OptionalPlugin<ConnectivityPlugin>,
+  OptionalPlugin<ToolbarPlugin>,
+  OptionalPlugin<UserIntentPlugin>,
+];
+
+type AnnotationPluginOptions = AnnotationProviders;
+
 type AnnotationPlugin = NextEditorPlugin<
   'annotation',
   {
-    pluginConfiguration: AnnotationProviders | undefined;
+    pluginConfiguration: AnnotationPluginOptions | undefined;
     sharedState: InlineCommentPluginState | undefined;
-    dependencies: [OptionalPlugin<AnalyticsPlugin>];
+    dependencies: AnnotationPluginDependencies;
     actions: {
-      stripNonExistingAnnotations: typeof stripNonExistingAnnotations;
+      hasAnyUnResolvedAnnotationInPage: (state: EditorState) => boolean;
+      requestCloseInlineComment: () => Promise<boolean>;
+      setInlineCommentDraftState: SetInlineCommentDraftState;
+      showCommentForBlockNode: ReturnType<typeof showInlineCommentForBlockNode>;
+      stripNonExistingAnnotations: StripNonExistingAnnotations;
     };
   }
 >;
+
+type AnnotationPluginInjectionAPI = ExtractInjectionAPI<AnnotationPlugin> | undefined;
 `}
 
 

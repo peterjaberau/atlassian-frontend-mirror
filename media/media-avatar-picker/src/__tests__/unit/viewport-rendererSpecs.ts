@@ -2,12 +2,13 @@ jest.mock('../../util');
 
 import { mockCanvas } from '@atlaskit/media-test-helpers';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+
+import { getCanvas } from '../../util';
 import { DEFAULT_INNER_WIDTH, DEFAULT_INNER_HEIGHT } from '../../viewport';
 import { renderViewport } from '../../viewport/viewport-render';
 import { setup as setupViewport } from './viewportSpec';
-import { getCanvas } from '../../util';
 
-export const radians = (deg: number) => deg * (Math.PI / 180);
+export const radians = (deg: number): number => deg * (Math.PI / 180);
 
 const mockImage = {
 	naturalWidth: 1,
@@ -46,9 +47,7 @@ describe('Viewport Renderer', () => {
 		const toDataURL = getCanvasMock.canvas.toDataURL! as jest.Mock;
 		toDataURL.mockReturnValue('some-data-url');
 
-		jest.mocked(getCanvas).mockImplementation(() =>
-			getCanvasMock as any,
-		);
+		jest.mocked(getCanvas).mockImplementation(() => getCanvasMock as any);
 	});
 
 	/* test the combinations of translate, scale, rotate required to achieve the orientation transforms */

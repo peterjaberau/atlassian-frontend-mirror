@@ -1,18 +1,23 @@
 import React, { useCallback, useState } from 'react';
 
-import { type BoundActions, createHook, createStore, type HookFunction, type StoreActionApi } from 'react-sweet-state';
+import {
+	type BoundActions,
+	createHook,
+	createStore,
+	type HookFunction,
+	type StoreActionApi,
+} from 'react-sweet-state';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import Popup from '@atlaskit/popup';
+import Heading from '@atlaskit/heading/heading';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { Popup } from '@atlaskit/popup/popup';
 import { Box, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -24,27 +29,40 @@ const Store = createStore({
 	// actions that trigger store mutation
 	actions: {
 		setFocused:
-			(focused: any): ({ setState }: StoreActionApi<{
+			(
+				focused: any,
+			): (({
+				setState,
+			}: StoreActionApi<{
 				focused: boolean;
-			}>) => void =>
-				({ setState }) => {
-					// mutate state synchronously
-					setState({
-						focused: focused,
-					});
-				},
+			}>) => void) =>
+			({ setState }) => {
+				// mutate state synchronously
+				setState({
+					focused: focused,
+				});
+			},
 	},
 });
 
-export const useIsFocused: HookFunction<{
-	focused: boolean;
-}, BoundActions<{
-	focused: boolean;
-}, {
-	setFocused: (focused: any) => ({ setState }: StoreActionApi<{
+export const useIsFocused: HookFunction<
+	{
 		focused: boolean;
-	}>) => void;
-}>, void> = createHook(Store);
+	},
+	BoundActions<
+		{
+			focused: boolean;
+		},
+		{
+			setFocused: (focused: any) => ({
+				setState,
+			}: StoreActionApi<{
+				focused: boolean;
+			}>) => void;
+		}
+	>,
+	void
+> = createHook(Store);
 
 const contentStyles = cssMap({
 	root: {

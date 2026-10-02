@@ -5,15 +5,18 @@ import { usePreviousState } from '@atlaskit/editor-common/hooks';
 import { createUniversalPreset } from '../create-editor/create-universal-preset';
 import { shouldRecreatePreset } from '../create-editor/preset-utils';
 import type { EditorProps } from '../types/editor-props';
-
-import { type InitialPluginConfiguration } from './universal';
+import type { InitialPluginConfiguration } from './universal';
 
 interface PresetProps {
 	initialPluginConfiguration?: InitialPluginConfiguration;
 	props: EditorProps;
 }
 
-export default function useUniversalPreset({ props, initialPluginConfiguration }: PresetProps) {
+export default function useUniversalPreset({
+	props,
+	initialPluginConfiguration,
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required for --isolatedDeclarations; preset builder return type is too complex to spell out here.
+}: PresetProps): any {
 	const previousEditorProps = usePreviousState(props);
 	const [preset, setPreset] = useState(() =>
 		createUniversalPreset({ props, prevProps: previousEditorProps, initialPluginConfiguration }),

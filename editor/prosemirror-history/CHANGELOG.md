@@ -1,5 +1,83 @@
 # @atlaskit/prosemirror-history
 
+## 1.3.0
+
+### Minor Changes
+
+- [`06360d6f00779`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06360d6f00779) -
+  Add a document-guarded history checkpoint subpath for restoring pre-session undo and redo history.
+
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.1
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+
+## 1.2.0
+
+### Minor Changes
+
+- [`3b2f9c185d4b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b2f9c185d4b6) -
+  Imports from the package root are deprecated and will be removed in a future release. Migrate to
+  dedicated entry-point imports to reduce upgrade friction:
+  - `@atlaskit/prosemirror-history/closeHistory`
+  - `@atlaskit/prosemirror-history/history`
+  - `@atlaskit/prosemirror-history/undo`
+  - `@atlaskit/prosemirror-history/redo`
+  - `@atlaskit/prosemirror-history/undoNoScroll`
+  - `@atlaskit/prosemirror-history/redoNoScroll`
+  - `@atlaskit/prosemirror-history/undoDepth`
+  - `@atlaskit/prosemirror-history/redoDepth`
+
+## 1.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.7
+
+### Patch Changes
+
+- [`1fd2b267eb592`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1fd2b267eb592) -
+  Cleanup `platform_editor_ai_aifc_patch_ga` flag
+
 ## 0.2.6
 
 ### Patch Changes

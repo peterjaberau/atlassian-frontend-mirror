@@ -1,5 +1,5 @@
 import type { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, INPUT_METHOD } from './enums';
-import type { OperationalAEP, TrackAEP } from './utils';
+import type { OperationalAEP, TrackAEP, UIAEP } from './utils';
 
 export const PasteTypes: { [type: string]: PasteType } = {
 	richText: 'richText',
@@ -10,6 +10,7 @@ export const PasteTypes: { [type: string]: PasteType } = {
 
 export type PasteType = 'richText' | 'plain' | 'markdown' | 'binary';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const PasteSources: { [type: string]: PasteSource } = {
 	fabricEditor: 'fabric-editor',
 	applePages: 'apple-pages',
@@ -23,6 +24,7 @@ export const PasteSources: { [type: string]: PasteSource } = {
 
 export type PasteSource =
 	| 'fabric-editor'
+	| 'fabric-renderer'
 	| 'apple-pages'
 	| 'google-spreadsheets'
 	| 'google-docs'
@@ -31,6 +33,7 @@ export type PasteSource =
 	| 'dropbox-paper'
 	| 'uncategorized';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const PasteContents: { [P in PasteContent]: P } = {
 	text: 'text',
 	url: 'url',
@@ -136,7 +139,9 @@ type PasteAEP = PasteBaseAEP<
 	ACTION.PASTED,
 	{
 		content: PasteContent;
+		hadBackgroundColor?: boolean;
 		inputMethod: INPUT_METHOD.KEYBOARD | INPUT_METHOD.TOOLBAR;
+		invokedFrom?: string;
 		pasteSize: number;
 		source?: PasteSource;
 		type: PasteType;
@@ -168,3 +173,13 @@ type PastedTimedAEP = PasteBaseOperationalAEP<
 >;
 
 export type PasteEventPayload = PasteAEP | PasteAsPlainAEP | PastedTimedAEP;
+
+export type PasteActionsMenuOpenedAEP = UIAEP<
+	ACTION.OPENED,
+	ACTION_SUBJECT.PASTE_ACTIONS_MENU,
+	undefined,
+	{ displayAsVisible: boolean; visibleAiActions: string[] },
+	undefined
+>;
+
+export type PasteActionsMenuEventPayload = PasteActionsMenuOpenedAEP;

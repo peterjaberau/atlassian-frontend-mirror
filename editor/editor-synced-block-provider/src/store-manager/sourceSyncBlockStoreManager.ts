@@ -1,20 +1,24 @@
-import { type SyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
+import type { SyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
 import type { Experience } from '@atlaskit/editor-common/experiences';
 import { logException } from '@atlaskit/editor-common/monitoring';
-import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { ViewMode } from '@atlaskit/editor-plugin-editor-viewmode';
+import type { Node as PMNode, Fragment } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
-import {
-	type ResourceId,
-	type SyncBlockAttrs,
-	type SyncBlockData as Data,
-	type SyncBlockNode,
-	SyncBlockError,
-	type BlockInstanceId,
-	type DeletionReason,
-	type ReferenceSyncBlockData,
+import { SyncBlockError } from '../common/types';
+import type {
+	ResourceId,
+	SyncBlockAttrs,
+	SyncBlockData as Data,
+	SyncBlockNode,
+	BlockInstanceId,
+	DeletionReason,
+	DeletionMechanism,
+	ReferenceSyncBlockData,
+	SyncBlockStatus,
 } from '../common/types';
-import type { SyncBlockDataProvider, SyncBlockSourceInfo } from '../providers/types';
+import type { SyncBlockDataProviderInterface, SyncBlockSourceInfo } from '../providers/types';
 import {
 	updateErrorPayload,
 	createErrorPayload,
@@ -23,16 +27,23 @@ import {
 	getSourceInfoErrorPayload,
 	updateSuccessPayload,
 	createSuccessPayload,
+	createSuccessOperationalPayload,
+	addContentSuccessPayload,
 	deleteSuccessPayload,
 	fetchReferencesErrorPayload,
+	buildErrorAttribution,
 } from '../utils/errorHandling';
+import type { CreateSuccessEnrichment, DeleteSuccessEnrichment } from '../utils/errorHandling';
 import {
 	getCreateSourceExperience,
 	getDeleteSourceExperience,
 	getSaveSourceExperience,
 	getFetchSourceInfoExperience,
 } from '../utils/experienceTracking';
-import { convertSyncBlockPMNodeToSyncBlockData } from '../utils/utils';
+import {
+	convertSyncBlockPMNodeToSyncBlockData,
+	getSourceProductFromResourceIdSafe,
+} from '../utils/utils';
 
 export type ConfirmationCallback = (
 	syncBlockIds: SyncBlockAttrs[],
@@ -41,8 +52,12 @@ export type ConfirmationCallback = (
 type OnDelete = () => void;
 type OnCompletion = (success: boolean) => void;
 type DestroyCallback = () => void;
-export type CreationCallback = () => void;
 type SyncBlockData = Data & {
+	/**
+	 * Cached PM Fragment reference for fast equality comparison via Fragment.eq()
+	 * Used for tracking content changes
+	 */
+	contentFragment?: Fragment;
 	/**
 	 * Whether the current changes have already been saved to the backend
 	 * Defaults to true, so we always flush data on the first save
@@ -54,42 +69,139 @@ type SyncBlockData = Data & {
 	pendingDeletion?: boolean;
 };
 
+export type LocalSourceSnapshot = Readonly<
+	Omit<Data, 'content' | 'status'> & {
+		content: ReadonlyArray<ADFEntity>;
+		status?: SyncBlockStatus;
+	}
+>;
+
+export type LocalSourceSubscriber = (snapshot: LocalSourceSnapshot | undefined) => void;
+
+/** Maximum time (ms) flush() will wait for in-flight block creations before proceeding. */
+const FLUSH_CREATION_AWAIT_TIMEOUT_MS = 1000;
+
+/**
+ * Window (ms) within which a repeated `syncedBlockDelete` emission for the same
+ * resourceId is suppressed. The same logical removal can re-fire across
+ * rebased/remote/redo transactions; a short window collapses those bursts to one
+ * event while still allowing a genuine delete→recreate→delete later.
+ */
+const DELETE_DEDUPE_WINDOW_MS = 5000;
+
 // A store manager responsible for the lifecycle and state management of source sync blocks in an editor instance.
 // Designed to manage local in-memory state and synchronize with an external data provider.
 // Supports create, flush, and delete operations for source sync blocks.
 // Handles caching, debouncing updates, and publish/subscribe for local changes.
 // Ensures consistency between local and remote state, and can be used in both editor and renderer contexts.
 export class SourceSyncBlockStoreManager {
-	private dataProvider?: SyncBlockDataProvider;
+	private viewMode?: ViewMode;
+	private isLivePage?: boolean;
+	private dataProvider?: SyncBlockDataProviderInterface;
+
 	private fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void;
 
 	private syncBlockCache: Map<ResourceId, SyncBlockData>;
+	private localSourceSubscribers = new Map<ResourceId, Set<LocalSourceSubscriber>>();
+	private hasReceivedContentChange: boolean = false;
 
 	private confirmationCallback?: ConfirmationCallback;
 	private deletionRetryInfo?: {
 		deletionReason: DeletionReason;
 		destroyCallback: DestroyCallback;
+		mechanism?: DeletionMechanism;
 		onDelete: OnDelete;
 		onDeleteCompleted: OnCompletion;
 		syncBlockIds: SyncBlockAttrs[];
 	};
 
-	private pendingResourceId?: ResourceId;
-	private creationCallback?: CreationCallback;
 	private creationCompletionCallbacks: Map<ResourceId, OnCompletion>;
+	private flushCompletionCallback?: () => void;
+	private postCreationFlushCallback?: () => void;
+	/**
+	 * Promises for in-flight block creations, keyed by resourceId.
+	 * `flush()` awaits these so that blocks created from existing content are
+	 * persisted even if no further edits trigger a subsequent flush.
+	 * See EDITOR-7112.
+	 */
+	private pendingCreationPromises: Map<ResourceId, Promise<void>> = new Map();
+	/**
+	 * Set of resource IDs whose creation was still in-flight when a `flush()`
+	 * timed out. Each completion (success or failure) is removed from this set;
+	 * the first successful completion of any of these IDs triggers
+	 * `postCreationFlushCallback` so the content is eventually persisted.
+	 * Tracking IDs (not just a boolean) avoids dropping late completions when
+	 * multiple blocks are created concurrently. See EDITOR-7112.
+	 */
+	private creationsTimedOutDuringFlush: Set<ResourceId> = new Set();
+
+	/**
+	 * Creation-type signals captured at `createBodiedSyncBlockNode` time and read
+	 * back in `commitPendingCreation` to enrich the `syncedBlockCreate` event.
+	 * Kept out of the flushed cache record so it never leaks into Block Service /
+	 * ADF; removed once consumed.
+	 */
+	private creationEnrichment: Map<ResourceId, CreateSuccessEnrichment> = new Map();
+	/**
+	 * Source blocks created by the local insert command in this editor session that
+	 * have not yet been reconciled with authoritative reference data. This state is
+	 * intentionally kept out of ADF and the backend cache so reloaded, restored,
+	 * copied, and remotely inserted sources cannot inherit it.
+	 */
+	private newSourceBlockResourceIds: Set<ResourceId> = new Set();
+	/**
+	 * Resource IDs of blocks created empty this session that have not yet fired
+	 * the first-content-added event. Added on empty creation, removed when the
+	 * block first gains content (the event fires once). Blocks created with
+	 * content or not created this session are never tracked.
+	 */
+	private awaitingFirstContent: Set<ResourceId> = new Set();
 
 	private createExperience: Experience | undefined;
 	private saveExperience: Experience | undefined;
 	private deleteExperience: Experience | undefined;
 	private fetchSourceInfoExperience: Experience | undefined;
 
-	constructor(dataProvider?: SyncBlockDataProvider) {
+	/**
+	 * resourceId -> timestamp (ms) of the last `syncedBlockDelete` emission, used
+	 * to suppress duplicates within {@link DELETE_DEDUPE_WINDOW_MS}.
+	 */
+	private recentDeleteEmissions: Map<ResourceId, number> = new Map();
+
+	constructor(
+		dataProvider?: SyncBlockDataProviderInterface,
+		viewMode?: ViewMode,
+		isLivePage?: boolean,
+	) {
 		this.dataProvider = dataProvider;
+		this.viewMode = viewMode;
+		this.isLivePage = isLivePage;
 		this.syncBlockCache = new Map();
 		this.creationCompletionCallbacks = new Map();
 	}
 
-	public setFireAnalyticsEvent(fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void) {
+	/**
+	 * Register a callback to be invoked after flush() completes.
+	 * Used by the pm-plugin to dispatch a transaction so that
+	 * hasUnsavedBodiedSyncBlockChanges is recalculated in plugin state.
+	 */
+	public registerFlushCompletionCallback(callback: () => void): void {
+		this.flushCompletionCallback = callback;
+	}
+
+	/**
+	 * Register a callback to be invoked when flush() timed out waiting for a
+	 * pending block creation and that creation subsequently completes. The
+	 * callback should trigger a deferred flush to persist the content that
+	 * was skipped due to the timeout. See EDITOR-7112.
+	 */
+	public registerPostCreationFlushCallback(callback: () => void): void {
+		this.postCreationFlushCallback = callback;
+	}
+
+	public setFireAnalyticsEvent(
+		fireAnalyticsEvent?: (payload: SyncBlockEventPayload) => void,
+	): void {
 		this.fireAnalyticsEvent = fireAnalyticsEvent;
 
 		this.createExperience = getCreateSourceExperience(fireAnalyticsEvent);
@@ -102,12 +214,24 @@ export class SourceSyncBlockStoreManager {
 		return node.type.name === 'bodiedSyncBlock';
 	}
 
+	public isNewSourceBlock(resourceId: ResourceId): boolean {
+		return this.newSourceBlockResourceIds.has(resourceId);
+	}
+
+	public clearNewSourceBlock(resourceId: ResourceId): void {
+		this.newSourceBlockResourceIds.delete(resourceId);
+	}
+
 	/**
 	 * Add/update a sync block node to/from the local cache
 	 * @param syncBlockNode - The sync block node to update
 	 */
-	public updateSyncBlockData(syncBlockNode: PMNode): boolean {
+	public updateSyncBlockData(syncBlockNode: PMNode, isRemote: boolean): boolean {
 		try {
+			if (this.viewMode === 'view') {
+				return false;
+			}
+
 			if (!this.isSourceBlock(syncBlockNode)) {
 				throw new Error('Invalid sync block node type provided for updateSyncBlockData');
 			}
@@ -115,17 +239,47 @@ export class SourceSyncBlockStoreManager {
 			const { localId, resourceId } = syncBlockNode.attrs;
 
 			if (!localId || !resourceId) {
-				throw new Error('Local ID or resource ID is not set');
+				// Identifiers not populated yet: benign timing case, skip as a no-op.
+				return false;
+			}
+
+			const cachedBlock = this.syncBlockCache.get(resourceId);
+
+			// Fast path: if the PM content fragment hasn't changed, skip serialization entirely
+			// Fragment.eq() leverages ProseMirror's structural sharing for O(1) comparison
+			if (cachedBlock?.contentFragment?.eq(syncBlockNode.content)) {
+				return true;
 			}
 
 			const syncBlockData = convertSyncBlockPMNodeToSyncBlockData(syncBlockNode);
-			this.syncBlockCache.set(resourceId, { ...syncBlockData, isDirty: true });
+
+			if (cachedBlock && !isRemote) {
+				this.hasReceivedContentChange = true;
+			}
+
+			const isDirty = !isRemote || !cachedBlock; // if the change is not remote, or the block is not in the cache yet, it's dirty
+			this.syncBlockCache.set(resourceId, {
+				...syncBlockData,
+				isDirty: isDirty, // if the change is from remote, it's not dirty
+				contentFragment: syncBlockNode.content,
+				status: cachedBlock?.status,
+			});
+			this.notifyLocalSource(resourceId);
+
 			return true;
 		} catch (error) {
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/sourceSyncBlockStoreManager',
 			});
-			this.fireAnalyticsEvent?.(updateCacheErrorPayload((error as Error).message));
+			// We can derive the product from `syncBlockNode.attrs.resourceId` even though
+			// the variable wasn't destructured (the destructuring step itself may have thrown).
+			this.fireAnalyticsEvent?.(
+				updateCacheErrorPayload(
+					(error as Error).message,
+					syncBlockNode?.attrs?.resourceId,
+					getSourceProductFromResourceIdSafe(syncBlockNode?.attrs?.resourceId),
+				),
+			);
 			return false;
 		}
 	}
@@ -137,6 +291,43 @@ export class SourceSyncBlockStoreManager {
 	 */
 	public async flush(): Promise<boolean> {
 		try {
+			if (this.viewMode === 'view') {
+				return true;
+			}
+
+			// Wait (up to FLUSH_CREATION_AWAIT_TIMEOUT_MS) for any in-flight
+			// block creations to complete before iterating the cache. Without
+			// this, blocks created from existing content are skipped
+			// (isPendingCreation check below) and if no further edits are made,
+			// no subsequent flush is triggered — causing references to show an
+			// "unpublished" error.
+			// If the timeout expires, any block whose creation is still
+			// in-flight is recorded in `creationsTimedOutDuringFlush` so that
+			// `commitPendingCreation()` can trigger a follow-up flush once that
+			// specific creation completes.
+			// See EDITOR-7112.
+			if (this.pendingCreationPromises.size > 0) {
+				let timedOut = false;
+				let timeoutId: ReturnType<typeof setTimeout> | undefined;
+				const timeout = new Promise<void>((resolve) => {
+					timeoutId = setTimeout(() => {
+						timedOut = true;
+						resolve();
+					}, FLUSH_CREATION_AWAIT_TIMEOUT_MS);
+				});
+				await Promise.race([Promise.all(this.pendingCreationPromises.values()), timeout]);
+				if (timeoutId !== undefined) {
+					clearTimeout(timeoutId);
+				}
+				if (timedOut) {
+					// Record every still-in-flight creation so each late
+					// completion is tracked independently.
+					for (const resourceId of this.pendingCreationPromises.keys()) {
+						this.creationsTimedOutDuringFlush.add(resourceId);
+					}
+				}
+			}
+
 			const bodiedSyncBlockNodes: SyncBlockNode[] = [];
 			const bodiedSyncBlockData: SyncBlockData[] = [];
 
@@ -148,7 +339,7 @@ export class SourceSyncBlockStoreManager {
 				if (
 					!syncBlockData.pendingDeletion &&
 					syncBlockData.isDirty &&
-					!(this.isPendingCreation(syncBlockData.resourceId) && fg('platform_synced_block_patch_1'))
+					!this.isPendingCreation(syncBlockData.resourceId)
 				) {
 					bodiedSyncBlockNodes.push({
 						type: 'bodiedSyncBlock',
@@ -163,9 +354,8 @@ export class SourceSyncBlockStoreManager {
 					// is still making changes, the new changes might not be saved if they all happen
 					// exactly at a time when the writeNodesData is being executed asynchronously.
 					syncBlockData.isDirty = false;
-					// When flushing, set status to 'active' so the block is published (when feature gate is on)
-					const dataToFlush =
-						fg('platform_synced_block_patch_1') ? { ...syncBlockData, status: 'active' as const } : syncBlockData;
+					// When flushing, set status to 'active' so the block is published
+					const dataToFlush = { ...syncBlockData, status: 'active' as const };
 					bodiedSyncBlockData.push(dataToFlush);
 				}
 			});
@@ -191,6 +381,7 @@ export class SourceSyncBlockStoreManager {
 					const cachedData = this.syncBlockCache.get(result.resourceId);
 					if (cachedData) {
 						cachedData.isDirty = true;
+						this.notifyLocalSource(result.resourceId);
 					}
 				}
 			});
@@ -199,7 +390,19 @@ export class SourceSyncBlockStoreManager {
 				this.saveExperience?.success();
 				writeResults.forEach((result) => {
 					if (result.resourceId && !result.error) {
-						this.fireAnalyticsEvent?.(updateSuccessPayload(result.resourceId, false));
+						// Update cache with the status returned from the backend
+						const cachedData = this.syncBlockCache.get(result.resourceId);
+						if (cachedData && result.status) {
+							cachedData.status = result.status;
+							this.notifyLocalSource(result.resourceId);
+						}
+						this.fireAnalyticsEvent?.(
+							updateSuccessPayload(
+								result.resourceId,
+								false,
+								getSourceProductFromResourceIdSafe(result.resourceId),
+							),
+						);
 					}
 				});
 				return true;
@@ -209,7 +412,12 @@ export class SourceSyncBlockStoreManager {
 					.filter((result) => !result.resourceId || result.error)
 					.forEach((result) => {
 						this.fireAnalyticsEvent?.(
-							updateErrorPayload(result.error || 'Failed to write data', result.resourceId),
+							updateErrorPayload(
+								result.error || 'Failed to write data',
+								result.resourceId,
+								getSourceProductFromResourceIdSafe(result.resourceId),
+								buildErrorAttribution(result.error, result.statusCode),
+							),
 						);
 					});
 
@@ -219,15 +427,34 @@ export class SourceSyncBlockStoreManager {
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/sourceSyncBlockStoreManager',
 			});
-			this.fireAnalyticsEvent?.(updateErrorPayload((error as Error).message));
+			// Top-level flush failure is not tied to a single resourceId. There is no structured
+			// SyncBlockError/status here, so the attribution `reason` falls back to `unknown`.
+			this.fireAnalyticsEvent?.(
+				updateErrorPayload((error as Error).message, undefined, undefined, buildErrorAttribution()),
+			);
 
 			return false;
+		} finally {
+			this.flushCompletionCallback?.();
 		}
 	}
 
-	// Remove this method and pendingResourceId when cleaning up platform_synced_block_patch_1
-	public registerPendingCreation(resourceId: ResourceId): void {
-		this.pendingResourceId = resourceId;
+	public hasUnsavedChanges(): boolean {
+		if (this.viewMode === 'view') {
+			return false;
+		}
+
+		// Only track unsaved changes in source synced block for live pages
+		// classic pages's draft don't publish synced block content to block service and the content itself is saved as part of the draft
+		// classic page's publish flow will trigger a flush which only uses the isDirty flag to determine if there are unsaved changes
+		if (!this.isLivePage) {
+			return false;
+		}
+
+		return (
+			this.hasReceivedContentChange &&
+			Array.from(this.syncBlockCache.values()).some((syncBlockData) => syncBlockData.isDirty)
+		);
 	}
 
 	public isPendingCreation(resourceId: ResourceId): boolean {
@@ -235,10 +462,62 @@ export class SourceSyncBlockStoreManager {
 	}
 
 	/**
-	 * Register callback function (which inserts node, handles focus etc) to be used later when creation to backend succeed
+	 * Returns `true` when at least one sync block is waiting for its backend
+	 * creation call to complete. Used as a cheap pre-check in the decoration
+	 * rebuild path to avoid a full `doc.descendants()` walk when no creations
+	 * are in flight (see EDITOR-6930).
 	 */
-	public registerCreationCallback(callback: CreationCallback): void {
-		this.creationCallback = callback;
+	public hasPendingCreations(): boolean {
+		return this.creationCompletionCallbacks.size > 0;
+	}
+
+	/** Returns the source block's last known backend publication status. */
+	public getStatus(resourceId: ResourceId): SyncBlockStatus | undefined {
+		return this.syncBlockCache.get(resourceId)?.status;
+	}
+
+	public getLocalSourceSnapshot(resourceId: ResourceId): LocalSourceSnapshot | undefined {
+		if (!isExperimentEnabled('editor-synced-block-same-page-sync')) {
+			return undefined;
+		}
+		const cached = this.syncBlockCache.get(resourceId);
+		if (!cached || cached.status === 'deleted') {
+			return undefined;
+		}
+		const { contentFragment: _contentFragment, isDirty: _isDirty, ...data } = cached;
+		return {
+			...data,
+			content: [...data.content],
+		};
+	}
+
+	public subscribeToLocalSource(
+		resourceId: ResourceId,
+		callback: LocalSourceSubscriber,
+	): () => void {
+		if (!isExperimentEnabled('editor-synced-block-same-page-sync')) {
+			return () => {};
+		}
+		let subscribers = this.localSourceSubscribers.get(resourceId);
+		if (!subscribers) {
+			subscribers = new Set();
+			this.localSourceSubscribers.set(resourceId, subscribers);
+		}
+		subscribers.add(callback);
+		callback(this.getLocalSourceSnapshot(resourceId));
+
+		return (): void => {
+			const currentSubscribers = this.localSourceSubscribers.get(resourceId);
+			currentSubscribers?.delete(callback);
+			if (currentSubscribers?.size === 0) {
+				this.localSourceSubscribers.delete(resourceId);
+			}
+		};
+	}
+
+	private notifyLocalSource(resourceId: ResourceId): void {
+		const snapshot = this.getLocalSourceSnapshot(resourceId);
+		this.localSourceSubscribers.get(resourceId)?.forEach((callback) => callback(snapshot));
 	}
 
 	/**
@@ -246,50 +525,100 @@ export class SourceSyncBlockStoreManager {
 	 * @param success
 	 */
 	public commitPendingCreation(success: boolean, resourceId: ResourceId): void {
-		if (fg('platform_synced_block_patch_1')) {
-			const onCompletion = this.creationCompletionCallbacks.get(resourceId);
-			if (onCompletion) {
-				this.creationCompletionCallbacks.delete(resourceId);
-				onCompletion(success);
-			} else {
-				this.fireAnalyticsEvent?.(
-					createErrorPayload('creation complete callback missing', resourceId),
-				);
-			}
-
-			if (success) {
-				this.fireAnalyticsEvent?.(createSuccessPayload(resourceId || ''));
-			} else {
-				// Delete the node from cache if fail to create so it's not flushed to BE
-				this.syncBlockCache.delete(resourceId || '');
-				this.fireAnalyticsEvent?.(
-					createErrorPayload('Fail to create bodied sync block', resourceId),
-				);
-			}
-		} else {
-			if (success && this.creationCallback) {
-				this.creationCallback();
-				this.fireAnalyticsEvent?.(createSuccessPayload(this.pendingResourceId || ''));
-			} else if (success && !this.creationCallback) {
-				this.fireAnalyticsEvent?.(
-					createErrorPayload('creation callback missing', this.pendingResourceId),
-				);
-			}
-			this.pendingResourceId = undefined;
+		if (this.viewMode === 'view') {
+			return;
 		}
 
-		this.creationCallback = undefined;
+		const onCompletion = this.creationCompletionCallbacks.get(resourceId);
+		if (onCompletion) {
+			this.creationCompletionCallbacks.delete(resourceId);
+			onCompletion(success);
+			// If a previous flush() timed out waiting for this specific
+			// creation, drop it from the tracking set regardless of outcome so
+			// it does not leak. See EDITOR-7112.
+			const wasTimedOut = this.creationsTimedOutDuringFlush.delete(resourceId);
+			if (success) {
+				// If creation is successful, set hasReceivedContentChange to true
+				// to indicate that there are unsaved changes in the cache
+				this.hasReceivedContentChange = true;
+				// If flush() timed out waiting for this creation, notify the
+				// plugin so it can trigger a deferred flush. See EDITOR-7112.
+				if (wasTimedOut) {
+					this.postCreationFlushCallback?.();
+				}
+			}
+		} else {
+			this.fireAnalyticsEvent?.(
+				createErrorPayload(
+					'creation complete callback missing',
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+				),
+			);
+		}
+
+		if (success) {
+			const sourceProduct = getSourceProductFromResourceIdSafe(resourceId);
+			const documentInsertedResourceId =
+				this.dataProvider?.generateResourceIdForReference(resourceId) ?? resourceId;
+			this.fireAnalyticsEvent?.(
+				createSuccessPayload(documentInsertedResourceId || '', sourceProduct),
+			);
+			// Operational create-success event with the join key + creation-type
+			// signals (inputMethod / createdEmpty / nodeTypes) captured at the command layer.
+			this.fireAnalyticsEvent?.(
+				createSuccessOperationalPayload(
+					resourceId || '',
+					this.syncBlockCache.get(resourceId)?.blockInstanceId,
+					sourceProduct,
+					this.creationEnrichment.get(resourceId),
+				),
+			);
+		} else {
+			// Delete the node from cache if fail to create so it's not flushed to BE
+			this.syncBlockCache.delete(resourceId || '');
+			this.notifyLocalSource(resourceId);
+			this.newSourceBlockResourceIds.delete(resourceId || '');
+			// Creation failed, so there is no block to add content to — drop the
+			// first-content tracking entry so a later unrelated edit cannot fire it.
+			this.awaitingFirstContent.delete(resourceId || '');
+			this.fireAnalyticsEvent?.(
+				createErrorPayload(
+					'Fail to create bodied sync block',
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+				),
+			);
+		}
+		// Enrichment is single-use — drop it once the create has resolved either way.
+		this.creationEnrichment.delete(resourceId || '');
 	}
 
 	/**
-	 *
-	 * @returns true if waiting for the result of saving new bodiedSyncBlock to backend
-	 * Remove this method when cleaning up platform_synced_block_patch_1
+	 * Fire the first-content-added event once when a block created empty this
+	 * session first gains content. The caller detects the in-block edit; this owns
+	 * dedupe + emission (fires at most once per block, only for empty→content).
 	 */
-	public hasPendingCreation(): boolean {
-		return fg('platform_synced_block_patch_1')
-			? this.creationCompletionCallbacks.size > 0
-			: !!this.pendingResourceId;
+	public maybeEmitFirstContentAdded(
+		resourceId: ResourceId,
+		blockInstanceId?: BlockInstanceId,
+	): void {
+		if (this.viewMode === 'view') {
+			return;
+		}
+		// `delete` returns false when the id was not tracked (already emitted, or
+		// the block was not created empty this session), so this both dedupes and
+		// scopes emission to genuine first-content transitions in one check.
+		if (!this.awaitingFirstContent.delete(resourceId)) {
+			return;
+		}
+		this.fireAnalyticsEvent?.(
+			addContentSuccessPayload(
+				resourceId,
+				blockInstanceId,
+				getSourceProductFromResourceIdSafe(resourceId),
+			),
+		);
 	}
 
 	public registerConfirmationCallback(callback: ConfirmationCallback) {
@@ -319,23 +648,54 @@ export class SourceSyncBlockStoreManager {
 	/**
 	 * Create a bodiedSyncBlock node with empty content to backend
 	 * @param attrs attributes Ids of the node
+	 * @param node the ProseMirror node to cache
+	 * @param onCompletion callback invoked when creation completes
+	 * @param enrichment optional creation analytics signals stashed and attached to the
+	 *   `syncedBlockCreate` event when the async create resolves. When
+	 *   `createdEmpty` is true the block is also registered for the
+	 *   first-content-added event.
 	 */
 	public createBodiedSyncBlockNode(
 		attrs: SyncBlockAttrs,
+		node: PMNode,
 		onCompletion: OnCompletion,
-		nodeData?: PMNode,
+		enrichment?: CreateSuccessEnrichment,
 	): void {
+		if (this.viewMode === 'view') {
+			return;
+		}
+
 		const { resourceId, localId: blockInstanceId } = attrs;
+		// Stash creation analytics signals for commitPendingCreation to read.
+		if (enrichment) {
+			this.creationEnrichment.set(resourceId, enrichment);
+			// Only empty-created blocks can produce an empty→content transition.
+			if (enrichment.createdEmpty) {
+				this.awaitingFirstContent.add(resourceId);
+			}
+		}
 		try {
 			if (!this.dataProvider) {
 				throw new Error('Data provider not set');
 			}
 
-			if (fg('platform_synced_block_patch_1')) {
-				this.creationCompletionCallbacks.set(resourceId, onCompletion);
+			if (enrichment) {
+				this.newSourceBlockResourceIds.add(resourceId);
 			}
+
+			// add the node to the cache
+			this.updateSyncBlockData(node, false);
+
+			// Mark the block as unpublished in the cache so it can be cleaned up on cancel
+			const cached = this.syncBlockCache.get(resourceId);
+			if (cached) {
+				cached.status = 'unpublished';
+				this.notifyLocalSource(resourceId);
+			}
+
+			this.creationCompletionCallbacks.set(resourceId, onCompletion);
 			this.createExperience?.start({});
-			this.dataProvider
+			const creationPromise = this.dataProvider
 				.createNodeData({
 					content: [],
 					blockInstanceId,
@@ -343,25 +703,22 @@ export class SourceSyncBlockStoreManager {
 				})
 				.then((result) => {
 					const resourceId = result.resourceId || '';
-					if (resourceId && (!fg('platform_synced_block_patch_1') || !result.error)) {
+					if (resourceId && !result.error) {
 						this.commitPendingCreation(true, resourceId);
 
 						this.createExperience?.success();
-
-						// Update the sync block data with the node data if it is provided
-						// to avoid any race conditions where the data could be missed during a render operation
-						if (!fg('platform_synced_block_patch_1')) {
-							if (nodeData) {
-								this.updateSyncBlockData(nodeData);
-							}
-						}
 					} else {
 						this.commitPendingCreation(false, resourceId);
 						this.createExperience?.failure({
 							reason: result.error || 'Failed to create bodied sync block',
 						});
 						this.fireAnalyticsEvent?.(
-							createErrorPayload(result.error || 'Failed to create bodied sync block', resourceId),
+							createErrorPayload(
+								result.error || 'Failed to create bodied sync block',
+								resourceId,
+								getSourceProductFromResourceIdSafe(resourceId),
+								buildErrorAttribution(result.error, result.statusCode),
+							),
 						);
 					}
 				})
@@ -371,41 +728,101 @@ export class SourceSyncBlockStoreManager {
 						location: 'editor-synced-block-provider/sourceSyncBlockStoreManager',
 					});
 					this.createExperience?.failure({ reason: (error as Error).message });
-					this.fireAnalyticsEvent?.(createErrorPayload((error as Error).message, resourceId));
+					this.fireAnalyticsEvent?.(
+						createErrorPayload(
+							(error as Error).message,
+							resourceId,
+							getSourceProductFromResourceIdSafe(resourceId),
+						),
+					);
+				})
+				.finally(() => {
+					this.pendingCreationPromises.delete(resourceId);
 				});
-
-			if (!fg('platform_synced_block_patch_1')) {
-				this.registerPendingCreation(resourceId);
-			}
+			this.pendingCreationPromises.set(resourceId, creationPromise);
 		} catch (error) {
-			if (
-				fg('platform_synced_block_patch_1')
-					? this.isPendingCreation(resourceId)
-					: this.hasPendingCreation()
-			) {
+			this.newSourceBlockResourceIds.delete(resourceId);
+			if (this.isPendingCreation(resourceId)) {
 				this.commitPendingCreation(false, resourceId);
 			}
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/sourceSyncBlockStoreManager',
 			});
-			this.fireAnalyticsEvent?.(createErrorPayload((error as Error).message));
+			this.fireAnalyticsEvent?.(
+				createErrorPayload(
+					(error as Error).message,
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+				),
+			);
 		}
 	}
 
 	private setPendingDeletion = (Ids: SyncBlockAttrs, value: boolean) => {
+		if (this.viewMode === 'view') {
+			return;
+		}
+
 		const syncBlock = this.syncBlockCache.get(Ids.resourceId);
 		if (syncBlock) {
 			syncBlock.pendingDeletion = value;
 		}
 	};
 
+	/**
+	 * Drop dedupe entries older than {@link DELETE_DEDUPE_WINDOW_MS} so
+	 * `recentDeleteEmissions` stays bounded by the number of recent deletes.
+	 */
+	private pruneRecentDeleteEmissions(now: number): void {
+		for (const [resourceId, emittedAt] of this.recentDeleteEmissions) {
+			if (now - emittedAt >= DELETE_DEDUPE_WINDOW_MS) {
+				this.recentDeleteEmissions.delete(resourceId);
+			}
+		}
+	}
+
+	/**
+	 * Emit the `syncedBlockDelete` success event. Attaches `deletionReason`,
+	 * `mechanism` and `blockInstanceId`, and suppresses repeat emissions within
+	 * {@link DELETE_DEDUPE_WINDOW_MS}. Must run while the cache entry still exists
+	 * so `blockInstanceId` is available.
+	 */
+	private emitDeleteSuccess(
+		resourceId: ResourceId,
+		reason: DeletionReason,
+		mechanism: DeletionMechanism | undefined,
+	): void {
+		const sourceProduct = getSourceProductFromResourceIdSafe(resourceId);
+
+		const now = Date.now();
+		const lastEmittedAt = this.recentDeleteEmissions.get(resourceId);
+		if (lastEmittedAt !== undefined && now - lastEmittedAt < DELETE_DEDUPE_WINDOW_MS) {
+			return; // duplicate emission for the same logical removal
+		}
+		this.pruneRecentDeleteEmissions(now);
+		this.recentDeleteEmissions.set(resourceId, now);
+
+		const enrichment: DeleteSuccessEnrichment = {
+			blockInstanceId: this.syncBlockCache.get(resourceId)?.blockInstanceId,
+			deletionReason: reason,
+			mechanism,
+		};
+
+		this.fireAnalyticsEvent?.(deleteSuccessPayload(resourceId, sourceProduct, enrichment));
+	}
+
 	private async delete(
 		syncBlockIds: SyncBlockAttrs[],
 		onDelete: OnDelete,
 		onDeleteCompleted: OnCompletion,
 		reason: DeletionReason,
+		mechanism?: DeletionMechanism,
 	): Promise<boolean> {
 		try {
+			if (this.viewMode === 'view') {
+				return false;
+			}
+
 			if (!this.dataProvider) {
 				throw new Error('Data provider not set');
 			}
@@ -427,12 +844,17 @@ export class SourceSyncBlockStoreManager {
 
 			if (isDeleteSuccessful) {
 				onDelete();
-				callback = (Ids: SyncBlockAttrs) => this.syncBlockCache.delete(Ids.resourceId);
+				// Emit before the cache entry is deleted below, so blockInstanceId
+				// is still available to emitDeleteSuccess.
+				results.forEach((result) => {
+					this.emitDeleteSuccess(result.resourceId, reason, mechanism);
+				});
+				callback = (Ids: SyncBlockAttrs) => {
+					this.syncBlockCache.delete(Ids.resourceId);
+					this.notifyLocalSource(Ids.resourceId);
+				};
 				this.clearPendingDeletion();
 				this.deleteExperience?.success();
-				results.forEach((result) => {
-					this.fireAnalyticsEvent?.(deleteSuccessPayload(result.resourceId));
-				});
 			} else {
 				callback = (Ids: SyncBlockAttrs) => {
 					this.setPendingDeletion(Ids, false);
@@ -441,12 +863,14 @@ export class SourceSyncBlockStoreManager {
 				this.deleteExperience?.failure();
 				results.forEach((result) => {
 					if (result.success) {
-						this.fireAnalyticsEvent?.(deleteSuccessPayload(result.resourceId));
+						this.emitDeleteSuccess(result.resourceId, reason, mechanism);
 					} else {
 						this.fireAnalyticsEvent?.(
 							deleteErrorPayload(
 								result.error || 'Failed to delete synced block',
 								result.resourceId,
+								getSourceProductFromResourceIdSafe(result.resourceId),
+								buildErrorAttribution(result.error, result.statusCode),
 							),
 						);
 					}
@@ -456,9 +880,19 @@ export class SourceSyncBlockStoreManager {
 			syncBlockIds.forEach(callback);
 			return isDeleteSuccessful;
 		} catch (error) {
+			// Thrown (non-result) failure — no structured SyncBlockError/status is available,
+			// so the attribution `reason` falls back to `unknown`.
+			const attribution = buildErrorAttribution();
 			syncBlockIds.forEach((Ids) => {
 				this.setPendingDeletion(Ids, false);
-				this.fireAnalyticsEvent?.(deleteErrorPayload((error as Error).message, Ids.resourceId));
+				this.fireAnalyticsEvent?.(
+					deleteErrorPayload(
+						(error as Error).message,
+						Ids.resourceId,
+						getSourceProductFromResourceIdSafe(Ids.resourceId),
+						attribution,
+					),
+				);
 			});
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/sourceSyncBlockStoreManager',
@@ -473,13 +907,18 @@ export class SourceSyncBlockStoreManager {
 	}
 
 	public async retryDeletion(): Promise<void> {
+		if (this.viewMode === 'view') {
+			return Promise.resolve();
+		}
+
 		if (!this.deletionRetryInfo) {
 			return Promise.resolve();
 		}
-		const { syncBlockIds, onDelete, onDeleteCompleted, deletionReason } = this.deletionRetryInfo;
+		const { syncBlockIds, onDelete, onDeleteCompleted, deletionReason, mechanism } =
+			this.deletionRetryInfo;
 
 		if (this.confirmationCallback) {
-			await this.delete(syncBlockIds, onDelete, onDeleteCompleted, deletionReason);
+			await this.delete(syncBlockIds, onDelete, onDeleteCompleted, deletionReason, mechanism);
 		}
 	}
 
@@ -489,6 +928,85 @@ export class SourceSyncBlockStoreManager {
 	}
 
 	/**
+	 * Fetches the current status of all source sync blocks in the cache from the backend
+	 * and updates the cache entries with the fetched status.
+	 * This is called on editor init so we know which blocks are 'unpublished' vs 'active'.
+	 */
+	public async fetchAndCacheStatuses(): Promise<void> {
+		if (!this.dataProvider || this.syncBlockCache.size === 0) {
+			return;
+		}
+
+		// Source blocks have plain UUID resourceIds, but fetchNodesData internally uses
+		// generateBlockAriFromReference which expects reference-format resourceIds
+		// (e.g. "confluence-page/pageId/uuid"). We convert source resourceIds to reference
+		// format before fetching, and maintain a mapping back to original resourceIds
+		// so we can update the correct cache entries.
+		const sourceToReferenceMap = new Map<string, string>();
+		const syncBlockNodes: SyncBlockNode[] = Array.from(this.syncBlockCache.entries()).map(
+			([resourceId, data]) => {
+				const referenceResourceId =
+					this.dataProvider?.generateResourceIdForReference(resourceId) ?? resourceId;
+				sourceToReferenceMap.set(referenceResourceId, resourceId);
+				return {
+					type: 'bodiedSyncBlock' as const,
+					attrs: {
+						localId: data.blockInstanceId,
+						resourceId: referenceResourceId,
+					},
+				};
+			},
+		);
+
+		try {
+			const results = await this.dataProvider.fetchNodesData(syncBlockNodes);
+			for (const result of results) {
+				// Map the reference resourceId back to the source resourceId
+				const sourceResourceId = sourceToReferenceMap.get(result.resourceId) ?? result.resourceId;
+				const cached = this.syncBlockCache.get(sourceResourceId);
+				if (cached && result.data?.status) {
+					cached.status = result.data.status;
+					this.notifyLocalSource(sourceResourceId);
+				}
+			}
+		} catch {
+			// If the fetch fails, statuses remain undefined.
+			// This is acceptable — on cancel, blocks without a known status
+			// will not be deleted (safe default).
+		}
+	}
+
+	/**
+	 * Deletes all source sync blocks that have 'unpublished' status.
+	 * Used to clean up orphaned blocks when a user cancels editing without saving.
+	 * Blocks that were already saved (status 'active') are not affected.
+	 *
+	 * @returns true if all deletions succeeded, false otherwise
+	 */
+	public discardUnpublishedBlocks(): Promise<boolean> {
+		const unpublishedBlockIds: SyncBlockAttrs[] = Array.from(this.syncBlockCache.entries())
+			.filter(([_, data]) => data.status === 'unpublished' && !data.pendingDeletion)
+			.map(([resourceId, data]) => ({
+				resourceId,
+				localId: data.blockInstanceId,
+			}));
+
+		if (unpublishedBlockIds.length === 0) {
+			return Promise.resolve(true);
+		}
+
+		return this.delete(
+			unpublishedBlockIds,
+			() => {}, // onDelete: no-op, document is being discarded
+			() => {}, // onDeleteCompleted: no-op
+			'source-block-unpublished',
+			// Cancel/discard cleanup is code-initiated, not a direct user edit.
+			'other',
+		);
+	}
+
+	/**
+	 * Deletes sync blocks with confirmation from the backend
 	 *
 	 * @param syncBlockIds - The sync block ids to delete
 	 * @param onDelete - The callback to delete sync block node from document
@@ -501,7 +1019,12 @@ export class SourceSyncBlockStoreManager {
 		onDelete: OnDelete,
 		onDeleteCompleted: OnCompletion,
 		destroyCallback: DestroyCallback,
+		mechanism?: DeletionMechanism,
 	): Promise<void> {
+		if (this.viewMode === 'view') {
+			return Promise.resolve();
+		}
+
 		if (this.confirmationCallback) {
 			const confirmed = await this.confirmationCallback(syncBlockIds, deletionReason);
 			if (confirmed) {
@@ -510,6 +1033,7 @@ export class SourceSyncBlockStoreManager {
 					onDelete,
 					onDeleteCompleted,
 					deletionReason,
+					mechanism,
 				);
 
 				if (!isDeleteSuccessful) {
@@ -520,6 +1044,7 @@ export class SourceSyncBlockStoreManager {
 						onDeleteCompleted,
 						destroyCallback,
 						deletionReason,
+						mechanism,
 					};
 				} else {
 					destroyCallback();
@@ -538,7 +1063,7 @@ export class SourceSyncBlockStoreManager {
 
 			this.fetchSourceInfoExperience?.start();
 			return this.dataProvider
-				.fetchSyncBlockSourceInfo(localId, undefined, undefined, this.fireAnalyticsEvent)
+				.fetchSyncBlockSourceInfo(localId, undefined, undefined)
 				.then((sourceInfo) => {
 					if (!sourceInfo) {
 						this.fetchSourceInfoExperience?.failure({ reason: 'No source info returned' });
@@ -569,18 +1094,33 @@ export class SourceSyncBlockStoreManager {
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/sourceSyncBlockStoreManager',
 			});
-			this.fireAnalyticsEvent?.(fetchReferencesErrorPayload((error as Error).message));
+			this.fireAnalyticsEvent?.(
+				fetchReferencesErrorPayload(
+					(error as Error).message,
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+				),
+			);
 
 			return Promise.resolve({ error: SyncBlockError.Errored });
 		}
 	}
 
 	public destroy(): void {
+		const subscribedResourceIds = [...this.localSourceSubscribers.keys()];
 		this.syncBlockCache.clear();
+		subscribedResourceIds.forEach((resourceId) => this.notifyLocalSource(resourceId));
+		this.localSourceSubscribers.clear();
 		this.confirmationCallback = undefined;
-		this.pendingResourceId = undefined;
 		this.creationCompletionCallbacks.clear();
-		this.creationCallback = undefined;
+		this.flushCompletionCallback = undefined;
+		this.postCreationFlushCallback = undefined;
+		this.pendingCreationPromises.clear();
+		this.creationsTimedOutDuringFlush.clear();
+		this.creationEnrichment.clear();
+		this.newSourceBlockResourceIds.clear();
+		this.awaitingFirstContent.clear();
+		this.recentDeleteEmissions.clear();
 		this.dataProvider = undefined;
 		this.saveExperience?.abort({ reason: 'editorDestroyed' });
 		this.createExperience?.abort({ reason: 'editorDestroyed' });

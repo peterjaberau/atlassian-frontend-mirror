@@ -25,7 +25,7 @@ text. To represent standard icons in a tile, use
 
 <a href="/components/icon/icon-tile/examples">Icon tile</a>.
 
-## Anatomy
+## Parts
 
 <Image
 	src={objectTileAnatomyLight}
@@ -50,6 +50,11 @@ the [object](/components/object/examples) component.
 	alt="All available object tile options"
 />
 
+## Accessibility
+
+Use object tiles in combination with a title and meta-information, such as author, creation date, or
+sub-heading.
+
 ## Best practices
 
 ### Smaller than 20px - use an Object
@@ -57,53 +62,52 @@ the [object](/components/object/examples) component.
 For smaller representations such as in tables or smart links, use
 [Object](/components/object/examples). Do not scale down object tile below 20px.
 
-<DoDont
-	type="do"
-	image={{
-		url: objectTileSmallerDo,
-		alt: '',
-	}}
->
-	Use the prescribed size for object tiles.
-</DoDont>
-<DoDont
-	type="dont"
-	image={{
-		url: objectTileSmallerDont,
-		alt: '',
-	}}
->
-	Scale down object tile below 20px.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: objectTileSmallerDo,
+			alt: '',
+		}}
+	>
+		Use the prescribed size for object tiles.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: objectTileSmallerDont,
+			alt: '',
+		}}
+	>
+		Scale down object tile below 20px.
+	</DoDont>
+</DoDontGrid>
 
 ### Don’t change object tile colors
 
 Object tiles are assigned specific colors. For consistency across our apps, don’t change their
 color.
 
-<DoDont
-	type="do"
-	image={{
-		url: objectTileColorsDo,
-		alt: '',
-	}}
->
-	Maintain the assigned color.
-</DoDont>
-<DoDont
-	type="dont"
-	image={{
-		url: objectTileColorsDont,
-		alt: '',
-	}}
->
-	Switch color tokens or use custom fills.
-</DoDont>
-
-## Accessibility
-
-Use object tiles in combination with a title and meta-information, such as author, creation date, or
-sub-heading.
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: objectTileColorsDo,
+			alt: '',
+		}}
+	>
+		Maintain the assigned color.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: objectTileColorsDont,
+			alt: '',
+		}}
+	>
+		Switch color tokens or use custom fills.
+	</DoDont>
+</DoDontGrid>
 
 ## Related
 

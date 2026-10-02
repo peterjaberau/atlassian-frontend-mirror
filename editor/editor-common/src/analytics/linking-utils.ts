@@ -44,6 +44,7 @@ const mapLinkTypeToCardAppearance = (type: LinkType): CardAppearance | 'url' => 
 	}
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const buildVisitedLinkPayload = (type: LinkType): AnalyticsEventPayload => {
 	return type === ACTION_SUBJECT_ID.HYPERLINK
 		? buildVisitedHyperLinkPayload()
@@ -62,6 +63,7 @@ const buildVisitedHyperLinkPayload = (): AnalyticsEventPayload => {
 	};
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const buildVisitedNonHyperLinkPayload = (
 	type: LinkType,
 	inputMethod:
@@ -70,6 +72,12 @@ export const buildVisitedNonHyperLinkPayload = (
 		| INPUT_METHOD.DOUBLE_CLICK
 		| INPUT_METHOD.FLOATING_TB
 		| INPUT_METHOD.META_CLICK,
+	resolvedAttributes?: {
+		displayCategory?: string | null;
+		extensionKey?: string | null;
+		status?: string | null;
+		statusDetails?: string | null;
+	},
 ): AnalyticsEventPayload => {
 	return {
 		action: ACTION.VISITED,
@@ -77,11 +85,18 @@ export const buildVisitedNonHyperLinkPayload = (
 		actionSubjectId: type as ACTION_SUBJECT_ID.CARD_INLINE | ACTION_SUBJECT_ID.CARD_BLOCK,
 		attributes: {
 			inputMethod: inputMethod,
+			...(resolvedAttributes && {
+				displayCategory: resolvedAttributes.displayCategory,
+				extensionKey: resolvedAttributes.extensionKey,
+				status: resolvedAttributes.status,
+				statusDetails: resolvedAttributes.statusDetails,
+			}),
 		},
 		eventType: EVENT_TYPE.TRACK,
 	};
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const buildOpenedSettingsPayload = (type: LinkType): AnalyticsEventPayload => {
 	return {
 		action: ACTION.CLICKED,
@@ -96,7 +111,18 @@ export const buildOpenedSettingsPayload = (type: LinkType): AnalyticsEventPayloa
 	};
 };
 
-export const unlinkPayload = (type: LinkType) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const unlinkPayload = (
+	type: LinkType,
+): {
+	action: ACTION;
+	actionSubject: ACTION_SUBJECT;
+	actionSubjectId: ACTION_SUBJECT_ID.CARD_INLINE | undefined;
+	attributes: {
+		inputMethod: INPUT_METHOD;
+	};
+	eventType: EVENT_TYPE;
+} => {
 	return {
 		action: ACTION.UNLINK,
 		actionSubject:

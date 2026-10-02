@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { ResolvedClient, ResolvedClientEmbedUrl } from '@atlaskit/link-test-helpers';
 import { Stack } from '@atlaskit/primitives/compiled';
 
-import { CardAction } from '../../src';
+import { CardAction } from '../../src/constants';
 import { HoverCard } from '../../src/hoverCard';
 import HoverOverMe from '../utils/hover-card-box';
 

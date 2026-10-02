@@ -1,48 +1,64 @@
 {
 	"name": "@atlaskit/rovo-agent-components",
-	"version": "3.32.2",
+	"version": "9.6.2",
 	"description": "This package host public components related to rovo agents, the components here are needed for other public atlaskit packages",
+	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-monorepo",
+	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
+		"team": "Rovo Agents",
+		"website": {
+			"tags": [
+				"platform-labs",
+				"rovo-components"
+			],
+			"name": "RovoAgentComponents",
+			"category": "Components"
+		}
+	},
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
 	},
-	"atlassian": {
-		"team": "Rovo Agents",
-		"website": {
-			"name": "RovoAgentComponents",
-			"category": "Components"
-		}
-	},
-	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-monorepo",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
+	"atlaskit:src": "src/index.ts",
 	"sideEffects": [
 		"*.compiled.css"
 	],
-	"atlaskit:src": "src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
+		"./agent-conversation-starters": "./src/ui/agent-conversation-starters/AgentConversationStarters.tsx",
+		"./agent-name-side-nav": "./src/ui/agent-name-side-nav/index.tsx",
 		"./agent-verification-dropdown-item": "./src/ui/agent-verification-dropdown-item/index.tsx",
 		"./agent-verified": "./src/ui/agent-verified/index.tsx",
+		"./common/types": "./src/common/types.ts",
 		"./common/ui/ChatIcon": "./src/common/ui/chat-icon/index.tsx",
 		"./common/ui/ChatPill": "./src/common/ui/chat-pill/index.tsx",
 		"./common/ui/HiddenIcon": "./src/common/ui/hidden-icon/index.tsx",
 		"./common/ui/LinkIconButton": "./src/common/ui/link-icon-button/index.tsx",
 		"./common/ui/ShowIcon": "./src/common/ui/show-icon/index.tsx",
 		"./common/ui/StarIconButton": "./src/common/ui/star-icon-button/index.tsx",
+		"./common/utils/is-agent-creator-type": "./src/common/utils/is-agent-creator-type.ts",
+		"./common/utils/is-forge-agent": "./src/common/utils/is-forge-agent.ts",
+		"./conversation-starters": "./src/ui/agent-conversation-starters/ConversationStarters.tsx",
+		"./get-conversation-starters": "./src/ui/agent-conversation-starters/getConversationStarters.tsx",
 		"./ui/agent-avatar/GeneratedAvatar": "./src/ui/agent-avatar/generated-avatars/index.tsx",
+		"./ui/agent-avatar/ResolvedAgentAvatar": "./src/ui/agent-avatar/resolved-agent-avatar/ResolvedAgentAvatar.tsx",
+		"./ui/agent-dropdown-menu/agent-dropdown-menu": "./src/ui/agent-dropdown-menu/AgentDropdownMenu.tsx",
+		"./ui/agent-dropdown-menu/chat-to-agent-button": "./src/ui/agent-dropdown-menu/ChatToAgentButton.tsx",
+		"./ui/agent-identity/derive-agent-identity": "./src/ui/agent-identity/derive-agent-identity.ts",
 		"./ui/agent-profile-info/AgentStarCount": "./src/ui/agent-profile-info/agent-star-count/index.tsx",
+		"./ui/agent-verified/agent-verified": "./src/ui/agent-verified/agent-verified.tsx",
+		"./ui/agent-verified/agent-verified-icon": "./src/ui/agent-verified/agent-verified-icon.tsx",
 		"./ui/AgentAvatar": "./src/ui/agent-avatar/index.tsx",
 		"./ui/AgentConversationStarters": "./src/ui/agent-conversation-starters/index.tsx",
 		"./ui/AgentDropdownMenu": "./src/ui/agent-dropdown-menu/index.tsx",
@@ -56,6 +72,7 @@
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/css": "workspace:^",
 		"@atlaskit/dropdown-menu": "workspace:^",
+		"@atlaskit/feature-gate-js-client": "workspace:^",
 		"@atlaskit/flag": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
@@ -63,19 +80,19 @@
 		"@atlaskit/logo": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/rovo-agent-analytics": "workspace:^",
 		"@atlaskit/skeleton": "workspace:^",
+		"@atlaskit/spinner": "workspace:^",
+		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
 		"react-dom": "root:*",
-		"react-intl-next": "root:*",
+		"react-error-boundary": "root:*",
 		"react-magnetic-di": "root:*",
 		"react-relay": "root:*"
-	},
-	"peerDependencies": {
-		"react": "^18.2.0"
 	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
@@ -84,72 +101,58 @@
 		"@atlassian/agent-studio-test-utils": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/relay-test-utils": "root:*",
-		"relay-test-utils": "^14.1.0",
+		"react": "root:*",
+		"react-intl": "root:*",
+		"relay-test-utils": "root:*",
 		"wait-for-expect": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
-	"techstackIgnore": {
-		"stricter": [
-			"@atlassian/tangerine/project-structure"
-		]
+	"peerDependencies": {
+		"react": "^18.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"platform-feature-flags": {
-		"rovo_chat_bugfix_agent_avatar_squish": {
+		"agent_studio_can_duplicate_permission": {
 			"type": "boolean"
 		},
-		"dst-a11y__replace-anchor-with-link__ai-mate": {
+		"platform-dst-motion-uplift-custom-button": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"platform_editor_agent_mentions_drop_one_fixes": {
+			"type": "boolean"
+		},
+		"platform_editor_agent_card_fixes": {
+			"type": "boolean"
+		},
+		"rovo_chat_bugfix_agent_avatar_squish": {
 			"type": "boolean"
 		},
 		"should-render-to-parent-should-be-true-ai-mate": {
 			"type": "boolean"
 		},
+		"rovo_agent_versioning_enabled": {
+			"type": "boolean"
+		},
 		"jira_ai_force_rovo_dev_avatar": {
 			"type": "boolean"
 		},
-		"rovo_agent_empty_state_refresh": {
+		"rovo_agent_support_a2a_avatar": {
 			"type": "boolean"
 		},
-		"rovo_dev_themed_identity_card": {
+		"rovo_agent_amplitude_avatar_v2": {
 			"type": "boolean"
 		},
-		"rovo_agents_agent_verification": {
+		"jira_improve_agent_profile_for_a2a": {
+			"type": "boolean"
+		},
+		"rename-rovo-service-to-request-resolver": {
+			"type": "boolean"
+		},
+		"platform-dst-avatar-updated-geometry": {
 			"type": "boolean"
 		}
 	}

@@ -1,8 +1,11 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render } from '@atlassian/testing-library/render';
+import { screen } from '@atlassian/testing-library/screen';
 
-import { ThemedButton, ThemedIconButton, ThemedLinkIconButton } from '../../button';
+import { ThemedButton } from '../../themed-button';
+import { ThemedIconButton } from '../../themed-icon-button';
+import { ThemedLinkIconButton } from '../../themed-link-icon-button';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('ThemedButton', () => {

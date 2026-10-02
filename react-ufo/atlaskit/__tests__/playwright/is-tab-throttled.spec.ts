@@ -2,17 +2,21 @@
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
 /* eslint-disable playwright/no-standalone-expect */
+
 import { expect, test } from './fixtures';
 
 test.describe('React UFO: isTabThrottled detection', () => {
-	test.describe('when feature flag is enabled', () => {
+	test.describe('page load interaction', () => {
 		test.use({
 			examplePage: 'basic',
 			viewport: {
 				width: 1920,
 				height: 1080,
 			},
-			featureFlags: ['platform_ufo_is_tab_throttled'],
+		} satisfies {
+			examplePage: 'basic';
+			viewport: { width: number; height: number };
+			__exampleDependency?: typeof import('../../examples/01-basic.tsx');
 		});
 
 		test('should report isTabThrottled as false when page loads normally without throttling', async ({
@@ -30,40 +34,10 @@ test.describe('React UFO: isTabThrottled detection', () => {
 
 			const ufoProperties = reactUFOPayload!.attributes.properties;
 
-			// The field should be present when feature flag is enabled
+			// The field should be present
 			expect('ufo:isTabThrottled' in ufoProperties).toBe(true);
 			// Page loaded normally without throttling
 			expect(ufoProperties['ufo:isTabThrottled']).toBe(false);
-		});
-	});
-
-	test.describe('when feature flag is disabled', () => {
-		test.use({
-			examplePage: 'basic',
-			viewport: {
-				width: 1920,
-				height: 1080,
-			},
-			featureFlags: [],
-		});
-
-		test('should not include ufo:isTabThrottled in payload', async ({
-			page,
-			waitForReactUFOPayload,
-		}) => {
-			const mainDiv = page.locator('[data-testid="main"]');
-			const sections = page.locator('[data-testid="main"] > div');
-
-			await expect(mainDiv).toBeVisible();
-			await expect(sections.nth(9)).toBeVisible();
-
-			const reactUFOPayload = await waitForReactUFOPayload();
-			expect(reactUFOPayload).toBeDefined();
-
-			const ufoProperties = reactUFOPayload!.attributes.properties;
-
-			// The field should not be present when feature flag is disabled
-			expect('ufo:isTabThrottled' in ufoProperties).toBe(false);
 		});
 	});
 
@@ -74,7 +48,10 @@ test.describe('React UFO: isTabThrottled detection', () => {
 				width: 1920,
 				height: 1080,
 			},
-			featureFlags: ['platform_ufo_is_tab_throttled'],
+		} satisfies {
+			examplePage: 'interactions-simple-button';
+			viewport: { width: number; height: number };
+			__exampleDependency?: typeof import('../../examples/23-interactions-simple-button.tsx');
 		});
 
 		test('should report isTabThrottled for press interactions as well', async ({
@@ -119,7 +96,10 @@ test.describe('React UFO: isTabThrottled detection - throttled tab scenario with
 				width: 1920,
 				height: 1080,
 			},
-			featureFlags: ['platform_ufo_is_tab_throttled'],
+		} satisfies {
+			examplePage: 'interactions-simple-button';
+			viewport: { width: number; height: number };
+			__exampleDependency?: typeof import('../../examples/23-interactions-simple-button.tsx');
 		});
 
 		test('should report isTabThrottled as true when throttle measurements indicate throttling', async ({
@@ -140,7 +120,10 @@ test.describe('React UFO: isTabThrottled detection - throttled tab scenario with
 			// Inject a fake throttle measurement that indicates the tab was throttled
 			await page.evaluate((currentTime) => {
 				const hiddenTiming = (window as any).__reactUfoHiddenTiming;
-				if (hiddenTiming && typeof hiddenTiming.__injectThrottleMeasurementForTesting === 'function') {
+				if (
+					hiddenTiming &&
+					typeof hiddenTiming.__injectThrottleMeasurementForTesting === 'function'
+				) {
 					// Inject a measurement at a time that will be within the next interaction's time window
 					hiddenTiming.__injectThrottleMeasurementForTesting({
 						time: currentTime + 100, // slightly in the future to be within the upcoming interaction
@@ -176,7 +159,10 @@ test.describe('React UFO: isTabThrottled detection - throttled tab scenario with
 				width: 1920,
 				height: 1080,
 			},
-			featureFlags: ['platform_ufo_is_tab_throttled'],
+		} satisfies {
+			examplePage: 'basic';
+			viewport: { width: number; height: number };
+			__exampleDependency?: typeof import('../../examples/01-basic.tsx');
 		});
 
 		test('should report isTabThrottled as false when no throttling is detected', async ({
@@ -191,7 +177,7 @@ test.describe('React UFO: isTabThrottled detection - throttled tab scenario with
 
 			const ufoProperties = reactUFOPayload!.attributes.properties;
 
-			// The field should be present when feature flag is enabled
+			// The field should be present
 			expect('ufo:isTabThrottled' in ufoProperties).toBe(true);
 			// Tab was not throttled
 			expect(ufoProperties['ufo:isTabThrottled']).toBe(false);

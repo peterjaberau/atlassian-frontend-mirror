@@ -4,12 +4,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { Fragment, Suspense, useEffect, useLayoutEffect, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
 import UFOLoadHold from '@atlaskit/react-ufo/load-hold';
-import UFOSegment from '@atlaskit/react-ufo/segment';
+import UFOSegment from '@atlaskit/react-ufo/ufo-segment';
 
 const mainStyles = css({
 	display: 'flex',

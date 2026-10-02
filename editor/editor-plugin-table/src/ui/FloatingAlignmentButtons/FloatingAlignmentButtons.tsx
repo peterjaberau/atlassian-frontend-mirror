@@ -2,10 +2,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
 import { jsx } from '@emotion/react';
 
-import { ButtonGroup } from '@atlaskit/button';
+import ButtonGroup from '@atlaskit/button/button-group';
 import type { Command, FloatingToolbarItem } from '@atlaskit/editor-common/types';
 import {
 	FloatingToolbarButton as Button,
@@ -28,7 +28,7 @@ export const FloatingAlignmentButtons = ({
 	alignmentButtons,
 	dispatchCommand,
 	areAnyNewToolbarFlagsEnabled,
-}: Props) => {
+}: Props): jsx.JSX.Element => {
 	return (
 		<Box xcss={containerStyles}>
 			<ButtonGroup>
@@ -56,6 +56,7 @@ export const FloatingAlignmentButtons = ({
 									title={item.title}
 									selected={item.selected}
 									disabled={item.disabled}
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									onClick={() => {
 										dispatchCommand(item.onClick);
 									}}

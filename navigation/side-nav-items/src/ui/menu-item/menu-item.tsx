@@ -1,30 +1,33 @@
 /**
- * @jsxFrag
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { Suspense, useCallback, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import { cssMap, cx, jsx, keyframes } from '@compiled/react';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import { AvatarContext, type AvatarContextProps } from '@atlaskit/avatar';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { AvatarContext, type AvatarContextProps } from '@atlaskit/avatar/avatar-context';
 import forwardRefWithGeneric from '@atlaskit/ds-lib/forward-ref-with-generic';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Anchor, Pressable, Text, type TextColor } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { expandableMenuItemIndentation } from './constants';
-import { LazyDragHandle } from './drag-handle/lazy-drag-handle';
+import { DragHandle } from './drag-handle/drag-handle';
 import { useLevel } from './expandable-menu-item/expandable-menu-item-context';
 import {
 	useFlyoutMenuOpen,
 	useSetFlyoutMenuOpen,
 } from './flyout-menu-item/flyout-menu-item-context';
 import { COLLAPSE_ELEM_BEFORE } from './menu-item-signals';
-import type { MenuItemLinkOrButtonCommonProps, MenuItemOnClick } from './types';
+import type {
+	MenuItemAriaHasPopup,
+	MenuItemLinkOrButtonCommonProps,
+	MenuItemOnClick,
+} from './types';
 
 function isTextClamped(element: HTMLElement): boolean {
 	// Checking for vertical height rather than horizontal height.
@@ -35,6 +38,9 @@ function isTextClamped(element: HTMLElement): boolean {
 const defaultAvatarValues: AvatarContextProps = {
 	size: 'small',
 };
+
+// Stable reference for the anchor's text-decoration reset.
+const anchorTextDecorationResetStyle = { textDecoration: 'none' } as const;
 
 const elemAfterDisplayVar = '--elem-after-display';
 const actionsOnHoverOpacityVar = '--actions-on-hover-opacity';
@@ -133,7 +139,7 @@ const onTopOfButtonOrAnchorStyles = cssMap({
  * events through it (and applying the hover style when the popup is open). Exploring this has been
  * captured in [BLU-3354](https://jplat.atlassian.net/browse/BLU-3354).
  */
-export const nestedOpenPopupCSSSelector = '&:has([aria-expanded="true"][aria-haspopup="true"])';
+export const nestedOpenPopupCSSSelector = '&:has([aria-expanded="true"][aria-haspopup])';
 
 const containerStyles = cssMap({
 	root: {
@@ -158,7 +164,7 @@ const containerStyles = cssMap({
 		height: '2rem',
 		alignItems: 'center',
 		userSelect: 'none',
-		borderRadius: token('radius.small'),
+		borderRadius: token('radius.medium', '6px'),
 		color: token('color.text.subtle'),
 		// Applying :hover styles on the container rather than on
 		// just the button / anchor so that we will still trigger the
@@ -191,18 +197,21 @@ const containerStyles = cssMap({
 			[actionsOnHoverWidthVar]: 'auto',
 			[actionsOnHoverPaddingInlineEndVar]: token('space.050'),
 		},
-		// If there is a nested open popup, we want to apply hover styling, and display the `actionsOnHover` slot.
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
-		[nestedOpenPopupCSSSelector]: {
-			[actionsOnHoverOpacityVar]: '1',
-			[actionsOnHoverWidthVar]: 'auto',
-			[actionsOnHoverPaddingInlineEndVar]: token('space.050'),
-			backgroundColor: token('elevation.surface.hovered'),
+	},
+	// platform-dst-tokens-finesse cleanup: merge into root after rollout.
+	rootFinesse: {
+		'&:hover': {
+			backgroundColor: token('color.background.neutral.subtle.hovered'),
 		},
 	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	rootT26Shape: {
-		borderRadius: token('radius.medium', '6px'),
+	rootMotion: {
+		transition: token('motion.listitem.hovered'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
+		},
 	},
 	removeElemAfter: {
 		[elemAfterDisplayVar]: 'none',
@@ -217,11 +226,6 @@ const containerStyles = cssMap({
 		'&:hover, &:focus-within': {
 			[elemAfterDisplayVar]: 'none',
 		},
-		// If there is a nested open popup, and both `actionsOnHover` and `elemAfter` exist, we want to hide the `elemAfter`.
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
-		[nestedOpenPopupCSSSelector]: {
-			[elemAfterDisplayVar]: 'none',
-		},
 	},
 	selected: {
 		backgroundColor: token('color.background.selected'),
@@ -231,9 +235,14 @@ const containerStyles = cssMap({
 			color: token('color.text.selected'),
 			backgroundColor: token('color.background.selected.hovered'),
 		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
-		[nestedOpenPopupCSSSelector]: {
-			backgroundColor: token('color.background.selected.hovered'),
+	},
+	selectedMotion: {
+		transition: token('motion.listitem.selected'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
 		},
 	},
 	disabled: {
@@ -257,6 +266,39 @@ const containerStyles = cssMap({
 	},
 });
 
+const nestedOpenPopupStyles = cssMap({
+	root: {
+		// If there is a nested open popup, we want to apply hover styling, and display the `actionsOnHover` slot.
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+		[nestedOpenPopupCSSSelector]: {
+			[actionsOnHoverOpacityVar]: '1',
+			[actionsOnHoverWidthVar]: 'auto',
+			[actionsOnHoverPaddingInlineEndVar]: token('space.050'),
+			backgroundColor: token('elevation.surface.hovered'),
+		},
+	},
+	// platform-dst-tokens-finesse cleanup: merge into root after rollout.
+	rootFinesse: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+		[nestedOpenPopupCSSSelector]: {
+			backgroundColor: token('color.background.neutral.subtle.hovered'),
+		},
+	},
+	removeElemAfterOnHoverOrOpenNestedPopup: {
+		// If there is a nested open popup, and both `actionsOnHover` and `elemAfter` exist, we want to hide the `elemAfter`.
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+		[nestedOpenPopupCSSSelector]: {
+			[elemAfterDisplayVar]: 'none',
+		},
+	},
+	selected: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
+		[nestedOpenPopupCSSSelector]: {
+			backgroundColor: token('color.background.selected.hovered'),
+		},
+	},
+});
+
 const buttonOrAnchorStyles = cssMap({
 	// This button / anchor is positioned to produce the visual appearance of nested
 	// buttons whilst the elements are actually siblings in the DOM structure.
@@ -277,7 +319,7 @@ const buttonOrAnchorStyles = cssMap({
 		paddingBlockStart: token('space.050'),
 		paddingBlockEnd: token('space.050'),
 		backgroundColor: 'transparent',
-		borderRadius: token('radius.small'),
+		borderRadius: token('radius.medium', '6px'),
 		color: token('color.text.subtle'),
 		alignItems: 'center',
 		textAlign: 'start',
@@ -291,9 +333,21 @@ const buttonOrAnchorStyles = cssMap({
 			backgroundColor: token('elevation.surface.pressed'),
 		},
 	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	rootT26Shape: {
-		borderRadius: token('radius.medium', '6px'),
+	// platform-dst-tokens-finesse cleanup: merge into root after rollout.
+	rootFinesse: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'&:active:not(:disabled)': {
+			backgroundColor: token('color.background.neutral.subtle.pressed'),
+		},
+	},
+	rootMotion: {
+		transition: token('motion.listitem.hovered'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
+		},
 	},
 	selected: {
 		color: token('color.text.selected'),
@@ -304,6 +358,15 @@ const buttonOrAnchorStyles = cssMap({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'&:active:not(:disabled)': {
 			backgroundColor: token('color.background.selected.pressed'),
+		},
+	},
+	selectedMotion: {
+		transition: token('motion.listitem.selected'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
 		},
 	},
 	// Only applying on interactive element as we are not enabling
@@ -504,7 +567,7 @@ type MenuItemBaseProps<T extends HTMLAnchorElement | HTMLButtonElement> =
 		// eslint-disable-next-line @repo/internal/react/boolean-prop-naming-convention, @repo/internal/react/consistent-props-definitions
 		ariaExpanded?: boolean;
 		// eslint-disable-next-line @repo/internal/react/consistent-props-definitions
-		ariaHasPopup?: boolean | 'dialog';
+		ariaHasPopup?: MenuItemAriaHasPopup;
 		href?: string | Record<string, any>;
 		/**
 		 * ID attribute, passed to the interactive element (anchor/button). This is not publicly exposed, and is currently only
@@ -553,6 +616,7 @@ const MenuItemBaseNoRef = <T extends HTMLAnchorElement | HTMLButtonElement>(
 	const setFlyoutMenuOpen = useSetFlyoutMenuOpen();
 	const isFlyoutMenuOpen = useFlyoutMenuOpen();
 	const isLink = typeof href !== 'undefined';
+	const isFinesseEnabled = fg('platform-dst-tokens-finesse');
 	const labelRef = useRef<T | null>(null);
 	const descriptionRef = useRef<T | null>(null);
 	const tooltipOnClick = useRef<React.MouseEventHandler<HTMLElement> | null>(null);
@@ -643,17 +707,7 @@ const MenuItemBaseNoRef = <T extends HTMLAnchorElement | HTMLButtonElement>(
 			 * Both rely on `position:relative` on a parent for positioning.
 			 */}
 
-			{/**
-			 * Wrapping `LazyDragHandle` in it's own `Suspense` boundary, so that it's loading won't block
-			 * the rendering of the rest of the menu item.
-			 * We put the `Suspense` in the conditional branch to avoid putting a `Suspense` in the react
-			 * tree for consumers who don't need it
-			 */}
-			{hasDragIndicator ? (
-				<Suspense fallback={null}>
-					<LazyDragHandle />
-				</Suspense>
-			) : null}
+			{hasDragIndicator ? <DragHandle /> : null}
 
 			{dropIndicator}
 		</div>
@@ -672,8 +726,15 @@ const MenuItemBaseNoRef = <T extends HTMLAnchorElement | HTMLButtonElement>(
 				ref={visualContentRef}
 				css={[
 					containerStyles.root,
-					fg('platform-dst-shape-theme-default') && containerStyles.rootT26Shape,
+					fg('platform-dst-motion-uplift-list-item') && containerStyles.rootMotion,
+					nestedOpenPopupStyles.root,
+					isFinesseEnabled && containerStyles.rootFinesse,
+					isFinesseEnabled && nestedOpenPopupStyles.rootFinesse,
 					isSelected && containerStyles.selected,
+					isSelected &&
+						fg('platform-dst-motion-uplift-list-item') &&
+						containerStyles.selectedMotion,
+					isSelected && nestedOpenPopupStyles.selected,
 					isDragging && containerStyles.dragging,
 					description && containerStyles.hasDescription,
 					// If the menu item has actionsOnHover and is expanded, show hover actions even when not hovered
@@ -685,6 +746,9 @@ const MenuItemBaseNoRef = <T extends HTMLAnchorElement | HTMLButtonElement>(
 					// - menu item is hovered, or
 					// - there is an open nested popup (as we apply hover styles when there is an open nested popup)
 					actionsOnHover && elemAfter && containerStyles.removeElemAfterOnHoverOrOpenNestedPopup,
+					actionsOnHover &&
+						elemAfter &&
+						nestedOpenPopupStyles.removeElemAfterOnHoverOrOpenNestedPopup,
 					isDisabled && containerStyles.disabled,
 				]}
 				data-testid={testId ? `${testId}-container` : undefined}
@@ -692,10 +756,10 @@ const MenuItemBaseNoRef = <T extends HTMLAnchorElement | HTMLButtonElement>(
 			>
 				<Tooltip
 					content={() => (
-						<>
+						<React.Fragment>
 							<div>{children}</div>
 							{description ? <div>{description}</div> : null}
-						</>
+						</React.Fragment>
 					)}
 					position="right-start"
 					ignoreTooltipPointerEvents
@@ -730,14 +794,18 @@ const MenuItemBaseNoRef = <T extends HTMLAnchorElement | HTMLButtonElement>(
 								onClick={handleClick as MenuItemOnClick<HTMLAnchorElement>}
 								xcss={cx(
 									buttonOrAnchorStyles.root,
-									fg('platform-dst-shape-theme-default') && buttonOrAnchorStyles.rootT26Shape,
+									fg('platform-dst-motion-uplift-list-item') && buttonOrAnchorStyles.rootMotion,
+									isFinesseEnabled && buttonOrAnchorStyles.rootFinesse,
 									topLevelSiblingStyles.root,
 									isSelected && buttonOrAnchorStyles.selected,
+									isSelected &&
+										fg('platform-dst-motion-uplift-list-item') &&
+										buttonOrAnchorStyles.selectedMotion,
 									hasDragIndicator && buttonOrAnchorStyles.hasDragIndicator,
 								)}
 								// Needed to override Anchor style due to a compiled/emotion conflict
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-								style={{ textDecoration: 'none' }}
+								style={anchorTextDecorationResetStyle}
 								aria-current={isSelected ? 'page' : undefined}
 								href={href}
 								target={target}
@@ -773,9 +841,13 @@ const MenuItemBaseNoRef = <T extends HTMLAnchorElement | HTMLButtonElement>(
 								onClick={handleClick as MenuItemOnClick<HTMLButtonElement>}
 								xcss={cx(
 									buttonOrAnchorStyles.root,
-									fg('platform-dst-shape-theme-default') && buttonOrAnchorStyles.rootT26Shape,
+									fg('platform-dst-motion-uplift-list-item') && buttonOrAnchorStyles.rootMotion,
+									isFinesseEnabled && buttonOrAnchorStyles.rootFinesse,
 									topLevelSiblingStyles.root,
 									isSelected && buttonOrAnchorStyles.selected,
+									isSelected &&
+										fg('platform-dst-motion-uplift-list-item') &&
+										buttonOrAnchorStyles.selectedMotion,
 									hasDragIndicator && buttonOrAnchorStyles.hasDragIndicator,
 								)}
 								aria-expanded={ariaExpanded}

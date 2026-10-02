@@ -1,7 +1,8 @@
 import React, { type SyntheticEvent, useState } from 'react';
 
-import { useSmartLinkLifecycleAnalytics } from '@atlaskit/link-analytics';
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
+import { useSmartLinkLifecycleAnalytics } from '@atlaskit/link-analytics/use-smart-link-lifecycle-analytics';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { token } from '@atlaskit/tokens';
 import { Scope, useAtlassianPlugins } from '@atlassian/link-picker-atlassian-plugin';
 import { mockEndpoints } from '@atlassian/recent-work-client/mocks';
@@ -78,7 +79,7 @@ function LinkPickerAtlassianPlugins() {
 				</p>
 			</PageHeader>
 			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-			<div style={{ paddingBottom: token('space.250', '20px') }}>
+			<div style={{ paddingBottom: token('space.250') }}>
 				{/* eslint-disable-next-line @atlaskit/design-system/no-html-anchor */}
 				<a id="test-link" href={link.url} target="_blank" onClick={handleClick}>
 					{link.displayText || link.url}

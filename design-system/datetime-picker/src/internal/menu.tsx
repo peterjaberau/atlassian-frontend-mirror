@@ -5,13 +5,13 @@
 
 import { Fragment, type MouseEventHandler } from 'react';
 
+// oxlint-disable-next-line @atlassian/no-restricted-imports
 import { isValid, parseISO } from 'date-fns';
 
-import Calendar from '@atlaskit/calendar';
+import Calendar from '@atlaskit/calendar/calendar';
 import { css, jsx } from '@atlaskit/css';
-import { Layering } from '@atlaskit/layering';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { type MenuProps } from '@atlaskit/select';
+import { Layering } from '@atlaskit/layering/layering';
+import type { MenuProps } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 import FixedLayer from '../internal/fixed-layer';
@@ -40,19 +40,18 @@ function getValidDate(isos: string[]): {
 const menuStyles = css({
 	zIndex: 300,
 	backgroundColor: token('elevation.surface.overlay'),
-	borderRadius: token('radius.small'),
+	borderRadius: token('radius.large'),
 	boxShadow: token('elevation.shadow.overlay'),
 	overflow: 'hidden',
-});
-
-const menuStylesT26Shape = css({
-	borderRadius: token('radius.large'),
 });
 
 /**
  * This is the menu used in the select of the date picker.
  */
-export const Menu: ({ selectProps, innerProps }: MenuProps<any>) => JSX.Element = ({ selectProps, innerProps }: MenuProps<any>) => {
+export const Menu: ({ selectProps, innerProps }: MenuProps<any>) => JSX.Element = ({
+	selectProps,
+	innerProps,
+}: MenuProps<any>) => {
 	const { calendarValue, calendarView, menuInnerWrapper: MenuInnerWrapper } = selectProps;
 	const { day, month, year } = getValidDate([calendarValue, calendarView]);
 
@@ -79,11 +78,7 @@ export const Menu: ({ selectProps, innerProps }: MenuProps<any>) => JSX.Element 
 					// firing. This is passed in via the `innerProps`. Therefore, we must
 					// pass it in *after* the `innerProps` spread.
 					// eslint-disable-next-line @atlassian/a11y/no-static-element-interactions
-					<div
-						css={[menuStyles, fg('platform-dst-shape-theme-default') && menuStylesT26Shape]}
-						{...innerProps}
-						onMouseDown={onMenuMouseDown}
-					>
+					<div css={[menuStyles]} {...innerProps} onMouseDown={onMenuMouseDown}>
 						<Wrapper>
 							<Calendar
 								day={day}

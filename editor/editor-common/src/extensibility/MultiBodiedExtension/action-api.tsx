@@ -4,11 +4,13 @@ import type { ADFEntity } from '@atlaskit/adf-utils/types';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { ACTION } from '../../analytics';
 import type { EventDispatcher } from '../../event-dispatcher';
 import type { MultiBodiedExtensionActions } from '../../extensions';
-
+import type { ChangeActiveOptions } from '../../extensions/types/extension-handler';
 import { sendMBEAnalyticsEvent } from './utils';
 
 type ActionsProps = {
@@ -30,22 +32,26 @@ export const useMultiBodiedExtensionActions = ({
 	eventDispatcher,
 	allowBodiedOverride,
 	childrenContainer,
-}: ActionsProps) => {
+}: ActionsProps): MultiBodiedExtensionActions => {
 	const actions: MultiBodiedExtensionActions = React.useMemo(() => {
 		return {
-			changeActive(index: number): boolean {
+			changeActive(index: number, options?: ChangeActiveOptions): boolean {
 				const { state, dispatch } = editorView;
 				const updateActiveChildResult = updateActiveChild(index);
 				if (eventDispatcher) {
 					sendMBEAnalyticsEvent(ACTION.CHANGE_ACTIVE, node, eventDispatcher);
 				}
-				// On selection of a childFrame, we need to change the focus/selection to the end of the target child Frame
+
+				const selection = options?.selection ?? 'none';
+				if (selection === 'none' && !isExperimentEnabled('confluence_native_tabs_m15')) {
+					return updateActiveChildResult;
+				}
+
 				const pos = getPos();
 				if (typeof pos !== 'number') {
 					return updateActiveChildResult;
 				}
 				const possiblyMbeNode = state.doc.nodeAt(pos);
-				let desiredPos = pos;
 
 				if (
 					possiblyMbeNode &&
@@ -60,13 +66,32 @@ export const useMultiBodiedExtensionActions = ({
 						);
 					}
 
-					for (let i = 0; i <= index && i < possiblyMbeNode?.content?.childCount; i++) {
+					let desiredPos = pos;
+					for (let i = 0; i < index && i < possiblyMbeNode?.content?.childCount; i++) {
 						desiredPos += possiblyMbeNode?.content?.child(i)?.nodeSize || 0;
 					}
-					/* desiredPos gives the cursor at the end of last child of the current frame, in case of paragraph nodes, this will be the end of the paragraph
-					 * Performing -1 brings the cursor inside the paragraph, similar to a user click, so any pasted text will be inside the last paragraph rather than a new line
-					 */
-					dispatch(state.tr.setSelection(new TextSelection(state.doc.resolve(desiredPos - 1))));
+
+					const targetFrame = possiblyMbeNode.content.child(index);
+					if (selection === 'end') {
+						dispatch(
+							state.tr.setSelection(
+								TextSelection.near(state.doc.resolve(desiredPos + targetFrame.nodeSize), -1),
+							),
+						);
+						editorView.focus();
+					} else {
+						// for 'start' and 'none' selection place a
+						// collapsed cursor at the start of the target frame so the ProseMirror
+						// selection always points into the active tab. This prevents stale
+						// selections from persisting across tab switches (which causes paste to
+						// land in the wrong tab).
+						// 'none' intentionally skips editorView.focus() so DOM focus can
+						// remain on the tab button for keyboard navigation.
+						dispatch(state.tr.setSelection(TextSelection.near(state.doc.resolve(desiredPos + 1))));
+						if (selection === 'start') {
+							editorView.focus();
+						}
+					}
 				}
 				return updateActiveChildResult;
 			},
@@ -134,7 +159,52 @@ export const useMultiBodiedExtensionActions = ({
 				}
 				return true;
 			},
-			updateParameters(parameters): boolean {
+			reorderChildren(fromIndex: number, toIndex: number): boolean {
+				const pos = getPos();
+				if (
+					typeof pos !== 'number' ||
+					typeof fromIndex !== 'number' ||
+					typeof toIndex !== 'number'
+				) {
+					throw new Error('Position or index not valid');
+				}
+				if (fromIndex === toIndex) {
+					return true;
+				}
+				const { state, dispatch } = editorView;
+
+				// Use current node from state (not stale closure)
+				const currentNode = state.doc.nodeAt(pos);
+				if (!currentNode) {
+					throw new Error('Could not find extension node');
+				}
+
+				const $pos = state.doc.resolve(pos);
+				const $startNodePos = state.doc.resolve($pos.start($pos.depth + 1));
+
+				// Collect all current frame nodes
+				const frames: PmNode[] = [];
+				currentNode.content.forEach((child) => {
+					frames.push(child);
+				});
+
+				if (fromIndex >= frames.length || toIndex >= frames.length) {
+					throw new Error('Index out of bounds');
+				}
+
+				// Reorder the frames array in memory
+				const [removed] = frames.splice(fromIndex, 1);
+				frames.splice(toIndex, 0, removed);
+
+				// Atomically replace the entire MBE content with reordered frames
+				const tr = state.tr;
+				const containerStart = $startNodePos.pos;
+				const containerEnd = containerStart + currentNode.content.size;
+				tr.replaceWith(containerStart, containerEnd, frames);
+				dispatch(tr);
+				return true;
+			},
+			updateParameters(parameters, analyticsChangedParam?: string): boolean {
 				const { state, dispatch } = editorView;
 				const pos = getPos();
 				if (typeof pos !== 'number') {
@@ -147,14 +217,24 @@ export const useMultiBodiedExtensionActions = ({
 					...node.attrs,
 					parameters: {
 						...node.attrs.parameters,
-						macroParams: parameters,
+						...(expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)
+							? { ...parameters }
+							: { macroParams: parameters }),
 					},
 				};
 
 				const tr = state.tr.setNodeMarkup(pos, null, updatedParameters);
 				dispatch(tr);
 				if (eventDispatcher) {
-					sendMBEAnalyticsEvent(ACTION.UPDATE_PARAMETERS, node, eventDispatcher);
+					sendMBEAnalyticsEvent(
+						ACTION.UPDATE_PARAMETERS,
+						node,
+						eventDispatcher,
+						analyticsChangedParam &&
+							expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)
+							? { changedParams: analyticsChangedParam }
+							: undefined,
+					);
 				}
 				return true;
 			},

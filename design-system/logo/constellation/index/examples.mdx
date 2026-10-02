@@ -24,6 +24,7 @@ import LogoLoom from '../../examples/constellation/generated/logo-loom';
 import LogoLoomAttribution from '../../examples/constellation/generated/logo-loom-attribution';
 import LogoRovo from '../../examples/constellation/generated/logo-rovo';
 import LogoAlign from '../../examples/constellation/generated/logo-align';
+import LogoFeedback from '../../examples/constellation/generated/logo-feedback';
 import LogoFocus from '../../examples/constellation/generated/logo-focus';
 import LogoTalent from '../../examples/constellation/generated/logo-talent';
 import LogoJiraProductDiscovery from '../../examples/constellation/generated/logo-jira-product-discovery';
@@ -39,6 +40,7 @@ import LogoStatuspage from '../../examples/constellation/generated/logo-statuspa
 import LogoTrello from '../../examples/constellation/generated/logo-trello';
 import LogoAdmin from '../../examples/constellation/generated/logo-admin';
 import LogoAnalytics from '../../examples/constellation/generated/logo-analytics';
+import LogoInsights from '../../examples/constellation/generated/logo-insights';
 import LogoChat from '../../examples/constellation/generated/logo-chat';
 import LogoGoals from '../../examples/constellation/generated/logo-goals';
 import LogoGuard from '../../examples/constellation/generated/logo-guard';
@@ -53,21 +55,17 @@ import LogoBitbucketDataCenter from '../../examples/constellation/generated/logo
 import LogoBamboo from '../../examples/constellation/generated/logo-bamboo';
 import LogoCrowd from '../../examples/constellation/generated/logo-crowd';
 import LogoRovoDevAgent from '../../examples/constellation/generated/logo-rovo-dev-agent';
+import LogoJiraCodingAgent from '../../examples/constellation/generated/logo-jira-coding-agent';
 
 import { Code } from '@atlaskit/code';
 import SectionMessage from '@atlaskit/section-message';
-
-<SectionMessage appearance="discovery">
-	We are in the process of rolling out updated Logo designs to apps behind a feature flag. <br/>
-	To display the new designs early, set the <Code>shouldUseNewLogoDesign</Code> prop to <Code>true</Code>.
-</SectionMessage>
 
 ## Types
 
 ### Icon
 
-An icon is an image or symbol that represents a brand or app. It generally does not contain the
-name of the brand or app.
+An icon is an image or symbol that represents a brand or app. It generally does not contain the name
+of the brand or app.
 
 <Example Component={LogoIcon} packageName="@atlaskit/logo" />
 
@@ -93,8 +91,8 @@ background.
 
 ### Neutral
 
-Neutral app logos can be used when the hierarchy calls for the logo to recede, but should always
-be evaluated for adequate contrast.
+Neutral app logos can be used when the hierarchy calls for the logo to recede, but should always be
+evaluated for adequate contrast.
 
 <Example Component={LogoNeutral} packageName="@atlaskit/logo" backgroundColor="neutral" />
 
@@ -107,6 +105,7 @@ Inverse app logos should be used to contrast against bold backgrounds.
 ## Size
 
 ### Xxsmall
+
 The `xxsmall` size (16px) is the smallest available size.
 
 <Example Component={LogoXxsmall} packageName="@atlaskit/logo" />
@@ -145,7 +144,6 @@ login.
 
 ## Company / Program logos
 
-
 ### Atlassian
 
 <Example Component={LogoAtlassian} packageName="@atlaskit/logo" />
@@ -159,7 +157,6 @@ login.
 <Example Component={LogoAtlassianMarketplace} packageName="@atlaskit/logo" />
 
 ## App (Product) logos
-
 
 ### Home
 
@@ -208,6 +205,10 @@ login.
 ### Jira Product Discovery
 
 <Example Component={LogoJiraProductDiscovery} packageName="@atlaskit/logo" />
+
+### Feedback
+
+<Example Component={LogoFeedback} packageName="@atlaskit/logo" />
 
 ### Bitbucket
 
@@ -261,6 +262,10 @@ login.
 
 <Example Component={LogoAnalytics} packageName="@atlaskit/logo" />
 
+### Insights
+
+<Example Component={LogoInsights} packageName="@atlaskit/logo" />
+
 ### Chat
 
 <Example Component={LogoChat} packageName="@atlaskit/logo" />
@@ -312,3 +317,13 @@ login.
 ### Crowd
 
 <Example Component={LogoCrowd} packageName="@atlaskit/logo" />
+
+## Agent logos
+
+### Rovo Dev Agent
+
+<Example Component={LogoRovoDevAgent} packageName="@atlaskit/logo" />
+
+### Jira Coding Agent
+
+<Example Component={LogoJiraCodingAgent} packageName="@atlaskit/logo" />

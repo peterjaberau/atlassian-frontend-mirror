@@ -1,22 +1,21 @@
 import React, { Component } from 'react';
 
 // @ts-ignore
-import uid from 'uid';
+import uid from 'uid/index.js';
 
 import { cssMap } from '@atlaskit/css';
 import { Box, type BoxProps } from '@atlaskit/primitives/compiled';
-import { N800 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
-import { ProfileCard } from '../../src';
-import { profiles } from '../../src/mocks';
+import { ProfilecardInternal as ProfileCard } from '../../src/components/User/ProfilecardInternal';
+import profiles from '../../src/mocks/profile-data';
 import { reportingLinesData } from '../../src/mocks/reporting-lines-data';
 import { type LozengeProps, type StatusModifiedDateType, type StatusType } from '../../src/types';
 
 const styles = cssMap({
 	label: {
-		color: token('color.text', N800),
-		marginRight: token('space.100', '8px'),
+		color: token('color.text'),
+		marginRight: token('space.100'),
 	},
 	list: {
 		margin: 0,
@@ -62,7 +61,7 @@ const exampleLozenges: LozengeProps[] = [
 	{ text: <div>Another Role</div>, appearance: 'inprogress', isBold: true },
 ];
 
-type Props = {};
+type Props = Record<string, never>;
 
 type State = {
 	avatarUrl: string;
@@ -145,7 +144,11 @@ export default class ProfilecardInteractive extends Component<Props, State> {
 		showCustomLozenge3: false,
 	};
 
-	actions = [
+	actions: {
+		label: string;
+		id: string;
+		callback: () => void;
+	}[] = [
 		{
 			label: 'View profile',
 			id: 'view-profile',
@@ -337,7 +340,7 @@ export default class ProfilecardInteractive extends Component<Props, State> {
 				<div
 					style={{
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						marginTop: token('space.200', '16px'),
+						marginTop: token('space.200'),
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						clear: 'both',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -381,7 +384,7 @@ export default class ProfilecardInteractive extends Component<Props, State> {
 				<div
 					style={{
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						marginTop: token('space.200', '16px'),
+						marginTop: token('space.200'),
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						clear: 'both',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766

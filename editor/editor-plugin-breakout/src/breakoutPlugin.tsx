@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import type { BreakoutMarkAttrs } from '@atlaskit/adf-schema';
-import { breakout } from '@atlaskit/adf-schema';
+import type { BreakoutMarkAttrs } from '@atlaskit/adf-schema/breakout';
+import { breakout } from '@atlaskit/adf-schema/breakout';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { BreakoutCssClassName } from '@atlaskit/editor-common/styles';
@@ -16,10 +16,10 @@ import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared
 import type { Mark as PMMark, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
 import type { ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
-import { type EditorView, type NodeView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorSwoopCubicBezier } from '@atlaskit/editor-shared-styles';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { BreakoutPlugin, BreakoutPluginState } from './breakoutPluginType';
 import { pluginKey } from './pm-plugins/plugin-key';
@@ -154,8 +154,10 @@ function createPlugin(
 	});
 }
 
-interface LayoutButtonWrapperProps
-	extends Omit<LayoutButtonProps, 'node' | 'breakoutMode' | 'isBreakoutNodePresent'> {
+interface LayoutButtonWrapperProps extends Omit<
+	LayoutButtonProps,
+	'node' | 'breakoutMode' | 'isBreakoutNodePresent'
+> {
 	api: ExtractInjectionAPI<typeof breakoutPlugin> | undefined;
 }
 
@@ -178,15 +180,11 @@ const LayoutButtonWrapper = ({
 	);
 	const [breakoutNodePresent, setBreakoutNodePresent] = useState(false);
 	const [breakoutMode, setBreakoutMode] = useState<BreakoutMode | undefined>(
-		expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) && !editorView
-			? undefined
-			: // Remove ! during platform_editor_hydratable_ui cleanup
-				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-				getBreakoutMode(editorView!.state),
+		editorView ? getBreakoutMode(editorView.state) : undefined,
 	);
 
 	usePluginStateEffect(api, ['breakout'], ({ breakoutState }) => {
-		if (expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) && !editorView) {
+		if (!editorView) {
 			return;
 		}
 		if (breakoutState?.breakoutNode && !breakoutNodePresent) {
@@ -195,9 +193,7 @@ const LayoutButtonWrapper = ({
 		if (!breakoutState?.breakoutNode && breakoutNodePresent) {
 			setBreakoutNodePresent(false);
 		}
-		// Remove ! during platform_editor_hydratable_ui cleanup
-		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		const nextBreakoutMode = getBreakoutMode(editorView!.state);
+		const nextBreakoutMode = getBreakoutMode(editorView.state);
 		if (nextBreakoutMode !== breakoutMode) {
 			setBreakoutMode(nextBreakoutMode);
 		}

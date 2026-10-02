@@ -1,11 +1,13 @@
-import React from 'react';
-import { render } from '@testing-library/react';
+import { mockCreateAnalyticsEvent } from '@atlaskit/editor-test-helpers/mock-analytics-next';
 
-import { ErrorBoundary } from '../../ErrorBoundary';
+import React from 'react';
+
+import { ACTION, EVENT_TYPE, ACTION_SUBJECT } from '@atlaskit/editor-common/analytics';
+import { render } from '@atlassian/testing-library';
+
 import type { ComponentCaughtDomErrorAEP } from '../../../../analytics/events';
 import { PLATFORM } from '../../../../analytics/events';
-import { ACTION, EVENT_TYPE, ACTION_SUBJECT } from '@atlaskit/editor-common/analytics';
-import { mockCreateAnalyticsEvent } from '@atlaskit/editor-test-helpers/mock-analytics-next';
+import { ErrorBoundary } from '../../ErrorBoundary';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('When error boundary for dom errors flag is enabled it should call fireAnalyticsEvent again with ComponentCaughtDomErrorAEP', () => {
@@ -30,7 +32,7 @@ describe('When error boundary for dom errors flag is enabled it should call fire
 			// the ErrorBoundary would either render a fallback component or the broken component
 			// would be re-rendered without the error. In this test, we just want to check that
 			// the correct analytics event is fired. To do this, we're suppressing this error.
-		} catch (e) {}
+		} catch {}
 
 		const expectedAnalyticsEvent: ComponentCaughtDomErrorAEP = {
 			action: ACTION.CAUGHT_DOM_ERROR,

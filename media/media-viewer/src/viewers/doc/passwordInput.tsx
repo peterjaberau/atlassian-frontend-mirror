@@ -3,19 +3,23 @@
  * @jsx jsx
  */
 import { useEffect, useRef, useState } from 'react';
+
 import { jsx, css } from '@compiled/react';
-import Button from '@atlaskit/button/new';
-import TextField from '@atlaskit/textfield';
+import { FormattedMessage, useIntl } from 'react-intl';
+
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import type { OnSubmitHandler } from '@atlaskit/form/types';
+import Heading from '@atlaskit/heading/heading';
 import LockIcon from '@atlaskit/icon/core/lock-locked';
-import Form, { Field, type OnSubmitHandler } from '@atlaskit/form';
-import { FormattedMessage, useIntl } from 'react-intl-next';
-import { messages } from '@atlaskit/media-ui';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { xcss, Box, Flex, Text } from '@atlaskit/primitives';
-import { token } from '@atlaskit/tokens';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import ErrorIcon from '@atlaskit/icon/core/status-error';
-import Heading from '@atlaskit/heading';
+import { messages } from '@atlaskit/media-ui/messages';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
+import { xcss, Box, Flex, Text } from '@atlaskit/primitives';
+import TextField from '@atlaskit/textfield/text-field';
+import { token } from '@atlaskit/tokens';
 
 interface PDFPasswordInputProps {
 	onSubmit: OnSubmitHandler<{ password: string }>;
@@ -36,7 +40,7 @@ const headingStyle = css({
 });
 
 const errorMessageWrapperStyle = css({
-	marginTop: token('space.050', '4px'),
+	marginTop: token('space.050'),
 	font: token('font.body.small'),
 	display: 'flex',
 	alignItems: 'center',
@@ -50,7 +54,7 @@ const errorMessageWrapperStyle = css({
 
 const errorMessageStyle = css({
 	marginTop: '0px',
-	marginLeft: token('space.050', '4px'),
+	marginLeft: token('space.050'),
 });
 
 const headerStyles = xcss({
@@ -69,7 +73,11 @@ const footerStyles = xcss({
 	justifyContent: 'center',
 });
 
-export const PasswordInput = ({ onSubmit, hasPasswordError, onRender }: PDFPasswordInputProps) => {
+export const PasswordInput = ({
+	onSubmit,
+	hasPasswordError,
+	onRender,
+}: PDFPasswordInputProps): JSX.Element => {
 	const passwordInputRef = useRef<HTMLInputElement>(null);
 	const onRenderRef = useRef(onRender);
 	const [formError, setFormError] = useState(hasPasswordError);
@@ -93,13 +101,13 @@ export const PasswordInput = ({ onSubmit, hasPasswordError, onRender }: PDFPassw
 					<Flex justifyContent="center">
 						<LockIcon label="" color={COLOR_SHADE as any} />
 					</Flex>
-				<Box xcss={headerStyles}>
-					<div css={headingStyle}>
-						<Heading as="h1" size="medium">
-							<FormattedMessage {...messages.password_protected_pdf} />
-						</Heading>
-					</div>
-				</Box>
+					<Box xcss={headerStyles}>
+						<div css={headingStyle}>
+							<Heading as="h1" size="medium">
+								<FormattedMessage {...messages.password_protected_pdf} />
+							</Heading>
+						</div>
+					</Box>
 					<Field name="password" defaultValue="" isRequired>
 						{({ fieldProps }) => (
 							<Box xcss={inputStyle}>

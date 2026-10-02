@@ -1,5 +1,6 @@
-import { uuid } from '@atlaskit/adf-schema';
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import type { FontSizeMarkAttrs } from '@atlaskit/adf-schema/font-size';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
+import { uuid } from '@atlaskit/adf-schema/uuid';
 import type { AnalyticsEventPayload, EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -15,6 +16,11 @@ import {
 	toggleTaskItemCheckbox,
 	toggleTaskList as toggleTaskListKeymap,
 } from '@atlaskit/editor-common/keymaps';
+import {
+	getBlockMarkAttrs,
+	getFirstParagraphBlockMarkAttrs,
+	reconcileBlockMarkForParagraphAtPos,
+} from '@atlaskit/editor-common/lists';
 import type { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { GapCursorSelection, Side } from '@atlaskit/editor-common/selection';
 import type { Command, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
@@ -35,13 +41,11 @@ import {
 	findParentNodeOfTypeClosestToPos,
 	hasParentNodeOfType,
 } from '@atlaskit/editor-prosemirror/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { TasksAndDecisionsPlugin } from '../tasksAndDecisionsPluginType';
 import type { GetContextIdentifier, TaskDecisionListType } from '../types';
-
-import { joinAtCut, liftSelection, wrapSelectionInTaskList } from './commands';
+import { moveSelectedTaskListItems } from './actions/move-selected-task-list-items';
+import { joinAtCut } from './commands';
 import {
 	findFirstParentListNode,
 	getBlockRange,
@@ -157,18 +161,27 @@ const joinTaskDecisionFollowing: Command = (state, dispatch) => {
 
 export const getUnindentCommand =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
-	(inputMethod: IndentationInputMethod = INPUT_METHOD.KEYBOARD) =>
+	(inputMethod: IndentationInputMethod = INPUT_METHOD.KEYBOARD): Command =>
 		filter(isInsideTask, (state, dispatch) => {
 			const normalizedSelection = normalizeTaskItemsSelection(state.selection);
-
 			const curIndentLevel = getCurrentIndentLevel(normalizedSelection);
-			if (!curIndentLevel || curIndentLevel === 1) {
-				return false;
+
+			if (!curIndentLevel) {
+				return true;
 			}
-			return withAnalytics(
-				editorAnalyticsAPI,
-				indentationAnalytics(curIndentLevel, INDENT_DIRECTION.OUTDENT, inputMethod),
-			)(autoJoin(liftSelection, ['taskList']))(state, dispatch);
+
+			const outdentTr = moveSelectedTaskListItems(state.tr, -1);
+			if (outdentTr) {
+				withAnalytics(
+					editorAnalyticsAPI,
+					indentationAnalytics(curIndentLevel, INDENT_DIRECTION.OUTDENT, inputMethod),
+				)((_state, d) => {
+					d?.(outdentTr);
+					return true;
+				})(state, dispatch);
+				return true;
+			}
+			return false;
 		});
 
 // if selection is decision item or first action item in table cell
@@ -189,17 +202,26 @@ const shouldLetTabThroughInTable = (state: EditorState) => {
 
 export const getIndentCommand =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
-	(inputMethod: IndentationInputMethod = INPUT_METHOD.KEYBOARD) =>
+	(inputMethod: IndentationInputMethod = INPUT_METHOD.KEYBOARD): Command =>
 		filter(isInsideTask, (state, dispatch) => {
 			const normalizedSelection = normalizeTaskItemsSelection(state.selection);
 			const curIndentLevel = getCurrentIndentLevel(normalizedSelection);
-			if (!curIndentLevel || curIndentLevel >= 6) {
+
+			if (!curIndentLevel) {
 				return true;
 			}
-			return withAnalytics(
-				editorAnalyticsAPI,
-				indentationAnalytics(curIndentLevel, INDENT_DIRECTION.INDENT, inputMethod),
-			)(autoJoin(wrapSelectionInTaskList, ['taskList']))(state, dispatch);
+			const indentTr = moveSelectedTaskListItems(state.tr, 1);
+			if (indentTr) {
+				withAnalytics(
+					editorAnalyticsAPI,
+					indentationAnalytics(curIndentLevel, INDENT_DIRECTION.INDENT, inputMethod),
+				)((_state, d) => {
+					d?.(indentTr);
+					return true;
+				})(state, dispatch);
+				return true;
+			}
+			return false;
 		});
 
 const backspaceFrom =
@@ -208,117 +230,69 @@ const backspaceFrom =
 	(state, dispatch) => {
 		const { taskList, blockTaskItem, paragraph } = state.schema.nodes;
 
-		if (expValEquals('editor_refactor_backspace_task_and_decisions', 'isEnabled', true)) {
-			// Check if selection is inside a blockTaskItem paragraph
-			const resultOfFindBlockTaskItem = findBlockTaskItem($from);
-			const isInBlockTaskItemParagraph =
-				resultOfFindBlockTaskItem && resultOfFindBlockTaskItem?.hasParagraph;
+		// Check if selection is inside a blockTaskItem paragraph
+		const resultOfFindBlockTaskItem = findBlockTaskItem($from);
+		const isInBlockTaskItemParagraph =
+			resultOfFindBlockTaskItem && resultOfFindBlockTaskItem?.hasParagraph;
 
-			// Get the node before the current position
-			const beforePos = isInBlockTaskItemParagraph ? $from.before() - 1 : $from.before();
-			const nodeBefore = $from.doc.resolve(beforePos).nodeBefore;
+		// Get the node before the current position
+		const beforePos = isInBlockTaskItemParagraph ? $from.before() - 1 : $from.before();
+		const nodeBefore = $from.doc.resolve(beforePos).nodeBefore;
 
-			// Check if the node before is an empty task item
-			const isEmptyActionOrDecisionItem =
-				nodeBefore && isActionOrDecisionItem(nodeBefore) && nodeBefore.content.size === 0;
+		// Check if the node before is an empty task item
+		const isEmptyActionOrDecisionItem =
+			nodeBefore && isActionOrDecisionItem(nodeBefore) && nodeBefore.content.size === 0;
 
-			const isEmptyBlockTaskItem =
-				blockTaskItem &&
-				nodeBefore?.type === blockTaskItem &&
-				nodeBefore?.firstChild?.type === paragraph &&
-				nodeBefore?.firstChild?.content?.size === 0;
+		const isEmptyBlockTaskItem =
+			blockTaskItem &&
+			nodeBefore?.type === blockTaskItem &&
+			nodeBefore?.firstChild?.type === paragraph &&
+			nodeBefore?.firstChild?.content?.size === 0;
 
-			// previous was empty, just delete backwards
-			if (isEmptyActionOrDecisionItem || isEmptyBlockTaskItem) {
-				return false;
-			}
+		// previous was empty, just delete backwards
+		if (isEmptyActionOrDecisionItem || isEmptyBlockTaskItem) {
+			return false;
+		}
 
-			// If nested in a taskList, unindent
-			const depthFromSelectionToBlockTaskItem = isInBlockTaskItemParagraph ? 2 : 1;
-			const depthFromSelectionToNestedTaskList = depthFromSelectionToBlockTaskItem + 1;
-			const parentDepth = $from.depth - depthFromSelectionToNestedTaskList;
+		// If nested in a taskList, unindent
+		const depthFromSelectionToBlockTaskItem = isInBlockTaskItemParagraph ? 2 : 1;
+		const depthFromSelectionToNestedTaskList = depthFromSelectionToBlockTaskItem + 1;
+		const parentDepth = $from.depth - depthFromSelectionToNestedTaskList;
 
-			if ($from.node(parentDepth).type === taskList) {
-				return getUnindentCommand(editorAnalyticsAPI)()(state, dispatch);
-			}
+		if ($from.node(parentDepth).type === taskList) {
+			return getUnindentCommand(editorAnalyticsAPI)()(state, dispatch);
+		}
 
-			// If at the end of an item, unwrap contents into a paragraph
-			// we achieve this by slicing the content out, and replacing
-			if (actionDecisionFollowsOrNothing($from)) {
-				if (dispatch) {
-					// If we are in a blockTaskItem paragraph, we need to get the content of the whole blockTaskItem
-					// So we reduce the depth by 1 to get to the blockTaskItem node content
-					const taskContent = isInBlockTaskItemParagraph
-						? state.doc.slice($from.start($from.depth - 1), $from.end($from.depth - 1)).content
-						: state.doc.slice($from.start(), $from.end()).content;
+		// If at the end of an item, unwrap contents into a paragraph
+		// we achieve this by slicing the content out, and replacing
+		if (actionDecisionFollowsOrNothing($from)) {
+			if (dispatch) {
+				// If we are in a blockTaskItem paragraph, we need to get the content of the whole blockTaskItem
+				// So we reduce the depth by 1 to get to the blockTaskItem node content
+				const taskContent = isInBlockTaskItemParagraph
+					? state.doc.slice($from.start($from.depth - 1), $from.end($from.depth - 1)).content
+					: state.doc.slice($from.start(), $from.end()).content;
 
-					let slice: Fragment | Node | Node[];
+				let slice: Fragment | Node | Node[];
 
-					try {
-						slice = taskContent.size
-							? paragraph.createChecked(undefined, taskContent)
-							: paragraph.createChecked();
-						// might be end of document after
+				try {
+					slice = taskContent.size
+						? paragraph.createChecked(undefined, taskContent)
+						: paragraph.createChecked();
+					// might be end of document after
+					const tr = splitListItemWith(state.tr, slice, $from, true);
+					dispatch(tr);
+					return true;
+				} catch {
+					// If there's an error creating a paragraph, check if we are in a blockTaskItem
+					// Block task item's can have non-text content that cannot be wrapped in a paragraph
+					// So if the selection is in a blockTaskItem, just pass the content as is
+					if (resultOfFindBlockTaskItem && resultOfFindBlockTaskItem.blockTaskItemNode) {
+						// Create an array from the fragment to pass into splitListItemWith, as the `content` property is readonly
+						slice = Array.from(taskContent.content);
 						const tr = splitListItemWith(state.tr, slice, $from, true);
 						dispatch(tr);
 						return true;
-					} catch (error) {
-						// If there's an error creating a paragraph, check if we are in a blockTaskItem
-						// Block task item's can have non-text content that cannot be wrapped in a paragraph
-						// So if the selection is in a blockTaskItem, just pass the content as is
-						if (resultOfFindBlockTaskItem && resultOfFindBlockTaskItem.blockTaskItemNode) {
-							// Create an array from the fragment to pass into splitListItemWith, as the `content` property is readonly
-							slice = Array.from(taskContent.content);
-							const tr = splitListItemWith(state.tr, slice, $from, true);
-							dispatch(tr);
-							return true;
-						}
-					}
-				}
-			}
-		} else {
-			// previous was empty, just delete backwards
-			const taskBefore = $from.doc.resolve($from.before());
-			if (
-				taskBefore.nodeBefore &&
-				isActionOrDecisionItem(taskBefore.nodeBefore) &&
-				taskBefore.nodeBefore.nodeSize === 2
-			) {
-				return false;
-			}
-
-			// if nested, just unindent
-			if ($from.node($from.depth - 2).type === taskList) {
-				return getUnindentCommand(editorAnalyticsAPI)()(state, dispatch);
-			}
-
-			// If at the end of an item, unwrap contents into a paragraph
-			// we achieve this by slicing the content out, and replacing
-			if (actionDecisionFollowsOrNothing($from)) {
-				if (dispatch) {
-					const taskContent = state.doc.slice($from.start(), $from.end()).content;
-
-					let slice: Fragment | Node | Node[];
-
-					try {
-						slice = taskContent.size
-							? paragraph.createChecked(undefined, taskContent)
-							: paragraph.createChecked();
-
-						// might be end of document after
-						const tr = splitListItemWith(state.tr, slice, $from, true);
-						dispatch(tr);
-						return true;
-					} catch (error) {
-						// If there's an error creating a paragraph, then just pass the content as is
-						// Block task item's can have non-text content that cannot be wrapped in a paragraph
-						if (blockTaskItem) {
-							// Create an array from the fragment to pass into splitListItemWith, as the `content` property is readonly
-							slice = Array.from(taskContent.content);
-							const tr = splitListItemWith(state.tr, slice, $from, true);
-							dispatch(tr);
-							return true;
-						}
 					}
 				}
 			}
@@ -350,170 +324,125 @@ const unindentTaskOrUnwrapTaskDecisionFollowing: Command = (state, dispatch) => 
 		tr,
 	} = state;
 
-	if (fg('platform_editor_blocktaskitem_patch_3')) {
-		// only run if cursor is at the end of the node
-		if (!isEmptySelectionAtEnd(state) || !dispatch) {
-			return false;
-		}
+	// only run if cursor is at the end of the node
+	if (!isEmptySelectionAtEnd(state) || !dispatch) {
+		return false;
+	}
 
-		// look for the node after this current one
-		const $next = walkOut($from);
+	// look for the node after this current one
+	const $next = walkOut($from);
 
-		// this is a top-level node it wont have $next.before()
-		if (!$next.parent || $next.parent.type === doc) {
-			return false;
-		}
+	// this is a top-level node it wont have $next.before()
+	if (!$next.parent || $next.parent.type === doc) {
+		return false;
+	}
 
-		// get resolved position of parent
-		const $parentPos = $from.doc.resolve($from.start($from.depth - 1));
+	// get resolved position of parent
+	const $parentPos = $from.doc.resolve($from.start($from.depth - 1));
 
-		const currentNode = $from.node();
-		const parentNode = $parentPos.node();
+	const currentNode = $from.node();
+	const parentNode = $parentPos.node();
 
-		// if current position isn't an action or decision item, return false
-		if (!isActionOrDecisionItem(currentNode) && !isActionOrDecisionItem(parentNode)) {
-			return false;
-		}
+	// if current position isn't an action or decision item, return false
+	if (!isActionOrDecisionItem(currentNode) && !isActionOrDecisionItem(parentNode)) {
+		return false;
+	}
 
-		const resultOfCurrentFindBlockTaskItem = findBlockTaskItem($next);
+	const resultOfCurrentFindBlockTaskItem = findBlockTaskItem($next);
 
-		let isCurrentEmptyBlockTaskItem = false;
+	let isCurrentEmptyBlockTaskItem = false;
 
-		if (resultOfCurrentFindBlockTaskItem) {
-			const { blockTaskItemNode } = resultOfCurrentFindBlockTaskItem;
+	if (resultOfCurrentFindBlockTaskItem) {
+		const { blockTaskItemNode } = resultOfCurrentFindBlockTaskItem;
 
-			isCurrentEmptyBlockTaskItem =
-				blockTaskItem &&
-				blockTaskItemNode &&
-				blockTaskItemNode.childCount === 1 &&
-				blockTaskItemNode.firstChild?.type === paragraph &&
-				blockTaskItemNode.firstChild.childCount === 0;
-		}
-
-		const isEmptyActionOrDecisionItem =
-			currentNode && isActionOrDecisionItem(currentNode) && currentNode.childCount === 0;
-
-		// If empty item, use default handler
-		if (isEmptyActionOrDecisionItem || isCurrentEmptyBlockTaskItem) {
-			return false;
-		}
-
-		// Check if next node is a blockTaskItem paragraph
-		const resultOfNextFindBlockTaskItem = findBlockTaskItem($next);
-		const isNextInBlockTaskItemParagraph =
-			resultOfNextFindBlockTaskItem && resultOfNextFindBlockTaskItem?.hasParagraph;
-
-		// if nested, just unindent
-		if (
-			$next.node($next.depth - 2).type === taskList ||
-			// this is for the case when we are on a non-nested item and next one is nested
-			($next.node($next.depth - 1).type === taskList && $next.parent.type === taskList)
-		) {
-			liftBlock(tr, $next, $next);
-			dispatch(tr);
-
-			return true;
-		}
-
-		const isNextCompatibleWithBlockTaskItem =
+		isCurrentEmptyBlockTaskItem =
 			blockTaskItem &&
-			(($next?.node()?.type === taskItem && $from?.node()?.type === blockTaskItem) ||
-				($next?.node()?.type === blockTaskItem && $from?.node()?.type === taskItem) ||
-				([taskItem, blockTaskItem].includes($next?.node()?.type) &&
-					resultOfCurrentFindBlockTaskItem &&
-					resultOfCurrentFindBlockTaskItem.blockTaskItemNode));
+			blockTaskItemNode &&
+			blockTaskItemNode.childCount === 1 &&
+			blockTaskItemNode.firstChild?.type === paragraph &&
+			blockTaskItemNode.firstChild.childCount === 0;
+	}
 
-		// if next node is of same type or compatible type, remove the node wrapping and create paragraph
-		if (
-			(!isTable($next.nodeAfter) && isActionOrDecisionItem($from.parent)) ||
-			(resultOfCurrentFindBlockTaskItem &&
-				resultOfCurrentFindBlockTaskItem.blockTaskItemNode &&
-				actionDecisionFollowsOrNothing($from) &&
-				// only forward delete if the node is same type or compatible
-				($next.node().type.name === $from.node().type.name || isNextCompatibleWithBlockTaskItem))
-		) {
-			if (dispatch) {
-				// If next node is in a blockTaskItem paragraph, we need to get the content of the whole blockTaskItem
-				// So we reduce the depth by 1 to get to the blockTaskItem node content
-				const taskContent = isNextInBlockTaskItemParagraph
-					? state.doc.slice($next.start($next.depth - 1), $next.end($next.depth - 1)).content
-					: state.doc.slice($next.start(), $next.end()).content;
+	const isEmptyActionOrDecisionItem =
+		currentNode && isActionOrDecisionItem(currentNode) && currentNode.childCount === 0;
 
-				let slice: Fragment | Node | Node[];
+	// If empty item, use default handler
+	if (isEmptyActionOrDecisionItem || isCurrentEmptyBlockTaskItem) {
+		return false;
+	}
 
-				try {
-					slice = taskContent.size
-						? paragraph.createChecked(undefined, taskContent)
-						: paragraph.createChecked();
+	// Check if next node is a blockTaskItem paragraph
+	const resultOfNextFindBlockTaskItem = findBlockTaskItem($next);
+	const isNextInBlockTaskItemParagraph =
+		resultOfNextFindBlockTaskItem && resultOfNextFindBlockTaskItem?.hasParagraph;
 
-					// might be end of document after
-					const tr = splitListItemWith(state.tr, slice, $next, false);
+	// if nested, just unindent
+	if (
+		$next.node($next.depth - 2).type === taskList ||
+		// this is for the case when we are on a non-nested item and next one is nested
+		($next.node($next.depth - 1).type === taskList && $next.parent.type === taskList)
+	) {
+		liftBlock(tr, $next, $next);
+		dispatch(tr);
+
+		return true;
+	}
+
+	const isNextCompatibleWithBlockTaskItem =
+		blockTaskItem &&
+		(($next?.node()?.type === taskItem && $from?.node()?.type === blockTaskItem) ||
+			($next?.node()?.type === blockTaskItem && $from?.node()?.type === taskItem) ||
+			([taskItem, blockTaskItem].includes($next?.node()?.type) &&
+				resultOfCurrentFindBlockTaskItem &&
+				resultOfCurrentFindBlockTaskItem.blockTaskItemNode));
+
+	// if next node is of same type or compatible type, remove the node wrapping and create paragraph
+	if (
+		(!isTable($next.nodeAfter) && isActionOrDecisionItem($from.parent)) ||
+		(resultOfCurrentFindBlockTaskItem &&
+			resultOfCurrentFindBlockTaskItem.blockTaskItemNode &&
+			actionDecisionFollowsOrNothing($from) &&
+			// only forward delete if the node is same type or compatible
+			($next.node().type.name === $from.node().type.name || isNextCompatibleWithBlockTaskItem))
+	) {
+		if (dispatch) {
+			// If next node is in a blockTaskItem paragraph, we need to get the content of the whole blockTaskItem
+			// So we reduce the depth by 1 to get to the blockTaskItem node content
+			const taskContent = isNextInBlockTaskItemParagraph
+				? state.doc.slice($next.start($next.depth - 1), $next.end($next.depth - 1)).content
+				: state.doc.slice($next.start(), $next.end()).content;
+
+			let slice: Fragment | Node | Node[];
+
+			try {
+				slice = taskContent.size
+					? paragraph.createChecked(undefined, taskContent)
+					: paragraph.createChecked();
+
+				// might be end of document after
+				const tr = splitListItemWith(state.tr, slice, $next, false);
+				dispatch(tr);
+				return true;
+			} catch {
+				// If there's an error creating a paragraph, check if we are in a blockTaskItem
+				// Block task item's can have non-text content that cannot be wrapped in a paragraph
+				// So if the selection is in a blockTaskItem, just pass the content as is
+				if (resultOfNextFindBlockTaskItem && resultOfNextFindBlockTaskItem.blockTaskItemNode) {
+					// Create an array from the fragment to pass into splitListItemWith, as the `content` property is readonly
+					slice = Array.from(taskContent.content);
+
+					let $splitPos = $next;
+
+					if ($next.node().firstChild?.isTextblock) {
+						// set $next to the resolved position of inside the textblock
+						$splitPos = $next.doc.resolve($next.pos + 1);
+					}
+
+					const tr = splitListItemWith(state.tr, slice, $splitPos, false);
 					dispatch(tr);
 					return true;
-				} catch (error) {
-					// If there's an error creating a paragraph, check if we are in a blockTaskItem
-					// Block task item's can have non-text content that cannot be wrapped in a paragraph
-					// So if the selection is in a blockTaskItem, just pass the content as is
-					if (resultOfNextFindBlockTaskItem && resultOfNextFindBlockTaskItem.blockTaskItemNode) {
-						// Create an array from the fragment to pass into splitListItemWith, as the `content` property is readonly
-						slice = Array.from(taskContent.content);
-
-						let $splitPos = $next;
-
-						if ($next.node().firstChild?.isTextblock) {
-							// set $next to the resolved position of inside the textblock
-							$splitPos = $next.doc.resolve($next.pos + 1);
-						}
-
-						const tr = splitListItemWith(state.tr, slice, $splitPos, false);
-						dispatch(tr);
-						return true;
-					}
 				}
 			}
-		}
-	} else {
-		// only run if cursor is at the end of the node
-		if (!isEmptySelectionAtEnd(state) || !dispatch) {
-			return false;
-		}
-
-		// look for the node after this current one
-		const $next = walkOut($from);
-
-		// this is a top-level node it wont have $next.before()
-		if (!$next.parent || $next.parent.type === doc) {
-			return false;
-		}
-
-		// if nested, just unindent
-		if (
-			$next.node($next.depth - 2).type === taskList ||
-			// this is for the case when we are on a non-nested item and next one is nested
-			($next.node($next.depth - 1).type === taskList && $next.parent.type === taskList)
-		) {
-			liftBlock(tr, $next, $next);
-			dispatch(tr);
-
-			return true;
-		}
-
-		// if next node is of same type, remove the node wrapping and create paragraph
-		if (
-			!isTable($next.nodeAfter) &&
-			isActionOrDecisionItem($from.parent) &&
-			actionDecisionFollowsOrNothing($from) &&
-			// only forward delete if the node is same type
-			$next.node().type.name === $from.node().type.name
-		) {
-			const taskContent = state.doc.slice($next.start(), $next.end()).content;
-
-			// might be end of document after
-			const slice = taskContent.size ? paragraph.createChecked(undefined, taskContent) : [];
-
-			dispatch(splitListItemWith(tr, slice, $next, false));
-
-			return true;
 		}
 	}
 
@@ -591,7 +520,7 @@ const splitListItemWith = (
 		const result = findBlockTaskItem($from);
 		if (result) {
 			const { blockTaskItemNode, hasParagraph } = result;
-			hasBlockTaskItem = fg('platform_editor_blocktaskitem_patch_3') && !!blockTaskItemNode;
+			hasBlockTaskItem = !!blockTaskItemNode;
 			if (blockTaskItemNode) {
 				// If the case there is a paragraph in the block task item we need to
 				// adjust some calculations
@@ -642,17 +571,12 @@ const splitListItemWith = (
 	if (shouldSplit && !isNestedActionInsideLists) {
 		// this only splits a node to delete it, so we probably don't need a random uuid
 		// but generate one anyway for correctness
-		tr = tr.split(
-			$from.pos,
-			// eslint-disable-next-line @atlaskit/platform/no-preconditioning
-			fg('platform_editor_blocktaskitem_patch_3') && hasBlockTaskItem ? 0 : 1,
-			[
-				{
-					type: $from.parent.type,
-					attrs: { localId: uuid.generate() },
-				},
-			],
-		);
+		tr = tr.split($from.pos, hasBlockTaskItem ? 0 : 1, [
+			{
+				type: $from.parent.type,
+				attrs: { localId: uuid.generate() },
+			},
+		]);
 	}
 
 	/*
@@ -715,26 +639,62 @@ const creatParentListItemFragement = (state: EditorState) => {
 	return state.schema.nodes.listItem.create({}, state.schema.nodes.paragraph.create());
 };
 
+const getCurrentBlockTaskFontSizeAttrs = (
+	state: EditorState,
+	$from: ResolvedPos,
+): FontSizeMarkAttrs | false => {
+	const { fontSize } = state.schema.marks;
+	if (!fontSize) {
+		return false;
+	}
+
+	const result = findBlockTaskItem($from);
+	if (!result) {
+		return false;
+	}
+
+	return result.hasParagraph
+		? getBlockMarkAttrs<FontSizeMarkAttrs>($from.parent, fontSize)
+		: getFirstParagraphBlockMarkAttrs<FontSizeMarkAttrs>(result.blockTaskItemNode, fontSize);
+};
+
+const createTaskItemForCurrentTextSize = (
+	state: EditorState,
+	attrs: Record<string, unknown>,
+	fontSizeAttrs: { fontSize: 'small' } | false,
+) => {
+	const { taskItem, blockTaskItem, paragraph } = state.schema.nodes;
+	const { fontSize } = state.schema.marks;
+
+	if (fontSizeAttrs && blockTaskItem && paragraph && fontSize) {
+		return blockTaskItem.createChecked(
+			attrs,
+			paragraph.createChecked({}, undefined, [fontSize.create(fontSizeAttrs)]),
+		);
+	}
+
+	return taskItem.createAndFill(attrs);
+};
+
 const splitListItem = (state: EditorState, dispatch?: (tr: Transaction) => void) => {
 	const {
 		tr,
 		selection: { $from },
 	} = state;
 	const { listItem, blockTaskItem, taskItem, paragraph } = state.schema.nodes;
+	const currentBlockTaskFontSizeAttrs = getCurrentBlockTaskFontSizeAttrs(state, $from);
 
 	if (actionDecisionFollowsOrNothing($from)) {
 		if (dispatch) {
-			if (fg('platform_editor_blocktaskitem_patch_3')) {
-				// If previous node is a blockTaskItem we just want to delete the existing node and replace it with a paragraph
-				const nodeBefore = state.doc.resolve($from.pos - 1).nodeBefore;
-				if (blockTaskItem && nodeBefore?.type === blockTaskItem) {
-					if ($from.parent.type === taskItem) {
-						const nodeSize = $from.parent.nodeSize;
-						tr.delete($from.pos - Math.floor(nodeSize / 2), $from.pos + Math.ceil(nodeSize / 2));
-						tr.insert($from.pos, paragraph.createChecked());
-						dispatch(tr);
-						return true;
-					}
+			// If previous node is a blockTaskItem we just want to delete the existing node and replace it with a paragraph
+			const nodeBefore = state.doc.resolve($from.pos - 1).nodeBefore;
+			if (blockTaskItem && nodeBefore?.type === blockTaskItem) {
+				if ($from.parent.type === taskItem) {
+					const nodeSize = $from.parent.nodeSize;
+					tr.delete($from.pos - Math.floor(nodeSize / 2), $from.pos + Math.ceil(nodeSize / 2));
+					tr.insert($from.pos, paragraph.createChecked());
+					dispatch(tr);
+					return true;
 				}
 			}
 
@@ -744,7 +704,16 @@ const splitListItem = (state: EditorState, dispatch?: (tr: Transaction) => void)
 				return true;
 			}
 
-			dispatch(splitListItemWith(tr, paragraph.createChecked(), $from, true));
+			const splitTr = splitListItemWith(tr, paragraph.createChecked(), $from, true);
+			if (currentBlockTaskFontSizeAttrs) {
+				reconcileBlockMarkForParagraphAtPos(
+					splitTr,
+					splitTr.selection.from,
+					state.schema.marks.fontSize,
+					currentBlockTaskFontSizeAttrs,
+				);
+			}
+			dispatch(splitTr);
 		}
 		return true;
 	}
@@ -790,9 +759,9 @@ const enter = (
 					if (
 						$from.pos === $to.pos &&
 						$from.parentOffset === 0 &&
-						(fg('platform_editor_blocktaskitem_patch_2')
-							? !$from.parent.isTextblock || isInFirstTextblockOfBlockTaskItem(state)
-							: true)
+						(nodeType !== blockTaskItem ||
+							!$from.parent.isTextblock ||
+							isInFirstTextblockOfBlockTaskItem(state))
 					) {
 						const newTask = nodeType.createAndFill({ localId: itemLocalId });
 						if (newTask) {
@@ -812,7 +781,19 @@ const enter = (
 								return tr.insert(blockTaskItemNode.pos, newTaskItem);
 							}
 							// Current position will point to text node, but we want to insert above the taskItem node
-							return tr.insert($from.pos - 1, newTask);
+							const insertPos = $from.pos - 1;
+							tr.insert(insertPos, newTask);
+							// Place cursor on the newly inserted empty task item above
+							// when nested inside another taskList.
+
+							const { taskList: taskListType } = schema.nodes;
+							const parentTaskList = $from.node($from.depth - 1);
+							const grandparent = $from.depth >= 3 ? $from.node($from.depth - 2) : null;
+							if (parentTaskList?.type === taskListType && grandparent?.type === taskListType) {
+								tr.setSelection(TextSelection.create(tr.doc, insertPos + 1));
+							}
+
+							return tr;
 						}
 					}
 					/**
@@ -827,16 +808,17 @@ const enter = (
 						// If the selection is a gap cursor at the end of the blockTaskItem,
 						// we should insert a new taskItem.
 						if (
-							(fg('platform_editor_blocktaskitem_patch_2')
-								? !$from.parent.isTextblock || isInLastTextblockOfBlockTaskItem(state)
-								: true) &&
+							(!$from.parent.isTextblock || isInLastTextblockOfBlockTaskItem(state)) &&
 							$from.parentOffset === $from.parent.nodeSize - 2
 						) {
-							const newTaskItem = taskItem.createAndFill({
-								localId: itemLocalId,
-							});
-							if (newTaskItem) {
-								tr.insert(blockTaskItemNode.pos + blockTaskItemNode.node.nodeSize, newTaskItem);
+							const currentBlockTaskFontSizeAttrs = getCurrentBlockTaskFontSizeAttrs(state, $from);
+							const newTaskNode = createTaskItemForCurrentTextSize(
+								state,
+								{ localId: itemLocalId },
+								currentBlockTaskFontSizeAttrs,
+							);
+							if (newTaskNode) {
+								tr.insert(blockTaskItemNode.pos + blockTaskItemNode.node.nodeSize, newTaskNode);
 
 								// Move the cursor to the end of the newly inserted blockTaskItem
 								tr.setSelection(
@@ -850,15 +832,19 @@ const enter = (
 						}
 
 						// Split near the depth of the current selection
-						return tr.split(
-							$from.pos,
-							fg('platform_editor_blocktaskitem_patch_2')
-								? $from?.parent?.isTextblock
-									? 2
-									: 1
-								: $from.depth - 1,
-							[{ type: blockTaskItem, attrs: { localId: itemLocalId } }],
-						);
+						const splitTr = tr.split($from.pos, $from?.parent?.isTextblock ? 2 : 1, [
+							{ type: blockTaskItem, attrs: { localId: itemLocalId } },
+						]);
+						const currentBlockTaskFontSizeAttrs = getCurrentBlockTaskFontSizeAttrs(state, $from);
+						if (currentBlockTaskFontSizeAttrs) {
+							reconcileBlockMarkForParagraphAtPos(
+								splitTr,
+								splitTr.selection.from,
+								state.schema.marks.fontSize,
+								currentBlockTaskFontSizeAttrs,
+							);
+						}
+						return splitTr;
 					}
 					return tr.split($from.pos, 1, [{ type: nodeType, attrs: { localId: itemLocalId } }]);
 				};
@@ -932,13 +918,12 @@ export function keymapPlugin(
 		: {};
 
 	const toggleTaskListShortcut = (state: EditorState, dispatch?: (tr: Transaction) => void) => {
-
 		if (!state.schema.nodes.taskItem) {
 			return false;
 		}
 
 		if (dispatch) {
-			const command = toggleTaskList();
+			const command = toggleTaskList(api?.analytics?.actions)();
 			const tr = command({ tr: state.tr });
 			if (tr) {
 				dispatch(tr);

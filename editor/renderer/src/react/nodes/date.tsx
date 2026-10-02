@@ -1,16 +1,19 @@
 import React, { memo } from 'react';
+
+import { injectIntl } from 'react-intl';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+
 import { DateSharedCssClassName } from '@atlaskit/editor-common/styles';
 import {
 	isPastDate,
 	timestampToString,
 	timestampToTaskContext,
 } from '@atlaskit/editor-common/utils';
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
+
+import { useRendererContext } from '../../renderer-context';
+import { useInlineAnnotationProps } from '../../ui/annotations/element/useInlineAnnotationProps';
+import type { MarkDataAttributes } from '../../ui/annotations/element/useInlineAnnotationProps';
 import { useTaskItemsFormatContext } from '../../ui/TaskItemsFormatContext/TaskItemsFormatContext';
-import {
-	type MarkDataAttributes,
-	useInlineAnnotationProps,
-} from '../../ui/annotations/element/useInlineAnnotationProps';
 
 export interface Props extends MarkDataAttributes {
 	parentIsIncompleteTask?: boolean;
@@ -20,8 +23,9 @@ export interface Props extends MarkDataAttributes {
 const Date = memo(function Date(props: Props & WrappedComponentProps) {
 	const inlineAnnotationProps = useInlineAnnotationProps(props);
 	const { timestamp, parentIsIncompleteTask, intl } = props;
+	const { timeZone } = useRendererContext();
 	const className =
-		!!parentIsIncompleteTask && isPastDate(timestamp)
+		!!parentIsIncompleteTask && isPastDate(timestamp, timeZone)
 			? 'date-node date-node-highlighted'
 			: 'date-node';
 
@@ -40,14 +44,17 @@ const Date = memo(function Date(props: Props & WrappedComponentProps) {
 				data-timestamp={timestamp}
 			>
 				{parentIsIncompleteTask
-					? timestampToTaskContext(timestamp, intl)
+					? timestampToTaskContext(timestamp, intl, timeZone)
 					: timestampToString(timestamp, intl)}
 			</span>
 		</span>
 	);
 });
 
-export const DateComponent = injectIntl(Date);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const DateComponent: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(Date);
 
 function DateWithFormatContext(props: Props): React.JSX.Element {
 	const [isChecked] = useTaskItemsFormatContext();

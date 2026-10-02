@@ -2,12 +2,16 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { type ReactNode } from 'react';
-import { type AppearanceType } from '@atlaskit/avatar';
-import { SizeableAvatar } from './SizeableAvatar';
-import { getAvatarSize } from './utils';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
+
+import type { AppearanceType } from '@atlaskit/avatar/types';
+
+import { getAvatarSize } from './getAvatarSize';
+import { SizeableAvatar } from './SizeableAvatar';
 
 export type AvatarOrIconProps = {
 	appearance?: string;
@@ -24,12 +28,13 @@ const iconStyle = css({
 	alignItems: 'center',
 	justifyContent: 'center',
 	flexShrink: 0,
-})
+});
 
 const iconSizes = {
-	xsmall: css({width: '20px', height: '20px'}),	
-	small: css({width: '28px', height: '28px'}),
-	medium: css({width: '36px', height: '36px'}),
+	xxsmall: css({ width: '20px', height: '20px' }),
+	xsmall: css({ width: '20px', height: '20px' }),
+	small: css({ width: '28px', height: '28px' }),
+	medium: css({ width: '36px', height: '36px' }),
 };
 
 export const AvatarOrIcon = ({
@@ -40,12 +45,14 @@ export const AvatarOrIcon = ({
 	presence,
 	src,
 	type = 'person',
-}: AvatarOrIconProps) => {
+}: AvatarOrIconProps): jsx.JSX.Element => {
 	// If icon is provided, render it instead of avatar
 	if (icon) {
 		const avatarSize = getAvatarSize(appearance);
 		return (
-			<div css={[iconStyle, iconSizes[avatarSize]]} style={{color: iconColor}}>{icon}</div>
+			<div css={[iconStyle, iconSizes[avatarSize]]} style={{ color: iconColor }}>
+				{icon}
+			</div>
 		);
 	}
 
@@ -60,5 +67,3 @@ export const AvatarOrIcon = ({
 		/>
 	);
 };
-
-

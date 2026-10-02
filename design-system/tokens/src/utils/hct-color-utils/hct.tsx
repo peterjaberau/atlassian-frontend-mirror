@@ -20,8 +20,17 @@
  * limitations under the License.
  */
 
-import * as utils from './color-utils';
-import * as math from './math-utils';
+import { argbFromLinrgb } from './argb-from-linrgb';
+import { argbFromLstar } from './argb-from-lstar';
+import { argbFromXyz } from './argb-from-xyz';
+import { linearized } from './linearized';
+import { lstarFromArgb } from './lstar-from-argb';
+import { lstarFromY } from './lstar-from-y';
+import { matrixMultiply } from './matrix-multiply';
+import { sanitizeDegreesDouble } from './sanitize-degrees-double';
+import { signum } from './signum';
+import { ViewingConditions } from './viewing-conditions';
+import { yFromLstar } from './y-from-lstar';
 
 /**
  * A color system built using CAM16 hue and chroma, and L* from
@@ -57,6 +66,7 @@ export class Hct {
 	internalHue: number;
 	internalChroma: number;
 	internalTone: number;
+	private argb: number;
 
 	static from(hue: number, chroma: number, tone: number): Hct {
 		return new Hct(HctSolver.solveToInt(hue, chroma, tone));
@@ -120,19 +130,19 @@ export class Hct {
 		this.setInternalState(HctSolver.solveToInt(this.internalHue, this.internalChroma, newTone));
 	}
 
-	private constructor(private argb: number) {
+	private constructor(argb: number) {
+		this.argb = argb;
 		const cam = Cam16.fromInt(argb);
 		this.internalHue = cam.hue;
 		this.internalChroma = cam.chroma;
-		this.internalTone = utils.lstarFromArgb(argb);
-		this.argb = argb;
+		this.internalTone = lstarFromArgb(argb);
 	}
 
 	private setInternalState(argb: number) {
 		const cam = Cam16.fromInt(argb);
 		this.internalHue = cam.hue;
 		this.internalChroma = cam.chroma;
-		this.internalTone = utils.lstarFromArgb(argb);
+		this.internalTone = lstarFromArgb(argb);
 		this.argb = argb;
 	}
 
@@ -166,7 +176,7 @@ export class Hct {
 		// 3. Create HCT from:
 		// - CAM16 using default VC with XYZ coordinates in specified VC.
 		// - L* converted from Y in XYZ coordinates in specified VC.
-		const recastHct = Hct.from(recastInVc.hue, recastInVc.chroma, utils.lstarFromY(viewedInVc[1]));
+		const recastHct = Hct.from(recastInVc.hue, recastInVc.chroma, lstarFromY(viewedInVc[1]));
 		return recastHct;
 	}
 }
@@ -209,17 +219,37 @@ class Cam16 {
 	 * @param astar CAM16-UCS a coordinate
 	 * @param bstar CAM16-UCS b coordinate
 	 */
+	readonly hue: number;
+	readonly chroma: number;
+	readonly j: number;
+	readonly q: number;
+	readonly m: number;
+	readonly s: number;
+	readonly jstar: number;
+	readonly astar: number;
+	readonly bstar: number;
+
 	constructor(
-		readonly hue: number,
-		readonly chroma: number,
-		readonly j: number,
-		readonly q: number,
-		readonly m: number,
-		readonly s: number,
-		readonly jstar: number,
-		readonly astar: number,
-		readonly bstar: number,
-	) {}
+		hue: number,
+		chroma: number,
+		j: number,
+		q: number,
+		m: number,
+		s: number,
+		jstar: number,
+		astar: number,
+		bstar: number,
+	) {
+		this.hue = hue;
+		this.chroma = chroma;
+		this.j = j;
+		this.q = q;
+		this.m = m;
+		this.s = s;
+		this.jstar = jstar;
+		this.astar = astar;
+		this.bstar = bstar;
+	}
 
 	/**
 	 * CAM16 instances also have coordinates in the CAM16-UCS space, called J*,
@@ -254,9 +284,9 @@ class Cam16 {
 		const red = (argb & 0x00ff0000) >> 16;
 		const green = (argb & 0x0000ff00) >> 8;
 		const blue = argb & 0x000000ff;
-		const redL = utils.linearized(red);
-		const greenL = utils.linearized(green);
-		const blueL = utils.linearized(blue);
+		const redL = linearized(red);
+		const greenL = linearized(green);
+		const blueL = linearized(blue);
 		const x = 0.41233895 * redL + 0.35762064 * greenL + 0.18051042 * blueL;
 		const y = 0.2126 * redL + 0.7152 * greenL + 0.0722 * blueL;
 		const z = 0.01932141 * redL + 0.11916382 * greenL + 0.95034478 * blueL;
@@ -273,9 +303,9 @@ class Cam16 {
 		const gAF = Math.pow((viewingConditions.fl * Math.abs(gD)) / 100.0, 0.42);
 		const bAF = Math.pow((viewingConditions.fl * Math.abs(bD)) / 100.0, 0.42);
 
-		const rA = (math.signum(rD) * 400.0 * rAF) / (rAF + 27.13);
-		const gA = (math.signum(gD) * 400.0 * gAF) / (gAF + 27.13);
-		const bA = (math.signum(bD) * 400.0 * bAF) / (bAF + 27.13);
+		const rA = (signum(rD) * 400.0 * rAF) / (rAF + 27.13);
+		const gA = (signum(gD) * 400.0 * gAF) / (gAF + 27.13);
+		const bA = (signum(bD) * 400.0 * bAF) / (bAF + 27.13);
 
 		const a = (11.0 * rA + -12.0 * gA + bA) / 11.0;
 		const b = (rA + gA - 2.0 * bA) / 9.0;
@@ -434,11 +464,11 @@ class Cam16 {
 		const bA = (460.0 * p2 - 220.0 * a - 6300.0 * b) / 1403.0;
 
 		const rCBase = Math.max(0, (27.13 * Math.abs(rA)) / (400.0 - Math.abs(rA)));
-		const rC = math.signum(rA) * (100.0 / viewingConditions.fl) * Math.pow(rCBase, 1.0 / 0.42);
+		const rC = signum(rA) * (100.0 / viewingConditions.fl) * Math.pow(rCBase, 1.0 / 0.42);
 		const gCBase = Math.max(0, (27.13 * Math.abs(gA)) / (400.0 - Math.abs(gA)));
-		const gC = math.signum(gA) * (100.0 / viewingConditions.fl) * Math.pow(gCBase, 1.0 / 0.42);
+		const gC = signum(gA) * (100.0 / viewingConditions.fl) * Math.pow(gCBase, 1.0 / 0.42);
 		const bCBase = Math.max(0, (27.13 * Math.abs(bA)) / (400.0 - Math.abs(bA)));
-		const bC = math.signum(bA) * (100.0 / viewingConditions.fl) * Math.pow(bCBase, 1.0 / 0.42);
+		const bC = signum(bA) * (100.0 / viewingConditions.fl) * Math.pow(bCBase, 1.0 / 0.42);
 		const rF = rC / viewingConditions.rgbD[0];
 		const gF = gC / viewingConditions.rgbD[1];
 		const bF = bC / viewingConditions.rgbD[2];
@@ -447,7 +477,7 @@ class Cam16 {
 		const y = 0.38752654 * rF + 0.62144744 * gF - 0.00897398 * bF;
 		const z = -0.0158415 * rF - 0.03412294 * gF + 1.04996444 * bF;
 
-		const argb = utils.argbFromXyz(x, y, z);
+		const argb = argbFromXyz(x, y, z);
 		return argb;
 	}
 
@@ -474,9 +504,9 @@ class Cam16 {
 		const rAF = Math.pow((viewingConditions.fl * Math.abs(rD)) / 100.0, 0.42);
 		const gAF = Math.pow((viewingConditions.fl * Math.abs(gD)) / 100.0, 0.42);
 		const bAF = Math.pow((viewingConditions.fl * Math.abs(bD)) / 100.0, 0.42);
-		const rA = (math.signum(rD) * 400.0 * rAF) / (rAF + 27.13);
-		const gA = (math.signum(gD) * 400.0 * gAF) / (gAF + 27.13);
-		const bA = (math.signum(bD) * 400.0 * bAF) / (bAF + 27.13);
+		const rA = (signum(rD) * 400.0 * rAF) / (rAF + 27.13);
+		const gA = (signum(gD) * 400.0 * gAF) / (gAF + 27.13);
+		const bA = (signum(bD) * 400.0 * bAF) / (bAF + 27.13);
 
 		// redness-greenness
 		const a = (11.0 * rA + -12.0 * gA + bA) / 11.0;
@@ -554,11 +584,11 @@ class Cam16 {
 		const bA = (460.0 * p2 - 220.0 * a - 6300.0 * b) / 1403.0;
 
 		const rCBase = Math.max(0, (27.13 * Math.abs(rA)) / (400.0 - Math.abs(rA)));
-		const rC = math.signum(rA) * (100.0 / viewingConditions.fl) * Math.pow(rCBase, 1.0 / 0.42);
+		const rC = signum(rA) * (100.0 / viewingConditions.fl) * Math.pow(rCBase, 1.0 / 0.42);
 		const gCBase = Math.max(0, (27.13 * Math.abs(gA)) / (400.0 - Math.abs(gA)));
-		const gC = math.signum(gA) * (100.0 / viewingConditions.fl) * Math.pow(gCBase, 1.0 / 0.42);
+		const gC = signum(gA) * (100.0 / viewingConditions.fl) * Math.pow(gCBase, 1.0 / 0.42);
 		const bCBase = Math.max(0, (27.13 * Math.abs(bA)) / (400.0 - Math.abs(bA)));
-		const bC = math.signum(bA) * (100.0 / viewingConditions.fl) * Math.pow(bCBase, 1.0 / 0.42);
+		const bC = signum(bA) * (100.0 / viewingConditions.fl) * Math.pow(bCBase, 1.0 / 0.42);
 		const rF = rC / viewingConditions.rgbD[0];
 		const gF = gC / viewingConditions.rgbD[1];
 		const bF = bC / viewingConditions.rgbD[2];
@@ -688,7 +718,7 @@ class HctSolver {
 
 	private static chromaticAdaptation(component: number): number {
 		const af = Math.pow(Math.abs(component), 0.42);
-		return (math.signum(component) * 400.0 * af) / (af + 27.13);
+		return (signum(component) * 400.0 * af) / (af + 27.13);
 	}
 
 	/**
@@ -698,7 +728,7 @@ class HctSolver {
 	 * @return The hue of the color in CAM16, in radians.
 	 */
 	private static hueOf(linrgb: number[]): number {
-		const scaledDiscount = math.matrixMultiply(linrgb, HctSolver.SCALED_DISCOUNT_FROM_LINRGB);
+		const scaledDiscount = matrixMultiply(linrgb, HctSolver.SCALED_DISCOUNT_FROM_LINRGB);
 		const rA = HctSolver.chromaticAdaptation(scaledDiscount[0]);
 		const gA = HctSolver.chromaticAdaptation(scaledDiscount[1]);
 		const bA = HctSolver.chromaticAdaptation(scaledDiscount[2]);
@@ -912,7 +942,7 @@ class HctSolver {
 	private static inverseChromaticAdaptation(adapted: number): number {
 		const adaptedAbs = Math.abs(adapted);
 		const base = Math.max(0, (27.13 * adaptedAbs) / (400.0 - adaptedAbs));
-		return math.signum(adapted) * Math.pow(base, 1.0 / 0.42);
+		return signum(adapted) * Math.pow(base, 1.0 / 0.42);
 	}
 
 	/**
@@ -956,7 +986,7 @@ class HctSolver {
 			const rCScaled = HctSolver.inverseChromaticAdaptation(rA);
 			const gCScaled = HctSolver.inverseChromaticAdaptation(gA);
 			const bCScaled = HctSolver.inverseChromaticAdaptation(bA);
-			const linrgb = math.matrixMultiply(
+			const linrgb = matrixMultiply(
 				[rCScaled, gCScaled, bCScaled],
 				HctSolver.LINRGB_FROM_SCALED_DISCOUNT,
 			);
@@ -977,7 +1007,7 @@ class HctSolver {
 				if (linrgb[0] > 100.01 || linrgb[1] > 100.01 || linrgb[2] > 100.01) {
 					return 0;
 				}
-				return utils.argbFromLinrgb(linrgb);
+				return argbFromLinrgb(linrgb);
 			}
 			// Iterates with Newton method,
 			// Using 2 * fn(j) / j as the approximation of fn'(j)
@@ -1000,17 +1030,17 @@ class HctSolver {
 	 */
 	static solveToInt(hueDegrees: number, chroma: number, lstar: number): number {
 		if (chroma < 0.0001 || lstar < 0.0001 || lstar > 99.9999) {
-			return utils.argbFromLstar(lstar);
+			return argbFromLstar(lstar);
 		}
-		hueDegrees = math.sanitizeDegreesDouble(hueDegrees);
+		hueDegrees = sanitizeDegreesDouble(hueDegrees);
 		const hueRadians = (hueDegrees / 180) * Math.PI;
-		const y = utils.yFromLstar(lstar);
+		const y = yFromLstar(lstar);
 		const exactAnswer = HctSolver.findResultByJ(hueRadians, chroma, y);
 		if (exactAnswer !== 0) {
 			return exactAnswer;
 		}
 		const linrgb = HctSolver.bisectToLimit(y, hueRadians);
-		return utils.argbFromLinrgb(linrgb);
+		return argbFromLinrgb(linrgb);
 	}
 
 	/**
@@ -1028,98 +1058,4 @@ class HctSolver {
 	static solveToCam(hueDegrees: number, chroma: number, lstar: number): Cam16 {
 		return Cam16.fromInt(HctSolver.solveToInt(hueDegrees, chroma, lstar));
 	}
-}
-export class ViewingConditions {
-	/**
-	 * sRGB-like viewing conditions.
-	 */
-	static DEFAULT: ViewingConditions = ViewingConditions.make();
-
-	/**
-	 * Create ViewingConditions from a simple, physically relevant, set of
-	 * parameters.
-	 *
-	 * @param whitePoint White point, measured in the XYZ color space.
-	 *     default = D65, or sunny day afternoon
-	 * @param adaptingLuminance The luminance of the adapting field. Informally,
-	 *     how bright it is in the room where the color is viewed. Can be
-	 *     calculated from lux by multiplying lux by 0.0586. default = 11.72,
-	 *     or 200 lux.
-	 * @param backgroundLstar The lightness of the area surrounding the color.
-	 *     measured by L* in L*a*b*. default = 50.0
-	 * @param surround A general description of the lighting surrounding the
-	 *     color. 0 is pitch dark, like watching a movie in a theater. 1.0 is a
-	 *     dimly light room, like watching TV at home at night. 2.0 means there
-	 *     is no difference between the lighting on the color and around it.
-	 *     default = 2.0
-	 * @param discountingIlluminant Whether the eye accounts for the tint of the
-	 *     ambient lighting, such as knowing an apple is still red in green light.
-	 *     default = false, the eye does not perform this process on
-	 *       self-luminous objects like displays.
-	 */
-	static make(
-		whitePoint: number[] = utils.whitePointD65(),
-		adaptingLuminance: number = ((200.0 / Math.PI) * utils.yFromLstar(50.0)) / 100.0,
-		backgroundLstar = 50.0,
-		surround = 2.0,
-		discountingIlluminant = false,
-	): ViewingConditions {
-		const xyz = whitePoint;
-		const rW = xyz[0] * 0.401288 + xyz[1] * 0.650173 + xyz[2] * -0.051461;
-		const gW = xyz[0] * -0.250268 + xyz[1] * 1.204414 + xyz[2] * 0.045854;
-		const bW = xyz[0] * -0.002079 + xyz[1] * 0.048952 + xyz[2] * 0.953127;
-		const f = 0.8 + surround / 10.0;
-		const c =
-			f >= 0.9 ? math.lerp(0.59, 0.69, (f - 0.9) * 10.0) : math.lerp(0.525, 0.59, (f - 0.8) * 10.0);
-		let d = discountingIlluminant
-			? 1.0
-			: f * (1.0 - (1.0 / 3.6) * Math.exp((-adaptingLuminance - 42.0) / 92.0));
-		d = d > 1.0 ? 1.0 : d < 0.0 ? 0.0 : d;
-		const nc = f;
-		const rgbD = [
-			d * (100.0 / rW) + 1.0 - d,
-			d * (100.0 / gW) + 1.0 - d,
-			d * (100.0 / bW) + 1.0 - d,
-		];
-		const k = 1.0 / (5.0 * adaptingLuminance + 1.0);
-		const k4 = k * k * k * k;
-		const k4F = 1.0 - k4;
-		const fl = k4 * adaptingLuminance + 0.1 * k4F * k4F * Math.cbrt(5.0 * adaptingLuminance);
-		const n = utils.yFromLstar(backgroundLstar) / whitePoint[1];
-		const z = 1.48 + Math.sqrt(n);
-		const nbb = 0.725 / Math.pow(n, 0.2);
-		const ncb = nbb;
-		const rgbAFactors = [
-			Math.pow((fl * rgbD[0] * rW) / 100.0, 0.42),
-			Math.pow((fl * rgbD[1] * gW) / 100.0, 0.42),
-			Math.pow((fl * rgbD[2] * bW) / 100.0, 0.42),
-		];
-		const rgbA = [
-			(400.0 * rgbAFactors[0]) / (rgbAFactors[0] + 27.13),
-			(400.0 * rgbAFactors[1]) / (rgbAFactors[1] + 27.13),
-			(400.0 * rgbAFactors[2]) / (rgbAFactors[2] + 27.13),
-		];
-		const aw = (2.0 * rgbA[0] + rgbA[1] + 0.05 * rgbA[2]) * nbb;
-		return new ViewingConditions(n, aw, nbb, ncb, c, nc, rgbD, fl, Math.pow(fl, 0.25), z);
-	}
-
-	/**
-	 * Parameters are intermediate values of the CAM16 conversion process. Their
-	 * names are shorthand for technical color science terminology, this class
-	 * would not benefit from documenting them individually. A brief overview
-	 * is available in the CAM16 specification, and a complete overview requires
-	 * a color science textbook, such as Fairchild's Color Appearance Models.
-	 */
-	private constructor(
-		public n: number,
-		public aw: number,
-		public nbb: number,
-		public ncb: number,
-		public c: number,
-		public nc: number,
-		public rgbD: number[],
-		public fl: number,
-		public fLRoot: number,
-		public z: number,
-	) {}
 }

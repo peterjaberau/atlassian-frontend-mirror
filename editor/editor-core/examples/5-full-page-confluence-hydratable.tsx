@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import {
 	getExamplesProviders,
@@ -9,7 +9,8 @@ import {
 import Button from '@atlaskit/button/standard-button';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { TitleInput } from '@atlaskit/editor-test-helpers/example-helpers';
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
 import { createCollabEditProvider } from '@atlaskit/synchrony-test-helpers';
 
@@ -40,6 +41,7 @@ const HydratableEditorExample = (): React.JSX.Element => {
 				<ComposableEditor
 					preset={preset}
 					appearance={appearance}
+					UNSAFE_containLayout
 					collabEdit={{ provider: collabEditProvider }}
 					disabled={false}
 					defaultValue={hydrateAdf}

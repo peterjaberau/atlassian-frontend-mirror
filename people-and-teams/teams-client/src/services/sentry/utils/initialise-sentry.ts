@@ -1,7 +1,7 @@
 import { type SentryClient, type SentryInstallConfig } from '../types';
-
 import { getSentryConfig } from './get-sentry-config';
-import { sentryClient, setSentryClient } from './sentry-client';
+import { sentryClientRef } from './sentry-client-ref';
+import { setSentryClient } from './set-sentry-client';
 
 const DISABLED_INTEGRATIONS = [
 	'onerror',
@@ -10,8 +10,11 @@ const DISABLED_INTEGRATIONS = [
 	'Dedupe',
 ];
 
-export async function initialiseSentry(client: SentryClient, options: SentryInstallConfig): Promise<void> {
-	if (sentryClient) {
+export async function initialiseSentry(
+	client: SentryClient,
+	options: SentryInstallConfig,
+): Promise<void> {
+	if (sentryClientRef.current) {
 		return;
 	}
 
@@ -23,7 +26,7 @@ export async function initialiseSentry(client: SentryClient, options: SentryInst
 
 	const sentryConfig = getSentryConfig(options);
 
-	sentryClient!.init({
+	sentryClientRef.current!.init({
 		...sentryConfig,
 		integrations: function (integrations) {
 			return integrations.filter(function (integration) {

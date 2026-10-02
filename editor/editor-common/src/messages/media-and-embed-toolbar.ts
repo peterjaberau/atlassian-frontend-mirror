@@ -1,6 +1,37 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const toolbarMessages = defineMessages({
+export const toolbarMessages: {
+	changeToMediaInlineImage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	changeToMediaInlineImageCaptionWarning: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	changeToMediaSingle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	replaceMedia: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	wrapLeft: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	wrapRight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	wrapLeft: {
 		id: 'fabric.editor.wrapLeft',
 		defaultMessage: 'Wrap left',
@@ -28,5 +59,11 @@ export const toolbarMessages = defineMessages({
 		defaultMessage: 'Inline (caption will be removed)',
 		description:
 			'In the context of media single contains media node, it allows the user to convert media single to media inline image and warn user about caption being removed',
+	},
+	replaceMedia: {
+		id: 'fabric.editor.media.replace.non-final',
+		defaultMessage: 'Replace',
+		description:
+			'Replaces the source file of the selected image or media while preserving its size, layout, and caption.',
 	},
 });

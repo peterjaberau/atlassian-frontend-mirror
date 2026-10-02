@@ -1,8 +1,8 @@
 import type { Rule } from 'eslint';
 
-import { createLintRule } from '../utils/create-rule';
-
-import { JSXElement, StyledComponent } from './node-types';
+import { createLintRule } from '../utils/create-lint-rule';
+import { JSXElement } from './node-types/jsx-element';
+import { StyledComponent } from './node-types/styled-component';
 
 const rule: Rule.RuleModule = createLintRule({
 	meta: {

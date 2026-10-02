@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/empty-state",
-	"version": "10.1.12",
+	"version": "12.2.4",
 	"description": "An empty state appears when there is no data to display and describes what the user can do next.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,23 +17,34 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Empty state",
-			"category": "Status indicators"
+			"category": "Messaging"
 		}
 	},
 	"dependencies": {
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/spinner": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -43,39 +54,16 @@
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
+		"react": "^19.0.0",
 		"react-dom": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"design-system": "v1",
-			"deprecation": "no-deprecated-imports"
-		}
-	},
 	"homepage": "https://atlassian.design/components/empty-state/",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
-		"./types": "./src/types.tsx",
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./empty-state": "./src/empty-state.tsx",
+		"./types": "./src/types.tsx"
 	}
 }

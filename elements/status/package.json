@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/status",
-	"version": "3.1.4",
+	"version": "5.12.24",
 	"description": "Fabric Status React Components",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -14,10 +14,31 @@
 	"types": "dist/types/index.d.ts",
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Editor: Core Experiences",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Status"
 		}
+	},
+	"devDependencies": {
+		"@af/visual-regression": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/experiment-test-utils": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"@testing-library/jest-dom": "root:*",
+		"@testing-library/react": "root:*",
+		"react": "root:*",
+		"react-intl": "root:*"
 	},
 	"sideEffects": [
 		"*.compiled.css"
@@ -30,27 +51,19 @@
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/lozenge": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
+		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0",
-		"react-intl-next": "*"
-	},
-	"devDependencies": {
-		"@af/visual-regression": "workspace:^",
-		"@atlaskit/elements-test-helpers": "workspace:^",
-		"@atlassian/a11y-jest-testing": "workspace:^",
-		"@atlassian/feature-flags-test-utils": "workspace:^",
-		"@testing-library/jest-dom": "root:*",
-		"@testing-library/react": "root:*",
-		"enzyme": "root:*",
-		"react": "root:*",
-		"react-intl-next": "root:*"
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"keywords": [
 		"ui",
@@ -58,24 +71,6 @@
 		"fabric",
 		"editor"
 	],
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color"
-			],
-			"styling": [
-				"compiled"
-			]
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
 		".": "./src/index.ts",
 		"./element": "./src/element.ts",
@@ -83,10 +78,22 @@
 			"publish": null,
 			"default": "./src/i18n/*.ts"
 		},
-		"./picker": "./src/picker.ts"
+		"./picker": "./src/picker.ts",
+		"./status": "./src/components/Status.tsx",
+		"./status-colors": "./src/components/status-colors.ts",
+		"./status-picker": "./src/components/StatusPicker.tsx"
 	},
 	"platform-feature-flags": {
 		"platform-component-visual-refresh": {
+			"type": "boolean"
+		},
+		"platform-dst-lozenge-tag-badge-visual-uplifts": {
+			"type": "boolean"
+		},
+		"platform_editor_gracefully_render_status_color": {
+			"type": "boolean"
+		},
+		"platform_editor_status_popup_suggestions_patch_3": {
 			"type": "boolean"
 		}
 	}

@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 
-import { AnalyticsListener, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 
 import { ANALYTICS_CHANNEL } from '../../constants';
 import { type LinkCreateProps } from '../../types';
-
 import { type LinkCreateAnalyticsContextType } from './analytics.codegen';
 
 export type TrackAttribute = <K extends keyof LinkCreateAnalyticsContextType>(
@@ -88,7 +88,8 @@ const contextAttributesFromInitialProps = <
 /**
  * Hook that exposes the context-level attribute getters and setters.
  */
-export const useLinkCreateAnalytics = () => useContext(LinkCreateAnalyticsContext);
+export const useLinkCreateAnalytics = (): AnalyticsContextType =>
+	useContext(LinkCreateAnalyticsContext);
 
 /**
  * Wrap component in "attributes" context store and initialise the initial context attributes from props.

@@ -6,6 +6,7 @@ import {
 	type ComponentPropsWithoutRef,
 	type ComponentPropsWithRef,
 	forwardRef,
+	type JSX,
 	type ReactElement,
 	type ReactNode,
 } from 'react';
@@ -88,7 +89,7 @@ type FocusableComponent = <T extends CustomElement>(props: FocusableProps<T>) =>
  * A focus ring visually indicates the currently focused item.
  *
  */
-const Focusable = forwardRef(
+export const Focusable = forwardRef(
 	<T extends CustomElement>(
 		{
 			as: Component = 'button' as T,
@@ -112,7 +113,6 @@ const Focusable = forwardRef(
 				// @ts-ignore Expression produces a union type that is too complex to represent. We may be able to narrow the type here but unsure.
 				ref={ref}
 				className={xcss}
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 				style={style}
 				css={[focusRingStyles, isInset && insetFocusRingStyles]}
 				data-testid={testId}
@@ -122,5 +122,3 @@ const Focusable = forwardRef(
 		);
 	},
 ) as FocusableComponent;
-
-export default Focusable;

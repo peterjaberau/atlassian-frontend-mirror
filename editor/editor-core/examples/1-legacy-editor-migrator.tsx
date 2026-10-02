@@ -2,16 +2,16 @@ import React, { useMemo, useState } from 'react';
 
 import cloneDeepWith from 'lodash/cloneDeepWith';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { code } from '@atlaskit/docs';
 import type { AllEditorPresetPluginTypes } from '@atlaskit/editor-common/preset';
-import { type EditorProps } from '@atlaskit/editor-core';
+import type { EditorProps } from '@atlaskit/editor-core';
 import { createUniversalPresetInternal } from '@atlaskit/editor-core/preset-universal';
 import CopyIcon from '@atlaskit/icon/core/copy';
 import { Box } from '@atlaskit/primitives/compiled';
 
 import { getDefaultPresetOptionsFromEditorProps } from '../src/create-editor/create-plugins-list';
-import { type EditorNextProps } from '../src/types/editor-props';
+import type { EditorNextProps } from '../src/types/editor-props';
 import { createFeatureFlagsFromProps } from '../src/utils/feature-flags-from-props';
 
 type Complete<T> = {
@@ -55,9 +55,11 @@ const allComposableEditorProps: Complete<EditorNextProps> = {
 	extensionProviders: undefined,
 	UNSAFE_useAnalyticsContext: undefined,
 	useStickyToolbar: undefined,
+	isEditorModernisationEnabled: undefined,
 	featureFlags: undefined,
 	__livePage: undefined,
 	onSave: undefined,
+	onSSRMeasure: undefined,
 	sanitizePrivateContent: undefined,
 	collabEdit: undefined,
 	primaryToolbarComponents: undefined,
@@ -80,6 +82,7 @@ const allComposableEditorProps: Complete<EditorNextProps> = {
 	performanceTracking: undefined,
 	skipValidation: undefined,
 	syncedBlockProvider: undefined,
+	UNSAFE_containLayout: undefined,
 };
 
 const pluginNameExceptions = {
@@ -114,14 +117,13 @@ function converter(props: EditorProps) {
 	});
 	const plugins = preset.build({});
 
-	// @ts-expect-error
 	const basePlugins: AllEditorPresetPluginTypes[] = preset.data.reverse().filter(Boolean);
 
 	const optimisedPresetAdds = basePlugins
 		.map((plugin, idx) => {
 			const pluginName = Object.keys(pluginNameExceptions).includes(plugins[idx].name)
 				? // @ts-expect-error
-				  pluginNameExceptions[plugins[idx].name]
+					pluginNameExceptions[plugins[idx].name]
 				: plugins[idx].name + 'Plugin';
 			if (Array.isArray(plugin) && plugin[1] && Object.keys(plugin[1]).length > 0) {
 				const parsedPluginOptions =
@@ -136,7 +138,7 @@ function converter(props: EditorProps) {
 		.map((_, idx) => {
 			const pluginName = Object.keys(pluginNameExceptions).includes(plugins[idx].name)
 				? // @ts-expect-error
-				  pluginNameExceptions[plugins[idx].name]
+					pluginNameExceptions[plugins[idx].name]
 				: plugins[idx].name + 'Plugin';
 			return `import { ${pluginName} } from '@atlaskit/editor-plugins/${camelToKebabCase(
 				plugins[idx].name,

@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@atlassian/testing-library';
 
 import UFOInteractionContext, { type UFOInteractionContextType } from '../../interaction-context';
-import UFOInteractionIDContext, { DefaultInteractionID } from '../../interaction-id-context';
+import UFOInteractionIDContext from '../../interaction-id-context';
+import DefaultInteractionID from '../../interaction-id-context/defaultInteractionId';
 import UFOLoadHold from '../UFOLoadHold';
 
 // Mock functions to track calls
 const mockHold = jest.fn();
-const mockHoldExperimental = jest.fn();
 const mockTracePress = jest.fn();
 
 // Create a proper mock context that satisfies the UFOInteractionContextType interface
@@ -23,7 +23,6 @@ const createMockContext = (
 	addCustomData: jest.fn(),
 	addCustomTimings: jest.fn(),
 	addApdex: jest.fn(),
-	holdExperimental: mockHoldExperimental,
 	...overrides,
 });
 
@@ -104,24 +103,9 @@ describe('UFOLoadHold', () => {
 		});
 	});
 
-	describe('experimental mode', () => {
-		it('should call holdExperimental when experimental prop is true and holdExperimental exists', () => {
+	describe('deprecated experimental mode', () => {
+		it('should ignore the experimental prop and call regular hold', () => {
 			const mockContext = createMockContext();
-
-			render(
-				<UFOInteractionIDContext.Provider value={DefaultInteractionID}>
-					<UFOInteractionContext.Provider value={mockContext}>
-						<UFOLoadHold name="experimental-hold" experimental={true} />
-					</UFOInteractionContext.Provider>
-				</UFOInteractionIDContext.Provider>,
-			);
-
-			expect(mockHoldExperimental).toHaveBeenCalledWith('experimental-hold');
-			expect(mockHold).not.toHaveBeenCalled();
-		});
-
-		it('should fall back to regular hold when experimental is true but holdExperimental is not available', () => {
-			const mockContext = createMockContext({ holdExperimental: undefined });
 
 			render(
 				<UFOInteractionIDContext.Provider value={DefaultInteractionID}>
@@ -132,22 +116,6 @@ describe('UFOLoadHold', () => {
 			);
 
 			expect(mockHold).toHaveBeenCalledWith('experimental-hold');
-			expect(mockHoldExperimental).not.toHaveBeenCalled();
-		});
-
-		it('should call regular hold when experimental is false', () => {
-			const mockContext = createMockContext();
-
-			render(
-				<UFOInteractionIDContext.Provider value={DefaultInteractionID}>
-					<UFOInteractionContext.Provider value={mockContext}>
-						<UFOLoadHold name="regular-hold" experimental={false} />
-					</UFOInteractionContext.Provider>
-				</UFOInteractionIDContext.Provider>,
-			);
-
-			expect(mockHold).toHaveBeenCalledWith('regular-hold');
-			expect(mockHoldExperimental).not.toHaveBeenCalled();
 		});
 	});
 

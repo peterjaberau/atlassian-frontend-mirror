@@ -1,12 +1,12 @@
 import React, { memo, useState } from 'react';
-import {
-	ResourcedEmojiControl,
-	getEmojiConfig,
-	getRealEmojiProvider,
-} from '../example-helpers/demo-resource-control';
-import { emojiPickerHeight } from '../src/util/constants';
-import { IntlProvider } from 'react-intl-next';
+
+import { IntlProvider } from 'react-intl';
+
+import { getEmojiConfig } from '../example-helpers/get-emoji-config';
+import { getRealEmojiProvider } from '../example-helpers/get-real-emoji-provider';
+import { ResourcedEmojiControl } from '../example-helpers/resourced-emoji-control';
 import { type EmojiProvider, ResourcedEmoji } from '../src';
+import { emojiPickerHeight } from '../src/util/constants';
 
 interface RenderRealEmojisProps {
 	count: number;
@@ -15,7 +15,9 @@ interface RenderRealEmojisProps {
 	hideWrongEmojis?: boolean;
 }
 
-export const RenderRealResourcedEmojis = memo((props: RenderRealEmojisProps): React.JSX.Element => {
+export const RenderRealResourcedEmojis: React.MemoExoticComponent<
+	(props: RenderRealEmojisProps) => React.JSX.Element
+> = memo((props: RenderRealEmojisProps): React.JSX.Element => {
 	const emojiTest = {
 		id: '64ca858e-6ee7-40e2-832a-432a7422f144',
 		fallback: ':emoji-test:',

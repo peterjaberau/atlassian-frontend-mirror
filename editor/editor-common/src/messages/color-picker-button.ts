@@ -1,6 +1,12 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const colorPickerButtonMessages = defineMessages({
+export const colorPickerButtonMessages: {
+	colorPickerMenuLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	colorPickerMenuLabel: {
 		id: 'fabric.editor.colorPicker.menuLabel',
 		defaultMessage: 'Color picker menu',

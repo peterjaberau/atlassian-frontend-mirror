@@ -5,10 +5,10 @@
 
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 interface Props {
 	onChange: (value: number) => void;
@@ -31,7 +31,7 @@ const buttonWrapperStyles = css({
 	justifyContent: 'space-between',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'& > * + *': {
-		marginLeft: token('space.100', '8px'),
+		marginLeft: token('space.100'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'& > *': {
@@ -45,7 +45,7 @@ const buttonWrapperStyles = css({
 
 const descriptionWrapperStyles = css({
 	display: 'flex',
-	marginTop: token('space.100', '8px'),
+	marginTop: token('space.100'),
 	justifyContent: 'space-between',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'& > span': {
@@ -53,7 +53,7 @@ const descriptionWrapperStyles = css({
 	},
 });
 
-export default ({ onChange, value, scoreSubtext }: Props) => (
+export default ({ onChange, value, scoreSubtext }: Props): React.JSX.Element => (
 	<div>
 		<div css={buttonWrapperStyles}>
 			{Array.from({ length: 7 }, (_, i) => {
@@ -78,7 +78,7 @@ export default ({ onChange, value, scoreSubtext }: Props) => (
 		</div>
 		<div css={descriptionWrapperStyles} aria-hidden>
 			<Text color="color.text.subtlest" size="small" weight="regular" align="start">
-				 {scoreSubtext ? scoreSubtext[0] : 'Not at all'}
+				{scoreSubtext ? scoreSubtext[0] : 'Not at all'}
 			</Text>
 			<Text color="color.text.subtlest" size="small" weight="regular" align="center">
 				{scoreSubtext ? scoreSubtext[1] : 'Neutral'}

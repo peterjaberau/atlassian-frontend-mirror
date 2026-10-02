@@ -2,12 +2,12 @@ import React from 'react';
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { MessageDescriptor } from 'react-intl-next';
+import type { MessageDescriptor } from 'react-intl';
 
 import { TeamActions } from './index';
 
-jest.mock('react-intl-next', () => ({
-	...jest.requireActual('react-intl-next'),
+jest.mock('react-intl', () => ({
+	...jest.requireActual('react-intl'),
 	useIntl: jest.fn().mockReturnValue({
 		formatMessage: ({ defaultMessage }: MessageDescriptor) => defaultMessage,
 	}),

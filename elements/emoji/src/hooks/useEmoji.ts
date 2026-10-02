@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+
 import { EmojiContext } from '../context/EmojiContext';
 import type { EmojiProvider, UploadingEmojiProvider } from '../resource';
 
@@ -13,7 +14,10 @@ const supportsUploadFeature = (
 	);
 };
 
-export const useEmoji = () => {
+export const useEmoji = (): {
+	emojiProvider: EmojiProvider;
+	isUploadSupported: boolean;
+} => {
 	const context = useContext(EmojiContext);
 
 	// Hooks API

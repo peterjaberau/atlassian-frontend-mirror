@@ -5,23 +5,23 @@
 import type { ReactNode } from 'react';
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 import type { Change } from 'diff';
 import { diffLines } from 'diff';
 
-import Button from '@atlaskit/button/new';
-import TextArea from '@atlaskit/textarea';
+import Button from '@atlaskit/button/default/button';
+import TextArea from '@atlaskit/textarea/text-area';
 import { token } from '@atlaskit/tokens';
 
 const container = css({
 	display: 'flex',
 	flexDirection: 'column',
-	margin: token('space.100', '8px'),
+	margin: token('space.100'),
 	height: 'calc(100% - 30px)',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'> *': {
-		margin: `${token('space.100', '8px')} 0`,
+		margin: `${token('space.100')} 0`,
 	},
 });
 
@@ -45,7 +45,7 @@ const diffContainer = css({
 	lineHeight: '16px',
 	overflow: 'auto',
 	wordWrap: 'break-word',
-	padding: `${token('space.075', '6px')} ${token('space.075', '6px')}`,
+	padding: `${token('space.075')} ${token('space.075')}`,
 });
 
 const buttonContainer = css({
@@ -81,7 +81,7 @@ const label = css({
 	textAlign: 'center',
 	borderTop: `${token('border.width')} solid ${token('color.border')}`,
 	fontSize: '16px',
-	paddingTop: token('space.200', '16px'),
+	paddingTop: token('space.200'),
 });
 
 type State = {
@@ -93,8 +93,13 @@ type State = {
 
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
-export default class DiffingExample extends React.Component<null, State> {
-	state = {
+export default class DiffingExample extends React.Component<{}, State> {
+	state: {
+		diffs: never[];
+		documentOne: string;
+		documentTwo: string;
+		editMode: boolean;
+	} = {
 		editMode: true,
 		diffs: [],
 		documentOne: '',
@@ -134,7 +139,7 @@ export default class DiffingExample extends React.Component<null, State> {
 			return <LineComponent key={idx}>{diff.value}</LineComponent>;
 		});
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { editMode, diffs, documentOne, documentTwo } = this.state;
 		return (
 			<div css={container}>

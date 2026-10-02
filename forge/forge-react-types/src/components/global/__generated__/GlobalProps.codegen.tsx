@@ -3,10 +3,10 @@
  *
  * Generated prop types for Global component - Global
  *
- * @codegen <<SignedSource::01c434a8e1088249f55e97bba99aa916>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen-global
- * @codegenDependency ../../../../../../../services/forge-common-app-gateway/src/types/global-component-props.ts <<SignedSource::ad330a446ee260180d5b510c18b5e1c8>>
- * @codegenDependency ../../../../../../../services/forge-common-app-gateway/src/components/global/Global.tsx <<SignedSource::54502ae221b976e3c4f4849cff6be726>>
+ * @codegen <<SignedSource::f8a62a104b0debe096eec647654232cd>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen-global
+ * @codegenDependency ../../../../../../../services/forge-common-app-gateway/src/types/global-component-props.ts <<SignedSource::3217debf5ba68e84ca5ef7cdbf6ebb43>>
+ * @codegenDependency ../../../../../../../services/forge-common-app-gateway/src/components/global/Global.tsx <<SignedSource::b4211eca9dac23a616225ac8e136d31e>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
@@ -14,9 +14,26 @@ import type React from 'react';
 
 export type GlobalProps = {
 	/**
-	 * Accepts Global.Sidebar and Global.Main components as children.
+	 * Accepts CreateButton, HelpLink, Sidebar and Main components as children.
 	 */
 	children?: React.ReactElement | React.ReactElement[];
+	/**
+	 * Hides the top navigation and side navigation so the app renders in the full viewport.
+	 *
+	 * Not supported for general use. This prop is temporary and may change or be removed without
+	 * notice.
+	 */
+	unsupported_hideChrome?: boolean;
+	/**
+	 * Renders a lozenge next to the app name in the top navigation, for labelling the app's release
+	 * stage. For example, `"Alpha"` or `"Beta"`.
+	 *
+	 * The text is truncated if it is too long, and the lozenge is hidden on smaller viewports.
+	 *
+	 * Not supported for general use. This prop is temporary and may change or be removed without
+	 * notice.
+	 */
+	unsupported_appBadge?: string;
 };
 
 export type TGlobal<T> = (props: GlobalProps) => T;

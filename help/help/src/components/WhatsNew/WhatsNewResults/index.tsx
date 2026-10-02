@@ -2,33 +2,31 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-/** @jsxFrag */
 
 import React, { useCallback, useState, useRef } from 'react';
-import { Transition } from 'react-transition-group';
-import isEqual from 'lodash/isEqual';
-import Select from '@atlaskit/select';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
-import { css, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { Label } from '@atlaskit/form';
 
-import { VIEW } from '../../constants';
+import { css, jsx } from '@compiled/react';
+import isEqual from 'lodash/isEqual';
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+import { Transition } from 'react-transition-group';
+
+import { Label } from '@atlaskit/form/label/default';
+import Select from '@atlaskit/select/default';
+import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../messages';
-import { WHATS_NEW_ITEM_TYPES } from '../../../model/WhatsNew';
 import { REQUEST_STATE } from '../../../model/Requests';
-
+import { WHATS_NEW_ITEM_TYPES } from '../../../model/WhatsNew';
+import { VIEW } from '../../constants';
 import { type TransitionStatus, NUMBER_OF_WHATS_NEW_ITEMS_PER_PAGE } from '../../constants';
-import { useWhatsNewArticleContext } from '../../contexts/whatsNewArticleContext';
-import { useNavigationContext } from '../../contexts/navigationContext';
 import { useAiContext } from '../../contexts/aiAgentContext';
-
+import { useNavigationContext } from '../../contexts/navigationContext';
+import { useWhatsNewArticleContext } from '../../contexts/whatsNewArticleContext';
+import { SelectContainer, WhatsNewResultsListContainer } from './styled';
 import WhatsNewResultsEmpty from './WhatsNewResultsEmpty';
 import WhatsNewResultsError from './WhatsNewResultsError';
-import WhatsNewResultsLoading from './WhatsNewResultsLoading';
 import WhatsNewResultsList from './WhatsNewResultsList';
-import { SelectContainer, WhatsNewResultsListContainer } from './styled';
+import WhatsNewResultsLoading from './WhatsNewResultsLoading';
 
 interface SelectOption {
 	label: string;
@@ -42,30 +40,30 @@ const whatsNewResultsContainerStyles = css({
 	height: '100%',
 	width: '100%',
 	top: 0,
-	backgroundColor: token('elevation.surface', '#FFFFFF'),
+	backgroundColor: token('elevation.surface'),
 	flex: 1,
 	flexDirection: 'column',
 	boxSizing: 'border-box',
 	overflowX: 'hidden',
 	overflowY: 'auto',
 	zIndex: 1,
-	paddingTop: token('space.200', '16px'),
-	paddingRight: token('space.200', '16px'),
-	paddingBottom: token('space.200', '16px'),
-	paddingLeft: token('space.200', '16px'),
+	paddingTop: token('space.200'),
+	paddingRight: token('space.200'),
+	paddingBottom: token('space.200'),
+	paddingLeft: token('space.200'),
 	transition: `opacity ${FADEIN_OVERLAY_TRANSITION_DURATION_MS}ms`,
 	opacity: 0,
 	visibility: 'hidden',
 });
 
 const whatsNewResultsContainerAiStyles = css({
-	paddingBottom: token('space.200', '16px'),
-	paddingLeft: token('space.200', '16px'),
-	paddingRight: token('space.200', '16px'),
+	paddingBottom: token('space.200'),
+	paddingLeft: token('space.200'),
+	paddingRight: token('space.200'),
 	position: 'absolute',
 	width: '100%',
-	top: token('space.800', '60px'),
-	backgroundColor: token('elevation.surface', '#FFFFFF'),
+	top: token('space.800'),
+	backgroundColor: token('elevation.surface'),
 	flex: 1,
 	flexDirection: 'column',
 	boxSizing: 'border-box',
@@ -176,7 +174,7 @@ export const WhatsNewResults: React.FC<WrappedComponentProps> = ({ intl: { forma
 							searchWhatsNewArticlesState === REQUEST_STATE.loading) &&
 							searchWhatsNewArticlesResult !== null &&
 							state !== 'exited' && (
-								<>
+								<React.Fragment>
 									<SelectContainer>
 										<Label htmlFor="help_whats_new_filter_select_label">
 											{formatMessage(messages.help_whats_new_filter_select_label)}
@@ -259,7 +257,7 @@ export const WhatsNewResults: React.FC<WrappedComponentProps> = ({ intl: { forma
 											<WhatsNewResultsEmpty onClearFilter={handleOnClearFilter} />
 										)}
 									</WhatsNewResultsListContainer>
-								</>
+								</React.Fragment>
 							)}
 
 						{searchWhatsNewArticlesState === REQUEST_STATE.error && (
@@ -282,7 +280,7 @@ export const WhatsNewResults: React.FC<WrappedComponentProps> = ({ intl: { forma
 							searchWhatsNewArticlesState === REQUEST_STATE.loading) &&
 							searchWhatsNewArticlesResult !== null &&
 							state !== 'exited' && (
-								<>
+								<React.Fragment>
 									<SelectContainer>
 										<Label htmlFor="help_whats_new_filter_select_label">
 											{formatMessage(messages.help_whats_new_filter_select_label)}
@@ -365,7 +363,7 @@ export const WhatsNewResults: React.FC<WrappedComponentProps> = ({ intl: { forma
 											<WhatsNewResultsEmpty onClearFilter={handleOnClearFilter} />
 										)}
 									</WhatsNewResultsListContainer>
-								</>
+								</React.Fragment>
 							)}
 
 						{searchWhatsNewArticlesState === REQUEST_STATE.error && (

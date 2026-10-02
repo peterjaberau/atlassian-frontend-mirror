@@ -1,17 +1,18 @@
-import React, { type ComponentProps } from 'react';
+import React from 'react';
+import type { ComponentProps } from 'react';
 
 import rafSchedule from 'raf-schd';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import type { RichMediaLayout } from '@atlaskit/adf-schema';
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import type { Layout as RichMediaLayout } from '@atlaskit/adf-schema/rich-media-common';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
+import { isConfluenceSlideUrl } from '@atlaskit/editor-card-provider/url-checkers';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type { getPosHandler } from '@atlaskit/editor-common/react-node-view';
 import ReactNodeView from '@atlaskit/editor-common/react-node-view';
 import type {
@@ -27,7 +28,7 @@ import {
 } from '@atlaskit/editor-common/ui';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
 import { floatingLayouts, isRichMediaInsideOfBlockNode } from '@atlaskit/editor-common/utils';
-import { type EditorViewModePluginState } from '@atlaskit/editor-plugin-editor-viewmode';
+import type { EditorViewModePluginState } from '@atlaskit/editor-plugin-editor-viewmode';
 import type { Highlights } from '@atlaskit/editor-plugin-grid';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, PluginKey } from '@atlaskit/editor-prosemirror/state';
@@ -37,19 +38,50 @@ import {
 	DEFAULT_EMBED_CARD_HEIGHT,
 	DEFAULT_EMBED_CARD_WIDTH,
 } from '@atlaskit/editor-shared-styles';
-import { componentWithCondition } from '@atlaskit/platform-feature-flags-react';
+import {
+	SmartLinkDraggable,
+	SMART_LINK_DRAG_TYPES,
+	SMART_LINK_APPEARANCE,
+} from '@atlaskit/editor-smart-link-draggable';
+import type { CardContext } from '@atlaskit/link-provider/types';
+import { componentWithCondition } from '@atlaskit/platform-feature-flags-react/component-with-condition';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { EmbedResizeMessageListener, Card as SmartCard } from '@atlaskit/smart-card';
 import { CardSSR } from '@atlaskit/smart-card/ssr';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import type { cardPlugin } from '../index';
 import { registerCard, removeCard } from '../pm-plugins/actions';
 import ResizableEmbedCard from '../ui/ResizableEmbedCard';
-
+import { SmartCardSSRReactContextsProvider } from '../ui/SmartCardSSRReactContextsProvider';
 import { BlockCardComponent } from './blockCard';
 import type { SmartCardProps } from './genericCard';
 import { Card } from './genericCard';
+
+/**
+ * Returns a forced aspect ratio for URLs that have a known canvas shape,
+ * overriding the generic value returned by the link resolver.
+ * Add new URL checks here as more content types get fixed aspect ratios.
+ */
+/**
+ * Returns a forced aspect ratio for URLs that have a known canvas shape,
+ * or `undefined` to use the default resolver-provided ratio.
+ *
+ * @internal Exported for testing only.
+ */
+export const getAspectRatioForUrl = (url: string | undefined): number | undefined => {
+	if (
+		url &&
+		isConfluenceSlideUrl(url) &&
+		!fg('cc-mui-slides-opted-out') &&
+		expValEqualsNoExposure('cc-mui-slides-experiment', 'isEnabled', true)
+	) {
+		// Slides have a 16:9 canvas
+		return 16 / 9;
+	}
+	return undefined;
+};
 
 interface CardProps {
 	fullWidthMode?: boolean;
@@ -214,8 +246,11 @@ export class EmbedCardComponent extends React.PureComponent<
 	onResolve = (data: { aspectRatio?: number; title?: string; url?: string }): void => {
 		const { view } = this.props;
 
-		const { title, url, aspectRatio } = data;
+		const { title, url, aspectRatio: resolvedAspectRatio } = data;
 		const { originalHeight, originalWidth } = this.props.node.attrs;
+
+		const aspectRatio = getAspectRatioForUrl(url) ?? resolvedAspectRatio;
+
 		if (aspectRatio && !originalHeight && !originalWidth) {
 			// Assumption here is if ADF already have both height and width set,
 			// we will going to use that later on in this class as aspectRatio
@@ -260,7 +295,7 @@ export class EmbedCardComponent extends React.PureComponent<
 		} catch {}
 	};
 
-	updateSize = (pctWidth: number | null, layout: RichMediaLayout) => {
+	updateSize = (pctWidth: number | null, layout: RichMediaLayout): true | undefined => {
 		const { state, dispatch } = this.props.view;
 		const pos = this.getPosSafely();
 		if (pos === undefined) {
@@ -312,10 +347,7 @@ export class EmbedCardComponent extends React.PureComponent<
 
 			if (domNode instanceof HTMLElement) {
 				const measuredWidth = domNode.offsetWidth;
-				if (
-					measuredWidth <= 1 &&
-					expValEquals('editor_fix_embed_width_expand', 'isEnabled', true)
-				) {
+				if (measuredWidth <= 1) {
 					this.scheduleLineLengthRemeasureRaf(view);
 					return originalLineLength;
 				}
@@ -474,27 +506,33 @@ export class EmbedCardComponent extends React.PureComponent<
 		);
 
 		return (
-			<EmbedResizeMessageListener
-				embedIframeRef={this.embedIframeRef}
-				onHeightUpdate={this.onHeightUpdate}
+			<SmartLinkDraggable
+				url={url}
+				appearance={SMART_LINK_APPEARANCE.EMBED}
+				source={SMART_LINK_DRAG_TYPES.EDITOR}
 			>
-				<CardInner
-					pluginInjectionApi={pluginInjectionApi}
-					smartCard={smartCard}
-					hasPreview={hasPreview}
-					getPosSafely={this.getPosSafely}
-					view={view}
-					getLineLength={this.getLineLength}
-					eventDispatcher={this.props.eventDispatcher as EventDispatcher}
-					updateSize={this.updateSize}
-					getPos={getPos}
-					aspectRatio={aspectRatio}
-					allowResizing={allowResizing}
-					heightAlone={heightAlone}
-					cardProps={cardProps}
-					dispatchAnalyticsEvent={dispatchAnalyticsEvent}
-				/>
-			</EmbedResizeMessageListener>
+				<EmbedResizeMessageListener
+					embedIframeRef={this.embedIframeRef}
+					onHeightUpdate={this.onHeightUpdate}
+				>
+					<CardInner
+						pluginInjectionApi={pluginInjectionApi}
+						smartCard={smartCard}
+						hasPreview={hasPreview}
+						getPosSafely={this.getPosSafely}
+						view={view}
+						getLineLength={this.getLineLength}
+						eventDispatcher={this.props.eventDispatcher as EventDispatcher}
+						updateSize={this.updateSize}
+						getPos={getPos}
+						aspectRatio={aspectRatio}
+						allowResizing={allowResizing}
+						heightAlone={heightAlone}
+						cardProps={cardProps}
+						dispatchAnalyticsEvent={dispatchAnalyticsEvent}
+					/>
+				</EmbedResizeMessageListener>
+			</SmartLinkDraggable>
 		);
 	}
 }
@@ -575,6 +613,8 @@ export type EmbedCardNodeViewProps = Pick<
 	| 'isPageSSRed'
 	| 'provider'
 	| 'CompetitorPrompt'
+	| 'intl'
+	| 'smartCardContext'
 >;
 
 export class EmbedCard extends ReactNodeView<EmbedCardNodeViewProps> {
@@ -624,25 +664,44 @@ export class EmbedCard extends ReactNodeView<EmbedCardNodeViewProps> {
 			CompetitorPrompt,
 			isPageSSRed,
 			provider,
+			intl,
+			smartCardContext,
 		} = this.reactComponentProps;
 
 		return (
-			<WrappedEmbedCard
-				node={this.node}
-				view={this.view}
-				eventDispatcher={eventDispatcher}
-				getPos={this.getPos}
-				allowResizing={allowResizing}
-				fullWidthMode={fullWidthMode}
-				dispatchAnalyticsEvent={dispatchAnalyticsEvent}
-				pluginInjectionApi={pluginInjectionApi}
-				onClickCallback={onClickCallback}
-				id={this.id}
-				CompetitorPrompt={CompetitorPrompt}
-				isPageSSRed={isPageSSRed}
-				provider={provider}
-			/>
+			<SmartCardSSRReactContextsProvider intl={intl} smartCardContext={smartCardContext}>
+				<WrappedEmbedCard
+					node={this.node}
+					view={this.view}
+					eventDispatcher={eventDispatcher}
+					getPos={this.getPos}
+					allowResizing={allowResizing}
+					fullWidthMode={fullWidthMode}
+					dispatchAnalyticsEvent={dispatchAnalyticsEvent}
+					pluginInjectionApi={pluginInjectionApi}
+					onClickCallback={onClickCallback}
+					id={this.id}
+					CompetitorPrompt={CompetitorPrompt}
+					isPageSSRed={isPageSSRed}
+					provider={provider}
+				/>
+			</SmartCardSSRReactContextsProvider>
 		);
+	}
+
+	/**
+	 * Prevent ProseMirror from handling drag events on the smart-element-link,
+	 * allowing native drag to work so SmartLinkDraggable can intercept it.
+	 * @see {@link https://prosemirror.net/docs/ref/#view.NodeView.stopEvent}
+	 */
+	stopEvent(event: Event): boolean {
+		if (event.type === 'dragstart') {
+			const target = event.target;
+			if (target instanceof HTMLElement && target.closest('[data-smart-element-link]')) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	destroy(): void {
@@ -656,11 +715,13 @@ export interface EmbedCardNodeViewProperties {
 	allowResizing: EmbedCardNodeViewProps['allowResizing'];
 	CompetitorPrompt?: EmbedCardNodeViewProps['CompetitorPrompt'];
 	fullWidthMode: EmbedCardNodeViewProps['fullWidthMode'];
+	intl?: IntlShape;
 	isPageSSRed: EmbedCardNodeViewProps['isPageSSRed'];
 	onClickCallback: EmbedCardNodeViewProps['onClickCallback'];
 	pluginInjectionApi: ExtractInjectionAPI<typeof cardPlugin> | undefined;
 	pmPluginFactoryParams: PMPluginFactoryParams;
 	provider: EmbedCardNodeViewProps['provider'];
+	smartCardContext?: CardContext;
 }
 
 export const embedCardNodeView =
@@ -674,8 +735,10 @@ export const embedCardNodeView =
 		CompetitorPrompt,
 		isPageSSRed,
 		provider,
+		intl,
+		smartCardContext,
 	}: EmbedCardNodeViewProperties) =>
-	(node: PMNode, view: EditorView, getPos: () => number | undefined) => {
+	(node: PMNode, view: EditorView, getPos: () => number | undefined): EmbedCard => {
 		const { portalProviderAPI, eventDispatcher, dispatchAnalyticsEvent } = pmPluginFactoryParams;
 		const reactComponentProps: EmbedCardNodeViewProps = {
 			eventDispatcher,
@@ -688,6 +751,8 @@ export const embedCardNodeView =
 			CompetitorPrompt,
 			isPageSSRed,
 			provider,
+			intl,
+			smartCardContext,
 		};
 
 		return new EmbedCard(

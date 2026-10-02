@@ -1,35 +1,25 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
-import { useCallback, useMemo, useRef, Fragment } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
 import isEqual from 'lodash/isEqual';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import { FabricEditorAnalyticsContext } from '@atlaskit/analytics-namespaced-context';
+import { FabricEditorAnalyticsContext } from '@atlaskit/analytics-namespaced-context/FabricEditorAnalyticsContext';
 import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
-import type { FireAnalyticsCallback } from '@atlaskit/editor-common/analytics';
-import { ACTION, fireAnalyticsEvent } from '@atlaskit/editor-common/analytics';
+import { ACTION } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import { startMeasure, stopMeasure } from '@atlaskit/editor-common/performance-measures';
 import type { Transformer } from '@atlaskit/editor-common/types';
 import { getAnalyticsAppearance } from '@atlaskit/editor-common/utils/analytics';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import EditorActions from '../actions';
 import type { EditorNextProps, EditorProps } from '../types/editor-props';
-import { type WithAppearanceComponent } from '../types/with-appearance-component';
+import type { WithAppearanceComponent } from '../types/with-appearance-component';
 import { useEditorContext } from '../ui/EditorContext';
 import { createFeatureFlagsFromProps } from '../utils/feature-flags-from-props';
 import measurements from '../utils/performance/measure-enum';
 import { name, version } from '../version-wrapper';
-
-import { EditorINPMetrics } from './editor-inp-metrics';
 import { EditorInternal } from './editor-internal';
 import useMeasureEditorMountTime from './hooks/useMeasureEditorMountTime';
 // Ignored via go/ees005
@@ -54,13 +44,6 @@ function Editor(passedProps: EditorProps & EditorNextProps & WithAppearanceCompo
 	const editorActionsPlaceholderInstance = useMemo(() => new EditorActions(), []);
 	const editorActions = editorContext.editorActions || editorActionsPlaceholderInstance;
 	const { createAnalyticsEvent } = useAnalyticsEvents();
-
-	const handleAnalyticsEvent: FireAnalyticsCallback = useCallback(
-		(data) => {
-			fireAnalyticsEvent(createAnalyticsEvent)(data);
-		},
-		[createAnalyticsEvent],
-	);
 
 	const getFeatureFlagsFromRef = useCallback(() => {
 		return {
@@ -134,31 +117,19 @@ function Editor(passedProps: EditorProps & EditorNextProps & WithAppearanceCompo
 		},
 		[onSaveFromProps],
 	);
-	const isFullPageAppearance = Boolean(
-		props.appearance &&
-			[
-				'full-page',
-				'full-width',
-				...(editorExperiment('platform_synced_block', true) ? ['max'] : []),
-			].includes(props.appearance),
-	);
 
 	return (
-		<Fragment>
-			{isFullPageAppearance ? <EditorINPMetrics /> : null}
-			<EditorInternal
-				props={props}
-				handleAnalyticsEvent={handleAnalyticsEvent}
-				createAnalyticsEvent={createAnalyticsEvent}
-				preset={props.preset}
-				handleSave={handleSave}
-				editorActions={editorActions}
-				onEditorCreated={onEditorCreated}
-				onEditorDestroyed={onEditorDestroyed}
-				providerFactory={providerFactory}
-				AppearanceComponent={props.AppearanceComponent}
-			/>
-		</Fragment>
+		<EditorInternal
+			props={props}
+			createAnalyticsEvent={createAnalyticsEvent}
+			preset={props.preset}
+			handleSave={handleSave}
+			editorActions={editorActions}
+			onEditorCreated={onEditorCreated}
+			onEditorDestroyed={onEditorDestroyed}
+			providerFactory={providerFactory}
+			AppearanceComponent={props.AppearanceComponent}
+		/>
 	);
 }
 
@@ -177,7 +148,8 @@ const useMemoEditorFeatureFlags = (featureFlags?: { [featureFlag: string]: strin
  * @param props
  * @example
  */
-export function CoreEditor(props: EditorNextProps & WithAppearanceComponent) {
+// oxlint-disable-next-line eslint/no-redeclare
+export function CoreEditor(props: EditorNextProps & WithAppearanceComponent): React.JSX.Element {
 	// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 	const editorSessionId = useRef(uuid());
 	const data = useMemo(() => {
@@ -205,6 +177,16 @@ export function CoreEditor(props: EditorNextProps & WithAppearanceComponent) {
 		</FabricEditorAnalyticsContext>
 	);
 }
+// eslint-disable-next-line @typescript-eslint/no-namespace, @atlaskit/volt-strict-mode/no-multiple-exports
+export declare namespace CoreEditor {
+	// eslint-disable-next-line no-var
+	export var propTypes: {
+		minHeight: ({
+			appearance,
+			minHeight,
+		}: Pick<EditorNextProps, 'appearance' | 'minHeight'>) => Error | null;
+	};
+}
 
 CoreEditor.propTypes = {
 	minHeight: ({ appearance, minHeight }: Pick<EditorNextProps, 'appearance' | 'minHeight'>) => {
@@ -217,4 +199,5 @@ CoreEditor.propTypes = {
 	},
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default CoreEditor;

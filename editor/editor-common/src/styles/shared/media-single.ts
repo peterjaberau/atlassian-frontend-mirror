@@ -1,5 +1,7 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { akEditorWrappedNodeZIndex } from '@atlaskit/editor-shared-styles';
 import { token } from '@atlaskit/tokens';
@@ -8,7 +10,7 @@ const richMediaClassName = 'rich-media-item';
 
 const wrappedMediaBreakoutPoint = 410;
 
-const mediaSingleSharedStyle = css({
+const mediaSingleSharedStyle: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	[`li .${richMediaClassName}`]: {
 		margin: 0,
@@ -37,15 +39,15 @@ const mediaSingleSharedStyle = css({
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	[`table .${richMediaClassName}`]: {
-		marginTop: token('space.150', '12px'),
-		marginBottom: token('space.150', '12px'),
+		marginTop: token('space.150'),
+		marginBottom: token('space.150'),
 		clear: 'both',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		'&.image-wrap-left[data-layout], &.image-wrap-right[data-layout]': {
 			clear: 'none',
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 			'&:first-child': {
-				marginTop: token('space.150', '12px'),
+				marginTop: token('space.150'),
 			},
 		},
 	},
@@ -66,12 +68,12 @@ const mediaSingleSharedStyle = css({
 			{
 				float: 'none',
 				overflow: 'auto',
-				margin: `${token('space.150', '12px')} 0`,
+				margin: `${token('space.150')} 0`,
 			},
 	},
 });
 
-const mediaSingleSharedStyleNew = css({
+const mediaSingleSharedStyleNew: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	[`li .${richMediaClassName}`]: {
 		margin: 0,
@@ -106,15 +108,15 @@ const mediaSingleSharedStyleNew = css({
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	[`table .${richMediaClassName}`]: {
-		marginTop: token('space.150', '12px'),
-		marginBottom: token('space.150', '12px'),
+		marginTop: token('space.150'),
+		marginBottom: token('space.150'),
 		clear: 'both',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		'&.image-wrap-left[data-layout], &.image-wrap-right[data-layout]': {
 			clear: 'none',
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 			'&:first-child': {
-				marginTop: token('space.150', '12px'),
+				marginTop: token('space.150'),
 			},
 		},
 	},
@@ -135,10 +137,10 @@ const mediaSingleSharedStyleNew = css({
 			{
 				float: 'none',
 				overflow: 'auto',
-				margin: `${token('space.150', '12px')} 0`,
+				margin: `${token('space.150')} 0`,
 			},
 	},
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export { mediaSingleSharedStyle, mediaSingleSharedStyleNew, richMediaClassName };

@@ -1,13 +1,14 @@
 import React from 'react';
 
-import { backgroundColor } from '@atlaskit/adf-schema';
+import { backgroundColor } from '@atlaskit/adf-schema/background-color';
 import type {
 	Command,
 	FloatingToolbarCustom,
 	ToolbarUIComponentFactory,
 } from '@atlaskit/editor-common/types';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { changeColor } from './editor-commands/change-color';
 import type { HighlightPlugin } from './highlightPluginType';
@@ -60,7 +61,22 @@ export const highlightPlugin: HighlightPlugin = ({ api }) => {
 		name: 'highlight',
 
 		marks() {
-			return [{ name: 'backgroundColor', mark: backgroundColor }];
+			if (
+				expValEquals('platform_editor_lovability_text_bg_color', 'isEnabled', true) ||
+				isExperimentEnabled('platform_editor_lovability_color_schema_change')
+			) {
+				return [{ name: 'backgroundColor', mark: backgroundColor }];
+			}
+			// color is defined in platform/packages/editor/adf-schema/src/next-schema/marks/color.ts
+			return [
+				{
+					name: 'backgroundColor',
+					mark: {
+						...backgroundColor,
+						excludes: 'color',
+					},
+				},
+			];
 		},
 
 		commands: {
@@ -71,10 +87,7 @@ export const highlightPlugin: HighlightPlugin = ({ api }) => {
 			const plugins = [
 				{
 					name: 'highlight',
-					plugin: () =>
-						createPlugin({
-							api,
-						}),
+					plugin: () => createPlugin(),
 				},
 				{
 					name: 'highlightKeymap',
@@ -97,10 +110,8 @@ export const highlightPlugin: HighlightPlugin = ({ api }) => {
 		pluginsOptions: !isToolbarAIFCEnabled
 			? {
 					selectionToolbar() {
-						const toolbarDocking = fg('platform_editor_use_preferences_plugin')
-							? api?.userPreferences?.sharedState.currentState()?.preferences
-									?.toolbarDockingPosition
-							: api?.selectionToolbar?.sharedState?.currentState()?.toolbarDocking;
+						const toolbarDocking =
+							api?.userPreferences?.sharedState.currentState()?.preferences?.toolbarDockingPosition;
 
 						if (
 							toolbarDocking === 'none' &&

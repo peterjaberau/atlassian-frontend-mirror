@@ -48,6 +48,7 @@ const cssPseudos = [
 	'&:picture-in-picture',
 	'&:placeholder-shown',
 	'&:playing',
+	'&:popover-open',
 	'&:read-only',
 	'&:read-write',
 	'&:required',
@@ -72,6 +73,31 @@ const cssPseudos = [
 	'&::target-text',
 	'&::view-transition',
 	'&::-webkit-details-marker',
+	// Chained pseudos (CSSFlattenedChainedPsuedos from @compiled/react)
+	'&:active:visited',
+	'&:focus:not(:focus-visible)',
+	'&:focus::after',
+	'&:focus::before',
+	'&:focus-visible::after',
+	'&:focus-visible::before',
+	'&:focus-within::after',
+	'&:focus-within::before',
+	'&:hover::after',
+	'&:hover::before',
+	'&:visited:active',
+	'&:visited:hover',
+	'&:visited:focus',
+	'&:visited:focus-visible',
+	'&:visited:focus-within',
+	// Vendor pseudo-elements with no standard equivalent. These are not part of CSSPseudos, so the
+	// typed @atlaskit/css and xcss APIs still reject them.
+	'&::-moz-focus-inner',
+	'&::-moz-focus-outer',
+	'&::-moz-range-progress',
+	'&::-moz-range-thumb',
+	'&::-moz-range-track',
+	'&::-webkit-slider-runnable-track',
+	'&::-webkit-slider-thumb',
 ] as const;
 
 export const allowedPseudos: Set<string> = new Set(
@@ -81,12 +107,3 @@ export const allowedPseudos: Set<string> = new Set(
 	 */
 	cssPseudos.map((pseudo) => pseudo.slice(1)),
 );
-
-export const legacyPseudoElements: Set<string> = new Set([':after', ':before', ':first-letter', ':first-line']);
-
-export const ignoredAtRules: Set<string> = new Set([
-	'@container', // ignored because it's covered by `no-container-queries`
-	'@media', // ignored because it's covered by `no-nested-styles`
-	'@supports',
-	'@property',
-]);

@@ -3,13 +3,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { Component } from 'react';
-import type { PointerEvent } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import type { PointerEvent } from 'react';
+import React, { Component } from 'react';
+
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
 import { jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import memoizeOne from 'memoize-one';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 type DropdownItem = MenuItem & {
 	value: {
@@ -18,8 +20,8 @@ type DropdownItem = MenuItem & {
 };
 
 import { TableSortOrder as SortOrder } from '@atlaskit/custom-steps';
-import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
+import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { addColumnAfter, addRowAfter, backspace, tooltip } from '@atlaskit/editor-common/keymaps';
 import { tableMessages as messages } from '@atlaskit/editor-common/messages';
 import { DropdownMenuSharedCssClassName } from '@atlaskit/editor-common/styles';
@@ -27,6 +29,7 @@ import type { GetEditorContainerWidth, GetEditorFeatureFlags } from '@atlaskit/e
 import {
 	backgroundPaletteTooltipMessages,
 	cellBackgroundColorPalette,
+	cellBackgroundColorPaletteNew,
 	ColorPalette,
 	getSelectedRowAndColumnFromPalette,
 } from '@atlaskit/editor-common/ui-color';
@@ -54,9 +57,8 @@ import TableRowAddBelowIcon from '@atlaskit/icon/core/table-row-add-below';
 import TableRowDeleteIcon from '@atlaskit/icon/core/table-row-delete';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
-import { expValNoExposure } from '@atlaskit/tmp-editor-statsig/expVal';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import {
 	clearHoverSelection,
@@ -84,14 +86,13 @@ import { getNewResizeStateFromSelectedColumns } from '../../pm-plugins/table-res
 import { canMergeCells } from '../../pm-plugins/transforms/merge';
 import { getSelectedColumnIndexes, getSelectedRowIndexes } from '../../pm-plugins/utils/selection';
 import { getMergedCellsPositions } from '../../pm-plugins/utils/table';
-import { TableCssClassName as ClassName } from '../../types';
 import type { PluginInjectionAPI } from '../../types';
+import { TableCssClassName as ClassName } from '../../types';
 import {
+	colorPaletteColumns,
 	colorPalletteColumns,
-	contextualMenuDropdownWidth,
 	contextualMenuDropdownWidthDnD,
 } from '../consts';
-
 import { cellColourPreviewStyles } from './styles';
 
 interface Props {
@@ -118,12 +119,23 @@ interface State {
 	isOpenAllowed: boolean;
 	isSubmenuOpen: boolean;
 }
-const arrowsList = new Set(['ArrowRight', 'ArrowLeft']);
+
+const dropdownMenuSection = { hasSeparator: true };
 
 const elementBeforeIconStyles = xcss({
 	marginRight: 'space.negative.075',
 	display: 'flex',
 });
+
+const getArrowsList = memoizeOne(
+	() =>
+		new Set(
+			!expValEquals('platform_editor_toolbar_submenu_open_click', 'isEnabled', true)
+				? ['ArrowRight', 'ArrowLeft']
+				: ['ArrowRight'],
+		),
+);
+
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export class ContextualMenu extends Component<Props & WrappedComponentProps, State> {
 	state: State = {
@@ -131,7 +143,9 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 		isOpenAllowed: false,
 	};
 
-	static defaultProps = {
+	static defaultProps: {
+		boundariesElement: HTMLElement | undefined;
+	} = {
 		boundariesElement: typeof document !== 'undefined' ? document.body : undefined,
 	};
 	private dropdownMenuRef = React.createRef<HTMLDivElement>();
@@ -151,72 +165,59 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 	}
 
 	componentDidUpdate(): void {
-		const { isDragAndDropEnabled, isContextualMenuOpen } = getPluginState(
-			this.props.editorView.state,
-		);
+		const { isContextualMenuOpen } = getPluginState(this.props.editorView.state);
 
-		if (
-			isDragAndDropEnabled &&
-			this.props.isDragMenuOpen &&
-			isContextualMenuOpen &&
-			expValNoExposure('platform_editor_lovability_user_intent', 'isEnabled', false)
-		) {
+		if (this.props.isDragMenuOpen && isContextualMenuOpen) {
 			toggleContextualMenu()(this.props.editorView.state, this.props.editorView.dispatch);
 		}
 	}
 
-	render() {
-		const { isOpen, offset, boundariesElement, editorView, isCellMenuOpenByKeyboard, api } =
-			this.props;
-		const { isDragAndDropEnabled } = getPluginState(editorView.state);
-		const items = isDragAndDropEnabled
-			? this.createNewContextMenuItems()
-			: this.createOriginalContextMenuItems();
+	render(): jsx.JSX.Element {
+		const { isOpen, offset, boundariesElement, isCellMenuOpenByKeyboard, api } = this.props;
+		const items = this.createContextMenuItems();
 		let isOpenAllowed = false;
 
 		isOpenAllowed = isCellMenuOpenByKeyboard ? this.state.isOpenAllowed : isOpen;
-		const popupContent = () => (
-			<div
-				data-testid="table-cell-contextual-menu"
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
-				onMouseLeave={this.closeSubmenu}
-				ref={this.dropdownMenuRef}
-			>
-				<DropdownMenu
-					//This needs be removed when the a11y is completely handled
-					//Disabling key navigation now as it works only partially
-					arrowKeyNavigationProviderOptions={{
-						type: ArrowKeyNavigationType.MENU,
-						disableArrowKeyNavigation: !isCellMenuOpenByKeyboard || this.state.isSubmenuOpen,
-					}}
-					items={items}
-					isOpen={isOpenAllowed}
-					onOpenChange={this.handleOpenChange}
-					onItemActivated={this.onMenuItemActivated}
-					onMouseEnter={this.handleItemMouseEnter}
-					onMouseLeave={this.handleItemMouseLeave}
-					fitHeight={188}
-					fitWidth={
-						isDragAndDropEnabled ? contextualMenuDropdownWidthDnD : contextualMenuDropdownWidth
+
+		return (
+			<UserIntentPopupWrapper userIntent="tableContextualMenuPopupOpen" api={api}>
+				<div
+					data-testid="table-cell-contextual-menu"
+					onMouseLeave={
+						expValEquals('platform_editor_toolbar_submenu_open_click', 'isEnabled', true)
+							? undefined
+							: this.closeSubmenu
 					}
-					shouldFocusFirstItem={() => {
-						return Boolean(isCellMenuOpenByKeyboard);
-					}}
-					boundariesElement={boundariesElement}
-					offset={offset}
-					section={isDragAndDropEnabled ? { hasSeparator: true } : undefined}
-					allowEnterDefaultBehavior={this.state.isSubmenuOpen}
-				/>
-			</div>
+					ref={this.dropdownMenuRef}
+				>
+					<DropdownMenu
+						//This needs be removed when the a11y is completely handled
+						//Disabling key navigation now as it works only partially
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+						arrowKeyNavigationProviderOptions={{
+							type: ArrowKeyNavigationType.MENU,
+							disableArrowKeyNavigation: !isCellMenuOpenByKeyboard || this.state.isSubmenuOpen,
+						}}
+						items={items}
+						isOpen={isOpenAllowed}
+						onOpenChange={this.handleOpenChange}
+						onItemActivated={this.onMenuItemActivated}
+						onMouseEnter={this.handleItemMouseEnter}
+						onMouseLeave={this.handleItemMouseLeave}
+						fitHeight={188}
+						fitWidth={contextualMenuDropdownWidthDnD}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+						shouldFocusFirstItem={() => {
+							return Boolean(isCellMenuOpenByKeyboard);
+						}}
+						boundariesElement={boundariesElement}
+						offset={offset}
+						section={dropdownMenuSection}
+						allowEnterDefaultBehavior={this.state.isSubmenuOpen}
+					/>
+				</div>
+			</UserIntentPopupWrapper>
 		);
-		if (expValEqualsNoExposure('platform_editor_lovability_user_intent', 'isEnabled', true)) {
-			return (
-				<UserIntentPopupWrapper userIntent="tableContextualMenuPopupOpen" api={api}>
-					{popupContent()}
-				</UserIntentPopupWrapper>
-			);
-		}
-		return popupContent();
 	}
 
 	private handleSubMenuRef = (ref: HTMLDivElement | null) => {
@@ -271,27 +272,35 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 			isCellMenuOpenByKeyboard,
 		} = this.props;
 		const { isSubmenuOpen } = this.state;
-		const { targetCellPosition, isDragAndDropEnabled } = getPluginState(editorView.state);
+		const { targetCellPosition } = getPluginState(editorView.state);
 
 		if (allowBackgroundColor) {
 			const node = isOpen && targetCellPosition ? state.doc.nodeAt(targetCellPosition) : null;
 			const background = hexToEditorBackgroundPaletteColor(node?.attrs?.background || '#ffffff');
 
+			const isMoreColorsEnabled = expValEquals(
+				'platform_editor_lovability_text_bg_color',
+				'isEnabled',
+				true,
+			);
+			const activePalette = isMoreColorsEnabled
+				? cellBackgroundColorPaletteNew
+				: cellBackgroundColorPalette;
+			const activeCols = isMoreColorsEnabled ? colorPaletteColumns : colorPalletteColumns;
+
 			const selectedRowAndColumnFromPalette = getSelectedRowAndColumnFromPalette(
-				cellBackgroundColorPalette,
+				activePalette,
 				// Ignored via go/ees005
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 				background!,
-				colorPalletteColumns,
+				activeCols,
 			);
 			const selectedRowIndex = selectedRowAndColumnFromPalette.selectedRowIndex;
 			const selectedColumnIndex = selectedRowAndColumnFromPalette.selectedColumnIndex;
 			return {
-				content: isDragAndDropEnabled
-					? formatMessage(messages.backgroundColor)
-					: formatMessage(messages.cellBackground),
+				content: formatMessage(messages.backgroundColor),
 				value: { name: 'background' },
-				elemBefore: isDragAndDropEnabled ? (
+				elemBefore: (
 					<Box xcss={elementBeforeIconStyles}>
 						<PaintBucketIcon
 							color="currentColor"
@@ -299,7 +308,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 							label={formatMessage(messages.backgroundColor)}
 						/>
 					</Box>
-				) : undefined,
+				),
 				elemAfter: (
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 					<div className={DropdownMenuSharedCssClassName.SUBMENU}>
@@ -307,11 +316,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 							css={cellColourPreviewStyles(background)}
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-							className={
-								isDragAndDropEnabled
-									? ClassName.CONTEXTUAL_MENU_ICON_SMALL
-									: ClassName.CONTEXTUAL_MENU_ICON
-							}
+							className={ClassName.CONTEXTUAL_MENU_ICON_SMALL}
 						/>
 						{isSubmenuOpen && (
 							<div
@@ -323,6 +328,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 									type={ArrowKeyNavigationType.COLOR}
 									selectedRowIndex={selectedRowIndex || 0}
 									selectedColumnIndex={selectedColumnIndex || 0}
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									handleClose={() => {
 										this.setState({ isSubmenuOpen: false });
 										if (this.dropdownMenuRef && this.dropdownMenuRef.current) {
@@ -340,11 +346,12 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 									isOpenedByKeyboard={isCellMenuOpenByKeyboard!}
 								>
 									<ColorPalette
-										cols={7}
+										cols={activeCols}
 										onClick={this.setColor}
 										selectedColor={node?.attrs?.background || '#ffffff'}
+										// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 										paletteOptions={{
-											palette: cellBackgroundColorPalette,
+											palette: activePalette,
 											paletteColorTooltipMessages: backgroundPaletteTooltipMessages,
 											hexToPaletteColor: hexToEditorBackgroundPaletteColor,
 										}}
@@ -382,9 +389,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 			allowMergeCells,
 			editorView: { state },
 			intl: { formatMessage },
-			editorView,
 		} = this.props;
-		const { isDragAndDropEnabled } = getPluginState(editorView.state);
 
 		if (allowMergeCells) {
 			return [
@@ -392,7 +397,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 					content: formatMessage(messages.mergeCells),
 					value: { name: 'merge' },
 					isDisabled: !canMergeCells(state.tr),
-					elemBefore: isDragAndDropEnabled ? (
+					elemBefore: (
 						<Box xcss={elementBeforeIconStyles}>
 							<TableCellMergeIcon
 								color="currentColor"
@@ -400,13 +405,13 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 								label={formatMessage(messages.mergeCells)}
 							/>
 						</Box>
-					) : undefined,
+					),
 				},
 				{
 					content: formatMessage(messages.splitCell),
 					value: { name: 'split' },
 					isDisabled: !splitCell(state),
-					elemBefore: isDragAndDropEnabled ? (
+					elemBefore: (
 						<Box xcss={elementBeforeIconStyles}>
 							<TableCellSplitIcon
 								color="currentColor"
@@ -414,7 +419,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 								label={formatMessage(messages.splitCell)}
 							/>
 						</Box>
-					) : undefined,
+					),
 				},
 			] as MenuItem[];
 		}
@@ -424,19 +429,15 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 	private createInsertColumnItem = () => {
 		const {
 			intl: { formatMessage },
-			editorView,
 		} = this.props;
-		const { isDragAndDropEnabled } = getPluginState(editorView.state);
-		const content = formatMessage(
-			isDragAndDropEnabled ? messages.addColumnRight : messages.insertColumn,
-		);
+		const content = formatMessage(messages.addColumnRight);
 
 		return {
 			content,
 			value: { name: 'insert_column' },
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 			elemAfter: <div css={shortcutStyle}>{tooltip(addColumnAfter)}</div>,
-			elemBefore: isDragAndDropEnabled ? (
+			elemBefore: (
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 				<Box xcss={elementBeforeIconStyles}>
 					<TableColumnAddRightIcon
@@ -445,7 +446,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 						label={formatMessage(messages.addColumnRight)}
 					/>
 				</Box>
-			) : undefined,
+			),
 			'aria-label': tooltip(addColumnAfter, String(content)),
 		} as MenuItem;
 	};
@@ -453,17 +454,15 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 	private createInsertRowItem = () => {
 		const {
 			intl: { formatMessage },
-			editorView,
 		} = this.props;
-		const { isDragAndDropEnabled } = getPluginState(editorView.state);
-		const content = formatMessage(isDragAndDropEnabled ? messages.addRowBelow : messages.insertRow);
+		const content = formatMessage(messages.addRowBelow);
 
 		return {
 			content,
 			value: { name: 'insert_row' },
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 			elemAfter: <div css={shortcutStyle}>{tooltip(addRowAfter)}</div>,
-			elemBefore: isDragAndDropEnabled ? (
+			elemBefore: (
 				<Box xcss={elementBeforeIconStyles}>
 					<TableRowAddBelowIcon
 						color="currentColor"
@@ -471,7 +470,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 						label={formatMessage(messages.addRowBelow)}
 					/>
 				</Box>
-			) : undefined,
+			),
 			'aria-label': tooltip(addRowAfter, String(content)),
 		} as MenuItem;
 	};
@@ -480,9 +479,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 		const {
 			selectionRect,
 			intl: { formatMessage },
-			editorView,
 		} = this.props;
-		const { isDragAndDropEnabled } = getPluginState(editorView.state);
 		const { top, bottom, right, left } = selectionRect;
 		const noOfColumns = right - left;
 		const noOfRows = bottom - top;
@@ -496,7 +493,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 			value: { name: 'clear' },
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 			elemAfter: <div css={shortcutStyle}>{tooltip(backspace)}</div>,
-			elemBefore: isDragAndDropEnabled ? (
+			elemBefore: (
 				<Box xcss={elementBeforeIconStyles}>
 					<TableCellClearIcon
 						color="currentColor"
@@ -506,7 +503,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 						})}
 					/>
 				</Box>
-			) : undefined,
+			),
 			'aria-label': tooltip(backspace, String(content)),
 		} as MenuItem;
 	};
@@ -515,9 +512,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 		const {
 			selectionRect,
 			intl: { formatMessage },
-			editorView,
 		} = this.props;
-		const { isDragAndDropEnabled } = getPluginState(editorView.state);
 
 		const { right, left } = selectionRect;
 		const noOfColumns = right - left;
@@ -527,7 +522,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 				0: noOfColumns,
 			}),
 			value: { name: 'delete_column' },
-			elemBefore: isDragAndDropEnabled ? (
+			elemBefore: (
 				<Box xcss={elementBeforeIconStyles}>
 					<TableColumnDeleteIcon
 						color="currentColor"
@@ -537,7 +532,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 						})}
 					/>
 				</Box>
-			) : undefined,
+			),
 		} as MenuItem;
 	};
 
@@ -545,9 +540,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 		const {
 			selectionRect,
 			intl: { formatMessage },
-			editorView,
 		} = this.props;
-		const { isDragAndDropEnabled } = getPluginState(editorView.state);
 
 		const { bottom, top } = selectionRect;
 		const noOfRows = bottom - top;
@@ -557,7 +550,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 				0: noOfRows,
 			}),
 			value: { name: 'delete_row' },
-			elemBefore: isDragAndDropEnabled ? (
+			elemBefore: (
 				<Box xcss={elementBeforeIconStyles}>
 					<TableRowDeleteIcon
 						color="currentColor"
@@ -567,7 +560,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 						})}
 					/>
 				</Box>
-			) : undefined,
+			),
 		} as MenuItem;
 	};
 
@@ -604,80 +597,7 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 		} as MenuItem;
 	};
 
-	private createDistributeColumnsItem = () => {
-		const { editorView } = this.props;
-		const {
-			isDragAndDropEnabled,
-			pluginConfig: { allowDistributeColumns },
-		} = getPluginState(editorView.state);
-		if (allowDistributeColumns && !isDragAndDropEnabled) {
-			return this.createDistributeColumnsItemInternal();
-		}
-		return null;
-	};
-
-	private createSortColumnItems = () => {
-		const {
-			intl: { formatMessage },
-			editorView,
-			allowColumnSorting,
-		} = this.props;
-		const { isDragAndDropEnabled } = getPluginState(editorView.state);
-
-		if (allowColumnSorting && !isDragAndDropEnabled) {
-			const hasMergedCellsInTable = getMergedCellsPositions(editorView.state.tr).length > 0;
-			const warning = hasMergedCellsInTable
-				? {
-						tooltipDescription: formatMessage(messages.canNotSortTable),
-						isDisabled: true,
-					}
-				: {};
-
-			return [
-				{
-					content: formatMessage(messages.sortColumnASC),
-					value: { name: 'sort_column_asc' },
-					...warning,
-				},
-				{
-					content: formatMessage(messages.sortColumnDESC),
-					value: { name: 'sort_column_desc' },
-					...warning,
-				},
-			] as MenuItem[];
-		}
-
-		return null;
-	};
-
-	private createOriginalContextMenuItems = () => {
-		const items: MenuItem[] = [];
-		const sortColumnItems = this.createSortColumnItems();
-		const backgroundColorItem = this.createBackgroundColorItem();
-		const distributeColumnsItem = this.createDistributeColumnsItem();
-
-		sortColumnItems && items.push(...sortColumnItems);
-
-		backgroundColorItem && items.push(backgroundColorItem);
-
-		items.push(this.createInsertColumnItem());
-
-		items.push(this.createInsertRowItem());
-
-		items.push(this.createDeleteColumnItem());
-
-		items.push(this.createDeleteRowItem());
-
-		items.push(...this.createMergeSplitCellItems());
-
-		distributeColumnsItem && items.push(distributeColumnsItem);
-
-		items.push(this.createClearCellsItem());
-
-		return [{ items }];
-	};
-
-	private createNewContextMenuItems = () => {
+	private createContextMenuItems = () => {
 		const backgroundColorItem = this.createBackgroundColorItem();
 		const mergeSplitCellItems = this.createMergeSplitCellItems();
 		const insertColumnItem = this.createInsertColumnItem();
@@ -844,12 +764,18 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 				this.toggleOpen();
 				break;
 			case 'background': {
-				// This is called twice.
-				// 1st time when user chooses the background color item.
-				// 2nd when color has been chosen from color palette.
-				// here we are handling the 1st call relying on the isSubmenuOpen state value
-				if (isCellMenuOpenByKeyboard && !this.state.isSubmenuOpen) {
-					this.setState({ isSubmenuOpen: true });
+				if (!expValEquals('platform_editor_toolbar_submenu_open_click', 'isEnabled', true)) {
+					// This is called twice.
+					// 1st time when user chooses the background color item.
+					// 2nd when color has been chosen from color palette.
+					// here we are handling the 1st call relying on the isSubmenuOpen state value
+					if (isCellMenuOpenByKeyboard && !this.state.isSubmenuOpen) {
+						this.setState({ isSubmenuOpen: true });
+					}
+				} else {
+					this.setState((prevState) => ({
+						isSubmenuOpen: !prevState.isSubmenuOpen,
+					}));
 				}
 				break;
 			}
@@ -858,15 +784,13 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 
 	private toggleOpen = () => {
 		const {
-			isOpen,
 			editorView: { state, dispatch },
 		} = this.props;
-		toggleContextualMenu()(state, dispatch);
-		if (!isOpen) {
-			this.setState({
-				isSubmenuOpen: false,
-			});
+
+		if (getPluginState(state).isContextualMenuOpen) {
+			toggleContextualMenu()(state, dispatch);
 		}
+		this.closeSubmenu();
 	};
 
 	private handleOpenChange = (payload?: {
@@ -882,10 +806,14 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 			const { event } = payload;
 			if (event && event instanceof KeyboardEvent) {
 				if (!this.state.isSubmenuOpen) {
-					if (arrowsList.has(event.key)) {
+					if (getArrowsList().has(event.key)) {
 						// preventing default behavior for avoiding cursor jump to next/previous table column
 						// when left/right arrow pressed.
 						event.preventDefault();
+						if (expValEquals('platform_editor_toolbar_submenu_open_click', 'isEnabled', true)) {
+							this.setState({ isSubmenuOpen: true });
+							return;
+						}
 					}
 
 					toggleContextualMenu()(state, dispatch);
@@ -912,9 +840,11 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 			selectionRect,
 		} = this.props;
 
-		if (item.value.name === 'background') {
-			if (!this.state.isSubmenuOpen) {
-				this.setState({ isSubmenuOpen: true });
+		if (!expValEquals('platform_editor_toolbar_submenu_open_click', 'isEnabled', true)) {
+			if (item.value.name === 'background') {
+				if (!this.state.isSubmenuOpen) {
+					this.setState({ isSubmenuOpen: true });
+				}
 			}
 		}
 
@@ -938,8 +868,10 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private handleItemMouseLeave = ({ item }: { item: any }) => {
 		const { state, dispatch } = this.props.editorView;
-		if (item.value.name === 'background') {
-			this.closeSubmenu();
+		if (!expValEquals('platform_editor_toolbar_submenu_open_click', 'isEnabled', true)) {
+			if (item.value.name === 'background') {
+				this.closeSubmenu();
+			}
 		}
 		if (
 			['sort_column_asc', 'sort_column_desc', 'delete_column', 'delete_row'].indexOf(
@@ -957,11 +889,23 @@ export class ContextualMenu extends Component<Props & WrappedComponentProps, Sta
 	};
 
 	private setColor = (color: string) => {
-		const { editorView, editorAnalyticsAPI } = this.props;
-		const { state, dispatch } = editorView;
+		const { editorView, editorAnalyticsAPI, isCellMenuOpenByKeyboard } = this.props;
+		const { state, dispatch, dom } = editorView;
 		setColorWithAnalytics(editorAnalyticsAPI)(INPUT_METHOD.CONTEXT_MENU, color)(state, dispatch);
-		this.toggleOpen();
+		if (!expValEquals('platform_editor_toolbar_submenu_open_click', 'isEnabled', true)) {
+			this.toggleOpen();
+		} else {
+			this.toggleOpen();
+			if (isCellMenuOpenByKeyboard) {
+				setFocusToCellMenu(false)(editorView.state, dispatch);
+				dom.focus();
+			}
+		}
 	};
 }
 
-export default injectIntl(ContextualMenu);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(ContextualMenu);
+export default _default_1;

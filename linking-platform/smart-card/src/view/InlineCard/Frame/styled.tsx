@@ -6,8 +6,6 @@ import React, { forwardRef } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { B100, B200, B400, B50, N40 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import type { ViewType } from './index';
@@ -22,7 +20,9 @@ export interface WrapperProps extends React.ComponentProps<any> {
 	withoutBackground?: boolean;
 }
 
-export const WrapperSpan = forwardRef<HTMLSpanElement, WrapperProps>(
+export const WrapperSpan: React.ForwardRefExoticComponent<
+	Omit<WrapperProps, 'ref'> & React.RefAttributes<HTMLSpanElement>
+> = forwardRef<HTMLSpanElement, WrapperProps>(
 	(
 		{
 			truncateInline,
@@ -55,7 +55,9 @@ export const WrapperSpan = forwardRef<HTMLSpanElement, WrapperProps>(
 	},
 );
 
-export const WrapperAnchor = forwardRef<HTMLAnchorElement, WrapperProps>(
+export const WrapperAnchor: React.ForwardRefExoticComponent<
+	Omit<WrapperProps, 'ref'> & React.RefAttributes<HTMLAnchorElement>
+> = forwardRef<HTMLAnchorElement, WrapperProps>(
 	(
 		{
 			truncateInline,
@@ -83,7 +85,7 @@ export const WrapperAnchor = forwardRef<HTMLAnchorElement, WrapperProps>(
 					isHovered && !withoutBackground && hoveredWithBackgroundStyles,
 					isSelected ? selectedStyles : notSelectedStyle,
 					isInteractive && interactiveStyles,
-					viewType === 'errored' && fg('navx-2565-inline-card-error-state-underline') && errorViewTypeStyles,
+					viewType === 'errored' && errorViewTypeStyles,
 				]}
 				ref={ref}
 				{...props}
@@ -100,28 +102,28 @@ const baseWrapperStyles = css({
 	padding: `${token('space.025')} 0px`,
 	display: 'inline',
 	boxDecorationBreak: 'clone',
-	borderRadius: token('radius.small', '4px'),
-	color: token('color.link', B400),
+	borderRadius: token('radius.medium', '4px'),
+	color: token('color.link'),
 	transition: '0.1s all ease-in-out',
 	MozUserSelect: 'none', // -moz-user-select
-	'&:hover': { borderColor: token('color.border.accent.blue', B200) },
+	'&:hover': { borderColor: token('color.border.accent.blue') },
 });
 
 // if the parent instruct the wrapper to be interactive, and the wrapper is in focus, apply selectedStyles
 const interactiveStyles = css({
 	'&:active': {
-		backgroundColor: token('color.background.selected', B50),
+		backgroundColor: token('color.background.selected'),
 	},
 	'&:focus': {
 		cursor: 'pointer',
-		boxShadow: `0 0 0 2px ${token('color.border.selected', B100)}`,
+		boxShadow: `0 0 0 2px ${token('color.border.selected')}`,
 		outline: 'none',
 		userSelect: 'none',
 	},
 });
 
 const hoveredStyles = css({
-	borderColor: token('color.border.accent.blue', B200),
+	borderColor: token('color.border.accent.blue'),
 });
 
 const hoveredWithBackgroundStyles = css({ textDecoration: 'none' });
@@ -133,11 +135,11 @@ const errorViewTypeStyles = css({
 
 const withoutBackgroundStyles = css({
 	paddingLeft: 0,
-	marginLeft: token('space.negative.025', '-2px'),
+	marginLeft: token('space.negative.025'),
 });
 const withBackgroundStyles = css({
-	backgroundColor: token('elevation.surface.raised', 'white'),
-	border: `${token('border.width')} solid ${token('color.border', N40)}`,
+	backgroundColor: token('elevation.surface.raised'),
+	border: `${token('border.width')} solid ${token('color.border')}`,
 	'&:hover': { textDecoration: 'none' },
 	'&:focus': { textDecoration: 'none' },
 	'&:active': { textDecoration: 'none' },
@@ -173,7 +175,7 @@ const unauthorisedTruncateStyles = css({
 const notSelectedStyle = css({ userSelect: 'text' });
 const selectedStyles = css({
 	cursor: 'pointer',
-	boxShadow: `0 0 0 2px ${token('color.border.selected', B100)}`,
+	boxShadow: `0 0 0 2px ${token('color.border.selected')}`,
 	outline: 'none',
 	userSelect: 'none',
 	'&:focus': {
@@ -184,6 +186,6 @@ const selectedStyles = css({
 	},
 	'&:hover': {
 		textDecoration: 'none',
-		border: `${token('border.width')} solid ${token('color.border', N40)}`,
+		border: `${token('border.width')} solid ${token('color.border')}`,
 	},
 });

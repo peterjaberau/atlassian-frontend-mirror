@@ -2,53 +2,48 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, {
-	type ChangeEvent,
-	useCallback,
-	useContext,
-	useState,
-	useEffect,
-	useRef,
-} from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
+import React, { useCallback, useContext, useState, useEffect, useRef } from 'react';
+import type { ChangeEvent } from 'react';
+
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
 import { jsx, css } from '@emotion/react';
-import { IntlProvider } from 'react-intl-next';
-import { type AnnotationMarkStates, type DocNode } from '@atlaskit/adf-schema';
-import Button from '@atlaskit/button/new';
-import { Checkbox } from '@atlaskit/checkbox';
+import { IntlProvider } from 'react-intl';
+
+import type { AnnotationMarkStates } from '@atlaskit/adf-schema/annotation';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { token } from '@atlaskit/tokens';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
 
 import { RendererWithAnalytics, AnnotationsWrapper, ReactRenderer } from '../../src/';
-
+import { RendererActionsContext } from '../../src/ui/RendererActionsContext';
 import {
 	ExampleAnnotationProductState,
 	ExampleAnnotationProductStateContext,
 	useExampleRendererAnnotationProvider,
 } from './example-renderer-annotation-provider';
-import { RendererActionsContext } from '../../src/actions';
 
 const toolbarStyle = css({
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	gap: token('space.100', '8px'),
-	paddingTop: token('space.050', '4px'),
-	paddingRight: token('space.050', '4px'),
-	paddingBottom: token('space.050', '4px'),
-	paddingLeft: token('space.050', '4px'),
+	gap: token('space.100'),
+	paddingTop: token('space.050'),
+	paddingRight: token('space.050'),
+	paddingBottom: token('space.050'),
+	paddingLeft: token('space.050'),
 	borderBottom: `${token('border.width')} solid ${token('color.border')}`,
 });
 
 const toolbarSection = css({
 	display: 'flex',
-	gap: token('space.025', '2px'),
+	gap: token('space.025'),
 });
 
 function BodiedExtensionRenderer({
@@ -200,7 +195,6 @@ const App = () => {
 				>
 					{/* This is used instead of the ReactRenderer, as the ReactRenderer overwrites any RendererActionsContext */}
 					<RendererWithAnalytics
-						useSpecBasedValidator={true}
 						extensionHandlers={{
 							'com.atlassian.confluence.macro.core': (ext, doc, actions) => {
 								return (
@@ -242,7 +236,7 @@ export function RendererWithAnnotationsAndBodiedExtensions({
 		};
 	};
 	initialDoc: DocNode;
-}) {
+}): jsx.JSX.Element {
 	return (
 		<IntlProvider locale="en">
 			<ExampleAnnotationProductState initialAnnotationState={initialData} initialDoc={initialDoc}>

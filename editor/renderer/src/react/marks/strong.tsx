@@ -1,5 +1,6 @@
 import React from 'react';
-import { type MarkProps } from '../types';
+
+import type { MarkProps } from '../types';
 
 export default function Strong(props: MarkProps): React.JSX.Element {
 	// ignore the eslint warning Text primitive does not support dataAttributes

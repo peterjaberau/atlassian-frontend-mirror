@@ -1,11 +1,6 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 import { v4 as uuidv4 } from 'uuid';
-import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
-import type { Step as ProseMirrorStep } from '@atlaskit/editor-prosemirror/transform';
-import { Emitter } from '../emitter';
-import { Channel } from '../channel';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import type { Config, InitialDraft, PresenceData } from '../types';
+
 import type {
 	CollabEditProvider,
 	CollabEvents,
@@ -18,40 +13,48 @@ import type {
 	CollabActivityAIProviderChangedPayload,
 	UserPermitType,
 	PresenceActivity,
+	ProviderParticipant,
 } from '@atlaskit/editor-common/collab';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import type { GetResolvedEditorStateReason } from '@atlaskit/editor-common/types';
+import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { Step as ProseMirrorStep } from '@atlaskit/editor-prosemirror/transform-override';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { createLogger, logObfuscatedSteps } from '../helpers/utils';
 import AnalyticsHelper from '../analytics/analytics-helper';
-import { telepointerCallback } from '../participants/telepointers-helper';
+import { shouldTelepointerBeSampled } from '../analytics/performance';
+import { Api } from '../api/api';
+import { NullApi } from '../api/null-api';
+import { Channel } from '../channel';
+import { DocumentService } from '../document/document-service';
+import { NullDocumentService } from '../document/null-document-service';
+import { Emitter } from '../emitter';
 import {
 	CustomError,
 	DestroyError,
 	GetCurrentStateError,
 	GetFinalAcknowledgedStateError,
+	NotConnectedError,
+	NotInitializedError,
 	ProviderInitialisationError,
 	SendTransactionError,
 	SetEditorWidthError,
 	SetMetadataError,
 	SetTitleError,
 } from '../errors/custom-errors';
-import { NCS_ERROR_CODE } from '../errors/ncs-errors';
-import { MetadataService } from '../metadata/metadata-service';
-import { DocumentService } from '../document/document-service';
-import { NullDocumentService } from '../document/null-document-service';
-import { NamespaceService } from '../namespace/namespace-service';
-import { ParticipantsService } from '../participants/participants-service';
 import { errorCodeMapper } from '../errors/error-code-mapper';
 import type { InternalError, ViewOnlyStepsError } from '../errors/internal-errors';
 import { INTERNAL_ERROR_CODE } from '../errors/internal-errors';
+import { NCS_ERROR_CODE } from '../errors/ncs-errors';
 import { EVENT_ACTION, EVENT_STATUS, CatchupEventReason } from '../helpers/const';
-import { Api } from '../api/api';
-import { shouldTelepointerBeSampled } from '../analytics/performance';
-import { NullApi } from '../api/null-api';
-import type { GetResolvedEditorStateReason } from '@atlaskit/editor-common/types';
-import { fg } from '@atlaskit/platform-feature-flags';
-
+import { createLogger, logObfuscatedSteps } from '../helpers/utils';
+import { MetadataService } from '../metadata/metadata-service';
+import { NamespaceService } from '../namespace/namespace-service';
+import { ParticipantsService } from '../participants/participants-service';
+import { telepointerCallback } from '../participants/telepointers-helper';
+import type { Config, InitialDraft, PresenceData } from '../types';
 import { getOfflineStepsLength, getOfflineReplaceStepsLength } from './get-offline-steps-length';
+import { acquireSleepDetector, getMaxGapSince } from './sleep-detector';
 
 const logger = createLogger('Provider', 'black');
 
@@ -60,9 +63,7 @@ const OUT_OF_SYNC_PERIOD = 3 * 1000; // 3 seconds
 export const MAX_STEP_REJECTED_ERROR = 15;
 export const MAX_STEP_REJECTED_ERROR_AGGRESSIVE = 2;
 
-type BaseEvents = Pick<CollabEditProvider<CollabEvents>, 'setup' | 'send' | 'sendMessage'>;
-
-export class Provider extends Emitter<CollabEvents> implements BaseEvents {
+export class Provider extends Emitter<CollabEvents> implements CollabEditProvider<CollabEvents> {
 	api: Api | NullApi;
 	private channel: Channel;
 	private config: Config;
@@ -71,6 +72,14 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 	private initialDraft?: InitialDraft;
 	private isProviderInitialized: boolean = false;
 	private isBuffered: boolean = false;
+	/**
+	 * Cache of the last `init` payload, populated when the document and metadata
+	 * are first applied. Returned by {@link getInitPayload} so that late
+	 * subscribers (e.g. a freshly-attached collab plugin view after editor
+	 * preset reconfigure) can be seeded without waiting for the `init` event
+	 * which is only emitted once per session.
+	 */
+	private lastInitPayload?: CollabInitPayload;
 	// User permit is used to determine if the user is allowed to view, comment or edit the document
 	// Therefore, the initial value is false for all three
 	private permit: UserPermitType = {
@@ -100,6 +109,8 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 
 	private disconnectedAt?: number;
 	private sendStepsTimer?: ReturnType<typeof setInterval>;
+	private releaseSleepDetector?: () => void;
+	private sleepWatermark = 0;
 
 	private readonly participantsService: ParticipantsService;
 	private readonly metadataService: MetadataService;
@@ -140,6 +151,9 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 			});
 			this.metadataService.updateMetadata(metadata);
 			this.isProviderInitialized = true;
+			// Cache the init payload so late subscribers (e.g. plugin views attached
+			// after an editor preset reconfigure) can be seeded via getInitPayload().
+			this.lastInitPayload = { doc, version, metadata, caller };
 		} catch (e) {
 			this.analyticsHelper?.sendErrorEvent(
 				e,
@@ -162,6 +176,7 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 		this.channel = new Channel(config, this.analyticsHelper);
 		this.isChannelInitialized = false;
 		this.initialDraft = this.config.initialDraft;
+		this.userId = this.config.userId;
 		this.isBufferingEnabled = Boolean(this.config.isBufferingEnabled);
 		this.isProviderInitialized = false;
 		this.participantsService = new ParticipantsService(
@@ -211,6 +226,9 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 			logger('Intervally sendStepsFromCurrentState');
 			this.documentService.sendStepsFromCurrentState(true, undefined);
 		}, 5000);
+
+		this.sleepWatermark = Date.now();
+		this.releaseSleepDetector = acquireSleepDetector();
 	}
 
 	private initializeChannel = () => {
@@ -244,38 +262,35 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 					});
 				}
 				// If already initialized, `connected` means reconnected
-				const shouldBypassOutOfSyncGracePeriod = expValEquals('collab_bypass_out_of_sync_period_experiment', 'isEnabled', true, false);
+				const offlineDuration = initialized ? this.getOutOfSyncDuration() : undefined;
 
-				if (
-					initialized &&
-					this.disconnectedAt &&
-					// Offline longer than `OUT_OF_SYNC_PERIOD`
-					(shouldBypassOutOfSyncGracePeriod || Date.now() - this.disconnectedAt >= OUT_OF_SYNC_PERIOD)
-				) {
+				if (offlineDuration !== undefined) {
 					this.documentService.throttledCatchupv2(
 						CatchupEventReason.RECONNECTED,
 						{
-							disconnectionPeriodSeconds: Math.floor((Date.now() - this.disconnectedAt) / 1000),
-							offlineStepsLength: editorExperiment('platform_editor_offline_editing_web', true)
-								? getOfflineStepsLength(
-										this.documentService.getUnconfirmedSteps(),
-										this.documentService.getUnconfirmedStepsOrigins(),
-									)
-								: undefined,
-							offlineReplaceStepsLength: editorExperiment(
-								'platform_editor_offline_editing_web',
-								true,
-							)
-								? getOfflineReplaceStepsLength(
-										this.documentService.getUnconfirmedSteps(),
-										this.documentService.getUnconfirmedStepsOrigins(),
-									)
-								: undefined,
+							disconnectionPeriodSeconds: Math.floor(offlineDuration / 1000),
+							offlineStepsLength: getOfflineStepsLength(
+								this.documentService.getUnconfirmedSteps(),
+								this.documentService.getUnconfirmedStepsOrigins(),
+							),
+							offlineReplaceStepsLength: getOfflineReplaceStepsLength(
+								this.documentService.getUnconfirmedSteps(),
+								this.documentService.getUnconfirmedStepsOrigins(),
+							),
 							unconfirmedStepsLength: unconfirmedStepsLength,
 						},
-						fg('add_session_id_to_catchup_query') ? this.sessionId : undefined,
+						this.sessionId,
 					);
+				} else if (isExperimentEnabled('platform_editor_early_exit_return_draft')) {
+					// Conditionally run catchup based on CollabDraftMetadata.relevance
+					// Only catch up when relevance is 'STALE' or absent
+					// Skip catchup when relevance is 'LATEST' (draft is up-to-date)
+					const relevance = this.initialDraft?.metadata?.relevance;
+					if (relevance === 'STALE' || relevance === undefined) {
+						this.documentService.throttledCatchupv2(CatchupEventReason.PROCESS_STEPS);
+					}
 				}
+
 				this.participantsService.startInactiveRemover(this.sessionId);
 				if (this.config.batchProps) {
 					if (this.config.getUser) {
@@ -284,6 +299,7 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 					this.participantsService.initializeFirstBatchFetchUsers();
 				}
 				this.disconnectedAt = undefined;
+				this.sleepWatermark = Date.now();
 			})
 			.on('init', ({ doc, version, metadata }) => {
 				// Initial document and version
@@ -295,6 +311,11 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 				this.emit('permission', permit);
 			})
 			.on('steps:added', this.documentService.onStepsAdded)
+			.on('recovery:required', (payload) => {
+				if (typeof payload?.reason === 'string') {
+					this.emit('recovery:required', payload);
+				}
+			})
 			.on('metadata:changed', this.metadataService.onMetadataChanged)
 			.on('participant:telepointer', (payload) =>
 				this.participantsService.onParticipantTelepointer(payload, this.sessionId),
@@ -361,17 +382,22 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 	 */
 	setup({
 		getState,
-		_editorApi, // eslint says unused vars should start with _
+		editorApi: _editorApi, // eslint says unused vars should start with _
 		onSyncUpError,
 	}: {
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		_editorApi?: any;
-		getState: () => EditorState;
+		editorApi?: any;
+		getState?: () => EditorState;
 		onSyncUpError?: SyncUpErrorFunction;
 	}): this {
 		this.checkForCookies();
 		try {
+			if (!getState) {
+				throw new ProviderInitialisationError(
+					'Collab provider attempted to initialise, but getState is required',
+				);
+			}
 			// Ignored via go/ees005
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const collabPlugin = getState().plugins.find((p: any) => p.key === 'collab$');
@@ -428,7 +454,7 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 	}
 
 	// Only used for the presence - opts out of the document service and api service
-	setupForPresenceOnly(clientId: string) {
+	setupForPresenceOnly(clientId: string): this {
 		this.clientId = clientId;
 		this.checkForCookies();
 		try {
@@ -572,10 +598,12 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 					shouldTelepointerBeSampled() ? telepointerCallback(this.config.documentAri) : undefined,
 				);
 			} else if (data?.type === 'ai-provider:change') {
-				this.participantsService.sendAIProviderChanged({
-					...basePayload,
-					...data,
-				});
+				if (!fg('platform_move_presence_agents')) {
+					this.participantsService.sendAIProviderChanged({
+						...basePayload,
+						...data,
+					});
+				}
 			} else if (data?.type === 'participant:activity') {
 				this.setPresenceActivity(data.activity);
 				this.participantsService.sendPresenceActivityChanged();
@@ -594,6 +622,27 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 		return this.aiProviderActiveIds;
 	};
 
+	private getOutOfSyncDuration = (): number | undefined => {
+		if (!this.disconnectedAt) {
+			return undefined;
+		}
+
+		const disconnectedDuration = Date.now() - this.disconnectedAt;
+		if (disconnectedDuration >= OUT_OF_SYNC_PERIOD) {
+			return disconnectedDuration;
+		}
+
+		const sleepDuration = getMaxGapSince(this.sleepWatermark);
+		if (
+			sleepDuration >= OUT_OF_SYNC_PERIOD &&
+			isExperimentEnabled('collab_check_sleep_detection_experiment')
+		) {
+			return sleepDuration;
+		}
+
+		return undefined;
+	};
+
 	// Note: this gets triggered on page reload for Firefox (not other browsers) because of closeOnBeforeunload: false
 	private onDisconnected = ({ reason }: { reason: string }) => {
 		this.disconnectedAt = Date.now();
@@ -605,7 +654,7 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 	 * Used by Jira products (JWM, JPD) to disable the provider
 	 * @throws {DestroyError} Something went wrong while shutting down the collab provider
 	 */
-	destroy() {
+	destroy(): this {
 		return this.unsubscribeAll();
 	}
 
@@ -616,7 +665,7 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 	 * @deprecated use destroy instead, it does the same thing
 	 * @throws {DestroyError} Something went wrong while shutting down the collab provider
 	 */
-	disconnect() {
+	disconnect(): this {
 		return this.unsubscribeAll();
 	}
 
@@ -626,7 +675,7 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 	 * @deprecated use destroy instead, it does the same thing
 	 * @throws {DestroyError} Something went wrong while shutting down the collab provider
 	 */
-	unsubscribeAll() {
+	unsubscribeAll(): this {
 		try {
 			super.unsubscribeAll();
 			this.channel.disconnect();
@@ -635,6 +684,9 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 				clearInterval(this.sendStepsTimer);
 				this.sendStepsTimer = undefined;
 			}
+
+			this.releaseSleepDetector?.();
+			this.releaseSleepDetector = undefined;
 		} catch (error) {
 			this.analyticsHelper?.sendErrorEvent(error, 'Error while shutting down the collab provider');
 			throw new DestroyError('Error while shutting down the collab provider', error);
@@ -693,6 +745,11 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 			this.metadataService.setMetadata(metadata);
 		} catch (error) {
 			this.analyticsHelper?.sendErrorEvent(error, 'Error while setting metadata');
+			// Don't re-throw for transient connectivity/initialization errors.
+			// (e.g. socket not yet ready, user momentarily offline)
+			if (error instanceof NotInitializedError || error instanceof NotConnectedError) {
+				return;
+			}
 			throw new SetMetadataError('Error while setting metadata', error);
 		}
 	}
@@ -700,8 +757,26 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 	/**
 	 * Returns the documents metadata
 	 */
-	getMetadata = () => {
+	getMetadata = (): Metadata => {
 		return this.metadataService.getMetaData();
+	};
+
+	/**
+	 * Returns the cached `init` payload if the provider has already initialised
+	 * the document, otherwise `undefined`.
+	 *
+	 * Used by the collab plugin's `view()` factory to seed a freshly-attached
+	 * plugin view (e.g. after editor preset reconfigure or full EditorView
+	 * recreation) with the same `init` data the original subscribers received.
+	 * Without this, late subscribers never receive `init` (it is emitted only
+	 * once per session) and the editor stays in `!isReady`, silently dropping
+	 * doc-changing transactions.
+	 */
+	getInitPayload = (): CollabInitPayload | undefined => {
+		if (!this.isProviderInitialized) {
+			return undefined;
+		}
+		return this.lastInitPayload;
 	};
 
 	/**
@@ -774,23 +849,23 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 		this.participantsService.clearTimers();
 	};
 
-	getParticipants = () => {
+	getParticipants = (): ProviderParticipant[] => {
 		return this.participantsService.getParticipants();
 	};
 
-	getUniqueParticipantSize = () => {
+	getUniqueParticipantSize = (): number => {
 		return this.participantsService.getUniqueParticipantSize();
 	};
 
-	getUniqueParticipants = () => {
+	getUniqueParticipants = (): ProviderParticipant[] => {
 		return this.participantsService.getUniqueParticipants({ isHydrated: false });
 	};
 
-	getUniqueHydratedParticipants = () => {
+	getUniqueHydratedParticipants = (): ProviderParticipant[] => {
 		return this.participantsService.getUniqueParticipants({ isHydrated: true });
 	};
 
-	getAIProviderParticipants = () => {
+	getAIProviderParticipants = (): ProviderParticipant[] => {
 		return this.participantsService.getAIProviderParticipants();
 	};
 
@@ -805,7 +880,7 @@ export class Provider extends Emitter<CollabEvents> implements BaseEvents {
 		}
 	};
 
-	getSessionId = () => {
+	getSessionId = (): string | undefined => {
 		return this.sessionId;
 	};
 

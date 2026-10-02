@@ -7,9 +7,10 @@ import React, { useEffect, useState } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import { AppSwitcher } from '@atlaskit/atlassian-navigation';
-import Popup from '@atlaskit/popup';
-import Spinner from '@atlaskit/spinner';
+import { Popup } from '@atlaskit/popup/popup';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 import AtlassianSwitcher from '@atlassian/switcher';
 import { mockEndpoints, REQUEST_FAST } from '@atlassian/switcher-test-utils';
@@ -58,15 +59,14 @@ const SwitcherData = ({ update }: SwitcherDataProps) => {
 		<div style={{ width: 400, maxHeight: 'calc(100vh - 100px)' }}>
 			<h3
 				style={{
-					padding: `${token('space.300', '24px')} ${token(
+					padding: `${token('space.300')} ${token('space.300')} ${token('space.100')} ${token(
 						'space.300',
-						'24px',
-					)} ${token('space.100', '8px')} ${token('space.300', '24px')}`,
+					)}`,
 				}}
 			>
 				Switch to
 			</h3>
-			<div style={{ padding: `0 ${token('space.200', '16px')}` }}>
+			<div style={{ padding: `0 ${token('space.200')}` }}>
 				<AtlassianSwitcher product="jira" cloudId="some-cloud-id" />
 			</div>
 		</div>

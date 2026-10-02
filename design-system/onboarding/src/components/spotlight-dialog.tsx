@@ -2,12 +2,11 @@ import React, { Component, type ComponentType, type ReactNode } from 'react';
 
 import FocusLock from 'react-focus-lock';
 
-import { type Placement, Popper } from '@atlaskit/popper';
+import { type Placement, Popper } from '@atlaskit/popper/main';
 import { Box } from '@atlaskit/primitives/compiled';
 
 import { DialogImage } from '../styled/dialog';
 import { type Actions } from '../types';
-
 import SpotlightCard from './spotlight-card';
 import ValueChanged from './value-changed';
 
@@ -181,7 +180,6 @@ class SpotlightDialogComponent extends Component<SpotlightDialogProps, State> {
 					<ValueChanged value={dialogWidth} onChange={update}>
 						<FocusLock disabled={focusLockDisabled} returnFocus={false} autoFocus>
 							<Box
-								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 								style={style}
 								ref={ref}
 								aria-modal={true}

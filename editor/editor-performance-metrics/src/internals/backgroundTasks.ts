@@ -1,6 +1,6 @@
 /* eslint-disable compat/compat */
 
-export const TaskAborted = Symbol('BackgroundTaskAborted');
+export const TaskAborted: unique symbol = Symbol('BackgroundTaskAborted');
 export type TaskAbortedSymbol = typeof TaskAborted;
 type BackgroundTask<T> = (maybeYield: () => Promise<void>) => void | Promise<T | TaskAbortedSymbol>;
 
@@ -32,12 +32,7 @@ export const isTaskAborted = (
 // See https://developer.mozilla.org/en-US/docs/Web/API/Prioritized_Task_Scheduling_API
 export const taskYield = async (): Promise<void> => {
 	// This is using globalThis to allow the yield task to be used outside of a browser env
-	if (
-		'scheduler' in globalThis &&
-		// @ts-ignore
-		'yield' in globalThis.scheduler
-	) {
-		// @ts-ignore
+	if ('scheduler' in globalThis && 'yield' in globalThis.scheduler) {
 		await scheduler.yield();
 
 		return;
@@ -117,8 +112,10 @@ export const backgroundTask = <T>(
 		};
 	}
 
-	if (window.requestIdleCallback) {
-		const idleId = window.requestIdleCallback(executeTask, { timeout: 10000 });
+	const win: Window & typeof globalThis = window;
+
+	if (win.requestIdleCallback) {
+		const idleId = win.requestIdleCallback(executeTask, { timeout: 10000 });
 
 		return {
 			abort: () => {
@@ -129,7 +126,7 @@ export const backgroundTask = <T>(
 		};
 	}
 
-	const rafId = window.requestAnimationFrame(executeTask);
+	const rafId = win.requestAnimationFrame(executeTask);
 
 	return {
 		abort: () => {

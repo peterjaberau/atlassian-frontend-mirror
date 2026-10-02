@@ -8,20 +8,21 @@ import { findOverflowScrollParent } from '@atlaskit/editor-common/ui';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { findParentNodeClosestToPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { getPluginState } from '../pm-plugins/plugin-factory';
 import { pluginKey as tablePluginKey } from '../pm-plugins/plugin-key';
 import { updateStickyState } from '../pm-plugins/sticky-headers/commands';
 import {
+	clearStickyCornerMaskPositions,
 	syncStickyRowToTable,
 	updateStickyMargins as updateTableMargin,
 } from '../pm-plugins/table-resizing/utils/dom';
-import type { TableDOMElements } from '../pm-plugins/utils/dom';
-import { getTop, getTree } from '../pm-plugins/utils/dom';
-import { supportedHeaderRow } from '../pm-plugins/utils/nodes';
-import type { TablePluginState } from '../types';
+import { type TableDOMElements, getTop, getTree } from '../pm-plugins/utils/dom';
+import { getTableRowIndex, supportedHeaderRow } from '../pm-plugins/utils/nodes';
 import {
+	type TablePluginState,
 	TableCssClassName as ClassName,
 	TableCssClassName,
 	type PluginInjectionAPI,
@@ -32,7 +33,6 @@ import {
 	tableControlsSpacing,
 	tableScrollbarOffset,
 } from '../ui/consts';
-
 import TableNodeView from './TableNodeViewBase';
 
 interface SentinelData {
@@ -50,6 +50,7 @@ const HEADER_ROW_SCROLL_RESET_DEBOUNCE_TIMEOUT = 400;
 
 export default class TableRow extends TableNodeView<HTMLTableRowElement> implements NodeView {
 	private nodeVisibilityObserverCleanupFn?: () => void;
+	private limitedModeUnsubscribe?: () => void;
 
 	cleanup = (): void => {
 		if (this.isStickyHeaderEnabled) {
@@ -79,42 +80,64 @@ export default class TableRow extends TableNodeView<HTMLTableRowElement> impleme
 	) {
 		super(node, view, getPos, eventDispatcher);
 
-		this.isHeaderRow = supportedHeaderRow(node);
 		this.isSticky = false;
 
 		const { pluginConfig } = getPluginState(view.state);
 
 		this.isStickyHeaderEnabled = !!pluginConfig.stickyHeaders;
 
-		if (
-			api?.limitedMode?.sharedState.currentState()?.limitedModePluginKey.getState(view.state)
-				?.documentSizeBreachesThreshold
-		) {
-			this.isStickyHeaderEnabled = false;
-			// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
-			document.addEventListener('limited-mode-activated', this.cleanup);
+		// Sticky headers are the only thing limited mode turns off here, so there is nothing to read
+		// or subscribe to when they were never enabled for this editor.
+		if (isExperimentEnabled('platform_editor_dynamic_limited_mode')) {
+			const limitedMode = this.isStickyHeaderEnabled ? api?.limitedMode?.sharedState : undefined;
+
+			if (limitedMode?.currentState()?.enabled) {
+				this.isStickyHeaderEnabled = false;
+			} else {
+				this.limitedModeUnsubscribe = limitedMode?.onChange(({ nextSharedState }) => {
+					if (!nextSharedState?.enabled) {
+						return;
+					}
+
+					// Order matters: cleanup() short-circuits unless sticky headers are still marked enabled.
+					this.cleanup();
+					this.isStickyHeaderEnabled = false;
+
+					// Limited mode never turns back off, so this listener has done its job.
+					this.limitedModeUnsubscribe?.();
+					this.limitedModeUnsubscribe = undefined;
+				});
+			}
+		} else {
+			if (
+				api?.limitedMode?.sharedState.currentState()?.limitedModePluginKey.getState(view.state)
+					?.documentSizeBreachesThreshold
+			) {
+				this.isStickyHeaderEnabled = false;
+				// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
+				document.addEventListener('limited-mode-activated', this.cleanup);
+			}
 		}
 
 		const pos = this.getPos();
 		this.isInNestedTable = false;
 
-		if (fg('platform_editor_ai_aifc_patch_ga')) {
-			try {
-				// We cannot trust that the value from getPos will be defined
-				// https://discuss.prosemirror.net/t/getpos-is-undefined-in-nodeview-constructor/1246/4
-				// There are also scenarios where the value it brings back does not tally with the current doc
-				// E.g. when AI streaming brings in new content, this position brings back incorrect values that cannot be resolved
-				if (pos) {
-					this.isInNestedTable =
-						getParentOfTypeCount(view.state.schema.nodes.table)(view.state.doc.resolve(pos)) > 1;
-				}
-			} catch (e) {}
-		} else {
+		let rowIndex = 0;
+		try {
+			// We cannot trust that the value from getPos will be defined
+			// https://discuss.prosemirror.net/t/getpos-is-undefined-in-nodeview-constructor/1246/4
+			// There are also scenarios where the value it brings back does not tally with the current doc
+			// E.g. when AI streaming brings in new content, this position brings back incorrect values that cannot be resolved
 			if (pos) {
-				this.isInNestedTable =
-					getParentOfTypeCount(view.state.schema.nodes.table)(view.state.doc.resolve(pos)) > 1;
+				const $pos = view.state.doc.resolve(pos);
+				this.isInNestedTable = getParentOfTypeCount(view.state.schema.nodes.table)($pos) > 1;
 			}
+		} catch {
+			// Intentionally swallowed — getPos can return stale positions during AI streaming
 		}
+
+		rowIndex = getTableRowIndex(view, getPos);
+		this.isHeaderRow = supportedHeaderRow(node, rowIndex);
 
 		if (this.isHeaderRow) {
 			this.dom.setAttribute('data-vc-nvs', 'true');
@@ -190,7 +213,8 @@ export default class TableRow extends TableNodeView<HTMLTableRowElement> impleme
 
 		// see if we're changing into a header row or
 		// changing away from one
-		const newNodeIsHeaderRow = supportedHeaderRow(node);
+		const rowIndex = getTableRowIndex(this.view, this.getPos);
+		const newNodeIsHeaderRow = supportedHeaderRow(node, rowIndex);
 		if (this.isHeaderRow !== newNodeIsHeaderRow) {
 			return false; // re-create nodeview
 		}
@@ -227,8 +251,13 @@ export default class TableRow extends TableNodeView<HTMLTableRowElement> impleme
 			this.emitOff(true);
 		}
 
-		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
-		document.removeEventListener('limited-mode-activated', this.cleanup);
+		if (isExperimentEnabled('platform_editor_dynamic_limited_mode')) {
+			this.limitedModeUnsubscribe?.();
+			this.limitedModeUnsubscribe = undefined;
+		} else {
+			// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
+			document.removeEventListener('limited-mode-activated', this.cleanup);
+		}
 
 		if (this.tableContainerObserver) {
 			this.tableContainerObserver.disconnect();
@@ -542,17 +571,23 @@ export default class TableRow extends TableNodeView<HTMLTableRowElement> impleme
 		) {
 			const pos = this.getPos();
 			if (typeof pos === 'number') {
-				const $tableRowPos = this.view.state.doc.resolve(pos);
+				try {
+					// getPos can return stale positions during AI streaming which cannot be resolved
+					const $tableRowPos = this.view.state.doc.resolve(pos);
 
-				// layout -> layout column -> table -> table row
-				if ($tableRowPos.depth >= 3) {
-					const isInsideLayout = findParentNodeClosestToPos($tableRowPos, (node) => {
-						return node.type.name === 'layoutColumn';
-					})?.node;
+					// layout -> layout column -> table -> table row
+					if ($tableRowPos.depth >= 3) {
+						const isInsideLayout = findParentNodeClosestToPos($tableRowPos, (node) => {
+							return node.type.name === 'layoutColumn';
+						})?.node;
 
-					if (isInsideLayout) {
-						return false;
+						if (isInsideLayout) {
+							return false;
+						}
 					}
+				} catch {
+					// getPos can return stale positions during AI streaming — fall back to non-sticky
+					return false;
 				}
 			}
 		}
@@ -654,25 +689,11 @@ export default class TableRow extends TableNodeView<HTMLTableRowElement> impleme
 		const tableContainer = wrapper.parentElement;
 		const tableContentWrapper = tableContainer?.parentElement;
 
-		const parentContainer = tableContentWrapper && tableContentWrapper.parentElement;
-
-		const isTableInsideLayout =
-			parentContainer && parentContainer.getAttribute('data-layout-content');
-
 		if (tableContentWrapper) {
 			if (isCurrentTableSelected) {
 				this.colControlsOffset = tableControlsSpacing;
-
-				// move table a little out of the way
-				// to provide spacing for table controls
-				if (isTableInsideLayout) {
-					tableContentWrapper.style.paddingLeft = '11px';
-				}
 			} else {
 				this.colControlsOffset = 0;
-				if (isTableInsideLayout) {
-					tableContentWrapper.style.removeProperty('padding-left');
-				}
 			}
 		}
 
@@ -772,6 +793,9 @@ export default class TableRow extends TableNodeView<HTMLTableRowElement> impleme
 		}
 
 		this.dom.style.removeProperty('width');
+		if (expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)) {
+			clearStickyCornerMaskPositions(table);
+		}
 		this.dom.classList.remove('sticky');
 		table.classList.remove(ClassName.TABLE_STICKY);
 

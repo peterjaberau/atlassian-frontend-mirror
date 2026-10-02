@@ -1,10 +1,10 @@
 /* eslint-disable @repo/internal/react/no-clone-element */
+
 import React, { cloneElement, type ReactElement } from 'react';
 
 import toItemId from '../../utils/to-item-id';
 import { type RowProps } from '../row';
 import { type RowsProps } from '../rows';
-
 import Items from './items';
 
 type ItemProps<Item> = {
@@ -30,7 +30,10 @@ function Item<Item extends { id: string }>({
 	data,
 	render,
 	loadingLabel,
-}: ItemProps<Item>) {
+}: ItemProps<Item>): React.ReactElement<
+	RowProps<Item> | RowsProps<Item>,
+	string | React.JSXElementConstructor<any>
+> | null {
 	const renderedRow = render(data);
 
 	if (!renderedRow) {

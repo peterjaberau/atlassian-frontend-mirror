@@ -3,22 +3,10 @@
 
 import type { Node } from '@atlaskit/editor-prosemirror/model';
 
+import { resolveOrder } from './resolveOrder';
 export const DEFAULT_ORDER = 1;
 
-// resolve "order" to a safe, 0+ integer, otherwise return undefined
-// Note: Any changes to this function should also be made to "resolveStart"
-// in packages/editor/adf-schema/src/schema/nodes/ordered-list.ts
-export const resolveOrder = (order: number | undefined | string): number | undefined => {
-	const num = Number(order);
-	if (Number.isNaN(num)) {
-		return;
-	}
-	if (num < 0) {
-		return;
-	}
-	return Math.floor(Math.max(num, 0));
-};
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getOrderFromOrderedListNode = (orderedListNode: Node): number => {
 	const order = orderedListNode?.attrs?.order;
 	return resolveOrder(order) ?? DEFAULT_ORDER;
@@ -29,6 +17,7 @@ interface GetItemCounterDigitsSize {
 	order?: number;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getItemCounterDigitsSize = (options: GetItemCounterDigitsSize): number | undefined => {
 	const order = resolveOrder(options.order) ?? DEFAULT_ORDER;
 	const itemsCount = typeof options.itemsCount === 'number' ? options.itemsCount : 0;
@@ -37,19 +26,13 @@ export const getItemCounterDigitsSize = (options: GetItemCounterDigitsSize): num
 
 	return String(largestCounter)?.split('.')?.[0]?.length;
 };
-
-export function isListNode(node: Node | null | undefined): boolean {
-	return Boolean(node && node.type && ['orderedList', 'bulletList'].includes(node.type.name));
-}
-
-export function isParagraphNode(node: Node | null | undefined): boolean {
-	return Boolean(node && node.type && 'paragraph' === node.type.name);
-}
-
-export function isListItemNode(node: Node | null | undefined): boolean {
-	return Boolean(node && node.type && 'listItem' === node.type.name);
-}
-
-export function isBulletList(node: Node | null | undefined): boolean {
-	return Boolean(node && node.type && 'bulletList' === node.type.name);
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { resolveOrder } from './resolveOrder';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isListNode } from './isListNode';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isParagraphNode } from './isParagraphNode';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isListItemNode } from './isListItemNode';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isBulletList } from './isBulletList';

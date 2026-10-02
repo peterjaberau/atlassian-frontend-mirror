@@ -1,14 +1,15 @@
+import type { IntlShape } from 'react-intl';
+
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { GetEditorContainerWidth, GetEditorFeatureFlags } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { isNativeStickySupported } from '../pm-plugins/utils/sticky-header';
 import type { PluginInjectionAPI } from '../types';
-
 // TODO: ED-23976 - Clean up
 import { createTableView } from './table';
 import TableCell from './TableCell';
@@ -21,6 +22,7 @@ type TableViewOptions = {
 	eventDispatcher: EventDispatcher;
 	getEditorContainerWidth: GetEditorContainerWidth;
 	getEditorFeatureFlags: GetEditorFeatureFlags;
+	intl?: IntlShape;
 	isChromelessEditor?: boolean;
 	isCommentEditor?: boolean;
 	pluginInjectionApi?: PluginInjectionAPI;
@@ -28,7 +30,7 @@ type TableViewOptions = {
 };
 
 export const tableView = (options: TableViewOptions) => {
-	return (node: PMNode, view: EditorView, getPos: () => number | undefined) => {
+	return (node: PMNode, view: EditorView, getPos: () => number | undefined): NodeView => {
 		return createTableView(
 			node,
 			view,
@@ -42,17 +44,17 @@ export const tableView = (options: TableViewOptions) => {
 			options.isCommentEditor,
 			options.isChromelessEditor,
 			options?.allowFixedColumnWidthOption,
+			options.intl,
 		);
 	};
 };
 
 type TableCellViewOptions = {
 	eventDispatcher: EventDispatcher;
-	isDragAndDropEnabled?: boolean;
 	pluginInjectionApi?: PluginInjectionAPI;
 };
 export const tableCellView = (options: TableCellViewOptions) => {
-	return (node: PMNode, view: EditorView, getPos: () => number | undefined) => {
+	return (node: PMNode, view: EditorView, getPos: () => number | undefined): TableCell => {
 		return new TableCell(
 			node,
 			view,
@@ -64,7 +66,7 @@ export const tableCellView = (options: TableCellViewOptions) => {
 };
 
 export const tableHeaderView = (options: TableCellViewOptions) => {
-	return (node: PMNode, view: EditorView, getPos: () => number | undefined) => {
+	return (node: PMNode, view: EditorView, getPos: () => number | undefined): TableCell => {
 		return new TableCell(
 			node,
 			view,
@@ -76,9 +78,13 @@ export const tableHeaderView = (options: TableCellViewOptions) => {
 };
 
 export const tableRowView = (options: TableCellViewOptions) => {
-	return (node: PMNode, view: EditorView, getPos: () => number | undefined) => {
+	return (
+		node: PMNode,
+		view: EditorView,
+		getPos: () => number | undefined,
+	): TableRowNativeStickyWithFallback | TableRow => {
 		if (
-			isNativeStickySupported(options.isDragAndDropEnabled ?? false) &&
+			isNativeStickySupported() &&
 			expValEquals(
 				'platform_editor_table_sticky_header_improvements',
 				'cohort',

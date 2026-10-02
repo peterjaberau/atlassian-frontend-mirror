@@ -1,0 +1,79 @@
+import { useMemo } from 'react';
+
+import createAndFireEvent from '@atlaskit/analytics-next/createAndFireEvents';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+
+import createEventPayload from './common/utils/analytics/create-event-payload';
+import { EVENT_CHANNEL } from './common/utils/constants';
+import {
+	type LifecycleAction,
+	type LinkLifecycleEventCallback,
+	type SmartLinkLifecycleMethods,
+} from './types';
+import { runWhenIdle } from './utils/run-when-idle';
+
+/**
+ * Exposes callbacks to fire analytics events for the lifecycle (create, update and deletion) of links
+ * @returns An object containing the analytic lifecycle methods
+ *
+ * @example Link created Example
+ *
+ * ```ts
+ * export const ExampleComponent = () => {
+ *   const linkAnalytics = useSmartLinkLifecycleAnalytics();
+ *
+ *   const handleCreateLink = ({ url }) => {
+ *     // ... do stuff
+ *     // Call when a link is created
+ *     linkAnalytics.linkCreated({ url })
+ *   }
+ *
+ *   return (
+ *     <SomeLinkCreatingComponent onCreateLink={handleCreateLink} />
+ *   )
+ * }
+ * ```
+ */
+export const useSmartLinkLifecycleAnalytics = (): SmartLinkLifecycleMethods => {
+	const { createAnalyticsEvent } = useAnalyticsEvents();
+	const {
+		store,
+		connections: { client },
+	} = useSmartLinkContext();
+
+	return useMemo(() => {
+		const factory =
+			(action: LifecycleAction): LinkLifecycleEventCallback =>
+			(...args) => {
+				try {
+					runWhenIdle(() => {
+						createAndFireEvent(EVENT_CHANNEL)(
+							createEventPayload('operational.fireAnalyticEvent.commenced', {
+								action,
+							}),
+						)(createAnalyticsEvent);
+					});
+					runWhenIdle(async () => {
+						const { default: fireEvent } = await import(
+							/* webpackChunkName: "@atlaskit-internal_@atlaskit/link-analytics/fire-event" */ './fire-event'
+						);
+						fireEvent(action, createAnalyticsEvent, client, store)(...args);
+					});
+				} catch (error: unknown) {
+					createAndFireEvent(EVENT_CHANNEL)(
+						createEventPayload('operational.fireAnalyticEvent.failed', {
+							error: error instanceof Error ? error.toString() : '',
+							action,
+						}),
+					)(createAnalyticsEvent);
+				}
+			};
+
+		return {
+			linkCreated: factory('created'),
+			linkUpdated: factory('updated'),
+			linkDeleted: factory('deleted'),
+		};
+	}, [client, store, createAnalyticsEvent]);
+};

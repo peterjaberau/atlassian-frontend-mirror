@@ -1,26 +1,19 @@
-import { defaults } from '@atlaskit/json-ld-types';
-import {
-	type DatasourceDataResponseItem,
-	type DatasourceDetailsResponse,
-	type DatasourceResponseSchemaProperty,
-	type RichText,
-	type StatusType,
-	type User,
-} from '@atlaskit/linking-types';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { defaults } from '@atlaskit/json-ld-types/default-states';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type {
+	DatasourceDataResponseItem,
+	DatasourceDetailsResponse,
+	DatasourceResponseSchemaProperty,
+	RichText,
+	StatusType,
+	User,
+} from '@atlaskit/linking-types/datasource';
 
 import { YouTubeVideoUrl } from '../../index';
 import { type GenerateDataResponse } from '../types';
-
 import { defaultInitialVisibleColumnKeys, mockJiraData } from './data';
 
 export { defaultInitialVisibleColumnKeys };
-
-export const daterangeColumn: DatasourceResponseSchemaProperty = {
-	key: 'daterange',
-	title: 'Date range',
-	type: 'daterange',
-};
 
 const columns: DatasourceResponseSchemaProperty[] = [
 	{
@@ -39,6 +32,11 @@ const columns: DatasourceResponseSchemaProperty[] = [
 		title: 'Type',
 	},
 	{
+		key: 'issuetype',
+		type: 'icon',
+		title: 'Type',
+	},
+	{
 		key: 'summary',
 		title: 'Summary',
 		type: 'string',
@@ -51,6 +49,11 @@ const columns: DatasourceResponseSchemaProperty[] = [
 	{
 		key: 'description',
 		title: 'Description',
+		type: 'richtext',
+	},
+	{
+		key: 'description-richtext',
+		title: 'Description (rich text)',
 		type: 'richtext',
 	},
 	{
@@ -90,9 +93,11 @@ const columns: DatasourceResponseSchemaProperty[] = [
 		title: 'Due Date',
 		type: 'date',
 	},
-	// TODO: Uncomment this when cleaning up jpd_confluence_date_fields_improvements
-	// or include it in the `defaultDetailsResponse` when cleaning up jpd_confluence_date_fields_improvements
-	// daterangeColumn,
+	{
+		key: 'daterange',
+		title: 'Date range',
+		type: 'daterange',
+	},
 	...new Array<DatasourceResponseSchemaProperty>(100)
 		.fill({
 			key: 'due',
@@ -216,7 +221,43 @@ const getDaterangeMock = (index: number): DatasourceDataResponseItem['daterange'
 	}
 };
 
-export const generateResolveResponse = (resourceUrl: string) => {
+export const generateResolveResponse = (
+	resourceUrl: string,
+):
+	| {
+			body: {
+				data: {
+					'@context': {
+						'@vocab': string;
+						atlassian: string;
+						schema: string;
+					};
+					'@type': string[];
+					generator: {
+						'@id': string;
+						'@type': string;
+						name: string;
+					};
+					name: string;
+					summary: string;
+					url: string;
+				};
+				datasources: {
+					ari: string;
+					description: string;
+					id: string;
+					key: string;
+					name: string;
+					parameters: {
+						cloudId: string;
+						jql: string;
+					};
+				}[];
+				meta: JsonLd.Meta.Granted;
+			};
+			status: number;
+	  }
+	| undefined => {
 	const url = new URL(resourceUrl);
 	if (url.search.includes('jql=')) {
 		return resolveJqlSuccess;
@@ -229,24 +270,11 @@ export const generateDetailsResponse = (
 	...defaultDetailsResponse,
 	meta: {
 		...defaultDetailsResponse.meta,
-		...(fg('jpd_confluence_date_fields_improvements')
-			? // meta does not have `schema` property, currently it does nothing
-				undefined
-			: {
-					schema: {
-						...defaultDetailsResponse.meta.schema,
-						defaultProperties: initialColumnKeys,
-					},
-				}),
 	},
 	data: {
 		...defaultDetailsResponse.data,
 		schema: {
 			...defaultDetailsResponse.data.schema,
-			// Remove `properties` here and uncomment the line in the `columns` array when cleaning up jpd_confluence_date_fields_improvements
-			properties: fg('jpd_confluence_date_fields_improvements')
-				? [...defaultDetailsResponse.data.schema.properties, daterangeColumn]
-				: defaultDetailsResponse.data.schema.properties,
 			defaultProperties: initialColumnKeys,
 		},
 	},
@@ -267,15 +295,8 @@ const buildDataResponse = ({
 	isUnauthorized?: boolean;
 	maxItems?: number;
 }): ReturnType<GenerateDataResponse> => {
-	// Remove `schemaProperties` here and uncomment the line in the `defaultDetailsResponse` when cleaning up jpd_confluence_date_fields_improvements
-	const schemaProperties: DatasourceResponseSchemaProperty[] = fg(
-		'jpd_confluence_date_fields_improvements',
-	)
-		? [...defaultDetailsResponse.data.schema.properties, daterangeColumn]
-		: defaultDetailsResponse.data.schema.properties;
-
 	const schema = {
-		properties: schemaProperties.filter(({ key }) => {
+		properties: defaultDetailsResponse.data.schema.properties.filter(({ key }) => {
 			return initialVisibleColumnKeys.includes(key);
 		}),
 	};
@@ -314,6 +335,9 @@ const buildDataResponse = ({
 					type: {
 						data: { source: item.type.source, label: item.type.label },
 					},
+					issuetype: {
+						data: { source: item.type.source, label: item.type.label },
+					},
 					key: {
 						data: {
 							url: item.link,
@@ -323,7 +347,8 @@ const buildDataResponse = ({
 							},
 						},
 					},
-					description: idx % 2 === 0 ? adfSample : adfTableSample,
+					description: idx % 2 === 0 ? adfSampleNoHtml : adfTableSample,
+					'description-richtext': idx % 2 === 0 ? adfSample : adfTableSample,
 					link: {
 						data: {
 							url:
@@ -386,11 +411,9 @@ const buildDataResponse = ({
 							data: item.labels.map((label) => ({ text: label })),
 						},
 					}),
-					...(fg('jpd_confluence_date_fields_improvements') && {
-						daterange: {
-							data: getDaterangeMock(idx),
-						},
-					}),
+					daterange: {
+						data: getDaterangeMock(idx),
+					},
 				};
 			}),
 			totalCount: maxItems === 0 || maxItems === 1 ? maxItems : mockJiraData.totalIssues,
@@ -970,6 +993,70 @@ const adfTableSample = {
 	},
 };
 
+const adfSampleNoHtml: { data: RichText } = {
+	data: {
+		type: 'adf',
+		text: JSON.stringify({
+			version: 1,
+			type: 'doc',
+			content: [
+				{
+					type: 'panel',
+					attrs: {
+						panelType: 'info',
+					},
+					content: [
+						{
+							type: 'paragraph',
+							content: [
+								{
+									type: 'text',
+									text: 'normal info panel',
+								},
+							],
+						},
+					],
+				},
+				{
+					type: 'panel',
+					attrs: {
+						panelType: 'custom',
+					},
+					content: [
+						{
+							type: 'paragraph',
+							content: [
+								{
+									type: 'text',
+									text: 'custom - missing defaults',
+								},
+							],
+						},
+					],
+				},
+				{
+					type: 'panel',
+					attrs: {
+						panelType: 'custom',
+						panelColor: '#34eb6e',
+					},
+					content: [
+						{
+							type: 'paragraph',
+							content: [
+								{
+									type: 'text',
+									text: 'custom - only background',
+								},
+							],
+						},
+					],
+				},
+			],
+		}),
+	},
+};
+
 const adfSample: { data: RichText } = {
 	data: {
 		type: 'adf',
@@ -1031,6 +1118,6 @@ const adfSample: { data: RichText } = {
 				},
 			],
 		}),
-		html: `<ul>\n\t<li><del>Talk with Stan</del></li>\n\t<li>-Do another spike with -\n\t<ul>\n\t\t<li><del>Media resolved</del></li>\n\t\t<li>Mentions resolved</li>\n\t\t<li>Emojis resolved</li>\n\t</ul>\n\t</li>\n</ul>\n\n\n\n\n<p><b>bold</b>, <em>italic</em>, <ins>underlined</ins>, <del>strikethrough</del>, <sup>superscript</sup>, and <sub>subscript</sub>. </p>\n\n<h1><a name=\"Heading1bolditalic\"></a>Heading 1 <b>bold</b> <em>italic</em> <font color=\"#bf2600\">colored</font></h1>\n\n<h2><a name=\"Heading2bolditalic\"></a>Heading 2 <b>bold</b> <em>italic</em> <font color=\"#bf2600\">colored</font></h2>\n\n<h4><a name=\"Heading3bolditalic\"></a>Heading 3 <b>bold</b> <em>italic</em></h4>\n\n<h4><a name=\"Heading4bolditalic\"></a>Heading 4 <b>bold</b> <em>italic</em></h4>\n\n<p>Smart links:<a href=\"${YouTubeVideoUrl}\" title=\"smart-link\" class=\"external-link\" rel=\"nofollow noreferrer\">${YouTubeVideoUrl}</a> </p>\n\n<p><a href=\"https://hello.jira.atlassian.cloud/browse/NAVX-2016\" title=\"smart-card\" class=\"external-link\" rel=\"nofollow noreferrer\">https://hello.jira.atlassian.cloud/browse/NAVX-2016</a></p>\n\n<p><a href=\"https://hello.jira.atlassian.cloud/browse/NAVX-2016\" title=\"smart-embed\" class=\"external-link\" rel=\"nofollow noreferrer\">https://hello.jira.atlassian.cloud/browse/NAVX-2016</a></p>\n\n<p><a href=\"https://hello.atlassian.net/issues/?jql=parent%3DNAVX-1835%20ORDER%20BY%20rank\" title=\"smart-card\" class=\"external-link\" rel=\"nofollow noreferrer\">https://hello.atlassian.net/issues/?jql=parent%3DNAVX-1835%20ORDER%20BY%20rank</a></p>\n\n<ul>\n\t<li>bullet point <font color=\"#bf2600\">color</font> <b>bold</b> <em>italic</em></li>\n\t<li>second point\n\t<ul>\n\t\t<li>another one deeper</li>\n\t</ul>\n\t</li>\n</ul>\n\n\n<ol>\n\t<li>numbered list item</li>\n\t<li>another one\n\t<ol>\n\t\t<li>subpoint <font color=\"#bf2600\">color</font> <b>bold</b> <em>italic</em></li>\n\t</ol>\n\t</li>\n</ol>\n\n\n<blockquote><p>This blockquote contains a <b>rich list</b>:</p>\n\n<ul>\n\t<li>First item with <b>bold text</b></li>\n\t<li>Second item with <em>italic text</em></li>\n\t<li>Third item with a <a href=\"https://www.atlassian.com/\" class=\"external-link\" rel=\"nofollow noreferrer\"><ins>link</ins></a></li>\n</ul>\n</blockquote>\n\n<p><font color=\"#FF5630\"><b>[ MY STATUS ]</b></font> <font color=\"#00B8D9\"><b>[ MY STATUS ]</b></font> <font color=\"#36B37E\"><b>[ MY STATUS ]</b></font> </p>\n\n<p><tt>2025-09-17</tt></p>\n\n<ul>\n\t<li>Action item</li>\n\t<li><del>Done action item</del>\n\t<ul>\n\t\t<li>Intended action item</li>\n\t</ul>\n\t</li>\n</ul>\n\n\n<ul>\n\t<li>&lt;&gt; Decision to be made</li>\n</ul>\n\n\n<div class=\"panel\" style=\"background-color: #fffae6;border-width: 1px;\"><div class=\"panelContent\" style=\"background-color: #fffae6;\">\n<p>warning panel <b>bold</b> <em>italic</em> <font color=\"#bf2600\"><em>colored</em></font></p>\n\n<p>second line</p>\n</div></div>\n\n<div class=\"panel\" style=\"background-color: #deebff;border-width: 1px;\"><div class=\"panelContent\" style=\"background-color: #deebff;\">\n<p>info panel</p>\n</div></div>\n\n<p>Here are some <tt>inline code</tt> examples</p>\n\n<div class=\"code panel\" style=\"border-width: 1px;\"><div class=\"codeContent panelContent\">\n<pre class=\"code-javascript\"><span class=\"code-comment\">// Create a map.\n</span><span class=\"code-keyword\">final</span> IntIntOpenHashMap map = <span class=\"code-keyword\">new</span> IntIntOpenHashMap();\nmap.put(1, 2);\nmap.put(2, 5);\nmap.put(3, 10);\n<span class=\"code-keyword\"><span class=\"code-object\">int</span></span> count = map.forEach(<span class=\"code-keyword\">new</span> IntIntProcedure()\n{\n   <span class=\"code-keyword\"><span class=\"code-object\">int</span></span> count;\n   <span class=\"code-keyword\">public</span> <span class=\"code-keyword\">void</span> apply(<span class=\"code-keyword\"><span class=\"code-object\">int</span></span> key, <span class=\"code-keyword\"><span class=\"code-object\">int</span></span> value)\n   {\n       <span class=\"code-keyword\">if</span> (value &gt;= 5) count++;\n   }\n}).count;\n<span class=\"code-object\">System</span>.out.println(<span class=\"code-quote\">\"There are \"</span> + count + <span class=\"code-quote\">\" values &gt;= 5\"</span>);</pre>\n</div></div>\n\n<p>Emoji: 😄 :custom_test: </p>\n\n<p>Mention: <a href=\"https://hello.atlassian.net/secure/ViewProfile.jspa?accountId=557057%3Af9c4fdc8-455d-420f-b13d-18ff5a18b5c1\" class=\"user-hover\" rel=\"557057:f9c4fdc8-455d-420f-b13d-18ff5a18b5c1\" data-account-id=\"557057:f9c4fdc8-455d-420f-b13d-18ff5a18b5c1\" accountid=\"557057:f9c4fdc8-455d-420f-b13d-18ff5a18b5c1\" rel=\"noreferrer\">Aleksandr Sasha Motsjonov</a> </p>\n\n<p>Media single:</p>\n\n<p><span class=\"image-wrap\" style=\"\"><img src=\"/rest/api/3/attachment/content/2751749\" alt=\"I00048.JPG\" width=\"694\" style=\"border: 0px solid black\" /></span></p>\n\n<p><b>Expand title blah</b></p>\n\n<ol>\n\t<li>numbered list item</li>\n\t<li>another one\n\t<ol>\n\t\t<li>subpoint <font color=\"#bf2600\">color</font> <b>bold</b> <em>italic</em></li>\n\t</ol>\n\t</li>\n</ol>\n\n\n<!-- ADF macro (type = 'table') -->\n\n<p>divider: </p>\n\n<hr />`,
+		html: `<ul>\n\t<li><del>Talk with Stan</del></li>\n\t<li>-Do another spike with -\n\t<ul>\n\t\t<li><del>Media resolved</del></li>\n\t\t<li>Mentions resolved</li>\n\t\t<li>Emojis resolved</li>\n\t</ul>\n\t</li>\n</ul>\n\n\n\n\n<p><b>bold</b>, <em>italic</em>, <ins>underlined</ins>, <del>strikethrough</del>, <sup>superscript</sup>, and <sub>subscript</sub>. </p>\n\n<h1><a name=\"Heading1bolditalic\"></a>Heading 1 <b>bold</b> <em>italic</em> <font color=\"#bf2600\">colored</font></h1>\n\n<h2><a name=\"Heading2bolditalic\"></a>Heading 2 <b>bold</b> <em>italic</em> <font color=\"#bf2600\">colored</font></h2>\n\n<h3><a name=\"Heading3bolditalic\"></a>Heading 3 <b>bold</b> <em>italic</em></h3>\n\n<h4><a name=\"Heading4bolditalic\"></a>Heading 4 <b>bold</b> <em>italic</em></h4>\n\n<p>Smart links:<a href=\"${YouTubeVideoUrl}\" title=\"smart-link\" class=\"external-link\" rel=\"nofollow noreferrer\">${YouTubeVideoUrl}</a> </p>\n\n<p><a href=\"https://hello.jira.atlassian.cloud/browse/NAVX-2016\" title=\"smart-card\" class=\"external-link\" rel=\"nofollow noreferrer\">https://hello.jira.atlassian.cloud/browse/NAVX-2016</a></p>\n\n<p><a href=\"https://hello.jira.atlassian.cloud/browse/NAVX-2016\" title=\"smart-embed\" class=\"external-link\" rel=\"nofollow noreferrer\">https://hello.jira.atlassian.cloud/browse/NAVX-2016</a></p>\n\n<p><a href=\"https://hello.atlassian.net/issues/?jql=parent%3DNAVX-1835%20ORDER%20BY%20rank\" title=\"smart-card\" class=\"external-link\" rel=\"nofollow noreferrer\">https://hello.atlassian.net/issues/?jql=parent%3DNAVX-1835%20ORDER%20BY%20rank</a></p>\n\n<ul>\n\t<li>bullet point <font color=\"#bf2600\">color</font> <b>bold</b> <em>italic</em></li>\n\t<li>second point\n\t<ul>\n\t\t<li>another one deeper</li>\n\t</ul>\n\t</li>\n</ul>\n\n\n<ol>\n\t<li>numbered list item</li>\n\t<li>another one\n\t<ol>\n\t\t<li>subpoint <font color=\"#bf2600\">color</font> <b>bold</b> <em>italic</em></li>\n\t</ol>\n\t</li>\n</ol>\n\n\n<blockquote><p>This blockquote contains a <b>rich list</b>:</p>\n\n<ul>\n\t<li>First item with <b>bold text</b></li>\n\t<li>Second item with <em>italic text</em></li>\n\t<li>Third item with a <a href=\"https://www.atlassian.com/\" class=\"external-link\" rel=\"nofollow noreferrer\"><ins>link</ins></a></li>\n</ul>\n</blockquote>\n\n<p><font color=\"#FF5630\"><b>[ MY STATUS ]</b></font> <font color=\"#00B8D9\"><b>[ MY STATUS ]</b></font> <font color=\"#36B37E\"><b>[ MY STATUS ]</b></font> </p>\n\n<p><tt>2025-09-17</tt></p>\n\n<ul>\n\t<li>Action item</li>\n\t<li><del>Done action item</del>\n\t<ul>\n\t\t<li>Intended action item</li>\n\t</ul>\n\t</li>\n</ul>\n\n\n<ul>\n\t<li>&lt;&gt; Decision to be made</li>\n</ul>\n\n\n<div class=\"panel\" style=\"background-color: #fffae6;border-width: 1px;\"><div class=\"panelContent\" style=\"background-color: #fffae6;\">\n<p>warning panel <b>bold</b> <em>italic</em> <font color=\"#bf2600\"><em>colored</em></font></p>\n\n<p>second line</p>\n</div></div>\n\n<div class=\"panel\" style=\"background-color: #deebff;border-width: 1px;\"><div class=\"panelContent\" style=\"background-color: #deebff;\">\n<p>info panel</p>\n</div></div>\n\n<p>Here are some <tt>inline code</tt> examples</p>\n\n<div class=\"code panel\" style=\"border-width: 1px;\"><div class=\"codeContent panelContent\">\n<pre class=\"code-javascript\"><span class=\"code-comment\">// Create a map.\n</span><span class=\"code-keyword\">final</span> IntIntOpenHashMap map = <span class=\"code-keyword\">new</span> IntIntOpenHashMap();\nmap.put(1, 2);\nmap.put(2, 5);\nmap.put(3, 10);\n<span class=\"code-keyword\"><span class=\"code-object\">int</span></span> count = map.forEach(<span class=\"code-keyword\">new</span> IntIntProcedure()\n{\n   <span class=\"code-keyword\"><span class=\"code-object\">int</span></span> count;\n   <span class=\"code-keyword\">public</span> <span class=\"code-keyword\">void</span> apply(<span class=\"code-keyword\"><span class=\"code-object\">int</span></span> key, <span class=\"code-keyword\"><span class=\"code-object\">int</span></span> value)\n   {\n       <span class=\"code-keyword\">if</span> (value &gt;= 5) count++;\n   }\n}).count;\n<span class=\"code-object\">System</span>.out.println(<span class=\"code-quote\">\"There are \"</span> + count + <span class=\"code-quote\">\" values &gt;= 5\"</span>);</pre>\n</div></div>\n\n<p>Emoji: 😄 :custom_test: </p>\n\n<p>Mention: <a href=\"https://hello.atlassian.net/secure/ViewProfile.jspa?accountId=557057%3Af9c4fdc8-455d-420f-b13d-18ff5a18b5c1\" class=\"user-hover\" rel=\"557057:f9c4fdc8-455d-420f-b13d-18ff5a18b5c1\" data-account-id=\"557057:f9c4fdc8-455d-420f-b13d-18ff5a18b5c1\" accountid=\"557057:f9c4fdc8-455d-420f-b13d-18ff5a18b5c1\" rel=\"noreferrer\">Aleksandr Sasha Motsjonov</a> </p>\n\n<p>Media single:</p>\n\n<p><span class=\"image-wrap\" style=\"\"><img src=\"/rest/api/3/attachment/content/2751749\" alt=\"I00048.JPG\" width=\"694\" style=\"border: 0px solid black\" /></span></p>\n\n<p><b>Expand title blah</b></p>\n\n<ol>\n\t<li>numbered list item</li>\n\t<li>another one\n\t<ol>\n\t\t<li>subpoint <font color=\"#bf2600\">color</font> <b>bold</b> <em>italic</em></li>\n\t</ol>\n\t</li>\n</ol>\n\n\n<!-- ADF macro (type = 'table') -->\n\n<p>divider: </p>\n\n<hr />`,
 	},
 };

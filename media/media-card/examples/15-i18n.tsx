@@ -3,8 +3,10 @@
  * @jsx jsx
  */
 import React from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
+
 import {
 	I18NWrapper,
 	externaBrokenlIdentifier,
@@ -14,20 +16,21 @@ import {
 	createStorybookMediaClientConfig,
 } from '@atlaskit/media-test-helpers';
 import { token } from '@atlaskit/tokens';
-import { Card } from '../src';
+
 import { MainWrapper } from '../example-helpers';
+import Card from '../src/card/cardLoader';
 
 const mediaClientConfig = createStorybookMediaClientConfig();
 
 const wrapperStyles = css({
 	maxWidth: '800px',
-	margin: `${token('space.250', '20px')} auto`,
+	margin: `${token('space.250')} auto`,
 });
 
 const cardContainerStyles = css({
 	display: 'inline-block',
-	marginRight: token('space.250', '20px'),
-	marginTop: token('space.250', '20px'),
+	marginRight: token('space.250'),
+	marginTop: token('space.250'),
 });
 
 const cardDimensions = [

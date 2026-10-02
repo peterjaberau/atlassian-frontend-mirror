@@ -1,11 +1,9 @@
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box } from '@atlaskit/primitives';
+import { Box } from '@atlaskit/primitives/compiled';
 
 const AppProviderThemeCodeBlock = `import React from 'react';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box } from '@atlaskit/primitives';
+import { Box } from '@atlaskit/primitives/compiled';
 import AppProvider from '@atlaskit/app-provider';
 
 function ThemedComponent() {
@@ -39,7 +37,7 @@ function AppProviderTheme(): React.JSX.Element {
 }
 
 const _default_1: {
-    example: typeof AppProviderTheme;
-    code: string;
+	example: typeof AppProviderTheme;
+	code: string;
 } = { example: AppProviderTheme, code: AppProviderThemeCodeBlock };
 export default _default_1;

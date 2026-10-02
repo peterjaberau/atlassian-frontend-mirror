@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-ui",
-	"version": "28.7.28",
+	"version": "31.0.2",
 	"description": "Includes common components and utilities used by other media packages",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,6 +17,13 @@
 	],
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif",
 		"website": {
 			"name": "Media UI"
@@ -25,6 +32,7 @@
 	"dependencies": {
 		"@atlaskit/afm-i18n-platform-media-media-ui": "root:*",
 		"@atlaskit/analytics-next": "workspace:^",
+		"@atlaskit/browser-apis": "workspace:^",
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/code": "workspace:^",
 		"@atlaskit/css": "workspace:^",
@@ -39,8 +47,11 @@
 		"@atlaskit/media-state": "workspace:^",
 		"@atlaskit/modal-dialog": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/popper": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/range": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/react-select": "workspace:^",
 		"@atlaskit/react-ufo": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/spinner": "workspace:^",
@@ -61,81 +72,116 @@
 	"peerDependencies": {
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-intl-next": "*"
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@af/visual-regression": "workspace:^",
 		"@atlaskit/analytics-listeners": "workspace:^",
+		"@atlaskit/lozenge": "workspace:^",
 		"@atlaskit/media-test-data": "workspace:^",
+		"@atlaskit/page": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/jest-dom": "root:*",
 		"@testing-library/react": "root:*",
 		"@types/blueimp-load-image": "root:*",
 		"@types/bytes": "root:*",
-		"@types/enzyme": "root:*",
 		"@types/exenv": "root:*",
 		"@types/png-chunks-extract": "root:*",
-		"enzyme": "root:*",
 		"jest-emotion": "root:*",
 		"jsverify": "root:*",
 		"react": "root:*",
 		"react-dom": "root:*",
-		"react-intl-next": "root:*",
+		"react-intl": "root:*",
 		"wait-for-expect": "root:*"
 	},
 	"platform-feature-flags": {
 		"platform_media_resume_video_on_token_expiry": {
 			"type": "boolean"
 		},
-		"should-render-to-parent-should-be-true-media-exif": {
+		"platform_media_playback_speed_aria_label": {
 			"type": "boolean"
 		}
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"circular-dependencies": [
-				"file-level"
-			]
-		},
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"styling": [
-				"compiled"
-			]
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
-		"./classNames": "./src/classNames.ts",
-		"./media-type-icon": "./src/media-type-icon.tsx",
-		"./mime-type-icon": "./src/mime-type-icon.tsx",
-		"./truncateText": "./src/truncateText.tsx",
-		"./messages": "./src/messages.ts",
-		"./modalSpinner": "./src/modalSpinner.tsx",
+		".": "./src/index.ts",
+		"./absolute": "./src/absolute.ts",
+		"./abuseModal": "./src/abuseModal/abuseModal.tsx",
+		"./bounds": "./src/Bounds.ts",
 		"./browser": "./src/browser.tsx",
-		"./codeViewer": "./src/codeViewer.ts",
-		"./util": "./src/util.ts",
+		"./calculateTruncation": "./src/calculateTruncation.ts",
+		"./camera/camera": "./src/Camera-2.ts",
+		"./classNames": "./src/classNames.ts",
+		"./customMediaPlayer": "./src/customMediaPlayer/index.tsx",
+		"./dataURItoFile": "./src/dataURItoFile.ts",
+		"./ellipsify/compiled/ellipsify": "./src/Ellipsify-3.tsx",
+		"./ellipsify/ellipsify": "./src/Ellipsify-2.tsx",
+		"./ellipsis": "./src/ellipsis.ts",
+		"./ErroredView": "./src/MediaInlineCard/ErroredView/index.tsx",
 		"./errorIcon": "./src/errorIcon.tsx",
-		"./types": "./src/types.ts",
+		"./fileToArrayBuffer": "./src/fileToArrayBuffer.ts",
+		"./fileToDataURI": "./src/fileToDataURI.ts",
+		"./findParentByClassname": "./src/findParentByClassname.ts",
 		"./formatDate": "./src/formatDate.ts",
-		"./locales": "./src/locales.ts",
-		"./abuseModal": "./src/abuseModal/index.ts",
+		"./formatDuration": "./src/formatDuration.ts",
+		"./getExtension": "./src/getExtension.ts",
+		"./getFileInfo": "./src/getFileInfo.ts",
+		"./getFileInfoFromSrc": "./src/getFileInfoFromSrc.ts",
+		"./getLanguageType": "./src/getLanguageType.ts",
+		"./getMimeIcon": "./src/getMimeIcon.ts",
+		"./humanReadableSize": "./src/humanReadableSize.ts",
 		"./i18n/*": {
 			"publish": null,
 			"default": "./src/i18n/*.ts"
 		},
-		".": "./src/index.ts"
+		"./imageMetaData/getCssFromImageOrientation": "./src/imageMetaData/getCssFromImageOrientation.ts",
+		"./imageMetaData/getImageInfo": "./src/imageMetaData/getImageInfo.ts",
+		"./imageMetaData/getMetaTagNumericValue": "./src/imageMetaData/getMetaTagNumericValue.ts",
+		"./imageMetaData/getOrientation": "./src/imageMetaData/getOrientation.ts",
+		"./imageMetaData/getScaleFactor": "./src/imageMetaData/getScaleFactor.ts",
+		"./imageMetaData/getScaleFactorFromFile": "./src/imageMetaData/getScaleFactorFromFile.ts",
+		"./imageMetaData/isRotated": "./src/imageMetaData/isRotated.ts",
+		"./imageMetaData/readImageMetaData": "./src/imageMetaData/readImageMetaData.ts",
+		"./imageMetaData/types": "./src/imageMetaData/types.ts",
+		"./inactivityDetector": "./src/inactivityDetector/inactivityDetector.tsx",
+		"./index-compiled": "./src/customMediaPlayer/index-compiled.tsx",
+		"./intersectionObserver": "./src/intersectionObserver.ts",
+		"./isCodeViewerItem": "./src/isCodeViewerItem.ts",
+		"./isInvalidInput": "./src/isInvalidInput.ts",
+		"./languages": "./src/i18n/languages.ts",
+		"./LoadedView": "./src/MediaInlineCard/LoadedView/index.tsx",
+		"./loadImage": "./src/loadImage.ts",
+		"./LoadingView": "./src/MediaInlineCard/LoadingView/index.tsx",
+		"./locales": "./src/locales.ts",
+		"./media-type-icon/compiled": "./src/media-type-icon-compiled.tsx",
+		"./media-type-icon": "./src/media-type-icon.tsx",
+		"./MediaButton": "./src/MediaButton.tsx",
+		"./mediaImage": "./src/mediaImage/index.tsx",
+		"./mediaPlayer/types": "./src/customMediaPlayer/mediaPlayer/types.ts",
+		"./mediaPlayer": "./src/customMediaPlayer/mediaPlayer/mediaPlayer.tsx",
+		"./messages": "./src/messages.ts",
+		"./mime-type-icon": "./src/mime-type-icon.tsx",
+		"./mixins": "./src/mixins.ts",
+		"./modalSpinner": "./src/modalSpinner.tsx",
+		"./partsFormatter": "./src/partsFormatter.ts",
+		"./readImageNaturalOrientationFromDOM": "./src/readImageNaturalOrientationFromDOM.ts",
+		"./rectangle": "./src/Rectangle.ts",
+		"./secondsToTime": "./src/secondsToTime.ts",
+		"./shortcut": "./src/shortcut.tsx",
+		"./size": "./src/size.ts",
+		"./timeRange": "./src/customMediaPlayer/timeRange.tsx",
+		"./truncateText/compiled/truncate": "./src/Truncate-compiled.tsx",
+		"./truncateText/compiled/truncateLeft": "./src/TruncateLeft-compiled.tsx",
+		"./truncateText/compiled/truncateRight": "./src/TruncateRight-compiled.tsx",
+		"./truncateText/truncate": "./src/Truncate.tsx",
+		"./truncateText/truncateLeft": "./src/TruncateLeft.tsx",
+		"./truncateText/truncateRight": "./src/TruncateRight.tsx",
+		"./truncateText/types": "./src/truncateTextTypes.ts",
+		"./types": "./src/types.ts",
+		"./vector2": "./src/Vector2.ts",
+		"./truncateText": "./src/truncateText.tsx"
 	}
 }

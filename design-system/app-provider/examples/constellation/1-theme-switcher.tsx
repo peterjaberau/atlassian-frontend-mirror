@@ -1,13 +1,16 @@
 import React from 'react';
 
-import { useColorMode, useSetColorMode, useSetTheme, useTheme } from '@atlaskit/app-provider';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box } from '@atlaskit/primitives';
+import { useColorMode } from '@atlaskit/app-provider/use-color-mode';
+import { useSetColorMode } from '@atlaskit/app-provider/use-set-color-mode';
+import { useSetTheme } from '@atlaskit/app-provider/use-set-theme';
+import { useTheme } from '@atlaskit/app-provider/use-theme';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import { Box } from '@atlaskit/primitives/compiled';
 
 const AppProviderThemeCodeBlock = `import React from 'react';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box } from '@atlaskit/primitives';
+import { Box } from '@atlaskit/primitives/compiled';
 import AppProvider from '@atlaskit/app-provider';
 
 function ColorModeSwitcher() {

@@ -6,11 +6,13 @@ import { type FC, type ReactNode } from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
 
-import Avatar from '@atlaskit/avatar';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import Avatar from '@atlaskit/avatar/avatar';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import StarStarredIcon from '@atlaskit/icon/core/star-starred';
 import StarUnstarredIcon from '@atlaskit/icon/core/star-unstarred';
-import Link from '@atlaskit/link';
+import Link from '@atlaskit/link/link';
 import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -53,7 +55,6 @@ const avatarWrapperStyles = css({
 });
 
 const AvatarWrapper: FC<{ children: ReactNode }> = ({ children }) => (
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
 	<div css={avatarWrapperStyles}>{children}</div>
 );
 
@@ -108,25 +109,29 @@ const getCommonCells = (withWidth: boolean) => [
 ];
 
 export const createHead: (withWidth: boolean) => {
-    cells: ({
-        key: string;
-        content: string;
-        isSortable: boolean;
-        width: number | undefined;
-        shouldTruncate?: undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable: boolean;
-        width: number | undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable?: undefined;
-        width?: undefined;
-    })[];
+	cells: (
+		| {
+				key: string;
+				content: string;
+				isSortable: boolean;
+				width: number | undefined;
+				shouldTruncate?: undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable: boolean;
+				width: number | undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable?: undefined;
+				width?: undefined;
+		  }
+	)[];
 } = (withWidth: boolean) => {
 	return {
 		cells: getCommonCells(withWidth),
@@ -134,52 +139,61 @@ export const createHead: (withWidth: boolean) => {
 };
 
 export const head: {
-    cells: ({
-        key: string;
-        content: string;
-        isSortable: boolean;
-        width: number | undefined;
-        shouldTruncate?: undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable: boolean;
-        width: number | undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable?: undefined;
-        width?: undefined;
-    })[];
+	cells: (
+		| {
+				key: string;
+				content: string;
+				isSortable: boolean;
+				width: number | undefined;
+				shouldTruncate?: undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable: boolean;
+				width: number | undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable?: undefined;
+				width?: undefined;
+		  }
+	)[];
 } = createHead(true);
 
 export const visuallyRefreshedCreateHead: (withWidth: boolean) => {
-    cells: ({
-        key: string;
-        content: string;
-        isSortable: boolean;
-        width: number | undefined;
-        shouldTruncate?: undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable: boolean;
-        width: number | undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable?: undefined;
-        width?: undefined;
-    } | {
-        key: string;
-        content: JSX.Element;
-        isSortable: boolean;
-        isIconOnlyHeader: boolean;
-    })[];
+	cells: (
+		| {
+				key: string;
+				content: string;
+				isSortable: boolean;
+				width: number | undefined;
+				shouldTruncate?: undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable: boolean;
+				width: number | undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable?: undefined;
+				width?: undefined;
+		  }
+		| {
+				key: string;
+				content: JSX.Element;
+				isSortable: boolean;
+				isIconOnlyHeader: boolean;
+		  }
+	)[];
 } = (withWidth: boolean) => {
 	return {
 		cells: [
@@ -199,30 +213,35 @@ export const visuallyRefreshedCreateHead: (withWidth: boolean) => {
 };
 
 export const visuallyRefreshedHead: {
-    cells: ({
-        key: string;
-        content: string;
-        isSortable: boolean;
-        width: number | undefined;
-        shouldTruncate?: undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable: boolean;
-        width: number | undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable?: undefined;
-        width?: undefined;
-    } | {
-        key: string;
-        content: JSX.Element;
-        isSortable: boolean;
-        isIconOnlyHeader: boolean;
-    })[];
+	cells: (
+		| {
+				key: string;
+				content: string;
+				isSortable: boolean;
+				width: number | undefined;
+				shouldTruncate?: undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable: boolean;
+				width: number | undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable?: undefined;
+				width?: undefined;
+		  }
+		| {
+				key: string;
+				content: JSX.Element;
+				isSortable: boolean;
+				isIconOnlyHeader: boolean;
+		  }
+	)[];
 } = visuallyRefreshedCreateHead(true);
 
 const createBaseCells = (president: President, index: number) => [
@@ -262,21 +281,26 @@ const createBaseCells = (president: President, index: number) => [
 ];
 
 export const rows: {
-    key: string;
-    isHighlighted: boolean;
-    cells: ({
-        key: string;
-        content: JSX.Element;
-    } | {
-        key: string;
-        content: string;
-    } | {
-        key: number;
-        content: string;
-    } | {
-        key: string;
-        content: number;
-    })[];
+	key: string;
+	isHighlighted: boolean;
+	cells: (
+		| {
+				key: string;
+				content: JSX.Element;
+		  }
+		| {
+				key: string;
+				content: string;
+		  }
+		| {
+				key: number;
+				content: string;
+		  }
+		| {
+				key: string;
+				content: number;
+		  }
+	)[];
 }[] = presidents.map((president: President, index: number) => ({
 	// Using president name + term because the name is not unique
 	// e.g. Grover Cleveland has two non-consecutive terms
@@ -287,21 +311,26 @@ export const rows: {
 }));
 
 export const visuallyRefreshedRows: {
-    key: string;
-    isHighlighted: boolean;
-    cells: ({
-        key: string;
-        content: JSX.Element;
-    } | {
-        key: string;
-        content: string;
-    } | {
-        key: number;
-        content: string;
-    } | {
-        key: string;
-        content: number;
-    })[];
+	key: string;
+	isHighlighted: boolean;
+	cells: (
+		| {
+				key: string;
+				content: JSX.Element;
+		  }
+		| {
+				key: string;
+				content: string;
+		  }
+		| {
+				key: number;
+				content: string;
+		  }
+		| {
+				key: string;
+				content: number;
+		  }
+	)[];
 }[] = presidents.map((president: President, index: number) => ({
 	key: kebabCase(president.name),
 	isHighlighted: false,
@@ -319,26 +348,31 @@ export const visuallyRefreshedRows: {
 }));
 
 export const rowsWithTestIdOverrides: {
-    testId: string;
-    cells: ({
-        testId: string;
-        key: string;
-        content: JSX.Element;
-    } | {
-        testId: string;
-        key: string;
-        content: string;
-    } | {
-        testId: string;
-        key: number;
-        content: string;
-    } | {
-        testId: string;
-        key: string;
-        content: number;
-    })[];
-    key: string;
-    isHighlighted: boolean;
+	testId: string;
+	cells: (
+		| {
+				testId: string;
+				key: string;
+				content: JSX.Element;
+		  }
+		| {
+				testId: string;
+				key: string;
+				content: string;
+		  }
+		| {
+				testId: string;
+				key: number;
+				content: string;
+		  }
+		| {
+				testId: string;
+				key: string;
+				content: number;
+		  }
+	)[];
+	key: string;
+	isHighlighted: boolean;
 }[] = rows.map((row) => ({
 	...row,
 	testId: `foo--row-${typeof row.key === 'string' ? kebabCase(row.key) : row.key}`,

@@ -5,11 +5,11 @@
 import React from 'react';
 
 import { jsx, css } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { N40 } from '@atlaskit/theme/colors';
 
-import { typeAheadListContainer } from './styles';
+import { token } from '@atlaskit/tokens';
+
 import { type EmojiTypeAheadWidth } from '../../util/shared-styles';
+import { typeAheadListContainer } from './styles';
 
 const typeAheadEmpty = css({
 	display: 'none',
@@ -17,11 +17,11 @@ const typeAheadEmpty = css({
 
 const typeAheadWidth: EmojiTypeAheadWidth = 350;
 const typeAheadList = css({
-	backgroundColor: token('elevation.surface.overlay', 'white'),
-	border: `${token('border.width')} solid ${token('color.border', N40)}`,
+	backgroundColor: token('elevation.surface.overlay'),
+	border: `${token('border.width')} solid ${token('color.border')}`,
 	borderRadius: token('radius.small', '3px'),
-	boxShadow: token('elevation.shadow.overlay', '0 3px 6px rgba(0, 0, 0, 0.2)'),
-	color: token('color.text.subtle', '#333'),
+	boxShadow: token('elevation.shadow.overlay'),
+	color: token('color.text.subtle'),
 	width: `${typeAheadWidth}px`,
 });
 
@@ -29,7 +29,7 @@ export function EmojiTypeAheadListContainer(props: {
 	children: React.ReactNode;
 	hasEmoji: boolean;
 	loading?: boolean;
-}) {
+}): JSX.Element {
 	const { hasEmoji, loading } = props;
 
 	return (

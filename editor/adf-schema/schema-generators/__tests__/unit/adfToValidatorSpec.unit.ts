@@ -1,4 +1,5 @@
 import { adfToValidatorSpec } from '@atlaskit/adf-schema-generator';
+
 import adfNode from '../../../src/next-schema/full-schema.adf';
 
 test('should be able to handle heading', () => {
@@ -66,6 +67,7 @@ const panel = {
 			items: [
 				[
 					'paragraph_with_no_marks',
+					'paragraph_with_font_size',
 					'heading_with_no_marks',
 					'bulletList',
 					'orderedList',
@@ -76,8 +78,11 @@ const panel = {
 					'codeBlock',
 					'taskList',
 					'rule',
+					'rule_with_attrs',
+					'bodiedRule',
 					'decisionList',
 					'extension_with_marks',
+					'extension_with_annotation',
 				],
 			],
 			minItems: 1,

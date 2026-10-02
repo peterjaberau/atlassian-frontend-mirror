@@ -1,10 +1,15 @@
-import type { RichMediaLayout } from '@atlaskit/adf-schema';
+import type { Layout as RichMediaLayout } from '@atlaskit/adf-schema/rich-media-common';
 
 import type { FeatureFlagKey } from '../../types/feature-flags';
 import type { PropsDifference, ShallowPropsDifference } from '../../utils';
-import type { SEVERITY } from '../../utils/analytics';
-
-import type { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, INPUT_METHOD } from './enums';
+import type { SEVERITY } from '../../utils/SEVERITY';
+import type {
+	ACTION,
+	ACTION_SUBJECT,
+	ACTION_SUBJECT_ID,
+	INPUT_METHOD,
+	MEDIA_INSERT_TAB,
+} from './enums';
 import type { AnnotationAEP, AnnotationErrorAEP } from './inline-comment-events';
 import type { OperationalAEP, OperationalAEPWithObjectId, TrackAEP, UIAEP } from './utils';
 
@@ -14,16 +19,19 @@ export enum PLATFORMS {
 	WEB = 'web',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum MODE {
 	RENDERER = 'renderer',
 	EDITOR = 'editor',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum FULL_WIDTH_MODE {
 	FIXED_WIDTH = 'fixedWidth',
 	FULL_WIDTH = 'fullWidth',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum BROWSER_FREEZE_INTERACTION_TYPE {
 	LOADING = 'loading',
 	TYPING = 'typing',
@@ -86,6 +94,7 @@ type EditorPerfAEP = OperationalAEPWithObjectId<
 	{
 		distortedDuration?: boolean;
 		duration: number;
+		editorDomSize?: number;
 		nodes?: Record<string, number>;
 		nodesInViewport?: Record<string, number>;
 		nodeSize?: number;
@@ -147,6 +156,56 @@ type SlowInputAEP = OperationalAEPWithObjectId<
 		nodeCount?: Record<string, number>;
 		nodeSize: number;
 		time: number;
+	}
+>;
+
+/**
+ * Fired when the runtime performance detector decides the device is struggling badly enough to
+ * warrant limited mode.
+ */
+type LimitedModeLatchedAEP = OperationalAEPWithObjectId<
+	ACTION.LIMITED_MODE_LATCHED,
+	ACTION_SUBJECT.EDITOR,
+	undefined,
+	{
+		/**
+		 * `navigator.deviceMemory` in GB. Reported for correlation only — the hardware does not feed
+		 * into the decision. Absent outside Chromium, which does not expose the hint.
+		 */
+		deviceMemoryGb?: number;
+		/** Whether the document was already breaching its thresholds when the runtime bar was met. */
+		documentAlreadyBreached: boolean;
+		/** Which criterion closed the first qualifying window. */
+		firstWindowReason: string;
+		/** `navigator.hardwareConcurrency`, i.e. logical cores. Reported for correlation only. */
+		hardwareConcurrency?: number;
+		/** Whether limited mode was actually applied, i.e. whether the session is in the treatment. */
+		latched: boolean;
+		/** Median of the closing keystroke window, present only when `reason` is `inputLatency`. */
+		latencyMedianMs?: number;
+		/**
+		 * Elapsed time from the first qualifying window to the latch, spanning every confirmation gap
+		 * that was waited out. `0` when a single window latched.
+		 */
+		msFromFirstWindow?: number;
+		nodeSize: number;
+		/**
+		 * Which criterion closed the window that latched — `inputLatency`, `freeze` or `forced`.
+		 * Together with `firstWindowReason` this shows whether one signal latched on its own or two
+		 * different ones agreed.
+		 */
+		reason: string;
+		/** How many qualifying windows this session required, i.e. the bar that was met. */
+		requiredConfirmations: number;
+		/** Milliseconds from the detector starting to the bar being met. */
+		timeToLatch: number;
+		/**
+		 * Cumulative counts for the whole session, never reset by a qualifying window — so these show
+		 * how much evidence accrued overall, not just in the window that happened to close.
+		 */
+		totalFreezes: number;
+		totalInputSamples: number;
+		totalSlowInputs: number;
 	}
 >;
 
@@ -287,7 +346,31 @@ type PickerMediaInsertAEP = PickerAEP<
 	ACTION_SUBJECT_ID.PICKER_MEDIA,
 	{
 		inputMethod: INPUT_METHOD.TOOLBAR | INPUT_METHOD.QUICK_INSERT | INPUT_METHOD.INSERT_MENU;
+		openedTab?: MEDIA_INSERT_TAB;
 	}
+>;
+
+type PickerMediaInsertTabViewedAEP = UIAEP<
+	ACTION.VIEWED,
+	ACTION_SUBJECT.PICKER,
+	ACTION_SUBJECT_ID.PICKER_MEDIA,
+	{
+		selectedTab: string;
+		selectedTabIndex: number;
+	},
+	undefined
+>;
+
+type PickerMediaInsertImageGenerationSubmittedAEP = UIAEP<
+	ACTION.SUBMITTED,
+	ACTION_SUBJECT.PICKER,
+	ACTION_SUBJECT_ID.PICKER_MEDIA,
+	{
+		aiFeatureName: string;
+		aspectRatio: string;
+		imageStyle: string;
+	},
+	undefined
 >;
 
 type PickerMediaInsertClosedAEP = PickerClosedAEP<
@@ -372,7 +455,46 @@ type CodeBlockLanguageSelectedAEP = TrackAEP<
 	ACTION_SUBJECT.CODE_BLOCK,
 	undefined,
 	{
+		autoDetectedLanguage?: string;
+		autoDetectionResult?: 'detected' | 'noneDetected';
 		language: string;
+		selectionSource?: 'all' | 'pinned' | 'recentlyUsed' | 'search';
+	},
+	undefined
+>;
+
+type CodeBlockLanguageAutoDetectedAEP = TrackAEP<
+	ACTION.LANGUAGE_AUTO_DETECTED,
+	ACTION_SUBJECT.CODE_BLOCK,
+	undefined,
+	{
+		detectionPhase?: 'initial' | 'redetection';
+		detectionResult: 'detected' | 'noneDetected';
+		language: string;
+	},
+	undefined
+>;
+
+type CodeBlockFormatCodeSuccessAEP = TrackAEP<
+	ACTION.FORMATTED,
+	ACTION_SUBJECT.CODE_BLOCK,
+	undefined,
+	{
+		language: string;
+		languageSource: 'auto-detected' | 'selected';
+		outcome: 'formatted' | 'unchanged';
+	},
+	undefined
+>;
+
+type CodeBlockFormatCodeFailedAEP = TrackAEP<
+	ACTION.ERRORED,
+	ACTION_SUBJECT.CODE_BLOCK,
+	undefined,
+	{
+		errorType: 'formatter-execution-failed' | 'formatter-load-failed';
+		language: string;
+		languageSource: 'auto-detected' | 'selected';
 	},
 	undefined
 >;
@@ -441,7 +563,7 @@ type InvalidMediaContentTransformedAEP = OperationalAEP<
 >;
 
 type CollabStepsTrackerPayloadAEP = OperationalAEP<
-	ACTION.STEPS_TRACKED | ACTION.STEPS_FILTERED,
+	ACTION.STEPS_FILTERED,
 	ACTION_SUBJECT.COLLAB,
 	undefined,
 	{
@@ -484,6 +606,29 @@ type CodeBlockWordWrapToggleAEP = TrackAEP<
 	undefined
 >;
 
+type CodeBlockLineNumbersToggleAEP = TrackAEP<
+	ACTION.TOGGLE_CODE_BLOCK_LINE_NUMBERS,
+	ACTION_SUBJECT.CODE_BLOCK,
+	undefined,
+	{
+		codeBlockNodeSize: number;
+		lineNumbersHidden: boolean;
+		platform: PLATFORMS;
+	},
+	undefined
+>;
+
+type CodeBlockFoldingToggleAEP = TrackAEP<
+	ACTION.TOGGLE_CODE_FOLDING,
+	ACTION_SUBJECT.CODE_BLOCK,
+	undefined,
+	{
+		folded: boolean;
+		trigger: 'gutter' | 'placeholder';
+	},
+	undefined
+>;
+
 export type RequestToEditAEP = UIAEP<
 	ACTION.REQUEST_TO_EDIT | ACTION.DISMISSED,
 	ACTION_SUBJECT.REQUEST_TO_EDIT_POP_UP,
@@ -517,6 +662,30 @@ type AskRovoButtonClickedAEP = ButtonAEP<
 	ACTION_SUBJECT_ID.AI_ASK_ROVO_BUTTON,
 	{
 		inputMethod: INPUT_METHOD.TOOLBAR | INPUT_METHOD.FLOATING_TB;
+	}
+>;
+
+type SmartLinkRovoButtonClickedAEP = ButtonAEP<
+	ACTION_SUBJECT_ID.SMART_LINK_ROVO_BUTTON,
+	{
+		has3pSources?: boolean;
+		sourceProduct?: string | null;
+	}
+>;
+
+type SmartLinkSummarizeButtonClickedAEP = ButtonAEP<
+	ACTION_SUBJECT_ID.SMART_LINK_SUMMARIZE_BUTTON,
+	{
+		has3pSources?: boolean;
+		sourceProduct?: string | null;
+	}
+>;
+
+type AIRemixButtonClickedAEP = ButtonAEP<
+	ACTION_SUBJECT_ID.AI_REMIX_BUTTON,
+	{
+		entryPoint: string;
+		triggeredFrom: string;
 	}
 >;
 
@@ -557,9 +726,12 @@ export type GeneralEventPayload<T = void> =
 	| HelpQuickInsertAEP
 	| InputPerfSamplingAEP
 	| InputPerfSamplingAvgAEP
+	| LimitedModeLatchedAEP
 	| PickerEmojiAEP
 	| PickerImageAEP
 	| PickerMediaInsertAEP
+	| PickerMediaInsertTabViewedAEP
+	| PickerMediaInsertImageGenerationSubmittedAEP
 	| PickerMediaInsertClosedAEP
 	| PickerMediaInsertCancelledAEP
 	| ReactNodeViewRenderedAEP
@@ -569,7 +741,10 @@ export type GeneralEventPayload<T = void> =
 	| TransactionMutatedAEP
 	| UploadExternalFailedAEP
 	| WithPluginStateCalledAEP
+	| CodeBlockLanguageAutoDetectedAEP
 	| CodeBlockLanguageSelectedAEP
+	| CodeBlockFormatCodeSuccessAEP
+	| CodeBlockFormatCodeFailedAEP
 	| EditorContentRetrievalPerformedAEP
 	| MediaLinkTransformedAEP
 	| TextLinkCodeMarkTransformedAEP
@@ -583,13 +758,18 @@ export type GeneralEventPayload<T = void> =
 	| CollabStepsTrackerPayloadAEP
 	| CollabOrganicChangesTrackerPayloadAEP
 	| BlocksDragInitAEP
+	| CodeBlockFoldingToggleAEP
 	| CodeBlockWordWrapToggleAEP
+	| CodeBlockLineNumbersToggleAEP
 	| RequestToEditAEP
 	| SingleColumLayoutDetectedAEP
 	| CopyLinkToAnchorButtonAEP
 	| DockedPrimaryToolbarRenderedAEP
 	| RovoMoreOptionsClickedAEP
 	| AskRovoButtonClickedAEP
+	| SmartLinkRovoButtonClickedAEP
+	| SmartLinkSummarizeButtonClickedAEP
+	| AIRemixButtonClickedAEP
 	| ChangeToneMenuItemClickedAEP
 	| TranslateMenuItemClickedAEP
 	| MediaSingleWidthTransformedAEP;

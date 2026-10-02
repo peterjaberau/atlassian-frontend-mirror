@@ -1,23 +1,27 @@
 import React, { useCallback, useRef, useState, Fragment, forwardRef } from 'react';
-import { IntlProvider } from 'react-intl-next';
-import Button from '@atlaskit/button/new';
-import Popup, { type PopupProps } from '@atlaskit/popup';
+
+import fetchMock from 'fetch-mock/cjs/client';
+import { IntlProvider } from 'react-intl';
+
+import createAndFireEvent from '@atlaskit/analytics-next/createAndFireEvents';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import Button from '@atlaskit/button/default/button';
 import {
 	LinkPicker,
 	type LinkPickerProps,
 	type LinkSearchListItemData,
 } from '@atlaskit/link-picker';
-import { createAndFireEvent, useAnalyticsEvents } from '@atlaskit/analytics-next';
-
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { Popup } from '@atlaskit/popup/popup';
+import type { PopupProps } from '@atlaskit/popup/types';
 import { FooterBlock, Card, SmartLinkSize, TitleBlock, ActionName } from '@atlaskit/smart-card';
-import fetchMock from 'fetch-mock/cjs/client';
-import { SmartCardProvider } from '@atlaskit/link-provider';
 
 const OBJECT_RESOLVER_SERVICE_ENDPOINT = 'glob:*/gateway/api/object-resolver/*';
 
-import { useSmartLinkLifecycleAnalytics } from '../src';
 import { icon } from '@atlaskit/link-test-helpers/images';
 import { token } from '@atlaskit/tokens';
+
+import { useSmartLinkLifecycleAnalytics } from '../src/use-smart-link-lifecycle-analytics';
 
 const linkPickerResults: LinkSearchListItemData[] = [
 	{
@@ -40,7 +44,41 @@ const linkPickerResults: LinkSearchListItemData[] = [
 	},
 ];
 
-export const generateResolvedLink = (resourceUrl: string) => ({
+export const generateResolvedLink = (
+	resourceUrl: string,
+): {
+	body: {
+		data: {
+			'@context': {
+				'@vocab': string;
+				atlassian: string;
+				schema: string;
+			};
+			'@type': string[];
+			'atlassian:priority': {
+				'@type': string;
+				name: string;
+			};
+			generator: {
+				'@id': string;
+				'@type': string;
+				name: string;
+			};
+			name: string;
+			summary: string;
+			url: string;
+		};
+		meta: {
+			access: string;
+			auth: never[];
+			definitionId: string;
+			key: string;
+			product: string;
+			resourceType: string;
+		};
+	};
+	status: number;
+} => ({
 	status: 200,
 	body: {
 		data: {
@@ -191,12 +229,12 @@ function LifecycleAnalytics() {
 
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop, @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-		<div className="example" style={{ padding: token('space.600', '48px') }}>
+		<div className="example" style={{ padding: token('space.600') }}>
 			<IntlProvider locale="en">
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
 				<div style={{ margin: '0 auto', maxWidth: 800 }}>
 					{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-					<div style={{ marginBottom: token('space.400', '32px') }}>
+					<div style={{ marginBottom: token('space.400') }}>
 						{links.map(({ id, url }) => (
 							<Fragment key={id}>
 								<Card

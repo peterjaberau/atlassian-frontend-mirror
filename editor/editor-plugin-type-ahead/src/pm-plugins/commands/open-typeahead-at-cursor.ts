@@ -2,24 +2,27 @@ import { GapCursorSelection } from '@atlaskit/editor-common/selection';
 import type { EditorCommand } from '@atlaskit/editor-common/types';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { OpenTypeAheadProps } from '../../types';
 import { ACTIONS } from '../actions';
 import { pluginKey } from '../key';
 
-export const openTypeAhead = (props: OpenTypeAheadProps) => (tr: Transaction): void => {
-	const { triggerHandler, inputMethod, query, removePrefixTriggerOnCancel } = props;
+export const openTypeAhead =
+	(props: OpenTypeAheadProps) =>
+	(tr: Transaction): void => {
+		const { triggerHandler, inputMethod, query, removePrefixTriggerOnCancel } = props;
 
-	tr.setMeta(pluginKey, {
-		action: ACTIONS.OPEN_TYPEAHEAD_AT_CURSOR,
-		params: {
-			triggerHandler,
-			inputMethod,
-			query,
-			removePrefixTriggerOnCancel,
-		},
-	});
-};
+		tr.setMeta(pluginKey, {
+			action: ACTIONS.OPEN_TYPEAHEAD_AT_CURSOR,
+			params: {
+				triggerHandler,
+				inputMethod,
+				query,
+				removePrefixTriggerOnCancel,
+			},
+		});
+	};
 
 export const openTypeAheadAtCursor =
 	({
@@ -29,6 +32,10 @@ export const openTypeAheadAtCursor =
 		removePrefixTriggerOnCancel,
 	}: OpenTypeAheadProps): EditorCommand =>
 	({ tr }) => {
+		if (triggerHandler.canOpen?.() === false && fg('editor-disable-feature')) {
+			return null;
+		}
+
 		openTypeAhead({
 			triggerHandler,
 			inputMethod,
@@ -87,11 +94,15 @@ export const openTypeAheadAtCursor =
 			// being inserted due to composition by checking if we have the trigger
 			// directly before the typeahead. This should not happen unless it has
 			// been eroneously added because we require whitespace/newline for typeahead.
-			if (
-				cursorPos >= 2 &&
-				!!selection?.$head?.parent?.textContent &&
-				selection.$head.parent.textContent.endsWith?.(triggerHandler.trigger)
-			) {
+			// Check if the text ends with the trigger character (or any character matched
+			// by customRegex, to support wide-char variants like fullwidth slash ／)
+			const triggerPattern = triggerHandler.customRegex
+				? new RegExp(`(${triggerHandler.customRegex})$`, 'u')
+				: null;
+			const endsWithTrigger =
+				selection.$head.parent.textContent.endsWith?.(triggerHandler.trigger) ||
+				(triggerPattern && triggerPattern.test(selection.$head.parent.textContent));
+			if (cursorPos >= 2 && !!selection?.$head?.parent?.textContent && endsWithTrigger) {
 				tr.delete(cursorPos - 1, cursorPos);
 			}
 		}

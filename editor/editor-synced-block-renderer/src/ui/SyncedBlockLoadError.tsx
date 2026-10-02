@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
 import { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
 import { Box } from '@atlaskit/primitives/compiled';
@@ -18,8 +18,7 @@ const styles = cssMap({
 	},
 });
 
-interface SyncedBlockNotFoundProps {
-	contentId?: string;
+interface SyncedBlockLoadErrorProps {
 	isLoading?: boolean;
 	onRetry?: () => void;
 }
@@ -27,13 +26,14 @@ interface SyncedBlockNotFoundProps {
 export const SyncedBlockLoadError = ({
 	onRetry,
 	isLoading,
-}: SyncedBlockNotFoundProps): React.JSX.Element => {
+}: SyncedBlockLoadErrorProps): React.JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	const button = (
 		<Button
 			appearance="default"
 			spacing="compact"
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onClick={(event) => {
 				event.preventDefault();
 				event.stopPropagation();

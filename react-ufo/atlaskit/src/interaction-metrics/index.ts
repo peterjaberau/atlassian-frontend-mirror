@@ -1,7 +1,8 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import { v4 as createUUID } from 'uuid';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Preserves the existing UUID implementation.
+import { v4 as createUUID } from 'uuid';
 
 import coinflip from '../coinflip';
 import type {
@@ -11,8 +12,11 @@ import type {
 	CustomData,
 	CustomTiming,
 	InteractionError,
+	HoldActive,
+	HoldInfo,
 	InteractionMetrics,
 	InteractionType,
+	MetricVariantCategory,
 	LifecycleMarkType,
 	LoadProfilerEventInfo,
 	Mark,
@@ -21,42 +25,40 @@ import type {
 	ReactProfilerTiming,
 	RequestInfo,
 	SegmentInfo,
+	Segment3pTimingEntry,
 	Span,
 	SpanType,
 } from '../common';
+import type { PreloadInfo } from '../common/common/types';
+import { sanitizeTimingName } from '../common/utils/timing-name';
 import {
 	getAwaitBM3TTIList,
 	getCapabilityRate,
 	getConfig,
-	getExperimentalInteractionRate,
-	getExtraInteractionRate,
 	getFinishInteractionOnTransition,
 	getInteractionTimeout,
 	getPostInteractionRate,
 	getReactHydrationStats,
+	getSelectorConfig,
 	shouldUseRawDataThirdPartyBehavior,
 } from '../config';
-import {
-	experimentalVC,
-	getExperimentalVCMetrics,
-	onExperimentalInteractionComplete,
-} from '../create-experimental-interaction-metrics-payload';
-import { onSearchPageInteractionComplete } from '../create-extra-search-page-interaction-payload';
-import { sanitizeUfoName, stringifyLabelStackFully } from '../create-payload/common/utils';
-import { clearActiveTrace, type TraceIdContext } from '../experience-trace-id-context';
+import { onSearchPageInteractionComplete } from '../create-extra-search-page-interaction-payload/on-search-page-interaction-complete';
+import { sanitizeUfoName } from '../create-payload/common/utils/sanitize-ufo-name';
+import { stringifyLabelStackFully } from '../create-payload/common/utils/stringify-label-stack-fully';
+import type { TraceIdContext } from '../experience-trace-id-context';
+import { clearActiveTrace } from '../experience-trace-id-context/clear-active-trace';
 import {
 	allFeatureFlagsAccessed,
 	currentFeatureFlagsAccessed,
 	type FeatureFlagValue,
 } from '../feature-flags-accessed';
 import type { LabelStack, SegmentLabel } from '../interaction-context';
-import { getInteractionId } from '../interaction-id-context';
-import { flushSsrRenderProfilerTraces } from '../segment/ssr-render-profiler'
-import { newVCObserver } from '../vc';
+import { getInteractionId } from '../interaction-id-context/getInteractionId';
+import { BACKEND_RESOURCE_TIMING_INITIATOR_TYPES } from '../resource-timing/common/utils/resource-timing-initiator-types';
+import { flushSsrRenderProfilerTraces } from '../segment/ssr-render-profiler/flush-traces';
+import { newVCObserver } from '../vc/newVCObserver';
 import { type VCObserverInterface } from '../vc/types';
-
 import { interactions } from './common/constants';
-import InteractionExtraMetrics from './interaction-extra-metrics';
 import PostInteractionLog from './post-interaction-log';
 
 export type {
@@ -92,13 +94,9 @@ export const PreviousInteractionLog: PreviousInteractionLogType = {
 };
 
 export const postInteractionLog: PostInteractionLog = new PostInteractionLog();
-export const interactionExtraMetrics: InteractionExtraMetrics = new InteractionExtraMetrics();
-
 const interactionQueue: { id: string; data: InteractionMetrics }[] = [];
 const segmentCache = new Map<string, SegmentInfo>();
 export const segmentUnmountCache: Map<string, number> = new Map<string, number>(); // Temporarily store segment unmount counts
-
-let firstSegmentLoadMarked = false;
 
 interface SegmentObserver {
 	onAdd: (segment: SegmentInfo) => void;
@@ -227,6 +225,107 @@ export function addCustomData(
 	}
 }
 
+/**
+ * Records a diagnostic breadcrumb for a third-party segment that was intentionally excluded from all
+ * metric windows (e.g. a Forge background module rendered with `excludeFromMetrics`). The data is a
+ * raw keyed object (same shape as `customData`), stored in its own `excluded3pSegmentData` map keyed
+ * by `segmentId`. This creates no hold and is never read by any metric computation.
+ */
+
+export function addExcluded3pSegment(
+	interactionId: string,
+	segmentId: string,
+	data: CustomData,
+): void {
+	const interaction = interactions.get(interactionId);
+	if (interaction != null) {
+		(interaction.excluded3pSegmentData ??= {})[segmentId] = {
+			segmentId,
+			...interaction.excluded3pSegmentData[segmentId],
+			...data,
+		};
+	}
+}
+
+export function addSegmentExtraData(
+	interactionId: string,
+	segmentId: string,
+	data: Record<string, string | undefined>,
+): void {
+	const interaction = interactions.get(interactionId);
+	if (interaction != null) {
+		if (!interaction.segmentExtraData) {
+			interaction.segmentExtraData = {};
+		}
+		interaction.segmentExtraData[segmentId] = {
+			...interaction.segmentExtraData[segmentId],
+			...data,
+		};
+	}
+}
+
+/**
+ * Builds a stable cross-segment dedup key for a segment3pTimings entry.
+ *
+ * For `resource-timing`, query-stripped backend labels + timing fields identify a request without
+ * depending on query parameters. Shared CSS/JS asset timings dedupe across segments, but backend
+ * fetch/XHR entries are scoped by `segmentId` because each iframe can make its own backend request
+ * to the same URL.
+ *
+ * For all other labels the data objects are small (a handful of fields), so we use a full
+ * JSON fingerprint which is cheap and collision-free.
+ */
+function buildCrossSegmentDedupKey(entry: Segment3pTimingEntry, segmentId: string): string {
+	if (entry.label === 'resource-timing') {
+		const {
+			label: resourceLabel,
+			startTime,
+			duration,
+			requestStart,
+			fetchStart,
+			ttfb,
+			type,
+		} = entry.data as Record<string, unknown>;
+		if (BACKEND_RESOURCE_TIMING_INITIATOR_TYPES.has(String(type))) {
+			// Backend calls are separate requests per segment; include extra timings and segment scope.
+			return `resource-timing|${resourceLabel}|${startTime}|${duration}|${fetchStart}|${requestStart}|${ttfb}|${segmentId}`;
+		}
+		// Shared CSS/JS assets keep the original B3 key so they can dedupe across segments.
+		return `resource-timing|${resourceLabel}|${startTime}|${duration}`;
+	}
+	return `${entry.label}|${JSON.stringify(entry.data)}`;
+}
+
+export function addIframeSegmentData(
+	interactionId: string,
+	segmentId: string,
+	entry: Segment3pTimingEntry,
+): void {
+	const interaction = interactions.get(interactionId);
+	if (interaction != null) {
+		// B3: dedup by content — drops identical entries within and across iframes.
+		// Abort markers are excluded so every segment's abort is recorded.
+		if (entry.label !== 'segment-timing-abort') {
+			if (!interaction.segment3pCrossSegmentSeen) {
+				interaction.segment3pCrossSegmentSeen = new Set();
+			}
+			const key = buildCrossSegmentDedupKey(entry, segmentId);
+			if (interaction.segment3pCrossSegmentSeen.has(key)) {
+				return;
+			}
+			interaction.segment3pCrossSegmentSeen.add(key);
+		}
+
+		if (!interaction.segment3pTimings) {
+			interaction.segment3pTimings = {};
+		}
+		if (!interaction.segment3pTimings[segmentId]) {
+			interaction.segment3pTimings[segmentId] = [];
+		}
+		interaction.segment3pTimings[segmentId].push(entry);
+	}
+}
+
 export function addCohortingCustomData(
 	interactionId: string,
 	key: string,
@@ -263,9 +362,12 @@ export function addCustomTiming(
 ): void {
 	const interaction = interactions.get(interactionId);
 	if (interaction != null) {
-		interaction.customTimings.push({ labelStack, data });
+		const sanitizedData = Object.fromEntries(
+			Object.entries(data).map(([key, timingData]) => [sanitizeTimingName(key), timingData]),
+		) as CustomTiming;
+		interaction.customTimings.push({ labelStack, data: sanitizedData });
 		if (isPerformanceTracingEnabled()) {
-			for (const [key, timingData] of Object.entries(data)) {
+			for (const [key, timingData] of Object.entries(sanitizedData)) {
 				const { startTime, endTime } = timingData;
 				try {
 					// for Firefox 102 and older
@@ -306,24 +408,10 @@ export function addMark(
 }
 
 export function markFirstSegmentLoad(
-	interactionId: string,
-	labelStack: LabelStack | null,
-	time: number = performance.now(),
-): void {
-	if (!fg('platform_mark_ufo_segment_first_load')) {
-		return;
-	}
-	const interaction = interactions.get(interactionId);
-	if (interaction != null && !firstSegmentLoadMarked) {
-		firstSegmentLoadMarked = true;
-		interaction.marks.push({
-			type: 'first_segment_load',
-			name: 'first_segment_load',
-			labelStack,
-			time,
-		});
-	}
-}
+	_interactionId: string,
+	_labelStack: LabelStack | null,
+	_time?: number,
+): void {}
 
 export function addMarkToAll(
 	type: MarkType,
@@ -447,39 +535,26 @@ export function addHold(
 	interactionId: string,
 	labelStack: LabelStack,
 	name: string,
-	experimental: boolean,
+	_experimental: boolean,
+	holdStartedAt?: number,
 ): () => void {
 	const interaction = interactions.get(interactionId);
 	// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 	const id = createUUID();
 
-	if (!interaction && fg('platform_ufo_enable_late_holds_post_interaction')) {
+	if (!interaction) {
 		// add hold timestamp to post interaction log if interaction is complete
-		postInteractionLog.addHoldInfo(labelStack, name, performance.now());
+		postInteractionLog.addHoldInfo(labelStack, name, holdStartedAt ?? performance.now());
 	}
 
 	if (interaction != null) {
-		const start = performance.now();
+		const start = holdStartedAt ?? performance.now();
 		const holdActive = { labelStack, name, start };
 
-		if (fg('platform_ufo_enable_ttai_with_3p')) {
-			const is3pHold = labelStack.some((l) => 'type' in l && l.type === 'third-party');
-			if (is3pHold) {
-				if (!interaction.hold3pActive) {
-					interaction.hold3pActive = new Map();
-				}
-				interaction.hold3pActive.set(id, { ...holdActive, start });
-			} else {
-				interaction.holdActive.set(id, { ...holdActive, start });
-				addHoldCriterion(id, labelStack, name, start);
-			}
+		if (shouldMoveHoldToExtendedBucket(interaction, holdActive)) {
+			ensureExtendedHoldActive(interaction).set(id, { ...holdActive, start });
 		} else {
-			if (getConfig()?.experimentalInteractionMetrics?.enabled && experimental) {
-				interaction.holdExpActive.set(id, { ...holdActive, start });
-			}
-			if (!experimental) {
-				interaction.holdActive.set(id, { ...holdActive, start });
-			}
+			interaction.holdActive.set(id, { ...holdActive, start });
 			addHoldCriterion(id, labelStack, name, start);
 		}
 
@@ -505,28 +580,21 @@ export function addHold(
 			removeHoldCriterion(id);
 			const currentInteraction = interactions.get(interactionId);
 			const currentHold = interaction.holdActive.get(id);
-			const expHold = interaction.holdExpActive.get(id);
 			if (currentInteraction != null) {
 				if (currentHold != null) {
 					currentInteraction.holdInfo.push({ ...currentHold, end });
 					interaction.holdActive.delete(id);
 				}
 
-				if (expHold != null) {
-					currentInteraction.holdExpInfo.push({ ...expHold, end });
-					interaction.holdExpActive.delete(id);
-				}
-
-				if (fg('platform_ufo_enable_ttai_with_3p')) {
-					if (interaction.hold3pActive) {
-						const current3pHold = interaction.hold3pActive.get(id);
-						if (current3pHold != null) {
-							if (!currentInteraction.hold3pInfo) {
-								currentInteraction.hold3pInfo = [];
-							}
-							currentInteraction.hold3pInfo.push({ ...current3pHold, end });
-							interaction.hold3pActive.delete(id);
+				if (interaction.hold3pActive) {
+					const current3pHold = interaction.hold3pActive.get(id);
+					if (current3pHold != null) {
+						recordMetricVariantCategoryEnd(currentInteraction, current3pHold.labelStack, end);
+						if (!currentInteraction.hold3pInfo) {
+							currentInteraction.hold3pInfo = [];
 						}
+						currentInteraction.hold3pInfo.push({ ...current3pHold, end });
+						interaction.hold3pActive.delete(id);
 					}
 				}
 			}
@@ -541,27 +609,41 @@ export function addHoldByID(
 	name: string,
 	id: string,
 	ignoreOnSubmit?: boolean,
-) {
+): () => void {
 	const interaction = interactions.get(interactionId);
 	if (interaction != null) {
 		const start = performance.now();
-		if (fg('platform_ufo_enable_ttai_with_3p')) {
-			const is3pHold = labelStack.some((l) => 'type' in l && l.type === 'third-party');
-			if (is3pHold) {
-				if (!interaction.hold3pActive) {
-					interaction.hold3pActive = new Map();
-				}
-				interaction.hold3pActive.set(id, { labelStack, name, start, ignoreOnSubmit });
-			} else {
-				interaction.holdActive.set(id, { labelStack, name, start, ignoreOnSubmit });
-				addHoldCriterion(id, labelStack, name, start);
-			}
+		const holdActive = { labelStack, name, start, ignoreOnSubmit };
+		if (shouldMoveHoldToExtendedBucket(interaction, holdActive)) {
+			ensureExtendedHoldActive(interaction).set(id, holdActive);
 		} else {
-			interaction.holdActive.set(id, { labelStack, name, start, ignoreOnSubmit });
+			interaction.holdActive.set(id, holdActive);
 			addHoldCriterion(id, labelStack, name, start);
 		}
 	}
 	return (): void => {};
+}
+
+/**
+ * Records a completed third-party hold with explicit start and end timestamps.
+ * Use this when the hold timing is known upfront (e.g. from React Profiler's
+ * actualStartTime and commitTime) rather than being captured at call time.
+ */
+export function addCompletedHold(
+	interactionId: string,
+	labelStack: LabelStack,
+	name: string,
+	start: number,
+	end: number,
+): void {
+	const interaction = interactions.get(interactionId);
+	if (interaction != null) {
+		// `recordMetricVariantCategoryEnd` skips excluded (background-script) holds, so the completed
+		// hold is retained in `hold3pInfo` for observability but never contributes a third-party
+		// category end.
+		recordMetricVariantCategoryEnd(interaction, labelStack, end);
+		ensureExtendedHoldInfo(interaction).push({ labelStack, name, start, end });
+	}
 }
 
 export function removeHoldByID(interactionId: string, id: string): void {
@@ -572,21 +654,24 @@ export function removeHoldByID(interactionId: string, id: string): void {
 		const currentInteraction = interactions.get(interactionId);
 		const currentHold = interaction.holdActive.get(id);
 		if (currentInteraction != null && currentHold != null) {
-			currentInteraction.holdInfo.push({ ...currentHold, end });
+			if (shouldMoveHoldToExtendedBucket(currentInteraction, currentHold)) {
+				ensureExtendedHoldInfo(currentInteraction).push({ ...currentHold, end });
+			} else {
+				currentInteraction.holdInfo.push({ ...currentHold, end });
+			}
 			interaction.holdActive.delete(id);
 			removeHoldCriterion(id);
 		}
 
-		if (fg('platform_ufo_enable_ttai_with_3p')) {
-			if (interaction.hold3pActive) {
-				const current3pHold = interaction.hold3pActive.get(id);
-				if (currentInteraction != null && current3pHold != null) {
-					if (!currentInteraction.hold3pInfo) {
-						currentInteraction.hold3pInfo = [];
-					}
-					currentInteraction.hold3pInfo.push({ ...current3pHold, end });
-					interaction.hold3pActive.delete(id);
+		if (interaction.hold3pActive) {
+			const current3pHold = interaction.hold3pActive.get(id);
+			if (currentInteraction != null && current3pHold != null) {
+				recordMetricVariantCategoryEnd(currentInteraction, current3pHold.labelStack, end);
+				if (!currentInteraction.hold3pInfo) {
+					currentInteraction.hold3pInfo = [];
 				}
+				currentInteraction.hold3pInfo.push({ ...current3pHold, end });
+				interaction.hold3pActive.delete(id);
 			}
 		}
 	}
@@ -598,6 +683,80 @@ export function getCurrentInteractionType(interactionId: string): InteractionTyp
 		return interaction.type;
 	}
 	return null;
+}
+
+export function registerPreloadInfo(
+	interactionId: string,
+	info: {
+		source: string;
+		preloadStartedAt: number;
+		adoptedAt: number;
+	},
+): () => void {
+	const interaction = interactions.get(interactionId);
+	if (interaction == null) {
+		return () => {};
+	}
+
+	const preloadRow: PreloadInfo = {
+		source: info.source,
+		preloadStartedAt: info.preloadStartedAt,
+		adoptedAt: info.adoptedAt,
+	};
+	interaction.preloadInfo.push(preloadRow);
+
+	const releaseHold = addHold(
+		interactionId,
+		[],
+		`preload:${info.source}`,
+		false,
+		interaction.start,
+	);
+
+	let released = false;
+	return () => {
+		if (released) {
+			return;
+		}
+		released = true;
+		preloadRow.settledAt = performance.now();
+		releaseHold();
+	};
+}
+
+export function adoptPreloadHoldForActiveInteraction(args: {
+	experienceKey: string;
+	preloadKey?: string;
+	source: string;
+	preloadStartedAt: number;
+	adoptedAt: number;
+}): (() => void) | null {
+	const interaction = getActiveInteraction();
+	if (
+		interaction == null ||
+		interaction.ufoName !== args.experienceKey ||
+		(args.preloadKey !== undefined &&
+			interaction.preloadKey !== undefined &&
+			interaction.preloadKey !== args.preloadKey)
+	) {
+		return null;
+	}
+	return registerPreloadInfo(interaction.id, {
+		source: args.source,
+		preloadStartedAt: args.preloadStartedAt,
+		adoptedAt: args.adoptedAt,
+	});
+}
+
+let onInteractionStartForPreloadHolds:
+	| ((interactionId: string, ufoName: string, preloadKey?: string) => void)
+	| null = null;
+
+/** Adopts pre-interaction preloads without importing `preload-hold` here. */
+export function setPreloadHoldAdoptionHook(
+	hook: ((interactionId: string, ufoName: string, preloadKey?: string) => void) | null,
+): void {
+	onInteractionStartForPreloadHolds = hook;
 }
 
 export const ModuleLoadingProfiler = {
@@ -738,6 +897,252 @@ function pushToQueue(id: string, data: InteractionMetrics) {
 
 let handleInteraction = pushToQueue;
 
+const isKnownMetricVariantCategory = (type: unknown): type is MetricVariantCategory =>
+	type === 'third-party' || type === 'gen-ai';
+
+const hasMetricVariantCategory = (
+	labelStack: LabelStack | null | undefined,
+	category: MetricVariantCategory,
+): boolean => labelStack?.some((label) => 'type' in label && label.type === category) ?? false;
+
+const hasAnyMetricVariantCategory = (labelStack: LabelStack | null | undefined): boolean =>
+	labelStack?.some((label) => 'type' in label && isKnownMetricVariantCategory(label.type)) ?? false;
+
+/**
+ * A hold is fully excluded from every metric window (standard and include-third-party) and from
+ * completion gating iff its labelStack contains a single label that is BOTH `type: 'third-party'`
+ * AND `excludeFromMetrics: true`. Requiring both on the same label guarantees exclusion can only
+ * ever apply to third-party work, never first-party. Such holds are dropped at creation time, so
+ * they never enter `holdActive`/`hold3pActive`, never block completion.
+ */
+const isExcludedThirdPartyHold = (labelStack: LabelStack | null | undefined): boolean =>
+	labelStack?.some(
+		(label) =>
+			'type' in label &&
+			label.type === 'third-party' &&
+			'excludeFromMetrics' in label &&
+			label.excludeFromMetrics === true,
+	) ?? false;
+
+const getMetricVariantCategories = (
+	labelStack: LabelStack | null | undefined,
+): MetricVariantCategory[] => {
+	const categories = new Set<MetricVariantCategory>();
+	labelStack?.forEach((label) => {
+		if ('type' in label && isKnownMetricVariantCategory(label.type)) {
+			categories.add(label.type);
+		}
+	});
+	return [...categories];
+};
+
+const hasMetricVariantCategoryInHoldData = (
+	interaction: InteractionMetrics,
+	category: MetricVariantCategory,
+): boolean =>
+	interaction.holdInfo.some((hold) => hasMetricVariantCategory(hold.labelStack, category)) ||
+	[...(interaction.holdActive.values() ?? [])].some((hold) =>
+		hasMetricVariantCategory(hold.labelStack, category),
+	) ||
+	[...(interaction.hold3pInfo ?? [])].some((hold) =>
+		hasMetricVariantCategory(hold.labelStack, category),
+	) ||
+	[...(interaction.hold3pActive?.values() ?? [])].some((hold) =>
+		hasMetricVariantCategory(hold.labelStack, category),
+	);
+
+const recordMetricVariantCategoryEnd = (
+	interaction: InteractionMetrics,
+	labelStack: LabelStack | null | undefined,
+	end: number,
+): void => {
+	// Excluded third-party holds (e.g. Forge background scripts) still live in `hold3pActive` and
+	// gate completion like any third-party hold, but they must never contribute a third-party
+	// category end. Skipping here covers every caller at once: the normal-release closure in
+	// `addHold`, `removeHoldByID`, `addCompletedHold`, and the abort/timeout iterator
+	// `recordActiveMetricVariantCategoryEnds`.
+	if (isExcludedThirdPartyHold(labelStack)) {
+		return;
+	}
+
+	const categories = getMetricVariantCategories(labelStack);
+	if (categories.length === 0) {
+		return;
+	}
+
+	interaction.metricCategoryEnds = interaction.metricCategoryEnds ?? {};
+	categories.forEach((category) => {
+		interaction.metricCategoryEnds![category] = Math.max(
+			interaction.metricCategoryEnds![category] ?? 0,
+			end,
+		);
+	});
+};
+
+const recordActiveMetricVariantCategoryEnds = (
+	interaction: InteractionMetrics,
+	end: number,
+): void => {
+	interaction.hold3pActive?.forEach((hold) => {
+		recordMetricVariantCategoryEnd(interaction, hold.labelStack, end);
+	});
+};
+
+const hasActiveMetricVariantCategory = (
+	interaction: InteractionMetrics,
+	category: MetricVariantCategory,
+): boolean =>
+	[...(interaction.hold3pActive?.values() ?? [])].some((hold) =>
+		hasMetricVariantCategory(hold.labelStack, category),
+	);
+
+function shouldMoveHoldToExtendedBucket(
+	interaction: InteractionMetrics,
+	hold: Pick<HoldActive, 'start' | 'labelStack'>,
+): boolean {
+	// Excluded third-party holds (e.g. Forge background scripts) are routed to the extended
+	// (`hold3pActive`) bucket exactly like any other third-party hold: they carry `type: 'third-party'`
+	// so `hasAnyMetricVariantCategory` is true. They therefore keep gating completion (which preserves
+	// the standard-bucket VC parity), and are excluded ONLY at the third-party accounting sites
+	// (`recordMetricVariantCategoryEnd` and the `end3p` computation via `getNonExcludedThirdPartyEnd`).
+	return (
+		hasAnyMetricVariantCategory(hold.labelStack) ||
+		(interaction.end !== 0 && hold.start > interaction.end)
+	);
+}
+
+/**
+ * The third-party end marker (`end3p`), used as the `include-third-party` window end whenever no
+ * genuine third-party category end was recorded, must reflect only NON-excluded third-party work.
+ *
+ * `currentTime` is the timestamp the caller would otherwise have used verbatim (e.g. the abort
+ * time, or the interaction end on the success path). If there is any genuine (non-excluded)
+ * third-party hold that is still ACTIVE at this point, that work legitimately extends to
+ * `currentTime`, so we keep it. Otherwise the only active third-party holds are excluded
+ * background scripts, which must NOT drag the marker, so we fall back to the latest end among the
+ * already-released non-excluded holds, clamped to at least `interactionEnd`. This preserves the
+ * pre-fix behaviour for real third-party work while preventing background scripts from inflating
+ * `end3p` / the include-third-party window.
+ *
+ * Note the released entries in `hold3pInfo` are `HoldActive & { end: number }`, so we read `h.end`.
+ */
+const getNonExcludedThirdPartyEnd = (
+	interaction: InteractionMetrics,
+	currentTime: number,
+	interactionEnd: number,
+): number => {
+	const activeHolds = [...(interaction.hold3pActive?.values() ?? [])];
+	const releasedHolds = interaction.hold3pInfo ?? [];
+
+	// If this interaction never involved an excluded (background-script) hold at all
+	// (none active AND none released), it is unaffected by an exclusion logic.
+	// The derivation below only runs when at least one excluded hold actually exists.
+	const hasAnyExcludedThirdParty =
+		activeHolds.some((hold) => isExcludedThirdPartyHold(hold.labelStack)) ||
+		releasedHolds.some((hold) => isExcludedThirdPartyHold(hold.labelStack));
+	if (!hasAnyExcludedThirdParty) {
+		return currentTime;
+	}
+
+	// If a genuine (non-excluded) third-party hold is still active, the interaction is legitimately
+	// being kept open by real third-party work, so the marker is the current time
+	const hasActiveNonExcludedThirdParty = activeHolds.some(
+		(hold) => !isExcludedThirdPartyHold(hold.labelStack),
+	);
+	if (hasActiveNonExcludedThirdParty) {
+		return currentTime;
+	}
+
+	// Otherwise, only excluded background-script holds (if any) remain active. `currentTime` may have
+	// been pushed out purely by a background script, so derive the marker from the latest genuine
+	// (non-excluded) third-party work instead, floored to the interaction end so it is never reported
+	// earlier than the interaction itself and a background script can never drag it late.
+	return Math.max(
+		interactionEnd,
+		...releasedHolds
+			.filter((hold) => !isExcludedThirdPartyHold(hold.labelStack))
+			.map((hold) => hold.end),
+	);
+};
+
+function ensureExtendedHoldActive(interaction: InteractionMetrics): Map<string, HoldActive> {
+	interaction.hold3pActive = interaction.hold3pActive ?? new Map();
+	return interaction.hold3pActive;
+}
+
+function ensureExtendedHoldInfo(interaction: InteractionMetrics): HoldInfo[] {
+	interaction.hold3pInfo = interaction.hold3pInfo ?? [];
+	return interaction.hold3pInfo;
+}
+
+function moveLateActiveHoldsToExtendedBucket(interaction: InteractionMetrics): void {
+	if (interaction.end === 0) {
+		return;
+	}
+
+	const holdsToMove = [...interaction.holdActive.entries()].filter(([, hold]) =>
+		shouldMoveHoldToExtendedBucket(interaction, hold),
+	);
+
+	holdsToMove.forEach(([id, hold]) => {
+		ensureExtendedHoldActive(interaction).set(id, hold);
+		interaction.holdActive.delete(id);
+	});
+}
+
+function ensureMetricWindows(interaction: InteractionMetrics): void {
+	if (interaction.end === 0) {
+		return;
+	}
+
+	const hasGenAI = hasMetricVariantCategoryInHoldData(interaction, 'gen-ai');
+	const hasThirdParty = hasMetricVariantCategoryInHoldData(interaction, 'third-party');
+	const includeThirdPartyEnd =
+		interaction.metricCategoryEnds?.['third-party'] !== undefined
+			? Math.max(interaction.metricCategoryEnds['third-party'], interaction.end)
+			: interaction.end3p;
+	const includeGenAIEnd =
+		interaction.metricCategoryEnds?.['gen-ai'] !== undefined
+			? Math.max(interaction.metricCategoryEnds['gen-ai'], interaction.end)
+			: undefined;
+
+	interaction.metricWindows = {
+		...interaction.metricWindows,
+		standard: {
+			start: interaction.start,
+			end: interaction.end,
+			includeCategories: [],
+			excludeCategories: ['third-party', 'gen-ai'],
+		},
+	};
+
+	if (includeThirdPartyEnd !== undefined && (hasThirdParty || !hasGenAI)) {
+		interaction.metricWindows['include-third-party'] = {
+			start: interaction.start,
+			end: includeThirdPartyEnd,
+			includeCategories: ['third-party'],
+			excludeCategories: [],
+		};
+	}
+
+	if (hasGenAI && includeGenAIEnd !== undefined) {
+		interaction.metricWindows['include-gen-ai'] = {
+			start: interaction.start,
+			end: includeGenAIEnd,
+			includeCategories: ['gen-ai'],
+			excludeCategories: [],
+		};
+	}
+}
+
+function addLifecycleObservation(
+	interaction: InteractionMetrics,
+	observation: NonNullable<InteractionMetrics['lifecycleObservations']>[number],
+): void {
+	interaction.lifecycleObservations = interaction.lifecycleObservations ?? [];
+	interaction.lifecycleObservations.push(observation);
+}
+
 function callCleanUpCallbacks(interaction: InteractionMetrics) {
 	interaction.cleanupCallbacks.reverse().forEach((cleanUpCallback) => {
 		cleanUpCallback();
@@ -750,6 +1155,7 @@ function finishInteraction(
 	endTime: number = performance.now(),
 ) {
 	data.end = endTime;
+	ensureMetricWindows(data);
 	try {
 		// for Firefox 102 and older
 		performance.measure(`🛸 [${data.type}] ${data.ufoName} [ttai]`, {
@@ -781,54 +1187,24 @@ function finishInteraction(
 	clearActiveTrace();
 	callCleanUpCallbacks(data);
 	flushSsrRenderProfilerTraces();
-	if (getConfig()?.vc?.stopVCAtInteractionFinish) {
-		// Use per-interaction VC observer if available, otherwise fall back to global
-		const observer = data.vcObserver;
-		if (observer) {
-			data.vc = observer.getVCRawData();
-		}
-	}
 	if (data.type === 'page_load') {
 		data.hydration = getReactHydrationStats();
 	}
 
 	// By this time, stop the post interaction log observer if coinflip rate is 0
-	const sanitisedUfoName = sanitizeUfoName(data.ufoName);
-	if (!coinflip(getPostInteractionRate(sanitisedUfoName, data.type))) {
+	if (!coinflip(getPostInteractionRate(sanitizeUfoName(data.ufoName), data.type))) {
 		postInteractionLog.stopVCObserver();
 	}
 
-	if (fg('platform_ufo_enable_ttai_with_3p')) {
-		const sanitisedUfoName = sanitizeUfoName(data.ufoName);
-		if (!coinflip(getExtraInteractionRate(sanitisedUfoName, data.type))) {
-			interactionExtraMetrics.stopAll(id);
-		} else if (!data.hold3pActive || data.hold3pActive.size === 0) {
-			if (!getConfig()?.experimentalInteractionMetrics?.enabled) {
-				remove(id);
-			}
-		}
-	} else {
-		if (!getConfig()?.experimentalInteractionMetrics?.enabled) {
-			remove(id);
-		}
-	}
+	remove(id);
 
-	if (fg('platform_ufo_enable_terminal_errors')) {
-		PreviousInteractionLog.id = data.id;
-		PreviousInteractionLog.type = data.type;
-		PreviousInteractionLog.timestamp = data.end;
-	}
+	PreviousInteractionLog.id = data.id;
+	PreviousInteractionLog.type = data.type;
+	PreviousInteractionLog.timestamp = data.end;
 	PreviousInteractionLog.name = data.ufoName || 'unknown';
 	PreviousInteractionLog.isAborted = data.abortReason != null;
 	if (data.ufoName) {
-		if (fg('platform_ufo_enable_ttai_with_3p')) {
-			if (interactionExtraMetrics.finishedInteraction?.id !== id) {
-				// If this same interaction was not already handled, handle it
-				handleInteraction(id, data);
-			}
-		} else {
-			handleInteraction(id, data);
-		}
+		handleInteraction(id, data);
 	}
 
 	if (isPerformanceTracingEnabled()) {
@@ -907,7 +1283,6 @@ export function tryComplete(interactionId: string, endTime?: number): void {
 	const interaction = interactions.get(interactionId);
 	if (interaction != null) {
 		const noMoreActiveHolds = interaction.holdActive.size === 0;
-		const noMoreExpHolds = interaction.holdExpActive.size === 0;
 		const shouldUseRawDataThirdParty = shouldUseRawDataThirdPartyBehavior(
 			interaction.ufoName,
 			interaction.type,
@@ -915,131 +1290,68 @@ export function tryComplete(interactionId: string, endTime?: number): void {
 
 		const postInteraction = async () => {
 			if (getConfig()?.postInteractionLog?.enabled) {
-				let experimentalVC90;
-				let experimentalTTAI;
-				if (getConfig()?.experimentalInteractionMetrics?.enabled) {
-					experimentalVC90 = (await getExperimentalVCMetrics(interaction))?.[
-						'metric:experimental:vc90'
-					] as number;
-					const { start, end } = interaction;
-					experimentalTTAI = !interaction.abortReason ? Math.round(end - start) : undefined;
-				}
-				postInteractionLog.onInteractionComplete({
-					...interaction,
-					experimentalTTAI,
-					experimentalVC90,
-				});
-			}
-
-			if (fg('platform_ufo_enable_ttai_with_3p')) {
-				if (interactionExtraMetrics.finishedInteraction?.id !== interactionId) {
-					// If interactionExtraMetrics is not waiting for measuring this interaction
-					if (getConfig()?.experimentalInteractionMetrics?.enabled) {
-						remove(interactionId);
-					}
-				}
-			} else {
-				if (getConfig()?.experimentalInteractionMetrics?.enabled) {
-					remove(interactionId);
-				}
+				postInteractionLog.onInteractionComplete(interaction);
 			}
 			activeSubmitted = false;
 		};
 
-		if (fg('platform_ufo_enable_ttai_with_3p')) {
-			const noMoreActive3pHolds =
-				interaction.hold3pActive?.size === 0 || interaction.hold3pActive === undefined;
+		const noMoreActiveMetricVariantHolds =
+			interaction.hold3pActive?.size === 0 || interaction.hold3pActive === undefined;
 
-			// If using raw data third party behavior, wait for 3p holds to clear
-			if (shouldUseRawDataThirdParty) {
-				// If there are no non-3p holds active, mark the interaction as successful
-				// but don't finish until 3p holds are cleared
-				if (noMoreActiveHolds && !noMoreActive3pHolds) {
-					// Mark interaction as successful by setting endTime, but don't finish yet
-					if (endTime !== undefined && interaction.end === 0) {
-						interaction.end = endTime;
-					}
-					// Wait for 3p holds to clear before finishing
-					return;
+		const shouldUseSeparatedMetricVariantBehavior =
+			shouldUseRawDataThirdParty || hasActiveMetricVariantCategory(interaction, 'gen-ai');
+
+		// If using separated metric variant behavior, wait for extended category holds to clear.
+		// The backing fields still use their legacy 3P names because they are part of the existing
+		// third-party payload contract, but this bucket now also drives client metric windows.
+		if (shouldUseSeparatedMetricVariantBehavior) {
+			// If there are no standard holds active, mark the interaction as successful
+			// but don't finish until extended metric variant holds are cleared.
+			if (noMoreActiveHolds && !noMoreActiveMetricVariantHolds) {
+				// Mark interaction as successful by setting endTime, but don't finish yet
+				if (endTime !== undefined && interaction.end === 0) {
+					interaction.end = endTime;
 				}
+				moveLateActiveHoldsToExtendedBucket(interaction);
+				ensureMetricWindows(interaction);
+				// Wait for extended metric variant holds to clear before finishing.
+				return;
+			}
 
-			// If all holds (including 3p) are cleared, finish the interaction
-			if (noMoreActiveHolds && noMoreActive3pHolds) {
+			// If all holds, including extended metric variant holds, are cleared, finish the interaction.
+			if (noMoreActiveHolds && noMoreActiveMetricVariantHolds) {
 				if (!activeSubmitted) {
-					// Set end3p to current time when 3p holds cleared, but ensure it's at least interaction.end
+					// Set the legacy third-party end marker when extended metric variant holds clear,
+					// preserving existing 3P payload behavior while category-specific end times are
+					// recorded separately in metricCategoryEnds. When a genuine third-party hold is still
+					// active (or was the last to release), `getNonExcludedThirdPartyEnd` returns the same
+					// clamped current time as before. When only excluded background-script holds remain,
+					// the marker is derived from the non-excluded third-party holds and floored to the
+					// interaction end, so a background script cannot drag it late.
 					const currentTime = endTime ?? performance.now();
-					interaction.end3p = interaction.end !== 0 && currentTime < interaction.end
-						? interaction.end
-						: currentTime;
-					finishInteraction(interactionId, interaction, interaction.end !== 0 ? interaction.end : endTime);
-					if (getConfig()?.extraInteractionMetrics?.enabled) {
-						interactionExtraMetrics.updateFinishedInteraction(interaction);
+					interaction.end3p = getNonExcludedThirdPartyEnd(
+						interaction,
+						interaction.end !== 0 && currentTime < interaction.end ? interaction.end : currentTime,
+						interaction.end !== 0 ? interaction.end : currentTime,
+					);
+					ensureMetricWindows(interaction);
+					finishInteraction(
+						interactionId,
+						interaction,
+						interaction.end !== 0 ? interaction.end : endTime,
+					);
+
+					if (
+						getConfig()?.extraSearchPageInteraction?.enabled &&
+						interaction.ufoName === getConfig()?.extraSearchPageInteraction?.searchPageMetricName
+					) {
+						onSearchPageInteractionComplete(interactionId, interaction);
 					}
 
-						if (
-							getConfig()?.extraSearchPageInteraction?.enabled &&
-							interaction.ufoName ===
-								getConfig()?.extraSearchPageInteraction?.searchPageMetricName
-						) {
-							onSearchPageInteractionComplete(interactionId, interaction);
-						}
-
-						activeSubmitted = true;
-					}
-
-					if (noMoreExpHolds) {
-						if (getConfig()?.experimentalInteractionMetrics?.enabled) {
-							onExperimentalInteractionComplete(
-								interactionId,
-								interaction,
-								endTime || interaction.end,
-							);
-						}
-						postInteraction();
-					}
+					activeSubmitted = true;
 				}
-				// Send separated third-party event even when feature flag is active
-				if (noMoreActiveHolds && noMoreActive3pHolds) {
-					const data = {
-						...interaction,
-						end: endTime || interaction.end,
-					};
-					interactionExtraMetrics.onInteractionComplete(interactionId, data);
-				}
-			} else {
-				// Original behavior when feature flag is not active
-				if (noMoreActiveHolds && interactionExtraMetrics.finishedInteraction?.id !== interactionId) {
-					// If it's not waiting for extra metrics to complete, finish the interaction as normal
-					if (!activeSubmitted) {
-						finishInteraction(interactionId, interaction, endTime);
-						if (getConfig()?.extraInteractionMetrics?.enabled) {
-							interactionExtraMetrics.updateFinishedInteraction(interaction);
-						}
 
-						if (
-							getConfig()?.extraSearchPageInteraction?.enabled &&
-							interaction.ufoName ===
-								getConfig()?.extraSearchPageInteraction?.searchPageMetricName
-						) {
-							onSearchPageInteractionComplete(interactionId, interaction);
-						}
-						activeSubmitted = true;
-					}
-
-					if (noMoreExpHolds) {
-						if (getConfig()?.experimentalInteractionMetrics?.enabled) {
-							onExperimentalInteractionComplete(interactionId, interaction, endTime);
-						}
-						postInteraction();
-					}
-				}
-				if (noMoreActiveHolds && noMoreActive3pHolds) {
-					const data = {
-						...interaction,
-						end: endTime!,
-					};
-					interactionExtraMetrics.onInteractionComplete(interactionId, data);
-				}
+				postInteraction();
 			}
 		} else {
 			if (noMoreActiveHolds) {
@@ -1052,16 +1364,10 @@ export function tryComplete(interactionId: string, endTime?: number): void {
 					) {
 						onSearchPageInteractionComplete(interactionId, interaction);
 					}
-
 					activeSubmitted = true;
 				}
 
-				if (noMoreExpHolds) {
-					if (getConfig()?.experimentalInteractionMetrics?.enabled) {
-						onExperimentalInteractionComplete(interactionId, interaction, endTime);
-					}
-					postInteraction();
-				}
+				postInteraction();
 			}
 		}
 	}
@@ -1081,42 +1387,42 @@ export function abort(interactionId: string, abortReason: AbortReasonType): void
 			interaction.type,
 		);
 		const noMoreActiveHolds = interaction.holdActive.size === 0;
-		const has3pHoldsActive =
-			interaction.hold3pActive && interaction.hold3pActive.size > 0;
+		const has3pHoldsActive = interaction.hold3pActive && interaction.hold3pActive.size > 0;
+		const shouldUseSeparatedMetricVariantBehavior =
+			shouldUseRawDataThirdParty || hasActiveMetricVariantCategory(interaction, 'gen-ai');
 
-		// If only third-party holds are active, finish as successful instead of aborting
-		if (shouldUseRawDataThirdParty && noMoreActiveHolds && has3pHoldsActive) {
+		// If only extended metric variant holds are active, finish as successful instead of aborting
+		if (shouldUseSeparatedMetricVariantBehavior && noMoreActiveHolds && has3pHoldsActive) {
 			const endTime = interaction.end !== 0 ? interaction.end : performance.now();
-			interaction.end3p = performance.now();
+			// Excluded background-script holds that are still active at abort/timeout must not drag
+			// `end3p` (and thus the include-third-party window) past the real interaction end. Derive it
+			// from the non-excluded third-party holds only. `recordActiveMetricVariantCategoryEnds`
+			// likewise skips excluded holds internally.
+			interaction.end3p = getNonExcludedThirdPartyEnd(interaction, performance.now(), endTime);
+			recordActiveMetricVariantCategoryEnds(interaction, interaction.end3p);
+			addLifecycleObservation(interaction, {
+				type: abortReason === 'timeout' ? 'timeout_expired' : 'page_unloaded',
+				timestamp: interaction.end3p,
+				activeHoldCount: interaction.hold3pActive?.size ?? 0,
+			});
+			ensureMetricWindows(interaction);
 			finishInteraction(interactionId, interaction, endTime);
 			postInteractionLog.reset();
 			postInteractionLog.stopVCObserver();
 
-			if (fg('platform_ufo_enable_ttai_with_3p')) {
-				interactionExtraMetrics.stopAll(interactionId);
-			}
-
-			if (coinflip(getExperimentalInteractionRate(interaction.ufoName, interaction.type))) {
-				onExperimentalInteractionComplete(interactionId, interaction, endTime);
-				remove(interactionId);
-			}
 			return;
 		}
 
 		callCancelCallbacks(interaction);
 		interaction.abortReason = abortReason;
+		addLifecycleObservation(interaction, {
+			type: abortReason === 'timeout' ? 'timeout_expired' : 'page_unloaded',
+			timestamp: performance.now(),
+			activeHoldCount: interaction.holdActive.size + (interaction.hold3pActive?.size ?? 0),
+		});
 		finishInteraction(interactionId, interaction);
 		postInteractionLog.reset();
 		postInteractionLog.stopVCObserver();
-
-		if (fg('platform_ufo_enable_ttai_with_3p')) {
-			interactionExtraMetrics.stopAll(interactionId);
-		}
-
-		if (coinflip(getExperimentalInteractionRate(interaction.ufoName, interaction.type))) {
-			onExperimentalInteractionComplete(interactionId, interaction);
-			remove(interactionId);
-		}
 	}
 }
 
@@ -1128,50 +1434,46 @@ export function abortByNewInteraction(interactionId: string, interactionName: st
 			interaction.type,
 		);
 		const noMoreActiveHolds = interaction.holdActive.size === 0;
-		const has3pHoldsActive =
-			interaction.hold3pActive && interaction.hold3pActive.size > 0;
+		const has3pHoldsActive = interaction.hold3pActive && interaction.hold3pActive.size > 0;
+		const shouldUseSeparatedMetricVariantBehavior =
+			shouldUseRawDataThirdParty || hasActiveMetricVariantCategory(interaction, 'gen-ai');
 
-		// If only third-party holds are active, finish as successful instead of aborting
-		if (shouldUseRawDataThirdParty && noMoreActiveHolds && has3pHoldsActive) {
+		// If only extended metric variant holds are active, finish as successful instead of aborting
+		if (shouldUseSeparatedMetricVariantBehavior && noMoreActiveHolds && has3pHoldsActive) {
 			const endTime = interaction.end !== 0 ? interaction.end : performance.now();
-			// Set end3p to current time, but ensure it's at least interaction.end
-			interaction.end3p =  performance.now();
+			// Excluded background-script holds still active at this point must not drag `end3p` (and
+			// thus the include-third-party window) past the real interaction end. Derive it from the
+			// non-excluded third-party holds only, clamped to at least the interaction end.
+			interaction.end3p = getNonExcludedThirdPartyEnd(interaction, performance.now(), endTime);
+			recordActiveMetricVariantCategoryEnds(interaction, interaction.end3p);
+			addLifecycleObservation(interaction, {
+				type: 'new_interaction_started',
+				timestamp: interaction.end3p,
+				triggerName: interactionName,
+			});
+			ensureMetricWindows(interaction);
 			finishInteraction(interactionId, interaction, endTime);
 			postInteractionLog.reset();
 			postInteractionLog.stopVCObserver();
 
-			if (fg('platform_ufo_enable_ttai_with_3p')) {
-				interactionExtraMetrics.stopAll(interactionId);
-			}
-
-			if (coinflip(getExperimentalInteractionRate(interaction.ufoName, interaction.type))) {
-				onExperimentalInteractionComplete(interactionId, interaction, endTime);
-				remove(interactionId);
-			}
 			return;
 		}
 
 		callCancelCallbacks(interaction);
 		interaction.abortReason = 'new_interaction';
 		interaction.abortedByInteractionName = interactionName;
+		addLifecycleObservation(interaction, {
+			type: 'new_interaction_started',
+			timestamp: performance.now(),
+			triggerName: interactionName,
+		});
 		finishInteraction(interactionId, interaction);
 		postInteractionLog.reset();
 		postInteractionLog.stopVCObserver();
-
-		if (fg('platform_ufo_enable_ttai_with_3p')) {
-			interactionExtraMetrics.stopAll(interactionId);
-		}
-
-		if (coinflip(getExperimentalInteractionRate(interaction.ufoName, interaction.type))) {
-			onExperimentalInteractionComplete(interactionId, interaction);
-			remove(interactionId);
-		}
 	} else {
-		if (fg('platform_reset_post_interaction_on_new_interaction')) {
-			// post-interaction log is active after interaction is aborted by new one
-			postInteractionLog.reset();
-			postInteractionLog.stopVCObserver();
-		}
+		// post-interaction log is active after interaction is aborted by new one
+		postInteractionLog.reset();
+		postInteractionLog.stopVCObserver();
 	}
 }
 
@@ -1186,8 +1488,7 @@ export function abortAll(abortReason: AbortReasonType, abortedByInteractionName?
 			isActiveInteraction &&
 			abortReason === 'transition' &&
 			interaction.type === 'press' &&
-			finishInteractions?.includes(interaction.ufoName) &&
-			fg('platform_ufo_enable_finish_interaction_transition')
+			finishInteractions?.includes(interaction.ufoName)
 		) {
 			hasFinished = true;
 		}
@@ -1197,25 +1498,28 @@ export function abortAll(abortReason: AbortReasonType, abortedByInteractionName?
 			interaction.type,
 		);
 		const noMoreActiveHolds = interaction.holdActive.size === 0;
-		const has3pHoldsActive =
-			interaction.hold3pActive && interaction.hold3pActive.size > 0;
+		const has3pHoldsActive = interaction.hold3pActive && interaction.hold3pActive.size > 0;
+		const shouldUseSeparatedMetricVariantBehavior =
+			shouldUseRawDataThirdParty || hasActiveMetricVariantCategory(interaction, 'gen-ai');
 
-		// If only third-party holds are active, finish as successful instead of aborting
-		if (shouldUseRawDataThirdParty && noMoreActiveHolds && has3pHoldsActive) {
+		// If only extended metric variant holds are active, finish as successful instead of aborting
+		if (shouldUseSeparatedMetricVariantBehavior && noMoreActiveHolds && has3pHoldsActive) {
 			const endTime = interaction.end !== 0 ? interaction.end : performance.now();
-			interaction.end3p = performance.now();
+			// Excluded background-script holds still active at transition/new-interaction abort must not
+			// drag `end3p` (and thus the include-third-party window) past the real interaction end.
+			// Derive it from the non-excluded third-party holds only, clamped to at least the end.
+			interaction.end3p = getNonExcludedThirdPartyEnd(interaction, performance.now(), endTime);
+			recordActiveMetricVariantCategoryEnds(interaction, interaction.end3p);
+			addLifecycleObservation(interaction, {
+				type: abortReason === 'transition' ? 'transition_started' : 'new_interaction_started',
+				timestamp: interaction.end3p,
+				triggerName: abortedByInteractionName,
+			});
+			ensureMetricWindows(interaction);
 			finishInteraction(interactionId, interaction, endTime);
 			postInteractionLog.reset();
 			postInteractionLog.stopVCObserver();
 
-			if (fg('platform_ufo_enable_ttai_with_3p')) {
-				interactionExtraMetrics.stopAll(interactionId);
-			}
-
-			if (coinflip(getExperimentalInteractionRate(interaction.ufoName, interaction.type))) {
-				onExperimentalInteractionComplete(interactionId, interaction, endTime);
-				remove(interactionId);
-			}
 			return;
 		}
 
@@ -1225,20 +1529,16 @@ export function abortAll(abortReason: AbortReasonType, abortedByInteractionName?
 			if (abortedByInteractionName != null) {
 				interaction.abortedByInteractionName = abortedByInteractionName;
 			}
+			addLifecycleObservation(interaction, {
+				type: abortReason === 'transition' ? 'transition_started' : 'new_interaction_started',
+				timestamp: performance.now(),
+				triggerName: abortedByInteractionName,
+			});
 		}
 
 		finishInteraction(interactionId, interaction);
 		postInteractionLog.reset();
 		postInteractionLog.stopVCObserver();
-
-		if (fg('platform_ufo_enable_ttai_with_3p')) {
-			interactionExtraMetrics.stopAll(interactionId);
-		}
-
-		if (coinflip(getExperimentalInteractionRate(interaction.ufoName, interaction.type))) {
-			onExperimentalInteractionComplete(interactionId, interaction);
-			remove(interactionId);
-		}
 	});
 }
 
@@ -1257,8 +1557,8 @@ export function addNewInteraction(
 	labelStack: LabelStack | null,
 	routeName?: string | null,
 	trace: TraceIdContext | null = null,
+	preloadKey?: string,
 ): void {
-	interactionExtraMetrics.reset();
 	postInteractionLog.reset();
 	let vcObserver: VCObserverInterface | undefined;
 	let previousTime = startTime;
@@ -1289,35 +1589,34 @@ export function addNewInteraction(
 
 	const config = getConfig();
 
-	const searchPageConfig = fg('rovo_search_page_ttvc_ignoring_smart_answers_fix')
-			? {
-					enableSmartAnswersMutations: config?.extraSearchPageInteraction?.enabled,
-					searchPageRoute: config?.extraSearchPageInteraction?.searchPageRoute,
-				}
-			: undefined;
+	const searchPageConfig = {
+		enableSmartAnswersMutations: config?.extraSearchPageInteraction?.enabled,
+		searchPageRoute: config?.extraSearchPageInteraction?.searchPageRoute,
+	};
 
 	if (config && config.vc) {
 		const vcOptions = {
 			heatmapSize: config.vc.heatmapSize,
 			oldDomUpdates: config.vc.oldDomUpdates,
 			devToolsEnabled: config.vc.devToolsEnabled,
-			selectorConfig: config.vc.selectorConfig,
+			// Use centralised getter so the FedRAMP override (forces every
+			// selector field to false) is applied consistently.
+			selectorConfig: getSelectorConfig(),
 			ssrEnablePageLayoutPlaceholder: config.vc.ssrEnablePageLayoutPlaceholder,
+			trackLayoutShiftOffenders: config.vc.trackLayoutShiftOffenders,
 			searchPageConfig,
 		};
 		vcObserver = newVCObserver(vcOptions);
 	}
 
-	const priorAccessedFg =
-		type === 'press' && fg('platform_ufo_drop_prior_fg_interactions')
-			? {}
-			: Object.fromEntries(allFeatureFlagsAccessed);
+	const priorAccessedFg = type === 'press' ? {} : Object.fromEntries(allFeatureFlagsAccessed);
 
 	const metrics: InteractionMetrics = {
 		id: interactionId,
 		start: startTime,
 		end: 0,
 		ufoName,
+		preloadKey,
 		type,
 		previousInteractionName: PreviousInteractionLog.name,
 		isPreviousInteractionAborted: PreviousInteractionLog.isAborted === true,
@@ -1329,9 +1628,8 @@ export function addNewInteraction(
 		requestInfo: [],
 		reactProfilerTimings: [],
 		holdInfo: [],
-		holdExpInfo: [],
 		holdActive: new Map(),
-		holdExpActive: new Map(),
+		preloadInfo: [],
 		// measure when we execute this code
 		// from this, we can measure the input delay -
 		// how long the browser took to hand execution back to JS)
@@ -1339,6 +1637,7 @@ export function addNewInteraction(
 		rate,
 		cancelCallbacks: [],
 		metaData: {},
+		excluded3pSegmentData: {},
 		errors: [],
 		apdex: [],
 		labelStack,
@@ -1400,16 +1699,6 @@ export function addNewInteraction(
 		if (getConfig()?.postInteractionLog?.enabled) {
 			postInteractionLog.startVCObserver({ startTime });
 		}
-
-		if (coinflip(getExperimentalInteractionRate(ufoName, type))) {
-			experimentalVC.start({ startTime });
-		}
-		if (
-			config?.extraInteractionMetrics?.enabled &&
-			fg('platform_ufo_enable_ttai_with_3p')
-		) {
-			interactionExtraMetrics.startVCObserver({ startTime }, interactionId);
-		}
 	}
 
 	if (type === 'press') {
@@ -1417,6 +1706,14 @@ export function addNewInteraction(
 		const observer = vcObserver;
 		if (observer) {
 			observer.start({ startTime, experienceKey: ufoName });
+		}
+	}
+
+	if (onInteractionStartForPreloadHolds) {
+		try {
+			onInteractionStartForPreloadHolds(interactionId, ufoName, preloadKey);
+		} catch {
+			// Preload instrumentation must not break interaction creation.
 		}
 	}
 }
@@ -1561,10 +1858,8 @@ export function removeSegment(labelStack: LabelStack): void {
 	if (segmentInfo) {
 		segmentCache.delete(JSON.stringify(labelStack));
 
-		if (fg('platform_ufo_segment_unmount_count')) {
-			const cacheKey = stringifyLabelStackFully(labelStack);
-			segmentUnmountCache.set(cacheKey, (segmentUnmountCache.get(cacheKey) || 0) + 1);
-		}
+		const cacheKey = stringifyLabelStackFully(labelStack);
+		segmentUnmountCache.set(cacheKey, (segmentUnmountCache.get(cacheKey) || 0) + 1);
 
 		segmentObservers.forEach((observer) => {
 			observer.onRemove(segmentInfo);

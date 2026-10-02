@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__link-datasource/app",
 		"rootDir": "../",
 		"composite": true,
@@ -25,6 +24,9 @@
 	"references": [
 		{
 			"path": "../../../editor/adf-schema/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../atlassian-analytics-pipeline/analytics-cross-product/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../analytics/analytics-next/afm-products/tsconfig.json"
@@ -75,9 +77,6 @@
 			"path": "../../../design-system/icon/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/icon-object/afm-products/tsconfig.json"
-		},
-		{
 			"path": "../../../design-system/image/afm-products/tsconfig.json"
 		},
 		{
@@ -123,10 +122,19 @@
 			"path": "../../../design-system/modal-dialog/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/object/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../teamwork-ecosystem/outbound-auth-flow-client/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-flags-react/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/popup/afm-products/tsconfig.json"
@@ -145,6 +153,9 @@
 		},
 		{
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/react-select/afm-products/tsconfig.json"
@@ -171,6 +182,9 @@
 			"path": "../../../design-system/theme/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/toggle/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"
 		},
 		{
@@ -178,6 +192,12 @@
 		},
 		{
 			"path": "../../../data/ufo-external/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../elements/user-picker/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/visually-hidden/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/width-detector/afm-products/tsconfig.json"

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/eslint-utils",
-	"version": "2.0.0",
+	"version": "3.1.1",
 	"description": "Shared utilities for ESLint rules",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -19,14 +19,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
 		".": "./src/index.tsx",
@@ -46,27 +38,14 @@
 		"lodash": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@testing-library/react": "root:*",
 		"@types/eslint": "root:*",
 		"@types/eslint-scope": "root:*",
+		"react": "^19.0.0",
 		"react-dom": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions",
-			"circular-dependencies": "file-and-folder-level"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion"
-			]
-		}
 	},
 	"homepage": "https://atlaskit.atlassian.com/packages/design-system/eslint-utils"
 }

@@ -1,9 +1,8 @@
 import isYesterday from 'date-fns/isYesterday';
-import { type IntlShape } from 'react-intl-next';
+import { type IntlShape } from 'react-intl';
 
 import { isMoreThanOneWeekAgo } from '../../common/utils/date';
 import { selectUnit } from '../../common/utils/dateUtils';
-
 import { timeMessages } from './messages';
 
 const formatTime = (timeStamp: Date, intl: IntlShape): string => {
@@ -41,7 +40,7 @@ export const transformTimeStamp = (
 	intl: IntlShape,
 	lastViewedDate?: Date,
 	lastUpdatedDate?: Date,
-) => {
+): string | undefined => {
 	if (lastViewedDate) {
 		return renderAbsoluteOrRelativeDate(lastViewedDate, 'viewed', intl);
 	}

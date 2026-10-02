@@ -6,7 +6,6 @@ import type {
 } from '@atlaskit/pragmatic-drag-and-drop/types';
 
 import { getScheduler } from '../shared/scheduler';
-
 import { tryOverflowScrollElements } from './try-overflow-scroll';
 import { type UnsafeOverflowAutoScrollArgs } from './types';
 
@@ -14,7 +13,9 @@ export function makeApi<DragType extends AllDragTypes>({
 	monitor,
 }: {
 	monitor: (args: MonitorArgs<DragType>) => CleanupFn;
-}) {
+}): {
+	unsafeOverflowAutoScroll: (args: UnsafeOverflowAutoScrollArgs<DragType>) => CleanupFn;
+} {
 	const ledger: Map<Element, UnsafeOverflowAutoScrollArgs<DragType>> = new Map();
 
 	function unsafeOverflowAutoScroll(args: UnsafeOverflowAutoScrollArgs<DragType>): CleanupFn {

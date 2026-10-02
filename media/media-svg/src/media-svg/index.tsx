@@ -4,13 +4,12 @@ import { default as CompiledMediaSVG } from './media-svg-compiled';
 import { type MediaSvgProps } from './types';
 
 export type { MediaSvgProps } from './types';
-export { MediaSVGError } from './errors';
-export type { MediaSVGErrorReason } from './errors';
+export type { MediaSVGErrorReason } from './MediaSVGError';
 
-const MediaSVG = forwardRef<HTMLImageElement, MediaSvgProps>((props, ref) => (
+const MediaSVG: React.ForwardRefExoticComponent<
+	MediaSvgProps & React.RefAttributes<HTMLImageElement>
+> = forwardRef<HTMLImageElement, MediaSvgProps>((props, ref) => (
 	<CompiledMediaSVG {...props} ref={ref} />
 ));
 
 export default MediaSVG;
-
-export { useResolveSvg } from './useResolveSvg';

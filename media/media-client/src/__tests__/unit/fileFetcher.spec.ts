@@ -1,5 +1,24 @@
-import { authToOwner, type AuthProvider } from '@atlaskit/media-core';
 import fetchMock from 'fetch-mock/cjs/client';
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+import { v4 as uuid } from 'uuid';
+
+import { isMimeTypeSupportedByServer } from '@atlaskit/media-common/mediaTypeUtils';
+import {
+	expectFunctionToHaveBeenCalledWith,
+	asMock,
+	asMockFunction,
+	asMockFunctionResolvedValue,
+	sleep,
+	timeoutPromise,
+} from '@atlaskit/media-common/test-helpers';
+import type { AuthProvider } from '@atlaskit/media-core/auth';
+import { authToOwner } from '@atlaskit/media-core/auth-to-owner';
+import { createMediaStore } from '@atlaskit/media-state/create-media-store';
+import { mediaStore as fileStateStore } from '@atlaskit/media-state/media-store';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { mockExpDisabled } from '@atlassian/experiment-test-utils/mock-exp-disabled';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
+
 import {
 	type ResponseFileItem,
 	type MediaFile,
@@ -17,24 +36,13 @@ import {
 	FileFetcherError,
 	getDimensionsFromBlob,
 } from '../..';
-import { getFileStreamsCache } from '../../file-streams-cache';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
-import { type UploadFileCallbacks } from '../../uploader';
 import { FileFetcherImpl } from '../../client/file-fetcher';
-import {
-	expectFunctionToHaveBeenCalledWith,
-	asMock,
-	asMockFunction,
-	asMockFunctionResolvedValue,
-	sleep,
-	timeoutPromise,
-} from '@atlaskit/media-common/test-helpers';
+import type * as MediaStoreModule from '../../client/media-store/MediaStore';
+import { getFileStreamsCache } from '../../file-streams-cache';
 import { fakeMediaClient } from '../../test-helpers';
-import { fromObservable, toPromise } from '../../utils/mediaSubscribable';
-import { isMimeTypeSupportedByServer } from '@atlaskit/media-common/mediaTypeUtils';
-import type * as MediaStoreModule from '../../client/media-store';
-import { createMediaStore, mediaStore as fileStateStore } from '@atlaskit/media-state';
+import { type UploadFileCallbacks } from '../../uploader';
+import { fromObservable } from '../../utils/mediaSubscribable/fromObservable';
+import { toPromise } from '../../utils/mediaSubscribable/toPromise';
 
 jest.mock('../../utils/getDimensionsFromBlob', () => {
 	return {
@@ -43,6 +51,11 @@ jest.mock('../../utils/getDimensionsFromBlob', () => {
 });
 
 jest.mock('../../uploader');
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 describe('FileFetcher', () => {
 	const fileId = 'some-file-id';
@@ -110,6 +123,7 @@ describe('FileFetcher', () => {
 			name,
 			mimeType,
 			collection,
+			size: 0,
 		});
 
 		const uploadFileUpfrontIds: UploadableFileUpfrontIds = {
@@ -196,7 +210,7 @@ describe('FileFetcher', () => {
 	};
 
 	const MockMediaStoreConstructor = (
-		jest.genMockFromModule('../../client/media-store') as typeof MediaStoreModule
+		jest.createMockFromModule('../../client/media-store/MediaStore') as typeof MediaStoreModule
 	)['MediaStore'];
 
 	const createMockMediaStore = (authProvider: AuthProvider) =>
@@ -250,6 +264,7 @@ describe('FileFetcher', () => {
 					{ descriptors },
 					{ collection: 'some-collection' },
 					traceContext,
+					{ expectedFileSize: undefined },
 				);
 			});
 		});
@@ -302,7 +317,37 @@ describe('FileFetcher', () => {
 			it('should call getFileBinaryURL', () => {
 				const { mediaStore, fileFetcher } = setup();
 				fileFetcher.downloadBinary(fileId, fileName, collectionName);
-				expect(mediaStore.getFileBinaryURL).toHaveBeenCalledWith(fileId, collectionName);
+				expect(mediaStore.getFileBinaryURL).toHaveBeenCalledWith(
+					fileId,
+					collectionName,
+					undefined,
+					fileName,
+				);
+			});
+
+			describe('download binary name forwarding', () => {
+				it('should not pass a default name to getFileBinaryURL when no name is provided', async () => {
+					const { mediaStore, fileFetcher } = setup();
+
+					await fileFetcher.downloadBinary(fileId, undefined, collectionName);
+
+					expect(mediaStore.getFileBinaryURL).toHaveBeenCalledWith(
+						fileId,
+						collectionName,
+						undefined,
+						undefined,
+					);
+				});
+			});
+
+			it('should use the default name for the browser download when no name is provided', async () => {
+				const { fileFetcher } = setup();
+
+				await fileFetcher.downloadBinary(fileId, undefined, collectionName);
+
+				const lastAppendCall = appendChild.mock.calls[appendChild.mock.calls.length - 1];
+				const link = lastAppendCall[0] as HTMLAnchorElement;
+				expect(link.download).toBe('download');
 			});
 
 			it('should create a link', async () => {
@@ -542,11 +587,11 @@ describe('FileFetcher', () => {
 					representations: {},
 					metadataTraceContext: expect.any(Object),
 				};
-				expect(error).toBeCalledTimes(1);
-				expect(next).toBeCalledTimes(1);
+				expect(error).toHaveBeenCalledTimes(1);
+				expect(next).toHaveBeenCalledTimes(1);
 				expect(mediaStore.getItems).toHaveBeenCalledTimes(2);
-				expect(error).toBeCalledWith(expect.any(Error));
-				expect(next).toBeCalledWith(expectedFileState);
+				expect(error).toHaveBeenCalledWith(expect.any(Error));
+				expect(next).toHaveBeenCalledWith(expectedFileState);
 				const storedFileState = fileStateStore.getState().files[items[2].id];
 				expect(storedFileState).toEqual(expectedFileState);
 				done();
@@ -658,9 +703,9 @@ describe('FileFetcher', () => {
 
 			// eslint-disable-next-line @atlaskit/platform/no-set-immediate
 			setImmediate(() => {
-				expect(next).toBeCalledTimes(1);
-				expect(error).toBeCalledTimes(0);
-				expect(next).toBeCalledWith(expectedFileState);
+				expect(next).toHaveBeenCalledTimes(1);
+				expect(error).toHaveBeenCalledTimes(0);
+				expect(next).toHaveBeenCalledWith(expectedFileState);
 				const storedFileState = fileStateStore.getState().files[items[0].id];
 				expect(storedFileState).toEqual(expectedFileState);
 				done();
@@ -733,6 +778,38 @@ describe('FileFetcher', () => {
 					replaceFileId: undefined,
 				},
 				undefined,
+				undefined,
+			]);
+		});
+
+		it('should pass clientId to mediaStore.copyFile when provided', async () => {
+			const { items, fileFetcher, mediaStore } = setup();
+			const copyFileMock = jest
+				.fn()
+				.mockResolvedValue({ data: { mimeType: 'application/octet-stream' } });
+
+			mediaStore.copyFile = copyFileMock;
+
+			const source = {
+				id: items[0].id,
+				collection: 'someCollectionName',
+				clientId: 'source-client-id',
+			};
+			const destination = {
+				collection: RECENTS_COLLECTION,
+				mediaStore,
+			};
+
+			await fileFetcher.copyFile(source, destination);
+			expectFunctionToHaveBeenCalledWith(copyFileMock, [
+				source.id,
+				{
+					collection: RECENTS_COLLECTION,
+					sourceCollection: source.collection,
+					replaceFileId: undefined,
+				},
+				undefined,
+				'source-client-id',
 			]);
 		});
 
@@ -1350,7 +1427,7 @@ describe('FileFetcher', () => {
 			const collection = 'destination-collection';
 			await fileFetcher.uploadExternal(url, collection);
 
-			expect((fileFetcher as any).generateUploadableFileUpfrontIds).toBeCalledWith(
+			expect((fileFetcher as any).generateUploadableFileUpfrontIds).toHaveBeenCalledWith(
 				collection,
 				undefined,
 			);
@@ -1369,7 +1446,7 @@ describe('FileFetcher', () => {
 
 			await fileFetcher.uploadExternal(url, collection, traceContext);
 
-			expect((fileFetcher as any).generateUploadableFileUpfrontIds).toBeCalledWith(
+			expect((fileFetcher as any).generateUploadableFileUpfrontIds).toHaveBeenCalledWith(
 				collection,
 				traceContext,
 			);
@@ -1393,6 +1470,62 @@ describe('FileFetcher', () => {
 				expect.objectContaining({
 					name: 'file_name.mov',
 				}),
+			);
+		});
+
+		it('should use a UUID as the file name instead of extracting from the URL when anonymizeFilename is true', async () => {
+			const { fileFetcher } = setup();
+			mockExpDisabled('cc_maui_polish_changes_batch_8');
+
+			fileFetcher.uploadExternal('domain.com/path/file_name.mov', undefined, undefined, true);
+
+			const fileObservable = getFileStreamsCache().get('upfront-id');
+			if (!fileObservable) {
+				return expect(fileObservable).toBeDefined();
+			}
+
+			const fileState = await toPromise(fromObservable(fileObservable));
+			expect(fileState).toEqual(
+				expect.objectContaining({
+					name: expect.not.stringContaining('file_name.mov'),
+				}),
+			);
+			// Name should be a UUID format
+			expect((fileState as any).name).toMatch(
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+			);
+		});
+
+		it('should append an extension derived from the MIME type to an anonymized filename', async () => {
+			const { fileFetcher } = setup();
+			const uploadSpy = jest.spyOn(fileFetcher, 'upload');
+			mockExpEnabled('cc_maui_polish_changes_batch_8');
+			fetchMock.mock(
+				'https://example.com/path/raw_image_blob',
+				{
+					headers: { 'Content-Type': 'image/png' },
+					body: new Blob([], { type: 'image/png' }),
+				},
+				{ sendAsJson: false },
+			);
+
+			await fileFetcher.uploadExternal(
+				'https://example.com/path/raw_image_blob',
+				undefined,
+				undefined,
+				true,
+			);
+
+			expect(uploadSpy).toHaveBeenCalledWith(
+				expect.objectContaining({
+					mimeType: 'image/png',
+					name: expect.stringMatching(
+						/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.png$/i,
+					),
+				}),
+				undefined,
+				expect.any(Object),
+				undefined,
 			);
 		});
 
@@ -1702,9 +1835,10 @@ describe('FileFetcher', () => {
 				traceContext,
 			);
 
-			expect((fileFetcher as any).generateUploadableFileUpfrontIds).toBeCalledWith(
+			expect((fileFetcher as any).generateUploadableFileUpfrontIds).toHaveBeenCalledWith(
 				collection,
 				traceContext,
+				0,
 			);
 			expect(asMock(uploadFile).mock.calls[0][4]).toBe(traceContext);
 		});

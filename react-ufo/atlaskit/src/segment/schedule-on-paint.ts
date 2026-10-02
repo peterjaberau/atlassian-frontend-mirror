@@ -1,6 +1,17 @@
 export type OnPaintCallback = () => any;
 
 function scheduleOnPaint(callback: OnPaintCallback): void {
+	const isSSR =
+		typeof window === 'undefined' ||
+		Boolean((globalThis as any)?.__SERVER__) ||
+		(typeof process !== 'undefined' && Boolean(process?.env?.REACT_SSR));
+
+	if (isSSR) {
+		// In SSR, execute callback immediately (no paint event exists)
+		callback();
+		return;
+	}
+
 	if (globalThis.document?.visibilityState !== 'visible') {
 		// last resort fallback
 		setTimeout(callback, 100);

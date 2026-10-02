@@ -2,21 +2,22 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import type { CSSProperties } from 'react';
+import { useMemo, type CSSProperties } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 import classnames from 'classnames';
-import { FormattedMessage, defineMessages } from 'react-intl-next';
+import { FormattedMessage, defineMessages } from 'react-intl';
 
 import CustomizeIcon from '@atlaskit/icon/core/customize';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { type ExtensionsPluginInjectionAPI } from '../../types';
+import type { ExtensionsPluginInjectionAPI } from '../../types';
 
 const containerStyles = css({
 	textAlign: 'left',
@@ -24,7 +25,7 @@ const containerStyles = css({
 	position: 'relative',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&.bodied': {
-		marginTop: token('space.300', '24px'),
+		marginTop: token('space.300'),
 	},
 });
 
@@ -55,7 +56,7 @@ const labelStyles = css({
 	'&.nested': {
 		// Need to add indent if the node is nested since we removed previous indentation styles to make it fit properly
 		// in the nested component
-		marginLeft: token('space.150', '12px'),
+		marginLeft: token('space.150'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&.inline': {
@@ -70,16 +71,16 @@ const labelStyles = css({
 	'&.bodied-border': {
 		boxShadow: `0 0 0 1px ${token('color.border')}`,
 	},
-	minHeight: token('space.300', '24px'),
+	minHeight: token('space.300'),
 	alignItems: 'center',
 	borderRadius: token('radius.small', '3px'),
-	paddingLeft: token('space.100', '8px'),
-	paddingRight: token('space.100', '8px'),
+	paddingLeft: token('space.100'),
+	paddingRight: token('space.100'),
 	color: token('color.text.subtle'),
 	backgroundColor: token('color.background.accent.gray.subtlest'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&.remove-left-margin': {
-		marginLeft: token('space.negative.150', '-12px'),
+		marginLeft: token('space.negative.150'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&.remove-nested-left-margin': {
@@ -100,7 +101,7 @@ const spacerStyles = xcss({
 });
 
 const iconStyles = css({
-	marginLeft: token('space.075', '6px'),
+	marginLeft: token('space.075'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&.hide-icon': {
 		display: 'none',
@@ -119,26 +120,12 @@ const i18n = defineMessages({
 	},
 });
 
-export const getShouldShowBodiedMacroLabel = (
-	isBodiedMacro: boolean | undefined,
-	isNodeHovered: boolean | undefined,
-	showLivePagesBodiedMacrosRendererView: boolean | undefined,
-	showBodiedExtensionRendererView: boolean | undefined,
-	showUpdatedLivePages1PBodiedExtensionUI: boolean | undefined,
-) => {
-	// Bodied macros show the label by default except for the new live pages 1P bodied macro experience where we only show it on hover
-	if (!isBodiedMacro || showUpdatedLivePages1PBodiedExtensionUI) {
-		return isNodeHovered;
-	}
-	if (!showLivePagesBodiedMacrosRendererView) {
-		return true;
-	} // Keep showing labels as usual for default experience for bodied macros
-	return !!(isNodeHovered && !showBodiedExtensionRendererView); // For the new live pages bodied macro experience, we only show the label on hover in the "edit" view
-};
-
 type ExtensionLabelProps = {
 	customContainerStyles?: CSSProperties;
 	extensionName: string;
+	// When true, the node exposes no configuration affordance, so the "Configure {name}"
+	// tooltip, label and customize icon are omitted (e.g. redaction nodes).
+	hideConfigureLabel?: boolean;
 	isBodiedMacro?: boolean;
 	isNodeHovered?: boolean;
 	isNodeNested?: boolean;
@@ -150,34 +137,22 @@ type ExtensionLabelProps = {
 	text: string;
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const ExtensionLabel = ({
 	text,
 	extensionName,
-	isNodeHovered,
 	customContainerStyles,
 	isNodeNested,
 	setIsNodeHovered,
 	isBodiedMacro,
+	hideConfigureLabel,
 	showUpdatedLivePages1PBodiedExtensionUI,
 	showLivePagesBodiedMacrosRendererView,
 	showBodiedExtensionRendererView,
 	pluginInjectionApi: _pluginInjectionApi,
-}: ExtensionLabelProps) => {
+}: ExtensionLabelProps): jsx.JSX.Element => {
 	const isInlineExtension = extensionName === 'inlineExtension';
-	const showDefaultBodiedStyles = expValEquals(
-		'cc_editor_ttvc_release_bundle_one',
-		'isEnabled',
-		true,
-	)
-		? isBodiedMacro
-		: isBodiedMacro && !isNodeHovered;
-	const shouldShowBodiedMacroLabel = getShouldShowBodiedMacroLabel(
-		isBodiedMacro,
-		isNodeHovered,
-		showLivePagesBodiedMacrosRendererView,
-		showBodiedExtensionRendererView,
-		showUpdatedLivePages1PBodiedExtensionUI,
-	);
+	const showDefaultBodiedStyles = isBodiedMacro;
 
 	const containerClassNames = classnames({
 		bodied: isBodiedMacro,
@@ -189,9 +164,6 @@ export const ExtensionLabel = ({
 		bodied: isBodiedMacro,
 		'bodied-border': showDefaultBodiedStyles,
 		'bodied-background': showDefaultBodiedStyles,
-		'show-label': expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-			? false
-			: shouldShowBodiedMacroLabel,
 		'with-bodied-macro-live-page-styles': isBodiedMacro && showLivePagesBodiedMacrosRendererView,
 		'always-hide-label': isBodiedMacro && showBodiedExtensionRendererView, // Need this separate class since we don't ever want to show the label during view mode
 		'remove-left-margin': !isBodiedMacro && !isInlineExtension && !isNodeNested,
@@ -199,15 +171,13 @@ export const ExtensionLabel = ({
 	});
 
 	const iconClassNames = classnames({
-		'hide-icon': expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-			? false
-			: isBodiedMacro && !isNodeHovered,
-		'extension-icon': expValEquals(
-			'cc_editor_ttvc_release_bundle_one',
-			'extensionHoverRefactor',
-			true,
-		),
+		'extension-icon': true,
 	});
+
+	const memoizedTooltipValues = useMemo(() => ({ macroName: text }), [text]);
+	const tooltipValues = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedTooltipValues
+		: { macroName: text };
 
 	return (
 		// eslint-disable-next-line @atlassian/a11y/no-static-element-interactions, @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable
@@ -218,67 +188,63 @@ export const ExtensionLabel = ({
 			className={containerClassNames}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			style={customContainerStyles}
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 			onMouseOver={() => {
 				setIsNodeHovered?.(true);
 			}}
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
+			// @atlassian/a11y/mouse-events-have-key-events: label visibility on keyboard focus is already
+			// handled via the .ak-editor-selected-node CSS class applied by ProseMirror on node selection.
+			// No-ops here satisfy the rule.
+			onFocus={
+				expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true) ? () => {} : undefined
+			}
 			onMouseLeave={() => {
 				setIsNodeHovered?.(false);
 			}}
+			onBlur={
+				expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true) ? () => {} : undefined
+			}
 			data-testid="new-lozenge-container"
 			contentEditable={false}
 		>
-			<Tooltip
-				content={
-					<FormattedMessage
-						// Ignored via go/ees005
-						// eslint-disable-next-line react/jsx-props-no-spreading
-						{...i18n.configure}
-						values={{ macroName: text }}
-					/>
-				}
-				position="top"
-			>
-				{(tooltipProps) => (
-					<span
-						data-testid="new-lozenge-button"
-						// Ignored via go/ees005
-						// eslint-disable-next-line react/jsx-props-no-spreading
-						{...tooltipProps}
-						css={[
-							labelStyles,
-							...(expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-								? [
-										!showLivePagesBodiedMacrosRendererView && showLabelStyles,
-										(!isBodiedMacro || showUpdatedLivePages1PBodiedExtensionUI) && hideLabelStyles,
-									]
-								: []),
-						]}
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-						className={labelClassNames}
-					>
-						{text}
+			{!hideConfigureLabel && (
+				<Tooltip
+					content={
+						<FormattedMessage
+							// Ignored via go/ees005
+							// eslint-disable-next-line react/jsx-props-no-spreading
+							{...i18n.configure}
+							values={tooltipValues}
+						/>
+					}
+					position="top"
+				>
+					{(tooltipProps) => (
 						<span
+							data-testid="new-lozenge-button"
+							// Ignored via go/ees005
+							// eslint-disable-next-line react/jsx-props-no-spreading
+							{...tooltipProps}
 							css={[
-								iconStyles,
-								isBodiedMacro &&
-									expValEquals(
-										'cc_editor_ttvc_release_bundle_one',
-										'extensionHoverRefactor',
-										true,
-									) &&
-									bodiedMacroIconStyles,
+								labelStyles,
+								!showLivePagesBodiedMacrosRendererView && showLabelStyles,
+								(!isBodiedMacro || showUpdatedLivePages1PBodiedExtensionUI) && hideLabelStyles,
 							]}
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-							className={iconClassNames}
-							data-testid="config-icon"
+							className={labelClassNames}
 						>
-							<CustomizeIcon label="" />
+							{text}
+							<span
+								css={[iconStyles, isBodiedMacro && bodiedMacroIconStyles]}
+								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+								className={iconClassNames}
+								data-testid="config-icon"
+							>
+								<CustomizeIcon label="" />
+							</span>
 						</span>
-					</span>
-				)}
-			</Tooltip>
+					)}
+				</Tooltip>
+			)}
 			{/* This is needed since this creates the gap between the macro and button, also provides a seamless transition when mousing over the gap. */}
 			<Box xcss={spacerStyles} />
 		</div>

@@ -1,39 +1,38 @@
 /* eslint-disable no-console */
+
 import React from 'react';
-import { scrubAdf } from '@atlaskit/adf-utils/scrub';
-import type { ADFEntity } from '@atlaskit/adf-utils/types';
-import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
-import { simpleMockProfilecardClient } from '@atlaskit/util-data-test/get-mock-profilecard-client';
-import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
-import type { CardEvent, InlineCardEvent } from '@atlaskit/media-card';
-import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
-import type { ExtensionHandlers } from '@atlaskit/editor-common/extensions';
-import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import type { ADFStage } from '@atlaskit/editor-common/validator';
-import type { AnnotationProviders } from '@atlaskit/editor-common/types';
-import type { CardSurroundings, EventHandlers } from '@atlaskit/editor-common/ui';
-import type { UnsupportedContentLevelsTracking } from '@atlaskit/editor-common/utils';
-import Button from '@atlaskit/button';
-import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
-import { storyContextIdentifierProviderFactory } from '@atlaskit/editor-test-helpers/context-identifier-provider';
 
 import Clock from 'react-live-clock';
 
-import { document as storyDataDocument } from './story-data';
-import type { RendererProps } from '../../src/ui/renderer-props';
-import { default as Renderer } from '../../src/ui/Renderer';
+import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
+import { scrubAdf } from '@atlaskit/adf-utils/scrub';
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
+import Button from '@atlaskit/button/button';
+import CodeBlock from '@atlaskit/code/code-block';
+import type { ExtensionHandlers } from '@atlaskit/editor-common/extensions';
+import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import type { AnnotationProviders } from '@atlaskit/editor-common/types';
+import type { CardSurroundings, EventHandlers } from '@atlaskit/editor-common/ui';
+import type { UnsupportedContentLevelsTracking } from '@atlaskit/editor-common/utils';
+import type { ADFStage } from '@atlaskit/editor-common/validator';
+import type { MediaOptions } from '@atlaskit/editor-plugin-media/types';
+import type { Schema } from '@atlaskit/editor-prosemirror/model';
+import { storyContextIdentifierProviderFactory } from '@atlaskit/editor-test-helpers/context-identifier-provider';
+import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
+import type { CardEvent, InlineCardEvent } from '@atlaskit/media-card/types';
+import type { MentionProvider } from '@atlaskit/mention/types';
+import { token } from '@atlaskit/tokens';
+import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
+import { simpleMockProfilecardClient } from '@atlaskit/util-data-test/get-mock-profilecard-client';
+import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
 
 import { renderDocument } from '../../src';
 import TextSerializer from '../../src/text';
-
-import Sidebar, { getDefaultShowSidebarState } from './NavigationNext';
+import { default as Renderer } from '../../src/ui/Renderer';
+import type { RendererProps } from '../../src/ui/renderer-props';
 import type { RendererAppearance, HeadingAnchorLinksProps } from '../../src/ui/Renderer/types';
-import { CodeBlock } from '@atlaskit/code';
-import type { MentionProvider } from '@atlaskit/mention/types';
-import type { Schema } from '@atlaskit/editor-prosemirror/model';
-import type { MediaOptions } from '@atlaskit/editor-plugin-media/types';
-
-import { token } from '@atlaskit/tokens';
+import Sidebar, { getDefaultShowSidebarState } from './NavigationNext';
+import { document as storyDataDocument } from './story-data';
 
 const MockProfileClient: any = simpleMockProfilecardClient();
 
@@ -95,7 +94,6 @@ const extensionHandlers: ExtensionHandlers = {
 		return (
 			<Renderer
 				document={{ type: 'doc', version: 1, content: ext.content as any }}
-				useSpecBasedValidator={true}
 				adfStage="stage0"
 			/>
 		);
@@ -130,6 +128,7 @@ interface DemoRendererProps {
 	actionButtons?: React.ReactNode;
 	adfStage?: ADFStage;
 	allowAnnotations?: boolean;
+	allowCollapsibleHeadings?: boolean;
 	allowColumnSorting?: boolean;
 	allowCopyToClipboard?: boolean;
 	allowCustomPanels?: boolean;
@@ -162,7 +161,6 @@ interface DemoRendererProps {
 	UNSTABLE_allowTableAlignment?: boolean;
 	UNSTABLE_allowTableResizing?: boolean;
 	unsupportedContentLevelsTracking?: UnsupportedContentLevelsTracking;
-	useSpecBasedValidator?: boolean;
 	withExtension?: boolean;
 	withPortal?: boolean;
 	withProviders?: boolean;
@@ -181,7 +179,9 @@ interface DemoRendererState {
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export default class RendererDemo extends React.Component<DemoRendererProps, DemoRendererState> {
-	textSerializer = new TextSerializer(this.props.schema ? this.props.schema : defaultSchema);
+	textSerializer: TextSerializer = new TextSerializer(
+		this.props.schema ? this.props.schema : defaultSchema,
+	);
 	emailRef?: HTMLIFrameElement;
 	inputBox?: HTMLTextAreaElement | null;
 	inputCopies?: HTMLInputElement | null;
@@ -246,13 +246,11 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 	private renderExampleContent(additionalRendererProps: object) {
 		return (
 			<div
-				// eslint-disable-next-line react/no-string-refs -- Ignored via go/ED-25883
-				ref="root"
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				style={{ position: 'relative', padding: token('space.250', '20px') }}
+				style={{ position: 'relative', padding: token('space.250') }}
 			>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-				<fieldset style={{ marginBottom: token('space.250', '20px') }}>
+				<fieldset style={{ marginBottom: token('space.250') }}>
 					<legend>Input</legend>
 					{/* eslint-disable-next-line @atlaskit/design-system/no-html-textarea */}
 					<textarea
@@ -260,13 +258,13 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							boxSizing: 'border-box',
-							border: `${token('border.width')} solid ${token('color.border.input', 'lightgray')}`,
+							border: `${token('border.width')} solid ${token('color.border.input')}`,
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							fontFamily: 'monospace',
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							fontSize: 16,
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							padding: token('space.150', '12px'),
+							padding: token('space.150'),
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							width: '100%',
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -338,7 +336,7 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 			if (this.props.withExtension) {
 				props.extensionHandlers = {
 					...extensionHandlers,
-					...(this.props.extensionHandlers || {}),
+					...this.props.extensionHandlers,
 				};
 			}
 
@@ -351,8 +349,8 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 			props.truncated = this.props.truncationEnabled && this.state.truncated;
 			props.allowColumnSorting = this.props.allowColumnSorting;
 			props.allowAnnotations = this.props.allowAnnotations;
+			props.allowCollapsibleHeadings = this.props.allowCollapsibleHeadings;
 			props.allowHeadingAnchorLinks = this.props.allowHeadingAnchorLinks;
-			props.useSpecBasedValidator = this.props.useSpecBasedValidator;
 			props.allowCopyToClipboard = this.props.allowCopyToClipboard;
 			props.allowWrapCodeBlock = this.props.allowWrapCodeBlock;
 			props.allowPlaceholderText = this.props.allowPlaceholderText;
@@ -400,9 +398,9 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 					<div
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							color: token('color.text.subtle', '#ccc'),
+							color: token('color.text.subtle'),
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							marginBottom: token('space.100', '8px'),
+							marginBottom: token('space.100'),
 						}}
 					>
 						&lt;Renderer&gt;
@@ -418,9 +416,9 @@ export default class RendererDemo extends React.Component<DemoRendererProps, Dem
 					<div
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							color: token('color.text.subtle', '#ccc'),
+							color: token('color.text.subtle'),
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							marginTop: token('space.100', '8px'),
+							marginTop: token('space.100'),
 						}}
 					>
 						&lt;/Renderer&gt;

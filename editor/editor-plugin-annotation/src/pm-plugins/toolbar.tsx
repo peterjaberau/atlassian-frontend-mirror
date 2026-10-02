@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
@@ -27,16 +27,14 @@ import {
 } from '@atlaskit/editor-common/utils';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import type { NodeType } from '@atlaskit/editor-prosemirror/model';
-import { type SelectionBookmark, type EditorState } from '@atlaskit/editor-prosemirror/state';
+import type { SelectionBookmark, EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import CommentIcon from '@atlaskit/icon/core/comment';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { AnnotationPlugin } from '../annotationPluginType';
 import { setInlineCommentDraftState } from '../editor-commands';
 import { type AnnotationProviders, AnnotationSelectionType, AnnotationTestIds } from '../types';
-
 import { getPluginState, isSelectionValid, resolveDraftBookmark } from './utils';
 
 interface BuildToolbarOptions {
@@ -99,17 +97,15 @@ export const shouldSuppressFloatingToolbar = ({
 
 export const buildSuppressedToolbar = (
 	state: EditorState,
-	api?: ExtractInjectionAPI<AnnotationPlugin>,
-) => {
-	const userIntentEnabled = Boolean(
-		api?.userIntent && expValEquals('platform_editor_lovability_user_intent', 'isEnabled', true),
-	);
-
+): {
+	items: never[];
+	nodeType: NodeType[];
+	title: string;
+} => {
 	return {
 		items: [],
 		nodeType: getValidNodes(state),
 		title: 'Annotation suppressed toolbar',
-		__suppressAllToolbars: userIntentEnabled ? undefined : true,
 	};
 };
 
@@ -185,9 +181,7 @@ export const buildToolbar: (editorAnalyticsAPI: EditorAnalyticsAPI | undefined) 
 			),
 			title: createCommentMessage,
 			onMount: () => {
-				if (fg('confluence_frontend_preload_inline_comment_editor')) {
-					onCommentButtonMount && onCommentButtonMount();
-				}
+				onCommentButtonMount && onCommentButtonMount();
 
 				// Check if the selection includes an non-text inline node
 				const inlineCommentPluginState = getPluginState(state);

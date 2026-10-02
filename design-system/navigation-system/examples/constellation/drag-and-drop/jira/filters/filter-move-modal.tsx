@@ -8,12 +8,17 @@ import { useCallback, useMemo, useState } from 'react';
 import { jsx } from '@compiled/react';
 import invariant from 'tiny-invariant';
 
-import Button from '@atlaskit/button/new';
-import Form, { Field } from '@atlaskit/form';
-import Modal, { ModalBody, ModalFooter, ModalHeader, ModalTitle } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
 import { Stack } from '@atlaskit/primitives/compiled';
-import SectionMessage from '@atlaskit/section-message';
-import Select from '@atlaskit/select';
+import SectionMessage from '@atlaskit/section-message/message';
+import Select from '@atlaskit/select/default';
 import type { Operation } from '@atlaskit/side-nav-items/drag-and-drop/hitbox';
 
 import type { TFilter } from '../data';
@@ -54,7 +59,13 @@ function getAvailableTargets({
 	return [...options, ...children];
 }
 
-export function FilterMoveModal({ onClose, filter }: { filter: TFilter; onClose: () => void }): JSX.Element {
+export function FilterMoveModal({
+	onClose,
+	filter,
+}: {
+	filter: TFilter;
+	onClose: () => void;
+}): JSX.Element {
 	const dispatch = useDispatch();
 	const getData = useGetData();
 
@@ -111,8 +122,7 @@ export function FilterMoveModal({ onClose, filter }: { filter: TFilter; onClose:
 								name="target"
 								label="Move relative to filter"
 								isRequired
-							>
-								{({ fieldProps }) => (
+								component={({ fieldProps }) => (
 									<Select
 										{...fieldProps}
 										onChange={(option) => {
@@ -124,14 +134,13 @@ export function FilterMoveModal({ onClose, filter }: { filter: TFilter; onClose:
 										options={targetOptions}
 									/>
 								)}
-							</Field>
+							/>
 							<Field<{ label: string; value: string }>
 								id="operation"
 								name="operation"
 								label="Operation"
 								isRequired
-							>
-								{({ fieldProps }) => (
+								component={({ fieldProps }) => (
 									<Select
 										{...fieldProps}
 										onChange={(option) => {
@@ -143,7 +152,7 @@ export function FilterMoveModal({ onClose, filter }: { filter: TFilter; onClose:
 										options={operationOptions}
 									/>
 								)}
-							</Field>
+							/>
 						</Stack>
 						<SectionMessage appearance="warning">
 							This experience is <strong>illustrative</strong> of what could be done to support

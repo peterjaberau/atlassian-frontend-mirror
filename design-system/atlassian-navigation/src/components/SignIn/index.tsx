@@ -1,10 +1,19 @@
 import React from 'react';
 
+import { cssMap } from '@atlaskit/css';
 import LogInIcon from '@atlaskit/icon/core/log-in';
+import { Flex } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
 
 import { IconButton } from '../IconButton';
-
 import { type SignInProps } from './types';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 /**
  * __Sign in__
@@ -13,6 +22,8 @@ import { type SignInProps } from './types';
  *
  * - [Examples](https://atlassian.design/components/atlassian-navigation/examples#sign-in)
  * - [Code](https://atlassian.design/components/atlassian-navigation/code)
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 export const SignIn = (props: SignInProps): React.JSX.Element => {
 	const {
@@ -40,11 +51,12 @@ export const SignIn = (props: SignInProps): React.JSX.Element => {
 				component={component}
 				href={href}
 				icon={
-					<LogInIcon
-						color="currentColor"
-						spacing="spacious"
-						label={typeof tooltip === 'string' ? tooltip : 'Sign-in Icon'}
-					/>
+					<Flex xcss={iconSpacingStyles.space050}>
+						<LogInIcon
+							color="currentColor"
+							label={typeof tooltip === 'string' ? tooltip : 'Sign-in Icon'}
+						/>
+					</Flex>
 				}
 				id={id}
 				isDisabled={isDisabled}

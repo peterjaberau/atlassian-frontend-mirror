@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { cardMessages as messages } from '@atlaskit/editor-common/messages';
 import type { CardProvider, QuickInsertItem } from '@atlaskit/editor-common/provider-factory';
@@ -8,18 +8,21 @@ import {
 	IconDatasourceJiraIssue,
 } from '@atlaskit/editor-common/quick-insert';
 import { canRenderDatasource } from '@atlaskit/editor-common/utils';
-import {
-	ASSETS_LIST_OF_LINKS_DATASOURCE_ID,
-	CONFLUENCE_SEARCH_DATASOURCE_ID,
-} from '@atlaskit/link-datasource';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { ASSETS_LIST_OF_LINKS_DATASOURCE_ID } from '@atlaskit/link-datasource/assets-modal';
+import { CONFLUENCE_SEARCH_DATASOURCE_ID } from '@atlaskit/link-datasource/confluence-search-modal';
+import { SmartCardContext } from '@atlaskit/link-provider/context';
+import type { CardContext } from '@atlaskit/link-provider/types';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { expValNoExposure } from '@atlaskit/tmp-editor-statsig/expVal';
 
 import type { CardPlugin } from './cardPluginType';
 import { blockCardSpecWithFixedToDOM } from './nodeviews/toDOM-fixes/blockCard';
 import { embedCardSpecWithFixedToDOM } from './nodeviews/toDOM-fixes/embedCard';
 import { inlineCardSpecWithFixedToDOM } from './nodeviews/toDOM-fixes/inlineCard';
 import { hideLinkToolbar, setProvider, showDatasourceModal } from './pm-plugins/actions';
-import { queueCardsFromChangedTr } from './pm-plugins/doc';
+import { queueCardsFromChangedTr, queueCardsFromRange } from './pm-plugins/doc';
 import { cardKeymap } from './pm-plugins/keymap';
 import { createPlugin } from './pm-plugins/main';
 import { pluginKey } from './pm-plugins/plugin-key';
@@ -33,11 +36,54 @@ import { EditorSmartCardEvents } from './ui/EditorSmartCardEvents';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-named-as-default
 import LayoutButton from './ui/LayoutButton';
+import { getPasteDisplayAsMenuComponents } from './ui/PasteDisplayAsMenu';
+import { PreAuthValuePropositionModalListener } from './ui/PreAuthValuePropositionModal';
+import { getCardQuickInsertComponents } from './ui/quick-insert/getCardQuickInsertComponents';
 import { floatingToolbar, getEndingToolbarItems, getStartingToolbarItems } from './ui/toolbar';
+
+type SmartCardClientRef = {
+	current: CardContext['connections']['client'] | undefined;
+};
+
+const PasteMenuSmartCardClientSync = ({ clientRef }: { clientRef: SmartCardClientRef }) => {
+	const smartCardContext = useContext(SmartCardContext);
+	useEffect(() => {
+		clientRef.current = smartCardContext?.connections?.client;
+	}, [clientRef, smartCardContext?.connections?.client]);
+	return null;
+};
 
 export const cardPlugin: CardPlugin = ({ config: options = {} as CardPluginOptions, api }) => {
 	let previousCardProvider: CardProvider | undefined;
 	const cardPluginEvents = createEventsQueue<CardPluginEvent>();
+	const isRegisteredSlashCommandEnabled = isExperimentEnabled('platform_editor_slash_command');
+	let instanceEmbedCardTransformers = options.embedCardTransformers;
+	let editorViewForPasteMenu: EditorView | undefined;
+	const pasteMenuSmartCardClientRef: SmartCardClientRef = { current: undefined };
+
+	const pasteMenuVariant = expValNoExposure(
+		'platform_editor_paste_actions_menu_v2',
+		'variant',
+		'control',
+	);
+	const shouldRegisterPasteDisplayAsMenu =
+		options.enablePasteDisplayAsMenu &&
+		['hasSpellingAndGrammar', 'hasAltAiActions'].includes(pasteMenuVariant);
+	if (shouldRegisterPasteDisplayAsMenu) {
+		api?.uiControlRegistry?.actions.register(
+			getPasteDisplayAsMenuComponents({
+				api,
+				allowBlockCards: options.onlyInlineCards ? false : (options.allowBlockCards ?? true),
+				allowEmbeds: options.onlyInlineCards ? false : options.allowEmbeds,
+				getEditorView: () => editorViewForPasteMenu,
+				smartCardClientRef: pasteMenuSmartCardClientRef,
+			}),
+		);
+	}
+
+	if (isRegisteredSlashCommandEnabled) {
+		api?.uiControlRegistry?.actions.register(getCardQuickInsertComponents({ api, options }));
+	}
 
 	api?.base?.actions.registerMarks(({ tr, node, pos }) => {
 		const { doc } = tr;
@@ -62,10 +108,15 @@ export const cardPlugin: CardPlugin = ({ config: options = {} as CardPluginOptio
 		},
 
 		nodes() {
-			const nodes = [
-				{ name: 'inlineCard', node: inlineCardSpecWithFixedToDOM() },
-				{ name: 'blockCard', node: blockCardSpecWithFixedToDOM() },
-			];
+			const nodes = [{ name: 'inlineCard', node: inlineCardSpecWithFixedToDOM() }];
+
+			// `onlyInlineCards` is a hard gate: when set, blockCard/embedCard
+			// stay out of the schema regardless of allowBlockCards/allowEmbeds.
+			if (options.onlyInlineCards) {
+				return nodes;
+			}
+
+			nodes.push({ name: 'blockCard', node: blockCardSpecWithFixedToDOM() });
 
 			if (options.allowEmbeds) {
 				nodes.push({
@@ -78,7 +129,10 @@ export const cardPlugin: CardPlugin = ({ config: options = {} as CardPluginOptio
 		},
 
 		pmPlugins() {
-			const allowBlockCards = options.allowBlockCards ?? true;
+			// onlyInlineCards forces block/embed off regardless of caller-passed flags,
+			// keeping the schema gate (in nodes()) and the runtime gate in sync.
+			const allowBlockCards = options.onlyInlineCards ? false : (options.allowBlockCards ?? true);
+			const allowEmbeds = options.onlyInlineCards ? false : options.allowEmbeds;
 			const allowResizing = options.allowResizing ?? true;
 			const useAlternativePreloader = options.useAlternativePreloader ?? true;
 			const allowWrapping = options.allowWrapping ?? true;
@@ -93,12 +147,14 @@ export const cardPlugin: CardPlugin = ({ config: options = {} as CardPluginOptio
 						{
 							...options,
 							allowBlockCards,
+							allowEmbeds,
 							allowResizing,
 							useAlternativePreloader,
 							allowWrapping,
 							allowAlignment,
 							allowDatasource,
 							cardPluginEvents,
+							embedCardTransformers: instanceEmbedCardTransformers,
 							showUpgradeDiscoverability,
 						},
 						api,
@@ -125,10 +181,17 @@ export const cardPlugin: CardPlugin = ({ config: options = {} as CardPluginOptio
 			if (!editorView) {
 				return null;
 			}
+			editorViewForPasteMenu = editorView;
 
 			const breakoutEnabled = options.editorAppearance === 'full-page';
 			return (
 				<>
+					{fg('platform_sl_3p_preauth_value_modal_killswitch') ? (
+						<PreAuthValuePropositionModalListener api={api} cardPluginEvents={cardPluginEvents} />
+					) : null}
+					{shouldRegisterPasteDisplayAsMenu && (
+						<PasteMenuSmartCardClientSync clientRef={pasteMenuSmartCardClientRef} />
+					)}
 					<EditorSmartCardEvents editorView={editorView} />
 					<EditorLinkingPlatformAnalytics
 						cardPluginEvents={cardPluginEvents}
@@ -148,6 +211,27 @@ export const cardPlugin: CardPlugin = ({ config: options = {} as CardPluginOptio
 			);
 		},
 
+		commands: {
+			queueCardsFromRange:
+				(from, to, source, analyticsAction, normalizeLinkText, sourceEvent, appearance) =>
+				({ tr }) =>
+					queueCardsFromRange(
+						// Synthesise the minimal EditorState shape the impl actually reads.
+						{
+							schema: tr.doc.type.schema,
+							selection: tr.selection,
+						} as unknown as Parameters<typeof queueCardsFromRange>[0],
+						tr,
+						from,
+						to,
+						source,
+						analyticsAction,
+						normalizeLinkText,
+						sourceEvent,
+						appearance,
+					),
+		},
+
 		actions: {
 			setProvider: async (providerPromise) => {
 				const provider = await providerPromise;
@@ -160,6 +244,56 @@ export const cardPlugin: CardPlugin = ({ config: options = {} as CardPluginOptio
 			},
 			hideLinkToolbar,
 			queueCardsFromChangedTr,
+			queueCardsFromRange,
+			registerEmbedCardTransformer: (transformers) => {
+				instanceEmbedCardTransformers = transformers;
+			},
+			resolveShortLinkUrl: async (url: string) => {
+				if (!options.provider) {
+					return undefined;
+				}
+				try {
+					const provider = await options.provider;
+					// EditorCardProvider holds a CardClient instance internally. We access it
+					// directly to call fetchData, which gives us the raw ORS JSON-LD response
+					// including the canonical url field — something provider.resolve() does not
+					// surface. This is intentionally a structural cast rather than a typed
+					// dependency on EditorCardProvider's private API.
+					const clientHolder = provider as unknown as {
+						cardClient?: { fetchData: (url: string) => Promise<{ data?: unknown }> };
+					};
+					const client = clientHolder.cardClient;
+					if (!client) {
+						return undefined;
+					}
+					const response = await client.fetchData(url);
+					// ORS returns a JsonLd.Response whose data union includes BaseData,
+					// BaseCollectionData, and BaseCollectionPage. We only care about the
+					// `url` field which is present on BaseData (Primitives.Object). Cast
+					// to a minimal shape rather than accessing through the full union type.
+					const data = response?.data as { url?: unknown } | undefined;
+					if (!data) {
+						return undefined;
+					}
+					const urlField = data.url;
+					// Property<string | Link> can be a string, a Link object, or an array.
+					// Short-link responses always return a plain string URL.
+					if (typeof urlField === 'string' && urlField !== url) {
+						return urlField;
+					}
+					// Fallback: Link object shape with href or @id
+					if (urlField && typeof urlField === 'object' && !Array.isArray(urlField)) {
+						const linkObj = urlField as Record<string, unknown>;
+						const id = linkObj['@id'] ?? linkObj['href'];
+						if (typeof id === 'string' && id !== url) {
+							return id;
+						}
+					}
+				} catch {
+					// Swallow errors — callers handle undefined
+				}
+				return undefined;
+			},
 			getStartingToolbarItems: getStartingToolbarItems(options, api),
 			getEndingToolbarItems: getEndingToolbarItems(options, api),
 		},
@@ -172,73 +306,78 @@ export const cardPlugin: CardPlugin = ({ config: options = {} as CardPluginOptio
 				api,
 				options.disableFloatingToolbar,
 			),
-			quickInsert: ({ formatMessage }) => {
-				const quickInsertArray: Array<QuickInsertItem> = [];
-				if (!options.allowDatasource) {
-					return quickInsertArray;
-				}
+			...(isRegisteredSlashCommandEnabled
+				? {}
+				: {
+						quickInsert: ({ formatMessage }) => {
+							const quickInsertArray: Array<QuickInsertItem> = [];
+							if (!options.allowDatasource) {
+								return quickInsertArray;
+							}
 
-				quickInsertArray.push({
-					id: 'datasource',
-					title: formatMessage(
-						fg('confluence-issue-terminology-refresh')
-							? messages.datasourceJiraIssueIssueTermRefresh
-							: messages.datasourceJiraIssue,
-					),
-					description: formatMessage(
-						fg('confluence-issue-terminology-refresh')
-							? messages.datasourceJiraIssueDescriptionIssueTermRefresh
-							: messages.datasourceJiraIssueDescription,
-					),
-					isDisabledOffline: true,
-					categories: ['external-content', 'development'],
-					keywords: ['jira'],
-					featured: true,
-					icon: () => <IconDatasourceJiraIssue />,
-					action(insert) {
-						const tr = insert(undefined);
-						showDatasourceModal('jira')(tr);
-						return tr;
-					},
-				});
+							quickInsertArray.push({
+								id: 'datasource',
+								title: formatMessage(
+									fg('confluence-issue-terminology-refresh')
+										? messages.datasourceJiraIssueIssueTermRefresh
+										: messages.datasourceJiraIssue,
+								),
+								description: formatMessage(
+									fg('confluence-issue-terminology-refresh')
+										? messages.datasourceJiraIssueDescriptionIssueTermRefresh
+										: messages.datasourceJiraIssueDescription,
+								),
+								isDisabledOffline: true,
+								categories: ['external-content', 'development'],
+								keywords: ['jira'],
+								featured: true,
+								priority: 500,
+								icon: () => <IconDatasourceJiraIssue />,
+								action(insert) {
+									const tr = insert(undefined);
+									showDatasourceModal('jira')(tr);
+									return tr;
+								},
+							});
 
-				if (canRenderDatasource(ASSETS_LIST_OF_LINKS_DATASOURCE_ID)) {
-					quickInsertArray.push({
-						id: 'datasource',
-						title: formatMessage(messages.datasourceAssetsObjectsGeneralAvailability),
-						description: formatMessage(messages.datasourceAssetsObjectsDescription),
-						isDisabledOffline: true,
-						categories: ['external-content', 'development'],
-						keywords: ['assets'],
-						icon: () => <IconDatasourceAssetsObjects />,
-						action(insert) {
-							const tr = insert(undefined);
-							showDatasourceModal('assets')(tr);
-							return tr;
+							if (canRenderDatasource(ASSETS_LIST_OF_LINKS_DATASOURCE_ID)) {
+								quickInsertArray.push({
+									id: 'datasource',
+									title: formatMessage(messages.datasourceAssetsObjectsGeneralAvailability),
+									description: formatMessage(messages.datasourceAssetsObjectsDescription),
+									isDisabledOffline: true,
+									categories: ['external-content', 'development'],
+									keywords: ['assets'],
+									icon: () => <IconDatasourceAssetsObjects />,
+									action(insert) {
+										const tr = insert(undefined);
+										showDatasourceModal('assets')(tr);
+										return tr;
+									},
+								});
+							}
+
+							if (isDatasourceConfigEditable(CONFLUENCE_SEARCH_DATASOURCE_ID)) {
+								quickInsertArray.push({
+									id: 'datasource',
+									title: formatMessage(messages.datasourceConfluenceSearch),
+									description: formatMessage(messages.datasourceConfluenceSearchDescription),
+									isDisabledOffline: true,
+									categories: ['external-content', 'development'],
+									keywords: ['confluence'],
+									featured: true,
+									icon: () => <IconDatasourceConfluenceSearch />,
+									action(insert) {
+										const tr = insert(undefined);
+										showDatasourceModal('confluence-search')(tr);
+										return tr;
+									},
+								});
+							}
+
+							return quickInsertArray;
 						},
-					});
-				}
-
-				if (isDatasourceConfigEditable(CONFLUENCE_SEARCH_DATASOURCE_ID)) {
-					quickInsertArray.push({
-						id: 'datasource',
-						title: formatMessage(messages.datasourceConfluenceSearch),
-						description: formatMessage(messages.datasourceConfluenceSearchDescription),
-						isDisabledOffline: true,
-						categories: ['external-content', 'development'],
-						keywords: ['confluence'],
-						featured: true,
-						icon: () => <IconDatasourceConfluenceSearch />,
-						action(insert) {
-							const tr = insert(undefined);
-							showDatasourceModal('confluence-search')(tr);
-							return tr;
-						},
-					});
-				}
-
-				return quickInsertArray;
-			},
+					}),
 		},
 	};
 };

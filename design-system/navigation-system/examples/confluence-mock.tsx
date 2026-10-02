@@ -7,14 +7,16 @@ import { useEffect, useRef, useState } from 'react';
 
 import { jsx } from '@compiled/react';
 
-import Avatar from '@atlaskit/avatar';
-import Badge from '@atlaskit/badge';
+import Avatar from '@atlaskit/avatar/avatar';
+import Badge from '@atlaskit/badge/badge';
 import Breadcrumbs, { BreadcrumbsItem } from '@atlaskit/breadcrumbs';
-import Button, { IconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import { cssMap } from '@atlaskit/css';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-import Heading from '@atlaskit/heading';
-import { IconTile } from '@atlaskit/icon';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import Heading from '@atlaskit/heading/heading';
 import AddIcon from '@atlaskit/icon/core/add';
 import AlignTextLeftIcon from '@atlaskit/icon/core/align-text-left';
 import AppsIcon from '@atlaskit/icon/core/apps';
@@ -29,9 +31,10 @@ import LockUnlockedIcon from '@atlaskit/icon/core/lock-unlocked';
 import PremiumIcon from '@atlaskit/icon/core/premium';
 import ProjectIcon from '@atlaskit/icon/core/project';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
+import IconTile from '@atlaskit/icon/icon-tile';
 import Image from '@atlaskit/image';
 import { ConfluenceIcon } from '@atlaskit/logo';
-import Lozenge from '@atlaskit/lozenge';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import { Banner } from '@atlaskit/navigation-system/layout/banner';
 import { Main } from '@atlaskit/navigation-system/layout/main';
 import { Panel } from '@atlaskit/navigation-system/layout/panel';
@@ -39,7 +42,7 @@ import { PanelSplitter } from '@atlaskit/navigation-system/layout/panel-splitter
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavToggleButton,
 } from '@atlaskit/navigation-system/layout/side-nav';
 import {
@@ -57,7 +60,7 @@ import {
 	Profile,
 	Settings,
 } from '@atlaskit/navigation-system/top-nav-items';
-import { Inline, Stack, Text } from '@atlaskit/primitives/compiled';
+import { Flex, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
 import { ButtonMenuItem } from '@atlaskit/side-nav-items/button-menu-item';
 import {
 	ExpandableMenuItem,
@@ -73,13 +76,23 @@ import { LinkMenuItem } from '@atlaskit/side-nav-items/link-menu-item';
 import { MenuList } from '@atlaskit/side-nav-items/menu-list';
 import { MenuListItem } from '@atlaskit/side-nav-items/menu-list-item';
 import { Divider } from '@atlaskit/side-nav-items/menu-section';
-import Tabs, { Tab, TabList, TabPanel } from '@atlaskit/tabs';
-import Tag from '@atlaskit/tag/simple-tag';
+import Tab from '@atlaskit/tabs/tab';
+import TabList from '@atlaskit/tabs/tab-list';
+import TabPanel from '@atlaskit/tabs/tab-panel';
+import Tabs from '@atlaskit/tabs/tabs';
+import Tag from '@atlaskit/tag/tag/simple';
 import { token } from '@atlaskit/tokens';
 
 import dstLogo from './images/dst.png';
 import { WithResponsiveViewport } from './utils/example-utils';
 import { MockSearch } from './utils/mock-search';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const panelStyles = cssMap({
 	header: {
@@ -244,7 +257,7 @@ export default function ConfluenceMockExample(): JSX.Element {
 						<Help label="Help" />
 						<Notifications
 							badge={() => (
-								<Badge max={9} appearance="important">
+								<Badge max={9} appearance="dangerBold">
 									{99999}
 								</Badge>
 							)}
@@ -266,7 +279,7 @@ export default function ConfluenceMockExample(): JSX.Element {
 					</TopNavEnd>
 				</TopNav>
 				<SideNav>
-					<SideNavContent ref={sideNavContentRef} testId="side-nav-content">
+					<SideNavBody ref={sideNavContentRef} testId="side-nav-content">
 						<MenuList>
 							<LinkMenuItem href="#" elemBefore={<InboxIcon label="" color="currentColor" />}>
 								Your work
@@ -305,7 +318,7 @@ export default function ConfluenceMockExample(): JSX.Element {
 								</ExpandableMenuItemContent>
 							</ExpandableMenuItem>
 						</div>
-					</SideNavContent>
+					</SideNavBody>
 					<PanelSplitter label="Resize side nav" testId="side-nav-panel-splitter" />
 				</SideNav>
 				<Main id="main-container">
@@ -350,7 +363,9 @@ export default function ConfluenceMockExample(): JSX.Element {
 				<Panel>
 					<Inline xcss={panelStyles.header}>
 						<Inline space="space.050" alignBlock="center">
-							<ProjectIcon label="" spacing="spacious" color={token('color.icon.subtle')} />
+							<Flex xcss={iconSpacingStyles.space050}>
+								<ProjectIcon label="" color={token('color.icon.subtle')} />
+							</Flex>
 							<Text weight="bold" color="color.text.subtle">
 								Projects
 							</Text>
@@ -368,7 +383,7 @@ export default function ConfluenceMockExample(): JSX.Element {
 					</Inline>
 					<Stack xcss={panelStyles.body} space="space.250">
 						<Inline space="space.150">
-							<IconTile icon={PremiumIcon} label="" appearance="orange" size="32" />
+							<IconTile icon={PremiumIcon} label="" appearance="orange" size="medium" />
 							<Heading size="medium" as="div">
 								Automated Meeting Notes MVP with Loom {'<>'} Confluence
 							</Heading>

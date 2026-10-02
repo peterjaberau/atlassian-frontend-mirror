@@ -8,22 +8,19 @@
 // in the user interaction part of table selections (so that you
 // actually get such selections when you select across cells).
 
-import {
-	Fragment,
-	type Node as PMNode,
-	type ResolvedPos,
-	Slice,
-} from '@atlaskit/editor-prosemirror/model';
-import { Selection, TextSelection, type Transaction } from '@atlaskit/editor-prosemirror/state';
-import { type Mapping } from '@atlaskit/editor-prosemirror/transform';
+import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode, ResolvedPos } from '@atlaskit/editor-prosemirror/model';
+import { Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { Mapping } from '@atlaskit/editor-prosemirror/transform';
 
 import { CellBookmark } from './cell-bookmark';
 import { TableMap } from './table-map';
-import { type SerializedCellSelection } from './types';
-import { pointsAtCell } from './utils/cells';
-import { removeColSpan } from './utils/colspan';
+import type { SerializedCellSelection } from './types';
 import { getCellSelectionRanges } from './utils/get-cell-selection-ranges';
-import { inSameTable } from './utils/tables';
+import { inSameTable } from './utils/in-same-table';
+import { pointsAtCell } from './utils/points-at-cell';
+import { removeColSpan } from './utils/remove-col-span';
 
 // ::- A [`Selection`](http://prosemirror.net/docs/ref/#state.Selection)
 // subclass that represents a cell selection spanning part of a table.
@@ -149,12 +146,13 @@ export class CellSelection extends Selection {
 		return new Slice(Fragment.from(fragment), 1, 1);
 	}
 
-	public replace(tr: Transaction, content = Slice.empty): void {
+	public replace(tr: Transaction, content: Slice = Slice.empty): void {
 		const mapFrom = tr.steps.length;
 		const { ranges } = this;
 		for (let i = 0; i < ranges.length; i++) {
 			const { $from, $to } = ranges[i];
 			const mapping = tr.mapping.slice(mapFrom);
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			tr.replace(mapping.map($from.pos), mapping.map($to.pos), i ? Slice.empty : content);
 		}
 		const sel = Selection.findFrom(tr.doc.resolve(tr.mapping.slice(mapFrom).map(this.to)), -1);

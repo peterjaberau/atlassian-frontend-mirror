@@ -1,14 +1,7 @@
 {
-  "extends": "../../../tsconfig.json",
-  "compilerOptions": {
-    "strict": true,
-  },
-  "include": [
-    "./src/**/*.ts",
-    "./src/**/*.tsx",
-    "./docs/**/*.ts",
-    "./docs/**/*.tsx",
-    "./examples/**/*.ts",
-    "./examples/**/*.tsx",
-  ]
+	"extends": "./tsconfig.app.json",
+	"compilerOptions": {
+		"disableReferencedProjectLoad": true,
+		"disableSolutionSearching": true
+	}
 }

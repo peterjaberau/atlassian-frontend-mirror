@@ -1,13 +1,11 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import type { EditorContentMode } from '@atlaskit/editor-common/types';
-import {
-	relativeFontSizeToBase16,
-	akEditorFullPageDenseFontSize,
-} from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import {
@@ -19,6 +17,12 @@ import {
 /**
  * Creates the extension styles with the ability to use feature flags and experiments.
  * @returns Complete SerializedStyles including base styles and any feature-gated styles
+ */
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
  */
 export const getExtensionStyles = (contentMode?: EditorContentMode): SerializedStyles => {
 	const baseExtensionStyles = css({
@@ -366,6 +370,37 @@ export const getExtensionStyles = (contentMode?: EditorContentMode): SerializedS
 		},
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'.bodiedExtensionView-content-wrap': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'.bodiedExtension-content-outer-wrapper': {
+				margin: '23px -1px -1px -1px', // Reserve space for lozenge (24px) then subtract 1px to account for the border of the inner wrapper preventing layoutshift
+			},
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'.bodiedExtension-content-inner-wrapper': {
+				margin: `0 ${token('space.negative.250')}`,
+				padding: `${token('space.200')} ${token('space.250')}`,
+				border: `${token('border.width')} solid ${token('color.border')}`,
+				borderRadius: token('radius.small', '3px'),
+			},
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'.extension-container': {
+				// Remove styling when Prosemirror moves content inside
+
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+				'.bodiedExtension-content-outer-wrapper': {
+					margin: '0',
+				},
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+				'.bodiedExtension-content-inner-wrapper': {
+					margin: 0,
+					padding: 0,
+					border: 'none',
+					borderRadius: 0,
+				},
+			},
+		},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		"[data-mark-type='fragment']": {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 			'& > .extensionView-content-wrap, & > .bodiedExtensionView-content-wrap': {
@@ -415,16 +450,8 @@ export const getExtensionStyles = (contentMode?: EditorContentMode): SerializedS
 
 	// Dense content mode extensions styling fix - addresses EDITOR-1992
 	// When cleaning up the experiment, move this logic into the baseExtensionStyles above
-	const fontSize =
-		expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-		expValEquals('cc_editor_ai_content_mode', 'variant', 'test')
-			? relativeFontSizeToBase16(akEditorFullPageDenseFontSize)
-			: undefined;
 	const denseExtensionStyles =
-		(contentMode === 'compact' &&
-			expValEquals('confluence_compact_text_format', 'isEnabled', true)) ||
-		(expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-			fg('platform_editor_content_mode_button_mvp'))
+		contentMode === 'compact'
 			? css({
 					// Table of Contents Macro
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
@@ -440,64 +467,20 @@ export const getExtensionStyles = (contentMode?: EditorContentMode): SerializedS
 							fontSize: 'var(--ak-editor-base-font-size)',
 						},
 				})
-			: contentMode === 'compact' &&
-				  (expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-						expValEquals('cc_editor_ai_content_mode', 'variant', 'test'))
-				? css({
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-						'.extension-container a span': {
-							// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-							fontSize,
-						},
-					})
-				: css({});
-	const bodiedExtensionLayoutShiftFixStyles = expValEquals(
-		'platform_editor_bodiedextension_layoutshift_fix',
-		'isEnabled',
-		true,
-	)
-		? css({
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-				'.bodiedExtensionView-content-wrap': {
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-					'.bodiedExtension-content-outer-wrapper': {
-						margin: '23px -1px -1px -1px', // Reserve space for lozenge (24px) then subtract 1px to account for the border of the inner wrapper preventing layoutshift
-					},
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-					'.bodiedExtension-content-inner-wrapper': {
-						margin: `0 ${token('space.negative.250', '-20px')}`,
-						padding: `${token('space.200', '16px')} ${token('space.250', '20px')}`,
-						border: `1px solid ${token('color.border')}`,
-						borderRadius: token('radius.small', '3px'),
-					},
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-					'.extension-container': {
-						// Remove styling when Prosemirror moves content inside
-
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-						'.bodiedExtension-content-outer-wrapper': {
-							margin: '0',
-						},
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-						'.bodiedExtension-content-inner-wrapper': {
-							margin: 0,
-							padding: 0,
-							border: 'none',
-							borderRadius: 0,
-						},
-					},
-				},
-			})
-		: css({});
-
+			: css({});
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-	return css(baseExtensionStyles, denseExtensionStyles, bodiedExtensionLayoutShiftFixStyles);
+	return css(baseExtensionStyles, denseExtensionStyles);
 };
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const extensionDiffStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
-	[`.show-diff-changed-decoration-node > span > .extension-container`]: {
-		boxShadow: `0 0 0 1px var(--diff-decoration-marker-color)`,
+	[`.show-diff-changed-decoration-node > span .extension-container`]: {
+		boxShadow: `0 0 0 var(--diff-decoration-marker-ring-width, 1px) var(--diff-decoration-marker-color)`,
 	},
 });

@@ -1,13 +1,14 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { type MediaType } from '@atlaskit/adf-schema';
+import type { MediaType } from '@atlaskit/adf-schema/media';
 import InfoIcon from '@atlaskit/icon/core/status-information';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { externalMediaMessages } from '../media';
 
@@ -25,6 +26,13 @@ type ExternalImageBadgeProps = {
 };
 
 const NO_EXTERNAL_BADGE_HOSTS = ['atlassian.com', 'loom.com', 'dam-cdn.atl.orangelogic.com'];
+
+const NO_EXTERNAL_BADGE_HOSTS_NEW = [
+	'atlassian.com',
+	'loom.com',
+	'dam-cdn.atl.orangelogic.com',
+	'bitbucket.org',
+];
 
 export const isUnbadgedUrl = (url: string | undefined): boolean => {
 	if (!url) {
@@ -44,12 +52,22 @@ export const isUnbadgedUrl = (url: string | undefined): boolean => {
 		return pathname?.startsWith('image/');
 	}
 
+	if (expValEquals('platform_editor_media_external_badge_bbc_fix', 'isEnabled', true)) {
+		return Boolean(
+			hostname &&
+			NO_EXTERNAL_BADGE_HOSTS_NEW.some(
+				(host) => hostname === host || hostname.endsWith(`.${host}`),
+			),
+		);
+	}
+
 	return Boolean(
 		hostname &&
-			NO_EXTERNAL_BADGE_HOSTS.some((host) => hostname === host || hostname.endsWith(`.${host}`)),
+		NO_EXTERNAL_BADGE_HOSTS.some((host) => hostname === host || hostname.endsWith(`.${host}`)),
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const ExternalImageBadge = ({
 	type,
 	url,

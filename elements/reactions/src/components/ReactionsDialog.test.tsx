@@ -1,14 +1,14 @@
-import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import React from 'react';
+
 import { fireEvent, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { flushPromises } from '@atlaskit/editor-test-helpers/e2e-helpers';
 import { type EmojiProvider } from '@atlaskit/emoji/resource';
 import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
-import { flushPromises } from '@atlaskit/editor-test-helpers/e2e-helpers';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 
 import { renderWithIntl } from '../__tests__/_testing-library';
-
 import { ReactionsDialog, type ReactionsDialogProps } from './ReactionsDialog';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
@@ -149,10 +149,14 @@ it('should display an emoji and count for each tab in the reaction list', async 
 	const elements = queryAllByRole('tab');
 
 	// check two elements
-	expect(within(elements[0]).getByLabelText(':shower:')).toBeDefined();
+	expect(
+		within(elements[0]).getByRole('img', { name: 'Change emoji, currently shower' }),
+	).toBeDefined();
 	expect(within(elements[0]).getByText('10')).toBeDefined();
 
-	expect(within(elements[1]).getByLabelText(':bathtub:')).toBeDefined();
+	expect(
+		within(elements[1]).getByRole('img', { name: 'Change emoji, currently bathtub' }),
+	).toBeDefined();
 	expect(within(elements[1]).getByText('10')).toBeDefined();
 });
 

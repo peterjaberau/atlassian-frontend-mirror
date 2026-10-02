@@ -27,10 +27,29 @@ import {
 	TRANSFORM_HEADINGS_H2_MENU_ITEM,
 	TRANSFORM_STRUCTURE_PARAGRAPH_MENU_ITEM,
 } from '@atlaskit/editor-common/block-menu';
+import { TRANSFORM_STRUCTURE_STATUS_MENU_ITEM } from '@atlaskit/editor-common/block-menu/key';
 
 import type { NodeTypeName } from '../../editor-commands/transform-node-utils/types';
 
-export const BLOCK_MENU_NODE_TYPES = {
+export const BLOCK_MENU_NODE_TYPES: {
+	readonly BLOCK_CARD: NodeTypeName;
+	readonly BLOCKQUOTE: NodeTypeName;
+	readonly BODIED_EXTENSION: NodeTypeName;
+	readonly BULLET_LIST: NodeTypeName;
+	readonly CODE_BLOCK: NodeTypeName;
+	readonly DECISION: NodeTypeName;
+	readonly EMBED_CARD: NodeTypeName;
+	readonly EXPAND: NodeTypeName;
+	readonly EXTENSION: NodeTypeName;
+	readonly HEADING: NodeTypeName;
+	readonly LAYOUT_SECTION: NodeTypeName;
+	readonly MEDIA_SINGLE: NodeTypeName;
+	readonly ORDERED_LIST: NodeTypeName;
+	readonly PANEL: NodeTypeName;
+	readonly PARAGRAPH: NodeTypeName;
+	readonly TABLE: NodeTypeName;
+	readonly TASK_LIST: NodeTypeName;
+} = {
 	PARAGRAPH: 'paragraph',
 	EXPAND: 'expand',
 	BLOCKQUOTE: 'blockquote',
@@ -48,7 +67,7 @@ export const BLOCK_MENU_NODE_TYPES = {
 	BLOCK_CARD: 'blockCard',
 	EMBED_CARD: 'embedCard',
 	TABLE: 'table',
-} as const satisfies Record<string, NodeTypeName>;
+};
 
 export type BlockMenuNodeType = (typeof BLOCK_MENU_NODE_TYPES)[keyof typeof BLOCK_MENU_NODE_TYPES];
 
@@ -62,6 +81,7 @@ export const TRANSFORM_SUGGESTED_ITEMS_RANK: SuggestedItemsRankMap = {
 		[TRANSFORM_STRUCTURE_PANEL_MENU_ITEM.key]: 100,
 		[TRANSFORM_HEADINGS_H1_MENU_ITEM.key]: 200,
 		[TRANSFORM_HEADINGS_H2_MENU_ITEM.key]: 300,
+		[TRANSFORM_STRUCTURE_STATUS_MENU_ITEM.key]: 400,
 	},
 	[BLOCK_MENU_NODE_TYPES.EXPAND]: {
 		[TRANSFORM_STRUCTURE_LAYOUT_MENU_ITEM.key]: 100,
@@ -107,6 +127,7 @@ export const TRANSFORM_SUGGESTED_ITEMS_RANK: SuggestedItemsRankMap = {
 		[TRANSFORM_STRUCTURE_PARAGRAPH_MENU_ITEM.key]: 100,
 		[TRANSFORM_STRUCTURE_BULLETED_LIST_MENU_ITEM.key]: 200,
 		[TRANSFORM_STRUCTURE_QUOTE_MENU_ITEM.key]: 300,
+		[TRANSFORM_STRUCTURE_STATUS_MENU_ITEM.key]: 400,
 	},
 	[BLOCK_MENU_NODE_TYPES.TASK_LIST]: {
 		[TRANSFORM_STRUCTURE_PANEL_MENU_ITEM.key]: 100,

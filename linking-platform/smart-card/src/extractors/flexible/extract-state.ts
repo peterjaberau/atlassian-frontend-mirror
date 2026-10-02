@@ -1,13 +1,15 @@
-import type { JsonLd } from '@atlaskit/json-ld-types';
-import { extractLink } from '@atlaskit/link-extractors';
-import {
-	type InvokeRequest,
-	type InvokeRequestAction,
-	type SmartLinkActionType,
-} from '@atlaskit/linking-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { extractLink } from '@atlaskit/link-extractors/extract-link';
+import type {
+	InvokeRequest,
+	InvokeRequestAction,
+	SmartLinkActionType,
+} from '@atlaskit/linking-types/smart-link-actions';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type FireEventFunction } from '../../common/analytics/types';
-import { getExtensionKey } from '../../state/helpers';
+import { CardAction } from '../../constants';
+import { getExtensionKey } from '../../state/getExtensionKey';
 import {
 	type CardDetails,
 	type InvokeRequestWithCardDetails,
@@ -16,14 +18,13 @@ import { type ResolveFunction } from '../../state/hooks/use-resolve';
 import { canShowAction } from '../../utils/actions/can-show-action';
 import { type AnalyticsOrigin } from '../../utils/types';
 import {
-	CardAction,
-	type CardActionOptions,
+	type InternalCardActionOptions as CardActionOptions,
 	type CardInnerAppearance,
 } from '../../view/Card/types';
 import { extractInvokePreviewAction } from '../action/extract-invoke-preview-action';
-import { extractLozenge } from '../common/lozenge';
+import { type TransformUrlFn } from '../action/types';
+import { extractLozenge } from '../common/lozenge/extractLozenge';
 import { type LinkLozenge, type LinkLozengeInvokeActions } from '../common/lozenge/types';
-
 import extractServerAction from './extract-server-action';
 
 const toInvokeRequest = (
@@ -62,6 +63,8 @@ const extractAction = (
 		panelData: { embedUrl?: string };
 		url: string;
 	}) => void,
+	transformUrl?: TransformUrlFn,
+	isPreviewRestricted?: (params: { ari: string }) => boolean,
 ): LinkLozengeInvokeActions | undefined => {
 	const extensionKey = getExtensionKey(response);
 	const data = response?.data as JsonLd.Data.BaseData;
@@ -93,11 +96,13 @@ const extractAction = (
 				appearance,
 				fireEvent,
 				id,
-				onClose: resolve ? () => url && resolve(url, true) : undefined,
+				onClose: resolve ? () => url && resolve({ url, isReloading: true }) : undefined,
 				origin,
 				response,
 				isPreviewPanelAvailable,
+				...(fg('preview_panel_unit_check') ? { isPreviewRestricted } : undefined),
 				openPreviewPanel,
+				transformUrl,
 			})?.invokeAction
 		: undefined;
 
@@ -133,6 +138,8 @@ const extractState = (
 		panelData: { embedUrl?: string };
 		url: string;
 	}) => void,
+	transformUrl?: TransformUrlFn,
+	isPreviewRestricted?: (params: { ari: string }) => boolean,
 ): LinkLozenge | undefined => {
 	if (!response || !response.data) {
 		return;
@@ -158,6 +165,8 @@ const extractState = (
 		resolve,
 		isPreviewPanelAvailable,
 		openPreviewPanel,
+		transformUrl,
+		fg('preview_panel_unit_check') ? isPreviewRestricted : undefined,
 	);
 	return { ...lozenge, action };
 };

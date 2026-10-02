@@ -16,12 +16,12 @@ import React, {
 import { jsx } from '@compiled/react';
 import { bind } from 'bind-event-listener';
 
-import {
-	type CropperCanvasElement,
-	type CropperSelectionElement,
-	type CropperEventHandler,
-	type CropperImageElement,
-	type CropperBounds,
+import type {
+	CropperCanvasElement,
+	CropperSelectionElement,
+	CropperEventHandler,
+	CropperImageElement,
+	CropperBounds,
 } from './types';
 
 const isSSRRender = (): boolean =>
@@ -204,7 +204,9 @@ export interface CropperRef {
  * />
  * ```
  */
-export const Cropper = forwardRef<CropperRef, CropperProps>(
+export const Cropper: React.ForwardRefExoticComponent<
+	CropperProps & React.RefAttributes<CropperRef>
+> = forwardRef<CropperRef, CropperProps>(
 	(
 		{
 			src,
@@ -562,6 +564,7 @@ export const Cropper = forwardRef<CropperRef, CropperProps>(
 				return;
 			}
 
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			setIsImageReady(false); // Hide canvas while repositioning
 			const image = imageRef.current;
 			if (!image) {
@@ -772,6 +775,7 @@ export const Cropper = forwardRef<CropperRef, CropperProps>(
 				ref={canvasRef}
 				class={className}
 				background={background}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				style={{ opacity: isImageReady ? 1 : 0 }}
 			>
 				<CropperImage

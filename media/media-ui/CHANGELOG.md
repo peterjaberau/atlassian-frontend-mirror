@@ -1,5 +1,642 @@
 # @atlaskit/media-ui
 
+## 31.0.2
+
+### Patch Changes
+
+- [`457c77d8f6992`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/457c77d8f6992) -
+  Behind `platform-dst-top-layer-tooltip`: tooltips whose content changes on press (for example
+  "Copy" to "Copied!") stay open to show the new content. `@atlaskit/editor-common` floating toolbar
+  buttons and `@atlaskit/smart-card` stack-item actions add an optional
+  `hasNewContentOnTriggerClick` prop.
+- Updated dependencies
+
+## 31.0.1
+
+### Patch Changes
+
+- [`aa39192e4485e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa39192e4485e) -
+  Give the custom media player's playback speed button a complete accessible name (A11Y-16310). The
+  button was named only by its visible "1.5x" text, with "Playback speed" exposed through the
+  tooltip as a description rather than a name, so screen readers announced just the multiplier.
+  Behind the `platform_media_playback_speed_aria_label` feature gate it now carries an `aria-label`
+  of "Playback speed {speed}x" that tracks the selected speed, while keeping the visible text
+  unchanged.
+
+## 31.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.16.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.16.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.16.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.16.0
+
+### Minor Changes
+
+- [`e909670f087d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e909670f087d4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.15.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.14.0
+
+### Minor Changes
+
+- [`143ebd1ce2710`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/143ebd1ce2710) -
+  Add `file_too_large_to_preview` and `file_too_large_description` messages, used by
+  `@atlaskit/media-viewer` to show a dedicated "File is too large to preview" state (behind feature
+  gate `platform_media_too_large_preview_state`) instead of a generic error when a file exceeds the
+  size limit supported by preview.
+
+## 30.13.1
+
+### Patch Changes
+
+- [`53ad40b08a887`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/53ad40b08a887) -
+  Clean up platform_editor_video_caption_commit
+- Updated dependencies
+
+## 30.13.0
+
+### Minor Changes
+
+- [`f68ceb96f8b80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f68ceb96f8b80) -
+  Apply the Volt one-export-per-file standard to `@atlaskit/media-ui` (VOLTC-102). Multi-export
+  modules are split so each module has a single runtime export, and the previous entry points remain
+  as `@deprecated` re-export shims. Every symbol that was importable before this change is still
+  importable from the same path — no export was removed from any subpath.
+
+  Each symbol now also has a direct subpath export for the module that owns it, so consumers can
+  import it without going through the root barrel or a deprecated aggregator. The `@deprecated`
+  JSDoc on each shim names the specific new subpath to move to. New subpaths (all additive):
+  - `./absolute`, `./ellipsis`, `./size` — previously only via `./mixins` or the root barrel
+  - `./bounds`, `./rectangle`, `./vector2`, `./camera/camera` — previously only via `./camera`
+  - `./dataURItoFile`, `./fileToArrayBuffer`, `./fileToDataURI`, `./findParentByClassname`,
+    `./getFileInfo`, `./getFileInfoFromSrc`, `./getMimeIcon`, `./loadImage`,
+    `./readImageNaturalOrientationFromDOM` — previously only via `./util`
+  - `./getExtension`, `./getLanguageType`, `./isCodeViewerItem` — previously only via `./codeViewer`
+  - `./partsFormatter` — previously only via `./formatDate`
+  - `./isInvalidInput`, `./secondsToTime` — previously only via `./formatDuration`
+  - `./imageMetaData/getImageInfo`, `./imageMetaData/getMetaTagNumericValue`,
+    `./imageMetaData/getOrientation`, `./imageMetaData/getScaleFactor`,
+    `./imageMetaData/getScaleFactorFromFile`, `./imageMetaData/readImageMetaData`,
+    `./imageMetaData/isRotated`, `./imageMetaData/getCssFromImageOrientation` — previously only via
+    `./imageMetaData` or `./imageOrientationUtil`
+  - `./languages` — previously only via the root barrel
+  - `./calculateTruncation`, `./truncateText/truncate`, `./truncateText/truncateLeft`,
+    `./truncateText/truncateRight`, `./truncateText/types`, `./truncateText/compiled/truncate`,
+    `./truncateText/compiled/truncateLeft`, `./truncateText/compiled/truncateRight` — previously
+    only via `./truncateText` or `./truncateText/compiled`
+  - `./ellipsify/ellipsify`, `./ellipsify/compiled/ellipsify` — previously only via `./ellipsify` or
+    `./ellipsify/compiled`
+
+  No new symbols are exposed: every symbol reachable through a new subpath was already reachable
+  through the root barrel or an existing subpath.
+
+  Runtime behaviour is unchanged. `absolute`, `ellipsis`, `size`, `partsFormatter` and `pad` keep
+  their original inferred signatures rather than the `any` the split had introduced.
+
+## 30.12.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.11.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.11.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.11.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.11.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.11.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.11.2
+
+### Patch Changes
+
+- [`6902b31db1608`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6902b31db1608) -
+  Consolidate direct Popper.js callers behind `@atlaskit/popper` compatibility entry points and
+  feature-gated consumer adapters.
+
+  `@atlaskit/popper` now exposes compatibility entry points so existing direct `popper.js` /
+  `react-popper` callers can move their dependency ownership onto `@atlaskit/popper` without a full
+  rewrite:
+  - `@atlaskit/popper/react-popper` re-exports the React `usePopper` hook and `Manager` / `Popper` /
+    `Reference` render-prop components.
+  - `@atlaskit/popper/unsafe-imperative` re-exports the raw Popper.js v2 `createPopper` for
+    non-React, imperative callers. This is an escape hatch for existing callers only. Do not use it
+    for new code; build new overlays on `@atlaskit/top-layer` instead.
+
+  ```ts
+  // Imperative callers (migrating away from a direct `@popperjs/core` / `popper.js` import):
+  import { createPopper } from '@atlaskit/popper/unsafe-imperative';
+
+  const instance = createPopper(referenceElement, popperElement, {
+  	placement: 'bottom-start',
+  });
+
+  // React callers (migrating away from a direct `react-popper` import):
+  import { usePopper } from '@atlaskit/popper/react-popper';
+
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  	placement: 'bottom-start',
+  });
+  ```
+
+- Updated dependencies
+
+## 30.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.11.0
+
+### Minor Changes
+
+- [`7d37c14edffa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d37c14edffa7) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.10.0
+
+### Minor Changes
+
+- [`5228612e884f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5228612e884f4) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 30.9.0
+
+### Minor Changes
+
+- [`30f196e640e18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30f196e640e18) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.8.0
+
+### Minor Changes
+
+- [`7da4b354a3633`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7da4b354a3633) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 30.7.5
+
+### Patch Changes
+
+- [`fc42b7257d341`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fc42b7257d341) -
+  Attach native MediaError diagnostics to videoviewer-playback failures so the existing
+  error/errorDetail analytics fields report a real cause instead of unknown (observability-only, no
+  behaviour change).
+- Updated dependencies
+
+## 30.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.7.1
+
+### Patch Changes
+
+- [`8215497858752`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8215497858752) -
+  [ux] A11Y-41990: Predefined avatar radio buttons without their own name now expose a positional
+  accessible name (e.g. "Default avatar option 1") so screen reader users can identify each option.
+  Gated behind `platform_media_a11y_avatar_radio_label`.
+
+## 30.7.0
+
+### Minor Changes
+
+- [`c98e0cf5cc4f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c98e0cf5cc4f6) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.6.0
+
+### Minor Changes
+
+- [`e8071bab93879`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8071bab93879) -
+  Refactor packages with custom root `src/index` barrel logic to use dedicated entry modules (for
+  example `main`, `types`, `constants`, `screen`, and package-specific entrypoints) while keeping
+  public exports stable. This aligns the packages with barrel-file ratcheting by reducing custom
+  logic in root barrels and removing now-safe packages from the prohibited barrel-file list.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.5.1
+
+### Patch Changes
+
+- [`8a141c7aaddfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8a141c7aaddfa) -
+  Improve i18n message descriptions with meaningful translator context for media-ui and
+  proforma-form-builder messages
+
+## 30.5.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.4.0
+
+### Minor Changes
+
+- [`6d48bbf99477b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d48bbf99477b) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 30.3.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- [`3a1dcbc4999da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a1dcbc4999da) -
+  A11Y fix (A11Y-41905): Add new `open_file_in_viewer_aria_label` message
+  (`'Open {name} in fullscreen'`) to provide screen reader users with clearer context about the
+  button action. The original `open_file_in_viewer` message is unchanged. `OpenMediaViewerButton`
+  now applies this aria-label when the `create_modernization_ga_fixes_drop_2` gate is enabled.
+- Updated dependencies
+
+## 30.3.0
+
+### Minor Changes
+
+- [`758e07b536b13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/758e07b536b13) -
+  [ux] Show a clear "Unsupported file format" message for non-ZIP archives (e.g. 7z, tar, gzip) in
+  the media viewer instead of a generic error, and remove the empty sidebar gap. Behind feature gate
+  platform_media_archive_zip_guard.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.2.0
+
+### Minor Changes
+
+- [`404be770a2ccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/404be770a2ccf) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 30.1.0
+
+### Minor Changes
+
+- [`5bf738fb98422`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5bf738fb98422) -
+  Update i18n NPM package versions for editor,editor-extensions,activity-platform,media,elements
+  (Group 3)
+
+## 30.0.1
+
+### Patch Changes
+
+- [`c28141dd43748`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c28141dd43748) -
+  [ux] Fix video player popup controls (captions admin, captions select, playback speed) not visible
+  in fullscreen mode. Uses Popper onFirstUpdate callback to reposition popups within the fullscreen
+  container, gated behind platform_editor_video_caption_commit
+
+## 30.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.3.0
+
+### Minor Changes
+
+- [`4b1523c328148`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b1523c328148) -
+  Clean up flag to improve accessibility of layered components.
+
+## 29.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.2
+
+### Patch Changes
+
+- [`2fe9a9909d2ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe9a9909d2ac) -
+  Enrol media packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 29.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.0
+
+### Minor Changes
+
+- [`59e4e1f797346`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/59e4e1f797346) -
+  Updating copy for the full screen expand toolbar on media and native embeds
+
+## 29.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.0
+
+### Minor Changes
+
+- [`818d7e656a226`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/818d7e656a226) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.0.0
+
+### Major Changes
+
+- [`770f036c93884`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/770f036c93884) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.41
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 28.7.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.38
+
+### Patch Changes
+
+- [`9896ce8e69e57`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9896ce8e69e57) -
+  Improve accessibility across media packages with semantic button elements and i18n support, all
+  changes are behind feature flag
+
+## 28.7.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.36
+
+### Patch Changes
+
+- [`715629fc18fc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/715629fc18fc8) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 28.7.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.7.30
+
+### Patch Changes
+
+- [`5fb7e85e19555`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5fb7e85e19555) -
+  Migrate tests from mountWithIntlContext (Enzyme) to renderWithIntl (RTL)
+
+## 28.7.29
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 28.7.28
 
 ### Patch Changes

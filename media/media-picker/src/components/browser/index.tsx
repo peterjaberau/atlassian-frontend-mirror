@@ -1,7 +1,9 @@
 import React from 'react';
-import { type BrowserProps } from './browser';
-import { type WithMediaClientConfigProps } from '@atlaskit/media-client-react';
+
+import type { WithMediaClientConfigProps } from '@atlaskit/media-client-react/with-media-client';
+
 import { type BrowserConfig } from '../../types';
+import { type BrowserProps } from './browser';
 
 type BrowserWithMediaClientConfigProps = WithMediaClientConfigProps<
 	// BrowserBase defines config default value, which modifies final shape of BrowserBase component.
@@ -23,7 +25,9 @@ export class BrowserLoader extends React.PureComponent<BrowserWithMediaClientCon
 	static displayName = 'AsyncBrowser';
 	static Browser?: BrowserWithMediaClientConfigComponent;
 
-	state = {
+	state: {
+		Browser: BrowserWithMediaClientConfigComponent | undefined;
+	} = {
 		Browser: BrowserLoader.Browser,
 	};
 
@@ -33,7 +37,7 @@ export class BrowserLoader extends React.PureComponent<BrowserWithMediaClientCon
 		if (!this.state.Browser) {
 			Promise.all([
 				import(
-					/* webpackChunkName: "@atlaskit-internal_media-client-react" */ '@atlaskit/media-client-react'
+					/* webpackChunkName: "@atlaskit-internal_media-client-react_with-media-client" */ '@atlaskit/media-client-react/with-media-client'
 				),
 				import(/* webpackChunkName: "@atlaskit-internal_media-browser" */ './browser'),
 			]).then(([mediaClient, browserModule]) => {

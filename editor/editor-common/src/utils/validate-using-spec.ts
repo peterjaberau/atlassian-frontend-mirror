@@ -12,9 +12,11 @@ import { ACTION_SUBJECT_ID } from '../analytics';
 
 export const UNSUPPORTED_NODE_ATTRIBUTE = 'unsupportedNodeAttribute';
 
+import { ADFStages } from './ADFStages';
 import { fireUnsupportedEvent } from './track-unsupported-content';
 import type { UnsupportedContentPayload } from './unsupportedContent/types';
-
+import type { ADFStage } from './validator';
+import { wrapWithUnsupported } from './wrapWithUnsupported';
 export type DispatchAnalyticsEvent = (event: UnsupportedContentPayload) => void;
 
 const errorCallbackFor = (
@@ -23,13 +25,22 @@ const errorCallbackFor = (
 	marks: any,
 	validate: Validate,
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
-	validationOverrides?: { allowNestedTables?: boolean },
+	validationOverrides?: {
+		allowContainerInPanel?: boolean;
+		allowNestedTables?: boolean;
+		allowTableInPanel?: boolean;
+	},
 ) => {
 	return (entity: ADFEntity, error: ValidationError, options: ErrorCallbackOptions) => {
 		return validationErrorHandler(
 			entity,
 			error,
-			{ ...options, allowNestedTables: validationOverrides?.allowNestedTables },
+			{
+				...options,
+				allowNestedTables: validationOverrides?.allowNestedTables,
+				allowTableInPanel: validationOverrides?.allowTableInPanel,
+				allowContainerInPanel: validationOverrides?.allowContainerInPanel,
+			},
 			marks,
 			validate,
 			dispatchAnalyticsEvent,
@@ -37,6 +48,7 @@ const errorCallbackFor = (
 	};
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const validationErrorHandler = (
 	entity: ADFEntity,
 	error: ValidationError,
@@ -44,7 +56,15 @@ export const validationErrorHandler = (
 	marks: string[],
 	validate: Validate,
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
-) => {
+):
+	| ADFEntity
+	| {
+			attrs: {
+				originalValue: ADFEntity;
+			};
+			type: string;
+	  }
+	| undefined => {
 	if (entity && entity.type === UNSUPPORTED_NODE_ATTRIBUTE) {
 		return entity;
 	}
@@ -111,6 +131,22 @@ export const validationErrorHandler = (
 			['tableCell', 'tableHeader'].includes(meta?.parentType) &&
 			error.code === 'INVALID_CONTENT' &&
 			entity.type === 'table'
+		) {
+			return entity;
+		}
+	}
+
+	// panel_c1 is a ProseMirror-only variant: on save, expand-in-panel documents are stored as
+	// plain ADF `panel` nodes containing an `expand`. The base validator-spec does not permit
+	// `expand` inside `panel` (it's gated behind the consolidated container-in-panel experiment,
+	// see `isPanelNestingContainerSupported`), so we suppress the INVALID_CONTENT error when
+	// `allowContainerInPanel` is set.
+	if (options.allowContainerInPanel) {
+		const meta = error.meta as ValidationErrorMap['INVALID_CONTENT'] | undefined;
+		if (
+			meta?.parentType === 'panel' &&
+			error.code === 'INVALID_CONTENT' &&
+			entity.type === 'expand'
 		) {
 			return entity;
 		}
@@ -189,15 +225,29 @@ function trackValidationError(
 	);
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const validateADFEntity = (
 	schema: Schema,
 	node: ADFEntity,
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
-	validationOverrides?: { allowNestedTables?: boolean },
+	validationOverrides?: {
+		allowContainerInPanel?: boolean;
+		allowNestedTables?: boolean;
+		allowTableInPanel?: boolean;
+	},
+	adfStage?: ADFStage,
 ): ADFEntity => {
 	const nodes = Object.keys(schema.nodes);
 	const marks = Object.keys(schema.marks);
-	const validate = validator(nodes, marks, { allowPrivateAttributes: true });
+	// Full-ADF strictness is opt-in: only a caller that names `final` gets it, and omitting `adfStage`
+	// keeps stage-0 specs acceptable. Strictness has to be asked for rather than defaulted into,
+	// because a document holding a stage-0-only construct, such as a `layoutSection` with one column,
+	// otherwise has that content wrapped as unsupported. Editors carry such constructs by design,
+	// since the editor's own schema enables them, and renderers meet them in stored documents.
+	const validate = validator(nodes, marks, {
+		allowPrivateAttributes: true,
+		stage0: adfStage !== ADFStages.FINAL,
+	});
 	const emptyDoc: ADFEntity = { type: 'doc', content: [] };
 
 	const { entity = emptyDoc } = validate(
@@ -207,27 +257,5 @@ export const validateADFEntity = (
 
 	return entity;
 };
-
-export function wrapWithUnsupported(
-	originalValue: ADFEntity,
-	type: 'block' | 'inline' | 'mark' = 'block',
-) {
-	let unsupportedNodeType: string;
-	switch (type) {
-		case 'inline':
-			unsupportedNodeType = 'unsupportedInline';
-			break;
-
-		case 'mark':
-			unsupportedNodeType = 'unsupportedMark';
-			break;
-
-		default:
-			unsupportedNodeType = 'unsupportedBlock';
-	}
-
-	return {
-		type: unsupportedNodeType,
-		attrs: { originalValue },
-	};
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { wrapWithUnsupported } from './wrapWithUnsupported';

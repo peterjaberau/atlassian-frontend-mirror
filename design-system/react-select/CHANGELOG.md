@@ -1,5 +1,598 @@
 # @atlaskit/react-select
 
+## 4.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.12.0
+
+### Minor Changes
+
+- [`cebce7abdca6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cebce7abdca6e) -
+  [ux] Removes the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate and permanently
+  enables the refreshed tag-style rendering for multi-value selections. Custom multi-value
+  components remain supported, and removing a value preserves select focus.
+
+## 4.11.0
+
+### Minor Changes
+
+- [`13d8f062d3a04`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/13d8f062d3a04) -
+  [ux] Removes the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate and permanently
+  enables the refreshed tag-style rendering for multi-value selections. Custom multi-value
+  components remain supported, and removing a value preserves select focus.
+
+### Patch Changes
+
+- [`0a7c952be5cf0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a7c952be5cf0) -
+  Fix settled-width truncation measurement for custom multi-value labels and preserve exiting tags
+  through picker rerenders behind platform-dst-motion-uplift-labels.
+- Updated dependencies
+
+## 4.10.1
+
+### Patch Changes
+
+- [`70faba3ff157d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70faba3ff157d) -
+  Fix issue in which fontsize would be too large on small non-mobile viewports.
+- Updated dependencies
+
+## 4.10.0
+
+### Minor Changes
+
+- [`38dbf5a2b937f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38dbf5a2b937f) -
+  Use a manual popover for Select's built-in menu on the platform-dst-top-layer path so input and
+  menu interactions do not dismiss it. The menu owns Escape dismissal even when focus is outside
+  Select, and leaves already-cancelled Escape events alone. Custom menu portals retain ownership of
+  their dismissal. DatePicker defers top-layer Escape dismissal to Select, then restores focus after
+  the menu closes so an enclosing popup remains open.
+
+  Add `additionalInsideElementRefs` to Select and `useSimpleLightDismiss` so detached controls can
+  participate in a menu's light-dismiss boundary.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.9.9
+
+### Patch Changes
+
+- [`78264aeafd321`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78264aeafd321) -
+  Add an onStart lifecycle callback to useMotion so Tag, Select, and User Picker consumers can
+  determine settled truncation before tokenized grid-column motion runs behind
+  platform-dst-motion-uplift-labels.
+- Updated dependencies
+
+## 4.9.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.9.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.9.6
+
+### Patch Changes
+
+- [`a7ec100f7d560`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7ec100f7d560) -
+  The top-layer code path now uses `@atlaskit/top-layer`'s `useAnchoredPopover`, so these popovers
+  are capped to the viewport and one too wide for the space beside its trigger moves to a roomier
+  side rather than wrapping into it. No public API change. Behind the `platform-dst-top-layer` gate
+  (`platform-dst-top-layer-tooltip` for `@atlaskit/tooltip`, `platform-dst-top-layer-spotlight` for
+  `@atlaskit/spotlight`); legacy (flag-off) behaviour is unchanged.
+- Updated dependencies
+
+## 4.9.5
+
+### Patch Changes
+
+- [`47d46618708c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47d46618708c3) -
+  Removed the indicator bar from hovered and keyboard-active Select options when
+  `platform-dst-tokens-finesse` is enabled.
+
+## 4.9.4
+
+### Patch Changes
+
+- [`13fcd5b800ea9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/13fcd5b800ea9) -
+  Cleaned up new shape theme styles, making new border and radius values the default.
+
+## 4.9.3
+
+### Patch Changes
+
+- [`261fd53b131ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/261fd53b131ba) -
+  Cleaned up new shape theme styles, making new border and radius values the default.
+
+## 4.9.2
+
+### Patch Changes
+
+- [`34127bf96b9db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/34127bf96b9db) -
+  Improved the contrast of placeholder text and input indicator icons, gated behind
+  `platform-dst-tokens-finesse`.
+
+## 4.9.1
+
+### Patch Changes
+
+- [`fae4f6a53e4be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fae4f6a53e4be) -
+  Render label enter and exit animations through `cssMap` in Tag, React Select, Select, and User
+  Picker. Motion now measures concurrent CSS animation lists correctly so the label scale and fade
+  animations complete together.
+- Updated dependencies
+
+## 4.9.0
+
+### Minor Changes
+
+- [`ef98af289c49b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef98af289c49b) -
+  Add motion to Tag, AvatarTag, TagDropdownTrigger, Tag Group, Select, React Select, and User Picker
+  tag values. Tags use `motion.label.enter` and `motion.label.exit` for entry and exit, while
+  interactive tags and dropdown triggers use the button hover and pressed motion tokens; Tag
+  Dropdown Trigger also fades between its content and loading spinner. The remove control is removed
+  when exit begins so it cannot linger while the tag collapses.
+
+  Motion is gated by `platform-dst-motion-uplift-labels`. Compatibility and adoption paths for the
+  visually uplifted Tag, Tag Group, Select, React Select, and User Picker additionally remain behind
+  `platform-dst-lozenge-tag-badge-visual-uplifts`.
+
+  `@atlaskit/react-select` also adds an optional `onMotionFinish` callback to the exported
+  `MultiValueProps` interface so the Select can restore its placeholder after the final multi-value
+  exit completes.
+
+  ```tsx
+  import Tag from '@atlaskit/tag/new';
+
+  <Tag text="Status" />;
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.8.1
+
+### Patch Changes
+
+- [`a7e63cfd84876`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7e63cfd84876) -
+  [ux] When `platform-dst-top-layer` is enabled, Select menus now use the native Popover API to
+  handle Escape and light-dismiss before synchronizing `menuIsOpen` through `onMenuClose`. This
+  ensures Escape dismisses a nested Select menu without also dismissing its containing popup.
+
+  Existing public props keep their behavior. The top-layer `Popover` implementation gains an
+  internal `source` prop for imperative native popover invokers. The public runtime differences
+  behind the feature gate are:
+  - Select no longer calls `preventDefault()` or `stopPropagation()` for Escape on the top-layer
+    path, whether its menu is open or closed. Successive Escape presses can therefore dismiss the
+    Select menu and then its containing native popover.
+  - `onMenuClose` is called from the native popover close lifecycle rather than synchronously during
+    Select's Escape `keydown` handler.
+  - `shouldPreventEscapePropagation` no longer stops Escape propagation while a top-layer menu is
+    open; its legacy-path behavior is unchanged.
+  - Top-layer Escape invokes `onInputChange` with the `menu-close` action once, after native
+    dismissal, instead of the legacy path's two calls.
+  - Controlled Selects must continue updating `menuIsOpen` to `false` in response to `onMenuClose`.
+  - `PopupSelect` delegates Escape dismissal and focus restoration to its native popover. A consumer
+    `onKeyDown` handler can therefore prevent the native dismissal with `preventDefault()`;
+    previously, `PopupSelect` closed before forwarding the event.
+  - DatePicker's top-layer calendar now uses the Select menu portal's native popover instead of
+    creating a nested manual popover.
+  - The internal Popover forwarding API accepts a native `source` element so imperative Select
+    popovers retain their trigger relationship for light-dismiss behavior.
+
+- Updated dependencies
+
+## 4.8.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.7.2
+
+### Patch Changes
+
+- [`9356675edac18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9356675edac18) -
+  Replace generated `./src/*` subpath export keys with lint-safe equivalents. The de-barreling
+  migration produced export keys containing a `src` segment (e.g. `@atlaskit/select`
+  `"./src/select"`), which are forbidden by `no-restricted-imports` (`@atlaskit/*/src/*`) in
+  downstream products.
+
+  Renamed keys:
+  - `@atlaskit/select`: `./src/select` → `./default`
+  - `@atlaskit/icon`: `./src/constants` → `./constants/default`
+  - `@atlaskit/react-select`: `./src/async` → `./async/default`, `./src/creatable` →
+    `./creatable/default`
+  - `@atlaskit/heading`: `./src/heading-context` → `./heading-context/default`
+  - `@atlaskit/flag`: removed the redundant `./src/flag-group` key (duplicate of the existing
+    `./flag-group` export)
+
+  The underlying source targets are unchanged.
+
+- Updated dependencies
+
+## 4.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.7.0
+
+### Minor Changes
+
+- [`900ca737aff91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/900ca737aff91) -
+  Fix Select dropdown chevron drifting to the middle of the control when the
+  `platform_dst_select_dropdown_voice_control` gate is on. The voice-control indicator button now
+  pins its own size inline so consumer global `button` selectors (e.g. a `button { min-width }`
+  rule) can no longer stretch it, keeping the chevron right-aligned.
+
+## 4.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.6.0
+
+### Minor Changes
+
+- [`370265cbabcc4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/370265cbabcc4) -
+  Expose additional APIs via package subpath exports (debarrelling) instead of the root barrel file
+
+## 4.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.5
+
+### Patch Changes
+
+- [`44cfa83f61092`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44cfa83f61092) -
+  Correct the list item motion transition timing. A CSS transition is governed by the timing
+  declared on the state being transitioned **into**, so the pressed timing
+  (`motion.listitem.pressed`, 100ms) belongs on `:active`, not `:hover`. Declaring it on `:hover`
+  made `normal → hover` (and `selected → hover`) animate at 100ms instead of the intended 50ms. The
+  `:hover` state now uses `motion.listitem.hovered` (50ms) across all list item consumers so both
+  hovering and unhovering animate at 50ms, while `:active` keeps `motion.listitem.pressed` (100ms)
+  and selected variants rest at `motion.listitem.selected` (100ms). Behaviour remains behind the
+  `platform-dst-motion-uplift-list-item` feature gate.
+- Updated dependencies
+
+## 4.5.4
+
+### Patch Changes
+
+- [`6490d22c0d837`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6490d22c0d837) -
+  Fix list item pressed motion so the hover to pressed transition uses `motion.listitem.pressed`
+  (100ms) instead of the hover timing (50ms). The pressed timing is now declared on the `:hover`
+  state so the transition into the pressed state animates correctly. Behaviour remains behind the
+  `platform-dst-motion-uplift-list-item` feature gate.
+- Updated dependencies
+
+## 4.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.0
+
+### Minor Changes
+
+- [`92dd044d3bd44`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92dd044d3bd44) -
+  Add motion to select/dropdown-kind list items (hover, pressed, and selected interaction states)
+  behind the `platform-dst-motion-uplift-list-item` feature gate. This covers the shared menu item
+  primitive (`@atlaskit/menu`, which also drives Dropdown menu and the date/time picker menus) and
+  the `@atlaskit/select` / `@atlaskit/react-select` options (including checkbox and radio options).
+  Rendering is unchanged when the gate is off. Motion honours `prefers-reduced-motion` and focus
+  rings remain immediate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.4.0
+
+### Minor Changes
+
+- [`e8071bab93879`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8071bab93879) -
+  Refactor packages with custom root `src/index` barrel logic to use dedicated entry modules (for
+  example `main`, `types`, `constants`, `screen`, and package-specific entrypoints) while keeping
+  public exports stable. This aligns the packages with barrel-file ratcheting by reducing custom
+  logic in root barrels and removing now-safe packages from the prohibited barrel-file list.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.0
+
+### Minor Changes
+
+- [`5fb4f1f2962b1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5fb4f1f2962b1) -
+  Fix React 19 type incompatibilities and add React 19 as a supported peer dependency.
+
+## 4.2.1
+
+### Patch Changes
+
+- [`e4d8c83fbe0b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4d8c83fbe0b3) -
+  Fix the accessibility of disabled Select components so screen readers correctly announce the
+  disabled state and selected value. This fix is currently behind a feature flag.
+
+## 4.2.0
+
+### Minor Changes
+
+- [`20d2823db303b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20d2823db303b) -
+  [ux] Wraps the dropdown indicator chevron in a transparent `<button>` with `tabIndex={-1}` and
+  `aria-label="toggle select menu"` so voice control users can target it to open or close the menu
+  (e.g. "click toggle select menu"). Keyboard tab order is unchanged because the button is not
+  focusable. Visual appearance is unchanged because the button uses an `appearance: none` reset and
+  inherits color/padding from the existing dropdown indicator. The icon's `label` is cleared in this
+  mode to avoid duplicate accessibility-tree announcements. Behaviour is gated on
+  `platform_dst_select_dropdown_voice_control`; when the gate is off, the legacy
+  `aria-hidden="true"` wrapper continues to render.
+
+## 4.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`642a4ddbce9f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/642a4ddbce9f4) -
+  [ux] The Select menu is being migrated to the browser top layer. The new behaviour is gated behind
+  the `platform-dst-top-layer` feature flag and ships dark; there are no public API changes for
+  `@atlaskit/react-select` or `@atlaskit/select`.
+
+  Internal-only improvements to support consumer migrations:
+  - Polyfilled the `:popover-open` CSS pseudo-class in the jsdom test polyfill so consumers can
+    assert on popover open state in unit tests without a browser.
+  - Removed a defensive `try/catch` around `element.matches()` in `Popover` that was only needed to
+    work around the missing pseudo-class.
+  - Clarified, via an inline comment in `use-initial-focus`, why the combobox carve-out is kept
+    role-specific (menu / listbox) rather than hoisted above all role checks.
+  - Fixed a unit test for `PopupSelect` top-layer trigger click that incorrectly called `failGate`
+    in `afterEach`, which conflicted with the auto-reset behaviour of
+    `@atlassian/feature-flags-test-utils/mock-gates` and caused the suite to fail.
+
+  No public API or runtime behaviour changes for existing consumers.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.2
+
+### Patch Changes
+
+- [`61f82ad80594c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/61f82ad80594c) -
+  Removed OKLCH / `color-mix()` runtime colour transformations from the tag-like multi-value
+  rendering (behind the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate). The
+  decorative border colour now comes directly from the `color.border.accent.*.subtle` tokens
+  (introduced in `@atlaskit/tokens@13.2.0`) instead of being derived at runtime, matching the new
+  Tag component's border logic.
+
+## 4.0.1
+
+### Patch Changes
+
+- [`0f8f79a02f3d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f8f79a02f3d5) -
+  Fix `MultiValueContainer` component override being silently ignored when the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate is enabled.
+
+  When the gate is on, `MultiValue` previously bypassed the `Container` (i.e. `MultiValueContainer`)
+  component entirely and rendered a `<Tag>` or tag-like `<div>` directly, causing consumers who use
+  `MultiValueContainer: () => null` to suppress selected tag display to see broken dropdown
+  positioning.
+
+  The fix detects when `Container` has been overridden and falls back to the default
+  `Container`-based render path, restoring the expected suppression behaviour.
+
+## 4.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.16.2
+
+### Patch Changes
+
+- [`6622a9a9710ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6622a9a9710ad) -
+  [ux] Fix for select not detecting a case of custom styling and overwriting styles behind a ff.
+
+## 3.16.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.16.0
+
+### Minor Changes
+
+- [`aef119573f01b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aef119573f01b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.15.5
+
+### Patch Changes
+
+- [`7c17bccdb5fb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7c17bccdb5fb8) -
+  [ux] Fixes bug where tags were overlapping in multi-select in smaller screen sizes.
+- Updated dependencies
+
+## 3.15.4
+
+### Patch Changes
+
+- [`c23fa87416661`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c23fa87416661) -
+  [ux] Fixes bug where tags were overlapping in multi-select in smaller screen sizes.
+- Updated dependencies
+
+## 3.15.3
+
+### Patch Changes
+
+- [`ea970883e4943`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea970883e4943) -
+  [ux] Fixes bug where tags were overlapping in multi-select in smaller screen sizes.
+- Updated dependencies
+
+## 3.15.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.15.0
+
+### Minor Changes
+
+- [`31cb79d51457a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31cb79d51457a) -
+  Remove prop shouldKeepInputOnSelect to clean up stale flag
+
+## 3.14.5
+
+### Patch Changes
+
+- [`e2085d35701ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2085d35701ca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 3.14.4
+
+### Patch Changes
+
+- [`1b79e1553a7ce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b79e1553a7ce) -
+  [ux] Bug fix for elemBefore in select options. ElemBefore should also show in the dropdown in
+  cases where the formatOptionLabel or custom Option is not provided.
+
+## 3.14.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.14.2
+
+### Patch Changes
+
+- [`fd726869d6207`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fd726869d6207) -
+  Fix incorrect aria-readonly attribute when isSearchable={false}. Behind feature gate
+  'select_issearchable_aria-readonly_fix'.
+
+## 3.14.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.14.0
+
+### Minor Changes
+
+- [`749ca42d5f314`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/749ca42d5f314) -
+  [ux] Updating multiselect to use ADS tags.
+
+## 3.13.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.13.7
+
+### Patch Changes
+
+- [`3752ebde7865b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3752ebde7865b) -
+  Removes redundant internal barrel file in favour of directly importing modules
+
+## 3.13.6
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.13.5
 
 ### Patch Changes

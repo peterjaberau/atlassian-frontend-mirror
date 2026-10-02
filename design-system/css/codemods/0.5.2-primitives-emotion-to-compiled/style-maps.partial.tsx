@@ -1,14 +1,15 @@
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, type SerializedStyles } from '@emotion/react';
 
-import { CURRENT_SURFACE_CSS_VAR, token } from '@atlaskit/tokens';
+import { token } from '@atlaskit/tokens';
+import { CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens/constants';
 import type { CSSTokenMap } from '@atlaskit/tokens/token-names';
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::df710bcd99c0a8704ca36bddb12c2154>>
+ * @codegen <<SignedSource::3c43887ece778344c2be4a0e9846366b>>
  * @codegenId dimensions
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenParams ["dimensions"]
  * @codegenDependency ../../../primitives/scripts/codegen-file-templates/dimensions.tsx <<SignedSource::cc9b3f12104c6ede803da6a42daac0b0>>
  */
@@ -30,9 +31,9 @@ export type Dimension = keyof typeof dimensionMap;
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::c9b68acdd57654884efd2f5087890624>>
+ * @codegen <<SignedSource::251c98773249733b143a6771298be0e9>>
  * @codegenId spacing
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-spacing.tsx <<SignedSource::535518e7add48ef24f526d0904f70060>>
  */
 export const positiveSpaceMap: {
@@ -66,6 +67,7 @@ export const positiveSpaceMap: {
 	'space.800': token('space.800', '64px'),
 	'space.1000': token('space.1000', '80px'),
 };
+
 export type Space = keyof typeof positiveSpaceMap;
 
 export const negativeSpaceMap: {
@@ -89,6 +91,7 @@ export const negativeSpaceMap: {
 	'space.negative.300': token('space.negative.300', '-24px'),
 	'space.negative.400': token('space.negative.400', '-32px'),
 };
+
 export type NegativeSpace = keyof typeof negativeSpaceMap;
 
 export const allSpaceMap: {
@@ -115,7 +118,31 @@ export const allSpaceMap: {
 	'space.negative.250': 'var(--ds-space-negative-250)';
 	'space.negative.300': 'var(--ds-space-negative-300)';
 	'space.negative.400': 'var(--ds-space-negative-400)';
-} = { ...positiveSpaceMap, ...negativeSpaceMap };
+} = {
+	'space.0': token('space.0', '0px'),
+	'space.025': token('space.025', '2px'),
+	'space.050': token('space.050', '4px'),
+	'space.075': token('space.075', '6px'),
+	'space.100': token('space.100', '8px'),
+	'space.150': token('space.150', '12px'),
+	'space.200': token('space.200', '16px'),
+	'space.250': token('space.250', '20px'),
+	'space.300': token('space.300', '24px'),
+	'space.400': token('space.400', '32px'),
+	'space.500': token('space.500', '40px'),
+	'space.600': token('space.600', '48px'),
+	'space.800': token('space.800', '64px'),
+	'space.1000': token('space.1000', '80px'),
+	'space.negative.025': token('space.negative.025', '-2px'),
+	'space.negative.050': token('space.negative.050', '-4px'),
+	'space.negative.075': token('space.negative.075', '-6px'),
+	'space.negative.100': token('space.negative.100', '-8px'),
+	'space.negative.150': token('space.negative.150', '-12px'),
+	'space.negative.200': token('space.negative.200', '-16px'),
+	'space.negative.250': token('space.negative.250', '-20px'),
+	'space.negative.300': token('space.negative.300', '-24px'),
+	'space.negative.400': token('space.negative.400', '-32px'),
+};
 
 export type AllSpace = keyof typeof allSpaceMap;
 
@@ -125,10 +152,10 @@ export type AllSpace = keyof typeof allSpaceMap;
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::cefa2c59e15e6a3749ef38fa86c6adea>>
+ * @codegen <<SignedSource::16159393db3a763c2d61fbb98f2f46fb>>
  * @codegenId inverse-colors
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
- * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::38a7d4716f6999a6bdda9e4fe2bca6a1>>
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
+ * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::d88dceee1459b4e9e492bb497e903575>>
  */
 export const inverseColorMap: {
 	'color.background.neutral.bold': 'color.text.inverse';
@@ -158,6 +185,9 @@ export const inverseColorMap: {
 	'color.background.information.bold': 'color.text.inverse';
 	'color.background.information.bold.hovered': 'color.text.inverse';
 	'color.background.information.bold.pressed': 'color.text.inverse';
+	'color.rovo.background.brand.bold': 'color.text.inverse';
+	'color.rovo.background.brand.bold.hovered': 'color.text.inverse';
+	'color.rovo.background.brand.bold.pressed': 'color.text.inverse';
 } = {
 	'color.background.neutral.bold': 'color.text.inverse',
 	'color.background.neutral.bold.hovered': 'color.text.inverse',
@@ -186,6 +216,9 @@ export const inverseColorMap: {
 	'color.background.information.bold': 'color.text.inverse',
 	'color.background.information.bold.hovered': 'color.text.inverse',
 	'color.background.information.bold.pressed': 'color.text.inverse',
+	'color.rovo.background.brand.bold': 'color.text.inverse',
+	'color.rovo.background.brand.bold.hovered': 'color.text.inverse',
+	'color.rovo.background.brand.bold.pressed': 'color.text.inverse',
 } as const;
 
 /**
@@ -194,11 +227,11 @@ export const inverseColorMap: {
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::c673d53a0a31524e65f1c7051579eae5>>
+ * @codegen <<SignedSource::ffd347cefe872abc9a3fe6c945685c75>>
  * @codegenId elevation
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenParams ["opacity", "shadow", "surface"]
- * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::38a7d4716f6999a6bdda9e4fe2bca6a1>>
+ * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::d88dceee1459b4e9e492bb497e903575>>
  */
 export const opacityMap: {
 	'opacity.disabled': 'var(--ds-opacity-disabled)';
@@ -239,6 +272,9 @@ export const surfaceColorMap: {
 	'elevation.surface': 'var(--ds-surface)';
 	'elevation.surface.hovered': 'var(--ds-surface-hovered)';
 	'elevation.surface.pressed': 'var(--ds-surface-pressed)';
+	'elevation.surface.container': 'var(--ds-surface-container)';
+	'elevation.surface.container.hovered': 'var(--ds-surface-container-hovered)';
+	'elevation.surface.container.pressed': 'var(--ds-surface-container-pressed)';
 	'elevation.surface.overlay': 'var(--ds-surface-overlay)';
 	'elevation.surface.overlay.hovered': 'var(--ds-surface-overlay-hovered)';
 	'elevation.surface.overlay.pressed': 'var(--ds-surface-overlay-pressed)';
@@ -250,6 +286,9 @@ export const surfaceColorMap: {
 	'elevation.surface': token('elevation.surface', '#FFFFFF'),
 	'elevation.surface.hovered': token('elevation.surface.hovered', '#F0F1F2'),
 	'elevation.surface.pressed': token('elevation.surface.pressed', '#DDDEE1'),
+	'elevation.surface.container': token('elevation.surface.container', '#17171708'),
+	'elevation.surface.container.hovered': token('elevation.surface.container.hovered', '#0515240F'),
+	'elevation.surface.container.pressed': token('elevation.surface.container.pressed', '#0B120E24'),
 	'elevation.surface.overlay': token('elevation.surface.overlay', '#FFFFFF'),
 	'elevation.surface.overlay.hovered': token('elevation.surface.overlay.hovered', '#F0F1F2'),
 	'elevation.surface.overlay.pressed': token('elevation.surface.overlay.pressed', '#DDDEE1'),
@@ -267,59 +306,93 @@ export type SurfaceColor = keyof typeof surfaceColorMap;
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::fa88ed1ec5a817750b0348ca36dbb5f1>>
+ * @codegen <<SignedSource::02751ba2340a45b0613509c3cad30a7d>>
  * @codegenId colors
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenParams ["border", "background", "text", "fill"]
- * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::38a7d4716f6999a6bdda9e4fe2bca6a1>>
+ * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::d88dceee1459b4e9e492bb497e903575>>
  */
 export const borderColorMap: {
 	'color.border': 'var(--ds-border)';
 	'color.border.accent.lime': 'var(--ds-border-accent-lime)';
+	'color.border.accent.lime.subtle': 'var(--ds-border-accent-lime-subtle)';
 	'color.border.accent.red': 'var(--ds-border-accent-red)';
+	'color.border.accent.red.subtle': 'var(--ds-border-accent-red-subtle)';
 	'color.border.accent.orange': 'var(--ds-border-accent-orange)';
+	'color.border.accent.orange.subtle': 'var(--ds-border-accent-orange-subtle)';
 	'color.border.accent.yellow': 'var(--ds-border-accent-yellow)';
+	'color.border.accent.yellow.subtle': 'var(--ds-border-accent-yellow-subtle)';
 	'color.border.accent.green': 'var(--ds-border-accent-green)';
+	'color.border.accent.green.subtle': 'var(--ds-border-accent-green-subtle)';
 	'color.border.accent.teal': 'var(--ds-border-accent-teal)';
+	'color.border.accent.teal.subtle': 'var(--ds-border-accent-teal-subtle)';
 	'color.border.accent.blue': 'var(--ds-border-accent-blue)';
+	'color.border.accent.blue.subtle': 'var(--ds-border-accent-blue-subtle)';
 	'color.border.accent.purple': 'var(--ds-border-accent-purple)';
+	'color.border.accent.purple.subtle': 'var(--ds-border-accent-purple-subtle)';
 	'color.border.accent.magenta': 'var(--ds-border-accent-magenta)';
+	'color.border.accent.magenta.subtle': 'var(--ds-border-accent-magenta-subtle)';
 	'color.border.accent.gray': 'var(--ds-border-accent-gray)';
+	'color.border.accent.gray.subtle': 'var(--ds-border-accent-gray-subtle)';
+	'color.border.code': 'var(--ds-border-code)';
 	'color.border.disabled': 'var(--ds-border-disabled)';
 	'color.border.focused': 'var(--ds-border-focused)';
 	'color.border.input': 'var(--ds-border-input)';
+	'color.border.input.search': 'var(--ds-border-input-search)';
 	'color.border.inverse': 'var(--ds-border-inverse)';
 	'color.border.selected': 'var(--ds-border-selected)';
 	'color.border.brand': 'var(--ds-border-brand)';
 	'color.border.danger': 'var(--ds-border-danger)';
+	'color.border.danger.subtle': 'var(--ds-border-danger-subtle)';
 	'color.border.warning': 'var(--ds-border-warning)';
+	'color.border.warning.subtle': 'var(--ds-border-warning-subtle)';
 	'color.border.success': 'var(--ds-border-success)';
+	'color.border.success.subtle': 'var(--ds-border-success-subtle)';
 	'color.border.discovery': 'var(--ds-border-discovery)';
+	'color.border.discovery.subtle': 'var(--ds-border-discovery-subtle)';
 	'color.border.information': 'var(--ds-border-information)';
+	'color.border.information.subtle': 'var(--ds-border-information-subtle)';
 	'color.border.bold': 'var(--ds-border-bold)';
 } = {
 	'color.border': token('color.border', '#0B120E24'),
 	'color.border.accent.lime': token('color.border.accent.lime', '#6A9A23'),
+	'color.border.accent.lime.subtle': token('color.border.accent.lime.subtle', '#B3DF72'),
 	'color.border.accent.red': token('color.border.accent.red', '#E2483D'),
+	'color.border.accent.red.subtle': token('color.border.accent.red.subtle', '#FD9891'),
 	'color.border.accent.orange': token('color.border.accent.orange', '#E06C00'),
+	'color.border.accent.orange.subtle': token('color.border.accent.orange.subtle', '#FBC828'),
 	'color.border.accent.yellow': token('color.border.accent.yellow', '#B38600'),
+	'color.border.accent.yellow.subtle': token('color.border.accent.yellow.subtle', '#EED12B'),
 	'color.border.accent.green': token('color.border.accent.green', '#22A06B'),
+	'color.border.accent.green.subtle': token('color.border.accent.green.subtle', '#7EE2B8'),
 	'color.border.accent.teal': token('color.border.accent.teal', '#2898BD'),
+	'color.border.accent.teal.subtle': token('color.border.accent.teal.subtle', '#9DD9EE'),
 	'color.border.accent.blue': token('color.border.accent.blue', '#357DE8'),
+	'color.border.accent.blue.subtle': token('color.border.accent.blue.subtle', '#8FB8F6'),
 	'color.border.accent.purple': token('color.border.accent.purple', '#AF59E1'),
+	'color.border.accent.purple.subtle': token('color.border.accent.purple.subtle', '#D8A0F7'),
 	'color.border.accent.magenta': token('color.border.accent.magenta', '#CD519D'),
+	'color.border.accent.magenta.subtle': token('color.border.accent.magenta.subtle', '#F797D2'),
 	'color.border.accent.gray': token('color.border.accent.gray', '#7D818A'),
+	'color.border.accent.gray.subtle': token('color.border.accent.gray.subtle', '#B7B9BE'),
+	'color.border.code': token('color.border.code', '#0B120E24'),
 	'color.border.disabled': token('color.border.disabled', '#0515240F'),
 	'color.border.focused': token('color.border.focused', '#4688EC'),
 	'color.border.input': token('color.border.input', '#8C8F97'),
+	'color.border.input.search': token('color.border.input.search', '#0B120E24'),
 	'color.border.inverse': token('color.border.inverse', '#FFFFFF'),
 	'color.border.selected': token('color.border.selected', '#1868DB'),
 	'color.border.brand': token('color.border.brand', '#1868DB'),
 	'color.border.danger': token('color.border.danger', '#E2483D'),
+	'color.border.danger.subtle': token('color.border.danger.subtle', '#FD9891'),
 	'color.border.warning': token('color.border.warning', '#E06C00'),
+	'color.border.warning.subtle': token('color.border.warning.subtle', '#FBC828'),
 	'color.border.success': token('color.border.success', '#6A9A23'),
+	'color.border.success.subtle': token('color.border.success.subtle', '#B3DF72'),
 	'color.border.discovery': token('color.border.discovery', '#AF59E1'),
+	'color.border.discovery.subtle': token('color.border.discovery.subtle', '#D8A0F7'),
 	'color.border.information': token('color.border.information', '#357DE8'),
+	'color.border.information.subtle': token('color.border.information.subtle', '#8FB8F6'),
 	'color.border.bold': token('color.border.bold', '#7D818A'),
 } as const;
 
@@ -446,6 +519,13 @@ export const backgroundColorMap: {
 	'color.background.accent.gray.bolder': 'var(--ds-background-accent-gray-bolder)';
 	'color.background.accent.gray.bolder.hovered': 'var(--ds-background-accent-gray-bolder-hovered)';
 	'color.background.accent.gray.bolder.pressed': 'var(--ds-background-accent-gray-bolder-pressed)';
+	'color.background.code.added.highlight': 'var(--ds-background-code-added-highlight)';
+	'color.background.code.added.line': 'var(--ds-background-code-added-line)';
+	'color.background.code.default': 'var(--ds-background-code-default)';
+	'color.background.code.gutter': 'var(--ds-background-code-gutter)';
+	'color.background.code.highlight': 'var(--ds-background-code-highlight)';
+	'color.background.code.removed.highlight': 'var(--ds-background-code-removed-highlight)';
+	'color.background.code.removed.line': 'var(--ds-background-code-removed-line)';
 	'color.background.disabled': 'var(--ds-background-disabled)';
 	'color.background.input': 'var(--ds-background-input)';
 	'color.background.input.hovered': 'var(--ds-background-input-hovered)';
@@ -483,6 +563,7 @@ export const backgroundColorMap: {
 	'color.background.danger.subtler': 'var(--ds-background-danger-subtler)';
 	'color.background.danger.subtler.hovered': 'var(--ds-background-danger-subtler-hovered)';
 	'color.background.danger.subtler.pressed': 'var(--ds-background-danger-subtler-pressed)';
+	'color.background.danger.subtle': 'var(--ds-background-danger-subtle)';
 	'color.background.danger.bold': 'var(--ds-background-danger-bold)';
 	'color.background.danger.bold.hovered': 'var(--ds-background-danger-bold-hovered)';
 	'color.background.danger.bold.pressed': 'var(--ds-background-danger-bold-pressed)';
@@ -492,6 +573,7 @@ export const backgroundColorMap: {
 	'color.background.warning.subtler': 'var(--ds-background-warning-subtler)';
 	'color.background.warning.subtler.hovered': 'var(--ds-background-warning-subtler-hovered)';
 	'color.background.warning.subtler.pressed': 'var(--ds-background-warning-subtler-pressed)';
+	'color.background.warning.subtle': 'var(--ds-background-warning-subtle)';
 	'color.background.warning.bold': 'var(--ds-background-warning-bold)';
 	'color.background.warning.bold.hovered': 'var(--ds-background-warning-bold-hovered)';
 	'color.background.warning.bold.pressed': 'var(--ds-background-warning-bold-pressed)';
@@ -501,6 +583,7 @@ export const backgroundColorMap: {
 	'color.background.success.subtler': 'var(--ds-background-success-subtler)';
 	'color.background.success.subtler.hovered': 'var(--ds-background-success-subtler-hovered)';
 	'color.background.success.subtler.pressed': 'var(--ds-background-success-subtler-pressed)';
+	'color.background.success.subtle': 'var(--ds-background-success-subtle)';
 	'color.background.success.bold': 'var(--ds-background-success-bold)';
 	'color.background.success.bold.hovered': 'var(--ds-background-success-bold-hovered)';
 	'color.background.success.bold.pressed': 'var(--ds-background-success-bold-pressed)';
@@ -510,6 +593,7 @@ export const backgroundColorMap: {
 	'color.background.discovery.subtler': 'var(--ds-background-discovery-subtler)';
 	'color.background.discovery.subtler.hovered': 'var(--ds-background-discovery-subtler-hovered)';
 	'color.background.discovery.subtler.pressed': 'var(--ds-background-discovery-subtler-pressed)';
+	'color.background.discovery.subtle': 'var(--ds-background-discovery-subtle)';
 	'color.background.discovery.bold': 'var(--ds-background-discovery-bold)';
 	'color.background.discovery.bold.hovered': 'var(--ds-background-discovery-bold-hovered)';
 	'color.background.discovery.bold.pressed': 'var(--ds-background-discovery-bold-pressed)';
@@ -519,17 +603,24 @@ export const backgroundColorMap: {
 	'color.background.information.subtler': 'var(--ds-background-information-subtler)';
 	'color.background.information.subtler.hovered': 'var(--ds-background-information-subtler-hovered)';
 	'color.background.information.subtler.pressed': 'var(--ds-background-information-subtler-pressed)';
+	'color.background.information.subtle': 'var(--ds-background-information-subtle)';
 	'color.background.information.bold': 'var(--ds-background-information-bold)';
 	'color.background.information.bold.hovered': 'var(--ds-background-information-bold-hovered)';
 	'color.background.information.bold.pressed': 'var(--ds-background-information-bold-pressed)';
+	'color.skeleton': 'var(--ds-skeleton)';
+	'color.skeleton.subtle': 'var(--ds-skeleton-subtle)';
 	'color.blanket': 'var(--ds-blanket)';
 	'color.blanket.selected': 'var(--ds-blanket-selected)';
 	'color.blanket.danger': 'var(--ds-blanket-danger)';
-	'color.skeleton': 'var(--ds-skeleton)';
-	'color.skeleton.subtle': 'var(--ds-skeleton-subtle)';
+	'color.rovo.background.brand.bold': 'var(--ds-rovo-background-brand-bold)';
+	'color.rovo.background.brand.bold.hovered': 'var(--ds-rovo-background-brand-bold-hovered)';
+	'color.rovo.background.brand.bold.pressed': 'var(--ds-rovo-background-brand-bold-pressed)';
 	'elevation.surface': 'var(--ds-surface)';
 	'elevation.surface.hovered': 'var(--ds-surface-hovered)';
 	'elevation.surface.pressed': 'var(--ds-surface-pressed)';
+	'elevation.surface.container': 'var(--ds-surface-container)';
+	'elevation.surface.container.hovered': 'var(--ds-surface-container-hovered)';
+	'elevation.surface.container.pressed': 'var(--ds-surface-container-pressed)';
 	'elevation.surface.overlay': 'var(--ds-surface-overlay)';
 	'elevation.surface.overlay.hovered': 'var(--ds-surface-overlay-hovered)';
 	'elevation.surface.overlay.pressed': 'var(--ds-surface-overlay-pressed)';
@@ -965,7 +1056,20 @@ export const backgroundColorMap: {
 		'color.background.accent.gray.bolder.pressed',
 		'#3B3D42',
 	),
-	'color.background.disabled': token('color.background.disabled', '#17171708'),
+	'color.background.code.added.highlight': token(
+		'color.background.code.added.highlight',
+		'#DCFFF1',
+	),
+	'color.background.code.added.line': token('color.background.code.added.line', '#BAF3DB66'),
+	'color.background.code.default': token('color.background.code.default', '#FFFFFF'),
+	'color.background.code.gutter': token('color.background.code.gutter', '#F0F1F2'),
+	'color.background.code.highlight': token('color.background.code.highlight', '#F0F1F2'),
+	'color.background.code.removed.highlight': token(
+		'color.background.code.removed.highlight',
+		'#FFECEB',
+	),
+	'color.background.code.removed.line': token('color.background.code.removed.line', '#FFD5D266'),
+	'color.background.disabled': token('color.background.disabled', '#0515240F'),
 	'color.background.input': token('color.background.input', '#FFFFFF'),
 	'color.background.input.hovered': token('color.background.input.hovered', '#F8F8F8'),
 	'color.background.input.pressed': token('color.background.input.pressed', '#FFFFFF'),
@@ -1044,6 +1148,7 @@ export const backgroundColorMap: {
 		'color.background.danger.subtler.pressed',
 		'#FD9891',
 	),
+	'color.background.danger.subtle': token('color.background.danger.subtle', '#FD9891'),
 	'color.background.danger.bold': token('color.background.danger.bold', '#C9372C'),
 	'color.background.danger.bold.hovered': token('color.background.danger.bold.hovered', '#AE2E24'),
 	'color.background.danger.bold.pressed': token('color.background.danger.bold.pressed', '#872821'),
@@ -1059,6 +1164,7 @@ export const backgroundColorMap: {
 		'color.background.warning.subtler.pressed',
 		'#FBC828',
 	),
+	'color.background.warning.subtle': token('color.background.warning.subtle', '#FBD779'),
 	'color.background.warning.bold': token('color.background.warning.bold', '#FBC828'),
 	'color.background.warning.bold.hovered': token(
 		'color.background.warning.bold.hovered',
@@ -1080,6 +1186,7 @@ export const backgroundColorMap: {
 		'color.background.success.subtler.pressed',
 		'#B3DF72',
 	),
+	'color.background.success.subtle': token('color.background.success.subtle', '#B3DF72'),
 	'color.background.success.bold': token('color.background.success.bold', '#5B7F24'),
 	'color.background.success.bold.hovered': token(
 		'color.background.success.bold.hovered',
@@ -1101,6 +1208,7 @@ export const backgroundColorMap: {
 		'color.background.discovery.subtler.pressed',
 		'#D8A0F7',
 	),
+	'color.background.discovery.subtle': token('color.background.discovery.subtle', '#D8A0F7'),
 	'color.background.discovery.bold': token('color.background.discovery.bold', '#964AC0'),
 	'color.background.discovery.bold.hovered': token(
 		'color.background.discovery.bold.hovered',
@@ -1122,6 +1230,7 @@ export const backgroundColorMap: {
 		'color.background.information.subtler.pressed',
 		'#8FB8F6',
 	),
+	'color.background.information.subtle': token('color.background.information.subtle', '#8FB8F6'),
 	'color.background.information.bold': token('color.background.information.bold', '#1868DB'),
 	'color.background.information.bold.hovered': token(
 		'color.background.information.bold.hovered',
@@ -1131,14 +1240,26 @@ export const backgroundColorMap: {
 		'color.background.information.bold.pressed',
 		'#144794',
 	),
+	'color.skeleton': token('color.skeleton', '#0515240F'),
+	'color.skeleton.subtle': token('color.skeleton.subtle', '#17171708'),
 	'color.blanket': token('color.blanket', '#050C1F75'),
 	'color.blanket.selected': token('color.blanket.selected', '#388BFF14'),
 	'color.blanket.danger': token('color.blanket.danger', '#EF5C4814'),
-	'color.skeleton': token('color.skeleton', '#0515240F'),
-	'color.skeleton.subtle': token('color.skeleton.subtle', '#17171708'),
+	'color.rovo.background.brand.bold': token('color.rovo.background.brand.bold', '#000000'),
+	'color.rovo.background.brand.bold.hovered': token(
+		'color.rovo.background.brand.bold.hovered',
+		'#1E1F21',
+	),
+	'color.rovo.background.brand.bold.pressed': token(
+		'color.rovo.background.brand.bold.pressed',
+		'#292A2E',
+	),
 	'elevation.surface': token('elevation.surface', '#FFFFFF'),
 	'elevation.surface.hovered': token('elevation.surface.hovered', '#F0F1F2'),
 	'elevation.surface.pressed': token('elevation.surface.pressed', '#DDDEE1'),
+	'elevation.surface.container': token('elevation.surface.container', '#17171708'),
+	'elevation.surface.container.hovered': token('elevation.surface.container.hovered', '#0515240F'),
+	'elevation.surface.container.pressed': token('elevation.surface.container.pressed', '#0B120E24'),
 	'elevation.surface.overlay': token('elevation.surface.overlay', '#FFFFFF'),
 	'elevation.surface.overlay.hovered': token('elevation.surface.overlay.hovered', '#F0F1F2'),
 	'elevation.surface.overlay.pressed': token('elevation.surface.overlay.pressed', '#DDDEE1'),
@@ -1173,6 +1294,17 @@ export const textColorMap: {
 	'color.text.accent.magenta.bolder': 'var(--ds-text-accent-magenta-bolder)';
 	'color.text.accent.gray': 'var(--ds-text-accent-gray)';
 	'color.text.accent.gray.bolder': 'var(--ds-text-accent-gray-bolder)';
+	'color.text.code.accent.1': 'var(--ds-text-code-accent-1)';
+	'color.text.code.accent.2': 'var(--ds-text-code-accent-2)';
+	'color.text.code.comments': 'var(--ds-text-code-comments)';
+	'color.text.code.default': 'var(--ds-text-code-default)';
+	'color.text.code.functions': 'var(--ds-text-code-functions)';
+	'color.text.code.gutter': 'var(--ds-text-code-gutter)';
+	'color.text.code.keywords': 'var(--ds-text-code-keywords)';
+	'color.text.code.numbers': 'var(--ds-text-code-numbers)';
+	'color.text.code.operators': 'var(--ds-text-code-operators)';
+	'color.text.code.strings': 'var(--ds-text-code-strings)';
+	'color.text.code.tags': 'var(--ds-text-code-tags)';
 	'color.text.disabled': 'var(--ds-text-disabled)';
 	'color.text.inverse': 'var(--ds-text-inverse)';
 	'color.text.selected': 'var(--ds-text-selected)';
@@ -1216,6 +1348,17 @@ export const textColorMap: {
 	'color.text.accent.magenta.bolder': token('color.text.accent.magenta.bolder', '#50253F'),
 	'color.text.accent.gray': token('color.text.accent.gray', '#505258'),
 	'color.text.accent.gray.bolder': token('color.text.accent.gray.bolder', '#1E1F21'),
+	'color.text.code.accent.1': token('color.text.code.accent.1', '#943D73'),
+	'color.text.code.accent.2': token('color.text.code.accent.2', '#1558BC'),
+	'color.text.code.comments': token('color.text.code.comments', '#505258'),
+	'color.text.code.default': token('color.text.code.default', '#505258'),
+	'color.text.code.functions': token('color.text.code.functions', '#216E4E'),
+	'color.text.code.gutter': token('color.text.code.gutter', '#6B6E76'),
+	'color.text.code.keywords': token('color.text.code.keywords', '#AE2E24'),
+	'color.text.code.numbers': token('color.text.code.numbers', '#7F5F01'),
+	'color.text.code.operators': token('color.text.code.operators', '#292A2E'),
+	'color.text.code.strings': token('color.text.code.strings', '#4C6B1F'),
+	'color.text.code.tags': token('color.text.code.tags', '#9E4C00'),
 	'color.text.disabled': token('color.text.disabled', '#080F214A'),
 	'color.text.inverse': token('color.text.inverse', '#FFFFFF'),
 	'color.text.selected': token('color.text.selected', '#1868DB'),
@@ -1299,9 +1442,9 @@ export type Fill = keyof typeof fillMap;
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::042cbfe8041c09e3817ae74154994f32>>
+ * @codegen <<SignedSource::728ce950810352b39ae6d35a65c995b2>>
  * @codegenId misc
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenParams ["layer"]
  * @codegenDependency ../../../primitives/scripts/codegen-file-templates/dimensions.tsx <<SignedSource::cc9b3f12104c6ede803da6a42daac0b0>>
  * @codegenDependency ../../../primitives/scripts/codegen-file-templates/layer.tsx <<SignedSource::92793ca02dbfdad66e53ffbe9f0baa0a>>
@@ -1327,9 +1470,9 @@ export type Layer = keyof typeof layerMap;
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::6ab2b394dd5a830d6966e333e20b1473>>
+ * @codegen <<SignedSource::728a2e28e4879de9d248f36d94aa2cd4>>
  * @codegenId border
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenParams ["width", "radius"]
  * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-shape.tsx <<SignedSource::8817f4073995e5dc9c2bb766316632d6>>
  */
@@ -1373,16 +1516,15 @@ export type BorderRadius = keyof typeof borderRadiusMap;
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::64331f0b8b5e2f090a3aad153d92deb6>>
+ * @codegen <<SignedSource::8d6037c9f2e183dc4da9d365ab855739>>
  * @codegenId typography
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenParams ["fontSize", "fontWeight", "fontFamily", "lineHeight", "body", "ui"]
  * @codegenDependency ../../../primitives/scripts/codegen-file-templates/dimensions.tsx <<SignedSource::cc9b3f12104c6ede803da6a42daac0b0>>
  * @codegenDependency ../../../primitives/scripts/codegen-file-templates/layer.tsx <<SignedSource::92793ca02dbfdad66e53ffbe9f0baa0a>>
  */
 export const fontMap: {
 	'font.body': 'var(--ds-font-body)';
-	'font.body.UNSAFE_small': 'var(--ds-font-body-UNSAFE_small)';
 	'font.body.large': 'var(--ds-font-body-large)';
 	'font.body.small': 'var(--ds-font-body-small)';
 	'font.code': 'var(--ds-font-code)';
@@ -1400,11 +1542,6 @@ export const fontMap: {
 	'font.body': token(
 		'font.body',
 		'normal 400 14px/20px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
-	),
-	// @deprecated
-	'font.body.UNSAFE_small': token(
-		'font.body.UNSAFE_small',
-		'normal 400 12px/16px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
 	),
 	'font.body.large': token(
 		'font.body.large',
@@ -1513,25 +1650,20 @@ export type FontFamily = keyof typeof fontFamilyMap;
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::aeebc24b95e2189021f1d98f1715a6a0>>
+ * @codegen <<SignedSource::e8ebc6ef93c246a909cd773f5dfbfad8>>
  * @codegenId text
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenDependency ../../../primitives/scripts/codegen-file-templates/dimensions.tsx <<SignedSource::cc9b3f12104c6ede803da6a42daac0b0>>
  * @codegenDependency ../../../primitives/scripts/codegen-file-templates/layer.tsx <<SignedSource::92793ca02dbfdad66e53ffbe9f0baa0a>>
  */
 export const textSizeMap: {
 	medium: 'var(--ds-font-body)';
-	UNSAFE_small: 'var(--ds-font-body-UNSAFE_small)';
 	large: 'var(--ds-font-body-large)';
 	small: 'var(--ds-font-body-small)';
 } = {
 	medium: token(
 		'font.body',
 		'normal 400 14px/20px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
-	),
-	UNSAFE_small: token(
-		'font.body.UNSAFE_small',
-		'normal 400 12px/16px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
 	),
 	large: token(
 		'font.body.large',
@@ -1637,10 +1769,10 @@ export type TokenisedProps = {
 	boxShadow?: Shadow;
 	color?: TextColor;
 	columnGap?: Space;
-	font?: Font | string;
-	fontFamily?: FontFamily | string;
+	font?: Font | GlobalValue;
+	fontFamily?: FontFamily | GlobalValue;
 	fontStyle?: 'normal' | 'italic';
-	fontWeight?: FontWeight | string | number;
+	fontWeight?: FontWeight | GlobalValue;
 	gap?: Space;
 	height?: Dimension | string;
 	inlineSize?: Dimension | string;

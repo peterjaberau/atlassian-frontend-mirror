@@ -1,9 +1,5 @@
-import {
-	type RequestServiceOptions,
-	type ServiceConfig,
-	utils,
-} from '@atlaskit/util-service-support';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { type RequestServiceOptions, utils } from '@atlaskit/util-service-support';
+
 import {
 	type NotificationLogProvider,
 	type NotificationCountResponse,
@@ -11,82 +7,78 @@ import {
 } from './types';
 
 export const DEFAULT_SOURCE = 'atlaskitNotificationLogClient';
+export const DEFAULT_GRAPHQL_BASE_URL = '/gateway/api/graphql';
 
 export default class NotificationLogClient implements NotificationLogProvider {
-	private serviceConfig: ServiceConfig;
+	private graphQLBaseUrl: string;
 	private cloudId?: string;
 	private source: string;
+	private collabContextRoutingAri: string | undefined;
 
-	constructor(baseUrl: string, cloudId?: string, source: string = DEFAULT_SOURCE) {
-		this.serviceConfig = { url: baseUrl };
+	constructor({
+		graphQLBaseUrl = DEFAULT_GRAPHQL_BASE_URL,
+		cloudId,
+		source = DEFAULT_SOURCE,
+		collabContextRoutingAri,
+	}: {
+		cloudId?: string;
+		/** Required to support collaboration contexts. You must provide the ari of the site/workspace the user is currently viewing. Pass `undefined` if not applicable. */
+		collabContextRoutingAri?: string | undefined;
+		graphQLBaseUrl?: string;
+		source?: string;
+	} = {}) {
+		this.graphQLBaseUrl = graphQLBaseUrl;
 		this.cloudId = cloudId;
 		this.source = source;
+		this.collabContextRoutingAri = collabContextRoutingAri;
 	}
 
 	public async countUnseenNotifications(
 		options: RequestServiceOptions = {},
 	): Promise<NotificationCountResponse> {
-		const mergedOptions: RequestServiceOptions = {
-			path: '/api/3/notifications/count/unseen',
-			...options,
-			queryParams: {
-				...(this.cloudId && { cloudId: this.cloudId }),
-				source: this.source,
-				...(options.queryParams || {}),
+		const query = /* GraphQL */ `
+			query NotificationLogClientUnseenCount(
+				$workspaceId: String
+				$collabContextRoutingAri: String
+			) {
+				notifications {
+					unseenNotificationCount(
+						workspaceId: $workspaceId
+						collabContextRoutingAri: $collabContextRoutingAri
+					)
+				}
+			}
+		`;
+		const response = await utils.requestService<NotificationLogGraphQLResponse>(
+			{
+				url: this.graphQLBaseUrl,
 			},
-			requestInit: {
-				mode: 'cors',
-				headers: {
-					'x-app-version': `${process.env._PACKAGE_VERSION_}-${DEFAULT_SOURCE}`,
+			{
+				// Don't add trailing slash, it causes 404s
+				path: '',
+				...options,
+				queryParams: {
+					q: this.source,
+					...options.queryParams,
 				},
-				...(options.requestInit || {}),
-			},
-		};
-
-		// https://switcheroo.atlassian.com/ui/gates/2bb857fa-a92c-43b4-9f07-79ab8b9f7610/key/post-office_enable-notification-components-graphql
-		if (fg('post-office_enable-notification-components-graphql')) {
-			const query = `
-query NotificationLogClientUnseenCount($workspaceId: String) {
-  notifications {
-    unseenNotificationCount(workspaceId: $workspaceId)
-  }
-}`;
-			const response = await utils.requestService<NotificationLogGraphQLResponse>(
-				{
-					// Base URL cannot be overridden until REST API is removed
-					url: '/gateway/api/graphql',
-				},
-				{
-					// Don't add trailing slash, it causes 404s
-					path: '',
-					...options,
-					queryParams: {
-						query: this.source,
-						...options.queryParams,
+				requestInit: {
+					mode: 'cors',
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						...options.requestInit?.headers,
 					},
-					requestInit: {
-						mode: 'cors',
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							...options.requestInit?.headers,
+					body: JSON.stringify({
+						query: query,
+						variables: {
+							workspaceId: this.cloudId,
+							collabContextRoutingAri: this.collabContextRoutingAri,
 						},
-						body: JSON.stringify({
-							query: query,
-							variables: {
-								workspaceId: this.cloudId,
-							},
-						}),
-						...options.requestInit,
-					},
+					}),
+					...options.requestInit,
 				},
-			);
-			return { count: response.data.notifications.unseenNotificationCount };
-		}
-
-		return utils.requestService(
-			this.serviceConfig,
-			mergedOptions,
-		) as Promise<NotificationCountResponse>;
+			},
+		);
+		return { count: response.data.notifications.unseenNotificationCount };
 	}
 }

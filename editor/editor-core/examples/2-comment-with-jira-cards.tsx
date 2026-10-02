@@ -4,7 +4,8 @@ import React from 'react';
 
 import { EditorCardProvider } from '@atlaskit/editor-card-provider';
 import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 
 import { Editor } from '../src';
 import EditorContext from '../src/ui/EditorContext';
@@ -42,6 +43,7 @@ export class JiraCardProvider extends EditorCardProvider {
 /**
  * A Client is responsible for resolving URL to JSON-LD with metadata
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export class JiraCardClient extends CardClient {
 	fetchData(url: string): ReturnType<CardClient['fetchData']> {
 		if (!url.match(jiraUrlMatch)) {
@@ -87,6 +89,7 @@ export class JiraCardClient extends CardClient {
 const jiraClient = new JiraCardClient();
 const cardProvider = new JiraCardProvider();
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default function CommentWithJiraCardsExample(): React.JSX.Element {
 	return (
 		<EditorContext>

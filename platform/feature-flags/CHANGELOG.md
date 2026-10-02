@@ -1,5 +1,74 @@
 # @atlaskit/platform-feature-flags
 
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 2.1.1
+
+### Patch Changes
+
+- [`db6ada9ffbb86`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db6ada9ffbb86) -
+  Remove explicit files field from @atlaskit/platform-feature-flags
+
+  The files field in package.json was explicitly set to ["dist", "CHANGELOG.md"], which caused the
+  build-generated subpath shim directories (fg/, getBooleanFF/, setBooleanFeatureFlagResolver/) to
+  be excluded from the published npm tarball.
+
+  These shim directories are generated at build time by the platform build pipeline and are required
+  for consumers to resolve subpath imports like @atlaskit/platform-feature-flags/fg. Without them,
+  bundlers like Parcel fail to resolve the subpath since the exports field is stripped from the
+  published package.json at release time.
+
+  Removing the files field means npm will publish all files by default (consistent with how all
+  other packages in the monorepo handle this), ensuring the generated shim directories are included
+  in the tarball.
+
+## 2.1.0
+
+### Minor Changes
+
+- [`70f1b1fd5db8d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70f1b1fd5db8d) -
+  Add missing subpath exports (`./fg`, `./getBooleanFF`, `./setBooleanFeatureFlagResolver`) to
+  package.json exports field. These were added to source in
+  https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ffb4d7d5b4d7c but not included
+  in the published version.
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 1.1.3
 
 ### Patch Changes

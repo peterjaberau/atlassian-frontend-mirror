@@ -1,23 +1,22 @@
 import classnames from 'classnames';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { timestampToString } from '@atlaskit/editor-common/utils';
 import type { Fragment, Node as PmNode, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { ReadonlyTransaction, Selection } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
-import type { Step } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 import { Decoration } from '@atlaskit/editor-prosemirror/view';
 import type { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { isResolvingMentionProvider } from '@atlaskit/mention/resource';
-import { isPromise, MentionNameStatus } from '@atlaskit/mention/types';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { getGlobalTheme } from '@atlaskit/tokens';
+import { isPromise } from '@atlaskit/mention/is-promise';
+import { isResolvingMentionProvider } from '@atlaskit/mention/is-resolving-mention-provider';
+import { MentionNameStatus } from '@atlaskit/mention/types';
+import { getGlobalTheme } from '@atlaskit/tokens/get-global-theme';
 
 import type { FindReplacePlugin } from '../../findReplacePluginType';
 import type { Match, TextGrouping } from '../../types';
 import {
-	searchMatchClass,
 	selectedSearchMatchClass,
 	blockSearchMatchClass,
 	darkModeSearchMatchClass,
@@ -25,6 +24,37 @@ import {
 	searchMatchExpandTitleClass,
 	searchMatchTextClass,
 } from '../../ui/styles';
+
+/**
+ * Recursively extracts all text content from an ADF entity tree.
+ * Used to search inside reference sync blocks whose content lives outside the PM document.
+ */
+type SimpleADFNode = {
+	attrs?: { title?: string };
+	content?: SimpleADFNode[];
+	text?: string;
+	type?: string;
+};
+
+export function extractTextFromADFContent(nodes: SimpleADFNode[]): string {
+	let result = '';
+	for (const node of nodes) {
+		if ((node.type === 'expand' || node.type === 'nestedExpand') && node.attrs?.title) {
+			result += node.attrs.title;
+		}
+		if (node.text != null) {
+			// Inline text node — concatenate directly (text already carries its own whitespace)
+			result += node.text;
+		} else if (node.content) {
+			// Block-level node — add a space separator to prevent false matches across block boundaries
+			if (result.length > 0) {
+				result += ' ';
+			}
+			result += extractTextFromADFContent(node.content);
+		}
+	}
+	return result;
+}
 
 export function getSelectedText(selection: TextSelection): string {
 	let text = '';
@@ -41,46 +71,39 @@ export const createDecorations = (selectedIndex: number, matches: Match[]): Deco
 	);
 
 const isElement = (nodeType?: string) =>
-	['blockCard', 'embedCard', 'inlineCard', 'status', 'mention', 'date'].includes(nodeType || '');
+	['blockCard', 'embedCard', 'inlineCard', 'status', 'mention', 'date', 'syncBlock'].includes(
+		nodeType || '',
+	);
+
 const isExpandTitle = (match: Match) =>
 	['expand', 'nestedExpand'].includes(match.nodeType || '') && !match.canReplace;
 
-export const createDecoration = (match: Match, isSelected?: Boolean) => {
+export const createDecoration = (match: Match, isSelected?: Boolean): Decoration => {
 	const { start, end, nodeType } = match;
-	if (expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)) {
-		const { colorMode } = getGlobalTheme();
+	const { colorMode } = getGlobalTheme();
 
-		if (isElement(nodeType)) {
-			const className = classnames(blockSearchMatchClass, {
-				[selectedBlockSearchMatchClass]: isSelected,
-				[darkModeSearchMatchClass]: colorMode === 'dark',
-			});
-			return Decoration.node(start, end, {
-				class: className,
-			});
-		} else if (isExpandTitle(match)) {
-			const className = classnames(searchMatchExpandTitleClass, {
-				[selectedSearchMatchClass]: isSelected,
-				[darkModeSearchMatchClass]: colorMode === 'dark',
-			});
-			return Decoration.node(start, end, {
-				class: className,
-			});
-		} else {
-			const className = classnames(searchMatchTextClass, {
-				[selectedSearchMatchClass]: isSelected,
-				[darkModeSearchMatchClass]: colorMode === 'dark',
-			});
-
-			return Decoration.inline(start, end, {
-				class: className,
-			});
-		}
+	if (isElement(nodeType)) {
+		const className = classnames(blockSearchMatchClass, {
+			[selectedBlockSearchMatchClass]: isSelected,
+			[darkModeSearchMatchClass]: colorMode === 'dark',
+		});
+		return Decoration.node(start, end, {
+			class: className,
+		});
+	} else if (isExpandTitle(match)) {
+		const className = classnames(searchMatchExpandTitleClass, {
+			[selectedSearchMatchClass]: isSelected,
+			[darkModeSearchMatchClass]: colorMode === 'dark',
+		});
+		return Decoration.node(start, end, {
+			class: className,
+		});
 	} else {
-		let className = searchMatchClass;
-		if (isSelected) {
-			className += ` ${selectedSearchMatchClass}`;
-		}
+		const className = classnames(searchMatchTextClass, {
+			[selectedSearchMatchClass]: isSelected,
+			[darkModeSearchMatchClass]: colorMode === 'dark',
+		});
+
 		return Decoration.inline(start, end, {
 			class: className,
 		});
@@ -130,12 +153,8 @@ export function findMatches({
 			matches.push({
 				start: pos + index,
 				end: pos + end,
-				canReplace: expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-					? true
-					: undefined,
-				nodeType: expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-					? 'text'
-					: undefined,
+				canReplace: true,
+				nodeType: 'text',
 			});
 			index = text.indexOf(searchText, end);
 		}
@@ -199,75 +218,84 @@ export function findMatches({
 			} else {
 				collectTextMatch(textGrouping);
 				textGrouping = null;
-				if (expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)) {
-					switch (node.type.name) {
-						case 'status':
-							collectNodeMatch(
-								{
-									text: node.attrs.text as string,
-									pos,
-								},
-								node,
-							);
-							break;
-						case 'date':
-							collectNodeMatch(
-								{
-									text: timestampToString(
-										node.attrs.timestamp,
-										getIntl ? getIntl() : null,
-									) as string,
-									pos,
-								},
-								node,
-							);
-							break;
-						case 'expand':
-						case 'nestedExpand':
-							collectNodeMatch(
-								{
-									text: node.attrs.title as string,
-									pos,
-								},
-								node,
-							);
-							break;
-						case 'mention':
-							let text;
-							if (node.attrs.text) {
-								text = node.attrs.text;
-							} else {
-								// the text may be sanitised from the node for privacy reasons
-								// so we need to use the mentionProvider to resolve it
-								const mentionProvider = api?.mention?.sharedState.currentState()?.mentionProvider;
+				switch (node.type.name) {
+					case 'status':
+						collectNodeMatch(
+							{
+								text: node.attrs.text as string,
+								pos,
+							},
+							node,
+						);
+						break;
+					case 'date':
+						collectNodeMatch(
+							{
+								text: timestampToString(node.attrs.timestamp, getIntl ? getIntl() : null) as string,
+								pos,
+							},
+							node,
+						);
+						break;
+					case 'expand':
+					case 'nestedExpand':
+						collectNodeMatch(
+							{
+								text: node.attrs.title as string,
+								pos,
+							},
+							node,
+						);
+						break;
+					case 'mention':
+						let text;
+						if (node.attrs.text) {
+							text = node.attrs.text;
+						} else {
+							// the text may be sanitised from the node for privacy reasons
+							// so we need to use the mentionProvider to resolve it
+							const mentionProvider = api?.mention?.sharedState.currentState()?.mentionProvider;
 
-								if (isResolvingMentionProvider(mentionProvider)) {
-									const nameDetail = mentionProvider.resolveMentionName(node.attrs.id);
+							if (isResolvingMentionProvider(mentionProvider)) {
+								const nameDetail = mentionProvider.resolveMentionName(node.attrs.id);
 
-									if (isPromise(nameDetail)) {
-										text = '@...';
+								if (isPromise(nameDetail)) {
+									text = '@...';
+								} else {
+									if (nameDetail.status === MentionNameStatus.OK) {
+										text = `@${nameDetail.name || ''}`;
 									} else {
-										if (nameDetail.status === MentionNameStatus.OK) {
-											text = `@${nameDetail.name || ''}`;
-										} else {
-											text = '@_|unknown|_';
-										}
+										text = '@_|unknown|_';
 									}
 								}
 							}
+						}
 
+						if (text) {
+							collectNodeMatch({ text, pos }, node);
+						}
+						break;
+					case 'inlineCard':
+					case 'blockCard':
+					case 'embedCard':
+						collectCardTitleMatch(node, pos);
+						break;
+					case 'syncBlock': {
+						const syncBlockStore = api?.syncedBlock?.sharedState.currentState()?.syncBlockStore;
+						const instance = syncBlockStore?.referenceManager.getFromCache(
+							node.attrs.resourceId as string,
+						);
+						const adfContent = instance?.data?.content;
+						if (adfContent && adfContent.length > 0) {
+							const text = extractTextFromADFContent(adfContent as SimpleADFNode[]);
 							if (text) {
 								collectNodeMatch({ text, pos }, node);
 							}
-							break;
-						case 'inlineCard':
-						case 'blockCard':
-						case 'embedCard':
-							collectCardTitleMatch(node, pos);
-							break;
-						default:
-							break;
+						}
+						break;
 					}
+					default:
+						break;
 				}
 			}
 		});
@@ -320,10 +348,13 @@ export function findSearchIndex(selectionPos: number, matches: Match[], backward
 	);
 }
 
-export const nextIndex = (currentIndex: number, total: number) => (currentIndex + 1) % total;
+export const nextIndex = (currentIndex: number, total: number): number =>
+	(currentIndex + 1) % total;
 
-export const prevIndex = (currentIndex: number, total: number) =>
+export const prevIndex = (currentIndex: number, total: number): number =>
 	(currentIndex - 1 + total) % total;
+
+const isSyncBlock = (match: Match) => match.nodeType === 'syncBlock';
 
 export const getSelectionForMatch = (
 	selection: Selection,
@@ -333,7 +364,7 @@ export const getSelectionForMatch = (
 	offset = 0,
 ): Selection => {
 	if (matches[index]) {
-		if (isExpandTitle(matches[index])) {
+		if (isExpandTitle(matches[index]) || isSyncBlock(matches[index])) {
 			return NodeSelection.create(doc, matches[index].start);
 		}
 		return TextSelection.create(doc, matches[index].start + offset);
@@ -399,7 +430,7 @@ export const removeMatchesFromSet = (
 	decorationSet: DecorationSet,
 	matches: Match[],
 	doc: PmNode,
-) => {
+): DecorationSet => {
 	const decorationsToRemove = matches
 		.filter((match) => !!match)
 		.map((match) => findDecorationFromMatch(decorationSet, match));
@@ -492,7 +523,7 @@ export const findLostAdjacentDecorations = (
  * Searches through array in bumps of 100 to return the index of the first
  * decoration whose 'from' value is before or equal to the position
  */
-export const findIndexBeforePosition = (items: Decoration[], position: number) => {
+export const findIndexBeforePosition = (items: Decoration[], position: number): number => {
 	// jump in batches to cope with arrays with thousands of decorations
 	const increment = 100;
 	let index = 0;
@@ -538,3 +569,16 @@ export const isMatchAffectedByStep = (
 		(tr.mapping.map(from) + sliceSize >= match.start && tr.mapping.map(to) - sliceSize <= match.end)
 	);
 };
+
+export function findUniqueItemsIn<T>(
+	findIn: Array<T>,
+	checkWith: Array<T>,
+	comparator?: (firstItem: T, secondItem: T) => boolean,
+): Array<T> {
+	return findIn.filter(
+		(firstItem) =>
+			checkWith.findIndex((secondItem) =>
+				comparator ? comparator(firstItem, secondItem) : firstItem === secondItem,
+			) === -1,
+	);
+}

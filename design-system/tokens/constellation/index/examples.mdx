@@ -34,8 +34,8 @@ This primary button uses a background token, text token, and other tokens to cre
 appearance.
 
 Buttons and other components can have multiple possible
-[interaction states](/foundations/color-new/#interaction-states), which require specific tokens to
-be applied for each state.
+[interaction states](/foundations/color#interaction-states), which require specific tokens to be
+applied for each state.
 
 <Example
 	Component={buttonExample.example}
@@ -58,8 +58,8 @@ modal.
 ### Tag
 
 In the tag example, we can see the use of accent colors. Accent colors are available for text,
-icons, borders, and backgrounds. Apply accent tokens where
-[colors](/foundations/color-new/#color-roles) do not have a specific meaning tied to them.
+icons, borders, and backgrounds. Apply accent tokens where [colors](/foundations/color#color-roles)
+do not have a specific meaning tied to them.
 
 <Example Component={tagExample.example} source={tagExample.code} packageName="@atlaskit/tokens" />
 
@@ -77,8 +77,12 @@ content that can be scrolled back into view.
 ## Chart examples
 
 Use chart color tokens for chart elements that represent the data. Read our
-[data visualization color guideline](/foundations/color-new/data-visualization-color/) for guidance
-on color usage in charts.
+[data visualization color guideline](/foundations/color/data-visualization-color) for guidance on
+color usage in charts.
+
+These examples use SVG with token-based fills and strokes. The code excerpts focus on token styles;
+chart geometry and layout are omitted. Hover over a bar, point, or slice to see its hovered color.
+Values are also shown without hovering.
 
 ### Line chart
 
@@ -185,8 +189,9 @@ combination of tokens that’s not listed here, make sure to check the contrast 
 
 ### Elevations
 
-There are four available elevations: default, raised, overlay and sunken. Raised and overlay
-elevations require a combination of a surface color, and a matching shadow.
+There are five general-purpose surface elevations: default, container, raised, overlay and sunken.
+Raised and overlay elevations require a combination of a surface color and a matching shadow. Rovo
+overlay surface tokens are also available for Rovo-specific overlay surfaces.
 
 <Example
 	Component={elevationExample.example}

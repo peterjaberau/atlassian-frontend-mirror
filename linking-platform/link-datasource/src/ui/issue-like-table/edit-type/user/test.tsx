@@ -1,21 +1,19 @@
 import React from 'react';
 
 import { fireEvent, render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { FlagsProvider } from '@atlaskit/flag';
+import { FlagsProvider } from '@atlaskit/flag/flags-provider';
 import { asMock } from '@atlaskit/link-test-helpers/jest';
 import { Box } from '@atlaskit/primitives/compiled';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
 
-import { useDatasourceExperienceId } from '../../../../contexts/datasource-experience-id';
+import { useDatasourceExperienceId } from '../../../../contexts/datasource-experience-id/use-datasource-experience-id';
 import { useLoadOptions } from '../../../../hooks/useLoadOptions';
 import { type DatasourceTypeWithOnlyTypeValues } from '../../../issue-like-table/types';
-
 import UserEditType from './index';
 
-jest.mock('../../../../contexts/datasource-experience-id');
+jest.mock('../../../../contexts/datasource-experience-id/use-datasource-experience-id');
 jest.mock('../../../../hooks/useLoadOptions');
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
@@ -114,67 +112,27 @@ describe('UserEditType', () => {
 		expect(() => setup()).not.toThrow();
 	});
 
-	ffTest.on(
-		'platform_navx_sllv_dropdown_escape_and_focus_fix',
-		'shouldPreventEscapePropagation when feature flag is on',
-		() => {
-			it('should stop propagation of Escape key event when feature flag is enabled', async () => {
-				const parentKeyDownHandler = jest.fn();
+	it('should stop propagation of Escape key event', async () => {
+		const parentKeyDownHandler = jest.fn();
 
-				setup(undefined, parentKeyDownHandler);
+		setup(undefined, parentKeyDownHandler);
 
-				const input = await screen.findByTestId(testId);
+		const input = await screen.findByTestId(testId);
 
-				// Fire Escape key event on the input (menu is open by default)
-				fireEvent.keyDown(input, { key: 'Escape' });
+		// Fire Escape key event on the input (menu is open by default)
+		fireEvent.keyDown(input, { key: 'Escape' });
 
-				// Event should not propagate to parent because stopPropagation is called
-				expect(parentKeyDownHandler).not.toHaveBeenCalled();
-			});
-		},
-	);
-
-	ffTest.off(
-		'platform_navx_sllv_dropdown_escape_and_focus_fix',
-		'shouldPreventEscapePropagation when feature flag is off',
-		() => {
-			it('should not stop propagation of Escape key event when feature flag is disabled', async () => {
-				const parentKeyDownHandler = jest.fn();
-
-				setup(undefined, parentKeyDownHandler);
-
-				const input = await screen.findByTestId(testId);
-
-				// Fire Escape key event on the input (menu is open by default)
-				fireEvent.keyDown(input, { key: 'Escape' });
-
-				// Event should propagate to parent because stopPropagation is not called
-				expect(parentKeyDownHandler).toHaveBeenCalled();
-			});
-		},
-	);
-
-	ffTest.on('platform_navx_sllv_j2ws_dropdown_for_single_row', '', () => {
-		it('should render dropdown menu in portal when feature flag is enabled', async () => {
-			setup();
-
-			const menu = await screen.findByRole('listbox');
-			const container = screen.getByTestId('inline-edit-user-select--container');
-
-			// When portaled, menu should not be inside the container
-			expect(container.contains(menu)).toBe(false);
-		});
+		// Event should not propagate to parent because stopPropagation is called
+		expect(parentKeyDownHandler).not.toHaveBeenCalled();
 	});
 
-	ffTest.off('platform_navx_sllv_j2ws_dropdown_for_single_row', '', () => {
-		it('should render dropdown menu inline when feature flag is disabled', async () => {
-			setup();
+	it('should render dropdown menu in a portal', async () => {
+		setup();
 
-			const menu = await screen.findByRole('listbox');
-			const container = screen.getByTestId('inline-edit-user-select--container');
+		const menu = await screen.findByRole('listbox');
+		const container = screen.getByTestId('inline-edit-user-select--container');
 
-			// When not portaled, menu should be inside the container
-			expect(container.contains(menu)).toBe(true);
-		});
+		// When portaled, menu should not be inside the container
+		expect(container.contains(menu)).toBe(false);
 	});
 });

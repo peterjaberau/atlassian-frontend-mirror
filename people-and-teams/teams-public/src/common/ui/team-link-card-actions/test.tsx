@@ -2,12 +2,11 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { renderWithAnalyticsListener as render } from '@atlassian/ptc-test-utils';
 
 import { type ContainerTypes } from '../../types';
-
 import { TeamLinkCardActions } from './index';
 
 const defaultProps = {

@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -24,11 +25,19 @@
 		"./__mocks__/**/*",
 		"**/mock.*",
 		"**/codemods/**/*.ts",
-		"**/codemods/**/*.tsx"
+		"**/codemods/**/*.tsx",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__editor-plugin-card/app"
+		"outDir": "../../../tsDist/@atlaskit__editor-plugin-card/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
@@ -38,7 +47,16 @@
 			"path": "../../analytics/analytics-next/tsconfig.app.json"
 		},
 		{
+			"path": "../../design-system/css/tsconfig.app.json"
+		},
+		{
 			"path": "../custom-steps/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-card-provider/tsconfig.app.json"
 		},
 		{
 			"path": "../editor-common/tsconfig.app.json"
@@ -80,6 +98,12 @@
 			"path": "../editor-plugin-toolbar/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-plugin-ui-control-registry/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-plugin-user-intent/tsconfig.app.json"
+		},
+		{
 			"path": "../editor-plugin-width/tsconfig.app.json"
 		},
 		{
@@ -89,10 +113,22 @@
 			"path": "../editor-shared-styles/tsconfig.app.json"
 		},
 		{
+			"path": "../editor-smart-link-draggable/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-toolbar/tsconfig.app.json"
+		},
+		{
+			"path": "../editor-ui-control-model/tsconfig.app.json"
+		},
+		{
 			"path": "../../helpers/frontend-utilities/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/icon/tsconfig.app.json"
+		},
+		{
+			"path": "../../linking-platform/json-ld-types/tsconfig.app.json"
 		},
 		{
 			"path": "../../design-system/link/tsconfig.app.json"
@@ -122,6 +158,9 @@
 			"path": "../../design-system/menu/tsconfig.app.json"
 		},
 		{
+			"path": "../../platform/feature-experiments/tsconfig.app.json"
+		},
+		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
 		},
 		{
@@ -135,9 +174,6 @@
 		},
 		{
 			"path": "../../linking-platform/smart-card/tsconfig.app.json"
-		},
-		{
-			"path": "../../design-system/theme/tsconfig.app.json"
 		},
 		{
 			"path": "../tmp-editor-statsig/tsconfig.app.json"

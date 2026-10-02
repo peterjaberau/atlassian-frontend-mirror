@@ -3,26 +3,18 @@
 	"atlassian": {
 		"team": "Editor: Lego"
 	},
-	"version": "7.3.0",
+	"version": "9.0.0",
 	"description": "Package to group all prosemirror libraries in a single place ",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
 	},
-	"repository": "https://bitbucket.org/atlassian/adf-schema",
+	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-monorepo",
 	"main": "dist/cjs/index.js",
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"sideEffects": false,
 	"scripts": {
@@ -63,6 +55,7 @@
 		"./keymap": "./src/keymap.ts",
 		"./markdown": "./src/markdown.ts",
 		"./model": "./src/model.ts",
+		"./transform-override": "./src/transform-override.ts",
 		"./state": "./src/state.ts",
 		"./transform": "./src/transform.ts",
 		"./utils": "./src/utils.ts",

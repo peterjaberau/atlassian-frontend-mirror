@@ -3,20 +3,17 @@
  * @jsx jsx
  */
 import { useEffect, useMemo, useState } from 'react';
+import type { ComponentType, FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { usePreviousState } from '@atlaskit/editor-common/hooks';
 import { toolbarMessages } from '@atlaskit/editor-common/messages';
-import {
-	buttonGroupStyle,
-	separatorStyles,
-	wrapperStyle,
-} from '@atlaskit/editor-common/styles';
+import { buttonGroupStyle, separatorStyles, wrapperStyle } from '@atlaskit/editor-common/styles';
 import type {
 	ExtractInjectionAPI,
 	TextFormattingState,
@@ -24,11 +21,10 @@ import type {
 } from '@atlaskit/editor-common/types';
 import { Announcer } from '@atlaskit/editor-common/ui';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { compareItemsArrays, isArrayContainsContent } from '../../editor-commands/utils';
 import type { TextFormattingPlugin } from '../../textFormattingPluginType';
-
 import { FormattingTextDropdownMenu } from './dropdown-menu';
 import { useClearIcon } from './hooks/clear-formatting-icon';
 import { useFormattingIcons, useHasFormattingActived } from './hooks/formatting-icons';
@@ -112,6 +108,7 @@ const ToolbarFormatting = ({
 		toolbarMessages.subscriptOffSuperscriptOn,
 	);
 
+	// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 	const activeItems = [...dropdownItems, ...singleItems].filter((item) => item.isActive);
 	const prevActiveItems = usePreviousState(activeItems) ?? [];
 
@@ -129,14 +126,14 @@ const ToolbarFormatting = ({
 	if (prevActiveItems && activeItems.length > prevActiveItems.length) {
 		comparedItems = compareItemsArrays(activeItems, prevActiveItems);
 		screenReaderMessage = intl.formatMessage(toolbarMessages.on, {
-			formattingType: comparedItems[0].content,
-		}) as string;
+			formattingType: comparedItems[0].content as unknown as string,
+		});
 	} else {
 		comparedItems = compareItemsArrays(prevActiveItems, activeItems);
 		if (comparedItems && comparedItems.length) {
 			screenReaderMessage = intl.formatMessage(toolbarMessages.off, {
-				formattingType: comparedItems[0].content,
-			}) as string;
+				formattingType: comparedItems[0].content as unknown as string,
+			});
 			if (activeItems[0]?.content === 'Code') {
 				screenReaderMessage = intl.formatMessage(toolbarMessages.codeOn, {
 					textFormattingOff:
@@ -274,4 +271,7 @@ const Toolbar = ({
 	);
 };
 
-export default injectIntl(Toolbar);
+const _default_1: FC<WithIntlProps<ToolbarFormattingProps & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<ToolbarFormattingProps & WrappedComponentProps>;
+} = injectIntl(Toolbar);
+export default _default_1;

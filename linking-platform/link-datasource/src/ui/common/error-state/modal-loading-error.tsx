@@ -5,32 +5,31 @@
 import { useEffect } from 'react';
 
 import { cssMap, cx, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { Box, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../analytics';
 import { SpotErrorSearch } from '../../../common/ui/spot/error-state/search';
-
 import { loadingErrorMessages } from './messages';
 
 const styles = cssMap({
 	errorContainerStyles: {
 		display: 'grid',
-		gap: token('space.300', '24px'),
+		gap: token('space.300'),
 		placeItems: 'center',
 		placeSelf: 'center',
-		paddingTop: token('space.600', '48px'),
-		paddingRight: token('space.600', '48px'),
-		paddingBottom: token('space.600', '48px'),
-		paddingLeft: token('space.600', '48px'),
+		paddingTop: token('space.600'),
+		paddingRight: token('space.600'),
+		paddingBottom: token('space.600'),
+		paddingLeft: token('space.600'),
 		maxWidth: '400px',
 	},
 	errorMessageContainerStyles: {
 		display: 'grid',
-		gap: token('space.200', '16px'),
+		gap: token('space.200'),
 		placeItems: 'center',
 		textAlign: 'center',
 	},
@@ -44,7 +43,7 @@ interface ModalLoadingErrorProps {
 export const ModalLoadingError = ({
 	errorMessage = <FormattedMessage {...loadingErrorMessages.checkConnection} />,
 	onRefresh,
-}: ModalLoadingErrorProps) => {
+}: ModalLoadingErrorProps): JSX.Element => {
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 
 	useEffect(() => {

@@ -1,4 +1,3 @@
-import AnalyticsWebClient from '@atlassiansox/analytics-web-client';
 import { type Experiment, type Layer, type StatsigClient } from '@statsig/js-client';
 import fetchMock, { type MockResponseInit } from 'jest-fetch-mock';
 
@@ -49,6 +48,11 @@ jest.mock('../NoFetchDataAdapter', () => {
 	};
 });
 const mockDataAdapter = jest.mocked(new NoFetchDataAdapter());
+
+// Mock AnalyticsWebClient to avoid pulling in 30k+ downstream files from @atlassiansox/analytics-web-client
+class MockAnalyticsWebClient {
+	sendOperationalEvent = jest.fn();
+}
 
 const TARGET_APP = 'test';
 const EXPECTED_VALUES_DEV_URL = `https://api.dev.atlassian.com/flags/api/v2/frontend/experimentValues`;
@@ -117,10 +121,7 @@ describe('FeatureGate client', () => {
 	const mockClientSdkKey = 'client-mock-sdk-key';
 	const mockApiKey = 'mock-api-key';
 	const mockExperimentValues = { test: '123' };
-	const client = new AnalyticsWebClient({
-		env: 'local',
-		product: 'js-client',
-	});
+	const client = new MockAnalyticsWebClient();
 	let sendOperationalEventSpy: jest.SpyInstance;
 	let mockProvider: Provider;
 
@@ -1976,8 +1977,8 @@ describe('FeatureGate client', () => {
 					undefined,
 				),
 			).rejects.toThrow();
-			expect(fetchMock).not.toBeCalled();
-			expect(mockStatsigClient.updateUserAsync).not.toBeCalled();
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(mockStatsigClient.updateUserAsync).not.toHaveBeenCalled();
 		});
 
 		test('should change the initialize result from a rejected promise to a resolved once if the updateUser puts the client back into a valid state', async () => {
@@ -2013,7 +2014,7 @@ describe('FeatureGate client', () => {
 					{ atlassianAccountId: 'abc-456' },
 					undefined,
 				),
-			).rejects.toThrowError();
+			).rejects.toThrow();
 
 			await expect(initialize()).resolves.not.toThrow();
 		});
@@ -2034,7 +2035,7 @@ describe('FeatureGate client', () => {
 					{ atlassianAccountId: 'abc-456' },
 					undefined,
 				),
-			).rejects.toThrowError();
+			).rejects.toThrow();
 			await expect(initialize()).rejects.toMatch('Initialization error');
 		});
 
@@ -2090,7 +2091,7 @@ describe('FeatureGate client', () => {
 					{ atlassianAccountId: 'abc-456' },
 					undefined,
 				),
-			).rejects.toThrowError('Failed to fetch experimentValues');
+			).rejects.toThrow('Failed to fetch experimentValues');
 
 			expect(mockStatsigClient.updateUserAsync).not.toHaveBeenCalled();
 			expect(updateUserCompletionCallback).toHaveBeenCalledWith(
@@ -2115,8 +2116,8 @@ describe('FeatureGate client', () => {
 				),
 			).resolves.not.toThrow();
 
-			expect(fetchMock).not.toBeCalled();
-			expect(mockStatsigClient.updateUserAsync).not.toBeCalled();
+			expect(fetchMock).not.toHaveBeenCalled();
+			expect(mockStatsigClient.updateUserAsync).not.toHaveBeenCalled();
 		});
 	});
 
@@ -2153,7 +2154,7 @@ describe('FeatureGate client', () => {
 				),
 			).rejects.toThrow();
 			expect(mockProvider.getExperimentValues).not.toHaveBeenCalled();
-			expect(mockStatsigClient.updateUserAsync).not.toBeCalled();
+			expect(mockStatsigClient.updateUserAsync).not.toHaveBeenCalled();
 
 			expect(mockProvider.setProfile).toHaveBeenCalledTimes(0);
 		});
@@ -2175,7 +2176,7 @@ describe('FeatureGate client', () => {
 			mockStatsigClient.updateUserAsync.mockRejectedValue('mock error');
 			await expect(
 				FeatureGatesClass.updateUserWithProvider({ atlassianAccountId: 'abc-456' }, undefined),
-			).rejects.toThrowError();
+			).rejects.toThrow();
 
 			expect(mockProvider.setProfile).toHaveBeenCalledTimes(2);
 			await expect(initializeWithProvider()).resolves.not.toThrow();
@@ -2188,7 +2189,7 @@ describe('FeatureGate client', () => {
 			mockStatsigClient.updateUserAsync.mockRejectedValue('mock error');
 			await expect(
 				FeatureGatesClass.updateUserWithProvider({ atlassianAccountId: 'abc-456' }, undefined),
-			).rejects.toThrowError();
+			).rejects.toThrow();
 
 			expect(mockProvider.setProfile).toHaveBeenCalledTimes(2);
 			await expect(initializeWithProvider()).rejects.toMatch('Initialization error');
@@ -2224,7 +2225,7 @@ describe('FeatureGate client', () => {
 
 			await expect(
 				FeatureGatesClass.updateUserWithProvider({ atlassianAccountId: 'abc-456' }, undefined),
-			).rejects.toThrowError('Failed to fetch experimentValues');
+			).rejects.toThrow('Failed to fetch experimentValues');
 
 			expect(mockStatsigClient.updateUserAsync).not.toHaveBeenCalled();
 			expect(updateUserCompletionCallback).toHaveBeenCalledWith(
@@ -2315,7 +2316,7 @@ describe('FeatureGate client', () => {
 					{},
 					{},
 				),
-			).rejects.toThrowError();
+			).rejects.toThrow();
 
 			await expect(initialize()).resolves.not.toThrow();
 		});
@@ -2333,7 +2334,7 @@ describe('FeatureGate client', () => {
 					{},
 					{},
 				),
-			).rejects.toThrowError();
+			).rejects.toThrow();
 			await expect(initialize()).rejects.toMatch('Initialization error');
 		});
 
@@ -2351,6 +2352,17 @@ describe('FeatureGate client', () => {
 
 			expect(mockProvider.getExperimentValues).not.toHaveBeenCalled();
 			expect(mockStatsigClient.updateUserAsync).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('getTargetApp', () => {
+		test('should return undefined before initialization', () => {
+			expect(FeatureGatesClass.getTargetApp()).toBeUndefined();
+		});
+
+		test('should return the targetApp value after initialization', async () => {
+			await mockAndInit();
+			expect(FeatureGatesClass.getTargetApp()).toBe(TARGET_APP);
 		});
 	});
 });

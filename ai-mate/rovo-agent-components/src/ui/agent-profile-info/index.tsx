@@ -4,21 +4,24 @@
  */
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
-import Link from '@atlaskit/link';
-import { AtlassianIcon, RovoIcon } from '@atlaskit/logo';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Heading from '@atlaskit/heading/heading';
+import Link from '@atlaskit/link/link';
+import { RovoIcon } from '@atlaskit/logo';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
 import Skeleton from '@atlaskit/skeleton';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
+import type { AgentCreatorType } from '../../common/types';
 import { HiddenIcon } from '../../common/ui/hidden-icon';
 import { StarIconButton } from '../../common/ui/star-icon-button';
-
+import { isForgeAgentByCreatorType } from '../../common/utils/is-forge-agent';
 import { messages } from './messages';
 
 const styles = cssMap({
@@ -28,25 +31,19 @@ const styles = cssMap({
 		gap: token('space.050'),
 	},
 
+	rovoIconWrapper: {
+		display: 'flex',
+	},
+
 	name: {
 		justifyContent: 'space-between',
 		alignItems: 'flex-start',
 	},
 
 	description: {
-		marginTop: token('space.0'),
-		marginBottom: token('space.100'),
-		overflowWrap: 'anywhere',
-		wordBreak: 'break-word',
-	},
-	descriptionRefresh: {
 		marginBlock: token('space.0'),
 		overflowWrap: 'anywhere',
 		wordBreak: 'break-word',
-	},
-
-	wrapper: {
-		marginBottom: token('space.100'),
 	},
 
 	headingWrapper: {
@@ -70,7 +67,7 @@ type AgentCreator =
 	  }
 	| {
 			// THIRD_PARTY is deprecated in convo-ai, use FORGE instead
-			type: 'THIRD_PARTY' | 'FORGE';
+			type: 'THIRD_PARTY' | 'FORGE' | 'REMOTE_A2A';
 			name: string;
 	  }
 	| {
@@ -92,9 +89,18 @@ export const getAgentCreator = ({
 		return { type: 'SYSTEM' as const };
 	}
 
-	// THIRD_PARTY is deprecated in convo-ai, use FORGE instead
-	if (creatorType === 'FORGE' || creatorType === 'THIRD_PARTY') {
-		return { type: 'FORGE' as const, name: forgeCreator ?? '' };
+	if (
+		fg('rovo_agent_support_a2a_avatar')
+			? isForgeAgentByCreatorType(creatorType as AgentCreatorType)
+			: creatorType === 'FORGE' || creatorType === 'THIRD_PARTY' // THIRD_PARTY is deprecated in convo-ai, use FORGE instead
+	) {
+		return {
+			// @todo: remove cast in rovo_agent_support_a2a_avatar cleanup
+			type: fg('jira_improve_agent_profile_for_a2a')
+				? (creatorType as 'THIRD_PARTY' | 'FORGE' | 'REMOTE_A2A')
+				: ('FORGE' as const),
+			name: forgeCreator ?? '',
+		};
 	}
 
 	if (creatorType === 'OOTB') {
@@ -128,6 +134,7 @@ export const AgentProfileCreator = ({
 	creator,
 	onCreatorLinkClick,
 	isLoading,
+	showCreatorNameWithoutLink = false,
 }: {
 	/**
 	 * Get this value from `getAgentCreator`
@@ -135,20 +142,18 @@ export const AgentProfileCreator = ({
 	creator?: AgentCreator;
 	isLoading: boolean;
 	onCreatorLinkClick: () => void;
-}) => {
+	/**
+	 * Render the creator as plain text instead of a link.
+	 */
+	showCreatorNameWithoutLink?: boolean;
+}): JSX.Element | null => {
 	const { formatMessage } = useIntl();
 
 	const getCreatorRender = () => {
 		if (isLoading) {
 			return formatMessage(messages.agentCreatedBy, {
 				creatorNameWithLink: (
-					<Skeleton
-						testId="agent-profile-creator-skeleton"
-						isShimmering
-						height={18}
-						width={100}
-						borderRadius={3}
-					/>
+					<Skeleton testId="agent-profile-creator-skeleton" isShimmering height={18} width={100} />
 				),
 			});
 		}
@@ -169,27 +174,27 @@ export const AgentProfileCreator = ({
 		}
 
 		if (creator.type === 'CUSTOMER') {
+			const creatorName = `${creator.name} ${
+				creator.status === 'inactive' ? formatMessage(messages.agentDeactivated) : ''
+			}`;
 			return formatMessage(messages.agentCreatedBy, {
-				creatorNameWithLink: fg('dst-a11y__replace-anchor-with-link__ai-mate') ? (
-					<Link href={creator.profileLink} onClick={() => onCreatorLinkClick()} target="_blank">
-						{creator.name}{' '}
-						{creator.status === 'inactive' && formatMessage(messages.agentDeactivated)}
-					</Link>
+				creatorNameWithLink: showCreatorNameWithoutLink ? (
+					creatorName
 				) : (
-					// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-					<a href={creator.profileLink} onClick={() => onCreatorLinkClick()} target="_blank">
-						{creator.name}{' '}
-						{creator.status === 'inactive' && formatMessage(messages.agentDeactivated)}
-					</a>
+					<Link href={creator.profileLink} onClick={() => onCreatorLinkClick()} target="_blank">
+						{creatorName}
+					</Link>
 				),
 			});
 		}
 
+		if (creator.type === 'REMOTE_A2A') {
+			return formatMessage(messages.remoteAgentCreatedBy, { creatorNameWithLink: creator.name });
+		}
+
 		// THIRD_PARTY is deprecated in convo-ai, use FORGE instead
 		if (creator.type === 'THIRD_PARTY' || creator.type === 'FORGE') {
-			return formatMessage(messages.agentCreatedBy, {
-				creatorNameWithLink: creator.name,
-			});
+			return formatMessage(messages.agentCreatedBy, { creatorNameWithLink: creator.name });
 		}
 
 		return null;
@@ -197,9 +202,33 @@ export const AgentProfileCreator = ({
 
 	const creatorRender = getCreatorRender();
 
+	const hideCreatorIcon =
+		(expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+			fg('platform_editor_agent_mentions_drop_one_fixes')) ||
+		fg('platform_editor_agent_card_fixes');
+
+	if (fg('jira_improve_agent_profile_for_a2a')) {
+		const showRovoIcon = !hideCreatorIcon && creator?.type !== 'REMOTE_A2A';
+
+		return creatorRender ? (
+			<Box xcss={styles.clickableItem}>
+				{showRovoIcon ? (
+					<Box xcss={styles.rovoIconWrapper} testId="rovo-icon-wrapper" aria-hidden="true">
+						<RovoIcon appearance="brand" size="small" />
+					</Box>
+				) : null}
+				{creatorRender}
+			</Box>
+		) : null;
+	}
+
 	return creatorRender ? (
 		<Box xcss={styles.clickableItem}>
-			<RovoIcon appearance="brand" size="small" />
+			{!hideCreatorIcon && (
+				<Box xcss={styles.rovoIconWrapper} testId="rovo-icon-wrapper" aria-hidden="true">
+					<RovoIcon appearance="brand" size="small" />
+				</Box>
+			)}
 			{creatorRender}
 		</Box>
 	) : null;
@@ -215,6 +244,7 @@ export const AgentProfileInfo = ({
 	isHidden,
 	onStarToggle,
 	showStarButton = true,
+	renderAdditionalContent,
 }: {
 	agentName: string;
 	agentDescription?: string | null;
@@ -225,13 +255,14 @@ export const AgentProfileInfo = ({
 	isHidden: boolean;
 	onStarToggle: () => void;
 	showStarButton?: boolean;
-}) => {
+	renderAdditionalContent?: () => React.ReactNode;
+}): JSX.Element => {
 	const { formatMessage } = useIntl();
 	return (
-		<Stack space="space.100" xcss={fg('rovo_agent_empty_state_refresh') ? null : styles.wrapper}>
+		<Stack space="space.100">
 			<Inline xcss={styles.name} space="space.100" alignBlock="center">
 				<Inline space="space.075" xcss={styles.headingWrapper}>
-					<Heading as="h2" size={fg('rovo_agent_empty_state_refresh') ? 'medium' : 'xlarge'}>
+					<Heading as="h2" size="medium">
 						{agentName}
 					</Heading>
 					{headingRender}
@@ -243,20 +274,18 @@ export const AgentProfileInfo = ({
 						</Box>
 					)}
 				</Inline>
-				{showStarButton && <StarIconButton isStarred={isStarred} handleToggle={onStarToggle} />}
+				{showStarButton && (
+					<StarIconButton isStarred={isStarred} handleToggle={onStarToggle} agentName={agentName} />
+				)}
 			</Inline>
 			{creatorRender}
 			{!!agentDescription && (
-				<Box
-					xcss={
-						fg('rovo_agent_empty_state_refresh') ? styles.descriptionRefresh : styles.description
-					}
-					as="p"
-				>
+				<Box xcss={styles.description} as="p">
 					{agentDescription}
 				</Box>
 			)}
 			{starCountRender}
+			{!!renderAdditionalContent && renderAdditionalContent()}
 		</Stack>
 	);
 };

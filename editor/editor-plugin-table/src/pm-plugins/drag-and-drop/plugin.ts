@@ -9,18 +9,18 @@ import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
 import { getCellsInRow, getSelectedCellInfo } from '@atlaskit/editor-tables/utils';
 import { insm } from '@atlaskit/insm';
 import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { monitorForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { TablePlugin } from '../../tablePluginType';
 import type { DraggableSourceData } from '../../types';
+import { closeActiveTableMenu } from '../commands/active-table-menu';
 import { getPluginState as getTablePluginState } from '../plugin-factory';
 import { pluginKey as tablePluginKey } from '../plugin-key';
 import { insertColgroupFromNode } from '../table-resizing/utils/colgroup';
 import { findNearestCellIndexToPoint } from '../utils/dom';
 import { hasMergedCellsInBetween } from '../utils/merged-cells';
-
 import { DragAndDropActionType } from './actions';
 import { clearDropTarget, setDropTarget, toggleDragMenu } from './commands';
 import {
@@ -31,6 +31,8 @@ import {
 import { DropTargetType } from './consts';
 import { createPluginState, getPluginState } from './plugin-factory';
 import { pluginKey } from './plugin-key';
+// eslint-disable-next-line import/order
+import type { DragAndDropPluginState } from './types';
 import { getDraggableDataFromEvent } from './utils/monitor';
 
 const destroyFn = (
@@ -53,9 +55,7 @@ const destroyFn = (
 						return type === 'table-row';
 					},
 					onDragStart() {
-						if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-							insm.session?.startFeature('tableDragAndDrop');
-						}
+						insm.session?.startFeature('tableDragAndDrop');
 						// auto scroller doesn't work when scroll-behavior: smooth is set, this monitor temporarily removes it via inline styles
 						// Ignored via go/ees005
 						// eslint-disable-next-line @atlaskit/editor/no-as-casting
@@ -65,9 +65,7 @@ const destroyFn = (
 						);
 					},
 					onDrop() {
-						if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-							insm.session?.endFeature('tableDragAndDrop');
-						}
+						insm.session?.endFeature('tableDragAndDrop');
 						// 'null' will remove the inline style
 						// Ignored via go/ees005
 						// eslint-disable-next-line @atlaskit/editor/no-as-casting
@@ -102,12 +100,17 @@ const destroyFn = (
 				// watch for changes
 				return localId === tableNode?.attrs.localId;
 			},
-			onDragStart: ({ location }) => {
-				if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-					insm.session?.startFeature('tableDragAndDrop');
-				}
-				toggleDragMenu(false)(editorView.state, editorView.dispatch);
-				if (expValEquals('platform_editor_lovability_user_intent', 'isEnabled', true)) {
+			onDragStart: () => {
+				insm.session?.startFeature('tableDragAndDrop');
+
+				if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+					api?.core.actions.execute(({ tr }) => {
+						closeActiveTableMenu(api, { skipUserIntent: true })({ tr });
+						api?.userIntent?.commands.setCurrentUserIntent('dragging')({ tr });
+						return tr;
+					});
+				} else {
+					toggleDragMenu(false)(editorView.state, editorView.dispatch);
 					api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('dragging'));
 				}
 			},
@@ -135,9 +138,7 @@ const destroyFn = (
 					targetAdjustedIndex,
 					hasMergedCells,
 				)(editorView.state, editorView.dispatch);
-				if (expValEquals('platform_editor_lovability_user_intent', 'isEnabled', true)) {
-					api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('dragging'));
-				}
+				api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('dragging'));
 			},
 			onDrop(event) {
 				const data = getDraggableDataFromEvent(event);
@@ -166,19 +167,14 @@ const destroyFn = (
 				};
 				tr.setMeta(tablePluginKey, action);
 
-				if (
-					expValEquals('platform_editor_lovability_user_intent', 'isEnabled', true) &&
-					api?.userIntent?.sharedState.currentState()?.currentUserIntent === 'dragging'
-				) {
+				if (api?.userIntent?.sharedState.currentState()?.currentUserIntent === 'dragging') {
 					api?.core.actions.execute(api?.userIntent?.commands.setCurrentUserIntent('default'));
 				}
 				// If no data can be found then it's most like we do not want to perform any drop action
 				if (!data) {
 					// If we're able to determine the source type of the dropped element then we should report to analytics that
 					// the drop event was cancelled. Otherwise we will cancel silently.
-					if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-						insm.session?.endFeature('tableDragAndDrop');
-					}
+					insm.session?.endFeature('tableDragAndDrop');
 					if (
 						event?.source?.data?.type === 'table-row' ||
 						event?.source?.data?.type === 'table-column'
@@ -226,9 +222,7 @@ const destroyFn = (
 						TABLE_STATUS.INVALID,
 						tr,
 					)(editorView.state, editorView.dispatch);
-					if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-						insm.session?.endFeature('tableDragAndDrop');
-					}
+					insm.session?.endFeature('tableDragAndDrop');
 					return;
 				}
 
@@ -284,9 +278,7 @@ const destroyFn = (
 
 					editorView.focus();
 
-					if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-						insm.session?.endFeature('tableDragAndDrop');
-					}
+					insm.session?.endFeature('tableDragAndDrop');
 				});
 			},
 		}),
@@ -300,9 +292,9 @@ export const createPlugin = (
 	isTableFixedColumnWidthsOptionEnabled = false,
 	isCommentEditor = false,
 	api?: ExtractInjectionAPI<TablePlugin>,
-) => {
+): SafePlugin<DragAndDropPluginState> => {
 	return new SafePlugin({
-		state: createPluginState(dispatch, (state) => ({
+		state: createPluginState(dispatch, () => ({
 			decorationSet: DecorationSet.empty,
 			dropTargetType: DropTargetType.NONE,
 			dropTargetIndex: 0,

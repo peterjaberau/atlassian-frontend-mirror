@@ -11,26 +11,25 @@ import classnames from 'classnames';
 
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import type { ExtensionProvider, ReferenceEntity } from '../../../extensions';
 import { useSharedPluginStateWithSelector } from '../../../hooks';
 import type { ProsemirrorGetPosHandler } from '../../../react-node-view';
+import { NodeViewContentHole } from '../../../react-node-view/NodeViewContentHole';
 import type { EditorAppearance, EditorContainerWidth } from '../../../types';
-import type { OverflowShadowProps, OverflowShadowState, ShadowObserver } from '../../../ui';
+import type { OverflowShadowProps, OverflowShadowState } from '../../../ui';
 import { overflowShadow } from '../../../ui';
 import { calculateBreakoutStyles } from '../../../utils';
 import type { ExtensionsPluginInjectionAPI, MacroInteractionDesignFeatureFlags } from '../../types';
 import { shouldExtensionBreakout } from '../../utils/should-extension-breakout';
-import { LegacyContentHeader } from '../LegacyContentHeader';
 import ExtensionLozenge from '../Lozenge';
 import { overlay } from '../styles';
-
 import { isEmptyBodiedMacro } from './extension-utils';
 import {
-	content,
 	contentWrapper,
 	extensionContent,
 	header,
@@ -44,6 +43,7 @@ export interface Props {
 	extensionProvider?: ExtensionProvider;
 	getPos: ProsemirrorGetPosHandler;
 	handleContentDOMRef: (node: HTMLElement | null) => void;
+	hideConfigureLabel?: boolean;
 	hideFrame?: boolean;
 	isLivePageViewMode?: boolean;
 	isNodeHovered?: boolean;
@@ -84,7 +84,6 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 		hideFrame,
 		editorAppearance,
 		macroInteractionDesignFeatureFlags,
-		isNodeSelected,
 		isNodeHovered,
 		isNodeNested,
 		setIsNodeHovered,
@@ -94,6 +93,7 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 		setShowBodiedExtensionRendererView,
 		pluginInjectionApi,
 		isLivePageViewMode,
+		hideConfigureLabel,
 	} = props;
 
 	const { showMacroInteractionDesignUpdates } = macroInteractionDesignFeatureFlags || {};
@@ -124,26 +124,11 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 	}, [view, getPos]);
 
 	const layout = node.attrs.layout;
-	const legacyShouldBreakout =
-		['full-width', 'wide'].includes(layout) && isTopLevelNode && editorAppearance !== 'full-width';
-	const tinymceFullWidthModeEnabled = expValEquals(
-		'confluence_max_width_content_appearance',
-		'isEnabled',
-		true,
-	);
-	const breakoutExtensionFixEnabled = expValEquals(
-		'confluence_max_width_breakout_extension_fix',
-		'isEnabled',
-		true,
-	);
-	const shouldUseBreakoutFix = tinymceFullWidthModeEnabled && breakoutExtensionFixEnabled;
-	const shouldBreakout = shouldUseBreakoutFix
-		? shouldExtensionBreakout({
-				layout,
-				isTopLevelNode,
-				editorAppearance,
-		  })
-		: legacyShouldBreakout;
+	const shouldBreakout = shouldExtensionBreakout({
+		layout,
+		isTopLevelNode,
+		editorAppearance,
+	});
 
 	// We don't want to show border for non-empty 1p bodied extensions in live pages
 	const show1PBodiedExtensionBorder = showUpdatedLivePages1PBodiedExtensionUI
@@ -159,18 +144,8 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 			show1PBodiedExtensionBorder,
 		'with-margin-styles':
 			showMacroInteractionDesignUpdates && !isNodeNested && !showBodiedExtensionRendererView,
-		'with-hover-border': expValEquals(
-			'cc_editor_ttvc_release_bundle_one',
-			'extensionHoverRefactor',
-			true,
-		)
-			? false
-			: showMacroInteractionDesignUpdates && isNodeHovered,
 		'with-danger-overlay': showMacroInteractionDesignUpdates,
 		'without-frame': removeBorder,
-		'legacy-content': expValEquals('cc_editor_lcm_readonly_initial', 'isEnabled', true)
-			? undefined
-			: showLegacyContentHeader,
 		[widerLayoutClassName]: shouldBreakout,
 	});
 
@@ -205,8 +180,7 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 
 	if (shouldBreakout) {
 		// type is destructured so that breakout styles does not include it
-		// eslint-disable-next-line no-unused-vars
-		const { type, ...breakoutStyles } = calculateBreakoutStyles({
+		const { type: _type, ...breakoutStyles } = calculateBreakoutStyles({
 			mode: node.attrs.layout,
 			widthStateWidth: widthState.width,
 			widthStateLineLength: widthState.lineLength,
@@ -228,25 +202,10 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 		}
 	};
 
-	const extensionContentStyles = expValEquals('platform_editor_extension_styles', 'isEnabled', true)
-		? extensionContent
-		: content;
-
 	return (
 		<Fragment>
-			{expValEquals('cc_editor_lcm_readonly_initial', 'isEnabled', true)
-				? null
-				: showLegacyContentHeader && (
-						<LegacyContentHeader
-							isNodeSelected={isNodeSelected}
-							isNodeHovered={isNodeHovered}
-							onMouseEnter={() => handleMouseEvent(true)}
-							onMouseLeave={() => handleMouseEvent(false)}
-						/>
-				  )}
 			{!showLegacyContentHeader && showMacroInteractionDesignUpdates && !isLivePageViewMode && (
 				<ExtensionLozenge
-					isNodeSelected={isNodeSelected}
 					isNodeHovered={isNodeHovered}
 					isNodeNested={isNodeNested}
 					node={node}
@@ -259,6 +218,7 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 					showBodiedExtensionRendererView={showBodiedExtensionRendererView}
 					setShowBodiedExtensionRendererView={setShowBodiedExtensionRendererView}
 					pluginInjectionApi={pluginInjectionApi}
+					hideConfigureLabel={hideConfigureLabel}
 				/>
 			)}
 			<div
@@ -270,17 +230,24 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 				css={[
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 					wrapperStyleInheritedCursor,
-					showMacroInteractionDesignUpdates &&
-						!isLivePageViewMode &&
-						expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true) &&
-						hoverStyles,
+					showMacroInteractionDesignUpdates && !isLivePageViewMode && hoverStyles,
 				]}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				style={customContainerStyles}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 				onMouseEnter={() => handleMouseEvent(true)}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
+				// @atlassian/a11y/mouse-events-have-key-events: hover border is also applied via .ak-editor-selected-node
+				// CSS on keyboard selection. No-ops here satisfy the rule without duplicating state updates.
+				onFocus={
+					expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+						? () => {}
+						: undefined
+				}
 				onMouseLeave={() => handleMouseEvent(false)}
+				onBlur={
+					expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+						? () => {}
+						: undefined
+				}
 			>
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
 				<div
@@ -290,7 +257,7 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 					css={[
 						// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values
 						overflowWrapperStyles,
-						fg('platform_fix_macro_renders_in_layouts') && containerStyle,
+						containerStyle,
 					]}
 				>
 					{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
@@ -304,10 +271,10 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 					>
 						{!removeBorder && (
 							<ExtensionLozenge
-								isNodeSelected={isNodeSelected}
 								node={node}
 								showMacroInteractionDesignUpdates={showMacroInteractionDesignUpdates}
 								pluginInjectionApi={pluginInjectionApi}
+								hideConfigureLabel={hideConfigureLabel}
 							/>
 						)}
 						{children}
@@ -325,13 +292,11 @@ function ExtensionWithPluginState(props: ExtensionWithPluginStateProps) {
 								<div
 									data-testid="extension-content"
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-									css={extensionContentStyles}
+									css={extensionContent}
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 									className={contentClassNames}
 								>
-									{/* NOTE: this is a way around a bit strange issue where ref is always null on SSR
-								    when `css` property is provided to the component. */}
-									<div ref={handleContentDOMRef} />
+									<NodeViewContentHole ref={handleContentDOMRef} />
 								</div>
 							)}
 						</div>
@@ -353,192 +318,26 @@ const Extension = (props: Props & OverflowShadowProps) => {
 		}),
 	);
 
+	const memoizedWidthState = React.useMemo(
+		() => ({ width: width ?? 0, lineLength }),
+		[width, lineLength],
+	);
+	const widthState = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedWidthState
+		: { width: width ?? 0, lineLength };
+
 	// Ignored via go/ees005
 	return (
 		<ExtensionWithPluginState
-			widthState={{
-				width: width ?? 0,
-				lineLength,
-			}}
+			widthState={widthState}
 			// eslint-disable-next-line react/jsx-props-no-spreading
 			{...props}
 		/>
 	);
 };
 
-const _default_1: {
-	new (props: Props & OverflowShadowProps): {
-		calcOverflowDiff: () => number;
-		calcScrollableWidth: () => number;
-		componentDidCatch?: (error: Error, errorInfo: React.ErrorInfo) => void;
-		componentDidMount?: () => void;
-		componentDidUpdate: () => void;
-		componentWillMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		componentWillReceiveProps?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		componentWillUnmount: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		componentWillUpdate?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			nextState: Readonly<OverflowShadowState>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		container?: HTMLElement;
-		context: unknown;
-		diff?: number;
-		forceUpdate: (callback?: (() => void) | undefined) => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		getSnapshotBeforeUpdate?: (
-			prevProps: Readonly<Props & OverflowShadowProps>,
-			prevState: Readonly<OverflowShadowState>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		) => any;
-		handleContainer: (container: HTMLElement | null) => void;
-		handleScroll: (event: Event) => void;
-		initShadowObserver: () => void;
-		overflowContainer?: HTMLElement | null;
-		overflowContainerWidth: number;
-		readonly props: Readonly<Props & OverflowShadowProps>;
-		refs: {
-			[key: string]: React.ReactInstance;
-		};
-		render: () => React.JSX.Element;
-		scrollable?: NodeList;
-		setState: <K extends keyof OverflowShadowState>(
-			state:
-				| OverflowShadowState
-				| ((
-						prevState: Readonly<OverflowShadowState>,
-						props: Readonly<Props & OverflowShadowProps>,
-				  ) => OverflowShadowState | Pick<OverflowShadowState, K> | null)
-				| Pick<OverflowShadowState, K>
-				| null,
-			callback?: (() => void) | undefined,
-		) => void;
-		shadowObserver?: ShadowObserver;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		shouldComponentUpdate?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			nextState: Readonly<OverflowShadowState>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => boolean;
-		showLeftShadow: (overflowContainer: HTMLElement | null | undefined) => boolean;
-		state: {
-			showLeftShadow: boolean;
-			showRightShadow: boolean;
-		};
-		UNSAFE_componentWillMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		UNSAFE_componentWillReceiveProps?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		UNSAFE_componentWillUpdate?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			nextState: Readonly<OverflowShadowState>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		updateShadows: () => void;
-	};
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	new (
-		props: Props & OverflowShadowProps,
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		context: any,
-	): {
-		calcOverflowDiff: () => number;
-		calcScrollableWidth: () => number;
-		componentDidCatch?: (error: Error, errorInfo: React.ErrorInfo) => void;
-		componentDidMount?: () => void;
-		componentDidUpdate: () => void;
-		componentWillMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		componentWillReceiveProps?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		componentWillUnmount: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		componentWillUpdate?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			nextState: Readonly<OverflowShadowState>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		container?: HTMLElement;
-		context: unknown;
-		diff?: number;
-		forceUpdate: (callback?: (() => void) | undefined) => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		getSnapshotBeforeUpdate?: (
-			prevProps: Readonly<Props & OverflowShadowProps>,
-			prevState: Readonly<OverflowShadowState>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		) => any;
-		handleContainer: (container: HTMLElement | null) => void;
-		handleScroll: (event: Event) => void;
-		initShadowObserver: () => void;
-		overflowContainer?: HTMLElement | null;
-		overflowContainerWidth: number;
-		readonly props: Readonly<Props & OverflowShadowProps>;
-		refs: {
-			[key: string]: React.ReactInstance;
-		};
-		render: () => React.JSX.Element;
-		scrollable?: NodeList;
-		setState: <K extends keyof OverflowShadowState>(
-			state:
-				| OverflowShadowState
-				| ((
-						prevState: Readonly<OverflowShadowState>,
-						props: Readonly<Props & OverflowShadowProps>,
-				  ) => OverflowShadowState | Pick<OverflowShadowState, K> | null)
-				| Pick<OverflowShadowState, K>
-				| null,
-			callback?: (() => void) | undefined,
-		) => void;
-		shadowObserver?: ShadowObserver;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		shouldComponentUpdate?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			nextState: Readonly<OverflowShadowState>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => boolean;
-		showLeftShadow: (overflowContainer: HTMLElement | null | undefined) => boolean;
-		state: {
-			showLeftShadow: boolean;
-			showRightShadow: boolean;
-		};
-		UNSAFE_componentWillMount?: () => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		UNSAFE_componentWillReceiveProps?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		UNSAFE_componentWillUpdate?: (
-			nextProps: Readonly<Props & OverflowShadowProps>,
-			nextState: Readonly<OverflowShadowState>,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			nextContext: any,
-		) => void;
-		updateShadows: () => void;
-	};
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	contextType?: React.Context<any> | undefined;
-} = overflowShadow(Extension, {
-	overflowSelector: '.extension-overflow-wrapper',
-});
+const _default_1: React.ComponentClass<Props & OverflowShadowProps, OverflowShadowState> =
+	overflowShadow(Extension, {
+		overflowSelector: '.extension-overflow-wrapper',
+	});
 export default _default_1;

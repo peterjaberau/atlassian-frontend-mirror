@@ -1,12 +1,11 @@
 import React from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import CrossIcon from '@atlaskit/icon/core/cross';
 
 import { messages } from '../../../../../messages';
 import Action from '../action';
-
 import { type DeleteActionProps } from './types';
 
 const DeleteAction = (props: DeleteActionProps): React.JSX.Element => (

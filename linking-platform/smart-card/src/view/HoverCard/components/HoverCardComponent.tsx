@@ -1,18 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import Popup from '@atlaskit/popup';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { UNSAFE_expValNoExposure } from '@atlaskit/platform-feature-experiments/unsafe-exp-val-no-exposure';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Popup } from '@atlaskit/popup/popup';
 
 import { ActionName, CardDisplay } from '../../../constants';
 import { useSmartCardActions } from '../../../state/actions';
 import { useSmartLinkRenderers } from '../../../state/renderers';
 import { useSmartCardState as useLinkState } from '../../../state/store';
 import { SmartLinkAnalyticsContext } from '../../../utils/analytics/SmartLinkAnalyticsContext';
-import { createCustomPopupContainer } from '../components/CustomPopupContainer';
+import { noop } from '../../../utils/noop';
+import type { AnalyticsHandler } from '../../../utils/types.ts';
 import HoverCardContent from '../components/HoverCardContent';
 import { CARD_GAP_PX, HOVER_CARD_Z_INDEX } from '../styled';
-import { type HoverCardComponentProps, type HoverCardContentProps } from '../types';
+import { type HoverCardProps } from '../types';
+import { createCustomPopupContainer } from './createCustomPopupContainer';
 
 export const HOVER_CARD_SOURCE = 'smartLinkPreviewHoverCard';
 const HOVER_CARD_TRIGGER_WRAPPER = 'hover-card-trigger-wrapper';
@@ -20,6 +22,12 @@ const HOVER_CARD_TRIGGER_WRAPPER = 'hover-card-trigger-wrapper';
 const FADE_IN_DELAY = 500;
 const FADE_OUT_DELAY = 300;
 const RESOLVE_DELAY = 100;
+
+interface HoverCardComponentProps extends HoverCardProps {
+	analyticsHandler?: AnalyticsHandler;
+	canOpen?: boolean;
+	closeOnChildClick?: boolean;
+}
 
 export const HoverCardComponent = ({
 	children,
@@ -32,6 +40,7 @@ export const HoverCardComponent = ({
 	zIndex = HOVER_CARD_Z_INDEX,
 	noFadeDelay = false,
 	hoverPreviewOptions,
+	placement,
 	role,
 	shouldRenderToParent = false,
 	label,
@@ -39,6 +48,11 @@ export const HoverCardComponent = ({
 	onVisibilityChange,
 }: HoverCardComponentProps): React.JSX.Element => {
 	const fadeInDelay = hoverPreviewOptions?.fadeInDelay ?? FADE_IN_DELAY;
+	const gatedPlacement =
+		placement &&
+		UNSAFE_expValNoExposure('confluence_1p_and_3p_connection_byline_experiment', 'isEnabled', false)
+			? placement
+			: undefined;
 	const [isOpen, setIsOpen] = React.useState(false);
 	const fadeOutTimeoutId = useRef<ReturnType<typeof setTimeout>>();
 	const fadeInTimeoutId = useRef<ReturnType<typeof setTimeout>>();
@@ -70,6 +84,12 @@ export const HoverCardComponent = ({
 				y: event.clientY,
 			};
 
+			// A caller-chosen placement anchors the card to the trigger, so a cursor-relative offset
+			// would drag it back over the element the placement was picked to keep clear of.
+			if (gatedPlacement) {
+				return;
+			}
+
 			//If these are undefined then popupOffset is undefined and we fallback to default bottom-start placement
 			if ((!isOpen || !canOpen) && parentSpan.current && mousePos.current) {
 				const { bottom, left } = parentSpan.current.getBoundingClientRect();
@@ -79,7 +99,7 @@ export const HoverCardComponent = ({
 				];
 			}
 		},
-		[canOpen, isOpen],
+		[canOpen, isOpen, gatedPlacement],
 	);
 
 	const hideCard = useCallback(() => {
@@ -140,19 +160,20 @@ export const HoverCardComponent = ({
 	// to minimize the loading state
 	const initResolve = useCallback(() => {
 		// this check covers both non-SSR (status) & SSR case (metadataStatus)
-		const isLinkUnresolved = linkState.status === 'pending' || !linkState.metadataStatus;
+		const isLinkUnresolved =
+			linkState.status === 'pending' ||
+			!linkState.metadataStatus ||
+			(linkState.status === 'resolved' &&
+				linkState.metadataStatus === 'pending' &&
+				fg('platform_smartlink_inline_resolve_optimization'));
 
 		if (!resolveTimeOutId.current && isLinkUnresolved) {
 			resolveTimeOutId.current = setTimeout(() => {
-				if (fg('navx-2478-sl-fix-hover-card-unresolved-view')) {
-					if (linkState.status === 'pending') {
-						// Link hasn't been registered yet. Register and resolve link.
-						register();
-					} else {
-						// Link has been already been partially resolved. Load metadata.
-						loadMetadata();
-					}
+				if (linkState.status === 'pending') {
+					// Link hasn't been registered yet. Register and resolve link.
+					register();
 				} else {
+					// Link has been already been partially resolved. Load metadata.
 					loadMetadata();
 				}
 			}, RESOLVE_DELAY);
@@ -226,11 +247,12 @@ export const HoverCardComponent = ({
 
 	const content = useCallback(
 		({ update }: { update: () => void }) => {
-			const hoverCardContentProps: HoverCardContentProps = {
+			const hoverCardContentProps: React.ComponentProps<typeof HoverCardContent> = {
 				onMouseEnter: initShowCard,
 				onMouseLeave: initHideCard,
 				cardState: linkState,
 				onActionClick,
+				onDismiss: hideCard,
 				onResolve: update,
 				renderers,
 				actionOptions,
@@ -255,6 +277,7 @@ export const HoverCardComponent = ({
 			initHideCard,
 			linkState,
 			onActionClick,
+			hideCard,
 			renderers,
 			actionOptions,
 			url,
@@ -263,29 +286,57 @@ export const HoverCardComponent = ({
 		],
 	);
 
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent) => {
+			if (e.key === ' ') {
+				e.preventDefault();
+				initShowCard(e);
+			}
+		},
+		[initShowCard],
+	);
+
 	const trigger = useCallback(
-		({ 'aria-haspopup': _ariaHasPopup, 'aria-expanded': _ariaExpanded, ...triggerProps }: any) => (
+		({
+			'aria-haspopup': _ariaHasPopup,
+			'aria-expanded': _ariaExpanded,
+			// `aria-controls` is also stripped because the trigger wrapper renders
+			// with `role="none"`. axe's `aria-valid-attr-value` rule flags any
+			// `aria-controls` value sitting on a presentational element, since the
+			// element has no semantic role to control. Removing the attribute
+			// keeps the trigger semantically inert without losing functionality.
+			'aria-controls': _ariaControls,
+			...triggerProps
+		}: any) => (
 			<span ref={parentSpan}>
-				{/* eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlaskit/design-system/no-html-button, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions*/}
 				<span
 					{...triggerProps}
-					// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 					onMouseOver={initShowCard}
-					// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 					onMouseLeave={initHideCard}
 					onMouseMove={setMousePosition}
+					onKeyDown={handleKeyDown}
 					onClick={onChildClick}
 					onContextMenu={onContextMenuClick}
 					data-testid={HOVER_CARD_TRIGGER_WRAPPER}
-					{...(editorExperiment('platform_editor_preview_panel_linking_exp', true)
-						? { className: HOVER_CARD_TRIGGER_WRAPPER }
-						: {})}
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+					className={HOVER_CARD_TRIGGER_WRAPPER}
+					onFocus={noop}
+					onBlur={noop}
+					role="none"
 				>
 					{children}
 				</span>
 			</span>
 		),
-		[children, initHideCard, initShowCard, onChildClick, onContextMenuClick, setMousePosition],
+		[
+			children,
+			initHideCard,
+			initShowCard,
+			onChildClick,
+			onContextMenuClick,
+			setMousePosition,
+			handleKeyDown,
+		],
 	);
 
 	const popupComponent = useMemo(
@@ -299,9 +350,10 @@ export const HoverCardComponent = ({
 		<Popup
 			testId="hover-card"
 			isOpen={isOpen && canOpen}
-			onClose={hideCard}
-			placement="bottom-start"
-			offset={popupOffset.current}
+			onClose={initHideCard}
+			placement={gatedPlacement ?? 'bottom-start'}
+			// A trigger-anchored card keeps the same gap the cursor-anchored one leaves.
+			offset={gatedPlacement ? [0, CARD_GAP_PX] : popupOffset.current}
 			autoFocus={false}
 			content={content}
 			trigger={trigger}
@@ -310,7 +362,6 @@ export const HoverCardComponent = ({
 			titleId={titleId}
 			label={label}
 			shouldRenderToParent={shouldRenderToParent}
-			// @ts-ignore: [PIT-1685] Fails in post-office due to backwards incompatibility issue with React 18
 			popupComponent={popupComponent}
 		/>
 	);

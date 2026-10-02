@@ -2,9 +2,9 @@ import React from 'react';
 
 import { ConfluenceCardClient } from '@atlaskit/editor-test-helpers/confluence-card-client';
 import { ConfluenceCardProvider } from '@atlaskit/editor-test-helpers/confluence-card-provider';
-import Link from '@atlaskit/link';
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import SectionMessage from '@atlaskit/section-message';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import Link from '@atlaskit/link/link';
+import SectionMessage from '@atlaskit/section-message/message';
 
 import { default as FullPageExample } from './5-full-page';
 
@@ -86,4 +86,5 @@ export function Example(): React.JSX.Element {
 	);
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Example;

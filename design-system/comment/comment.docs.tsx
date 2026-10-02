@@ -1,0 +1,50 @@
+import type { StructuredContentSource } from '@atlassian/structured-docs-types/types';
+
+const documentation: StructuredContentSource = {
+	components: [
+		{
+			name: 'Comment',
+			description: 'A component for displaying comments and discussions.',
+			status: 'general-availability',
+			designSource: {
+				figmaUrl: 'https://go.atlassian.com/figma-library-ads-17853-91040',
+			},
+			import: {
+				name: 'Comment',
+				package: '@atlaskit/comment/comment',
+				type: 'default',
+				packagePath: __dirname,
+				packageJson: require('./package.json'),
+			},
+			usageGuidelines: [
+				'Use for comment threads and discussions',
+				'Provide clear comment attribution',
+				'Handle comment nesting appropriately',
+				'Consider comment moderation features',
+			],
+			contentGuidelines: [
+				'Use clear, constructive comment content',
+				'Provide meaningful comment attribution',
+				'Use appropriate comment formatting',
+				'Consider comment context and purpose',
+			],
+			accessibilityGuidelines: [
+				'Ensure proper comment structure',
+				'Provide clear comment attribution',
+				'Use appropriate heading hierarchy',
+				'Consider screen reader navigation',
+			],
+			examples: [
+				{
+					name: 'Comment',
+					description: 'Comment example',
+					source: `${__dirname}/examples/ai/comment.tsx`,
+				},
+			],
+			keywords: ['comment', 'discussion', 'thread', 'conversation', 'chat'],
+			categories: ['data-display'],
+		},
+	],
+};
+
+export default documentation;

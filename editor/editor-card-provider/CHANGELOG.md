@@ -1,5 +1,1439 @@
 # @atlaskit/editor-card-provider
 
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- [`04378f6eea483`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04378f6eea483) -
+  Keep Smart Link responses within the current document instead of restoring session storage, behind
+  platform_smartlink_document_cache. Use explicit gate branches to separate document caching from
+  the existing session-storage cache.
+
+## 8.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`6957e7a3a5c57`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6957e7a3a5c57) -
+  Default Artifacts share view links (/artifacts/<uuid> and /apps/<uuid>/<uuid>/?smartlink=artifact)
+  to embed appearance behind platform_forge_ui_artifact_confluence_integration
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.30
+
+### Patch Changes
+
+- [`2bbc1c84de468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bbc1c84de468) -
+  Migrate Volt consumer imports to existing definitions and align affected test mocks without
+  changing runtime behavior.
+- Updated dependencies
+
+## 7.3.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.11
+
+### Patch Changes
+
+- [`3422261e7a40e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3422261e7a40e) -
+  Clean up experiment `platform_editor_smartlink_local_cache`.
+- Updated dependencies
+
+## 7.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.7
+
+### Patch Changes
+
+- [`2a88c66ba16df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a88c66ba16df) -
+  Recognize dashboard chart URLs as embeds behind the `platform_avp_viz_dashboard_link_embed`
+  feature gate and clean up the `avp_unfurl_shared_charts_embed_by_default_2` feature gate.
+- Updated dependencies
+
+## 7.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`0fb498dde1977`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0fb498dde1977) -
+  Add support for defaulting Loom playlist Smart Links to the embed appearance behind the
+  `loom-playlist-smartlink-embed-default` feature gate.
+
+## 7.1.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.28
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 7.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.28
+
+### Patch Changes
+
+- [`63e41faf180af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63e41faf180af) -
+  [ux] Resolve Confluence shortlinks to native embeds when their canonical URL matches an existing
+  native embed experience
+
+## 7.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.6
+
+### Patch Changes
+
+- [`8e5e159447746`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8e5e159447746) -
+  Clean up prefer static regex violations
+- Updated dependencies
+
+## 7.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.24
+
+### Patch Changes
+
+- [`027beb2f61316`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/027beb2f61316) -
+  Update smart link appearance, if and only if smart link is created from confluence editor quick
+  insert menu
+
+## 6.8.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.13
+
+### Patch Changes
+
+- [`fdea0f8bc06c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fdea0f8bc06c4) -
+  Thread appearance parameter through provider to support ORS optimized response payloads for smart
+  card inline resolve optimization.
+- [`fdea0f8bc06c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fdea0f8bc06c4) -
+  Gate the appearance argument in fetchNodesData behind the
+  platform_smartlink_inline_resolve_optimization flag. Previously, appearance was unconditionally
+  passed to cardClient.fetchData, causing shouldUseParentFetchData to always be true via this path
+  and bypassing the editorCardProvider SSR cache and Confluence-specific optimizations when the flag
+  was off.
+- Updated dependencies
+
+## 6.8.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.4
+
+### Patch Changes
+
+- [`b0378b1a1762f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b0378b1a1762f) -
+  Cleanup platform_sl_fix_cache_unresolved
+- Updated dependencies
+
+## 6.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.0
+
+### Minor Changes
+
+- [`ce30a31e6369d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce30a31e6369d) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.7
+
+### Patch Changes
+
+- [`1e1cd867149d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e1cd867149d8) -
+  Add platform_sl_fix_cache_unresolved - cache Smart Link with resolved status, related to
+  platform_editor_smartlink_local_cache
+- Updated dependencies
+
+## 6.7.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.4
+
+### Patch Changes
+
+- [`6655b2d3fda01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6655b2d3fda01) -
+  NAVX-4681: Remove platform_sl_3p_unauth_paste_as_block_card experiment (winning:
+  card_by_default_and_new_design), platform_sl_3p_unauth_paste_as_block_card_gate, and
+  platform_sl_3p_unauth_experiment_gate feature flags
+- Updated dependencies
+
+## 6.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.0
+
+### Minor Changes
+
+- [`51d860f32cd31`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51d860f32cd31) -
+  Force 16:9 aspect ratio for Confluence Slides embeds.
+  - `editor-card-provider`: Added `isConfluenceSlideUrl()` URL checker and exported it via
+    `./url-checkers` subpath; slide URLs now always resolve to `'embed'` appearance via
+    `getHardCodedAppearance()`
+  - `editor-plugin-card`: In `onResolve()`, overrides the ORS-resolved aspect ratio with `16/9` when
+    the URL is a Confluence Slide
+  - `native-embeds-slide-experience`: Added `parameterDefaults: { width: 960, height: 540 }` to
+    `SlideExperienceManifest` so slides get a 16:9 aspect-ratio container
+  - `native-embeds-editor-extension`: Falls back to `manifest.parameterDefaults` for width/height
+    when the ADF node has no explicit dimensions
+
+## 6.6.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.18
+
+### Patch Changes
+
+- [`0a0e9381986bc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a0e9381986bc) -
+  [ux] Default to embed appearance for Loom screenshot URLs behind feature gate
+
+## 6.6.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.0
+
+### Minor Changes
+
+- [`f0140695e5997`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0140695e5997) -
+  EDITOR-5585 all split function for card provider with config
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.5
+
+### Patch Changes
+
+- [`5979ce2baa3ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5979ce2baa3ea) -
+  Mechanical type-import autofix for rendering and provider packages.
+- Updated dependencies
+
+## 6.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.0
+
+### Minor Changes
+
+- [`df047c96e4f78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/df047c96e4f78) -
+  Refresh cash for a smart card if it's not been fetched before
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.9
+
+### Patch Changes
+
+- [`50a2e34ed2f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50a2e34ed2f69) -
+  Optimize SmartCardLocalCacheClient: in-memory caching, async writes, singleton pattern, and write
+  batching.
+- Updated dependencies
+
+## 6.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 6.4.3
 
 ### Patch Changes

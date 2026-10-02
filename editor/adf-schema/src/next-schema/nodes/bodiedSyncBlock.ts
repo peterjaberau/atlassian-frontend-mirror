@@ -1,28 +1,32 @@
+import type { ADFCommonNodeSpec, ADFNode } from '@atlaskit/adf-schema-generator';
 import { $onePlus, $or, adfNode } from '@atlaskit/adf-schema-generator';
+
 import { breakout } from '../marks/breakout';
 import { unsupportedMark } from '../marks/unsupportedMark';
 import { unsupportedNodeAttribute } from '../marks/unsupportedNodeAttribute';
 import { unsupportedBlock } from '../nodes/unsupportedBlock';
 import { blockCard } from './blockCard';
 import { blockquote } from './blockquote';
+import { bodiedRule } from './bodiedRule';
 import { codeBlock } from './codeBlock';
 import { confluenceUnsupportedBlock } from './confluenceUnsupportedBlock';
 import { decisionList } from './decisionList';
 import { embedCard } from './embedCard';
 import { expand } from './expand';
+import { heading } from './heading';
+import { layoutSection } from './layoutSection';
 import { bulletList, orderedList } from './list';
 import { mediaGroup } from './mediaGroup';
 import { mediaSingle } from './mediaSingle';
 import { panel } from './panel';
 import { paragraph } from './paragraph';
 import { rule } from './rule';
-
-import { heading } from './heading';
 import { table } from './tableNodes';
 import { taskList } from './task';
-import { layoutSection } from './layoutSection';
 
-export const bodiedSyncBlock = adfNode('bodiedSyncBlock').define({
+export const bodiedSyncBlock: ADFNode<[string], ADFCommonNodeSpec> = adfNode(
+	'bodiedSyncBlock',
+).define({
 	selectable: true,
 	isolating: true,
 	marks: [breakout, unsupportedMark, unsupportedNodeAttribute],
@@ -59,8 +63,13 @@ export const bodiedSyncBlock = adfNode('bodiedSyncBlock').define({
 				mediaSingle.use('full'),
 				mediaSingle.use('width_type'),
 				orderedList,
+				// panel_c1 must precede bare `panel` so the validator's repairing loop reaches it before
+				// base `panel` wraps a nested table as `unsupportedBlock`. See full-schema.adf.ts.
+				panel.use('c1'),
 				panel,
 				rule,
+				rule.use('with_attrs'),
+				bodiedRule,
 				table,
 				// @ts-expect-error - types don't deal well with circular references for the variant
 				table.use('with_nested_table'),

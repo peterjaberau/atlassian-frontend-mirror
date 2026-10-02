@@ -2,16 +2,26 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import TextField from '@atlaskit/textfield';
+
+import React, { type FormEvent, PureComponent, type ReactNode } from 'react';
+
+import { css, cssMap, jsx } from '@compiled/react';
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import TextField from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
-import React, { type FormEvent, PureComponent } from 'react';
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
-import { css, jsx } from '@compiled/react';
+
+import { messages } from './i18n';
 import ColorPalette from './internal/color-palette';
 import { type Color } from './Status';
-import { messages } from './i18n';
-
 export type ColorType = Color;
+/**
+ * Which set of selectable values the picker offers.
+ * - `default`: the six named colours.
+ * - `extended`: ten colours; hues without an existing name are persisted as hex.
+ */
+export type StatusPaletteVariant = 'default' | 'extended';
 
 const fieldTextWrapperStyles = css({
 	marginTop: 0,
@@ -24,12 +34,37 @@ const fieldTextWrapperStyles = css({
 	},
 });
 
+const scrollContainerStyles = css({
+	overflowY: 'auto',
+	overscrollBehaviorY: 'none',
+	width: '100%',
+});
+
+const paletteWrapperStyles = css({
+	marginTop: token('space.100'),
+});
+
+const scrollHeightStylesOld = cssMap({
+	default: { maxHeight: '204px' },
+	extended: { maxHeight: '176px' },
+});
+
+// Remove when cleaning up `platform_editor_status_popup_suggestions_patch_3`: `extended`
+// already always uses this value below, and `default` should too, unconditionally.
+const scrollHeightStyles = css({ maxHeight: '160px' });
+
 export interface Props {
 	autoFocus?: boolean;
 	onColorClick: (value: ColorType) => void;
 	onColorHover?: (value: ColorType) => void;
 	onEnter: () => void;
 	onTextChanged: (value: string) => void;
+	/**
+	 * Which set of selectable colours to offer. Defaults to the six named colours;
+	 * `extended` offers ten and can emit hex values through `onColorClick`.
+	 */
+	palette?: StatusPaletteVariant;
+	scrollableContent?: ReactNode;
 	selectedColor: ColorType;
 	text: string;
 }
@@ -45,8 +80,17 @@ class Picker extends PureComponent<Props & WrappedComponentProps, any> {
 	};
 
 	render() {
-		const { text, selectedColor, onColorClick, onColorHover, intl } = this.props;
-
+		const { text, selectedColor, onColorClick, onColorHover, intl, scrollableContent, palette } =
+			this.props;
+		const colorPalette = (
+			<ColorPalette
+				key={this.colorPaletteKey}
+				onClick={onColorClick}
+				onHover={onColorHover}
+				selectedColor={selectedColor}
+				palette={palette}
+			/>
+		);
 		// Using <React.Fragment> instead of [] to workaround Enzyme
 		// (https://github.com/airbnb/enzyme/issues/1149)
 		return (
@@ -63,12 +107,20 @@ class Picker extends PureComponent<Props & WrappedComponentProps, any> {
 						aria-label={intl.formatMessage(messages.statusInputLabel)}
 					/>
 				</div>
-				<ColorPalette
-					key={this.colorPaletteKey}
-					onClick={onColorClick}
-					onHover={onColorHover}
-					selectedColor={selectedColor}
-				/>
+				<div css={paletteWrapperStyles}>{colorPalette}</div>
+				{scrollableContent ? (
+					<div
+						css={[
+							scrollContainerStyles,
+							palette === 'extended' || fg('platform_editor_status_popup_suggestions_patch_3')
+								? scrollHeightStyles
+								: scrollHeightStylesOld[palette ?? 'default'],
+						]}
+						data-status-picker-scroll-container
+					>
+						{scrollableContent}
+					</div>
+				) : null}
 			</React.Fragment>
 		);
 	}
@@ -114,4 +166,7 @@ class Picker extends PureComponent<Props & WrappedComponentProps, any> {
 	}
 }
 
-export const StatusPicker = injectIntl(Picker);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const StatusPicker: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(Picker);

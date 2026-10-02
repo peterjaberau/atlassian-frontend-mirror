@@ -1,5 +1,181 @@
 # @atlaskit/editor-wikimarkup-transformer
 
+## 12.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.1
+
+### Patch Changes
+
+- [`44b753b05a3ce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44b753b05a3ce) -
+  Resolve the new hexadecimal status color identifiers (teal `#B3F5FF`, green `#ABF5D1`, lime
+  `#D3F1A7`, yellow `#FFF0B3`, orange `#FCE4A6`, magenta `#FDD0EC`), so a status keeps its color
+  when content is delivered as an email notification or exported to wiki markup. Each identifier
+  resolves to its own hue; where a package already rendered that hue for one of the six legacy named
+  colors, the existing value is reused rather than adding a second near-identical one, so twelve
+  identifiers resolve to ten colors. The six legacy named colors are unchanged, and an unregistered
+  identifier still falls back to neutral in email and grey in wiki markup.
+
+## 12.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- [`eb0de97776ce5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb0de97776ce5) -
+  cleanup to prefer static regex as part of ees019
+- Updated dependencies
+
+## 11.20.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.20.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.20.14
+
+### Patch Changes
+
+- [`76faad1c8c7b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76faad1c8c7b5) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` devDependency alias (which resolved to `react-intl@^5`) has
+  been renamed to `react-intl`. This is a development-only change with no impact on consumers.
+
+## 11.20.13
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 11.20.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.20.11
+
+### Patch Changes
+
+- [`e974c7d2d3aef`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e974c7d2d3aef) -
+  Mechanical type-import autofix for editor-wikimarkup-transformer.
+
+## 11.20.10
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 11.20.9
+
+### Patch Changes
+
+- [`a58ccd06e5753`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a58ccd06e5753) -
+  Added comprehensive task list test coverage for email-renderer and wikimarkup-transformer.
+
+## 11.20.8
+
+### Patch Changes
+
+- [`ab828dcb15928`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab828dcb15928) -
+  Add support for flexible list indentation ADF structures: handle wrapper listItem nodes (list as
+  first child) and taskList children in listItem encoder
+- Updated dependencies
+
+## 11.20.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.20.6
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 11.20.5
 
 ### Patch Changes

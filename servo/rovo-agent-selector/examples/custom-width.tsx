@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 // eslint-disable-next-line @atlassian/relay/use-single-relay-environment
 import { graphql, RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
 import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
@@ -10,7 +10,6 @@ import { Box } from '@atlaskit/primitives/compiled';
 
 import { RovoAgentSelector } from '../src';
 import { generateMockAgentEdges } from '../src/common/utils/generate-mock-agent-edges';
-
 import type { customWidthRovoAgentSelectorQuery } from './__generated__/customWidthRovoAgentSelectorQuery.graphql';
 
 const containerStyles = cssMap({

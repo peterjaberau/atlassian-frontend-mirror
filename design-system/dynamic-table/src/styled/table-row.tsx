@@ -17,28 +17,22 @@ export type ITableRowProps = {
 };
 
 const rowStyles = css({
-	backgroundColor: token('color.background.neutral.subtle', 'transparent'),
+	backgroundColor: token('color.background.neutral.subtle'),
 	'&:focus-visible': {
-		outline: `${token('border.width.focused')} solid ${token('color.border.focused', 'var(--local-dynamic-table-hover-bg)')}`,
+		outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
 		outlineOffset: `-2px`,
 	},
 });
 
 const rowBackgroundStyles = css({
 	'&:hover': {
-		backgroundColor: token(
-			'color.background.neutral.subtle.hovered',
-			'var(--local-dynamic-table-hover-bg)',
-		),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
 	},
 });
 const rowHighlightedBackgroundStyles = css({
-	backgroundColor: token('color.background.selected', 'var(--local-dynamic-table-highlighted-bg)'),
+	backgroundColor: token('color.background.selected'),
 	'&:hover': {
-		backgroundColor: token(
-			'color.background.selected.hovered',
-			'var(--local-dynamic-table-hover-highlighted-bg)',
-		),
+		backgroundColor: token('color.background.selected.hovered'),
 	},
 });
 
@@ -49,7 +43,6 @@ export const TableBodyRow: React.ForwardRefExoticComponent<
 	({ isHighlighted, children, style, testId, className, ...rest }, ref) => {
 		return (
 			<tr
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				style={style}
 				css={[rowStyles, isHighlighted ? rowHighlightedBackgroundStyles : rowBackgroundStyles]}
 				/**

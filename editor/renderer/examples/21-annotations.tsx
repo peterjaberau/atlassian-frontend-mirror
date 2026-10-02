@@ -2,22 +2,34 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { token } from '@atlaskit/tokens';
+
 import React, { Fragment } from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
+
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx, css } from '@emotion/react';
+
+import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema/annotation';
+import type { AnnotationId } from '@atlaskit/adf-schema/annotation';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import {
+	AnnotationUpdateEmitter,
+	AnnotationUpdateEvent,
+	type InlineCommentHoverComponentProps,
+	type InlineCommentSelectionComponentProps,
+	type InlineCommentViewComponentProps,
+} from '@atlaskit/editor-common/types';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { token } from '@atlaskit/tokens';
+
 //import { exampleDocumentWithComments } from './helper/example-doc-with-comments';
 import { RendererWithAnalytics as Renderer, AnnotationsWrapper } from '../src/';
-import { RendererActionsContext } from '../src/actions';
-import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema';
-import { AnnotationUpdateEmitter, AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
-import { annotationsStore, AnnotationsStoreProvider } from './helper/annotations/store';
-import { ExampleSelectionInlineComponent } from './helper/annotations/selection';
+import { RendererActionsContext } from '../src/ui/RendererActionsContext';
 import { ExampleHoverInlineComponent } from './helper/annotations/hover';
+import { ExampleSelectionInlineComponent } from './helper/annotations/selection';
+import { annotationsStore, AnnotationsStoreProvider } from './helper/annotations/store';
 import { ExampleViewInlineCommentComponent } from './helper/annotations/view';
-import type { DocNode, AnnotationId } from '@atlaskit/adf-schema';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
-import { SmartCardProvider, CardClient } from '@atlaskit/link-provider';
 
 const exampleDocumentWithComments = {
 	version: 1,
@@ -486,6 +498,14 @@ const exampleDocumentWithComments = {
 		},
 	],
 };
+
+const annotationCheckboxStyles = css({
+	background: 'none',
+	border: 'none',
+	padding: 0,
+	cursor: 'pointer',
+});
+
 const updateAnnotationSubscriber = new AnnotationUpdateEmitter();
 const AnnotationCheckbox = (props: {
 	id: string;
@@ -510,8 +530,9 @@ const AnnotationCheckbox = (props: {
 				checked={state === AnnotationMarkStates.ACTIVE}
 			/>
 
-			{/* eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions */}
-			<span onClick={onClick}>{id}</span>
+			<button type="button" onClick={onClick} css={annotationCheckboxStyles}>
+				{id}
+			</button>
 		</div>
 	);
 };
@@ -523,18 +544,34 @@ const containerStyles = css({
 
 const optionsStyles = css({
 	flex: '20%',
-	padding: token('space.200', '16px'),
+	padding: token('space.200'),
 });
 
 const flagsStyles = css({
-	padding: `${token('space.250', '20px')} 0`,
+	padding: `${token('space.250')} 0`,
 });
 
 const mainStyles = css({
 	flex: '80%',
 });
 
-export const useAnnotationsProvider = (setDocument: (doc: any) => void) => {
+export const useAnnotationsProvider = (
+	setDocument: (doc: any) => void,
+): {
+	allowCommentsOnMedia: boolean;
+	allowDraftMode: boolean;
+	getState: (annotationIds: AnnotationId[]) => Promise<
+		{
+			annotationType: AnnotationTypes;
+			id: string;
+			state: AnnotationMarkStates;
+		}[]
+	>;
+	hoverComponent: (props: InlineCommentHoverComponentProps) => jsx.JSX.Element;
+	selectionComponent: (props: InlineCommentSelectionComponentProps) => jsx.JSX.Element;
+	updateSubscriber: AnnotationUpdateEmitter;
+	viewComponent: (props: React.PropsWithChildren<InlineCommentViewComponentProps>) => null;
+} => {
 	const { state } = React.useContext(annotationsStore);
 	const createNewAnnotationAndReplaceDocument = React.useCallback(
 		(doc: JSONDocNode) => {
@@ -669,7 +706,7 @@ const App = () => {
 	);
 };
 
-export default function ExampleAnnotationExperiment() {
+export default function ExampleAnnotationExperiment(): jsx.JSX.Element {
 	return (
 		<AnnotationsStoreProvider>
 			<App />

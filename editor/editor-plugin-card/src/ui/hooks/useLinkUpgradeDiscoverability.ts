@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import type { CardContext } from '@atlaskit/link-provider';
+import type { CardContext } from '@atlaskit/link-provider/types';
 
 import type { cardPlugin } from '../../cardPlugin';
 import { isLocalStorageKeyDiscovered, LOCAL_STORAGE_DISCOVERY_KEY_TOOLBAR } from '../local-storage';
@@ -22,7 +22,12 @@ const useLinkUpgradeDiscoverability = ({
 	pluginInjectionApi,
 	isPulseEnabled,
 	isOverlayEnabled,
-}: LinkUpgradeDiscoverabilityProps) => {
+}: LinkUpgradeDiscoverabilityProps): {
+	shouldShowToolbarPulse: boolean | undefined;
+	shouldShowLinkPulse: boolean | undefined;
+	shouldShowLinkOverlay: boolean | undefined;
+	isLinkMostRecentlyInserted: boolean;
+} => {
 	const [urlState, setUrlState] = useState(cardContext?.store?.getState()[url]);
 	const { overlayCandidatePosition, inlineCardAwarenessCandidatePosition } =
 		pluginInjectionApi?.card?.sharedState?.currentState() || {};

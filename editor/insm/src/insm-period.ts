@@ -1,5 +1,4 @@
 /* eslint-disable @repo/internal/dom-events/no-unsafe-event-listeners */
-import { fg } from '@atlaskit/platform-feature-flags';
 
 import type { INSMSession } from './insm-session';
 import type { Measure } from './types';
@@ -49,7 +48,7 @@ export class PeriodTracking {
 	private latestHeavyTasks: Set<string>;
 
 	state: 'inactive' | 'active' = 'inactive';
-	pauses = new Set<string>();
+	pauses: Set<string> = new Set<string>();
 	/**
 	 * Warning: this can be reset mid period when pausing/resuming.
 	 * It's intended use is to build the `periodMeasurements` duration.
@@ -68,6 +67,7 @@ export class PeriodTracking {
 		const startInteractivityMeasuresPaused = this.latestHeavyTasks.size !== 0;
 
 		for (const periodMeasurer of session.insm.periodMeasurers) {
+			if (!periodMeasurer) continue;
 			periodMeasurer.start(startInteractivityMeasuresPaused);
 			this.periodMeasurements.active.measurements[periodMeasurer.name] = {
 				numerator: 0,
@@ -114,7 +114,7 @@ export class PeriodTracking {
 				this.periodMeasurements[this.state].duration +
 				(performance.now() - this.currentPeriodStart);
 			for (const periodMeasurer of this.session.insm.periodMeasurers) {
-				periodMeasurer.pause();
+				periodMeasurer?.pause();
 			}
 		}
 
@@ -133,32 +133,65 @@ export class PeriodTracking {
 		if (this.pauses.size === 0) {
 			this.currentPeriodStart = performance.now();
 			for (const periodMeasurer of this.session.insm.periodMeasurers) {
-				periodMeasurer.resume();
+				periodMeasurer?.resume();
 			}
 		}
 	}
 
-	get endResults() {
-		this.changePeriodAndTrackLast(this.state);
-		if (fg('cc_editor_insm_fix_attributes')) {
-			return {
+	get endResults():
+		| {
 				active: {
-					features: Array.from(this.periodMeasurements.active.features),
-					heavyTasks: Array.from(this.periodMeasurements.active.heavyTasks),
-					measurements: this.periodMeasurements.active.measurements,
-					duration: this.periodMeasurements.active.duration,
-					count: this.periodMeasurements.active.count,
-				},
+					count: number;
+					duration: number;
+					features: Set<string>;
+					heavyTasks: Set<string>;
+					measurements: { [key: string]: Measure };
+				};
 				inactive: {
-					features: Array.from(this.periodMeasurements.inactive.features),
-					heavyTasks: Array.from(this.periodMeasurements.inactive.heavyTasks),
-					measurements: this.periodMeasurements.inactive.measurements,
-					duration: this.periodMeasurements.inactive.duration,
-					count: this.periodMeasurements.inactive.count,
-				},
-			};
-		}
-		return this.periodMeasurements;
+					count: number;
+					duration: number;
+					features: Set<string>;
+					heavyTasks: Set<string>;
+					measurements: { [key: string]: Measure };
+				};
+		  }
+		| {
+				active: {
+					count: number;
+					duration: number;
+					features: string[];
+					heavyTasks: string[];
+					measurements: {
+						[key: string]: Measure;
+					};
+				};
+				inactive: {
+					count: number;
+					duration: number;
+					features: string[];
+					heavyTasks: string[];
+					measurements: {
+						[key: string]: Measure;
+					};
+				};
+		  } {
+		this.changePeriodAndTrackLast(this.state);
+		return {
+			active: {
+				features: Array.from(this.periodMeasurements.active.features),
+				heavyTasks: Array.from(this.periodMeasurements.active.heavyTasks),
+				measurements: this.periodMeasurements.active.measurements,
+				duration: this.periodMeasurements.active.duration,
+				count: this.periodMeasurements.active.count,
+			},
+			inactive: {
+				features: Array.from(this.periodMeasurements.inactive.features),
+				heavyTasks: Array.from(this.periodMeasurements.inactive.heavyTasks),
+				measurements: this.periodMeasurements.inactive.measurements,
+				duration: this.periodMeasurements.inactive.duration,
+				count: this.periodMeasurements.inactive.count,
+			},
+		};
 	}
 
 	private activeStartListeners: [string, () => void][] = [];
@@ -242,6 +275,7 @@ export class PeriodTracking {
 		const interactivityMeasuresPaused = this.latestHeavyTasks.size !== 0;
 
 		for (const interactivityMeasure of this.session.insm.periodMeasurers) {
+			if (!interactivityMeasure) continue;
 			const finalResult = newPeriod
 				? interactivityMeasure.start(interactivityMeasuresPaused)
 				: interactivityMeasure.end();

@@ -1,10 +1,11 @@
 import React from 'react';
 
-import AvatarGroup from '@atlaskit/avatar-group';
+import AvatarGroup from '@atlaskit/avatar-group/avatar-group';
 import { cssMap } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
 
-import { appearances, RANDOM_USERS } from '../../examples-util/data';
+import { appearances } from '../../examples-util/appearances';
+import { RANDOM_USERS } from '../../examples-util/random-users';
 
 const styles = cssMap({
 	container: { maxWidth: '200px' },

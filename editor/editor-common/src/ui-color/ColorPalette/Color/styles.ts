@@ -1,5 +1,7 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, type SerializedStyles } from '@emotion/react';
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
@@ -20,14 +22,14 @@ export const buttonStyle: SerializedStyles = css({
 
 /** this is not new usage - old code extracted from editor-core */
 /* eslint-disable @atlaskit/design-system/ensure-design-token-usage */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const buttonWrapperStyle: SerializedStyles = css({
 	border: '1px solid transparent',
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	fontSize: 0,
 	display: 'flex',
 	alignItems: 'center',
-	padding: token('space.025', '2px'),
+	padding: token('space.025'),
 	borderRadius: token('radius.medium'),
 	'&:focus-within, &:focus, &:hover': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766

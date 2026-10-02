@@ -1,4 +1,11 @@
-import { useAnalyticsEvents, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import React, { Suspense, useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useContext } from 'react';
+
+import { useIntl } from 'react-intl';
+import { useMergeRefs } from 'use-callback-ref';
+
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import {
 	type FileDetails,
 	type FileIdentifier,
@@ -16,7 +23,12 @@ import {
 	type AuthProviderSucceededEventPayload,
 	type AuthProviderFailedEventPayload,
 } from '@atlaskit/media-client';
-import { useFileState, useMediaClient } from '@atlaskit/media-client-react';
+import { useFileState } from '@atlaskit/media-client-react/use-file-state';
+import { useMediaClient } from '@atlaskit/media-client-react/use-media-client';
+import {
+	mapSsrMediaItemToFileState,
+	type SsrMediaItem,
+} from '@atlaskit/media-client/ssr-media-item';
 import {
 	isMimeTypeSupportedByBrowser,
 	type MediaFeatureFlags,
@@ -26,23 +38,41 @@ import {
 	isVideoMimeTypeSupportedByBrowser,
 	getRandomTelemetryId,
 } from '@atlaskit/media-common';
-import { MediaViewer, type ViewerOptionsProps } from '@atlaskit/media-viewer';
-import React, { Suspense, useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { useMergeRefs } from 'use-callback-ref';
-import { MediaCardError, type MediaCardErrorPrimaryReason } from '../errors';
+import type { MediaFilePreviewErrorPrimaryReason } from '@atlaskit/media-file-preview/media-file-preview-error';
+import type { MediaFilePreview } from '@atlaskit/media-file-preview/types';
+import { useFilePreview } from '@atlaskit/media-file-preview/use-file-preview';
+import type { ProcessingFailedState } from '@atlaskit/media-state/file-state';
+import { AbuseModal } from '@atlaskit/media-ui/abuseModal';
 import {
-	type CardAppearance,
-	type CardDimensions,
-	type CardEventProps,
-	type CardStatus,
-	type FileStateFlags,
-	type TitleBoxIcon,
-	isSSRPreview,
+	MediaViewer,
+	type ViewerOptionsProps,
+	type MediaViewerExtensions,
+} from '@atlaskit/media-viewer';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { getActiveTrace } from '@atlaskit/react-ufo/get-active-trace';
+import usePressTracing from '@atlaskit/react-ufo/use-press-tracing';
+
+import { DateOverrideContext } from '../dateOverrideContext';
+import { isSSRPreview } from '../isSSRPreview';
+import { MediaCardError, type MediaCardErrorPrimaryReason } from '../MediaCardError';
+import type {
+	CardAppearance,
+	CardDimensions,
+	CardEventProps,
+	CardStatus,
+	FileStateFlags,
+	TitleBoxIcon,
 } from '../types';
+import { fireMediaCardEvent } from '../utils/analytics/fireMediaCardEvent';
+import { getAuthProviderFailedPayload } from '../utils/analytics/getAuthProviderFailedPayload';
+import { getAuthProviderSucceededPayload } from '../utils/analytics/getAuthProviderSucceededPayload';
+import { getDefaultCardDimensions } from '../utils/cardDimensions';
 import { generateUniqueId } from '../utils/generateUniqueId';
-import { resolveCardPreviewDimensions } from '../utils/getDataURIDimension';
 import { getMediaCardCursor } from '../utils/getMediaCardCursor';
+import { isKeyboardFocusEnteringElement } from '../utils/isKeyboardFocusEnteringElement';
 import { getFileDetails } from '../utils/metadata';
+import { resolveCardPreviewDimensions } from '../utils/resolveCardPreviewDimensions';
 import {
 	shouldPerformanceBeSampled,
 	useMediaCardUfoExperience,
@@ -51,34 +81,15 @@ import {
 import { useCurrentValueRef } from '../utils/useCurrentValueRef';
 import { usePrevious } from '../utils/usePrevious';
 import { ViewportDetector } from '../utils/viewportDetector';
-import { getDefaultCardDimensions } from '../utils/cardDimensions';
-import {
-	fireNonCriticalErrorEvent,
-	fireOperationalEvent,
-	fireDownloadSucceededEvent,
-	fireDownloadFailedEvent,
-} from './cardAnalytics';
-import {
-	fireMediaCardEvent,
-	getAuthProviderSucceededPayload,
-	getAuthProviderFailedPayload,
-} from '../utils/analytics';
+import type { CardAction } from './actions';
 import { CardView } from './cardView';
+import { createDownloadAction } from './createDownloadAction';
+import { fireDownloadFailedEvent } from './fireDownloadFailedEvent';
+import { fireDownloadSucceededEvent } from './fireDownloadSucceededEvent';
+import { fireNonCriticalErrorEvent } from './fireNonCriticalErrorEvent';
+import { fireOperationalEvent } from './fireOperationalEvent';
 import { InlinePlayerLazy } from './inlinePlayerLazy';
-import {
-	useFilePreview,
-	type MediaFilePreview,
-	type MediaFilePreviewErrorPrimaryReason,
-} from '@atlaskit/media-file-preview';
-import { type CardAction, createDownloadAction } from './actions';
 import { performanceNow } from './performance';
-import { useContext } from 'react';
-import { DateOverrideContext } from '../dateOverrideContext';
-import { useIntl } from 'react-intl-next';
-import { AbuseModal } from '@atlaskit/media-ui/abuseModal';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { getActiveTrace } from '@atlaskit/react-ufo/experience-trace-id-context';
-import usePressTracing from '@atlaskit/react-ufo/use-press-tracing';
 import type { SsrItemDetails } from './types';
 
 export interface FileCardProps extends CardEventProps {
@@ -108,6 +119,19 @@ export interface FileCardProps extends CardEventProps {
 	readonly titleBoxBgColor?: string;
 	/** Sets the title box icon. */
 	readonly titleBoxIcon?: TitleBoxIcon;
+	/** Overrides the background color for media rendering (e.g. the default white background used for SVG transparency). */
+	readonly backgroundColor?: React.CSSProperties['backgroundColor'];
+	/** Indicates the media card is being generated by AI (e.g. Rovo image-create). */
+	readonly isAIGenerating?: boolean;
+	/** Marks the card as part of the CWR (create-with-Rovo) infographics flow. */
+	readonly isCWR?: boolean;
+	/**
+	 * Drops the loading indicator and fades the preview in over the card's surface instead.
+	 * Also behind `aifc_page_create_defer_generated_visuals`.
+	 */
+	readonly hasLoadingMotion?: boolean;
+	/** Callback fired when the media card's image preview has rendered. */
+	readonly onPreviewRender?: (fileId: string) => void;
 	/** Instance of file identifier. */
 	readonly identifier: FileIdentifier;
 	/** Lazy loads the media file. */
@@ -130,18 +154,43 @@ export interface FileCardProps extends CardEventProps {
 	readonly viewerOptions?: ViewerOptionsProps;
 	/** Sets options for viewer **/
 	readonly includeHashForDuplicateFiles?: boolean;
-	/** Optional file details to render straight away **/
+	/**
+	 * @deprecated Use `ssrFileState` instead (Phase 5b). Will be removed in a future major.
+	 */
 	readonly ssrItemDetails?: SsrItemDetails;
+	/**
+	 * Pre-hydrated SSR metadata from a Relay fragment (Media Platform Phase 5b).
+	 * When provided and `fg('platform_media_ssr_data_seed')` is on, the card seeds
+	 * `useFileState` with this data and skips the `items()` API call for files
+	 * whose `processingStatus` is `succeeded`.
+	 * @see https://product-fabric.atlassian.net/browse/BMPT-7914
+	 */
+	readonly ssrFileState?: FileState;
+	/**
+	 * Raw SSR media item from a host payload (e.g. Confluence recorded media nodes).
+	 * Used when `ssrFileState` is not provided. Converted to FileState internally
+	 * when `fg('platform_media_ssr_data_seed')` is on.
+	 */
+	readonly ssrMediaItem?: SsrMediaItem;
 	/** General Error handling include status errors and display errors*/
 	readonly onError?: (
 		reason: MediaFilePreviewErrorPrimaryReason | MediaCardErrorPrimaryReason,
 	) => void;
+	/** Extensions for the media viewer (e.g. comment button in header, sidebar with comment indicator). */
+	readonly mediaViewerExtensions?: MediaViewerExtensions;
+	/**
+	 * Optional fallback fetcher to retrieve the media filename from another service.
+	 * Workaround for #hot-301450 where media service is missing filenames for DC -> Cloud migrated media.
+	 * Receives the file ID and should resolve to the filename string.
+	 * TODO: Remove this prop when fallback-fetcher usage is sufficiently low.
+	 */
+	readonly fallbackMediaNameFetcher?: (id: string) => Promise<string>;
 }
 
 const traceContextRetriever = () => {
 	const trace = getActiveTrace();
-	if (trace && fg('platform-filecard-ufo-trace')) {
-		return { traceId: trace?.traceId, spanId: trace?.spanId };
+	if (trace) {
+		return { traceId: trace.traceId, spanId: trace.spanId };
 	} else {
 		return {
 			traceId: getRandomTelemetryId(),
@@ -172,15 +221,25 @@ export const FileCard = ({
 	testId,
 	titleBoxBgColor,
 	titleBoxIcon,
+	backgroundColor,
+	isAIGenerating,
+	isCWR,
+	hasLoadingMotion,
+	onPreviewRender,
 	shouldHideTooltip,
 	mediaViewerItems,
 	onClick,
 	onMouseEnter,
+	onFocus,
 	videoControlsWrapperRef,
 	viewerOptions,
 	includeHashForDuplicateFiles,
 	ssrItemDetails,
+	ssrFileState,
+	ssrMediaItem,
 	onError,
+	mediaViewerExtensions,
+	fallbackMediaNameFetcher,
 }: FileCardProps): React.JSX.Element => {
 	const { formatMessage } = useIntl();
 	const [isAbuseModalOpen, setIsAbuseModalOpen] = useState(false);
@@ -214,12 +273,29 @@ export const FileCard = ({
 
 	const [isCardVisible, setIsCardVisible] = useState(!isLazy);
 
+	// Note: mapMediaItemToFileState maps the fragment's processingStatus faithfully (including
+	// processing/pending). The decision to skip polling is delegated to useFileState —
+	// it skips subscription only when status === 'processed'. Do not add status guards here.
+	// ssrFileState (Relay / explicit seed) wins over converting ssrMediaItem.
+	const initialFileState = useMemo(
+		() =>
+			fg('platform_media_ssr_data_seed')
+				? (ssrFileState ?? mapSsrMediaItemToFileState(ssrMediaItem))
+				: undefined,
+		[ssrFileState, ssrMediaItem],
+	);
+
 	const { fileState } = useFileState(identifier.id, {
 		skipRemote: !isCardVisible,
 		collectionName: identifier.collectionName,
 		occurrenceKey: identifier.occurrenceKey,
 		includeHashForDuplicateFiles,
+		initialFileState,
 	});
+
+	const [fallbackMediaName, setFallbackMediaName] = useState<string | undefined>();
+	const fallbackMediaNameFetchAttempted = useRef(false);
+	const lastFetchedFileId = useRef<string | undefined>();
 
 	const prevFileState: NonErrorFileState | undefined = usePrevious(
 		fileState && isErrorFileState(fileState) ? undefined : fileState,
@@ -232,6 +308,31 @@ export const FileCard = ({
 		return prevFileState;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fileState]);
+
+	useEffect(() => {
+		// Reset fetch state when the file identity changes
+		const currentId = fileStateValue?.id;
+		fallbackMediaNameFetchAttempted.current = false;
+		setFallbackMediaName(undefined);
+		lastFetchedFileId.current = currentId;
+
+		if (
+			fileStateValue &&
+			!fileStateValue.name &&
+			fallbackMediaNameFetcher &&
+			!fallbackMediaNameFetchAttempted.current
+		) {
+			fallbackMediaNameFetchAttempted.current = true;
+			fallbackMediaNameFetcher(fileStateValue.id).then(
+				(name) => {
+					setFallbackMediaName(name);
+				},
+				() => {
+					// Silently ignore fetch failures
+				},
+			);
+		}
+	}, [fileStateValue, fallbackMediaNameFetcher]);
 
 	const dateOverrides = useContext(DateOverrideContext);
 	const overridenDate = dateOverrides?.[identifier.id];
@@ -288,6 +389,7 @@ export const FileCard = ({
 		getSsrScriptProps,
 		copyNodeRef,
 	} = useFilePreview({
+		initialFileState: initialFileState,
 		useSrcSet: true,
 		mediaBlobUrlAttrs,
 		resizeMode: imageResizeModeToFileImageMode(resizeMode),
@@ -324,7 +426,27 @@ export const FileCard = ({
 			? 'loading-preview'
 			: status;
 
-	const [mediaViewerSelectedItem, setMediaViewerSelectedItem] = useState<Identifier | null>(null);
+	// Experiment gate for the Confluence comments-in-media-viewer work. Only the
+	// viewer-state persistence callbacks introduced by that series are gated —
+	// `mediaViewerExtensions` itself is still forwarded to MediaViewer so the
+	// previously shipped `sidebar` and `headerActions` keep working with the
+	// experiment off.
+	const { getMediaViewerSelectedItem, onSelectedItemChange }: MediaViewerExtensions =
+		isExperimentEnabled('cc_comments_media_viewer_sidebar') ? (mediaViewerExtensions ?? {}) : {};
+
+	const [mediaViewerSelectedItem, setMediaViewerSelectedItem] = useState<Identifier | null>(
+		() => getMediaViewerSelectedItem?.(identifier) ?? null,
+	);
+
+	const openMediaViewer = useCallback(() => {
+		setMediaViewerSelectedItem(identifier);
+		onSelectedItemChange?.(identifier);
+	}, [identifier, onSelectedItemChange]);
+
+	const closeMediaViewer = useCallback(() => {
+		setMediaViewerSelectedItem(null);
+		onSelectedItemChange?.(null);
+	}, [onSelectedItemChange]);
 
 	const uploadProgressRef = useRef<number>();
 
@@ -351,12 +473,17 @@ export const FileCard = ({
 			if (fileStateValue) {
 				return {
 					id: fileStateValue.id,
-					name: fileStateValue.name || (ssrItemDetails && ssrItemDetails.filename),
+					name:
+						fileStateValue.name || fallbackMediaName || (ssrItemDetails && ssrItemDetails.filename),
 					size: fileStateValue.size,
 					mimeType: fileStateValue.mimeType || (ssrItemDetails && ssrItemDetails.mimetype),
 					createdAt: fileStateValue.createdAt || (ssrItemDetails && ssrItemDetails.createdDate),
 					mediaType: fileStateValue.mediaType,
 					processingStatus: getProcessingStatusFromFileState(fileStateValue.status),
+					failReason:
+						fileStateValue.status === 'failed-processing'
+							? (fileStateValue as ProcessingFailedState).failReason
+							: undefined,
 				};
 			} else {
 				return {
@@ -370,12 +497,16 @@ export const FileCard = ({
 			if (fileStateValue) {
 				return {
 					id: fileStateValue.id,
-					name: fileStateValue.name,
+					name: fileStateValue.name || fallbackMediaName,
 					size: fileStateValue.size,
 					mimeType: fileStateValue.mimeType,
 					createdAt: fileStateValue.createdAt,
 					mediaType: fileStateValue.mediaType,
 					processingStatus: getProcessingStatusFromFileState(fileStateValue.status),
+					failReason:
+						fileStateValue.status === 'failed-processing'
+							? (fileStateValue as ProcessingFailedState).failReason
+							: undefined,
 				};
 			} else {
 				return {
@@ -383,7 +514,7 @@ export const FileCard = ({
 				};
 			}
 		}
-	}, [fileStateValue, identifier.id, ssrItemDetails]);
+	}, [fileStateValue, identifier.id, ssrItemDetails, fallbackMediaName]);
 
 	const fileAttributes = useMemo(() => {
 		return {
@@ -653,6 +784,7 @@ export const FileCard = ({
 
 	const onSvgLoad = () => {
 		setPreviewDidRender(true);
+		onPreviewRender?.(identifier.id);
 	};
 
 	const onImageLoad = (newCardPreview?: MediaFilePreview) => {
@@ -661,6 +793,7 @@ export const FileCard = ({
 		}
 		onImageLoadBase(newCardPreview);
 		setPreviewDidRender(true);
+		onPreviewRender?.(identifier.id);
 	};
 
 	const onCardClick = (
@@ -700,12 +833,7 @@ export const FileCard = ({
 			setIsPlayingFile(true);
 			setShouldAutoplay(true);
 		} else if (shouldOpenMediaViewer) {
-			setMediaViewerSelectedItem({
-				id: identifier.id,
-				mediaItemType: 'file',
-				collectionName: identifier.collectionName,
-				occurrenceKey: identifier.occurrenceKey,
-			});
+			openMediaViewer();
 		}
 
 		// Abort VC when click file card
@@ -874,6 +1002,16 @@ export const FileCard = ({
 		});
 	};
 
+	const onImageFocus = (event: React.FocusEvent<HTMLDivElement>) => {
+		if (!isKeyboardFocusEnteringElement(event)) {
+			return;
+		}
+		onFocus?.({
+			event,
+			mediaItemDetails: metadata,
+		});
+	};
+
 	//----------------------------------------------------------------//
 	//---------------------- Render Card Function --------------------//
 	//----------------------------------------------------------------//
@@ -921,6 +1059,7 @@ export const FileCard = ({
 				openMediaViewerButtonRef={mediaViewerButtonRef}
 				onClick={withCallbacks ? onCardViewClick : undefined}
 				onMouseEnter={withCallbacks ? onImageMouseEnter : undefined}
+				onFocus={withCallbacks ? onImageFocus : undefined}
 				disableOverlay={disableOverlay}
 				progress={uploadProgressRef.current}
 				onDisplayImage={
@@ -942,15 +1081,20 @@ export const FileCard = ({
 				testId={testId}
 				titleBoxBgColor={titleBoxBgColor}
 				titleBoxIcon={titleBoxIcon}
+				backgroundColor={backgroundColor}
 				onImageError={withCallbacks ? onImageError : undefined}
 				onImageLoad={withCallbacks ? onImageLoad : undefined}
 				onSvgError={onSvgError}
 				onSvgLoad={onSvgLoad}
 				nativeLazyLoad={nativeLazyLoad}
 				forceSyncDisplay={forceSyncDisplay}
+				traceId={traceContext.traceId}
 				mediaCardCursor={mediaCardCursor}
 				shouldHideTooltip={shouldHideTooltip}
 				overriddenCreationDate={overridenDate}
+				isAIGenerating={isAIGenerating}
+				isCWR={isCWR}
+				hasLoadingMotion={hasLoadingMotion}
 			/>
 		);
 
@@ -1014,12 +1158,12 @@ export const FileCard = ({
 					items={mediaViewerItems || []}
 					mediaClientConfig={mediaClient.config}
 					selectedItem={mediaViewerSelectedItem}
-					onClose={() => {
-						setMediaViewerSelectedItem(null);
-					}}
+					onClose={closeMediaViewer}
 					contextId={contextId}
 					featureFlags={featureFlags}
 					viewerOptions={viewerOptions}
+					extensions={mediaViewerExtensions}
+					fallbackMediaNameFetcher={fallbackMediaNameFetcher}
 				/>
 			) : null}
 			{/* Print the SSR result to be used during hydration */}

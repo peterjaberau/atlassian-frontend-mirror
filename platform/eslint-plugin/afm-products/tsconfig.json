@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__eslint-plugin-platform/app",
 		"rootDir": "../",
 		"composite": true,
@@ -26,6 +25,15 @@
 	"references": [
 		{
 			"path": "../../../design-system/eslint-utils/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/tokens/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../volt/volt-components-entry-point-config/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../native-embeds/native-embeds-core/afm-products/tsconfig.json"
 		}
 	]
 }

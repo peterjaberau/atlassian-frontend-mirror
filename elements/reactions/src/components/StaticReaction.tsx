@@ -3,8 +3,9 @@
  * @jsx jsx
  */
 import { cssMap, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
+
 import { Pressable } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
 	staticReaction: {
@@ -28,6 +29,7 @@ const styles = cssMap({
 			cursor: 'default',
 			backgroundColor: token('color.background.neutral.subtle.hovered'),
 		},
+		transition: token('motion.button.hovered'),
 	},
 });
 
@@ -45,7 +47,7 @@ export const StaticReaction = ({
 	children,
 	testId,
 	dataAttributes = {},
-}: StaticReactionProps) => {
+}: StaticReactionProps): JSX.Element => {
 	return (
 		<Pressable
 			onMouseEnter={onMouseEnter}

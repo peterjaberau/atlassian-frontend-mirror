@@ -1,9 +1,8 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
-import SectionMessage from '@atlaskit/section-message';
+import Link from '@atlaskit/link/link';
+import SectionMessage from '@atlaskit/section-message/message';
 import { token } from '@atlaskit/tokens';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,12 +14,13 @@ ${createEditorUseOnlyNotice('Editor Plugin Selection Marker', [
 
 
   ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
-			<AtlassianInternalWarning />
-		</div>
-	)
-	}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the selection marker plugin used by \`@atlaskit/editor-core\`.
 
@@ -31,10 +31,27 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+type ReleaseHiddenDecoration = () => boolean | undefined;
+
+type SelectionMarkerPluginOptions = { hideCursorOnInit?: boolean };
+
 type SelectionMarkerPlugin = NextEditorPlugin<
   'selectionMarker',
   {
-    dependencies: [FocusPlugin];
+    actions: {
+      hideDecoration: () => ReleaseHiddenDecoration | undefined;
+      queueHideDecoration: (setCleanup: (cb: ReleaseHiddenDecoration | undefined) => void) => (() => void) | undefined;
+    };
+    dependencies: [
+      FocusPlugin,
+      OptionalPlugin<TypeAheadPlugin>,
+      OptionalPlugin<EditorDisabledPlugin>,
+      OptionalPlugin<ToolbarPlugin>,
+      OptionalPlugin<DecorationsPlugin>,
+      OptionalPlugin<UserIntentPlugin>,
+    ];
+    pluginConfiguration?: SelectionMarkerPluginOptions;
+    sharedState: { isForcedHidden: boolean; isMarkerActive: boolean } | undefined;
   }
 >;
 `}
@@ -60,13 +77,7 @@ function AlternativePackagesMessage({
 	if (alternatePackages.length === 1) {
 		return (
 			<p>
-				Consider using{' '}
-				{fg('dst-a11y__replace-anchor-with-link__editor-lego') ? (
-					<Link href={alternatePackages[0].link}>{alternatePackages[0].name}</Link>
-				) : (
-					// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-					<a href={alternatePackages[0].link}>{alternatePackages[0].name}</a>
-				)}
+				Consider using <Link href={alternatePackages[0].link}>{alternatePackages[0].name}</Link>
 				instead.
 			</p>
 		);
@@ -75,16 +86,9 @@ function AlternativePackagesMessage({
 		<p>
 			Consider using one of these packages instead:
 			<ul>
-				{alternatePackages.map((p) => (
-					// Ignored via go/ees005
-					// eslint-disable-next-line react/jsx-key
+				{alternatePackages.map((p) => ( // oxlint-disable-line react/jsx-key
 					<li>
-						{fg('dst-a11y__replace-anchor-with-link__editor-lego') ? (
-							<Link href={p.link}>{p.name}</Link>
-						) : (
-							// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-							<a href={p.link}>{p.name}</a>
-						)}
+						<Link href={p.link}>{p.name}</Link>
 					</li>
 				))}
 			</ul>

@@ -3,6 +3,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
 
 import { css } from '@compiled/react';
@@ -74,13 +75,14 @@ const TextInput = ({ as: Component, value, style }: TextInputProps) => (
 	/>
 );
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const TextInputFormField = ({
 	field,
 	dataTestId,
 }: {
 	field: TextField;
 	dataTestId?: string;
-}) => {
+}): JSX.Element => {
 	const style: React.CSSProperties = { ['fontSize']: `${field.f}px` };
 
 	return (
@@ -110,13 +112,14 @@ const comboBoxInputStyles = css({
 	width: '100%',
 });
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const ComboBoxFormField = ({
 	field,
 	dataTestId,
 }: {
 	field: ComboBoxField;
 	dataTestId?: string;
-}) => {
+}): JSX.Element => {
 	return (
 		<foreignObject
 			x={field.x}
@@ -144,7 +147,8 @@ export const ComboBoxFormField = ({
 	);
 };
 
-export const Annotations = ({ annotations }: { annotations: PageAnnotations }) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const Annotations = ({ annotations }: { annotations: PageAnnotations }): JSX.Element => {
 	return (
 		<React.Fragment>
 			{annotations.text_form_fields.map((field, i) => {

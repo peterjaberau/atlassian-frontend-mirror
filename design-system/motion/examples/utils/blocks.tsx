@@ -6,7 +6,7 @@ import React, { forwardRef } from 'react';
 
 import { css, jsx, keyframes } from '@compiled/react';
 
-import { AtlassianIcon } from '@atlaskit/logo';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
 import { token } from '@atlaskit/tokens';
 
 interface BlockProps extends React.HTMLProps<HTMLDivElement> {
@@ -32,10 +32,10 @@ const blockStyles = css({
 	borderRadius: token('radius.xxlarge'),
 	boxShadow: token('elevation.shadow.overlay'),
 	cursor: 'default',
-	marginBlockEnd: token('space.200', '16px'),
-	marginBlockStart: token('space.200', '16px'),
-	marginInlineEnd: token('space.200', '16px'),
-	marginInlineStart: token('space.200', '16px'),
+	marginBlockEnd: token('space.200'),
+	marginBlockStart: token('space.200'),
+	marginInlineEnd: token('space.200'),
+	marginInlineStart: token('space.200'),
 });
 
 const interactiveStyles = css({
@@ -105,7 +105,6 @@ export const MovesRightBlock: React.ForwardRefExoticComponent<
 		}}
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 		className={props.className}
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 		style={props.style}
 	/>
 ));

@@ -2,27 +2,31 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type CSSProperties, Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
-import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { BlockControlsPlugin } from '../blockControlsPluginType';
 import { getNodeAnchor } from '../pm-plugins/decorations-common';
 import { useActiveAnchorTracker } from '../pm-plugins/utils/active-anchor-tracker';
-import { type AnchorRectCache, isAnchorSupported } from '../pm-plugins/utils/anchor-utils';
+import { isAnchorSupported } from '../pm-plugins/utils/anchor-utils';
+import type { AnchorRectCache } from '../pm-plugins/utils/anchor-utils';
 import { shouldAllowInlineDropTarget } from '../pm-plugins/utils/inline-drop-target';
-
 import { getNestedNodeLeftPaddingMargin } from './consts';
 import { InlineDropTarget } from './inline-drop-target';
 
@@ -76,7 +80,7 @@ const nestedDropZoneStyle = css({
 	width: 'unset',
 });
 
-const enableDropZone = [
+const enableDropZoneNext = [
 	'paragraph',
 	'mediaSingle',
 	'heading',
@@ -87,7 +91,12 @@ const enableDropZone = [
 	'taskList',
 	'extension',
 	'blockCard',
+	'syncBlock',
 ];
+
+const getEnableDropZone = () => {
+	return enableDropZoneNext;
+};
 
 // This z index is used in container like layout
 const fullHeightStyleAdjustZIndexStyle = css({
@@ -138,7 +147,10 @@ const HoverZone = ({
 	const isRemainingheight = dropTargetStyle === 'remainingHeight';
 
 	const anchorName = useMemo(() => {
-		if (expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) {
+		if (
+			expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+			isExperimentEnabled('platform_editor_block_control_migration')
+		) {
 			if (node && typeof pos === 'number') {
 				const posOffset = position === 'upper' ? -node.nodeSize : 0;
 
@@ -150,13 +162,17 @@ const HoverZone = ({
 		return node ? getNodeAnchor(node) : '';
 	}, [api, node, pos, position]);
 	const [_isActive, setActiveAnchor] = useActiveAnchorTracker(anchorName);
+	const isInsideBodiedSyncBlock = parent?.type.name === 'bodiedSyncBlock';
 
 	useEffect(() => {
 		if (ref.current) {
 			return dropTargetForElements({
 				element: ref.current,
 				onDragEnter: () => {
-					if (!isNestedDropTarget && editorExperiment('advanced_layouts', true)) {
+					if (
+						(!isNestedDropTarget || isInsideBodiedSyncBlock) &&
+						editorExperiment('advanced_layouts', true)
+					) {
 						setActiveAnchor();
 					}
 					onDragEnter();
@@ -165,14 +181,21 @@ const HoverZone = ({
 				onDrop,
 			});
 		}
-	}, [isNestedDropTarget, onDragEnter, onDragLeave, onDrop, setActiveAnchor]);
+	}, [
+		isNestedDropTarget,
+		isInsideBodiedSyncBlock,
+		onDragEnter,
+		onDragLeave,
+		onDrop,
+		setActiveAnchor,
+	]);
 
 	const hoverZoneUpperStyle = useMemo(() => {
 		const heightStyleOffset = `var(--editor-block-controls-drop-indicator-gap, 0)/2`;
 		const transformOffset = `var(${EDITOR_BLOCK_CONTROLS_DROP_INDICATOR_OFFSET}, 0)`;
 
 		const heightStyle =
-			anchorName && enableDropZone.includes(node?.type.name || '')
+			anchorName && getEnableDropZone().includes(node?.type.name || '')
 				? isAnchorSupported()
 					? `calc(anchor-size(${anchorName} height)/2 + ${heightStyleOffset})`
 					: `calc(${(anchorRectCache?.getHeight(anchorName) || 0) / 2}px + ${heightStyleOffset})`
@@ -204,14 +227,15 @@ const HoverZone = ({
 		if (isRemainingheight && position === 'upper') {
 			// previous node
 			const anchorName = node
-				? expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
+				? expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+					isExperimentEnabled('platform_editor_block_control_migration')
 					? api?.core.actions.getAnchorIdForNode(node, pos || -1) || ''
 					: getNodeAnchor(node)
 				: '';
 
 			let top = 'unset';
 			if (anchorName) {
-				const enabledDropZone = enableDropZone.includes(node?.type.name || '');
+				const enabledDropZone = getEnableDropZone().includes(node?.type.name || '');
 				if (isAnchorSupported()) {
 					top = enabledDropZone
 						? `calc(anchor(${anchorName} 50%))`
@@ -268,7 +292,7 @@ const HoverZone = ({
 
 export const DropTarget = (
 	props: DropTargetProps & { anchorRectCache?: AnchorRectCache; isSameLayout?: boolean },
-) => {
+): jsx.JSX.Element => {
 	const {
 		api,
 		getPos,
@@ -309,15 +333,27 @@ export const DropTarget = (
 			? '100%'
 			: `${lineLength || DEFAULT_DROP_INDICATOR_WIDTH}px`,
 		[EDITOR_BLOCK_CONTROLS_DROP_TARGET_LEFT_MARGIN]: isNestedDropTarget
-			? getNestedNodeLeftPaddingMargin(parentNode?.type.name)
+			? expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true) && parentNode?.type
+				? getNestedNodeLeftPaddingMargin(getBaseNodeTypeName(parentNode.type))
+				: getNestedNodeLeftPaddingMargin(parentNode?.type.name)
 			: '0',
 		[EDITOR_BLOCK_CONTROLS_DROP_TARGET_ZINDEX]: layers.navigation(),
 	} as CSSProperties;
 
+	const isShowInlineDropTarget = shouldAllowInlineDropTarget(
+		isNestedDropTarget,
+		nextNode,
+		isSameLayout,
+		activeNode,
+		parentNode,
+	);
+
 	return (
 		<Fragment>
 			<HoverZone
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onDragEnter={() => setIsDraggedOver(true)}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onDragLeave={() => setIsDraggedOver(false)}
 				onDrop={onDrop}
 				node={prevNode}
@@ -345,7 +381,9 @@ export const DropTarget = (
 			</div>
 			{dropTargetStyle !== 'remainingHeight' && (
 				<HoverZone
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onDragEnter={() => setIsDraggedOver(true)}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onDragLeave={() => setIsDraggedOver(false)}
 					onDrop={onDrop}
 					node={nextNode}
@@ -359,7 +397,7 @@ export const DropTarget = (
 				/>
 			)}
 
-			{shouldAllowInlineDropTarget(isNestedDropTarget, nextNode, isSameLayout, activeNode) && (
+			{isShowInlineDropTarget && (
 				<Fragment>
 					<InlineDropTarget
 						// Ignored via go/ees005

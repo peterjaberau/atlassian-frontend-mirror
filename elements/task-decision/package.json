@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/task-decision",
-	"version": "19.2.22",
+	"version": "21.11.10",
 	"description": "Tasks and decisions react components",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,13 +12,23 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
+	"devDependencies": {
+		"@af/visual-regression": "workspace:^",
+		"@atlaskit/analytics-listeners": "workspace:^",
+		"@atlaskit/ssr": "workspace:^",
+		"@atlaskit/util-data-test": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"@testing-library/react": "root:*",
+		"@testing-library/user-event": "root:*",
+		"@types/url-search-params": "root:*",
+		"date-fns": "root:*",
+		"fetch-mock": "root:*",
+		"react": "root:*",
+		"react-dom": "root:*",
+		"react-intl": "root:*",
+		"sinon": "root:*",
+		"url-search-params": "root:*"
 	},
 	"sideEffects": [
 		"**/*.compiled.css"
@@ -27,12 +37,29 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./constants": "./src/constants.ts",
+		"./decision-item": "./src/components/DecisionItem.tsx",
+		"./decision-list": "./src/components/DecisionList.tsx",
+		"./messages": "./src/components/i18n.ts",
+		"./resourced-task-item": "./src/components/ResourcedTaskItem.tsx",
+		"./task-decision-resource": "./src/api/TaskDecisionResource.ts",
+		"./task-item": "./src/components/TaskItem.tsx",
+		"./task-list": "./src/components/TaskList.tsx",
 		"./type-helpers": "./src/type-helpers.ts",
 		"./types": "./src/types.ts"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Editor: AI",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Task Decision"
 		}
 	},
@@ -44,52 +71,19 @@
 		"@atlaskit/analytics-namespaced-context": "workspace:^",
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
-		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/util-service-support": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
-		"react-intl-next": "root:*",
 		"use-callback-ref": "root:*",
 		"uuid": "root:*"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0",
 		"url-search-params": "^0.10.0"
-	},
-	"devDependencies": {
-		"@af/visual-regression": "workspace:^",
-		"@atlaskit/analytics-listeners": "workspace:^",
-		"@atlaskit/elements-test-helpers": "workspace:^",
-		"@atlaskit/ssr": "workspace:^",
-		"@atlaskit/util-data-test": "workspace:^",
-		"@atlassian/a11y-jest-testing": "workspace:^",
-		"@testing-library/react": "root:*",
-		"@testing-library/user-event": "root:*",
-		"@types/url-search-params": "root:*",
-		"date-fns": "root:*",
-		"enzyme": "root:*",
-		"fetch-mock": "root:*",
-		"sinon": "root:*",
-		"url-search-params": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"tree-shaking": []
-		},
-		"@repo/internal": {
-			"design-tokens": [
-				"color"
-			],
-			"styling": [
-				"compiled"
-			]
-		}
-	},
-	"platform-feature-flags": {
-		"platform_editor_fix_missing_task_id": {
-			"type": "boolean"
-		}
 	}
 }

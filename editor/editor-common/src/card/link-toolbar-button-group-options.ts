@@ -1,34 +1,9 @@
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import MinusIcon from '@atlaskit/icon/core/minus';
-import SmartLinkCardIcon from '@atlaskit/icon/core/smart-link-card';
-import SmartLinkEmbedIcon from '@atlaskit/icon/core/smart-link-embed';
-import SmartLinkInlineIcon from '@atlaskit/icon/core/smart-link-inline';
-
-import { cardMessages as messages } from '../messages';
 import type { Command } from '../types';
-
+import { appearancePropsMap } from './appearancePropsMap';
 import type { ButtonOptionProps } from './LinkToolbarButtonGroup';
 import type { OptionConfig } from './types';
-
-export const appearancePropsMap = {
-	url: {
-		title: messages.urlTitle,
-		icon: MinusIcon,
-	},
-	inline: {
-		title: messages.inlineTitle,
-		icon: SmartLinkInlineIcon,
-	},
-	block: {
-		title: messages.blockTitle,
-		icon: SmartLinkCardIcon,
-	},
-	embed: {
-		title: messages.embedTitle,
-		icon: SmartLinkEmbedIcon,
-	},
-};
 
 export const getButtonGroupOption = (
 	intl: IntlShape,
@@ -49,3 +24,5 @@ export const getButtonGroupOption = (
 		areAnyNewToolbarFlagsEnabled: areAnyNewToolbarFlagsEnabled,
 	};
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { appearancePropsMap } from './appearancePropsMap';

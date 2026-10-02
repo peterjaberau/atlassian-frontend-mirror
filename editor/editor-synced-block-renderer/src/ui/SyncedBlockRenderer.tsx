@@ -1,24 +1,25 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 
-import type { DocNode } from '@atlaskit/adf-schema';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import { handleSSRErrorsAnalytics } from '@atlaskit/editor-common/sync-block';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { SyncedBlockPlugin } from '@atlaskit/editor-plugin-synced-block';
-import {
-	SyncBlockError,
-	type UseFetchSyncBlockDataResult,
-} from '@atlaskit/editor-synced-block-provider';
+import type { UseFetchSyncBlockDataResult } from '@atlaskit/editor-synced-block-provider';
 import type { MediaSSR } from '@atlaskit/renderer';
 
 import type { SyncedBlockRendererOptions } from '../types';
-
-import { AKRendererWrapper } from './AKRendererWrapper';
-import { SyncedBlockErrorComponent } from './SyncedBlockErrorComponent';
-import { SyncedBlockLoadingState } from './SyncedBlockLoadingState';
+import { renderSyncedBlockContent } from './renderSyncedBlockContent';
 
 export type SyncedBlockRendererProps = {
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>;
+	getAccountId?: () => string | null;
+	/**
+	 * `localId` of the reference node, used to prefix heading ids rendered inside
+	 * the synced block content. Heading ids are only emitted when this is provided
+	 * alongside `syncBlockRendererOptions.allowHeadingAnchorLinks`.
+	 */
+	localId?: string;
 	syncBlockFetchResult: UseFetchSyncBlockDataResult;
 	syncBlockRendererOptions?: SyncedBlockRendererOptions;
 };
@@ -27,13 +28,28 @@ const SyncedBlockRendererComponent = ({
 	syncBlockRendererOptions,
 	syncBlockFetchResult,
 	api,
+	getAccountId,
+	localId,
 }: SyncedBlockRendererProps): React.JSX.Element => {
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			handleSSRErrorsAnalytics(api?.analytics?.actions.fireAnalyticsEvent);
+		}, 0);
+
+		return () => {
+			clearTimeout(timeoutId);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	const { isLoading, providerFactory, reloadData, ssrProviders, syncBlockInstance } =
 		syncBlockFetchResult;
 
+	const isSSRMode = isSSR();
+
 	const rendererOptions = useMemo(() => {
 		if (
-			!isSSR() ||
+			!isSSRMode ||
 			syncBlockRendererOptions?.media?.ssr || // already has ssr config
 			!ssrProviders?.media?.viewMediaClientConfig
 		) {
@@ -52,78 +68,38 @@ const SyncedBlockRendererComponent = ({
 				ssr: mediaSSR,
 			},
 		};
-	}, [syncBlockRendererOptions, ssrProviders]);
+	}, [syncBlockRendererOptions, ssrProviders, isSSRMode]);
 
-	const { isCollabOffline } = useSharedPluginStateWithSelector(
+	const { isCollabOffline, contentMode } = useSharedPluginStateWithSelector(
 		api,
-		['connectivity'],
-		({ connectivityState }) => ({
+		['connectivity', 'contentFormat'],
+		({ connectivityState, contentFormatState }) => ({
 			isCollabOffline: connectivityState?.mode === 'collab-offline',
+			contentMode: contentFormatState?.contentMode,
 		}),
 	);
 
-	// Show offline error only when collaboration is offline and not in SSR mode
-	// In SSR, we should always attempt to render content
-	if (isCollabOffline && !isSSR()) {
-		return <SyncedBlockErrorComponent error={{ type: SyncBlockError.Offline }} />;
-	}
-
-	if (!syncBlockInstance) {
-		return <SyncedBlockLoadingState />;
-	}
-
-	// In SSR, if server returned error, we should render loading state instead of error state
-	// since  FE will do another fetch and render the error state or proper data then
-	if (isSSR() && syncBlockInstance.error) {
-		return <SyncedBlockLoadingState />;
-	}
-
-	if (
-		syncBlockInstance.error ||
-		!syncBlockInstance.data ||
-		syncBlockInstance.data.status === 'deleted'
-	) {
-		return (
-			<SyncedBlockErrorComponent
-				error={
-					syncBlockInstance.error ??
-					(syncBlockInstance?.data?.status === 'deleted'
-						? { type: SyncBlockError.NotFound }
-						: { type: SyncBlockError.Errored })
-				}
-				resourceId={syncBlockInstance.resourceId}
-				onRetry={reloadData}
-				isLoading={isLoading}
-				fireAnalyticsEvent={api?.analytics?.actions.fireAnalyticsEvent}
-			/>
-		);
-	}
-
-	// Check for unpublished status
-	if (syncBlockInstance.data?.status === 'unpublished') {
-		return (
-			<SyncedBlockErrorComponent
-				error={{ type: SyncBlockError.Unpublished }}
-				resourceId={syncBlockInstance.resourceId}
-				sourceURL={syncBlockInstance.data?.sourceURL}
-				fireAnalyticsEvent={api?.analytics?.actions.fireAnalyticsEvent}
-			/>
-		);
-	}
-
-	const syncBlockDoc: DocNode = {
-		content: syncBlockInstance.data.content,
-		version: 1,
-		type: 'doc',
-	} as DocNode;
-
-	return (
-		<AKRendererWrapper
-			doc={syncBlockDoc}
-			dataProviders={providerFactory}
-			options={rendererOptions}
-		/>
-	);
+	const result = renderSyncedBlockContent({
+		syncBlockInstance,
+		isLoading,
+		rendererOptions: contentMode ? { ...rendererOptions, contentMode } : rendererOptions,
+		providerFactory,
+		reloadData,
+		fireAnalyticsEvent: api?.analytics?.actions.fireAnalyticsEvent,
+		resourceId: syncBlockInstance?.resourceId,
+		isOffline: isCollabOffline,
+		getAccountId,
+		headingIdPrefix: localId,
+	});
+	return result.element;
 };
 
-export const SyncedBlockRenderer = memo(SyncedBlockRendererComponent);
+export const SyncedBlockRenderer: React.MemoExoticComponent<
+	({
+		syncBlockRendererOptions,
+		syncBlockFetchResult,
+		api,
+		getAccountId,
+		localId,
+	}: SyncedBlockRendererProps) => React.JSX.Element
+> = memo(SyncedBlockRendererComponent);

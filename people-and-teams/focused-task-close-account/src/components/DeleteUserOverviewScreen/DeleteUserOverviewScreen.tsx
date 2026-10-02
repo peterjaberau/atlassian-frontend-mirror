@@ -1,26 +1,30 @@
 import React from 'react';
-import { FormattedMessage, type MessageDescriptor } from 'react-intl-next';
-import Button from '@atlaskit/button';
-import SectionMessage from '@atlaskit/section-message';
+
+import { FormattedMessage, type MessageDescriptor } from 'react-intl';
+
+import Button from '@atlaskit/button/button';
 import InfoIcon from '@atlaskit/icon/core/status-information';
-import { fg } from '@atlaskit/platform-feature-flags';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Text } from '@atlaskit/primitives';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Text } from '@atlaskit/primitives/compiled';
+import SectionMessage from '@atlaskit/section-message/message';
 
 import { commonMessages, overviewMessages } from '../../messages';
-import StatefulInlineDialog from '../StatefulInlineDialog';
-import UserInfo from '../UserInfo';
-import { type DeleteUserOverviewScreenProps } from './types';
-import * as Styled from './styled';
 import { DropdownList } from '../DropdownList';
 import MessagesIntlProvider from '../MessagesIntlProvider';
+import StatefulInlineDialog from '../StatefulInlineDialog';
+import UserInfo from '../UserInfo';
+import * as Styled from './styled';
+import { type DeleteUserOverviewScreenProps } from './types';
 
 export class DeleteUserOverviewScreen extends React.Component<DeleteUserOverviewScreenProps> {
 	static defaultProps: Partial<DeleteUserOverviewScreenProps> = {
 		isCurrentUser: false,
 	};
 
-	selectAdminOrSelfCopy = (adminCopy: MessageDescriptor, selfCopy: MessageDescriptor) => {
+	selectAdminOrSelfCopy = (
+		adminCopy: MessageDescriptor,
+		selfCopy: MessageDescriptor,
+	): MessageDescriptor => {
 		return this.props.isCurrentUser ? selfCopy : adminCopy;
 	};
 
@@ -81,6 +85,7 @@ export class DeleteUserOverviewScreen extends React.Component<DeleteUserOverview
 				<Styled.IconHoverWrapper>
 					<StatefulInlineDialog
 						placement="auto-start"
+						label="More information"
 						content={
 							<Styled.InlineDialogContent>
 								<FormattedMessage
@@ -155,6 +160,7 @@ export class DeleteUserOverviewScreen extends React.Component<DeleteUserOverview
 				<Styled.IconHoverWrapper>
 					<StatefulInlineDialog
 						placement="auto-start"
+						label="More information"
 						content={
 							<FormattedMessage
 								{...this.selectAdminOrSelfCopy(
@@ -186,6 +192,7 @@ export class DeleteUserOverviewScreen extends React.Component<DeleteUserOverview
 				<Styled.IconHoverWrapper>
 					<StatefulInlineDialog
 						placement="auto-start"
+						label="More information"
 						content={
 							<FormattedMessage
 								{...this.selectAdminOrSelfCopy(

@@ -1,12 +1,12 @@
-import { N30 } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { IntlProvider } from 'react-intl-next';
-import {
-	ResourcedEmojiControl,
-	getEmojiConfig,
-	getRealEmojiProvider,
-} from '../example-helpers/demo-resource-control';
+
+import { IntlProvider } from 'react-intl';
+
+import { token } from '@atlaskit/tokens';
+
+import { getEmojiConfig } from '../example-helpers/get-emoji-config';
+import { getRealEmojiProvider } from '../example-helpers/get-real-emoji-provider';
+import { ResourcedEmojiControl } from '../example-helpers/resourced-emoji-control';
 import { type EmojiId, type EmojiProvider, ResourcedEmoji } from '../src';
 
 const emojiIds: EmojiId[] = [
@@ -26,7 +26,7 @@ const EmojiWrapper = ({ children }: React.PropsWithChildren<unknown>) => {
 				margin: '8px 0',
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				padding: '8px',
-				border: `${token('border.width')} ${token('color.skeleton', N30)} solid`,
+				border: `${token('border.width')} ${token('color.skeleton')} solid`,
 			}}
 		>
 			{children}

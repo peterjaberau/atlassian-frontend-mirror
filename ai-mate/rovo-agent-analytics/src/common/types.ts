@@ -1,1 +1,96 @@
+import type { AgentInteractionsEventPayload } from '../actions/groups/agent-interactions';
+import type { AgentProfileEventPayload } from '../actions/groups/agent-profile';
+import type { BrowseAgentsEventPayload } from '../actions/groups/browse-agents';
+import type { CreateFlowEventPayload } from '../actions/groups/create-flow';
+import type { DebugEventPayload } from '../actions/groups/debug';
+import type { EditingEventPayload } from '../actions/groups/editing';
+import type { EvaluationEventPayload } from '../actions/groups/evaluation';
+import type { InsightsEventPayload } from '../actions/groups/insights';
+import type { KnowledgeFiltersEventPayload } from '../actions/groups/knowledge-filters';
+import type { ModelPreferencesEventPayload } from '../actions/groups/model-preferences';
+import type { SubagentInteractionsEventPayload } from '../actions/groups/subagent-interactions';
+import type { ToolsEventPayload } from '../actions/groups/tools';
+import type { ValueCalculatorEventPayload } from '../actions/groups/value-calculator';
+
 export type RemainingRequired<T, P extends Partial<T>> = Required<Omit<T, keyof P>>;
+
+export type BaseAgentAnalyticsAttributes = {
+	touchPoint?: string;
+	agentId?: string;
+};
+
+export type BrowseCardAnalyticsContext = {
+	browseSessionId?: string;
+	modalEntrypointSource?: string;
+	category?: string;
+	section?: 'hero' | 'codingAgents' | 'recommended' | 'templates' | 'categoryResults';
+	sectionPosition?: number;
+	cardSource?:
+		| 'recommendations'
+		| 'availableCodingAgents'
+		| 'marketplace'
+		| 'templates'
+		| 'agentSearch';
+	placementReason?: 'firstRecommendation' | 'jiraCodingAgent' | 'usageRankedFallback';
+	agentType?: 'codingAgent' | 'rovoAgent' | 'template' | 'unknown';
+	isJiraCodingAgent?: boolean;
+	isPopular?: boolean;
+	interactionElement?: 'card' | 'chatButton' | 'menuTrigger' | 'menuItem';
+};
+
+/**
+ * Common attributes for events scoped to a single versioned agent.
+ *
+ * Extends `BaseAgentAnalyticsAttributes` with versioning state so DS can
+ * distinguish first-publish vs republish, edits-on-draft vs edits-after-publish,
+ * etc. without needing a separate event per state.
+ *
+ * - `agentIsPublished` — sourced from the BE `AgentStudioAssistant.isPublished`
+ *   field. Whether the agent has at least one published version.
+ * - `agentVersionNumber` — the version number the event relates to (e.g. the
+ *   version being edited or published). Sourced from the BE
+ *   `AgentStudioAssistant.version.versionNumber` field.
+ *
+ * Apply to every event scoped to a single agent (CRUD, publish, AND usage events).
+ * Pre-mutation create-flow events stay attribute-free — no `agentId` exists yet.
+ */
+export type VersionedAgentAttributes = BaseAgentAnalyticsAttributes & {
+	agentIsPublished?: boolean | null;
+	agentVersionNumber?: number | null;
+};
+
+/** Common library attribute injected into all events */
+export const LIBRARY_ATTRIBUTE = 'agents-analytics' as const;
+
+/**
+ * Generic error event payload type.
+ * Use with `trackAgentEvent()` to track error events.
+ */
+export type ErrorEventPayload = {
+	actionSubject: 'rovoAgentError';
+	action: string;
+	attributes: {
+		error: { message: string };
+		[key: string]: unknown;
+	};
+};
+
+/**
+ * Union of all event payload types.
+ * Use with `trackAgentEvent()` for typed event tracking.
+ */
+export type EventPayload =
+	| EditingEventPayload
+	| AgentInteractionsEventPayload
+	| AgentProfileEventPayload
+	| BrowseAgentsEventPayload
+	| SubagentInteractionsEventPayload
+	| DebugEventPayload
+	| ToolsEventPayload
+	| EvaluationEventPayload
+	| InsightsEventPayload
+	| ValueCalculatorEventPayload
+	| ErrorEventPayload
+	| KnowledgeFiltersEventPayload
+	| ModelPreferencesEventPayload
+	| CreateFlowEventPayload;

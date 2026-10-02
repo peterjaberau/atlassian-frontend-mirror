@@ -1,0 +1,29 @@
+import React, { useCallback, useState } from 'react';
+
+import { Dialog } from '@atlaskit/top-layer/dialog-content';
+import type { TDialogCloseReason } from '@atlaskit/top-layer/dialog/types';
+
+export default function TestingDialogCloseReason(): React.ReactNode {
+	const [isOpen, setIsOpen] = useState(false);
+	const [lastReason, setLastReason] = useState<TDialogCloseReason | null>(null);
+
+	const handleClose = useCallback(({ reason }: { reason: TDialogCloseReason }) => {
+		setLastReason(reason);
+		setIsOpen(false);
+	}, []);
+
+	return (
+		<div>
+			<button type="button" data-testid="dialog-trigger" onClick={() => setIsOpen(true)}>
+				Open dialog
+			</button>
+			{lastReason && <div data-testid="close-reason">{lastReason}</div>}
+			<Dialog onClose={handleClose} isOpen={isOpen} label="Close reason test" testId="dialog">
+				<div data-testid="dialog-body">Close this dialog to see the reason</div>
+				<button type="button" aria-label="Close" onClick={() => setIsOpen(false)}>
+					&#x2715;
+				</button>
+			</Dialog>
+		</div>
+	);
+}

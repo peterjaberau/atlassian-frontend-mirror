@@ -1,5 +1,9 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import {
 	akEditorFullPageDefaultFontSize,
@@ -14,8 +18,12 @@ const BLOCK_CARD_CONTAINER = 'blockCardView-content-wrap';
 
 // copied from packages/editor/editor-shared-styles/src/consts/consts.ts
 const blockNodesVerticalMargin = '0.75rem';
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const listsStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -132,6 +140,58 @@ export const listsStyles: SerializedStyles = css({
 			listStyleType: 'square',
 		},
 
+		/* ======== PREDICTABLE LISTS WITHOUT DECORATIONS ======== */
+
+		/*
+		 * Equivalent of the `data-indent-level` rules above, expressed purely in CSS so the list
+		 * plugin does not have to emit an indentation decoration for every list on every keystroke.
+		 *
+		 * `:is(ul, ol)` is what makes this work: a plain `ul ul` chain only counts ancestors of the
+		 * same type, so a numbered list nested under a bullet list resolved to `decimal` instead of
+		 * `lower-alpha`. Matching either list type counts every list ancestor, which is exactly what
+		 * `data-indent-level` counted. Each extra `:is(ul, ol)` adds one to the selector's element
+		 * count, so the deepest matching rule always wins.
+		 *
+		 * `:not([data-indent-level])` keeps these rules inert while the decoration is still being
+		 * emitted, so they only take effect for the cohort that has it removed.
+		 */
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'& ul:not([data-indent-level]), & :is(ul, ol) :is(ul, ol) :is(ul, ol) ul:not([data-indent-level])':
+			{
+				listStyleType: 'disc',
+			},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'& :is(ul, ol) ul:not([data-indent-level]), & :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ul:not([data-indent-level])':
+			{
+				listStyleType: 'circle',
+			},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'& :is(ul, ol) :is(ul, ol) ul:not([data-indent-level]), & :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ul:not([data-indent-level])':
+			{
+				listStyleType: 'square',
+			},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'& ol:not([data-indent-level]), & :is(ul, ol) :is(ul, ol) :is(ul, ol) ol:not([data-indent-level])':
+			{
+				listStyleType: 'decimal',
+			},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'& :is(ul, ol) ol:not([data-indent-level]), & :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ol:not([data-indent-level])':
+			{
+				listStyleType: 'lower-alpha',
+			},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'& :is(ul, ol) :is(ul, ol) ol:not([data-indent-level]), & :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) :is(ul, ol) ol:not([data-indent-level])':
+			{
+				listStyleType: 'lower-roman',
+			},
+
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		li: {
 			position: 'relative',
@@ -139,7 +199,7 @@ export const listsStyles: SerializedStyles = css({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 			'& > p:not(:first-child)': {
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-				margin: `${token('space.050', '4px')} 0 0 0`,
+				margin: `${token('space.050')} 0 0 0`,
 			},
 
 			/* In SSR the above rule will apply to all p tags because first-child would be a style tag.
@@ -152,8 +212,13 @@ export const listsStyles: SerializedStyles = css({
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const diffListStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'li[data-testid="show-diff-changed-decoration-node"]::marker': {
@@ -164,7 +229,13 @@ export const diffListStyles: SerializedStyles = css({
 
 // These styles are to fix a layout shift issue that occurs when aui-reset.less CSS is applied post-hydration.
 // It overrides the design system bundle.css list margins, which in turn causes the lists to shift vertically.
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const listsStylesMarginLayoutShiftFix: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -188,7 +259,13 @@ export const listsStylesMarginLayoutShiftFix: SerializedStyles = css({
 });
 
 /* This prevents https://product-fabric.atlassian.net/browse/ED-20924 */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const listsStylesSafariFix: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 	[`.ProseMirror:not(.${BLOCK_CARD_CONTAINER}) > li::before`]: {
@@ -204,10 +281,22 @@ export const listsStylesSafariFix: SerializedStyles = css({
 		},
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
-export const EDITOR_LIST_DENSE_GAP = `max(0px, calc((var(--ak-editor-base-font-size, ${akEditorFullPageDefaultFontSize}px) - ${akEditorFullPageDenseFontSize}px) * (4 / 3)))`;
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/volt-strict-mode/no-multiple-exports
+export const EDITOR_LIST_DENSE_GAP: 'max(0px, calc((var(--ak-editor-base-font-size, 16px) - 13px) * (4 / 3)))' = `max(0px, calc((var(--ak-editor-base-font-size, ${akEditorFullPageDefaultFontSize}px) - ${akEditorFullPageDenseFontSize}px) * (4 / 3)))`;
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getDenseListStyles = (baseFontSize?: number): SerializedStyles => {
 	if (!baseFontSize || baseFontSize === akEditorFullPageDefaultFontSize) {
 		return css({});
@@ -229,3 +318,45 @@ export const getDenseListStyles = (baseFontSize?: number): SerializedStyles => {
 		},
 	});
 };
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const listItemHiddenMarkerStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror': {
+		// Hide markers and remove spacing for wrapper list items (items containing only nested lists)
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'li:has(> ul:only-child), li:has(> ol:only-child)': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			listStyleType: 'none !important',
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			marginTop: '0 !important',
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			marginBottom: '0 !important',
+		},
+		// Remove margin from nested lists inside wrapper list items to avoid double spacing
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'li:has(> ul:only-child) > ul, li:has(> ol:only-child) > ol': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			marginTop: '0 !important',
+		},
+		// Remove top margin from nested taskLists not preceded by a sibling taskItem.
+		// The base rule (tasksAndDecisionsStyles) sets margin-top on all nested taskLists,
+		// but with flexible indentation a taskList can be the first child with no taskItem above.
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'div[data-task-list-local-id] > div[data-task-list-local-id]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			marginTop: '0 !important',
+		},
+		// Restore margin when a nested taskList follows a taskItem
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'div[data-task-local-id] + div[data-task-list-local-id]': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
+			marginTop: `${token('space.050')} !important`,
+		},
+	},
+});

@@ -56,11 +56,11 @@ const fontWeight = cssMap({
 
 const listItemStyles = css({
 	listStyleType: 'none',
-	marginBlockEnd: token('space.0', '0px'),
-	marginBlockStart: token('space.0', '0px'),
-	marginInlineEnd: token('space.0', '0px'),
-	marginInlineStart: token('space.0', '0px'),
-	overflowWrap: 'break-word'
+	marginBlockEnd: token('space.0'),
+	marginBlockStart: token('space.0'),
+	marginInlineEnd: token('space.0'),
+	marginInlineStart: token('space.0'),
+	overflowWrap: 'break-word',
 });
 
 const fadeAnimationBase = css({
@@ -146,7 +146,7 @@ export default class ProgressTrackerStage extends PureComponent<ProgressTrackerS
 		});
 	};
 
-	render() {
+	render(): JSX.Element {
 		const { item, render, transitionDelay, transitionSpeed, transitionEasing, testId } = this.props;
 
 		const ariaCurrent = item.status === 'current' ? 'step' : 'false';
@@ -174,7 +174,9 @@ export default class ProgressTrackerStage extends PureComponent<ProgressTrackerS
 						css={[fadeAnimationBase, fadeAnimationActive]}
 						style={{
 							animationPlayState: this.state.transitioning ? 'running' : 'paused',
-							animationDuration: ['visited', 'disabled'].includes(this.props.item.status) ? '0ms' : undefined,
+							animationDuration: ['visited', 'disabled'].includes(this.props.item.status)
+								? '0ms'
+								: undefined,
 						}}
 					>
 						<ProgressBar
@@ -183,12 +185,7 @@ export default class ProgressTrackerStage extends PureComponent<ProgressTrackerS
 						/>
 					</div>
 					<div
-						css={[
-							fadeAnimationBase,
-							titleStyles,
-							textColor[item.status],
-							fontWeight[item.status],
-						]}
+						css={[fadeAnimationBase, titleStyles, textColor[item.status], fontWeight[item.status]]}
 						data-testid={testId && `${testId}-title`}
 					>
 						{this.shouldShowLink() ? render.link({ item }) : item.label}

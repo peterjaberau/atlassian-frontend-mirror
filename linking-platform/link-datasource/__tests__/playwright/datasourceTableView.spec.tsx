@@ -1,9 +1,14 @@
 import { expect, test } from '@af/integration-testing';
 test.describe('DatasourceTableView', () => {
 	test('persists column picker when new column added', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 		await page.getByTestId('column-picker-trigger-button').click();
 		await page.getByText('Due Date0').click();
 
@@ -11,21 +16,32 @@ test.describe('DatasourceTableView', () => {
 	});
 
 	test('can search in column picker', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 		await page.getByTestId('column-picker-trigger-button').click();
-		page.keyboard.type('Due');
+		await page.getByRole('combobox', { name: 'Search for fields' }).fill('Due');
 
-		await expect(page.locator('#react-select-2-option-11')).toContainText('Due');
-		await expect(page.locator('#react-select-2-option-12')).toContainText('Due');
-		await expect(page.locator('#react-select-2-option-13')).toContainText('Due');
+		const options = page.getByRole('listbox').getByRole('option');
+		await expect(options.getByText('Due Date', { exact: true })).toBeVisible();
+		await expect(options.getByText('Due Date0', { exact: true })).toBeVisible();
+		await expect(options.getByText('Due Date1', { exact: true })).toBeVisible();
 	});
 
 	test('persists column order after loading next page', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'issue-like-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/issue-like-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'issue-like-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		const header = page.getByTestId('link-datasource--head');
 
@@ -60,9 +76,14 @@ test.describe('DatasourceTableView', () => {
 	});
 
 	test('datasource table reload after auth connection action', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'issue-like-table-3p-unauth', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/issue-like-table-3p-unauth.vr.ap.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'issue-like-table-3p-unauth',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		await expect(page.getByTestId('datasource--access-required-with-auth')).toBeVisible();
 
@@ -80,9 +101,14 @@ test.describe('DatasourceTableView', () => {
 	});
 
 	test('toggles edit mode on string column', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		await expect(page.getByTestId('inline-edit-text')).toBeHidden();
 		await page.getByText('FIRST! This level contains five Dragon coins').click();
@@ -91,9 +117,14 @@ test.describe('DatasourceTableView', () => {
 
 	// eslint-disable-next-line playwright/no-skipped-test
 	test.skip('shows flag after edit fail', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		await page.getByText('FIRST! This level contains five Dragon coins').click();
 		await page.getByTestId('inline-edit-text').fill('new value');
@@ -103,9 +134,14 @@ test.describe('DatasourceTableView', () => {
 	});
 
 	test('Load actions and permissions when scrolling new pages into view', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		await page.getByText('FIRST! This level contains five Dragon coins').click();
 		await expect(page.getByTestId('inline-edit-text')).toBeVisible();
@@ -126,9 +162,14 @@ test.describe('DatasourceTableView', () => {
 	});
 
 	test('can update statuses column', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		await page.getByTestId('link-datasource-render-type--status').first().click();
 		await page.getByTestId('inline-edit-status-option-In Progress').first().click();
@@ -141,9 +182,14 @@ test.describe('DatasourceTableView', () => {
 	});
 	test('can update priority column', async ({ page }) => {
 		page.setViewportSize({ width: 1920, height: 1080 });
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		// Check priority value before
 		// We're unable to use link-datasource-render-type--icon--text as other columns also are the same type
@@ -163,9 +209,14 @@ test.describe('DatasourceTableView', () => {
 	});
 
 	test('can filter options with type-ahead in statuses column', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		await page.getByTestId('link-datasource-render-type--status').first().click();
 		await page.getByRole('combobox').fill('in p');
@@ -177,9 +228,14 @@ test.describe('DatasourceTableView', () => {
 	});
 
 	test('can filter options with type-ahead in assignee column', async ({ page }) => {
-		await page.visitExample('linking-platform', 'link-datasource', 'basic-jira-issues-table', {
-			'react-18-mode': 'legacy',
-		});
+		await page.visitExample<typeof import('../../examples/basic-jira-issues-table.tsx')>(
+			'linking-platform',
+			'link-datasource',
+			'basic-jira-issues-table',
+			{
+				'react-18-mode': 'legacy',
+			},
+		);
 
 		await page
 			.getByTestId(

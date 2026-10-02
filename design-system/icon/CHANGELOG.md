@@ -1,5 +1,672 @@
 # @atlaskit/icon
 
+## 38.0.2
+
+### Patch Changes
+
+- [`3fbc5931c675b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3fbc5931c675b) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `panel-left`
+  - `panel-right`
+
+- Updated dependencies
+
+## 38.0.1
+
+### Patch Changes
+
+- [`d5e83674049bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d5e83674049bd) -
+  Restore the deprecated metadata entry point required by existing consumers, including the
+  no-deprecated-imports ESLint rule tests.
+
+## 38.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.7.0
+
+### Minor Changes
+
+- [`93685755a235e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93685755a235e) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+
+## 37.6.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.5.3
+
+### Patch Changes
+
+- [`4612437357f61`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4612437357f61) -
+  Remove references to the unused @atlassian/icon-private package. Its value is dropped from the
+  icon metadata location union, the ensure-icon-color lint rule no longer matches it, and the
+  adoption scanner no longer scans its entrypoint.
+
+## 37.5.2
+
+### Patch Changes
+
+- [`3bcd16de0216e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3bcd16de0216e) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 37.5.1
+
+### Patch Changes
+
+- Use `@atlassian/testing-library` exclusively in unit tests.
+
+## 37.5.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.4.0
+
+### Minor Changes
+
+- [`19f67a13fde54`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19f67a13fde54) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+
+## 37.3.0
+
+### Minor Changes
+
+- [`9f6f84dd3db72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f6f84dd3db72) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+  - `cross-circle`
+  - `data-flow`
+
+## 37.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.2.3
+
+### Patch Changes
+
+- [`9356675edac18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9356675edac18) -
+  Replace generated `./src/*` subpath export keys with lint-safe equivalents. The de-barreling
+  migration produced export keys containing a `src` segment (e.g. `@atlaskit/select`
+  `"./src/select"`), which are forbidden by `no-restricted-imports` (`@atlaskit/*/src/*`) in
+  downstream products.
+
+  Renamed keys:
+  - `@atlaskit/select`: `./src/select` → `./default`
+  - `@atlaskit/icon`: `./src/constants` → `./constants/default`
+  - `@atlaskit/react-select`: `./src/async` → `./async/default`, `./src/creatable` →
+    `./creatable/default`
+  - `@atlaskit/heading`: `./src/heading-context` → `./heading-context/default`
+  - `@atlaskit/flag`: removed the redundant `./src/flag-group` key (duplicate of the existing
+    `./flag-group` export)
+
+  The underlying source targets are unchanged.
+
+## 37.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.2.1
+
+### Patch Changes
+
+- [`edeb4ec55e98c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/edeb4ec55e98c) -
+  Remove `ts-node` dependency. Regenerate icon glypths.
+
+## 37.2.0
+
+### Minor Changes
+
+- [`c50236f04a5d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c50236f04a5d5) -
+  Flatten entry points for `@atlaskit/icon` and remove multiple-export violations.
+
+  New and updated subpath exports are now available directly:
+  - `@atlaskit/icon/components/icon-new` — direct component path (new)
+  - `@atlaskit/icon/deprecated-core` — now resolves directly to `src/deprecated-core.tsx`
+  - `@atlaskit/icon/deprecated-map` — now resolves directly to `src/deprecated-core.tsx`
+  - `@atlaskit/icon/icon-tile` — now resolves directly to `src/components/icon-tile/index.tsx`
+  - `@atlaskit/icon/metadata-core` — now resolves directly to `src/metadata-core.tsx`
+  - `@atlaskit/icon/skeleton` — now resolves directly to `src/components/skeleton.tsx`
+  - `@atlaskit/icon/types` — now resolves directly to `src/types.tsx`
+
+  No migration required for existing imports — all existing subpath exports remain valid. The
+  `./icon-new` subpath continues to work as before via `src/entry-points/icon-new.tsx`.
+
+## 37.1.0
+
+### Minor Changes
+
+- [`1502a8099fc80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1502a8099fc80) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+
+## 37.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 37.0.0
+
+### Major Changes
+
+- [`eb572c1c104f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb572c1c104f1) -
+  Removed the `shape` prop, `UNSAFE_circleReplacementComponent` prop, and `IconTileCircleProps` type
+  from `IconTile`. Circle-shaped icon tiles are no longer supported — `IconTile` now renders a
+  square tile only.
+
+  Feature gates `platform_dst_icon_tile_circle_replacement` and
+  `platform_dst_icon_tile_circle_replacement_stage2` have been cleaned up.
+
+  **Migration:** If you were using
+  `<IconTile shape="circle" UNSAFE_circleReplacementComponent={<MyComponent />} />`, replace the
+  entire `<IconTile>` with `<MyComponent />` directly.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.2.0
+
+### Minor Changes
+
+- [`220103ecf27a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/220103ecf27a6) -
+  This release updates icons in `@atlaskit/icon` and `@atlaskit/icon-lab`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+
+  **`@atlaskit/icon-lab/core`**
+  - `text-rephrase`
+  - `text-review`
+
+## 36.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 36.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 36.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.4.0
+
+### Minor Changes
+
+- [`9c0155c00d835`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9c0155c00d835) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+
+## 35.3.0
+
+### Minor Changes
+
+- [`16804116e2d36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/16804116e2d36) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+
+## 35.2.0
+
+### Minor Changes
+
+- [`14dec73701a1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14dec73701a1e) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `add`
+  - `chart-pie`
+  - `cross`
+
+## 35.1.0
+
+### Minor Changes
+
+- [`28617d8f348d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28617d8f348d3) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `add`
+  - `chart-pie`
+  - `cross`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 35.0.0
+
+### Major Changes
+
+- [`2b84ca637685f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2b84ca637685f) -
+  [ux] Cleans up the `IconTile` API following the rollout of `platform_dst_new_icon_tile` and
+  `platform_dst_new_icon_tile_stage2` flags.
+
+  ### Breaking changes
+  - **`size="16"` removed** — Migrate to direct icon glyph usage (e.g. `<MyIcon label="..." />`), or
+    use `size="xsmall"` for the smallest tile (20px).
+  - **Pixel number sizes removed** — `size` values `"24"`, `"32"`, `"40"`, `"48"` have been removed.
+    Migrate to t-shirt sizes:
+    - `"small"` (replaces `"24"`)
+    - `"medium"` (replaces `"32"`)
+    - `"large"` (replaces `"40"`)
+    - `"xlarge"` (replaces `"48"`)
+  - **`LegacyIconTileSize` and `NewIconTileSize` types removed** — Use `IconTileSize` directly.
+  - Icon tile defaults to size `medium` (previously - `small`).
+  - `UNSAFE_circleReplacementComponent` is required if `shape='circle'` is passed in.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.6.0
+
+### Minor Changes
+
+- [`b75e40f942dce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b75e40f942dce) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `ai-generative-text-summary`
+  - `briefcase`
+  - `chart-pie`
+  - `customize`
+  - `filter`
+
+## 34.5.0
+
+### Minor Changes
+
+- [`2839666e3fb27`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2839666e3fb27) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+  - `paint-bucket`
+
+## 34.4.0
+
+### Minor Changes
+
+- [`0e2b29db61e0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e2b29db61e0a) -
+  This release adds icons in `@atlaskit/icon`.
+
+  ### Added:
+
+  **`@atlaskit/icon/core`**
+  - `bezier-curve`
+  - `figma-community`
+  - `figma-component-instance-swap`
+  - `figma-component-instance`
+  - `figma-component`
+  - `figma-slot`
+  - `figma`
+
+## 34.3.0
+
+### Minor Changes
+
+- [`a8a1708dfe5e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8a1708dfe5e6) -
+  This release adds and updates icons in `@atlaskit/icon`.
+
+  ### Added:
+
+  **`@atlaskit/icon/core`**
+  - `quotation-block`
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+  - `markdown`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.2.0
+
+### Minor Changes
+
+- [`7d6e9b5e6e7c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d6e9b5e6e7c6) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 34.1.0
+
+### Minor Changes
+
+- [`a42fb7e88fcfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a42fb7e88fcfa) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `text`
+
+## 34.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.0.4
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+
+## 34.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 34.0.2
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 34.0.1
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 34.0.0
+
+### Major Changes
+
+- [`af4d3f68227b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/af4d3f68227b4) -
+  Removed the default export (Icon), `./base`, `./svg` entry-points, and SVG named export.
+
+  ```diff
+  - import Icon from `@atlaskit/icon`
+  - import Icon from `@atlaskit/icon/base`
+  - import SVG from `@atlaskit/icon/svg`
+  ```
+
+  ### Migration Path
+
+  Creating custom icons using icon base component or SVG component are no longer supported. Please
+  migrate to native `<svg />` or choose one of the icons from provided icon set (e.g.
+  `import AddIcon from "@atlaskit/icon/core/add"`)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 33.1.2
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Update codemod and eslint to handle different scenarios to migrate spacing props
+- Updated dependencies
+
+## 33.1.1
+
+### Patch Changes
+
+- [`af37f7d87df51`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/af37f7d87df51) -
+  Deprecate `spacing` prop on icon components via JSDoc `@deprecated` annotation, and update ADS
+  website docs (Icon > Examples, Icon > Usage) to reflect the deprecation with migration guidance.
+
+## 33.1.0
+
+### Minor Changes
+
+- [`0daada0469ab8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0daada0469ab8) -
+  Remove `@atlaskit/icon/migration-map` entry point, `IconMigrationMap` and
+  `IconMigrationSizeGuidance` types from `@atlaskit/icon`, and `@atlaskit/icon-lab/migration-map`
+  entry point. These were only needed to support the legacy glyph icon migration path which has now
+  been fully completed. Remove the `no-legacy-icons` ESLint rule from
+  `@atlaskit/eslint-plugin-design-system` as `@atlaskit/icon/glyph` and
+  `@atlaskit/icon/core/migration` no longer exist.
+
+## 33.0.2
+
+### Patch Changes
+
+- [`c426ad3d11c7c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c426ad3d11c7c) -
+  Fixes to icon build process
+
+## 33.0.1
+
+### Patch Changes
+
+- [`a61a3677df8a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a61a3677df8a5) -
+  Remove `core/migration/*` entries from deprecated icon docs. The `core/migration/*` icon
+  components no longer exist following the removal of `@atlaskit/icon/glyph` legacy icons.
+
+## 33.0.0
+
+### Major Changes
+
+- [`f1ef2305b8862`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1ef2305b8862) -
+  Remove legacy icon glyphs and oldName prop support from metadata core.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 32.1.0
+
+### Minor Changes
+
+- [`99726ea06a76c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/99726ea06a76c) -
+  This release updates icons in `@atlaskit/icon`.
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+  - `person-add`
+  - `person-added`
+  - `person-offboard`
+  - `person-remove`
+  - `person-warning`
+  - `screen-plus`
+
+## 32.0.2
+
+### Patch Changes
+
+- [`5e06fddfce409`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e06fddfce409) -
+  Rename codemod to `next-icon-spacing-to-flex-primitive` (now discoverable via
+  `npx @atlaskit/codemod-cli`) and update `no-icon-spacing-prop` ESLint rule to generate `Flex`
+  wrapper instead of `Box`.
+
+## 32.0.1
+
+### Patch Changes
+
+- [`a788a4cabea12`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a788a4cabea12) -
+  Add codemod to migrate icon spacing prop to Box primitive
+
+## 32.0.0
+
+### Major Changes
+
+- [`f3af0f1353dd5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3af0f1353dd5) -
+  Remove legacy icon glyphs and oldName prop support from metadata core.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 31.0.0
+
+### Major Changes
+
+- [`cba951d9c882d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cba951d9c882d) -
+  Dropping LEGACY_fallback prop from icon-tile
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.1.0
+
+### Minor Changes
+
+- [`ea7a01d023b36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea7a01d023b36) -
+  This release adds and updates icons in `@atlaskit/icon`.
+
+  ### Added:
+
+  **`@atlaskit/icon/core`**
+  - `ai-sparkle`
+
+  ### Updated:
+
+  **`@atlaskit/icon/core`**
+  - `chart-pie`
+
 ## 30.0.2
 
 ### Patch Changes

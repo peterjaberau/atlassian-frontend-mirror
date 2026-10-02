@@ -1,6 +1,19 @@
-import React, { type MouseEvent, useEffect, useState, useRef, useMemo } from 'react';
-import { type MessageDescriptor } from 'react-intl-next';
+import React, {
+	type FocusEvent,
+	type MouseEvent,
+	useEffect,
+	useState,
+	useRef,
+	useMemo,
+} from 'react';
 
+import { type MessageDescriptor, defineMessages, useIntl } from 'react-intl';
+import { useMergeRefs } from 'use-callback-ref';
+
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
 import {
 	type MediaItemType,
 	type FileDetails,
@@ -8,17 +21,15 @@ import {
 	type Identifier,
 	isFileIdentifier,
 } from '@atlaskit/media-client';
-import {
-	withAnalyticsEvents,
-	type WithAnalyticsEventsProps,
-	type UIAnalyticsEvent,
-} from '@atlaskit/analytics-next';
+import type { MediaFilePreview } from '@atlaskit/media-file-preview/types';
+import { messages } from '@atlaskit/media-ui/messages';
 import { MimeTypeIcon } from '@atlaskit/media-ui/mime-type-icon';
-import SpinnerIcon from '@atlaskit/spinner';
-import Tooltip from '@atlaskit/tooltip';
-import { useMergeRefs } from 'use-callback-ref';
-import { messages } from '@atlaskit/media-ui';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
+import { isUploadError } from '../isUploadError';
+import type { MediaCardError } from '../MediaCardError';
 import {
 	type CardStatus,
 	type CardPreview,
@@ -26,34 +37,48 @@ import {
 	type CardDimensions,
 	type TitleBoxIcon,
 } from '../types';
-import { type MediaFilePreview } from '@atlaskit/media-file-preview';
-import { createAndFireMediaCardEvent } from '../utils/analytics';
-import { type CardAction } from './actions';
-import { ImageRenderer } from './ui/imageRenderer';
-import { TitleBox } from './ui/titleBox/titleBox';
-import { FailedTitleBox } from './ui/titleBox/failedTitleBox';
-import { ProgressBar } from './ui/progressBar/progressBar';
-import { PlayButton } from './ui/playButton/playButton';
-import { TickBox } from './ui/tickBox/tickBox';
-import { Blanket } from './ui/blanket/blanket';
-import { ActionsBar } from './ui/actionsBar/actionsBar';
-import { IconWrapper } from './ui/iconWrapper/iconWrapper';
-import {
-	PreviewUnavailable,
-	CreatingPreview,
-	FailedToUpload,
-	FailedToLoad,
-	CheckInternetConnection,
-} from './ui/iconMessage';
-import { isUploadError, type MediaCardError } from '../errors';
+import { createAndFireMediaCardEvent } from '../utils/analytics/createAndFireMediaCardEvent';
 import { isNetworkError } from '../utils/isNetworkError';
-import { Wrapper, ImageContainer } from './ui/wrapper';
-import { fileCardImageViewSelector } from './classnames';
-import { useBreakpoint } from './useBreakpoint';
-import OpenMediaViewerButton from './ui/openMediaViewerButton/openMediaViewerButton';
 import { useCurrentValueRef } from '../utils/useCurrentValueRef';
-import { SvgView } from './svgView';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { type CardAction } from './actions';
+import { AIGeneratingOverlay } from './ai-generating-overlay/AIGeneratingOverlay';
+import { fileCardImageViewSelector } from './classnames';
+import { SvgView } from './svgView/svgView';
+import { ActionsBar } from './ui/actionsBar/actionsBar';
+import { Blanket } from './ui/blanket/blanket';
+import { CheckInternetConnection } from './ui/iconMessage/CheckInternetConnection';
+import { CreatingPreview } from './ui/iconMessage/CreatingPreview';
+import { FailedToLoad } from './ui/iconMessage/FailedToLoad';
+import { FailedToUpload } from './ui/iconMessage/FailedToUpload';
+import { PreviewUnavailable } from './ui/iconMessage/PreviewUnavailable';
+import { IconWrapper } from './ui/iconWrapper/iconWrapper';
+import { ImageRenderer } from './ui/imageRenderer';
+import { LoadingBar } from './ui/loadingBar/loadingBar';
+import { LoadingHold } from './ui/loadingHold/loadingHold';
+import OpenMediaViewerButton from './ui/openMediaViewerButton/openMediaViewerButton';
+import { PlayButton } from './ui/playButton/playButton';
+import { ProgressBar } from './ui/progressBar/progressBar';
+import { TickBox } from './ui/tickBox/tickBox';
+import { FailedTitleBox } from './ui/titleBox/failedTitleBox';
+import { TitleBox } from './ui/titleBox/titleBox';
+import { ImageContainer } from './ui/wrapper/imageContainer';
+import { Wrapper } from './ui/wrapper/wrapper';
+import { useBreakpoint } from './useBreakpoint';
+
+const i18n = defineMessages({
+	traceIdTooltip: {
+		id: 'fabric.media.trace_id_tooltip',
+		defaultMessage: 'Use Trace ID {traceId} when reaching out to support.',
+		description:
+			'Tooltip content showing the trace identifier for troubleshooting file preview errors',
+	},
+	aiGeneratingImage: {
+		id: 'fabric.media.ai_generating_image',
+		defaultMessage: 'AI generating image',
+		description:
+			'Accessible label for the progress bar shown while AI is generating an image on the media card',
+	},
+});
 
 export interface CardViewProps {
 	readonly identifier: Identifier;
@@ -67,6 +92,7 @@ export interface CardViewProps {
 	readonly testId?: string;
 	readonly titleBoxBgColor?: string;
 	readonly titleBoxIcon?: TitleBoxIcon;
+	readonly backgroundColor?: React.CSSProperties['backgroundColor'];
 	readonly status: CardStatus;
 	readonly mediaItemType: MediaItemType;
 	readonly mediaCardCursor?: MediaCardCursor;
@@ -79,6 +105,7 @@ export interface CardViewProps {
 	readonly openMediaViewerButtonRef?: React.Ref<HTMLButtonElement>;
 	readonly shouldOpenMediaViewer?: boolean;
 	readonly onMouseEnter?: (event: MouseEvent<HTMLDivElement>) => void;
+	readonly onFocus?: (event: FocusEvent<HTMLDivElement>) => void;
 	readonly onDisplayImage?: () => void;
 	// FileCardProps
 	readonly cardPreview?: MediaFilePreview;
@@ -90,13 +117,24 @@ export interface CardViewProps {
 	readonly onSvgLoad?: () => void;
 	readonly nativeLazyLoad?: boolean;
 	readonly forceSyncDisplay?: boolean;
+	readonly traceId?: string;
 	// Used to disable animation for testing purposes
 	disableAnimation?: boolean;
 	shouldHideTooltip?: boolean;
 	overriddenCreationDate?: number;
+	// When true, shows an animated rainbow border instead of a progress bar during upload
+	readonly isAIGenerating?: boolean;
+	// Marks the card as part of the CWR (create-with-Rovo) infographics flow.
+	readonly isCWR?: boolean;
+	// When true, no loading indicator is drawn — the card's own surface acts as the
+	// placeholder and the media preview fades in over it once it has rendered. Also behind
+	// `aifc_page_create_defer_generated_visuals`.
+	readonly hasLoadingMotion?: boolean;
 }
 
 export type CardViewBaseProps = CardViewProps & WithAnalyticsEventsProps;
+
+type TraceTooltipVariant = 'preview-unavailable' | 'failed-to-load';
 
 export interface RenderConfigByStatus {
 	renderTypeIcon?: boolean;
@@ -108,10 +146,12 @@ export interface RenderConfigByStatus {
 	renderBlanket?: boolean;
 	isFixedBlanket?: boolean;
 	renderProgressBar?: boolean;
-	renderSpinner?: boolean;
+	renderAIBorder?: boolean;
+	renderLoading?: boolean;
 	renderFailedTitleBox?: boolean;
 	renderTickBox?: boolean;
 	customTitleMessage?: MessageDescriptor;
+	traceTooltipVariant?: TraceTooltipVariant;
 }
 
 export const CardViewBase = ({
@@ -122,6 +162,7 @@ export const CardViewBase = ({
 	dimensions,
 	onClick,
 	onMouseEnter,
+	onFocus,
 	testId,
 	metadata,
 	status,
@@ -147,12 +188,34 @@ export const CardViewBase = ({
 	overriddenCreationDate,
 	onSvgError,
 	onSvgLoad,
+
+	traceId,
+
+	isAIGenerating,
+	isCWR,
+	hasLoadingMotion,
+	backgroundColor,
 }: CardViewBaseProps): React.JSX.Element => {
+	const intl = useIntl();
 	const [didSvgRender, setDidSvgRender] = useState<boolean>(false);
 	const [didImageRender, setDidImageRender] = useState<boolean>(false);
 	const divRef = useRef<HTMLDivElement>(null);
 	const prevCardPreviewRef = useRef<MediaFilePreview | undefined>();
 	const breakpoint = useBreakpoint(dimensions?.width, divRef);
+
+	const isErrorStatus = status === 'error' || status === 'failed-processing';
+	// While the motion owns the loading presentation the card draws nothing of its own — no
+	// indicator, progress bar, type icon or background — so the consumer can open space into
+	// emptiness and fade the preview in over it. Errors keep their normal treatment, or a
+	// failure would be indistinguishable from empty space.
+	//
+	// Every consumer below derives from this, so gating it here enforces the gate at the
+	// component boundary rather than trusting callers to do it. The prop is the left operand
+	// because every media card in every product renders this component — reading the gate
+	// unconditionally would put all of them in its exposure population. `isErrorStatus` is
+	// checked after it, so cards that opted in still count towards that population.
+	const suppressLoadingUI =
+		!!hasLoadingMotion && fg('aifc_page_create_defer_generated_visuals') && !isErrorStatus;
 
 	useEffect(() => {
 		// We should only switch didImageRender to false when cardPreview goes undefined, not when it is changed. as this method could be triggered after onImageLoad callback, falling on a race condition
@@ -212,22 +275,24 @@ export const CardViewBase = ({
 			...defaultConfig,
 			renderPlayButton: false,
 			renderTypeIcon: false,
-			renderSpinner: !didImageRender && !didSvgRender,
+			renderLoading: !didImageRender && !didSvgRender,
 		};
 
 		switch (status) {
 			case 'uploading':
 				return {
 					...defaultConfig,
-					renderBlanket: !disableOverlay || mediaType !== 'video',
+					renderBlanket: !suppressLoadingUI && (!disableOverlay || mediaType !== 'video'),
 					isFixedBlanket: true,
-					renderProgressBar: true,
+					renderProgressBar: !isAIGenerating && !suppressLoadingUI,
+					renderTypeIcon: !suppressLoadingUI && defaultConfig.renderTypeIcon,
 				};
 			case 'processing':
 				return {
 					...defaultConfig,
+					renderTypeIcon: !suppressLoadingUI && defaultConfig.renderTypeIcon,
 					iconMessage:
-						!didImageRender && !isZeroSize ? (
+						!didImageRender && !isZeroSize && !suppressLoadingUI ? (
 							<CreatingPreview disableAnimation={disableAnimation} />
 						) : undefined,
 				};
@@ -250,6 +315,7 @@ export const CardViewBase = ({
 
 				let iconMessage;
 				let customTitleMessage;
+				let traceTooltipVariant: TraceTooltipVariant | undefined;
 				if (isUploadError(error)) {
 					iconMessage = <FailedToUpload />;
 					customTitleMessage = messages.failed_to_upload;
@@ -258,8 +324,10 @@ export const CardViewBase = ({
 					customTitleMessage = messages.check_internet_connection;
 				} else if (!metadata) {
 					iconMessage = <FailedToLoad />;
+					traceTooltipVariant = 'failed-to-load';
 				} else {
 					iconMessage = <PreviewUnavailable />;
+					traceTooltipVariant = 'preview-unavailable';
 				}
 
 				if (!disableOverlay) {
@@ -270,11 +338,13 @@ export const CardViewBase = ({
 						renderFailedTitleBox,
 						iconMessage: !renderFailedTitleBox ? iconMessage : undefined,
 						customTitleMessage,
+						traceTooltipVariant,
 					};
 				}
 				return {
 					...baseErrorConfig,
 					iconMessage,
+					traceTooltipVariant,
 				};
 			case 'loading-preview':
 			case 'loading':
@@ -288,7 +358,7 @@ export const CardViewBase = ({
 		iconMessage,
 		renderImageRenderer,
 		renderSvgView,
-		renderSpinner,
+		renderLoading,
 		renderPlayButton,
 		renderBlanket,
 		renderProgressBar,
@@ -297,15 +367,33 @@ export const CardViewBase = ({
 		renderTickBox,
 		isFixedBlanket,
 		customTitleMessage,
+		traceTooltipVariant,
 	} = getRenderConfigByStatus();
+
+	// AI border shown while generating; cleared by the decoration on upload completion.
+	/* eslint-disable @atlaskit/platform/no-preconditioning -- loading-specific gate (cc-maui-phase-2) layered on the MAUI experiment cohort during phased rollout; preconditioning is intentional and will be removed when the existing gates are cleaned up */
+	const renderAIBorderOverride =
+		!!isAIGenerating &&
+		fg('cc-maui-phase-2') &&
+		expValEquals('cc-maui-experiment', 'isEnabled', true) &&
+		// Last so the gates above are still evaluated, and their exposures still fire, on
+		// surfaces that suppress the overlay.
+		!suppressLoadingUI;
+	/* eslint-enable @atlaskit/platform/no-preconditioning */
 	const shouldDisplayBackground =
-		!cardPreview || !disableOverlay || status === 'error' || status === 'failed-processing';
+		status === 'error' ||
+		status === 'failed-processing' ||
+		(!suppressLoadingUI && (!cardPreview || !disableOverlay));
 	const isPlayButtonClickable = shouldRenderPlayButton() && !!disableOverlay;
 	const isTickBoxSelectable = !disableOverlay && !!selectable && !selected;
-	// Disable tooltip for Media Single
-	const shouldDisplayTooltip = !disableOverlay && !shouldHideTooltip;
 
 	const { mediaType, mimeType, name, createdAt } = metadata || {};
+	const shouldShowTraceIdTooltip = !!traceTooltipVariant && !!traceId;
+	const tooltipContent = shouldShowTraceIdTooltip
+		? intl.formatMessage(i18n.traceIdTooltip, { traceId })
+		: name;
+	// Disable tooltip for Media Single
+	const shouldDisplayTooltip = !disableOverlay && !shouldHideTooltip;
 
 	const isTitleBoxVisible = renderTitleBox && name;
 	const hasVisibleTitleBox = !!(isTitleBoxVisible || renderFailedTitleBox);
@@ -334,6 +422,20 @@ export const CardViewBase = ({
 		onSvgLoad?.();
 	};
 
+	// Held back until the preview has rendered, then faded in over the card's surface.
+	let mediaMotion: 'hidden' | 'entering' | undefined;
+	if (suppressLoadingUI) {
+		mediaMotion = didImageRender || didSvgRender ? 'entering' : 'hidden';
+	}
+
+	const renderLoadingPlaceholder = () => (
+		<LoadingBar
+			animationDisabled={disableAnimation}
+			testId="media-card-loading"
+			interactionName="media-card-loading"
+		/>
+	);
+
 	const contents = (
 		<React.Fragment>
 			<ImageContainer
@@ -345,6 +447,7 @@ export const CardViewBase = ({
 				mediaCardCursor={mediaCardCursor}
 				selected={selected}
 				source={cardPreview?.source}
+				mediaMotion={mediaMotion}
 			>
 				{renderTypeIcon && (
 					<IconWrapper breakpoint={breakpoint} hasTitleBox={hasVisibleTitleBox}>
@@ -357,11 +460,14 @@ export const CardViewBase = ({
 						{iconMessage}
 					</IconWrapper>
 				)}
-				{renderSpinner && (
-					<IconWrapper breakpoint={breakpoint} hasTitleBox={hasVisibleTitleBox}>
-						<SpinnerIcon testId="media-card-loading" interactionName="media-card-loading" />
-					</IconWrapper>
-				)}
+				{renderLoading &&
+					(suppressLoadingUI ? (
+						// Nothing is drawn, but the interaction still has to be held for the
+						// same window as the indicator it replaces.
+						<LoadingHold interactionName="media-card-loading" />
+					) : (
+						renderLoadingPlaceholder()
+					))}
 				{renderSvgView && identifier && isFileIdentifier(identifier) && (
 					<SvgView
 						identifier={identifier}
@@ -369,6 +475,7 @@ export const CardViewBase = ({
 						onError={onSvgError}
 						onLoad={onSvgLoadBase}
 						wrapperRef={divRef}
+						backgroundColor={backgroundColor}
 					/>
 				)}
 				{renderImageRenderer && identifier && (
@@ -384,6 +491,7 @@ export const CardViewBase = ({
 						forceSyncDisplay={forceSyncDisplay}
 						identifier={identifier}
 						wrapperRef={divRef}
+						backgroundColor={backgroundColor}
 					/>
 				)}
 				{renderPlayButton && (
@@ -391,7 +499,16 @@ export const CardViewBase = ({
 						<PlayButton />
 					</IconWrapper>
 				)}
-				{renderBlanket && <Blanket isFixed={isFixedBlanket} />}
+				{renderAIBorderOverride ? (
+					<AIGeneratingOverlay
+						label={intl.formatMessage(i18n.aiGeneratingImage)}
+						testId="media-card-ai-generating-overlay"
+						// CWR renders the overlay opaque so it also masks the generic type icon.
+						isOpaque={isCWR}
+					/>
+				) : (
+					renderBlanket && <Blanket isFixed={isFixedBlanket} />
+				)}
 				{renderTitleBox && (
 					<TitleBox
 						name={name}
@@ -433,7 +550,9 @@ export const CardViewBase = ({
 				testId={testId || 'media-card-view'}
 				dimensions={dimensions}
 				onClick={onClick}
+				ariaLabel={name || 'Media Card'}
 				onMouseEnter={onMouseEnter}
+				onFocus={onFocus}
 				innerRef={mergedRef}
 				breakpoint={breakpoint}
 				mediaCardCursor={mediaCardCursor}
@@ -445,7 +564,7 @@ export const CardViewBase = ({
 				shouldDisplayTooltip={shouldDisplayTooltip}
 			>
 				{shouldDisplayTooltip ? (
-					<Tooltip content={name} position="bottom" tag="div">
+					<Tooltip content={tooltipContent} position="bottom" tag="div">
 						{contents}
 					</Tooltip>
 				) : (
@@ -456,7 +575,9 @@ export const CardViewBase = ({
 	);
 };
 
-export const CardView = withAnalyticsEvents({
+export const CardView: React.ForwardRefExoticComponent<
+	Omit<CardViewProps, keyof WithAnalyticsEventsProps> & React.RefAttributes<any>
+> = withAnalyticsEvents({
 	onClick: createAndFireMediaCardEvent({
 		eventType: 'ui',
 		action: 'clicked',

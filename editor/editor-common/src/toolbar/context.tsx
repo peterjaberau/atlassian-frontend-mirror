@@ -1,6 +1,7 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { EditorAppearance } from '../types';
 import type { ToolbarDocking } from '../user-preferences';
@@ -23,7 +24,7 @@ const EditorToolbarContext = createContext<EditorToolbarContextType>({
 /**
  * Access editor specific config and state within a toolbar component
  */
-export const useEditorToolbar = () => {
+export const useEditorToolbar = (): EditorToolbarContextType => {
 	const context = useContext(EditorToolbarContext);
 
 	if (!context) {
@@ -37,6 +38,7 @@ type EditorToolbarProviderProps = {
 	children: React.ReactNode;
 } & EditorToolbarContextType;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const EditorToolbarProvider = ({
 	children,
 	editorView,
@@ -45,17 +47,27 @@ export const EditorToolbarProvider = ({
 	editorToolbarDockingPreference,
 	isOffline,
 }: EditorToolbarProviderProps): React.JSX.Element => {
-	return (
-		<EditorToolbarContext.Provider
-			value={{
+	const memoizedValue = useMemo(
+		() => ({
+			editorView,
+			editorAppearance,
+			editorViewMode,
+			editorToolbarDockingPreference,
+			isOffline,
+		}),
+		[editorView, editorAppearance, editorViewMode, editorToolbarDockingPreference, isOffline],
+	);
+	const contextValue = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedValue
+		: {
 				editorView,
 				editorAppearance,
 				editorViewMode,
 				editorToolbarDockingPreference,
 				isOffline,
-			}}
-		>
-			{children}
-		</EditorToolbarContext.Provider>
+			};
+
+	return (
+		<EditorToolbarContext.Provider value={contextValue}>{children}</EditorToolbarContext.Provider>
 	);
 };

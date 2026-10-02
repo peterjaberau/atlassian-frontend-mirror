@@ -3,11 +3,40 @@ import React, { useEffect } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { replaceRaf, type Stub } from 'raf-stub';
 
-import { KEY_DOWN, KEY_END, KEY_HOME, KEY_UP } from '@atlaskit/ds-lib/keycodes';
+import {
+	KEY_DOWN,
+	KEY_END,
+	KEY_HOME,
+	KEY_LEFT,
+	KEY_RIGHT,
+	KEY_UP,
+} from '@atlaskit/ds-lib/keycodes';
 
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '../../index';
+import DropdownMenu from '../../dropdown-menu';
+import DropdownItem from '../../dropdown-menu-item';
+import DropdownItemGroup from '../../dropdown-menu-item-group';
 
 const triggerText = 'Options';
+
+/**
+ * Everything except `setTimeout`/`clearTimeout`, which are the only APIs we need to control
+ * in order to flush `focus-trap`'s deferred initial focus.
+ */
+const TIMER_APIS_TO_LEAVE_ALONE = [
+	'Date',
+	'cancelAnimationFrame',
+	'cancelIdleCallback',
+	'clearImmediate',
+	'clearInterval',
+	'hrtime',
+	'nextTick',
+	'performance',
+	'queueMicrotask',
+	'requestAnimationFrame',
+	'requestIdleCallback',
+	'setImmediate',
+	'setInterval',
+] as const;
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('dropdown menu keyboard navigation', () => {
@@ -15,9 +44,39 @@ describe('dropdown menu keyboard navigation', () => {
 	replaceRaf();
 	const requestAnimationFrame = window.requestAnimationFrame as unknown as Stub;
 
+	// `focus-trap` >= 2.4.6 applies the trap's initial focus inside a `setTimeout(…, 0)`
+	// rather than synchronously within `activate()`. Popup activates the trap in a
+	// `requestAnimationFrame` callback, so stepping raf-stub alone is no longer enough for
+	// focus to have landed. Faking only the timer APIs lets us flush that deferred focus
+	// synchronously, keeping these tests free of polling. `requestAnimationFrame` is left
+	// real so raf-stub stays in control of it.
+	beforeEach(() => {
+		jest.useFakeTimers({ doNotFake: [...TIMER_APIS_TO_LEAVE_ALONE] });
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
+	});
+
 	afterAll(() => {
 		requestAnimationFrame.reset();
 	});
+
+	/**
+	 * Step a single animation frame, then flush any focus deferred by `focus-trap`.
+	 */
+	function stepFrame() {
+		requestAnimationFrame.step();
+		jest.runOnlyPendingTimers();
+	}
+
+	/**
+	 * Flush all pending animation frames, then any focus deferred by `focus-trap`.
+	 */
+	function flushFrames() {
+		requestAnimationFrame.flush();
+		jest.runOnlyPendingTimers();
+	}
 
 	function openDropdownWithClick(element: HTMLElement) {
 		// JSDOM sets clientX and clientY to 0,0
@@ -31,18 +90,18 @@ describe('dropdown menu keyboard navigation', () => {
 			detail: 1,
 		});
 
-		requestAnimationFrame.step();
+		stepFrame();
 	}
 
 	function openDropdownWithKeydown(element: HTMLElement) {
 		fireEvent.focus(element);
-		requestAnimationFrame.step();
+		stepFrame();
 
 		fireEvent.keyDown(element, {
 			key: KEY_DOWN,
 			code: KEY_DOWN,
 		});
-		requestAnimationFrame.flush();
+		flushFrames();
 	}
 
 	const items = ['Move', 'Clone', 'Delete'];
@@ -97,7 +156,7 @@ describe('dropdown menu keyboard navigation', () => {
 			openDropdownWithKeydown(screen.getByTestId(`${testId}--trigger`));
 			expect(screen.getByText(items[0])).toBeInTheDocument();
 
-			requestAnimationFrame.step();
+			stepFrame();
 
 			const firstMenuItem = screen.getAllByRole('menuitem')[0];
 			expect(firstMenuItem).toHaveAccessibleName(items[0]);
@@ -118,7 +177,7 @@ describe('dropdown menu keyboard navigation', () => {
 			openDropdownWithClick(screen.getByTestId(`${testId}--trigger`));
 
 			expect(screen.getByText(items[0])).toBeInTheDocument();
-			requestAnimationFrame.step();
+			stepFrame();
 
 			expect(screen.getByTestId(`${testId}--content`)).toHaveFocus();
 		});
@@ -145,7 +204,7 @@ describe('dropdown menu keyboard navigation', () => {
 				code: KEY_DOWN,
 			});
 
-			requestAnimationFrame.step();
+			stepFrame();
 
 			const secondMenuItem = screen.getAllByRole('menuitem')[1];
 			expect(secondMenuItem).toHaveAccessibleName(items[1]);
@@ -184,14 +243,14 @@ describe('dropdown menu keyboard navigation', () => {
 			key: KEY_UP,
 			code: KEY_UP,
 		});
-		requestAnimationFrame.step();
+		stepFrame();
 
 		const lastMenuItem = screen.getAllByRole('menuitem')[1];
 		expect(lastMenuItem).toHaveAccessibleName(items[1]);
 		expect(lastMenuItem).toHaveFocus();
 	});
 
-	it('should focus the next element on pressing the DOWN arrow for async loaded content', async () => {
+	it('should wrap to asynchronously loaded first content on pressing the DOWN arrow', async () => {
 		let updateAsyncContent: ((show: boolean) => void) | undefined;
 		const AsyncDropdownItem = () => {
 			const [shouldShowAsyncContent, setShowAsyncContent] = React.useState(false);
@@ -225,17 +284,20 @@ describe('dropdown menu keyboard navigation', () => {
 
 		await act(async () => {
 			updateAsyncContent?.(true);
-			requestAnimationFrame.flush();
-		});
-
-		fireEvent.keyDown(dropdownElement, {
-			key: KEY_DOWN,
-			code: KEY_DOWN,
+			flushFrames();
 		});
 
 		const asyncMenuItems = screen.getAllByRole('menuitem');
 		expect(asyncMenuItems.length).toEqual(5);
 		expect(asyncMenuItems.map((e) => e.textContent)).toEqual(['Async 1', 'Async 2', ...items]);
+
+		// Start from an explicit position rather than relying on deferred initial focus.
+		const lastMenuItem = asyncMenuItems[asyncMenuItems.length - 1];
+		act(() => lastMenuItem.focus());
+		fireEvent.keyDown(lastMenuItem, {
+			key: KEY_DOWN,
+			code: KEY_DOWN,
+		});
 		expect(asyncMenuItems[0]).toHaveFocus();
 	});
 
@@ -268,7 +330,7 @@ describe('dropdown menu keyboard navigation', () => {
 			code: KEY_DOWN,
 		});
 
-		requestAnimationFrame.step();
+		stepFrame();
 
 		const allMenuItems = screen.getAllByRole('menuitem');
 		const fourthMenuItem = allMenuItems[3];
@@ -279,7 +341,7 @@ describe('dropdown menu keyboard navigation', () => {
 			key: KEY_UP,
 			code: KEY_UP,
 		});
-		requestAnimationFrame.step();
+		stepFrame();
 
 		const secondMenuItem = allMenuItems[1];
 		expect(secondMenuItem).toHaveAccessibleName(second);
@@ -289,7 +351,7 @@ describe('dropdown menu keyboard navigation', () => {
 			key: KEY_END,
 			code: KEY_END,
 		});
-		requestAnimationFrame.step();
+		stepFrame();
 
 		const secondLastMenuItem = allMenuItems.slice(-2)[0];
 		expect(secondLastMenuItem).toHaveAccessibleName(secondLast);
@@ -299,7 +361,7 @@ describe('dropdown menu keyboard navigation', () => {
 			key: KEY_HOME,
 			code: KEY_HOME,
 		});
-		requestAnimationFrame.step();
+		stepFrame();
 
 		expect(secondMenuItem).toHaveFocus();
 	});
@@ -359,7 +421,7 @@ describe('dropdown menu keyboard navigation', () => {
 			key: KEY_HOME,
 			code: KEY_HOME,
 		});
-		requestAnimationFrame.step();
+		stepFrame();
 
 		const firstMenuItem = screen.getAllByRole('menuitem')[0];
 		expect(firstMenuItem).toHaveAccessibleName(items[0]);
@@ -388,7 +450,7 @@ describe('dropdown menu keyboard navigation', () => {
 			code: KEY_END,
 		});
 
-		requestAnimationFrame.step();
+		stepFrame();
 
 		const lastMenuItem = screen.getAllByRole('menuitem').slice(-1)[0];
 		expect(lastMenuItem).toHaveAccessibleName(items.slice(-1)[0]);
@@ -417,7 +479,7 @@ describe('dropdown menu keyboard navigation', () => {
 			key: KEY_UP,
 			code: KEY_UP,
 		});
-		requestAnimationFrame.step();
+		stepFrame();
 
 		// Assert that the focus has looped over to the last element
 		const lastMenuItem = screen.getAllByRole('menuitem')[items.length - 1];
@@ -451,7 +513,7 @@ describe('dropdown menu keyboard navigation', () => {
 				key: KEY_DOWN,
 				code: KEY_DOWN,
 			});
-			requestAnimationFrame.step();
+			stepFrame();
 
 			index++;
 		}
@@ -487,5 +549,199 @@ describe('dropdown menu keyboard navigation', () => {
 		openDropdownWithKeydown(screen.getByTestId(`${testId}--trigger`));
 		expect(screen.getByTestId(`${testId}--content`)).toBeInTheDocument();
 		expect(onOpenChange).not.toHaveBeenCalled();
+	});
+
+	describe('Left and Right arrow navigation (ARIA)', () => {
+		it('should NOT close the root menu when Left arrow is pressed (no navigation within menu)', () => {
+			render(
+				<DropdownMenu trigger={triggerText} testId={testId}>
+					<DropdownItemGroup>
+						{items.map((text) => (
+							<DropdownItem key={text}>{text}</DropdownItem>
+						))}
+					</DropdownItemGroup>
+				</DropdownMenu>,
+			);
+
+			openDropdownWithKeydown(screen.getByTestId(`${testId}--trigger`));
+			expect(screen.getByTestId(`${testId}--content`)).toBeInTheDocument();
+
+			const firstMenuItem = screen.getAllByRole('menuitem')[0];
+			fireEvent.keyDown(firstMenuItem, {
+				key: KEY_LEFT,
+				code: KEY_LEFT,
+			});
+			stepFrame();
+
+			// Root menu stays open; Left does not navigate within menu
+			expect(screen.getByTestId(`${testId}--content`)).toBeInTheDocument();
+		});
+
+		it('should open nested menu when Right arrow is pressed on nested trigger', () => {
+			const NestedDropdown = ({ level = 0 }: { level?: number }) => (
+				<DropdownMenu
+					shouldRenderToParent
+					placement="right-start"
+					testId={`nested-${level}`}
+					trigger={({ triggerRef, ...triggerProps }) => (
+						<DropdownItem {...triggerProps} ref={triggerRef}>
+							Nested Menu
+						</DropdownItem>
+					)}
+				>
+					<DropdownItemGroup>
+						<NestedDropdown level={level + 1} />
+						<DropdownItem testId={`nested-item-${level + 1}`}>Item</DropdownItem>
+					</DropdownItemGroup>
+				</DropdownMenu>
+			);
+
+			render(
+				<DropdownMenu trigger={triggerText} testId={testId}>
+					<DropdownItemGroup>
+						<NestedDropdown level={1} />
+						<DropdownItem>Regular item</DropdownItem>
+					</DropdownItemGroup>
+				</DropdownMenu>,
+			);
+
+			openDropdownWithKeydown(screen.getByTestId(`${testId}--trigger`));
+			expect(screen.getByTestId(`${testId}--content`)).toBeInTheDocument();
+
+			// Focus the nested trigger (first menuitem)
+			const nestedTrigger = screen.getByText('Nested Menu');
+			nestedTrigger.focus();
+			stepFrame();
+
+			fireEvent.keyDown(nestedTrigger, {
+				key: KEY_RIGHT,
+				code: KEY_RIGHT,
+			});
+			flushFrames();
+
+			expect(screen.getByTestId('nested-1--content')).toBeInTheDocument();
+		});
+
+		it('should close nested menu and return focus to parent trigger when Left arrow is pressed', () => {
+			const NestedDropdown = ({ level = 0 }: { level?: number }) => (
+				<DropdownMenu
+					shouldRenderToParent
+					placement="right-start"
+					testId={`nested-${level}`}
+					trigger={({ triggerRef, ...triggerProps }) => (
+						<DropdownItem {...triggerProps} ref={triggerRef}>
+							Nested Menu
+						</DropdownItem>
+					)}
+				>
+					<DropdownItemGroup>
+						<DropdownItem testId={`nested-item-${level + 1}`}>Nested item</DropdownItem>
+					</DropdownItemGroup>
+				</DropdownMenu>
+			);
+
+			render(
+				<DropdownMenu trigger={triggerText} testId={testId}>
+					<DropdownItemGroup>
+						<NestedDropdown level={1} />
+					</DropdownItemGroup>
+				</DropdownMenu>,
+			);
+
+			openDropdownWithKeydown(screen.getByTestId(`${testId}--trigger`));
+			const parentNestedTrigger = screen.getByText('Nested Menu');
+			fireEvent.click(parentNestedTrigger, { clientX: 1, clientY: 1, detail: 1 });
+			stepFrame();
+
+			expect(screen.getByTestId('nested-1--content')).toBeInTheDocument();
+
+			const nestedMenuItem = screen.getByText('Nested item');
+			nestedMenuItem.focus();
+
+			fireEvent.keyDown(nestedMenuItem, {
+				key: KEY_LEFT,
+				code: KEY_LEFT,
+			});
+			stepFrame();
+
+			expect(screen.queryByTestId('nested-1--content')).not.toBeInTheDocument();
+			expect(screen.getByTestId('nested-1--trigger')).toHaveFocus();
+		});
+	});
+
+	describe('shouldPreventEscapePropagation', () => {
+		it('should close the dropdown and call stopPropagation when Escape is pressed and shouldPreventEscapePropagation is true', () => {
+			const mockOnOpenChange = jest.fn();
+
+			render(
+				<DropdownMenu
+					trigger={triggerText}
+					testId={testId}
+					onOpenChange={mockOnOpenChange}
+					shouldPreventEscapePropagation={true}
+				>
+					<DropdownItemGroup>
+						{items.map((text) => (
+							<DropdownItem>{text}</DropdownItem>
+						))}
+					</DropdownItemGroup>
+				</DropdownMenu>,
+			);
+
+			openDropdownWithClick(screen.getByTestId(`${testId}--trigger`));
+			expect(screen.getByTestId(`${testId}--content`)).toBeInTheDocument();
+			mockOnOpenChange.mockClear();
+
+			const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+			const spy = jest.spyOn(event, 'stopPropagation');
+
+			fireEvent(screen.getByTestId(`${testId}--content`), event);
+			stepFrame();
+
+			expect(screen.queryByTestId(`${testId}--content`)).not.toBeInTheDocument();
+			expect(mockOnOpenChange).toHaveBeenCalledWith({
+				isOpen: false,
+				event: expect.any(Object),
+			});
+			expect(spy).toHaveBeenCalled();
+			spy.mockRestore();
+		});
+
+		it('should close the dropdown and NOT call stopPropagation when Escape is pressed and shouldPreventEscapePropagation is false (default)', () => {
+			const mockOnOpenChange = jest.fn();
+
+			render(
+				<DropdownMenu
+					trigger={triggerText}
+					testId={testId}
+					onOpenChange={mockOnOpenChange}
+					shouldPreventEscapePropagation={false}
+				>
+					<DropdownItemGroup>
+						{items.map((text) => (
+							<DropdownItem>{text}</DropdownItem>
+						))}
+					</DropdownItemGroup>
+				</DropdownMenu>,
+			);
+
+			openDropdownWithClick(screen.getByTestId(`${testId}--trigger`));
+			expect(screen.getByTestId(`${testId}--content`)).toBeInTheDocument();
+			mockOnOpenChange.mockClear();
+
+			const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+			const spy = jest.spyOn(event, 'stopPropagation');
+
+			fireEvent(screen.getByTestId(`${testId}--content`), event);
+			stepFrame();
+
+			expect(screen.queryByTestId(`${testId}--content`)).not.toBeInTheDocument();
+			expect(mockOnOpenChange).toHaveBeenCalledWith({
+				isOpen: false,
+				event: expect.any(Object),
+			});
+			expect(spy).not.toHaveBeenCalled();
+			spy.mockRestore();
+		});
 	});
 });

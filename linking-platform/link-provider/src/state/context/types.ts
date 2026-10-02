@@ -1,6 +1,9 @@
 import { type Store } from 'redux';
-import { type CardAppearance, type CardStore, type ProductType } from '@atlaskit/linking-common';
-import { type LinkPreview, type CardPlatform } from '@atlaskit/link-extractors';
+
+import type { LinkPreview, CardPlatform } from '@atlaskit/link-extractors/types';
+import type { CardStore } from '@atlaskit/linking-common/store';
+import type { CardAppearance, ProductType } from '@atlaskit/linking-common/types';
+
 import type CardClient from '../../client';
 import { type CardConnections } from '../store/types';
 
@@ -31,14 +34,20 @@ export type CardContext = {
 	}) => void;
 	prefetchStore: Record<string, boolean>;
 	store: Store<CardStore>;
-} & Pick< // Most of the values are coming directly from Props given to CardProvider
+} & Pick<
+	// Most of the values are coming directly from Props given to CardProvider
 	CardProviderProps,
+	| 'linkNavigation'
+	| 'bridgeProduct'
 	| 'rovoOptions'
 	| 'isAdminHubAIEnabled'
 	| 'isPreviewPanelAvailable'
+	| 'isPreviewRestricted'
 	| 'product'
 	| 'renderers'
 	| 'shouldControlDataExport'
+	| 'xpcProduct'
+	| 'xpcSubProduct'
 >;
 
 export interface CardProviderStoreOpts {
@@ -58,6 +67,11 @@ export interface CardProviderRenderers {
 
 export type CardProviderProps = {
 	/**
+	 * Optional override for the bridge value used when wrapping smart link URLs for
+	 * cross-product analytics. When omitted, defaults to `'smartLinks'`.
+	 */
+	bridgeProduct?: string;
+	/**
 	 * Any React components contains linking components.
 	 */
 	children: React.ReactNode;
@@ -76,6 +90,17 @@ export type CardProviderProps = {
 	 * Required to be defined to add support for preview panel handling.
 	 */
 	isPreviewPanelAvailable?: (props: { ari: string }) => boolean;
+	/**
+	 * Optional callback establishing whether previewing the given linked resource is restricted
+	 * (e.g. cross-unit). When it returns `true`, the entire preview affordance is suppressed
+	 * (neither a preview panel nor a fallback preview modal is shown).
+	 */
+	isPreviewRestricted?: (props: { ari: string }) => boolean;
+	/** Resolve a Flexible Card destination without changing its metadata address. */
+	linkNavigation?: (url: string) => {
+		target?: '_blank' | '_self' | '_top' | '_parent';
+		url: string;
+	};
 	/**
 	 * Optional callback enabling the host application to open a preview panel for compatible links.
 	 * Required to be defined to add support for preview panel handling.
@@ -107,6 +132,17 @@ export type CardProviderProps = {
 	 * `initialState` can be used to set linking data and prevent card client to make a request to resolve the url.
 	 */
 	storeOptions?: CardProviderStoreOpts;
+	/**
+	 * The product identifier used exclusively for cross-product (XPC) URL wrapping analytics
+	 * (e.g. 'confluence', 'jira'). Does not affect link resolution.
+	 * Takes precedence over `product` when determining the source product for XPC URL wrapping.
+	 */
+	xpcProduct?: string;
+	/**
+	 * The sub-product identifier used exclusively for cross-product (XPC) URL wrapping analytics
+	 * (e.g. 'jsw', 'jsm'). Does not affect link resolution.
+	 */
+	xpcSubProduct?: string;
 } & CardAuthFlowOpts;
 
 export type SnippetRendererProps = AISnippetRendererProps | Record<string, never>;

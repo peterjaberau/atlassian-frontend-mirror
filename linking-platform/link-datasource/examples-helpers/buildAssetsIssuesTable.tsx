@@ -1,15 +1,14 @@
 import React from 'react';
 
-import { IntlMessagesProvider } from '@atlaskit/intl-messages-provider';
-import type { DatasourceTableView } from '@atlaskit/link-datasource';
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import { type DatasourceParameters } from '@atlaskit/linking-types';
+import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';
+import type { DatasourceTableViewWithWrappers as DatasourceTableView } from '@atlaskit/link-datasource/datasource-table-view-with-wrappers';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { DatasourceParameters } from '@atlaskit/linking-types/datasource';
 
 import { fetchMessagesForLocale } from '../src/common/utils/locale/fetch-messages-for-locale';
 import { ASSETS_LIST_OF_LINKS_DATASOURCE_ID } from '../src/ui/assets-modal';
 import { type AssetsDatasourceParameters } from '../src/ui/assets-modal/types';
 import { DataSourceTableViewNoSuspense } from '../src/ui/datasource-table-view/datasourceTableView';
-
 import SmartLinkClient from './smartLinkCustomClient';
 import { useAssetsTableProps } from './useAssetsTableProps';
 
@@ -38,6 +37,7 @@ const AssetsTableView = ({
 		onColumnResize,
 		wrappedColumnKeys,
 		onWrappedColumnChange,
+		onWrappedColumnsChange,
 	} = useAssetsTableProps({
 		defaultColumnCustomSizes: {
 			people: 100,
@@ -53,6 +53,7 @@ const AssetsTableView = ({
 			columnCustomSizes={columnCustomSizes}
 			onColumnResize={onColumnResize}
 			onWrappedColumnChange={onWrappedColumnChange}
+			onWrappedColumnsChange={onWrappedColumnsChange}
 			wrappedColumnKeys={wrappedColumnKeys}
 		/>
 	);
@@ -61,7 +62,7 @@ const AssetsTableView = ({
 export const ExampleAssetsIssuesTableView = ({
 	mockDatasourceFetchRequest = true,
 	...props
-}: AssetsTableViewProps) => {
+}: AssetsTableViewProps): React.JSX.Element => {
 	return (
 		<IntlMessagesProvider loaderFn={fetchMessagesForLocale}>
 			<SmartCardProvider client={new SmartLinkClient()}>

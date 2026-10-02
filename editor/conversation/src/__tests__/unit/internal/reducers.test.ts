@@ -1,6 +1,12 @@
-import createStore from '../../../internal/store';
-// @ts-ignore
-import { reducers } from '../../../internal/reducers';
+import type { Dispatch, Store } from 'react-redux';
+
+import {
+	mockInlineConversation as mockInlineConversationClean,
+	mockConversation as mockConversationClean,
+	mockComment2 as mockComment2Clean,
+	mockComment as mockCommentClean,
+	mockReplyComment,
+} from '../../../../example-helpers/MockData';
 import {
 	FETCH_CONVERSATIONS_REQUEST,
 	FETCH_CONVERSATIONS_SUCCESS,
@@ -18,17 +24,11 @@ import {
 	DELETE_COMMENT_ERROR,
 	REVERT_COMMENT,
 } from '../../../internal/actions';
-
-import {
-	mockInlineConversation as mockInlineConversationClean,
-	mockConversation as mockConversationClean,
-	mockComment2 as mockComment2Clean,
-	mockComment as mockCommentClean,
-	mockReplyComment,
-} from '../../../../example-helpers/MockData';
-import { type Dispatch, type Store } from 'react-redux';
-import { type Comment } from '../../../model/Comment';
-import { type Conversation } from '../../../model/Conversation';
+// @ts-ignore
+import { reducers } from '../../../internal/reducers';
+import createStore from '../../../internal/store';
+import type { Comment } from '../../../model/Comment';
+import type { Conversation } from '../../../model/Conversation';
 
 describe('Reducers', () => {
 	let mockInlineConversation: Conversation;

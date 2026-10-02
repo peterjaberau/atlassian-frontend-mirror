@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect } from 'react';
 
-import { fireEvent, render, renderHook, screen } from '@testing-library/react';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardContext } from '@atlaskit/link-provider/context';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardProviderProps as ProviderProps } from '@atlaskit/link-provider/types';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import { ACTION_RESOLVED, cardAction } from '@atlaskit/linking-common/actions';
+import type { CardState, CardStore } from '@atlaskit/linking-common/store';
+import { fireEvent, render, renderHook, screen } from '@atlassian/testing-library';
 
-import { CardClient, SmartCardContext, useSmartLinkContext } from '@atlaskit/link-provider';
-import { ACTION_RESOLVED, cardAction } from '@atlaskit/linking-common';
-
-import { type ProviderProps, SmartCardProvider } from '../../../state';
-import { type CardState, type CardStore } from '../../types';
 import { useSmartCardState } from '../index';
 
 function generateWrapper(providerProps?: Partial<ProviderProps>) {
@@ -40,7 +42,7 @@ describe('useSmartCardState()', () => {
 		const wrapper = generateWrapper();
 		const { current } = renderHook(() => useSmartCardState(mockUrl), {
 			wrapper,
-		}).result;
+		});
 		expect(current).toEqual({
 			status: 'pending',
 		});
@@ -51,7 +53,7 @@ describe('useSmartCardState()', () => {
 		const wrapper = generateWrapper({ storeOptions: { initialState } });
 		const { current } = renderHook(() => useSmartCardState(mockUrl), {
 			wrapper,
-		}).result;
+		});
 
 		expect(current).toEqual({
 			status: 'pending',
@@ -77,7 +79,7 @@ describe('useSmartCardState()', () => {
 		const wrapper = generateWrapper({ storeOptions: { initialState } });
 		const { current } = renderHook(() => useSmartCardState(mockUrl), {
 			wrapper,
-		}).result;
+		});
 		expect(current).toEqual(initialState['some.url']);
 	});
 
@@ -93,22 +95,21 @@ describe('useSmartCardState()', () => {
 		};
 		const wrapper = generateWrapper({ storeOptions: { initialState } });
 		const inspect = jest.fn();
-		const { result, rerender } = renderHook(
+		const result = renderHook(
 			(props: { url: string }) => {
 				const state = useSmartCardState(props.url);
 				inspect(props.url, state);
 				return state;
 			},
 			{
-				// @ts-ignore
 				wrapper,
-				initialProps: { url: someUrl },
+				args: [{ url: someUrl }],
 			},
 		);
 		expect(result.current).toStrictEqual(someUrlState);
 		// Create mock
 		inspect.mockClear();
-		rerender({ url: otherUrl });
+		result.update({ url: otherUrl });
 		// After re-render expect to have only called inspect once with the new state that matches the url
 		expect(result.current).toStrictEqual(otherUrlState);
 		// Rerender will have cleaned up useEffect changes but we want to know that there was only

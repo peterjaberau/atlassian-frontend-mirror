@@ -3,7 +3,7 @@
  *
  * To change the format of this file, modify `createVRTest` in icon-build-process/src/create-vr-test.tsx.
  *
- * @codegen <<SignedSource::6efd8bdfe52de8b5c24086b263c3a072>>
+ * @codegen <<SignedSource::ae01f44c0415fe3905ea1a1e90b25c01>>
  * @codegenCommand yarn build:icon-glyphs
  */
 /* eslint-disable @atlaskit/platform/use-entrypoints-in-examples */
@@ -15,14 +15,16 @@ import React from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Inline } from '@atlaskit/primitives';
+// eslint-disable-next-line import/order
+import type { NewCoreIconProps } from '@atlaskit/icon/types';
+import { Inline } from '@atlaskit/primitives/compiled';
 
 import AccessibilityIcon from '../../../../../core/accessibility';
 import AddIcon from '../../../../../core/add';
 import AiAgentIcon from '../../../../../core/ai-agent';
 import AiChatIcon from '../../../../../core/ai-chat';
 import AiGenerativeTextSummaryIcon from '../../../../../core/ai-generative-text-summary';
+import AiSparkleIcon from '../../../../../core/ai-sparkle';
 import AlertIcon from '../../../../../core/alert';
 import AlignImageCenterIcon from '../../../../../core/align-image-center';
 import AlignImageLeftIcon from '../../../../../core/align-image-left';
@@ -52,6 +54,7 @@ import AudioIcon from '../../../../../core/audio';
 import AutomationIcon from '../../../../../core/automation';
 import BacklogIcon from '../../../../../core/backlog';
 import BasketballIcon from '../../../../../core/basketball';
+import BezierCurveIcon from '../../../../../core/bezier-curve';
 import BoardIcon from '../../../../../core/board';
 import BoardsIcon from '../../../../../core/boards';
 import BookWithBookmarkIcon from '../../../../../core/book-with-bookmark';
@@ -146,6 +149,12 @@ import FieldAlertIcon from '../../../../../core/field-alert';
 import FieldCheckboxGroupIcon from '../../../../../core/field-checkbox-group';
 import FieldDropdownIcon from '../../../../../core/field-dropdown';
 import FieldRadioGroupIcon from '../../../../../core/field-radio-group';
+import FigmaIcon from '../../../../../core/figma';
+import FigmaCommunityIcon from '../../../../../core/figma-community';
+import FigmaComponentIcon from '../../../../../core/figma-component';
+import FigmaComponentInstanceIcon from '../../../../../core/figma-component-instance';
+import FigmaComponentInstanceSwapIcon from '../../../../../core/figma-component-instance-swap';
+import FigmaSlotIcon from '../../../../../core/figma-slot';
 import FileIcon from '../../../../../core/file';
 import FilesIcon from '../../../../../core/files';
 import FilterIcon from '../../../../../core/filter';
@@ -260,6 +269,7 @@ import ProjectionScreenIcon from '../../../../../core/projection-screen';
 import PullRequestIcon from '../../../../../core/pull-request';
 import PulseIcon from '../../../../../core/pulse';
 import QuestionCircleIcon from '../../../../../core/question-circle';
+import QuotationBlockIcon from '../../../../../core/quotation-block';
 import QuotationMarkIcon from '../../../../../core/quotation-mark';
 import RadioCheckedIcon from '../../../../../core/radio-checked';
 import RadioUncheckedIcon from '../../../../../core/radio-unchecked';
@@ -385,8 +395,6 @@ import WorkItemIcon from '../../../../../core/work-item';
 import WorkItemsIcon from '../../../../../core/work-items';
 import ZoomInIcon from '../../../../../core/zoom-in';
 import ZoomOutIcon from '../../../../../core/zoom-out';
-// eslint-disable-next-line import/order
-import type { NewCoreIconProps } from '../../../../../src/types';
 
 const Icons = [
 	AccessibilityIcon,
@@ -756,6 +764,15 @@ const Icons = [
 	ChartTrendUpIcon,
 	TableIcon,
 	CheckCircleUncheckedIcon,
+	AiSparkleIcon,
+	QuotationBlockIcon,
+	BezierCurveIcon,
+	FigmaIcon,
+	FigmaCommunityIcon,
+	FigmaComponentIcon,
+	FigmaComponentInstanceIcon,
+	FigmaComponentInstanceSwapIcon,
+	FigmaSlotIcon,
 ];
 
 const groupSize = 50;
@@ -788,36 +805,36 @@ for (let i = 0; i < Icons.length; i += groupSize) {
 	allSmallExamples.push(createIconGroupComponent(IconGroup, { size: 'small' }));
 }
 
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediumIconGroup0: () => React.JSX.Element = allMediumExamples[0];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediumIconGroup1: () => React.JSX.Element = allMediumExamples[1];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediumIconGroup2: () => React.JSX.Element = allMediumExamples[2];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediumIconGroup3: () => React.JSX.Element = allMediumExamples[3];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediumIconGroup4: () => React.JSX.Element = allMediumExamples[4];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediumIconGroup5: () => React.JSX.Element = allMediumExamples[5];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediumIconGroup6: () => React.JSX.Element = allMediumExamples[6];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const MediumIconGroup7: () => React.JSX.Element = allMediumExamples[7];
 
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const SmallIconGroup0: () => React.JSX.Element = allSmallExamples[0];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const SmallIconGroup1: () => React.JSX.Element = allSmallExamples[1];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const SmallIconGroup2: () => React.JSX.Element = allSmallExamples[2];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const SmallIconGroup3: () => React.JSX.Element = allSmallExamples[3];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const SmallIconGroup4: () => React.JSX.Element = allSmallExamples[4];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const SmallIconGroup5: () => React.JSX.Element = allSmallExamples[5];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const SmallIconGroup6: () => React.JSX.Element = allSmallExamples[6];
-// eslint-disable-next-line @repo/internal/react/require-jsdoc
+// eslint-disable-next-line @repo/internal/react/require-jsdoc, @atlaskit/volt-strict-mode/no-multiple-exports
 export const SmallIconGroup7: () => React.JSX.Element = allSmallExamples[7];

@@ -1,8 +1,8 @@
 import { snapshot } from '@af/visual-regression';
 
-import { VRIssueLikeTable } from '../../examples/vr/issue-like-table';
-import IssueLikeTableCustomColumns from '../../examples/vr/issue-like-table-custom-columns';
-import IssueLikeTableReadonly from '../../examples/vr/issue-like-table-readonly';
+import IssueLikeTableCustomColumns from '../../examples/vr/issue-like-table-custom-columns.vr.ap';
+import IssueLikeTableReadonly from '../../examples/vr/issue-like-table-readonly.vr.ap';
+import { VRIssueLikeTable } from '../../examples/vr/issue-like-table.vr.ap';
 
 snapshot(VRIssueLikeTable, {
 	description: 'Issue Like Table',
@@ -14,9 +14,6 @@ snapshot(VRIssueLikeTable, {
 			jiraIssueId: 'NONE-123',
 		},
 	],
-	featureFlags: {
-		'platform-component-visual-refresh': [true, false],
-	},
 });
 
 snapshot(IssueLikeTableReadonly, {
@@ -29,9 +26,6 @@ snapshot(IssueLikeTableReadonly, {
 			jiraIssueId: 'NONE-123',
 		},
 	],
-	featureFlags: {
-		'platform-component-visual-refresh': true,
-	},
 });
 
 snapshot(IssueLikeTableCustomColumns, {
@@ -44,7 +38,4 @@ snapshot(IssueLikeTableCustomColumns, {
 			jiraIssueId: 'NONE-123',
 		},
 	],
-	featureFlags: {
-		'platform-component-visual-refresh': [true, false],
-	},
 });

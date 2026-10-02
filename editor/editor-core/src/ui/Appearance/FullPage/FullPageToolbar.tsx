@@ -1,14 +1,8 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
 import type { ReactElement } from 'react';
 import React, { useEffect, useCallback, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import type { CollabEditOptions } from '@atlaskit/editor-common/collab';
@@ -31,25 +25,22 @@ import type { CollabEditPlugin } from '@atlaskit/editor-plugins/collab-edit';
 import type { FeatureFlagsPlugin } from '@atlaskit/editor-plugins/feature-flags';
 import type { FindReplacePlugin } from '@atlaskit/editor-plugins/find-replace';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { EditorActions } from '../../../index';
-import type { PrimaryToolbarComponents } from '../../../types';
+import type { PrimaryToolbarComponents } from '../../../types/editor-props';
 import { ToolbarPortalMountPoint, useToolbarPortal } from '../../Toolbar/ToolbarPortal';
 import { ToolbarWithSizeDetector as Toolbar } from '../../Toolbar/ToolbarWithSizeDetector';
-
 import { BeforePrimaryToolbarWrapper } from './BeforeWrapper';
 import {
 	MainToolbarForFirstChildWrapper,
 	MainToolbarForSecondChildWrapper,
 } from './CustomToolbarWrapper';
-import {
-	customToolbarWrapperStyle,
-	mainToolbarIconBeforeStyle,
-	MAXIMUM_TWO_LINE_TOOLBAR_BREAKPOINT,
-	nonCustomToolbarWrapperStyle,
-} from './MainToolbar';
+import { CustomToolbarWrapperMigration } from './CustomToolbarWrapperMigration';
+import { MAXIMUM_TWO_LINE_TOOLBAR_BREAKPOINT } from './MainToolbar';
+import { MainToolbarIconBeforeMigration } from './MainToolbarIconBeforeMigration';
 import { MainToolbarWrapper } from './MainToolbarWrapper';
+import { NonCustomToolbarWrapperMigration } from './NonCustomToolbarWrapperMigration';
 
 export type ToolbarEditorPlugins = [
 	OptionalPlugin<AnalyticsPlugin>,
@@ -83,7 +74,9 @@ export interface FullPageToolbarProps {
 	showKeyline: boolean;
 }
 
-export const EditorToolbar = React.memo((props: FullPageToolbarProps & WrappedComponentProps) => {
+export const EditorToolbar: React.MemoExoticComponent<
+	(props: FullPageToolbarProps & WrappedComponentProps) => React.JSX.Element
+> = React.memo((props: FullPageToolbarProps & WrappedComponentProps): React.JSX.Element => {
 	const [shouldSplitToolbar, setShouldSplitToolbar] = useState(false);
 	const { editorAPI } = props;
 
@@ -100,10 +93,10 @@ export const EditorToolbar = React.memo((props: FullPageToolbarProps & WrappedCo
 	const popupsMountPoint = hasToolbarPortal ? undefined : props.popupsMountPoint;
 
 	const nonCustomToolbar = (
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-		<div css={nonCustomToolbarWrapperStyle}>
-			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
-			{props.beforeIcon && <div css={mainToolbarIconBeforeStyle}>{props.beforeIcon}</div>}
+		<NonCustomToolbarWrapperMigration>
+			{props.beforeIcon && (
+				<MainToolbarIconBeforeMigration>{props.beforeIcon}</MainToolbarIconBeforeMigration>
+			)}
 			<Toolbar
 				editorView={props.editorView}
 				editorActions={props.editorActions}
@@ -120,12 +113,11 @@ export const EditorToolbar = React.memo((props: FullPageToolbarProps & WrappedCo
 				hasMinWidth={props.hasMinWidth}
 				twoLineEditorToolbar={twoLineEditorToolbar}
 			/>
-		</div>
+		</NonCustomToolbarWrapperMigration>
 	);
 
 	const customToolbar = (
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-		<div css={customToolbarWrapperStyle}>
+		<CustomToolbarWrapperMigration>
 			{!!props.customPrimaryToolbarComponents &&
 			'before' in props.customPrimaryToolbarComponents ? (
 				<BeforePrimaryToolbarWrapper
@@ -147,7 +139,7 @@ export const EditorToolbar = React.memo((props: FullPageToolbarProps & WrappedCo
 			{!!props.customPrimaryToolbarComponents && 'after' in props.customPrimaryToolbarComponents
 				? props.customPrimaryToolbarComponents.after
 				: props.customPrimaryToolbarComponents}
-		</div>
+		</CustomToolbarWrapperMigration>
 	);
 
 	useEffect(() => {
@@ -222,4 +214,9 @@ export const EditorToolbar = React.memo((props: FullPageToolbarProps & WrappedCo
 	);
 });
 
-export const FullPageToolbar = injectIntl(EditorToolbar);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types, @atlaskit/volt-strict-mode/no-multiple-exports
+export const FullPageToolbar: React.FC<
+	WithIntlProps<FullPageToolbarProps & WrappedComponentProps>
+> & {
+	WrappedComponent: React.ComponentType<FullPageToolbarProps & WrappedComponentProps>;
+} = injectIntl(EditorToolbar);

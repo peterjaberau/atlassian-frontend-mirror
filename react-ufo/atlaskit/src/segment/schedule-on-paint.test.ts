@@ -15,7 +15,7 @@ describe('scheduleOnPaint', () => {
 		// Mock implementations
 		(window as any).scheduler = { postTask: jest.fn() };
 		(window as any).requestAnimationFrame = jest.fn().mockImplementation((cb) => cb());
-		(window as any).setTimeout = jest.fn().mockImplementation((cb, delay) => cb());
+		(window as any).setTimeout = jest.fn().mockImplementation((cb, _) => cb());
 	});
 
 	afterEach(() => {
@@ -23,6 +23,8 @@ describe('scheduleOnPaint', () => {
 		(window as any).scheduler = originalScheduler;
 		(window as any).requestAnimationFrame = originalRaf;
 		(window as any).setTimeout = originalSetTimeout;
+
+		jest.clearAllMocks();
 	});
 
 	it('should use scheduler.postTask if available', () => {
@@ -63,5 +65,106 @@ describe('scheduleOnPaint', () => {
 		expect(window.setTimeout).toHaveBeenCalledWith(callback, 100);
 		expect(callback).toHaveBeenCalled();
 		expect(window.requestAnimationFrame).not.toHaveBeenCalled();
+	});
+
+	describe('SSR Environment Detection', () => {
+		let originalWindow: any;
+		let originalGlobalThis: any;
+		let originalProcess: any;
+
+		beforeEach(() => {
+			originalWindow = (global as any).window;
+			originalGlobalThis = globalThis;
+			originalProcess = process;
+		});
+
+		afterEach(() => {
+			(global as any).window = originalWindow;
+			(global as any).globalThis = originalGlobalThis;
+			(global as any).process = originalProcess;
+		});
+
+		it('should execute callback immediately in SSR (window undefined)', () => {
+			// Save spies before deleting window
+			const rafSpy = jest.spyOn(window, 'requestAnimationFrame');
+			const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+
+			// Simulate SSR environment by removing window
+			delete (global as any).window;
+
+			const callback = jest.fn();
+
+			scheduleOnPaint(callback);
+
+			// Callback should be executed immediately in SSR
+			expect(callback).toHaveBeenCalled();
+			expect(rafSpy).not.toHaveBeenCalled();
+			expect(setTimeoutSpy).not.toHaveBeenCalled();
+
+			// Restore window before assertions
+			(global as any).window = originalWindow;
+
+			rafSpy.mockRestore();
+			setTimeoutSpy.mockRestore();
+		});
+
+		it('should execute callback immediately when __SERVER__ is set', () => {
+			(globalThis as any).__SERVER__ = true;
+
+			const callback = jest.fn();
+			const rafSpy = jest.spyOn(window, 'requestAnimationFrame');
+			const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+
+			scheduleOnPaint(callback);
+
+			// Callback should be executed immediately in SSR
+			expect(callback).toHaveBeenCalled();
+			expect(rafSpy).not.toHaveBeenCalled();
+			expect(setTimeoutSpy).not.toHaveBeenCalled();
+
+			rafSpy.mockRestore();
+			setTimeoutSpy.mockRestore();
+			delete (globalThis as any).__SERVER__;
+		});
+
+		it('should execute callback immediately when REACT_SSR env var is set', () => {
+			(global as any).process = {
+				env: {
+					REACT_SSR: true,
+				},
+			};
+
+			const callback = jest.fn();
+			const rafSpy = jest.spyOn(window, 'requestAnimationFrame');
+			const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+
+			scheduleOnPaint(callback);
+
+			// Callback should be executed immediately in SSR
+			expect(callback).toHaveBeenCalled();
+			expect(rafSpy).not.toHaveBeenCalled();
+			expect(setTimeoutSpy).not.toHaveBeenCalled();
+
+			rafSpy.mockRestore();
+			setTimeoutSpy.mockRestore();
+		});
+
+		it('should not use async scheduling in SSR environment', () => {
+			(globalThis as any).__SERVER__ = true;
+
+			const callback = jest.fn();
+			const rafSpy = jest.spyOn(window, 'requestAnimationFrame');
+			const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+
+			scheduleOnPaint(callback);
+
+			expect(callback).toHaveBeenCalledTimes(1);
+			expect(rafSpy).not.toHaveBeenCalled();
+			expect(setTimeoutSpy).not.toHaveBeenCalled();
+
+			rafSpy.mockRestore();
+			setTimeoutSpy.mockRestore();
+			delete (globalThis as any).__SERVER__;
+		});
 	});
 });

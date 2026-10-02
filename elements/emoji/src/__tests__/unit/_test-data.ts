@@ -1,25 +1,7 @@
+/* eslint-disable import/no-extraneous-dependencies -- test fixtures; not in the package manifest to avoid circular deps */
 import * as sinon from 'sinon';
 
-// These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
-/* eslint-disable import/no-extraneous-dependencies */
-import { getTestEmojiRepository } from '@atlaskit/util-data-test/get-test-emoji-repository';
-import { getTestSiteEmojiRepository } from '@atlaskit/util-data-test/get-test-site-emoji-repository';
-import { mediaServiceEmoji } from '@atlaskit/util-data-test/media-service-emoji';
 import { mediaBaseUrl } from '@atlaskit/util-data-test/emoji-constants';
-import { getTestEmojis } from '@atlaskit/util-data-test/get-test-emojis';
-import { getTestAtlassianEmojis } from '@atlaskit/util-data-test/get-test-atlassian-emojis';
-import { getTestAtlassianServiceEmojis } from '@atlaskit/util-data-test/get-test-atlassian-service-emojis';
-import { getTestStandardEmojis } from '@atlaskit/util-data-test/get-test-standard-emojis';
-import { getTestStandardServiceEmojis } from '@atlaskit/util-data-test/get-test-standard-service-emojis';
-import { getTestSearchableEmojis } from '@atlaskit/util-data-test/get-test-searchable-emojis';
-import { getTestSiteEmojis } from '@atlaskit/util-data-test/get-test-site-emojis';
-import { getTestSiteServiceEmojis } from '@atlaskit/util-data-test/get-test-site-service-emojis';
-import { mediaEmoji as mediaEmojiData } from '@atlaskit/util-data-test/media-emoji';
-import { getTestSpriteEmoji } from '@atlaskit/util-data-test/get-test-sprite-emoji';
-import { getTestImageEmoji } from '@atlaskit/util-data-test/get-test-image-emoji';
-import { getTestSiteEmojiWtf } from '@atlaskit/util-data-test/get-test-site-emoji-wtf';
-import { getTestSiteEmojiFoo } from '@atlaskit/util-data-test/get-test-site-emoji-foo';
-
 import {
 	grinEmoji as getGrinEmoji,
 	atlassianBoomEmoji as getAtlassianBoomEmoji,
@@ -31,7 +13,22 @@ import {
 	blackFlagEmoji as getBlackFlagEmoji,
 	standardBoomEmoji as getStandardBoomEmoji,
 } from '@atlaskit/util-data-test/emoji-samples';
-/* eslint-enable import/no-extraneous-dependencies */
+import { getTestAtlassianEmojis } from '@atlaskit/util-data-test/get-test-atlassian-emojis';
+import { getTestAtlassianServiceEmojis } from '@atlaskit/util-data-test/get-test-atlassian-service-emojis';
+import { getTestEmojiRepository } from '@atlaskit/util-data-test/get-test-emoji-repository';
+import { getTestEmojis } from '@atlaskit/util-data-test/get-test-emojis';
+import { getTestImageEmoji } from '@atlaskit/util-data-test/get-test-image-emoji';
+import { getTestSearchableEmojis } from '@atlaskit/util-data-test/get-test-searchable-emojis';
+import { getTestSiteEmojiFoo } from '@atlaskit/util-data-test/get-test-site-emoji-foo';
+import { getTestSiteEmojiRepository } from '@atlaskit/util-data-test/get-test-site-emoji-repository';
+import { getTestSiteEmojiWtf } from '@atlaskit/util-data-test/get-test-site-emoji-wtf';
+import { getTestSiteEmojis } from '@atlaskit/util-data-test/get-test-site-emojis';
+import { getTestSiteServiceEmojis } from '@atlaskit/util-data-test/get-test-site-service-emojis';
+import { getTestSpriteEmoji } from '@atlaskit/util-data-test/get-test-sprite-emoji';
+import { getTestStandardEmojis } from '@atlaskit/util-data-test/get-test-standard-emojis';
+import { getTestStandardServiceEmojis } from '@atlaskit/util-data-test/get-test-standard-service-emojis';
+import { mediaEmoji as mediaEmojiData } from '@atlaskit/util-data-test/media-emoji';
+import { mediaServiceEmoji } from '@atlaskit/util-data-test/media-service-emoji';
 
 import TokenManager from '../../api/media/TokenManager';
 import type {
@@ -43,7 +40,7 @@ import type {
 	MediaApiRepresentation,
 	MediaApiToken,
 } from '../../types';
-import { convertMediaToImageRepresentation } from '../../util/type-helpers';
+import { convertMediaToImageRepresentation } from '../../util/convert-media-to-image-representation';
 
 /* eslint-disable import/no-extraneous-dependencies */
 export { mediaEmojiImagePath, mediaBaseUrl } from '@atlaskit/util-data-test/emoji-constants';
@@ -62,29 +59,178 @@ export const evilburnsEmoji: any = getEvilburnsEmoji();
 export const blackFlagEmoji: any = getBlackFlagEmoji();
 export const standardBoomEmoji: any = getStandardBoomEmoji();
 
-export const emojis = getTestEmojis();
+export const emojis: (
+	| EmojiDescriptionWithVariations
+	| {
+			altRepresentation: {
+				height: number;
+				mediaPath: string;
+				width: number;
+			};
+			category: string;
+			fallback: string;
+			id: string;
+			name: string;
+			order: number;
+			representation: {
+				height: number;
+				mediaPath: string;
+				width: number;
+			};
+			searchable: boolean;
+			shortName: string;
+			skinVariations: never[];
+			type: string;
+	  }
+)[] = getTestEmojis();
 export const atlassianEmojis: any = getTestAtlassianEmojis().emojis;
 export const standardEmojis: any = getTestStandardEmojis().emojis;
-export const siteEmojis = getTestSiteEmojis().emojis;
+export const siteEmojis: {
+	altRepresentation: {
+		height: number;
+		mediaPath: string;
+		width: number;
+	};
+	category: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		mediaPath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+}[] = getTestSiteEmojis().emojis;
 
-export const searchableEmojis = getTestSearchableEmojis();
+export const searchableEmojis: EmojiDescription[] = getTestSearchableEmojis();
 
 export const atlassianServiceEmojis: any = getTestAtlassianServiceEmojis();
 export const standardServiceEmojis: any = getTestStandardServiceEmojis();
-export const siteServiceEmojis = getTestSiteServiceEmojis;
+export const siteServiceEmojis: () => {
+	emojis: {
+		altRepresentations: {
+			XHDPI: {
+				height: number;
+				imagePath: string;
+				width: number;
+			};
+		};
+		category: string;
+		fallback: string;
+		id: string;
+		name: string;
+		order: number;
+		representation: {
+			height: number;
+			imagePath: string;
+			width: number;
+		};
+		searchable: boolean;
+		shortName: string;
+		type: string;
+	}[];
+	meta: {
+		mediaApiToken: {
+			clientId: string;
+			collectionName: string;
+			expiresAt: number;
+			jwt: string;
+			url: string;
+		};
+	};
+} = getTestSiteServiceEmojis;
 
-export const spriteEmoji = getTestSpriteEmoji();
-export const imageEmoji = getTestImageEmoji();
-export const siteEmojiWtf = getTestSiteEmojiWtf();
-export const siteEmojiFoo = getTestSiteEmojiFoo();
+export const spriteEmoji: {
+	category: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		sprite: {
+			column: number;
+			height: number;
+			row: number;
+			url: string;
+			width: number;
+		};
+		width: number;
+		x: number;
+		xIndex: number;
+		y: number;
+		yIndex: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	type: string;
+} = getTestSpriteEmoji();
+export const imageEmoji: {
+	altRepresentation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	category: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	type: string;
+} = getTestImageEmoji();
+export const siteEmojiWtf: {
+	category: string;
+	creatorUserId: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+} = getTestSiteEmojiWtf();
+export const siteEmojiFoo: {
+	category: string;
+	creatorUserId: string;
+	fallback: string;
+	id: string;
+	name: string;
+	order: number;
+	representation: {
+		height: number;
+		imagePath: string;
+		width: number;
+	};
+	searchable: boolean;
+	shortName: string;
+	skinVariations: never[];
+	type: string;
+} = getTestSiteEmojiFoo();
 
 export { getTestEmojiResource as getEmojiResourcePromise } from '@atlaskit/util-data-test/get-test-emoji-resource';
 export { getTestEmojiResourceFromRepository as getEmojiResourcePromiseFromRepository } from '@atlaskit/util-data-test/get-test-emoji-resource-from-repository';
 export { getTestEmojiResourceNonUploading as getNonUploadingEmojiResourcePromise } from '@atlaskit/util-data-test/get-test-emoji-resource-non-uploading';
 /* eslint-enable import/no-extraneous-dependencies */
 
-export const newEmojiRepository = getTestEmojiRepository;
-export const newSiteEmojiRepository = getTestSiteEmojiRepository;
+export const newEmojiRepository: () => any = getTestEmojiRepository;
+export const newSiteEmojiRepository: () => any = getTestSiteEmojiRepository;
 
 export const loadedMediaEmojiWithLoadedAlt: EmojiDescriptionWithVariations = {
 	...mediaEmojiData,
@@ -156,7 +302,9 @@ export const siteUrl = 'https://emoji.example.com/emoji/site/blah';
 
 export const fetchSiteEmojiUrl = (emojiId: EmojiId): string => `${siteUrl}/../${emojiId.id}`;
 
-export const siteServiceConfig = {
+export const siteServiceConfig: {
+	url: string;
+} = {
 	url: siteUrl,
 };
 
@@ -205,7 +353,12 @@ export const generateSkinVariation = (
 	};
 };
 
-export const blobResponse = (blob: Blob) => ({
+export const blobResponse = (
+	blob: Blob,
+): {
+	body: Blob;
+	sendAsJson: boolean;
+} => ({
 	body: blob,
 	sendAsJson: false,
 });
@@ -213,9 +366,9 @@ export const blobResponse = (blob: Blob) => ({
 export const base64png =
 	'iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA7dpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wUmlnaHRzPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvcmlnaHRzLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcFJpZ2h0czpNYXJrZWQ9IkZhbHNlIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6NTE4ODgxMzUyODIwNjgxMTgyMkFEMUQyMTg1MTNDMzYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MTFCQjBERDZCNzUxMTFFMkJCRTZBQjk5NUM3RDg3QzMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTFCQjBERDVCNzUxMTFFMkJCRTZBQjk5NUM3RDg3QzMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZGODVCQjMzMzAyMDY4MTE4MjJBRUQ0QThBMzUzM0M5IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjUxODg4MTM1MjgyMDY4MTE4MjJBRDFEMjE4NTEzQzM2Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+i3bCIwAABOlJREFUeNrsV91PW2UY//W0p6enFFY+u/JdIPI1FgwLGORCpl4sUy/m7nZlvPMPmJlGQ2bUZfHGZDHRLBpj4o1LFqIRDdnGlsnUiXPraAdjQMpHgVL6fdqej9bnHKACK0Vg0Qt9k7enfXnP83t/z/O8v+dBl06n8W8M3X8TWKfTbbuhrvs0R48XODPfJ8YTbbT/Ev3+gaaLZoCmlWaVjmGa06nUL5PD54d2AtUwtwITkIEeh8lQt5E3vSqLUmdRpT1V237IMn3HKfimZ8xZGeh0itlakJCTojspxM/Q0hU6RDoncPOLfWcYhnklpShVUlK0WYqscVt9LV9cXWEoLD8IPWvQXiCjuH35e2Fl1rsJ3MCyifbjz5tsDQ74pjwYH74dEYLhcEpWzsmS9CUdIJIVuLH3nYCjo80qhCKIhyNoPdqDgrKSbV0VmFtAaGkZiighr8iKUkcV9AbDpj1hnx/TI/cS3vFHCqPXf0th+ogOMLIJuOnou9GW3u48dXOcwOu7nobVbnsiSaR66cpnX4HljIIiyYuKLH8wPvT+RWZ9A2viQPEEl2eGyvxJDSmZhMmSh8rWRrO9sd5BSxe08KxRT3H0RyEYghqn6EogpzEhFMbIN/3QMwxMvAn2thbYDzVn3bswMYUyRzVWKDyNPV2YGx1PqesaY0oel5RIIuIPoKC0GJQ8WY2o6zN3R+HsH8DbbxzDzUun8dqJTiSjsW0POet8gJLaKsQCIaRTCvRGdioDTO74ZPp3p2Crr0FkeQVRmtN37sPvmcsYiAWCcA0M4pkyBhc/PIWTx4/AxLEIReJg+Kw3DEuTHhg4DkHvEsqbGjA7OpakhPw0A0xp/3VgfmHRNzUjuK8Pi3Qp3WM3fv7Rc88VXTdCiYG6WhveJKZtTZUZ4/NLYS2GG8eM0435BxNwXbsJR8dheMhL9qfq4B17JNL1+jwDTGkuk6u7EtHYkZSS4t2DfS204Zwsikom+ejkk55ltB87i7Mff5cBmVsMgrNsZuwcvKG4rv10WRQSvrsDVyVruQ3uoVsCidJbhBXNJNcauI8evo0G6BCZ7/yBfPS8fkpjIsnRv9zpD6NhC2O9QZ+gw59YU8LOwKxXlTDv2NX3LmREZ9fXIxpFdWtR5ncwJMBo5jfLJ8PIGwj9So/nttphcmCI2RYVIYaKg9bVQ0gKtikyup0I5GKc9WUxEtWAZr0BxBMiLBSCrYNCZNwPMEsue2zRXFqC818MaVmuKAoKqyqy1R/sB5gzGNnHkKs7O+izI6dRKhjSTsC5YmyO+gP8wsMpTeh322BQNuv3yriYNZkY79gE7g9eh6rlqpzm06R6Dc5sBjUK0OkZksK0KvgQEwmIQpxirKh21eAHdw1Mxd2ekmWmlAS+pfdZkKAgtODTNNc7PqnpsyIr5I3kqusMek1k1q7W3rOaYQ12viBfK/oPb/2m5cs649KaSq18qqWUoQaAei1tqoWG2h5Qe0T0pYI9Maas7ffPzL1EANYa6rfyS4p0qnFqaRDwLiIZE1YzW5LWei4GLE+MeR7URqmMC2l69tNldlIsT9LVepkqS7WpwCIRc9ZsPWAixgxlfqbTIK2XqBIJoSWfkQpPN6nWH3+7y8w16BDqRrUiqG7kyBs8vWs0cEaGkipOfVWc1lUhDxKosmN7+/+/MP/E+FOAAQARPXdAJPf5fAAAAABJRU5ErkJggg==';
 
-export const pngDataURL = `data:image/png;base64,${base64png}`;
+export const pngDataURL: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA7dpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wUmlnaHRzPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvcmlnaHRzLyIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcFJpZ2h0czpNYXJrZWQ9IkZhbHNlIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6NTE4ODgxMzUyODIwNjgxMTgyMkFEMUQyMTg1MTNDMzYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MTFCQjBERDZCNzUxMTFFMkJCRTZBQjk5NUM3RDg3QzMiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTFCQjBERDVCNzUxMTFFMkJCRTZBQjk5NUM3RDg3QzMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZGODVCQjMzMzAyMDY4MTE4MjJBRUQ0QThBMzUzM0M5IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjUxODg4MTM1MjgyMDY4MTE4MjJBRDFEMjE4NTEzQzM2Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+i3bCIwAABOlJREFUeNrsV91PW2UY//W0p6enFFY+u/JdIPI1FgwLGORCpl4sUy/m7nZlvPMPmJlGQ2bUZfHGZDHRLBpj4o1LFqIRDdnGlsnUiXPraAdjQMpHgVL6fdqej9bnHKACK0Vg0Qt9k7enfXnP83t/z/O8v+dBl06n8W8M3X8TWKfTbbuhrvs0R48XODPfJ8YTbbT/Ev3+gaaLZoCmlWaVjmGa06nUL5PD54d2AtUwtwITkIEeh8lQt5E3vSqLUmdRpT1V237IMn3HKfimZ8xZGeh0itlakJCTojspxM/Q0hU6RDoncPOLfWcYhnklpShVUlK0WYqscVt9LV9cXWEoLD8IPWvQXiCjuH35e2Fl1rsJ3MCyifbjz5tsDQ74pjwYH74dEYLhcEpWzsmS9CUdIJIVuLH3nYCjo80qhCKIhyNoPdqDgrKSbV0VmFtAaGkZiighr8iKUkcV9AbDpj1hnx/TI/cS3vFHCqPXf0th+ogOMLIJuOnou9GW3u48dXOcwOu7nobVbnsiSaR66cpnX4HljIIiyYuKLH8wPvT+RWZ9A2viQPEEl2eGyvxJDSmZhMmSh8rWRrO9sd5BSxe08KxRT3H0RyEYghqn6EogpzEhFMbIN/3QMwxMvAn2thbYDzVn3bswMYUyRzVWKDyNPV2YGx1PqesaY0oel5RIIuIPoKC0GJQ8WY2o6zN3R+HsH8DbbxzDzUun8dqJTiSjsW0POet8gJLaKsQCIaRTCvRGdioDTO74ZPp3p2Crr0FkeQVRmtN37sPvmcsYiAWCcA0M4pkyBhc/PIWTx4/AxLEIReJg+Kw3DEuTHhg4DkHvEsqbGjA7OpakhPw0A0xp/3VgfmHRNzUjuK8Pi3Qp3WM3fv7Rc88VXTdCiYG6WhveJKZtTZUZ4/NLYS2GG8eM0435BxNwXbsJR8dheMhL9qfq4B17JNL1+jwDTGkuk6u7EtHYkZSS4t2DfS204Zwsikom+ejkk55ltB87i7Mff5cBmVsMgrNsZuwcvKG4rv10WRQSvrsDVyVruQ3uoVsCidJbhBXNJNcauI8evo0G6BCZ7/yBfPS8fkpjIsnRv9zpD6NhC2O9QZ+gw59YU8LOwKxXlTDv2NX3LmREZ9fXIxpFdWtR5ncwJMBo5jfLJ8PIGwj9So/nttphcmCI2RYVIYaKg9bVQ0gKtikyup0I5GKc9WUxEtWAZr0BxBMiLBSCrYNCZNwPMEsue2zRXFqC818MaVmuKAoKqyqy1R/sB5gzGNnHkKs7O+izI6dRKhjSTsC5YmyO+gP8wsMpTeh322BQNuv3yriYNZkY79gE7g9eh6rlqpzm06R6Dc5sBjUK0OkZksK0KvgQEwmIQpxirKh21eAHdw1Mxd2ekmWmlAS+pfdZkKAgtODTNNc7PqnpsyIr5I3kqusMek1k1q7W3rOaYQ12viBfK/oPb/2m5cs649KaSq18qqWUoQaAei1tqoWG2h5Qe0T0pYI9Maas7ffPzL1EANYa6rfyS4p0qnFqaRDwLiIZE1YzW5LWei4GLE+MeR7URqmMC2l69tNldlIsT9LVepkqS7WpwCIRc9ZsPWAixgxlfqbTIK2XqBIJoSWfkQpPN6nWH3+7y8w16BDqRrUiqG7kyBs8vWs0cEaGkipOfVWc1lUhDxKosmN7+/+/MP/E+FOAAQARPXdAJPf5fAAAAABJRU5ErkJggg==' = `data:image/png;base64,${base64png}`;
 
-export const createPngFile = () => {
+export const createPngFile = (): File => {
 	const byteString = atob(base64png);
 	const buf = new ArrayBuffer(byteString.length);
 	const ia = new Uint8Array(buf);
@@ -226,13 +379,22 @@ export const createPngFile = () => {
 	return new File([buf], 'playasateam.png', { type: 'image/png' });
 };
 
-export const pngFileUploadData = {
+export const pngFileUploadData: {
+	dataURL: string;
+	filename: string;
+	height: number;
+	width: number;
+} = {
 	width: 30,
 	height: 30,
 	filename: 'playasateam.png',
 	dataURL: pngDataURL,
 };
 
-export const onRowsRenderedArgs = (startIndex = 0) => ({
+export const onRowsRenderedArgs = (
+	startIndex = 0,
+): {
+	startIndex: number;
+} => ({
 	startIndex,
 });

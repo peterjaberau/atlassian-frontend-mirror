@@ -1,8 +1,10 @@
 import { type Observable } from 'rxjs/Observable';
 
-import { type JQLClause } from '@atlaskit/jql-autocomplete';
+import type { JQLClause } from '@atlaskit/jql-autocomplete/jql-autocomplete/types';
 
-export type AutocompleteValueType = 'user' | 'team';
+export type AutocompleteValueType = 'user' | 'team' | 'project' | 'goal' | 'assets';
+
+export type GroupKey = 'team';
 
 export type AutocompleteOption = {
 	/**
@@ -13,6 +15,10 @@ export type AutocompleteOption = {
 	 * Field type to be rendered alongside `name` for this option.
 	 */
 	fieldType?: string;
+	/**
+	 * When set, autocomplete UI may group this option under a section identified by the given key.
+	 */
+	groupKey?: GroupKey;
 	/**
 	 * Whether the current option is deprecated or not.
 	 */
@@ -44,6 +50,16 @@ export type AutocompleteOptions = AutocompleteOption[];
 
 export type AutocompleteProvider = {
 	onFields: (query?: string, clause?: JQLClause) => Observable<AutocompleteOptions>;
+	/**
+	 * Called unconditionally when a function argument is being typed, with the field name, current
+	 * field value (the typed argument text), and the function name. Use this to provide autocomplete
+	 * suggestions for arguments of JQL functions (e.g. membersOf("...")).
+	 */
+	onFunctionArguments?: (
+		fieldName: string,
+		fieldValue: string,
+		functionName: string,
+	) => Observable<AutocompleteOptions>;
 	onFunctions: (
 		query?: string,
 		field?: string,

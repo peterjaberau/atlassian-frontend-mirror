@@ -9,25 +9,32 @@ export {
 	isDateRange,
 } from './extensions/types/field-definitions';
 
+export { buildMenuItem } from './extensions/buildMenuItem';
+export { createAutoConverterRunner } from './extensions/createAutoConverterRunner';
 export {
-	createAutoConverterRunner,
 	getExtensionAutoConvertersFromProvider,
 	getQuickInsertItemsFromModule,
 	getContextualToolbarItemsFromModule,
-	buildMenuItem,
 } from './extensions/module-helpers';
 
 export { default as DefaultExtensionProvider } from './extensions/default-extension-provider';
 
 export { default as combineExtensionProviders } from './extensions/combine-extension-providers';
 
-export { getExtensionKeyAndNodeKey, resolveImport } from './extensions/manifest-helpers';
+export {
+	AGENT_MANAGED_EXTENSION_KEY,
+	getExtensionKeyAndNodeKey,
+	NATIVE_EMBED_EXTENSION_TYPE,
+	NATIVE_EMBED_EXTENSION_KEY,
+	resolveImport,
+} from './extensions/manifest-helpers';
 
 export {
 	getExtensionModuleNode,
 	getNodeRenderer,
 	getExtensionModuleNodePrivateProps,
 } from './extensions/extension-handlers';
+export { getExtensionManifest } from './extensions/getExtensionManifest';
 
 export {
 	getCustomFieldResolver,
@@ -36,7 +43,8 @@ export {
 	getUserFieldContextProvider,
 } from './extensions/extension-fields-helpers';
 
-export { configPanelMessages, messages } from './extensions/messages';
+export { configPanelMessages } from './extensions/configPanelMessages';
+export { messages } from './extensions/messages';
 
 export type {
 	Extension,

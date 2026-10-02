@@ -1,8 +1,10 @@
 import React, { forwardRef, Suspense } from 'react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { navigateToTeamsApp } from '@atlaskit/teams-app-config/navigation';
-import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import type { AgentCreatorType } from '@atlaskit/rovo-agent-components/common/types';
+import { isForgeAgentByCreatorType } from '@atlaskit/rovo-agent-components/common/utils/is-forge-agent';
+import { navigateToTeamsApp } from '@atlaskit/teams-app-config/utils/teams-app-navigation/navigate-to-teams-app';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
 
 import {
 	type AgentProfileCardTriggerProps,
@@ -12,133 +14,141 @@ import {
 } from '../../types';
 import { getAAIDFromARI } from '../../util/rovoAgentUtils';
 import ProfileCardTrigger, { type ProfileCardHandle } from '../common/ProfileCardTrigger';
-
 import { AgentProfileCardLazy } from './lazyAgentProfileCard';
 
-export const AgentProfileCardTrigger = forwardRef<ProfileCardHandle, AgentProfileCardTriggerProps>(
-	({ ...props }, ref) => {
-		const { resourceClient, agentId: userId, cloudId } = props;
+export const AgentProfileCardTrigger: React.ForwardRefExoticComponent<
+	AgentProfileCardTriggerProps & React.RefAttributes<ProfileCardHandle>
+> = forwardRef<ProfileCardHandle, AgentProfileCardTriggerProps>(({ ...props }, ref) => {
+	const { footerComponent, ...profileCardTriggerProps } = props;
+	const { resourceClient, agentId: userId, cloudId, agentIdType = 'agent' } = props;
 
-		const { fireEvent } = useAnalyticsEvents();
+	const { fireEvent } = useAnalyticsEvents();
 
-		/**
-		 * @TODO replace with `getAgentCreator` from `@atlassian/rovo-agent-components`
-		 * @deprecated use `getAgentCreator` from `@atlassian/rovo-agent-components`
-		 */
-		const getCreator = async ({
-			creator_type,
-			creator,
-			authoringTeam,
-		}: {
-			creator_type: string;
-			creator?: string;
-			authoringTeam?: RovoAgentAgg['authoringTeam'];
-		}) => {
-			if (!creator) {
-				return undefined;
-			}
+	/**
+	 * @TODO replace with `getAgentCreator` from `@atlassian/rovo-agent-components`
+	 * @deprecated use `getAgentCreator` from `@atlassian/rovo-agent-components`
+	 */
+	const getCreator = async ({
+		creator_type,
+		creator,
+		authoringTeam,
+	}: {
+		creator_type: string;
+		creator?: string;
+		authoringTeam?: RovoAgentAgg['authoringTeam'];
+	}) => {
+		if (!creator) {
+			return undefined;
+		}
 
-			switch (creator_type) {
-				case 'SYSTEM':
-					return { type: 'SYSTEM' as const };
+		if (
+			isForgeAgentByCreatorType(creator_type as AgentCreatorType) &&
+			fg('rovo_agent_support_a2a_avatar')
+		) {
+			return { type: 'THIRD_PARTY' as const, name: creator ?? '' };
+		}
 
-				case 'THIRD_PARTY':
-					return { type: 'THIRD_PARTY' as const, name: creator ?? '' };
-				case 'FORGE':
-					return { type: 'THIRD_PARTY' as const, name: creator ?? '' };
+		switch (creator_type) {
+			case 'SYSTEM':
+				return { type: 'SYSTEM' as const };
 
-				case 'CUSTOMER':
-					const userId = getAAIDFromARI(creator) || '';
-					try {
-						if (!userId || !cloudId) {
-							return undefined;
-						}
+			case 'THIRD_PARTY':
+				return { type: 'THIRD_PARTY' as const, name: creator ?? '' };
+			case 'FORGE':
+				return { type: 'THIRD_PARTY' as const, name: creator ?? '' };
 
-						if (authoringTeam) {
-							return {
-								type: 'CUSTOMER' as const,
-								name: authoringTeam.displayName ?? '',
-								profileLink: authoringTeam.profileUrl ?? '',
-							};
-						}
-
-						const { href: profileHref } = navigateToTeamsApp({
-							type: 'USER',
-							payload: {
-								userId: userId,
-							},
-							cloudId,
-						});
-						const creatorInfo = await props.resourceClient.getProfile(cloudId, userId, fireEvent);
-
-						return {
-							type: 'CUSTOMER' as const,
-							name: creatorInfo.fullName,
-							profileLink: fg('platform-adopt-teams-nav-config')
-								? profileHref
-								: `/people/${userId}`,
-							id: userId,
-						};
-					} catch (error) {
+			case 'CUSTOMER':
+				const userId = getAAIDFromARI(creator) || '';
+				try {
+					if (!userId || !cloudId) {
 						return undefined;
 					}
 
-				default:
+					if (authoringTeam) {
+						return {
+							type: 'CUSTOMER' as const,
+							name: authoringTeam.displayName ?? '',
+							profileLink: authoringTeam.profileUrl ?? '',
+						};
+					}
+
+					const { href: profileHref } = navigateToTeamsApp({
+						type: 'USER',
+						payload: {
+							userId: userId,
+						},
+						cloudId,
+					});
+					const creatorInfo = await props.resourceClient.getProfile(cloudId, userId, fireEvent);
+
+					return {
+						type: 'CUSTOMER' as const,
+						name: creatorInfo.fullName,
+						profileLink: fg('platform-adopt-teams-nav-config') ? profileHref : `/people/${userId}`,
+						id: userId,
+					};
+				} catch {
 					return undefined;
-			}
-		};
+				}
 
-		const fetchAgentProfile = async (): Promise<RovoAgentProfileCardInfo> => {
-			const agentProfileResult = await resourceClient.getRovoAgentProfile(
-				{ type: 'agent', value: userId },
-				fireEvent,
-			);
+			default:
+				return undefined;
+		}
+	};
 
-			const agentInfo = agentProfileResult.restData;
-			const agentCreatorInfo = await getCreator({
-				creator_type: agentInfo.creator_type,
-				creator: agentInfo.creator || undefined,
-				authoringTeam: agentProfileResult.aggData?.authoringTeam ?? undefined,
-			});
-			return {
-				...agentInfo,
-				creatorInfo: agentCreatorInfo,
-			};
-		};
-		const renderProfileCard = ({
-			profileData,
-			error,
-		}: {
-			profileData?: RovoAgentProfileCardInfo;
-			error?: ProfileCardErrorType;
-		}) => {
-			return (
-				<Suspense fallback={null}>
-					<AgentProfileCardLazy
-						agent={profileData}
-						hasError={!!error}
-						cloudId={props.cloudId}
-						errorType={error}
-						onChatClick={props.onChatClick}
-						onConversationStartersClick={props.onConversationStartersClick}
-						resourceClient={props.resourceClient}
-						onDeleteAgent={props.onDeleteAgent}
-						addFlag={props.addFlag}
-					/>
-				</Suspense>
-			);
-		};
-
-		return (
-			<ProfileCardTrigger<RovoAgentProfileCardInfo>
-				{...props}
-				ref={ref}
-				trigger="hover"
-				renderProfileCard={renderProfileCard}
-				fetchProfile={fetchAgentProfile}
-				fireAnalyticsNext={fireEvent}
-				profileCardType="agent"
-			/>
+	const fetchAgentProfile = async (): Promise<RovoAgentProfileCardInfo> => {
+		const agentProfileResult = await resourceClient.getRovoAgentProfile(
+			{ type: agentIdType, value: userId },
+			fireEvent,
 		);
-	},
-);
+
+		const agentInfo = agentProfileResult.restData;
+		const agentCreatorInfo = await getCreator({
+			creator_type: agentInfo.creator_type,
+			creator: agentInfo.creator || undefined,
+			authoringTeam: agentProfileResult.aggData?.authoringTeam ?? undefined,
+		});
+		return {
+			...agentInfo,
+			creatorInfo: agentCreatorInfo,
+		};
+	};
+	const renderProfileCard = ({
+		profileData,
+		error,
+	}: {
+		profileData?: RovoAgentProfileCardInfo;
+		error?: ProfileCardErrorType;
+	}) => {
+		return (
+			<Suspense fallback={null}>
+				<AgentProfileCardLazy
+					agent={profileData}
+					hasError={!!error}
+					cloudId={props.cloudId}
+					email={props.email}
+					errorType={error}
+					onChatClick={props.onChatClick}
+					onConversationStartersClick={props.onConversationStartersClick}
+					resourceClient={props.resourceClient}
+					onDeleteAgent={props.onDeleteAgent}
+					addFlag={props.addFlag}
+					hideStarButton={props.hideStarButton}
+					footerComponent={footerComponent}
+				/>
+			</Suspense>
+		);
+	};
+
+	return (
+		<ProfileCardTrigger<RovoAgentProfileCardInfo>
+			{...profileCardTriggerProps}
+			ref={ref}
+			trigger={props.trigger ?? 'hover'}
+			renderProfileCard={renderProfileCard}
+			fetchProfile={fetchAgentProfile}
+			fireAnalytics={fireEvent}
+			profileCardType="agent"
+		/>
+	);
+});

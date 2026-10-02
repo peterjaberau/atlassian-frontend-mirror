@@ -1,15 +1,17 @@
+import type { ADFCommonNodeSpec, ADFNode } from '@atlaskit/adf-schema-generator';
 import { $onePlus, $or, $zeroPlus, adfNode } from '@atlaskit/adf-schema-generator';
+
 import { inlineContentGroup } from '../groups/inlineContentGroup';
 import { inlineGroup } from '../groups/inlineGroup';
 import { unsupportedMark } from '../marks/unsupportedMark';
 import { unsupportedNodeAttribute } from '../marks/unsupportedNodeAttribute';
-import { unsupportedBlock } from './unsupportedBlock';
-import { paragraph } from './paragraph';
 import { extension } from './extension';
+import { paragraph } from './paragraph';
+import { unsupportedBlock } from './unsupportedBlock';
 
-export const taskItem = adfNode('taskItem');
-export const taskList = adfNode('taskList');
-export const blockTaskItem = adfNode('blockTaskItem');
+export const taskItem: ADFNode<[string], ADFCommonNodeSpec> = adfNode('taskItem');
+export const taskList: ADFNode<[string], ADFCommonNodeSpec> = adfNode('taskList');
+export const blockTaskItem: ADFNode<[string], ADFCommonNodeSpec> = adfNode('blockTaskItem');
 
 const commonTaskItemProps = {
 	defining: true,
@@ -41,8 +43,20 @@ blockTaskItem.define({
 	allowAnyChildMark: false, // Override the commonTaskItemProps setting
 	contentMinItems: 1,
 	content: [
-		$or(paragraph.use('with_no_marks'), extension.use('with_marks')),
-		$zeroPlus($or(paragraph.use('with_no_marks'), extension.use('with_marks'))),
+		$or(
+			paragraph.use('with_no_marks'),
+			paragraph.use('with_font_size'),
+			extension.use('with_marks'),
+			extension.use('with_annotation'),
+		),
+		$zeroPlus(
+			$or(
+				paragraph.use('with_no_marks'),
+				paragraph.use('with_font_size'),
+				extension.use('with_marks'),
+				extension.use('with_annotation'),
+			),
+		),
 	],
 });
 
@@ -60,8 +74,5 @@ taskList.define({
 	},
 
 	contentMinItems: 1,
-	content: [
-		$onePlus($or(taskItem, unsupportedBlock, blockTaskItem)),
-		$zeroPlus($or(taskItem, taskList, unsupportedBlock, blockTaskItem)),
-	],
+	content: [$onePlus($or(taskItem, taskList, unsupportedBlock, blockTaskItem))],
 });

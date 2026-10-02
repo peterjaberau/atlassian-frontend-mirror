@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import MediaServicesActualSizeIcon from '@atlaskit/icon/core/grow-diagonal';
 import PanelRightIcon from '@atlaskit/icon/core/panel-right';
@@ -8,16 +8,16 @@ import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { ActionName } from '../../../../../constants';
 import { messages } from '../../../../../messages';
-import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context';
+import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context/useFlexibleUiContext';
 import useInvokeClientAction from '../../../../../state/hooks/use-invoke-client-action';
 import Action from '../action';
-
 import type { PreviewActionProps } from './types';
 
 const PreviewAction = ({
 	onClick: onClickCallback,
 	...props
 }: PreviewActionProps): React.JSX.Element | null => {
+	const intl = useIntl();
 	const context = useFlexibleUiContext();
 	const invoke = useInvokeClientAction({});
 
@@ -37,28 +37,38 @@ const PreviewAction = ({
 	const actionIcon = useCallback(() => {
 		// Only use panel icon if experiment is enabled and hasPreviewPanel is true
 		if (expValEquals('platform_hover_card_preview_panel', 'cohort', 'test') && hasPreviewPanel) {
-			return <PanelRightIcon color="currentColor" spacing="spacious" label="Open preview panel" />;
+			return (
+				<PanelRightIcon color="currentColor" spacing="spacious" label="" size={props.iconSize} />
+			);
 		}
 		return (
-			<MediaServicesActualSizeIcon color="currentColor" spacing="spacious" label="Open preview" />
+			<MediaServicesActualSizeIcon
+				color="currentColor"
+				spacing="spacious"
+				label=""
+				size={props.iconSize}
+			/>
 		);
-	}, [hasPreviewPanel]);
+	}, [hasPreviewPanel, props.iconSize]);
 
-	const actionLabel = useCallback(() => {
+	const actionLabel = useMemo(() => {
 		// Only use panel message if experiment is enabled and hasPreviewPanel is true
 		if (expValEquals('platform_hover_card_preview_panel', 'cohort', 'test') && hasPreviewPanel) {
-			return <FormattedMessage {...messages.preview_panel} />;
+			return messages.preview_panel;
 		}
 		// Fall back to modal message if experiment is enabled, otherwise use original preview message
 		if (expValEquals('platform_hover_card_preview_panel', 'cohort', 'test')) {
-			return <FormattedMessage {...messages.preview_modal} />;
+			return messages.preview_modal;
 		}
-		return <FormattedMessage {...messages.preview_improved} />;
+		return messages.preview_improved;
 	}, [hasPreviewPanel]);
+
+	const actionMessage = intl.formatMessage(actionLabel);
 
 	return data ? (
 		<Action
-			content={actionLabel()}
+			ariaLabel={actionMessage}
+			content={actionMessage}
 			icon={actionIcon()}
 			onClick={onClick}
 			testId="smart-action-preview-action"

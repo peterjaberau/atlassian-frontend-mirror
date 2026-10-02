@@ -1,12 +1,17 @@
 import React, { forwardRef, lazy, Suspense, useEffect, useRef, useState } from 'react';
 
-import { type UIAnalyticsEvent, usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
 import noop from '@atlaskit/ds-lib/noop';
 
-import { ASC, DESC, LARGE, SMALL } from '../internal/constants';
-import { assertIsSortable, getPageRows, validateSortKey } from '../internal/helpers';
-import { Caption, PaginationWrapper, Table } from '../styled/dynamic-table';
-import { EmptyViewContainer, EmptyViewWithFixedHeight } from '../styled/empty-body';
+import { assertIsSortable } from '../internal/assert-is-sortable';
+import { getPageRows } from '../internal/get-page-rows';
+import { validateSortKey } from '../internal/validate-sort-key';
+import { Caption } from '../styled/caption';
+import { EmptyViewContainer } from '../styled/empty-view-container';
+import { EmptyViewWithFixedHeight } from '../styled/empty-view-with-fixed-height';
+import { PaginationWrapper } from '../styled/pagination-wrapper';
+import { Table } from '../styled/table';
 import {
 	type HeadType,
 	type StatelessProps as Props,
@@ -16,7 +21,6 @@ import {
 	type RowType,
 	type SortOrderType,
 } from '../types';
-
 import Body from './body';
 import { ErrorBoundary } from './error-boundary';
 import LoadingContainer from './loading-container';
@@ -26,10 +30,10 @@ import TableHead from './table-head';
 
 function toggleSortOrder(currentSortOrder?: SortOrderType) {
 	switch (currentSortOrder) {
-		case DESC:
-			return ASC;
-		case ASC:
-			return DESC;
+		case 'DESC':
+			return 'ASC';
+		case 'ASC':
+			return 'DESC';
 		default:
 			return currentSortOrder;
 	}
@@ -96,12 +100,12 @@ const DynamicTable = ({
 			return;
 		}
 
-		if (onSort && isRankable && key === sortKey && sortOrder === DESC) {
+		if (onSort && isRankable && key === sortKey && sortOrder === 'DESC') {
 			onSort({ key: null, sortOrder: null, item });
 			return;
 		}
 
-		const sortOrderFormatted = key !== sortKey ? ASC : toggleSortOrder(sortOrder);
+		const sortOrderFormatted = key !== sortKey ? 'ASC' : toggleSortOrder(sortOrder);
 		if (onSort) {
 			onSort({ key, item, sortOrder: sortOrderFormatted });
 		}
@@ -126,7 +130,7 @@ const DynamicTable = ({
 			return loadingSpinnerSize;
 		}
 
-		return getPageRows(rows || [], page, rowsPerPage).length > 2 ? LARGE : SMALL;
+		return getPageRows(rows || [], page, rowsPerPage).length > 2 ? 'large' : 'small';
 	};
 
 	const renderEmptyBody = () => {
@@ -194,6 +198,7 @@ const DynamicTable = ({
 							sortOrder={sortOrder}
 							isRanking={isRanking}
 							isRankable={isRankable}
+							isFixedSize={isFixedSize}
 							testId={testId}
 						/>
 					)}
@@ -235,7 +240,7 @@ const DynamicTable = ({
 			{!rowsExist && emptyBody && (
 				<LoadingContainer
 					isLoading={isLoading}
-					spinnerSize={LARGE}
+					spinnerSize="large"
 					testId={testId}
 					loadingLabel={loadingLabel}
 				>

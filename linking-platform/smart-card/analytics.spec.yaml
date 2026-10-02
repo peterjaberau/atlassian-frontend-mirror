@@ -202,6 +202,15 @@ events:
       description: fired when an ai summary is clicked
       attributes:
         <<: [*PackageMetaDataContext, *ResolvedContext]
+  - button clicked (rovoChatPrompt):
+      type: ui
+      description: Fired when sending prompt to RovoChat via click
+      attributes:
+        <<: [*PackageMetaDataContext, *ResolvedContext, *ClientActionAttributes]
+        prompt:
+          required: false
+          type: string
+          description: Key for RovoChat prompts
 
   - button clicked (copySummary):
       type: ui
@@ -278,6 +287,29 @@ events:
           required: true
           type: number
           description: total time spent over the related links modal
+
+  - modal opened (preAuthValueProposition):
+      type: ui
+      description: >
+        Fired when the pre-auth value proposition modal is shown after an eligible
+        unauthorized Smart Link is created or converted.
+      attributes:
+        <<: [*PackageMetaDataContext, *CommonContext]
+
+  - modal closed (preAuthValueProposition):
+      type: ui
+      description: >
+        Fired when the user dismisses the pre-auth value proposition modal without connecting.
+      attributes:
+        <<: [*PackageMetaDataContext, *CommonContext]
+        closeMethod:
+          required: true
+          type: ['button', 'escape', 'overlay']
+          description: How the user dismissed the modal.
+        dwellTime:
+          required: true
+          type: number
+          description: Time in milliseconds from modal open complete to dismiss.
 
   - relatedLinks success:
       type: operational
@@ -598,6 +630,23 @@ events:
           required: false
           type: boolean
           description: Whether a modifier key was pressed when clicking the Smart Link.
+  - smartLink visited:
+      type: track
+      description: fires a tracking event that represents when a user visits a Smart Link target.
+      attributes:
+        <<: [*PackageMetaDataContext, *CommonContext]
+        id:
+          required: true
+          type: string
+          description: The unique ID for this Smart Link.
+        display:
+          required: true
+          type: ['inline', 'block', 'embed', 'embedPreview', 'flexible', 'hoverCardPreview']
+          description: Whether the card was an Inline, Block, Embed or Flexible UI
+        definitionId:
+          required: false
+          type: string
+          description: The definitionId of the Smart Link resolver invoked.
   - smartLink clicked (titleGoToLink):
       type: ui
       description: fires an event that represents when a user clicks on a Smart Link.
@@ -654,6 +703,10 @@ events:
           required: false
           type: string
           description: The definitionId of the Smart Link resolver invoked.
+        rovoActionsCtaShown:
+          required: false
+          type: boolean
+          description: Whether the Rovo Actions CTA icon was shown for this Smart Link
   - hoverCard dismissed:
       type: ui
       description: fires an event that represents a hover preview being dismissed.
@@ -676,6 +729,10 @@ events:
           required: false
           type: string
           description: The definitionId of the Smart Link resolver invoked.
+        rovoActionsCtaShown:
+          required: false
+          type: boolean
+          description: Whether the Rovo Actions CTA (inline nudge) was shown for this Smart Link
   - button clicked (connectAccount):
       type: ui
       description:
@@ -691,6 +748,43 @@ events:
           required: false
           type: string
           description: The definitionId of the Smart Link resolver invoked.
+  - button clicked (carouselNext):
+      type: ui
+      description: >
+        Fires when a user clicks the "See next" button in a smart link carousel view. Used to
+        measure engagement depth — how many users navigate past the first benefit slide.
+      attributes:
+        <<: [*PackageMetaDataContext, *CommonContext]
+        display:
+          required: true
+          type: ['inline', 'block', 'embed', 'embedPreview', 'flexible', 'hoverCardPreview', 'url']
+          description: The card display type from which the carousel is rendered.
+        slideId:
+          required: true
+          type: string
+          description: >
+            Stable semantic identifier for the slide (e.g. 'smart-link-benefit',
+            'rovo-search-benefit'). Used instead of slideIndex so analytics remain accurate if slide
+            order changes.
+  - button clicked (carouselConnect):
+      type: ui
+      description: >
+        Fires when a user clicks the connect account button from within a smart link carousel view.
+        Captures which benefit slide the user was viewing when they decided to connect, enabling
+        measurement of which slide is most persuasive.
+      attributes:
+        <<: [*PackageMetaDataContext, *CommonContext]
+        display:
+          required: true
+          type: ['inline', 'block', 'embed', 'embedPreview', 'flexible', 'hoverCardPreview', 'url']
+          description: The card display type from which the carousel is rendered.
+        slideId:
+          required: true
+          type: string
+          description: >
+            Stable semantic identifier for the slide (e.g. 'smart-link-benefit',
+            'rovo-search-benefit'). Used instead of slideIndex so analytics remain accurate if slide
+            order changes.
   - smartLink clicked (tryAnotherAccount):
       type: ui
       description:
@@ -738,6 +832,11 @@ events:
           required: false
           type: ['large', 'small']
           description: The size of the modal
+  - button clicked (dismiss):
+      type: ui
+      description: fires when a user dismisses a dismissible Smart Link or hover card control.
+      attributes:
+        <<: [*PackageMetaDataContext, *CommonContext]
   - button clicked (learnMore):
       type: ui
       description:
@@ -804,6 +903,18 @@ events:
           required: true
           type: ['inline', 'block', 'embed', 'embedPreview', 'flexible', 'hoverCardPreview']
           description: Whether the card was an Inline, Block, Embed or Flexible UI
+        rovoActionsCtaShown:
+          required: false
+          type: boolean
+          description: Whether the Rovo Actions CTA (inline nudge) was shown for this Smart Link
+        experimentMeta:
+          required: false
+          type: object
+          description: |
+            Optional experiment metadata attached to the Smart Link render success event. Root keys
+            should be Statsig experiment keys. Each experiment entry can contain metadata specific
+            to that experiment, derived from no-exposure eligibility data only unless explicitly
+            documented otherwise.
   - smartLink renderFailed:
       type: ui
       description: fires an event that represents when a Smart Link renders unsuccessfully.
@@ -825,6 +936,17 @@ events:
           required: false
           type: string
           description: The unique ID for this Smart Link
+  - smartLink seen:
+      type: ui
+      description:
+        fires an event that represents when a rendered Smart Link is visible in the viewport for the
+        first time
+      attributes:
+        <<: [*PackageMetaDataContext, *CommonContext, *ResolvedContext]
+        display:
+          required: true
+          type: ['inline', 'block', 'embed', 'flexible']
+          description: Whether the card was an Inline, Block, Embed or Flexible UI
   - smartLink clicked (smartlinkClickAnalyticsWorkflows):
       type: ui
       description:
@@ -854,3 +976,12 @@ events:
           required: true
           type: string
           description: The timestamp when the event was clicked
+        isAuxClick:
+          required: false
+          type: boolean
+          description:
+            True when the click was a middle-click (button === 1) captured via `onAuxClick`.
+        isContextMenu:
+          required: false
+          type: boolean
+          description: True when the event was a right-click captured via `onContextMenu`.

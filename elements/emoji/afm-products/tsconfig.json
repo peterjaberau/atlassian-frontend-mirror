@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__emoji/app",
 		"rootDir": "../",
 		"composite": true,
@@ -28,10 +26,19 @@
 			"path": "../../../analytics/analytics-next/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../helpers/browser-apis/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/button/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/css/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/form/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/heading/afm-products/tsconfig.json"
@@ -40,16 +47,34 @@
 			"path": "../../../design-system/icon/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/icon-lab/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/image/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/logo/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../media/media-client/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../media/media-client-react/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../pragmatic-drag-and-drop/core/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/radio/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/spinner/afm-products/tsconfig.json"

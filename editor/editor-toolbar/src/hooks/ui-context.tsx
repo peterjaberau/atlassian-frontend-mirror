@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 
-import type { OnOpenChangeArgs } from '@atlaskit/dropdown-menu';
+import type { OnOpenChangeArgs } from '@atlaskit/dropdown-menu/types';
 
 import type { ToolbarKeyboardNavigationProviderConfig } from '../types';
 
@@ -14,6 +14,13 @@ type AnalyticsEventPayload = {
 type FireAnalyticsEvent = (payload: AnalyticsEventPayload) => void | undefined;
 
 export type ToolbarUIContextType = {
+	/**
+	 * True only when the toolbar is disabled from isDisabled.
+	 * Excludes disabling that comes from interaction state, where buttons are
+	 * disabled by default until the user interacts with the editor.
+	 */
+	disabledWithoutInteractionLogic?: boolean;
+
 	fireAnalyticsEvent?: FireAnalyticsEvent;
 
 	/**
@@ -44,6 +51,7 @@ const ToolbarUIContext = createContext<ToolbarUIContextType>({
 	onDropdownOpenChanged: () => {},
 	preventDefaultOnMouseDown: false,
 	isDisabled: false,
+	disabledWithoutInteractionLogic: false,
 	popupsMountPoint: undefined,
 	fireAnalyticsEvent: undefined,
 	keyboardNavigation: undefined,
@@ -52,7 +60,7 @@ const ToolbarUIContext = createContext<ToolbarUIContextType>({
 /**
  * Access consumer specific config and state within a toolbar component
  */
-export const useToolbarUI = () => {
+export const useToolbarUI = (): ToolbarUIContextType => {
 	const context = useContext(ToolbarUIContext);
 
 	if (!context) {
@@ -71,6 +79,7 @@ export const ToolbarUIProvider = ({
 	onDropdownOpenChanged,
 	preventDefaultOnMouseDown,
 	isDisabled,
+	disabledWithoutInteractionLogic,
 	popupsMountPoint,
 	popupsBoundariesElement,
 	popupsScrollableElement,
@@ -79,10 +88,12 @@ export const ToolbarUIProvider = ({
 }: ToolbarUIProviderProps): React.JSX.Element => {
 	return (
 		<ToolbarUIContext.Provider
+			// eslint-disable-next-line @atlassian/perf-linting/no-inline-context-value, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			value={{
 				onDropdownOpenChanged,
 				preventDefaultOnMouseDown,
 				isDisabled,
+				disabledWithoutInteractionLogic,
 				popupsMountPoint,
 				popupsBoundariesElement,
 				popupsScrollableElement,

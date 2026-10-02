@@ -1,17 +1,17 @@
 /* eslint-disable no-console */
+
 import React, { useEffect, useState } from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { DevTools } from '@af/editor-examples-helpers/utils';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
+import Button from '@atlaskit/button/default/button';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
 import { highlightPlugin } from '@atlaskit/editor-plugins/highlight';
 import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
 import LockCircleIcon from '@atlaskit/icon/core/lock-locked';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 import { token } from '@atlaskit/tokens';
 
 import ToolsDrawer from '../example-helpers/ToolsDrawer';
@@ -76,10 +76,11 @@ const CommentEditorConfluence = ({ editorProps, replacementDoc }: Props): React.
 			allowTables: {
 				advanced: true,
 				allowControls: true,
-				allowTableAlignment: editorExperiment('support_table_in_comment', true, { exposure: true }),
-				allowTableResizing: editorExperiment('support_table_in_comment', true, {
-					exposure: true,
-				}),
+				allowTableAlignment: true,
+				allowTableResizing: true,
+			},
+			allowExpand: {
+				allowInsertion: false,
 			},
 			allowHelpDialog: true,
 			allowExtension: true,
@@ -150,7 +151,7 @@ const CommentEditorConfluence = ({ editorProps, replacementDoc }: Props): React.
 						disabled,
 					}: any) => (
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						<div style={{ padding: token('space.250', '20px') }}>
+						<div style={{ padding: token('space.250') }}>
 							<CollapsedEditor
 								placeholder="What do you want to say?"
 								isExpanded={isExpanded}

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import {
 	hydrateJqlEmptyResponse,
@@ -38,12 +38,9 @@ describe('useHydrateJqlQuery', () => {
 			<IntlProvider locale="en">{children}</IntlProvider>
 		);
 
-		const { result, rerender } = renderHook(
-			() => useHydrateJqlQuery(mockCloudId, jql),
-			{
-				wrapper,
-			},
-		);
+		const { result, rerender } = renderHook(() => useHydrateJqlQuery(mockCloudId, jql), {
+			wrapper,
+		});
 		return {
 			getHydratedJQL,
 			result,
@@ -161,7 +158,6 @@ describe('useHydrateJqlQuery', () => {
 					errors: [],
 				});
 			});
-
 		},
 	);
 

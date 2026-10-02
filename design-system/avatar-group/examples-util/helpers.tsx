@@ -10,7 +10,7 @@ import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
 	container: {
-		marginTop: token('space.100', '8px'),
+		marginTop: token('space.100'),
 	},
 	heading: {
 		color: token('color.text.subtlest'),
@@ -29,14 +29,17 @@ const styles = cssMap({
 		display: 'flex',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'& > *': {
-			marginRight: token('space.100', '8px'),
+			marginRight: token('space.100'),
 		},
 	},
 });
 
-export const ExampleGroup: ({ children, heading }: {
-    children?: ReactNode;
-    heading?: string;
+export const ExampleGroup: ({
+	children,
+	heading,
+}: {
+	children?: ReactNode;
+	heading?: string;
 }) => JSX.Element = ({ children, heading }: { children?: ReactNode; heading?: string }) => (
 	<div css={styles.container}>
 		{heading ? <div css={styles.heading}>{heading}</div> : null}

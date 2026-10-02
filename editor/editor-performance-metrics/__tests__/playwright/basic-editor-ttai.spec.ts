@@ -1,5 +1,6 @@
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect } from '@af/integration-testing';
 
 import { test } from './fixtures';
@@ -7,6 +8,9 @@ import { test } from './fixtures';
 test.describe('Editor TTAI', () => {
 	test.use({
 		examplePage: 'editor-full-page',
+	} satisfies {
+		__exampleDependency?: typeof import('../../examples/05-editor-full-page.tsx');
+		examplePage: 'editor-full-page';
 	});
 
 	test('it should mark TTAI after the smart links being resolved', async ({
@@ -35,9 +39,5 @@ test.describe('Editor TTAI', () => {
 
 		await expect(resolvedSmartLinkDescription).toBeVisible();
 		expect(idleAt).toBeGreaterThan(lastTimeCheckedForSmartlink);
-	});
-
-	test('should capture and report a11y violations', async ({ page }) => {
-		await expect(page).toBeAccessible();
 	});
 });

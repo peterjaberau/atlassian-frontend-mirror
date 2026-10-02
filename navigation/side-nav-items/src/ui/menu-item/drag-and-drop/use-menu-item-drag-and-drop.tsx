@@ -3,19 +3,30 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+	type JSXElementConstructor,
+	type MutableRefObject,
+	type ReactElement,
+	type ReactNode,
+	type ReactPortal,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 
 import { jsx } from '@compiled/react';
-import { createPortal } from 'react-dom';
 
 import { type Instruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/list-item';
 import {
 	draggable,
 	dropTargetForElements,
 	type ElementGetFeedbackArgs,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/pointer-outside-of-preview';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 import { token } from '@atlaskit/tokens';
 
 import { DragPreview } from './drag-preview';
@@ -86,7 +97,14 @@ export function useMenuItemDragAndDrop({
 }: {
 	draggable?: TDraggableArgs;
 	dropTarget?: TDropTargetArgs;
-}) {
+}): {
+	draggableAnchorRef: MutableRefObject<HTMLAnchorElement | null>;
+	draggableButtonRef: MutableRefObject<HTMLButtonElement | null>;
+	dragPreview: ReactElement<any, string | JSXElementConstructor<any>> | ReactPortal | null;
+	dropIndicator: false | JSX.Element | null;
+	dropTargetRef: MutableRefObject<HTMLDivElement | null>;
+	state: TMenuItemDragAndDropState;
+} {
 	const draggableAnchorRef = useRef<HTMLAnchorElement | null>(null);
 	const draggableButtonRef = useRef<HTMLButtonElement | null>(null);
 	const dropTargetRef = useRef<HTMLDivElement | null>(null);

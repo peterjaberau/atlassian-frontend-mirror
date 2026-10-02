@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 
-import { AnalyticsListener, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { normalizeUrl } from '@atlaskit/linking-common/url';
 
 import { ANALYTICS_CHANNEL } from '../constants';
@@ -104,7 +105,8 @@ const LinkPickerAnalytics = ({
 /**
  * Hook that exposes the context-level attribute getters and setters.
  */
-export const useLinkPickerAnalytics = () => useContext(LinkPickerAnalyticsContext);
+export const useLinkPickerAnalytics = (): AnalyticsContextType =>
+	useContext(LinkPickerAnalyticsContext);
 
 /**
  * Wrap component in "attributes" context store and initialise the initial context attributes from props.

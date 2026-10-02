@@ -1,45 +1,47 @@
-export { default as themeConfig } from './theme-config';
+import warnOnce from '@atlaskit/ds-lib/warn-once';
 
-export { default as token } from './get-token';
-export { default as getTokenValue } from './get-token-value';
-export { default as setGlobalTheme } from './set-global-theme';
-export { default as enableGlobalTheme } from './enable-global-theme';
-export { default as getThemeStyles } from './get-theme-styles';
-export { default as getThemeHtmlAttrs } from './get-theme-html-attrs';
-export { default as getSSRAutoScript } from './get-ssr-auto-script';
-export { default as useThemeObserver } from './use-theme-observer';
-export { default as ThemeMutationObserver } from './theme-mutation-observer';
-export { default as getGlobalTheme } from './get-global-theme';
-export { themeStringToObject, themeObjectToString } from './theme-state-transformer';
-export { default as themeImportMap } from './artifacts/theme-import-map';
+import tokens, { type CSSTokenMap } from './artifacts/token-names';
+import { TOKEN_NOT_FOUND_CSS_VAR } from './constants';
 
-export type { CSSToken } from './artifacts/token-names';
-export type { ActiveTokens } from './artifacts/types';
-export type {
-	ThemeColorModes,
-	ThemeContrastModes,
-	Themes,
-	ThemeFileNames,
-	ThemeIds,
-	ThemeOptionsSchema,
-	ThemeState,
-	ActiveThemeState,
-} from './theme-config';
-export type {
-	FontFamilyToken,
-	FontWeightToken,
-	Groups,
-	OpacityToken,
-	PaintToken,
-	RawToken,
-	ShadowToken,
-	SpacingToken,
-	ShapeToken,
-	TypographyToken,
-} from './types';
-export {
-	COLOR_MODE_ATTRIBUTE,
-	CURRENT_SURFACE_CSS_VAR,
-	SUBTREE_THEME_ATTRIBUTE,
-	THEME_DATA_ATTRIBUTE,
-} from './constants';
+type Tokens = typeof tokens;
+
+/**
+ * Takes a dot-separated token name and an optional fallback, and returns the CSS custom property for the corresponding token.
+ * This should be used to implement design decisions throughout your application.
+ *
+ * Note: With `@atlaskit/babel-plugin-tokens`, this function can be pre-compiled and a fallback value automatically inserted.
+ *
+ * @param {string} path - A dot-separated token name (example: `'color.background.brand'` or `'spacing.scale.100'`).
+ * @param {string} [fallback] - The fallback value that should render when token CSS is not present in your app.
+ *
+ * @example
+ * ```
+ * <div
+ *   css={{
+ *     backgroundColor: token('elevation.surface.raised', N0),
+ *     boxShadow: token('elevation.shadow.raised', `0 20px 32px -8px ${N50A}, 0 0 1px ${N60A}`),
+ *     padding: token('spacing.scale.100', '8px'),
+ *     fontWeight: token('font.weight.regular', '400'),
+ *   }}
+ * />
+ * ```
+ *
+ */
+export function token<T extends keyof Tokens>(path: T, fallback?: string): CSSTokenMap[T] {
+	let token: Tokens[keyof Tokens] | typeof TOKEN_NOT_FOUND_CSS_VAR = tokens[path];
+
+	if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production') {
+		if (!token) {
+			warnOnce(`Unknown token id at path: ${path} in @atlaskit/tokens`);
+		}
+	}
+
+	// if the token is not found - replacing it with variable name without any value, to avoid it being undefined which would result in invalid css
+	if (!token) {
+		token = TOKEN_NOT_FOUND_CSS_VAR;
+	}
+
+	const tokenCall = fallback ? `var(${token}, ${fallback})` : `var(${token})`;
+
+	return tokenCall as CSSTokenMap[T];
+}

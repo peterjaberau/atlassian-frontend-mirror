@@ -6,22 +6,22 @@ import { useCallback, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 import { faker } from '@faker-js/faker';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import { Field } from '@atlaskit/form';
-import { type DatasourceResponseSchemaProperty } from '@atlaskit/linking-types';
-import Textfield from '@atlaskit/textfield';
+import Field from '@atlaskit/form/field';
+import type { DatasourceResponseSchemaProperty } from '@atlaskit/linking-types/datasource';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 import { ColumnPicker } from '../../src/ui/issue-like-table/column-picker';
 
 const containerStyles = css({
-	paddingTop: token('space.250', '20px'),
-	paddingRight: token('space.250', '20px'),
-	paddingBottom: token('space.250', '20px'),
-	paddingLeft: token('space.250', '20px'),
+	paddingTop: token('space.250'),
+	paddingRight: token('space.250'),
+	paddingBottom: token('space.250'),
+	paddingLeft: token('space.250'),
 	width: '400px',
 });
 
@@ -36,7 +36,7 @@ const generateFieldName = (): DatasourceResponseSchemaProperty => {
 	};
 };
 
-export default () => {
+export default (): JSX.Element => {
 	const [columns, setColumns] = useState<DatasourceResponseSchemaProperty[]>([]);
 	const [selectedColumnKeys, setSelectedColumnKeys] = useState<string[]>([]);
 	const [numberOfFields, setNumberOfFields] = useState<number>(1000);

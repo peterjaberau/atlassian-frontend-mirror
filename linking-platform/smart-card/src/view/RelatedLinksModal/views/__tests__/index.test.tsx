@@ -1,16 +1,15 @@
 import React from 'react';
 
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
-import { type CardStore } from '@atlaskit/linking-common';
-
+import type { CardStore } from '@atlaskit/linking-common/store';
+import { render, screen, waitFor, userEvent } from '@atlassian/testing-library';
 import '@atlaskit/link-test-helpers/jest';
-import { ANALYTICS_CHANNEL } from '../../../../utils/analytics';
+
+import { ANALYTICS_CHANNEL } from '../../../../utils/analytics/analytics';
 import { mockSuccessResponse } from '../../__tests__/__mocks__/mocks';
 import RelatedLinksBaseModal from '../../components/RelatedLinksBaseModal';
 import RelatedLinksErroredView from '../errored';

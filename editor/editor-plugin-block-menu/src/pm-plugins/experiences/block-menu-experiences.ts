@@ -1,32 +1,39 @@
 import { bind } from 'bind-event-listener';
 
+import { ACTION, ACTION_SUBJECT_ID } from '@atlaskit/editor-common/analytics';
+import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import {
-	ACTION,
-	ACTION_SUBJECT_ID,
-	type DispatchAnalyticsEvent,
-} from '@atlaskit/editor-common/analytics';
-import { BLOCK_MENU_ACTION_TEST_ID } from '@atlaskit/editor-common/block-menu';
+	BLOCK_MENU_ACTION_TEST_ID,
+	BLOCK_MENU_TEST_ID,
+	EXTENSION_MENU_ITEM_TEST_ID,
+} from '@atlaskit/editor-common/block-menu';
 import {
 	Experience,
 	EXPERIENCE_ID,
 	ExperienceCheckDomMutation,
+	ExperienceCheckPopupMutation,
 	ExperienceCheckTimeout,
 	getPopupContainerFromEditorView,
+	getSelectionAncestorDOM,
 } from '@atlaskit/editor-common/experiences';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import {
-	getParentDOMAtSelection,
 	handleDeleteDomMutation,
-	handleMenuOpenDomMutation,
 	handleMoveDomMutation,
+	handleTransformDomMutation,
 	isBlockMenuVisible,
 	isDragHandleElement,
 } from './experience-check-utils';
 
 const TIMEOUT_DURATION = 1000;
+
+const PORTAL_TEST_ID = {
+	LINK_COPIED_TO_CLIPBOARD: 'link-copied-to-clipboard',
+	SYNC_BLOCK_DELETE_CONFIRMATION: 'sync-block-delete-confirmation',
+} as const;
 
 const pluginKey = new PluginKey('blockMenuExperiences');
 
@@ -52,7 +59,7 @@ type ExperienceOptions = {
 export const getBlockMenuExperiencesPlugin = ({
 	refs,
 	dispatchAnalyticsEvent,
-}: ExperienceOptions) => {
+}: ExperienceOptions): SafePlugin => {
 	let popupTargetEl: HTMLElement | undefined;
 	let editorView: EditorView | undefined;
 
@@ -63,25 +70,41 @@ export const getBlockMenuExperiencesPlugin = ({
 		return popupTargetEl;
 	};
 
+	const getEditorDom = (): HTMLElement | null => {
+		if (editorView?.dom instanceof HTMLElement) {
+			return editorView.dom;
+		}
+		return null;
+	};
+
 	const blockMenuOpenExperience = new Experience(EXPERIENCE_ID.MENU_OPEN, {
 		actionSubjectId: ACTION_SUBJECT_ID.BLOCK_MENU,
 		dispatchAnalyticsEvent,
 		checks: [
 			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
-			new ExperienceCheckDomMutation({
-				onDomMutation: handleMenuOpenDomMutation,
-				observeConfig: () => ({
-					target: getPopupsTarget(),
-					options: { childList: true },
-				}),
+			new ExperienceCheckPopupMutation({
+				nestedElementQuery: `[data-testid="${BLOCK_MENU_TEST_ID}"]`,
+				getTarget: getPopupsTarget,
+				type: 'editorContent',
 			}),
 		],
 	});
 
-	const actionObserveConfig = () => ({
-		target: getParentDOMAtSelection(editorView),
-		options: { childList: true },
-	});
+	const observeConfigs = () => {
+		const narrowTarget = getSelectionAncestorDOM(editorView);
+		const editorDom = getEditorDom();
+		return [
+			...(narrowTarget
+				? [
+						{
+							target: narrowTarget,
+							options: { childList: true, subtree: true },
+						},
+					]
+				: []),
+			...(editorDom ? [{ target: editorDom, options: { childList: true } }] : []),
+		];
+	};
 
 	const blockMoveUpExperience = new Experience(EXPERIENCE_ID.MENU_ACTION, {
 		action: ACTION.MOVED,
@@ -91,7 +114,7 @@ export const getBlockMenuExperiencesPlugin = ({
 			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
 			new ExperienceCheckDomMutation({
 				onDomMutation: handleMoveDomMutation,
-				observeConfig: actionObserveConfig,
+				observeConfig: observeConfigs,
 			}),
 		],
 	});
@@ -104,7 +127,7 @@ export const getBlockMenuExperiencesPlugin = ({
 			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
 			new ExperienceCheckDomMutation({
 				onDomMutation: handleMoveDomMutation,
-				observeConfig: actionObserveConfig,
+				observeConfig: observeConfigs,
 			}),
 		],
 	});
@@ -117,7 +140,37 @@ export const getBlockMenuExperiencesPlugin = ({
 			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
 			new ExperienceCheckDomMutation({
 				onDomMutation: handleDeleteDomMutation,
-				observeConfig: actionObserveConfig,
+				observeConfig: observeConfigs,
+			}),
+			new ExperienceCheckPopupMutation({
+				nestedElementQuery: `[data-testid="${PORTAL_TEST_ID.SYNC_BLOCK_DELETE_CONFIRMATION}"]`,
+				type: 'portalRoot',
+			}),
+		],
+	});
+
+	const blockTransformExperience = new Experience(EXPERIENCE_ID.MENU_ACTION, {
+		action: ACTION.TRANSFORMED,
+		actionSubjectId: ACTION_SUBJECT_ID.TRANSFORM_BLOCK,
+		dispatchAnalyticsEvent,
+		checks: [
+			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
+			new ExperienceCheckDomMutation({
+				onDomMutation: handleTransformDomMutation,
+				observeConfig: observeConfigs,
+			}),
+		],
+	});
+
+	const blockCopyLinkExperience = new Experience(EXPERIENCE_ID.MENU_ACTION, {
+		action: ACTION.COPIED,
+		actionSubjectId: ACTION_SUBJECT_ID.COPY_LINK_TO_BLOCK,
+		dispatchAnalyticsEvent,
+		checks: [
+			new ExperienceCheckTimeout({ durationMs: TIMEOUT_DURATION }),
+			new ExperienceCheckPopupMutation({
+				nestedElementQuery: `[data-testid="${PORTAL_TEST_ID.LINK_COPIED_TO_CLIPBOARD}"]`,
+				type: 'portalRoot',
 			}),
 		],
 	});
@@ -131,7 +184,34 @@ export const getBlockMenuExperiencesPlugin = ({
 		blockMenuOpenExperience.start({ method });
 	};
 
+	const handleTransformActioned = (target: HTMLElement): boolean => {
+		if (
+			!target.closest('[data-testid="editor-turn-into-menu--content"]') ||
+			// Skip experience tracking when the clicked item is an extension menu item
+			// (e.g. Jira macro, etc.) - they don't perform block transforms
+			target.closest(`[data-testid="${EXTENSION_MENU_ITEM_TEST_ID}"]`)
+		) {
+			return false;
+		}
+
+		const turnIntoButton = target.closest('button');
+		if (
+			turnIntoButton &&
+			turnIntoButton instanceof HTMLElement &&
+			!turnIntoButton.hasAttribute('disabled') &&
+			turnIntoButton.getAttribute('aria-disabled') !== 'true'
+		) {
+			blockTransformExperience.start();
+		}
+
+		return true;
+	};
+
 	const handleItemActioned = (target: HTMLElement) => {
+		if (handleTransformActioned(target)) {
+			return;
+		}
+
 		const button = target.closest('button[data-testid]');
 
 		if (
@@ -158,6 +238,9 @@ export const getBlockMenuExperiencesPlugin = ({
 				break;
 			case BLOCK_MENU_ACTION_TEST_ID.DELETE:
 				blockDeleteExperience.start();
+				break;
+			case BLOCK_MENU_ACTION_TEST_ID.COPY_LINK:
+				blockCopyLinkExperience.start();
 				break;
 		}
 	};
@@ -213,6 +296,8 @@ export const getBlockMenuExperiencesPlugin = ({
 					blockMoveUpExperience.abort({ reason: ABORT_REASON.EDITOR_DESTROYED });
 					blockMoveDownExperience.abort({ reason: ABORT_REASON.EDITOR_DESTROYED });
 					blockDeleteExperience.abort({ reason: ABORT_REASON.EDITOR_DESTROYED });
+					blockTransformExperience.abort({ reason: ABORT_REASON.EDITOR_DESTROYED });
+					blockCopyLinkExperience.abort({ reason: ABORT_REASON.EDITOR_DESTROYED });
 					editorView = undefined;
 					unbindClickListener();
 					unbindKeydownListener();

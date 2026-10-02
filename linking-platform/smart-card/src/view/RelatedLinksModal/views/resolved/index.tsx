@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { AnalyticsContext } from '@atlaskit/analytics-next';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import { Stack } from '@atlaskit/primitives/compiled';
 
 import { messages } from '../../../../messages';
 import RelatedLinksList from '../../components/related-links-list';
-
 import { type RelatedLinksProps } from './types';
 
 const RelatedLinksResolvedView = ({

@@ -1,10 +1,11 @@
 import React, { Fragment, useMemo } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { configPanelMessages as messages } from '@atlaskit/editor-common/extensions';
-import { ErrorMessage, HelperMessage } from '@atlaskit/form';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import { HelperMessage } from '@atlaskit/form/helper-message';
 import { Text } from '@atlaskit/primitives/compiled';
 
 import { FieldTypeError, ValidationError } from './types';
@@ -103,4 +104,20 @@ const FieldMessages = function ({
 	}
 };
 
-export default injectIntl(FieldMessages);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<
+	WithIntlProps<
+		{
+			description?: string;
+			error?: string;
+		} & WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			description?: string;
+			error?: string;
+		} & WrappedComponentProps
+	>;
+} = injectIntl(FieldMessages);
+export default _default_1;

@@ -1,10 +1,38 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const statusStyles: SerializedStyles = css({
+	// Show diff: status attr change highlight. Keep this with status node styles so the highlight
+	// targets the lozenge shape rather than the decoration wrapper.
+	// The ON cohort of platform_editor_show_diff_color_scheme_refactor sets
+	// --show-diff-atomic-inline-changed-border-color inline, overriding the table below; the OFF
+	// cohort picks its colour with the `-traditional` class. Drop the table at cleanup (EDITOR-8281).
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.show-diff-atomic-inline-changed-status': {
+		'--show-diff-atomic-inline-changed-border-color': token('color.border.accent.purple'),
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.show-diff-atomic-inline-changed-status.show-diff-atomic-inline-changed-traditional': {
+		'--show-diff-atomic-inline-changed-border-color': token('color.border.accent.green'),
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.show-diff-atomic-inline-changed-status .status-lozenge-span > span, .show-diff-atomic-inline-changed-status .lozenge-wrapper':
+		{
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
+			boxShadow: `0 0 0 2px var(--show-diff-atomic-inline-changed-border-color, ${token('color.border.accent.purple')})`,
+		},
+
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.pm-table-cell-content-wrap, .pm-table-header-content-wrap, [data-layout-section]': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -74,58 +102,16 @@ export const statusStyles: SerializedStyles = css({
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 		textTransform: 'uppercase',
 		whiteSpace: 'nowrap',
-		maxWidth: `calc(200px - ${token('space.100', '8px')})`,
+		maxWidth: `calc(200px - ${token('space.100')})`,
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const statusStylesMixin_fg_platform_component_visual_refresh: SerializedStyles = css({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'.statusView-content-wrap': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'&.ak-editor-selected-node .status-lozenge-span > span': {
-			boxShadow: `0 0 0 2px ${token('color.border.selected')}`,
-		},
-	},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="status"] .lozenge-text': {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
-		color: '#292A2E',
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="status"] > [data-color=neutral] > .lozenge-wrapper': {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
-		backgroundColor: '#DDDEE1',
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="status"] > [data-color=purple] > .lozenge-wrapper': {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
-		backgroundColor: '#D8A0F7',
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="status"] > [data-color=blue] > .lozenge-wrapper': {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
-		backgroundColor: '#8FB8F6',
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="status"] > [data-color=yellow] > .lozenge-wrapper': {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
-		backgroundColor: '#F9C84E',
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="status"] > [data-color=red] > .lozenge-wrapper': {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
-		backgroundColor: '#FD9891',
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="status"] > [data-color=green] > .lozenge-wrapper': {
-		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
-		backgroundColor: '#B3DF72',
-	},
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const statusStylesMixin_fg_platform_component_visual_refresh_with_search_match: SerializedStyles =
 	css({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
@@ -172,8 +158,13 @@ export const statusStylesMixin_fg_platform_component_visual_refresh_with_search_
 			backgroundColor: '#B3DF72',
 		},
 	});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const statusDangerStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'.statusView-content-wrap:not(.search-match-block)': {
@@ -184,81 +175,13 @@ export const statusDangerStyles: SerializedStyles = css({
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const statusStylesMixin_without_fg_platform_component_visual_refresh: SerializedStyles = css(
-	{
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'.statusView-content-wrap': {
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-			'&.ak-editor-selected-node .status-lozenge-span > span': {
-				// getSelectionStyles([SelectionStyle.BoxShadow]);
-				boxShadow: `0 0 0 1px ${token('color.border.selected')}`,
-				borderColor: 'transparent',
-				// hideNativeBrowserTextSelectionStyles
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-				'&::selection, & *::selection': {
-					backgroundColor: 'transparent',
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-				'&::-moz-selection, & *::-moz-selection': {
-					backgroundColor: 'transparent',
-				},
-			},
-		},
-
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=neutral] .lozenge-wrapper': {
-			backgroundColor: token('color.background.neutral'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=neutral] .lozenge-text': {
-			color: token('color.text.subtle'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=purple] .lozenge-wrapper': {
-			backgroundColor: token('color.background.discovery'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=purple] .lozenge-text': {
-			color: token('color.text.discovery'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=blue] .lozenge-wrapper': {
-			backgroundColor: token('color.background.information'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=blue] .lozenge-text': {
-			color: token('color.text.information'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=yellow] .lozenge-wrapper': {
-			backgroundColor: token('color.background.warning'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=yellow] .lozenge-text': {
-			color: token('color.text.warning'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=red] .lozenge-wrapper': {
-			backgroundColor: token('color.background.danger'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=red] .lozenge-text': {
-			color: token('color.text.danger'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=green] .lozenge-wrapper': {
-			backgroundColor: token('color.background.success'),
-		},
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[data-prosemirror-node-name="status"] > [data-color=green] .lozenge-text': {
-			color: token('color.text.success'),
-		},
-	},
-);
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const statusStylesMixin_without_fg_platform_component_visual_refresh_with_search_match: SerializedStyles =
 	css({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
@@ -329,3 +252,65 @@ export const statusStylesMixin_without_fg_platform_component_visual_refresh_with
 			color: token('color.text.success'),
 		},
 	});
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const statusStylesTeam26: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'[data-prosemirror-node-name="status"] .lozenge-wrapper': {
+		paddingBlockStart: token('space.025'),
+		paddingBlockEnd: token('space.025'),
+		paddingInlineStart: token('space.050'),
+		paddingInlineEnd: token('space.050'),
+		alignItems: 'center',
+		// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
+		borderRadius: token('radius.small', '4px'),
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+		height: '1.25rem',
+		border: `solid ${token('border.width')} transparent`,
+	},
+
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'[data-prosemirror-node-name="status"] .lozenge-text': {
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+		textTransform: 'none',
+		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+		font: token('font.body.small'),
+	},
+
+	/* Border, background and text colors
+	 * These colors are copied from @atlaskit/lozenge
+	 * Border tokens supply the appropriate light and dark color values.
+	 */
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'[data-prosemirror-node-name="status"] > [data-color=neutral] > .lozenge-wrapper': {
+		backgroundColor: token('color.background.neutral'),
+		borderColor: token('color.border'),
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'[data-prosemirror-node-name="status"] > [data-color=neutral] .lozenge-text': {
+		color: token('color.text'),
+	},
+
+	/* Find and Replace Styles */
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+	'.statusView-content-wrap:not(.search-match-block)': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'&.ak-editor-selected-node .status-lozenge-span > span': {
+			boxShadow: `0 0 0 2px ${token('color.border.selected')}`,
+		},
+	},
+
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.danger': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'.statusView-content-wrap:not(.search-match-block).ak-editor-selected-node .status-lozenge-span > span':
+			{
+				boxShadow: `0 0 0 2px ${token('color.border.danger')}`,
+			},
+	},
+});

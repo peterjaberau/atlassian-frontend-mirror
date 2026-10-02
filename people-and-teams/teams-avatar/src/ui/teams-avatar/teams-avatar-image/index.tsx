@@ -7,14 +7,23 @@ import { useEffect, useState } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { type SizeType } from '@atlaskit/avatar';
+import type { SizeType } from '@atlaskit/avatar/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { FallbackAvatar } from './fallback';
+import { TEAM_FALLBACK_AVATAR_DATA_URI } from './fallback/constants';
 import { getTeamAvatarSrc } from './utils';
 
+/**
+ * Team avatars do not support the `UNSAFE_xsmall` (20px) avatar size; the
+ * per-size dimension maps below are exhaustive over the supported sizes only.
+ */
+type TeamAvatarImageSize = Exclude<SizeType, 'UNSAFE_xsmall'>;
+
 type AvatarImageProps = {
-	size: SizeType;
+	size: TeamAvatarImageSize;
 	alt?: string;
 	src?: string;
 	testId?: string;
@@ -81,8 +90,8 @@ const containerStyles = cssMap({
 	disabled: {
 		cursor: 'not-allowed',
 		'&::after': {
-			backgroundColor: token('elevation.surface', '#FFFFFF'),
-			opacity: token('opacity.disabled', '0.7'),
+			backgroundColor: token('elevation.surface'),
+			opacity: token('opacity.disabled'),
 		},
 	},
 });
@@ -96,11 +105,11 @@ const unboundStyles = cssMap({
 	interactive: {
 		cursor: 'pointer',
 		'&:hover::after': {
-			backgroundColor: token('color.interaction.hovered', 'rgba(9, 30, 66, 0.36)'),
+			backgroundColor: token('color.interaction.hovered'),
 			opacity: '1',
 		},
 		'&:active::after': {
-			backgroundColor: token('color.interaction.pressed', 'rgba(9, 30, 66, 0.36)'),
+			backgroundColor: token('color.interaction.pressed'),
 			opacity: '1',
 		},
 		'@media screen and (forced-colors: active)': {
@@ -120,7 +129,8 @@ const avatarImageStyles = cssMap({
 	},
 });
 
-const SIZES: Record<SizeType, number> = {
+const SIZES: Record<TeamAvatarImageSize, number> = {
+	xxsmall: 16,
 	xsmall: 16,
 	small: 24,
 	medium: 32,
@@ -130,6 +140,9 @@ const SIZES: Record<SizeType, number> = {
 };
 
 const borderRadiusMap = cssMap({
+	xxsmall: {
+		borderRadius: token('radius.tile'),
+	},
 	xsmall: {
 		borderRadius: token('radius.tile'),
 	},
@@ -151,6 +164,10 @@ const borderRadiusMap = cssMap({
 });
 
 const widthHeightMap = cssMap({
+	xxsmall: {
+		width: '16px',
+		height: '16px',
+	},
 	xsmall: {
 		width: '16px',
 		height: '16px',
@@ -189,17 +206,19 @@ export const TeamAvatarImage = ({
 	testId,
 	teamId,
 	compact = false,
-}: AvatarImageProps) => {
+}: AvatarImageProps): JSX.Element => {
 	const [hasImageErrored, setHasImageErrored] = useState(false);
 
 	const avatarSrc = getTeamAvatarSrc(src, teamId);
 
-	// If src changes, reset state
 	useEffect(() => {
+		if (fg('enable_teams_t26_design_drop_core_experiences')) {
+			return;
+		}
 		setHasImageErrored(false);
 	}, [avatarSrc]);
 
-	if (!avatarSrc || hasImageErrored) {
+	if ((!avatarSrc || hasImageErrored) && !fg('enable_teams_t26_design_drop_core_experiences')) {
 		return (
 			<FallbackAvatar
 				aria-label={alt}
@@ -207,6 +226,20 @@ export const TeamAvatarImage = ({
 				height={SIZES[size]}
 				data-testid={testId}
 				compact={compact}
+			/>
+		);
+	}
+
+	if (fg('enable_teams_t26_design_drop_core_experiences')) {
+		const resolvedSrc = hasImageErrored ? TEAM_FALLBACK_AVATAR_DATA_URI : avatarSrc;
+		return (
+			<Box
+				as="img"
+				src={resolvedSrc}
+				alt={alt}
+				testId={testId && `${testId}--image`}
+				xcss={avatarImageStyles.image}
+				onError={() => setHasImageErrored(true)}
 			/>
 		);
 	}

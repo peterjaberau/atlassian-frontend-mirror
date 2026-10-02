@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-picker",
-	"version": "70.1.9",
+	"version": "73.0.0",
 	"description": "Library for handling file uploads",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -13,22 +13,35 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"exports": {
+		".": "./src/index.ts",
+		"./browser": "./src/components/browser/index.tsx",
+		"./clipboard": "./src/components/clipboard/index.tsx",
+		"./components/types": "./src/components/types.ts",
+		"./dropzone": "./src/components/dropzone/index.tsx",
+		"./plugin": "./src/domain/plugin.ts",
+		"./preview": "./src/domain/preview.ts",
 		"./types": "./src/types.ts",
-		".": "./src/index.ts"
+		"./util/failMediaUploadUfoExperience": "./src/util/failMediaUploadUfoExperience.ts",
+		"./util/startMediaUploadUfoExperience": "./src/util/startMediaUploadUfoExperience.ts",
+		"./util/succeedMediaUploadUfoExperience": "./src/util/succeedMediaUploadUfoExperience.ts",
+		"./util/ufoExperiences": "./src/util/ufoExperiences.ts",
+		"./util/UFOFailedEventPayload": "./src/util/UFOFailedEventPayload.ts"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Media Picker"
 		}
 	},
@@ -41,57 +54,55 @@
 		"@atlaskit/media-common": "workspace:^",
 		"@atlaskit/media-ui": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/ufo": "workspace:^",
 		"@babel/runtime": "root:*",
 		"eventemitter2": "root:*",
 		"exenv": "root:*",
 		"perf-marks": "root:*",
-		"uuid": "root:*",
-		"uuid-validate": "root:*"
+		"uuid": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/media-core": "workspace:^",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-intl-next": "*"
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@atlaskit/analytics-listeners": "workspace:^",
 		"@atlaskit/analytics-namespaced-context": "workspace:^",
 		"@atlaskit/button": "workspace:^",
+		"@atlaskit/dropdown-menu": "workspace:^",
 		"@atlaskit/media-core": "workspace:^",
 		"@atlaskit/media-test-helpers": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/spinner": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
+		"@atlaskit/toggle": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
 		"@atlassian/ufo": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@babel/plugin-proposal-numeric-separator": "root:*",
 		"@emotion/react": "root:*",
 		"@testing-library/dom": "root:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
-		"@types/enzyme": "root:*",
 		"@types/exenv": "root:*",
 		"@types/react": "root:*",
-		"@types/uuid-validate": "root:*",
-		"enzyme": "root:*",
 		"fetch-mock": "root:*",
 		"identity-obj-proxy": "root:*",
 		"react": "root:*",
 		"react-dom": "root:*",
-		"react-intl-next": "root:*",
+		"react-intl": "root:*",
 		"wait-for-expect": "root:*"
 	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			]
-		}
-	},
 	"platform-feature-flags": {
-		"should-render-to-parent-should-be-true-media-exif": {
+		"platform_media_picker_upload_batching": {
+			"type": "boolean"
+		},
+		"platform_media_filereader_error_surfacing": {
 			"type": "boolean"
 		}
 	}

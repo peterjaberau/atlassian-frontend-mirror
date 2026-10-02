@@ -1,4 +1,5 @@
 import { snapshotInformational } from '@af/visual-regression';
+
 import {
 	RendererBlockCard,
 	RendererBlockCardErrored,
@@ -50,14 +51,8 @@ import {
 	RendererEmbedCardRequestAccessDeniedRequestExists,
 	RendererEmbedCardForbiddenRequestApprovedRequestExists,
 	RendererEmbedCardRequestAccessAccessExists,
-	RendererInlineCardXSS,
-	RendererBlockCardXSS,
-	RendererEmbedCardXSS,
-} from './card.fixtures';
+} from './card.fixtures.vr.ap';
 
-snapshotInformational(RendererInlineCardXSS, {
-	featureFlags: {},
-});
 snapshotInformational(RendererInlineCard, {
 	prepare: async (page) => {
 		await page.getByTestId('inline-card-resolved-view').waitFor({ state: 'visible' });
@@ -75,6 +70,18 @@ snapshotInformational(RendererInlineCardUnauthorized, {
 		await page.getByTestId('inline-card-unauthorized-view').waitFor({ state: 'visible' });
 	},
 	featureFlags: {},
+	mockRequests: [
+		{
+			urlPattern: /\/_edge\/tenant_info/u,
+			body: JSON.stringify({ cloudId: 'renderer-card-vr-cloud-id' }),
+			contentType: 'application/json',
+		},
+		{
+			urlPattern: /\/gateway\/api\/tap-delivery\/api\/v3\/personalization\//u,
+			body: JSON.stringify({ attributes: [] }),
+			contentType: 'application/json',
+		},
+	],
 });
 snapshotInformational(RendererInlineCardForbidden, {
 	prepare: async (page) => {
@@ -107,9 +114,6 @@ snapshotInformational(RendererBlockCard, {
 	featureFlags: {
 		platform_ssr_smartlink_cards: [true, false],
 	},
-});
-snapshotInformational(RendererBlockCardXSS, {
-	featureFlags: {},
 });
 snapshotInformational(RendererBlockCardResolving, {
 	prepare: async (page) => {
@@ -158,9 +162,6 @@ snapshotInformational(RendererEmbedCard, {
 			state: 'hovered',
 		},
 	],
-	featureFlags: {},
-});
-snapshotInformational(RendererEmbedCardXSS, {
 	featureFlags: {},
 });
 snapshotInformational(RendererEmbedCardWide, {
@@ -265,56 +266,35 @@ snapshotInformational(RendererInlineCardRequestAccess, {
 	prepare: async (page) => {
 		await page.getByTestId('inline-card-forbidden-view').waitFor({ state: 'visible' });
 	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshotInformational(RendererInlineCardForbiddenPendingRequestAccess, {
 	prepare: async (page) => {
 		await page.getByTestId('inline-card-forbidden-view').waitFor({ state: 'visible' });
-	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 snapshotInformational(RendererInlineCardRequestAccessForbidden, {
 	prepare: async (page) => {
 		await page.getByTestId('inline-card-forbidden-view').waitFor({ state: 'visible' });
 	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshotInformational(RendererInlineCardRequestAccessDirectAccess, {
 	prepare: async (page) => {
 		await page.getByTestId('inline-card-forbidden-view').waitFor({ state: 'visible' });
-	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 snapshotInformational(RendererInlineCardRequestAccessDeniedRequestExists, {
 	prepare: async (page) => {
 		await page.getByTestId('inline-card-forbidden-view').waitFor({ state: 'visible' });
 	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshotInformational(RendererInlineCardForbiddenRequestApprovedRequestExists, {
 	prepare: async (page) => {
 		await page.getByTestId('inline-card-forbidden-view').waitFor({ state: 'visible' });
 	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshotInformational(RendererInlineCardRequestAccessAccessExists, {
 	prepare: async (page) => {
 		await page.getByTestId('inline-card-forbidden-view').waitFor({ state: 'visible' });
-	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 
@@ -322,56 +302,35 @@ snapshotInformational(RendererBlockCardRequestAccess, {
 	prepare: async (page) => {
 		await page.getByTestId('smart-block-forbidden-view').waitFor({ state: 'visible' });
 	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshotInformational(RendererBlockCardForbiddenPendingRequestAccess, {
 	prepare: async (page) => {
 		await page.getByTestId('smart-block-forbidden-view').waitFor({ state: 'visible' });
-	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 snapshotInformational(RendererBlockCardRequestAccessForbidden, {
 	prepare: async (page) => {
 		await page.getByTestId('smart-block-forbidden-view').waitFor({ state: 'visible' });
 	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshotInformational(RendererBlockCardRequestAccessDirectAccess, {
 	prepare: async (page) => {
 		await page.getByTestId('smart-block-forbidden-view').waitFor({ state: 'visible' });
-	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 snapshotInformational(RendererBlockCardRequestAccessDeniedRequestExists, {
 	prepare: async (page) => {
 		await page.getByTestId('smart-block-forbidden-view').waitFor({ state: 'visible' });
 	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshotInformational(RendererBlockCardForbiddenRequestApprovedRequestExists, {
 	prepare: async (page) => {
 		await page.getByTestId('smart-block-forbidden-view').waitFor({ state: 'visible' });
 	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });
 snapshotInformational(RendererBlockCardRequestAccessAccessExists, {
 	prepare: async (page) => {
 		await page.getByTestId('smart-block-forbidden-view').waitFor({ state: 'visible' });
-	},
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
 	},
 });
 

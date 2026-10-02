@@ -1,5 +1,4 @@
 import {
-	_makeExperiment,
 	_makeLayer,
 	LogEventCompressionMode,
 	StableID,
@@ -8,18 +7,22 @@ import {
 	type StatsigUser,
 } from '@statsig/js-client';
 
-import Subscriptions from '../subscriptions';
-
+import { default as Subscriptions } from '../subscriptions/Subscriptions';
 import { DynamicConfig } from './compat/DynamicConfig';
 import { Layer } from './compat/Layer';
 import { EvaluationReason } from './compat/types';
-import Fetcher, { type FetcherOptions } from './fetcher';
+import { deepAssign } from './deepAssign';
+import { type FetcherOptions, default as Fetcher } from './fetcher/Fetcher';
+import { getOptionsWithDefaults } from './getOptionsWithDefaults';
+import { migrateInitializationOptions } from './migrateInitializationOptions';
 import { NoFetchDataAdapter } from './NoFetchDataAdapter';
 import {
 	LOCAL_STORAGE_KEY,
 	type LocalOverrides,
 	PersistentOverrideAdapter,
 } from './PersistentOverrideAdapter';
+import { shallowEquals } from './shallowEquals';
+import { toStatsigUser } from './toStatsigUser';
 import {
 	type BaseClientOptions,
 	type CheckGateOptions,
@@ -38,12 +41,6 @@ import {
 	PerimeterType,
 	type Provider,
 } from './types';
-import {
-	getOptionsWithDefaults,
-	migrateInitializationOptions,
-	shallowEquals,
-	toStatsigUser,
-} from './utils';
 import { CLIENT_VERSION } from './version';
 
 const DEFAULT_CLIENT_KEY = 'client-default-key';
@@ -977,7 +974,8 @@ export class Client {
 			...restClientOptions
 		} = newClientOptions;
 
-		this.user = toStatsigUser(identifiers, customAttributes);
+		const frontendUser = toStatsigUser(identifiers, customAttributes);
+		this.user = deepAssign({}, initializeValues.user, frontendUser);
 
 		const statsigOptions: StatsigOptions = {
 			...restClientOptions,
@@ -1099,7 +1097,8 @@ export class Client {
 		let initializeValues, user;
 		try {
 			initializeValues = await initializeValuesPromise;
-			user = toStatsigUser(identifiers, initializeValues.customAttributesFromFetch);
+			const frontendUser = toStatsigUser(identifiers, initializeValues.customAttributesFromFetch);
+			user = deepAssign({}, initializeValues.experimentValues.user, frontendUser);
 		} catch (err) {
 			// Make sure the updateUserCompletionCallback is called for any errors in our custom code.
 			// This is not necessary for the updateUserWithValues call, because the Statsig client will
@@ -1149,6 +1148,18 @@ export class Client {
 	 */
 	getPackageVersion(): string {
 		return CLIENT_VERSION;
+	}
+
+	/**
+	 * Returns the `targetApp` value that was provided during client initialization.
+	 * This identifies the product/app context (e.g., `'confluence_web'`, `'jira_web'`).
+	 *
+	 * Returns `undefined` if `initialize` has never been called.
+	 *
+	 * @returns The targetApp string, or undefined if initialize has never been called.
+	 */
+	getTargetApp(): string | undefined {
+		return this.initOptions?.targetApp;
 	}
 
 	/**

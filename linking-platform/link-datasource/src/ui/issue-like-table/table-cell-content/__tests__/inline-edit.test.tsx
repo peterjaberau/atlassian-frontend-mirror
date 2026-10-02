@@ -2,31 +2,33 @@ import React from 'react';
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import { defaultRegistry } from 'react-sweet-state';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { FlagsProvider } from '@atlaskit/flag';
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
-
-import { EVENT_CHANNEL } from '../../../../analytics';
-import { DatasourceExperienceIdProvider } from '../../../../contexts/datasource-experience-id';
-import { Store, StoreContainer } from '../../../../state';
-import { type DatasourceTypeWithOnlyValues } from '../../types';
-import { getFieldLabelById } from '../../utils';
-import { InlineEdit, newGetBackendUpdateValue } from '../inline-edit';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { FlagsProvider } from '@atlaskit/flag/flags-provider';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import '@atlaskit/link-test-helpers/jest';
+
+import { EVENT_CHANNEL } from '../../../../analytics/constants';
+import { DatasourceExperienceIdProvider } from '../../../../contexts/datasource-experience-id/datasource-experience-id-provider';
+import { Store, StoreContainer } from '../../../../state';
+import { getFieldLabelById } from '../../get-field-label-by-id';
+import { type DatasourceTypeWithOnlyValues } from '../../types';
+import { InlineEdit } from '../inline-edit';
 import { tableCellMessages } from '../messages';
+import { newGetBackendUpdateValue } from '../new-get-backend-update-value';
 
 const store = defaultRegistry.getStore(Store);
 const onAnalyticFireEvent = jest.fn();
 
 let mockUseExecuteAtomicAction = jest.fn();
 
-jest.mock('../../../../state/actions', () => {
+jest.mock('../../../../state/actions/useExecuteAtomicAction', () => {
 	return {
 		__esModule: true,
-		...jest.requireActual('../../../../state/actions'),
+		...jest.requireActual('../../../../state/actions/useExecuteAtomicAction'),
 		useExecuteAtomicAction: () => mockUseExecuteAtomicAction(),
 	};
 });
@@ -256,6 +258,8 @@ describe('InlineEdit', () => {
 		await userEvent.type(screen.getByTestId(testIds.editView), 'FoobarFoobar');
 		await userEvent.type(screen.getByTestId(testIds.editView), '{enter}');
 
+		// Wait for the execute promise to settle and the error flag to appear
+		await expect(execute.mock.results[0].value).rejects.toEqual({});
 		const flag = await screen.findByRole('alert');
 		expect(flag).toBeInTheDocument();
 	});
@@ -583,6 +587,8 @@ describe('InlineEdit', () => {
 			await userEvent.type(screen.getByTestId(testIds.editView), 'FoobarFoobar');
 			await userEvent.type(screen.getByTestId(testIds.editView), '{enter}');
 
+			// Wait for the execute promise to settle before asserting on analytics events
+			await expect(execute.mock.results[0].value).rejects.toEqual({});
 			expect(onAnalyticFireEvent).toBeFiredWithAnalyticEventOnce(
 				{
 					payload: {
@@ -634,6 +640,8 @@ describe('InlineEdit', () => {
 			await userEvent.type(screen.getByTestId(testIds.editView), 'FoobarFoobar');
 			await userEvent.type(screen.getByTestId(testIds.editView), '{enter}');
 
+			// Wait for the execute promise to resolve before asserting on analytics events
+			await expect(execute.mock.results[0].value).resolves.toEqual({});
 			expect(onAnalyticFireEvent).toBeFiredWithAnalyticEventOnce(
 				{
 					payload: {

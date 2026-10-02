@@ -4,7 +4,6 @@ import type { EditorState, ReadonlyTransaction } from '@atlaskit/editor-prosemir
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 
 import { isAlignable } from '../editor-commands';
-
 import type { AlignmentPluginState } from './types';
 import { getActiveAlignment } from './utils';
 
@@ -18,9 +17,14 @@ function createInitialPluginState(
 	};
 }
 
-export const pluginKey = new PluginKey<AlignmentPluginState>('alignmentPlugin');
+export const pluginKey: PluginKey<AlignmentPluginState> = new PluginKey<AlignmentPluginState>(
+	'alignmentPlugin',
+);
 
-export function createPlugin(dispatch: Dispatch, pluginConfig: AlignmentPluginState) {
+export function createPlugin(
+	dispatch: Dispatch,
+	pluginConfig: AlignmentPluginState,
+): SafePlugin<AlignmentPluginState> {
 	return new SafePlugin<AlignmentPluginState>({
 		key: pluginKey,
 		state: {

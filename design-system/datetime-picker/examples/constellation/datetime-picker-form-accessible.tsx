@@ -1,13 +1,18 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import { DateTimePicker } from '@atlaskit/datetime-picker';
-import Form, { Field, FormFooter } from '@atlaskit/form';
+import Button from '@atlaskit/button/default/button';
+import DateTimePicker from '@atlaskit/datetime-picker/date-time-picker';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
 
 const DateTimePickerFormAccessibleExample = (): React.JSX.Element => (
 	<Form onSubmit={(formState: unknown) => console.log('form submitted', formState)}>
-		<Field name="datetime-picker-accessible" label="Scheduled run time" isRequired>
-			{({ fieldProps }) => (
+		<Field
+			name="datetime-picker-accessible"
+			label="Scheduled run time"
+			isRequired
+			component={({ fieldProps }) => (
 				<DateTimePicker
 					{...fieldProps}
 					datePickerProps={{
@@ -18,7 +23,7 @@ const DateTimePickerFormAccessibleExample = (): React.JSX.Element => (
 					clearControlLabel="Clear scheduled run time"
 				/>
 			)}
-		</Field>
+		/>
 		<FormFooter>
 			<Button type="submit" appearance="primary">
 				Submit

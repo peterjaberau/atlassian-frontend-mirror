@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import type { HandleComponent, ResizeDirection } from 're-resizable';
 import { Resizable } from 're-resizable';
 
-import type { RichMediaLayout } from '@atlaskit/adf-schema';
+import type { Layout as RichMediaLayout } from '@atlaskit/adf-schema/rich-media-common';
 import { akRichMediaResizeZIndex } from '@atlaskit/editor-shared-styles';
 
 import type { DispatchAnalyticsEvent, MediaEventPayload } from '../../analytics';
@@ -13,9 +13,9 @@ import { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, EVENT_TYPE } from '../../ana
 import type { HandleStyles } from '../../resizer/types';
 import { richMediaClassName } from '../../styles';
 import { gridTypeForLayout } from '../../utils';
-
+import { handleSides } from './handleSides';
+import { snapTo } from './snapTo';
 import type { EnabledHandles, Props as ResizableMediaSingleProps } from './types';
-import { handleSides, snapTo } from './utils';
 
 const getResizeAnalyticsEvent = (
 	type: string | undefined,
@@ -55,6 +55,7 @@ export type ResizerProps = Omit<ResizableMediaSingleProps, 'height' | 'width'> &
 	highlights: (width: number, snapPoints: number[]) => number[] | string[];
 	innerPadding?: number;
 	nodeType?: 'media' | 'embed';
+	onResizeStart?: () => void;
 	ratio?: string;
 	scaleFactor?: number;
 	selected?: boolean;
@@ -86,9 +87,20 @@ export default class Resizer extends React.Component<ResizerProps, ResizerState>
 	private handleResizeStart = (
 		event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
 	) => {
-		const { innerPadding = 0, highlights, displayGrid, layout, width, snapPoints } = this.props;
+		const {
+			innerPadding = 0,
+			highlights,
+			displayGrid,
+			layout,
+			width,
+			snapPoints,
+			onResizeStart,
+		} = this.props;
 		// prevent creating a drag event on Firefox
 		event.preventDefault();
+		if (onResizeStart) {
+			onResizeStart();
+		}
 		this.setState({ isResizing: true }, () => {
 			const newHighlights = highlights(width + innerPadding, snapPoints);
 			displayGrid?.(newHighlights.length > 0, gridTypeForLayout(layout), newHighlights);
@@ -243,6 +255,7 @@ export default class Resizer extends React.Component<ResizerProps, ResizerState>
 		return (
 			<Resizable
 				ref={this.resizable}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				size={{
 					width: nonZeroWidth, // just content itself (no paddings)
 					height: 'auto',

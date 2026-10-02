@@ -1,10 +1,11 @@
 /* eslint-disable @repo/internal/react/require-jsdoc */
+
 import type { Rule } from 'eslint';
 import { isNodeOfType, type Property } from 'eslint-codemod-utils';
 
-import * as ast from '../../../ast-nodes';
-import { isStringOrNumber } from '../../use-tokens-space/utils';
-
+import { ObjectEntry } from '../../../ast-nodes/object-entry';
+import { Root } from '../../../ast-nodes/root';
+import { isStringOrNumber } from '../../use-tokens-space/utils/is-string-or-number';
 import { styleMap } from './style-map';
 import supported from './supported';
 
@@ -27,15 +28,20 @@ type Check =
 	  };
 
 export const StyleProperty: {
-    lint(node: Rule.Node, { context }: {
-        context: Rule.RuleContext;
-    }): void;
-    _check(node: Rule.Node): Check;
-    /**
-     * All required validation steps have been taken care of before this
-     * transformer is called, so it just goes ahead providing all necessary fixes
-     */
-    _fix(ref: Ref, context: Rule.RuleContext): (fixer: Rule.RuleFixer) => Rule.Fix[];
+	lint(
+		node: Rule.Node,
+		{
+			context,
+		}: {
+			context: Rule.RuleContext;
+		},
+	): void;
+	_check(node: Rule.Node): Check;
+	/**
+	 * All required validation steps have been taken care of before this
+	 * transformer is called, so it just goes ahead providing all necessary fixes
+	 */
+	_fix(ref: Ref, context: Rule.RuleContext): (fixer: Rule.RuleFixer) => Rule.Fix[];
 } = {
 	lint(node: Rule.Node, { context }: { context: Rule.RuleContext }): void {
 		// Check whether all criteria needed to make a transformation are met
@@ -70,14 +76,14 @@ export const StyleProperty: {
 			return { success: false, ref: undefined };
 		}
 
-		const { value: property } = ast.ObjectEntry.getProperty(node);
+		const { value: property } = ObjectEntry.getProperty(node);
 
 		// Bail if the property is not `borderRadius`, `borderWidth`, etc
 		if (!property || !styleMap[property]) {
 			return { success: false, ref: undefined };
 		}
 
-		const value = ast.ObjectEntry.getValue(node);
+		const value = ObjectEntry.getValue(node);
 
 		// This is mainly useful as a type guard, so the checks after don't have to have duplicate checks for other types.
 		if (!isStringOrNumber(value)) {
@@ -114,7 +120,7 @@ export const StyleProperty: {
 	 */
 	_fix(ref: Ref, context: Rule.RuleContext) {
 		return (fixer: Rule.RuleFixer) => {
-			const importFix = ast.Root.upsertNamedImportDeclaration(
+			const importFix = Root.upsertNamedImportDeclaration(
 				{
 					module: '@atlaskit/tokens',
 					specifiers: ['token'],

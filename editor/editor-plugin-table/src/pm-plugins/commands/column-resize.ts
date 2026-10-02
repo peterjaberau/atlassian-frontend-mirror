@@ -1,7 +1,7 @@
-import type { IntlShape } from 'react-intl-next/src/types';
+import type { IntlShape } from 'react-intl/src/types';
 
 import { tableMessages as messages } from '@atlaskit/editor-common/messages';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { tableCellMinWidth } from '@atlaskit/editor-common/styles';
 import type { Command, GetEditorContainerWidth } from '@atlaskit/editor-common/types';
 import type { AriaLiveElementAttributes } from '@atlaskit/editor-plugin-accessibility-utils';
@@ -65,7 +65,6 @@ const updateResizeHandleAndStatePosition =
 		const {
 			pluginConfig: { allowColumnResizing },
 			getIntl,
-			isDragAndDropEnabled,
 		} = getPluginState(state);
 
 		const fakeDispatch = (tr: Transaction) => {
@@ -90,13 +89,9 @@ const updateResizeHandleAndStatePosition =
 		const decorationsWithWidgetAndHandle = updateDecorations(
 			customTr.doc,
 			decorationsWithWidget,
-			createColumnLineResize(
-				state.selection,
-				{
-					right: columnIndex,
-				},
-				isDragAndDropEnabled,
-			),
+			createColumnLineResize(state.selection, {
+				right: columnIndex,
+			}),
 			TableDecorations.COLUMN_RESIZING_HANDLE_LINE,
 		);
 

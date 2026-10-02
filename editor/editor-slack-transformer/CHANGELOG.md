@@ -1,5 +1,84 @@
 # @atlaskit/editor-slack-transformer
 
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 5.1.1
+
+### Patch Changes
+
+- [`a0567a3d509c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0567a3d509c2) -
+  Support `panel_c1` nodes in Slack markdown serialization.
+
+## 5.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- [`eb0de97776ce5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb0de97776ce5) -
+  cleanup to prefer static regex as part of ees019
+- Updated dependencies
+
+## 4.1.6
+
+### Patch Changes
+
+- [`c9b7aaa42d05b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9b7aaa42d05b) -
+  Mechanical type-import autofix for editor core shell packages.
+
+## 4.1.5
+
+### Patch Changes
+
+- [`77cafcf235d17`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77cafcf235d17) -
+  EDITOR-6049 Add support for flexible list indentation and task lists in Slack markdown serializer.
+  Wrapper listItem nodes (listItem nodes whose only children are nested lists) no longer produce
+  empty bullet points or numbers. Task lists render with checkbox indicators and correct
+  indentation.
+
+## 4.1.4
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
 ## 4.1.3
 
 ### Patch Changes

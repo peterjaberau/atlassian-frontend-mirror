@@ -1,15 +1,38 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const mediaResizeAnnouncerMessMessages = defineMessages({
+export const mediaResizeAnnouncerMessMessages: {
+	MediaWidthIsMax: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	MediaWidthIsMin: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	DefaultMediaWidthIncreased: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	DefaultMediaWidthDecreased: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	MediaWidthIsMax: {
 		id: 'fabric.editor.media.pixelEntry.MediaWidthIsMax',
 		defaultMessage: 'Media increased to the maximum size',
-		description: 'The media has the maximum allowed width',
+		description:
+			'Assistive announcement text read by screen readers when the user resizes a media item and it reaches the maximum allowed size.',
 	},
 	MediaWidthIsMin: {
 		id: 'fabric.editor.media.MediaWidthIsMin',
 		defaultMessage: 'Media decreased to the minimum size',
-		description: 'The media has the minimum allowed width',
+		description:
+			'Assistive announcement text read by screen readers when the user resizes a media item and it reaches the minimum allowed size.',
 	},
 	DefaultMediaWidthIncreased: {
 		id: 'fabric.editor.media.DefaultMediaWidthIncreased',

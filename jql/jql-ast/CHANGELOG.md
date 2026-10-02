@@ -1,5 +1,75 @@
 # @atlaskit/jql-ast
 
+## 4.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.1
+
+### Patch Changes
+
+- [`899d64af167a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/899d64af167a9) -
+  Cleanup feature gate queue-setting-page-jql-bug
+
+## 4.1.0
+
+### Minor Changes
+
+- [`3c429c1effcc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c429c1effcc8) -
+  Add `descendantsOfTeamTotalCount` to `JqlInsightsAttributes`, so that `computeJqlInsights` reports
+  how often the `descendantsOfTeam` JQL function is used, alongside the existing `membersOf`
+  attributes. Also add `optionFunctionName` to the `autocompleteOption selected` analytics event
+  attributes, so that autocomplete selections can be attributed to a specific JQL function. Also add
+  `functionName` to the operational `autocompleteOption retrieved` / `retrieveFailed` analytics
+  event attributes, identifying the JQL function whose arguments the caret was inside when the
+  options were requested, so autocomplete impressions can be attributed to a function and measured
+  against selections. The attribute is omitted when the caret is not inside a function's arguments.
+
+  JQL function names are not a closed set — the grammar accepts any quoted string as a function name
+  and Forge/Connect apps register their own functions — so every emitted function name is bucketed
+  against the known team functions (`membersof`, `descendantsofteam`) and anything else is reported
+  as `other`. No identifiers, display names or query text are emitted.
+
+## 4.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.5.0
+
+### Minor Changes
+
+- [`80d8df1d8b42a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/80d8df1d8b42a) -
+  Autofix: add explicit package exports (barrel removal)
+
 ## 3.4.0
 
 ### Minor Changes

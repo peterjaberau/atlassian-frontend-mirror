@@ -3,13 +3,13 @@ import React from 'react';
 import { SelectItemMode } from '@atlaskit/editor-common/type-ahead';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { updateSelectedIndex } from '../pm-plugins/commands/update-selected-index';
 import type { CloseSelectionOptions } from '../pm-plugins/constants';
 import type { TypeAheadPlugin } from '../typeAheadPluginType';
 import type { PopupMountPointReference, TypeAheadPluginSharedState } from '../types';
-
 import { useItemInsert } from './hooks/use-item-insert';
 import { TypeAheadPopup } from './TypeAheadPopup';
 
@@ -21,11 +21,32 @@ type TypeAheadMenuType = {
 	typeAheadState: Omit<TypeAheadPluginSharedState, 'isOpen' | 'isAllowed' | 'selectedIndex'>;
 };
 
-export const TypeAheadMenu = React.memo(
-	({ editorView, popupMountRef, typeAheadState, selectedIndex, api }: TypeAheadMenuType): React.JSX.Element | null => {
+export const TypeAheadMenu: React.MemoExoticComponent<
+	({
+		editorView,
+		popupMountRef,
+		typeAheadState,
+		selectedIndex,
+		api,
+	}: TypeAheadMenuType) => React.JSX.Element | null
+> = React.memo(
+	({
+		editorView,
+		popupMountRef,
+		typeAheadState,
+		selectedIndex,
+		api,
+	}: TypeAheadMenuType): React.JSX.Element | null => {
 		const isOpen = typeAheadState.decorationSet.find().length > 0;
-		const { triggerHandler, items, errorInfo, decorationElement, decorationSet, query } =
-			typeAheadState;
+		const {
+			triggerHandler,
+			items,
+			sections = [],
+			errorInfo,
+			decorationElement,
+			decorationSet,
+			query,
+		} = typeAheadState;
 
 		const [onItemInsert, onTextInsert, onItemMatch] = useItemInsert(
 			// Ignored via go/ees005
@@ -95,11 +116,19 @@ export const TypeAheadMenu = React.memo(
 			showMoreOptionsButton = !!triggerHandler?.getMoreOptionsButtonConfig;
 		}
 
+		const emptyItem = React.useMemo(
+			() =>
+				isExperimentEnabled('platform_editor_insert_menu_ai')
+					? triggerHandler?.getEmptyItem?.({ editorState: editorView.state })
+					: undefined,
+			[triggerHandler, editorView.state],
+		);
+
 		if (
 			!isOpen ||
 			!triggerHandler ||
 			!(decorationElement instanceof HTMLElement) ||
-			(!openElementBrowserModal && items.length === 0 && !errorInfo)
+			(!openElementBrowserModal && items.length === 0 && !errorInfo && !emptyItem)
 		) {
 			return null;
 		}
@@ -113,6 +142,8 @@ export const TypeAheadMenu = React.memo(
 				anchorElement={decorationElement}
 				triggerHandler={triggerHandler}
 				items={items}
+				sections={sections}
+				emptyItem={emptyItem}
 				errorInfo={errorInfo}
 				selectedIndex={selectedIndex}
 				setSelectedItem={setSelectedItem}

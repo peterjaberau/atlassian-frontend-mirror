@@ -5,15 +5,30 @@ order: 0
 import TagGroupDefault from '../../examples/constellation/tag-group-default';
 import TagGroupAlignmentStart from '../../examples/constellation/tag-group-alignment-start';
 import TagGroupAlignmentEnd from '../../examples/constellation/tag-group-alignment-end';
+import AddTagsToGroupExample from '../../examples/5-add-tags';
 
 ## Default
 
-By default, a tag group lays out a collection of [tags](/components/tag/) from left to right. It
+By default, a tag group lays out a collection of [tags](/components/tag) from left to right. It
 handles overflow by wrapping to the next line.
 
 Tags inside of a tag group should be of the same type to provide a consistent user experience.
 
-<Example Component={TagGroupDefault} packageName="@atlaskit/tag-group" />
+<Example
+	Component={TagGroupDefault}
+	packageName="@atlaskit/tag-group"
+	featureFlagSwitchers={['motionLabels']}
+/>
+
+## Add tags
+
+Add and remove tags to see their enter and exit motion in a tag group.
+
+<Example
+	Component={AddTagsToGroupExample}
+	packageName="@atlaskit/tag-group"
+	featureFlagSwitchers={['motionLabels']}
+/>
 
 ## Alignment
 
@@ -26,14 +41,22 @@ tag is removed.
 Set the `alignment` prop to `"start"` to align the tags to the start of the tag group container.
 Tags will animate out to the left when removed.
 
-<Example Component={TagGroupAlignmentStart} packageName="@atlaskit/tag-group" />
+<Example
+	Component={TagGroupAlignmentStart}
+	packageName="@atlaskit/tag-group"
+	featureFlagSwitchers={['motionLabels']}
+/>
 
 ### End
 
 Set the `alignment` prop to `"end"` to align the tags to the end of the group. Tags will animate out
 to the right when removed.
 
-<Example Component={TagGroupAlignmentEnd} packageName="@atlaskit/tag-group" />
+<Example
+	Component={TagGroupAlignmentEnd}
+	packageName="@atlaskit/tag-group"
+	featureFlagSwitchers={['motionLabels']}
+/>
 
 ## Focus
 

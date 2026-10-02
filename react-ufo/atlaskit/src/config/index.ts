@@ -1,8 +1,69 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+
+import { isFedrampModerate } from '@atlaskit/atlassian-context/is-fedramp-moderate';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { AssetsConfig, InteractionMetrics, InteractionType } from '../common';
 
 let config: Config | undefined;
+
+/**
+ * Cached result of `isFedrampModerate()` so we don't re-parse cookies on
+ * every selector lookup. Reset via `__resetFedrampOverrideCacheForTests` in
+ * unit tests only.
+ */
+let cachedIsFedrampModerate: boolean | undefined;
+
+function detectIsFedrampModerate(): boolean {
+	if (cachedIsFedrampModerate !== undefined) {
+		return cachedIsFedrampModerate;
+	}
+	try {
+		cachedIsFedrampModerate = isFedrampModerate();
+	} catch {
+		// Defensive default: if perimeter detection throws, treat as non-FedRAMP
+		// so UFO behaviour is unchanged. Mirrors `analyticsWebClient` pattern.
+		cachedIsFedrampModerate = false;
+	}
+	return cachedIsFedrampModerate;
+}
+
+/**
+ * @internal Test-only helper. Do not use outside unit tests.
+ */
+export function __resetFedrampOverrideCacheForTests(): void {
+	cachedIsFedrampModerate = undefined;
+}
+
+/**
+ * Returns true when react-ufo should apply its FedRAMP-Moderate hardening:
+ *
+ *   - all `selectorConfig` fields forced to `false`
+ *   - `rawData.att`, `obs[].att`, `rawData.lbl`, `rawData.lblMode` scrubbed
+ *     from the `raw-handler` revision payload
+ *
+ * Centralising the perimeter check here ensures every FedRAMP code path in
+ * react-ufo is gated by the same `isFedrampModerate()` result.
+ *
+ * Defensive against `isFedrampModerate()` ever throwing — falls back to
+ * `false` so the metrics pipeline never breaks because of perimeter
+ * detection.
+ */
+export function isFedrampOverrideActive(): boolean {
+	try {
+		return detectIsFedrampModerate();
+	} catch {
+		return false;
+	}
+}
+
+const FEDRAMP_DISABLED_SELECTOR_CONFIG: SelectorConfig = Object.freeze({
+	id: false,
+	testId: false,
+	role: false,
+	className: false,
+	dataVC: false,
+});
 
 export interface AdditionalData {
 	[key: string]:
@@ -56,7 +117,11 @@ type Rates = {
 };
 
 export type TTVCRevision = 'fy25.01' | 'fy25.02' | 'fy25.03' | 'fy26.04' | 'next';
-export const DEFAULT_TTVC_REVISION = 'fy25.03';
+export const DEFAULT_TTVC_REVISION = 'fy26.04';
+
+export function getDefaultTTVCRevision(): TTVCRevision {
+	return DEFAULT_TTVC_REVISION;
+}
 
 export const UNKNOWN_INTERACTION_RATE = 1000;
 
@@ -101,6 +166,10 @@ export type Config = {
 		readonly test?: string;
 		readonly rate?: number;
 	}[];
+	/**
+	 * Should only used in emergency cases to stop sending events by ufoNames
+	 */
+	readonly disabledUfoNames?: readonly string[];
 	readonly killswitch?: readonly string[];
 	/**
 	 * @private
@@ -128,11 +197,12 @@ export type Config = {
 	 */
 	readonly population?: string;
 	readonly region: string;
+	readonly isSandbox?: boolean;
 	readonly additionalPayloadData?: (interaction: InteractionMetrics) => AdditionalData;
 	readonly ssr?: {
 		readonly getSSRTimings?: () => SSRTiming[];
 		readonly getSSRDoneTime?: () => number | undefined;
-		readonly enableNativeTracing?: boolean
+		readonly enableNativeTracing?: boolean;
 	};
 	readonly assetsConfig?: AssetsConfig;
 	readonly enableBetterPageVisibilityApi?: boolean;
@@ -147,6 +217,10 @@ export type Config = {
 		readonly ssrWhitelist?: string[];
 		readonly ssrEnablePageLayoutPlaceholder?: boolean;
 		readonly includeSSRInV3?: boolean;
+		/**
+		 * @private
+		 * @deprecated No longer has any effect. Kept as a compatibility no-op.
+		 */
 		readonly stopVCAtInteractionFinish?: boolean;
 		readonly includeSSRRatio?: boolean;
 		/**
@@ -160,13 +234,9 @@ export type Config = {
 			all: readonly TTVCRevision[];
 			byExperience?: Record<string, readonly TTVCRevision[]>;
 		};
+		readonly trackLayoutShiftOffenders?: boolean;
 	};
 	readonly postInteractionLog?: {
-		readonly enabled?: boolean;
-		readonly rates?: Rates;
-		readonly kind?: Record<InteractionType, number>;
-	};
-	readonly experimentalInteractionMetrics?: {
 		readonly enabled?: boolean;
 		readonly rates?: Rates;
 		readonly kind?: Record<InteractionType, number>;
@@ -196,10 +266,9 @@ export type Config = {
 	 */
 	readonly getReactHydrationStats?: (() => ReactHydrationStats | undefined) | undefined;
 	/**
-	 * Whether ttvc with 3p measurement is enabled and sent new event for experiences with sample rates
+	 * @deprecated Accepted for backwards compatibility only. Experimental interaction metrics are disabled.
 	 */
-	readonly extraInteractionMetrics?: InteractionMetricsConfig;
-
+	readonly experimentalInteractionMetrics?: InteractionMetricsConfig;
 	/**
 	 * Option to enable an additional metric to track search page load times with SAIN ignored
 	 */
@@ -218,21 +287,23 @@ export type Config = {
 export function setUFOConfig(newConfig: Config): void {
 	// Handle edge cases with `enabledVCRevisions`
 	const { enabledVCRevisions } = newConfig?.vc ?? {};
-	if (typeof enabledVCRevisions?.byExperience === 'object') {
+	if (enabledVCRevisions) {
+		const byExperience =
+			typeof enabledVCRevisions?.byExperience === 'object' ? enabledVCRevisions.byExperience : {};
+
+		const allRevisions = [
+			// Products control their own revisions.
+			...(enabledVCRevisions?.all ?? []),
+			...Object.values(byExperience).flat(),
+		];
+
 		config = {
 			...newConfig,
 			vc: {
 				...newConfig.vc,
 				enabledVCRevisions: {
-					// enforce axiom about `enabledVCRevisions.all` config
-					all: Array.from(
-						new Set([
-							DEFAULT_TTVC_REVISION,
-							...enabledVCRevisions?.all,
-							...Object.values(enabledVCRevisions?.byExperience).flat(),
-						]),
-					),
-					byExperience: { ...enabledVCRevisions?.byExperience },
+					all: Array.from(new Set(allRevisions)),
+					byExperience,
 				},
 			},
 		};
@@ -243,6 +314,53 @@ export function setUFOConfig(newConfig: Config): void {
 
 export function getConfig(): Config | undefined {
 	return config;
+}
+
+/**
+ * Centralised resolver for the active `SelectorConfig` for the VC observer.
+ *
+ * Precedence (highest first):
+ *   1. **FedRAMP override** — when `isFedrampModerate()` is true, every
+ *      selector field is forced to `false` regardless of any other input.
+ *      This guarantees that no `id`, `testId`, `role`, `className`, or
+ *      `data-vc` selectors escape the FedRAMP perimeter via the
+ *      raw-handler payload.
+ *   2. **Caller-provided override** — `callerOverride` argument (e.g. an
+ *      explicit `selectorConfig` passed by a per-interaction VC observer
+ *      consumer).
+ *   3. **Centrally configured value** — `config.vc.selectorConfig` as set
+ *      via `setUFOConfig`.
+ *   4. **Caller-provided default** — `defaultConfig` argument (used by call
+ *      sites that have a historical hard-coded fallback they want to keep
+ *      when nothing else is available).
+ *   5. `undefined` — when no caller default is supplied either.
+ *
+ * @param callerOverride Explicit per-call-site selectorConfig override.
+ * @param defaultConfig  Hard-coded fallback used only when nothing else
+ *                       provided a value.
+ */
+export function getSelectorConfig(
+	callerOverride?: SelectorConfig,
+	defaultConfig?: SelectorConfig,
+): SelectorConfig | undefined {
+	// 1. FedRAMP override always wins.
+	if (detectIsFedrampModerate()) {
+		return FEDRAMP_DISABLED_SELECTOR_CONFIG;
+	}
+	// 2. Then caller-provided.
+	// 3. Then centrally configured.
+	// 4. Then caller-provided default.
+	return callerOverride ?? config?.vc?.selectorConfig ?? defaultConfig;
+}
+
+/**
+ * Check if UFO is enabled based on the config.enabled field.
+ *
+ * @returns true if UFO is enabled, false if disabled
+ */
+export function isUFOEnabled(): boolean {
+	// Default to enabled if config is not set or enabled is not explicitly false
+	return config?.enabled !== false;
 }
 
 const isValidConfigArray = <T>(array: any): array is T[] => {
@@ -262,11 +380,18 @@ export function getEnabledVCRevisions(experienceKey: string = ''): readonly TTVC
 				return enabledVCRevisions.byExperience?.[experienceKey];
 			}
 
-			if (isValidConfigArray(enabledVCRevisions?.all)) {
-				return enabledVCRevisions.all;
+			// When the disable flag is on, treat an explicitly-set empty array as
+			// "no client-side revisions" rather than falling back to the default revision.
+			const allRevisions = enabledVCRevisions?.all;
+			if (Array.isArray(allRevisions) && allRevisions.length === 0 && fg('ufo_disable_ttvc_v4')) {
+				return allRevisions;
 			}
 
-			return [DEFAULT_TTVC_REVISION];
+			if (isValidConfigArray(allRevisions)) {
+				return allRevisions;
+			}
+
+			return [getDefaultTTVCRevision()];
 		}
 
 		return [];
@@ -281,6 +406,9 @@ export function isVCRevisionEnabled(revision: TTVCRevision, experienceKey?: stri
 
 export function getMostRecentVCRevision(experienceKey: string = ''): TTVCRevision {
 	const enabledVCRevisions = getEnabledVCRevisions(experienceKey);
+	if (enabledVCRevisions.length === 0) {
+		return getDefaultTTVCRevision();
+	}
 	return enabledVCRevisions[enabledVCRevisions.length - 1];
 }
 
@@ -364,39 +492,6 @@ export function getInteractionRate(name: string, interactionKind: InteractionKin
 	}
 }
 
-export function getExperimentalInteractionRate(
-	name: string,
-	interactionType: InteractionType,
-): number {
-	try {
-		if (!config) {
-			return 0;
-		}
-		const { experimentalInteractionMetrics } = config;
-		if (!experimentalInteractionMetrics?.enabled) {
-			return 0;
-		}
-
-		if (
-			experimentalInteractionMetrics.rates &&
-			typeof experimentalInteractionMetrics.rates[name] === 'number'
-		) {
-			return experimentalInteractionMetrics.rates[name];
-		}
-
-		if (
-			experimentalInteractionMetrics.kind &&
-			typeof experimentalInteractionMetrics.kind[interactionType] === 'number'
-		) {
-			return experimentalInteractionMetrics.kind[interactionType];
-		}
-
-		return 0;
-	} catch {
-		return 0;
-	}
-}
-
 export function getVCRawDataInteractionRate(
 	name: string,
 	interactionType: InteractionType,
@@ -408,9 +503,6 @@ export function shouldUseRawDataThirdPartyBehavior(
 	name: string,
 	interactionType: InteractionType,
 ): boolean {
-	if (!fg('platform_ufo_raw_data_thirdparty')) {
-		return false;
-	}
 	return getVCRawDataInteractionRate(name, interactionType) > 0;
 }
 
@@ -443,7 +535,7 @@ export function getCapabilityRate(capability: Capability): number {
 function getConfigRate(
 	name: string,
 	interactionType: InteractionType,
-	configName: 'postInteractionLog' | 'extraInteractionMetrics' | 'enableVCRawDataRates',
+	configName: 'postInteractionLog' | 'enableVCRawDataRates',
 ): number {
 	try {
 		if (!config) {
@@ -475,11 +567,6 @@ function getConfigRate(
 		return 0;
 	}
 }
-
-export function getExtraInteractionRate(name: string, interactionType: InteractionType): number {
-	return getConfigRate(name, interactionType, 'extraInteractionMetrics');
-}
-
 const validTypingMethods = ['timeout', 'timeoutNoAlloc', 'mutationObserver'] as const;
 type ValidTypingMethod = (typeof validTypingMethods)[number];
 

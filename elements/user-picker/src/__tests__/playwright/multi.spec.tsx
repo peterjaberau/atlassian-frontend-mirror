@@ -1,16 +1,32 @@
 import { expect } from '@af/integration-testing';
+import { skipAutoA11yFile } from '@atlassian/a11y-playwright-testing';
+
 import { test } from './user-picker';
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:playwright
+skipAutoA11yFile({
+	exceptTests: ['should load multi user picker with placeholder text'],
+});
 
 const EXAMPLE = 'multi';
 
 test.describe('Multi User Picker', () => {
-	test('should load multi user picker with placeholder text', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should load multi user picker with placeholder text', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/01-multi.vr.ap.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await expect(userPicker.placeholder).toBeVisible();
 	});
 
-	test('should display options when clicking on input', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should display options when clicking on input', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/01-multi.vr.ap.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await userPicker.input.click();
 
 		// Wait for options to be visible
@@ -29,8 +45,12 @@ test.describe('Multi User Picker', () => {
 		await expect(userPicker.selectedMultiValue).toHaveCount(2);
 	});
 
-	test('should filter options when typing in input', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should filter options when typing in input', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/01-multi.vr.ap.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await userPicker.input.click();
 
 		// Type search text to filter options
@@ -43,8 +63,15 @@ test.describe('Multi User Picker', () => {
 		await expect(userPicker.firstOption).toContainText('team', { ignoreCase: true });
 	});
 
-	test('should remove selected option when clicking remove button', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should remove selected option when clicking remove button', async ({
+		userPicker,
+		page,
+	}) => {
+		await page.visitExample<typeof import('../../../examples/01-multi.vr.ap.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await userPicker.input.click();
 
 		// Fill and select an option
@@ -65,8 +92,12 @@ test.describe('Multi User Picker', () => {
 		await expect(userPicker.selectedMultiValue).toHaveCount(1);
 	});
 
-	test('should clear input after selecting an option', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should clear input after selecting an option', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/01-multi.vr.ap.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await userPicker.input.click();
 
 		// Fill text and select option
@@ -78,8 +109,12 @@ test.describe('Multi User Picker', () => {
 		await expect(userPicker.input).toHaveValue('');
 	});
 
-	test('should maintain focus on input after making selections', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should maintain focus on input after making selections', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/01-multi.vr.ap.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await userPicker.input.click();
 
 		// Make a selection
@@ -95,8 +130,12 @@ test.describe('Multi User Picker', () => {
 		await expect(userPicker.firstOption).toBeVisible();
 	});
 
-	test('should handle keyboard navigation in options menu', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should handle keyboard navigation in options menu', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/01-multi.vr.ap.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await userPicker.input.click();
 		await userPicker.input.fill('team');
 

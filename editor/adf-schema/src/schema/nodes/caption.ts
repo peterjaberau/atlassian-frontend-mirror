@@ -1,13 +1,15 @@
-import type { InlineFormattedText, InlineCode } from './types/inline-content';
-import type { HardBreakDefinition as HardBreak } from './hard-break';
-import type { MentionDefinition as Mention } from './mention';
-import type { EmojiDefinition as Emoji } from './emoji';
-import type { DateDefinition as Date } from './date';
-import type { PlaceholderDefinition as Placeholder } from './placeholder';
-import type { InlineCardDefinition as InlineCard } from './inline-card';
-import type { StatusDefinition as Status } from './status';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { caption as captionFactory } from '../../next-schema/generated/nodeTypes';
-import { uuid } from '../../utils';
+import { uuid } from '../../utils/uuid';
+import type { DateDefinition as Date } from './date';
+import type { EmojiDefinition as Emoji } from './emoji';
+import type { HardBreakDefinition as HardBreak } from './hard-break';
+import type { InlineCardDefinition as InlineCard } from './inline-card';
+import type { MentionDefinition as Mention } from './mention';
+import type { PlaceholderDefinition as Placeholder } from './placeholder';
+import type { StatusDefinition as Status } from './status';
+import type { InlineFormattedText, InlineCode } from './types/inline-content';
 
 /**
  * @name caption_node
@@ -17,7 +19,9 @@ export interface CaptionDefinition {
 		localId?: string;
 	};
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 0
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @allowUnsupportedInline true
 	 */
 	content: Array<
@@ -34,7 +38,7 @@ export interface CaptionDefinition {
 	type: 'caption';
 }
 
-export const caption = captionFactory({
+export const caption: NodeSpec = captionFactory({
 	parseDOM: [
 		{
 			tag: 'figcaption[data-caption]',
@@ -49,7 +53,7 @@ export const caption = captionFactory({
 	},
 });
 
-export const captionWithLocalId = captionFactory({
+export const captionWithLocalId: NodeSpec = captionFactory({
 	parseDOM: [
 		{
 			tag: 'figcaption[data-caption]',

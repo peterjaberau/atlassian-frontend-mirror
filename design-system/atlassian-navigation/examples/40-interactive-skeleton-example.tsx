@@ -7,9 +7,10 @@ import React, { type ChangeEvent, Fragment, useState } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import { AtlassianNavigation } from '@atlaskit/atlassian-navigation';
 import { NavigationSkeleton } from '@atlaskit/atlassian-navigation/skeleton';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { token } from '@atlaskit/tokens';
 
 import { DefaultCreate } from './shared/create';
@@ -24,12 +25,12 @@ import { SwitcherPopup } from './shared/switcher-popup';
 
 const controlsStyles = css({
 	display: 'flex',
-	margin: token('space.200', '1rem'),
+	margin: token('space.200'),
 	alignItems: 'center',
 });
 
 const labelStyles = css({
-	margin: token('space.200', '1rem'),
+	margin: token('space.200'),
 });
 
 const inputStyles = css({

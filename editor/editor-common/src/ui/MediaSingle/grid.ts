@@ -1,11 +1,12 @@
-import type { RichMediaLayout as MediaSingleLayout } from '@atlaskit/adf-schema';
+import type { Layout as MediaSingleLayout } from '@atlaskit/adf-schema/rich-media-common';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { akEditorBreakoutPadding, breakoutWideScaleRatio } from '@atlaskit/editor-shared-styles';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
-import { MEDIA_SINGLE_GUTTER_SIZE } from '../../media-single/constants';
 import type { EditorContainerWidth } from '../../types';
-
+import { calcColumnsFromPx } from './calcColumnsFromPx';
+import { calcPxFromColumns } from './calcPxFromColumns';
+import { calcPxFromPct } from './calcPxFromPct';
+import { wrappedLayouts } from './wrappedLayouts';
 const validWidthModes: MediaSingleLayout[] = [
 	'center',
 	'wrap-left',
@@ -17,33 +18,7 @@ const validWidthModes: MediaSingleLayout[] = [
 export const layoutSupportsWidth = (layout: MediaSingleLayout): boolean =>
 	validWidthModes.indexOf(layout) > -1;
 
-export function calcPxFromColumns(columns: number, lineLength: number, gridSize: number): number {
-	const maxWidth = lineLength + MEDIA_SINGLE_GUTTER_SIZE;
-	return (maxWidth / gridSize) * columns - MEDIA_SINGLE_GUTTER_SIZE;
-}
-
-export function calcColumnsFromPx(width: number, lineLength: number, gridSize: number): number {
-	const maxWidth = lineLength + MEDIA_SINGLE_GUTTER_SIZE;
-	return ((width + MEDIA_SINGLE_GUTTER_SIZE) * gridSize) / maxWidth;
-}
-
-export function calcPxFromPct(pct: number, lineLength: number): number {
-	const maxWidth = lineLength + MEDIA_SINGLE_GUTTER_SIZE;
-	return maxWidth * pct - MEDIA_SINGLE_GUTTER_SIZE;
-}
-
-export function calcPctFromPx(width: number, lineLength: number): number {
-	const maxWidth = lineLength + MEDIA_SINGLE_GUTTER_SIZE;
-	return (width + MEDIA_SINGLE_GUTTER_SIZE) / maxWidth;
-}
-
-export const wrappedLayouts: MediaSingleLayout[] = [
-	'wrap-left',
-	'wrap-right',
-	'align-end',
-	'align-start',
-];
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const calcPctWidth = (
 	containerWidth: EditorContainerWidth,
 	pctWidth?: number,
@@ -55,6 +30,7 @@ export const calcPctWidth = (
 	origHeight &&
 	Math.ceil(calcPxFromPct(pctWidth / 100, containerWidth.lineLength || containerWidth.width));
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const calcMediaPxWidth = (opts: {
 	containerWidth: EditorContainerWidth;
 	isFullWidthModeEnabled?: boolean;
@@ -95,10 +71,7 @@ export const calcMediaPxWidth = (opts: {
 				}
 				return calculatedPctWidth;
 			}
-			if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-				return calculatedPctWidth;
-			}
-			return Math.min(calculatedPctWidth, origWidth);
+			return calculatedPctWidth;
 		}
 		if (calculatedResizedPctWidth) {
 			return calculatedResizedPctWidth;
@@ -112,23 +85,23 @@ export const calcMediaPxWidth = (opts: {
 	} else if (layout && wrappedLayouts.indexOf(layout) !== -1) {
 		// when layout is wrap-left, wrap-right, align-start, align-end
 		// but no pctWidth is defined
-		if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-			return Math.min(calcPxFromPct(0.5, lineLength || width), origWidth);
-		}
-		const halfLineLength = Math.ceil((lineLength || width) / 2);
-		return origWidth <= halfLineLength ? origWidth : halfLineLength;
+		return Math.min(calcPxFromPct(0.5, lineLength || width), origWidth);
 	}
 
 	return origWidth;
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const snapToGrid = (
 	gridWidth: number,
 	width: number,
 	height: number,
 	lineLength: number,
 	gridSize: number,
-) => {
+): {
+	height: number;
+	width: number;
+} => {
 	const pxWidth = calcPxFromPct(gridWidth / 100, lineLength);
 
 	const columnSpan = Math.round(calcColumnsFromPx(pxWidth, lineLength, gridSize));
@@ -140,3 +113,13 @@ export const snapToGrid = (
 		width: alignedWidth,
 	};
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { calcPxFromColumns } from './calcPxFromColumns';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { calcColumnsFromPx } from './calcColumnsFromPx';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { calcPxFromPct } from './calcPxFromPct';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { calcPctFromPx } from './calcPctFromPx';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { wrappedLayouts } from './wrappedLayouts';

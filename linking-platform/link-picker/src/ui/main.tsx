@@ -5,16 +5,16 @@
 import React, { memo } from 'react';
 
 import { css, jsx } from '@compiled/react';
+// oxlint-disable-next-line @atlassian/no-restricted-imports
 import { LazySuspense } from 'react-loosely-lazy';
 
-import { AnalyticsContext } from '@atlaskit/analytics-next';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import { token } from '@atlaskit/tokens';
 
 import { COMPONENT_NAME, LINK_PICKER_WIDTH_IN_PX } from '../common/constants';
 import type { LinkPickerProps } from '../common/types';
 import type { PackageMetaDataType } from '../common/utils/analytics/analytics.codegen';
 import { LinkPickerSessionProvider } from '../controllers/session-provider';
-
 import { ErrorBoundary } from './error-boundary';
 import { LoaderFallback } from './loader-fallback';
 import { MessagesProvider } from './messages-provider';
@@ -52,7 +52,9 @@ const FixedWidthContainer = (props: React.HTMLAttributes<HTMLDivElement>) => {
 	);
 };
 
-export const composeLinkPicker = (Component: React.ComponentType<LinkPickerProps>) => {
+export const composeLinkPicker = (
+	Component: React.ComponentType<LinkPickerProps>,
+): React.MemoExoticComponent<(props: LinkPickerProps) => JSX.Element> => {
 	return memo((props: LinkPickerProps) => {
 		const { component } = props;
 		const RootComponent = component ?? DefaultRootComponent;
@@ -67,14 +69,11 @@ export const composeLinkPicker = (Component: React.ComponentType<LinkPickerProps
 									? '100%'
 									: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 										`${LINK_PICKER_WIDTH_IN_PX}px`,
-								['--link-picker-padding-left' as string]:
-									props.paddingLeft ?? token('space.200', '16px'),
-								['--link-picker-padding-right' as string]:
-									props.paddingRight ?? token('space.200', '16px'),
-								['--link-picker-padding-top' as string]:
-									props.paddingTop ?? token('space.200', '16px'),
+								['--link-picker-padding-left' as string]: props.paddingLeft ?? token('space.200'),
+								['--link-picker-padding-right' as string]: props.paddingRight ?? token('space.200'),
+								['--link-picker-padding-top' as string]: props.paddingTop ?? token('space.200'),
 								['--link-picker-padding-bottom' as string]:
-									props.paddingBottom ?? token('space.200', '16px'),
+									props.paddingBottom ?? token('space.200'),
 							}}
 						>
 							<FixedWidthContainer>

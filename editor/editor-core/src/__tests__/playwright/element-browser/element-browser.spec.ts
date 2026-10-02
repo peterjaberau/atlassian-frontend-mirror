@@ -6,6 +6,7 @@ import {
 } from '@af/editor-libra/page-models';
 
 test.use({
+	exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 	editorProps: {
 		appearance: 'full-width',
 		elementBrowser: {
@@ -38,15 +39,5 @@ test.describe('ElementBrowser', () => {
 		await expect(elementBrowserModel.searchInput).toBeFocused();
 		await elementBrowserModel.searchInput.press('Escape');
 		await expect(toolbar.droplistContentMenuPopup).toBeHidden();
-	});
-
-	test('should capture and report a11y violations', async ({ editor }) => {
-		const toolbar = EditorMainToolbarModel.from(editor);
-		const elementBrowserModel = EditorModalElementBrowserModel.from(editor);
-		const insertMenu = await toolbar.openInsertMenu();
-		await insertMenu.viewMoreElementsButton.click();
-		await expect(elementBrowserModel.modal).toBeVisible();
-
-		await expect(editor.page).toBeAccessible();
 	});
 });

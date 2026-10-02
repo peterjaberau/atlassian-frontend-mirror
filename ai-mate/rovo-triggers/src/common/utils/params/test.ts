@@ -1,6 +1,4 @@
 import { ROVO_PARAM_PREFIX } from './constants';
-import { type RovoChatParams, type ValidParam } from './types';
-
 import {
 	addPrefix,
 	addRovoParamsToUrl,
@@ -12,6 +10,7 @@ import {
 	removePrefix,
 	updatePageRovoParams,
 } from './index';
+import { type RovoChatParams, type ValidParam } from './types';
 
 describe('Rovo Query', () => {
 	beforeAll(() => {
@@ -29,6 +28,10 @@ describe('Rovo Query', () => {
 		});
 	});
 
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	describe('getRovoParams', () => {
 		it('should return an empty object if no params are present', () => {
 			const params = getRovoParams();
@@ -38,6 +41,11 @@ describe('Rovo Query', () => {
 		it('should return the correct params', () => {
 			const params = getRovoParams(`http://example.com/?rovoChatPathway=chat`);
 			expect(params).toEqual({ pathway: 'chat' });
+		});
+
+		it('should decode rovoChatRovoJourneyId through the shared rovoJourneyId contract', () => {
+			const params = getRovoParams(`http://example.com/?rovoChatRovoJourneyId=journey-123`);
+			expect(params).toEqual({ rovoJourneyId: 'journey-123' });
 		});
 	});
 
@@ -56,7 +64,8 @@ describe('Rovo Query', () => {
 	});
 
 	describe('updatePageRovoParams', () => {
-		it('should update the params in the URL', () => {
+		// Adding params is a user-initiated navigation, so it must keep pushing a new entry.
+		it('should push the updated params by default', () => {
 			const params: RovoChatParams = { pathway: 'chat' };
 			updatePageRovoParams(params);
 			expect(window.history.pushState).toHaveBeenCalledWith(
@@ -64,6 +73,29 @@ describe('Rovo Query', () => {
 				'',
 				addRovoParamsToUrl(window.location.pathname, params),
 			);
+			expect(window.history.replaceState).not.toHaveBeenCalled();
+		});
+
+		it('should push the updated params when historyMode is push', () => {
+			const params: RovoChatParams = { pathway: 'chat' };
+			updatePageRovoParams(params, { historyMode: 'push' });
+			expect(window.history.pushState).toHaveBeenCalledWith(
+				{},
+				'',
+				addRovoParamsToUrl(window.location.pathname, params),
+			);
+			expect(window.history.replaceState).not.toHaveBeenCalled();
+		});
+
+		it('should replace the updated params when historyMode is replace', () => {
+			const params: RovoChatParams = { conversationId: undefined };
+			updatePageRovoParams(params, { historyMode: 'replace' });
+			expect(window.history.replaceState).toHaveBeenCalledWith(
+				{},
+				'',
+				addRovoParamsToUrl(window.location.pathname, params),
+			);
+			expect(window.history.pushState).not.toHaveBeenCalled();
 		});
 	});
 
@@ -90,6 +122,18 @@ describe('Rovo Query', () => {
 				`http://example.com/test?rovoChatPathway=agents-create&rovoChatAgentId=123`,
 			);
 		});
+
+		it('should add search handoff params using the shared rovoChat prefix', () => {
+			const url = 'http://example.com/test';
+			const params: RovoChatParams = {
+				rovoJourneyId: 'journey-123',
+				searchQuery: 'quarterly planning & goals',
+			};
+
+			expect(addRovoParamsToUrl(url, params)).toEqual(
+				`${url}?rovoChatRovoJourneyId=journey-123&rovoChatSearchQuery=quarterly%20planning%20%26%20goals`,
+			);
+		});
 	});
 
 	describe('getListOfRovoParams', () => {
@@ -103,6 +147,13 @@ describe('Rovo Query', () => {
 				'rovoChatCloudId',
 				'rovoChatTriggerOpen',
 				'rovoChatInsertPrompt',
+				'rovoChatStagingAreaOpen',
+				'rovoChatMessageIdSelectedForPreview',
+				'rovoChatInvocationIdSelectedForPreview',
+				'rovoChatPromptLibraryOpen',
+				'rovoChatOpenChatMode',
+				'rovoChatRovoJourneyId',
+				'rovoChatSearchQuery',
 			]);
 		});
 
@@ -116,6 +167,13 @@ describe('Rovo Query', () => {
 				'rovoChatCloudId!=false',
 				'rovoChatTriggerOpen!=false',
 				'rovoChatInsertPrompt!=false',
+				'rovoChatStagingAreaOpen!=false',
+				'rovoChatMessageIdSelectedForPreview!=false',
+				'rovoChatInvocationIdSelectedForPreview!=false',
+				'rovoChatPromptLibraryOpen!=false',
+				'rovoChatOpenChatMode!=false',
+				'rovoChatRovoJourneyId!=false',
+				'rovoChatSearchQuery!=false',
 			]);
 		});
 	});

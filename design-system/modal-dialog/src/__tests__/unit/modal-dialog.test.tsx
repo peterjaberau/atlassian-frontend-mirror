@@ -1,14 +1,14 @@
 import React, { useCallback, useRef, useState } from 'react';
 
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
 import { skipA11yAudit } from '@af/accessibility-testing';
-import Button from '@atlaskit/button/new';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import Button from '@atlaskit/button/default/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import noop from '@atlaskit/ds-lib/noop';
+import { act, fireEvent, render, screen, userEvent, waitFor } from '@atlassian/testing-library';
 
-import { width } from '../../internal/utils';
+import { width } from '../../internal/width';
 import ModalBody from '../../modal-body';
 import ModalDialog from '../../modal-dialog';
 import ModalTransition from '../../modal-transition';
@@ -545,12 +545,10 @@ describe('autoFocus', () => {
 	const refElementTestId = 'ref-element';
 
 	// add way to add in element to render
-	const Jsx = ({ autoFocus }: { autoFocus: ModalDialogProps['autoFocus'] | 'ref' }) => {
+	const Jsx = ({ autoFocus }: { autoFocus?: 'ref' }) => {
 		const [isOpen, setIsOpen] = useState(false);
 		const open = () => setIsOpen(true);
 		const ref = useRef(null);
-
-		const modalAutoFocus = autoFocus === 'ref' ? ref : autoFocus;
 
 		return (
 			<div data-testid="container">
@@ -559,7 +557,12 @@ describe('autoFocus', () => {
 				</Button>
 
 				{isOpen && (
-					<ModalDialog onClose={close} testId="modal" autoFocus={modalAutoFocus} label="Layered">
+					<ModalDialog
+						onClose={close}
+						testId="modal"
+						autoFocus={autoFocus === 'ref' ? ref : undefined}
+						label="Layered"
+					>
 						<ModalBody>
 							<button data-testid={innerButtonTestId} type="button">
 								Click Me
@@ -576,23 +579,13 @@ describe('autoFocus', () => {
 		);
 	};
 
-	it('should focus on the first interactive element when `autoFocus` is true', async () => {
+	it('should focus on the first interactive element when `autoFocus` is true (default)', async () => {
 		const user = userEvent.setup();
-		render(<Jsx autoFocus={true} />);
+		render(<Jsx />);
 
 		expect(screen.queryByTestId(innerButtonTestId)).not.toBeInTheDocument();
 		await user.click(screen.getByTestId(openModalButtonTestId));
 		expect(screen.getByTestId(innerButtonTestId)).toHaveFocus();
-	});
-
-	it('should not change from initial focus when `autoFocus` is false', async () => {
-		const user = userEvent.setup();
-		render(<Jsx autoFocus={false} />);
-
-		expect(screen.queryByTestId(innerButtonTestId)).not.toBeInTheDocument();
-		await user.click(screen.getByTestId(openModalButtonTestId));
-		// Focus should not have moved
-		expect(screen.getByTestId(innerButtonTestId)).not.toHaveFocus();
 	});
 
 	it('should focus on element if `ref` is provided to `autoFocus`', async () => {
@@ -604,6 +597,21 @@ describe('autoFocus', () => {
 		// Focus should not have gone to first interactive element
 		expect(screen.getByTestId(innerButtonTestId)).not.toHaveFocus();
 		expect(screen.getByTestId(refElementTestId)).toHaveFocus();
+	});
+});
+
+describe('forwarded ref', () => {
+	it('should forward a ref through', () => {
+		const ref = React.createRef<HTMLElement>();
+
+		render(
+			<ModalDialog onClose={close} ref={ref} testId={testId}>
+				<div>Test</div>
+			</ModalDialog>,
+		);
+
+		const container = screen.getByTestId(testId);
+		expect(ref.current).toBe(container);
 	});
 });
 

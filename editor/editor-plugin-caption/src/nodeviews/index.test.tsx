@@ -1,10 +1,10 @@
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { screen } from '@testing-library/react';
 
-import type { MediaADFAttrs } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
 import { getSchemaBasedOnStage } from '@atlaskit/adf-schema/schema-default';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { RefsNode } from '@atlaskit/editor-common/types';
 import { setNodeSelection, setTextSelection } from '@atlaskit/editor-common/utils';
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
@@ -96,7 +96,7 @@ describe('caption', () => {
 
 describe('nodeview updating based on child count', () => {
 	const portalProviderAPI = {
-		render(component: () => React.ReactChild | null) {
+		render(component: () => React.ReactElement | number | string | null) {
 			component();
 		},
 		remove() {},

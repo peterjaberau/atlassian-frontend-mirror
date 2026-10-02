@@ -1,7 +1,12 @@
-import { token } from '@atlaskit/tokens';
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
-import { mentions as mentionsData, onSelection, randomMentions } from '../example-helpers';
+
+import { IntlProvider } from 'react-intl';
+
+import { token } from '@atlaskit/tokens';
+import { mentions as mentionsData } from '@atlaskit/util-data-test/mention-story-data';
+
+import { onSelection } from '../example-helpers/on-selection';
+import { randomMentions } from '../example-helpers/random-mentions';
 import MentionList from '../src/components/MentionList';
 import { type MentionDescription } from '../src/types';
 
@@ -52,13 +57,13 @@ export default class DemoMentionList extends React.Component<any, State> {
 		);
 
 		return (
-			<div style={{ paddingLeft: `${token('space.150', '12px')}` }}>
-				<div style={{ paddingBottom: `${token('space.150', '12px')}` }}>
+			<div style={{ paddingLeft: `${token('space.150')}` }}>
+				<div style={{ paddingBottom: `${token('space.150')}` }}>
 					<button
 						onClick={this.updateData}
 						style={{
-							height: `${token('space.400', '32px')}`,
-							marginRight: `${token('space.150', '12px')}`,
+							height: `${token('space.400')}`,
+							marginRight: `${token('space.150')}`,
 						}}
 					>
 						Random refresh
@@ -66,8 +71,8 @@ export default class DemoMentionList extends React.Component<any, State> {
 					<button
 						onClick={this.moveUp}
 						style={{
-							height: `${token('space.400', '32px')}`,
-							marginRight: `${token('space.150', '12px')}`,
+							height: `${token('space.400')}`,
+							marginRight: `${token('space.150')}`,
 						}}
 					>
 						Up
@@ -75,8 +80,8 @@ export default class DemoMentionList extends React.Component<any, State> {
 					<button
 						onClick={this.moveDown}
 						style={{
-							height: `${token('space.400', '32px')}`,
-							marginRight: `${token('space.150', '12px')}`,
+							height: `${token('space.400')}`,
+							marginRight: `${token('space.150')}`,
 						}}
 					>
 						Down

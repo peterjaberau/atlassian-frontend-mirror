@@ -11,29 +11,52 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./blockService": "./src/entry-points/blockService.ts",
+		"./blockService/ari": "./src/entry-points/blockService-ari.ts",
+		"./blockSubscription": "./src/entry-points/blockSubscription.ts",
+		"./clients/confluence/ari": "./src/entry-points/confluence-ari.ts",
+		"./common/types": "./src/entry-points/common-types.ts",
+		"./errorHandling": "./src/entry-points/errorHandling.ts",
+		"./fetchJiraMediaToken": "./src/entry-points/fetchJiraMediaToken.ts",
+		"./fetchMediaToken": "./src/entry-points/fetchMediaToken.ts",
+		"./jira/ari": "./src/entry-points/jira-ari.ts",
+		"./providers/block-service/blockServiceAPI": "./src/entry-points/blockServiceAPI.ts",
+		"./providers/types": "./src/entry-points/providers-types.ts",
+		"./rebaseTransaction": "./src/entry-points/rebaseTransaction.ts",
+		"./referenceSyncBlockStoreManager": "./src/entry-points/referenceSyncBlockStoreManager.ts",
+		"./requestJiraIssueAccess": "./src/entry-points/requestJiraIssueAccess.ts",
+		"./resolveSyncBlockInstance": "./src/entry-points/resolveSyncBlockInstance.ts",
+		"./sourceInfo": "./src/entry-points/sourceInfo.ts",
+		"./syncBlockInMemorySessionCache": "./src/entry-points/syncBlockInMemorySessionCache.ts",
+		"./syncBlockProvider": "./src/entry-points/syncBlockProvider.ts",
+		"./syncBlockStoreManager": "./src/entry-points/syncBlockStoreManager.ts",
+		"./tokenRouting": "./src/entry-points/tokenRouting.ts",
+		"./types": "./src/entry-points/providers-types.ts",
+		"./useFetchSyncBlockData": "./src/entry-points/useFetchSyncBlockData.ts",
+		"./useFetchSyncBlockTitle": "./src/entry-points/useFetchSyncBlockTitle.ts",
+		"./useHandleContentChanges": "./src/entry-points/useHandleContentChanges.ts",
+		"./utils": "./src/entry-points/utils.ts",
+		"./utils/resourceId": "./src/entry-points/resourceId.ts",
+		"./validValue": "./src/entry-points/validValue.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-utils": "workspace:^",
+		"@atlaskit/browser-apis": "workspace:^",
 		"@atlaskit/editor-json-transformer": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
 		"@atlaskit/node-data-provider": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
+		"bind-event-listener": "root:*",
 		"graphql-ws": "root:*",
 		"lodash": "root:*",
 		"raf-schd": "root:*",
@@ -41,61 +64,19 @@
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0"
 	},
 	"devDependencies": {
 		"@testing-library/react": "root:*",
-		"react-dom": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0"
 	},
 	"name": "@atlaskit/editor-synced-block-provider",
-	"version": "3.28.0",
+	"version": "19.0.0",
 	"description": "Synced Block Provider for @atlaskit/editor-plugin-synced-block",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
-	},
-	"platform-feature-flags": {
-		"platform_synced_block_patch_1": {
-			"type": "boolean"
-		},
-		"platform_synced_block_patch_2": {
-			"type": "boolean"
-		}
 	}
 }

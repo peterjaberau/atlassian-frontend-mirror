@@ -1,11 +1,11 @@
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 
-import { type FocusState } from '../types';
+import type { FocusState } from '../types';
 
-export const key = new PluginKey<FocusState>('focusPluginHandler');
+export const key: PluginKey<FocusState> = new PluginKey<FocusState>('focusPluginHandler');
 
-export const createPlugin = () =>
+export const createPlugin = (): SafePlugin<FocusState> =>
 	new SafePlugin<FocusState>({
 		key,
 		state: {

@@ -1,6 +1,9 @@
 export const DEFAULT_IMAGE_WIDTH = 250;
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const DEFAULT_IMAGE_HEIGHT = 200;
-export const DEFAULT_INLINE_IMAGE_ASPECT_RATIO = DEFAULT_IMAGE_WIDTH / DEFAULT_IMAGE_HEIGHT;
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const DEFAULT_INLINE_IMAGE_ASPECT_RATIO: number = DEFAULT_IMAGE_WIDTH / DEFAULT_IMAGE_HEIGHT;
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const DEFAULT_INLINE_IMAGE_BORDER_SIZE = 0;
 
 /**
@@ -15,7 +18,16 @@ export const DEFAULT_INLINE_IMAGE_BORDER_SIZE = 0;
  * These constants originally came from `headingSizes` from the `theme` package
  * and have been copied here to remove this package.
  */
-export const referenceHeights = {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const referenceHeights: {
+	p: number;
+	h1: number;
+	h2: number;
+	h3: number;
+	h4: number;
+	h5: number;
+	h6: number;
+} = {
 	p: 24 - 2,
 	h1: 32 + 4,
 	h2: 28 + 3,

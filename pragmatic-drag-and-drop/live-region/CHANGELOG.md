@@ -1,5 +1,62 @@
 # @atlaskit/pragmatic-drag-and-drop-live-region
 
+## 2.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 1.4.0
+
+### Minor Changes
+
+- [`f8b3089961cdf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8b3089961cdf) -
+  Extend `StructuredContentSource` so `*.docs.tsx` files can describe packages whose exports are not
+  all renderable React components. The container now accepts optional `package`, `hooks`, and
+  `utilities` (function / constant / type) keys alongside the existing `components` key. New
+  per-kind schemas: `hookDocsSourceSchema`, `utilityDocsSourceSchema`, plus `packageMetadataSchema`
+  for shared package-level metadata.
+
+  All new fields are optional, so existing components-only `*.docs.tsx` files continue to work
+  unchanged — this is an additive, non-breaking extension.
+
+  Pilots the new shape with `docs.tsx` files for `@atlaskit/analytics-next`, `@atlaskit/layering`,
+  `@af/accessibility-testing`, `@af/react-unit-testing`, `@atlaskit/pragmatic-drag-and-drop-hitbox`,
+  `@atlaskit/pragmatic-drag-and-drop-live-region`, `@atlaskit/feature-flag-client`,
+  `@atlaskit/frontend-utilities`, and `@atlaskit/linking-common`. The last two are non-ADS pilots
+  that exercise the new `hooks` and `utilities` kinds in `helpers/` and `linking-platform/`. These
+  pilot files are explicitly marked as non-final in their file-level JSDoc.
+
+## 1.3.4
+
+### Patch Changes
+
+- [`be5ff878b4b9a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be5ff878b4b9a) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
 ## 1.3.3
 
 ### Patch Changes

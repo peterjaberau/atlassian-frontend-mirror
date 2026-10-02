@@ -1,6 +1,17 @@
-import { buildSegmentTree } from './index';
+import { type Config, setUFOConfig } from '../../../config';
+import { buildSegmentTree } from './build-segment-tree';
+import { getOldSegmentsLabelStack } from './get-old-segments-label-stack';
+
+const setSlashySegmentThreshold = () => {
+	setUFOConfig({ segmentsThreshold: { slashy: 1 } } as unknown as Config);
+};
 
 describe('buildSegmentTree', () => {
+	beforeEach(() => {
+		// @ts-expect-error - intentionally reset to undefined for tests
+		setUFOConfig(undefined);
+	});
+
 	it('should correctly build a segment tree from the mock data', () => {
 		// Convert mock data to the format expected by buildSegmentTree
 		const mockData = [
@@ -191,5 +202,66 @@ describe('buildSegmentTree', () => {
 				},
 			},
 		});
+	});
+
+	test('trims leading slashes before applying segment thresholds in buildSegmentTree', () => {
+		setSlashySegmentThreshold();
+
+		const result = buildSegmentTree([
+			[
+				{ name: '/slashy', segmentId: 'first' },
+				{ name: 'child', segmentId: 'child-first' },
+			],
+			[
+				{ name: '/slashy', segmentId: 'second' },
+				{ name: 'child', segmentId: 'child-second' },
+			],
+		]);
+
+		expect(result).toEqual({
+			r: {
+				n: 'segment-tree-root',
+				c: {
+					first: {
+						n: 'slashy',
+						c: {
+							'child-first': { n: 'child' },
+						},
+					},
+				},
+			},
+		});
+	});
+
+	test('trims leading slashes before applying segment thresholds in getOldSegmentsLabelStack', () => {
+		setSlashySegmentThreshold();
+
+		const result = getOldSegmentsLabelStack(
+			[
+				{
+					labelStack: [
+						{ name: '/slashy', segmentId: 'first' },
+						{ name: 'child', segmentId: 'child-first' },
+					],
+				},
+				{
+					labelStack: [
+						{ name: '/slashy', segmentId: 'second' },
+						{ name: 'child', segmentId: 'child-second' },
+					],
+				},
+			],
+			'transition',
+		);
+
+		expect(result).toEqual([
+			{
+				labelStack: [
+					{ n: 'slashy', s: 'first' },
+					{ n: 'child', s: 'child-first' },
+				],
+			},
+			{ labelStack: [] },
+		]);
 	});
 });

@@ -4,11 +4,11 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import Button from '@atlaskit/button/custom-theme-button';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
 import type {
 	ContextIdentifierProvider,
 	MediaProvider,
@@ -25,12 +25,13 @@ import {
 import { createEditorMediaMock } from '@atlaskit/editor-test-helpers/media-mock';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
-import { EmojiResource, type EmojiProvider } from '@atlaskit/emoji/resource';
-import Link from '@atlaskit/link';
-import { MentionResource } from '@atlaskit/mention/resource';
-import { TeamMentionResource } from '@atlaskit/mention/team-resource';
+import { EmojiResource } from '@atlaskit/emoji/resource';
+import type { EmojiProvider } from '@atlaskit/emoji/resource';
+import Link from '@atlaskit/link/link';
+import { MentionResource } from '@atlaskit/mention/mention-resource';
+import TeamMentionResource from '@atlaskit/mention/team-mention-resource';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 import { currentUser, getEmojiProvider } from '@atlaskit/util-data-test/get-emoji-provider';
 import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
 import type { MockMentionResource } from '@atlaskit/util-data-test/mock-mention-resource';
@@ -310,9 +311,9 @@ export default class ToolsDrawer extends React.Component<Props, State> {
 					<AnalyticsListener channel="fabric-elements" onEvent={(e) => console.log(e)}>
 						{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
 						<div css={content}>
-							<div style={{ padding: `${token('space.150', '4px')} 0` }}>
-								️️️⚠️ Atlassians, for Media integration to work in non-mocked state, make sure
-								you're logged into // Ignored via go/ees005 // eslint-disable-next-line
+							<div style={{ padding: `${token('space.150')} 0` }}>
+								️️️⚠️ Atlassians, for Media integration to work in non-mocked state, make sure you're
+								logged into // Ignored via go/ees005 // eslint-disable-next-line
 								react/jsx-no-target-blank
 								<Link href="https://id.stg.internal.atlassian.com" target="_blank" rel="noreferrer">
 									staging Identity server.

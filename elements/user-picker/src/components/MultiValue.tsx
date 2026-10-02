@@ -2,43 +2,72 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+// Lets uplifted Tag and AvatarTag values own width motion without a competing Select wrapper.
+
 import React from 'react';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box, Inline, xcss } from '@atlaskit/primitives';
-import { components, type OptionType } from '@atlaskit/select';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
+import { FormattedMessage } from 'react-intl';
+
+import Avatar, { type AvatarPropTypes } from '@atlaskit/avatar/avatar';
+import PeopleIcon from '@atlaskit/icon/core/people-group';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon/main';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
+import { Box, Inline, xcss } from '@atlaskit/primitives';
+import { components } from '@atlaskit/react-select/components';
+import type { OptionType } from '@atlaskit/select/types';
+import type { MultiValueProps } from '@atlaskit/select/types';
+import AvatarTag from '@atlaskit/tag/avatar-tag';
+import { default as Tag } from '@atlaskit/tag/removable-tag';
+import TeamAvatar, { type TeamAvatarProps } from '@atlaskit/teams-avatar/teams-avatar';
+import { token } from '@atlaskit/tokens';
+
+import type { Email } from '../types';
+import { type Option, type UserPickerProps } from '../types';
 import { AddOptionAvatar } from './AddOptionAvatar';
 import { AvatarOrIcon } from './AvatarOrIcon';
+import { getAvatarUrl } from './getAvatarUrl';
+import { messages } from './i18n';
+import { isEmail } from './isEmail';
+import { isGroup } from './isGroup';
+import { isTeam } from './isTeam';
+import { scrollToValue } from './scrollToValue';
 import { SizeableAvatar } from './SizeableAvatar';
-import { getAvatarUrl, isEmail, isGroup, isTeam } from './utils';
-import { type Option, type UserPickerProps } from '../types';
-import PeopleIcon from '@atlaskit/icon/core/people-group';
-import { type MultiValueProps } from '@atlaskit/select';
-import { token } from '@atlaskit/tokens';
-import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon';
 
-export const scrollToValue = (valueContainer: HTMLDivElement, control: HTMLElement): void => {
-	const { top, height } = valueContainer.getBoundingClientRect();
-	const { height: controlHeight } = control.getBoundingClientRect();
-
-	if (top - height < 0) {
-		valueContainer.scrollIntoView();
-	}
-
-	if (top + height > controlHeight) {
-		valueContainer.scrollIntoView(false);
-	}
-};
-
-const groupTagContainer = xcss({
+const groupTagContainerOld = xcss({
 	paddingLeft: 'space.025',
 	marginTop: 'space.025',
 });
 
+const groupTagContainer = xcss({
+	paddingLeft: 'space.050',
+});
+
+const archivedLozengeWrapper = xcss({
+	display: 'flex',
+	paddingLeft: 'space.050',
+});
+
+const iconStyle = css({
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
+	flexShrink: 0,
+	width: '20px',
+	height: '20px',
+});
+
 const nameWrapper = css({
 	font: token('font.body'),
-	paddingLeft: token('space.050', '4px'),
+	paddingLeft: token('space.050'),
+});
+
+const avatarTagWrapperStyle = css({
+	display: 'flex',
+	font: token('font.body.small'),
 });
 
 type Props = MultiValueProps<OptionType> & {
@@ -46,7 +75,7 @@ type Props = MultiValueProps<OptionType> & {
 	innerProps: any;
 	isFocused?: boolean;
 	ref?: React.RefObject<HTMLDivElement>;
-	removeProps: { onClick: Function };
+	removeProps: { onClick: (e?: React.MouseEvent<HTMLDivElement>) => void };
 	selectProps: UserPickerProps;
 };
 
@@ -73,17 +102,15 @@ export class MultiValue extends React.Component<Props> {
 	}
 
 	shouldComponentUpdate(nextProps: Props): boolean {
-		const {
-			data: { label, data },
-			innerProps,
-			isFocused,
-		} = this.props;
+		const { data: option, innerProps, isFocused } = this.props;
+		const { data: nextOption, innerProps: nextInnerProps, isFocused: nextIsFocused } = nextProps;
 
-		const {
-			data: { label: nextLabel, data: nextData },
-			innerProps: nextInnerProps,
-			isFocused: nextIsFocused,
-		} = nextProps;
+		if (option == null || nextOption == null) {
+			return option !== nextOption || innerProps !== nextInnerProps || isFocused !== nextIsFocused;
+		}
+
+		const { label, data } = option;
+		const { label: nextLabel, data: nextData } = nextOption;
 
 		// We can ignore onRemove here because it is an anonymous function
 		// that will be recreated every time but with the same implementation.
@@ -106,7 +133,7 @@ export class MultiValue extends React.Component<Props> {
 
 		if (isGroup(data)) {
 			return (
-				<Box xcss={groupTagContainer}>
+				<Box xcss={groupTagContainerOld}>
 					<PeopleIcon
 						color="currentColor"
 						label="" // This element is a decorative icon and does not require a label
@@ -140,18 +167,139 @@ export class MultiValue extends React.Component<Props> {
 		const {
 			data: { data },
 		} = this.props;
+		const canShowArchivedLozenge = isTeam(data) && data?.state === 'DISBANDED';
 		if ((isGroup(data) && data.includeTeamsUpdates) || (isTeam(data) && data.verified)) {
 			return <VerifiedTeamIcon size={data.includeTeamsUpdates ? 'small' : 'medium'} />;
+		}
+		if (canShowArchivedLozenge) {
+			return (
+				<Box xcss={archivedLozengeWrapper}>
+					<Lozenge appearance="neutral">
+						<FormattedMessage {...messages.archivedLozenge} />
+					</Lozenge>
+				</Box>
+			);
 		}
 		return null;
 	};
 
 	render(): React.JSX.Element {
-		const { children, innerProps, ...rest } = this.props;
+		const { children, innerProps: _innerProps, removeProps, data: option, ...rest } = this.props;
+
+		if (fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
+			const { data, label } = option;
+			const isTeamOption = isTeam(data);
+			const isGroupOption = isGroup(data);
+			const isEmailOption = isEmail(data);
+			const avatarUrl = getAvatarUrl(data);
+			const isDisabled = Boolean((this.props.selectProps as UserPickerProps)?.isDisabled);
+			const canShowArchivedLozenge = isTeam(data) && data?.state === 'DISBANDED';
+			const avatarProps = avatarUrl ? { name: data.name, src: avatarUrl } : { name: data.name };
+
+			const onBeforeRemoveAction = () => {
+				removeProps.onClick({} as React.MouseEvent<HTMLDivElement>);
+				return false;
+			};
+
+			if (isEmailOption) {
+				return (
+					<span ref={this.containerRef} css={avatarTagWrapperStyle} data-user-picker-multi-value>
+						<Tag
+							text={label}
+							elemBefore={
+								<AddOptionAvatar isLozenge isPendingAction={(data as Email).isPendingAction} />
+							}
+							isRemovable={!isDisabled}
+							onBeforeRemoveAction={onBeforeRemoveAction}
+							hasMargin={false}
+						/>
+					</span>
+				);
+			}
+
+			if (isGroupOption) {
+				return (
+					<span ref={this.containerRef} css={avatarTagWrapperStyle} data-user-picker-multi-value>
+						<Tag
+							text={label}
+							elemBefore={
+								<Box xcss={groupTagContainer}>
+									<PeopleIcon
+										color="currentColor"
+										label="" // This element is a decorative icon and does not require a label
+										size="small"
+									/>
+								</Box>
+							}
+							isRemovable={!isDisabled}
+							onBeforeRemoveAction={onBeforeRemoveAction}
+							hasMargin={false}
+						/>
+					</span>
+				);
+			}
+
+			if (data.icon) {
+				return (
+					<span ref={this.containerRef} css={avatarTagWrapperStyle} data-user-picker-multi-value>
+						<Tag
+							text={label}
+							elemBefore={
+								<div css={iconStyle} style={{ color: data.iconColor }}>
+									{data.icon}
+								</div>
+							}
+							isRemovable={!isDisabled}
+							hasMargin={false}
+							onBeforeRemoveAction={onBeforeRemoveAction}
+						/>
+					</span>
+				);
+			}
+			return (
+				<span ref={this.containerRef} css={avatarTagWrapperStyle} data-user-picker-multi-value>
+					{isTeamOption ? (
+						<React.Fragment>
+							<AvatarTag
+								type="other"
+								text={label}
+								isVerified={isTeamOption ? data.verified : undefined}
+								isRemovable={!isDisabled}
+								onBeforeRemoveAction={onBeforeRemoveAction}
+								avatar={(props: AvatarPropTypes) => (
+									// AvatarTag always supplies size="xxsmall", which is a valid
+									// TeamAvatarSize; TeamAvatar does not support UNSAFE_xsmall.
+									<TeamAvatar {...(props as TeamAvatarProps)} {...avatarProps} />
+								)}
+								hasMargin={false}
+							/>
+							{canShowArchivedLozenge ? (
+								<Box xcss={archivedLozengeWrapper}>
+									<Lozenge appearance="neutral">
+										<FormattedMessage {...messages.archivedLozenge} />
+									</Lozenge>
+								</Box>
+							) : null}
+						</React.Fragment>
+					) : (
+						<AvatarTag
+							type="user"
+							text={label}
+							isRemovable={!isDisabled}
+							onBeforeRemoveAction={onBeforeRemoveAction}
+							avatar={(props: AvatarPropTypes) => <Avatar {...props} {...avatarProps} />}
+							hasMargin={false}
+						/>
+					)}
+				</span>
+			);
+		}
 
 		return (
 			<components.MultiValue
 				{...(rest as any)}
+				data={option}
+				removeProps={removeProps}
 				innerProps={{ ref: this.containerRef }}
 				cropWithEllipsis={false}
 			>
@@ -163,3 +311,7 @@ export class MultiValue extends React.Component<Props> {
 		);
 	}
 }
+
+// User Picker's uplifted values render Tag or AvatarTag, which own their width and truncation
+// motion. This prevents React Select from wrapping them in a second competing motion element.
+Object.defineProperty(MultiValue, Symbol.for('@atlaskit/tag/motion-capable'), { value: true });

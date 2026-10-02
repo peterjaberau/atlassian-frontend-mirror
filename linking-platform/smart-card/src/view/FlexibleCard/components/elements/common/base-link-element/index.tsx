@@ -4,26 +4,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { useMemo } from 'react';
 
 import { css, cssMap, jsx } from '@compiled/react';
 
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import {
 	type SmartLinkInternalTheme,
 	SmartLinkSize,
 	SmartLinkTheme,
 } from '../../../../../../constants';
-import { useMouseDownEvent } from '../../../../../../state/analytics/useLinkClicked';
-import { isNewBlockcardUnauthorizedRefreshExperimentEnabled } from '../../../../../../utils/experiments';
+import { useMouseDownEvent } from '../../../../../../state/analytics/useMouseDownEvent';
 import type { ElementProps } from '../../../../components/elements';
 import type { AnchorTarget } from '../../../../components/types';
-import { hasWhiteSpace } from '../../../utils';
+import { hasWhiteSpace } from '../../../hasWhiteSpace';
 
 const DEFAULT_MAX_LINES = 2;
+
 const MAXIMUM_MAX_LINES = 2;
+
 const MINIMUM_MAX_LINES = 1;
 
 const containerStyles = css({
@@ -65,7 +67,7 @@ const linkStyleSizeMap = cssMap({
 		lineHeight: '1rem',
 	},
 	small: {
-		font: token('font.body.UNSAFE_small'),
+		font: token('font.body.small'),
 		fontWeight: token('font.weight.regular'),
 		lineHeight: '1rem',
 	},
@@ -150,28 +152,28 @@ const themeStyleMap = cssMap({
 	grey: {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'a&': {
-			color: token('color.text.subtlest', '#626F86'),
+			color: token('color.text.subtlest'),
 			'&:active, &:visited, &:focus, &:hover': {
-				color: token('color.text.subtlest', '#626F86'),
+				color: token('color.text.subtlest'),
 				textDecoration: 'underline',
 			},
-			font: token('font.body.UNSAFE_small'),
+			font: token('font.body.small'),
 		},
 	},
 	black: {
-		color: token('color.text.subtle', '#44546F'),
+		color: token('color.text.subtle'),
 		'&:active, &:visited, &:focus, &:hover': {
-			color: token('color.text.subtle', '#44546F'),
+			color: token('color.text.subtle'),
 			textDecoration: 'underline',
 		},
 	},
 	link: {
-		color: token('color.link', '#0C66E4'),
+		color: token('color.link'),
 		'&:active': {
-			color: token('color.link.pressed', '#0055CC'),
+			color: token('color.link.pressed'),
 		},
 		'&:hover': {
-			color: token('color.link', '#0C66E4'),
+			color: token('color.link'),
 			textDecoration: 'underline',
 		},
 	},
@@ -190,11 +192,15 @@ export type BaseLinkElementProps = ElementProps & {
 	 * The number of lines that the link text should spread over. Maximum of 2 lines.
 	 */
 	maxLines?: number;
+	/** Optional middle-click handler. */
+	onAuxClick?: React.EventHandler<React.MouseEvent>;
 	/**
 	 * Determines the behaviour when the Link is clicked. By default is used to
 	 * propagate analytics.
 	 */
 	onClick?: React.EventHandler<React.MouseEvent | React.KeyboardEvent>;
+	/** Optional right-click handler. */
+	onContextMenu?: React.EventHandler<React.MouseEvent>;
 	/**
 	 * Mouse event to be provided to the link
 	 */
@@ -234,9 +240,11 @@ const BaseLinkElement = ({
 	theme = SmartLinkTheme.Link,
 	url,
 	onClick,
+	onAuxClick,
+	onContextMenu,
 	target = '_blank',
 	anchorRef,
-}: BaseLinkElementProps) => {
+}: BaseLinkElementProps): JSX.Element => {
 	const onMouseDown = useMouseDownEvent();
 
 	const hasSpace = useMemo(() => (text ? hasWhiteSpace(text) : false), [text]);
@@ -258,6 +266,8 @@ const BaseLinkElement = ({
 			data-smart-element-link
 			data-testid={testId}
 			onClick={onClick}
+			onAuxClick={onAuxClick}
+			onContextMenu={onContextMenu}
 			onMouseDown={onMouseDown}
 			href={url}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
@@ -275,22 +285,9 @@ const BaseLinkElement = ({
 		<span css={containerStyles}>
 			{hideTooltip || text === undefined
 				? anchor
-				: withTooltip(
-						anchor,
-						url?.includes(text) && isNewBlockcardUnauthorizedRefreshExperimentEnabled()
-							? url
-							: text,
-						testId,
-					)}
+				: withTooltip(anchor, url?.includes(text) ? url : text, testId)}
 		</span>
 	);
 };
 
 export default BaseLinkElement;
-
-export const toLinkProps = (
-	text?: string,
-	url?: string,
-): Partial<BaseLinkElementProps> | undefined => {
-	return text ? { text, url } : undefined;
-};

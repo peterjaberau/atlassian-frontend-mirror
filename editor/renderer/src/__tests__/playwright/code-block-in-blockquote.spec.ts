@@ -1,6 +1,8 @@
 import { codeBlockInBlockquoteADF } from '../__fixtures__/code-block-inside-blockquote.adf';
 import { rendererTestCase as test, expect } from './not-libra';
 
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
+
 test.describe('codeblock in blockquote', () => {
 	test.use({
 		adf: codeBlockInBlockquoteADF(),
@@ -30,14 +32,6 @@ test.describe('codeblock in blockquote', () => {
 			await renderer.page.getByTestId('renderer-code-block').hover();
 			await expect(copyLocator).toBeVisible();
 			await expect(wrapLocator).toBeHidden();
-		});
-
-		test('should capture and report a11y violations', async ({ renderer }) => {
-			const copyLocator = renderer.page.locator('button.copy-to-clipboard');
-			await renderer.page.getByTestId('renderer-code-block').hover();
-			await expect(copyLocator).toBeVisible();
-
-			await expect(renderer.page).toBeAccessible();
 		});
 	});
 

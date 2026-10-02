@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::4fcd237a4e74e8fc6ee2ed98ecae9d02>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::6ceb6b13e8449b708e71a57d1083544a>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -21,11 +21,11 @@ const svg = `<svg height="100%" viewBox="0 0 116 32">
 /**
  * __GoalsLogoCS__
  *
- * A temporary component to represent the logo for Goals.
+ * A component to represent the logo for Goals.
  *
  */
 export function GoalsLogoCS({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Goals',
 	testId,

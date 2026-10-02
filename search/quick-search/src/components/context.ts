@@ -1,6 +1,10 @@
 import React, { type ComponentType } from 'react';
-import { type ResultData, type ResultId, type SelectedResultId } from './Results/types';
+
 import { type ResultBase } from './Results/ResultBase';
+import { type ResultData, type ResultId } from './Results/types';
+
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { SelectedResultIdContext } from './selected-result-id-context';
 
 export type ResultContextType = {
 	/** Register result as keyboard navigation target */
@@ -28,5 +32,4 @@ const defaultState: ResultContextType = {
 	getIndex: (n) => Number(n),
 };
 
-export const ResultContext = React.createContext(defaultState);
-export const SelectedResultIdContext = React.createContext<SelectedResultId>(null);
+export const ResultContext: React.Context<ResultContextType> = React.createContext(defaultState);

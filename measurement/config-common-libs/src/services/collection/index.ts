@@ -13,11 +13,10 @@ import {
 } from '../types';
 
 export class ParseError extends Error {
-	constructor(
-		message: string,
-		public readonly cause: unknown,
-	) {
+	public readonly cause: unknown;
+	constructor(message: string, cause: unknown) {
 		super(message);
+		this.cause = cause;
 	}
 }
 
@@ -42,6 +41,7 @@ function safeParse(json: string): SafeParseResult<ZAnyConfig> {
 }
 
 export class ConfigCollection {
+	private readonly config: ZConfigMap;
 	public static fromValues(values: ValuesPayload, options?: ParseOptions): ConfigCollection {
 		const result = safeParse(values);
 
@@ -76,7 +76,9 @@ export class ConfigCollection {
 		}
 	}
 
-	constructor(private readonly config: ZConfigMap) {}
+	constructor(config: ZConfigMap) {
+		this.config = config;
+	}
 
 	public getBoolean(configName: string): ConfigResult<boolean> {
 		const config = this.config.get(configName);

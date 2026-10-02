@@ -1,11 +1,14 @@
 import type { Page } from '@af/integration-testing';
-import { rendererTestCase as test, expect, type RendererPageInterface } from './not-libra';
 
+import { rendererTestCase as test, expect } from './not-libra';
+import type { RendererPageInterface } from './not-libra';
 import {
 	basicTableAdf,
 	nestedTablesInHeaderAndCellAdf,
 	tableWithScrollbarAdf,
 } from './table-width-analytics.spec.ts-fixtures';
+
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
 
 test.describe('table width information analytics', () => {
 	const waitForTableWidthInformationEvent = async (renderer: RendererPageInterface, page: Page) => {
@@ -21,11 +24,10 @@ test.describe('table width information analytics', () => {
 	};
 
 	test.use({
+		rendererMountOptions: { allowNestedTables: true },
 		rendererProps: {
+			adfStage: 'stage0',
 			appearance: 'full-page',
-		},
-		platformFeatureFlags: {
-			platform_editor_editor_width_analytics: true,
 		},
 	});
 
@@ -59,6 +61,7 @@ test.describe('table width information analytics', () => {
 					}),
 				}),
 			);
+
 			await expect(page).toBeAccessible();
 		});
 	});
@@ -103,6 +106,7 @@ test.describe('table width information analytics', () => {
 					}),
 				}),
 			);
+
 			await expect(page).toBeAccessible();
 		});
 	});
@@ -137,6 +141,8 @@ test.describe('table width information analytics', () => {
 					}),
 				}),
 			);
+
+			await expect(page).toBeAccessible();
 		});
 	});
 });

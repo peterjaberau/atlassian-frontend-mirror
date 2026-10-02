@@ -6,19 +6,16 @@ import { useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import { Label } from '@atlaskit/form';
-import {
-	BitbucketIcon,
-	ConfluenceIcon,
-	JiraSoftwareIcon,
-	OpsgenieIcon,
-	StatuspageIcon,
-} from '@atlaskit/logo';
-import { FadeIn, StaggeredEntrance, useResizingHeight } from '@atlaskit/motion';
+import Button from '@atlaskit/button/default/button';
+import { Label } from '@atlaskit/form/label/default';
+import { BitbucketIcon, ConfluenceIcon, OpsgenieIcon, StatuspageIcon } from '@atlaskit/logo';
+import { JiraSoftwareIcon } from '@atlaskit/logo/jira-software-icon';
+import FadeIn from '@atlaskit/motion/fade-in';
+import StaggeredEntrance from '@atlaskit/motion/staggered-entrance';
+import { useResizingHeight } from '@atlaskit/motion/use-resizing-height';
 import { token } from '@atlaskit/tokens';
 
-import { Centered } from '../utils';
+import { Centered } from '../utils/containers';
 
 const logos = [
 	[<BitbucketIcon size="small" />, 'Bitbucket'],
@@ -122,7 +119,6 @@ const MotionResizeHeightExample = (): JSX.Element => {
 											ref={motion.ref}
 											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 											className={motion.className}
-											// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 											style={motion.style}
 											css={logoContainerStyles}
 										>

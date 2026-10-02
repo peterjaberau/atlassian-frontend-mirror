@@ -10,20 +10,16 @@ import React, { useCallback } from 'react';
 import { css, jsx } from '@emotion/react';
 
 import { FabricChannel } from '@atlaskit/analytics-listeners/types';
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import type { ButtonProps } from '@atlaskit/button/types';
-import type { PositionType } from '@atlaskit/tooltip';
-import Tooltip from '@atlaskit/tooltip';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import type { ButtonProps } from '@atlaskit/button/button';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import type { PositionType } from '@atlaskit/tooltip/types';
 
-import {
-	ACTION,
-	ACTION_SUBJECT,
-	EVENT_TYPE,
-	type TOOLBAR_ACTION_SUBJECT_ID,
-} from '../../analytics';
-import { type Keymap, ToolTipContent } from '../../keymaps';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '../../analytics';
+import type { TOOLBAR_ACTION_SUBJECT_ID } from '../../analytics';
+import { ToolTipContent } from '../../keymaps';
+import type { Keymap } from '../../keymaps';
 import type { MenuItem } from '../DropdownMenu/types';
-
 import Button from './styles';
 
 export type Props = {
@@ -74,7 +70,50 @@ const buttonWrapper = css({
 });
 
 export type ToolbarButtonRef = HTMLElement;
-const ToolbarButton = React.forwardRef<ToolbarButtonRef, Props>((props, ref) => {
+const ToolbarButton: React.ForwardRefExoticComponent<
+	{
+		'aria-expanded'?: React.AriaAttributes['aria-expanded'];
+		'aria-haspopup'?: React.AriaAttributes['aria-haspopup'];
+		'aria-keyshortcuts'?: React.AriaAttributes['aria-keyshortcuts'];
+		'aria-label'?: React.AriaAttributes['aria-label'];
+		'aria-pressed'?: React.AriaAttributes['aria-pressed'];
+		// Used for analytics only
+		buttonId?: TOOLBAR_ACTION_SUBJECT_ID;
+		className?: string;
+		'data-ds--level'?: string;
+		disabled?: boolean;
+		hideTooltip?: boolean;
+		href?: string;
+		// Ignored via go/ees005
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		iconAfter?: React.ReactElement<any>;
+		// Ignored via go/ees005
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		iconBefore?: React.ReactElement<any>;
+		item?: MenuItem;
+		keymap?: Keymap;
+		onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+		onItemClick?: (item: MenuItem) => void;
+		onKeyDown?: (event: React.KeyboardEvent<HTMLElement>) => void;
+		selected?: boolean;
+		spacing?: 'default' | 'compact' | 'none';
+		target?: string;
+		testId?: string;
+		title?: React.ReactNode;
+		titlePosition?: PositionType;
+	} & Pick<
+		ButtonProps,
+		| 'children'
+		| 'rel'
+		| 'aria-controls'
+		| 'aria-label'
+		| 'onFocus'
+		| 'onBlur'
+		| 'onMouseEnter'
+		| 'onMouseLeave'
+	> &
+		React.RefAttributes<HTMLElement>
+> = React.forwardRef<ToolbarButtonRef, Props>((props, ref) => {
 	const {
 		buttonId,
 		testId,

@@ -1,21 +1,22 @@
-import { waitUntil } from '@atlaskit/elements-test-helpers';
+import { waitFor } from '@testing-library/react';
+import fetchMock from 'fetch-mock/cjs/client';
+import * as sinon from 'sinon';
+import 'es6-promise/auto'; // 'whatwg-fetch' needs a Promise polyfill
+
 import type {
 	OnProviderChange,
 	SecurityOptions,
 	ServiceConfig,
 } from '@atlaskit/util-service-support';
-import 'es6-promise/auto'; // 'whatwg-fetch' needs a Promise polyfill
 
-import fetchMock from 'fetch-mock/cjs/client';
-import * as sinon from 'sinon';
-import EmojiResource, {
-	type EmojiProvider,
-	type EmojiResourceConfig,
-	supportsUploadFeature,
-	type UploadingEmojiProvider,
+import type {
+	EmojiProvider,
+	EmojiResourceConfig,
+	UploadingEmojiProvider,
 } from '../../../api/EmojiResource';
+import EmojiResource from '../../../api/EmojiResource';
 import SiteEmojiResource from '../../../api/media/SiteEmojiResource';
-import { selectedToneStorageKey } from '../../../util/constants';
+import { supportsUploadFeature } from '../../../api/supportsUploadFeature';
 import type {
 	EmojiDescription,
 	EmojiId,
@@ -25,6 +26,7 @@ import type {
 	SearchOptions,
 	ToneSelection,
 } from '../../../types';
+import { selectedToneStorageKey } from '../../../util/constants';
 import {
 	evilburnsEmoji,
 	grinEmoji,
@@ -262,6 +264,32 @@ describe('UploadingEmojiResource', () => {
 						expect('Should not error').toEqual('but it did');
 					});
 			});
+
+			test('uploadCustomEmoji succeeds with 30s timeout when upload completes within the timeout', () => {
+				const siteEmojiResource = sinon.createStubInstance(SiteEmojiResource) as any;
+				const hasUploadTokenStub = siteEmojiResource.hasUploadToken;
+				hasUploadTokenStub.returns(Promise.resolve(true));
+				const uploadEmojiStub = siteEmojiResource.uploadEmoji;
+
+				uploadEmojiStub.returns(
+					new Promise((resolve) => {
+						setTimeout(() => {
+							resolve(mediaEmoji);
+						}, 12000 * 2);
+					}),
+				);
+
+				const emojiResource = new TestUploadingEmojiResource(siteEmojiResource);
+				emojiResource.fetchEmojiProvider();
+				return emojiResource
+					.uploadCustomEmoji(upload, false)
+					.then((emoji) => {
+						expect(emoji).toEqual(mediaEmoji);
+					})
+					.catch(() => {
+						expect('Should not error').toEqual('but it did');
+					});
+			});
 		});
 	});
 
@@ -278,9 +306,7 @@ describe('UploadingEmojiResource', () => {
 			const emojiResource = new TestUploadingEmojiResource(siteEmojiResource);
 			emojiResource.fetchEmojiProvider();
 			emojiResource.prepareForUpload();
-			return waitUntil(() => prepareForUploadStub.called).then(() => {
-				expect(prepareForUploadStub.called).toEqual(true);
-			});
+			return waitFor(() => expect(prepareForUploadStub.called).toEqual(true));
 		});
 	});
 
@@ -293,9 +319,7 @@ describe('UploadingEmojiResource', () => {
 			const deleteStub = siteEmojiResource.deleteEmoji;
 			deleteStub.returns(new Promise(() => {}));
 			emojiResource.deleteSiteEmoji(mediaEmoji);
-			return waitUntil(() => deleteStub.called).then(() => {
-				expect(deleteStub.called).toEqual(true);
-			});
+			return waitFor(() => expect(deleteStub.called).toEqual(true));
 		});
 
 		it('can find mediaEmoji by id if not yet deleted', async () => {

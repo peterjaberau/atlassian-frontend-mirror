@@ -4,15 +4,23 @@ import {
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
+import { getHadMarkAttributes } from '@atlaskit/editor-common/mark';
+import { FORMAT_SELECTION_SYNC_META } from '@atlaskit/editor-common/selection';
 import type { EditorCommand, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { PaletteColor } from '@atlaskit/editor-common/ui-color';
+import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 
 import { getActiveColorNew } from '../pm-plugins/utils/color';
 import type { TextColorPlugin } from '../textColorPluginType';
 import type { TextColorInputMethod } from '../types';
-
 import { removeColor } from './remove-color';
 import { toggleColor } from './toggle-color';
+
+const maybeSyncSelectionAfterFormat = (tr: Transaction) => {
+	if (tr.docChanged) {
+		tr.setMeta(FORMAT_SELECTION_SYNC_META, true);
+	}
+};
 
 /**
  * Helper to create an analytics payload
@@ -26,6 +34,7 @@ function createColorAnalyticsPayload(
 	previousColor: string | null,
 	palette: PaletteColor[],
 	inputMethod?: TextColorInputMethod,
+	hadMarkAttributes: { hadBackgroundColor?: boolean } = {},
 ) {
 	const newColorFromPalette = palette.find(({ value }) => value === newColor);
 	const previousColorFromPalette = palette.find(({ value }) => value === previousColor);
@@ -44,6 +53,7 @@ function createColorAnalyticsPayload(
 			newColor: newColorLabel.toLowerCase(),
 			previousColor: previousColorLabel.toLowerCase(),
 			inputMethod,
+			...hadMarkAttributes,
 		},
 	} as const;
 }
@@ -55,7 +65,7 @@ export const changeColor =
 		inputMethod?: TextColorInputMethod,
 	): EditorCommand =>
 	({ tr }) => {
-		const { textColor } = tr.doc.type.schema.marks;
+		const { textColor, backgroundColor } = tr.doc.type.schema.marks;
 		const pluginState = api?.textColor.sharedState.currentState();
 
 		if (!textColor || !pluginState) {
@@ -63,25 +73,30 @@ export const changeColor =
 		}
 
 		const activeColor = getActiveColorNew(tr);
+		const isRemovingColor = color === pluginState.defaultColor;
+		const hadMarkAttributes = isRemovingColor ? {} : getHadMarkAttributes(tr, [backgroundColor]);
 
 		const colorAnalyticsPayload = createColorAnalyticsPayload(
 			color,
 			activeColor,
 			pluginState.palette,
 			inputMethod,
+			hadMarkAttributes,
 		);
 
 		if (pluginState.disabled) {
 			return tr;
 		}
 
-		if (color === pluginState.defaultColor) {
+		if (isRemovingColor) {
 			api?.analytics?.actions.attachAnalyticsEvent(colorAnalyticsPayload)(tr);
 			removeColor({ tr });
+			maybeSyncSelectionAfterFormat(tr);
 			return tr;
 		}
 
 		api?.analytics?.actions.attachAnalyticsEvent(colorAnalyticsPayload)(tr);
 		toggleColor(color)({ tr });
+		maybeSyncSelectionAfterFormat(tr);
 		return tr;
 	};

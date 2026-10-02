@@ -1,44 +1,54 @@
-import { AnalyticsStep, BatchAttrsStep, SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { AnalyticsStep } from '@atlaskit/adf-schema/steps/analytics';
+import { BatchAttrsStep } from '@atlaskit/adf-schema/steps/batch-attrs-step';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
 import type { AnalyticsEventPayload, EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
 import {
 	TELEPOINTER_DATA_SESSION_ID_ATTR,
 	TELEPOINTER_PULSE_DURING_TR_CLASS,
 	TELEPOINTER_PULSE_DURING_TR_DURATION_MS,
-	type CollabEditOptions,
-	type CollabParticipant,
 } from '@atlaskit/editor-common/collab';
+import type { CollabEditOptions, CollabParticipant } from '@atlaskit/editor-common/collab';
 import { processRawValueWithoutValidation } from '@atlaskit/editor-common/process-raw-value';
 import { ZERO_WIDTH_JOINER } from '@atlaskit/editor-common/whitespace';
-import {
-	type EditorState,
-	type ReadonlyTransaction,
-	Transaction,
-	Selection,
-	TextSelection,
-} from '@atlaskit/editor-prosemirror/state';
+import { Transaction, Selection, TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
 import { AttrStep, ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
-import type { Step } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 import type { DecorationSet, EditorView } from '@atlaskit/editor-prosemirror/view';
 import { Decoration } from '@atlaskit/editor-prosemirror/view';
-import { getParticipantColor } from '@atlaskit/editor-shared-styles';
+import { getParticipantColor } from '@atlaskit/editor-shared-styles/utils';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
+import { preserveNodeIdentity } from './preserve-node-identity';
+
 export const findPointers = (id: string, decorations: DecorationSet): Decoration[] =>
-	decorations
-		.find()
-		.reduce<
-			Decoration[]
-		>((arr, deco) => (deco.spec.pointer.presenceId === id ? arr.concat(deco) : arr), []);
+	decorations.find().reduce<Decoration[]>(
+		// `pointer` is absent on non-telepointer decorations (e.g. the agent-shimmer
+		// sweep decorations), so guard against it to avoid crashing this shared helper.
+		(arr, deco) => (deco.spec.pointer?.presenceId === id ? arr.concat(deco) : arr),
+		[],
+	);
 
 function style(options: { color: string }) {
-	const color = (options && options.color) || token('color.border', 'black');
-	const borderWidth = token('border.width.focused', '2px');
+	const color = (options && options.color) || token('color.border');
+	const borderWidth = token('border.width.focused');
 	return `border-right: ${borderWidth} solid ${color}; margin-right: calc(-1 * ${borderWidth}); z-index: 1`;
 }
 
-export function getAvatarColor(str: string) {
-	const participantColor = getParticipantColor(str);
+export function getAvatarColor(
+	str: string,
+	agentType?: string,
+): {
+	backgroundColor: string;
+	index: number;
+	textColor: string;
+} {
+	const participantColor = getParticipantColor(
+		str,
+		fg('confluence_ncs_step_diffing_version_history') ? agentType : undefined,
+	);
 
 	return {
 		index: participantColor.index,
@@ -56,9 +66,10 @@ export const createTelepointers = (
 	presenceId: string,
 	fullName: string,
 	isNudged: boolean,
-) => {
+	agentType?: string,
+): Decoration[] => {
 	const decorations: Decoration[] = [];
-	const avatarColor = getAvatarColor(presenceId);
+	const avatarColor = getAvatarColor(presenceId, agentType);
 	const color = avatarColor.index.toString();
 	if (isSelection) {
 		const className = `telepointer color-${color} telepointer-selection`;
@@ -133,7 +144,7 @@ export const replaceDocument = (
 	options?: CollabEditOptions,
 	reserveCursor?: boolean,
 	editorAnalyticsAPI?: EditorAnalyticsAPI,
-) => {
+): Transaction => {
 	const { schema, tr } = state;
 
 	const parsedDoc = processRawValueWithoutValidation(
@@ -144,7 +155,43 @@ export const replaceDocument = (
 	const hasContent = !!parsedDoc?.childCount;
 	const content = parsedDoc?.content;
 
-	if (hasContent) {
+	if (hasContent && content) {
+		const preservedContent = preserveNodeIdentity(state.doc.content, content);
+
+		// If the entire content is identical, skip the replaceWith entirely
+		// and just update collab metadata. This avoids triggering a full
+		// document reconciliation for no-op replacements.
+		if (preservedContent === state.doc.content) {
+			tr.setMeta('addToHistory', false);
+			if (version !== undefined && options && options.useNativePlugin) {
+				const collabState = { version, unconfirmed: [] };
+				tr.setMeta('collab$', collabState);
+			}
+			return tr;
+		}
+
+		// Use the preserved fragment (reuses old node references for unchanged nodes)
+		// rather than the raw parsed content, so ProseMirror's view reconciliation
+		// can fast-match unchanged subtrees via referential identity (===).
+		tr.setMeta('addToHistory', false);
+		tr.replaceWith(0, state.doc.nodeSize - 2, preservedContent);
+		const selection = state.selection;
+		if (reserveCursor) {
+			if (selection.to < tr.doc.content.size - 2) {
+				const $from = tr.doc.resolve(selection.from);
+				const $to = tr.doc.resolve(selection.to);
+				const newselection = new TextSelection($from, $to);
+				tr.setSelection(newselection);
+			}
+		} else {
+			tr.setSelection(Selection.atStart(tr.doc));
+		}
+		tr.setMeta('replaceDocument', true);
+		if (version !== undefined && options && options.useNativePlugin) {
+			const collabState = { version, unconfirmed: [] };
+			tr.setMeta('collab$', collabState);
+		}
+	} else if (hasContent) {
 		tr.setMeta('addToHistory', false);
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -219,7 +266,7 @@ export const getPositionOfTelepointer = (
 	return scrollPosition;
 };
 
-export const isReplaceStep = (step: Step) => step instanceof ReplaceStep;
+export const isReplaceStep = (step: Step): step is ReplaceStep => step instanceof ReplaceStep;
 
 export const originalTransactionHasMeta = (
 	transaction: Transaction | ReadonlyTransaction,

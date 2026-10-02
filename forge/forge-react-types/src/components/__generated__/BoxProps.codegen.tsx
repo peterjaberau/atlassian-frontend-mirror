@@ -3,9 +3,9 @@
  *
  * Extract component prop types from UIKit 2 components - BoxProps
  *
- * @codegen <<SignedSource::653f98d927e1ec1646db39eca8e994fb>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/box/index.tsx <<SignedSource::8875ae64ad6c03e0827dd8f8a893ac04>>
+ * @codegen <<SignedSource::0cdd00ba33f247092a407d023bb794fc>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/box/index.tsx <<SignedSource::2b5c4e2d3ee02b00f78935460cc1a0e5>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 /* eslint-disable @atlaskit/design-system/ensure-design-token-usage/preview */
@@ -40,6 +40,23 @@ type XCSSValidatorParam = {
         allowCSS: true;
     };
 };
+type SupportedPropKeys<U extends XCSSValidatorParam> = Extract<keyof U, keyof CSSProperties>;
+type RawCSSPropKeys<U extends XCSSValidatorParam> = Extract<{
+    [K in SupportedPropKeys<U>]: U[K] extends {
+        allowCSS: true;
+    } ? K : never;
+}[SupportedPropKeys<U>], SupportedPropKeys<U>>;
+type RestrictedPropKeys<U extends XCSSValidatorParam> = Extract<{
+    [K in SupportedPropKeys<U>]: U[K] extends {
+        supportedValues: Array<RestrictedPropsSpec[K]>;
+    } ? K : never;
+}[SupportedPropKeys<U>], SupportedPropKeys<U>>;
+type RestrictedProps<U extends XCSSValidatorParam> = {
+    [K in RestrictedPropKeys<U>]?: U[K] extends {
+        supportedValues: infer V;
+    } ? V extends ReadonlyArray<infer E> ? E : Exclude<V[keyof V], number | ((...args: any[]) => any)> : never;
+};
+type XCSSPropsValidator<U extends XCSSValidatorParam> = (styleObj: SafeCSSObject<keyof CSSProperties, keyof CSSProperties, RestrictedPropsSpec> | SafeCSSObject<SupportedPropKeys<U>, RawCSSPropKeys<U>, RestrictedProps<U>>) => SafeCSSObject<SupportedPropKeys<U>, RawCSSPropKeys<U>, RestrictedProps<U>>;
 /**
  *
  * @param supportedXCSSProps - the list of css props to be supported for the intended component.
@@ -50,19 +67,7 @@ type XCSSValidatorParam = {
  *    as specified in the supportedXCSSProps list. The props that are not supported will be removed from the
  *    returned style object and a warning will be logged in the console.
  */
-declare const makeXCSSValidator: <U extends XCSSValidatorParam>(supportedXCSSProps: U) => (styleObj: SafeCSSObject<keyof CSSProperties, keyof CSSProperties, RestrictedPropsSpec> | SafeCSSObject<Extract<keyof U, keyof CSSProperties>, Extract<{ [K in Extract<keyof U, keyof CSSProperties>]: U[K] extends {
-    allowCSS: true;
-} ? K : never; }[Extract<keyof U, keyof CSSProperties>], Extract<keyof U, keyof CSSProperties>>, { [K_2 in Extract<{ [K_1 in Extract<keyof U, keyof CSSProperties>]: U[K_1] extends {
-    supportedValues: RestrictedPropsSpec[K_1][];
-} ? K_1 : never; }[Extract<keyof U, keyof CSSProperties>], Extract<keyof U, keyof CSSProperties>>]?: (U[K_2] extends {
-    supportedValues: infer V;
-} ? Exclude<V[keyof V], number | ((...args: any[]) => any)> : never) | undefined; }>) => SafeCSSObject<Extract<keyof U, keyof CSSProperties>, Extract<{ [K in Extract<keyof U, keyof CSSProperties>]: U[K] extends {
-    allowCSS: true;
-} ? K : never; }[Extract<keyof U, keyof CSSProperties>], Extract<keyof U, keyof CSSProperties>>, { [K_2 in Extract<{ [K_1 in Extract<keyof U, keyof CSSProperties>]: U[K_1] extends {
-    supportedValues: RestrictedPropsSpec[K_1][];
-} ? K_1 : never; }[Extract<keyof U, keyof CSSProperties>], Extract<keyof U, keyof CSSProperties>>]?: (U[K_2] extends {
-    supportedValues: infer V;
-} ? Exclude<V[keyof V], number | ((...args: any[]) => any)> : never) | undefined; }>;
+declare const makeXCSSValidator: <U extends XCSSValidatorParam>(supportedXCSSProps: U) => XCSSPropsValidator<U>;
 export { makeXCSSValidator };
 export type { SafeCSSObject };
 /**
@@ -88,7 +93,7 @@ const borderRadiusSupportedValues = [
 	...borderRadiusTokens,
 	'border.radius',
 ] as unknown as Array<BorderRadius>;
-const xcssValidator = makeXCSSValidator({
+type XCSSValidatorArg = {
 	// text related props
 	textAlign: {
 		allowCSS: true,
@@ -171,15 +176,15 @@ const xcssValidator = makeXCSSValidator({
 	paddingTop: true,
 
 	// other box related props
-	borderRadius: { supportedValues: borderRadiusSupportedValues },
-	borderBottomLeftRadius: { supportedValues: borderRadiusSupportedValues },
-	borderBottomRightRadius: { supportedValues: borderRadiusSupportedValues },
-	borderTopLeftRadius: { supportedValues: borderRadiusSupportedValues },
-	borderTopRightRadius: { supportedValues: borderRadiusSupportedValues },
-	borderEndEndRadius: { supportedValues: borderRadiusSupportedValues },
-	borderEndStartRadius: { supportedValues: borderRadiusSupportedValues },
-	borderStartEndRadius: { supportedValues: borderRadiusSupportedValues },
-	borderStartStartRadius: { supportedValues: borderRadiusSupportedValues },
+	borderRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderBottomLeftRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderBottomRightRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderTopLeftRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderTopRightRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderEndEndRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderEndStartRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderStartEndRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderStartStartRadius: { supportedValues: typeof borderRadiusSupportedValues },
 	borderWidth: true,
 	borderBlockWidth: true,
 	borderBlockEndWidth: true,
@@ -211,8 +216,8 @@ const xcssValidator = makeXCSSValidator({
 	position: {
 		supportedValues: ['relative', 'static'],
 	},
-});
-type XCSSProp = ReturnType<typeof xcssValidator>;
+};
+type XCSSProp = ReturnType<XCSSPropsValidator<XCSSValidatorArg>>;
 
 export type BoxProps = {
 	/**

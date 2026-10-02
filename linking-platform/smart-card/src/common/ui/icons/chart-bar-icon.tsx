@@ -1,14 +1,14 @@
-import LegacyIcon from '@atlaskit/icon-file-type/glyph/presentation/16';
-import LegacyIconLarge from '@atlaskit/icon-file-type/glyph/presentation/24';
+import type { FC } from 'react';
+
 import ChartBarIcon from '@atlaskit/icon/core/chart-bar';
 
-import { renderIconPerSize, renderIconTile } from './utils';
+import { renderIconTile } from './render-icon-tile';
+import type { AtlaskitIconTileProps } from './types';
 
-const ChartBarIconWithColor = renderIconTile(
-	ChartBarIcon,
-	'purpleBold',
-	renderIconPerSize(LegacyIcon, LegacyIconLarge),
-);
+// `purpleBold` is used while `platform_lp_non_bold_large_sl_icon` is off.
+// Clean up in NAVX-5752: https://hello.jira.atlassian.cloud/browse/NAVX-5752
+// When that gate is cleaned up, replace `purpleBold` directly with `purple`.
+const ChartBarIconWithColor: FC<AtlaskitIconTileProps> = renderIconTile(ChartBarIcon, 'purpleBold');
 ChartBarIconWithColor.displayName = 'ChartBarIconWithColor';
 
 export default ChartBarIconWithColor;

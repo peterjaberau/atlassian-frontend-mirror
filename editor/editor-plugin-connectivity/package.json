@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-connectivity",
-	"version": "7.0.1",
+	"version": "23.0.0",
 	"description": "Connectivity plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,6 +8,11 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"website": {
+			"tags": [
+				"platform-labs"
+			]
+		},
 		"team": "Editor: Lego",
 		"singleton": true
 	},
@@ -16,18 +21,12 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./connectivityPlugin": "./src/entry-points/connectivityPlugin.tsx",
+		"./connectivityPluginType": "./src/entry-points/connectivityPluginType.ts"
 	},
 	"dependencies": {
 		"@atlaskit/editor-prosemirror": "workspace:^",
@@ -36,43 +35,24 @@
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
+	"devDependencies": {
+		"@af/editor-examples-helpers": "workspace:^",
+		"@atlaskit/button": "workspace:^",
+		"@atlaskit/editor-core": "workspace:^",
+		"@atlaskit/editor-plugin-hyperlink": "workspace:^",
+		"@atlaskit/editor-plugin-primary-toolbar": "workspace:^",
+		"@atlaskit/editor-plugin-type-ahead": "workspace:^",
+		"@atlaskit/editor-plugins": "workspace:^",
+		"@atlaskit/editor-test-helpers": "workspace:^",
+		"@atlaskit/link-provider": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/util-data-test": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0"
 	}
 }

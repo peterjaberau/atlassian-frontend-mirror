@@ -1,7 +1,7 @@
 # Prop guidance
 
-- **appearance** - primary (main), default (secondary), subtle (tertiary), danger (destructive),
-  warning (caution), discovery (new features)
+- **appearance** - primary (main), rovo (Rovo/AI primary action), default (secondary), subtle
+  (tertiary), danger (destructive), warning (caution), discovery (new features)
 - **spacing** - compact (tight spaces), default (standard), comfortable (generous)
 - **isDisabled** - Use instead of removing the button
 - **isLoading** - Show loading state during async operations
@@ -11,7 +11,7 @@
 An example diff of a migration from Tailwind generated code to ADS generated code.
 
 ```diff
-+import Button from '@atlaskit/button/new';
++import Button from '@atlaskit/button/default/button';
 -<button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
 -  Create
 -</button>

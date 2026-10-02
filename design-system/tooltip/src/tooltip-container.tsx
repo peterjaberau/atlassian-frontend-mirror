@@ -16,17 +16,17 @@ const styles = cssMap({
 	base: {
 		boxSizing: 'border-box',
 		maxWidth: '240px',
-		backgroundColor: token('color.background.neutral.bold', '#172B4D'),
+		backgroundColor: token('color.background.neutral.bold'),
 		borderRadius: token('radius.small', '3px'),
-		color: token('color.text.inverse', '#FFFFFF'),
+		color: token('color.text.inverse'),
 		font: token('font.body.small'),
-		insetBlockStart: token('space.0', '0px'),
-		insetInlineStart: token('space.0', '0px'),
+		insetBlockStart: token('space.0'),
+		insetInlineStart: token('space.0'),
 		overflowWrap: 'break-word',
-		paddingBlockStart: token('space.050', '4px'),
-		paddingBlockEnd: token('space.050', '4px'),
-		paddingInlineEnd: token('space.075', '6px'),
-		paddingInlineStart: token('space.075', '6px'),
+		paddingBlockStart: token('space.050'),
+		paddingBlockEnd: token('space.050'),
+		paddingInlineEnd: token('space.075'),
+		paddingInlineStart: token('space.075'),
 		wordWrap: 'break-word',
 	},
 	truncate: {
@@ -55,13 +55,13 @@ const TooltipContainer: React.ForwardRefExoticComponent<
 		onMouseOver,
 		id,
 		shortcut,
+		role,
 	},
 	ref,
 ) {
 	return (
 		<TooltipPrimitive
 			ref={ref}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			style={style}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={className}
@@ -71,6 +71,7 @@ const TooltipContainer: React.ForwardRefExoticComponent<
 			onMouseOut={onMouseOut}
 			onMouseOver={onMouseOver}
 			shortcut={shortcut}
+			role={role}
 			css={[styles.base, truncate && styles.truncate]}
 		>
 			{children}

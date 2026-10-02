@@ -10,24 +10,25 @@ import {
 	within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { ManualPromise, renderWithIntl as render } from '@atlaskit/link-test-helpers';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 
 import mockedPluginData from '../../__tests__/__helpers/mock-plugin-data';
 import {
 	MockLinkPickerGeneratorPlugin,
+	MockLinkPickerPlugin,
 	MockLinkPickerPromisePlugin,
 	UnstableMockLinkPickerPlugin,
 } from '../../__tests__/__helpers/mock-plugins';
 import type { LinkPickerProps } from '../../common/types';
-
 import { messages as formFooterMessages } from './form-footer';
-import { messages as resultsListMessages } from './search-results/link-search-list';
-
 import { LinkPicker, testIds } from './index';
+import { messages as resultsListMessages } from './search-results/link-search-list';
 
 jest.mock('date-fns/differenceInCalendarDays', () => {
 	return jest.fn().mockImplementation(() => -5);
@@ -1954,6 +1955,28 @@ describe('<LinkPicker />', () => {
 			expect(screen.queryByTestId(testIds.submitStatusA11yIndicator)).not.toBeInTheDocument();
 		});
 	});
+
+	describe('form action container semantics', () => {
+		it('renders a non-landmark container when the feature gate is enabled', () => {
+			passGate('platform_navx_fix_nested_footer_landmark');
+			const { testIds } = setupLinkPicker();
+			const form = screen.getByTestId(testIds.urlInputField).closest('form');
+
+			expect(form).toBeInTheDocument();
+			expect(form?.lastElementChild?.tagName).toBe('DIV');
+			expect(form?.querySelector('footer')).toBeNull();
+		});
+
+		it('preserves the footer element when the feature gate is disabled', () => {
+			failGate('platform_navx_fix_nested_footer_landmark');
+			const { testIds } = setupLinkPicker();
+			const form = screen.getByTestId(testIds.urlInputField).closest('form');
+
+			expect(form).toBeInTheDocument();
+			expect(form?.lastElementChild?.tagName).toBe('FOOTER');
+		});
+	});
+
 	it('should capture and report a11y violations', async () => {
 		const onSubmitMock: LinkPickerProps['onSubmit'] = jest.fn();
 		const onContentResize: LinkPickerProps['onContentResize'] = jest.fn();
@@ -1965,5 +1988,127 @@ describe('<LinkPicker />', () => {
 			/>,
 		);
 		await expect(container).toBeAccessible();
+	});
+
+	describe('disableManualUrlInsert', () => {
+		/**
+		 * A plugin that returns no results for any query, used to test
+		 * disableManualUrlInsert where the insert button should be disabled
+		 * because there are no selectable results.
+		 */
+		class EmptyResultsMockPlugin {
+			async *resolve() {
+				yield { data: [] };
+			}
+		}
+
+		ffTest.off('add-disable-manual-url-capability-technical', 'when gate is OFF', () => {
+			it('should enable the insert button for a manually typed valid URL even when disableManualUrlInsert=true is passed', async () => {
+				render(
+					<LinkPicker
+						url=""
+						onSubmit={jest.fn()}
+						onCancel={jest.fn()}
+						onContentResize={jest.fn()}
+						plugins={[]}
+						disableManualUrlInsert={true}
+					/>,
+				);
+
+				await user.type(
+					await screen.findByTestId(testIds.urlInputField),
+					'http://www.atlassian.com',
+				);
+
+				await waitFor(() => {
+					expect(screen.getByTestId(testIds.insertButton)).not.toBeDisabled();
+				});
+			});
+
+			it('should enable the insert button for a manually typed valid URL when disableManualUrlInsert=false (default)', async () => {
+				render(
+					<LinkPicker
+						url=""
+						onSubmit={jest.fn()}
+						onCancel={jest.fn()}
+						onContentResize={jest.fn()}
+						plugins={[]}
+						disableManualUrlInsert={false}
+					/>,
+				);
+
+				await user.type(
+					await screen.findByTestId(testIds.urlInputField),
+					'http://www.atlassian.com',
+				);
+
+				await waitFor(() => {
+					expect(screen.getByTestId(testIds.insertButton)).not.toBeDisabled();
+				});
+			});
+		});
+
+		ffTest.on('add-disable-manual-url-capability-technical', 'when gate is ON', () => {
+			it('should disable the insert button for a manually typed URL when disableManualUrlInsert=true and plugin returns no results', async () => {
+				render(
+					<LinkPicker
+						url=""
+						onSubmit={jest.fn()}
+						onCancel={jest.fn()}
+						onContentResize={jest.fn()}
+						plugins={[new EmptyResultsMockPlugin() as any]}
+						disableManualUrlInsert={true}
+					/>,
+				);
+
+				await user.type(await screen.findByTestId(testIds.urlInputField), 'atlassian');
+
+				await waitFor(() => {
+					expect(screen.getByTestId(testIds.insertButton)).toBeDisabled();
+				});
+			});
+
+			it('should still enable the insert button for a manually typed URL when disableManualUrlInsert=false (default)', async () => {
+				render(
+					<LinkPicker
+						url=""
+						onSubmit={jest.fn()}
+						onCancel={jest.fn()}
+						onContentResize={jest.fn()}
+						plugins={[]}
+						disableManualUrlInsert={false}
+					/>,
+				);
+
+				await user.type(
+					await screen.findByTestId(testIds.urlInputField),
+					'http://www.atlassian.com',
+				);
+
+				await waitFor(() => {
+					expect(screen.getByTestId(testIds.insertButton)).not.toBeDisabled();
+				});
+			});
+
+			it('should enable insert when a result is selected even when disableManualUrlInsert=true', async () => {
+				render(
+					<LinkPicker
+						url=""
+						onSubmit={jest.fn()}
+						onCancel={jest.fn()}
+						onContentResize={jest.fn()}
+						plugins={[new MockLinkPickerPlugin()]}
+						disableManualUrlInsert={true}
+					/>,
+				);
+
+				// Results load on mount; click the first result to populate the URL field
+				await user.click((await screen.findAllByTestId(testIds.searchResultItem))[0]);
+
+				await waitFor(() => {
+					expect(screen.getByTestId(testIds.insertButton)).not.toBeDisabled();
+				});
+			});
+		});
 	});
 });

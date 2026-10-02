@@ -5,8 +5,8 @@ import {
 	appearancePropsMap,
 	commandWithMetadata,
 	getDropdownOption,
-	type OptionConfig,
 } from '@atlaskit/editor-common/card';
+import type { OptionConfig } from '@atlaskit/editor-common/card';
 import { cardMessages as messages, linkToolbarMessages } from '@atlaskit/editor-common/messages';
 import type {
 	Command,
@@ -16,14 +16,17 @@ import type {
 } from '@atlaskit/editor-common/types';
 import { isSupportedInParent } from '@atlaskit/editor-common/utils';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
-import { useSmartCardContext } from '@atlaskit/link-provider';
-import { ButtonItem, LinkItem, MenuGroup, Section } from '@atlaskit/menu';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { useSmartCardContext } from '@atlaskit/link-provider/use-smart-card-context';
+import ButtonItem from '@atlaskit/menu/button-item';
+import LinkItem from '@atlaskit/menu/link-item';
+import MenuGroup from '@atlaskit/menu/menu-group';
+import Section from '@atlaskit/menu/section';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { changeSelectedCardToLink, setSelectedCardAppearance } from '../pm-plugins/doc';
-
 import { DatasourceDropdownOption, datasourceDisplayInformation } from './DatasourceDropdownOption';
-import { getUnavailableMessage, type LinkToolbarAppearanceProps } from './LinkToolbarAppearance';
+import { getUnavailableMessage } from './LinkToolbarAppearance';
+import type { LinkToolbarAppearanceProps } from './LinkToolbarAppearance';
 
 type Props = LinkToolbarAppearanceProps & {
 	allowDatasource?: boolean;
@@ -160,6 +163,7 @@ export const LinkAppearanceMenu = ({
 						<ButtonItem
 							key={option.title}
 							iconBefore={option.icon}
+							// eslint-disable-next-line @atlassian/perf-linting/detect-unnecessary-rerenders, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onClick={() => option.onClick()}
 							isSelected={option.selected}
 							description={option.description}
@@ -178,16 +182,17 @@ export const LinkAppearanceMenu = ({
 					dispatchCommand={dispatchCommand}
 				/>
 			</Section>
-			<Section hasSeparator>
-				{/* eslint-disable-next-line @atlassian/a11y/anchor-is-valid -- See https://go/a11y-anchor-is-valid for more details */}
-				<LinkItem
-					iconBefore={Icon && <Icon label="Settings" />}
-					href={'href' in settingsConfig ? settingsConfig.href : undefined}
-					target={'target' in settingsConfig ? settingsConfig.target : undefined}
-				>
-					{intl.formatMessage(linkToolbarMessages.preferencesLink)}
-				</LinkItem>
-			</Section>
+			{'href' in settingsConfig && settingsConfig.href && (
+				<Section hasSeparator>
+					<LinkItem
+						iconBefore={Icon && <Icon label="Settings" />}
+						href={settingsConfig.href}
+						target={'target' in settingsConfig ? settingsConfig.target : undefined}
+					>
+						{intl.formatMessage(linkToolbarMessages.preferencesLink)}
+					</LinkItem>
+				</Section>
+			)}
 		</MenuGroup>
 	);
 };
@@ -208,7 +213,7 @@ export const getLinkAppearanceDropdown = ({
 }: LinkToolbarAppearanceProps & {
 	allowDatasource?: boolean;
 	settingsConfig: FloatingToolbarItem<Command>;
-}) => {
+}): FloatingToolbarDropdown<Command> => {
 	const alignmentItemOptions: DropdownOptions<Command> = {
 		render: (props) => {
 			return (

@@ -1,6 +1,77 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const findReplaceMessages = defineMessages({
+export const findReplaceMessages: {
+	closeFindReplaceDialog: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	find: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	findDialogAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	findNext: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	findPrevious: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	findReplaceDialogAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	findReplaceToolbarButton: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	matchCase: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	noResultsFound: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	replace: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	replaceAll: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	replaceSuccess: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	replaceWith: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	resultsCount: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	find: {
 		id: 'fabric.editor.find',
 		defaultMessage: 'Find',
@@ -25,6 +96,12 @@ export const findReplaceMessages = defineMessages({
 		id: 'fabric.editor.findReplaceDialogAriaLabel',
 		defaultMessage: 'Find and Replace',
 		description: 'Aria label for the "Find and Replace" dialog',
+	},
+	findDialogAriaLabel: {
+		id: 'fabric.editor.findDialogAriaLabel',
+		defaultMessage: 'Find',
+		description:
+			'Aria label for the "Find" dialog, used where the dialog offers find without replace',
 	},
 	closeFindReplaceDialog: {
 		id: 'fabric.editor.closeFindReplaceDialog',
@@ -65,6 +142,7 @@ export const findReplaceMessages = defineMessages({
 	replaceSuccess: {
 		id: 'fabric.editor.replaceSuccess',
 		defaultMessage: '{numberOfMatches, plural, one {# match replaced} other {# matches replaced}}',
-		description: 'Text when replacement succesfully done',
+		description:
+			'Status message shown after a find-and-replace operation completes. The placeholder {numberOfMatches} is the count of replaced matches and controls the plural form (one vs. other).',
 	},
 });

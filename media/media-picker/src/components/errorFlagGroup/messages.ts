@@ -1,6 +1,22 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const errorFlagMessages = defineMessages({
+export const errorFlagMessages: {
+	errorTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	uploadRejectionDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	fileEmptyDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	errorTitle: {
 		id: 'fabric.media.errorFlagTitle',
 		defaultMessage: 'Your file failed to upload',

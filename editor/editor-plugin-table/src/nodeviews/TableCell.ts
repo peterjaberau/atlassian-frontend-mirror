@@ -1,15 +1,13 @@
-import type { CellDomAttrs } from '@atlaskit/adf-schema';
-import { getCellAttrs, getCellDomAttrs } from '@atlaskit/adf-schema';
-import {
-	ACTION_SUBJECT,
-	type EditorAnalyticsAPI,
-	EVENT_TYPE,
-	TABLE_ACTION,
-} from '@atlaskit/editor-common/analytics';
+import type { CellDomAttrs } from '@atlaskit/adf-schema/tableNodes';
+import { getCellAttrs, getCellDomAttrs } from '@atlaskit/adf-schema/tableNodes';
+import { ACTION_SUBJECT, EVENT_TYPE, TABLE_ACTION } from '@atlaskit/editor-common/analytics';
+import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
+import { getRoundedTableCellEdgeState } from './rounded-table-edges';
 import TableNodeView from './TableNodeViewBase';
 
 const DEFAULT_COL_SPAN = 1;
@@ -34,6 +32,16 @@ function delayUntilIdle(cb: Function) {
 // eslint-disable-next-line require-unicode-regexp
 const cssVariablePattern = /^VAR\(--.*\)$/;
 
+const getCellDomAttrsForTableMenuUpdates = (node: PMNode): CellDomAttrs => {
+	const attrs = getCellDomAttrs(node);
+
+	if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true) && node.attrs.valign) {
+		attrs['data-valign'] = node.attrs.valign;
+	}
+
+	return attrs;
+};
+
 export default class TableCell extends TableNodeView<HTMLElement> implements NodeView {
 	private delayHandle: number | undefined;
 
@@ -45,6 +53,10 @@ export default class TableCell extends TableNodeView<HTMLElement> implements Nod
 		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
 	) {
 		super(node, view, getPos, eventDispatcher);
+
+		if (expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)) {
+			this.updateTableEdgeAttrs();
+		}
 
 		// CONFCLOUD-78239: Previously we had a bug which tried to invert the heading colour of a table
 		// Obviously design tokens can't be inverted and so it would result in `VAR(--DS-BACKGROUND-ACCENT-GRAY-SUBTLEST, #F4F5F7)`
@@ -92,13 +104,79 @@ export default class TableCell extends TableNodeView<HTMLElement> implements Nod
 		return didUpdate;
 	}
 
+	ignoreMutation(mutation: MutationRecord | { target: Node; type: 'selection' }): boolean {
+		// `data-reaches-*` are presentation-only attrs written imperatively for the rounded-corner
+		// masks. Ignore them so ProseMirror doesn't rebuild the table (and drop the header row's
+		// sticky class) on every column insert.
+		if (
+			mutation.type === 'attributes' &&
+			mutation.attributeName?.startsWith('data-reaches-') &&
+			expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+		) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Detects whether this cell visually reaches the bottom or right edge of the table
+	 * (accounting for rowspan/colspan) and sets data attributes so CSS can apply
+	 * rounded corners and transparent borders to merged cells that span to the table edges.
+	 */
+	private updateTableEdgeAttrs(): void {
+		const pos = this.getPos();
+		if (pos === undefined) {
+			return;
+		}
+
+		try {
+			const resolvedPos = this.view.state.doc.resolve(pos);
+
+			// Cell → row → table: depth-1 is the table, depth is the row
+			const tableDepth = resolvedPos.depth - 1;
+			const rowDepth = resolvedPos.depth;
+
+			if (tableDepth < 0 || rowDepth < 0) {
+				return;
+			}
+
+			const tableNode = resolvedPos.node(tableDepth);
+			if (tableNode.type.name !== 'table') {
+				return;
+			}
+
+			const cellStartInTable = pos - resolvedPos.start(tableDepth);
+
+			const edgeState = getRoundedTableCellEdgeState(tableNode, cellStartInTable);
+			if (!edgeState) {
+				return;
+			}
+
+			this.setDataAttr('data-reaches-top', edgeState.reachesTop);
+			this.setDataAttr('data-reaches-bottom', edgeState.reachesBottom);
+			this.setDataAttr('data-reaches-left', edgeState.reachesLeft);
+			this.setDataAttr('data-reaches-right', edgeState.reachesRight);
+		} catch {
+			// Position may be stale during document mutations; silently ignore.
+		}
+	}
+
+	private setDataAttr(attr: string, value: boolean): void {
+		const hasAttr = this.dom.hasAttribute(attr);
+		if (value && !hasAttr) {
+			this.dom.setAttribute(attr, 'true');
+		} else if (!value && hasAttr) {
+			this.dom.removeAttribute(attr);
+		}
+	}
+
 	private updateNodeView(node: PMNode) {
 		if (this.node.type !== node.type) {
 			return false;
 		}
 
-		const attrs = getCellDomAttrs(this.node);
-		const nextAttrs = getCellDomAttrs(node);
+		const attrs = getCellDomAttrsForTableMenuUpdates(this.node);
+		const nextAttrs = getCellDomAttrsForTableMenuUpdates(node);
 
 		const { colspan, rowspan } = getCellAttrs(this.dom);
 

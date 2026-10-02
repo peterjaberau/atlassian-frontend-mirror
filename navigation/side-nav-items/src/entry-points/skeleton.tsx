@@ -1,9 +1,11 @@
-export {
-    SkeletonMenuItem,
-    type SkeletonMenuItemProps
-} from '../ui/skeleton/skeleton-menu-item';
+export { SkeletonMenuItem, type SkeletonMenuItemProps } from '../ui/skeleton/skeleton-menu-item';
 
 export {
-    SkeletonMenuSectionHeading,
-    type SkeletonMenuSectionHeadingProps
+	SkeletonMenuItemNext,
+	type SkeletonMenuItemNextProps,
+} from '../ui/skeleton/skeleton-menu-item-next';
+
+export {
+	SkeletonMenuSectionHeading,
+	type SkeletonMenuSectionHeadingProps,
 } from '../ui/skeleton/skeleton-menu-section-heading';

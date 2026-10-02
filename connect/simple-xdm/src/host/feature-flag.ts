@@ -1,7 +1,7 @@
 // @ts-nocheck
-const allowedPlatformFeatureFlags = ['platform-visual-refresh-icons'];
+const allowedPlatformFeatureFlags = [];
 
-export function getPlatformFeatureFlags() {
+export function getPlatformFeatureFlags(): {} {
 	const flags = {};
 	if (window.connectHost && window.connectHost.getBooleanFeatureFlag) {
 		allowedPlatformFeatureFlags.forEach(

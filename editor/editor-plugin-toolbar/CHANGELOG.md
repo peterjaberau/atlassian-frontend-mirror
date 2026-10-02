@@ -1,5 +1,1537 @@
 # @atlaskit/editor-plugin-toolbar
 
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- [`feeef61c773db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/feeef61c773db) -
+  Clean up feature gate `platform_editor_blocks_patch_7`
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- [`41f0abe038464`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41f0abe038464) -
+  Clean up feature gate `platform_editor_toolbar_intent_fix`
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- [`e339b127f827a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e339b127f827a) -
+  Route `platform_editor_controls` checks that used `expValEquals` / `expValEqualsNoExposure`
+  through `editorExperiment`, so they respect the per-product experiment key (Confluence
+  `platform_editor_controls`, Jira `platform_editor_controls_jira`). Previously these checks always
+  read the Confluence experiment, which evaluated to control in Jira.
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.10
+
+### Patch Changes
+
+- [`9f67d7a39831c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f67d7a39831c) -
+  Clean up experiment `editor_a11y__primary-toolbar-aria-label_fy27`
+- Updated dependencies
+
+## 15.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- [`0165bd2a039d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0165bd2a039d1) -
+  Clean up feature gate `platform_editor_blocks_patch_9`
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- [`ac7ebc57182dd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ac7ebc57182dd) -
+  Avoid dispatching a no-op selection-toolbar transaction on every mouseup when `shouldShowToolbar`
+  is unchanged, reducing redundant shared-state updates on interaction. Behind the
+  `platform_editor_toolbar_multi_editor_fix` experiment.
+- Updated dependencies
+
+## 13.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- [`7d227f4a065e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d227f4a065e5) -
+  Prevent selection toolbar false failures when user intent suppresses the toolbar, and exclude
+  structural Shift+Arrow and unchanged-selection mouse interactions behind
+  platform_editor_toolbar_intent_fix
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- [`eec66a5b383e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eec66a5b383e5) -
+  Scope selection toolbar interactions and dropdown refocus behavior to their owning editor behind
+  the `platform_editor_toolbar_multi_editor_fix` experiment.
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`b7e3a66378c6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7e3a66378c6e) -
+  [ux] Restore the contextual toolbar when selecting text inside a reference synced block, behind
+  `platform_editor_blocks_patch_7`.
+  - `@atlaskit/editor-plugin-toolbar`: the toolbar no longer treats focus inside a nested editable
+    region that ProseMirror does not own - such as the content island a reference synced block
+    renders - as the editor being blurred.
+  - `@atlaskit/editor-synced-block-provider`: `getProviderFactory` is now side-effect free. Applying
+    parent and dynamically created providers moved to a new `syncProviders` method. Previously this
+    ran during render, scheduling a `setState` on another component mid-render, which forced an
+    extra render pass that replaced the synced block DOM and destroyed any in-progress text
+    selection.
+
+  `syncProviders` mutates the cached factory and notifies its subscribers, so call it from an effect
+  rather than during render:
+
+  ```ts
+  const providerFactory = manager.referenceManager.getProviderFactory(resourceId);
+
+  useEffect(() => {
+  	manager.referenceManager.syncProviders(resourceId);
+  }, [manager.referenceManager, resourceId, syncBlockInstance]);
+  ```
+
+  With the flag off, `getProviderFactory` keeps applying providers inline, so existing behaviour is
+  unchanged.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.34
+
+### Patch Changes
+
+- [`2bf1a4ceaf0a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bf1a4ceaf0a4) -
+  Clean up stale feature gates platform_editor_fix_md_empty_list_roundtrip,
+  platform_editor_md-mode-use-content-reconciler, platform_editor_toolbar_mode_override,
+  platform_editor_markdown_mode_hide_source_toolbar
+
+## 9.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.27
+
+### Patch Changes
+
+- [`862702aa18c98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/862702aa18c98) -
+  Remove redundant primary toolbar aria-label
+- Updated dependencies
+
+## 9.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.22
+
+### Patch Changes
+
+- [`3b5a6eca9da9d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b5a6eca9da9d) -
+  Clean up feature gate `platform_editor_toolbar_aifc_placement_overridden`
+- Updated dependencies
+
+## 9.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.11
+
+### Patch Changes
+
+- [`44469412345de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44469412345de) -
+  Clean up feature gate `platform_editor_toolbar_open_experience_fix_2`
+- Updated dependencies
+
+## 9.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.5
+
+### Patch Changes
+
+- [`1b816d3689775`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b816d3689775) -
+  Clean up feature gate `platform_editor_fix_toolbar_on_first_highlight`
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.8
+
+### Patch Changes
+
+- [`e5a3b3e2a66b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5a3b3e2a66b3) -
+  FG Cleanup platform_editor_toolbar_open_experience_fix
+- Updated dependencies
+
+## 8.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.8
+
+### Patch Changes
+
+- [`aae236457e46a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aae236457e46a) -
+  Dismiss the contextual formatting toolbar when the Remix modal is opened from the editor selection
+  toolbar.
+
+## 7.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.3.1
+
+### Patch Changes
+
+- [`a4948eba59865`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4948eba59865) -
+  Editor-5610: Fix domMutationTargetNotFound failure going up, so "Toolbars reliably open" error
+  budget does not keep burning down
+- Updated dependencies
+
+## 7.3.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`2f70251ed8022`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f70251ed8022) -
+  Clean up experiment platform_editor_experience_tracking
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`5184c3aa86e89`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5184c3aa86e89) -
+  Pin the primary toolbar to the top while in Markdown Mode source or preview view, where the
+  floating toolbar would be useless (no PM selection to anchor to). Behind the new
+  `platform_editor_toolbar_mode_override` feature gate.
+  - `editor-plugin-toolbar`: adds `commands.setContextualFormattingModeOverride` and a
+    `contextualFormattingModeOverride` field on shared state. Any plugin can compose the command
+    onto its own transaction to push a runtime override.
+  - `editor-plugin-markdown-mode`: pushes the override on `setView` and on initial mount; uses the
+    current view to short-circuit `useIsToolbarDockedToTop` so the in-toolbar toggle renders in the
+    correct slot.
+  - `editor-plugin-selection-toolbar`: `PinButton` hides when the override forces `'always-pinned'`
+    (the toggle is meaningless in that state).
+  - `editor-core` (`FullPage.tsx`, `FullPageToolbarNext.tsx`): the primary-toolbar mount gate
+    consults the runtime override so the toolbar still mounts when the override is
+    `'always-pinned'`, even if the user's docking preference is `'none'`.
+
+## 7.0.16
+
+### Patch Changes
+
+- [`0a5c224eafc8f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a5c224eafc8f) -
+  Clean up platform_editor_sel_toolbar_stacking_fix feature gate.
+
+## 7.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.24
+
+### Patch Changes
+
+- [`9ff7d1c1aa288`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ff7d1c1aa288) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 5.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.21
+
+### Patch Changes
+
+- [`b9f9976c6adcd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9f9976c6adcd) -
+  Fix selection toolbar appearing mid-drag on first page load by tracking mouse button state to
+  prevent the focus event from prematurely setting shouldShowToolbar to true
+
+## 5.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.13
+
+### Patch Changes
+
+- [`c9b7aaa42d05b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9b7aaa42d05b) -
+  Mechanical type-import autofix for editor core shell packages.
+- Updated dependencies
+
+## 5.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.8
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 5.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.6
+
+### Patch Changes
+
+- [`9ed32aea2c1d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ed32aea2c1d3) -
+  Replace feature experiment util with cross platform alternative for platform_editor_block_menu
+- Updated dependencies
+
+## 5.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.2
+
+### Patch Changes
+
+- [`b6830be30e686`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6830be30e686) -
+  Removed experiment-gated calculateToolbarPosition prop and simplified selection toolbar position
+  calculation
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- [`11f2dadbd0b51`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/11f2dadbd0b51) -
+  Adjust z-index of selection toolbar, making it inline with menus and other high priority elements.
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`5a8d797e50210`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a8d797e50210) -
+  [FFCLEANUP-91669] clean up platform_editor_hide_toolbar_tooltips_fix experiment to hide dropdown
+  menu item tooltips on hover of the dropdown menu button
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.26
+
+### Patch Changes
+
+- [`56b1e9c2172d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/56b1e9c2172d0) -
+  Fixes toolbar open experience that tracks a failure when block menu opens and closes quickly.
+- Updated dependencies
+
+## 4.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 4.1.16
 
 ### Patch Changes

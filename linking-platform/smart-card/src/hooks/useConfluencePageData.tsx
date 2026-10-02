@@ -1,7 +1,9 @@
 import { useEffect, useMemo } from 'react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { setGlobalTheme, type ThemeColorModes, themeStringToObject } from '@atlaskit/tokens';
+import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
+import type { ThemeColorModes } from '@atlaskit/tokens/theme-color-modes';
+import type { ThemeState } from '@atlaskit/tokens/theme-state';
+import { themeStringToObject } from '@atlaskit/tokens/theme-string-to-object';
 
 export enum userType {
 	ATLASSIAN_ACCOUNT = 'atlassianAccount',
@@ -28,11 +30,34 @@ export enum CONFLUENCE_EXTENSION_KEYS {
 	CANVAS = 'canvas-native-object-provider',
 }
 
-export const useConfluencePageData = (url: string, extensionKey: string) => {
+export const useConfluencePageData = (
+	url: string,
+	extensionKey: string,
+):
+	| {
+			hostname: string;
+			spaceKey: string;
+			contentId: string;
+			parentProduct: string;
+			userInfo:
+				| {
+						userId: string;
+						userIdType: userType;
+				  }
+				| undefined;
+			hash: string;
+			enableInlineComments: boolean;
+			enablePageComments: boolean;
+			themeStateObject: Partial<ThemeState> | undefined;
+			allowedFeatures: {
+				edit: string[];
+				view: string[];
+			};
+			mode: EMBEDDED_CONFLUENCE_MODE;
+			locale: string;
+	  }
+	| undefined => {
 	const parsedData = useMemo(() => {
-		if (!fg('platform_deprecate_lp_cc_embed')) {
-			return undefined;
-		}
 		if (
 			!url ||
 			typeof url !== 'string' ||

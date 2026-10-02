@@ -1,34 +1,25 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
 import React from 'react';
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
 
 import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Decoration, EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { AnalyticsEventPayload } from '../analytics';
 import { ACTION_SUBJECT, ACTION_SUBJECT_ID } from '../analytics';
+import { isSSR } from '../core-utils/is-ssr';
 import type { PMPluginFactoryParams } from '../types';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import {
 	analyticsEventKey,
-	browser,
 	getPerformanceOptions,
 	startMeasureReactNodeViewRendered,
 	stopMeasureReactNodeViewRendered,
 } from '../utils';
+import { getBrowserInfo } from '../utils/browser';
 import { ZERO_WIDTH_SPACE } from '../whitespace';
-
 import { generateUniqueNodeKey } from './generateUniqueNodeKey';
 import { getOrCreateOnVisibleObserver } from './onVisibleObserverFactory';
-
-const isSSR = Boolean(process.env.REACT_SSR);
 
 export type InlineNodeViewComponentProps = {
 	getPos: () => GetPosReturn;
@@ -384,8 +375,7 @@ function getPortalChildren<ExtraComponentProps>({
 }: {
 	Component: InlineNodeViewComponent<ExtraComponentProps>;
 	currentNode: PMNode;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	dispatchAnalyticsEvent(payload: AnalyticsEventPayload): void;
+	dispatchAnalyticsEvent: (payload: AnalyticsEventPayload) => void;
 	extraComponentProps: ExtraComponentProps;
 	nodeViewParams: NodeViewParams;
 }) {
@@ -432,11 +422,10 @@ function getPortalChildren<ExtraComponentProps>({
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					getPos={nodeViewParams.getPos as any}
 					node={currentNode}
-					// Ignored via go/ees005
-					// eslint-disable-next-line react/jsx-props-no-spreading
+					// eslint-disable-next-line react/jsx-props-no-spreading -- Spreading props to pass through dynamic component props
 					{...extraComponentProps}
 				/>
-				{browser.android ? (
+				{getBrowserInfo().android ? (
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 					<span className={`zeroWidthSpaceContainer`} contentEditable="false">
 						{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766 */}
@@ -483,6 +472,7 @@ type NodeViewParams = {
 const counterPerEditorViewMap = new WeakMap();
 // This return of this function is intended to be the value of a key
 // in a ProseMirror nodeViews object.
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function getInlineNodeViewProducer<ExtraComponentProps>({
 	pmPluginFactoryParams,
 	Component,
@@ -516,7 +506,7 @@ export function getInlineNodeViewProducer<ExtraComponentProps>({
 			node?.type?.name || '',
 		);
 
-		if (!isNodeTypeAllowedToBeVirtualized || isSSR) {
+		if (!isNodeTypeAllowedToBeVirtualized || isSSR()) {
 			return createNodeView(parameters);
 		}
 

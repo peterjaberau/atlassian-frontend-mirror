@@ -1,6 +1,6 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import { ACTION, INPUT_METHOD, PasteTypes } from '@atlaskit/editor-common/analytics';
@@ -20,6 +20,7 @@ import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { SyncBlockRendererDataAttributeName } from '@atlaskit/editor-common/sync-block';
 import {
+	removeBreakoutFromRendererSyncBlockHTML,
 	transformSingleColumnLayout,
 	transformSingleLineCodeBlockToCodeMark,
 	transformSliceNestedExpandToExpand,
@@ -27,7 +28,6 @@ import {
 	transformSliceToJoinAdjacentCodeBlocks,
 	transformSliceToRemoveLegacyContentMacro,
 	transformSliceToRemoveMacroId,
-	removeBreakoutFromRendererSyncBlockHTML,
 } from '@atlaskit/editor-common/transforms';
 import type {
 	ExtractInjectionAPI,
@@ -45,23 +45,30 @@ import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model'
 import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { contains, hasParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { handlePaste as handlePasteTable } from '@atlaskit/editor-tables/utils';
 import { insm } from '@atlaskit/insm';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { extractClientIdsFromHtml } from '@atlaskit/media-common';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import { PastePluginActionTypes } from '../editor-actions/actions';
 import { splitParagraphs, upgradeTextToLists } from '../editor-commands/commands';
 import type { PastePlugin } from '../index';
-import type { LastContentPasted } from '../pastePluginType';
+import type {
+	LastContentPasted,
+	MarkdownToPmConverter,
+	PastePluginState,
+} from '../pastePluginType';
 import {
 	transformSliceForMedia,
 	transformSliceToCorrectMediaWrapper,
 	transformSliceToMediaSingleWithNewExperience,
 	unwrapNestedMediaElements,
 } from '../pm-plugins/media';
-
 import {
 	createPasteMeasurePayload,
 	getContentNodeTypes,
@@ -81,10 +88,8 @@ import {
 	handleSelectedTableWithAnalytics,
 	sendPasteAnalyticsEvent,
 } from './analytics';
-import {
-	createClipboardTextSerializer,
-	clipboardTextSerializer,
-} from './clipboard-text-serializer';
+import { createClipboardParser } from './clipboard-parser';
+import { createClipboardTextSerializer } from './create-clipboard-text-serializer';
 import { createPluginState, pluginKey as stateKey } from './plugin-factory';
 import {
 	escapeBackslashAndLinksExceptCodeBlock,
@@ -97,12 +102,17 @@ import {
 	transformUnsupportedBlockCardToInline,
 } from './util';
 import { handleVSCodeBlock } from './util/edge-cases/handleVSCodeBlock';
+import { getMarkdownSliceViaGfm } from './util/get-markdown-slice';
 import {
+	applyContainerNodeTransformToSlice,
+	splitTablesOutOfPanelHtml,
 	handleMacroAutoConvert,
 	handleMention,
 	handleParagraphBlockMarks,
+	handlePasteExpand,
 	handleTableContentPasteInBodiedExtension,
 } from './util/handlers';
+import { normalizePastedCodeBlockAttrs } from './util/normalize-pasted-code-block-attrs';
 import { handleSyncBlocksPaste } from './util/sync-block';
 import {
 	htmlHasIncompleteTable,
@@ -114,6 +124,22 @@ export const isInsideBlockQuote = (state: EditorState): boolean => {
 	const { blockquote } = state.schema.nodes;
 
 	return hasParentNodeOfType(blockquote)(state.selection);
+};
+
+const enableNewDomainCheckToImproveSmartLinkResolveRate = (hostname: string): boolean => {
+	return (
+		// OneDrive Shortlinks
+		hostname.endsWith('1drv.ms') ||
+		// MS Teams links
+		hostname.endsWith('teams.live.com') ||
+		hostname.endsWith('teams.cloud.microsoft') ||
+		hostname.endsWith('teams.microsoft.com') ||
+		// MS Power BI
+		hostname.endsWith('powerbi.com') ||
+		// MS Azure devops
+		hostname.endsWith('dev.azure.com') ||
+		hostname.endsWith('visualstudio.com')
+	);
 };
 
 const PASTE = 'Editor Paste Plugin Paste Duration';
@@ -137,7 +163,8 @@ export function isSharePointUrl(url: string | undefined): boolean {
 		return (
 			hostname.endsWith('sharepoint.com') ||
 			hostname.endsWith('onedrive.com') ||
-			hostname.endsWith('onedrive.live.com')
+			hostname.endsWith('onedrive.live.com') ||
+			enableNewDomainCheckToImproveSmartLinkResolveRate(hostname)
 		);
 	} catch {
 		// If URL parsing fails, return false for safety
@@ -156,11 +183,24 @@ export function createPlugin(
 	sanitizePrivateContent?: boolean,
 	providerFactory?: ProviderFactory,
 	pasteWarningOptions?: PasteWarningOptions,
-) {
+	markdownToPmConverter?: MarkdownToPmConverter,
+): SafePlugin<PastePluginState> {
 	const editorAnalyticsAPI = pluginInjectionApi?.analytics?.actions;
+
 	const atlassianMarkDownParser = new MarkdownTransformer(schema, md);
 
 	function getMarkdownSlice(text: string, openStart: number, openEnd: number): Slice | undefined {
+		if (markdownToPmConverter && isExperimentEnabled('platform_editor_paste_as_md_use_gfm')) {
+			return getMarkdownSliceViaGfm(
+				text,
+				schema,
+				openStart,
+				openEnd,
+				markdownToPmConverter,
+				isExperimentEnabled('platform_editor_gfm_link_paste_fix'),
+			);
+		}
+
 		const escapedTextInput: string = escapeBackslashAndLinksExceptCodeBlock(text);
 
 		const doc = atlassianMarkDownParser.parse(escapedTextInput);
@@ -205,24 +245,20 @@ export function createPlugin(
 		}),
 		props: {
 			// For serialising to plain text
-			clipboardTextSerializer: fg('platform_editor_date_to_text')
-				? createClipboardTextSerializer(getIntl())
-				: clipboardTextSerializer,
+			clipboardTextSerializer: createClipboardTextSerializer(getIntl()),
+			clipboardParser: createClipboardParser(schema),
 			handleDOMEvents: {
 				// note
-				paste: (view, event) => {
+				paste: (view: EditorView, event: ClipboardEvent) => {
 					mostRecentPasteEvent = event as ClipboardEvent;
-					if (
-						expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true) &&
-						event.clipboardData
-					) {
+					if (event.clipboardData) {
 						insm.startHeavyTask('paste');
 					}
 					return false;
 				},
 			},
 			// note
-			handlePaste(view, rawEvent, slice) {
+			handlePaste(view: EditorView, rawEvent: Event, slice: Slice) {
 				const event = rawEvent as ClipboardEvent;
 				if (!event.clipboardData) {
 					return false;
@@ -231,6 +267,12 @@ export function createPlugin(
 				let text = event.clipboardData.getData('text/plain');
 				const html = event.clipboardData.getData('text/html');
 				const uriList = event.clipboardData.getData('text/uri-list');
+
+				// Extract clientId values from pasted HTML for media cross-product copy/paste
+				// This must be done before ProseMirror parses the HTML, as clientId is not stored in ADF
+				if (fg('platform_media_cross_client_copy_with_auth')) {
+					extractClientIdsFromHtml(html);
+				}
 				// Links copied from iOS Safari share button only have the text/uri-list data type
 				// ProseMirror don't do anything with this type so we want to make our own open slice
 				// with url as text content so link is pasted inline
@@ -257,9 +299,7 @@ export function createPlugin(
 				// Bail if copied content has files
 				if (isPastedFile) {
 					if (!html) {
-						if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-							insm.endHeavyTask('paste');
-						}
+						insm.endHeavyTask('paste');
 						/**
 						 * Microsoft Office, Number, Pages, etc. adds an image to clipboard
 						 * with other mime-types so we don't let the event reach media.
@@ -278,9 +318,7 @@ export function createPlugin(
 					 * is skipped and handled in handleRichText
 					 */
 					if (htmlContainsSingleFile(html) && !isInsideBlockQuote(view.state)) {
-						if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-							insm.endHeavyTask('paste');
-						}
+						insm.endHeavyTask('paste');
 						return true;
 					}
 
@@ -308,11 +346,9 @@ export function createPlugin(
 					if (payload) {
 						dispatchAnalyticsEvent(payload);
 					}
-					if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-						insm.endHeavyTask('paste');
-					}
+					insm.endHeavyTask('paste');
 				});
-				const getLastPastedSlice = (tr: Transaction) => {
+				const getLastReplaceStepSlice = (tr: Transaction) => {
 					let slice;
 					for (const step of tr.steps) {
 						const stepSlice = extractSliceFromStep(step);
@@ -355,13 +391,44 @@ export function createPlugin(
 						return tableExists;
 					});
 
+					// Don't flag as a paste event (add closeHistory) when the paste affects a list and
+					// the list plugin's appendTransaction will normalise the structure, and we want the
+					// paste + normalisation to be a single undo step.
+					// Pasting into an existing list — selection is inside a list node.
+					let isPastingIntoList = false;
+					// Pasting list content from an external source — slice top-level contains a list node.
+					let isPastingListContent = false;
+
+					const listNodeTypes = [
+						state.schema.nodes.bulletList,
+						state.schema.nodes.orderedList,
+						state.schema.nodes.taskList,
+					].filter((n): n is NonNullable<typeof n> => Boolean(n));
+
+					isPastingIntoList = hasParentNodeOfType(listNodeTypes)(state.selection);
+
+					for (let i = 0; i < slice.content.childCount; i++) {
+						if (listNodeTypes.includes(slice.content.child(i).type)) {
+							isPastingListContent = true;
+							break;
+						}
+					}
+
 					if (
 						!isPastingTextInsidePlaceholderText &&
 						!isPastingTable &&
 						!isPastingOverLayoutColumns &&
+						!isPastingIntoList &&
+						!isPastingListContent &&
 						pluginInjectionApi?.betterTypeHistory
 					) {
 						tr = pluginInjectionApi?.betterTypeHistory?.actions.flagPasteEvent(tr);
+					}
+
+					if (
+						expValEqualsNoExposure('platform_editor_code_block_q4_lovability', 'isEnabled', true)
+					) {
+						tr = normalizePastedCodeBlockAttrs(tr, schema.nodes.codeBlock);
 					}
 
 					const isDocChanged = tr.docChanged;
@@ -375,7 +442,7 @@ export function createPlugin(
 					// we make sure to call paste options toolbar
 					// only for a valid paste action
 					if (isDocChanged) {
-						const pastedSlice = getLastPastedSlice(tr);
+						const pastedSlice = getLastReplaceStepSlice(tr);
 						if (pastedSlice) {
 							const pasteStartPos = state.selection.from;
 
@@ -392,6 +459,7 @@ export function createPlugin(
 								pastedSlice,
 								pastedAt: Date.now(),
 								pasteSource: getPasteSource(event),
+								sourcePastedSlice: slice,
 							};
 							tr.setMeta(stateKey, {
 								type: PastePluginActionTypes.ON_PASTE,
@@ -408,18 +476,22 @@ export function createPlugin(
 
 				slice = handleParagraphBlockMarks(state, slice);
 
+				if (expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)) {
+					const destinationParentType =
+						view.state.selection.$from.node(-1)?.type.name ?? view.state.doc.type.name;
+					slice = applyContainerNodeTransformToSlice(slice, schema, destinationParentType);
+				}
+
 				slice = handleVSCodeBlock({ state, slice, event, text });
 
-				if (editorExperiment('platform_synced_block', true)) {
-					slice = handleSyncBlocksPaste(
-						slice,
-						schema,
-						getPasteSource(event),
-						html,
-						pasteWarningOptions,
-						pluginInjectionApi,
-					);
-				}
+				slice = handleSyncBlocksPaste(
+					slice,
+					schema,
+					getPasteSource(event),
+					html,
+					pasteWarningOptions,
+					pluginInjectionApi,
+				);
 
 				const plainTextPasteSlice = linkifyContent(state.schema)(slice);
 
@@ -433,24 +505,22 @@ export function createPlugin(
 					return true;
 				}
 
-				if (fg('platform_editor_fix_captions_on_copy')) {
-					if (
-						handlePasteIntoCaptionWithAnalytics(editorAnalyticsAPI)(
-							view,
-							event,
-							slice,
-							PasteTypes.richText,
-						)(state, dispatch)
-					) {
-						// Create a custom handler to avoid handling with handleRichText method
-						// As SafeInsert is used inside handleRichText which caused some bad UX like this:
-						// https://product-fabric.atlassian.net/browse/MEX-1520
+				if (
+					handlePasteIntoCaptionWithAnalytics(editorAnalyticsAPI)(
+						view,
+						event,
+						slice,
+						PasteTypes.richText,
+					)(state, dispatch)
+				) {
+					// Create a custom handler to avoid handling with handleRichText method
+					// As SafeInsert is used inside handleRichText which caused some bad UX like this:
+					// https://product-fabric.atlassian.net/browse/MEX-1520
 
-						// Converting caption to plain text needs to be handled before transformSliceForMedia
-						// as createChecked will fail when trying to create a mediaSingle node with a caption
-						// that is not plain text.
-						return true;
-					}
+					// Converting caption to plain text needs to be handled before transformSliceForMedia
+					// as createChecked will fail when trying to create a mediaSingle node with a caption
+					// that is not plain text.
+					return true;
 				}
 
 				// transform slices based on destination
@@ -489,6 +559,7 @@ export function createPlugin(
 								pluginInjectionApi?.extension?.actions?.runMacroAutoConvert,
 								cardOptions,
 								extensionAutoConverter,
+								editorAnalyticsAPI,
 							)(state, dispatch, view)
 						) {
 							// TODO: ED-26959 - handleMacroAutoConvert dispatch twice, so we can't use the helper
@@ -510,11 +581,20 @@ export function createPlugin(
 				const selectionDepth = state.selection.$head.depth;
 				const selectionParentNode = state.selection.$head.node(selectionDepth - 1);
 				const selectionParentType = selectionParentNode?.type;
-				const edgeCaseNodeTypes = [
-					schema.nodes?.panel,
-					schema.nodes?.taskList,
-					schema.nodes?.decisionList,
-				];
+				// panel_c1 is a schema variant of panel (table-in-panel); when the experiment is on,
+				// handle it the same way as a panel.
+				const edgeCaseNodeTypes = expValEquals(
+					'platform_editor_nest_table_in_panel',
+					'isEnabled',
+					true,
+				)
+					? [
+							schema.nodes?.panel,
+							schema.nodes?.panel_c1,
+							schema.nodes?.taskList,
+							schema.nodes?.decisionList,
+						]
+					: [schema.nodes?.panel, schema.nodes?.taskList, schema.nodes?.decisionList];
 
 				if (
 					slice.openStart === 0 &&
@@ -676,6 +756,7 @@ export function createPlugin(
 							pluginInjectionApi?.extension?.actions?.runMacroAutoConvert,
 							cardOptions,
 							extensionAutoConverter,
+							editorAnalyticsAPI,
 						)(state, dispatch, view)
 					) {
 						// TODO: ED-26959 - handleMacroAutoConvert dispatch twice, so we can't use the helper
@@ -729,7 +810,12 @@ export function createPlugin(
 					// Check that we are pasting in a location that does not accept
 					// breakout marks, if so we strip the mark and paste. Note that
 					// breakout marks are only valid in the root document.
-					if (selectionParentType !== state.schema.nodes.doc) {
+					if (
+						selectionParentType !== state.schema.nodes.doc &&
+						// When pasting at a root GapCursor, selection depth is 0 and there is no
+						// parent node to resolve. Treat it as doc-level so valid breakout marks stay.
+						selectionDepth !== 0
+					) {
 						const sliceCopy = Slice.fromJSON(state.schema, slice.toJSON() || {});
 
 						sliceCopy.content.descendants((node) => {
@@ -749,22 +835,6 @@ export function createPlugin(
 
 					if (!insideTable(state)) {
 						slice = transformSliceNestedExpandToExpand(slice, state.schema);
-					}
-
-					if (!fg('platform_editor_fix_captions_on_copy')) {
-						if (
-							handlePasteIntoCaptionWithAnalytics(editorAnalyticsAPI)(
-								view,
-								event,
-								slice,
-								PasteTypes.richText,
-							)(state, dispatch)
-						) {
-							// Create a custom handler to avoid handling with handleRichText method
-							// As SafeInsert is used inside handleRichText which caused some bad UX like this:
-							// https://product-fabric.atlassian.net/browse/MEX-1520
-							return true;
-						}
 					}
 
 					if (
@@ -797,7 +867,7 @@ export function createPlugin(
 				}
 				return false;
 			},
-			transformPasted(slice) {
+			transformPasted(slice: Slice) {
 				if (sanitizePrivateContent) {
 					slice = handleMention(slice, schema);
 				}
@@ -806,6 +876,10 @@ export function createPlugin(
 				 * so we merge ALL adjacent code blocks to support paste here */
 				if (pastedFromBitBucket) {
 					slice = transformSliceToJoinAdjacentCodeBlocks(slice);
+				}
+				// Filter out expand nodes if allowExpand is false
+				if (!pluginInjectionApi?.expand?.sharedState?.currentState()?.allowInsertion) {
+					slice = handlePasteExpand(slice);
 				}
 
 				slice = transformSingleLineCodeBlockToCodeMark(slice, schema);
@@ -834,7 +908,7 @@ export function createPlugin(
 
 				return slice;
 			},
-			transformPastedHTML(html) {
+			transformPastedHTML(html: string) {
 				// Fix for issue ED-4438
 				// text from google docs should not be pasted as inline code
 				if (html.indexOf('id="docs-internal-guid-') >= 0) {
@@ -876,11 +950,15 @@ export function createPlugin(
 
 				// Remove breakout marks HTML around sync block renderer nodes
 				// so the breakout mark doesn't get applied to the wrong nodes
-				if (
-					html.indexOf(SyncBlockRendererDataAttributeName) >= 0 &&
-					editorExperiment('platform_synced_block', true)
-				) {
+				if (html.indexOf(SyncBlockRendererDataAttributeName) >= 0) {
 					html = removeBreakoutFromRendererSyncBlockHTML(html);
+				}
+
+				// When platform_editor_nest_table_in_panel is OFF,
+				// move tables out of panel divs in the HTML before ProseMirror
+				// parses it — otherwise the panel schema drops the table content.
+				if (!expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)) {
+					html = splitTablesOutOfPanelHtml(html);
 				}
 
 				mostRecentPasteEvent = null;

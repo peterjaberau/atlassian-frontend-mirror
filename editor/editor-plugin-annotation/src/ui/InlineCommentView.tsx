@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
-import { AnnotationTypes } from '@atlaskit/adf-schema';
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import type {
 	AnalyticsEventPayload,
 	AnnotationAEP,
@@ -29,9 +29,8 @@ import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
-import { type annotationPlugin } from '../annotationPlugin';
+import type { annotationPlugin } from '../annotationPlugin';
 import type { AnnotationPlugin } from '../annotationPluginType';
 import {
 	closeComponent,
@@ -46,7 +45,6 @@ import {
 	getSelectionPositions,
 } from '../pm-plugins/utils';
 import { type AnnotationProviders, AnnotationTestIds } from '../types';
-
 import { AnnotationViewWrapper } from './AnnotationViewWrapper';
 
 const findPosForDOM = (sel: Selection) => {
@@ -104,7 +102,6 @@ export function InlineCommentView({
 	// As inlineComment is the only annotation present, this function is not generic
 	const { inlineComment: inlineCommentProvider } = providers;
 	const { state, dispatch } = editorView;
-	const lastSelectedAnnotationId = useRef<string>();
 
 	const { createComponent: CreateComponent, viewComponent: ViewComponent } = inlineCommentProvider;
 
@@ -147,9 +144,7 @@ export function InlineCommentView({
 	}
 
 	// Network Status
-	const networkStatusSelector = useSharedPluginStateSelector(editorAPI, 'connectivity.mode', {
-		disabled: editorExperiment('platform_editor_offline_editing_web', false),
-	});
+	const networkStatusSelector = useSharedPluginStateSelector(editorAPI, 'connectivity.mode');
 
 	if (!dom) {
 		return null;
@@ -161,15 +156,6 @@ export function InlineCommentView({
 			return null;
 		}
 
-		const currentlySelectedAnnotation = selectedAnnotations?.[0]?.id;
-		const isAnnotationSelectionChanged =
-			currentlySelectedAnnotation !== lastSelectedAnnotationId.current;
-
-		// Update the last selected annotation ID if the selection was updated
-		if (isAnnotationSelectionChanged) {
-			lastSelectedAnnotationId.current = currentlySelectedAnnotation;
-		}
-
 		const inlineNodeTypes = getRangeInlineNodeNames({ doc: state.doc, pos: selection });
 
 		//getting all text between bookmarked positions
@@ -179,13 +165,14 @@ export function InlineCommentView({
 				<CreateComponent
 					dom={dom}
 					textSelection={textSelection}
-					wasNewAnnotationSelected={!!currentlySelectedAnnotation && isAnnotationSelectionChanged}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onCreate={(id) => {
 						if (!isAnnotationManagerEnabled) {
 							const createAnnotationResult = createAnnotation(editorAnalyticsAPI, editorAPI)(
 								id,
 								AnnotationTypes.INLINE_COMMENT,
 								inlineCommentProvider.supportedBlockNodes,
+								inlineCommentProvider.isBlockNodeSupported,
 							)(editorView.state, editorView.dispatch);
 							!editorView.hasFocus() && editorView.focus();
 
@@ -194,6 +181,17 @@ export function InlineCommentView({
 							}
 						}
 					}}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					onCreateError={(id) =>
+						// This is called when optimistic create inline comment encounters an error,
+						// in which case the optimistically added annotation must be removed.
+						removeInlineCommentNearSelection(
+							id,
+							inlineCommentProvider.supportedBlockNodes,
+							inlineCommentProvider.isBlockNodeSupported,
+						)(editorView.state, editorView.dispatch)
+					}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onClose={() => {
 						if (!isAnnotationManagerEnabled) {
 							setInlineCommentDraftState(editorAnalyticsAPI, undefined, editorAPI)(false)(
@@ -213,6 +211,7 @@ export function InlineCommentView({
 
 	// View Component
 	const activeAnnotations =
+		// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 		selectedAnnotations?.filter((mark) => annotations && annotations[mark.id] === false) || [];
 	if (!ViewComponent || activeAnnotations.length === 0) {
 		return null;
@@ -260,18 +259,22 @@ export function InlineCommentView({
 				annotations={activeAnnotations}
 				getInlineNodeTypes={getInlineNodeTypes}
 				dom={dom}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onDelete={(id) =>
-					removeInlineCommentNearSelection(id, inlineCommentProvider.supportedBlockNodes)(
-						editorView.state,
-						dispatch,
-					)
+					removeInlineCommentNearSelection(
+						id,
+						inlineCommentProvider.supportedBlockNodes,
+						inlineCommentProvider.isBlockNodeSupported,
+					)(editorView.state, dispatch)
 				}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onResolve={(id) =>
 					updateInlineCommentResolvedState(editorAnalyticsAPI)(
 						{ [id]: true },
 						RESOLVE_METHOD.COMPONENT,
 					)(editorView.state, editorView.dispatch)
 				}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onClose={() => {
 					closeComponent()(editorView.state, editorView.dispatch);
 				}}

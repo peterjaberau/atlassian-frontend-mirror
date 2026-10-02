@@ -1,5 +1,550 @@
 # @atlaskit/side-nav-items
 
+## 2.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.1
+
+### Patch Changes
+
+- [`14307d3138fd3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14307d3138fd3) -
+  Refactor styles to use statically analyzable values and type-checked inline constants for Compiled
+  and Atlaspack incremental builds, preserving existing styling behavior.
+
+## 2.5.0
+
+### Minor Changes
+
+- [`b3039e05575d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b3039e05575d2) -
+  Add optional flyout-header close-button autofocus, coordinated with popup focus management to
+  preserve focus on cached opens, respect user interaction during loading, and restore the trigger
+  on dismissal. Object-list flyouts opt in behind `navx-a11y-43752-flyout-initial-focus`. Add an
+  optional `titleId` prop to `FlyoutMenuItemContent` so loading content and the loaded header can
+  share an accessible dialog name.
+
+### Patch Changes
+
+- [`2808e38fa97f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2808e38fa97f7) -
+  Replace imported constants in Compiled style keys/values with static literals guarded by type
+  assertions
+- Updated dependencies
+
+## 2.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.4
+
+### Patch Changes
+
+- [`a095cd22de095`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a095cd22de095) -
+  Make the rolled-out shape theme the default across Platform.
+
+## 2.4.3
+
+### Patch Changes
+
+- [`eac2b82a415cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eac2b82a415cd) -
+  Replace imported constants in Compiled style keys with static literals guarded by type assertions.
+
+## 2.4.2
+
+### Patch Changes
+
+- [`393071d99ae5d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/393071d99ae5d) -
+  Cleanup feature gate `navx-5180-flyout-dialog-aria-label`. Flyout dialogs now always receive their
+  accessible name from the flyout title.
+- Updated dependencies
+
+## 2.4.1
+
+### Patch Changes
+
+- [`57c18753b01aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/57c18753b01aa) -
+  Updated side navigation menu item hover and active states to use neutral subtle background tokens
+  behind the `platform-dst-tokens-finesse` feature gate.
+
+## 2.4.0
+
+### Minor Changes
+
+- [`5dabf123adf60`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dabf123adf60) -
+  Add `SkeletonMenuItemNext`, a variant of `SkeletonMenuItem` that draws its placeholders with
+  `Skeleton` from `@atlaskit/skeleton` instead of plain elements. The layout is unchanged, except
+  that the description placeholder now fills the width available to it rather than a fixed 60px.
+
+## 2.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.12
+
+### Patch Changes
+
+- [`546fd492efa66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/546fd492efa66) -
+  Updated imports that were pointing to barrel files, to point to the correct import path.
+
+## 2.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.7
+
+### Patch Changes
+
+- [`5814d24060ed4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5814d24060ed4) -
+  Updated package ownership to point to correct team, and update README.md files for each navigation
+  package to point to Atlaskit docs
+- Updated dependencies
+
+## 2.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.5
+
+### Patch Changes
+
+- [`c71b539a84fd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c71b539a84fd1) -
+  Fix critical a11y `button-name` violation in flyout-menu-item examples: give the FilterIcon
+  `IconButton` a descriptive label ("Filter recent items") so screen readers can announce it
+  correctly. Resolves ENGHEALTH-58049 / NAVX-5183.
+- Updated dependencies
+
+## 2.3.4
+
+### Patch Changes
+
+- [`2ef6cff815ece`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ef6cff815ece) -
+  Roll out stability fixes for GSN components
+
+## 2.3.3
+
+### Patch Changes
+
+- [`e499c293f4ba4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e499c293f4ba4) -
+  Fix a11y issue in test for FlyoutMenuItem
+
+## 2.3.2
+
+### Patch Changes
+
+- [`44cfa83f61092`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44cfa83f61092) -
+  Correct the list item motion transition timing. A CSS transition is governed by the timing
+  declared on the state being transitioned **into**, so the pressed timing
+  (`motion.listitem.pressed`, 100ms) belongs on `:active`, not `:hover`. Declaring it on `:hover`
+  made `normal → hover` (and `selected → hover`) animate at 100ms instead of the intended 50ms. The
+  `:hover` state now uses `motion.listitem.hovered` (50ms) across all list item consumers so both
+  hovering and unhovering animate at 50ms, while `:active` keeps `motion.listitem.pressed` (100ms)
+  and selected variants rest at `motion.listitem.selected` (100ms). Behaviour remains behind the
+  `platform-dst-motion-uplift-list-item` feature gate.
+
+## 2.3.1
+
+### Patch Changes
+
+- [`6490d22c0d837`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6490d22c0d837) -
+  Fix list item pressed motion so the hover to pressed transition uses `motion.listitem.pressed`
+  (100ms) instead of the hover timing (50ms). The pressed timing is now declared on the `:hover`
+  state so the transition into the pressed state animates correctly. Behaviour remains behind the
+  `platform-dst-motion-uplift-list-item` feature gate.
+- Updated dependencies
+
+## 2.3.0
+
+### Minor Changes
+
+- [`cf3f6291eb0cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf3f6291eb0cd) -
+  Add optional `headingLevel` prop to `MenuSectionHeading` to render the section label as a semantic
+  heading (`<h1>`–`<h6>`). When omitted, the label continues to render as a non-heading paragraph,
+  so existing usages are unchanged.
+
+  ```tsx
+  <MenuSection>
+  	<MenuSectionHeading headingLevel={3}>Section</MenuSectionHeading>
+  	<MenuList>
+  		<MenuItem>Item 1</MenuItem>
+  	</MenuList>
+  </MenuSection>
+  ```
+
+  `object-list-flyout` section headings (`ResultsPanel`) now render as `<h3>` via this prop, giving
+  the side-navigation spaces/object flyout proper heading semantics.
+
+## 2.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.2
+
+### Patch Changes
+
+- [`5c904a90dd3cb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c904a90dd3cb) -
+  Remove the not-yet-rolled-out gated list item motion implementation from the legacy
+  side-navigation package and apply the gated motion implementation to the correct side-nav-items
+  package. Enable it in the package documentation examples.
+
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`61dff3d3e5b26`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/61dff3d3e5b26) -
+  Improve global side navigation render stability behind the navx-4728-jira-stability-fixes feature
+  gate by giving each nav item type a memoised leaf component with a referentially-stable onClick
+  handler. No behaviour change when the gate is off.
+
+## 2.0.2
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 2.0.1
+
+### Patch Changes
+
+- [`a0c9149dc697c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0c9149dc697c) -
+  Fix aria-dialog-name a11y violation: add aria-labelledby to flyout menu dialog
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.14.0
+
+### Minor Changes
+
+- [`bbc3cac269586`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bbc3cac269586) -
+  Add an accessible label to the Universal Create menu group for screen readers.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.13.9
+
+### Patch Changes
+
+- [`cc4a66306965d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc4a66306965d) -
+  Cleanup feature gate `platform_dst_nav4_flyout_menu_slots_close_button`. Flyout menu slot
+  subcomponents (header, body, footer) and close button are now permanently enabled.
+- Updated dependencies
+
+## 1.13.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.13.7
+
+### Patch Changes
+
+- [`a28ad903422df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a28ad903422df) -
+  Cleanup of feature gate navx-4718-inline-drag-handle (true)
+- Updated dependencies
+
+## 1.13.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.13.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.13.4
+
+### Patch Changes
+
+- [`c8202594b3c09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c8202594b3c09) -
+  Preparing to deprecate LazyDragHandle in favour of inline this code, to avoid React hydration
+  complications
+
+## 1.13.3
+
+### Patch Changes
+
+- [`01bfb2823034b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01bfb2823034b) -
+  Expands automatic accessibility (a11y) Playwright test coverage for Platform
+- Updated dependencies
+
+## 1.13.2
+
+### Patch Changes
+
+- [`9205cdd5ef843`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9205cdd5ef843) -
+  (NAVX-3624): Fixing eslint suppression warnings in GSN
+
+## 1.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.13.0
+
+### Minor Changes
+
+- [`a8f4489e99107`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8f4489e99107) -
+  Fixes the mobile max height of flyout menu popups to use the full available space, when the
+  `platform_dst_nav4_flyout_menu_slots_close_button` gate is enabled.
+
+## 1.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.12.3
+
+### Patch Changes
+
+- [`3b4f9743f0c18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b4f9743f0c18) -
+  Enrol navigation and linking-platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+
+## 1.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.12.1
+
+### Patch Changes
+
+- [`a7ccccca79cb9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7ccccca79cb9) -
+  Clean up feature gate navx-4169-improve-gsn-code
+
+## 1.12.0
+
+### Minor Changes
+
+- [`f48c03e011b92`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f48c03e011b92) -
+  Updated usage of `SideNavContent` to `SideNavBody` due to rename in `@atlaskit/navigation-system`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.11.0
+
+### Minor Changes
+
+- [`12424cd3197be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12424cd3197be) -
+  Cleans up the `platform_dst_nav4_flyoutmenuitem_render_to_parent` feature gate. Flyout menu item
+  popups now always use `shouldRenderToParent` and are not rendered in a portal.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.0
+
+### Minor Changes
+
+- [`7719c436631e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7719c436631e8) -
+  The feature gate `platform-dst-side-nav-layering-fixes` has been cleaned up.
+  - Layers inside the side nav that are rendered to parent (`shouldRenderToParent`) will be layered
+    below the top nav and banner.
+  - Refactors have been made to the positioning and render location of the side nav panel splitter.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.9.0
+
+### Minor Changes
+
+- [`39d3ee1a3fcc2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/39d3ee1a3fcc2) -
+  Migrated flyout menu slot subcomponents (header/body/footer) to global side navigation.
+
+  Updated FlyoutBody to have position: 'relative'.
+
+### Patch Changes
+
+- [`f40f11f98477c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f40f11f98477c) -
+  Updates package description.
+
+## 1.8.0
+
+### Minor Changes
+
+- [`0de59b20501c1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0de59b20501c1) -
+  Adjusts the padding on the flyout header and body slots to prevent focus ring clipping.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.7.4
+
+### Patch Changes
+
+- [`6d87d08be8526`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d87d08be8526) -
+  Add dependency for a11y testing.
+- Updated dependencies
+
+## 1.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.7.2
+
+### Patch Changes
+
+- [`a9815b8d729e0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9815b8d729e0) -
+  Fixes the nested popup trigger styling when `platform_dst_nav4_flyout_menu_slots_close_button` is
+  enabled.
+
+## 1.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 1.7.0
 
 ### Minor Changes

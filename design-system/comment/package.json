@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/comment",
-	"version": "13.2.5",
+	"version": "14.2.6",
 	"description": "A comment displays discussions and user feedback.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -19,6 +19,9 @@
 	"atlassian": {
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Comment",
 			"category": "Forms and input"
 		}
@@ -31,13 +34,12 @@
 		"@atlaskit/lozenge": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -51,9 +53,12 @@
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
-		"react-dom": "root:*"
+		"react": "^19.0.0",
+		"react-dom": "^19.2.0"
 	},
 	"keywords": [
 		"atlaskit",
@@ -61,44 +66,16 @@
 		"react",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"ui-components": [
-				"lite-mode",
-				"primitives"
-			],
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"design-system": "v1",
-			"deprecation": "no-deprecated-imports"
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"homepage": "https://atlassian.design/components/comment",
 	"exports": {
-		"./types": "./src/types.tsx",
-		".": "./src/index.tsx"
+		"./types": "./src/entry-points/types.tsx",
+		".": "./src/index.tsx",
+		"./comment": "./src/entry-points/comment.tsx",
+		"./action-item": "./src/entry-points/action-item.tsx",
+		"./author": "./src/entry-points/author.tsx",
+		"./edited": "./src/entry-points/edited.tsx",
+		"./layout": "./src/entry-points/layout.tsx",
+		"./time": "./src/entry-points/time.tsx"
 	},
-	"platform-feature-flags": {
-		"platform-visual-refresh-icons": {
-			"type": "boolean"
-		}
-	}
+	"platform-feature-flags": {}
 }

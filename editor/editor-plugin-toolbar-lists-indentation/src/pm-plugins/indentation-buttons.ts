@@ -43,11 +43,10 @@ export function getIndentationButtonsState(
 	// Check for lists before paragraphs and headings in case
 	// the selection is in a list nested in a layout column.
 	if (isInsideListItem?.(editorState.tr)) {
-		const { indentLevel, itemIndex } = getListItemAttributes(selection.$head);
-
+		const { indentLevel } = getListItemAttributes(selection.$head);
 		return {
 			// List indent levels are zero indexed so we need to subtract 1
-			indentDisabled: itemIndex === 0 || indentLevel >= MAX_INDENTATION_LEVEL - 1,
+			indentDisabled: indentLevel >= MAX_INDENTATION_LEVEL - 1,
 			outdentDisabled: false,
 			node: 'list',
 		};

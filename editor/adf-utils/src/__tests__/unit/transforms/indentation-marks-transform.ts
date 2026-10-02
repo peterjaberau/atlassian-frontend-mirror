@@ -1,10 +1,13 @@
 import { transformIndentationMarks } from '../../../transforms/indentation-marks-transform';
-
-import tableCellWithIndentedHeadingInvalidAdf from './__fixtures__/table-cell-with-indented-heading-invalid-adf.json';
-import tableCellWithIndentedHeadingAndContentInvalidAdf from './__fixtures__/table-cell-with-indented-heading-and-content-invalid-adf.json';
 import complexDocWithIndentationMarksValidAdf from './__fixtures__/complex-doc-with-indentation-marks-valid-adf.json';
-import tableHeaderWithIndentedHeadingInvalidAdf from './__fixtures__/table-header-with-indented-heading-invalid-adf.json';
+import tableCellWithIndentedHeadingAndContentExpectedAdf from './__fixtures__/table-cell-with-indented-heading-and-content-expected-adf.json';
+import tableCellWithIndentedHeadingAndContentInvalidAdf from './__fixtures__/table-cell-with-indented-heading-and-content-invalid-adf.json';
+import tableCellWithIndentedHeadingExpectedAdf from './__fixtures__/table-cell-with-indented-heading-expected-adf.json';
+import tableCellWithIndentedHeadingInvalidAdf from './__fixtures__/table-cell-with-indented-heading-invalid-adf.json';
+import tableHeaderWithIndentedHeadingAndContentExpectedAdf from './__fixtures__/table-header-with-indented-heading-and-content-expected-adf.json';
 import tableHeaderWithIndentedHeadingAndContentInvalidAdf from './__fixtures__/table-header-with-indented-heading-and-content-invalid-adf.json';
+import tableHeaderWithIndentedHeadingExpectedAdf from './__fixtures__/table-header-with-indented-heading-expected-adf.json';
+import tableHeaderWithIndentedHeadingInvalidAdf from './__fixtures__/table-header-with-indented-heading-invalid-adf.json';
 
 describe('transformIndentationMarks', () => {
 	it('should remove indentation marks from headings inside table cells', () => {
@@ -12,7 +15,7 @@ describe('transformIndentationMarks', () => {
 			tableCellWithIndentedHeadingInvalidAdf,
 		);
 		expect(isTransformed).toEqual(true);
-		expect(transformedAdf).toMatchSnapshot();
+		expect(transformedAdf).toEqual(tableCellWithIndentedHeadingExpectedAdf);
 	});
 
 	it('should remove indentation marks from headings (mutiple content) inside table cells', () => {
@@ -20,7 +23,7 @@ describe('transformIndentationMarks', () => {
 			tableCellWithIndentedHeadingAndContentInvalidAdf,
 		);
 		expect(isTransformed).toEqual(true);
-		expect(transformedAdf).toMatchSnapshot();
+		expect(transformedAdf).toEqual(tableCellWithIndentedHeadingAndContentExpectedAdf);
 	});
 
 	it('should remove indentation marks from headings inside table headers', () => {
@@ -28,7 +31,7 @@ describe('transformIndentationMarks', () => {
 			tableHeaderWithIndentedHeadingInvalidAdf,
 		);
 		expect(isTransformed).toEqual(true);
-		expect(transformedAdf).toMatchSnapshot();
+		expect(transformedAdf).toEqual(tableHeaderWithIndentedHeadingExpectedAdf);
 	});
 
 	it('should remove indentation marks from headings (mutiple content) inside table headers', () => {
@@ -36,7 +39,7 @@ describe('transformIndentationMarks', () => {
 			tableHeaderWithIndentedHeadingAndContentInvalidAdf,
 		);
 		expect(isTransformed).toEqual(true);
-		expect(transformedAdf).toMatchSnapshot();
+		expect(transformedAdf).toEqual(tableHeaderWithIndentedHeadingAndContentExpectedAdf);
 	});
 
 	it('should not remove indentation marks in valid complex doc, transformedAdf should be unchanged', () => {

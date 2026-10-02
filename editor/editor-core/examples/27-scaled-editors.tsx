@@ -4,10 +4,10 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Inline, Stack, xcss } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
@@ -28,8 +28,7 @@ const avatar = xcss({
 });
 const Author = () => (
 	<Box xcss={user}>
-		{/* eslint-disable-next-line @atlassian/a11y/alt-text */}
-		<Box as="img" xcss={avatar} src="https://i.imgur.com/zJi8dw9.jpg"></Box>
+		<Box as="img" xcss={avatar} src="https://i.imgur.com/zJi8dw9.jpg" alt="Author avatar"></Box>
 		<Box as="span">Philip J. Fry</Box>
 	</Box>
 );
@@ -49,7 +48,7 @@ const frame = xcss({
 });
 
 const editorWrapper = css({
-	padding: token('space.100', '8px'),
+	padding: token('space.100'),
 	backgroundColor: 'white',
 	border: `${token('border.width')} solid ${token('color.border')}`,
 	borderRadius: token('radius.small'),
@@ -80,7 +79,7 @@ const editor = (
 	/>
 );
 
-const ScaledEditorsExample = () => (
+const ScaledEditorsExample = (): jsx.JSX.Element => (
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 	<Box padding="space.250">
 		<InlineCommentEditor editor={editor} />

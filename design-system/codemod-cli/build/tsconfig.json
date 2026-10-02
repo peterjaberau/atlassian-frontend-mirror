@@ -1,21 +1,21 @@
 {
-  "extends": "../tsconfig",
-  "compilerOptions": {
-    "declaration": true,
-    "paths": {}
-  },
+	"compilerOptions": {
+		"rootDir": "../src",
+		"composite": false
+	},
+	"extends": "../tsconfig",
   "include": [
-    "../src/**/*.ts"
+    "../src/**/*.tsx"
   ],
-  "exclude": [
-    "../src/**/__tests__/*",
-    "../src/**/*.test.*",
-    "../src/**/test.*",
-    "../src/**/examples.*",
-    "../src/**/examples/*",
-    "../src/**/examples/**/*",
-    "../src/**/*.stories.*",
-    "../src/**/stories/*",
-    "../src/**/stories/**/*"
-  ]
+	"exclude": [
+		"../src/**/__tests__/*",
+		"../src/**/*.test.*",
+		"../src/**/test.*",
+		"../src/**/examples.*",
+		"../src/**/examples/*",
+		"../src/**/examples/**/*",
+		"../src/**/*.stories.*",
+		"../src/**/stories/*",
+		"../src/**/stories/**/*"
+	]
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-interaction",
-	"version": "14.0.0",
+	"version": "37.0.0",
 	"description": "Interaction plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -19,7 +19,10 @@
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./interaction-plugin": "./src/entry-points/interaction-plugin.tsx",
+		"./interaction-plugin-type": "./src/entry-points/interaction-plugin-type.ts",
+		"./types": "./src/entry-points/types.ts"
 	},
 	"dependencies": {
 		"@atlaskit/editor-prosemirror": "workspace:^",
@@ -28,49 +31,12 @@
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0"
 	},
 	"platform-feature-flags": {},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			],
-			"stricter": {
-				"no-unused-dependencies": {
-					"checkDevDependencies": true
-				}
-			}
-		}
+	"devDependencies": {
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0"
 	}
 }

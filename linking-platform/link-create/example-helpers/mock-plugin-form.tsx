@@ -8,14 +8,13 @@ import {
 	useLinkCreateCallback,
 	type Validator,
 } from '../src';
-
 import { MockDisclaimer } from './mock-disclaimer';
 
 interface pluginProps {
 	shouldThrowError?: boolean;
 }
 
-export function MockPluginForm({ shouldThrowError }: pluginProps) {
+export function MockPluginForm({ shouldThrowError }: pluginProps): React.JSX.Element {
 	const { onCreate, onFailure, onCancel } = useLinkCreateCallback();
 
 	type MockOptions = {

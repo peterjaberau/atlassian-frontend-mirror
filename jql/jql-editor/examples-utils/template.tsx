@@ -1,19 +1,39 @@
 import React, { useCallback, useState } from 'react';
 
 import { action } from '@storybook/addon-actions';
-import { boolean } from '@storybook/addon-knobs';
 import { DiProvider, type Injectable } from 'react-magnetic-di';
 import { defaults as stateDefaults } from 'react-sweet-state';
 
-import { useAutocompleteProvider } from '@atlaskit/jql-editor-autocomplete-rest';
+import { useAutocompleteProvider } from '@atlaskit/jql-editor-autocomplete-rest/use-autocomplete-provider';
 
-import { JQLEditor, JQLEditorAnalyticsListener } from '../src';
+import { JQLEditorAnalyticsListener } from '../src/analytics/listener/jql-editor-analytics-listener';
 import { type ExternalMessage } from '../src/state/types';
-
-import { getAutocompleteInitialData, getAutocompleteSuggestions } from './autocomplete';
+import JQLEditor from '../src/ui/';
+import { getAutocompleteInitialData } from './get-autocomplete-initial-data';
+import { getAutocompleteSuggestions } from './get-autocomplete-suggestions';
 import { onHydrate } from './hydration';
 import { LocaleProvider } from './locale-provider';
 import { Container } from './styled';
+
+// These were used for the knobs addon, but stopped working after the Storybook 8 migration.
+// You can read about how to bring back controls here: https://hello.atlassian.net/wiki/x/J5bdgwE
+const controls = {
+	batchUpdates: {
+		control: 'boolean' as const,
+		name: 'Batch updates',
+		defaultValue: true,
+	},
+	isSearch: {
+		control: 'boolean' as const,
+		name: 'Search button',
+		defaultValue: true,
+	},
+	isCompact: {
+		control: 'boolean' as const,
+		name: 'Compact',
+		defaultValue: true,
+	},
+};
 
 export type TemplateArgs = {
 	batchUpdates?: boolean;
@@ -30,15 +50,14 @@ export type TemplateArgs = {
 export const Template = ({
 	query,
 	messages,
-	isSearch = true,
-	isCompact = true,
+	isSearch = controls.isSearch.defaultValue,
+	isCompact = controls.isCompact.defaultValue,
 	enableRichInlineNodes = true,
-	batchUpdates = boolean('Batch updates', true),
+	batchUpdates = controls.batchUpdates.defaultValue,
 	Editor = JQLEditor,
 	deps = [],
 	defaultRows,
-}: TemplateArgs) => {
-	// @ts-ignore
+}: TemplateArgs): React.JSX.Element => {
 	stateDefaults.batchUpdates = batchUpdates;
 
 	const [isSearching, setIsSearching] = useState(false);
@@ -92,8 +111,8 @@ export const Template = ({
 							onUpdate={onUpdate}
 							onRenderError={action('renderError')}
 							onDebugUnsafeMessage={action('onDebugUnsafeMessage')}
-							onSearch={boolean('Search button', isSearch) ? onSearch : undefined}
-							isCompact={boolean('Compact', isCompact)}
+							onSearch={isSearch ? onSearch : undefined}
+							isCompact={isCompact}
 							enableRichInlineNodes={enableRichInlineNodes}
 							onSyntaxHelp={onSyntaxHelp}
 							defaultRows={defaultRows}

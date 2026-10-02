@@ -1,4 +1,4 @@
-import { uuid } from '@atlaskit/adf-schema';
+import { uuid } from '@atlaskit/adf-schema/uuid';
 import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
 import { Slice } from '@atlaskit/editor-prosemirror/model';
 
@@ -8,7 +8,7 @@ import { mapFragment, mapSlice } from '../utils/slice';
  * Lift content out of "open" top-level bodiedExtensions.
  * Will not work if bodiedExtensions are nested, or when bodiedExtensions are not in the top level
  */
-export const transformSliceToRemoveOpenBodiedExtension = (slice: Slice, schema: Schema) => {
+export const transformSliceToRemoveOpenBodiedExtension = (slice: Slice, schema: Schema): Slice => {
 	const { bodiedExtension } = schema.nodes;
 
 	const fragment = mapFragment(slice.content, (node, parent, index) => {
@@ -43,7 +43,11 @@ export const transformSliceToRemoveOpenBodiedExtension = (slice: Slice, schema: 
  * Lift content out of "open" top-level multiBodiedExtensions.
  * Will not work if multiBodiedExtensions are nested, or when multiBodiedExtensions are not in the top level, which should never happen
  */
-export const transformSliceToRemoveOpenMultiBodiedExtension = (slice: Slice, schema: Schema) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const transformSliceToRemoveOpenMultiBodiedExtension = (
+	slice: Slice,
+	schema: Schema,
+): Slice => {
 	const { multiBodiedExtension, extensionFrame } = schema.nodes;
 
 	let depthToReduce = 2; // Removing MBE and extensionFrame
@@ -100,7 +104,8 @@ const isLegacyContentMacroExtension = (extensionNode: PMNode) =>
 	extensionNode.attrs?.extensionType === LEGACY_CONTENT_MACRO_EXTENSION_TYPE &&
 	extensionNode.attrs?.extensionKey === LEGACY_CONTENT_MACRO_EXTENSION_KEY;
 
-export const transformSliceToRemoveLegacyContentMacro = (slice: Slice, schema: Schema) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const transformSliceToRemoveLegacyContentMacro = (slice: Slice, schema: Schema): Slice => {
 	const { extension } = schema.nodes;
 
 	return mapSlice(slice, (node: PMNode) => {
@@ -111,20 +116,5 @@ export const transformSliceToRemoveLegacyContentMacro = (slice: Slice, schema: S
 		return node;
 	});
 };
-
-export const transformSliceToRemoveMacroId = (slice: Slice, schema: Schema) => {
-	const { extension, inlineExtension } = schema.nodes;
-
-	return mapSlice(slice, (node: PMNode) => {
-		if (
-			[extension, inlineExtension].includes(node.type) &&
-			typeof node.attrs.parameters?.macroMetadata?.macroId?.value !== 'undefined'
-		) {
-			// Strip the macroId. While pasting on the same page, macroId does not change until the page
-			// is published and causes collision with the existing macroId where switching tabs of one
-			// node changes the tabs for the other node
-			delete node.attrs.parameters.macroMetadata.macroId;
-		}
-		return node;
-	});
-};
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { transformSliceToRemoveMacroId } from './transformSliceToRemoveMacroId';

@@ -2,9 +2,8 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { parse } from 'graphql';
 
 import { fetchWithExponentialBackoff } from '../../common/utils/http';
-
-import { useQueryLight } from './main';
-import { UseQueryLightError } from './types';
+import { useQueryLight } from './useQueryLight';
+import { UseQueryLightError } from './UseQueryLightError';
 
 const fakeGraphql = `
 	query {

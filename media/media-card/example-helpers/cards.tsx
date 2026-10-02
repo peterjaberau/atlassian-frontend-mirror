@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { type FileIdentifier } from '@atlaskit/media-client';
 import {
 	createStorybookMediaClientConfig,
 	imageFileId,
@@ -12,10 +13,11 @@ import {
 	wideImageFileId,
 	largeImageFileId,
 } from '@atlaskit/media-test-helpers';
-import { type FileIdentifier } from '@atlaskit/media-client';
 
 import { createApiCards, actions } from '.';
-import { CardLoading, CardError, Card } from '../src';
+import Card from '../src/card/cardLoader';
+import { CardError } from '../src/utils/lightCards/cardError';
+import { CardLoading } from '../src/utils/lightCards/cardLoading';
 
 const mediaClientConfig = createStorybookMediaClientConfig();
 // standard

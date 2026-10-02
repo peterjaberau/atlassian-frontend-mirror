@@ -1,20 +1,29 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import Lorem from 'react-lorem-component';
-
 import Banner from '@atlaskit/banner';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
 import ErrorIcon from '@atlaskit/icon/core/status-error';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import Popup from '@atlaskit/popup';
-import { Box } from '@atlaskit/primitives/compiled';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { Popup } from '@atlaskit/popup/popup';
+import { Box, Flex, Text } from '@atlaskit/primitives/compiled';
+import Textfield from '@atlaskit/textfield/text-field';
+import { token } from '@atlaskit/tokens';
+
+import PlaceholderContent from './placeholder-content';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
+
 declare global {
 	interface Window {
 		AJS: any;
@@ -67,14 +76,20 @@ const OpenAuiFromModalExample = (): React.JSX.Element => {
 
 	return (
 		<>
-			<Banner icon={<ErrorIcon spacing="spacious" label="Error"  />} testId="basicTestId">
+			<Banner
+				icon={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<ErrorIcon label="Error" />
+					</Flex>
+				}
+				testId="basicTestId"
+			>
 				This example is intended solely for testing purposes. Please refrain from implementing it in
 				any environments, as it may lead to unintended consequences or vulnerabilities.
 			</Banner>
 			<Button aria-haspopup="dialog" appearance="primary" onClick={open} testId="ak-modal-trigger">
 				Open Modal
 			</Button>
-
 			<ModalTransition>
 				{isOpen && (
 					<Modal onClose={close} testId="ak-modal">
@@ -82,7 +97,7 @@ const OpenAuiFromModalExample = (): React.JSX.Element => {
 							<ModalTitle>Modal Title</ModalTitle>
 						</ModalHeader>
 						<ModalBody>
-							<Lorem count={2} />
+							<PlaceholderContent count={2} />
 							<Popup
 								isOpen={isPopupOpen}
 								onClose={() => setIsPopupOpen(false)}
@@ -136,9 +151,9 @@ const OpenAuiFromModalExample = (): React.JSX.Element => {
 					</header>
 					{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop */}
 					<div className="aui-dialog2-content" id="dialog-show-button--description">
-						<p>We've detected debris of some sort in a loose orbit.</p>
-						<p>I suggest we beam a section aboard for analysis...</p>
-						<input data-testid="aui-input" type="text" aria-label="Receive focus" />
+						<Text as="p">We've detected debris of some sort in a loose orbit.</Text>
+						<Text as="p">I suggest we beam a section aboard for analysis...</Text>
+						<Textfield data-testid="aui-input" aria-label="Receive focus" />
 					</div>
 					{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop */}
 					<footer className="aui-dialog2-footer">

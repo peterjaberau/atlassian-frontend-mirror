@@ -6,7 +6,7 @@ import { type FileIdentifier, type ResponseFileItem } from '@atlaskit/media-clie
 import { generateSampleFileItem } from '@atlaskit/media-test-data';
 
 import { createMockedMediaClientProvider } from './__tests__/helpers/_MockedMediaClientProvider';
-import { mediaFilePreviewCache } from './getPreview';
+import { mediaFilePreviewCache } from './getPreview/cache';
 import { useMediaImage } from './useMediaImage';
 
 const createMediaBlobUrlAttrsObject = ({
@@ -19,6 +19,7 @@ const createMediaBlobUrlAttrsObject = ({
 	id: identifier.id,
 	contextId: 'some-context',
 	collection: identifier.collectionName,
+	clientId: 'some-client-id',
 	size: 123456,
 	name: fileItem.details.name,
 	mimeType: fileItem.details.mimeType,
@@ -54,7 +55,7 @@ describe('useMediaImage', () => {
 				mediaBlobUrlAttrs,
 			},
 		});
-		expect(getImageSpy).toBeCalledTimes(1);
+		expect(getImageSpy).toHaveBeenCalledTimes(1);
 		// Waiting for the image src to be fetched
 		await waitFor(() => {
 			const imgSrc = result?.current.getImgProps().src;
@@ -90,7 +91,7 @@ describe('useMediaImage', () => {
 			},
 		});
 
-		expect(getImageSpy).toBeCalledTimes(1);
+		expect(getImageSpy).toHaveBeenCalledTimes(1);
 
 		// Waiting for the image src to be fetched
 		await waitFor(() => {
@@ -134,7 +135,7 @@ describe('useMediaImage', () => {
 			},
 		});
 
-		expect(getImageSpy).toBeCalledTimes(1);
+		expect(getImageSpy).toHaveBeenCalledTimes(1);
 
 		// Waiting for the image src to be fetched
 		await waitFor(() => {
@@ -179,7 +180,7 @@ describe('useMediaImage', () => {
 			},
 		});
 
-		expect(getImageSpy).toBeCalledTimes(1);
+		expect(getImageSpy).toHaveBeenCalledTimes(1);
 
 		// Waiting for the image src to be fetched
 		await waitFor(() => {

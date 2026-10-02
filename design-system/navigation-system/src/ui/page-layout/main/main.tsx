@@ -8,11 +8,24 @@ import { Fragment } from 'react';
 import { cssMap, jsx } from '@compiled/react';
 
 import type { StrictXCSSProp } from '@atlaskit/css';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { useSkipLink } from '../../../context/skip-links/skip-links-context';
-import { contentHeightWhenFixed, contentInsetBlockStart } from '../constants';
-import { useLayoutId } from '../id-utils';
+import { useSkipLink } from '../../../context/skip-links/use-skip-link';
+import type {
+	contentInsetBlockStart as ContentInsetBlockStartType,
+	contentHeightWhenFixed as ContentHeightWhenFixedType,
+} from '../constants';
+import { mainMinimumWidthVar } from '../constants';
+import { gridRootId } from '../root';
 import type { CommonSlotProps } from '../types';
+import { useLayoutId } from '../use-layout-id';
+import { useLayoutMainSizing } from '../use-layout-main-sizing';
+
+const contentInsetBlockStartStatic =
+	`calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px))` satisfies typeof ContentInsetBlockStartType;
+
+const contentHeightWhenFixedStatic =
+	`calc(100vh - var(--n_bnrM, 0px) - var(--n_tNvM, 0px))` satisfies typeof ContentHeightWhenFixedType;
 
 const mainElementStyles = cssMap({
 	root: {
@@ -22,16 +35,18 @@ const mainElementStyles = cssMap({
 		// point is exactly where this element is rendered to with no wiggle room. Unfortunately the CSS
 		// spec for sticky doesn't support "stick to where I'm initially rendered" so we need to tell it.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		insetBlockStart: contentInsetBlockStart,
+		insetBlockStart: contentInsetBlockStartStatic,
 		overflow: 'auto',
+		// Height is set so it takes up all of the available viewport space minus top bar + banner.
+		// Set for all sizes of viewports to allow for in-app panels (panels that live inside Main).
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
+		height: contentHeightWhenFixedStatic,
 		'@media (min-width: 64rem)': {
 			isolation: 'auto',
-			// Height is set so it takes up all of the available viewport space minus top bar + banner.
-			// This is only set on larger viewports meaning stickiness only occurs on them.
-			// On small viewports it is not sticky.
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			height: contentHeightWhenFixed,
 			position: 'sticky',
+		},
+		'@media print': {
+			height: 'auto',
 		},
 	},
 });
@@ -42,9 +57,10 @@ const mainElementStyles = cssMap({
 export function Main({
 	children,
 	xcss,
-	skipLinkLabel = 'Main Content',
+	skipLinkLabel = fg('platform_dst_nav4_skip_link_a11y_1') ? 'Main content' : 'Main Content',
 	testId,
 	id: providedId,
+	minWidth = 320,
 }: CommonSlotProps & {
 	/**
 	 * The content of the layout area.
@@ -55,19 +71,28 @@ export function Main({
 	 * Bounded style overrides.
 	 */
 	xcss?: StrictXCSSProp<'backgroundColor', never>;
+	/**
+	 * Minimum width used by the layout allocation system.
+	 */
+	minWidth?: number;
 }): JSX.Element {
 	const id = useLayoutId({ providedId });
+	useLayoutMainSizing(minWidth);
 
 	useSkipLink(id, skipLinkLabel);
 
 	return (
 		<Fragment>
+			{fg('platform-dst-chat-panel-layout') && (
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-global-styles
+				<style>{`#${gridRootId} { ${mainMinimumWidthVar}: ${minWidth}px; }`}</style>
+			)}
 			<div
 				id={id}
 				data-layout-slot
 				className={xcss}
 				role="main"
-				css={mainElementStyles.root}
+				css={[mainElementStyles.root]}
 				data-testid={testId}
 			>
 				{children}

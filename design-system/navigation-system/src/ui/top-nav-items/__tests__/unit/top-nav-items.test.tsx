@@ -1,9 +1,12 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-import { AtlassianIcon, AtlassianLogo } from '@atlaskit/logo';
+import Avatar from '@atlaskit/avatar/avatar';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
+import { AtlassianLogo } from '@atlaskit/logo/atlassian/logo';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { render } from '@atlassian/testing-library/render';
+import { screen } from '@atlassian/testing-library/screen';
+import { userEvent } from '@atlassian/testing-library/user-event';
 
 import { TopNav } from '../../../page-layout/top-nav/top-nav';
 import { TopNavEnd } from '../../../page-layout/top-nav/top-nav-end';
@@ -12,9 +15,27 @@ import { TopNavStart } from '../../../page-layout/top-nav/top-nav-start';
 import { AppSwitcher } from '../../app-switcher';
 import { CreateButton } from '../../create-button';
 import { Help } from '../../help';
+import { AppLogo } from '../../nav-logo/app-logo';
 import { CustomLogo } from '../../nav-logo/custom-logo';
 import { Search } from '../../search';
 import { Settings } from '../../settings';
+
+jest.mock('@atlaskit/icon/core/app-switcher', () => ({
+	__esModule: true,
+	default: () =>
+		require('react').createElement('svg', {
+			'data-testid': 'default-app-switcher-icon',
+		}),
+}));
+
+const CustomAppSwitcherImage = () => (
+	<Avatar
+		size="small"
+		appearance="square"
+		testId="custom-app-switcher-image"
+		src="https://example.com/app-switcher-logo.png"
+	/>
+);
 
 describe('TopNavigation', () => {
 	it('should be accessible', async () => {
@@ -44,6 +65,66 @@ describe('TopNavigation', () => {
 });
 
 describe('TopNavStart', () => {
+	describe('AppLogo', () => {
+		it('should render the secondaryName', () => {
+			passGate('platform_dst_ads_appswitcher_improvements');
+
+			render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppLogo
+						href="http://www.atlassian.design"
+						icon={AtlassianLogo}
+						name="Atlas"
+						secondaryName="Teamwork collection"
+						label="Atlas home page"
+					/>
+				</TopNavStart>,
+			);
+
+			expect(screen.getByRole('link', { name: 'Atlas home page' })).toHaveTextContent('Atlas');
+			expect(screen.getByText('Atlas')).toBeInTheDocument();
+			expect(screen.getByText('Teamwork collection')).toBeInTheDocument();
+		});
+
+		it('should not render the secondaryName', () => {
+			failGate('platform_dst_ads_appswitcher_improvements');
+
+			render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppLogo
+						href="http://www.atlassian.design"
+						icon={AtlassianLogo}
+						name="Atlas"
+						secondaryName="Teamwork collection"
+						label="Atlas home page"
+					/>
+				</TopNavStart>,
+			);
+
+			expect(screen.getByRole('link', { name: 'Atlas home page' })).toHaveTextContent('Atlas');
+			expect(screen.getByText('Atlas')).toBeInTheDocument();
+			expect(screen.queryByText('Teamwork collection')).not.toBeInTheDocument();
+		});
+
+		it('should keep the provided aria-label when the secondaryName is not provided', () => {
+			render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppLogo
+						href="http://www.atlassian.design"
+						icon={AtlassianLogo}
+						name="Atlas"
+						label="Atlas home page"
+					/>
+				</TopNavStart>,
+			);
+
+			expect(screen.getByRole('link', { name: 'Atlas home page' })).toHaveAttribute(
+				'aria-label',
+				'Atlas home page',
+			);
+		});
+	});
+
 	describe('CustomLogo', () => {
 		it('should be accessible', async () => {
 			const { container } = render(
@@ -126,6 +207,97 @@ describe('TopNavStart', () => {
 				</TopNavStart>,
 			);
 			expect(screen.getByRole('button', { name: label })).toBeVisible();
+		});
+
+		it('should render the default icon when a custom one is not provided', () => {
+			failGate('platform_dst_ads_appswitcher_improvements');
+
+			render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppSwitcher label="App switcher" testId="app-switcher" />
+				</TopNavStart>,
+			);
+
+			const button = screen.getByTestId('app-switcher');
+			const defaultIcon = screen.getByTestId('default-app-switcher-icon');
+
+			expect(button).toBeVisible();
+			expect(button).toContainElement(defaultIcon);
+			expect(screen.queryByTestId('custom-app-switcher-image')).not.toBeInTheDocument();
+		});
+
+		it('should ignore a custom image-backed icon when the gate is off', () => {
+			failGate('platform_dst_ads_appswitcher_improvements');
+
+			render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppSwitcher label="App switcher" icon={CustomAppSwitcherImage} testId="app-switcher" />
+				</TopNavStart>,
+			);
+
+			const button = screen.getByTestId('app-switcher');
+			const defaultIcon = screen.getByTestId('default-app-switcher-icon');
+
+			expect(button).toBeVisible();
+			expect(button).toContainElement(defaultIcon);
+			expect(screen.queryByTestId('custom-app-switcher-image')).not.toBeInTheDocument();
+		});
+
+		it('should render a custom image icon when the gate is on', () => {
+			passGate('platform_dst_ads_appswitcher_improvements');
+
+			render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppSwitcher label="App switcher" icon={CustomAppSwitcherImage} />
+				</TopNavStart>,
+			);
+
+			expect(screen.getByTestId('custom-app-switcher-image')).toBeVisible();
+		});
+
+		it('should forward the ref to the button when a custom icon is not provided', () => {
+			const ref = React.createRef<HTMLButtonElement>();
+
+			render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppSwitcher ref={ref} label="App switcher" testId="app-switcher" />
+				</TopNavStart>,
+			);
+
+			expect(ref.current).toBe(screen.getByTestId('app-switcher'));
+		});
+
+		it('should forward the ref to the button when a custom icon is wrapped', () => {
+			passGate('platform_dst_ads_appswitcher_improvements');
+			const ref = React.createRef<HTMLButtonElement>();
+
+			render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppSwitcher
+						ref={ref}
+						label="App switcher"
+						icon={CustomAppSwitcherImage}
+						testId="app-switcher"
+					/>
+				</TopNavStart>,
+			);
+
+			const button = screen.getByTestId('app-switcher');
+
+			expect(ref.current).toBe(button);
+			expect(button).toContainElement(screen.getByTestId('custom-app-switcher-image'));
+		});
+
+		it('should be accessible with a custom image-backed icon', async () => {
+			passGate('platform_dst_ads_appswitcher_improvements');
+
+			const { container } = render(
+				<TopNavStart sideNavToggleButton={null}>
+					<AppSwitcher label="App switcher" icon={CustomAppSwitcherImage} />
+				</TopNavStart>,
+			);
+
+			await expect(container).toBeAccessible();
 		});
 
 		it('should trigger the `onClick` when clicked', async () => {

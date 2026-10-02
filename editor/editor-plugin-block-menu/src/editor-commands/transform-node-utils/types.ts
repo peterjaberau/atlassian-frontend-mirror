@@ -18,6 +18,7 @@ export type NodeTypeName =
 	| 'multiBodiedExtension'
 	| 'orderedList'
 	| 'panel'
+	| 'panel_c1'
 	| 'paragraph'
 	| 'nestedExpand'
 	| 'taskList'
@@ -44,6 +45,7 @@ export const NODE_CATEGORY_BY_TYPE: Record<NodeTypeName, NodeCategory> = {
 	multiBodiedExtension: 'atomic',
 	orderedList: 'list',
 	panel: 'container',
+	panel_c1: 'container',
 	paragraph: 'text',
 	nestedExpand: 'container',
 	taskList: 'list',
@@ -57,15 +59,18 @@ export const isNodeTypeName = (value: string): value is NodeTypeName =>
 export const toNodeTypeValue = (value?: string | null): NodeTypeName | null =>
 	value && isNodeTypeName(value) ? value : null;
 
-export const getNodeName = (nodes: PMNode[]) => {
+export const getNodeName = (nodes: PMNode[]): string | undefined => {
 	return nodes.length > 1 ? 'multi' : nodes.at(0)?.type.name;
 };
 
 export type TransformStep = (nodes: PMNode[], context: TransformStepContext) => PMNode[];
 
+export type TargetNodeMarks = Record<string, Record<string, unknown>>;
+
 // Note: We are still deciding what should be in the context.
 export interface TransformStepContext {
 	fromNode: PMNode;
+	includeBlockTaskItems?: boolean;
 	schema: Schema;
 	targetAttrs?: Record<string, unknown>;
 	targetNodeTypeName: NodeTypeName;

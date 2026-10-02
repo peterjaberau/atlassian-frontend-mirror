@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/order
+import type { Command } from '@atlaskit/editor-common/types';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import type { Decoration } from '@atlaskit/editor-prosemirror/view';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
@@ -10,11 +12,11 @@ import {
 	createRowInsertLine,
 	updateDecorations,
 } from '../utils/decoration';
-
 import { DragAndDropActionType } from './actions';
 import { DropTargetType } from './consts';
 import { createCommand, getPluginState } from './plugin-factory';
 import { pluginKey } from './plugin-key';
+// eslint-disable-next-line import/order
 import type { TriggerType } from './types';
 
 // TODO: ED-26961 - This command is a placeholder example. Please replace this if required.
@@ -33,7 +35,7 @@ export const setDropTarget = (
 	index: number,
 	hasMergedCells: boolean,
 	tr?: Transaction,
-) =>
+): Command =>
 	createCommand(
 		(state) => {
 			const { dropTargetType, dropTargetIndex } = getPluginState(state);
@@ -67,7 +69,7 @@ export const setDropTarget = (
 		(originalTr: Transaction) => (tr || originalTr).setMeta('addToHistory', false),
 	);
 
-export const clearDropTarget = (tr?: Transaction) =>
+export const clearDropTarget = (tr?: Transaction): Command =>
 	createCommand(
 		(state) => {
 			const { dropTargetType, dropTargetIndex } = getPluginState(state);
@@ -90,7 +92,7 @@ export const moveSource = (
 	sourceIndexes: number[],
 	targetIndex: number,
 	tr?: Transaction,
-) =>
+): Command =>
 	createCommand(
 		(state) => {
 			return {
@@ -117,7 +119,7 @@ export const toggleDragMenu = (
 	direction?: TableDirection,
 	index?: number,
 	trigger: TriggerType = 'mouse',
-) =>
+): Command =>
 	createCommand(
 		(state) => {
 			const {
@@ -174,7 +176,7 @@ export const cloneSource = (
 	targetIndex: number,
 	targetDirection: 'start' | 'end',
 	tr?: Transaction,
-) =>
+): Command =>
 	createCommand(
 		(state) => {
 			return {

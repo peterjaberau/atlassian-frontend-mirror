@@ -1,35 +1,26 @@
-// Disable no-re-export rule for entry point files
-/* eslint-disable no-bitwise, @atlaskit/editor/no-re-export */
-import {
-	type Node,
-	type Type,
-	type Symbol,
-	JsxEmit,
-	SymbolFlags,
-	ObjectFlags,
-	createProgram,
-	type StringLiteralType,
-} from 'typescript';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import JSON5 from 'json5';
+import { writeFileSync } from 'fs';
 import { resolve, join } from 'path';
+
+import mkdirp from 'mkdirp';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-namespace
 import * as prettier from 'prettier';
-import mkdirp from 'mkdirp';
+// Disable no-re-export rule for entry point files
+/* eslint-disable no-bitwise, @atlaskit/editor/no-re-export */
+import { JsxEmit, SymbolFlags, ObjectFlags, createProgram, ModuleResolutionKind } from 'typescript';
+import type { Node, Type, Symbol, StringLiteralType } from 'typescript';
 
-import { default as StringSchemaNode } from './json-schema-nodes/string-schema-node';
+import JSONSchemaNode from './json-schema-nodes';
+import { default as AllOfSchemaNode } from './json-schema-nodes/all-of-schema-node';
+import { default as AnyOfSchemaNode } from './json-schema-nodes/any-of-schema-node';
 import { default as ArraySchemaNode } from './json-schema-nodes/array-schema-node';
-import { default as ObjectSchemaNode } from './json-schema-nodes/object-schema-node';
+import { default as EmptySchemaNode } from './json-schema-nodes/empty-schema-node';
 import { default as EnumSchemaNode } from './json-schema-nodes/enum-schema-node';
+import { default as ObjectSchemaNode } from './json-schema-nodes/object-schema-node';
 import { default as PrimitiveSchemaNode } from './json-schema-nodes/primitive-schema-node';
 import { default as RefSchemaNode } from './json-schema-nodes/ref-schema-node';
-import { default as EmptySchemaNode } from './json-schema-nodes/empty-schema-node';
-import { default as AnyOfSchemaNode } from './json-schema-nodes/any-of-schema-node';
-import { default as AllOfSchemaNode } from './json-schema-nodes/all-of-schema-node';
 import type SchemaNode from './json-schema-nodes/schema-node';
-import JSONSchemaNode from './json-schema-nodes';
-
+import { default as StringSchemaNode } from './json-schema-nodes/string-schema-node';
 import {
 	extractLiteralValue,
 	getTags,
@@ -59,21 +50,10 @@ export default (
 	root = 'doc_node',
 	description = 'Schema for Atlassian Document Format.',
 ): Promise<void> => {
-	// We check whether we're in the monorepo or not, and get paths if we are
-	const project = join(__dirname, '../tsconfig.json');
-	const dev = existsSync(project);
-	let entryPointsTsConfig;
-	if (dev) {
-		entryPointsTsConfig = JSON5.parse(
-			readFileSync(join(__dirname, '../../../../tsconfig.entry-points.json'), 'utf8'),
-		);
-	}
 	const program = createProgram(files, {
 		jsx: JsxEmit.React,
-		// We need our paths configuration here to compile atlaskit dependencies now that we no longer
-		// have root index.ts files
 		baseUrl: join(__dirname, '..'),
-		paths: entryPointsTsConfig?.compilerOptions.paths,
+		moduleResolution: ModuleResolutionKind.Bundler,
 	});
 	const checker = program.getTypeChecker();
 	const typeIdToDefName: Map<number, string> = new Map();

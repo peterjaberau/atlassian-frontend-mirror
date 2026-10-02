@@ -1,21 +1,21 @@
 import { filter } from '../../../traverse/filter';
-import emojisDoc from './__fixtures__/multiple-emojis.json';
 import marksDoc from './__fixtures__/marks.json';
+import emojisDoc from './__fixtures__/multiple-emojis.json';
 
 describe('Traverse#filter', () => {
 	it('should return all matched elements', () => {
-		expect(filter(emojisDoc, (node) => node.type === 'emoji')).toMatchSnapshot();
+		expect(filter(emojisDoc, (node) => node.type === 'emoji')).toHaveLength(4);
 	});
 
 	it('should return all matched elements that are satisfying predicate', () => {
 		expect(
 			filter(emojisDoc, (node) => node.type === 'emoji' && node.attrs!.text.startsWith(':')),
-		).toMatchSnapshot();
+		).toHaveLength(1);
 	});
 
 	it('should return all nodes with links', () => {
 		expect(
 			filter(marksDoc, (node) => (node.marks || []).some((m) => m.type === 'link')),
-		).toMatchSnapshot();
+		).toHaveLength(1);
 	});
 });

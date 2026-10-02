@@ -1,5 +1,5 @@
 import format from '@af/formatting/sync';
-import { spacing as tokens } from '@atlaskit/tokens/tokens-raw';
+import tokens from '@atlaskit/tokens/atlassian-spacing';
 
 const spacingTokenPrefix = 'space.';
 const negativeSuffix = '.negative';
@@ -35,6 +35,7 @@ export const createSpacingStylesFromTemplate = (): string => {
 		.join(' | ');
 
 	const output = [
+		`/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */`,
 		`export const positiveSpaceMap: {
 			${typeAndValuePositive}
 		} = {\n${typeAndValuePositive}}`,

@@ -4,10 +4,55 @@
  * This is because the API is likely to change and should not be considered stable.
  */
 
-import type { Rule } from 'eslint';
 import type * as ESTree from 'eslint-codemod-utils';
 
-import { getSourceCode } from '@atlaskit/eslint-utils/context-compat';
+/**
+ * At-rules that are allowed to be used in "grouped" form within cssMap.
+ *
+ * "Grouped" refers to the legacy Compiled syntax where an at-rule key with no parameters
+ * (matching `/^@[A-z-]+$/`) contains nested variant keys, like:
+ *
+ * ```typescript
+ * // ❌ GROUPED (not allowed for @media):
+ * cssMap({
+ *   variant: {
+ *     '@media': {                    // at-rule key with no parameters
+ *       '(min-width: 900px)': {},    // nested variants
+ *       '(min-width: 1200px)': {},
+ *     }
+ *   }
+ * })
+ *
+ * // ✅ FLAT (preferred for @media):
+ * cssMap({
+ *   variant: {
+ *     '@media (min-width: 900px)': {},   // at-rule with parameters
+ *     '@media (min-width: 1200px)': {},
+ *   }
+ * })
+ * ```
+ *
+ * However, some at-rules like `@starting-style` have no parameters and can only be
+ * written in the "grouped" form at the variant level:
+ *
+ * ```typescript
+ * // ✅ ALLOWED (only valid syntax for @starting-style):
+ * cssMap({
+ *   fade: {
+ *     '@starting-style': {    // at-rule with no parameters
+ *       opacity: 0,           // styles to apply
+ *     }
+ *   }
+ * })
+ * ```
+ *
+ * Note: This only applies to at-rules at the variant level. Nested at-rules inside
+ * other rulesets (e.g., `@starting-style` inside `@media (...)`) are handled by
+ * `walkStyleRuleset` and are not considered "grouped".
+ */
+const allowedGroupedAtRules: Set<string> = new Set([
+	'@starting-style', // Has no parameters, can only be written in grouped form
+]);
 
 type CssMapVisitorArgs =
 	| {
@@ -18,55 +63,11 @@ type CssMapVisitorArgs =
 
 type CssMapVisitor = (args: CssMapVisitorArgs) => void;
 
-export function walkCssMap({
-	context,
-	importSources,
-	visitor,
-}: {
-	context: Rule.RuleContext;
-	program: ESTree.Program;
-	importSources: string[];
-	visitor: CssMapVisitor;
-}): void {
-	const program = getSourceCode(context).ast;
-
-	const importDeclaration = program.body.find(
-		(node): node is ESTree.ImportDeclaration =>
-			node.type === 'ImportDeclaration' && importSources.includes(node.source.value as string),
-	);
-
-	const specifier = importDeclaration?.specifiers.find(
-		(specifier) =>
-			specifier.type === 'ImportSpecifier' &&
-			'name' in specifier.imported &&
-			specifier.imported.name === 'cssMap',
-	);
-
-	if (!specifier) {
-		return;
-	}
-
-	const [variable] = getSourceCode(context).scopeManager.getDeclaredVariables(specifier);
-
-	if (!variable) {
-		return;
-	}
-
-	variable.references.forEach((reference) => {
-		const identifier = reference.identifier as ESTree.Identifier & Rule.NodeParentExtension;
-
-		const { parent } = identifier;
-		if (parent.type !== 'CallExpression') {
-			return;
-		}
-
-		const variantMap = parent.arguments[0];
-		if (variantMap.type !== 'ObjectExpression') {
-			return;
-		}
-
+export function walkCssMapCall(call: ESTree.CallExpression, visitor: CssMapVisitor): void {
+	const variantMap = call.arguments[0];
+	if (variantMap?.type === 'ObjectExpression') {
 		walkCssMapVariantMap({ variantMap, visitor });
-	});
+	}
 }
 
 function walkCssMapVariantMap({
@@ -141,11 +142,14 @@ function walkCssMapAtRuleGrouping({
 		return;
 	}
 
-	visitor({
-		type: 'grouped-at-rules',
-		node: atRuleGrouping,
-		atRule,
-	});
+	// Skip reporting if the at-rule is allowed to be grouped
+	if (!allowedGroupedAtRules.has(atRule)) {
+		visitor({
+			type: 'grouped-at-rules',
+			node: atRuleGrouping,
+			atRule,
+		});
+	}
 
 	if (atRuleGrouping.value.type !== 'ObjectExpression') {
 		return;

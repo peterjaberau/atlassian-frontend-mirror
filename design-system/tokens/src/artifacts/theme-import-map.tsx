@@ -6,7 +6,7 @@
  * This allows users to compose their themes and only use the tokens that are requested.
  * When a new theme is created, the import should automatically be added to the map
  *
- * @codegen <<SignedSource::c1144182e959da59d17686bccb9fac30>>
+ * @codegen <<SignedSource::3f58b313f1e628496675dd91b81ecfa1>>
  * @codegenCommand yarn build tokens
  */
 
@@ -23,10 +23,30 @@ const themeImportsMap: Record<ThemeIds | ThemeOverrideIds, () => Promise<{ defau
       /* webpackChunkName: "@atlaskit-internal_atlassian-light-future" */
       './themes/atlassian-light-future'
     ),
+  'light-finesse': () =>
+    import(
+      /* webpackChunkName: "@atlaskit-internal_atlassian-light-finesse" */
+      './themes/atlassian-light-finesse'
+    ),
+  'light-increased-contrast-finesse': () =>
+    import(
+      /* webpackChunkName: "@atlaskit-internal_atlassian-light-increased-contrast-finesse" */
+      './themes/atlassian-light-increased-contrast-finesse'
+    ),
   'light-increased-contrast': () =>
     import(
       /* webpackChunkName: "@atlaskit-internal_atlassian-light-increased-contrast" */
       './themes/atlassian-light-increased-contrast'
+    ),
+  'UNSAFE-test-light': () =>
+    import(
+      /* webpackChunkName: "@atlaskit-internal_UNSAFE-test-light" */
+      './themes/UNSAFE-test-light'
+    ),
+  'UNSAFE-test-dark': () =>
+    import(
+      /* webpackChunkName: "@atlaskit-internal_UNSAFE-test-dark" */
+      './themes/UNSAFE-test-dark'
     ),
   'dark': () =>
     import(
@@ -37,6 +57,16 @@ const themeImportsMap: Record<ThemeIds | ThemeOverrideIds, () => Promise<{ defau
     import(
       /* webpackChunkName: "@atlaskit-internal_atlassian-dark-future" */
       './themes/atlassian-dark-future'
+    ),
+  'dark-finesse': () =>
+    import(
+      /* webpackChunkName: "@atlaskit-internal_atlassian-dark-finesse" */
+      './themes/atlassian-dark-finesse'
+    ),
+  'dark-increased-contrast-finesse': () =>
+    import(
+      /* webpackChunkName: "@atlaskit-internal_atlassian-dark-increased-contrast-finesse" */
+      './themes/atlassian-dark-increased-contrast-finesse'
     ),
   'dark-increased-contrast': () =>
     import(
@@ -53,12 +83,23 @@ const themeImportsMap: Record<ThemeIds | ThemeOverrideIds, () => Promise<{ defau
       /* webpackChunkName: "@atlaskit-internal_atlassian-typography" */
       './themes/atlassian-typography'
     ),
+  'typography-finesse': () =>
+    import(
+      /* webpackChunkName: "@atlaskit-internal_atlassian-typography-finesse" */
+      './themes/atlassian-typography-finesse'
+    ),
   'shape': () =>
     import(
       /* webpackChunkName: "@atlaskit-internal_atlassian-shape" */
       './themes/atlassian-shape'
     ),
+  'motion': () =>
+    import(
+      /* webpackChunkName: "@atlaskit-internal_atlassian-motion" */
+      './themes/atlassian-motion'
+    ),
 };
 
+export { themeImportsMap as themeImportMap };
 export default themeImportsMap;
   

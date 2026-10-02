@@ -2,37 +2,34 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { Fragment, memo, useEffect, useRef, useState } from 'react';
+import { Fragment, memo, useEffect, useRef, useState, type NamedExoticComponent } from 'react';
+import { createPortal } from 'react-dom';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, type SerializedStyles } from '@emotion/react';
-import { createPortal } from 'react-dom';
 import invariant from 'tiny-invariant';
 
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import { easeInOut } from '@atlaskit/motion/curves';
-import { durations } from '@atlaskit/motion/durations';
+import { durations } from '@atlaskit/motion/utils/durations';
 import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element';
 import { autoScrollForExternal } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/external';
 import { unsafeOverflowAutoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/unsafe-overflow/element';
-import {
-	attachClosestEdge,
-	type Edge,
-	extractClosestEdge,
-} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import {
 	draggable,
 	dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { centerUnderPointer } from '@atlaskit/pragmatic-drag-and-drop/element/center-under-pointer';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { centerUnderPointer } from '@atlaskit/pragmatic-drag-and-drop/utils/center-under-pointer';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 import { token } from '@atlaskit/tokens';
 
 import { type ColumnType } from '../../data/people';
 import { cardGap, columnGap } from '../../util/constants';
-
 import { Card } from './card';
 
 const columnStyles = css({
@@ -40,12 +37,12 @@ const columnStyles = css({
 	width: 250,
 	flexShrink: 0, // locking the column widths to force container scrolling
 	flexDirection: 'column',
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 	borderRadius: 'calc(var(--grid) * 2)',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 	transition: `background ${durations.medium}ms ${easeInOut}`,
 	position: 'relative',
-	paddingBottom: token('space.600', '0'), // a fake footer for now
+	paddingBottom: token('space.600'), // a fake footer for now
 });
 
 const scrollContainerStyles = css({
@@ -69,7 +66,7 @@ const columnHeaderStyles = css({
 	padding: 'calc(var(--grid) * 2) calc(var(--grid) * 2) calc(var(--grid) * 1)',
 	justifyContent: 'space-between',
 	flexDirection: 'row',
-	color: token('color.text.subtlest', '#626F86'),
+	color: token('color.text.subtlest'),
 	userSelect: 'none',
 });
 
@@ -88,7 +85,7 @@ const stateStyles: { [key in State['type']]: SerializedStyles | undefined } = {
 	idle: undefined,
 	'is-column-over': undefined,
 	'is-card-over': css({
-		background: token('color.background.selected.hovered', '#CCE0FF'),
+		background: token('color.background.selected.hovered'),
 	}),
 	/**
 	 * **Browser bug workaround**
@@ -113,7 +110,9 @@ const stateStyles: { [key in State['type']]: SerializedStyles | undefined } = {
 	'generate-safari-column-preview': undefined,
 };
 
-export const Column = memo(function Column({ column }: { column: ColumnType }) {
+export const Column: NamedExoticComponent<{
+	column: ColumnType;
+}> = memo(function Column({ column }: { column: ColumnType }) {
 	const columnId = column.columnId;
 	const columnRef = useRef<HTMLDivElement | null>(null);
 	const headerRef = useRef<HTMLDivElement | null>(null);
@@ -270,7 +269,7 @@ export const Column = memo(function Column({ column }: { column: ColumnType }) {
 const previewStyles = css({
 	'--grid': '8px',
 	width: 250,
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 	borderRadius: 'calc(var(--grid) * 2)',
 	padding: 'calc(var(--grid) * 2)',
 });

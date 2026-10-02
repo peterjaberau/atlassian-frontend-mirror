@@ -1,16 +1,14 @@
 import React, { useContext, useState } from 'react';
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
 import { resetMatchMedia, setMediaQuery } from '@atlassian/test-utils';
+import { render } from '@atlassian/testing-library/render';
+import { screen } from '@atlassian/testing-library/screen';
+import { userEvent } from '@atlassian/testing-library/user-event';
 
+import { SetSideNavVisibilityState } from '../../side-nav/set-side-nav-visibility-state';
+import { SideNavVisibilityState } from '../../side-nav/side-nav-visibility-state';
 import type { SideNavState, SideNavTrigger } from '../../side-nav/types';
 import { useExpandSideNav } from '../../side-nav/use-expand-side-nav';
-import {
-	SetSideNavVisibilityState,
-	SideNavVisibilityState,
-} from '../../side-nav/visibility-context';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('useExpandSideNav', () => {

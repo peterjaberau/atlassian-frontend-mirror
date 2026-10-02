@@ -1,3 +1,5 @@
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+
 import type {
 	MarkType,
 	NodeType,
@@ -44,11 +46,11 @@ export function createParagraphAtEnd(): Command {
 	};
 }
 
-// Remove this when cleaning up platform_editor_toolbar_aifc
 // eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
 /**
+ * Command-based image alignment retained for legacy alignment call sites.
  *
- * @deprecated use changeImageAlignmentTr instead
+ * @deprecated use changeImageAlignmentNext instead
  */
 export const changeImageAlignment =
 	(align?: AlignmentState): Command =>
@@ -74,37 +76,39 @@ export const changeImageAlignment =
 		return false;
 	};
 
-export const changeImageAlignmentNext = (align?: AlignmentState) => (tr: Transaction): boolean => {
-	const { from, to } = tr.selection;
-	const initialDoc = tr.doc;
-	tr.doc.nodesBetween(from, to, (node, pos) => {
-		if (node.type === tr.doc.type.schema.nodes.mediaSingle) {
-			tr.setNodeMarkup(pos, undefined, {
-				...node.attrs,
-				layout: align === 'center' ? 'center' : `align-${align}`,
-			});
+export const changeImageAlignmentNext =
+	(align?: AlignmentState) =>
+	(tr: Transaction): boolean => {
+		const { from, to } = tr.selection;
+		const initialDoc = tr.doc;
+		tr.doc.nodesBetween(from, to, (node, pos) => {
+			if (node.type === tr.doc.type.schema.nodes.mediaSingle) {
+				tr.setNodeMarkup(pos, undefined, {
+					...node.attrs,
+					layout: align === 'center' ? 'center' : `align-${align}`,
+				});
+			}
+		});
+
+		// compare tr.doc with initialDoc instead of tr.docChanged
+		// because tr passed in might have been modified prior this function
+		// e.g. see changeAlignmentTr platform/packages/editor/editor-plugin-alignment/src/editor-commands/index.ts:L197
+		if (!tr.doc.eq(initialDoc)) {
+			tr.scrollIntoView();
+			return true;
 		}
-	});
 
-	// compare tr.doc with initialDoc instead of tr.docChanged
-	// because tr passed in might have been modified prior this function
-	// e.g. see changeAlignmentTr platform/packages/editor/editor-plugin-alignment/src/editor-commands/index.ts:L197
-	if (!tr.doc.eq(initialDoc)) {
-		tr.scrollIntoView();
-		return true;
-	}
+		return false;
+	};
 
-	return false;
-};
-
-// Remove this when cleaning up platform_editor_toolbar_aifc
 // eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
 /**
+ * Command-based block-mark updates retained for media linking and toggleBlockMark.
  *
  * @deprecated use createToggleBlockMarkOnRangeNext instead, which does not require passing editorState
  */
 export const createToggleBlockMarkOnRange =
-	<T extends Object = object>(
+	<T extends object = object>(
 		markType: MarkType,
 		getAttrs: (prevAttrs?: T, node?: PMNode) => T | undefined | false,
 		allowedBlocks?:
@@ -155,7 +159,7 @@ export const createToggleBlockMarkOnRange =
 	};
 
 export const createToggleBlockMarkOnRangeNext =
-	<T extends Object = object>(
+	<T extends object = object>(
 		markType: MarkType,
 		getAttrs: (prevAttrs?: T, node?: PMNode) => T | undefined | false,
 		allowedBlocks?:
@@ -208,7 +212,7 @@ export const createToggleBlockMarkOnRangeNext =
 	};
 
 export const createToggleInlineMarkOnRange =
-	<T extends Object = object>(
+	<T extends object = object>(
 		markType: MarkType,
 		getAttrs: (prevAttrs?: T, node?: PMNode) => T | undefined | false,
 	) =>
@@ -240,18 +244,19 @@ export const createToggleInlineMarkOnRange =
 		return markApplied;
 	};
 
-// Remove this when cleaning up platform_editor_toolbar_aifc
 // eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
 /**
- * @deprecated use toggleBlockMarkTr instead
  * Toggles block mark based on the return type of `getAttrs`.
  * This is similar to ProseMirror's `getAttrs` from `AttributeSpec`
  * return `false` to remove the mark.
- * return `undefined for no-op.
+ * return `undefined` for no-op.
  * return an `object` to update the mark.
+ * Retained for Command-based alignment and indentation paths.
+ *
+ * @deprecated use toggleBlockMarkNext instead
  */
 export const toggleBlockMark =
-	<T extends Object = object>(
+	<T extends object = object>(
 		markType: MarkType,
 		getAttrs: (prevAttrs?: T, node?: PMNode) => T | undefined | false,
 		allowedBlocks?:
@@ -288,7 +293,7 @@ export const toggleBlockMark =
  * @returns true if the mark is applied, false otherwise.
  */
 export const toggleBlockMarkNext =
-	<T extends Object = object>(
+	<T extends object = object>(
 		markType: MarkType,
 		getAttrs: (prevAttrs?: T, node?: PMNode) => T | undefined | false,
 		allowedBlocks?:

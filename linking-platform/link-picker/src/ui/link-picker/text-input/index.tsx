@@ -1,6 +1,7 @@
 /**
  * @jsxRuntime classic
  * @jsx jsx
+ * @jsxFrag React.Fragment
  */
 import React, {
 	Fragment,
@@ -17,12 +18,17 @@ import { css, jsx } from '@compiled/react';
 import { useMergeRefs } from 'use-callback-ref';
 
 import { cssMap } from '@atlaskit/css';
-import { ErrorMessage, Field } from '@atlaskit/form';
-import Selectclear from '@atlaskit/icon/core/cross-circle';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import Field from '@atlaskit/form/field';
+import { HelperMessage } from '@atlaskit/form/helper-message';
+import { MessageWrapper } from '@atlaskit/form/message-wrapper';
+import CrossCircleIcon from '@atlaskit/icon/core/cross-circle';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Pressable } from '@atlaskit/primitives/compiled';
-import Textfield, { type TextFieldProps } from '@atlaskit/textfield';
+import Textfield from '@atlaskit/textfield/text-field';
+import type { TextfieldProps as TextFieldProps } from '@atlaskit/textfield/types';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import {
 	ConditionalSpotlightTargetWrapper,
@@ -59,7 +65,7 @@ const baseFieldStyles = css({
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'& + &': {
-		marginTop: token('space.200', '16px'),
+		marginTop: token('space.200'),
 	},
 });
 
@@ -82,19 +88,21 @@ export type TextInputProps = Omit<TextFieldProps, 'name' | 'value'> &
 		value: string;
 		label?: string;
 		// overrides default browser undo behaviour (cmd/ctrl + z) with that function
-		onUndo?: Function;
+		onUndo?: () => void;
 		// overrides default browser redo behaviour (cm + shift + z / ctrl + y) with that function
-		onRedo?: Function;
+		onRedo?: () => void;
 		onClear?: (name: string) => void;
 		clearLabel?: string;
 		error?: React.ReactNode;
 		/** Ref to the link picker search input. */
 		inputRef?: Ref<HTMLInputElement>;
+		helperMessage?: string;
 	};
 
 export const testIds = {
 	urlError: 'link-error',
 	clearUrlButton: 'clear-text',
+	linkHelperText: 'link-helper-text',
 };
 
 export const TextInput = ({
@@ -110,8 +118,9 @@ export const TextInput = ({
 	spotlightTargetName,
 	inputRef: inputRefProp,
 	isRequired = false,
+	helperMessage,
 	...restProps
-}: TextInputProps) => {
+}: TextInputProps): JSX.Element => {
 	const inputRef: MutableRefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
 
 	const handleRef = useCallback(
@@ -167,7 +176,7 @@ export const TextInput = ({
 				onClick={handleClear}
 				testId={testIds.clearUrlButton}
 			>
-				<Selectclear
+				<CrossCircleIcon
 					label={clearLabel || ''}
 					color={token('color.icon.subtle')}
 					spacing="spacious"
@@ -194,9 +203,23 @@ export const TextInput = ({
 									ref={textfieldRef}
 									elemAfterInput={clearText}
 									isInvalid={!!error}
-									aria-describedby={`${restProps['aria-describedby']} ${fieldProps.id}-error`}
+									aria-describedby={`${restProps['aria-describedby']} ${fieldProps.id}-error ${fieldProps.id}-helper`}
 								/>
-								{error && <ErrorMessage testId={testIds.urlError}>{error}</ErrorMessage>}
+								{fg('platform_navx_3298_message_wrapper') ? (
+									<MessageWrapper>
+										{helperMessage && (
+											<HelperMessage testId={testIds.linkHelperText}>{helperMessage}</HelperMessage>
+										)}
+										{error && <ErrorMessage testId={testIds.urlError}>{error}</ErrorMessage>}
+									</MessageWrapper>
+								) : (
+									<>
+										{helperMessage && (
+											<HelperMessage testId={testIds.linkHelperText}>{helperMessage}</HelperMessage>
+										)}
+										{error && <ErrorMessage testId={testIds.urlError}>{error}</ErrorMessage>}
+									</>
+								)}
 							</Fragment>
 						</ConditionalSpotlightTargetWrapper>
 					);

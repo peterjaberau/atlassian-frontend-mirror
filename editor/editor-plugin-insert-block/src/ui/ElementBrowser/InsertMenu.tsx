@@ -5,17 +5,17 @@
 import type { ComponentClass, HTMLAttributes, ReactElement } from 'react';
 import { useCallback, useContext, useLayoutEffect, useMemo, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx, type SerializedStyles } from '@emotion/react';
-import { type MessageDescriptor, useIntl } from 'react-intl-next';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports, jsdoc/require-description -- Ignored via go/DSP-18766; jsdoc debt surfaced by this mechanical PR */
+import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
+import { useIntl } from 'react-intl';
+import type { MessageDescriptor } from 'react-intl';
 import { CellMeasurerCache } from 'react-virtualized/dist/commonjs/CellMeasurer';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { ELEMENT_ITEM_HEIGHT, ElementBrowser } from '@atlaskit/editor-common/element-browser';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type { QuickInsertItem } from '@atlaskit/editor-common/provider-factory';
 import {
 	messages,
@@ -35,38 +35,29 @@ import {
 	withReactEditorViewOuterListeners as withOuterListeners,
 } from '@atlaskit/editor-common/ui-react';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
-import { N0, N30A, N60A } from '@atlaskit/theme/colors';
-import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
+import { expVal, expValNoExposure } from '@atlaskit/tmp-editor-statsig/expVal';
 import { token } from '@atlaskit/tokens';
 
 import type { insertBlockPlugin } from '../../insertBlockPlugin';
-
 import type { InsertMenuProps, SvgGetterParams } from './types';
 
 export const DEFAULT_HEIGHT = 560;
 
 /**
- * Exported helper to allow testing of InsertMenu pinning logic. NOTE: this is
-   *not* the ideal way to approach this, quickinsert plugin provides a `getSuggestions`
-   method that can be used to get suggestions -> once all experiments are cleaned up,
-   they should be unified through `pluginInjectionApi?.quickInsert?.actions.getSuggestions`
-
-   `cc_fd_db_top_editor_toolbar` experiment adds new logic to sort elements by `priority`
-   this newer implementation matches how the "quick insert menu" sorts elements
+ * Exported helper to allow testing of InsertMenu pinning logic.
+ *
+ * The `cc_fd_db_top_editor_toolbar` experiment adds new logic to sort elements by `priority`.
+ * This newer implementation matches how the quick insert menu sorts elements.
  */
-export const sortPrioritizedElements = (
+export const sortFeaturedItems = (
 	featuredItems: QuickInsertItem[],
 	formatMessage: (msg: MessageDescriptor) => string,
 ): QuickInsertItem[] => {
-	// temporary for A/A test
-	['new-description', 'orig-description'].includes(
-		expVal('cc_fd_db_top_editor_toolbar_aa', 'cohort', 'control'),
-	)
-
 	if (
 		['new-description', 'orig-description'].includes(
 			expVal('cc_fd_db_top_editor_toolbar', 'cohort', 'control'),
-		)
+		) ||
+		expValNoExposure('cc_fd_wb_jira_quick_insert_experiment', 'isEnabled', false)
 	) {
 		// Sort by priority (lower first) on the concatenated list so items
 		// with "priority" are at the top (e.g. Whiteboard before Database)
@@ -78,7 +69,7 @@ export const sortPrioritizedElements = (
 			);
 	}
 
-	// old logic sort whiteboards to top
+	// NOTE: this is *not* the ideal way to approach this. Old logic sort whiteboards to top
 	const DIAGRAM_KEY = 'whiteboard-extension:create-diagram';
 	const isDiagram = (item: QuickInsertItem) => item.key === DIAGRAM_KEY;
 
@@ -121,7 +112,7 @@ const InsertMenu = ({
 	onInsert,
 	toggleVisiblity,
 	pluginInjectionApi,
-}: InsertMenuProps) => {
+}: InsertMenuProps): jsx.JSX.Element => {
 	const [itemCount, setItemCount] = useState(0);
 	const [height, setHeight] = useState(DEFAULT_HEIGHT);
 	const { formatMessage } = useIntl();
@@ -138,6 +129,7 @@ const InsertMenu = ({
 		// Figure based on visuals to exclude the searchbar, padding/margin, and the ViewMore item.
 		const EXTRA_SPACE_EXCLUDING_ELEMENTLIST = 128;
 		const totalItemHeight =
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 			[...Array(itemCount)].reduce((sum, _, index) => sum + cache.rowHeight({ index }), 0) +
 			EXTRA_SPACE_EXCLUDING_ELEMENTLIST;
 
@@ -228,7 +220,7 @@ const InsertMenu = ({
 					featuredQuickInsertSuggestions,
 				) as QuickInsertItem[];
 				// need to sort on the concatenated list so desired elements are at the top
-				result = sortPrioritizedElements(unfilteredResult, formatMessage);
+				result = sortFeaturedItems(unfilteredResult, formatMessage);
 			}
 			setItemCount(result.length);
 			return result;
@@ -302,14 +294,9 @@ const insertMenuWrapper = (height: number) => {
 		width: '320px',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 		height: `${height}px`,
-		backgroundColor: `${token('elevation.surface.overlay', N0)}`,
+		backgroundColor: `${token('elevation.surface.overlay')}`,
 		borderRadius: token('radius.small', '3px'),
-		boxShadow: `${token(
-			'elevation.shadow.overlay',
-			`0 0 0 1px ${N30A},
-    0 2px 1px ${N30A},
-    0 0 20px -6px ${N60A}`,
-		)}`,
+		boxShadow: `${token('elevation.shadow.overlay')}`,
 	});
 };
 

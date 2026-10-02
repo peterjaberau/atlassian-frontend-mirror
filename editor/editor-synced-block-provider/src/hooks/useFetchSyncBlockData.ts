@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { type RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
+import type { RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
 import { logException } from '@atlaskit/editor-common/monitoring';
 import type { ProviderFactory, MediaProvider } from '@atlaskit/editor-common/provider-factory';
 
-import { SyncBlockError } from '../common/types';
+import { isProviderNotReadyError, SyncBlockError } from '../common/types';
 import type { SyncBlockInstance } from '../providers/types';
 import type { SyncBlockStoreManager } from '../store-manager/syncBlockStoreManager';
-import { createSyncBlockNode } from '../utils/utils';
+import {
+	buildFetchErrorAttribution,
+	fetchErrorPayload,
+	getPiiSafeOriginalError,
+} from '../utils/errorHandling';
+import { createSyncBlockNode, getSourceProductFromResourceIdSafe } from '../utils/utils';
 
 type SSRProviders = { media?: MediaProvider | null };
 
@@ -24,7 +29,7 @@ export const useFetchSyncBlockData = (
 	manager: SyncBlockStoreManager,
 	resourceId?: string,
 	localId?: string,
-	_fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
+	fireAnalyticsEvent?: (payload: RendererSyncBlockEventPayload) => void,
 ): UseFetchSyncBlockDataResult => {
 	// Initialize both states from a single cache lookup to avoid race conditions.
 	// When a block is moved/remounted, the old component's cleanup may clear the cache
@@ -41,8 +46,21 @@ export const useFetchSyncBlockData = (
 		return { syncBlockInstance: null, isLoading: true };
 	});
 
+	// On Jira the data provider is wired asynchronously, so the manager can be
+	// constructed with `dataProvider === undefined`. Fetching/subscribing in that
+	// window throws `Data provider not set`, logged as a false fetch error
+	// (EDITOR-7860). Check readiness; once the provider resolves a new manager
+	// instance is created so `referenceManager` changes identity and the effect
+	// below re-runs, subscribing exactly once.
+	const isDataProviderReady = manager.referenceManager.hasDataProvider?.() ?? false;
+
 	const reloadData = useCallback(async () => {
 		if (isLoading) {
+			return;
+		}
+
+		// Not ready: skip fetch, emit no error (see readiness note above).
+		if (!isDataProviderReady) {
 			return;
 		}
 
@@ -57,28 +75,64 @@ export const useFetchSyncBlockData = (
 			// Fetch sync block data, the `subscribeToSyncBlock` will update the state once data is fetched
 			await manager.referenceManager.fetchSyncBlocksData([syncBlockNode]);
 		} catch (error) {
+			// EDITOR-7860: benign not-ready throw — emit no error and stay loading
+			// so it resolves on retry once the provider is wired. Checked before
+			// `logException` so the benign case produces no exception-tracker noise.
+			if (isProviderNotReadyError(error)) {
+				setFetchState((prev) => ({ ...prev, isLoading: true }));
+				return;
+			}
+
 			logException(error as Error, {
 				location: 'editor-synced-block-provider/useFetchSyncBlockData',
 			});
-			manager?.referenceManager?.fetchExperience?.failure({ reason: (error as Error).message });
 
-			// Set error state if fetching fails
+			fireAnalyticsEvent?.(
+				fetchErrorPayload(
+					(error as Error).message,
+					resourceId,
+					getSourceProductFromResourceIdSafe(resourceId),
+					buildFetchErrorAttribution((error as Error).message),
+				),
+			);
+
+			// Thread the PII-safe original message/name so the renderer can de-opaque
+			// this otherwise-bare `errored` failure. `originalMessage` carries the
+			// Error.message and is preferred over `reason` by the renderer, so no
+			// separate `reason` is set here.
 			setFetchState({
 				syncBlockInstance: {
 					resourceId: resourceId || '',
-					error: { type: SyncBlockError.Errored },
+					error: {
+						type: SyncBlockError.Errored,
+						...getPiiSafeOriginalError(error),
+					},
 				},
 				isLoading: false,
 			});
 			return;
 		}
 		setFetchState((prev) => ({ ...prev, isLoading: false }));
-	}, [isLoading, localId, manager.referenceManager, resourceId]);
+	}, [
+		isLoading,
+		isDataProviderReady,
+		localId,
+		manager.referenceManager,
+		resourceId,
+		fireAnalyticsEvent,
+	]);
 
 	useEffect(() => {
 		if (isSSR()) {
 			// in SSR, we don't need to subscribe to updates,
 			// instead we rely on pre-fetched data ONLY, see initialization of syncBlockInstance above
+			return;
+		}
+
+		// Not ready: skip subscribe (it would trigger a batched fetch and a false
+		// error) and keep `isLoading: true`. `isDataProviderReady` is in the deps,
+		// so the effect re-runs and subscribes once the provider resolves.
+		if (!isDataProviderReady) {
 			return;
 		}
 
@@ -93,7 +147,32 @@ export const useFetchSyncBlockData = (
 		return () => {
 			unsubscribe();
 		};
-	}, [localId, manager.referenceManager, resourceId]);
+	}, [isDataProviderReady, localId, manager.referenceManager, resourceId]);
+
+	// Pure read, safe during render. The individual provider references are effect
+	// dependencies below so a provider swapped by the host is re-applied to the
+	// cached factory, which would otherwise keep serving the previous one.
+	const { parentDataProviders, providerCreator } =
+		manager.referenceManager.getProviderOptions?.() ?? {};
+
+	// Applying providers notifies subscribers synchronously, so it must not run during
+	// render - that would setState on another component mid-render and remount the block.
+	useEffect(() => {
+		if (!resourceId || isSSR()) {
+			return;
+		}
+		manager.referenceManager.syncProviders(resourceId);
+		// `syncBlockInstance` is a dependency because the dynamic providers are derived
+		// from the fetched block data, so they can only be created once it has arrived.
+	}, [
+		manager.referenceManager,
+		resourceId,
+		syncBlockInstance,
+		parentDataProviders?.mentionProvider,
+		parentDataProviders?.profilecardProvider,
+		parentDataProviders?.taskDecisionProvider,
+		providerCreator,
+	]);
 
 	const ssrProviders = useMemo(() => {
 		return resourceId ? manager.referenceManager.getSSRProviders(resourceId) : null;

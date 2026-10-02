@@ -3,6 +3,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { forwardRef, type ReactNode, type Ref } from 'react';
 
 import { type CompiledStyles, jsx, cssMap as unboundedCssMap } from '@compiled/react';
@@ -12,7 +13,7 @@ import { UNSAFE_inverseColorMap } from '@atlaskit/primitives';
 import { UNSAFE_useSurface } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { useHeading } from './heading-context';
+import { useHeading } from './use-heading';
 
 type HeadingColor = 'color.text' | 'color.text.inverse' | 'color.text.warning.inverse';
 
@@ -179,11 +180,7 @@ const Heading: React.ForwardRefExoticComponent<
 			data-testid={testId}
 			role={needsAriaRole ? 'heading' : undefined}
 			aria-level={needsAriaRole ? hLevel : undefined}
-			css={[
-				styles.reset,
-				headingSizeStyles[size],
-				headingColorStyles[color],
-			]}
+			css={[styles.reset, headingSizeStyles[size], headingColorStyles[color]]}
 		>
 			{children}
 		</Component>

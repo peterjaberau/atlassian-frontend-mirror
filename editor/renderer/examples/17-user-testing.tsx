@@ -1,8 +1,9 @@
 import React from 'react';
+
+import Button from '@atlaskit/button/default/button';
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
 import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
-import Button from '@atlaskit/button/new';
+import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
 import { token } from '@atlaskit/tokens';
 
 const LOCALSTORAGE_defaultDocKey = 'fabric.editor.example.full-page';
@@ -43,7 +44,7 @@ export default class ExampleRenderer extends React.Component {
 								Edit
 							</Button>
 						</div>
-						<h1 style={{ margin: `${token('space.250', '20px')} 0` }}>
+						<h1 style={{ margin: `${token('space.250')} 0` }}>
 							{localStorage ? localStorage.getItem(LOCALSTORAGE_defaultTitleKey) : null}
 						</h1>
 						<Renderer

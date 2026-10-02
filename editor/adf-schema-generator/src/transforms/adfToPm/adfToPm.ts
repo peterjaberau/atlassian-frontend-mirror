@@ -1,11 +1,15 @@
+import type { ADFMark } from '../../adfMark';
 import type { ADFNode } from '../../adfNode';
 import { traverse } from '../../traverse';
-import { pmNodeGroupsCodeGen } from './pmNodeGroupsCodeGen';
-import { pmNodesCodeGen } from './pmNodesCodeGen';
-import { pmMarksCodeGen } from './pmMarksCodeGen';
-import { buildMarkSpec, buildNodeSpec } from './buildPmSpec';
+import { PMSpecTransformerName } from '../transformerNames';
 import { buildContentExpression } from './buildContentExpression';
 import { buildNodeTypeDefinition } from './buildPmNodeTypes';
+import { buildMarkSpec, buildNodeSpec } from './buildPmSpec';
+import { getNodeNames } from './getNodeNames';
+import { pmMarksCodeGen } from './pmMarksCodeGen';
+import { pmNodeGroupsCodeGen } from './pmNodeGroupsCodeGen';
+import { pmNodesCodeGen } from './pmNodesCodeGen';
+import { PSEUDO_GROUPS } from './pseudoGroups';
 import type {
 	ContentVisitorReturnType,
 	GroupVisitorReturnType,
@@ -13,10 +17,6 @@ import type {
 	NodeSpecResMap,
 	NodeVisitorReturnType,
 } from './types';
-import { PMSpecTransformerName } from '../transformerNames';
-import { PSEUDO_GROUPS } from './pseudoGroups';
-import type { ADFMark } from '../../adfMark';
-import { getNodeNames } from './getNodeNames';
 
 function isNodeReturnValue(
 	value: NodeVisitorReturnType | GroupVisitorReturnType,
@@ -30,11 +30,15 @@ function isGroupReturnValue(
 	return value && 'group' in value;
 }
 
+function getPmContentExpressionNames(node: ADFNode): Array<string> {
+	return node.getSpec().preserveVariantNameInPm ? [node.getName()] : [node.getType()];
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function transform(adf: ADFNode<any, any>): {
-    markResMap: Record<string, MarkSpecResMap>;
-    nodeGroupMap: Record<string, string[]>;
-    nodeResMap: Record<string, NodeSpecResMap>;
+	markResMap: Record<string, MarkSpecResMap>;
+	nodeGroupMap: Record<string, string[]>;
+	nodeResMap: Record<string, NodeSpecResMap>;
 } {
 	const nodeResMap: Record<string, NodeSpecResMap> = {};
 	const markResMap: Record<string, MarkSpecResMap> = {};
@@ -117,7 +121,7 @@ export function transform(adf: ADFNode<any, any>): {
 					 */
 					if (PSEUDO_GROUPS.has(child.group)) {
 						for (const member of child.members) {
-							expr.push(member.node.getType());
+							expr.push(...getPmContentExpressionNames(member.node));
 							contentTypes.push(...getNodeNames(member.node));
 						}
 					} else {
@@ -141,7 +145,7 @@ export function transform(adf: ADFNode<any, any>): {
 						}
 					}
 				} else if (isNodeReturnValue(child)) {
-					expr.push(child.node.getType());
+					expr.push(...getPmContentExpressionNames(child.node));
 					contentTypes.push(...getNodeNames(child.node));
 					if (child.node.getMarks().length) {
 						for (const mark of child.node.getMarksTypes()) {
@@ -198,6 +202,7 @@ export function transform(adf: ADFNode<any, any>): {
 		if (!nodeSpecRes.pmNodeSpec.group) {
 			continue;
 		}
+		// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 		nodeSpecRes.pmNodeSpec.group = (nodeSpecRes.pmNodeSpec.group.split(' ') ?? [])
 			.filter((group: string) => !ignoredGroups.has(group))
 			.join(' ');
@@ -215,11 +220,13 @@ export function transform(adf: ADFNode<any, any>): {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function adfToPm(adfNode: ADFNode<any>): {
-    pmMarks: string;
-    pmNodeGroups: string;
-    pmNodes: string;
-} | undefined {
+export function adfToPm(adfNode: ADFNode<any>):
+	| {
+			pmMarks: string;
+			pmNodeGroups: string;
+			pmNodes: string;
+	  }
+	| undefined {
 	try {
 		const { nodeGroupMap, markResMap, nodeResMap } = transform(adfNode);
 		return {

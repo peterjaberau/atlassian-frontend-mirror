@@ -9,13 +9,15 @@ import {
 	getTableSelectionType,
 	isInsideFirstCellOfRowOrColumn,
 } from '../commands/misc';
-
 import { resetRowOrColumnMovedTransform, updateRowOrColumnMoved } from './commands';
 import { createPluginState } from './plugin-factory';
 import { pluginKey } from './plugin-key';
-import { defaultState } from './types';
+import { defaultState, type AnalyticPluginState } from './types';
 
-export const createPlugin = (dispatch: Dispatch, dispatchAnalyticsEvent: DispatchAnalyticsEvent) =>
+export const createPlugin = (
+	dispatch: Dispatch,
+	dispatchAnalyticsEvent: DispatchAnalyticsEvent,
+): SafePlugin<AnalyticPluginState> =>
 	new SafePlugin({
 		key: pluginKey,
 		state: createPluginState(dispatch, defaultState),

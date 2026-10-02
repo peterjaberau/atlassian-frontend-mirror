@@ -2,13 +2,14 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { createContext, type FC } from 'react';
+import { type FC } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
 import { css } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
 
+import { GridContainerContext } from './grid-container-context';
 import type { BaseGridProps } from './types';
 
 const containerBaseStyles = css({
@@ -20,50 +21,50 @@ const containerBaseStyles = css({
 });
 
 const gapMediaQueries = css({
-	gap: token('space.200', '16px'),
+	gap: token('space.200'),
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 30rem)': {
-		gap: token('space.200', '16px'),
+		gap: token('space.200'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 48rem)': {
-		gap: token('space.200', '16px'),
+		gap: token('space.200'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 64rem)': {
-		gap: token('space.300', '24px'),
+		gap: token('space.300'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 90rem)': {
-		gap: token('space.400', '32px'),
+		gap: token('space.400'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 110.5rem)': {
-		gap: token('space.400', '32px'),
+		gap: token('space.400'),
 	},
 });
 
 const inlinePaddingMediaQueries = css({
-	paddingInline: token('space.200', '16px'),
+	paddingInline: token('space.200'),
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 30rem)': {
-		paddingInline: token('space.200', '16px'),
+		paddingInline: token('space.200'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 48rem)': {
-		paddingInline: token('space.300', '24px'),
+		paddingInline: token('space.300'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 64rem)': {
-		paddingInline: token('space.400', '32px'),
+		paddingInline: token('space.400'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 90rem)': {
-		paddingInline: token('space.400', '32px'),
+		paddingInline: token('space.400'),
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles
 	'@media (min-width: 110.5rem)': {
-		paddingInline: token('space.500', '40px'),
+		paddingInline: token('space.500'),
 	},
 });
 
@@ -71,14 +72,6 @@ const gridMaxWidthMap = cssMap({
 	wide: { maxWidth: '70.5rem' },
 	narrow: { maxWidth: '46.5rem' },
 });
-
-/**
- * __Grid container context__
- *
- * A grid container context used to detect to detect wether a component is inside a grid container.
- *
- */
-export const GridContainerContext: import("react").Context<boolean> = createContext(false);
 
 /**
  * __GridContainer__
@@ -123,3 +116,5 @@ export const GridContainer: FC<BaseGridProps> = ({
 		</div>
 	);
 };
+
+export { GridContainerContext } from './grid-container-context';

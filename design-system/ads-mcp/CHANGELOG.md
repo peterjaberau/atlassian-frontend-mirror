@@ -1,5 +1,518 @@
 # @atlaskit/ads-mcp
 
+## 1.10.10
+
+### Patch Changes
+
+- [`6d159b586a213`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d159b586a213) -
+  Refresh AI offering catalogs from structured docs
+
+## 1.10.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.7
+
+### Patch Changes
+
+- [`5196666d2cb0f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5196666d2cb0f) -
+  Refresh generated ADS MCP catalogs from structured documentation.
+
+## 1.10.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.5
+
+### Patch Changes
+
+- [`a111bbc359db7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a111bbc359db7) -
+  Regenerate component and utility catalogs from the latest structured documentation.
+
+## 1.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.10.3
+
+### Patch Changes
+
+- [`9a9bcd8b61613`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a9bcd8b61613) -
+  Regenerate the structured ADS component, hook, and utility catalog.
+
+## 1.10.2
+
+### Patch Changes
+
+- [`d5f3414d7e9ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d5f3414d7e9ca) -
+  Use the canonical Button entrypoint in accessibility fix suggestions.
+
+## 1.10.1
+
+### Patch Changes
+
+- [`5274b8d229fb6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5274b8d229fb6) -
+  Update generated Button component metadata to use canonical package entrypoints.
+- Updated dependencies
+
+## 1.10.0
+
+### Minor Changes
+
+- [`61c808498e190`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/61c808498e190) -
+  Refresh the generated component catalog exports used by ADS MCP.
+
+## 1.9.1
+
+### Patch Changes
+
+- [`f6087ec434d24`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f6087ec434d24) -
+  Refresh generated ADS documentation to use the canonical Button deep entrypoint.
+
+## 1.9.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+- [`7e9c520560753`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7e9c520560753) -
+  Updated AI documentation for Post Office headless API. Other changes are from code generation and
+  are triggered by minor formatting changes.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.8.1
+
+### Patch Changes
+
+- [`b070a1f7c4ef2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b070a1f7c4ef2) -
+  Improve ADS component search with focused component-owner vocabulary such as `facepile`,
+  `picture`, `overflow`, and `busy`.
+
+## 1.8.0
+
+### Minor Changes
+
+- [`7b42e3dbea8db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b42e3dbea8db) -
+  Add an opt-in `includeMetadata` option to ADS MCP token search so callers can retrieve token usage
+  guidelines while existing searches remain compact by default.
+
+  ```ts
+  import { searchTokensTool } from '@atlaskit/ads-mcp/tools/search-tokens';
+
+  await searchTokensTool({
+  	terms: ['border.width.focused'],
+  	includeMetadata: true,
+  });
+  ```
+
+  Metadata-inclusive results contain the existing `name` and `exampleValue` fields plus
+  `usageGuidelines`:
+
+  ```json
+  {
+  	"name": "border.width.focused",
+  	"exampleValue": "0.125rem",
+  	"usageGuidelines": {
+  		"usage": "Controls the thickness of borders/dividers. Use to standardize border widths throughout UI.",
+  		"cssProperties": ["border-width"]
+  	}
+  }
+  ```
+
+## 1.7.4
+
+### Patch Changes
+
+- [`b1775a76f7dfe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1775a76f7dfe) -
+  Regenerate the ADS and Atlaskit MCP structured-content catalogs and document their AFM-to-skills
+  distribution workflow.
+- Updated dependencies
+
+## 1.7.3
+
+### Patch Changes
+
+- [`2866cc2465350`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2866cc2465350) -
+  Exclude jira eslint-plugin restricted rules from barrel import ratcheting. Exclude ads-mcp codegen
+  from deprecated entry-point import ratcheting (docs embed example imports). Point
+  use-pressable-motion docs at compiled Pressable.
+- Updated dependencies
+
+## 1.7.2
+
+### Patch Changes
+
+- [`4b7c5c71d51c0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b7c5c71d51c0) -
+  Add the Avatar `xsmall` to `xxsmall` migration guide to ADS MCP migration guide results.
+
+## 1.7.1
+
+### Patch Changes
+
+- [`72ab955ceeefd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72ab955ceeefd) -
+  Regenerate ADS MCP component payloads from structured docs, including refreshed examples and
+  renderer prop metadata.
+
+## 1.7.0
+
+### Minor Changes
+
+- [`9f115ecc01686`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f115ecc01686) -
+  Create a new rule to block usage of `label` in modal dialog.
+
+## 1.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.6.1
+
+### Patch Changes
+
+- [`304179a976296`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/304179a976296) -
+  Wrap designSource figmaUrl values with go links
+
+## 1.6.0
+
+### Minor Changes
+
+- [`c3a296f2cf7af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3a296f2cf7af) -
+  Wrap designSource figmaUrl values with go links and add the `useMotion` component to the ADS MCP
+  payload. Consumers can use `useMotion` to apply motion state, the returned `ref`, and custom
+  animation styling directly to an existing element, then wrap conditional children in
+  `ExitingPersistence` when exit animations need to complete before removal.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.5.3
+
+### Patch Changes
+
+- [`763d88f71a256`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/763d88f71a256) -
+  Update ADS MCP component examples to use direct package entrypoints
+
+## 1.5.2
+
+### Patch Changes
+
+- [`419ec38bbeeb5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/419ec38bbeeb5) -
+  Add designSource metadata to all ADS components
+
+## 1.5.1
+
+### Patch Changes
+
+- [`ee5671e8a1284`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee5671e8a1284) -
+  Regenerate structured content with debarreled example imports.
+
+## 1.5.0
+
+### Minor Changes
+
+- [`8da670316e06f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8da670316e06f) -
+  Carry designSource (figmaUrl, figmaNodeId) into MCP component payloads and expose it in component
+  search results
+
+### Patch Changes
+
+- [`8da670316e06f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8da670316e06f) -
+  Carry designSource into MCP component payloads and search output
+- Updated dependencies
+
+## 1.4.0
+
+### Minor Changes
+
+- [`c012f03a95a5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c012f03a95a5a) -
+  Remove modal `autoFocus` rule because type has been updated to remove unwanted case.
+
+## 1.3.2
+
+### Patch Changes
+
+- [`a8ef3be54555b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8ef3be54555b) -
+  Update generated structured docs skills
+
+## 1.3.1
+
+### Patch Changes
+
+- [`84967ba6663a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/84967ba6663a1) -
+  Add missing Atlaskit utilities and hooks tools to the MCP server.
+
+## 1.3.0
+
+### Minor Changes
+
+- [`f5a335ff3aa42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f5a335ff3aa42) -
+  Improve MCP tool routing guidance for ADS and public Atlaskit package fallback research.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.1
+
+### Patch Changes
+
+- [`71a1b5554a400`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71a1b5554a400) -
+  Add DateLabel and DateLabelDropdownTrigger to ADS MCP components, with cross-reference usage
+  guidelines between them. Also add cross-reference guidelines between Lozenge and
+  LozengeDropdownTrigger.
+- [`66f7f783523ce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/66f7f783523ce) -
+  Remove unused legacy get-all-components dataset file
+
+## 1.2.0
+
+### Minor Changes
+
+- [`3439f139ad289`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3439f139ad289) -
+  Refresh ADS MCP generated component metadata for updated ADS references, including token-aware
+  type signatures and latest component/guideline surfaces.
+
+## 1.1.0
+
+### Minor Changes
+
+- [`e912dc2ccd014`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e912dc2ccd014) -
+  add atlaskit-hooks and atlaskit-utilities
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.21.1
+
+### Patch Changes
+
+- [`0467affd8dd16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0467affd8dd16) -
+  Minor component prop updates from DateTimePicker and DropdownMenu
+
+## 0.21.0
+
+### Minor Changes
+
+- [`25f67befcc5c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25f67befcc5c6) - -
+  Improved ADS MCP component metadata accuracy using the latest design-system documentation.
+  - Expanded Atlaskit component coverage in MCP outputs (including Link Datasource and Smart Card
+    entries).
+  - Updated surfaced prop typing for key APIs (including semantic `IconTile` sizes and
+    `SectionMessage` heading levels).
+  - Added migration-friendly `Tag` `text` typing support (`string | string[]`) in generated
+    metadata.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.20.3
+
+### Patch Changes
+
+- [`8c59900bcec05`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8c59900bcec05) -
+  Added AI specific motion examples for ADS MCP
+
+## 0.20.2
+
+### Patch Changes
+
+- [`69c45287fc0bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69c45287fc0bb) -
+  Simplify motion component examples for ADS skill codegen
+
+  Reduce Motion, ExitingPersistence, StaggeredEntrance, and Resizing from multiple constellation
+  examples to a single focused example each, keeping generated skill reference docs concise for AI
+  consumers.
+
+  Also fix `componentToSlug` and `componentsToSkillIndex` not being exported from
+  `@atlassian/structured-docs/transforms/component-to-skill-reference`, which caused `codegen:skill`
+  to fail with a TypeError.
+
+## 0.20.1
+
+### Patch Changes
+
+- [`76e1c8d4195e2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e1c8d4195e2) -
+  Minor changes to Motion props in MCP
+
+## 0.20.0
+
+### Minor Changes
+
+- [`d9d2dbae01e1a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d9d2dbae01e1a) -
+  Export tools allowing for programmatic access.
+
+## 0.19.4
+
+### Patch Changes
+
+- [`80a45143b4064`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/80a45143b4064) -
+  Update ADS MCP slight documentation of private or internal props.
+- Updated dependencies
+
+## 0.19.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.0
+
+### Minor Changes
+
+- [`a841a60987add`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a841a60987add) -
+  Overhaul search-icon, search-tokens, search-components, and plan tools to make empty messages, no
+  results, and fuzzy searching more consistent and better. Fixes token results such as border.radius
+  or font.size
+
+## 0.18.1
+
+### Patch Changes
+
+- [`1cd0ae6738030`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1cd0ae6738030) -
+  remove feature gate to use the most up to date components documentation
+
+## 0.18.0
+
+### Minor Changes
+
+- [`44a9ad271ff5d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44a9ad271ff5d) -
+  [ux] Update ADS Structured content. Now includes guidelines, lint rules, components, Icon lab
+
+## 0.17.5
+
+### Patch Changes
+
+- [`0daada0469ab8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0daada0469ab8) -
+  Remove `no-legacy-icons` from lint rules structured content. The rule no longer exists following
+  the removal of `@atlaskit/icon/glyph` legacy icons.
+- Updated dependencies
+
+## 0.17.4
+
+### Patch Changes
+
+- [`221fe0390240d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/221fe0390240d) -
+  Refactor to scripts and auto-generated AI content.
+- [`221fe0390240d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/221fe0390240d) -
+  Auto-generate codegen files
+
+## 0.17.3
+
+### Patch Changes
+
+- [`3462e31664c27`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3462e31664c27) -
+  Auto-generate with new examples from dropdown, select, and label
+
+## 0.17.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.17.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.17.0
+
+### Minor Changes
+
+- [`f5a9fb963d33b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f5a9fb963d33b) -
+  Include guidelines from structured content in the ADS MCP
+
+## 0.16.0
+
+### Minor Changes
+
+- [`30f7c8c5b7a2a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30f7c8c5b7a2a) -
+  Revert to JSON output for MCP tools.
+
+## 0.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.15.0
 
 ### Minor Changes

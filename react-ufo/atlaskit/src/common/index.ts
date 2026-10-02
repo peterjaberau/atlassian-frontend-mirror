@@ -37,6 +37,17 @@ export type {
 	HoldActive,
 	Redirect,
 	InteractionMetrics,
+	MetricVariantCategory,
+	MetricVariantName,
+	MetricWindow,
+	MetricWindows,
+	LifecycleObservation,
+	LifecycleObservationType,
+	Segment3pTimingEntry,
+	FlatSegment3pTimingEntry,
+	Segment3pEntry,
+	Segment3pData,
+	Segment3pDataPayload,
 	EnhancedUFOInteractionContextType,
 	BM3Event,
 	PostInteractionLogOutput,
@@ -44,9 +55,3 @@ export type {
 } from './common/types';
 
 export type { RevisionPayload, RevisionPayloadVCDetails } from './vc/types';
-
-/**
- * @private
- * @deprecated Prefer import from @atlaskit/react-ufo/interaction-context
- */
-export type { Label, SegmentLabel, LabelStack } from '../interaction-context';

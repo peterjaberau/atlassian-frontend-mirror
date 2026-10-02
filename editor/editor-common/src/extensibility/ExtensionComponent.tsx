@@ -1,16 +1,21 @@
 /* eslint-disable @repo/internal/react/no-class-components */
+
 import React, { Component, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import memoizeOne from 'memoize-one';
 
 import type { ADFEntity } from '@atlaskit/adf-utils/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
+import { type Selection, NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { EventDispatcher } from '../event-dispatcher';
-import { getExtensionModuleNodePrivateProps, getNodeRenderer } from '../extensions';
+import {
+	getExtensionModuleNode,
+	getExtensionModuleNodePrivateProps,
+	getNodeRenderer,
+} from '../extensions';
 import type {
 	ExtensionHandlers,
 	ExtensionParams,
@@ -22,7 +27,6 @@ import type {
 import type { ProsemirrorGetPosHandler } from '../react-node-view';
 import type { EditorAppearance } from '../types';
 import { getExtensionRenderer, nodeToJSON, toJSON } from '../utils';
-
 import Extension from './Extension/Extension';
 import { isEmptyBodiedMacro } from './Extension/Extension/extension-utils';
 import InlineExtension from './Extension/InlineExtension';
@@ -34,35 +38,54 @@ export interface Props {
 	editorView: EditorView;
 	eventDispatcher?: EventDispatcher;
 	extensionHandlers: ExtensionHandlers;
+	extensionLoadingHandlers?: ExtensionHandlers;
 	extensionProvider?: Promise<ExtensionProvider>;
 	getPos: ProsemirrorGetPosHandler;
 	handleContentDOMRef: (node: HTMLElement | null) => void;
 	isLivePageViewMode?: boolean;
 	macroInteractionDesignFeatureFlags?: MacroInteractionDesignFeatureFlags;
 	node: PMNode;
+	/** Handed to the extension's render, which calls it once its content is ready to be shown. */
+	onContentReady?: () => void;
 	pluginInjectionApi: ExtensionsPluginInjectionAPI;
 	references?: ReferenceEntity[];
 	rendererExtensionHandlers?: ExtensionHandlers;
+	/** Invalidates memoized renders on selection changes; read current state from editorView. */
+	selection?: Selection;
 	setShowBodiedExtensionRendererView?: (showBodiedExtensionRendererView: boolean) => void;
 	showBodiedExtensionRendererView?: boolean;
 	showLivePagesBodiedMacrosRendererView?: (node: ADFEntity) => boolean;
 	showUpdatedLivePages1PBodiedExtensionUI?: (node: ADFEntity) => boolean;
 }
 
+type ProviderNodeRendererProps = {
+	actions?: MultiBodiedExtensionActions;
+	isSelected?: boolean;
+	loadingFallback?: React.ReactNode;
+	node: ExtensionParams<Parameters>;
+	onContentReady?: () => void;
+	references?: ReferenceEntity[];
+	showUnknownMacroPlaceholder?: boolean;
+};
+
 interface PropsInner {
 	editorAppearance?: EditorAppearance;
 	editorView: EditorView;
 	eventDispatcher?: EventDispatcher;
 	extensionHandlers: ExtensionHandlers;
+	extensionLoadingHandlers?: ExtensionHandlers;
 	extensionProvider?: ExtensionProvider;
 	getPos: ProsemirrorGetPosHandler;
 	handleContentDOMRef: (node: HTMLElement | null) => void;
 	isLivePageViewMode?: boolean;
 	macroInteractionDesignFeatureFlags?: MacroInteractionDesignFeatureFlags;
 	node: PMNode;
+	/** Handed to the extension's render, which calls it once its content is ready to be shown. */
+	onContentReady?: () => void;
 	pluginInjectionApi: ExtensionsPluginInjectionAPI;
 	references?: ReferenceEntity[];
 	rendererExtensionHandlers?: ExtensionHandlers;
+	selection?: Selection;
 	setShowBodiedExtensionRendererView?: (showBodiedExtensionRendererView: boolean) => void;
 	showBodiedExtensionRendererView?: boolean;
 	showLivePagesBodiedMacrosRendererView?: (node: ADFEntity) => boolean;
@@ -77,6 +100,9 @@ export interface State {
 	activeChildIndex?: number; // Holds the currently active Frame/Tab/Card
 	extensionHandlersFromProvider?: ExtensionHandlers;
 	extensionProvider?: ExtensionProvider;
+	// True once we know this node exposes no way to configure it, so the "Configure {name}"
+	// lozenge label should be hidden. See resolveConfigureAffordanceIfNeeded.
+	hideConfigureLabel?: boolean;
 	isNodeHovered?: boolean;
 	showBodiedExtensionRendererView?: boolean; // Main state which will keep track to show the renderer or editor view of bodied macros in live pages. Controlled via the EditToggle
 }
@@ -137,11 +163,22 @@ export const ExtensionComponent = (props: Props): React.JSX.Element => {
 
 class ExtensionComponentInner extends Component<PropsInner, State> {
 	private privatePropsParsed = false;
+	private configureAffordanceResolved = false;
+	private isUnmounted = false;
 
 	state: State = {};
 
+	componentDidMount() {
+		this.resolveConfigureAffordanceIfNeeded();
+	}
+
 	componentDidUpdate() {
 		this.parsePrivateNodePropsIfNeeded();
+		this.resolveConfigureAffordanceIfNeeded();
+	}
+
+	componentWillUnmount() {
+		this.isUnmounted = true;
 	}
 
 	// memoized to avoid rerender on extension state changes
@@ -182,7 +219,7 @@ class ExtensionComponentInner extends Component<PropsInner, State> {
 		const position = typeof getPos === 'function' && getPos();
 
 		const resolvedPosition = position && editorView.state.doc.resolve(position);
- 
+
 		const isNodeNested = !!(resolvedPosition && resolvedPosition.depth > 0);
 
 		if (node.type.name === 'multiBodiedExtension') {
@@ -200,19 +237,12 @@ class ExtensionComponentInner extends Component<PropsInner, State> {
 					editorAppearance={editorAppearance}
 					macroInteractionDesignFeatureFlags={macroInteractionDesignFeatureFlags}
 					isNodeSelected={selectedNode === node}
+					isNodeHovered={this.state.isNodeHovered}
 					isNodeNested={isNodeNested}
-					isNodeHovered={
-						expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-							? undefined
-							: this.state.isNodeHovered
-					}
-					setIsNodeHovered={
-						expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-							? undefined
-							: this.setIsNodeHovered
-					}
+					setIsNodeHovered={this.setIsNodeHovered}
 					isLivePageViewMode={isLivePageViewMode}
 					allowBodiedOverride={allowBodiedOverride}
+					hideConfigureLabel={this.state.hideConfigureLabel}
 				/>
 			);
 		}
@@ -230,21 +260,12 @@ class ExtensionComponentInner extends Component<PropsInner, State> {
 						handleContentDOMRef={handleContentDOMRef}
 						view={editorView}
 						editorAppearance={editorAppearance}
+						hideConfigureLabel={this.state.hideConfigureLabel}
 						hideFrame={this.state._privateProps?.__hideFrame}
 						pluginInjectionApi={pluginInjectionApi}
 						macroInteractionDesignFeatureFlags={macroInteractionDesignFeatureFlags}
 						isNodeSelected={selectedNode === node}
-						isNodeHovered={
-							expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-								? undefined
-								: this.state.isNodeHovered
-						}
 						isNodeNested={isNodeNested}
-						setIsNodeHovered={
-							expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-								? undefined
-								: this.setIsNodeHovered
-						}
 						showLivePagesBodiedMacrosRendererView={
 							!!showLivePagesBodiedMacrosRendererView?.(nodeToJSON(node))
 						}
@@ -265,17 +286,8 @@ class ExtensionComponentInner extends Component<PropsInner, State> {
 						macroInteractionDesignFeatureFlags={macroInteractionDesignFeatureFlags}
 						isNodeSelected={selectedNode === node}
 						pluginInjectionApi={pluginInjectionApi}
-						isNodeHovered={
-							expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-								? undefined
-								: this.state.isNodeHovered
-						}
-						setIsNodeHovered={
-							expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true)
-								? undefined
-								: this.setIsNodeHovered
-						}
 						isLivePageViewMode={isLivePageViewMode}
+						hideConfigureLabel={this.state.hideConfigureLabel}
 					>
 						{extensionHandlerResult}
 					</InlineExtension>
@@ -322,6 +334,81 @@ class ExtensionComponentInner extends Component<PropsInner, State> {
 		}
 	};
 
+	/**
+	 * Decides whether the "Configure {name}" lozenge label should be hidden for this node.
+	 *
+	 * Mirrors how the floating toolbar decides to show its edit button (see
+	 * `shouldShowEditButton` and `updateEditButton` in `editor-plugin-extension`):
+	 * - a legacy function handler is configurable via the macro browser;
+	 * - an object handler is configurable only if it defines `update`;
+	 * - otherwise the node module from the extension provider decides via its optional `update`.
+	 * Nodes with no way to be configured get no Configure affordance. Anything we cannot
+	 * resolve keeps the label, which is the pre-existing behaviour.
+	 *
+	 * The result is resolved once per node and held in state rather than derived on each render
+	 * because the provider path is asynchronous: `getExtensionModuleNode` goes through
+	 * `extensionProvider.getExtension`, which returns a Promise. Deriving the synchronous handler
+	 * branches in render while the provider branch stays async would let the same node flip
+	 * between answers, and would re-run the manifest lookup on every hover re-render. One
+	 * resolution keeps the label stable and cheap.
+	 */
+	private resolveConfigureAffordanceIfNeeded = async () => {
+		if (
+			this.configureAffordanceResolved ||
+			!fg('platform_editor_hide_configure_lozenge_non_configurable')
+		) {
+			return;
+		}
+
+		const { extensionHandlers, extensionProvider, node } = this.props;
+		const { extensionType, extensionKey } = node.attrs;
+		const extensionHandler = extensionHandlers?.[extensionType];
+
+		if (typeof extensionHandler === 'function') {
+			// Legacy macro browser: configurable, keep the label.
+			this.configureAffordanceResolved = true;
+			return;
+		}
+
+		if (extensionHandler && typeof extensionHandler === 'object') {
+			this.configureAffordanceResolved = true;
+			if (typeof extensionHandler.update !== 'function') {
+				this.setState({ hideConfigureLabel: true });
+			}
+			return;
+		}
+
+		if (!extensionProvider) {
+			// No handler and no provider yet. The provider usually arrives asynchronously, so try
+			// again from componentDidUpdate. If none ever arrives this is the legacy macro browser
+			// path, which is configurable, so leaving the label is correct.
+			return;
+		}
+
+		this.configureAffordanceResolved = true;
+
+		try {
+			const extensionModuleNode = await getExtensionModuleNode(
+				extensionProvider,
+				extensionType,
+				extensionKey,
+			);
+
+			if (this.isUnmounted) {
+				return;
+			}
+
+			if (typeof extensionModuleNode?.update !== 'function') {
+				this.setState({ hideConfigureLabel: true });
+			}
+		} catch (e) {
+			// Manifest lookups can throw (unknown extension, malformed manifest). Keep the label,
+			// which matches the toolbar failing silently and keeping its default. Not logged here on
+			// purpose: parsePrivateNodePropsIfNeeded runs the same lookup for the same node and already
+			// console.errors the failure, so a second log would double up per unknown extension.
+		}
+	};
+
 	private tryExtensionHandler(actions: MultiBodiedExtensionActions | undefined) {
 		const { node } = this.props;
 		try {
@@ -341,12 +428,16 @@ class ExtensionComponentInner extends Component<PropsInner, State> {
 	private handleExtension = (pmNode: PMNode, actions: MultiBodiedExtensionActions | undefined) => {
 		const {
 			extensionHandlers,
+			extensionLoadingHandlers,
 			editorView,
 			showBodiedExtensionRendererView,
 			rendererExtensionHandlers,
+			onContentReady,
 		} = this.props;
 		const { extensionType, extensionKey, parameters, text } = pmNode.attrs;
 		const isBodiedExtension = pmNode.type.name === 'bodiedExtension';
+		const { selection } = editorView.state;
+		const isSelected = selection instanceof NodeSelection && selection.node === pmNode;
 
 		if (isBodiedExtension && !showBodiedExtensionRendererView) {
 			return;
@@ -379,6 +470,14 @@ class ExtensionComponentInner extends Component<PropsInner, State> {
 
 		let result;
 
+		const loadingFallback = extensionLoadingHandlers?.[extensionType]
+			? getExtensionRenderer(extensionLoadingHandlers[extensionType])(
+					node,
+					editorView.state.doc,
+					actions,
+				)
+			: undefined;
+
 		if (extensionHandlers && extensionHandlers[extensionType]) {
 			const render = getExtensionRenderer(extensionHandlers[extensionType]);
 			result = render(node, editorView.state.doc, actions);
@@ -390,15 +489,31 @@ class ExtensionComponentInner extends Component<PropsInner, State> {
 				this.getNodeRenderer(this.props.extensionProvider, extensionType, extensionKey);
 
 			if (extensionHandlerFromProvider) {
-				const NodeRenderer = extensionHandlerFromProvider;
+				const NodeRenderer =
+					extensionHandlerFromProvider as unknown as React.ComponentType<ProviderNodeRendererProps>;
 				if (node.type === 'multiBodiedExtension') {
-					return <NodeRenderer node={node} references={this.props.references} actions={actions} />;
-				} else {
-					return <NodeRenderer node={node} references={this.props.references} />;
+					return (
+						<NodeRenderer
+							node={node}
+							references={this.props.references}
+							actions={actions}
+							loadingFallback={loadingFallback}
+						/>
+					);
 				}
+				return (
+					<NodeRenderer
+						node={node}
+						references={this.props.references}
+						isSelected={isSelected}
+						loadingFallback={loadingFallback}
+						onContentReady={onContentReady}
+						showUnknownMacroPlaceholder
+					/>
+				);
 			}
 		}
 
-		return result;
+		return result ?? loadingFallback;
 	};
 }

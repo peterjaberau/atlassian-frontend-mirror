@@ -1,7 +1,7 @@
-import { mention } from '@atlaskit/adf-schema';
+import { mention } from '@atlaskit/adf-schema/mention';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
-import type { DOMOutputSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { N30A } from '@atlaskit/theme/colors';
+import type { DOMOutputSpec, NodeSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { expVal } from '@atlaskit/tmp-editor-statsig/expVal';
 import { token } from '@atlaskit/tokens';
 
 const isSSR = Boolean(process.env.REACT_SSR);
@@ -12,7 +12,7 @@ const isSSR = Boolean(process.env.REACT_SSR);
  * @nodeSpecException:toDOM patch
  * @returns
  */
-export const mentionNodeSpec = () => {
+export const mentionNodeSpec = (): NodeSpec => {
 	if (isSSR) {
 		return mention;
 	}
@@ -28,10 +28,14 @@ export const mentionNodeSpec = () => {
 				'data-prosemirror-content-type': 'node',
 				'data-prosemirror-node-inline': 'true',
 				'data-prosemirror-node-name': 'mention',
+				'data-user-type':
+					expVal('platform_editor_agent_mentions', 'isEnabled', false) && node.attrs.userType
+						? node.attrs.userType
+						: undefined,
 				style: convertToInlineCss({
 					display: 'inline',
 					border: `1px solid transparent`,
-					background: token('color.background.neutral', N30A),
+					background: token('color.background.neutral'),
 					color: token('color.text.subtle'),
 					borderRadius: '20px',
 					cursor: 'pointer',

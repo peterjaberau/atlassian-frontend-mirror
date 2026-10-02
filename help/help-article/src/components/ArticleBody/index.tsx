@@ -1,15 +1,67 @@
-import React, { useEffect } from 'react';
-import debounce from 'lodash/debounce';
+import React, { useEffect, useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
+
+import { captureMessage } from '@sentry/browser';
+import debounce from 'lodash/debounce';
+import { createRoot, type Root } from 'react-dom/client';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
-import type { DocNode } from '@atlaskit/adf-schema';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { ReactRenderer } from '@atlaskit/renderer';
 
 import { BODY_FORMAT_TYPES } from '../../model/HelpArticle';
 import type { AdfDoc } from '../../model/HelpArticle';
-
 import resetCSS from './resetCss';
 import { ArticleFrame } from './styled';
+
+const reactRoots = new WeakMap<Element, Root>();
+
+/**
+ * Renders `children` and invokes `onRendered` once React has committed them to the DOM.
+ *
+ * `createRoot().render()` does not accept the completion callback that the legacy
+ * `ReactDOM.render()` API supported, and `flushSync()` cannot be used to emulate it from here:
+ * this code runs inside a `useEffect`, and React ignores (and warns about) `flushSync` while it is
+ * already rendering/committing. A layout effect always runs after React has applied its DOM
+ * mutations, so it faithfully reproduces the legacy callback contract.
+ */
+const RenderCallback = ({
+	children,
+	onRendered,
+}: {
+	children: React.ReactNode;
+	onRendered: () => void;
+}): React.JSX.Element => {
+	// No dependency array on purpose: the callback must fire after every commit of this root, the
+	// same way the legacy `ReactDOM.render()` callback did.
+	useLayoutEffect(() => {
+		onRendered();
+	});
+
+	return <>{children}</>;
+};
+
+/**
+ * Mounts `element` into `mountPoint` using the React 18/19 `createRoot` API, reusing the root for a
+ * given mount point across renders, and calls `onRendered` after the commit. Only invoked on the
+ * `nike_r19_render_unmount_help_article` gate-on path; the gate-off path keeps calling the legacy render API
+ * directly.
+ */
+const renderToMountPoint = (
+	element: React.ReactElement,
+	mountPoint: Element,
+	onRendered: () => void,
+) => {
+	let root = reactRoots.get(mountPoint);
+
+	if (!root) {
+		root = createRoot(mountPoint);
+		reactRoots.set(mountPoint, root);
+	}
+
+	root.render(<RenderCallback onRendered={onRendered}>{element}</RenderCallback>);
+};
 
 export interface Props {
 	// Article Content
@@ -129,50 +181,99 @@ export const ArticleBody = (props: Props): React.JSX.Element | null => {
 				return;
 			}
 
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			ReactDOM.render(<div style={divSyle} />, iframeContainer, () => {
+			// Writes the processed article HTML into the freshly-created iframe. Runs once the
+			// ArticleFrame render has committed. (Previously the inner ReactDOM.render callback.)
+			const onArticleFrameRendered = () => {
+				const iframeContainer: HTMLElement | null = document.getElementById(IFRAME_CONTAINER_ID);
+
+				if (iframeContainer) {
+					const newIframe: Window | undefined = (frames as { [key: string]: any })[IFRAME_ID] as
+						| Window
+						| undefined;
+
+					// Defensive: if the iframe is not in the DOM yet the lookup returns `undefined`,
+					// which used to slip through a `!== null` check and throw, surfacing an error in
+					// the help panel instead of the article.
+					if (newIframe) {
+						const iframeDocument = newIframe.document;
+						iframeDocument.open();
+						// Process the HTML to ensure all links open in new tabs
+						const processedBody = processLinksForNewTab(body);
+						iframeDocument.write(`<div>${processedBody}</div>`);
+						iframeDocument.close();
+						const head = iframeDocument.head || iframeDocument.getElementsByTagName('head')[0];
+						const style = iframeDocument.createElement('style');
+						style.innerText = resetCSS;
+						head.appendChild(style);
+
+						// Copy theme attributes from parent document to iframe for dark mode support
+						const parentHtml = document.documentElement;
+						const iframeHtml = iframeDocument.documentElement;
+						const colorMode = parentHtml.getAttribute('data-color-mode');
+						const themeAttr = parentHtml.getAttribute('data-theme');
+						if (colorMode) {
+							iframeHtml.setAttribute('data-color-mode', colorMode);
+						}
+						if (themeAttr) {
+							iframeHtml.setAttribute('data-theme', themeAttr);
+						}
+
+						// Copy theme style elements from parent document into the iframe
+						const themeStyles = document.querySelectorAll('style[data-theme]');
+						themeStyles.forEach((themeStyle) => {
+							const clonedStyle = iframeDocument.createElement('style');
+							clonedStyle.textContent = themeStyle.textContent;
+							if (themeStyle instanceof HTMLElement && themeStyle.dataset.theme) {
+								clonedStyle.dataset.theme = themeStyle.dataset.theme;
+							}
+							head.appendChild(clonedStyle);
+						});
+
+						resizeIframe();
+
+						if (onArticleRenderBegin) {
+							onArticleRenderBegin();
+						}
+					} else {
+						captureMessage(
+							'[@atlaskit/help-article] Help article iframe was not available after render',
+							'warning' as Parameters<typeof captureMessage>[1],
+						);
+					}
+				}
+			};
+
+			const articleFrame = (
+				<ArticleFrame
+					id={IFRAME_ID}
+					name={IFRAME_ID}
+					onLoad={() => {
+						resizeIframe();
+					}}
+					sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+				/>
+			);
+
+			// Replaces the placeholder div with a fresh iframe, then writes content once committed.
+			// (Previously the outer ReactDOM.render callback.)
+			const renderArticleFrame = () => {
 				if (!iframeContainer) {
 					return;
 				}
-				ReactDOM.render(
-					<ArticleFrame
-						id={IFRAME_ID}
-						name={IFRAME_ID}
-						onLoad={() => {
-							resizeIframe();
-						}}
-						sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-					/>,
-					iframeContainer,
-					() => {
-						const iframeContainer: HTMLElement | null =
-							document.getElementById(IFRAME_CONTAINER_ID);
+				if (fg('nike_r19_render_unmount_help_article')) {
+					renderToMountPoint(articleFrame, iframeContainer, onArticleFrameRendered);
+				} else {
+					ReactDOM.render(articleFrame, iframeContainer, onArticleFrameRendered);
+				}
+			};
 
-						if (iframeContainer) {
-							const newIframe: Window = (frames as { [key: string]: any })[IFRAME_ID] as Window;
-
-							if (newIframe !== null) {
-								const iframeDocument = newIframe.document;
-								iframeDocument.open();
-								// Process the HTML to ensure all links open in new tabs
-								const processedBody = processLinksForNewTab(body);
-								iframeDocument.write(`<div>${processedBody}</div>`);
-								iframeDocument.close();
-								const head = iframeDocument.head || iframeDocument.getElementsByTagName('head')[0];
-								const style = iframeDocument.createElement('style');
-								style.innerText = resetCSS;
-								head.appendChild(style);
-
-								resizeIframe();
-
-								if (onArticleRenderBegin) {
-									onArticleRenderBegin();
-								}
-							}
-						}
-					},
-				);
-			});
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+			const placeholder = <div style={divSyle} />;
+			if (fg('nike_r19_render_unmount_help_article')) {
+				renderToMountPoint(placeholder, iframeContainer, renderArticleFrame);
+			} else {
+				ReactDOM.render(placeholder, iframeContainer, renderArticleFrame);
+			}
 		};
 
 		if (props.bodyFormat === BODY_FORMAT_TYPES.html && typeof props.body === 'string') {

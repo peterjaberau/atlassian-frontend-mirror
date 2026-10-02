@@ -6,27 +6,25 @@ import {
 	ACTION,
 	ACTION_SUBJECT,
 } from '@atlaskit/editor-common/analytics';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { HoverLinkOverlay } from '@atlaskit/editor-common/ui';
-import { NodeSelection, type Transaction } from '@atlaskit/editor-prosemirror/state';
-import { extractSmartLinkEmbed } from '@atlaskit/link-extractors';
-import { isWithinPreviewPanelIFrame } from '@atlaskit/linking-common/utils';
+import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
+import type { Transaction } from '@atlaskit/editor-prosemirror/state';
+import { extractSmartLinkEmbed } from '@atlaskit/link-extractors/extract-smart-link-embed';
+import { isWithinPreviewPanelIFrame } from '@atlaskit/linking-common/utils/is-within-preview-panel-iframe';
 import { getObjectAri, getObjectName, getObjectIconUrl } from '@atlaskit/smart-card';
+import { useSmartLinkDestinationUrl } from '@atlaskit/smart-card/hook/use-smart-link-destination-url';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
-import { type cardPlugin } from '../cardPlugin';
+import type { cardPlugin } from '../cardPlugin';
 import { registerRemoveOverlay } from '../pm-plugins/actions';
 import { pluginKey } from '../pm-plugins/plugin-key';
 import { AwarenessWrapper } from '../ui/AwarenessWrapper';
 import { PreviewInvoker } from '../ui/preview/PreviewInvoker';
-
 import type { SmartCardProps } from './genericCard';
-import { InlineCard } from './inlineCard';
+import { InlineCard } from './inlineCardBase';
 
 export type InlineCardWithAwarenessProps = {
 	isOverlayEnabled?: boolean;
@@ -46,7 +44,24 @@ const selector = (
 	};
 };
 
-export const InlineCardWithAwareness = memo(
+export const InlineCardWithAwareness: React.MemoExoticComponent<
+	({
+		node,
+		cardContext,
+		actionOptions,
+		useAlternativePreloader,
+		view,
+		getPos,
+		pluginInjectionApi,
+		onClick,
+		isPulseEnabled,
+		isOverlayEnabled,
+		isSelected,
+		isPageSSRed,
+		provider,
+		appearance,
+	}: SmartCardProps & InlineCardWithAwarenessProps) => React.JSX.Element
+> = memo(
 	({
 		node,
 		cardContext,
@@ -67,6 +82,7 @@ export const InlineCardWithAwareness = memo(
 		const [isInserted, setIsInserted] = useState(false);
 		const [isResolvedViewRendered, setIsResolvedViewRendered] = useState(false);
 		const editorAppearance = pluginInjectionApi?.card.sharedState.currentState()?.editorAppearance;
+		const destinationUrl = useSmartLinkDestinationUrl(node.attrs.url);
 
 		const onResolve = useCallback((tr: Transaction, title?: string): void => {
 			const metadata = tr.getMeta(pluginKey);
@@ -106,15 +122,14 @@ export const InlineCardWithAwareness = memo(
 		);
 		const floatingToolbarNode = selection instanceof NodeSelection && selection.node;
 		// This is a prop to show Hover card, Hover card should be shown only in Live View and Classic Renderer (note when only Editor controls enabled we don't show in Live view)
-		const showHoverPreview =
-			floatingToolbarNode !== node &&
-			editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true });
+		const showHoverPreview = floatingToolbarNode !== node;
 
 		const innerCardWithOpenButtonOverlay = useMemo(
 			() => (
 				<HoverLinkOverlay
 					isVisible={isResolvedViewRendered}
 					url={node.attrs.url}
+					destinationUrl={destinationUrl}
 					compactPadding={editorAppearance === 'comment' || editorAppearance === 'chromeless'}
 					editorAnalyticsApi={pluginInjectionApi?.analytics?.actions}
 					view={view}
@@ -151,6 +166,7 @@ export const InlineCardWithAwareness = memo(
 				isPageSSRed,
 				provider,
 				pluginInjectionApi,
+				destinationUrl,
 			],
 		);
 
@@ -192,11 +208,7 @@ export const InlineCardWithAwareness = memo(
 			const shouldShowOpenButtonOverlayInChomeless = editorAppearance === 'chromeless';
 
 			return (
-				(mode === 'edit' ||
-					editorAppearance === 'comment' ||
-					shouldShowOpenButtonOverlayInChomeless) &&
-				(editorExperiment('platform_editor_controls', 'variant1') ||
-					editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true }))
+				mode === 'edit' || editorAppearance === 'comment' || shouldShowOpenButtonOverlayInChomeless
 			);
 		}, [mode, editorAppearance]);
 
@@ -204,10 +216,7 @@ export const InlineCardWithAwareness = memo(
 			? innerCardWithOpenButtonOverlay
 			: innerCardOriginal;
 
-		if (
-			mode === 'view' &&
-			editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true })
-		) {
+		if (mode === 'view') {
 			const url = node.attrs.url;
 			const cardState = cardContext?.value?.store?.getState()[url];
 			if (cardState) {
@@ -258,6 +267,7 @@ export const InlineCardWithAwareness = memo(
 									<HoverLinkOverlay
 										isVisible={isResolvedViewRendered}
 										url={url}
+										destinationUrl={destinationUrl}
 										compactPadding={
 											editorAppearance === 'comment' || editorAppearance === 'chromeless'
 										}
@@ -267,6 +277,7 @@ export const InlineCardWithAwareness = memo(
 										showPanelButtonIcon={
 											isPreviewAvailable && isPreviewPanelAvailable ? 'panel' : 'modal'
 										}
+										// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 										onClick={(event) => {
 											if (isPreviewPanelAvailable) {
 												event.preventDefault();

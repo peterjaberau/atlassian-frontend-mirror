@@ -1,11 +1,18 @@
 {
 	"name": "@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration",
-	"version": "2.0.14",
+	"version": "3.4.5",
 	"description": "An optional Pragmatic drag and drop package that enables rapid migration from react-beautiful-dnd to Pragmatic drag and drop",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
 			"name": "react-beautiful-dnd migration",
@@ -20,35 +27,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
-	"sideEffects": [
-		"*.compiled.css"
-	],
-	"atlaskit:src": "src/index.ts",
-	"exports": {
-		".": "./src/index.ts"
-	},
-	"dependencies": {
-		"@atlaskit/pragmatic-drag-and-drop": "workspace:^",
-		"@atlaskit/pragmatic-drag-and-drop-hitbox": "workspace:^",
-		"@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-autoscroll": "workspace:^",
-		"@atlaskit/tokens": "workspace:^",
-		"@babel/runtime": "root:*",
-		"@emotion/react": "root:*",
-		"bind-event-listener": "root:*",
-		"tiny-invariant": "root:*"
-	},
-	"peerDependencies": {
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
-	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
@@ -56,6 +34,8 @@
 		"@atlaskit/motion": "workspace:^",
 		"@atlaskit/radio": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/a11y-playwright-testing": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/dom": "root:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
@@ -63,42 +43,38 @@
 		"@types/react-window": "root:*",
 		"jscodeshift": "root:*",
 		"raf-stub": "root:*",
+		"react": "^19.0.0",
 		"react-beautiful-dnd": "root:*",
+		"react-dom": "^19.0.0",
 		"react-virtualized": "root:*",
 		"react-window": "root:*",
 		"stylelint": "root:*",
 		"wait-for-expect": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"emotion"
-			]
-		}
+	"sideEffects": [
+		"*.compiled.css"
+	],
+	"atlaskit:src": "src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./drag-drop-context": "./src/entry-points/drag-drop-context.tsx",
+		"./draggable": "./src/entry-points/draggable.tsx",
+		"./droppable": "./src/entry-points/droppable.tsx",
+		"./types": "./src/entry-points/types.tsx"
+	},
+	"dependencies": {
+		"@atlaskit/pragmatic-drag-and-drop": "workspace:^",
+		"@atlaskit/pragmatic-drag-and-drop-hitbox": "workspace:^",
+		"@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-autoscroll": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/tokens": "workspace:^",
+		"@babel/runtime": "root:*",
+		"@emotion/react": "root:*",
+		"bind-event-listener": "root:*",
+		"tiny-invariant": "root:*"
+	},
+	"peerDependencies": {
+		"react": "^18.2.0 || ^19.0.0",
+		"react-dom": "^18.2.0 || ^19.0.0"
 	}
 }

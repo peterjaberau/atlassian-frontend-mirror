@@ -1,10 +1,11 @@
-import { HighlightStyle, type Language } from '@codemirror/language';
+import { HighlightStyle } from '@codemirror/language';
+import type { Language } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 
 import { token } from '@atlaskit/tokens';
 
 // Based on `platform/packages/design-system/code/src/internal/theme/styles.tsx`
-export const highlightStyle = HighlightStyle.define([
+export const highlightStyle: HighlightStyle = HighlightStyle.define([
 	{ tag: tags.meta, color: token('color.text') },
 	{ tag: tags.link, textDecoration: 'underline' },
 	{

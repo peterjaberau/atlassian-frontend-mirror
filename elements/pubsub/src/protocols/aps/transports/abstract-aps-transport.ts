@@ -1,17 +1,19 @@
-import { type APSTransport, type APSTransportParams } from './index';
+import type { EventEmitter2 } from 'eventemitter2';
+import { backOff } from 'exponential-backoff';
+
+import { type APSTransportType } from '../../../apiTypes';
 import { type APSAnalyticsClient } from '../APSAnalyticsClient';
 import {
 	firstConnectBackoffOptions,
 	getTimestampBasedSequenceNumber,
 	reconnectBackoffOptions,
 } from '../utils';
-import { backOff } from 'exponential-backoff';
-import { type APSTransportType } from '../../../apiTypes';
+import { type APSTransport, type APSTransportParams } from './index';
 
 export default abstract class AbstractApsTransport implements APSTransport {
 	protected readonly analyticsClient: APSAnalyticsClient;
 	protected readonly isFallback: boolean;
-	protected readonly eventEmitter;
+	protected readonly eventEmitter: EventEmitter2;
 	protected readonly baseUrl: URL;
 
 	lastSeenSequenceNumber: number | null = null;
@@ -27,7 +29,7 @@ export default abstract class AbstractApsTransport implements APSTransport {
 		this.isFallback = params.isFallback;
 	}
 
-	protected async connectWithBackoff<T>(connectFn: () => Promise<T>) {
+	protected async connectWithBackoff<T>(connectFn: () => Promise<T>): Promise<T> {
 		return backOff(connectFn, {
 			...firstConnectBackoffOptions(this.isFallback),
 			retry: (e, count) => {
@@ -40,7 +42,10 @@ export default abstract class AbstractApsTransport implements APSTransport {
 		});
 	}
 
-	protected async reconnectWithBackoff<T>(isHidden: boolean, reconnectFn: () => Promise<T>) {
+	protected async reconnectWithBackoff<T>(
+		isHidden: boolean,
+		reconnectFn: () => Promise<T>,
+	): Promise<T> {
 		if (!this.lastSeenSequenceNumber) {
 			// will replay messages that were supposed to be received while we were retrying
 			this.lastSeenSequenceNumber = getTimestampBasedSequenceNumber();

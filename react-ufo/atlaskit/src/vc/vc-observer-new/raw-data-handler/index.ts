@@ -1,9 +1,29 @@
-import type { RawObservation, RevisionPayloadEntry, VCAbortReason } from '../../../common/vc/types';
+import type {
+	RawEventObservation,
+	RawObservation,
+	RevisionPayloadEntry,
+	VCAbortReason,
+} from '../../../common/vc/types';
+import { isFedrampOverrideActive } from '../../../config';
+import { getEarliestHiddenTiming } from '../../../hidden-timing';
 import getViewportHeight from '../metric-calculator/utils/get-viewport-height';
 import getViewportWidth from '../metric-calculator/utils/get-viewport-width';
 import type { VCObserverEntry, ViewportEntryData, WindowEventEntryData } from '../types';
 const ABORTING_WINDOW_EVENT = ['wheel', 'scroll', 'keydown', 'resize'] as const;
 const MAX_OBSERVATIONS = 200;
+
+const encodeRect = (rect: DOMRect) =>
+	[
+		Math.round(rect.left * 10) / 10,
+		Math.round(rect.top * 10) / 10,
+		Math.round(rect.right * 10) / 10,
+		Math.round(rect.bottom * 10) / 10,
+	] as [number, number, number, number];
+
+const areRectsEqual = (
+	left: [number, number, number, number],
+	right: [number, number, number, number],
+) => left.every((value, index) => value === right[index]);
 
 function isWindowEventEntryData(
 	data: ViewportEntryData | WindowEventEntryData,
@@ -30,8 +50,9 @@ export default class RawDataHandler {
 		const hasAbortEvent = filteredEntries.some((entry) => {
 			if (entry.data.type === 'window:event') {
 				const data = entry.data as WindowEventEntryData;
-				if (ABORTING_WINDOW_EVENT.includes(data.eventType)) {
-					dirtyReason = data.eventType === 'keydown' ? 'keypress' : data.eventType;
+				const eventType = data.eventType as (typeof ABORTING_WINDOW_EVENT)[number];
+				if (ABORTING_WINDOW_EVENT.includes(eventType)) {
+					dirtyReason = eventType === 'keydown' ? 'keypress' : eventType;
 					abortTimestamp = Math.round(entry.time);
 					return true;
 				}
@@ -75,7 +96,7 @@ export default class RawDataHandler {
 				clean: false,
 				'metric:vc90': null,
 				abortReason: 'browser_backgrounded',
-				abortTimestamp: -1,
+				abortTimestamp: getEarliestHiddenTiming(startTime, stopTime) ?? -1,
 				viewport: { w: getViewportWidth(), h: getViewportHeight() },
 			};
 		}
@@ -110,6 +131,7 @@ export default class RawDataHandler {
 		const eventTypeMap = new Map<string, number>();
 		const eventTypeMapEntriesMap: Record<number, string> = {};
 		let nextEventTypeId = 1;
+		const labelStacksMap: Record<number, { s: string; l: string } | 'u'> = {};
 
 		let rawObservations = viewportEntries.map((entry) => {
 			const viewportEntry = entry.data as ViewportEntryData;
@@ -124,6 +146,18 @@ export default class RawDataHandler {
 				nextElementId += 1;
 				targetNameToIdMap.set(targetName, eid);
 				elementMapEntriesMap[eid] = targetName;
+			}
+
+			// Capture labelStacks per element (only stored once per unique element)
+			if (viewportEntry.labelStacks && !(eid in labelStacksMap)) {
+				const labelInfo = {
+					s: viewportEntry.labelStacks.segment,
+					l: viewportEntry.labelStacks.labelStack,
+				};
+
+				const shouldCompactImplicitUnknown = labelInfo.s === 'unknown' && labelInfo.l === 'unknown';
+
+				labelStacksMap[eid] = shouldCompactImplicitUnknown ? ('u' as const) : labelInfo;
 			}
 
 			let chg = typeMap.get(type || '') || 0;
@@ -144,14 +178,17 @@ export default class RawDataHandler {
 					attributeEntriesMap[att] = attributeName;
 				}
 			}
+			const encodedRect = encodeRect(rect);
+			const encodedPreviousRect = viewportEntry.previousRect
+				? encodeRect(viewportEntry.previousRect)
+				: null;
+			const shouldIncludePreviousRect =
+				encodedPreviousRect === null || !areRectsEqual(encodedRect, encodedPreviousRect);
+
 			const observation: RawObservation = {
 				t: Math.round(entry.time - startTime),
-				r: [
-					Math.round(rect.left * 10) / 10,
-					Math.round(rect.top * 10) / 10,
-					Math.round(rect.right * 10) / 10,
-					Math.round(rect.bottom * 10) / 10,
-				],
+				r: encodedRect,
+				...(shouldIncludePreviousRect ? { pr: encodedPreviousRect } : {}),
 				chg,
 				eid: eid || 0,
 				...(att > 0 ? { att } : {}),
@@ -172,18 +209,41 @@ export default class RawDataHandler {
 				eventTypeMapEntriesMap[evtId] = eventType;
 			}
 
-			const eventObservation = {
+			let eventTargetId = 0;
+			const eventTargetName = windowEventEntry.elementName || '';
+			if (eventTargetName) {
+				eventTargetId = targetNameToIdMap.get(eventTargetName) || 0;
+				if (eventTargetId === 0) {
+					eventTargetId = nextElementId;
+					nextElementId += 1;
+					targetNameToIdMap.set(eventTargetName, eventTargetId);
+					elementMapEntriesMap[eventTargetId] = eventTargetName;
+				}
+			}
+
+			const eventObservation: RawEventObservation = {
 				t: Math.round(entry.time - startTime),
 				evt: evtId,
+				...(eventTargetId > 0 ? { eid: eventTargetId } : {}),
 			};
 
 			return eventObservation;
 		});
 
+		const shouldTrimEventObservations = rawEventObservations.length > MAX_OBSERVATIONS;
+		const shouldTrimViewportObservations = rawObservations.length > MAX_OBSERVATIONS;
+
+		// If the number of event observations is greater than the maximum allowed, we need to trim the event observations to the maximum allowed.
+		// We do this by keeping the first observation and the last MAX_OBSERVATIONS observations.
+		if (shouldTrimEventObservations) {
+			const firstEventObservation = rawEventObservations[0];
+			const lastEventObservations = rawEventObservations.slice(-MAX_OBSERVATIONS);
+			rawEventObservations = [firstEventObservation, ...lastEventObservations];
+		}
+
 		// If the number of observations is greater than the maximum allowed, we need to trim the observations to the maximum allowed.
 		// We do this by keeping the first observation, the SSR observation (if present), and the last MAX_OBSERVATIONS observations.
-		// We then collect the referenced IDs from the remaining observations and remove the unreferenced entries from the maps
-		if (rawObservations.length > MAX_OBSERVATIONS) {
+		if (shouldTrimViewportObservations) {
 			const firstObservation = rawObservations[0];
 			const lastObservations = rawObservations.slice(-MAX_OBSERVATIONS);
 
@@ -201,11 +261,16 @@ export default class RawDataHandler {
 				...(ssrObservation && !ssrAlreadyIncluded ? [ssrObservation] : []),
 				...lastObservations,
 			];
+		}
 
-			// Collect referenced IDs from remaining observations
+		if (shouldTrimViewportObservations || shouldTrimEventObservations) {
+			// Collect referenced IDs from final retained observations. Keep this inside the trim
+			// guard so the common untrimmed path avoids extra Set allocations and scans.
 			const referencedEids = new Set<number>();
 			const referencedChgs = new Set<number>();
 			const referencedAtts = new Set<number>();
+			const referencedEvts = new Set<number>();
+			const referencedEventTargetEids = new Set<number>();
 
 			for (const observation of rawObservations) {
 				if (observation.eid > 0) {
@@ -219,62 +284,89 @@ export default class RawDataHandler {
 				}
 			}
 
-			// Remove unreferenced entries from maps
-			for (const eid of Object.keys(elementMapEntriesMap).map(Number)) {
-				if (!referencedEids.has(eid)) {
-					delete elementMapEntriesMap[eid];
-				}
-			}
-
-			for (const chg of Object.keys(typeMapEntriesMap).map(Number)) {
-				if (!referencedChgs.has(chg)) {
-					delete typeMapEntriesMap[chg];
-				}
-			}
-
-			for (const att of Object.keys(attributeEntriesMap).map(Number)) {
-				if (!referencedAtts.has(att)) {
-					delete attributeEntriesMap[att];
-				}
-			}
-		}
-
-		// If the number of event observations is greater than the maximum allowed, we need to trim the event observations to the maximum allowed.
-		// We do this by keeping the first observation and the last MAX_OBSERVATIONS observations.
-		// We then collect the referenced IDs from the remaining observations and remove the unreferenced entries from the maps
-		if (rawEventObservations.length > MAX_OBSERVATIONS) {
-			const firstEventObservation = rawEventObservations[0];
-			const lastEventObservations = rawEventObservations.slice(-MAX_OBSERVATIONS);
-			rawEventObservations = [firstEventObservation, ...lastEventObservations];
-
-			// Collect referenced IDs from remaining observations
-			const referencedEvts = new Set<number>();
-
 			for (const observation of rawEventObservations) {
 				if (observation.evt > 0) {
 					referencedEvts.add(observation.evt);
 				}
+				if (observation.eid !== undefined && observation.eid > 0) {
+					referencedEventTargetEids.add(observation.eid);
+				}
 			}
 
-			// Remove unreferenced entries from maps
-			for (const evt of Object.keys(eventTypeMapEntriesMap).map(Number)) {
-				if (!referencedEvts.has(evt)) {
-					delete eventTypeMapEntriesMap[evt];
+			for (const eid of Object.keys(elementMapEntriesMap).map(Number)) {
+				if (!referencedEids.has(eid) && !referencedEventTargetEids.has(eid)) {
+					delete elementMapEntriesMap[eid];
+					delete labelStacksMap[eid];
+				}
+			}
+
+			if (shouldTrimViewportObservations) {
+				for (const chg of Object.keys(typeMapEntriesMap).map(Number)) {
+					if (!referencedChgs.has(chg)) {
+						delete typeMapEntriesMap[chg];
+					}
+				}
+
+				for (const att of Object.keys(attributeEntriesMap).map(Number)) {
+					if (!referencedAtts.has(att)) {
+						delete attributeEntriesMap[att];
+					}
+				}
+			}
+
+			if (shouldTrimEventObservations) {
+				// Event type map cleanup is only needed when event observations were trimmed.
+				// If only viewport observations were trimmed, all event observations remain and
+				// therefore every event type ID in the map is still referenced.
+				for (const evt of Object.keys(eventTypeMapEntriesMap).map(Number)) {
+					if (!referencedEvts.has(evt)) {
+						delete eventTypeMapEntriesMap[evt];
+					}
 				}
 			}
 		}
+
+		// FedRAMP-Moderate scrubbing.
+		//
+		// In commercial environments the raw-handler payload includes:
+		//   - `rawData.att` / `obs[].att`  → DOM attribute names from
+		//     `MutationRecord.attributeName`. These are *names* (not values),
+		//     but custom product attributes can in principle embed
+		//     identifiers (e.g. `data-user-{id}-state`).
+		//   - `rawData.lbl`                → UFO labelStacks. Generally
+		//     curated product paths but in poorly-instrumented call sites
+		//     could embed dynamic identifiers.
+		//
+		// Server-side TTVC reconstruction does not require these fields
+		// (it is driven by timestamps, rectangles, and mutation kind),
+		// so dropping them in FedRAMP is safe and removes residual PII risk.
+		const isFedrampScrubbed = isFedrampOverrideActive();
+
+		const scrubbedObservations = isFedrampScrubbed
+			? rawObservations.map(({ att: _att, ...rest }) => rest)
+			: rawObservations;
 
 		const result: RevisionPayloadEntry = {
 			revision: this.revisionNo,
 			clean: isVCClean,
 			'metric:vc90': null,
 			rawData: {
-				obs: rawObservations ?? undefined,
+				obs: scrubbedObservations ?? undefined,
 				eid: elementMapEntriesMap ?? undefined,
 				chg: typeMapEntriesMap ?? undefined,
-				att: attributeEntriesMap ?? undefined,
+				att: isFedrampScrubbed ? undefined : (attributeEntriesMap ?? undefined),
 				evts: rawEventObservations.length > 0 ? rawEventObservations : undefined,
 				evt: Object.keys(eventTypeMapEntriesMap).length > 0 ? eventTypeMapEntriesMap : undefined,
+				lbl: isFedrampScrubbed
+					? undefined
+					: Object.keys(labelStacksMap).length > 0
+						? labelStacksMap
+						: undefined,
+				lblMode: isFedrampScrubbed
+					? undefined
+					: Object.keys(labelStacksMap).length > 0
+						? 'sentinel-v1'
+						: undefined,
 			},
 			abortReason: dirtyReason,
 			abortTimestamp: getVCCleanStatusResult.abortTimestamp,

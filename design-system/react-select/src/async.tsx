@@ -6,11 +6,12 @@ import React, {
 } from 'react';
 
 import Select from './select';
-import { type GroupBase } from './types';
+import type { GroupBase } from './types';
 import useAsync, { type AsyncProps } from './use-async';
 import useStateManager from './use-state-manager';
 export type { AsyncProps };
 
+// oxlint-disable-next-line eslint/no-redeclare
 type AsyncSelect = <
 	Option = unknown,
 	IsMulti extends boolean = false,
@@ -41,8 +42,6 @@ const AsyncSelect = forwardRef(
 		return <Select ref={ref} {...selectProps} />;
 	},
 ) as AsyncSelect;
-
-export { useAsync };
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
 export default AsyncSelect;

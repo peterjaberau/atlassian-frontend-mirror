@@ -19,17 +19,17 @@ import type {
 	ExtractInjectionAPI,
 	InputTracking,
 } from '@atlaskit/editor-common/types';
-import { getAnalyticsEventSeverity, type SEVERITY } from '@atlaskit/editor-common/utils/analytics';
+import { getAnalyticsEventSeverity } from '@atlaskit/editor-common/utils/analytics';
+import type { SEVERITY } from '@atlaskit/editor-common/utils/analytics';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { BasePlugin } from '../index';
-
 import { setInteractionType } from './utils/frozen-editor';
 import InputLatencyTracker from './utils/input-latency-tracking';
 
-export const frozenEditorPluginKey = new PluginKey('frozenEditor');
+export const frozenEditorPluginKey: PluginKey = new PluginKey('frozenEditor');
 
 const DEFAULT_KEYSTROKE_SAMPLING_LIMIT = 100;
 const DEFAULT_SLOW_THRESHOLD = 300;
@@ -70,13 +70,13 @@ const dispatchLongTaskEvent =
 	};
 
 export default (
-		contextIdentifierPlugin: ExtractInjectionAPI<BasePlugin>['contextIdentifier'] | undefined,
-	) =>
+	contextIdentifierPlugin: ExtractInjectionAPI<BasePlugin>['contextIdentifier'] | undefined,
+) =>
 	(
 		dispatchAnalyticsEvent: DispatchAnalyticsEvent,
 		inputTracking?: InputTracking,
 		browserFreezeTracking?: BrowserFreezetracking,
-	) => {
+	): SafePlugin => {
 		let interactionType: BROWSER_FREEZE_INTERACTION_TYPE;
 		let inputLatencyTracker: InputLatencyTracker | null = null;
 

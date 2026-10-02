@@ -1,0 +1,69 @@
+{
+	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
+		"team": "People and Teams Collective",
+		"website": {
+			"name": "TeamsAppInternalNavigation",
+			"category": "Layout and structure"
+		}
+	},
+	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-monorepo",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
+	"module:es2019": "dist/es2019/index.js",
+	"types": "dist/types/index.d.ts",
+	"sideEffects": false,
+	"atlaskit:src": "src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./get-navigation-props": "./src/common/utils/getNavigationProps.ts",
+		"./teams-anchor": "./src/ui/TeamsAnchor.tsx",
+		"./teams-link": "./src/ui/TeamsLink.tsx",
+		"./teams-link-button": "./src/ui/TeamsLinkButton.tsx",
+		"./teams-link-item": "./src/ui/TeamsLinkItem.tsx",
+		"./teams-navigation-provider": "./src/ui/TeamsNavigationProvider.tsx",
+		"./use-teams-navigation-context": "./src/ui/useTeamsNavigationContext.tsx"
+	},
+	"dependencies": {
+		"@atlaskit/button": "workspace:^",
+		"@atlaskit/link": "workspace:^",
+		"@atlaskit/menu": "workspace:^",
+		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@babel/runtime": "root:*"
+	},
+	"peerDependencies": {
+		"react": "^18.2.0 || ^19.2.0"
+	},
+	"devDependencies": {
+		"@af/integration-testing": "workspace:^",
+		"@af/visual-regression": "workspace:^",
+		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/teams-app-internal-playground": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
+		"@testing-library/react": "root:*",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0"
+	},
+	"name": "@atlaskit/teams-app-internal-navigation",
+	"version": "3.0.0",
+	"description": "Headless navigation utilities for consistent internal link behaviour across the Teams app.",
+	"author": "Atlassian Pty Ltd",
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
+	"platform-feature-flags": {
+		"ptc-fix-teams-isolated-links": {
+			"type": "boolean"
+		}
+	}
+}

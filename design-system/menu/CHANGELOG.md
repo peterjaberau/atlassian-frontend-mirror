@@ -1,5 +1,307 @@
 # @atlaskit/menu
 
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- [`a65dbad408fc4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a65dbad408fc4) -
+  `CustomItem` is now marked as deprecated. It will be removed in a future release. `className`
+  props on menu items are also now marked as deprecated. Style overrides for menu items are not
+  supported and these props will be removed in a future release.
+
+## 11.0.0
+
+### Major Changes
+
+- [`a8424be03b25e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8424be03b25e) -
+  Remove "SELECTION_STYLE_CONTEXT_DO_NOT_USE" from `@atlaskit/menu/menu-context`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- [`e974cd0ae082c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e974cd0ae082c) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`f0bf5f838abd5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0bf5f838abd5) -
+  Apply Volt entry-point and barrel-removal standards across these packages. Public `exports` now
+  resolve **directly** to `./src/*` implementations instead of intermediate `./src/entry-points/*`
+  re-exports.
+
+  ### Migration
+
+  Prefer published subpaths over the package root or internal entry-point paths:
+
+  ```ts
+  import Calendar from '@atlaskit/calendar/calendar';
+  import Drawer from '@atlaskit/drawer/drawer';
+  import { WidthObserver } from '@atlaskit/width-detector/width-observer';
+  import { DocumentViewer } from '@atlaskit/media-document-viewer/document-viewer';
+  ```
+
+  If you imported through internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Calendar from '@atlaskit/calendar/entry-points/calendar';
+  +import Calendar from '@atlaskit/calendar/calendar';
+
+  -import WidthObserver from '@atlaskit/width-detector/src/WidthObserver';
+  +import { WidthObserver } from '@atlaskit/width-detector/width-observer';
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.6
+
+### Patch Changes
+
+- [`f17fa33159689`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f17fa33159689) -
+  Fix `aria-disabled` on `LinkItem` and `CustomItem` to not emit `aria-disabled="false"` when the
+  item is not disabled. Previously, `aria-disabled={false}` was always rendered which caused axe
+  accessibility failures inside menu roles. Now it renders `aria-disabled="true"` when disabled and
+  omits the attribute otherwise.
+
+## 9.2.5
+
+### Patch Changes
+
+- [`44cfa83f61092`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/44cfa83f61092) -
+  Correct the list item motion transition timing. A CSS transition is governed by the timing
+  declared on the state being transitioned **into**, so the pressed timing
+  (`motion.listitem.pressed`, 100ms) belongs on `:active`, not `:hover`. Declaring it on `:hover`
+  made `normal → hover` (and `selected → hover`) animate at 100ms instead of the intended 50ms. The
+  `:hover` state now uses `motion.listitem.hovered` (50ms) across all list item consumers so both
+  hovering and unhovering animate at 50ms, while `:active` keeps `motion.listitem.pressed` (100ms)
+  and selected variants rest at `motion.listitem.selected` (100ms). Behaviour remains behind the
+  `platform-dst-motion-uplift-list-item` feature gate.
+
+## 9.2.4
+
+### Patch Changes
+
+- [`6490d22c0d837`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6490d22c0d837) -
+  Fix list item pressed motion so the hover to pressed transition uses `motion.listitem.pressed`
+  (100ms) instead of the hover timing (50ms). The pressed timing is now declared on the `:hover`
+  state so the transition into the pressed state animates correctly. Behaviour remains behind the
+  `platform-dst-motion-uplift-list-item` feature gate.
+
+## 9.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.0
+
+### Minor Changes
+
+- [`92dd044d3bd44`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92dd044d3bd44) -
+  Add motion to select/dropdown-kind list items (hover, pressed, and selected interaction states)
+  behind the `platform-dst-motion-uplift-list-item` feature gate. This covers the shared menu item
+  primitive (`@atlaskit/menu`, which also drives Dropdown menu and the date/time picker menus) and
+  the `@atlaskit/select` / `@atlaskit/react-select` options (including checkbox and radio options).
+  Rendering is unchanged when the gate is off. Motion honours `prefers-reduced-motion` and focus
+  rings remain immediate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 9.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`7d6e9b5e6e7c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d6e9b5e6e7c6) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 8.4.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.24
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+
+## 8.4.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.22
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 8.4.21
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 8.4.20
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- Updated dependencies
+
+## 8.4.19
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+
+## 8.4.18
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.4.17
 
 ### Patch Changes

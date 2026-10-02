@@ -2,12 +2,13 @@ import React, { type ReactNode, useCallback, useState } from 'react';
 
 import invariant from 'tiny-invariant';
 
-import { Code } from '@atlaskit/code';
-import Lozenge from '@atlaskit/lozenge';
-import { type Durations, durations, easeIn, easeInOut, easeOut } from '@atlaskit/motion';
+import Code from '@atlaskit/code/code';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { easeIn, easeInOut, easeOut } from '@atlaskit/motion/curves';
+import { type Durations, durations } from '@atlaskit/motion/utils/durations';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Inline, Stack, xcss } from '@atlaskit/primitives';
-import { RadioGroup } from '@atlaskit/radio';
+import RadioGroup from '@atlaskit/radio/radio-group';
 import { type OptionsPropType } from '@atlaskit/radio/types';
 import { token } from '@atlaskit/tokens';
 
@@ -49,7 +50,7 @@ export default function PostDropFlashPrototype(): React.JSX.Element {
 			element.animate(
 				[
 					{
-						backgroundColor: token('color.background.selected', 'transparent'),
+						backgroundColor: token('color.background.selected'),
 					},
 					{},
 				],
@@ -112,7 +113,7 @@ const durationOptions: OptionsPropType = [
 		label: (
 			<OptionLabel description={<>Equal to 700ms</>}>
 				<span>Large</span>
-				<Lozenge appearance="inprogress">Current</Lozenge>
+				<Lozenge appearance="information">Current</Lozenge>
 			</OptionLabel>
 		),
 	},
@@ -176,7 +177,7 @@ const easingOptions: OptionsPropType = [
 				}
 			>
 				<span>Linear</span>
-				<Lozenge appearance="removed">Not @atlaskit/motion</Lozenge>
+				<Lozenge appearance="danger">Not @atlaskit/motion</Lozenge>
 			</OptionLabel>
 		),
 	},
@@ -192,8 +193,8 @@ const easingOptions: OptionsPropType = [
 				}
 			>
 				<span>Browser default</span>
-				<Lozenge appearance="inprogress">Current</Lozenge>
-				<Lozenge appearance="removed">Not @atlaskit/motion</Lozenge>
+				<Lozenge appearance="information">Current</Lozenge>
+				<Lozenge appearance="danger">Not @atlaskit/motion</Lozenge>
 			</OptionLabel>
 		),
 	},

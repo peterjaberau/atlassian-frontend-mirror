@@ -1,7 +1,7 @@
-import { type ElementType, type ReactElement, type ReactNode } from 'react';
+import type { ElementType, ReactElement, ReactNode } from 'react';
 
-import { type ResizeButtonProps } from '../components/resize-control/types';
-import { type LeftSidebarState } from '../controllers/sidebar-resize-context';
+import type { ResizeButtonProps } from '../components/resize-control/types';
+import type { LeftSidebarState } from '../controllers/types';
 
 interface SlotProps {
 	/**
@@ -22,6 +22,9 @@ interface SlotProps {
 	skipLinkTitle?: string;
 }
 
+/**
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface SlotHeightProps extends SlotProps {
 	/**
 	 * It saves the height in local storage.
@@ -33,6 +36,9 @@ export interface SlotHeightProps extends SlotProps {
 	height?: number;
 }
 
+/**
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface SlotWidthProps extends SlotProps {
 	/**
 	 * It saves the width in local storage.
@@ -129,8 +135,14 @@ export type DimensionNames =
 	| 'rightSidebarWidth'
 	| 'rightPanelWidth';
 
+/**
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export type Dimensions = Partial<Record<DimensionNames, number>>;
 
+/**
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface PageLayoutProps extends SidebarResizeControllerProps {
 	/* This prop is used to label the skip links container. Defaults to "Skip to:" */
 	skipLinksLabel?: string;
@@ -139,5 +151,3 @@ export interface PageLayoutProps extends SidebarResizeControllerProps {
 	 */
 	testId?: string;
 }
-
-export type { LeftSidebarState } from '../controllers/sidebar-resize-context';

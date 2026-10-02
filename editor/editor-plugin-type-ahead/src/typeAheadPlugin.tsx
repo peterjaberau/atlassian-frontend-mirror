@@ -8,8 +8,7 @@
  */
 import React from 'react';
 
-import { typeAheadQuery } from '@atlaskit/adf-schema';
-import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
+import { typeAheadQuery } from '@atlaskit/adf-schema/type-ahead-query';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -22,11 +21,12 @@ import type { Command, TypeAheadItem } from '@atlaskit/editor-common/types';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { closeTypeAhead } from './pm-plugins/commands/close-type-ahead';
 import { insertTypeAheadItem } from './pm-plugins/commands/insert-type-ahead-item';
 import { openTypeAheadAtCursor } from './pm-plugins/commands/open-typeahead-at-cursor';
+import { updateSectionTitle } from './pm-plugins/commands/update-section-title';
 import { inputRulePlugin } from './pm-plugins/input-rules';
 import { createPlugin as createInsertItemPlugin } from './pm-plugins/insert-item-plugin';
 import { pluginKey as typeAheadPluginKey } from './pm-plugins/key';
@@ -40,44 +40,20 @@ import {
 	isTypeAheadAllowed,
 	isTypeAheadOpen,
 } from './pm-plugins/utils';
-import { type TypeAheadPlugin } from './typeAheadPluginType';
+import type { TypeAheadPlugin } from './typeAheadPluginType';
 import type { OpenTypeAheadProps, PopupMountPointReference, TypeAheadHandler } from './types';
 import { ContentComponent } from './ui/ContentComponent';
 
 const createOpenAtTransaction =
-	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
 	(props: OpenTypeAheadProps) =>
 	(tr: Transaction): boolean => {
-		const { triggerHandler, inputMethod, query, removePrefixTriggerOnCancel } = props;
-
-		openTypeAheadAtCursor({ triggerHandler, inputMethod, query, removePrefixTriggerOnCancel })({
-			tr,
-		});
-
-		// This function is called from the editor-plugin-emoji and editor-plugin-type-ahead
-		// createOpenAtTransaction <- createOpenTypeAhead <- actions.open
-		// 	<- emoji-plugin (Not used)
-		//  <- type-ahead-plugin (Used)
-		// and this caused the analytics event to be fired twice, as other places are relying on the
-		// `onEditorViewStateUpdated` method to fire the analytics event
-		// We want to disable this event
-		if (!fg('platform_editor_controls_patch_analytics_3')) {
-			editorAnalyticsAPI?.attachAnalyticsEvent({
-				action: ACTION.INVOKED,
-				actionSubject: ACTION_SUBJECT.TYPEAHEAD,
-				actionSubjectId: triggerHandler.id,
-				attributes: { inputMethod },
-				eventType: EVENT_TYPE.UI,
-			})(tr);
-		}
-
-		return true;
+		return openTypeAheadAtCursor(props)({ tr }) !== null;
 	};
 
 type EditorViewRef = Record<'current', EditorView | null>;
 
 const createOpenTypeAhead =
-	(editorViewRef: EditorViewRef, editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
+	(editorViewRef: EditorViewRef) =>
 	(props: OpenTypeAheadProps): boolean => {
 		if (!editorViewRef.current) {
 			return false;
@@ -86,7 +62,9 @@ const createOpenTypeAhead =
 		const { current: view } = editorViewRef;
 		const { tr } = view.state;
 
-		createOpenAtTransaction(editorAnalyticsAPI)(props)(tr);
+		if (!createOpenAtTransaction(props)(tr)) {
+			return false;
+		}
 
 		view.dispatch(tr);
 
@@ -131,6 +109,18 @@ const createFindHandlerByTrigger =
 		const { current: view } = editorViewRef;
 
 		return findHandler(trigger, view.state);
+	};
+
+const createUpdateSectionTitle =
+	(editorViewRef: EditorViewRef) =>
+	(props: Parameters<typeof updateSectionTitle>[0]): boolean => {
+		if (!editorViewRef.current) {
+			return false;
+		}
+
+		const { current: view } = editorViewRef;
+
+		return updateSectionTitle(props)(view.state, view.dispatch);
 	};
 
 type CloseTypeAheadProps = {
@@ -253,6 +243,7 @@ export const typeAheadPlugin: TypeAheadPlugin = ({ api }) => {
 					decorationElement: null,
 					triggerHandler: undefined,
 					items: [],
+					sections: [],
 					errorInfo: null,
 					selectedIndex: 0,
 				};
@@ -270,6 +261,7 @@ export const typeAheadPlugin: TypeAheadPlugin = ({ api }) => {
 				decorationElement: state?.decorationElement ?? null,
 				triggerHandler: state?.triggerHandler,
 				items: state?.items ?? [],
+				sections: state?.sections ?? [],
 				errorInfo: state?.errorInfo ?? null,
 				selectedIndex: state?.selectedIndex ?? 0,
 			};
@@ -277,11 +269,12 @@ export const typeAheadPlugin: TypeAheadPlugin = ({ api }) => {
 		actions: {
 			isOpen: isTypeAheadOpen,
 			isAllowed: isTypeAheadAllowed,
-			open: createOpenTypeAhead(editorViewRef, api?.analytics?.actions),
-			openAtTransaction: createOpenAtTransaction(api?.analytics?.actions),
+			open: createOpenTypeAhead(editorViewRef),
+			openAtTransaction: createOpenAtTransaction,
 			findHandlerByTrigger: createFindHandlerByTrigger(editorViewRef),
 			insert: createInsertTypeAheadItem(editorViewRef),
 			close: createCloseTypeAhead(editorViewRef),
+			updateSectionTitle: createUpdateSectionTitle(editorViewRef),
 		},
 
 		contentComponent({
@@ -351,26 +344,8 @@ export const typeAheadPlugin: TypeAheadPlugin = ({ api }) => {
 					);
 
 				if (!isDuplicateInvokedEvent) {
-					if (fg('platform_editor_controls_patch_analytics_3')) {
-						api?.analytics?.actions?.fireAnalyticsEvent(
-							{
-								action: ACTION.INVOKED,
-								actionSubject: ACTION_SUBJECT.TYPEAHEAD,
-								actionSubjectId: newTriggerHandler.id || 'not_set',
-								attributes: {
-									inputMethod: newPluginState.inputMethod || INPUT_METHOD.KEYBOARD,
-								},
-								eventType: EVENT_TYPE.UI,
-							},
-							undefined,
-							{
-								context: {
-									selection: newEditorState.selection,
-								},
-							},
-						);
-					} else {
-						api?.analytics?.actions?.fireAnalyticsEvent({
+					api?.analytics?.actions?.fireAnalyticsEvent(
+						{
 							action: ACTION.INVOKED,
 							actionSubject: ACTION_SUBJECT.TYPEAHEAD,
 							actionSubjectId: newTriggerHandler.id || 'not_set',
@@ -378,8 +353,14 @@ export const typeAheadPlugin: TypeAheadPlugin = ({ api }) => {
 								inputMethod: newPluginState.inputMethod || INPUT_METHOD.KEYBOARD,
 							},
 							eventType: EVENT_TYPE.UI,
-						});
-					}
+						},
+						undefined,
+						{
+							context: {
+								selection: newEditorState.selection,
+							},
+						},
+					);
 				}
 			} else if (oldIsOpen && !newIsOpen && fg('platform_editor_ease_of_use_metrics')) {
 				api?.core.actions.execute(api?.metrics?.commands.startActiveSessionTimer());

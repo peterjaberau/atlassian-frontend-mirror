@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-common/app",
 		"rootDir": "../",
 		"composite": true,
@@ -46,6 +44,9 @@
 			"path": "../../../uip/atlassian-context/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../helpers/browser-apis/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/button/afm-products/tsconfig.json"
 		},
 		{
@@ -82,13 +83,16 @@
 			"path": "../../editor-toolbar-model/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-ui-control-model/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../elements/emoji/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/icon/afm-products/tsconfig.json"
+			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/icon-object/afm-products/tsconfig.json"
+			"path": "../../../design-system/icon/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/link/afm-products/tsconfig.json"
@@ -98,6 +102,9 @@
 		},
 		{
 			"path": "../../../linking-platform/link-picker/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/logo/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../media/media-card/afm-products/tsconfig.json"
@@ -130,7 +137,13 @@
 			"path": "../../../design-system/menu/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/object/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/onboarding/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
@@ -151,6 +164,9 @@
 			"path": "../../prosemirror-history/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../react-ufo/atlaskit/afm-products/tsconfig.json"
 		},
 		{
@@ -166,16 +182,13 @@
 			"path": "../../../design-system/spinner/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../elements/status/afm-products/tsconfig.json"
-		},
-		{
 			"path": "../../../elements/task-decision/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/textfield/afm-products/tsconfig.json"
+			"path": "../../../people-and-teams/teams-app-config/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/theme/afm-products/tsconfig.json"
+			"path": "../../../design-system/textfield/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"

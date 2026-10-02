@@ -1,8 +1,10 @@
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { confluenceUnsupportedBlock as confluenceUnsupportedBlockFactory } from '../../next-schema/generated/nodeTypes';
 
 const name = 'confluenceUnsupportedBlock';
 
-export const confluenceUnsupportedBlock = confluenceUnsupportedBlockFactory({
+export const confluenceUnsupportedBlock: NodeSpec = confluenceUnsupportedBlockFactory({
 	toDOM(node) {
 		// NOTE: This node cannot be "contenteditable: false". If it's the only node in a document, PM throws an error because there's nowhere to put the cursor.
 		const attrs = {

@@ -5,7 +5,7 @@
 import { useRef, useState } from 'react';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import { Box, Pressable, Stack, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -183,7 +183,7 @@ const Sub = ({ topic, onClose }: { topic: Topic; onClose: () => void }) => {
 	);
 };
 
-export default function () {
+export default function (): JSX.Element {
 	const [mounted, setMounted] = useState(false);
 	const timer = useRef(0);
 

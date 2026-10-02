@@ -1,4 +1,7 @@
-import { type DocNode, PanelType } from '@atlaskit/adf-schema';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import { PanelType } from '@atlaskit/adf-schema/panel';
 
 export const paragraphAdf: DocNode = {
 	version: 1,
@@ -244,6 +247,47 @@ export const panelAdf: DocNode = {
 	],
 };
 
+export const panelWithSmallFontSizeAdf: DocNode = {
+	version: 1,
+	type: 'doc',
+	content: [
+		{
+			type: 'panel',
+			attrs: {
+				panelType: PanelType.INFO,
+			},
+			content: [
+				{
+					type: 'paragraph',
+					content: [
+						{
+							type: 'text',
+							text: 'First line',
+						},
+					],
+				},
+				{
+					type: 'paragraph',
+					content: [
+						{
+							type: 'text',
+							text: 'Second line with small font',
+						},
+					],
+					marks: [
+						{
+							type: 'fontSize',
+							attrs: {
+								fontSize: 'small',
+							},
+						},
+					],
+				},
+			],
+		},
+	],
+};
+
 export const codeBlockAdf: DocNode = {
 	version: 1,
 	type: 'doc',
@@ -327,7 +371,23 @@ export const ruleNodeAdf: DocNode = {
 	],
 };
 
-export const expandAdf = {
+export const expandAdf: {
+	content: {
+		attrs: {
+			title: string;
+		};
+		content: {
+			content: {
+				text: string;
+				type: string;
+			}[];
+			type: string;
+		}[];
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -344,7 +404,26 @@ export const expandAdf = {
 	],
 };
 
-export const layoutAndBigParagraphs = {
+export const layoutAndBigParagraphs: {
+	content: {
+		content: {
+			attrs: {
+				width: number;
+			};
+			content: {
+				content: {
+					text: string;
+					type: string;
+				}[];
+				type: string;
+			}[];
+			type: string;
+		}[];
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -419,7 +498,18 @@ export const layoutAndBigParagraphs = {
 	],
 };
 
-export const embedCardAdf = {
+export const embedCardAdf: {
+	content: {
+		attrs: {
+			layout: string;
+			url: string;
+			width: number;
+		};
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -442,7 +532,24 @@ export const embedCardAdf = {
 	],
 };
 
-export const blockCardAdf = {
+export const blockCardAdf: {
+	content: {
+		attrs: {
+			data: {
+				'@context': string;
+				'@type': string;
+				generator: {
+					icon: string;
+				};
+				name: string;
+				url: string;
+			};
+		};
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -477,7 +584,27 @@ export const blockCardAdf = {
 	],
 };
 
-export const mediaSingleAdf = {
+export const mediaSingleAdf: {
+	content: {
+		attrs: {
+			layout: string;
+			width: null;
+		};
+		content: {
+			attrs: {
+				collection: string;
+				height: number;
+				id: string;
+				type: string;
+				width: number;
+			};
+			type: string;
+		}[];
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [
@@ -522,7 +649,21 @@ export const mediaSingleAdf = {
 	],
 };
 
-export const mediaGroupAdf = {
+export const mediaGroupAdf: {
+	content: {
+		content: {
+			attrs: {
+				collection: string;
+				id: string;
+				type: string;
+			};
+			type: string;
+		}[];
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	type: 'doc',
 	version: 1,
 	content: [
@@ -649,7 +790,29 @@ export const extensionAdf: DocNode = {
 	],
 };
 
-export const tableAdf = {
+export const tableAdf: {
+	content: {
+		attrs: {
+			isNumberColumnEnabled: boolean;
+			layout: string;
+			localId: string;
+		};
+		content: {
+			content: {
+				attrs: {};
+				content: {
+					content: never[];
+					type: string;
+				}[];
+				type: string;
+			}[];
+			type: string;
+		}[];
+		type: string;
+	}[];
+	type: string;
+	version: number;
+} = {
 	version: 1,
 	type: 'doc',
 	content: [

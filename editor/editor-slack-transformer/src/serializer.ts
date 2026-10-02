@@ -1,13 +1,32 @@
 import {
 	MarkdownSerializer as PMMarkdownSerializer,
 	MarkdownSerializerState as PMMarkdownSerializerState,
-	type NodeSerializerSpec,
-	type MarkSerializerSpec,
 } from '@atlaskit/editor-prosemirror/markdown';
+import type { NodeSerializerSpec, MarkSerializerSpec } from '@atlaskit/editor-prosemirror/markdown';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 
+import {
+	collapseTrailingUnwind,
+	isWrapperListItem,
+	listTypes,
+	renderListChildren,
+} from './list-utils';
 import { escapeMarkdown } from './util';
 
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const AT_BLANK_REGEX = /(^|\n)$/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const FLUSH_CLOSE_TRIM_REGEX = /\s+$/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const TRAILING_WS_REGEX = /[^\S\n]+$/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const NESTED_LIST_TRAILING_WS_REGEX = /\n[ \t]+\n$/;
+
+/* eslint-disable @typescript-eslint/method-signature-style -- ProseMirror serializer `nodes` map uses method signatures in type + implementation */
 export class MarkdownSerializerState extends PMMarkdownSerializerState {
 	nodes: NodeSerializerSpec;
 	marks: { [mark: string]: MarkSerializerSpec };
@@ -25,9 +44,7 @@ export class MarkdownSerializerState extends PMMarkdownSerializerState {
 	 * @see https://github.com/ProseMirror/prosemirror-markdown/blob/master/src/to_markdown.ts#L241
 	 */
 	atBlank(): boolean {
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		return /(^|\n)$/.test(this.out);
+		return AT_BLANK_REGEX.test(this.out);
 	}
 
 	/**
@@ -41,9 +58,7 @@ export class MarkdownSerializerState extends PMMarkdownSerializerState {
 			}
 			if (size > 1) {
 				let delimMin = this.delim;
-				// Ignored via go/ees005
-				// eslint-disable-next-line require-unicode-regexp
-				const trim = /\s+$/.exec(delimMin);
+				const trim = FLUSH_CLOSE_TRIM_REGEX.exec(delimMin);
 				if (trim) {
 					delimMin = delimMin.slice(0, delimMin.length - trim[0].length);
 				}
@@ -135,10 +150,6 @@ const unsupportedNodes = {
 		state.write('[sync block]');
 		state.closeBlock(node);
 	},
-	taskList(state: MarkdownSerializerState, node: PMNode): void {
-		state.write('[task list]');
-		state.closeBlock(node);
-	},
 	expand(state: MarkdownSerializerState, node: PMNode): void {
 		state.write('[expand]');
 		state.closeBlock(node);
@@ -161,7 +172,61 @@ const unsupportedNodes = {
 	},
 };
 
-export const nodes = {
+export const nodes: {
+	blockCard(state: MarkdownSerializerState, node: PMNode): void;
+	blockquote(state: MarkdownSerializerState, node: PMNode): void;
+	bodiedExtension(state: MarkdownSerializerState, node: PMNode): void;
+	bodiedSyncBlock(state: MarkdownSerializerState, node: PMNode): void;
+	bulletList(state: MarkdownSerializerState, node: PMNode): void;
+	caption(state: MarkdownSerializerState, node: PMNode): void;
+	codeBlock(state: MarkdownSerializerState, node: PMNode): void;
+	confluenceJiraIssue(state: MarkdownSerializerState, node: PMNode): void;
+	confluenceUnsupportedBlock(state: MarkdownSerializerState): void;
+	confluenceUnsupportedInline(state: MarkdownSerializerState): void;
+	date(state: MarkdownSerializerState, node: PMNode): void;
+	decisionItem(state: MarkdownSerializerState, node: PMNode, parent: PMNode, index: number): void;
+	decisionList(state: MarkdownSerializerState, node: PMNode): void;
+	embedCard(state: MarkdownSerializerState, node: PMNode): void;
+	emoji(state: MarkdownSerializerState, node: PMNode): void;
+	empty_line(state: MarkdownSerializerState, node: PMNode): void;
+	expand(state: MarkdownSerializerState, node: PMNode): void;
+	extension(state: MarkdownSerializerState, node: PMNode): void;
+	hardBreak(state: MarkdownSerializerState): void;
+	heading(state: MarkdownSerializerState, node: PMNode): void;
+	image(state: MarkdownSerializerState, node: PMNode): void;
+	/**
+	 * Inline cards with url type attributes will be sent as a link
+	 */
+	inlineCard(state: MarkdownSerializerState, node: PMNode): void;
+	inlineExtension(state: MarkdownSerializerState): void;
+	layoutColumn(state: MarkdownSerializerState, node: PMNode): void;
+	layoutSection(state: MarkdownSerializerState, node: PMNode): void;
+	listItem(state: MarkdownSerializerState, node: PMNode, parent: PMNode, index: number): void;
+	/**
+	 * Slack markdown does not have specific syntax for images/files.
+	 * We just show that there's an image attached as a link and a media just as a text.
+	 */
+	media(state: MarkdownSerializerState): void;
+	mediaGroup(state: MarkdownSerializerState, node: PMNode): void;
+	mediaInline(state: MarkdownSerializerState, node: PMNode): void;
+	mediaSingle(state: MarkdownSerializerState, node: PMNode): void;
+	mention(state: MarkdownSerializerState, node: PMNode, parent: PMNode, index: number): void;
+	nestedExpand(state: MarkdownSerializerState, node: PMNode): void;
+	orderedList(state: MarkdownSerializerState, node: PMNode): void;
+	panel(state: MarkdownSerializerState, node: PMNode): void;
+	panel_c1(state: MarkdownSerializerState, node: PMNode): void;
+	paragraph(state: MarkdownSerializerState, node: PMNode): void;
+	placeholder(state: MarkdownSerializerState, node: PMNode): void;
+	rule(state: MarkdownSerializerState, node: PMNode): void;
+	status(state: MarkdownSerializerState, node: PMNode): void;
+	syncBlock(state: MarkdownSerializerState, node: PMNode): void;
+	table(state: MarkdownSerializerState, node: PMNode): void;
+	taskItem(state: MarkdownSerializerState, node: PMNode, parent: PMNode, index: number): void;
+	taskList(state: MarkdownSerializerState, node: PMNode, parent: PMNode, index: number): void;
+	text(state: MarkdownSerializerState, node: PMNode): void;
+	unsupportedBlock(state: MarkdownSerializerState): void;
+	unsupportedInline(state: MarkdownSerializerState): void;
+} = {
 	blockquote(state: MarkdownSerializerState, node: PMNode): void {
 		state.wrapBlock('> ', null, node, () => state.renderContent(node));
 	},
@@ -181,26 +246,60 @@ export const nodes = {
 		state.closeBlock(node);
 	},
 	bulletList(state: MarkdownSerializerState, node: PMNode): void {
-		for (let i = 0; i < node.childCount; i++) {
-			const child = node.child(i);
-
-			state.render(child, node, i);
-		}
+		renderListChildren(state, node);
 	},
 	orderedList(state: MarkdownSerializerState, node: PMNode): void {
-		for (let i = 0; i < node.childCount; i++) {
-			const child = node.child(i);
-
-			state.render(child, node, i);
+		renderListChildren(state, node);
+	},
+	taskList(state: MarkdownSerializerState, node: PMNode, parent: PMNode, index: number): void {
+		if (parent.type.name === 'taskList') {
+			// Nested: indent each child 2 spaces
+			for (let i = 0; i < node.childCount; i++) {
+				state.wrapBlock('  ', null, node, () => state.render(node.child(i), node, i));
+				state.flushClose(1);
+			}
+			collapseTrailingUnwind(state);
+			if (index === parent.childCount - 1) {
+				state.write('\n');
+			}
+		} else {
+			renderListChildren(state, node);
+		}
+	},
+	taskItem(state: MarkdownSerializerState, node: PMNode, parent: PMNode, index: number): void {
+		const checkbox = node.attrs.state === 'DONE' ? '[x] ' : '[ ] ';
+		state.wrapBlock('  ', checkbox, node, () => state.renderInline(node));
+		state.flushClose(1);
+		if (index === parent.childCount - 1) {
+			state.write('\n');
 		}
 	},
 	listItem(state: MarkdownSerializerState, node: PMNode, parent: PMNode, index: number): void {
+		if (isWrapperListItem(node)) {
+			// Strip parent wrapBlock's pre-written whitespace; delim handles indentation.
+			if (!state.atBlank()) {
+				const trailingWs = TRAILING_WS_REGEX.exec(state.out);
+				if (trailingWs) {
+					state.out = state.out.slice(0, -trailingWs[0].length);
+				}
+			}
+
+			const prevDelim = state.delim;
+			state.delim += '    ';
+			renderListChildren(state, node);
+			state.delim = prevDelim;
+
+			// Strip trailing whitespace-only line to prevent extra blank lines.
+			state.out = state.out.replace(NESTED_LIST_TRAILING_WS_REGEX, '\n');
+			return;
+		}
+
 		const delimiter = parent.type.name === 'bulletList' ? '• ' : `${index + 1}. `;
 
 		for (let i = 0; i < node.childCount; i++) {
 			const child = node.child(i);
 
-			if (i > 0) {
+			if (i > 0 && !listTypes.has(child.type.name)) {
 				state.write('\n');
 			}
 
@@ -215,6 +314,12 @@ export const nodes = {
 			}
 
 			state.flushClose(1);
+		}
+
+		// Collapse nested list unwinding whitespace.
+		const lastChild = node.child(node.childCount - 1);
+		if (node.childCount > 1 && listTypes.has(lastChild.type.name)) {
+			collapseTrailingUnwind(state);
 		}
 
 		if (index === parent.childCount - 1) {
@@ -329,6 +434,9 @@ export const nodes = {
 		state.write(`*${node.attrs.text}*`);
 	},
 	panel(state: MarkdownSerializerState, node: PMNode): void {
+		state.renderInline(node);
+	},
+	panel_c1(state: MarkdownSerializerState, node: PMNode): void {
 		state.renderInline(node);
 	},
 	placeholder(state: MarkdownSerializerState, node: PMNode): void {

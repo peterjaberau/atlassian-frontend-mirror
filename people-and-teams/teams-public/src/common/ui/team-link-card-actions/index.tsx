@@ -1,15 +1,17 @@
 import React from 'react';
 
-import { defineMessages, useIntl } from 'react-intl-next';
+import { defineMessages, useIntl } from 'react-intl';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import { cssMap, cx } from '@atlaskit/css';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import CrossIcon from '@atlaskit/icon/core/cross';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
 import { Box } from '@atlaskit/primitives/compiled';
-import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics';
-import Tooltip from '@atlaskit/tooltip';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { type ContainerTypes } from '../../types';
 
@@ -43,12 +45,12 @@ const messages = defineMessages({
 	editLink: {
 		id: 'ptc-directory.team-containers.edit-link',
 		defaultMessage: 'Edit link',
-		description: 'Edit link option in dropdown',
+		description: 'Dropdown menu option label to edit a team container link',
 	},
 	removeLink: {
 		id: 'ptc-directory.team-containers.remove-link',
 		defaultMessage: 'Remove',
-		description: 'Remove link option in dropdown',
+		description: 'Dropdown menu option label to remove a team container link',
 	},
 });
 

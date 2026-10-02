@@ -1,11 +1,15 @@
 import React from 'react';
+
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import FabricAnalyticsListener, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import TaskList from '../../../../react/nodes/taskList';
-import TaskItem from '../../../../react/nodes/taskItem';
-import ReactSerializer from '../../../../react';
+
+import FabricAnalyticsListener from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
 import { renderWithIntl } from '@atlaskit/editor-test-helpers/rtl';
+
+import ReactSerializer from '../../../../react';
+import TaskItem from '../../../../react/nodes/taskItem';
+import TaskList from '../../../../react/nodes/taskList';
 
 describe('Renderer - React/Nodes/TaskList', () => {
 	let analyticsWebClientMock: AnalyticsWebClient;

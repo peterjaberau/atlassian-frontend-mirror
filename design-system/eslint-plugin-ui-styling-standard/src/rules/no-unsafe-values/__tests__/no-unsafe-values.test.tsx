@@ -1,4 +1,4 @@
-import { typescriptEslintTester } from '../../__tests__/utils/_tester';
+import { typescriptEslintTester } from '../../__tests__/utils/_ts-tester';
 import rule from '../index';
 
 typescriptEslintTester.run(
@@ -7,6 +7,19 @@ typescriptEslintTester.run(
 	rule,
 	{
 		valid: [
+			{
+				name: 'literal values wrapped in satisfies expressions',
+				code: `
+          import { cssMap } from '@atlaskit/css';
+          import type { Layers } from '@atlaskit/theme/types';
+
+          const styles = cssMap({
+            root: {
+              zIndex: 510 as const satisfies Layers['modal'],
+            },
+          });
+        `,
+			},
 			{
 				name: 'literal values',
 				code: `

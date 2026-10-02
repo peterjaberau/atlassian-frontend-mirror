@@ -11,6 +11,7 @@ import IconButtonDefault from '../../examples/constellation/new-button/icon-butt
 import IconButtonTooltip from '../../examples/constellation/new-button/icon-button/icon-button-tooltip';
 import IconButtonTooltipOptions from '../../examples/constellation/new-button/icon-button/icon-button-tooltip-options';
 import IconButtonPrimary from '../../examples/constellation/new-button/icon-button/icon-button-primary';
+import IconButtonRovo from '../../examples/constellation/new-button/icon-button/icon-button-rovo';
 import IconButtonSubtle from '../../examples/constellation/new-button/icon-button/icon-button-subtle';
 import IconButtonCircle from '../../examples/constellation/new-button/icon-button/icon-button-circle';
 import IconButtonIconOverrides from '../../examples/constellation/new-button/icon-button/icon-button-icon-overrides';
@@ -51,7 +52,7 @@ Use the `tooltip` prop to override the default tooltip props. It accepts all
 
 A primary button calls attention to the most important action on a page or in an area. Primary icon
 buttons aren't common because critical actions should typically use
-[a button with a label for clarity](/components/button/button-new).
+[a button with a label for clarity](/components/button).
 
 <Example Component={IconButtonPrimary} packageName="@atlaskit/button" />
 
@@ -60,6 +61,12 @@ buttons aren't common because critical actions should typically use
 Use a `subtle` icon button for secondary actions.
 
 <Example Component={IconButtonSubtle} packageName="@atlaskit/button" />
+
+### Rovo
+
+Use the `rovo` icon button for primary Rovo actions such as "send" in Prompt boxes.
+
+<Example Component={IconButtonRovo} packageName="@atlaskit/button" />
 
 ## Spacing
 
@@ -91,7 +98,7 @@ Set `isDisabled` to disable an icon button that shouldn't be actionable. The ico
 faded and won't respond to user interaction.
 
 Avoid disabling buttons because this can cause accessibility problems, and
-[never put a tooltip on a disabled button](/components/button-new/usage#do-not-put-tooltips-on-disabled-buttons).
+[never put a tooltip on a disabled button](/components/button/usage#do-not-put-tooltips-on-disabled-buttons).
 
 <Example Component={IconButtonDisabled} packageName="@atlaskit/button" />
 

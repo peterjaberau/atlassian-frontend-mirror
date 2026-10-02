@@ -1,5 +1,398 @@
 # @atlaskit/drawer
 
+## 14.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.1
+
+### Patch Changes
+
+- [`8bf78ac3a01ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8bf78ac3a01ec) -
+  Experimental React 19 support: widen the peer dependency range, use React 19 in development, and
+  replace the React 16-only lorem helper in the surface detection example. Test coverage remains
+  partial.
+- Updated dependencies
+
+## 14.2.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Major Changes
+
+- [`f0bf5f838abd5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0bf5f838abd5) -
+  Apply Volt entry-point and barrel-removal standards across these packages. Public `exports` now
+  resolve **directly** to `./src/*` implementations instead of intermediate `./src/entry-points/*`
+  re-exports.
+
+  ### Migration
+
+  Prefer published subpaths over the package root or internal entry-point paths:
+
+  ```ts
+  import Calendar from '@atlaskit/calendar/calendar';
+  import Drawer from '@atlaskit/drawer/drawer';
+  import { WidthObserver } from '@atlaskit/width-detector/width-observer';
+  import { DocumentViewer } from '@atlaskit/media-document-viewer/document-viewer';
+  ```
+
+  If you imported through internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Calendar from '@atlaskit/calendar/entry-points/calendar';
+  +import Calendar from '@atlaskit/calendar/calendar';
+
+  -import WidthObserver from '@atlaskit/width-detector/src/WidthObserver';
+  +import { WidthObserver } from '@atlaskit/width-detector/width-observer';
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.0
+
+### Minor Changes
+
+- [`3f6f3bd7da074`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f6f3bd7da074) -
+  Updates usage of the Top Layer primitives to consume changes to animation API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.2
+
+### Patch Changes
+
+- [`7793dc62dd564`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7793dc62dd564) -
+  Internal refactor of upcoming top-layer usage
+- Updated dependencies
+
+## 13.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.0
+
+### Minor Changes
+
+- [`530dfb5aee695`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/530dfb5aee695) -
+  Updates how animations are applied to Drawer when the `platform-dst-top-layer` feature gate is
+  enabled.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`e297058763bc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e297058763bc0) -
+  Add a top-layer rendering path for `Drawer` behind the `platform-dst-top-layer` feature gate. Some
+  focus-management and labelling props behave slightly differently on the native dialog path.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- [`820f00bd7db09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/820f00bd7db09) -
+  Enable platform-dst-motion-uplift-button by default in constellation examples so button motion is
+  previewed in component demos. Docs/examples-only; no change to shipped component behaviour.
+
+## 13.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- [`cfe3aecafd8ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cfe3aecafd8ba) -
+  [ux] React 19 migration - RefObject no longer makes current nullable by default
+
+## 12.1.0
+
+### Minor Changes
+
+- [`31b1ede297136`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31b1ede297136) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`d2ad22e31f982`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2ad22e31f982) -
+  Removes unused entrypoint @ak/drawer/constants from public API given it is unused by package
+  source code.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 11.0.26
 
 ### Patch Changes

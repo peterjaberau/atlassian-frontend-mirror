@@ -2,42 +2,43 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
-import { B400, N200, N800 } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
-import {
-	type AnalyticsEventPayload,
-	withAnalyticsEvents,
-	type WithAnalyticsEventsProps,
-} from '@atlaskit/analytics-next';
 
-import { createAndFireEventInElementsChannel, userInfoEvent } from '../../analytics';
+import React from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import { css, jsx, type SerializedStyles } from '@emotion/react';
+
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
+import getAppearanceForAppType from '@atlaskit/avatar/get-appearance';
+import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+
+import { createAndFireEventInElementsChannel } from '../../analytics';
 import { type ExternalUser } from '../../types';
-import { textWrapper } from '../AvatarItemOption';
+import { userInfoEvent } from '../../userInfoEvent';
 import { AvatarOrIcon } from '../AvatarOrIcon';
-import { SizeableAvatar } from '../SizeableAvatar';
 import { ExternalUserSourcesContainer } from '../ExternalUserSourcesContainer';
-import InfoIcon from './InfoIcon';
+import { SizeableAvatar } from '../SizeableAvatar';
+import { textWrapper } from '../textWrapper';
 import { ExternalAvatarItemOption } from './ExternalAvatarItemOption';
+import InfoIcon from './InfoIcon';
 import { SourcesTooltipContent } from './SourcesTooltipContent';
-import { getAppearanceForAppType } from '@atlaskit/avatar';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const imageContainer = css({
+export const imageContainer: SerializedStyles = css({
 	height: '16px',
 	width: '16px',
-	paddingRight: token('space.050', '4px'),
+	paddingRight: token('space.050'),
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const emailDomainWrapper = css({
+export const emailDomainWrapper: SerializedStyles = css({
 	fontWeight: token('font.weight.bold'),
 });
 
@@ -70,7 +71,7 @@ class ExternalUserOptionImpl extends React.PureComponent<ExternalUserOptionProps
 				key="name"
 				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 				css={textWrapper(
-					this.props.isSelected ? token('color.text.selected', B400) : token('color.text', N800),
+					this.props.isSelected ? token('color.text.selected') : token('color.text'),
 				)}
 			>
 				{name}
@@ -86,8 +87,8 @@ class ExternalUserOptionImpl extends React.PureComponent<ExternalUserOptionProps
 		}
 
 		const textColor = this.props.isSelected
-			? token('color.text.selected', B400)
-			: token('color.text.subtlest', N200);
+			? token('color.text.selected')
+			: token('color.text.subtlest');
 
 		// Render byline if present
 		if (byline) {
@@ -125,11 +126,7 @@ class ExternalUserOptionImpl extends React.PureComponent<ExternalUserOptionProps
 					iconColor={iconColor}
 					src={avatarUrl}
 					presence={status}
-					avatarAppearanceShape={
-						fg('jira_ai_agent_avatar_user_picker_user_option')
-							? getAppearanceForAppType(appType)
-							: undefined
-					}
+					avatarAppearanceShape={getAppearanceForAppType(appType)}
 				/>
 			);
 		}
@@ -139,11 +136,7 @@ class ExternalUserOptionImpl extends React.PureComponent<ExternalUserOptionProps
 				appearance="big"
 				src={avatarUrl}
 				presence={status}
-				avatarAppearanceShape={
-					fg('jira_ai_agent_avatar_user_picker_user_option')
-						? getAppearanceForAppType(appType)
-						: undefined
-				}
+				avatarAppearanceShape={getAppearanceForAppType(appType)}
 			/>
 		);
 	};
@@ -190,4 +183,14 @@ class ExternalUserOptionImpl extends React.PureComponent<ExternalUserOptionProps
 	}
 }
 
-export const ExternalUserOption = withAnalyticsEvents()(ExternalUserOptionImpl);
+export const ExternalUserOption: React.ForwardRefExoticComponent<
+	Omit<
+		{
+			isSelected: boolean;
+			status?: string;
+			user: ExternalUser;
+		},
+		keyof WithAnalyticsEventsProps
+	> &
+		React.RefAttributes<any>
+> = withAnalyticsEvents()(ExternalUserOptionImpl);

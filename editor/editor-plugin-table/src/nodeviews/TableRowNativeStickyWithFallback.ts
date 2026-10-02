@@ -1,7 +1,12 @@
 import debounce from 'lodash/debounce';
 import throttle from 'lodash/throttle';
 
-import { ACTION_SUBJECT_ID, ACTION_SUBJECT, EVENT_TYPE, TABLE_ACTION } from '@atlaskit/editor-common/analytics';
+import {
+	ACTION_SUBJECT_ID,
+	ACTION_SUBJECT,
+	EVENT_TYPE,
+	TABLE_ACTION,
+} from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import { getParentOfTypeCount } from '@atlaskit/editor-common/nesting';
 import { nodeVisibilityManager } from '@atlaskit/editor-common/node-visibility';
@@ -10,7 +15,7 @@ import { findOverflowScrollParent } from '@atlaskit/editor-common/ui';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { findParentNodeClosestToPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { INITIAL_STATIC_VIEWPORT_HEIGHT } from '../pm-plugins/editor-content-area-height';
@@ -18,14 +23,14 @@ import { getPluginState } from '../pm-plugins/plugin-factory';
 import { pluginKey as tablePluginKey } from '../pm-plugins/plugin-key';
 import { updateStickyState } from '../pm-plugins/sticky-headers/commands';
 import {
+	clearStickyCornerMaskPositions,
 	syncStickyRowToTable,
 	updateStickyMargins as updateTableMargin,
 } from '../pm-plugins/table-resizing/utils/dom';
-import type { TableDOMElements } from '../pm-plugins/utils/dom';
-import { areAllRectsZero, getTop, getTree } from '../pm-plugins/utils/dom';
-import { supportedHeaderRow } from '../pm-plugins/utils/nodes';
-import type { TablePluginState } from '../types';
+import { type TableDOMElements, areAllRectsZero, getTop, getTree } from '../pm-plugins/utils/dom';
+import { getTableRowIndex, supportedHeaderRow } from '../pm-plugins/utils/nodes';
 import {
+	type TablePluginState,
 	TableCssClassName as ClassName,
 	TableCssClassName,
 	type PluginInjectionAPI,
@@ -36,7 +41,6 @@ import {
 	tableControlsSpacing,
 	tableScrollbarOffset,
 } from '../ui/consts';
-
 import TableNodeView from './TableNodeViewBase';
 
 interface SentinelData {
@@ -54,8 +58,10 @@ const HEADER_ROW_SCROLL_RESET_DEBOUNCE_TIMEOUT = 400;
 
 export default class TableRowNativeStickyWithFallback
 	extends TableNodeView<HTMLTableRowElement>
-	implements NodeView {
+	implements NodeView
+{
 	private nodeVisibilityObserverCleanupFn?: () => void;
+	private limitedModeUnsubscribe?: () => void;
 
 	cleanup = (): void => {
 		if (this.isStickyHeaderEnabled) {
@@ -87,7 +93,13 @@ export default class TableRowNativeStickyWithFallback
 	) {
 		super(node, view, getPos, eventDispatcher);
 
-		this.isHeaderRow = supportedHeaderRow(node);
+		const rowIndex = getTableRowIndex(view, getPos);
+		this.isHeaderRow = supportedHeaderRow(node, rowIndex);
+
+		if (this.isHeaderRow) {
+			this.isSingleRowTable = this.checkIsSingleRowTable();
+		}
+
 		this.isLegacySticky = false;
 
 		const { pluginConfig } = getPluginState(view.state);
@@ -95,20 +107,53 @@ export default class TableRowNativeStickyWithFallback
 		this.isStickyHeaderEnabled = !!pluginConfig.stickyHeaders;
 		this.api = api;
 
-		if (
-			api?.limitedMode?.sharedState.currentState()?.limitedModePluginKey.getState(view.state)
-				?.documentSizeBreachesThreshold
-		) {
-			this.isStickyHeaderEnabled = false;
-			// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
-			document.addEventListener('limited-mode-activated', this.cleanup);
+		// Sticky headers are the only thing limited mode turns off here, so there is nothing to read
+		// or subscribe to when they were never enabled for this editor.
+		if (isExperimentEnabled('platform_editor_dynamic_limited_mode')) {
+			const limitedMode = this.isStickyHeaderEnabled ? api?.limitedMode?.sharedState : undefined;
+
+			if (limitedMode?.currentState()?.enabled) {
+				this.isStickyHeaderEnabled = false;
+			} else {
+				this.limitedModeUnsubscribe = limitedMode?.onChange(({ nextSharedState }) => {
+					if (!nextSharedState?.enabled) {
+						return;
+					}
+
+					// Order matters: cleanup() short-circuits unless sticky headers are still marked enabled.
+					this.cleanup();
+					this.isStickyHeaderEnabled = false;
+
+					// Limited mode never turns back off, so this listener has done its job.
+					this.limitedModeUnsubscribe?.();
+					this.limitedModeUnsubscribe = undefined;
+				});
+			}
+		} else {
+			if (
+				api?.limitedMode?.sharedState.currentState()?.limitedModePluginKey.getState(view.state)
+					?.documentSizeBreachesThreshold
+			) {
+				this.isStickyHeaderEnabled = false;
+				// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
+				document.addEventListener('limited-mode-activated', this.cleanup);
+			}
 		}
 
 		const pos = this.getPos();
 		this.isInNestedTable = false;
-		if (pos) {
-			this.isInNestedTable =
-				getParentOfTypeCount(view.state.schema.nodes.table)(view.state.doc.resolve(pos)) > 1;
+
+		try {
+			// We cannot trust that the value from getPos will be defined
+			// https://discuss.prosemirror.net/t/getpos-is-undefined-in-nodeview-constructor/1246/4
+			// There are also scenarios where the value it brings back does not tally with the current doc
+			// E.g. when AI streaming brings in new content, this position brings back incorrect values that cannot be resolved
+			if (pos) {
+				this.isInNestedTable =
+					getParentOfTypeCount(view.state.schema.nodes.table)(view.state.doc.resolve(pos)) > 1;
+			}
+		} catch {
+			// Intentionally swallowed — getPos can return stale positions during AI streaming
 		}
 
 		if (this.isHeaderRow) {
@@ -122,11 +167,7 @@ export default class TableRowNativeStickyWithFallback
 			});
 		}
 
-		if (
-			this.isHeaderRow &&
-			this.isStickyHeaderEnabled &&
-			fg('platform_editor_table_sticky_header_patch_4')
-		) {
+		if (this.isHeaderRow && this.isStickyHeaderEnabled) {
 			this.onEditorContentAreaHeightChange = api?.table?.sharedState.onChange(
 				({ nextSharedState }) => {
 					if (
@@ -177,17 +218,17 @@ export default class TableRowNativeStickyWithFallback
 		bottom: SentinelData;
 		top: SentinelData;
 	} = {
-			top: {
-				isIntersecting: false,
-				boundingClientRect: null,
-				rootBounds: null,
-			},
-			bottom: {
-				isIntersecting: false,
-				boundingClientRect: null,
-				rootBounds: null,
-			},
-		};
+		top: {
+			isIntersecting: false,
+			boundingClientRect: null,
+			rootBounds: null,
+		},
+		bottom: {
+			isIntersecting: false,
+			boundingClientRect: null,
+			rootBounds: null,
+		},
+	};
 	private stickyRowHeight?: number;
 	private listening = false;
 	private padding: number = 0;
@@ -206,6 +247,7 @@ export default class TableRowNativeStickyWithFallback
 	private onEditorContentAreaHeightChange?: () => void;
 	private editorContentAreaHeight?: number;
 	private nodeVisibilityObserver?: IntersectionObserver;
+	private isSingleRowTable: boolean = false;
 
 	/**
 	 * Methods: Nodeview Lifecycle
@@ -213,6 +255,10 @@ export default class TableRowNativeStickyWithFallback
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	update(node: PMNode, ..._args: any[]): boolean {
+		if (this.isHeaderRow) {
+			this.updateSingleRowTableStickyHeaderState();
+		}
+
 		// do nothing if nodes were identical
 		if (node === this.node) {
 			return true;
@@ -220,7 +266,8 @@ export default class TableRowNativeStickyWithFallback
 
 		// see if we're changing into a header row or
 		// changing away from one
-		const newNodeIsHeaderRow = supportedHeaderRow(node);
+		const rowIndex = getTableRowIndex(this.view, this.getPos);
+		const newNodeIsHeaderRow = supportedHeaderRow(node, rowIndex);
 		if (this.isHeaderRow !== newNodeIsHeaderRow) {
 			if (!newNodeIsHeaderRow && this.isHeaderRow) {
 				this.dom
@@ -265,8 +312,13 @@ export default class TableRowNativeStickyWithFallback
 			this.emitOff(true);
 		}
 
-		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
-		document.removeEventListener('limited-mode-activated', this.cleanup);
+		if (isExperimentEnabled('platform_editor_dynamic_limited_mode')) {
+			this.limitedModeUnsubscribe?.();
+			this.limitedModeUnsubscribe = undefined;
+		} else {
+			// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
+			document.removeEventListener('limited-mode-activated', this.cleanup);
+		}
 
 		if (this.tableContainerObserver) {
 			this.tableContainerObserver.disconnect();
@@ -329,47 +381,49 @@ export default class TableRowNativeStickyWithFallback
 			this.initObservers();
 			this.topPosEditorElement = getTop(this.editorScrollableElement);
 
-			if (fg('platform_editor_table_sticky_header_patch_5')) {
-				this.scrollListener = () => {
-					if (this.hasScrolledSinceLoad) {
+			this.scrollListener = () => {
+				if (this.hasScrolledSinceLoad) {
+					return;
+				}
+				this.hasScrolledSinceLoad = true;
+
+				if (!this.overflowObserver) {
+					return;
+				}
+
+				// Re-check intersection state now that scrolling has occurred
+				const entries = this.overflowObserverEntries ?? this.overflowObserver.takeRecords();
+				this.overflowObserverEntries = undefined;
+
+				/** NOTE: This logic is duplicated in the overflowObserver callback
+				 *  to avoid conflicting with a follow up refactor where this will
+				 *  be cleaned up.
+				 */
+				entries.forEach((entry) => {
+					if (this.updateSingleRowTableStickyHeaderState()) {
 						return;
 					}
-					this.hasScrolledSinceLoad = true;
 
-					if (!this.overflowObserver) {
-						return;
-					}
-
-					// Re-check intersection state now that scrolling has occurred
-					const entries = this.overflowObserverEntries ?? this.overflowObserver.takeRecords();
-					this.overflowObserverEntries = undefined;
-
-					/** NOTE: This logic is duplicated in the overflowObserver callback
-					 *  to avoid conflicting with a follow up refactor where this will
-					 *  be cleaned up.
-					 */
-					entries.forEach((entry) => {
-						const tableWrapper = this.dom.closest(`.${ClassName.TABLE_NODE_WRAPPER}`);
-						if (tableWrapper && tableWrapper instanceof HTMLElement && ((!areAllRectsZero(entry) && expValEquals('platform_editor_table_sticky_header_patch_10', 'isEnabled', true)) || !expValEquals('platform_editor_table_sticky_header_patch_10', 'isEnabled', true))) {
-							if (entry.isIntersecting) {
-								tableWrapper.classList.add(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
-								this.dom.classList.add(ClassName.NATIVE_STICKY);
-								this.isNativeSticky = true;
-							} else {
-								tableWrapper.classList.remove(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
-								this.dom.classList.remove(ClassName.NATIVE_STICKY);
-								this.isNativeSticky = false;
-							}
-							this.refreshLegacyStickyState();
+					const tableWrapper = this.dom.closest(`.${ClassName.TABLE_NODE_WRAPPER}`);
+					if (tableWrapper && tableWrapper instanceof HTMLElement && !areAllRectsZero(entry)) {
+						if (entry.isIntersecting) {
+							tableWrapper.classList.add(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
+							this.dom.classList.add(ClassName.NATIVE_STICKY);
+							this.isNativeSticky = true;
+						} else {
+							tableWrapper.classList.remove(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
+							this.dom.classList.remove(ClassName.NATIVE_STICKY);
+							this.isNativeSticky = false;
 						}
-					});
-				};
-				// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
-				this.editorScrollableElement.addEventListener('scroll', this.scrollListener, {
-					passive: true,
-					once: true,
+						this.refreshLegacyStickyState();
+					}
 				});
-			}
+			};
+			// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
+			this.editorScrollableElement.addEventListener('scroll', this.scrollListener, {
+				passive: true,
+				once: true,
+			});
 		}
 
 		this.eventDispatcher.on('widthPlugin', this.updateStickyHeaderWidth.bind(this));
@@ -446,46 +500,37 @@ export default class TableRowNativeStickyWithFallback
 				if (!(observer.root instanceof HTMLElement)) {
 					return;
 				}
+				if (this.updateSingleRowTableStickyHeaderState()) {
+					return;
+				}
 				// Only apply classes if page has scrolled since load
-				if (!this.hasScrolledSinceLoad && fg('platform_editor_table_sticky_header_patch_5')) {
+				if (!this.hasScrolledSinceLoad) {
 					this.overflowObserverEntries = entries;
 					return;
 				}
 
 				if (entry.isIntersecting) {
-					if (fg('platform_editor_table_sticky_header_patch_4')) {
-						observer.root.classList.add(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
-						if (!this.disableNativeSticky) {
-							this.dom.classList.add(ClassName.NATIVE_STICKY);
-						}
-					} else {
-						observer.root.classList.add(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
+					observer.root.classList.add(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
+					if (!this.disableNativeSticky) {
 						this.dom.classList.add(ClassName.NATIVE_STICKY);
 					}
 					this.isNativeSticky = true;
 				} else {
-					if (fg('platform_editor_table_sticky_header_patch_4')) {
-						observer.root.classList.remove(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
-						this.dom.classList.remove(ClassName.NATIVE_STICKY);
-					} else {
-						observer.root.classList.remove(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
-						this.dom.classList.remove(ClassName.NATIVE_STICKY);
-					}
+					observer.root.classList.remove(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
+					this.dom.classList.remove(ClassName.NATIVE_STICKY);
 					this.isNativeSticky = false;
 				}
 
 				this.refreshLegacyStickyState();
-				if (expValEquals('platform_editor_table_sticky_header_patch_9', 'isEnabled', true)) {
-					this.api?.analytics?.actions?.fireAnalyticsEvent({
-						action: TABLE_ACTION.STICKY_HEADER_METHOD_TOGGLED,
-						actionSubject: ACTION_SUBJECT.TABLE,
-						actionSubjectId: ACTION_SUBJECT_ID.TABLE_STICKY_HEADER,
-						eventType: EVENT_TYPE.UI,
-						attributes: {
-							nativeStickyHeaderEnabled: entry.isIntersecting,
-						},
-					})
-				}
+				this.api?.analytics?.actions?.fireAnalyticsEvent({
+					action: TABLE_ACTION.STICKY_HEADER_METHOD_TOGGLED,
+					actionSubject: ACTION_SUBJECT.TABLE,
+					actionSubjectId: ACTION_SUBJECT_ID.TABLE_STICKY_HEADER,
+					eventType: EVENT_TYPE.UI,
+					attributes: {
+						nativeStickyHeaderEnabled: entry.isIntersecting,
+					},
+				});
 			});
 		}, options);
 	}
@@ -508,11 +553,12 @@ export default class TableRowNativeStickyWithFallback
 
 		this.stickyStateObserver = new IntersectionObserver((entries) => {
 			entries.forEach((entry) => {
+				if (this.updateSingleRowTableStickyHeaderState()) {
+					return;
+				}
+
 				const tableContainer = this.dom.closest(`.${ClassName.TABLE_CONTAINER}`);
-				if (
-					entry.intersectionRect.top === entry.rootBounds?.top &&
-					(!this.disableNativeSticky || !fg('platform_editor_table_sticky_header_patch_4'))
-				) {
+				if (entry.intersectionRect.top === entry.rootBounds?.top && !this.disableNativeSticky) {
 					this.dom.classList.add(ClassName.NATIVE_STICKY_ACTIVE);
 					if (tableContainer && tableContainer instanceof HTMLElement) {
 						tableContainer.dataset.tableHeaderIsStuck = 'true';
@@ -520,11 +566,7 @@ export default class TableRowNativeStickyWithFallback
 				} else {
 					this.dom.classList.remove(ClassName.NATIVE_STICKY_ACTIVE);
 					if (tableContainer && tableContainer instanceof HTMLElement) {
-						if (fg('platform_editor_table_sticky_header_patch_3')) {
-							delete tableContainer.dataset.tableHeaderIsStuck;
-						} else {
-							tableContainer.dataset.tableHeaderIsStuck = 'false';
-						}
+						delete tableContainer.dataset.tableHeaderIsStuck;
 					}
 				}
 			});
@@ -549,15 +591,11 @@ export default class TableRowNativeStickyWithFallback
 				this.dom.style.setProperty('anchor-name', this.dom.getAttribute('data-node-anchor') ?? '');
 			}
 			this.initOverflowObserver();
-			if (fg('platform_editor_table_sticky_header_patch_4')) {
-				this.initNodeVisibilityObserver();
-			}
+			this.initNodeVisibilityObserver();
 			const closestTable = this.dom.closest('table');
 			if (closestTable) {
 				this.overflowObserver?.observe(closestTable);
-				if (fg('platform_editor_table_sticky_header_patch_4')) {
-					this.nodeVisibilityObserver?.observe(closestTable);
-				}
+				this.nodeVisibilityObserver?.observe(closestTable);
 			}
 			this.initStickyStateObserver();
 			this.stickyStateObserver?.observe(this.dom);
@@ -656,6 +694,10 @@ export default class TableRowNativeStickyWithFallback
 		this.nodeVisibilityObserver = new IntersectionObserver(
 			(entries) => {
 				entries.forEach((entry) => {
+					if (this.updateSingleRowTableStickyHeaderState()) {
+						return;
+					}
+
 					if (!this.isNativeSticky) {
 						return;
 					}
@@ -697,8 +739,8 @@ export default class TableRowNativeStickyWithFallback
 					const newHeight = entry.contentRect
 						? entry.contentRect.height
 						: // Ignored via go/ees005
-						// eslint-disable-next-line @atlaskit/editor/no-as-casting
-						(entry.target as HTMLElement).offsetHeight;
+							// eslint-disable-next-line @atlaskit/editor/no-as-casting
+							(entry.target as HTMLElement).offsetHeight;
 
 					if (
 						this.sentinels.bottom &&
@@ -707,16 +749,15 @@ export default class TableRowNativeStickyWithFallback
 						Math.abs(newHeight - (this.stickyRowHeight || 0)) > stickyHeaderBorderBottomWidth
 					) {
 						this.stickyRowHeight = newHeight;
-						this.sentinels.bottom.style.bottom = `${tableScrollbarOffset + stickyRowOffsetTop + newHeight
-							}px`;
+						this.sentinels.bottom.style.bottom = `${
+							tableScrollbarOffset + stickyRowOffsetTop + newHeight
+						}px`;
 
 						updateTableMargin(table);
 					}
 
-					if (fg('platform_editor_table_sticky_header_patch_4')) {
-						const viewportHeight = this.editorContentAreaHeight ?? INITIAL_STATIC_VIEWPORT_HEIGHT;
-						this.toggleDisableNativeSticky(newHeight, viewportHeight);
-					}
+					const viewportHeight = this.editorContentAreaHeight ?? INITIAL_STATIC_VIEWPORT_HEIGHT;
+					this.toggleDisableNativeSticky(newHeight, viewportHeight);
 				}
 			});
 		});
@@ -753,6 +794,10 @@ export default class TableRowNativeStickyWithFallback
 	}
 
 	private refreshLegacyStickyState() {
+		if (this.updateSingleRowTableStickyHeaderState()) {
+			return;
+		}
+
 		const tree = getTree(this.dom);
 		if (!tree) {
 			return;
@@ -784,17 +829,23 @@ export default class TableRowNativeStickyWithFallback
 		) {
 			const pos = this.getPos();
 			if (typeof pos === 'number') {
-				const $tableRowPos = this.view.state.doc.resolve(pos);
+				try {
+					// getPos can return stale positions during AI streaming which cannot be resolved
+					const $tableRowPos = this.view.state.doc.resolve(pos);
 
-				// layout -> layout column -> table -> table row
-				if ($tableRowPos.depth >= 3) {
-					const isInsideLayout = findParentNodeClosestToPos($tableRowPos, (node) => {
-						return node.type.name === 'layoutColumn';
-					})?.node;
+					// layout -> layout column -> table -> table row
+					if ($tableRowPos.depth >= 3) {
+						const isInsideLayout = findParentNodeClosestToPos($tableRowPos, (node) => {
+							return node.type.name === 'layoutColumn';
+						})?.node;
 
-					if (isInsideLayout) {
-						return false;
+						if (isInsideLayout) {
+							return false;
+						}
 					}
+				} catch {
+					// getPos can return stale positions during AI streaming — fall back to non-sticky
+					return false;
 				}
 			}
 		}
@@ -896,25 +947,11 @@ export default class TableRowNativeStickyWithFallback
 		const tableContainer = wrapper.parentElement;
 		const tableContentWrapper = tableContainer?.parentElement;
 
-		const parentContainer = tableContentWrapper && tableContentWrapper.parentElement;
-
-		const isTableInsideLayout =
-			parentContainer && parentContainer.getAttribute('data-layout-content');
-
 		if (tableContentWrapper) {
 			if (isCurrentTableSelected) {
 				this.colControlsOffset = tableControlsSpacing;
-
-				// move table a little out of the way
-				// to provide spacing for table controls
-				if (isTableInsideLayout) {
-					tableContentWrapper.style.paddingLeft = '11px';
-				}
 			} else {
 				this.colControlsOffset = 0;
-				if (isTableInsideLayout) {
-					tableContentWrapper.style.removeProperty('padding-left');
-				}
 			}
 		}
 
@@ -947,6 +984,71 @@ export default class TableRowNativeStickyWithFallback
 				}
 			});
 		}
+	}
+
+	private checkIsSingleRowTable(): boolean {
+		const pos = this.getPos();
+		if (typeof pos !== 'number') {
+			return false;
+		}
+
+		try {
+			const $tableRowPos = this.view.state.doc.resolve(pos);
+			const tableNode = findParentNodeClosestToPos(
+				$tableRowPos,
+				(node) => node.type === this.view.state.schema.nodes.table,
+			)?.node;
+
+			return tableNode?.childCount === 1;
+		} catch {
+			// getPos can return stale positions during AI streaming. Preserve the original sticky
+			// header behaviour when the containing table cannot be determined.
+			return false;
+		}
+	}
+
+	private updateSingleRowTableStickyHeaderState(): boolean {
+		const wasSingleRowTable = this.isSingleRowTable;
+		this.isSingleRowTable = this.checkIsSingleRowTable();
+
+		if (this.isSingleRowTable) {
+			this.removeSingleRowTableStickyHeaderState();
+		} else if (wasSingleRowTable) {
+			this.refireNativeStickyObservers();
+		}
+
+		return this.isSingleRowTable;
+	}
+
+	private removeSingleRowTableStickyHeaderState(): void {
+		this.dom.classList.remove(ClassName.NATIVE_STICKY, ClassName.NATIVE_STICKY_ACTIVE);
+		this.isNativeSticky = false;
+
+		const tableWrapper = this.dom.closest(`.${ClassName.TABLE_NODE_WRAPPER}`);
+		tableWrapper?.classList.remove(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
+
+		const tableContainer = this.dom.closest(`.${ClassName.TABLE_CONTAINER}`);
+		if (tableContainer instanceof HTMLElement) {
+			delete tableContainer.dataset.tableHeaderIsStuck;
+		}
+
+		const tree = getTree(this.dom);
+		if (tree) {
+			this.makeRowHeaderNotLegacySticky(tree.table);
+		}
+	}
+
+	private refireNativeStickyObservers(): void {
+		const table = this.dom.closest('table');
+		if (table) {
+			this.overflowObserver?.unobserve(table);
+			this.overflowObserver?.observe(table);
+			this.nodeVisibilityObserver?.unobserve(table);
+			this.nodeVisibilityObserver?.observe(table);
+		}
+
+		this.stickyStateObserver?.unobserve(this.dom);
+		this.stickyStateObserver?.observe(this.dom);
 	}
 
 	private toggleDisableNativeSticky = (headerHeight: number, viewportHeight: number) => {
@@ -1027,6 +1129,9 @@ export default class TableRowNativeStickyWithFallback
 		}
 
 		this.dom.style.removeProperty('width');
+		if (expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)) {
+			clearStickyCornerMaskPositions(table);
+		}
 		this.dom.classList.remove('sticky');
 		table.classList.remove(ClassName.TABLE_STICKY);
 

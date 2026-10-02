@@ -1,7 +1,8 @@
-import type { ExtensionManifest, MaybeADFEntity } from '@atlaskit/editor-common/extensions';
-import enableGoogleDrive from './enable-googledrive';
+import type { InlineCardDefinition } from '@atlaskit/adf-schema/inline-card';
 import { inlineCard } from '@atlaskit/adf-utils/builders';
-import type { InlineCardDefinition } from '@atlaskit/adf-schema';
+import type { ExtensionManifest, MaybeADFEntity } from '@atlaskit/editor-common/extensions';
+
+import enableGoogleDrive from './enable-googledrive';
 
 declare global {
 	interface Window {
@@ -51,6 +52,7 @@ function createPicker(appKey: string) {
 	};
 	// Request an access token.
 	window.appKey = appKey;
+	// oxlint-disable-next-line require-await
 	window.GooglePicker.token_client.callback = async (response: {
 		access_token: string | undefined;
 		error: undefined;

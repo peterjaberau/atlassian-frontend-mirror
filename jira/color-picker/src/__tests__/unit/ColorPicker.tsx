@@ -1,13 +1,15 @@
 import React from 'react';
 
-import { ColorPickerWithoutAnalytics as ColorPicker, type ColorPickerProps } from '../..';
-import Trigger from '../../components/Trigger';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { IntlProvider } from 'react-intl';
 
-jest.mock('@atlaskit/platform-feature-flags');
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { ColorPickerWithoutAnalytics as ColorPicker, type ColorPickerProps } from '../..';
+import Trigger from '../../components/Trigger';
+
+jest.mock('@atlaskit/platform-feature-flags/fg');
 const mockGetBooleanFG = fg as jest.MockedFunction<typeof fg>;
 const onMenuOpenMock = jest.fn();
 
@@ -58,7 +60,9 @@ describe('ColorPicker', () => {
 
 	describe('FFs enabled', () => {
 		beforeEach(() => {
-			mockGetBooleanFG.mockReturnValue(true);
+			// Exclude `platform-dst-top-layer`: when ON, @atlaskit/popup uses the native Popover API
+			// which JSDOM does not implement — causing duplicate element rendering issues in tests.
+			mockGetBooleanFG.mockImplementation((flag: string) => flag !== 'platform-dst-top-layer');
 		});
 
 		test('should capture and report a11y violations', async () => {

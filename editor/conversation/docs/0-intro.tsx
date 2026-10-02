@@ -311,7 +311,8 @@ const props = {
 	],
 };
 
-export default md`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _default_1: any = md`
   ${(<AtlassianInternalWarning />)}
 
   The Conversation component is a drop-in component for adding conversations in any context. Consumers are responsible for providing their own storage.
@@ -367,3 +368,4 @@ export default md`
   ${(<Props props={props} />)}
 
 `;
+export default _default_1;

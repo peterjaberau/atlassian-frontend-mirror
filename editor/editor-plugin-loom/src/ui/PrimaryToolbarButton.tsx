@@ -20,8 +20,7 @@ import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 
 import type { LoomPlugin } from '../loomPluginType';
 import { executeRecordVideo } from '../pm-plugins/commands';
-import { type ButtonComponentProps, type LoomPluginOptions } from '../types';
-
+import type { ButtonComponentProps, LoomPluginOptions } from '../types';
 import ToolbarButtonComponent from './ToolbarButtonComponent';
 
 const selector = (
@@ -68,6 +67,7 @@ const CustomisableLoomToolbarButton = (
 				disabled={disabled || isDisabled || isOfflineMode(connectivityMode)}
 				api={api}
 				appearance={appearance}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onClick={(e) => handleOnClick(e)}
 				// Ignored via go/ees005
 				// eslint-disable-next-line react/jsx-props-no-spreading

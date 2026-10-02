@@ -4,10 +4,11 @@
  * Also holds resizing state to hide / show table controls
  */
 
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
+import { isTableInContentMode } from '@atlaskit/editor-common/table';
 import { isReplaceDocOperation } from '@atlaskit/editor-common/utils/document';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import {
@@ -16,10 +17,10 @@ import {
 	akEditorMaxWidthLayoutWidth,
 	akEditorWideLayoutWidth,
 } from '@atlaskit/editor-shared-styles';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
-import { TABLE_MAX_WIDTH, TABLE_FULL_WIDTH } from './table-resizing/utils/consts';
+import { TABLE_MAX_WIDTH } from './table-resizing/utils/consts';
 import { ALIGN_START } from './utils/alignment';
+import { isContentModeSupported } from './utils/tableMode/is-content-mode-supported';
 
 type TableWidthPluginState = {
 	resizing: boolean;
@@ -27,7 +28,9 @@ type TableWidthPluginState = {
 	tableRef: HTMLTableElement | null;
 };
 
-export const pluginKey = new PluginKey<TableWidthPluginState>('tableWidthPlugin');
+export const pluginKey: PluginKey<TableWidthPluginState> = new PluginKey<TableWidthPluginState>(
+	'tableWidthPlugin',
+);
 
 const createPlugin = (
 	dispatch: Dispatch,
@@ -37,8 +40,8 @@ const createPlugin = (
 	isTableScalingEnabled: boolean,
 	isTableAlignmentEnabled: boolean,
 	isCommentEditor: boolean,
-) => {
-	return new SafePlugin({
+): SafePlugin<TableWidthPluginState> => {
+	return new SafePlugin<TableWidthPluginState>({
 		key: pluginKey,
 		state: {
 			init() {
@@ -91,6 +94,20 @@ const createPlugin = (
 
 			if (isReplaceDocumentOperation && !isCommentEditor) {
 				newState.doc.forEach((node, offset) => {
+					if (
+						isTableInContentMode({
+							tableNode: node,
+							isSupported: isContentModeSupported({
+								allowColumnResizing: true,
+								allowTableResizing: true,
+								isFullPageEditor: true,
+							}),
+							isTableNested: false,
+						})
+					) {
+						return;
+					}
+
 					if (node.type === table) {
 						const width = node.attrs.width;
 						const layout = node.attrs.layout;
@@ -137,22 +154,8 @@ const createPlugin = (
 					step.getMap().forEach((_, __, newStart, newEnd) => {
 						newState.doc.nodesBetween(newStart, newEnd, (node, pos) => {
 							if (node.type === table) {
-								if (
-									shouldPatchTableWidth &&
-									node.attrs.width !==
-										(expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-										expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-											? TABLE_MAX_WIDTH
-											: TABLE_FULL_WIDTH)
-								) {
-									tr.setNodeAttribute(
-										pos,
-										'width',
-										expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-											expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-											? TABLE_MAX_WIDTH
-											: TABLE_FULL_WIDTH,
-									);
+								if (shouldPatchTableWidth && node.attrs.width !== TABLE_MAX_WIDTH) {
+									tr.setNodeAttribute(pos, 'width', TABLE_MAX_WIDTH);
 								}
 								if (shouldPatchTableAlignment) {
 									tr.setNodeAttribute(pos, 'layout', ALIGN_START);

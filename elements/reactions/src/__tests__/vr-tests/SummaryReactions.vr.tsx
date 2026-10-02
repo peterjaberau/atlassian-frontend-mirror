@@ -1,4 +1,5 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	EmptySummaryReactions,
 	LoadedSummaryReactions,
@@ -7,7 +8,7 @@ import {
 	LoadedSummaryReactionsViewOnly,
 	LoadedSummaryReactionsWithIconAfter,
 	LoadedSummaryReactionsAllowSelectionFromSummaryViewWithIconAfter,
-} from './SummaryReactions.fixtures';
+} from './SummaryReactions.fixtures.vr.ap';
 
 const featureFlags = {
 	'platform-component-visual-refresh': true,

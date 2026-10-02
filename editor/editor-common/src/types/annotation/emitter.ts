@@ -1,6 +1,10 @@
 import EventEmitter from 'events';
 
-import type { AnnotationId, AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema';
+import type {
+	AnnotationId,
+	AnnotationMarkStates,
+	AnnotationTypes,
+} from '@atlaskit/adf-schema/annotation';
 
 export interface AnnotationState<Type> {
 	annotationType: Type;
@@ -41,6 +45,7 @@ type Callback<T> = T extends keyof AnnotationUpdateEventPayloads
 	? (payload: AnnotationUpdateEventPayloads[T]) => void
 	: () => void;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export class AnnotationUpdateEmitter {
 	private emitter: EventEmitter = new EventEmitter();
 
@@ -71,7 +76,7 @@ export class AnnotationUpdateEmitter {
 		return this.emitter.removeListener(event, listener);
 	}
 
-	listeners(event: AnnotationUpdateEvent) {
+	listeners(event: AnnotationUpdateEvent): Function[] {
 		return this.emitter.listeners(event);
 	}
 }

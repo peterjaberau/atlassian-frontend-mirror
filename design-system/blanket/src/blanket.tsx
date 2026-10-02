@@ -2,13 +2,22 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef, type ForwardRefExoticComponent, memo, type MemoExoticComponent, type MouseEvent, type RefAttributes, useCallback, useRef } from 'react';
+import {
+	forwardRef,
+	type ForwardRefExoticComponent,
+	memo,
+	type MemoExoticComponent,
+	type MouseEvent,
+	type RefAttributes,
+	useCallback,
+	useRef,
+} from 'react';
 
 import { css, jsx } from '@compiled/react';
 
 import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
 import noop from '@atlaskit/ds-lib/noop';
-import { N100A } from '@atlaskit/theme/colors';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
 import { token } from '@atlaskit/tokens';
 
@@ -27,7 +36,7 @@ const baseStyles = css({
 	position: 'fixed',
 	zIndex: layers.blanket(),
 	inset: 0,
-	backgroundColor: token('color.blanket', N100A),
+	backgroundColor: token('color.blanket'),
 	overflowY: 'auto',
 	pointerEvents: 'initial',
 });
@@ -47,7 +56,9 @@ const invisibleStyles = css({
  *
  * - [Examples](https://atlaskit.atlassian.com/examples/design-system/blanket/basic-usage)
  */
-const Blanket: MemoExoticComponent<ForwardRefExoticComponent<BlanketProps & RefAttributes<HTMLDivElement>>> = memo(
+const Blanket: MemoExoticComponent<
+	ForwardRefExoticComponent<BlanketProps & RefAttributes<HTMLDivElement>>
+> = memo(
 	forwardRef<HTMLDivElement, BlanketProps>(function Blanket(
 		{
 			shouldAllowClickThrough = false,

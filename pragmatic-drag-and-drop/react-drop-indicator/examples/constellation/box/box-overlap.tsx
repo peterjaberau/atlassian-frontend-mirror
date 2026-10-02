@@ -5,7 +5,7 @@
 
 import { css, jsx } from '@compiled/react';
 
-import { Code } from '@atlaskit/code';
+import Code from '@atlaskit/code/code';
 import ArrowLeftIcon from '@atlaskit/icon/core/arrow-left';
 import { Inline, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
@@ -40,7 +40,7 @@ const appTileStyles = css({
 	borderRadius: token('radius.small'),
 });
 
-export function OverlapExample() {
+export function OverlapExample(): JSX.Element {
 	return (
 		<div css={containerStyles}>
 			<div css={listStyles}>

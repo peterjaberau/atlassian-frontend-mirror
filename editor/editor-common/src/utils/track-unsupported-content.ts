@@ -1,7 +1,6 @@
 import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
 
 import { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, EVENT_TYPE } from '../analytics';
-
 import type {
 	UnsupportedContentPayload,
 	UnsupportedContentTooltipPayload,
@@ -183,6 +182,7 @@ interface UnsupportedNode {
 	type: string;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const fireUnsupportedEvent = (
 	dispatchAnalyticsEvent: DispatchAnalyticsEvent,
 	actionSubjectId: ACTION_SUBJECT_ID,
@@ -211,6 +211,7 @@ export const fireUnsupportedEvent = (
 	dispatchAnalyticsEvent(payload);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const trackUnsupportedContentTooltipDisplayedFor = (
 	dispatchAnalyticsEvent: DispatchAnalyticsEventTooltip,
 	unsupportedContentType: UnsupportedContentTooltipPayload['actionSubjectId'],

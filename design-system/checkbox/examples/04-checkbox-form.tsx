@@ -3,8 +3,8 @@
  * @jsx jsx
  */
 
-import Button from '@atlaskit/button/new';
-import { Checkbox } from '@atlaskit/checkbox';
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import { css, cssMap, jsx } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
@@ -17,22 +17,22 @@ const iframeStyles = css({
 	borderStyle: 'dashed',
 	borderWidth: token('border.width', '1px'),
 	color: token('color.text.subtle'),
-	marginBlockEnd: token('space.100', '8px'),
-	marginBlockStart: token('space.100', '8px'),
-	marginInlineEnd: token('space.100', '8px'),
-	marginInlineStart: token('space.100', '8px'),
-	paddingBlockEnd: token('space.100', '8px'),
-	paddingBlockStart: token('space.100', '8px'),
-	paddingInlineEnd: token('space.100', '8px'),
-	paddingInlineStart: token('space.100', '8px'),
+	marginBlockEnd: token('space.100'),
+	marginBlockStart: token('space.100'),
+	marginInlineEnd: token('space.100'),
+	marginInlineStart: token('space.100'),
+	paddingBlockEnd: token('space.100'),
+	paddingBlockStart: token('space.100'),
+	paddingInlineEnd: token('space.100'),
+	paddingInlineStart: token('space.100'),
 });
 
 const styles = cssMap({
 	container: {
-		paddingTop: token('space.200'),
-		paddingRight: token('space.200'),
-		paddingBottom: token('space.200'),
-		paddingLeft: token('space.200'),
+		paddingBlockStart: token('space.200'),
+		paddingInlineEnd: token('space.200'),
+		paddingBlockEnd: token('space.200'),
+		paddingInlineStart: token('space.200'),
 	},
 });
 

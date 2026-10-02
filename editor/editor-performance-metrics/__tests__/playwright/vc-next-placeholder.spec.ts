@@ -5,6 +5,9 @@ import { test } from './fixtures';
 test.describe('Editor Metrics - TTVC: Placeholder', () => {
 	test.use({
 		examplePage: 'vc-observer-placeholder',
+	} satisfies {
+		__exampleDependency?: typeof import('../../examples/03-vc-observer-placeholder.tsx');
+		examplePage: 'vc-observer-placeholder';
 	});
 
 	test.describe('when measure the whole page', () => {
@@ -48,10 +51,5 @@ test.describe('Editor Metrics - TTVC: Placeholder', () => {
 				}),
 			);
 		});
-	});
-
-	test('should capture and report a11y violations', async ({ page }) => {
-		await expect(page.getByTestId('section-to-replace')).toBeVisible();
-		await expect(page).toBeAccessible();
 	});
 });

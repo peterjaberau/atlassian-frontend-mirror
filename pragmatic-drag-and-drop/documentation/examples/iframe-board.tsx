@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 
 import { easeInOut } from '@atlaskit/motion/curves';
-import { durations } from '@atlaskit/motion/durations';
+import { durations } from '@atlaskit/motion/utils/durations';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Anchor, Box, Inline, Stack, xcss } from '@atlaskit/primitives';
-import { useThemeObserver } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import { Column } from './pieces/iframe-board/column';
 import pdndLogoSrc from './pieces/pdnd-logo.svg';
@@ -45,7 +45,7 @@ function LinkToProject() {
 export default function IFrameBoard(): React.JSX.Element {
 	const theme = useThemeObserver();
 	const iframeSrc = useMemo(() => {
-		const url = new URL('/examples.html', window.location.origin);
+		const url = new URL('/example', window.location.origin);
 		url.searchParams.set('groupId', 'pragmatic-drag-and-drop');
 		url.searchParams.set('packageId', 'documentation');
 		url.searchParams.set('exampleId', 'iframe-column');

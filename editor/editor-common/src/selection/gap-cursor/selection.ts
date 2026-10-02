@@ -3,15 +3,12 @@ import { Slice } from '@atlaskit/editor-prosemirror/model';
 import { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { Mapping } from '@atlaskit/editor-prosemirror/transform';
 
+import { Side } from './Side';
 import { isValidTargetNode } from './utils/is-valid-target-node';
-
-export enum Side {
-	LEFT = 'left',
-	RIGHT = 'right',
-}
 
 export const JSON_ID = 'gapcursor';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export class GapCursorSelection extends Selection {
 	public readonly visible: boolean = false;
 
@@ -116,27 +113,32 @@ export class GapCursorSelection extends Selection {
 		return other instanceof GapCursorSelection && other.head === this.head;
 	}
 
-	content() {
+	content(): Slice {
 		return Slice.empty;
 	}
 
-	getBookmark() {
+	getBookmark(): GapBookmark {
 		return new GapBookmark(this.anchor);
 	}
 
-	toJSON() {
+	toJSON(): {
+		pos: number;
+		side: Side;
+		type: string;
+	} {
 		return { pos: this.head, type: JSON_ID, side: this.side };
 	}
 }
 
 Selection.jsonID(JSON_ID, GapCursorSelection);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export class GapBookmark {
 	constructor(private readonly pos: number) {}
 
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	map(mapping: any) {
+	map(mapping: any): GapBookmark {
 		return new GapBookmark(mapping.map(this.pos));
 	}
 
@@ -145,3 +147,5 @@ export class GapBookmark {
 		return GapCursorSelection.valid($pos) ? new GapCursorSelection($pos) : Selection.near($pos);
 	}
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { Side } from './Side';

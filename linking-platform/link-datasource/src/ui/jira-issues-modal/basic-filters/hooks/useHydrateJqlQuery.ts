@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { OPERAND_EMPTY } from '@atlaskit/jql-ast';
 
@@ -8,10 +8,9 @@ import { useBasicFilterAGG } from '../../../../services/useBasicFilterAGG';
 import { type CommonBasicFilterHookState } from '../../../common/modal/popup-select/types';
 import { type SelectedOptionsMap } from '../types';
 import { extractValuesFromNonComplexJQL } from '../utils/extractValuesFromNonComplexJQL';
-import { removeFuzzyCharacter } from '../utils/isClauseTooComplex';
-import { mapHydrateResponseData } from '../utils/transformers';
-
-import { getAssigneeUnassignedFilterOption } from './useFilterOptions';
+import { mapHydrateResponseData } from '../utils/mapHydrateResponseData';
+import { removeFuzzyCharacter } from '../utils/removeFuzzyCharacter';
+import { getAssigneeUnassignedFilterOption } from './getAssigneeUnassignedFilterOption';
 
 export interface HydrateJqlState extends CommonBasicFilterHookState {
 	fetchHydratedJqlOptions: () => Promise<void>;

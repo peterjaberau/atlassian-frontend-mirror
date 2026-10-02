@@ -1,25 +1,34 @@
 import React, { lazy, Suspense } from 'react';
 
+import { cssMap } from '@atlaskit/css';
 import BacklogIcon from '@atlaskit/icon/core/backlog';
 import BoardIcon from '@atlaskit/icon/core/board';
 import ChartTrendUpIcon from '@atlaskit/icon/core/chart-trend-up';
 import RoadmapIcon from '@atlaskit/icon/core/roadmap';
 import SettingsIcon from '@atlaskit/icon/core/settings';
-import {
-	ButtonItem,
-	HeadingItem,
-	LinkItem,
-	NavigationHeader,
-	NestableNavigationContent,
-	NestingItem,
-	Section,
-	SideNavigation,
-	SkeletonHeadingItem,
-	SkeletonItem,
-} from '@atlaskit/side-navigation';
+import { Flex } from '@atlaskit/primitives/compiled';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { ButtonItem } from '@atlaskit/side-navigation/button-item';
+import { HeadingItem } from '@atlaskit/side-navigation/heading-item';
+import { LinkItem } from '@atlaskit/side-navigation/link-item';
+import { NavigationHeader } from '@atlaskit/side-navigation/navigation-header';
+import { NestableNavigationContent } from '@atlaskit/side-navigation/nestable-navigation-content';
+import { NestingItem } from '@atlaskit/side-navigation/nesting-item';
+import { Section } from '@atlaskit/side-navigation/section';
+import { SideNavigation } from '@atlaskit/side-navigation/side-navigation';
+import { SkeletonHeadingItem } from '@atlaskit/side-navigation/skeleton-heading-item';
+import { SkeletonItem } from '@atlaskit/side-navigation/skeleton-item';
+import { token } from '@atlaskit/tokens';
 
 import AppFrame from './common/app-frame';
 import SampleHeader from './common/sample-header';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 /**
  * This turns a component into a lazy component.
@@ -50,20 +59,46 @@ const LazySettingsSectionItems = makeLazy(() => {
 const LazyRootItems = makeLazy(() => {
 	return (
 		<Section title="My project">
-			{/* eslint-disable @atlassian/a11y/anchor-is-valid */}
-			<LinkItem href="#" iconBefore={<RoadmapIcon spacing="spacious" label="" />}>
+			<LinkItem
+				href="/"
+				iconBefore={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<RoadmapIcon label="" />
+					</Flex>
+				}
+			>
 				Roadmap
 			</LinkItem>
-			<LinkItem href="#" iconBefore={<BacklogIcon spacing="spacious" label="" />}>
+			<LinkItem
+				href="/"
+				iconBefore={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<BacklogIcon label="" />
+					</Flex>
+				}
+			>
 				Backlog
 			</LinkItem>
-			<LinkItem href="#" iconBefore={<BoardIcon spacing="spacious" label="" />}>
+			<LinkItem
+				href="/"
+				iconBefore={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<BoardIcon label="" />
+					</Flex>
+				}
+			>
 				Board
 			</LinkItem>
-			<LinkItem href="#" iconBefore={<ChartTrendUpIcon spacing="spacious" label="" />}>
+			<LinkItem
+				href="/"
+				iconBefore={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<ChartTrendUpIcon label="" />
+					</Flex>
+				}
+			>
 				Reports
 			</LinkItem>
-			{/* eslint-enable @atlassian/a11y/anchor-is-valid */}
 			<SettingsSection />
 		</Section>
 	);
@@ -72,7 +107,11 @@ const LazyRootItems = makeLazy(() => {
 const SettingsSection = () => {
 	return (
 		<NestingItem
-			iconBefore={<SettingsIcon spacing="spacious" label="" />}
+			iconBefore={
+				<Flex xcss={iconSpacingStyles.space050}>
+					<SettingsIcon label="" />
+				</Flex>
+			}
 			id="settings"
 			title="Project settings"
 			isSelected

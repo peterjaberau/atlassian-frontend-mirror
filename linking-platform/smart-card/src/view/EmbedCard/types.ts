@@ -1,11 +1,11 @@
 import { type ReactNode } from 'react';
 
-import { type CardProviderRenderers } from '@atlaskit/link-provider';
+import type { CardProviderRenderers } from '@atlaskit/link-provider/types';
+import type { CardState } from '@atlaskit/linking-common/store';
 
 import { type InvokeHandler } from '../../model/invoke-handler';
-import { type CardState } from '../../state/types';
 import type {
-	CardActionOptions,
+	InternalCardActionOptions as CardActionOptions,
 	CardPlatform,
 	EmbedIframeUrlType,
 	OnResolveCallback,
@@ -19,7 +19,11 @@ export type EmbedCardProps = {
 	frameStyle?: FrameStyle;
 	handleAuthorize: (() => void) | undefined;
 	handleErrorRetry: () => void;
+	/** Optional middle-click handler. */
+	handleFrameAuxClick?: React.EventHandler<React.MouseEvent>;
 	handleFrameClick: React.EventHandler<React.MouseEvent | React.KeyboardEvent>;
+	/** Optional right-click handler. */
+	handleFrameContextMenu?: React.EventHandler<React.MouseEvent>;
 	handleInvoke: InvokeHandler;
 	hideIconLoadingSkeleton?: boolean;
 	id?: string;
@@ -29,23 +33,25 @@ export type EmbedCardProps = {
 	onError?: OnErrorCallback;
 	onIframeDwell?: (dwellTime: number, dwellPercentVisible: number) => void;
 	onIframeFocus?: () => void;
+	onIframeMouseEnter?: () => void;
+	onIframeMouseLeave?: () => void;
 	onResolve?: OnResolveCallback;
 	platform?: CardPlatform;
 	renderers?: CardProviderRenderers;
 	testId?: string;
 	url: string;
 };
-
-export type EmbedCardUpdatedProps = EmbedCardProps & {
-	onIframeMouseEnter?: () => void;
-	onIframeMouseLeave?: () => void;
-};
 export interface WithShowControlMethodProp {
 	showControls?: () => void;
 }
 
 export interface ContextViewModel {
+	/** Entity-type icon for the resource (e.g. a Google Doc, Google Sheets). */
 	icon?: ReactNode;
+	iconLabel?: string;
+	/** Provider/generator icon (e.g. Google Drive). */
+	providerIcon?: ReactNode;
+	providerIconLabel?: string;
 	image?: string;
 	text: string;
 }

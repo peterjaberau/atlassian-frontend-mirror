@@ -8,7 +8,7 @@ import React from 'react';
 import { css, jsx } from '@emotion/react';
 import Loadable from 'react-loadable';
 
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import type { Props as ElementBrowserProps } from '../ElementBrowser';
 
@@ -20,7 +20,8 @@ const spinnerContainer = css({
 	width: '100%',
 });
 
-const ElementBrowserLoader = Loadable({
+const ElementBrowserLoader: React.ComponentType<React.PropsWithChildren<ElementBrowserProps>> &
+	Loadable.LoadableComponent = Loadable({
 	loader: () =>
 		import(
 			/* webpackChunkName: "@atlaskit-internal_editor-element-browser" */ '../ElementBrowser'

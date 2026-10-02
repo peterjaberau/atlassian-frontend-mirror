@@ -1,24 +1,39 @@
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
 import React from 'react';
 
-import { useIntl, type MessageDescriptor } from 'react-intl-next';
+import { css, jsx } from '@compiled/react';
+import { useIntl } from 'react-intl';
+import type { MessageDescriptor } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
+import { SYNCED_BLOCKS_DOCUMENTATION_URL } from '@atlaskit/editor-common/sync-block';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
-import AkFlag, { AutoDismissFlag, FlagGroup } from '@atlaskit/flag';
+import type { SyncBlockStoreManager } from '@atlaskit/editor-synced-block-provider/syncBlockStoreManager';
+import AutoDismissFlag from '@atlaskit/flag/auto-dismiss-flag';
+import AkFlag from '@atlaskit/flag/flag';
+import { FlagGroup } from '@atlaskit/flag/flag-group';
+import MegaphoneIcon from '@atlaskit/icon/core/megaphone';
 import StatusSuccessIcon from '@atlaskit/icon/core/status-success';
 import StatusWarningIcon from '@atlaskit/icon/core/status-warning';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { Anchor } from '@atlaskit/primitives/compiled/anchor';
 import { token } from '@atlaskit/tokens';
 
 import { syncedBlockPluginKey } from '../pm-plugins/main';
-import type { SyncedBlockPlugin } from '../syncedBlockPluginType';
-import { FLAG_ID } from '../types';
+import type { SyncedBlockPlugin, SyncedBlockPluginOptions } from '../syncedBlockPluginType';
+import { type ActiveFlag, FLAG_ID } from '../types';
 type Props = {
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>;
+	onFeedbackPromptShown?: SyncedBlockPluginOptions['onFeedbackPromptShown'];
+	onGiveFeedback?: SyncedBlockPluginOptions['onGiveFeedback'];
 };
 
-type FlagType = 'error' | 'info';
+type FlagType = 'error' | 'feedback' | 'info';
 
 type FlagConfig = {
 	action?: MessageDescriptor;
@@ -26,6 +41,14 @@ type FlagConfig = {
 	title: MessageDescriptor;
 	type: FlagType;
 };
+
+const feedbackFlagStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Flag does not expose a styling hook for its action buttons, so keep this override scoped to the feedback flag.
+	'& [data-testid="synced-block-feedback-prompt-actions"] button': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Flag's internal action button padding is important, so the local override must match it.
+		paddingInlineStart: '0 !important',
+	},
+});
 
 const flagMap: Record<FLAG_ID, FlagConfig> = {
 	[FLAG_ID.CANNOT_DELETE_WHEN_OFFLINE]: {
@@ -62,27 +85,166 @@ const flagMap: Record<FLAG_ID, FlagConfig> = {
 		description: messages.CannotCreateSyncBlockDescription,
 		type: 'error',
 	},
+	[FLAG_ID.EXTENSION_IN_SYNC_BLOCK]: {
+		title: messages.extensionInSyncBlockTitle,
+		description: messages.extensionInSyncBlockDescription,
+		type: 'error',
+	},
+	[FLAG_ID.INLINE_EXTENSION_IN_SYNC_BLOCK]: {
+		title: messages.inlineExtensionInSyncBlockTitle,
+		description: messages.inlineExtensionInSyncBlockDescription,
+		type: 'error',
+	},
+	[FLAG_ID.DUPLICATE_SOURCE_SYNC_BLOCK]: {
+		title: messages.duplicateSourceSyncBlockTitle,
+		description: messages.duplicateSourceSyncBlockDescription,
+		type: 'error',
+	},
+	[FLAG_ID.SYNC_BLOCK_FEEDBACK_PROMPT]: {
+		title: messages.feedbackFlagTitle,
+		description: messages.feedbackFlagDescription,
+		type: 'feedback',
+	},
 };
 
-export const Flag = ({ api }: Props) => {
-	const { activeFlag, mode } = useSharedPluginStateWithSelector(
+export const getSyncBlockCopiedDescription = (
+	activeFlag: ActiveFlag,
+	isCopiedDescriptionEnabled: boolean,
+): MessageDescriptor | undefined => {
+	if (!activeFlag || activeFlag.id !== FLAG_ID.SYNC_BLOCK_COPIED || !isCopiedDescriptionEnabled) {
+		return undefined;
+	}
+	if (activeFlag.sourceProduct === 'jira-work-item') {
+		return activeFlag.isSourceContentUnpublished
+			? messages.syncBlockCopiedJiraUnsavedFieldDescription
+			: messages.syncBlockCopiedLivePageDescription;
+	}
+	if (activeFlag.sourceProduct !== 'confluence-page') {
+		return undefined;
+	}
+
+	return activeFlag.isLivePage || !activeFlag.isSourceContentUnpublished
+		? messages.syncBlockCopiedLivePageDescription
+		: messages.syncBlockCopiedUnpublishedDescription;
+};
+
+const useSyncBlockSourceUrl = (
+	syncBlockStore: SyncBlockStoreManager | undefined,
+	resourceId: string | undefined,
+): string | undefined => {
+	const [sourceUrl, setSourceUrl] = React.useState<string | undefined>();
+
+	React.useEffect(() => {
+		setSourceUrl(undefined);
+		if (!syncBlockStore || !resourceId) {
+			return;
+		}
+
+		const { referenceManager } = syncBlockStore;
+		const cachedSourceUrl = referenceManager.getSyncBlockURL(resourceId);
+		if (cachedSourceUrl) {
+			setSourceUrl(cachedSourceUrl);
+			return;
+		}
+
+		let isCancelled = false;
+		void referenceManager.fetchSyncBlockSourceInfo(resourceId).then((sourceInfo) => {
+			if (!isCancelled) {
+				setSourceUrl(sourceInfo?.url);
+			}
+		});
+
+		return () => {
+			isCancelled = true;
+		};
+	}, [syncBlockStore, resourceId]);
+
+	return sourceUrl;
+};
+
+export const Flag = ({
+	api,
+	onFeedbackPromptShown,
+	onGiveFeedback,
+}: Props): React.JSX.Element | undefined => {
+	const { activeFlag, mode, syncBlockStore } = useSharedPluginStateWithSelector(
 		api,
 		['syncedBlock', 'connectivity'],
 		(states) => {
 			return {
 				activeFlag: states.syncedBlockState?.activeFlag,
 				mode: states.connectivityState?.mode,
+				syncBlockStore: states.syncedBlockState?.syncBlockStore,
 			};
 		},
 	);
 	const { formatMessage } = useIntl();
+	const isFeedbackPromptVisible =
+		activeFlag && activeFlag.id === FLAG_ID.SYNC_BLOCK_FEEDBACK_PROMPT;
+
+	const isJiraUnpublishedPaste =
+		!!activeFlag &&
+		activeFlag.id === FLAG_ID.UNPUBLISHED_SYNC_BLOCK_PASTED &&
+		activeFlag.sourceProduct === 'jira-work-item';
+	const sourceUrl = useSyncBlockSourceUrl(
+		syncBlockStore,
+		activeFlag &&
+			isJiraUnpublishedPaste &&
+			isExperimentEnabled('editor_synced_blocks_jira_custom_rich_text')
+			? activeFlag.resourceId
+			: undefined,
+	);
+
+	React.useEffect(() => {
+		if (!isFeedbackPromptVisible || !onFeedbackPromptShown) {
+			return;
+		}
+		try {
+			const promptShownResult = onFeedbackPromptShown();
+			void Promise.resolve(promptShownResult).catch(() => {});
+		} catch {
+			// Prompt persistence is optional product UI.
+		}
+	}, [isFeedbackPromptVisible, onFeedbackPromptShown]);
 
 	if (!activeFlag) {
 		return;
 	}
 
-	const { title, description, action, type } = flagMap[activeFlag.id];
+	const {
+		title: defaultTitle,
+		description: defaultDescription,
+		action,
+		type,
+	} = flagMap[activeFlag.id];
 	const { onRetry, onDismissed: onDismissedCallback } = activeFlag;
+
+	const isCopiedFlag = activeFlag.id === FLAG_ID.SYNC_BLOCK_COPIED;
+	const isCopiedDescriptionEnabled =
+		isCopiedFlag &&
+		(isExperimentEnabled('platform_editor_blocks_patch_11') ||
+			activeFlag.sourceProduct === 'confluence-page');
+	const copiedDescription = getSyncBlockCopiedDescription(activeFlag, isCopiedDescriptionEnabled);
+	const title = isJiraUnpublishedPaste
+		? messages.unpublishedSyncBlockPastedTitleJiraWorkItem
+		: defaultTitle;
+	const description =
+		copiedDescription ??
+		(isJiraUnpublishedPaste
+			? messages.unpublishedSyncBlockPastedDescriptionJiraWorkItem
+			: defaultDescription);
+	const descriptionContent = description
+		? formatMessage(description, {
+				link: (chunks: React.ReactNode[]) =>
+					sourceUrl ? (
+						<Anchor href={sourceUrl} target="_blank" rel="noopener noreferrer">
+							{chunks}
+						</Anchor>
+					) : (
+						chunks
+					),
+			})
+		: undefined;
 
 	// Retry button often involves network request, hence we dismiss the flag in offline mode to avoid retry
 	if (isOfflineMode(mode) && !!onRetry) {
@@ -95,7 +257,7 @@ export const Flag = ({ api }: Props) => {
 		return;
 	}
 
-	const onDismissed = () => {
+	const dismissFlag = (shouldFocusEditor: boolean) => {
 		api?.core.actions.execute(({ tr }) => {
 			onDismissedCallback?.(tr);
 			const oldMeta = tr.getMeta(syncedBlockPluginKey);
@@ -105,8 +267,11 @@ export const Flag = ({ api }: Props) => {
 			});
 			return tr;
 		});
-		api?.core.actions.focus();
+		if (shouldFocusEditor) {
+			api?.core.actions.focus();
+		}
 	};
+	const onDismissed = () => dismissFlag(true);
 
 	const typeToActions = () => {
 		if (type === 'error') {
@@ -122,8 +287,33 @@ export const Flag = ({ api }: Props) => {
 			return [
 				{
 					content: formatMessage(action),
-					href: 'https://atlaskit.atlassian.com/',
+					href: SYNCED_BLOCKS_DOCUMENTATION_URL,
 					target: '_blank',
+					rel: 'noopener noreferrer',
+				},
+			];
+		} else if (
+			type === 'feedback' &&
+			activeFlag.id === FLAG_ID.SYNC_BLOCK_FEEDBACK_PROMPT &&
+			activeFlag.feedbackContext
+		) {
+			const feedbackContext = activeFlag.feedbackContext;
+			return [
+				{
+					content: formatMessage(messages.feedbackFlagGiveFeedback),
+					onClick: () => {
+						dismissFlag(false);
+						try {
+							const feedbackResult = onGiveFeedback?.(feedbackContext);
+							void Promise.resolve(feedbackResult).catch(() => {});
+						} catch {
+							// Feedback collectors are optional product UI.
+						}
+					},
+				},
+				{
+					content: formatMessage(messages.feedbackFlagNoThanks),
+					onClick: onDismissed,
 				},
 			];
 		}
@@ -131,18 +321,27 @@ export const Flag = ({ api }: Props) => {
 	};
 
 	const FlagComponent = type === 'info' ? AutoDismissFlag : AkFlag;
+	const flag = (
+		<FlagComponent
+			onDismissed={onDismissed}
+			title={formatMessage(title)}
+			description={descriptionContent}
+			id={activeFlag.id}
+			testId={activeFlag.id}
+			icon={typeToIcon(type)}
+			actions={typeToActions()}
+		/>
+	);
 
 	return (
 		<FlagGroup>
-			<FlagComponent
-				onDismissed={onDismissed}
-				title={formatMessage(title)}
-				description={description ? formatMessage(description) : undefined}
-				id={activeFlag.id}
-				testId={activeFlag.id}
-				icon={typeToIcon(type)}
-				actions={typeToActions()}
-			/>
+			{type === 'feedback' ? (
+				<div id={activeFlag.id} css={feedbackFlagStyles}>
+					{flag}
+				</div>
+			) : (
+				flag
+			)}
 		</FlagGroup>
 	);
 };
@@ -150,6 +349,9 @@ export const Flag = ({ api }: Props) => {
 const typeToIcon = (type: FlagType) => {
 	if (type === 'error') {
 		return <StatusWarningIcon label="" color={token('color.icon.warning')} />;
+	}
+	if (type === 'feedback') {
+		return <MegaphoneIcon label="" spacing="spacious" color={token('color.icon')} />;
 	}
 	return <StatusSuccessIcon label="" color={token('color.icon.success')} />;
 };

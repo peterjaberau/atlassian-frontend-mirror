@@ -1,20 +1,28 @@
 import React from 'react';
 
 import {
-	BLOCK_ACTIONS_MENU_SECTION,
+	TRANSFORM_MENU_SECTION,
+	TRANSFORM_MENU_SECTION_RANK,
 	BLOCK_ACTIONS_FEATURED_EXTENSION_SLOT_MENU_ITEM,
-	BLOCK_ACTIONS_MENU_SECTION_RANK,
+	BLOCK_ACTIONS_FEATURED_EXTENSION_ITEM_RANK,
+	MAIN_BLOCK_MENU_SECTION_RANK,
 	TRANSFORM_CREATE_MENU_SECTION,
 	TRANSFORM_CREATE_MENU_SECTION_RANK,
 	TRANSFORM_DEFAULT_EXTENSION_SLOT_MENU_ITEM,
+	TRANSFORM_STRUCTURE_EXTENSION_SLOT_MENU_ITEM,
+	TRANSFORM_STRUCTURE_MENU_SECTION,
+	TRANSFORM_STRUCTURE_MENU_SECTION_RANK,
 } from '@atlaskit/editor-common/block-menu';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { RegisterBlockMenuComponent } from '@atlaskit/editor-plugin-block-menu';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { ToolbarDropdownItemSection } from '@atlaskit/editor-toolbar';
 
 import type { SelectionExtensionPlugin } from '../../selectionExtensionPluginType';
-import type { ExtensionConfiguration } from '../../types';
+import type { ExtensionConfiguration, GetMenuItemsContext } from '../../types';
 import { SelectionExtensionMenuItems } from '../menu/SelectionExtensionMenuItems';
 import { SelectionExtensionComponentContextProvider } from '../SelectionExtensionComponentContext';
+import { getBlockMenuTriggerExtensionKey } from './getBlockMenuTriggerExtensionKey';
 
 type RegisterBlockMenuItemsOptions = {
 	api: ExtractInjectionAPI<SelectionExtensionPlugin> | undefined;
@@ -22,11 +30,17 @@ type RegisterBlockMenuItemsOptions = {
 	extensionList: ExtensionConfiguration[];
 };
 
+/**
+ * Registers first-party selection extension menu items with the block menu plugin.
+ */
 export function registerBlockMenuItems({
 	extensionList,
 	api,
 	editorViewRef,
 }: RegisterBlockMenuItemsOptions): void {
+	const componentsToRegister: RegisterBlockMenuComponent[] = [];
+	const registeredFeaturedSectionKeys = new Set<string>();
+
 	extensionList.forEach(({ source, key, blockMenu }) => {
 		if (source !== 'first-party' || !blockMenu) {
 			return;
@@ -36,78 +50,129 @@ export function registerBlockMenuItems({
 			return;
 		}
 
-		const componentsToRegister = [];
+		const getMenuItemsContext = (): GetMenuItemsContext => ({
+			blockMenuTriggerExtensionKey: getBlockMenuTriggerExtensionKey({
+				api,
+				editorView: editorViewRef?.current,
+			}),
+			extensionKey: key,
+			extensionSource: source,
+			extensionLocation: 'block-menu',
+		});
 
-		// Use placement from BlockMenuExtensionConfiguration
-		// Featured placement: register under TRANSFORM_MENU_SECTION
-		// Default placement: register under TRANSFORM_CREATE_MENU_SECTION
-		if (blockMenu.placement === 'featured') {
+		const getMenuItems = () => blockMenu.getMenuItems(getMenuItemsContext());
+
+		/**
+		 * Renders the registered selection-extension menu items with the correct block-menu context.
+		 */
+		const makeItemComponent = () => {
+			const editorView = editorViewRef?.current;
+			if (!editorView) {
+				return null;
+			}
+			return (
+				<SelectionExtensionComponentContextProvider
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					value={{
+						api,
+						editorView,
+						extensionKey: key,
+						extensionSource: source,
+						extensionLocation: 'block-menu',
+					}}
+				>
+					<SelectionExtensionMenuItems getMenuItems={blockMenu.getMenuItems} />
+				</SelectionExtensionComponentContextProvider>
+			);
+		};
+
+		if (blockMenu.placement === 'featured-section') {
+			// Block menu sections do not support isHidden. Check menu items before registering
+			// the section to avoid rendering an orphan separator when there are no items.
+			if (getMenuItems().length === 0 || !blockMenu.sectionKey) {
+				return;
+			}
+
+			const sectionRank = (MAIN_BLOCK_MENU_SECTION_RANK as Record<string, number>)[
+				blockMenu.sectionKey
+			];
+
+			if (sectionRank === undefined) {
+				return;
+			}
+
+			// Register as its own top-level section with a separator
+			if (!registeredFeaturedSectionKeys.has(blockMenu.sectionKey)) {
+				componentsToRegister.push({
+					type: 'block-menu-section' as const,
+					key: blockMenu.sectionKey,
+					rank: sectionRank,
+					component: ({ children }: { children: React.ReactNode }) => (
+						<ToolbarDropdownItemSection hasSeparator>{children}</ToolbarDropdownItemSection>
+					),
+				});
+				registeredFeaturedSectionKeys.add(blockMenu.sectionKey);
+			}
 			componentsToRegister.push({
 				type: 'block-menu-item' as const,
 				key: `selection-extension-${key}`,
 				parent: {
 					type: 'block-menu-section' as const,
-					key: BLOCK_ACTIONS_MENU_SECTION.key,
-					rank: BLOCK_ACTIONS_MENU_SECTION_RANK[
+					key: blockMenu.sectionKey,
+					rank: BLOCK_ACTIONS_FEATURED_EXTENSION_ITEM_RANK[
 						BLOCK_ACTIONS_FEATURED_EXTENSION_SLOT_MENU_ITEM.key
 					],
 				},
-				component: () => {
-					const editorView = editorViewRef?.current;
-
-					if (!editorView) {
-						return null;
-					}
-
-					return (
-						<SelectionExtensionComponentContextProvider
-							value={{
-								api,
-								editorView,
-								extensionKey: key,
-								extensionSource: source,
-								extensionLocation: 'block-menu',
-							}}
-						>
-							<SelectionExtensionMenuItems getMenuItems={blockMenu.getMenuItems} />
-						</SelectionExtensionComponentContextProvider>
-					);
-				},
+				component: makeItemComponent,
 			});
-		} else {
+		} else if (blockMenu.placement === 'featured') {
+			// Register as an item directly under TRANSFORM_MENU_SECTION
 			componentsToRegister.push({
 				type: 'block-menu-item' as const,
 				key: `selection-extension-${key}`,
-				isHidden: () => blockMenu.getMenuItems().length === 0,
+				parent: {
+					type: 'block-menu-section' as const,
+					key: TRANSFORM_MENU_SECTION.key,
+					rank: (TRANSFORM_MENU_SECTION_RANK as Record<string, number>)[
+						BLOCK_ACTIONS_FEATURED_EXTENSION_SLOT_MENU_ITEM.key
+					],
+				},
+				component: makeItemComponent,
+			});
+		} else if (blockMenu.placement === 'structure') {
+			// Register under the Structure section in the nested Turn into menu
+			componentsToRegister.push({
+				type: 'block-menu-item' as const,
+				key: `selection-extension-${key}`,
+				isHidden: () => getMenuItems().length === 0,
+				parent: {
+					type: 'block-menu-section' as const,
+					key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
+					rank: (TRANSFORM_STRUCTURE_MENU_SECTION_RANK as Record<string, number>)[
+						TRANSFORM_STRUCTURE_EXTENSION_SLOT_MENU_ITEM.key
+					],
+				},
+				component: makeItemComponent,
+			});
+		} else {
+			// Default: register under TRANSFORM_CREATE_MENU_SECTION
+			componentsToRegister.push({
+				type: 'block-menu-item' as const,
+				key: `selection-extension-${key}`,
+				isHidden: () => getMenuItems().length === 0,
 				parent: {
 					type: 'block-menu-section' as const,
 					key: TRANSFORM_CREATE_MENU_SECTION.key,
-					rank: TRANSFORM_CREATE_MENU_SECTION_RANK[TRANSFORM_DEFAULT_EXTENSION_SLOT_MENU_ITEM.key],
+					rank: (TRANSFORM_CREATE_MENU_SECTION_RANK as Record<string, number>)[
+						TRANSFORM_DEFAULT_EXTENSION_SLOT_MENU_ITEM.key
+					],
 				},
-				component: () => {
-					const editorView = editorViewRef?.current;
-					if (!editorView) {
-						return null;
-					}
-					return (
-						<SelectionExtensionComponentContextProvider
-							value={{
-								api,
-								editorView,
-								extensionKey: key,
-								extensionSource: source,
-								extensionLocation: 'block-menu',
-							}}
-						>
-							<SelectionExtensionMenuItems getMenuItems={blockMenu.getMenuItems} />
-						</SelectionExtensionComponentContextProvider>
-					);
-				},
+				component: makeItemComponent,
 			});
 		}
-
-		if (componentsToRegister.length > 0) {
-			api.blockMenu.actions.registerBlockMenuComponents(componentsToRegister);
-		}
 	});
+
+	if (componentsToRegister.length > 0) {
+		api?.blockMenu?.actions.registerBlockMenuComponents(componentsToRegister);
+	}
 }

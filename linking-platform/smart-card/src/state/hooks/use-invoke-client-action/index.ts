@@ -1,12 +1,14 @@
 import { useCallback } from 'react';
 
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import { useAnalyticsEvents } from '../../../common/analytics/generated/use-analytics-events';
-import * as measure from '../../../utils/performance';
-import { failUfoExperience, startUfoExperience, succeedUfoExperience } from '../../analytics';
-
+import { getMeasure } from '../../../utils/get-measure';
+import { mark } from '../../../utils/mark';
+import { failUfoExperience } from '../../analytics/failUfoExperience';
+import { startUfoExperience } from '../../analytics/startUfoExperience';
+import { succeedUfoExperience } from '../../analytics/succeedUfoExperience';
 import { type InvokeClientActionHandler, type UseInvokeClientActionProps } from './types';
 
 const ACTION_EXPERIENCE_NAME = 'smart-link-action-invocation';
@@ -29,6 +31,7 @@ const useInvokeClientAction = ({
 			extensionKey,
 			display,
 			id,
+			prompt,
 			resourceType = null,
 		}) => {
 			// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
@@ -36,7 +39,7 @@ const useInvokeClientAction = ({
 
 			// Begin performance instrumentation.
 			const markName = `${experienceId}-${actionType}`;
-			measure.mark(markName, 'pending');
+			mark(markName, 'pending');
 
 			try {
 				// Begin UFO experience
@@ -55,25 +58,26 @@ const useInvokeClientAction = ({
 						display: display ?? null,
 						id: id ?? experienceId,
 						resourceType,
+						prompt,
 					});
 				}
 				// Invoke action
 				const result = await actionFn();
 
-				measure.mark(markName, 'resolved');
+				mark(markName, 'resolved');
 				succeedUfoExperience(ACTION_EXPERIENCE_NAME, experienceId);
 				fireEvent('operational.smartLinkAction.resolved', {
 					actionType: actionType ?? null,
 					definitionId,
 					display: display ?? null,
-					duration: measure.getMeasure(markName, 'resolved')?.duration ?? null,
+					duration: getMeasure(markName, 'resolved')?.duration ?? null,
 					id: id ?? experienceId,
 					resourceType,
 				});
 
 				return result;
 			} catch (err) {
-				measure.mark(markName, 'errored');
+				mark(markName, 'errored');
 				failUfoExperience(ACTION_EXPERIENCE_NAME, experienceId);
 				const reason = typeof err === 'string' ? err : (err as any)?.message;
 
@@ -81,7 +85,7 @@ const useInvokeClientAction = ({
 					actionType: actionType ?? null,
 					definitionId,
 					display: display ?? null,
-					duration: measure.getMeasure(markName, 'errored')?.duration ?? null,
+					duration: getMeasure(markName, 'errored')?.duration ?? null,
 					id: id ?? experienceId,
 					reason,
 					resourceType,

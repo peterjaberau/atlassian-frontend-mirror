@@ -1,5 +1,4739 @@
 # @atlaskit/editor-statsig-tmp
 
+## 219.0.0
+
+### Major Changes
+
+- [`55e90d4321606`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/55e90d4321606) -
+  Clean up experiment platform_editor_sync_block_activation.
+- [`6a8d8bda53f36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6a8d8bda53f36) -
+  Remove `cc_maui_polish_changes_batch_4` from the editor experiment config after cleanup.
+- [`c906e2e4ceb34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c906e2e4ceb34) -
+  Clean up experiment `platform_editor_wide_slash_trigger`
+
+## 218.0.0
+
+### Major Changes
+
+- [`be9e41ded080d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be9e41ded080d) -
+  Clean up shipped experiment `platform_editor_use_html_plus_streaming_parser`. The HTML+ v2
+  incremental tool-call streaming parser (`PartialStreamParserV2` / `ToolCallProcessorV2` /
+  `AdfChunkStrategyV2`) is now permanently enabled in `@atlassian/editor-rovo-bridge`, and
+  `ReadContentCommandHandler` always advertises `editorStreamingContractVersion: 2` to the backend.
+  The removed experiment declaration in `@atlaskit/tmp-editor-statsig` is a breaking change to the
+  statsig experiment contract for any remaining consumers.
+
+## 217.0.0
+
+### Major Changes
+
+- [`f34945bb86971`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f34945bb86971) -
+  Clean up experiment `company_hub_carousel_thumbnails-refactor`
+
+## 216.0.0
+
+### Major Changes
+
+- [`4a467a9d5ed8b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4a467a9d5ed8b) -
+  Remove the launched `platform_sl_3p_preauth_social_proof_inline_cta` experiment from the exported
+  `EditorExperimentsConfig` type and `editorExperimentsConfig` registry in the
+  `./experiments-config` entrypoint. Consumers must remove lookups and overrides for this key and
+  retain the shipped Test behavior (`isEnabled: true`).
+
+## 215.0.0
+
+### Major Changes
+
+- [`f1454b828555b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1454b828555b) -
+  Clean up experiment `platform_editor_breakout_interaction_rerender`
+
+## 214.0.0
+
+### Major Changes
+
+- [`6728bb1f412c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6728bb1f412c2) -
+  Remove the unused `platform_editor_toolbar_aifc` experiment registration and temporary-only
+  runtime branches, preserve toolbar treatments owned by `platform_editor_ai_aifc_streaming` or
+  `aifc_create_enabled`, retain the control experience when those checks are disabled, and correctly
+  hide decorative Rovo toolbar icons from assistive technology.
+- [`d7f1f4ebb1cd3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7f1f4ebb1cd3) -
+  Keep the shipped layout column delete shortcut behavior for explicitly selected columns. Remove
+  the `platform_editor_layout_column_delete_shortcut_fix` and
+  `platform_editor_layout_column_valign_rendering` experiment keys. Consumers of these keys must
+  remove their experiment reads and use the shipped behavior directly.
+
+## 213.0.0
+
+### Major Changes
+
+- [`a4fe8636fa0ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4fe8636fa0ec) -
+  Clean up the fully rolled out `platform_editor_layout_column_menu` experiment and the
+  `platform_editor_layout_column_menu_kill_switch_1` feature gate, retaining their shipped behavior.
+  Consumers must remove any direct `@atlaskit/tmp-editor-statsig` experiment override for
+  `platform_editor_layout_column_menu`.
+- [`618d89a102880`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/618d89a102880) -
+  Clean up experiment `remix_iw_block_menu_table_calc_fix`
+
+## 212.0.0
+
+### Major Changes
+
+- [`c004ba24db31f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c004ba24db31f) -
+  Clean up the shipped `platform_editor_external_embed_grid_fix` experiment. The grid overlay now
+  always sizes itself from the content line length plus the gutter width, so the conditional and the
+  experiment registration have been removed. The experiment is no longer available in the Statsig
+  configuration; consumers should remove its overrides and checks.
+
+## 211.0.0
+
+### Major Changes
+
+- [`034ef0dcd5baa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/034ef0dcd5baa) -
+  Remove the shipped `cc_fix_hydration_ttvc` experiment configuration.
+
+### Minor Changes
+
+- [`038da6c703ee9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/038da6c703ee9) -
+  `editorExperiment('platform_editor_controls', …)` now returns `variant1` for the Confluence and
+  Jira products, whose product code has been cleaned up to always behave as `variant1`.
+
+  Every other app (no product, or a product without a product key) now also returns `variant1`, so
+  the editor controls experience is enabled by default. It returns `control` only when the
+  `platform_editor_controls_other_apps_ks` kill switch is on for that app, or before the Statsig
+  client has initialised. Test overrides and the `test` product are unchanged.
+
+## 210.0.0
+
+### Major Changes
+
+- [`517ce6768d96a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/517ce6768d96a) -
+  Clean up experiment `platform_editor_vc90_transition_panel_icon`.
+- [`5f61320693517`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5f61320693517) -
+  Clean up experiment `platform_editor_remove_collab_step_metrics`
+
+### Patch Changes
+
+- [`4b854d5786237`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b854d5786237) -
+  Clean up feature gate `platform_editor_experiments_use_product_keys`. Product-specific experiment
+  keys are now always used for experiments that are not in `disallowsProductKeys`.
+
+## 209.1.1
+
+### Patch Changes
+
+- [`e317f52827a15`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e317f52827a15) -
+  Clean up experiment `cc_maui_create_keyword` and keep the permanent Remix copy.
+
+## 209.1.0
+
+### Minor Changes
+
+- [`a331495279e88`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a331495279e88) -
+  Remove the cc_maui_create_keyword_aa experiment exposure and configuration.
+
+## 209.0.0
+
+### Major Changes
+
+- [`806c750c64957`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/806c750c64957) -
+  Clean up experiment `platform_editor_diff_plugin_extended`
+
+## 208.0.0
+
+### Major Changes
+
+- [`a8919aeeabced`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8919aeeabced) -
+  Remove the shipped `platform_editor_hydration_skip_react_portal` experiment and preserve SSR DOM
+  reuse. The experiment is no longer available in the Statsig configuration; consumers should remove
+  its overrides and checks.
+- [`9e868701b2db4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e868701b2db4) -
+  Remove the `aifc-confluence-editor-csp-fix` dynamic config and always send the Rovo parent product
+  when opening Confluence smart creation.
+
+## 207.0.0
+
+### Major Changes
+
+- [`e2193743a9a17`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2193743a9a17) -
+  Clean up experiment `platform_editor_renderer_extension_width_fix`
+- [`202069bab1e36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/202069bab1e36) -
+  Clean up the shipped `platform_editor_enghealth_a11y_jan_fixes` experiment. Toolbar dropdown items
+  now always render with `role="menuitem"` and without `aria-pressed`, the block menu always has
+  `role="menu"`, and show-diff deleted content always uses the a11y-fixed styles.
+
+## 206.0.0
+
+### Major Changes
+
+- [`ae39a248bd118`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae39a248bd118) -
+  FFCLEANUP-147994 clean up fg relating to fallback media name fetcher
+  platform_editor_media_name_fallback, platform_editor_media_file_rename_on_fallback,
+  platform_editor_media_file_rename_on_fallback, platform_editor_media_name_fallback_viewer_card
+
+### Patch Changes
+
+- [`0095a83701e66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0095a83701e66) -
+  Clean up the shipped `platform_editor_a11y_scrollable_region` experiment. The inline code mark
+  accessibility fix (`overflow: unset` on `.code`) is now permanently on, so the conditional style
+  and the experiment registration have been removed. No behaviour change for users already in the
+  treatment cohort.
+
+## 205.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 205.0.0
+
+### Major Changes
+
+- [`135644b71068b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/135644b71068b) -
+  Clean up experiment `cc_smarts_should_improve_writing_migration`. The should-improve-writing
+  request now always goes to the cc-smarts route, and the convo-ai route plus its shadow-comparison
+  analytics have been removed.
+
+## 204.0.0
+
+### Major Changes
+
+- [`c59a6b356dc1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c59a6b356dc1b) -
+  Clean up experiment `platform_editor_korean_characters_split`
+
+## 203.0.0
+
+### Major Changes
+
+- [`2a3bb6864b8fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a3bb6864b8fe) -
+  Clean up the `platform_editor_fix_selection_text_color_change` experiment.
+- [`d2d3703fed89b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2d3703fed89b) -
+  Clean up experiment `platform_editor_ai_improve_formatting_toolbar`
+- [`11bcba8414047`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/11bcba8414047) -
+  Clean up experiment `platform_editor_fix_ai_streaming_race`
+
+## 202.0.1
+
+### Patch Changes
+
+- [`1ee5ac1d4338d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ee5ac1d4338d) -
+  Cleaning up cc_editor_focus_before_editor_on_load and platform_editor_no_cursor_on_edit_page_init
+
+  Cursor suppression on load is now driven by the presence of the interaction plugin rather than the
+  experiment, so only editors that opt into that plugin skip focus on a document with content.
+  `cc_editor_focus_before_editor_on_load` shipped disabled, so the pre-editor focus element has been
+  removed.
+
+## 202.0.0
+
+### Major Changes
+
+- [`3f8ea6c51b718`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f8ea6c51b718) -
+  Remove the rolled-out `editor_tinymce_full_width_mode` and
+  `confluence_max_width_content_appearance` experiments and make max-width content behavior
+  permanent.
+
+## 201.0.0
+
+### Major Changes
+
+- [`1e8d2aad8e882`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e8d2aad8e882) -
+  Remove the permanent `platform_editor_layout_typeahead_reorder` experiment and its temporary
+  Editor Statsig registration.
+
+## 200.0.0
+
+### Major Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 199.0.0
+
+### Major Changes
+
+- [`04a147a4ed8b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04a147a4ed8b5) -
+  Remove the platform_editor_table_excerpts_fix experiment and make its enabled behavior permanent.
+  Tables inside layout columns retain their full-width styling in both Emotion and Compiled editors.
+
+  The experiment key has been removed from tmp-editor-statsig configuration. Consumers must remove
+  checks for this key and retain the isEnabled: true behavior.
+
+- [`6c7f03ca0f4ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c7f03ca0f4ad) -
+  Clean up experiment `editor_a11y__toolbar-item-aria-described-by_fy27`
+- [`edc1eb0f84ed8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/edc1eb0f84ed8) -
+  Clean up experiment `platform_editor_comment_on_bodied_extensions`
+
+## 198.0.0
+
+### Major Changes
+
+- [`9f67d7a39831c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f67d7a39831c) -
+  Clean up experiment `editor_a11y__primary-toolbar-aria-label_fy27`
+
+## 197.0.0
+
+### Major Changes
+
+- [`cd25a56e957e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd25a56e957e5) -
+  Clean up experiment `cc-maui-overlay-by-localid`. The enabled behaviour is now permanent: the
+  inline-Rovo streaming target for a media node is always the node's `localId`, so the AI-generating
+  overlay only lights up the node the user acted on instead of every copy/pasted duplicate sharing
+  the same media file id.
+
+  `@atlaskit/tmp-editor-statsig` removes the `cc-maui-overlay-by-localid` key from
+  `editorExperimentsConfig`, so reading it via `expValEquals`/`expValEqualsNoExposure` is now a type
+  error - remove those call sites.
+
+  `@atlassian/editor-rovo-bridge` removes `onPrepareImageUpdate` and `onClearAIGenerating` from the
+  `PassThroughCommandProps` type. The ACTION_PREPARE overlay path they drove is dead now that the
+  overlay is keyed on `localId`, and the payload only ever carried a media file id. Consumers
+  passing either callback should drop it; no replacement is needed.
+
+## 196.0.0
+
+### Major Changes
+
+- [`76cb6eaf691bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76cb6eaf691bb) -
+  Remove the retired rovogrowth-635-pre-auth-cta-preview-exp experiment and feature gate, preserving
+  the shipped control CTA.
+
+## 195.0.0
+
+### Major Changes
+
+- [`85ad3990bac78`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85ad3990bac78) -
+  Clean up experiment `platform_editor_appearance_shared_state`
+
+## 194.0.0
+
+### Major Changes
+
+- [`9e6211ceb4ceb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e6211ceb4ceb) -
+  Clean up the fully rolled-out `platform_editor_small_font_size` experiment and make its permanent
+  `true` behavior unconditional across editor formatting, task and list handling, paste behavior,
+  controls, and rendering.
+
+## 193.0.0
+
+### Major Changes
+
+- [`2a1e8245a006e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a1e8245a006e) -
+  Clean up experiment `cc-maui-ai-edit-loading-experiment`. The enabled behaviour is now permanent:
+  media cards and MAUI embeds always render the simple loading bar instead of the spinner/icon
+  carousel, and the AI-edit blanket overlay is always applied when a MAUI app is replaced from the
+  toolbar.
+
+  `@atlaskit/tmp-editor-statsig` removes the `cc-maui-ai-edit-loading-experiment` key from
+  `editorExperimentsConfig`, so reading it via `expValEquals`/`expValEqualsNoExposure` is now a type
+  error — remove those call sites.
+
+  `@atlaskit/media-card` drops its now-unused `@atlaskit/spinner` dependency, and
+  `@atlassian/native-embeds-maui-experience` drops its now-unused `@atlaskit/icon-lab` dependency.
+
+- [`55b2a2034275e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/55b2a2034275e) -
+  Clean up experiment `platform_editor_disable_lazy_load_media`
+
+## 192.0.0
+
+### Major Changes
+
+- [`b3f788656e6f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b3f788656e6f9) -
+  [FFCLEANUP-91521] clean up references to `platform_editor_renderer_toolbar_updates`
+
+## 191.0.0
+
+### Major Changes
+
+- [`a0b5ab4d98338`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0b5ab4d98338) -
+  [FFCLEANUP-147868] clean up experiment `platform_editor_lovability_breakout_resizing_fixes`
+
+## 190.0.0
+
+### Major Changes
+
+- [`077f0fa90b5c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/077f0fa90b5c9) -
+  Clean up experiment `platform_editor_prevent_taskitem_remount`
+
+## 189.0.0
+
+### Major Changes
+
+- [`3c205719730cb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c205719730cb) -
+  Cleanup `platform_editor_table_nested_content_mode_fix` (`FFCLEANUP-152658`). Nested table renders
+  now permanently disable content mode, preserving the fully rolled-out behavior. The experiment is
+  removed from `@atlaskit/tmp-editor-statsig`; consumers that reference its typed
+  `editorExperimentsConfig` entry must remove those references when upgrading.
+- [`66b95ac437117`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/66b95ac437117) -
+  Remove the `platform_editor_table_menu_updates_patch_3` experiment from the public experiment
+  configuration. Consumers must stop resolving this experiment through `expValEquals`; the table
+  menu now uses the permanent `true` behavior.
+- [`8ed2cba592e7a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8ed2cba592e7a) -
+  Clean up the retired table sticky-header experiment.
+  - Preserve the permanently enabled sticky-header drag-row positioning.
+  - Remove the retired experiment configuration. Consumers should remove any overrides and rely on
+    the permanently enabled behavior.
+
+### Patch Changes
+
+- [`8c22b996302b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8c22b996302b5) -
+  Clean up the permanently enabled `platform_editor_table_fit_to_content_auto_convert` experiment
+  and keep table fit-to-content conversion enabled across the editor and renderer.
+
+## 188.0.0
+
+### Major Changes
+
+- [`962e8dc0188bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/962e8dc0188bf) -
+  Clean up `platform_editor_offline_editing_web` with `isEnabled: true` for Confluence, keeping
+  offline editing and recovery behavior enabled. Remove the retired experiment from the editor
+  Statsig configuration; consumers must stop querying or overriding this experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 187.0.0
+
+### Major Changes
+
+- [`7f71b28df7e6c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f71b28df7e6c) -
+  Clean up launched experiment `cc_maui_polish_changes_batch_3` by making the `isEnabled=true`
+  Confluence MAUI/editor remix behaviours permanent.
+
+## 186.0.0
+
+### Major Changes
+
+- [`aca1f7aaf3fd6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aca1f7aaf3fd6) -
+  Remove the retired platform_editor_exp_lazy_node_views experiment from the legacy test
+  configuration.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 185.0.0
+
+### Major Changes
+
+- [`2ca8a0b02c20e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ca8a0b02c20e) -
+  Clean up experiment `platform_editor_bodiedextension_layoutshift_fix` by making the bodied
+  extension layout shift fix permanent.
+- [`9142c78d2fa96`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9142c78d2fa96) -
+  Remove the `platform_editor_vc90_transition_mentions` experiment and ship its enabled behavior for
+  mention highlighting
+- [`475ea06f001bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/475ea06f001bd) -
+  Clean up experiment `platform_editor_ai_aifc_space_shortcut_patch`
+
+## 184.0.0
+
+### Major Changes
+
+- [`d92f804b3ec93`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d92f804b3ec93) -
+  Permanently enable single-row native sticky header behavior and remove the fully rolled-out
+  `platform_editor_table_q4_patch_4` experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 183.0.0
+
+### Major Changes
+
+- [`2d60d5e675439`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d60d5e675439) -
+  Clean up `cc_maui_polish_changes_batch_2` and make its shipped Remix behaviour permanent.
+
+## 182.0.0
+
+### Major Changes
+
+- [`6322f75743dc1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6322f75743dc1) -
+  Clean up experiment `platform_editor_expand_content_a11y`.
+
+  BREAKING CHANGE: This experiment has been removed from the Editor experiments config. The shipped
+  `isEnabled=true` path is now the default. Delete any remaining `expValEquals` / experiment reads
+  or test overrides for this key.
+
+## 181.0.0
+
+### Major Changes
+
+- [`d539514424fd9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d539514424fd9) -
+  Clean up experiment `platform_editor_fix_table_sort_with_mark`
+
+## 180.0.0
+
+### Major Changes
+
+- [`0cec43eb08826`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0cec43eb08826) -
+  Clean up experiment platform_editor_nested_drag_handle_icon
+
+## 179.0.0
+
+### Major Changes
+
+- [`3422261e7a40e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3422261e7a40e) -
+  Clean up experiment `platform_editor_smartlink_local_cache`.
+- [`35f8ff3c9ce4f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/35f8ff3c9ce4f) -
+  Clean up the released `platform_editor_improve_inline_diffs` experiment and remove the obsolete
+  editor experiment migration entry point.
+
+## 178.0.0
+
+### Major Changes
+
+- [`a793c755467e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a793c755467e1) -
+  Clean up experiment `cc_smarts_concise_page_summary_migration`. The Concise Page Summary request
+  now always routes to the cc-smarts streaming endpoint.
+
+## 177.0.1
+
+### Patch Changes
+
+- [`e29faa16e0c66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e29faa16e0c66) -
+  Migrate selected editor experiment reads and tooling from tmp-editor-statsig to
+  platform-feature-experiments, including static CSS, floating ToC, insert-menu AI, table overflow
+  shadows, and collapsible headings.
+
+## 177.0.0
+
+### Major Changes
+
+- [`20b31a55e5eb3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20b31a55e5eb3) -
+  Clean up experiment `platform_editor_abort_ufo_on_user_interaction`
+
+## 176.0.0
+
+### Major Changes
+
+- [`ceafacf811cf7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ceafacf811cf7) -
+  Clean up launched experiment `cc_maui_polish_changes_batch_1`, including its Statsig
+  configuration.
+
+## 175.0.0
+
+### Major Changes
+
+- [`c1a25d416f137`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c1a25d416f137) -
+  Clean up experiment `platform_editor_comment_editor_border_radius`.
+
+## 174.0.0
+
+### Major Changes
+
+- [`a6c26b16402ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a6c26b16402ca) -
+  Migrate nine dogfooding editor experiments from `@atlaskit/tmp-editor-statsig` to the Platform
+  experiment API and move their tests to Platform experiment mocks.
+
+## 173.0.0
+
+### Major Changes
+
+- [`d1f1b273026fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1f1b273026fd) -
+  Clean up experiment `cc_dnd_smart_link_changeboard_platform_css` and preserve smart link
+  changeboarding behavior.
+
+## 172.0.0
+
+### Major Changes
+
+- [`8db4908d60862`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8db4908d60862) -
+  Clean up experiment platform_editor_plus_menu_aria_label
+
+## 171.0.0
+
+### Major Changes
+
+- [`468a533e36283`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/468a533e36283) -
+  Clean up the shipped `platform_editor_table_a11y_eslint_fix` experiment and keep its enabled table
+  focus behavior.
+- [`5d35806b69659`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5d35806b69659) -
+  Clean up experiment `platform_editor_expand_paste_in_comment_editor`
+
+## 170.0.0
+
+### Major Changes
+
+- [`a945d3cbd6408`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a945d3cbd6408) -
+  Clean up experiment `platform_editor_ai_template_localids`
+
+## 169.0.0
+
+### Major Changes
+
+- [`4db8fed8666c0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4db8fed8666c0) -
+  Clean up experiment `platform_editor_close_expand_find` and permanently enable browser find in
+  collapsed Expand content.
+- [`08bf773f7599a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08bf773f7599a) -
+  Migrate experiments to use the new platform experiment API. This major release removes the
+  migrated experiment entries from `@atlaskit/tmp-editor-statsig`'s `editorExperimentsConfig` and
+  test overrides. Consumers must replace legacy `expVal`/`expValEquals` calls with
+  `@atlaskit/platform-feature-experiments` APIs, using `isExperimentEnabled` for boolean `isEnabled`
+  experiments and `expVal` for parameterized experiments; use `mockExpEnabled`/`mockExpDisabled` in
+  tests.
+
+## 168.0.0
+
+### Major Changes
+
+- [`c4385174a8662`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4385174a8662) -
+  Clean up experiment `editor_a11y_role_textbox`.
+
+## 167.0.0
+
+### Major Changes
+
+- [`4df90d6af7dc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4df90d6af7dc0) -
+  Clean up experiment `platform_editor_layout_keywords` and retain the launched layout search
+  keywords.
+
+## 166.0.0
+
+### Major Changes
+
+- [`ccd6a433ade84`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ccd6a433ade84) -
+  Clean up experiment `platform_editor_renderer_shadow_observer_cleanup`.
+
+### Minor Changes
+
+- [`c967639892512`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c967639892512) -
+  Cleanup experiment `platform_editor_table_q4_patch_5` and permanently restrict sticky table
+  headers to the first header row.
+
+## 165.0.0
+
+### Major Changes
+
+- [`f34bb99565856`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f34bb99565856) -
+  Remove the `platform_editor_table_q4_patch_3` experiment and permanently retain interaction-aware
+  table cell highlighting.
+
+## 164.1.0
+
+### Minor Changes
+
+- [`ae3b452f54cbe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae3b452f54cbe) -
+  Add clean granular subpath exports `@atlaskit/tmp-editor-statsig/editor-experiment` and
+  `@atlaskit/tmp-editor-statsig/unstable-editor-experiment-param`, so `editorExperiment` and
+  `unstable_editorExperimentParam` each have a non-deprecated import target (Volt Stage-1). The
+  existing `@atlaskit/tmp-editor-statsig/experiments` shim is unchanged.
+
+## 164.0.0
+
+### Major Changes
+
+- [`12a986f8ae94a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12a986f8ae94a) -
+  Ship fix_copy_paste_external_media_renderer_to_editor permanently by always hoisting external
+  media copied from renderer markup. Remove its temporary Statsig experiment configuration;
+  consumers should remove any calls that read this experiment.
+
+## 163.0.0
+
+### Major Changes
+
+- [`f745000fb169b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f745000fb169b) -
+  Permanently apply the first editor node margin fix and remove the `platform_editor_first_node_fix`
+  experiment.
+- [`76a10b0cda613`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76a10b0cda613) -
+  Remove the `platform_editor_table_menu_updates_patch_2` experiment and permanently apply its
+  rolled-out table menu treatment.
+- [`6f957d4e7bcb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6f957d4e7bcb8) -
+  Make layout column resizing generally available
+
+## 162.0.0
+
+### Major Changes
+
+- [`605318d4eba4b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/605318d4eba4b) -
+  [FFCLEANUP-101910] clean up platform_editor_editor_centre_content_on_find experiment
+- [`3c376dcc27b56`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c376dcc27b56) -
+  Clean up experiment `platform_editor_table_ref_optimisation`
+
+## 161.0.0
+
+### Major Changes
+
+- [`b000b69f907fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b000b69f907fc) -
+  [ux] Migrate major experiments in implementing to new experiments API.
+
+## 160.0.0
+
+### Major Changes
+
+- [`b4c4cd8f205e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b4c4cd8f205e4) -
+  Clean up experiment `platform_editor_prevent_toolbar_layout_shifts` and keep the enabled toolbar
+  layout behavior.
+
+## 159.0.1
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+
+## 159.0.0
+
+### Major Changes
+
+- [`4067622b56b33`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4067622b56b33) -
+  Clean up experiment `platform_editor_flex_based_centering`
+
+## 158.0.0
+
+### Major Changes
+
+- [`424cc3975b0eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/424cc3975b0eb) -
+  Clean up experiment `platform_editor_lovability_suppress_toolbar_event`
+- [`9e4a665de419a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e4a665de419a) -
+  Clean up of expriment flag `platform_editor_preview_panel_linking_exp_conf` and
+  `platform_editor_preview_panel_linking_exp_jira`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 157.0.0
+
+### Major Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Remove platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply from
+  editorExperimentsConfig. Consumers should read these experiments through
+  @atlaskit/platform-feature-experiments.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 156.0.0
+
+### Major Changes
+
+- [`6cf283ca60155`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6cf283ca60155) -
+  Clean up experiment `platform_editor_table_col_insert`
+
+### Patch Changes
+
+- [`cf0d48414ae0e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf0d48414ae0e) -
+  Clean up experiment `cc_editor_experiments_ufo_gate_reporting_expval`
+
+## 155.0.0
+
+### Major Changes
+
+- [`a285770e5decb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a285770e5decb) -
+  Remove the migrated platform_editor_ai_move_node, platform_editor_confluence_base_preset,
+  platform_editor_inline_card_dispatch_guard, platform_editor_inline_media_replacement, and
+  platform_editor_lovability_color_schema_change keys from editorExperimentsConfig. Consumers should
+  read these experiments through @atlaskit/platform-feature-experiments.
+
+## 154.0.0
+
+### Major Changes
+
+- [`f24601e815f0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f24601e815f0b) -
+  Clean up the `platform_editor_reduce_noisy_steps_ncs` experiment.
+
+## 153.0.0
+
+### Major Changes
+
+- [`698eb28037b8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/698eb28037b8a) -
+  Clean up experiment `platform_editor_drag_handle_keyboard_a11y`
+
+## 152.0.0
+
+### Major Changes
+
+- [`70c05b380d08c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70c05b380d08c) -
+  Clean up experiment `platform_editor_blockquote_in_text_formatting_menu` as globally enabled.
+
+## 151.0.0
+
+### Major Changes
+
+- [`1eb42bae392d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1eb42bae392d7) -
+  Clean up experiment `platform_editor_remove_bidi_char_warning`. Bidirectional character warnings
+  are no longer rendered in code blocks: `codeBidiWarningPlugin` is no longer registered by any
+  preset, and the renderer passes `hasBidiWarnings={false}` to `@atlaskit/code` code blocks. Bidi
+  warnings on inline `code` marks are unaffected.
+
+  `codeBidiWarning` has been removed from the plugin lists and plugin options of the Confluence
+  full-page, Confluence markdown, and Company Hub presets, so consumers no longer need to pass
+  `pluginOptions.codeBidiWarning` or `enabledOptionalPlugins.codeBidiWarning`.
+
+  `@atlaskit/editor-plugin-code-bidi-warning` is retained but now has no consumers; it is scheduled
+  for removal in a follow-up.
+
+## 150.0.0
+
+### Major Changes
+
+- [`4d7433f9c93d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4d7433f9c93d8) -
+  Clean up the enabled `platform_editor_code_block_fold_gutter` experiment for Confluence.
+
+## 149.0.0
+
+### Major Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+## 148.1.0
+
+### Minor Changes
+
+- [`72434f514923a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72434f514923a) -
+  Split multi-export modules into one export per file to meet the Volt package standard. The
+  `exports` map is unchanged — all 10 public subpaths keep their existing targets — and every symbol
+  that moved is still re-exported from the subpath that previously exposed it, now marked
+  `@deprecated`:
+  - `@atlaskit/tmp-editor-statsig/expVal` — `expVal` and `expValNoExposure` now live in
+    `src/exp-val.ts` and `src/exp-val-no-exposure.ts`.
+  - `@atlaskit/tmp-editor-statsig/experiments` — `editorExperiment` and
+    `unstable_editorExperimentParam` now live in `src/editor-experiment.ts` and
+    `src/unstable-editor-experiment-param.ts`.
+
+  `expValInternal` is now exported from `@atlaskit/tmp-editor-statsig/expVal`. It was previously a
+  module-private helper and is only public so the split `expVal`/`expValNoExposure` modules can
+  share it — it is not intended for consumer use and will be removed once the deprecated shims go
+  (VOLTC-139).
+
+  Internal-only modules were also split out (`create-boolean-experiment`,
+  `create-multivariate-experiment`, `is-boolean`, `one-of`), and barrel imports of
+  `@atlaskit/feature-gate-js-client` and `@atlaskit/platform-feature-flags` were replaced with their
+  subpath equivalents. No behaviour change.
+
+## 148.0.0
+
+### Major Changes
+
+- [`24a6057e3d2f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/24a6057e3d2f3) -
+  Clean up experiment `platform_editor_dom_node_count`. `editorDomSize` is now always reported on
+  the editor `inp` and `proseMirrorRendered` events.
+
+## 147.1.0
+
+### Minor Changes
+
+- [`90ba4a2921d81`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90ba4a2921d81) -
+  Remove AFPS metric
+- [`da5eaf0bc37da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da5eaf0bc37da) -
+  Clean up the platform_editor_editor_ssr_streaming experiment. The SSR streaming code paths are now
+  permanent and the isSSRStreaming() utility has been removed from
+  @atlaskit/editor-common/core-utils.
+
+## 147.0.0
+
+### Major Changes
+
+- [`774c01e2f1cdd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/774c01e2f1cdd) -
+  Remove the `platform_editor_diff_granular_extended` experiment and retain its disabled behavior.
+
+## 146.0.1
+
+### Patch Changes
+
+- [`023c9fd048b21`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/023c9fd048b21) -
+  Remove the dynamic config kill switch for editor remix safety-violation handling.
+
+## 146.0.0
+
+### Major Changes
+
+- [`dc25bddeafe4d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dc25bddeafe4d) -
+  Clean up experiment `platform_editor_ai_tablecell_localids`
+
+## 145.0.0
+
+### Major Changes
+
+- [`31d6b0eaca46e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31d6b0eaca46e) -
+  Clean up experiment `platform_editor_tables_drag_and_drop`.
+- [`c35cab8f8008f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c35cab8f8008f) -
+  [FFCLEANUP-139804] clean up mandatory emoji rating feedback experiment
+
+## 144.0.0
+
+### Major Changes
+
+- [`42931028bd815`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42931028bd815) -
+  [FFCLEANUP-138148] clean up experiment `platform_editor_find_and_replace_improvements`
+
+## 143.0.0
+
+### Major Changes
+
+- [`8e67cc3c24a39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8e67cc3c24a39) -
+  Remove the concluded Create with Rovo quick-insert experiment and retain its control behavior.
+
+  This is a breaking API change for `@atlaskit/tmp-editor-statsig` consumers because
+  `editorExperimentsConfig.cc_fd_cwr_quick_insert` and the corresponding typed experiment key no
+  longer exist.
+
+  Remove references to `editorExperimentsConfig.cc_fd_cwr_quick_insert` and experiment lookups such
+  as:
+
+  ```ts
+  if (expValNoExposure('cc_fd_cwr_quick_insert', 'cohort', 'control') === 'control') {
+  	return useControlBehavior();
+  }
+  return useTreatmentBehavior();
+  ```
+
+  There is no replacement experiment. Delete the conditional and use the former control behavior
+  directly:
+
+  ```ts
+  return useControlBehavior();
+  ```
+
+## 142.0.0
+
+### Major Changes
+
+- [`cdeb483dc8d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cdeb483dc8d38) -
+  Clean up experiment `platform_editor_ai_fix_insert_after_selection`.
+
+## 141.1.0
+
+### Minor Changes
+
+- [`95510ea98e287`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95510ea98e287) -
+  Added `bbc-auto-generate-pr-description` experiment to config
+
+## 141.0.0
+
+### Major Changes
+
+- [`1f436e4732b98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f436e4732b98) -
+  Clean up the shipped smart link drag-and-drop feature gate and make the drag-and-drop path
+  permanent.
+
+## 140.0.0
+
+### Major Changes
+
+- [`83cf312c45f2f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83cf312c45f2f) -
+  Detect process suspension on reconnect so catchup runs after a device wakes from sleep, where
+  `disconnectedAt` is only stamped once the process resumes. Behind
+  `collab_check_sleep_detection_experiment`, read through `@atlaskit/platform-feature-experiments`.
+
+  `@atlaskit/collab-provider` adds no public API. `SleepDetector` is internal: it is not reachable
+  from the `.`, `./provider`, `./socket-io-provider`, `./types` or `./version-wrapper` entry points
+  and does not appear in `report.api.md`. The provider constructs and drives it internally, so
+  consumers need no migration and no call sites change.
+
+  `@atlaskit/tmp-editor-statsig` drops `collab_bypass_out_of_sync_period_experiment` from
+  `editorExperimentsConfig`, which is part of its typed surface. The key had no call sites outside
+  `@atlaskit/collab-provider`, which no longer reads it, so no consumer migration is expected in
+  practice. Any remaining caller must move to the new experiment:
+
+  ```ts
+  // before
+  if (expValEquals('collab_bypass_out_of_sync_period_experiment', 'isEnabled', true, false)) {
+  	// catch up regardless of how long the client was offline
+  }
+
+  // after
+  if (isExperimentEnabled('collab_check_sleep_detection_experiment')) {
+  	// catch up when a suspension of at least OUT_OF_SYNC_PERIOD was detected
+  }
+  ```
+
+## 139.0.0
+
+### Major Changes
+
+- [`72f7cec91a1d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72f7cec91a1d4) -
+  Remove the `editor_synced_block_perf` experiment. The lazy node-view init and cached
+  status-decoration apply path are now always on, and the legacy full-document `descendants()`
+  decoration walk has been removed.
+- [`72f7cec91a1d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72f7cec91a1d4) -
+  Remove the `platform_synced_block_use_new_source_nodeview` experiment. The new source node view is
+  now always used and the superseded implementation has been deleted.
+
+## 138.1.0
+
+### Minor Changes
+
+- [`2b3a50789456f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2b3a50789456f) -
+  Clean up linking_platform_track_non_primary_3p_clicks experiment. Non-primary (middle/right-click)
+  3P click tracking is now permanent.
+
+## 138.0.0
+
+### Major Changes
+
+- [`febd7e6f80cd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/febd7e6f80cd1) - -
+  `collab-provider` Cleanup experiment platform_editor_to_use_pmr_for_collab_edit_none_ic
+  - `editor-core` Update collaborative editing example so non dev connections have to provide PMR
+    path
+  - `tmp-editor-statsig` Remove platform_editor_to_use_pmr_for_collab_edit_none_ic from config
+
+### Patch Changes
+
+- Updated dependencies
+
+## 137.0.0
+
+### Major Changes
+
+- [`698ed1be9a2a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/698ed1be9a2a6) -
+  Clean up experiment `platform_editor_aifc_sync_block_stream_fix`
+
+## 136.2.0
+
+### Minor Changes
+
+- [`509b29022dde2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/509b29022dde2) -
+  cleanup platform_editor_table_display_mode_in_to_dom
+- [`399ca50adb668`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/399ca50adb668) -
+  [ux] [EDITOR-8377] Fix the table cell background colour palette so the current colour is shown as
+  selected.
+
+## 136.1.0
+
+### Minor Changes
+
+- [`269b5c3095949`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/269b5c3095949) -
+  [ux] Add experiment `cwr_publish_flow_live_doc_toggle_exp` to the CWR "Add to Confluence" finalize
+  popup. The experiment controls how the live doc / page content type selector is presented:
+  - **control**: existing toggle buttons (Live Doc / Page) are shown as before
+  - **variantA**: toggle replaced by a dropdown pill next to the "Add" heading
+  - **variantB**: toggle hidden, content type defaults to `'livedoc'`
+  - **variantC**: toggle hidden, content type defaults to `'page'`
+
+  The `defaultContentType` prop passed by consumers always wins over the experiment-driven default:
+
+  ```tsx
+  // defaultContentType takes precedence regardless of experiment cohort
+  <ConfluenceObjectFinalizePopup defaultContentType="page" ... />
+  ```
+
+## 136.0.0
+
+### Major Changes
+
+- [`e4a610e4c20f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4a610e4c20f3) -
+  Clean up experiment `remix_button_right_margin_hover`
+
+## 135.11.0
+
+### Minor Changes
+
+- [`6e8461981e75d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e8461981e75d) -
+  Disable row and column move options when merged cells prevent reordering behind the
+  platform_editor_table_menu_updates_patch_2 experiment
+
+## 135.10.0
+
+### Minor Changes
+
+- [`894f9e2ba765a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/894f9e2ba765a) -
+  Decouple paste-as-markdown GFM transformer rollout from `cc-markdown-mode` and gate it with the
+  new `platform_editor_paste_as_md_use_gfm` experiment for independent rollout control.
+
+  Consumers can gate the new transformer path with:
+  `expValEquals('platform_editor_paste_as_md_use_gfm', 'isEnabled', true)`.
+
+## 135.9.0
+
+### Minor Changes
+
+- [`109c3998554f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/109c3998554f2) -
+  Add SSR-safe, experiment-gated CSS overflow shadows for editor tables and keep renderer shadows
+  within table bounds when sticky scrollbars are present.
+
+## 135.8.0
+
+### Minor Changes
+
+- [`d98f609f1fc23`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d98f609f1fc23) -
+  Register the platform_editor_nest_expand_in_panel boolean experiment used to gate the
+  expand-in-panel nesting scenario.
+- [`9425f3fa081e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9425f3fa081e4) -
+  Fix nested content selection inside layouts
+- [`09b86875f59c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/09b86875f59c3) -
+  Add cc_maui_polish_changes_batch_3 and cc_maui_polish_changes_batch_4 editor experiment gates
+- [`3cfefe56db017`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3cfefe56db017) -
+  Close the Confluence Remix chooser when a remix is cancelled
+
+## 135.7.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 135.6.0
+
+### Minor Changes
+
+- [`c1bfdbcc75ef2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c1bfdbcc75ef2) -
+  Add a floating table of contents experiment that provides a 24px scroll offset for headings in the
+  editor and renderer.
+
+## 135.5.0
+
+### Minor Changes
+
+- [`90510b2e6e5af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90510b2e6e5af) -
+  Prevent nested renderer tables from incorrectly using content-width mode
+
+## 135.4.0
+
+### Minor Changes
+
+- [`069c5c0253ba5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/069c5c0253ba5) -
+  [ux] Improve Remix button hover reliability near the right edge of narrow editor layouts behind
+  the `cc_maui_remix_button_hover_corridor` experiment.
+
+  Consumers can check the new typed boolean experiment at the behavior callsite:
+
+  ```ts
+  import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+  if (expValEquals('cc_maui_remix_button_hover_corridor', 'isEnabled', true)) {
+  	// Apply the treatment behavior.
+  }
+  ```
+
+## 135.3.0
+
+### Minor Changes
+
+- [`debd513af67a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/debd513af67a0) -
+  MAUI-1017: Fix the Remix style dropdown showing a stale chart type after editing a chart (e.g.
+  line → bar). The backend-confirmed subtype is now recorded in the remix history for chart updates,
+  so the dropdown reflects the new type. Gated behind the `cc_maui_polish_changes_batch_2`
+  experiment.
+
+## 135.2.0
+
+### Minor Changes
+
+- [`b91c14d4dbad7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b91c14d4dbad7) -
+  Editor; Ensure only the first table row can become a sticky header when the rounded table patch is
+  enabled
+
+  Renderer; Patch table body elements to have rounded corners when overridden by consumers
+
+## 135.1.0
+
+### Minor Changes
+
+- [`5174794d869df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5174794d869df) -
+  Add the third-party (3P) prompt tile to Create-with-Rovo personalized suggestions, gated behind
+  the `confluence_cwr_3p_connection_suggested_prompts` experiment (Control / Variant A / Variant B).
+
+  The frontend owns all experiment logic and passes a plain `enable3pPromptOn3rdCard` boolean to
+  `fetchPersonalizedPromptSuggestionsStream`; the backend uses it only to gate 3P tile generation.
+  The modal and its preloads share one prompt-suggestions cache, so all of them decide the flag with
+  a no-exposure cohort read (only eligible users request the tile). The Statsig exposure fires once,
+  when the modal actually opens, so preloads don't dilute the experiment. Variant B renders up to
+  two connector icons on the 3P tile via `RovoLogoForAppSource`, falling back to the single tile
+  icon (Variant A behaviour) when there are no connectors.
+
+  A `track` eligibility event is emitted when the modal opens so the "admin allowed no 3P apps → not
+  in the experiment" segment (which fires no Statsig exposure) is still counted, alongside
+  eligible/cohort and connectors-unavailable outcomes.
+
+  `useEnsureConnectorsLoaded` gains an optional `enabled` flag (default `true`): the 3P tile loads
+  connectors only on the exposure surface or for variants, so control on a preload surface pays no
+  connectors fetch — and no extra render — on every create-button mount.
+
+  Usage:
+
+  ```ts
+  import { fetchPersonalizedPromptSuggestionsStream } from '@atlassian/conversation-assistant-service/services/assistance-service/main';
+  import {
+  	type ThirdPartyConnector,
+  	THIRD_PARTY_PROMPT_SOURCE_CONTENT_TYPE,
+  } from '@atlassian/conversation-assistant-service-api/types/assistance-service';
+
+  // Opt in to the 3P tile on the 3rd card (variants A/B only); omit the flag otherwise
+  // so the request stays byte-identical for everyone else.
+  const { generator } = await assistanceService.fetchPersonalizedPromptSuggestionsStream({
+  	enable3pPromptOn3rdCard: true,
+  });
+
+  // A returned tile is the 3P tile when its source content type matches; it carries the
+  // connectors used to render the product icons.
+  const is3pTile = tile.source_content_type === THIRD_PARTY_PROMPT_SOURCE_CONTENT_TYPE;
+  const connectors: ThirdPartyConnector[] | undefined = tile.third_party_connectors;
+  ```
+
+## 135.0.1
+
+### Patch Changes
+
+- [`782360c1111dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/782360c1111dc) -
+  Agent-edit shimmer review follow-ups (behind the default-OFF `platform_editor_agent_be_streaming`
+  experiment):
+  - Add a second shimmer phase: after the skeleton loader clears, the changed range shows a purple
+    "just edited" highlight (same colours as the editor AI "improve writing" in-editor highlight)
+    that eases in and out over its lifetime. The Rovo telepointer stays through both phases.
+  - The two phases are sized by independent experiment params: `shimmerDurationMs` (skeleton,
+    renamed from `durationMs`) and `highlightDurationMs` (highlight). `0` on either skips just that
+    phase, `0` on both shows nothing.
+  - Gate the agent-edit shimmer styles behind the experiment in both the emotion and compiled
+    `EditorContentContainer` style entries, using the no-exposure check on the hot render path.
+  - Add an `agentEditReceived` collab-provider analytics event, fired once per received transaction
+    that contains agent-authored steps, with non-PII attributes (agent ids, count, kinds,
+    agent/total step counts).
+  - Add an `agentEditShimmerNotShown` COLLAB operational analytics event for agent edits that apply
+    without the shimmer (`rebasedConcurrentEdit`, `nothingToShow`, `captureThrew`,
+    `tornDownMidAnimation`); neutral action + `reason`, non-PII attributes.
+  - Hoist the top-level block/position helpers in `agent-shimmer-ranges` to reusable module scope,
+    drop the redundant upper-bound clamp in `agent-shimmer-decorations`, and remove the empty
+    `@example` JSDoc tags added in the original PR.
+
+  `@atlaskit/editor-common` gains a new subpath export,
+  `@atlaskit/editor-common/analytics/types/agent-edit-shimmer-events`, exposing the
+  `agentEditShimmerNotShown` operational event types. Usage:
+
+  ```ts
+  import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+  import type { AgentEditShimmerNotShownReason } from '@atlaskit/editor-common/analytics/types/agent-edit-shimmer-events';
+
+  const reason: AgentEditShimmerNotShownReason = 'captureThrew';
+  editorAnalyticsApi?.fireAnalyticsEvent({
+  	action: ACTION.AGENT_EDIT_SHIMMER_NOT_SHOWN,
+  	actionSubject: ACTION_SUBJECT.COLLAB,
+  	eventType: EVENT_TYPE.OPERATIONAL,
+  	attributes: { reason },
+  });
+  ```
+
+## 135.0.0
+
+### Major Changes
+
+- [`c0fedda79b60e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c0fedda79b60e) -
+  Clean up experiment `platform_editor_fix_a11y_tab_focus_insertion_menu`
+- [`d19e8a0a9bc84`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d19e8a0a9bc84) -
+  Clean up experiment `platform_editor_fix_advanced_codeblocks_crlf_patch`
+
+## 134.0.0
+
+### Major Changes
+
+- [`591b0c312eed9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/591b0c312eed9) -
+  Clean up experiment `platform_editor_stricter_panelcolor_typecheck` and make stricter panel color
+  validation permanent.
+
+## 133.3.1
+
+### Patch Changes
+
+- [`9120ffa5e7699`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9120ffa5e7699) -
+  Clean up experiment `agent-managed-blocks-stop-block-template`.
+
+## 133.3.0
+
+### Minor Changes
+
+- [`4f0a4f4c814fa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4f0a4f4c814fa) -
+  only aa experiment exposure
+
+## 133.2.0
+
+### Minor Changes
+
+- [`b90bdc71cdf99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b90bdc71cdf99) -
+  Fix layout column delete shortcut deleting the whole column when the caret is a text selection
+  inside a column (e.g. a table nested in a layout), gated behind
+  platform_editor_layout_column_delete_shortcut_fix.
+
+  Adds a new experiment key `platform_editor_layout_column_delete_shortcut_fix` to
+  `@atlaskit/tmp-editor-statsig`. Usage:
+
+  ```ts
+  import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+  if (expValEquals('platform_editor_layout_column_delete_shortcut_fix', 'isEnabled', true)) {
+  	// new behaviour: preserve the column when the caret is a text selection inside it
+  }
+  ```
+
+### Patch Changes
+
+- [`0a6416897fb9f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a6416897fb9f) -
+  A11Y-39563: Register the `platform_a11y_fixes_emoji_title_shortname` experiment in the editor
+  experiments config so it can be resolved via `expValEqualsNoExposure`.
+
+## 133.1.0
+
+### Minor Changes
+
+- [`bed6e0c408de8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bed6e0c408de8) -
+  [ux] Fix: pressing Enter after a heading that has trailing whitespace now creates a paragraph
+  instead of another heading — but only when the caret sits after all heading content and
+  immediately before the trailing whitespace (so it looks like the end of the heading). Mid-heading
+  splits still produce a heading. Behind the `platform_editor_fix_new_line_after_heading`
+  experiment.
+
+## 133.0.0
+
+### Major Changes
+
+- [`3e55e8eea5a11`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e55e8eea5a11) -
+  Fixes reduced profile card exp flag name
+
+## 132.6.0
+
+### Minor Changes
+
+- [`4718ca6f37dbd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4718ca6f37dbd) -
+  [CCI-18026] Route Company Hub Concise Page Summary streaming requests to cc-smarts behind the
+  `cc_smarts_concise_page_summary_migration` experiment.
+
+  Usage:
+
+  ```ts
+  expValEquals('cc_smarts_concise_page_summary_migration', 'useCcSmarts', true, false);
+  ```
+
+## 132.5.0
+
+### Minor Changes
+
+- [`6f1a6a07b4be1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6f1a6a07b4be1) -
+  Fixes malfunctioning sticky header row when header columns are merged
+
+## 132.4.0
+
+### Minor Changes
+
+- [`d1f841209d233`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1f841209d233) -
+  [ux] Fix MAUI image loading cleanup on Rovo stream errors
+
+### Patch Changes
+
+- Updated dependencies
+
+## 132.3.1
+
+### Patch Changes
+
+- [`895ac23f1a3be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/895ac23f1a3be) -
+  Agent edit presence: surface agent-authored collaborative edits to other users.
+  - `collab-provider` detects agent-authored remote steps (`agentType`/`agentId`) and registers a
+    synthetic agent participant in the AI-provider (`agent:`) partition so the agent appears in
+    presence, with a 30s sliding inactivity window (CCI-18030). `editor-common` gains optional
+    `agentId`/`agentType` on the collab step types.
+  - `editor-plugin-collab-edit` + `editor-core` add the in-editor shimmer (CCI-18033): when an
+    agent-authored step lands, the top-level block(s) it touched are covered by a skeleton-loader
+    shimmer (grey skeleton with a moving highlight) with a Rovo agent telepointer/cursor — labelled
+    with the agent's type — at the end of the range, then removed on a timer to reveal the content.
+    Gated behind the default-OFF `platform_editor_agent_be_streaming` experiment; the `durationMs`
+    dynamic-config param controls how long the shimmer stays (0 disables it) and
+    `telepointerDisabled` hides the telepointer. `tmp-editor-statsig` registers the experiment.
+  - `ratcheting` excludes the new `agentShimmerStyles.ts` from the "No unsafe typography" rule (the
+    agent telepointer label mirrors the existing AI in-editor telepointer's sub-token 10px/9px
+    sizing, matching its already-excluded Compiled counterpart).
+
+## 132.3.0
+
+### Minor Changes
+
+- [`103ecc1edeedc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/103ecc1edeedc) -
+  Remove Confluence short link metadata from smart link clicked analytics payloads.
+
+  This removes the temporary `isConfluenceShortLink` field that was added to support an
+  investigation into Confluence short link usage. The investigation is complete, and the smart link
+  clicked analytics payload now returns to its previous shape.
+
+  This also removes the temporary `smart_link_confluence_short_link_analytics` experiment from
+  `editorExperimentsConfig` and the generated experiment key types. Consumers that checked this
+  temporary experiment can remove that branch.
+
+  Before:
+
+  ```ts
+  if (expValEquals('smart_link_confluence_short_link_analytics', 'cohort', 'test')) {
+  	trackLinkClicked({ isConfluenceShortLink });
+  }
+  ```
+
+  After:
+
+  ```ts
+  trackLinkClicked();
+  ```
+
+  Before:
+
+  ```ts
+  const { isConfluenceShortLink, ...payload } = event;
+  sendAnalytics(payload, { isShortLink: isConfluenceShortLink });
+  ```
+
+  After:
+
+  ```ts
+  sendAnalytics(event);
+  ```
+
+## 132.2.0
+
+### Minor Changes
+
+- [`d6d4b831bab67`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d6d4b831bab67) -
+  [ux] Implements collapsible headings feature for the full-page renderer.
+
+## 132.1.0
+
+### Minor Changes
+
+- [`08b7535d56701`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08b7535d56701) -
+  Disable sticky headers for single-row tables and delay sticky corner masks until the native header
+  is active behind the table Q4 patch 4 experiment
+
+### Patch Changes
+
+- [`00f3166426df4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00f3166426df4) -
+  adopt cssMapScoped for editor core compiled css migration
+
+## 132.0.0
+
+### Major Changes
+
+- [`d73da6cdded98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d73da6cdded98) -
+  Clean up experiment `confluence_max_width_breakout_extension_fix` (now permanently enabled)
+
+## 131.0.0
+
+### Major Changes
+
+- [`f99c886e52489`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f99c886e52489) -
+  Clean up experiment `platform_editor_ai_screen_layout_refactor`
+- [`ea47d8afdb33d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea47d8afdb33d) -
+  Clean up experiment `platform_editor_ignore_metadata_connection_errors`
+- [`6afed619aa443`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6afed619aa443) -
+  Clean up experiment `platform_editor_table_close_cell_menu_on_move_exp`
+- [`f94fb2358b562`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f94fb2358b562) -
+  Clean up experiment `platform_editor_misaligned_ai_screens_firefox_fix`
+- [`7d2c4ad5f91a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d2c4ad5f91a2) -
+  Clean up experiment `improve_3p_smart_link_resolve_rate`
+
+### Minor Changes
+
+- [`ded72f3ee293f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ded72f3ee293f) -
+  Fix table diff cell overlays to use rounded corners for delete row diffs when
+  platform_editor_table_diff_rounded_corners is enabled
+- [`c5e72a8f173eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5e72a8f173eb) -
+  text change only with experiment gate
+- [`63f37967452f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63f37967452f1) -
+  A11Y-42687 remove redundant aria-described-by attributes from toolbar
+
+### Patch Changes
+
+- [`79c6e92d799d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79c6e92d799d3) -
+  [ux] A11Y-31084: Expose the emoji picker grid as an accessible list
+
+  Behind the `platform_a11y_fixes_emoji_picker_list` experiment, the emoji picker's scrollable grid
+  is exposed to assistive technology as a single list: the scroll container becomes `role="list"`
+  and each emoji is a `role="listitem"` (`<li>`), so screen readers announce the list and its items
+  instead of a grid. The virtualizer is left intact. Also registers the experiment in the editor
+  experiments config so it can be resolved via `expValEqualsNoExposure`.
+
+## 130.2.0
+
+### Minor Changes
+
+- [`c5b1fc41ef2a8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5b1fc41ef2a8) -
+  Fix keyboard resizing for full-width breakout nodes
+
+## 130.1.0
+
+### Minor Changes
+
+- [`c3b8441edbd29`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3b8441edbd29) -
+  Allow Remix previews to request local iframe heights through the shared content bridge, scrolling
+  within a viewport-capped host wrapper only when the requested content exceeds the available space.
+
+  Register a resize handler with the shared command:
+
+  ```ts
+  import { NativeEmbedRequestResizeCommand } from '@atlassian/rovo-content-bridge-api-commands/commands/native-embed-request-resize-command';
+
+  bridge.on(parentClientId, NativeEmbedRequestResizeCommand, ({ height }) => {
+  	setPreviewHeight(height);
+  });
+  ```
+
+  Enable request resizing for a Smart Creation preview:
+
+  ```tsx
+  <PreviewIframe {...props} enableRequestResize />
+  ```
+
+## 130.0.0
+
+### Major Changes
+
+- [`d72a5eb291763`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d72a5eb291763) -
+  Clean up experiment `platform_editor_table_in_panel_paste_fallback`
+- [`0a6b16efd7f45`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a6b16efd7f45) -
+  Clean up sticky header patch feature gates and experiments.
+
+### Minor Changes
+
+- [`9626a6330a844`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9626a6330a844) -
+  Add the `platform_editor_fix_ai_streaming_race` experiment to wait for terminal AI streaming
+  events before completing queued actions.
+- [`df742d76d83c0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/df742d76d83c0) -
+  Rely on the backend isSafetyViolation flag to publish aiMateRemixRegenerate operational metrics as
+  a success rather than a taskFail when infographic/image generation is blocked by safety/AUP
+  guidelines, reducing metric noise. Guarded by the `platform_editor_ai_remix_safety_violation`
+  Statsig dynamic config, which acts as a killswitch (read via the new `dynamicConfigBooleanValue`
+  helper in `@atlaskit/tmp-editor-statsig`) so the new path can be enabled/disabled at runtime
+  without a code change or experiment rollout.
+
+## 129.0.0
+
+### Major Changes
+
+- [`1be28a8784c5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1be28a8784c5c) -
+  Clean up experiment `platform_editor_show_diff_fix_missing_attrs`
+
+### Minor Changes
+
+- [`862702aa18c98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/862702aa18c98) -
+  Remove redundant primary toolbar aria-label
+
+## 128.0.0
+
+### Major Changes
+
+- [`e6ee0b8d49a31`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e6ee0b8d49a31) -
+  [ux] Remove the platform_rovo_page_comment_selector_full_width experiment and make the Confluence
+  page comment selector full width by default.
+
+## 127.2.0
+
+### Minor Changes
+
+- [`feba1b79f0baf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/feba1b79f0baf) -
+  Add pre-auth inline Smart Link CTA 'Preview' experiment (ROVOGROWTH-635).
+
+  When the `rovogrowth-635-pre-auth-cta-preview-fg` feature gate is enabled and the user is in the
+  experiment treatment, the connect button on unauthorised inline Smart Links shows 'Preview'
+  instead of the provider-specific 'Connect your {provider} account' label.
+
+  Feature gate is off by default — safe to merge dark.
+
+  Consumers can check the new experiment config entry with `editorExperiments`:
+
+  ```ts
+  editorExperiments('rovogrowth-635-pre-auth-cta-preview-exp', 'isEnabled');
+  ```
+
+## 127.1.0
+
+### Minor Changes
+
+- [`34d8700aa0e77`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/34d8700aa0e77) -
+  [EDITOR-8131] register new experiment platform_editor_add_breakout_marks_on_page_load
+
+## 127.0.0
+
+### Major Changes
+
+- [`7b4e494f9adb1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b4e494f9adb1) -
+  Clean up experiment `platform_editor_comment_rovoinlinechat_improvement` (permanently enabled).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 126.4.0
+
+### Minor Changes
+
+- [`8bdbc5ba79617`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8bdbc5ba79617) -
+  [ux] Gate the table active cell decoration behind `platform_editor_table_q4_patch_3` so it is not
+  calculated or rendered until the editor has had its first interaction. Fix row control
+  mis-alignment issues.
+
+## 126.3.0
+
+### Minor Changes
+
+- [`acacc85e527ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acacc85e527ff) -
+  [ux] Fixed an issue where the left resize handle of an Editor embed would appear to 'lag' when the
+  embed is right-aligned. Gated behind platform_editor_fix_lagging_embed_resize_handle.
+
+## 126.2.0
+
+### Minor Changes
+
+- [`f4f1a7be76c2c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f4f1a7be76c2c) -
+  Add reusable status suggestions to the editor status picker
+
+## 126.1.0
+
+### Minor Changes
+
+- [`d3536d2e15575`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3536d2e15575) -
+  Fix inline comment anchoring to wrong text when a new selection is made while a draft is active.
+  Clears stale hover/selection draft position before promoting new selection, and adds missing deps
+  to useCallback arrays.
+
+## 126.0.0
+
+### Major Changes
+
+- [`3af68dc307c13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3af68dc307c13) -
+  Cleanup confluence_3p_in_cwr_ghost_icons_ui_tweaks and make the ghost-icon UI tweaks permanent
+
+## 125.2.0
+
+### Minor Changes
+
+- [`a3bbfab896310`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3bbfab896310) -
+  Replace feature gate `confluence_frontend_native_tabs_extension` with experiment
+  `confluence_native_tabs_experiment` using `expValEquals` from
+  `@atlaskit/tmp-editor-statsig/exp-val-equals`. Usage:
+  `expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 125.1.0
+
+### Minor Changes
+
+- [`d86bd1324d82b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d86bd1324d82b) -
+  Fix table cell selection when moving a table with the keyboard shortcut behind the
+  `platform_editor_fix_table_move_shortcut` experiment.
+
+### Patch Changes
+
+- [`c75e9e104057f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c75e9e104057f) -
+  A11Y-35421: Register the `platform_a11y_fixes_reactions_selector_list` experiment in the editor
+  experiments config so it can be resolved via `expValEquals`.
+
+## 125.0.0
+
+### Major Changes
+
+- [`22f3858872f99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22f3858872f99) -
+  Clean up experiment `platform_editor_table_toolbar_perf_fix`
+
+## 124.9.0
+
+### Minor Changes
+
+- [`5532dbe1eb172`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5532dbe1eb172) -
+  CCI-17857 - add frontend field to allow skip orchestrator when it's inline editing
+
+## 124.8.0
+
+### Minor Changes
+
+- [`900a71f62a8fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/900a71f62a8fe) -
+  Add multi-cohort should-improve-writing routing for the cc-smarts migration experiment.
+
+  The `cc_smarts_should_improve_writing_migration` editor experiment is configured through
+  `@atlaskit/tmp-editor-statsig` and can return `control`, `shadow_compare`, or `live_cc_smarts`.
+  Consumers can also emit the new shadow-comparison divergence analytics event when a user-visible
+  convo-ai result differs from the cc-smarts shadow result.
+
+  ```ts
+  fireAiQuickPromptShadowComparisonDivergedEvent({
+  	api,
+  	experienceName: 'should-improve-writing',
+  	convoAiOk: true,
+  	ccSmartsOk: true,
+  	convoAiShouldImprove: true,
+  	ccSmartsShouldImprove: false,
+  	convoAiStatus: 200,
+  	ccSmartsStatus: 200,
+  });
+  ```
+
+## 124.7.0
+
+### Minor Changes
+
+- [`6c4fbb3dc1b7f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c4fbb3dc1b7f) -
+  [ux] Fix MediaInsertPicker not returning focus to the editor on close.
+
+## 124.6.0
+
+### Minor Changes
+
+- [`7fd637a1c5c47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fd637a1c5c47) -
+  Add a fix for sort buttons misbehaving when the headings have marks.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 124.5.0
+
+### Minor Changes
+
+- [`f1237b0893d3c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1237b0893d3c) -
+  [ux] Only register ephemeral preview content as a target in staging area when the staging area is
+  open (as opposed to all the time), mirrors non-ephemeral behavior
+
+## 124.4.0
+
+### Minor Changes
+
+- [`ce7966a423f4c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce7966a423f4c) -
+  Fix first-node top margin not being reset when a leading ProseMirror widget is present (e.g.
+  non-editable editor), behind the platform_editor_first_node_fix experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 124.3.0
+
+### Minor Changes
+
+- [`aef331cc13b56`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aef331cc13b56) -
+  Gate editor image generation style and aspect ratio controls behind the new editor image
+  generation styles and aspect ratios experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 124.2.0
+
+### Minor Changes
+
+- [`12355710b809c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12355710b809c) -
+  Add the `platform_editor_sync_block_activation` boolean experiment API to
+  `@atlaskit/tmp-editor-statsig` for Confluence sync block activation checks. Consumers can gate
+  sync block activation behavior with
+  `expValEquals('platform_editor_sync_block_activation', 'isEnabled', true)`, for example to keep
+  source synced block placeholders visible only while the activation experiment is enabled.
+
+  Decoration-based placeholders now remain visible for empty source synced blocks while activation
+  is enabled.
+
+  The bodied synced block source nodeview now keeps its existing SSR streaming label-container fix
+  and only applies the non-SSR separate label container behavior when
+  `platform_synced_block_patch_14` is enabled.
+
+- [`822e39d7ae27a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/822e39d7ae27a) -
+  Remove discard confirmation when stopping AI streaming. When the
+  platform_editor_remove_pause_streaming gate is ON, clicking stop during inline Rovo streaming
+  immediately halts the stream, leaves any partially streamed content in the page, and opens the
+  Post Stream Review toolbar for the user to review changes.
+
+## 124.1.0
+
+### Minor Changes
+
+- [`1bdd62ad6abf9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bdd62ad6abf9) -
+  Fix the AI "Ask Rovo" / "Edit image" loading overlay appearing on every copy of a duplicated
+  image, so only the acted-on image shows the loading state. Behind an experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 124.0.0
+
+### Major Changes
+
+- [`0e797fd81675f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e797fd81675f) -
+  Cleaning up interactivity monitoring experiment
+
+## 123.0.0
+
+### Major Changes
+
+- [`a3cf50efa20a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3cf50efa20a6) -
+  Added 10% sampling rate to started and rendered events to reduce gasv3 costs
+
+### Minor Changes
+
+- [`f62c983c6394a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f62c983c6394a) -
+  Replace platform_editor_typeahead_empty_query_fix with platform_editor_agent_mentions
+- [`763bf25cf903d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/763bf25cf903d) -
+  Converted platform_editor_reduced_agent_profile_card to be an experiment flag
+
+### Patch Changes
+
+- Updated dependencies
+
+## 122.0.0
+
+### Major Changes
+
+- [`3629510367aea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3629510367aea) -
+  Cleanup platform_sl_3p_auth_rovo_action
+
+### Minor Changes
+
+- [`a6c2cf9e157f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a6c2cf9e157f4) -
+  [ux] add new optional prompt indicator logic for smart create modal
+
+### Patch Changes
+
+- Updated dependencies
+
+## 121.3.0
+
+### Minor Changes
+
+- [`f6f7aba52cfe3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f6f7aba52cfe3) -
+  Register `confluence_comment_nudgebar_improvement` experiment and skip selection debounce during
+  nudge button clicks to ensure first-click comment draft creation works correctly.
+
+## 121.2.0
+
+### Minor Changes
+
+- [`eb60a9c5e949c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb60a9c5e949c) -
+  Fix Confluence live doc table column-sort button being clickable only on its border — header
+  content overlapped the button body. The sort button is now elevated above header content, behind
+  the new `confluence_live_doc_table_sort_bugfix` experiment.
+
+## 121.1.0
+
+### Minor Changes
+
+- [`bea4da79c297d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bea4da79c297d) -
+  [ux] EDITOR-7679 use fallback media name for filename in download
+
+### Patch Changes
+
+- Updated dependencies
+
+## 121.0.0
+
+### Major Changes
+
+- [`b67c7dccca994`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b67c7dccca994) -
+  Clean up experiment `fix_free_gen_prompt_bar_position`
+
+### Minor Changes
+
+- [`898ff90892bee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/898ff90892bee) -
+  Clean up experiment `platform_editor_ai_loading_responsive_width`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 120.2.0
+
+### Minor Changes
+
+- [`bbf34983a5daf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bbf34983a5daf) -
+  Add an opt-in `--ak-editor-extension-block-spacing` CSS custom property hook that controls the
+  vertical margin between editor block elements (paragraphs, lists, panels, code blocks,
+  blockquotes, smart cards and extension wrappers).
+
+  `@atlaskit/editor-common` declares and exports `EXTENSION_BLOCK_SPACING_VAR` from the
+  `@atlaskit/editor-common/extensibility` entry point. When the new
+  `platform_editor_extension_block_spacing` editor experiment is enabled, the block-margin rules in
+  `@atlaskit/editor-core` (both the Compiled and Emotion `EditorContentContainer` paths) and the
+  extension wrappers in `editor-common` read from this variable, falling back to their original
+  values (e.g. `var(--ak-editor-extension-block-spacing, 0.75rem)`).
+
+  The change is gated behind the experiment so it can be disabled centrally and its SSR/layout
+  performance impact tracked. When the experiment is off — the default for every consumer — the
+  original margin values are used and there is no visual change.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 120.1.1
+
+### Patch Changes
+
+- [`ec37e1d233675`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec37e1d233675) -
+  [EDITOR-5943] Remove flag platform_editor_diff_plugin_extended override for VR tests
+- Updated dependencies
+
+## 120.1.0
+
+### Minor Changes
+
+- [`6a73f3cc58350`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6a73f3cc58350) -
+  Hide block template action for agent-managed blocks behind the agent-managed block template
+  experiment.
+
+## 120.0.0
+
+### Major Changes
+
+- [`5ca7a33774e69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ca7a33774e69) -
+  Clean up experiment `platform_editor_ai_rename_add_polish`. Removes the now-unused
+  `addPolishTitle` AI config item message and the redundant title override in the paste menu.
+
+### Minor Changes
+
+- [`c37e285a66ad2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c37e285a66ad2) -
+  [ux] batch migrate from a11y feature gates to experiment
+
+## 119.3.0
+
+### Minor Changes
+
+- [`67aed651369bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/67aed651369bd) -
+  [ux] Fixes an issue where editorContext was coming from underlying page, rather than open
+  stagingarea
+
+## 119.2.0
+
+### Minor Changes
+
+- [`cdddb84518902`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cdddb84518902) -
+  Add a "Create an emoji with Rovo" section to the emoji picker's "Add your own emoji" flow, behind
+  the `confluence_ai_generated_emojis` experiment.
+
+  When enabled (and a page `contentId` is supplied), a description input + generate button appear
+  above the Emoji name field. Generating produces an emoji-style image via the Confluence header
+  image backend (Gemini 2.5 Flash Image, 1:1 aspect ratio). The generated image flows into the
+  existing upload form — reusing the same preview, Emoji name field (auto-populated with a slugified
+  shortname) and "Add emoji" button — and is uploaded through the existing `SiteEmojiResource` path.
+  - New optional `EmojiPicker` `contentId` prop threads the current page content id down to enable
+    the AI section.
+  - New analytics events for AI emoji generation (started/completed/failed).
+  - Register the `confluence_ai_generated_emojis` experiment in `@atlaskit/tmp-editor-statsig` so it
+    can be checked via `expValEquals`.
+
+  When the experiment is off (or no `contentId` is supplied), only the existing manual upload flow
+  is shown.
+
+## 119.1.0
+
+### Minor Changes
+
+- [`e8a2ffea2c9eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8a2ffea2c9eb) -
+  [ux] Paste actions popup no longer appears for link-only pastes.
+
+## 119.0.0
+
+### Major Changes
+
+- [`a16b0166df4c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a16b0166df4c4) -
+  [ux] Clean up confluence_fe_cwr_outcome_picker_prompt_autoselect, set to true
+
+## 118.0.0
+
+### Major Changes
+
+- [`46ee61dd53e91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/46ee61dd53e91) -
+  Remove stale experiment confluence_compact_text_format (FFCLEANUP-85812): inline final values
+  (flag enabled), simplify conditions, remove experiment config entries.
+
+## 117.0.0
+
+### Major Changes
+
+- [`6e2538f8383a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e2538f8383a1) -
+  Clean up experiment `platform_editor_spotlight_migration`. The floating toolbar button is no
+  longer wrapped in the now-removed `SpotlightPulse` onboarding effect; the orphaned internal
+  `Pulse` component (the last `@atlaskit/onboarding` usage in editor-common) has been removed.
+
+## 116.0.0
+
+### Major Changes
+
+- [`2e62212873ddd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e62212873ddd) -
+  Clean up experiment `platform_editor_macro_placeholder_array_guard`
+
+## 115.1.0
+
+### Minor Changes
+
+- [`2c2c8bf9e0f13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c2c8bf9e0f13) -
+  [EDITOR-7929] move the colors schema change behind a different experiment that can be rolled out
+  for graceful rendering
+- [`0219070f68f42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0219070f68f42) -
+  migrate from a11y feature gates to experiment
+
+## 115.0.0
+
+### Major Changes
+
+- [`2df690b75a773`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2df690b75a773) -
+  Cleanup experiment `confluence_toc_nav_a11y`. Renderer headings now always set `tabIndex={-1}` for
+  table-of-contents keyboard focus accessibility, and the experiment definition has been removed
+  from the editor statsig config.
+
+## 114.6.0
+
+### Minor Changes
+
+- [`283c55290e6cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/283c55290e6cc) -
+  Preserve visual selection after applying text color or highlight
+
+## 114.5.0
+
+### Minor Changes
+
+- [`e27cc2a34b7c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e27cc2a34b7c7) -
+  Update the editor plus menu virtualized list accessible label under the
+  `platform_editor_plus_menu_aria_label` experiment.
+- [`0096393101f67`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0096393101f67) -
+  EDITOR-7831: Register dynamic granular diffs gate
+
+### Patch Changes
+
+- Updated dependencies
+
+## 114.4.0
+
+### Minor Changes
+
+- [`8465ec8b9145c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8465ec8b9145c) -
+  Fix decorative AI toolbar menu icons being announced by screen readers
+
+## 114.3.0
+
+### Minor Changes
+
+- [`5d42cea730a1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5d42cea730a1b) -
+  [ENGHEALTH-53346] Gate the inline extension width-context memoization fix behind a Jira
+  experiment.
+
+## 114.2.0
+
+### Minor Changes
+
+- [`0c3036cbf6b5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c3036cbf6b5c) -
+  Add gated Rovo actions footer experiment for eligible resolved 3P Smart Link embeds in Confluence.
+
+## 114.1.0
+
+### Minor Changes
+
+- [`dec1185b3c97a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dec1185b3c97a) -
+  Remove the archived Confluence preview panels experiment key from the editor experiment
+  configuration.
+
+## 114.0.0
+
+### Major Changes
+
+- [`a8c135d0b7bfb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8c135d0b7bfb) -
+  Cleanup experiment `confluence_load_editor_title_on_transition`. The placeholder loading spinner
+  and the collab-not-ready placeholder skip during transitions are now always enabled, and the
+  experiment definition has been removed from the editor statsig config.
+
+## 113.0.0
+
+### Major Changes
+
+- [`0aced23fb1739`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0aced23fb1739) -
+  Clean up experiment platform_editor_fix_selection_wrapped_media_embed
+
+## 112.0.0
+
+### Major Changes
+
+- [`8465eeaf9cc9f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8465eeaf9cc9f) -
+  Clean up experiment `platform_editor_user_preference_override`
+- [`9c64d42d5b44e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9c64d42d5b44e) -
+  NAVX-5237 Cleaning up and shipping the block card post-auth 3P experiment for Confluence in
+  platform
+
+## 111.1.0
+
+### Minor Changes
+
+- [`b48ea9bf2eb3b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b48ea9bf2eb3b) -
+  [ux] Add the advanced header image generation experiment and send its enabled value with header
+  image generation requests.
+
+## 111.0.0
+
+### Major Changes
+
+- [`3378314fe2ec1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3378314fe2ec1) -
+  Clean up experiment `platform_editor_chromeless_expand_fix`
+
+### Minor Changes
+
+- [`9d2c2c1c016bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d2c2c1c016bd) -
+  [ux] Server-side render the editor toolbar (FullPageToolbarNext) with toolbar items enabled (not
+  hidden/disabled), so the toolbar is visible and interactive-looking on first paint — before
+  EditorView or collab edit is initialized. Clicks before editor is ready are noops.
+
+## 110.1.0
+
+### Minor Changes
+
+- [`784845abac918`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/784845abac918) -
+  [ux] Add parentProduct=rovo to edit-smart-create iframe URL, which tells Confluence's SSR CSP
+  middleware to look up the rovo entry in the Shipyard config and include the parent product's
+  domain in the frame-ancestors directive
+
+## 110.0.0
+
+### Major Changes
+
+- [`c664929c3f15d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c664929c3f15d) -
+  Clean up experiment `platform_editor_clean_up_widget_mark_logic`
+- [`6ad6ef706e851`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ad6ef706e851) -
+  Clean up experiment `platform_editor_table_update_table_ref`
+- [`bc1c44cb9a43c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc1c44cb9a43c) -
+  Clean up `aifc_space_typesettings` experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 109.3.0
+
+### Minor Changes
+
+- [`2c36f79c27482`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c36f79c27482) -
+  Add dynamicConfigBooleanValue helper and route free-text remix whiteboard-create/update actions
+  (isRemixGenerated=true, no dynamicUiSubtype) to the full AIFC staging modal instead of inserting a
+  URL into the page. Guarded by killswitch dynamic config
+  platform_editor_ai_remix_whiteboard_to_aifc.
+- [`e108322f4ea71`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e108322f4ea71) -
+  Add emoji tooltip on hover using VanillaTooltip behind platform_editor_emoji_hover_show_tooltip
+  experiment
+- [`949347e49035b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/949347e49035b) -
+  [ux] [EDITOR-7471] Remove the left-hand resizer handle from nodes using breakout mark for
+  resizing.
+
+## 109.2.0
+
+### Minor Changes
+
+- [`05b9f7b19ddba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/05b9f7b19ddba) -
+  Use the platform_use_unicode_emojis experiment for native Unicode emoji rendering.
+
+## 109.1.0
+
+### Minor Changes
+
+- [`7754772ebfa47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7754772ebfa47) -
+  Add remix_iw_block_menu_table_calc_fix experiment
+- [`9a7ca4cefe634`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a7ca4cefe634) -
+  Use the platform_use_unicode_emojis experiment for native Unicode emoji rendering.
+- [`e850980f5a66f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e850980f5a66f) -
+  [EDITOR-6790] Block-controls drag-handle wrapper's background is removed and instead set
+  on`::before` on `.pm-table-container.pm-table-sticky` to keep masking the row insert dots when
+  legacy sticky header is activated while also not overlapping the column insert button.
+
+## 109.0.0
+
+### Major Changes
+
+- [`49f682f5edc7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/49f682f5edc7b) -
+  Clean up experiment `cc_editor_ttvc_media_hold_fix`
+
+### Minor Changes
+
+- [`c3f49a97737db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3f49a97737db) -
+  Generate localIds for nodes inserted when a template replaces the whole document (e.g. applying a
+  template to a blank page), gated behind the experiment `platform_editor_ai_template_localids`.
+
+  Such replacements are delivered by NCS as a remote `OverrideDocumentStep`, which has no `slice`
+  and so was skipped by the localId plugin's slice-based scan. When the experiment is enabled,
+  remote transactions containing an `OverrideDocumentStep` are now processed so the freshly inserted
+  template nodes receive localIds. Ordinary remote collaborator edits remain skipped, and nodes that
+  already have a localId are never overwritten.
+
+## 108.4.0
+
+### Minor Changes
+
+- [`298f9a506cb5f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/298f9a506cb5f) -
+  [EDITOR-6790] Allow inserting a column to the left of the first column, behind the
+  platform_editor_table_col_insert experiment
+
+## 108.3.0
+
+### Minor Changes
+
+- [`ccf2e0f0ba838`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ccf2e0f0ba838) -
+  [CCI-17112] Route Heading Autocomplete via cc-smarts behind SPRT.
+
+  `callHeadingAutocompleteApi` now branches on the editor experiment
+  `cc_smarts_heading_autocomplete_migration` (param `useCcSmarts`):
+  - **Control arm (default):** `/gateway/api/assist/api/ai/v2/ai-feature/heading-autocomplete`
+    (conversational-ai-platform — current source of truth, unchanged behaviour).
+  - **Test arm:** `/gateway/api/ai/v2/ai-feature/heading-autocomplete` (cc-smarts — new home,
+    reached via the `cc-smarts-ai-feature` stargate wildcard route).
+
+  Wire shape is byte-for-byte identical between the two backends; only the URL path changes. Mirrors
+  the `cc_smarts_comment_summary_followups_migration` pattern (AFM PR-388153). With the experiment
+  at 0%, this is a no-op behaviour change in production.
+
+  Adds a `try`/`catch` around `expValEquals` so the API fails closed to the convo-ai control arm on
+  Statsig read errors (per the convo-ai → cc-smarts migration skill guardrail).
+
+  Registers the new boolean experiment in `@atlaskit/tmp-editor-statsig/experiments-config`.
+
+  Tests live in the sibling `@af/editor-plugin-ai-autocomplete-tests` package per AFM ratcheting
+  rule "No tests in Editor plugin packages"; `heading-autocomplete-api-mock.ts` globs both the
+  convo-ai (`/gateway/api/assist/...`) and cc-smarts URLs.
+
+- [`19773530cd51c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19773530cd51c) -
+  Add fallbackMediaNameFetcher support to MediaCard (FileCard) and MediaViewer (header display),
+  gated behind the platform_editor_media_name_fallback_viewer_card experiment
+
+## 108.2.0
+
+### Minor Changes
+
+- [`91fb45b6e63f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/91fb45b6e63f3) -
+  Add gated inline Smart Link icon extraction through link-extractors
+
+## 108.1.0
+
+### Minor Changes
+
+- [`85df613a5b213`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85df613a5b213) -
+  Add a ghost-icon UI-tweaks experiment gating ghost-icon inner opacity (0.5) and an updated
+  connect-apps tooltip in the Rovo chat sources pill
+
+## 108.0.0
+
+### Major Changes
+
+- [`302b888acacab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/302b888acacab) -
+  cleanup platform_editor_inline_media_copy_paste_fix feature flag
+
+## 107.1.0
+
+### Minor Changes
+
+- [`7af62a3047331`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7af62a3047331) -
+  Make closed Expand macro content searchable by browser find (Ctrl+F) via
+  platform_editor_close_expand_find experiment
+
+## 107.0.0
+
+### Major Changes
+
+- [`bafa7b1c23370`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bafa7b1c23370) -
+  Clean up experiment `platform_editor_fix_editor_unhandled_type_errors`
+- [`b9d4a2139fad1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9d4a2139fad1) -
+  Clean up experiment `platform_editor_renderer_error_boundary_stable_key`
+- [`186a5bca426ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/186a5bca426ff) -
+  Clean up experiment `platform_editor_emojis_in_renderer_smart_links`
+- [`111a9ff8e3e9c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/111a9ff8e3e9c) -
+  cleanup fg platform_editor_ai_escape_early_for_unhealthy_node
+
+## 106.0.0
+
+### Major Changes
+
+- [`3c78f7149e895`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c78f7149e895) -
+  Clean up experiment `cc_integrations_editor_open_link_click_analytics`.
+
+## 105.0.0
+
+### Major Changes
+
+- [`019b38e3cf00a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/019b38e3cf00a) -
+  Clean up experiment `platform_editor_disable_lcm_copy_button`
+- [`82b4d7793fb01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/82b4d7793fb01) -
+  Clean up experiment `platform_editor_preserve_node_identity`
+- [`11006329a22d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/11006329a22d1) -
+  Clean up experiment `platform_editor_lovability_distribute_column_fix`
+- [`bf2fd74fd1221`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bf2fd74fd1221) -
+  Cleanup platform_editor_toolbar_split_button_ui
+- [`5331d96345ae9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5331d96345ae9) -
+  Clean up stale experiment platform_editor_insert_location_check
+
+### Minor Changes
+
+- [`12f4372b86b8d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12f4372b86b8d) -
+  Add `platform_editor_menu_radius_update` experiment that bumps the editor menu surface border
+  radius from `radius.small` (4px) to `radius.large` (8px). The block menu and paste actions menu
+  now consume the shared `ToolbarMenuContainer` surface rather than rolling their own, so they
+  inherit the gated radius along with `ToolbarMenuContainer`'s existing consumers (table and layout
+  menus).
+
+## 104.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Minor Changes
+
+- [`458ee17c2c8ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/458ee17c2c8ee) -
+  Register layout column vertical alignment rendering experiment and gate renderer layout column
+  vertical alignment styles behind it
+
+### Patch Changes
+
+- [`2f16223a8aa3a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f16223a8aa3a) -
+  Extend the right-side Remix button hover zone into the empty right margin beside a block, with a
+  reserved gap for the Rovo button on the far right.
+- Updated dependencies
+
+## 103.0.1
+
+### Patch Changes
+
+- [`5c8e58785d629`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c8e58785d629) -
+  Add the `cwr-reduce-prompt-suggestion-max-chars` experiment which lowers the CWR prompt
+  autocomplete suggestion character limit from 80 to 40. When enabled, suggestions stop being
+  requested once the prompt exceeds 40 characters. Default behaviour is unchanged.
+
+## 103.0.0
+
+### Major Changes
+
+- [`d6c0ba39b44b2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d6c0ba39b44b2) -
+  Clean up experiment `platform_editor_outdated_browser_update`
+- [`18c3f1c09a80c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18c3f1c09a80c) -
+  Clean up experiment `platform_editor_rovo_inline_chat_aria_label`
+
+## 102.0.0
+
+### Major Changes
+
+- [`db6cfe6d842ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db6cfe6d842ac) -
+  Cleaned up stale experiment platform_editor_fix_media_picker_hidden. Removed experiment gating in
+  MediaButton, keeping the shipped (true) code path. Removed experiment type definition and config
+  entry.
+- [`258fd5f8909fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/258fd5f8909fd) -
+  Cleaning up and abandoning the block card post-auth 3P experiment for Jira
+
+### Minor Changes
+
+- [`4d71a7433de62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4d71a7433de62) -
+  Use Teamoji default reaction IDs behind the emoji picker refresh experiment.
+
+## 101.0.0
+
+### Major Changes
+
+- [`01c0f76dfce1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01c0f76dfce1e) -
+  Cleanup experiment `platform_editor_media_vc_fixes_patch1`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 100.0.0
+
+### Major Changes
+
+- [`643d0f8f77dff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/643d0f8f77dff) -
+  Clean up stale experiment platform_editor_pasting_text_in_panel (FFCLEANUP-104459)
+- [`c70fd1e57edcf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c70fd1e57edcf) -
+  Cleaned up stale feature flag `platform_editor_lovability_select_all_shortcut`
+
+## 99.1.0
+
+### Minor Changes
+
+- [`36d8b2815146e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/36d8b2815146e) -
+  Localize personalized prompt tile footer labels.
+
+## 99.0.0
+
+### Major Changes
+
+- [`7f8f275864fb6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f8f275864fb6) -
+  Cleanup experiment `platform_editor_analyse_table_with_merged_cells`.
+
+### Minor Changes
+
+- [`62bea93a6f5eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62bea93a6f5eb) -
+  Add the `platform_editor_external_embed_grid_fix` experiment and use it to align editor grid
+  guidelines to the editor viewport while resizing external embeds.
+
+## 98.0.0
+
+### Major Changes
+
+- [`f89de6a3f94b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f89de6a3f94b5) -
+  Clean up stale experiment editor_a11y_decision_aria_label. Decision items now always render
+  dynamic aria-labels based on empty/filled state.
+
+### Minor Changes
+
+- [`1d7eb738bd45c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d7eb738bd45c) -
+  Cleaned up stale experiment platform_editor_table_sticky_header_patch_11
+
+## 97.0.0
+
+### Major Changes
+
+- [`390501e03bc0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/390501e03bc0a) -
+  Cleanup experiment `platform_editor_fix_comment_border` (shipped with isEnabled=true). Removed
+  experiment guards and config entries.
+
+### Minor Changes
+
+- [`6e5305ed556df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e5305ed556df) -
+  revert removal of FG platform_editor_remove_important_in_render_ext
+
+## 96.0.0
+
+### Major Changes
+
+- [`c6797e45d5bae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c6797e45d5bae) -
+  Cleaned up stale experiment platform_editor_user_highlight_contrast. Merged userHighlightTextColor
+  styles into userHighlightBackgroundColor and removed experiment configuration.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 95.0.0
+
+### Major Changes
+
+- [`086ba910930e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/086ba910930e9) -
+  FFCLEANUP-96543 - cleanup fg platform_editor_remove_important_in_render_ext
+
+## 94.0.0
+
+### Major Changes
+
+- [`809a7bb620a33`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/809a7bb620a33) -
+  [ux] Cleanup feature gate `cc_editor_hover_link_overlay_css_fix`. The hover link overlay overflow
+  handling is now always active, so labels reset on hover and hide when the button would overflow
+  its container.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 93.0.1
+
+### Patch Changes
+
+- [`a4f97c853dccf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4f97c853dccf) -
+  Extend `no-module-level-eval` lint rule to cover editor experiment APIs (`expValEquals`, `expVal`,
+  `editorExperiment`, `expValEqualsNoExposure`) imported from `@atlaskit/tmp-editor-statsig`
+  subpaths. Module-level evaluation of these functions causes flakiness because experiment values
+  may not be resolved yet at import time.
+
+  Fix existing violations in `editor-plugin-block-controls` (`global-styles.tsx`) and
+  `editor-plugin-table` (`ContextualMenu.tsx`) by converting module-level experiment evaluations to
+  lazy function calls.
+
+  Clean up fully-launched experiment `platform_editor_unify_native_dnd_selectors` — replace
+  conditional selector logic with the winning `dragHandlerAnchorSelectorWithTaskExclusion` value and
+  remove the experiment from `experiments-config.ts`.
+
+## 93.0.0
+
+### Major Changes
+
+- [`676198a68986c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/676198a68986c) -
+  Cleanup feature gate `platform_editor_prosemirror_rendered_data`. The ProseMirror rendered
+  analytics event now always includes page-load metadata, timing values, extension keys, and the UFO
+  interaction ID.
+
+### Minor Changes
+
+- [`ebd3c5d7d340a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebd3c5d7d340a) -
+  Gate single-link paste display menu behind confluence_editor_paste_3p_link_actions_menu feature
+  flag
+
+## 92.0.0
+
+### Major Changes
+
+- [`2b3602c6e9f97`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2b3602c6e9f97) -
+  Clean up feature flag 'platform_safari_cursor_typeahead_fix'
+
+### Patch Changes
+
+- Updated dependencies
+
+## 91.0.0
+
+### Major Changes
+
+- [`f7faa21a01fc7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f7faa21a01fc7) -
+  Cleanup stale feature gates and experiments now that they have shipped. The following
+  gates/experiments have been removed and their enabled paths kept as the permanent behaviour:
+  platform_editor_fix_scrolling_popup_position, platform_editor_table_resize_chromeless,
+  platform_editor_chromeless_akeditor_class, create_work_item_modernization_exp.
+
+### Minor Changes
+
+- [`dbe0d03cebcd7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbe0d03cebcd7) -
+  Added fix_copy_paste_external_media_renderer_to_editor experiment
+
+## 90.3.0
+
+### Minor Changes
+
+- [`55c06e0ce9944`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/55c06e0ce9944) -
+  [ux] experiment cleanup on fg_cleanup_platform_rovo_inline_chat_missing_analytics_fix
+- [`dc18b82540c1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dc18b82540c1e) -
+  [EDITOR-7606](https://hello.jira.atlassian.cloud/browse/EDITOR-7606) - fix SSR streaming tables
+  borders by adopting changes from `platform_editor_vc90_transition_table_border` experiment
+
+## 90.2.0
+
+### Minor Changes
+
+- [`ec2c29c3c63b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec2c29c3c63b3) -
+  [ux] Reaction button a11y fixes
+- [`98bc3bac22bb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/98bc3bac22bb2) -
+  Add platform_editor_blocks editor experiment that routes to platform_editor_blocks_conf on
+  Confluence and platform_editor_blocks_jira on Jira; migrate internal callsites of the old
+  per-product Blocks experiments to the unified key
+
+### Patch Changes
+
+- Updated dependencies
+
+## 90.1.0
+
+### Minor Changes
+
+- [`1f87c5cc71aa3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f87c5cc71aa3) -
+  Improve reliability of editor controls positioning by using ProseMirror node decorations to apply
+  CSS anchor-name, replacing fragile CSS adjacency selectors. Gated behind
+  platform_editor_controls_reliable_anchor experiment.
+
+## 90.0.0
+
+### Major Changes
+
+- [`54136b334c25a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/54136b334c25a) -
+  Clean up experiment cc_editor_ttvc_release_bundle_one
+
+## 89.4.0
+
+### Minor Changes
+
+- [`aaf0bc9f036a7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aaf0bc9f036a7) -
+  [ux] Experiment change, update priority of link quick insert item
+
+## 89.3.0
+
+### Minor Changes
+
+- [`45b3cdde79f3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/45b3cdde79f3f) -
+  added exp entry
+
+## 89.2.0
+
+### Minor Changes
+
+- [`a826d67f22cc9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a826d67f22cc9) -
+  Replace the legacy circular spinner in `CardView` and `CardLoading` with a bottom-aligned grey
+  loading bar when `cc-maui-ai-edit-loading-experiment.isEnabled` is on. The bar is 6px to match the
+  native-embed loading bar, and the media card loading/placeholder background now uses
+  `elevation.surface.sunken`. Registers `cc-maui-ai-edit-loading-experiment` in
+  `@atlaskit/tmp-editor-statsig`.
+
+  Round the ends (pill radius) of the MAUI loading bars so the media-card loading bar, native-embed
+  loading bar, and AI generating overlay bars are visually consistent.
+
+  The loading bar now holds a named UFO interaction while shown (matching the spinner's
+  `interactionName`) so media loading stays attributed in performance metrics.
+
+## 89.1.1
+
+### Patch Changes
+
+- [`4b9e6f370d855`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b9e6f370d855) -
+  Remove feature flag and experiment
+
+## 89.1.0
+
+### Minor Changes
+
+- [`0f434033d49b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f434033d49b4) -
+  Add remix, remix_edit, and inline_edit experience values to creation context payloads so frontend
+  requests can be logged and routed by experience.
+
+## 89.0.0
+
+### Major Changes
+
+- [`3e2877f105afc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e2877f105afc) -
+  Remove code block auto-detection experiment from editor statsig catalog.
+
+### Minor Changes
+
+- [`be7cb592d8951`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be7cb592d8951) -
+  NAVX-5108 Implementing UI for new inline tailored rovo cta
+
+## 88.5.0
+
+### Minor Changes
+
+- [`e52fe1a335508`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e52fe1a335508) -
+  [ux] Fixed evaluating experiment as FG instead of experiment
+
+## 88.4.0
+
+### Minor Changes
+
+- [`f53b4391ccd54`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f53b4391ccd54) -
+  Fix table menu popup placement near viewport edges
+
+  Add new editor experiment platform_editor_table_close_cell_menu_on_move_exp to fix legacy menu
+  staying open when changing cells.
+
+## 88.3.0
+
+### Minor Changes
+
+- [`8bf2ab100a93d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8bf2ab100a93d) -
+  Add col to layout keywords
+- [`f7fc6c3bcc4e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f7fc6c3bcc4e3) -
+  [ux] EDITOR-7242 add paste logic to support table in panel nesting
+
+## 88.2.0
+
+### Minor Changes
+
+- [`64a45bf9306e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64a45bf9306e9) -
+  [ux] [EDITOR-7024] update the ADF schema behind platform_editor_lovability_text_bg_color
+  experiment such that textColor and backgroundColor can coexist
+- [`8cb3cdbbc5467`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8cb3cdbbc5467) -
+  Fix TypeError in getExtensionLozengeData when macroMetadata.placeholder is not an array
+
+## 88.1.1
+
+### Patch Changes
+
+- [`651a44bb98f89`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/651a44bb98f89) -
+  Register `confluence_3p_in_cwr_ghost_icons` experiment for use by the `GhostIconWave` primitive.
+
+## 88.1.0
+
+### Minor Changes
+
+- [`d094dc6670513`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d094dc6670513) -
+  [CCI-16870] feat(aifc): spike Post Stream Review toolbar for the New AIFC Editor Experience. Adds
+  the new `platform_editor_ai_new_aifc_editor_experience` umbrella gate (renamed from
+  `confluence_editor_ai_full_page_staging`) and ships the in-editor Post Stream Review toolbar that
+  auto-opens after an AI streaming session ends, with undo / redo / view-changes / segment
+  navigation / Ask Rovo / feedback controls. The Take to Staging button is rendered but disabled in
+  this spike — full staging-area wiring lands in a follow-up PR (CCI-15904).
+
+## 88.0.0
+
+### Major Changes
+
+- [`02129881d539f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02129881d539f) -
+  FFCLEANUP-112479: Cleanup stale platform_editor_disable_last_node_para flag
+
+## 87.0.0
+
+### Major Changes
+
+- [`fae885a16a206`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fae885a16a206) -
+  FFCLEANUP-97994 clean up experiment platform_editor_fix_table_row_drag_drop_target
+
+### Minor Changes
+
+- [`52a08b0d14e39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52a08b0d14e39) -
+  Add code block language auto-detection experiment
+
+## 86.1.0
+
+### Minor Changes
+
+- [`94ca4284e9ee1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94ca4284e9ee1) -
+  Adds gated post-auth Rovo Chat onboarding for Google Drive SmartLinks. After a successful GDrive
+  SmartLink auth, eligible treatment users see Rovo Chat open as a mini-modal with the authenticated
+  GDrive URL provided as context and no prompt auto-sent.
+
+## 86.0.0
+
+### Major Changes
+
+- [`d2be5b45b39b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2be5b45b39b0) -
+  Add Smart Link-aware paste actions for the paste actions menu V2 experiment.
+
+## 85.0.0
+
+### Major Changes
+
+- [`b0378b1a1762f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b0378b1a1762f) -
+  Cleanup platform_sl_fix_cache_unresolved
+
+## 84.4.0
+
+### Minor Changes
+
+- [`0ded3f82666cb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0ded3f82666cb) -
+  Remove platform_editor_ai_disable_bridge_without_ai experiment gate. The bridge now always
+  requires aiExperience and aiStreamingOrchestrator to be present before initializing.
+
+## 84.3.2
+
+### Patch Changes
+
+- [`cf6977530a136`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf6977530a136) -
+  Support fullwidth slash ／ (U+FF0F) as a quick insert trigger for Japanese/CJK keyboard users.
+  Japanese keyboards produce the fullwidth slash when pressing the / key, which previously did not
+  open the quick insert menu. The fix adds a `customRegex` to the quick-insert typeahead handler
+  that matches both ASCII slash `/` and fullwidth slash `／`, and extends the trigger cleanup logic
+  in `openTypeAheadAtCursor` to handle `customRegex` alternatives.
+
+## 84.3.1
+
+### Patch Changes
+
+- [`60d28e13ab1a3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/60d28e13ab1a3) -
+  [ux] Position free generation prompt bar to its relative position when the maui app is side a
+  layout behind an experiment
+
+## 84.3.0
+
+### Minor Changes
+
+- [`835c3e861c94e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/835c3e861c94e) -
+  Add gated Smart Link Rovo prompt helpers
+- [`a664c439e70be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a664c439e70be) -
+  [ux] Added experiment to add remix button in place of improve formatting button
+
+## 84.2.0
+
+### Minor Changes
+
+- [`31f3e12a73d86`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31f3e12a73d86) -
+  [ux] Fix a11y issue by preventing tab focus in editor insert dropdown list so only arrow key
+  selection is available within the inside list. Tab selection is reserved for moving between the
+  inside list and exterior components such as search and view more. Gated behind
+  platform_editor_fix_a11y_tab_focus_insertion_menu.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 84.1.0
+
+### Minor Changes
+
+- [`f8a73491895c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8a73491895c4) -
+  Export Smart Link summarize action helpers for caller-owned UI.
+
+## 84.0.0
+
+### Major Changes
+
+- [`5e34be0ba10b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e34be0ba10b6) -
+  Cleanup show diff experiments
+
+## 83.1.0
+
+### Minor Changes
+
+- [`96b390b511102`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/96b390b511102) -
+  Add the `platform_editor_per_plugin_error_boundary` experiment and use it to isolate editor
+  PluginSlot failures to the failing plugin.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 83.0.0
+
+### Major Changes
+
+- [`dbe895a6ef5a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbe895a6ef5a2) -
+  Remove platform_editor_paste_actions_menu_v2_boolean, we will instead use
+  `['hasAltAiActions', 'hasSpellingAndGrammar'].includes(expValNoExposure('platform_editor_paste_actions_menu_v2', 'variant', 'control'))`
+  to check if experiments are not in control
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.5.0
+
+### Minor Changes
+
+- [`bc59bccc2fc5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc59bccc2fc5c) -
+  Reorder advanced layout quick insert suggestions
+
+## 82.4.0
+
+### Minor Changes
+
+- [`41962dd9dccb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/41962dd9dccb2) -
+  NO-ISSUE: adds a default toolbar state so we can render the toolbar on initial load without
+  relying on editor state
+
+## 82.3.0
+
+### Minor Changes
+
+- [`8aa63d737699c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8aa63d737699c) -
+  Hide create with rovo content type picker pills for site disabled content types
+- [`ab6159c301de9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab6159c301de9) -
+  [ux] Change the fail safe for when typeSettings failed to return for whatever reason to be only
+  allow the AIFC finalized flow to create pages
+
+  Add the `aifc_space_typesettings` experiment to the typed tmp editor Statsig config.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.2.0
+
+### Minor Changes
+
+- [`b284d7fc05568`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b284d7fc05568) -
+  Fix tableCell/tableHeader nodes in middle rows of newly-inserted tables missing localId. The
+  localId plugin's appendTransaction was keyed by PMNode identity, which incorrectly overwrote
+  positions when the same node reference legitimately occupied multiple document positions (as
+  createTable from prosemirror-utils does by reusing cell node objects across non-header rows). The
+  plugin now tracks all positions per node identity and assigns a unique localId per position. Gated
+  behind the `platform_editor_ai_tablecell_localids` experiment.
+
+## 82.1.0
+
+### Minor Changes
+
+- [`e481e48b7f35f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e481e48b7f35f) -
+  Cleaned up platform_editor_ai_aifc_listitem_indentation_fix experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 82.0.0
+
+### Major Changes
+
+- [`79c9ce8cbf593`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79c9ce8cbf593) -
+  FFCLEANUP-84819 - Clean up platform_editor_localid_ime_composition_fix
+
+## 81.3.0
+
+### Minor Changes
+
+- [`2f3106da1d9cb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f3106da1d9cb) -
+  [EDITOR-7190] added experiment gate for adding improve formatting in pinned toolbar experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.2.0
+
+### Minor Changes
+
+- [`4f2e912c65ae3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4f2e912c65ae3) -
+  Gate table-in-panel ADF validation behind experiment (EDITOR-7168)
+
+## 81.1.0
+
+### Minor Changes
+
+- [`46f34d2400d1c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/46f34d2400d1c) -
+  Fixes malfunctioning sticky header when header columns are merged so that headers don't
+  stack/overlap.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 81.0.0
+
+### Major Changes
+
+- [`c61ad86da2b49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c61ad86da2b49) -
+  Clean up `platform_editor_remove_grid_init_reflow` experiment.
+  - Remove `expValEquals` gate check from `ContentComponent` in `editor-plugin-grid`, keeping the
+    treatment branch (`isEnabled=true`) logic permanently
+  - Remove unused `expValEquals` import from `gridPlugin.tsx`
+  - Remove `platform_editor_remove_grid_init_reflow` type definition and config entries from
+    `tmp-editor-statsig` experiments-config
+
+## 80.3.0
+
+### Minor Changes
+
+- [`82ba5b494e83b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/82ba5b494e83b) -
+  add experiment for compiled css migration of editor-core except EditorContentContainer
+
+## 80.2.0
+
+### Minor Changes
+
+- [`38ea17de1355a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38ea17de1355a) -
+  Track middle- and right-clicks on third-party Smart Links rendered by `HyperlinkResolver`. Adds
+  optional `isAuxClick` / `isContextMenu` attributes to the `smartlinkClickAnalyticsWorkflows`
+  event, gated by the `linking_platform_track_non_primary_3p_clicks` experiment.
+
+## 80.1.0
+
+### Minor Changes
+
+- [`8a9f26c6c71bc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8a9f26c6c71bc) -
+  [ux] Improve diff logic for some nodes and edge cases where marks are causing the diff to fail
+
+## 80.0.0
+
+### Major Changes
+
+- [`2f70251ed8022`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f70251ed8022) -
+  Clean up experiment platform_editor_experience_tracking
+
+### Minor Changes
+
+- [`6403e27aa3327`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6403e27aa3327) -
+  Add the experimental table row menu structure, keyboard shortcut hints, and shared table menu
+  items. Expose table row menu icons through editor-toolbar. Ensure the UI control registry is
+  available before table row menu items are registered.
+
+## 79.0.0
+
+### Major Changes
+
+- [`14b617e1204ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14b617e1204ad) -
+  Cleanup confluence_frontend_fix_date_hydration_error experiment
+
+## 78.0.0
+
+### Major Changes
+
+- [`8db6f0336d199`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8db6f0336d199) -
+  Cleans up experiment platform_editor_toolbar_two_stage_hydration
+
+## 77.4.0
+
+### Minor Changes
+
+- [`b9a063b24f6ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9a063b24f6ff) -
+  feat(aifc-editor): add replaceDoc streaming tool call gated on platform_editor_ai_replace_doc
+  experiment [CCI-15904]
+
+  fix(aifc-editor): empty replaceDoc value now correctly clears the editor document instead of being
+  silently discarded. Root cause: PartialStreamParser emits no StreamAction for empty "value"
+  strings (valueEnd.partial.length is 0), so ToolCallProcessor.finish() was calling finishAction
+  without any prior streamValue call, leaving the orchestrator with no ADF to apply. Fix: (1)
+  ToolCallProcessor.finish() now calls streamValue('') before finishAction for replaceDoc with no
+  accumulated content; (2) StreamCommandQueue.hasChangedDocument() bypasses the latestDoc.doc guard
+  for replaceDoc; (3) both stream and finalStream paths supply an empty-paragraph ADF fallback when
+  adfStreamer returns undefined [CCI-15904]
+
+### Patch Changes
+
+- Updated dependencies
+
+## 77.3.0
+
+### Minor Changes
+
+- [`2023cac0fd36f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2023cac0fd36f) -
+  Add column drag handle context menu placeholder, gated behind the
+  platform_editor_layout_column_menu experiment flag.
+
+## 77.2.0
+
+### Minor Changes
+
+- [`c8e93040b12a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c8e93040b12a0) -
+  Infrastructure for snap-to-row in database native embeds
+
+## 77.1.0
+
+### Minor Changes
+
+- [`ba2fcee7745c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba2fcee7745c4) -
+  [ux] Added a new configurable empty state hero config item for the jira editor-plugin-ai, which
+  renders a 'Suggest a comment' AI hero button when the editor is empty. When the editor has
+  content, it switches back to the default hero button. The changes are for the
+  jira-smart-replies-v2 experiment.
+
+## 77.0.0
+
+### Major Changes
+
+- [`7bfc7106b79c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7bfc7106b79c7) -
+  Clean up platform_editor_toolbar_aifc_use_editor_typography experiment.
+
+## 76.0.0
+
+### Major Changes
+
+- [`bb725117587b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb725117587b6) -
+  Clean up platform_editor_toolbar_delay_render_fix experiment.
+
+### Minor Changes
+
+- [`f8aee5a0e76d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8aee5a0e76d3) -
+  NAVX-4523 NAVX-4519 Adds social proof experiment hook, TAP personalization service,
+  SocialProofMessage component, and componentWithFG wiring for unauth 3P block cards. Registers
+  social_proof_3p_unauth_block_exp in tmp-editor-statsig. Uses cache-first behavior for social proof
+  data, the canonical site-level TAP trait, and avoids experiment exposure before cached provider
+  data is available.
+
+## 75.2.0
+
+### Minor Changes
+
+- [`5e3e8cbdce9a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e3e8cbdce9a2) -
+  NAVX-4609 Adding platform_sl_3p_auth_rovo_block_card_jira and
+  platform_sl_3p_auth_rovo_block_card_confluence to experiment config
+- [`826bc966b7b64`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/826bc966b7b64) -
+  ED-6586: Lazy init sync block
+
+## 75.1.0
+
+### Minor Changes
+
+- [`6d1f823ad030b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d1f823ad030b) -
+  Introduce HTML+ to ADF conversion in HtmlChunkStrategy
+
+## 75.0.0
+
+### Major Changes
+
+- [`54ae29f5b3a2c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/54ae29f5b3a2c) -
+  Clean up feature gate platform_editor_primary_toolbar_early_exit - promote early exit behaviour
+  for empty primary toolbar as default
+
+## 74.12.0
+
+### Minor Changes
+
+- [`7ff5ab02ad66b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ff5ab02ad66b) -
+  Add platform_sl_3p_preauth_social_proof_inline_cta experiment
+
+## 74.11.0
+
+### Minor Changes
+
+- [`976ecba9e36d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/976ecba9e36d7) -
+  ff cleanup: ccpi_fix_broken_uploaded_img
+
+## 74.10.0
+
+### Minor Changes
+
+- [`76dff28130c6a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76dff28130c6a) -
+  Add replace-media button to media plugin
+
+## 74.9.0
+
+### Minor Changes
+
+- [`29bea960652a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/29bea960652a0) -
+  Allow product keys for cc-maui-exp
+- [`902c2a2a06799`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/902c2a2a06799) -
+  [ux] Fix confusing tooltip on Comment toolbar when offline
+
+## 74.8.0
+
+### Minor Changes
+
+- [`429ab0e83dda1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/429ab0e83dda1) -
+  [NO-ISSUE] Add platform_editor_paste_actions_menu_v2 as experiment
+- [`20c2faf5c3ca8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20c2faf5c3ca8) -
+  CONFCLOUD-84107 add override for user preference
+
+## 74.7.0
+
+### Minor Changes
+
+- [`fbd4e856632eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbd4e856632eb) -
+  migrate few styles in EditorContentContainer from emotion to compiled
+- [`2fb1c8a74a856`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fb1c8a74a856) -
+  ADF Change 101: Add wrap and hideLineNumbers attributes to codeBlock stage-0 variants
+
+## 74.6.0
+
+### Minor Changes
+
+- [`2bc197b19a9da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bc197b19a9da) -
+  [ux] Auto-finalize only when the default space supports the content type being created. When space
+  does not support said content type, defaultSpaceOption will be { label: undefined, value:
+  undefined }, so we explicitly check for its value before determining whether auto finalize should
+  be allowed
+
+## 74.5.0
+
+### Minor Changes
+
+- [`d5eb28ba8a0f8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d5eb28ba8a0f8) -
+  EDITOR-6724: Fix object assignment issue in attrs comparison util to avoid attrs being dropped in
+  ProseMirror when they're being compared.
+
+## 74.4.0
+
+### Minor Changes
+
+- [`3d7541ec5f1e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d7541ec5f1e8) -
+  [ux] [EDITOR-5936] centralise AI screen alignment and fix error screen width and centering in
+  FloatingContainer behind platform_editor_ai_screen_layout_refactor
+
+## 74.3.0
+
+### Minor Changes
+
+- [`266e293748871`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/266e293748871) -
+  [ux] Adds AI image generation to premium macros Carousel, Cards, & Spotlight behind an experiment
+  gate.
+
+## 74.2.0
+
+### Minor Changes
+
+- [`e2a0403647315`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2a0403647315) -
+  [CCI-15883] Define normalized telemetry event contract and fire authoritative sessionOutcome
+  analytics event once per Editor AI streaming session
+
+## 74.1.0
+
+### Minor Changes
+
+- [`a759f33417d9b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a759f33417d9b) -
+  [PIRA-1311](https://opsj.atlassian.net/browse/PIRA-1311) - clean up platform_editor_media_vc_fixes
+- [`2dd9adb1df970`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2dd9adb1df970) -
+  [EDITOR-6722] added experiment gate for adding skills to insert/command menu experiment
+
+## 74.0.0
+
+### Major Changes
+
+- [`ab837b5646256`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab837b5646256) -
+  [ux] EDITOR-6274 Clean up platform_editor_element_drag_and_drop_multiselect
+
+### Minor Changes
+
+- [`1c1f0af056fcb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c1f0af056fcb) -
+  migrate react components from emotion to compiled for link, panel and layoutColumn
+
+### Patch Changes
+
+- Updated dependencies
+
+## 73.0.0
+
+### Major Changes
+
+- [`b3e797be9eed5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b3e797be9eed5) -
+  Clean up platform_editor_floating_toolbar_button_aria_label experiment.
+  - Remove expValEquals gate in editor-plugin-floating-toolbar Toolbar.tsx, always pass
+    ariaLabel={item?.ariaLabel}
+  - Remove expValEquals gate in editor-plugin-ai floating-toolbar-button.tsx, always set ariaLabel
+    to formatted message
+  - Remove type definition and createBooleanExperiment config entry from tmp-editor-statsig
+    experiments-config.ts
+
+## 72.2.0
+
+### Minor Changes
+
+- [`e790234874a2a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e790234874a2a) -
+  [ux] The page selector dropdown in the "Create Confluence page comment" message action was not
+  stretching to fill the available width. The fix wraps the ConfluencePageSelector in a
+  MaybeContainer component that, when the platform_rovo_page_comment_selector_full_width experiment
+  is enabled, applies flexGrow: 1 to the wrapper box — causing the selector to expand and fill the
+  remaining horizontal space in its Inline container.
+- [`7f1df88caac2a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f1df88caac2a) -
+  Add active cell highlight to table cells - highlights the current table cell when cursor is inside
+  it
+
+## 72.1.1
+
+### Patch Changes
+
+- [`387b9066cd2c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/387b9066cd2c2) -
+  Update CWR modal illustration size behind cwr-modal-ui-refresh experiment
+
+## 72.1.0
+
+### Minor Changes
+
+- [`fb1ec78192b09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb1ec78192b09) -
+  Cleanup platform_editor_ai_update_actioned_event_timeout experiment - keep enabled path (30s
+  actioned-event delay, no delayed 20s/30s events)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 72.0.0
+
+### Major Changes
+
+- [`d94df511393a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d94df511393a9) -
+  Removing FG platform_editor_a11y_eslint_fix
+
+### Patch Changes
+
+- Updated dependencies
+
+## 71.1.0
+
+### Minor Changes
+
+- [`251c0e140edf6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/251c0e140edf6) -
+  [EDITOR-6540] AI-mate error screen dismissal incorrectly triggers discard confirmation, bug fix.
+
+## 71.0.1
+
+### Patch Changes
+
+- [`0281a1c2161a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0281a1c2161a9) -
+  [ux] cleanup platform_editor_table_remove_last_cell_decoration
+
+## 71.0.0
+
+### Major Changes
+
+- [`c90e53d27bbe9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c90e53d27bbe9) -
+  Re-use maui experiment for Jira
+
+## 70.6.0
+
+### Minor Changes
+
+- [`f3300976cae54`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3300976cae54) -
+  Use markdown plus for FE parser in streaming path instead of the legacy markdown transformer
+
+## 70.5.0
+
+### Minor Changes
+
+- [`bc415f8eb86a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc415f8eb86a9) -
+  Add OR check with create_work_item_modernization_exp experiment to
+  platform_editor_fix_scrolling_popup_position, platform_editor_table_resize_chromeless, and
+  platform_editor_chromeless_akeditor_class usages
+
+## 70.4.0
+
+### Minor Changes
+
+- [`aef936f5a23ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aef936f5a23ea) -
+  Rename the changeboard smart link drag-and-drop experiment from
+  `cc_dnd_smart_link_changeboard_po_template` to `cc_dnd_smart_link_changeboard_platform_css` across
+  the card plugin and editor statsig config.
+
+## 70.3.0
+
+### Minor Changes
+
+- [`8ba7595a14e53`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8ba7595a14e53) -
+  [ux] Opens iframe preview panel for smart links and related works links in new work item view for
+  certain routes ( boards, backlog).
+
+## 70.2.0
+
+### Minor Changes
+
+- [`1e1cd867149d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e1cd867149d8) -
+  Add platform_sl_fix_cache_unresolved - cache Smart Link with resolved status, related to
+  platform_editor_smartlink_local_cache
+- [`f7254db909ac9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f7254db909ac9) -
+  Replace platform_editor_ai_chromeless_akeditor_class experiment with
+  platform_editor_chromeless_akeditor_class feature gate
+
+## 70.1.0
+
+### Minor Changes
+
+- [`aaa61a61efb94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aaa61a61efb94) -
+  Add support for table resize in chromeless editor, behind platform_editor_table_resize_chromeless
+  experiment
+
+## 70.0.0
+
+### Major Changes
+
+- [`0224e77302a3e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0224e77302a3e) -
+  Replace cc-maui-experiment-phase-2 experiment checks with cc-maui-phase-2 feature gate checks for
+  gating the Ask Rovo toolbar button, and remove the now-unused cc-maui-experiment-phase-2
+  experiment definition.
+
+## 69.0.0
+
+### Major Changes
+
+- [`d1bd1354e626f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1bd1354e626f) -
+  Remove A/A for Create with Rovo via Slash Command experiment
+
+## 68.1.0
+
+### Minor Changes
+
+- [`4b61b018db494`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b61b018db494) -
+  [ux] Adds AI image generation to the editor by introducing a new plugin for image generation in
+  the editor with the functionalities to create AI images with a prompt and style choice. The plugin
+  is gated behind a feature experiment.
+
+## 68.0.0
+
+### Major Changes
+
+- [`6655b2d3fda01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6655b2d3fda01) -
+  NAVX-4681: Remove platform_sl_3p_unauth_paste_as_block_card experiment (winning:
+  card_by_default_and_new_design), platform_sl_3p_unauth_paste_as_block_card_gate, and
+  platform_sl_3p_unauth_experiment_gate feature flags
+
+## 67.0.0
+
+### Major Changes
+
+- [`e6835136c4227`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e6835136c4227) -
+  [FFCLEANUP-98435] remove stale experiment `platform_editor_a11y_typeahead_tab_keypress`
+- [`f7d7098ecbcbf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f7d7098ecbcbf) -
+  Cleanup exp platform_editor_copy_paste_issue_fix
+
+### Minor Changes
+
+- [`245a43ebad095`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/245a43ebad095) -
+  [EDITOR-4550] add new experiment to config
+
+## 66.1.0
+
+### Minor Changes
+
+- [`019540f8c0a67`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/019540f8c0a67) -
+  Fix editor popup scroll parent detection for chromeless editor in modals.
+
+  When the `platform_editor_fix_scrolling_popup_position` experiment is enabled, the Popup component
+  now prefers an explicitly provided `scrollableElement` prop over the auto-detected DOM ancestor.
+  This fixes popup positioning (code block language selector, table options, selection toolbar) in
+  chromeless editors embedded within modals, where the scroll container uses `overflow: auto` and
+  cannot be found by the existing `findOverflowScrollParent` utility.
+
+  The pre-computed scroll parent is also threaded through to `calculateVerticalStickTop` and
+  `calculateVerticalStickBottom` to avoid redundant DOM traversal and ensure position calculations
+  use the same element as the scroll event listener.
+
+## 66.0.0
+
+### Major Changes
+
+- [`f25ff7f70d948`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f25ff7f70d948) -
+  FFCLEANUP-91667 Remove shipped limited-mode experiment from Statsig config; use fixed document
+  thresholds in editor-common for limited-mode detection.
+
+### Minor Changes
+
+- [`344eb4664c404`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/344eb4664c404) -
+  Add platform_editor_ai_chromeless_akEditor_class experiment config
+
+## 65.0.0
+
+### Major Changes
+
+- [`e5cdd96dcf4f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5cdd96dcf4f9) -
+  Clean up platform_editor_hydratable_ui experiment (shipped as enabled)
+
+## 64.1.0
+
+### Minor Changes
+
+- [`64134fd6d8fee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64134fd6d8fee) -
+  clean up platform_editor_block_control_optimise_render
+
+## 64.0.0
+
+### Major Changes
+
+- [`79124c226e2f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79124c226e2f4) -
+  NO-ISSUE Clean up platform_editor_ai_edit_unsupported_content
+
+### Patch Changes
+
+- Updated dependencies
+
+## 63.0.0
+
+### Major Changes
+
+- [`acce33a5519e2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acce33a5519e2) -
+  Remove stale experiment `platform_editor_ai_quickstart_command` from experiments config and test
+  overrides.
+
+## 62.8.0
+
+### Minor Changes
+
+- [`b6bb07e5d72ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6bb07e5d72ac) -
+  [ux] Fix for #hot-301450, add new media option for fallback media name fetcher to allow confluence
+  to use the attachment service instead of the media service to get filenames. After DC -> Cloud
+  migration filenames were not properly copied across to the media service causing inline media to
+  show an error.
+
+## 62.7.0
+
+### Minor Changes
+
+- [`3e5cf48f0f52f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e5cf48f0f52f) -
+  Replace `cc_dnd_smart_link_changeboard_po_template_gate` feature gate with
+  `cc_dnd_smart_link_changeboard_po_template` experiment using `expValNoExposure`.
+- [`5cdbb45dd8b9b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5cdbb45dd8b9b) -
+  [ux] Add generic 3P rovo actions for the rovogrowth-640-inline-action-nudge-exp experiment to the
+  hovercard content
+
+## 62.6.0
+
+### Minor Changes
+
+- [`b0377daa5ac26`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b0377daa5ac26) -
+  Clean up experiment cc_perf-insights-cards_extension_a11y_list - ship treatment (list/listitem
+  roles for a11y)
+
+## 62.5.0
+
+### Minor Changes
+
+- [`ddaaad8a1e1c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddaaad8a1e1c9) -
+  Add toolbar component to jira remix integration
+
+## 62.4.1
+
+### Patch Changes
+
+- [`eb34f250499a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb34f250499a5) -
+  [EDITOR-6274] remove experiment override from tests
+
+## 62.4.0
+
+### Minor Changes
+
+- [`5582de25d88ef`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5582de25d88ef) -
+  Add noStream flag to skip streaming pacer for pre-computed tool call results
+
+## 62.3.1
+
+### Patch Changes
+
+- [`ed96586aa0e43`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed96586aa0e43) -
+  Cleanup experiment platform_editor_table_resizer_extended_zone: ship treatment
+  (needExtendedResizeZone always true)
+
+## 62.3.0
+
+### Minor Changes
+
+- [`bfe80c5eaf923`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bfe80c5eaf923) -
+  Enable onedrive and MS teams links to render as smartlinks
+
+## 62.2.0
+
+### Minor Changes
+
+- [`65f1d80415ae8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/65f1d80415ae8) -
+  EDITOR-679 improve reliability of media provider
+
+## 62.1.0
+
+### Minor Changes
+
+- [`80a2b27ade0a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/80a2b27ade0a5) -
+  [ux] EDITOR-6391 remove margin top from hide macro
+
+## 62.0.0
+
+### Major Changes
+
+- [`33ad954adbde1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/33ad954adbde1) -
+  [NO-ISSUE] Cleaning flag platform_editor_focus_on_chromeless_editor
+
+## 61.0.1
+
+### Patch Changes
+
+- [`58913fb961b08`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/58913fb961b08) -
+  [ux] Remove button/popup functionality from Rovo action CTA - just keep as icon for the inline
+  link.
+
+## 61.0.0
+
+### Major Changes
+
+- [`0ad738e8f896e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0ad738e8f896e) -
+  Remove `support_table_in_comment` and `support_table_in_comment_jira` experiment references. Both
+  experiments are fully rolled out — table resizing, alignment, scaling, and distribute columns are
+  now enabled unconditionally in comment editors.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 60.2.0
+
+### Minor Changes
+
+- [`375155c440374`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/375155c440374) -
+  Add FullPagePresetNext
+
+## 60.1.0
+
+### Minor Changes
+
+- [`8f7575e82974c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f7575e82974c) -
+  Add gated analytics for embed modal on view action to capture extensionKey, status, and
+  statusDetails.
+- [`505563ec74fe5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/505563ec74fe5) -
+  [ux] Add insert menu featured sorting for Create with Rovo via slash experiment.
+
+## 60.0.0
+
+### Major Changes
+
+- [`f9a2adc2e3045`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9a2adc2e3045) -
+  Clean up platform_editor_aifc_fix_button_viewed_analytics
+
+### Patch Changes
+
+- Updated dependencies
+
+## 59.1.0
+
+### Minor Changes
+
+- [`90b759086522c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90b759086522c) -
+  Add withCompiledMigration HOC and enforce-compiled-migration-gate ESLint rule for feature-gated
+  Emotion to Compiled CSS-in-JS migration
+
+### Patch Changes
+
+- Updated dependencies
+
+## 59.0.0
+
+### Major Changes
+
+- [`f4951e15e9432`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f4951e15e9432) -
+  Removed `platform_editor_emoji_tooltips_on_hover` experiment. Emoji tooltips (title attribute) are
+  now always enabled permanently.
+
+### Minor Changes
+
+- [`f5b6110e36e79`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f5b6110e36e79) -
+  [ux] Enables rovo actions post auth experiment ui and exposures
+- [`3f28038f8be0f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f28038f8be0f) -
+  Add support SSR streaming for SSREditorRenderer
+
+## 58.0.0
+
+### Major Changes
+
+- [`48a64b7bbac82`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48a64b7bbac82) -
+  Remove stale experiment platform_editor_plain_text_support
+
+## 57.0.0
+
+### Major Changes
+
+- [`9e290511c0bea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e290511c0bea) -
+  Remove stale experiment gate editor_enghealth_hyperlink_toolbar_aria_values
+- [`eb7b15df32e03`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb7b15df32e03) -
+  [FFCLEANUP-96830] Removed `platform_editor_a11y_table_wrapper_fix` experiment. Table wrapper is
+  now always rendered as a scrollable region when `tabIndex` is defined.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 56.2.0
+
+### Minor Changes
+
+- [`1bd6f56c55358`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bd6f56c55358) -
+  Add gated analytics for Smart Link go-to-link actions, including extensionKey, status, and
+  statusDetails, with supporting editor/card test updates.
+
+## 56.1.0
+
+### Minor Changes
+
+- [`cfc9d74ff4070`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cfc9d74ff4070) -
+  Add experiment to changes for adding suggest reply markdown
+
+## 56.0.0
+
+### Major Changes
+
+- [`6bdbecda5afa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6bdbecda5afa7) -
+  Clean up experiment editor_fix_embed_width_expand
+
+## 55.2.0
+
+### Minor Changes
+
+- [`c82f7b4cbe1fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c82f7b4cbe1fd) -
+  Fix drag handle keyboard accessibility: Shift+Ctrl+H now correctly shows and focuses the drag
+  handle for keyboard users when mouse is outside the editor. Gated behind
+  platform_editor_drag_handle_keyboard_a11y experiment.
+
+## 55.1.0
+
+### Minor Changes
+
+- [`e3a3a549232de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3a3a549232de) -
+  [ux] Adds functionality to autoselect outcome type when clicking example / suggested prompts on
+  AIFC modal behind new experiment
+
+## 55.0.0
+
+### Major Changes
+
+- [`0a265af52321f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a265af52321f) -
+  Remove stale experiment platform_editor_extension_styles from tmp-editor-statsig
+
+### Minor Changes
+
+- [`3f798d9934a76`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f798d9934a76) -
+  [ux] EDITOR-5487 skip react portal initial render when hydration for toc extension node view
+- [`3e4e12085777f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e4e12085777f) -
+  Add the platform_editor_ai_fix_move_node experiment config for Confluence editor AI rollout.
+
+## 54.5.1
+
+### Patch Changes
+
+- [`8bfeeef7734ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8bfeeef7734ca) -
+  Extending userflow analytics to have step where event is fired when user changes inline prompt
+  text
+
+## 54.5.0
+
+### Minor Changes
+
+- [`bd6a75f50c1e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd6a75f50c1e9) -
+  [ux] [EDITOR-6267] add support to SelectAll table keymap to first select the active table cell
+  behind experiment `platform_editor_lovability_select_all_shortcut`
+
+## 54.4.0
+
+### Minor Changes
+
+- [`fb96753c1753e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb96753c1753e) -
+  [ux] Introduce adjustable layout column drag handle and update logic behind
+  platform_editor_layout_column_resize_handle experiment
+- [`79d61c73ffcaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79d61c73ffcaa) -
+  Add expsoure for add CWR to quick insert menu experiment.
+- [`36aa4e6236ba8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/36aa4e6236ba8) -
+  Migrate @atlaskit/onboarding to @atlaskit/spotlight, gate pulse removal behind
+  platform_editor_spotlight_migration experiment. Remove dead spotlight config code from floating
+  toolbar.
+- [`78762fbea5fd4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78762fbea5fd4) -
+  Add platform_sl_3p_preauth_better_hovercard flag
+
+### Patch Changes
+
+- [`b5cff2f520366`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5cff2f520366) -
+  [EDITOR-6195] updated xstate migration feature gate to an experiment gate
+- Updated dependencies
+
+## 54.3.0
+
+### Minor Changes
+
+- [`2e8697decd076`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e8697decd076) -
+  Migrate @atlaskit/onboarding to @atlaskit/spotlight, gate pulse removal behind
+  platform_editor_spotlight_migration experiment. Remove dead spotlight config code from floating
+  toolbar.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.2.0
+
+### Minor Changes
+
+- [`e26d5e2ad8468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e26d5e2ad8468) -
+  [ux] ENGHEALTH-49543 use system color HighlightText for text color when background is set to
+  system color Highlight
+- [`e9ef7c6fc5370`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e9ef7c6fc5370) -
+  EDITOR-6179: Enable SSR Streaming for Edit Page and Live Doc routes.
+  - Add `platform_editor_editor_ssr_streaming` experiment to `tmp-editor-statsig` experiments
+    config.
+  - `EditorSSRRenderer`: replace `useLayoutEffect`+`containerRef` DOM mutation with
+    `dangerouslySetInnerHTML` for rendering serialized editor HTML, enabling correct rendering in
+    `renderToPipeableStream` SSR streaming context.
+
+## 54.1.0
+
+### Minor Changes
+
+- [`24f029e3a215c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/24f029e3a215c) -
+  Gate Ask Rovo MAUI edit UI behind cc-maui-experiment-phase-2
+
+## 54.0.1
+
+### Patch Changes
+
+- [`cfd14d8f3b8df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cfd14d8f3b8df) -
+  [ux] Hide unreleased changes behind new experiment as they have been cut from v1 experiment scope
+
+## 54.0.0
+
+### Major Changes
+
+- [`65e300b324e87`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/65e300b324e87) -
+  Remove feature flag platform_editor_fix_advanced_codeblocks_crlf - CRLF line separator fix is now
+  always enabled
+
+### Minor Changes
+
+- [`22cc6940b4250`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22cc6940b4250) -
+  Add gated editor-core perf lint cleanup experiment support
+- [`59c51386456c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/59c51386456c3) -
+  Convert platform_editor_ai_aifc_list_indentation_fix feature gate to
+  platform_editor_ai_aifc_listitem_indentation_fix experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.1.0
+
+### Minor Changes
+
+- [`f8922537e5ec8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8922537e5ec8) -
+  Preserve node referential identity in replaceDocument to prevent ProseMirror view reconciliation
+  from unnecessarily destroying and recreating mark wrappers (and their React nodeviews), which
+  caused visible flicker on sync blocks and other wrapped nodeviews during collab initialization.
+
+  Fixes EDITOR-5277.
+
+- [`1229e42f9f503`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1229e42f9f503) -
+  fix layout shift issue and initial size issue on legacy media
+
+## 53.0.0
+
+### Major Changes
+
+- [`93ba2d2f0eb22`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93ba2d2f0eb22) -
+  Clean up experiment flag platform_editor_ai_fix_streaming_json_escape and to fix JSON escape on
+  the streaming parser for URL and path values
+
+## 52.2.0
+
+### Minor Changes
+
+- [`89c9f0b61cb49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/89c9f0b61cb49) -
+  ENGHEALTH-49654 add aria label to rovo inline chat dialog
+
+## 52.1.0
+
+### Minor Changes
+
+- [`91f722df43475`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/91f722df43475) -
+  [ux] [EDITOR-5815] the fix adds a check for column width changes so that we update the table on
+  click of 'distribute columns' button. this is gated behind the
+  `platform_editor_lovability_distribute_column_fix` experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.0.0
+
+### Major Changes
+
+- [`e2f512c5e8eba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2f512c5e8eba) -
+  Clean up feature flag platform_editor_task_item_styles for task item checkbox and remove unused
+  styles objects taskItemCheckboxStylesWithBlockTaskItem and taskItemCheckboxStyles. Renamed
+  taskItemNextCheckboxStyles to taskItemCheckboxStyles
+
+## 51.1.0
+
+### Minor Changes
+
+- [`f2500fdeca2ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2500fdeca2ee) -
+  Fix Ctrl+Shift+H keyboard shortcut for expand node title drag handles to support keyboard-only and
+  screen reader users
+- [`d3c7e8b3f1a04`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3c7e8b3f1a04) -
+  add stricter typecheck for panel color attr to avoid unhandled errors
+- [`87bb2de1fb74d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87bb2de1fb74d) -
+  Fix scrollable-region-focusable a11y violation on inline code by removing overflow:auto from code
+  mark styles in EditorContentContainer behind the platform_editor_a11y_scrollable_region
+  experiment. Removing overflow:auto eliminates the scrollable region entirely (text wraps naturally
+  via overflow-wrap:break-word and white-space:pre-wrap),
+
+## 51.0.0
+
+### Major Changes
+
+- [`6442aba65e911`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6442aba65e911) -
+  Clean up cc_editor_lcm_readonly_initial experiment - remove LegacyContentHeader rendering and
+  associated dead code
+- [`a3b34e2d09709`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3b34e2d09709) -
+  Cleanup experiment platform_editor_add_aria_checked_to_inline_img_btn - ships the enabled code
+  path (selected: false on inline image button)
+
+## 50.0.0
+
+### Major Changes
+
+- [`f65fa1ea7c0e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f65fa1ea7c0e5) -
+  Cleaned up stale feature flag `platform_editor_fix_button_name_violation_in_table`. The flag has
+  been fully rolled out, so the button name fix in table floating insert button is now always
+  applied.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 49.0.0
+
+### Major Changes
+
+- [`ffccc4788eabb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ffccc4788eabb) -
+  Cleanup presence PMR experiment
+
+## 48.2.0
+
+### Minor Changes
+
+- [`7ba3e1eb9de75`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ba3e1eb9de75) -
+  [ux] Fix top border corners being cut off in comment boxes in Jira
+
+## 48.1.0
+
+### Minor Changes
+
+- [`31b465ec806b1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31b465ec806b1) -
+  Fix INP buffered attribute - gate cc_editor_fix_insm_inp_buffer
+
+## 48.0.1
+
+### Patch Changes
+
+- [`5999b4aa6053c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5999b4aa6053c) -
+  [EDITOR-5811] remove override for single player expand
+
+## 48.0.0
+
+### Major Changes
+
+- [`c076c3169e9a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c076c3169e9a4) -
+  EDITOR-6146: Clean up unused platform_editor_ai_suggestions (migrated to
+  platform_editor_ai_content_suggested_edits)
+
+## 47.0.0
+
+### Major Changes
+
+- [`369e414179c61`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/369e414179c61) -
+  Cleanup feature flag platform_editor_fix_gapcursor_on_paste. The fix for gapcursor on paste is now
+  enabled by default.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 46.2.0
+
+### Minor Changes
+
+- [`b512cc17bab98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b512cc17bab98) -
+  Added change to avoid adding ufo hold if the the cardpreview is not available
+
+## 46.1.0
+
+### Minor Changes
+
+- [`673732f902814`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/673732f902814) -
+  Add error handling with plugin context to EditorPresetBuilder to improve debugging of plugin
+  initialization failures. When a plugin fails to initialize, the name of the plugin is added to the
+  error message before it's thrown.
+- [`6da6979e0583c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6da6979e0583c) -
+  fix a11y issue for InlineImageWrapper for media inline
+
+### Patch Changes
+
+- Updated dependencies
+
+## 46.0.0
+
+### Major Changes
+
+- [`61f4e0dfbe267`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/61f4e0dfbe267) -
+  EDITOR-6067 - Tab to Improve Writing: Create new experiment for Confluence only
+
+## 45.1.0
+
+### Minor Changes
+
+- [`9f5fba61d4c9d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f5fba61d4c9d) -
+  do not show external badge for images hosted on bitbucket.org
+- [`3cd18ada1401f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3cd18ada1401f) -
+  [EDITOR-6131] add Jira as a target app to the font size experiment
+
+### Patch Changes
+
+- [`04bcc33e0d738`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04bcc33e0d738) -
+  Mechanical type-import autofix for AI adjunct editor packages.
+
+## 45.0.0
+
+### Major Changes
+
+- [`a64a0cad8103d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a64a0cad8103d) -
+  Cleanup stale feature flag `platform_editor_quick_insert_image_wrap_right_fix`. The enabled
+  behaviour (setting `clear: unset` on the quick insert button element to prevent interference with
+  floated wrap-right images) is now always active.
+
+### Minor Changes
+
+- [`14174d5130d27`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14174d5130d27) -
+  Adding editorAppearance in coreplugin shared state so that plugins can access appearance value
+  when updated
+- [`2ce5b11415296`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ce5b11415296) -
+  Add tabIndex to renderer headings for a11y and 'confluence_toc_nav_a11y' experiment config
+
+## 44.3.0
+
+### Minor Changes
+
+- [`da1128b3090cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da1128b3090cc) -
+  [EDITOR-5922] Update media picker to mount to popupsMountPoint (e.g. portal) if available so that
+  it is still visible when rendering outside of editor that has overflow hidden (e.g. resizable
+  editor)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 44.2.0
+
+### Minor Changes
+
+- [`aa4e1fcb89ca8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa4e1fcb89ca8) -
+  Added new `platform_editor_flexible_list_schema` experiment that independently enables ADF schema
+  and CSS rendering support for flexible lists, without creation behaviour. Updated schema node
+  selection, CSS rendering, ADF validation, and task list schema to use the new gate. Indent/outdent
+  behaviour remains on the existing `platform_editor_flexible_list_indentation` gate.
+- [`bd008993d07cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd008993d07cd) -
+  Reuse the same selectors for determinig hover locations and location to draw drag handle
+
+## 44.1.0
+
+### Minor Changes
+
+- [`d43c8a96e6740`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d43c8a96e6740) -
+  Gate table ref update dispatch behind tableActive check to avoid unnecessary transactions firing
+  for every table on the page
+
+### Patch Changes
+
+- [`4fa16b0f7b7a3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4fa16b0f7b7a3) -
+  Add dynamic config function for string list and use to turn Rovo placeholder off.
+
+## 44.0.0
+
+### Major Changes
+
+- [`a35f1a8d92461`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a35f1a8d92461) -
+  [FFCLEANUP-84844] Clean up stale feature flag platform_editor_nested_table_refresh_width_fix
+- [`b50791532c24a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b50791532c24a) -
+  [FFCLEANUP-79900] Remove experiment editor_refactor_backspace_task_and_decisions
+
+## 43.0.0
+
+### Major Changes
+
+- [`60fc4abc3b900`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/60fc4abc3b900) -
+  Cleanup platform_editor_fix_cursor_flickering experiment, always using ON path
+
+### Minor Changes
+
+- [`0d04e250bdf4b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d04e250bdf4b) -
+  [ux] Making submenus for media (color/size) and table (background color) consistent with ADS and
+  fixing incorrect gate mocking in editor-plugin-ai-tests
+- [`c9d8de9fd5a33`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9d8de9fd5a33) -
+  Avoid wrapping block controls in any block mark - fixes issues with font size mark.
+
+## 42.1.0
+
+### Minor Changes
+
+- [`cdc6ff4788df0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cdc6ff4788df0) -
+  [EDITOR-5739] Move TwoStageHydration on toolbar down to around toolbar component rather than
+  ToolbarArrowKeyNavigationProvider
+
+## 42.0.0
+
+### Major Changes
+
+- [`46ff42199054d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/46ff42199054d) -
+  Cleans up experiment platform_editor_eslint_suppression_fix
+
+## 41.0.0
+
+### Major Changes
+
+- [`ba5257de9a045`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba5257de9a045) -
+  Removed feature flag platform_editor_paste_before_first_block_node for solved editor paste bug
+  before certain block nodes.
+
+### Minor Changes
+
+- [`ea21f2748d986`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ea21f2748d986) -
+  feat: set display-mode in table toDOM from node attributes
+
+## 40.7.0
+
+### Minor Changes
+
+- [`1f132a3204f7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f132a3204f7b) -
+  Fix Safari cursor jumping to start when hovering over typeahead menu items
+
+## 40.6.0
+
+### Minor Changes
+
+- [`244ca4ec80372`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/244ca4ec80372) -
+  Add platform_editor_chromeless_expand_fix experiment
+- [`029e47b456b89`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/029e47b456b89) -
+  Fixing a bug where we expect the selection toolbar to show when selecting text and releasing on
+  the block controls handle.
+
+## 40.5.0
+
+### Minor Changes
+
+- [`3bc16a4221f74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3bc16a4221f74) -
+  [ux] EDITOR-5746 fix bug where drop targets appeared (and never cleared) after table row drag
+
+## 40.4.0
+
+### Minor Changes
+
+- [`bf8678936e092`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bf8678936e092) -
+  Add platform_sl_3p_auth_rovo_action experiment
+
+## 40.3.0
+
+### Minor Changes
+
+- [`b6830be30e686`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6830be30e686) -
+  Removed platform_editor_sel_toolbar_fix and platform_editor_sel_toolbar_scroll_pos_fix_exp
+  experiments from experiments config
+
+## 40.2.0
+
+### Minor Changes
+
+- [`d7dec29b99a58`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7dec29b99a58) -
+  [ux] [EDITOR-5118] his change modifies scrolling behaviour to centre selected content when using
+  find and replace, behind exp platform_editor_editor_centre_content_on_find
+
+## 40.1.0
+
+### Minor Changes
+
+- [`be5f64b1c1011`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be5f64b1c1011) -
+  [ux] Patch for image editor tool bar border drop downUI size
+
+## 40.0.0
+
+### Major Changes
+
+- [`5a8d797e50210`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a8d797e50210) -
+  [FFCLEANUP-91669] clean up platform_editor_hide_toolbar_tooltips_fix experiment to hide dropdown
+  menu item tooltips on hover of the dropdown menu button
+
+## 39.0.0
+
+### Major Changes
+
+- [`0efca55740b36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0efca55740b36) -
+  [FFCLEANUP-71458] clean up experiment platform_editor_toggle_expand_on_match_found
+
+### Minor Changes
+
+- [`abc8407f36ad1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/abc8407f36ad1) -
+  cleanup platform_editor_no_state_plugin_injection_api
+
+### Patch Changes
+
+- [`83fabdbe13830`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83fabdbe13830) -
+  cleanup platform_editor_context_context_types_migration
+
+## 38.1.1
+
+### Patch Changes
+
+- [`7386e335aa805`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7386e335aa805) -
+  EDITOR-3953: Fix unwanted paragraph insertion when adding lists at end of document
+
+## 38.1.0
+
+### Minor Changes
+
+- [`1a8d8eb4f0dcb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a8d8eb4f0dcb) -
+  Adds experiment to fix broken uploaded images in card macro
+
+## 38.0.0
+
+### Major Changes
+
+- [`815712ef26255`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/815712ef26255) -
+  Removed `platform_editor_deduplicate_mark_diff` experiment. The deduplication behavior is now
+  always enabled.
+
+### Minor Changes
+
+- [`ddcd9f9430dfe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddcd9f9430dfe) -
+  EDITOR-5602 Add position check when insertLocation is fired
+
+## 37.0.0
+
+### Major Changes
+
+- [`e6fbfbf141ff3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e6fbfbf141ff3) -
+  Cleanup feature exp cleanup-platform_editor_send_client_platform_header
+
+## 36.3.0
+
+### Minor Changes
+
+- [`3e12453af02dd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e12453af02dd) -
+  EDITOR-5922: Fix space shortcut activating opt in flow
+
+## 36.2.0
+
+### Minor Changes
+
+- [`b941a7ee841df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b941a7ee841df) -
+  EDITOR-5683 update outdated browser list to exclude browser versions before March 2024
+- [`224048d036344`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/224048d036344) -
+  EDITOR-5683 do not rethrow setMetadataError: Cannot send metadata, currently offline and
+  setMetadataError: Cannot send metadata, not initialized yet as they are intermittent connection
+  errors
+
+## 36.1.0
+
+### Minor Changes
+
+- [`14aa7871be0b7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14aa7871be0b7) -
+  [ux] EDITOR-5513: fix(editor-plugin-card): guard inline card cleanup to dispatch removeCard at
+  most once per effect cycle
+
+## 36.0.1
+
+### Patch Changes
+
+- [`77e8559d882d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77e8559d882d3) -
+  cleanup platform_editor_remove_reactserializer_fromschema removing ReactSerializer.fromSchema
+
+## 36.0.0
+
+### Major Changes
+
+- [`617d79798517c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/617d79798517c) -
+  Cleanup platform_editor_table_toolbar_icon_ext_fix_exp gate
+
+## 35.10.0
+
+### Minor Changes
+
+- [`71de71e52182e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71de71e52182e) -
+  Remove @atlaskit/editor-plugin-ncs-metrics
+- [`71de71e52182e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71de71e52182e) -
+  Add experiment platform_editor_remove_collab_step_metrics which removes step metrics writes to
+  local storage from collab edit plugin
+- [`8184c046099e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8184c046099e5) -
+  Fixed bug where it wasn't possible to paste before a block node when the block node was the first
+  node in an editor document.
+
+### Patch Changes
+
+- [`bf1bed54d14bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bf1bed54d14bd) -
+  Remove platform_editor_safe_url_trim_fix feature flag
+- Updated dependencies
+
+## 35.9.0
+
+### Minor Changes
+
+- [`5c1f0e3fb0a3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c1f0e3fb0a3f) -
+  EDITO-5622 Update errorboundary key to reduce rerenders from new key being generated
+
+### Patch Changes
+
+- [`1813c0774ee29`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1813c0774ee29) -
+  cleanup platform_editor_context_context_types_migration
+- Updated dependencies
+
+## 35.8.0
+
+### Minor Changes
+
+- [`477d48a3021a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/477d48a3021a5) -
+  EDITOR-5818 fix to not send dispatch during render or in ref callback
+
+## 35.7.0
+
+### Minor Changes
+
+- [`f91f6be9566a5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f91f6be9566a5) -
+  Don't show the grid container if not visible to avoid reflow experiment.
+- [`0a65ee9a1c299`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a65ee9a1c299) -
+  Replace ReactDOM.render in editor-extesion-dropbox
+- [`29e8db48dc55b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/29e8db48dc55b) -
+  [ux] EDITOR-5622 Remove sentinels when shadowObserver is cleaned up
+- [`dd5154ad0dec5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dd5154ad0dec5) -
+  [A11Y-10416] Add experiment editor-a11y-10416-codeblock-entry for code block accessibility
+- [`1e58c64552ef8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e58c64552ef8) -
+  Add new 'allowFontSize' plugin option to blockTypePlugin which enables new 'small' text feature to
+  be added, it's behind an experiment platform_editor_small_font_size.
+
+## 35.6.0
+
+### Minor Changes
+
+- [`e7825d1698274`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e7825d1698274) -
+  Improve areNodesEqualIgnoreAttrs by adding option ignoreMarkOrder which ensures the order of the
+  marks does not result in a "false" which can break some cases of diffs.
+
+## 35.5.0
+
+### Minor Changes
+
+- [`9398ad3ad409c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9398ad3ad409c) -
+  [EDITOR-5376] add new `platform_editor_single_player_expand` experiment to statsig config file
+
+## 35.4.0
+
+### Minor Changes
+
+- [`c1134966d9b87`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c1134966d9b87) -
+  [ux] Add AI Autocomplete Editor plugin
+
+## 35.3.0
+
+### Minor Changes
+
+- [`83792cc1d590e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83792cc1d590e) -
+  Abort UFO measurements when user interacts with the editor during VC90 load tracking, gated behind
+  platform_editor_abort_ufo_on_user_interaction experiment
+
+## 35.2.0
+
+### Minor Changes
+
+- [`9e9a406ad71a9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e9a406ad71a9) -
+  [EDITOR-1682] add new experiment `platform_editor_analyse_table_with_merged_cells` to config file
+- [`5d27d5dc155ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5d27d5dc155ff) -
+  Editor-5020: Fix the column drop hint not visible inside sync block
+
+## 35.1.0
+
+### Minor Changes
+
+- [`f9c6cc572b6cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f9c6cc572b6cd) -
+  EDITOR-5829: Set up experiment in config
+
+## 35.0.0
+
+### Major Changes
+
+- [`1d6c1d6ba61dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d6c1d6ba61dc) -
+  FFCLEANUP-79953 clean up stale experiment platform_editor_editor_width_analytics
+
+### Minor Changes
+
+- [`94dbc76370522`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94dbc76370522) -
+  [ux] remove unnecessary decoration for last cell element in table
+- [`38112478a1d8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38112478a1d8a) -
+  Cleanup platform_editor_blockquote_zero_padding flag
+
+## 34.4.0
+
+### Minor Changes
+
+- [`1d6c102310afb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d6c102310afb) -
+  [ux] Use editor-smart-link-draggable package ti implement React-based drag preview, and design
+  system compliance. Updated editor-plugin-card to reference the new package.
+
+## 34.3.0
+
+### Minor Changes
+
+- [`b5e671b3b051c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5e671b3b051c) -
+  [ux] Fix inline node annotation color in Renderer to match text annotation color
+
+## 34.2.0
+
+### Minor Changes
+
+- [`a71583c5b6516`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a71583c5b6516) -
+  cleanup platform_editor_fix_emoji_paste_html
+
+## 34.1.0
+
+### Minor Changes
+
+- [`1a05924d64777`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a05924d64777) -
+  [EDITOR-5528] Fix bodiedSyncBlock mutation
+- [`00ae34886b5f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00ae34886b5f7) -
+  [EDITOR-5796](https://hello.jira.atlassian.cloud/browse/EDITOR-5796) - clean up
+  platform_editor_display_none_to_expand experiment
+- [`557de2bd28f21`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/557de2bd28f21) -
+  [EDITOR-5773](https://hello.jira.atlassian.cloud/browse/EDITOR-5773) - clean up
+  platform_editor_disable_query_command_supported experiment
+
+## 34.0.0
+
+### Major Changes
+
+- [`451c2f1a9f5f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/451c2f1a9f5f0) -
+  Clean up confluence_insert_excerpt_inline_vertical_align experiment, which removes block nodes
+  vertical margin from inline extension elements to fix the inline vertical positioning of inline
+  extensions to match its surrounding text content.
+
+### Minor Changes
+
+- [`aa2864bc234dd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa2864bc234dd) -
+  add experiement to tmp-editor-statsig for cards a11y aria-role list and listitem
+
+## 33.3.0
+
+### Minor Changes
+
+- [`a567137003ae6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a567137003ae6) -
+  Add in Create with Rovo blank object experience functionality
+
+## 33.2.0
+
+### Minor Changes
+
+- [`17119fb95e0a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/17119fb95e0a4) -
+  [EDITOR-3747](https://hello.jira.atlassian.cloud/browse/EDITOR-3747) - clean up
+  platform_editor_ssr_renderer experiment
+- [`4f700a8131d20`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4f700a8131d20) -
+  [FFCLEANUP-79468] add platform_editor_a11y_table_wrapper_fix to statsig config
+
+## 33.1.0
+
+### Minor Changes
+
+- [`3c1ea42fe6741`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3c1ea42fe6741) -
+  add ai stt POC to editor
+- [`c28209fcfdfd2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c28209fcfdfd2) -
+  [ENGHEALTH-46817] Resolving eslint suppressions for accessibility violations
+- [`9b88bc712cffc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9b88bc712cffc) -
+  [ux] Adds outcome type picker to create with rovo modal
+
+## 33.0.0
+
+### Major Changes
+
+- [`a549780d70a91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a549780d70a91) -
+  Clean up confluence_inline_insert_excerpt_width_bugfix experiment
+
+### Minor Changes
+
+- [`671397538b131`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/671397538b131) -
+  All additive changes with a gate on the main ability of it to be used via the slides experiment.
+  Should be a completely safe change.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 32.12.0
+
+### Minor Changes
+
+- [`2ba512be34b34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ba512be34b34) -
+  [ux] always enable table resizer extended zone
+
+## 32.11.0
+
+### Minor Changes
+
+- [`dbd7ff4f67cfb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbd7ff4f67cfb) -
+  added `platform_editor_rovobutton_smartlink_toolbar_exp` experience gate
+
+## 32.10.0
+
+### Minor Changes
+
+- [`0f91061590da3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f91061590da3) -
+  Split platform_editor_vc90_transition_fixes_batch_1 into
+  platform_editor_vc90_transition_table_border, platform_editor_vc90_transition_expand_icon,
+  platform_editor_vc90_transition_mentions, platform_editor_vc90_transition_panel_icon
+
+## 32.9.0
+
+### Minor Changes
+
+- [`6555606e7bd91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6555606e7bd91) -
+  [NO-ISSUE] adding experiment for platform_editor_ai_blockmenu_integration
+
+## 32.8.0
+
+### Minor Changes
+
+- [`96e18b19a6a06`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/96e18b19a6a06) -
+  EDITOR-5722 Tab to Improve Writing: Add experiment definition for platform_editor_ai_quick_prompt
+
+## 32.7.0
+
+### Minor Changes
+
+- [`45a3755608d26`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/45a3755608d26) -
+  introduce discarded unified analytic events and fix bug with undo/deletion detection
+
+## 32.6.0
+
+### Minor Changes
+
+- [`342dd44a8575e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/342dd44a8575e) -
+  [ux] EDITOR-4609 Add prop to disable pasting expands
+
+## 32.5.0
+
+### Minor Changes
+
+- [`ab3866dd7f659`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab3866dd7f659) -
+  Add editor_a11y_7152_profile_card_tab_order experiment to package
+
+## 32.4.0
+
+### Minor Changes
+
+- [`d78ff724d3bce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d78ff724d3bce) -
+  Add editor_a11y_decision_aria_label boolean experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 32.3.0
+
+### Minor Changes
+
+- [`4446a5fc716d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4446a5fc716d9) -
+  [ux] proactively catch up on ncs connected
+
+## 32.2.0
+
+### Minor Changes
+
+- [`ca3fbbec7f693`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca3fbbec7f693) -
+  Removes fg: company_hub_deprecate_atlaskit_onboarding
+
+## 32.1.0
+
+### Minor Changes
+
+- [`f726b988e0c1f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f726b988e0c1f) -
+  Change MAUI experiment name from cc-mui-experiment to cc-maui-experiment
+
+## 32.0.0
+
+### Major Changes
+
+- [`715d7c4db3977`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/715d7c4db3977) -
+  [EDITOR-4953] clean up platform_editor_table_cell_colour_change experiment
+- [`8b94becba79f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8b94becba79f4) -
+  [EDITOR-4640] clean up platform_editor_aifc_remove_duplicate_role experiment
+
+## 31.3.0
+
+### Minor Changes
+
+- [`3a649003f9b55`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a649003f9b55) -
+  [A11Y-22843] add experiment to statsig config
+
+## 31.2.0
+
+### Minor Changes
+
+- [`19274be1b1972`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19274be1b1972) -
+  [ux] EDITOR-5417 Flexible list indentation ADF schema + validator support
+
+## 31.1.0
+
+### Minor Changes
+
+- [`db3bf19a55517`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db3bf19a55517) -
+  Update breakpoint values for jira editor and jsm under platform_editor_toolbar_update_jira_config
+  experiment.
+
+## 31.0.0
+
+### Major Changes
+
+- [`0a0a5831dfc2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a0a5831dfc2d) -
+  [ux] Adds isPlaceholderHidden param to placeholder plugin init. Removes isEmbedded option from
+  placeholder plugin, and removes cwr_blank_object_experiment editor experiment override
+
+## 30.0.0
+
+### Major Changes
+
+- [`bd1a52462d558`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd1a52462d558) -
+  Remove `platform_editor_ai_create_use_new_parser` experiment a it is fully rolled out.
+
+### Minor Changes
+
+- [`3ce77a10a8e99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3ce77a10a8e99) -
+  EDITOR-5521 - escape early for unhealthy editor AIFC streaming fragment
+
+## 29.7.0
+
+### Minor Changes
+
+- [`a0aa8f73bbd02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0aa8f73bbd02) -
+  [ux] EDITOR-5466 Introduce new popup menu for paste actions which includes existing functionality
+  used by the existing floatingToolbar implementation
+
+## 29.6.2
+
+### Patch Changes
+
+- [`50f96b87a6d02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50f96b87a6d02) -
+  batch/change experiment
+
+## 29.6.1
+
+### Patch Changes
+
+- [`abf0f1a208ab4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/abf0f1a208ab4) -
+  EDITOR-5441 Update comment editor border raidus
+
+## 29.6.0
+
+### Minor Changes
+
+- [`521f5d212eb21`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/521f5d212eb21) -
+  [ux] Add support for dynamic UI flow in AIFC
+
+## 29.5.0
+
+### Minor Changes
+
+- [`52d4b8fab3118`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52d4b8fab3118) -
+  Add platform_editor_toolbar_hide_overflow_menu experiment, add logic to hide menu button if there
+  are no menu items rendered
+
+## 29.4.0
+
+### Minor Changes
+
+- [`63173c2b1171a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63173c2b1171a) -
+  [ux] Enable sticky header for reference synced blocks in Editor
+
+## 29.3.0
+
+### Minor Changes
+
+- [`de02dc0a51052`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/de02dc0a51052) -
+  [EDITOR-4986] add experiment to statsig config file
+- [`f290bdd4d27bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f290bdd4d27bd) -
+  [ux] Hides editor cursor placeholder text on full page editor / live docs behind Rovo Blank Object
+  experiment
+- [`4af588e6196fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4af588e6196fe) -
+  batch experiment for page transition
+- [`d2f1426fe5b85`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2f1426fe5b85) -
+  [ux] ENGHEALTH-46817 Add feature gated a11y eslint fixes across editor packages
+
+## 29.2.0
+
+### Minor Changes
+
+- [`50a2e34ed2f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50a2e34ed2f69) -
+  Optimize SmartCardLocalCacheClient: in-memory caching, async writes, singleton pattern, and write
+  batching.
+
+## 29.1.0
+
+### Minor Changes
+
+- [`48b6616a3fefc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48b6616a3fefc) -
+  Add new logic to detect scrollable containers when calculating position for selection toolbar.
+  This fixes issues when used inside modals and other surfaces.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.0.0
+
+### Major Changes
+
+- [`d3d133a22950e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3d133a22950e) -
+  [CLEANUP] Cleanup platform_editor_ai_exp_suggestion_date_comma_delim
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.0
+
+### Major Changes
+
+- [`a040c03082274`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a040c03082274) -
+  [ux] EDITOR-507 Clean up main nested tables experiment `platform_editor_nested_tables`
+
+## 27.1.0
+
+### Minor Changes
+
+- [`0eed66892511e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0eed66892511e) -
+  EDITOR-5120 - Add additional ProseMirror rendered analytics attributes behind the
+  platform_editor_prosemirror_rendered_data experiment.
+
+## 27.0.0
+
+### Major Changes
+
+- [`19911524eaec5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19911524eaec5) -
+  Cleanup A/A test for cc_fd_db_top_editor_toolbar experiment.
+
+### Minor Changes
+
+- [`dece098c3ab1f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dece098c3ab1f) -
+  [ux] ENGHEALTH-46818 Add focus and blur handlers to table buttons to fix a11y
+
+## 26.0.0
+
+### Major Changes
+
+- [`1caeaf4c95a2e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1caeaf4c95a2e) -
+  [NO-ISSUE] Cleaning up platform_editor_ai_exp_inline_date_year_refresh
+
+### Minor Changes
+
+- [`81937b9af604e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81937b9af604e) -
+  [ux] fix table border late render issue
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.7.0
+
+### Minor Changes
+
+- [`954a1eed1f43b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/954a1eed1f43b) -
+  [A11Y-35924] wrap LinkPicker in focus lock to return focus to trigger after escaping Link dialog
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.6.0
+
+### Minor Changes
+
+- [`60cf5a2b53f7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/60cf5a2b53f7b) -
+  fix sync block delete modal appearing when streaming sync block
+- [`7ef3027df8198`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ef3027df8198) -
+  remove platform_editor_lovability_user_intent experiment
+- [`0dc0791c6e745`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0dc0791c6e745) -
+  Fix additional CRLF issues with advanced codeblocks. Behind
+  platform_editor_fix_advanced_codeblocks_crlf_patch gate.
+
+## 25.5.0
+
+### Minor Changes
+
+- [`aac76ca1cde5b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aac76ca1cde5b) -
+  Fix hydration error with dates in task lists
+
+## 25.4.0
+
+### Minor Changes
+
+- [`4ba962abdce44`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4ba962abdce44) -
+  EDITOR-4667 - Inline Bodied Extension: Remove important from existing extension width style
+
+## 25.3.0
+
+### Minor Changes
+
+- [`51e44e38ee9cf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51e44e38ee9cf) -
+  Fix case where insert-after command crashes during streaming
+
+## 25.2.0
+
+### Minor Changes
+
+- [`daa8f7030b32d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/daa8f7030b32d) -
+  Remove unused ReactSerializer.fromSchema
+
+## 25.1.0
+
+### Minor Changes
+
+- [`584ac5ca3f498`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/584ac5ca3f498) -
+  [ux] EDITOR-5269 Disables the copy button for legacy content macro nodes
+
+## 25.0.0
+
+### Major Changes
+
+- [`a5a1710c6da4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a5a1710c6da4a) -
+  Clean up of platform_editor_hoverlink_ui_fixes_exp
+- [`edbbd04a0a2b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/edbbd04a0a2b8) -
+  Remove platform_editor_breakout_resizing_vc90_fix feature flag - feature has been shipped
+
+### Minor Changes
+
+- [`b56fac4df95b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b56fac4df95b4) -
+  remove no-tscheck and fix safe url logic
+
 ## 24.1.0
 
 ### Minor Changes

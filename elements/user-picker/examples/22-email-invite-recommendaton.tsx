@@ -1,8 +1,9 @@
 import React from 'react';
+
 import { exampleOptions } from '../example-helpers';
 import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
-import UserPicker from '../src';
-import { isExternalUser } from '../src/components/utils';
+import { isExternalUser } from '../src/components/isExternalUser';
+import { UserPicker } from '../src/components/UserPicker';
 
 const Example = (): React.JSX.Element => {
 	return (

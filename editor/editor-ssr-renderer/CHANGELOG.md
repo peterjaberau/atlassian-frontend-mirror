@@ -1,5 +1,710 @@
 # @atlaskit/editor-ssr-renderer
 
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`da5eaf0bc37da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da5eaf0bc37da) -
+  Clean up the platform_editor_editor_ssr_streaming experiment. The SSR streaming code paths are now
+  permanent and the isSSRStreaming() utility has been removed from
+  @atlaskit/editor-common/core-utils.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- [`9df0d15ebfb51`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9df0d15ebfb51) -
+  Add aria-readonly during SSR only for editor view mode, and use the configured mode when plugin
+  state is unavailable.
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.2.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.1.1
+
+### Patch Changes
+
+- [`07226ab3fad50`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07226ab3fad50) -
+  [ux] Reserve native embed first-paint layout
+- Updated dependencies
+
+## 7.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.3
+
+### Patch Changes
+
+- [`9d2c2c1c016bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d2c2c1c016bd) -
+  [ux] Server-side render the editor toolbar (FullPageToolbarNext) with toolbar items enabled (not
+  hidden/disabled), so the toolbar is visible and interactive-looking on first paint — before
+  EditorView or collab edit is initialized. Clicks before editor is ready are noops.
+- Updated dependencies
+
+## 7.0.2
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 7.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`6e3b4e2317b34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e3b4e2317b34) -
+  [EDITOR-7476](https://hello.jira.atlassian.cloud/browse/EDITOR-7476) - centralize SSR streaming
+  checks behind `isSSRStreaming()` so SSR eligibility is checked before emitting exposure for the
+  `platform_editor_editor_ssr_streaming` experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.2
+
+### Patch Changes
+
+- [`ed7459903c172`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed7459903c172) -
+  Updated media to display correctly when ssr streaming is used.
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`7b2ab46c79d94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b2ab46c79d94) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`e5cdd96dcf4f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5cdd96dcf4f9) -
+  Clean up platform_editor_hydratable_ui experiment (shipped as enabled)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.2
+
+### Patch Changes
+
+- [`9e45c7ac76c9a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e45c7ac76c9a) -
+  Enrol editor core packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.0
+
+### Minor Changes
+
+- [`3f28038f8be0f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f28038f8be0f) -
+  Add support SSR streaming for SSREditorRenderer
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.0
+
+### Minor Changes
+
+- [`e9ef7c6fc5370`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e9ef7c6fc5370) -
+  EDITOR-6179: Enable SSR Streaming for Edit Page and Live Doc routes.
+  - Add `platform_editor_editor_ssr_streaming` experiment to `tmp-editor-statsig` experiments
+    config.
+  - `EditorSSRRenderer`: replace `useLayoutEffect`+`containerRef` DOM mutation with
+    `dangerouslySetInnerHTML` for rendering serialized editor HTML, enabling correct rendering in
+    `renderToPipeableStream` SSR streaming context.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.0
+
+### Minor Changes
+
+- [`5b4851e88ab36`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5b4851e88ab36) -
+  [EDITOR-5797](https://hello.jira.atlassian.cloud/browse/EDITOR-5797) - clean up
+  platform_editor_better_editor_ssr_spans feature flag
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`cbc1403b3cae1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cbc1403b3cae1) -
+  [EDITOR-5094](https://hello.jira.atlassian.cloud/browse/EDITOR-5094) - add PerfPortal segments for
+  editor SSR logic
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 2.1.5
 
 ### Patch Changes

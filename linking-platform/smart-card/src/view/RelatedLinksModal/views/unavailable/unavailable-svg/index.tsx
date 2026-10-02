@@ -10,14 +10,14 @@ const unavailableStyles = css({
 	width: '130px',
 	marginTop: 0,
 	marginRight: 'auto',
-	marginBottom: token('space.300', '24px'),
+	marginBottom: token('space.300'),
 	marginLeft: 'auto',
 	display: 'block',
 });
 
 const id = 'related-links-unavailable-svg';
 
-export const UnavailableSVG = (props: React.SVGProps<SVGSVGElement>) => {
+export const UnavailableSVG = (props: React.SVGProps<SVGSVGElement>): JSX.Element => {
 	return (
 		<svg
 			data-testid={id}

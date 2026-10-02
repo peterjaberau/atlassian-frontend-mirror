@@ -2,10 +2,11 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
-import Button, { type ButtonProps } from '@atlaskit/button';
+import Button from '@atlaskit/button/button';
+import type { ButtonProps } from '@atlaskit/button/button';
 import { token } from '@atlaskit/tokens';
 
 const buttonStyles = css({
@@ -25,7 +26,7 @@ const buttonStyles = css({
 export const StyledButton = ({
 	innerRef,
 	...props
-}: ButtonProps & { innerRef?: React.Ref<HTMLElement> }) => {
+}: ButtonProps & { innerRef?: React.Ref<HTMLElement> }): jsx.JSX.Element => {
 	return (
 		<Button
 			// Ignored via go/ees005

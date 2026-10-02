@@ -5,25 +5,26 @@
 import { useMemo } from 'react';
 
 import { cssMap, jsx } from '@atlaskit/css';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { type SkipLinkData } from '../../context/skip-links/types';
-
 import { SkipLink } from './skip-link';
+import { SkipLinksPopup } from './skip-links-popup';
 
 const styles = cssMap({
 	root: {
 		display: 'flex',
 		flexDirection: 'column',
+		position: 'fixed',
 		gap: token('space.050'),
 		paddingBlock: token('space.150'),
 		paddingInline: token('space.150'),
-		position: 'fixed',
+		borderRadius: token('radius.small'),
 		insetInlineStart: token('space.250'),
 		insetBlockStart: token('space.250'),
 		backgroundColor: token('elevation.surface.overlay'),
-		borderRadius: token('radius.small'),
 		boxShadow: token('elevation.shadow.overlay'),
 		/**
 		 * Hiding the element while it has no focus within
@@ -43,11 +44,11 @@ const styles = cssMap({
 	skipLinkList: {
 		display: 'flex',
 		flexDirection: 'column',
-		gap: token('space.050'),
 		listStylePosition: 'outside',
 		listStyleType: 'none',
 		marginBlockStart: token('space.0'),
 		paddingInlineStart: token('space.0'),
+		gap: token('space.050'),
 	},
 });
 
@@ -119,14 +120,16 @@ const isOnlyWhitespaceRegex = /^\s*$/;
  * The label is used as the heading of the skip links container. If the provided label is a string
  * comprised only of only whitespace (e.g. '' or ' '), the skip link heading element will be removed.
  *
- * The links prop is only used when the feature flag is enabled.
+ * When `platform_dst_nav4_skip_link_a11y_1` is enabled, rendering is delegated to `SkipLinksPopup`.
  */
 export function SkipLinksContainer({
 	label,
+	triggerLabel,
 	testId,
 	links,
 }: {
 	label: string;
+	triggerLabel: string;
 	testId?: string;
 	links: Array<SkipLinkData>;
 }): JSX.Element | null {
@@ -140,12 +143,23 @@ export function SkipLinksContainer({
 
 	const isEmptyLabel = isOnlyWhitespaceRegex.test(label);
 
+	if (fg('platform_dst_nav4_skip_link_a11y_1')) {
+		return (
+			<SkipLinksPopup
+				label={label}
+				triggerLabel={triggerLabel}
+				testId={testId}
+				links={sortedLinks}
+			/>
+		);
+	}
+
 	return (
 		// Capturing bubbled events, element itself is not interactive
 		// eslint-disable-next-line @atlassian/a11y/no-static-element-interactions
 		<div
 			onKeyDown={closeOnEscape}
-			css={[styles.root]}
+			css={styles.root}
 			data-testid={testId ? `${testId}--skip-links-container` : undefined}
 		>
 			{!isEmptyLabel && (
@@ -153,7 +167,7 @@ export function SkipLinksContainer({
 					{label}
 				</Text>
 			)}
-			<ol css={[styles.skipLinkList]}>
+			<ol css={styles.skipLinkList}>
 				{sortedLinks.map(({ id, label, onBeforeNavigate }: SkipLinkData) => (
 					<SkipLink key={id} id={id} onBeforeNavigate={onBeforeNavigate}>
 						{label}

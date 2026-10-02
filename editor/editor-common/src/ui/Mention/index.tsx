@@ -1,26 +1,45 @@
 /* eslint-disable @repo/internal/react/no-class-components */
+
 import React, { PureComponent } from 'react';
 
-import { ProviderFactory, type Providers, WithProviders } from '../../provider-factory';
-import { type ProfilecardProvider } from '../../provider-factory/profile-card-provider';
-import { type MentionEventHandlers } from '../EventHandlers';
+import type { UserType as MentionUserType } from '@atlaskit/adf-schema/mention';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { MentionWithProviders } from './mention-with-providers';
+import { ProviderFactory, WithProviders } from '../../provider-factory';
+import type { Providers } from '../../provider-factory';
+import type { ProfilecardProvider } from '../../provider-factory/profile-card-provider';
+import type { MentionEventHandlers } from '../EventHandlers';
+import type { MentionNodeDataProvider } from './mention-node-data-provider';
+import {
+	MissingMentionAvatarProvider,
+	MentionWithAvatarProviders,
+	MentionWithProviders,
+} from './mention-with-providers';
+
+type ProviderName = 'mentionProvider' | 'profilecardProvider';
+
+const MENTION_PROVIDERS: ProviderName[] = ['mentionProvider', 'profilecardProvider'];
+const GENERIC_MENTION_IDS = ['HipChat', 'all', 'here'];
 
 export interface MentionProps {
 	accessLevel?: string;
+	disabledTooltip?: string;
 	eventHandlers?: MentionEventHandlers;
 	id: string;
+	isDisabled?: boolean;
 	localId?: string;
+	mentionNodeDataProvider?: MentionNodeDataProvider;
 	providers?: ProviderFactory;
 	text: string;
+	userType?: MentionUserType;
 }
 
 export interface MentionState {
 	profilecardProvider: ProfilecardProvider | null;
 }
 
-export default class Mention extends PureComponent<MentionProps, Object> {
+export default class Mention extends PureComponent<MentionProps, object> {
 	private providerFactory: ProviderFactory;
 
 	constructor(props: MentionProps) {
@@ -37,26 +56,74 @@ export default class Mention extends PureComponent<MentionProps, Object> {
 	}
 
 	private renderWithProvider = (providers: Providers) => {
-		const { accessLevel, eventHandlers, id, text, localId } = this.props;
+		const {
+			accessLevel,
+			eventHandlers,
+			id,
+			text,
+			localId,
+			userType,
+			isDisabled,
+			disabledTooltip,
+			mentionNodeDataProvider,
+		} = this.props;
 		const { mentionProvider, profilecardProvider } = providers;
+		const hasProvider = Boolean(mentionNodeDataProvider);
+		const canReportMissingProvider =
+			!hasProvider && fg('platform_editor_mention_avatar_observability');
+		const isAvatarEnabled =
+			(hasProvider || canReportMissingProvider) &&
+			userType !== 'SPECIAL' &&
+			!GENERIC_MENTION_IDS.includes(id) &&
+			(isExperimentEnabled('platform_editor_mention_node_avatar') ||
+				isExperimentEnabled('platform_editor_mention_node_graphql_provider'));
+
+		if (isAvatarEnabled && mentionNodeDataProvider) {
+			return (
+				<MentionWithAvatarProviders
+					id={id}
+					text={text}
+					accessLevel={accessLevel}
+					localId={localId}
+					userType={userType}
+					isDisabled={isDisabled}
+					disabledTooltip={disabledTooltip}
+					eventHandlers={eventHandlers}
+					mentionProvider={mentionProvider}
+					mentionNodeDataProvider={mentionNodeDataProvider}
+					profilecardProvider={profilecardProvider}
+				/>
+			);
+		}
 
 		return (
-			<MentionWithProviders
-				id={id}
-				text={text}
-				accessLevel={accessLevel}
-				localId={localId}
-				eventHandlers={eventHandlers}
-				mentionProvider={mentionProvider}
-				profilecardProvider={profilecardProvider}
-			/>
+			<>
+				{canReportMissingProvider && isAvatarEnabled && (
+					<MissingMentionAvatarProvider mentionKey={`${userType ?? 'DEFAULT'}:${id}`} />
+				)}
+				<MentionWithProviders
+					id={id}
+					text={text}
+					accessLevel={accessLevel}
+					localId={localId}
+					userType={userType}
+					isDisabled={isDisabled}
+					disabledTooltip={disabledTooltip}
+					eventHandlers={eventHandlers}
+					mentionProvider={mentionProvider}
+					profilecardProvider={profilecardProvider}
+				/>
+			</>
 		);
 	};
 
 	render(): React.JSX.Element {
+		const providers = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+			? MENTION_PROVIDERS
+			: (['mentionProvider', 'profilecardProvider'] satisfies ProviderName[]);
 		return (
 			<WithProviders
-				providers={['mentionProvider', 'profilecardProvider']}
+				providers={providers}
 				providerFactory={this.providerFactory}
 				renderNode={this.renderWithProvider}
 			/>

@@ -13,12 +13,13 @@ import {
 
 import { cx, jsx, cssMap as unboundedCssMap } from '@compiled/react';
 
-import { type UIAnalyticsEvent, usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
-import { isSafari } from '@atlaskit/ds-lib/device-check';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
+import { isSafari } from '@atlaskit/ds-lib/is-safari';
 import noop from '@atlaskit/ds-lib/noop';
 import InteractionContext, { type InteractionContextType } from '@atlaskit/interaction-context';
 
-import Focusable from './focusable';
+import { Focusable } from './focusable';
 import type { BasePrimitiveProps, StyleProp } from './types';
 
 type BasePressableProps = {
@@ -87,7 +88,7 @@ const styles = unboundedCssMap({
  * - [Code](https://atlassian.design/components/primitives/pressable/code)
  * - [Usage](https://atlassian.design/components/primitives/pressable/usage)
  */
-const Pressable: React.ForwardRefExoticComponent<
+export const Pressable: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<PressableProps> & React.RefAttributes<HTMLButtonElement>
 > = forwardRef(
 	(
@@ -138,7 +139,6 @@ const Pressable: React.ForwardRefExoticComponent<
 				// Adding a tabIndex of 0 to the button will allow it to be focused on click.
 				// This is a known issue in Safari that is meant to be "intended", see https://bugs.webkit.org/show_bug.cgi?id=22261
 				tabIndex={tabIndex ?? (isSafari() && !isDisabled ? 0 : undefined)}
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- TODO: Properly type this and allow pass-through if we can determine the type
 				style={style}
 				{...safeHtmlAttributes}
 				type={type}
@@ -153,5 +153,3 @@ const Pressable: React.ForwardRefExoticComponent<
 		);
 	},
 );
-
-export default Pressable;

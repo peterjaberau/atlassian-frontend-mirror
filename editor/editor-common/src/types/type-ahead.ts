@@ -1,8 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { type Fragment, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Fragment, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 
 import type { TypeAheadPayload } from '../analytics/types/type-ahead';
@@ -31,7 +31,7 @@ export type TypeAheadItemRenderProps = {
 };
 
 export type TypeAheadInsert = (
-	node?: PMNode | Object | string | Fragment,
+	node?: PMNode | object | string | Fragment,
 	opts?: { selectInlineNode?: boolean },
 ) => Transaction;
 
@@ -61,12 +61,73 @@ export type TypeAheadItem = {
 	key?: string | number;
 	keyshortcut?: string;
 	lozenge?: ReactNode;
+	priority?: number;
 	render?: (props: TypeAheadItemRenderProps) => React.ReactElement<TypeAheadItemRenderProps> | null;
 	testId?: string;
 	title: string;
 };
 
+export type TypeAheadSection = {
+	filter: (item: TypeAheadItem) => boolean;
+	id: string;
+	limit?: number;
+	lozenge?: ReactNode;
+	sectionTitleDisplay?: TypeAheadSectionTitleDisplay;
+	title: string;
+};
+
+export type TypeAheadSectionTitleDisplay = {
+	/**
+	 * Keeps this section's title visible when it is the only section with matching items.
+	 * Does not render the title for an empty section and does not override
+	 * `showWhenQueryPresent: false`.
+	 */
+	showWhenOnlySection?: boolean;
+	/**
+	 * Controls whether this section's title stays visible once the typeahead query is non-empty.
+	 * Defaults to true. Grouping, ordering, and section limits still apply when false.
+	 */
+	showWhenQueryPresent?: boolean;
+};
+
+export type TypeAheadSectionTitleUpdate = {
+	id: string;
+	/**
+	 * Updates display rules for this section title in the current typeahead session.
+	 */
+	sectionTitleDisplay?: TypeAheadSectionTitleDisplay;
+	title: string;
+};
+
 export type TypeAheadForceSelect = (props: TypeAheadForceSelectProps) => TypeAheadItem | undefined;
+
+/**
+ * Multi-emit contract returned by `TypeAheadHandler.subscribeToItemsUpdates`.
+ *
+ * The runtime awaits `initial` to render the dropdown's first frame,
+ * then re-renders with whatever each `subscribe` callback delivers
+ * thereafter. The returned unsubscribe function is called when the
+ * query changes or the component unmounts.
+ */
+export type TypeAheadItemsUpdate = {
+	initial: Promise<Array<TypeAheadItem>>;
+	/**
+	 * Subscribe to incremental updates from this `TypeAheadItemsUpdate`.
+	 *
+	 * **Single-subscriber contract.** Implementations are NOT required
+	 * to support multiple concurrent subscribers; calling `subscribe`
+	 * twice on the same instance may silently overwrite the first
+	 * callback. The runtime calls this once per filter cycle, and a
+	 * fresh `TypeAheadItemsUpdate` is produced by
+	 * `subscribeToItemsUpdates` for every query, so fan-out is never
+	 * needed in practice.
+	 *
+	 * The returned function unsubscribes the callback and releases any
+	 * underlying transport. The runtime calls it on query change or
+	 * component unmount.
+	 */
+	subscribe: (update: (items: Array<TypeAheadItem>) => void) => () => void;
+};
 
 export type MoreOptionsButtonConfig = {
 	ariaLabel?: string;
@@ -76,6 +137,12 @@ export type MoreOptionsButtonConfig = {
 };
 
 export type TypeAheadHandler = {
+	/**
+	 * Optional predicate evaluated before the typeahead opens. When false, the
+	 * trigger remains as ordinary editor text.
+	 */
+	canOpen?: () => boolean;
+
 	/** Custom regex must have a capture group around trigger so it's possible to
 	 * use it without needing to scan through all triggers again */
 	customRegex?: string;
@@ -91,12 +158,21 @@ export type TypeAheadHandler = {
 	/** Handler returns typeahead item based on query. Used to find which item to insert. */
 	forceSelect?: TypeAheadForceSelect;
 
+	/**
+	 * Optional handler that returns an item (Ask Rovo) to display in the typeahead's
+	 * empty-results state.
+	 */
+	getEmptyItem?: (props: { editorState: EditorState }) => TypeAheadItem | undefined;
+
 	getHighlight?: (state: EditorState) => JSX.Element | null;
 
 	/** Handler returns an array of TypeAheadItem based on query to be displayed in the TypeAhead */
 	getItems: (props: { editorState: EditorState; query: string }) => Promise<Array<TypeAheadItem>>;
 
 	getMoreOptionsButtonConfig?: (intl: IntlShape) => MoreOptionsButtonConfig;
+
+	/** Optional section definitions used by type-ahead menu to group items */
+	getSections?: (props: { intl: IntlShape }) => Array<TypeAheadSection>;
 
 	headless?: boolean;
 
@@ -109,6 +185,29 @@ export type TypeAheadHandler = {
 
 	/** Handler returns a transaction which inserts the TypeAheadItem into the doc */
 	selectItem: TypeAheadSelectItem;
+
+	/**
+	 * Optional opt-in to multi-emit. When implemented, the type-ahead
+	 * runtime calls this INSTEAD of `getItems` and renders the dropdown
+	 * progressively as updates arrive.
+	 *
+	 * Returns:
+	 *  - `initial`: a Promise that resolves with the first set of items
+	 *    to show. Replaces the single-shot `getItems` Promise.
+	 *  - `subscribe(update)`: registers a callback that fires with a
+	 *    fresh items array whenever the underlying provider has more
+	 *    results (for example: "people first, then merged people +
+	 *    agents" for the Rovo Chat mention provider). Returns an
+	 *    unsubscribe function that the runtime calls on query change
+	 *    or component unmount.
+	 *
+	 * Existing handlers using only `getItems` continue to work
+	 * unchanged. This field is purely additive.
+	 */
+	subscribeToItemsUpdates?: (props: {
+		editorState: EditorState;
+		query: string;
+	}) => TypeAheadItemsUpdate;
 
 	/** Pattern that will trigger the TypeAhead */
 	trigger: string;

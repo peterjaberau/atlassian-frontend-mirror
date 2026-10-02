@@ -1,12 +1,12 @@
-import type { ResolvedPos } from '@atlaskit/editor-prosemirror/model';
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { CellSelection } from '../cell-selection';
 import { TableMap } from '../table-map';
-
 import { cloneTr } from './clone-tr';
-import { findCellClosestToPos, findTable, findTableClosestToPos } from './find';
+import { findCellClosestToPos } from './find-cell-closest-to-pos';
+import { findTable } from './find-table';
 
 const select =
 	(type: 'row' | 'column') =>
@@ -128,11 +128,13 @@ const select =
 
 // Returns a new transaction that selects a column at index `columnIndex`.
 // Use the optional `expand` param to extend from current selection.
-export const selectColumn = select('column');
+export const selectColumn: (index: number, expand?: boolean) => (tr: Transaction) => Transaction =
+	select('column');
 
 // Returns a new transaction that selects a row at index `rowIndex`.
 // Use the optional `expand` param to extend from current selection.
-export const selectRow = select('row');
+export const selectRow: (index: number, expand?: boolean) => (tr: Transaction) => Transaction =
+	select('row');
 
 const selectRowsOrColumns =
 	(type: 'rows' | 'columns') =>
@@ -173,66 +175,25 @@ const selectRowsOrColumns =
 	};
 
 // Returns a new transaction that selects all rows at `indexes`.
-export const selectRows = selectRowsOrColumns('rows');
+export const selectRows: (indexes: number[]) => (tr: Transaction) => Transaction =
+	selectRowsOrColumns('rows');
 
 // Returns a new transaction that selects all columns at `indexes`.
-export const selectColumns = selectRowsOrColumns('columns');
+export const selectColumns: (indexes: number[]) => (tr: Transaction) => Transaction =
+	selectRowsOrColumns('columns');
 
-// Returns a new transaction that selects a table.
-export const selectTable = (tr: Transaction): Transaction => {
-	const table = findTable(tr.selection);
-	if (table) {
-		const { map } = TableMap.get(table.node);
-		if (map && map.length) {
-			const head = table.start + map[0];
-			const anchor = table.start + map[map.length - 1];
-			const $head = tr.doc.resolve(head);
-			const $anchor = tr.doc.resolve(anchor);
-
-			return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
-		}
-	}
-
-	return tr;
-};
-
-export const getTableSelectionClosesToPos = ($pos: ResolvedPos) => {
-	const table = findTableClosestToPos($pos);
-	if (table) {
-		const { map } = TableMap.get(table.node);
-		if (map && map.length) {
-			const head = table.start + map[0];
-			const anchor = table.start + map[map.length - 1];
-			const $head = $pos.doc.resolve(head);
-			const $anchor = $pos.doc.resolve(anchor);
-
-			return new CellSelection($anchor, $head);
-		}
-	}
-};
-
-export const selectTableClosestToPos = (tr: Transaction, $pos: ResolvedPos): Transaction => {
-	if (expValEquals('platform_editor_block_menu', 'isEnabled', true)) {
-		const tableSelection = getTableSelectionClosesToPos($pos);
-		if (tableSelection) {
-			return cloneTr(tr.setSelection(tableSelection));
-		}
-
-		return tr;
-	}
-
-	const table = findTableClosestToPos($pos);
-	if (table) {
-		const { map } = TableMap.get(table.node);
-		if (map && map.length) {
-			const head = table.start + map[0];
-			const anchor = table.start + map[map.length - 1];
-			const $head = tr.doc.resolve(head);
-			const $anchor = tr.doc.resolve(anchor);
-
-			return cloneTr(tr.setSelection(new CellSelection($anchor, $head)));
-		}
-	}
-
-	return tr;
-};
+/**
+ * @deprecated Use `import { selectTable } from '@atlaskit/editor-tables/select-table'` instead.
+ */
+// eslint-disable-next-line @atlaskit/editor/no-re-export -- Compatibility shim for deprecated API
+export { selectTable } from './select-table';
+/**
+ * @deprecated Use `import { getTableSelectionClosesToPos } from '@atlaskit/editor-tables/get-table-selection-closes-to-pos'` instead.
+ */
+// eslint-disable-next-line @atlaskit/editor/no-re-export -- Compatibility shim for deprecated API
+export { getTableSelectionClosesToPos } from './get-table-selection-closes-to-pos';
+/**
+ * @deprecated Use `import { selectTableClosestToPos } from '@atlaskit/editor-tables/select-table-closest-to-pos'` instead.
+ */
+// eslint-disable-next-line @atlaskit/editor/no-re-export -- Compatibility shim for deprecated API
+export { selectTableClosestToPos } from './select-table-closest-to-pos';

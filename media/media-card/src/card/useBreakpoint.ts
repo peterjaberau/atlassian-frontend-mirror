@@ -1,12 +1,15 @@
 import { useMemo } from 'react';
-import { type Breakpoint } from './ui/common';
-import { calcBreakpointSize } from './ui/styles';
+
 import { type CardDimensionValue } from '../types';
-import { getElementDimension, isValidPercentageUnit, defaultImageCardDimensions } from '../utils';
+import { defaultImageCardDimensions } from '../utils/cardDimensions';
+import { getElementDimension } from '../utils/getElementDimension';
+import { isValidPercentageUnit } from '../utils/isValidPercentageUnit';
+import { calcBreakpointSize } from './ui/calcBreakpointSize';
+import { type Breakpoint } from './ui/common';
 
 // Hook to calculate the breakpoint based on the width of the element
 export const useBreakpoint = (
-	dimensionWidth: CardDimensionValue = 0,
+	dimensionWidth: CardDimensionValue | undefined = 0,
 	divRef: React.RefObject<HTMLDivElement>,
 ): Breakpoint => {
 	const breakpoint = useMemo(() => {

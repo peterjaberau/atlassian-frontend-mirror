@@ -1,5 +1,321 @@
 # @atlaskit/link-provider
 
+## 6.0.1
+
+### Patch Changes
+
+- [`e72e061950940`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e72e061950940) -
+  Clean up feature gate `platform_lp_navx_5358_dont_throw_error`.
+
+  After external authentication completes, unsupported URL errors now always leave Smart Links in
+  their previous unauthorized state instead of marking them as errored. Other errors continue to be
+  reported.
+
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.7.1
+
+### Patch Changes
+
+- [`f298f8a122eed`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f298f8a122eed) -
+  Remove the `navx-smartcard-auth-event-listener-killswitch-fg` feature gate. The external auth
+  event listener that re-resolves unauthorized cards is now always registered.
+
+## 5.7.0
+
+### Minor Changes
+
+- [`a8d86fe6554c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8d86fe6554c5) -
+  Add an optional Flexible Card navigation policy. Embedded Confluence enables converted
+  destinations with confluence_ep_shim_macro_links_v2.
+
+  The confluence_ep_shim_macro_links_v2 gate controls callback inheritance, link destinations, and
+  target overrides.
+
+  Keep navigation separate from card metadata. Apply destinations directly to the rendered links.
+
+## 5.6.2
+
+### Patch Changes
+
+- [`2bbc1c84de468`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bbc1c84de468) -
+  Migrate Volt consumer imports to existing definitions and align affected test mocks without
+  changing runtime behavior.
+- Updated dependencies
+
+## 5.6.1
+
+### Patch Changes
+
+- [`ec5808c03c48f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec5808c03c48f) -
+  Avoid redundant full block resolves and preserve concurrent appearance payloads for
+  platform_smartlink_inline_resolve_optimization.
+
+## 5.6.0
+
+### Minor Changes
+
+- [`35af344e5a82e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/35af344e5a82e) -
+  Add dedicated import paths for `SmartCardProvider`, `EditorSmartCardProvider`,
+  `EditorSmartCardProviderValueGuard`, `useSmartCardContext`, `useSmartLinkContext`,
+  `isErrorResponse`, and `isSuccessfulResponse`:
+  - `@atlaskit/link-provider/smart-card-provider`
+  - `@atlaskit/link-provider/editor-smart-card-provider`
+  - `@atlaskit/link-provider/editor-smart-card-provider-value-guard`
+  - `@atlaskit/link-provider/use-smart-card-context`
+  - `@atlaskit/link-provider/use-smart-link-context`
+  - `@atlaskit/link-provider/is-error-response`
+  - `@atlaskit/link-provider/is-successful-response`
+
+  Add a direct import path for `SMART_CARD_EXTERNAL_AUTH_EVENT`. Prefer these imports over the
+  compatibility exports from `@atlaskit/link-provider/provider`:
+
+  ```ts
+  import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+  import { SMART_CARD_EXTERNAL_AUTH_EVENT } from '@atlaskit/link-provider/smart-card-external-auth-event';
+  import type { CardProviderProps } from '@atlaskit/link-provider/types';
+  ```
+
+  The existing `types` entry point provides `CardProviderProps` instead of the legacy
+  `ProviderProps` alias. The named exports, type alias, and default provider export from
+  `@atlaskit/link-provider/provider` remain available for backward compatibility but are deprecated
+  in favor of these direct imports.
+
+## 5.5.1
+
+### Patch Changes
+
+- [`b31a95d33edd3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b31a95d33edd3) -
+  Cleanup feature gate `platform_linking_force_no_cache_smart_card_client`. `CardClient` now always
+  resolves URLs through the ORS URL loader (passing `ignoreCachedValue` and `appearance`), and the
+  legacy string-based batch resolve loader has been removed.
+
+## 5.5.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.2
+
+### Patch Changes
+
+- [`6d704062ca749`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d704062ca749) -
+  Internal refactor to support tree shaking. No consumer changes.
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`05fc574d23d1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/05fc574d23d1e) -
+  Block previews for cross-unit resources. Before opening a preview panel or falling back to an
+  embed modal, the target resource's cloudId is now verified to belong to the same unit as the
+  current site; resources on a different unit are blocked entirely. `useGlobalObjectPreviewPanels`
+  exposes a new `isPreviewRestricted` signal, which is threaded through `link-provider` and
+  `smart-card` so the smart card preview affordance is not offered (neither panel nor modal) for
+  restricted resources.
+
+  The new and legacy behaviours of `useGlobalObjectPreviewPanels` are now split into separate
+  implementations selected via `functionWithCondition` behind the `preview_panel_unit_check` gate;
+  this is an internal restructure with no change to the hook's public API.
+
+## 5.2.1
+
+### Patch Changes
+
+- [`1ec28c5b52c2b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ec28c5b52c2b) -
+  Behind `platform_lp_navx_5358_dont_throw_error`, stop reporting benign "unsupported URL" resolver
+  errors as errored SmartLinks when refreshing unauthorized cards after an external auth event.
+  These expected outcomes were being surfaced to error boundaries (and Sentry); with the gate
+  enabled, the affected card now stays in its previous unauthorized state.
+
+## 5.2.0
+
+### Minor Changes
+
+- [`c2d43ab375005`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2d43ab375005) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 5.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.7.0
+
+### Minor Changes
+
+- [`fdea0f8bc06c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fdea0f8bc06c4) -
+  Add optional appearance parameter to CardClient.fetchData and prefetchData, and extend
+  ResourcePayloadUrl type to include appearance for ORS optimized response payloads.
+
+## 4.6.0
+
+### Minor Changes
+
+- [`d890e9e688ce5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d890e9e688ce5) -
+  Exposed subproduct and product for jira and townsquare
+
+## 4.5.0
+
+### Minor Changes
+
+- [`7577685ccfaf2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7577685ccfaf2) -
+  Add `bridgeProduct` prop to `SmartCardProvider` for cross-product URL wrapping analytics.
+
+  `bridgeProduct` allows consumers to override the bridge identifier used when wrapping smart link
+  URLs for XPC analytics. When omitted, defaults to `'smartLinks'`. The
+  `useSmartLinkCrossProductUrlWrapper` hook now reads `bridgeProduct` from context and passes it
+  through to `useCrossProductUrlWrapper`.
+
+## 4.4.1
+
+### Patch Changes
+
+- [`ab1028c3f2948`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab1028c3f2948) -
+  Switch synchronized-post-office-and-smartcard-auth-exp gate out for
+  navx-smartcard-auth-event-listener-killswitch-fg
+
+## 4.4.0
+
+### Minor Changes
+
+- [`552c49929b2e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/552c49929b2e4) -
+  Add an event listener behind experiment gate synchronized-post-office-and-smartcard-auth-exp to
+  allow smart card provider to refresh unauthorized smartlinks after a user has connected the
+  smartlink through an external source (such as post office)
+
+## 4.3.2
+
+### Patch Changes
+
+- [`be6cd35acc3ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be6cd35acc3ab) -
+  FG cleanup: platform_navx_lp_invalid_url_error, ignore invalid URL error
+- Updated dependencies
+
+## 4.3.1
+
+### Patch Changes
+
+- [`3b4f9743f0c18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b4f9743f0c18) -
+  Enrol navigation and linking-platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 4.3.0
+
+### Minor Changes
+
+- [`83655026cdebb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83655026cdebb) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 4.2.1
+
+### Patch Changes
+
+- [`3bee560fea726`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3bee560fea726) -
+  Exclude Invalid URL error from new URL() from operational.smartLink.unresolved event, behind fg
+  platform_navx_lp_invalid_url_error
+- Updated dependencies
+
 ## 4.2.0
 
 ### Minor Changes

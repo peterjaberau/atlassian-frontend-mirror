@@ -7,9 +7,10 @@ import React, { useCallback, memo } from 'react';
 import { css, jsx } from '@compiled/react';
 
 import EditorDoneIcon from '@atlaskit/icon/core/check-mark';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import { token } from '@atlaskit/tokens';
 import type { IconColor } from '@atlaskit/tokens/css-type-schema';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import type { ColorProps } from './types';
 
@@ -19,19 +20,35 @@ const buttonWrapperStyles = css({
 	borderWidth: token('border.width'),
 	display: 'flex',
 	alignItems: 'center',
-	paddingTop: token('space.025', '2px'),
-	paddingRight: token('space.025', '2px'),
-	paddingBottom: token('space.025', '2px'),
-	paddingLeft: token('space.025', '2px'),
+	paddingTop: token('space.025'),
+	paddingRight: token('space.025'),
+	paddingBottom: token('space.025'),
+	paddingLeft: token('space.025'),
 	borderRadius: token('radius.small', '4px'),
 	'&:focus-within, &:focus, &:hover': {
 		borderColor: token('color.border'),
 	},
 });
 
+const buttonWrapperStylesNew = css({
+	borderColor: 'transparent',
+	borderStyle: 'solid',
+	borderWidth: token('border.width'),
+	display: 'flex',
+	alignItems: 'center',
+	paddingTop: token('space.025'),
+	paddingRight: token('space.025'),
+	paddingBottom: token('space.025'),
+	paddingLeft: token('space.025'),
+	borderRadius: token('radius.medium', '6px'),
+	'&:focus-within, &:focus, &:hover': {
+		borderColor: token('color.border'),
+	},
+});
+
 const buttonStyles = css({
-	height: token('space.300', '26px'),
-	width: token('space.300', '26px'),
+	height: token('space.300'),
+	width: token('space.300'),
 	backgroundColor: token('color.background.neutral'),
 	padding: 0,
 	borderRadius: token('radius.small', '4px'),
@@ -41,7 +58,7 @@ const buttonStyles = css({
 	position: 'relative',
 	'&:focus': {
 		outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
-		outlineOffset: token('space.025', '2px'),
+		outlineOffset: token('space.025'),
 	},
 });
 
@@ -49,7 +66,7 @@ const buttonStyles = css({
  * Individual color palette item component
  * Displays a single color swatch with tooltip and selection state
  */
-export const Color = memo<ColorProps>(
+export const Color: React.NamedExoticComponent<ColorProps> = memo<ColorProps>(
 	({
 		autoFocus,
 		tabIndex,
@@ -57,7 +74,7 @@ export const Color = memo<ColorProps>(
 		label,
 		isSelected,
 		borderColor,
-		checkMarkColor = token('color.icon.inverse', '#FFFFFF'),
+		checkMarkColor = token('color.icon.inverse'),
 		hexToPaletteColor,
 		decorator,
 		onClick,
@@ -88,6 +105,36 @@ export const Color = memo<ColorProps>(
 			[onKeyDown, value, label],
 		);
 
+		if (expValEqualsNoExposure('platform_editor_lovability_text_bg_color', 'isEnabled', true)) {
+			return (
+				<Tooltip content={label}>
+					<span css={buttonWrapperStylesNew}>
+						<button
+							type="button"
+							css={buttonStyles}
+							aria-label={label}
+							role="radio"
+							aria-checked={isSelected}
+							onClick={handleClick}
+							onKeyDown={handleKeyDown}
+							onMouseDown={handleMouseDown}
+							tabIndex={tabIndex}
+							style={{
+								backgroundColor: colorStyle || token('color.background.input'),
+								border: `${token('border.width')} solid ${borderColor}`,
+							}}
+							autoFocus={autoFocus}
+						>
+							{!decorator && isSelected && (
+								<EditorDoneIcon color={checkMarkColor as IconColor} label="" />
+							)}
+							{decorator}
+						</button>
+					</span>
+				</Tooltip>
+			);
+		}
+
 		return (
 			<Tooltip content={label}>
 				<span css={buttonWrapperStyles}>
@@ -102,7 +149,7 @@ export const Color = memo<ColorProps>(
 						onMouseDown={handleMouseDown}
 						tabIndex={tabIndex}
 						style={{
-							backgroundColor: colorStyle || token('color.background.input', '#FFFFFF'),
+							backgroundColor: colorStyle || token('color.background.input'),
 							border: `${token('border.width')} solid ${borderColor}`,
 						}}
 						autoFocus={autoFocus}

@@ -1,13 +1,17 @@
 import React from 'react';
 
-import { code, em, strike, strong, subsup, underline } from '@atlaskit/adf-schema';
+import { code } from '@atlaskit/adf-schema/code';
+import { em } from '@atlaskit/adf-schema/em';
+import { strike } from '@atlaskit/adf-schema/strike';
+import { strong } from '@atlaskit/adf-schema/strong';
+import { subsup } from '@atlaskit/adf-schema/subsup';
+import { underline } from '@atlaskit/adf-schema/underline';
 import type {
 	Command,
 	FloatingToolbarCustom,
 	ToolbarUIComponentFactory,
 } from '@atlaskit/editor-common/types';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import {
 	toggleCodeWithAnalytics,
@@ -68,7 +72,7 @@ export const textFormattingPlugin: TextFormattingPlugin = ({ config: options, ap
 	};
 
 	if (isToolbarAIFCEnabled) {
-		api?.toolbar?.actions.registerComponents(getToolbarComponents(api));
+		api?.toolbar?.actions.registerComponents(getToolbarComponents(api, options));
 	} else {
 		api?.primaryToolbar?.actions.registerComponent({
 			name: 'textFormatting',
@@ -143,10 +147,8 @@ export const textFormattingPlugin: TextFormattingPlugin = ({ config: options, ap
 			? {}
 			: {
 					selectionToolbar: () => {
-						const toolbarDocking = fg('platform_editor_use_preferences_plugin')
-							? api?.userPreferences?.sharedState.currentState()?.preferences
-									?.toolbarDockingPosition
-							: api?.selectionToolbar?.sharedState?.currentState()?.toolbarDocking;
+						const toolbarDocking =
+							api?.userPreferences?.sharedState.currentState()?.preferences?.toolbarDockingPosition;
 
 						if (
 							toolbarDocking === 'none' &&

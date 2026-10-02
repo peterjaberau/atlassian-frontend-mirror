@@ -3,36 +3,37 @@
  *
  * Shared tokens file for UI Kit components. Contains design token maps for xcss support. Source: `packages/forge/forge-ui/src/components/UIKit/tokens.partial.tsx`
  *
- * @codegen <<SignedSource::33ae3cd474ec98484f2403079ac6bcab>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/tokens.partial.tsx <<SignedSource::34ba5fed5a73ed69de68004bceafe652>>
+ * @codegen <<SignedSource::6581ebba6afba50295cdc009a21f3a5b>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/tokens.partial.tsx <<SignedSource::c41e4f3315ca4258155822a2960b4f13>>
  */
 /* eslint-disable @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766 */
 /* eslint-disable @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766 */
 
 /**
  * Token maps and utilities for Forge UI Kit
- * 
+ *
  * This file contains both:
  * 1. Auto-generated design token maps (between @codegen markers) from @atlaskit/primitives
  * 2. Manually maintained utility functions for working with these tokens
- * 
+ *
  * @see https://developer.atlassian.com/platform/forge/ui-kit/components/xcss/
  */
 
-import { token, CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens';
+import { token } from '@atlaskit/tokens';
+import { CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens/constants';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css } from '@emotion/react';
 import type { SerializedStyles } from '@emotion/serialize';
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::ecfd4e431024c4f6fca22ac357edbfef>>
+ * @codegen <<SignedSource::a8fa3bcb5a39f872a309ff3ad9b23d54>>
  * @codegenId forge-tokens
- * @codegenCommand yarn workspace @atlaskit/primitives codegen-styles
+ * @codegenCommand afm workspace @atlaskit/primitives codegen-styles
  * @codegenDependency ../../../../../design-system/primitives/scripts/codegen-file-templates/dimensions.tsx <<SignedSource::cc9b3f12104c6ede803da6a42daac0b0>>
  * @codegenDependency ../../../../../design-system/primitives/scripts/codegen-file-templates/layer.tsx <<SignedSource::92793ca02dbfdad66e53ffbe9f0baa0a>>
- * @codegenDependency ../../../../../design-system/tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::38a7d4716f6999a6bdda9e4fe2bca6a1>>
+ * @codegenDependency ../../../../../design-system/tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::4e25079e2363933fae45ad0f1e9c123b>>
  * @codegenDependency ../../../../../design-system/tokens/src/artifacts/tokens-raw/atlassian-spacing.tsx <<SignedSource::535518e7add48ef24f526d0904f70060>>
  * @codegenDependency ../../../../../design-system/tokens/src/artifacts/tokens-raw/atlassian-shape.tsx <<SignedSource::8817f4073995e5dc9c2bb766316632d6>>
  */
@@ -81,6 +82,7 @@ export const positiveSpaceMap: {
 	'space.800': token('space.800', '64px'),
 	'space.1000': token('space.1000', '80px'),
 };
+
 export type Space = keyof typeof positiveSpaceMap;
 
 export const negativeSpaceMap: {
@@ -104,6 +106,7 @@ export const negativeSpaceMap: {
 	'space.negative.300': token('space.negative.300', '-24px'),
 	'space.negative.400': token('space.negative.400', '-32px'),
 };
+
 export type NegativeSpace = keyof typeof negativeSpaceMap;
 
 export const allSpaceMap: {
@@ -130,7 +133,31 @@ export const allSpaceMap: {
 	'space.negative.250': 'var(--ds-space-negative-250)';
 	'space.negative.300': 'var(--ds-space-negative-300)';
 	'space.negative.400': 'var(--ds-space-negative-400)';
-} = { ...positiveSpaceMap, ...negativeSpaceMap };
+} = {
+	'space.0': token('space.0', '0px'),
+	'space.025': token('space.025', '2px'),
+	'space.050': token('space.050', '4px'),
+	'space.075': token('space.075', '6px'),
+	'space.100': token('space.100', '8px'),
+	'space.150': token('space.150', '12px'),
+	'space.200': token('space.200', '16px'),
+	'space.250': token('space.250', '20px'),
+	'space.300': token('space.300', '24px'),
+	'space.400': token('space.400', '32px'),
+	'space.500': token('space.500', '40px'),
+	'space.600': token('space.600', '48px'),
+	'space.800': token('space.800', '64px'),
+	'space.1000': token('space.1000', '80px'),
+	'space.negative.025': token('space.negative.025', '-2px'),
+	'space.negative.050': token('space.negative.050', '-4px'),
+	'space.negative.075': token('space.negative.075', '-6px'),
+	'space.negative.100': token('space.negative.100', '-8px'),
+	'space.negative.150': token('space.negative.150', '-12px'),
+	'space.negative.200': token('space.negative.200', '-16px'),
+	'space.negative.250': token('space.negative.250', '-20px'),
+	'space.negative.300': token('space.negative.300', '-24px'),
+	'space.negative.400': token('space.negative.400', '-32px'),
+};
 
 export type AllSpace = keyof typeof allSpaceMap;
 
@@ -157,6 +184,17 @@ export const textColorMap: {
 	'color.text.accent.magenta.bolder': 'var(--ds-text-accent-magenta-bolder)';
 	'color.text.accent.gray': 'var(--ds-text-accent-gray)';
 	'color.text.accent.gray.bolder': 'var(--ds-text-accent-gray-bolder)';
+	'color.text.code.accent.1': 'var(--ds-text-code-accent-1)';
+	'color.text.code.accent.2': 'var(--ds-text-code-accent-2)';
+	'color.text.code.comments': 'var(--ds-text-code-comments)';
+	'color.text.code.default': 'var(--ds-text-code-default)';
+	'color.text.code.functions': 'var(--ds-text-code-functions)';
+	'color.text.code.gutter': 'var(--ds-text-code-gutter)';
+	'color.text.code.keywords': 'var(--ds-text-code-keywords)';
+	'color.text.code.numbers': 'var(--ds-text-code-numbers)';
+	'color.text.code.operators': 'var(--ds-text-code-operators)';
+	'color.text.code.strings': 'var(--ds-text-code-strings)';
+	'color.text.code.tags': 'var(--ds-text-code-tags)';
 	'color.text.disabled': 'var(--ds-text-disabled)';
 	'color.text.inverse': 'var(--ds-text-inverse)';
 	'color.text.selected': 'var(--ds-text-selected)';
@@ -179,48 +217,59 @@ export const textColorMap: {
 	'color.link.visited': 'var(--ds-link-visited)';
 	'color.link.visited.pressed': 'var(--ds-link-visited-pressed)';
 } = {
-	'color.text': token('color.text', '#172B4D'),
+	'color.text': token('color.text', '#292A2E'),
 	'color.text.accent.lime': token('color.text.accent.lime', '#4C6B1F'),
 	'color.text.accent.lime.bolder': token('color.text.accent.lime.bolder', '#37471F'),
-	'color.text.accent.red': token('color.text.accent.red', '#DE350B'),
-	'color.text.accent.red.bolder': token('color.text.accent.red.bolder', '#BF2600'),
-	'color.text.accent.orange': token('color.text.accent.orange', '#F18D13'),
-	'color.text.accent.orange.bolder': token('color.text.accent.orange.bolder', '#B65C02'),
-	'color.text.accent.yellow': token('color.text.accent.yellow', '#FF991F'),
-	'color.text.accent.yellow.bolder': token('color.text.accent.yellow.bolder', '#FF8B00'),
-	'color.text.accent.green': token('color.text.accent.green', '#00875A'),
-	'color.text.accent.green.bolder': token('color.text.accent.green.bolder', '#006644'),
-	'color.text.accent.teal': token('color.text.accent.teal', '#00A3BF'),
-	'color.text.accent.teal.bolder': token('color.text.accent.teal.bolder', '#008DA6'),
-	'color.text.accent.blue': token('color.text.accent.blue', '#0052CC'),
-	'color.text.accent.blue.bolder': token('color.text.accent.blue.bolder', '#0747A6'),
-	'color.text.accent.purple': token('color.text.accent.purple', '#5243AA'),
-	'color.text.accent.purple.bolder': token('color.text.accent.purple.bolder', '#403294'),
-	'color.text.accent.magenta': token('color.text.accent.magenta', '#E774BB'),
-	'color.text.accent.magenta.bolder': token('color.text.accent.magenta.bolder', '#DA62AC'),
-	'color.text.accent.gray': token('color.text.accent.gray', '#505F79'),
-	'color.text.accent.gray.bolder': token('color.text.accent.gray.bolder', '#172B4D'),
-	'color.text.disabled': token('color.text.disabled', '#A5ADBA'),
+	'color.text.accent.red': token('color.text.accent.red', '#AE2E24'),
+	'color.text.accent.red.bolder': token('color.text.accent.red.bolder', '#5D1F1A'),
+	'color.text.accent.orange': token('color.text.accent.orange', '#9E4C00'),
+	'color.text.accent.orange.bolder': token('color.text.accent.orange.bolder', '#693200'),
+	'color.text.accent.yellow': token('color.text.accent.yellow', '#7F5F01'),
+	'color.text.accent.yellow.bolder': token('color.text.accent.yellow.bolder', '#533F04'),
+	'color.text.accent.green': token('color.text.accent.green', '#216E4E'),
+	'color.text.accent.green.bolder': token('color.text.accent.green.bolder', '#164B35'),
+	'color.text.accent.teal': token('color.text.accent.teal', '#206A83'),
+	'color.text.accent.teal.bolder': token('color.text.accent.teal.bolder', '#164555'),
+	'color.text.accent.blue': token('color.text.accent.blue', '#1558BC'),
+	'color.text.accent.blue.bolder': token('color.text.accent.blue.bolder', '#123263'),
+	'color.text.accent.purple': token('color.text.accent.purple', '#803FA5'),
+	'color.text.accent.purple.bolder': token('color.text.accent.purple.bolder', '#48245D'),
+	'color.text.accent.magenta': token('color.text.accent.magenta', '#943D73'),
+	'color.text.accent.magenta.bolder': token('color.text.accent.magenta.bolder', '#50253F'),
+	'color.text.accent.gray': token('color.text.accent.gray', '#505258'),
+	'color.text.accent.gray.bolder': token('color.text.accent.gray.bolder', '#1E1F21'),
+	'color.text.code.accent.1': token('color.text.code.accent.1', '#943D73'),
+	'color.text.code.accent.2': token('color.text.code.accent.2', '#1558BC'),
+	'color.text.code.comments': token('color.text.code.comments', '#505258'),
+	'color.text.code.default': token('color.text.code.default', '#505258'),
+	'color.text.code.functions': token('color.text.code.functions', '#216E4E'),
+	'color.text.code.gutter': token('color.text.code.gutter', '#6B6E76'),
+	'color.text.code.keywords': token('color.text.code.keywords', '#AE2E24'),
+	'color.text.code.numbers': token('color.text.code.numbers', '#7F5F01'),
+	'color.text.code.operators': token('color.text.code.operators', '#292A2E'),
+	'color.text.code.strings': token('color.text.code.strings', '#4C6B1F'),
+	'color.text.code.tags': token('color.text.code.tags', '#9E4C00'),
+	'color.text.disabled': token('color.text.disabled', '#080F214A'),
 	'color.text.inverse': token('color.text.inverse', '#FFFFFF'),
-	'color.text.selected': token('color.text.selected', '#0052CC'),
-	'color.text.brand': token('color.text.brand', '#0065FF'),
-	'color.text.danger': token('color.text.danger', '#DE350B'),
-	'color.text.danger.bolder': token('color.text.danger.bolder', '#BF2600'),
-	'color.text.warning': token('color.text.warning', '#974F0C'),
-	'color.text.warning.inverse': token('color.text.warning.inverse', '#172B4D'),
-	'color.text.warning.bolder': token('color.text.warning.bolder', '#974F0C'),
-	'color.text.success': token('color.text.success', '#006644'),
-	'color.text.success.bolder': token('color.text.success.bolder', '#006644'),
-	'color.text.discovery': token('color.text.discovery', '#403294'),
-	'color.text.discovery.bolder': token('color.text.discovery.bolder', '#403294'),
-	'color.text.information': token('color.text.information', '#0052CC'),
-	'color.text.information.bolder': token('color.text.information.bolder', '#0747A6'),
-	'color.text.subtlest': token('color.text.subtlest', '#7A869A'),
-	'color.text.subtle': token('color.text.subtle', '#42526E'),
-	'color.link': token('color.link', '#0052CC'),
-	'color.link.pressed': token('color.link.pressed', '#0747A6'),
-	'color.link.visited': token('color.link.visited', '#403294'),
-	'color.link.visited.pressed': token('color.link.visited.pressed', '#403294'),
+	'color.text.selected': token('color.text.selected', '#1868DB'),
+	'color.text.brand': token('color.text.brand', '#1868DB'),
+	'color.text.danger': token('color.text.danger', '#AE2E24'),
+	'color.text.danger.bolder': token('color.text.danger.bolder', '#5D1F1A'),
+	'color.text.warning': token('color.text.warning', '#9E4C00'),
+	'color.text.warning.inverse': token('color.text.warning.inverse', '#292A2E'),
+	'color.text.warning.bolder': token('color.text.warning.bolder', '#693200'),
+	'color.text.success': token('color.text.success', '#4C6B1F'),
+	'color.text.success.bolder': token('color.text.success.bolder', '#37471F'),
+	'color.text.discovery': token('color.text.discovery', '#803FA5'),
+	'color.text.discovery.bolder': token('color.text.discovery.bolder', '#48245D'),
+	'color.text.information': token('color.text.information', '#1558BC'),
+	'color.text.information.bolder': token('color.text.information.bolder', '#123263'),
+	'color.text.subtlest': token('color.text.subtlest', '#6B6E76'),
+	'color.text.subtle': token('color.text.subtle', '#505258'),
+	'color.link': token('color.link', '#1868DB'),
+	'color.link.pressed': token('color.link.pressed', '#1558BC'),
+	'color.link.visited': token('color.link.visited', '#803FA5'),
+	'color.link.visited.pressed': token('color.link.visited.pressed', '#48245D'),
 } as const;
 
 export type TextColor = keyof typeof textColorMap;
@@ -346,6 +395,13 @@ export const backgroundColorMap: {
 	'color.background.accent.gray.bolder': 'var(--ds-background-accent-gray-bolder)';
 	'color.background.accent.gray.bolder.hovered': 'var(--ds-background-accent-gray-bolder-hovered)';
 	'color.background.accent.gray.bolder.pressed': 'var(--ds-background-accent-gray-bolder-pressed)';
+	'color.background.code.added.highlight': 'var(--ds-background-code-added-highlight)';
+	'color.background.code.added.line': 'var(--ds-background-code-added-line)';
+	'color.background.code.default': 'var(--ds-background-code-default)';
+	'color.background.code.gutter': 'var(--ds-background-code-gutter)';
+	'color.background.code.highlight': 'var(--ds-background-code-highlight)';
+	'color.background.code.removed.highlight': 'var(--ds-background-code-removed-highlight)';
+	'color.background.code.removed.line': 'var(--ds-background-code-removed-line)';
 	'color.background.disabled': 'var(--ds-background-disabled)';
 	'color.background.input': 'var(--ds-background-input)';
 	'color.background.input.hovered': 'var(--ds-background-input-hovered)';
@@ -383,6 +439,7 @@ export const backgroundColorMap: {
 	'color.background.danger.subtler': 'var(--ds-background-danger-subtler)';
 	'color.background.danger.subtler.hovered': 'var(--ds-background-danger-subtler-hovered)';
 	'color.background.danger.subtler.pressed': 'var(--ds-background-danger-subtler-pressed)';
+	'color.background.danger.subtle': 'var(--ds-background-danger-subtle)';
 	'color.background.danger.bold': 'var(--ds-background-danger-bold)';
 	'color.background.danger.bold.hovered': 'var(--ds-background-danger-bold-hovered)';
 	'color.background.danger.bold.pressed': 'var(--ds-background-danger-bold-pressed)';
@@ -392,6 +449,7 @@ export const backgroundColorMap: {
 	'color.background.warning.subtler': 'var(--ds-background-warning-subtler)';
 	'color.background.warning.subtler.hovered': 'var(--ds-background-warning-subtler-hovered)';
 	'color.background.warning.subtler.pressed': 'var(--ds-background-warning-subtler-pressed)';
+	'color.background.warning.subtle': 'var(--ds-background-warning-subtle)';
 	'color.background.warning.bold': 'var(--ds-background-warning-bold)';
 	'color.background.warning.bold.hovered': 'var(--ds-background-warning-bold-hovered)';
 	'color.background.warning.bold.pressed': 'var(--ds-background-warning-bold-pressed)';
@@ -401,6 +459,7 @@ export const backgroundColorMap: {
 	'color.background.success.subtler': 'var(--ds-background-success-subtler)';
 	'color.background.success.subtler.hovered': 'var(--ds-background-success-subtler-hovered)';
 	'color.background.success.subtler.pressed': 'var(--ds-background-success-subtler-pressed)';
+	'color.background.success.subtle': 'var(--ds-background-success-subtle)';
 	'color.background.success.bold': 'var(--ds-background-success-bold)';
 	'color.background.success.bold.hovered': 'var(--ds-background-success-bold-hovered)';
 	'color.background.success.bold.pressed': 'var(--ds-background-success-bold-pressed)';
@@ -410,6 +469,7 @@ export const backgroundColorMap: {
 	'color.background.discovery.subtler': 'var(--ds-background-discovery-subtler)';
 	'color.background.discovery.subtler.hovered': 'var(--ds-background-discovery-subtler-hovered)';
 	'color.background.discovery.subtler.pressed': 'var(--ds-background-discovery-subtler-pressed)';
+	'color.background.discovery.subtle': 'var(--ds-background-discovery-subtle)';
 	'color.background.discovery.bold': 'var(--ds-background-discovery-bold)';
 	'color.background.discovery.bold.hovered': 'var(--ds-background-discovery-bold-hovered)';
 	'color.background.discovery.bold.pressed': 'var(--ds-background-discovery-bold-pressed)';
@@ -419,17 +479,24 @@ export const backgroundColorMap: {
 	'color.background.information.subtler': 'var(--ds-background-information-subtler)';
 	'color.background.information.subtler.hovered': 'var(--ds-background-information-subtler-hovered)';
 	'color.background.information.subtler.pressed': 'var(--ds-background-information-subtler-pressed)';
+	'color.background.information.subtle': 'var(--ds-background-information-subtle)';
 	'color.background.information.bold': 'var(--ds-background-information-bold)';
 	'color.background.information.bold.hovered': 'var(--ds-background-information-bold-hovered)';
 	'color.background.information.bold.pressed': 'var(--ds-background-information-bold-pressed)';
+	'color.skeleton': 'var(--ds-skeleton)';
+	'color.skeleton.subtle': 'var(--ds-skeleton-subtle)';
 	'color.blanket': 'var(--ds-blanket)';
 	'color.blanket.selected': 'var(--ds-blanket-selected)';
 	'color.blanket.danger': 'var(--ds-blanket-danger)';
-	'color.skeleton': 'var(--ds-skeleton)';
-	'color.skeleton.subtle': 'var(--ds-skeleton-subtle)';
+	'color.rovo.background.brand.bold': 'var(--ds-rovo-background-brand-bold)';
+	'color.rovo.background.brand.bold.hovered': 'var(--ds-rovo-background-brand-bold-hovered)';
+	'color.rovo.background.brand.bold.pressed': 'var(--ds-rovo-background-brand-bold-pressed)';
 	'elevation.surface': 'var(--ds-surface)';
 	'elevation.surface.hovered': 'var(--ds-surface-hovered)';
 	'elevation.surface.pressed': 'var(--ds-surface-pressed)';
+	'elevation.surface.container': 'var(--ds-surface-container)';
+	'elevation.surface.container.hovered': 'var(--ds-surface-container-hovered)';
+	'elevation.surface.container.pressed': 'var(--ds-surface-container-pressed)';
 	'elevation.surface.overlay': 'var(--ds-surface-overlay)';
 	'elevation.surface.overlay.hovered': 'var(--ds-surface-overlay-hovered)';
 	'elevation.surface.overlay.pressed': 'var(--ds-surface-overlay-pressed)';
@@ -441,7 +508,7 @@ export const backgroundColorMap: {
 } = {
 	'color.background.accent.lime.subtlest': token(
 		'color.background.accent.lime.subtlest',
-		'#EEFBDA',
+		'#EFFFD6',
 	),
 	'color.background.accent.lime.subtlest.hovered': token(
 		'color.background.accent.lime.subtlest.hovered',
@@ -449,16 +516,16 @@ export const backgroundColorMap: {
 	),
 	'color.background.accent.lime.subtlest.pressed': token(
 		'color.background.accent.lime.subtlest.pressed',
-		'#B3DF72',
+		'#BDE97C',
 	),
 	'color.background.accent.lime.subtler': token('color.background.accent.lime.subtler', '#D3F1A7'),
 	'color.background.accent.lime.subtler.hovered': token(
 		'color.background.accent.lime.subtler.hovered',
-		'#B3DF72',
+		'#BDE97C',
 	),
 	'color.background.accent.lime.subtler.pressed': token(
 		'color.background.accent.lime.subtler.pressed',
-		'#94C748',
+		'#B3DF72',
 	),
 	'color.background.accent.lime.subtle': token('color.background.accent.lime.subtle', '#94C748'),
 	'color.background.accent.lime.subtle.hovered': token(
@@ -467,316 +534,316 @@ export const backgroundColorMap: {
 	),
 	'color.background.accent.lime.subtle.pressed': token(
 		'color.background.accent.lime.subtle.pressed',
-		'#D3F1A7',
+		'#BDE97C',
 	),
 	'color.background.accent.lime.bolder': token('color.background.accent.lime.bolder', '#5B7F24'),
 	'color.background.accent.lime.bolder.hovered': token(
 		'color.background.accent.lime.bolder.hovered',
-		'#37471F',
+		'#4C6B1F',
 	),
 	'color.background.accent.lime.bolder.pressed': token(
 		'color.background.accent.lime.bolder.pressed',
-		'#37471F',
+		'#3F5224',
 	),
-	'color.background.accent.red.subtlest': token('color.background.accent.red.subtlest', '#FF8F73'),
+	'color.background.accent.red.subtlest': token('color.background.accent.red.subtlest', '#FFECEB'),
 	'color.background.accent.red.subtlest.hovered': token(
 		'color.background.accent.red.subtlest.hovered',
-		'#FF7452',
+		'#FFD5D2',
 	),
 	'color.background.accent.red.subtlest.pressed': token(
 		'color.background.accent.red.subtlest.pressed',
-		'#FF5630',
+		'#FFB8B2',
 	),
-	'color.background.accent.red.subtler': token('color.background.accent.red.subtler', '#FF7452'),
+	'color.background.accent.red.subtler': token('color.background.accent.red.subtler', '#FFD5D2'),
 	'color.background.accent.red.subtler.hovered': token(
 		'color.background.accent.red.subtler.hovered',
-		'#FF5630',
+		'#FFB8B2',
 	),
 	'color.background.accent.red.subtler.pressed': token(
 		'color.background.accent.red.subtler.pressed',
-		'#DE350B',
+		'#FD9891',
 	),
-	'color.background.accent.red.subtle': token('color.background.accent.red.subtle', '#DE350B'),
+	'color.background.accent.red.subtle': token('color.background.accent.red.subtle', '#F87168'),
 	'color.background.accent.red.subtle.hovered': token(
 		'color.background.accent.red.subtle.hovered',
-		'#FF5630',
+		'#FD9891',
 	),
 	'color.background.accent.red.subtle.pressed': token(
 		'color.background.accent.red.subtle.pressed',
-		'#FF7452',
+		'#FFB8B2',
 	),
-	'color.background.accent.red.bolder': token('color.background.accent.red.bolder', '#DE350B'),
+	'color.background.accent.red.bolder': token('color.background.accent.red.bolder', '#C9372C'),
 	'color.background.accent.red.bolder.hovered': token(
 		'color.background.accent.red.bolder.hovered',
-		'#FF5630',
+		'#AE2E24',
 	),
 	'color.background.accent.red.bolder.pressed': token(
 		'color.background.accent.red.bolder.pressed',
-		'#FF7452',
+		'#872821',
 	),
 	'color.background.accent.orange.subtlest': token(
 		'color.background.accent.orange.subtlest',
-		'#F18D13',
+		'#FFF5DB',
 	),
 	'color.background.accent.orange.subtlest.hovered': token(
 		'color.background.accent.orange.subtlest.hovered',
-		'#FEC57B',
+		'#FCE4A6',
 	),
 	'color.background.accent.orange.subtlest.pressed': token(
 		'color.background.accent.orange.subtlest.pressed',
-		'#FFE2BD',
+		'#FBD779',
 	),
 	'color.background.accent.orange.subtler': token(
 		'color.background.accent.orange.subtler',
-		'#B65C02',
+		'#FCE4A6',
 	),
 	'color.background.accent.orange.subtler.hovered': token(
 		'color.background.accent.orange.subtler.hovered',
-		'#F18D13',
+		'#FBD779',
 	),
 	'color.background.accent.orange.subtler.pressed': token(
 		'color.background.accent.orange.subtler.pressed',
-		'#FEC57B',
+		'#FBC828',
 	),
 	'color.background.accent.orange.subtle': token(
 		'color.background.accent.orange.subtle',
-		'#5F3811',
+		'#FCA700',
 	),
 	'color.background.accent.orange.subtle.hovered': token(
 		'color.background.accent.orange.subtle.hovered',
-		'#974F0C',
+		'#FBC828',
 	),
 	'color.background.accent.orange.subtle.pressed': token(
 		'color.background.accent.orange.subtle.pressed',
-		'#B65C02',
+		'#FBD779',
 	),
 	'color.background.accent.orange.bolder': token(
 		'color.background.accent.orange.bolder',
-		'#43290F',
+		'#BD5B00',
 	),
 	'color.background.accent.orange.bolder.hovered': token(
 		'color.background.accent.orange.bolder.hovered',
-		'#5F3811',
+		'#9E4C00',
 	),
 	'color.background.accent.orange.bolder.pressed': token(
 		'color.background.accent.orange.bolder.pressed',
-		'#974F0C',
+		'#7A3B00',
 	),
 	'color.background.accent.yellow.subtlest': token(
 		'color.background.accent.yellow.subtlest',
-		'#FFE380',
+		'#FEF7C8',
 	),
 	'color.background.accent.yellow.subtlest.hovered': token(
 		'color.background.accent.yellow.subtlest.hovered',
-		'#FFC400',
+		'#F5E989',
 	),
 	'color.background.accent.yellow.subtlest.pressed': token(
 		'color.background.accent.yellow.subtlest.pressed',
-		'#FFAB00',
+		'#EFDD4E',
 	),
 	'color.background.accent.yellow.subtler': token(
 		'color.background.accent.yellow.subtler',
-		'#FFC400',
+		'#F5E989',
 	),
 	'color.background.accent.yellow.subtler.hovered': token(
 		'color.background.accent.yellow.subtler.hovered',
-		'#FFAB00',
+		'#EFDD4E',
 	),
 	'color.background.accent.yellow.subtler.pressed': token(
 		'color.background.accent.yellow.subtler.pressed',
-		'#FF991F',
+		'#EED12B',
 	),
 	'color.background.accent.yellow.subtle': token(
 		'color.background.accent.yellow.subtle',
-		'#FF991F',
+		'#EED12B',
 	),
 	'color.background.accent.yellow.subtle.hovered': token(
 		'color.background.accent.yellow.subtle.hovered',
-		'#FFAB00',
+		'#DDB30E',
 	),
 	'color.background.accent.yellow.subtle.pressed': token(
 		'color.background.accent.yellow.subtle.pressed',
-		'#FFC400',
+		'#EFDD4E',
 	),
 	'color.background.accent.yellow.bolder': token(
 		'color.background.accent.yellow.bolder',
-		'#FF991F',
+		'#946F00',
 	),
 	'color.background.accent.yellow.bolder.hovered': token(
 		'color.background.accent.yellow.bolder.hovered',
-		'#FFAB00',
+		'#7F5F01',
 	),
 	'color.background.accent.yellow.bolder.pressed': token(
 		'color.background.accent.yellow.bolder.pressed',
-		'#FFC400',
+		'#614A05',
 	),
 	'color.background.accent.green.subtlest': token(
 		'color.background.accent.green.subtlest',
-		'#79F2C0',
+		'#DCFFF1',
 	),
 	'color.background.accent.green.subtlest.hovered': token(
 		'color.background.accent.green.subtlest.hovered',
-		'#57D9A3',
+		'#BAF3DB',
 	),
 	'color.background.accent.green.subtlest.pressed': token(
 		'color.background.accent.green.subtlest.pressed',
-		'#36B37E',
+		'#97EDC9',
 	),
 	'color.background.accent.green.subtler': token(
 		'color.background.accent.green.subtler',
-		'#57D9A3',
+		'#BAF3DB',
 	),
 	'color.background.accent.green.subtler.hovered': token(
 		'color.background.accent.green.subtler.hovered',
-		'#36B37E',
+		'#97EDC9',
 	),
 	'color.background.accent.green.subtler.pressed': token(
 		'color.background.accent.green.subtler.pressed',
-		'#00875A',
+		'#7EE2B8',
 	),
-	'color.background.accent.green.subtle': token('color.background.accent.green.subtle', '#00875A'),
+	'color.background.accent.green.subtle': token('color.background.accent.green.subtle', '#4BCE97'),
 	'color.background.accent.green.subtle.hovered': token(
 		'color.background.accent.green.subtle.hovered',
-		'#36B37E',
+		'#7EE2B8',
 	),
 	'color.background.accent.green.subtle.pressed': token(
 		'color.background.accent.green.subtle.pressed',
-		'#57D9A3',
+		'#97EDC9',
 	),
-	'color.background.accent.green.bolder': token('color.background.accent.green.bolder', '#00875A'),
+	'color.background.accent.green.bolder': token('color.background.accent.green.bolder', '#1F845A'),
 	'color.background.accent.green.bolder.hovered': token(
 		'color.background.accent.green.bolder.hovered',
-		'#36B37E',
+		'#216E4E',
 	),
 	'color.background.accent.green.bolder.pressed': token(
 		'color.background.accent.green.bolder.pressed',
-		'#57D9A3',
+		'#19573D',
 	),
 	'color.background.accent.teal.subtlest': token(
 		'color.background.accent.teal.subtlest',
-		'#79E2F2',
+		'#E7F9FF',
 	),
 	'color.background.accent.teal.subtlest.hovered': token(
 		'color.background.accent.teal.subtlest.hovered',
-		'#00C7E6',
+		'#C6EDFB',
 	),
 	'color.background.accent.teal.subtlest.pressed': token(
 		'color.background.accent.teal.subtlest.pressed',
-		'#00B8D9',
+		'#B1E4F7',
 	),
-	'color.background.accent.teal.subtler': token('color.background.accent.teal.subtler', '#00C7E6'),
+	'color.background.accent.teal.subtler': token('color.background.accent.teal.subtler', '#C6EDFB'),
 	'color.background.accent.teal.subtler.hovered': token(
 		'color.background.accent.teal.subtler.hovered',
-		'#00B8D9',
+		'#B1E4F7',
 	),
 	'color.background.accent.teal.subtler.pressed': token(
 		'color.background.accent.teal.subtler.pressed',
-		'#00A3BF',
+		'#9DD9EE',
 	),
-	'color.background.accent.teal.subtle': token('color.background.accent.teal.subtle', '#00A3BF'),
+	'color.background.accent.teal.subtle': token('color.background.accent.teal.subtle', '#6CC3E0'),
 	'color.background.accent.teal.subtle.hovered': token(
 		'color.background.accent.teal.subtle.hovered',
-		'#00B8D9',
+		'#9DD9EE',
 	),
 	'color.background.accent.teal.subtle.pressed': token(
 		'color.background.accent.teal.subtle.pressed',
-		'#00C7E6',
+		'#B1E4F7',
 	),
-	'color.background.accent.teal.bolder': token('color.background.accent.teal.bolder', '#00A3BF'),
+	'color.background.accent.teal.bolder': token('color.background.accent.teal.bolder', '#227D9B'),
 	'color.background.accent.teal.bolder.hovered': token(
 		'color.background.accent.teal.bolder.hovered',
-		'#00B8D9',
+		'#206A83',
 	),
 	'color.background.accent.teal.bolder.pressed': token(
 		'color.background.accent.teal.bolder.pressed',
-		'#00C7E6',
+		'#1A5265',
 	),
 	'color.background.accent.blue.subtlest': token(
 		'color.background.accent.blue.subtlest',
-		'#4C9AFF',
+		'#E9F2FE',
 	),
 	'color.background.accent.blue.subtlest.hovered': token(
 		'color.background.accent.blue.subtlest.hovered',
-		'#2684FF',
+		'#CFE1FD',
 	),
 	'color.background.accent.blue.subtlest.pressed': token(
 		'color.background.accent.blue.subtlest.pressed',
-		'#0065FF',
+		'#ADCBFB',
 	),
-	'color.background.accent.blue.subtler': token('color.background.accent.blue.subtler', '#2684FF'),
+	'color.background.accent.blue.subtler': token('color.background.accent.blue.subtler', '#CFE1FD'),
 	'color.background.accent.blue.subtler.hovered': token(
 		'color.background.accent.blue.subtler.hovered',
-		'#0065FF',
+		'#ADCBFB',
 	),
 	'color.background.accent.blue.subtler.pressed': token(
 		'color.background.accent.blue.subtler.pressed',
-		'#0052CC',
+		'#8FB8F6',
 	),
-	'color.background.accent.blue.subtle': token('color.background.accent.blue.subtle', '#0052CC'),
+	'color.background.accent.blue.subtle': token('color.background.accent.blue.subtle', '#669DF1'),
 	'color.background.accent.blue.subtle.hovered': token(
 		'color.background.accent.blue.subtle.hovered',
-		'#0065FF',
+		'#8FB8F6',
 	),
 	'color.background.accent.blue.subtle.pressed': token(
 		'color.background.accent.blue.subtle.pressed',
-		'#2684FF',
+		'#ADCBFB',
 	),
-	'color.background.accent.blue.bolder': token('color.background.accent.blue.bolder', '#0052CC'),
+	'color.background.accent.blue.bolder': token('color.background.accent.blue.bolder', '#1868DB'),
 	'color.background.accent.blue.bolder.hovered': token(
 		'color.background.accent.blue.bolder.hovered',
-		'#0065FF',
+		'#1558BC',
 	),
 	'color.background.accent.blue.bolder.pressed': token(
 		'color.background.accent.blue.bolder.pressed',
-		'#2684FF',
+		'#144794',
 	),
 	'color.background.accent.purple.subtlest': token(
 		'color.background.accent.purple.subtlest',
-		'#998DD9',
+		'#F8EEFE',
 	),
 	'color.background.accent.purple.subtlest.hovered': token(
 		'color.background.accent.purple.subtlest.hovered',
-		'#8777D9',
+		'#EED7FC',
 	),
 	'color.background.accent.purple.subtlest.pressed': token(
 		'color.background.accent.purple.subtlest.pressed',
-		'#6554C0',
+		'#E3BDFA',
 	),
 	'color.background.accent.purple.subtler': token(
 		'color.background.accent.purple.subtler',
-		'#8777D9',
+		'#EED7FC',
 	),
 	'color.background.accent.purple.subtler.hovered': token(
 		'color.background.accent.purple.subtler.hovered',
-		'#6554C0',
+		'#E3BDFA',
 	),
 	'color.background.accent.purple.subtler.pressed': token(
 		'color.background.accent.purple.subtler.pressed',
-		'#5243AA',
+		'#D8A0F7',
 	),
 	'color.background.accent.purple.subtle': token(
 		'color.background.accent.purple.subtle',
-		'#5243AA',
+		'#C97CF4',
 	),
 	'color.background.accent.purple.subtle.hovered': token(
 		'color.background.accent.purple.subtle.hovered',
-		'#6554C0',
+		'#D8A0F7',
 	),
 	'color.background.accent.purple.subtle.pressed': token(
 		'color.background.accent.purple.subtle.pressed',
-		'#8777D9',
+		'#E3BDFA',
 	),
 	'color.background.accent.purple.bolder': token(
 		'color.background.accent.purple.bolder',
-		'#5243AA',
+		'#964AC0',
 	),
 	'color.background.accent.purple.bolder.hovered': token(
 		'color.background.accent.purple.bolder.hovered',
-		'#6554C0',
+		'#803FA5',
 	),
 	'color.background.accent.purple.bolder.pressed': token(
 		'color.background.accent.purple.bolder.pressed',
-		'#8777D9',
+		'#673286',
 	),
 	'color.background.accent.magenta.subtlest': token(
 		'color.background.accent.magenta.subtlest',
@@ -788,7 +855,7 @@ export const backgroundColorMap: {
 	),
 	'color.background.accent.magenta.subtlest.pressed': token(
 		'color.background.accent.magenta.subtlest.pressed',
-		'#F797D2',
+		'#FCB6E1',
 	),
 	'color.background.accent.magenta.subtler': token(
 		'color.background.accent.magenta.subtler',
@@ -796,11 +863,11 @@ export const backgroundColorMap: {
 	),
 	'color.background.accent.magenta.subtler.hovered': token(
 		'color.background.accent.magenta.subtler.hovered',
-		'#F797D2',
+		'#FCB6E1',
 	),
 	'color.background.accent.magenta.subtler.pressed': token(
 		'color.background.accent.magenta.subtler.pressed',
-		'#E774BB',
+		'#F797D2',
 	),
 	'color.background.accent.magenta.subtle': token(
 		'color.background.accent.magenta.subtle',
@@ -812,7 +879,7 @@ export const backgroundColorMap: {
 	),
 	'color.background.accent.magenta.subtle.pressed': token(
 		'color.background.accent.magenta.subtle.pressed',
-		'#FDD0EC',
+		'#FCB6E1',
 	),
 	'color.background.accent.magenta.bolder': token(
 		'color.background.accent.magenta.bolder',
@@ -824,50 +891,63 @@ export const backgroundColorMap: {
 	),
 	'color.background.accent.magenta.bolder.pressed': token(
 		'color.background.accent.magenta.bolder.pressed',
-		'#50253F',
+		'#77325B',
 	),
 	'color.background.accent.gray.subtlest': token(
 		'color.background.accent.gray.subtlest',
-		'#6B778C',
+		'#F0F1F2',
 	),
 	'color.background.accent.gray.subtlest.hovered': token(
 		'color.background.accent.gray.subtlest.hovered',
-		'#5E6C84',
+		'#DDDEE1',
 	),
 	'color.background.accent.gray.subtlest.pressed': token(
 		'color.background.accent.gray.subtlest.pressed',
-		'#505F79',
+		'#B7B9BE',
 	),
-	'color.background.accent.gray.subtler': token('color.background.accent.gray.subtler', '#5E6C84'),
+	'color.background.accent.gray.subtler': token('color.background.accent.gray.subtler', '#DDDEE1'),
 	'color.background.accent.gray.subtler.hovered': token(
 		'color.background.accent.gray.subtler.hovered',
-		'#505F79',
+		'#B7B9BE',
 	),
 	'color.background.accent.gray.subtler.pressed': token(
 		'color.background.accent.gray.subtler.pressed',
-		'#42526E',
+		'#8C8F97',
 	),
-	'color.background.accent.gray.subtle': token('color.background.accent.gray.subtle', '#505F79'),
+	'color.background.accent.gray.subtle': token('color.background.accent.gray.subtle', '#8C8F97'),
 	'color.background.accent.gray.subtle.hovered': token(
 		'color.background.accent.gray.subtle.hovered',
-		'#5E6C84',
+		'#B7B9BE',
 	),
 	'color.background.accent.gray.subtle.pressed': token(
 		'color.background.accent.gray.subtle.pressed',
-		'#6B778C',
+		'#DDDEE1',
 	),
-	'color.background.accent.gray.bolder': token('color.background.accent.gray.bolder', '#42526E'),
+	'color.background.accent.gray.bolder': token('color.background.accent.gray.bolder', '#6B6E76'),
 	'color.background.accent.gray.bolder.hovered': token(
 		'color.background.accent.gray.bolder.hovered',
-		'#344563',
+		'#505258',
 	),
 	'color.background.accent.gray.bolder.pressed': token(
 		'color.background.accent.gray.bolder.pressed',
-		'#253858',
+		'#3B3D42',
 	),
-	'color.background.disabled': token('color.background.disabled', '#091e4289'),
-	'color.background.input': token('color.background.input', '#FAFBFC'),
-	'color.background.input.hovered': token('color.background.input.hovered', '#EBECF0'),
+	'color.background.code.added.highlight': token(
+		'color.background.code.added.highlight',
+		'#DCFFF1',
+	),
+	'color.background.code.added.line': token('color.background.code.added.line', '#BAF3DB66'),
+	'color.background.code.default': token('color.background.code.default', '#FFFFFF'),
+	'color.background.code.gutter': token('color.background.code.gutter', '#F0F1F2'),
+	'color.background.code.highlight': token('color.background.code.highlight', '#F0F1F2'),
+	'color.background.code.removed.highlight': token(
+		'color.background.code.removed.highlight',
+		'#FFECEB',
+	),
+	'color.background.code.removed.line': token('color.background.code.removed.line', '#FFD5D266'),
+	'color.background.disabled': token('color.background.disabled', '#0515240F'),
+	'color.background.input': token('color.background.input', '#FFFFFF'),
+	'color.background.input.hovered': token('color.background.input.hovered', '#F8F8F8'),
 	'color.background.input.pressed': token('color.background.input.pressed', '#FFFFFF'),
 	'color.background.inverse.subtle': token('color.background.inverse.subtle', '#00000029'),
 	'color.background.inverse.subtle.hovered': token(
@@ -878,174 +958,191 @@ export const backgroundColorMap: {
 		'color.background.inverse.subtle.pressed',
 		'#00000052',
 	),
-	'color.background.neutral': token('color.background.neutral', '#DFE1E6'),
-	'color.background.neutral.hovered': token('color.background.neutral.hovered', '#091e4214'),
-	'color.background.neutral.pressed': token('color.background.neutral.pressed', '#B3D4FF'),
-	'color.background.neutral.subtle': token('color.background.neutral.subtle', 'transparent'),
+	'color.background.neutral': token('color.background.neutral', '#0515240F'),
+	'color.background.neutral.hovered': token('color.background.neutral.hovered', '#0B120E24'),
+	'color.background.neutral.pressed': token('color.background.neutral.pressed', '#080F214A'),
+	'color.background.neutral.subtle': token('color.background.neutral.subtle', '#00000000'),
 	'color.background.neutral.subtle.hovered': token(
 		'color.background.neutral.subtle.hovered',
-		'#091e4214',
+		'#0515240F',
 	),
 	'color.background.neutral.subtle.pressed': token(
 		'color.background.neutral.subtle.pressed',
-		'#B3D4FF',
+		'#0B120E24',
 	),
-	'color.background.neutral.bold': token('color.background.neutral.bold', '#42526E'),
+	'color.background.neutral.bold': token('color.background.neutral.bold', '#292A2E'),
 	'color.background.neutral.bold.hovered': token(
 		'color.background.neutral.bold.hovered',
-		'#505F79',
+		'#3B3D42',
 	),
 	'color.background.neutral.bold.pressed': token(
 		'color.background.neutral.bold.pressed',
-		'#344563',
+		'#505258',
 	),
-	'color.background.selected': token('color.background.selected', '#DEEBFF'),
-	'color.background.selected.hovered': token('color.background.selected.hovered', '#B3D4FF'),
-	'color.background.selected.pressed': token('color.background.selected.pressed', '#4C9AFF'),
-	'color.background.selected.bold': token('color.background.selected.bold', '#0052CC'),
+	'color.background.selected': token('color.background.selected', '#E9F2FE'),
+	'color.background.selected.hovered': token('color.background.selected.hovered', '#CFE1FD'),
+	'color.background.selected.pressed': token('color.background.selected.pressed', '#8FB8F6'),
+	'color.background.selected.bold': token('color.background.selected.bold', '#1868DB'),
 	'color.background.selected.bold.hovered': token(
 		'color.background.selected.bold.hovered',
-		'#2684FF',
+		'#1558BC',
 	),
 	'color.background.selected.bold.pressed': token(
 		'color.background.selected.bold.pressed',
-		'#0052CC',
+		'#123263',
 	),
-	'color.background.brand.subtlest': token('color.background.brand.subtlest', '#B3D4FF'),
+	'color.background.brand.subtlest': token('color.background.brand.subtlest', '#E9F2FE'),
 	'color.background.brand.subtlest.hovered': token(
 		'color.background.brand.subtlest.hovered',
-		'#DEEBFF',
+		'#CFE1FD',
 	),
 	'color.background.brand.subtlest.pressed': token(
 		'color.background.brand.subtlest.pressed',
-		'#4C9AFF',
+		'#ADCBFB',
 	),
-	'color.background.brand.bold': token('color.background.brand.bold', '#0052CC'),
-	'color.background.brand.bold.hovered': token('color.background.brand.bold.hovered', '#0065FF'),
-	'color.background.brand.bold.pressed': token('color.background.brand.bold.pressed', '#0747A6'),
-	'color.background.brand.boldest': token('color.background.brand.boldest', '#0747A6'),
+	'color.background.brand.bold': token('color.background.brand.bold', '#1868DB'),
+	'color.background.brand.bold.hovered': token('color.background.brand.bold.hovered', '#1558BC'),
+	'color.background.brand.bold.pressed': token('color.background.brand.bold.pressed', '#144794'),
+	'color.background.brand.boldest': token('color.background.brand.boldest', '#1C2B42'),
 	'color.background.brand.boldest.hovered': token(
 		'color.background.brand.boldest.hovered',
-		'#0052CC',
+		'#123263',
 	),
 	'color.background.brand.boldest.pressed': token(
 		'color.background.brand.boldest.pressed',
-		'#0747A6',
+		'#144794',
 	),
-	'color.background.danger': token('color.background.danger', '#FFEBE6'),
-	'color.background.danger.hovered': token('color.background.danger.hovered', '#FFBDAD'),
-	'color.background.danger.pressed': token('color.background.danger.pressed', '#FF8F73'),
-	'color.background.danger.subtler': token('color.background.danger.subtler', '#FFBDAD'),
+	'color.background.danger': token('color.background.danger', '#FFECEB'),
+	'color.background.danger.hovered': token('color.background.danger.hovered', '#FFD5D2'),
+	'color.background.danger.pressed': token('color.background.danger.pressed', '#FFB8B2'),
+	'color.background.danger.subtler': token('color.background.danger.subtler', '#FFD5D2'),
 	'color.background.danger.subtler.hovered': token(
 		'color.background.danger.subtler.hovered',
-		'#FF8F73',
+		'#FFB8B2',
 	),
 	'color.background.danger.subtler.pressed': token(
 		'color.background.danger.subtler.pressed',
-		'#FF7452',
+		'#FD9891',
 	),
-	'color.background.danger.bold': token('color.background.danger.bold', '#DE350B'),
-	'color.background.danger.bold.hovered': token('color.background.danger.bold.hovered', '#FF5630'),
-	'color.background.danger.bold.pressed': token('color.background.danger.bold.pressed', '#BF2600'),
-	'color.background.warning': token('color.background.warning', '#FFFAE6'),
-	'color.background.warning.hovered': token('color.background.warning.hovered', '#FFF0B3'),
-	'color.background.warning.pressed': token('color.background.warning.pressed', '#FFE380'),
-	'color.background.warning.subtler': token('color.background.warning.subtler', '#FFF0B3'),
+	'color.background.danger.subtle': token('color.background.danger.subtle', '#FD9891'),
+	'color.background.danger.bold': token('color.background.danger.bold', '#C9372C'),
+	'color.background.danger.bold.hovered': token('color.background.danger.bold.hovered', '#AE2E24'),
+	'color.background.danger.bold.pressed': token('color.background.danger.bold.pressed', '#872821'),
+	'color.background.warning': token('color.background.warning', '#FFF5DB'),
+	'color.background.warning.hovered': token('color.background.warning.hovered', '#FCE4A6'),
+	'color.background.warning.pressed': token('color.background.warning.pressed', '#FBD779'),
+	'color.background.warning.subtler': token('color.background.warning.subtler', '#FCE4A6'),
 	'color.background.warning.subtler.hovered': token(
 		'color.background.warning.subtler.hovered',
-		'#FFE380',
+		'#FBD779',
 	),
 	'color.background.warning.subtler.pressed': token(
 		'color.background.warning.subtler.pressed',
-		'#FFC400',
+		'#FBC828',
 	),
-	'color.background.warning.bold': token('color.background.warning.bold', '#FFAB00'),
+	'color.background.warning.subtle': token('color.background.warning.subtle', '#FBD779'),
+	'color.background.warning.bold': token('color.background.warning.bold', '#FBC828'),
 	'color.background.warning.bold.hovered': token(
 		'color.background.warning.bold.hovered',
-		'#FFC400',
+		'#FCA700',
 	),
 	'color.background.warning.bold.pressed': token(
 		'color.background.warning.bold.pressed',
-		'#FF991F',
+		'#F68909',
 	),
-	'color.background.success': token('color.background.success', '#E3FCEF'),
-	'color.background.success.hovered': token('color.background.success.hovered', '#ABF5D1'),
-	'color.background.success.pressed': token('color.background.success.pressed', '#79F2C0'),
-	'color.background.success.subtler': token('color.background.success.subtler', '#ABF5D1'),
+	'color.background.success': token('color.background.success', '#EFFFD6'),
+	'color.background.success.hovered': token('color.background.success.hovered', '#D3F1A7'),
+	'color.background.success.pressed': token('color.background.success.pressed', '#BDE97C'),
+	'color.background.success.subtler': token('color.background.success.subtler', '#D3F1A7'),
 	'color.background.success.subtler.hovered': token(
 		'color.background.success.subtler.hovered',
-		'#79F2C0',
+		'#BDE97C',
 	),
 	'color.background.success.subtler.pressed': token(
 		'color.background.success.subtler.pressed',
-		'#57D9A3',
+		'#B3DF72',
 	),
-	'color.background.success.bold': token('color.background.success.bold', '#00875A'),
+	'color.background.success.subtle': token('color.background.success.subtle', '#B3DF72'),
+	'color.background.success.bold': token('color.background.success.bold', '#5B7F24'),
 	'color.background.success.bold.hovered': token(
 		'color.background.success.bold.hovered',
-		'#57D9A3',
+		'#4C6B1F',
 	),
 	'color.background.success.bold.pressed': token(
 		'color.background.success.bold.pressed',
-		'#00875A',
+		'#3F5224',
 	),
-	'color.background.discovery': token('color.background.discovery', '#EAE6FF'),
-	'color.background.discovery.hovered': token('color.background.discovery.hovered', '#C0B6F2'),
-	'color.background.discovery.pressed': token('color.background.discovery.pressed', '#998DD9'),
-	'color.background.discovery.subtler': token('color.background.discovery.subtler', '#C0B6F2'),
+	'color.background.discovery': token('color.background.discovery', '#F8EEFE'),
+	'color.background.discovery.hovered': token('color.background.discovery.hovered', '#EED7FC'),
+	'color.background.discovery.pressed': token('color.background.discovery.pressed', '#E3BDFA'),
+	'color.background.discovery.subtler': token('color.background.discovery.subtler', '#EED7FC'),
 	'color.background.discovery.subtler.hovered': token(
 		'color.background.discovery.subtler.hovered',
-		'#998DD9',
+		'#E3BDFA',
 	),
 	'color.background.discovery.subtler.pressed': token(
 		'color.background.discovery.subtler.pressed',
-		'#8777D9',
+		'#D8A0F7',
 	),
-	'color.background.discovery.bold': token('color.background.discovery.bold', '#5243AA'),
+	'color.background.discovery.subtle': token('color.background.discovery.subtle', '#D8A0F7'),
+	'color.background.discovery.bold': token('color.background.discovery.bold', '#964AC0'),
 	'color.background.discovery.bold.hovered': token(
 		'color.background.discovery.bold.hovered',
-		'#8777D9',
+		'#803FA5',
 	),
 	'color.background.discovery.bold.pressed': token(
 		'color.background.discovery.bold.pressed',
-		'#5243AA',
+		'#673286',
 	),
-	'color.background.information': token('color.background.information', '#DEEBFF'),
-	'color.background.information.hovered': token('color.background.information.hovered', '#B3D4FF'),
-	'color.background.information.pressed': token('color.background.information.pressed', '#4C9AFF'),
-	'color.background.information.subtler': token('color.background.information.subtler', '#B3D4FF'),
+	'color.background.information': token('color.background.information', '#E9F2FE'),
+	'color.background.information.hovered': token('color.background.information.hovered', '#CFE1FD'),
+	'color.background.information.pressed': token('color.background.information.pressed', '#ADCBFB'),
+	'color.background.information.subtler': token('color.background.information.subtler', '#CFE1FD'),
 	'color.background.information.subtler.hovered': token(
 		'color.background.information.subtler.hovered',
-		'#4C9AFF',
+		'#ADCBFB',
 	),
 	'color.background.information.subtler.pressed': token(
 		'color.background.information.subtler.pressed',
-		'#2684FF',
+		'#8FB8F6',
 	),
-	'color.background.information.bold': token('color.background.information.bold', '#0052CC'),
+	'color.background.information.subtle': token('color.background.information.subtle', '#8FB8F6'),
+	'color.background.information.bold': token('color.background.information.bold', '#1868DB'),
 	'color.background.information.bold.hovered': token(
 		'color.background.information.bold.hovered',
-		'#2684FF',
+		'#1558BC',
 	),
 	'color.background.information.bold.pressed': token(
 		'color.background.information.bold.pressed',
-		'#0052CC',
+		'#144794',
 	),
-	'color.blanket': token('color.blanket', '#091e4289'),
+	'color.skeleton': token('color.skeleton', '#0515240F'),
+	'color.skeleton.subtle': token('color.skeleton.subtle', '#17171708'),
+	'color.blanket': token('color.blanket', '#050C1F75'),
 	'color.blanket.selected': token('color.blanket.selected', '#388BFF14'),
 	'color.blanket.danger': token('color.blanket.danger', '#EF5C4814'),
-	'color.skeleton': token('color.skeleton', '#F4F5F7'),
-	'color.skeleton.subtle': token('color.skeleton.subtle', '#091e420a'),
+	'color.rovo.background.brand.bold': token('color.rovo.background.brand.bold', '#000000'),
+	'color.rovo.background.brand.bold.hovered': token(
+		'color.rovo.background.brand.bold.hovered',
+		'#1E1F21',
+	),
+	'color.rovo.background.brand.bold.pressed': token(
+		'color.rovo.background.brand.bold.pressed',
+		'#292A2E',
+	),
 	'elevation.surface': token('elevation.surface', '#FFFFFF'),
-	'elevation.surface.hovered': token('elevation.surface.hovered', '#FAFBFC'),
-	'elevation.surface.pressed': token('elevation.surface.pressed', '#F4F5F7'),
+	'elevation.surface.hovered': token('elevation.surface.hovered', '#F0F1F2'),
+	'elevation.surface.pressed': token('elevation.surface.pressed', '#DDDEE1'),
+	'elevation.surface.container': token('elevation.surface.container', '#17171708'),
+	'elevation.surface.container.hovered': token('elevation.surface.container.hovered', '#0515240F'),
+	'elevation.surface.container.pressed': token('elevation.surface.container.pressed', '#0B120E24'),
 	'elevation.surface.overlay': token('elevation.surface.overlay', '#FFFFFF'),
-	'elevation.surface.overlay.hovered': token('elevation.surface.overlay.hovered', '#FAFBFC'),
-	'elevation.surface.overlay.pressed': token('elevation.surface.overlay.pressed', '#F4F5F7'),
+	'elevation.surface.overlay.hovered': token('elevation.surface.overlay.hovered', '#F0F1F2'),
+	'elevation.surface.overlay.pressed': token('elevation.surface.overlay.pressed', '#DDDEE1'),
 	'elevation.surface.raised': token('elevation.surface.raised', '#FFFFFF'),
-	'elevation.surface.raised.hovered': token('elevation.surface.raised.hovered', '#FAFBFC'),
-	'elevation.surface.raised.pressed': token('elevation.surface.raised.pressed', '#F4F5F7'),
-	'elevation.surface.sunken': token('elevation.surface.sunken', '#F4F5F7'),
+	'elevation.surface.raised.hovered': token('elevation.surface.raised.hovered', '#F0F1F2'),
+	'elevation.surface.raised.pressed': token('elevation.surface.raised.pressed', '#DDDEE1'),
+	'elevation.surface.sunken': token('elevation.surface.sunken', '#F8F8F8'),
 	'utility.elevation.surface.current': token('utility.elevation.surface.current', '#FFFFFF'),
 } as const;
 
@@ -1054,15 +1151,26 @@ export type BackgroundColor = keyof typeof backgroundColorMap;
 export const borderColorMap: {
 	'color.border': 'var(--ds-border)';
 	'color.border.accent.lime': 'var(--ds-border-accent-lime)';
+	'color.border.accent.lime.subtle': 'var(--ds-border-accent-lime-subtle)';
 	'color.border.accent.red': 'var(--ds-border-accent-red)';
+	'color.border.accent.red.subtle': 'var(--ds-border-accent-red-subtle)';
 	'color.border.accent.orange': 'var(--ds-border-accent-orange)';
+	'color.border.accent.orange.subtle': 'var(--ds-border-accent-orange-subtle)';
 	'color.border.accent.yellow': 'var(--ds-border-accent-yellow)';
+	'color.border.accent.yellow.subtle': 'var(--ds-border-accent-yellow-subtle)';
 	'color.border.accent.green': 'var(--ds-border-accent-green)';
+	'color.border.accent.green.subtle': 'var(--ds-border-accent-green-subtle)';
 	'color.border.accent.teal': 'var(--ds-border-accent-teal)';
+	'color.border.accent.teal.subtle': 'var(--ds-border-accent-teal-subtle)';
 	'color.border.accent.blue': 'var(--ds-border-accent-blue)';
+	'color.border.accent.blue.subtle': 'var(--ds-border-accent-blue-subtle)';
 	'color.border.accent.purple': 'var(--ds-border-accent-purple)';
+	'color.border.accent.purple.subtle': 'var(--ds-border-accent-purple-subtle)';
 	'color.border.accent.magenta': 'var(--ds-border-accent-magenta)';
+	'color.border.accent.magenta.subtle': 'var(--ds-border-accent-magenta-subtle)';
 	'color.border.accent.gray': 'var(--ds-border-accent-gray)';
+	'color.border.accent.gray.subtle': 'var(--ds-border-accent-gray-subtle)';
+	'color.border.code': 'var(--ds-border-code)';
 	'color.border.disabled': 'var(--ds-border-disabled)';
 	'color.border.focused': 'var(--ds-border-focused)';
 	'color.border.input': 'var(--ds-border-input)';
@@ -1070,35 +1178,56 @@ export const borderColorMap: {
 	'color.border.selected': 'var(--ds-border-selected)';
 	'color.border.brand': 'var(--ds-border-brand)';
 	'color.border.danger': 'var(--ds-border-danger)';
+	'color.border.danger.subtle': 'var(--ds-border-danger-subtle)';
 	'color.border.warning': 'var(--ds-border-warning)';
+	'color.border.warning.subtle': 'var(--ds-border-warning-subtle)';
 	'color.border.success': 'var(--ds-border-success)';
+	'color.border.success.subtle': 'var(--ds-border-success-subtle)';
 	'color.border.discovery': 'var(--ds-border-discovery)';
+	'color.border.discovery.subtle': 'var(--ds-border-discovery-subtle)';
 	'color.border.information': 'var(--ds-border-information)';
+	'color.border.information.subtle': 'var(--ds-border-information-subtle)';
 	'color.border.bold': 'var(--ds-border-bold)';
 } = {
-	'color.border': token('color.border', '#091e4221'),
+	'color.border': token('color.border', '#0B120E24'),
 	'color.border.accent.lime': token('color.border.accent.lime', '#6A9A23'),
-	'color.border.accent.red': token('color.border.accent.red', '#FF5630'),
-	'color.border.accent.orange': token('color.border.accent.orange', '#D94008'),
-	'color.border.accent.yellow': token('color.border.accent.yellow', '#FFAB00'),
-	'color.border.accent.green': token('color.border.accent.green', '#36B37E'),
-	'color.border.accent.teal': token('color.border.accent.teal', '#00B8D9'),
-	'color.border.accent.blue': token('color.border.accent.blue', '#0065FF'),
-	'color.border.accent.purple': token('color.border.accent.purple', '#6554C0'),
+	'color.border.accent.lime.subtle': token('color.border.accent.lime.subtle', '#B3DF72'),
+	'color.border.accent.red': token('color.border.accent.red', '#E2483D'),
+	'color.border.accent.red.subtle': token('color.border.accent.red.subtle', '#FD9891'),
+	'color.border.accent.orange': token('color.border.accent.orange', '#E06C00'),
+	'color.border.accent.orange.subtle': token('color.border.accent.orange.subtle', '#FBC828'),
+	'color.border.accent.yellow': token('color.border.accent.yellow', '#B38600'),
+	'color.border.accent.yellow.subtle': token('color.border.accent.yellow.subtle', '#EED12B'),
+	'color.border.accent.green': token('color.border.accent.green', '#22A06B'),
+	'color.border.accent.green.subtle': token('color.border.accent.green.subtle', '#7EE2B8'),
+	'color.border.accent.teal': token('color.border.accent.teal', '#2898BD'),
+	'color.border.accent.teal.subtle': token('color.border.accent.teal.subtle', '#9DD9EE'),
+	'color.border.accent.blue': token('color.border.accent.blue', '#357DE8'),
+	'color.border.accent.blue.subtle': token('color.border.accent.blue.subtle', '#8FB8F6'),
+	'color.border.accent.purple': token('color.border.accent.purple', '#AF59E1'),
+	'color.border.accent.purple.subtle': token('color.border.accent.purple.subtle', '#D8A0F7'),
 	'color.border.accent.magenta': token('color.border.accent.magenta', '#CD519D'),
-	'color.border.accent.gray': token('color.border.accent.gray', '#5E6C84'),
-	'color.border.disabled': token('color.border.disabled', '#FAFBFC'),
-	'color.border.focused': token('color.border.focused', '#2684FF'),
-	'color.border.input': token('color.border.input', '#FAFBFC'),
+	'color.border.accent.magenta.subtle': token('color.border.accent.magenta.subtle', '#F797D2'),
+	'color.border.accent.gray': token('color.border.accent.gray', '#7D818A'),
+	'color.border.accent.gray.subtle': token('color.border.accent.gray.subtle', '#B7B9BE'),
+	'color.border.code': token('color.border.code', '#0B120E24'),
+	'color.border.disabled': token('color.border.disabled', '#0515240F'),
+	'color.border.focused': token('color.border.focused', '#4688EC'),
+	'color.border.input': token('color.border.input', '#8C8F97'),
 	'color.border.inverse': token('color.border.inverse', '#FFFFFF'),
-	'color.border.selected': token('color.border.selected', '#0052CC'),
-	'color.border.brand': token('color.border.brand', '#0052CC'),
-	'color.border.danger': token('color.border.danger', '#FF5630'),
-	'color.border.warning': token('color.border.warning', '#FFC400'),
-	'color.border.success': token('color.border.success', '#00875A'),
-	'color.border.discovery': token('color.border.discovery', '#998DD9'),
-	'color.border.information': token('color.border.information', '#0065FF'),
-	'color.border.bold': token('color.border.bold', '#344563'),
+	'color.border.selected': token('color.border.selected', '#1868DB'),
+	'color.border.brand': token('color.border.brand', '#1868DB'),
+	'color.border.danger': token('color.border.danger', '#E2483D'),
+	'color.border.danger.subtle': token('color.border.danger.subtle', '#FD9891'),
+	'color.border.warning': token('color.border.warning', '#E06C00'),
+	'color.border.warning.subtle': token('color.border.warning.subtle', '#FBC828'),
+	'color.border.success': token('color.border.success', '#6A9A23'),
+	'color.border.success.subtle': token('color.border.success.subtle', '#B3DF72'),
+	'color.border.discovery': token('color.border.discovery', '#AF59E1'),
+	'color.border.discovery.subtle': token('color.border.discovery.subtle', '#D8A0F7'),
+	'color.border.information': token('color.border.information', '#357DE8'),
+	'color.border.information.subtle': token('color.border.information.subtle', '#8FB8F6'),
+	'color.border.bold': token('color.border.bold', '#7D818A'),
 } as const;
 
 export type BorderColor = keyof typeof borderColorMap;
@@ -1132,6 +1261,9 @@ export const inverseColorMap: {
 	'color.background.information.bold': 'color.text.inverse';
 	'color.background.information.bold.hovered': 'color.text.inverse';
 	'color.background.information.bold.pressed': 'color.text.inverse';
+	'color.rovo.background.brand.bold': 'color.text.inverse';
+	'color.rovo.background.brand.bold.hovered': 'color.text.inverse';
+	'color.rovo.background.brand.bold.pressed': 'color.text.inverse';
 } = {
 	'color.background.neutral.bold': 'color.text.inverse',
 	'color.background.neutral.bold.hovered': 'color.text.inverse',
@@ -1160,6 +1292,9 @@ export const inverseColorMap: {
 	'color.background.information.bold': 'color.text.inverse',
 	'color.background.information.bold.hovered': 'color.text.inverse',
 	'color.background.information.bold.pressed': 'color.text.inverse',
+	'color.rovo.background.brand.bold': 'color.text.inverse',
+	'color.rovo.background.brand.bold.hovered': 'color.text.inverse',
+	'color.rovo.background.brand.bold.pressed': 'color.text.inverse',
 } as const;
 
 
@@ -1182,17 +1317,17 @@ export const shadowMap: {
 } = {
 	'elevation.shadow.overflow': token(
 		'elevation.shadow.overflow',
-		'0px 0px 8px #091e423f, 0px 0px 1px #091e424f',
+		'0px 0px 8px #1E1F21, 0px 0px 1px #1E1F21',
 	),
-	'elevation.shadow.overflow.perimeter': token('elevation.shadow.overflow.perimeter', '#091e421f'),
-	'elevation.shadow.overflow.spread': token('elevation.shadow.overflow.spread', '#091e4229'),
+	'elevation.shadow.overflow.perimeter': token('elevation.shadow.overflow.perimeter', '#1E1F211f'),
+	'elevation.shadow.overflow.spread': token('elevation.shadow.overflow.spread', '#1E1F2129'),
 	'elevation.shadow.overlay': token(
 		'elevation.shadow.overlay',
-		'0px 8px 12px #091e423f, 0px 0px 1px #091e424f',
+		'0px 8px 12px #1E1F21, 0px 0px 1px #1E1F21',
 	),
 	'elevation.shadow.raised': token(
 		'elevation.shadow.raised',
-		'0px 1px 1px #091e423f, 0px 0px 1px #091e4221',
+		'0px 1px 1px #1E1F21, 0px 0px 1px #1E1F21',
 	),
 } as const;
 
@@ -1202,6 +1337,9 @@ export const surfaceColorMap: {
 	'elevation.surface': 'var(--ds-surface)';
 	'elevation.surface.hovered': 'var(--ds-surface-hovered)';
 	'elevation.surface.pressed': 'var(--ds-surface-pressed)';
+	'elevation.surface.container': 'var(--ds-surface-container)';
+	'elevation.surface.container.hovered': 'var(--ds-surface-container-hovered)';
+	'elevation.surface.container.pressed': 'var(--ds-surface-container-pressed)';
 	'elevation.surface.overlay': 'var(--ds-surface-overlay)';
 	'elevation.surface.overlay.hovered': 'var(--ds-surface-overlay-hovered)';
 	'elevation.surface.overlay.pressed': 'var(--ds-surface-overlay-pressed)';
@@ -1211,15 +1349,18 @@ export const surfaceColorMap: {
 	'elevation.surface.sunken': 'var(--ds-surface-sunken)';
 } = {
 	'elevation.surface': token('elevation.surface', '#FFFFFF'),
-	'elevation.surface.hovered': token('elevation.surface.hovered', '#FAFBFC'),
-	'elevation.surface.pressed': token('elevation.surface.pressed', '#F4F5F7'),
+	'elevation.surface.hovered': token('elevation.surface.hovered', '#F0F1F2'),
+	'elevation.surface.pressed': token('elevation.surface.pressed', '#DDDEE1'),
+	'elevation.surface.container': token('elevation.surface.container', '#17171708'),
+	'elevation.surface.container.hovered': token('elevation.surface.container.hovered', '#0515240F'),
+	'elevation.surface.container.pressed': token('elevation.surface.container.pressed', '#0B120E24'),
 	'elevation.surface.overlay': token('elevation.surface.overlay', '#FFFFFF'),
-	'elevation.surface.overlay.hovered': token('elevation.surface.overlay.hovered', '#FAFBFC'),
-	'elevation.surface.overlay.pressed': token('elevation.surface.overlay.pressed', '#F4F5F7'),
+	'elevation.surface.overlay.hovered': token('elevation.surface.overlay.hovered', '#F0F1F2'),
+	'elevation.surface.overlay.pressed': token('elevation.surface.overlay.pressed', '#DDDEE1'),
 	'elevation.surface.raised': token('elevation.surface.raised', '#FFFFFF'),
-	'elevation.surface.raised.hovered': token('elevation.surface.raised.hovered', '#FAFBFC'),
-	'elevation.surface.raised.pressed': token('elevation.surface.raised.pressed', '#F4F5F7'),
-	'elevation.surface.sunken': token('elevation.surface.sunken', '#F4F5F7'),
+	'elevation.surface.raised.hovered': token('elevation.surface.raised.hovered', '#F0F1F2'),
+	'elevation.surface.raised.pressed': token('elevation.surface.raised.pressed', '#DDDEE1'),
+	'elevation.surface.sunken': token('elevation.surface.sunken', '#F8F8F8'),
 } as const;
 
 export type SurfaceColor = keyof typeof surfaceColorMap;
@@ -1278,7 +1419,6 @@ export type Layer = keyof typeof layerMap;
 
 export const fontMap: {
 	'font.body': 'var(--ds-font-body)';
-	'font.body.UNSAFE_small': 'var(--ds-font-body-UNSAFE_small)';
 	'font.body.large': 'var(--ds-font-body-large)';
 	'font.body.small': 'var(--ds-font-body-small)';
 	'font.code': 'var(--ds-font-code)';
@@ -1296,11 +1436,6 @@ export const fontMap: {
 	'font.body': token(
 		'font.body',
 		'normal 400 14px/20px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
-	),
-	// @deprecated
-	'font.body.UNSAFE_small': token(
-		'font.body.UNSAFE_small',
-		'normal 400 12px/16px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
 	),
 	'font.body.large': token(
 		'font.body.large',
@@ -1406,17 +1541,12 @@ export type FontFamily = keyof typeof fontFamilyMap;
 
 export const textSizeMap: {
 	medium: 'var(--ds-font-body)';
-	UNSAFE_small: 'var(--ds-font-body-UNSAFE_small)';
 	large: 'var(--ds-font-body-large)';
 	small: 'var(--ds-font-body-small)';
 } = {
 	medium: token(
 		'font.body',
 		'normal 400 14px/20px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
-	),
-	UNSAFE_small: token(
-		'font.body.UNSAFE_small',
-		'normal 400 12px/16px "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Ubuntu, "Helvetica Neue", sans-serif',
 	),
 	large: token(
 		'font.body.large',
@@ -1493,10 +1623,10 @@ export const getSerializedStylesMap = <T extends string>(
 	);
 };
 
-export const backgroundColorStylesMap = getSerializedStylesMap('backgroundColor', backgroundColorMap);
-export const surfaceColorStylesMap = getSerializedStylesMap(CURRENT_SURFACE_CSS_VAR, surfaceColorMap);
+export const backgroundColorStylesMap: Record<BackgroundColor, SerializedStyles> = getSerializedStylesMap('backgroundColor', backgroundColorMap);
+export const surfaceColorStylesMap: Record<SurfaceColor, SerializedStyles> = getSerializedStylesMap(CURRENT_SURFACE_CSS_VAR, surfaceColorMap);
 
-export const paddingStylesMap = {
+export const paddingStylesMap: { padding: Record<"space.0" | "space.025" | "space.050" | "space.075" | "space.100" | "space.150" | "space.200" | "space.250" | "space.300" | "space.400" | "space.500" | "space.600" | "space.800" | "space.1000", SerializedStyles>; paddingBlock: Record<"space.0" | "space.025" | "space.050" | "space.075" | "space.100" | "space.150" | "space.200" | "space.250" | "space.300" | "space.400" | "space.500" | "space.600" | "space.800" | "space.1000", SerializedStyles>; paddingBlockEnd: Record<"space.0" | "space.025" | "space.050" | "space.075" | "space.100" | "space.150" | "space.200" | "space.250" | "space.300" | "space.400" | "space.500" | "space.600" | "space.800" | "space.1000", SerializedStyles>; paddingBlockStart: Record<"space.0" | "space.025" | "space.050" | "space.075" | "space.100" | "space.150" | "space.200" | "space.250" | "space.300" | "space.400" | "space.500" | "space.600" | "space.800" | "space.1000", SerializedStyles>; paddingInline: Record<"space.0" | "space.025" | "space.050" | "space.075" | "space.100" | "space.150" | "space.200" | "space.250" | "space.300" | "space.400" | "space.500" | "space.600" | "space.800" | "space.1000", SerializedStyles>; paddingInlineEnd: Record<"space.0" | "space.025" | "space.050" | "space.075" | "space.100" | "space.150" | "space.200" | "space.250" | "space.300" | "space.400" | "space.500" | "space.600" | "space.800" | "space.1000", SerializedStyles>; paddingInlineStart: Record<"space.0" | "space.025" | "space.050" | "space.075" | "space.100" | "space.150" | "space.200" | "space.250" | "space.300" | "space.400" | "space.500" | "space.600" | "space.800" | "space.1000", SerializedStyles>; } = {
 	padding: getSerializedStylesMap('padding', positiveSpaceMap),
 	paddingBlock: getSerializedStylesMap('paddingBlock', positiveSpaceMap),
 	paddingBlockStart: getSerializedStylesMap('paddingBlockStart', positiveSpaceMap),
@@ -1512,19 +1642,1177 @@ export const paddingStylesMap = {
  * Includes all properties from the Forge XCSS specification:
  * https://developer.atlassian.com/platform/forge/ui-kit/components/xcss/
  */
-export const tokensMap = {
+export const tokensMap: {
+	// Background
+	backgroundColor: {
+		'color.background.accent.blue.bolder': "var(--ds-background-accent-blue-bolder)";
+		'color.background.accent.blue.bolder.hovered': "var(--ds-background-accent-blue-bolder-hovered)";
+		'color.background.accent.blue.bolder.pressed': "var(--ds-background-accent-blue-bolder-pressed)";
+		'color.background.accent.blue.subtle': "var(--ds-background-accent-blue-subtle)";
+		'color.background.accent.blue.subtle.hovered': "var(--ds-background-accent-blue-subtle-hovered)";
+		'color.background.accent.blue.subtle.pressed': "var(--ds-background-accent-blue-subtle-pressed)";
+		'color.background.accent.blue.subtler': "var(--ds-background-accent-blue-subtler)";
+		'color.background.accent.blue.subtler.hovered': "var(--ds-background-accent-blue-subtler-hovered)";
+		'color.background.accent.blue.subtler.pressed': "var(--ds-background-accent-blue-subtler-pressed)";
+		'color.background.accent.blue.subtlest': "var(--ds-background-accent-blue-subtlest)";
+		'color.background.accent.blue.subtlest.hovered': "var(--ds-background-accent-blue-subtlest-hovered)";
+		'color.background.accent.blue.subtlest.pressed': "var(--ds-background-accent-blue-subtlest-pressed)";
+		'color.background.accent.gray.bolder': "var(--ds-background-accent-gray-bolder)";
+		'color.background.accent.gray.bolder.hovered': "var(--ds-background-accent-gray-bolder-hovered)";
+		'color.background.accent.gray.bolder.pressed': "var(--ds-background-accent-gray-bolder-pressed)";
+		'color.background.accent.gray.subtle': "var(--ds-background-accent-gray-subtle)";
+		'color.background.accent.gray.subtle.hovered': "var(--ds-background-accent-gray-subtle-hovered)";
+		'color.background.accent.gray.subtle.pressed': "var(--ds-background-accent-gray-subtle-pressed)";
+		'color.background.accent.gray.subtler': "var(--ds-background-accent-gray-subtler)";
+		'color.background.accent.gray.subtler.hovered': "var(--ds-background-accent-gray-subtler-hovered)";
+		'color.background.accent.gray.subtler.pressed': "var(--ds-background-accent-gray-subtler-pressed)";
+		'color.background.accent.gray.subtlest': "var(--ds-background-accent-gray-subtlest)";
+		'color.background.accent.gray.subtlest.hovered': "var(--ds-background-accent-gray-subtlest-hovered)";
+		'color.background.accent.gray.subtlest.pressed': "var(--ds-background-accent-gray-subtlest-pressed)";
+		'color.background.accent.green.bolder': "var(--ds-background-accent-green-bolder)";
+		'color.background.accent.green.bolder.hovered': "var(--ds-background-accent-green-bolder-hovered)";
+		'color.background.accent.green.bolder.pressed': "var(--ds-background-accent-green-bolder-pressed)";
+		'color.background.accent.green.subtle': "var(--ds-background-accent-green-subtle)";
+		'color.background.accent.green.subtle.hovered': "var(--ds-background-accent-green-subtle-hovered)";
+		'color.background.accent.green.subtle.pressed': "var(--ds-background-accent-green-subtle-pressed)";
+		'color.background.accent.green.subtler': "var(--ds-background-accent-green-subtler)";
+		'color.background.accent.green.subtler.hovered': "var(--ds-background-accent-green-subtler-hovered)";
+		'color.background.accent.green.subtler.pressed': "var(--ds-background-accent-green-subtler-pressed)";
+		'color.background.accent.green.subtlest': "var(--ds-background-accent-green-subtlest)";
+		'color.background.accent.green.subtlest.hovered': "var(--ds-background-accent-green-subtlest-hovered)";
+		'color.background.accent.green.subtlest.pressed': "var(--ds-background-accent-green-subtlest-pressed)";
+		'color.background.accent.lime.bolder': "var(--ds-background-accent-lime-bolder)";
+		'color.background.accent.lime.bolder.hovered': "var(--ds-background-accent-lime-bolder-hovered)";
+		'color.background.accent.lime.bolder.pressed': "var(--ds-background-accent-lime-bolder-pressed)";
+		'color.background.accent.lime.subtle': "var(--ds-background-accent-lime-subtle)";
+		'color.background.accent.lime.subtle.hovered': "var(--ds-background-accent-lime-subtle-hovered)";
+		'color.background.accent.lime.subtle.pressed': "var(--ds-background-accent-lime-subtle-pressed)";
+		'color.background.accent.lime.subtler': "var(--ds-background-accent-lime-subtler)";
+		'color.background.accent.lime.subtler.hovered': "var(--ds-background-accent-lime-subtler-hovered)";
+		'color.background.accent.lime.subtler.pressed': "var(--ds-background-accent-lime-subtler-pressed)";
+		'color.background.accent.lime.subtlest': "var(--ds-background-accent-lime-subtlest)";
+		'color.background.accent.lime.subtlest.hovered': "var(--ds-background-accent-lime-subtlest-hovered)";
+		'color.background.accent.lime.subtlest.pressed': "var(--ds-background-accent-lime-subtlest-pressed)";
+		'color.background.accent.magenta.bolder': "var(--ds-background-accent-magenta-bolder)";
+		'color.background.accent.magenta.bolder.hovered': "var(--ds-background-accent-magenta-bolder-hovered)";
+		'color.background.accent.magenta.bolder.pressed': "var(--ds-background-accent-magenta-bolder-pressed)";
+		'color.background.accent.magenta.subtle': "var(--ds-background-accent-magenta-subtle)";
+		'color.background.accent.magenta.subtle.hovered': "var(--ds-background-accent-magenta-subtle-hovered)";
+		'color.background.accent.magenta.subtle.pressed': "var(--ds-background-accent-magenta-subtle-pressed)";
+		'color.background.accent.magenta.subtler': "var(--ds-background-accent-magenta-subtler)";
+		'color.background.accent.magenta.subtler.hovered': "var(--ds-background-accent-magenta-subtler-hovered)";
+		'color.background.accent.magenta.subtler.pressed': "var(--ds-background-accent-magenta-subtler-pressed)";
+		'color.background.accent.magenta.subtlest': "var(--ds-background-accent-magenta-subtlest)";
+		'color.background.accent.magenta.subtlest.hovered': "var(--ds-background-accent-magenta-subtlest-hovered)";
+		'color.background.accent.magenta.subtlest.pressed': "var(--ds-background-accent-magenta-subtlest-pressed)";
+		'color.background.accent.orange.bolder': "var(--ds-background-accent-orange-bolder)";
+		'color.background.accent.orange.bolder.hovered': "var(--ds-background-accent-orange-bolder-hovered)";
+		'color.background.accent.orange.bolder.pressed': "var(--ds-background-accent-orange-bolder-pressed)";
+		'color.background.accent.orange.subtle': "var(--ds-background-accent-orange-subtle)";
+		'color.background.accent.orange.subtle.hovered': "var(--ds-background-accent-orange-subtle-hovered)";
+		'color.background.accent.orange.subtle.pressed': "var(--ds-background-accent-orange-subtle-pressed)";
+		'color.background.accent.orange.subtler': "var(--ds-background-accent-orange-subtler)";
+		'color.background.accent.orange.subtler.hovered': "var(--ds-background-accent-orange-subtler-hovered)";
+		'color.background.accent.orange.subtler.pressed': "var(--ds-background-accent-orange-subtler-pressed)";
+		'color.background.accent.orange.subtlest': "var(--ds-background-accent-orange-subtlest)";
+		'color.background.accent.orange.subtlest.hovered': "var(--ds-background-accent-orange-subtlest-hovered)";
+		'color.background.accent.orange.subtlest.pressed': "var(--ds-background-accent-orange-subtlest-pressed)";
+		'color.background.accent.purple.bolder': "var(--ds-background-accent-purple-bolder)";
+		'color.background.accent.purple.bolder.hovered': "var(--ds-background-accent-purple-bolder-hovered)";
+		'color.background.accent.purple.bolder.pressed': "var(--ds-background-accent-purple-bolder-pressed)";
+		'color.background.accent.purple.subtle': "var(--ds-background-accent-purple-subtle)";
+		'color.background.accent.purple.subtle.hovered': "var(--ds-background-accent-purple-subtle-hovered)";
+		'color.background.accent.purple.subtle.pressed': "var(--ds-background-accent-purple-subtle-pressed)";
+		'color.background.accent.purple.subtler': "var(--ds-background-accent-purple-subtler)";
+		'color.background.accent.purple.subtler.hovered': "var(--ds-background-accent-purple-subtler-hovered)";
+		'color.background.accent.purple.subtler.pressed': "var(--ds-background-accent-purple-subtler-pressed)";
+		'color.background.accent.purple.subtlest': "var(--ds-background-accent-purple-subtlest)";
+		'color.background.accent.purple.subtlest.hovered': "var(--ds-background-accent-purple-subtlest-hovered)";
+		'color.background.accent.purple.subtlest.pressed': "var(--ds-background-accent-purple-subtlest-pressed)";
+		'color.background.accent.red.bolder': "var(--ds-background-accent-red-bolder)";
+		'color.background.accent.red.bolder.hovered': "var(--ds-background-accent-red-bolder-hovered)";
+		'color.background.accent.red.bolder.pressed': "var(--ds-background-accent-red-bolder-pressed)";
+		'color.background.accent.red.subtle': "var(--ds-background-accent-red-subtle)";
+		'color.background.accent.red.subtle.hovered': "var(--ds-background-accent-red-subtle-hovered)";
+		'color.background.accent.red.subtle.pressed': "var(--ds-background-accent-red-subtle-pressed)";
+		'color.background.accent.red.subtler': "var(--ds-background-accent-red-subtler)";
+		'color.background.accent.red.subtler.hovered': "var(--ds-background-accent-red-subtler-hovered)";
+		'color.background.accent.red.subtler.pressed': "var(--ds-background-accent-red-subtler-pressed)";
+		'color.background.accent.red.subtlest': "var(--ds-background-accent-red-subtlest)";
+		'color.background.accent.red.subtlest.hovered': "var(--ds-background-accent-red-subtlest-hovered)";
+		'color.background.accent.red.subtlest.pressed': "var(--ds-background-accent-red-subtlest-pressed)";
+		'color.background.accent.teal.bolder': "var(--ds-background-accent-teal-bolder)";
+		'color.background.accent.teal.bolder.hovered': "var(--ds-background-accent-teal-bolder-hovered)";
+		'color.background.accent.teal.bolder.pressed': "var(--ds-background-accent-teal-bolder-pressed)";
+		'color.background.accent.teal.subtle': "var(--ds-background-accent-teal-subtle)";
+		'color.background.accent.teal.subtle.hovered': "var(--ds-background-accent-teal-subtle-hovered)";
+		'color.background.accent.teal.subtle.pressed': "var(--ds-background-accent-teal-subtle-pressed)";
+		'color.background.accent.teal.subtler': "var(--ds-background-accent-teal-subtler)";
+		'color.background.accent.teal.subtler.hovered': "var(--ds-background-accent-teal-subtler-hovered)";
+		'color.background.accent.teal.subtler.pressed': "var(--ds-background-accent-teal-subtler-pressed)";
+		'color.background.accent.teal.subtlest': "var(--ds-background-accent-teal-subtlest)";
+		'color.background.accent.teal.subtlest.hovered': "var(--ds-background-accent-teal-subtlest-hovered)";
+		'color.background.accent.teal.subtlest.pressed': "var(--ds-background-accent-teal-subtlest-pressed)";
+		'color.background.accent.yellow.bolder': "var(--ds-background-accent-yellow-bolder)";
+		'color.background.accent.yellow.bolder.hovered': "var(--ds-background-accent-yellow-bolder-hovered)";
+		'color.background.accent.yellow.bolder.pressed': "var(--ds-background-accent-yellow-bolder-pressed)";
+		'color.background.accent.yellow.subtle': "var(--ds-background-accent-yellow-subtle)";
+		'color.background.accent.yellow.subtle.hovered': "var(--ds-background-accent-yellow-subtle-hovered)";
+		'color.background.accent.yellow.subtle.pressed': "var(--ds-background-accent-yellow-subtle-pressed)";
+		'color.background.accent.yellow.subtler': "var(--ds-background-accent-yellow-subtler)";
+		'color.background.accent.yellow.subtler.hovered': "var(--ds-background-accent-yellow-subtler-hovered)";
+		'color.background.accent.yellow.subtler.pressed': "var(--ds-background-accent-yellow-subtler-pressed)";
+		'color.background.accent.yellow.subtlest': "var(--ds-background-accent-yellow-subtlest)";
+		'color.background.accent.yellow.subtlest.hovered': "var(--ds-background-accent-yellow-subtlest-hovered)";
+		'color.background.accent.yellow.subtlest.pressed': "var(--ds-background-accent-yellow-subtlest-pressed)";
+		'color.background.brand.bold': "var(--ds-background-brand-bold)";
+		'color.background.brand.bold.hovered': "var(--ds-background-brand-bold-hovered)";
+		'color.background.brand.bold.pressed': "var(--ds-background-brand-bold-pressed)";
+		'color.background.brand.boldest': "var(--ds-background-brand-boldest)";
+		'color.background.brand.boldest.hovered': "var(--ds-background-brand-boldest-hovered)";
+		'color.background.brand.boldest.pressed': "var(--ds-background-brand-boldest-pressed)";
+		'color.background.brand.subtlest': "var(--ds-background-brand-subtlest)";
+		'color.background.brand.subtlest.hovered': "var(--ds-background-brand-subtlest-hovered)";
+		'color.background.brand.subtlest.pressed': "var(--ds-background-brand-subtlest-pressed)";
+		'color.background.danger': "var(--ds-background-danger)";
+		'color.background.danger.bold': "var(--ds-background-danger-bold)";
+		'color.background.danger.bold.hovered': "var(--ds-background-danger-bold-hovered)";
+		'color.background.danger.bold.pressed': "var(--ds-background-danger-bold-pressed)";
+		'color.background.danger.hovered': "var(--ds-background-danger-hovered)";
+		'color.background.danger.pressed': "var(--ds-background-danger-pressed)";
+		'color.background.danger.subtler': "var(--ds-background-danger-subtler)";
+		'color.background.danger.subtler.hovered': "var(--ds-background-danger-subtler-hovered)";
+		'color.background.danger.subtler.pressed': "var(--ds-background-danger-subtler-pressed)";
+		'color.background.disabled': "var(--ds-background-disabled)";
+		'color.background.discovery': "var(--ds-background-discovery)";
+		'color.background.discovery.bold': "var(--ds-background-discovery-bold)";
+		'color.background.discovery.bold.hovered': "var(--ds-background-discovery-bold-hovered)";
+		'color.background.discovery.bold.pressed': "var(--ds-background-discovery-bold-pressed)";
+		'color.background.discovery.hovered': "var(--ds-background-discovery-hovered)";
+		'color.background.discovery.pressed': "var(--ds-background-discovery-pressed)";
+		'color.background.discovery.subtler': "var(--ds-background-discovery-subtler)";
+		'color.background.discovery.subtler.hovered': "var(--ds-background-discovery-subtler-hovered)";
+		'color.background.discovery.subtler.pressed': "var(--ds-background-discovery-subtler-pressed)";
+		'color.background.information': "var(--ds-background-information)";
+		'color.background.information.bold': "var(--ds-background-information-bold)";
+		'color.background.information.bold.hovered': "var(--ds-background-information-bold-hovered)";
+		'color.background.information.bold.pressed': "var(--ds-background-information-bold-pressed)";
+		'color.background.information.hovered': "var(--ds-background-information-hovered)";
+		'color.background.information.pressed': "var(--ds-background-information-pressed)";
+		'color.background.information.subtler': "var(--ds-background-information-subtler)";
+		'color.background.information.subtler.hovered': "var(--ds-background-information-subtler-hovered)";
+		'color.background.information.subtler.pressed': "var(--ds-background-information-subtler-pressed)";
+		'color.background.input': "var(--ds-background-input)";
+		'color.background.input.hovered': "var(--ds-background-input-hovered)";
+		'color.background.input.pressed': "var(--ds-background-input-pressed)";
+		'color.background.inverse.subtle': "var(--ds-background-inverse-subtle)";
+		'color.background.inverse.subtle.hovered': "var(--ds-background-inverse-subtle-hovered)";
+		'color.background.inverse.subtle.pressed': "var(--ds-background-inverse-subtle-pressed)";
+		'color.background.neutral': "var(--ds-background-neutral)";
+		'color.background.neutral.bold': "var(--ds-background-neutral-bold)";
+		'color.background.neutral.bold.hovered': "var(--ds-background-neutral-bold-hovered)";
+		'color.background.neutral.bold.pressed': "var(--ds-background-neutral-bold-pressed)";
+		'color.background.neutral.hovered': "var(--ds-background-neutral-hovered)";
+		'color.background.neutral.pressed': "var(--ds-background-neutral-pressed)";
+		'color.background.neutral.subtle': "var(--ds-background-neutral-subtle)";
+		'color.background.neutral.subtle.hovered': "var(--ds-background-neutral-subtle-hovered)";
+		'color.background.neutral.subtle.pressed': "var(--ds-background-neutral-subtle-pressed)";
+		'color.background.selected': "var(--ds-background-selected)";
+		'color.background.selected.bold': "var(--ds-background-selected-bold)";
+		'color.background.selected.bold.hovered': "var(--ds-background-selected-bold-hovered)";
+		'color.background.selected.bold.pressed': "var(--ds-background-selected-bold-pressed)";
+		'color.background.selected.hovered': "var(--ds-background-selected-hovered)";
+		'color.background.selected.pressed': "var(--ds-background-selected-pressed)";
+		'color.background.success': "var(--ds-background-success)";
+		'color.background.success.bold': "var(--ds-background-success-bold)";
+		'color.background.success.bold.hovered': "var(--ds-background-success-bold-hovered)";
+		'color.background.success.bold.pressed': "var(--ds-background-success-bold-pressed)";
+		'color.background.success.hovered': "var(--ds-background-success-hovered)";
+		'color.background.success.pressed': "var(--ds-background-success-pressed)";
+		'color.background.success.subtler': "var(--ds-background-success-subtler)";
+		'color.background.success.subtler.hovered': "var(--ds-background-success-subtler-hovered)";
+		'color.background.success.subtler.pressed': "var(--ds-background-success-subtler-pressed)";
+		'color.background.warning': "var(--ds-background-warning)";
+		'color.background.warning.bold': "var(--ds-background-warning-bold)";
+		'color.background.warning.bold.hovered': "var(--ds-background-warning-bold-hovered)";
+		'color.background.warning.bold.pressed': "var(--ds-background-warning-bold-pressed)";
+		'color.background.warning.hovered': "var(--ds-background-warning-hovered)";
+		'color.background.warning.pressed': "var(--ds-background-warning-pressed)";
+		'color.background.warning.subtler': "var(--ds-background-warning-subtler)";
+		'color.background.warning.subtler.hovered': "var(--ds-background-warning-subtler-hovered)";
+		'color.background.warning.subtler.pressed': "var(--ds-background-warning-subtler-pressed)";
+		'color.blanket': "var(--ds-blanket)";
+		'color.blanket.danger': "var(--ds-blanket-danger)";
+		'color.blanket.selected': "var(--ds-blanket-selected)";
+		'color.skeleton': "var(--ds-skeleton)";
+		'color.skeleton.subtle': "var(--ds-skeleton-subtle)";
+		'elevation.surface': "var(--ds-surface)";
+		'elevation.surface.hovered': "var(--ds-surface-hovered)";
+		'elevation.surface.overlay': "var(--ds-surface-overlay)";
+		'elevation.surface.overlay.hovered': "var(--ds-surface-overlay-hovered)";
+		'elevation.surface.overlay.pressed': "var(--ds-surface-overlay-pressed)";
+		'elevation.surface.pressed': "var(--ds-surface-pressed)";
+		'elevation.surface.raised': "var(--ds-surface-raised)";
+		'elevation.surface.raised.hovered': "var(--ds-surface-raised-hovered)";
+		'elevation.surface.raised.pressed': "var(--ds-surface-raised-pressed)";
+		'elevation.surface.sunken': "var(--ds-surface-sunken)";
+		'utility.elevation.surface.current': "var(--ds-elevation-surface-current)";
+	};
+	borderBlockColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	};
+	borderBlockEndColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	};
+	borderBlockEndWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	};
+	borderBlockStartColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	}; borderBlockStartWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; borderBlockWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; borderBottomColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	}; borderBottomLeftRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderBottomRightRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderBottomWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; // Border Color
+	borderColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	}; borderEndEndRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderEndStartRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderInlineColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	};
+	borderInlineEndColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	}; borderInlineEndWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; borderInlineStartColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	}; borderInlineStartWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; borderInlineWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; borderLeftColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	}; borderLeftWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; // Border Radius
+	borderRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderRightColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	};
+	borderRightWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; borderStartEndRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderStartStartRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderTopColor: {
+		'color.border': "var(--ds-border)";
+		'color.border.accent.blue': "var(--ds-border-accent-blue)";
+		'color.border.accent.gray': "var(--ds-border-accent-gray)";
+		'color.border.accent.green': "var(--ds-border-accent-green)";
+		'color.border.accent.lime': "var(--ds-border-accent-lime)";
+		'color.border.accent.magenta': "var(--ds-border-accent-magenta)";
+		'color.border.accent.orange': "var(--ds-border-accent-orange)";
+		'color.border.accent.purple': "var(--ds-border-accent-purple)";
+		'color.border.accent.red': "var(--ds-border-accent-red)";
+		'color.border.accent.teal': "var(--ds-border-accent-teal)";
+		'color.border.accent.yellow': "var(--ds-border-accent-yellow)";
+		'color.border.bold': "var(--ds-border-bold)";
+		'color.border.brand': "var(--ds-border-brand)";
+		'color.border.danger': "var(--ds-border-danger)";
+		'color.border.disabled': "var(--ds-border-disabled)";
+		'color.border.discovery': "var(--ds-border-discovery)";
+		'color.border.focused': "var(--ds-border-focused)";
+		'color.border.information': "var(--ds-border-information)";
+		'color.border.input': "var(--ds-border-input)";
+		'color.border.inverse': "var(--ds-border-inverse)";
+		'color.border.selected': "var(--ds-border-selected)";
+		'color.border.success': "var(--ds-border-success)";
+		'color.border.warning': "var(--ds-border-warning)";
+	}; borderTopLeftRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderTopRightRadius: {
+		'radius.full': "var(--ds-radius-full)";
+		'radius.large': "var(--ds-radius-large)";
+		'radius.medium': "var(--ds-radius-medium)";
+		'radius.small': "var(--ds-radius-small)";
+		'radius.tile': "var(--ds-radius-tile)";
+		'radius.xlarge': "var(--ds-radius-xlarge)";
+		'radius.xsmall': "var(--ds-radius-xsmall)";
+		'radius.xxlarge': "var(--ds-radius-xxlarge)";
+	}; borderTopWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; // Border Width
+	borderWidth: {
+		'border.width': "var(--ds-border-width)";
+		'border.width.focused': "var(--ds-border-width-focused)";
+		'border.width.selected': "var(--ds-border-width-selected)";
+	}; // Shadow
+	boxShadow: {
+		'elevation.shadow.overflow': "var(--ds-shadow-overflow)";
+		'elevation.shadow.overflow.perimeter': "var(--ds-shadow-overflow-perimeter)";
+		'elevation.shadow.overflow.spread': "var(--ds-shadow-overflow-spread)";
+		'elevation.shadow.overlay': "var(--ds-shadow-overlay)";
+		'elevation.shadow.raised': "var(--ds-shadow-raised)";
+	}; // Text color
+	color: {
+		'color.link': "var(--ds-link)";
+		'color.link.pressed': "var(--ds-link-pressed)";
+		'color.link.visited': "var(--ds-link-visited)";
+		'color.link.visited.pressed': "var(--ds-link-visited-pressed)";
+		'color.text': "var(--ds-text)";
+		'color.text.accent.blue': "var(--ds-text-accent-blue)";
+		'color.text.accent.blue.bolder': "var(--ds-text-accent-blue-bolder)";
+		'color.text.accent.gray': "var(--ds-text-accent-gray)";
+		'color.text.accent.gray.bolder': "var(--ds-text-accent-gray-bolder)";
+		'color.text.accent.green': "var(--ds-text-accent-green)";
+		'color.text.accent.green.bolder': "var(--ds-text-accent-green-bolder)";
+		'color.text.accent.lime': "var(--ds-text-accent-lime)";
+		'color.text.accent.lime.bolder': "var(--ds-text-accent-lime-bolder)";
+		'color.text.accent.magenta': "var(--ds-text-accent-magenta)";
+		'color.text.accent.magenta.bolder': "var(--ds-text-accent-magenta-bolder)";
+		'color.text.accent.orange': "var(--ds-text-accent-orange)";
+		'color.text.accent.orange.bolder': "var(--ds-text-accent-orange-bolder)";
+		'color.text.accent.purple': "var(--ds-text-accent-purple)";
+		'color.text.accent.purple.bolder': "var(--ds-text-accent-purple-bolder)";
+		'color.text.accent.red': "var(--ds-text-accent-red)";
+		'color.text.accent.red.bolder': "var(--ds-text-accent-red-bolder)";
+		'color.text.accent.teal': "var(--ds-text-accent-teal)";
+		'color.text.accent.teal.bolder': "var(--ds-text-accent-teal-bolder)";
+		'color.text.accent.yellow': "var(--ds-text-accent-yellow)";
+		'color.text.accent.yellow.bolder': "var(--ds-text-accent-yellow-bolder)";
+		'color.text.brand': "var(--ds-text-brand)";
+		'color.text.danger': "var(--ds-text-danger)";
+		'color.text.danger.bolder': "var(--ds-text-danger-bolder)";
+		'color.text.disabled': "var(--ds-text-disabled)";
+		'color.text.discovery': "var(--ds-text-discovery)";
+		'color.text.discovery.bolder': "var(--ds-text-discovery-bolder)";
+		'color.text.information': "var(--ds-text-information)";
+		'color.text.information.bolder': "var(--ds-text-information-bolder)";
+		'color.text.inverse': "var(--ds-text-inverse)";
+		'color.text.selected': "var(--ds-text-selected)";
+		'color.text.subtle': "var(--ds-text-subtle)";
+		'color.text.subtlest': "var(--ds-text-subtlest)";
+		'color.text.success': "var(--ds-text-success)";
+		'color.text.success.bolder': "var(--ds-text-success-bolder)";
+		'color.text.warning': "var(--ds-text-warning)";
+		'color.text.warning.bolder': "var(--ds-text-warning-bolder)";
+		'color.text.warning.inverse': "var(--ds-text-warning-inverse)";
+	}; height: {
+		readonly '100%': "100%";
+		readonly 'size.100': "1rem";
+		readonly 'size.1000': "12rem";
+		readonly 'size.200': "1.5rem";
+		readonly 'size.300': "2rem";
+		readonly 'size.400': "2.5rem";
+		readonly 'size.500': "3rem";
+		readonly 'size.600': "6rem";
+	};
+	// Margin (can be negative)
+	margin: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginBlock: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginBlockEnd: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginBlockStart: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginBottom: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginInline: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginInlineEnd: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginInlineStart: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginLeft: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginRight: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	}; marginTop: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+		'space.negative.025': "var(--ds-space-negative-025)";
+		'space.negative.050': "var(--ds-space-negative-050)";
+		'space.negative.075': "var(--ds-space-negative-075)";
+		'space.negative.100': "var(--ds-space-negative-100)";
+		'space.negative.150': "var(--ds-space-negative-150)";
+		'space.negative.200': "var(--ds-space-negative-200)";
+		'space.negative.250': "var(--ds-space-negative-250)";
+		'space.negative.300': "var(--ds-space-negative-300)";
+		'space.negative.400': "var(--ds-space-negative-400)";
+	};
+	maxHeight: {
+		readonly '100%': "100%";
+		readonly 'size.100': "1rem";
+		readonly 'size.1000': "12rem";
+		readonly 'size.200': "1.5rem";
+		readonly 'size.300': "2rem";
+		readonly 'size.400': "2.5rem";
+		readonly 'size.500': "3rem";
+		readonly 'size.600': "6rem";
+	}; maxWidth: {
+		readonly '100%': "100%";
+		readonly 'size.100': "1rem";
+		readonly 'size.1000': "12rem";
+		readonly 'size.200': "1.5rem";
+		readonly 'size.300': "2rem";
+		readonly 'size.400': "2.5rem";
+		readonly 'size.500': "3rem";
+		readonly 'size.600': "6rem";
+	}; minHeight: {
+		readonly '100%': "100%";
+		readonly 'size.100': "1rem";
+		readonly 'size.1000': "12rem";
+		readonly 'size.200': "1.5rem";
+		readonly 'size.300': "2rem";
+		readonly 'size.400': "2.5rem";
+		readonly 'size.500': "3rem";
+		readonly 'size.600': "6rem";
+	}; minWidth: {
+		readonly '100%': "100%";
+		readonly 'size.100': "1rem";
+		readonly 'size.1000': "12rem";
+		readonly 'size.200': "1.5rem";
+		readonly 'size.300': "2rem";
+		readonly 'size.400': "2.5rem";
+		readonly 'size.500': "3rem";
+		readonly 'size.600': "6rem";
+	}; // Opacity
+	opacity: {
+		'opacity.disabled': "var(--ds-opacity-disabled)";
+		'opacity.loading': "var(--ds-opacity-loading)";
+	}; // Padding
+	padding: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingBlock: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingBlockEnd: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingBlockStart: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingBottom: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingInline: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	};
+	paddingInlineEnd: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingInlineStart: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingLeft: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingRight: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; paddingTop: {
+		'space.0': "var(--ds-space-0)";
+		'space.025': "var(--ds-space-025)";
+		'space.050': "var(--ds-space-050)";
+		'space.075': "var(--ds-space-075)";
+		'space.100': "var(--ds-space-100)";
+		'space.1000': "var(--ds-space-1000)";
+		'space.150': "var(--ds-space-150)";
+		'space.200': "var(--ds-space-200)";
+		'space.250': "var(--ds-space-250)";
+		'space.300': "var(--ds-space-300)";
+		'space.400': "var(--ds-space-400)";
+		'space.500': "var(--ds-space-500)";
+		'space.600': "var(--ds-space-600)";
+		'space.800': "var(--ds-space-800)";
+	}; // Dimensions
+	width: {
+		readonly '100%': "100%";
+		readonly 'size.100': "1rem";
+		readonly 'size.1000': "12rem";
+		readonly 'size.200': "1.5rem";
+		readonly 'size.300': "2rem";
+		readonly 'size.400': "2.5rem";
+		readonly 'size.500': "3rem";
+		readonly 'size.600': "6rem";
+	};
+} = {
 	// Background
 	backgroundColor: backgroundColorMap,
-	
+
 	// Text color
 	color: textColorMap,
-	
+
 	// Opacity
 	opacity: opacityMap,
-	
+
 	// Shadow
 	boxShadow: shadowMap,
-	
+
 	// Border Color
 	borderColor: borderColorMap,
 	borderBlockColor: borderColorMap,
@@ -1537,7 +2825,7 @@ export const tokensMap = {
 	borderLeftColor: borderColorMap,
 	borderRightColor: borderColorMap,
 	borderTopColor: borderColorMap,
-	
+
 	// Border Radius
 	borderRadius: borderRadiusMap,
 	borderBottomLeftRadius: borderRadiusMap,
@@ -1548,7 +2836,7 @@ export const tokensMap = {
 	borderEndStartRadius: borderRadiusMap,
 	borderStartEndRadius: borderRadiusMap,
 	borderStartStartRadius: borderRadiusMap,
-	
+
 	// Border Width
 	borderWidth: borderWidthMap,
 	borderBlockWidth: borderWidthMap,
@@ -1561,7 +2849,7 @@ export const tokensMap = {
 	borderLeftWidth: borderWidthMap,
 	borderRightWidth: borderWidthMap,
 	borderTopWidth: borderWidthMap,
-	
+
 	// Padding
 	padding: positiveSpaceMap,
 	paddingBlock: positiveSpaceMap,
@@ -1574,7 +2862,7 @@ export const tokensMap = {
 	paddingLeft: positiveSpaceMap,
 	paddingRight: positiveSpaceMap,
 	paddingTop: positiveSpaceMap,
-	
+
 	// Margin (can be negative)
 	margin: allSpaceMap,
 	marginBlock: allSpaceMap,
@@ -1587,7 +2875,7 @@ export const tokensMap = {
 	marginLeft: allSpaceMap,
 	marginRight: allSpaceMap,
 	marginTop: allSpaceMap,
-	
+
 	// Dimensions
 	width: dimensionMap,
 	height: dimensionMap,
@@ -1595,7 +2883,7 @@ export const tokensMap = {
 	maxWidth: dimensionMap,
 	minHeight: dimensionMap,
 	maxHeight: dimensionMap,
-	
+
 	// Note: display, flexGrow, overflow are NOT token-based and don't need entries here. They accept raw CSS values.
 };
 
@@ -1614,7 +2902,7 @@ export const resolveTokens = (styleObj: any): any => {
 			// Only try to resolve if it looks like a token (contains a dot and starts with a letter)
 			// This matches @atlaskit/primitives behavior of accepting both tokens and raw CSS
 			const looksLikeToken = value.includes('.') && /^[a-z]/.test(value);
-			
+
 			if (looksLikeToken) {
 				// Try to resolve as a token
 				const tokenMapForProp = (tokensMap as any)[key];

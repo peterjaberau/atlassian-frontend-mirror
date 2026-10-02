@@ -1,9 +1,10 @@
 import { mapChildren } from '@atlaskit/editor-common/utils';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Selection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { TableMap } from '@atlaskit/editor-tables/table-map';
 import { findTable } from '@atlaskit/editor-tables/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 export const isIsolating = (node: PmNode): boolean => {
 	return !!node.type.spec.isolating;
@@ -25,7 +26,7 @@ export const containsHeaderColumn = (table: PmNode): boolean => {
 			if (cell && cell.type !== table.type.schema.nodes.tableHeader) {
 				return false;
 			}
-		} catch (e) {
+		} catch {
 			return false;
 		}
 	}
@@ -53,7 +54,7 @@ export const checkIfHeaderRowEnabled = (selection: Selection): boolean =>
 export const checkIfNumberColumnEnabled = (selection: Selection): boolean =>
 	filterNearSelection(selection, findTable, (table) => !!table.attrs.isNumberColumnEnabled, false);
 
-export const getTableWidth = (node: PmNode) => {
+export const getTableWidth = (node: PmNode): number => {
 	return getTableWidths(node).reduce((acc, current) => acc + current, 0);
 };
 
@@ -127,42 +128,81 @@ function getTableWidths(node: PmNode): number[] {
 
 export const isTableNested = (state: EditorState, tablePos = 0): boolean => {
 	const $tablePos = state.doc.resolve(tablePos);
-	const parent = $tablePos.parent;
-	const nodeTypes = state.schema.nodes;
-
-	if (fg('platform_editor_change_table_nesting_check')) {
-		return $tablePos.depth > 0;
-	}
-
-	return (
-		parent.type === nodeTypes.layoutColumn ||
-		parent.type === nodeTypes.expand ||
-		parent.type === nodeTypes.bodiedExtension ||
-		parent.type === nodeTypes.extensionFrame ||
-		parent.type === nodeTypes.tableHeader ||
-		parent.type === nodeTypes.tableCell
-	);
+	return $tablePos.depth > 0;
 };
 
 export const isTableNestedInMoreThanOneNode = (state: EditorState, tablePos = 0): boolean => {
 	return state.doc.resolve(tablePos).depth > 2;
 };
 
+/**
+ * True when the table sits under a bodiedSyncBlock ancestor.
+ * Used to prefer DOM-measured wrapper width over getParentNodeWidth() for stable scaling.
+ */
+export const isTableNestedUnderBodiedSyncBlock = (
+	state: EditorState,
+	tablePos: number,
+): boolean => {
+	const bodiedSyncBlock = state.schema.nodes.bodiedSyncBlock;
+	if (!bodiedSyncBlock) {
+		return false;
+	}
+	const $pos = state.doc.resolve(tablePos);
+	for (let d = $pos.depth; d > 0; d--) {
+		if ($pos.node(d).type === bodiedSyncBlock) {
+			return true;
+		}
+	}
+	return false;
+};
+
 const anyChildCellMergedAcrossRow = (node: PmNode): boolean =>
 	mapChildren(node, (child) => child.attrs.rowspan || 0).some((rowspan) => rowspan > 1);
 
+const anyChildCellMergedAcrossColumn = (node: PmNode): boolean =>
+	mapChildren(node, (child) => child.attrs.colspan || 0).some((colspan) => colspan > 1);
+
+export const getTableRowIndex = (view: EditorView, getPos: () => number | undefined): number => {
+	try {
+		const pos = getPos();
+		return pos === undefined ? 0 : view.state.doc.resolve(pos).index();
+	} catch {
+		return 0;
+	}
+};
+
 /**
  * Check if a given node is a header row with this definition:
+ *  - the row is the first row
  *  - all children are tableHeader cells
- *  - no table cells have been have merged with other table row cells
+ *  - no table cells have been merged with other table row cells (rowspan > 1)
+ *  - no table cells have been merged with other table column cells (colspan > 1),
+ *    (colspan check gated behind platform_editor_fix_sticky_header_malfunction,
+ *     and only applied to non-first rows — the first/sticky header row is allowed
+ *     to have merged columns within itself, gated behind platform_editor_fix_sticky_header_row)
  *
  * @param node ProseMirror node
+ * @param rowIndex index of this row within its parent (default 0 = first/sticky row)
  * @returns boolean if it meets definition
  */
-export const supportedHeaderRow = (node: PmNode): boolean => {
+export const supportedHeaderRow = (node: PmNode, rowIndex: number = 0): boolean => {
+	if (rowIndex !== 0) {
+		return false;
+	}
+
 	const allHeaders = mapChildren(node, (child) => child.type.name === 'tableHeader').every(Boolean);
 
-	const someMerged = anyChildCellMergedAcrossRow(node);
+	if (expValEquals('platform_editor_fix_sticky_header_malfunction', 'isEnabled', true)) {
+		const someMergedAcrossRow = anyChildCellMergedAcrossRow(node);
+		// Only apply the colspan check to non-first rows (rowIndex > 0) when the fix is enabled.
+		const isFirstStickyRowExempt =
+			expValEquals('platform_editor_fix_sticky_header_row', 'isEnabled', true) && rowIndex === 0;
+		const someMergedAcrossColumn = isFirstStickyRowExempt
+			? false
+			: anyChildCellMergedAcrossColumn(node);
+		return allHeaders && !someMergedAcrossRow && !someMergedAcrossColumn;
+	}
 
+	const someMerged = anyChildCellMergedAcrossRow(node);
 	return allHeaders && !someMerged;
 };

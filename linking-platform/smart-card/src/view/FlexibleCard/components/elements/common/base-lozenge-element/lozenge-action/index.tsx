@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import DropdownMenu, { type CustomTriggerProps } from '@atlaskit/dropdown-menu';
-import type { ThemeAppearance } from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import type { CustomTriggerProps } from '@atlaskit/dropdown-menu/types';
+import type { ThemeAppearance } from '@atlaskit/lozenge/lozenge';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { useAnalyticsEvents } from '../../../../../../../common/analytics/generated/use-analytics-events';
 import extractLozengeActionItems from '../../../../../../../extractors/action/extract-lozenge-action-items';
 import useInvoke from '../../../../../../../state/hooks/use-invoke';
-import { isInvokeCustomError } from '../../../../../../../state/hooks/use-invoke/utils';
+import { isInvokeCustomError } from '../../../../../../../state/hooks/use-invoke/isInvokeCustomError';
 import useResolve from '../../../../../../../state/hooks/use-resolve';
 import createStatusUpdateRequest from '../../../../../../../utils/actions/create-status-update-request';
 import { TrackQuickActionType } from '../../../../../../../utils/analytics/analytics';
 import { type MessageProps } from '../../../../types';
-
 import withErrorBoundary from './error-boundary';
 import {
 	permissionLoadErrorAnalyticsPayload,
@@ -39,6 +39,7 @@ const LozengeAction = ({
 	text,
 	zIndex,
 	onAfterChanged,
+	trailingMetric,
 	shouldRenderToParent = false,
 }: LozengeActionProps) => {
 	const [selected, setSelected] = useState<Partial<LozengeActionTriggerProps>>({
@@ -112,12 +113,13 @@ const LozengeAction = ({
 				{...props}
 				appearance={selected.appearance}
 				isOpen={isOpen}
-				{...(fg('platform_navx_sl_lozenge_max_width') ? { maxWidth } : undefined)}
+				maxWidth={maxWidth}
 				testId={testId}
 				text={selected.text}
+				trailingMetric={trailingMetric}
 			/>
 		),
-		[selected.appearance, selected.text, isOpen, maxWidth, testId],
+		[selected.appearance, selected.text, isOpen, maxWidth, testId, trailingMetric],
 	);
 
 	const handleItemClick = useCallback(
@@ -144,7 +146,7 @@ const LozengeAction = ({
 					});
 
 					if (url) {
-						await reload(url, true, undefined, linkId);
+						await reload({ url, isReloading: true, id: linkId });
 					}
 				}
 			} catch (err: any) {
@@ -194,4 +196,6 @@ const LozengeAction = ({
 	);
 };
 
-export default withErrorBoundary(LozengeAction);
+const _default_1: (props: LozengeActionProps) => React.JSX.Element =
+	withErrorBoundary(LozengeAction);
+export default _default_1;

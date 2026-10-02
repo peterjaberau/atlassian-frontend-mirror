@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@atlassian/testing-library';
 
 import { Frame } from '../../index';
 
@@ -22,24 +22,31 @@ describe('Frame', () => {
 				Dummy link
 			</Frame>,
 		);
-		expect(await screen.findByRole('button')).toBeInTheDocument();
 		expect(screen.getByTestId('frame')).toHaveAttribute('tabindex', '0');
 	});
 
 	it('should call onClick when the card is clicked', () => {
 		const onClick = jest.fn();
-		render(<Frame onClick={onClick}>Dummy link</Frame>);
-		fireEvent.click(screen.getByRole('button'));
+		render(
+			<Frame onClick={onClick} testId="frame">
+				Dummy link
+			</Frame>,
+		);
+		fireEvent.click(screen.getByTestId('frame'));
 		expect(onClick).toHaveBeenCalled();
 	});
 
 	it('should call onClick when the space key is pressed', () => {
 		const onClick = jest.fn();
-		render(<Frame onClick={onClick}>Dummy link</Frame>);
+		render(
+			<Frame onClick={onClick} testId="frame">
+				Dummy link
+			</Frame>,
+		);
 
-		screen.getByRole('button').focus();
+		screen.getByTestId('frame').focus();
 
-		fireEvent.keyPress(screen.getByRole('button'), {
+		fireEvent.keyPress(screen.getByTestId('frame'), {
 			key: ' ',
 			charCode: 32, // note: hacky — for unknown reasons the space event listener is not triggered without charCode
 		});
@@ -48,8 +55,12 @@ describe('Frame', () => {
 
 	it('should call onClick when the enter key is pressed', () => {
 		const onClick = jest.fn();
-		render(<Frame onClick={onClick}>Dummy link</Frame>);
-		fireEvent.keyPress(screen.getByRole('button'), {
+		render(
+			<Frame onClick={onClick} testId="frame">
+				Dummy link
+			</Frame>,
+		);
+		fireEvent.keyPress(screen.getByTestId('frame'), {
 			keyCode: '13',
 		});
 		expect(onClick).toHaveBeenCalled();

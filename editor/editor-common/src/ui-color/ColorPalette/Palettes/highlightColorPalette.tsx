@@ -3,17 +3,18 @@
  * @jsx jsx
  */
 
-import { type ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 
-import { backgroundColorPalette } from '@atlaskit/adf-schema';
-import { token, useThemeObserver } from '@atlaskit/tokens';
+import { backgroundColorPalette } from '@atlaskit/adf-schema/background-color';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import getColorMessage from './getColorMessage';
+import { mapPaletteColor } from './mapPaletteColor';
 import paletteMessages from './paletteMessages';
-import { mapPaletteColor } from './textColorPalette';
 import type { PaletteColor } from './type';
 
 export const REMOVE_HIGHLIGHT_COLOR = '#00000000';
@@ -40,23 +41,25 @@ const DiagonalLineGlyph = (props: ComponentProps<'svg'>) => (
 	</svg>
 );
 
-export const EditorDiagonalLineIcon = () => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const EditorDiagonalLineIcon = (): jsx.JSX.Element => {
 	const { colorMode } = useThemeObserver();
 	const primaryColor =
 		colorMode === 'dark'
-			? token('color.background.accent.gray.bolder', '#626F86')
-			: token('color.background.accent.gray.subtle', '#8590A2');
+			? token('color.background.accent.gray.bolder')
+			: token('color.background.accent.gray.subtle');
 	return (
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
-		<DiagonalLineGlyph aria-label="" style={{ color: primaryColor }} />
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+		<DiagonalLineGlyph style={{ color: primaryColor }} />
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const highlightColorPalette: Array<PaletteColor> = [
 	{
 		value: REMOVE_HIGHLIGHT_COLOR,
 		label: 'No color' as const, // Mostly informative, only used for analytics
-		border: token('color.border', '#091E4224'),
+		border: token('color.border'),
 		message: getColorMessage(paletteMessages, 'no-color'),
 		decorator: <EditorDiagonalLineIcon />,
 	},

@@ -12,6 +12,8 @@ import IconButtonDont from './images/dos-donts/icon-common-dont.png';
 
 Use icon-only buttons when space is limited and the icon has a clear association with the action.
 
+## Parts
+
 ![Diagram of icon only button. A caption follows this image.](./images/anatomy-icon-button.png)
 
 1. **Button:** Most icon buttons should be square, aside from some select round icons that appear in
@@ -24,7 +26,7 @@ Use icon-only buttons when space is limited and the icon has a clear association
 Don’t use icon-only buttons with custom icons. If you are creating a new icon, it’s probably a more
 complex idea that would require a [button with a text label](/components/button/examples).
 
-Use an existing [system icon](/components/icon/) instead.
+Use an existing [system icon](/components/icon) instead.
 
 ### Use icons with clear meanings, or else use a button with a text label
 
@@ -39,27 +41,28 @@ To test whether an icon button will be clear, apply the five-second rule: if it 
 five seconds to think of an appropriate icon, it is unlikely that an icon can effectively
 communicate that action.
 
-<DoDont
-	type="do"
-	image={{
-		url: IconButtonDo,
-		alt: 'A group of icon buttons which use icons that have a well-established association to an action in Atlassian and other software products.',
-	}}
->
-	Use an icons with a well-established association to an action in Atlassian and other software
-	products.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: IconButtonDont,
-		alt: 'A group of icon buttons which use icons that are ambiguous and have no well-established association to an action in Atlassian and other software products.',
-	}}
->
-	Don't use one icon to mean many different things, and don't use icons that aren't clear and
-	obvious to most people.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: IconButtonDo,
+			alt: 'A group of icon buttons which use icons that have a well-established association to an action in Atlassian and other software products.',
+		}}
+	>
+		Use an icons with a well-established association to an action in Atlassian and other software
+		products.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: IconButtonDont,
+			alt: 'A group of icon buttons which use icons that are ambiguous and have no well-established association to an action in Atlassian and other software products.',
+		}}
+	>
+		Don't use one icon to mean many different things, and don't use icons that aren't clear and
+		obvious to most people.
+	</DoDont>
+</DoDontGrid>
 
 ## Accessibility
 
@@ -80,7 +83,7 @@ Avoid disabling buttons and follow all
 
 ### Use line versions of icons for most buttons
 
-Follow our [iconography guidance](/foundations/iconography/) and use the line versions of icons for
+Follow our [iconography guidance](/foundations/iconography) and use the line versions of icons for
 most cases. You can use filled icons to show an action has been taken or selected.
 
 ![Diagram of two icon buttons, one using a line version and the other using the filled version to denote an action has taken place](./images/dos-donts/icon-lined-filled.png)
@@ -94,7 +97,7 @@ technologies.
 
 Only capitalize the first letter of the button label and any proper nouns. Most feature names aren’t
 capitalized or considered proper nouns when following
-[our capitalization guidance](/content/language-and-grammar#capitalization).
+[our capitalization guidance](/foundations/content/language-and-grammar#capitalization).
 
 ### Use specific labels wherever possible
 

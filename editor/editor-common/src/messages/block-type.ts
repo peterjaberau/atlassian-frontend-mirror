@@ -1,10 +1,202 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	blockquote: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	blockquoteDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	codeblock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	codeblockDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	customPanel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	customPanelDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	errorPanel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	errorPanelDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading1: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading1Description: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading2: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading2Description: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading3: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading3Description: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading4: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading4Description: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading5: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading5Description: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading6: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	heading6Description: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	infoPanel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	infoPanelDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	newLozenge: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	normal: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	notePanel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	notePanelDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	other: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	panel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	smallText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	successPanel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	successPanelDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	syncBlock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	syncedBlock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	syncedBlockDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	syncedBlockQuickInsertTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	warningPanel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	warningPanelDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	normal: {
 		id: 'fabric.editor.normal',
 		defaultMessage: 'Normal text',
-		description: 'This is the default text style',
+		description:
+			'Label for a drop-down item in the text style selector that applies the default paragraph style, removing any heading or special formatting.',
+	},
+	smallText: {
+		id: 'fabric.editor.smallText',
+		defaultMessage: 'Small text',
+		description: 'This is a smaller variant of the normal text style',
 	},
 	heading1: {
 		id: 'fabric.editor.heading1',
@@ -37,7 +229,8 @@ export const messages = defineMessages({
 	heading3Description: {
 		id: 'fabric.editor.heading3Description',
 		defaultMessage: 'Use this for sub sections and group headings',
-		description: '',
+		description:
+			'Description text shown in the block type menu to help users understand when to use Heading 3 for sub sections and group headings in the editor.',
 	},
 	heading4: {
 		id: 'fabric.editor.heading4',
@@ -48,7 +241,8 @@ export const messages = defineMessages({
 	heading4Description: {
 		id: 'fabric.editor.heading4Description',
 		defaultMessage: 'Use this for deep headings',
-		description: '',
+		description:
+			'Description text shown in the block type menu to help users understand when to use Heading 4 for deep headings in the editor.',
 	},
 	heading5: {
 		id: 'fabric.editor.heading5',
@@ -59,7 +253,8 @@ export const messages = defineMessages({
 	heading5Description: {
 		id: 'fabric.editor.heading5Description',
 		defaultMessage: 'Use this for grouping list items',
-		description: '',
+		description:
+			'Description text shown in the block type menu to help users understand when to use Heading 5 for grouping list items in the editor.',
 	},
 	heading6: {
 		id: 'fabric.editor.heading6',
@@ -70,17 +265,20 @@ export const messages = defineMessages({
 	heading6Description: {
 		id: 'fabric.editor.heading6Description',
 		defaultMessage: 'Use this for low level headings',
-		description: '',
+		description:
+			'Description text shown in the block type menu to help users understand when to use Heading 6 for low level headings in the editor.',
 	},
 	blockquote: {
 		id: 'fabric.editor.blockquote2',
 		defaultMessage: 'Quote',
-		description: 'Quote some text',
+		description:
+			'Label shown as a menu item in the block type dropdown to insert a blockquote for quoting text in the editor.',
 	},
 	blockquoteDescription: {
 		id: 'fabric.editor.blockquote.description',
 		defaultMessage: 'Insert a quote or citation',
-		description: 'Quote some text',
+		description:
+			'Description text shown in the block type menu to help users understand the blockquote option for inserting a quote or citation in the editor.',
 	},
 	codeblock: {
 		id: 'fabric.editor.codeblock',
@@ -90,7 +288,8 @@ export const messages = defineMessages({
 	codeblockDescription: {
 		id: 'fabric.editor.codeblock.description',
 		defaultMessage: 'Display code with syntax highlighting',
-		description: 'Insert a snippet/segment of code (code block)',
+		description:
+			'Menu description shown in the quick insert menu. Explains that selecting this option inserts a code block with syntax highlighting support.',
 	},
 	infoPanel: {
 		id: 'fabric.editor.infoPanel',
@@ -159,6 +358,17 @@ export const messages = defineMessages({
 		defaultMessage: 'Create synced block',
 		description: 'Inserts a synced block that auto-updates content across Atlassian apps',
 	},
+	syncBlock: {
+		id: 'fabric.editor.syncBlock',
+		defaultMessage: 'Sync block',
+		description: 'Short label for inserting a synced block',
+	},
+	syncedBlockQuickInsertTitle: {
+		id: 'editor-common.messages.block-type.syncedBlockQuickInsertTitle',
+		defaultMessage: 'Synced block',
+		description:
+			'Label for the synced block item in the quick insert menu. This names the object that the item inserts.',
+	},
 	syncedBlockDescription: {
 		id: 'fabric.editor.syncedBlock.description',
 		defaultMessage: 'Sync content across multiple locations',
@@ -177,6 +387,7 @@ export const messages = defineMessages({
 	other: {
 		id: 'fabric.editor.other',
 		defaultMessage: 'Others...',
-		description: 'Other text formatting',
+		description:
+			'Label shown as a menu item in the block type dropdown to access additional text formatting options in the editor.',
 	},
 });

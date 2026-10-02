@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::3ab6d06ceee07a33f01831ba39d1781a>>
+ * @codegen <<SignedSource::d990bbd734a8d8e531136e364654fcbc>>
  * @codegenCommand yarn build tokens
  */
 
@@ -342,6 +342,28 @@ const tokens: Token[] = [
     ]
   },
   {
+    "value": "#FFD5D266",
+    "attributes": {
+      "group": "palette",
+      "category": "red"
+    },
+    "filePath": "schema/palettes/palette.tsx",
+    "isSource": true,
+    "original": {
+      "value": "#FFD5D266",
+      "attributes": {
+        "group": "palette",
+        "category": "red"
+      }
+    },
+    "name": "color.palette.Red200A40",
+    "path": [
+      "color",
+      "palette",
+      "Red200A40"
+    ]
+  },
+  {
     "value": "#FFB8B2",
     "attributes": {
       "group": "palette",
@@ -537,6 +559,28 @@ const tokens: Token[] = [
       "color",
       "palette",
       "Red900"
+    ]
+  },
+  {
+    "value": "#5D1F1AB2",
+    "attributes": {
+      "group": "palette",
+      "category": "red"
+    },
+    "filePath": "schema/palettes/palette.tsx",
+    "isSource": true,
+    "original": {
+      "value": "#5D1F1AB2",
+      "attributes": {
+        "group": "palette",
+        "category": "red"
+      }
+    },
+    "name": "color.palette.Red900A70",
+    "path": [
+      "color",
+      "palette",
+      "Red900A70"
     ]
   },
   {
@@ -1134,6 +1178,28 @@ const tokens: Token[] = [
     ]
   },
   {
+    "value": "#BAF3DB66",
+    "attributes": {
+      "group": "palette",
+      "category": "green"
+    },
+    "filePath": "schema/palettes/palette.tsx",
+    "isSource": true,
+    "original": {
+      "value": "#BAF3DB66",
+      "attributes": {
+        "group": "palette",
+        "category": "green"
+      }
+    },
+    "name": "color.palette.Green200A40",
+    "path": [
+      "color",
+      "palette",
+      "Green200A40"
+    ]
+  },
+  {
     "value": "#97EDC9",
     "attributes": {
       "group": "palette",
@@ -1329,6 +1395,28 @@ const tokens: Token[] = [
       "color",
       "palette",
       "Green900"
+    ]
+  },
+  {
+    "value": "#164B35B2",
+    "attributes": {
+      "group": "palette",
+      "category": "green"
+    },
+    "filePath": "schema/palettes/palette.tsx",
+    "isSource": true,
+    "original": {
+      "value": "#164B35B2",
+      "attributes": {
+        "group": "palette",
+        "category": "green"
+      }
+    },
+    "name": "color.palette.Green900A70",
+    "path": [
+      "color",
+      "palette",
+      "Green900A70"
     ]
   },
   {
@@ -2674,6 +2762,28 @@ const tokens: Token[] = [
     ]
   },
   {
+    "value": "#000000",
+    "attributes": {
+      "group": "palette",
+      "category": "light mode neutral"
+    },
+    "filePath": "schema/palettes/palette.tsx",
+    "isSource": true,
+    "original": {
+      "value": "#000000",
+      "attributes": {
+        "group": "palette",
+        "category": "light mode neutral"
+      }
+    },
+    "name": "color.palette.Neutral1200",
+    "path": [
+      "color",
+      "palette",
+      "Neutral1200"
+    ]
+  },
+  {
     "value": "#17171708",
     "attributes": {
       "group": "palette",
@@ -3111,6 +3221,28 @@ const tokens: Token[] = [
       "color",
       "palette",
       "DarkNeutral1100"
+    ]
+  },
+  {
+    "value": "#FFFFFF",
+    "attributes": {
+      "group": "palette",
+      "category": "dark mode neutral"
+    },
+    "filePath": "schema/palettes/palette.tsx",
+    "isSource": true,
+    "original": {
+      "value": "#FFFFFF",
+      "attributes": {
+        "group": "palette",
+        "category": "dark mode neutral"
+      }
+    },
+    "name": "color.palette.DarkNeutral1200",
+    "path": [
+      "color",
+      "palette",
+      "DarkNeutral1200"
     ]
   },
   {

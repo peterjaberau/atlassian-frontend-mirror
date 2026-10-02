@@ -17,11 +17,10 @@ import { css, jsx } from '@emotion/react';
 import * as rbd from 'react-beautiful-dnd';
 import type { DragDropContextProps, DraggableProps, DroppableProps } from 'react-beautiful-dnd';
 
-import { RadioGroup } from '@atlaskit/radio';
+import RadioGroup from '@atlaskit/radio/radio-group';
 import type { OptionsPropType } from '@atlaskit/radio/types';
 
 import * as migration from '../../src';
-
 import { GlobalStyles } from './global-styles';
 
 type SwitcherProps = {

@@ -4,12 +4,11 @@
  */
 
 import { cssMap, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import ErrorIcon from '@atlaskit/icon/core/status-error';
 import { Box, Inline } from '@atlaskit/primitives/compiled';
-import { R300 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../messages';
@@ -34,14 +33,14 @@ export const EmbedCardErroredView = ({
 	isSelected = false,
 	testId = 'embed-card-errored-view',
 	inheritDimensions,
-}: ErroredViewProps) => (
+}: ErroredViewProps): JSX.Element => (
 	<Frame
 		inheritDimensions={inheritDimensions}
 		compact={true}
 		isSelected={isSelected}
 		testId={testId}
 	>
-		<ErrorIcon color={token('color.icon.danger', R300)} label="error-icon" />
+		<ErrorIcon color={token('color.icon.danger')} label="error-icon" />
 		<Box xcss={styles.boxStyles}>
 			<Inline>
 				<FormattedMessage {...messages.could_not_load_link} />

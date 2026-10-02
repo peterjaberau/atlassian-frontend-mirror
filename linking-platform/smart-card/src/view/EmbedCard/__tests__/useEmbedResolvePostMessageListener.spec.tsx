@@ -1,11 +1,11 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook } from '@atlassian/testing-library';
 
 import { useEmbedResolvePostMessageListener } from '../useEmbedResolvePostMessageListener';
 
 const mockFetchData = jest.fn();
 mockFetchData.mockResolvedValue({ data: {} } as any);
-jest.mock('@atlaskit/link-provider', () => ({
-	...jest.requireActual('@atlaskit/link-provider'),
+jest.mock('@atlaskit/link-provider/use-smart-link-context', () => ({
+	...jest.requireActual('@atlaskit/link-provider/use-smart-link-context'),
 	useSmartLinkContext: () => ({
 		store: { getState: () => ({}), dispatch: jest.fn() },
 		config: { authFlow: 'disabled' },
@@ -39,7 +39,7 @@ describe('useEmbedResolvePostMessageListener', () => {
 			source: ref.current.contentWindow,
 		});
 		window.dispatchEvent(messageEvent);
-		expect(mockFetchData).toHaveBeenCalledWith(url, true);
+		expect(mockFetchData).toHaveBeenCalledWith(url, true, undefined);
 	});
 
 	it('should not re-resolve when a different message is posted', () => {

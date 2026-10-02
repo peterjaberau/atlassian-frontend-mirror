@@ -1,15 +1,14 @@
-import { type JqlOrderByContext, type JqlSearchSortContext } from '@atlaskit/jql-parser';
+import type { JqlOrderByContext, JqlSearchSortContext } from '@atlaskit/jql-parser/JQLParser';
 
 import { ORDER_BY_DIRECTION_ASC, ORDER_BY_DIRECTION_DESC } from '../constants';
 import { internalCreators } from '../creators';
 import { type OrderBy, type OrderByField } from '../types';
 import { notUndefined } from '../utils';
-
 import { getPositionFromContext, getPositionFromToken, JastBuildingVisitor } from './common';
 import { FieldVisitor } from './field';
 
 export class OrderByVisitor extends JastBuildingVisitor<OrderBy> {
-	searchSortVisitor = new SearchSortVisitor(this.tokens);
+	searchSortVisitor: SearchSortVisitor = new SearchSortVisitor(this.tokens);
 
 	visitJqlOrderBy = (ctx: JqlOrderByContext): OrderBy | void => {
 		// If this rule returned due to an exception then the order by operator is incomplete so we should exit early,
@@ -32,7 +31,7 @@ export class OrderByVisitor extends JastBuildingVisitor<OrderBy> {
 }
 
 class SearchSortVisitor extends JastBuildingVisitor<OrderByField | void> {
-	fieldVisitor = new FieldVisitor(this.tokens);
+	fieldVisitor: FieldVisitor = new FieldVisitor(this.tokens);
 
 	visitJqlSearchSort = (ctx: JqlSearchSortContext): OrderByField | void => {
 		const fieldCtx = ctx.jqlField();

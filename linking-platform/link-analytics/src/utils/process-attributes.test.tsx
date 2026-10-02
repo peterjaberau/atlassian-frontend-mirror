@@ -1,6 +1,7 @@
-import { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 
-import { getDomainFromUrl, processAttributesFromBaseEvent } from './process-attributes';
+import { getDomainFromUrl } from './get-domain-from-url';
+import { processAttributesFromBaseEvent } from './process-attributes-from-base-event';
 
 describe('processAttributesFromBaseEvent', () => {
 	it('should correctly assign `sourceEvent` attribute with `actionSubjectId`', () => {

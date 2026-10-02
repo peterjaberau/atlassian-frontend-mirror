@@ -1,13 +1,11 @@
 import { type MediaType } from '..';
 import { isArchive } from './isArchive';
-
 import {
 	isImageMimeTypeSupportedByBrowser,
 	isDocumentMimeTypeSupportedByBrowser,
 	isAudioMimeTypeSupportedByBrowser,
 	isVideoMimeTypeSupportedByBrowser,
 } from './isMimeTypeSupportedByBrowser';
-
 import {
 	isImageMimeTypeSupportedByServer,
 	isDocumentMimeTypeSupportedByServer,
@@ -22,6 +20,8 @@ export {
 	isVideoMimeTypeSupportedByBrowser,
 	isMimeTypeSupportedByBrowser,
 } from './isMimeTypeSupportedByBrowser';
+
+export { isExcelFile } from './isExcelFile';
 
 export {
 	isImageMimeTypeSupportedByServer,

@@ -1,24 +1,4 @@
-import {
-	ASSETS_LIST_OF_LINKS_DATASOURCE_ID,
-	CONFLUENCE_SEARCH_DATASOURCE_ID,
-	JIRA_LIST_OF_LINKS_DATASOURCE_ID,
-} from '@atlaskit/link-datasource';
-import { fg } from '@atlaskit/platform-feature-flags';
-
-import type { DatasourceModalType } from '../types';
-
-export const getDatasourceType = (datasourceId: string): DatasourceModalType | undefined => {
-	switch (datasourceId) {
-		case JIRA_LIST_OF_LINKS_DATASOURCE_ID:
-			return 'jira';
-		case ASSETS_LIST_OF_LINKS_DATASOURCE_ID:
-			return 'assets';
-		case CONFLUENCE_SEARCH_DATASOURCE_ID:
-			return 'confluence-search';
-		default:
-			return undefined;
-	}
-};
+import { getDatasourceType } from './getDatasourceType';
 
 export const canRenderDatasource = (
 	datasourceId: string,
@@ -28,13 +8,11 @@ export const canRenderDatasource = (
 
 	switch (datasourceType) {
 		case 'jira':
-			return true;
 		case 'assets':
-			if (fg('linking_platform_datasource_assets_objects')) {
-				return true;
-			}
-			return false;
+			return true;
 		default:
 			return defaultValue;
 	}
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { getDatasourceType } from './getDatasourceType';

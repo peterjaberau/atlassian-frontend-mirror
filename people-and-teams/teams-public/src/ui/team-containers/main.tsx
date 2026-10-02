@@ -1,42 +1,41 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { defineMessages, FormattedMessage } from 'react-intl-next';
+import { defineMessages, FormattedMessage } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
-import FeatureGates from '@atlaskit/feature-gate-js-client';
+import Button from '@atlaskit/button/default/button';
+import { cssMap } from '@atlaskit/css';
 import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
-import { fg } from '@atlaskit/platform-feature-flags';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Grid, Inline, Stack } from '@atlaskit/primitives';
-import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics';
-import {
-	hasProductPermission,
-	useProductPermissions,
-} from '@atlaskit/teams-app-internal-product-permissions';
-import { N0, N90 } from '@atlaskit/theme/colors';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Box, Grid, Inline, Stack } from '@atlaskit/primitives/compiled';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
+import { useProductPermissions } from '@atlaskit/teams-app-internal-product-permissions/main';
+import { hasProductPermission } from '@atlaskit/teams-app-internal-product-permissions/utils';
 import { token } from '@atlaskit/tokens';
 
 import { type ContainerTypes, type TeamContainer } from '../../common/types';
 import { TeamContainersSkeleton } from '../../common/ui/team-containers-skeleton';
-import { hasProductPermission as hasProductPermissionOld } from '../../controllers';
+import { spaceInviteScheduler } from '../../common/utils/spaceInviteScheduler';
 import { useCreateContainers } from '../../controllers/hooks/use-create-containers';
 import { useProductPermissions as useProductPermissionsOld } from '../../controllers/hooks/use-product-permission';
 import { useRefreshOnContainerCreated } from '../../controllers/hooks/use-refresh-containers-on-container-created';
-import { useRequestedContainers } from '../../controllers/hooks/use-requested-container';
-import {
-	useTeamContainers,
-	useTeamContainersHook,
-} from '../../controllers/hooks/use-team-containers';
+import { useTeamContainers } from '../../controllers/hooks/use-team-containers/use-team-containers';
+import { useTeamContainersHook } from '../../controllers/hooks/use-team-containers/use-team-containers-hook';
 import { useTeamLinksAndContainers } from '../../controllers/hooks/use-team-links-and-containers';
-
-import { getAddContainerCards } from './add-container-card';
+import { hasProductPermission as hasProductPermissionOld } from '../../controllers/product-permission/hasProductPermission';
+import { getAddContainerCards } from './add-container-card/getAddContainerCards';
 import { DisconnectDialogLazy } from './disconnect-dialog/async';
 import { NoProductAccessState } from './no-product-access-empty-state';
 import { TeamLinkCard } from './team-link-card';
 import { type TeamContainerProps } from './types';
 
-export const ICON_BACKGROUND = token('color.icon.inverse', N0);
-export const ICON_COLOR = token('color.icon.subtle', N90);
+const gridStyles = cssMap({
+	templateColumns: {
+		gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+	},
+});
+
+export const ICON_BACKGROUND: 'var(--ds-icon-inverse)' = token('color.icon.inverse');
+export const ICON_COLOR: 'var(--ds-icon-subtle)' = token('color.icon.subtle');
 export const MAX_NUMBER_OF_CONTAINERS_TO_SHOW = 4;
 
 interface SelectedContainerDetails {
@@ -49,7 +48,6 @@ export const TeamContainers = ({
 	teamId,
 	onAddAContainerClick,
 	onEditContainerClick,
-	onRequestedContainerTimeout = () => {},
 	components,
 	userId,
 	cloudId,
@@ -65,16 +63,9 @@ export const TeamContainers = ({
 	const {
 		teamLinks,
 		removeTeamLink,
-		iconsLoading,
-		iconHasLoaded,
 		hasError,
 		isLoading: linksLoading,
 	} = useTeamLinksAndContainers(teamId, true);
-	const { requestedContainers } = useRequestedContainers({
-		teamId,
-		cloudId,
-		onRequestedContainerTimeout,
-	});
 	const [_, actions] = useTeamContainersHook();
 	const [showMore, setShowMore] = useState(false);
 	const [isDisconnectDialogOpen, setIsDisconnectDialogOpen] = useState(false);
@@ -118,7 +109,7 @@ export const TeamContainers = ({
 
 	const hasPermissionToCreateContainer = useMemo(() => {
 		if (!productPermissions) {
-			return {};
+			return false;
 		}
 		const getPermission = (product: keyof typeof productPermissions, permission: string[]) => {
 			return productPermissions && hasProductPermission(productPermissions, product, permission);
@@ -129,11 +120,6 @@ export const TeamContainers = ({
 			getPermission('loom', ['write'])
 		);
 	}, [productPermissions]);
-
-	const createContainerExperimentEnabled =
-		hasPermissionToCreateContainer &&
-		FeatureGates.initializeCompleted() &&
-		FeatureGates.getExperimentValue('teams_app_auto_container_creation', 'isEnabled', false);
 
 	useEffect(() => {
 		if (isDisplayedOnProfileCard && filterContainerId) {
@@ -237,6 +223,15 @@ export const TeamContainers = ({
 			if (unlinkError) {
 				fireEvent('track.teamContainerUnlinked.failed', {});
 			} else {
+				if (fg('space-team_linking_invites_fg')) {
+					const wasCancelled = spaceInviteScheduler.cancelInvite(teamId, containerId);
+					if (wasCancelled) {
+						fireEvent('track.sendSpaceTeamInvites.cancelled', {
+							spaceId: containerId,
+							teamId,
+						});
+					}
+				}
 				fireEvent('track.teamContainerUnlinked.succeeded', {
 					containerRemoved: {
 						containerId: removedContainer?.id,
@@ -284,23 +279,18 @@ export const TeamContainers = ({
 	}, [linksLoading, productPermissionIsLoading, productPermissionIsLoadingOld]);
 
 	const availableContainers = useMemo(() => {
-		const getAvailableContainer = (
-			productKey: keyof typeof canAddContainer,
-			requestedType: ContainerTypes,
-		) => ({
+		const getAvailableContainer = (productKey: keyof typeof canAddContainer) => ({
 			canAdd: canAddContainer?.[productKey],
-			isLoading:
-				containers?.[productKey as keyof typeof containers]?.isLoading ||
-				requestedContainers?.includes(requestedType),
+			isLoading: containers?.[productKey as keyof typeof containers]?.isLoading,
 		});
 
 		return {
-			Jira: getAvailableContainer('Jira', 'JiraProject'),
-			Confluence: getAvailableContainer('Confluence', 'ConfluenceSpace'),
-			Loom: getAvailableContainer('Loom', 'LoomSpace'),
-			WebLink: getAvailableContainer('WebLink', 'WebLink'),
+			Jira: getAvailableContainer('Jira'),
+			Confluence: getAvailableContainer('Confluence'),
+			Loom: getAvailableContainer('Loom'),
+			WebLink: getAvailableContainer('WebLink'),
 		};
-	}, [canAddContainer, containers, requestedContainers]);
+	}, [canAddContainer, containers]);
 
 	if (isLoading) {
 		return <TeamContainersSkeletonComponent numberOfContainers={maxNumberOfContainersToShow} />;
@@ -322,8 +312,9 @@ export const TeamContainers = ({
 					const GridComponent = components?.Grid || Grid;
 					return (
 						<GridComponent
-							templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
+							xcss={gridStyles.templateColumns}
 							gap={isDisplayedOnProfileCard ? 'space.0' : 'space.100'}
+							role="list"
 						>
 							{elemBeforeCards &&
 								(() => {
@@ -331,7 +322,7 @@ export const TeamContainers = ({
 									return <ElemBeforeCards />;
 								})()}
 							{filteredTeamLinks.slice(0, maxNumberOfContainersToShow).map((container) => {
-								return (
+								const card = (
 									<LinkedContainerCardComponent
 										key={container.id}
 										containerType={container.type}
@@ -340,8 +331,6 @@ export const TeamContainers = ({
 										containerIcon={container.icon || undefined}
 										link={container.link || undefined}
 										containerId={container.id}
-										iconsLoading={iconsLoading}
-										iconHasLoaded={iconHasLoaded}
 										isReadOnly={isReadOnly}
 										hideSubTextIcon={hideSubTextIcon}
 										onDisconnectButtonClick={() =>
@@ -354,18 +343,23 @@ export const TeamContainers = ({
 										onEditLinkClick={() => handleEditContainerClick(container)}
 									/>
 								);
+								return (
+									<Box key={container.id} role="listitem">
+										{card}
+									</Box>
+								);
 							})}
 
 							{getAddContainerCards({
 								containers: availableContainers,
 								onAddAContainerClick: onAddAContainerClick,
 								CustomAddContainerCard: components?.AddContainerCard,
-								showNewDesign: createContainerExperimentEnabled,
+								canCreateContainers: hasPermissionToCreateContainer,
 							})}
 
 							{showMore &&
 								filteredTeamLinks.slice(maxNumberOfContainersToShow).map((container) => {
-									return (
+									const card = (
 										<LinkedContainerCardComponent
 											key={container.id}
 											containerType={container.type}
@@ -374,8 +368,6 @@ export const TeamContainers = ({
 											containerId={container.id}
 											containerIcon={container.icon || undefined}
 											link={container.link || undefined}
-											iconsLoading={iconsLoading}
-											iconHasLoaded={iconHasLoaded}
 											isReadOnly={isReadOnly}
 											hideSubTextIcon={hideSubTextIcon}
 											onDisconnectButtonClick={() =>
@@ -387,6 +379,11 @@ export const TeamContainers = ({
 											}
 											onEditLinkClick={() => handleEditContainerClick(container)}
 										/>
+									);
+									return (
+										<Box key={container.id} role="listitem">
+											{card}
+										</Box>
 									);
 								})}
 						</GridComponent>

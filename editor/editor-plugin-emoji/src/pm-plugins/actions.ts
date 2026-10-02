@@ -1,13 +1,10 @@
-import { type PublicPluginAPI } from '@atlaskit/editor-common/types';
-import {
-	type TypeAheadHandler,
-	type TypeAheadInputMethod,
-} from '@atlaskit/editor-plugin-type-ahead';
-import { type Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { PublicPluginAPI } from '@atlaskit/editor-common/types';
+import type { TypeAheadHandler, TypeAheadInputMethod } from '@atlaskit/editor-plugin-type-ahead';
+import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import type { EmojiDescription, EmojiProvider } from '@atlaskit/emoji';
 
 import { emojiPluginKey } from '../emojiPlugin';
-import { type EmojiPlugin } from '../emojiPluginType';
+import type { EmojiPlugin } from '../emojiPluginType';
 
 export const ACTIONS = {
 	SET_PROVIDER: 'SET_PROVIDER',
@@ -16,12 +13,14 @@ export const ACTIONS = {
 	SET_INLINE_POPUP: 'SET_INLINE_POPUP',
 };
 
-export const setAsciiMap = (asciiMap: Map<string, EmojiDescription>) => (tr: Transaction) => {
-	return tr.setMeta(emojiPluginKey, {
-		action: ACTIONS.SET_ASCII_MAP,
-		params: { asciiMap },
-	});
-};
+export const setAsciiMap =
+	(asciiMap: Map<string, EmojiDescription>) =>
+	(tr: Transaction): Transaction => {
+		return tr.setMeta(emojiPluginKey, {
+			action: ACTIONS.SET_ASCII_MAP,
+			params: { asciiMap },
+		});
+	};
 
 export const openTypeAhead =
 	(typeaheadHandler: TypeAheadHandler, api?: PublicPluginAPI<EmojiPlugin>) =>
@@ -34,12 +33,16 @@ export const openTypeAhead =
 		);
 	};
 
-export const setProvider = (provider?: EmojiProvider) => (tr: Transaction) => {
-	return tr.setMeta(emojiPluginKey, {
-		action: ACTIONS.SET_PROVIDER,
-		params: { provider },
-	});
-};
+export const setProvider =
+	(provider?: EmojiProvider) =>
+	(tr: Transaction): Transaction => {
+		return tr.setMeta(emojiPluginKey, {
+			action: ACTIONS.SET_PROVIDER,
+			params: { provider },
+		});
+	};
 
-export const setInlineEmojiPopupOpen = (open: boolean) => (tr: Transaction) =>
-	tr.setMeta(emojiPluginKey, { action: ACTIONS.SET_INLINE_POPUP, params: { open } });
+export const setInlineEmojiPopupOpen =
+	(open: boolean) =>
+	(tr: Transaction): Transaction =>
+		tr.setMeta(emojiPluginKey, { action: ACTIONS.SET_INLINE_POPUP, params: { open } });

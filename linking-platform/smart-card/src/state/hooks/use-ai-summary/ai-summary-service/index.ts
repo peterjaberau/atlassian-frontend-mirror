@@ -1,8 +1,11 @@
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import { type EnvironmentsKeys, getBaseUrl } from '@atlaskit/linking-common';
+import { getBaseUrl } from '@atlaskit/linking-common/get-base-url';
+import type { EnvironmentsKeys } from '@atlaskit/linking-common/types';
 
+import { addPath } from './addPath';
+import { getXProductHeaderValue } from './getXProductHeaderValue';
 import { readStream } from './readStream';
 import {
 	type AISummaryServiceConfig,
@@ -14,7 +17,6 @@ import {
 	type StateSetter,
 	type StreamMessage,
 } from './types';
-import { addPath, getXProductHeaderValue } from './utils';
 
 const CONVO_AI_ENDPOINT = 'assist/api/ai/v2/ai-feature/smartlinksummary/stream';
 
@@ -98,7 +100,7 @@ export class AISummaryService implements AISummaryServiceInt {
 		}
 	};
 
-	public async summariseUrl() {
+	public async summariseUrl(): Promise<AISummaryState> {
 		this.state = {
 			status: 'loading',
 			content: '',

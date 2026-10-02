@@ -1,5 +1,385 @@
 # @atlaskit/focused-task-close-account
 
+## 5.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.13.0
+
+### Minor Changes
+
+- [`83d98483d183d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83d98483d183d) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 5.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.12.0
+
+### Minor Changes
+
+- [`d09e13cae1b7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d09e13cae1b7d) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.11.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.11.0
+
+### Minor Changes
+
+- [`50356398c83ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50356398c83ee) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.10.0
+
+### Minor Changes
+
+- [`1a3f7d6aa71c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a3f7d6aa71c6) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.9.0
+
+### Minor Changes
+
+- [`a75866f802a52`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a75866f802a52) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 5.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.8.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.7.0
+
+### Minor Changes
+
+- [`c595edf05d60e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c595edf05d60e) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 5.6.0
+
+### Minor Changes
+
+- [`68e50c0e75e2f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/68e50c0e75e2f) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 5.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.0
+
+### Minor Changes
+
+- [`fcad5db87cc77`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fcad5db87cc77) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.0
+
+### Minor Changes
+
+- [`2ae2f4d041a3a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ae2f4d041a3a) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 5.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`278d493fc61aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/278d493fc61aa) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 5.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`f4abaa54b4859`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f4abaa54b4859) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 5.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.0
+
+### Minor Changes
+
+- [`e4c5ae488aad4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4c5ae488aad4) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 4.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`fb2784c333519`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb2784c333519) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 4.0.4
+
+### Patch Changes
+
+- [`b8f76ccba4c09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b8f76ccba4c09) -
+  Migrate CSS-in-JS from `@emotion/styled` to `@compiled/react`
+- Updated dependencies
+
+## 4.0.3
+
+### Patch Changes
+
+- [`35359015f4b76`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/35359015f4b76) -
+  Fix accessibility violation: add aria-label to StatefulInlineDialog trigger button to ensure it
+  has a discernible name for screen readers
+
+## 4.0.2
+
+### Patch Changes
+
+- [`103f19eae0280`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/103f19eae0280) -
+  Accessibility fix
+
+## 4.0.1
+
+### Patch Changes
+
+- [`7fb5bfbafb83e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fb5bfbafb83e) -
+  Enrol people-and-teams packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 4.0.0
+
+### Major Changes
+
+- [`fbc8a506b5b08`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbc8a506b5b08) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.5
+
+### Patch Changes
+
+- [`f0ae528c7b0bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0ae528c7b0bb) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 3.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.2
+
+### Patch Changes
+
+- [`0ff81a1e241cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0ff81a1e241cc) -
+  Clean up FG people-teams-fix-no-literal-string-in-jsx
+
+## 3.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.0
+
+### Minor Changes
+
+- [`92f68aebd9135`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92f68aebd9135) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 3.2.21
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.2.20
 
 ### Patch Changes

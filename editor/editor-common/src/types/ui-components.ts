@@ -5,7 +5,6 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { DispatchAnalyticsEvent } from '../analytics/types/dispatch-analytics-event';
 import type { EventDispatcher } from '../event-dispatcher';
 import type { ProviderFactory } from '../provider-factory';
-
 import type { EditorActionsOptions } from './editor-actions';
 import type { EditorAppearance } from './editor-appearance';
 
@@ -32,5 +31,18 @@ export type UIComponentFactory = (
 export type ReactHookFactory = (
 	params: Pick<UiComponentFactoryParams, 'editorView' | 'containerElement'> & {
 		editorView: EditorView;
+		pluginName?: string;
+		/** The outermost element the editor renders itself into, when the caller has one. */
+		wrapperElement?: HTMLElement | null;
 	},
 ) => void;
+
+/**
+ * A `ReactHookFactory` annotated with the name of the plugin that owns it.
+ * `processPluginsList` wraps each plugin's `usePluginHook` with `.bind(null)`
+ * and assigns `pluginName`, so the original plugin function reference is
+ * never mutated. `MountPluginHooks` reads `pluginName` to derive a stable
+ * React `key` per plugin instead of relying on array index, which would
+ * violate the Rules of Hooks across reconfigures that change the plugin set.
+ */
+export type NamedReactHookFactory = ReactHookFactory & { pluginName?: string };

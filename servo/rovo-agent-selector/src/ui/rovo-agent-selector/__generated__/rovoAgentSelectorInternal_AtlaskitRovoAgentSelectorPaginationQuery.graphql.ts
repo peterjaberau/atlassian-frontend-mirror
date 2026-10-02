@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9008dd06ba11a7ec23e19aa1d7c635e4>>
+ * @generated SignedSource<<1bbba64653928380a5124dbd559905e5>>
  * @relayHash 10df1400fe5f08dbb71223dbeb55d5d0
  * @lightSyntaxTransform
  * @nogrep
@@ -12,22 +12,29 @@
 
 // @relayRequestID 7250b40e01559cc3a01468d2f306020d55d0c1feef70d34478073a59ab3f8154
 
-import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ConcreteRequest } from 'relay-runtime';
 import type { FragmentRefs } from "relay-runtime";
+export type AgentStudioAgentCreatorType = "CUSTOMER" | "FORGE" | "GUIDED" | "OOTB" | "REMOTE_A2A" | "ROVO_CHAT" | "ROVO_DEV" | "%future added value";
 export type AgentStudioAgentQueryInput = {
-  includeDraftAgents?: boolean | null | undefined;
-  name?: string | null | undefined;
-  onlyEditableAgents?: boolean | null | undefined;
-  onlyFavouriteAgents?: boolean | null | undefined;
-  onlyMyAgents?: boolean | null | undefined;
-  onlyTemplateAgents?: boolean | null | undefined;
-  onlyVerifiedAgents?: boolean | null | undefined;
+  creatorTypes?: ReadonlyArray<AgentStudioAgentCreatorType> | null;
+  includeDraftAgents?: boolean | null;
+  includeJiraCodingAgent?: boolean | null;
+  includeRovoChatAgent?: boolean | null;
+  name?: string | null;
+  onlyEditableAgents?: boolean | null;
+  onlyFavouriteAgents?: boolean | null;
+  onlyMyAgents?: boolean | null;
+  onlyPublishedEditableAgents?: boolean | null;
+  onlyPublishedEditableAgentsWithForge?: boolean | null;
+  onlyTemplateAgents?: boolean | null;
+  onlyUnpublishedAgents?: boolean | null;
+  onlyVerifiedAgents?: boolean | null;
 };
 export type rovoAgentSelectorInternal_AtlaskitRovoAgentSelectorPaginationQuery$variables = {
-  after?: string | null | undefined;
+  after?: string | null;
   cloudIdString: string;
-  first?: number | null | undefined;
-  input?: AgentStudioAgentQueryInput | null | undefined;
+  first?: number | null;
+  input?: AgentStudioAgentQueryInput | null;
 };
 export type rovoAgentSelectorInternal_AtlaskitRovoAgentSelectorPaginationQuery$data = {
   readonly " $fragmentSpreads": FragmentRefs<"rovoAgentSelector_AtlaskitRovoAgentSelector">;

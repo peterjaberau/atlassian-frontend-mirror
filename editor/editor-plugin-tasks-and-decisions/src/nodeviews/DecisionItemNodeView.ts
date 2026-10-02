@@ -1,7 +1,9 @@
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { DOMSerializer, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type NodeView } from '@atlaskit/editor-prosemirror/view';
+import { tasksAndDecisionsMessages } from '@atlaskit/editor-common/messages';
+import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { NodeView } from '@atlaskit/editor-prosemirror/view';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { decisionItemToDOM } from './decisionItemNodeSpec';
@@ -13,6 +15,8 @@ import { decisionItemToDOM } from './decisionItemNodeSpec';
 export class DecisionItemNodeView implements NodeView {
 	dom: Node;
 	public contentDOM?: HTMLElement;
+	private icon: HTMLElement | null = null;
+	private intl: IntlShape | undefined;
 	private hasChildren: boolean | undefined = undefined;
 
 	/**
@@ -25,14 +29,38 @@ export class DecisionItemNodeView implements NodeView {
 		if (currentlyHasChildren !== this.hasChildren) {
 			this.hasChildren = currentlyHasChildren;
 			this.contentDOM?.toggleAttribute('data-empty', !currentlyHasChildren);
+			this.setIconAriaLabel(!currentlyHasChildren);
 		}
 		return this.hasChildren;
+	}
+
+	private setIcon(dom?: HTMLElement | Node): void {
+		if (!dom || !(dom instanceof HTMLElement)) {
+			return;
+		}
+		const maybeIcon = dom.querySelector('[data-component="icon"] > [role="img"]');
+
+		if (maybeIcon && maybeIcon instanceof HTMLElement) {
+			this.icon = maybeIcon;
+		}
+	}
+
+	private setIconAriaLabel(isEmpty: boolean): void {
+		if (!this.icon || !this.intl) {
+			return;
+		}
+
+		const ariaLabel = isEmpty
+			? this.intl.formatMessage(tasksAndDecisionsMessages.undefinedDecisionAriaLabel)
+			: this.intl.formatMessage(tasksAndDecisionsMessages.decisionAriaLabel);
+
+		this.icon.setAttribute('aria-label', ariaLabel);
 	}
 
 	/**
 	 * Creates a new DecisionItemNodeView.
 	 * @import type {PMNode} from '@atlaskit/editor-prosemirror/model';
-	 * @import type {IntlShape} from 'react-intl-next';
+	 * @import type {IntlShape} from 'react-intl';
 	 * @param {PMNode} node - The ProseMirror node representing the decision item.
 	 * @param {IntlShape} intl - The IntlShape for internationalization, used to format the placeholder text.
 	 * @example
@@ -43,6 +71,8 @@ export class DecisionItemNodeView implements NodeView {
 		const { dom, contentDOM } = DOMSerializer.renderSpec(document, spec);
 		this.dom = dom;
 		this.contentDOM = contentDOM;
+		this.setIcon(this.dom);
+		this.intl = intl;
 	}
 
 	/**

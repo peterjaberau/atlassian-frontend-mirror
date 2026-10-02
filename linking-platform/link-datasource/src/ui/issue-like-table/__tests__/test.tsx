@@ -12,42 +12,45 @@ import {
 	waitForElementToBeRemoved,
 	within,
 } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import { defaultRegistry } from 'react-sweet-state';
 import invariant from 'tiny-invariant';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import {
 	flushPromises,
 	MockIntersectionObserverFactory,
 	type MockIntersectionObserverOpts,
 } from '@atlaskit/link-test-helpers';
 import { asMock } from '@atlaskit/link-test-helpers/jest';
-import { ActionOperationStatus } from '@atlaskit/linking-types';
 import {
 	type DatasourceDataResponseItem,
 	type DatasourceResponseSchemaProperty,
 	type Icon,
 } from '@atlaskit/linking-types/datasource';
-import { type Input } from '@atlaskit/pragmatic-drag-and-drop/types';
-import { type ConcurrentExperience } from '@atlaskit/ufo';
+import { ActionOperationStatus } from '@atlaskit/linking-types/datasource-actions';
+import type { Input } from '@atlaskit/pragmatic-drag-and-drop/internal-types';
+import type { ConcurrentExperience } from '@atlaskit/ufo/concurrent-experience';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 
 import SmartLinkClient from '../../../../examples-helpers/smartLinkCustomClient';
-import { DatasourceExperienceIdProvider } from '../../../contexts/datasource-experience-id';
+import { DatasourceExperienceIdProvider } from '../../../contexts/datasource-experience-id/datasource-experience-id-provider';
 import { Store } from '../../../state';
 import { ActionsStore } from '../../../state/actions';
-import { getOrderedColumns, IssueLikeDataTableView } from '../index';
+import { getColumnMinWidth } from '../get-column-min-width';
+import { getOrderedColumns } from '../get-ordered-columns';
+import { IssueLikeDataTableView } from '../issue-like-data-table-view';
 import { type IssueLikeDataTableViewProps, type TableViewPropsRenderType } from '../types';
-import { getColumnMinWidth } from '../utils';
 
 let mockUseExecuteAtomicAction = jest.fn();
 
-jest.mock('../../../state/actions', () => {
+jest.mock('../../../state/actions/useExecuteAtomicAction', () => {
 	return {
 		__esModule: true,
-		...jest.requireActual('../../../state/actions'),
+		...jest.requireActual('../../../state/actions/useExecuteAtomicAction'),
 		useExecuteAtomicAction: () => mockUseExecuteAtomicAction(),
 	};
 });
@@ -81,9 +84,9 @@ const mockInlineEditUfoStart = jest.fn();
 const mockInlineEditUfoSuccess = jest.fn();
 const mockInlineEditUfoFailure = jest.fn();
 
-jest.mock('@atlaskit/ufo', () => ({
+jest.mock('@atlaskit/ufo/concurrent-experience', () => ({
+	...jest.requireActual('@atlaskit/ufo/concurrent-experience'),
 	__esModule: true,
-	...jest.requireActual<object>('@atlaskit/ufo'),
 	ConcurrentExperience: jest.fn().mockImplementation(
 		(experienceId: string): Partial<ConcurrentExperience> => ({
 			experienceId: experienceId,
@@ -171,6 +174,7 @@ describe('IssueLikeDataTableView', () => {
 		const onVisibleColumnKeysChange = jest.fn(() => {});
 		const onColumnResize = jest.fn(() => {});
 		const onWrappedColumnChange = jest.fn(() => {});
+		const onWrappedColumnsChange = jest.fn(() => {});
 		const smartLinkClient = new SmartLinkClient();
 
 		const renderResult = render(
@@ -187,6 +191,7 @@ describe('IssueLikeDataTableView', () => {
 								onVisibleColumnKeysChange={onVisibleColumnKeysChange}
 								onColumnResize={onColumnResize}
 								onWrappedColumnChange={onWrappedColumnChange}
+								onWrappedColumnsChange={onWrappedColumnsChange}
 								items={[]}
 								itemIds={[]}
 								columns={[]}
@@ -262,6 +267,7 @@ describe('IssueLikeDataTableView', () => {
 			onVisibleColumnKeysChange,
 			onColumnResize,
 			onWrappedColumnChange,
+			onWrappedColumnsChange,
 			openColumnPicker,
 			openInlineEdit,
 		};
@@ -943,6 +949,108 @@ describe('IssueLikeDataTableView', () => {
 			expect(queryByTestId('sometable--row-loading-14')).toBeNull();
 		});
 
+		ffTest.off('platform_lp_jira_sllv_renderer_column_sorting', '', () => {
+			it('does not treat empty status as loading in legacy mode', () => {
+				const items: DatasourceDataResponseItem[] = [];
+				const itemIds = setupItemIds(items);
+				const columns: DatasourceResponseSchemaProperty[] = [];
+
+				const { queryByTestId } = setup({
+					items,
+					itemIds,
+					columns,
+					status: 'empty',
+					hasNextPage: false,
+				});
+
+				expect(queryByTestId('sometable--row-loading-0')).toBeNull();
+			});
+		});
+
+		ffTest.on('platform_lp_jira_sllv_renderer_column_sorting', '', () => {
+			it('does not treat empty status as loading when there were no previous real rows', () => {
+				const items: DatasourceDataResponseItem[] = [];
+				const itemIds = setupItemIds(items);
+				const columns: DatasourceResponseSchemaProperty[] = [];
+
+				const { queryByTestId } = setup({
+					items,
+					itemIds,
+					columns,
+					status: 'empty',
+					hasNextPage: false,
+				});
+
+				expect(queryByTestId('sometable--row-loading-0')).toBeNull();
+			});
+
+			it('treats empty status as loading when there were previous real rows and reuses smaller row count', async () => {
+				const initialItems = getSimpleItems(3);
+				const initialItemIds = setupItemIds(initialItems);
+				const columns = getSimpleColumns();
+				const onAnalyticsEvent = jest.fn();
+				const onNextPage = jest.fn(() => {});
+				const onLoadDatasourceDetails = jest.fn(() => Promise.resolve());
+				const onVisibleColumnKeysChange = jest.fn(() => {});
+				const onColumnResize = jest.fn(() => {});
+				const onWrappedColumnChange = jest.fn(() => {});
+				const smartLinkClient = new SmartLinkClient();
+
+				const renderTable = (props: Partial<IssueLikeDataTableViewProps>) => (
+					<AnalyticsListener channel="media" onEvent={onAnalyticsEvent}>
+						<DatasourceExperienceIdProvider>
+							<IntlProvider locale="en">
+								<SmartCardProvider client={smartLinkClient}>
+									<IssueLikeDataTableView
+										testId="sometable"
+										status={'resolved'}
+										onNextPage={onNextPage}
+										onLoadDatasourceDetails={onLoadDatasourceDetails}
+										hasNextPage={false}
+										onVisibleColumnKeysChange={onVisibleColumnKeysChange}
+										onColumnResize={onColumnResize}
+										onWrappedColumnChange={onWrappedColumnChange}
+										items={[]}
+										itemIds={[]}
+										columns={[]}
+										visibleColumnKeys={['id']}
+										{...props}
+									/>
+								</SmartCardProvider>
+							</IntlProvider>
+						</DatasourceExperienceIdProvider>
+					</AnalyticsListener>
+				);
+
+				const { rerender, findByTestId, getByTestId, queryByTestId } = render(
+					renderTable({
+						status: 'resolved',
+						items: initialItems,
+						itemIds: initialItemIds,
+						columns,
+						visibleColumnKeys: ['id'],
+					}),
+				);
+
+				await findByTestId(`sometable--row-${initialItemIds[0]}`);
+
+				rerender(
+					renderTable({
+						status: 'empty',
+						items: [],
+						itemIds: [],
+						columns,
+						visibleColumnKeys: ['id'],
+					}),
+				);
+
+				expect(getByTestId('sometable--row-loading-0')).toBeInTheDocument();
+				expect(getByTestId('sometable--row-loading-1')).toBeInTheDocument();
+				expect(getByTestId('sometable--row-loading-2')).toBeInTheDocument();
+				expect(queryByTestId('sometable--row-loading-3')).toBeNull();
+			});
+		});
+
 		it('should show 1 loading row when new page is loading', async () => {
 			jest.useFakeTimers();
 			const items = getSimpleItems();
@@ -997,6 +1105,182 @@ describe('IssueLikeDataTableView', () => {
 			});
 
 			expect(screen.getByTestId('column-picker-trigger-button')).toBeInTheDocument();
+		});
+
+		it('should not show the table settings menu when the gate is off', () => {
+			failGate('platform_lp_sllv_table_settings_menu');
+			jest.useFakeTimers();
+			const items = getSimpleItems();
+			const itemIds = setupItemIds(items);
+			const columns = getSimpleColumns();
+
+			setup({
+				items,
+				itemIds,
+				hasNextPage: true,
+				columns,
+			});
+
+			expect(screen.queryByRole('button', { name: 'More actions' })).not.toBeInTheDocument();
+		});
+
+		it('should not show the table settings menu without an available setting', () => {
+			passGate('platform_lp_sllv_table_settings_menu');
+			jest.useFakeTimers();
+			const items = getSimpleItems();
+			const itemIds = setupItemIds(items);
+			const columns = getSimpleColumns();
+
+			setup({
+				items,
+				itemIds,
+				hasNextPage: true,
+				columns,
+				onWrappedColumnsChange: undefined,
+			});
+
+			expect(screen.getByTestId('column-picker-trigger-button')).toBeInTheDocument();
+			expect(screen.queryByRole('button', { name: 'More actions' })).not.toBeInTheDocument();
+		});
+
+		it('should show the table settings menu next to the column picker when the gate is on', async () => {
+			passGate('platform_lp_sllv_table_settings_menu');
+			jest.useFakeTimers();
+			const items = getSimpleItems();
+			const itemIds = setupItemIds(items);
+			const columns = getSimpleColumns();
+
+			setup({
+				items,
+				itemIds,
+				hasNextPage: true,
+				columns,
+			});
+
+			expect(screen.getByTestId('column-picker-trigger-button')).toBeInTheDocument();
+			const moreActionsButton = screen.getByRole('button', { name: 'More actions' });
+			expect(moreActionsButton).toBeInTheDocument();
+
+			fireEvent.click(moreActionsButton);
+			expect(await screen.findByTestId('table-settings-menu-wrap-text-toggle')).toBeInTheDocument();
+			expect(screen.getByText('Wrap text in all columns')).toBeInTheDocument();
+		});
+
+		it('should show the wrap-all toggle as on when every visible column is wrapped', async () => {
+			passGate('platform_lp_sllv_table_settings_menu');
+			const items = getComplexItems();
+			const itemIds = setupItemIds(items);
+
+			setup({
+				items,
+				itemIds,
+				columns: getComplexColumns(),
+				visibleColumnKeys: ['id', 'someOtherKey'],
+				wrappedColumnKeys: ['id', 'someOtherKey'],
+			});
+
+			fireEvent.click(screen.getByRole('button', { name: 'More actions' }));
+			expect(
+				await screen.findByRole('checkbox', { name: 'Wrap text in all columns' }),
+			).toBeChecked();
+		});
+
+		it('should show the wrap-all toggle as off when any visible column is unwrapped', async () => {
+			passGate('platform_lp_sllv_table_settings_menu');
+			const items = getComplexItems();
+			const itemIds = setupItemIds(items);
+
+			setup({
+				items,
+				itemIds,
+				columns: getComplexColumns(),
+				visibleColumnKeys: ['id', 'someOtherKey'],
+				wrappedColumnKeys: ['id'],
+			});
+
+			fireEvent.click(screen.getByRole('button', { name: 'More actions' }));
+			expect(
+				await screen.findByRole('checkbox', { name: 'Wrap text in all columns' }),
+			).not.toBeChecked();
+		});
+
+		it('should wrap all visible columns when the wrap-all toggle is off', async () => {
+			passGate('platform_lp_sllv_table_settings_menu');
+			const items = getComplexItems();
+			const itemIds = setupItemIds(items);
+
+			const { onWrappedColumnsChange } = setup({
+				items,
+				itemIds,
+				columns: getComplexColumns(),
+				visibleColumnKeys: ['id', 'someOtherKey'],
+				wrappedColumnKeys: ['id', 'hiddenWrapped'],
+			});
+
+			fireEvent.click(screen.getByRole('button', { name: 'More actions' }));
+			fireEvent.click(await screen.findByRole('checkbox', { name: 'Wrap text in all columns' }));
+
+			expect(onWrappedColumnsChange).toHaveBeenCalledWith(['id', 'hiddenWrapped', 'someOtherKey']);
+		});
+
+		it('should unwrap all visible columns when the wrap-all toggle is on', async () => {
+			passGate('platform_lp_sllv_table_settings_menu');
+			const items = getComplexItems();
+			const itemIds = setupItemIds(items);
+
+			const { onWrappedColumnsChange } = setup({
+				items,
+				itemIds,
+				columns: getComplexColumns(),
+				visibleColumnKeys: ['id', 'someOtherKey'],
+				wrappedColumnKeys: ['id', 'someOtherKey', 'hiddenWrapped'],
+			});
+
+			fireEvent.click(screen.getByRole('button', { name: 'More actions' }));
+			fireEvent.click(await screen.findByRole('checkbox', { name: 'Wrap text in all columns' }));
+
+			expect(onWrappedColumnsChange).toHaveBeenCalledWith(['hiddenWrapped']);
+		});
+
+		describe('when the request resolved without any items', () => {
+			const setupWithNoItems = () =>
+				setup({
+					items: [],
+					itemIds: [],
+					columns: getSimpleColumns(),
+					visibleColumnKeys: ['id'],
+					status: 'resolved',
+				});
+
+			ffTest.off('platform_lp_sllv_ux_improvements', '', () => {
+				it('should render an empty table body', () => {
+					const { queryByTestId, queryByText } = setupWithNoItems();
+
+					expect(queryByTestId('sometable--no-results-row')).not.toBeInTheDocument();
+					expect(
+						queryByText("We couldn't find anything matching your search"),
+					).not.toBeInTheDocument();
+				});
+			});
+
+			ffTest.on('platform_lp_sllv_ux_improvements', '', () => {
+				it('should render the no results view in the table body while keeping the headers', () => {
+					const { getByTestId, getByText } = setupWithNoItems();
+
+					expect(getByTestId('sometable--head')).toBeInTheDocument();
+					expect(getByTestId('id-column-heading')).toBeInTheDocument();
+					expect(getByTestId('sometable--no-results-row')).toBeInTheDocument();
+					expect(getByText("We couldn't find anything matching your search")).toBeInTheDocument();
+				});
+
+				it('should span the no results cell across every column including the column picker', () => {
+					const { getByTestId } = setupWithNoItems();
+
+					expect(
+						within(getByTestId('sometable--no-results-row')).getByRole('cell'),
+					).toHaveAttribute('colspan', '2');
+				});
+			});
 		});
 
 		describe('column picker integration', () => {
@@ -1554,6 +1838,33 @@ describe('IssueLikeDataTableView', () => {
 			it('should have column titles in table header', async () => {
 				await assertColumnTitles(undefined);
 			});
+
+			ffTest.on('platform_lp_jira_sllv_renderer_column_sorting', '', () => {
+				it('adds aria-sort and accessible sort labels in readonly sortable mode', async () => {
+					const { columns, items, itemIds, visibleColumnKeys } = makeDragAndDropTableProps();
+					const onColumnSort = jest.fn();
+
+					const { getByTestId } = setup({
+						items,
+						itemIds,
+						columns,
+						visibleColumnKeys,
+						hasNextPage: false,
+						onVisibleColumnKeysChange: undefined,
+						onColumnResize: undefined,
+						onWrappedColumnChange: undefined,
+						onColumnSort,
+						sortState: { key: 'task', direction: 'ASC' },
+					});
+
+					expect(getByTestId('task-column-heading')).toHaveAttribute('aria-sort', 'ascending');
+					expect(getByTestId('id-column-heading')).not.toHaveAttribute('aria-sort');
+					expect(getByTestId('task-column-sort-button')).toHaveAttribute(
+						'aria-label',
+						'Sort by task descending.',
+					);
+				});
+			});
 		});
 
 		describe('when custom column size is not defined, and default widths are applied', () => {
@@ -1747,6 +2058,72 @@ describe('IssueLikeDataTableView', () => {
 				const styles = getComputedStyle(tableCell!);
 				expect(styles.textOverflow).toBe('ellipsis');
 			});
+
+			const getRichTextItems = (): DatasourceDataResponseItem[] => [
+				{
+					ari: { data: 'ari/blah' },
+					description: {
+						data: {
+							type: 'adf',
+							text: JSON.stringify({ type: 'doc', version: 1, content: [] }),
+						},
+					},
+				},
+			];
+
+			const getRichTextColumns = (): DatasourceResponseSchemaProperty[] => [
+				{
+					key: 'description',
+					title: 'Description',
+					type: 'richtext',
+				},
+			];
+
+			ffTest.on(
+				'platform_lp_sllv_richtext_margin_reset',
+				'when richtext margin reset gate is ON',
+				() => {
+					it('should apply vertical-align top to richtext table cells', () => {
+						const items = getRichTextItems();
+						const itemIds = setupItemIds(items);
+						const columns = getRichTextColumns();
+
+						const { queryByTestId } = setup({
+							items,
+							itemIds,
+							columns,
+							visibleColumnKeys: ['description'],
+							hasNextPage: false,
+						});
+
+						const tableCell = queryByTestId('sometable--cell-0');
+						expect(tableCell).toHaveStyle({ verticalAlign: 'top' });
+					});
+				},
+			);
+
+			ffTest.off(
+				'platform_lp_sllv_richtext_margin_reset',
+				'when richtext margin reset gate is OFF',
+				() => {
+					it('should not apply vertical-align top to richtext table cells', () => {
+						const items = getRichTextItems();
+						const itemIds = setupItemIds(items);
+						const columns = getRichTextColumns();
+
+						const { queryByTestId } = setup({
+							items,
+							itemIds,
+							columns,
+							visibleColumnKeys: ['description'],
+							hasNextPage: false,
+						});
+
+						const tableCell = queryByTestId('sometable--cell-0');
+						expect(tableCell).not.toHaveStyle({ verticalAlign: 'top' });
+					});
+				},
+			);
 		});
 
 		describe('header dropdown', () => {

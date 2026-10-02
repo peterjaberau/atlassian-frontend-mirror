@@ -2,49 +2,52 @@ import { tableCellBorderWidth, tableMarginTop } from '@atlaskit/editor-common/st
 import { closestElement, containsClassName, parsePx } from '@atlaskit/editor-common/utils';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { TableCssClassName as ClassName } from '../../../types';
 import { getPluginState as getMainPluginState } from '../../plugin-factory';
 import { colWidthsForRow } from '../../utils/column-controls';
 import { getRowHeights } from '../../utils/row-controls';
 
-export const updateControls = () => (state: EditorState): void => {
-	const { tableRef } = getMainPluginState(state);
-	if (!tableRef) {
-		return;
-	}
-	const tr = tableRef.querySelector('tr');
-	if (!tr) {
-		return;
-	}
-	const wrapper = tableRef.parentElement;
-	if (!(wrapper && wrapper.parentElement)) {
-		return;
-	}
+export const updateControls =
+	() =>
+	(state: EditorState): void => {
+		const { tableRef } = getMainPluginState(state);
+		if (!tableRef) {
+			return;
+		}
+		const tr = tableRef.querySelector('tr');
+		if (!tr) {
+			return;
+		}
+		const wrapper = tableRef.parentElement;
+		if (!(wrapper && wrapper.parentElement)) {
+			return;
+		}
 
-	const rowControls = wrapper.parentElement.querySelectorAll<HTMLElement>(
-		`.${ClassName.ROW_CONTROLS_BUTTON_WRAP}`,
-	);
-	const numberedRows = wrapper.parentElement.querySelectorAll<HTMLElement>(
-		ClassName.NUMBERED_COLUMN_BUTTON,
-	);
+		const rowControls = wrapper.parentElement.querySelectorAll<HTMLElement>(
+			`.${ClassName.ROW_CONTROLS_BUTTON_WRAP}`,
+		);
+		const numberedRows = wrapper.parentElement.querySelectorAll<HTMLElement>(
+			ClassName.NUMBERED_COLUMN_BUTTON,
+		);
 
-	syncStickyRowToTable(tableRef);
+		syncStickyRowToTable(tableRef);
 
-	const rowHeights = getRowHeights(tableRef);
+		const rowHeights = getRowHeights(tableRef);
 
-	// update rows controls height on resize
-	for (let i = 0, count = rowControls.length; i < count; i++) {
-		const height = rowHeights[i];
-		if (height) {
-			rowControls[i].style.height = `${height}px`;
+		// update rows controls height on resize
+		for (let i = 0, count = rowControls.length; i < count; i++) {
+			const height = rowHeights[i];
+			if (height) {
+				rowControls[i].style.height = `${height}px`;
 
-			if (numberedRows.length) {
-				numberedRows[i].style.height = `${height}px`;
+				if (numberedRows.length) {
+					numberedRows[i].style.height = `${height}px`;
+				}
 			}
 		}
-	}
-};
+	};
 
 export const isClickNear = (event: MouseEvent, click: { x: number; y: number }): boolean => {
 	const dx = click.x - event.clientX,
@@ -86,7 +89,6 @@ export const updateStickyMargins = (table: HTMLElement): void => {
 };
 
 const applyColWidthsToStickyRow = (
-	// @ts-ignore - CCFE error TS6133: 'colGroup' is declared but its value is never read.
 	colGroup: HTMLTableColElement | null,
 	headerRow: HTMLTableRowElement,
 ) => {
@@ -128,5 +130,63 @@ const applyTableWidthToStickyRow = (tableRef: HTMLElement, headerRow: HTMLTableR
 
 		headerRow.style.width = `${newWidth}px`;
 		headerRow.scrollLeft = wrapper.scrollLeft;
+		if (expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)) {
+			syncCornerMasksToStickyRow(tableRef, headerRow, wrapper);
+		}
 	}
+};
+
+/**
+ * Repositions only the sticky-header corner masks to match the current scroll position.
+ */
+export const syncStickyCornerMasks = (tableRef?: HTMLElement | null): void => {
+	if (!tableRef) {
+		return;
+	}
+
+	const headerRow = tableRef.querySelector('tr[data-header-row]') as HTMLTableRowElement | null;
+	const wrapper = tableRef.parentElement;
+
+	if (!headerRow || !wrapper) {
+		return;
+	}
+
+	syncCornerMasksToStickyRow(tableRef, headerRow, wrapper);
+};
+
+export const clearStickyCornerMaskPositions = (tableRef?: HTMLElement | null): void => {
+	const wrapper = tableRef?.parentElement;
+	if (!wrapper) {
+		return;
+	}
+
+	wrapper.querySelectorAll<HTMLElement>(`.${ClassName.TABLE_CORNER_MASK}`).forEach((mask) => {
+		mask.style.removeProperty('left');
+	});
+};
+
+const syncCornerMasksToStickyRow = (
+	tableRef: HTMLElement,
+	headerRow: HTMLTableRowElement,
+	wrapper: HTMLElement,
+) => {
+	const cornerMasks = wrapper.querySelectorAll<HTMLElement>(`.${ClassName.TABLE_CORNER_MASK}`);
+	if (!cornerMasks.length) {
+		return;
+	}
+
+	const isLegacySticky =
+		tableRef.classList.contains(ClassName.TABLE_STICKY) && headerRow.classList.contains('sticky');
+
+	if (!isLegacySticky) {
+		clearStickyCornerMaskPositions(tableRef);
+		return;
+	}
+
+	const stickyRowRect = headerRow.getBoundingClientRect();
+	cornerMasks.forEach((mask) => {
+		const corner = mask.dataset.corner;
+		const left = corner === 'right' ? stickyRowRect.right - 11 : stickyRowRect.left - 1;
+		mask.style.left = `${left}px`;
+	});
 };

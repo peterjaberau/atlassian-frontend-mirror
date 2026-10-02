@@ -6,9 +6,9 @@ import { type ReactNode } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { type NewIconProps } from '@atlaskit/icon';
 import ErrorIcon from '@atlaskit/icon/core/status-error';
 import WarningIcon from '@atlaskit/icon/core/status-warning';
+import type { NewIconProps } from '@atlaskit/icon/types';
 import { token } from '@atlaskit/tokens';
 
 import { useModal } from './hooks';
@@ -48,13 +48,13 @@ const titleStyles = css({
 
 const textStyles = css({
 	minWidth: 0,
-
 	/**
 	 * This ensures that the element fills the whole header space
 	 * and its content does not overflow (since flex items don't
 	 * shrink past its content size by default).
 	 */
 	flex: '1 1 auto',
+	font: token('font.heading.medium'),
 	wordWrap: 'break-word',
 });
 

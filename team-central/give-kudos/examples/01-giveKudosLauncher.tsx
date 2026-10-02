@@ -5,9 +5,11 @@
 
 import { useCallback, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap, jsx } from '@atlaskit/css';
-import Flag, { FlagGroup, type FlagProps } from '@atlaskit/flag';
+import Flag from '@atlaskit/flag/flag';
+import FlagGroup from '@atlaskit/flag/flag-group';
+import type { FlagProps } from '@atlaskit/flag/types';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
@@ -22,7 +24,7 @@ const styles = cssMap({
 	},
 });
 
-export default function Example() {
+export default function Example(): JSX.Element {
 	const [isOpen, setIsOpen] = useState(false);
 	const [flags, setFlags] = useState<Array<FlagProps>>([]);
 

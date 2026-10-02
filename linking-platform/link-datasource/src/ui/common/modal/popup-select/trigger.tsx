@@ -1,14 +1,13 @@
-import React, { forwardRef, useCallback, useMemo } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 
 import { cssMap, styled } from '@compiled/react';
 
-import Badge from '@atlaskit/badge';
-import NewButton from '@atlaskit/button/new';
+import Badge from '@atlaskit/badge/badge';
+import NewButton from '@atlaskit/button/default/button';
 import Button from '@atlaskit/button/standard-button';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { Box, Flex } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 
 import { type SelectOption } from './types';
@@ -52,30 +51,21 @@ const LoadingStateAnimationWrapper = styled.div({
 	},
 });
 
-const PopupTrigger = forwardRef<HTMLButtonElement, PopupTriggerProps>(
-	({ isSelected, isDisabled, isLoading, selectedOptions, testId, label }, 
-		ref: React.Ref<HTMLButtonElement>) => {
+const PopupTrigger: React.ForwardRefExoticComponent<
+	PopupTriggerProps & React.RefAttributes<HTMLButtonElement>
+> = forwardRef<HTMLButtonElement, PopupTriggerProps>(
+	(
+		{ isSelected, isDisabled, isLoading, selectedOptions, testId, label },
+		ref: React.Ref<HTMLButtonElement>,
+	) => {
 		const [firstOption] = selectedOptions || [];
 
 		const hasOptions = selectedOptions && selectedOptions.length > 0;
 		const showButtonLoading = !isDisabled && isLoading;
 		const triggerButtonTestId = `${testId}-trigger`;
 
-		const LoadingButton = useCallback(
+		const loadingButton = useMemo(
 			() => (
-				<LoadingStateAnimationWrapper>
-					<Button
-						iconAfter={<Spinner size={'xsmall'} />}
-						testId={`${triggerButtonTestId}--loading-button`}
-					>
-						{label}
-					</Button>
-				</LoadingStateAnimationWrapper>
-			),
-			[label, triggerButtonTestId],
-		);
-
-		const loadingButton = useMemo(() => (
 				<LoadingStateAnimationWrapper>
 					<Button
 						ref={ref}
@@ -89,40 +79,8 @@ const PopupTrigger = forwardRef<HTMLButtonElement, PopupTriggerProps>(
 			[label, triggerButtonTestId, ref],
 		);
 
-		const DefaultButton = useCallback(
+		const defaultButton = useMemo(
 			() => (
-				<NewButton
-					isSelected={isSelected || hasOptions}
-					isDisabled={isDisabled}
-					iconAfter={() => <ChevronDownIcon label="" color="currentColor" size="small" />}
-					testId={`${triggerButtonTestId}--button`}
-					aria-expanded={isSelected}
-				>
-					<Flex>
-						<Box xcss={styles.triggerButtonLabelStyles}>
-							{label}
-							{firstOption && <>: {firstOption.label}</>}
-						</Box>
-						{selectedOptions && selectedOptions.length > 1 && (
-							<Flex xcss={styles.badgeStyles} alignItems="center">
-								<Badge appearance="primary">+{selectedOptions.length - 1}</Badge>
-							</Flex>
-						)}
-					</Flex>
-				</NewButton>
-			),
-			[
-				firstOption,
-				hasOptions,
-				isDisabled,
-				isSelected,
-				label,
-				selectedOptions,
-				triggerButtonTestId,
-			],
-		);
-
-		const defaultButton = useMemo(() => (
 				<NewButton
 					ref={ref}
 					isSelected={isSelected || hasOptions}
@@ -138,7 +96,7 @@ const PopupTrigger = forwardRef<HTMLButtonElement, PopupTriggerProps>(
 						</Box>
 						{selectedOptions && selectedOptions.length > 1 && (
 							<Flex xcss={styles.badgeStyles} alignItems="center">
-								<Badge appearance="primary">+{selectedOptions.length - 1}</Badge>
+								<Badge appearance="informationBold">+{selectedOptions.length - 1}</Badge>
 							</Flex>
 						)}
 					</Flex>
@@ -160,14 +118,8 @@ const PopupTrigger = forwardRef<HTMLButtonElement, PopupTriggerProps>(
 		 * We had an issue with the popup component referencing a stale DOM ref for the trigger button.
 		 * Hence introducing a Box to make sure ref is always the same and only content is refreshed on re-renders
 		 */
-		return fg('platform_navx_sllv_dropdown_escape_and_focus_fix') ? (
-			<Box testId={triggerButtonTestId}>
-				{showButtonLoading ? loadingButton : defaultButton}
-			</Box>
-		) : (
-			<Box ref={ref} testId={triggerButtonTestId}>
-				{showButtonLoading ? <LoadingButton /> : <DefaultButton />}
-			</Box>
+		return (
+			<Box testId={triggerButtonTestId}>{showButtonLoading ? loadingButton : defaultButton}</Box>
 		);
 	},
 );

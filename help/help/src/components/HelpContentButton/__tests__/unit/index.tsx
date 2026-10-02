@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import ShipIcon from '@atlaskit/icon/core/release';
-import { NotificationLogClient } from '@atlaskit/notification-log-client';
-import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 
+import { render, fireEvent, waitFor } from '@testing-library/react';
+
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import ShipIcon from '@atlaskit/icon/core/release';
+import { type NotificationLogProvider } from '@atlaskit/notification-log-client';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 
 import HelpContentButton from '../../index';
@@ -14,10 +15,9 @@ const buttonLabel = 'Test Content Button';
 const notificationNumber = 5;
 
 // Mockup notification Promise
-class MockNotificationLogClient extends NotificationLogClient {
+class MockNotificationLogClient implements NotificationLogProvider {
 	notificationCounter: number;
 	constructor(notificationCounter: number = notificationNumber) {
-		super('', '');
 		this.notificationCounter = notificationCounter;
 	}
 
@@ -63,28 +63,6 @@ describe('HelpContentButton', () => {
 	// 1. Mocking upstream deps to narrow the snapshot
 	// 2. What this snapshot is trying to assert on and narrow the test
 	// 3. Delete the test
-	it.skip('Should match snapshot', async () => {
-		const notificationsClient = new MockNotificationLogClient();
-		const notificationLogProvider = Promise.resolve(notificationsClient);
-		const component = (
-			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
-				<HelpContentButton
-					id="testHelpContentButton"
-					href="https://www.atlassian.com/"
-					notificationMax={9}
-					notificationLogProvider={notificationLogProvider}
-					text={buttonLabel}
-					icon={<ShipIcon color="currentColor" spacing="spacious" label="" />}
-					onClick={mockOnClick}
-				/>
-			</AnalyticsListener>
-		);
-		const { container } = render(component);
-
-		await waitFor(() => notificationLogProvider);
-
-		expect(container.firstChild).toMatchSnapshot();
-	});
 
 	it('Should display the notification icon with the number returned by the notificationLogProvider', async () => {
 		const notificationsClient = new MockNotificationLogClient(5);
@@ -112,8 +90,7 @@ describe('HelpContentButton', () => {
 		});
 	});
 
-	it(`Should display the notification icon with the number specified in the prop notificationMax
-   followed by a "+" when the number returned by the notificationLogProvider if higher than the
+	it(`Should display the notification counter followed by a "+" when the number returned by the notificationLogProvider if higher than the
    number specified in notificationMax`, async () => {
 		const notificationsClient = new MockNotificationLogClient(20);
 		const notificationLogProvider = Promise.resolve(notificationsClient);

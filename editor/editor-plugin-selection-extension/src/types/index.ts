@@ -1,7 +1,10 @@
 import type { ComponentType, PropsWithChildren } from 'react';
 
 import type { ADFEntity } from '@atlaskit/adf-utils/types';
-import type { BlockMenuPlacement } from '@atlaskit/editor-common/block-menu';
+import type {
+	BLOCK_ACTIONS_FEATURED_EXTENSION_SECTION_KEYS,
+	BlockMenuPlacement,
+} from '@atlaskit/editor-common/block-menu';
 import type { MenuItem } from '@atlaskit/editor-common/ui-menu';
 import type { ViewMode } from '@atlaskit/editor-plugin-editor-viewmode';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
@@ -139,6 +142,14 @@ export type SelectionAdfResult = {
 } | null;
 
 export type ExtensionSource = 'first-party' | 'external';
+export type SelectionExtensionLocation = 'inline-toolbar' | 'primary-toolbar' | 'block-menu';
+
+export type GetMenuItemsContext = {
+	blockMenuTriggerExtensionKey?: string | undefined;
+	extensionKey?: string;
+	extensionLocation?: SelectionExtensionLocation;
+	extensionSource?: ExtensionSource;
+};
 
 export type ExtensionConfiguration = {
 	blockMenu?: BlockMenuExtensionConfiguration;
@@ -150,7 +161,9 @@ export type ExtensionConfiguration = {
 
 export type GetToolbarItemFn = () => ExtensionToolbarItemConfiguration;
 
-export type GetMenuItemsFn = () => Array<ExtensionMenuItemConfiguration>;
+export type GetMenuItemsFn = (
+	context?: GetMenuItemsContext,
+) => Array<ExtensionMenuItemConfiguration>;
 export type GetNestedMenuItemsFn = () => Array<ExtensionMenuItemNestedConfiguration>;
 
 export type ToolbarExtensionConfiguration = {
@@ -158,15 +171,33 @@ export type ToolbarExtensionConfiguration = {
 	getToolbarItem?: GetToolbarItemFn;
 };
 
-export type BlockMenuExtensionConfiguration = {
+type BlockMenuFeaturedSectionKey = (typeof BLOCK_ACTIONS_FEATURED_EXTENSION_SECTION_KEYS)[number];
+
+type BlockMenuExtensionConfigurationBase = {
 	getMenuItems: GetMenuItemsFn;
-	/**
-	 * Optional placement hint to control where the menu items appear in the block menu
-	 * - 'default' (or undefined): Items appear in their normal nested location under create section
-	 * - 'featured': Items are promoted to top-level alongside the "Turn into" menu
-	 */
-	placement?: BlockMenuPlacement;
 };
+
+export type BlockMenuExtensionConfiguration =
+	| (BlockMenuExtensionConfigurationBase & {
+			/**
+			 * Items are registered as their own top-level section with a separator above.
+			 */
+			placement: 'featured-section';
+			/**
+			 * Must be included in BLOCK_ACTIONS_FEATURED_EXTENSION_SECTION_KEYS and ranked in MAIN_BLOCK_MENU_SECTION_RANK.
+			 */
+			sectionKey: BlockMenuFeaturedSectionKey;
+	  })
+	| (BlockMenuExtensionConfigurationBase & {
+			/**
+			 * Optional placement hint to control where the menu items appear in the block menu
+			 * - 'default' (or undefined): Items appear in their normal nested location under create section
+			 * - 'structure': Items appear in the nested Structure section alongside format targets
+			 * - 'featured': Items are promoted to top-level alongside the "Turn into" menu
+			 */
+			placement?: Exclude<BlockMenuPlacement, 'featured-section'>;
+			sectionKey?: never;
+	  });
 
 export type ExtensionToolbarItemConfiguration = {
 	icon: ComponentType<PropsWithChildren<{ label: string }>>;
@@ -184,13 +215,19 @@ export type ExtensionToolbarItemConfiguration = {
  * Common fields applicable to all extension menu items
  */
 type ExtensionMenuItemBaseConfiguration = {
-	icon: ComponentType<PropsWithChildren<{ label: string; size?: 'small' | 'medium' }>>;
+	icon?: ComponentType<PropsWithChildren<{ label: string; size?: 'small' | 'medium' }>>;
 	isDisabled?: boolean;
 	/**
 	 * Optional key to identify the menu item in analytics events
 	 */
 	key?: string;
 	label: string;
+	/**
+	 * Optional lozenge to display next to the label in the menu
+	 */
+	lozenge?: {
+		label: string;
+	};
 };
 
 /**
@@ -203,12 +240,6 @@ type ExtensionDropdownItemFields = {
 	 * Used for forge app extensions that need to render custom UI when selected from the block menu.
 	 */
 	contentComponent?: ComponentType<SelectionExtensionComponentProps>;
-	/**
-	 * Optional lozenge to display next to the label in the menu
-	 */
-	lozenge?: {
-		label: string;
-	};
 	onClick?: () => void;
 };
 

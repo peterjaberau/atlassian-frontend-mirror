@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { ButtonGroup } from '@atlaskit/button';
-import Button from '@atlaskit/button/new';
+import ButtonGroup from '@atlaskit/button/button-group';
+import Button from '@atlaskit/button/default/button';
 
 const _default_1: React.JSX.Element[] = [
-    <ButtonGroup titleId="heading-options">
-        <Button appearance="primary">Save</Button>
-        <Button appearance="danger">Delete</Button>
-        <Button appearance="subtle">Cancel</Button>
-    </ButtonGroup>,
+	<ButtonGroup titleId="heading-options">
+		<Button appearance="primary">Save</Button>
+		<Button appearance="danger">Delete</Button>
+		<Button appearance="subtle">Cancel</Button>
+	</ButtonGroup>,
 ];
 export default _default_1;

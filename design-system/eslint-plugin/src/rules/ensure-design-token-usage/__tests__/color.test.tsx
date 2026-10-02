@@ -1,9 +1,9 @@
 import { outdent } from 'outdent';
 
-import { CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens';
+import { CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens/constants';
 
-import { tester } from '../../__tests__/utils/_tester';
-import { type Tests } from '../../__tests__/utils/_types';
+import { tester, typescriptEslintTester } from '../../__tests__/utils/_tester';
+import type { Tests } from '../../__tests__/utils/_types';
 import rule from '../../ensure-design-token-usage';
 
 const isESLintV9 = (tester as unknown as { linter: { version: string } }).linter.version.startsWith(
@@ -43,6 +43,11 @@ const colorTests: Tests = {
 		},
 		{
 			code: `css({ boxShadow: token('shadow.card') })`,
+		},
+		{
+			// Token calls are represented as template fragments by the evaluator.
+			// Composing one into a binary expression must not crash the rule.
+			code: `css({ color: token('color.background.blanket') + '-suffix' })`,
 		},
 		{
 			code: `
@@ -485,6 +490,13 @@ const colorTests: Tests = {
 					],
 				},
 			],
+		},
+		{
+			// A zero operand is still a resolved binary value and can be tokenized.
+			options: [{ domains: ['spacing'], applyImport: false }],
+			code: `css({ padding: (gridSize() - gridSize()) + gridSize() })`,
+			output: `css({ padding: token('space.100', '8px') })`,
+			errors: [{ messageId: 'noRawSpacingValues' }],
 		},
 		{
 			code: `
@@ -1507,8 +1519,38 @@ const colorExceptionTests: Tests = {
 };
 
 const allTests: Tests = {
-	valid: [...colorTests.valid, ...colorSuggestionTests.valid, ...tagBypassTests.valid, ...colorExceptionTests.valid],
-	invalid: [...colorTests.invalid, ...colorSuggestionTests.invalid, ...tagBypassTests.invalid, ...colorExceptionTests.invalid],
+	valid: [
+		...colorTests.valid,
+		...colorSuggestionTests.valid,
+		...tagBypassTests.valid,
+		...colorExceptionTests.valid,
+	],
+	invalid: [
+		...colorTests.invalid,
+		...colorSuggestionTests.invalid,
+		...tagBypassTests.invalid,
+		...colorExceptionTests.invalid,
+	],
 };
 
 tester.run('ensure-design-token-usage', rule, allTests);
+
+typescriptEslintTester.run(
+	'ensure-design-token-usage TypeScript expressions',
+	// @ts-expect-error
+	rule,
+	{
+		valid: [
+			{
+				filename: 'fixture.tsx',
+				code: `
+					const css = (value: unknown) => value;
+					const value = {};
+					const key = 'x';
+					css({ color: value[key as readonly string[]] });
+				`,
+			},
+		],
+		invalid: [],
+	},
+);

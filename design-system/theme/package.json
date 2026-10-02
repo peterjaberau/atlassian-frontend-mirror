@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/theme",
-	"version": "21.0.5",
+	"version": "28.2.4",
 	"description": "Theme contains solutions for global theming, colors, and other useful mixins.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,6 +17,13 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
 			"name": "Theme",
@@ -25,11 +32,12 @@
 	},
 	"dependencies": {
 		"@atlaskit/ds-lib": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/visual-regression": "workspace:^",
@@ -37,12 +45,14 @@
 		"@atlaskit/docs": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@compiled/react": "root:*",
 		"@testing-library/react": "root:*",
 		"@types/color": "root:*",
 		"color": "root:*",
 		"jest-in-case": "root:*",
-		"react-dom": "root:*"
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
 	},
 	"keywords": [
 		"atlaskit",
@@ -51,44 +61,14 @@
 		"react",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"ui-components": "lite-mode",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"theming": [
-				"react-context"
-			],
-			"deprecation": "no-deprecated-imports",
-			"design-system": "v1"
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
-		"./colors": "./src/colors.tsx",
-		"./components": "./src/components.tsx",
+		".": "./src/index.tsx",
 		"./constants": "./src/constants.tsx",
+		"./create-theme": "./src/utils/create-theme.tsx",
+		"./get-theme": "./src/utils/get-theme.tsx",
+		"./theme": "./src/components/theme.tsx",
 		"./types": "./src/types.tsx",
-		"./typography": "./src/typography.tsx",
-		".": "./src/index.tsx"
+		"./components": "./src/components.tsx"
 	},
 	"homepage": "https://atlaskit.atlassian.com/packages/design-system/eslint-plugin"
 }

@@ -1,55 +1,57 @@
-import React, { type MouseEvent, useCallback, useEffect, useMemo } from 'react';
+import React, { type MouseEvent, useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/analytics-next';
-import { extractSmartLinkEmbed } from '@atlaskit/link-extractors';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { componentWithFG } from '@atlaskit/platform-feature-flags-react';
+import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { extractSmartLinkEmbed } from '@atlaskit/link-extractors/extract-smart-link-embed';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import { useAnalyticsEvents } from '../../common/analytics/generated/use-analytics-events';
 import { CardDisplay } from '../../constants';
 import { type InvokeClientOpts, type InvokeServerOpts } from '../../model/invoke-opts';
-import { useSmartLink } from '../../state';
-import { succeedUfoExperience } from '../../state/analytics';
-import {
-	getClickUrl,
-	getDefinitionId,
-	getExtensionKey,
-	getFirstPartyIdentifier,
-	getObjectAri,
-	getObjectIconUrl,
-	getObjectName,
-	getResourceType,
-	getServices,
-	getThirdPartyARI,
-	isFinalState,
-} from '../../state/helpers';
-import { SmartLinkModalProvider } from '../../state/modal';
-import { isSpecialClick, isSpecialEvent, isSpecialKey } from '../../utils';
+import { succeedUfoExperience } from '../../state/analytics/succeedUfoExperience';
+import { getClickUrl } from '../../state/getClickUrl';
+import { getDefinitionId } from '../../state/getDefinitionId';
+import { getExtensionKey } from '../../state/getExtensionKey';
+import { getFirstPartyIdentifier } from '../../state/getFirstPartyIdentifier';
+import { getObjectAri } from '../../state/getObjectAri';
+import { getObjectIconUrl } from '../../state/getObjectIconUrl';
+import { getObjectName } from '../../state/getObjectName';
+import { getResourceType } from '../../state/getResourceType';
+import { getServices } from '../../state/getServices';
+import { getThirdPartyARI } from '../../state/getThirdPartyARI';
+import { useSmartLinkCrossProductUrlWrapper } from '../../state/hooks/use-smart-link-cross-product-url-wrapper';
+import { useSmartLink } from '../../state/hooks/useSmartLink';
+import { isFinalState } from '../../state/isFinalState';
+import { SmartLinkModalProvider } from '../../state/modal/SmartLinkModalProvider';
 import { combineActionOptions } from '../../utils/actions/combine-action-options';
-import { fireLinkClickedEvent } from '../../utils/analytics/click';
+import { fireLinkClickedEvent } from '../../utils/analytics/fireLinkClickedEvent';
 import { SmartLinkAnalyticsContext } from '../../utils/analytics/SmartLinkAnalyticsContext';
-import { isFlexibleUiCard } from '../../utils/flexible';
-import * as measure from '../../utils/performance';
+import { create } from '../../utils/create';
+import { getAnchorAttributesFromEvent } from '../../utils/get-anchor-attributes-from-event';
+import { getMeasure } from '../../utils/get-measure';
+import { isAuxClick } from '../../utils/is-aux-click';
+import { isFlexibleUiCard } from '../../utils/is-flexible-ui-card';
+import { isSpecialClick } from '../../utils/is-special-click';
+import { isSpecialEvent } from '../../utils/is-special-event';
+import { isSpecialKey } from '../../utils/is-special-key';
+import { mark } from '../../utils/mark';
+import { updateAnchorHref } from '../../utils/update-anchor-href';
 import { BlockCard } from '../BlockCard';
-import { EmbedCard, EmbedCardUpdated } from '../EmbedCard';
+import { EmbedCard } from '../EmbedCard';
 import FlexibleCard from '../FlexibleCard';
 import { InlineCard } from '../InlineCard';
-import { useFire3PWorkflowsClickEvent } from '../SmartLinkEvents/useSmartLinkEvents';
-
+import { useFire3PWorkflowsClickEvent } from '../SmartLinkEvents/useFire3PWorkflowsClickEvent';
+import withCardIntersectionObserver from './card-intersection-observer';
+import useExperimentMetaEventAttributes from './experiment-meta-event-attributes';
 import { type CardWithUrlContentProps } from './types';
 
 const thirdPartyARIPrefix = 'ari:third-party';
 
-const EmbedCardComponent = componentWithFG(
-	'rovo_chat_embed_card_dwell_and_hover_metrics',
-	EmbedCardUpdated,
-	EmbedCard,
-);
 function Component({
 	id,
 	url,
+	title,
 	isSelected,
 	isHovered,
 	frameStyle,
@@ -82,8 +84,14 @@ function Component({
 	let isFlexibleUi = useMemo(() => isFlexibleUiCard(children, ui), [children, ui]);
 
 	// Get state, actions for this card.
+	// appearance is pre-resolved by the caller (loader.tsx for Card, ssr.tsx for CardSSR):
+	// FlexibleCards are always passed appearance='block' when FG is on, so component.tsx
+	// simply consumes whatever appearance it receives.
 	const { state, actions, config, renderers, error, isPreviewPanelAvailable, openPreviewPanel } =
-		useSmartLink(id, url);
+		useSmartLink(id, url, appearance);
+	const { linkNavigation } = useSmartLinkContext();
+	const resolveNavigation =
+		fg('confluence_ep_shim_macro_links_v2') && isFlexibleUi ? linkNavigation : undefined;
 	const ari = getObjectAri(state.details);
 	const name = getObjectName(state.details);
 	const definitionId = getDefinitionId(state.details);
@@ -92,16 +100,37 @@ function Component({
 	const services = getServices(state.details);
 	const thirdPartyARI = getThirdPartyARI(state.details);
 	const firstPartyIdentifier = getFirstPartyIdentifier();
+	const appendCrossProductAnalyticsParams = useSmartLinkCrossProductUrlWrapper({
+		details: state.details,
+	});
 
 	const actionOptions = combineActionOptions({
 		actionOptions: actionOptionsProp,
 		platform,
 	});
 
-	const fire3PClickEvent = fg('platform_smartlink_3pclick_analytics')
-		? // eslint-disable-next-line react-hooks/rules-of-hooks
-			useFire3PWorkflowsClickEvent(firstPartyIdentifier, thirdPartyARI)
-		: undefined;
+	// TODO: [ZS] Add new experiment flag to determine if the Rovo Actions CTA should be shown
+	const rovoActionsCtaShown = false;
+
+	const fire3PClickEvent = useFire3PWorkflowsClickEvent(firstPartyIdentifier, thirdPartyARI);
+
+	// Shared scope guard for all 3P-click handlers.
+	const shouldFire3PClickEvent =
+		thirdPartyARI &&
+		thirdPartyARI.startsWith(thirdPartyARIPrefix) &&
+		getClickUrl(url, state.details) === url &&
+		fire3PClickEvent;
+
+	const getDestinationUrl = useCallback(() => {
+		// FIXME: destinationUrl should be rendered in the DOM anchor href instead of derived at click time
+		const preferredUrl = getClickUrl(url, state.details) ?? url;
+		return appendCrossProductAnalyticsParams(preferredUrl) ?? preferredUrl;
+	}, [appendCrossProductAnalyticsParams, state.details, url]);
+
+	const navigation = useMemo(
+		() => resolveNavigation?.(getDestinationUrl()),
+		[getDestinationUrl, resolveNavigation],
+	);
 
 	// Setup UI handlers.
 	const handleClickWrapper = useCallback(
@@ -115,31 +144,29 @@ function Component({
 				isModifierKeyPressed,
 			});
 
-			if (fg('platform_smartlink_3pclick_analytics')) {
-				if (thirdPartyARI && thirdPartyARI.startsWith(thirdPartyARIPrefix)) {
-					const clickURL = getClickUrl(url, state.details);
-					if (clickURL === url && fire3PClickEvent) {
-						// For questions or concerns about this event,
-						// please reach out to the 3P Workflows Team via Slack in #help-3p-connector-workflow
-						fire3PClickEvent();
-					}
-				}
+			if (shouldFire3PClickEvent) {
+				// For questions or concerns about this event,
+				// please reach out to the 3P Workflows Team via Slack in #help-3p-connector-workflow
+				fire3PClickEvent?.();
 			}
 
-			const isDisablePreviewPanel =
-				disablePreviewPanel &&
-				editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true });
+			// FIXME: InlineCard, BlockCard and EmbedCard call event.preventDefault() internally
+			// before the event bubbles up to this handler. This forces us to snapshot
+			// event.defaultPrevented before calling onClick to detect whether the consumer
+			// specifically prevented navigation. Ideally those components should not call
+			// preventDefault so this workaround can be removed.
+			const isEventDefaultPrevented = event.defaultPrevented;
 
-			// If preview panel is available and the user clicked on the link,
-			// delegate the click to the preview panel handler
-			if (
+			const canOpenPreviewPanel =
 				!isModifierKeyPressed &&
 				ari &&
 				name &&
 				openPreviewPanel &&
 				isPreviewPanelAvailable?.({ ari }) &&
-				!isDisablePreviewPanel
-			) {
+				!disablePreviewPanel;
+
+			// Preview panel takes priority over link navigation when available.
+			if (canOpenPreviewPanel) {
 				event.preventDefault();
 				event.stopPropagation();
 
@@ -160,29 +187,49 @@ function Component({
 						clickOutcome: 'previewPanel',
 					},
 				});
+
 				return;
-			} else if (!onClick && !isFlexibleUi) {
-				const clickUrl = getClickUrl(url, state.details);
-
-				// Ctrl+left click on mac typically doesn't trigger onClick
-				// The event could have potentially had `e.preventDefault()` called on it by now
-				// event by smart card internally
-				// If it has been called then only then can `isSpecialEvent` be true.
-				const target = isSpecialEvent(event) ? '_blank' : '_self';
-
-				window.open(clickUrl, target);
-
-				fireLinkClickedEvent(createAnalyticsEvent)(event, {
-					attributes: {
-						clickOutcome: target === '_blank' ? 'clickThroughNewTabOrWindow' : 'clickThrough',
-					},
-				});
-			} else {
-				if (onClick) {
-					onClick(event);
-				}
-				fireLinkClickedEvent(createAnalyticsEvent)(event);
 			}
+
+			const destinationUrl = resolveNavigation?.(getDestinationUrl()).url ?? getDestinationUrl();
+			updateAnchorHref(event, destinationUrl);
+
+			// For FlexibleCard, read target from the clicked anchor element (e.g. _blank for links
+			// rendered with explicit target). For classic cards, default to _self
+			const { target: anchorTarget } = getAnchorAttributesFromEvent(event);
+			const openInNewTab = resolveNavigation
+				? event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1
+				: isSpecialEvent(event);
+			const target = openInNewTab ? '_blank' : isFlexibleUi ? anchorTarget : '_self';
+
+			onClick?.(event, { url, destinationUrl });
+
+			// Check if the event is prevented via onClick callback
+			const consumerPreventedNavigation = event.defaultPrevented && !isEventDefaultPrevented;
+
+			// Classic cards (InlineCard, BlockCard, EmbedCard) rely on their own anchor navigation
+			// when onClick is provided, so this handler should not open the link for them.
+			// FlexibleCard's anchor is prevented from native navigation, so this handler always
+			// opens the link for FlexibleCard unless the consumer's onClick called preventDefault.
+			const shouldOpenLink = isFlexibleUi || !onClick;
+			const doOpenLink = shouldOpenLink && !consumerPreventedNavigation;
+			if (doOpenLink) {
+				event.preventDefault();
+				window.open(destinationUrl, target);
+			}
+
+			// Only set clickOutcome when this handler actually opened the link.
+			// If a parent onClick handled navigation, fire a generic click event instead.
+			fireLinkClickedEvent(createAnalyticsEvent)(
+				event,
+				doOpenLink
+					? {
+							attributes: {
+								clickOutcome: target === '_blank' ? 'clickThroughNewTabOrWindow' : 'clickThrough',
+							},
+						}
+					: undefined,
+			);
 		},
 		[
 			fireEvent,
@@ -190,43 +237,105 @@ function Component({
 			isFlexibleUi,
 			appearance,
 			definitionId,
+			getDestinationUrl,
+			resolveNavigation,
 			onClick,
 			url,
 			state.details,
 			ari,
 			name,
 			fire3PClickEvent,
+			shouldFire3PClickEvent,
 			isPreviewPanelAvailable,
 			openPreviewPanel,
 			createAnalyticsEvent,
-			thirdPartyARI,
 			disablePreviewPanel,
 		],
 	);
+
+	// Middle-click handler to trigger fire3PClickEvent on middle-clicks.
+	// Scope is limited to 3P click analytics.
+	const handleFrameAuxClick = useCallback(
+		(event: MouseEvent) => {
+			const destinationUrl = resolveNavigation?.(getDestinationUrl()).url ?? getDestinationUrl();
+			updateAnchorHref(event, destinationUrl);
+
+			// isAuxClick filters Windows right-clicks (button === 2) that also fire onAuxClick.
+			if (isAuxClick(event) && shouldFire3PClickEvent) {
+				fire3PClickEvent?.({ isAuxClick: true });
+			}
+		},
+		[fire3PClickEvent, getDestinationUrl, shouldFire3PClickEvent, resolveNavigation],
+	);
+
+	// Right-click handler to trigger fire3PClickEvent on right-clicks.
+	// Scope is limited to 3P click analytics.
+	const handleFrameContextMenu = useCallback(
+		(event: MouseEvent) => {
+			const destinationUrl = resolveNavigation?.(getDestinationUrl()).url ?? getDestinationUrl();
+			updateAnchorHref(event, destinationUrl);
+
+			if (shouldFire3PClickEvent) {
+				fire3PClickEvent?.({ isContextMenu: true });
+			}
+		},
+		[fire3PClickEvent, getDestinationUrl, shouldFire3PClickEvent, resolveNavigation],
+	);
+
+	const { reload } = actions;
 	const handleAuthorize = useCallback(() => actions.authorize(appearance), [actions, appearance]);
 	const handleRetry = useCallback(() => {
-		actions.reload();
-	}, [actions]);
+		reload();
+	}, [reload]);
+	const hasMounted = useRef(false);
+	const prevAppearance = useRef(appearance);
+
+	// When appearance changes from inline to non-inline on a mounted card
+	// (e.g. direct consumer changes inline → block/embed), reload with the new appearance
+	// so ORS can return the appropriate full data. We intentionally do NOT reload on
+	// block → embed or embed → block transitions since both already have full ORS data.
+	useEffect(() => {
+		if (!hasMounted.current) {
+			hasMounted.current = true;
+			prevAppearance.current = appearance;
+			return;
+		}
+
+		if (
+			prevAppearance.current === 'inline' &&
+			appearance !== 'inline' &&
+			fg('platform_smartlink_inline_resolve_optimization')
+		) {
+			reload(appearance);
+		}
+		prevAppearance.current = appearance;
+	}, [appearance, reload]);
 	const handleInvoke = useCallback(
 		(opts: InvokeClientOpts | InvokeServerOpts) => actions.invoke(opts, appearance),
 		[actions, appearance],
 	);
+	const experimentMetaEventAttributes = useExperimentMetaEventAttributes({
+		actionOptions,
+		appearance,
+		state,
+	});
 
 	// NB: for each status change in a Smart Link, a performance mark is created.
 	// Measures are sent relative to the first mark, matching what a user sees.
 	useEffect(() => {
-		measure.mark(id, state.status);
+		mark(id, state.status);
 		if (state.status !== 'pending' && state.status !== 'resolving') {
-			measure.create(id, state.status);
+			create(id, state.status);
 
 			if (state.status === 'resolved') {
 				fireEvent('operational.smartLink.resolved', {
 					definitionId: definitionId ?? null,
-					duration: measure.getMeasure(id, state.status)?.duration ?? null,
+					duration: getMeasure(id, state.status)?.duration ?? null,
 				});
 			} else if (
 				state.error?.type !== 'ResolveUnsupportedError' &&
-				state.error?.type !== 'UnsupportedError'
+				state.error?.type !== 'UnsupportedError' &&
+				state.error?.name !== 'InvalidUrlError'
 			) {
 				fireEvent('operational.smartLink.unresolved', {
 					definitionId: definitionId ?? null,
@@ -271,370 +380,20 @@ function Component({
 
 			fireEvent('ui.smartLink.renderSuccess', {
 				display: isFlexibleUi ? 'flexible' : appearance,
+				...(appearance === 'inline' && { rovoActionsCtaShown }),
+				...(experimentMetaEventAttributes && { experimentMeta: experimentMetaEventAttributes }),
 			});
-		}
-	}, [appearance, extensionKey, fireEvent, id, isFlexibleUi, state.status]);
-
-	const onIframeDwell = useCallback(
-		(dwellTime: number, dwellPercentVisible: number) => {
-			fireEvent('ui.smartLinkIframe.dwelled', {
-				id,
-				definitionId: definitionId ?? null,
-				display: isFlexibleUi ? 'flexible' : appearance,
-				dwellPercentVisible,
-				dwellTime,
-			});
-		},
-		[id, appearance, definitionId, isFlexibleUi, fireEvent],
-	);
-
-	const onIframeFocus = useCallback(() => {
-		fireEvent('ui.smartLinkIframe.focused', {
-			id,
-			definitionId: definitionId ?? null,
-			display: isFlexibleUi ? 'flexible' : appearance,
-		});
-	}, [id, appearance, definitionId, isFlexibleUi, fireEvent]);
-
-	if (isFlexibleUi) {
-		let cardState = state;
-		if (error) {
-			if (error?.name === 'APIError') {
-				cardState = { status: 'errored' };
-			} else {
-				throw error;
-			}
-		}
-
-		return (
-			<FlexibleCard
-				id={id}
-				cardState={cardState}
-				placeholderData={placeholderData}
-				onAuthorize={(services.length && handleAuthorize) || undefined}
-				onClick={handleClickWrapper}
-				origin="smartLinkCard"
-				renderers={renderers}
-				ui={ui}
-				showHoverPreview={showHoverPreview}
-				hoverPreviewOptions={hoverPreviewOptions}
-				actionOptions={actionOptions}
-				url={url}
-				testId={testId}
-				onResolve={onResolve}
-				onError={onError}
-			>
-				{children}
-			</FlexibleCard>
-		);
-	}
-
-	// We have to keep this last to prevent hook order from being violated
-	if (error) {
-		throw error;
-	}
-
-	switch (appearance) {
-		case 'inline':
-			return (
-				<InlineCard
-					id={id}
-					url={url}
-					renderers={renderers}
-					cardState={state}
-					handleAuthorize={(services.length && handleAuthorize) || undefined}
-					handleFrameClick={handleClickWrapper}
-					isSelected={isSelected}
-					isHovered={isHovered}
-					onResolve={onResolve}
-					onError={onError}
-					testId={testId}
-					inlinePreloaderStyle={inlinePreloaderStyle}
-					showHoverPreview={showHoverPreview}
-					hoverPreviewOptions={hoverPreviewOptions}
-					actionOptions={actionOptions}
-					removeTextHighlightingFromTitle={removeTextHighlightingFromTitle}
-					resolvingPlaceholder={resolvingPlaceholder}
-					truncateInline={truncateInline}
-					hideIconLoadingSkeleton={hideIconLoadingSkeleton}
-				/>
-			);
-		case 'block':
-			return (
-				<BlockCard
-					id={id}
-					url={url}
-					renderers={renderers}
-					authFlow={config && config.authFlow}
-					cardState={state}
-					handleAuthorize={(services.length && handleAuthorize) || undefined}
-					handleFrameClick={handleClickWrapper}
-					isSelected={isSelected}
-					onResolve={onResolve}
-					onError={onError}
-					testId={testId}
-					actionOptions={actionOptions}
-					CompetitorPrompt={CompetitorPrompt}
-					hideIconLoadingSkeleton={hideIconLoadingSkeleton}
-				/>
-			);
-		case 'embed':
-			return (
-				<EmbedCard
-					id={id}
-					url={url}
-					renderers={renderers}
-					cardState={state}
-					iframeUrlType={embedIframeUrlType}
-					handleAuthorize={(services.length && handleAuthorize) || undefined}
-					handleErrorRetry={handleRetry}
-					handleFrameClick={handleClickWrapper}
-					handleInvoke={handleInvoke}
-					isSelected={isSelected}
-					frameStyle={frameStyle}
-					platform={platform}
-					onResolve={onResolve}
-					onError={onError}
-					testId={testId}
-					inheritDimensions={inheritDimensions}
-					actionOptions={actionOptions}
-					ref={embedIframeRef}
-					onIframeDwell={onIframeDwell}
-					onIframeFocus={onIframeFocus}
-					CompetitorPrompt={CompetitorPrompt}
-					hideIconLoadingSkeleton={hideIconLoadingSkeleton}
-				/>
-			);
-	}
-}
-
-function ComponentUpdated({
-	id,
-	url,
-	isSelected,
-	isHovered,
-	frameStyle,
-	platform,
-	onClick,
-	appearance,
-	onResolve,
-	onError,
-	testId,
-	actionOptions: actionOptionsProp,
-	inheritDimensions,
-	embedIframeRef,
-	embedIframeUrlType,
-	inlinePreloaderStyle,
-	ui,
-	children,
-	showHoverPreview,
-	hoverPreviewOptions,
-	removeTextHighlightingFromTitle,
-	resolvingPlaceholder,
-	truncateInline,
-	CompetitorPrompt,
-	hideIconLoadingSkeleton,
-	disablePreviewPanel,
-	placeholderData,
-}: CardWithUrlContentProps) {
-	const { createAnalyticsEvent } = useAnalyticsEventsNext();
-	const { fireEvent } = useAnalyticsEvents();
-
-	let isFlexibleUi = useMemo(() => isFlexibleUiCard(children, ui), [children, ui]);
-
-	// Get state, actions for this card.
-	const { state, actions, config, renderers, error, isPreviewPanelAvailable, openPreviewPanel } =
-		useSmartLink(id, url);
-	const ari = getObjectAri(state.details);
-	const name = getObjectName(state.details);
-	const definitionId = getDefinitionId(state.details);
-	const extensionKey = getExtensionKey(state.details);
-	const resourceType = getResourceType(state.details);
-	const services = getServices(state.details);
-	const thirdPartyARI = getThirdPartyARI(state.details);
-	const firstPartyIdentifier = getFirstPartyIdentifier();
-
-	const actionOptions = combineActionOptions({
-		actionOptions: actionOptionsProp,
-		platform,
-	});
-
-	const fire3PClickEvent = fg('platform_smartlink_3pclick_analytics')
-		? // eslint-disable-next-line react-hooks/rules-of-hooks
-			useFire3PWorkflowsClickEvent(firstPartyIdentifier, thirdPartyARI)
-		: undefined;
-
-	// Setup UI handlers.
-	const handleClickWrapper = useCallback(
-		(event: MouseEvent) => {
-			const isModifierKeyPressed = isSpecialKey(event) || isSpecialClick(event);
-
-			fireEvent('ui.smartLink.clicked', {
-				id,
-				display: isFlexibleUi ? CardDisplay.Flexible : appearance,
-				definitionId: definitionId ?? null,
-				isModifierKeyPressed,
-			});
-
-			if (fg('platform_smartlink_3pclick_analytics')) {
-				if (thirdPartyARI && thirdPartyARI.startsWith(thirdPartyARIPrefix)) {
-					const clickURL = getClickUrl(url, state.details);
-					if (clickURL === url && fire3PClickEvent) {
-						// For questions or concerns about this event,
-						// please reach out to the 3P Workflows Team via Slack in #help-3p-connector-workflow
-						fire3PClickEvent();
-					}
-				}
-			}
-
-			const isDisablePreviewPanel =
-				disablePreviewPanel &&
-				editorExperiment('platform_editor_preview_panel_linking_exp', true, { exposure: true });
-
-			// If preview panel is available and the user clicked on the link,
-			// delegate the click to the preview panel handler
-			if (
-				!isModifierKeyPressed &&
-				ari &&
-				name &&
-				openPreviewPanel &&
-				isPreviewPanelAvailable?.({ ari }) &&
-				!isDisablePreviewPanel
-			) {
-				event.preventDefault();
-				event.stopPropagation();
-
-				openPreviewPanel({
-					url,
-					ari,
-					name,
-					iconUrl: getObjectIconUrl(state.details),
-					panelData: {
-						embedUrl: expValEquals('platform_hover_card_preview_panel', 'cohort', 'test')
-							? extractSmartLinkEmbed(state.details)?.src
-							: undefined,
-					},
-				});
-
-				fireLinkClickedEvent(createAnalyticsEvent)(event, {
-					attributes: {
-						clickOutcome: 'previewPanel',
-					},
-				});
-				return;
-			} else if (!onClick && !isFlexibleUi) {
-				const clickUrl = getClickUrl(url, state.details);
-
-				// Ctrl+left click on mac typically doesn't trigger onClick
-				// The event could have potentially had `e.preventDefault()` called on it by now
-				// event by smart card internally
-				// If it has been called then only then can `isSpecialEvent` be true.
-				const target = isSpecialEvent(event) ? '_blank' : '_self';
-
-				window.open(clickUrl, target);
-
-				fireLinkClickedEvent(createAnalyticsEvent)(event, {
-					attributes: {
-						clickOutcome: target === '_blank' ? 'clickThroughNewTabOrWindow' : 'clickThrough',
-					},
-				});
-			} else {
-				if (onClick) {
-					onClick(event);
-				}
-				fireLinkClickedEvent(createAnalyticsEvent)(event);
-			}
-		},
-		[
-			fireEvent,
-			id,
-			isFlexibleUi,
-			appearance,
-			definitionId,
-			onClick,
-			url,
-			state.details,
-			ari,
-			name,
-			fire3PClickEvent,
-			isPreviewPanelAvailable,
-			openPreviewPanel,
-			createAnalyticsEvent,
-			thirdPartyARI,
-			disablePreviewPanel,
-		],
-	);
-	const handleAuthorize = useCallback(() => actions.authorize(appearance), [actions, appearance]);
-	const handleRetry = useCallback(() => {
-		actions.reload();
-	}, [actions]);
-	const handleInvoke = useCallback(
-		(opts: InvokeClientOpts | InvokeServerOpts) => actions.invoke(opts, appearance),
-		[actions, appearance],
-	);
-
-	// NB: for each status change in a Smart Link, a performance mark is created.
-	// Measures are sent relative to the first mark, matching what a user sees.
-	useEffect(() => {
-		measure.mark(id, state.status);
-		if (state.status !== 'pending' && state.status !== 'resolving') {
-			measure.create(id, state.status);
-
-			if (state.status === 'resolved') {
-				fireEvent('operational.smartLink.resolved', {
-					definitionId: definitionId ?? null,
-					duration: measure.getMeasure(id, state.status)?.duration ?? null,
-				});
-			} else if (
-				state.error?.type !== 'ResolveUnsupportedError' &&
-				state.error?.type !== 'UnsupportedError'
-			) {
-				fireEvent('operational.smartLink.unresolved', {
-					definitionId: definitionId ?? null,
-					reason: state.status,
-					error:
-						state.error === undefined
-							? null
-							: {
-									name: state.error.name,
-									kind: state.error.kind,
-									type: state.error.type,
-								},
-				});
-			}
 		}
 	}, [
-		id,
 		appearance,
-		state.status,
-		state.error,
-		definitionId,
 		extensionKey,
-		resourceType,
 		fireEvent,
+		id,
+		isFlexibleUi,
+		rovoActionsCtaShown,
+		state.status,
+		experimentMetaEventAttributes,
 	]);
-
-	// NB: once the smart-card has rendered into an end state, we capture
-	// this as a successful render. These can be one of:
-	// - the resolved state: when metadata is shown;
-	// - the unresolved states: viz. forbidden, not_found, unauthorized, errored.
-	useEffect(() => {
-		if (isFinalState(state.status)) {
-			succeedUfoExperience('smart-link-rendered', id || 'NULL', {
-				extensionKey,
-				display: isFlexibleUi ? 'flexible' : appearance,
-			});
-
-			// UFO will disregard this if authentication experience has not yet been started
-			succeedUfoExperience('smart-link-authenticated', id || 'NULL', {
-				display: isFlexibleUi ? 'flexible' : appearance,
-			});
-
-			fireEvent('ui.smartLink.renderSuccess', {
-				display: isFlexibleUi ? 'flexible' : appearance,
-			});
-		}
-	}, [appearance, extensionKey, fireEvent, id, isFlexibleUi, state.status]);
 
 	const onIframeDwell = useCallback(
 		(dwellTime: number, dwellPercentVisible: number) => {
@@ -654,6 +413,7 @@ function ComponentUpdated({
 			id,
 			definitionId: definitionId ?? null,
 			display: isFlexibleUi ? 'flexible' : appearance,
+
 			interactionType: 'focus',
 		});
 	}, [id, appearance, definitionId, isFlexibleUi, fireEvent]);
@@ -690,9 +450,12 @@ function ComponentUpdated({
 			<FlexibleCard
 				id={id}
 				cardState={cardState}
+				navigation={navigation}
 				placeholderData={placeholderData}
 				onAuthorize={(services.length && handleAuthorize) || undefined}
 				onClick={handleClickWrapper}
+				onAuxClick={handleFrameAuxClick}
+				onContextMenu={handleFrameContextMenu}
 				origin="smartLinkCard"
 				renderers={renderers}
 				ui={ui}
@@ -700,6 +463,7 @@ function ComponentUpdated({
 				hoverPreviewOptions={hoverPreviewOptions}
 				actionOptions={actionOptions}
 				url={url}
+				title={title}
 				testId={testId}
 				onResolve={onResolve}
 				onError={onError}
@@ -724,6 +488,8 @@ function ComponentUpdated({
 					cardState={state}
 					handleAuthorize={(services.length && handleAuthorize) || undefined}
 					handleFrameClick={handleClickWrapper}
+					handleFrameAuxClick={handleFrameAuxClick}
+					handleFrameContextMenu={handleFrameContextMenu}
 					isSelected={isSelected}
 					isHovered={isHovered}
 					onResolve={onResolve}
@@ -749,6 +515,8 @@ function ComponentUpdated({
 					cardState={state}
 					handleAuthorize={(services.length && handleAuthorize) || undefined}
 					handleFrameClick={handleClickWrapper}
+					handleFrameAuxClick={handleFrameAuxClick}
+					handleFrameContextMenu={handleFrameContextMenu}
 					isSelected={isSelected}
 					onResolve={onResolve}
 					onError={onError}
@@ -760,7 +528,7 @@ function ComponentUpdated({
 			);
 		case 'embed':
 			return (
-				<EmbedCardComponent
+				<EmbedCard
 					id={id}
 					url={url}
 					renderers={renderers}
@@ -769,6 +537,8 @@ function ComponentUpdated({
 					handleAuthorize={(services.length && handleAuthorize) || undefined}
 					handleErrorRetry={handleRetry}
 					handleFrameClick={handleClickWrapper}
+					handleFrameAuxClick={handleFrameAuxClick}
+					handleFrameContextMenu={handleFrameContextMenu}
 					handleInvoke={handleInvoke}
 					isSelected={isSelected}
 					frameStyle={frameStyle}
@@ -790,12 +560,6 @@ function ComponentUpdated({
 	}
 }
 
-const CardWithUrlContentComponent = componentWithFG(
-	'rovo_chat_embed_card_dwell_and_hover_metrics',
-	ComponentUpdated,
-	Component,
-);
-
 export const CardWithUrlContent = (props: CardWithUrlContentProps): React.JSX.Element => {
 	const display = isFlexibleUiCard(props.children, props?.ui)
 		? CardDisplay.Flexible
@@ -804,8 +568,11 @@ export const CardWithUrlContent = (props: CardWithUrlContentProps): React.JSX.El
 	return (
 		<SmartLinkModalProvider>
 			<SmartLinkAnalyticsContext url={props.url} id={props.id} display={display}>
-				<CardWithUrlContentComponent {...props} />
+				<Component {...props} />
 			</SmartLinkAnalyticsContext>
 		</SmartLinkModalProvider>
 	);
 };
+
+export const CardWithUrl: (props: CardWithUrlContentProps) => React.JSX.Element =
+	withCardIntersectionObserver(CardWithUrlContent);

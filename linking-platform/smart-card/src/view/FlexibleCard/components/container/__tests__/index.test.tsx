@@ -1,14 +1,13 @@
 import '@testing-library/jest-dom';
 import React from 'react';
 
-import { fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen, userEvent } from '@atlassian/testing-library';
 
 import context from '../../../../../__fixtures__/flexible-ui-data-context';
 import { getFlexibleCardTestWrapper } from '../../../../../__tests__/__utils__/unit-testing-library-helpers';
 import { InternalActionName, SmartLinkSize, SmartLinkStatus } from '../../../../../constants';
 import { messages } from '../../../../../messages';
-import { TitleBlock } from '../../blocks';
+import { default as TitleBlock } from '../../blocks/title-block';
 import Container from '../index';
 
 jest.mock('../../../../../state/renderers', () => ({
@@ -116,6 +115,21 @@ describe('Container', () => {
 			expect(link).toHaveAttribute('href', url);
 			expect(link).toHaveAttribute('target', target);
 			expect(link).toHaveTextContent(text);
+		});
+
+		it('prefers title prop over title from TitleBlock for layered link text', async () => {
+			const titleFromSsr = 'title-from-ssr';
+			const titleFromTitleBlock = 'title-from-title-block';
+			render(
+				<Container clickableContainer={true} testId={testId} title={titleFromSsr}>
+					<TitleBlock text={titleFromTitleBlock} />
+				</Container>,
+				{ wrapper: getFlexibleCardTestWrapper(context) },
+			);
+
+			const link = await screen.findByTestId(`${testId}-layered-link`);
+
+			expect(link).toHaveTextContent(titleFromSsr);
 		});
 
 		it('triggers onClick even when link is clicked', async () => {

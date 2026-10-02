@@ -2,17 +2,19 @@ import React from 'react';
 
 import classnames from 'classnames';
 import rafSchedule from 'raf-schd';
-import type { IntlShape } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { IntlShape, WithIntlProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { TableColumnOrdering } from '@atlaskit/custom-steps';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { tintDirtyTransaction } from '@atlaskit/editor-common/collab';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import { getParentOfTypeCount } from '@atlaskit/editor-common/nesting';
 import { nodeVisibilityManager } from '@atlaskit/editor-common/node-visibility';
 import { getParentNodeWidth, getTableContainerWidth } from '@atlaskit/editor-common/node-width';
+import { NodeViewContentHole } from '@atlaskit/editor-common/react-node-view';
+import { isTableInContentMode } from '@atlaskit/editor-common/table';
 import type { EditorContainerWidth, GetEditorFeatureFlags } from '@atlaskit/editor-common/types';
 import { isValidPosition } from '@atlaskit/editor-common/utils';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
@@ -20,9 +22,10 @@ import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorTableNumberColumnWidth } from '@atlaskit/editor-shared-styles';
 import { isTableSelected } from '@atlaskit/editor-tables/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import type { CleanupFn } from '@atlaskit/pragmatic-drag-and-drop/types';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
@@ -32,15 +35,15 @@ import { pluginKey as stickyHeadersPluginKey } from '../pm-plugins/sticky-header
 import type { RowStickyState, StickyPluginState } from '../pm-plugins/sticky-headers/types';
 import { findStickyHeaderForTable } from '../pm-plugins/sticky-headers/util';
 import {
-	insertColgroupFromNode,
 	hasTableBeenResized,
+	insertColgroupFromNode,
 } from '../pm-plugins/table-resizing/utils/colgroup';
 import {
 	COLUMN_MIN_WIDTH,
 	TABLE_EDITOR_MARGIN,
 	TABLE_OFFSET_IN_COMMENT_EDITOR,
 } from '../pm-plugins/table-resizing/utils/consts';
-import { updateControls } from '../pm-plugins/table-resizing/utils/dom';
+import { syncStickyCornerMasks, updateControls } from '../pm-plugins/table-resizing/utils/dom';
 import {
 	getLayoutSize,
 	getScalingPercentForTableWithoutWidth,
@@ -52,11 +55,13 @@ import {
 	containsHeaderRow,
 	isTableNested,
 	isTableNestedInMoreThanOneNode,
+	isTableNestedUnderBodiedSyncBlock,
 	tablesHaveDifferentColumnWidths,
 	tablesHaveDifferentNoOfColumns,
 	tablesHaveDifferentNoOfRows,
 } from '../pm-plugins/utils/nodes';
 import { getAssistiveMessage } from '../pm-plugins/utils/table';
+import { isContentModeSupported } from '../pm-plugins/utils/tableMode/is-content-mode-supported';
 import type { CellHoverMeta, PluginInjectionAPI } from '../types';
 import { TableCssClassName as ClassName } from '../types';
 import {
@@ -69,7 +74,6 @@ import TableFloatingColumnControls from '../ui/TableFloatingColumnControls';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-named-as-default
 import TableFloatingControls from '../ui/TableFloatingControls';
-
 import { ExternalDropTargets } from './ExternalDropTargets';
 import { TableContainer } from './TableContainer';
 import { TableStickyScrollbar } from './TableStickyScrollbar';
@@ -195,18 +199,6 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 				});
 			}
 		});
-
-		if (!expValEquals('platform_editor_disable_query_command_supported', 'isEnabled', true)) {
-			if ('execCommand' in document) {
-				// Disable inline table editing and resizing controls in Firefox
-				// https://github.com/ProseMirror/prosemirror/issues/432
-				['enableObjectResizing', 'enableInlineTableEditing'].forEach((cmd) => {
-					if (document.queryCommandSupported(cmd)) {
-						document.execCommand(cmd, false, 'false');
-					}
-				});
-			}
-		}
 	}
 
 	private handleMouseOut = (event: Event) => {
@@ -241,6 +233,8 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 			// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
 			window.addEventListener('resize', this.handleWindowResizeNewDebounced);
 		}
+
+		this.dispatchTableRefUpdate();
 	}
 
 	initialiseEventListenersAfterMount() {
@@ -251,9 +245,7 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 			isDragAndDropEnabled,
 			getNode,
 		} = this.props;
-		const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-			? getBrowserInfo()
-			: browserLegacy;
+		const browser = getBrowserInfo();
 		const isIE11 = browser.ie_version === 11;
 
 		// Ignored via go/ees005
@@ -328,13 +320,11 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 			allowColumnResizing,
 			allowTableResizing,
 			eventDispatcher,
-			isDragAndDropEnabled,
 			view,
 			isInDanger,
+			isDragAndDropEnabled,
 		} = this.props;
-		const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-			? getBrowserInfo()
-			: browserLegacy;
+		const browser = getBrowserInfo();
 		const isIE11 = browser.ie_version === 11;
 
 		if (this.wrapper && !isIE11) {
@@ -433,8 +423,7 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 	}
 
 	handleColgroupUpdates(force = false) {
-		const { getNode, containerWidth, isResizing, view, getPos, getEditorFeatureFlags, options } =
-			this.props;
+		const { getNode, containerWidth, isResizing, view, getPos, options } = this.props;
 
 		if (!this.table) {
 			return;
@@ -502,10 +491,7 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 				isTableResized,
 			});
 
-			const tableWithFixedColumnWidthsOption =
-				(fg('platform_editor_table_fixed_column_width_prop')
-					? this.props?.allowFixedColumnWidthOption
-					: getEditorFeatureFlags()?.tableWithFixedColumnWidthsOption) || false;
+			const tableWithFixedColumnWidthsOption = this.props?.allowFixedColumnWidthOption || false;
 
 			const isTableScalingWithFixedColumnWidthsOptionEnabled =
 				!!this.props.options?.isTableScalingEnabled && tableWithFixedColumnWidthsOption;
@@ -603,16 +589,12 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 			options,
 			isTableScalingEnabled, // we could use options.isTableScalingEnabled here
 			getPos,
-			getEditorFeatureFlags,
 			allowFixedColumnWidthOption,
 		} = this.props;
 
 		let shouldScale = false;
 		let shouldHandleColgroupUpdates = false;
-		const tableWithFixedColumnWidthsOption =
-			(fg('platform_editor_table_fixed_column_width_prop')
-				? allowFixedColumnWidthOption
-				: getEditorFeatureFlags()?.tableWithFixedColumnWidthsOption) || false;
+		const tableWithFixedColumnWidthsOption = allowFixedColumnWidthOption || false;
 
 		if (isTableScalingEnabled && !tableWithFixedColumnWidthsOption) {
 			shouldScale = true;
@@ -682,12 +664,44 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 						shouldUseIncreasedScalingPercent,
 						options?.isCommentEditor,
 					);
+
+					// Deferred from setDomAttrs — remove only once colgroup is updated and table has left content mode.
+					if (
+						this.table?.hasAttribute('data-initial-width-mode') &&
+						!isTableInContentMode({
+							tableNode: currentTable,
+							isSupported: isContentModeSupported({
+								allowColumnResizing: !!allowColumnResizing,
+								allowTableResizing: !!allowTableResizing,
+								isFullPageEditor:
+									!this.props.options?.isCommentEditor && !this.props.options?.isChromelessEditor,
+							}),
+							isTableNested: isTableNested(view.state, getPos()),
+						})
+					) {
+						this.table.removeAttribute('data-initial-width-mode');
+					}
 				}
 
 				updateControls()(view.state);
 			}
 
 			this.handleTableResizingDebounced();
+		}
+
+		this.dispatchTableRefUpdate();
+	}
+
+	private lastSetTableRef: HTMLTableElement | null = null;
+	private dispatchTableRefUpdate() {
+		if (
+			this.table &&
+			this.table !== this.lastSetTableRef &&
+			this.props.tableActive &&
+			this.props.view
+		) {
+			this.lastSetTableRef = this.table;
+			setTableRef(this.table)(this.props.view.state, this.props.view.dispatch);
 		}
 	}
 
@@ -696,6 +710,21 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 			this.resizeObserver?.observe(table);
 		}
 	}
+
+	private setWrapperRef = (elem: HTMLDivElement | null) => {
+		this.wrapper = elem;
+		if (!elem) {
+			return;
+		}
+
+		this.props.contentDOM(elem);
+		const tableElement = elem.querySelector('table');
+
+		if (tableElement !== this.table) {
+			this.table = tableElement;
+			this.observeTable(this.table);
+		}
+	};
 
 	onStickyState = (state: StickyPluginState) => {
 		const pos = this.props.getPos();
@@ -794,11 +823,11 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 				getEditorFeatureFlags={getEditorFeatureFlags}
 				tableContainerWidth={tableContainerWidth}
 				isNumberColumnEnabled={node.attrs.isNumberColumnEnabled}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				getScrollOffset={() => this.wrapper?.scrollLeft || 0}
 				tableWrapperHeight={this.state.tableWrapperHeight}
 				api={pluginInjectionApi}
 				isChromelessEditor={options?.isChromelessEditor}
-				isDragAndDropEnabled={isDragAndDropEnabled}
 			/>
 		) : null;
 
@@ -873,43 +902,61 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 					<ExternalDropTargets
 						editorView={view}
 						node={node}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						getScrollOffset={() => {
 							return this.wrapper?.scrollLeft || 0;
 						}}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						getTableWrapperWidth={() => {
 							return this.wrapper?.clientWidth || 760;
 						}}
 					/>
 				)}
-				<div
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
-					className={classnames(ClassName.TABLE_NODE_WRAPPER)}
-					ref={(elem) => {
-						this.wrapper = elem;
-						if (elem) {
-							this.props.contentDOM(elem);
-							const tableElement = elem.querySelector('table');
-
-							if (tableElement !== this.table) {
-								this.table = tableElement;
-								this.observeTable(this.table);
-
-								// // Update tableRef in plugin state when table is properly mounted
-								// // At this point, both table and wrapper are in DOM with correct parent-child relationship
-								if (
-									this.table &&
-									this.props.view &&
-									(expValEquals('platform_editor_table_update_table_ref', 'isEnabled', true) ||
-										fg('platform_editor_enable_table_update_ref_atlas'))
-								) {
-									setTableRef(this.table)(this.props.view.state, this.props.view.dispatch);
-								}
-							}
-						}
-					}}
+				<NodeViewContentHole
+					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/no-unsafe-style-overrides -- existing table wrapper class required for legacy styling hooks
+					className={classnames(ClassName.TABLE_NODE_WRAPPER, {
+						[ClassName.TABLE_SCROLL_INLINE_SHADOW]: isExperimentEnabled(
+							'platform_editor_table_css_overflow_shadow',
+						),
+					})}
+					ref={this.setWrapperRef}
 				>
+					{expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true) && (
+						<>
+							<div
+								contentEditable={false}
+								aria-hidden="true"
+								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+								className={ClassName.TABLE_CORNER_MASK}
+								data-corner="left"
+							/>
+							<div
+								contentEditable={false}
+								aria-hidden="true"
+								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+								className={ClassName.TABLE_CORNER_MASK}
+								data-corner="right"
+							/>
+						</>
+					)}
 					{allowControls && colControls}
-				</div>
+				</NodeViewContentHole>
+				{isExperimentEnabled('platform_editor_table_css_overflow_shadow') && (
+					<>
+						<div
+							contentEditable={false}
+							aria-hidden="true"
+							data-vc-nvs="true"
+							data-table-overflow-shadow="start"
+						/>
+						<div
+							contentEditable={false}
+							aria-hidden="true"
+							data-vc-nvs="true"
+							data-table-overflow-shadow="end"
+						/>
+					</>
+				)}
 				{!this.isNestedInTable ? (
 					<div
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
@@ -917,11 +964,11 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 						data-vc-nvs="true"
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							height: token('space.250', '20px'), // MAX_BROWSER_SCROLLBAR_HEIGHT
+							height: token('space.250'), // MAX_BROWSER_SCROLLBAR_HEIGHT
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							display: 'none',
 							// prevent unwanted scroll during table resize without removing scrollbar container from the dom
-							width: isResizing ? token('space.0', '0px') : '100%',
+							width: isResizing ? token('space.0') : '100%',
 						}}
 					>
 						<div
@@ -992,6 +1039,9 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 				header.scrollLeft = this.wrapper.scrollLeft;
 				header.style.marginRight = '2px';
 			}
+			if (expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)) {
+				syncStickyCornerMasks(this.table);
+			}
 		}
 
 		// force update to for table controls to re-align
@@ -1006,11 +1056,41 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 		const node = getNode();
 		const prevAttrs = prevNode.attrs;
 
-		const isNested = isTableNested(this.props.view.state, this.props.getPos());
+		const tablePos = this.props.getPos();
+		const isNested = isTableNested(this.props.view.state, tablePos);
 
 		let parentWidth = this.getParentNodeWidth();
 
-		if (isNested && isTableNestedInMoreThanOneNode(this.props.view.state, this.props.getPos())) {
+		const useMeasuredWidthForBodiedSyncBlock =
+			isNested &&
+			typeof tablePos === 'number' &&
+			isTableNestedUnderBodiedSyncBlock(this.props.view.state, tablePos);
+
+		if (useMeasuredWidthForBodiedSyncBlock) {
+			// Prefer the live DOM measurement (`clientWidth`) over the ResizeObserver-cached
+			// value (`wrapperWidth`) because clientWidth is synchronous and more up-to-date
+			// at the time this handler runs. Fall back to `wrapperWidth` if the wrapper ref
+			// is not yet available.
+			// The clientWidth > 0 since DOM clientWidth is 0 before layout
+			// The > 1 guard for wrapperWidth was intentional to filter out the degenerate value of 1 that ResizeObserver reports during element unmounting.
+			let measuredWrapperWidth: number | undefined;
+			if (this.wrapper && this.wrapper.clientWidth > 0) {
+				measuredWrapperWidth = this.wrapper.clientWidth;
+			} else if (this.wrapperWidth && this.wrapperWidth > 1) {
+				measuredWrapperWidth = this.wrapperWidth;
+			}
+			if (measuredWrapperWidth !== undefined) {
+				// Override the default parentWidth so that scaleTable uses the real
+				// available width inside the sync-block rather than the full editor width.
+				parentWidth = measuredWrapperWidth;
+			}
+		}
+
+		if (
+			!useMeasuredWidthForBodiedSyncBlock &&
+			isNested &&
+			isTableNestedInMoreThanOneNode(this.props.view.state, tablePos)
+		) {
 			const resizeObsWrapperWidth = this.wrapperWidth || 0;
 
 			const wrapperWidthDiffBetweenRerenders = Math.abs(
@@ -1092,6 +1172,13 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 
 	// Function gets called when table is nested.
 	private scaleTable = (scaleOptions: { parentWidth?: number }, isUserTriggered = false) => {
+		if (
+			fg('platform_editor_table_view_mode_scaling_fix') &&
+			this.props.pluginInjectionApi?.editorViewMode?.sharedState.currentState()?.mode === 'view'
+		) {
+			return;
+		}
+
 		const { view, getNode, getPos, containerWidth, options } = this.props;
 		const node = getNode();
 		const { state, dispatch } = view;
@@ -1264,4 +1351,8 @@ class TableComponent extends React.Component<ComponentProps, TableState> {
 	private handleWindowResizeNewDebounced = rafSchedule(this.handleWindowResizeNew);
 }
 
-export default injectIntl(TableComponent);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<ComponentProps>> & {
+	WrappedComponent: React.ComponentType<ComponentProps>;
+} = injectIntl(TableComponent);
+export default _default_1;

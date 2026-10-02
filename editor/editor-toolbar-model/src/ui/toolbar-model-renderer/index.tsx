@@ -1,7 +1,8 @@
 import React from 'react';
 
-import type { RegisterToolbar, RegisterComponent, ToolbarComponentTypes } from '../../types';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
+import type { RegisterToolbar, RegisterComponent, ToolbarComponentTypes } from '../../types';
 import { getSortedChildren, isSection, NoOp } from './common';
 import type { ToolbarProps } from './types';
 
@@ -46,6 +47,18 @@ const hasMenuItems = (
 	menuSections: RegisterComponent[],
 	allComponents: Exclude<RegisterComponent, RegisterToolbar>[],
 ): boolean => {
+	if (expValEquals('platform_editor_toolbar_hide_overflow_menu', 'isEnabled', true)) {
+		return menuSections.some((menuSection) => {
+			return allComponents.some((component: RegisterComponent): boolean => {
+				return (
+					component.type === 'menu-item' &&
+					component.parents.some((parent) => parent.key === menuSection.key) &&
+					(!('isHidden' in component) || !component.isHidden?.())
+				);
+			});
+		});
+	}
+
 	return menuSections.some((menuSection) => {
 		return allComponents.some(
 			(component) =>
@@ -92,6 +105,7 @@ const ComponentRenderer = ({
 	const childTypes = getChildTypesForParent(component.type);
 
 	const children = getSortedChildren(
+		// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 		allComponents.filter((comp) => childTypes.includes(comp.type)),
 		component.key,
 	);
@@ -130,6 +144,7 @@ export const ToolbarModelRenderer = ({
 }: ToolbarProps): React.JSX.Element => {
 	const ToolbarComponent = toolbar.component || NoOp;
 
+	// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 	const sections = getSortedChildren(components.filter(isSection), toolbar.key);
 
 	return (
@@ -138,7 +153,9 @@ export const ToolbarModelRenderer = ({
 				<ComponentRenderer
 					key={section.key}
 					component={section as RegisterComponent}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					parents={[{ key: toolbar.key, type: toolbar.type }]}
+					// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 					allComponents={components.filter(hasParents)}
 					fallbacks={fallbacks}
 				/>

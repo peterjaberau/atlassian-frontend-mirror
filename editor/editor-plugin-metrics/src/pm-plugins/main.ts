@@ -2,26 +2,25 @@ import { bind } from 'bind-event-listener';
 
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { UserPreferencesProvider, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type Fragment } from '@atlaskit/editor-prosemirror/model';
-import {
-	PluginKey,
-	type ReadonlyTransaction,
-	type Selection,
-	type EditorState,
+import type { Fragment } from '@atlaskit/editor-prosemirror/model';
+import { PluginKey } from '@atlaskit/editor-prosemirror/state';
+import type {
+	ReadonlyTransaction,
+	Selection,
+	EditorState,
 } from '@atlaskit/editor-prosemirror/state';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
-import { type MetricsPlugin } from '../metricsPluginType';
-
+import type { MetricsPlugin } from '../metricsPluginType';
 import { ActiveSessionTimer } from './utils/active-session-timer';
 import { getAnalyticsPayload } from './utils/analytics';
-import { type TrActionType } from './utils/check-tr-actions/types';
+import type { TrActionType } from './utils/check-tr-actions/types';
 import { getNewPluginState } from './utils/get-new-plugin-state';
 import { isTrWithDocChanges } from './utils/is-tr-with-doc-changes';
 import { shouldSkipTr } from './utils/should-skip-tr';
 
-export const metricsKey = new PluginKey('metricsPlugin');
+export const metricsKey: PluginKey = new PluginKey('metricsPlugin');
 type EditorStateConfig = Parameters<typeof EditorState.create>[0];
 
 export type MetricsState = {
@@ -76,7 +75,7 @@ export const initialPluginState: MetricsState = {
 export const createPlugin = (
 	api: ExtractInjectionAPI<MetricsPlugin> | undefined,
 	userPreferencesProvider?: UserPreferencesProvider,
-) => {
+): SafePlugin<MetricsState> => {
 	const timer = new ActiveSessionTimer(api);
 
 	return new SafePlugin({
@@ -168,7 +167,7 @@ export const createPlugin = (
 					return;
 				}
 				let toolbarDocking;
-				if (expValEqualsNoExposure('platform_editor_controls', 'cohort', 'variant1')) {
+				if (editorExperiment('platform_editor_controls', 'variant1')) {
 					toolbarDocking = userPreferencesProvider?.getPreference('toolbarDockingInitialPosition');
 				}
 

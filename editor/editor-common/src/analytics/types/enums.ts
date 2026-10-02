@@ -5,6 +5,7 @@ export enum EVENT_TYPE {
 	UI = 'ui',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum ACTION {
 	ACTIONED = 'actioned',
 	ACTIVATED = 'activated',
@@ -32,10 +33,12 @@ export enum ACTION {
 	CONNECTED_NODES = 'connectedNodes',
 	CONVERTED = 'converted',
 	COPIED = 'copied',
+	COPY_FAILED = 'copyFailed',
 	CUT = 'cut',
 	DEACTIVATED = 'deactivated',
 	DECREMENTED = 'decremented',
 	DELETED = 'deleted',
+	DISCARD_ALL = 'discardAll',
 	DISCARDED_INVALID_STEPS_FROM_TRANSACTION = 'discardedInvalidStepsFromTransaction',
 	DISCARDED = 'discarded',
 	/** used in @atlassian/editor-referentiality */
@@ -43,6 +46,8 @@ export enum ACTION {
 	/** used in @atlassian/editor-referentiality */
 	DISCONNECTED_TARGET = 'disconnectedTarget',
 	DISMISSED = 'dismissed',
+	DISPLAYED = 'displayed',
+	DIVERGED = 'diverged',
 	DISPATCHED_INVALID_TRANSACTION = 'dispatchedInvalidTransaction',
 	DISPATCHED_VALID_TRANSACTION = 'dispatchedValidTransaction',
 	DOUBLE_CLICKED = 'doubleClicked',
@@ -57,6 +62,7 @@ export enum ACTION {
 	ENTERED = 'entered',
 	ERROR = 'error',
 	ERRORED = 'errored',
+	EMPTY_STATE_EXPOSED = 'emptyStateExposed',
 	EXPERIENCE_MEASURED = 'experienceMeasured',
 	EXPERIENCE_SAMPLED = 'experienceSampled',
 	EXPOSED = 'exposed',
@@ -69,6 +75,7 @@ export enum ACTION {
 	UNDO_PERFORMED = 'undo',
 	REDO_PERFORMED = 'redo',
 	FORMATTED = 'formatted',
+	GENERATED = 'generated',
 	HELP_OPENED = 'helpOpened',
 	HIGHLIGHTED = 'highlighted',
 	INCREMENTED = 'incremented',
@@ -80,15 +87,20 @@ export enum ACTION {
 	INPUT_PERF_SAMPLING = 'inputPerfSampling',
 	INPUT_PERF_SAMPLING_AVG = 'inputPerfSamplingAvg',
 	INSERTED = 'inserted',
+	INSERT_ATTEMPTED = 'insertAttempted',
 	INVALID_DOCUMENT_ENCOUNTERED = 'invalidDocumentEncountered',
 	INVOKED = 'invoked',
 	/** used in @atlassian/editor-referentiality */
 	GOT_CONNECTIONS = 'gotConnections',
 	LANGUAGE_SELECTED = 'languageSelected',
+	LIMITED_MODE_LATCHED = 'limitedModeLatched',
+	LANGUAGE_AUTO_DETECTED = 'languageAutoDetected',
 	LIST_ITEM_JOINED = 'listItemJoined',
 	MATCHED = 'matched',
 	MEDIA_LINK_TRANSFORMED = 'mediaLinkTransformed',
 	NODE_CONTENT_SANITIZED = 'nodeContentSanitized',
+	ACCEPTED = 'accepted',
+	NO_DIFF_FOUND = 'noDiffFound',
 	OFFLINE_STORAGE_TOO_MANY_RETRIES_ERROR = 'offlineStorageTooManyRetriesError',
 	OFFLINE_STORAGE_FAILED_STEPS = 'offlineStorageFailedSteps',
 	OFFLINE_STORAGE_STEPS_DATABASE_ERROR = 'offlineStorageStepsDatabaseError',
@@ -101,12 +113,17 @@ export enum ACTION {
 	PASTED_AS_PLAIN = 'pastedAsPlain',
 	PASTED_TIMED = 'pastedTimed',
 	PRESSED = 'pressed',
+	QUICK_INSERT_INFORMATION = 'quickInsertInformation',
 	PROSEMIRROR_RENDERED = 'proseMirrorRendered',
 	REACT_NODEVIEW_RENDERED = 'reactNodeViewRendered',
 	REFERENCE_SYNCED_BLOCK_DELETE = 'referenceSyncedBlockDelete',
 	REFERENCE_SYNCED_BLOCK_UPDATE = 'referenceSyncedBlockUpdate',
 	REFERENCE_SYNCED_BLOCK_UNSYNC = 'referenceSyncedBlockUnsync',
 	REFERENCE_SYNCED_BLOCK_COPY = 'referenceSyncedBlockCopy',
+	REGENERATION_COMPLETED = 'regenerationCompleted',
+	REGENERATION_STARTED = 'regenerationStarted',
+	RIGHT_RAIL_CLOSED = 'rightRailClosed',
+	RIGHT_RAIL_VIEWED = 'rightRailViewed',
 	REPLACED_ALL = 'replacedAll',
 	REPLACED_ONE = 'replacedOne',
 	RESOLVED = 'resolved',
@@ -132,6 +149,7 @@ export enum ACTION {
 	SYNCHRONY_ERROR = 'synchronyError',
 	TEXT_LINK_MARK_TRANSFORMED = 'textLinkMarkTransformed',
 	TOGGLED = 'toggled',
+	TRIGGERED = 'triggered',
 	DEDUPE_MARKS_TRANSFORMED_V2 = 'dedupeMarksTransformedV2',
 	NODES_MISSING_CONTENT_TRANSFORMED = 'nodesMissingContentTransformed',
 	INDENTATION_MARKS_TRANSFORMED = 'indentationMarksTransformed',
@@ -156,6 +174,7 @@ export enum ACTION {
 	WITH_PLUGIN_STATE_CALLED = 'withPluginStateCalled',
 	RENDERED = 'rendered',
 	RENDERED_SAMPLED = 'renderedSampled',
+	REASONING_VIEWED = 'reasoningViewed',
 	ON_EDITOR_READY_CALLBACK = 'onEditorReadyCallback',
 	/**
 	 * @private
@@ -165,6 +184,8 @@ export enum ACTION {
 	 */
 	ON_CHANGE_CALLBACK = 'onChangeCalled',
 	NESTED_TABLE_TRANSFORMED = 'nestedTableTransformed',
+	CONTAINER_NODE_TRANSFORMED = 'containerNodeTransformed',
+	NATIVE_EMBEDS_TRANSFORMED = 'nativeEmbedsTransformed',
 	NEW_COLLAB_SYNC_UP_ERROR_NO_STEPS = 'newCollabSyncUpErrorNoSteps',
 	REMOVE_ICON = 'removedIcon',
 	INVALID_PROSEMIRROR_DOCUMENT = 'invalidProsemirrorDocument',
@@ -174,10 +195,9 @@ export enum ACTION {
 	SELECT_ALL_ESCAPED = 'selectAllEscaped',
 	SORT_COLUMN = 'sortedColumn',
 	SORT_COLUMN_NOT_ALLOWED = 'sortColumnNotAllowed',
-	NCS_SESSION_STEP_METRICS = 'ncsSessionStepMetrics',
-	STEPS_TRACKED = 'stepsTracked',
 	ORGANIC_CHANGES_TRACKED = 'organicChangesTracked',
 	STEPS_FILTERED = 'stepsFiltered',
+	AGENT_EDIT_SHIMMER_NOT_SHOWN = 'agentEditShimmerNotShown',
 	CREATE_NOT_ALLOWED = 'createNotAllowed',
 	UNSUPPORTED_CONTENT_LEVELS_TRACKING_SUCCEEDED = 'unsupportedContentLevelsTrackingSucceeded',
 	UNSUPPORTED_CONTENT_LEVELS_TRACKING_ERRORED = 'unsupportedContentLevelsTrackingErrored',
@@ -195,7 +215,9 @@ export enum ACTION {
 	UPLOAD_COMMENCED = 'uploadCommenced',
 	UPLOAD_SUCCEEDED = 'uploadSucceeded',
 	UPLOAD_FAILED = 'uploadFailed',
+	TOGGLE_CODE_FOLDING = 'toggleCodeFolding',
 	TOGGLE_CODE_BLOCK_WRAP = 'toggleCodeBlockWrap',
+	TOGGLE_CODE_BLOCK_LINE_NUMBERS = 'toggleCodeBlockLineNumbers',
 	TRANSFORMED = 'transformed',
 	RESIZED = 'resized',
 	RESIZED_PERF_SAMPLING = 'resizedPerfSampling',
@@ -203,6 +225,7 @@ export enum ACTION {
 	SINGLE_COL_LAYOUT_DETECTED = 'singleColumLayoutDetected',
 	VIEW_MORE = 'viewMore',
 	LOCAL_ID_NOT_FOUND = 'localIdNotFound',
+	LOCAL_IDS_REPAIRED = 'localIdsRepaired',
 	NO_DOC_CHANGE_FOUND = 'noDocChangeFound',
 	INVALID_COMMAND_FOUND = 'invalidCommandFound',
 	MEDIA_SINGLE_WIDTH_TRANSFORMED = 'mediaSingleWidthTransformed',
@@ -214,10 +237,15 @@ export enum ACTION {
 	SUGGESTION_INSERTED = 'suggestionInserted',
 	SUGGESTION_DISMISSED = 'suggestionDismissed',
 	SUGGESTION_VIEWED = 'suggestionViewed',
+	// fired when the on-device autocomplete LLM finishes loading/starting
+	LOCAL_MODEL_LOADED = 'localModelLoaded',
+	// fired when the on-device autocomplete LLM fails to load/start
+	LOCAL_MODEL_LOAD_FAILED = 'localModelLoadFailed',
 	TABLE_WIDTH_INFO = 'tableWidthInformation',
 	SUPPRESSED = 'suppressed',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum INPUT_METHOD {
 	ASCII = 'ascii',
 	AUTO = 'auto',
@@ -257,14 +285,27 @@ export enum INPUT_METHOD {
 	SYNCED_BLOCK_TB = 'syncedBlockToolbar',
 	BLOCK_MENU = 'blockMenu',
 	SMART_LINK = 'smartLink',
+	ELEMENT_BROWSER = 'elementBrowser',
+	LAYOUT_COLUMN_MENU = 'layoutColumnMenu',
+	REMIX = 'remix',
+	REMIX_FROM_MEDIA_INSERTS = 'remixFromMediaInserts',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export enum MEDIA_INSERT_TAB {
+	CREATE = 'create',
+	LINK = 'link',
+	UPLOAD = 'upload',
+}
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum INSERT_MEDIA_VIA {
 	LOCAL_UPLOAD = 'localUpload',
 	EXTERNAL_URL = 'externalUrl',
 	EXTERNAL_UPLOAD = 'externalUpload',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum TRIGGER_METHOD {
 	BUTTON = 'button',
 	KEYBOARD = 'keyboard', // single key, e.g. Esc, Enter
@@ -273,6 +314,7 @@ export enum TRIGGER_METHOD {
 	EXTERNAL = 'external',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum ACTION_SUBJECT {
 	AI_INTERACTION = 'aiInteraction',
 	AI_RESULT = 'aiResult',
@@ -281,10 +323,12 @@ export enum ACTION_SUBJECT {
 	COLLAB = 'collab',
 	TOOLBAR_BUTTON = 'toolbarButton',
 	BUTTON = 'button',
+	COPY_BUTTON = 'copyButton',
 	CONFIG_PANEL = 'configPanel',
 	CONTENT_COMPONENT = 'contentComponent',
 	DATE = 'date',
 	DATE_SEGMENT = 'dateSegment',
+	DIVIDER = 'divider',
 	DOCUMENT = 'document',
 	EDITOR = 'editor',
 	ACTIVITY_SESSION = 'activitySession',
@@ -292,14 +336,17 @@ export enum ACTION_SUBJECT {
 	EMBEDS = 'embeds',
 	EXPAND = 'expand',
 	EXTENSION = 'extension',
+	EXTENSION_AS_INLINE = 'extensionAsInline',
 	FEATURE = 'feature',
 	FEEDBACK_DIALOG = 'feedbackDialog',
 	FIND_REPLACE_DIALOG = 'findReplaceDialog',
 	FLOATING_CONTEXTUAL_BUTTON = 'floatingContextualButton',
 	FLOATING_TOOLBAR_PLUGIN = 'floatingToolbarPlugin',
+	HEADING = 'heading',
 	HELP = 'help',
 	INVITE_ITEM = 'inviteItem',
 	LAYOUT = 'layout',
+	LAYOUT_COLUMN_MENU = 'layoutColumnMenu',
 	LIST = 'list',
 	MEDIA = 'media',
 	MEDIA_GROUP = 'mediaGroup',
@@ -347,6 +394,10 @@ export enum ACTION_SUBJECT {
 	EDITOR_PLUGIN_AI = 'editorPluginAI',
 	EDITOR_PLUGIN_SELECTION_EXTENSION = 'editorPluginSelectionExtension',
 	AI_DEFINITIONS = 'aiDefinitions',
+	AI_QUICK_PROMPT = 'aiQuickPrompt',
+	AI_AUTOCOMPLETE = 'aiAutocomplete',
+	AI_SUGGESTIONS = 'aiSuggestions',
+	CONTEXTUAL_TYPEAHEAD = 'contextualTypeahead',
 	USER_PREFERENCES = 'userPreferences',
 	ALIGNMENT = 'alignment',
 	OFFLINE_EDITING = 'offlineEditing',
@@ -354,9 +405,14 @@ export enum ACTION_SUBJECT {
 	TOOLBAR_DROPDOWN_MENU_ITEM = 'toolbarDropdownMenuItem',
 	BLOCK_MENU = 'blockMenu',
 	BLOCK_MENU_ITEM = 'blockMenuItem',
+	PASTE_ACTIONS_MENU = 'pasteActionsMenu',
+	QUICK_INSERT = 'quickInsert',
 	SYNCED_BLOCK = 'syncedBlock',
+	NATIVE_EMBED = 'nativeEmbed',
+	NATIVE_EMBED_FALLBACK = 'nativeEmbedFallback',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum ACTION_SUBJECT_ID {
 	ACTION = 'action',
 	ACTIVITY = 'activity',
@@ -371,6 +427,7 @@ export enum ACTION_SUBJECT_ID {
 	AI_PROACTIVE_FEEDBACK_DIALOG = 'aiProactiveFeedbackDialog',
 	AI_ASK_ROVO_BUTTON = 'aiAskRovoButton',
 	AI_HERO_PROMPT_BUTTON = 'aiHeroPromptButton',
+	AI_REMIX_BUTTON = 'aiRemixButton',
 	AI_MORE_ROVO_OPTIONS = 'aiMoreRovoOptions',
 	AI_TRANSLATE = 'aiTranslate',
 	AI_CHANGE_TONE = 'aiChangeTone',
@@ -392,6 +449,10 @@ export enum ACTION_SUBJECT_ID {
 	CODE_BLOCK = 'codeBlock',
 	CODEBLOCK_COPY = 'codeBlockCopy',
 	CODEBLOCK_WRAP = 'codeBlockWrap',
+	CONVERSATION_ERROR = 'conversationError',
+	SUGGESTIONS_REGENERATION = 'suggestionsRegeneration',
+	SUGGESTIONS_REGENERATION_ERROR = 'suggestionsRegenerationError',
+	SUGGESTIONS_ERROR_RETRY = 'suggestionsErrorRetry',
 	COPY_BUTTON = 'copyButton',
 	COPY_LINK_TO_ANCHOR = 'copyLinkToAnchor',
 	COPY_BLOCK = 'copyBlock',
@@ -399,6 +460,7 @@ export enum ACTION_SUBJECT_ID {
 	DELETE_BLOCK = 'deleteBlock',
 	MOVE_UP_BLOCK = 'moveUpBlock',
 	MOVE_DOWN_BLOCK = 'moveDownBlock',
+	TRANSFORM_BLOCK = 'transformBlock',
 	FORMAT_MENU = 'formatMenu',
 	CREATE_INLINE_COMMENT_FROM_HIGHLIGHT_ACTIONS_MENU = 'createInlineCommentFromHighlightActionsMenu',
 	DATE = 'date',
@@ -430,6 +492,7 @@ export enum ACTION_SUBJECT_ID {
 	FORMAT_CODE = 'code',
 	FORMAT_COLOR = 'color',
 	FORMAT_HEADING = 'heading',
+	FORMAT_SMALL_TEXT = 'smallText',
 	FORMAT_INDENT = 'indentation',
 	FORMAT_ITALIC = 'italic',
 	FORMAT_LIST_BULLET = 'bulletedList',
@@ -446,6 +509,7 @@ export enum ACTION_SUBJECT_ID {
 	HYPERLINK = 'hyperlink',
 	INLINE_COMMENT = 'inlineComment',
 	LAYOUT = 'layout',
+	LAYOUT_COLUMN = 'layoutColumn',
 	LINE_BREAK = 'lineBreak',
 	LINK = 'link',
 	LINK_PREVIEW = 'linkPreview',
@@ -509,6 +573,8 @@ export enum ACTION_SUBJECT_ID {
 	SECTION = 'section',
 	SMART_LINK = 'smartLink',
 	SMART_LINK_TOOLBAR = 'smartLinkToolbar',
+	SMART_LINK_ROVO_BUTTON = 'smartLinkRovoButton',
+	SMART_LINK_SUMMARIZE_BUTTON = 'smartLinkSummarizeButton',
 	STATUS = 'status',
 	SYMBOL = 'symbol',
 	TABLE = 'table',
@@ -538,6 +604,8 @@ export enum ACTION_SUBJECT_ID {
 	EDITOR_PLUGIN_SELECTION_EXTENSION_ITEM = 'editorPluginSelectionExtensionItem',
 	EDITOR_PLUGIN_SELECTION_EXTENSION_COMPONENT = 'editorPluginSelectionExtensionComponent',
 	TRANSFORM = 'transform',
+	BODIED_SYNCED_BLOCK = 'bodiedSyncBlock',
+	SYNCED_BLOCK = 'syncBlock',
 	SYNCED_BLOCK_TOOLBAR = 'syncedBlockToolbar',
 	SYNCED_BLOCK_COPY = 'syncedBlockCopy',
 	SYNCED_BLOCK_SOURCE_URL = 'syncedBlockSourceUrl',
@@ -545,6 +613,7 @@ export enum ACTION_SUBJECT_ID {
 	SYNCED_BLOCK_UPDATE = 'syncedBlockUpdate',
 	REFERENCE_SYNCED_BLOCK_UPDATE = 'referenceSyncedBlockUpdate',
 	SYNCED_BLOCK_CREATE = 'syncedBlockCreate',
+	SYNCED_BLOCK_ADD_CONTENT = 'syncedBlockAddContent',
 	REFERENCE_SYNCED_BLOCK_CREATE = 'referenceSyncedBlockCreate',
 	SYNCED_BLOCK_DELETE = 'syncedBlockDelete',
 	REFERENCE_SYNCED_BLOCK_DELETE = 'referenceSyncedBlockDelete',
@@ -552,9 +621,16 @@ export enum ACTION_SUBJECT_ID {
 	SYNCED_BLOCK_FETCH = 'syncedBlockFetch',
 	SYNCED_BLOCK_FETCH_REFERENCES = 'syncedBlockFetchReferences',
 	SYNCED_BLOCK_CLICK_SYNCED_LOCATION = 'syncedBlockClickSyncedLocation',
+	SYNCED_BLOCK_LABEL = 'syncedBlockLabel',
+	SYNCED_BLOCK_SSR_ERROR = 'syncedBlockSSRError',
+	SYNCED_BLOCK_SOURCE_INFO_ORPHANED = 'syncedBlockSourceInfoOrphaned',
+	SYNCED_BLOCK_CACHE_DELETION_FORCED = 'syncedBlockCacheDeletionForced',
+	UNSUPPORTED_SURFACE = 'unsupportedSurface',
 	TABLE_STICKY_HEADER = 'tableStickyHeader',
+	SNIPPET = 'snippet',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum FLOATING_CONTROLS_TITLE {
 	CODE_BLOCK = 'codeBlockFloatingControls',
 	EXTENSION = 'extensionFloatingControls',
@@ -565,6 +641,7 @@ export enum FLOATING_CONTROLS_TITLE {
 	EXPAND = 'expandToolbar',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum CONTENT_COMPONENT {
 	INLINE_COMMENT = 'inlineComment',
 	FLOATING_CONTEXTUAL_BUTTON = 'floatingContextualButton',

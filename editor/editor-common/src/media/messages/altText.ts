@@ -1,42 +1,89 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const altTextMessages = defineMessages({
+export const altTextMessages: {
+	altText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	addAltText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	editAltText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	back: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	clear: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	placeholder: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	supportText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	validationMessage: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	altText: {
 		id: 'fabric.editor.addAltText',
 		defaultMessage: 'Alt text',
-		description: 'Add an alt text for this image',
+		description:
+			'The text is shown as the label for the alt text button in the image floating toolbar, allowing the user to open the alt text editor for the selected image.',
 	},
 	addAltText: {
 		id: 'fabric.editor.addUpdatedAltText',
 		defaultMessage: 'Add alt text',
-		description: 'Add an alt text for this image',
+		description:
+			'The text is shown on a button in the image floating toolbar that opens the alt text editor for adding descriptive text to the selected image.',
 	},
 	editAltText: {
 		id: 'fabric.editor.editAltText',
 		defaultMessage: 'Edit alt text',
-		description: 'Edit an alt text for this image',
+		description:
+			'The text is shown on a button in the image floating toolbar that opens the alt text editor for updating the existing descriptive text of the selected image.',
 	},
 	back: {
 		id: 'fabric.editor.closeAltTextEdit',
 		defaultMessage: 'Back',
-		description: 'Back to toolbar',
+		description:
+			'The text is shown on a button in the alt text editing toolbar for an image. When clicked, it closes the alt text editor and navigates the user back to the main media toolbar.',
 	},
 	clear: {
 		id: 'fabric.editor.clearAltTextEdit',
 		defaultMessage: 'Clear alt text',
-		description: 'Clear alt text',
+		description:
+			'The text is shown on a button in the alt text editing toolbar for an image. When clicked, it clears the current alt text value from the input field.',
 	},
 	placeholder: {
 		id: 'fabric.editor.placeholderAltText',
 		defaultMessage: 'Describe this image with alt text',
-		description: 'Describe this image with alt text',
+		description:
+			'The text is shown as placeholder text inside the alt text input field for an image. It prompts the user to enter a description of the image for accessibility purposes.',
 	},
 	supportText: {
 		id: 'fabric.editor.supportAltText',
 		defaultMessage:
 			'Alt text is useful for people using screen readers because of visual limitations.',
 		description:
-			'Alt text is useful for people using screen readers because of visual limitations.',
+			'The text is shown as a help message below the alt text input field for an image. It informs users why providing alt text is important for accessibility and screen reader support.',
 	},
 	validationMessage: {
 		id: 'fabric.editor.alttext.validation',

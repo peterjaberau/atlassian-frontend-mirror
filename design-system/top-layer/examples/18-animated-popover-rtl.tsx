@@ -1,0 +1,228 @@
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
+import React, { Fragment, useCallback, useLayoutEffect, useRef, useState } from 'react';
+
+import { jsx } from '@compiled/react';
+
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import { cssMap } from '@atlaskit/css';
+import Heading from '@atlaskit/heading/heading';
+import { Stack, Text } from '@atlaskit/primitives/compiled';
+import Select from '@atlaskit/select/default';
+import { token } from '@atlaskit/tokens';
+import { PopoverSurface } from '@atlaskit/top-layer/popover-surface';
+import { Popover } from '@atlaskit/top-layer/popover/popover';
+import type { TPlacementOptions } from '@atlaskit/top-layer/resolve-placement';
+import { useAnchoredPopover } from '@atlaskit/top-layer/use-anchored-popover';
+
+import { ForceFallbackToggle } from '../examples-utils/force-fallback-toggle';
+
+const styles = cssMap({
+	wrapper: {
+		paddingBlock: token('space.400'),
+		paddingInline: token('space.400'),
+	},
+	controlBar: {
+		display: 'flex',
+		alignItems: 'center',
+		flexWrap: 'wrap',
+		gap: token('space.200'),
+		paddingBlock: token('space.200'),
+		paddingInline: token('space.300'),
+		borderRadius: token('radius.large', '8px'),
+		backgroundColor: token('color.background.neutral'),
+		borderWidth: token('border.width'),
+		borderStyle: 'solid',
+		borderColor: token('color.border'),
+	},
+	controlLabel: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: token('space.100'),
+	},
+	demoArea: {
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		flexWrap: 'wrap',
+		gap: token('space.300'),
+		paddingBlock: token('space.600'),
+		paddingInline: token('space.400'),
+		borderRadius: token('radius.large', '8px'),
+		borderWidth: token('border.width'),
+		borderStyle: 'dashed',
+		borderColor: token('color.border'),
+	},
+});
+
+const axisOptions = [
+	{ label: 'block', value: 'block' },
+	{ label: 'inline', value: 'inline' },
+] as const;
+
+const edgeOptions = [
+	{ label: 'end', value: 'end' },
+	{ label: 'start', value: 'start' },
+] as const;
+
+/**
+ * Animated popover example testing animation presets against right-to-left (RTL)
+ * text direction, with controls for:
+ *
+ * - **RTL toggle**: wraps the entire example in `dir="rtl"`.
+ * - **Axis toggle**: switches between `block` axis (above/below) and `inline`
+ *   axis (inline-start / inline-end).
+ * - **Edge toggle**: switches between `start` and `end` edges on the chosen axis.
+ *
+ * Each animation preset is rendered as a separate popover so you can compare
+ * them side-by-side while toggling direction and axis.
+ */
+export default function AnimatedPopoverRtlExample(): React.ReactNode {
+	const [direction, setDirection] = useState<'ltr' | 'rtl'>('ltr');
+	const [axis, setAxis] = useState<NonNullable<TPlacementOptions['axis']>>('inline');
+	const [edge, setEdge] = useState<NonNullable<TPlacementOptions['edge']>>('end');
+
+	const placement: TPlacementOptions = { axis, edge };
+
+	// Top-layer elements (popover API) are not descendants of any element in the
+	// normal DOM tree, so they cannot inherit `dir` from a wrapper div. The only
+	// ancestor that top-layer elements share is `<html>` (document.documentElement).
+	// Setting `dir` there makes the `[dir='rtl'] [data-ds-popover-*]` CSS selectors
+	// in the animation presets match correctly.
+	useLayoutEffect(() => {
+		const htmlEl = document.documentElement;
+		const previous = htmlEl.getAttribute('dir');
+		htmlEl.setAttribute('dir', direction);
+		return () => {
+			if (previous === null) {
+				htmlEl.removeAttribute('dir');
+			} else {
+				htmlEl.setAttribute('dir', previous);
+			}
+		};
+	}, [direction]);
+
+	return (
+		<ForceFallbackToggle>
+			{(forceFallbackPositioning) => (
+				<Stack space="space.400" xcss={styles.wrapper}>
+					<div css={styles.controlBar}>
+						<div css={styles.controlLabel}>
+							<Checkbox
+								id="rtl-toggle"
+								label='Right-to-left (dir="rtl")'
+								isChecked={direction === 'rtl'}
+								onChange={(event) => setDirection(event.target.checked ? 'rtl' : 'ltr')}
+							/>
+						</div>
+
+						<div css={styles.controlLabel}>
+							<Text size="small">Axis:</Text>
+							<Select
+								inputId="placement-axis"
+								value={{ label: axis, value: axis }}
+								options={axisOptions}
+								onChange={(option) => {
+									if (option) {
+										setAxis(option.value);
+									}
+								}}
+								isSearchable={false}
+								label="Axis"
+							/>
+						</div>
+
+						<div css={styles.controlLabel}>
+							<Text size="small">Edge:</Text>
+							<Select
+								inputId="placement-edge"
+								value={{ label: edge, value: edge }}
+								options={edgeOptions}
+								onChange={(option) => {
+									if (option) {
+										setEdge(option.value);
+									}
+								}}
+								isSearchable={false}
+								label="Edge"
+							/>
+						</div>
+					</div>
+
+					<div css={styles.demoArea}>
+						<AnimatedPopoverDemo
+							label="system popup motion"
+							placement={placement}
+							forceFallbackPositioning={forceFallbackPositioning}
+						/>
+					</div>
+				</Stack>
+			)}
+		</ForceFallbackToggle>
+	);
+}
+
+// ─── Individual demo ──────────────────────────────────────────────────────────
+
+function AnimatedPopoverDemo({
+	label,
+	placement,
+	forceFallbackPositioning,
+}: {
+	label: string;
+	placement: TPlacementOptions;
+	forceFallbackPositioning: boolean;
+}) {
+	const [isOpen, setIsOpen] = useState(false);
+	const triggerRef = useRef<HTMLButtonElement | null>(null);
+	const popoverRef = useRef<HTMLDivElement | null>(null);
+
+	const handleClose = useCallback(() => {
+		setIsOpen(false);
+	}, []);
+
+	useAnchoredPopover({
+		anchorRef: triggerRef,
+		popoverRef,
+		placement,
+		forceFallbackPositioning,
+		isOpen,
+	});
+
+	return (
+		<Fragment>
+			<Button
+				ref={triggerRef}
+				isSelected={isOpen}
+				onClick={() => setIsOpen((prev) => !prev)}
+				aria-expanded={isOpen}
+				aria-haspopup="dialog"
+			>
+				{label}
+			</Button>
+			<Popover
+				ref={popoverRef}
+				role="dialog"
+				label={`${label} popover`}
+				shouldAnimate
+				isOpen={isOpen}
+				onClose={handleClose}
+			>
+				<PopoverSurface>
+					<Stack space="space.100">
+						<Heading size="xsmall">{label}</Heading>
+						<Text>
+							This popover uses the <Text as="strong">{label}</Text> animation preset.
+						</Text>
+						<Text size="small" color="color.text.subtlest">
+							Open in both LTR and RTL to verify the slide direction adapts to the writing mode.
+						</Text>
+					</Stack>
+				</PopoverSurface>
+			</Popover>
+		</Fragment>
+	);
+}

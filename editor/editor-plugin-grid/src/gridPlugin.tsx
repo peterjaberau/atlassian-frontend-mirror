@@ -15,15 +15,19 @@ import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import {
 	akEditorBreakoutPadding,
+	akEditorDefaultLayoutWidth,
 	akEditorFullPageMaxWidth,
 	breakoutWideScaleRatio,
 } from '@atlaskit/editor-shared-styles';
+import { componentWithCondition } from '@atlaskit/platform-feature-flags-react/component-with-condition';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { GridPlugin } from './gridPluginType';
 import type { CreateDisplayGrid, GridPluginOptions, GridPluginState, Highlights } from './types';
 
 export const GRID_SIZE = 12;
+// Matches the existing `.gridParent` 12px left + 12px right gutter expansion.
+const GRID_GUTTER_WIDTH = 24;
 
 const key = new PluginKey<GridPluginState>('gridPlugin');
 
@@ -137,25 +141,26 @@ type Props = {
 	editorWidth: number;
 	gridType: GridType;
 	highlight: Highlights;
+	overlayWidth: number;
 
 	shouldCalcBreakoutGridLines?: boolean;
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	theme: any;
+	theme?: any;
 	visible: boolean;
 };
 
-const Grid = ({
+const GridLegacy = ({
 	highlight,
 	shouldCalcBreakoutGridLines,
 	theme,
 	containerElement,
 	editorWidth,
 	gridType,
+	overlayWidth,
 	visible,
 }: Props) => {
 	const editorMaxWidth = theme.layoutMaxWidth;
-
 	const gridLines = [
 		...lineLengthGridLines(highlight),
 		...gutterGridLines(editorMaxWidth, editorWidth, highlight, shouldCalcBreakoutGridLines),
@@ -170,6 +175,7 @@ const Grid = ({
 				style={{
 					height: `${containerElement.scrollHeight}px`,
 					display: visible ? 'block' : 'none',
+					width: `${overlayWidth}px`,
 				}}
 				data-testid="gridContainer"
 			>
@@ -179,7 +185,48 @@ const Grid = ({
 	);
 };
 
-const ThemedGrid = withTheme(Grid);
+const GridNext = ({
+	highlight,
+	shouldCalcBreakoutGridLines,
+	containerElement,
+	editorWidth,
+	gridType,
+	overlayWidth,
+	visible,
+}: Props) => {
+	const editorMaxWidth = akEditorDefaultLayoutWidth;
+	const gridLines = [
+		...lineLengthGridLines(highlight),
+		...gutterGridLines(editorMaxWidth, editorWidth, highlight, shouldCalcBreakoutGridLines),
+	];
+	return (
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+		<div className="gridParent">
+			<div
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
+				className={classnames('gridContainer', gridType)}
+				style={{
+					height: `${containerElement.scrollHeight}px`,
+					display: visible ? 'block' : 'none',
+					width: `${overlayWidth}px`,
+				}}
+				data-testid="gridContainer"
+			>
+				{gridLines}
+			</div>
+		</div>
+	);
+};
+
+const ThemedGridLegacy = withTheme(GridLegacy);
+
+const ThemedGrid = componentWithCondition(
+	() =>
+		expValEquals('platform_editor_core_non_ecc_static_css', 'isEnabled', true) ||
+		expValEquals('platform_editor_core_static_css', 'isEnabled', true),
+	GridNext,
+	ThemedGridLegacy,
+);
 
 const selector = (
 	states: NamedPluginStatesFromInjectionAPI<
@@ -188,6 +235,7 @@ const selector = (
 	>,
 ) => {
 	return {
+		lineLength: states.widthState?.lineLength,
 		width: states.widthState?.width,
 		visible: states.gridState?.visible,
 		gridType: states.gridState?.gridType,
@@ -202,13 +250,14 @@ interface ContentComponentProps {
 }
 
 const ContentComponent = ({ api, editorView, options }: ContentComponentProps) => {
-	const { width, visible, gridType, highlight } = useSharedPluginStateWithSelector(
+	const { lineLength, width, visible, gridType, highlight } = useSharedPluginStateWithSelector(
 		api,
 		['width', 'grid'],
 		selector,
 	);
+	const overlayWidth = (lineLength || width || akEditorFullPageMaxWidth) + GRID_GUTTER_WIDTH;
 
-	if (visible === undefined || !highlight) {
+	if (!visible || !highlight) {
 		return null;
 	}
 
@@ -222,6 +271,7 @@ const ContentComponent = ({ api, editorView, options }: ContentComponentProps) =
 			visible={visible}
 			gridType={gridType ?? 'full'}
 			highlight={highlight}
+			overlayWidth={overlayWidth}
 		/>
 	);
 };
@@ -276,10 +326,7 @@ export const gridPlugin: GridPlugin = ({ config: options, api }) => {
 		},
 
 		contentComponent: ({ editorView }) => {
-			if (!editorView) {
-				return null;
-			}
-			if (expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) && isSSR()) {
+			if (!editorView || isSSR()) {
 				return null;
 			}
 			return <ContentComponent editorView={editorView} options={options} api={api} />;

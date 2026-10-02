@@ -1,5 +1,16 @@
-import { defineMessages } from 'react-intl-next';
-export const editorMessages = defineMessages({
+import { defineMessages } from 'react-intl';
+export const editorMessages: {
+	editorAssistiveLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	fullPageEditorAssistiveLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	editorAssistiveLabel: {
 		id: 'fabric.editor.editorAssistiveLabel',
 		defaultMessage: 'Main content area, start typing to enter text.',
@@ -8,6 +19,7 @@ export const editorMessages = defineMessages({
 	fullPageEditorAssistiveLabel: {
 		id: 'fabric.editor.fullPageEditorAssistiveLabel',
 		defaultMessage: 'Page editing area, start typing to enter text.',
-		description: 'The aria-label for the full page editor',
+		description:
+			'The aria-label assigned to the full page editor content area, read by screen readers when a user focuses the editing region.',
 	},
 });

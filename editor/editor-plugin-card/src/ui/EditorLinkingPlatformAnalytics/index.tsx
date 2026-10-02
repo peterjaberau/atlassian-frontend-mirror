@@ -1,13 +1,9 @@
 import React from 'react';
 
-import {
-	EditorSmartCardProvider,
-	EditorSmartCardProviderValueGuard,
-} from '@atlaskit/link-provider';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { EditorSmartCardProvider } from '@atlaskit/link-provider/editor-smart-card-provider';
+import { EditorSmartCardProviderValueGuard } from '@atlaskit/link-provider/editor-smart-card-provider-value-guard';
 
 import { EditorAnalyticsContext } from '../EditorAnalyticsContext';
-
 import type { AnalyticsBindingsProps } from './common';
 import { DatasourceEventsBinding } from './DatasourceEvents';
 import { LinkEventsBinding } from './LinkEvents';
@@ -15,10 +11,7 @@ import { LinkEventsBinding } from './LinkEvents';
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export class EditorLinkingPlatformAnalytics extends React.PureComponent<AnalyticsBindingsProps> {
 	render(): React.JSX.Element | null {
-		if (
-			expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) &&
-			!this.props.editorView
-		) {
+		if (!this.props.editorView) {
 			return null;
 		}
 		return (

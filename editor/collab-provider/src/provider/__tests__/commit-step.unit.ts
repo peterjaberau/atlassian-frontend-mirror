@@ -1,18 +1,31 @@
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  and raise concerns in https://atlassian.enterprise.slack.com/archives/C0BD4K40BLH
+*/
+
+import '../../__tests__/jest_mocks/socket.io-client.mock';
+import { SetAttrsStep } from '@atlaskit/adf-schema/steps/set-attrs';
+import { AGENT_ATTRIBUTION_META } from '@atlaskit/editor-common/transaction-agent-attribution';
 import { Slice } from '@atlaskit/editor-prosemirror/model';
-import { Transaction, type EditorState } from '@atlaskit/editor-prosemirror/state';
+import { Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
-import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { CommitStepService, RESET_READYTOCOMMIT_INTERVAL_MS } from '../commit-step';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { createEditorState } from '@atlaskit/editor-test-helpers/create-editor-state';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { doc, p } from '@atlaskit/editor-test-helpers/doc-builder';
-import { SetAttrsStep } from '@atlaskit/adf-schema/steps';
+import { eeTest } from '@atlaskit/tmp-editor-statsig/editor-experiments-test-utils';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
+import { NotConnectedError } from '../../errors/custom-errors';
 import { EVENT_STATUS } from '../../helpers/const';
 import { createSocketIOCollabProvider } from '../../socket-io-provider';
 import { AcknowledgementResponseTypes } from '../../types';
-import { NotConnectedError } from '../../errors/custom-errors';
-import { eeTest } from '@atlaskit/tmp-editor-statsig/editor-experiments-test-utils';
+import { CommitStepService, RESET_READYTOCOMMIT_INTERVAL_MS } from '../commit-step';
 
 jest.mock('@atlaskit/feature-gate-js-client', () => ({
 	...jest.requireActual('@atlaskit/feature-gate-js-client'),
@@ -50,11 +63,7 @@ const createTestHelpers = (
 	const onStepsAddedSpy = jest.spyOn(provider['documentService'], 'onStepsAdded');
 	const errorEventSpy = jest.spyOn(provider['analyticsHelper'] as any, 'sendErrorEvent');
 	const actionEventSpy = jest.spyOn(provider['analyticsHelper'] as any, 'sendActionEvent');
-	const onErrorHandledSpy = jest.spyOn(
-		provider['documentService'],
-		// @ts-ignore
-		'onErrorHandled',
-	);
+	const onErrorHandledSpy = jest.spyOn(provider['documentService'], 'onErrorHandled');
 	// using the Object['attribute'] syntax here to avoid calling
 	// ts-ignore over every line. As a rule this syntax will only be used
 	// to access a private variable within this function block
@@ -152,7 +161,7 @@ describe('commitStepQueue', () => {
 			__livePage: true,
 			hasRecovered: false,
 		});
-		expect(broadcastSpy).toBeCalledTimes(1);
+		expect(broadcastSpy).toHaveBeenCalledTimes(1);
 		// When feature flag on and __livePages on -- we strip out the __expanded attribute from the step.
 		expect((broadcastSpy.mock.calls[0][1] as any).steps[0].attrs).toStrictEqual({
 			title: 'any',
@@ -162,8 +171,8 @@ describe('commitStepQueue', () => {
 	it('Adds cliendIds and userIds to steps before broadcast', () => {
 		presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-		expect(broadcastSpy).toBeCalledTimes(1);
-		expect(broadcastSpy).toBeCalledWith(
+		expect(broadcastSpy).toHaveBeenCalledTimes(1);
+		expect(broadcastSpy).toHaveBeenCalledWith(
 			'steps:commit',
 			{
 				steps: [
@@ -181,6 +190,63 @@ describe('commitStepQueue', () => {
 		);
 	});
 
+	describe('platform_editor_agentic_step_attribution feature gate', () => {
+		it('serializes attribution from each matching step origin when enabled', () => {
+			passGate('platform_editor_agentic_step_attribution');
+			const { presetCommitStepQueue, broadcastSpy } = createTestHelpers();
+			const firstAgentOrigin = new Transaction({} as any).setMeta(AGENT_ATTRIBUTION_META, {
+				agentId: '712020:agent-account-id',
+				agentType: 'convo-ai',
+			});
+			const humanOrigin = new Transaction({} as any);
+			const secondAgentOrigin = new Transaction({} as any).setMeta(AGENT_ATTRIBUTION_META, {
+				agentType: 'twg',
+			});
+
+			presetCommitStepQueue([fakeStep, fakeStep, fakeStep], 1, 'user1', 'client1', {
+				stepOrigins: [firstAgentOrigin, humanOrigin, secondAgentOrigin],
+			});
+
+			expect((broadcastSpy.mock.calls[0][1] as any).steps).toEqual([
+				{
+					...fakeStep.toJSON(),
+					agentId: '712020:agent-account-id',
+					agentType: 'convo-ai',
+					clientId: 'client1',
+					userId: 'user1',
+				},
+				{
+					...fakeStep.toJSON(),
+					clientId: 'client1',
+					userId: 'user1',
+				},
+				{
+					...fakeStep.toJSON(),
+					agentType: 'twg',
+					clientId: 'client1',
+					userId: 'user1',
+				},
+			]);
+		});
+
+		it('omits attribution when disabled', () => {
+			failGate('platform_editor_agentic_step_attribution');
+			const { presetCommitStepQueue, broadcastSpy } = createTestHelpers();
+			const agentOrigin = new Transaction({} as any).setMeta(AGENT_ATTRIBUTION_META, {
+				agentId: '712020:agent-account-id',
+				agentType: 'convo-ai',
+			});
+
+			presetCommitStepQueue([fakeStep], 1, 'user1', 'client1', {
+				stepOrigins: [agentOrigin],
+			});
+
+			expect((broadcastSpy.mock.calls[0][1] as any).steps[0]).not.toEqual(
+				expect.objectContaining({ agentId: expect.anything(), agentType: expect.anything() }),
+			);
+		});
+	});
+
 	it('Tags unconfirmed steps after recovery to steps before broadcast', () => {
 		const fakeStep = new SetAttrsStep(1, { __expanded: true, title: 'any' });
 
@@ -189,8 +255,8 @@ describe('commitStepQueue', () => {
 			hasRecovered: true,
 		});
 
-		expect(broadcastSpy).toBeCalledTimes(1);
-		expect(broadcastSpy).toBeCalledWith(
+		expect(broadcastSpy).toHaveBeenCalledTimes(1);
+		expect(broadcastSpy).toHaveBeenCalledWith(
 			'steps:commit',
 			{
 				steps: [
@@ -209,7 +275,7 @@ describe('commitStepQueue', () => {
 		);
 	});
 
-	eeTest.describe('platform_editor_offline_editing_web', '').variant(true, () => {
+	describe('offline editing', () => {
 		it('Tags steps that are marked as offline before broadcast', () => {
 			const fakeStep = new SetAttrsStep(1, { __expanded: true, title: 'any' });
 
@@ -219,8 +285,8 @@ describe('commitStepQueue', () => {
 				stepOrigins: [stepOrigin],
 			});
 
-			expect(broadcastSpy).toBeCalledTimes(1);
-			expect(broadcastSpy).toBeCalledWith(
+			expect(broadcastSpy).toHaveBeenCalledTimes(1);
+			expect(broadcastSpy).toHaveBeenCalledWith(
 				'steps:commit',
 				{
 					steps: [
@@ -248,8 +314,8 @@ describe('commitStepQueue', () => {
 				stepOrigins: [stepOrigin],
 			});
 
-			expect(broadcastSpy).toBeCalledTimes(1);
-			expect(broadcastSpy).toBeCalledWith(
+			expect(broadcastSpy).toHaveBeenCalledTimes(1);
+			expect(broadcastSpy).toHaveBeenCalledWith(
 				'steps:commit',
 				{
 					steps: [
@@ -276,10 +342,10 @@ describe('commitStepQueue', () => {
 
 		presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-		expect(broadcastSpy).toBeCalledTimes(1);
+		expect(broadcastSpy).toHaveBeenCalledTimes(1);
 		expect(broadcastSpy).toThrow('Darn it!');
-		expect(errorEventSpy).toBeCalledTimes(1);
-		expect(errorEventSpy).toBeCalledWith(
+		expect(errorEventSpy).toHaveBeenCalledTimes(1);
+		expect(errorEventSpy).toHaveBeenCalledWith(
 			new Error('Darn it!'),
 			'Error while adding steps - Broadcast threw exception',
 		);
@@ -391,20 +457,19 @@ describe('commitStepQueue', () => {
 				presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 				expect(commitStepService.getReadyToCommitStatus()).toBe(false);
 
-				expect(onStepsAddedSpy).toBeCalledTimes(1);
-				expect(onStepsAddedSpy).toBeCalledWith(steps);
+				expect(onStepsAddedSpy).toHaveBeenCalledTimes(1);
+				expect(onStepsAddedSpy).toHaveBeenCalledWith(steps);
 
 				expect(commitStepService.getReadyToCommitStatus()).toBe(false);
 				jest.advanceTimersByTime(RESET_READYTOCOMMIT_INTERVAL_MS);
 				expect(commitStepService.getReadyToCommitStatus()).toBe(true);
 				presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
-				expect(onStepsAddedSpy).toBeCalledTimes(2);
-				expect(onStepsAddedSpy).toBeCalledWith(steps);
+				expect(onStepsAddedSpy).toHaveBeenCalledTimes(2);
+				expect(onStepsAddedSpy).toHaveBeenCalledWith(steps);
 			});
 
 			it('analytics action event sent', () => {
-				expect(actionEventSpy).toBeCalledTimes(2);
-				expect(actionEventSpy).toBeCalledWith('addSteps', EVENT_STATUS.SUCCESS_10x_SAMPLED, {
+				expect(actionEventSpy).toHaveBeenCalledWith('addSteps', EVENT_STATUS.SUCCESS_10x_SAMPLED, {
 					latency: 0,
 					stepType: { replace: 1 },
 					type: 'ACCEPTED',
@@ -412,25 +477,11 @@ describe('commitStepQueue', () => {
 			});
 
 			it('commit attempt & success event emitted', () => {
-				expect(emitMock).toBeCalledTimes(2);
-				expect(emitMock.mock.calls).toMatchInlineSnapshot(`
-			[
-			  [
-			    "commit-status",
-			    {
-			      "status": "attempt",
-			      "version": 1,
-			    },
-			  ],
-			  [
-			    "commit-status",
-			    {
-			      "status": "success",
-			      "version": 2,
-			    },
-			  ],
-			]
-		`);
+				expect(emitMock).toHaveBeenCalledTimes(2);
+				expect(emitMock.mock.calls).toEqual([
+					['commit-status', { status: 'attempt', version: 1 }],
+					['commit-status', { status: 'success', version: 2 }],
+				]);
 			});
 		});
 
@@ -493,8 +544,8 @@ describe('commitStepQueue', () => {
 				broadcastMockErrorWithCode('Some weird stuff going on');
 				presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-				expect(onErrorHandledSpy).toBeCalledTimes(1);
-				expect(onErrorHandledSpy).toBeCalledWith({
+				expect(onErrorHandledSpy).toHaveBeenCalledTimes(1);
+				expect(onErrorHandledSpy).toHaveBeenCalledWith({
 					message: 'Cookie monster is here!',
 					data: {
 						status: 500,
@@ -507,25 +558,11 @@ describe('commitStepQueue', () => {
 				broadcastMockErrorWithCode('Some weird stuff going on');
 				presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-				expect(emitMock).toBeCalledTimes(2);
-				expect(emitMock.mock.calls).toMatchInlineSnapshot(`
-			[
-			  [
-			    "commit-status",
-			    {
-			      "status": "attempt",
-			      "version": 1,
-			    },
-			  ],
-			  [
-			    "commit-status",
-			    {
-			      "status": "failure",
-			      "version": 1,
-			    },
-			  ],
-			]
-		`);
+				expect(emitMock).toHaveBeenCalledTimes(2);
+				expect(emitMock.mock.calls).toEqual([
+					['commit-status', { status: 'attempt', version: 1 }],
+					['commit-status', { status: 'failure', version: 1 }],
+				]);
 			});
 
 			it('should set readyToCommit to true when broadcast fails due to not being connected', () => {
@@ -549,8 +586,7 @@ describe('commitStepQueue', () => {
 					broadcastMockErrorWithCode('Some weird stuff going on');
 					presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-					expect(actionEventSpy).toBeCalledTimes(2);
-					expect(actionEventSpy).toBeCalledWith('addSteps', 'FAILURE', {
+					expect(actionEventSpy).toHaveBeenCalledWith('addSteps', 'FAILURE', {
 						latency: 0,
 						type: 'ERROR',
 					});
@@ -560,8 +596,7 @@ describe('commitStepQueue', () => {
 					broadcastMockErrorWithCode('HEAD_VERSION_UPDATE_FAILED');
 					presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-					expect(actionEventSpy).toBeCalledTimes(2);
-					expect(actionEventSpy).toHaveBeenNthCalledWith(2, 'addSteps', 'FAILURE', {
+					expect(actionEventSpy).toHaveBeenCalledWith('addSteps', 'FAILURE', {
 						latency: 0,
 						type: 'REJECTED',
 					});
@@ -572,7 +607,7 @@ describe('commitStepQueue', () => {
 					presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 					presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 					presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
-					expect(onStepsAddedSpy).toBeCalledTimes(0);
+					expect(onStepsAddedSpy).toHaveBeenCalledTimes(0);
 				});
 			});
 
@@ -582,8 +617,8 @@ describe('commitStepQueue', () => {
 						broadcastMockErrorWithCode('HEAD_VERSION_UPDATE_FAILED');
 						presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-						expect(errorEventSpy).toBeCalledTimes(1);
-						expect(errorEventSpy).toBeCalledWith(
+						expect(errorEventSpy).toHaveBeenCalledTimes(1);
+						expect(errorEventSpy).toHaveBeenCalledWith(
 							{
 								data: { code: 'HEAD_VERSION_UPDATE_FAILED', status: 500 },
 								message: 'Cookie monster is here!',
@@ -598,8 +633,8 @@ describe('commitStepQueue', () => {
 						broadcastMockErrorWithCode('VERSION_NUMBER_ALREADY_EXISTS');
 						presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-						expect(errorEventSpy).toBeCalledTimes(1);
-						expect(errorEventSpy).toBeCalledWith(
+						expect(errorEventSpy).toHaveBeenCalledTimes(1);
+						expect(errorEventSpy).toHaveBeenCalledWith(
 							{
 								data: { code: 'VERSION_NUMBER_ALREADY_EXISTS', status: 500 },
 								message: 'Cookie monster is here!',
@@ -613,7 +648,7 @@ describe('commitStepQueue', () => {
 					broadcastMockErrorWithCode('Naaniiii?');
 					presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-					expect(errorEventSpy).toBeCalledTimes(2);
+					expect(errorEventSpy).toHaveBeenCalledTimes(2);
 					// inside onErrorHandled
 					expect(errorEventSpy).toHaveBeenNthCalledWith(
 						1,
@@ -642,8 +677,8 @@ describe('commitStepQueue', () => {
 				broadcastMockImplementation({ type: 'not really sure what' });
 				presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-				expect(errorEventSpy).toBeCalledTimes(1);
-				expect(errorEventSpy).toBeCalledWith(
+				expect(errorEventSpy).toHaveBeenCalledTimes(1);
+				expect(errorEventSpy).toHaveBeenCalledWith(
 					new Error('Response type: not really sure what'),
 					'Error while adding steps - Invalid Acknowledgement',
 				);
@@ -658,8 +693,8 @@ describe('commitStepQueue', () => {
 				);
 				presetCommitStepQueue([fakeStep], 1, 'user1', 'client1');
 
-				expect(errorEventSpy).toBeCalledTimes(1);
-				expect(errorEventSpy).toBeCalledWith(
+				expect(errorEventSpy).toHaveBeenCalledTimes(1);
+				expect(errorEventSpy).toHaveBeenCalledWith(
 					new Error('Response type: No response type'),
 					'Error while adding steps - Invalid Acknowledgement',
 				);

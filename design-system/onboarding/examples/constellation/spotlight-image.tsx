@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+// eslint-disable-next-line @atlaskit/design-system/use-spotlight-package
 import {
 	Spotlight,
 	SpotlightManager,
 	SpotlightTarget,
 	SpotlightTransition,
 } from '@atlaskit/onboarding';
-import { N0 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import spotlightImage from '../assets/this-is-new-jira.png';
@@ -41,7 +41,7 @@ const SpotlightImageExample = (): React.JSX.Element => {
 						label="Switch projects"
 						key="switch"
 						targetRadius={3}
-						targetBgColor={N0}
+						targetBgColor={'#FFFFFF'}
 					>
 						Select the project name and icon to quickly switch between your most recent projects.
 					</Spotlight>

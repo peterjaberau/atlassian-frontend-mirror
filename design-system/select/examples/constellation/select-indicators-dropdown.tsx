@@ -1,8 +1,10 @@
 import React from 'react';
 
-import { Label } from '@atlaskit/form';
+import { Label } from '@atlaskit/form/label/default';
 import EmojiIcon from '@atlaskit/icon/core/emoji';
-import Select, { components, type DropdownIndicatorProps, type OptionType } from '@atlaskit/select';
+import { components } from '@atlaskit/react-select/components';
+import Select from '@atlaskit/select/default';
+import type { DropdownIndicatorProps, OptionType } from '@atlaskit/select/types';
 
 import { cities } from '../common/data';
 

@@ -1,7 +1,8 @@
-import { AnnotationTypes } from '@atlaskit/adf-schema';
+import React, { act } from 'react';
+
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
 import { doc, p, status } from '@atlaskit/adf-utils/builders';
-import { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -12,20 +13,24 @@ import type {
 	AnnotationActionResult,
 	InlineCommentSelectionComponentProps,
 } from '@atlaskit/editor-common/types';
-import { render, screen } from '@testing-library/react';
-import React from 'react';
-import { act } from 'react-dom/test-utils';
+import { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
+import createAnalyticsEventMock from '@atlaskit/editor-test-helpers/create-analytics-event-mock';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { passGate, failGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { render, screen } from '@atlassian/testing-library';
+
 import type { ApplyAnnotation } from '../../../../../actions/index';
 import type RendererActions from '../../../../../actions/index';
 import { RendererContext } from '../../../../RendererActionsContext';
 import { updateWindowSelectionAroundDraft } from '../../../draft/dom';
 import type { Position } from '../../../types';
 import { SelectionInlineCommentMounter } from '../../mounter';
-// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
-import createAnalyticsEventMock from '@atlaskit/editor-test-helpers/create-analytics-event-mock';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-
 jest.mock('../../../draft/dom');
+jest.mock('@atlaskit/tmp-editor-statsig/editor-experiment', () => ({
+	...jest.requireActual('@atlaskit/tmp-editor-statsig/editor-experiment'),
+	editorExperiment: jest.fn(() => false),
+}));
 
 const inlineNodeTypesTestId = 'inline-nodes-type';
 
@@ -196,7 +201,7 @@ describe('Annotations: SelectionInlineCommentMounter', () => {
 		});
 
 		describe('and when the document position changes', () => {
-			it('should create the annotation in the previous draft position', () => {
+			it('should create the annotation in the previous draft position (gate off)', () => {
 				const fakeDocumentPosition = { from: 0, to: 10 };
 				const { onCreateCallback, applyDraftModeCallback } = renderMounter({
 					fakeDocumentPosition,
@@ -216,6 +221,43 @@ describe('Annotations: SelectionInlineCommentMounter', () => {
 					annotationType: AnnotationTypes.INLINE_COMMENT,
 				};
 				expect(fakeApplyAnnotation).toHaveBeenCalledWith(fakeDocumentPosition, fakeAnnotation);
+			});
+
+			describe('COMMENTS-6594: experiment on — creates annotation at current position', () => {
+				beforeEach(() => {
+					(editorExperiment as jest.Mock).mockImplementation(
+						(key: string, param: string) =>
+							key === 'confluence_inline_comments_fix_stale_selection' && param === 'isEnabled',
+					);
+				});
+
+				afterEach(() => {
+					(editorExperiment as jest.Mock).mockReset();
+				});
+
+				it('should use current position, not stale position from previous selection', () => {
+					// Render with position #1, trigger applyDraftMode
+					const { applyDraftModeCallback } = renderMounter({
+						fakeDocumentPosition: { from: 0, to: 10 },
+					});
+					act(() => {
+						applyDraftModeCallback({ annotationId: 'test-id', keepNativeSelection: false });
+					});
+
+					// Re-render with position #2 — captures fresh onCreateCallback closing over new documentPosition
+					const nextDocumentPosition = { from: 30, to: 45 };
+					const { onCreateCallback } = renderMounter({
+						fakeDocumentPosition: nextDocumentPosition,
+					});
+
+					// onCreate should use position #2 (not stale position #1)
+					onCreateCallback('test-id');
+
+					expect(fakeApplyAnnotation).toHaveBeenLastCalledWith(nextDocumentPosition, {
+						annotationId: 'test-id',
+						annotationType: AnnotationTypes.INLINE_COMMENT,
+					});
+				});
 			});
 		});
 
@@ -321,19 +363,19 @@ describe('Annotations: SelectionInlineCommentMounter', () => {
 		describe('should provide inlineNodeTypes props to the component', () => {
 			const actionsDoc = PMNode.fromJSON(defaultSchema, doc(p('start', status(), 'end')));
 
-			ffTest(
-				'editor_inline_comments_on_inline_nodes',
-				() => {
-					renderMounter({ actionsDoc });
+			it('when feature gate editor_inline_comments_on_inline_nodes is ON, provides inlineNodeTypes including status and text', () => {
+				passGate('editor_inline_comments_on_inline_nodes');
+				renderMounter({ actionsDoc });
 
-					expect(screen.getByTestId(inlineNodeTypesTestId)).toHaveTextContent('["status","text"]');
-				},
-				() => {
-					renderMounter({ actionsDoc });
+				expect(screen.getByTestId(inlineNodeTypesTestId)).toHaveTextContent('["status","text"]');
+			});
 
-					expect(screen.getByTestId(inlineNodeTypesTestId)).not.toHaveTextContent('text');
-				},
-			);
+			it('when feature gate editor_inline_comments_on_inline_nodes is OFF, does not provide text in inlineNodeTypes', () => {
+				failGate('editor_inline_comments_on_inline_nodes');
+				renderMounter({ actionsDoc });
+
+				expect(screen.getByTestId(inlineNodeTypesTestId)).not.toHaveTextContent('text');
+			});
 		});
 
 		it('should provide empty inlineNodeTypes if the isValidAnnotationRange returns false', () => {

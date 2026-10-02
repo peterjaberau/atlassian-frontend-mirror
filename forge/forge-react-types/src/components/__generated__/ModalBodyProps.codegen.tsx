@@ -3,20 +3,20 @@
  *
  * Extract component prop types from UIKit 2 components - ModalBodyProps
  *
- * @codegen <<SignedSource::7bb0c29a8aeb222b8e1996076c1ebf45>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/modal/__generated__/modal-body.partial.tsx <<SignedSource::627540a6559205080b7e35c17eb83204>>
+ * @codegen <<SignedSource::9d690db4ca963079721eb93ff73f7ab3>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/modal/__generated__/modal-body.partial.tsx <<SignedSource::2003778fad7a695a800d9b2fa21f7e2f>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import { ModalBody as PlatformModalBody } from '@atlaskit/modal-dialog';
+import PlatformModalBody from '@atlaskit/modal-dialog/modal-body';
 
 type PlatformModalBodyProps = React.ComponentProps<typeof PlatformModalBody>;
 
 export type ModalBodyProps = Pick<
   PlatformModalBodyProps,
-  'children' | 'testId'
+  'children' | 'testId' | 'hasInlinePadding'
 >;
 
 /**

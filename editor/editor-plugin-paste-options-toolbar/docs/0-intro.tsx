@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points, @repo/internal/import/no-unresolved
+// eslint-disable-next-line @repo/internal/import/no-unresolved
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
@@ -31,10 +31,28 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+type PasteOptionsToolbarPluginDependencies = [
+  OptionalPlugin<AnalyticsPlugin>,
+  PastePlugin,
+  OptionalPlugin<UiControlRegistryPlugin>,
+];
+
+interface PasteOptionsToolbarSharedState {
+  isPlainText: boolean;
+  pasteAncestorNodeNames: string[];
+  pasteEndPos: number;
+  pasteStartPos: number;
+  plaintextLength: number;
+  selectedOption: ToolbarDropdownOption;
+  showLegacyOptions: boolean;
+  showToolbar: boolean;
+}
+
 type PasteOptionsToolbarPlugin = NextEditorPlugin<
   'pasteOptionsToolbarPlugin',
   {
-    dependencies: [OptionalPlugin<AnalyticsPlugin>, PastePlugin];
+    dependencies: PasteOptionsToolbarPluginDependencies;
+    sharedState: PasteOptionsToolbarSharedState;
   }
 >;
 `}

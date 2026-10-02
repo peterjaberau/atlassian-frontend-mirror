@@ -2,11 +2,11 @@ import path from 'path';
 
 import { type Config, type Core } from 'style-dictionary';
 
+import motionPalette from '../../schema/palettes/motion-palette';
 import defaultPalette from '../../schema/palettes/palette';
 import shapePalette from '../../schema/palettes/shape-palette';
 import spacingScale from '../../schema/palettes/spacing-scale';
 import typographyPalette from '../../schema/palettes/typography-palette';
-
 import { ARTIFACT_OUTPUT_DIR, THEME_INPUT_DIR } from './constants';
 import formatterTokenDescriptionCSV from './formatters/csv-token-description';
 import formatterDynamicImportMap from './formatters/dynamic-import-map';
@@ -14,15 +14,16 @@ import formatterReplacementMapper from './formatters/replacement-mapper';
 import formatterTSCssTypeSchema from './formatters/typescript-css-type-schema';
 import formatterTSTokenDefaults from './formatters/typescript-token-defaults';
 import formatterTSGeneratedTypes from './formatters/typescript-token-generated-types';
-import formatterTSGeneratedTypesInternal from './formatters/typescript-token-generated-types-internal';
+import { default as formatterTSGeneratedTypesInternal } from './formatters/typescript-token-generated-types-internal';
 import formatterTSMetadata from './formatters/typescript-token-metadata';
 import formatterTSTokenNames from './formatters/typescript-token-names';
 import formatterTSGeneratedPairings from './formatters/typescript-token-pairings';
+import { default as motionTransform } from './transformers/animation';
 import boxShadowTransform from './transformers/box-shadow';
 import dotSyntax from './transformers/dot-syntax';
 import paletteTransform from './transformers/palette';
 import pixelRemTransform from './transformers/pixel-rem';
-import fontTransform from './transformers/web-font';
+import { default as fontTransform } from './transformers/web-font';
 
 const createGlobalConfig = (schemaInputDir: string): Config => ({
 	source: [`${schemaInputDir}/**/*.tsx`],
@@ -32,6 +33,7 @@ const createGlobalConfig = (schemaInputDir: string): Config => ({
 		// TODO this is the temporary 'default'
 		path.join(THEME_INPUT_DIR, 'atlassian-typography/**/*.tsx'),
 		path.join(THEME_INPUT_DIR, 'atlassian-shape/**/*.tsx'),
+		path.join(THEME_INPUT_DIR, 'atlassian-motion/**/*.tsx'),
 		path.join(THEME_INPUT_DIR, 'default/**/*.tsx'),
 	],
 	parsers: [
@@ -49,10 +51,12 @@ const createGlobalConfig = (schemaInputDir: string): Config => ({
 		'box-shadow/figma': boxShadowTransform(defaultPalette),
 		'color/palette': paletteTransform({
 			...defaultPalette,
+			...motionPalette,
 			...spacingScale,
 			...typographyPalette,
 			...shapePalette,
 		}),
+		'motion/animation': motionTransform,
 	},
 	format: {
 		'replacement-mapper': formatterReplacementMapper as any,
@@ -91,7 +95,14 @@ const createGlobalConfig = (schemaInputDir: string): Config => ({
 			],
 		},
 		ts: {
-			transforms: ['name/dot', 'color/palette', 'pixel/rem', 'font/web', 'box-shadow/figma'],
+			transforms: [
+				'name/dot',
+				'color/palette',
+				'pixel/rem',
+				'font/web',
+				'box-shadow/figma',
+				'motion/animation',
+			],
 			buildPath: ARTIFACT_OUTPUT_DIR,
 			files: [
 				{

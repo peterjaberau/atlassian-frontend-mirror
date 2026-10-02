@@ -1,18 +1,19 @@
 import React from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import styled from 'styled-components';
-import type { ResourceProvider } from '../src/api/ConversationResource';
+
+import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import Link from '@atlaskit/link/link';
+
 import { Conversation } from '../src';
+import type { ResourceProvider } from '../src/api/ConversationResource';
+import type { State } from '../src/internal/store';
 // https://atlassian.slack.com/archives/CNZTJCZ7U/p1634674323008000
 // import SingleSelect from '@atlaskit/single-select';
 import type { Conversation as ConversationType } from '../src/model/Conversation';
 import type { User } from '../src/model/User';
-import type { State } from '../src/internal/store';
 import { MOCK_USERS } from './MockData';
-
-import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 const DUMMY_CODE = `
 class Main() {
@@ -136,17 +137,10 @@ class File extends React.Component<FileProps, { addAt?: number }> {
 			<div key={index}>
 				<Line key={index}>
 					<LineNumber>
-						{fg('dst-a11y__replace-anchor-with-link__bitbucket-core') ? (
-							// eslint-disable-next-line @atlassian/a11y/anchor-is-valid
-							<Link href="#" onClick={(evt) => this.onLineClick(evt, index)}>
-								{index}
-							</Link>
-						) : (
-							// eslint-disable-next-line @atlaskit/design-system/no-html-anchor, @atlassian/a11y/anchor-is-valid
-							<a href="#" onClick={(evt) => this.onLineClick(evt, index)}>
-								{index}
-							</a>
-						)}
+						{/* eslint-disable-next-line @atlassian/a11y/anchor-is-valid */}
+						<Link href="#" onClick={(evt) => this.onLineClick(evt, index)}>
+							{index}
+						</Link>
 					</LineNumber>
 					<Code>
 						<pre>{line}</pre>
@@ -198,7 +192,7 @@ export class Demo extends React.Component<
 		};
 	}
 
-	async componentDidMount() {
+	async componentDidMount(): Promise<void> {
 		const { provider } = this.props;
 		// First get a list of all conversations for this page
 		try {
@@ -212,7 +206,7 @@ export class Demo extends React.Component<
 
 	// Ignored via go/ees005
 	// eslint-disable-next-line require-await
-	async componentWillUnmount() {
+	async componentWillUnmount(): Promise<void> {
 		if (this.unsubscribe) {
 			this.unsubscribe();
 		}
@@ -344,7 +338,7 @@ export class Demo extends React.Component<
 	//   );
 	// }
 
-	render() {
+	render(): React.JSX.Element {
 		const { conversations } = this.state;
 		const { provider, dataProviders } = this.props;
 		const prConversations = conversations.filter((c) => !Object.keys(c.meta).length);

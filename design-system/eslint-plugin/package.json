@@ -1,7 +1,7 @@
 {
 	"name": "@atlaskit/eslint-plugin-design-system",
 	"description": "The essential plugin for use with the Atlassian Design System.",
-	"version": "13.40.0",
+	"version": "16.13.3",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
 	"publishConfig": {
@@ -22,14 +22,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
@@ -43,7 +35,7 @@
 		"./package.json": "./package.json"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"dependencies": {
 		"@atlaskit/eslint-utils": "workspace:^",
@@ -58,7 +50,8 @@
 		"estraverse": "root:*",
 		"json-schema-to-ts": "root:*",
 		"lodash": "root:*",
-		"semver": "root:*"
+		"semver": "root:*",
+		"tsx": "root:*"
 	},
 	"devDependencies": {
 		"@af/formatting": "workspace:^",
@@ -78,28 +71,13 @@
 		"eslint": "root:*",
 		"jscodeshift": "root:*",
 		"outdent": "root:*",
-		"react": "root:*",
+		"react": "^19.0.0",
 		"ts-jest": "root:*"
 	},
 	"scripts": {
 		"ak-postbuild": "cp -r configs dist",
 		"codegen": "run-ts ./scripts/codegen.tsx",
 		"codegen-token-maps": "run-ts ./scripts/token-maps/codegen-token-maps.tsx"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions",
-			"circular-dependencies": "file-and-folder-level"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"static",
-				"emotion"
-			]
-		}
 	},
 	"homepage": "https://atlassian.design/components/eslint-plugin-design-system"
 }

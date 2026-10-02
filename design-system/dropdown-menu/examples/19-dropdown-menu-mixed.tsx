@@ -1,19 +1,29 @@
 import React, { type KeyboardEvent, useState } from 'react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import { useOverflowStatus } from '@atlaskit/atlassian-navigation';
-import Avatar from '@atlaskit/avatar';
-import Button from '@atlaskit/button/new';
+import Avatar from '@atlaskit/avatar/avatar';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import { DropdownItem } from '@atlaskit/dropdown-menu';
-import { Label } from '@atlaskit/form';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import { Label } from '@atlaskit/form/label/default';
 import EditorAddIcon from '@atlaskit/icon/core/add';
 import EditorPeopleIcon from '@atlaskit/icon/core/people-group';
-import { ButtonItem, HeadingItem, MenuGroup } from '@atlaskit/menu';
-import Popup from '@atlaskit/popup';
+import ButtonItem from '@atlaskit/menu/button-item';
+import HeadingItem from '@atlaskit/menu/heading-item';
+import MenuGroup from '@atlaskit/menu/menu-group';
+import { Popup } from '@atlaskit/popup/popup';
 import { type PopupProps } from '@atlaskit/popup/types';
-import { Box } from '@atlaskit/primitives/compiled';
-import Textfield from '@atlaskit/textfield';
+import { Box, Flex } from '@atlaskit/primitives/compiled';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 interface SearchDropdownItemProps {
 	setFilteredOptions: React.Dispatch<React.SetStateAction<{ label: string; value: string }[]>>;
@@ -129,8 +139,24 @@ const OptionsContent = () => (
 		</Box>
 		<Box role="menu" paddingBlock="space.200">
 			<HeadingItem>Your collaborators</HeadingItem>
-			<DropdownItem elemAfter={<EditorAddIcon spacing="spacious" label="" />}>Invite collaborator</DropdownItem>
-			<DropdownItem elemAfter={<EditorPeopleIcon spacing="spacious" label="" />}>Create team</DropdownItem>
+			<DropdownItem
+				elemAfter={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<EditorAddIcon label="" />
+					</Flex>
+				}
+			>
+				Invite collaborator
+			</DropdownItem>
+			<DropdownItem
+				elemAfter={
+					<Flex xcss={iconSpacingStyles.space050}>
+						<EditorPeopleIcon label="" />
+					</Flex>
+				}
+			>
+				Create team
+			</DropdownItem>
 		</Box>
 		<Box paddingBlock="space.200">
 			<HeadingItem>Filter menu</HeadingItem>
@@ -143,10 +169,10 @@ const styles = cssMap({
 	container: {
 		display: 'flex',
 		alignItems: 'flex-start',
-		paddingBlockStart: token('space.200', '16px'),
-		paddingInlineEnd: token('space.200', '16px'),
-		paddingBlockEnd: token('space.200', '16px'),
-		paddingInlineStart: token('space.200', '16px'),
+		paddingBlockStart: token('space.200'),
+		paddingInlineEnd: token('space.200'),
+		paddingBlockEnd: token('space.200'),
+		paddingInlineStart: token('space.200'),
 	},
 });
 

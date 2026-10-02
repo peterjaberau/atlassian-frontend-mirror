@@ -3,30 +3,29 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useCallback, useMemo, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 import { di } from 'react-magnetic-di';
 
-import { type Appearance } from '@atlaskit/button';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/standard-button';
-import DropdownMenu from '@atlaskit/dropdown-menu';
+import IconButton from '@atlaskit/button/icon/button';
+import type { Appearance } from '@atlaskit/button/old-button/types';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { SmartLinkSize } from '../../../../../constants';
+import { ActionName, CardDisplay, SmartLinkSize } from '../../../../../constants';
 import { messages } from '../../../../../messages';
-import {
-	useFlexibleUiContext,
-	useFlexibleUiOptionContext,
-} from '../../../../../state/flexible-ui-context';
-import { sizeToButtonSpacing } from '../../utils';
+import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context/useFlexibleUiContext';
+import { useFlexibleUiOptionContext } from '../../../../../state/flexible-ui-context/useFlexibleUiOptionContext';
+import useRovoConfig from '../../../../../state/hooks/use-rovo-config';
+import { RovoChatPromptKey } from '../../../../common/rovo-chat-utils';
+import { filterActionItems } from '../filterActionItems';
 import type { ActionItem } from '../types';
-import { filterActionItems } from '../utils';
-
 import ActionGroupItem from './action-group-item';
 import { type ActionGroupProps } from './types';
 
@@ -39,6 +38,11 @@ const styles = css({
 		},
 	},
 });
+
+const FULL_ACTIONS_SIZE = 450;
+const REDUCED_ACTIONS_SIZE = 360;
+const ICON_ONLY_ACTIONS_SIZE = 200;
+const OVERFLOW_ONLY_ACTIONS_SIZE = 100;
 
 const renderActionItems = (
 	items: ActionItem[] = [],
@@ -71,16 +75,30 @@ const ActionGroup = ({
 	appearance,
 	visibleButtonsNum = 2,
 	onDropdownOpenChange,
-}: ActionGroupProps) => {
+	containerWidth = Infinity,
+}: ActionGroupProps): JSX.Element | null => {
 	di(DropdownMenu);
 
 	const context = useFlexibleUiContext();
 	const ui = useFlexibleUiOptionContext();
+	const { product } = useRovoConfig();
 
 	const [isOpen, setIsOpen] = useState(false);
 
-	const renderableActionItems = useMemo(() => filterActionItems(items, context), [context, items]);
+	const renderableActionItems = useMemo(
+		() => filterActionItems(items, context, product),
+		[context, items, product],
+	);
 	const isMoreThenTwoItems = renderableActionItems.length > visibleButtonsNum;
+	const rovoChatAction = context?.actions?.[ActionName.RovoChatAction];
+
+	const isRovoActionsEnabled = useMemo(() => {
+		return (
+			!!rovoChatAction &&
+			rovoChatAction.product === 'CONFLUENCE' &&
+			items.some((action) => action.name === 'RovoChatAction')
+		);
+	}, [rovoChatAction, items]);
 
 	const onOpenChange = useCallback(
 		(attrs: { isOpen: boolean }) => {
@@ -99,6 +117,39 @@ const ActionGroup = ({
 	}, [isOpen, onOpenChange]);
 
 	const actionButtons = useMemo(() => {
+		if (isRovoActionsEnabled) {
+			const rovoActions = [
+				...(containerWidth >= REDUCED_ACTIONS_SIZE
+					? renderableActionItems.slice(0, visibleButtonsNum - 1)
+					: []),
+				...(containerWidth >= OVERFLOW_ONLY_ACTIONS_SIZE
+					? [
+							{
+								name: ActionName.RovoChatAction,
+								prompts: [RovoChatPromptKey.ASK_ROVO_ANYTHING],
+								iconSize: 'small',
+								cardAppearance: CardDisplay.Block,
+								hideContent:
+									(containerWidth < FULL_ACTIONS_SIZE && containerWidth >= REDUCED_ACTIONS_SIZE) ||
+									(containerWidth < ICON_ONLY_ACTIONS_SIZE &&
+										containerWidth >= OVERFLOW_ONLY_ACTIONS_SIZE),
+							} as ActionItem,
+							{
+								name: ActionName.CopyLinkAction,
+								hideContent: true,
+								iconSize: 'small',
+							} as ActionItem,
+							{
+								name: ActionName.PreviewAction,
+								hideContent: true,
+								iconSize: 'small',
+							} as ActionItem,
+						]
+					: []),
+			];
+			return renderActionItems(rovoActions, size, appearance, false, onActionItemClick);
+		}
+
 		const actionItems = isMoreThenTwoItems
 			? renderableActionItems.slice(0, visibleButtonsNum - 1)
 			: renderableActionItems;
@@ -111,17 +162,33 @@ const ActionGroup = ({
 		renderableActionItems,
 		size,
 		visibleButtonsNum,
+		isRovoActionsEnabled,
+		containerWidth,
 	]);
 
 	const moreActionDropdown = useMemo(() => {
-		const actionItems = isMoreThenTwoItems
-			? renderableActionItems.slice(visibleButtonsNum - 1)
-			: [];
+		let actionItems: ActionItem[];
+		if (isRovoActionsEnabled && containerWidth < OVERFLOW_ONLY_ACTIONS_SIZE) {
+			actionItems = [
+				...renderableActionItems,
+				{
+					name: ActionName.RovoChatAction,
+					prompts: [RovoChatPromptKey.ASK_ROVO_ANYTHING],
+					iconSize: 'small',
+					cardAppearance: CardDisplay.Block,
+				} as ActionItem,
+				{ name: ActionName.CopyLinkAction, iconSize: 'small' },
+				{ name: ActionName.PreviewAction, iconSize: 'small' },
+			];
+		} else if (isRovoActionsEnabled && containerWidth < REDUCED_ACTIONS_SIZE) {
+			actionItems = renderableActionItems;
+		} else {
+			actionItems = isMoreThenTwoItems ? renderableActionItems.slice(visibleButtonsNum - 1) : [];
+		}
 
 		if (actionItems.length > 0) {
-			const spacing = sizeToButtonSpacing[size];
-			const moreIcon = <MoreIcon label="more" color="currentColor" />;
 			const formatMessage = <FormattedMessage {...messages.more_actions} />;
+			const moreIconAppearance = appearance !== 'subtle' ? 'default' : appearance;
 
 			return (
 				<DropdownMenu
@@ -134,12 +201,15 @@ const ActionGroup = ({
 							testId="action-group-more-button-tooltip"
 							tag="span"
 						>
-							<Button
+							<IconButton
 								{...props}
-								spacing={spacing}
+								spacing={size === SmartLinkSize.XLarge ? 'default' : 'compact'}
 								testId="action-group-more-button"
-								iconBefore={moreIcon}
+								icon={MoreIcon}
 								ref={triggerRef}
+								label="more"
+								color="currentColor"
+								{...(isRovoActionsEnabled ? { appearance: moreIconAppearance } : {})}
 							/>
 						</Tooltip>
 					)}
@@ -161,6 +231,8 @@ const ActionGroup = ({
 		size,
 		ui?.zIndex,
 		visibleButtonsNum,
+		isRovoActionsEnabled,
+		containerWidth,
 	]);
 
 	return renderableActionItems.length > 0 ? (

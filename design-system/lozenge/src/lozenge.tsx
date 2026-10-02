@@ -7,11 +7,11 @@ import { type CSSProperties, memo, type ReactNode, useMemo } from 'react';
 import { cssMap as cssMapUnbounded } from '@compiled/react';
 
 import { jsx } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import NewLozenge from './new/lozenge';
-import { type NewLozengeProps, type SemanticColor } from './new/types';
+import { type SemanticColor } from './new/types';
 /**
  * TODO: We should be using our bounded `cssMap` here, but most of
  * these styles from the visual refresh are not in the Design System.
@@ -108,7 +108,7 @@ export interface LozengeProps {
 
 	/**
 	 * Determines whether to apply the bold style or not.
-	 * @deprecated This prop is deprecated and will be removed in an upcoming major release. Use Tag component for non-bold styles.
+	 * @deprecated Deprecated. Will be removed in a future major release. Lozenge will be bold by default. For labels and categorization, use Tag instead.
 	 */
 	isBold?: boolean;
 
@@ -185,9 +185,7 @@ const LegacyLozenge = memo(
 					style={{
 						color: style?.color,
 						// to negate paddingInline specified on Box above
-						maxWidth: maxWidthIsPc
-							? '100%'
-							: `calc(${maxWidthValue} - ${token('space.100', '8px')})`,
+						maxWidth: maxWidthIsPc ? '100%' : `calc(${maxWidthValue} - ${token('space.100')})`,
 					}}
 					data-testid={testId && `${testId}--text`}
 				>
@@ -200,16 +198,4 @@ const LegacyLozenge = memo(
 
 LegacyLozenge.displayName = 'Lozenge';
 
-/**
- * Wrapper component that switches between old and new Lozenge based on feature flag
- */
-const LozengeWrapper: import("react").MemoExoticComponent<(props: LozengeProps | NewLozengeProps) => JSX.Element> = memo((props: LozengeProps | NewLozengeProps) => {
-	if (fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
-		return <NewLozenge {...props} />;
-	}
-	return <LegacyLozenge {...(props as LozengeProps)} />;
-});
-
-LozengeWrapper.displayName = 'Lozenge';
-
-export default LozengeWrapper;
+export default NewLozenge;

@@ -1,11 +1,11 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type {
-	RichMediaLayout as MediaSingleLayout,
+	Layout as MediaSingleLayout,
 	RichMediaAttributes,
-} from '@atlaskit/adf-schema';
+} from '@atlaskit/adf-schema/rich-media-common';
 import type { Node, NodeType, Schema } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
@@ -26,7 +26,8 @@ import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import type { EditorAnalyticsAPI } from '../../analytics';
 import { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, EVENT_TYPE } from '../../analytics';
 import { insideTable } from '../../core-utils';
-import { type Keymap, alignCenter, alignLeft, alignRight, tooltip } from '../../keymaps';
+import { alignCenter, alignLeft, alignRight, tooltip } from '../../keymaps';
+import type { Keymap } from '../../keymaps';
 import commonMessages, { mediaAndEmbedToolbarMessages as toolbarMessages } from '../../messages';
 import type {
 	Command,
@@ -113,6 +114,7 @@ const alignmentIconsControls: LayoutIcon[] = [
 	},
 ];
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const wrappingIcons: LayoutIcon[] = [
 	{
 		id: 'editor.media.wrapLeft',
@@ -144,7 +146,7 @@ const breakoutIcons: LayoutIcon[] = [
 ];
 
 // Ignored via go/ees005
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @atlaskit/volt-strict-mode/no-multiple-exports
 export const layoutToMessages: Record<string, any> = {
 	'wrap-left': toolbarMessages.wrapLeft,
 	center: commonMessages.alignImageCenter,
@@ -353,7 +355,7 @@ const buildLayoutButtons = (
 	allowAlignment = true,
 	isChangingLayoutDisabled?: boolean,
 	allowPixelResizing?: boolean,
-) => {
+): FloatingToolbarItem<Command>[] => {
 	const { selection } = state;
 
 	if (
@@ -414,6 +416,7 @@ const buildLayoutButtons = (
 	return items;
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const buildLayoutDropdown = (
 	state: EditorState,
 	intl: IntlShape,
@@ -495,10 +498,8 @@ const getSelectedLayoutIcon = (layoutIcons: LayoutIcon[], selectedNode: Node) =>
 	);
 };
 
-const getSeparatorBetweenAlignmentAndWrapping = (
-	allowAlignment: boolean,
-	allowWrapping: boolean,
-) => (allowAlignment && allowWrapping ? [{ type: 'separator' } as FloatingToolbarSeparator] : []);
+const getSeparatorBetweenAlignmentAndWrapping = (allowAlignment: boolean, allowWrapping: boolean) =>
+	allowAlignment && allowWrapping ? [{ type: 'separator' } as FloatingToolbarSeparator] : [];
 
 const getSeparatorBeforeBreakoutItems = (
 	allowAlignment: boolean,
@@ -509,4 +510,5 @@ const getSeparatorBeforeBreakoutItems = (
 		? [{ type: 'separator' } as FloatingToolbarSeparator]
 		: [];
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default buildLayoutButtons;

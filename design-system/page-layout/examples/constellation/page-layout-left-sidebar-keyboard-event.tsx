@@ -5,8 +5,12 @@
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import { Content, LeftSidebar, Main, PageLayout } from '@atlaskit/page-layout';
-import { Header, NavigationHeader, SideNavigation } from '@atlaskit/side-navigation';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { Header } from '@atlaskit/side-navigation/header';
+import { NavigationHeader } from '@atlaskit/side-navigation/navigation-header';
+import { SideNavigation } from '@atlaskit/side-navigation/side-navigation';
 
 import { ExpandLeftSidebarKeyboardShortcut, SlotLabel } from '../common';
 

@@ -2,15 +2,20 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
+import { useMemo } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import { useMemo } from 'react';
-import { MediaCardError, type SvgPrimaryReason } from '../../errors';
 
-import { useResolveSvg, MediaSVGError, type MediaSVGErrorReason } from '@atlaskit/media-svg';
-import type { SvgViewProps } from './types';
+import { MediaSVGError, type MediaSVGErrorReason } from '@atlaskit/media-svg/media-svg-error';
+import { useResolveSvg } from '@atlaskit/media-svg/use-resolve-svg';
+
+import type { SvgPrimaryReason } from '../../errors';
+import { MediaCardError } from '../../MediaCardError';
 import { ImageRenderer } from '../ui/imageRenderer/imageRendererV2';
+import type { SvgViewProps } from './types';
 
 const getErrorReason = (svgReason: MediaSVGErrorReason): SvgPrimaryReason => {
 	switch (svgReason) {
@@ -32,6 +37,7 @@ export const SvgView = ({
 	onError,
 	wrapperRef,
 	alt,
+	backgroundColor,
 }: SvgViewProps): React.JSX.Element | null => {
 	const onSvgError = (err: MediaSVGError) => {
 		const error = new MediaCardError(getErrorReason(err.primaryReason), err.secondaryError);
@@ -58,7 +64,8 @@ export const SvgView = ({
 			}}
 			wrapperRef={wrapperRef}
 			mediaType="image"
-			useWhiteBackground
+			useWhiteBackground={!backgroundColor}
+			backgroundColor={backgroundColor}
 		/>
 	) : null;
 };

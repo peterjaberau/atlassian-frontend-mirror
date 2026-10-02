@@ -4,6 +4,7 @@ import type { Selection, Transaction } from '@atlaskit/editor-prosemirror/state'
 import { safeInsert } from '@atlaskit/editor-prosemirror/utils';
 import { TableMap } from '@atlaskit/editor-tables/table-map';
 import { findTable, getSelectionRect, isRowSelected } from '@atlaskit/editor-tables/utils';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { TableCssClassName as ClassName } from '../../types';
 import { tableDeleteButtonSize } from '../../ui/consts';
@@ -18,8 +19,14 @@ export const getRowHeights = (tableRef: HTMLTableElement): number[] => {
 	const heights: number[] = [];
 	const tableBody = tableRef.querySelector('tbody');
 	if (tableBody) {
-		const rows = tableBody.childNodes;
+		// filter out widget children (e.g. anchor widgets) of table body
+		const rows = fg('platform_editor_ai_show_diff_patch_2')
+			? Array.from(tableBody.childNodes).filter(
+					(node): node is HTMLTableRowElement => node instanceof HTMLTableRowElement,
+				)
+			: tableBody.childNodes;
 		for (let i = 0, count = rows.length; i < count; i++) {
+			// remove as cast when cleaning up platform_editor_ai_show_diff_patch_2
 			const row = rows[i] as HTMLTableRowElement;
 			heights[i] = row.getBoundingClientRect().height + 1;
 
@@ -33,6 +40,45 @@ export const getRowHeights = (tableRef: HTMLTableElement): number[] => {
 	}
 
 	return heights;
+};
+
+const getRowNumberLabel = (rowIndex: number, hasHeaderRow?: boolean): number | null => {
+	if (!hasHeaderRow) {
+		return rowIndex + 1;
+	}
+
+	return rowIndex > 0 ? rowIndex : null;
+};
+
+/**
+ * Replacement diff widgets are inserted immediately before their document-row counterpart. Give
+ * the widget the next row number without consuming it, so the counterpart receives the same
+ * label. Other rows consume a number normally.
+ */
+export const getRenderedRowNumberLabels = (
+	tableRef: HTMLTableElement,
+	hasHeaderRow?: boolean,
+): Array<number | null> => {
+	const rowNumberLabels: Array<number | null> = [];
+	const tableBody = tableRef.querySelector('tbody');
+	if (tableBody) {
+		let nextRowIndex = 0;
+		const rows = Array.from(tableBody.childNodes).filter(
+			(node): node is HTMLTableRowElement => node instanceof HTMLTableRowElement,
+		);
+		for (let i = 0, count = rows.length; i < count; i++) {
+			const row = rows[i];
+			if (row.hasAttribute('data-show-diff-table-row-replacement')) {
+				rowNumberLabels.push(getRowNumberLabel(nextRowIndex, hasHeaderRow));
+				continue;
+			}
+
+			const rowIndex = nextRowIndex++;
+			rowNumberLabels.push(getRowNumberLabel(rowIndex, hasHeaderRow));
+		}
+	}
+
+	return rowNumberLabels;
 };
 
 export const getRowDeleteButtonParams = (
@@ -86,6 +132,56 @@ export const getRowsParams = (rowsHeights: Array<number | undefined>): RowParams
 	return rows;
 };
 
+/**
+ * Returns the visual row index that the mouse pointer is over, by walking the row heights
+ * inside `tbody` and finding the row whose vertical range contains `mouseEvent.clientY`.
+ *
+ * When `rowIndexRange` is provided, the search is restricted to rows in that range (the
+ * `endIndex` is exclusive). This is the hot path used on `mousemove` when hovering over a
+ * row-spanned cell — restricting the range to `[startIndex, endIndex)` keeps the number
+ * of forced layout reads bounded by the row-span size, not the table size.
+ *
+ * Returns `undefined` when the mouse is above the search range or below it (so callers can
+ * fall back to the HTML row index).
+ */
+export const getRowIndexByMousePosition = (
+	tableRef: HTMLTableElement,
+	mouseEvent: MouseEvent,
+	rowIndexRange?: { endIndex: number; startIndex: number },
+): number | undefined => {
+	const tableBody = tableRef.querySelector('tbody');
+	if (!tableBody) {
+		return undefined;
+	}
+
+	const rows = tableBody.children;
+	const startIndex = rowIndexRange?.startIndex ?? 0;
+	const endIndex = Math.min(rowIndexRange?.endIndex ?? rows.length, rows.length);
+	if (startIndex >= endIndex) {
+		return undefined;
+	}
+
+	const firstRowRect = (rows[startIndex] as HTMLTableRowElement).getBoundingClientRect();
+	if (mouseEvent.clientY < firstRowRect.top) {
+		return undefined;
+	}
+
+	let rowBottom = firstRowRect.bottom;
+	if (mouseEvent.clientY < rowBottom) {
+		return startIndex;
+	}
+
+	for (let rowIndex = startIndex + 1; rowIndex < endIndex; rowIndex++) {
+		const rowRect = (rows[rowIndex] as HTMLTableRowElement).getBoundingClientRect();
+		rowBottom = rowRect.bottom;
+		if (mouseEvent.clientY < rowBottom) {
+			return rowIndex;
+		}
+	}
+
+	return undefined;
+};
+
 export const getRowClassNames = (
 	index: number,
 	selection: Selection,
@@ -104,7 +200,9 @@ export const getRowClassNames = (
 };
 
 export const copyPreviousRow =
-	(schema: Schema) => (insertNewRowIndex: number) => (tr: Transaction) => {
+	(schema: Schema) =>
+	(insertNewRowIndex: number) =>
+	(tr: Transaction): Transaction => {
 		const table = findTable(tr.selection);
 		if (!table) {
 			return tr;

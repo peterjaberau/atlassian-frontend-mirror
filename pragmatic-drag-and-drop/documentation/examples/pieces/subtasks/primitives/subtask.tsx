@@ -2,14 +2,20 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import {
+	forwardRef,
+	type ForwardRefExoticComponent,
+	type HTMLAttributes,
+	type ReactNode,
+	type RefAttributes,
+} from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, type SerializedStyles } from '@emotion/react';
 
-import Avatar from '@atlaskit/avatar';
-import Badge from '@atlaskit/badge';
-import Lozenge from '@atlaskit/lozenge';
+import Avatar from '@atlaskit/avatar/avatar';
+import Badge from '@atlaskit/badge/badge';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import { token } from '@atlaskit/tokens';
 
 import SubtaskIcon from './subtask-icon';
@@ -97,7 +103,16 @@ export type SubtaskProps = HTMLAttributes<HTMLDivElement> & {
 	isIconHidden?: boolean;
 };
 
-export const Subtask = forwardRef<HTMLDivElement, SubtaskProps>(function Subtask(
+export const Subtask: ForwardRefExoticComponent<
+	HTMLAttributes<HTMLDivElement> & {
+		id: string;
+		title: string;
+		isLastItem?: boolean;
+		appearance?: SubtaskAppearance;
+		elemAfter?: ReactNode;
+		isIconHidden?: boolean;
+	} & RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, SubtaskProps>(function Subtask(
 	{
 		id,
 		title,
@@ -135,7 +150,7 @@ export const Subtask = forwardRef<HTMLDivElement, SubtaskProps>(function Subtask
 			<SubtaskGroup>
 				<Badge>{1}</Badge>
 				<Avatar size="small" />
-				<Lozenge appearance="default">Todo</Lozenge>
+				<Lozenge appearance="neutral">Todo</Lozenge>
 				{elemAfter}
 			</SubtaskGroup>
 		</div>

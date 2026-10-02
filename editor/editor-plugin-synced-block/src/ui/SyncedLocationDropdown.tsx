@@ -2,12 +2,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useState, useEffect } from 'react';
+import { Fragment, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { css, jsx, cssMap, keyframes, cx } from '@compiled/react';
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -15,32 +16,49 @@ import {
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
 import { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
-import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import { SYNCED_BLOCKS_DOCUMENTATION_URL } from '@atlaskit/editor-common/sync-block';
+import type {
+	ExtractInjectionAPI,
+	FloatingToolbarCustomRenderContext,
+} from '@atlaskit/editor-common/types';
 import { FloatingToolbarButton as Button } from '@atlaskit/editor-common/ui';
+import { ArrowKeyNavigationType, DropdownContainer } from '@atlaskit/editor-common/ui-menu';
+import { getPageIdAndTypeFromConfluencePageAri } from '@atlaskit/editor-synced-block-provider';
 import type {
 	SyncBlockSourceInfo,
 	SyncBlockStoreManager,
 	ReferencesSourceInfo,
 	SyncBlockProduct,
 } from '@atlaskit/editor-synced-block-provider';
-import { IconTile } from '@atlaskit/icon';
+import type { SyncBlockJiraIssueType } from '@atlaskit/editor-synced-block-provider/types';
+// eslint-disable-next-line import/order -- CI requires icon-lab imports before core icon imports.
 import PageLiveDocIcon from '@atlaskit/icon-lab/core/page-live-doc';
+import BugIcon from '@atlaskit/icon/core/bug';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
+import EpicIcon from '@atlaskit/icon/core/epic';
 import PageIcon from '@atlaskit/icon/core/page';
 import QuotationMarkIcon from '@atlaskit/icon/core/quotation-mark';
 import StatusErrorIcon from '@atlaskit/icon/core/status-error';
-import { ConfluenceIcon, JiraIcon, AtlassianIcon } from '@atlaskit/logo';
-import Lozenge from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import StoryIcon from '@atlaskit/icon/core/story';
+import SubtaskIcon from '@atlaskit/icon/core/subtasks';
+import TaskIcon from '@atlaskit/icon/core/task';
+import IconTile from '@atlaskit/icon/icon-tile';
+import { ConfluenceIcon, JiraIcon } from '@atlaskit/logo';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { Box, Text, Inline, Anchor, Stack } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import type { SyncedBlockPlugin } from '../syncedBlockPluginType';
+import { SYNCED_BLOCK_BUTTON_TEST_ID } from '../types';
+import { SyncedLocationsEmptyStateIllustration } from './assets/SyncedLocationsEmptyStateIllustration';
 
 interface Props {
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>;
+	floatingToolbarRenderContext?: FloatingToolbarCustomRenderContext;
 	intl: IntlShape;
 	isSource: boolean;
 	localId: string;
@@ -85,6 +103,8 @@ const logoTileStyles = css({
 	justifyContent: 'center',
 });
 
+const SYNCED_LOCATIONS_DROPDOWN_TEST_ID = 'synced-block-synced-locations-dropdown';
+
 const styles = cssMap({
 	title: {
 		color: token('color.text.subtle'),
@@ -100,9 +120,37 @@ const styles = cssMap({
 		marginInlineStart: token('space.075'),
 		minWidth: '60px',
 	},
-	noResultsContainer: {
-		width: '235px',
+	activationDropdownContent: {
+		width: '400px',
+		paddingBlock: token('space.0'),
+	},
+	activationNoResultsContainer: {
+		boxSizing: 'border-box',
+		width: '400px',
+		paddingTop: token('space.300'),
+		paddingBottom: token('space.300'),
+	},
+	activationNoResultsContent: {
+		width: '290px',
+		marginInline: 'auto',
 		textAlign: 'center',
+	},
+	/**
+	 * Jira rows append a field name to the title, so they need more room than a
+	 * Confluence-only list. Matches the width the activation empty state already uses.
+	 */
+	fieldAwareDropdownContent: {
+		width: '400px',
+	},
+	/**
+	 * The field name gets its own line because appending it to the title lost it entirely.
+	 * The title ellipsises first, so at realistic work item summaries nothing was left of
+	 * the field. See the informational VR baseline for this dropdown.
+	 */
+	fieldSecondLine: {
+		whiteSpace: 'nowrap',
+		overflow: 'hidden',
+		textOverflow: 'ellipsis',
 	},
 	dropdownContent: {
 		width: '342px',
@@ -140,6 +188,40 @@ const styles = cssMap({
 });
 
 type FetchStatus = 'none' | 'loading' | 'success' | 'error';
+
+/**
+ * One field-aware dropdown row. Every string the row shows is composed here from the untouched
+ * provider `reference`. Only built with `editor_synced_blocks_jira_custom_rich_text` on.
+ */
+export type SyncedLocationItem = {
+	/**
+	 * Work item or page title, with the untitled fallback and the block index applied.
+	 * Never carries the field name, so the row and the tooltip can place it differently.
+	 */
+	baseTitle: string;
+	/** Jira field holding the block, when the provider resolved one. */
+	fieldName?: string;
+	/** `sourceAri` plus the block's position within that source. */
+	key: string;
+	/** Same-location note shown after the title. */
+	note?: string;
+	reference: SyncBlockSourceInfo;
+};
+
+/** Decided once per fetch. The control shape is what the dropdown held before the experiment. */
+type SyncedLocations =
+	| { kind: 'control'; references: SyncBlockSourceInfo[] }
+	| { items: SyncedLocationItem[]; kind: 'field-aware' };
+
+const EMPTY_LOCATIONS: SyncedLocations = { kind: 'control', references: [] };
+
+const countLocations = (locations: SyncedLocations): number =>
+	locations.kind === 'control' ? locations.references.length : locations.items.length;
+
+interface ReferenceDataState {
+	fetchStatus: FetchStatus;
+	locations: SyncedLocations;
+}
 
 const shouldApplyMinHeight = (fetchStatus: FetchStatus, itemCount: number) => {
 	// When there are 1/2 items, dropdown height is less than minHeight 144px
@@ -198,13 +280,21 @@ const productIconMap = {
 const subTypeIconMap = {
 	live: PageLiveDocIcon,
 	page: PageIcon,
-	blogpost: QuotationMarkIcon,
 };
 
-const getConfluenceSubTypeIcon = (subType?: string | null) => {
-	return subType && subType in subTypeIconMap
-		? subTypeIconMap[subType as keyof typeof subTypeIconMap]
-		: PageIcon;
+const getConfluenceSubTypeIcon = (sourceAri: string, subType?: string | null) => {
+	try {
+		const { type: pageType } = getPageIdAndTypeFromConfluencePageAri({ ari: sourceAri });
+		if (pageType === 'blogpost') {
+			return QuotationMarkIcon;
+		} else {
+			return subType && subType in subTypeIconMap
+				? subTypeIconMap[subType as keyof typeof subTypeIconMap]
+				: PageIcon;
+		}
+	} catch {
+		return PageIcon;
+	}
 };
 
 const ProductIcon = ({ product }: { product?: SyncBlockProduct }) => {
@@ -217,13 +307,85 @@ const ProductIcon = ({ product }: { product?: SyncBlockProduct }) => {
 	);
 };
 
-const ItemIcon = ({ reference }: { reference: SyncBlockSourceInfo }) => {
-	const { hasAccess, subType, productType } = reference;
+// Map AGG issue-type names to ADS icons. The mapping is by the English `name` returned
+// from AGG because Jira's REST/GraphQL API does not localise it at this layer. Custom
+// (non-default) issue types fall through to the AGG `iconUrl`.
+//
+// Type the icons as the same shape as `TaskIcon` so we don't import `NewCoreIconProps`
+// from a private icon entrypoint.
+type IssueTypeIconComponent = typeof TaskIcon;
+const jiraIssueTypeIconMap: Record<
+	string,
+	{ icon: IssueTypeIconComponent; messageKey: keyof typeof messages }
+> = {
+	Task: { icon: TaskIcon, messageKey: 'syncedLocationDropdownIssueTypeTask' },
+	Bug: { icon: BugIcon, messageKey: 'syncedLocationDropdownIssueTypeBug' },
+	Story: { icon: StoryIcon, messageKey: 'syncedLocationDropdownIssueTypeStory' },
+	Epic: { icon: EpicIcon, messageKey: 'syncedLocationDropdownIssueTypeEpic' },
+	Subtask: { icon: SubtaskIcon, messageKey: 'syncedLocationDropdownIssueTypeSubtask' },
+	'Sub-task': { icon: SubtaskIcon, messageKey: 'syncedLocationDropdownIssueTypeSubtask' },
+};
+
+/**
+ * Creates an icon component from a custom Jira issue-type `iconUrl` that conforms to the
+ * ADS icon component contract expected by `IconTile`. This lets us reuse `IconTile` for
+ * custom issue types — ensuring consistent sizing, background, and border-radius with the
+ * standard ADS icons used for known issue types (Bug, Story, etc.).
+ *
+ * The returned component ignores ADS icon props (color, spacing, etc.) because the image
+ * is an external raster/SVG asset that doesn't respond to design tokens.
+ */
+const customIconCache = new Map<string, IssueTypeIconComponent>();
+
+const createCustomIssueTypeIcon = (iconUrl: string): IssueTypeIconComponent => {
+	const cached = customIconCache.get(iconUrl);
+	if (cached) {
+		return cached;
+	}
+	const CustomIssueTypeIcon = () => <img src={iconUrl} alt="" width="12" height="12" />;
+	CustomIssueTypeIcon.displayName = 'CustomIssueTypeIcon';
+	customIconCache.set(iconUrl, CustomIssueTypeIcon);
+	return CustomIssueTypeIcon;
+};
+
+/**
+ * Returns the icon to render for a Jira issue type, or `null` when neither an ADS icon
+ * mapping nor an AGG-provided `iconUrl` is available so the caller can fall back to a
+ * generic product icon.
+ *
+ * Implemented as a plain function (not a React component) so the `null` check actually
+ * narrows — a JSX expression always evaluates to a truthy `ReactElement` object,
+ * meaning callers cannot distinguish a "would render nothing" component from one that
+ * renders an icon.
+ */
+const renderJiraIssueTypeIcon = (
+	issueType: SyncBlockJiraIssueType,
+	intl: IntlShape,
+): ReactNode | null => {
+	const mapped = jiraIssueTypeIconMap[issueType.name];
+	if (mapped) {
+		const label = intl.formatMessage(messages[mapped.messageKey]);
+		return <IconTile icon={mapped.icon} label={label} appearance={'gray'} size="xsmall" />;
+	}
+
+	// Custom Jira issue types — render inside `IconTile` using a wrapper component so the
+	// icon gets the same tile background, border-radius, and sizing as known issue types.
+	if (issueType.iconUrl) {
+		const CustomIcon = createCustomIssueTypeIcon(issueType.iconUrl);
+		const label = intl.formatMessage(messages.syncedLocationDropdownIssueTypeGeneric);
+		return <IconTile icon={CustomIcon} label={label} appearance={'gray'} size="xsmall" />;
+	}
+
+	return null;
+};
+
+const ItemIcon = ({ reference, intl }: { intl: IntlShape; reference: SyncBlockSourceInfo }) => {
+	const { hasAccess, subType, productType, sourceAri, issueType } = reference;
 
 	if (productType === 'confluence-page' && hasAccess) {
 		return (
 			<IconTile
-				icon={getConfluenceSubTypeIcon(subType)}
+				icon={getConfluenceSubTypeIcon(sourceAri, subType)}
 				label=""
 				appearance={'gray'}
 				size="xsmall"
@@ -231,13 +393,26 @@ const ItemIcon = ({ reference }: { reference: SyncBlockSourceInfo }) => {
 		);
 	}
 
+	// Render a Jira issue-type icon when we have one.
+	// Falls through to the generic product icon when:
+	//   - we don't have access (issueType is not surfaced for no-access references),
+	//   - AGG returned no `issueType` (partial index, deleted, etc.), or
+	//   - the issue type is unrecognised AND has no `iconUrl`.
+	if (productType === 'jira-work-item' && hasAccess && issueType) {
+		const icon = renderJiraIssueTypeIcon(issueType, intl);
+		if (icon !== null) {
+			return icon;
+		}
+	}
+
+	// Generic product fallback for `jira-work-item` (and any future product).
 	return <ProductIcon product={productType} />;
 };
 
 export const processReferenceData = (
 	referenceData: ReferencesSourceInfo['references'],
 	intl: IntlShape,
-) => {
+): SyncBlockSourceInfo[] => {
 	const { formatMessage } = intl;
 	const sourceInfoMap: SourceInfoMap = new Map();
 	referenceData?.forEach((reference) => {
@@ -255,10 +430,13 @@ export const processReferenceData = (
 		if (references.length > 1) {
 			references.forEach(
 				(reference, index) =>
-					(reference.title = `${reference.title}: ${formatMessage(
-						messages.syncedLocationDropdownTitleBlockIndex,
-						{ index: index + 1 },
-					)}`),
+					(reference.title = `${
+						reference.title === '' && reference.hasAccess
+							? formatMessage(messages.syncedLocationDropdownUntitledPage)
+							: reference.title
+					}: ${formatMessage(messages.syncedLocationDropdownTitleBlockIndex, {
+						index: index + 1,
+					})}`),
 			);
 		}
 	}
@@ -280,6 +458,132 @@ export const processReferenceData = (
 	return sortedReferences;
 };
 
+const isFieldAwareLocationList = (references: ReferencesSourceInfo['references']): boolean =>
+	(references?.some((reference) => reference?.productType === 'jira-work-item') ?? false) &&
+	isExperimentEnabled('editor_synced_blocks_jira_custom_rich_text');
+
+const groupBySourceAri = (
+	referenceData: ReferencesSourceInfo['references'],
+): Map<string, SyncBlockSourceInfo[]> => {
+	const groups = new Map<string, SyncBlockSourceInfo[]>();
+	referenceData?.forEach((reference) => {
+		if (!reference) {
+			return;
+		}
+		const group = groups.get(reference.sourceAri);
+		if (group) {
+			group.push(reference);
+		} else {
+			groups.set(reference.sourceAri, [reference]);
+		}
+	});
+	return groups;
+};
+
+/** Sources first, then accessible locations. `0` leaves the title order to the caller. */
+const compareLocationOrder = (a: SyncBlockSourceInfo, b: SyncBlockSourceInfo): number => {
+	if (a.isSource !== b.isSource) {
+		return b.isSource ? 1 : -1;
+	}
+
+	if (a.hasAccess !== b.hasAccess) {
+		return a.hasAccess ? -1 : 1;
+	}
+
+	return 0;
+};
+
+/** The title alone. The field name is placed by the row and the tooltip, not baked in here. */
+const getBaseTitle = ({
+	blockIndex,
+	formatMessage,
+	reference,
+}: {
+	/** 1-based position within the source. Set only when several blocks share a `sourceAri`. */
+	blockIndex: number | undefined;
+	formatMessage: IntlShape['formatMessage'];
+	reference: SyncBlockSourceInfo;
+}): string => {
+	const title =
+		reference.title === '' && reference.hasAccess
+			? formatMessage(messages.syncedLocationDropdownUntitledPage)
+			: reference.title || reference.url || '';
+
+	return blockIndex === undefined
+		? title
+		: `${title}: ${formatMessage(messages.syncedLocationDropdownTitleBlockIndex, {
+				index: blockIndex,
+			})}`;
+};
+
+/** Jira rows are noted from `locationScope`; other rows keep the pre-experiment `onSameDocument` note. */
+const getFieldAwareNote = (
+	reference: SyncBlockSourceInfo,
+	formatMessage: IntlShape['formatMessage'],
+): string | undefined => {
+	if (reference.productType !== 'jira-work-item') {
+		if (!reference.onSameDocument) {
+			return undefined;
+		}
+		return formatMessage(
+			reference.productType === 'confluence-page'
+				? messages.syncedLocationDropdownTitleNoteForConfluencePage
+				: messages.syncedLocationDropdownTitleNoteForJiraWorkItem,
+		);
+	}
+
+	// A provider that computes no scope still reports `onSameDocument`. It is the same host
+	// comparison `getLocationScope` starts with, and in Jira the host document is one field.
+	const locationScope =
+		reference.locationScope ?? (reference.onSameDocument ? 'same-document' : undefined);
+
+	switch (locationScope) {
+		case 'same-document':
+			return formatMessage(messages.syncedLocationDropdownTitleNoteForJiraWorkItemField);
+		case 'same-parent-document':
+			return formatMessage(messages.syncedLocationDropdownTitleNoteForJiraWorkItem);
+		default:
+			return undefined;
+	}
+};
+
+export const buildFieldAwareItems = (
+	referenceData: ReferencesSourceInfo['references'],
+	formatMessage: IntlShape['formatMessage'],
+): SyncedLocationItem[] =>
+	Array.from(groupBySourceAri(referenceData).values())
+		.flatMap((group) =>
+			group.map((reference, index) => {
+				const fieldName =
+					reference.productType === 'jira-work-item' ? reference.fieldName : undefined;
+				const note = getFieldAwareNote(reference, formatMessage);
+
+				return {
+					baseTitle: getBaseTitle({
+						blockIndex: group.length > 1 ? index + 1 : undefined,
+						formatMessage,
+						reference,
+					}),
+					...(fieldName !== undefined && { fieldName }),
+					key: `${reference.sourceAri}#${index}`,
+					...(note !== undefined && { note }),
+					reference,
+				};
+			}),
+		)
+		.sort(
+			(a, b) =>
+				compareLocationOrder(a.reference, b.reference) || a.baseTitle.localeCompare(b.baseTitle),
+		);
+
+const toSyncedLocations = (
+	references: ReferencesSourceInfo['references'],
+	intl: IntlShape,
+): SyncedLocations =>
+	isFieldAwareLocationList(references)
+		? { kind: 'field-aware', items: buildFieldAwareItems(references, intl.formatMessage) }
+		: { kind: 'control', references: processReferenceData(references, intl) };
+
 export const SyncedLocationDropdown = ({
 	syncBlockStore,
 	resourceId,
@@ -287,53 +591,211 @@ export const SyncedLocationDropdown = ({
 	isSource,
 	localId,
 	api,
+	floatingToolbarRenderContext,
 }: Props): JSX.Element => {
-	const { formatMessage } = intl;
-	const triggerTitle = formatMessage(messages.syncedLocationDropdownTitle);
+	return (
+		<EditorPositionedSyncedLocationDropdown
+			syncBlockStore={syncBlockStore}
+			resourceId={resourceId}
+			intl={intl}
+			isSource={isSource}
+			localId={localId}
+			api={api}
+			floatingToolbarRenderContext={floatingToolbarRenderContext}
+		/>
+	);
+};
+
+const EditorPositionedSyncedLocationDropdown = ({
+	syncBlockStore,
+	resourceId,
+	intl,
+	isSource,
+	localId,
+	api,
+	floatingToolbarRenderContext,
+}: Props): JSX.Element => {
+	const triggerTitle = intl.formatMessage(messages.syncedLocationDropdownTitle);
 	const [isOpen, setIsOpen] = useState(false);
 
+	const content = isOpen ? (
+		<DropdownContent
+			syncBlockStore={syncBlockStore}
+			resourceId={resourceId}
+			intl={intl}
+			isSource={isSource}
+			localId={localId}
+			api={api}
+		/>
+	) : null;
+
+	const toggleOpen = useCallback(() => {
+		setIsOpen((currentIsOpen) => !currentIsOpen);
+	}, []);
+
+	const closeDropdown = useCallback(() => {
+		setIsOpen(false);
+	}, []);
+
+	const setDisableParentScroll = floatingToolbarRenderContext?.setDisableParentScroll;
+
+	useEffect(() => {
+		if (!isOpen) {
+			return;
+		}
+
+		setDisableParentScroll?.(true);
+
+		return () => {
+			setDisableParentScroll?.(false);
+		};
+	}, [isOpen, setDisableParentScroll]);
+
+	const trigger = useMemo(
+		() => (
+			<Button
+				areAnyNewToolbarFlagsEnabled={true}
+				testId={SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarSyncedLocationsTrigger}
+				selected={isOpen}
+				iconAfter={
+					<ChevronDownIcon color="currentColor" spacing="spacious" label="" size="small" />
+				}
+				onClick={toggleOpen}
+				ariaHasPopup
+			>
+				{triggerTitle}
+			</Button>
+		),
+		[isOpen, toggleOpen, triggerTitle],
+	);
+
 	return (
-		<DropdownMenu
+		<DropdownContainer
+			testId={SYNCED_LOCATIONS_DROPDOWN_TEST_ID}
 			isOpen={isOpen}
-			onOpenChange={({ isOpen }) => setIsOpen(isOpen)}
-			testId={
-				fg('platform_synced_block_patch_1') ? 'synced-block-synced-locations-dropdown' : undefined
-			}
-			trigger={({ triggerRef, ...triggerProps }) => (
-				<Button
-					ref={triggerRef}
-					areAnyNewToolbarFlagsEnabled={true}
-					selected={fg('platform_synced_block_patch_1') ? isOpen : undefined}
-					iconAfter={
-						<ChevronDownIcon color="currentColor" spacing="spacious" label="" size="small" />
-					}
-					// eslint-disable-next-line react/jsx-props-no-spreading
-					{...triggerProps}
-				>
-					{triggerTitle}
-				</Button>
-			)}
+			trigger={trigger}
+			handleClickOutside={closeDropdown}
+			handleEscapeKeydown={closeDropdown}
+			mountTo={floatingToolbarRenderContext?.popupsMountPoint}
+			boundariesElement={floatingToolbarRenderContext?.popupsBoundariesElement}
+			scrollableElement={floatingToolbarRenderContext?.popupsScrollableElement}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+			arrowKeyNavigationProviderOptions={{ type: ArrowKeyNavigationType.MENU }}
 		>
-			{isOpen && (
-				<DropdownContent
-					syncBlockStore={syncBlockStore}
-					resourceId={resourceId}
+			{content}
+		</DropdownContainer>
+	);
+};
+
+export const SyncedLocationDropdownWithCount = ({
+	syncBlockStore,
+	resourceId,
+	intl,
+	isSource,
+	localId,
+	api,
+	floatingToolbarRenderContext,
+}: Props): JSX.Element => {
+	const [isOpen, setIsOpen] = useState(false);
+	const { fetchStatus, locations } = useReferenceData({
+		intl,
+		isSource,
+		localId,
+		resourceId,
+		syncBlockStore,
+	});
+	const referenceCount = useMemo(() => {
+		switch (locations.kind) {
+			case 'control':
+				return locations.references.filter(({ isSource: isSourceItem }) => !isSourceItem).length;
+			case 'field-aware':
+				return locations.items.filter(({ reference }) => !reference.isSource).length;
+		}
+	}, [locations]);
+	const tooltipContent =
+		!isOpen && fetchStatus === 'success' && referenceCount === 0
+			? intl.formatMessage(messages.syncedLocationDropdownNoReferencesTooltip)
+			: null;
+	const content = isOpen ? (
+		<DropdownContentWithReferenceData
+			resourceId={resourceId}
+			intl={intl}
+			api={api}
+			fetchStatus={fetchStatus}
+			locations={locations}
+		/>
+	) : null;
+
+	const toggleOpen = useCallback(() => {
+		setIsOpen((currentIsOpen) => !currentIsOpen);
+	}, []);
+
+	const closeDropdown = useCallback(() => {
+		setIsOpen(false);
+	}, []);
+
+	const setDisableParentScroll = floatingToolbarRenderContext?.setDisableParentScroll;
+
+	useEffect(() => {
+		if (!isOpen) {
+			return;
+		}
+
+		setDisableParentScroll?.(true);
+
+		return () => {
+			setDisableParentScroll?.(false);
+		};
+	}, [isOpen, setDisableParentScroll]);
+
+	const trigger = useMemo(
+		() => (
+			<Button
+				areAnyNewToolbarFlagsEnabled={true}
+				testId={SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarSyncedLocationsTrigger}
+				selected={isOpen}
+				iconAfter={
+					<ChevronDownIcon color="currentColor" spacing="spacious" label="" size="small" />
+				}
+				onClick={toggleOpen}
+				ariaHasPopup
+				tooltipContent={tooltipContent ?? undefined}
+			>
+				<SyncedLocationTriggerContent
 					intl={intl}
-					isSource={isSource}
-					localId={localId}
-					api={api}
+					fetchStatus={fetchStatus}
+					referenceCount={referenceCount}
 				/>
-			)}
-		</DropdownMenu>
+			</Button>
+		),
+		[fetchStatus, intl, isOpen, referenceCount, toggleOpen, tooltipContent],
+	);
+
+	return (
+		<DropdownContainer
+			alignDropdownWithParentElement
+			alignX="left"
+			testId={SYNCED_LOCATIONS_DROPDOWN_TEST_ID}
+			isOpen={isOpen}
+			trigger={trigger}
+			handleClickOutside={closeDropdown}
+			handleEscapeKeydown={closeDropdown}
+			mountTo={floatingToolbarRenderContext?.popupsMountPoint}
+			boundariesElement={floatingToolbarRenderContext?.popupsBoundariesElement}
+			scrollableElement={floatingToolbarRenderContext?.popupsScrollableElement}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+			arrowKeyNavigationProviderOptions={{ type: ArrowKeyNavigationType.MENU }}
+		>
+			{content}
+		</DropdownContainer>
 	);
 };
 
 type SourceInfoMap = Map<string, SyncBlockSourceInfo[]>;
 
 const DropdownContent = ({ syncBlockStore, resourceId, intl, isSource, localId, api }: Props) => {
-	const { formatMessage } = intl;
 	const [fetchStatus, setFetchStatus] = useState<FetchStatus>('none');
-	const [referenceData, setReferenceData] = useState<SyncBlockSourceInfo[]>([]);
+	const [locations, setLocations] = useState<SyncedLocations>(EMPTY_LOCATIONS);
 
 	useEffect(() => {
 		setFetchStatus('loading');
@@ -349,34 +811,149 @@ const DropdownContent = ({ syncBlockStore, resourceId, intl, isSource, localId, 
 				setFetchStatus('error');
 				return;
 			}
-			setReferenceData(processReferenceData(response.references, intl));
+			setLocations(toSyncedLocations(response.references, intl));
 			setFetchStatus('success');
 		};
-		getReferenceData();
+		void getReferenceData();
 	}, [syncBlockStore, intl, isSource, localId, resourceId]);
 
-	const handleLocationClick = () => {
-		if (fg('platform_synced_block_patch_1')) {
-			api?.analytics?.actions?.fireAnalyticsEvent({
-				eventType: EVENT_TYPE.OPERATIONAL,
-				action: ACTION.CLICKED,
-				actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
-				actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_CLICK_SYNCED_LOCATION,
-				attributes: {
-					resourceId,
-				},
+	return (
+		<DropdownContentWithReferenceData
+			resourceId={resourceId}
+			intl={intl}
+			api={api}
+			fetchStatus={fetchStatus}
+			locations={locations}
+		/>
+	);
+};
+
+const useReferenceData = ({
+	syncBlockStore,
+	resourceId,
+	intl,
+	isSource,
+	localId,
+}: Pick<
+	Props,
+	'syncBlockStore' | 'resourceId' | 'intl' | 'isSource' | 'localId'
+>): ReferenceDataState => {
+	const [isNewSourceBlock] = useState(
+		() => isSource && syncBlockStore.sourceManager.isNewSourceBlock(resourceId),
+	);
+	const [state, setState] = useState<{
+		fetchStatus: FetchStatus;
+		locations: SyncedLocations;
+	}>(() => ({
+		fetchStatus: isNewSourceBlock ? 'success' : 'loading',
+		locations: EMPTY_LOCATIONS,
+	}));
+
+	useEffect(() => {
+		let isCurrentRequest = true;
+		setState({
+			fetchStatus: isNewSourceBlock ? 'success' : 'loading',
+			locations: EMPTY_LOCATIONS,
+		});
+
+		const getReferenceData = async () => {
+			const response = await syncBlockStore.fetchReferencesSourceInfo(
+				resourceId,
+				localId,
+				isSource,
+			);
+
+			if (!isCurrentRequest) {
+				return;
+			}
+
+			if (isNewSourceBlock) {
+				syncBlockStore.sourceManager.clearNewSourceBlock(resourceId);
+			}
+			if (response.error) {
+				setState({ fetchStatus: 'error', locations: EMPTY_LOCATIONS });
+				return;
+			}
+			setState({
+				fetchStatus: 'success',
+				locations: toSyncedLocations(response.references, intl),
 			});
+		};
+
+		void getReferenceData();
+
+		return () => {
+			isCurrentRequest = false;
+		};
+	}, [syncBlockStore, resourceId, intl, isSource, localId, isNewSourceBlock]);
+
+	return {
+		fetchStatus: state.fetchStatus,
+		locations: state.locations,
+	};
+};
+
+const SyncedLocationTriggerContent = ({
+	intl,
+	fetchStatus,
+	referenceCount,
+}: Pick<ReferenceDataState, 'fetchStatus'> & { intl: IntlShape; referenceCount: number }) => {
+	const { formatMessage } = intl;
+	const triggerTitle = formatMessage(messages.syncedLocationDropdownTitle);
+	const syncedLocationCount = referenceCount === 0 ? 0 : referenceCount + 1;
+
+	switch (fetchStatus) {
+		case 'loading':
+			return (
+				<Inline alignBlock="center" space="space.050">
+					{triggerTitle}
+					<Spinner size="small" label={formatMessage(messages.syncedLocationDropdownLoading)} />
+				</Inline>
+			);
+		case 'success': {
+			const count = syncedLocationCount > 99 ? '99+' : intl.formatNumber(syncedLocationCount);
+
+			return formatMessage(messages.syncedLocationDropdownTitleWithCount, { count });
 		}
+		case 'none':
+		case 'error':
+			return triggerTitle;
+	}
+};
+
+type DropdownContentProps = Pick<Props, 'resourceId' | 'intl' | 'api'> &
+	Pick<ReferenceDataState, 'fetchStatus' | 'locations'>;
+
+const DropdownContentWithReferenceData = ({
+	resourceId,
+	intl,
+	api,
+	fetchStatus,
+	locations,
+}: DropdownContentProps) => {
+	const { formatMessage } = intl;
+	const locationCount = countLocations(locations);
+
+	const handleLocationClick = () => {
+		api?.analytics?.actions?.fireAnalyticsEvent({
+			eventType: EVENT_TYPE.OPERATIONAL,
+			action: ACTION.CLICKED,
+			actionSubject: ACTION_SUBJECT.SYNCED_BLOCK,
+			actionSubjectId: ACTION_SUBJECT_ID.SYNCED_BLOCK_CLICK_SYNCED_LOCATION,
+			attributes: {
+				resourceId,
+			},
+		});
 	};
 
 	const content = () => {
 		switch (fetchStatus) {
 			case 'loading':
-				return <LoadingScreen />;
+				return <LoadingScreen formatMessage={formatMessage} />;
 			case 'error':
 				return <ErrorScreen formatMessage={formatMessage} />;
 			case 'success':
-				if (referenceData.length > 0) {
+				if (locationCount > 0) {
 					return (
 						<div
 							css={[styles.contentContainer, headingStyles]}
@@ -384,31 +961,22 @@ const DropdownContent = ({ syncBlockStore, resourceId, intl, isSource, localId, 
 						>
 							<DropdownItemGroup
 								title={formatMessage(messages.syncedLocationDropdownHeading, {
-									count: `${referenceData.length > 99 ? '99+' : referenceData.length}`,
+									count: `${locationCount > 99 ? '99+' : locationCount}`,
 								})}
 							>
-								{referenceData.map((reference) => (
-									<div key={reference.title} css={dropdownItemStyles}>
-										<Tooltip content={reference.title || reference.url || ''}>
-											<DropdownItem
-												elemBefore={<ItemIcon reference={reference} />}
-												href={reference.url}
-												target="_blank"
-												key={reference.title}
-												onClick={() => handleLocationClick()}
-											>
-												<ItemTitle
-													title={reference.title || reference.url || ''}
-													formatMessage={formatMessage}
-													onSameDocument={reference.onSameDocument}
-													isSource={reference.isSource}
-													hasAccess={reference.hasAccess}
-													productType={reference.productType}
-												/>
-											</DropdownItem>
-										</Tooltip>
-									</div>
-								))}
+								{locations.kind === 'field-aware' ? (
+									<FieldAwareLocationRows
+										items={locations.items}
+										intl={intl}
+										handleLocationClick={handleLocationClick}
+									/>
+								) : (
+									<ControlLocationRows
+										referenceData={locations.references}
+										intl={intl}
+										handleLocationClick={handleLocationClick}
+									/>
+								)}
 							</DropdownItemGroup>
 						</div>
 					);
@@ -422,7 +990,9 @@ const DropdownContent = ({ syncBlockStore, resourceId, intl, isSource, localId, 
 		<Box
 			xcss={cx(
 				styles.dropdownContent,
-				shouldApplyMinHeight(fetchStatus, referenceData.length) && styles.containerWithMinHeight,
+				locations.kind === 'field-aware' && styles.fieldAwareDropdownContent,
+				fetchStatus === 'success' && locationCount === 0 && styles.activationDropdownContent,
+				shouldApplyMinHeight(fetchStatus, locationCount) && styles.containerWithMinHeight,
 			)}
 		>
 			{content()}
@@ -430,22 +1000,160 @@ const DropdownContent = ({ syncBlockStore, resourceId, intl, isSource, localId, 
 	);
 };
 
-const LoadingScreen = () => {
+type LocationRowsProps = {
+	handleLocationClick: () => void;
+	intl: IntlShape;
+};
+
+// The pre-experiment rows. This block is master's, moved into a component; remove with the experiment.
+const ControlLocationRows = ({
+	referenceData,
+	intl,
+	handleLocationClick,
+}: LocationRowsProps & { referenceData: SyncBlockSourceInfo[] }) => {
+	const { formatMessage } = intl;
+
+	return (
+		<Fragment>
+			{referenceData.map((reference) => {
+				const title =
+					reference.title === '' && reference.hasAccess
+						? formatMessage(messages.syncedLocationDropdownUntitledPage)
+						: reference.title || reference.url || '';
+
+				return (
+					<div key={reference.title} css={dropdownItemStyles}>
+						<Tooltip content={title}>
+							<DropdownItem
+								elemBefore={<ItemIcon reference={reference} intl={intl} />}
+								href={reference.url}
+								target="_blank"
+								key={reference.title}
+								rel="noopener noreferrer"
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+								onClick={() => handleLocationClick()}
+							>
+								<ItemTitle
+									title={title}
+									formatMessage={formatMessage}
+									onSameDocument={reference.onSameDocument}
+									isSource={reference.isSource}
+									hasAccess={reference.hasAccess}
+									productType={reference.productType}
+								/>
+							</DropdownItem>
+						</Tooltip>
+					</div>
+				);
+			})}
+		</Fragment>
+	);
+};
+
+const FieldAwareItemTitle = ({
+	item: { baseTitle, fieldName, note, reference },
+	formatMessage,
+}: {
+	formatMessage: IntlShape['formatMessage'];
+	item: SyncedLocationItem;
+}) => {
+	const titleLine = (
+		<Inline>
+			<Box as="span" xcss={styles.title}>
+				{baseTitle}
+			</Box>
+			{note && (
+				<Box as="span" xcss={styles.note}>
+					&nbsp;- {note}
+				</Box>
+			)}
+			{reference.isSource && (
+				<Box as="span" xcss={styles.lozenge}>
+					<Lozenge>{formatMessage(messages.syncedLocationDropdownSourceLozenge)}</Lozenge>
+				</Box>
+			)}
+			{!reference.hasAccess && (
+				<Box as="span" xcss={styles.requestAccess}>
+					{formatMessage(messages.syncedLocationDropdownRequestAccess)}
+				</Box>
+			)}
+		</Inline>
+	);
+
+	if (fieldName === undefined) {
+		return titleLine;
+	}
+
+	// AGG localises the field name, so it is shown as given rather than wrapped in a message.
+	return (
+		<Stack>
+			{titleLine}
+			<Box as="span" xcss={styles.fieldSecondLine}>
+				<Text size="small" color="color.text.subtlest">
+					{fieldName}
+				</Text>
+			</Box>
+		</Stack>
+	);
+};
+
+const FieldAwareLocationRows = ({
+	items,
+	intl,
+	handleLocationClick,
+}: LocationRowsProps & { items: SyncedLocationItem[] }) => {
+	const { formatMessage } = intl;
+
+	return (
+		<Fragment>
+			{items.map((item) => (
+				<div key={item.key} css={dropdownItemStyles}>
+					<Tooltip
+						content={
+							item.fieldName ? (
+								// Two lines in the tooltip's own text flow. Wrapping them in `Text` would
+								// default to `font.body` and override the container's `font.body.small`,
+								// so the field-aware tooltip would not match every other one.
+								<Fragment>
+									{item.baseTitle}
+									<br />
+									{formatMessage(messages.syncedLocationDropdownTooltipFieldName, {
+										fieldName: item.fieldName,
+									})}
+								</Fragment>
+							) : (
+								item.baseTitle
+							)
+						}
+					>
+						<DropdownItem
+							elemBefore={<ItemIcon reference={item.reference} intl={intl} />}
+							href={item.reference.url}
+							target="_blank"
+							rel="noopener noreferrer"
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+							onClick={() => handleLocationClick()}
+						>
+							<FieldAwareItemTitle item={item} formatMessage={formatMessage} />
+						</DropdownItem>
+					</Tooltip>
+				</div>
+			))}
+		</Fragment>
+	);
+};
+
+const LoadingScreen = ({ formatMessage }: { formatMessage: IntlShape['formatMessage'] }) => {
 	return (
 		<Box>
-			<Spinner></Spinner>
+			<Spinner label={formatMessage(messages.syncedLocationDropdownLoading)} />
 		</Box>
 	);
 };
 
 const ErrorScreen = ({ formatMessage }: { formatMessage: IntlShape['formatMessage'] }) => {
 	return (
-		<Box
-			xcss={styles.errorContainer}
-			testId={
-				fg('platform_synced_block_patch_1') ? 'synced-locations-dropdown-content-error' : undefined
-			}
-		>
+		<Box xcss={styles.errorContainer} testId="synced-locations-dropdown-content-error">
 			<Box xcss={styles.errorIcon}>
 				<StatusErrorIcon
 					color={token('color.icon.danger')}
@@ -463,25 +1171,24 @@ const ErrorScreen = ({ formatMessage }: { formatMessage: IntlShape['formatMessag
 
 const NoResultScreen = ({ formatMessage }: { formatMessage: IntlShape['formatMessage'] }) => {
 	return (
-		<Stack
-			xcss={styles.noResultsContainer}
-			space="space.100"
-			testId={
-				fg('platform_synced_block_patch_1')
-					? 'synced-locations-dropdown-content-no-results'
-					: undefined
-			}
+		<Box
+			xcss={styles.activationNoResultsContainer}
+			testId="synced-locations-dropdown-content-no-results"
 		>
-			<Text as="p">{formatMessage(messages.syncedLocationDropdownNoResults)}</Text>
-			<Text as="p">
-				<Anchor
-					href="https://hello.atlassian.net/wiki/x/tAtCeAE"
-					target="_blank"
-					xcss={styles.learnMoreLink}
-				>
-					{formatMessage(messages.syncedLocationDropdownLearnMoreLink)}
-				</Anchor>
-			</Text>
-		</Stack>
+			<Stack alignInline="center" xcss={styles.activationNoResultsContent} space="space.150">
+				<SyncedLocationsEmptyStateIllustration />
+				<Text as="p">{formatMessage(messages.syncedLocationDropdownActivationNoResults)}</Text>
+				<Text as="p">
+					<Anchor
+						href={SYNCED_BLOCKS_DOCUMENTATION_URL}
+						target="_blank"
+						rel="noopener noreferrer"
+						xcss={styles.learnMoreLink}
+					>
+						{formatMessage(messages.syncedLocationDropdownLearnMoreLink)}
+					</Anchor>
+				</Text>
+			</Stack>
+		</Box>
 	);
 };

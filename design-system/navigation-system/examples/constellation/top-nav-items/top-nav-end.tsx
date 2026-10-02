@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Badge from '@atlaskit/badge';
+import Badge from '@atlaskit/badge/badge';
 import { Help } from '@atlaskit/navigation-system';
 import { TopNavEnd } from '@atlaskit/navigation-system/layout/top-nav';
 import { Notifications, Settings } from '@atlaskit/navigation-system/top-nav-items';
@@ -13,7 +13,7 @@ export function TopNavEndLayoutExample(): React.JSX.Element {
 			<TopNavEnd>
 				<Notifications
 					label="Notifications"
-					badge={() => <Badge appearance="important">{3}</Badge>}
+					badge={() => <Badge appearance="dangerBold">{3}</Badge>}
 				/>
 				<Help label="Help" />
 				<Settings label="Settings" />

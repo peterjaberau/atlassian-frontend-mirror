@@ -1,30 +1,34 @@
 import { Device, type Hooks, snapshot } from '@af/visual-regression';
+// oxlint-disable-next-line @atlassian/no-restricted-imports
 import type { SnapshotTestOptions } from '@atlassian/gemini';
 
-import TopNavCustomProfileImage from '../../../../../examples/top-nav-custom-profile-image';
-import TopNavSideNavCollapsed from '../../../../../examples/top-nav-side-nav-collapsed';
-import {
-	SearchRightElem,
-	TopNavigationEnlargedSearchInput,
-	TopNavigationExample,
-} from '../../../../../examples/top-navigation';
-import { TopNavigationAppLogoOversizeExample } from '../../../../../examples/top-navigation-app-logos';
+import TopNavCustomProfileImage from '../../../../../examples/top-nav-custom-profile-image.vr.ap';
+import TopNavSideNavCollapsed from '../../../../../examples/top-nav-side-nav-collapsed.vr.ap';
+import TopNavigationAppLogoSecondaryNameExample from '../../../../../examples/top-navigation-app-logo-secondary-name.vr.ap';
+import { TopNavigationAppLogoOversizeExample } from '../../../../../examples/top-navigation-app-logos.vr.ap';
+import TopNavigationCustomAppSwitcherExample from '../../../../../examples/top-navigation-custom-app-switcher.vr.ap';
 import {
 	TopNavigationCustomLogoExample,
 	TopNavigationCustomLogoImage200x200Example,
 	TopNavigationCustomLogoImage200x20Example,
 	TopNavigationCustomLogoImage20x200Example,
 	TopNavigationCustomLogoImage20x20Example,
-} from '../../../../../examples/top-navigation-custom-logo';
-import TopNavigationThemedButtonsExample from '../../../../../examples/top-navigation-themed-buttons';
+} from '../../../../../examples/top-navigation-custom-logo.vr.ap';
+import TopNavigationThemedButtonsExample from '../../../../../examples/top-navigation-themed-buttons.vr.ap';
+import { TopNavigationThemingLoggedOutExample } from '../../../../../examples/top-navigation-theming-logged-out.vr.ap';
+import { TopNavigationThemingWithPickerExampleRed } from '../../../../../examples/top-navigation-theming-with-picker.vr.ap';
 import {
 	TopNavigationThemingExample,
 	TopNavigationThemingHSLExample,
 	TopNavigationThemingRGBExample,
 	TopNavigationThemingSingleExample,
 	TopNavigationThemingSingleExampleCustomLogo,
-} from '../../../../../examples/top-navigation-theming';
-import { TopNavigationThemingLoggedOutExample } from '../../../../../examples/top-navigation-theming-logged-out';
+} from '../../../../../examples/top-navigation-theming.vr.ap';
+import {
+	SearchRightElem,
+	TopNavigationEnlargedSearchInput,
+	TopNavigationExample,
+} from '../../../../../examples/top-navigation.vr.ap';
 
 const variants = {
 	desktop: {
@@ -125,9 +129,29 @@ snapshot(TopNavigationCustomLogoImage200x20Example, defaultOptions);
 snapshot(TopNavigationCustomLogoImage20x200Example, defaultOptions);
 snapshot(TopNavigationCustomLogoImage20x20Example, defaultOptions);
 
-snapshot(TopNavigationAppLogoOversizeExample, {
-	...defaultOptions,
-	featureFlags: { 'platform-dst-nav-app-icon-height-fix': [true, false] },
+snapshot(TopNavigationAppLogoOversizeExample, defaultOptions);
+
+snapshot(TopNavigationAppLogoSecondaryNameExample, {
+	description: 'app logo secondaryName when improvements gate is on',
+	variants: [variants.desktop],
+	featureFlags: {
+		platform_dst_ads_appswitcher_improvements: true,
+	},
+});
+
+snapshot(TopNavigationCustomAppSwitcherExample, {
+	description: 'custom app switcher hover state when improvements gate is off',
+	variants: [variants.desktop],
+	states: [{ selector: { byRole: 'button', options: { name: 'App switcher' } }, state: 'hovered' }],
+});
+
+snapshot(TopNavigationCustomAppSwitcherExample, {
+	description: 'custom app switcher hover state when improvements gate is on',
+	variants: [variants.desktop],
+	featureFlags: {
+		platform_dst_ads_appswitcher_improvements: true,
+	},
+	states: [{ selector: { byRole: 'button', options: { name: 'App switcher' } }, state: 'hovered' }],
 });
 
 snapshot(TopNavigationThemingLoggedOutExample, {
@@ -163,4 +187,13 @@ snapshot(TopNavigationThemedButtonsExample, {
 	description: 'themed link button focus state',
 	variants: lightModeVariant,
 	states: [{ selector: { byRole: 'link', options: { name: 'LinkButton' } }, state: 'focused' }],
+});
+
+snapshot(TopNavigationThemingWithPickerExampleRed, {
+	description: 'theming with side nav',
+	variants: lightModeVariant,
+	featureFlags: {
+		platform_dst_nav4_custom_theming_fhs_1: [true, false],
+		'navx-full-height-sidebar': true,
+	},
 });

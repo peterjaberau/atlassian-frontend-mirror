@@ -23,7 +23,193 @@ const generateMockPeopleResponse = (size: number) => {
 
 let mocks = 1;
 // It is not in a particular format. IT is transformed into expected format when consumed.
-export const mockJiraData = {
+export const mockJiraData: {
+	data: (
+		| {
+				ari: {
+					data: string;
+				};
+				assignee: {
+					displayName: string;
+					source: string;
+				};
+				created: string;
+				due: string;
+				issueNumber: string;
+				labels: string[];
+				link: string;
+				people: {
+					avatarSource: string;
+					displayName: string;
+				}[];
+				priority: {
+					label: string;
+					source: string;
+					text: string;
+				};
+				project: {
+					id: string;
+					name: string;
+				};
+				resolution: string;
+				status: {
+					status: string;
+					text: string;
+				};
+				summary: string;
+				type: {
+					label: string;
+					source: string;
+				};
+				updated: string;
+		  }
+		| {
+				ari: {
+					data: string;
+				};
+				assignee: undefined;
+				created: string;
+				due: string;
+				issueNumber: string;
+				labels?: undefined;
+				link: string;
+				people: {
+					avatarSource: string;
+					displayName: string;
+				}[];
+				priority: {
+					label: string;
+					source: string;
+					text: string;
+				};
+				project: {
+					id: string;
+					name: string;
+				};
+				resolution: string;
+				status: {
+					status: string;
+					text: string;
+				};
+				summary: string;
+				type: {
+					label: string;
+					source: string;
+				};
+				updated: string;
+		  }
+		| {
+				ari: {
+					data: string;
+				};
+				assignee: {
+					displayName: string;
+					source: string;
+				};
+				created: string;
+				due: string;
+				issueNumber: string;
+				labels?: undefined;
+				link: string;
+				people: undefined;
+				priority: {
+					label: string;
+					source: string;
+					text: string;
+				};
+				project: {
+					id: string;
+					name: string;
+				};
+				resolution: string;
+				status: {
+					status: string;
+					text: string;
+				};
+				summary: string;
+				type: {
+					label: string;
+					source: string;
+				};
+				updated: string;
+		  }
+		| {
+				ari: {
+					data: string;
+				};
+				assignee: undefined;
+				created: string;
+				due: string;
+				issueNumber: string;
+				labels?: undefined;
+				link: string;
+				people: {
+					avatarSource: string;
+					displayName: string;
+				}[];
+				priority: {
+					label: string;
+					source: string;
+					text?: undefined;
+				};
+				project: {
+					id: string;
+					name: string;
+				};
+				resolution: string;
+				status: {
+					status: string;
+					text: string;
+				};
+				summary: string;
+				type: {
+					label: string;
+					source: string;
+				};
+				updated: string;
+		  }
+		| {
+				ari: {
+					data: string;
+				};
+				assignee: {
+					displayName: string;
+					source: string;
+				};
+				created: string;
+				due: string;
+				issueNumber: string;
+				labels?: undefined;
+				link: string;
+				people: {
+					avatarSource: string;
+					displayName: string;
+				}[];
+				priority: {
+					label: string;
+					source: string;
+					text?: undefined;
+				};
+				project: {
+					id: string;
+					name: string;
+				};
+				resolution: string;
+				status: {
+					status: string;
+					text: string;
+				};
+				summary: string;
+				type: {
+					label: string;
+					source: string;
+				};
+				updated: string;
+		  }
+	)[];
+	nextPageCursor: string;
+	totalIssues: number;
+} = {
 	nextPageCursor: 'c3RhcnRBdD01',
 	totalIssues: 1357,
 	data: [
@@ -693,14 +879,19 @@ export const mockJiraData = {
 	],
 };
 
-export const mockSiteData = [
+export const mockSiteData: {
+	avatarUrl: undefined;
+	cloudId: string;
+	displayName: string;
+	products: string[];
+	url: string;
+}[] = [
 	{
 		cloudId: '67899',
 		url: 'https://hello.atlassian.net',
 		displayName: 'hello',
 		products: ['jira-software.ondemand', 'jira-servicedesk.ondemand', 'confluence.ondemand'],
 		avatarUrl: undefined,
-		isVertigo: false,
 	},
 	{
 		cloudId: '12345',
@@ -708,7 +899,6 @@ export const mockSiteData = [
 		displayName: 'test1',
 		products: ['jira-software.ondemand'],
 		avatarUrl: undefined,
-		isVertigo: false,
 	},
 	{
 		cloudId: '45678',
@@ -716,7 +906,6 @@ export const mockSiteData = [
 		displayName: 'test2',
 		products: ['jira-software.ondemand', 'jira-product-discovery'],
 		avatarUrl: undefined,
-		isVertigo: false,
 	},
 	{
 		cloudId: '78911',
@@ -724,7 +913,6 @@ export const mockSiteData = [
 		displayName: 'test4',
 		products: ['jira-product-discovery'],
 		avatarUrl: undefined,
-		isVertigo: false,
 	},
 	{
 		cloudId: '33333',
@@ -732,7 +920,6 @@ export const mockSiteData = [
 		displayName: 'testNetworkError',
 		products: ['jira-product-discovery', 'jira-servicedesk.ondemand', 'confluence.ondemand'],
 		avatarUrl: undefined,
-		isVertigo: false,
 	},
 	{
 		cloudId: '44444',
@@ -740,7 +927,6 @@ export const mockSiteData = [
 		displayName: 'testNoAccess',
 		products: ['jira-product-discovery', 'jira-servicedesk.ondemand', 'confluence.ondemand'],
 		avatarUrl: undefined,
-		isVertigo: false,
 	},
 	{
 		cloudId: '22222',
@@ -748,7 +934,6 @@ export const mockSiteData = [
 		displayName: 'testNoResults',
 		products: ['jira-product-discovery', 'jira-servicedesk.ondemand', 'confluence.ondemand'],
 		avatarUrl: undefined,
-		isVertigo: false,
 	},
 	{
 		cloudId: '11111',
@@ -756,11 +941,18 @@ export const mockSiteData = [
 		displayName: 'testSingleIssue',
 		products: ['jira-product-discovery', 'jira-servicedesk.ondemand', 'confluence.ondemand'],
 		avatarUrl: undefined,
-		isVertigo: false,
 	},
 ];
 
-export const mockProductsData = [
+export const mockProductsData: {
+	productDisplayName: string;
+	productId: string;
+	workspaces: {
+		cloudId: string;
+		cloudUrl: string;
+		workspaceDisplayName: string;
+	}[];
+}[] = [
 	{
 		productId: 'jira-software.ondemand',
 		productDisplayName: 'Jira Software',
@@ -889,7 +1081,55 @@ export const mockSite: Site = {
 };
 
 // https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-jql/#api-rest-api-3-jql-autocompletedata-post
-export const mockAutoCompleteData = {
+export const mockAutoCompleteData: {
+	jqlReservedWords: string[];
+	visibleFieldNames: (
+		| {
+				auto: string;
+				cfid?: undefined;
+				displayName: string;
+				operators: string[];
+				orderable: string;
+				searchable: string;
+				types: string[];
+				value: string;
+		  }
+		| {
+				auto: string;
+				cfid: string;
+				displayName: string;
+				operators: string[];
+				orderable: string;
+				searchable?: undefined;
+				types: string[];
+				value: string;
+		  }
+		| {
+				auto: string;
+				cfid?: undefined;
+				displayName: string;
+				operators: string[];
+				orderable?: undefined;
+				searchable: string;
+				types: string[];
+				value: string;
+		  }
+	)[];
+	visibleFunctionNames: (
+		| {
+				displayName: string;
+				isList: string;
+				types: string[];
+				value: string;
+		  }
+		| {
+				displayName: string;
+				isList?: undefined;
+				types: string[];
+				value: string;
+		  }
+	)[];
+} = {
 	visibleFieldNames: [
 		{
 			value: 'status',
@@ -944,7 +1184,12 @@ export const mockAutoCompleteData = {
 };
 
 // https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-jql/#api-rest-api-3-jql-autocompletedata-suggestions-get
-export const mockSuggestionData = {
+export const mockSuggestionData: {
+	results: {
+		displayName: string;
+		value: string;
+	}[];
+} = {
 	results: [
 		{
 			value: '"0. On Hold"',
@@ -975,6 +1220,5 @@ export const defaultInitialVisibleColumnKeys: string[] = [
 	'created',
 	'description',
 	'priority',
-	// TODO: Uncomment this when cleaning up jpd_confluence_date_fields_improvements
-	// 'daterange',
+	'daterange',
 ];

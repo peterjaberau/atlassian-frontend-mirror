@@ -12,13 +12,14 @@ import { token } from '@atlaskit/tokens';
 const buttonGroupStyle = css({
 	display: 'inline-flex',
 	alignItems: 'center',
-	gap: token('space.050', '4px'),
+	gap: token('space.050'),
 });
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- This rule thinks this isn't a `css()` call due to the name mapping
 const buttonGroupStyleUnbounded = cssUnbounded({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-	'& > div': {
+	// Guard excludes top-layer popover siblings (eg inline tooltip); :where() keeps specificity.
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
+	'& > div:not(:where([popover], dialog))': {
 		display: 'flex',
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
@@ -30,19 +31,10 @@ const buttonGroupStyleUnbounded = cssUnbounded({
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'div[role=group]': {
-		gap: token('space.050', '4px'),
+		gap: token('space.050'),
 	},
 });
 
-export function ToolbarButtonGroup({ children }: { children?: React.ReactNode }) {
-	return (
-		<span
-			css={[
-				buttonGroupStyle,
-				buttonGroupStyleUnbounded
-			]}
-		>
-			{children}
-		</span>
-	);
+export function ToolbarButtonGroup({ children }: { children?: React.ReactNode }): JSX.Element {
+	return <span css={[buttonGroupStyle, buttonGroupStyleUnbounded]}>{children}</span>;
 }

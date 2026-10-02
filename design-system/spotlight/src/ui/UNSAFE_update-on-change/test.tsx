@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { render } from '@testing-library/react';
+import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { render } from '@atlassian/testing-library';
 
 import { SpotlightContext, type SpotlightContextType } from '../../controllers/context';
-
 import { UNSAFE_UpdateOnChange } from './index';
 
 // Mock browser APIs
@@ -206,5 +206,14 @@ describe('UNSAFE_UpdateOnChange', () => {
 
 		// Verify observer was disconnected
 		expect(mockObserver.disconnect).toHaveBeenCalled();
+	});
+
+	ffTest.on('platform-dst-top-layer-spotlight', 'with top-layer positioning enabled', () => {
+		it('does not observe mutations or call update', () => {
+			renderWithContext({ selectors: ['body'] });
+
+			expect(mockMutationObserver).not.toHaveBeenCalled();
+			expect(mockUpdate).not.toHaveBeenCalled();
+		});
 	});
 });

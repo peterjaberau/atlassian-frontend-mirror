@@ -6,18 +6,21 @@ import { Fragment, useCallback, useState } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import Button, { IconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import CheckIcon from '@atlaskit/icon/core/check-mark';
 import CrossIcon from '@atlaskit/icon/core/cross';
 import EditIcon from '@atlaskit/icon/core/edit';
 import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
-import TextField from '@atlaskit/textfield';
+import TextField from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 // eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
 import palettesBrandRefreshRaw from '../../../src/artifacts/palettes-raw/palette-brand-refresh';
 // eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
-import { getAlpha, getContrastRatio } from '../../../src/utils/color-utils';
+import { getAlpha } from '../../../src/utils/get-alpha';
+// eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
+import { getContrastRatio } from '../../../src/utils/get-contrast-ratio';
 import { isHex } from '../utils/search-params';
 import { type BaseTokens } from '../utils/types';
 

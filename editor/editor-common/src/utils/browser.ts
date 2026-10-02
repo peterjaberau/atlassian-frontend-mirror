@@ -1,117 +1,51 @@
-import memorizeOne, { type MemoizedFn } from 'memoize-one';
+import memorizeOne from 'memoize-one';
+import type { MemoizedFn } from 'memoize-one';
 
-// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
-/**
- * @deprecated
- * This file is deprecated and will be removed in the next major release.
- * Please use `getBrowserInfo` function to get the browser info on demand.
- * Static `browser` info is no longer supported.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const result: { [key: string]: any } = {
-	mac: false,
-	windows: false,
-	ie: false,
-	ie_version: 0,
-	gecko: false,
-	gecko_version: 0,
-	chrome: false,
-	chrome_version: 0,
-	android: false,
-	ios: false,
-	webkit: false,
-	safari: false,
-	safari_version: 0,
-	supportsIntersectionObserver: false,
-	supportsResizeObserver: false,
-};
-
-if (typeof navigator !== 'undefined') {
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const ieEdge = /(?:Edge|Edg)\/(\d+)/.exec(navigator.userAgent);
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const ieUpTo10 = /MSIE \d/.test(navigator.userAgent);
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const ie11up = /Trident\/(?:[7-9]|\d{2,})\..*rv:(\d+)/.exec(navigator.userAgent);
-
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	result.mac = /Mac/.test(navigator.platform);
-
-	result.windows =
-		// Ignored via go/ees005
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(navigator as any).userAgentData?.platform === 'Windows' ||
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		/Windows|Win\d+/i.test(navigator.userAgent);
-
-	const ie = (result.ie = !!(ieUpTo10 || ie11up || ieEdge));
-	result.ie_version = ieUpTo10
-		? // Ignored via go/ees005
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(document as any).documentMode || 6
-		: ie11up
-			? +ie11up[1]
-			: ieEdge
-				? +ieEdge[1]
-				: null;
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	result.gecko = !ie && /gecko\/\d/i.test(navigator.userAgent);
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	result.gecko_version = parseInt((navigator.userAgent.match(/Firefox\/(\d+)/) || [])[1], 10);
-
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	result.chrome = !ie && /Chrome\//.test(navigator.userAgent);
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	result.chrome_version = parseInt((navigator.userAgent.match(/Chrome\/(\d+)/) || [])[1], 10);
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	result.android = /Android \d/.test(navigator.userAgent);
-	result.ios =
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		!ie && /AppleWebKit/.test(navigator.userAgent) && /Mobile\/\w+/.test(navigator.userAgent);
-	result.webkit =
-		!ie && !!document.documentElement && 'WebkitAppearance' in document.documentElement.style;
-
-	result.safari = Boolean(
-		navigator.vendor &&
-		navigator.vendor.indexOf('Apple') > -1 &&
-		navigator.userAgent &&
-		navigator.userAgent.indexOf('CriOS') === -1 &&
-		navigator.userAgent.indexOf('FxiOS') === -1,
-	);
-	result.safari_version = parseInt(
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		(navigator.userAgent.match(/Version\/([0-9\._]+).*Safari/) || [])[1],
-		10,
-	);
-
-	result.supportsIntersectionObserver =
-		typeof window !== 'undefined' &&
-		'IntersectionObserver' in window &&
-		'IntersectionObserverEntry' in window &&
-		// Ignored via go/ees005
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		'intersectionRatio' in (window as any).IntersectionObserverEntry.prototype;
-
-	result.supportsResizeObserver =
-		typeof window !== 'undefined' && 'ResizeObserver' in window && 'ResizeObserverEntry' in window;
-}
-
-// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
-export { result as browser };
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const IE_EDGE_REGEX = /\sedg\//i;
+// eslint-disable-next-line require-unicode-regexp
+const IE_EDGE2_REGEX = /edg([ea]|ios)/i;
+// eslint-disable-next-line require-unicode-regexp
+const INTERNET_EXPLORER_REGEX = /msie|trident/i;
+// eslint-disable-next-line require-unicode-regexp
+const MAC_REGEX = /Mac/;
+// eslint-disable-next-line require-unicode-regexp
+const WINDOWS_REGEX = /Windows|Win\d+/i;
+// eslint-disable-next-line require-unicode-regexp
+const IE_EDGE_VERSION_REGEX = /\sedg\/(\d+(\.?_?\d+)+)/i;
+// eslint-disable-next-line require-unicode-regexp
+const IE_EDGE2_VERSION_REGEX = /edg([ea]|ios)\/(\d+(\.?_?\d+)+)/i;
+// eslint-disable-next-line require-unicode-regexp
+const IE_VERSION_REGEX = /(?:msie |rv:)(\d+(\.?_?\d+)+)/i;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const GECKO_REGEX = /gecko\/\d/i;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const FIREFOX_VERSION_REGEX = /Firefox\/(\d+)/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const CHROME_REGEX = /Chrome\//;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const CHROME_VERSION_REGEX = /Chrome\/(\d+)/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const ANDROID_REGEX = /Android \d/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const APPLE_WEBKIT_REGEX = /AppleWebKit/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const MOBILE_REGEX = /Mobile\/\w+/;
+// eslint-disable-next-line require-unicode-regexp
+const SAFARI_REGEX = /safari|applewebkit/i;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const SAFARI_VERSION_REGEX = /Version\/([0-9\._]+).*Safari/;
+// eslint-disable-next-line require-unicode-regexp
+const WEBKIT_REGEX = /(apple)?webkit/i;
 
 const getFirstMatch = (regexp: RegExp, ua: string) => {
 	const match = ua.match(regexp);
@@ -168,115 +102,87 @@ const hasResizeObserver = (): boolean => {
 };
 
 // New API to get the browser info on demand
-export const getBrowserInfo: MemoizedFn<() => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	[key: string]: any;
-}> = memorizeOne((): {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	[key: string]: any;
-} => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const result: { [key: string]: any } = {
-		mac: false,
-		windows: false,
-		ie: false,
-		ie_version: 0,
-		gecko: false,
-		gecko_version: 0,
-		chrome: false,
-		chrome_version: 0,
-		android: false,
-		ios: false,
-		webkit: false,
-		safari: false,
-		safari_version: 0,
-		supportsIntersectionObserver: false,
-		supportsResizeObserver: false,
-	};
-
-	const userAgent = getSafeUserAgent();
-	const platform = getSafePlatform();
-
-	if (userAgent) {
-		// inspired from https://github.com/bowser-js/bowser/blob/master/src/parser-browsers.js
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		const ieEdge = /\sedg\//i.test(userAgent);
-		// eslint-disable-next-line require-unicode-regexp
-		const ieEdge2 = /edg([ea]|ios)/i.test(userAgent);
-		// eslint-disable-next-line require-unicode-regexp
-		const internetExplorer = /msie|trident/i.test(userAgent);
-
-		// Ideally we should use userAgent instead of platform, but we have lots of keymap tests failure when we change it
-		// So leave it as is for now.
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		result.mac = platform && /Mac/.test(platform);
-
-		// Previously relied on navigator.userAgentData?.platform and userAgent, now used only userAgent
-		result.windows =
-			// Ignored via go/ees005
-			// eslint-disable-next-line require-unicode-regexp
-			/Windows|Win\d+/i.test(userAgent);
-
-		// used userAgent rather than relying on documentMode
-		const ie = ieEdge || ieEdge2 || internetExplorer;
-		result.ie = ie;
-		// inspired from https://github.com/bowser-js/bowser/blob/master/src/parser-browsers.js
-		result.ie_version = ieEdge
-			? // eslint-disable-next-line require-unicode-regexp
-			parseInt(getFirstMatch(/\sedg\/(\d+(\.?_?\d+)+)/i, userAgent), 10)
-			: // eslint-disable-next-line require-unicode-regexp
-			ieEdge2
-				? // eslint-disable-next-line require-unicode-regexp
-				parseInt(getSecondMatch(/edg([ea]|ios)\/(\d+(\.?_?\d+)+)/i, userAgent), 10)
-				: // eslint-disable-next-line require-unicode-regexp
-				parseInt(getFirstMatch(/(?:msie |rv:)(\d+(\.?_?\d+)+)/i, userAgent), 10);
-
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		result.gecko = !ie && /gecko\/\d/i.test(userAgent);
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		result.gecko_version = parseInt((userAgent.match(/Firefox\/(\d+)/) || [])[1], 10);
-
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		result.chrome = !ie && /Chrome\//.test(userAgent);
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		result.chrome_version = parseInt((userAgent.match(/Chrome\/(\d+)/) || [])[1], 10);
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		result.android = /Android \d/.test(userAgent);
-		result.ios =
-			// Ignored via go/ees005
-			// eslint-disable-next-line require-unicode-regexp
-			!ie && /AppleWebKit/.test(userAgent) && /Mobile\/\w+/.test(userAgent);
-
-		// Previously relied on navigator.vendor, now used userAgent
-		result.safari =
-			!result.chrome &&
-			!result.ie &&
-			!result.gecko &&
-			!result.android &&
-			!userAgent.includes('CriOS') &&
-			!userAgent.includes('FxiOS') &&
-			// eslint-disable-next-line require-unicode-regexp
-			/safari|applewebkit/i.test(userAgent);
-
-		result.safari_version = parseInt(
-			// eslint-disable-next-line require-unicode-regexp
-			(userAgent.match(/Version\/([0-9\._]+).*Safari/) || [])[1],
-			10,
-		);
-
-		// Previously we relied on documentElement.style.WebkitAppearance, now changed to userAgent
-		// eslint-disable-next-line require-unicode-regexp
-		result.webkit = /(apple)?webkit/i.test(userAgent);
-
-		result.supportsIntersectionObserver = hasIntersectionObserver();
-		result.supportsResizeObserver = hasResizeObserver();
+export const getBrowserInfo: MemoizedFn<
+	() => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		[key: string]: any;
 	}
-	return result;
-});
+> = memorizeOne(
+	(): {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		[key: string]: any;
+	} => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const result: { [key: string]: any } = {
+			mac: false,
+			windows: false,
+			ie: false,
+			ie_version: 0,
+			gecko: false,
+			gecko_version: 0,
+			chrome: false,
+			chrome_version: 0,
+			android: false,
+			ios: false,
+			webkit: false,
+			safari: false,
+			safari_version: 0,
+			supportsIntersectionObserver: false,
+			supportsResizeObserver: false,
+		};
+
+		const userAgent = getSafeUserAgent();
+		const platform = getSafePlatform();
+
+		if (userAgent) {
+			// inspired from https://github.com/bowser-js/bowser/blob/master/src/parser-browsers.js
+			const ieEdge = IE_EDGE_REGEX.test(userAgent);
+			const ieEdge2 = IE_EDGE2_REGEX.test(userAgent);
+			const internetExplorer = INTERNET_EXPLORER_REGEX.test(userAgent);
+
+			// Ideally we should use userAgent instead of platform, but we have lots of keymap tests failure when we change it
+			// So leave it as is for now.
+			result.mac = platform && MAC_REGEX.test(platform);
+
+			// Previously relied on navigator.userAgentData?.platform and userAgent, now used only userAgent
+			result.windows = WINDOWS_REGEX.test(userAgent);
+
+			// used userAgent rather than relying on documentMode
+			const ie = ieEdge || ieEdge2 || internetExplorer;
+			result.ie = ie;
+			// inspired from https://github.com/bowser-js/bowser/blob/master/src/parser-browsers.js
+			result.ie_version = ieEdge
+				? parseInt(getFirstMatch(IE_EDGE_VERSION_REGEX, userAgent), 10)
+				: ieEdge2
+					? parseInt(getSecondMatch(IE_EDGE2_VERSION_REGEX, userAgent), 10)
+					: parseInt(getFirstMatch(IE_VERSION_REGEX, userAgent), 10);
+
+			result.gecko = !ie && GECKO_REGEX.test(userAgent);
+			result.gecko_version = parseInt((userAgent.match(FIREFOX_VERSION_REGEX) || [])[1], 10);
+
+			result.chrome = !ie && CHROME_REGEX.test(userAgent);
+			result.chrome_version = parseInt((userAgent.match(CHROME_VERSION_REGEX) || [])[1], 10);
+			result.android = ANDROID_REGEX.test(userAgent);
+			result.ios = !ie && APPLE_WEBKIT_REGEX.test(userAgent) && MOBILE_REGEX.test(userAgent);
+
+			// Previously relied on navigator.vendor, now used userAgent
+			result.safari =
+				!result.chrome &&
+				!result.ie &&
+				!result.gecko &&
+				!result.android &&
+				!userAgent.includes('CriOS') &&
+				!userAgent.includes('FxiOS') &&
+				SAFARI_REGEX.test(userAgent);
+
+			result.safari_version = parseInt((userAgent.match(SAFARI_VERSION_REGEX) || [])[1], 10);
+
+			// Previously we relied on documentElement.style.WebkitAppearance, now changed to userAgent
+			result.webkit = WEBKIT_REGEX.test(userAgent);
+
+			result.supportsIntersectionObserver = hasIntersectionObserver();
+			result.supportsResizeObserver = hasResizeObserver();
+		}
+		return result;
+	},
+);

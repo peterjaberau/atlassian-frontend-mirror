@@ -1,7 +1,14 @@
-import type { ADFAttributes } from '../../../types/ADFAttribute';
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  */
+
 import { adfMark } from '../../../adfMark';
 import { adfMarkGroup } from '../../../adfMarkGroup';
 import { buildAttrs, buildMarkSpec } from '../../../transforms/adfToPm/buildPmSpec';
+import type { ADFAttributes } from '../../../types/ADFAttribute';
 
 describe('build pm specs', () => {
 	describe('build attrs', () => {
@@ -170,7 +177,26 @@ describe('build pm specs', () => {
 				},
 			});
 			const result = buildMarkSpec(testMark);
-			expect(result).toMatchSnapshot();
+			expect(result).toMatchObject({
+				excludes: 'sith',
+				group: 'jedi',
+				inclusive: true,
+				spanning: true,
+				attrs: {
+					undefinedDefaultAttr: { default: undefined },
+					nullDefaultAttr: { default: null },
+					booleanAttr: {},
+					stringAttr: {},
+					numberAttr: {},
+					enumAttr: { default: 'center' },
+					array1Attr: {},
+					array2Attr: {},
+					objectAttr: {},
+				},
+			});
+			expect(result.attrs).not.toHaveProperty('optionalStringAttr');
+			expect(result.attrs).not.toHaveProperty('optionalNumberAttr');
+			expect(result.attrs).not.toHaveProperty('optionalBooleanAttr');
 		});
 	});
 });

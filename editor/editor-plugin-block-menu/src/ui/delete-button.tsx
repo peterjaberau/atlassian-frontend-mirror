@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl, useIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl, useIntl } from 'react-intl';
 
 import type { BlockMenuEventPayload, NodeDeletedAEP } from '@atlaskit/editor-common/analytics';
 import {
@@ -19,12 +19,13 @@ import {
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { ToolbarDropdownItem } from '@atlaskit/editor-toolbar';
 import DeleteIcon from '@atlaskit/icon/core/delete';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { Box } from '@atlaskit/primitives/box';
-import Text from '@atlaskit/primitives/text';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
+import { Text } from '@atlaskit/primitives/text';
 import { token } from '@atlaskit/tokens';
 
 import type { BlockMenuPlugin } from '../blockMenuPluginType';
-
 import { BLOCK_MENU_ITEM_NAME } from './consts';
 
 type Props = {
@@ -71,7 +72,11 @@ const DeleteDropdownItemContent = ({ api }: Props) => {
 			}
 
 			deleteSelectedRange(tr, preservedSelection);
+
 			api?.blockControls?.commands?.toggleBlockMenu({ closeMenu: true })({ tr });
+			if (preservedSelection) {
+				api?.blockControls?.commands?.stopPreservingSelection()({ tr });
+			}
 			return tr;
 		});
 		api?.core.actions.focus();
@@ -79,7 +84,11 @@ const DeleteDropdownItemContent = ({ api }: Props) => {
 
 	const onShowHoverDecoration = useCallback(() => {
 		api?.core.actions.execute(({ tr }) => {
-			api?.decorations?.commands?.hoverDecoration?.({ add: true })({ tr });
+			const preservedSelection = api?.blockControls?.sharedState.currentState()?.preservedSelection;
+			api?.decorations?.commands?.hoverDecoration?.({
+				add: true,
+				selection: preservedSelection,
+			})({ tr });
 
 			return tr;
 		});
@@ -107,7 +116,7 @@ const DeleteDropdownItemContent = ({ api }: Props) => {
 			onBlur={onRemoveHoverDecoration}
 		>
 			<ToolbarDropdownItem
-				elemBefore={<DeleteIcon color={token('color.icon.danger')} label="" />}
+				elemBefore={<DeleteIcon color={token('color.icon.danger')} label="" size="small" />}
 				onClick={onClick}
 				testId={BLOCK_MENU_ACTION_TEST_ID.DELETE}
 			>
@@ -119,4 +128,7 @@ const DeleteDropdownItemContent = ({ api }: Props) => {
 	);
 };
 
-export const DeleteDropdownItem = injectIntl(DeleteDropdownItemContent);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const DeleteDropdownItem: React.FC<WithIntlProps<Props>> & {
+	WrappedComponent: React.ComponentType<Props>;
+} = injectIntl(DeleteDropdownItemContent);

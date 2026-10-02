@@ -5,13 +5,13 @@
 import type { KeyboardEvent } from 'react';
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import { withAnalyticsEvents } from '@atlaskit/analytics-next';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
 import type {
 	FireAnalyticsCallback,
 	MediaAltTextActionType,
@@ -36,7 +36,6 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { relativeFontSizeToBase16 } from '@atlaskit/editor-shared-styles';
 import ChevronLeftLargeIcon from '@atlaskit/icon/core/chevron-left';
 import CrossCircleIcon from '@atlaskit/icon/core/cross-circle';
-import { N200, N30, N80, R400 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { closeMediaAltTextMenu, closeMediaAltTextMenuAndSave } from '../commands';
@@ -44,13 +43,13 @@ import { closeMediaAltTextMenu, closeMediaAltTextMenuAndSave } from '../commands
 export const MAX_ALT_TEXT_LENGTH = 510; // double tweet length
 
 const supportTextStyles = css({
-	color: token('color.text.subtlest', N200),
+	color: token('color.text.subtlest'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	fontSize: relativeFontSizeToBase16(12),
-	padding: `${token('space.150', '12px')} ${token('space.500', '40px')}`,
+	padding: `${token('space.150')} ${token('space.500')}`,
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: '20px',
-	borderTop: `${token('border.width')} solid ${token('color.border', N30)}`,
+	borderTop: `${token('border.width')} solid ${token('color.border')}`,
 	margin: 0,
 });
 
@@ -68,7 +67,7 @@ const inputWrapperStyles = css({
 	display: 'flex',
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: 0,
-	padding: `${token('space.075', '6px')} 0`,
+	padding: `${token('space.075')} 0`,
 	alignItems: 'center',
 });
 
@@ -76,23 +75,20 @@ const validationWrapperStyles = css({
 	display: 'flex',
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: 0,
-	padding: `${token('space.150', '12px')} ${token('space.300', '24px')} ${token(
-		'space.150',
-		'12px',
-	)} 0`,
-	margin: `0 ${token('space.150', '12px')} 0 ${token('space.500', '40px')}`,
-	borderTop: `${token('border.width')} solid ${token('color.border.danger', R400)}`,
+	padding: `${token('space.150')} ${token('space.300')} ${token('space.150')} 0`,
+	margin: `0 ${token('space.150')} 0 ${token('space.500')}`,
+	borderTop: `${token('border.width')} solid ${token('color.border.danger')}`,
 	alignItems: 'start',
 	flexDirection: 'column',
 });
 
 const buttonWrapperStyles = css({
 	display: 'flex',
-	padding: `${token('space.050', '4px')} ${token('space.100', '8px')}`,
+	padding: `${token('space.050')} ${token('space.100')}`,
 });
 
 const clearTextStyles = css({
-	color: token('color.icon.subtle', N80),
+	color: token('color.icon.subtle'),
 });
 
 type Props = {
@@ -117,7 +113,11 @@ export type AltTextEditComponentState = {
 export class AltTextEditComponent extends React.Component<Props, AltTextEditComponentState> {
 	private fireCustomAnalytics?: FireAnalyticsCallback;
 	private errorsListRef;
-	state = {
+	state: {
+		lastValue: string | undefined;
+		showClearTextButton: boolean;
+		validationErrors: string[];
+	} = {
 		showClearTextButton: Boolean(this.props.value),
 		validationErrors: this.props.value ? this.getValidationErrors(this.props.value) : [],
 		lastValue: this.props.value,
@@ -158,7 +158,7 @@ export class AltTextEditComponent extends React.Component<Props, AltTextEditComp
 		return [];
 	}
 
-	render() {
+	render(): jsx.JSX.Element {
 		const {
 			intl: { formatMessage },
 		} = this.props;
@@ -325,4 +325,15 @@ export class AltTextEditComponent extends React.Component<Props, AltTextEditComp
 	};
 }
 
-export default withAnalyticsEvents()(injectIntl(AltTextEditComponent));
+const _default_1: React.ForwardRefExoticComponent<
+	Omit<
+		Omit<Props, 'intl'> & {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			forwardedRef?: React.Ref<any>;
+		},
+		keyof WithAnalyticsEventsProps
+	> &
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		React.RefAttributes<any>
+> = withAnalyticsEvents()(injectIntl(AltTextEditComponent));
+export default _default_1;

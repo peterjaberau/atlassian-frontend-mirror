@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::c86bc4a90f7eb35fd36ae7c99f20011b>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::5359eace15478c5a4212a90ee2a68d54>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -18,14 +18,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __FocusIcon__
  *
- * A temporary component to represent the icon for Focus.
- * @deprecated This component has been replaced by the component `FocusIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Focus.
+ * Import `FocusIcon` from `@atlaskit/logo/focus/icon`.
  *
  */
 export function FocusIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Focus',
 	testId,

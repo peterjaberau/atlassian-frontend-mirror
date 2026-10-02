@@ -1,10 +1,18 @@
-export * from './types';
-export * from './serviceResources';
-import * as serviceUtils from './serviceUtils';
-import * as multipartServiceUtils from './multipartServiceUtils';
+export { buildCredentials } from './types';
+export type {
+	KeyValues,
+	OnProviderChange,
+	Provider,
+	RefreshSecurityProvider,
+	RequestServiceOptions,
+	SecurityOptions,
+	SecurityProvider,
+	ServiceConfig,
+} from './types';
 
-export const utils = serviceUtils;
-export const multipartUtils = multipartServiceUtils;
+export { AbstractResource } from './serviceResources';
+
+export { utils, multipartUtils } from './constants';
 
 export type {
 	RequestServiceResult,

@@ -1,16 +1,14 @@
 import React, { forwardRef, Fragment } from 'react';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import { type IconButtonProps } from '@atlaskit/button/new';
-import type { TriggerProps } from '@atlaskit/popup/types';
-import type { TooltipProps } from '@atlaskit/tooltip';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import type { IconButtonProps } from '@atlaskit/button/icon/button';
+import type { TriggerAriaProps } from '@atlaskit/popup/types';
+import type { TooltipProps } from '@atlaskit/tooltip/types';
 
 import { ListItem } from '../../components/list-item';
+import { IconButton } from './themed/icon-button';
 
-import { IconButton } from './themed/migration';
-
-export interface EndItemProps
-	extends Partial<Pick<TriggerProps, 'aria-controls' | 'aria-expanded' | 'aria-haspopup'>> {
+export interface EndItemProps extends Partial<TriggerAriaProps> {
 	/**
 	 * Provide an accessible label, often used by screen readers.
 	 */

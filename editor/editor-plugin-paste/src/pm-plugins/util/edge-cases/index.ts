@@ -1,13 +1,13 @@
+import { createToggleBlockMarkOnRangeNext } from '@atlaskit/editor-common/commands';
 import { isListNode } from '@atlaskit/editor-common/utils';
 import type { Slice as PMSlice, Schema } from '@atlaskit/editor-prosemirror/model';
 import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { TextSelection, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { Selection } from '@atlaskit/editor-prosemirror/state';
 import { ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
-import { findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
+import { findParentNodeOfType, safeInsert } from '@atlaskit/editor-prosemirror/utils';
 
 import { isCursorSelectionAtTextStartOrEnd, isEmptyNode, isSelectionInsidePanel } from '../index';
-
 import {
 	insertSliceAtNodeEdge,
 	insertSliceInsideOfPanelNodeSelected,
@@ -23,7 +23,7 @@ export function insertSliceForLists({
 	schema: Schema;
 	slice: PMSlice;
 	tr: Transaction;
-}) {
+}): void | Transaction {
 	const {
 		selection,
 		selection: { $to, $from },
@@ -76,15 +76,56 @@ export function insertSliceForLists({
 	tr.replaceSelection(slice);
 }
 
-export function insertSliceInsideBlockquote({ tr, slice }: { slice: PMSlice; tr: Transaction }): void {
+const stripFontSizeInsideBlockquoteLists = (tr: Transaction, blockquotePos: number): void => {
+	const {
+		marks: { fontSize },
+		nodes: { paragraph, listItem, taskItem, blockTaskItem },
+	} = tr.doc.type.schema;
+	const listItemParentNodeTypes = [listItem, taskItem, blockTaskItem];
+
+	if (!fontSize) {
+		return;
+	}
+
+	const containingBlockquote = tr.doc.nodeAt(blockquotePos);
+	if (!containingBlockquote) {
+		return;
+	}
+
+	const from = blockquotePos + 1;
+	const to = blockquotePos + containingBlockquote.nodeSize - 1;
+
+	createToggleBlockMarkOnRangeNext(
+		fontSize,
+		() => false,
+		(_schema, node, parent) =>
+			node.type === paragraph &&
+			!!parent &&
+			listItemParentNodeTypes.some((nodeType) => nodeType === parent.type),
+	)(from, to, tr);
+};
+
+export function insertSliceInsideBlockquote({
+	tr,
+	slice,
+}: {
+	slice: PMSlice;
+	tr: Transaction;
+}): void {
 	//insert blockquote explicitly and set the selection in blockquote since replaceSelection will only insert the list
 	const { schema } = tr.doc.type;
 	tr.replaceSelection(new Slice(Fragment.from(schema.nodes.blockquote.createAndFill()), 0, 0));
 	updateSelectionAfterReplace({ tr });
 	tr.replaceSelection(slice);
+	const insertedBlockquotePos = findParentNodeOfType(schema.nodes.blockquote)(tr.selection);
+	if (!insertedBlockquotePos) {
+		return;
+	}
+
+	stripFontSizeInsideBlockquoteLists(tr, insertedBlockquotePos.pos);
 }
 
-export function updateSelectionAfterReplace({ tr }: { tr: Transaction }) {
+export function updateSelectionAfterReplace({ tr }: { tr: Transaction }): Transaction | undefined {
 	// ProseMirror doesn't give a proper way to tell us where something was inserted.
 	// However, we can know "how" it inserted something.
 	//
@@ -110,12 +151,31 @@ export function updateSelectionAfterReplace({ tr }: { tr: Transaction }) {
 	}
 }
 
-export function insertSliceForTaskInsideList({ tr, slice }: { slice: PMSlice; tr: Transaction }): void {
+export function insertSliceForTaskInsideList({
+	tr,
+	slice,
+}: {
+	slice: PMSlice;
+	tr: Transaction;
+}): Transaction {
 	const { schema } = tr.doc.type;
-	//To avoid the list being replaced with the tasklist, enclose the slice within a taskItem.
-	const selectionBeforeReplace = tr.selection.from;
-	tr.replaceSelection(new Slice(Fragment.from(schema.nodes.taskItem.createAndFill()), 0, 0));
-	const nextSelection = Selection.near(tr.doc.resolve(selectionBeforeReplace + 1));
-	tr.setSelection(nextSelection);
-	tr.replaceSelection(slice);
+
+	// Collapse redundant nested taskList wrappers from the slice context, always keeping a single
+	// outermost taskList so the content can be safely inserted as a sibling of the list item's
+	// paragraph (a listItem cannot directly contain bare taskItems).
+	const { taskList } = schema.nodes;
+	let content = slice.content;
+	while (
+		content.childCount === 1 &&
+		content.firstChild?.type === taskList &&
+		content.firstChild.firstChild?.type === taskList
+	) {
+		content = content.firstChild.content;
+	}
+
+	// safeInsert keeps the task structure intact at the closest schema-valid position, instead of
+	// replacing into an empty taskItem which would add an extra taskList level.
+	tr = safeInsert(content, tr.selection.$to.pos)(tr);
+	updateSelectionAfterReplace({ tr });
+	return tr;
 }

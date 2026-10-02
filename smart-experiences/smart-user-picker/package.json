@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/smart-user-picker",
-	"version": "8.9.3",
+	"version": "12.1.0",
 	"license": "Apache-2.0",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,25 +12,27 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
+		"./components": "./src/components/index.tsx",
+		"./default-value-hydration-client": "./src/service/default-value-hydration-client.ts",
 		"./i18n/*": {
 			"publish": null,
 			"default": "./src/i18n/*.ts"
 		},
-		"./option": "./src/option.ts"
+		"./option": "./src/option.ts",
+		"./recommendation-client": "./src/service/recommendation-client.ts",
+		"./types": "./src/types.ts",
+		"./user-picker": "./src/userPicker.ts"
 	},
 	"atlassian": {
+		"website": {
+			"tags": [
+				"platform-labs"
+			]
+		},
 		"team": "Search Platform: Search Experience",
 		"slack": {
 			"channel": "#search-plex-prs",
@@ -50,39 +52,40 @@
 		"@babel/runtime": "root:*",
 		"lodash": "root:*",
 		"memoize-one": "root:*",
-		"react-intl-next": "root:*",
 		"uuid": "root:*"
 	},
 	"peerDependencies": {
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dom": "^18.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
+		"@atlaskit/button": "workspace:^",
 		"@atlaskit/select": "workspace:^",
+		"@atlaskit/textfield": "workspace:^",
 		"@atlaskit/util-data-test": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/integrations": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/dom": "root:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
-		"enzyme": "root:*",
 		"fetch-mock": "root:*",
 		"graphql-tag": "root:*",
-		"mock-apollo-client": "root:*"
+		"mock-apollo-client": "root:*",
+		"react": "root:*",
+		"react-dom": "root:*",
+		"react-intl": "root:*"
 	},
 	"platform-feature-flags": {
-		"twcg-444-invite-usd-improvements-m2-gate": {
+		"smart-user-picker-fetch-error-fix": {
 			"type": "boolean"
 		},
 		"smart-user-picker-load-options-gate": {
 			"type": "boolean"
 		},
-		"smart-user-picker-managed-teams-gate": {
-			"type": "boolean"
-		},
-		"smart-user-picker-restrict-to-gate": {
-			"type": "boolean"
-		},
-		"smart_user_picker_allow_email_if_team_is_found": {
+		"user_picker_guest_lozenges": {
 			"type": "boolean"
 		}
 	}

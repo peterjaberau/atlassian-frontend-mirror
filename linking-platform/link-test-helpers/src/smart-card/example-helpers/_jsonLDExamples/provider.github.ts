@@ -1,4 +1,4 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
 
 export const GithubFile = {
 	meta: {
@@ -35,7 +35,94 @@ export const GithubFile = {
 	},
 } as JsonLd.Response;
 
-export const GithubPullRequestJson = {
+export const GithubPullRequestJson: {
+	data: {
+		'@context': {
+			'@vocab': string;
+			atlassian: string;
+			schema: string;
+		};
+		'@id': string;
+		'@type': string[];
+		'atlassian:isMerged': boolean;
+		'atlassian:mergeable': boolean;
+		'atlassian:mergeCommit': {
+			'@type': string;
+			href: string;
+		};
+		'atlassian:mergedBy': undefined;
+		'atlassian:mergeDestination': {
+			'@type': string;
+			href: string;
+		};
+		'atlassian:mergeSource': {
+			'@type': string;
+			href: string;
+		};
+		'atlassian:reviewedBy': {
+			'@type': string;
+			icon: string;
+			name: string;
+		}[];
+		'atlassian:reviewer': {
+			'@type': string;
+			icon: string;
+			name: string;
+		}[];
+		'atlassian:state': string;
+		'atlassian:updatedBy': {
+			'@type': string;
+			icon: string;
+			name: string;
+		};
+		attributedTo: {
+			'@type': string;
+			icon: string;
+			name: string;
+		};
+		audience: {
+			'@type': string;
+			icon: string;
+			name: string;
+		}[];
+		context: {
+			'@type': string;
+			name: string;
+			url: string;
+		};
+		generator: {
+			'@type': string;
+			icon: {
+				'@type': string;
+				url: string;
+			};
+			name: string;
+		};
+		icon: {
+			'@type': string;
+			url: string;
+		};
+		name: string;
+		'schema:dateCreated': string;
+		'schema:potentialAction': undefined;
+		'schema:programmingLanguage': string;
+		summary: string;
+		tags: {
+			'@type': string;
+			id: number;
+			name: string;
+			url: string;
+		}[];
+		updated: string;
+		url: string;
+	};
+	meta: {
+		access: string;
+		key: string;
+		resourceType: string;
+		visibility: string;
+	};
+} = {
 	meta: {
 		visibility: 'restricted',
 		access: 'granted',

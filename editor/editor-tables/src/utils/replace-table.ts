@@ -1,12 +1,9 @@
 import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
-import {
-	type EditorState,
-	TextSelection,
-	type Transaction,
-} from '@atlaskit/editor-prosemirror/state';
+import { TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 
-import { findTable } from './find';
-import { isTableSelected } from './is-selected';
+import { findTable } from './find-table';
+import { isTableSelected } from './is-table-selected';
 
 export const replaceSelectedTable = (state: EditorState, content: string | Slice): Transaction => {
 	if (isTableSelected(state.selection)) {

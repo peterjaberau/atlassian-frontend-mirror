@@ -7,7 +7,7 @@ import { type CSSProperties, forwardRef, type ReactNode, useRef, useState } from
 import { css, jsx } from '@compiled/react';
 
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { Target } from './styled';
 
@@ -28,10 +28,10 @@ const positionStyles = css({
 	height: '60px',
 	backgroundColor: token('color.background.neutral'),
 	borderRadius: token('radius.medium', '6px'),
-	paddingBlockEnd: token('space.100', '8px'),
-	paddingBlockStart: token('space.100', '8px'),
-	paddingInlineEnd: token('space.100', '8px'),
-	paddingInlineStart: token('space.100', '8px'),
+	paddingBlockEnd: token('space.100'),
+	paddingBlockStart: token('space.100'),
+	paddingInlineEnd: token('space.100'),
+	paddingInlineStart: token('space.100'),
 });
 
 interface Pos {
@@ -70,8 +70,8 @@ const Position: React.ForwardRefExoticComponent<
 
 const positionExampleStyles = css({
 	position: 'absolute',
-	insetBlockStart: token('space.100', '8px'),
-	insetInlineEnd: token('space.100', '8px'),
+	insetBlockStart: token('space.100'),
+	insetInlineEnd: token('space.100'),
 });
 
 export default function CssPositionExample(): JSX.Element {

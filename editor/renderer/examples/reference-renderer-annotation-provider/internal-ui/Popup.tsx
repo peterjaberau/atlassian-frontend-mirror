@@ -6,39 +6,35 @@ import React from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
 import { css, jsx, keyframes } from '@emotion/react';
+
 import { token } from '@atlaskit/tokens';
 
 type Props = { children: React.ReactNode; left: number; top: number };
-export const Popup = React.forwardRef<HTMLDivElement, Props>(function Popup(
-	{ children, top, left }: Props,
-	ref,
-) {
-	// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
-	return (
-		<div style={{ top }} css={popupPanelStyles}>
-			<div
-				css={buttonContainer}
-				ref={ref}
-				// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
-				style={{ left: left }}
-				data-testid="highlightActionsPopup"
-			>
-				{children}
+export const Popup: React.ForwardRefExoticComponent<Props & React.RefAttributes<HTMLDivElement>> =
+	React.forwardRef<HTMLDivElement, Props>(function Popup({ children, top, left }: Props, ref) {
+		// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
+		return (
+			<div style={{ top }} css={popupPanelStyles}>
+				<div
+					css={buttonContainer}
+					ref={ref}
+					// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
+					style={{ left: left }}
+					data-testid="highlightActionsPopup"
+				>
+					{children}
+				</div>
 			</div>
-		</div>
-	);
-});
+		);
+	});
 
 const buttonContainer = css({
 	transform: `translate(calc(-50% - 5px), calc(-100% - 20px))`,
-	boxShadow: token(
-		'elevation.shadow.overlay',
-		'0px 3px 5px rgba(9, 30, 66, 0.2), 0px 0px 1px rgba(9, 30, 66, 0.31)',
-	),
+	boxShadow: token('elevation.shadow.overlay'),
 	borderRadius: 3,
 	position: 'absolute',
 	top: 0,
-	backgroundColor: token('elevation.surface.overlay', '#fff'),
+	backgroundColor: token('elevation.surface.overlay'),
 	display: 'flex',
 });
 

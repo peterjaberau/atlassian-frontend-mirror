@@ -1,4 +1,5 @@
 import { expect, test } from '@af/integration-testing';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
 
 const tooltipZIndex = layers.tooltip();
@@ -16,7 +17,11 @@ const parentModalDialogSelector = 'section[role="dialog"]';
 test('When we hover over "Open Dialog" button then "Click Me" tooltip should be visible and a portal should be created', async ({
 	page,
 }) => {
-	await page.visitExample('design-system', 'portal', 'complex-layering');
+	await page.visitExample<typeof import('../../../examples/1-complex-layering.vr.ap.tsx')>(
+		'design-system',
+		'portal',
+		'complex-layering',
+	);
 	await page.locator(openDialogButtonSelector).first().hover();
 	const tooltip = page.locator(tooltipPortalSelector).locator(clickMeTooltipSelector).first();
 	await expect(tooltip).toBeVisible();
@@ -26,7 +31,11 @@ test('When we hover over "Open Dialog" button then "Click Me" tooltip should be 
 test('When we click on "Open Dialog" button then a parent modal dialog should be visible and a portal should be created', async ({
 	page,
 }) => {
-	await page.visitExample('design-system', 'portal', 'complex-layering');
+	await page.visitExample<typeof import('../../../examples/1-complex-layering.vr.ap.tsx')>(
+		'design-system',
+		'portal',
+		'complex-layering',
+	);
 	await page.locator(openDialogButtonSelector).first().click();
 	const modal = page.locator(modalPortalSelector).locator(parentModalDialogSelector).first();
 	const modalHeader = modal.locator('[data-testid="modal--header"]').first();
@@ -38,7 +47,11 @@ test('When we click on "Open Dialog" button then a parent modal dialog should be
 test('When we click on "Show onboarding" button then a spot light should be visible and a portal should be created', async ({
 	page,
 }) => {
-	await page.visitExample('design-system', 'portal', 'complex-layering');
+	await page.visitExample<typeof import('../../../examples/1-complex-layering.vr.ap.tsx')>(
+		'design-system',
+		'portal',
+		'complex-layering',
+	);
 	await page.locator(openDialogButtonSelector).first().click();
 	const parentModal = page.locator(modalPortalSelector).locator(parentModalDialogSelector).first();
 	const showOnboardingButton = parentModal.locator(showOnboardingButtonSelector).first();

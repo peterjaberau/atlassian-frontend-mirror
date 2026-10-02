@@ -9,11 +9,11 @@ import React, { useCallback, useReducer } from 'react';
 import { css, jsx } from '@emotion/react';
 
 import ButtonGroup from '@atlaskit/button/button-group';
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import ArrowDownIcon from '@atlaskit/icon/core/arrow-down';
 import ArrowUpIcon from '@atlaskit/icon/core/arrow-up';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { announce } from '../src';
 
@@ -32,12 +32,9 @@ const listItemStyles = css({
 	maxWidth: 240,
 	padding: 8,
 	alignItems: 'center',
-	background: token('elevation.surface.raised', '#FFF'),
+	background: token('elevation.surface.raised'),
 	borderRadius: 3,
-	boxShadow: token(
-		'elevation.shadow.raised',
-		'rgba(9, 30, 66, 0.25) 0px 1px 1px, rgba(9, 30, 66, 0.31) 0px 0px 1px',
-	),
+	boxShadow: token('elevation.shadow.raised'),
 });
 
 const ListItem = ({

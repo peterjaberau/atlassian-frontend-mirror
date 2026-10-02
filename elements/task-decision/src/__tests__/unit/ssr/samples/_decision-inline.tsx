@@ -1,10 +1,13 @@
 import React from 'react';
+
+import { IntlProvider } from 'react-intl';
+
+import { dumpRef } from '../../../../../example-helpers/story-utils';
 import DecisionItem from '../../../../components/DecisionItem';
 import DecisionList from '../../../../components/DecisionList';
-import { dumpRef } from '../../../../../example-helpers/story-utils';
 
 export default (): React.JSX.Element => (
-	<div>
+	<IntlProvider locale="en">
 		<h3>Simple DecisionItem</h3>
 		<DecisionItem contentRef={dumpRef}>
 			Hello <b>world</b>.
@@ -37,5 +40,5 @@ export default (): React.JSX.Element => (
 				OMG <b>YAY</b>.
 			</DecisionItem>
 		</DecisionList>
-	</div>
+	</IntlProvider>
 );

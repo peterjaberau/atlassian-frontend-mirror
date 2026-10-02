@@ -1,6 +1,8 @@
-import type { AnnotationMarkDefinition } from '../marks/annotation';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { date as dateFactory } from '../../next-schema/generated/nodeTypes';
-import { uuid } from '../../utils';
+import { uuid } from '../../utils/uuid';
+import type { AnnotationMarkDefinition } from '../marks/annotation';
 
 /**
  * @name date_node
@@ -9,18 +11,20 @@ export interface DateDefinition {
 	attrs: {
 		localId?: string;
 		/**
+		 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 		 * @minLength 1
 		 */
 		timestamp: string;
 	};
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @stage 0
 	 */
 	marks?: Array<AnnotationMarkDefinition>;
 	type: 'date';
 }
 
-export const date = dateFactory({
+export const date: NodeSpec = dateFactory({
 	parseDOM: [
 		{
 			tag: 'span[data-node-type="date"]',
@@ -39,7 +43,7 @@ export const date = dateFactory({
 	},
 });
 
-export const dateWithLocalId = dateFactory({
+export const dateWithLocalId: NodeSpec = dateFactory({
 	parseDOM: [
 		{
 			tag: 'span[data-node-type="date"]',

@@ -7,7 +7,6 @@ import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { setTextSelection } from '@atlaskit/editor-prosemirror/utils';
 
 import type { CodeBlockPlugin } from '../index';
-
 import { getAutoClosingBracketInfo, shouldAutoCloseBracket } from './ide-ux/bracket-handling';
 import { indent, insertIndent, insertNewlineWithIndent, outdent } from './ide-ux/commands';
 import {
@@ -24,7 +23,9 @@ import {
 import { getAutoClosingQuoteInfo, shouldAutoCloseQuote } from './ide-ux/quote-handling';
 import { getCursor } from './utils';
 
-const ideUX = (pluginInjectionApi: ExtractInjectionAPI<CodeBlockPlugin> | undefined) => {
+const ideUX = (
+	pluginInjectionApi: ExtractInjectionAPI<CodeBlockPlugin> | undefined,
+): SafePlugin => {
 	const editorAnalyticsAPI = pluginInjectionApi?.analytics?.actions;
 	return new SafePlugin({
 		props: {

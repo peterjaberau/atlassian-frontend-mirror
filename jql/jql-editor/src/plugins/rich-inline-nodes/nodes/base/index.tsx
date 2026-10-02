@@ -2,21 +2,26 @@ import React from 'react';
 
 import { cssMap, cx } from '@atlaskit/css';
 import LockLockedIcon from '@atlaskit/icon/core/lock-locked';
-import { Box, Inline, Pressable } from '@atlaskit/primitives/compiled';
+import { Box, Inline, Pressable, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import type { NodeViewProps } from '../../util/react-node-view';
-
 import { type NodeBaseProps } from './types';
 
 const styles = cssMap({
 	nodeWrapper: {
-		display: 'flex',
+		display: 'inline-flex',
+		verticalAlign: 'text-top',
 		alignItems: 'center',
-		border: `${token('border.width')} solid transparent`,
-		borderRadius: token('radius.small'),
+		alignSelf: 'baseline',
 		backgroundColor: token('color.background.neutral'),
-		height: '20px',
+		borderLeftColor: 'transparent',
+		borderLeftWidth: token('border.width'),
+		borderLeftStyle: 'solid',
+		borderRightColor: 'transparent',
+		borderRightWidth: token('border.width'),
+		borderRightStyle: 'solid',
+		borderRadius: token('radius.small'),
 		paddingBlock: '0',
 		paddingInlineStart: token('space.025'),
 		paddingInlineEnd: token('space.050'),
@@ -25,10 +30,22 @@ const styles = cssMap({
 			backgroundColor: token('color.background.neutral.hovered'),
 		},
 	},
+	nodeWrapperWithHeight: {
+		height: '20px',
+		borderTopColor: 'transparent',
+		borderTopWidth: token('border.width'),
+		borderTopStyle: 'solid',
+		borderBottomColor: 'transparent',
+		borderBottomWidth: token('border.width'),
+		borderBottomStyle: 'solid',
+	},
 
 	nodeWrapperSelected: {
 		backgroundColor: token('color.background.selected'),
-		borderColor: token('color.border.selected'),
+		borderTopColor: token('color.border.selected'),
+		borderBottomColor: token('color.border.selected'),
+		borderLeftColor: token('color.border.selected'),
+		borderRightColor: token('color.border.selected'),
 
 		'&:hover': {
 			backgroundColor: token('color.background.selected.hovered'),
@@ -53,12 +70,10 @@ const styles = cssMap({
 	textWrapper: {
 		fontFamily: token('font.family.code'),
 	},
-
 	iconBeforeWrapper: {
 		display: 'flex',
 		height: '16px',
 		alignItems: 'center',
-		marginBlockStart: token('space.negative.025'),
 	},
 
 	iconAfterWrapper: {},
@@ -77,20 +92,30 @@ const styles = cssMap({
  * a uniform look and feel across different node types.
  */
 
-export const NodeBase = (props: NodeViewProps<NodeBaseProps>) => {
-	const { iconBefore, text, isLocked, selected, error } = props;
+export const NodeBase = (props: NodeViewProps<NodeBaseProps>): React.JSX.Element => {
+	const { iconBefore, text, isLocked, selected, error, isRichNodeDisplay } = props;
 
 	return (
 		<Pressable
 			xcss={cx(
 				styles.nodeWrapper,
+				!isRichNodeDisplay && styles.nodeWrapperWithHeight,
 				error && styles.nodeWrapperError,
 				selected && (error ? styles.nodeWrapperErrorSelected : styles.nodeWrapperSelected),
 			)}
+			{...(isRichNodeDisplay ? { title: text } : {})}
 		>
 			<Inline space="space.050" alignBlock="center">
 				{iconBefore && <Box xcss={styles.iconBeforeWrapper}>{iconBefore}</Box>}
-				<Box xcss={styles.textWrapper}>{text}</Box>
+				{isRichNodeDisplay ? (
+					<Text maxLines={2} align="start">
+						<Box as="span" xcss={styles.textWrapper}>
+							{text}
+						</Box>
+					</Text>
+				) : (
+					<Box xcss={styles.textWrapper}>{text}</Box>
+				)}
 				{isLocked && (
 					<Box xcss={styles.iconAfterWrapper}>
 						<LockLockedIcon size="small" color={token('color.icon.accent.red')} label="" />

@@ -1,14 +1,15 @@
+/* eslint-disable @atlaskit/design-system/no-deprecated-imports -- Preserve existing drag handle behavior while focus-ring usage is reviewed separately. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
 
-import { forwardRef } from 'react';
+import { forwardRef, type ForwardRefExoticComponent, type RefAttributes } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, type SerializedStyles } from '@emotion/react';
 
-import FocusRing from '@atlaskit/focus-ring';
+import FocusRing from '@atlaskit/focus-ring/focus-ring';
 import { token } from '@atlaskit/tokens';
 
 import type { DragHandleButtonProps } from './types';
@@ -60,10 +61,9 @@ const buttonAppearanceStyles: Record<DragHandleButtonAppearance, SerializedStyle
  * This component uses a native button because the `@atlaskit/button`
  * cancels `mouseDown` events, which prevents dragging.
  */
-export const DragHandleButtonBase = forwardRef<
-	HTMLButtonElement,
-	Omit<DragHandleButtonProps, 'label'>
->(function DragHandleButton(
+export const DragHandleButtonBase: ForwardRefExoticComponent<
+	Omit<DragHandleButtonProps, 'label'> & RefAttributes<HTMLButtonElement>
+> = forwardRef<HTMLButtonElement, Omit<DragHandleButtonProps, 'label'>>(function DragHandleButton(
 	{
 		children,
 		isSelected = false,

@@ -1,103 +1,62 @@
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useRef } from 'react';
 
-import {
-	type AnalyticsEventPayload,
-	AnalyticsReactContext,
-	useAnalyticsEvents,
-} from '@atlaskit/analytics-next';
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import AnalyticsReactContext from '@atlaskit/analytics-next/AnalyticsReactContext';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 
-import { ANALYTICS_CHANNEL } from '../common/constants';
-import type { RemainingRequired } from '../common/types';
-import { getAttributesFromContexts, getDefaultTrackEventConfig } from '../common/utils';
+import { ANALYTICS_CHANNEL } from '../common/ANALYTICS_CHANNEL';
+import { LIBRARY_ATTRIBUTE, type EventPayload } from '../common/types';
+import { getAttributesFromContexts } from '../common/utils/getAttributesFromContexts';
+import { getDefaultTrackEventConfig } from '../common/utils/getDefaultTrackEventConfig';
 
-export enum AgentActions {
-	/* View agent clicked - https://data-portal.internal.atlassian.com/analytics/registry/97125 */
-	VIEW = 'view',
-	/* Edit agent clicked - https://data-portal.internal.atlassian.com/analytics/registry/97126 */
-	EDIT = 'edit',
-	/* Agent updated - https://data-portal.internal.atlassian.com/analytics/registry/97122 */
-	UPDATED = 'updated',
-	/* Copy link clicked - https://data-portal.internal.atlassian.com/analytics/registry/97128 */
-	COPY_LINK = 'copyLink',
-	/* Delete agent clicked - https://data-portal.internal.atlassian.com/analytics/registry/97129 */
-	DELETE = 'delete',
-	/* Duplicate agent clicked - https://data-portal.internal.atlassian.com/analytics/registry/97130 */
-	DUPLICATE = 'duplicate',
-	/* Star agent clicked - https://data-portal.internal.atlassian.com/analytics/registry/97133 */
-	STAR = 'star',
-	/* Chat with agent clicked - https://data-portal.internal.atlassian.com/analytics/registry/97095 */
-	CHAT = 'chat',
-	/* Verify agent clicked - https://data-portal.internal.atlassian.com/analytics/registry/97134 */
-	VERIFY = 'verify',
-	/* Unverify agent clicked - https://data-portal.internal.atlassian.com/analytics/registry/97135 */
-	UNVERIFY = 'unverify',
-}
+const globalEventConfig = getDefaultTrackEventConfig();
 
-type CommonAnalyticsAttributes = {
-	touchPoint: string;
-	agentId: string;
-};
-
-export const useRovoAgentActionAnalytics = <T extends Partial<CommonAnalyticsAttributes>>(
+export const useRovoAgentActionAnalytics = <T extends {}>(
 	commonAttributes: T,
-) => {
+): {
+	trackAgentEvent: (payload: EventPayload) => void;
+} => {
 	const analyticsContext = useContext(AnalyticsReactContext);
 	const { createAnalyticsEvent } = useAnalyticsEvents();
-	const eventConfig = useMemo(() => getDefaultTrackEventConfig(), []);
+	const commonAttributesRef = useRef(commonAttributes);
 
 	const fireAnalyticsEvent = useCallback(
 		(event: AnalyticsEventPayload) => {
 			const attributes = {
 				...getAttributesFromContexts(analyticsContext.getAtlaskitAnalyticsContext()),
-				...commonAttributes,
+				...commonAttributesRef.current,
+				library: LIBRARY_ATTRIBUTE,
 				...event.attributes,
 			};
 
 			createAnalyticsEvent({
-				...eventConfig,
+				...globalEventConfig,
 				...event,
 				attributes,
 			}).fire(ANALYTICS_CHANNEL);
 		},
-		[createAnalyticsEvent, eventConfig, commonAttributes, analyticsContext],
+		[createAnalyticsEvent, analyticsContext], // keep number of dependencies minimal to prevent re-rendering
 	);
 
-	const trackAgentAction = useCallback(
-		(
-			action: AgentActions,
-			attributes: RemainingRequired<CommonAnalyticsAttributes, T> & Record<string, any>,
-		): void => {
+	/**
+	 * Fully-typed event tracking using discriminated union payload types.
+	 * The payload type enforces correct action, actionSubject, and attributes.
+	 */
+	const trackAgentEvent = useCallback(
+		(payload: EventPayload): void => {
+			const { action, actionSubject, attributes, ...eventProps } = payload;
+
 			fireAnalyticsEvent({
-				actionSubject: 'rovoAgent',
+				actionSubject,
 				action,
+				...eventProps,
 				attributes,
-			});
-		},
-		[fireAnalyticsEvent],
-	);
-
-	const trackAgentActionError = useCallback(
-		(
-			action: AgentActions,
-			error: Error,
-			attributes?: RemainingRequired<CommonAnalyticsAttributes, T> & Record<string, any>,
-		): void => {
-			fireAnalyticsEvent({
-				actionSubject: 'rovoAgentError',
-				action,
-				attributes: {
-					...attributes,
-					error: {
-						message: error.message,
-					},
-				},
 			});
 		},
 		[fireAnalyticsEvent],
 	);
 
 	return {
-		trackAgentAction,
-		trackAgentActionError,
+		trackAgentEvent,
 	};
 };

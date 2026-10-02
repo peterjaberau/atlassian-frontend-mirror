@@ -1,5 +1,1294 @@
 # @atlaskit/media-viewer
 
+## 54.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.10.0
+
+### Minor Changes
+
+- [`f4b5f17c2d1c0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f4b5f17c2d1c0) -
+  [ux] Add an opt-in inset Media Viewer presentation behind the new `useInsetViewer` field on
+  `MediaViewerExtensions`, gated at runtime by the `cc_comments_inset_media_viewer` feature gate.
+  When a consumer passes `useInsetViewer` and the feature gate is enabled, the viewer renders as a
+  rounded card on a dimmed blanket instead of the full-bleed overlay: clicking the blanket closes
+  the viewer, clicking the media itself no longer does, the overlay header is not rendered, and
+  prev/next use circular icon buttons. With the feature gate disabled, or with `useInsetViewer`
+  absent or false, the default full-bleed overlay renders unchanged.
+
+## 54.9.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.9.0
+
+### Minor Changes
+
+- [`a432278c5cb5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a432278c5cb5c) -
+  [ux] Add opt-in consumer extension points so a product can host its own sidebar content — such as
+  Confluence comments — inside Media Viewer, and restore that viewer state across remounts. All of
+  the new behaviour is gated behind the `cc_comments_media_viewer_sidebar` experiment; with the
+  experiment off both packages behave exactly as before.
+
+  `@atlaskit/media-viewer` adds nine optional fields to `MediaViewerExtensions` and exports the new
+  `MediaViewerNavigationDirection` type. Consumers can intercept the close and navigate paths with
+  `onPreviewClose`, `onSidebarClose` and `onNavigation` — each receives a `proceed()` callback, so a
+  consumer can defer or swallow the action while, for example, prompting about an unsaved comment.
+  Viewer state can be persisted and restored through `getMediaViewerSelectedItem`,
+  `onSelectedItemChange`, `defaultSidebarVisible` and `onSidebarVisibilityChange`, and the existing
+  `sidebar` extension accepts `label` and `title`. The previously shipped `sidebar` and
+  `headerActions` fields are unchanged and are not gated.
+
+  `@atlaskit/media-card` adds no new prop of its own, but `Card`/`FileCard` consumers can now pass
+  `getMediaViewerSelectedItem` and `onSelectedItemChange` through the existing
+  `mediaViewerExtensions` prop to seed the Media Viewer selected item on mount and be notified when
+  it opens or closes — new remount-restore behaviour that also requires this release of
+  `@atlaskit/media-viewer` to typecheck.
+
+  Both packages add `@atlaskit/platform-feature-experiments` as a runtime dependency.
+
+### Patch Changes
+
+- [`ae39a248bd118`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae39a248bd118) -
+  FFCLEANUP-147994 clean up fg relating to fallback media name fetcher
+  platform_editor_media_name_fallback, platform_editor_media_file_rename_on_fallback,
+  platform_editor_media_file_rename_on_fallback, platform_editor_media_name_fallback_viewer_card
+- Updated dependencies
+
+## 54.8.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.23
+
+### Patch Changes
+
+- [`bffd2c37b0e17`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bffd2c37b0e17) -
+  Apply the Volt one-export-per-file standard via `volt-migrate-package` to
+  `@atlaskit/media-viewer`. The bump is **patch** because the public API is unchanged: the package
+  `exports` map is **unchanged** — all 5 public subpaths (`.`, `./classnames`,
+  `./media-viewer-loader`, `./types`, `./viewer-options`) keep their existing targets and expose
+  exactly the same symbols as before. The split moved internal multi-export modules into one module
+  per export; because none of the affected symbols were reachable through the `exports` map, no new
+  re-export shims were needed.
+
+  ### No public API was removed
+
+  Every existing import keeps working:
+
+  ```ts
+  import { MediaViewer } from '@atlaskit/media-viewer';
+  import AsyncMediaViewer from '@atlaskit/media-viewer/media-viewer-loader';
+  import type { MediaViewerExtensions } from '@atlaskit/media-viewer/types';
+  ```
+
+  ### The root barrel is now marked `@deprecated`
+
+  Everything the root entry point (`@atlaskit/media-viewer`) re-exports is also available from a
+  dedicated subpath, so each of its three re-exports now carries a `@deprecated` marker pointing at
+  that subpath. Nothing is removed and no behaviour changes — you will just see a deprecation hint
+  in your editor. VOLTC-139 tracks removing the shims. Prefer:
+
+  ```ts
+  // instead of `import { MediaViewer } from '@atlaskit/media-viewer'`
+  import MediaViewer from '@atlaskit/media-viewer/media-viewer-loader';
+  // instead of `import type { MediaViewerProps } from '@atlaskit/media-viewer'`
+  import type { MediaViewerProps } from '@atlaskit/media-viewer/types';
+  // instead of `import type { ViewerOptionsProps } from '@atlaskit/media-viewer'`
+  import type { ViewerOptionsProps } from '@atlaskit/media-viewer/viewer-options';
+  ```
+
+  ### Note for consumers that mock these modules
+
+  The split deleted three private barrels and hollowed out several internal modules, so a
+  `jest.mock()` or `jest.spyOn()` aimed at one of them will silently stop intercepting. None of
+  these paths are reachable through the `exports` map, but deep-path mocks in downstream tests do
+  reach them. Mock the module that now owns the export instead:
+  - `src/domain/index.tsx` (deleted) — `Outcome` → `domain/outcome`.
+  - `src/utils/index.ts` (deleted) — each helper now owns a module under `utils/`:
+    `isSameIdentifier`, `getSelectedIndex`, `getMediaTypeFromFilename`, `getMimeTypeFromFilename`,
+    `getFolderParent`, `extractArchiveFolderName`, `getFormattedFolderName`, `isMacPrivateFile`,
+    `rejectAfter`.
+  - `src/viewers/svg/utils.ts` (deleted) — `clientRectangle` → `viewers/svg/clientRectangle`,
+    `naturalSizeRectangle` → `viewers/svg/naturalSizeRectangle`, `zoomLevelAfterResize` →
+    `viewers/svg/zoomLevelAfterResize`.
+  - `src/errors.ts` is now types-only (`PrimaryErrorReason`, `SecondaryErrorReason`). Its runtime
+    exports moved out: `MediaViewerError` → `MediaViewerError`, `ArchiveViewerError` →
+    `ArchiveViewerError`, `isMediaViewerError` / `isArchiveViewerError` / `getPrimaryErrorReason` /
+    `getSecondaryErrorReason` / `getErrorDetail` / `getRequestMetadata` / `classifyFailedSrc` /
+    `buildImgErrorDiagnostics` / `buildVideoErrorDiagnostics` → one module each.
+  - `src/analytics/index.ts` is now types-only (`MediaViewerFailureAttributes`) — `fireAnalytics` →
+    `analytics/fireAnalytics`, `getFileAttributes` → `analytics/getFileAttributes`.
+  - `src/download.tsx` now only holds `DisabledToolbarDownloadButton` — `ToolbarDownloadButton` →
+    `ToolbarDownloadButton`, `ErrorViewDownloadButton` → `ErrorViewDownloadButton`. The previously
+    module-private `DownloadItem` and `DownloadButton` also each own a module now.
+  - `src/components/media-viewer.tsx` (renamed, see below) — `MediaViewerWithMediaClient` →
+    `components/media-viewer-with-media-client`, `MediaViewerBase` → `components/media-viewer-base`.
+
+  ### Internal-only renames
+  - `src/components/media-viewer.tsx` → `src/components/media-viewer-base.tsx`
+  - `src/viewers/codeViewer/msg-parser.ts` → `src/viewers/codeViewer/msgToText.ts`
+
+  None of these paths are reachable through the `exports` map. No behaviour change.
+
+## 54.8.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.5
+
+### Patch Changes
+
+- [`bcfe498b206d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcfe498b206d5) -
+  Adopt button and list-item motion tokens behind the use-pressable-motion rollout.
+
+## 54.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.8.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.7.0
+
+### Minor Changes
+
+- [`143ebd1ce2710`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/143ebd1ce2710) -
+  Show a dedicated "File is too large to preview" heading instead of the generic "Something went
+  wrong" copy when a file exceeds the size limit supported by the browser-based viewer (currently:
+  code/text files over the 10MB CodeViewer limit, both in the main viewer and inside ZIP archives).
+  These failures are reported via the `previewTooLarge` analytics event rather than `loadFailed`,
+  since they aren't load failures. Behind the `platform_media_too_large_preview_state` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.6.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.6.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.6.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.46
+
+### Patch Changes
+
+- [`6098ef66f20ae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6098ef66f20ae) -
+  [BMPT-8184] Fix video viewer showing "Something went wrong" for videos that only have an SD
+  (`video_640.mp4`) artifact. The viewer now prefers the HD (`video_1280.mp4`) artifact and falls
+  back to the SD artifact when HD is unavailable, instead of failing when no HD rendition exists.
+  Behind the `platform_media_video_sd_fallback` feature gate.
+
+## 54.5.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.33
+
+### Patch Changes
+
+- [`be5f53435795e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be5f53435795e) -
+  Cleanup feature gate `platform_media_a11y_suppression_fixes`. The accessible wrapper behavior is
+  now permanent in media card, viewer, and filmstrip.
+
+## 54.5.32
+
+### Patch Changes
+
+- [`aa2113836d418`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aa2113836d418) -
+  [BMPT-8156] Image viewer now decides unsupported-MIME routing based on the MIME type of the actual
+  fetched bytes (`Blob.type`) rather than the declared `mimeType` from the items call. This handles
+  just-in-time (JIT) transformation correctly (e.g. a TIFF that is transcoded to JPEG on the fly, or
+  left as TIFF when the transform fails). Behaviour is unchanged when the
+  `platform_media_unsupported_mime_routing` feature gate is off.
+- Updated dependencies
+
+## 54.5.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.22
+
+### Patch Changes
+
+- [`96d0a30ad758d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/96d0a30ad758d) -
+  [ux] A11Y-35379: Give the media viewer previous/next navigation buttons more descriptive
+  accessible names ("Previous attachment" / "Next attachment") so screen reader users can identify
+  their purpose. Gated behind `platform_media_a11y_nav_button_labels`.
+
+## 54.5.21
+
+### Patch Changes
+
+- [`e3550afc43327`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3550afc43327) -
+  [ux] EDITOR-7679 bug fix for media name fallback falling back to "download" when the media name
+  was not being passed
+- Updated dependencies
+
+## 54.5.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.12
+
+### Patch Changes
+
+- [`fc42b7257d341`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fc42b7257d341) -
+  Attach native MediaError diagnostics to videoviewer-playback failures so the existing
+  error/errorDetail analytics fields report a real cause instead of unknown (observability-only, no
+  behaviour change).
+- Updated dependencies
+
+## 54.5.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.4
+
+### Patch Changes
+
+- [`dbc145df6b864`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbc145df6b864) -
+  Clean up feature gate `platform_media_package_react19_lifecycle_fix`. The React 19-safe lifecycle
+  behaviour is now permanent: prop-change reactions run in `componentDidUpdate` and the legacy
+  `UNSAFE_componentWillReceiveProps` paths have been removed.
+
+## 54.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.5.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.4.0
+
+### Minor Changes
+
+- [`ecf905d329e42`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ecf905d329e42) -
+  Add diagnostic context to the imageviewer-src-onerror failure (errorDetail now report mimeType,
+  decode dimensions and failed source type instead of unknown)
+- [`a654b7573d0a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a654b7573d0a2) -
+  Route image MIME types that the browser cannot natively decode (e.g. HEIC/HEIF, PSD, TIFF) to the
+  unsupported/download preview view instead of a guaranteed-failing `<img>`. These are reported via
+  the `previewUnsupported` analytics event rather than `loadFailed`. Behind the
+  `platform_media_unsupported_mime_routing` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.3.8
+
+### Patch Changes
+
+- [`bea4da79c297d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bea4da79c297d) -
+  [ux] EDITOR-7679 use fallback media name for filename in download
+- Updated dependencies
+
+## 54.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.3.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.2.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 54.2.0
+
+### Minor Changes
+
+- [`a56e76c8f33af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a56e76c8f33af) -
+  Add processingFailReason to media-viewer loadFailed analytics for failed-processing root-cause
+  analysis (BMPT-8000)
+- [`758e07b536b13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/758e07b536b13) -
+  [ux] Show a clear "Unsupported file format" message for non-ZIP archives (e.g. 7z, tar, gzip) in
+  the media viewer instead of a generic error, and remove the empty sidebar gap. Behind feature gate
+  platform_media_archive_zip_guard.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.1.0
+
+### Minor Changes
+
+- [`19773530cd51c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19773530cd51c) -
+  Add fallbackMediaNameFetcher support to MediaCard (FileCard) and MediaViewer (header display),
+  gated behind the platform_editor_media_name_fallback_viewer_card experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 54.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.2.1
+
+### Patch Changes
+
+- [`2fe9a9909d2ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe9a9909d2ac) -
+  Enrol media packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 53.2.0
+
+### Minor Changes
+
+- [`34c40eb233aa4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/34c40eb233aa4) -
+  isUxChange: true
+
+  Lazy-append document pages for MS Excel previews behind platform_media_excel_lazy_load gate to fix
+  initial-render freeze on very large documents
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.1.0
+
+### Minor Changes
+
+- [`818d7e656a226`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/818d7e656a226) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 53.0.2
+
+### Patch Changes
+
+- [`87c390129e175`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/87c390129e175) -
+  [ux] Fix accessibility suppression for media components behind feature gate
+  `platform_media_a11y_suppression_fixes`. Replaces `role="presentation"` with `role="none"` and
+  removes `tabIndex={-1}`, `onKeyDown`, and `onFocus` handlers from non-interactive media wrappers
+  to prevent focus being stolen from the editor when media cards are clicked.
+
+## 53.0.1
+
+### Patch Changes
+
+- [`e3d1ec1074c7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3d1ec1074c7e) -
+  Removing UNSAFE_componentWillReceiveProps from media-picker, media-avatar-picker and media-viewer
+  package to support React19 migration
+
+## 53.0.0
+
+### Major Changes
+
+- [`770f036c93884`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/770f036c93884) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.9.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.9.3
+
+### Patch Changes
+
+- [`9896ce8e69e57`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9896ce8e69e57) -
+  Improve accessibility across media packages with semantic button elements and i18n support, all
+  changes are behind feature flag
+- Updated dependencies
+
+## 52.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.9.1
+
+### Patch Changes
+
+- [`715629fc18fc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/715629fc18fc8) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 52.9.0
+
+### Minor Changes
+
+- [`6e25e8bbb01c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e25e8bbb01c3) -
+  [ux] Adds mediaViewerExtensions prop to media-viewer/src/header and threads it through parents.
+  Allows callers to pass in additional buttons to the image / video preview'
+
+## 52.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.8.0
+
+### Minor Changes
+
+- [`c90ccf0c600ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c90ccf0c600ee) -
+  Enable cross product/cross client copy and paste of Media files by including clientId during Copy
+  operations.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 52.7.5
+
+### Patch Changes
+
+- [`5fb7e85e19555`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5fb7e85e19555) -
+  Migrate tests from mountWithIntlContext (Enzyme) to renderWithIntl (RTL)
+- Updated dependencies
+
+## 52.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 52.7.3
 
 ### Patch Changes

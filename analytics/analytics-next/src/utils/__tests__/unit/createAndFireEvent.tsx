@@ -2,13 +2,12 @@ import React, { type MouseEvent } from 'react';
 
 import { fireEvent, render } from '@testing-library/react';
 
-import {
-	AnalyticsListener,
-	createAndFireEvent,
-	type UIAnalyticsEvent,
-	withAnalyticsEvents,
+import AnalyticsListener from '../../../components/AnalyticsListener';
+import type UIAnalyticsEvent from '../../../events/UIAnalyticsEvent';
+import withAnalyticsEvents, {
 	type WithAnalyticsEventsProps,
-} from '../../../index';
+} from '../../../hocs/withAnalyticsEvents';
+import createAndFireEvent from '../../createAndFireEvent';
 
 interface Props extends WithAnalyticsEventsProps {
 	children: React.ReactNode;

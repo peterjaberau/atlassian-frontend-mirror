@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,39 +8,52 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Code Block', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the code block plugin used by \`@atlaskit/editor-core\`.
 
   ## Usage
 ---
 
-The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\` of the plugin are defined
+The \`dependencies\`, \`configuration\`, \`shared state\`, and \`actions\` of the plugin are defined
 below:
 
 ${code`
 type CodeBlockPlugin = NextEditorPlugin<
   'codeBlock',
   {
-    pluginConfiguration: CodeBlockPluginOptions;
+    pluginConfiguration: CodeBlockPluginOptions | undefined;
     dependencies: [
-      typeof decorationsPlugin,
-      typeof compositionPlugin,
-      OptionalPlugin<typeof analyticsPlugin>,
+      DecorationsPlugin,
+      CompositionPlugin,
+      OptionalPlugin<AnalyticsPlugin>,
+      OptionalPlugin<EditorDisabledPlugin>,
+      OptionalPlugin<FeatureFlagsPlugin>,
+      OptionalPlugin<InteractionPlugin>,
+      OptionalPlugin<EditorViewModePlugin>,
+      OptionalPlugin<BlockMenuPlugin>,
+      OptionalPlugin<SelectionPlugin>,
+      OptionalPlugin<ToolbarPlugin>,
     ];
     actions: {
       insertCodeBlock: (inputMethod: INPUT_METHOD) => Command;
     };
+    sharedState:
+      | {
+          copyButtonHoverNode: PMNode;
+        }
+      | undefined;
   }
 >;
 `}

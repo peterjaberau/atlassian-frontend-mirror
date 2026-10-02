@@ -1,7 +1,9 @@
 import React from 'react';
-import { type EditorProps } from '@atlaskit/editor-core';
-import { type ComposableEditor } from '@atlaskit/editor-core/composable-editor';
+
+import type { EditorProps } from '@atlaskit/editor-core';
+import type { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { useUniversalPreset } from '@atlaskit/editor-core/preset-universal';
+
 import { MOCK_USERS } from '../example-helpers/MockData';
 import {
 	getDataProviderFactory,
@@ -21,7 +23,7 @@ export default class ExistingConversation extends React.Component<{}, { conversa
 		conversationId: undefined,
 	};
 
-	async componentDidMount() {
+	async componentDidMount(): Promise<void> {
 		const [conversation] = await provider.getConversations();
 
 		this.setState({
@@ -29,7 +31,7 @@ export default class ExistingConversation extends React.Component<{}, { conversa
 		});
 	}
 
-	render() {
+	render(): React.JSX.Element | null {
 		const { conversationId } = this.state;
 		if (!conversationId) {
 			return null;

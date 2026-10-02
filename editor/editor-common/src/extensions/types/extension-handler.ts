@@ -41,12 +41,14 @@ export type ExtensionAPI<T extends Parameters = Parameters> = {
 				allowSelectionToNewNode?: boolean;
 			},
 		) => void;
+		insertAtSelection?: (adf: ADFEntity) => void;
 		scrollTo: (localId: string) => void;
 		update: (
 			localId: string,
 			mutationCallback: (
-				currentValue: Pick<ADFEntity, 'content' | 'attrs' | 'marks'>,
-			) => Pick<ADFEntity, 'content' | 'attrs' | 'marks'>,
+				currentValue: Pick<ADFEntity, 'content' | 'attrs' | 'marks'> &
+					Partial<Pick<ADFEntity, 'type'>>,
+			) => Pick<ADFEntity, 'content' | 'attrs' | 'marks'> & Partial<Pick<ADFEntity, 'type'>>,
 			options?: {
 				addToHistory?: boolean;
 				scrollIntoView?: boolean;
@@ -80,17 +82,26 @@ export type ReferenceEntity = {
 	[prop: string]: ADFEntity | Object;
 };
 
+export type ChangeActiveOptions = {
+	/** Controls cursor placement after switching frames. Defaults to 'none'. */
+	selection?: 'none' | 'start' | 'end';
+};
+
 //Update action api once finalised
 export type MultiBodiedExtensionActions = {
 	addChild: () => boolean;
-	changeActive: (index: number) => boolean;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	getChildren(): Array<ADFEntity>;
-	// eslint-disable-next-line @typescript-eslint/method-signature-style -- ignored via go/ees013 (to be fixed)
-	getChildrenContainer(): React.ReactNode;
+	changeActive: (index: number, options?: ChangeActiveOptions) => boolean;
+	getChildren: () => Array<ADFEntity>;
+	getChildrenContainer: () => React.ReactNode;
 	getChildrenCount: () => number;
 	removeChild: (index: number) => boolean;
-	updateParameters: (parameters: Parameters) => boolean;
+	reorderChildren: (fromIndex: number, toIndex: number) => boolean;
+	/**
+	 * `analyticsChangedParam` is the optional name/key of the parameter changed by the client.
+	 * It is reported in analytics as `changedParams`.
+	 * Example: `updateParameters({ tabs: updatedTabs }, '+tabColor,~tabTitle')`.
+	 */
+	updateParameters: (parameters: Parameters, analyticsChangedParam?: string) => boolean;
 };
 
 // DEPRECATED

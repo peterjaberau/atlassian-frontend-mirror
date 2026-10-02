@@ -1,9 +1,25 @@
 // Disable no-re-export rule for entry point files
 /* eslint-disable @atlaskit/editor/no-re-export */
 
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const limitedModeMessages = defineMessages({
+export const limitedModeMessages: {
+	limitedModeTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	limitedModeDescriptionWithLink: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	limitedModeDescriptionWithoutLink: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	limitedModeTitle: {
 		id: 'fabric.editor.limitedModeTitle',
 		defaultMessage: 'Speed improvements',

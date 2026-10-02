@@ -1,12 +1,16 @@
-import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import React from 'react';
-import { screen } from '@testing-library/react';
+
+import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+
 import ToneSelector from '../../../../components/common/ToneSelector';
 import type { EmojiDescription, EmojiDescriptionWithVariations } from '../../../../types';
+import { toneSelectedEvent } from '../../../../util/analytics/toneSelectedEvent';
+import { toneSelectorOpenedEvent } from '../../../../util/analytics/toneSelectorOpenedEvent';
 import { imageEmoji, generateSkinVariation } from '../../_test-data';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { toneSelectedEvent, toneSelectorOpenedEvent } from '../../../../util/analytics';
 import { renderWithIntl } from '../../_testing-library';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
@@ -30,6 +34,7 @@ const handEmoji: EmojiDescriptionWithVariations = {
 		generateSkinVariation(baseHandEmoji, 5),
 	],
 };
+const mediumDarkHandEmojiLabel = `Change emoji, currently ${handEmoji.skinVariations![3].name}`;
 
 describe('<ToneSelector />', () => {
 	let user: ReturnType<typeof userEvent.setup>;
@@ -49,10 +54,42 @@ describe('<ToneSelector />', () => {
 			<ToneSelector emoji={handEmoji} onToneSelected={handleToneSelectedMock} isVisible />,
 		);
 
-		const toneButton = await screen.findByLabelText(':raised_back_of_hand-4:');
+		const toneButton = await screen.findByLabelText(mediumDarkHandEmojiLabel);
 		await user.click(toneButton);
 
-		expect(handleToneSelectedMock).toHaveBeenCalled();
+		expect(handleToneSelectedMock).toHaveBeenCalledTimes(1);
+		expect(handleToneSelectedMock).toHaveBeenCalledWith(4);
+	});
+
+	it('should call onToneSelected on Space key press exactly once', async () => {
+		const handleToneSelectedMock = jest.fn();
+
+		await renderWithIntl(
+			<ToneSelector emoji={handEmoji} onToneSelected={handleToneSelectedMock} isVisible />,
+		);
+
+		// Space triggers onClick on the input (browser fires click on Space for radio).
+		// Clicking the emoji img span (found via aria-label) forwards through the label to
+		// the input's onClick handler — same code path as a Space key press.
+		const emojiToneButton = await screen.findByLabelText(mediumDarkHandEmojiLabel);
+		await user.click(emojiToneButton);
+
+		expect(handleToneSelectedMock).toHaveBeenCalledTimes(1);
+		expect(handleToneSelectedMock).toHaveBeenCalledWith(4);
+	});
+
+	it('should call onToneSelected on Enter key press', async () => {
+		const handleToneSelectedMock = jest.fn();
+
+		await renderWithIntl(
+			<ToneSelector emoji={handEmoji} onToneSelected={handleToneSelectedMock} isVisible />,
+		);
+
+		// tone index 4 is the 5th radio in DOM order (0-indexed): base, 1, 2, 3, 4, 5
+		const radios = screen.getAllByRole('radio');
+		fireEvent.keyDown(radios[4], { key: 'Enter' });
+
+		expect(handleToneSelectedMock).toHaveBeenCalledTimes(1);
 		expect(handleToneSelectedMock).toHaveBeenCalledWith(4);
 	});
 
@@ -73,7 +110,7 @@ describe('<ToneSelector />', () => {
 			'fabric-elements',
 		);
 
-		const toneButton = await screen.findByLabelText(':raised_back_of_hand-4:');
+		const toneButton = await screen.findByLabelText(mediumDarkHandEmojiLabel);
 		await user.click(toneButton);
 
 		expect(handleOnEventMock).toHaveBeenCalledWith(

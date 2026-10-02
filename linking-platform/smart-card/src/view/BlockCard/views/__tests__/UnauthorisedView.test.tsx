@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
-
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import { type CardState } from '@atlaskit/linking-common';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardState } from '@atlaskit/linking-common/store';
 import { renderWithIntl } from '@atlaskit/media-test-helpers/renderWithIntl';
+import { screen } from '@atlassian/testing-library';
 
 import {
 	CONTENT_URL_3P_ACCOUNT_AUTH,
@@ -12,6 +11,16 @@ import {
 } from '../../../../constants';
 import { mocks } from '../../../../utils/mocks';
 import UnauthorisedView from '../UnauthorisedView';
+
+jest.mock('@atlaskit/feature-gate-js-client/feature-gates', () => ({
+	...jest.requireActual('@atlaskit/feature-gate-js-client/feature-gates'),
+	__esModule: true,
+	default: {
+		checkGate: jest.fn().mockReturnValue(false),
+		getExperimentValue: jest.fn().mockReturnValue('not-enrolled'),
+		initializeCompleted: jest.fn().mockReturnValue(true),
+	},
+}));
 
 describe('UnauthorisedView', () => {
 	const url = 'https://some.url';
@@ -57,7 +66,7 @@ describe('UnauthorisedView', () => {
 
 		const description = await screen.findByTestId(descriptionTestId);
 		expect(description).toHaveTextContent(
-			'Connect your 3P account to collaborate on work across Atlassian products. Learn more about Smart Links.',
+			'Turn your URLs into rich, interactive previews.Learn more about Smart Links.',
 		);
 
 		const learnMoreUrl = (await screen.findByRole('link', { name: /learn more/i })).getAttribute(
@@ -98,7 +107,7 @@ describe('UnauthorisedView', () => {
 
 		const description = await screen.findByTestId(descriptionTestId);
 		expect(description).toHaveTextContent(
-			'Connect your 3P account to collaborate on work across Atlassian products. Learn more about connecting your account to Atlassian products.',
+			'Turn your URLs into rich, interactive previews.Learn more about connecting your account to Atlassian products.',
 		);
 
 		const learnMoreUrl = (await screen.findByRole('link', { name: /learn more/i })).getAttribute(
@@ -123,7 +132,7 @@ describe('UnauthorisedView', () => {
 
 		const description = await screen.findByTestId(descriptionTestId);
 		expect(description).toHaveTextContent(
-			'Connect your account to collaborate on work across Atlassian products. Learn more about Smart Links.',
+			'Connect your account to collaborate on work across Atlassian products.Learn more about Smart Links.',
 		);
 
 		const button = await screen.findByTestId(buttonTestId);

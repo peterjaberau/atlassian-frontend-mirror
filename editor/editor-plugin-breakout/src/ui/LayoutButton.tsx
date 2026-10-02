@@ -3,18 +3,15 @@
  * @jsx jsx
  */
 import { useCallback } from 'react';
+import type { ComponentType, FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import {
-	ACTION,
-	ACTION_SUBJECT,
-	type BreakoutSupportedNodes,
-	EVENT_TYPE,
-} from '@atlaskit/editor-common/analytics';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import type { BreakoutSupportedNodes } from '@atlaskit/editor-common/analytics';
 import { BreakoutCssClassName } from '@atlaskit/editor-common/styles';
 import type { BreakoutMode, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { Popup } from '@atlaskit/editor-common/ui';
@@ -27,10 +24,9 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorFullPageNarrowBreakout } from '@atlaskit/editor-shared-styles';
 import GrowHorizontalIcon from '@atlaskit/icon/core/grow-horizontal';
 import ShrinkHorizontalIcon from '@atlaskit/icon/core/shrink-horizontal';
-import { B300, N20A, N300 } from '@atlaskit/theme/colors';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
 
 import type { BreakoutPlugin, BreakoutPluginState } from '../breakoutPluginType';
@@ -43,13 +39,13 @@ import { isSupportedNodeForBreakout } from '../pm-plugins/utils/is-supported-nod
 const toolbarButtonWrapperStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&& button': {
-		background: token('color.background.neutral', N20A),
-		color: token('color.icon', N300),
+		background: token('color.background.neutral'),
+		color: token('color.icon'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 		':hover': {
-			background: token('color.background.neutral.hovered', B300),
+			background: token('color.background.neutral.hovered'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-			color: `${token('color.icon', 'white')} !important`,
+			color: `${token('color.icon')} !important`,
 		},
 	},
 });
@@ -112,12 +108,10 @@ const LayoutButton = ({
 }: Props & WrappedComponentProps) => {
 	const handleClick = useCallback(
 		(breakoutMode: BreakoutMode) => {
-			if (expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) && !editorView) {
+			if (!editorView) {
 				return;
 			}
-			// Remove ! during platform_editor_hydratable_ui cleanup
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-			const { state, dispatch } = editorView!;
+			const { state, dispatch } = editorView;
 			const breakoutNode = getPluginState(state)?.breakoutNode;
 			if (['wide', 'full-width'].indexOf(breakoutMode) !== -1) {
 				setBreakoutMode(breakoutMode, isLivePage)(state, dispatch);
@@ -148,13 +142,11 @@ const LayoutButton = ({
 		[api?.analytics?.actions, editorView, isLivePage],
 	);
 
-	if (expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) && !editorView) {
+	if (!editorView) {
 		return null;
 	}
 
-	// Remove ! during platform_editor_hydratable_ui cleanup
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	if (!isBreakoutNodePresent || !isBreakoutMarkAllowed(editorView!.state)) {
+	if (!isBreakoutNodePresent || !isBreakoutMarkAllowed(editorView.state)) {
 		return null;
 	}
 
@@ -164,17 +156,13 @@ const LayoutButton = ({
 	const nextBreakoutMode = getNextBreakoutMode(breakoutMode);
 	const belowOtherPopupsZIndex = layers.layer() - 1;
 
-	// Remove ! during platform_editor_hydratable_ui cleanup
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	const pluginState = getPluginState(editorView!.state);
+	const pluginState = getPluginState(editorView.state);
 
 	if (!pluginState) {
 		return null;
 	}
 
-	// Remove ! during platform_editor_hydratable_ui cleanup
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	let element = getBreakoutNodeElement(pluginState, editorView!.state.selection, editorView!);
+	let element = getBreakoutNodeElement(pluginState, editorView.state.selection, editorView);
 	if (!element) {
 		return null;
 	}
@@ -191,6 +179,7 @@ const LayoutButton = ({
 		<Popup
 			ariaLabel={title}
 			target={element}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			offset={[5, 0]}
 			alignY="start"
 			alignX="end"
@@ -211,6 +200,7 @@ const LayoutButton = ({
 				<ToolbarButton
 					title={title}
 					testId={titleMessage.id}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onClick={() => handleClick(nextBreakoutMode)}
 					iconBefore={
 						breakoutMode === 'full-width' ? (
@@ -227,4 +217,7 @@ const LayoutButton = ({
 
 LayoutButton.displayName = 'LayoutButton';
 
-export default injectIntl(LayoutButton);
+const _default_1: FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(LayoutButton);
+export default _default_1;

@@ -1,16 +1,15 @@
 import React from 'react';
 
-import { render } from '@testing-library/react';
+import { render } from '@atlassian/testing-library/render';
 
+import { AnnotationRangeStateContext } from '../../../contexts/AnnotationRangeContext';
+import { InsertDraftPosition } from '../../../types';
+import type { Position } from '../../../types';
 import {
 	applyAnnotationOnText,
 	TextWithAnnotationDraft,
-	AnnotationDraft,
 	getAnnotationIndex,
 } from '../../component';
-import TestRenderer, { type ReactTestInstance } from 'react-test-renderer';
-import { InsertDraftPosition, type Position } from '../../../types';
-import { AnnotationRangeStateContext } from '../../../contexts/AnnotationRangeContext';
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Annotations: draft/component', () => {
@@ -152,11 +151,10 @@ describe('Annotations: draft/component', () => {
 					draftPosition,
 				});
 
-				const wrapper = TestRenderer.create(<>{result}</>).root;
+				const { container, getByRole } = render(<>{result}</>);
 
-				expect(wrapper.children).toHaveLength(2);
-				expect((wrapper.children[0] as ReactTestInstance).type).toEqual(AnnotationDraft);
-				expect(typeof wrapper.children[1]).toEqual('string');
+				expect(container.textContent).toEqual('umdois');
+				expect(getByRole('mark').textContent).toEqual('um');
 			});
 		});
 
@@ -167,11 +165,10 @@ describe('Annotations: draft/component', () => {
 					shouldApplyAnnotationAt: InsertDraftPosition.END,
 					draftPosition,
 				});
-				const wrapper = TestRenderer.create(<>{result}</>).root;
+				const { container, getByRole } = render(<>{result}</>);
 
-				expect(wrapper.children).toHaveLength(2);
-				expect(typeof wrapper.children[0]).toEqual('string');
-				expect((wrapper.children[1] as ReactTestInstance).type).toEqual(AnnotationDraft);
+				expect(container.textContent).toEqual('umdois');
+				expect(getByRole('mark').textContent).toEqual('dois');
 			});
 		});
 
@@ -182,12 +179,10 @@ describe('Annotations: draft/component', () => {
 					shouldApplyAnnotationAt: InsertDraftPosition.INSIDE,
 					draftPosition,
 				});
-				const wrapper = TestRenderer.create(<>{result}</>).root;
+				const { container, getByRole } = render(<>{result}</>);
 
-				expect(wrapper.children).toHaveLength(3);
-				expect(typeof wrapper.children[0]).toEqual('string');
-				expect((wrapper.children[1] as ReactTestInstance).type).toEqual(AnnotationDraft);
-				expect(typeof wrapper.children[2]).toEqual('string');
+				expect(container.textContent).toEqual('umdoistres');
+				expect(getByRole('mark').textContent).toEqual('dois');
 			});
 		});
 
@@ -199,12 +194,80 @@ describe('Annotations: draft/component', () => {
 					draftPosition,
 				});
 
-				const wrapper = TestRenderer.create(<>{result}</>).root;
+				const { container, queryByRole } = render(<>{result}</>);
 
-				expect(wrapper.children).toHaveLength(2);
-				expect(typeof wrapper.children[0]).toEqual('string');
-				expect(typeof wrapper.children[1]).toEqual('string');
+				expect(container.textContent).toEqual('umdois');
+				expect(queryByRole('mark')).toBeNull();
 			});
 		});
+	});
+});
+
+// eslint-disable-next-line @atlassian/a11y/require-jest-coverage
+describe('Annotations: draft/component with plainTextFastPath', () => {
+	const provider = (draftSelection: Position | null, child: React.ReactNode) => (
+		<AnnotationRangeStateContext.Provider
+			value={{
+				range: null,
+				type: null,
+				selectionDraftRange: null,
+				hoverDraftRange: null,
+				hoverDraftDocumentPosition: null,
+				selectionDraftDocumentPosition: draftSelection,
+			}}
+		>
+			{child}
+		</AnnotationRangeStateContext.Provider>
+	);
+
+	it('renders the same DOM with and without the fast path when there is no draft', () => {
+		const withFastPath = render(
+			provider(
+				null,
+				<TextWithAnnotationDraft startPos={20} endPos={35} plainTextFastPath>
+					Martin Luther King
+				</TextWithAnnotationDraft>,
+			),
+		);
+		const withoutFastPath = render(
+			provider(
+				null,
+				<TextWithAnnotationDraft startPos={20} endPos={35} plainTextFastPath={false}>
+					Martin Luther King
+				</TextWithAnnotationDraft>,
+			),
+		);
+
+		expect(withFastPath.container.innerHTML).toBe('Martin Luther King');
+		expect(withFastPath.container.innerHTML).toBe(withoutFastPath.container.innerHTML);
+	});
+
+	it('still splits the text and inserts the draft mark when a draft covers part of it', () => {
+		const { container } = render(
+			provider(
+				{ from: 25, to: 30 },
+				<TextWithAnnotationDraft startPos={20} endPos={35} plainTextFastPath>
+					Martin Luther King
+				</TextWithAnnotationDraft>,
+			),
+		);
+
+		const mark = container.querySelector('mark');
+		expect(mark).not.toBeNull();
+		expect(container.textContent).toBe('Martin Luther King');
+	});
+
+	it('applyAnnotationOnText wraps the annotated fragment with the fast path', () => {
+		const elements = applyAnnotationOnText({
+			texts: ['Martin ', 'Luther', ' King'],
+			shouldApplyAnnotationAt: InsertDraftPosition.INSIDE,
+			draftPosition: { from: 27, to: 33 },
+			plainTextFastPath: true,
+		});
+		const { container } = render(<>{elements}</>);
+
+		expect(container.querySelectorAll('mark')).toHaveLength(1);
+		expect(container.querySelector('mark')?.textContent).toBe('Luther');
+		expect(container.textContent).toBe('Martin Luther King');
 	});
 });

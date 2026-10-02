@@ -1,37 +1,36 @@
-import { type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import {
-	type AriaOnFocusProps,
-	type ClearIndicatorProps,
-	type DropdownIndicatorProps,
-	type FormatOptionLabelMeta,
-	type GroupBase as GroupType,
-	type IndicatorsContainerProps,
-	type InputActionMeta,
-	type InputProps,
-	type LoadingIndicatorProps,
-	type MultiValueGenericProps,
-	type MultiValueProps,
-	type MultiValueRemoveProps,
-	type NoticeProps,
-	type OptionProps as ReactSelectOptionProps,
-	type Props as ReactSelectProps,
-	type ActionMeta as RSActionMeta,
-	type ControlProps as RSControlProps,
-	type GroupProps as RSGroupProps,
-	type MenuListProps as RSMenuListComponentProps,
-	type MenuProps as RSMenuProps,
-	type Options as RSOptionsType,
-	type PlaceholderProps as RSPlaceholderProps,
-	type SelectComponentsConfig as RSSelectComponentsConfig,
-	type StylesConfig as RSStylesConfig,
-	type ValueContainerProps as RSValueContainerProps,
-	type OnChangeValue as RSValueType,
-	type SelectInstance,
-	type SingleValueProps,
-} from '@atlaskit/react-select';
-import { type AsyncProps } from '@atlaskit/react-select/async';
-import type BaseSelect from '@atlaskit/react-select/base';
-import { type CreatableProps } from '@atlaskit/react-select/creatable';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import type { AriaOnFocusProps } from '@atlaskit/react-select/accessibility';
+import type { FormatOptionLabelMeta, default as BaseSelect } from '@atlaskit/react-select/base';
+import type { ClearIndicatorProps } from '@atlaskit/react-select/clear-indicator';
+import type { SelectComponentsConfig as RSSelectComponentsConfig } from '@atlaskit/react-select/components';
+import type { ControlProps as RSControlProps } from '@atlaskit/react-select/control';
+import type { CreatableProps } from '@atlaskit/react-select/creatable/default';
+import type { DropdownIndicatorProps } from '@atlaskit/react-select/dropdown-indicator';
+import type { GroupProps as RSGroupProps } from '@atlaskit/react-select/group';
+import type { IndicatorsContainerProps } from '@atlaskit/react-select/indicators-container';
+import type { InputProps } from '@atlaskit/react-select/input';
+import type { LoadingIndicatorProps } from '@atlaskit/react-select/loading-indicator';
+import type { MenuProps as RSMenuProps } from '@atlaskit/react-select/menu';
+import type { MenuListProps as RSMenuListComponentProps } from '@atlaskit/react-select/menu-list';
+import type { MultiValueProps } from '@atlaskit/react-select/multi-value';
+import type { MultiValueRemoveProps } from '@atlaskit/react-select/multi-value-remove';
+import type { OptionProps as ReactSelectOptionProps } from '@atlaskit/react-select/option';
+import type { PlaceholderProps as RSPlaceholderProps } from '@atlaskit/react-select/placeholder';
+import type { SingleValueProps } from '@atlaskit/react-select/single-value';
+import type { StylesConfig as RSStylesConfig } from '@atlaskit/react-select/styles';
+import type {
+	GroupBase as GroupType,
+	InputActionMeta,
+	MultiValueGenericProps,
+	NoticeProps,
+	ActionMeta as RSActionMeta,
+	Options as RSOptionsType,
+	OnChangeValue as RSValueType,
+	SelectInstance,
+} from '@atlaskit/react-select/types';
+import type { AsyncProps } from '@atlaskit/react-select/use-async';
+import type { StateManagerProps as ReactSelectProps } from '@atlaskit/react-select/use-state-manager';
+import type { ValueContainerProps as RSValueContainerProps } from '@atlaskit/react-select/value-container';
 
 export type ValidationState = 'default' | 'error' | 'success';
 // eslint-disable-next-line @repo/internal/react/consistent-types-definitions
@@ -44,8 +43,10 @@ export interface OptionType {
 // eslint-disable-next-line @repo/internal/react/consistent-types-definitions
 export type OptionsType<Option = OptionType> = RSOptionsType<Option>;
 
-export interface OptionProps<Option = OptionType, IsMulti extends boolean = false>
-	extends ReactSelectOptionProps<Option, IsMulti> {
+export interface OptionProps<
+	Option = OptionType,
+	IsMulti extends boolean = false,
+> extends ReactSelectOptionProps<Option, IsMulti> {
 	[key: string]: any;
 	Icon?: React.ComponentType<{
 		label: string;
@@ -61,6 +62,11 @@ export interface OptionProps<Option = OptionType, IsMulti extends boolean = fals
 }
 
 interface CustomSelectProps extends WithAnalyticsEventsProps {
+	/**
+	 * Controls how the menu is rendered. The default `popup` mode uses the normal transient menu
+	 * rendering. The `inline` mode keeps the menu open and renders it within the parent layout.
+	 */
+	menuRenderMode?: 'popup' | 'inline';
 	/**
 	 * This prop affects the height of the select control. Compact is gridSize() * 4, default is gridSize * 5
 	 */
@@ -93,8 +99,7 @@ interface CustomSelectProps extends WithAnalyticsEventsProps {
 }
 
 export interface SelectProps<Option, IsMulti extends boolean = false>
-	extends ReactSelectProps<Option, IsMulti>,
-		CustomSelectProps {
+	extends ReactSelectProps<Option, IsMulti>, CustomSelectProps {
 	formatOptionLabel?: (
 		data: Option,
 		formatOptionLabelMeta: FormatOptionLabelMeta<Option>,
@@ -105,15 +110,13 @@ export interface SelectProps<Option, IsMulti extends boolean = false>
 }
 
 export interface AsyncSelectProps<Option, IsMulti extends boolean = false>
-	extends AsyncProps<Option, IsMulti, GroupType<Option>>,
-		CustomSelectProps {
+	extends AsyncProps<Option, IsMulti, GroupType<Option>>, CustomSelectProps {
 	// temp fix to support unofficial props. https://product-fabric.atlassian.net/browse/DSP-21074
 	[key: string]: any;
 }
 
 export interface CreatableSelectProps<Option, IsMulti extends boolean = false>
-	extends CreatableProps<Option, IsMulti, GroupType<Option>>,
-		CustomSelectProps {
+	extends CreatableProps<Option, IsMulti, GroupType<Option>>, CustomSelectProps {
 	// temp fix to support unofficial props. https://product-fabric.atlassian.net/browse/DSP-21074
 	[key: string]: any;
 }

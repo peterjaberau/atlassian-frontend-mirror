@@ -2,13 +2,12 @@ import React from 'react';
 
 import { cssMap, cx } from '@atlaskit/css';
 import { Box, Inline, Stack } from '@atlaskit/primitives/compiled';
-import type { AnalyticsEventAttributes } from '@atlaskit/teams-app-internal-analytics';
+import type { AnalyticsEventAttributes } from '@atlaskit/teams-app-internal-analytics/analytics/types';
 import { token } from '@atlaskit/tokens';
 
 import TeamProfileCard from '../src/components/Team/TeamProfileCard';
 import teamData from '../src/mocks/team-data';
 import type { TeamProfilecardProps } from '../src/types';
-
 import ExampleWrapper from './helper/example-wrapper';
 import { MainStage } from './helper/main-stage';
 
@@ -40,17 +39,8 @@ const actions = [
 		link: 'about:blank',
 	},
 ];
-function analytics(gen: (duration: number) => Record<string, any>) {
-	const payload = gen(1000);
-	console.log(
-		payload.action,
-		payload.actionSubject,
-		payload.actionSubjectId || '',
-		payload.attributes,
-	);
-}
 
-function analyticsNext<K extends keyof AnalyticsEventAttributes>(
+function analytics<K extends keyof AnalyticsEventAttributes>(
 	eventKey: K,
 	gen: (duration: number) => AnalyticsEventAttributes[K],
 ) {
@@ -71,7 +61,6 @@ const teams = [
 
 const defaultProps = {
 	analytics,
-	analyticsNext,
 	generateUserLink: () => 'about:blank',
 	onUserClick: (userId: string) => {
 		console.log(`User with id: (${userId}) has been clicked.`);

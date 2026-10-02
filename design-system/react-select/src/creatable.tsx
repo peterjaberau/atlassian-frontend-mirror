@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 
 import Select from './select';
-import { type GroupBase } from './types';
+import type { GroupBase } from './types';
 import useCreatable, { type CreatableAdditionalProps } from './use-creatable';
 import useStateManager, { type StateManagerProps } from './use-state-manager';
 
@@ -16,6 +16,7 @@ export type CreatableProps<
 	Group extends GroupBase<Option>,
 > = StateManagerProps<Option, IsMulti, Group> & CreatableAdditionalProps<Option, Group>;
 
+// oxlint-disable-next-line eslint/no-redeclare
 type CreatableSelect = <
 	Option = unknown,
 	IsMulti extends boolean = false,
@@ -39,6 +40,5 @@ const CreatableSelect = forwardRef(
 	},
 ) as CreatableSelect;
 
-export { useCreatable };
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
 export default CreatableSelect;

@@ -3,32 +3,43 @@
  * @jsx jsx
  */
 import {
+	type CSSProperties,
 	forwardRef,
 	isValidElement,
 	type MouseEvent,
+	type PropsWithoutRef,
 	type ReactNode,
+	type RefAttributes,
 	useCallback,
 	useEffect,
 	useRef,
 } from 'react';
 
-import { type UIAnalyticsEvent, useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { cssMap as unboundCssMap } from '@compiled/react';
+
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import { css, jsx } from '@atlaskit/css';
 import { useId } from '@atlaskit/ds-lib/use-id';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import type { TriggerAriaProps } from '@atlaskit/popup/types';
 
 import { AvatarContent } from './avatar-content';
-import { AvatarContentContext, EnsureIsInsideAvatarContext, useAvatarContext } from './context';
 import AvatarImage from './internal/avatar-image';
-import { PresenceWrapper } from './presence';
-import { StatusWrapper } from './status';
+import { AvatarContentContext } from './internal/content-context';
+import { EnsureIsInsideAvatarContext } from './internal/ensure-is-inside-avatar-context';
+import getCustomElement from './internal/get-custom-element';
+import PresenceWrapper from './internal/presence-wrapper';
+import StatusWrapper from './internal/status-wrapper';
 import {
 	type AppearanceType,
 	type AvatarClickEventHandler,
+	type IndicatorSizeType,
 	type Presence,
 	type SizeType,
 	type Status,
 } from './types';
-import { getCustomElement } from './utilities';
+import { useAvatarContext } from './use-avatar-context';
 
 const packageName = process.env._PACKAGE_NAME_ as string;
 const packageVersion = process.env._PACKAGE_VERSION_ as string;
@@ -39,13 +50,36 @@ const containerStyles = css({
 	outline: 0,
 });
 
+const updatedHexagonNegativeMarginMap = unboundCssMap({
+	xxsmall: { marginBlockEnd: '-0.585px', marginBlockStart: '-0.585px' },
+	small: { marginBlockEnd: '-0.88px', marginBlockStart: '-0.88px' },
+	medium: { marginBlockEnd: '-1.17px', marginBlockStart: '-1.17px' },
+	large: { marginBlockEnd: '-1.465px', marginBlockStart: '-1.465px' },
+	xlarge: { marginBlockEnd: '-3.52px', marginBlockStart: '-3.52px' },
+	xxlarge: { marginBlockEnd: '-4.695px', marginBlockStart: '-4.695px' },
+});
+
+const normalizeAvatarSize = (size: SizeType): SizeType =>
+	size === 'xsmall' && !fg('platform_design-system-team_avatar-remove-xsmall') ? 'xxsmall' : size;
+
+/**
+ * Popup trigger ARIA attributes are optional. Use `aria-controls` to identify
+ * the popup and `aria-expanded` to announce whether it is open. An
+ * `aria-haspopup` value indicating a popup renders Avatar as a button,
+ * even when `onClick` is absent.
+ */
 // eslint-disable-next-line @repo/internal/react/consistent-types-definitions
-export interface AvatarPropTypes {
+export interface AvatarPropTypes extends Partial<TriggerAriaProps> {
 	/**
 	 * Indicates the shape of the avatar. Most avatars are circular, but square avatars
 	 * can be used for 'container' objects.
 	 */
 	appearance?: AppearanceType;
+	/**
+	 * Selects an experimental taller hexagon geometry for 16px, 24px, 32px, 40px, 96px, and 128px
+	 * avatars. The 20px size retains the legacy geometry.
+	 */
+	UNSAFE_isUpdatedGeometry?: boolean;
 	/**
 	 * Used to provide custom content to screen readers.
 	 * Status or presence is not added to the label by default if it passed as nodes.
@@ -82,6 +116,14 @@ export interface AvatarPropTypes {
 	presence?: Presence | Omit<ReactNode, string> | (string & {}) | null;
 	/**
 	 * Defines the size of the avatar. Default value is `medium`.
+	 *
+	 * Available sizes (in pixels): `xxsmall` (16), `small` (24), `medium` (32),
+	 * `large` (40), `xlarge` (96), `xxlarge` (128).
+	 *
+	 * The `xsmall` size is deprecated. Use `xxsmall` for 16px avatars.
+	 *
+	 * The `UNSAFE_xsmall` (20px) size is an unsafe, transitional value and is
+	 * intentionally not documented for general use — see `SizeType`.
 	 *
 	 * This can also be controlled by the `size` property of the
 	 * `AvatarContext` export from this package. If no prop is given when the
@@ -127,10 +169,6 @@ export interface AvatarPropTypes {
 	 */
 	as?: keyof JSX.IntrinsicElements | React.ComponentType<React.AllHTMLAttributes<HTMLElement>>;
 	/**
-	 * whether disable aria-labelledby for avatar img
-	 */
-	isDecorative?: boolean;
-	/**
 	 * Defines the loading behaviour of the avatar image. Default value is eager.
 	 */
 	imgLoading?: 'lazy' | 'eager';
@@ -145,13 +183,27 @@ export interface AvatarPropTypes {
  * - [Code](https://atlassian.design/components/avatar/code)
  * - [Usage](https://atlassian.design/components/avatar/usage)
  */
-const Avatar: React.ForwardRefExoticComponent<
-	React.PropsWithoutRef<AvatarPropTypes> & React.RefAttributes<HTMLElement>
-> = forwardRef<HTMLElement, AvatarPropTypes>(
+type AvatarPropsWithoutDeprecatedSize = Omit<AvatarPropTypes, 'size'> & {
+	size?: Exclude<SizeType, 'xsmall'>;
+};
+
+interface AvatarComponent {
+	(
+		props: PropsWithoutRef<AvatarPropsWithoutDeprecatedSize> & RefAttributes<HTMLElement>,
+	): ReactNode;
+	/**
+	 * @deprecated Use `xxsmall` for 16px avatars.
+	 */
+	(props: PropsWithoutRef<AvatarPropTypes> & RefAttributes<HTMLElement>): ReactNode;
+	displayName?: string;
+}
+
+const Avatar = forwardRef<HTMLElement, AvatarPropTypes>(
 	(
 		{
 			analyticsContext,
 			appearance = 'circle',
+			UNSAFE_isUpdatedGeometry,
 			label,
 			borderColor,
 			children,
@@ -167,17 +219,35 @@ const Avatar: React.ForwardRefExoticComponent<
 			target,
 			testId,
 			as: AvatarContainer = 'div',
-			isDecorative = false,
 			imgLoading,
+			'aria-controls': ariaControls,
+			'aria-expanded': ariaExpanded,
+			'aria-haspopup': ariaHasPopup,
 		},
 		ref,
 	) => {
 		const { createAnalyticsEvent } = useAnalyticsEvents();
 		const context = useAvatarContext();
-		const size = sizeProp || context?.size || 'medium';
+		const size = normalizeAvatarSize(sizeProp || context?.size || 'medium');
+		const isUpdatedHexagonGeometry =
+			appearance === 'hexagon' && Boolean(UNSAFE_isUpdatedGeometry) && size !== 'UNSAFE_xsmall';
 		const customPresenceNode = isValidElement(presence) ? presence : null;
 		const customStatusNode = isValidElement(status) ? status : null;
-		const isValidIconSize = size !== 'xxlarge' && size !== 'xsmall';
+		const isValidIconSize = size !== 'xxlarge' && size !== 'xxsmall' && size !== 'xsmall';
+		// Presence/status indicators are only defined for `IndicatorSizeType`
+		// (small, medium, large, xlarge). Compute `indicatorSize` only for sizes
+		// that support an indicator (`isValidIconSize`), so the value is
+		// structurally guaranteed to be a valid `IndicatorSizeType` rather than
+		// relying on the guard at each call site. The `UNSAFE_xsmall` (20px) size
+		// reuses the `small` indicator sizing as its nearest supported neighbor;
+		// unsupported sizes (`xxsmall`/`xsmall`/`xxlarge`) fall back to `small` and are never
+		// actually rendered because `isPresence`/`isStatus` also guard on
+		// `isValidIconSize`.
+		const indicatorSize: IndicatorSizeType = !isValidIconSize
+			? 'small'
+			: size === 'UNSAFE_xsmall'
+				? 'small'
+				: size;
 		const lastAnalytics = useRef(analyticsContext);
 		const labelId = useId();
 
@@ -240,23 +310,29 @@ const Avatar: React.ForwardRefExoticComponent<
 			.filter(Boolean)
 			.join(' ');
 
-		const isInteractive = onClick || href || isDisabled;
+		const isInteractive = onClick || href || isDisabled || ariaHasPopup;
 		const containerShouldBeImage = Boolean(!isInteractive && defaultLabel);
 
 		return (
 			<EnsureIsInsideAvatarContext.Provider value={true}>
-				{/* @ts-ignore - Workaround for typecheck issues with help-center local consumption */}
 				<AvatarContainer
 					data-testid={testId}
 					role={containerShouldBeImage ? 'img' : undefined}
-					aria-labelledby={containerShouldBeImage && !isDecorative ? labelId : undefined}
-					css={containerStyles}
-					style={{ zIndex: stackIndex }}
+					aria-labelledby={containerShouldBeImage ? labelId : undefined}
+					css={[
+						containerStyles,
+						isUpdatedHexagonGeometry &&
+							updatedHexagonNegativeMarginMap[
+								size as 'xxsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge'
+							],
+					]}
+					style={{ zIndex: stackIndex } as CSSProperties}
 				>
 					<AvatarContentContext.Provider
 						value={{
-							as: getCustomElement(isDisabled, href, onClick),
+							as: getCustomElement(isDisabled, href, onClick, ariaHasPopup),
 							appearance,
+							UNSAFE_isUpdatedGeometry: isUpdatedHexagonGeometry,
 							borderColor,
 							href,
 							isDisabled,
@@ -267,11 +343,15 @@ const Avatar: React.ForwardRefExoticComponent<
 							stackIndex,
 							target,
 							testId: testId ? `${testId}--inner` : undefined,
+							'aria-controls': ariaControls,
+							'aria-expanded': ariaExpanded,
+							'aria-haspopup': ariaHasPopup,
 							avatarImage: (
 								<AvatarImage
 									alt={!containerShouldBeImage && src ? name : undefined}
 									src={src}
 									appearance={appearance}
+									UNSAFE_isUpdatedGeometry={isUpdatedHexagonGeometry}
 									size={size}
 									testId={testId}
 									imgLoading={imgLoading}
@@ -284,7 +364,7 @@ const Avatar: React.ForwardRefExoticComponent<
 					{isPresence && (
 						<PresenceWrapper
 							appearance={appearance}
-							size={size}
+							size={indicatorSize}
 							presence={typeof presence === 'string' ? (presence as Presence) : undefined}
 							testId={testId}
 						>
@@ -294,7 +374,7 @@ const Avatar: React.ForwardRefExoticComponent<
 					{isStatus && (
 						<StatusWrapper
 							appearance={appearance}
-							size={size}
+							size={indicatorSize}
 							borderColor={borderColor}
 							status={typeof status === 'string' ? (status as Status) : undefined}
 							testId={testId}
@@ -311,7 +391,7 @@ const Avatar: React.ForwardRefExoticComponent<
 			</EnsureIsInsideAvatarContext.Provider>
 		);
 	},
-);
+) as AvatarComponent;
 
 Avatar.displayName = 'Avatar';
 

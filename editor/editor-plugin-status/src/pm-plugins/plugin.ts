@@ -6,14 +6,13 @@ import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state
 
 import { StatusNodeView } from '../nodeviews/StatusNodeView';
 import type { StatusPluginOptions, StatusState } from '../types';
-
 import { pluginKey } from './plugin-key';
 import { isEmptyStatus, mayGetStatusAtSelection } from './utils';
 
 const createPlugin = (
 	pmPluginFactoryParams: PMPluginFactoryParams,
 	options?: StatusPluginOptions,
-) =>
+): SafePlugin =>
 	new SafePlugin({
 		state: {
 			init: () => ({

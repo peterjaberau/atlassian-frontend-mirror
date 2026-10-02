@@ -1,23 +1,21 @@
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 import type { Fragment, Schema } from '@atlaskit/editor-prosemirror/model';
 import { Node } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { getNodeIdProvider } from '../../node-anchor/node-anchor-provider';
 import type {
 	CorePlugin,
 	DefaultTransformerResultCallback,
+	EditorAppearance,
 	InferTransformerResultCallback,
 	Transformer,
 	TransformerResult,
 } from '../../types';
-import {
-	processRawFragmentValue,
-	processRawValue,
-	processRawValueWithoutValidation,
-} from '../../utils/processRawValue';
+import { processRawFragmentValue } from '../../utils/processRawFragmentValue';
+import { processRawValue, processRawValueWithoutValidation } from '../../utils/processRawValue';
 import { editorCommandToPMCommand } from '../editor-commands';
-
+import { appearancePluginKey, createAppearancePlugin } from './pm-plugins/appearance-plugin';
 import {
 	createThrottleSchedule,
 	returnDocumentRequest,
@@ -34,13 +32,22 @@ export const corePlugin: CorePlugin = ({ config }) => {
 	const scheduleDocumentRequestNoThrowError = createThrottleSchedule(
 		returnDocumentRequestNoThrowError,
 	);
-
 	return {
 		name: 'core',
 		getSharedState(state) {
+			const pluginState = state && appearancePluginKey.getState(state);
 			return {
 				schema: state?.schema,
+				appearance: pluginState?.appearance,
 			};
+		},
+		pmPlugins() {
+			return [
+				{
+					name: 'appearancePlugin',
+					plugin: () => createAppearancePlugin(config?.appearance),
+				},
+			];
 		},
 		actions: {
 			execute: (command) => {
@@ -93,6 +100,21 @@ export const corePlugin: CorePlugin = ({ config }) => {
 					return false;
 				}
 
+				if (fg('platform_editor_fix_scroll_to_pos')) {
+					// nodeDOM can return a Text node for inline positions
+					const nodeDom = editorView.nodeDOM(pos);
+					const dom =
+						(nodeDom instanceof Element ? nodeDom : null) ?? editorView.domAtPos(pos)?.node;
+
+					if (!(dom instanceof Element)) {
+						return false;
+					}
+
+					dom.scrollIntoView(scrollOptions);
+					return true;
+				}
+
+				// Legacy path — domAtPos interprets block boundaries as the parent container
 				const dom = editorView.domAtPos(pos).node;
 
 				if (!(dom instanceof Element)) {
@@ -108,9 +130,29 @@ export const corePlugin: CorePlugin = ({ config }) => {
 				dom.scrollIntoView(scrollOptions);
 				return true;
 			},
+			updateAppearance: (newAppearance: EditorAppearance | undefined) => {
+				const editorView = config?.getEditorView();
+				if (!editorView) {
+					return false;
+				}
+				// Avoid dispatching a redundant transaction if appearance hasn't changed
+				const currentAppearance = appearancePluginKey.getState(editorView.state)?.appearance;
+				if (currentAppearance === newAppearance) {
+					return false;
+				}
+				const tr = editorView.state.tr.setMeta(appearancePluginKey, { appearance: newAppearance });
+				tr.setMeta('addToHistory', false);
+				editorView.dispatch(tr);
+				return true;
+			},
 			replaceDocument: (
-				replaceValue: Node | Fragment | Array<Node> | Object | String,
-				options?: { addToHistory?: boolean; scrollIntoView?: boolean; skipValidation?: boolean },
+				replaceValue: Node | Fragment | Array<Node> | object | string,
+				options?: {
+					addToHistory?: boolean;
+					scrollIntoView?: boolean;
+					skipValidation?: boolean;
+					transformer?: Transformer<string>;
+				},
 			) => {
 				const editorView = config?.getEditorView();
 				if (!editorView || replaceValue === undefined || replaceValue === null) {
@@ -123,8 +165,14 @@ export const corePlugin: CorePlugin = ({ config }) => {
 				const content = options?.skipValidation
 					? processRawValueWithoutValidation(schema, replaceValue)
 					: Array.isArray(replaceValue)
-					? processRawFragmentValue(schema, replaceValue)
-					: processRawValue(schema, replaceValue);
+						? processRawFragmentValue(
+								schema,
+								replaceValue,
+								undefined,
+								undefined,
+								options?.transformer,
+							)
+						: processRawValue(schema, replaceValue, undefined, undefined, options?.transformer);
 
 				// Don't replace the document if it's the same document, as full size
 				// replace transactions cause issues for collaborative editing and
@@ -135,6 +183,7 @@ export const corePlugin: CorePlugin = ({ config }) => {
 
 				if (content) {
 					const tr = state.tr.replaceWith(0, state.doc.nodeSize - 2, content);
+					tr.setMeta('replaceDocument', true);
 
 					if (options?.addToHistory === false) {
 						tr.setMeta('addToHistory', false);
@@ -153,15 +202,15 @@ export const corePlugin: CorePlugin = ({ config }) => {
 			// Ignored via go/ees005
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			requestDocument<GenericTransformer extends Transformer<any> = Transformer<JSONDocNode>>(
-				onReceive: GenericTransformer extends undefined
-					? DefaultTransformerResultCallback
-					: InferTransformerResultCallback<GenericTransformer>,
+				onReceive: (document: TransformerResult<GenericTransformer> | undefined) => void,
 				options?: { alwaysFire?: boolean; transformer?: GenericTransformer },
 			) {
 				const view = config?.getEditorView() ?? null;
 				scheduleDocumentRequest(
 					view,
-					onReceive,
+					onReceive as GenericTransformer extends undefined
+						? DefaultTransformerResultCallback
+						: InferTransformerResultCallback<GenericTransformer>,
 					options?.transformer,
 					config?.fireAnalyticsEvent,
 					options?.alwaysFire,
@@ -198,27 +247,22 @@ export const corePlugin: CorePlugin = ({ config }) => {
 				return cb(view?.state.schema);
 			},
 
-		getAnchorIdForNode(node, pos): string | undefined {
-			const view = config?.getEditorView() ?? null;
-			if (!view) {
-				return undefined;
-			}
+			getAnchorIdForNode(node, pos): string | undefined {
+				const view = config?.getEditorView() ?? null;
+				if (!view) {
+					return undefined;
+				}
 
-			const nodeIdProvider = getNodeIdProvider(view);
-			const cachedId = nodeIdProvider.getIdForNode(node);
-			if (cachedId) {
-				return cachedId;
-			}
+				const nodeIdProvider = getNodeIdProvider(view);
+				const cachedId = nodeIdProvider.getIdForNode(node);
+				if (cachedId) {
+					return cachedId;
+				}
 
-			if (pos < 0) {
-				return undefined;
-			}
+				if (pos < 0) {
+					return undefined;
+				}
 
-			// [FEATURE FLAG: platform_editor_fix_node_anchor_dom_cache]
-			// Fixes drag handle misalignment on first focus after clicking from title
-			// by checking DOM for existing anchor before generating a new ID with collision suffix.
-			// To clean up: remove if-else block, keep only flag-on behavior (lines 217-229), remove old behavior (lines 231-238)
-			if (fg('platform_editor_fix_node_anchor_dom_cache')) {
 				// Check DOM first to avoid generating a new ID with a collision suffix
 				// when the DOM already has a valid anchor. This prevents misalignment
 				// of drag handles on first focus after clicking from the title.
@@ -240,22 +284,7 @@ export const corePlugin: CorePlugin = ({ config }) => {
 				}
 
 				return undefined;
-			} else {
-				// OLD BEHAVIOR (to be removed when flag is cleaned up)
-				// This approach can generate incorrect IDs with collision suffixes when
-				// the DOM already has a valid anchor, causing drag handle misalignment
-				const generatedId = nodeIdProvider.getOrGenerateId(node, pos);
-				if (generatedId) {
-					return generatedId;
-				}
-				const nodeDOM = view.nodeDOM(pos);
-				if (nodeDOM instanceof HTMLElement) {
-					return nodeDOM.getAttribute('data-node-anchor') || undefined;
-				}
-
-				return undefined;
-			}
-		},
+			},
 		},
 	};
 };

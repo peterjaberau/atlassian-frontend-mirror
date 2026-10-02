@@ -1,9 +1,12 @@
 import React from 'react';
 
+import { useIntl } from 'react-intl';
+
 import { cssMap } from '@atlaskit/css';
+import { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
 import { SyncBlockSharedCssClassName } from '@atlaskit/editor-common/sync-block';
 import { Box } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
 const styles = cssMap({
 	wrapper: {
@@ -15,13 +18,14 @@ const styles = cssMap({
 });
 
 export const SyncedBlockLoadingState = (): React.JSX.Element => {
+	const { formatMessage } = useIntl();
+
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/design-system/no-unsafe-style-overrides
 		<div className={SyncBlockSharedCssClassName.loading}>
 			<Box xcss={styles.wrapper}>
-				<Spinner size="small" label="Loading synced content" />
+				<Spinner size="small" label={formatMessage(messages.loadingSyncedContent)} />
 			</Box>
 		</div>
-
 	);
 };

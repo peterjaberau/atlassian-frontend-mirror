@@ -1,6 +1,6 @@
 import React, { lazy, useCallback } from 'react';
 
-import { FormattedMessage, useIntl } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 import AutomationIcon from '@atlaskit/icon/core/automation';
 import { Text } from '@atlaskit/primitives/compiled';
@@ -8,12 +8,11 @@ import { Text } from '@atlaskit/primitives/compiled';
 import { useAnalyticsEvents } from '../../../../../common/analytics/generated/use-analytics-events';
 import { ActionName } from '../../../../../constants';
 import { messages } from '../../../../../messages';
-import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context';
 import { type AutomationActionData } from '../../../../../state/flexible-ui-context/types';
-import { useSmartLinkModal } from '../../../../../state/modal';
+import { useFlexibleUiContext } from '../../../../../state/flexible-ui-context/useFlexibleUiContext';
+import { useSmartLinkModal } from '../../../../../state/modal/useSmartLinkModal';
 import Action from '../action';
 import { type LinkActionProps } from '../types';
-
 import { getModalContent } from './utils';
 
 const AutomationModal = lazy(
@@ -95,6 +94,7 @@ const AutomationAction = (props: LinkActionProps): React.JSX.Element | null => {
 						spacing="spacious"
 						color="currentColor"
 						label={automationActionIconLabel}
+						size={props.iconSize}
 					/>
 				}
 				testId="smart-action-automation-action"

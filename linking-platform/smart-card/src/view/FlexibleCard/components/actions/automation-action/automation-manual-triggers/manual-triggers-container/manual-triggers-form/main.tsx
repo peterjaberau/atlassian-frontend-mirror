@@ -2,9 +2,15 @@ import React from 'react';
 
 import { di } from 'react-magnetic-di';
 
-import Button from '@atlaskit/button/new';
-import Form, { ErrorMessage, FormSection } from '@atlaskit/form';
-import Modal, { ModalBody, ModalFooter, ModalHeader, ModalTitle } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button/default/button';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import Form from '@atlaskit/form/form';
+import { FormSection } from '@atlaskit/form/form-section';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
 
 import messages from '../common/messages';
 import {
@@ -16,7 +22,6 @@ import {
 	UserInputType,
 	type UserInputValue,
 } from '../common/types';
-
 import BooleanInputPrompt from './boolean-prompt/main';
 import NumberInputPrompt from './number-prompt/main';
 import ParagraphInputPrompt from './paragraph-prompt/main';

@@ -1,4 +1,4 @@
-import { type Style } from './interfaces';
+import type { Style } from './interfaces';
 
 export const serializeStyle = (style: Style): string => {
 	return Object.keys(style).reduce((memo, key) => {
@@ -7,7 +7,7 @@ export const serializeStyle = (style: Style): string => {
 		}
 
 		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
+		// eslint-disable-next-line require-unicode-regexp, @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 		const value = String(style[key]).replace(/"/g, "'");
 		return (memo += `${key}: ${value};`);
 	}, '');

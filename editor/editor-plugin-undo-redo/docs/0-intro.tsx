@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Undo Redo', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the undo redo plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,10 +30,32 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type UndoRedoPlugin = NextEditorPlugin<
+export type UndoRedoAction = (inputSource?: InputSource) => boolean;
+
+export type UndoRedoPlugin = NextEditorPlugin<
   'undoRedoPlugin',
   {
-    dependencies: [TypeAheadPlugin, HistoryPlugin];
+    actions: {
+      redo: UndoRedoAction;
+      undo: UndoRedoAction;
+    };
+    dependencies: [
+      TypeAheadPlugin,
+      HistoryPlugin,
+      OptionalPlugin<PrimaryToolbarPlugin>,
+      OptionalPlugin<AnalyticsPlugin>,
+      OptionalPlugin<ToolbarPlugin>,
+    ];
+    pluginConfiguration:
+      | {
+          /**
+           * Determines whether or not to show the toolbar buttons
+           * If not it just allows use of the actions + keybindings + analytics etc.
+           * Defaults to true
+           */
+          showToolbarButton: boolean;
+        }
+      | undefined;
   }
 >;
 `}

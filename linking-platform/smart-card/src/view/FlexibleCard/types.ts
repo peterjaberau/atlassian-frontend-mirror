@@ -1,28 +1,31 @@
-import { type MessageDescriptor } from 'react-intl-next';
+import { type MessageDescriptor } from 'react-intl';
 
-import { type CardProviderRenderers } from '@atlaskit/link-provider';
-import { type CardState } from '@atlaskit/linking-common';
-import { type SmartLinkResponse } from '@atlaskit/linking-types';
+import type { CardProviderRenderers } from '@atlaskit/link-provider/types';
+import type { CardState } from '@atlaskit/linking-common/store';
+import type { ProductType } from '@atlaskit/linking-common/types';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
 
 import { type FireEventFunction } from '../../common/analytics/types';
 import { type SmartLinkSize, type SmartLinkStatus, type SmartLinkTheme } from '../../constants';
+import type { TransformUrlFn } from '../../extractors/action/types';
 import { type AISummaryConfig } from '../../state/hooks/use-ai-summary-config/types';
 import { type ResolveFunction } from '../../state/hooks/use-resolve';
+import type { RovoConfig } from '../../state/hooks/use-rovo-config';
 import { type AnalyticsOrigin } from '../../utils/types';
 import {
-	type CardActionOptions,
+	type InternalCardActionOptions as CardActionOptions,
 	type CardInnerAppearance,
 	type OnResolveCallback,
 } from '../Card/types';
 import { type HoverPreviewOptions } from '../HoverCard/types';
 import { type OnErrorCallback } from '../types';
+import type { AnchorTarget } from './components/types';
 
 export type FlexibleCardProps = {
 	/**
 	 * Configure visibility of server and client actions
 	 */
 	actionOptions?: CardActionOptions;
-
 	/**
 	 * Determines the appearance of the Smart Link.
 	 * @internal
@@ -61,6 +64,8 @@ export type FlexibleCardProps = {
 	 */
 	id?: string;
 
+	navigation?: { target?: AnchorTarget; url: string };
+
 	/**
 	 * An additional action that can be performed when link is not resolved, e.g.
 	 * connect account to gain access to 403 link.
@@ -68,11 +73,15 @@ export type FlexibleCardProps = {
 	 */
 	onAuthorize?: () => void;
 
+	/** Optional middle-click handler. */
+	onAuxClick?: React.EventHandler<React.MouseEvent>;
 	/**
 	 * Determines the onClick behaviour of Flexible UI. This will proxy to the
 	 * TitleBlock if supplied.
 	 */
 	onClick?: React.EventHandler<React.MouseEvent | React.KeyboardEvent>;
+	/** Optional right-click handler. */
+	onContextMenu?: React.EventHandler<React.MouseEvent>;
 
 	/**
 	 * function to be called after a flexible card has rendered its error states
@@ -116,10 +125,15 @@ export type FlexibleCardProps = {
 	testId?: string;
 
 	/**
+	 * Determines the link title in the LayeredLink.
+	 */
+	title?: string;
+	/**
 	 * Determines the appearance of Flexible UI.
 	 * @see InternalFlexibleUiOptions
 	 */
 	ui?: InternalFlexibleUiOptions;
+
 	/**
 	 * Determines the URL of the Smart Link.
 	 */
@@ -209,11 +223,21 @@ export type RetryOptions = {
 
 export type ExtractFlexibleUiDataContextParams = Pick<
 	FlexibleCardProps,
-	'appearance' | 'id' | 'actionOptions' | 'origin' | 'onAuthorize' | 'onClick' | 'renderers' | 'url'
+	| 'appearance'
+	| 'id'
+	| 'actionOptions'
+	| 'origin'
+	| 'onAuthorize'
+	| 'onClick'
+	| 'onAuxClick'
+	| 'onContextMenu'
+	| 'renderers'
+	| 'url'
 > & {
 	aiSummaryConfig?: AISummaryConfig;
 	fireEvent?: FireEventFunction;
 	isPreviewPanelAvailable?: (params: { ari: string }) => boolean;
+	isPreviewRestricted?: (params: { ari: string }) => boolean;
 	openPreviewPanel?: (params: {
 		ari: string;
 		iconUrl: string | undefined;
@@ -221,9 +245,12 @@ export type ExtractFlexibleUiDataContextParams = Pick<
 		panelData: { embedUrl?: string };
 		url: string;
 	}) => void;
+	product?: ProductType;
 	resolve?: ResolveFunction;
 	response?: SmartLinkResponse;
+	rovoConfig?: RovoConfig;
 	status?: SmartLinkStatus;
+	transformUrl?: TransformUrlFn;
 };
 
 /**

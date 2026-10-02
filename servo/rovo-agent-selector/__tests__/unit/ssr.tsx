@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+
 import { shouldIgnoreLog } from '@af/suppress-react-warnings';
 import { cleanup, hydrateWithAct, ssr } from '@atlaskit/ssr/emotion';
 import { screen } from '@atlassian/testing-library';
@@ -10,7 +11,7 @@ afterEach(() => {
 });
 
 test('should ssr then hydrate example component correctly', async () => {
-	const examplePath = require.resolve('../../examples/basic');
+	const examplePath = require.resolve('../../examples/basic.vr.ap');
 	const elem = document.createElement('div');
 	const { html, styles } = await ssr(examplePath);
 	elem.innerHTML = html;

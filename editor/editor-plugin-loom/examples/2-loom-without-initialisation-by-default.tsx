@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-import { ButtonGroup } from '@atlaskit/button';
-import Button from '@atlaskit/button/new';
-import { type PublicPluginAPI } from '@atlaskit/editor-common/types';
+import ButtonGroup from '@atlaskit/button/button-group';
+import Button from '@atlaskit/button/default/button';
+import type { PublicPluginAPI } from '@atlaskit/editor-common/types';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { usePreset } from '@atlaskit/editor-core/use-preset';
 import { hyperlinkPlugin } from '@atlaskit/editor-plugin-hyperlink';
@@ -12,10 +12,10 @@ import { basePlugin } from '@atlaskit/editor-plugins/base';
 import { type ButtonComponent, loomPlugin, type LoomPlugin } from '@atlaskit/editor-plugins/loom';
 import { quickInsertPlugin } from '@atlaskit/editor-plugins/quick-insert';
 import { widthPlugin } from '@atlaskit/editor-plugins/width';
-import Popup from '@atlaskit/popup';
+import { Popup } from '@atlaskit/popup/popup';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Stack, Text, xcss } from '@atlaskit/primitives';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import { getLoomProvider } from './utils/provider/loom-provider';
 
@@ -149,6 +149,7 @@ function Editor() {
 	return <ComposableEditor appearance="full-page" preset={preset} />;
 }
 
+// oxlint-disable-next-line eslint/no-redeclare
 interface LoomInitContext {
 	finishedInit: boolean;
 	setFinishedInit: React.Dispatch<React.SetStateAction<boolean>>;

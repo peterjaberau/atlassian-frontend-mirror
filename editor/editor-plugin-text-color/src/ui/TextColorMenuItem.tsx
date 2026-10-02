@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useId } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { cssMap } from '@atlaskit/css';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
@@ -11,11 +11,15 @@ import { textPaletteTooltipMessages } from '@atlaskit/editor-common/ui-color';
 import { hexToEditorTextPaletteColor } from '@atlaskit/editor-palette';
 import { ColorPalette, useToolbarDropdownMenu } from '@atlaskit/editor-toolbar';
 import type { ToolbarComponentTypes } from '@atlaskit/editor-toolbar-model';
-import Heading from '@atlaskit/heading';
-import { Stack } from '@atlaskit/primitives/compiled';
+import Heading from '@atlaskit/heading/heading';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Bleed, Stack } from '@atlaskit/primitives/compiled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import type { TextColorPlugin } from '../textColorPluginType';
+
+const TEXT_COLOR_PICKER_COLUMNS = 10;
 
 const styles = cssMap({
 	container: {
@@ -42,6 +46,14 @@ export function TextColorMenuItem({ api, parents }: TextColorMenuItemProps): Rea
 	const context = useToolbarDropdownMenu();
 	const closeMenu = context?.closeMenu;
 
+	const { formatMessage } = useIntl();
+	const labelId = useId();
+	const isNewColorPaletteEnabled = expValEquals(
+		'platform_editor_lovability_text_bg_color',
+		'isEnabled',
+		true,
+	);
+
 	const handleTextColorChange = useCallback(
 		(color: string, event: React.MouseEvent | React.KeyboardEvent) => {
 			if (!editorView?.state || !editorView?.dispatch) {
@@ -53,28 +65,51 @@ export function TextColorMenuItem({ api, parents }: TextColorMenuItemProps): Rea
 					editorView.dispatch,
 				);
 
-				closeMenu?.(event);
+				if (!isNewColorPaletteEnabled) {
+					closeMenu?.(event);
+				}
 			}
 		},
-		[editorView?.state, editorView?.dispatch, api?.textColor.actions, parents, closeMenu],
+		[
+			editorView?.state,
+			editorView?.dispatch,
+			api?.textColor.actions,
+			parents,
+			closeMenu,
+			isNewColorPaletteEnabled,
+		],
 	);
 
-	const { formatMessage } = useIntl();
+	const colorPalette = (
+		<ColorPalette
+			ariaLabelledBy={labelId}
+			cols={isNewColorPaletteEnabled ? TEXT_COLOR_PICKER_COLUMNS : undefined}
+			gap={isNewColorPaletteEnabled ? 'space.0' : undefined}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+			onClick={(color, _, event) => {
+				handleTextColorChange(color, event);
+			}}
+			selectedColor={color || defaultColor}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+			paletteOptions={{
+				palette: palette,
+				hexToPaletteColor: hexToEditorTextPaletteColor,
+				paletteColorTooltipMessages: textPaletteTooltipMessages,
+			}}
+		/>
+	);
 
 	return (
 		<Stack xcss={styles.container} testId="text-color-menu-item">
-			<Heading size="xxsmall">{formatMessage(messages.textColorTooltip)}</Heading>
-			<ColorPalette
-				onClick={(color, _, event) => {
-					handleTextColorChange(color, event);
-				}}
-				selectedColor={color || defaultColor}
-				paletteOptions={{
-					palette: palette,
-					hexToPaletteColor: hexToEditorTextPaletteColor,
-					paletteColorTooltipMessages: textPaletteTooltipMessages,
-				}}
-			/>
+			<Heading
+				id={labelId}
+				size="xxsmall"
+				// The label names the palette's radio group; a heading inside a menu is skipped and has no stable level here
+				as={fg('platform_editor_a11y_color_palette_radiogroup') ? 'div' : undefined}
+			>
+				{formatMessage(messages.textColorTooltip)}
+			</Heading>
+			{isNewColorPaletteEnabled ? <Bleed inline="space.025">{colorPalette}</Bleed> : colorPalette}
 		</Stack>
 	);
 }

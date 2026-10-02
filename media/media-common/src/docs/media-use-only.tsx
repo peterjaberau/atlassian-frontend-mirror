@@ -1,6 +1,6 @@
-import Link from '@atlaskit/link';
+import Link from '@atlaskit/link/link';
 import React from 'react';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 
 function AlternativePackagesMessage({
 	alternatePackages,
@@ -14,8 +14,8 @@ function AlternativePackagesMessage({
 		return (
 			// eslint-disable-next-line @atlaskit/design-system/use-primitives-text
 			<p>
-				Consider using{' '}
-				<Link href={alternatePackages[0].link}>{alternatePackages[0].name}</Link> instead.
+				Consider using <Link href={alternatePackages[0].link}>{alternatePackages[0].name}</Link>{' '}
+				instead.
 			</p>
 		);
 	}

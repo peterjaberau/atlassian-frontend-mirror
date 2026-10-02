@@ -2,22 +2,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ComponentType, type FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl, useIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl, useIntl } from 'react-intl';
 
-import Button from '@atlaskit/button';
+import Button from '@atlaskit/button/button';
 import { ElementBrowser } from '@atlaskit/editor-common/element-browser';
 import type { QuickInsertItem } from '@atlaskit/editor-common/provider-factory';
 import { messages } from '@atlaskit/editor-common/quick-insert';
 import type { EmptyStateHandler } from '@atlaskit/editor-common/types';
 import QuestionCircleIcon from '@atlaskit/icon/core/question-circle';
-import Modal, { CloseButton, ModalTransition, useModal } from '@atlaskit/modal-dialog';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { N0 } from '@atlaskit/theme/colors';
+import { CloseButton } from '@atlaskit/modal-dialog/close-button';
+import { useModal } from '@atlaskit/modal-dialog/hooks';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { token } from '@atlaskit/tokens';
 
 import { getCategories } from './categories';
@@ -25,6 +26,7 @@ import { getCategories } from './categories';
 export const MODAL_WRAPPER_PADDING = 16;
 
 export interface Props {
+	defaultCategory?: string;
 	emptyStateHandler?: EmptyStateHandler;
 	getItems: (query?: string, category?: string) => QuickInsertItem[];
 	helpUrl?: string | undefined;
@@ -37,27 +39,27 @@ export interface Props {
 
 const actionsStyles = css({
 	display: 'inline-flex',
-	margin: `0 ${token('space.negative.050', '-4px')}`,
+	margin: `0 ${token('space.negative.050')}`,
 });
 
 const actionItemStyles = css({
 	flex: '1 0 auto',
-	margin: `0 ${token('space.050', '4px')}`,
+	margin: `0 ${token('space.050')}`,
 });
 
 const wrapperStyles = css({
 	display: 'flex',
 	flex: '1 1 auto',
 	boxSizing: 'border-box',
-	padding: `${token('space.200', '16px')} ${token('space.200', '16px')} 0 10px`,
+	padding: `${token('space.200')} ${token('space.200')} 0 10px`,
 	overflow: 'hidden',
-	backgroundColor: token('elevation.surface.overlay', N0),
+	backgroundColor: token('elevation.surface.overlay'),
 	borderRadius: token('radius.small', '3px'),
 });
 
 const modalFooterStyles = css({
 	display: 'flex',
-	padding: `${token('space.200', '16px')}`,
+	padding: `${token('space.200')}`,
 
 	position: 'relative',
 	alignItems: 'center',
@@ -93,7 +95,7 @@ const ModalElementBrowser = (props: Props & WrappedComponentProps) => {
 		() => (
 			<Footer
 				// Ignored via go/ees005
-				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onInsert={() => onInsertItem(selectedItem!)}
 				beforeElement={helpUrl ? HelpLink(helpUrl, intl.formatMessage(messages.help)) : undefined}
 			/>
@@ -106,6 +108,7 @@ const ModalElementBrowser = (props: Props & WrappedComponentProps) => {
 			<div css={wrapperStyles}>
 				<ElementBrowser
 					categories={getCategories(props.intl)}
+					defaultCategory={props.defaultCategory}
 					getItems={props.getItems}
 					showSearch={true}
 					showCategories
@@ -117,7 +120,14 @@ const ModalElementBrowser = (props: Props & WrappedComponentProps) => {
 				/>
 			</div>
 		),
-		[props.intl, props.getItems, onSelectItem, onInsertItem, props.emptyStateHandler],
+		[
+			props.intl,
+			props.defaultCategory,
+			props.getItems,
+			onSelectItem,
+			onInsertItem,
+			props.emptyStateHandler,
+		],
 	);
 
 	const label = intl.formatMessage(messages.browse);
@@ -126,6 +136,7 @@ const ModalElementBrowser = (props: Props & WrappedComponentProps) => {
 		<div data-editor-popup={true}>
 			<ModalTransition>
 				{props.isOpen && (
+					// eslint-disable-next-line @atlaskit/design-system/no-modal-label
 					<Modal
 						label={label}
 						testId="element-browser-modal-dialog"
@@ -170,12 +181,12 @@ const Footer = ({
 						onClick={onInsert}
 						testId="ModalElementBrowser__insert-button"
 					>
-						{fg('platform_editor_dec_a11y_fixes') ? intl.formatMessage(messages.insert) : 'Insert'}
+						{intl.formatMessage(messages.insert)}
 					</Button>
 				</div>
 				<div css={actionItemStyles}>
 					<Button appearance="subtle" onClick={onClose} testId="ModalElementBrowser__close-button">
-						{fg('platform_editor_dec_a11y_fixes') ? intl.formatMessage(messages.close) : 'Close'}
+						{intl.formatMessage(messages.close)}
 					</Button>
 				</div>
 			</div>
@@ -195,4 +206,7 @@ const HelpLink = (url: string, helpText: string) => (
 	</Button>
 );
 
-export default injectIntl(ModalElementBrowser);
+const _default_1: FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(ModalElementBrowser);
+export default _default_1;

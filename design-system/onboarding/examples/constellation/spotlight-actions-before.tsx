@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button, { IconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import CommentAddIcon from '@atlaskit/icon/core/comment-add';
 import CopyIcon from '@atlaskit/icon/core/copy';
 import FullscreenEnterIcon from '@atlaskit/icon/core/fullscreen-enter';
+// eslint-disable-next-line @atlaskit/design-system/use-spotlight-package
 import {
 	Spotlight,
 	SpotlightManager,
 	SpotlightTarget,
 	SpotlightTransition,
 } from '@atlaskit/onboarding';
-import { N0 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 const SpotlightActionsBefore = (): React.JSX.Element => {
@@ -36,7 +37,7 @@ const SpotlightActionsBefore = (): React.JSX.Element => {
 				target="comment"
 				key="comment"
 				targetRadius={3}
-				targetBgColor={N0}
+				targetBgColor={'#FFFFFF'}
 			>
 				Quickly add a comment to the work item.
 			</Spotlight>,
@@ -51,7 +52,7 @@ const SpotlightActionsBefore = (): React.JSX.Element => {
 				target="copy"
 				key="copy"
 				targetRadius={3}
-				targetBgColor={N0}
+				targetBgColor={'#FFFFFF'}
 			>
 				Trying to bring one of our components into your project? Click to copy the example code,
 				then go ahead paste it in your editor.
@@ -66,7 +67,7 @@ const SpotlightActionsBefore = (): React.JSX.Element => {
 				target="expand"
 				key="expand"
 				targetRadius={3}
-				targetBgColor={N0}
+				targetBgColor={'#FFFFFF'}
 			>
 				For a focused view of the example, you can expand to full screen.
 			</Spotlight>,

@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__tmp-editor-statsig/app",
 		"rootDir": "../",
 		"composite": true,
@@ -25,6 +24,9 @@
 	"references": [
 		{
 			"path": "../../../measurement/feature-gate-js-client/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../react-ufo/atlaskit/afm-products/tsconfig.json"

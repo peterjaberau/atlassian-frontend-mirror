@@ -1,13 +1,10 @@
 import format from '@af/formatting/sync';
-import { CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens';
-import { light as tokens } from '@atlaskit/tokens/tokens-raw';
+import tokens from '@atlaskit/tokens/atlassian-light';
+import { CURRENT_SURFACE_CSS_VAR } from '@atlaskit/tokens/constants';
 
-import {
-	capitalize,
-	constructTokenFunctionCall,
-	generateTypeDefs,
-	type ShadowDefinition,
-} from './utils';
+import { capitalize } from './capitalize';
+import { generateTypeDefs } from './generate-type-defs';
+import { constructTokenFunctionCall, type ShadowDefinition } from './utils';
 
 type Token = {
 	token: string;
@@ -16,24 +13,43 @@ type Token = {
 };
 
 // NB: Fallback CSS variables can be deleted when tokens are no longer behind a feature flag
-const tokenStyles = {
+const tokenStyles: {
+	readonly opacity: {
+		readonly objectName: 'opacity';
+		readonly prefix: 'opacity.';
+		readonly cssProperty: 'opacity';
+		readonly filterFn: <T extends Token>(t: T) => boolean;
+	};
+	readonly shadow: {
+		readonly objectName: 'shadow';
+		readonly prefix: 'elevation.shadow.';
+		readonly cssProperty: 'boxShadow';
+		readonly filterFn: <T extends Token>(t: T) => boolean;
+	};
+	readonly surface: {
+		readonly objectName: 'surfaceColor';
+		readonly prefix: 'elevation.surface.';
+		readonly cssProperty: '--ds-elevation-surface-current';
+		readonly filterFn: <T extends Token>(t: T) => boolean;
+	};
+} = {
 	opacity: {
 		objectName: 'opacity',
 		prefix: 'opacity.',
 		cssProperty: 'opacity',
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.opacity.prefix),
+		filterFn: <T extends Token>(t: T): boolean => t.token.startsWith(tokenStyles.opacity.prefix),
 	},
 	shadow: {
 		objectName: 'shadow',
 		prefix: 'elevation.shadow.',
 		cssProperty: 'boxShadow',
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.shadow.prefix),
+		filterFn: <T extends Token>(t: T): boolean => t.token.startsWith(tokenStyles.shadow.prefix),
 	},
 	surface: {
 		objectName: 'surfaceColor',
 		prefix: 'elevation.surface.',
 		cssProperty: CURRENT_SURFACE_CSS_VAR,
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.surface.prefix),
+		filterFn: <T extends Token>(t: T): boolean => t.token.startsWith(tokenStyles.surface.prefix),
 	},
 } as const;
 
@@ -47,7 +63,9 @@ const activeTokens = tokens
 		}),
 	);
 
-export const createElevationStylesFromTemplate: (property: keyof typeof tokenStyles) => string = (property: keyof typeof tokenStyles) => {
+export const createElevationStylesFromTemplate: (property: keyof typeof tokenStyles) => string = (
+	property: keyof typeof tokenStyles,
+) => {
 	if (!tokenStyles[property]) {
 		throw new Error(`[codegen] Unknown option found "${property}"`);
 	}

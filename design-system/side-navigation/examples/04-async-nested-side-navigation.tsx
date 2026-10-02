@@ -1,19 +1,28 @@
 import React, { type FC, useEffect, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import { cssMap } from '@atlaskit/css';
 import VideoRewindOverlayIcon from '@atlaskit/icon-lab/core/video-rewind-overlay';
 import AsyncIcon from '@atlaskit/icon/core/clock';
-import {
-	NavigationHeader,
-	NestableNavigationContent,
-	NestingItem,
-	Section,
-	SideNavigation,
-	SkeletonItem,
-} from '@atlaskit/side-navigation';
+import { Flex } from '@atlaskit/primitives/compiled';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { NavigationHeader } from '@atlaskit/side-navigation/navigation-header';
+import { NestableNavigationContent } from '@atlaskit/side-navigation/nestable-navigation-content';
+import { NestingItem } from '@atlaskit/side-navigation/nesting-item';
+import { Section } from '@atlaskit/side-navigation/section';
+import { SideNavigation } from '@atlaskit/side-navigation/side-navigation';
+import { SkeletonItem } from '@atlaskit/side-navigation/skeleton-item';
+import { token } from '@atlaskit/tokens';
 
 import AppFrame from './common/app-frame';
 import SampleHeader from './common/sample-header';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 let isLoaded: Record<string, boolean> = {};
 
@@ -39,7 +48,11 @@ const DelayedComponent: FC<{ id: number }> = ({ id }) => {
 		<NestingItem
 			title="Async Item"
 			id={`${id}`}
-			iconBefore={<AsyncIcon spacing="spacious" label="" />}
+			iconBefore={
+				<Flex xcss={iconSpacingStyles.space050}>
+					<AsyncIcon label="" />
+				</Flex>
+			}
 		>
 			<Section title="Heading">
 				<DelayedComponent id={id + 1} />

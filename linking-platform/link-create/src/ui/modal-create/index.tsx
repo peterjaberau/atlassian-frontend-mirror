@@ -1,17 +1,16 @@
 import React, { memo } from 'react';
 
-import { AnalyticsContext } from '@atlaskit/analytics-next';
-import { IntlMessagesProvider } from '@atlaskit/intl-messages-provider';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';
 
 import { PACKAGE_DATA } from '../../common/constants';
 import { type LinkCreateWithModalProps } from '../../common/types';
 import { ErrorBoundary } from '../../common/ui/error-boundary';
 import { ErrorBoundaryModal } from '../../common/ui/error-boundary-modal';
 import { Experience } from '../../common/ui/experience-tracker';
-import { withLinkCreateAnalyticsContext } from '../../common/utils/analytics';
+import { withLinkCreateAnalyticsContext } from '../../common/utils/analytics/context';
 import { fetchMessagesForLocale } from '../../common/utils/locale/fetch-messages-for-locale';
 import i18nEN from '../../i18n/en';
-
 import LinkCreate from './main';
 
 const LinkCreateWithAnalyticsContext = withLinkCreateAnalyticsContext(
@@ -28,7 +27,9 @@ const LinkCreateWithAnalyticsContext = withLinkCreateAnalyticsContext(
 	}),
 );
 
-const ComposedLinkCreate = memo((props: LinkCreateWithModalProps): React.JSX.Element => {
+const ComposedLinkCreate: React.MemoExoticComponent<
+	(props: LinkCreateWithModalProps) => React.JSX.Element
+> = memo((props: LinkCreateWithModalProps): React.JSX.Element => {
 	return (
 		<AnalyticsContext data={PACKAGE_DATA}>
 			<IntlMessagesProvider defaultMessages={i18nEN} loaderFn={fetchMessagesForLocale}>

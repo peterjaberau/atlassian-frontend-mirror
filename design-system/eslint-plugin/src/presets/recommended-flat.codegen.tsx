@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::7c689115fea10ca7f4a4d36b687d0d4b>>
- * @codegenCommand yarn workspace @atlaskit/eslint-plugin-design-system codegen
+ * @codegen <<SignedSource::82dc022578583e6ed703193e13672e81>>
+ * @codegenCommand afm workspace @atlaskit/eslint-plugin-design-system codegen
  */
 import type { Linter } from 'eslint';
 
@@ -14,11 +14,12 @@ const rules: Linter.FlatConfig = {
 		'@atlaskit/design-system/ensure-design-token-usage': 'error',
 		'@atlaskit/design-system/icon-label': 'warn',
 		'@atlaskit/design-system/no-banned-imports': 'error',
-		'@atlaskit/design-system/no-boolean-autofocus-on-modal-dialog': 'warn',
+		'@atlaskit/design-system/no-css-map-scoped': 'error',
 		'@atlaskit/design-system/no-deprecated-apis': 'error',
 		'@atlaskit/design-system/no-deprecated-design-token-usage': 'warn',
 		'@atlaskit/design-system/no-deprecated-imports': 'error',
 		'@atlaskit/design-system/no-direct-use-of-web-platform-drag-and-drop': 'error',
+		'@atlaskit/design-system/no-empty-icon-button-label': 'warn',
 		'@atlaskit/design-system/no-html-anchor': 'warn',
 		'@atlaskit/design-system/no-html-button': 'warn',
 		'@atlaskit/design-system/no-html-checkbox': 'warn',
@@ -30,14 +31,17 @@ const rules: Linter.FlatConfig = {
 		'@atlaskit/design-system/no-html-select': 'warn',
 		'@atlaskit/design-system/no-html-text-input': 'warn',
 		'@atlaskit/design-system/no-html-textarea': 'warn',
+		'@atlaskit/design-system/no-icon-spacing-prop': 'warn',
 		'@atlaskit/design-system/no-invalid-css-map': [
 			'error',
 			{
 				allowedFunctionCalls: [['@atlaskit/tokens', 'token']],
 			},
 		],
+		'@atlaskit/design-system/no-modal-label': 'error',
 		'@atlaskit/design-system/no-nested-styles': 'error',
 		'@atlaskit/design-system/no-placeholder': 'warn',
+		'@atlaskit/design-system/no-readonly-or-disabled-inputs': 'warn',
 		'@atlaskit/design-system/no-separator-with-list-elements': 'warn',
 		'@atlaskit/design-system/no-unsafe-design-token-usage': 'error',
 		'@atlaskit/design-system/no-unsafe-style-overrides': 'warn',
@@ -51,20 +55,22 @@ const rules: Linter.FlatConfig = {
 		'@atlaskit/design-system/use-drawer-label': 'warn',
 		'@atlaskit/design-system/use-field-message-wrapper': 'warn',
 		'@atlaskit/design-system/use-heading': 'warn',
+		'@atlaskit/design-system/use-heading-level-in-section-message': 'warn',
 		'@atlaskit/design-system/use-heading-level-in-spotlight-card': 'warn',
 		'@atlaskit/design-system/use-href-in-link-item': 'warn',
 		'@atlaskit/design-system/use-latest-xcss-syntax': 'error',
 		'@atlaskit/design-system/use-latest-xcss-syntax-typography': 'warn',
 		'@atlaskit/design-system/use-menu-section-title': 'warn',
 		'@atlaskit/design-system/use-modal-dialog-close-button': 'warn',
+		'@atlaskit/design-system/use-modal-title': 'error',
 		'@atlaskit/design-system/use-onboarding-spotlight-label': 'warn',
 		'@atlaskit/design-system/use-popup-label': 'warn',
 		'@atlaskit/design-system/use-primitives-text': 'warn',
 		'@atlaskit/design-system/use-should-render-to-parent': 'warn',
-		'@atlaskit/design-system/use-side-nav-items-package': 'warn',
 		'@atlaskit/design-system/use-simple-field': 'warn',
 		'@atlaskit/design-system/use-simple-form': 'warn',
 		'@atlaskit/design-system/use-tag-group-label': 'warn',
+		'@atlaskit/design-system/use-textfield-autocomplete': 'warn',
 		'@atlaskit/design-system/use-tokens-typography': 'warn',
 		'@atlaskit/design-system/use-visually-hidden': 'error',
 	},

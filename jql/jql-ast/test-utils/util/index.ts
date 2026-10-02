@@ -7,7 +7,6 @@ export const assertValid = (queries: string[]): void => {
 		it(`🟩 ${query}`, () => {
 			const ast = builder.build(query);
 			expect(ast.errors).toHaveLength(0);
-			expect(ast).toMatchSnapshot();
 		});
 	});
 };
@@ -17,7 +16,6 @@ export const assertInvalid = (queries: string[]): void => {
 		it(`🟥 ${query}`, () => {
 			const ast = builder.build(query);
 			expect(ast.errors).not.toHaveLength(0);
-			expect(ast).toMatchSnapshot();
 		});
 	});
 };

@@ -1,14 +1,13 @@
 import React from 'react';
 
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
-import Tooltip from '@atlaskit/tooltip';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import ButtonBase from '../shared/button-base';
 import Content from '../shared/content';
 import IconRenderer from '../shared/icon-renderer';
 import { type CommonButtonVariantProps } from '../types';
-
 import { type CommonIconButtonProps } from './types';
 export type IconButtonProps = CommonIconButtonProps & CommonButtonVariantProps;
 
@@ -118,6 +117,7 @@ const IconButton: React.MemoExoticComponent<
 				component={tooltip?.component}
 				hideTooltipOnClick={tooltip?.hideTooltipOnClick}
 				hideTooltipOnMouseDown={tooltip?.hideTooltipOnMouseDown}
+				hasNewContentOnTriggerClick={tooltip?.hasNewContentOnTriggerClick}
 				ignoreTooltipPointerEvents={tooltip?.ignoreTooltipPointerEvents}
 				shortcut={tooltip?.shortcut}
 			>

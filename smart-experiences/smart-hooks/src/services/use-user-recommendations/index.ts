@@ -5,12 +5,11 @@ import memoizeOne, { type MemoizedFn } from 'memoize-one';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 import { v4 as uuid } from 'uuid';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import { EntityType, fetchUserRecommendations, type UserSearchItem } from '@atlaskit/smart-common';
 
 import type { UseUserRecommendationsProps } from '../../types';
 import useFunctionUsageTracking from '../use-function-usage-tracking';
-
 import { createDefaultAttributes, findUserPosition, fireUserSelectedEvent } from './analytics';
 import { UsersFetchedUfoExperience } from './ufoExperiences';
 
@@ -26,10 +25,10 @@ const defaultProps: Partial<UseUserRecommendationsProps> = {
 };
 
 export const instrumentFailureOption: {
-    id: string;
-    name: string;
-    entityType: EntityType;
-    avatarUrl: string;
+	id: string;
+	name: string;
+	entityType: EntityType;
+	avatarUrl: string;
 }[] = [
 	{
 		id: 'not-used',
@@ -39,13 +38,21 @@ export const instrumentFailureOption: {
 	},
 ];
 
-const useUserRecommendations = (props: UseUserRecommendationsProps): {
-    recommendations: {
-        id: string;
-        name: string;
-        entityType: EntityType;
-        avatarUrl: string;
-    }[] | UserSearchItem[]; triggerSearchFactory: MemoizedFn<() => (query?: string) => void>; selectUserFactory: MemoizedFn<() => (userId: string) => void>; isLoading: boolean; error: any;
+const useUserRecommendations = (
+	props: UseUserRecommendationsProps,
+): {
+	recommendations:
+		| {
+				id: string;
+				name: string;
+				entityType: EntityType;
+				avatarUrl: string;
+		  }[]
+		| UserSearchItem[];
+	triggerSearchFactory: MemoizedFn<() => (query?: string) => void>;
+	selectUserFactory: MemoizedFn<() => (userId: string) => void>;
+	isLoading: boolean;
+	error: any;
 } => {
 	const {
 		baseUrl,

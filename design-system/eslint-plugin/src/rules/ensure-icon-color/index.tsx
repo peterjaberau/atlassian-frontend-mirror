@@ -1,8 +1,8 @@
 import type { Rule } from 'eslint';
 import { isNodeOfType, type JSXElement } from 'eslint-codemod-utils';
 
-import { createIsFromImportSourceFor } from '../no-custom-icons/checks/is-from-import-source';
-import { createLintRule } from '../utils/create-rule';
+import { createIsFromImportSourceFor } from '../../common/is-from-import-source';
+import { createLintRule } from '../utils/create-lint-rule';
 import { errorBoundary } from '../utils/error-boundary';
 
 /**
@@ -37,7 +37,7 @@ const rule: Rule.RuleModule = createLintRule({
 		 * Contains a map of imported icon components from any atlaskit icon package.
 		 */
 		const isNewIcon = createIsFromImportSourceFor(
-			/^@(atlaskit\/icon|atlaskit\/icon-lab|atlassian\/icon-private)\/(core|utility)\/*/,
+			/^@(atlaskit\/icon|atlaskit\/icon-lab)\/(core|utility)\/*/,
 		);
 
 		return errorBoundary({

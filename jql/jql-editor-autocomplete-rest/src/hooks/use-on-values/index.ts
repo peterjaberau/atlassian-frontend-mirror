@@ -8,31 +8,58 @@ import { concatMap } from 'rxjs/operators/concatMap';
 import { delay } from 'rxjs/operators/delay';
 import { filter } from 'rxjs/operators/filter';
 
-import {
-	type AutocompleteOption,
-	type AutocompleteOptions,
-	type AutocompleteValueType,
-} from '@atlaskit/jql-editor-common';
-import { fg } from '@atlaskit/platform-feature-flags';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import type {
+	AutocompleteOption,
+	AutocompleteOptions,
+	AutocompleteValueType,
+} from '@atlaskit/jql-editor-common/autocomplete/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { type JqlEditorAutocompleteAnalyticsEvent } from '../../analytics';
+import type { JqlEditorAutocompleteAnalyticsEvent } from '../../analytics/types';
 import { type GetAutocompleteSuggestions, type JQLFieldResponse } from '../../common/types';
 import findField$ from '../../utils/find-field-observable';
-import { normalize } from '../../utils/strings';
-import { TEAM_FIELD_TYPE, USER_FIELD_TYPE } from '../constants';
+import { normalize } from '../../utils/normalize';
+import {
+	PROJECT_FIELD_TYPE,
+	TEAM_FIELD_TYPE,
+	USER_FIELD_TYPE,
+	GOAL_FIELD_TYPE,
+	ASSETS_FIELD_TYPE,
+} from '../constants';
 import {
 	type FieldValuesCache,
-	type OnValues,
+	type OnValuesWithFunctionName,
 	type UpdateCacheAction,
 } from '../use-autocomplete-provider/types';
-import { useFetchFieldValues } from '../use-fetch-field-values';
+import { useFetchFieldValues } from '../use-fetch-field-values/useFetchFieldValues';
 
 const getValueType = (field: JQLFieldResponse): AutocompleteValueType | void => {
 	if (field.types.includes(USER_FIELD_TYPE)) {
 		return 'user';
 	}
-	if (field.types.includes(TEAM_FIELD_TYPE) && fg('jira_update_jql_teams')) {
+	if (field.types.includes(TEAM_FIELD_TYPE)) {
 		return 'team';
+	}
+	if (
+		field.types.includes(PROJECT_FIELD_TYPE) &&
+		FeatureGates.getExperimentValue(
+			'atlassian_projects_-_native_integration',
+			'releaseVersion',
+			-1,
+		) >= 1
+	) {
+		return 'project';
+	}
+	if (
+		field.types.includes(GOAL_FIELD_TYPE) &&
+		// eslint-disable-next-line @atlaskit/platform/use-recommended-utils -- Statsig migration pending for this experiment gate
+		FeatureGates.getExperimentValue('anip-1095-goals-in-harmonised-filter', 'isEnabled', false)
+	) {
+		return 'goal';
+	}
+	if (field.types.includes(ASSETS_FIELD_TYPE) && fg('orion-8274-cmdb-object-jql-values-resolver')) {
+		return 'assets';
 	}
 
 	return undefined;
@@ -63,14 +90,14 @@ const useOnValues = (
 	jqlSearchableFields$: Observable<JQLFieldResponse>,
 	getSuggestions: GetAutocompleteSuggestions,
 	createAndFireAnalyticsEvent: (payload: JqlEditorAutocompleteAnalyticsEvent) => void,
-) => {
+): OnValuesWithFunctionName => {
 	di(useReducer);
 
 	const fetchFieldValues = useFetchFieldValues(getSuggestions, createAndFireAnalyticsEvent);
 	const [fieldValuesCache, dispatch] = useReducer(fieldValuesReducer, initialState);
 
-	return useCallback<OnValues>(
-		(query?: string, field?: string): Observable<AutocompleteOptions> => {
+	return useCallback<OnValuesWithFunctionName>(
+		(query?: string, field?: string, functionName?: string): Observable<AutocompleteOptions> => {
 			if (typeof field !== 'string' || field === '') {
 				return empty();
 			}
@@ -103,7 +130,7 @@ const useOnValues = (
 					return of(null).pipe(
 						delay(OPERANDS_DELAY_MS),
 						concatMap(() =>
-							fetchFieldValues(fieldNameForFetch, normalizedQuery)
+							fetchFieldValues(fieldNameForFetch, normalizedQuery, functionName)
 								.then((values) => {
 									const valueType = getValueType(matchingField);
 									if (valueType === 'user') {
@@ -114,7 +141,23 @@ const useOnValues = (
 											value.nameOnRichInlineNode = value.name.replace(BASIC_REMOVE_EMAIL_REGEX, '');
 										});
 									}
-									if (valueType === 'team' && fg('jira_update_jql_teams')) {
+									if (
+										valueType === 'team' ||
+										valueType === 'assets' ||
+										(valueType === 'goal' &&
+											// eslint-disable-next-line @atlaskit/platform/use-recommended-utils -- Statsig migration pending for this experiment gate
+											FeatureGates.getExperimentValue(
+												'anip-1095-goals-in-harmonised-filter',
+												'isEnabled',
+												false,
+											)) ||
+										(valueType === 'project' &&
+											FeatureGates.getExperimentValue(
+												'atlassian_projects_-_native_integration',
+												'releaseVersion',
+												-1,
+											) >= 1)
+									) {
 										values.forEach((value: AutocompleteOption) => {
 											value.valueType = valueType;
 										});

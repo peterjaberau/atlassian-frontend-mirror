@@ -1,8 +1,8 @@
-import { type LanguageSupport, syntaxHighlighting } from '@codemirror/language';
+import { syntaxHighlighting } from '@codemirror/language';
+import type { LanguageSupport } from '@codemirror/language';
 import type { Extension } from '@codemirror/state';
 
 import { languageStyling } from '../../ui/syntaxHighlightingTheme';
-
 import { mapLanguageToCodeMirror } from './languageMap';
 
 /**

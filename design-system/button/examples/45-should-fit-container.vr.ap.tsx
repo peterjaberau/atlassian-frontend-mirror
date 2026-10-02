@@ -1,0 +1,20 @@
+import React from 'react';
+
+import { Box, Stack } from '@atlaskit/primitives/compiled';
+
+// eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
+import variants from '../src/utils/variants';
+
+export default function ShouldFitContainerExample(): React.JSX.Element {
+	return (
+		<Stack space="space.100">
+			{Object.values(variants).map(({ name, Component }) => (
+				<Box key={name}>
+					<Component key={name} shouldFitContainer>
+						{name}
+					</Component>
+				</Box>
+			))}
+		</Stack>
+	);
+}

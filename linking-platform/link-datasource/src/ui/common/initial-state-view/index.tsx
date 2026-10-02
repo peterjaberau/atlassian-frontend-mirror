@@ -3,10 +3,10 @@
  * @jsx jsx
  */
 import { css, jsx } from '@compiled/react';
-import { FormattedMessage, type MessageDescriptor, useIntl } from 'react-intl-next';
+import { FormattedMessage, type MessageDescriptor, useIntl } from 'react-intl';
 
-import Link from '@atlaskit/link';
-import Lozenge from '@atlaskit/lozenge';
+import Link from '@atlaskit/link/link';
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import { token } from '@atlaskit/tokens';
 
 import { initialStateViewMessages } from './messages';
@@ -20,8 +20,8 @@ const initialStateViewContainerStyles = css({
 const svgAndTextsWrapperStyles = css({
 	textAlign: 'center',
 	alignSelf: 'center',
-	paddingTop: token('space.600', '48px'),
-	paddingBottom: token('space.600', '48px'),
+	paddingTop: token('space.600'),
+	paddingBottom: token('space.600'),
 });
 
 const betaTagStyles = css({
@@ -31,16 +31,16 @@ const betaTagStyles = css({
 const searchTitleStyles = css({
 	color: token('color.text'),
 	font: token('font.heading.medium'),
-	paddingTop: token('space.300', '24px'),
-	paddingBottom: token('space.200', '16px'),
+	paddingTop: token('space.300'),
+	paddingBottom: token('space.200'),
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
-	gap: token('space.100', '8px'),
+	gap: token('space.100'),
 });
 
 const mainTextStyles = css({
-	color: token('color.text.subtle', '#44546F'),
+	color: token('color.text.subtle'),
 });
 
 interface InitialStateViewProps {
@@ -57,7 +57,7 @@ export const InitialStateView = ({
 	title,
 	description,
 	learnMoreLink,
-}: InitialStateViewProps) => {
+}: InitialStateViewProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 	return (
 		<div css={initialStateViewContainerStyles} data-testid="datasource-modal--initial-state-view">
@@ -66,7 +66,7 @@ export const InitialStateView = ({
 				<div css={[searchTitleStyles]}>
 					{showBeta && (
 						<div css={betaTagStyles}>
-							<Lozenge appearance="new">
+							<Lozenge appearance="discovery">
 								<FormattedMessage {...initialStateViewMessages.beta} />
 							</Lozenge>
 						</div>

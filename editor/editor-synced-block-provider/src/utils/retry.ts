@@ -1,19 +1,22 @@
-const parseRetryAfter = (retryAfter: string) => {
-	let newDelay;
+const MAX_RETRY_DELAY = 30000;
 
-	// retryAfter can either be in ms or HTTP date
-	const parsedRetryAfter = parseInt(retryAfter);
-	if (!isNaN(parsedRetryAfter)) {
-		newDelay = parsedRetryAfter * 1000;
-	} else {
-		const retryDate = new Date(retryAfter);
-		const delayFromDate = retryDate.getTime() - Date.now();
-		if (delayFromDate > 0) {
-			newDelay = delayFromDate;
-		}
+const parseRetryAfter = (retryAfter: string): number | undefined => {
+	// retryAfter can either be in seconds or HTTP date
+	const parsedRetryAfter = parseInt(retryAfter, 10);
+	if (!isNaN(parsedRetryAfter) && parsedRetryAfter > 0) {
+		return parsedRetryAfter * 1000;
 	}
 
-	return newDelay;
+	const retryDate = new Date(retryAfter);
+	if (isNaN(retryDate.getTime())) {
+		return undefined;
+	}
+	const delayFromDate = retryDate.getTime() - Date.now();
+	if (delayFromDate > 0) {
+		return delayFromDate;
+	}
+
+	return undefined;
 };
 
 export const fetchWithRetry = async (
@@ -30,9 +33,9 @@ export const fetchWithRetry = async (
 	}
 
 	const retryAfter = response.headers.get('Retry-After');
-	await new Promise((resolve) =>
-		setTimeout(resolve, retryAfter ? parseRetryAfter(retryAfter) : delay),
-	);
+	const parsedDelay = (retryAfter ? parseRetryAfter(retryAfter) : undefined) ?? delay;
+	const retryDelay = Math.min(parsedDelay, MAX_RETRY_DELAY);
+	await new Promise((resolve) => setTimeout(resolve, retryDelay));
 
 	return fetchWithRetry(url, options, retriesRemaining - 1, delay * 2);
 };

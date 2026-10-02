@@ -1,7 +1,9 @@
 import React from 'react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import { AtlassianNavigation, Create, ProductHome } from '@atlaskit/atlassian-navigation';
-import { AtlassianIcon, AtlassianLogo } from '@atlaskit/logo';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
+import { AtlassianLogo } from '@atlaskit/logo/atlassian/logo';
 
 const CreateButton = () => (
 	<Create

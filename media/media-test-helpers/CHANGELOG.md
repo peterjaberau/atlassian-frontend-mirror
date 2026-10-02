@@ -1,5 +1,370 @@
 # @atlaskit/media-test-helpers
 
+## 43.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 43.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.4.1
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 42.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.3.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.2.0
+
+### Minor Changes
+
+- [`e8071bab93879`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8071bab93879) -
+  Refactor packages with custom root `src/index` barrel logic to use dedicated entry modules (for
+  example `main`, `types`, `constants`, `screen`, and package-specific entrypoints) while keeping
+  public exports stable. This aligns the packages with barrel-file ratcheting by reducing custom
+  logic in root barrels and removing now-safe packages from the prohibited barrel-file list.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 42.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 42.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 41.2.0
+
+### Minor Changes
+
+- [`4b1523c328148`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b1523c328148) -
+  Clean up flag to improve accessibility of layered components.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 41.1.0
+
+### Minor Changes
+
+- [`93de3f3243bc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93de3f3243bc0) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 41.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 41.0.2
+
+### Patch Changes
+
+- [`2fe9a9909d2ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fe9a9909d2ac) -
+  Enrol media packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 41.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 41.0.0
+
+### Major Changes
+
+- [`770f036c93884`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/770f036c93884) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 40.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 40.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 40.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 40.0.5
+
+### Patch Changes
+
+- [`715629fc18fc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/715629fc18fc8) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 40.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 40.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 40.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 40.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 40.0.0
+
+### Major Changes
+
+- [`5fb7e85e19555`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5fb7e85e19555) -
+  **BREAKING CHANGE:** Removed `mountWithIntlContext`, `mountWithIntlWrapper`, and
+  `shallowWithIntlContext`. Use `renderWithIntl` instead for tests.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 39.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 39.0.15
 
 ### Patch Changes

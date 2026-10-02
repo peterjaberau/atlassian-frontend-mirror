@@ -4,17 +4,18 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 import debounce from 'lodash/debounce';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { cardMessages as messages } from '@atlaskit/editor-common/messages';
 import { ZERO_WIDTH_JOINER } from '@atlaskit/editor-common/whitespace';
 import CustomizeIcon from '@atlaskit/icon/core/customize';
-import { B100, N0, N700 } from '@atlaskit/theme/colors';
+import { useSmartLinkDestinationUrl } from '@atlaskit/smart-card/hook/use-smart-link-destination-url';
 import { token } from '@atlaskit/tokens';
 
 import type { InlineCardOverlayProps } from './types';
@@ -29,8 +30,8 @@ const OVERLAY_LABEL_CLASSNAME = 'ak-editor-card-overlay-label';
 const OVERLAY_GRADIENT_CLASSNAME = 'ak-editor-card-overlay-gradient';
 const OVERLAY_MARKER_CLASSNAME = 'ak-editor-card-overlay-marker';
 const TEXT_NODE_SELECTOR = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].join(',');
-const SMART_LINK_BACKGROUND_COLOR = token('elevation.surface.raised', N0);
-const SMART_LINK_ACTIVE_COLOR = token('color.background.selected', B100);
+const SMART_LINK_BACKGROUND_COLOR = token('elevation.surface.raised');
+const SMART_LINK_ACTIVE_COLOR = token('color.background.selected');
 
 const getGradientWithColor = (color: string) => {
 	return `linear-gradient(270deg, ${color} 0%, rgba(255, 255, 255, 0.00) 100%)`;
@@ -96,12 +97,12 @@ const iconAndLabelStyles = css({
 	display: 'flex',
 	alignItems: 'center',
 	height: '100%',
-	gap: token('space.050', '4px'),
-	paddingRight: token('space.050', '4px'),
+	gap: token('space.050'),
+	paddingRight: token('space.050'),
 	// Margin to avoid the background covering the link border
-	marginRight: token('space.025', '2px'),
+	marginRight: token('space.025'),
 	background: SMART_LINK_BACKGROUND_COLOR,
-	color: token('color.text.subtlest', N700),
+	color: token('color.text.subtlest'),
 });
 
 const overflowingContainerStyles = css({
@@ -126,7 +127,7 @@ const InlineCardOverlay = ({
 	testId = 'inline-card-overlay',
 	url,
 	...props
-}: React.PropsWithChildren<InlineCardOverlayProps>) => {
+}: React.PropsWithChildren<InlineCardOverlayProps>): jsx.JSX.Element => {
 	const [showOverlay, setShowOverlay] = useState(false);
 	const [showLabel, setShowLabel] = useState(true);
 	const [availableWidth, setAvailableWidth] = useState<number | undefined>(undefined);
@@ -235,6 +236,7 @@ const InlineCardOverlay = ({
 		};
 	}, [isVisible, setVisibility]);
 
+	const destinationUrl = useSmartLinkDestinationUrl(url) ?? url;
 	const intl = useIntl();
 	const label: string = intl.formatMessage(messages.inlineOverlay);
 
@@ -258,7 +260,7 @@ const InlineCardOverlay = ({
 							width: availableWidth,
 						}}
 						data-testid={testId}
-						href={url}
+						href={destinationUrl}
 						onClick={(e) => e.preventDefault()}
 						tabIndex={-1}
 					>

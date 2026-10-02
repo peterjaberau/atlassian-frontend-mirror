@@ -1,5 +1,6 @@
 import rafSchedule from 'raf-schd';
 
+import { isSSR } from '@atlaskit/editor-common/core-utils';
 import { getInlineNodeViewProducer } from '@atlaskit/editor-common/react-node-view';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { DATASOURCE_INNER_CONTAINER_CLASSNAME } from '@atlaskit/editor-common/styles';
@@ -8,18 +9,17 @@ import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/stat
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { DATASOURCE_DEFAULT_LAYOUT } from '@atlaskit/linking-common';
+import { DATASOURCE_DEFAULT_LAYOUT } from '@atlaskit/linking-common/constants';
 
 import type { cardPlugin } from '../index';
+import { blockCardNodeView } from '../nodeviews/blockCard';
+import { embedCardNodeView } from '../nodeviews/embedCard';
 import { InlineCardNodeView } from '../nodeviews/inlineCard';
-import { lazyBlockCardView } from '../nodeviews/lazy-block-card';
-import { lazyEmbedCardView } from '../nodeviews/lazy-embed-card';
 import { lazyInlineCardView } from '../nodeviews/lazy-inline-card';
 import type { CardPluginOptions, CardPluginState } from '../types';
 import { eventsFromTransaction } from '../ui/analytics/events-from-tr';
 import { isDatasourceTableLayout } from '../ui/LayoutButton/utils';
 import { isLocalStorageKeyDiscovered } from '../ui/local-storage';
-
 import {
 	clearOverlayCandidate,
 	setCardLayoutAndDatasourceTableRef,
@@ -32,6 +32,8 @@ import { getNewRequests, getPluginState, getPluginStateWithUpdatedPos } from './
 import { isBlockSupportedAtPosition, isEmbedSupportedAtPosition } from './utils';
 
 const LOCAL_STORAGE_DISCOVERY_KEY_SMART_LINK = 'smart-link-upgrade-pulse';
+// Only the first resolved inline smart link is needed for PO spotlight targeting
+const MAX_RESOLVED_INLINE_SMART_LINKS = 1;
 
 const handleAwarenessOverlay = (view: EditorView): void => {
 	const currentState = getPluginState(view.state);
@@ -64,7 +66,11 @@ export const createPlugin =
 			isPageSSRed,
 			provider,
 			CompetitorPrompt,
+			smartCardContext,
+			embedCardTransformers,
 		} = options;
+
+		const intl = pmPluginFactoryParams.getIntl();
 
 		const enableInlineUpgradeFeatures = !!showUpgradeDiscoverability;
 
@@ -81,7 +87,9 @@ export const createPlugin =
 				onClickCallback,
 				isPageSSRed,
 				provider,
-				CompetitorPrompt,
+				CompetitorPrompt: isSSR() ? undefined : CompetitorPrompt,
+				intl,
+				smartCardContext,
 			},
 		});
 
@@ -93,9 +101,11 @@ export const createPlugin =
 						provider: null,
 						cards: [],
 						datasourceStash: {},
+						resolvedToolbarAttributesByUrl: {},
 						showLinkingToolbar: false,
 						smartLinkEvents: undefined,
 						editorAppearance,
+						embedCardTransformers,
 						showDatasourceModal: false,
 						datasourceModalType: undefined,
 						datasourceTableRef: undefined,
@@ -132,11 +142,30 @@ export const createPlugin =
 						return pluginStateWithUpdatedPos;
 					}
 
-					if (!enableInlineUpgradeFeatures) {
-						return reducer(pluginStateWithUpdatedPos, meta);
+					const newState = reducer(pluginStateWithUpdatedPos, meta);
+
+					// Track the first resolved inline smart link for PO spotlight DOM targeting
+					if (meta.type === 'RESOLVE' && pluginState?.requests?.length) {
+						const resolvedRequest = pluginState.requests.find((req) => req.url === meta.url);
+						if (resolvedRequest?.appearance === 'inline') {
+							if (
+								(newState.resolvedInlineSmartLinks?.length ?? 0) < MAX_RESOLVED_INLINE_SMART_LINKS
+							) {
+								newState.resolvedInlineSmartLinks = [
+									...(newState.resolvedInlineSmartLinks ?? []),
+									{
+										pos: resolvedRequest.pos,
+										url: resolvedRequest.url,
+										source: resolvedRequest.source,
+									},
+								];
+							}
+						}
 					}
 
-					const newState = reducer(pluginStateWithUpdatedPos, meta);
+					if (!enableInlineUpgradeFeatures) {
+						return newState;
+					}
 
 					// the code below is related to the "Inline Switcher" project, for more information pls see EDM-7984
 					const isSingleInlineLink =
@@ -264,6 +293,7 @@ export const createPlugin =
 										pluginInjectionApi?.analytics?.actions,
 										pluginInjectionApi?.analytics?.sharedState.currentState()
 											?.createAnalyticsEvent ?? undefined,
+										currentState?.embedCardTransformers?.embedCardNodeTransformer,
 									),
 								);
 								rafCancellationCallbacks.push(invoke.cancel);
@@ -293,7 +323,7 @@ export const createPlugin =
 						isPageSSRed,
 						// no need provider here, it's in the inlineCardViewProducer.extraComponentProps
 					}),
-					blockCard: lazyBlockCardView({
+					blockCard: blockCardNodeView({
 						pmPluginFactoryParams,
 						actionOptions,
 						pluginInjectionApi,
@@ -302,9 +332,11 @@ export const createPlugin =
 						inlineCardViewProducer,
 						isPageSSRed,
 						provider,
-						CompetitorPrompt: options.CompetitorPrompt,
+						CompetitorPrompt: isSSR() ? undefined : options.CompetitorPrompt,
+						intl,
+						smartCardContext,
 					}),
-					embedCard: lazyEmbedCardView({
+					embedCard: embedCardNodeView({
 						allowResizing,
 						fullWidthMode,
 						pmPluginFactoryParams,
@@ -313,7 +345,9 @@ export const createPlugin =
 						onClickCallback: options.onClickCallback,
 						isPageSSRed,
 						provider,
-						CompetitorPrompt: options.CompetitorPrompt,
+						CompetitorPrompt: isSSR() ? undefined : options.CompetitorPrompt,
+						intl,
+						smartCardContext,
 					}),
 				},
 				...(enableInlineUpgradeFeatures && {

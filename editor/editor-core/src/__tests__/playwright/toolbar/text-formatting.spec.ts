@@ -13,6 +13,7 @@ const shortcutSelectAll = process.platform === 'darwin' ? 'Meta+a' : 'Control+a'
 test.describe('text formatting toolbar: styles', () => {
 	for (const appearance of appearances) {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: appearance,
 			},
@@ -92,18 +93,13 @@ test.describe('text formatting toolbar: styles', () => {
 
 			await expect(editor).toMatchDocument(doc(h1('Hello world'), p()));
 		});
-
-		test(`should capture and report a11y violations for ${appearance} editor`, async ({
-			editor,
-		}) => {
-			await expect(editor.page).toBeAccessible();
-		});
 	}
 });
 
 test.describe('text formatting toolbar: advanced', () => {
 	for (const appearance of appearances) {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			adf: blockQuoteAdf,
 			editorProps: {
 				appearance: appearance,
@@ -128,12 +124,6 @@ test.describe('text formatting toolbar: advanced', () => {
 				type: 'all',
 			});
 			await expect(editor).toHaveDocument(doc(p('hello'), p(`inside block quote`), p('world')));
-		});
-
-		test(`should capture and report a11y violations for ${appearance} editor`, async ({
-			editor,
-		}) => {
-			await expect(editor.page).toBeAccessible();
 		});
 	}
 });

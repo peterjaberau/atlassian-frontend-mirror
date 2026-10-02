@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import type { AnalyticsEventPayload } from '@atlaskit/editor-common/analytics';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { EditorToolbarContextType } from '@atlaskit/editor-common/toolbar';
 import { EditorToolbarProvider, EditorToolbarUIProvider } from '@atlaskit/editor-common/toolbar';
-import type { PublicPluginAPI } from '@atlaskit/editor-common/types';
+import type { OptionalPlugin, PublicPluginAPI } from '@atlaskit/editor-common/types';
 import { ToolbarSize } from '@atlaskit/editor-common/types';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugins/toolbar';
@@ -13,16 +13,24 @@ import {
 	ToolbarButtonGroup,
 	ToolbarDropdownItemSection,
 	ToolbarSection,
-	type ToolbarUIContextType,
 } from '@atlaskit/editor-toolbar';
+import type { ToolbarUIContextType } from '@atlaskit/editor-toolbar';
 import { ToolbarModelRenderer } from '@atlaskit/editor-toolbar-model';
 import type { RegisterComponent, RegisterToolbar } from '@atlaskit/editor-toolbar-model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
+import type { MarkdownModePlugin } from '../../types/markdown-mode';
 import type { ToolbarProps } from './toolbar-types';
 import { ToolbarInner } from './ToolbarInner';
 
+const TOOLBAR_FALLBACKS = {
+	group: ToolbarButtonGroup,
+	section: ToolbarSection,
+	menuSection: ToolbarDropdownItemSection,
+};
+
 /**
- * *Warning:* With `platform_editor_toolbar_aifc` enabled this component is no longer used and is replaced with `<ToolbarNext />`.
+ * *Warning:* When the new toolbar is enabled this component is replaced with `<ToolbarNext />`.
  *
  * If making changes to this component please ensure to also update `<ToolbarNext />`.
  */
@@ -49,11 +57,15 @@ export const Toolbar = (props: ToolbarProps): JSX.Element => {
 
 type NewToolbarProps = Pick<
 	ToolbarUIContextType,
-	'popupsMountPoint' | 'popupsBoundariesElement' | 'popupsScrollableElement' | 'isDisabled'
+	| 'popupsMountPoint'
+	| 'popupsBoundariesElement'
+	| 'popupsScrollableElement'
+	| 'isDisabled'
+	| 'disabledWithoutInteractionLogic'
 > &
 	Pick<EditorToolbarContextType, 'editorAppearance'> & {
 		components: RegisterComponent[];
-		editorAPI?: PublicPluginAPI<[ToolbarPlugin]>;
+		editorAPI?: PublicPluginAPI<[ToolbarPlugin, OptionalPlugin<MarkdownModePlugin>]>;
 		editorView?: EditorView;
 		toolbar: RegisterToolbar;
 	};
@@ -79,6 +91,7 @@ const usePluginState = (api?: PublicPluginAPI<[ToolbarPlugin]>) => {
  *
  * The majority of components UI should use `@atlaskit/editor-toolbar` components.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const ToolbarNext = ({
 	toolbar,
 	components,
@@ -89,12 +102,28 @@ export const ToolbarNext = ({
 	popupsBoundariesElement,
 	popupsScrollableElement,
 	isDisabled,
+	disabledWithoutInteractionLogic,
 }: NewToolbarProps): React.JSX.Element => {
 	const { connectivityStateMode, editorViewMode, editorToolbarDockingPreference } =
 		usePluginState(editorAPI);
 	// remove offline check when patch6Enabled is cleaned up
 	const isOffline = isOfflineMode(connectivityStateMode);
-
+	const memoizedFireAnalyticsEvent = useCallback(
+		(payload: unknown) => {
+			editorAPI?.analytics?.actions.fireAnalyticsEvent(payload as AnalyticsEventPayload);
+		},
+		[editorAPI],
+	);
+	const fireAnalyticsEvent = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedFireAnalyticsEvent
+		: (payload: unknown) => memoizedFireAnalyticsEvent(payload);
+	const fallbacks = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? TOOLBAR_FALLBACKS
+		: {
+				group: ToolbarButtonGroup,
+				section: ToolbarSection,
+				menuSection: ToolbarDropdownItemSection,
+			};
 
 	return (
 		<EditorToolbarProvider
@@ -107,22 +136,13 @@ export const ToolbarNext = ({
 			<EditorToolbarUIProvider
 				api={editorAPI}
 				isDisabled={isDisabled}
+				disabledWithoutInteractionLogic={disabledWithoutInteractionLogic}
 				popupsMountPoint={popupsMountPoint}
 				popupsBoundariesElement={popupsBoundariesElement}
 				popupsScrollableElement={popupsScrollableElement}
-				fireAnalyticsEvent={(payload: unknown) => {
-					editorAPI?.analytics?.actions.fireAnalyticsEvent(payload as AnalyticsEventPayload);
-				}}
+				fireAnalyticsEvent={fireAnalyticsEvent}
 			>
-				<ToolbarModelRenderer
-					toolbar={toolbar}
-					components={components}
-					fallbacks={{
-						group: ToolbarButtonGroup,
-						section: ToolbarSection,
-						menuSection: ToolbarDropdownItemSection,
-					}}
-				/>
+				<ToolbarModelRenderer toolbar={toolbar} components={components} fallbacks={fallbacks} />
 			</EditorToolbarUIProvider>
 		</EditorToolbarProvider>
 	);

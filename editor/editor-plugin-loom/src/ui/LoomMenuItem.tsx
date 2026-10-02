@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/messages';
@@ -32,7 +32,7 @@ export const LoomMenuItem = ({
 	renderButton,
 }: {
 	api: ExtractInjectionAPI<LoomPlugin> | undefined;
-} & Pick<LoomPluginOptions, 'renderButton'>) => {
+} & Pick<LoomPluginOptions, 'renderButton'>): React.JSX.Element | null | undefined => {
 	const loomEnabled = useLoomEnabled(api);
 	const { editorViewMode } = useEditorToolbar();
 
@@ -47,7 +47,9 @@ export const LoomMenuItem = ({
 	}
 };
 
-const CustomisableLoomMenuItem = (api: ExtractInjectionAPI<LoomPlugin> | undefined) =>
+export const CustomisableLoomMenuItem = (
+	api: ExtractInjectionAPI<LoomPlugin> | undefined,
+): React.ForwardRefExoticComponent<ButtonComponentProps & React.RefAttributes<HTMLElement>> =>
 	React.forwardRef<HTMLElement, ButtonComponentProps>(
 		({ isDisabled = false, onClickBeforeInit, href, target, rel }, ref) => {
 			const loomEnabled = !!useLoomEnabled(api);
@@ -96,6 +98,7 @@ const MenuItemComponent = React.forwardRef<HTMLElement, Props>(
 				href={href}
 				target={target}
 				rel={rel}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onClick={(e) => onClick(e)}
 			>
 				{formatMessage(

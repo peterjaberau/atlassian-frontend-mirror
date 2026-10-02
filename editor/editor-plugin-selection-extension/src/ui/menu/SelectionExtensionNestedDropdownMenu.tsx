@@ -1,18 +1,38 @@
 import React from 'react';
 
+import { cssMap } from '@atlaskit/css';
 import {
 	ACTION,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
+import { EXTENSION_MENU_ITEM_TEST_ID } from '@atlaskit/editor-common/block-menu';
 import { ToolbarDropdownItemSection, ToolbarNestedDropdownMenu } from '@atlaskit/editor-toolbar';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Box } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
 
-import { type ExtensionNestedDropdownMenuConfiguration } from '../../types';
+import type { ExtensionNestedDropdownMenuConfiguration } from '../../types';
 import { useSelectionExtensionComponentContext } from '../SelectionExtensionComponentContext';
-
 import { SelectionExtensionDropdownItem } from './SelectionExtensionDropdownItem';
+
+const BLOCK_MENU_TEMPLATES_SPOTLIGHT_PORTAL_SELECTOR =
+	'[data-test-id="block-menu-templates-spotlight-portal-container"]';
+
+const shouldIgnoreBlockMenuTemplatesSpotlightCloseEvent = (
+	event: Event | React.MouseEvent | React.KeyboardEvent,
+) =>
+	event.target instanceof Element &&
+	event.target.closest(BLOCK_MENU_TEMPLATES_SPOTLIGHT_PORTAL_SELECTOR) !== null;
+
+const styles = cssMap({
+	lozenge: {
+		marginLeft: token('space.075'),
+	},
+});
 
 export type SelectionExtensionNestedDropdownMenuProps = {
 	nestedDropdownMenu: ExtensionNestedDropdownMenuConfiguration;
@@ -56,13 +76,34 @@ export const SelectionExtensionNestedDropdownMenu = ({
 		});
 	};
 
+	const lozengeLabel = nestedDropdownMenu.lozenge?.label;
+	const elemAfterText = lozengeLabel ? (
+		<Box as="span" xcss={styles.lozenge}>
+			<Lozenge
+				appearance={fg('confluence_fronend_labels_categorization_migration') ? 'discovery' : 'new'}
+			>
+				{lozengeLabel}
+			</Lozenge>
+		</Box>
+	) : undefined;
+
 	return (
 		<ToolbarNestedDropdownMenu
+			testId={EXTENSION_MENU_ITEM_TEST_ID}
 			text={nestedDropdownMenu.label}
-			elemBefore={IconComponent ? <IconComponent label="" /> : undefined}
-			elemAfter={<ChevronRightIcon label="" />}
+			elemAfterText={elemAfterText}
+			elemBefore={IconComponent ? <IconComponent label="" size="small" /> : undefined}
+			elemAfter={<ChevronRightIcon label="" size="small" />}
 			onClick={handleClick}
 			dropdownTestId="editor-selection-extension-menu"
+			shouldTitleWrap={false}
+			tooltipContent={nestedDropdownMenu.label}
+			data-extension-item-key={nestedDropdownMenu.key}
+			shouldIgnoreCloseEvent={
+				fg('cc_blocks_changeboarding')
+					? shouldIgnoreBlockMenuTemplatesSpotlightCloseEvent
+					: undefined
+			}
 		>
 			<ChildItems nestedDropdownMenu={nestedDropdownMenu} />
 		</ToolbarNestedDropdownMenu>

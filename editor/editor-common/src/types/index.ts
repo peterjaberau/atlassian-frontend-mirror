@@ -38,6 +38,8 @@ export type {
 	TypeAheadItem,
 	TypeAheadForceSelect,
 	TypeAheadHandler,
+	TypeAheadSection,
+	TypeAheadSectionTitleUpdate,
 } from './type-ahead';
 
 export type { CommandDispatch, Command, HigherOrderCommand, Predicate } from './command';
@@ -47,6 +49,11 @@ export type { Browsers, Range, DisableSpellcheckByBrowser } from './supported-br
 
 export type { EditorContainerWidth, GetEditorContainerWidth } from './editor-container-width';
 export type { EmptyStateHandler, EmptyStateHandlerParams } from './empty-state-handler';
+
+export type {
+	_MarkdownModePluginStub,
+	_MarkdownModePluginStateStub,
+} from './markdown-mode-plugin-stub';
 
 export type {
 	RenderOptionsPropsT,
@@ -65,6 +72,7 @@ export type {
 	FloatingToolbarCopyButton,
 	FloatingToolbarInput,
 	FloatingToolbarCustom,
+	FloatingToolbarCustomRenderContext,
 	FloatingToolbarListPicker,
 	FloatingToolbarColorPicker,
 	FloatingToolbarEmojiPicker,
@@ -76,7 +84,6 @@ export type {
 	FloatingToolbarItem,
 	FloatingToolbarConfig,
 	FloatingToolbarHandler,
-	FloatingToolbarButtonSpotlightConfig,
 	typeOption,
 	FloatingToolbarOverflowDropdown,
 	FloatingToolbarOverflowDropdownOptions,
@@ -89,21 +96,19 @@ export type { MarkOptions, NodeOptions } from './copy-button';
 export type { ContextPanelHandler } from './context-panel';
 
 export type { EditorAppearance, EditorContentMode } from './editor-appearance';
-
 export type { ToolbarUiComponentFactoryParams, ToolbarUIComponentFactory } from './toolbar';
 
-export {
-	ToolbarSize,
-	ToolbarWidths,
-	ToolbarWidthsNext,
-	ToolbarWidthsFullPage,
-	ToolbarWidthsFullPageNext,
-} from './toolbar';
+export { ToolbarSize } from './ToolbarSize';
+export { ToolbarWidths } from './ToolbarWidths';
+export { ToolbarWidthsFullPage } from './ToolbarWidthsFullPage';
+export { ToolbarWidthsFullPageNext } from './ToolbarWidthsFullPageNext';
+export { ToolbarWidthsNext } from './ToolbarWidthsNext';
 
 export type {
 	UiComponentFactoryParams,
 	UIComponentFactory,
 	ReactHookFactory,
+	NamedReactHookFactory,
 } from './ui-components';
 
 export type { EditorReactContext } from './editor-react-context';
@@ -203,7 +208,7 @@ export type {
 } from './text-formatting';
 
 export type { LayoutPluginOptions } from './layout';
-export type { LongPressSelectionPluginOptions } from './selection';
+export type { LongPressSelectionPluginOptions, SelectionContext } from './selection';
 
 export type {
 	QuickInsertPluginState,
@@ -222,7 +227,7 @@ export type { SelectionToolbarGroup, SelectionToolbarHandler } from './selection
 
 export type { FeedbackInfo } from './feedback-dialog';
 
-import type { MessageDescriptor } from 'react-intl-next';
+import type { MessageDescriptor } from 'react-intl';
 
 // eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- Ignored via go/ED-25883
 /**

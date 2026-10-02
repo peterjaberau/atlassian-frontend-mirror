@@ -1,18 +1,18 @@
 import { closeBrackets } from '@codemirror/autocomplete';
 import { syntaxHighlighting, bracketMatching } from '@codemirror/language';
-import {
-	Compartment,
-	type Extension,
-	Facet,
-	EditorState as CodeMirrorState,
-	type StateEffect,
-} from '@codemirror/state';
-import { EditorView as CodeMirror, lineNumbers, type ViewUpdate, gutters } from '@codemirror/view';
-import type { IntlShape } from 'react-intl-next';
+import { Compartment, Facet, EditorState as CodeMirrorState } from '@codemirror/state';
+import type { Extension, StateEffect } from '@codemirror/state';
+import { EditorView as CodeMirror, lineNumbers, gutters } from '@codemirror/view';
+import type { ViewUpdate } from '@codemirror/view';
+import { bind } from 'bind-event-listener';
+import type { IntlShape } from 'react-intl';
 
-import { isCodeBlockWordWrapEnabled } from '@atlaskit/editor-common/code-block';
+import {
+	areCodeBlockLineNumbersHidden,
+	isCodeBlockWordWrapEnabled,
+} from '@atlaskit/editor-common/code-block';
 import { blockTypeMessages } from '@atlaskit/editor-common/messages';
-import { type RelativeSelectionPos } from '@atlaskit/editor-common/selection';
+import type { RelativeSelectionPos } from '@atlaskit/editor-common/selection';
 import type {
 	getPosHandler,
 	getPosHandlerNode,
@@ -20,8 +20,8 @@ import type {
 	EditorContentMode,
 } from '@atlaskit/editor-common/types';
 import { ZERO_WIDTH_SPACE } from '@atlaskit/editor-common/whitespace';
-import { type EditorSelectionAPI } from '@atlaskit/editor-plugin-selection';
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { EditorSelectionAPI } from '@atlaskit/editor-plugin-selection';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import type {
 	Decoration,
@@ -30,27 +30,23 @@ import type {
 	NodeView,
 } from '@atlaskit/editor-prosemirror/view';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import type { CodeBlockAdvancedPlugin } from '../codeBlockAdvancedPluginType';
 import { highlightStyle } from '../ui/syntaxHighlightingTheme';
 import { cmTheme, codeFoldingTheme } from '../ui/theme';
-
+import { getCodeFoldingAnalyticsPayload, type CodeFoldingTrigger } from './analytics';
 import { syncCMWithPM } from './codemirrorSync/syncCMWithPM';
 import { getCMSelectionChanges } from './codemirrorSync/updateCMSelection';
 import { firstCodeBlockInDocument } from './extensions/firstCodeBlockInDocument';
 import { foldGutterExtension, getCodeBlockFoldStateEffects } from './extensions/foldGutter';
 import { keymapExtension } from './extensions/keymap';
-import { lineSeparatorExtension } from './extensions/lineSeparator';
 import { manageSelectionMarker } from './extensions/manageSelectionMarker';
 import { prosemirrorDecorationPlugin } from './extensions/prosemirrorDecorations';
 import { tripleClickSelectAllExtension } from './extensions/tripleClickExtension';
 import { LanguageLoader } from './languages/loader';
-
-// Store last observed heights of code blocks
-const codeBlockHeights = new WeakMap<HTMLElement, number>();
 
 export interface ConfigProps {
 	allowCodeFolding: boolean;
@@ -65,6 +61,7 @@ class CodeBlockAdvancedNodeView implements NodeView {
 	private updating: boolean;
 	private view: EditorView;
 	private lineWrappingCompartment = new Compartment();
+	private lineNumbersCompartment = new Compartment();
 	private languageCompartment = new Compartment();
 	private readOnlyCompartment = new Compartment();
 	private pmDecorationsCompartment = new Compartment();
@@ -75,11 +72,14 @@ class CodeBlockAdvancedNodeView implements NodeView {
 	private contentMode: EditorContentMode | undefined;
 	private selectionAPI: EditorSelectionAPI | undefined;
 	private maybeTryingToReachNodeSelection = false;
+	private mouseDownInBorderArea = false;
 	private cleanupDisabledState: (() => void) | undefined;
 	private languageLoader: LanguageLoader;
 	private pmFacet = Facet.define<DecorationSource>();
-	private ro?: ResizeObserver;
 	private unsubscribeContentFormat: (() => void) | undefined;
+	private config: ConfigProps;
+	private cleanupBorderAreaClick: (() => void) | undefined;
+	private cleanupBorderAreaMouseDown: (() => void) | undefined;
 
 	constructor(
 		node: PMNode,
@@ -88,19 +88,13 @@ class CodeBlockAdvancedNodeView implements NodeView {
 		innerDecorations: DecorationSource,
 		config: ConfigProps,
 	) {
+		this.config = config;
 		this.node = node;
+
 		this.view = view;
 		this.getPos = getPos;
-		const contentFormatSharedState = expValEquals(
-			'confluence_compact_text_format',
-			'isEnabled',
-			true,
-		)
-			? config.api?.contentFormat?.sharedState
-			: undefined;
-		this.contentMode = expValEquals('confluence_compact_text_format', 'isEnabled', true)
-			? contentFormatSharedState?.currentState?.()?.contentMode
-			: undefined;
+		const contentFormatSharedState = config.api?.contentFormat?.sharedState;
+		this.contentMode = contentFormatSharedState?.currentState?.()?.contentMode;
 
 		this.selectionAPI = config.api?.selection?.actions;
 		const getNode = () => this.node;
@@ -118,11 +112,6 @@ class CodeBlockAdvancedNodeView implements NodeView {
 		});
 		const { formatMessage } = config.getIntl();
 		const formattedAriaLabel = formatMessage(blockTypeMessages.codeblock);
-
-		const selectNode = () => {
-			this.selectCodeBlockNode(undefined);
-			this.view.focus();
-		};
 
 		this.cm = new CodeMirror({
 			doc: this.node.textContent,
@@ -145,23 +134,16 @@ class CodeBlockAdvancedNodeView implements NodeView {
 				config.allowCodeFolding ? [codeFoldingTheme] : [],
 				this.themeCompartment.of(
 					cmTheme({
-						contentMode: expValEquals('confluence_compact_text_format', 'isEnabled', true)
-							? this.contentMode
-							: undefined,
+						contentMode: this.contentMode,
 					}),
 				),
 				syntaxHighlighting(highlightStyle),
 				bracketMatching(),
-				lineNumbers({
-					domEventHandlers: {
-						click: () => {
-							selectNode();
-							return true;
-						},
-					},
-				}),
-				// Explicitly disable "sticky" positioning on line numbers to match
-				// Renderer behaviour
+				expValEquals('platform_editor_code_block_q4_lovability', 'isEnabled', true)
+					? this.lineNumbersCompartment.of(this.getLineNumberVisibilityExtensions(node))
+					: this.getLineNumberExtensions(),
+				// Explicitly disable "sticky" positioning on all gutters to match
+				// Renderer behaviour.
 				gutters({ fixed: false }),
 				CodeMirror.updateListener.of((update) => this.forwardUpdate(update)),
 				this.readOnlyCompartment.of([
@@ -179,11 +161,18 @@ class CodeBlockAdvancedNodeView implements NodeView {
 				prosemirrorDecorationPlugin(this.pmFacet, view, getPos),
 				tripleClickSelectAllExtension(),
 				firstCodeBlockInDocument(getPos),
-				CodeMirror.contentAttributes.of({ 'aria-label': formattedAriaLabel }),
+				CodeMirror.contentAttributes.of({
+					'aria-label': `${formattedAriaLabel}`,
+				}),
 				config.allowCodeFolding
-					? [foldGutterExtension({ selectNode, getNode: () => this.node })]
+					? [
+							foldGutterExtension({
+								selectNode: this.selectCodeBlockNodeAndFocus,
+								getNode: () => this.node,
+								onFoldToggled: this.fireCodeFoldingAnalytics,
+							}),
+						]
 					: [],
-				lineSeparatorExtension(),
 			],
 		});
 
@@ -207,34 +196,15 @@ class CodeBlockAdvancedNodeView implements NodeView {
 			);
 		}
 
-		// Observe size changes of the CodeMirror DOM and request a measurement pass
-		if (
-			!expValEquals('confluence_compact_text_format', 'isEnabled', true) &&
-			expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-			fg('platform_editor_content_mode_button_mvp')
-		) {
-			this.ro = new ResizeObserver((entries) => {
-				// Skip measurements when:
-				// 1. Currently updating (prevents feedback loops)
-				// 2. CodeMirror has focus (user is actively typing/editing)
-				if (this.updating || this.cm.hasFocus) {
-					return;
-				}
-
-				// Only trigger on height changes, not width or other dimension changes
-				for (const entry of entries) {
-					const currentHeight = entry.contentRect.height;
-					const lastHeight = codeBlockHeights.get(this.cm.contentDOM);
-					if (lastHeight !== undefined && lastHeight === currentHeight) {
-						return;
-					}
-					codeBlockHeights.set(this.cm.contentDOM, currentHeight);
-				}
-
-				// CodeMirror to re-measure when its content size changes
-				this.cm.requestMeasure();
+		if (expValEquals('platform_editor_code_block_q4_lovability', 'isEnabled', true)) {
+			this.cleanupBorderAreaMouseDown = bind(this.cm.scrollDOM, {
+				type: 'mousedown',
+				listener: this.handleBorderAreaMouseDown,
 			});
-			this.ro.observe(this.cm.contentDOM);
+			this.cleanupBorderAreaClick = bind(this.cm.scrollDOM, {
+				type: 'click',
+				listener: this.handleBorderAreaClick,
+			});
 		}
 
 		// We append an additional element that fixes a selection bug on chrome if the code block
@@ -252,6 +222,7 @@ class CodeBlockAdvancedNodeView implements NodeView {
 		this.updateLanguage();
 		this.updateLocalIdAttribute();
 		this.wordWrappingEnabled = isCodeBlockWordWrapEnabled(node);
+		this.lineNumbersHidden = areCodeBlockLineNumbersHidden(node);
 
 		// Restore fold state after initialization
 		if (config.allowCodeFolding) {
@@ -264,17 +235,10 @@ class CodeBlockAdvancedNodeView implements NodeView {
 		// decorations. When we change the breakout we destroy the node and cleanup these decorations from
 		// codemirror
 		this.clearProseMirrorDecorations();
+		this.cleanupBorderAreaMouseDown?.();
+		this.cleanupBorderAreaClick?.();
 		this.cleanupDisabledState?.();
-		if (expValEquals('confluence_compact_text_format', 'isEnabled', true)) {
-			this.unsubscribeContentFormat?.();
-		}
-		if (
-			!expValEquals('confluence_compact_text_format', 'isEnabled', true) &&
-			expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-			fg('platform_editor_content_mode_button_mvp')
-		) {
-			this.ro?.disconnect();
-		}
+		this.unsubscribeContentFormat?.();
 	}
 
 	forwardUpdate(update: ViewUpdate): void {
@@ -336,6 +300,48 @@ class CodeBlockAdvancedNodeView implements NodeView {
 	}
 
 	private wordWrappingEnabled = false;
+	private lineNumbersHidden = false;
+
+	private selectCodeBlockNodeAndFocus = () => {
+		this.selectCodeBlockNode(undefined);
+		this.view.focus();
+	};
+
+	private fireCodeFoldingAnalytics = (folded: boolean, trigger: CodeFoldingTrigger) => {
+		this.config.api?.analytics?.actions.fireAnalyticsEvent(
+			getCodeFoldingAnalyticsPayload(folded, trigger),
+		);
+	};
+
+	private getLineNumberExtensions(): Extension[] {
+		return [
+			lineNumbers({
+				domEventHandlers: {
+					click: () => {
+						this.selectCodeBlockNodeAndFocus();
+						return true;
+					},
+				},
+			}),
+		];
+	}
+
+	private getLineNumberVisibilityExtensions(node: PMNode): Extension[] {
+		if (areCodeBlockLineNumbersHidden(node)) {
+			return [];
+		}
+
+		return this.getLineNumberExtensions();
+	}
+
+	private getLineNumbersEffects(node: PMNode) {
+		const lineNumbersHidden = areCodeBlockLineNumbersHidden(node);
+		if (this.lineNumbersHidden !== lineNumbersHidden) {
+			this.lineNumbersHidden = lineNumbersHidden;
+			return this.lineNumbersCompartment.reconfigure(this.getLineNumberVisibilityExtensions(node));
+		}
+		return undefined;
+	}
 
 	private getWordWrapEffects(node: PMNode) {
 		if (this.wordWrappingEnabled !== isCodeBlockWordWrapEnabled(node)) {
@@ -386,11 +392,18 @@ class CodeBlockAdvancedNodeView implements NodeView {
 		// Updates bundled for performance (to avoid multiple-dispatches)
 		const changes = getCMSelectionChanges(curText, newText);
 		const wordWrapEffect = this.getWordWrapEffects(node);
+		const lineNumbersEffect = expValEqualsNoExposure(
+			'platform_editor_code_block_q4_lovability',
+			'isEnabled',
+			true,
+		)
+			? this.getLineNumbersEffects(node)
+			: undefined;
 		const prosemirrorDecorationsEffect = this.getProseMirrorDecorationEffects(innerDecorations);
-		if (changes || wordWrapEffect || prosemirrorDecorationsEffect) {
+		if (changes || wordWrapEffect || lineNumbersEffect || prosemirrorDecorationsEffect) {
 			this.updating = true;
 			this.cm.dispatch({
-				effects: [wordWrapEffect, prosemirrorDecorationsEffect].filter(
+				effects: [wordWrapEffect, lineNumbersEffect, prosemirrorDecorationsEffect].filter(
 					(effect): effect is StateEffect<unknown> => !!effect,
 				),
 				changes,
@@ -419,6 +432,42 @@ class CodeBlockAdvancedNodeView implements NodeView {
 			effects: this.pmDecorationsCompartment.reconfigure(computedFacet),
 		});
 		this.updating = false;
+	}
+
+	private handleBorderAreaMouseDown = (event: MouseEvent) => {
+		const isBorderArea = this.isBorderAreaClick(event);
+
+		this.mouseDownInBorderArea = isBorderArea;
+
+		if (isBorderArea && event.target === this.cm.scrollDOM) {
+			// Stop CodeMirror from restoring stale inner selection before node selection.
+			event.preventDefault();
+		}
+	};
+
+	private handleBorderAreaClick = (event: MouseEvent) => {
+		if (!this.mouseDownInBorderArea) {
+			return;
+		}
+
+		// Prevent CodeMirror from restoring its inner selection after we hand focus and selection
+		// back to ProseMirror
+		event.preventDefault();
+		this.maybeTryingToReachNodeSelection = true;
+
+		this.view.focus();
+		this.selectCodeBlockNode(undefined);
+	};
+
+	private isBorderAreaClick(event: MouseEvent): boolean {
+		const target = event.target;
+		if (!(target instanceof HTMLElement)) {
+			return false;
+		}
+
+		// CodeMirror does not expose a stable gutter DOM handle, so this relies on its
+		// class names to distinguish interactive content/gutters from border-area clicks.
+		return !target.closest('.cm-gutters') && !target.closest('.cm-line');
 	}
 
 	stopEvent(e: Event): boolean {

@@ -1,4 +1,5 @@
 /* eslint-disable no-console, import/extensions */
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -9,50 +10,66 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import type { z } from 'zod';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-
-import { sendOperationalEvent } from './helpers/analytics';
+import { sendOperationalEvent } from './helpers/send-operational-event';
 import { validateToolArguments } from './helpers/validation';
 import { instructions } from './instructions';
-import {
-	analyzeA11yInputSchema,
-	analyzeA11yLocalhostInputSchema,
-	analyzeA11yTool,
-	analyzeLocalhostA11yTool,
-	listAnalyzeA11yTool,
-	listAnalyzeLocalhostA11yTool,
-} from './tools/analyze-a11y';
-import {
-	getA11yGuidelinesInputSchema,
-	getA11yGuidelinesTool,
-	listGetA11yGuidelinesTool,
-} from './tools/get-a11y-guidelines';
-import { getAllIconsTool, listGetAllIconsTool } from './tools/get-all-icons';
-import { getAllTokensTool, listGetAllTokensTool } from './tools/get-all-tokens';
-import { getComponentsTool, listGetComponentsTool } from './tools/get-components';
-import { getIconsInputSchema, getIconsTool, listGetIconsTool } from './tools/get-icons';
-import {
-	getLintRulesInputSchema,
-	getLintRulesTool,
-	listGetLintRulesTool,
-} from './tools/get-lint-rules';
-import { getTokensInputSchema, getTokensTool, listGetTokensTool } from './tools/get-tokens';
-import {
-	i18nConversionInputSchema,
-	i18nConversionTool,
-	listI18nConversionTool,
-} from './tools/i18n-conversion';
-import {
-	listMigrationGuidesTool,
-	migrationGuidesInputSchema,
-	migrationGuidesTool,
-} from './tools/migration-guides';
-import { listPlanTool, planInputSchema, planTool } from './tools/plan';
-import {
-	listSuggestA11yFixesTool,
-	suggestA11yFixesInputSchema,
-	suggestA11yFixesTool,
-} from './tools/suggest-a11y-fixes';
+import { analyzeA11yInputSchema } from './tools/analyze-a11y/analyze-a11y-input-schema';
+import { analyzeA11yLocalhostInputSchema } from './tools/analyze-a11y/analyze-a11y-localhost-input-schema';
+import { analyzeA11yTool } from './tools/analyze-a11y/analyze-a11y-tool';
+import { analyzeLocalhostA11yTool } from './tools/analyze-a11y/analyze-localhost-a11y-tool';
+import { listAnalyzeA11yTool } from './tools/analyze-a11y/list-analyze-a11y-tool';
+import { listAnalyzeLocalhostA11yTool } from './tools/analyze-a11y/list-analyze-localhost-a11y-tool';
+import { getA11yGuidelinesInputSchema } from './tools/get-a11y-guidelines/get-a11y-guidelines-input-schema';
+import { getA11yGuidelinesTool } from './tools/get-a11y-guidelines/get-a11y-guidelines-tool';
+import { listGetA11yGuidelinesTool } from './tools/get-a11y-guidelines/list-get-a11y-guidelines-tool';
+import { getAllComponentsTool } from './tools/get-all-components/get-all-components-tool';
+import { listGetAllComponentsTool } from './tools/get-all-components/list-get-all-components-tool';
+import { getAllIconsTool } from './tools/get-all-icons/get-all-icons-tool';
+import { listGetAllIconsTool } from './tools/get-all-icons/list-get-all-icons-tool';
+import { getAllTokensTool } from './tools/get-all-tokens/get-all-tokens-tool';
+import { listGetAllTokensTool } from './tools/get-all-tokens/list-get-all-tokens-tool';
+import { getAtlaskitComponentsTool } from './tools/get-atlaskit-components/get-atlaskit-components-tool';
+import { listGetAtlaskitComponentsTool } from './tools/get-atlaskit-components/list-get-atlaskit-components-tool';
+import { getAtlaskitHooksTool } from './tools/get-atlaskit-hooks/get-atlaskit-hooks-tool';
+import { listGetAtlaskitHooksTool } from './tools/get-atlaskit-hooks/list-get-atlaskit-hooks-tool';
+import { getAtlaskitUtilitiesTool } from './tools/get-atlaskit-utilities/get-atlaskit-utilities-tool';
+import { listGetAtlaskitUtilitiesTool } from './tools/get-atlaskit-utilities/list-get-atlaskit-utilities-tool';
+import { getGuidelinesInputSchema } from './tools/get-guidelines/get-guidelines-input-schema';
+import { getGuidelinesTool } from './tools/get-guidelines/get-guidelines-tool';
+import { listGetGuidelinesTool } from './tools/get-guidelines/list-get-guidelines-tool';
+import { getLintRulesInputSchema } from './tools/get-lint-rules/get-lint-rules-input-schema';
+import { getLintRulesTool } from './tools/get-lint-rules/get-lint-rules-tool';
+import { listGetLintRulesTool } from './tools/get-lint-rules/list-get-lint-rules-tool';
+import { i18nConversionInputSchema } from './tools/i18n-conversion/i18n-conversion-input-schema';
+import { i18nConversionTool } from './tools/i18n-conversion/i18n-conversion-tool';
+import { listI18nConversionTool } from './tools/i18n-conversion/list-i18n-conversion-tool';
+import { listMigrationGuidesTool } from './tools/migration-guides/list-migration-guides-tool';
+import { migrationGuidesInputSchema } from './tools/migration-guides/migration-guides-input-schema';
+import { migrationGuidesTool } from './tools/migration-guides/migration-guides-tool';
+import { listPlanTool } from './tools/plan/list-plan-tool';
+import { planInputSchema } from './tools/plan/plan-input-schema';
+import { planTool } from './tools/plan/plan-tool';
+import { listSearchAtlaskitComponentsTool } from './tools/search-atlaskit-components/list-search-atlaskit-components-tool';
+import { searchAtlaskitComponentsInputSchema } from './tools/search-atlaskit-components/search-atlaskit-components-input-schema';
+import { searchAtlaskitComponentsTool } from './tools/search-atlaskit-components/search-atlaskit-components-tool';
+import { listSearchAtlaskitHooksTool } from './tools/search-atlaskit-hooks/list-search-atlaskit-hooks-tool';
+import { searchAtlaskitHooksInputSchema } from './tools/search-atlaskit-hooks/search-atlaskit-hooks-input-schema';
+import { searchAtlaskitHooksTool } from './tools/search-atlaskit-hooks/search-atlaskit-hooks-tool';
+import { listSearchAtlaskitUtilitiesTool } from './tools/search-atlaskit-utilities/list-search-atlaskit-utilities-tool';
+import { searchAtlaskitUtilitiesInputSchema } from './tools/search-atlaskit-utilities/search-atlaskit-utilities-input-schema';
+import { searchAtlaskitUtilitiesTool } from './tools/search-atlaskit-utilities/search-atlaskit-utilities-tool';
+import { listSearchComponentsTool } from './tools/search-components/list-search-components-tool';
+import { searchComponentsInputSchema } from './tools/search-components/search-components-input-schema';
+import { searchComponentsTool } from './tools/search-components/search-components-tool';
+import { listSearchIconsTool } from './tools/search-icons/list-search-icons-tool';
+import { searchIconsInputSchema } from './tools/search-icons/search-icons-input-schema';
+import { searchIconsTool } from './tools/search-icons/search-icons-tool';
+import { listSearchTokensTool } from './tools/search-tokens/list-search-tokens-tool';
+import { searchTokensInputSchema } from './tools/search-tokens/search-tokens-input-schema';
+import { searchTokensTool } from './tools/search-tokens/search-tokens-tool';
+import { listSuggestA11yFixesTool } from './tools/suggest-a11y-fixes/list-suggest-a11y-fixes-tool';
+import { suggestA11yFixesInputSchema } from './tools/suggest-a11y-fixes/suggest-a11y-fixes-input-schema';
+import { suggestA11yFixesTool } from './tools/suggest-a11y-fixes/suggest-a11y-fixes-tool';
 
 // eslint-disable-next-line import/no-extraneous-dependencies -- this uses require because not all node versions this package supports use the same import assertions/attributes
 const pkgJson = require('@atlaskit/ads-mcp/package.json');
@@ -74,21 +91,21 @@ const server = new Server(
 
 const generateLogger =
 	(level: 'info' | 'error' | 'debug' | 'notice' | 'warning' | 'critical' | 'alert' | 'emergency') =>
-		(...args: any[]) => {
-			// NOTE: We do not have logging enabled as it's not implemented consistently in MCP specs
-			// server.sendLoggingMessage({
-			// 	level,
-			// 	data: args,
-			// });
+	(...args: any[]) => {
+		// NOTE: We do not have logging enabled as it's not implemented consistently in MCP specs
+		// server.sendLoggingMessage({
+		// 	level,
+		// 	data: args,
+		// });
 
-			// Log to console if ADSMCP_DEBUG is set to true
-			// using console.error since the only one that works for logging is `stderr`
-			// using console.log / other console.fn that use `stdout` will cause an error
-			// ref: https://www.mcpevals.io/blog/debugging-mcp-servers-tips-and-best-practices
-			if (String(process.env.ADSMCP_DEBUG) === 'true') {
-				console.error(`[ads-mcp.custom-logging][${level}]`, ...args);
-			}
-		};
+		// Log to console if ADSMCP_DEBUG is set to true
+		// using console.error since the only one that works for logging is `stderr`
+		// using console.log / other console.fn that use `stdout` will cause an error
+		// ref: https://www.mcpevals.io/blog/debugging-mcp-servers-tips-and-best-practices
+		if (String(process.env.ADSMCP_DEBUG) === 'true') {
+			console.error(`[ads-mcp.custom-logging][${level}]`, ...args);
+		}
+	};
 
 export const getToolRegistry = (): Record<
 	string,
@@ -98,7 +115,14 @@ export const getToolRegistry = (): Record<
 		tool: Tool;
 	}
 > => {
-	const baseTools: ReturnType<typeof getToolRegistry> = {
+	const registry: Record<
+		string,
+		{
+			handler: (params: any) => Promise<any>;
+			inputSchema: z.AnyZodObject | null;
+			tool: Tool;
+		}
+	> = {
 		[listAnalyzeA11yTool.name]: {
 			handler: analyzeA11yTool,
 			inputSchema: analyzeA11yInputSchema,
@@ -114,33 +138,31 @@ export const getToolRegistry = (): Record<
 			inputSchema: getA11yGuidelinesInputSchema,
 			tool: listGetA11yGuidelinesTool,
 		},
-		[listGetComponentsTool.name]: {
-			handler: getComponentsTool,
+		[listGetAllComponentsTool.name]: {
+			handler: getAllComponentsTool,
 			inputSchema: null,
-			tool: listGetComponentsTool,
+			tool: listGetAllComponentsTool,
 		},
 		[listPlanTool.name]: {
 			handler: planTool,
 			inputSchema: planInputSchema,
 			tool: listPlanTool,
 		},
-		// NOTE: These should not actually be called as they're not in the `list_tools` endpoint.
-		// But there might be a reason to keep them around for backwards-compatibility.
-		// [listSearchComponentsTool.name]: {
-		//   handler: searchComponentsTool,
-		//   inputSchema: searchComponentsInputSchema,
-		//   tool: listSearchComponentsTool,
-		// },
-		// [listSearchIconsTool.name]: {
-		//   handler: searchIconsTool,
-		//   inputSchema: searchIconsInputSchema,
-		//   tool: listSearchIconsTool,
-		// },
-		// [listSearchTokensTool.name]: {
-		//   handler: searchTokensTool,
-		//   inputSchema: searchTokensInputSchema,
-		//   tool: listSearchTokensTool,
-		// },
+		[listSearchComponentsTool.name]: {
+			handler: searchComponentsTool,
+			inputSchema: searchComponentsInputSchema,
+			tool: listSearchComponentsTool,
+		},
+		[listSearchIconsTool.name]: {
+			handler: searchIconsTool,
+			inputSchema: searchIconsInputSchema,
+			tool: listSearchIconsTool,
+		},
+		[listSearchTokensTool.name]: {
+			handler: searchTokensTool,
+			inputSchema: searchTokensInputSchema,
+			tool: listSearchTokensTool,
+		},
 		[listSuggestA11yFixesTool.name]: {
 			handler: suggestA11yFixesTool,
 			inputSchema: suggestA11yFixesInputSchema,
@@ -156,39 +178,59 @@ export const getToolRegistry = (): Record<
 			inputSchema: i18nConversionInputSchema,
 			tool: listI18nConversionTool,
 		},
-	};
-
-	// Conditionally add token and icon tools based on feature flag
-	if (fg('design_system_mcp_structured_content')) {
-		baseTools[listGetTokensTool.name] = {
-			handler: getTokensTool,
-			inputSchema: getTokensInputSchema,
-			tool: listGetTokensTool,
-		} as (typeof baseTools)[string];
-		baseTools[listGetIconsTool.name] = {
-			handler: getIconsTool,
-			inputSchema: getIconsInputSchema,
-			tool: listGetIconsTool,
-		} as (typeof baseTools)[string];
-		baseTools[listGetLintRulesTool.name] = {
-			handler: getLintRulesTool,
-			inputSchema: getLintRulesInputSchema,
-			tool: listGetLintRulesTool,
-		} as (typeof baseTools)[string];
-	} else {
-		baseTools[listGetAllTokensTool.name] = {
+		[listGetGuidelinesTool.name]: {
+			handler: getGuidelinesTool,
+			inputSchema: getGuidelinesInputSchema,
+			tool: listGetGuidelinesTool,
+		},
+		[listGetAllTokensTool.name]: {
 			handler: getAllTokensTool,
 			inputSchema: null,
 			tool: listGetAllTokensTool,
-		} as (typeof baseTools)[string];
-		baseTools[listGetAllIconsTool.name] = {
+		},
+		[listGetAllIconsTool.name]: {
 			handler: getAllIconsTool,
 			inputSchema: null,
 			tool: listGetAllIconsTool,
-		} as (typeof baseTools)[string];
-	}
+		},
+		[listGetLintRulesTool.name]: {
+			handler: getLintRulesTool,
+			inputSchema: getLintRulesInputSchema,
+			tool: listGetLintRulesTool,
+		},
+		[listGetAtlaskitComponentsTool.name]: {
+			handler: getAtlaskitComponentsTool,
+			inputSchema: null,
+			tool: listGetAtlaskitComponentsTool,
+		},
+		[listSearchAtlaskitComponentsTool.name]: {
+			handler: searchAtlaskitComponentsTool,
+			inputSchema: searchAtlaskitComponentsInputSchema,
+			tool: listSearchAtlaskitComponentsTool,
+		},
+		[listGetAtlaskitUtilitiesTool.name]: {
+			handler: getAtlaskitUtilitiesTool,
+			inputSchema: null,
+			tool: listGetAtlaskitUtilitiesTool,
+		},
+		[listSearchAtlaskitUtilitiesTool.name]: {
+			handler: searchAtlaskitUtilitiesTool,
+			inputSchema: searchAtlaskitUtilitiesInputSchema,
+			tool: listSearchAtlaskitUtilitiesTool,
+		},
+		[listGetAtlaskitHooksTool.name]: {
+			handler: getAtlaskitHooksTool,
+			inputSchema: null,
+			tool: listGetAtlaskitHooksTool,
+		},
+		[listSearchAtlaskitHooksTool.name]: {
+			handler: searchAtlaskitHooksTool,
+			inputSchema: searchAtlaskitHooksInputSchema,
+			tool: listSearchAtlaskitHooksTool,
+		},
+	};
 
-	return baseTools;
+	return registry;
 };
 
 server.setRequestHandler(ListToolsRequestSchema, async (request, extra) => {

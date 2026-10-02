@@ -1,3 +1,11 @@
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  and raise concerns in https://atlassian.enterprise.slack.com/archives/C0BD4K40BLH
+*/
+
 import React from 'react';
 
 import { render } from '@testing-library/react';
@@ -5,7 +13,7 @@ import { render } from '@testing-library/react';
 import { NodeNestingTransformError } from '@atlaskit/adf-utils/transforms';
 import type { MacroAttributes, MacroProvider } from '@atlaskit/editor-common/provider-factory';
 import type { Transformer } from '@atlaskit/editor-common/types';
-import { JSONTransformer } from '@atlaskit/editor-json-transformer';
+import { JSONTransformer } from '@atlaskit/editor-json-transformer/JSONTransformer-2';
 import { Node } from '@atlaskit/editor-prosemirror/model';
 import { Transaction } from '@atlaskit/editor-prosemirror/state';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
@@ -110,23 +118,21 @@ describe('Editor Actions', () => {
 			}
 			const value = await editorActions?.getValue();
 
-			expect(value).toMatchInlineSnapshot(`
-			{
-			  "content": [
-			    {
-			      "content": [
-			        {
-			          "text": ":smile",
-			          "type": "text",
-			        },
-			      ],
-			      "type": "paragraph",
-			    },
-			  ],
-			  "type": "doc",
-			  "version": 1,
-			}
-		`);
+			expect(value).toEqual({
+				type: 'doc',
+				version: 1,
+				content: [
+					{
+						type: 'paragraph',
+						content: [
+							{
+								type: 'text',
+								text: ':smile',
+							},
+						],
+					},
+				],
+			});
 
 			await expect(document.body).toBeAccessible();
 		});
@@ -268,6 +274,7 @@ describe('Editor Actions', () => {
 								colwidth: null,
 								background: null,
 								localId: null,
+								valign: null,
 							},
 							content: [
 								{

@@ -2,13 +2,14 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type CSSProperties, Fragment, type FunctionComponent } from 'react';
+import { type CSSProperties, Fragment, type FunctionComponent, type JSX } from 'react';
 
 import { cssMap, cx, jsx } from '@compiled/react';
 
-import { Label } from '@atlaskit/form';
+import { Label } from '@atlaskit/form/label/default';
 import { Box } from '@atlaskit/primitives/compiled';
-import Select, { type ClearIndicatorProps, type OptionType } from '@atlaskit/select';
+import Select from '@atlaskit/select/default';
+import type { ClearIndicatorProps, OptionType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 import { cities } from '../common/data';

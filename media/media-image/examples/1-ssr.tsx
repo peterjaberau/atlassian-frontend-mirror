@@ -1,3 +1,17 @@
+import React, { type PropsWithChildren, useEffect, useMemo } from 'react';
+
+import { hydrateRoot } from 'react-dom/client';
+import ReactDOMServer from 'react-dom/server';
+
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import {
+	type FileIdentifier,
+	MediaClient,
+	type MediaStoreGetFileImageParams,
+} from '@atlaskit/media-client';
+import { MediaClientContext } from '@atlaskit/media-client-react/media-client-provider';
+import { type SSR } from '@atlaskit/media-common';
 /**
  * Development use only
  * The purpose of this example is to explore on edge cases for this component's
@@ -5,22 +19,12 @@
  * way. It is discouraged to use this code as a base for consumers.
  */
 import { createStorybookMediaClientConfig } from '@atlaskit/media-test-helpers';
-import {
-	type FileIdentifier,
-	MediaClient,
-	type MediaStoreGetFileImageParams,
-} from '@atlaskit/media-client';
 import { tallImage } from '@atlaskit/media-test-helpers';
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import React, { type PropsWithChildren, useEffect, useMemo } from 'react';
-import { type SSR } from '@atlaskit/media-common';
-import { MediaImage } from '../src';
-import Spinner from '@atlaskit/spinner';
-import { MediaClientContext } from '@atlaskit/media-client-react';
 import { imageFileId } from '@atlaskit/media-test-helpers';
-import ReactDOMServer from 'react-dom/server';
-import ReactDOM from 'react-dom';
+import Spinner from '@atlaskit/spinner/spinner';
+
 import DevelopmentUseMessage from '../example-helpers/developmentUseMessage';
+import { MediaImage } from '../src';
 
 const dimensions = { width: 100, height: 150 };
 
@@ -57,7 +61,9 @@ const Image = ({
 	identifier,
 	apiConfig,
 	ssr,
+	alt,
 }: {
+	alt: string;
 	identifier: FileIdentifier;
 	apiConfig?: MediaStoreGetFileImageParams;
 	ssr: SSR;
@@ -83,7 +89,7 @@ const Image = ({
 					return null;
 				}
 
-				return <img src={data.src} alt="Media file" />;
+				return <img src={data.src} alt={alt} />;
 			}}
 		</MediaImage>
 	);
@@ -101,8 +107,7 @@ const Page = ({
 	<SSRAnalyticsWrapper>
 		<h3>{title}</h3>
 		<MediaClientContext.Provider value={createMediaClient({ throwError })}>
-			{/* eslint-disable-next-line @atlassian/a11y/alt-text -- See https://go/a11y-alt-text for more details */}
-			<Image identifier={imageFileId} apiConfig={dimensions} ssr={ssr} />
+			<Image alt="Media file" identifier={imageFileId} apiConfig={dimensions} ssr={ssr} />
 		</MediaClientContext.Provider>
 	</SSRAnalyticsWrapper>
 );
@@ -121,7 +126,7 @@ const runSSR = ({ containerId, hydrate, throwError }: RunSSRParams) => {
 	const elem = document.querySelector(`#${containerId}`);
 	if (elem) {
 		elem.innerHTML = txt;
-		hydrate && ReactDOM.hydrate(<Page ssr="client" title={title} throwError={throwError} />, elem);
+		hydrate && hydrateRoot(elem, <Page ssr="client" title={title} throwError={throwError} />);
 	}
 };
 

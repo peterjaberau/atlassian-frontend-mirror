@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-local-id/app",
 		"rootDir": "../",
 		"composite": true,
@@ -22,10 +21,19 @@
 			"path": "../../adf-schema/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-plugin-collab-edit/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-composition/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-plugin-limited-mode/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-prosemirror/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"

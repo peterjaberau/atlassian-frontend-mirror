@@ -3,15 +3,11 @@
 import React from 'react';
 
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { Text } from '@atlaskit/primitives/compiled';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-import {
-	mockRunItLaterSynchronously,
-	renderWithAnalyticsListener,
-} from '@atlassian/ptc-test-utils';
+import { renderWithAnalyticsListener } from '@atlassian/ptc-test-utils';
 
 import ProfileCardTrigger from '../../../components/common/ProfileCardTrigger';
 
@@ -24,14 +20,15 @@ describe('ProfileCardTrigger', () => {
 	const mockFetchProfile = jest.fn();
 	const renderProfileCard = jest.fn();
 	const fireAnalytics = jest.fn();
-	const fireAnalyticsNext = jest.fn();
 
 	const renderWithIntl = ({
 		trigger,
 		fetchProfile,
+		disabledAriaAttributes,
 	}: {
 		trigger: 'hover' | 'click';
 		fetchProfile?: jest.Mock;
+		disabledAriaAttributes?: boolean;
 	}) => {
 		return renderWithAnalyticsListener(
 			<IntlProvider locale="en">
@@ -42,7 +39,7 @@ describe('ProfileCardTrigger', () => {
 					profileCardType="user"
 					testId="profile-card-testid"
 					fireAnalytics={fireAnalytics}
-					fireAnalyticsNext={fireAnalyticsNext}
+					disabledAriaAttributes={disabledAriaAttributes}
 				>
 					<Text>Profile card Trigger</Text>
 				</ProfileCardTrigger>
@@ -112,48 +109,75 @@ describe('ProfileCardTrigger', () => {
 			},
 		};
 		beforeEach(() => {
-			mockRunItLaterSynchronously();
 			jest.spyOn(performance, 'now').mockReturnValue(1000);
 		});
 
-		ffTest.on('ptc-enable-profile-card-analytics-refactor', 'new analytics', () => {
-			it('should fire analytics hover profile card event', async () => {
-				const { user } = renderWithIntl({ trigger: 'hover' });
-				await user.hover(screen.getByTestId('profile-card-testid'));
-				await waitFor(() => {
-					expect(screen.getByTestId('profile-card--trigger-content')).toBeInTheDocument();
-				});
-				await user.hover(screen.getByTestId('profile-card--trigger-content'));
-				expect(fireAnalyticsNext).toHaveBeenCalledWith(
-					`${hoverProfileCardEvent.eventType}.${hoverProfileCardEvent.actionSubject}.${hoverProfileCardEvent.action}`,
-					hoverProfileCardEvent.attributes,
-				);
+		it('should fire analytics hover profile card event', async () => {
+			const { user } = renderWithIntl({ trigger: 'hover' });
+			await user.hover(screen.getByTestId('profile-card-testid'));
+			await waitFor(() => {
+				expect(screen.getByTestId('profile-card--trigger-content')).toBeInTheDocument();
 			});
-			it('should fire analytics click profile card event', async () => {
-				const { user } = renderWithIntl({ trigger: 'click' });
-				await user.click(screen.getByTestId('profile-card-testid'));
-				expect(fireAnalyticsNext).toHaveBeenCalledWith(
-					`${clickProfileCardEvent.eventType}.${clickProfileCardEvent.actionSubject}.${clickProfileCardEvent.action}`,
-					clickProfileCardEvent.attributes,
-				);
-			});
-			it('should fire loading profile card event', async () => {
-				const mockFetchProfile = jest.fn(() => new Promise(() => {}));
+			await user.hover(screen.getByTestId('profile-card--trigger-content'));
+			expect(fireAnalytics).toHaveBeenCalledWith(
+				`${hoverProfileCardEvent.eventType}.${hoverProfileCardEvent.actionSubject}.${hoverProfileCardEvent.action}`,
+				hoverProfileCardEvent.attributes,
+			);
+		});
+		it('should fire analytics click profile card event', async () => {
+			const { user } = renderWithIntl({ trigger: 'click' });
+			await user.click(screen.getByTestId('profile-card-testid'));
+			expect(fireAnalytics).toHaveBeenCalledWith(
+				`${clickProfileCardEvent.eventType}.${clickProfileCardEvent.actionSubject}.${clickProfileCardEvent.action}`,
+				clickProfileCardEvent.attributes,
+			);
+		});
+		it('should fire loading profile card event', async () => {
+			const mockFetchProfile = jest.fn(() => new Promise(() => {}));
 
-				const { user } = renderWithIntl({
-					trigger: 'hover',
-					fetchProfile: mockFetchProfile,
-				});
-
-				await user.hover(screen.getByTestId('profile-card-testid'));
-				await waitFor(() => {
-					expect(screen.getByTestId('profilecard.profilecardtrigger.loading')).toBeInTheDocument();
-				});
-				expect(fireAnalyticsNext).toHaveBeenCalledWith(
-					`${loadingProfileCardEvent.eventType}.${loadingProfileCardEvent.actionSubject}.${loadingProfileCardEvent.action}.${loadingProfileCardEvent.actionSubjectId}`,
-					loadingProfileCardEvent.attributes,
-				);
+			const { user } = renderWithIntl({
+				trigger: 'hover',
+				fetchProfile: mockFetchProfile,
 			});
+
+			await user.hover(screen.getByTestId('profile-card-testid'));
+			await waitFor(() => {
+				expect(screen.getByTestId('profilecard.profilecardtrigger.loading')).toBeInTheDocument();
+			});
+			expect(fireAnalytics).toHaveBeenCalledWith(
+				`${loadingProfileCardEvent.eventType}.${loadingProfileCardEvent.actionSubject}.${loadingProfileCardEvent.action}.${loadingProfileCardEvent.actionSubjectId}`,
+				loadingProfileCardEvent.attributes,
+			);
+		});
+	});
+
+	describe('aria attributes on the trigger', () => {
+		const openPopupAndGetTrigger = async () => {
+			const triggerEl = screen.getByTestId('profile-card-testid');
+			fireEvent.click(triggerEl);
+			await waitFor(() => {
+				expect(screen.getByTestId('profile-card--trigger-content')).toBeInTheDocument();
+			});
+			return triggerEl;
+		};
+
+		it('keeps the aria attributes provided by the popup trigger when disabledAriaAttributes is not set', async () => {
+			renderWithIntl({ trigger: 'click' });
+
+			const triggerEl = await openPopupAndGetTrigger();
+			expect(triggerEl).toHaveAttribute('aria-haspopup');
+			expect(triggerEl).toHaveAttribute('aria-expanded');
+			expect(triggerEl).toHaveAttribute('aria-controls');
+		});
+
+		it('removes aria-expanded, aria-haspopup and aria-controls from the trigger when disabledAriaAttributes is set', async () => {
+			const { container } = renderWithIntl({ trigger: 'click', disabledAriaAttributes: true });
+
+			const triggerEl = await openPopupAndGetTrigger();
+			expect(triggerEl).not.toHaveAttribute('aria-expanded');
+			expect(triggerEl).not.toHaveAttribute('aria-haspopup');
+			expect(triggerEl).not.toHaveAttribute('aria-controls');
+			await expect(container).toBeAccessible();
 		});
 	});
 });

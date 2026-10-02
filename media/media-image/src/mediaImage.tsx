@@ -4,15 +4,18 @@
  * @jsxFrag Fragment
  */
 import { useMemo, Fragment } from 'react';
+
 import { jsx, css } from '@compiled/react';
-import { withMediaClient } from '@atlaskit/media-client-react';
-import { useFilePreview } from '@atlaskit/media-file-preview';
+
+import { withMediaClient } from '@atlaskit/media-client-react/with-media-client';
+import { useFilePreview } from '@atlaskit/media-file-preview/use-file-preview';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
 import type {
 	MediaImageInternalProps,
 	MediaImageStatus,
 	MediaImageWithMediaClientConfigProps,
 } from './types';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 const copyDivStyles = css({
 	display: 'none',
@@ -56,7 +59,9 @@ const MediaImageBase = ({ identifier, apiConfig = {}, children, ssr }: MediaImag
 	);
 };
 
-export const MediaImageWithMediaClient = (props: MediaImageWithMediaClientConfigProps) => {
+export const MediaImageWithMediaClient = (
+	props: MediaImageWithMediaClientConfigProps,
+): JSX.Element => {
 	const MediaImageComponent = useMemo(() => withMediaClient(MediaImageBase), []);
 	return <MediaImageComponent {...props} />;
 };

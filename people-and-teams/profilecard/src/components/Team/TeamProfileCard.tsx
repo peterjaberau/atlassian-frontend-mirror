@@ -1,20 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { FormattedMessage, useIntl } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
-import { isFedRamp } from '@atlaskit/atlassian-context';
-import Avatar from '@atlaskit/avatar';
-import AvatarGroup, { type AvatarGroupProps } from '@atlaskit/avatar-group';
-import Button, { IconButton, LinkButton } from '@atlaskit/button/new';
+import AvatarGroup, { type AvatarGroupProps } from '@atlaskit/avatar-group/avatar-group';
+import Avatar from '@atlaskit/avatar/avatar';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
+import LinkButton from '@atlaskit/button/link';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
-import Lozenge from '@atlaskit/lozenge';
-import { LinkItem, MenuGroup } from '@atlaskit/menu';
-import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Popup from '@atlaskit/popup';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import LinkItem from '@atlaskit/menu/link-item';
+import MenuGroup from '@atlaskit/menu/menu-group';
+import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon/main';
+import { Popup } from '@atlaskit/popup/popup';
 import { Inline, Text } from '@atlaskit/primitives/compiled';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import messages from '../../messages';
 import { AnimatedKudosButton, AnimationWrapper, KudosBlobAnimation } from '../../styled/Card';
@@ -31,33 +33,18 @@ import {
 	WrappedButton,
 } from '../../styled/TeamCard';
 import { CardContent, CardHeader, CardWrapper } from '../../styled/TeamTrigger';
-import type {
-	AnalyticsFunction,
-	AnalyticsFunctionNext,
-	ProfileCardAction,
-	Team,
-	TeamProfilecardProps,
-} from '../../types';
-import {
-	actionClicked,
-	errorRetryClicked,
-	moreActionsClicked,
-	moreMembersClicked,
-	PACKAGE_META_DATA,
-	profileCardRendered,
-	teamAvatarClicked,
-} from '../../util/analytics';
+import type { AnalyticsFunction, ProfileCardAction, Team, TeamProfilecardProps } from '../../types';
+import { PACKAGE_META_DATA } from '../../util/analytics';
 import { isBasicClick } from '../../util/click';
 import { getPageTime } from '../../util/performance';
-import { ErrorIllustration } from '../Error';
-
+import { ErrorIllustration } from '../Error/ErrorIllustration';
 import TeamForbiddenErrorState from './TeamForbiddenErrorState';
 import TeamLoadingState from './TeamLoadingState';
 
+// oxlint-disable-next-line eslint/no-redeclare
 interface TeamMembers {
 	isArchived?: boolean;
 	analytics: AnalyticsFunction;
-	analyticsNext: AnalyticsFunctionNext;
 	members?: Team['members'];
 	includingYou?: boolean;
 }
@@ -73,30 +60,18 @@ function onMemberClick(
 	callback: TeamMembersProps['onUserClick'],
 	userId: string,
 	analytics: AnalyticsFunction,
-	analyticsNext: AnalyticsFunctionNext,
 	index: number,
 	hasHref: boolean,
 ) {
 	return (event: React.MouseEvent<Element>) => {
-		if (fg('ptc-enable-profile-card-analytics-refactor')) {
-			analyticsNext('ui.teamProfileCard.clicked.avatar', (duration) => ({
-				duration,
-				hasHref,
-				hasOnClick: !!callback,
-				index,
-				firedAt: Math.round(getPageTime()),
-				...PACKAGE_META_DATA,
-			}));
-		} else {
-			analytics((duration) =>
-				teamAvatarClicked({
-					duration,
-					hasHref,
-					hasOnClick: !!callback,
-					index,
-				}),
-			);
-		}
+		analytics('ui.teamProfileCard.clicked.avatar', (duration) => ({
+			duration,
+			hasHref,
+			hasOnClick: !!callback,
+			index,
+			firedAt: Math.round(getPageTime()),
+			...PACKAGE_META_DATA,
+		}));
 
 		if (callback) {
 			callback(userId, event);
@@ -111,7 +86,6 @@ const TeamMembers = ({
 	isArchived,
 	onUserClick,
 	includingYou,
-	analyticsNext,
 	isTriggeredByKeyboard,
 }: TeamMembersProps) => {
 	const { formatMessage } = useIntl();
@@ -140,25 +114,16 @@ const TeamMembers = ({
 		const { current: isOpen } = isMoreMembersOpen;
 
 		if (!isOpen) {
-			if (fg('ptc-enable-profile-card-analytics-refactor')) {
-				analyticsNext('ui.teamProfileCard.clicked.moreMembers', (duration) => ({
-					duration,
-					memberCount: count,
-					firedAt: Math.round(getPageTime()),
-					...PACKAGE_META_DATA,
-				}));
-			} else {
-				analytics((duration) =>
-					moreMembersClicked({
-						duration,
-						memberCount: count,
-					}),
-				);
-			}
+			analytics('ui.teamProfileCard.clicked.moreMembers', (duration) => ({
+				duration,
+				memberCount: count,
+				firedAt: Math.round(getPageTime()),
+				...PACKAGE_META_DATA,
+			}));
 		}
 
 		isMoreMembersOpen.current = !isOpen;
-	}, [analytics, count, analyticsNext]);
+	}, [analytics, count]);
 
 	const showMoreButtonProps: AvatarGroupProps['showMoreButtonProps'] = {
 		onClick: onMoreClick,
@@ -174,7 +139,7 @@ const TeamMembers = ({
 			</MemberCount>
 			{isArchived && (
 				<ArchiveLozengeWrapper>
-					<Lozenge appearance="default" isBold>
+					<Lozenge appearance="neutral" isBold>
 						<FormattedMessage {...messages.archivedLozenge} />
 					</Lozenge>
 				</ArchiveLozengeWrapper>
@@ -191,7 +156,6 @@ const TeamMembers = ({
 									onUserClick,
 									member.id,
 									analytics,
-									analyticsNext,
 									index,
 									!!generateUserLink,
 								);
@@ -225,34 +189,17 @@ const TeamMembers = ({
 	);
 };
 
-function onActionClick(
-	action: ProfileCardAction,
-	analytics: AnalyticsFunction,
-	analyticsNext: AnalyticsFunctionNext,
-	index: number,
-) {
+function onActionClick(action: ProfileCardAction, analytics: AnalyticsFunction, index: number) {
 	return (event: React.MouseEvent | React.KeyboardEvent, ...args: any) => {
-		if (fg('ptc-enable-profile-card-analytics-refactor')) {
-			analyticsNext('ui.teamProfileCard.clicked.action', (duration) => ({
-				duration,
-				hasHref: !!action.link,
-				hasOnClick: !!action.callback,
-				index,
-				actionId: action.id || '',
-				firedAt: Math.round(getPageTime()),
-				...PACKAGE_META_DATA,
-			}));
-		} else {
-			analytics((duration) =>
-				actionClicked('team', {
-					duration,
-					hasHref: !!action.link,
-					hasOnClick: !!action.callback,
-					index,
-					actionId: action.id || '',
-				}),
-			);
-		}
+		analytics('ui.teamProfileCard.clicked.action', (duration) => ({
+			duration,
+			hasHref: !!action.link,
+			hasOnClick: !!action.callback,
+			index,
+			actionId: action.id || '',
+			firedAt: Math.round(getPageTime()),
+			...PACKAGE_META_DATA,
+		}));
 
 		if (action.callback && isBasicClick(event)) {
 			event.preventDefault();
@@ -264,12 +211,10 @@ function onActionClick(
 const ActionButton = ({
 	action,
 	analytics,
-	analyticsNext,
 	index,
 }: {
 	action: ProfileCardAction;
 	analytics: AnalyticsFunction;
-	analyticsNext: AnalyticsFunctionNext;
 	index: number;
 }) => {
 	const isGiveKudosActionButton = action.id === GIVE_KUDOS_ACTION_ID;
@@ -277,7 +222,7 @@ const ActionButton = ({
 	const actionButton = (
 		<LinkButton
 			key={action.id || index}
-			onClick={onActionClick(action, analytics, analyticsNext, index)}
+			onClick={onActionClick(action, analytics, index)}
 			href={action.link || ''}
 			target={action.target}
 			shouldFitContainer
@@ -301,10 +246,9 @@ const ActionButton = ({
 interface ActionProps {
 	actions: ProfileCardAction[];
 	analytics: AnalyticsFunction;
-	analyticsNext: AnalyticsFunctionNext;
 }
 
-const ExtraActions = ({ actions, analytics, analyticsNext }: ActionProps) => {
+const ExtraActions = ({ actions, analytics }: ActionProps) => {
 	const [isOpen, setOpen] = useState(false);
 
 	const count = actions.length;
@@ -313,26 +257,17 @@ const ExtraActions = ({ actions, analytics, analyticsNext }: ActionProps) => {
 		(shouldBeOpen: boolean) => {
 			if (shouldBeOpen) {
 				// Only fire this event when OPENING the dropdown
-				if (fg('ptc-enable-profile-card-analytics-refactor')) {
-					analyticsNext('ui.teamProfileCard.clicked.moreActions', (duration) => ({
-						duration,
-						numActions: count + 2,
-						firedAt: Math.round(getPageTime()),
-						...PACKAGE_META_DATA,
-					}));
-				} else {
-					analytics((duration) =>
-						moreActionsClicked('team', {
-							duration,
-							numActions: count + 2,
-						}),
-					);
-				}
+				analytics('ui.teamProfileCard.clicked.moreActions', (duration) => ({
+					duration,
+					numActions: count + 2,
+					firedAt: Math.round(getPageTime()),
+					...PACKAGE_META_DATA,
+				}));
 			}
 
 			setOpen(shouldBeOpen);
 		},
-		[analytics, count, analyticsNext],
+		[analytics, count],
 	);
 
 	if (!count) {
@@ -349,7 +284,7 @@ const ExtraActions = ({ actions, analytics, analyticsNext }: ActionProps) => {
 					<MenuGroup>
 						{actions.map((action, index) => (
 							<LinkItem
-								onClick={onActionClick(action, analytics, analyticsNext, index + 2)}
+								onClick={onActionClick(action, analytics, index + 2)}
 								key={action.id || index}
 								href={action.link}
 							>
@@ -371,13 +306,12 @@ const ExtraActions = ({ actions, analytics, analyticsNext }: ActionProps) => {
 					);
 				}}
 				zIndex={layers.modal()}
-				shouldRenderToParent={fg('enable_appropriate_reading_order_in_profile_card')}
 			/>
 		</MoreButton>
 	);
 };
 
-const ButtonSection = ({ actions, analytics, analyticsNext }: ActionProps) => {
+const ButtonSection = ({ actions, analytics }: ActionProps) => {
 	if (!actions) {
 		return null;
 	}
@@ -388,17 +322,9 @@ const ButtonSection = ({ actions, analytics, analyticsNext }: ActionProps) => {
 	return (
 		<ActionButtons>
 			{initialActions.map((action, index) => (
-				<ActionButton
-					action={action}
-					analytics={analytics}
-					analyticsNext={analyticsNext}
-					index={index}
-					key={index}
-				/>
+				<ActionButton action={action} analytics={analytics} index={index} key={index} />
 			))}
-			{extraActions && (
-				<ExtraActions actions={extraActions} analytics={analytics} analyticsNext={analyticsNext} />
-			)}
+			{extraActions && <ExtraActions actions={extraActions} analytics={analytics} />}
 		</ActionButtons>
 	);
 };
@@ -406,7 +332,6 @@ const ButtonSection = ({ actions, analytics, analyticsNext }: ActionProps) => {
 const TeamProfilecardContent = ({
 	actions,
 	analytics,
-	analyticsNext,
 	team,
 	viewingUserId,
 	generateUserLink,
@@ -415,8 +340,7 @@ const TeamProfilecardContent = ({
 	viewProfileOnClick,
 	isTriggeredByKeyboard,
 }: TeamProfilecardProps & { team: Team }) => {
-	const newTeamProfileEnabled = !isFedRamp() || fg('new_team_profile_fedramp');
-	const isTeamArchived = team.state === 'DISBANDED' && newTeamProfileEnabled;
+	const isTeamArchived = team.state === 'DISBANDED';
 	const allActions = [
 		{
 			label: <FormattedMessage {...messages.teamViewProfile} />,
@@ -429,9 +353,9 @@ const TeamProfilecardContent = ({
 
 	const includingYou = team.members && team.members.some((member) => member.id === viewingUserId);
 
-	useEffect(() => {
-		if (fg('ptc-enable-profile-card-analytics-refactor')) {
-			analyticsNext('ui.teamProfileCard.rendered.content', (duration) => ({
+	useEffect(
+		() => {
+			analytics('ui.teamProfileCard.rendered.content', (duration) => ({
 				duration,
 				numActions: allActions.length,
 				memberCount: team.members?.length ?? null,
@@ -441,21 +365,10 @@ const TeamProfilecardContent = ({
 				firedAt: Math.round(getPageTime()),
 				...PACKAGE_META_DATA,
 			}));
-		} else {
-			analytics((duration) =>
-				profileCardRendered('team', 'content', {
-					duration,
-					numActions: allActions.length,
-					memberCount: team.members?.length,
-					includingYou,
-					descriptionLength: team.description.length,
-					titleLength: team.displayName.length,
-				}),
-			);
-		}
-
+		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [analytics]);
+		[analytics],
+	);
 
 	return (
 		<CardWrapper testId="team-profilecard">
@@ -473,7 +386,6 @@ const TeamProfilecardContent = ({
 				</Tooltip>
 				<TeamMembers
 					analytics={analytics}
-					analyticsNext={analyticsNext}
 					members={team.members}
 					isArchived={isTeamArchived}
 					generateUserLink={generateUserLink}
@@ -486,7 +398,7 @@ const TeamProfilecardContent = ({
 						<Description>{team.description}</Description>
 					</DescriptionWrapper>
 				)}
-				<ButtonSection actions={allActions} analytics={analytics} analyticsNext={analyticsNext} />
+				<ButtonSection actions={allActions} analytics={analytics} />
 			</CardContent>
 		</CardWrapper>
 	);
@@ -494,54 +406,35 @@ const TeamProfilecardContent = ({
 
 const ErrorMessage = ({
 	analytics,
-	analyticsNext,
 	clientFetchProfile,
 	isLoading,
 }: {
 	clientFetchProfile?: () => void;
 	isLoading?: boolean;
 	analytics: AnalyticsFunction;
-	analyticsNext: AnalyticsFunctionNext;
 }) => {
 	const hasRetry = !!clientFetchProfile;
 
 	useEffect(() => {
-		if (fg('ptc-enable-profile-card-analytics-refactor')) {
-			analyticsNext('ui.teamProfileCard.rendered.error', (duration) => ({
-				duration,
-				hasRetry,
-				firedAt: Math.round(getPageTime()),
-				...PACKAGE_META_DATA,
-			}));
-		} else {
-			analytics((duration) =>
-				profileCardRendered('team', 'error', {
-					duration,
-					hasRetry,
-				}),
-			);
-		}
-	}, [analytics, analyticsNext, hasRetry]);
+		analytics('ui.teamProfileCard.rendered.error', (duration) => ({
+			duration,
+			hasRetry,
+			firedAt: Math.round(getPageTime()),
+			...PACKAGE_META_DATA,
+		}));
+	}, [analytics, hasRetry]);
 
 	const retry = useCallback(() => {
-		if (fg('ptc-enable-profile-card-analytics-refactor')) {
-			analyticsNext('ui.teamProfileCard.clicked.errorRetry', (duration) => ({
-				duration,
-				firedAt: Math.round(getPageTime()),
-				...PACKAGE_META_DATA,
-			}));
-		} else {
-			analytics((duration) =>
-				errorRetryClicked({
-					duration,
-				}),
-			);
-		}
+		analytics('ui.teamProfileCard.clicked.errorRetry', (duration) => ({
+			duration,
+			firedAt: Math.round(getPageTime()),
+			...PACKAGE_META_DATA,
+		}));
 
 		if (clientFetchProfile) {
 			clientFetchProfile();
 		}
-	}, [analytics, analyticsNext, clientFetchProfile]);
+	}, [analytics, clientFetchProfile]);
 
 	return (
 		<ErrorWrapper testId="team-profilecard-error">
@@ -574,18 +467,16 @@ const ErrorMessage = ({
  * @deprecated This component is deprecated and will be removed soon. Please use `@atlassian/team-profilecard` instead.
  */
 const TeamProfileCard = (props: TeamProfilecardProps): React.JSX.Element | null => {
-	const { analytics, analyticsNext, clientFetchProfile, hasError, isLoading, team, errorType } =
-		props;
+	const { analytics, clientFetchProfile, hasError, isLoading, team, errorType } = props;
 
 	if (hasError) {
 		if (errorType?.reason === 'TEAMS_FORBIDDEN') {
-			return <TeamForbiddenErrorState analytics={analytics} analyticsNext={analyticsNext} />;
+			return <TeamForbiddenErrorState analytics={analytics} />;
 		} else {
 			return (
 				<CardWrapper testId="team-profilecard">
 					<ErrorMessage
 						analytics={analytics}
-						analyticsNext={analyticsNext}
 						clientFetchProfile={clientFetchProfile}
 						isLoading={isLoading}
 					/>
@@ -595,7 +486,7 @@ const TeamProfileCard = (props: TeamProfilecardProps): React.JSX.Element | null 
 	}
 
 	if (isLoading) {
-		return <TeamLoadingState analytics={analytics} analyticsNext={analyticsNext} />;
+		return <TeamLoadingState analytics={analytics} />;
 	}
 
 	if (team) {

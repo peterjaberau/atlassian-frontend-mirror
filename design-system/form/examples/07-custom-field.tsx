@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Form, { Field, FormFooter } from '@atlaskit/form';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
 import { Flex } from '@atlaskit/primitives/compiled';
 
 interface ColorButtonProps {

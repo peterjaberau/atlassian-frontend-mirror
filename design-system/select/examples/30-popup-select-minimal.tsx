@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import { PopupSelect } from '@atlaskit/select';
+import Button from '@atlaskit/button/default/button';
+import { PopupSelect } from '@atlaskit/select/popup-select';
 
 const options = [
 	{ label: 'Adelaide', value: 'adelaide' },
@@ -17,6 +17,7 @@ const options = [
 export default (): React.JSX.Element => {
 	return (
 		<PopupSelect
+			label="Choose city"
 			isSearchable={false}
 			options={options}
 			menuPlacement="bottom"

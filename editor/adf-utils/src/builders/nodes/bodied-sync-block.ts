@@ -1,25 +1,29 @@
-import {
-	type BlockCardDefinition as BlockCard,
-	type BlockQuoteDefinition as Blockquote,
-	type BulletListDefinition as BulletList,
-	type CodeBlockDefinition as CodeBlock,
-	type DecisionListDefinition as DecisionList,
-	type EmbedCardDefinition as EmbedCard,
-	type ExpandDefinition as Expand,
-	type HeadingDefinition as Heading,
-	type HeadingWithMarksDefinition as HeadingWithMarks,
-	type LayoutSectionDefinition as LayoutSection,
-	type MediaGroupDefinition as MediaGroup,
-	type MediaSingleDefinition as MediaSingle,
-	type OrderedListDefinition as OrderedList,
-	type PanelDefinition as Panel,
-	type ParagraphDefinition as Paragraph,
-	type ParagraphWithMarksDefinition as ParagraphWithMarks,
-	type RuleDefinition as Rule,
-	type TableDefinition as Table,
-	type TaskListDefinition as TaskList,
-	type BodiedSyncBlockDefinition,
-} from '@atlaskit/adf-schema';
+import type { BlockCardDefinition as BlockCard } from '@atlaskit/adf-schema/block-card';
+import type { BlockQuoteDefinition as Blockquote } from '@atlaskit/adf-schema/blockquote';
+import type { BodiedSyncBlockDefinition } from '@atlaskit/adf-schema/bodied-sync-block';
+import type { CodeBlockDefinition as CodeBlock } from '@atlaskit/adf-schema/code-block';
+import type { DecisionListDefinition as DecisionList } from '@atlaskit/adf-schema/decision-list';
+import type { EmbedCardDefinition as EmbedCard } from '@atlaskit/adf-schema/embed-card';
+import type { ExpandDefinition as Expand } from '@atlaskit/adf-schema/expand';
+import type {
+	HeadingDefinition as Heading,
+	HeadingWithMarksDefinition as HeadingWithMarks,
+} from '@atlaskit/adf-schema/heading';
+import type { LayoutSectionDefinition as LayoutSection } from '@atlaskit/adf-schema/layout-section';
+import type {
+	BulletListDefinition as BulletList,
+	OrderedListDefinition as OrderedList,
+} from '@atlaskit/adf-schema/list';
+import type { MediaGroupDefinition as MediaGroup } from '@atlaskit/adf-schema/media-group';
+import type { MediaSingleDefinition as MediaSingle } from '@atlaskit/adf-schema/media-single';
+import type { PanelDefinition as Panel } from '@atlaskit/adf-schema/panel';
+import type {
+	ParagraphDefinition as Paragraph,
+	ParagraphWithMarksDefinition as ParagraphWithMarks,
+} from '@atlaskit/adf-schema/paragraph';
+import type { RuleDefinition as Rule } from '@atlaskit/adf-schema/rule';
+import type { TableDefinition as Table } from '@atlaskit/adf-schema/tableNodes';
+import type { TaskListDefinition as TaskList } from '@atlaskit/adf-schema/task-list';
 
 type BodiedSyncBlockContent =
 	| BlockCard

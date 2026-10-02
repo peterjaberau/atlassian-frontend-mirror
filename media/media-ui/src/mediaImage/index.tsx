@@ -1,11 +1,14 @@
 import React, { type Ref, forwardRef, useCallback, useRef, useState } from 'react';
 import { type CSSProperties } from 'react';
-import { VcMediaWrapperProps } from '@atlaskit/react-ufo/vc-media';
-import UFOCustomData from '@atlaskit/react-ufo/custom-data';
 
-import { ImageComponent } from './styled';
-import { getCssFromImageOrientation, isRotated } from '../imageMetaData';
 import { useMergeRefs } from 'use-callback-ref';
+
+import UFOCustomData from '@atlaskit/react-ufo/custom-data';
+import { VcMediaWrapperProps } from '@atlaskit/react-ufo/vc-media';
+
+import { getCssFromImageOrientation } from '../imageMetaData/getCssFromImageOrientation';
+import { isRotated } from '../imageMetaData/isRotated';
+import { ImageComponent } from './styled';
 
 export interface MediaImageProps {
 	dataURI?: string;
@@ -35,7 +38,9 @@ interface Dimensions {
 	height: number;
 }
 
-export const MediaImage = forwardRef(
+export const MediaImage: React.ForwardRefExoticComponent<
+	Omit<MediaImageProps, 'ref'> & React.RefAttributes<HTMLDivElement | HTMLImageElement>
+> = forwardRef(
 	(
 		{
 			dataURI,

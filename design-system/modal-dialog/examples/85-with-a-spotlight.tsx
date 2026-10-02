@@ -6,29 +6,26 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import ModalDialog, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button/default/button';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { Text } from '@atlaskit/primitives/compiled';
-import {
-	PopoverContent,
-	PopoverProvider,
-	PopoverTarget,
-	SpotlightActions,
-	SpotlightBody,
-	SpotlightCard,
-	SpotlightControls,
-	SpotlightDismissControl,
-	SpotlightFooter,
-	SpotlightHeader,
-	SpotlightHeadline,
-	SpotlightPrimaryAction,
-} from '@atlaskit/spotlight';
+import { SpotlightActions } from '@atlaskit/spotlight/actions';
+import { SpotlightBody } from '@atlaskit/spotlight/body';
+import { SpotlightCard } from '@atlaskit/spotlight/card';
+import { SpotlightControls } from '@atlaskit/spotlight/controls';
+import { SpotlightDismissControl } from '@atlaskit/spotlight/dismiss-control';
+import { SpotlightFooter } from '@atlaskit/spotlight/footer';
+import { SpotlightHeader } from '@atlaskit/spotlight/header';
+import { SpotlightHeadline } from '@atlaskit/spotlight/headline';
+import { PopoverContent } from '@atlaskit/spotlight/popover-content';
+import { PopoverProvider } from '@atlaskit/spotlight/popover-provider';
+import { PopoverTarget } from '@atlaskit/spotlight/popover-target';
+import { SpotlightPrimaryAction } from '@atlaskit/spotlight/primary-action';
 
 const SpotlightTourExample = (props: { children: React.ReactNode; onModalReady: boolean }) => {
 	const { children, onModalReady } = props;

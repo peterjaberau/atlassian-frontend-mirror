@@ -2,14 +2,13 @@ import classnames from 'classnames';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { GetEditorContainerWidth, GetEditorFeatureFlags } from '@atlaskit/editor-common/types';
 
 import { TableCssClassName as ClassName } from '../../types';
 import type { ColumnResizingPluginState, PluginInjectionAPI } from '../../types';
 import { getPluginState as getTablePluginState } from '../plugin-factory';
-
 import { setResizeHandlePos } from './commands';
 import { handleMouseDown } from './event-handlers';
 import { createPluginState, getPluginState } from './plugin-factory';
@@ -26,7 +25,7 @@ export function createPlugin(
 	editorAnalyticsAPI?: EditorAnalyticsAPI,
 	isTableScalingEnabled?: boolean,
 	isCommentEditor?: boolean,
-) {
+): SafePlugin<ColumnResizingPluginState> {
 	return new SafePlugin({
 		key: pluginKey,
 		state: createPluginState(dispatch, {

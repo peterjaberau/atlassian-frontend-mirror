@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Floating Toolbar', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the floating toolbar plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,16 +30,50 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+type ConfigWithNodeInfo = {
+  config: FloatingToolbarConfig | undefined;
+  node: Node;
+  pos: number;
+};
+
+type FloatingToolbarPluginState = {
+  getConfigWithNodeInfo: (state: EditorState) => ConfigWithNodeInfo | null | undefined;
+  suppressedToolbar?: boolean;
+};
+
+type FloatingToolbarPluginData = {
+  confirmDialogForItem?: number;
+  confirmDialogForItemOption?: number;
+};
+
+type ForceFocusSelector = (selector: string | null) => (tr: Transaction) => Transaction;
+
+type FloatingToolbarPluginDependencies = [
+  DecorationsPlugin,
+  OptionalPlugin<ContextPanelPlugin>,
+  OptionalPlugin<ExtensionPlugin>,
+  CopyButtonPlugin,
+  EditorDisabledPlugin,
+  OptionalPlugin<EditorViewModePlugin>,
+  OptionalPlugin<FeatureFlagsPlugin>,
+  OptionalPlugin<EmojiPlugin>,
+  OptionalPlugin<UserIntentPlugin>,
+  OptionalPlugin<InteractionPlugin>,
+  OptionalPlugin<AnalyticsPlugin>,
+  OptionalPlugin<ToolbarPlugin>,
+];
+
 type FloatingToolbarPlugin = NextEditorPlugin<
   'floatingToolbar',
   {
-    dependencies: [
-      FeatureFlagsPlugin,
-      DecorationsPlugin,
-      OptionalPlugin<ContextPanelPlugin>,
-      EditorDisabledPlugin,
-    ];
     actions: { forceFocusSelector: ForceFocusSelector };
+    commands: {
+      copyNode: (
+        nodeType: NodeType | NodeType[],
+        inputMethod?: INPUT_METHOD,
+      ) => ({ tr }: { tr: Transaction }) => Transaction;
+    };
+    dependencies: FloatingToolbarPluginDependencies;
     sharedState:
       | {
           configWithNodeInfo: ConfigWithNodeInfo | undefined;

@@ -1,5 +1,12 @@
 {
 	"atlassian": {
+		"react-compiler": {
+			"enabled": false,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif",
 		"website": {
 			"name": "BrowserApis",
@@ -11,13 +18,14 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
+	"devDependencies": {
+		"@af/integration-testing": "workspace:^",
+		"@af/visual-regression": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/ssr": "workspace:^",
+		"@testing-library/react": "root:*",
+		"react": "root:*",
+		"react-dom": "root:*"
 	},
 	"sideEffects": [
 		"*.compiled.css"
@@ -32,50 +40,8 @@
 	"peerDependencies": {
 		"react": "^18.2.0"
 	},
-	"devDependencies": {
-		"@af/integration-testing": "workspace:^",
-		"@af/visual-regression": "workspace:^",
-		"@atlaskit/ssr": "workspace:^",
-		"@testing-library/react": "root:*",
-		"react-dom": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
 	"name": "@atlaskit/browser-apis",
-	"version": "0.0.1",
+	"version": "1.2.0",
 	"description": "exposes sanitised low level browser apis",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",

@@ -1,19 +1,20 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 
-import AvatarGroup from '@atlaskit/avatar-group';
-import Button from '@atlaskit/button/new';
+import AvatarGroup from '@atlaskit/avatar-group/avatar-group';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
 import { Box, Stack } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
-import { appearances, RANDOM_USERS } from '../examples-util/data';
+import { appearances } from '../examples-util/appearances';
+import { RANDOM_USERS } from '../examples-util/random-users';
 
 const styles = cssMap({
 	container: {
-		marginBlockStart: token('space.100', '8px'),
-		marginInlineEnd: token('space.100', '8px'),
-		marginBlockEnd: token('space.100', '8px'),
-		marginInlineStart: token('space.100', '8px'),
+		marginBlockStart: token('space.100'),
+		marginInlineEnd: token('space.100'),
+		marginBlockEnd: token('space.100'),
+		marginInlineStart: token('space.100'),
 		textAlign: 'center',
 	},
 });

@@ -2,12 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { token } from '@atlaskit/tokens';
+
 import { jsx, css } from '@compiled/react';
+
+import UFOCustomData from '@atlaskit/react-ufo/custom-data';
+import { VcMediaWrapperProps } from '@atlaskit/react-ufo/vc-media';
+import { token } from '@atlaskit/tokens';
+
 import { getDimensionsWithDefault } from '../utils/lightCards/getDimensionsWithDefault';
 import { type InlinePlayerWrapperProps } from './types';
-import { VcMediaWrapperProps } from '@atlaskit/react-ufo/vc-media';
-import UFOCustomData from '@atlaskit/react-ufo/custom-data';
 
 const hideNativeBrowserTextSelectionStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
@@ -39,7 +42,7 @@ const borderStyle = css({
 		top: '0',
 		boxSizing: 'border-box',
 		pointerEvents: 'none',
-		borderRadius: token('radius.small', '3px'),
+		borderRadius: 'inherit',
 	},
 });
 
@@ -49,7 +52,7 @@ export const LOCAL_HEIGHT_VARIABLE = '--media-inline-player-wrapper-height';
 
 const inlinePlayerWrapperStyles = css({
 	overflow: 'hidden',
-	borderRadius: token('radius.small', '3px'),
+	borderRadius: token('radius.large', '8px'),
 	position: 'relative',
 	maxWidth: '100%',
 	maxHeight: '100%',
@@ -64,14 +67,13 @@ const inlinePlayerWrapperStyles = css({
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-
-export const InlinePlayerWrapper = (props: InlinePlayerWrapperProps) => {
+export const InlinePlayerWrapper = (props: InlinePlayerWrapperProps): JSX.Element => {
 	const { testId, selected, dimensions, onClick, innerRef } = props;
 	return (
-		// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 		<div
 			id="inlinePlayerWrapper"
 			data-testid={testId}
+			role="none"
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={inlinePlayerClassName}
 			style={{

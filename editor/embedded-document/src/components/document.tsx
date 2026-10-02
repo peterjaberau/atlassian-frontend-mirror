@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
-import { Editor, EditorContext, type EditorProps, WithEditorActions } from '@atlaskit/editor-core';
-import { ReactRenderer, type RendererProps } from '@atlaskit/renderer';
+
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { type Props as BaseProps } from '../context/embedded-document';
-import { type Mode } from '../context/context';
-import { type Document as DocumentModel } from '../model';
+import { Editor, EditorContext, WithEditorActions } from '@atlaskit/editor-core';
+import type { EditorProps } from '@atlaskit/editor-core';
+import { ReactRenderer } from '@atlaskit/renderer';
+import type { RendererProps } from '@atlaskit/renderer';
+
+import type { Mode } from '../context/context';
+import type { Props as BaseProps } from '../context/embedded-document';
+import type { Document as DocumentModel } from '../model';
 
 export interface Props extends BaseProps {
 	doc?: DocumentModel;
@@ -25,6 +29,7 @@ export default class Document extends Component<Props> {
 		const { mode, renderToolbar } = this.props;
 
 		if (renderToolbar) {
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			return <WithEditorActions render={(actions) => renderToolbar(mode, actions)} />;
 		}
 

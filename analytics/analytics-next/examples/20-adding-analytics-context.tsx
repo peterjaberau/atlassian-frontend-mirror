@@ -1,8 +1,9 @@
 import React, { useCallback } from 'react';
 
-import Button from '@atlaskit/button/new';
-
-import { AnalyticsContext, AnalyticsListener, type UIAnalyticsEvent } from '../src';
+import AnalyticsContext from '../src/components/AnalyticsContext';
+import AnalyticsListener from '../src/components/AnalyticsListener';
+import type UIAnalyticsEvent from '../src/events/UIAnalyticsEvent';
+import AnalyticsButton from './helpers/AnalyticsButton';
 
 const SaveButton = () => {
 	const onClick = useCallback(
@@ -13,9 +14,18 @@ const SaveButton = () => {
 	);
 
 	return (
-		<Button appearance="primary" onClick={onClick}>
+		<AnalyticsButton
+			analyticsEventPayload={{
+				action: 'clicked',
+				actionSubject: 'button',
+				componentName: 'save-button',
+				packageName: '@atlaskit/analytics-next',
+				packageVersion: '11.2.0',
+			}}
+			onClick={onClick}
+		>
 			Save
-		</Button>
+		</AnalyticsButton>
 	);
 };
 

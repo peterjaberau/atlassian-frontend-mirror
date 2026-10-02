@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 
 import Select from './select';
-import { type GroupBase } from './types';
+import type { GroupBase } from './types';
 import useAsync, { type AsyncAdditionalProps } from './use-async';
 import useCreatable, { type CreatableAdditionalProps } from './use-creatable';
 import useStateManager, { type StateManagerProps } from './use-state-manager';
@@ -19,6 +19,7 @@ export type AsyncCreatableProps<
 	CreatableAdditionalProps<Option, Group> &
 	AsyncAdditionalProps<Option, Group>;
 
+// oxlint-disable-next-line eslint/no-redeclare
 type AsyncCreatableSelect = <
 	Option = unknown,
 	IsMulti extends boolean = false,
@@ -50,7 +51,6 @@ const AsyncCreatableSelect = forwardRef(
 		>(stateManagerProps);
 		const selectProps = useCreatable<Option, IsMulti, Group>(creatableProps);
 
-		// @ts-ignore - TS2322: Complex generic type causing issues for help-center local consumption with TS 5.9.2
 		return <Select ref={ref} {...selectProps} />;
 	},
 ) as AsyncCreatableSelect;

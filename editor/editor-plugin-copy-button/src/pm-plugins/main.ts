@@ -4,7 +4,6 @@ import type { ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
 
 import type { CopyButtonPluginState } from '../copyButtonPluginType';
-
 import { copyButtonPluginKey } from './plugin-key';
 
 export function getMarkSelectionHelper({
@@ -13,7 +12,12 @@ export function getMarkSelectionHelper({
 }: {
 	$pos: ResolvedPos;
 	markType: MarkType;
-}) {
+}):
+	| false
+	| {
+			end: number;
+			start: number;
+	  } {
 	const hasMark = $pos.doc.rangeHasMark(
 		$pos.pos,
 		Math.min($pos.pos + 1, $pos.doc.nodeSize),
@@ -79,7 +83,7 @@ function getMarkSelectionDecorationStartAndEnd({
 	return undefined;
 }
 
-export function copyButtonPlugin() {
+export function copyButtonPlugin(): SafePlugin<CopyButtonPluginState> {
 	return new SafePlugin({
 		key: copyButtonPluginKey,
 		state: {

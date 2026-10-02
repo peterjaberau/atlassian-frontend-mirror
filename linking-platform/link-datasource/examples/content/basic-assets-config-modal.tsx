@@ -1,0 +1,56 @@
+import React, { useState } from 'react';
+
+import Button from '@atlaskit/button/default/button';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { mockAssetsClientFetchRequests } from '@atlaskit/link-test-helpers/assets';
+
+import SmartLinkClient from '../../examples-helpers/smartLinkCustomClient';
+import { ASSETS_LIST_OF_LINKS_DATASOURCE_ID } from '../../src/ui/assets-modal';
+import { AssetsConfigModalWithWrappers as JSMAssetsConfigModal } from '../../src/ui/assets-modal/AssetsConfigModalWithWrappers';
+import { type AssetsDatasourceParameters } from '../../src/ui/assets-modal/types';
+
+mockAssetsClientFetchRequests({ delayedResponse: false });
+
+const mockVisibleColumnKeys = [
+	'Key',
+	'Label',
+	'Created',
+	'Is Virtual',
+	'Hardware Components',
+	'Applications',
+	'Software Services',
+	'Number of Slots',
+	'Primary Capability',
+	'Owners',
+	'Notes',
+];
+
+export default (): React.JSX.Element => {
+	const [showModal, setShowModal] = useState(false);
+	const [parameters] = useState<AssetsDatasourceParameters>({
+		aql: 'dummy aql',
+		workspaceId: '',
+		schemaId: '1',
+	});
+	const [visibleColumnKeys] = useState<string[] | undefined>(mockVisibleColumnKeys);
+
+	const toggleIsOpen = () => setShowModal((prevOpenState) => !prevOpenState);
+	const closeModal = () => setShowModal(false);
+
+	return (
+		<SmartCardProvider client={new SmartLinkClient()}>
+			<Button appearance="primary" onClick={toggleIsOpen}>
+				Toggle Modal
+			</Button>
+			{showModal && (
+				<JSMAssetsConfigModal
+					datasourceId={ASSETS_LIST_OF_LINKS_DATASOURCE_ID}
+					visibleColumnKeys={visibleColumnKeys}
+					parameters={parameters}
+					onCancel={closeModal}
+					onInsert={closeModal}
+				/>
+			)}
+		</SmartCardProvider>
+	);
+};

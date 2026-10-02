@@ -3,22 +3,25 @@
  * @jsx jsx
  */
 import React from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
+
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { JSONTransformer } from '@atlaskit/editor-json-transformer';
-import { WikiMarkupTransformer } from '../src';
-import { ReactRenderer } from '@atlaskit/renderer';
+import { JSONTransformer } from '@atlaskit/editor-json-transformer/JSONTransformer-2';
 import { storyContextIdentifierProviderFactory } from '@atlaskit/editor-test-helpers/context-identifier-provider';
 import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
-import { simpleMockProfilecardClient } from '@atlaskit/util-data-test/get-mock-profilecard-client';
-import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
-import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
 import type { MentionProvider } from '@atlaskit/mention/types';
-import type { Context } from '../src/interfaces';
-import type { DocNode } from '@atlaskit/adf-schema';
+import { ReactRenderer } from '@atlaskit/renderer';
 import { token } from '@atlaskit/tokens';
+import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
+import { simpleMockProfilecardClient } from '@atlaskit/util-data-test/get-mock-profilecard-client';
+import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
+
+import { WikiMarkupTransformer } from '../src';
+import type { Context } from '../src/interfaces';
 
 const container = css({
 	display: 'grid',
@@ -26,8 +29,8 @@ const container = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'#source, #output': {
 		boxSizing: 'border-box',
-		margin: token('space.100', '8px'),
-		padding: token('space.100', '8px'),
+		margin: token('space.100'),
+		padding: token('space.100'),
 		whiteSpace: 'pre-wrap',
 		width: '100%',
 		'&:focus': {
@@ -147,4 +150,4 @@ class Example extends React.PureComponent<{}, State> {
 	}
 }
 
-export default () => <Example />;
+export default (): jsx.JSX.Element => <Example />;

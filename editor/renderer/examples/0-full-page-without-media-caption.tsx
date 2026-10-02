@@ -1,8 +1,10 @@
 import React from 'react';
-import RendererDemo from './helper/RendererDemo';
-import type { MediaOptions } from '@atlaskit/editor-plugin-media/types';
+
 import { getSchemaBasedOnStage } from '@atlaskit/adf-schema/schema-default';
+import type { MediaOptions } from '@atlaskit/editor-plugin-media/types';
+
 import adf from './helper/media-without-caption.adf.json';
+import RendererDemo from './helper/RendererDemo';
 
 const Example = (): React.JSX.Element => {
 	const mediaOptions: MediaOptions = { allowCaptions: false };
@@ -13,7 +15,6 @@ const Example = (): React.JSX.Element => {
 			serializer="react"
 			allowHeadingAnchorLinks
 			allowColumnSorting={true}
-			useSpecBasedValidator={true}
 			adfStage={'stage0'}
 			schema={getSchemaBasedOnStage('stage0')}
 			mediaOptions={mediaOptions}

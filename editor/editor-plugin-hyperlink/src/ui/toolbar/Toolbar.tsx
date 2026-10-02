@@ -1,8 +1,7 @@
 import React, { useRef } from 'react';
 
-
-import type { LinkAttributes } from '@atlaskit/adf-schema';
-import { isSafeUrl } from '@atlaskit/adf-schema';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
+import type { LinkAttributes } from '@atlaskit/adf-schema/link';
 import type {
 	AnalyticsEventPayload,
 	EditorAnalyticsAPI,
@@ -55,8 +54,7 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import EditIcon from '@atlaskit/icon/core/edit';
 import LinkBrokenIcon from '@atlaskit/icon/core/link-broken';
 import LinkExternalIcon from '@atlaskit/icon/core/link-external';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import {
 	editInsertedLink,
@@ -367,20 +365,20 @@ export const getToolbarConfig =
 						? getLinkText(activeLinkMark, state)
 						: linkState.activeText;
 
-					const popupHeight = lpLinkPicker ? LINKPICKER_HEIGHT_IN_PX : RECENT_SEARCH_HEIGHT_IN_PX;
+					const popupHeight =
+						options?.linkPicker?.popupHeight ??
+						(lpLinkPicker ? LINKPICKER_HEIGHT_IN_PX : RECENT_SEARCH_HEIGHT_IN_PX);
 
-					// Removing popupWidth to ensure that we the popup always positions setting positon left instead of flipping to position right
-					// inside of a narrow space like Preview panel
 					const popupWidth =
-						!lpLinkPicker && fg('platform_editor_link_picker_width_fix')
-							? undefined
-							: RECENT_SEARCH_WIDTH_IN_PX;
+						options?.linkPicker?.popupWidth ??
+						(!lpLinkPicker ? undefined : RECENT_SEARCH_WIDTH_IN_PX);
 
 					return {
 						...hyperLinkToolbar,
 						preventPopupOverflow: true,
 						height: popupHeight,
 						width: popupWidth,
+						containerSurface: options?.linkPicker?.popupContainerSurface,
 						items: [
 							{
 								type: 'custom',
@@ -401,10 +399,19 @@ export const getToolbarConfig =
 											displayUrl={link}
 											displayText={displayText || ''}
 											providerFactory={providerFactory}
+											// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 											onCancel={() => view.focus()}
 											onEscapeCallback={onEscapeCallback(editorCardActions)}
 											onClickAwayCallback={onClickAwayCallback}
-											onSubmit={(href, title = '', displayText, inputMethod, analytic) => {
+											// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+											onSubmit={(
+												href,
+												title = '',
+												displayText,
+												inputMethod,
+												analytic,
+												appearance,
+											) => {
 												const isEdit = isEditLink(activeLinkMark);
 												const action = isEdit ? ACTION.UPDATED : ACTION.INSERTED;
 
@@ -430,6 +437,7 @@ export const getToolbarConfig =
 															displayText,
 															skipAnalytics,
 															analytic,
+															appearance,
 														);
 
 												command(view.state, view.dispatch, view);

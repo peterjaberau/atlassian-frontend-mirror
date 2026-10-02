@@ -1,6 +1,22 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const commentMessages = defineMessages({
+export const commentMessages: {
+	addCommentOnMedia: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	viewCommentsOnMedia: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	viewAndAddCommentsOnMedia: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	addCommentOnMedia: {
 		id: 'fabric.editor.addCommentOnMedia',
 		defaultMessage: 'Add comment',
@@ -14,6 +30,7 @@ export const commentMessages = defineMessages({
 	viewAndAddCommentsOnMedia: {
 		id: 'fabric.editor.viewAndAddCommentsOnMedia',
 		defaultMessage: 'View and add comments',
-		description: 'View and add comments for this image',
+		description:
+			'The text is shown on a button in the media floating toolbar that opens the comments panel, allowing the user to view existing comments and add new ones for the selected image or media item.',
 	},
 });

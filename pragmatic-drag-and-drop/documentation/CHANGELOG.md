@@ -1,5 +1,94 @@
 # @atlaskit/pragmatic-drag-and-drop-docs
 
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`0075efb228821`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0075efb228821) -
+  Autofix: barrel removal (imports + exports)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.2
+
+### Patch Changes
+
+- [`ef6d52b95e6db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef6d52b95e6db) -
+  Internal changes to how styles are applied
+
+## 2.0.1
+
+### Patch Changes
+
+- [`72302be55bf7a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72302be55bf7a) -
+  Internal changes to how styles are applied
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.4.20
+
+### Patch Changes
+
+- [`01bfb2823034b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01bfb2823034b) -
+  Expands automatic accessibility (a11y) Playwright test coverage for Platform
+
+## 1.4.19
+
+### Patch Changes
+
+- [`c3e8b437d0d8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3e8b437d0d8a) -
+  Replace deprecated `font.body.UNSAFE_small` token with `font.body.small`.
+
+## 1.4.18
+
+### Patch Changes
+
+- [`be5ff878b4b9a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be5ff878b4b9a) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
 ## 1.4.17
 
 ### Patch Changes

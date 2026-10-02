@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { type TriggerProps } from '@atlaskit/popup';
+import type { TriggerProps } from '@atlaskit/popup/types';
 
 import { type ProfileCardTriggerProps } from './types';
 

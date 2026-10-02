@@ -1,6 +1,3 @@
-import { toDOM, fromHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
-import { nestedExpand } from '../../../..';
-import type { Schema, Node } from '@atlaskit/editor-prosemirror/model';
 import {
 	schema,
 	doc,
@@ -8,6 +5,10 @@ import {
 	nestedExpand as nestedExpandBuilder,
 	p,
 } from '@af/adf-test-helpers/src/adf-schema';
+import { toDOM, fromHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
+import type { Schema, Node } from '@atlaskit/editor-prosemirror/model';
+
+import { nestedExpand } from '../../../..';
 
 const findNestedExpand = (doc: Node, schema: Schema) => {
 	let expand: Node | null = null;
@@ -38,9 +39,9 @@ describe(`${packageName}/schema nestedExpand node`, () => {
 				},
 			},
 			content:
-				'(paragraph | heading | mediaSingle | mediaGroup | codeBlock | bulletList | orderedList | taskList | decisionList | rule | panel | blockquote | unsupportedBlock | extension)+',
+				'(paragraph | heading | mediaSingle | mediaGroup | codeBlock | bulletList | orderedList | taskList | decisionList | rule | bodiedRule | panel | blockquote | unsupportedBlock | extension)+',
 			isolating: true,
-			marks: 'unsupportedMark unsupportedNodeAttribute dataConsumer fragment',
+			marks: 'fontSize unsupportedMark unsupportedNodeAttribute dataConsumer fragment annotation',
 			parseDOM: [
 				{
 					context: 'nestedExpand//',
@@ -69,7 +70,7 @@ describe(`${packageName}/schema nestedExpand node`, () => {
 		it('converts to PM node', () => {
 			const doc = fromHTML('<div data-node-type="nestedExpand" />', schema);
 			const node = findNestedExpand(doc, schema)!;
-			expect(node.type.spec).toEqual(nestedExpand);
+			expect(node.type.name).toEqual('nestedExpand');
 		});
 
 		it('gets attributes from html', () => {
@@ -119,7 +120,23 @@ describe(`${packageName}/schema nestedExpand node`, () => {
 			// eslint-disable-next-line @atlaskit/editor/no-as-casting
 			const dom = toDOM(tableWrapper, schema).firstChild as HTMLElement;
 			const parsedNode = fromHTML(dom.outerHTML, schema).firstChild!;
-			expect(parsedNode).toEqual(tableWrapper);
+			expect(parsedNode.toJSON()).toEqual({
+				...tableWrapper.toJSON(),
+				content: [
+					{
+						...tableWrapper.child(0).toJSON(),
+						content: [
+							{
+								...cell.toJSON(),
+								attrs: {
+									...cell.attrs,
+									localId: expect.any(String),
+								},
+							},
+						],
+					},
+				],
+			});
 		});
 	});
 

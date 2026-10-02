@@ -2,6 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { Fragment, useRef } from 'react';
 
 import { css, jsx } from '@compiled/react';
@@ -15,18 +16,18 @@ import Block from '../../block';
 import AIEventSummaryViewed from '../ai-event-summary-viewed';
 import type { AISummaryBlockProps } from '../types';
 
-type AISummaryBlockResolvedViewProps = AISummaryBlockProps & {
+export type AISummaryBlockResolvedViewProps = AISummaryBlockProps & {
 	/**
 	 * URL to be summarised
 	 */
 	url: string;
 };
 
-const styles = css({
+const styles: any = css({
 	overflow: 'visible',
 });
 
-const AISummaryBlockResolvedView = (props: AISummaryBlockResolvedViewProps) => {
+const AISummaryBlockResolvedView = (props: AISummaryBlockResolvedViewProps): JSX.Element => {
 	di(useAISummaryAction, AISummary);
 
 	const { testId, aiSummaryMinHeight = 0, placeholder, url } = props;
@@ -53,10 +54,6 @@ const AISummaryBlockResolvedView = (props: AISummaryBlockResolvedViewProps) => {
 			{...props}
 			direction={SmartLinkDirection.Vertical}
 			testId={`${testId}-resolved-view`}
-			/**
-			 * Enabled for feature discovery to allow box shadow to overflow
-			 * Cleanup: https://product-fabric.atlassian.net/browse/EDM-8681
-			 */
 			css={styles}
 		>
 			{status === 'done' && <AIEventSummaryViewed fromCache={isSummarisedOnMountRef.current} />}

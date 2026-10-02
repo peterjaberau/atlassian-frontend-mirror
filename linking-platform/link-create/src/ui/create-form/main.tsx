@@ -7,30 +7,29 @@ import { type ReactNode, useCallback } from 'react';
 import { css, jsx } from '@compiled/react';
 import { FORM_ERROR, type MutableState, type Tools } from 'final-form';
 import { Form, FormSpy } from 'react-final-form';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { RequiredAsterisk } from '@atlaskit/form';
+import { RequiredAsterisk } from '@atlaskit/form/required-asterisk';
 import { Box, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { LINK_CREATE_FORM_POST_CREATE_FIELD } from '../../common/constants';
 import messages from '../../common/messages';
-import { useLinkCreateCallback } from '../../controllers/callback-context';
+import { useLinkCreateCallback } from '../../controllers/callback-context/main';
 import { useExitWarningModal } from '../../controllers/exit-warning-modal-context';
-import { useFormContext } from '../../controllers/form-context';
-
-import { CreateFormFooter } from './form-footer';
-import { CreateFormLoader } from './form-loader';
+import { useFormContext } from '../../controllers/form-context/main';
+import { CreateFormFooter } from './form-footer/main';
+import { CreateFormLoader } from './form-loader/main';
 
 const formStyles = css({
 	maxWidth: `480px`,
 	paddingTop: 0,
 	paddingRight: 0,
-	paddingBottom: token('space.300', '24px'),
+	paddingBottom: token('space.300'),
 	paddingLeft: 0,
-	marginTop: token('space.0', '0px'),
+	marginTop: token('space.0'),
 	marginRight: 'auto',
-	marginBottom: token('space.0', '0px'),
+	marginBottom: token('space.0'),
 	marginLeft: 'auto',
 });
 
@@ -40,7 +39,7 @@ type ReservedFields = {
 
 type WithReservedFields<T> = T & ReservedFields;
 
-const RESERVED_FIELDS = [LINK_CREATE_FORM_POST_CREATE_FIELD] as const;
+const RESERVED_FIELDS: readonly ['__post_create__'] = [LINK_CREATE_FORM_POST_CREATE_FIELD] as const;
 
 type DisallowReservedFields<T> = T & {
 	[Field in (typeof RESERVED_FIELDS)[number]]?: never;
@@ -98,7 +97,7 @@ export const CreateForm = <FormData extends Record<string, any> = {}>({
 	hideFooter,
 	hideRequiredFieldMessage,
 	initialValues,
-}: CreateFormProps<FormData>) => {
+}: CreateFormProps<FormData>): JSX.Element => {
 	const { setFormErrorMessage, formErrorMessage, enableEditView } = useFormContext();
 	const intl = useIntl();
 	const { setShouldShowWarning } = useExitWarningModal();

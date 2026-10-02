@@ -12,8 +12,10 @@ jest.mock('@atlaskit/emoji', () => ({
 	),
 }));
 
-jest.mock('@atlaskit/avatar', () => ({
-	Status: ({ status }: any) => (
+jest.mock('@atlaskit/avatar/status', () => ({
+	...jest.requireActual('@atlaskit/avatar/status'),
+	__esModule: true,
+	default: ({ status }: any) => (
 		<div data-testid="status-component" data-status={status}>
 			{status}
 		</div>
@@ -38,9 +40,7 @@ describe('ProjectIcon', () => {
 	});
 
 	it('should render project icon and lock status when isPrivate is true', () => {
-		render(
-			<ProjectIcon emoji=":lock:" isPrivate={true} />
-		);
+		render(<ProjectIcon emoji=":lock:" isPrivate={true} />);
 
 		const emoji = screen.getByTestId('resourced-emoji');
 		expect(emoji.textContent).toBe(':lock:');
@@ -50,9 +50,7 @@ describe('ProjectIcon', () => {
 	});
 
 	it('should render project icon without lock status when isPrivate is false', () => {
-		render(
-			<ProjectIcon emoji=":lock:" isPrivate={false} />
-		);
+		render(<ProjectIcon emoji=":lock:" isPrivate={false} />);
 
 		const emoji = screen.getByTestId('resourced-emoji');
 		expect(emoji.textContent).toBe(':lock:');

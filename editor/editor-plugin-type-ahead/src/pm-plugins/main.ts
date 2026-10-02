@@ -1,24 +1,29 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { InsertTypeAheadStep } from '@atlaskit/adf-schema/steps';
+import { InsertTypeAheadStep } from '@atlaskit/adf-schema/steps/type-ahead';
+import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { closest } from '@atlaskit/editor-common/utils';
 import type { EditorState, ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { type TypeAheadPlugin } from '../typeAheadPluginType';
+import type { TypeAheadPlugin } from '../typeAheadPluginType';
 import type { PopupMountPointReference, TypeAheadHandler, TypeAheadPluginState } from '../types';
-
 import { ACTIONS } from './actions';
+import { openTypeAheadAtCursor } from './commands/open-typeahead-at-cursor';
 import { TYPE_AHEAD_DECORATION_DATA_ATTRIBUTE } from './constants';
 import { factoryDecorations } from './decorations';
 import { isInsertionTransaction } from './isInsertionTransaction';
 import { pluginKey } from './key';
 import { createReducer } from './reducer';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const ASCII_CHAR_REGEX = /^[\x00-\x7F]$/;
 
 const hasValidTypeAheadStep = (tr: ReadonlyTransaction): InsertTypeAheadStep | null => {
 	const steps = tr.steps.filter((step) => step instanceof InsertTypeAheadStep);
@@ -40,6 +45,8 @@ type Props = {
 	reactDispatch: Dispatch;
 	typeAheadHandlers: Array<TypeAheadHandler>;
 };
+
+/** Creates the type-ahead ProseMirror plugin. */
 export function createPlugin({
 	reactDispatch,
 	popupMountRef,
@@ -61,6 +68,12 @@ export function createPlugin({
 		typeAheadHandlers,
 		popupMountRef,
 	});
+
+	// Tracks a wide-char trigger handler detected during IME composition (e.g. ／).
+	// Set by compositionupdate, cleared by compositionend. Used by handleKeyDown
+	// to intercept Enter that confirms the composition.
+	let pendingWideSlashHandler: TypeAheadHandler | null = null;
+
 	return new SafePlugin<TypeAheadPluginState>({
 		key: pluginKey,
 
@@ -72,6 +85,8 @@ export function createPlugin({
 					decorationSet: DecorationSet.empty,
 					decorationElement: null,
 					items: [],
+					sectionTitleUpdates: {},
+					sections: [],
 					errorInfo: null,
 					selectedIndex: -1,
 					stats: null,
@@ -117,8 +132,63 @@ export function createPlugin({
 				return pluginKey.getState(state)?.decorationSet;
 			},
 
+			handleKeyDown: (view, event) => {
+				// When composing a wide-char trigger (e.g. ／), intercept the Enter key
+				// that confirms the composition so we can open the typeahead instead.
+				if (
+					pendingWideSlashHandler &&
+					event.isComposing &&
+					(event.key === 'Enter' || event.keyCode === 13)
+				) {
+					const handler = pendingWideSlashHandler;
+					pendingWideSlashHandler = null;
+					// Defer until ProseMirror has flushed the composed text into its state.
+					setTimeout(() => {
+						const command = openTypeAheadAtCursor({
+							triggerHandler: handler,
+							inputMethod: INPUT_METHOD.KEYBOARD,
+						});
+						const tr = command({ tr: view.state.tr });
+						if (tr) {
+							view.dispatch(tr);
+						}
+					}, 0);
+					return true;
+				}
+				return false;
+			},
+
 			handleDOMEvents: {
+				compositionupdate: (view, event) => {
+					// Track whether the current composition exactly matches a wide-char
+					// trigger (e.g. ／ from Japanese keyboard).
+					// We can't open the typeahead yet because composition is still active,
+					// but we record the matching handler so the next keydown (Enter) can use it.
+					const pendingData = event.data ?? '';
+					pendingWideSlashHandler =
+						typeAheadHandlers.find((handler) => {
+							if (!handler.customRegex) {
+								return false;
+							}
+							// Only match if the composition is a NON-ASCII trigger character.
+							// ASCII triggers (e.g. '/') are handled by the normal input rule
+							// path and must NOT be intercepted here — otherwise typing '/' on
+							// a macOS Japanese IME (which briefly fires compositionupdate with
+							// data='/') would cause the Enter-confirm to open the typeahead.
+							// Matches any single ASCII character (U+0000–U+007F).
+							// No 'u' flag needed for ASCII-only ranges.
+							if (ASCII_CHAR_REGEX.test(pendingData)) {
+								return false;
+							}
+							const pattern = new RegExp(`^(${handler.customRegex})$`, 'u');
+							return pattern.test(pendingData);
+						}) ?? null;
+					return false;
+				},
 				compositionend: (view, event) => {
+					// Clear the pending handler when composition ends (cancelled or committed
+					// via a non-Enter key like Space, which we don't want to intercept).
+					pendingWideSlashHandler = null;
 					return false;
 				},
 

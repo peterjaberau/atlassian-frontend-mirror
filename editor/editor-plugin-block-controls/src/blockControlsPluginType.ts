@@ -1,31 +1,38 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type {
 	DIRECTION,
 	EditorCommand,
 	NextEditorPlugin,
 	OptionalPlugin,
+	PublicPluginAPI,
 } from '@atlaskit/editor-common/types';
 import type { AccessibilityUtilsPlugin } from '@atlaskit/editor-plugin-accessibility-utils';
 import type { AnalyticsPlugin } from '@atlaskit/editor-plugin-analytics';
+import type { BlockCollapsePlugin } from '@atlaskit/editor-plugin-block-collapse/blockCollapsePluginType';
 import type { EditorDisabledPlugin } from '@atlaskit/editor-plugin-editor-disabled';
+import type { EditorViewModePlugin } from '@atlaskit/editor-plugin-editor-viewmode';
 import type { FeatureFlagsPlugin } from '@atlaskit/editor-plugin-feature-flags';
 import type { InteractionPlugin } from '@atlaskit/editor-plugin-interaction';
 import type { LimitedModePlugin } from '@atlaskit/editor-plugin-limited-mode';
 import type { MetricsPlugin } from '@atlaskit/editor-plugin-metrics';
 import type { QuickInsertPlugin } from '@atlaskit/editor-plugin-quick-insert';
 import type { SelectionPlugin } from '@atlaskit/editor-plugin-selection';
+import type { ShowDiffPlugin } from '@atlaskit/editor-plugin-show-diff/show-diff-plugin-type';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugin-toolbar';
 import type { TypeAheadPlugin } from '@atlaskit/editor-plugin-type-ahead';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugin-ui-control-registry/ui-control-registry-plugin-type';
 import type { UserIntentPlugin } from '@atlaskit/editor-plugin-user-intent';
 import type { WidthPlugin } from '@atlaskit/editor-plugin-width';
-import type { Selection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Selection } from '@atlaskit/editor-prosemirror/state';
 import type { Mapping } from '@atlaskit/editor-prosemirror/transform';
-import type { DecorationSet } from '@atlaskit/editor-prosemirror/view';
+import type { Decoration, DecorationSet, EditorView } from '@atlaskit/editor-prosemirror/view';
 
 export type ActiveNode = {
 	anchorName: string;
+	controlKey?: string;
 	handleOptions?: HandleOptions;
 	nodeType: string;
 	pos: number;
@@ -75,15 +82,27 @@ export interface PluginState {
 	isPMDragging: boolean;
 	isResizerResizing: boolean;
 	isSelectedViaDragHandle?: boolean;
-	isShiftDown?: boolean;
 	lastDragCancelled: boolean;
 	menuTriggerBy?: string;
 	menuTriggerByNode?: TriggerByNode;
 	multiSelectDnD?: MultiSelectDnD;
 	preservedSelection?: Selection;
+	surfaceNodePositions: number[];
 }
 
 export type ReleaseHiddenDecoration = () => boolean | undefined;
+
+export type BlockControlsPluginConfig = {
+	// eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required -- EDITOR-8696 tracks migration to the Quick Insert plugin configuration.
+	/**
+	 * Enable the quick insert plus button icon on the left of the drag handle.
+	 *
+	 * @deprecated Use `QuickInsertPluginOptions.blockControlButtonEnabled` instead.
+	 */
+	quickInsertButtonEnabled?: boolean;
+	/** Enable left/right hover split: show left controls when hovering left, right controls when hovering right */
+	rightSideControlsEnabled?: boolean;
+};
 
 export type BlockControlsSharedState =
 	| {
@@ -94,22 +113,62 @@ export type BlockControlsSharedState =
 				canMoveUp?: boolean;
 				openedViaKeyboard?: boolean;
 			};
+			hoverSide?: 'left' | 'right';
 			isDragging: boolean;
 			isEditing?: boolean;
 			isMenuOpen: boolean;
 			isMouseOut?: boolean;
 			isPMDragging: boolean;
 			isSelectedViaDragHandle?: boolean;
-			isShiftDown?: boolean;
 			lastDragCancelled: boolean;
 			menuTriggerBy?: string;
 			menuTriggerByNode?: TriggerByNode;
 			multiSelectDnD?: MultiSelectDnD;
 			preservedSelection?: Selection;
+			/** Whether left/right hover split is enabled (from plugin config) */
+			rightSideControlsEnabled?: boolean;
+			surfaceActiveNodes?: ReadonlyMap<number, ActiveNode>;
+			surfaceAnchors?: ReadonlyMap<number, string>;
+			surfaceNodePositions?: readonly number[];
 	  }
 	| undefined;
 
-export type HandleOptions = { isFocused: boolean } | undefined;
+export type ControlOptions = { isFocused: boolean } | undefined;
+export type HandleOptions = ControlOptions;
+
+/**
+ * Props passed to custom right-edge button components (e.g. config.rightEdgeButton).
+ */
+export type RightEdgeButtonProps = {
+	api: PublicPluginAPI<[BlockControlsPlugin]>;
+	getPos: () => number | undefined;
+};
+
+export type NodeDecorationFactoryParams = {
+	anchorName: string;
+	editorState: EditorState;
+	nodeType: string;
+	nodeViewPortalProviderAPI: PortalProviderAPI;
+	rootAnchorName?: string;
+	rootNodeType?: string;
+	rootPos: number;
+};
+
+/**
+ * When true, this factory's decorations are shown in view mode on block hover
+ * (without drag handle or quick insert). Used for right-edge controls.
+ */
+export type NodeDecorationFactory = {
+	create: (params: NodeDecorationFactoryParams) => Decoration;
+	/**
+	 * Optional filter: when false, the decoration is not created.
+	 * Use for node-type-specific visibility (e.g. Remix button only on remixable blocks).
+	 */
+	shouldCreate?: (params: NodeDecorationFactoryParams) => boolean;
+	/** Show this decoration in view mode when hovering over a block */
+	showInViewMode?: boolean;
+	type: string;
+};
 
 export type MoveNode = (
 	start: number,
@@ -119,8 +178,10 @@ export type MoveNode = (
 ) => EditorCommand;
 
 export type BlockControlsPluginDependencies = [
+	OptionalPlugin<BlockCollapsePlugin>,
 	OptionalPlugin<LimitedModePlugin>,
 	OptionalPlugin<EditorDisabledPlugin>,
+	OptionalPlugin<EditorViewModePlugin>,
 	OptionalPlugin<WidthPlugin>,
 	OptionalPlugin<FeatureFlagsPlugin>,
 	OptionalPlugin<AnalyticsPlugin>,
@@ -133,12 +194,44 @@ export type BlockControlsPluginDependencies = [
 	OptionalPlugin<InteractionPlugin>,
 	OptionalPlugin<UserIntentPlugin>,
 	OptionalPlugin<ToolbarPlugin>,
+	OptionalPlugin<ShowDiffPlugin>,
+	OptionalPlugin<UiControlRegistryPlugin>,
 ];
 
 export type BlockControlsPlugin = NextEditorPlugin<
 	'blockControls',
 	{
+		actions: {
+			/**
+			 * Returns the text info (length and content) of the block(s) that triggered
+			 * the block menu.
+			 *
+			 * When a preserved (multi-block) selection exists the text spans all selected
+			 * blocks; otherwise the single node at `menuTriggerByNode.pos` is used.
+			 *
+			 * @param editorView – the current editor view.
+			 * @returns An object with `textLength` and `textContent`, or `null` when the
+			 *          context cannot be determined.
+			 */
+			getTextInfo: (editorView: EditorView) => { textContent: string; textLength: number } | null;
+			registerNodeDecoration: (factory: NodeDecorationFactory) => void;
+			unregisterNodeDecoration: (type: string) => void;
+		};
 		commands: {
+			/**
+			 * Updates the transaction's selection based on the clicked drag handle position.
+			 *
+			 * - If the clicked handle is within an existing multi-block selection range, the selection
+			 *   is expanded to cover both the existing range and the clicked node's range.
+			 * - For tables, a table cell selection is used.
+			 * - Otherwise, selects the single node at the clicked handle position.
+			 */
+			expandAndUpdateSelection: (options: {
+				isShiftPressed: boolean;
+				nodeType: string;
+				selection: Selection;
+				startPos: number;
+			}) => EditorCommand;
 			handleKeyDownWithPreservedSelection: (event: KeyboardEvent) => EditorCommand;
 			mapPreservedSelection: (mapping: Mapping) => EditorCommand;
 			moveNode: MoveNode;
@@ -162,6 +255,11 @@ export type BlockControlsPlugin = NextEditorPlugin<
 				nodeType: string,
 			) => EditorCommand;
 			setSelectedViaDragHandle: (isSelectedViaDragHandle?: boolean) => EditorCommand;
+			showControlAtPosition: (
+				pos: number,
+				control: { key: string },
+				options?: ControlOptions,
+			) => EditorCommand;
 			showDragHandleAt: (
 				pos: number,
 				anchorName: string,
@@ -190,6 +288,7 @@ export type BlockControlsPlugin = NextEditorPlugin<
 			}) => EditorCommand;
 		};
 		dependencies: BlockControlsPluginDependencies;
+		pluginConfiguration?: BlockControlsPluginConfig;
 		sharedState: BlockControlsSharedState;
 	}
 >;

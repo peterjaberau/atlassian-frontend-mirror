@@ -1,15 +1,11 @@
 import React, { useEffect } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl, useIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl, useIntl } from 'react-intl';
 
 import { getDocument } from '@atlaskit/browser-apis';
-import {
-	ACTION,
-	ACTION_SUBJECT,
-	EVENT_TYPE,
-	type BlockMenuEventPayload,
-} from '@atlaskit/editor-common/analytics';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import type { BlockMenuEventPayload } from '@atlaskit/editor-common/analytics';
 import { BLOCK_MENU_ACTION_TEST_ID } from '@atlaskit/editor-common/block-menu';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { blockMenuMessages as messages } from '@atlaskit/editor-common/messages';
@@ -17,12 +13,15 @@ import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { DIRECTION } from '@atlaskit/editor-common/types';
 import { ToolbarDropdownItem } from '@atlaskit/editor-toolbar';
 import ArrowDownIcon from '@atlaskit/icon/core/arrow-down';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { BlockMenuPlugin } from '../blockMenuPluginType';
-
 import { useBlockMenu } from './block-menu-provider';
 import { BLOCK_MENU_ITEM_NAME } from './consts';
-import { fixBlockMenuPositionAndScroll } from './utils/fixBlockMenuPositionAndScroll';
+import {
+	getBlockMenuPositionSnapshot,
+	scheduleBlockMenuPositionFix,
+} from './utils/fixBlockMenuPositionAndScroll';
 
 type Props = {
 	api: ExtractInjectionAPI<BlockMenuPlugin> | undefined;
@@ -30,7 +29,14 @@ type Props = {
 
 const MoveDownDropdownItemContent = ({ api }: Props & WrappedComponentProps) => {
 	const { formatMessage } = useIntl();
-	const { moveUpRef, moveDownRef, getFirstSelectedDomNode } = useBlockMenu();
+	const {
+		moveUpRef,
+		moveDownRef,
+		getFirstSelectedDomNode,
+		getMovedBlockDomNode,
+		getSelectedBlockDomNode,
+		anchorMetricsRef,
+	} = useBlockMenu();
 
 	const { canMoveDown } = useSharedPluginStateWithSelector(
 		api,
@@ -57,6 +63,10 @@ const MoveDownDropdownItemContent = ({ api }: Props & WrappedComponentProps) => 
 	}, [canMoveDown, moveUpRef, moveDownRef]);
 
 	const handleClick = () => {
+		const positionSnapshot = fg('platform_editor_blocks_patch_8')
+			? getBlockMenuPositionSnapshot(getSelectedBlockDomNode(), anchorMetricsRef.current)
+			: undefined;
+
 		api?.core.actions.execute(({ tr }) => {
 			const payload: BlockMenuEventPayload = {
 				action: ACTION.CLICKED,
@@ -71,17 +81,14 @@ const MoveDownDropdownItemContent = ({ api }: Props & WrappedComponentProps) => 
 			return tr;
 		});
 
-		requestAnimationFrame(() => {
-			const newFirstNode = getFirstSelectedDomNode();
-			fixBlockMenuPositionAndScroll(newFirstNode);
-		});
+		scheduleBlockMenuPositionFix(positionSnapshot, getMovedBlockDomNode, getFirstSelectedDomNode);
 	};
 
 	return (
 		<ToolbarDropdownItem
 			triggerRef={moveDownRef}
 			onClick={handleClick}
-			elemBefore={<ArrowDownIcon label="" />}
+			elemBefore={<ArrowDownIcon label="" size="small" />}
 			isDisabled={!canMoveDown}
 			testId={BLOCK_MENU_ACTION_TEST_ID.MOVE_DOWN}
 		>
@@ -90,4 +97,7 @@ const MoveDownDropdownItemContent = ({ api }: Props & WrappedComponentProps) => 
 	);
 };
 
-export const MoveDownDropdownItem = injectIntl(MoveDownDropdownItemContent);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const MoveDownDropdownItem: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(MoveDownDropdownItemContent);

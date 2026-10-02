@@ -4,11 +4,14 @@
  */
 /* eslint-disable no-console */
 import React, { type ReactNode } from 'react';
+
 import { jsx, css } from '@compiled/react';
+
 import Button from '@atlaskit/button/standard-button';
-import { ModalTransition } from '@atlaskit/modal-dialog';
-import { type Avatar, AvatarPickerDialog } from '../src';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+
 import { generateAvatars } from '../example-helpers';
+import { type Avatar, AvatarPickerDialog } from '../src';
 import {
 	type AvatarPickerDialogPropsAlt,
 	type AvatarPickerDialogPropsNoAlt,
@@ -109,7 +112,7 @@ export default class StatefulAvatarPickerDialog extends React.Component<
 		this.setState({ altText });
 	};
 
-	renderPicker() {
+	renderPicker(): JSX.Element {
 		const { isOpen, isLoading } = this.state;
 		const { requireAltText } = this.props;
 
@@ -166,7 +169,7 @@ export default class StatefulAvatarPickerDialog extends React.Component<
 		return <ModalTransition>{isOpen && avatarPickerDialog}</ModalTransition>;
 	}
 
-	render() {
+	render(): JSX.Element {
 		const { imagePreviewSourceViaDataURIAPI, imagePreviewSourceViaFileAPI, altText } = this.state;
 
 		const { requireAltText } = this.props;

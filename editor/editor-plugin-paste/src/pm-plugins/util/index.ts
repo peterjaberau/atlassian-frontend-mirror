@@ -8,6 +8,7 @@ import {
 import type { CardOptions } from '@atlaskit/editor-common/card';
 import { sortByOrderWithTypeName } from '@atlaskit/editor-common/legacy-rank-plugins';
 import { isSupportedInParent, mapChildren } from '@atlaskit/editor-common/utils';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { NodeType, Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
 import { Fragment, Mark, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Selection, Transaction } from '@atlaskit/editor-prosemirror/state';
@@ -15,6 +16,25 @@ import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state
 import { findParentNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import { getSelectedTableInfo, isTableSelected } from '@atlaskit/editor-tables/utils';
 import { isMediaBlobUrl } from '@atlaskit/media-client';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const HTML_CONTAINS_SINGLE_FILE_REGEX = /<img .*>/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const ESCAPE_LINKS_INNER_REGEX = /^(https?|ftp|jamfselfservice):\/\/[^\s>"]+$/;
+// Allows up to 3 leading spaces before ``` and optional trailing characters
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const OPENING_CODE_FENCE_REGEX = /^( {0,3})```.*$/;
+// Allows up to 3 leading spaces before ``` and optional trailing spaces or tabs
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const CLOSING_CODE_FENCE_REGEX = /^( {0,3})```[ 	]*$/;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const SPLIT_ON_ANCHOR_REGEX = /(?=<a)/;
 
 export function isPastedFromWord(html?: string): boolean {
 	return !!html && html.indexOf('urn:schemas-microsoft-com:office:word') >= 0;
@@ -55,9 +75,7 @@ export const isSingleLine = (text: string): boolean => {
 };
 
 export function htmlContainsSingleFile(html: string): boolean {
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	return !!html.match(/<img .*>/) && !isMediaBlobUrl(html);
+	return !!html.match(HTML_CONTAINS_SINGLE_FILE_REGEX) && !isMediaBlobUrl(html);
 }
 
 export function getPasteSource(event: ClipboardEvent): PasteSource {
@@ -103,9 +121,7 @@ export function escapeLinks(text: string): string {
 	// Ignored via go/ees005
 	// eslint-disable-next-line require-unicode-regexp
 	return text.replace(/(\[([^\]]+)\]\()?((https?|ftp|jamfselfservice):\/\/[^\s>"]+)/g, (str) => {
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		return str.match(/^(https?|ftp|jamfselfservice):\/\/[^\s>"]+$/) ? `<${str}>` : str;
+		return str.match(ESCAPE_LINKS_INNER_REGEX) ? `<${str}>` : str;
 	});
 }
 
@@ -118,26 +134,22 @@ export function escapeLinks(text: string): string {
  * const input = 'This is a link: https://example.com and a backslash: \\\n```\ncode block https://example.com not escaped\ncode block \\ not escaped\n```';
  * const output = escapeBackslashAndLinksExceptCodeBlock(input); // 'This is a link: <https://example.com> and a backslash: \\\\\n```\ncode block https://example.com not escaped\ncode block \\ not escaped\n```'
  */
-export function escapeBackslashAndLinksExceptCodeBlock(textInput: string): string {
+export function escapeBackslashAndLinksExceptCodeBlock(
+	textInput: string,
+	options?: { skipLinkEscaping?: boolean },
+): string {
+	const shouldEscapeLinks = !options?.skipLinkEscaping;
 	// ref: https://spec.commonmark.org/0.31.2/#fenced-code-blocks
-	// Allows up to 3 leading spaces before ``` and optional trailing characters
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const openingCodeFenceRegex = /^( {0,3})```.*$/;
-	// Allows up to 3 leading spaces before ``` and optional trailing spaces or tabs
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const closingCodeFenceRegex = /^( {0,3})```[ \t]*$/;
 	let isInsideCodeBlock = false;
 	const lines = textInput.split('\n');
 	// In the splitted array, we traverse through every line and check if it will be parsed as a codeblock.
 	return lines
 		.map((line) => {
-			if (!isInsideCodeBlock && openingCodeFenceRegex.test(line)) {
+			if (!isInsideCodeBlock && OPENING_CODE_FENCE_REGEX.test(line)) {
 				isInsideCodeBlock = true;
 				return line;
 			}
-			if (isInsideCodeBlock && closingCodeFenceRegex.test(line)) {
+			if (isInsideCodeBlock && CLOSING_CODE_FENCE_REGEX.test(line)) {
 				isInsideCodeBlock = false;
 				return line;
 			}
@@ -147,9 +159,11 @@ export function escapeBackslashAndLinksExceptCodeBlock(textInput: string): strin
 				return line;
 			} else {
 				// Ignored via go/ees005
-				// eslint-disable-next-line require-unicode-regexp
+				// eslint-disable-next-line require-unicode-regexp, @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 				let escaped = line.replace(/\\/g, '\\\\');
-				escaped = escapeLinks(escaped);
+				if (shouldEscapeLinks) {
+					escaped = escapeLinks(escaped);
+				}
 				return escaped;
 			}
 		})
@@ -226,7 +240,7 @@ export function applyTextMarksToSlice(
 	};
 }
 
-export function isEmptyNode(node: PMNode | null | undefined) {
+export function isEmptyNode(node: PMNode | null | undefined): boolean | null {
 	if (!node) {
 		return false;
 	}
@@ -240,7 +254,7 @@ export function isEmptyNode(node: PMNode | null | undefined) {
 	);
 }
 
-export function isCursorSelectionAtTextStartOrEnd(selection: Selection) {
+export function isCursorSelectionAtTextStartOrEnd(selection: Selection): boolean | null {
 	return (
 		selection instanceof TextSelection &&
 		selection.empty &&
@@ -250,6 +264,11 @@ export function isCursorSelectionAtTextStartOrEnd(selection: Selection) {
 }
 
 export function isPanelNode(node: PMNode | null | undefined): boolean {
+	// panel_c1 is a schema variant of panel (used when a table is nested inside a panel). When the
+	// experiment is on, treat it as a panel too.
+	if (expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)) {
+		return Boolean(node && getBaseNodeTypeName(node.type) === 'panel');
+	}
 	return Boolean(node && node.type.name === 'panel');
 }
 
@@ -261,13 +280,16 @@ export function isSelectionInsidePanel(selection: Selection): PMNode | null {
 		doc: {
 			type: {
 				schema: {
-					nodes: { panel },
+					nodes: { panel, panel_c1 },
 				},
 			},
 		},
 	} = selection.$from;
 
-	const panelPosition = findParentNodeOfType(panel)(selection);
+	// When the experiment is on, also match panel_c1 (table-in-panel variant).
+	const panelPosition = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? findParentNodeOfType([panel, panel_c1].filter(Boolean))(selection)
+		: findParentNodeOfType(panel)(selection);
 
 	if (panelPosition) {
 		return panelPosition.node;
@@ -287,9 +309,7 @@ export const htmlHasInvalidLinkTags = (html?: string): boolean => {
 // <li><a href="http://www.atlassian.com\"<a> href="http://www.atlassian.com\"http://www.atlassian.com</a></a></li>">
 export const removeDuplicateInvalidLinks = (html: string): string => {
 	if (htmlHasInvalidLinkTags(html)) {
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		const htmlArray = html.split(/(?=<a)/);
+		const htmlArray = html.split(SPLIT_ON_ANCHOR_REGEX);
 		const htmlArrayWithoutInvalidLinks = htmlArray.filter((item) => {
 			return (
 				!(item.includes('<a') && item.includes('"></a>')) &&

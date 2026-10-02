@@ -1,15 +1,16 @@
+/* eslint-disable @atlaskit/design-system/no-deprecated-imports -- Preserve existing example behavior while focus-ring usage is reviewed separately. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
 
-import { forwardRef } from 'react';
+import { forwardRef, type ForwardRefExoticComponent, type RefAttributes } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import type { CustomTriggerProps } from '@atlaskit/dropdown-menu';
-import FocusRing from '@atlaskit/focus-ring';
+import type { CustomTriggerProps } from '@atlaskit/dropdown-menu/types';
+import FocusRing from '@atlaskit/focus-ring/focus-ring';
 import DragHandleVerticalIcon from '@atlaskit/icon/core/drag-handle-vertical';
 import { token } from '@atlaskit/tokens';
 
@@ -20,7 +21,7 @@ const dragHandleButtonStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/no-unsafe-design-token-usage
 	borderRadius: token('radius.small', '3px'),
 	opacity: 'var(--action-opacity)',
-	color: token('color.icon.subtle', '#626F86'),
+	color: token('color.icon.subtle'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':focus-visible': {
 		opacity: 1,
@@ -28,33 +29,36 @@ const dragHandleButtonStyles = css({
 	cursor: 'grab',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':hover': {
-		backgroundColor: token('color.background.neutral.subtle.hovered', '#091E420F'),
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':active': {
-		backgroundColor: token('color.background.neutral.subtle.pressed', '#091E4224'),
+		backgroundColor: token('color.background.neutral.subtle.pressed'),
 	},
 });
 
 const selectedStyles = css({
-	backgroundColor: token('color.background.selected', '#E9F2FF'),
-	color: token('color.icon.selected', '#0C66E4'),
+	backgroundColor: token('color.background.selected'),
+	color: token('color.icon.selected'),
 	opacity: 1,
 });
 
 type DragHandleButtonProps = Omit<CustomTriggerProps, 'triggerRef'>;
 
-export const DragHandleButton = forwardRef<HTMLButtonElement, DragHandleButtonProps>(
-	function DragHandleButton({ isSelected, testId, ...props }, ref) {
-		return (
-			<FocusRing isInset>
-				<button ref={ref} css={[dragHandleButtonStyles, isSelected && selectedStyles]} {...props}>
-					{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-					<div style={{ marginInline: '-2px' }}>
-						<DragHandleVerticalIcon spacing="spacious" color="currentColor" label="" size="small" />
-					</div>
-				</button>
-			</FocusRing>
-		);
-	},
-);
+export const DragHandleButton: ForwardRefExoticComponent<
+	DragHandleButtonProps & RefAttributes<HTMLButtonElement>
+> = forwardRef<HTMLButtonElement, DragHandleButtonProps>(function DragHandleButton(
+	{ isSelected, testId, ...props },
+	ref,
+) {
+	return (
+		<FocusRing isInset>
+			<button ref={ref} css={[dragHandleButtonStyles, isSelected && selectedStyles]} {...props}>
+				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+				<div style={{ marginInline: '-2px' }}>
+					<DragHandleVerticalIcon spacing="spacious" color="currentColor" label="" size="small" />
+				</div>
+			</button>
+		</FocusRing>
+	);
+});

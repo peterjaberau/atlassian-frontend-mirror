@@ -1,8 +1,9 @@
-import type { Node } from '@atlaskit/editor-prosemirror/model';
+import { isListNode } from '@atlaskit/editor-common/utils';
+import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
 import { Fragment, NodeRange, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { Selection, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
-import { liftTarget, ReplaceAroundStep } from '@atlaskit/editor-prosemirror/transform';
+import { liftTarget, ReplaceAroundStep, ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
 
 import { getListLiftTarget } from './utils/indentation';
 
@@ -61,7 +62,7 @@ export function liftFollowingList(
 	return tr;
 }
 
-export function liftNodeSelectionList(selection: Selection, tr: Transaction) {
+export function liftNodeSelectionList(selection: Selection, tr: Transaction): Transaction {
 	const { from } = selection;
 	const { listItem } = tr.doc.type.schema.nodes;
 	const mappedPosition = tr.mapping.map(from);
@@ -83,7 +84,7 @@ export function liftNodeSelectionList(selection: Selection, tr: Transaction) {
 }
 
 interface ListCol {
-	node: Node;
+	node: PMNode;
 	pos: number;
 }
 
@@ -113,5 +114,144 @@ export function liftTextSelectionList(selection: Selection, tr: Transaction): Tr
 			}
 		}
 	}
+	return tr;
+}
+
+/**
+ * Finds the top-level list nodes (bulletList/orderedList) that contain the positions
+ * affected by the given transactions. Returns a map of list node position → list node,
+ * so callers can scan only the affected subtrees rather than the entire document.
+ */
+function getAffectedListsFromTransactions(
+	transactions: readonly Transaction[],
+	doc: PMNode,
+	schema: Schema,
+): Map<number, PMNode> {
+	const { bulletList, orderedList } = schema.nodes;
+	const listTypes = [bulletList, orderedList].filter(Boolean);
+	if (listTypes.length === 0) {
+		return new Map();
+	}
+
+	const result = new Map<number, PMNode>();
+
+	for (const tr of transactions) {
+		for (const step of tr.steps) {
+			// ReplaceStep and ReplaceAroundStep both have from/to — other step types are skipped.
+			if (!(step instanceof ReplaceStep) && !(step instanceof ReplaceAroundStep)) {
+				continue;
+			}
+			// Check both the start and end of each changed range, mapped to post-transaction positions.
+			for (const rawPos of [step.from, step.to]) {
+				const mappedPos = Math.min(tr.mapping.map(rawPos), doc.content.size - 1);
+				const $pos = doc.resolve(mappedPos);
+				// Walk ancestors from inner to outer, recording the outermost list node.
+				// Once we find a list and then exit list structure (hit a non-list ancestor),
+				// break early — prevents container nodes (e.g. panel) from causing us to
+				// return an outer list that is in a different structural context.
+				// $pos.node(depth) is O(1) array access.
+				let rootListPos: number | null = null;
+				let rootListNode: PMNode | null = null;
+				for (let depth = $pos.depth; depth >= 0; depth--) {
+					const node = $pos.node(depth);
+					if (listTypes.includes(node.type)) {
+						rootListPos = $pos.before(depth);
+						rootListNode = node;
+					} else if (rootListNode !== null && node.type !== schema.nodes.listItem) {
+						// We've exited the list structure — stop walking.
+						break;
+					}
+				}
+				if (rootListPos !== null && rootListNode !== null) {
+					result.set(rootListPos, rootListNode);
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+interface ApplyListNormalisationFixesOptions {
+	doc: PMNode;
+	schema: Schema;
+	tr: Transaction;
+	transactions: readonly Transaction[];
+}
+
+/**
+ * Applies list normalisation fixes to the given transaction for all affected list subtrees.
+ * Processes nodes in reverse document order so that position offsets from insertions/joins
+ * do not affect earlier positions.
+ */
+export function applyListNormalisationFixes({
+	tr,
+	transactions,
+	doc,
+	schema,
+}: ApplyListNormalisationFixesOptions): Transaction {
+	const affectedLists = getAffectedListsFromTransactions(transactions, doc, schema);
+	if (affectedLists.size === 0) {
+		return tr;
+	}
+
+	const { listItem } = schema.nodes;
+	if (!listItem) {
+		return tr;
+	}
+	// Process lists in reverse position order so fixes at higher positions
+	// don't shift the positions of fixes at lower positions.
+	const sortedEntries = [...affectedLists.entries()].sort(([posA], [posB]) => posB - posA);
+
+	for (const [listPos] of sortedEntries) {
+		// Re-resolve the list node from the current transaction doc (post-paste state),
+		// as the original listNode snapshot may be stale after the paste transaction.
+		const mappedListPos = tr.mapping.map(listPos);
+		const currentListNode = tr.doc.nodeAt(mappedListPos);
+		if (!currentListNode) {
+			continue;
+		}
+
+		// Collect all listItem positions at all depths in document order, then process in
+		// reverse so that fixes at higher positions don't shift positions of lower ones.
+		const listItemPositions: number[] = [];
+		currentListNode.descendants((node, offsetPos) => {
+			if (node.type === listItem) {
+				listItemPositions.push(mappedListPos + 1 + offsetPos);
+			}
+			return true;
+		});
+
+		for (let i = listItemPositions.length - 1; i >= 0; i--) {
+			const mappedPos = tr.mapping.map(listItemPositions[i]);
+			const node = tr.doc.nodeAt(mappedPos);
+			if (!node || node.type !== listItem) {
+				continue;
+			}
+
+			// Merge adjacent same-type list nodes (highest boundary first within the listItem).
+			for (let j = node.childCount - 1; j > 0; j--) {
+				const child = node.child(j);
+				const prevChild = node.child(j - 1);
+				if (isListNode(child) && child.type === prevChild.type) {
+					let offset = 1; // +1 for listItem opening token
+					for (let k = 0; k < j; k++) {
+						offset += node.child(k).nodeSize;
+					}
+					try {
+						tr.join(mappedPos + offset);
+					} catch (e) {
+						// join may fail if position is invalid after earlier transforms — skip
+						// eslint-disable-next-line no-console
+						console.warn(
+							'[editor-plugin-list] applyListNormalisationFixes: unexpected join failure',
+							e,
+						);
+					}
+				}
+			}
+		}
+	}
+
 	return tr;
 }

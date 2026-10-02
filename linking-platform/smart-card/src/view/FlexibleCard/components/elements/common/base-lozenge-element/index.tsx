@@ -2,21 +2,31 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { css, jsx } from '@compiled/react';
-import { FormattedDate } from 'react-intl-next';
 
-import AtlaskitLozenge, { type LozengeProps as AtlaskitLozengeProps } from '@atlaskit/lozenge';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { css, jsx } from '@compiled/react';
+
+import AtlaskitLozenge, {
+	type LozengeProps as AtlaskitLozengeProps,
+} from '@atlaskit/lozenge/lozenge';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Tag from '@atlaskit/tag/tag/simple';
+import { token } from '@atlaskit/tokens';
 
 import type { LinkLozengeInvokeActions } from '../../../../../../extractors/common/lozenge/types';
-import { useFlexibleUiOptionContext } from '../../../../../../state/flexible-ui-context';
+import { useFlexibleUiOptionContext } from '../../../../../../state/flexible-ui-context/useFlexibleUiOptionContext';
 import type { ElementProps } from '../../../elements';
-
 import LozengeAction from './lozenge-action';
 
 const styles = css({
 	display: 'inline-flex',
 	minWidth: 'fit-content',
+});
+
+const dueOnStyles = css({
+	marginTop: token('space.negative.050', '-4px'),
+	marginRight: token('space.negative.050', '-4px'),
+	marginBottom: token('space.negative.050', '-4px'),
+	marginLeft: token('space.negative.050', '-4px'),
 });
 
 export type LozengeAppearance = 'default' | 'inprogress' | 'moved' | 'new' | 'removed' | 'success';
@@ -31,6 +41,10 @@ export type BaseLozengeElementProps = ElementProps & {
 	 */
 	appearance?: LozengeAppearance;
 	/**
+	 * Determines if the element is a due on element.
+	 */
+	isDateTag?: boolean;
+	/**
 	 * Callback fired after lozenge value has changed
 	 */
 	onAfterChanged?: () => void;
@@ -38,6 +52,10 @@ export type BaseLozengeElementProps = ElementProps & {
 	 * The text to display within the lozenge.
 	 */
 	text?: string | React.ReactNode;
+	/**
+	 * Numeric metric displayed as a trailing badge inside the lozenge.
+	 */
+	trailingMetric?: string;
 } & Pick<AtlaskitLozengeProps, 'maxWidth' | 'style'>;
 
 /**
@@ -56,7 +74,9 @@ const BaseLozengeElement = ({
 	style,
 	text,
 	testId = 'smart-element-lozenge',
-}: BaseLozengeElementProps) => {
+	isDateTag,
+	trailingMetric,
+}: BaseLozengeElementProps): JSX.Element | null => {
 	const ui = useFlexibleUiOptionContext();
 	if (!text) {
 		return null;
@@ -66,20 +86,28 @@ const BaseLozengeElement = ({
 		<LozengeAction
 			action={action}
 			appearance={appearance}
-			{...(fg('platform_navx_sl_lozenge_max_width') ? { maxWidth } : undefined)}
+			maxWidth={maxWidth}
 			testId={testId}
 			text={text}
 			zIndex={ui?.zIndex}
 			onAfterChanged={onAfterChanged}
+			{...(trailingMetric && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+				? { trailingMetric }
+				: undefined)}
 		/>
+	) : isDateTag ? (
+		<Tag text={text as string} migration_fallback="lozenge" />
 	) : (
 		<AtlaskitLozenge
 			appearance={appearance}
-			{...(fg('platform-component-visual-refresh') ? { isBold: true } : undefined)}
-			{...(fg('platform_navx_sl_lozenge_max_width') ? { maxWidth } : undefined)}
+			isBold
+			maxWidth={maxWidth}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			style={style}
 			testId={`${testId}-lozenge`}
+			{...(trailingMetric && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+				? { trailingMetric }
+				: undefined)}
 		>
 			{text}
 		</AtlaskitLozenge>
@@ -87,7 +115,10 @@ const BaseLozengeElement = ({
 
 	return (
 		<span
-			css={[styles]}
+			css={[
+				styles,
+				isDateTag && fg('platform-dst-lozenge-tag-badge-visual-uplifts') && dueOnStyles,
+			]}
 			data-smart-element={name}
 			data-smart-element-lozenge
 			data-testid={testId}
@@ -100,22 +131,3 @@ const BaseLozengeElement = ({
 };
 
 export default BaseLozengeElement;
-
-export const toDateLozengeProps = (
-	dateString?: string,
-): Partial<BaseLozengeElementProps> | undefined => {
-	if (dateString) {
-		const text = Date.parse(dateString) ? (
-			<FormattedDate
-				value={new Date(dateString)}
-				year="numeric"
-				month="short"
-				day="numeric"
-				formatMatcher="best fit"
-			/>
-		) : (
-			dateString
-		);
-		return { text };
-	}
-};

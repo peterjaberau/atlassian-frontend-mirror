@@ -1,6 +1,9 @@
 import React from 'react';
+
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+
 import RendererDemo from './helper/RendererDemo';
-import { SmartCardProvider, CardClient } from '@atlaskit/link-provider';
 
 const myComment = {
 	version: 1,

@@ -2,17 +2,19 @@
 // eslint-disable-next-line @repo/internal/fs/filename-pattern-match
 import React from 'react';
 
-import Avatar from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
 import { type AppearanceType } from '@atlaskit/avatar/types';
 
-import { Block } from './helpers';
+import { Block } from './block';
 
 interface WithAllAvatarSizesProps {
 	presence?: JSX.Element;
 	appearance?: AppearanceType;
 }
 
-const WithAllAvatarSizes: (props: WithAllAvatarSizesProps) => React.JSX.Element = (props: WithAllAvatarSizesProps) => {
+const WithAllAvatarSizes: (props: WithAllAvatarSizesProps) => React.JSX.Element = (
+	props: WithAllAvatarSizesProps,
+) => {
 	const { presence, ...rest } = props;
 
 	return (
@@ -22,7 +24,7 @@ const WithAllAvatarSizes: (props: WithAllAvatarSizesProps) => React.JSX.Element 
 			<Avatar size="large" {...props} />
 			<Avatar size="medium" {...props} />
 			<Avatar size="small" {...props} />
-			<Avatar size="xsmall" {...rest} />
+			<Avatar size="xxsmall" {...rest} />
 		</Block>
 	);
 };

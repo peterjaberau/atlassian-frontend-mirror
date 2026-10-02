@@ -1,17 +1,19 @@
 import React, { useContext } from 'react';
-import { AnnotationTypes } from '@atlaskit/adf-schema';
-import { type JSONDocNode } from '@atlaskit/editor-json-transformer';
 
-import { AnnotationView } from './view';
-import { AnnotationsContextWrapper } from './wrapper';
-import { type AnnotationsWrapperProps } from './types';
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
+
 import { ProvidersContext, InlineCommentsStateContext } from './context';
-import { type LoadCompleteHandler, useLoadAnnotations } from './hooks/use-load-annotations';
-import { useAnnotationStateByTypeEvent } from './hooks/use-events';
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-import { AnnotationRangeProvider } from './contexts/AnnotationRangeContext';
 import { AnnotationHoverContext } from './contexts/AnnotationHoverContext';
 import { AnnotationManagerProvider } from './contexts/AnnotationManagerContext';
+import { AnnotationRangeProvider } from './contexts/AnnotationRangeContext';
+import { useAnnotationStateByTypeEvent } from './hooks/use-events';
+import { useLoadAnnotations } from './hooks/use-load-annotations';
+import type { LoadCompleteHandler } from './hooks/use-load-annotations';
+import type { AnnotationsWrapperProps } from './types';
+import { AnnotationView } from './view';
+import { AnnotationsContextWrapper } from './wrapper';
 
 type LoadAnnotationsProps = {
 	adfDocument: JSONDocNode;
@@ -30,7 +32,9 @@ const LoadAnnotations = React.memo<LoadAnnotationsProps>(
 // By default it is 1 (the possible starting position of any document).
 // The bodied extension component then sets a new value for this context based on its on position
 // in the document.
-export const AnnotationsPositionContext = React.createContext<{ startPos: number }>({
+export const AnnotationsPositionContext: React.Context<{
+	startPos: number;
+}> = React.createContext<{ startPos: number }>({
 	startPos: 1,
 });
 

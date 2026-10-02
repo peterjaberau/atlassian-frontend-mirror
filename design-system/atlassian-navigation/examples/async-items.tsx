@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import {
 	AtlassianNavigation,
 	Create,
@@ -7,8 +8,8 @@ import {
 	type PrimaryButtonProps,
 	useOverflowStatus,
 } from '@atlaskit/atlassian-navigation';
-import Button from '@atlaskit/button/new';
-import { ButtonItem } from '@atlaskit/menu';
+import Button from '@atlaskit/button/default/button';
+import ButtonItem from '@atlaskit/menu/button-item';
 import { token } from '@atlaskit/tokens';
 
 const ResponsivePrimaryButton = (props: PrimaryButtonProps) => {
@@ -48,9 +49,8 @@ export default (): React.JSX.Element => {
 			/>
 			<div
 				style={{
-					// TODO Delete this comment after verifying space token -> previous value `'20px'`
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-					marginTop: token('space.250', '20px'),
+					marginTop: token('space.250'),
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 					textAlign: 'center',
 				}}

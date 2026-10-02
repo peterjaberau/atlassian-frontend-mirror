@@ -3,19 +3,17 @@
  *
  * Extract component prop types from UIKit 2 components - PressableProps
  *
- * @codegen <<SignedSource::d44ce111e6c9bdc78a54ec6d13b5377b>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/pressable/index.tsx <<SignedSource::4faae83984df292d6278957438200179>>
+ * @codegen <<SignedSource::2724d0dfafd1ee3ef2669c39f023e253>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/pressable/index.tsx <<SignedSource::1aa90ffdcfb58d322bcb08b186ba73bf>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 /* eslint-disable @atlaskit/design-system/ensure-design-token-usage/preview */
+import React from "react";
+import { type BackgroundColor, type Space, type MediaQuery, type BorderRadius, tokensMap } from "./tokens.codegen";
+import type * as CSS from "csstype";
+import { type SerializedStyles, type CSSObject } from "@emotion/serialize";
 
-import React from 'react';
-import { Pressable as PlatformPressable } from '@atlaskit/primitives';
-
-import type * as CSS from 'csstype';
-import type { MediaQuery } from '@atlaskit/primitives';
-import { tokensMap } from '@atlaskit/primitives';
 type CSSProperties = CSS.PropertiesFallback<number | string>;
 type TokensMap = typeof tokensMap;
 type TokensMapPropKey = keyof TokensMap;
@@ -42,6 +40,23 @@ type XCSSValidatorParam = {
         allowCSS: true;
     };
 };
+type SupportedPropKeys<U extends XCSSValidatorParam> = Extract<keyof U, keyof CSSProperties>;
+type RawCSSPropKeys<U extends XCSSValidatorParam> = Extract<{
+    [K in SupportedPropKeys<U>]: U[K] extends {
+        allowCSS: true;
+    } ? K : never;
+}[SupportedPropKeys<U>], SupportedPropKeys<U>>;
+type RestrictedPropKeys<U extends XCSSValidatorParam> = Extract<{
+    [K in SupportedPropKeys<U>]: U[K] extends {
+        supportedValues: Array<RestrictedPropsSpec[K]>;
+    } ? K : never;
+}[SupportedPropKeys<U>], SupportedPropKeys<U>>;
+type RestrictedProps<U extends XCSSValidatorParam> = {
+    [K in RestrictedPropKeys<U>]?: U[K] extends {
+        supportedValues: infer V;
+    } ? V extends ReadonlyArray<infer E> ? E : Exclude<V[keyof V], number | ((...args: any[]) => any)> : never;
+};
+type XCSSPropsValidator<U extends XCSSValidatorParam> = (styleObj: SafeCSSObject<keyof CSSProperties, keyof CSSProperties, RestrictedPropsSpec> | SafeCSSObject<SupportedPropKeys<U>, RawCSSPropKeys<U>, RestrictedProps<U>>) => SafeCSSObject<SupportedPropKeys<U>, RawCSSPropKeys<U>, RestrictedProps<U>>;
 /**
  *
  * @param supportedXCSSProps - the list of css props to be supported for the intended component.
@@ -52,23 +67,19 @@ type XCSSValidatorParam = {
  *    as specified in the supportedXCSSProps list. The props that are not supported will be removed from the
  *    returned style object and a warning will be logged in the console.
  */
-declare const makeXCSSValidator: <U extends XCSSValidatorParam>(supportedXCSSProps: U) => (styleObj: SafeCSSObject<keyof CSSProperties, keyof CSSProperties, RestrictedPropsSpec> | SafeCSSObject<Extract<keyof U, keyof CSSProperties>, Extract<{ [K in Extract<keyof U, keyof CSSProperties>]: U[K] extends {
-    allowCSS: true;
-} ? K : never; }[Extract<keyof U, keyof CSSProperties>], Extract<keyof U, keyof CSSProperties>>, { [K_2 in Extract<{ [K_1 in Extract<keyof U, keyof CSSProperties>]: U[K_1] extends {
-    supportedValues: RestrictedPropsSpec[K_1][];
-} ? K_1 : never; }[Extract<keyof U, keyof CSSProperties>], Extract<keyof U, keyof CSSProperties>>]?: (U[K_2] extends {
-    supportedValues: infer V;
-} ? Exclude<V[keyof V], number | ((...args: any[]) => any)> : never) | undefined; }>) => SafeCSSObject<Extract<keyof U, keyof CSSProperties>, Extract<{ [K in Extract<keyof U, keyof CSSProperties>]: U[K] extends {
-    allowCSS: true;
-} ? K : never; }[Extract<keyof U, keyof CSSProperties>], Extract<keyof U, keyof CSSProperties>>, { [K_2 in Extract<{ [K_1 in Extract<keyof U, keyof CSSProperties>]: U[K_1] extends {
-    supportedValues: RestrictedPropsSpec[K_1][];
-} ? K_1 : never; }[Extract<keyof U, keyof CSSProperties>], Extract<keyof U, keyof CSSProperties>>]?: (U[K_2] extends {
-    supportedValues: infer V;
-} ? Exclude<V[keyof V], number | ((...args: any[]) => any)> : never) | undefined; }>;
+declare const makeXCSSValidator: <U extends XCSSValidatorParam>(supportedXCSSProps: U) => XCSSPropsValidator<U>;
 export { makeXCSSValidator };
 export type { SafeCSSObject };
-
-import type { BorderRadius } from '@atlaskit/primitives';
+/**
+ * Generates SerializedStyles from xcss style object.
+ *
+ * Previously we used `&&` specificity hack to ensure Emotion xcss styles could
+ * override Compiled styles when wrapping @atlaskit/primitives/compiled components.
+ *
+ * Now that components like Box and Pressable are reimplemented entirely in Emotion,
+ * we no longer need the specificity increase - Emotion merges styles in array order (last wins).
+ */
+export declare function generateXcss(styleObj: CSSObject): SerializedStyles;
 const borderRadiusTokens: BorderRadius[] = [
 	'radius.xsmall',
 	'radius.small',
@@ -78,8 +89,11 @@ const borderRadiusTokens: BorderRadius[] = [
 	'radius.full',
 	'radius.tile',
 ];
-const borderRadiusSupportedValues = [...borderRadiusTokens, 'border.radius'] as unknown as Array<BorderRadius>;
-const xcssValidator = makeXCSSValidator({
+const borderRadiusSupportedValues = [
+	...borderRadiusTokens,
+	'border.radius',
+] as unknown as Array<BorderRadius>;
+type XCSSValidatorArg = {
 	// text related props
 	textAlign: {
 		allowCSS: true,
@@ -162,15 +176,15 @@ const xcssValidator = makeXCSSValidator({
 	paddingTop: true,
 
 	// other box related props
-	borderRadius: { supportedValues: borderRadiusSupportedValues },
-	borderBottomLeftRadius: { supportedValues: borderRadiusSupportedValues },
-	borderBottomRightRadius: { supportedValues: borderRadiusSupportedValues },
-	borderTopLeftRadius: { supportedValues: borderRadiusSupportedValues },
-	borderTopRightRadius: { supportedValues: borderRadiusSupportedValues },
-	borderEndEndRadius: { supportedValues: borderRadiusSupportedValues },
-	borderEndStartRadius: { supportedValues: borderRadiusSupportedValues },
-	borderStartEndRadius: { supportedValues: borderRadiusSupportedValues },
-	borderStartStartRadius: { supportedValues: borderRadiusSupportedValues },
+	borderRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderBottomLeftRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderBottomRightRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderTopLeftRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderTopRightRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderEndEndRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderEndStartRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderStartEndRadius: { supportedValues: typeof borderRadiusSupportedValues },
+	borderStartStartRadius: { supportedValues: typeof borderRadiusSupportedValues },
 	borderWidth: true,
 	borderBlockWidth: true,
 	borderBlockEndWidth: true,
@@ -202,20 +216,19 @@ const xcssValidator = makeXCSSValidator({
 	position: {
 		supportedValues: ['relative', 'static'],
 	},
-});
-type XCSSProp = ReturnType<typeof xcssValidator>;
+};
+type XCSSProp = ReturnType<XCSSPropsValidator<XCSSValidatorArg>>;
 
-type PlatformPressableProps = React.ComponentProps<typeof PlatformPressable>;
-
-export type PressableProps = Pick<PlatformPressableProps, 'children' | 'ref' | 'testId'> & {
+export type PressableProps = {
 	/**
 	 * Token representing background color with a built-in fallback value.
 	 */
-	backgroundColor?: PlatformPressableProps['backgroundColor'];
+	backgroundColor?: BackgroundColor;
+	children: React.ReactNode;
 	/**
 	 * Whether the button is disabled.
 	 */
-	isDisabled?: PlatformPressableProps['isDisabled'];
+	isDisabled?: boolean;
 	/**
 	 * Handler called on click.
 	 */
@@ -226,37 +239,42 @@ export type PressableProps = Pick<PlatformPressableProps, 'children' | 'ref' | '
 	 * @see paddingBlock
 	 * @see paddingInline
 	 */
-	padding?: PlatformPressableProps['padding'];
+	padding?: Space;
 	/**
 	 * Tokens representing CSS shorthand `paddingBlock`.
 	 *
 	 * @see paddingBlockStart
 	 * @see paddingBlockEnd
 	 */
-	paddingBlock?: PlatformPressableProps['paddingBlock'];
+	paddingBlock?: Space;
 	/**
 	 * Tokens representing CSS `paddingBlockEnd`.
 	 */
-	paddingBlockEnd?: PlatformPressableProps['paddingBlockEnd'];
+	paddingBlockEnd?: Space;
 	/**
 	 * Tokens representing CSS `paddingBlockStart`.
 	 */
-	paddingBlockStart?: PlatformPressableProps['paddingBlockStart'];
+	paddingBlockStart?: Space;
 	/**
 	 * Tokens representing CSS shorthand `paddingInline`.
 	 *
 	 * @see paddingInlineStart
 	 * @see paddingInlineEnd
 	 */
-	paddingInline?: PlatformPressableProps['paddingInline'];
+	paddingInline?: Space;
 	/**
 	 * Tokens representing CSS `paddingInlineEnd`.
 	 */
-	paddingInlineEnd?: PlatformPressableProps['paddingInlineEnd'];
+	paddingInlineEnd?: Space;
 	/**
 	 * Tokens representing CSS `paddingInlineStart`.
 	 */
-	paddingInlineStart?: PlatformPressableProps['paddingInlineStart'];
+	paddingInlineStart?: Space;
+	/**
+	 * A `testId` prop is a unique string that appears as a data attribute `data-testid`
+	 * in the rendered code, serving as a hook for automated tests.
+	 */
+	testId?: string;
 	/**
 	 * Apply a subset of permitted styles, powered by Atlassian Design System tokens.
 	 * For a list of supported style properties on this component, see [here](https://developer.atlassian.com/platform/forge/ui-kit/components/xcss).

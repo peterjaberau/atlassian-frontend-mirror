@@ -12,10 +12,11 @@ import type {
 	InlineCommentMap,
 } from '@atlaskit/editor-plugin-annotation';
 import type { BasePlugin } from '@atlaskit/editor-plugin-base';
-import type { ConnectivityPlugin } from '@atlaskit/editor-plugin-connectivity';
-import { type EditorViewModePluginState } from '@atlaskit/editor-plugin-editor-viewmode';
+import type { ConnectivityPlugin } from '@atlaskit/editor-plugin-connectivity/connectivityPluginType';
+import type { EditorViewModePluginState } from '@atlaskit/editor-plugin-editor-viewmode';
 import type { MetricsPlugin } from '@atlaskit/editor-plugin-metrics';
 import type { TypeAheadInputMethod, TypeAheadPlugin } from '@atlaskit/editor-plugin-type-ahead';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugin-ui-control-registry/ui-control-registry-plugin-type';
 import type { SelectionBookmark } from '@atlaskit/editor-prosemirror/state';
 import type {
 	EmojiDescription,
@@ -51,6 +52,8 @@ type EditorViewModePluginType = NextEditorPlugin<
 	{ sharedState: EditorViewModePluginState }
 >;
 export interface EmojiPluginOptions {
+	/** Content identifier forwarded to content-aware emoji picker experiences. */
+	contentId?: string;
 	disableAutoformat?: boolean;
 	emojiNodeDataProvider?: EmojiNodeDataProvider;
 	emojiProvider?: Promise<EmojiProvider>;
@@ -71,6 +74,8 @@ export type EmojiPluginState = {
 };
 
 export type EmojiPluginSharedState = EmojiPluginState & {
+	/** Content identifier forwarded to content-aware emoji picker experiences. */
+	contentId?: string;
 	typeAheadHandler: TypeAheadHandler;
 };
 
@@ -94,6 +99,7 @@ export type EmojiPluginDependencies = [
 	OptionalPlugin<BasePlugin>,
 	OptionalPlugin<MetricsPlugin>,
 	OptionalPlugin<ConnectivityPlugin>,
+	OptionalPlugin<UiControlRegistryPlugin>,
 ];
 
 export type EmojiPlugin = NextEditorPlugin<

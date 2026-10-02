@@ -1,27 +1,27 @@
 import React, { useCallback } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { type DispatchAnalyticsEvent, INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { mediaInsertMessages } from '@atlaskit/editor-common/messages';
 import type { MediaProvider } from '@atlaskit/editor-common/provider-factory';
-import { type MediaState, type MediaStateEventListener } from '@atlaskit/editor-plugin-media/types';
+import type { MediaState, MediaStateEventListener } from '@atlaskit/editor-plugin-media/types';
 import UploadIcon from '@atlaskit/icon/core/upload';
-import {
-	Browser,
-	type ImagePreview,
-	type MediaErrorName,
-	type Preview,
-	type UploadEndEventPayload,
-	type UploadErrorEventPayload,
-	type UploadPreviewUpdateEventPayload,
-} from '@atlaskit/media-picker';
+import { BrowserLoader as Browser } from '@atlaskit/media-picker/browser';
+import type {
+	ImagePreview,
+	MediaErrorName,
+	Preview,
+	UploadEndEventPayload,
+	UploadErrorEventPayload,
+	UploadPreviewUpdateEventPayload,
+} from '@atlaskit/media-picker/types';
 import { Stack } from '@atlaskit/primitives/compiled';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
-import { type InsertFile } from '../types';
-
+import type { InsertFile } from '../types';
 import { useAnalyticsEvents } from './useAnalyticsEvents';
 
 type Props = {
@@ -67,11 +67,14 @@ const isImagePreview = (preview: Preview): preview is ImagePreview => {
 	return 'dimensions' in preview;
 };
 
-export const LocalMedia = React.forwardRef<HTMLButtonElement, Props>(
+export const LocalMedia: React.ForwardRefExoticComponent<
+	Props & React.RefAttributes<HTMLButtonElement>
+> = React.forwardRef<HTMLButtonElement, Props>(
 	({ mediaProvider, dispatchAnalyticsEvent, closeMediaInsertPicker, insertFile }: Props, ref) => {
 		const intl = useIntl();
 		const strings = {
 			upload: intl.formatMessage(mediaInsertMessages.upload),
+			chooseFile: intl.formatMessage(mediaInsertMessages.chooseFile),
 			networkError: intl.formatMessage(mediaInsertMessages.localFileNetworkErrorMessage),
 			genericError: intl.formatMessage(mediaInsertMessages.localFileErrorMessage),
 		};
@@ -168,6 +171,14 @@ export const LocalMedia = React.forwardRef<HTMLButtonElement, Props>(
 			[erroredFileIds, onUploadFailureAnalytics],
 		);
 
+		const buttonText = expValEqualsNoExposure(
+			'cc_page_experiences_editor_image_generation',
+			'isEnabled',
+			true,
+		)
+			? strings.chooseFile
+			: strings.upload;
+
 		return (
 			<Stack grow="fill" space="space.200">
 				{uploadState.error && (
@@ -177,22 +188,26 @@ export const LocalMedia = React.forwardRef<HTMLButtonElement, Props>(
 				)}
 				<Button
 					id="local-media-upload-button"
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					iconBefore={() => <UploadIcon label="" />}
 					ref={ref}
 					shouldFitContainer
 					isDisabled={!uploadMediaClientConfig || !uploadParams}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onClick={() => {
 						onUploadButtonClickedAnalytics();
 						dispatch({ type: 'open' });
 					}}
 				>
-					{strings.upload}
+					{buttonText}
 				</Button>
 				{uploadMediaClientConfig && uploadParams && (
 					<Browser
 						isOpen={uploadState.isOpen}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						config={{ uploadParams: uploadParams, multiple: true }}
 						mediaClientConfig={uploadMediaClientConfig}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onUploadsStart={() => onUploadCommencedAnalytics('local')}
 						onPreviewUpdate={onPreviewUpdate}
 						onEnd={onEnd}
@@ -200,6 +215,7 @@ export const LocalMedia = React.forwardRef<HTMLButtonElement, Props>(
 						// for others like empty files. Those have their own feedback toast
 						// owned by media.
 						onError={onError}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onClose={() => {
 							erroredFileIds.clear();
 							dispatch({ type: 'close' });

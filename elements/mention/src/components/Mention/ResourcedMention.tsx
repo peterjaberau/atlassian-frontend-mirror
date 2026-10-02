@@ -1,22 +1,27 @@
 import React from 'react';
-import { type MentionProvider, isResolvingMentionProvider } from '../../api/MentionResource';
-import {
-	type MentionEventHandler,
-	isPromise,
-	type MentionNameDetails,
-	MentionNameStatus,
-} from '../../types';
-import Mention, { UNKNOWN_USER_ID } from './';
+
+import { isResolvingMentionProvider } from '../../api/isResolvingMentionProvider';
+import type { MentionProvider } from '../../api/MentionResource';
+import { isPromise } from '../../is-promise';
+import { type MentionEventHandler, type MentionNameDetails, MentionNameStatus } from '../../types';
 import debug from '../../util/logger';
+import Mention, { UNKNOWN_USER_ID } from './';
 
 export interface Props {
 	accessLevel?: string;
+	appType?: string | null;
+	avatarUrl?: string;
+	disabledTooltip?: string;
 	id: string;
+	isAvatarImagePreShaped?: boolean;
+	isDisabled?: boolean;
+	isRovoChat?: boolean;
 	localId?: string;
 	mentionProvider?: Promise<MentionProvider>;
 	onClick?: MentionEventHandler;
 	onMouseEnter?: MentionEventHandler;
 	onMouseLeave?: MentionEventHandler;
+	renderAvatarSlot?: boolean;
 	ssrPlaceholderId?: string;
 	text: string;
 }
@@ -120,11 +125,18 @@ export default class ResourcedMention extends React.PureComponent<Props, State> 
 				id={props.id}
 				text={props.text || state.resolvedMentionName || ''}
 				isHighlighted={state.isHighlighted}
+				isDisabled={props.isDisabled}
+				disabledTooltip={props.disabledTooltip}
 				accessLevel={props.accessLevel}
+				appType={props.appType}
+				avatarUrl={props.avatarUrl}
+				isAvatarImagePreShaped={props.isAvatarImagePreShaped}
 				localId={props.localId}
 				onClick={props.onClick}
 				onMouseEnter={props.onMouseEnter}
 				onMouseLeave={props.onMouseLeave}
+				renderAvatarSlot={props.renderAvatarSlot}
+				isRovoChat={props.isRovoChat}
 				ssrPlaceholderId={props.ssrPlaceholderId}
 			/>
 		);

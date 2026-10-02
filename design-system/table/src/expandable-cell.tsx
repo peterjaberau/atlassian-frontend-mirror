@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from 'react';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import ChevronUpIcon from '@atlaskit/icon/core/chevron-up';
 
@@ -13,27 +13,29 @@ import { ExpandableCell as ExpandableCellPrimitive } from './ui/expandable-cell'
  * A cell with an expand button that controls the expanded state
  * of the `<ExpandableRow>`.
  */
-const ExpandableCell: React.MemoExoticComponent<() => React.JSX.Element> = memo((): React.JSX.Element => {
-	const { isExpanded, toggleExpanded } = useExpand();
+const ExpandableCell: React.MemoExoticComponent<() => React.JSX.Element> = memo(
+	(): React.JSX.Element => {
+		const { isExpanded, toggleExpanded } = useExpand();
 
-	const handleClick = useCallback(() => {
-		toggleExpanded();
-	}, [toggleExpanded]);
+		const handleClick = useCallback(() => {
+			toggleExpanded();
+		}, [toggleExpanded]);
 
-	const Icon = isExpanded ? ChevronUpIcon : ChevronDownIcon;
+		const Icon = isExpanded ? ChevronUpIcon : ChevronDownIcon;
 
-	return (
-		<ExpandableCellPrimitive as="td">
-			<IconButton
-				spacing="compact"
-				appearance="subtle"
-				icon={(iconProps) => <Icon {...iconProps} size="small" />}
-				label="Expand row"
-				onClick={handleClick}
-				aria-pressed={isExpanded}
-			/>
-		</ExpandableCellPrimitive>
-	);
-});
+		return (
+			<ExpandableCellPrimitive as="td">
+				<IconButton
+					spacing="compact"
+					appearance="subtle"
+					icon={(iconProps) => <Icon {...iconProps} size="small" />}
+					label="Expand row"
+					onClick={handleClick}
+					aria-pressed={isExpanded}
+				/>
+			</ExpandableCellPrimitive>
+		);
+	},
+);
 
 export default ExpandableCell;

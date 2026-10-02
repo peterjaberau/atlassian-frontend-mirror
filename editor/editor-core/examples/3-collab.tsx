@@ -4,13 +4,13 @@
  */
 import { useMemo, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { useConfluenceFullPagePreset } from '@af/editor-examples-helpers/example-presets';
 import { createMockCollabEditProvider } from '@af/editor-examples-helpers/utils';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { mentionResourceProviderWithResolver } from '@atlaskit/util-data-test/mention-story-data';
 
@@ -53,7 +53,7 @@ const BaseEditor = ({ name }: { name: string }) => {
 					provider.then((res) => {
 						if (isConnected) {
 							// @ts-expect-error Private property
-							res.channel.disconnect();
+							res.channel.getSocket()?.close();
 							editorApi?.core.actions.execute(editorApi?.connectivity?.commands.setMode('offline'));
 							setConnected(false);
 						} else {
@@ -92,7 +92,7 @@ const column = css({
 	flex: '1 1 0',
 });
 
-export default function CollabMultipleProvider() {
+export default function CollabMultipleProvider(): jsx.JSX.Element {
 	return (
 		<IntlProvider locale="en">
 			<div>

@@ -1,10 +1,27 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-const messages = defineMessages({
+const messages: {
+	selectorLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	rovoAgentPlaceholder: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	noOptionsMessage: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	selectorLabel: {
 		id: 'rovo-agent-selector.label',
 		defaultMessage: 'Select agent',
-		description: 'Label for the agent selector dropdown',
+		description:
+			'The text is shown as the visible label for the drop-down selector component that allows the user to choose a Rovo AI agent from a list of available agents.',
 	},
 	rovoAgentPlaceholder: {
 		id: 'rovo-agent-selector.lplaceholder',
@@ -16,7 +33,6 @@ const messages = defineMessages({
 		defaultMessage: 'No agents found',
 		description: 'Message displayed when no options are available',
 	},
-	
 });
 
 export default messages;

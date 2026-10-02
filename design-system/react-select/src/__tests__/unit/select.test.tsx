@@ -2,18 +2,6 @@
 /* eslint-disable @repo/internal/react/boolean-prop-naming-convention */
 /* eslint-disable testing-library/no-container,testing-library/no-node-access */
 // @ts-nocheck
-import React, { type KeyboardEvent } from 'react';
-
-import { type EventType, fireEvent, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import cases from 'jest-in-case';
-
-import { skipA11yAudit } from '@af/accessibility-testing';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-
-import { type FilterOptionOption } from '../../filters';
-import Select, { type FormatOptionLabelMeta } from '../../select';
-import { noop } from '../../utils';
 
 import {
 	type GroupedOption,
@@ -27,6 +15,25 @@ import {
 	OPTIONS_GROUPED,
 	OPTIONS_NUMBER_VALUE,
 } from './constants.mock';
+
+import React, { type KeyboardEvent } from 'react';
+
+import { type EventType, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import cases from 'jest-in-case';
+
+import { skipA11yAudit } from '@af/accessibility-testing';
+import __noop from '@atlaskit/ds-lib/noop';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { act } from '@atlassian/testing-library/testing-library/react';
+
+import type { FilterOptionOption } from '../../filters';
+import Select, { type FormatOptionLabelMeta } from '../../select';
 
 const testId = 'react-select';
 
@@ -56,8 +63,40 @@ const BASIC_PROPS: BasicProps = {
 	value: null,
 };
 
+const noop = __noop;
+
 beforeEach(() => {
 	skipA11yAudit();
+});
+
+test('hovered option has no indicator bar when Finesse is enabled', () => {
+	passGate('platform-dst-tokens-finesse');
+	render(<Select {...BASIC_PROPS} menuIsOpen />);
+
+	const option = screen.getByRole('option', { name: '1' });
+	fireEvent.mouseMove(option);
+
+	expect(option).toHaveCompiledCss('box-shadow', 'none');
+});
+
+test('keyboard-active option has no indicator bar when Finesse is enabled', () => {
+	passGate('platform-dst-tokens-finesse');
+	const { container } = render(<Select {...BASIC_PROPS} menuIsOpen />);
+
+	fireEvent.keyDown(screen.getByRole('combobox'), { key: 'ArrowDown' });
+
+	const option = container.querySelector('.react-select__option--is-focused')!;
+	expect(option).toHaveCompiledCss('box-shadow', 'none');
+});
+
+test('focused option retains the selected border color when Finesse is disabled', () => {
+	failGate('platform-dst-tokens-finesse');
+	render(<Select {...BASIC_PROPS} menuIsOpen />);
+
+	const option = screen.getByRole('option', { name: '1' });
+	fireEvent.mouseMove(option);
+
+	expect(option).toHaveCompiledCss('box-shadow', 'inset 2px 0 0 var(--ds-border-selected,#1868db)');
 });
 
 test('instanceId prop > to have instanceId as id prefix for the select components', () => {
@@ -1750,7 +1789,7 @@ test('should call onChange with an array on hitting backspace when backspaceRemo
 
 test('multi select > clicking on X next to option will call onChange with all options other that the clicked option', async () => {
 	let onChangeSpy = jest.fn();
-	let { container } = render(
+	render(
 		<Select
 			{...BASIC_PROPS}
 			isMulti
@@ -1759,14 +1798,14 @@ test('multi select > clicking on X next to option will call onChange with all op
 		/>,
 	);
 	const user = userEvent.setup();
-	// there are 3 values in select
-	expect(container.querySelectorAll('.react-select__multi-value').length).toBe(3);
 
-	const selectValueElement = [...container.querySelectorAll('.react-select__multi-value')].find(
-		(multiValue) => multiValue.textContent === '4',
-	);
-	await user.click(selectValueElement!.querySelector('div.react-select__multi-value__remove')!);
+	// Click the remove button for the '4' tag (aria-label: removeButtonLabel + text = "4, remove 4")
+	const removeButton = screen.getByRole('button', { name: '4, remove 4' });
+	const input = screen.getByRole('combobox');
+	input.focus();
+	await user.click(removeButton);
 
+	expect(input).toHaveFocus();
 	expect(onChangeSpy).toHaveBeenCalledWith(
 		[
 			{ label: '0', value: 'zero' },
@@ -1778,6 +1817,270 @@ test('multi select > clicking on X next to option will call onChange with all op
 			name: BASIC_PROPS.name,
 		},
 	);
+});
+
+test('multi select > clicking a selected value opens the menu', async () => {
+	const onMenuOpen = jest.fn();
+	render(<Select {...BASIC_PROPS} isMulti onMenuOpen={onMenuOpen} value={[OPTIONS[0]]} />);
+	const user = userEvent.setup();
+
+	await user.click(screen.getByText('0'));
+
+	expect(onMenuOpen).toHaveBeenCalledTimes(1);
+});
+
+test('multi select > does not consume a surrounding modal exit when tag motion is disabled', async () => {
+	failGate('platform-dst-motion-uplift-labels');
+	failGate('platform-dst-top-layer');
+	const onCloseComplete = jest.fn();
+
+	const SelectModal = ({ isOpen }: { isOpen: boolean }) => (
+		<ModalTransition>
+			{isOpen && (
+				<Modal onClose={noop} onCloseComplete={onCloseComplete}>
+					<ModalHeader hasCloseButton={true}>
+						<ModalTitle>React Select motion test</ModalTitle>
+					</ModalHeader>
+					<Select {...BASIC_PROPS} isMulti onChange={noop} value={[OPTIONS[0]]} />
+				</Modal>
+			)}
+		</ModalTransition>
+	);
+
+	const { rerender } = render(<SelectModal isOpen />);
+	rerender(<SelectModal isOpen={false} />);
+
+	await waitFor(() => expect(onCloseComplete).toHaveBeenCalledTimes(1));
+});
+
+test('single select > supports an undefined conditional MultiValue override', () => {
+	render(<Select {...BASIC_PROPS} components={{ MultiValue: undefined }} />);
+
+	expect(screen.getByTestId(`${testId}-select--container`)).toBeInTheDocument();
+});
+
+test('multi select > applies tag motion when the tag motion gate is on', () => {
+	jest.useFakeTimers();
+	passGate('platform-dst-motion-uplift-labels');
+	const onChange = jest.fn();
+
+	let addValue = noop;
+	const MotionSelect = () => {
+		const [value, setValue] = React.useState<Option[]>([]);
+		addValue = () => setValue([OPTIONS[0]]);
+
+		return (
+			<Select
+				{...BASIC_PROPS}
+				isMulti
+				onChange={(nextValue) => {
+					onChange(nextValue);
+					setValue([...nextValue]);
+				}}
+				value={value}
+			/>
+		);
+	};
+
+	const { container } = render(<MotionSelect />);
+	act(() => {
+		addValue();
+	});
+	// Measured motion enters on the next task after capturing its final geometry.
+	act(() => {
+		jest.advanceTimersByTime(0);
+	});
+
+	// Tag owns enter motion when the value is added.
+	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+	const animatedTagText = container.querySelector<HTMLElement>('[data-tag-text]');
+	const animatedTag = animatedTagText?.parentElement;
+	const tagMotionWrapper = animatedTag?.parentElement;
+	expect(animatedTag).toBeInTheDocument();
+	expect(animatedTagText).toBeVisible();
+	expect(tagMotionWrapper).toBeInTheDocument();
+	const enteringClassName = animatedTag?.className;
+	const enteringTextClassName = animatedTagText?.className;
+	expect(animatedTagText).not.toHaveStyle({ textOverflow: 'ellipsis' });
+	act(() => {
+		jest.advanceTimersByTime(100);
+	});
+	// Keep the motion styles active until the browser signals that the animation has finished.
+	expect(animatedTag?.className).toBe(enteringClassName);
+	expect(animatedTagText).not.toHaveStyle({ textOverflow: 'ellipsis' });
+	expect(animatedTagText?.className).toBe(enteringTextClassName);
+	fireEvent.animationEnd(tagMotionWrapper as HTMLElement);
+	expect(animatedTag?.className).not.toBe(enteringClassName);
+	expect(animatedTagText?.className).toBe(enteringTextClassName);
+
+	const classNameBeforeExit = tagMotionWrapper?.className;
+
+	act(() => {
+		animatedTag?.querySelector('button')?.click();
+	});
+	expect(onChange).toHaveBeenCalledTimes(1);
+	expect(animatedTagText?.className).toBe(enteringTextClassName);
+
+	// Select owns exit persistence, including when the last value is replaced by the placeholder.
+	expect(animatedTagText).toBeInTheDocument();
+	// Compiled's deduplicated style tags are not reliable after rerender in jsdom. The atomic
+	// class change deterministically verifies that Tag applied its exiting motion variant.
+	expect(tagMotionWrapper?.className).not.toBe(classNameBeforeExit);
+	expect(screen.getByText(OPTIONS[0].label)).toBeInTheDocument();
+	expect(screen.queryByTestId(`${testId}-select--placeholder`)).not.toBeInTheDocument();
+
+	act(() => {
+		jest.advanceTimersByTime(100);
+	});
+	expect(screen.queryByText(OPTIONS[0].label)).not.toBeInTheDocument();
+	expect(screen.getByTestId(`${testId}-select--placeholder`)).toBeInTheDocument();
+	jest.useRealTimers();
+});
+
+test('multi select > applies motion to the tag-like custom content path', () => {
+	jest.useFakeTimers();
+	passGate('platform-dst-motion-uplift-labels');
+
+	let addValue = noop;
+	const MotionSelect = () => {
+		const [value, setValue] = React.useState<Option[]>([]);
+		addValue = () => setValue([OPTIONS[0]]);
+
+		return (
+			<Select
+				{...BASIC_PROPS}
+				formatOptionLabel={(option, meta) =>
+					meta.context === 'value' ? <span>{option.label}</span> : option.label
+				}
+				isMulti
+				onChange={(nextValue) => setValue([...nextValue])}
+				value={value}
+			/>
+		);
+	};
+
+	const { container } = render(<MotionSelect />);
+	act(() => {
+		addValue();
+	});
+
+	const tagLikeValue = container.querySelector<HTMLElement>('[data-multi-value-tag-like="true"]');
+	const tagLikeLabel = container.querySelector<HTMLElement>('.-MultiValueLabel');
+	const motionWrapper = tagLikeValue?.parentElement;
+	const enteringClassName = motionWrapper?.className;
+	const enteringLabelClassName = tagLikeLabel?.className;
+
+	expect(tagLikeValue).toBeInTheDocument();
+	expect(enteringClassName).toBeTruthy();
+
+	act(() => {
+		tagLikeValue?.querySelector<HTMLElement>('[role="button"]')?.click();
+	});
+
+	const exitingValue = container.querySelector<HTMLElement>('[data-multi-value-tag-like="true"]');
+	expect(exitingValue).toBeInTheDocument();
+	expect(exitingValue?.parentElement?.className).not.toBe(enteringClassName);
+	expect(tagLikeLabel?.className).toBe(enteringLabelClassName);
+	expect(screen.queryByTestId(`${testId}-select--placeholder`)).not.toBeInTheDocument();
+
+	act(() => {
+		jest.advanceTimersByTime(100);
+	});
+
+	expect(
+		container.querySelector<HTMLElement>('[data-multi-value-tag-like="true"]'),
+	).not.toBeInTheDocument();
+	expect(screen.getByTestId(`${testId}-select--placeholder`)).toBeInTheDocument();
+	jest.useRealTimers();
+});
+test('multi select > persists and animates a custom MultiValue renderer', () => {
+	jest.useFakeTimers();
+	passGate('platform-dst-motion-uplift-labels');
+
+	const CustomMultiValue = ({ children, removeProps }: any) => (
+		<div data-testid="custom-multi-value">
+			<span>{children}</span>
+			<button type="button" onClick={removeProps.onClick}>
+				Remove
+			</button>
+		</div>
+	);
+	const MotionSelect = () => {
+		const [value, setValue] = React.useState<Option[]>([OPTIONS[0]]);
+
+		return (
+			<Select
+				{...BASIC_PROPS}
+				components={{ MultiValue: CustomMultiValue }}
+				isMulti
+				onChange={(nextValue) => setValue([...nextValue])}
+				value={value}
+			/>
+		);
+	};
+
+	render(<MotionSelect />);
+	act(() => {
+		jest.advanceTimersByTime(150);
+	});
+
+	const customValue = screen.getByTestId('custom-multi-value');
+	const visibleMotionClassName = customValue.parentElement?.className;
+	fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+
+	expect(screen.getByTestId('custom-multi-value')).toBeInTheDocument();
+	expect(customValue.parentElement?.className).not.toBe(visibleMotionClassName);
+
+	act(() => {
+		jest.advanceTimersByTime(100);
+	});
+
+	expect(screen.queryByTestId('custom-multi-value')).not.toBeInTheDocument();
+	jest.useRealTimers();
+});
+
+test('multi select > removes tag-like custom content immediately when reduced motion is preferred', () => {
+	passGate('platform-dst-motion-uplift-labels');
+	const matchMediaSpy = jest.spyOn(window, 'matchMedia').mockReturnValue({
+		matches: true,
+	} as MediaQueryList);
+
+	let addValue = noop;
+	const MotionSelect = () => {
+		const [value, setValue] = React.useState<Option[]>([]);
+		addValue = () => setValue([OPTIONS[0]]);
+
+		return (
+			<Select
+				{...BASIC_PROPS}
+				formatOptionLabel={(option, meta) =>
+					meta.context === 'value' ? <span>{option.label}</span> : option.label
+				}
+				isMulti
+				onChange={(nextValue) => setValue([...nextValue])}
+				value={value}
+			/>
+		);
+	};
+
+	const { container } = render(<MotionSelect />);
+	act(() => {
+		addValue();
+	});
+
+	const tagLikeValue = container.querySelector<HTMLElement>('[data-multi-value-tag-like="true"]');
+
+	expect(tagLikeValue).toBeInTheDocument();
+
+	act(() => {
+		tagLikeValue?.querySelector<HTMLElement>('[role="button"]')?.click();
+	});
+
+	expect(
+		container.querySelector<HTMLElement>('[data-multi-value-tag-like="true"]'),
+	).not.toBeInTheDocument();
+	expect(screen.getByTestId(testId + '-select--placeholder')).toBeInTheDocument();
+	matchMediaSpy.mockRestore();
 });
 
 cases(
@@ -2487,12 +2790,12 @@ test('onMenuClose() function prop to be called on blur', async () => {
 
 cases(
 	'placeholder',
-	({ props, expectPlaceholder = 'Select...' }) => {
+	({ props, expectPlaceholder = '' }) => {
 		render(<Select {...props} />);
 		expect(screen.getByTestId(`${testId}-select--control`)!).toHaveTextContent(expectPlaceholder);
 	},
 	{
-		'single select > should display default placeholder "Select..."': {
+		'single select > should have no default placeholder': {
 			props: BASIC_PROPS,
 		},
 		'single select > should display provided string placeholder': {
@@ -2509,7 +2812,7 @@ cases(
 			},
 			expectPlaceholder: 'single Select...',
 		},
-		'multi select > should display default placeholder "Select..."': {
+		'multi select > should have no default placeholder': {
 			props: {
 				...BASIC_PROPS,
 				isMulti: true,
@@ -2718,7 +3021,7 @@ test('clear select by clicking on clear button > should not call onMenuOpen', as
 	expect(container.querySelectorAll('.react-select__multi-value').length).toBe(1);
 	const user = userEvent.setup();
 	await user.click(screen.getByTestId(`${testId}-select--clear-indicator`)!);
-	expect(onChangeSpy).toBeCalledWith([], {
+	expect(onChangeSpy).toHaveBeenCalledWith([], {
 		action: 'clear',
 		name: BASIC_PROPS.name,
 		removedValues: [{ label: '0', value: 'zero' }],
@@ -3191,50 +3494,6 @@ test('UNSAFE_is_experimental_generic', () => {
 	expect(within(list).queryAllByRole('option')).toHaveLength(0);
 });
 
-describe('fg platform_do_not_clear_input_for_multiselect', () => {
-	ffTest.on('platform_do_not_clear_input_for_multiselect', 'with flag enabled', () => {
-		it('input value is not cleared for multi-select', async () => {
-			const onInputChangeSpy = jest.fn();
-			render(
-				<Select
-					{...BASIC_PROPS}
-					isMulti
-					shouldKeepInputOnSelect
-					onInputChange={onInputChangeSpy}
-					inputValue="1"
-					menuIsOpen
-				/>,
-			);
-			const user = userEvent.setup();
-			await user.click(screen.getByTestId(`${testId}-select--option-1`));
-
-			// The input value should not be cleared
-			expect(onInputChangeSpy).toHaveBeenCalledWith('1', expect.anything());
-		});
-	});
-
-	ffTest.off('platform_do_not_clear_input_for_multiselect', 'with flag disabled', () => {
-		it('input value is cleared for multi-select', async () => {
-			const onInputChangeSpy = jest.fn();
-			render(
-				<Select
-					{...BASIC_PROPS}
-					isMulti
-					shouldKeepInputOnSelect
-					onInputChange={onInputChangeSpy}
-					inputValue="1"
-					menuIsOpen
-				/>,
-			);
-			const user = userEvent.setup();
-			await user.click(screen.getByTestId(`${testId}-select--option-1`));
-
-			// The input value should be cleared
-			expect(onInputChangeSpy).toHaveBeenCalledWith('', expect.anything());
-		});
-	});
-});
-
 describe('accessibility > aria-autocomplete with platform_fix_autocomplete_aria_for_select feature flag', () => {
 	ffTest.on('platform_fix_autocomplete_aria_for_select', 'with flag enabled', () => {
 		it('does not render aria-autocomplete when isSearchable is false (single select)', () => {
@@ -3265,6 +3524,101 @@ describe('accessibility > aria-autocomplete with platform_fix_autocomplete_aria_
 
 			const input = screen.getByTestId(`${testId}-select--input`);
 			expect(input).toHaveAttribute('aria-autocomplete', 'both');
+		});
+	});
+});
+
+describe('accessibility > aria-readonly with select_issearchable_aria-readonly_fix feature flag', () => {
+	ffTest.on('select_issearchable_aria-readonly_fix', 'with flag enabled', () => {
+		it('does not set aria-readonly when isSearchable is false (single select)', () => {
+			render(<Select {...BASIC_PROPS} isSearchable={false} />);
+
+			const input = screen.getByTestId(`${testId}-select--input`);
+			expect(input).not.toHaveAttribute('aria-readonly');
+		});
+
+		it('does not set aria-readonly when isSearchable is true (single select)', () => {
+			render(<Select {...BASIC_PROPS} isSearchable={true} />);
+
+			const input = screen.getByTestId(`${testId}-select--input`);
+			expect(input).not.toHaveAttribute('aria-readonly');
+		});
+	});
+
+	ffTest.off('select_issearchable_aria-readonly_fix', 'with flag disabled', () => {
+		it('sets aria-readonly to true when isSearchable is false (single select)', () => {
+			render(<Select {...BASIC_PROPS} isSearchable={false} />);
+
+			const input = screen.getByTestId(`${testId}-select--input`);
+			expect(input).toHaveAttribute('aria-readonly', 'true');
+		});
+
+		it('does not set aria-readonly when isSearchable is true (single select)', () => {
+			render(<Select {...BASIC_PROPS} isSearchable={true} />);
+
+			const input = screen.getByTestId(`${testId}-select--input`);
+			expect(input).not.toHaveAttribute('aria-readonly');
+		});
+	});
+});
+
+describe('accessibility > disabled combobox', () => {
+	ffTest.on('platform_dst_select_disabled_a11y_fix', 'with flag enabled', () => {
+		it('disabled select announces disabled state to screen readers', () => {
+			render(<Select {...BASIC_PROPS} isDisabled />);
+
+			const input = screen.getByTestId(`${testId}-select--input`);
+			const control = screen.getByTestId(`${testId}-select--control`);
+
+			expect(input).toHaveAttribute('role', 'combobox');
+			expect(input).toHaveAttribute('aria-disabled', 'true');
+			expect(input).toHaveAttribute('tabindex', '-1');
+			// Native disabled is preserved for backwards compatibility with existing tests.
+			expect(input).toBeDisabled();
+			expect(control).not.toHaveAttribute('aria-disabled');
+		});
+
+		it('disabled select with a value announces the value as part of the combobox', () => {
+			render(<Select {...BASIC_PROPS} isDisabled value={OPTIONS[0]} />);
+
+			const input = screen.getByTestId(`${testId}-select--input`);
+			const describedByIds = input.getAttribute('aria-describedby')?.split(' ') ?? [];
+			const singleValueId = describedByIds.find((id) => id.endsWith('single-value'));
+			expect(singleValueId).toBeTruthy();
+
+			// eslint-disable-next-line testing-library/no-node-access
+			const singleValue = document.getElementById(singleValueId!);
+			expect(singleValue).toBeInTheDocument();
+			expect(singleValue).toHaveAttribute('aria-hidden', 'true');
+			expect(singleValue).toHaveTextContent(OPTIONS[0].label);
+		});
+
+		it('non-searchable disabled select announces disabled state to screen readers', () => {
+			render(<Select {...BASIC_PROPS} isDisabled isSearchable={false} />);
+
+			const input = screen.getByTestId(`${testId}-select--input`);
+			expect(input).toHaveAttribute('role', 'combobox');
+			expect(input).toHaveAttribute('aria-disabled', 'true');
+			expect(input).toHaveAttribute('tabindex', '-1');
+			expect(input).toBeDisabled();
+		});
+	});
+
+	ffTest.off('platform_dst_select_disabled_a11y_fix', 'with flag disabled', () => {
+		it('disabled select does not announce disabled state on the combobox', () => {
+			render(<Select {...BASIC_PROPS} isDisabled value={OPTIONS[0]} />);
+
+			const input = screen.getByTestId(`${testId}-select--input`);
+			const control = screen.getByTestId(`${testId}-select--control`);
+			const describedByIds = input.getAttribute('aria-describedby')?.split(' ') ?? [];
+			const singleValueId = describedByIds.find((id) => id.endsWith('single-value'));
+			expect(singleValueId).toBeTruthy();
+
+			// eslint-disable-next-line testing-library/no-node-access
+			const singleValue = document.getElementById(singleValueId!);
+			expect(input).not.toHaveAttribute('aria-disabled');
+			expect(control).toHaveAttribute('aria-disabled', 'true');
+			expect(singleValue).not.toHaveAttribute('aria-hidden');
 		});
 	});
 });

@@ -1,9 +1,10 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import { createIntl, createIntlCache } from 'react-intl-next';
-import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 
+import { createIntl, createIntlCache } from 'react-intl';
+
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { render } from '@atlassian/testing-library/render';
 
 import { WhatsNewResultsLoading } from '../../index';
 
@@ -38,13 +39,13 @@ describe('WhatsNewResultsLoading', () => {
 		});
 	});
 
-	it('Should match snapshot', () => {
-		const { asFragment } = render(
+	it('renders the loading state', () => {
+		const { getByRole } = render(
 			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
 				<WhatsNewResultsLoading intl={intl} />
 			</AnalyticsListener>,
 		);
 
-		expect(asFragment()).toMatchSnapshot();
+		expect(getByRole('img', { name: /loading/i })).toBeInTheDocument();
 	});
 });

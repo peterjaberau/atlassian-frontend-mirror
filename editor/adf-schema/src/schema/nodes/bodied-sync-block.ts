@@ -1,31 +1,34 @@
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { bodiedSyncBlock as bodiedSyncBlockFactory } from '../../next-schema/generated/nodeTypes';
-import { uuid } from '../../utils';
+import { uuid } from '../../utils/uuid';
 import type { BreakoutMarkDefinition } from '../marks';
-import type { ExpandDefinition as Expand } from './expand';
-import type { PanelDefinition as Panel } from './panel';
-import type {
-	ParagraphDefinition as Paragraph,
-	ParagraphWithMarksDefinition as ParagraphWithMarks,
-} from './paragraph';
+import type { BlockCardDefinition as BlockCard } from './block-card';
 import type { BlockQuoteDefinition as Blockquote } from './blockquote';
-import type {
-	OrderedListDefinition as OrderedList,
-	BulletListDefinition as BulletList,
-} from './types/list';
-import type { RuleDefinition as Rule } from './rule';
+import type { BodiedRuleDefinition as BodiedRule } from './bodied-rule';
+import type { CodeBlockDefinition as CodeBlock } from './code-block';
+import type { DecisionListDefinition as DecisionList } from './decision-list';
+import type { EmbedCardDefinition as EmbedCard } from './embed-card';
+import type { ExpandDefinition as Expand } from './expand';
 import type {
 	HeadingDefinition as Heading,
 	HeadingWithMarksDefinition as HeadingWithMarks,
 } from './heading';
-import type { CodeBlockDefinition as CodeBlock } from './code-block';
+import type { LayoutSectionDefinition as LayoutSection } from './layout-section';
 import type { MediaGroupDefinition as MediaGroup } from './media-group';
 import type { MediaSingleDefinition as MediaSingle } from './media-single';
-import type { DecisionListDefinition as DecisionList } from './decision-list';
-import type { TaskListDefinition as TaskList } from './task-list';
+import type { PanelC1Definition as PanelC1, PanelDefinition as Panel } from './panel';
+import type {
+	ParagraphDefinition as Paragraph,
+	ParagraphWithMarksDefinition as ParagraphWithMarks,
+} from './paragraph';
+import type { RuleDefinition as Rule } from './rule';
 import type { TableDefinition as Table } from './tableNodes';
-import type { BlockCardDefinition as BlockCard } from './block-card';
-import type { EmbedCardDefinition as EmbedCard } from './embed-card';
-import type { LayoutSectionDefinition as LayoutSection } from './layout-section';
+import type { TaskListDefinition as TaskList } from './task-list';
+import type {
+	OrderedListDefinition as OrderedList,
+	BulletListDefinition as BulletList,
+} from './types/list';
 
 export interface BodiedSyncBlockAttrs {
 	/**
@@ -47,7 +50,9 @@ export interface BodiedSyncBlockAttrs {
 export interface BodiedSyncBlockDefinition {
 	attrs: BodiedSyncBlockAttrs;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minItems 1
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @allowUnsupportedBlock true
 	 */
 	content: Array<
@@ -67,7 +72,9 @@ export interface BodiedSyncBlockDefinition {
 		| MediaSingle
 		| OrderedList
 		| Panel
+		| PanelC1
 		| Rule
+		| BodiedRule
 		| Table
 		| TaskList
 	>;
@@ -75,7 +82,7 @@ export interface BodiedSyncBlockDefinition {
 	type: 'bodiedSyncBlock';
 }
 
-export const bodiedSyncBlock = bodiedSyncBlockFactory({
+export const bodiedSyncBlock: NodeSpec = bodiedSyncBlockFactory({
 	parseDOM: [
 		{
 			tag: 'div[data-bodied-sync-block]',

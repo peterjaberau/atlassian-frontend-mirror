@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { placeholderTextMessages as messages } from '@atlaskit/editor-common/messages';
 import { PanelTextInput } from '@atlaskit/editor-common/ui';
@@ -70,6 +70,7 @@ class PlaceholderFloatingToolbar extends React.Component<Props & WrappedComponen
 				popupsMountPoint={popupsMountPoint}
 				popupsBoundariesElement={popupsBoundariesElement}
 				fitHeight={32}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				offset={[0, 12]}
 			>
 				<PanelTextInput
@@ -84,4 +85,8 @@ class PlaceholderFloatingToolbar extends React.Component<Props & WrappedComponen
 	}
 }
 
-export default injectIntl(PlaceholderFloatingToolbar);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(PlaceholderFloatingToolbar);
+export default _default_1;

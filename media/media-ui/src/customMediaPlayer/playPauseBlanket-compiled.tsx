@@ -3,6 +3,7 @@
  * @jsx jsx
  */
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
 
 const playPauseBlanketStyles = css({
@@ -14,7 +15,7 @@ const playPauseBlanketStyles = css({
 export const PlayPauseBlanket = ({
 	children,
 	...props
-}: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>) => (
+}: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>): JSX.Element => (
 	<div css={playPauseBlanketStyles} {...props}>
 		{children}
 	</div>

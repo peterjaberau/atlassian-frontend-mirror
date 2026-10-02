@@ -36,7 +36,7 @@ export function Border({
 	borderRadius?: CSSSize;
 	strokeWidth?: CSSSize;
 	indent?: string;
-}) {
+}): JSX.Element {
 	return (
 		<div
 			style={
@@ -53,4 +53,5 @@ export function Border({
 }
 
 // For React.lazy
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Border;

@@ -1,11 +1,12 @@
 const hasIdleCallback = 'requestIdleCallback' in window;
 
-export const scheduleCallback = (cb: () => unknown, options?: IdleRequestOptions) => {
+export const scheduleCallback = (cb: () => unknown, options?: IdleRequestOptions): number => {
 	return hasIdleCallback
 		? requestIdleCallback(cb, { timeout: 5000, ...options })
 		: requestAnimationFrame(cb);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const cancelCallback = (id: number): void => {
 	return hasIdleCallback ? cancelIdleCallback(id) : cancelAnimationFrame(id);
 };

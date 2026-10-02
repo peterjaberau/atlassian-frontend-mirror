@@ -1,5 +1,132 @@
 # @atlaskit/locale
 
+## 5.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- [`ccb5feca573a3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ccb5feca573a3) -
+  Add a local first-day-of-week fallback for older browsers behind
+  platform-dst-locale-week-start-day.
+
+## 5.3.0
+
+### Minor Changes
+
+- [`22469cd6605a3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22469cd6605a3) -
+  When platform-dst-locale-week-start-day is enabled, Calendar and DatePicker default the first day
+  of the week from the locale via Intl.Locale.getWeekInfo(). @atlaskit/locale adds
+  getFirstDayOfWeek() for that lookup. Pass weekStartDay to keep Sunday or any other start day.
+
+## 5.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- [`e974cd0ae082c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e974cd0ae082c) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 5.1.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- [`c0cead885e89c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c0cead885e89c) -
+  VOLTC-72 - run volt-migrate-package on @atlaskit/locale
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`e9ea3d59f41a8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e9ea3d59f41a8) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 4.0.0
+
+### Major Changes
+
+- [`b7844ba6c406f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7844ba6c406f) -
+  Moves defaultLocale out of the LocaleSelect entrypoint and into a dedicated entrypoint.
+
+  Before:
+
+  ```
+  import LocaleSelect, { type Locale, defaultLocales } from '@atlaskit/locale/LocaleSelect';
+  ```
+
+  After:
+
+  ```
+  import LocaleSelect, { type Locale } from '@atlaskit/locale/LocaleSelect';
+  import defaultLocales from '@atlaskit/locale/default-locales';
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.0.4
 
 ### Patch Changes

@@ -1,3 +1,5 @@
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- LENS1-245 tracks @atlaskit/focus-ring deprecation. */
+
 import { useRef, useState } from 'react';
 
 import type { FocusEventHandlers, FocusState } from './types';
@@ -8,10 +10,13 @@ import type { FocusEventHandlers, FocusState } from './types';
  * The useFocusRing hook manages focus in the rare cases where the focus ring’s visual application and the element that takes focus differ.
  * This is not typically a good practice for accessibility, so don’t do this unless you’ve consulted with the accessibility team.
  *
+ * @deprecated useFocusRing is deprecated with FocusRing. Use Focusable from @atlaskit/primitives/compiled/focusable instead.
  */
-const useFocusRing = (initialState: FocusState = 'off'): {
-    readonly focusState: "on" | "off";
-    readonly focusProps: FocusEventHandlers;
+export const useFocusRing = (
+	initialState: FocusState = 'off',
+): {
+	readonly focusState: 'on' | 'off';
+	readonly focusProps: FocusEventHandlers;
 } => {
 	const [focusState, setFocusState] = useState<'on' | 'off'>(initialState);
 	const focusProps = useRef<FocusEventHandlers>({
@@ -24,5 +29,3 @@ const useFocusRing = (initialState: FocusState = 'off'): {
 		focusProps: focusProps.current,
 	} as const;
 };
-
-export default useFocusRing;

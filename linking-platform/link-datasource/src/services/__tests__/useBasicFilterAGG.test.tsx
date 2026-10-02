@@ -2,7 +2,8 @@ import React from 'react';
 
 import { renderHook, type RenderHookOptions } from '@testing-library/react';
 
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 
 import {
 	mockFieldValuesResponse,
@@ -14,13 +15,10 @@ import { useBasicFilterAGG } from '../useBasicFilterAGG';
 
 let mockRequest = jest.fn();
 
-jest.mock('@atlaskit/linking-common', () => {
-	const originalModule = jest.requireActual('@atlaskit/linking-common');
-	return {
-		...originalModule,
-		request: (...args: any) => mockRequest(...args),
-	};
-});
+jest.mock('@atlaskit/linking-common/api', () => ({
+	...jest.requireActual('@atlaskit/linking-common/api'),
+	request: (...args: any) => mockRequest(...args),
+}));
 
 const wrapper: RenderHookOptions<{}>['wrapper'] = ({ children }) => (
 	<SmartCardProvider client={new CardClient()}>{children}</SmartCardProvider>
@@ -231,15 +229,13 @@ describe('useBasicFilterAGG', () => {
 
 			expect(fetchArgs.operationName).toEqual('userHydration');
 			expect(fetchArgs.variables).toEqual({ accountIds: ['1', '2', '4'] });
-			expect(fetchArgs.query).toMatchInlineSnapshot(`
-        "query userHydration($accountIds: [ID!]!) {
-          users(accountIds: $accountIds) {
-            accountId
-            name
-            picture
-          }
-        }"
-      `);
+			expect(fetchArgs.query).toBe(`query userHydration($accountIds: [ID!]!) {
+  users(accountIds: $accountIds) {
+    accountId
+    name
+    picture
+  }
+}`);
 		});
 
 		it('returns correct success response', async () => {

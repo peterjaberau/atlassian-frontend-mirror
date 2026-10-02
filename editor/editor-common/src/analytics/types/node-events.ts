@@ -1,7 +1,7 @@
-import type { PanelType } from '@atlaskit/adf-schema';
+import type { PanelType } from '@atlaskit/adf-schema/panel';
 
 import type { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID, INPUT_METHOD } from './enums';
-import type { ChangeTypeAEP, TrackAEP } from './utils';
+import type { ChangeTypeAEP, TrackAEP, UIAEP } from './utils';
 
 export enum LAYOUT_TYPE {
 	SINGLE_COL = 'singleColumn',
@@ -14,6 +14,7 @@ export enum LAYOUT_TYPE {
 	FIVE_COLS_EQUAL = 'fiveColumnsEqual',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum SMART_LINK_TYPE {
 	INLINE_CARD = 'inline',
 	BLOCK_CARD = 'block',
@@ -35,6 +36,13 @@ type ChangePanelAEP = ChangeTypeAEP<
 	undefined
 >;
 
+type ChangeNativeEmbedAEP = ChangeTypeAEP<
+	ACTION_SUBJECT.NATIVE_EMBED,
+	undefined,
+	{ newType: 'nativeEmbed' | SMART_LINK_TYPE; previousType: 'nativeEmbed' | SMART_LINK_TYPE },
+	undefined
+>;
+
 type ChangeSmartLinkAEP = ChangeTypeAEP<
 	ACTION_SUBJECT.SMART_LINK,
 	undefined,
@@ -48,12 +56,12 @@ type VisitedSmartLink = TrackAEP<
 	ACTION_SUBJECT_ID.CARD_BLOCK | ACTION_SUBJECT_ID.CARD_INLINE,
 	{
 		inputMethod:
-		| INPUT_METHOD.TOOLBAR
-		| INPUT_METHOD.FLOATING_TB
-		| INPUT_METHOD.BUTTON
-		| INPUT_METHOD.CARD
-		| INPUT_METHOD.DOUBLE_CLICK
-		| INPUT_METHOD.META_CLICK;
+			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.FLOATING_TB
+			| INPUT_METHOD.BUTTON
+			| INPUT_METHOD.CARD
+			| INPUT_METHOD.DOUBLE_CLICK
+			| INPUT_METHOD.META_CLICK;
 	},
 	undefined
 >;
@@ -85,6 +93,7 @@ export type NodeDeletedAEP = TrackAEP<
 	| ACTION_SUBJECT.TABLE
 	| ACTION_SUBJECT.EXTENSION
 	| ACTION_SUBJECT.BODIED_EXTENSION
+	| ACTION_SUBJECT.DIVIDER
 	| ACTION_SUBJECT.SMART_LINK
 	| ACTION_SUBJECT.CODE_BLOCK
 	| ACTION_SUBJECT.MEDIA_SINGLE
@@ -119,6 +128,86 @@ type DeletedLayoutAEP = TrackAEP<
 	undefined
 >;
 
+type OpenedLayoutColumnMenuAEP = UIAEP<
+	ACTION.OPENED,
+	ACTION_SUBJECT.LAYOUT_COLUMN_MENU,
+	undefined,
+	{
+		columnCount: number;
+		endIndex: number;
+		inputMethod: INPUT_METHOD.MOUSE | INPUT_METHOD.KEYBOARD;
+		selectedCount: number;
+		startIndex: number;
+	},
+	undefined
+>;
+
+type DeletedLayoutColumnAEP = TrackAEP<
+	ACTION.DELETED,
+	ACTION_SUBJECT.DOCUMENT,
+	ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+	{
+		endIndex: number;
+		hadContent: boolean;
+		inputMethod: INPUT_METHOD.LAYOUT_COLUMN_MENU | INPUT_METHOD.SHORTCUT;
+		newColumnCount: number;
+		previousColumnCount: number;
+		selectedCount: number;
+		startIndex: number;
+	},
+	undefined
+>;
+
+type UpdatedLayoutColumnVerticalAlignmentAEP = TrackAEP<
+	ACTION.UPDATED,
+	ACTION_SUBJECT.DOCUMENT,
+	ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+	{
+		columnCount: number;
+		endIndex: number;
+		inputMethod: INPUT_METHOD.LAYOUT_COLUMN_MENU;
+		previousValign: 'top' | 'middle' | 'bottom' | 'mixed';
+		selectedCount: number;
+		startIndex: number;
+		updatedCount: number;
+		valign: 'top' | 'middle' | 'bottom';
+	},
+	undefined
+>;
+
+type DistributedLayoutColumnAEP = TrackAEP<
+	ACTION.UPDATED,
+	ACTION_SUBJECT.DOCUMENT,
+	ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+	{
+		columnCount: number;
+		endIndex: number;
+		inputMethod: INPUT_METHOD.LAYOUT_COLUMN_MENU | INPUT_METHOD.FLOATING_TB;
+		selectedCount: number;
+		startIndex: number;
+		target: 'selectedColumns' | 'allColumns';
+	},
+	undefined
+>;
+
+type ResizedLayoutColumnAEP = TrackAEP<
+	ACTION.DRAGGED,
+	ACTION_SUBJECT.DOCUMENT,
+	ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+	{
+		/** Total number of columns in the layout section */
+		columnCount: number;
+		inputMethod: INPUT_METHOD.DRAG;
+		/** 0-based index of the left column involved in the resize */
+		leftColumnIndex: number;
+		/** Final width percentage of the left column after resize */
+		leftColumnWidth: number;
+		/** Final width percentage of the right column after resize */
+		rightColumnWidth: number;
+	},
+	undefined
+>;
+
 type DeletedExpandAEP = TrackAEP<
 	ACTION.DELETED,
 	ACTION_SUBJECT.EXPAND | ACTION_SUBJECT.NESTED_EXPAND,
@@ -126,6 +215,28 @@ type DeletedExpandAEP = TrackAEP<
 	{
 		inputMethod: INPUT_METHOD.TOOLBAR | INPUT_METHOD.FLOATING_TB;
 	},
+	undefined
+>;
+
+type UpdatedDividerAEP = TrackAEP<
+	ACTION.UPDATED,
+	ACTION_SUBJECT.DIVIDER,
+	undefined,
+	| {
+			inputMethod: INPUT_METHOD.FLOATING_TB;
+			previousStyle: 'solid' | 'dashed' | 'dotted' | 'sketch' | 'fade';
+			style: 'solid' | 'dashed' | 'dotted' | 'sketch' | 'fade';
+	  }
+	| {
+			inputMethod: INPUT_METHOD.FLOATING_TB;
+			previousWeight: number;
+			weight: number;
+	  }
+	| {
+			color: string | null;
+			inputMethod: INPUT_METHOD.FLOATING_TB;
+			previousColor: string | null;
+	  },
 	undefined
 >;
 
@@ -153,7 +264,14 @@ export type NodeEventPayload =
 	| VisitedHyperlink
 	| ChangedLayoutAEP
 	| DeletedLayoutAEP
+	| OpenedLayoutColumnMenuAEP
+	| DeletedLayoutColumnAEP
+	| UpdatedLayoutColumnVerticalAlignmentAEP
+	| DistributedLayoutColumnAEP
+	| ResizedLayoutColumnAEP
 	| DeletedExpandAEP
+	| UpdatedDividerAEP
 	| NodeDeletedAEP
 	| ChangeSmartLinkAEP
+	| ChangeNativeEmbedAEP
 	| UnsupportedContentAEP;

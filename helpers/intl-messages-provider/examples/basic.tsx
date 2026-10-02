@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 
-import { defineMessages, IntlProvider, useIntl } from 'react-intl-next';
+import { defineMessages, IntlProvider, useIntl } from 'react-intl';
 
-import { IntlMessagesProvider } from '@atlaskit/intl-messages-provider';
+import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';
 
 const messages = defineMessages({
 	foo: {

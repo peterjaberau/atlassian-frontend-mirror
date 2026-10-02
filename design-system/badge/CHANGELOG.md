@@ -1,5 +1,356 @@
 # @atlaskit/badge
 
+## 22.0.0
+
+### Major Changes
+
+- [`b9975071a7738`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9975071a7738) -
+  [ux] BREAKING: The completed visual-uplift rollout removes the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate and makes the refreshed Badge
+  implementation the default for `@atlaskit/badge`. Existing appearance names remain supported;
+  update visual snapshots and any DOM or style assertions that depend on the legacy Badge rendering.
+
+## 21.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- [`230c4758ef988`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/230c4758ef988) -
+  wrap workbench examples
+
+## 21.0.1
+
+### Patch Changes
+
+- [`ccc623d0a1e25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ccc623d0a1e25) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 21.0.0
+
+### Major Changes
+
+- [`48e7d03469b80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48e7d03469b80) -
+  Apply Volt entry-point and barrel-removal standards across these design-system packages. Public
+  `exports` now resolve **directly** to `./src/*` implementations instead of intermediate
+  `./src/entry-points/*` re-exports, root barrels and remaining entry-point shims are marked
+  deprecated in favour of per-export subpaths, and a few new subpaths are added
+  (`@atlaskit/badge/badge-new`, `@atlaskit/tile/tile-skeleton`, `@atlaskit/popper/main`,
+  `@atlaskit/section-message/message`, `@atlaskit/section-message/message-action`).
+
+  ### Why this is breaking
+
+  Subpaths and the package root can now resolve to the **same module instance**. Consumers that
+  deep-imported `entry-points/*`, or `jest.mock()`'d a specific subpath may need updates.
+  `@atlaskit/image`'s root export now points at `./src/ui/image/index.tsx`.
+  `@atlaskit/checkbox/checkbox` now exports a named `Checkbox` from the implementation module
+  (default export retained for backwards compatibility).
+
+  ### Migration
+
+  Prefer published subpaths over the package root:
+
+  ```ts
+  import { Checkbox } from '@atlaskit/checkbox/checkbox';
+  import TextField from '@atlaskit/textfield/text-field';
+  import Popup from '@atlaskit/popup/popup';
+  import SectionMessage from '@atlaskit/section-message/message';
+  import EmptyState from '@atlaskit/empty-state/empty-state';
+  ```
+
+  If you imported through internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Checkbox from '@atlaskit/checkbox/entry-points/checkbox';
+  +import { Checkbox } from '@atlaskit/checkbox/checkbox';
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Major Changes
+
+- [`ca3de4beeea48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca3de4beeea48) -
+  Apply Volt entry-point and multi-export standards via `volt-migrate-package`. This is a **major**
+  change to `@atlaskit/badge`: the package `exports` map has been restructured so every public
+  subpath now resolves **directly** to its `./src/*` implementation instead of going through an
+  intermediate `./src/entry-points/*` re-export. No public subpaths were removed.
+
+  ### Why this is breaking
+
+  Because each subpath now points straight at its implementation module, a subpath and the package
+  root can resolve to the **same module instance**. Consumers that deep-import the internal
+  `entry-points/*` files, or that `jest.mock()` a specific subpath, may observe changed
+  resolution/behaviour and need updating.
+
+  ### Migration — public imports are unchanged
+
+  Importing the published subpaths (or the package root) continues to work as before:
+
+  ```ts
+  // Still valid — no change required
+  import Badge from '@atlaskit/badge/badge';
+  ```
+
+  If you were reaching into the internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Badge from '@atlaskit/badge/entry-points/badge';
+  +import Badge from '@atlaskit/badge/badge';
+  ```
+
+  ### Before / after `exports` map
+
+  ```diff
+    "exports": {
+      ".": "./src/index.tsx",
+  -   "./badge": "./src/entry-points/badge.tsx",
+  +   "./badge": "./src/badge.tsx",
+      "./new": "./src/entry-points/new.tsx",
+  -   "./types": "./src/entry-points/types.tsx",
+  +   "./types": "./src/types.tsx",
+    }
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- [`e13ee97cc69a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e13ee97cc69a4) -
+  Fixed the legacy-appearance fallback for the `dangerBold` Badge appearance to map to `important`
+  instead of `removed`. When the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate is
+  off, `dangerBold` now falls back to the same legacy appearance the existing red danger Badge has
+  always used, preserving the previous visual look for consumers that haven't migrated yet.
+
+## 19.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 19.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.7.1
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+
+## 18.7.0
+
+### Minor Changes
+
+- [`bb9a7cf0620fa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb9a7cf0620fa) -
+  Added 5 new bold semantic Badge appearances behind the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate: `successBold`, `dangerBold`,
+  `warningBold`, `informationBold`, and `discoveryBold`.
+
+  These bold appearances use the new `color.background.<semantic>.subtle` tokens (introduced in
+  `@atlaskit/tokens@13.2.0`) as the background and pair with `color.text.<semantic>.bolder` text for
+  stronger visual prominence than the existing subtle semantic appearances. The legacy
+  `appearanceMapping` and `appearanceMappingToOld` helpers route the new appearances correctly when
+  the feature gate is off.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.6.0
+
+### Minor Changes
+
+- [`7d6e9b5e6e7c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d6e9b5e6e7c6) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 18.5.0
+
+### Minor Changes
+
+- [`52b7aa6b3d721`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52b7aa6b3d721) -
+  Added a new `/new` entrypoint for `@atlaskit/lozenge`, `@atlaskit/badge`, and `@atlaskit/tag`.
+  These entrypoints export the new visual refresh components directly, bypassing the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature flag. This is intended for products that
+  don't have Statsig integrated and cannot evaluate the feature flag.
+
+  New entrypoints:
+  - `import Lozenge from '@atlaskit/lozenge/new'`
+  - `import Badge from '@atlaskit/badge/new'`
+  - `import Tag from '@atlaskit/tag/new'`
+
+  **Note:** Do not use the `/new` entrypoint if your app can evaluate the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature flag. These entrypoints will be removed
+  after the visual uplift rollout is complete, which will require updating import paths back to the
+  default entrypoint.
+
+## 18.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.4.5
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+
+## 18.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.4.3
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 18.4.2
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 18.4.1
+
+### Patch Changes
+
+- [`5db9e3f21a52f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5db9e3f21a52f) -
+  Internal refactoring
+- Updated dependencies
+
 ## 18.4.0
 
 ### Minor Changes

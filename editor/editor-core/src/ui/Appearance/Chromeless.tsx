@@ -1,11 +1,4 @@
-/**
- * @jsxRuntime classic
- * @jsx jsx
- */
 import React, { Fragment } from 'react';
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { EditorAppearance, OptionalPlugin } from '@atlaskit/editor-common/types';
@@ -14,63 +7,13 @@ import type {
 	MaxContentSizePlugin,
 	MaxContentSizePluginState,
 } from '@atlaskit/editor-plugins/max-content-size';
-import { token } from '@atlaskit/tokens';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
-import type { EditorAppearanceComponentProps } from '../../types';
+import type { EditorAppearanceComponentProps } from '../../types/editor-appearance-component';
 import EditorContentContainer from '../EditorContentContainer/EditorContentContainer';
 import PluginSlot from '../PluginSlot';
 import WithFlash from '../WithFlash';
-
-const scrollbarStylesNew = css({
-	msOverflowStyle: '-ms-autohiding-scrollbar',
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&::-webkit-scrollbar-corner': {
-		display: 'none',
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&::-webkit-scrollbar-thumb': {
-		backgroundColor: token('color.background.neutral.subtle'),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&:hover::-webkit-scrollbar-thumb': {
-		backgroundColor: token('color.background.neutral.bold'),
-		borderRadius: token('radius.large'),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'&::-webkit-scrollbar-thumb:hover': {
-		backgroundColor: token('color.background.neutral.bold.hovered'),
-	},
-});
-
-const chromelessEditorStylesNew = css({
-	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-	lineHeight: '20px',
-	height: 'auto',
-	overflowX: 'hidden',
-	overflowY: 'auto',
-	maxWidth: 'inherit',
-	boxSizing: 'border-box',
-	wordWrap: 'break-word',
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-	'div > .ProseMirror': {
-		outline: 'none',
-		whiteSpace: 'pre-wrap',
-		padding: 0,
-		margin: 0,
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-		'& > :last-child': {
-			paddingBottom: token('space.100', '0.5em'),
-		},
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-	'.ProseMirror': {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-		'& > p:last-of-type': {
-			marginBottom: token('space.0'),
-		},
-	},
-});
-
+import { ChromelessEditorContainer } from './ChromelessEditorContainer';
 type AppearanceProps = EditorAppearanceComponentProps<
 	[OptionalPlugin<MaxContentSizePlugin>, OptionalPlugin<EditorViewModePlugin>]
 >;
@@ -86,6 +29,10 @@ export default class Editor extends React.Component<AppearanceProps> {
 
 	private appearance: EditorAppearance = 'chromeless';
 	private containerElement: HTMLElement | null = null;
+
+	private setContainerElement = (ref: HTMLElement | null) => {
+		this.containerElement = ref;
+	};
 
 	private renderChrome = ({ maxContentSize }: { maxContentSize?: MaxContentSizePluginState }) => {
 		const {
@@ -114,12 +61,16 @@ export default class Editor extends React.Component<AppearanceProps> {
 			(states) => states?.editorViewModeState?.mode,
 		);
 
+		const containerRef = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+			? this.setContainerElement
+			: (ref: HTMLElement | null) => (this.containerElement = ref);
+
 		return (
 			<WithFlash animate={maxContentSizeReached}>
 				<ChromelessEditorContainer
 					maxHeight={maxHeight}
 					minHeight={minHeight}
-					containerRef={(ref: HTMLElement | null) => (this.containerElement = ref)}
+					containerRef={containerRef}
 				>
 					<EditorContentContainer
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
@@ -157,7 +108,7 @@ export default class Editor extends React.Component<AppearanceProps> {
 		);
 	};
 
-	render() {
+	render(): React.JSX.Element {
 		return (
 			<RenderWithPluginState editorAPI={this.props.editorAPI} renderChrome={this.renderChrome} />
 		);
@@ -173,6 +124,7 @@ interface RenderChromeProps extends Pick<AppearanceProps, 'editorAPI'> {
 }
 
 function RenderWithPluginState({ renderChrome, editorAPI }: RenderChromeProps) {
+	'use no memo'; // renderChrome should be changed to called as a component not a function
 	const maxContentSizeReached = useSharedPluginStateWithSelector(
 		editorAPI,
 		['maxContentSize'],
@@ -182,33 +134,4 @@ function RenderWithPluginState({ renderChrome, editorAPI }: RenderChromeProps) {
 		maxContentSizeReached === undefined ? undefined : { maxContentSizeReached };
 
 	return <Fragment>{renderChrome({ maxContentSize })}</Fragment>;
-}
-
-interface ChromelessEditorContainerProps {
-	children: React.ReactNode;
-	containerRef?: (ref: HTMLElement | null) => void;
-	maxHeight?: number;
-	minHeight: number;
-}
-
-export function ChromelessEditorContainer({
-	maxHeight,
-	minHeight,
-	children,
-	containerRef,
-}: ChromelessEditorContainerProps) {
-	return (
-		<div
-			css={[chromelessEditorStylesNew, scrollbarStylesNew]}
-			style={{
-				maxHeight: maxHeight ? `${maxHeight}px` : undefined,
-				minHeight: `${minHeight}px`,
-			}}
-			data-testid="chromeless-editor"
-			id="chromeless-editor"
-			ref={containerRef}
-		>
-			{children}
-		</div>
-	);
 }

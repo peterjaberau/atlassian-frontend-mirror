@@ -1,9 +1,15 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	giveKudos: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	giveKudos: {
 		id: 'team-profile-card.team-actions.give-kudos',
 		defaultMessage: 'Give kudos',
-		description: 'Give kudos button text',
+		description: 'Button label text for giving kudos to a team in the profile actions',
 	},
 });

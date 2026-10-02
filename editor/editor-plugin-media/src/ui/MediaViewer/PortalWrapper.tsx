@@ -1,14 +1,15 @@
 import React from 'react';
-
 import ReactDOM from 'react-dom';
 
-import type { MediaADFAttrs } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
 import type { Identifier, MediaClientConfig } from '@atlaskit/media-client';
-import { MediaViewer } from '@atlaskit/media-viewer';
+import { MediaViewer, type MediaViewerExtensions } from '@atlaskit/media-viewer';
 
 import { isExternalMedia } from '../../ui/toolbar/utils';
 
 interface RenderMediaViewerProps {
+	extensions?: MediaViewerExtensions;
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>;
 	items?: Identifier[];
 	mediaClientConfig: MediaClientConfig;
 	onClose: () => void;
@@ -36,7 +37,9 @@ export const RenderMediaViewer = ({
 	onClose,
 	selectedNodeAttrs,
 	items = [],
-}: RenderMediaViewerProps) => {
+	extensions,
+	fallbackMediaNameFetcher,
+}: RenderMediaViewerProps): React.ReactPortal => {
 	const identifier = getIdentifier(selectedNodeAttrs);
 	const collectionName = isExternalMedia(selectedNodeAttrs) ? '' : selectedNodeAttrs.collection;
 
@@ -49,6 +52,8 @@ export const RenderMediaViewer = ({
 			mediaClientConfig={mediaClientConfig!}
 			selectedItem={identifier}
 			onClose={onClose}
+			extensions={extensions}
+			fallbackMediaNameFetcher={fallbackMediaNameFetcher}
 		/>,
 		document.body,
 	);

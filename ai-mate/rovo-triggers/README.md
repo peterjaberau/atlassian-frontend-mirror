@@ -70,6 +70,42 @@ const YourComponent = () => {
 }
 ```
 
+#### Consume once
+
+Publishers can mark an event as `consumeOnce: true` when only one mounted instance of a
+consumer should process that event. Subscribers opt into this behavior with a stable
+`consumeOnceKey`; subscribers sharing the same key will process a `consumeOnce` event once total.
+Subscribers without a `consumeOnceKey` continue to observe the event normally.
+
+The delivery id used to deduplicate a publish is generated internally by `rovo-triggers` and is not
+exposed in the event payload. This deduplicates one publish fanout across multiple mounted
+subscribers; separate publish calls are treated as separate events.
+
+```ts
+const YourComponent = () => {
+    useSubscribe({ topic: 'ai-mate', consumeOnceKey: 'your-consumer' }, ({ type, data }) => {
+        if(type === 'message-send') {
+            sendMessage(data)
+        }
+    });
+}
+```
+
+```ts
+const AnotherComponent = () => {
+    const publish = usePublish('ai-mate');
+
+    const handleClick = () => {
+        publish({
+            type: 'message-send',
+            source: 'my-source',
+            consumeOnce: true,
+            data: { prompt: 'hello Rovo Chat' },
+        })
+    }
+}
+```
+
 ### Subscribe All
 
 **Note** - Avoid using this. Right now it's only intended to be a proxy for Rovo Chat to trigger
@@ -165,6 +201,8 @@ Here are some examples of how you might use `getRovoParams` resulting value:
 - Open new chat and send message `{ pathway: 'chat', prompt: 'What should I work on next?' }`
 - Open specific chat and send message
   `{ pathway: 'chat', conversationId: '123', prompt: 'What should I work on next?' }`
+- Open a chat with Rovo journey attribution
+  `{ pathway: 'chat', rovoJourneyId: '00000000-0000-4000-8000-000000000001' }`
 - Open specific chat with specific agent and send message
   `{ pathway: 'chat', conversationId: '123', agentId: '456', prompt: 'What should I work on next?' }`
 - Browse agents `{ pathway: 'agents-browse' }`

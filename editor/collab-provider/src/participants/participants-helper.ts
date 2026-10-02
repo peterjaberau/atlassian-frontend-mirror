@@ -1,9 +1,9 @@
 import type { ProviderParticipant } from '@atlaskit/editor-common/collab';
 
 import type { PresencePayload } from '../types';
-import { type ParticipantsState } from './participants-state';
+import type { ParticipantsState } from './participants-state';
 
-export const PARTICIPANT_UPDATE_INTERVAL = 300 * 1000; // 300 seconds
+export const PARTICIPANT_UPDATE_INTERVAL: number = 300 * 1000; // 300 seconds
 
 export type ParticipantsMap = Map<string, ProviderParticipant>;
 
@@ -31,7 +31,17 @@ export const createParticipantFromPayload = async (
 	payload: PresencePayload & { userId: string },
 	getUser: GetUserType,
 ): Promise<ProviderParticipant> => {
-	const { sessionId, timestamp, clientId, userId, permit, presenceId, presenceActivity } = payload;
+	const {
+		actingUserId,
+		agentType,
+		sessionId,
+		timestamp,
+		clientId,
+		userId,
+		permit,
+		presenceId,
+		presenceActivity,
+	} = payload;
 
 	const user = await getUser?.(userId);
 
@@ -44,6 +54,8 @@ export const createParticipantFromPayload = async (
 		userId,
 		clientId,
 		permit,
+		actingUserId,
+		agentType,
 		isGuest: user?.isGuest,
 		presenceId: presenceId,
 		presenceActivity: presenceActivity,
@@ -104,6 +116,8 @@ export const fetchParticipants = async (
 					lastActive: participant.lastActive,
 					clientId: participant.clientId,
 					permit: participant.permit,
+					actingUserId: participant.actingUserId,
+					agentType: participant.agentType,
 					presenceId: participant.presenceId,
 					presenceActivity: participant.presenceActivity,
 					isHydrated: true,

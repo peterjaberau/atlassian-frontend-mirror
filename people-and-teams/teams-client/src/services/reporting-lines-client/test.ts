@@ -1,8 +1,6 @@
-import { logException } from '../sentry/main';
-
+import { logException } from '../sentry/logException';
+import { ReportingLinesClient } from './ReportingLinesClient';
 import type { ReportingLines } from './utils/types';
-
-import { ReportingLinesClient } from './index';
 
 describe('ReportingLinesClient', () => {
 	let client: ReportingLinesClient;

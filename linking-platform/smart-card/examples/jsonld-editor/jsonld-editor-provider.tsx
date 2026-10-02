@@ -1,7 +1,8 @@
 import React, { type PropsWithChildren, useCallback, useMemo } from 'react';
 
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { type EnvironmentsKeys, SmartCardProvider } from '@atlaskit/link-provider';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { EnvironmentsKeys } from '@atlaskit/linking-common/types';
 
 import JsonldEditorClient from './jsonld-editor-client';
 
@@ -34,7 +35,12 @@ const JsonldEditorProvider = ({
 	);
 
 	return (
-		<SmartCardProvider client={client} isAdminHubAIEnabled={true} product="CONFLUENCE">
+		<SmartCardProvider
+			client={client}
+			isAdminHubAIEnabled={true}
+			product="CONFLUENCE"
+			rovoOptions={{ isRovoEnabled: true, isRovoLLMEnabled: true }}
+		>
 			{children}
 		</SmartCardProvider>
 	);

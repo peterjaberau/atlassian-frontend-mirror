@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/messages';
-import { useEditorToolbar , TOOLBAR_BUTTON_TEST_ID } from '@atlaskit/editor-common/toolbar';
+import { useEditorToolbar, TOOLBAR_BUTTON_TEST_ID } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { ToolbarButton, ToolbarTooltip, LayoutIcon } from '@atlaskit/editor-toolbar';
 

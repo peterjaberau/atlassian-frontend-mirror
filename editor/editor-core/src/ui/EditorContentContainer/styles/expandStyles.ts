@@ -1,5 +1,9 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import {
 	akEditorFullPageDefaultFontSize,
@@ -7,8 +11,16 @@ import {
 } from '@atlaskit/editor-shared-styles';
 import { token } from '@atlaskit/tokens';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const expandStyles: SerializedStyles = css({
+/**
+ * Base expand styles, always applied.
+ */
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const expandStylesBase: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ak-editor-expand__icon > div': {
 		display: 'flex',
@@ -21,11 +33,11 @@ export const expandStyles: SerializedStyles = css({
 		borderColor: 'transparent',
 		borderRadius: token('radius.small', '4px'),
 		minHeight: '25px',
-		background: token('color.background.neutral.subtle', 'transparent'),
-		margin: `${token('space.050', '0.25rem')} 0 0`,
+		background: token('color.background.neutral.subtle'),
+		margin: `${token('space.050')} 0 0`,
 		transition:
 			'background 0.3s cubic-bezier(0.15, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.15, 1, 0.3, 1)',
-		padding: token('space.100', '8px'),
+		padding: token('space.100'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 		'td > :not(style):first-child, td > style:first-child + *': {
 			marginTop: 0,
@@ -67,8 +79,6 @@ export const expandStyles: SerializedStyles = css({
 
 			// SelectionStyle.Border (common case)
 			border: `${token('border.width')} solid ${token('color.border.selected')}`,
-			// If fg('platform_editor_nested_dnd_styles_changes') is true,
-			// then we'll also need the rest of the selection styles for blanket
 
 			// hideNativeBrowserTextSelectionStyles
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -87,13 +97,6 @@ export const expandStyles: SerializedStyles = css({
 			borderColor: token('color.border.danger'),
 		},
 	},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'.ProseMirror > .ak-editor-expand__type-expand, .fabric-editor-breakout-mark-dom > .ak-editor-expand__type-expand':
-		{
-			marginLeft: token('space.negative.150'),
-			marginRight: token('space.negative.150'),
-		},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ak-editor-expand__content': {
@@ -123,6 +126,11 @@ export const expandStyles: SerializedStyles = css({
 		},
 
 		cursor: 'text',
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'&.ak-editor-expand__content--collapsed': {
+			display: 'none',
+		},
 	},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -133,7 +141,7 @@ export const expandStyles: SerializedStyles = css({
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 		fontSize: 'calc(14rem / 16)', // relativeFontSizeToBase16(14),
 		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: 1.714, // If fg('platform-visual-refresh-icons') then this needs to be overridden
+		lineHeight: 1.714,
 		fontWeight: token('font.weight.regular'),
 		color: token('color.text.subtlest'),
 		background: 'transparent',
@@ -216,7 +224,6 @@ export const expandStyles: SerializedStyles = css({
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'.ak-editor-expand__content': {
 			paddingTop: token('space.100', '8px'),
-			// If fg('platform_editor_nested_dnd_styles_changes') then this needs to be extended
 		},
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -264,12 +271,36 @@ export const expandStyles: SerializedStyles = css({
 	},
 });
 
+// Export the default styles with negative margins (original behavior)
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const expandStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror > .ak-editor-expand__type-expand, .fabric-editor-breakout-mark-dom > .ak-editor-expand__type-expand':
+		{
+			marginLeft: token('space.negative.150'),
+			marginRight: token('space.negative.150'),
+		},
+});
+
 /**
  * This function gets the dynamic styles that scale the expand title font size based on the base font size.
  * If the base font size is not the default font size, we want the expand title font size to match the base font size.
  * @param baseFontSize - The base font size in pixels. (e.g., 16 for default, 13 for dense mode)
  * @returns SerializedStyles with expand title font size override if baseFontSize is provided and different from default.
  */
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getDenseExpandTitleStyles = (baseFontSize?: number): SerializedStyles => {
 	if (!baseFontSize || baseFontSize === akEditorFullPageDefaultFontSize) {
 		return css({});
@@ -288,8 +319,13 @@ export const getDenseExpandTitleStyles = (baseFontSize?: number): SerializedStyl
 		},
 	});
 };
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const expandStylesMixin_fg_platform_visual_refresh_icons: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ak-editor-expand__title-input': {
@@ -298,56 +334,48 @@ export const expandStylesMixin_fg_platform_visual_refresh_icons: SerializedStyle
 		fontFamily: token('font.family.body'),
 	},
 });
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
+export const expandStylesMixinNestedDnd: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ak-editor-content-area.appearance-full-page .ProseMirror > .ak-editor-expand__type-expand, .fabric-editor-breakout-mark-dom > .ak-editor-expand__type-expand':
+		{
+			marginLeft: token('space.negative.250'),
+			marginRight: token('space.negative.250'),
+		},
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const expandStylesMixin_fg_platform_editor_nested_dnd_styles_changes: SerializedStyles = css(
-	{
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ak-editor-expand__expanded': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'.ak-editor-content-area.appearance-full-page .ProseMirror > .ak-editor-expand__type-expand, .fabric-editor-breakout-mark-dom > .ak-editor-expand__type-expand':
-			{
-				marginLeft: token('space.negative.250'),
-				marginRight: token('space.negative.250'),
+		'.ak-editor-expand__content': {
+			// firstNodeWithNotMarginTop
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+			'> :nth-child(1 of :not(style, .ProseMirror-gapcursor, .ProseMirror-widget, span))': {
+				marginTop: 0,
 			},
-
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'.ak-editor-expand__expanded': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-			'.ak-editor-expand__content': {
-				// firstNodeWithNotMarginTop
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-				'> :nth-child(1 of :not(style, .ProseMirror-gapcursor, .ProseMirror-widget, span))': {
-					marginTop: 0,
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-				'> div.ak-editor-expand[data-node-type="nestedExpand"]': {
-					marginTop: token('space.050', '0.25rem'),
-				},
+			'> div.ak-editor-expand[data-node-type="nestedExpand"]': {
+				marginTop: token('space.050'),
 			},
 		},
 	},
-);
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const expandStylesMixin_without_fg_platform_editor_nested_dnd_styles_changes: SerializedStyles =
-	css({
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'.ak-editor-expand': {
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-			'&.ak-editor-selected-node:not(.danger)': {
-				// SelectionStyle.Border (with fg('platform_editor_nested_dnd_styles_changes'))
-				// Fixes ED-15246: Trello card is visible through a border of a table border
-				'&::after': {
-					height: '100%',
-					content: "'\\00a0'",
-					background: token('color.border.selected'),
-					position: 'absolute',
-					right: '-1px',
-					top: 0,
-					bottom: 0,
-					width: '1px',
-					border: 'none',
-					display: 'inline-block',
-				},
-			},
-		},
-	});
+});
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const expandStylesMixin_chromeless_expand_fix: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.ProseMirror > .ak-editor-expand': {
+		marginLeft: 0,
+		marginRight: 0,
+	},
+});

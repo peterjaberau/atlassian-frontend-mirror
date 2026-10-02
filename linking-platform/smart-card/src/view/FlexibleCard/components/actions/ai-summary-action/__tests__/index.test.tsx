@@ -1,10 +1,7 @@
 import React from 'react';
 
-import { render, waitForElementToBeRemoved } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { render, waitForElementToBeRemoved, userEvent } from '@atlassian/testing-library';
 import '@atlaskit/link-test-helpers/jest';
 
 import mockContext from '../../../../../../__fixtures__/flexible-ui-data-context';
@@ -12,7 +9,7 @@ import { getFlexibleCardTestWrapper } from '../../../../../../__tests__/__utils_
 import type { FlexibleUiDataContext } from '../../../../../../state/flexible-ui-context/types';
 import { useAISummary } from '../../../../../../state/hooks/use-ai-summary';
 import type { AISummaryState } from '../../../../../../state/hooks/use-ai-summary/ai-summary-service/types';
-import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics';
+import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics/analytics';
 import AISummaryAction from '../index';
 import type { AISummaryActionProps } from '../types';
 
@@ -55,7 +52,7 @@ describe('AISummaryAction', () => {
 		const element = await findByTestId(`${testId}-summarise-action`);
 
 		expect(element).toBeInTheDocument();
-		expect(element).toHaveTextContent('Summarize with AI');
+		expect(element).toHaveTextContent('Summarize with Rovo');
 	});
 
 	it('does not render AI summary action if action data is not present', async () => {
@@ -242,6 +239,9 @@ describe('AISummaryAction', () => {
 			const element = getByTestId(`${testId}-copy-summary-action`);
 
 			await userEvent.click(element);
+			// Top-layer tooltips stay dismissed after a press until the pointer leaves and re-enters.
+			await userEvent.unhover(element);
+			await userEvent.hover(element);
 			await findAllByText('Copied summary to clipboard');
 
 			await userEvent.unhover(element);

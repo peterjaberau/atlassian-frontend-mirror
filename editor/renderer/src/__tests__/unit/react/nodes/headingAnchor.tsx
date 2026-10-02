@@ -1,10 +1,16 @@
-import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import React from 'react';
+
 import { screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import HeadingAnchor from '../../../../react/nodes/heading-anchor';
+
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { renderWithIntl } from '@atlaskit/editor-test-helpers/rtl';
+import { setupEditorExperiments } from '@atlaskit/tmp-editor-statsig/setup';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { mockExpDisabled } from '@atlassian/experiment-test-utils/mock-exp-disabled';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
+
+import HeadingAnchor from '../../../../react/nodes/heading-anchor';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
 // be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
@@ -68,4 +74,139 @@ describe('Heading Anchor', () => {
 		expect(anchorButton).toHaveAttribute('tabindex', '-1');
 		expect(anchorButton).toHaveAttribute('aria-label', 'Copy link to heading');
 	});
+
+	describe('a11y-fixes-week4-may-2026 experiment', () => {
+		describe('when experiment is ON', () => {
+			it('should retain focus on the button after clicking copy (no Tooltip remount)', async () => {
+				mockExpEnabled('a11y-fixes-week4-may-2026');
+				act(() => {
+					renderWithIntl(<HeadingAnchor onCopyText={onClickHandler} level={1} />);
+				});
+
+				const copyButton = screen.getByRole('button', { name: 'Copy link to heading' });
+				copyButton.focus();
+				expect(document.activeElement).toBe(copyButton);
+
+				await userEvent.click(copyButton);
+
+				// After click, the button should still be in the DOM (no remount)
+				// and the tooltip message should update to "Copied!"
+				const copiedButton = await screen.findByRole('button', { name: 'Copied!' });
+				expect(copiedButton).toBeVisible();
+				expect(copiedButton).toBe(copyButton);
+				expect(document.activeElement).toBe(copiedButton);
+			});
+
+			it('should render tooltip with a meaningful message on hover', async () => {
+				mockExpEnabled('a11y-fixes-week4-may-2026');
+				act(() => {
+					renderWithIntl(<HeadingAnchor onCopyText={() => Promise.resolve()} level={1} />);
+				});
+
+				const copyLinkButton = screen.getByRole('button', {
+					name: 'Copy link to heading',
+				});
+				expect(copyLinkButton).toBeVisible();
+
+				await userEvent.hover(copyLinkButton);
+				await waitFor(() => expect(screen.getByRole('tooltip', { name: 'Copy link to heading' })));
+			});
+
+			it('should update the tooltip message after copy without unmounting the button', async () => {
+				mockExpEnabled('a11y-fixes-week4-may-2026');
+				act(() => {
+					renderWithIntl(<HeadingAnchor onCopyText={onClickHandler} level={1} />);
+				});
+
+				const copyButton = screen.getByRole('button', { name: 'Copy link to heading' });
+				await userEvent.click(copyButton);
+
+				const copiedButton = await screen.findByRole('button', { name: 'Copied!' });
+				await waitFor(() => expect(copiedButton).toBeVisible());
+
+				await userEvent.hover(copiedButton);
+				await waitFor(() => expect(screen.getByRole('tooltip', { name: 'Copied!' })).toBeVisible());
+			});
+		});
+
+		describe('when experiment is OFF', () => {
+			it('should render tooltip with a meaningful message on hover', async () => {
+				mockExpDisabled('a11y-fixes-week4-may-2026');
+				act(() => {
+					renderWithIntl(<HeadingAnchor onCopyText={() => Promise.resolve()} level={1} />);
+				});
+
+				const copyLinkButton = screen.getByRole('button', {
+					name: 'Copy link to heading',
+				});
+				expect(copyLinkButton).toBeVisible();
+
+				await userEvent.hover(copyLinkButton);
+				await waitFor(() => expect(screen.getByRole('tooltip', { name: 'Copy link to heading' })));
+			});
+
+			it('should remount the button on copy and not retain focus', async () => {
+				mockExpDisabled('a11y-fixes-week4-may-2026');
+				act(() => {
+					renderWithIntl(<HeadingAnchor onCopyText={onClickHandler} level={1} />);
+				});
+
+				const copyButton = screen.getByRole('button', {
+					name: 'Copy link to heading',
+				});
+				copyButton.focus();
+				expect(document.activeElement).toBe(copyButton);
+
+				await userEvent.click(copyButton);
+
+				const copiedButton = await screen.findByRole('button', { name: 'Copied!' });
+				await waitFor(() => expect(copiedButton).toBeVisible());
+				expect(copiedButton).not.toBe(copyButton);
+				expect(document.activeElement).not.toBe(copiedButton);
+
+				await userEvent.hover(copiedButton);
+				await waitFor(() => expect(screen.getByRole('tooltip', { name: 'Copied!' })).toBeVisible());
+			});
+		});
+	});
 });
+
+describe.each([false, true])(
+	'heading target size with copy-link accessibility experiment %s',
+	(copyLinkA11y) => {
+		beforeEach(() => {
+			setupEditorExperiments('test', {
+				platform_editor_copy_link_a11y_inconsistency_fix: copyLinkA11y,
+			});
+		});
+
+		it.each([1, 2, 3, 4, 5, 6])('provides a 24px target and copies H%s links', async (level) => {
+			mockExpEnabled('platform_editor_heading_link_target_size');
+			const onCopyText = jest.fn().mockResolvedValue(undefined);
+			renderWithIntl(<HeadingAnchor level={level} onCopyText={onCopyText} />);
+			const button = screen.getByRole('button');
+			expect(button).toHaveCompiledCss('width', '24px');
+			expect(button).toHaveCompiledCss('height', '24px');
+			const wrapper = button.closest('.heading-anchor-wrapper');
+			expect(wrapper).toHaveCompiledCss('width', '24px');
+			expect(wrapper).toHaveCompiledCss('height', '24px');
+			expect(wrapper).toHaveCompiledCss('vertical-align', 'middle');
+			const iconWrapper = screen.getByTestId('scaled-link-icon');
+			expect(iconWrapper).toHaveCompiledCss('transform', 'scale(1.5)');
+			await userEvent.click(button);
+			expect(onCopyText).toHaveBeenCalledTimes(1);
+		});
+
+		it('preserves the original sizing when the target-size experiment is disabled', () => {
+			mockExpDisabled('platform_editor_heading_link_target_size');
+			renderWithIntl(<HeadingAnchor level={6} onCopyText={jest.fn()} />);
+			const button = screen.getByRole('button');
+			expect(button).not.toHaveCompiledCss('width', '24px');
+			expect(button).not.toHaveCompiledCss('height', '24px');
+			const wrapper = button.closest('.heading-anchor-wrapper');
+			expect(wrapper).not.toHaveCompiledCss('width', '24px');
+			expect(wrapper).not.toHaveCompiledCss('height', '24px');
+			expect(button).toHaveStyleDeclaration('display', 'inline');
+		});
+	},
+);

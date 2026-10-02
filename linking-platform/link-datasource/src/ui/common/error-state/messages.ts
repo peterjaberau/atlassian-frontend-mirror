@@ -1,6 +1,123 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const loadingErrorMessages = defineMessages({
+export const loadingErrorMessages: {
+	//delete and remove duplicate from title above
+	accessInstructions: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	accessInstructionsDuplicate: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	//delete and remove duplicate from title above
+	accessRequired: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	accessRequiredDuplicate: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	accessRequiredWithSite: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	authConnectButtonText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	authScreenDescriptionText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	authScreenDescriptionTextAppify: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	authScreenHeaderText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	//delete and remove duplicate from title above
+	checkConnection: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	checkConnectionConfluence: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	checkConnectionDuplicate: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	checkConnectionJira: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	learnMoreAboutSmartLinks: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// delete once EDM-9407 is merged
+	noAccessToJiraSitesDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	// delete once EDM-9407 is merged
+	noAccessToJiraSitesTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	noResultsFound: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	noResultsFoundDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	//delete and remove duplicate from title above
+	refresh: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	refreshDuplicate: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	unableToLoadItemsDuplicate: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	unableToLoadResults: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	accessInstructionsDuplicate: {
 		id: 'linkDataSource.accessInstructions',
 		description:
@@ -129,5 +246,29 @@ export const loadingErrorMessages = defineMessages({
 		defaultMessage:
 			'Connect your {providerName} account to collaborate on work across Atlassian apps.',
 		description: 'Description text to be displayed in the auth screen UI.',
+	},
+});
+
+export const missingColumnsMessages: Record<
+	'missingColumnsDescription' | 'missingColumnsDescriptionWithNames' | 'missingColumnsTitle',
+	{ defaultMessage: string; description: string; id: string }
+> = defineMessages({
+	missingColumnsTitle: {
+		id: 'link-datasource.common.error-state.missingColumnsTitle',
+		description: 'Error title when results have loaded but no selected columns are available',
+		defaultMessage: "We can't display these columns",
+	},
+	missingColumnsDescription: {
+		id: 'link-datasource.common.error-state.missingColumnsDescription',
+		description: 'Instructions for recovering a table with no available selected columns',
+		defaultMessage:
+			"The selected columns aren't available. Edit this table to select different columns.",
+	},
+	missingColumnsDescriptionWithNames: {
+		id: 'link-datasource.common.error-state.missingColumnsDescriptionWithNames',
+		description:
+			'Instructions for recovering a table, with columns listing the unavailable saved column names or keys',
+		defaultMessage:
+			"These columns aren't available: {columns}. Edit this table to select different columns.",
 	},
 });

@@ -1,6 +1,6 @@
 import debounce from 'lodash/debounce';
 
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { isEmptyDocument } from '@atlaskit/editor-common/utils';
@@ -8,7 +8,6 @@ import type { EditorState, ReadonlyTransaction } from '@atlaskit/editor-prosemir
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { SelectionMarkerPlugin } from '../selectionMarkerPluginType';
 import { selectionDecoration } from '../ui/selection-decoration';
@@ -21,7 +20,7 @@ export interface PluginState {
 	shouldHideDecorations: boolean;
 }
 
-export const key = new PluginKey<PluginState>('selectionMarker');
+export const key: PluginKey<PluginState> = new PluginKey<PluginState>('selectionMarker');
 
 type DecorationType = 'blur' | 'highlight' | 'none';
 
@@ -62,13 +61,13 @@ export const applyNextPluginState = (
 ):
 	| PluginState
 	| {
-		decorations: DecorationSet;
-		decorationType: 'none' | 'blur';
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		forceHide: any;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		shouldHideDecorations: any;
-	} => {
+			decorations: DecorationSet;
+			decorationType: 'none' | 'blur';
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			forceHide: any;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			shouldHideDecorations: any;
+	  } => {
 	const meta = tr.getMeta(key);
 	if (!meta && !tr.selectionSet) {
 		return currentState;
@@ -99,7 +98,9 @@ const debouncedDecorations = debounce((state: EditorState) => {
 	return key.getState(state)?.decorations;
 }, 25);
 
-export const createPlugin = (api: ExtractInjectionAPI<SelectionMarkerPlugin> | undefined) => {
+export const createPlugin = (
+	api: ExtractInjectionAPI<SelectionMarkerPlugin> | undefined,
+): SafePlugin<PluginState> => {
 	return new SafePlugin<PluginState>({
 		key,
 		state: {
@@ -115,9 +116,7 @@ export const createPlugin = (api: ExtractInjectionAPI<SelectionMarkerPlugin> | u
 		},
 		props: {
 			decorations: (state: EditorState) => {
-				const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-					? getBrowserInfo()
-					: browserLegacy;
+				const browser = getBrowserInfo();
 				if (browser.ie) {
 					return debouncedDecorations(state);
 				} else {

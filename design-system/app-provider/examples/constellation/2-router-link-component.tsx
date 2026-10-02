@@ -2,7 +2,8 @@ import React, { forwardRef, type Ref } from 'react';
 
 import { Link, type LinkProps, RouteComponent, Router } from 'react-resource-router';
 
-import AppProvider, { type RouterLinkComponentProps } from '@atlaskit/app-provider';
+import AppProvider from '@atlaskit/app-provider/app-provider';
+import type { RouterLinkComponentProps } from '@atlaskit/app-provider/router-link-provider';
 
 type ReactResourceRouterLinkConfig = Pick<LinkProps, 'to' | 'href' | 'replace'>;
 
@@ -117,7 +118,7 @@ function App() {
 }`;
 
 const _default_1: {
-    example: typeof App;
-    code: string;
+	example: typeof App;
+	code: string;
 } = { example: App, code: CodeBlock };
 export default _default_1;

@@ -1,5 +1,214 @@
 # @atlaskit/editor-plugin-width
 
+## 24.1.0
+
+### Minor Changes
+
+- [`4a10837c24245`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4a10837c24245) -
+  Reduce forced layout in the width plugin, behind the `platform_editor_reduce_forced_layout`
+  experiment.
+
+  `useWidthObserver` selects between the existing observer hook and a new
+  `useResizeWidthObserverNext` using `conditionalHooksFactory`, so only one implementation runs and
+  the existing one is left unchanged.
+
+  The replacement no longer reads `editorView.dom.clientWidth` from its dependency array. Dependency
+  arrays are evaluated during React's render phase, so that read forced a style and layout
+  recalculation on every render of the plugin slot rather than only when the width changed. It is
+  replaced by a counter from `useRefreshWidthOnTransitionNext`, which detects the same `full-width`
+  to `full-page` transition without measuring. The `ResizeObserver` callback also no longer discards
+  deliveries that batch more than one entry, which previously left the plugin with a stale width
+  until the next resize, and no longer dispatches an undefined width when the editor has no
+  container element.
+
+  The plugin's initial state no longer measures `document.body.offsetWidth`. `init` runs before the
+  editor is in the DOM, so the body is the only thing it can measure, and that read forces a style
+  and layout recalculation on every editor creation, including each renderer to editor transition.
+  It is replaced by `window.outerWidth`, an OS window dimension rather than a layout property, so it
+  can be read without forcing a recalculation. The two can report different numbers where the body
+  is narrower than the window, but both are only a stand-in for the container width until the resize
+  observer reports the real value, and neither is close enough to it to cross the thresholds
+  consumers branch on.
+
+  `@atlaskit/editor-plugin-width` adds `@atlaskit/platform-feature-experiments` and
+  `@atlaskit/platform-feature-flags-react` as dependencies.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- [`7b7c52dff5d7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7c52dff5d7d) -
+  Fix eslint violations for type import syntax
+
+## 9.0.2
+
+### Patch Changes
+
+- [`9ff7d1c1aa288`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ff7d1c1aa288) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.1.0
 
 ### Minor Changes

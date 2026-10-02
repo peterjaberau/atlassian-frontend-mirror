@@ -117,9 +117,9 @@ export const mockFieldValuesResponse: FieldValuesResponse = {
 		jira: {
 			jqlBuilder: {
 				fieldValues: {
-					totalCount: 4,
+					totalCount: 5,
 					pageInfo: {
-						endCursor: 'YXJyYXljb25uZWN0aW9uOjM=',
+						endCursor: 'YXJyYXljb25uZWN0aW9uOjQ=',
 					},
 					edges: [
 						{
@@ -170,6 +170,18 @@ export const mockFieldValuesResponse: FieldValuesResponse = {
 								},
 							},
 						},
+						{
+							node: {
+								jqlTerm: '"Sample Scrum Project A"',
+								displayName: 'Sample Scrum Project A',
+								project: {
+									avatar: {
+										small:
+											'https://nmccormick2.jira-dev.com/rest/api/2/universal_avatar/view/type/project/avatar/10412?size=small',
+									},
+								},
+							},
+						},
 					],
 				},
 			},
@@ -177,7 +189,61 @@ export const mockFieldValuesResponse: FieldValuesResponse = {
 	},
 };
 
-export const mockUserRecommendationsResponse = {
+export const mockUserRecommendationsResponse: {
+	recommendedUsers: (
+		| {
+				accessLevel: string;
+				accountStatus: string;
+				attributes: {
+					isConfluenceExternalCollaborator: boolean;
+				};
+				avatarUrl: string;
+				email?: undefined;
+				entityType: string;
+				id: string;
+				locale?: undefined;
+				matchPositions: {};
+				name: string;
+				nickname: string;
+				notMentionable: boolean;
+				userType: string;
+		  }
+		| {
+				accessLevel: string;
+				accountStatus: string;
+				attributes: {
+					isConfluenceExternalCollaborator: boolean;
+				};
+				avatarUrl: string;
+				email: string;
+				entityType: string;
+				id: string;
+				locale: string;
+				matchPositions: {};
+				name: string;
+				nickname: string;
+				notMentionable: boolean;
+				userType: string;
+		  }
+		| {
+				accessLevel: string;
+				accountStatus: string;
+				attributes: {
+					isConfluenceExternalCollaborator: boolean;
+				};
+				avatarUrl: string;
+				email?: undefined;
+				entityType: string;
+				id: string;
+				locale: string;
+				matchPositions: {};
+				name: string;
+				nickname: string;
+				notMentionable: boolean;
+				userType: string;
+		  }
+	)[];
+} = {
 	recommendedUsers: [
 		{
 			entityType: 'USER',
@@ -340,7 +406,15 @@ export const mockUserRecommendationsResponse = {
 	],
 };
 
-export const mockUserHydrationResponse = {
+export const mockUserHydrationResponse: {
+	data: {
+		users: {
+			accountId: string;
+			name: string;
+			picture: string;
+		}[];
+	};
+} = {
 	data: {
 		users: [
 			{

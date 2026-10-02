@@ -1,13 +1,12 @@
 import React, { useRef } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { ToolTipContent, insertEmoji } from '@atlaskit/editor-common/keymaps';
 import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/messages';
 import { TOOLBAR_BUTTON_TEST_ID } from '@atlaskit/editor-common/toolbar';
 import { ToolbarButton, ToolbarTooltip, EmojiIcon, useToolbarUI } from '@atlaskit/editor-toolbar';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { useEmojiPickerPopup } from './hooks/useEmojiPickerPopup';
 import { EmojiPickerPopup } from './popups/EmojiPickerPopup';
@@ -18,12 +17,15 @@ export const EmojiButton = ({ api }: BaseToolbarButtonProps): React.JSX.Element 
 	const emojiButtonRef = useRef<HTMLButtonElement | null>(null);
 	const { popupsMountPoint, popupsBoundariesElement, popupsScrollableElement } = useToolbarUI();
 
-	const { emojiProviderSelector, emojiProviderPromise, isTypeAheadAllowed } =
-		useSharedPluginStateWithSelector(api, ['emoji', 'typeAhead'], (states) => ({
-			emojiProviderSelector: states.emojiState?.emojiProvider,
+	const { contentId, emojiProviderPromise, isTypeAheadAllowed } = useSharedPluginStateWithSelector(
+		api,
+		['emoji', 'typeAhead'],
+		(states) => ({
+			contentId: states.emojiState?.contentId,
 			emojiProviderPromise: states.emojiState?.emojiProviderPromise,
 			isTypeAheadAllowed: states.typeAheadState?.isAllowed,
-		}));
+		}),
+	);
 
 	const emojiPickerPopup = useEmojiPickerPopup({
 		api,
@@ -34,26 +36,13 @@ export const EmojiButton = ({ api }: BaseToolbarButtonProps): React.JSX.Element 
 		return null;
 	}
 
-	const getEmojiProvider = () => {
-		if (emojiProviderSelector) {
-			return Promise.resolve(emojiProviderSelector);
-		}
-	};
-
-	const emojiProvider = expValEquals(
-		'platform_editor_prevent_toolbar_layout_shifts',
-		'isEnabled',
-		true,
-	)
-		? emojiProviderPromise
-		: getEmojiProvider();
-
 	return (
 		<>
 			<EmojiPickerPopup
+				contentId={contentId}
 				isOpen={emojiPickerPopup.isOpen}
 				targetRef={emojiButtonRef}
-				emojiProvider={emojiProvider}
+				emojiProvider={emojiProviderPromise}
 				onSelection={emojiPickerPopup.handleSelectedEmoji}
 				onClickOutside={emojiPickerPopup.handleClickOutside}
 				onEscapeKeydown={emojiPickerPopup.handleEscapeKeydown}
@@ -71,9 +60,10 @@ export const EmojiButton = ({ api }: BaseToolbarButtonProps): React.JSX.Element 
 					iconBefore={<EmojiIcon label={formatMessage(messages.emoji)} size="small" />}
 					ariaKeyshortcuts="Shift+;"
 					ref={emojiButtonRef}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onClick={() => emojiPickerPopup.toggle()}
 					isSelected={emojiPickerPopup.isOpen}
-					isDisabled={!isTypeAheadAllowed || !emojiProvider}
+					isDisabled={!isTypeAheadAllowed || !emojiProviderPromise}
 					testId={TOOLBAR_BUTTON_TEST_ID.EMOJI}
 				/>
 			</ToolbarTooltip>

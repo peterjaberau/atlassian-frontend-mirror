@@ -1,5 +1,5 @@
 import type { Extension } from '@codemirror/state';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
@@ -7,7 +7,6 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { CodeBlockAdvancedPlugin } from '../codeBlockAdvancedPluginType';
 import { lazyCodeBlockView } from '../nodeviews/lazyCodeBlockAdvanced';
-
 import { shiftArrowDownWorkaround, shiftArrowUpWorkaround } from './shiftArrowKeyWorkaround';
 
 interface Props {
@@ -17,7 +16,7 @@ interface Props {
 	getIntl: () => IntlShape;
 }
 
-export const createPlugin = (props: Props) => {
+export const createPlugin = (props: Props): SafePlugin => {
 	return new SafePlugin({
 		props: {
 			nodeViews: {

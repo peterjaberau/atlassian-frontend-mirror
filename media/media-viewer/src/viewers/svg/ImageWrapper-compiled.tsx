@@ -2,8 +2,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
+import React, { type ReactNode, forwardRef } from 'react';
+
 import { css, jsx } from '@compiled/react';
-import { type ReactNode, forwardRef } from 'react';
 
 const imageWrapperStyles = css({
 	width: '100vw',
@@ -24,16 +26,20 @@ export type ImageWrapperProps = {
 	onClick: (e: React.MouseEvent<Element, MouseEvent>) => void;
 };
 
-export const ImageWrapper = forwardRef<HTMLDivElement, ImageWrapperProps>(
-	({ children, onClick, isHidden }: ImageWrapperProps, ref) => (
-		// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
-		<div
-			data-testid="media-viewer-svg-wrapper"
-			onClick={onClick}
-			ref={ref}
-			css={[imageWrapperStyles, isHidden && dynamicImageWrapperStyles]}
-		>
-			{children}
-		</div>
-	),
+export const ImageWrapper: React.ForwardRefExoticComponent<
+	ImageWrapperProps & React.RefAttributes<HTMLDivElement>
+> = forwardRef<HTMLDivElement, ImageWrapperProps>(
+	({ children, onClick, isHidden }: ImageWrapperProps, ref) => {
+		return (
+			<div
+				role="none"
+				data-testid="media-viewer-svg-wrapper"
+				onClick={onClick}
+				ref={ref}
+				css={[imageWrapperStyles, isHidden && dynamicImageWrapperStyles]}
+			>
+				{children}
+			</div>
+		);
+	},
 );

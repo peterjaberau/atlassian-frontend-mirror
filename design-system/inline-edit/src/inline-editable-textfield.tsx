@@ -2,9 +2,9 @@ import React, { useCallback, useRef } from 'react';
 
 import { cssMap, cx } from '@atlaskit/css';
 import ErrorIcon from '@atlaskit/icon/core/status-error';
-import InlineDialog from '@atlaskit/inline-dialog';
+import InlineDialog from '@atlaskit/inline-dialog/inline-dialog';
 import { Box } from '@atlaskit/primitives/compiled';
-import Textfield from '@atlaskit/textfield';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 import InlineEdit from './inline-edit';
@@ -66,6 +66,7 @@ const InlineEditableTextfield = (props: InlineEditableTextfieldProps): React.JSX
 
 	return (
 		<InlineEdit
+			// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 			{...props}
 			onCancel={onCancel}
 			defaultValue={defaultValue}

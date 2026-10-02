@@ -1,74 +1,22 @@
-import React, {
-	createContext,
-	type ReactNode,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import React, { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import {
-	createForm,
-	type FieldConfig,
-	type FieldSubscriber,
-	type FieldSubscription,
-	type FormApi,
-	type FormState,
-	type Unsubscribe,
-} from 'final-form';
+import { createForm, type FormState } from 'final-form';
 import createDecorator from 'final-form-focus';
 import set from 'lodash/set';
 
 import type { StrictXCSSProp, XCSSAllProperties, XCSSAllPseudos } from '@atlaskit/css';
 import forwardRefWithGeneric from '@atlaskit/ds-lib/forward-ref-with-generic';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
-import { fg } from '@atlaskit/platform-feature-flags';
 
-import { type OnSubmitHandler } from './types';
+import { FormContext } from './form-context';
+import { IsDisabledContext } from './is-disabled-context';
+import {
+	type DefaultValue,
+	type GetCurrentValue,
+	type OnSubmitHandler,
+	type RegisterField,
+} from './types';
 import { getFirstErrorField } from './utils';
-
-type DefaultValue<FieldValue> = (value?: FieldValue) => FieldValue;
-
-type RegisterField = <FieldValue>(
-	name: string,
-	defaultValue: FieldValue | DefaultValue<FieldValue>,
-	subscriber: FieldSubscriber<FieldValue>,
-	subscription: FieldSubscription,
-	config: FieldConfig<FieldValue>,
-) => Unsubscribe;
-
-type GetCurrentValue = <FormValues>(name: string) => FormValues[keyof FormValues] | undefined;
-
-/**
- * __Form context__
- *
- * A form context creates a context for the field values and allows them to be accessed by the children.
- */
-export const FormContext: React.Context<{
-	registerField: RegisterField;
-	getCurrentValue: GetCurrentValue;
-	subscribe: FormApi['subscribe'];
-}> = createContext<{
-	registerField: RegisterField;
-	getCurrentValue: GetCurrentValue;
-	subscribe: FormApi['subscribe'];
-}>({
-	registerField: function () {
-		return () => {};
-	},
-	getCurrentValue: () => undefined,
-	subscribe: function () {
-		return () => {};
-	},
-});
-
-/**
- * __Is disabled context__
- *
- * An is disabled context creates the context for when a value is disabled.
- */
-export const IsDisabledContext: React.Context<boolean> = createContext(false);
 
 interface FormChildrenProps {
 	ref: React.RefObject<HTMLFormElement> | ((value: HTMLFormElement | null) => void);
@@ -331,9 +279,7 @@ const FormBase = <FormValues extends Record<string, any>>(
 							getState: () => form.getState(),
 							getValues: () => form.getState().values,
 							setFieldValue: form.change,
-							...(fg('platform-form-reset-field-state') && {
-								resetFieldState: form.resetFieldState,
-							}),
+							resetFieldState: form.resetFieldState,
 						})
 					: (children as () => ReactNode | void)();
 			return result === undefined ? null : result;
@@ -366,4 +312,5 @@ const Form: <FormValues extends Record<string, any>>(
 	props: FormProps<FormValues> & React.RefAttributes<HTMLFormElement>,
 ) => React.ReactElement | null = forwardRefWithGeneric(FormBase);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Form;

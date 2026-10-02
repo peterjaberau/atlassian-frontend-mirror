@@ -2,12 +2,18 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { token } from '@atlaskit/tokens';
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
+
 import { css, jsx } from '@compiled/react';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
+
 import { type Color as ColorType } from '../Status';
+import { isSwatchSelected, COLORS, PICKER_SWATCHES, SWATCH_ICON_COLOR } from '../status-colors';
+import { type StatusPaletteVariant } from '../StatusPicker';
 import Color from './color';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 const paletteLegacy: [
 	colorValue: ColorType,
@@ -92,8 +98,73 @@ const paletteRefreshed: [
 	],
 ];
 
-const getPalette = () =>
-	fg('platform-component-visual-refresh') ? paletteRefreshed : paletteLegacy;
+const paletteTeam26: [
+	colorValue: ColorType,
+	backgroundColor: string,
+	lightBorderColor: string,
+	darkBorderColor: string,
+	iconColor: string,
+][] = [
+	['neutral', token('color.background.neutral'), '#CACBCF', '#63666B', token('color.icon')],
+	[
+		'blue',
+		token('color.background.information.subtler'),
+		'#8FB8F6',
+		'#1558BC',
+		token('color.icon'),
+	],
+	['green', token('color.background.success.subtler'), '#B3DF72', '#4C6B1F', token('color.icon')],
+	['yellow', token('color.background.warning.subtler'), '#FBC828', '#9E4C00', token('color.icon')],
+	['red', token('color.background.danger.subtler'), '#FD9891', '#AE2E24', token('color.icon')],
+	[
+		'purple',
+		token('color.background.discovery.subtler'),
+		'#D8A0F7',
+		'#803FA5',
+		token('color.icon'),
+	],
+];
+
+type PaletteEntry = [
+	colorValue: ColorType,
+	backgroundColor: string,
+	borderColor: string,
+	iconColor: string,
+];
+
+// Derived from the status colour registry so the swatch list, the Lozenge appearances
+// and the i18n keys cannot drift apart. See COLORS.
+const paletteHex: PaletteEntry[] = PICKER_SWATCHES.flatMap((value) => {
+	const swatch = COLORS[value].swatch;
+	return swatch ? [[value, swatch.backgroundColor, swatch.borderColor, SWATCH_ICON_COLOR]] : [];
+});
+
+/** Columns each variant is laid out in; `extended` wraps its ten swatches onto two rows. */
+const variantToCols: Record<StatusPaletteVariant, number> = {
+	default: 7,
+	extended: 5,
+};
+
+const getPalette = (
+	colorMode?: string,
+	variant: StatusPaletteVariant = 'default',
+): PaletteEntry[] => {
+	if (variant === 'extended') {
+		return paletteHex;
+	}
+	if (fg('platform-dst-lozenge-tag-badge-visual-uplifts')) {
+		const isDark = colorMode === 'dark';
+		return paletteTeam26.map(
+			([colorValue, backgroundColor, lightBorderColor, darkBorderColor, iconColor]) => [
+				colorValue,
+				backgroundColor,
+				isDark ? darkBorderColor : lightBorderColor,
+				iconColor,
+			],
+		);
+	}
+	return fg('platform-component-visual-refresh') ? paletteRefreshed : paletteLegacy;
+};
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/design-system/no-css-tagged-template-expression -- Ignored via go/DSP-18766
 const colorPaletteWrapperStyles = css({
@@ -107,29 +178,41 @@ const colorPaletteWrapperStyles = css({
 	flexWrap: 'wrap',
 });
 
+const colorPaletteRowGapStyles = css({
+	rowGap: token('space.050'),
+});
+
 interface ColorPaletteProps {
 	className?: string;
 	cols?: number;
 	onClick: (value: ColorType) => void;
 	onHover?: (value: ColorType) => void;
+	/** Which set of selectable values to offer. Defaults to the six named colours. */
+	palette?: StatusPaletteVariant;
 	selectedColor?: ColorType;
 }
 
-export default ({ cols = 7, onClick, selectedColor, className, onHover }: ColorPaletteProps) => {
-	const palette = getPalette();
+export default ({
+	cols,
+	onClick,
+	selectedColor,
+	className,
+	onHover,
+	palette: variant = 'default',
+}: ColorPaletteProps): JSX.Element => {
+	const { colorMode } = useThemeObserver();
+	const palette = getPalette(colorMode, variant);
+	const resolvedCols = cols ?? variantToCols[variant];
 	const colorRefs: React.MutableRefObject<HTMLButtonElement[]> = useRef([]);
-	const [currentFocusedColor, setCurrentFocusedColor] = useState(0);
 	useEffect(() => {
 		colorRefs.current = colorRefs.current.slice(0, palette.length);
 	}, [palette.length]);
 
-	const memoizedHandleKeyDown = useCallback(
-		(e: React.KeyboardEvent) => {
+	const createKeyDownHandler = useCallback(
+		(index: number) => (e: React.KeyboardEvent<HTMLButtonElement>) => {
 			let newColorIndex: number | null = null;
-			const nextColor = () =>
-				currentFocusedColor + 1 > palette.length - 1 ? 0 : currentFocusedColor + 1;
-			const previousColor = () =>
-				currentFocusedColor - 1 < 0 ? palette.length - 1 : currentFocusedColor - 1;
+			const nextColor = () => (index + 1 > palette.length - 1 ? 0 : index + 1);
+			const previousColor = () => (index - 1 < 0 ? palette.length - 1 : index - 1);
 
 			switch (e.key) {
 				case 'ArrowRight':
@@ -142,51 +225,37 @@ export default ({ cols = 7, onClick, selectedColor, className, onHover }: ColorP
 					e.preventDefault();
 					newColorIndex = previousColor();
 					break;
-				case 'Tab':
-					setCurrentFocusedColor(0);
-					break;
 			}
 			if (newColorIndex === null) {
 				return;
 			}
-			setCurrentFocusedColor(newColorIndex);
-			const newRef = colorRefs.current[newColorIndex];
-			newRef?.focus();
+			colorRefs.current[newColorIndex]?.focus();
 		},
-		[currentFocusedColor, setCurrentFocusedColor, colorRefs, palette.length],
+		[colorRefs, palette.length],
 	);
 
 	return (
-		/**
-      We need to disable below eslint rule becuase of role "radiogroup". This role was added
-      in https://a11y-internal.atlassian.net/browse/AK-832 to fix accessibility issue.
-      When we migrated to emotion from styled component, we started getting this error.
-      Task added in https://product-fabric.atlassian.net/wiki/spaces/E/pages/3182068181/Potential+improvements#Moderate-changes.
-     */
-		// eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-interactions
 		<ul
-			css={colorPaletteWrapperStyles}
+			css={[colorPaletteWrapperStyles, variant === 'extended' && colorPaletteRowGapStyles]}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={className}
-			style={{ maxWidth: cols * 32 }}
-			onKeyDown={memoizedHandleKeyDown}
+			style={{ maxWidth: resolvedCols * 32 }}
 		>
-			{palette.map(([colorValue, backgroundColor, borderColor, iconColor], i) => {
-				return (
-					<Color
-						key={colorValue}
-						value={colorValue}
-						backgroundColor={backgroundColor}
-						borderColor={borderColor}
-						iconColor={iconColor}
-						onClick={onClick}
-						onHover={onHover}
-						isSelected={colorValue === selectedColor}
-						tabIndex={i === 0 ? 0 : -1}
-						setRef={(el) => (colorRefs.current[i] = el)}
-					/>
-				);
-			})}
+			{palette.map(([colorValue, backgroundColor, borderColor, iconColor], i) => (
+				<Color
+					key={colorValue}
+					value={colorValue}
+					backgroundColor={backgroundColor}
+					borderColor={borderColor}
+					iconColor={iconColor}
+					onClick={onClick}
+					onHover={onHover}
+					isSelected={isSwatchSelected(colorValue, selectedColor)}
+					tabIndex={i === 0 ? 0 : -1}
+					setRef={(el) => (colorRefs.current[i] = el)}
+					onKeyDown={createKeyDownHandler(i)}
+				/>
+			))}
 		</ul>
 	);
 };

@@ -1,5 +1,4 @@
 import type { VCObserverEntryType } from '../../types';
-
 import { createIntersectionObserver } from './index';
 
 describe('createIntersectionObserver', () => {
@@ -224,9 +223,7 @@ describe('createIntersectionObserver', () => {
 			const callback = (window.IntersectionObserver as jest.Mock).mock.calls[0][0];
 
 			// Simulate zero dimension rectangle which triggers display-contents children handling
-			callback([
-				{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 },
-			]);
+			callback([{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 }]);
 
 			// Since element has zero dimensions, it should observe children with the zeroDimensionRectangleTagCallback
 			expect(mockObserver.observe).toHaveBeenCalledWith(childElement);
@@ -248,9 +245,7 @@ describe('createIntersectionObserver', () => {
 
 			const callback = (window.IntersectionObserver as jest.Mock).mock.calls[0][0];
 
-			callback([
-				{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 },
-			]);
+			callback([{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 }]);
 
 			expect(mockObserver.observe).toHaveBeenCalledWith(childElement);
 		});
@@ -271,9 +266,7 @@ describe('createIntersectionObserver', () => {
 
 			const callback = (window.IntersectionObserver as jest.Mock).mock.calls[0][0];
 
-			callback([
-				{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 },
-			]);
+			callback([{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 }]);
 
 			expect(mockObserver.observe).toHaveBeenCalledWith(childElement);
 		});
@@ -295,9 +288,7 @@ describe('createIntersectionObserver', () => {
 			const callback = (window.IntersectionObserver as jest.Mock).mock.calls[0][0];
 
 			// Simulate zero dimension rectangle
-			callback([
-				{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 },
-			]);
+			callback([{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 }]);
 
 			expect(mockObserver.observe).toHaveBeenCalledWith(childElement);
 		});
@@ -318,9 +309,7 @@ describe('createIntersectionObserver', () => {
 
 			const callback = (window.IntersectionObserver as jest.Mock).mock.calls[0][0];
 
-			callback([
-				{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 },
-			]);
+			callback([{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 }]);
 
 			expect(mockObserver.observe).toHaveBeenCalledWith(childElement);
 		});
@@ -341,9 +330,7 @@ describe('createIntersectionObserver', () => {
 
 			const callback = (window.IntersectionObserver as jest.Mock).mock.calls[0][0];
 
-			callback([
-				{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 },
-			]);
+			callback([{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 }]);
 
 			expect(mockObserver.observe).toHaveBeenCalledWith(childElement);
 		});
@@ -364,9 +351,7 @@ describe('createIntersectionObserver', () => {
 
 			const callback = (window.IntersectionObserver as jest.Mock).mock.calls[0][0];
 
-			callback([
-				{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 },
-			]);
+			callback([{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 }]);
 
 			expect(mockObserver.observe).toHaveBeenCalledWith(childElement);
 		});
@@ -387,9 +372,7 @@ describe('createIntersectionObserver', () => {
 
 			const callback = (window.IntersectionObserver as jest.Mock).mock.calls[0][0];
 
-			callback([
-				{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 },
-			]);
+			callback([{ target: element, isIntersecting: false, intersectionRect: zeroRect, time: 123 }]);
 
 			expect(mockObserver.observe).toHaveBeenCalledWith(childElement);
 		});

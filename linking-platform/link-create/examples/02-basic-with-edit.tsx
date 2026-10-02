@@ -1,8 +1,7 @@
 import React, { Fragment, useCallback, useMemo, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Button from '@atlaskit/button/default/button';
+import Link from '@atlaskit/link/link';
 import { token } from '@atlaskit/tokens';
 
 import { MockDisclaimer } from '../example-helpers/mock-disclaimer';
@@ -160,26 +159,19 @@ export default function CreateBasic(): React.JSX.Element {
 
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ padding: token('space.250', '20px') }}>
+		<div style={{ padding: token('space.250') }}>
 			{ari && (
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				<div style={{ marginBottom: token('space.400', '2rem') }}>
+				<div style={{ marginBottom: token('space.400') }}>
 					<p>ARI: {ari}</p>
 				</div>
 			)}
 			{link && (
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				<div style={{ marginBottom: token('space.200', '1rem') }}>
-					{fg('dst-a11y__replace-anchor-with-link__linking-platfo') ? (
-						<Link href={link} target="_blank" rel="noopener noreferrer nofollow">
-							{link}
-						</Link>
-					) : (
-						// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-						<a href={link} target="_blank" rel="noopener noreferrer nofollow">
-							{link}
-						</a>
-					)}
+				<div style={{ marginBottom: token('space.200') }}>
+					<Link href={link} target="_blank" rel="noopener noreferrer nofollow">
+						{link}
+					</Link>
 				</div>
 			)}
 			<Button testId="link-create-show" appearance="primary" onClick={() => setActive(true)}>

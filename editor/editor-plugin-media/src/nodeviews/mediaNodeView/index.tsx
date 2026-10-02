@@ -1,15 +1,16 @@
 import React from 'react';
 
 import { bind } from 'bind-event-listener';
+import type { IntlShape } from 'react-intl';
 
-import type { MediaADFAttrs } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import {
 	type NamedPluginStatesFromInjectionAPI,
 	useSharedPluginStateWithSelector,
 } from '@atlaskit/editor-common/hooks';
 import { DEFAULT_IMAGE_HEIGHT, DEFAULT_IMAGE_WIDTH } from '@atlaskit/editor-common/media-single';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { WithProviders } from '@atlaskit/editor-common/provider-factory';
 import type {
 	ContextIdentifierProvider,
@@ -29,14 +30,22 @@ import {
 	akEditorCalculatedWideLayoutWidth,
 } from '@atlaskit/editor-shared-styles';
 import { getAttrsFromUrl } from '@atlaskit/media-client';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { MediaNextEditorPluginType } from '../../mediaPluginType';
+import {
+	getAIGeneratingDecorationSource,
+	type AIGeneratingSource,
+} from '../../pm-plugins/ai-generating-decoration';
 import { updateCurrentMediaNodeAttrs } from '../../pm-plugins/commands/helpers';
 import { isMediaBlobUrlFromAttrs } from '../../pm-plugins/utils/media-common';
-import type { getPosHandler, getPosHandlerNode, MediaOptions } from '../../types';
+import type {
+	getPosHandler,
+	getPosHandlerNode,
+	MediaOptions,
+	MediaPluginOptions,
+} from '../../types';
+import { MediaSSRReactContextsProvider } from '../../ui/MediaSSRReactContextsProvider';
 import type { MediaNodeViewProps } from '../types';
-
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-named-as-default
 import MediaNode from './media';
@@ -87,6 +96,8 @@ function isMediaDecorationSpec(decoration: Decoration): decoration is Decoration
 
 class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 	private isSelected = false;
+	private isAIGenerating = false;
+	private aiGeneratingSource: AIGeneratingSource | undefined;
 	private hasBeenResized = false;
 	private resizeListenerBinding?: () => void;
 
@@ -127,6 +138,15 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 		}
 	}
 
+	hasPxWidthType(mediaSingleNode: PMNode): boolean {
+		const { width: widthAttr, widthType: widthTypeAttr } = mediaSingleNode.attrs;
+		// for extended mediaSingle nodes with width and widthType attributes ( default behaviour )
+		if (widthAttr && widthTypeAttr === 'pixel') {
+			return true;
+		}
+		return false;
+	}
+
 	hasResizedListener = (): void => {
 		if (!this.hasBeenResized) {
 			this.hasBeenResized = true;
@@ -145,12 +165,10 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 			domRef.contentEditable = 'true';
 		}
 
-		if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-			this.resizeListenerBinding = bind(domRef, {
-				type: 'resized',
-				listener: this.hasResizedListener,
-			});
-		}
+		this.resizeListenerBinding = bind(domRef, {
+			type: 'resized',
+			listener: this.hasResizedListener,
+		});
 		return domRef;
 	}
 
@@ -164,6 +182,14 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 
 		if (this.isSelected !== hasMediaNodeSelectedDecoration) {
 			this.isSelected = hasMediaNodeSelectedDecoration;
+			return true;
+		}
+
+		const aiGeneratingSource = getAIGeneratingDecorationSource(decorations);
+		const aiGenerating = aiGeneratingSource !== undefined;
+		if (this.isAIGenerating !== aiGenerating || this.aiGeneratingSource !== aiGeneratingSource) {
+			this.isAIGenerating = aiGenerating;
+			this.aiGeneratingSource = aiGeneratingSource;
 			return true;
 		}
 
@@ -214,51 +240,46 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 		}
 	};
 
-	getMaxCardDimensions = () => {
+	getMaxCardDimensions = (): {
+		height: string;
+		width: string;
+	} => {
 		const flexibleDimensions = { width: '100%', height: '100%' };
 
-		if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-			const pos = (this.getPos as getPosHandlerNode)();
-			if (typeof pos !== 'number') {
-				return flexibleDimensions;
-			}
+		const pos = (this.getPos as getPosHandlerNode)();
+		if (typeof pos !== 'number') {
+			return flexibleDimensions;
+		}
 
-			if (this.hasBeenResized) {
-				return flexibleDimensions;
-			}
+		if (this.hasBeenResized) {
+			return flexibleDimensions;
+		}
 
-			const mediaSingleNodeParent = this.getMediaSingleNode(this.getPos as getPosHandlerNode);
+		const mediaSingleNodeParent = this.getMediaSingleNode(this.getPos as getPosHandlerNode);
 
-			// If media parent not found, return default
-			if (!mediaSingleNodeParent) {
-				return flexibleDimensions;
-			}
+		// If media parent not found, return default
+		if (!mediaSingleNodeParent) {
+			return flexibleDimensions;
+		}
 
-			// Compute normal dimensions
-			const maxWidth = this.getMaxWidthFromMediaSingleNode(mediaSingleNodeParent);
+		if (this.hasPxWidthType(mediaSingleNodeParent)) {
 			return {
-				width: `${maxWidth}px`,
+				width: `${mediaSingleNodeParent.attrs.width}px`,
 				height: '100%',
 			};
 		}
-
 		return flexibleDimensions;
 	};
 
-	getMediaProviderToUse = (mediaOptions: MediaOptions, mediaProvider?: Promise<MediaProvider>) => {
+	getMediaProviderToUse = (
+		mediaOptions: MediaOptions,
+		mediaProvider?: Promise<MediaProvider>,
+	): Promise<MediaProvider> | undefined => {
 		if (mediaProvider) {
 			return mediaProvider;
 		}
 
-		if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-			return mediaOptions.provider;
-		}
-
-		if (expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)) {
-			return mediaOptions.syncProvider
-				? Promise.resolve(mediaOptions.syncProvider)
-				: mediaOptions.provider;
-		}
+		return mediaOptions.provider;
 	};
 
 	renderMediaNodeWithState = (contextIdentifierProvider?: Promise<ContextIdentifierProvider>) => {
@@ -317,6 +338,8 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 							?.mode === 'view'
 					}
 					pluginInjectionApi={this.reactComponentProps.pluginInjectionApi}
+					isAIGenerating={this.isAIGenerating}
+					isCwrAIGenerating={this.aiGeneratingSource === 'cwr'}
 				/>
 			);
 		};
@@ -334,14 +357,17 @@ class MediaNodeView extends SelectionBasedNodeView<MediaNodeViewProps> {
 	};
 
 	render(): React.JSX.Element {
-		const { providerFactory } = this.reactComponentProps;
+		const { providerFactory, intl } = this.reactComponentProps;
 
 		return (
-			<WithProviders
-				providers={['contextIdentifierProvider']}
-				providerFactory={providerFactory}
-				renderNode={this.renderMediaNodeWithProviders}
-			/>
+			<MediaSSRReactContextsProvider intl={intl}>
+				<WithProviders
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					providers={['contextIdentifierProvider']}
+					providerFactory={providerFactory}
+					renderNode={this.renderMediaNodeWithProviders}
+				/>
+			</MediaSSRReactContextsProvider>
 		);
 	}
 
@@ -358,14 +384,16 @@ export const ReactMediaNode =
 		portalProviderAPI: PortalProviderAPI,
 		eventDispatcher: EventDispatcher,
 		providerFactory: ProviderFactory,
-		mediaOptions: MediaOptions = {},
+		mediaOptions: MediaPluginOptions | undefined = {},
 		pluginInjectionApi: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined,
+		intl?: IntlShape,
 	) =>
-	(node: PMNode, view: EditorView, getPos: getPosHandler) => {
+	(node: PMNode, view: EditorView, getPos: getPosHandler): MediaNodeView => {
 		return new MediaNodeView(node, view, getPos, portalProviderAPI, eventDispatcher, {
 			eventDispatcher,
 			providerFactory,
 			mediaOptions,
 			pluginInjectionApi,
+			intl,
 		}).init();
 	};

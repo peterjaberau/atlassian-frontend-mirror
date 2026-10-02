@@ -2,17 +2,18 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { type ReactNode, useCallback } from 'react';
+import React, { useCallback } from 'react';
+import type { ReactNode } from 'react';
 
 import { jsx, cssMap, cx } from '@compiled/react';
 
-import DropdownMenu, { type OnOpenChangeArgs } from '@atlaskit/dropdown-menu';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import type { OnOpenChangeArgs } from '@atlaskit/dropdown-menu/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { useToolbarUI } from '../hooks/ui-context';
-
 import { ToolbarButton } from './ToolbarButton';
 import { useToolbarDropdownMenu } from './ToolbarDropdownMenuContext';
 
@@ -49,6 +50,13 @@ type ToolbarDropdownMenuProps = {
 	isDisabled?: boolean;
 	label?: string;
 	onClick?: (event: React.MouseEvent<HTMLButtonElement>, isOpen: boolean) => void;
+	/**
+	 * Renders the dropdown menu inline (into its parent) rather than into a portal. This opts the
+	 * menu out of the popup focus-trap's return-focus-to-trigger behaviour on close, which lets
+	 * focus return to the editor after selecting an item. Opt-in per menu to avoid changing the
+	 * rendering of every toolbar dropdown.
+	 */
+	shouldRenderToParent?: boolean;
 	testId?: string;
 	tooltipComponent?: React.ReactNode;
 };
@@ -62,6 +70,7 @@ const ToolbarDropdownMenuContent = ({
 	testId,
 	label,
 	onClick,
+	shouldRenderToParent,
 }: ToolbarDropdownMenuProps) => {
 	const { onDropdownOpenChanged } = useToolbarUI();
 	const menuContext = useToolbarDropdownMenu();
@@ -89,6 +98,7 @@ const ToolbarDropdownMenuContent = ({
 
 	return (
 		<DropdownMenu<HTMLButtonElement>
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			trigger={(triggerProps) => {
 				const toolbarButton = (
 					<ToolbarButton
@@ -98,13 +108,14 @@ const ToolbarDropdownMenuContent = ({
 						aria-haspopup={triggerProps['aria-haspopup']}
 						aria-controls={triggerProps['aria-controls']}
 						onBlur={triggerProps.onBlur}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onClick={(e) => {
 							onClick && onClick(e, !menuContext?.isOpen);
 							handleClick(e);
 							triggerProps.onClick && triggerProps.onClick(e);
 						}}
 						onFocus={triggerProps.onFocus}
-						id={expValEquals('platform_editor_renderer_toolbar_updates', 'isEnabled', true) ? id : undefined}
+						id={id}
 						testId={testId}
 						iconBefore={iconBefore}
 						isDisabled={isDisabled}
@@ -112,16 +123,22 @@ const ToolbarDropdownMenuContent = ({
 					/>
 				);
 
-				if (tooltipComponent && expValEquals('platform_editor_hide_toolbar_tooltips_fix', 'isEnabled', true)) {
+				if (tooltipComponent) {
 					return React.cloneElement(tooltipComponent as React.ReactElement, {
 						children: toolbarButton,
 					});
 				}
-				
+
 				return toolbarButton;
 			}}
 			onOpenChange={handleOpenChange}
 			isOpen={menuContext?.isOpen}
+			shouldRenderToParent={shouldRenderToParent ? true : undefined}
+			strategy={
+				shouldRenderToParent && fg('platform_editor_return_focus_after_text_styles_2')
+					? 'absolute'
+					: undefined
+			}
 		>
 			{children}
 		</DropdownMenu>
@@ -139,16 +156,18 @@ export const ToolbarDropdownMenu = ({
 	enableMaxHeight = false,
 	onClick,
 	tooltipComponent,
-}: ToolbarDropdownMenuProps) => {
+	shouldRenderToParent,
+}: ToolbarDropdownMenuProps): JSX.Element => {
 	return (
 		<ToolbarDropdownMenuContent
 			iconBefore={iconBefore}
 			isDisabled={isDisabled}
-			id={expValEquals('platform_editor_renderer_toolbar_updates', 'isEnabled', true) ? id : undefined}
+			id={id}
 			testId={testId}
 			label={label}
 			onClick={onClick}
-			tooltipComponent={expValEquals('platform_editor_hide_toolbar_tooltips_fix', 'isEnabled', true) ? tooltipComponent : undefined}
+			tooltipComponent={tooltipComponent}
+			shouldRenderToParent={shouldRenderToParent}
 		>
 			<Box
 				xcss={cx(

@@ -1,12 +1,11 @@
-import { render, screen } from '@testing-library/react';
-
-import { isConfluenceGenerator } from '@atlaskit/link-extractors';
+import { isConfluenceGenerator } from '@atlaskit/link-extractors/is-confluence-generator';
+import { render, screen } from '@atlassian/testing-library';
 
 import { TEST_URL } from '../../__mocks__/jsonld';
 import { withIntl } from '../../__mocks__/withIntl';
 import { extractIconFromDocument } from '../extractIconFromDocument';
 
-jest.mock('@atlaskit/link-extractors');
+jest.mock('@atlaskit/link-extractors/is-confluence-generator');
 
 beforeEach(() => {
 	jest.mocked(isConfluenceGenerator).mockReturnValue(false);
@@ -14,75 +13,139 @@ beforeEach(() => {
 
 afterEach(jest.clearAllMocks);
 
+describe('extractIconFromDocument module loading', () => {
+	it('does not eagerly load legacy icon wrapper modules when the extractor is imported', () => {
+		const mockBlogIconModuleLoaded = jest.fn();
+		const mockDocumentIconModuleLoaded = jest.fn();
+		const mockFileIconModuleLoaded = jest.fn();
+		const mockLiveDocumentIconModuleLoaded = jest.fn();
+		const mockPresentationIconModuleLoaded = jest.fn();
+		const mockSpreadsheetIconModuleLoaded = jest.fn();
+
+		jest.isolateModules(() => {
+			jest.doMock('../../../../common/ui/icons/blog-icon', () => {
+				mockBlogIconModuleLoaded();
+				return { __esModule: true, default: () => null };
+			});
+			jest.doMock('../../../../common/ui/icons/chart-bar-icon', () => {
+				mockPresentationIconModuleLoaded();
+				return { __esModule: true, default: () => null };
+			});
+			jest.doMock('../../../../common/ui/icons/file-icon', () => {
+				mockFileIconModuleLoaded();
+				return { __esModule: true, default: () => null };
+			});
+			jest.doMock('../../../../common/ui/icons/list-bullet-icon', () => {
+				mockSpreadsheetIconModuleLoaded();
+				return { __esModule: true, default: () => null };
+			});
+			jest.doMock('../../../../common/ui/icons/live-document-icon', () => {
+				mockLiveDocumentIconModuleLoaded();
+				return { __esModule: true, default: () => null };
+			});
+			jest.doMock('../../../../common/ui/icons/page-icon', () => {
+				mockDocumentIconModuleLoaded();
+				return { __esModule: true, default: () => null };
+			});
+
+			require('../extractIconFromDocument');
+		});
+
+		jest.dontMock('../../../../common/ui/icons/blog-icon');
+		jest.dontMock('../../../../common/ui/icons/chart-bar-icon');
+		jest.dontMock('../../../../common/ui/icons/file-icon');
+		jest.dontMock('../../../../common/ui/icons/list-bullet-icon');
+		jest.dontMock('../../../../common/ui/icons/live-document-icon');
+		jest.dontMock('../../../../common/ui/icons/page-icon');
+
+		expect(mockBlogIconModuleLoaded).not.toHaveBeenCalled();
+		expect(mockDocumentIconModuleLoaded).not.toHaveBeenCalled();
+		expect(mockFileIconModuleLoaded).not.toHaveBeenCalled();
+		expect(mockLiveDocumentIconModuleLoaded).not.toHaveBeenCalled();
+		expect(mockPresentationIconModuleLoaded).not.toHaveBeenCalled();
+		expect(mockSpreadsheetIconModuleLoaded).not.toHaveBeenCalled();
+	});
+});
+
 describe('extractors.icon.document', () => {
 	it('should capture and report a11y violations', async () => {
-		const icon = extractIconFromDocument('schema:BlogPosting', {});
+		const icon = extractIconFromDocument('schema:BlogPosting', { showIconLabel: true });
 		const { container } = render(withIntl(icon));
 
 		await expect(container).toBeAccessible();
 	});
 
 	it('returns blog icon for BlogPosting', async () => {
-		const icon = extractIconFromDocument('schema:BlogPosting', { title: 'blog-icon' });
+		const icon = extractIconFromDocument('schema:BlogPosting', { showIconLabel: true });
 		render(withIntl(icon));
-		expect(await screen.findByTestId('blog-icon')).toBeVisible();
+		expect(screen.getByTestId('blog-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'blog' })).toBeVisible();
 	});
 
 	it('returns file icon for DigitalDocument', async () => {
-		const icon = extractIconFromDocument('schema:DigitalDocument', { title: 'file-icon' });
+		const icon = extractIconFromDocument('schema:DigitalDocument', { showIconLabel: true });
 		render(withIntl(icon));
-		expect(await screen.findByTestId('file-icon')).toBeVisible();
+		expect(screen.getByTestId('file-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'file' })).toBeVisible();
 	});
 
 	it('returns document icon for TextDigitalDocument', async () => {
-		const icon = extractIconFromDocument('schema:TextDigitalDocument', { title: 'document-icon' });
+		const icon = extractIconFromDocument('schema:TextDigitalDocument', { showIconLabel: true });
 		render(withIntl(icon));
-		expect(await screen.findByTestId('document-icon')).toBeVisible();
+		expect(screen.getByTestId('document-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'document' })).toBeVisible();
 	});
 
 	it('returns document icon for UndefinedLink', async () => {
-		const icon = extractIconFromDocument('atlassian:UndefinedLink', { title: 'document-icon' });
+		const icon = extractIconFromDocument('atlassian:UndefinedLink', { showIconLabel: true });
 		render(withIntl(icon));
-		expect(await screen.findByTestId('document-icon')).toBeVisible();
+		expect(screen.getByTestId('document-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'document' })).toBeVisible();
 	});
 
 	it('returns presentation icon for PresentationDigitalDocument', async () => {
 		const icon = extractIconFromDocument('schema:PresentationDigitalDocument', {
-			title: 'presentation-icon',
+			showIconLabel: true,
 		});
 		render(withIntl(icon));
-		expect(await screen.findByTestId('presentation-icon')).toBeVisible();
+		expect(screen.getByTestId('presentation-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'presentation' })).toBeVisible();
 	});
 
 	it('returns spreadsheet icon for SpreadsheetDigitalDocument', async () => {
 		const icon = extractIconFromDocument('schema:SpreadsheetDigitalDocument', {
-			title: 'spreadsheet-icon',
+			showIconLabel: true,
 		});
 		render(withIntl(icon));
-		expect(await screen.findByTestId('spreadsheet-icon')).toBeVisible();
+		expect(screen.getByTestId('spreadsheet-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'spreadsheet' })).toBeVisible();
 	});
 
 	it('returns document filled icon for Template', async () => {
-		const icon = extractIconFromDocument('atlassian:Template', { title: 'document-filled-icon' });
+		const icon = extractIconFromDocument('atlassian:Template', { showIconLabel: true });
 		render(withIntl(icon));
-		expect(await screen.findByTestId('document-filled-icon')).toBeVisible();
+		expect(screen.getByTestId('document-filled-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'template' })).toBeVisible();
 	});
-
 	it('privileges file mime type icon for other documents', async () => {
 		const icon = extractIconFromDocument('Document', {
 			fileFormat: 'image/png',
+			showIconLabel: true,
 		});
 		render(withIntl(icon));
 		expect(await screen.findByTestId('document-file-format-icon')).toBeVisible();
+		expect(await screen.findByRole('img', { name: 'image' })).toBeVisible();
 	});
 
 	it('privileges fileFormat icon for other documents', async () => {
 		const icon = extractIconFromDocument('Document', {
 			fileFormat: 'image/png',
 			provider: { icon: TEST_URL, text: 'favicon' },
+			showIconLabel: true,
 		});
-		expect(icon).not.toBe(String);
-		expect(icon).toBeDefined();
+		render(withIntl(icon));
+		expect(await screen.findByTestId('document-file-format-icon')).toBeVisible();
+		expect(await screen.findByRole('img', { name: 'image' })).toBeVisible();
 	});
 
 	it('privileges provider icon if specified as priority', async () => {
@@ -90,9 +153,11 @@ describe('extractors.icon.document', () => {
 			fileFormat: 'image/png',
 			provider: { icon: TEST_URL, text: 'favicon' },
 			priority: 'provider',
+			showIconLabel: true,
 		});
 		render(withIntl(icon));
 		expect(await screen.findByTestId('document-file-format-icon')).toBeVisible();
+		expect(await screen.findByRole('img', { name: 'image' })).toBeVisible();
 	});
 });
 
@@ -101,17 +166,21 @@ describe('provider-specific document icons', () => {
 		jest.mocked(isConfluenceGenerator).mockReturnValue(true);
 
 		const icon = extractIconFromDocument('schema:DigitalDocument', {
+			showIconLabel: true,
 			provider: { id: 'confluence', text: 'Confluence' },
 		});
 		render(withIntl(icon));
-		expect(await screen.findByTestId('live-doc-icon')).toBeVisible();
+		expect(screen.getByTestId('live-doc-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'live document' })).toBeVisible();
 	});
 
 	it('returns document icon as default (no provider match)', async () => {
 		const icon = extractIconFromDocument('schema:DigitalDocument', {
+			showIconLabel: true,
 			provider: { id: 'jims-gym', text: 'Jims Gym' },
 		});
 		render(withIntl(icon));
-		expect(await screen.findByTestId('file-icon')).toBeVisible();
+		expect(screen.getByTestId('file-icon')).toBeVisible();
+		expect(screen.getByRole('img', { name: 'file' })).toBeVisible();
 	});
 });

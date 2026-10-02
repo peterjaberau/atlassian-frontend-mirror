@@ -1,6 +1,10 @@
 import React from 'react';
+
+import { MockPresenceResource } from '@atlaskit/util-data-test/mock-presence-resource';
+
 import MentionTextInput from '../example-helpers/demo-mention-text-input';
-import { onSelection, resourceProvider, MockPresenceResource } from '../example-helpers';
+import { resourceProvider } from '../example-helpers/index';
+import { onSelection } from '../example-helpers/on-selection';
 
 export default function Example(): React.JSX.Element {
 	return (

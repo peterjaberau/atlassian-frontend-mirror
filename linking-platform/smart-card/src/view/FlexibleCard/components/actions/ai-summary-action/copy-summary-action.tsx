@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import CopyIcon from '@atlaskit/icon/core/copy';
 
@@ -8,16 +8,15 @@ import { useAnalyticsEvents } from '../../../../../common/analytics/generated/us
 import { messages } from '../../../../../messages';
 import type { AISummaryActionData } from '../../../../../state/flexible-ui-context/types';
 import Action from '../action';
-
 import type { AISummaryActionProps } from './types';
 
 export function CopySummaryAction({
 	url,
 	onClick: onClickCallback,
+	summary = '',
 	testId,
-	content,
 	...props
-}: AISummaryActionProps & AISummaryActionData & { content: string }): React.JSX.Element {
+}: AISummaryActionProps & AISummaryActionData & { summary?: string }): React.JSX.Element {
 	const { fireEvent } = useAnalyticsEvents();
 
 	const [tooltipMessage, setTooltipMessage] = useState(messages.copy_summary_action_description);
@@ -25,21 +24,29 @@ export function CopySummaryAction({
 	const handleCopySummaryClick = useCallback(async () => {
 		fireEvent('ui.button.clicked.copySummary', {});
 
-		await navigator.clipboard.writeText(content ?? '');
+		await navigator.clipboard.writeText(summary);
 
 		setTooltipMessage(messages.copied_summary_action_description);
 
 		onClickCallback?.();
-	}, [fireEvent, onClickCallback, content]);
+	}, [fireEvent, onClickCallback, summary]);
 
 	return (
 		<Action
 			content={<FormattedMessage {...messages.copy_summary_action} />}
-			icon={<CopyIcon color="currentColor" spacing="spacious" label="Copy Summary" />}
+			icon={
+				<CopyIcon
+					color="currentColor"
+					spacing="spacious"
+					label="Copy Summary"
+					size={props.iconSize}
+				/>
+			}
 			onClick={handleCopySummaryClick}
 			testId={`${testId}-copy-summary-action`}
 			tooltipMessage={<FormattedMessage {...tooltipMessage} />}
 			tooltipOnHide={() => setTooltipMessage(messages.copy_summary_action_description)}
+			hasNewContentOnTriggerClick
 			{...props}
 		/>
 	);

@@ -1,7 +1,12 @@
-import { bodiedExtension } from '@atlaskit/adf-schema';
+import { bodiedExtension } from '@atlaskit/adf-schema/bodied-extension';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
-import type { DOMOutputSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { N30 } from '@atlaskit/theme/colors';
+import type {
+	AttributeSpec,
+	DOMOutputSpec,
+	Node as PMNode,
+	TagParseRule,
+} from '@atlaskit/editor-prosemirror/model';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { token } from '@atlaskit/tokens';
 
 const capitalizeFirstLetter = (str: string): string => {
@@ -9,7 +14,39 @@ const capitalizeFirstLetter = (str: string): string => {
 };
 
 // @nodeSpecException:toDOM patch
-export const bodiedExtensionSpecWithFixedToDOM = () => {
+export const bodiedExtensionSpecWithFixedToDOM = (): {
+	atom?: boolean;
+	attrs?: {
+		[name: string]: AttributeSpec;
+	};
+	code?: boolean;
+	content?: string;
+	defining?: boolean;
+	definingAsContext?: boolean;
+	definingForContent?: boolean;
+	disableDropCursor?:
+		| boolean
+		| ((
+				view: EditorView,
+				pos: {
+					inside: number;
+					pos: number;
+				},
+				event: DragEvent,
+		  ) => boolean);
+	draggable?: boolean;
+	group?: string;
+	inline?: boolean;
+	isolating?: boolean;
+	leafText?: (node: PMNode) => string;
+	linebreakReplacement?: boolean;
+	marks?: string;
+	parseDOM?: readonly TagParseRule[];
+	selectable?: boolean;
+	toDebugString?: (node: PMNode) => string;
+	toDOM: (node: PMNode) => DOMOutputSpec;
+	whitespace?: 'pre' | 'normal';
+} => {
 	return {
 		...bodiedExtension,
 		toDOM: (node: PMNode): DOMOutputSpec => {
@@ -40,7 +77,7 @@ export const bodiedExtensionSpecWithFixedToDOM = () => {
 					{
 						// Styles based on `packages/editor/editor-common/src/extensibility/Extension/Lozenge/ExtensionLabel.tsx`
 						style: convertToInlineCss({
-							boxShadow: `0 0 0 1px ${token('color.border', N30)}`,
+							boxShadow: `0 0 0 1px ${token('color.border')}`,
 							fontSize: '14px',
 							padding: `${token('space.025')} ${token('space.050')}`,
 							color: token('color.text.subtle'),
@@ -64,7 +101,7 @@ export const bodiedExtensionSpecWithFixedToDOM = () => {
 							padding: token('space.200'),
 							marginLeft: token('space.negative.150'),
 							marginRight: token('space.negative.150'),
-							boxShadow: `0 0 0 1px ${token('color.border', N30)}`,
+							boxShadow: `0 0 0 1px ${token('color.border')}`,
 							borderRadius: token('radius.small'),
 						}),
 					},

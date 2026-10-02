@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import { token } from '@atlaskit/tokens';
 
 const Example = (): React.JSX.Element => {
@@ -16,11 +17,11 @@ const Example = (): React.JSX.Element => {
 		};
 	});
 	return (
-		<div style={{ padding: `${token('space.250', '20px')}` }}>
+		<div style={{ padding: `${token('space.250')}` }}>
 			<iframe
 				name="Basic MediaViewer Example"
 				title="Basic MediaViewer Example"
-				src="./examples.html?groupId=media&packageId=media-viewer&exampleId=basic-example&mode=none"
+				src="./example?groupId=media&packageId=media-viewer&exampleId=basic-example&mode=none"
 				height="50%"
 				width="50%"
 			/>

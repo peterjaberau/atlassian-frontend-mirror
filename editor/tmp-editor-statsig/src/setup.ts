@@ -1,13 +1,12 @@
 /* eslint-disable @atlaskit/editor/no-re-export */
 // Entry file in package.json
 
-import { editorExperimentsConfig } from './experiments-config';
-import {
-	testBooleanOverrides,
-	testMultivariateOverrides,
-	type EditorExperimentOverridesBoolean,
-	type EditorExperimentOverridesMultivariate,
+import { testBooleanOverrides, testMultivariateOverrides } from './exp-test-overrides';
+import type {
+	EditorExperimentOverridesBoolean,
+	EditorExperimentOverridesMultivariate,
 } from './exp-test-overrides';
+import { editorExperimentsConfig } from './experiments-config';
 
 export type EditorExperimentOverrides = Partial<{
 	[ExperimentName in keyof typeof editorExperimentsConfig]: (typeof editorExperimentsConfig)[ExperimentName]['defaultValue'];
@@ -20,7 +19,7 @@ export type EditorExperimentParamOverrides = {
 
 export let _overrides = {} as EditorExperimentOverrides;
 export let _paramOverrides = {} as EditorExperimentParamOverrides;
-export let _product: 'confluence' | 'jira' | 'test' | undefined;
+export let _product: 'bitbucket' | 'confluence' | 'jira' | 'test' | undefined;
 
 /**
  * This function is used to set up the editor experiments for testing purposes.
@@ -33,8 +32,9 @@ export let _product: 'confluence' | 'jira' | 'test' | undefined;
  * });
  * ```
  */
+
 export function setupEditorExperiments(
-	product: 'confluence' | 'jira' | 'test',
+	product: 'bitbucket' | 'confluence' | 'jira' | 'test',
 	/**
 	 * Overrides are used to set the group of an experiment for testing purposes.
 	 * This is useful when you want to test a specific experiment group.
@@ -58,7 +58,6 @@ export function setupEditorExperiments(
 		// values.
 		// For production usage -- this is done via the feature flag client which takes the type
 		// and performs equivalent logic.
-		// @ts-ignore
 		groupOverrides = Object.entries(groupOverrides).reduce((acc, [key, value]) => {
 			const config = editorExperimentsConfig[key as keyof typeof editorExperimentsConfig];
 

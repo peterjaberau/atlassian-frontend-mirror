@@ -1,12 +1,15 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import FabricAnalyticsListener, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { waitUntil } from '@atlaskit/elements-test-helpers';
-import { renderWithIntl } from '@atlaskit/elements-test-helpers/rtl';
+
+import FabricAnalyticsListener from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+
 import ResourcedTaskItem from '../../../components/ResourcedTaskItem';
 import { type TaskDecisionProvider } from '../../../types';
 import { asMock } from '../_mock';
+import { renderWithIntl } from '../_testing-library';
 
 describe('<ResourcedTaskItem/>', () => {
 	let provider: TaskDecisionProvider;
@@ -78,7 +81,7 @@ describe('<ResourcedTaskItem/>', () => {
 		);
 		const checkbox = screen.getByRole('checkbox');
 		await userEvent.click(checkbox);
-		await waitUntil(() => asMock(provider.toggleTask).mock.calls.length);
+		await waitFor(() => expect(asMock(provider.toggleTask).mock.calls.length).toBeGreaterThan(0));
 		expect(spy).toHaveBeenCalled();
 	});
 
@@ -165,8 +168,10 @@ describe('<ResourcedTaskItem/>', () => {
 				Hello World
 			</ResourcedTaskItem>,
 		);
-		await waitUntil(() => (provider.subscribe as jest.Mock).mock.calls.length).then(() => {
-			expect(provider.subscribe).toBeCalled();
+		await waitFor(() =>
+			expect((provider.subscribe as jest.Mock).mock.calls.length).toBeGreaterThan(0),
+		).then(() => {
+			expect(provider.subscribe).toHaveBeenCalled();
 		});
 	});
 
@@ -182,8 +187,8 @@ describe('<ResourcedTaskItem/>', () => {
 			</ResourcedTaskItem>,
 		);
 
-		await waitUntil(() => asMock(provider.subscribe).mock.calls.length);
-		expect(provider.subscribe).toBeCalled();
+		await waitFor(() => expect(asMock(provider.subscribe).mock.calls.length).toBeGreaterThan(0));
+		expect(provider.subscribe).toHaveBeenCalled();
 		const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
 		expect(checkbox.checked).toBe(false);
 
@@ -217,8 +222,10 @@ describe('<ResourcedTaskItem/>', () => {
 		const checkbox = screen.getByRole('checkbox');
 		await userEvent.click(checkbox);
 
-		return waitUntil(() => asMock(provider.toggleTask).mock.calls.length).then(() => {
-			expect(provider.toggleTask).toBeCalled();
+		return waitFor(() =>
+			expect(asMock(provider.toggleTask).mock.calls.length).toBeGreaterThan(0),
+		).then(() => {
+			expect(provider.toggleTask).toHaveBeenCalled();
 		});
 	});
 

@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { defineMessages, FormattedMessage, useIntl } from 'react-intl-next';
+import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
 
-import { isFedRamp } from '@atlaskit/atlassian-context';
-import Button from '@atlaskit/button/new';
-import Link from '@atlaskit/link';
+import { isFedRamp } from '@atlaskit/atlassian-context/is-fedramp';
+import Button from '@atlaskit/button/default/button';
+import Link from '@atlaskit/link/link';
 
 import { GenericErrorSVG } from '../../../../common/generic-error-svg';
 import { EmptyState } from '../../../../common/ui/empty-state';
@@ -13,7 +13,23 @@ export const CONTACT_SUPPORT_LINK = 'https://support.atlassian.com/contact/';
 export const CONTACT_SUPPORT_LINK_FEDRAMP =
 	'https://gcs.atlassian-us-gov-mod.net/servicedesk/customer/portals';
 
-export const messages = defineMessages({
+export const messages: {
+	searchErrorHeader: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	searchErrorDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	searchErrorAction: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	searchErrorHeader: {
 		id: 'fabric.linkPicker.search.error.heading',
 		defaultMessage: 'We’re having trouble loading data.',

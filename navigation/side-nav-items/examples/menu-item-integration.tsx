@@ -5,10 +5,12 @@
 
 import { jsx } from '@compiled/react';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import { cssMap } from '@atlaskit/css';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-import Heading from '@atlaskit/heading';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import Heading from '@atlaskit/heading/heading';
 import AlignTextLeftIcon from '@atlaskit/icon/core/align-text-left';
 import AppsIcon from '@atlaskit/icon/core/apps';
 import BoardIcon from '@atlaskit/icon/core/board';
@@ -27,7 +29,7 @@ import { PanelSplitter } from '@atlaskit/navigation-system/layout/panel-splitter
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavToggleButton,
 } from '@atlaskit/navigation-system/layout/side-nav';
 import {
@@ -52,13 +54,15 @@ import {
 	ExpandableMenuItemTrigger,
 } from '@atlaskit/side-nav-items/expandable-menu-item';
 import {
+	FlyoutBody,
+	FlyoutFooter,
+	FlyoutHeader,
 	FlyoutMenuItem,
 	FlyoutMenuItemContent,
 	FlyoutMenuItemTrigger,
 } from '@atlaskit/side-nav-items/flyout-menu-item';
 import { LinkMenuItem } from '@atlaskit/side-nav-items/link-menu-item';
 import { MenuList } from '@atlaskit/side-nav-items/menu-list';
-import { Divider } from '@atlaskit/side-nav-items/menu-section';
 import { token } from '@atlaskit/tokens';
 
 const headingStyles = cssMap({
@@ -68,7 +72,7 @@ const headingStyles = cssMap({
 	},
 });
 
-export default function MenuItemIntegrationExample() {
+export default function MenuItemIntegrationExample(): JSX.Element {
 	return (
 		<Root>
 			<TopNav>
@@ -95,7 +99,7 @@ export default function MenuItemIntegrationExample() {
 			</TopNav>
 
 			<SideNav label="Side navigation">
-				<SideNavContent>
+				<SideNavBody>
 					<MenuList>
 						<LinkMenuItem href="#" elemBefore={<InboxIcon label="" color="currentColor" />}>
 							Your work
@@ -135,15 +139,23 @@ export default function MenuItemIntegrationExample() {
 								Recent
 							</FlyoutMenuItemTrigger>
 							<FlyoutMenuItemContent>
-								<MenuList>
-									<ButtonMenuItem elemBefore={<BoardIcon label="" color="currentColor" />}>
-										YNG board
-									</ButtonMenuItem>
-									<Divider />
-									<ButtonMenuItem elemBefore={<AlignTextLeftIcon label="" color="currentColor" />}>
-										View all recent items
-									</ButtonMenuItem>
-								</MenuList>
+								<FlyoutHeader title="Recent" closeButtonLabel="Close menu" />
+								<FlyoutBody>
+									<MenuList>
+										<ButtonMenuItem elemBefore={<BoardIcon label="" color="currentColor" />}>
+											YNG board
+										</ButtonMenuItem>
+									</MenuList>
+								</FlyoutBody>
+								<FlyoutFooter>
+									<MenuList>
+										<ButtonMenuItem
+											elemBefore={<AlignTextLeftIcon label="" color="currentColor" />}
+										>
+											View all recent items
+										</ButtonMenuItem>
+									</MenuList>
+								</FlyoutFooter>
 							</FlyoutMenuItemContent>
 						</FlyoutMenuItem>
 						<ButtonMenuItem
@@ -195,7 +207,7 @@ export default function MenuItemIntegrationExample() {
 							Filters
 						</ButtonMenuItem>
 					</MenuList>
-				</SideNavContent>
+				</SideNavBody>
 				<PanelSplitter label="Resize sidebar" />
 			</SideNav>
 

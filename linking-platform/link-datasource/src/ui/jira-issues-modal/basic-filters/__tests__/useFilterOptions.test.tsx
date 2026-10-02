@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import {
 	fieldValuesEmptyResponse,
@@ -371,7 +371,7 @@ describe('useFilterOptions', () => {
 		await result.current.fetchFilterOptions();
 
 		await waitFor(() => {
-		expect(result.current).toEqual({
+			expect(result.current).toEqual({
 				filterOptions: [],
 				fetchFilterOptions: expect.any(Function),
 				reset: expect.any(Function),

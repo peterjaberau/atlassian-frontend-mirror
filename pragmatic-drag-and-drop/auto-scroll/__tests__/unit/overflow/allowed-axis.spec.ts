@@ -2,11 +2,11 @@ import { fireEvent } from '@testing-library/dom';
 import { bind } from 'bind-event-listener';
 
 import { unsafeOverflowAutoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/unsafe-overflow/element';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import {
 	draggable,
 	dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 
 import { type AllowedAxis } from '../../../src/internal-types';
@@ -94,16 +94,16 @@ describe('allowed axis', () => {
 						}),
 						getAllowedAxis: () => allowedAxis,
 					}),
-				bind(parentScrollContainer, {
-					type: 'scroll',
-					listener: (_event) => {
-						events.push({
-							type: 'scroll event',
-							...hasAxisScrolled(parentScrollContainer, axisScroll),
-						});
-						axisScroll = getAxisScroll(parentScrollContainer);
-					},
-				}),
+					bind(parentScrollContainer, {
+						type: 'scroll',
+						listener: (_event) => {
+							events.push({
+								type: 'scroll event',
+								...hasAxisScrolled(parentScrollContainer, axisScroll),
+							});
+							axisScroll = getAxisScroll(parentScrollContainer);
+						},
+					}),
 				);
 				let unsetElementFromPoint = setElementFromPoint(child);
 

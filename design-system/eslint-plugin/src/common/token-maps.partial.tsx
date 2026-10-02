@@ -1,10 +1,11 @@
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::8d2e42e9308a5216d1de97408fbb692d>>
+ * @codegen <<SignedSource::84fcd5a81dc4362f447fdbb022c92edb>>
  * @codegenId spacing
- * @codegenCommand yarn workspace @atlaskit/eslint-plugin-design-system codegen-token-maps
+ * @codegenCommand afm workspace @atlaskit/eslint-plugin-design-system codegen-token-maps
  * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-spacing.tsx <<SignedSource::535518e7add48ef24f526d0904f70060>>
  */
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
 export const positiveSpaceMap: {
 	'0px': 'space.0';
 	'2px': 'space.025';

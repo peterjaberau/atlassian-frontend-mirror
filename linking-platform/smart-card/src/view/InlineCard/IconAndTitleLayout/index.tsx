@@ -1,8 +1,8 @@
 /**
- * @jsxFrag
  * @jsxRuntime classic
  * @jsx jsx
  */
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports -- exports share Compiled style value(s) [LinkAppearance, iconImageStyle, iconWrapperStyle, styles] which cannot be exported across files (UI Styling Standard: no-exported-css) */
 import React, { type ComponentPropsWithoutRef, useState } from 'react';
 
 import { css, jsx, styled } from '@compiled/react';
@@ -12,10 +12,9 @@ import ImageLoader from 'react-render-image';
 import { cssMap } from '@atlaskit/css';
 import LinkIcon from '@atlaskit/icon/core/link';
 import { Box } from '@atlaskit/primitives/compiled';
-import { B400 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
-import { isProfileType } from '../../../utils';
+import { isProfileType } from '../../../utils/is-profile-type';
 import { Shimmer } from '../Icon';
 
 const iconWrapperStyle = css({
@@ -91,7 +90,7 @@ export interface IconAndTitleLayoutProps {
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled,@atlaskit/design-system/no-html-anchor -- Ignored via go/DSP-18766
 const LinkAppearance = styled.a({
-	color: token('color.link', B400),
+	color: token('color.link'),
 	'&:hover': {
 		textDecoration: 'none',
 	},
@@ -111,14 +110,14 @@ export const IconAndTitleLayout = ({
 	testId = 'inline-card-icon-and-title',
 	type,
 	hideIconLoadingSkeleton,
-}: IconAndTitleLayoutProps) => {
+}: IconAndTitleLayoutProps): JSX.Element => {
 	const [hasImageErrored, setHasImageErrored] = useState(false);
 
 	const renderAtlaskitIcon = React.useCallback(() => {
 		if (emoji) {
 			return emoji;
 		}
-		if (!icon || typeof icon === 'string') {
+		if (!icon || typeof icon === 'string' || Array.isArray(icon)) {
 			return null;
 		}
 		return icon;
@@ -129,7 +128,25 @@ export const IconAndTitleLayout = ({
 	const renderImageIcon = React.useCallback(
 		(errored: React.ReactNode, testId: string) => {
 			di(ImageLoader);
-			if (!icon || typeof icon !== 'string') {
+
+			if (!icon) {
+				return null;
+			}
+
+			let iconUrl: string;
+			let iconLabel = '';
+
+			if (Array.isArray(icon)) {
+				const [tupleIconUrl, tupleIconLabel] = icon as [unknown, unknown];
+				if (typeof tupleIconUrl !== 'string') {
+					return null;
+				}
+
+				iconUrl = tupleIconUrl;
+				iconLabel = typeof tupleIconLabel === 'string' ? tupleIconLabel : '';
+			} else if (typeof icon === 'string') {
+				iconUrl = icon;
+			} else {
 				return null;
 			}
 
@@ -141,9 +158,9 @@ export const IconAndTitleLayout = ({
 				return (
 					<img
 						css={[iconImageStyle, profileType && styles.roundImageStyle]}
-						src={icon}
+						src={iconUrl}
 						data-testid={`${testId}-image`}
-						alt=""
+						alt={iconLabel}
 						onError={() => setHasImageErrored(true)}
 					/>
 				);
@@ -151,13 +168,13 @@ export const IconAndTitleLayout = ({
 
 			return (
 				<ImageLoader
-					src={icon}
+					src={iconUrl}
 					loaded={
 						<img
 							css={[iconImageStyle, profileType && styles.roundImageStyle]}
-							src={icon}
+							src={iconUrl}
 							data-testid={`${testId}-image`}
-							alt=""
+							alt={iconLabel}
 						/>
 					}
 					errored={errored}
@@ -217,7 +234,7 @@ export const IconAndTitleLayout = ({
 
 	// maybe consider memoising this after clean up
 	const titlePart = (
-		<>
+		<React.Fragment>
 			<Box
 				as="span"
 				// EDM-12119: This is set here to help with the positioning of the icon to be in the middle of inline display.
@@ -228,22 +245,22 @@ export const IconAndTitleLayout = ({
 				testId="icon-position-wrapper"
 			>
 				{children || (
-					<>
+					<React.Fragment>
 						<Box as="span" xcss={styles.iconEmptyStyle} testId="icon-empty-wrapper" />
 						<span css={[iconWrapperStyle]} data-testid="icon-wrapper">
 							{renderIcon(testId)}
 						</span>
-					</>
+					</React.Fragment>
 				)}
 			</Box>
 			<Box as="span" style={{ color: titleTextColor }}>
 				{title}
 			</Box>
-		</>
+		</React.Fragment>
 	);
 
 	return (
-		<>
+		<React.Fragment>
 			<IconTitleWrapper style={{ color: titleColor }} testId={testId}>
 				{link ? (
 					<LinkAppearance
@@ -263,10 +280,10 @@ export const IconAndTitleLayout = ({
 					</Box>
 				) : null}
 			</IconTitleWrapper>
-		</>
+		</React.Fragment>
 	);
 };
 
-export const IconTitleWrapper = (props: ComponentPropsWithoutRef<typeof Box>) => {
+export const IconTitleWrapper = (props: ComponentPropsWithoutRef<typeof Box>): JSX.Element => {
 	return <Box as="span" xcss={styles.iconTitleWrapperStyle} {...props} />;
 };

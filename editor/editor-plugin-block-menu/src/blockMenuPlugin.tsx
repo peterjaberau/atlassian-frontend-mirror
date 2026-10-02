@@ -1,12 +1,20 @@
 import React from 'react';
 
 import type { NodeType } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { UNSAFE_expValNoExposure } from '@atlaskit/platform-feature-experiments/unsafe-exp-val-no-exposure';
 
 import type { BlockMenuPlugin, RegisterBlockMenuComponent } from './blockMenuPluginType';
 import { createBlockMenuRegistry } from './editor-actions';
 import { isTransformToTargetDisabled } from './editor-actions/isTransformToTargetDisabled';
+import { createBlockMenuTransformSourceRegistry } from './editor-actions/transformSourceRegistry';
+import { transformInlineNode } from './editor-commands/transformInlineNode';
 import { transformNode } from './editor-commands/transformNode';
-import type { TransformNodeMetadata } from './editor-commands/transforms/types';
+import type {
+	TransformInlineNodeMetadata,
+	TransformNodeMarkChanges,
+	TransformNodeMetadata,
+} from './editor-commands/types';
 import { getBlockMenuExperiencesPlugin } from './pm-plugins/experiences/block-menu-experiences';
 import { keymapPlugin } from './pm-plugins/keymap';
 import { blockMenuPluginKey, createPlugin } from './pm-plugins/main';
@@ -17,6 +25,7 @@ import { Flag } from './ui/flag';
 
 export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 	const registry = createBlockMenuRegistry();
+	const transformSourceRegistry = createBlockMenuTransformSourceRegistry();
 	registry.register(getBlockMenuComponents({ api, config }));
 
 	const refs: {
@@ -35,15 +44,23 @@ export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 					name: 'blockMenuKeymap',
 					plugin: () => keymapPlugin(api, config),
 				},
-				{
-					name: 'blockMenuExperiences',
-					plugin: () =>
-						getBlockMenuExperiencesPlugin({
-							refs,
-							dispatchAnalyticsEvent: (payload) =>
-								api?.analytics?.actions?.fireAnalyticsEvent(payload),
-						}),
-				},
+				...(UNSAFE_expValNoExposure(
+					'platform_editor_experience_tracking_observer',
+					'isEnabled',
+					false,
+				)
+					? [
+							{
+								name: 'blockMenuExperiences',
+								plugin: () =>
+									getBlockMenuExperiencesPlugin({
+										refs,
+										dispatchAnalyticsEvent: (payload) =>
+											api?.analytics?.actions?.fireAnalyticsEvent(payload),
+									}),
+							},
+						]
+					: []),
 			];
 		},
 		actions: {
@@ -54,10 +71,10 @@ export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 			getBlockMenuComponents: () => {
 				return registry.components;
 			},
-
 			isTransformOptionDisabled: (
 				optionNodeTypeName: string,
 				optionNodeTypeAttrs?: Record<string, unknown>,
+				targetNodeMarkChanges?: TransformNodeMarkChanges,
 			) => {
 				const preservedSelection =
 					api?.blockControls?.sharedState.currentState()?.preservedSelection;
@@ -72,19 +89,28 @@ export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 					selection: currentSelection,
 					targetNodeTypeName: optionNodeTypeName,
 					targetNodeTypeAttrs: optionNodeTypeAttrs,
+					targetNodeMarkChanges: isExperimentEnabled('platform_editor_block_menu_small_text')
+						? targetNodeMarkChanges
+						: undefined,
+					transformRegistry: transformSourceRegistry,
 				});
 			},
+			registerBlockMenuTransforms: (transforms) => transformSourceRegistry.register(transforms),
 		},
 		commands: {
-			transformNode: (targetType: NodeType, metadata?: TransformNodeMetadata) => {
-				return transformNode(api)(targetType, metadata);
-			},
+			transformInlineNode: (metadata: TransformInlineNodeMetadata) =>
+				transformInlineNode(api)(metadata),
+			transformNode: (targetType: NodeType, metadata?: TransformNodeMetadata) =>
+				transformNode(api, transformSourceRegistry)(targetType, metadata),
 		},
 		getSharedState(editorState) {
+			const useStandardNodeWidth = config?.useStandardNodeWidth ?? false;
+
 			if (!editorState) {
 				return {
 					currentSelectedNodeName: undefined,
 					showFlag: false,
+					useStandardNodeWidth,
 				};
 			}
 
@@ -98,6 +124,7 @@ export const blockMenuPlugin: BlockMenuPlugin = ({ api, config }) => {
 			return {
 				currentSelectedNodeName,
 				showFlag,
+				useStandardNodeWidth,
 			};
 		},
 		contentComponent({

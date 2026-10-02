@@ -1,18 +1,36 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { BreakoutCssClassName } from '@atlaskit/editor-common/styles';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Mark } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { BreakoutPlugin } from '../breakoutPluginType';
-
 import { createPragmaticResizer } from './pragmatic-resizer';
 import { createResizerCallbacks } from './resizer-callbacks';
 
 export const LOCAL_RESIZE_PROPERTY = '--local-resizing-width';
+
+const RESIZE_HANDLE_TRACK_WIDTH = '7px';
+
+// this function delays the resizer callbacks until the mark view DOM is attached to the DOM
+const scheduleResizeHandleSetup = (callback: () => void): (() => void) => {
+	if (typeof window === 'undefined') {
+		return () => {};
+	}
+
+	if (typeof window.requestAnimationFrame === 'function') {
+		const frame = window.requestAnimationFrame(callback);
+		return () => window.cancelAnimationFrame(frame);
+	}
+
+	const timeout = window.setTimeout(callback, 0);
+	return () => window.clearTimeout(timeout);
+};
 
 export class ResizingMarkView implements NodeView {
 	dom: HTMLElement;
@@ -20,6 +38,7 @@ export class ResizingMarkView implements NodeView {
 	view: EditorView;
 	mark: Mark;
 	destroyFn: ((isChangeToViewMode?: boolean) => void) | undefined;
+	cancelScheduledResizeHandleSetup: (() => void) | undefined;
 	intl: IntlShape;
 	nodeViewPortalProviderAPI: PortalProviderAPI;
 	unsubscribeToViewModeChange: (() => void) | undefined;
@@ -51,36 +70,55 @@ export class ResizingMarkView implements NodeView {
 		dom.className = BreakoutCssClassName.BREAKOUT_MARK;
 		dom.setAttribute('data-layout', mark.attrs.mode);
 		dom.setAttribute('data-testid', 'ak-editor-breakout-mark');
-		// dom - styles
+
+		const isRemoveLeftResizeHandleEnabled = isExperimentEnabled(
+			'platform_editor_remove_left_resize_handle',
+		);
+
+		const isResizingDividersPanelsEnabled = expValEquals(
+			'platform_editor_lovability_resize_dividers_panels',
+			'isEnabled',
+			true,
+		);
+
+		const isResizingExtensionsEnabled = isExperimentEnabled(
+			'platform_editor_lovability_resize_extensions',
+		);
+
+		// DOM styles
+		// Keep a three-column grid even when the left resize handle is disabled. The empty
+		// left track preserves the original content alignment without translating `contentDOM`,
+		// so floating UI anchored to the node (for example block drag handles) keeps its position.
 		dom.style.transform = 'none';
 		dom.style.display = 'grid';
 		dom.style.justifyContent = 'center';
 
-		// contentDOM - styles
+		// contentDOM styles
 		contentDOM.style.gridColumn = '2';
 		contentDOM.style.zIndex = '1';
 
-		if (expValEquals('platform_editor_breakout_resizing_vc90_fix', 'isEnabled', true)) {
-			if (mark.attrs.width) {
-				dom.style.gridTemplateColumns = `auto max(var(--ak-editor--breakout-min-width), min(var(${LOCAL_RESIZE_PROPERTY}, ${mark.attrs.width}px), var(--ak-editor--breakout-fallback-width))) auto`;
-			} else {
-				if (mark.attrs.mode === 'wide') {
-					contentDOM.style.width = `max(var(--ak-editor--line-length), min(var(${LOCAL_RESIZE_PROPERTY}, var(--ak-editor--breakout-wide-layout-width)), calc(100cqw - var(--ak-editor--breakout-full-page-guttering-padding))))`;
-				}
-				if (mark.attrs.mode === 'full-width') {
-					contentDOM.style.width = `max(var(--ak-editor--line-length), min(var(${LOCAL_RESIZE_PROPERTY}, var(--ak-editor--full-width-layout-width)), calc(100cqw - var(--ak-editor--breakout-full-page-guttering-padding))))`;
-				}
-			}
+		if (mark.attrs.width) {
+			dom.style.gridTemplateColumns =
+				isResizingDividersPanelsEnabled ||
+				isResizingExtensionsEnabled ||
+				isRemoveLeftResizeHandleEnabled
+					? // new code - phantom left track + content + right handle
+						`${RESIZE_HANDLE_TRACK_WIDTH} max(var(--ak-editor--breakout-min-width), min(var(${LOCAL_RESIZE_PROPERTY}, ${mark.attrs.width}px), var(--ak-editor--breakout-fallback-width))) ${RESIZE_HANDLE_TRACK_WIDTH}`
+					: // old code - left handle + content + right handle
+						`auto max(var(--ak-editor--breakout-min-width), min(var(${LOCAL_RESIZE_PROPERTY}, ${mark.attrs.width}px), var(--ak-editor--breakout-fallback-width))) auto`;
 		} else {
-			if (mark.attrs.width) {
-				dom.style.gridTemplateColumns = `auto min(var(${LOCAL_RESIZE_PROPERTY}, ${mark.attrs.width}px), var(--ak-editor--breakout-fallback-width)) auto`;
-			} else {
-				if (mark.attrs.mode === 'wide') {
-					contentDOM.style.width = `max(var(--ak-editor--line-length), min(var(${LOCAL_RESIZE_PROPERTY}, var(--ak-editor--breakout-wide-layout-width)), calc(100cqw - var(--ak-editor--breakout-full-page-guttering-padding))))`;
-				}
-				if (mark.attrs.mode === 'full-width') {
-					contentDOM.style.width = `max(var(--ak-editor--line-length), min(var(${LOCAL_RESIZE_PROPERTY}, var(--ak-editor--full-width-layout-width)), calc(100cqw - var(--ak-editor--breakout-full-page-guttering-padding))))`;
-				}
+			if (
+				isResizingDividersPanelsEnabled ||
+				isResizingExtensionsEnabled ||
+				isRemoveLeftResizeHandleEnabled
+			) {
+				dom.style.gridTemplateColumns = `${RESIZE_HANDLE_TRACK_WIDTH} auto ${RESIZE_HANDLE_TRACK_WIDTH}`;
+			}
+			if (mark.attrs.mode === 'wide') {
+				contentDOM.style.width = `max(var(--ak-editor--line-length), min(var(${LOCAL_RESIZE_PROPERTY}, var(--ak-editor--breakout-wide-layout-width)), calc(100cqw - var(--ak-editor--breakout-full-page-guttering-padding))))`;
+			}
+			if (mark.attrs.mode === 'full-width') {
+				contentDOM.style.width = `max(var(--ak-editor--line-length), min(var(${LOCAL_RESIZE_PROPERTY}, var(--ak-editor--full-width-layout-width)), calc(100cqw - var(--ak-editor--breakout-full-page-guttering-padding))))`;
 			}
 		}
 
@@ -95,12 +133,45 @@ export class ResizingMarkView implements NodeView {
 
 		const isLiveViewMode = api?.editorViewMode?.sharedState.currentState()?.mode === 'view';
 		if (!isLiveViewMode) {
-			this.setupResizerCallbacks(dom, contentDOM, view, mark, api);
+			fg('platform_editor_lovability_resize_gracefully') ||
+			fg('platform_editor_lovability_resize_exts_gracefully')
+				? this.setupResizerCallbacksIfSupported(
+						dom,
+						contentDOM,
+						view,
+						mark,
+						isResizingDividersPanelsEnabled,
+						isResizingExtensionsEnabled,
+						api,
+					)
+				: this.setupResizerCallbacks(dom, contentDOM, view, mark, api);
 		}
 
 		this.unsubscribeToViewModeChange = api?.editorViewMode?.sharedState.onChange((sharedState) => {
 			if (sharedState.nextSharedState?.mode !== sharedState.prevSharedState?.mode) {
-				if (sharedState.nextSharedState?.mode === 'view' && this.isResizingInitialised) {
+				if (
+					fg('platform_editor_lovability_resize_gracefully') ||
+					fg('platform_editor_lovability_resize_exts_gracefully')
+				) {
+					if (sharedState.nextSharedState?.mode === 'view') {
+						this.cancelScheduledResizeHandleSetup?.();
+						this.cancelScheduledResizeHandleSetup = undefined;
+						if (this.isResizingInitialised) {
+							this.destroyFn?.(true);
+							this.isResizingInitialised = false;
+						}
+					} else if (sharedState.nextSharedState?.mode === 'edit' && !this.isResizingInitialised) {
+						this.setupResizerCallbacksIfSupported(
+							dom,
+							contentDOM,
+							view,
+							mark,
+							isResizingDividersPanelsEnabled,
+							isResizingExtensionsEnabled,
+							api,
+						);
+					}
+				} else if (sharedState.nextSharedState?.mode === 'view' && this.isResizingInitialised) {
 					this.destroyFn?.(true);
 					this.isResizingInitialised = false;
 				} else if (sharedState.nextSharedState?.mode === 'edit' && !this.isResizingInitialised) {
@@ -125,10 +196,64 @@ export class ResizingMarkView implements NodeView {
 			nodeViewPortalProviderAPI: this.nodeViewPortalProviderAPI,
 		});
 
-		this.dom.prepend(leftHandle);
+		if (leftHandle) {
+			this.dom.prepend(leftHandle);
+		}
 		this.dom.appendChild(rightHandle);
 		this.destroyFn = destroy;
 		this.isResizingInitialised = true;
+	}
+
+	setupResizerCallbacksIfSupported(
+		dom: HTMLElement,
+		contentDOM: HTMLElement,
+		view: EditorView,
+		mark: Mark,
+		isResizingDividersPanelsEnabled: boolean,
+		isResizingExtensionsEnabled: boolean,
+		api?: ExtractInjectionAPI<BreakoutPlugin>,
+	): void {
+		// cancel any pending setup before scheduling a new one
+		this.cancelScheduledResizeHandleSetup?.();
+		this.cancelScheduledResizeHandleSetup = undefined;
+
+		// if breakout resizing is supported,
+		// continue to set up the resizer callbacks
+		if (isResizingDividersPanelsEnabled && isResizingExtensionsEnabled) {
+			this.setupResizerCallbacks(dom, contentDOM, view, mark, api);
+			return;
+		}
+
+		// else if breakout resizing is not supported,
+		// do NOT set up the resizer callbacks (yet)
+		// wait for the mark view DOM to be attached to the DOM first
+		this.cancelScheduledResizeHandleSetup = scheduleResizeHandleSetup(() => {
+			this.cancelScheduledResizeHandleSetup = undefined;
+
+			if (view.isDestroyed || !dom.isConnected) {
+				return;
+			}
+
+			const pos = view.posAtDOM(dom, 0);
+			const nodeName = view.state.doc.nodeAt(pos)?.type.name;
+
+			// if the node is a panel or a rule but resizing is not supported, do NOT set up the resizer callbacks
+			// if the node is an extension but resizing is not supported, do NOT set up the resizer callbacks
+			if (
+				(nodeName &&
+					['panel', 'rule', 'panel_c1'].includes(nodeName) &&
+					!isResizingDividersPanelsEnabled) ||
+				(nodeName &&
+					['extension', 'bodiedExtension', 'multiBodiedExtension'].includes(nodeName) &&
+					!isResizingExtensionsEnabled) ||
+				this.isResizingInitialised
+			) {
+				return;
+			}
+
+			// else, continue to set up the resizer callbacks
+			this.setupResizerCallbacks(dom, contentDOM, view, mark, api);
+		});
 	}
 
 	ignoreMutation() {
@@ -138,5 +263,6 @@ export class ResizingMarkView implements NodeView {
 	destroy(): void {
 		this.destroyFn?.();
 		this.unsubscribeToViewModeChange?.();
+		this.cancelScheduledResizeHandleSetup?.();
 	}
 }

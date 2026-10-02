@@ -4,19 +4,19 @@
  * @jsxFrag React.Fragment
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { css, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
 
-import { type UIAnalyticsEvent, useAnalyticsEvents } from '@atlaskit/analytics-next';
-import {
-	type KeyboardOrMouseEvent,
-	ModalTransition,
-	type OnCloseHandler,
-} from '@atlaskit/modal-dialog';
-import { type Placement } from '@atlaskit/popper';
-import UFOSegment from '@atlaskit/react-ufo/segment';
+import { css, jsx } from '@compiled/react';
+import { FormattedMessage, useIntl } from 'react-intl';
+
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import type { KeyboardOrMouseEvent, OnCloseHandler } from '@atlaskit/modal-dialog/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import type { Placement } from '@atlaskit/popper/main';
+import UFOSegment from '@atlaskit/react-ufo/ufo-segment';
 import { token } from '@atlaskit/tokens';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { UFOExperience } from '@atlaskit/ufo/experience';
 
 import {
 	createAndFireSafe,
@@ -39,19 +39,19 @@ import {
 } from '../types';
 import { ReactionDialogOpened, ReactionDialogSelectedReactionChanged } from '../ufo';
 import { Reaction } from './Reaction';
-import { ReactionsDialog } from './ReactionsDialog';
 import { ReactionPicker, type ReactionPickerProps } from './ReactionPicker';
-import { type SelectorProps } from './Selector';
+import { ReactionsDialog } from './ReactionsDialog';
 import { ReactionSummaryView } from './ReactionSummaryView';
+import { type SelectorProps } from './Selector';
 
 const wrapperStyle = css({
 	display: 'flex',
 	flexWrap: 'wrap',
 	position: 'relative',
 	alignItems: 'center',
-	marginTop: token('space.negative.050', '-4px'),
+	marginBlockStart: token('space.negative.050'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-	'> :first-of-type > :first-of-type': { marginLeft: 0 },
+	'> :first-of-type > :first-of-type': { marginInlineStart: 0 },
 });
 
 const noFlexWrapStyles = css({
@@ -64,7 +64,7 @@ const noContainerPositionStyles = css({
 
 const reactionPickerStyle = css({
 	display: 'inline-block',
-	marginTop: token('space.050', '4px'),
+	marginBlockStart: token('space.050'),
 });
 
 const listContainerStyles = css({
@@ -75,14 +75,21 @@ const listContainerStyles = css({
 	listStyle: 'none',
 	margin: 0,
 	padding: 0,
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-	'> li': { margin: 0, padding: 0 },
 });
 
 /**
  * Set of all available UFO experiences relating to Reactions Dialog
  */
-export const ufoExperiences = {
+export const ufoExperiences: {
+	/**
+	 * Experience when a reaction dialog is opened
+	 */
+	openDialog: UFOExperience;
+	/**
+	 * Experience when a reaction changed/fetched from inside the modal dialog
+	 */
+	selectedReactionChangeInsideDialog: UFOExperience;
+} = {
 	/**
 	 * Experience when a reaction dialog is opened
 	 */
@@ -108,9 +115,11 @@ export const RENDER_VIEWALL_REACTED_USERS_DIALOG = 'viewall-reacted-users-dialog
 export const RENDER_REACTIONS_SUMMARY_TESTID = 'reaction-summary-view';
 
 export interface ReactionsProps
-	extends Pick<
+	extends
+		Pick<
 			ReactionPickerProps,
 			| 'allowAllEmojis'
+			| 'contentId'
 			| 'emojiProvider'
 			| 'emojiPickerSize'
 			| 'miniMode'
@@ -135,6 +144,10 @@ export interface ReactionsProps
 	 * Optional emoji reactions list to show custom animation or render as standard (key => emoji string "id", value => true/false to show custom animation)
 	 */
 	flash?: Record<string, boolean>;
+	/**
+	 * Optional function to get an optimistic image URL for a reaction emoji, used to render immediately without waiting for the catalogue.
+	 */
+	getOptimisticImageURL?: (emojiId: string) => string;
 	/**
 	 * Optional event to get reaction details for an emoji
 	 * @param emojiId current reaction emoji id
@@ -283,7 +296,11 @@ export interface OpenReactionsDialogOptions {
 /**
  * Get content of the tooltip
  */
-export function getTooltip(status: ReactionStatus, errorMessage?: string, tooltipContent?: string) {
+export function getTooltip(
+	status: ReactionStatus,
+	errorMessage?: string,
+	tooltipContent?: string,
+): string | JSX.Element | null {
 	switch (status) {
 		case ReactionStatus.error:
 			return errorMessage || <FormattedMessage {...messages.unexpectedError} />;
@@ -301,7 +318,57 @@ export function getTooltip(status: ReactionStatus, errorMessage?: string, toolti
 /**
  * Renders list of reactions
  */
-export const Reactions = React.memo(
+export const Reactions: React.MemoExoticComponent<
+	({
+		flash,
+		particleEffectByEmoji,
+		status,
+		errorMessage,
+		loadReaction,
+		quickReactionEmojis,
+		pickerQuickReactionEmojiIds,
+		getReactionDetails,
+		onSelection,
+		reactions,
+		emojiProvider,
+		allowAllEmojis,
+		contentId,
+		onReactionClick,
+		allowUserDialog,
+		onDialogOpenCallback,
+		onDialogCloseCallback,
+		onDialogSelectReactionCallback,
+		onDialogPageChangeCallback,
+		emojiPickerSize,
+		miniMode,
+		summaryViewEnabled,
+		summaryViewThreshold,
+		summaryViewPlacement,
+		showOpaqueBackground,
+		subtleReactionsSummaryAndPicker,
+		showAddReactionText,
+		hideDefaultReactions,
+		ProfileCardWrapper,
+		onlyRenderPicker,
+		isViewOnly,
+		noWrap,
+		noRelativeContainer,
+		showSubtleDefaultReactions,
+		reactionPickerTriggerTooltipContent,
+		reactionPickerTriggerIcon,
+		allowSelectFromSummaryView,
+		useButtonAlignmentStyling,
+		reactionPickerTriggerText,
+		hoverableSummaryView,
+		isListItem,
+		summaryGetOptimisticImageURL,
+		getOptimisticImageURL,
+		reactionPickerPlacement,
+		summaryButtonIconAfter,
+		renderParticleEffectOnSummaryView,
+		reactionPickerPopperZIndex,
+	}: ReactionsProps) => JSX.Element
+> = React.memo(
 	({
 		flash = {},
 		particleEffectByEmoji = {},
@@ -315,6 +382,7 @@ export const Reactions = React.memo(
 		reactions = [],
 		emojiProvider,
 		allowAllEmojis,
+		contentId,
 		onReactionClick,
 		allowUserDialog,
 		onDialogOpenCallback = () => {},
@@ -344,11 +412,13 @@ export const Reactions = React.memo(
 		hoverableSummaryView = false,
 		isListItem = false,
 		summaryGetOptimisticImageURL,
+		getOptimisticImageURL,
 		reactionPickerPlacement,
 		summaryButtonIconAfter,
 		renderParticleEffectOnSummaryView = false,
 		reactionPickerPopperZIndex,
-	}: ReactionsProps) => {
+	}: ReactionsProps): JSX.Element => {
+		const intl = useIntl();
 		const [selectedEmojiId, setSelectedEmojiId] = useState<string>('');
 		const [summaryViewParticleEffectEmojiId, setSummaryViewParticleEffectEmojiId] = useState<{
 			id: string;
@@ -534,6 +604,9 @@ export const Reactions = React.memo(
 		// criteria to show Reactions Dialog
 		const hasEmojiWithFivePlusReactions = reactions.some((reaction) => reaction.count >= 5);
 
+		const shouldShowPicker =
+			!isViewOnly && !(!onlyRenderPicker && shouldShowSummaryView && allowSelectFromSummaryView);
+
 		const sortedReactions = useMemo(() => {
 			return [...memorizedReactions].sort((a, b) => b?.count - a?.count);
 		}, [memorizedReactions]);
@@ -560,6 +633,53 @@ export const Reactions = React.memo(
 					reason: 'Opening Reactions Dialog successfully',
 				},
 			});
+		};
+
+		const renderReactionItem = (reaction: ReactionSummary, rootElement?: 'div' | 'li') => (
+			<Reaction
+				key={reaction.emojiId}
+				rootElement={rootElement}
+				reaction={reaction}
+				emojiProvider={emojiProvider}
+				onClick={onReactionClick}
+				onMouseEnter={handleReactionMouseEnter}
+				onFocused={handleReactionFocused}
+				flash={flash[reaction.emojiId]}
+				showParticleEffect={particleEffectByEmoji[reaction.emojiId]}
+				showOpaqueBackground={showOpaqueBackground}
+				allowUserDialog={allowUserDialog && hasEmojiWithFivePlusReactions}
+				handleOpenReactionsDialog={handleOpenReactionsDialog}
+				isViewOnly={isViewOnly}
+				showSubtleStyle={showSubtleDefaultReactions && reactions.length === 0}
+				optimisticImageURL={
+					fg('platform_reactions_optimistic_url')
+						? getOptimisticImageURL?.(reaction.emojiId)
+						: undefined
+				}
+			/>
+		);
+
+		const renderReactionGroup = () => {
+			const shouldRenderReactionList = fg('jfp_a11y_team_comment_actions_semantic');
+
+			return (
+				<div
+					css={[
+						!shouldRenderReactionList && listContainerStyles,
+						!shouldRenderReactionList && noWrap && noFlexWrapStyles,
+					]}
+					role="group"
+					aria-label={intl.formatMessage(messages.addedReaction)}
+				>
+					{shouldRenderReactionList ? (
+						<ul css={[listContainerStyles, noWrap && noFlexWrapStyles]}>
+							{memorizedReactions.map((reaction) => renderReactionItem(reaction, 'li'))}
+						</ul>
+					) : (
+						<>{memorizedReactions.map((reaction) => renderReactionItem(reaction))}</>
+					)}
+				</div>
+			);
 		};
 
 		return (
@@ -593,6 +713,7 @@ export const Reactions = React.memo(
 									allowUserDialog={allowUserDialog && hasEmojiWithFivePlusReactions}
 									isViewOnly={isViewOnly}
 									allowSelectFromSummaryView={allowSelectFromSummaryView}
+									contentId={contentId}
 									disabled={status !== ReactionStatus.ready}
 									reactionPickerTriggerIcon={reactionPickerTriggerIcon}
 									tooltipContent={getTooltip(
@@ -612,56 +733,24 @@ export const Reactions = React.memo(
 									}
 								/>
 							</div>
+						) : reactions.length > 0 && fg('platform_reactions_a11y_group_added_reactions') ? (
+							renderReactionGroup()
 						) : fg('jfp_a11y_team_comment_actions_semantic') ? (
 							<ul css={listContainerStyles}>
-								{memorizedReactions.map((reaction) => (
-									<Reaction
-										key={reaction.emojiId}
-										reaction={reaction}
-										emojiProvider={emojiProvider}
-										onClick={onReactionClick}
-										onMouseEnter={handleReactionMouseEnter}
-										onFocused={handleReactionFocused}
-										flash={flash[reaction.emojiId]}
-										showParticleEffect={particleEffectByEmoji[reaction.emojiId]}
-										showOpaqueBackground={showOpaqueBackground}
-										allowUserDialog={allowUserDialog && hasEmojiWithFivePlusReactions}
-										handleOpenReactionsDialog={handleOpenReactionsDialog}
-										isViewOnly={isViewOnly}
-										showSubtleStyle={showSubtleDefaultReactions && reactions.length === 0}
-									/>
-								))}
+								{memorizedReactions.map((reaction) => renderReactionItem(reaction, 'li'))}
 							</ul>
 						) : (
-							<>
-								{memorizedReactions.map((reaction) => (
-									<Reaction
-										key={reaction.emojiId}
-										reaction={reaction}
-										emojiProvider={emojiProvider}
-										onClick={onReactionClick}
-										onMouseEnter={handleReactionMouseEnter}
-										onFocused={handleReactionFocused}
-										flash={flash[reaction.emojiId]}
-										showParticleEffect={particleEffectByEmoji[reaction.emojiId]}
-										showOpaqueBackground={showOpaqueBackground}
-										allowUserDialog={allowUserDialog && hasEmojiWithFivePlusReactions}
-										handleOpenReactionsDialog={handleOpenReactionsDialog}
-										isViewOnly={isViewOnly}
-										showSubtleStyle={showSubtleDefaultReactions && reactions.length === 0}
-									/>
-								))}
-							</>
+							<>{memorizedReactions.map((reaction) => renderReactionItem(reaction))}</>
 						))}
 					{/* Don't render the picker if:
-					   1. Component is view only, thus disabling adding reactions
-					   2. Summary view is being rendered and the picker is shown inside the summary view tray
-					   via allowSelectFromSummaryView, preventing us needing to render it again outside the tray
-					*/}
-					{isViewOnly ||
-					(!onlyRenderPicker && shouldShowSummaryView && allowSelectFromSummaryView) ? null : (
+				   1. Component is view only, thus disabling adding reactions
+				   2. Summary view is being rendered and the picker is shown inside the summary view tray
+				   via allowSelectFromSummaryView, preventing us needing to render it again outside the tray
+				*/}
+					{shouldShowPicker && (
 						<ReactionPicker
 							css={reactionPickerStyle}
+							contentId={contentId}
 							emojiProvider={emojiProvider}
 							allowAllEmojis={allowAllEmojis}
 							pickerQuickReactionEmojiIds={pickerQuickReactionEmojiIds}

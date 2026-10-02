@@ -1,12 +1,12 @@
 {
 	"name": "@atlaskit/editor-extension-googledrive",
-	"version": "5.0.2",
+	"version": "21.0.0",
 	"description": "An Atlassian editor extension to add a native Google Drive picker",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
 	},
 	"repository": {
-		"url": "https://bitbucket.org/atlassian/atlassian-frontend.git"
+		"url": "https://bitbucket.org/atlassian/atlassian-frontend-monorepo"
 	},
 	"author": "Atlassian",
 	"license": "Apache-2.0",
@@ -19,6 +19,13 @@
 		"**/*.compiled.css"
 	],
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "trello-ecosystem"
 	},
 	"exports": {
@@ -27,6 +34,9 @@
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
 		"@atlaskit/adf-utils": "workspace:^",
+		"@atlaskit/docs": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
@@ -34,18 +44,11 @@
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0"
 	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"compiled"
-			]
-		}
+	"devDependencies": {
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0"
 	}
 }

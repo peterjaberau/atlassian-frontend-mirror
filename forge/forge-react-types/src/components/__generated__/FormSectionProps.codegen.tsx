@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - FormSectionProps
  *
- * @codegen <<SignedSource::c85e38840c5dd01b51a1c9fabeaf226b>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/form/__generated__/form-section.partial.tsx <<SignedSource::0dd9401d75f62dec7336bdea43302961>>
+ * @codegen <<SignedSource::606d04f3049395905c4112ef0f46888b>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/form/__generated__/form-section.partial.tsx <<SignedSource::f9dc467cac141d1ba0a0d70a17403d49>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import { FormSection as PlatformFormSection } from '@atlaskit/form';
+import { FormSection as PlatformFormSection } from '@atlaskit/form/form-section';
 
 type PlatformFormSectionProps = React.ComponentProps<typeof PlatformFormSection>;
 

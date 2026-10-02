@@ -1,5 +1,1286 @@
 # @atlaskit/prosemirror-collab
 
+## 1.1.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.21
+
+### Patch Changes
+
+- [`962e8dc0188bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/962e8dc0188bf) -
+  Clean up `platform_editor_offline_editing_web` with `isEnabled: true` for Confluence, keeping
+  offline editing and recovery behavior enabled. Remove the retired experiment from the editor
+  Statsig configuration; consumers must stop querying or overriding this experiment.
+- Updated dependencies
+
+## 1.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.7
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+## 1.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 1.0.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.58
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 1.0.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.97
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.96
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.95
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.94
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.93
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.92
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.91
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.90
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.89
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.88
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.87
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.86
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.85
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.84
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.83
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.82
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.81
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.80
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.79
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.78
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.77
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.76
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.75
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.74
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.51
+
+### Patch Changes
+
+- [`7b7c52dff5d7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7c52dff5d7d) -
+  Fix eslint violations for type import syntax
+
+## 0.22.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.22.16
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.22.15
 
 ### Patch Changes

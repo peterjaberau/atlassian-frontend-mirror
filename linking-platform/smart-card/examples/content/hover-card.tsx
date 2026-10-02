@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { ResolvedClient, ResolvedClientEmbedUrl } from '@atlaskit/link-test-helpers';
 
 import { HoverCard } from '../../src/hoverCard';

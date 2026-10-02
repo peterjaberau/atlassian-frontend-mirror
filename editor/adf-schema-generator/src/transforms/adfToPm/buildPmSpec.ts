@@ -1,12 +1,14 @@
-import type { MarkSpec, NodeSpec } from '@atlaskit/editor-prosemirror/model';
 import merge from 'lodash/merge';
+
+import type { MarkSpec, NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { ADFMark } from '../../adfMark';
+import type { ADFAttributes } from '../../types/ADFAttribute';
 import type { ADFMarkSpec } from '../../types/ADFMarkSpec';
 import { MarkExcludesAll, MarkExcludesNone } from '../../types/ADFMarkSpec';
-import type { ADFAttributes } from '../../types/ADFAttribute';
-import type { ContentVisitorReturnType } from './types';
-import { buildContentExpression } from './buildContentExpression';
 import type { ADFNodeSpec } from '../../types/ADFNodeSpec';
+import { buildContentExpression } from './buildContentExpression';
+import type { ContentVisitorReturnType } from './types';
 
 // @DSLCompatibilityException
 const excludesLinkMarksNodes = ['doc', 'layoutColumn'];
@@ -16,13 +18,27 @@ const excludesIndentationNodes = ['tableHeader', 'tableCell'];
 
 // @DSLCompatibilityException
 const NODES_MARKS_OVERRIDES = {
-	bodiedExtension: ['dataConsumer', 'fragment', 'unsupportedMark', 'unsupportedNodeAttribute'],
+	bodiedExtension: [
+		'dataConsumer',
+		'fontSize',
+		'fragment',
+		'unsupportedMark',
+		'unsupportedNodeAttribute',
+	],
 	codeBlock: ['unsupportedMark', 'unsupportedNodeAttribute'],
-	extensionFrame: ['dataConsumer', 'fragment', 'unsupportedMark', 'unsupportedNodeAttribute'],
+	extensionFrame: [
+		'dataConsumer',
+		'fontSize',
+		'fragment',
+		'unsupportedMark',
+		'unsupportedNodeAttribute',
+	],
 	multiBodiedExtension: ['unsupportedNodeAttribute', 'unsupportedMark'],
 };
 
-export const buildAttrs = (attrs?: ADFAttributes): NodeSpec['attrs'] | MarkSpec['attrs'] | undefined => {
+export const buildAttrs = (
+	attrs?: ADFAttributes,
+): NodeSpec['attrs'] | MarkSpec['attrs'] | undefined => {
 	let attributes = attrs;
 	if (!attrs) {
 		return undefined;

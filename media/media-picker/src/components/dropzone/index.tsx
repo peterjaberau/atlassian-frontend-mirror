@@ -1,7 +1,9 @@
 import React from 'react';
-import { type WithMediaClientConfigProps } from '@atlaskit/media-client-react';
-import { type DropzoneProps } from './dropzone';
+
+import type { WithMediaClientConfigProps } from '@atlaskit/media-client-react/with-media-client';
+
 import { type MediaPickerAnalyticsErrorBoundaryProps } from '../media-picker-analytics-error-boundary';
+import { type DropzoneProps } from './dropzone';
 
 export type DropzoneWithMediaClientConfigProps = WithMediaClientConfigProps<DropzoneProps>;
 type DropzoneWithMediaClientConfigComponent =
@@ -20,7 +22,10 @@ export class DropzoneLoader extends React.PureComponent<DropzoneWithMediaClientC
 	static Dropzone?: DropzoneWithMediaClientConfigComponent;
 	static MediaPickerErrorBoundary?: MediaPickerErrorBoundaryComponent;
 
-	state = {
+	state: {
+		Dropzone: DropzoneWithMediaClientConfigComponent | undefined;
+		MediaPickerErrorBoundary: MediaPickerErrorBoundaryComponent | undefined;
+	} = {
 		Dropzone: DropzoneLoader.Dropzone,
 		MediaPickerErrorBoundary: DropzoneLoader.MediaPickerErrorBoundary,
 	};
@@ -29,7 +34,7 @@ export class DropzoneLoader extends React.PureComponent<DropzoneWithMediaClientC
 		if (!this.state.Dropzone || !this.state.MediaPickerErrorBoundary) {
 			Promise.all([
 				import(
-					/* webpackChunkName: "@atlaskit-internal_media-client-react" */ '@atlaskit/media-client-react'
+					/* webpackChunkName: "@atlaskit-internal_media-client-react_with-media-client" */ '@atlaskit/media-client-react/with-media-client'
 				),
 				import(/* webpackChunkName: "@atlaskit-internal_media-dropzone" */ './dropzone'),
 				import(

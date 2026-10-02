@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import type { Site } from '../common/types';
-
 import { getAccessibleProducts } from './getAvailableSites';
 
-export const useAvailableSites = (product: 'confluence' | 'jira', cloudId?: string) => {
+export const useAvailableSites = (
+	product: 'confluence' | 'jira',
+	cloudId?: string,
+): {
+	availableSites: Site[] | undefined;
+	selectedSite: Site | undefined;
+} => {
 	const [availableSites, setAvailableSites] = useState<Site[] | undefined>(undefined);
 
 	useEffect(() => {

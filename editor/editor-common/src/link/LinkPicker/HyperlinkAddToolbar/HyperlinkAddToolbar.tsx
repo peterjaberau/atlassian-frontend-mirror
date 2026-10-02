@@ -1,30 +1,34 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import type { KeyboardEvent, RefObject } from 'react';
 import React, { PureComponent } from 'react';
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx, type SerializedStyles } from '@emotion/react';
-import debounce from 'lodash/debounce';
 import { flushSync } from 'react-dom';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { defineMessages, injectIntl } from 'react-intl-next';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
+import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
+import debounce from 'lodash/debounce';
+import FocusLock from 'react-focus-lock';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { ActivityItem, ActivityProvider } from '@atlaskit/activity-provider';
-import { isSafeUrl } from '@atlaskit/adf-schema';
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import withAnalyticsEvents from '@atlaskit/analytics-next/withAnalyticsEvents';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
+import withAnalyticsEvents, {
+	type WithAnalyticsEventsProps,
+} from '@atlaskit/analytics-next/withAnalyticsEvents';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import Page16Icon from '@atlaskit/icon-object/glyph/page/16';
 import CrossCircleIcon from '@atlaskit/icon/core/cross-circle';
-import { fg } from '@atlaskit/platform-feature-flags';
+import PageObject from '@atlaskit/object/page';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Pressable, xcss } from '@atlaskit/primitives';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import type { CreateLinkInlineDialogEventPayload, FireAnalyticsCallback } from '../../../analytics';
 import {
@@ -39,19 +43,16 @@ import type { QuickSearchResult, SearchProvider } from '../../../provider-factor
 import type { Command, LinkInputType } from '../../../types';
 import { Announcer, PanelTextInput } from '../../../ui';
 import { normalizeUrl } from '../../../utils';
-import { browser as browserLegacy, getBrowserInfo } from '../../../utils/browser';
+import { getBrowserInfo } from '../../../utils/browser';
 import LinkSearchList from '../../LinkSearch/LinkSearchList';
-import {
-	container,
-	containerWithProvider,
-	narrowContainerWidth,
-	inputWrapper,
-} from '../../LinkSearch/ToolbarComponents';
+import { container, narrowContainerWidth, inputWrapper } from '../../LinkSearch/ToolbarComponents';
 import { transformTimeStamp } from '../../LinkSearch/transformTimeStamp';
 import type { LinkSearchListItemData } from '../../LinkSearch/types';
-
-import { filterUniqueItems, mapContentTypeToIcon, sha1, wordCount } from './utils';
-
+import { filterUniqueItems } from './filterUniqueItems';
+import { messages } from './messages';
+import { sha1 } from './sha1';
+import { mapContentTypeToIcon } from './utils';
+import { wordCount } from './wordCount';
 /**
  * Visible only to screenreaders. Use when there is a need
  * to provide more context to a non-sighted user.
@@ -62,12 +63,13 @@ export const visuallyHiddenStyles: SerializedStyles = css({
 	clipPath: 'inset(50%)',
 	height: '1px',
 	width: '1px',
-	margin: token('space.negative.025', '-2px'),
+	margin: token('space.negative.025'),
 	overflow: 'hidden',
 	padding: 0,
 	position: 'absolute',
 });
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const RECENT_SEARCH_LIST_SIZE = 5;
 
 const clearTextButtonStyles = xcss({
@@ -82,65 +84,22 @@ const clearTextWrapper = css({
 	right: 0,
 });
 const containerPadding = css({
-	padding: `${token('space.150', '12px')} ${token('space.100', '8px')}`,
+	padding: `${token('space.150')} ${token('space.100')}`,
 });
 
 const textLabelMargin = css({
-	marginTop: token('space.150', '12px'),
+	marginTop: token('space.150'),
 });
 
 const inputLabel = css({
 	color: token('color.text.subtlest'),
-	paddingBottom: token('space.050', '4px'),
+	paddingBottom: token('space.050'),
 	font: token('font.body.small'),
 	fontWeight: token('font.weight.medium'),
 });
 
 const inputWrapperPosition = css({
 	position: 'relative',
-});
-
-export const messages = defineMessages({
-	displayText: {
-		id: 'fabric.editor.displayText',
-		defaultMessage: 'Text to display',
-		description: 'Text to display',
-	},
-	clearText: {
-		id: 'fabric.editor.clearLinkText',
-		defaultMessage: 'Clear text',
-		description: 'Clears text on the link toolbar',
-	},
-	clearLink: {
-		id: 'fabric.editor.clearLink',
-		defaultMessage: 'Clear link',
-		description: 'Clears link in the link toolbar',
-	},
-	hyperlinkAriaLabel: {
-		id: 'fabric.editor.hyperlink.ariaLabel',
-		defaultMessage: 'Hyperlink Edit',
-		description: 'Aria label for the Hyperlink Add Toolbar',
-	},
-	searchLinkAriaDescription: {
-		id: 'fabric.editor.hyperlink.searchLinkAriaDescription',
-		defaultMessage: 'Suggestions will appear below as you type into the field',
-		description: 'Describes what the search field does for screen reader users.',
-	},
-	searchLinkResults: {
-		id: 'fabric.editor.hyperlink.searchLinkResults',
-		defaultMessage: '{count, plural, =0 {no results} one {# result} other {# results}} found',
-		description: 'Announce search results for screen-reader users.',
-	},
-	linkVisibleLabel: {
-		id: 'fabric.editor.hyperlink.linkVisibleLabel',
-		defaultMessage: 'Paste or search for link',
-		description: 'Visible label for link input in hyperlink floating control',
-	},
-	textVisibleLabel: {
-		id: 'fabric.editor.hyperlink.textVisibleLabel',
-		defaultMessage: 'Display text (optional)',
-		description: 'Visible label for text input in hyperlink floating control',
-	},
 });
 
 interface BaseProps {
@@ -184,7 +143,7 @@ export interface State {
 	selectedIndex: number;
 }
 
-const defaultIcon = <Page16Icon label={'page'} />;
+const defaultIcon = <PageObject label="page" />;
 
 const mapActivityProviderResultToLinkSearchItemData = ({
 	name,
@@ -221,7 +180,7 @@ const mapSearchProviderResultToLinkSearchItemData = ({
 });
 
 // Ignored via go/ees005
-// eslint-disable-next-line @repo/internal/react/no-class-components
+// eslint-disable-next-line @repo/internal/react/no-class-components, @atlaskit/volt-strict-mode/no-multiple-exports
 export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 	/* To prevent double submit */
 	private submitted: boolean = false;
@@ -265,7 +224,7 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 		const { timesViewed, inputMethod, searchSessionId } = this.props;
 
 		// Ignored via go/ees005
-		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
+		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners, @atlaskit/platform/no-direct-document-usage
 		document.addEventListener('mousedown', this.handleClickOutside);
 
 		this.fireAnalytics({
@@ -294,7 +253,7 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 		const { searchSessionId } = this.props;
 
 		// Ignored via go/ees005
-		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners
+		// eslint-disable-next-line @repo/internal/dom-events/no-unsafe-event-listeners, @atlaskit/platform/no-direct-document-usage
 		document.removeEventListener('mousedown', this.handleClickOutside);
 
 		if (!this.submitted) {
@@ -591,11 +550,10 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 		}
 	};
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { items, isLoading, selectedIndex, displayUrl, displayText } = this.state;
 		const {
 			intl: { formatMessage },
-			activityProvider,
 		} = this.props;
 
 		const formatClearLinkText = formatMessage(messages.clearLink);
@@ -604,31 +562,22 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 		const ariaActiveDescendant = selectedIndex > -1 ? `link-search-list-item-${selectedIndex}` : '';
 		const linkSearchInputId = 'search-recent-links-field-id';
 		const displayTextInputId = 'display-text-filed-id';
-		const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-			? getBrowserInfo()
-			: browserLegacy;
+		const browser = getBrowserInfo();
 		// Added workaround with a screen reader Announcer specifically for VoiceOver + Safari
 		// as the Aria design pattern for combobox does not work in this case
 		// for details: https://a11y-internal.atlassian.net/browse/AK-740
 		const screenReaderText = browser.safari && this.getScreenReaderText();
 
-		const containerWidth = fg('platform_editor_link_picker_width_fix')
-			? narrowContainerWidth
-			: !!activityProvider && containerWithProvider;
-
-		return (
+		const hyperlinkElement = (
 			<div
-				aria-label={fg('platform_editor_dec_a11y_fixes')
-					? formatMessage(messages.hyperlinkAriaLabel)
-					: 'Hyperlink Edit'
-				}
+				aria-label={formatMessage(messages.hyperlinkAriaLabel)}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className="recent-list"
 				data-testid="hyperlink-add-toolbar"
 			>
 				<div
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-					css={[container, containerWidth, containerPadding]}
+					css={[container, narrowContainerWidth, containerPadding]}
 					ref={this.wrapperRef}
 				>
 					<label htmlFor={linkSearchInputId} css={inputLabel}>
@@ -649,24 +598,17 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 						</div>
 						<PanelTextInput
 							role="combobox"
-							ariaExpanded={
-								expValEquals(
-									'editor_enghealth_hyperlink_toolbar_aria_values',
-									'isEnabled',
-									true,
-									false,
-								)
-									? items && items.length > 0 && !isLoading
-									: true
-							}
+							ariaExpanded={items && items.length > 0 && !isLoading}
 							ariaActiveDescendant={ariaActiveDescendant}
 							ariaControls={linkSearchListId}
 							ariaAutoComplete
 							describedById={screenReaderDescriptionId}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							ref={(ele) => (this.urlInputContainer = ele)}
 							testId={'link-url'}
 							onSubmit={this.handleSubmit}
 							onChange={this.updateInput}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							autoFocus={{ preventScroll: true }}
 							onCancel={this.handleCancel}
 							defaultValue={displayUrl}
@@ -692,6 +634,7 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 					{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
 					<div css={[inputWrapper, inputWrapperPosition]}>
 						<PanelTextInput
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							ref={(ele) => (this.displayTextInputContainer = ele)}
 							testId={'link-text'}
 							onChange={this.updateTextInput}
@@ -738,6 +681,7 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 						selectedIndex={selectedIndex}
 						listItemRefCallback={this.listItemRefCallback}
 						onFocus={this.handleListItemFocus}
+						onBlur={this.handleListItemBlur}
 						onKeyDown={this.handleKeyDown}
 						onSelect={this.handleSelected}
 						onMouseEnter={this.handleMouseEnterResultItem}
@@ -746,6 +690,17 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 				</div>
 			</div>
 		);
+
+		if (expValEquals('platform_editor_a11y_escape_link_dialog', 'isEnabled', true)) {
+			return (
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+				<FocusLock returnFocus={{ preventScroll: true }} focusOptions={{ preventScroll: true }}>
+					{hyperlinkElement}
+				</FocusLock>
+			);
+		}
+
+		return hyperlinkElement;
 	}
 
 	private isUrlPopulatedWithSelectedItem = () => {
@@ -876,6 +831,12 @@ export class HyperlinkLinkAddToolbar extends PureComponent<Props, State> {
 		});
 	};
 
+	private handleListItemBlur = () => {
+		this.setState({
+			selectedIndex: -1,
+		});
+	};
+
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private handleKeyDown = (event: KeyboardEvent<any>) => {
@@ -970,7 +931,22 @@ function limit<T>(items: Array<T>) {
 	return items.slice(0, RECENT_SEARCH_LIST_SIZE);
 }
 
-export const HyperlinkLinkAddToolbarWithIntl = injectIntl(
-	HyperlinkLinkAddToolbar as React.ComponentClass<HyperlinkLinkAddToolbarProps>,
-);
-export default withAnalyticsEvents()(HyperlinkLinkAddToolbarWithIntl);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types, @atlaskit/volt-strict-mode/no-multiple-exports
+export const HyperlinkLinkAddToolbarWithIntl: React.FC<
+	WithIntlProps<HyperlinkLinkAddToolbarProps>
+> & {
+	WrappedComponent: React.ComponentType<HyperlinkLinkAddToolbarProps>;
+} = injectIntl(HyperlinkLinkAddToolbar as React.ComponentClass<HyperlinkLinkAddToolbarProps>);
+const _default_1: React.ForwardRefExoticComponent<
+	Omit<
+		Omit<HyperlinkLinkAddToolbarProps, 'intl'> & {
+			forwardedRef?: React.Ref<unknown>;
+		},
+		keyof WithAnalyticsEventsProps
+	> &
+		React.RefAttributes<unknown>
+> = withAnalyticsEvents()(HyperlinkLinkAddToolbarWithIntl);
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export default _default_1;
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { messages } from './messages';

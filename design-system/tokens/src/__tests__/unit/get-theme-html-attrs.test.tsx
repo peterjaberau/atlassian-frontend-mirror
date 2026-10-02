@@ -6,7 +6,7 @@ import {
 	THEME_DATA_ATTRIBUTE,
 } from '../../constants';
 import getThemeHtmlAttrs from '../../get-theme-html-attrs';
-import { type ThemeOptionsSchema } from '../../theme-config';
+import { type ThemeOptionsSchema } from '../../theme-options-schema';
 import { hash } from '../../utils/hash';
 
 const UNSAFE_themeOptions: ThemeOptionsSchema = {
@@ -21,6 +21,7 @@ describe('getThemeHtmlAttrs', () => {
 			colorMode: 'auto',
 			dark: 'dark',
 			light: 'light',
+			shape: 'shape',
 			spacing: 'spacing',
 			typography: 'typography',
 			UNSAFE_themeOptions,
@@ -28,7 +29,7 @@ describe('getThemeHtmlAttrs', () => {
 
 		expect(result).toHaveProperty(
 			THEME_DATA_ATTRIBUTE,
-			'dark:dark light:light spacing:spacing typography:typography',
+			'dark:dark light:light motion:motion shape:shape spacing:spacing typography:typography',
 		);
 
 		// SSR doesn't check the media query

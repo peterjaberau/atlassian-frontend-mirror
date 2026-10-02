@@ -1,5 +1,63 @@
 # @atlaskit/editor-prosemirror
 
+## 9.0.0
+
+### Major Changes
+
+- [`8c0128b9494b2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8c0128b9494b2) -
+  Remove `Step` from the `@atlaskit/editor-prosemirror/transform` entrypoint. Import `Step`,
+  including type-only uses, from `@atlaskit/editor-prosemirror/transform-override` instead:
+
+  ```ts
+  import { Step } from '@atlaskit/editor-prosemirror/transform-override';
+  ```
+
+  The `transform` entrypoint still initializes the metadata-preserving `Step.fromJSON` override. All
+  other exports remain unchanged.
+
+## 8.0.3
+
+### Patch Changes
+
+- [`b2351ddc1f913`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b2351ddc1f913) -
+  Update repository metadata to point to the Atlassian Frontend Monorepo.
+
+## 8.0.2
+
+### Patch Changes
+
+- [`96ff624afbccb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/96ff624afbccb) -
+  Remove incorrect deprecation notices
+
+## 8.0.1
+
+### Patch Changes
+
+- [`b062d51a475e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b062d51a475e5) -
+  VOLTC-55 - run volt-migrate-package on @atlaskit/editor-prosemirror
+
+## 8.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
 ## 7.3.0
 
 ### Minor Changes

@@ -3,13 +3,23 @@ import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/stat
 import { ReplaceAroundStep, ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
 import { findParentNodeOfTypeClosestToPos } from '@atlaskit/editor-prosemirror/utils';
 
-import type { SyncBlockAttrs, SyncBlockMap } from '../../types';
+import type { SyncBlockAttrs, SyncBlockInfo, SyncBlockMap } from '../../types';
 
+/**
+ * Tracks changes to sync blocks in a transaction.
+ * @param predicate - A function that returns true if a node is a sync block (source or reference or both).
+ * @param tr - The transaction to track changes in.
+ * @param state - The editor state.
+ * @returns An object containing the removed and added sync blocks.
+ */
 export const trackSyncBlocks = (
 	predicate: (node: PMNode) => boolean,
 	tr: Transaction,
 	state: EditorState,
-) => {
+): {
+	added: SyncBlockInfo[];
+	removed: SyncBlockInfo[];
+} => {
 	const removed: SyncBlockMap = {};
 	const added: SyncBlockMap = {};
 
@@ -25,11 +35,11 @@ export const trackSyncBlocks = (
 		(step) => step instanceof ReplaceStep || step instanceof ReplaceAroundStep,
 	) as (ReplaceStep | ReplaceAroundStep)[];
 
-	// this is a quick check to see if any insertion/deletion of bodiedSyncBlock happened
-	const hasBodiedSyncBlockChanges = replaceSteps.some((step, idx) => {
+	// this is a quick check to see if any insertion/deletion of sync block happened
+	const hasSyncBlockChanges = replaceSteps.some((step) => {
 		const { from, to } = step;
 
-		const docAtStep = tr.docs[idx];
+		const docAtStep = tr.docs[tr.steps.indexOf(step)];
 
 		let hasChange = false;
 		if (from !== to) {
@@ -65,7 +75,7 @@ export const trackSyncBlocks = (
 		return hasChange;
 	});
 
-	if (hasBodiedSyncBlockChanges) {
+	if (hasSyncBlockChanges) {
 		const oldDoc = state.doc;
 		const newDoc = tr.doc;
 
@@ -119,9 +129,10 @@ export const trackSyncBlocks = (
 export const hasEditInSyncBlock = (tr: Transaction, state: EditorState): boolean => {
 	const { bodiedSyncBlock } = state.schema.nodes;
 
-	for (const step of tr.steps) {
+	for (let i = 0; i < tr.steps.length; i++) {
+		const step = tr.steps[i];
 		const map = step.getMap();
-		const { doc } = tr;
+		const docAfterStep = tr.docs[i + 1] ?? tr.doc;
 		const positions: number[] = [];
 
 		// Extract positions from steps dynamically based on applicable properties
@@ -140,8 +151,8 @@ export const hasEditInSyncBlock = (tr: Transaction, state: EditorState): boolean
 
 		for (const pos of positions) {
 			const newPos = map.map(pos);
-			if (newPos >= 0 && newPos <= doc.content.size) {
-				if (findParentNodeOfTypeClosestToPos(doc.resolve(newPos), bodiedSyncBlock)) {
+			if (newPos >= 0 && newPos <= docAfterStep.content.size) {
+				if (findParentNodeOfTypeClosestToPos(docAfterStep.resolve(newPos), bodiedSyncBlock)) {
 					return true;
 				}
 			}

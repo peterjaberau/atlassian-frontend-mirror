@@ -1,7 +1,5 @@
 import fetchMock from 'fetch-mock/cjs/client';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-
 import {
 	mockActionsDiscovery,
 	mockActionsExecution,
@@ -94,10 +92,9 @@ export interface FetchMockRequestDetails {
 	method: string;
 }
 
-interface ResolveBatchRequest
-	extends Array<{
-		resourceUrl: string;
-	}> {}
+interface ResolveBatchRequest extends Array<{
+	resourceUrl: string;
+}> {}
 
 let numberOfLoads = 0;
 
@@ -138,10 +135,7 @@ export const mockDatasourceFetchRequests = ({
 			return rest.initialVisibleColumnKeys;
 		}
 		if (type === 'jira') {
-			// Return just jiraMocks.defaultInitialVisibleColumnKeys when cleaning up jpd_confluence_date_fields_improvements
-			return fg('jpd_confluence_date_fields_improvements')
-				? [...jiraMocks.defaultInitialVisibleColumnKeys, 'daterange']
-				: jiraMocks.defaultInitialVisibleColumnKeys;
+			return jiraMocks.defaultInitialVisibleColumnKeys;
 		}
 		if (type === 'confluence') {
 			return confluenceMocks.defaultInitialVisibleColumnKeys;
@@ -205,14 +199,20 @@ export const mockDatasourceFetchRequests = ({
 			const {
 				parameters: { cloudId },
 				includeSchema,
+				fields,
 			} = requestBody;
+			// Mirror production: when the client requests specific `fields`, return data
+			// (and schema, if requested) for those fields. Otherwise, fall back to the
+			// mock's configured default visible columns.
+			const requestedColumnKeys =
+				Array.isArray(fields) && fields.length > 0 ? fields : initialVisibleColumnKeys;
 			function getMock() {
 				if (type === 'jira') {
 					return jiraMocks.generateDataResponse({
 						cloudId,
 						numberOfLoads,
 						includeSchema,
-						initialVisibleColumnKeys,
+						initialVisibleColumnKeys: requestedColumnKeys,
 					});
 				}
 				if (type === 'confluence') {
@@ -220,7 +220,7 @@ export const mockDatasourceFetchRequests = ({
 						cloudId,
 						numberOfLoads,
 						includeSchema,
-						initialVisibleColumnKeys,
+						initialVisibleColumnKeys: requestedColumnKeys,
 					});
 				}
 			}

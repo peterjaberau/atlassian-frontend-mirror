@@ -1,5 +1,548 @@
 # @atlaskit/avatar
 
+## 30.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 30.0.2
+
+### Patch Changes
+
+- [`2135c166f4159`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2135c166f4159) -
+  Very minor adjustments to Avatar sizing to align exactly with Figma. Updated labels in Avatar
+  examples to display the correct size.
+
+## 30.0.1
+
+### Patch Changes
+
+- [`0f780b942b35d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f780b942b35d) -
+  Use Popup's shared trigger types for existing trigger ARIA contracts.
+
+## 30.0.0
+
+### Major Changes
+
+- [`ae5c32fe7bfd6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae5c32fe7bfd6) -
+  Record the rollback of the DSP-25935 popup trigger type expansion in PR #487935. This restores
+  compatibility with existing consumers, including Jira Assets audit logs and linked objects.
+
+  Popup's `aria-haspopup` trigger contract returns to `boolean | 'dialog'`. The affected public
+  trigger props in Dropdown Menu, Avatar, Lozenge, Universal Create, Rovo Pins, and Navigation
+  System also return to their earlier contracts. Consumers using the newly added role-specific
+  string values must return to values supported by those earlier contracts. Popup no longer exports
+  `AriaHasPopup` or `TriggerAriaProps`; use `TriggerProps['aria-haspopup']` and
+  `Pick<TriggerProps, 'aria-controls' | 'aria-expanded' | 'aria-haspopup'>` instead.
+
+  Popup and Dropdown Menu retain their existing top-layer runtime ARIA values through the prior
+  compatibility adapters. Conversation Assistant returns to its previous internal trigger type
+  annotation without changing its public API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.2.0
+
+### Minor Changes
+
+- [`228be7a992e49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/228be7a992e49) -
+  Allow Avatar and Lozenge Dropdown Trigger to accept popup role values and booleans for
+  `aria-haspopup`, including values forwarded by Popup. Align Universal Create and Rovo Pins trigger
+  types with Popup when forwarding its ARIA props.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 29.1.1
+
+### Patch Changes
+
+- [`3f8590bf6d39f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f8590bf6d39f) -
+  Fixed images being stretched instead of cropped to fit when `UNSAFE_isUpdatedGeometry` is enabled,
+  by applying `object-fit: cover` to the avatar image.
+
+## 29.1.0
+
+### Minor Changes
+
+- [`3f554debe10e9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f554debe10e9) -
+  Added an experimental `UNSAFE_isUpdatedGeometry` prop to `Avatar` and `AvatarGroup` that selects a
+  taller hexagon geometry with adjusted negative margins for the 16px, 24px, 32px, 40px, 96px, and
+  128px sizes. The 20px size retains the legacy geometry.
+
+## 29.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 28.0.1
+
+### Patch Changes
+
+- [`8a39156cf22f5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8a39156cf22f5) -
+  Deprecate the `xsmall` Avatar prop overload while retaining runtime and type compatibility for the
+  current 16px size.
+
+## 28.0.0
+
+### Major Changes
+
+- [`3516c9fac5ea8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3516c9fac5ea8) -
+  Rename the public 16px Avatar size from `xsmall` to `xxsmall` to make room for a future 20px
+  `xsmall` size. `xsmall` still renders at runtime for now to avoid immediate JavaScript breakages,
+  but it has been removed from TypeScript interfaces and will be removed in a future major before
+  being re-added as the public 20px size.
+
+  Run the Avatar codemod to update static 16px Avatar usage:
+
+  ```diff
+  <Avatar
+  - size="xsmall"
+  + size="xxsmall"
+  />
+  ```
+
+  AvatarGroup continues to exclude 16px and 20px Avatar-only sizes.
+
+### Patch Changes
+
+- [`3516c9fac5ea8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3516c9fac5ea8) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall`.
+- Updated dependencies
+
+## 27.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.2.2
+
+### Patch Changes
+
+- [`695fcbc68ad47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/695fcbc68ad47) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 27.2.1
+
+### Patch Changes
+
+- [`9a7653523837c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a7653523837c) -
+  Use `@atlassian/testing-library` exclusively in unit tests.
+
+## 27.2.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 27.1.0
+
+### Minor Changes
+
+- [`8022d651e6a43`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8022d651e6a43) -
+  Add the `./avatar-sizes` entry point, which exports the `AVATAR_SIZES` size map. This allows
+  consumers to import avatar sizing values directly via `@atlaskit/avatar/avatar-sizes`.
+
+## 27.0.0
+
+### Major Changes
+
+- [`517bbea71d2d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/517bbea71d2d2) -
+  **Breaking change:** The `isDecorative` prop has been removed from `Avatar`.
+
+  This prop was used to suppress `aria-labelledby` on decorative avatars. The same effect can be
+  achieved by passing an empty string to the `label` prop.
+
+  **Migration:**
+
+  ```diff
+  - <Avatar src={src} name="User name" isDecorative />
+  + <Avatar src={src} name="User name" label="" />
+  ```
+
+  If you were conditionally setting `isDecorative`:
+
+  ```diff
+  - <Avatar src={src} name={name} isDecorative={isDecorative} />
+  + <Avatar src={src} name={name} label={isDecorative ? '' : undefined} />
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.4.2
+
+### Patch Changes
+
+- [`e0edc05cd52d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0edc05cd52d7) -
+  Migrates internal 16px Avatar usage from `xsmall` to `xxsmall` as a 1:1 size rename with no visual
+  change.
+
+## 26.4.1
+
+### Patch Changes
+
+- [`4b7c5c71d51c0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b7c5c71d51c0) -
+  Add a codemod and migration guide for replacing 16px `xsmall` Avatar usage with `xxsmall`.
+
+## 26.4.0
+
+### Minor Changes
+
+- [`3a45d08ff1c62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a45d08ff1c62) -
+  Add `xxsmall` as the public 16px Avatar size and deprecate `xsmall` as the legacy 16px alias. This
+  starts the migration from the existing 16/24px Avatar size scale to 16/20/24px. Static Avatar
+  usages in AFM should migrate from `xsmall` to `xxsmall`; `xsmall` remains available for now and
+  continues to render as 16px while the migration feature gate is off.
+
+  AvatarGroup continues to exclude the Avatar-only 16px and 20px sizes.
+
+## 26.3.0
+
+### Minor Changes
+
+- [`6fc1fcd1b0196`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6fc1fcd1b0196) -
+  Adjusts hexagon avatars so that their stroke width is closer to 2px and consistent with other
+  avatar shapes. This change is behind the `platform_editor_agent_mentions_drop_one_fixes` feature
+  gate.
+
+## 26.2.0
+
+### Minor Changes
+
+- [`0a1dac0483f0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a1dac0483f0a) -
+  Add a new `UNSAFE_xsmall` size variant (20px) to `Avatar`, `AvatarContent`, and `Skeleton`. It
+  sits between the existing `xsmall` (16px) and `small` (24px) sizes and supports presence and
+  status indicators.
+
+  `UNSAFE_xsmall` is an unsafe, transitional size that is intentionally hidden from the documented
+  size scale (`@private`). The size scale will eventually be renamed so the 16px avatar becomes
+  `xxsmall` and `xsmall` represents 20px. Until that migration happens, `UNSAFE_xsmall` provides a
+  20px avatar for consumers that need it.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 26.0.2
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 26.0.1
+
+### Patch Changes
+
+- [`9810045072e34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9810045072e34) -
+  Remove feature flag `platform_square_avatar_remove_xlarge_xxlarge_sizes`. Square avatars now
+  support all sizes including `xlarge` and `xxlarge`.
+
+## 26.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.15.1
+
+### Patch Changes
+
+- [`d39a9f06a8508`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d39a9f06a8508) -
+  [ux] Bug fix: square avatars allow size to be set to xlarge and xxlarge, which are invalid sizes
+  that should not be available for square avatars (only circle and hexagonal avatars).
+
+## 25.15.0
+
+### Minor Changes
+
+- [`e52f0046ff01d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e52f0046ff01d) -
+  Cleanup feature gate `platform_dst_hexagon_avatar_unified_size`. Hexagonal avatars now
+  consistently use unified sizing to align with other avatar types. We have not seen any regression
+  with this breaking alignment, but it's possible to have subtle breaking changes with unsafe style
+  overrides.
+
+## 25.14.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.14.1
+
+### Patch Changes
+
+- [`0b2913c48cd7a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b2913c48cd7a) -
+  Fix hexagon avatar hover scaling: apply motion scale transform to the outermost hexagon wrapper so
+  the border and content scale together, instead of only the inner content scaling.
+
+## 25.14.0
+
+### Minor Changes
+
+- [`436b89822a386`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/436b89822a386) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 25.13.0
+
+### Minor Changes
+
+- [`91ec2c3ecc3b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/91ec2c3ecc3b5) -
+  [ux] Added `'warning'` as a new value for the `status` prop on `Avatar` and the `Status`
+  component. This adds a yellow warning indicator to signal caution or attention-required states,
+  supporting Agent visibility use cases.
+
+## 25.12.0
+
+### Minor Changes
+
+- [`1a7161faf1584`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a7161faf1584) -
+  [ux] Added `'warning'` as a new value for the `status` prop on `Avatar` and the `Status`
+  component. This adds a yellow warning indicator to signal caution or attention-required states,
+  supporting Agent visibility use cases.
+
+## 25.11.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.11.6
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 25.11.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.11.4
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 25.11.3
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 25.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.11.1
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+
+## 25.11.0
+
+### Minor Changes
+
+- [`2596f105ed08c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2596f105ed08c) -
+  [ux] Added motion on hover for interactive Avatar behind fg platform-dst-motion-uplift
+
+## 25.10.0
+
+### Minor Changes
+
+- [`bab17fe0fd7cf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bab17fe0fd7cf) -
+  Allow avatar border to accept non colour values like css calculated values
+
+## 25.9.2
+
+### Patch Changes
+
+- [`1ba6ced5fedb9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1ba6ced5fedb9) -
+  Move some internal API into dedicated files to avoid them being inadvertently exported via
+  entrypoints.
+
+## 25.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.9.0
+
+### Minor Changes
+
+- [`a3d111d3b5a28`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3d111d3b5a28) -
+  [ux] Cleans up platform_dst_avatar_tile and platform_dst_avatar_tile_stage2 feature gates as they
+  are fully rolled out now.
+
+### Patch Changes
+
+- [`0511c5b5930bb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0511c5b5930bb) -
+  Adjust the hexagonal appearance Avatar's width and height to be aligned with other Avatars behind
+  fg platform_dst_hexagon_avatar_unified_size
+
+## 25.8.4
+
+### Patch Changes
+
+- [`eb30d533bbb0f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb30d533bbb0f) -
+  Added hexagon appearance support for avatargroup view more dropdown button
+
+## 25.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 25.8.0
+
+### Minor Changes
+
+- [`7140aa6f03a00`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7140aa6f03a00) -
+  Adds aria-controls, aria-expanded, and aria-haspopup props to Avatar, enabling it to be used
+  directly as a popup trigger without needing an external button wrapper.
+
+## 25.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 25.7.4
 
 ### Patch Changes

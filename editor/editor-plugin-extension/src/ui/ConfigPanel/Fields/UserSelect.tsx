@@ -6,20 +6,20 @@ import type {
 	UserFieldContext,
 } from '@atlaskit/editor-common/extensions';
 import { getUserFieldContextProvider } from '@atlaskit/editor-common/extensions';
-import type { FieldProps } from '@atlaskit/form';
-import { Field } from '@atlaskit/form';
+import type { FieldProps } from '@atlaskit/form/field';
+import Field from '@atlaskit/form/field';
+import SmartUserPicker from '@atlaskit/smart-user-picker/components';
+import hydrateDefaultValues from '@atlaskit/smart-user-picker/default-value-hydration-client';
 import type {
 	DefaultValue,
 	OptionData,
 	OptionIdentifier,
 	Value as UnsafeValue,
-} from '@atlaskit/smart-user-picker';
-import SmartUserPicker, { hydrateDefaultValues } from '@atlaskit/smart-user-picker';
+} from '@atlaskit/user-picker/types';
 
 import FieldMessages from '../FieldMessages';
 import type { OnFieldChange } from '../types';
 import { validate } from '../utils';
-
 import UnhandledType from './UnhandledType';
 
 type FieldValue = UserField['defaultValue'];
@@ -101,6 +101,7 @@ function SafeSmartUserPicker({
 				makeCompat(safeValue),
 				productKey,
 				undefined, // no need to override siteId
+				{ tenantId: siteId },
 			);
 
 			if (cancel || !isOptionData(hydrated)) {
@@ -115,7 +116,7 @@ function SafeSmartUserPicker({
 		return () => {
 			cancel = true;
 		};
-	}, [safeValue, productKey]);
+	}, [safeValue, productKey, siteId]);
 
 	return (
 		<SmartUserPicker
@@ -169,8 +170,9 @@ export default function UserSelect({
 
 		async function fetchContext() {
 			try {
-				const context = await (
-					await getUserFieldContextProvider(extensionManifest, field.options.provider)
+				const context = await getUserFieldContextProvider(
+					extensionManifest,
+					field.options.provider,
 				)();
 
 				if (cancel) {
@@ -197,6 +199,7 @@ export default function UserSelect({
 			label={label}
 			isRequired={isRequired}
 			defaultValue={defaultValue}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value) => validate(field, value)}
 			testId={`config-panel-user-select-${name}`}
 			isDisabled={isDisabled}
@@ -225,6 +228,7 @@ export default function UserSelect({
 							field={field}
 							formFieldProps={fieldProps}
 							autoFocus={autoFocus || false}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onBlur={() => onFieldChange(name, meta.dirty)}
 							onChange={onChange}
 						/>

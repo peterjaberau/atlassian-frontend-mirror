@@ -1,16 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
 
 import { ErrorBoundary } from 'react-error-boundary';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import Link from '@atlaskit/link/link';
+import type { EnvironmentsKeys } from '@atlaskit/linking-common/types';
 import { Box, Stack, Text } from '@atlaskit/primitives/compiled';
 
 import { Card } from '../../src';
 import { HoverCard } from '../../src/hoverCard';
 import HoverCardBox from '../utils/hover-card-box';
-
 import withJsonldEditorProvider from './jsonld-editor-provider';
 
 const CardExample = ({
@@ -22,6 +22,7 @@ const CardExample = ({
 }) => {
 	const fallback = useMemo(() => <span>😭Something went wrong.</span>, []);
 	const onError = useCallback((err: Error) => console.error(err.message), []);
+	const actionOptions = { hide: false, rovoChatAction: { optIn: true } };
 
 	return (
 		<Stack space="space.100">
@@ -31,14 +32,19 @@ const CardExample = ({
 				Jolly Roger wench sloop Shiver me timbers rope's end chandler. Admiral of the Black cackle
 				fruit deck{' '}
 				<ErrorBoundary fallback={fallback} onError={onError}>
-					<Card appearance="inline" url={url} showHoverPreview={true} />
+					<Card
+						actionOptions={actionOptions}
+						appearance="inline"
+						url={url}
+						showHoverPreview={true}
+					/>
 				</ErrorBoundary>{' '}
 				wench bounty rope's end bilge water scourge of the seven seas hardtack come about execution
 				dock Nelsons folly handsomely rigging splice the main brace.
 			</div>
 			<h6>Block</h6>
 			<ErrorBoundary fallback={fallback} onError={onError}>
-				<Card appearance="block" platform="web" url={url} />
+				<Card appearance="block" platform="web" url={url} actionOptions={actionOptions} />
 			</ErrorBoundary>
 			<h6>Embed</h6>
 			<Box paddingBlockStart="space.025">
@@ -61,28 +67,14 @@ const CardExample = ({
 			<h6>Flexible</h6>
 			<ul>
 				<li>
-					{fg('dst-a11y__replace-anchor-with-link__linking-platfo') ? (
-						<Link href="http://go/flexible-smart-links-docs" target="_blank">
-							go/flexible-smart-links-docs
-						</Link>
-					) : (
-						// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-						<a href="http://go/flexible-smart-links-docs" target="_blank">
-							go/flexible-smart-links-docs
-						</a>
-					)}
+					<Link href="http://go/flexible-smart-links-docs" target="_blank">
+						go/flexible-smart-links-docs
+					</Link>
 				</li>
 				<li>
-					{fg('dst-a11y__replace-anchor-with-link__linking-platfo') ? (
-						<Link href="https://go/flexible-smart-links-builder" target="_blank">
-							go/flexible-smart-links-builder
-						</Link>
-					) : (
-						// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-						<a href="https://go/flexible-smart-links-builder" target="_blank">
-							go/flexible-smart-links-builder
-						</a>
-					)}
+					<Link href="https://go/flexible-smart-links-builder" target="_blank">
+						go/flexible-smart-links-builder
+					</Link>
 				</li>
 			</ul>
 		</Stack>
@@ -90,4 +82,21 @@ const CardExample = ({
 };
 
 // Not the most elegant implementation but this will do.
-export default withJsonldEditorProvider(CardExample);
+const _default_1: (
+	props: {
+		isEmbedSupported?: boolean;
+		url?: string;
+	} & {
+		ari?: string;
+		branchDeploy?: string;
+		envKey?: EnvironmentsKeys;
+		json?: JsonLd.Response;
+		onError?: (error: Error) => void;
+		onFetch?: () => JsonLd.Response | undefined;
+		onResolve?: (json: JsonLd.Response) => void;
+		url: string;
+	} & {
+		children?: React.ReactNode | undefined;
+	},
+) => React.JSX.Element = withJsonldEditorProvider(CardExample);
+export default _default_1;

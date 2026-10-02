@@ -4,9 +4,9 @@
  */
 import { useCallback } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx } from '@emotion/react';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { pixelEntryMessages as messages } from '@atlaskit/editor-common/media';
 import {
@@ -32,7 +32,6 @@ import { updateMediaSingleWidthTr } from '../../../ui/toolbar/commands';
 import { getPixelWidthOfElement, calcNewLayout } from '../../../ui/toolbar/utils';
 import { isVideo } from '../../utils/media-single';
 import { closePixelEditorAndSave } from '../commands';
-
 import { PixelEntryComponent } from './pixel-entry';
 import { pixelSizingFullWidthLabelStyles } from './styles';
 import type { PixelEntryValidation } from './types';
@@ -57,7 +56,7 @@ export const PixelEntry = ({
 	hoverDecoration,
 	isEditorFullWidthEnabled,
 	triggerButtonSelector,
-}: Props) => {
+}: Props): jsx.JSX.Element | null => {
 	const { state, dispatch } = editorView;
 	const { mediaSingle } = state.schema.nodes;
 
@@ -128,6 +127,7 @@ export const PixelEntry = ({
 			mediaHeight={mediaHeight || DEFAULT_IMAGE_HEIGHT}
 			minWidth={minWidth}
 			maxWidth={maxWidth}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onChange={(valid: boolean) => {
 				if (valid) {
 					hoverDecoration?.(mediaSingle, true, 'warning')(editorView.state, dispatch, editorView);
@@ -135,12 +135,14 @@ export const PixelEntry = ({
 					hoverDecoration?.(mediaSingle, false)(editorView.state, dispatch, editorView);
 				}
 			}}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onSubmit={({ width, validation }) => {
 				const tr = updateNodeWithTr(width, validation);
 				if (tr) {
 					dispatch(tr);
 				}
 			}}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onMigrate={() => {
 				let tr = state.tr.setNodeMarkup(selectedMediaSingleNode.pos, undefined, {
 					...selectedMediaSingleNode.node.attrs,
@@ -155,6 +157,7 @@ export const PixelEntry = ({
 				}
 				dispatch(tr);
 			}}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onCloseAndSave={({ width, validation }, setFocus) => {
 				let tr = updateNodeWithTr(width, validation);
 
@@ -174,7 +177,11 @@ export const PixelEntry = ({
 	);
 };
 
-export const FullWidthDisplay = ({ intl: { formatMessage } }: { intl: IntlShape }) => {
+export const FullWidthDisplay = ({
+	intl: { formatMessage },
+}: {
+	intl: IntlShape;
+}): jsx.JSX.Element => {
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 		<div css={pixelSizingFullWidthLabelStyles}>

@@ -1,22 +1,25 @@
-import { type IntlShape } from 'react-intl-next';
+import memoizeOne from 'memoize-one';
+import type { IntlShape } from 'react-intl';
 
 import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { expandSelectionBounds } from '@atlaskit/editor-common/selection';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { isEmptyParagraph } from '@atlaskit/editor-common/utils';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { Node as PMNode, ResolvedPos } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
-import { type NodeWithPos } from '@atlaskit/editor-prosemirror/utils';
-import { type Decoration } from '@atlaskit/editor-prosemirror/view';
+import { findChildrenByType } from '@atlaskit/editor-prosemirror/utils';
+import type { NodeWithPos } from '@atlaskit/editor-prosemirror/utils';
+import type { Decoration } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type {
 	ActiveDropTargetNode,
 	ActiveNode,
 	BlockControlsPlugin,
 } from '../blockControlsPluginType';
-
 import { getNodeAnchor } from './decorations-common';
 import {
 	createDropTargetDecoration,
@@ -41,8 +44,6 @@ const PARENT_WITH_END_DROP_TARGET = [
 	'bodiedExtension',
 ];
 
-const PARENT_WITH_END_DROP_TARGET_SYNC_BLOCK = [...PARENT_WITH_END_DROP_TARGET, 'bodiedSyncBlock'];
-
 /**
  * List of node types that does not allow drop targets at before or after the node.
  */
@@ -50,12 +51,19 @@ const NODE_WITH_NO_PARENT_POS = ['tableCell', 'tableHeader', 'layoutColumn'];
 
 const UNSUPPORTED_LAYOUT_CONTENT = ['syncBlock', 'bodiedSyncBlock'];
 
-const isContainerNode = (node: PMNode) => {
-	if (editorExperiment('platform_synced_block', true)) {
-		return PARENT_WITH_END_DROP_TARGET_SYNC_BLOCK.includes(node.type.name);
-	}
+const getContainerNodeTypes = memoizeOne(() => [
+	...PARENT_WITH_END_DROP_TARGET,
+	...(expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)
+		? ['multiBodiedExtension']
+		: []),
+	'bodiedSyncBlock',
+]);
 
-	return PARENT_WITH_END_DROP_TARGET.includes(node.type.name);
+const isContainerNode = (node: PMNode) => {
+	const nodeName = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? getBaseNodeTypeName(node.type)
+		: node.type.name;
+	return getContainerNodeTypes().includes(nodeName);
 };
 
 export const canMoveNodeOrSliceToPos = (
@@ -65,7 +73,7 @@ export const canMoveNodeOrSliceToPos = (
 	index: number,
 	$toPos: ResolvedPos,
 	activeNode?: ActiveNode,
-) => {
+): boolean | null => {
 	// For deciding to show drop targets or not when multiple nodes are selected
 	const selection = state.selection;
 	const { $anchor: expandedAnchor, $head: expandedHead } = expandSelectionBounds(
@@ -81,34 +89,29 @@ export const canMoveNodeOrSliceToPos = (
 	const handleInsideSelection =
 		activeNodePos !== undefined && activeNodePos >= selectionFrom && activeNodePos <= selectionTo;
 
-	if (editorExperiment('platform_editor_element_drag_and_drop_multiselect', true)) {
-		const selectionSlice = state.doc.slice(selectionFrom, selectionTo, false);
-		const selectionSliceChildCount = selectionSlice.content.childCount;
-		let canDropSingleNode: boolean = true;
-		let canDropMultipleNodes: boolean = true;
+	const selectionSlice = state.doc.slice(selectionFrom, selectionTo, false);
+	const selectionSliceChildCount = selectionSlice.content.childCount;
+	let canDropSingleNode: boolean = true;
+	let canDropMultipleNodes: boolean = true;
 
-		// when there is only one node in the slice, use the same logic as when multi select is not on
-		if (selectionSliceChildCount > 1 && handleInsideSelection) {
-			canDropMultipleNodes = canMoveSliceToIndex(
-				selectionSlice,
-				selectionFrom,
-				selectionTo,
-				parent,
-				index,
-				$toPos,
-			);
-		} else {
-			canDropSingleNode = !!(
-				activePMNode && canMoveNodeToIndex(parent, index, activePMNode, $toPos, node)
-			);
-		}
-
-		if (!canDropMultipleNodes || !canDropSingleNode) {
-			return false;
-		}
+	// when there is only one node in the slice, use the same logic as when multi select is not on
+	if (selectionSliceChildCount > 1 && handleInsideSelection) {
+		canDropMultipleNodes = canMoveSliceToIndex(
+			selectionSlice,
+			selectionFrom,
+			selectionTo,
+			parent,
+			index,
+			$toPos,
+		);
 	} else {
-		const canDrop = activePMNode && canMoveNodeToIndex(parent, index, activePMNode, $toPos, node);
-		return canDrop;
+		canDropSingleNode = !!(
+			activePMNode && canMoveNodeToIndex(parent, index, activePMNode, $toPos, node)
+		);
+	}
+
+	if (!canDropMultipleNodes || !canDropSingleNode) {
+		return false;
 	}
 
 	return true;
@@ -123,7 +126,10 @@ export const getActiveDropTargetDecorations = (
 	nodeViewPortalProviderAPI: PortalProviderAPI,
 	activeNode?: ActiveNode,
 	anchorRectCache?: AnchorRectCache,
-) => {
+): {
+	decsToAdd: Decoration[];
+	decsToRemove: Decoration[];
+} => {
 	const decsToAdd: Decoration[] = [];
 	let decsToRemove: Decoration[] = existingDecs.filter((dec) => !!dec);
 
@@ -338,17 +344,36 @@ export const getActiveDropTargetDecorations = (
 		};
 	}
 
+	let anchorEmitNodeWithPos: NodeWithPos = rootNodeWithPos;
+
 	if (editorExperiment('advanced_layouts', true)) {
+		const schema = rootNodeWithPos.node.type.schema;
+		const { layoutSection } = schema.nodes;
+		const isLayoutSectionChildOfRoot =
+			findChildrenByType(rootNodeWithPos.node, layoutSection, false).length > 0;
+		if (isLayoutSectionChildOfRoot) {
+			// if node has layoutSection as a child, get the layoutSection node and pos
+			for (let ancestorDepth = $toPos.depth; ancestorDepth >= 1; ancestorDepth--) {
+				if ($toPos.node(ancestorDepth).type.name === 'layoutSection') {
+					anchorEmitNodeWithPos = {
+						node: $toPos.node(ancestorDepth),
+						pos: $toPos.before(ancestorDepth),
+					};
+					break;
+				}
+			}
+		} else {
+			anchorEmitNodeWithPos = rootNodeWithPos;
+		}
+
 		const isSameLayout =
-			$activeNodePos && isInSameLayout($activeNodePos, state.doc.resolve(rootNodeWithPos.pos));
+			$activeNodePos &&
+			isInSameLayout($activeNodePos, state.doc.resolve(anchorEmitNodeWithPos.pos));
 
-		const hasUnsupportedContent =
-			UNSUPPORTED_LAYOUT_CONTENT.includes(activeNode?.nodeType || '') &&
-			editorExperiment('platform_synced_block', true);
+		const hasUnsupportedContent = UNSUPPORTED_LAYOUT_CONTENT.includes(activeNode?.nodeType || '');
 
-		if (rootNodeWithPos.node.type.name === 'layoutSection' && !hasUnsupportedContent) {
-			const layoutSectionNode = rootNodeWithPos.node;
-
+		if (anchorEmitNodeWithPos.node.type.name === 'layoutSection' && !hasUnsupportedContent) {
+			const layoutSectionNode = anchorEmitNodeWithPos.node;
 			if (layoutSectionNode.childCount < maxLayoutColumnSupported() || isSameLayout) {
 				layoutSectionNode.descendants((childNode, childPos, parent, index) => {
 					if (
@@ -356,7 +381,7 @@ export const getActiveDropTargetDecorations = (
 						parent?.type.name === 'layoutSection' &&
 						index !== 0 // Not the first node
 					) {
-						const currentPos = rootNodeWithPos.pos + childPos + 1;
+						const currentPos = anchorEmitNodeWithPos.pos + childPos + 1;
 
 						if (existingDecsPos.includes(currentPos)) {
 							// if the decoration already exists, we don't add it again.
@@ -364,7 +389,7 @@ export const getActiveDropTargetDecorations = (
 						} else {
 							decsToAdd.push(
 								createLayoutDropTargetDecoration(
-									rootNodeWithPos.pos + childPos + 1,
+									anchorEmitNodeWithPos.pos + childPos + 1,
 									{
 										api,
 										parent,
@@ -384,9 +409,13 @@ export const getActiveDropTargetDecorations = (
 	}
 
 	defaultActiveAnchorTracker.emit(
-		expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
-			? api.core.actions.getAnchorIdForNode(rootNodeWithPos.node, rootNodeWithPos.pos) || ''
-			: getNodeAnchor(rootNodeWithPos.node),
+		expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+			isExperimentEnabled('platform_editor_block_control_migration')
+			? api.core.actions.getAnchorIdForNode(
+					anchorEmitNodeWithPos.node,
+					anchorEmitNodeWithPos.pos,
+				) || ''
+			: getNodeAnchor(anchorEmitNodeWithPos.node),
 	);
 
 	return { decsToAdd, decsToRemove };

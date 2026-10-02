@@ -3,18 +3,17 @@ import React from 'react';
 import { bind } from 'bind-event-listener';
 
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import { calculateToolbarPositionTrackHead } from '@atlaskit/editor-common/utils';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfType, findSelectedNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
 import { createComponentRegistry } from '@atlaskit/editor-toolbar-model';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import { getSelectionToolbarOpenExperiencePlugin } from './pm-plugins/experiences/selection-toolbar-open-experience';
 import { editorToolbarPluginKey } from './pm-plugins/plugin-key';
 import type { EditorToolbarPluginState, ToolbarPlugin } from './toolbarPluginType';
-import { DEFAULT_POPUP_SELECTORS, SELECTION_TOOLBAR_LABEL } from './ui/consts';
+import { DEFAULT_POPUP_SELECTORS } from './ui/consts';
 import { SelectionToolbarWithErrorBoundary } from './ui/SelectionToolbar';
 import { getToolbarComponents } from './ui/toolbar-components';
 import { isEventInContainer } from './ui/utils/toolbar';
@@ -85,7 +84,10 @@ export const toolbarPlugin: ToolbarPlugin = ({
 		disableSelectionToolbarWhenPinned: false,
 	},
 }) => {
-	const refs: { popupsMountPoint?: HTMLElement } = {};
+	const refs: { popupsMountPoint?: HTMLElement; toolbarMouseUpEvent?: Event } = {};
+	const handleToolbarMouseUp = (event: React.MouseEvent<HTMLDivElement>) => {
+		refs.toolbarMouseUpEvent = event.nativeEvent;
+	};
 	const {
 		disableSelectionToolbar,
 		disableSelectionToolbarWhenPinned,
@@ -96,14 +98,6 @@ export const toolbarPlugin: ToolbarPlugin = ({
 	const registry = createComponentRegistry();
 
 	registry.register(getToolbarComponents(contextualFormattingEnabled, api, breakpointPreset));
-
-	const cachedCalculateToolbarPosition = expValEquals(
-		'platform_editor_sel_toolbar_fix',
-		'isEnabled',
-		true,
-	)
-		? calculateToolbarPositionTrackHead(SELECTION_TOOLBAR_LABEL)
-		: undefined;
 
 	return {
 		name: 'toolbar',
@@ -117,16 +111,46 @@ export const toolbarPlugin: ToolbarPlugin = ({
 				}
 			},
 
+			// EDITOR-6558: `componentFilter` is evaluated at read time (not at
+			// `registerComponents` time) so it can react to runtime state
+			// (e.g. the current markdown view mode) without forcing every
+			// plugin to re-register its components. Returning a new array on
+			// every call means React-tree consumers re-render whenever the
+			// underlying filter would change.
 			getComponents: () => {
-				return registry.components;
+				return config?.componentFilter
+					? registry.components.filter(config.componentFilter)
+					: registry.components;
 			},
 
 			contextualFormattingMode: () => {
-				return contextualFormattingEnabled ?? 'always-pinned';
+				// Returns the config-time mode only. The runtime override
+				// (`EditorToolbarPluginState.contextualFormattingModeOverride`)
+				// lives in PM state and must be merged in by the React render
+				// site — see SelectionToolbar / Section / FullPageToolbarNext for
+				// the `runtimeOverride ?? action() ?? 'always-pinned'` pattern.
+				// Doing the merge here would require closure-capturing `editorView`,
+				// which races with StrictMode double-mount.
+				return (
+					config?.contextualFormattingModeOverride?.() ??
+					contextualFormattingEnabled ??
+					'always-pinned'
+				);
 			},
 
 			getBreakpointPreset: () => {
 				return breakpointPreset;
+			},
+		},
+
+		commands: {
+			setContextualFormattingModeOverride: (mode) => {
+				return ({ tr }) => {
+					tr.setMeta(editorToolbarPluginKey, {
+						contextualFormattingModeOverride: mode,
+					});
+					return tr;
+				};
 			},
 		},
 
@@ -141,6 +165,10 @@ export const toolbarPlugin: ToolbarPlugin = ({
 				{
 					name: 'editor-toolbar-selection',
 					plugin: () => {
+						// Tracks mouse-down state to prevent the focus event (first page load)
+						// from prematurely showing the toolbar mid-drag
+						const mouseState = { isMouseDown: false };
+
 						return new SafePlugin({
 							key: editorToolbarPluginKey,
 							state: {
@@ -148,6 +176,7 @@ export const toolbarPlugin: ToolbarPlugin = ({
 									return {
 										shouldShowToolbar: false,
 										selectedNode: getSelectedNode(editorState),
+										contextualFormattingModeOverride: undefined,
 									};
 								},
 								apply(tr, pluginState: EditorToolbarPluginState, _, newState) {
@@ -173,9 +202,18 @@ export const toolbarPlugin: ToolbarPlugin = ({
 									}
 
 									if (meta) {
+										const { contextualFormattingModeOverride, ...rest } = meta;
+										// Only forward the override when the meta actually carries
+										// the key — unrelated metas (mouseup / focus / mousedown
+										// from the view() listeners) destructure it as `undefined`
+										// and would otherwise wipe a previously-set override on
+										// every interaction.
 										newPluginState = {
 											...newPluginState,
-											...meta,
+											...rest,
+											...('contextualFormattingModeOverride' in meta
+												? { contextualFormattingModeOverride }
+												: {}),
 										};
 									}
 
@@ -186,7 +224,37 @@ export const toolbarPlugin: ToolbarPlugin = ({
 								const unbind = bind(view.root, {
 									type: 'mouseup',
 									listener: function (this: Document | ShadowRoot, ev: Event) {
+										mouseState.isMouseDown = false;
 										const event = ev as MouseEvent;
+
+										if (isExperimentEnabled('platform_editor_toolbar_multi_editor_fix')) {
+											// Scope mouseups to this editor and its React-portaled toolbar.
+											const isMouseUpInOwnedToolbar = refs.toolbarMouseUpEvent === event;
+											const isMouseUpInEditor = event.composedPath().includes(view.dom);
+											refs.toolbarMouseUpEvent = undefined;
+
+											// Prevent outside clicks from reopening a blurred editor's toolbar.
+											const editorViewModePlugin = api?.editorViewMode?.sharedState.currentState();
+											const isViewModeEnabled = editorViewModePlugin?.mode === 'view';
+											// Include focus in nested editable islands.
+											const hasEditorFocus =
+												view.hasFocus() || view.dom.contains(view.root.activeElement);
+											const shouldShowToolbar = isViewModeEnabled
+												? isMouseUpInEditor || isMouseUpInOwnedToolbar
+												: hasEditorFocus || isMouseUpInOwnedToolbar;
+
+											const currentShouldShowToolbar =
+												api?.toolbar?.sharedState.currentState()?.shouldShowToolbar;
+											if (currentShouldShowToolbar !== shouldShowToolbar) {
+												view.dispatch(
+													view.state.tr.setMeta(editorToolbarPluginKey, {
+														shouldShowToolbar,
+													}),
+												);
+											}
+											return;
+										}
+
 										const isInToolbar = isEventInContainer(
 											event,
 											DEFAULT_POPUP_SELECTORS.toolbarContainer,
@@ -198,10 +266,16 @@ export const toolbarPlugin: ToolbarPlugin = ({
 										// due to a click outside the editor.
 										const editorViewModePlugin = api?.editorViewMode?.sharedState.currentState();
 										const isViewModeEnabled = editorViewModePlugin?.mode === 'view';
+										// Focus can sit inside a nested editable region ProseMirror does not own -
+										// such as a reference synced block's island - where `view.hasFocus()` is
+										// false but the user is still interacting with the editor.
+										const hasEditorFocus =
+											view.hasFocus() || view.dom.contains(view.root.activeElement);
+
 										view.dispatch(
 											view.state.tr.setMeta(editorToolbarPluginKey, {
 												shouldShowToolbar: !isViewModeEnabled
-													? view.hasFocus() || isInToolbar || isInPortal
+													? hasEditorFocus || isInToolbar || isInPortal
 													: true,
 											}),
 										);
@@ -211,6 +285,11 @@ export const toolbarPlugin: ToolbarPlugin = ({
 								const unbindEditorViewFocus = bind(view.dom, {
 									type: 'focus',
 									listener: () => {
+										// On first page load, focus fires after mousedown — skip to
+										// avoid showing the toolbar mid-drag
+										if (mouseState.isMouseDown) {
+											return;
+										}
 										view.dispatch(
 											view.state.tr.setMeta(editorToolbarPluginKey, { shouldShowToolbar: true }),
 										);
@@ -227,6 +306,7 @@ export const toolbarPlugin: ToolbarPlugin = ({
 							props: {
 								handleDOMEvents: {
 									mousedown: (view) => {
+										mouseState.isMouseDown = true;
 										view.dispatch(
 											view.state.tr.setMeta(editorToolbarPluginKey, {
 												shouldShowToolbar: false,
@@ -239,26 +319,27 @@ export const toolbarPlugin: ToolbarPlugin = ({
 						});
 					},
 				},
-				...(!disableSelectionToolbar &&
-					expValEquals('platform_editor_experience_tracking', 'isEnabled', true)
+				...(!disableSelectionToolbar
 					? [
-						{
-							name: 'selectionToolbarOpenExperience',
-							plugin: () =>
-								getSelectionToolbarOpenExperiencePlugin({
-									refs,
-									dispatchAnalyticsEvent: (payload) =>
-										api?.analytics?.actions?.fireAnalyticsEvent(payload),
-								}),
-						},
-					]
+							{
+								name: 'selectionToolbarOpenExperience',
+								plugin: () =>
+									getSelectionToolbarOpenExperiencePlugin({
+										refs,
+										dispatchAnalyticsEvent: (payload) =>
+											api?.analytics?.actions?.fireAnalyticsEvent(payload),
+										getCurrentUserIntent: () =>
+											api?.userIntent?.sharedState.currentState()?.currentUserIntent,
+									}),
+							},
+						]
 					: []),
 			];
 		},
 
 		contentComponent: !disableSelectionToolbar
 			? ({ editorView, popupsMountPoint }) => {
-				refs.popupsMountPoint = popupsMountPoint || undefined;
+					refs.popupsMountPoint = popupsMountPoint || undefined;
 
 					if (!editorView) {
 						return null;
@@ -270,7 +351,7 @@ export const toolbarPlugin: ToolbarPlugin = ({
 							editorView={editorView}
 							mountPoint={popupsMountPoint}
 							disableSelectionToolbarWhenPinned={disableSelectionToolbarWhenPinned ?? false}
-							calculateToolbarPosition={cachedCalculateToolbarPosition}
+							onToolbarMouseUp={handleToolbarMouseUp}
 						/>
 					);
 				}

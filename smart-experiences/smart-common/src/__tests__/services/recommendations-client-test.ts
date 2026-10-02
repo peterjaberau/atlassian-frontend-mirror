@@ -99,7 +99,9 @@ describe('default-value-hydration-client', () => {
 		try {
 			await fetchUserRecommendations(exampleRequest);
 		} catch (error) {
-			expect((error as any).message).toMatchSnapshot('URS error');
+			expect((error as Error).message).toBe(
+				'error calling smart service, statusCode=504, statusText=Gateway Timeout',
+			);
 		}
 	});
 
@@ -123,8 +125,19 @@ describe('default-value-hydration-client', () => {
 
 		const users = await fetchUserRecommendations(exampleRequest);
 
-		expect(fetchMock.called()).toBeTruthy();
-		expect(requestBody).toMatchSnapshot('URS query');
-		expect(users).toMatchSnapshot('URS users');
+		expect(fetchMock.called()).toBe(true);
+		expect(requestBody).toEqual({
+			context: exampleContext,
+			includeGroups: true,
+			includeTeams: true,
+			includeUsers: true,
+			maxNumberOfResults: 50,
+			searchQuery: {
+				...exampleCpusSearchQuery,
+				queryString: 'query',
+				restrictTo: { groupIds: ['user1', 'user2'], userIds: ['user1', 'user2'] },
+			},
+		});
+		expect(users).toEqual(JSON.parse(exampleResponse.body).recommendedUsers);
 	});
 });

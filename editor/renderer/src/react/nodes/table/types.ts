@@ -1,5 +1,6 @@
+import type { Layout as TableLayout } from '@atlaskit/adf-schema/tableNodes';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import type { TableLayout } from '@atlaskit/adf-schema';
+
 import type { RendererAppearance } from '../../../ui/Renderer/types';
 
 export type SharedTableProps = {
@@ -8,6 +9,7 @@ export type SharedTableProps = {
 	columnWidths?: Array<number>;
 	isinsideMultiBodiedExtension?: boolean;
 	isInsideOfBlockNode?: boolean;
+	isInsideOfNestedRenderer?: boolean;
 	isInsideOfTable?: boolean;
 	isNumberColumnEnabled: boolean;
 	layout: TableLayout;

@@ -14,7 +14,16 @@ type UseDropdownEventArgs = {
 	toolbarItemRef: React.RefObject<ToolbarButtonRef>;
 };
 
-export const useDropdownEvents = (args: UseDropdownEventArgs) => {
+export const useDropdownEvents = (
+	args: UseDropdownEventArgs,
+): {
+	handleClick: () => void;
+	handleClickOutside: () => void;
+	handleColorChange: ({ color, inputMethod }: { color: string; inputMethod: INPUT_METHOD }) => void;
+	handleEscapeKeydown: () => void;
+	handleKeyDown: (event: React.KeyboardEvent) => void;
+	isOpenedByKeyboard: boolean;
+} => {
 	const { toolbarItemRef, setIsDropdownOpen, isDropdownOpen, pluginInjectionApi } = args;
 
 	const [isOpenedByKeyboard, setIsOpenedByKeyboard] = useState(false);
@@ -45,7 +54,13 @@ export const useDropdownEvents = (args: UseDropdownEventArgs) => {
 				toolbarItemRef?.current?.focus();
 			}
 		},
-		handleColorChange: ({ color, inputMethod }: { color: string; inputMethod: INPUT_METHOD }): void => {
+		handleColorChange: ({
+			color,
+			inputMethod,
+		}: {
+			color: string;
+			inputMethod: INPUT_METHOD;
+		}): void => {
 			pluginInjectionApi?.core?.actions.execute(
 				changeColor(pluginInjectionApi?.analytics?.actions)({
 					color,

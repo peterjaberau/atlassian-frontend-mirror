@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/rating",
-	"version": "3.1.3",
+	"version": "4.2.4",
 	"description": "An accessible rating component that can be heavily customized.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
@@ -27,13 +19,15 @@
 	"atlassian": {
 		"team": "Ecosystem - Discover",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Rating"
 		}
 	},
 	"dependencies": {
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/motion": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlaskit/visually-hidden": "workspace:^",
@@ -45,24 +39,16 @@
 		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
-		"@testing-library/react": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"design-tokens": [
-				"color"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion"
-			]
-		}
+		"@atlaskit/button": "workspace:^",
+		"@testing-library/react": "root:*",
+		"react": "root:*",
+		"react-dom": "root:*"
 	},
 	"homepage": "https://atlaskit.atlassian.com/packages/design-system/rating",
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./rating": "./src/entry-points/rating.tsx",
+		"./rating-group": "./src/entry-points/rating-group.tsx",
+		"./star": "./src/entry-points/star.tsx"
 	}
 }

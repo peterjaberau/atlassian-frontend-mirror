@@ -1,22 +1,21 @@
-import { token } from '@atlaskit/tokens';
-import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { ModalSpinner } from '../../index';
+
+import { render, screen } from '@testing-library/react';
+
+import { token } from '@atlaskit/tokens';
+
+import ModalSpinner from '../../modalSpinner';
 
 // skipping this test as it does not work with jsdom.reconfigure. Need to rewrite this test.
 // https://hello.jira.atlassian.cloud/browse/UTEST-2000
 describe.skip('Modal Spinner', () => {
 	it('should show spinner', async () => {
-		render(
-			<ModalSpinner blankedColor={token('color.blanket', 'white')} invertSpinnerColor={false} />,
-		);
+		render(<ModalSpinner blankedColor={token('color.blanket')} invertSpinnerColor={false} />);
 
 		expect(await screen.findByTestId('media-modal-spinner')).toBeDefined();
 	});
 	it('should set spinner to inverted mode when specified to do so', async () => {
-		render(
-			<ModalSpinner blankedColor={token('color.blanket', 'white')} invertSpinnerColor={true} />,
-		);
+		render(<ModalSpinner blankedColor={token('color.blanket')} invertSpinnerColor={true} />);
 
 		expect((await screen.findByTestId('media-modal-spinner')).childNodes[1]).toHaveStyle(
 			'stroke: var(--ds-icon-inverse, #FFFFFF)',

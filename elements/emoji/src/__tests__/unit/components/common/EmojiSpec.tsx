@@ -1,24 +1,114 @@
 import React from 'react';
-import { fireEvent } from '@testing-library/react';
-import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
+
+import { cleanup, createEvent, fireEvent, waitFor } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import Emoji from '../../../../components/common/Emoji';
-import { spriteEmoji, imageEmoji } from '../../_test-data';
-import { commonSelectedStyles } from '../../../../components/common/styles';
-import browserSupport from '../../../../util/browser-support';
+import { mockAllIsIntersecting } from 'react-intersection-observer/test-utils';
+
+import { setupEditorExperiments } from '@atlaskit/tmp-editor-statsig/setup';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+
 import { RENDER_EMOJI_DELETE_BUTTON_TESTID } from '../../../../components/common/DeleteButton';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import Emoji from '../../../../components/common/Emoji';
+import { commonSelectedStyles } from '../../../../components/common/styles';
+import type { EmojiDescription } from '../../../../types';
+import browserSupport from '../../../../util/browser-support';
 import * as isSSRModule from '../../../../util/is-ssr';
 
 import '@testing-library/jest-dom';
+
+import { spriteEmoji, imageEmoji } from '../../_test-data';
 import { renderWithIntl } from '../../_testing-library';
 
 // Add matcher provided by 'jest-axe'
 expect.extend(toHaveNoViolations);
 
+const unicodeEmoji: EmojiDescription = {
+	id: '1f600',
+	shortName: ':grinning:',
+	name: 'grinning face',
+	fallback: '😀',
+	type: 'STANDARD',
+	category: 'PEOPLE',
+	order: 1,
+	representation: {
+		unicodeEmoji: '😀',
+	},
+	searchable: true,
+};
+
+const unicodeEmojiImagePath = 'blob:unicode-emoji';
+
+const mockOffscreenCanvas = () => {
+	const context = {
+		clearRect: jest.fn(),
+		fillText: jest.fn(),
+		font: '',
+		textAlign: 'center' as CanvasTextAlign,
+		textBaseline: 'middle' as CanvasTextBaseline,
+	};
+	const convertToBlob = jest.fn().mockResolvedValue(new Blob(['emoji'], { type: 'image/png' }));
+	const OffscreenCanvasMock = jest.fn().mockImplementation(function (
+		this: OffscreenCanvas,
+		width: number,
+		height: number,
+	) {
+		this.width = width;
+		this.height = height;
+		this.getContext = jest.fn().mockReturnValue(context);
+		this.convertToBlob = convertToBlob;
+	});
+
+	Object.defineProperty(globalThis, 'OffscreenCanvas', {
+		configurable: true,
+		writable: true,
+		value: OffscreenCanvasMock,
+	});
+	Object.defineProperty(URL, 'createObjectURL', {
+		configurable: true,
+		writable: true,
+		value: jest.fn().mockReturnValue(unicodeEmojiImagePath),
+	});
+	Object.defineProperty(URL, 'revokeObjectURL', {
+		configurable: true,
+		writable: true,
+		value: jest.fn(),
+	});
+
+	return { context, convertToBlob, OffscreenCanvasMock };
+};
+
 describe('<Emoji />', () => {
+	const originalOffscreenCanvas = (globalThis as Record<string, unknown>)['OffscreenCanvas'];
+	const originalCreateObjectURL = URL.createObjectURL;
+	const originalRevokeObjectURL = URL.revokeObjectURL;
+	const originalDevicePixelRatio = window.devicePixelRatio;
+
 	beforeAll(() => {
 		browserSupport.supportsIntersectionObserver = true;
+	});
+
+	afterEach(() => {
+		cleanup();
+		jest.restoreAllMocks();
+		Object.defineProperty(globalThis, 'OffscreenCanvas', {
+			configurable: true,
+			writable: true,
+			value: originalOffscreenCanvas,
+		});
+		Object.defineProperty(URL, 'createObjectURL', {
+			configurable: true,
+			writable: true,
+			value: originalCreateObjectURL,
+		});
+		Object.defineProperty(URL, 'revokeObjectURL', {
+			configurable: true,
+			writable: true,
+			value: originalRevokeObjectURL,
+		});
+		Object.defineProperty(window, 'devicePixelRatio', {
+			configurable: true,
+			value: originalDevicePixelRatio,
+		});
 	});
 
 	describe('as sprite', () => {
@@ -108,6 +198,57 @@ describe('<Emoji />', () => {
 			expect(imageWrapper).not.toHaveAttribute('title');
 		});
 
+		describe('with platform_editor_emoji_hover_show_tooltip enabled', () => {
+			beforeEach(() => {
+				setupEditorExperiments('test', {
+					platform_editor_emoji_hover_show_tooltip: true,
+				});
+			});
+
+			it('should render an ADS tooltip (no native title) when showTooltip is set', async () => {
+				const result = renderWithIntl(<Emoji emoji={imageEmoji} showTooltip={true} />);
+				const imageWrapper = result.getByTestId(`image-emoji-${imageEmoji.shortName}`);
+
+				// The native title fallback must not be used when the experiment is enabled.
+				expect(imageWrapper).not.toHaveAttribute('title');
+
+				// The ADS Tooltip only renders its content once the trigger is hovered/focused.
+				fireEvent.mouseOver(imageWrapper);
+				fireEvent.focus(imageWrapper);
+
+				expect(await result.findByText(':grimacing:')).toBeInTheDocument();
+			});
+
+			it('should fall back to the emoji name for tooltip content when shortName is missing', async () => {
+				const emojiWithoutShortName = {
+					...imageEmoji,
+					shortName: '',
+					name: 'grimacing face',
+				};
+				const result = renderWithIntl(<Emoji emoji={emojiWithoutShortName} showTooltip={true} />);
+
+				const imageWrapper = result.getByTestId(`image-emoji-${emojiWithoutShortName.shortName}`);
+				fireEvent.mouseOver(imageWrapper);
+				fireEvent.focus(imageWrapper);
+
+				expect(await result.findByText('grimacing face')).toBeInTheDocument();
+			});
+
+			it('should not use the native title even when showTooltip is set', async () => {
+				const result = renderWithIntl(<Emoji emoji={imageEmoji} showTooltip={true} />);
+				const imageWrapper = result.getByTestId(`image-emoji-${imageEmoji.shortName}`);
+				expect(imageWrapper).not.toHaveAttribute('title');
+			});
+
+			it('should not render a tooltip when showTooltip is not set', async () => {
+				const result = renderWithIntl(<Emoji emoji={imageEmoji} />);
+				const imageWrapper = result.getByTestId(`image-emoji-${imageEmoji.shortName}`);
+				expect(imageWrapper).not.toHaveAttribute('title');
+				expect(imageWrapper).not.toHaveAttribute('aria-describedby');
+				expect(result.queryByText(':grimacing:')).not.toBeInTheDocument();
+			});
+		});
+
 		it('should show delete button is showDelete is passed in', async () => {
 			const result = await renderWithIntl(<Emoji emoji={imageEmoji} showDelete={true} />);
 			const deleteBtn = result.getByTestId(RENDER_EMOJI_DELETE_BUTTON_TESTID);
@@ -119,34 +260,15 @@ describe('<Emoji />', () => {
 			expect(result.queryByTestId(RENDER_EMOJI_DELETE_BUTTON_TESTID)).toBeNull();
 		});
 
-		describe('should automatically set width to auto if autoWidth is true during SSR', () => {
-			ffTest(
-				'platform_emoji_ssr_width_auto_allowed',
-				async () => {
-					const isSSRSpy = jest.spyOn(isSSRModule, 'isSSR').mockReturnValue(true);
+		it('should automatically set width to auto if autoWidth is true during SSR', async () => {
+			const isSSRSpy = jest.spyOn(isSSRModule, 'isSSR').mockReturnValue(true);
 
-					const result = await renderWithIntl(
-						<Emoji emoji={imageEmoji} fitToHeight={25} autoWidth />,
-					);
-					const image = result.getByAltText(imageEmoji.name);
-					expect(image).toHaveAttribute('width', 'auto');
-					expect(image).toHaveAttribute('height', '25');
+			const result = await renderWithIntl(<Emoji emoji={imageEmoji} fitToHeight={25} autoWidth />);
+			const image = result.getByAltText(imageEmoji.name);
+			expect(image).toHaveAttribute('width', 'auto');
+			expect(image).toHaveAttribute('height', '25');
 
-					isSSRSpy.mockRestore();
-				},
-				async () => {
-					const isSSRSpy = jest.spyOn(isSSRModule, 'isSSR').mockReturnValue(true);
-
-					const result = await renderWithIntl(
-						<Emoji emoji={imageEmoji} fitToHeight={25} autoWidth />,
-					);
-					const image = result.getByAltText(imageEmoji.name);
-					expect(image).toHaveAttribute('width', '25');
-					expect(image).toHaveAttribute('height', '25');
-
-					isSSRSpy.mockRestore();
-				},
-			);
+			isSSRSpy.mockRestore();
 		});
 
 		it('should disable lazy load if disableLazyLoad is true', async () => {
@@ -165,6 +287,107 @@ describe('<Emoji />', () => {
 				fireEvent.load(image);
 			}
 			expect(onLoadSuccess).toHaveBeenCalled();
+		});
+
+		it('should prevent mouse down from moving focus when requested', async () => {
+			const onSelected = jest.fn();
+			const result = await renderWithIntl(
+				<Emoji
+					emoji={imageEmoji}
+					onSelected={onSelected}
+					preventFocusOnMouseDown
+					shouldBeInteractive
+				/>,
+			);
+			const emoji = result.getByTestId(`image-emoji-${imageEmoji.shortName}`);
+			const event = createEvent.mouseDown(emoji, { button: 0 });
+
+			fireEvent(emoji, event);
+
+			expect(event.defaultPrevented).toBe(true);
+			expect(onSelected).toHaveBeenCalled();
+		});
+	});
+
+	describe('as unicode', () => {
+		it('should render unicode emoji as an image by default', async () => {
+			const { context, OffscreenCanvasMock } = mockOffscreenCanvas();
+
+			const result = await renderWithIntl(<Emoji emoji={unicodeEmoji} fitToHeight={24} />);
+			const imageWrapper = await result.findByTestId(`image-emoji-${unicodeEmoji.shortName}`);
+			mockAllIsIntersecting(true);
+			const image = result.getByAltText(unicodeEmoji.name!);
+
+			expect(imageWrapper).toBeInTheDocument();
+			expect(image).toHaveAttribute('src', unicodeEmojiImagePath);
+			expect(OffscreenCanvasMock).toHaveBeenCalledWith(128, 128);
+			expect(context.fillText).toHaveBeenCalledWith('😀', 64, 72);
+		});
+
+		it('should not use alt representation for unicode emoji rendered as an image', async () => {
+			mockOffscreenCanvas();
+			Object.defineProperty(window, 'devicePixelRatio', {
+				configurable: true,
+				value: 2,
+			});
+			const unicodeEmojiWithAltRepresentation: EmojiDescription = {
+				...unicodeEmoji,
+				altRepresentation: {
+					imagePath: 'https://alt-path-to-image.png',
+					width: 64,
+					height: 64,
+				},
+			};
+
+			const result = await renderWithIntl(
+				<Emoji emoji={unicodeEmojiWithAltRepresentation} fitToHeight={80} />,
+			);
+			const image = await result.findByAltText(unicodeEmoji.name!);
+
+			expect(image).toHaveAttribute('src', unicodeEmojiImagePath);
+		});
+
+		it('should render unicode emoji as text when renderUnicodeEmojiAsImage is false', async () => {
+			const { OffscreenCanvasMock } = mockOffscreenCanvas();
+
+			const result = await renderWithIntl(
+				<Emoji emoji={unicodeEmoji} fitToHeight={24} renderUnicodeEmojiAsImage={false} />,
+			);
+
+			expect(result.getByTestId(`unicode-emoji-${unicodeEmoji.shortName}`)).toBeInTheDocument();
+			expect(OffscreenCanvasMock).not.toHaveBeenCalled();
+		});
+
+		it('should render unicode emoji as text using fitToHeight when renderUnicodeEmojiAsImage is false', async () => {
+			const result = await renderWithIntl(
+				<Emoji emoji={unicodeEmoji} fitToHeight={24} renderUnicodeEmojiAsImage={false} />,
+			);
+
+			const emojiText = result.getByText('😀');
+
+			expect(emojiText).toHaveAttribute(
+				'style',
+				expect.stringContaining('font-size: var(--emoji-common-unicode-size, 24px);'),
+			);
+		});
+
+		it('should render a fallback placeholder when unicode image rendering fails', async () => {
+			Object.defineProperty(globalThis, 'OffscreenCanvas', {
+				configurable: true,
+				writable: true,
+				value: undefined,
+			});
+
+			const result = await renderWithIntl(
+				<Emoji emoji={unicodeEmoji} fitToHeight={24} renderUnicodeEmojiAsImage />,
+			);
+
+			await waitFor(() =>
+				expect(result.getByTestId(`emoji-placeholder-${unicodeEmoji.shortName}`)).toHaveAttribute(
+					'aria-busy',
+					'false',
+				),
+			);
 		});
 	});
 
@@ -198,5 +421,19 @@ describe('<Emoji />', () => {
 
 			expect(results).toHaveNoViolations();
 		});
+
+		ffTest.on(
+			'emoji_decorative_label',
+			'should remove aria-label for image emoji when isDecorative is true',
+			() => {
+				it('should not have aria-label and should have presentation role', async () => {
+					const result = await renderWithIntl(<Emoji emoji={imageEmoji} isDecorative />);
+					mockAllIsIntersecting(true);
+					const emoji = result.getByTestId(`image-emoji-${imageEmoji.shortName}`);
+					expect(emoji).not.toHaveAttribute('aria-label');
+					expect(emoji).toHaveAttribute('role', 'presentation');
+				});
+			},
+		);
 	});
 });

@@ -8,7 +8,6 @@ import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { keydownHandler } from '@atlaskit/editor-prosemirror/keymap';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 import type { TrackChangesPlugin } from '../trackChangesPluginType';
 
@@ -17,14 +16,15 @@ export function keymapPlugin(api?: ExtractInjectionAPI<TrackChangesPlugin>): Saf
 	const browser = getBrowserInfo();
 
 	// Exclude Firefox browser from keyboard shortcut
-	if (!browser.gecko && fg('platform_editor_ai_aifc_patch_ga_blockers')) {
+	if (!browser.gecko) {
 		bindKeymapWithCommand(
 			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			toggleViewChanges.common!,
 			() => {
-				const isShowDiffAvailable =
-					api?.trackChanges?.sharedState.currentState()?.isShowDiffAvailable;
-				if (!isShowDiffAvailable) {
+				const trackChangesState = api?.trackChanges?.sharedState.currentState();
+				// Mirror the toolbar button: no changes to show, or another plugin currently owns
+				// the diff decorations (e.g. the AI Review moment is visible).
+				if (!trackChangesState?.isShowDiffAvailable || trackChangesState?.isToggleChangesDisabled) {
 					return false;
 				}
 				const result = api?.core.actions.execute(api?.trackChanges?.commands.toggleChanges);

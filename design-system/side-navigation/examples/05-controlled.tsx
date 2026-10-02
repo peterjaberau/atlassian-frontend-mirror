@@ -6,28 +6,35 @@ import { useState } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { Label } from '@atlaskit/form';
+import { Label } from '@atlaskit/form/label/default';
 import FilterIcon from '@atlaskit/icon/core/filter';
 import WorkIcon from '@atlaskit/icon/core/folder-closed';
 import LanguageIcon from '@atlaskit/icon/core/globe';
 import QueueIcon from '@atlaskit/icon/core/pages';
 import CustomerIcon from '@atlaskit/icon/core/person';
 import SettingsIcon from '@atlaskit/icon/core/settings';
-import { Box } from '@atlaskit/primitives/compiled';
-import Select from '@atlaskit/select';
-import {
-	ButtonItem,
-	HeadingItem,
-	LinkItem,
-	NavigationHeader,
-	NestableNavigationContent,
-	NestingItem,
-	Section,
-	SideNavigation,
-} from '@atlaskit/side-navigation';
+import { Box, Flex } from '@atlaskit/primitives/compiled';
+import Select from '@atlaskit/select/default';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { ButtonItem } from '@atlaskit/side-navigation/button-item';
+import { HeadingItem } from '@atlaskit/side-navigation/heading-item';
+import { LinkItem } from '@atlaskit/side-navigation/link-item';
+import { NavigationHeader } from '@atlaskit/side-navigation/navigation-header';
+import { NestableNavigationContent } from '@atlaskit/side-navigation/nestable-navigation-content';
+import { NestingItem } from '@atlaskit/side-navigation/nesting-item';
+import { Section } from '@atlaskit/side-navigation/section';
+import { SideNavigation } from '@atlaskit/side-navigation/side-navigation';
+import { token } from '@atlaskit/tokens';
 
 import AppFrame from './common/app-frame';
 import SampleHeader from './common/sample-header';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const styles = cssMap({
 	container: {
@@ -42,9 +49,16 @@ interface Option {
 
 const LanguageSettings = () => {
 	return (
-		<NestingItem iconBefore={<LanguageIcon spacing="spacious" label="" />} id="3-1" title="Language settings">
+		<NestingItem
+			iconBefore={
+				<Flex xcss={iconSpacingStyles.space050}>
+					<LanguageIcon label="" />
+				</Flex>
+			}
+			id="3-1"
+			title="Language settings"
+		>
 			<ButtonItem>Customize</ButtonItem>
-
 			<NestingItem id="3-1-1" title="German Settings">
 				<ButtonItem>Hallo Welt!</ButtonItem>
 			</NestingItem>
@@ -111,14 +125,35 @@ const ControlledExample: () => JSX.Element = () => {
 				</NavigationHeader>
 				<NestableNavigationContent onChange={setStack} stack={stack}>
 					<Section>
-						<ButtonItem isSelected iconBefore={<WorkIcon spacing="spacious" label="" />}>
+						<ButtonItem
+							isSelected
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<WorkIcon label="" />
+								</Flex>
+							}
+						>
 							Your work
 						</ButtonItem>
-						{/* eslint-disable-next-line @atlassian/a11y/anchor-is-valid */}
-						<LinkItem href="#" iconBefore={<CustomerIcon spacing="spacious" label="" />}>
+						<LinkItem
+							href="/"
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<CustomerIcon label="" />
+								</Flex>
+							}
+						>
 							Your customers
 						</LinkItem>
-						<NestingItem id="1" title="Queues view" iconBefore={<QueueIcon spacing="spacious" label="" />}>
+						<NestingItem
+							id="1"
+							title="Queues view"
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<QueueIcon label="" />
+								</Flex>
+							}
+						>
 							<Section>
 								<HeadingItem>Queues</HeadingItem>
 								<ButtonItem>Untriaged</ButtonItem>
@@ -135,7 +170,11 @@ const ControlledExample: () => JSX.Element = () => {
 							id="2"
 							testId="filter-nesting-item"
 							title="Filters"
-							iconBefore={<FilterIcon spacing="spacious" label="" />}
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<FilterIcon label="" />
+								</Flex>
+							}
 						>
 							<Section>
 								<ButtonItem>Search work items</ButtonItem>
@@ -157,7 +196,15 @@ const ControlledExample: () => JSX.Element = () => {
 								<ButtonItem>View all filters</ButtonItem>
 							</Section>
 						</NestingItem>
-						<NestingItem id="3" iconBefore={<SettingsIcon spacing="spacious" label="" />} title="Settings">
+						<NestingItem
+							id="3"
+							iconBefore={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<SettingsIcon label="" />
+								</Flex>
+							}
+							title="Settings"
+						>
 							<LanguageSettings />
 						</NestingItem>
 					</Section>

@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
-import type { CardClient } from '@atlaskit/link-provider';
-import { request } from '@atlaskit/linking-common';
+import type CardClient from '@atlaskit/link-provider/client';
+import { request } from '@atlaskit/linking-common/api';
 import {
 	InvokeError,
 	type InvokeRequest,
@@ -18,7 +18,11 @@ import { useResolverUrl } from '../use-resolver-url';
  *
  * @param cardClient
  */
-export const useSmartLinkClientExtension = (cardClient: CardClient) => {
+export const useSmartLinkClientExtension = (
+	cardClient: CardClient,
+): {
+	invoke: (data: InvokeRequest) => Promise<InvokeResponse>;
+} => {
 	const resolverUrl = useResolverUrl(cardClient);
 
 	const invoke = useCallback(

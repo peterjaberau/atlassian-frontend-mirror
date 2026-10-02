@@ -1,19 +1,23 @@
 import React from 'react';
-import { FormattedMessage, type MessageDescriptor } from 'react-intl-next';
+
+import { FormattedMessage, type MessageDescriptor } from 'react-intl';
 
 import { deactivateUserOverviewMessages } from '../../messages';
-import UserInfo from '../UserInfo';
-import { type DeactivateUserOverviewScreenProps } from './types';
-import * as Styled from './styled';
 import { DropdownList } from '../DropdownList';
 import MessagesIntlProvider from '../MessagesIntlProvider';
+import UserInfo from '../UserInfo';
+import * as Styled from './styled';
+import { type DeactivateUserOverviewScreenProps } from './types';
 
 export class DeactivateUserOverviewScreen extends React.Component<DeactivateUserOverviewScreenProps> {
 	static defaultProps: Partial<DeactivateUserOverviewScreenProps> = {
 		isCurrentUser: false,
 	};
 
-	selectAdminOrSelfCopy = (adminCopy: MessageDescriptor, selfCopy: MessageDescriptor) => {
+	selectAdminOrSelfCopy = (
+		adminCopy: MessageDescriptor,
+		selfCopy: MessageDescriptor,
+	): MessageDescriptor => {
 		return this.props.isCurrentUser ? selfCopy : adminCopy;
 	};
 

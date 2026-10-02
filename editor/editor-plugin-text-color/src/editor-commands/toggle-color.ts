@@ -1,5 +1,6 @@
 import { removeMark, toggleMark } from '@atlaskit/editor-common/mark';
 import type { EditorCommand } from '@atlaskit/editor-common/types';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { ACTIONS, pluginKey } from '../pm-plugins/main';
 import { overrideMarks } from '../pm-plugins/utils/constants';
@@ -16,12 +17,14 @@ export const toggleColor =
 			return tr;
 		}
 
-		overrideMarks.forEach((mark) => {
-			const { marks } = tr.doc.type.schema;
-			if (marks[mark]) {
-				removeMark(marks[mark])({ tr });
-			}
-		});
+		if (!expValEquals('platform_editor_lovability_text_bg_color', 'isEnabled', true)) {
+			overrideMarks.forEach((mark) => {
+				const { marks } = tr.doc.type.schema;
+				if (marks[mark]) {
+					removeMark(marks[mark])({ tr });
+				}
+			});
+		}
 
 		toggleMark(textColor, { color })({ tr });
 

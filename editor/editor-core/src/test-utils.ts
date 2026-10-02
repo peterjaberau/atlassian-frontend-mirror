@@ -6,6 +6,7 @@ import type { EditorPluginInjectionAPI } from '@atlaskit/editor-common/preset';
 import { EditorPresetBuilder } from '@atlaskit/editor-common/preset';
 import type {
 	MarkConfig,
+	NamedReactHookFactory,
 	NodeConfig,
 	ReactHookFactory,
 	UIComponentFactory,
@@ -13,8 +14,6 @@ import type {
 import { basePlugin } from '@atlaskit/editor-plugins/base';
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
 import type { Plugin } from '@atlaskit/editor-prosemirror/state';
-import { TextSelection } from '@atlaskit/editor-prosemirror/state';
-import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import { createSchema } from './create-editor/create-schema';
 import type {
@@ -23,8 +22,6 @@ import type {
 	LightPMPluginFactoryParams,
 	OnEditorViewStateUpdated,
 } from './create-editor/get-plugins';
-
-export type { LightEditorPlugin } from './create-editor/get-plugins';
 
 export interface LightEditorConfig {
 	contentComponents: UIComponentFactory[];
@@ -80,7 +77,9 @@ function lightProcessPluginsList(editorPlugins: LightEditorPlugin[]): LightEdito
 				acc.contentComponents.push(editorPlugin.contentComponent);
 			}
 			if (editorPlugin.usePluginHook) {
-				acc.pluginHooks.push(editorPlugin.usePluginHook);
+				const named: NamedReactHookFactory = editorPlugin.usePluginHook.bind(null);
+				named.pluginName = editorPlugin.name;
+				acc.pluginHooks.push(named);
 			}
 			if (editorPlugin.onEditorViewStateUpdated) {
 				acc.onEditorViewStateUpdatedCallbacks.push(editorPlugin.onEditorViewStateUpdated);
@@ -137,19 +136,3 @@ export const createPMSchemaAndPlugins =
 			editorConfig,
 		};
 	};
-
-export function setTextSelection(view: EditorView, anchor: number, head?: number): void {
-	const { state } = view;
-	const tr = state.tr.setSelection(TextSelection.create(state.doc, anchor, head));
-	view.dispatch(tr);
-}
-
-/**
- * Given a selector, checks if an element matching the selector exists in the
- * document.
- * @param selector
- * @returns true if element matching selector exists in document, false otherwise
- */
-export const isElementBySelectorInDocument = (selector: string): boolean => {
-	return Boolean(document.querySelector(selector));
-};

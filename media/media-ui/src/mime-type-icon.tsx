@@ -2,10 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { css, cssMap, jsx } from '@atlaskit/css';
-import { token } from '@atlaskit/tokens';
 import { type MediaType } from '@atlaskit/media-common';
-import { getMimeIcon } from './util';
+import { token } from '@atlaskit/tokens';
+
+import { getMimeIcon } from './getMimeIcon';
 import { MediaTypeIcon } from './media-type-icon';
 type MediaTypeProps = {
 	testId?: string;
@@ -18,10 +20,10 @@ type MediaTypeProps = {
 const iconWrapperStyleMap = cssMap({
 	small: {},
 	large: {
-		paddingTop: token('space.050', '4px'),
-		paddingRight: token('space.050', '4px'),
-		paddingBottom: token('space.050', '4px'),
-		paddingLeft: token('space.050', '4px'),
+		paddingTop: token('space.050'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.050'),
+		paddingLeft: token('space.050'),
 	},
 });
 
@@ -39,7 +41,7 @@ export const MimeTypeIcon = ({
 	name = 'unknown',
 	testId,
 	size = 'large',
-}: MediaTypeProps) => {
+}: MediaTypeProps): JSX.Element => {
 	// retrieve mimetype icon and label
 	const iconInfo = getMimeIcon(mimeType, name);
 

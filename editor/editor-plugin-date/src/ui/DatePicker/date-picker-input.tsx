@@ -5,8 +5,8 @@
 import React from 'react';
 import type { FormEvent } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { css, jsx } from '@atlaskit/css';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
@@ -17,12 +17,11 @@ import {
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
 import { dateMessages as messages } from '@atlaskit/editor-common/messages';
-import { ErrorMessage } from '@atlaskit/form';
-import TextField from '@atlaskit/textfield';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import TextField from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 import type { DateType } from '../../types';
-
 import { formatDateType, parseDateType } from './utils/formatParse';
 import { adjustDate, findDateSegmentByPosition, isDatePossiblyValid } from './utils/internal';
 
@@ -32,7 +31,7 @@ const dateTextFieldWrapper = css({
 	// @ts-expect-error
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
 	paddingTop: '22px',
-	paddingBottom: token('space.150', '12px'),
+	paddingBottom: token('space.150'),
 	// TODO: EDF-2517 - should use token here
 	// @ts-expect-error
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
@@ -110,14 +109,14 @@ class DatePickerInput extends React.Component<InputProps & WrappedComponentProps
 		);
 	}
 
-	componentDidUpdate() {
+	componentDidUpdate(prevProps: InputProps & WrappedComponentProps) {
 		const setInputSelectionPos = this.setInputSelectionPos;
 		if (this.inputRef && setInputSelectionPos !== undefined) {
 			this.inputRef.setSelectionRange(setInputSelectionPos, setInputSelectionPos);
 			this.setInputSelectionPos = undefined;
 		}
 
-		if (this.inputRef && this.props.autoFocus) {
+		if (this.inputRef && !prevProps.autoFocus && this.props.autoFocus) {
 			this.focusInput();
 		}
 
@@ -238,6 +237,9 @@ class DatePickerInput extends React.Component<InputProps & WrappedComponentProps
 			return;
 		}
 
+		// Focus trap for arrow keys in the input field.
+		event.stopPropagation();
+
 		const { dispatchAnalyticsEvent } = this.props;
 		const cursorPos = this.inputRef?.selectionStart;
 		if (cursorPos === null || cursorPos === undefined) {
@@ -287,4 +289,8 @@ class DatePickerInput extends React.Component<InputProps & WrappedComponentProps
 	};
 }
 
-export default injectIntl(DatePickerInput);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<InputProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<InputProps & WrappedComponentProps>;
+} = injectIntl(DatePickerInput);
+export default _default_1;

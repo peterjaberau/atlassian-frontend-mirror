@@ -1,5 +1,878 @@
 # @atlaskit/dropdown-menu
 
+## 21.0.0
+
+### Major Changes
+
+- [`d562a51283c05`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d562a51283c05) -
+  Widen Popup and Dropdown Menu trigger `aria-haspopup` types to include valid popup kinds,
+  including `menu`. Consumers with explicitly narrow render-prop annotations may need to accept the
+  additional values.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- [`0f780b942b35d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f780b942b35d) -
+  Use Popup's shared trigger types for existing trigger ARIA contracts.
+
+## 20.0.0
+
+### Major Changes
+
+- [`ae5c32fe7bfd6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae5c32fe7bfd6) -
+  Record the rollback of the DSP-25935 popup trigger type expansion in PR #487935. This restores
+  compatibility with existing consumers, including Jira Assets audit logs and linked objects.
+
+  Popup's `aria-haspopup` trigger contract returns to `boolean | 'dialog'`. The affected public
+  trigger props in Dropdown Menu, Avatar, Lozenge, Universal Create, Rovo Pins, and Navigation
+  System also return to their earlier contracts. Consumers using the newly added role-specific
+  string values must return to values supported by those earlier contracts. Popup no longer exports
+  `AriaHasPopup` or `TriggerAriaProps`; use `TriggerProps['aria-haspopup']` and
+  `Pick<TriggerProps, 'aria-controls' | 'aria-expanded' | 'aria-haspopup'>` instead.
+
+  Popup and Dropdown Menu retain their existing top-layer runtime ARIA values through the prior
+  compatibility adapters. Conversation Assistant returns to its previous internal trigger type
+  annotation without changing its public API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Major Changes
+
+- [`5e712839d1e00`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e712839d1e00) -
+  Popup's trigger render props now include the role-specific `aria-haspopup` values `"menu"`,
+  `"listbox"`, `"tree"`, and `"grid"`, which the top-layer path could already provide at runtime.
+  Popup also exports `AriaHasPopup` and `TriggerAriaProps` for consumers to type trigger ARIA
+  attributes. Use booleans instead of the string values `"true"` and `"false"`.
+
+  Dropdown Menu's custom trigger props now reflect Popup's `aria-haspopup` values, and Dropdown Item
+  accepts the same roles and booleans. Custom triggers forward Popup's value on the legacy path; the
+  top-layer path provides `"menu"`. Dropdown items already forwarded `aria-controls` and
+  `aria-expanded` at runtime.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.9
+
+### Patch Changes
+
+- [`9ad8fc44ade01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ad8fc44ade01) -
+  Remove redundant radio descriptions from DropdownItemRadio.
+
+## 18.3.8
+
+### Patch Changes
+
+- [`3bcbee8bcb1df`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3bcbee8bcb1df) -
+  Derive the top-layer dropdown menu's `aria-busy` state from `isLoading` behind
+  `platform-dst-top-layer`. Omit the attribute when loading is initially undefined, and retain
+  `false` after loading ends.
+
+## 18.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.5
+
+### Patch Changes
+
+- [`dce0a0ee3dfd4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dce0a0ee3dfd4) -
+  Expose dialog popup semantics through modal trigger render props and forward them in the built-in
+  button, icon button, and dropdown item variants. Keep the callback property optional for
+  compatibility with existing consumers while they migrate separately.
+
+  Gate modal trigger popup semantics and dropdown dialog handling behind
+  `platform_dst-a11y_modal-trigger-haspopup`. When enabled, dialog items remain reachable with arrow
+  keys and close the menu when activated. ArrowRight only opens submenu triggers.
+
+## 18.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.3.1
+
+### Patch Changes
+
+- [`a7ec100f7d560`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7ec100f7d560) -
+  The top-layer code path now uses `@atlaskit/top-layer`'s `useAnchoredPopover`, so these popovers
+  are capped to the viewport and one too wide for the space beside its trigger moves to a roomier
+  side rather than wrapping into it. No public API change. Behind the `platform-dst-top-layer` gate
+  (`platform-dst-top-layer-tooltip` for `@atlaskit/tooltip`, `platform-dst-top-layer-spotlight` for
+  `@atlaskit/spotlight`); legacy (flag-off) behaviour is unchanged.
+- Updated dependencies
+
+## 18.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.2
+
+### Patch Changes
+
+- [`f7b8960733352`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f7b8960733352) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 18.2.1
+
+### Patch Changes
+
+- [`0bf426b9303f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0bf426b9303f4) -
+  [ux] Close the complete nested dropdown menu stack when Tab or Shift+Tab moves focus away.
+
+## 18.2.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`005037db2dcaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/005037db2dcaa) -
+  Autofix: update cross-package imports away from barrel entries
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- [`836061d9becda`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/836061d9becda) -
+  [ux] Improve the accessibility semantics and keyboard navigation of dropdown menus rendered in the
+  top layer.
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- [`c3cae446aea72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3cae446aea72) -
+  [ux] Improve the accessibility semantics and keyboard navigation of dropdown menus rendered in the
+  top layer.
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- [`30d3abbf78178`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/30d3abbf78178) -
+  Fixed inappropriate `aria-current` on a `DropdownItem` when it is used as a nested submenu
+  trigger. Previously an open submenu trigger rendered `aria-current="true"` (via `ButtonItem`'s
+  selected state), which is inaccurate for a popup trigger — its open state is already conveyed by
+  `aria-expanded`. `aria-current` is now omitted for nested triggers, resolving misleading screen
+  reader announcements (A11Y-29757).
+
+  This change is behind the `platform_dst_dropdown_nested_trigger_aria_current` feature gate.
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Major Changes
+
+- [`f0bf5f838abd5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f0bf5f838abd5) -
+  Apply Volt entry-point and barrel-removal standards across these packages. Public `exports` now
+  resolve **directly** to `./src/*` implementations instead of intermediate `./src/entry-points/*`
+  re-exports.
+
+  ### Migration
+
+  Prefer published subpaths over the package root or internal entry-point paths:
+
+  ```ts
+  import Calendar from '@atlaskit/calendar/calendar';
+  import Drawer from '@atlaskit/drawer/drawer';
+  import { WidthObserver } from '@atlaskit/width-detector/width-observer';
+  import { DocumentViewer } from '@atlaskit/media-document-viewer/document-viewer';
+  ```
+
+  If you imported through internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Calendar from '@atlaskit/calendar/entry-points/calendar';
+  +import Calendar from '@atlaskit/calendar/calendar';
+
+  -import WidthObserver from '@atlaskit/width-detector/src/WidthObserver';
+  +import { WidthObserver } from '@atlaskit/width-detector/width-observer';
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.0
+
+### Minor Changes
+
+- [`3f6f3bd7da074`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f6f3bd7da074) -
+  Updates usage of the Top Layer primitives to consume changes to animation API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- [`7793dc62dd564`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7793dc62dd564) -
+  Internal refactor of upcoming top-layer usage
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- [`820f00bd7db09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/820f00bd7db09) -
+  Enable platform-dst-motion-uplift-button by default in constellation examples so button motion is
+  previewed in component demos. Docs/examples-only; no change to shipped component behaviour.
+
+## 17.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 17.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.4
+
+### Patch Changes
+
+- [`6d0485dce81c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d0485dce81c4) -
+  Internal: updated to the new `@atlaskit/top-layer` `Popover`/`Dialog` behaviour where the host
+  element unmounts after the exit animation completes. No consumer action required.
+- Updated dependencies
+
+## 16.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.2
+
+### Patch Changes
+
+- [`021a645c6f39a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/021a645c6f39a) -
+  Update internal top-layer adopter code paths behind `platform-dst-top-layer`.
+- Updated dependencies
+
+## 16.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.0
+
+### Minor Changes
+
+- [`f6ef9f1fc7454`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f6ef9f1fc7454) -
+  Add an optional close-event ignore predicate to popup and dropdown menu so consumers can treat
+  external overlays as part of popup interactions.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.0
+
+### Minor Changes
+
+- [`43e486948865a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/43e486948865a) -
+  When `platform-dst-top-layer` is enabled, the dropdown menu now uses the updated `widthFromAnchor`
+  prop (with string values `'min-anchor'` | `'none'`) on `Popup.Content` instead of the previous
+  `width` prop, to control whether the dropdown matches the width of its trigger.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.11
+
+### Patch Changes
+
+- [`7250582895c0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7250582895c0b) -
+  Top-layer adoption work behind the `platform-dst-top-layer` feature flag. Public adopter APIs are
+  intentionally kept narrow while the top-layer API surface settles, with one exception called out
+  below.
+
+  Highlights:
+  - Pass the full `[along, away]` legacy popper offset through to the new top-layer
+    `placement.offset` API (via `fromLegacyPlacement`). Previously only the `away` axis was
+    forwarded, which dropped the `along` offset for consumers of `Popup`, `PopupSelect`,
+    `Spotlight`, and `Tooltip` when `platform-dst-top-layer` is enabled.
+  - Fix broken import of `dialogHeight` and `dialogWidth` from the removed utils module in
+    `@atlaskit/modal-dialog`.
+
+  Public API:
+  - **`@atlaskit/tooltip`** (`minor`): add an optional `testId?: string` field to `TriggerProps`.
+    This is additive (no existing prop changes shape). Required because `@atlaskit/button/new` (and
+    other `Pressable`-backed primitives) overwrite `data-testid` from spread, so the legacy
+    `(triggerProps as any)['data-testid']` workaround is silently absorbed by those consumers. A
+    typed `testId` field flows through their own `testId` destructure instead, restoring
+    `data-testid` propagation onto the rendered trigger element.
+  - **`@atlaskit/popup`**, **`@atlaskit/dropdown-menu`** (`patch`): no public type changes. Wider
+    `aria-haspopup` unions that the FF-on path produces are bridged at the package boundary into
+    `@atlaskit/top-layer` with localised `FUDGE(top-layer-api)` casts, documented in
+    `packages/design-system/top-layer/notes/decisions/migration-roadmap.md` ("Open API decisions
+    deferred to a follow-up PR"). They will be widened in a follow-up `minor` PR once the top-layer
+    API is committed.
+  - **`@atlaskit/modal-dialog`**, **`@atlaskit/select`**, **`@atlaskit/spotlight`**
+    (`patch`/`minor`): no public type changes; bug fixes only.
+
+  Merge-readiness fixes (FF-on test wiring + adopter behavior):
+  - **`@atlaskit/popup`** (`minor`): wire the compositional `PopupContent` to delegate to
+    `PopupContentTopLayer` when `platform-dst-top-layer` is enabled. Previously only the legacy
+    `Popup` component had the FF branch, leaving consumers of the compositional API on the legacy
+    popper path.
+  - **`@atlaskit/select`** (`minor`): add an `onClick` handler to the `PopupSelect` top-layer
+    trigger so clicks open/close the menu (mirrors the legacy global click handler in
+    `popup-select.tsx`). Add explicit Escape handling on the menu's `onKeyDown` so the menu closes
+    and focus returns to the trigger.
+  - **`@atlaskit/top-layer`** (`patch`): the `<dialog>` rendered by the Dialog primitive now sets
+    `aria-modal="true"` explicitly. Modern browsers infer modal semantics from `.showModal()` but
+    some assistive tech still keys off the explicit attribute.
+  - **`@atlaskit/top-layer`** (`patch`): guard `use-anchor-positioning` against environments where
+    `ResizeObserver` is not defined (e.g. jest's `node` environment, used by the post-office test
+    suite). The observer is used to wait for the popover's first valid layout before measuring;
+    consumers in non-DOM jest environments now get a no-op observer and the scroll/resize listeners
+    still apply if the host environment polyfills `showPopover`. Real browsers always have
+    `ResizeObserver`.
+  - **`@atlaskit/modal-dialog`** (`patch`): on the FF-on path, drop the `tabIndex={-1}` (and unused
+    `:focus-visible` outline) from the modal content wrapper. The native `<dialog>.showModal()`
+    focus-delegate algorithm picks the first focusable descendant (including `tabindex=-1`), and the
+    wrapper was hijacking initial focus from the close button. Also honor `shouldReturnFocus={ref}`
+    on the FF-on path (an unmount-cleanup focuses the ref after `dialog.close()` so it overrides the
+    browser's automatic return-to-trigger). Boolean `shouldReturnFocus={false}` is not yet honored
+    on the FF-on path — see `top-layer/notes/merge-blockers.md`.
+  - **`@atlaskit/datetime-picker`** (`patch`): on the FF-on path, set `mode="manual"` on the
+    `Popup.Content` rendered by both `internal/menu-top-layer.tsx` (date-picker calendar) and
+    `internal/fixed-layer-menu-top-layer.tsx` (time-picker menu). With the default `mode="auto"`,
+    the same click event that opens the menu (which targets the react-select combobox input —
+    outside the popover element) bubbles to the browser's native popover light-dismiss handler and
+    immediately closes the menu. react-select / DateTimePicker already own outside-click and Esc
+    dismissal via their own state, so opting out of the native auto-dismiss is the correct
+    integration. Also extend the existing Esc → trigger-focus restoration in
+    `components/date-picker.tsx` to the FF-on path (manual mode disables the browser's built-in
+    focus return, and the legacy code path was already handling this for itself behind an FF
+    negation).
+  - **`@atlaskit/popup`** (no public API change): no source changes — only FF-on Playwright
+    spec/example fixes drove the suite from 21/3/2 to 27/0/0. Notable: the two `test.fixme`'d
+    nested-popover cases were not browser limitations; `popover="auto"` chains correctly via DOM
+    ancestry (the original fixmes had the wrong testId selector). Added `testId` props to two
+    examples (`16-popup-with-a11y-props`, `18-should-fit-container`) so default-shape tests can
+    reach the trigger.
+  - Test alignment for FF-on Playwright suites across `popup`, `select`, `datetime-picker`,
+    `inline-dialog`, `inline-message`, and `modal-dialog`: selector updates to match the new
+    top-layer testId convention (`${testId}--content`, `[role="dialog"][aria-label="calendar"]`),
+    per-spec `skipAxeCheck()` for example-level color-contrast violations unrelated to the
+    migration, and focus assertions adjusted to match native `<dialog>` / `Popup.Content` auto-focus
+    semantics (focus lands on the first focusable child, not the dialog container itself).
+  - **`@atlassian/capacity-planning-capacity-graph`**, **`@atlaskit/color-picker`**,
+    **`@atlassian/timeline-table`**, **`@atlassian/global-side-navigation`** (`patch`): scope `fg`
+    mocks in unit tests so `platform-dst-top-layer` returns `false`. JSDOM does not implement the
+    native Popover API (`showPopover`/`hidePopover`/`toggle` events), so leaving the gate ON in unit
+    tests caused popover content to remain in the DOM after close and broke close-behaviour
+    assertions. Browser coverage for the FF-on path is provided by the Playwright suites listed
+    above.
+  - **`@atlaskit/dropdown-menu`** (no public API change): test/example-only fixes for the FF-on
+    Playwright suite. Added `role="menuitem"` to the nested-trigger `ButtonItem` in
+    `examples/93-testing-nested-keyboard-navigation-top-layer.tsx` to satisfy axe's
+    `aria-required-children` rule on the parent menu. Added a `test.beforeEach(skipAxeCheck)` to
+    `dropdown-menu.spec.tsx` (FF-on suite) for example-level `color-contrast` violations on the
+    pre-existing `color.text.selected`/`color.background.selected` token pair (3.91:1). Replaced a
+    deadlocking `await expect(moveItem).not.toBeFocused()` pre-open assertion (Playwright's
+    auto-wait blocks 5s on the absent element) with `await expect(moveItem).not.toBeVisible()`.
+    Suite result: 22/22 passing.
+
+- Updated dependencies
+
+## 16.8.10
+
+### Patch Changes
+
+- [`1f9114700d351`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f9114700d351) -
+  Moved new motion changes from `platform-dst-motion-uplift` feature gate to
+  `platform-dst-motion-uplift-popup`
+- [`2bed6255731de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bed6255731de) -
+  Top-layer adoption work behind the `platform-dst-top-layer` feature flag. Public adopter APIs are
+  intentionally kept narrow while the top-layer API surface settles, with one exception called out
+  below.
+
+  Highlights:
+  - Pass the full `[along, away]` legacy popper offset through to the new top-layer
+    `placement.offset` API (via `fromLegacyPlacement`). Previously only the `away` axis was
+    forwarded, which dropped the `along` offset for consumers of `Popup`, `PopupSelect`,
+    `Spotlight`, and `Tooltip` when `platform-dst-top-layer` is enabled.
+  - Fix broken import of `dialogHeight` and `dialogWidth` from the removed utils module in
+    `@atlaskit/modal-dialog`.
+
+  Public API:
+  - **`@atlaskit/tooltip`** (`minor`): add an optional `testId?: string` field to `TriggerProps`.
+    This is additive (no existing prop changes shape). Required because `@atlaskit/button/new` (and
+    other `Pressable`-backed primitives) overwrite `data-testid` from spread, so the legacy
+    `(triggerProps as any)['data-testid']` workaround is silently absorbed by those consumers. A
+    typed `testId` field flows through their own `testId` destructure instead, restoring
+    `data-testid` propagation onto the rendered trigger element.
+  - **`@atlaskit/popup`**, **`@atlaskit/dropdown-menu`** (`patch`): no public type changes. Wider
+    `aria-haspopup` unions that the FF-on path produces are bridged at the package boundary into
+    `@atlaskit/top-layer` with localised `FUDGE(top-layer-api)` casts, documented in
+    `packages/design-system/top-layer/notes/decisions/migration-roadmap.md` ("Open API decisions
+    deferred to a follow-up PR"). They will be widened in a follow-up `minor` PR once the top-layer
+    API is committed.
+  - **`@atlaskit/modal-dialog`**, **`@atlaskit/select`**, **`@atlaskit/spotlight`**
+    (`patch`/`minor`): no public type changes; bug fixes only.
+
+  Merge-readiness fixes (FF-on test wiring + adopter behavior):
+  - **`@atlaskit/popup`** (`minor`): wire the compositional `PopupContent` to delegate to
+    `PopupContentTopLayer` when `platform-dst-top-layer` is enabled. Previously only the legacy
+    `Popup` component had the FF branch, leaving consumers of the compositional API on the legacy
+    popper path.
+  - **`@atlaskit/select`** (`minor`): add an `onClick` handler to the `PopupSelect` top-layer
+    trigger so clicks open/close the menu (mirrors the legacy global click handler in
+    `popup-select.tsx`). Add explicit Escape handling on the menu's `onKeyDown` so the menu closes
+    and focus returns to the trigger.
+  - **`@atlaskit/top-layer`** (`patch`): the `<dialog>` rendered by the Dialog primitive now sets
+    `aria-modal="true"` explicitly. Modern browsers infer modal semantics from `.showModal()` but
+    some assistive tech still keys off the explicit attribute.
+  - **`@atlaskit/top-layer`** (`patch`): guard `use-anchor-positioning` against environments where
+    `ResizeObserver` is not defined (e.g. jest's `node` environment, used by the post-office test
+    suite). The observer is used to wait for the popover's first valid layout before measuring;
+    consumers in non-DOM jest environments now get a no-op observer and the scroll/resize listeners
+    still apply if the host environment polyfills `showPopover`. Real browsers always have
+    `ResizeObserver`.
+  - **`@atlaskit/modal-dialog`** (`patch`): on the FF-on path, drop the `tabIndex={-1}` (and unused
+    `:focus-visible` outline) from the modal content wrapper. The native `<dialog>.showModal()`
+    focus-delegate algorithm picks the first focusable descendant (including `tabindex=-1`), and the
+    wrapper was hijacking initial focus from the close button. Also honor `shouldReturnFocus={ref}`
+    on the FF-on path (an unmount-cleanup focuses the ref after `dialog.close()` so it overrides the
+    browser's automatic return-to-trigger). Boolean `shouldReturnFocus={false}` is not yet honored
+    on the FF-on path — see `top-layer/notes/merge-blockers.md`.
+  - **`@atlaskit/datetime-picker`** (`patch`): on the FF-on path, set `mode="manual"` on the
+    `Popup.Content` rendered by both `internal/menu-top-layer.tsx` (date-picker calendar) and
+    `internal/fixed-layer-menu-top-layer.tsx` (time-picker menu). With the default `mode="auto"`,
+    the same click event that opens the menu (which targets the react-select combobox input —
+    outside the popover element) bubbles to the browser's native popover light-dismiss handler and
+    immediately closes the menu. react-select / DateTimePicker already own outside-click and Esc
+    dismissal via their own state, so opting out of the native auto-dismiss is the correct
+    integration. Also extend the existing Esc → trigger-focus restoration in
+    `components/date-picker.tsx` to the FF-on path (manual mode disables the browser's built-in
+    focus return, and the legacy code path was already handling this for itself behind an FF
+    negation).
+  - **`@atlaskit/popup`** (no public API change): no source changes — only FF-on Playwright
+    spec/example fixes drove the suite from 21/3/2 to 27/0/0. Notable: the two `test.fixme`'d
+    nested-popover cases were not browser limitations; `popover="auto"` chains correctly via DOM
+    ancestry (the original fixmes had the wrong testId selector). Added `testId` props to two
+    examples (`16-popup-with-a11y-props`, `18-should-fit-container`) so default-shape tests can
+    reach the trigger.
+  - Test alignment for FF-on Playwright suites across `popup`, `select`, `datetime-picker`,
+    `inline-dialog`, `inline-message`, and `modal-dialog`: selector updates to match the new
+    top-layer testId convention (`${testId}--content`, `[role="dialog"][aria-label="calendar"]`),
+    per-spec `skipAxeCheck()` for example-level color-contrast violations unrelated to the
+    migration, and focus assertions adjusted to match native `<dialog>` / `Popup.Content` auto-focus
+    semantics (focus lands on the first focusable child, not the dialog container itself).
+  - **`@atlassian/capacity-planning-capacity-graph`**, **`@atlaskit/color-picker`**,
+    **`@atlassian/timeline-table`**, **`@atlassian/global-side-navigation`** (`patch`): scope `fg`
+    mocks in unit tests so `platform-dst-top-layer` returns `false`. JSDOM does not implement the
+    native Popover API (`showPopover`/`hidePopover`/`toggle` events), so leaving the gate ON in unit
+    tests caused popover content to remain in the DOM after close and broke close-behaviour
+    assertions. Browser coverage for the FF-on path is provided by the Playwright suites listed
+    above.
+  - **`@atlaskit/dropdown-menu`** (no public API change): test/example-only fixes for the FF-on
+    Playwright suite. Added `role="menuitem"` to the nested-trigger `ButtonItem` in
+    `examples/93-testing-nested-keyboard-navigation-top-layer.tsx` to satisfy axe's
+    `aria-required-children` rule on the parent menu. Added a `test.beforeEach(skipAxeCheck)` to
+    `dropdown-menu.spec.tsx` (FF-on suite) for example-level `color-contrast` violations on the
+    pre-existing `color.text.selected`/`color.background.selected` token pair (3.91:1). Replaced a
+    deadlocking `await expect(moveItem).not.toBeFocused()` pre-open assertion (Playwright's
+    auto-wait blocks 5s on the absent element) with `await expect(moveItem).not.toBeVisible()`.
+    Suite result: 22/22 passing.
+
+- Updated dependencies
+
+## 16.8.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.6
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 16.8.5
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 16.8.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.3
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- Updated dependencies
+
+## 16.8.2
+
+### Patch Changes
+
+- [`18245cbd990e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18245cbd990e3) -
+  Added motion to opening and closing of Popup
+- Updated dependencies
+
+## 16.8.1
+
+### Patch Changes
+
+- [`7aef1e49e90ea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7aef1e49e90ea) -
+  Removes redundant fallback color values via @atlaskit/theme
+- Updated dependencies
+
+## 16.8.0
+
+### Minor Changes
+
+- [`1001eaeabe30f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1001eaeabe30f) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.2
+
+### Patch Changes
+
+- [`f31216f23df61`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f31216f23df61) -
+  Removes internally exported API from files which will soon be exported as top-level API
+
+## 16.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.0
+
+### Minor Changes
+
+- [`35e953efa932c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/35e953efa932c) -
+  Clean up flag to improve accessibility of dropdown menu.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.6.0
+
+### Minor Changes
+
+- [`0b9ac729e9180`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b9ac729e9180) -
+  [ux] Nested dropdown menus can now navigate throguh left and right arrow keys.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.5.2
+
+### Patch Changes
+
+- [`2c4cac9c7d714`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c4cac9c7d714) -
+  Removed inappropriate `aria-current` attribute from DropdownItemRadio. The `aria-checked`
+  attribute already provides the correct semantics for radio-style menu items.
+
+## 16.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.5.0
+
+### Minor Changes
+
+- [`77b41dc46e2c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77b41dc46e2c3) -
+  Add new option `shouldPreventEscapePropagation` to prevent ESCAPE key events from propagating.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 16.4.5
 
 ### Patch Changes

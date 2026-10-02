@@ -4,11 +4,11 @@
  */
 import React, { useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
 import type { PublicPluginAPI } from '@atlaskit/editor-common/types';
-import { type ContextPanelPlugin } from '@atlaskit/editor-plugin-context-panel';
+import type { ContextPanelPlugin } from '@atlaskit/editor-plugin-context-panel';
 import { getExampleExtensionProviders } from '@atlaskit/editor-test-helpers/example-helpers';
 import { token } from '@atlaskit/tokens';
 
@@ -18,8 +18,8 @@ import type { EditorActions } from '../src';
 import { ContextPanel } from '../src';
 import EditorContext from '../src/ui/EditorContext';
 import WithEditorActions from '../src/ui/WithEditorActions';
-
-import { ExampleEditor, LOCALSTORAGE_defaultDocKey, type EditorAPI } from './5-full-page';
+import { ExampleEditor, LOCALSTORAGE_defaultDocKey } from './5-full-page';
+import type { EditorAPI } from './5-full-page';
 
 // Ignored via go/ees005
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -64,9 +64,15 @@ templates[1] = {
 };
 
 const templateCard = css({
+	display: 'block',
+	width: '100%',
+	textAlign: 'left',
+	background: 'none',
+	cursor: 'pointer',
+	font: 'inherit',
 	border: `${token('border.width')} solid ${token('color.border')}`,
-	padding: token('space.100', '8px'),
-	marginBottom: token('space.100', '8px'),
+	padding: token('space.100'),
+	marginBottom: token('space.100'),
 	borderRadius: token('radius.medium', '6px'),
 	'&:hover': {
 		background: token('color.background.accent.gray.subtler'),
@@ -193,12 +199,16 @@ class TemplatePanel extends React.Component<TemplatePanelProps, TemplatePanelSta
 		return (
 			<ContextPanel visible={this.state.panelVisible} editorAPI={this.props.editorAPI}>
 				<div>
-					{templates.map((tmpl, idx) => (
-						// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, react/no-array-index-key, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
-						<div css={templateCard} key={idx} onClick={() => this.selectTemplate(tmpl)}>
+					{templates.map((tmpl) => (
+						<button
+							type="button"
+							css={templateCard}
+							key={tmpl.title}
+							onClick={() => this.selectTemplate(tmpl)}
+						>
 							<h4>{tmpl.title}</h4>
 							<p>{tmpl.desc}</p>
-						</div>
+						</button>
 					))}
 				</div>
 			</ContextPanel>
@@ -246,7 +256,7 @@ const EditorWithSidebar = () => {
 	return <ExampleEditor editorProps={editorProps} setEditorApi={setEditorAPI} />;
 };
 
-export default function Example() {
+export default function Example(): jsx.JSX.Element {
 	return (
 		<EditorContext>
 			<EditorWithSidebar />

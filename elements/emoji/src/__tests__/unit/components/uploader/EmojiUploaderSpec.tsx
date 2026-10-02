@@ -1,36 +1,35 @@
 import React from 'react';
-import { waitUntil } from '@atlaskit/elements-test-helpers';
+
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { MockEmojiResource } from '@atlaskit/util-data-test/mock-emoji-resource';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import { screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
+import {
+	uploadEmojiComponentTestId,
+	uploadEmojiNameInputTestId,
+} from '../../../../components/common/EmojiUploadPicker';
+import { uploadPreviewTestId } from '../../../../components/common/EmojiUploadPreview';
+import { messages } from '../../../../components/i18n';
+import EmojiUploader, { type Props } from '../../../../components/uploader/EmojiUploader';
+import { selectedFileEvent } from '../../../../util/analytics/selectedFileEvent';
+import { uploadCancelButton } from '../../../../util/analytics/uploadCancelButton';
+import { uploadConfirmButton } from '../../../../util/analytics/uploadConfirmButton';
+import { uploadFailedEvent } from '../../../../util/analytics/uploadFailedEvent';
+import { uploadSucceededEvent } from '../../../../util/analytics/uploadSucceededEvent';
 import * as ImageUtil from '../../../../util/image';
-import * as helperTestingLibrary from '../picker/_emoji-picker-helpers-testing-library';
 import {
 	getEmojiResourcePromise,
 	createPngFile,
 	pngDataURL,
 	pngFileUploadData,
 } from '../../_test-data';
-import EmojiUploader, { type Props } from '../../../../components/uploader/EmojiUploader';
-import { uploadPreviewTestId } from '../../../../components/common/EmojiUploadPreview';
-import {
-	uploadEmojiComponentTestId,
-	uploadEmojiNameInputTestId,
-} from '../../../../components/common/EmojiUploadPicker';
-import {
-	selectedFileEvent,
-	uploadCancelButton,
-	uploadConfirmButton,
-	uploadFailedEvent,
-	uploadSucceededEvent,
-} from '../../../../util/analytics';
-import { messages } from '../../../../components/i18n';
 import { renderWithIntl } from '../../_testing-library';
+import * as helperTestingLibrary from '../picker/_emoji-picker-helpers-testing-library';
 
 const sampleEmoji = {
 	name: 'Sample',
@@ -135,7 +134,7 @@ describe('<EmojiUploader />', () => {
 			uploadPreviewShown();
 			addEmojiButton.click();
 
-			await waitUntil(() => provider.getUploads().length > 0);
+			await waitFor(() => expect(provider.getUploads().length).toBeGreaterThan(0));
 			// Check uploaded emoji
 			const uploads = provider.getUploads();
 			expect(uploads).toHaveLength(1);
@@ -263,7 +262,7 @@ describe('<EmojiUploader />', () => {
 
 			// Successfully upload this time
 			retryButton.click();
-			await waitUntil(() => provider.getUploads().length > 0);
+			await waitFor(() => expect(provider.getUploads().length).toBeGreaterThan(0));
 
 			expect(onEvent).toHaveBeenCalledTimes(5);
 

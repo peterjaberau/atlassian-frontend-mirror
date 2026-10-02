@@ -1,23 +1,31 @@
 import React from 'react';
 
+import {
+	BLOCK_CONTROLS_LEFT_GROUP,
+	BLOCK_CONTROLS_LEFT_SECTION,
+	BLOCK_CONTROLS_LEFT_SURFACE,
+	BLOCK_CONTROLS_RIGHT_GROUP,
+	BLOCK_CONTROLS_RIGHT_SECTION,
+	BLOCK_CONTROLS_RIGHT_SURFACE,
+} from '@atlaskit/editor-common/block-controls/surface-keys';
 import { expandSelectionBounds } from '@atlaskit/editor-common/selection';
 import { areToolbarFlagsEnabled } from '@atlaskit/editor-common/toolbar-flag-check';
-import type { DIRECTION, PMPlugin } from '@atlaskit/editor-common/types';
-import {
-	TextSelection,
-	type EditorState,
-	type Transaction,
-} from '@atlaskit/editor-prosemirror/state';
-import { type Mapping } from '@atlaskit/editor-prosemirror/transform';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import type { DIRECTION, ExtractInjectionAPI, PMPlugin } from '@atlaskit/editor-common/types';
+import { TextSelection } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { Mapping } from '@atlaskit/editor-prosemirror/transform';
+import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type {
 	BlockControlsPlugin,
 	BlockControlsSharedState,
+	ControlOptions,
 	HandleOptions,
 	MultiSelectDnD,
+	NodeDecorationFactory,
 	TriggerByNode,
 } from './blockControlsPluginType';
 import { handleKeyDownWithPreservedSelection } from './editor-commands/handle-key-down-with-preserved-selection';
@@ -26,6 +34,7 @@ import { moveNode } from './editor-commands/move-node';
 import { moveNodeWithBlockMenu } from './editor-commands/move-node-with-block-menu';
 import { moveToLayout } from './editor-commands/move-to-layout';
 import { canMoveNodeUpOrDown } from './editor-commands/utils/move-node-utils';
+import { getNodeTypeWithLevel } from './pm-plugins/decorations-common';
 import { firstNodeDecPlugin } from './pm-plugins/first-node-dec-plugin';
 import {
 	createInteractionTrackingPlugin,
@@ -38,299 +47,482 @@ import {
 } from './pm-plugins/selection-preservation/editor-commands';
 import { selectionPreservationPluginKey } from './pm-plugins/selection-preservation/plugin-key';
 import { createSelectionPreservationPlugin } from './pm-plugins/selection-preservation/pm-plugin';
+import { createSparseSurfacesPlugin, sparseSurfacesKey } from './pm-plugins/sparse-surfaces';
+import { expandAndUpdateSelection } from './pm-plugins/utils/expand-and-update-selection';
 import { selectNode } from './pm-plugins/utils/getSelection';
+import { BlockControlsLeftSurfaces } from './ui/block-controls-left-surfaces';
+import { BlockControlsRightSurfaces } from './ui/block-controls-right-surfaces';
+import { getBlockControlsSurfaceDragHandleComponents } from './ui/block-controls-surface-drag-handle-registration';
 import { GlobalStylesWrapper } from './ui/global-styles';
+import { SurfaceEditorViewContext } from './ui/surface-editor-view-context';
 
-export const blockControlsPlugin: BlockControlsPlugin = ({ api }) => ({
-	name: 'blockControls',
-
-	pmPlugins() {
-		const pmPlugins: PMPlugin[] = [
+export const blockControlsPlugin: BlockControlsPlugin = ({ api, config }) => {
+	const nodeDecorationRegistry: NodeDecorationFactory[] = [];
+	const rightSideControlsEnabled = config?.rightSideControlsEnabled ?? false;
+	const quickInsertButtonEnabled = config?.quickInsertButtonEnabled ?? true;
+	const registryBlockControlsEnabled = isExperimentEnabled(
+		'platform_editor_block_control_migration',
+	);
+	if (registryBlockControlsEnabled) {
+		api?.uiControlRegistry?.actions.register([
+			BLOCK_CONTROLS_LEFT_SURFACE,
 			{
-				name: 'blockControlsPmPlugin',
-				plugin: ({ getIntl, nodeViewPortalProviderAPI }) =>
-					createPlugin(api, getIntl, nodeViewPortalProviderAPI),
+				...BLOCK_CONTROLS_LEFT_SECTION,
+				parents: [{ ...BLOCK_CONTROLS_LEFT_SURFACE, rank: 100 }],
 			},
-		];
+			{
+				...BLOCK_CONTROLS_LEFT_GROUP,
+				parents: [{ ...BLOCK_CONTROLS_LEFT_SECTION, rank: 100 }],
+			},
+			...getBlockControlsSurfaceDragHandleComponents({ api }),
+		]);
 
-		if (editorExperiment('platform_editor_controls', 'variant1')) {
-			pmPlugins.push({
-				name: 'blockControlsInteractionTrackingPlugin',
-				plugin: createInteractionTrackingPlugin,
-			});
-		}
+		// The right surface host stays generic: it only registers the toolbar/section/group
+		// hierarchy. Individual features contribute their own buttons into
+		// BLOCK_CONTROLS_RIGHT_GROUP from their own plugins, same as the left surface.
+		api?.uiControlRegistry?.actions.register([
+			BLOCK_CONTROLS_RIGHT_SURFACE,
+			{
+				...BLOCK_CONTROLS_RIGHT_SECTION,
+				parents: [{ ...BLOCK_CONTROLS_RIGHT_SURFACE, rank: 100 }],
+			},
+			{
+				...BLOCK_CONTROLS_RIGHT_GROUP,
+				parents: [{ ...BLOCK_CONTROLS_RIGHT_SECTION, rank: 100 }],
+			},
+		]);
+	}
 
-		if (expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) {
+	return {
+		name: 'blockControls',
+
+		actions: {
+			getTextInfo: (editorView) => {
+				const blockControlsState = api?.blockControls?.sharedState.currentState();
+
+				const preservedSelection = blockControlsState?.preservedSelection;
+				if (preservedSelection && preservedSelection.from !== preservedSelection.to) {
+					// CellSelection covers a table: collect each selected cell's text joined with spaces
+					// so that adjacent cells are not fused (e.g. 'hello world' + 'foo' must not
+					// become 'hello worldfoo'). Intl.Segmenter word-counting requires correct
+					// word boundaries, which raw textContent fusion breaks.
+					if (preservedSelection instanceof CellSelection) {
+						// Use node(1) to reliably target the table node regardless of $anchorCell depth.
+						// node(-1) would return tableRow if $anchorCell is at tableCell depth.
+						const tableNode = preservedSelection.$anchorCell.node(1);
+						const cellTexts: string[] = [];
+						if (tableNode) {
+							// forEachCell iterates only the selected cells, not all cells in the table.
+							preservedSelection.forEachCell((cell) => {
+								cellTexts.push(cell.textContent);
+							});
+						}
+						const textContent = cellTexts.filter(Boolean).join(' ');
+						return { textLength: textContent.length, textContent };
+					}
+
+					const { from, to } = preservedSelection;
+					const textContent = editorView.state.doc.textBetween(from, to, '\n');
+					return { textLength: textContent.length, textContent };
+				}
+
+				const pos = blockControlsState?.menuTriggerByNode?.pos;
+				if (pos === null || pos === undefined) {
+					return null;
+				}
+
+				const node = editorView.state.doc.nodeAt(pos);
+				if (!node) {
+					return null;
+				}
+				return { textLength: node.textContent.length, textContent: node.textContent };
+			},
+			registerNodeDecoration: (factory: NodeDecorationFactory) => {
+				nodeDecorationRegistry.push(factory);
+			},
+			unregisterNodeDecoration: (type: string) => {
+				const idx = nodeDecorationRegistry.findIndex((f) => f.type === type);
+				if (idx !== -1) {
+					nodeDecorationRegistry.splice(idx, 1);
+				}
+			},
+		},
+
+		pmPlugins() {
+			const pmPlugins: PMPlugin[] = [
+				{
+					name: 'blockControlsPmPlugin',
+					plugin: ({ getIntl, nodeViewPortalProviderAPI }) =>
+						createPlugin(
+							api,
+							getIntl,
+							nodeViewPortalProviderAPI,
+							registryBlockControlsEnabled ? [] : nodeDecorationRegistry,
+							rightSideControlsEnabled,
+							quickInsertButtonEnabled && !registryBlockControlsEnabled,
+						),
+				},
+			];
+			if (registryBlockControlsEnabled) {
+				pmPlugins.push({
+					name: 'blockControlsSparseSurfaces',
+					plugin: () => createSparseSurfacesPlugin(api),
+				});
+			}
+
+			if (editorExperiment('platform_editor_controls', 'variant1')) {
+				pmPlugins.push({
+					name: 'blockControlsInteractionTrackingPlugin',
+					plugin: () => createInteractionTrackingPlugin(rightSideControlsEnabled, api),
+				});
+			}
+
 			pmPlugins.push({
 				name: 'blockControlsSelectionPreservationPlugin',
 				plugin: createSelectionPreservationPlugin(api),
 			});
-		}
 
-		// platform_editor_controls note: quick insert rendering fixes
-		if (areToolbarFlagsEnabled(Boolean(api?.toolbar))) {
-			pmPlugins.push({
-				name: 'firstNodeDec',
-				plugin: firstNodeDecPlugin,
-			});
-		}
-
-		return pmPlugins;
-	},
-
-	commands: {
-		moveNode: moveNode(api),
-		moveToLayout: moveToLayout(api),
-		showDragHandleAt:
-			(
-				pos: number,
-				anchorName: string,
-				nodeType: string,
-				handleOptions?: HandleOptions,
-				rootPos?: number,
-				rootAnchorName?: string,
-				rootNodeType?: string,
-			) =>
-			({ tr }: { tr: Transaction }) => {
-				const currMeta = tr.getMeta(key);
-
-				tr.setMeta(key, {
-					...currMeta,
-					activeNode: {
-						pos,
-						anchorName,
-						nodeType,
-						handleOptions,
-						rootPos,
-						rootAnchorName,
-						rootNodeType,
-					},
+			// platform_editor_controls note: quick insert rendering fixes
+			//
+			// Not registered under the registry migration: the decoration puts an inline
+			// `margin-top: 0` on the first document node, which fights features that render their own
+			// content above it — a leading show-diff widget is left flush against the node below.
+			if (areToolbarFlagsEnabled(Boolean(api?.toolbar)) && !registryBlockControlsEnabled) {
+				pmPlugins.push({
+					name: 'firstNodeDec',
+					plugin: firstNodeDecPlugin,
 				});
-				return tr;
-			},
-		toggleBlockMenu:
-			(options?: {
-				anchorName?: string;
-				closeMenu?: boolean;
-				openedViaKeyboard?: boolean;
-				triggerByNode?: TriggerByNode;
-			}) =>
-			({ tr }: { tr: Transaction }) => {
-				if (!expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) {
+			}
+
+			return pmPlugins;
+		},
+
+		commands: {
+			expandAndUpdateSelection:
+				({ startPos, selection, isShiftPressed, nodeType }) =>
+				({ tr }) => {
+					expandAndUpdateSelection({
+						tr,
+						selection,
+						startPos,
+						isShiftPressed,
+						nodeType,
+						api: api as ExtractInjectionAPI<BlockControlsPlugin>,
+					});
 					return tr;
-				}
+				},
+			moveNode: moveNode(api),
+			moveToLayout: moveToLayout(api),
+			showDragHandleAt:
+				(
+					pos: number,
+					anchorName: string,
+					nodeType: string,
+					handleOptions?: HandleOptions,
+					rootPos?: number,
+					rootAnchorName?: string,
+					rootNodeType?: string,
+				) =>
+				({ tr }: { tr: Transaction }) => {
+					const currMeta = tr.getMeta(key);
 
-				const currMeta = tr.getMeta(key);
-				const currentUserIntent = api?.userIntent?.sharedState.currentState()?.currentUserIntent;
-				const isMenuCurrentlyOpen = api?.blockControls?.sharedState.currentState()?.isMenuOpen;
-
-				if (options?.closeMenu) {
-					tr.setMeta(key, { ...currMeta, closeMenu: true });
-					if (currentUserIntent === 'blockMenuOpen') {
-						api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
-					}
-
-					// When closing the menu, restart the active session timer
-					if (isMenuCurrentlyOpen && fg('platform_editor_ease_of_use_metrics')) {
-						api?.metrics?.commands.startActiveSessionTimer()({ tr });
-					}
-
+					tr.setMeta(key, {
+						...currMeta,
+						activeNode: {
+							pos,
+							anchorName,
+							nodeType,
+							handleOptions,
+							rootPos,
+							rootAnchorName,
+							rootNodeType,
+						},
+					});
 					return tr;
-				}
-
-				// Do not open menu on layoutColumn and close opened menu when layoutColumn drag handle is clicked
-				if (options?.anchorName?.includes('layoutColumn')) {
-					if (currentUserIntent === 'blockMenuOpen') {
-						api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
+				},
+			showControlAtPosition:
+				(pos: number, control: { key: string }, options?: ControlOptions) =>
+				({ tr }: { tr: Transaction }) => {
+					const node = tr.doc.nodeAt(pos);
+					if (!node) {
+						return tr;
 					}
-					tr.setMeta(key, { ...currMeta, closeMenu: true });
-
-					// When closing the menu, restart the active session timer
-					if (isMenuCurrentlyOpen && fg('platform_editor_ease_of_use_metrics')) {
-						api?.metrics?.commands.startActiveSessionTimer()({ tr });
+					const anchorName = api?.core.actions.getAnchorIdForNode(node, pos);
+					if (!anchorName) {
+						return tr;
 					}
-
+					const currMeta = tr.getMeta(key);
+					tr.setMeta(key, {
+						...currMeta,
+						activeNode: {
+							pos,
+							anchorName,
+							controlKey: control.key,
+							nodeType: getNodeTypeWithLevel(node),
+							handleOptions: options,
+						},
+					});
 					return tr;
-				}
-
-				let toggleMenuMeta: {
+				},
+			toggleBlockMenu:
+				(options?: {
 					anchorName?: string;
-					moveDown?: boolean;
-					moveUp?: boolean;
+					closeMenu?: boolean;
 					openedViaKeyboard?: boolean;
 					triggerByNode?: TriggerByNode;
-				} = {
-					anchorName: options?.anchorName,
-					triggerByNode: options?.triggerByNode,
-				};
-				const menuTriggerBy = api?.blockControls?.sharedState.currentState()?.menuTriggerBy;
-				if (options?.anchorName) {
-					const { moveUp, moveDown } = canMoveNodeUpOrDown(tr);
-					toggleMenuMeta = {
-						...toggleMenuMeta,
-						moveUp,
-						moveDown,
-						openedViaKeyboard: options?.openedViaKeyboard,
+				}) =>
+				({ tr }: { tr: Transaction }) => {
+					const currMeta = tr.getMeta(key);
+					const currentUserIntent = api?.userIntent?.sharedState.currentState()?.currentUserIntent;
+					const isMenuCurrentlyOpen = api?.blockControls?.sharedState.currentState()?.isMenuOpen;
+
+					if (options?.closeMenu) {
+						tr.setMeta(key, { ...currMeta, closeMenu: true });
+						if (currentUserIntent === 'blockMenuOpen') {
+							api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
+						}
+
+						// When closing the menu, restart the active session timer
+						if (isMenuCurrentlyOpen && fg('platform_editor_ease_of_use_metrics')) {
+							api?.metrics?.commands.startActiveSessionTimer()({ tr });
+						}
+
+						return tr;
+					}
+
+					// Do not open the block menu for layout columns. Anchor resolution can lag behind
+					// a migrated surface click, so prefer the explicit node metadata when available.
+					if (
+						options?.triggerByNode?.nodeType === 'layoutColumn' ||
+						options?.anchorName?.includes('layoutColumn')
+					) {
+						if (currentUserIntent === 'blockMenuOpen') {
+							api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
+						}
+						tr.setMeta(key, { ...currMeta, closeMenu: true });
+
+						// When closing the menu, restart the active session timer
+						if (isMenuCurrentlyOpen && fg('platform_editor_ease_of_use_metrics')) {
+							api?.metrics?.commands.startActiveSessionTimer()({ tr });
+						}
+
+						return tr;
+					}
+
+					let toggleMenuMeta: {
+						anchorName?: string;
+						moveDown?: boolean;
+						moveUp?: boolean;
+						openedViaKeyboard?: boolean;
+						triggerByNode?: TriggerByNode;
+					} = {
+						anchorName: options?.anchorName,
+						triggerByNode: options?.triggerByNode,
 					};
-				}
-				tr.setMeta(key, {
-					...currMeta,
-					toggleMenu: toggleMenuMeta,
-				});
+					const menuTriggerBy = api?.blockControls?.sharedState.currentState()?.menuTriggerBy;
+					if (options?.anchorName) {
+						const { moveUp, moveDown } = canMoveNodeUpOrDown(tr);
+						toggleMenuMeta = {
+							...toggleMenuMeta,
+							moveUp,
+							moveDown,
+							openedViaKeyboard: options?.openedViaKeyboard,
+						};
+					}
+					tr.setMeta(key, {
+						...currMeta,
+						toggleMenu: toggleMenuMeta,
+					});
 
-				if (
-					(menuTriggerBy === undefined ||
-						(!!menuTriggerBy && menuTriggerBy === options?.anchorName)) &&
-					currentUserIntent === 'blockMenuOpen'
-				) {
-					const state = api?.blockControls.sharedState.currentState();
-					if (state?.isSelectedViaDragHandle) {
-						api?.userIntent?.commands.setCurrentUserIntent('dragHandleSelected')({ tr });
-					} else {
-						// Toggled from drag handle
-						api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
+					if (
+						(menuTriggerBy === undefined ||
+							(!!menuTriggerBy && menuTriggerBy === options?.anchorName)) &&
+						currentUserIntent === 'blockMenuOpen'
+					) {
+						const state = api?.blockControls.sharedState.currentState();
+						if (state?.isSelectedViaDragHandle) {
+							api?.userIntent?.commands.setCurrentUserIntent('dragHandleSelected')({ tr });
+						} else {
+							// Toggled from drag handle
+							api?.userIntent?.commands.setCurrentUserIntent('default')({ tr });
+						}
+
+						// When closing the menu, restart the active session timer
+						if (fg('platform_editor_ease_of_use_metrics')) {
+							api?.metrics?.commands.startActiveSessionTimer()({ tr });
+						}
+					} else if (!isMenuCurrentlyOpen) {
+						// When opening the menu, pause the active session timer
+						if (fg('platform_editor_ease_of_use_metrics')) {
+							api?.metrics?.commands.handleIntentToStartEdit({
+								shouldStartTimer: false,
+								shouldPersistActiveSession: true,
+							})({ tr });
+						}
 					}
 
-					// When closing the menu, restart the active session timer
-					if (fg('platform_editor_ease_of_use_metrics')) {
-						api?.metrics?.commands.startActiveSessionTimer()({ tr });
+					return tr;
+				},
+
+			setNodeDragged:
+				(getPos: () => number | undefined, anchorName: string, nodeType: string) =>
+				({ tr }: { tr: Transaction }) => {
+					const pos = getPos();
+					if (pos === undefined) {
+						return tr;
 					}
-				} else if (!isMenuCurrentlyOpen) {
-					// When opening the menu, pause the active session timer
+
+					const currMeta = tr.getMeta(key);
+					tr.setMeta(key, {
+						...currMeta,
+						isDragging: true,
+						activeNode: { pos, anchorName, nodeType },
+					});
+
 					if (fg('platform_editor_ease_of_use_metrics')) {
 						api?.metrics?.commands.handleIntentToStartEdit({
 							shouldStartTimer: false,
 							shouldPersistActiveSession: true,
 						})({ tr });
 					}
-				}
+					api?.userIntent?.commands.setCurrentUserIntent('dragging')({ tr });
 
-				return tr;
-			},
-
-		setNodeDragged:
-			(getPos: () => number | undefined, anchorName: string, nodeType: string) =>
-			({ tr }: { tr: Transaction }) => {
-				const pos = getPos();
-				if (pos === undefined) {
 					return tr;
-				}
+				},
+			setMultiSelectPositions:
+				(anchor?: number, head?: number) =>
+				({ tr }: { tr: Transaction }) => {
+					const { anchor: userAnchor, head: userHead } = tr.selection;
+					let $expandedAnchor, $expandedHead;
 
-				const currMeta = tr.getMeta(key);
-				tr.setMeta(key, {
-					...currMeta,
-					isDragging: true,
-					activeNode: { pos, anchorName, nodeType },
-				});
+					if (anchor !== undefined && head !== undefined) {
+						$expandedAnchor = tr.doc.resolve(anchor);
+						$expandedHead = tr.doc.resolve(head);
+					} else {
+						const expandedSelection = expandSelectionBounds(
+							tr.selection.$anchor,
+							tr.selection.$head,
+						);
+						$expandedAnchor = expandedSelection.$anchor;
+						$expandedHead = expandedSelection.$head;
+					}
 
-				if (fg('platform_editor_ease_of_use_metrics')) {
-					api?.metrics?.commands.handleIntentToStartEdit({
-						shouldStartTimer: false,
-						shouldPersistActiveSession: true,
-					})({ tr });
-				}
-				api?.userIntent?.commands.setCurrentUserIntent('dragging')({ tr });
+					api?.selection?.commands.setManualSelection(
+						$expandedAnchor.pos,
+						$expandedHead.pos,
+					)({ tr });
 
-				return tr;
-			},
-		setMultiSelectPositions:
-			(anchor?: number, head?: number) =>
-			({ tr }: { tr: Transaction }) => {
-				const { anchor: userAnchor, head: userHead } = tr.selection;
-				let $expandedAnchor, $expandedHead;
+					const $from = $expandedAnchor.min($expandedHead);
+					const $to = $expandedAnchor.max($expandedHead);
+					let expandedNormalisedSel;
+					if (
+						isExperimentEnabled('platform_editor_fix_table_move_shortcut') &&
+						$from.nodeAfter &&
+						$from.nodeAfter === $to.nodeBefore
+					) {
+						// Single node
+						selectNode(tr, $from.pos, $from.nodeAfter.type.name, api);
+						expandedNormalisedSel = tr.selection;
+					} else if ($from.nodeAfter === $to.nodeBefore) {
+						// Single node
+						selectNode(tr, $from.pos, $expandedAnchor.node().type.name, api);
+						expandedNormalisedSel = tr.selection;
+					} else if (
+						$to.nodeBefore?.type.name === 'mediaSingle' ||
+						$from.nodeAfter?.type.name === 'mediaSingle'
+					) {
+						// Media
+						expandedNormalisedSel = new TextSelection($expandedAnchor, $expandedHead);
+						tr.setSelection(expandedNormalisedSel);
+					} else {
+						// this is to normalise the selection's boundaries to inline positions, preventing it from collapsing
+						expandedNormalisedSel = TextSelection.between($expandedAnchor, $expandedHead);
+						tr.setSelection(expandedNormalisedSel);
+					}
+					const multiSelectDnD: MultiSelectDnD = {
+						anchor: $expandedAnchor.pos,
+						head: $expandedHead.pos,
+						textAnchor: expandedNormalisedSel.anchor,
+						textHead: expandedNormalisedSel.head,
+						userAnchor: userAnchor,
+						userHead: userHead,
+					};
+					const currMeta = tr.getMeta(key);
+					tr.setMeta(key, {
+						...currMeta,
+						multiSelectDnD,
+					});
+					return tr;
+				},
+			setSelectedViaDragHandle:
+				(isSelectedViaDragHandle?: boolean) =>
+				({ tr }: { tr: Transaction }) => {
+					const currMeta = tr.getMeta(key);
+					return tr.setMeta(key, { ...currMeta, isSelectedViaDragHandle });
+				},
+			mapPreservedSelection: (mapping: Mapping) => mapPreservedSelection(mapping),
+			moveNodeWithBlockMenu: (direction: DIRECTION.UP | DIRECTION.DOWN) =>
+				moveNodeWithBlockMenu(api, direction),
+			handleKeyDownWithPreservedSelection: handleKeyDownWithPreservedSelection(api),
+			startPreservingSelection: () => startPreservingSelection,
+			stopPreservingSelection: () => stopPreservingSelection,
+		},
 
-				if (anchor !== undefined && head !== undefined) {
-					$expandedAnchor = tr.doc.resolve(anchor);
-					$expandedHead = tr.doc.resolve(head);
-				} else {
-					const expandedSelection = expandSelectionBounds(tr.selection.$anchor, tr.selection.$head);
-					$expandedAnchor = expandedSelection.$anchor;
-					$expandedHead = expandedSelection.$head;
-				}
+		getSharedState(editorState: EditorState | undefined) {
+			if (!editorState) {
+				return undefined;
+			}
 
-				api?.selection?.commands.setManualSelection($expandedAnchor.pos, $expandedHead.pos)({ tr });
+			const sharedState: BlockControlsSharedState = {
+				isMenuOpen: key.getState(editorState)?.isMenuOpen ?? false,
+				menuTriggerBy: key.getState(editorState)?.menuTriggerBy ?? undefined,
+				menuTriggerByNode: key.getState(editorState)?.menuTriggerByNode ?? undefined,
+				blockMenuOptions: key.getState(editorState)?.blockMenuOptions ?? undefined,
+				activeNode: key.getState(editorState)?.activeNode ?? undefined,
+				activeDropTargetNode: key.getState(editorState)?.activeDropTargetNode ?? undefined,
+				isDragging: key.getState(editorState)?.isDragging ?? false,
+				isPMDragging: key.getState(editorState)?.isPMDragging ?? false,
+				multiSelectDnD: key.getState(editorState)?.multiSelectDnD ?? undefined,
+				lastDragCancelled: key.getState(editorState)?.lastDragCancelled ?? false,
+				isEditing: interactionTrackingPluginKey.getState(editorState)?.isEditing,
+				isSelectedViaDragHandle: key.getState(editorState)?.isSelectedViaDragHandle ?? false,
+			};
 
-				const $from = $expandedAnchor.min($expandedHead);
-				const $to = $expandedAnchor.max($expandedHead);
-				let expandedNormalisedSel;
-				if ($from.nodeAfter === $to.nodeBefore) {
-					selectNode(tr, $from.pos, $expandedAnchor.node().type.name, api);
-					expandedNormalisedSel = tr.selection;
-				} else if (
-					$to.nodeBefore?.type.name === 'mediaSingle' ||
-					$from.nodeAfter?.type.name === 'mediaSingle'
-				) {
-					expandedNormalisedSel = new TextSelection($expandedAnchor, $expandedHead);
-					tr.setSelection(expandedNormalisedSel);
-				} else {
-					// this is to normalise the selection's boundaries to inline positions, preventing it from collapsing
-					expandedNormalisedSel = TextSelection.between($expandedAnchor, $expandedHead);
-					tr.setSelection(expandedNormalisedSel);
-				}
-				const multiSelectDnD: MultiSelectDnD = {
-					anchor: $expandedAnchor.pos,
-					head: $expandedHead.pos,
-					textAnchor: expandedNormalisedSel.anchor,
-					textHead: expandedNormalisedSel.head,
-					userAnchor: userAnchor,
-					userHead: userHead,
-				};
-				const currMeta = tr.getMeta(key);
-				tr.setMeta(key, {
-					...currMeta,
-					multiSelectDnD,
-				});
-				return tr;
-			},
-		setSelectedViaDragHandle:
-			(isSelectedViaDragHandle?: boolean) =>
-			({ tr }: { tr: Transaction }) => {
-				const currMeta = tr.getMeta(key);
-				return tr.setMeta(key, { ...currMeta, isSelectedViaDragHandle });
-			},
-		mapPreservedSelection: (mapping: Mapping) => mapPreservedSelection(mapping),
-		moveNodeWithBlockMenu: (direction: DIRECTION.UP | DIRECTION.DOWN) =>
-			moveNodeWithBlockMenu(api, direction),
-		handleKeyDownWithPreservedSelection: handleKeyDownWithPreservedSelection(api),
-		startPreservingSelection: () => startPreservingSelection,
-		stopPreservingSelection: () => stopPreservingSelection,
-	},
+			if (registryBlockControlsEnabled) {
+				const surfaces = sparseSurfacesKey.getState(editorState);
+				sharedState.surfaceNodePositions = surfaces?.candidates.positions;
+				sharedState.surfaceAnchors = surfaces?.anchors;
+				sharedState.surfaceActiveNodes = surfaces?.activeNodesByPosition;
+			}
 
-	getSharedState(editorState: EditorState | undefined) {
-		if (!editorState) {
-			return undefined;
-		}
+			if (editorExperiment('platform_editor_controls', 'variant1')) {
+				sharedState.isMouseOut =
+					interactionTrackingPluginKey.getState(editorState)?.isMouseOut ?? false;
+				// rightSideControlsEnabled is the single source of truth (confluence_remix_button_right_side_block_fg from preset)
+				sharedState.rightSideControlsEnabled = rightSideControlsEnabled;
+				sharedState.hoverSide = rightSideControlsEnabled
+					? interactionTrackingPluginKey.getState(editorState)?.hoverSide
+					: undefined;
+			}
 
-		const sharedState: BlockControlsSharedState = {
-			isMenuOpen: key.getState(editorState)?.isMenuOpen ?? false,
-			menuTriggerBy: key.getState(editorState)?.menuTriggerBy ?? undefined,
-			menuTriggerByNode: key.getState(editorState)?.menuTriggerByNode ?? undefined,
-			blockMenuOptions: key.getState(editorState)?.blockMenuOptions ?? undefined,
-			activeNode: key.getState(editorState)?.activeNode ?? undefined,
-			activeDropTargetNode: key.getState(editorState)?.activeDropTargetNode ?? undefined,
-			isDragging: key.getState(editorState)?.isDragging ?? false,
-			isPMDragging: key.getState(editorState)?.isPMDragging ?? false,
-			multiSelectDnD: key.getState(editorState)?.multiSelectDnD ?? undefined,
-			isShiftDown: key.getState(editorState)?.isShiftDown ?? undefined,
-			lastDragCancelled: key.getState(editorState)?.lastDragCancelled ?? false,
-			isEditing: interactionTrackingPluginKey.getState(editorState)?.isEditing,
-			isSelectedViaDragHandle: key.getState(editorState)?.isSelectedViaDragHandle ?? false,
-		};
-
-		if (editorExperiment('platform_editor_controls', 'variant1')) {
-			sharedState.isMouseOut =
-				interactionTrackingPluginKey.getState(editorState)?.isMouseOut ?? false;
-		}
-
-		if (expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) {
 			sharedState.preservedSelection =
 				selectionPreservationPluginKey.getState(editorState)?.preservedSelection;
-		}
 
-		return sharedState;
-	},
+			return sharedState;
+		},
 
-	contentComponent() {
-		return <GlobalStylesWrapper api={api} />;
-	},
-});
+		contentComponent({ editorView }) {
+			return (
+				<>
+					<GlobalStylesWrapper api={api} />
+					{registryBlockControlsEnabled && editorView && api ? (
+						<SurfaceEditorViewContext.Provider value={editorView}>
+							<BlockControlsLeftSurfaces api={api} editorView={editorView} />
+							<BlockControlsRightSurfaces api={api} editorView={editorView} />
+						</SurfaceEditorViewContext.Provider>
+					) : null}
+				</>
+			);
+		},
+	};
+};

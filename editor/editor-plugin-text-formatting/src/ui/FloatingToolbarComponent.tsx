@@ -6,20 +6,18 @@ import React, { useMemo } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import { type EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
-import {
-	useSharedPluginStateWithSelector,
-	type NamedPluginStatesFromInjectionAPI,
-} from '@atlaskit/editor-common/hooks';
-import { ToolbarSize, type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
+import { ToolbarSize } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { TextFormattingPlugin } from '../textFormattingPluginType';
-
 import { ToolbarButtonsStrong } from './Toolbar/constants';
 import { FormattingTextDropdownMenu } from './Toolbar/dropdown-menu';
 import { useClearIcon } from './Toolbar/hooks/clear-formatting-icon';
@@ -142,4 +140,9 @@ const FloatingToolbarTextFormat = ({
 	);
 };
 
-export const FloatingToolbarTextFormalWithIntl = injectIntl(FloatingToolbarTextFormat);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const FloatingToolbarTextFormalWithIntl: React.FC<
+	WithIntlProps<FloatingToolbarComponentProps>
+> & {
+	WrappedComponent: React.ComponentType<FloatingToolbarComponentProps>;
+} = injectIntl(FloatingToolbarTextFormat);

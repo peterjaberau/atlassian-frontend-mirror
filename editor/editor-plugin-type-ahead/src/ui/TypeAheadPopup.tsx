@@ -4,7 +4,7 @@
  */
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 import rafSchedule from 'raf-schd';
 
@@ -19,23 +19,20 @@ import type { SelectItemMode } from '@atlaskit/editor-common/type-ahead';
 import { TypeAheadAvailableNodes } from '@atlaskit/editor-common/type-ahead';
 import type {
 	ExtractInjectionAPI,
-	TypeAheadHandler,
 	TypeAheadItem,
+	TypeAheadHandler,
 } from '@atlaskit/editor-common/types';
 import { findOverflowScrollParent, Popup } from '@atlaskit/editor-common/ui';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { DecorationSet, EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorFloatingDialogZIndex } from '@atlaskit/editor-shared-styles';
-import FeatureGates from '@atlaskit/feature-gate-js-client';
-import { N0, N50A, N60A } from '@atlaskit/theme/colors';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
-import {
-	type CloseActionType,
-	fireTypeAheadClosedAnalyticsEvent,
-	type InputMethodType,
-} from '../pm-plugins/analytics';
+import { fireTypeAheadClosedAnalyticsEvent } from '../pm-plugins/analytics';
+import type { CloseActionType, InputMethodType } from '../pm-plugins/analytics';
 import {
 	CloseSelectionOptions,
 	TYPE_AHEAD_DECORATION_DATA_ATTRIBUTE,
@@ -43,8 +40,12 @@ import {
 } from '../pm-plugins/constants';
 import { getPluginState } from '../pm-plugins/utils';
 import type { TypeAheadPlugin } from '../typeAheadPluginType';
-import type { OnSelectItem, TypeAheadErrorInfo, TypeAheadInputMethod } from '../types';
-
+import type {
+	OnSelectItem,
+	TypeAheadErrorInfo,
+	TypeAheadInputMethod,
+	TypeAheadResolvedSection,
+} from '../types';
 import { TypeAheadErrorFallback } from './TypeAheadErrorFallback';
 import { TypeAheadList } from './TypeAheadList';
 
@@ -55,10 +56,10 @@ const DEFAULT_TYPEAHEAD_MENU_HEIGHT_NEW = 480;
 const ITEM_PADDING = 12;
 
 const typeAheadContent = css({
-	background: token('elevation.surface.overlay', N0),
+	background: token('elevation.surface.overlay'),
 	borderRadius: token('radius.small', '3px'),
-	boxShadow: token('elevation.shadow.overlay', `0 0 1px ${N60A}, 0 4px 8px -2px ${N50A}`),
-	padding: `${token('space.050', '4px')} 0`,
+	boxShadow: token('elevation.shadow.overlay'),
+	padding: `${token('space.050')} 0`,
 	width: '320px',
 	maxHeight: '380px' /* ~5.5 visibile items */,
 	overflowY: 'auto',
@@ -75,6 +76,10 @@ const typeAheadWrapperWithViewMoreOverride = css({
 	flexDirection: 'column',
 });
 
+const typeAheadContentOverrideBorder = css({
+	borderRadius: token('radius.large', '8px'),
+});
+
 type TypeAheadPopupProps = {
 	anchorElement: HTMLElement;
 	api: ExtractInjectionAPI<TypeAheadPlugin> | undefined;
@@ -85,6 +90,7 @@ type TypeAheadPopupProps = {
 	}) => void;
 	decorationSet: DecorationSet;
 	editorView: EditorView;
+	emptyItem?: TypeAheadItem;
 	errorInfo: TypeAheadErrorInfo;
 	isEmptyQuery: boolean;
 	items: Array<TypeAheadItem>;
@@ -92,6 +98,7 @@ type TypeAheadPopupProps = {
 	popupsBoundariesElement?: HTMLElement;
 	popupsMountPoint?: HTMLElement;
 	popupsScrollableElement?: HTMLElement;
+	sections?: Array<TypeAheadResolvedSection>;
 	selectedIndex: number;
 	setSelectedItem: OnSelectItem;
 	showMoreOptionsButton?: boolean;
@@ -112,7 +119,9 @@ const Highlight = ({ state, triggerHandler }: HighlightProps) => {
 
 const OFFSET = [0, 8];
 
-export const TypeAheadPopup = React.memo((props: TypeAheadPopupProps) => {
+export const TypeAheadPopup: React.MemoExoticComponent<
+	(props: TypeAheadPopupProps) => jsx.JSX.Element
+> = React.memo((props: TypeAheadPopupProps): jsx.JSX.Element => {
 	const {
 		editorView,
 		triggerHandler,
@@ -121,6 +130,8 @@ export const TypeAheadPopup = React.memo((props: TypeAheadPopupProps) => {
 		popupsBoundariesElement,
 		popupsScrollableElement,
 		items,
+		sections = [],
+		emptyItem,
 		errorInfo,
 		selectedIndex,
 		onItemInsert,
@@ -410,6 +421,7 @@ export const TypeAheadPopup = React.memo((props: TypeAheadPopupProps) => {
 			offset={OFFSET}
 			ariaLabel={null}
 			preventOverflow={true}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onUnmount={() => {
 				if (selectedIndex > -1 && editorExperiment('platform_editor_controls', 'variant1')) {
 					// if selectedIndex is -1, it means that the user has not selected any item
@@ -436,6 +448,7 @@ export const TypeAheadPopup = React.memo((props: TypeAheadPopupProps) => {
 					typeAheadContent,
 					moreElementsInQuickInsertViewEnabled && typeAheadContentOverride,
 					showMoreOptionsButton && typeAheadWrapperWithViewMoreOverride,
+					expValEquals('cc-markdown-mode', 'isEnabled', true) && typeAheadContentOverrideBorder,
 				]}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className={TYPE_AHEAD_POPUP_CONTENT_CLASS}
@@ -448,7 +461,11 @@ export const TypeAheadPopup = React.memo((props: TypeAheadPopupProps) => {
 						<Highlight state={editorView.state} triggerHandler={triggerHandler} />
 						<TypeAheadList
 							items={items}
+							isEmptyQuery={isEmptyQuery}
+							sections={sections}
+							emptyItem={emptyItem}
 							selectedIndex={selectedIndex}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onItemClick={(mode: SelectItemMode, index: number, inputMethod) => {
 								if (editorExperiment('platform_editor_controls', 'variant1')) {
 									activityStateRef.current = {

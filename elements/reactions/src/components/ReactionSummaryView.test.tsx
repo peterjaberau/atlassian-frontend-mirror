@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
+import { type EmojiProvider } from '@atlaskit/emoji';
 import { getTestEmojiResource } from '@atlaskit/util-data-test/get-test-emoji-resource';
+import { mockExpDisabled } from '@atlassian/experiment-test-utils/mock-exp-disabled';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
 import { getReactionSummary } from '../MockReactionsClient';
 import { DefaultReactions } from '../shared/constants';
 import { type ReactionSummary } from '../types';
-import { RENDER_SUMMARY_VIEW_POPUP_TESTID, ReactionSummaryView } from './ReactionSummaryView';
-import { type EmojiProvider } from '@atlaskit/emoji';
-import { RENDER_SUMMARY_BUTTON_TESTID } from './ReactionSummaryButton';
 import { RENDER_REACTION_TESTID } from './Reaction';
+import { RENDER_SUMMARY_BUTTON_TESTID } from './ReactionSummaryButton';
+import { RENDER_SUMMARY_VIEW_POPUP_TESTID, ReactionSummaryView } from './ReactionSummaryView';
 
 jest.mock('@atlaskit/emoji/picker', () => ({
 	...jest.requireActual('@atlaskit/emoji/picker'),
@@ -29,6 +34,10 @@ const reactions: ReactionSummary[] = [
 ];
 
 describe('ReactionSummaryView', () => {
+	afterEach(() => {
+		jest.clearAllMocks();
+	});
+
 	const renderComponent = (extraProps = {}) =>
 		render(
 			<IntlProvider locale="en">
@@ -154,6 +163,77 @@ describe('ReactionSummaryView', () => {
 		expect(pickerContainer).not.toBeInTheDocument();
 
 		await expect(document.body).toBeAccessible();
+	});
+
+	it('renders summary reactions in an unordered list', async () => {
+		renderComponent();
+
+		await userEvent.click(await screen.findByTestId(RENDER_SUMMARY_BUTTON_TESTID));
+
+		const summaryViewPopup = await screen.findByTestId(RENDER_SUMMARY_VIEW_POPUP_TESTID);
+		const list = summaryViewPopup.querySelector('ul');
+
+		expect(list).toBeInTheDocument();
+		expect(list?.children).toHaveLength(reactions.length);
+		expect(Array.from(list?.children ?? []).every((item) => item.tagName === 'LI')).toBe(true);
+		expect(list?.querySelectorAll('li li')).toHaveLength(0);
+	});
+
+	describe('a11y-fixes-week4-may-2026 experiment', () => {
+		it('should NOT set aria-expanded on summary button when experiment is disabled', async () => {
+			mockExpDisabled('a11y-fixes-week4-may-2026');
+			renderComponent();
+			const button = await screen.findByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			expect(button).not.toHaveAttribute('aria-expanded');
+		});
+
+		it('should set aria-expanded="false" on summary button when experiment is enabled and popup is closed', async () => {
+			mockExpEnabled('a11y-fixes-week4-may-2026');
+			renderComponent();
+			const button = await screen.findByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			expect(button).toHaveAttribute('aria-expanded', 'false');
+		});
+
+		it('should set aria-expanded="true" on summary button when experiment is enabled and popup is open', async () => {
+			mockExpEnabled('a11y-fixes-week4-may-2026');
+			renderComponent();
+			const button = await screen.findByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			await userEvent.click(button);
+			expect(button).toHaveAttribute('aria-expanded', 'true');
+		});
+		it('should show reactions list when experiment is on and popup is open', async () => {
+			mockExpEnabled('a11y-fixes-week4-may-2026');
+			renderComponent();
+			const reactionSummaryButton = await screen.findByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			await userEvent.click(reactionSummaryButton);
+
+			const reactionButtons = await screen.findAllByTestId(RENDER_REACTION_TESTID);
+			expect(reactionButtons.length).toEqual(reactions.length);
+		});
+	});
+
+	describe('platform_a11y_fixes_reading_order gate', () => {
+		it('renders the summary popup in a portal when the gate is OFF', async () => {
+			failGate('platform_a11y_fixes_reading_order');
+			const { container } = renderComponent();
+			const reactionSummaryButton = await screen.findByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			await userEvent.click(reactionSummaryButton);
+
+			const summaryViewPopup = await screen.findByTestId(RENDER_SUMMARY_VIEW_POPUP_TESTID);
+			expect(summaryViewPopup).toBeInTheDocument();
+			expect(container).not.toContainElement(summaryViewPopup);
+		});
+
+		it('renders the summary popup inline when the gate is ON', async () => {
+			passGate('platform_a11y_fixes_reading_order');
+			const { container } = renderComponent();
+			const reactionSummaryButton = await screen.findByTestId(RENDER_SUMMARY_BUTTON_TESTID);
+			await userEvent.click(reactionSummaryButton);
+
+			const summaryViewPopup = await screen.findByTestId(RENDER_SUMMARY_VIEW_POPUP_TESTID);
+			expect(summaryViewPopup).toBeInTheDocument();
+			expect(container).toContainElement(summaryViewPopup);
+		});
 	});
 
 	describe('hover functionality', () => {

@@ -1,4 +1,5 @@
 import { fromHTML, toHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
+
 import { createSchema } from '../../../../schema/create-schema';
 import { syncBlock } from '../../../../schema/nodes/sync-block';
 
@@ -79,7 +80,16 @@ describe(`${packageName}/schema syncBlock node`, () => {
 
 function makeSchema() {
 	return createSchema({
-		nodes: ['doc', 'paragraph', 'text', 'syncBlock', 'bodiedSyncBlock', 'unsupportedInline'],
+		nodes: [
+			'doc',
+			'paragraph',
+			'text',
+			'panel',
+			'panel_c1',
+			'syncBlock',
+			'bodiedSyncBlock',
+			'unsupportedInline',
+		],
 		marks: ['unsupportedMark', 'unsupportedNodeAttribute', 'breakout'],
 	});
 }

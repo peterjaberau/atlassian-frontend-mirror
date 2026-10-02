@@ -2,14 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { Fragment, lazy, Suspense, useMemo } from 'react';
+import { Fragment, lazy, Suspense, useMemo, type ComponentType, type FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
+// oxlint-disable-next-line import/no-duplicates
 import type { Icon } from '@atlaskit/editor-common/extensions';
 import {
 	configPanelMessages as messages,
@@ -19,10 +20,13 @@ import { relativeFontSizeToBase16 } from '@atlaskit/editor-shared-styles';
 import CrossIcon from '@atlaskit/icon/core/cross';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Text, xcss } from '@atlaskit/primitives';
-import { N200 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { HelpLink } from './HelpLink';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const DESCRIPTION_PERIOD_REGEX = /([^.])$/;
 
 const iconWidth = 40;
 const buttonWidth = 40;
@@ -31,14 +35,14 @@ const gapSizeForEllipsis = iconWidth + buttonWidth + margin * 2;
 
 const itemStyles = css({
 	display: 'flex',
-	marginBottom: token('space.300', '24px'),
+	marginBottom: token('space.300'),
 });
 
 const itemIconStyles = css({
 	width: iconWidth,
 	height: iconWidth,
 	overflow: 'hidden',
-	border: `${token('border.width')} solid ${token('color.border', 'rgba(223, 225, 229, 0.5)')}`,
+	border: `${token('border.width')} solid ${token('color.border')}`,
 	borderRadius: token('radius.small', '3px'),
 	boxSizing: 'border-box',
 	display: 'flex',
@@ -58,7 +62,7 @@ const itemBodyStyles = css({
 	justifyContent: 'space-between',
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: 1.4,
-	margin: `0 ${token('space.200', '16px')}`,
+	margin: `0 ${token('space.200')}`,
 	flexGrow: 3,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	maxWidth: `calc(100% - ${gapSizeForEllipsis}px)`,
@@ -77,8 +81,8 @@ const itemTextStyles = css({
 	itemSummary: {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		fontSize: relativeFontSizeToBase16(11.67),
-		color: token('color.text.subtlest', N200),
-		marginTop: token('space.050', '4px'),
+		color: token('color.text.subtlest'),
+		marginTop: token('space.050'),
 		whiteSpace: 'nowrap',
 		overflow: 'hidden',
 		textOverflow: 'ellipsis',
@@ -177,13 +181,7 @@ const Header = ({
 				<Box xcss={descriptionStyles}>
 					<Text as="p" testId="config-panel-header-description">
 						{description && (
-							<Fragment>
-								{
-									// Ignored via go/ees005
-									// eslint-disable-next-line require-unicode-regexp
-									description.replace(/([^.])$/, '$1.')
-								}{' '}
-							</Fragment>
+							<Fragment>{description.replace(DESCRIPTION_PERIOD_REGEX, '$1.')} </Fragment>
 						)}
 						{deprecation?.isDeprecated && deprecation?.message && (
 							<Box paddingBlockStart="space.150">{deprecation.message}</Box>
@@ -211,4 +209,7 @@ const Header = ({
 	);
 };
 
-export default injectIntl(Header);
+const _default_1: FC<WithIntlProps<Props>> & {
+	WrappedComponent: ComponentType<Props>;
+} = injectIntl(Header);
+export default _default_1;

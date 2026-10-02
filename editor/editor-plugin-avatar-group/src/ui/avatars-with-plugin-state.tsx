@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import type { CollabInviteToEditProps } from '@atlaskit/editor-common/collab';
@@ -12,7 +12,6 @@ import type { ExtractInjectionAPI, FeatureFlags } from '@atlaskit/editor-common/
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { AvatarGroupPlugin } from '../avatarGroupPluginType';
-
 import { Avatars } from './avatars';
 import { InviteToEditButton } from './invite-to-edit';
 
@@ -70,4 +69,28 @@ const AvatarsWithPluginState = (props: AvatarsWithPluginStateProps & WrappedComp
 	);
 };
 
-export default injectIntl(AvatarsWithPluginState);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<
+	WithIntlProps<
+		{
+			editorAnalyticsAPI: EditorAnalyticsAPI | undefined;
+			editorAPI: ExtractInjectionAPI<AvatarGroupPlugin> | undefined;
+			editorView?: EditorView;
+			eventDispatcher?: EventDispatcher;
+			featureFlags: FeatureFlags;
+		} & CollabInviteToEditProps &
+			WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			editorAnalyticsAPI: EditorAnalyticsAPI | undefined;
+			editorAPI: ExtractInjectionAPI<AvatarGroupPlugin> | undefined;
+			editorView?: EditorView;
+			eventDispatcher?: EventDispatcher;
+			featureFlags: FeatureFlags;
+		} & CollabInviteToEditProps &
+			WrappedComponentProps
+	>;
+} = injectIntl(AvatarsWithPluginState);
+export default _default_1;

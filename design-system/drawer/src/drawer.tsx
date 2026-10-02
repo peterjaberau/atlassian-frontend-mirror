@@ -4,12 +4,15 @@ import React, { type SyntheticEvent, useCallback, useEffect } from 'react';
 
 import { canUseDOM } from 'exenv';
 
-import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
-import { Layering, useCloseOnEscapePress } from '@atlaskit/layering';
-import Portal from '@atlaskit/portal';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
+import { Layering } from '@atlaskit/layering/layering';
+import { useCloseOnEscapePress } from '@atlaskit/layering/use-close-on-escape-press';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Portal from '@atlaskit/portal/portal';
 
 import Blanket from './blanket';
 import { DrawerPanel } from './drawer-panel/drawer-panel';
+import { DrawerTopLayer } from './drawer-panel/drawer-top-layer';
 import type { DrawerProps } from './types';
 
 // escape close manager for layering
@@ -27,16 +30,7 @@ const EscapeCloseManager = ({ onClose }: { onClose?: (event: SyntheticEvent<any>
 	return <span />;
 };
 
-/**
- * __Drawer__
- *
- * A drawer is a panel that slides in from the left side of the screen.
- *
- * - [Examples](https://atlassian.design/components/drawer/examples)
- * - [Code](https://atlassian.design/components/drawer/code)
- * - [Usage](https://atlassian.design/components/drawer/usage)
- */
-export const Drawer = ({
+const DrawerBase = ({
 	width = 'narrow',
 	isOpen,
 	isFocusLockEnabled = true,
@@ -142,3 +136,25 @@ export const Drawer = ({
 		</Portal>
 	);
 };
+
+/**
+ * __Drawer__
+ *
+ * A drawer is a panel that slides in from the left side of the screen.
+ *
+ * - [Examples](https://atlassian.design/components/drawer/examples)
+ * - [Code](https://atlassian.design/components/drawer/code)
+ * - [Usage](https://atlassian.design/components/drawer/usage)
+ */
+export const Drawer = (props: DrawerProps): React.JSX.Element | null => {
+	if (fg('platform-dst-top-layer')) {
+		// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props -- internal implementation component takes the same DrawerProps
+		return <DrawerTopLayer {...props} />;
+	}
+
+	// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props -- internal implementation component takes the same DrawerProps
+	return <DrawerBase {...props} />;
+};
+
+// Public API aliases preserved from an eliminated entry-point (volt-migrate-package).
+export { Drawer as default };

@@ -2,10 +2,8 @@ import React from 'react';
 
 import { useEditorToolbar } from '@atlaskit/editor-common/toolbar';
 import type { EditorAppearance } from '@atlaskit/editor-common/types';
-import {
-	PrimaryToolbar as PrimaryToolbarBase,
-	type BreakpointPreset,
-} from '@atlaskit/editor-toolbar';
+import { PrimaryToolbar as PrimaryToolbarBase } from '@atlaskit/editor-toolbar';
+import type { BreakpointPreset } from '@atlaskit/editor-toolbar';
 
 type PrimaryToolbarProps = {
 	breakpointPreset?: BreakpointPreset;
@@ -26,12 +24,15 @@ const getBreakpointPreset = (
 	return editorAppearance && isFullPage(editorAppearance) ? 'fullpage' : 'reduced';
 };
 
-export const PrimaryToolbar = ({ children, breakpointPreset }: PrimaryToolbarProps): React.JSX.Element => {
+export const PrimaryToolbar = ({
+	children,
+	breakpointPreset,
+}: PrimaryToolbarProps): React.JSX.Element => {
 	const { editorAppearance } = useEditorToolbar();
 
 	return (
 		<PrimaryToolbarBase
-			label="Primary Toolbar"
+			testId="editor-primary-toolbar"
 			breakpointPreset={getBreakpointPreset(breakpointPreset, editorAppearance)}
 		>
 			{children}

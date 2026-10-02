@@ -1,8 +1,8 @@
 import React from 'react';
 
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import Button from '@atlaskit/button/default/button';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import ToggleVisuallyHidden from './utils/toggle-visually-hidden';
 

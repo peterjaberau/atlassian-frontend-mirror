@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { embedHeaderHeight } from './components/styled';
+export const embedHeaderHeight = 32;
 
 interface Props {
 	children?: React.ReactNode;
@@ -46,7 +46,7 @@ export class EmbedResizeMessageListener extends React.Component<Props, State> {
 		onHeightUpdate(height);
 	};
 
-	render() {
+	render(): React.ReactNode {
 		return this.props.children;
 	}
 }

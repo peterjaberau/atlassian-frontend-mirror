@@ -4,7 +4,7 @@
  */
 import { jsx, css } from '@compiled/react';
 
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import { type EmojiTypeAheadMaxHeight } from '../../util/shared-styles';
 
@@ -20,7 +20,7 @@ const emojiTypeAheadSpinnerContainer = css({
 	boxSizing: 'border-box',
 });
 
-export function EmojiTypeAheadSpinner() {
+export function EmojiTypeAheadSpinner(): JSX.Element {
 	return (
 		<div css={emojiTypeAheadSpinnerContainer}>
 			<div css={emojiTypeAheadSpinner}>

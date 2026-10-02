@@ -1,5 +1,321 @@
 # @atlaskit/popper
 
+## 9.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.2
+
+### Patch Changes
+
+- [`a7ec100f7d560`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a7ec100f7d560) -
+  `shouldFitViewport` now delegates to `@atlaskit/top-layer` on the top-layer code path, fixing a
+  dropped along-axis `offset`, a fitting popper that shrank in place instead of flipping, and a
+  start / end-aligned popper rendered 5px in from the reference edge. Behind the
+  `platform-dst-top-layer` gate; legacy (flag-off) behaviour is unchanged.
+- Updated dependencies
+
+## 9.4.1
+
+### Patch Changes
+
+- [`69272ede1fedc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69272ede1fedc) -
+  Remove an obsolete Compiled JSX pragma to avoid generating unused runtime imports.
+
+## 9.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.3.2
+
+### Patch Changes
+
+- [`d2e353f1b02f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2e353f1b02f6) -
+  Experimental React 19 peer dependency support. This patch widens the peer range and updates the
+  scroll-container fixture to avoid a React 16-only helper; CI coverage is partial.
+
+## 9.3.1
+
+### Patch Changes
+
+- Use `@atlassian/testing-library` exclusively in unit tests.
+- Updated dependencies
+
+## 9.3.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.2.0
+
+### Minor Changes
+
+- [`005037db2dcaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/005037db2dcaa) -
+  Autofix: update cross-package imports away from barrel entries
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`2857e277050c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2857e277050c6) -
+  Behind the `platform-dst-top-layer` feature gate, `@atlaskit/popper/unsafe-imperative`'s
+  `createPopper` now renders and positions in the browser top layer via `@atlaskit/top-layer`
+  instead of running the Popper.js engine. Positioning and teardown are applied asynchronously, as
+  Popper.js' own first update is. Flag-off behaviour is unchanged.
+
+  `@atlaskit/top-layer`: the JavaScript positioning fallback no longer clears a consumer's own
+  inline positioning and visibility styles.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Major Changes
+
+- [`48e7d03469b80`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48e7d03469b80) -
+  Apply Volt entry-point and barrel-removal standards across these design-system packages. Public
+  `exports` now resolve **directly** to `./src/*` implementations instead of intermediate
+  `./src/entry-points/*` re-exports, root barrels and remaining entry-point shims are marked
+  deprecated in favour of per-export subpaths, and a few new subpaths are added
+  (`@atlaskit/badge/badge-new`, `@atlaskit/tile/tile-skeleton`, `@atlaskit/popper/main`,
+  `@atlaskit/section-message/message`, `@atlaskit/section-message/message-action`).
+
+  ### Why this is breaking
+
+  Subpaths and the package root can now resolve to the **same module instance**. Consumers that
+  deep-imported `entry-points/*`, or `jest.mock()`'d a specific subpath may need updates.
+  `@atlaskit/image`'s root export now points at `./src/ui/image/index.tsx`.
+  `@atlaskit/checkbox/checkbox` now exports a named `Checkbox` from the implementation module
+  (default export retained for backwards compatibility).
+
+  ### Migration
+
+  Prefer published subpaths over the package root:
+
+  ```ts
+  import { Checkbox } from '@atlaskit/checkbox/checkbox';
+  import TextField from '@atlaskit/textfield/text-field';
+  import Popup from '@atlaskit/popup/popup';
+  import SectionMessage from '@atlaskit/section-message/message';
+  import EmptyState from '@atlaskit/empty-state/empty-state';
+  ```
+
+  If you imported through internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import Checkbox from '@atlaskit/checkbox/entry-points/checkbox';
+  +import { Checkbox } from '@atlaskit/checkbox/checkbox';
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`6902b31db1608`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6902b31db1608) -
+  Consolidate direct Popper.js callers behind `@atlaskit/popper` compatibility entry points and
+  feature-gated consumer adapters.
+
+  `@atlaskit/popper` now exposes compatibility entry points so existing direct `popper.js` /
+  `react-popper` callers can move their dependency ownership onto `@atlaskit/popper` without a full
+  rewrite:
+  - `@atlaskit/popper/react-popper` re-exports the React `usePopper` hook and `Manager` / `Popper` /
+    `Reference` render-prop components.
+  - `@atlaskit/popper/unsafe-imperative` re-exports the raw Popper.js v2 `createPopper` for
+    non-React, imperative callers. This is an escape hatch for existing callers only. Do not use it
+    for new code; build new overlays on `@atlaskit/top-layer` instead.
+
+  ```ts
+  // Imperative callers (migrating away from a direct `@popperjs/core` / `popper.js` import):
+  import { createPopper } from '@atlaskit/popper/unsafe-imperative';
+
+  const instance = createPopper(referenceElement, popperElement, {
+  	placement: 'bottom-start',
+  });
+
+  // React callers (migrating away from a direct `react-popper` import):
+  import { usePopper } from '@atlaskit/popper/react-popper';
+
+  const { styles, attributes } = usePopper(referenceElement, popperElement, {
+  	placement: 'bottom-start',
+  });
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.0
+
+### Minor Changes
+
+- [`3f6f3bd7da074`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f6f3bd7da074) -
+  Updates usage of the Top Layer primitives to consume changes to animation API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.0
+
+### Minor Changes
+
+- [`c98e0cf5cc4f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c98e0cf5cc4f6) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 8.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`db3328ec580e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db3328ec580e4) -
+  Behind the `"platform-dst-top-layer"` feature flag, `@atlaskit/popper` now renders into the
+  browser top layer via `@atlaskit/top-layer`. Public API and exported types are unchanged.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 8.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 7.2.0
+
+### Minor Changes
+
+- [`b6726adedaa66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6726adedaa66) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 7.1.10
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+
+## 7.1.9
+
+### Patch Changes
+
+- [`e2085d35701ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e2085d35701ca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 7.1.8
+
+### Patch Changes
+
+- [`5db9e3f21a52f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5db9e3f21a52f) -
+  Internal refactoring
+
 ## 7.1.7
 
 ### Patch Changes

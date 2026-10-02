@@ -3,11 +3,14 @@
  * @jsx jsx
  */
 import React from 'react';
-import { components } from '@atlaskit/select';
-import { token } from '@atlaskit/tokens';
-import { type UserPickerProps } from '../types';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
+
+import { components } from '@atlaskit/react-select/components';
+import { token } from '@atlaskit/tokens';
+
+import { type UserPickerProps } from '../types';
 
 export type Props = React.PropsWithChildren<{
 	selectProps: UserPickerProps;
@@ -15,7 +18,7 @@ export type Props = React.PropsWithChildren<{
 
 const getFooterStyle = () => {
 	return css({
-		padding: `${token('space.100', '8px')} ${token('space.200', '16px')}`,
+		padding: `${token('space.100')} ${token('space.200')}`,
 	});
 };
 

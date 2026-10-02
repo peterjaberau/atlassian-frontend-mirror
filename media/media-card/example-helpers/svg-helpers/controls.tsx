@@ -2,6 +2,7 @@ import React, { type ReactNode } from 'react';
 
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { media } from '@atlaskit/primitives/responsive';
 
 const controlsBoxStyles = xcss({
@@ -17,6 +18,6 @@ const controlsBoxStyles = xcss({
 	},
 });
 
-export const ControlsBox = ({ children }: { children: ReactNode }) => (
+export const ControlsBox = ({ children }: { children: ReactNode }): React.JSX.Element => (
 	<Box xcss={controlsBoxStyles}>{children}</Box>
 );

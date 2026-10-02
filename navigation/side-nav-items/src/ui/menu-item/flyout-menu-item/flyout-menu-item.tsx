@@ -1,18 +1,17 @@
-import React, { forwardRef, type ReactNode, useEffect, useRef } from 'react';
+import React, { forwardRef, type ReactNode, useEffect, useId, useRef } from 'react';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import useControlled from '@atlaskit/ds-lib/use-controlled';
 import usePreviousValue from '@atlaskit/ds-lib/use-previous-value';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { Popup } from '@atlaskit/popup/experimental';
+import { Popup } from '@atlaskit/popup/compositional/popup';
 
 import { MenuListItem } from '../menu-list-item';
-
 import type { FlyoutCloseSource } from './flyout-menu-item-content';
 import {
 	IsOpenContext,
 	OnCloseContext,
 	SetIsOpenContext,
+	TitleIdContextProvider,
 } from './flyout-menu-item-context';
 
 export type FlyoutMenuItemProps = {
@@ -74,14 +73,16 @@ export const FlyoutMenuItem: React.ForwardRefExoticComponent<
 		forwardedRef,
 	) => {
 		const [isOpen, setIsOpen] = useControlled(isOpenControlled, () => isDefaultOpen);
+		const titleId = useId();
 
 		const previousIsOpen = usePreviousValue(isOpen);
-		const onCloseRef = useRef<
-			(
-				event: Event | React.MouseEvent<HTMLButtonElement> | KeyboardEvent | MouseEvent | null,
-				source?: FlyoutCloseSource,
-			) => void
-		>(null);
+		const onCloseRef =
+			useRef<
+				(
+					event: Event | React.MouseEvent<HTMLButtonElement> | KeyboardEvent | MouseEvent | null,
+					source?: FlyoutCloseSource,
+				) => void
+			>(null);
 
 		const { createAnalyticsEvent } = useAnalyticsEvents();
 
@@ -99,15 +100,13 @@ export const FlyoutMenuItem: React.ForwardRefExoticComponent<
 
 			// When flyout menu is opened, fire analytics event
 			if (isOpen && previousIsOpen === false) {
-				if (fg('platform_dst_nav4_flyout_menu_slots_close_button')) {
-					const navigationAnalyticsEvent = createAnalyticsEvent({
-						source: 'sideNav',
-						actionSubject: 'flyoutMenu',
-						action: 'opened',
-					});
+				const navigationAnalyticsEvent = createAnalyticsEvent({
+					source: 'sideNav',
+					actionSubject: 'flyoutMenu',
+					action: 'opened',
+				});
 
-					navigationAnalyticsEvent.fire('navigation');
-				}
+				navigationAnalyticsEvent.fire('navigation');
 			}
 
 			onOpenChange?.(isOpen);
@@ -117,15 +116,13 @@ export const FlyoutMenuItem: React.ForwardRefExoticComponent<
 			<IsOpenContext.Provider value={isOpen}>
 				<SetIsOpenContext.Provider value={setIsOpen}>
 					<OnCloseContext.Provider value={onCloseRef}>
-						<MenuListItem ref={forwardedRef}>
-							<Popup
-								id={id}
-								isOpen={isOpen}
-								role={fg('platform_dst_nav4_flyout_menu_slots_close_button') ? 'dialog' : undefined}
-							>
-								{children}
-							</Popup>
-						</MenuListItem>
+						<TitleIdContextProvider value={titleId}>
+							<MenuListItem ref={forwardedRef}>
+								<Popup id={id} isOpen={isOpen} role="dialog">
+									{children}
+								</Popup>
+							</MenuListItem>
+						</TitleIdContextProvider>
 					</OnCloseContext.Provider>
 				</SetIsOpenContext.Provider>
 			</IsOpenContext.Provider>

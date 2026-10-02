@@ -1,4 +1,5 @@
-import { type Auth, type AuthContext } from '@atlaskit/media-core';
+import type { Auth, AuthContext } from '@atlaskit/media-core/auth';
+
 import { defaultCollectionName } from './collectionNames';
 
 const cachedAuths: { [key: string]: Promise<Auth> } = {};
@@ -55,7 +56,7 @@ const requestAuthProvider = async (
 
 export const mediaPickerAuthProvider =
 	(authEnvironment: string = 'asap', env: MediaEnv = 'staging', expiresIn = 600) =>
-	(context?: AuthContext) => {
+	(context?: AuthContext): Promise<Auth> => {
 		const collectionName = (context && context.collectionName) || defaultCollectionName;
 		authEnvironment = authEnvironment === 'asap' ? 'asap' : '';
 		const cacheKey = `${collectionName}:${authEnvironment}`;

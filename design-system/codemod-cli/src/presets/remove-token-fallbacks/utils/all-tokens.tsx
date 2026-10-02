@@ -1,9 +1,7 @@
-import {
-	light as lightTheme,
-	shape as shapeTheme,
-	spacing as spacingTheme,
-	typography as typographyTheme,
-} from '@atlaskit/tokens/tokens-raw';
+import lightTheme from '@atlaskit/tokens/atlassian-light';
+import shapeTheme from '@atlaskit/tokens/atlassian-shape';
+import spacingTheme from '@atlaskit/tokens/atlassian-spacing';
+import typographyTheme from '@atlaskit/tokens/atlassian-typography';
 
 const typographyGroups = ['typography', 'fontWeight', 'fontFamily'];
 
@@ -23,9 +21,9 @@ function buildCombinedMap(...arrays: Token[][]): Record<string, string> {
 }
 
 // Filter the typography tokens based on predefined groups and exclusions
-const typographyThemeFiltered = typographyTheme
-	.filter((token) => typographyGroups.includes(token.attributes.group))
-	.filter((token) => token.cleanName !== 'font.body.UNSAFE_small');
+const typographyThemeFiltered = typographyTheme.filter((token) =>
+	typographyGroups.includes(token.attributes.group),
+);
 
 // Cache array: [0] for light theme, [1] for legacy light theme
 const tokenMapCache: (Record<string, string> | null)[] = [null, null];

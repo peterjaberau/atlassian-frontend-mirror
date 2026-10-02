@@ -4,14 +4,14 @@ import { canUseDOM } from 'exenv';
 import ScrollLock from 'react-scrolllock';
 import scrollIntoView from 'scroll-into-view-if-needed';
 
-import { Layering } from '@atlaskit/layering';
-import { ExitingPersistence, FadeIn } from '@atlaskit/motion';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Portal from '@atlaskit/portal';
+import { Layering } from '@atlaskit/layering/layering';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import FadeIn from '@atlaskit/motion/fade-in';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import Portal from '@atlaskit/portal/portal';
 
 import { type ScrollLogicalPosition, type SpotlightProps } from '../types';
 import { type ElementBoundingBox, ElementBox } from '../utils/use-element-box';
-
 import Clone from './clone';
 import NodeResolverSpotlightInner from './node-resolver-spotlight-inner';
 import SpotlightDialog from './spotlight-dialog';
@@ -188,7 +188,6 @@ class SpotlightInner extends React.Component<SpotlightInnerProps, State> {
 													ref={ref}
 													// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 													className={className}
-													// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 													style={style}
 												>
 													<SpotlightDialog

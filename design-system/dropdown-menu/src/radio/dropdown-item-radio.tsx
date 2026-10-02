@@ -1,9 +1,8 @@
 import React, { type KeyboardEvent, type MouseEvent, useCallback } from 'react';
 
 import noop from '@atlaskit/ds-lib/noop';
-import { SELECTION_STYLE_CONTEXT_DO_NOT_USE } from '@atlaskit/menu';
 import ButtonItem from '@atlaskit/menu/button-item';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import { SELECTION_STYLE_CONTEXT_DO_NOT_USE } from '@atlaskit/menu/selection-style-context-do-not-use';
 
 import RadioIcon from '../internal/components/radio-icon';
 import useRadioState from '../internal/hooks/use-radio-state';
@@ -67,7 +66,6 @@ const DropdownItemRadio = ({
 		<SELECTION_STYLE_CONTEXT_DO_NOT_USE.Provider value="none">
 			<ButtonItem
 				aria-checked={selected}
-				aria-describedby={`${id}-radio`}
 				description={description}
 				iconBefore={<RadioIcon checked={selected} />}
 				id={id}
@@ -86,11 +84,11 @@ const DropdownItemRadio = ({
 				interactionName={interactionName}
 				// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 				{...rest}
+				// Override ButtonItem's default aria-current, as aria-checked is the correct attribute for menuitemradio (A11Y-37930)
+				aria-current={undefined}
 			>
 				{children}
 			</ButtonItem>
-			{/* In order to ensure Screen Reader/Voice Over announces this as radio button we add this hidden element for added context  */}
-			<VisuallyHidden id={`${id}-radio`}>radio button {selected}</VisuallyHidden>
 		</SELECTION_STYLE_CONTEXT_DO_NOT_USE.Provider>
 	);
 };

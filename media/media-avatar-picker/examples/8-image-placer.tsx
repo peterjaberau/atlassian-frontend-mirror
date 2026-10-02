@@ -2,14 +2,16 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
+import React from 'react';
+
 import { jsx, css } from '@compiled/react';
 
-import { token } from '@atlaskit/tokens';
-import React from 'react';
+import Button from '@atlaskit/button/default/button';
 import Page, { Grid, GridColumn } from '@atlaskit/page';
-import { ImagePlacer, type ImageActions } from '../src/image-placer';
-import Button from '@atlaskit/button/new';
+import { token } from '@atlaskit/tokens';
 
+import { ImagePlacer, type ImageActions } from '../src/image-placer';
 export interface ExampleState {
 	containerWidth: number;
 	containerHeight: number;
@@ -31,7 +33,7 @@ const labelStyles = css({
 	display: 'block',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'> input': {
-		marginLeft: token('space.100', '8px'),
+		marginLeft: token('space.100'),
 	},
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'> span': {
@@ -44,12 +46,12 @@ const labelStyles = css({
 const exportedImageStyles = css({
 	borderWidth: token('border.width'),
 	borderStyle: 'solid',
-	borderColor: token('color.border', '#ccc'),
+	borderColor: token('color.border'),
 });
 
 const exportedImageWrapperStyles = css({
 	display: 'inline-block',
-	marginTop: token('space.250', '20px'),
+	marginTop: token('space.250'),
 	position: 'relative',
 });
 
@@ -303,4 +305,4 @@ class Example extends React.Component<object, ExampleState> {
 	}
 }
 
-export default () => <Example />;
+export default (): JSX.Element => <Example />;

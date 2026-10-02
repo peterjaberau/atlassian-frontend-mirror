@@ -1,9 +1,14 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export default defineMessages({
-	browseAgentsPillLabel: {
-		id: 'ai-mate.rovo-agent-components.browse-agents-pill.label',
-		defaultMessage: 'Browse Agents',
-		description: 'The label displayed on the browse agents pill',
-	},
-});
+type MessageKeys = 'browseAgentsPillLabel';
+
+const message: Record<MessageKeys, { id: string; defaultMessage: string; description?: string }> =
+	defineMessages({
+		browseAgentsPillLabel: {
+			id: 'ai-mate.rovo-agent-components.browse-agents-pill.label',
+			defaultMessage: 'Browse agents',
+			description: 'The label displayed on the browse agents pill',
+		},
+	});
+
+export default message;

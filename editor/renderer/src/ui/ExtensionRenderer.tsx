@@ -2,13 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
+
 import React from 'react';
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- emotion jsx pragma; go/DSP-18766
+import { css, jsx } from '@emotion/react';
+// oxlint-ignore @typescript-eslint/consistent-type-imports -- classic @jsx jsx factory + jsx.JSX.Element types
 import memoizeOne from 'memoize-one';
 
-import type { RendererContext } from '../react/types';
-import type { ExtensionLayout } from '@atlaskit/adf-schema';
+import type { Layout as ExtensionLayout } from '@atlaskit/adf-schema/extensions';
 import { getNodeRenderer } from '@atlaskit/editor-common/extensions';
 import type {
 	ExtensionHandlers,
@@ -22,23 +24,26 @@ import { WithProviders } from '@atlaskit/editor-common/provider-factory';
 import { getExtensionRenderer } from '@atlaskit/editor-common/utils';
 import type { Mark as PMMark } from '@atlaskit/editor-prosemirror/model';
 import { token } from '@atlaskit/tokens';
-import { fg } from '@atlaskit/platform-feature-flags';
+
+import type { RendererContext } from '../react/types';
 
 interface Props {
 	actions?: MultiBodiedExtensionActions;
 	children: ({
+		isExtensionProviderPending,
 		node,
 		result,
 	}: {
+		isExtensionProviderPending: boolean;
 		node: ExtensionParams<Parameters>;
 		result?: JSX.Element | null;
 	}) => JSX.Element;
-	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	content?: any;
 	extensionHandlers?: ExtensionHandlers;
 	extensionKey: string;
 	extensionType: string;
+	// Ignored via go/ees005
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	getContent?: () => any;
 	layout?: ExtensionLayout;
 	localId?: string;
 	marks?: PMMark[];
@@ -66,7 +71,7 @@ const inlineExtensionStyle = css({
 	// The timing is tricky as it happens to be when UFO collects the dimension for the placeholder for TTVC calculation.
 	// This resulted 1px mismatch on the image. Further cause everything on page to shift by 1px.
 	// es-lint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
-	margin: `0px 1px ${token('space.050', '4px')}`,
+	margin: `0px 1px ${token('space.050')}`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& .rich-media-item': {
 		maxWidth: '100%',
@@ -83,14 +88,15 @@ const plainTextMacroStyle = css({
 	},
 });
 
-export default function ExtensionRenderer(props: Props) {
+/** Renders extension (macro) nodes inside the ADF renderer. */
+export default function ExtensionRenderer(props: Props): jsx.JSX.Element {
 	const {
 		extensionHandlers,
 		rendererContext,
 		extensionType,
 		extensionKey,
 		parameters,
-		content,
+		getContent,
 		text,
 		type,
 		localId,
@@ -101,29 +107,50 @@ export default function ExtensionRenderer(props: Props) {
 
 	const isMounted = React.useRef(true);
 	const localGetNodeRenderer = React.useMemo(() => memoizeOne(getNodeRenderer), []);
-	const [extensionProvider, setExtensionProvider] = React.useState<ExtensionProvider | null>(null);
+	/**
+	 * null -> provider promise not yet settled (pending)
+	 * undefined -> provider promise rejected (settled, no provider available)
+	 * <provider> -> provider promise resolved
+	 */
+	const [extensionProvider, setExtensionProvider] = React.useState<
+		ExtensionProvider | null | undefined
+	>(null);
 
-	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const handleProvider = React.useCallback((_name: keyof State, providerPromise?: Promise<any>) => {
-		providerPromise &&
-			providerPromise.then((provider) => {
-				if (isMounted.current) {
-					setExtensionProvider(provider);
-				}
-			});
-	}, []);
+	const handleProvider = React.useCallback(
+		(_name: keyof State, providerPromise?: Promise<ExtensionProvider>) => {
+			providerPromise?.then(
+				(provider) => {
+					if (isMounted.current) {
+						setExtensionProvider(provider);
+					}
+				},
+				() => {
+					// Consumers can use this to distinguish a rejected provider from a pending one
+					if (isMounted.current) {
+						setExtensionProvider(undefined);
+					}
+				},
+			);
+		},
+		[],
+	);
 
 	const renderExtensionNode = React.useCallback(
-		(extensionProvider?: ExtensionProvider | null) => {
+		(
+			extensionProvider: ExtensionProvider | null | undefined,
+			isExtensionProviderPending: boolean,
+		) => {
 			const fragmentLocalId = marks?.find((m) => m.type.name === 'fragment')?.attrs?.localId;
 
+			// Extension handlers read the macro body off `node.content`, so this is the one place that
+			// always has to serialize. `getContent` is what makes it a single pass instead of one per
+			// ancestor node.
 			const node = {
 				type,
 				extensionKey,
 				extensionType,
 				parameters,
-				content: content || text,
+				content: getContent?.() || text,
 				localId,
 				fragmentLocalId,
 			};
@@ -143,19 +170,11 @@ export default function ExtensionRenderer(props: Props) {
 					if (node.type === 'multiBodiedExtension') {
 						result = <NodeRenderer node={node} actions={actions} />;
 					} else if (node.type === 'inlineExtension') {
-						if (fg('platform_editor_renderer_inline_extension_improve')) {
-							result = (
-								<InlineNodeRendererWrapper isPlainTextMacro={isPlainTextMacro}>
-									<NodeRenderer node={node} />
-								</InlineNodeRendererWrapper>
-							);
-						} else {
-							result = (
-								<InlineNodeRendererWrapper>
-									<NodeRenderer node={node} />
-								</InlineNodeRendererWrapper>
-							);
-						}
+						result = (
+							<InlineNodeRendererWrapper isPlainTextMacro={isPlainTextMacro}>
+								<NodeRenderer node={node} />
+							</InlineNodeRendererWrapper>
+						);
 					} else {
 						result = <NodeRenderer node={node} />;
 					}
@@ -165,12 +184,12 @@ export default function ExtensionRenderer(props: Props) {
 				/** We keep rendering the default content */
 			}
 
-			return children({ node, result });
+			return children({ isExtensionProviderPending, node, result });
 		},
 		[
 			actions,
 			children,
-			content,
+			getContent,
 			extensionHandlers,
 			extensionKey,
 			extensionType,
@@ -186,11 +205,14 @@ export default function ExtensionRenderer(props: Props) {
 
 	const setupAndRenderExtensionNode = React.useCallback(
 		(providers: { extensionProvider?: Promise<ExtensionProvider> }) => {
-			if (!extensionProvider && providers.extensionProvider) {
+			if (extensionProvider === null && providers.extensionProvider) {
 				handleProvider('extensionProvider', providers.extensionProvider);
 			}
 
-			return renderExtensionNode(extensionProvider);
+			return renderExtensionNode(
+				extensionProvider,
+				Boolean(providers.extensionProvider) && extensionProvider === null,
+			);
 		},
 		[extensionProvider, handleProvider, renderExtensionNode],
 	);
@@ -208,6 +230,7 @@ export default function ExtensionRenderer(props: Props) {
 
 	return (
 		<WithProviders
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			providers={['extensionProvider']}
 			providerFactory={props.providers}
 			renderNode={setupAndRenderExtensionNode}
@@ -224,7 +247,7 @@ export const InlineNodeRendererWrapper = ({
 	isPlainTextMacro?: boolean;
 	ssrPlaceholder?: string;
 	ssrPlaceholderReplace?: string;
-}>) => {
+}>): jsx.JSX.Element => {
 	return (
 		<div
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766

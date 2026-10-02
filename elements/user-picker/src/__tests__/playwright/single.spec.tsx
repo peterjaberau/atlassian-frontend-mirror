@@ -1,16 +1,25 @@
 import { expect } from '@af/integration-testing';
+
 import { test } from './user-picker';
 
 const EXAMPLE = 'single';
 
 test.describe('User Picker', () => {
-	test('should load single user picker', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should load single user picker', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/00-single.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await expect(userPicker.placeholder).toBeVisible();
 	});
 
-	test('should select an option', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should select an option', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/00-single.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await userPicker.input.click();
 
 		// Fill text into the input to trigger options
@@ -26,8 +35,12 @@ test.describe('User Picker', () => {
 		await expect(userPicker.selectedSingleValue).toContainText('team', { ignoreCase: true });
 	});
 
-	test('should handle keyboard navigation in options menu', async ({ userPicker }) => {
-		await userPicker.init(EXAMPLE);
+	test('should handle keyboard navigation in options menu', async ({ userPicker, page }) => {
+		await page.visitExample<typeof import('../../../examples/00-single.tsx')>(
+			'elements',
+			'user-picker',
+			EXAMPLE,
+		);
 		await userPicker.input.click();
 		await userPicker.input.fill('team');
 

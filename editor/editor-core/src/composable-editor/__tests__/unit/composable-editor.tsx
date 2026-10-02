@@ -5,15 +5,9 @@ import { render } from '@testing-library/react';
 import { EditorPresetBuilder } from '@atlaskit/editor-common/preset';
 import { basePlugin } from '@atlaskit/editor-plugins/base';
 import { featureFlagsPlugin } from '@atlaskit/editor-plugins/feature-flags';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
 
 import createUniversalPreset from '../../../presets/universal';
-import { RenderTracking } from '../../../utils/performance/components/RenderTracking';
 import { ComposableEditor } from '../../composable-editor';
-
-jest.mock('../../../utils/performance/components/RenderTracking', () => {
-	return { RenderTracking: jest.fn(() => null) };
-});
 
 describe('ComposableEditor', () => {
 	afterEach(jest.clearAllMocks);
@@ -46,39 +40,6 @@ describe('ComposableEditor', () => {
 			expect(() => {
 				render(<ComposableEditor preset={preset} />);
 			}).not.toThrow();
-		});
-	});
-
-	ffTest.on('platform_editor_disable_rerender_tracking_jira', 'rerenders', () => {
-		it('should not render RenderTracking', () => {
-			const preset = createUniversalPreset({
-				appearance: 'full-page',
-				props: { paste: {} },
-				featureFlags: {},
-			});
-
-			render(<ComposableEditor preset={preset} />);
-
-			expect(RenderTracking).toHaveBeenCalledTimes(0);
-			expect(RenderTracking).not.toHaveBeenCalledWith(
-				expect.objectContaining({
-					actionSubject: 'editor',
-				}),
-			);
-		});
-	});
-
-	ffTest.off('platform_editor_disable_rerender_tracking_jira', 'rerenders', () => {
-		it('should render RenderTracking', () => {
-			const preset = createUniversalPreset({
-				appearance: 'full-page',
-				props: { paste: {} },
-				featureFlags: {},
-			});
-
-			render(<ComposableEditor preset={preset} />);
-
-			expect(RenderTracking).toHaveBeenCalled();
 		});
 	});
 });

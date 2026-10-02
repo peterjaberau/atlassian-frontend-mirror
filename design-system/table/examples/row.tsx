@@ -1,12 +1,23 @@
 import React from 'react';
 
-import Avatar, { AvatarItem } from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
+import AvatarItem from '@atlaskit/avatar/avatar-item';
+import { cssMap } from '@atlaskit/css';
 import { Date as AKDate } from '@atlaskit/date';
 import Icon from '@atlaskit/icon/core/archive-box';
-import Lozenge from '@atlaskit/lozenge';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import { Flex } from '@atlaskit/primitives/compiled';
 import Table, { Cell, Row, TBody } from '@atlaskit/table';
+import { token } from '@atlaskit/tokens';
 
 import { userData } from './content/users';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const user = userData.results[0];
 
@@ -28,10 +39,12 @@ export default function RowExample(): React.JSX.Element {
 						<AKDate value={Number(new Date(user.dob.date))} />
 					</Cell>
 					<Cell>
-						<Lozenge appearance="moved">Overdue</Lozenge>
+						<Lozenge appearance="warning">Overdue</Lozenge>
 					</Cell>
 					<Cell align="icon">
-						<Icon  spacing="spacious" label="archive" />
+						<Flex xcss={iconSpacingStyles.space050}>
+							<Icon label="archive" />
+						</Flex>
 					</Cell>
 				</Row>
 			</TBody>

@@ -1,18 +1,21 @@
 // Disable no-re-export rule for entry point files
 /* eslint-disable @atlaskit/editor/no-re-export */
 
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
 export { alignmentMessages } from './alignment';
 export { annotationMessages } from './annotation';
 export { messages as breakoutMessages } from './breakout';
 export { messages as blockMenuMessages } from './block-menu';
 export { messages as blockTypeMessages } from './block-type';
+export { templateGalleryMessages } from './snippets';
 export { codeBidiWarningMessages } from './codeBidiWarning';
+export { colorAccessibilityMessages } from './color-accessibility';
 export { colorPickerButtonMessages } from './color-picker-button';
 export { linkMessages } from './link';
 export { linkToolbarMessages } from './link-toolbar';
 export { unsupportedContentMessages } from './unsupportedContent';
+export { codeBlockMessages } from './codeBlock';
 export { codeBlockButtonMessages } from './codeBlockButton';
 export { toolbarInsertBlockMessages } from './insert-block';
 export { toolbarMessages as mediaAndEmbedToolbarMessages } from './media-and-embed-toolbar';
@@ -44,11 +47,175 @@ export { selectionExtensionMessages } from './selection-extension';
 export { selectionToolbarMessages } from './selection-toolbar';
 export { contextPanelMessages } from './context-panel';
 export { trackChangesMessages } from './track-changes';
+export { roleDescriptionMessages } from './roleDescription';
 export { syncBlockMessages } from './syncBlock';
 export { limitedModeMessages } from './limited-mode';
 export { companyHubTextColorMessages } from './company-hub-text-color';
+export { nativeEmbedToolbarMessages } from './native-embed-toolbar';
+export { markdownModeMessages } from './markdown-mode';
 
-export default defineMessages({
+const _default_1: {
+	alignImageCenter: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	alignImageLeft: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	alignImageRight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	blockquote: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	bulletList: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cancelButton: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copiedToClipboard: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copyToClipboard: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	decisionList: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	defaultBlockNode: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	delete: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	error: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	imageEdit: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	inviteToEditButtonTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	layoutFixedWidth: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	layoutFullWidth: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	layoutStateFixedWidth: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	layoutStateFullWidth: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	layoutStateWide: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	layoutWide: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	nestedExpand: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	panel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	remove: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	removeEmoji: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	saveButton: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	success: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	taskList: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	timeAgo: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	timeUpdated: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	timeViewed: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	viewMore: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	visit: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	layoutFixedWidth: {
 		id: 'fabric.editor.layoutFixedWidth',
 		defaultMessage: 'Back to center',
@@ -82,17 +249,20 @@ export default defineMessages({
 	alignImageRight: {
 		id: 'fabric.editor.alignImageRight',
 		defaultMessage: 'Align right',
-		description: 'Aligns image to the right',
+		description:
+			'The text is shown as a button in the image toolbar when the user wants to align an image to the right side of the page.',
 	},
 	alignImageCenter: {
 		id: 'fabric.editor.alignImageCenter',
 		defaultMessage: 'Align center',
-		description: 'Aligns image to the center',
+		description:
+			'The text is shown as a button in the image toolbar when the user wants to align an image to the center of the page.',
 	},
 	alignImageLeft: {
 		id: 'fabric.editor.alignImageLeft',
 		defaultMessage: 'Align left',
-		description: 'Aligns image to the left',
+		description:
+			'The text is shown as a button in the image toolbar when the user wants to align an image to the left side of the page.',
 	},
 	delete: {
 		id: 'fabric.editor.delete',
@@ -112,7 +282,8 @@ export default defineMessages({
 	visit: {
 		id: 'fabric.editor.visit',
 		defaultMessage: 'Open link in a new window',
-		description: 'Open the link in a new window',
+		description:
+			'The text is shown as a link or button in the editor when the user wants to open the selected link in a new browser window.',
 	},
 	inviteToEditButtonTitle: {
 		id: 'fabric.editor.editMode.inviteToEditButton.title',
@@ -122,62 +293,74 @@ export default defineMessages({
 	saveButton: {
 		id: 'fabric.editor.saveButton',
 		defaultMessage: 'Save',
-		description: 'Submit and save a comment or document',
+		description:
+			'Label for the primary action button that submits and saves the current comment or document in the editor.',
 	},
 	cancelButton: {
 		id: 'fabric.editor.cancelButton',
 		defaultMessage: 'Cancel',
-		description: 'Discard the current comment or document',
+		description:
+			'Label for the button that discards unsaved changes and cancels editing of the current comment or document.',
 	},
 	taskList: {
 		id: 'fabric.editor.tooltip.taskList',
 		defaultMessage: 'an action item',
-		description: 'an action item in the Editor',
+		description:
+			'The text is shown as a tooltip label in the editor to describe an action item element when the user interacts with it.',
 	},
 	bulletList: {
 		id: 'fabric.editor.tooltip.bulletList',
 		defaultMessage: 'a list',
-		description: 'a list item in the Editor',
+		description:
+			'The text is shown as a tooltip label in the editor to describe a bullet list element when the user interacts with it.',
 	},
 	nestedExpand: {
 		id: 'fabric.editor.tooltip.nestedExpand',
 		defaultMessage: 'a nested expand',
-		description: 'expand node which is nested',
+		description:
+			'The text is shown as a tooltip label in the editor to describe a nested expand element when the user interacts with it.',
 	},
 	decisionList: {
 		id: 'fabric.editor.tooltip.decisionList',
 		defaultMessage: 'a decision list',
-		description: 'a list of decisions',
+		description:
+			'The text is shown as a tooltip label in the editor to describe a decision list element when the user interacts with it.',
 	},
 	defaultBlockNode: {
 		id: 'fabric.editor.tooltip.defaultBlockNode',
 		defaultMessage: 'a block node',
-		description: 'a block node element',
+		description:
+			'The text is shown as a tooltip label in the editor to describe a generic block node element when the user interacts with it.',
 	},
 	panel: {
 		id: 'fabric.editor.tooltip.blockPanel',
 		defaultMessage: 'a panel',
-		description: 'Panel node in the Editor',
+		description:
+			'The text is shown as a tooltip label in the editor to describe a panel element when the user interacts with it.',
 	},
 	blockquote: {
 		id: 'fabric.editor.blockquote',
 		defaultMessage: 'a quote',
-		description: 'a quote node',
+		description:
+			'The text is shown as a tooltip label in the editor to describe a blockquote element when the user interacts with it.',
 	},
 	timeUpdated: {
 		id: 'fabric.editor.time.updated',
 		defaultMessage: 'Updated',
-		description: 'Time last updated',
+		description:
+			'The text is shown as a label in the editor to indicate when the content was last updated by a user.',
 	},
 	timeViewed: {
 		id: 'fabric.editor.time.viewed',
 		defaultMessage: 'Viewed',
-		description: 'Time last viewed',
+		description:
+			'The text is shown as a label in the editor to indicate when the content was last viewed by a user.',
 	},
 	timeAgo: {
 		id: 'fabric.editor.time.ago',
 		defaultMessage: 'ago',
-		description: 'Some time ago',
+		description:
+			'The text is shown as a label suffix after a time value to indicate that the action occurred in the past, for example "5 minutes ago".',
 	},
 	copyToClipboard: {
 		id: 'fabric.editor.copyToClipboard',
@@ -192,21 +375,26 @@ export default defineMessages({
 	viewMore: {
 		id: 'fabric.editor.overflowMenuViewMore',
 		defaultMessage: 'View more',
-		description: 'View more options in toolbar',
+		description:
+			'The text is shown as a button in the editor toolbar overflow menu when additional toolbar options are available for the user to view.',
 	},
 	imageEdit: {
 		id: 'fabric.editor.imageEdit',
 		defaultMessage: 'Edit image',
-		description: 'Crop, flip or rotate the image',
+		description:
+			'Label for the button in the image floating toolbar that opens the image editing panel where users can crop, flip, or rotate the selected image.',
 	},
 	error: {
 		id: 'fabric.editor.error.message.label',
 		defaultMessage: 'Error',
-		description: 'Label for error message icon',
+		description:
+			'The text is shown as a label for the error message icon in the editor when an operation fails or an error occurs.',
 	},
 	success: {
 		id: 'fabric.editor.success.message.label',
 		defaultMessage: 'Success',
-		description: 'Label for success message icon',
+		description:
+			'Accessible label for the success message icon shown in the editor when an operation completes successfully.',
 	},
 });
+export default _default_1;

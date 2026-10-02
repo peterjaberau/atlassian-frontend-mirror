@@ -1,8 +1,8 @@
 import React from 'react';
 
-import Avatar from '@atlaskit/avatar';
-import Tag from '@atlaskit/tag';
-import TagGroup from '@atlaskit/tag-group';
+import Avatar from '@atlaskit/avatar/avatar';
+import TagGroup from '@atlaskit/tag-group/tag-group';
+import Tag from '@atlaskit/tag/removable-tag';
 
 const tagNames = [
 	'liquorice',
@@ -61,7 +61,7 @@ export default (): React.JSX.Element => (
 			{tagNames.map((sweet) => (
 				<Tag
 					appearance="rounded"
-					elemBefore={<Avatar size="xsmall" />}
+					elemBefore={<Avatar size="xxsmall" />}
 					href="http://www.cupcakeipsum.com/"
 					key={sweet}
 					text={sweet}

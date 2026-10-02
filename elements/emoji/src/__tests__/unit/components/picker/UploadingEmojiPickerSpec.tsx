@@ -1,25 +1,38 @@
+import console from 'console';
+
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { MockEmojiResource } from '@atlaskit/util-data-test/mock-emoji-resource';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
-import console from 'console';
+import { mockExpDisabled } from '@atlassian/experiment-test-utils/mock-exp-disabled';
+import { mockExpEnabled } from '@atlassian/experiment-test-utils/mock-exp-enabled';
+
 import EmojiRepository from '../../../../api/EmojiRepository';
 import { emojiDeletePreviewTestId } from '../../../../components/common/EmojiDeletePreview';
+import { uploadEmojiNameInputTestId } from '../../../../components/common/EmojiUploadPicker';
+import { cancelEmojiUploadPickerTestId } from '../../../../components/common/EmojiUploadPicker';
 import { cancelUploadButtonTestId } from '../../../../components/common/EmojiUploadPreview';
-import { messages } from '../../../../components/i18n';
 import {
-	deleteBeginEvent,
-	deleteCancelEvent,
-	deleteConfirmEvent,
-	selectedFileEvent,
-	ufoExperiences,
-	uploadBeginButton,
-	uploadCancelButton,
-	uploadConfirmButton,
-	uploadFailedEvent,
-	uploadSucceededEvent,
-} from '../../../../util/analytics';
+	chooseFileButtonTestId,
+	fileUploadInputTestId,
+} from '../../../../components/common/FileChooser';
+import { messages } from '../../../../components/i18n';
+import * as scrollToRowModule from '../../../../components/picker/scrollToRow';
+import { deleteBeginEvent } from '../../../../util/analytics/deleteBeginEvent';
+import { deleteCancelEvent } from '../../../../util/analytics/deleteCancelEvent';
+import { deleteConfirmEvent } from '../../../../util/analytics/deleteConfirmEvent';
+import { selectedFileEvent } from '../../../../util/analytics/selectedFileEvent';
+import { ufoExperiences } from '../../../../util/analytics/ufoExperiences';
+import { uploadBeginButton } from '../../../../util/analytics/uploadBeginButton';
+import { uploadCancelButton } from '../../../../util/analytics/uploadCancelButton';
+import { uploadConfirmButton } from '../../../../util/analytics/uploadConfirmButton';
+import { uploadFailedEvent } from '../../../../util/analytics/uploadFailedEvent';
+import { uploadSucceededEvent } from '../../../../util/analytics/uploadSucceededEvent';
+import * as constants from '../../../../util/constants';
 import * as ImageUtil from '../../../../util/image';
 import {
 	atlassianEmojis,
@@ -35,11 +48,6 @@ import {
 import * as helperTestingLibrary from './_emoji-picker-helpers-testing-library';
 import * as helper from './_emoji-picker-test-helpers';
 
-import userEvent from '@testing-library/user-event';
-import * as utils from '../../../../components/picker/utils';
-import { cancelEmojiUploadPickerTestId } from '../../../../components/common/EmojiUploadPicker';
-import * as constants from '../../../../util/constants';
-
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
 // be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
 // the next line and associated import. For more information, see go/afm-a11y-tooling:jest
@@ -47,6 +55,21 @@ skipAutoA11yFile();
 
 // Turn off delay to allow using user events with fake timers
 const userEventWithoutDelay = userEvent.setup({ delay: null });
+const createSvgFile = (): File =>
+	new File(['<svg xmlns="http://www.w3.org/2000/svg"></svg>'], 'unsupported.svg', {
+		type: 'image/svg+xml',
+	});
+const teamojiRefreshExperimentName = 'platform_teamoji_26_refresh_emoji_picker';
+let initializeCompletedSpy: jest.SpiedFunction<typeof FeatureGates.initializeCompleted>;
+let checkGateSpy: jest.SpiedFunction<typeof FeatureGates.checkGate>;
+
+const setTeamojiExperimentEnabled = (isEnabled: boolean) => {
+	if (isEnabled) {
+		mockExpEnabled(teamojiRefreshExperimentName);
+	} else {
+		mockExpDisabled(teamojiRefreshExperimentName);
+	}
+};
 
 describe('<UploadingEmojiPicker />', () => {
 	let onEvent: jest.SpyInstance;
@@ -61,20 +84,25 @@ describe('<UploadingEmojiPicker />', () => {
 		ufoStartSpy = jest.spyOn(experience, 'start');
 		ufoSuccessSpy = jest.spyOn(experience, 'success');
 		ufoFailureSpy = jest.spyOn(experience, 'failure');
+		initializeCompletedSpy = jest.spyOn(FeatureGates, 'initializeCompleted').mockReturnValue(true);
+		checkGateSpy = jest.spyOn(FeatureGates, 'checkGate').mockReturnValue(false);
 	});
 
 	afterEach(() => {
+		jest.useRealTimers();
 		jest.clearAllMocks();
 		ufoStartSpy.mockClear();
 		ufoSuccessSpy.mockClear();
 		ufoFailureSpy.mockClear();
+		checkGateSpy.mockRestore();
+		initializeCompletedSpy.mockRestore();
 	});
 
 	beforeAll(() => {
 		// scrolling of the virutal list doesn't work out of the box for the tests
 		// mocking `scrollToRow` for all tests
 		jest
-			.spyOn(utils, 'scrollToRow')
+			.spyOn(scrollToRowModule, 'scrollToRow')
 			.mockImplementation((listRef?: any, index?: number) =>
 				helperTestingLibrary.scrollToIndex(index || 0),
 			);
@@ -268,8 +296,6 @@ describe('<UploadingEmojiPicker />', () => {
 			jest.runAllTimers();
 
 			expect(screen.getByText('Your uploads')).toBeInTheDocument();
-			// focus on the first uploaded emoji, which is under your uploads category.
-			expect(screen.getByTestId('emoji-picker-search')).toHaveFocus();
 
 			expect(ufoStartSpy).toHaveBeenCalled();
 			expect(ufoSuccessSpy).toHaveBeenCalled();
@@ -361,6 +387,128 @@ describe('<UploadingEmojiPicker />', () => {
 				.forEach((element) => expect(element).toBeInTheDocument());
 		});
 
+		it('shows unsupported file type error in refresh upload flow', async () => {
+			setTeamojiExperimentEnabled(true);
+
+			await helper.setupPicker({
+				emojiProvider,
+				hideToneSelector: true,
+			});
+			await emojiProvider;
+
+			await waitFor(() => {
+				expect(helperTestingLibrary.getEmojiActionsSection()).toBeInTheDocument();
+			});
+
+			await waitFor(() => {
+				expect(helperTestingLibrary.getEmojiPickerFooter()).toBeInTheDocument();
+			});
+
+			await userEvent.click(
+				within(helperTestingLibrary.getEmojiPickerFooter()).getByRole('button', {
+					name: 'Add emoji',
+				}),
+			);
+
+			await waitFor(() => {
+				expect(screen.getAllByTestId(uploadEmojiNameInputTestId).length).toBeGreaterThan(0);
+			});
+
+			fireEvent.change(screen.getAllByTestId(uploadEmojiNameInputTestId)[0], {
+				target: { value: ':cheese burger:' },
+			});
+
+			fireEvent.click(screen.getAllByTestId(chooseFileButtonTestId)[0]);
+			fireEvent.change(screen.getAllByTestId(fileUploadInputTestId)[0], {
+				target: { files: [createSvgFile()] },
+			});
+
+			await waitFor(() => {
+				expect(
+					screen.getAllByText(messages.emojiUnsupportedFileType.defaultMessage).length,
+				).toBeGreaterThan(0);
+			});
+
+			expect(screen.queryByTestId('emoji-picker-footer')).not.toBeInTheDocument();
+		});
+
+		it('does not bubble the refresh footer add emoji click to document handlers', async () => {
+			setTeamojiExperimentEnabled(true);
+			const handleDocumentClick = jest.fn();
+			document.addEventListener('click', handleDocumentClick);
+
+			try {
+				await helper.setupPicker({
+					emojiProvider,
+					hideToneSelector: true,
+				});
+				await emojiProvider;
+
+				await waitFor(() => {
+					expect(helperTestingLibrary.getEmojiPickerFooter()).toBeInTheDocument();
+				});
+
+				await userEvent.click(
+					within(helperTestingLibrary.getEmojiPickerFooter()).getByRole('button', {
+						name: 'Add emoji',
+					}),
+				);
+
+				expect(screen.getByTestId(uploadEmojiNameInputTestId)).toBeInTheDocument();
+				expect(handleDocumentClick).not.toHaveBeenCalled();
+			} finally {
+				document.removeEventListener('click', handleDocumentClick);
+			}
+		});
+
+		it('defaults empty emoji name to file name in refresh upload flow', async () => {
+			setTeamojiExperimentEnabled(true);
+
+			await helper.setupPicker({
+				emojiProvider,
+				hideToneSelector: true,
+			});
+			const provider = await emojiProvider;
+
+			await waitFor(() => {
+				expect(helperTestingLibrary.getEmojiActionsSection()).toBeInTheDocument();
+			});
+
+			await waitFor(() => {
+				expect(helperTestingLibrary.getEmojiPickerFooter()).toBeInTheDocument();
+			});
+
+			await userEvent.click(
+				within(helperTestingLibrary.getEmojiPickerFooter()).getByRole('button', {
+					name: 'Add emoji',
+				}),
+			);
+
+			await waitFor(() => {
+				expect(screen.getByTestId(uploadEmojiNameInputTestId)).toHaveValue('');
+			});
+
+			await helperTestingLibrary.chooseFile(createPngFile());
+
+			await waitFor(() => {
+				expect(screen.getByTestId(uploadEmojiNameInputTestId)).toHaveValue('playasateam');
+			});
+
+			await userEvent.click(helperTestingLibrary.getUploadEmojiButton());
+
+			await waitFor(() => {
+				expect(provider.getUploads()).toHaveLength(1);
+			});
+
+			expect(provider.getUploads()[0].upload).toEqual({
+				name: 'Playasateam',
+				shortName: ':playasateam:',
+				...pngFileUploadData,
+				width: 30,
+				height: 30,
+			});
+		});
+
 		it('Upload after searching', async () => {
 			await helper.setupPicker({
 				emojiProvider,
@@ -434,11 +582,10 @@ describe('<UploadingEmojiPicker />', () => {
 			// let scroll finish after timeout
 			jest.runAllTimers();
 
-			const cheeseBurgerEmoji = await screen.findAllByRole('img', {
-				name: ':cheese_burger:',
+			const cheeseBurgerEmoji = await screen.findAllByRole('button', {
+				name: 'Change emoji, currently Cheese burger',
 			});
-			// This is unexpected behaviour, focus goes to the body in JSDom
-			expect(cheeseBurgerEmoji[0]).not.toHaveFocus();
+			expect(cheeseBurgerEmoji[0]).toBeInTheDocument();
 
 			jest.useRealTimers();
 		});
@@ -732,7 +879,6 @@ describe('<UploadingEmojiPicker />', () => {
 			expect(screen.getByText('Retry')).toBeInTheDocument();
 
 			// remove mock to make upload successful
-			// @ts-ignore: prevent TS from complaining about mockRestore function
 			spy.mockRestore();
 
 			helperTestingLibrary.retryUpload();

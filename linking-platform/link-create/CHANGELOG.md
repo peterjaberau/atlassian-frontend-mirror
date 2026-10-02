@@ -1,5 +1,490 @@
 # @atlaskit/link-create
 
+## 6.10.0
+
+### Minor Changes
+
+- [`48ee35bbf1e1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48ee35bbf1e1b) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.0
+
+### Minor Changes
+
+- [`69cbbe9ee0f63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69cbbe9ee0f63) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.1
+
+### Patch Changes
+
+- [`0e4dfa5a575e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e4dfa5a575e5) -
+  Cleanup platform_link_create_event_tracking feature gate and permanently record controlled failure
+  diagnostics.
+
+## 6.8.0
+
+### Minor Changes
+
+- [`942e8a15cbdf1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/942e8a15cbdf1) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.0
+
+### Minor Changes
+
+- [`0a39ae0f69a25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a39ae0f69a25) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.1
+
+### Patch Changes
+
+- [`df73ee5ebb31c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/df73ee5ebb31c) -
+  Removed the `traceId` attribute from the `object createFailed (linkCreate)` analytics event.
+
+  The event continues to record `operation` and `status` behind the
+  `platform_link_create_event_tracking` feature gate, which together identify which request failed
+  and how. `traceId` was unique per event and therefore could not be aggregated, making it
+  unsuitable for a product analytics event.
+
+  The `linkCreateExperience failed` operational event is unchanged and still records `traceId`.
+
+## 6.5.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.0
+
+### Minor Changes
+
+- [`db8537fc93efc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db8537fc93efc) -
+  Adds diagnostic fields to the `object createFailed (linkCreate)` analytics event so that failures
+  can be attributed to the specific operation that failed. `onFailure` now accepts an optional
+  second argument describing the failed operation.
+
+  Behind the `platform_link_create_event_tracking` feature gate the event additionally records:
+  - `operation` — a controlled value identifying the failed operation (for example `fetch-space`,
+    `fetch-page`, `create-page`)
+  - `status` — the HTTP status code, when the failure was an HTTP response
+  - `traceId` — the request trace ID, when available
+
+  No URLs, paths or user-generated content are recorded.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.0
+
+### Minor Changes
+
+- [`4fd26afe1912d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4fd26afe1912d) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.0
+
+### Minor Changes
+
+- [`7f2eb99bad9b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f2eb99bad9b3) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.2
+
+### Patch Changes
+
+- [`b1cf9e336f0f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1cf9e336f0f0) -
+  Migrate consumers of @atlaskit/atlassian-context from barrel imports to direct subpath imports,
+  and remove the deprecated `./domain-lookup`, `./generalized-domain-lookup`, and `./perimeter`
+  entry-point exports (all symbols remain available via their per-export subpaths).
+
+  Also extends the `no-restricted-fedramp-imports` ESLint rule to cover the new
+  `@atlaskit/atlassian-context/is-fedramp` and `@atlaskit/atlassian-context/is-isolated-cloud`
+  subpaths, so the FedRamp/IsolatedCloud deprecation guardrail keeps firing after the migration.
+
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.3
+
+### Patch Changes
+
+- [`0d58130f46a39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d58130f46a39) -
+  Volt OEPF migration: split multi-export files into one export per file using the volt-codemods
+  crate (volt-no-multi-exports-super-safe + volt-flatten-barrel-files + volt-remove-unused-imports).
+  Mechanical refactor with no intended runtime change.
+
+## 5.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`fbb51c73ed426`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbb51c73ed426) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`d91e676ebe778`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d91e676ebe778) -
+  Mark barrel exports as deprecated and add new entry points
+
+## 5.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`c4f985702c3d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4f985702c3d5) -
+  Remove flag to increase accessibility in links.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`9f6bcd21611f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f6bcd21611f3) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.25
+
+### Patch Changes
+
+- [`3b4f9743f0c18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b4f9743f0c18) -
+  Enrol navigation and linking-platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+
+## 4.5.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.21
+
+### Patch Changes
+
+- [`93a66599141af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93a66599141af) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 4.5.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.5.16
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 4.5.15
 
 ### Patch Changes

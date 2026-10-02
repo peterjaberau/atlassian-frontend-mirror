@@ -2,8 +2,6 @@ import React, { createRef } from 'react';
 
 import { render, screen } from '@testing-library/react';
 
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-
 import PopupTrigger, { type PopupTriggerProps } from '../trigger';
 import { type SelectOption } from '../types';
 
@@ -12,7 +10,10 @@ const defaultProps: PopupTriggerProps = {
 	testId: 'test-popup',
 };
 
-const renderPopupTrigger = (props: Partial<PopupTriggerProps> = {}, ref?: React.Ref<HTMLButtonElement>) => {
+const renderPopupTrigger = (
+	props: Partial<PopupTriggerProps> = {},
+	ref?: React.Ref<HTMLButtonElement>,
+) => {
 	return render(<PopupTrigger ref={ref} {...defaultProps} {...props} />);
 };
 
@@ -21,7 +22,7 @@ describe('PopupTrigger', () => {
 		it('should capture and report a11y violations', async () => {
 			const { container } = renderPopupTrigger();
 			await expect(container).toBeAccessible();
-		});	
+		});
 
 		it('should render the trigger button with the label', () => {
 			renderPopupTrigger();
@@ -44,7 +45,7 @@ describe('PopupTrigger', () => {
 			expect(button).toBeDisabled();
 		});
 
-        it('should render loading button when isLoading is true', () => {
+		it('should render loading button when isLoading is true', () => {
 			renderPopupTrigger({ isLoading: true });
 
 			expect(screen.getByTestId('test-popup-trigger--loading-button')).toBeInTheDocument();
@@ -89,56 +90,24 @@ describe('PopupTrigger', () => {
 		});
 	});
 
-	describe('ref forwarding with feature flag', () => {
-		ffTest.on(
-			'platform_navx_sllv_dropdown_escape_and_focus_fix',
-			'ref forwarding when feature flag is on',
-			() => {
-				it('should forward ref to the button element', () => {
-					const ref = createRef<HTMLButtonElement>();
-					renderPopupTrigger({}, ref);
+	describe('ref forwarding', () => {
+		it('should forward ref to the button element', () => {
+			const ref = createRef<HTMLButtonElement>();
+			renderPopupTrigger({}, ref);
 
-					expect(ref.current).not.toBeNull();
-					expect(ref.current?.tagName).toBe('BUTTON');
-					expect(ref.current).toBe(screen.getByTestId('test-popup-trigger--button'));
-				});
+			expect(ref.current).not.toBeNull();
+			expect(ref.current?.tagName).toBe('BUTTON');
+			expect(ref.current).toBe(screen.getByTestId('test-popup-trigger--button'));
+		});
 
-				it('should forward ref to the loading button element when loading', () => {
-					const ref = createRef<HTMLButtonElement>();
-					renderPopupTrigger({ isLoading: true }, ref);
+		it('should forward ref to the loading button element when loading', () => {
+			const ref = createRef<HTMLButtonElement>();
+			renderPopupTrigger({ isLoading: true }, ref);
 
-					expect(ref.current).not.toBeNull();
-					expect(ref.current?.tagName).toBe('BUTTON');
-					expect(ref.current).toBe(screen.getByTestId('test-popup-trigger--loading-button'));
-				});
-			},
-		);
-
-		ffTest.off(
-			'platform_navx_sllv_dropdown_escape_and_focus_fix',
-			'ref forwarding when feature flag is off',
-			() => {
-				it('should forward ref to the Box wrapper element', () => {
-					const ref = createRef<HTMLButtonElement>();
-					renderPopupTrigger({}, ref);
-
-					expect(ref.current).not.toBeNull();
-					// When flag is off, ref is on the Box wrapper (a div)
-					expect(ref.current?.tagName).toBe('DIV');
-					expect(ref.current).toBe(screen.getByTestId('test-popup-trigger'));
-				});
-
-				it('should forward ref to the Box wrapper element when loading', () => {
-					const ref = createRef<HTMLButtonElement>();
-					renderPopupTrigger({ isLoading: true }, ref);
-
-					expect(ref.current).not.toBeNull();
-					// When flag is off, ref is on the Box wrapper (a div)
-					expect(ref.current?.tagName).toBe('DIV');
-					expect(ref.current).toBe(screen.getByTestId('test-popup-trigger'));
-				});
-			},
-		);
+			expect(ref.current).not.toBeNull();
+			expect(ref.current?.tagName).toBe('BUTTON');
+			expect(ref.current).toBe(screen.getByTestId('test-popup-trigger--loading-button'));
+		});
 	});
 
 	describe('accessibility', () => {
@@ -157,4 +126,3 @@ describe('PopupTrigger', () => {
 		});
 	});
 });
-

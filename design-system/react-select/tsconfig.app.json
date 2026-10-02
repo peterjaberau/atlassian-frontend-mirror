@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -23,13 +24,36 @@
 		"./__mocks__/**/*",
 		"**/mock.*",
 		"**/codemods/**/*.ts",
-		"**/codemods/**/*.tsx"
+		"**/codemods/**/*.tsx",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__react-select/app"
+		"outDir": "../../../tsDist/@atlaskit__react-select/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
+		{
+			"path": "../accessibility-testing/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/test-tooling/integration-testing/tsconfig.app.json"
+		},
+		{
+			"path": "../../../build/test-tooling/gemini-visual-regression/tsconfig.app.json"
+		},
+		{
+			"path": "../button/tsconfig.app.json"
+		},
+		{
+			"path": "../checkbox/tsconfig.app.json"
+		},
 		{
 			"path": "../css/tsconfig.app.json"
 		},
@@ -37,10 +61,19 @@
 			"path": "../ds-lib/tsconfig.app.json"
 		},
 		{
+			"path": "../form/tsconfig.app.json"
+		},
+		{
 			"path": "../icon/tsconfig.app.json"
 		},
 		{
 			"path": "../layering/tsconfig.app.json"
+		},
+		{
+			"path": "../modal-dialog/tsconfig.app.json"
+		},
+		{
+			"path": "../motion/tsconfig.app.json"
 		},
 		{
 			"path": "../../platform/feature-flags/tsconfig.app.json"
@@ -52,8 +85,22 @@
 			"path": "../spinner/tsconfig.app.json"
 		},
 		{
+			"path": "../tag/tsconfig.app.json"
+		},
+		{
 			"path": "../tokens/tsconfig.app.json"
+		},
+		{
+			"path": "../top-layer/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/feature-flags-test-utils/tsconfig.app.json"
+		},
+		{
+			"path": "../../platform/testing-library/tsconfig.app.json"
+		},
+		{
+			"path": "../../ap/workbench/tsconfig.app.json"
 		}
-	],
-	"files": []
+	]
 }

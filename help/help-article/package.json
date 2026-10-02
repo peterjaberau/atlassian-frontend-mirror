@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/help-article",
-	"version": "6.0.30",
+	"version": "7.2.14",
 	"description": "A cross-product help-article component",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,24 +12,25 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./ArticleBody": "./src/entry-points/ArticleBody.tsx",
+		"./HelpArticle": "./src/entry-points/HelpArticle.tsx",
+		"./model/HelpArticle": "./src/entry-points/model-HelpArticle.ts"
 	},
 	"atlassian": {
-		"team": "Self-Help Experiences",
+		"team": "PACE PS2",
+		"slack": {
+			"channel": "#pace-ps2"
+		},
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Help Article"
 		}
 	},
@@ -37,19 +38,25 @@
 		"@atlaskit/css-reset": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/renderer": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
+		"@sentry/browser": "root:*",
 		"lodash": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0",
+		"react-dom": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
-		"enzyme": "root:*",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
 		"react-test-renderer": "root:*"
 	},
 	"keywords": [
@@ -58,15 +65,9 @@
 		"ui",
 		"help"
 	],
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"styling": [
-				"compiled"
-			]
+	"platform-feature-flags": {
+		"nike_r19_render_unmount_help_article": {
+			"type": "boolean"
 		}
 	}
 }

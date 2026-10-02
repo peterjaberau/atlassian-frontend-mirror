@@ -1,17 +1,16 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import * as configModule from '../config';
-
 import { VCObserver } from './vc-observer';
-import VCObserverNew from './vc-observer-new';
-
-import { VCObserverWrapper } from './index';
+import { default as VCObserverNew } from './vc-observer-new/index';
+import { VCObserverWrapper } from './VCObserverWrapper';
 
 // Mock dependencies
 jest.mock('./vc-observer');
-jest.mock('./vc-observer-new');
+jest.mock('./vc-observer-new/get-has-aborting-event-during-ssr');
+jest.mock('./vc-observer-new/index');
 jest.mock('../config');
-jest.mock('@atlaskit/platform-feature-flags');
+jest.mock('@atlaskit/platform-feature-flags/fg');
 
 describe('VCObserverWrapper', () => {
 	let originalSsrAbortListeners: any;
@@ -80,6 +79,58 @@ describe('VCObserverWrapper', () => {
 		// No exceptions should be thrown
 	});
 
+	describe('VCObserverNew lifecycle without client-side revisions', () => {
+		it('should create VCObserverNew when no revisions are enabled', () => {
+			(configModule.isVCRevisionEnabled as jest.Mock).mockImplementation(() => false);
+			(fg as jest.Mock).mockImplementation(() => false);
+
+			const wrapper = new VCObserverWrapper();
+			wrapper.start({ startTime: 100, experienceKey: 'test' });
+
+			expect(VCObserverNew.prototype.start).toHaveBeenCalled();
+			expect(VCObserver.prototype.start).not.toHaveBeenCalled();
+		});
+
+		it('should call getVCResult on VCObserverNew when no revisions are enabled', async () => {
+			(configModule.isVCRevisionEnabled as jest.Mock).mockImplementation(() => false);
+			(fg as jest.Mock).mockImplementation(() => false);
+
+			const mockRawResult = [
+				{
+					revision: 'raw-handler',
+					clean: true,
+					'metric:vc90': null,
+					rawData: { obs: [] },
+				},
+			];
+			(VCObserverNew.prototype.getVCResult as jest.Mock).mockResolvedValue(mockRawResult);
+
+			const wrapper = new VCObserverWrapper();
+			const result = await wrapper.getVCResult({
+				start: 0,
+				stop: 1000,
+				experienceKey: 'test',
+				interactionId: 'test-id',
+				interactionType: 'page_load',
+				isPageVisible: true,
+				includeRawData: true,
+			} as any);
+
+			expect(VCObserverNew.prototype.getVCResult).toHaveBeenCalled();
+			expect(result['ufo:vc:rev']).toEqual(mockRawResult);
+		});
+
+		it('should stop VCObserverNew when no revisions are enabled', () => {
+			(configModule.isVCRevisionEnabled as jest.Mock).mockImplementation(() => false);
+			(fg as jest.Mock).mockImplementation(() => false);
+
+			const wrapper = new VCObserverWrapper();
+			wrapper.stop('test');
+
+			expect(VCObserverNew.prototype.stop).toHaveBeenCalled();
+		});
+	});
+
 	it('should process SSR abort listeners even if some observers are disabled', () => {
 		// Setup
 		const mockUnbind = jest.fn();
@@ -90,7 +141,7 @@ describe('VCObserverWrapper', () => {
 			},
 		};
 
-		// Mock isVCRevisionEnabled to only enable fy25.01 and fy25.02 (VCObserverNew)
+		// Mock isVCRevisionEnabled to only enable fy25.01 and fy25.02.
 		(configModule.isVCRevisionEnabled as jest.Mock).mockImplementation((revision) => {
 			return revision === 'fy25.01' || revision === 'fy25.02';
 		});
@@ -99,9 +150,9 @@ describe('VCObserverWrapper', () => {
 		const wrapper = new VCObserverWrapper();
 		wrapper.start({ startTime: 100, experienceKey: 'test' });
 
-		// Verify that only VCObserver.start was called
+		// VCObserverNew always starts so it can collect raw-handler observations.
 		expect(VCObserver.prototype.start).toHaveBeenCalled();
-		expect(VCObserverNew.prototype.start).not.toHaveBeenCalled();
+		expect(VCObserverNew.prototype.start).toHaveBeenCalled();
 
 		// Verify that the unbind function was still called
 		expect(mockUnbind).toHaveBeenCalled();

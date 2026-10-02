@@ -3,14 +3,15 @@
  * @jsx jsx
  */
 import { jsx, css } from '@compiled/react';
-import { tickBoxClassName } from './styles';
-import { type TickBoxProps } from './types';
-import { B200 } from '@atlaskit/theme/colors';
+
 import { token } from '@atlaskit/tokens';
 
+import { tickBoxClassName } from './styles';
+import { type TickBoxProps } from './types';
+
 const selectedStyles = css({
-	backgroundColor: token('color.icon.information', B200),
-	color: token('color.icon.inverse', 'white'),
+	backgroundColor: token('color.icon.information'),
+	color: token('color.icon.inverse'),
 });
 
 const wrapperStyles = css({
@@ -18,8 +19,8 @@ const wrapperStyles = css({
 	width: token('space.200'),
 	height: token('space.200'),
 	position: 'absolute',
-	top: token('space.075', '7px'),
-	left: token('space.075', '7px'),
+	top: token('space.075'),
+	left: token('space.075'),
 	borderRadius: token('space.250'),
 	color: 'transparent',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
@@ -31,14 +32,15 @@ const wrapperStyles = css({
 	transition: 'all .3s',
 });
 
-export const TickBoxWrapper = (props: TickBoxProps) => {
+export const TickBoxWrapper: {
+	(props: TickBoxProps): JSX.Element;
+	displayName: string;
+} = (props: TickBoxProps): JSX.Element => {
 	return (
 		<div
 			id="tickBoxWrapper"
-			css={[
-				wrapperStyles,
-				props.selected && selectedStyles,
-			]}
+			data-testid="media-card-tickbox"
+			css={[wrapperStyles, props.selected && selectedStyles]}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={tickBoxClassName}
 		>

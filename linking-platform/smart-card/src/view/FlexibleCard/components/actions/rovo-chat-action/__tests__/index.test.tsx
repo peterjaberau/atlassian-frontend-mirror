@@ -1,22 +1,24 @@
 import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { render, screen, userEvent } from '@atlassian/testing-library';
 
 import mockContext from '../../../../../../__fixtures__/flexible-ui-data-context';
 import { SmartLinkStatus } from '../../../../../../constants';
 import { FlexibleCardContext } from '../../../../../../state/flexible-ui-context';
+import * as useInvokeClientAction from '../../../../../../state/hooks/use-invoke-client-action';
 import * as useRovoChat from '../../../../../../state/hooks/use-rovo-chat';
-import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics';
-import RovoChatAction, { RovoChatPromptKey } from '../index';
+import { ANALYTICS_CHANNEL } from '../../../../../../utils/analytics/analytics';
+import { RovoChatPromptKey } from '../../../../../common/rovo-chat-utils';
+import RovoChatAction from '../index';
 
 describe('RovoChatAction', () => {
 	const sendPromptMessageMock = jest.fn();
+	const btnAction1Text = 'Summarize';
+	const btnAction2Text = 'Explain';
 
 	const setup = (props?: Partial<React.ComponentProps<typeof RovoChatAction>>) => {
 		const onEvent = jest.fn();
@@ -37,7 +39,7 @@ describe('RovoChatAction', () => {
 	beforeEach(() => {
 		jest
 			.spyOn(useRovoChat, 'default')
-			.mockReturnValue({ sendPromptMessage: sendPromptMessageMock });
+			.mockReturnValue({ isRovoChatEnabled: true, sendPromptMessage: sendPromptMessageMock });
 	});
 
 	afterEach(() => {
@@ -49,18 +51,17 @@ describe('RovoChatAction', () => {
 		await expect(container).toBeAccessible();
 	});
 
-	it('renders default stack item action', async () => {
+	it('does not renders item action by default', async () => {
 		setup();
-		const elements = await screen.findAllByRole('button');
-		expect(elements.length).toBe(2);
-		expect(elements[0]).toHaveTextContent('Action title 1');
+		const elements = screen.queryAllByRole('button');
+		expect(elements.length).toBe(0);
 	});
 
 	it('renders defined stack item action', async () => {
-		setup({ prompts: [RovoChatPromptKey.MESSAGE_2] });
+		setup({ prompts: [RovoChatPromptKey.EXPLAIN_CODE] });
 		const elements = await screen.findAllByRole('button');
 		expect(elements.length).toBe(1);
-		expect(elements[0]).toHaveTextContent('Action title 2');
+		expect(elements[0]).toHaveTextContent(btnAction2Text);
 	});
 
 	it('does not renders item action', () => {
@@ -71,17 +72,18 @@ describe('RovoChatAction', () => {
 
 	it('should send prompt message on click', async () => {
 		const user = userEvent.setup();
-		setup();
+		setup({ prompts: [RovoChatPromptKey.SUMMARIZE_LINK] });
 
-		const element = await screen.findByRole('button', {
-			name: 'Action title 1',
-		});
+		const element = await screen.findByText(btnAction1Text);
 		await user.click(element);
 
 		expect(sendPromptMessageMock).toHaveBeenCalledTimes(1);
 		expect(sendPromptMessageMock).toHaveBeenCalledWith({
-			name: 'Chat title 1',
+			name: btnAction1Text,
 			dialogues: [],
+			mode: {
+				fastModeEnabled: true,
+			},
 			prompt: expect.any(Object),
 		});
 	});
@@ -89,41 +91,71 @@ describe('RovoChatAction', () => {
 	it('should trigger on click callback', async () => {
 		const onClickMock = jest.fn();
 		const user = userEvent.setup();
-		setup({ onClick: onClickMock });
+		setup({ onClick: onClickMock, prompts: [RovoChatPromptKey.SUMMARIZE_LINK] });
 
-		const element = await screen.findByRole('button', {
-			name: 'Action title 1',
-		});
+		const element = await screen.findByText(btnAction1Text);
 		await user.click(element);
 
 		expect(onClickMock).toHaveBeenCalledTimes(1);
 	});
 
+	it('does not render action when RovoChat is not available', () => {
+		jest
+			.spyOn(useRovoChat, 'default')
+			.mockReturnValueOnce({ isRovoChatEnabled: false, sendPromptMessage: sendPromptMessageMock });
+
+		setup({ prompts: [RovoChatPromptKey.SUMMARIZE_LINK] });
+		const elements = screen.queryAllByRole('button');
+		expect(elements.length).toBe(0);
+	});
+
+	it('invokes action', async () => {
+		const user = userEvent.setup();
+		const invoke = jest.fn();
+		const spy = jest.spyOn(useInvokeClientAction, 'default').mockReturnValue(invoke);
+
+		setup({ prompts: [RovoChatPromptKey.SUMMARIZE_LINK] });
+
+		const element = await screen.findByText(btnAction1Text);
+		await user.click(element);
+
+		expect(invoke).toHaveBeenCalledTimes(1);
+		expect(invoke).toHaveBeenNthCalledWith(1, {
+			actionFn: expect.any(Function),
+			actionSubjectId: 'rovoChatPrompt',
+			actionType: 'RovoChatAction',
+			definitionId: 'd1',
+			display: 'hoverCardPreview',
+			extensionKey: 'google-object-provider',
+			id: 'uid',
+			prompt: 'summarize-link',
+			resourceType: 'r1',
+		});
+
+		spy.mockRestore();
+	});
+
 	describe('with tooltip', () => {
 		it('renders tooltip', async () => {
 			const user = userEvent.setup();
-			setup();
+			setup({ prompts: [RovoChatPromptKey.SUMMARIZE_LINK] });
 
-			const element = await screen.findByRole('button', {
-				name: 'Action title 1',
-			});
+			const element = await screen.findByText(btnAction1Text);
 			await user.hover(element);
 
 			const tooltip = await screen.findByRole('tooltip');
-			expect(tooltip).toHaveTextContent('Action tooltip 1');
+			expect(tooltip).toHaveTextContent(btnAction1Text);
 		});
 
 		it('renders stack item tooltip', async () => {
 			const user = userEvent.setup();
-			setup({ as: 'stack-item' });
+			setup({ as: 'stack-item', prompts: [RovoChatPromptKey.SUMMARIZE_LINK] });
 
-			const element = await screen.findByRole('button', {
-				name: 'Action title 1',
-			});
+			const element = await screen.findByText(btnAction1Text);
 			await user.hover(element);
 
 			const tooltip = await screen.findByRole('tooltip');
-			expect(tooltip).toHaveTextContent('Action tooltip 1');
+			expect(tooltip).toHaveTextContent(btnAction1Text);
 		});
 	});
 });

@@ -1,8 +1,9 @@
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+
 import AnalyticsHelper from '../../analytics/analytics-helper';
-import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import type { Config } from '../../types';
-import { createSocketIOSocket } from '../../socket-io-provider';
 import { Channel } from '../../channel';
+import { createSocketIOSocket } from '../../socket-io-provider';
+import type { Config } from '../../types';
 
 const fakeAnalyticsWebClient: AnalyticsWebClient = {
 	sendOperationalEvent: jest.fn(),
@@ -43,7 +44,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont really care what this is just that its jsonifiable'],
 				},
 			]),
-		).not.toThrowError();
+		).not.toThrow();
 		expect(() =>
 			channel.onAnyOutgoingHandler(0, [
 				{
@@ -51,7 +52,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont really care what this is just that its jsonifiable'],
 				},
 			]),
-		).not.toThrowError();
+		).not.toThrow();
 	});
 
 	it('Should rate limit frequent messages', () => {
@@ -72,7 +73,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont really care what this is just that its jsonifiable'],
 				},
 			]),
-		).not.toThrowError();
+		).not.toThrow();
 		expect(() =>
 			channel.onAnyOutgoingHandler(0, [
 				{
@@ -80,7 +81,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont really care what this is just that its jsonifiable'],
 				},
 			]),
-		).toThrowError();
+		).toThrow();
 	});
 
 	it('Should rate limit large messages', () => {
@@ -101,7 +102,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont'],
 				},
 			]),
-		).not.toThrowError();
+		).not.toThrow();
 		expect(() =>
 			channel.onAnyOutgoingHandler(0, [
 				{
@@ -109,7 +110,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont really care what this is just that its jsonifiable'],
 				},
 			]),
-		).toThrowError();
+		).toThrow();
 	});
 
 	it('Should rate limit message bandwidth', () => {
@@ -130,7 +131,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont'],
 				},
 			]),
-		).not.toThrowError();
+		).not.toThrow();
 		expect(() =>
 			channel.onAnyOutgoingHandler(0, [
 				{
@@ -138,7 +139,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont'],
 				},
 			]),
-		).toThrowError();
+		).toThrow();
 	});
 
 	it('Should rate limit message bandwidth over multiple windows', () => {
@@ -159,7 +160,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont'],
 				},
 			]),
-		).not.toThrowError();
+		).not.toThrow();
 		expect(() =>
 			channel.onAnyOutgoingHandler(60001, [
 				{
@@ -167,7 +168,7 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont'],
 				},
 			]),
-		).not.toThrowError();
+		).not.toThrow();
 		expect(() =>
 			channel.onAnyOutgoingHandler(90000, [
 				{
@@ -175,6 +176,6 @@ describe('Channel rate limiting unit tests', () => {
 					steps: ['we dont'],
 				},
 			]),
-		).toThrowError();
+		).toThrow();
 	});
 });

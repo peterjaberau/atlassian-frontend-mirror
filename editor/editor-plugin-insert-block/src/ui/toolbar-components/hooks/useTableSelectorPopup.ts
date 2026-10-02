@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
-import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI, TOOLBAR_MENU_TYPE } from '@atlaskit/editor-common/types';
 
 import type { InsertBlockPlugin } from '../../../insertBlockPluginType';
-
 import { usePopupManager } from './usePopupManager';
 
 interface UseTableSelectorPopupProps {
@@ -12,7 +11,20 @@ interface UseTableSelectorPopupProps {
 	buttonRef: React.RefObject<HTMLElement>;
 }
 
-export const useTableSelectorPopup = ({ api, buttonRef }: UseTableSelectorPopupProps) => {
+export const useTableSelectorPopup = ({
+	api,
+	buttonRef,
+}: UseTableSelectorPopupProps): {
+	handleSelectedTableSize: (rowsCount: number, colsCount: number) => void;
+	onPopupUnmount: () => void;
+	isOpen: boolean;
+	isOpenedByKeyboard: boolean;
+	toggle: (inputMethod?: TOOLBAR_MENU_TYPE | INPUT_METHOD) => void;
+	close: () => void;
+	handleEscapeKeydown: () => void;
+	handleClickOutside: (e: MouseEvent) => void;
+	handleKeyboardOpen: (event: React.KeyboardEvent) => void;
+} => {
 	const popupManager = usePopupManager({
 		focusTarget: buttonRef,
 	});

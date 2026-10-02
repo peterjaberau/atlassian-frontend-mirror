@@ -1,8 +1,9 @@
 import { useCallback, useMemo } from 'react';
 
-import { request } from '@atlaskit/linking-common';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { request } from '@atlaskit/linking-common/api';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
+import { getCurrentSiteCloudId } from '../../services/current-site-cloud-id/getCurrentSiteCloudId';
 import { queryIncomingOutgoingLinks as queryIncomingOutgoingAris } from './query';
 
 type Node = {
@@ -25,7 +26,18 @@ type RelatedLinksAgsResponse = {
 /**
  * @param baseUriWithNoTrailingSlash base url which will then be appended with /gateway/api/graphql to make requests to AGG
  */
-const useIncomingOutgoingAri = (baseUriWithNoTrailingSlash = '') => {
+const useIncomingOutgoingAri = (
+	baseUriWithNoTrailingSlash = '',
+): {
+	getIncomingOutgoingAris: (
+		ari: string,
+		firstIncoming?: number,
+		firstOutgoing?: number,
+	) => Promise<{
+		incomingAris: string[];
+		outgoingAris: string[];
+	}>;
+} => {
 	const aggRequestCall = useCallback(
 		async <Response>(body: object, headers?: HeadersInit) =>
 			request<Response>(
@@ -40,34 +52,42 @@ const useIncomingOutgoingAri = (baseUriWithNoTrailingSlash = '') => {
 
 	const getCurrentSiteId = useCallback(async () => {
 		try {
-			const response = await request<{ cloudId: string }>('get', baseUriWithNoTrailingSlash + '/_edge/tenant_info');
+			const response = await request<{ cloudId: string }>(
+				'get',
+				baseUriWithNoTrailingSlash + '/_edge/tenant_info',
+			);
 			return response?.cloudId;
 		} catch {
 			return undefined;
 		}
 	}, [baseUriWithNoTrailingSlash]);
 
-	const getSiteId = useCallback(async (resourceAri: string) => {
-		// ARI pattern that matches both formats:
-		// - New format: ari:cloud:<resource_owner>::<resource_type>/<resource_id>
-		// - Legacy format: ari:cloud:<resource_owner>:<cloud_id>:<resource_type>/<resource_id>
-		//
-		// Capture groups:
-		// 1: resource_owner - [a-z][a-z.-]+
-		// 2: cloud_id (siteId) - [a-zA-Z0-9_.-]+ (empty for new format, but since we need to return the siteId, we only use legacy one)
-		// 3: resource_type - [a-z][a-zA-Z.-]
-		// 4: resource_id
-		//
-		// See https://developer.atlassian.com/platform/atlassian-resource-identifier/spec/ari-latest/#syntax for more details
-		const ariPattern = /^ari:cloud:([a-z][a-z.-]+):([a-zA-Z0-9_.-]+):([a-z][a-zA-Z.-]+)\/(.+)$/;
+	const getSiteId = useCallback(
+		async (resourceAri: string) => {
+			// ARI pattern that matches both formats:
+			// - New format: ari:cloud:<resource_owner>::<resource_type>/<resource_id>
+			// - Legacy format: ari:cloud:<resource_owner>:<cloud_id>:<resource_type>/<resource_id>
+			//
+			// Capture groups:
+			// 1: resource_owner - [a-z][a-z.-]+
+			// 2: cloud_id (siteId) - [a-zA-Z0-9_.-]+ (empty for new format, but since we need to return the siteId, we only use legacy one)
+			// 3: resource_type - [a-z][a-zA-Z.-]
+			// 4: resource_id
+			//
+			// See https://developer.atlassian.com/platform/atlassian-resource-identifier/spec/ari-latest/#syntax for more details
+			const ariPattern = /^ari:cloud:([a-z][a-z.-]+):([a-zA-Z0-9_.-]+):([a-z][a-zA-Z.-]+)\/(.+)$/;
 
-		const match = resourceAri.match(ariPattern);
-		if (match && match[2]) {
-			return match[2]; // Return the cloud_id (siteId)
-		}
+			const match = resourceAri.match(ariPattern);
+			if (match && match[2]) {
+				return match[2]; // Return the cloud_id (siteId)
+			}
 
-		return await getCurrentSiteId();
-	}, [getCurrentSiteId]);
+			return fg('platform_sl_incoming_outgoing_tenant_info_killswitch')
+				? await getCurrentSiteCloudId(baseUriWithNoTrailingSlash)
+				: await getCurrentSiteId();
+		},
+		[getCurrentSiteId, baseUriWithNoTrailingSlash],
+	);
 
 	const getIncomingOutgoingAris = useCallback(
 		/**
@@ -79,23 +99,23 @@ const useIncomingOutgoingAri = (baseUriWithNoTrailingSlash = '') => {
 		 *
 		 */
 		async (ari: string, firstIncoming: number = 50, firstOutgoing: number = 50) => {
-			let headers: HeadersInit | undefined;
-			if (fg('platform_navx_send_context_to_ugs_for_rel_links')) {
-				const siteId = await getSiteId(ari);
-				if(!siteId) {
-					return { incomingAris: [], outgoingAris: [] };
-				}
-				headers = { 'X-Query-Context': `ari:cloud:platform::site/${siteId}` };
+			const siteId = await getSiteId(ari);
+			if (!siteId) {
+				return { incomingAris: [], outgoingAris: [] };
 			}
+			const headers: HeadersInit = { 'X-Query-Context': `ari:cloud:platform::site/${siteId}` };
 
-			const response = await aggRequestCall<RelatedLinksAgsResponse>({
-				variables: {
-					id: ari,
-					firstIncoming,
-					firstOutgoing,
+			const response = await aggRequestCall<RelatedLinksAgsResponse>(
+				{
+					variables: {
+						id: ari,
+						firstIncoming,
+						firstOutgoing,
+					},
+					query: queryIncomingOutgoingAris,
 				},
-				query: queryIncomingOutgoingAris,
-			}, headers);
+				headers,
+			);
 
 			const incomingAris =
 				response?.data?.graphStore?.incoming?.aris

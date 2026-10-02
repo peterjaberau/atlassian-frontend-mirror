@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -14,12 +13,13 @@ ${createEditorUseOnlyNotice('Editor Plugin Selection Toolbar', [
 
 
   ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
-			<AtlassianInternalWarning />
-		</div>
-	)
-	}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the selection toolbar plugin used by @atlaskit/editor-core.
 
@@ -30,7 +30,39 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type SelectionToolbarPlugin = NextEditorPlugin<'selection-toolbar'>;
+type SelectionToolbarPluginOptions = {
+  contextualFormattingEnabled?: boolean;
+  disablePin?: boolean;
+  preferenceToolbarAboveSelection?: boolean;
+  userPreferencesProvider?: UserPreferencesProvider;
+};
+
+type SelectionToolbarPlugin = NextEditorPlugin<
+  'selectionToolbar',
+  {
+    actions?: {
+      forceToolbarDockingWithoutAnalytics?: (toolbarDocking: ToolbarDocking) => boolean;
+      refreshToolbarDocking?: () => boolean;
+      setToolbarDocking?: (toolbarDocking: ToolbarDocking) => boolean;
+      suppressToolbar?: () => boolean;
+      unsuppressToolbar?: () => boolean;
+    };
+    dependencies: [
+      OptionalPlugin<EditorViewModePlugin>,
+      OptionalPlugin<PrimaryToolbarPlugin>,
+      OptionalPlugin<AnalyticsPlugin>,
+      OptionalPlugin<BlockControlsPlugin>,
+      OptionalPlugin<ConnectivityPlugin>,
+      OptionalPlugin<UserPreferencesPlugin>,
+      OptionalPlugin<ToolbarPlugin>,
+      OptionalPlugin<UserIntentPlugin>,
+    ];
+    pluginConfiguration: SelectionToolbarPluginOptions;
+    sharedState: {
+      toolbarDocking: ToolbarDocking;
+    };
+  }
+>;
 `}
 
   ## Support

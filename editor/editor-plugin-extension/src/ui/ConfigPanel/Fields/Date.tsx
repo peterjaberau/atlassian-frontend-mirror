@@ -1,11 +1,11 @@
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import { DatePicker } from '@atlaskit/datetime-picker';
+import DatePicker from '@atlaskit/datetime-picker/date-picker';
 import type { DateField } from '@atlaskit/editor-common/extensions';
-import { Field } from '@atlaskit/form';
+import Field from '@atlaskit/form/field';
 
 import FieldMessages from '../FieldMessages';
 import type { OnFieldChange } from '../types';
@@ -33,6 +33,7 @@ function Date({
 			label={label}
 			defaultValue={defaultValue}
 			isRequired={isRequired}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value?: string) => validate(field, value)}
 			testId={`config-panel-date-picker-${name}`}
 			isDisabled={isDisabled}
@@ -45,9 +46,11 @@ function Date({
 							// eslint-disable-next-line react/jsx-props-no-spreading
 							{...fieldProps}
 							autoFocus={autoFocus}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onBlur={() => {
 								fieldProps.onBlur();
 							}}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onChange={(value: string) => {
 								fieldProps.onChange(value);
 								onFieldChange(name, true);
@@ -65,4 +68,26 @@ function Date({
 	);
 }
 
-export default injectIntl(Date);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<
+	WithIntlProps<
+		{
+			autoFocus?: boolean;
+			field: DateField;
+			name: string;
+			onFieldChange: OnFieldChange;
+			placeholder?: string;
+		} & WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			autoFocus?: boolean;
+			field: DateField;
+			name: string;
+			onFieldChange: OnFieldChange;
+			placeholder?: string;
+		} & WrappedComponentProps
+	>;
+} = injectIntl(Date);
+export default _default_1;

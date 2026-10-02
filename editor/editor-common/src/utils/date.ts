@@ -1,6 +1,6 @@
 import differenceInCalendarDays from 'date-fns/differenceInCalendarDays';
 import isBefore from 'date-fns/isBefore';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 enum FORMATS {
 	ISO_FORMAT = 'YYYY-MM-DD',
@@ -21,8 +21,21 @@ export const timestampToUTCDate = (timestamp: string | number): Date => {
 	return { day, month, year };
 };
 
-export const todayTimestampInUTC = (): string => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const todayTimestampInUTC = (timeZone?: string): string => {
 	const today = new Date(Date.now());
+	if (timeZone) {
+		const parts = new Intl.DateTimeFormat('en-US', {
+			timeZone,
+			year: 'numeric',
+			month: 'numeric',
+			day: 'numeric',
+		}).formatToParts(today);
+		const year = Number(parts.find((p) => p.type === 'year')?.value);
+		const month = Number(parts.find((p) => p.type === 'month')?.value) - 1;
+		const day = Number(parts.find((p) => p.type === 'day')?.value);
+		return Date.UTC(year, month, day).toString();
+	}
 	const todayInUTC = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
 	return todayInUTC.toString();
 };
@@ -39,6 +52,7 @@ const capitalizeFirstLetter = (str: string): string => {
 };
 
 // example: "23 Jan 2018"
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const timestampToString = (
 	timestamp: string | number,
 	intl: IntlShape | null,
@@ -60,6 +74,7 @@ export const timestampToString = (
 };
 
 // example: "2018-01-23"
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const timestampToIsoFormat = (timestamp: string | number): string => {
 	const date = new Date(Number(timestamp));
 	return `${date.getUTCFullYear()}-${addLeadingZero(
@@ -67,12 +82,18 @@ export const timestampToIsoFormat = (timestamp: string | number): string => {
 	)}-${addLeadingZero(date.getUTCDate())}`;
 };
 
-export const isPastDate = (timestamp: string | number): boolean => {
-	return isBefore(new Date(Number(timestamp)), new Date(Number(todayTimestampInUTC())));
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const isPastDate = (timestamp: string | number, timeZone?: string): boolean => {
+	return isBefore(new Date(Number(timestamp)), new Date(Number(todayTimestampInUTC(timeZone))));
 };
 
-export const timestampToTaskContext = (timestamp: string | number, intl: IntlShape): string => {
-	const curDate = new Date(Number(todayTimestampInUTC()));
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const timestampToTaskContext = (
+	timestamp: string | number,
+	intl: IntlShape,
+	timeZone?: string,
+): string => {
+	const curDate = new Date(Number(todayTimestampInUTC(timeZone)));
 	const givenDate = new Date(Number(timestamp));
 	const distance = differenceInCalendarDays(givenDate, curDate);
 	if (intl && [-1, 0, 1].indexOf(distance) > -1) {

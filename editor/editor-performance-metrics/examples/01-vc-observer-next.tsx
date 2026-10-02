@@ -3,6 +3,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
@@ -273,7 +274,7 @@ const SideButton = ({
 	);
 };
 
-export default function Example() {
+export default function Example(): JSX.Element {
 	const [inputValue, setInputValue] = useState('');
 	const [isLoading, setIsLoading] = useState(true);
 	const onButtonFinished = useCallback((i: number) => {

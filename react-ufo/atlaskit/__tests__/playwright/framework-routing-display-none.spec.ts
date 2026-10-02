@@ -3,6 +3,7 @@
 /* eslint-disable  playwright/no-conditional-in-test */
 /* eslint-disable  playwright/no-conditional-in-test */
 /* eslint-disable compat/compat */
+
 import { expect, test, viewports } from './fixtures';
 
 /**
@@ -13,8 +14,12 @@ import { expect, test, viewports } from './fixtures';
  * TTVC calculation and vcDetails in the UFO payload.
  */
 test.describe('ReactUFO: Framework routing display:none mutations', () => {
-	test.use({
-		examplePage: 'framework-routing-display-none',
+	test.beforeEach(async ({ page }) => {
+		await page.visitExample<typeof import('../../examples/38-framework-routing-display-none.tsx')>(
+			'react-ufo',
+			'atlaskit',
+			'framework-routing-display-none',
+		);
 	});
 
 	for (const viewport of viewports) {
@@ -49,9 +54,7 @@ test.describe('ReactUFO: Framework routing display:none mutations', () => {
 				// The ratios should also not contain the routing container
 				if (fy25_03Revision?.ratios) {
 					const ratioKeys = Object.keys(fy25_03Revision.ratios);
-					expect(ratioKeys).not.toContain(
-						expect.stringContaining('routingContainer'),
-					);
+					expect(ratioKeys).not.toContain(expect.stringContaining('routingContainer'));
 				}
 			});
 
@@ -67,9 +70,26 @@ test.describe('ReactUFO: Framework routing display:none mutations', () => {
 				const fy25_03Revision = ufoVCRev?.find(({ revision }) => revision === 'fy25.03');
 				expect(fy25_03Revision).toBeTruthy();
 
-				// The actual content sections should still be tracked
-				// SectionOne, SectionTwo, and SectionThree should be in the vcDetails
-				expect(fy25_03Revision?.vcDetails).toBeDefined();
+				// When raw VC data is included (includeRawData=true), vcDetails and ratios
+				// are intentionally deleted from revision results and the data is carried
+				// in the raw-handler entry instead. Verify raw-handler data in that case.
+				// eslint-disable-next-line playwright/no-conditional-in-test
+				if (fy25_03Revision?.vcDetails) {
+					// The actual content sections should still be tracked
+					// SectionOne, SectionTwo, and SectionThree should be in the vcDetails
+					expect(fy25_03Revision?.vcDetails).toBeDefined();
+				} else {
+					// Verify raw-handler revision carries the observation data
+					const rawHandlerRev = ufoVCRev?.find((rev) => rev.revision === 'raw-handler');
+					expect(rawHandlerRev).toBeTruthy();
+					expect(rawHandlerRev!.rawData).toBeDefined();
+					expect(rawHandlerRev!.rawData!.obs!.length).toBeGreaterThan(0);
+					expect(rawHandlerRev!.rawData!.eid!).toBeDefined();
+					// Verify the raw data contains the content sections
+					const eidValues = Object.values(rawHandlerRev!.rawData!.eid!) as string[];
+					expect(eidValues.length).toBeGreaterThan(0);
+					expect(rawHandlerRev!.viewport).toBeDefined();
+				}
 
 				// Check that the revisions have a valid vc90 metric
 				expect(fy25_03Revision?.['metric:vc90']).toBeDefined();
@@ -98,9 +118,7 @@ test.describe('ReactUFO: Framework routing display:none mutations', () => {
 
 				if (fy26_04Revision?.ratios) {
 					const ratioKeys = Object.keys(fy26_04Revision.ratios);
-					expect(ratioKeys).not.toContain(
-						expect.stringContaining('routingContainer'),
-					);
+					expect(ratioKeys).not.toContain(expect.stringContaining('routingContainer'));
 				}
 			});
 		});

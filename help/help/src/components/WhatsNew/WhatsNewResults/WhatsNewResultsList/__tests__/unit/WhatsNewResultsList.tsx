@@ -1,33 +1,30 @@
 import React from 'react';
+
+import { IntlProvider } from 'react-intl';
+
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { render } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { render } from '@atlassian/testing-library/render';
 
 import { getMockWhatsNewArticleItemList } from '../../../../../../util/testing/mock';
-
-import WhatsNewResultsList from '../../WhatsNewResultsList';
 import { type WhatsNewResultsList as WhatsNewResultsListInterface } from '../../model/WhatsNewResultsList';
+import WhatsNewResultsList from '../../WhatsNewResultsList';
 
 const mockOnWhatsNewArticleItemClick = jest.fn();
 const mockOnShowMoreButtonClick = jest.fn();
-let WhatsNewResultsListProps: Partial<WhatsNewResultsListInterface>;
 
 describe('WhatsNewResultsList', () => {
-	beforeEach(() => {
-		WhatsNewResultsListProps = {
+	it('renders without crashing', async () => {
+		const props: WhatsNewResultsListInterface = {
 			whatsNewArticles: getMockWhatsNewArticleItemList(10),
 			onWhatsNewResultItemClick: mockOnWhatsNewArticleItemClick,
 			onShowMoreButtonClick: mockOnShowMoreButtonClick,
 		};
-	});
-
-	it.skip('Should match snapshot', () => {
 		const { container } = render(
 			<IntlProvider locale="en">
-				<WhatsNewResultsList {...WhatsNewResultsListProps} />
+				<WhatsNewResultsList {...props} />
 			</IntlProvider>,
 		);
-
-		expect(container.firstChild).toMatchSnapshot();
+		expect(container.firstChild).not.toBeNull();
+		await expect(container).toBeAccessible();
 	});
 });

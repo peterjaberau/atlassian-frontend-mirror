@@ -13,10 +13,15 @@ import { canInsert } from '@atlaskit/editor-prosemirror/utils';
 
 import type { DatePlugin, DateType } from '../types';
 import { isToday } from '../ui/DatePicker/utils/internal';
-
 import { pluginKey } from './plugin-key';
 import type { DatePluginState } from './types';
 
+/**
+ * Creates a date using a new transaction from the editor state.
+ *
+ * @private
+ * @deprecated Used by the legacy Quick Insert flow. Use `createDateAtTransaction` when an existing transaction is available.
+ */
 export const createDate =
 	(isQuickInsertAction?: boolean) =>
 	(state: EditorState): Transaction => {
@@ -31,6 +36,46 @@ export const createDate =
 			annotationMarksForPos,
 		);
 		const fragment = Fragment.fromArray([dateNode, state.schema.text(' ', annotationMarksForPos)]);
+
+		const insertable = canInsert(tr.selection.$from, fragment);
+		if (!insertable) {
+			const parentSelection = NodeSelection.create(
+				tr.doc,
+				tr.selection.from - tr.selection.$anchor.parentOffset - 1,
+			);
+			tr.insert(parentSelection.to, fragment).setSelection(
+				NodeSelection.create(tr.doc, parentSelection.to + 1),
+			);
+		} else {
+			tr.insert(tr.selection.from, fragment).setSelection(
+				NodeSelection.create(tr.doc, tr.selection.from - fragment.size),
+			);
+		}
+		const newPluginState: DatePluginState = {
+			isQuickInsertAction,
+			showDatePickerAt: tr.selection.from,
+			isNew: true,
+			isDateEmpty: false,
+			focusDateInput: false,
+			isInitialised: true,
+		};
+		return tr.setMeta(pluginKey, newPluginState);
+	};
+
+export const createDateAtTransaction =
+	(isQuickInsertAction?: boolean) =>
+	(tr: Transaction): Transaction => {
+		const schema = tr.doc.type.schema;
+		const annotationMarksForPos: Mark[] | undefined = getAnnotationMarksForPos(tr.selection.$head);
+
+		const dateNode = schema.nodes.date.createChecked(
+			{
+				timestamp: todayTimestampInUTC(),
+			},
+			null,
+			annotationMarksForPos,
+		);
+		const fragment = Fragment.fromArray([dateNode, schema.text(' ', annotationMarksForPos)]);
 
 		const insertable = canInsert(tr.selection.$from, fragment);
 		if (!insertable) {

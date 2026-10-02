@@ -5,8 +5,8 @@ import type { QuickInsertOptions, PublicPluginAPI } from '@atlaskit/editor-commo
 import type { ExtensionPlugin } from '@atlaskit/editor-plugins/extension';
 
 import type EditorActions from '../actions';
-
-import { combineQuickInsertProviders, extensionProviderToQuickInsertProvider } from './extensions';
+import { combineQuickInsertProviders } from './combineQuickInsertProviders';
+import { extensionProviderToQuickInsertProvider } from './extensions';
 
 /**
  *
@@ -38,6 +38,8 @@ export default function prepareQuickInsertProvider(
 		);
 
 	return quickInsertProvider && extensionQuickInsertProvider
-		? combineQuickInsertProviders([quickInsertProvider, extensionQuickInsertProvider])
+		? Promise.resolve(
+				combineQuickInsertProviders([quickInsertProvider, extensionQuickInsertProvider]),
+			)
 		: quickInsertProvider || extensionQuickInsertProvider;
 }

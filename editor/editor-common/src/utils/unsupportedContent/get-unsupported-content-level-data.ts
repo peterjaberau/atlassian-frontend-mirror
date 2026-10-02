@@ -1,11 +1,8 @@
 import { traverse } from '@atlaskit/adf-utils/traverse';
 import type { ADFEntity } from '@atlaskit/adf-utils/types';
 
-export enum UNSUPPORTED_CONTENT_LEVEL_SEVERITY {
-	NORMAL = 'normal',
-	DEGRADED = 'degraded',
-	BLOCKING = 'blocking',
-}
+import { UNSUPPORTED_CONTENT_LEVEL_SEVERITY } from './UNSUPPORTED_CONTENT_LEVEL_SEVERITY';
+import { UNSUPPORTED_CONTENT_LEVEL_SEVERITY_THRESHOLD_DEFAULTS } from './UNSUPPORTED_CONTENT_LEVEL_SEVERITY_THRESHOLD_DEFAULTS';
 
 type UnsupportedContentLevelThresholds = {
 	blocking: number;
@@ -18,11 +15,6 @@ export type UnsupportedContentLevelsTracking = {
 		[key: string]: number;
 	};
 	thresholds?: Partial<UnsupportedContentLevelThresholds>;
-};
-
-export const UNSUPPORTED_CONTENT_LEVEL_SEVERITY_THRESHOLD_DEFAULTS = {
-	DEGRADED: 10,
-	BLOCKING: 25,
 };
 
 const buildUnsupportedContentLevelThresholds = (
@@ -128,7 +120,15 @@ const mapUnsupportedContentLevelToSeverity = (
 export const getUnsupportedContentLevelData = (
 	validDocument: ADFEntity,
 	customThresholds: UnsupportedContentLevelsTracking['thresholds'],
-) => {
+): {
+	severity: UNSUPPORTED_CONTENT_LEVEL_SEVERITY;
+	percentage: number;
+	counts: {
+		supportedNodes: number;
+		unsupportedNodes: number;
+		unsupportedNodeTypeCount: Record<string, number>;
+	};
+} => {
 	const { unsupportedNodes, supportedNodes, unsupportedNodeTypeCount } =
 		countSupportedUnsupportedNodes(validDocument);
 	const thresholds = buildUnsupportedContentLevelThresholds(customThresholds);
@@ -144,3 +144,7 @@ export const getUnsupportedContentLevelData = (
 		},
 	};
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { UNSUPPORTED_CONTENT_LEVEL_SEVERITY } from './UNSUPPORTED_CONTENT_LEVEL_SEVERITY';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { UNSUPPORTED_CONTENT_LEVEL_SEVERITY_THRESHOLD_DEFAULTS } from './UNSUPPORTED_CONTENT_LEVEL_SEVERITY_THRESHOLD_DEFAULTS';

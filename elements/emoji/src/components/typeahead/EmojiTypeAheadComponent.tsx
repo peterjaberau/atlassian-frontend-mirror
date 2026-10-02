@@ -1,9 +1,13 @@
 import React from 'react';
 import { PureComponent } from 'react';
 import { flushSync } from 'react-dom';
+
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
-import type { AnalyticsEventPayload, CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
+import { v4 as uuid } from 'uuid';
+
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+
 import type { EmojiProvider, OnEmojiProviderChange } from '../../api/EmojiResource';
 import { EmojiCommonProvider } from '../../context/EmojiCommonProvider';
 import {
@@ -15,17 +19,14 @@ import {
 	type SearchOptions,
 	type ToneSelection,
 } from '../../types';
-import {
-	typeaheadCancelledEvent,
-	typeaheadRenderedEvent,
-	typeaheadSelectedEvent,
-	ufoExperiences,
-} from '../../util/analytics';
+import { typeaheadCancelledEvent } from '../../util/analytics/typeaheadCancelledEvent';
+import { typeaheadRenderedEvent } from '../../util/analytics/typeaheadRenderedEvent';
+import { typeaheadSelectedEvent } from '../../util/analytics/typeaheadSelectedEvent';
+import { ufoExperiences } from '../../util/analytics/ufoExperiences';
 import { defaultListLimit } from '../../util/constants';
 import debug from '../../util/logger';
-import { toEmojiId } from '../../util/type-helpers';
+import { toEmojiId } from '../../util/to-emoji-id';
 import { createRecordSelectionDefault } from '../common/RecordSelectionDefault';
-
 import EmojiList from './EmojiTypeAheadList';
 import { emojiTypeAhead } from './styles';
 export interface OnLifecycle {
@@ -97,7 +98,12 @@ const uniqueExactShortNameMatchIndex = (
 };
 
 export default class EmojiTypeAheadComponent extends PureComponent<Props, State> {
-	static defaultProps = {
+	static defaultProps: {
+		listLimit: number;
+		onClose: () => void;
+		onOpen: () => void;
+		onSelection: () => void;
+	} = {
 		onSelection: (): void => {},
 		onOpen: (): void => {},
 		onClose: (): void => {},

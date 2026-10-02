@@ -4,7 +4,7 @@ import { RovoPostMessagePubsubListener } from '../src/common/utils/post-message-
 import { Subscriber } from '../src/main';
 
 const siblingExampleUrl =
-	'/examples.html?groupId=ai-mate&packageId=rovo-triggers&exampleId=iframe-to-pubsub-iframed-content&mode=light';
+	'/example?groupId=ai-mate&packageId=rovo-triggers&exampleId=iframe-to-pubsub-iframed-content&mode=light';
 const embedOneFrameId = 'embed-one';
 const embedTwoFrameId = 'embed-two';
 
@@ -30,12 +30,12 @@ export default (): React.JSX.Element => {
 			</ol>
 			<h2>Multiple iframe of the sibling example below:</h2>
 			<iframe
-				title='Test embed frame 1'
+				title="Test embed frame 1"
 				data-testid="test-embed-frame-1"
 				src={siblingExampleUrl + `&frameId=${embedOneFrameId}`}
 			/>
 			<iframe
-				title='Test embed frame 2'
+				title="Test embed frame 2"
 				data-testid="test-embed-frame-2"
 				src={siblingExampleUrl + `&frameId=${embedTwoFrameId}`}
 			/>

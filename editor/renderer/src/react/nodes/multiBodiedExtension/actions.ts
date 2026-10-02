@@ -1,12 +1,19 @@
 import React from 'react';
 
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
 import type { MultiBodiedExtensionActions } from '@atlaskit/editor-common/extensions';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+import type { MBEChangeActiveAnalyticsEvent } from '../../../analytics/events';
 
 type ActionsProps = {
 	// Allows MBE macro to render bodies; see RFC: https://hello.atlassian.net/wiki/spaces/EDITOR/pages/4843571091/Editor+RFC+064+MultiBodiedExtension+Extensibility
 	allowBodiedOverride: boolean;
 	children: React.ReactNode;
 	childrenContainer: React.ReactNode;
+	extensionKey?: string;
+	extensionType?: string;
+	fireAnalyticsEvent?: (event: MBEChangeActiveAnalyticsEvent) => void;
 	updateActiveChild: (index: number) => void;
 };
 
@@ -15,6 +22,9 @@ export const useMultiBodiedExtensionActions = ({
 	children,
 	allowBodiedOverride,
 	childrenContainer,
+	extensionKey = '',
+	extensionType = '',
+	fireAnalyticsEvent,
 }: ActionsProps): MultiBodiedExtensionActions => {
 	return React.useMemo(() => {
 		return {
@@ -24,6 +34,17 @@ export const useMultiBodiedExtensionActions = ({
 				}
 
 				updateActiveChild(index);
+				if (expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)) {
+					fireAnalyticsEvent?.({
+						action: ACTION.CHANGE_ACTIVE,
+						actionSubject: ACTION_SUBJECT.MULTI_BODIED_EXTENSION,
+						attributes: {
+							extensionType,
+							extensionKey,
+						},
+						eventType: EVENT_TYPE.TRACK,
+					});
+				}
 				return true;
 			},
 			addChild() {
@@ -37,6 +58,10 @@ export const useMultiBodiedExtensionActions = ({
 				return false;
 			},
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			reorderChildren(_fromIndex: number, _toIndex: number) {
+				return false;
+			},
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			updateParameters(_parameters): boolean {
 				return false;
 			},
@@ -47,5 +72,13 @@ export const useMultiBodiedExtensionActions = ({
 				return allowBodiedOverride ? childrenContainer : null;
 			},
 		};
-	}, [updateActiveChild, children, allowBodiedOverride, childrenContainer]);
+	}, [
+		updateActiveChild,
+		children,
+		allowBodiedOverride,
+		childrenContainer,
+		extensionKey,
+		extensionType,
+		fireAnalyticsEvent,
+	]);
 };

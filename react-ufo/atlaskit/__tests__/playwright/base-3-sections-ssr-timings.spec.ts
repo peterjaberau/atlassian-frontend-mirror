@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
+
 import { expect, test, viewports } from './fixtures';
 
 test.describe('ReactUFO: SSR Timings', () => {
@@ -11,6 +12,10 @@ test.describe('ReactUFO: SSR Timings', () => {
 			test.use({
 				examplePage: 'basic-ssr-timing-sections',
 				featureFlags,
+			} satisfies {
+				examplePage: 'basic-ssr-timing-sections';
+				featureFlags: string[];
+				__exampleDependency?: typeof import('../../examples/03-basic-ssr-timing-sections.tsx');
 			});
 
 			for (const viewport of viewports) {

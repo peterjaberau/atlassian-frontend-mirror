@@ -1,17 +1,21 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { forwardRef, Fragment, useCallback, type KeyboardEvent } from 'react';
+
+import React, { forwardRef, Fragment, useCallback } from 'react';
+import type { KeyboardEvent } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx, type SerializedStyles } from '@emotion/react';
+import { css, jsx } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 // AFP-2532 TODO: Fix automatic suppressions below
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { relativeFontSizeToBase16 } from '@atlaskit/editor-shared-styles';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { getCorrectAltByIconUrl } from './listItemAlts';
@@ -21,13 +25,13 @@ import type { LinkSearchListItemData } from './types';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
 export const container: SerializedStyles = css({
 	backgroundColor: 'transparent',
-	padding: `${token('space.100', '8px')} ${token('space.150', '12px')}`,
+	padding: `${token('space.100')} ${token('space.150')}`,
 	cursor: 'pointer',
 	display: 'flex',
 	marginTop: 0,
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const containerSelected: SerializedStyles = css({
 	backgroundColor: token('color.background.neutral.subtle.hovered'),
 });
@@ -36,7 +40,7 @@ const nameWrapper = css({
 	overflow: 'hidden',
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const nameStyle: SerializedStyles = css({
 	color: token('color.text'),
 	overflow: 'hidden',
@@ -46,7 +50,7 @@ export const nameStyle: SerializedStyles = css({
 	lineHeight: '20px',
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const containerName: SerializedStyles = css({
 	color: token('color.text.subtlest'),
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
@@ -57,8 +61,8 @@ export const containerName: SerializedStyles = css({
 
 const iconStyle = css({
 	minWidth: '16px',
-	marginTop: token('space.050', '4px'),
-	marginRight: token('space.150', '12px'),
+	marginTop: token('space.050'),
+	marginRight: token('space.150'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	img: {
 		maxWidth: '16px',
@@ -68,6 +72,7 @@ const iconStyle = css({
 export interface Props {
 	id?: string;
 	item: LinkSearchListItemData;
+	onBlur?: () => void;
 	onFocus?: () => void;
 	onKeyDown?: (e: KeyboardEvent<HTMLDivElement>) => void;
 	onMouseEnter?: (objectId: string) => void;
@@ -85,6 +90,7 @@ const LinkSearchListItem = (
 	const {
 		id,
 		item,
+		onBlur,
 		onFocus,
 		onKeyDown,
 		onMouseEnter,
@@ -172,11 +178,13 @@ const LinkSearchListItem = (
 			id={id}
 			aria-selected={selected}
 			data-testid="link-search-list-item"
+			onBlur={
+				expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true) ? onBlur : undefined
+			}
 			onFocus={onFocus}
 			onKeyDown={handleKeyDown}
 			onMouseMove={handleMouseMove}
 			onMouseEnter={handleMouseEnter}
-			// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 			onMouseLeave={handleMouseLeave}
 			onClick={handleSelect}
 		>
@@ -196,8 +204,23 @@ const ForwardedLinkSearchListItem = forwardRef<HTMLDivElement, Props & WrappedCo
 	LinkSearchListItem,
 );
 
-export const ForwardedLinkSearchListItemWithIntl = injectIntl(ForwardedLinkSearchListItem, {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const ForwardedLinkSearchListItemWithIntl: React.ForwardRefExoticComponent<
+	Omit<
+		WithIntlProps<
+			React.PropsWithChildren<Props & WrappedComponentProps & React.RefAttributes<HTMLDivElement>>
+		>,
+		'ref'
+	> &
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- injectIntl ref typing incompatible with explicit RefAttributes<HTMLDivElement>
+		React.RefAttributes<any>
+> & {
+	WrappedComponent: React.ComponentType<
+		Props & WrappedComponentProps & React.RefAttributes<HTMLDivElement>
+	>;
+} = injectIntl(ForwardedLinkSearchListItem, {
 	forwardRef: true,
 });
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default ForwardedLinkSearchListItemWithIntl;

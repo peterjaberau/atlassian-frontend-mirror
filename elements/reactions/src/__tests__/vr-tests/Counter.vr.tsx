@@ -1,10 +1,11 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	CounterCompiled,
 	CounterUseDarkerFontCompiled,
 	CounterUseHighlightCompiled,
 	CounterUseUpdatedStylesCompiled,
-} from './Counter.fixtures';
+} from './Counter.fixtures.vr.ap';
 
 snapshot(CounterCompiled);
 snapshot(CounterUseHighlightCompiled);

@@ -1,12 +1,49 @@
-import { inlineCard, inlineCardWithLocalId } from '@atlaskit/adf-schema';
+import { inlineCard, inlineCardWithLocalId } from '@atlaskit/adf-schema/inline-card';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
-import type { DOMOutputSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { B400 } from '@atlaskit/theme/colors';
+import type {
+	AttributeSpec,
+	DOMOutputSpec,
+	Node as PMNode,
+	TagParseRule,
+} from '@atlaskit/editor-prosemirror/model';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 // @nodeSpecException:toDOM patch
-export const inlineCardSpecWithFixedToDOM = () => {
+export const inlineCardSpecWithFixedToDOM = (): {
+	atom?: boolean;
+	attrs?: {
+		[name: string]: AttributeSpec;
+	};
+	code?: boolean;
+	content?: string;
+	defining?: boolean;
+	definingAsContext?: boolean;
+	definingForContent?: boolean;
+	disableDropCursor?:
+		| boolean
+		| ((
+				view: EditorView,
+				pos: {
+					inside: number;
+					pos: number;
+				},
+				event: DragEvent,
+		  ) => boolean);
+	draggable?: boolean;
+	group?: string;
+	inline?: boolean;
+	isolating?: boolean;
+	leafText?: (node: PMNode) => string;
+	linebreakReplacement?: boolean;
+	marks?: string;
+	parseDOM?: readonly TagParseRule[];
+	selectable?: boolean;
+	toDebugString?: (node: PMNode) => string;
+	toDOM: (node: PMNode) => DOMOutputSpec;
+	whitespace?: 'pre' | 'normal';
+} => {
 	const inlineCardNode = fg('platform_editor_adf_with_localid')
 		? inlineCardWithLocalId
 		: inlineCard;
@@ -28,13 +65,13 @@ export const inlineCardSpecWithFixedToDOM = () => {
 				// We need to match the style of LoadingCardLink
 				// Which uses frame styling `packages/linking-platform/smart-card/src/view/InlineCard/Frame/styled.ts`, with withoutBackground=true
 				style: convertToInlineCss({
-					padding: `${token('space.025', '2px')} 0px`,
-					marginLeft: token('space.negative.025', '-2px'),
+					padding: `${token('space.025')} 0px`,
+					marginLeft: token('space.negative.025'),
 					display: 'inline',
 					boxDecorationBreak: 'clone',
 					WebkitBoxDecorationBreak: 'clone',
 					borderRadius: token('radius.small', '4px'),
-					color: token('color.link', B400),
+					color: token('color.link'),
 					lineHeight: '22px',
 					WebkitTransition: '0.1s all ease-in-out',
 					transition: '0.1s all ease-in-out',

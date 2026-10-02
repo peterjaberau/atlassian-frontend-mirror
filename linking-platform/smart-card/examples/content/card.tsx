@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { cssMap } from '@atlaskit/css';
-import Link from '@atlaskit/link';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { ResolvedClient, ResolvedClientEmbedUrl } from '@atlaskit/link-test-helpers';
+import Link from '@atlaskit/link/link';
 import { Box, Grid, Stack } from '@atlaskit/primitives/compiled';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 
 import { Card } from '../../src';
 

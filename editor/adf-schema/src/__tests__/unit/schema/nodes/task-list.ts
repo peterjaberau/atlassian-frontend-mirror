@@ -1,6 +1,7 @@
-import { createSchema } from '../../../../schema/create-schema';
 import { toHTML, fromHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
+
 import { taskList } from '../../../..';
+import { createSchema } from '../../../../schema/create-schema';
 
 const schema = makeSchema();
 const packageName = process.env.npm_package_name as string;
@@ -15,8 +16,7 @@ describe(`${packageName}/schema taskList node`, () => {
 					default: '',
 				},
 			},
-			content:
-				'(taskItem | unsupportedBlock | blockTaskItem)+ (taskItem | taskList | unsupportedBlock | blockTaskItem)*',
+			content: '(taskItem | taskList | unsupportedBlock | blockTaskItem)+',
 			defining: true,
 			group: 'block',
 			marks: 'unsupportedMark unsupportedNodeAttribute',

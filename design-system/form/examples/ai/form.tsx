@@ -1,9 +1,13 @@
 import React from 'react';
 
-import Button from '@atlaskit/button/new';
-import { Checkbox } from '@atlaskit/checkbox';
-import Form, { CheckboxField, ErrorMessage, Field, FormFooter, FormHeader } from '@atlaskit/form';
-import TextField from '@atlaskit/textfield';
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import { CheckboxField } from '@atlaskit/form/checkbox-field';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
+import { FormHeader } from '@atlaskit/form/form-header';
+import TextField from '@atlaskit/textfield/text-field';
 
 const Example = (): React.JSX.Element => (
 	<Form onSubmit={(data) => console.log('validated form', data)}>
@@ -14,15 +18,11 @@ const Example = (): React.JSX.Element => (
 			name="username"
 			label="Username"
 			isRequired
-			validate={(value) => (value && value.length < 3 ? 'Too short' : undefined)}
-		>
-			{({ fieldProps, error }) => (
-				<>
-					<TextField {...fieldProps} />
-					{error && <ErrorMessage>Username must be at least 3 characters</ErrorMessage>}
-				</>
-			)}
-		</Field>
+			validate={(value) =>
+				value && value.length < 3 ? 'Username must be at least 3 characters' : undefined
+			}
+			component={({ fieldProps }) => <TextField {...fieldProps} />}
+		/>
 		<CheckboxField name="terms" value="terms">
 			{({ fieldProps }) => <Checkbox {...fieldProps} label="I accept the terms" />}
 		</CheckboxField>

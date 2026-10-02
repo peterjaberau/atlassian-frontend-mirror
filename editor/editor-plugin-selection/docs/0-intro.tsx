@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
@@ -12,8 +11,8 @@ const warnStyles = xcss({ marginTop: 'space.100' });
 const _default_1: any = md`
 
   ${createEditorUseOnlyNotice('Editor Plugin Selection', [
-	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
-])}
+		{ name: 'Editor Core', link: '/packages/editor/editor-core' },
+	])}
 
   ${(
 		<Box xcss={warnStyles}>
@@ -33,11 +32,17 @@ ${code`
 export type SelectionPlugin = NextEditorPlugin<
   'selection',
   {
-    pluginConfiguration: SelectionPluginOptions | undefined;
-    actions: NextEditorSelectionAPI;
+    actions: EditorSelectionAPI;
     commands: {
+      clearBlockSelection: () => EditorCommand;
+      clearManualSelection: () => EditorCommand;
       displayGapCursor: (toggle: boolean) => EditorCommand;
+      hideCursor: (hide: boolean) => EditorCommand;
+      setBlockSelection: (selection: Selection) => EditorCommand;
+      setManualSelection: (anchor: number, head: number) => EditorCommand;
     };
+    dependencies: [OptionalPlugin<InteractionPlugin>];
+    pluginConfiguration: SelectionPluginOptions | undefined;
     sharedState: SelectionSharedState;
   }
 >;

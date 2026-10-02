@@ -1,17 +1,15 @@
 import { foldGutter, codeFolding, foldState, foldEffect } from '@codemirror/language';
-import { type StateEffect } from '@codemirror/state';
+import type { Extension, StateEffect } from '@codemirror/state';
 import type { EditorView as CodeMirror } from '@codemirror/view';
 
-import {
-	setCodeBlockFoldState,
-	type FoldRange,
-	getCodeBlockFoldState,
-} from '@atlaskit/editor-common/code-block';
+import { setCodeBlockFoldState, getCodeBlockFoldState } from '@atlaskit/editor-common/code-block';
+import type { FoldRange } from '@atlaskit/editor-common/code-block';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
 import type { DOMOutputSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { DOMSerializer } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { token } from '@atlaskit/tokens';
+
+import type { CodeFoldingTrigger } from '../analytics';
 
 // Based on platform/packages/design-system/icon/svgs/utility/add.svg
 const chevronDown: DOMOutputSpec = [
@@ -57,12 +55,14 @@ const chevronRight: DOMOutputSpec = [
 ];
 
 export function foldGutterExtension({
+	onFoldToggled,
 	selectNode,
 	getNode,
 }: {
 	getNode: () => PMNode;
+	onFoldToggled?: (folded: boolean, trigger: CodeFoldingTrigger) => void;
 	selectNode: () => void;
-}) {
+}): Extension[] {
 	return [
 		foldGutter({
 			foldingChanged: (update) => {
@@ -101,9 +101,7 @@ export function foldGutterExtension({
 					'data-testid',
 					`code-block-fold-button-${open ? 'open' : 'closed'}`,
 				);
-				if (fg('platform_editor_a11y_code_block_gutter_focus_fix')) {
-					htmlElement.setAttribute('tabindex', '-1');
-				}
+				htmlElement.setAttribute('tabindex', '-1');
 				htmlElement.setAttribute(
 					'style',
 					convertToInlineCss({
@@ -134,6 +132,9 @@ export function foldGutterExtension({
 					}
 				}
 
+				// CodeMirror passes whether the range is currently open; after click, that becomes folded.
+				htmlElement.onclick = () => onFoldToggled?.(open, 'gutter');
+
 				return htmlElement;
 			},
 		}),
@@ -141,9 +142,7 @@ export function foldGutterExtension({
 			placeholderDOM(view, onclick, _prepared) {
 				const htmlElement = document.createElement('button');
 				htmlElement.setAttribute('data-marker-dom-element', 'true');
-				if (fg('platform_editor_a11y_code_block_gutter_focus_fix')) {
-					htmlElement.setAttribute('tabindex', '-1');
-				}
+				htmlElement.setAttribute('tabindex', '-1');
 				htmlElement.setAttribute(
 					'style',
 					convertToInlineCss({
@@ -154,7 +153,10 @@ export function foldGutterExtension({
 				);
 				htmlElement.textContent = '…';
 				htmlElement.className = 'cm-foldPlaceholder';
-				htmlElement.onclick = onclick;
+				htmlElement.onclick = (event) => {
+					onFoldToggled?.(false, 'placeholder');
+					onclick(event);
+				};
 				return htmlElement;
 			},
 		}),

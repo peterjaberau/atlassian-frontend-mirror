@@ -7,18 +7,20 @@ import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } fr
 import { cssMap, jsx } from '@compiled/react';
 
 import ArrowRightIcon from '@atlaskit/icon/core/arrow-right';
-import { type ButtonItemProps, type CustomItemComponentProps } from '@atlaskit/menu';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { ButtonItemProps, CustomItemComponentProps } from '@atlaskit/menu/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
 
-import { ButtonItem, CustomItem, NavigationContent } from '../index';
+import useChildIdsEffect from '../../common/use-child-ids-effect';
+import { ButtonItem } from '../Item/button-item';
+import { CustomItem } from '../Item/custom-item';
+import { NavigationContent } from '../NavigationContent';
 import { ROOT_ID } from '../NestableNavigationContent';
 import {
 	NestedContext,
 	type NestedContextValue,
-	useNestedContext,
-} from '../NestableNavigationContent/context';
-import { useChildIdsEffect } from '../utils/hooks';
+} from '../NestableNavigationContent/nested-context';
+import { useNestedContext } from '../NestableNavigationContent/use-nested-context';
 
 const styles = cssMap({
 	iconContainer: {
@@ -57,6 +59,9 @@ interface NestingItemOverrides {
 }
 
 // Doesn't extend from ButtonItemProps because it blows ERT up.
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface NestingItemProps<TCustomComponentProps = CustomItemComponentProps> {
 	/**
 	 * A unique identifier for the nesting item.
@@ -143,8 +148,13 @@ export interface NestingItemProps<TCustomComponentProps = CustomItemComponentPro
  * NestingItem will render itself differently depending in what context it is rendered in.
  * When not open - it will render itself as an item.
  * When open - it will render its children.
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const NestingItem: <TCustomComponentProps extends CustomItemComponentProps>(props: NestingItemProps<TCustomComponentProps> & Omit<TCustomComponentProps, keyof CustomItemComponentProps>) => JSX.Element = <TCustomComponentProps extends CustomItemComponentProps>(
+export const NestingItem: <TCustomComponentProps extends CustomItemComponentProps>(
+	props: NestingItemProps<TCustomComponentProps> &
+		Omit<TCustomComponentProps, keyof CustomItemComponentProps>,
+) => JSX.Element = <TCustomComponentProps extends CustomItemComponentProps>(
 	props: NestingItemProps<TCustomComponentProps> &
 		Omit<TCustomComponentProps, keyof CustomItemComponentProps>,
 ) => {
@@ -347,5 +357,3 @@ const NestingItem: <TCustomComponentProps extends CustomItemComponentProps>(prop
 		/>
 	);
 };
-
-export default NestingItem;

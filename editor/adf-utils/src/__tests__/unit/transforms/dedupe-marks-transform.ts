@@ -1,5 +1,5 @@
 import { transformDedupeMarks } from '../../../transforms/dedupe-marks-transform';
-
+import docWithDuplicateMarksExpectedAdf from './__fixtures__/doc-with-duplicate-marks-expected-adf.json';
 import docWithDuplicateMarksInvalidAdf from './__fixtures__/doc-with-duplicate-marks-invalid-adf.json';
 import docWithNoDuplicateMarksValidAdf from './__fixtures__/doc-with-no-duplicate-marks-valid-adf.json';
 
@@ -28,7 +28,7 @@ describe('transformDedupeMarks', () => {
 		);
 
 		expect(isTransformed).toEqual(true);
-		expect(transformedAdf).toMatchSnapshot();
+		expect(transformedAdf).toEqual(docWithDuplicateMarksExpectedAdf);
 	});
 
 	it('should not remove marks in valid complex doc, transformedAdf should remain unchanged', () => {

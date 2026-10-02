@@ -1,3 +1,4 @@
+import { type FileIdentifier } from '@atlaskit/media-client';
 import {
 	archiveFileId,
 	audioFileId,
@@ -28,7 +29,6 @@ import {
 	emailFileId,
 	emailUnsupportedFileId,
 } from '@atlaskit/media-client/test-helpers';
-import { type FileIdentifier } from '@atlaskit/media-client';
 
 export const imageIdentifier: FileIdentifier = {
 	...imageFileId,
@@ -175,27 +175,52 @@ export const zipWithNestedFolderItem: FileIdentifier = {
 	occurrenceKey: 'testOccurrenceKey',
 };
 
-export const zipItemMultipleFoldersAtRoot = {
+export const zipItemMultipleFoldersAtRoot: {
+	occurrenceKey: string;
+	mediaItemType: 'file';
+	id: string;
+	collectionName?: string;
+} = {
 	...zipItemMultipleFoldersAtRootId,
 	occurrenceKey: 'testOccurenceKey',
 };
 
-export const zipItemLargeInnerFile = {
+export const zipItemLargeInnerFile: {
+	occurrenceKey: string;
+	mediaItemType: 'file';
+	id: string;
+	collectionName?: string;
+} = {
 	...zipItemLargeInnerFileId,
 	occurrenceKey: 'testOccurrenceKey',
 };
 
-export const codeItem = {
+export const codeItem: {
+	occurrenceKey: string;
+	mediaItemType: 'file';
+	id: string;
+	collectionName?: string;
+} = {
 	...codeFileId,
 	occurrenceKey: 'testOccurrenceKey',
 };
 
-export const emailItem = {
+export const emailItem: {
+	occurrenceKey: string;
+	mediaItemType: 'file';
+	id: string;
+	collectionName?: string;
+} = {
 	...emailFileId,
 	occurrenceKey: 'testOccurrenceKey',
 };
 
-export const emailFailedItem = {
+export const emailFailedItem: {
+	occurrenceKey: string;
+	mediaItemType: 'file';
+	id: string;
+	collectionName?: string;
+} = {
 	...emailUnsupportedFileId,
 	occurrenceKey: 'testOccurrenceKey',
 };

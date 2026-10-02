@@ -12,7 +12,7 @@ const collectionColors = {
 	platform: '#DDDEE1',
 };
 
-export const dataCenterApps = [
+export const dataCenterApps: string[] = [
 	'jira-data-center',
 	'jira-service-management-data-center',
 	'confluence-data-center',
@@ -22,18 +22,55 @@ export const dataCenterApps = [
 ];
 
 const getLogoDesignCategory = (name: string) => {
-	if (name === 'rovo-hex') {
+	if (name === 'rovo-hex' || name === 'rovo') {
 		return 'rovo';
-	} else if (dataCenterApps.includes(name)) {
+	}
+
+	if (dataCenterApps.includes(name)) {
 		return 'data-center';
 	}
+
 	return 'tile';
 };
 
 /**
  * SVGO optimisation configuration for logos.
  */
-export const baseSvgoConfig = {
+export const baseSvgoConfig: {
+	multipass: boolean;
+	plugins: (
+		| {
+				name: string;
+				params: {
+					overrides: {
+						removeViewBox: boolean;
+						removeUnknownsAndDefaults: boolean;
+						cleanupIds: {
+							minify: boolean;
+						};
+						mergePaths: {
+							floatPrecision: number;
+						};
+					};
+					removeAny?: undefined;
+				};
+		  }
+		| {
+				name: string;
+				params?: undefined;
+		  }
+		| {
+				name: string;
+				params: {
+					removeAny: boolean;
+					overrides?: undefined;
+				};
+		  }
+	)[];
+	js2svg: {
+		pretty: boolean;
+	};
+} = {
 	multipass: true,
 	plugins: [
 		{
@@ -53,7 +90,41 @@ export const baseSvgoConfig = {
 	js2svg: { pretty: true },
 };
 
-export const svgoConfig = {
+export const svgoConfig: {
+	plugins: (
+		| {
+				name: string;
+				params: {
+					overrides: {
+						removeViewBox: boolean;
+						removeUnknownsAndDefaults: boolean;
+						cleanupIds: {
+							minify: boolean;
+						};
+						mergePaths: {
+							floatPrecision: number;
+						};
+					};
+					removeAny?: undefined;
+				};
+		  }
+		| {
+				name: string;
+				params?: undefined;
+		  }
+		| {
+				name: string;
+				params: {
+					removeAny: boolean;
+					overrides?: undefined;
+				};
+		  }
+	)[];
+	multipass: boolean;
+	js2svg: {
+		pretty: boolean;
+	};
+} = {
 	...baseSvgoConfig,
 	plugins: [...baseSvgoConfig.plugins, { name: 'removeXMLNS' }, { name: 'removeXlink' }],
 };
@@ -64,7 +135,7 @@ export const transformSVG = (
 	type: 'logo' | 'icon' | 'logo-cs',
 	name: string,
 	isThemable: boolean = false,
-) => {
+): string => {
 	let updatedSvg = svg;
 
 	// Error if the height is not 24 or 32

@@ -6,16 +6,40 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
 
 import { checkAndHideToolbar } from '../editor-commands/commands';
-import { pasteOptionsPluginKey, ToolbarDropdownOption } from '../types/types';
-
+import {
+	pasteOptionsPluginKey,
+	ToolbarDropdownOption,
+	type PasteOptionsPluginState,
+} from '../types/types';
 import { PASTE_HIGHLIGHT_DECORATION_KEY, TEXT_HIGHLIGHT_CLASS } from './constants';
 import { createPluginState } from './plugin-factory';
 
-export function createPlugin(dispatch: Dispatch) {
+const MODIFIER_KEYS = new Set([
+	'Shift',
+	'Control',
+	'Alt',
+	'Meta', // Cmd on Mac, Win on Windows
+	'CapsLock',
+	'NumLock',
+	'ScrollLock',
+	'Fn',
+	'FnLock',
+]);
+
+function isModifierKey(event: KeyboardEvent): boolean {
+	return MODIFIER_KEYS.has(event.key);
+}
+
+export function createPlugin(
+	dispatch: Dispatch,
+	options?: { useNewPasteMenu?: boolean },
+): SafePlugin<PasteOptionsPluginState> {
 	return new SafePlugin({
 		key: pasteOptionsPluginKey,
 		state: createPluginState(dispatch, {
 			showToolbar: false,
+			showLegacyOptions: false,
+			pasteAncestorNodeNames: [],
 			pasteStartPos: 0,
 			pasteEndPos: 0,
 			plaintext: '',
@@ -26,21 +50,30 @@ export function createPlugin(dispatch: Dispatch) {
 			selectedOption: ToolbarDropdownOption.None,
 		}),
 
-		view(editorView: EditorView) {
+		view(_editorView: EditorView) {
 			return {
-				update(view: EditorView, prevState: EditorState) {
+				update(_view: EditorView, prevState: EditorState) {
 					return prevState;
 				},
 			};
 		},
 		props: {
 			handleDOMEvents: {
-				// Hide toolbar when clicked outside the editor
-				blur: checkAndHideToolbar,
+				blur: (view: EditorView) => {
+					if (options?.useNewPasteMenu) {
+						return false;
+					}
+					checkAndHideToolbar(view);
+					return false;
+				},
 				// Hide toolbar when clicked anywhere within the editor, tr.getMeta('pointer') does not work if clicked on the same line after pasting so relying on mousedown event
 				mousedown: checkAndHideToolbar,
 			},
-			handleKeyDown: (view) => {
+			handleKeyDown: (view, event) => {
+				// Don't hide toolbar when pressing modifier keys alone (Ctrl, Shift, Alt, Meta/Cmd)
+				if (isModifierKey(event)) {
+					return false;
+				}
 				checkAndHideToolbar(view);
 				return false;
 			},

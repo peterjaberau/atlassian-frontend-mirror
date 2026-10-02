@@ -2,6 +2,10 @@
 	"atlassian": {
 		"team": "Rovo for service - Servo",
 		"website": {
+			"tags": [
+				"platform-labs",
+				"rovo-components"
+			],
 			"name": "RovoAgentSelector",
 			"category": "Layout and structure"
 		}
@@ -11,20 +15,14 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./rovo-agent-selector": "./src/entry-points/rovo-agent-selector.tsx",
+		"./types": "./src/entry-points/types.tsx"
 	},
 	"dependencies": {
 		"@atlaskit/css": "workspace:^",
@@ -35,12 +33,12 @@
 		"@atlaskit/select": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
-		"react-intl-next": "root:*",
 		"react-relay": "root:*",
 		"relay-runtime": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@af/integration-testing": "workspace:^",
@@ -48,50 +46,15 @@
 		"@af/visual-regression": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
+		"react": "root:*",
 		"react-dom": "root:*",
+		"react-intl": "root:*",
 		"react-magnetic-di": "root:*",
 		"relay-test-utils": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"tangerine-next"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
 	"name": "@atlaskit/rovo-agent-selector",
-	"version": "1.3.0",
+	"version": "3.1.1",
 	"description": "rovo agent selector",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -100,6 +63,9 @@
 	},
 	"platform-feature-flags": {
 		"jsm_help_center_one-click_rovo_agent": {
+			"type": "boolean"
+		},
+		"rovo_agent_support_a2a_avatar": {
 			"type": "boolean"
 		}
 	}

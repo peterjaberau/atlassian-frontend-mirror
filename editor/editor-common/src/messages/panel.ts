@@ -1,6 +1,52 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const panelMessages = defineMessages({
+export const panelMessages: {
+	info: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	note: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	success: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	warning: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	error: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	emoji: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	custom: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	backgroundColor: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	panelsGroup: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	info: {
 		id: 'fabric.editor.info',
 		defaultMessage: 'Info',
@@ -31,7 +77,8 @@ export const panelMessages = defineMessages({
 	emoji: {
 		id: 'fabric.editor.panel.emoji',
 		defaultMessage: 'Add emoji',
-		description: 'Select the panel icon',
+		description:
+			'The text is shown as a button label on a panel in the editor when the user can add or change the emoji icon displayed on the panel.',
 	},
 	custom: {
 		id: 'fabric.editor.panel.custom',
@@ -41,7 +88,8 @@ export const panelMessages = defineMessages({
 	backgroundColor: {
 		id: 'fabric.editor.panel.backgroundColor',
 		defaultMessage: 'Background color',
-		description: 'Select the panel background color.',
+		description:
+			'The text is shown as a button or menu label in the panel toolbar. Opens a color picker to select the background color for the panel.',
 	},
 	panelsGroup: {
 		id: 'fabric.editor.panel.panelsGroup',

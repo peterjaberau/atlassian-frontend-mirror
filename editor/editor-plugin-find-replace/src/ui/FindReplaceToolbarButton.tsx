@@ -3,12 +3,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import { TRIGGER_METHOD } from '@atlaskit/editor-common/analytics';
@@ -30,7 +31,7 @@ import {
 	akEditorMobileMaxWidth,
 } from '@atlaskit/editor-shared-styles';
 import SearchIcon from '@atlaskit/icon/core/search';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import type { FindReplaceProps } from './FindReplace';
@@ -43,7 +44,7 @@ const toolbarButtonWrapper = css`
 	flex-grow: 0;
 	justify-content: flex-end;
 	align-items: center;
-	padding: 0 ${token('space.100', '8px')};
+	padding: 0 ${token('space.100')};
 	@media (max-width: ${akEditorMobileMaxWidth}px) {
 		justify-content: center;
 		padding: 0;
@@ -153,6 +154,7 @@ class FindReplaceToolbarButton extends React.PureComponent<
 					boundariesElement={popupsBoundariesElement}
 					scrollableElement={popupsScrollableElement}
 					isOpen={isActive}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					handleEscapeKeydown={() => {
 						if (isActive) {
 							this.props.onCancel({ triggerMethod: TRIGGER_METHOD.KEYBOARD });
@@ -164,6 +166,7 @@ class FindReplaceToolbarButton extends React.PureComponent<
 					}}
 					fitWidth={dropdownWidthNewDesign}
 					zIndex={stackBelowOtherEditorFloatingPanels}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					arrowKeyNavigationProviderOptions={{
 						type: ArrowKeyNavigationType.MENU,
 						disableArrowKeyNavigation: true,
@@ -208,6 +211,7 @@ class FindReplaceToolbarButton extends React.PureComponent<
 						<FindReplace
 							findText={findText}
 							replaceText={replaceText}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							count={{ index, total: numMatches, totalReplaceable: numReplaceable }}
 							focusToolbarButton={this.focusToolbarButton}
 							// Ignored via go/ees005
@@ -220,4 +224,8 @@ class FindReplaceToolbarButton extends React.PureComponent<
 		);
 	}
 }
-export default injectIntl(FindReplaceToolbarButton);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<FindReplaceToolbarButtonProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<FindReplaceToolbarButtonProps & WrappedComponentProps>;
+} = injectIntl(FindReplaceToolbarButton);
+export default _default_1;

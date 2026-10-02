@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-selection-marker/app",
 		"rootDir": "../",
 		"composite": true,
@@ -23,6 +22,9 @@
 		"../src/**/stories/**/*"
 	],
 	"references": [
+		{
+			"path": "../../../../build/website/docs/afm-products/tsconfig.json"
+		},
 		{
 			"path": "../../editor-plugin-decorations/afm-products/tsconfig.json"
 		},
@@ -49,6 +51,9 @@
 		},
 		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/section-message/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/theme/afm-products/tsconfig.json"

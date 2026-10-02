@@ -1,10 +1,13 @@
 import React from 'react';
 
-import { Colgroup, colWidthSum } from './colgroup';
-import type { SharedTableProps } from './types';
 import { getTableContainerWidth } from '@atlaskit/editor-common/node-width';
+import { isTableInContentMode } from '@atlaskit/editor-common/table';
 import { akEditorDefaultLayoutWidth } from '@atlaskit/editor-shared-styles';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { Colgroup, colWidthSum } from './colgroup';
+import { isContentModeSupported } from './content-mode';
+import type { SharedTableProps } from './types';
 
 type TableProps = SharedTableProps & {
 	children: React.ReactNode[];
@@ -13,7 +16,7 @@ type TableProps = SharedTableProps & {
 	isPresentational?: boolean;
 };
 
-export const Table = React.memo(
+export const Table: React.MemoExoticComponent<
 	({
 		innerRef,
 		isNumberColumnEnabled,
@@ -24,6 +27,26 @@ export const Table = React.memo(
 		tableNode,
 		rendererAppearance,
 		isInsideOfBlockNode,
+		isInsideOfNestedRenderer,
+		isInsideOfTable,
+		isinsideMultiBodiedExtension,
+		allowTableResizing,
+		isPresentational,
+		fixTableSSRResizing,
+		allowFixedColumnWidthOption,
+	}: TableProps) => React.JSX.Element
+> = React.memo(
+	({
+		innerRef,
+		isNumberColumnEnabled,
+		columnWidths,
+		layout,
+		renderWidth,
+		children,
+		tableNode,
+		rendererAppearance,
+		isInsideOfBlockNode,
+		isInsideOfNestedRenderer,
 		isInsideOfTable,
 		isinsideMultiBodiedExtension,
 		allowTableResizing,
@@ -44,29 +67,24 @@ export const Table = React.memo(
 		) {
 			tableWidth = 'inherit';
 		}
-		if (rendererAppearance === 'comment' && !allowTableResizing) {
-			// in the case we have css container stylings,
-			// we don't need to calculate width here as this
-			// is done via css
-			if (!fg('platform-ssr-table-resize')) {
-				tableWidth = renderWidth;
-			}
-		}
-
 		// for columns that are evenly distributed, do not return `colgroup` since existing table containerQuery
 		// scales up the columns width. This ensures columns always have 42px.
 		if (rendererAppearance === 'comment') {
-			if (fg('platform-ssr-table-resize')) {
-				tableColumnWidths = columnWidths && colWidthSum(columnWidths) ? columnWidths : undefined;
-			}
+			tableColumnWidths = columnWidths && colWidthSum(columnWidths) ? columnWidths : undefined;
 		}
 
 		const tableLayout = tableNode?.attrs.layout;
 		const tableDisplayMode = tableNode?.attrs.displayMode;
 
+		const isContentMode = isTableInContentMode({
+			tableNode,
+			isSupported: isContentModeSupported({ allowTableResizing, rendererAppearance }),
+			isTableNested: isInsideOfBlockNode || isInsideOfNestedRenderer || isInsideOfTable,
+		});
+
 		return (
 			<table
-				// eslint-disable-next-line react/jsx-props-no-spreading
+				// eslint-disable-next-line react/jsx-props-no-spreading, @atlaskit/platform/valid-gate-name
 				{...(fg('platform_renderer_isPresentational') && {
 					role: isPresentational ? 'presentation' : undefined,
 				})}
@@ -75,6 +93,7 @@ export const Table = React.memo(
 				data-table-width={tableWidth}
 				data-layout={tableLayout}
 				data-table-display-mode={tableDisplayMode}
+				data-initial-width-mode={isContentMode ? 'content' : undefined}
 				ref={innerRef}
 				style={{ marginTop: fixTableSSRResizing ? '0px' : '' }}
 			>

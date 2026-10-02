@@ -1,11 +1,12 @@
-import { createHook, createStore } from 'react-sweet-state';
+import { createHook, createStore, type BoundActions, type HookFunction } from 'react-sweet-state';
 
+import { getProductPermissionRequestBody } from './getProductPermissionRequestBody';
+import { transformPermissions } from './transformPermissions';
 import type {
 	ProductPermissionsActions,
 	ProductPermissionsResponse,
 	ProductPermissionsStore,
 } from './types';
-import { getProductPermissionRequestBody, transformPermissions } from './utils';
 
 const actions: ProductPermissionsActions = {
 	getPermissions:
@@ -84,4 +85,8 @@ const Store = createStore<ProductPermissionsStore, ProductPermissionsActions>({
 /**
  * @deprecated Use useProductPermissionsStore from "@atlaskit/teams-app-internal-product-permissions" instead
  */
-export const useProductPermissionsStore = createHook(Store);
+export const useProductPermissionsStore: HookFunction<
+	ProductPermissionsStore,
+	BoundActions<ProductPermissionsStore, ProductPermissionsActions>,
+	void
+> = createHook(Store);

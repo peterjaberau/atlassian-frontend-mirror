@@ -8,10 +8,10 @@ import React, { Fragment, useState } from 'react';
 import { css, jsx } from '@emotion/react';
 import capitalize from 'lodash/capitalize';
 
-import LegacyButton from '@atlaskit/button';
+import LegacyButton from '@atlaskit/button/button';
 import LoadingButton from '@atlaskit/button/loading-button';
-import { type Appearance, type Spacing } from '@atlaskit/button/new';
-import Checkbox from '@atlaskit/checkbox';
+import type { Appearance, Spacing } from '@atlaskit/button/variants/types';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import SettingsIcon from '@atlaskit/icon/core/settings';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
@@ -38,7 +38,7 @@ const disableAnimationStyles = css({
 
 type ComponentVersion =
 	| {
-			component: Variant['Component'];
+			component: Variant[keyof Variant]['Component'];
 			version: 'new';
 	  }
 	| {
@@ -70,7 +70,6 @@ const ExampleRow = ({
 				<Component
 					// @ts-ignore
 					appearance={appearance}
-					// @ts-ignore
 					spacing={spacing}
 				>
 					{isLegacyIconButton ? null : capitalize(appearance)}
@@ -83,7 +82,6 @@ const ExampleRow = ({
 					<Component
 						// @ts-ignore
 						appearance={appearance}
-						// @ts-ignore
 						spacing={spacing}
 						// @ts-ignore
 						iconBefore={version === 'legacy' ? <ChevronDownIcon label="" /> : ChevronDownIcon}
@@ -99,7 +97,6 @@ const ExampleRow = ({
 					// @ts-ignore
 					appearance={appearance}
 					isDisabled
-					// @ts-ignore
 					spacing={spacing}
 					// @ts-ignore
 					iconBefore={version === 'legacy' ? <SettingsIcon label="" /> : SettingsIcon}
@@ -112,7 +109,6 @@ const ExampleRow = ({
 					// @ts-ignore
 					appearance={appearance}
 					isSelected
-					// @ts-ignore
 					spacing={spacing}
 					// @ts-ignore
 					iconBefore={version === 'legacy' ? <SettingsIcon label="" /> : SettingsIcon}
@@ -126,7 +122,6 @@ const ExampleRow = ({
 					appearance={appearance}
 					isSelected
 					isDisabled
-					// @ts-ignore
 					spacing={spacing}
 					// @ts-ignore
 					iconBefore={version === 'legacy' ? <SettingsIcon label="" /> : SettingsIcon}
@@ -140,7 +135,6 @@ const ExampleRow = ({
 						isLoading
 						// @ts-ignore
 						appearance={appearance}
-						// @ts-ignore
 						spacing={spacing}
 						iconBefore={<SettingsIcon label="" />}
 					>
@@ -150,7 +144,6 @@ const ExampleRow = ({
 					<Component
 						// @ts-ignore
 						appearance={appearance}
-						// @ts-ignore
 						spacing={spacing}
 						{...(elementType === HTMLButtonElement
 							? {
@@ -170,7 +163,6 @@ const ExampleRow = ({
 						isDisabled
 						// @ts-ignore
 						appearance={appearance}
-						// @ts-ignore
 						spacing={spacing}
 						iconBefore={<SettingsIcon label="" />}
 					>
@@ -182,7 +174,6 @@ const ExampleRow = ({
 						appearance={appearance}
 						isDisabled
 						isLoading
-						// @ts-ignore
 						spacing={spacing}
 						iconBefore={SettingsIcon}
 					>
@@ -197,7 +188,6 @@ const ExampleRow = ({
 						isSelected
 						// @ts-ignore
 						appearance={appearance}
-						// @ts-ignore
 						spacing={spacing}
 						iconBefore={<SettingsIcon label="" />}
 					>
@@ -209,7 +199,6 @@ const ExampleRow = ({
 						appearance={appearance}
 						isSelected
 						isLoading
-						// @ts-ignore
 						spacing={spacing}
 						iconBefore={SettingsIcon}
 					>
@@ -225,7 +214,6 @@ const ExampleRow = ({
 						isDisabled
 						// @ts-ignore
 						appearance={appearance}
-						// @ts-ignore
 						spacing={spacing}
 						iconBefore={<SettingsIcon label="" />}
 					>
@@ -238,7 +226,6 @@ const ExampleRow = ({
 						isSelected
 						isDisabled
 						isLoading
-						// @ts-ignore
 						spacing={spacing}
 						iconBefore={SettingsIcon}
 					>
@@ -251,7 +238,6 @@ const ExampleRow = ({
 					<Component
 						// @ts-ignore
 						appearance={appearance}
-						// @ts-ignore
 						spacing={spacing}
 						{...(isIconOnly ? [] : { shouldFitContainer: true })}
 						// @ts-ignore
@@ -269,7 +255,6 @@ const ExampleRow = ({
 						<Component
 							// @ts-ignore
 							appearance={appearance}
-							// @ts-ignore
 							spacing={spacing}
 							// @ts-ignore
 							iconBefore={version === 'legacy' ? <SettingsIcon label="" /> : SettingsIcon}
@@ -305,7 +290,7 @@ export default function AllCombinationsExample(): React.JSX.Element {
 					/>
 				</Inline>
 				<Stack space="space.200">
-					{variants.map(
+					{Object.values(variants).map(
 						({ name, elementType, Component: NewButtonComponent, appearances, spacing }) => {
 							const isIconOnly = ['IconButton', 'LinkIconButton'].includes(name);
 							return (
@@ -340,17 +325,19 @@ export default function AllCombinationsExample(): React.JSX.Element {
 													</tr>
 													{appearances.map((appearance) => (
 														<Fragment key={appearance}>
-															{appearance !== 'discovery' && showLegacyButton && (
-																<ExampleRow
-																	showLegacyButton={showLegacyButton}
-																	appearance={appearance}
-																	component={LegacyButton}
-																	spacing={space}
-																	version="legacy"
-																	isIconOnly={isIconOnly}
-																	elementType={elementType}
-																/>
-															)}
+															{appearance !== 'discovery' &&
+																appearance !== 'rovo' &&
+																showLegacyButton && (
+																	<ExampleRow
+																		showLegacyButton={showLegacyButton}
+																		appearance={appearance}
+																		component={LegacyButton}
+																		spacing={space}
+																		version="legacy"
+																		isIconOnly={isIconOnly}
+																		elementType={elementType}
+																	/>
+																)}
 															<ExampleRow
 																showLegacyButton={showLegacyButton}
 																appearance={appearance}

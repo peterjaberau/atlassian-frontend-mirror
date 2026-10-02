@@ -1,13 +1,15 @@
 import React from 'react';
 
-import { act, fireEvent, render, type RenderOptions } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import type { CardState, ProductType } from '@atlaskit/linking-common';
-import type { SmartLinkResponse } from '@atlaskit/linking-types';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardState } from '@atlaskit/linking-common/store';
+import type { ProductType } from '@atlaskit/linking-common/types';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+import { act, fireEvent, render } from '@atlassian/testing-library';
 
 import { getCardState } from '../../../../../../../examples/utils/flexible-ui';
 import { SmartLinkPosition, SmartLinkSize } from '../../../../../../constants';
@@ -52,7 +54,7 @@ describe('HoverCardResolvedView', () => {
 		sendScreenEvent: jest.fn().mockResolvedValue(undefined),
 	} satisfies AnalyticsWebClient;
 
-	const wrapper: RenderOptions['wrapper'] = ({ children }) => (
+	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<IntlProvider locale="en">
 			<FabricAnalyticsListeners client={mockAnalyticsClient}>
 				<SmartCardProvider
@@ -86,7 +88,6 @@ describe('HoverCardResolvedView', () => {
 				flexibleCardProps={{ cardState, children: null, url }}
 				onActionClick={jest.fn()}
 				cardState={cardState}
-				url={url}
 				titleBlockProps={titleBlockProps}
 				isAISummaryEnabled={isAISummaryEnabled}
 			/>

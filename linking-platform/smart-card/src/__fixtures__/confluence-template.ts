@@ -1,3 +1,5 @@
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 export default {
 	data: {
 		'@context': {
@@ -29,4 +31,4 @@ export default {
 		tenantId: 'confluence-tenant',
 		visibility: 'restricted',
 	},
-};
+} as SmartLinkResponse;

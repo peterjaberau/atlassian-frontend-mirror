@@ -2,23 +2,17 @@ import React from 'react';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
 import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 
 import FeedbackCollector from '../../components/FeedbackCollector';
 import FeedbackFlag from '../../components/FeedbackFlag';
 import FeedbackForm, { type OptionType } from '../../components/FeedbackForm';
 import { type FormFields } from '../../types';
-
 import { customFieldRecords, emptyOptionData } from './_data';
 
 jest.mock('../../i18n/fr', () => ({
 	'feedback-collector.feedback-title': 'Translated feedback title (FR)',
-}));
-
-jest.mock('@atlaskit/platform-feature-flags', () => ({
-	...jest.requireActual<any>('@atlaskit/platform-feature-flags'),
-	fg: jest.fn(),
 }));
 
 jest
@@ -720,7 +714,7 @@ We have some formatting here
 					fireEvent.click(submitBtn);
 					await waitFor(() => {
 						const calls = mocked.mock.calls;
-						const hasExpectedCall = calls.some(call => {
+						const hasExpectedCall = calls.some((call) => {
 							const url = typeof call[0] === 'string' ? call[0] : call[0]?.url;
 							return url === expected;
 						});
@@ -835,7 +829,7 @@ We have some formatting here
 		});
 
 		test('should not render the link inside the label with link passed via prop', () => {
-			(fg as jest.Mock).mockReturnValue(true);
+			passGate('jfp_a11y_team_feedback_collector_nested_elements');
 			const { getByRole, getAllByRole } = render(
 				<FeedbackForm
 					locale={'en'}
@@ -861,7 +855,7 @@ We have some formatting here
 		});
 
 		test('should not render the link inside label with default label & policy link', () => {
-			(fg as jest.Mock).mockReturnValue(true);
+			passGate('jfp_a11y_team_feedback_collector_nested_elements');
 			const { getByRole, getAllByRole } = render(
 				<FeedbackForm locale={'en'} onClose={() => {}} onSubmit={async () => {}} />,
 			);
@@ -917,7 +911,7 @@ We have some formatting here
 
 	describe('Feedback Flag', () => {
 		test('FeedbackFlag should have default content', () => {
-			(fg as jest.Mock).mockReturnValue(false);
+			failGate('product-terminology-refresh');
 			const { getByText } = render(<FeedbackFlag />);
 			const title = getByText('Thanks!');
 			const description = getByText(
@@ -987,134 +981,268 @@ We have some formatting here
 			const options = screen.getAllByRole('option');
 			expect(options).toHaveLength(customFeedbackOptions.length);
 		});
-	});
 
-	describe('Submit button behavior (feedback-collector-custom-validation)', () => {
-		ffTest(
-			'feedback-collector-custom-validation',
-			async () => {
-				// Feature flag ON: Submit button should be enabled
+		it.each([false, true])(
+			'should keep Escape inside an open feedback type select when form conversion is %s',
+			async (isFormConversionEnabled) => {
+				const mockOnEscape = jest.fn();
+
+				if (isFormConversionEnabled) {
+					passGate('platform-design_system_team-form_conversion');
+				} else {
+					failGate('platform-design_system_team-form_conversion');
+				}
+
 				render(
-					<FeedbackForm
-						locale={'en'}
-						onClose={() => {}}
-						onSubmit={async () => {}}
-						showTypeField={true}
-						showDefaultTextFields={true}
-					/>,
+					<div
+						onKeyDown={(event) => {
+							if (event.key === 'Escape') {
+								mockOnEscape();
+							}
+						}}
+					>
+						<FeedbackForm locale={'en'} onClose={() => {}} onSubmit={async () => {}} />
+					</div>,
 				);
 
-				const submitBtn = screen.getByTestId('feedbackCollectorSubmitBtn');
-				expect(submitBtn).not.toBeDisabled();
-			},
-			async () => {
-				// Feature flag OFF: Submit button should be disabled
-				render(
-					<FeedbackForm
-						locale={'en'}
-						onClose={() => {}}
-						onSubmit={async () => {}}
-						showTypeField={true}
-						showDefaultTextFields={true}
-					/>,
-				);
+				const combobox = screen.getByRole('combobox', { name: 'Select feedback' });
+				fireEvent.keyDown(combobox, { key: 'ArrowDown', code: 40 });
 
-				const submitBtn = screen.getByTestId('feedbackCollectorSubmitBtn');
-				expect(submitBtn).toBeDisabled();
-			},
-		);
-	});
+				await waitFor(() => expect(combobox).toHaveAttribute('aria-expanded', 'true'));
 
-	describe('Validation error display (feedback-collector-custom-validation)', () => {
-		ffTest(
-			'feedback-collector-custom-validation',
-			async () => {
-				// Feature flag ON: Should show validation errors after submit
-				render(
-					<FeedbackForm
-						locale={'en'}
-						onClose={() => {}}
-						onSubmit={async () => {}}
-						showTypeField={true}
-						showDefaultTextFields={true}
-					/>,
-				);
+				fireEvent.keyDown(combobox, { key: 'Escape', code: 'Escape' });
 
-				const submitBtn = screen.getByTestId('feedbackCollectorSubmitBtn');
-				fireEvent.click(submitBtn);
-
-				await waitFor(() => {
-					expect(screen.getByText('Please select a feedback type')).toBeInTheDocument();
-				});
-			},
-			() => {
-				// Feature flag OFF: Should NOT show validation errors
-				render(
-					<FeedbackForm
-						locale={'en'}
-						onClose={() => {}}
-						onSubmit={async () => {}}
-						showTypeField={true}
-						showDefaultTextFields={true}
-					/>,
-				);
-
-				expect(screen.queryByText('Please select a feedback type')).not.toBeInTheDocument();
-				expect(screen.queryByText('Please provide a description')).not.toBeInTheDocument();
+				await waitFor(() => expect(combobox).toHaveAttribute('aria-expanded', 'false'));
+				expect(mockOnEscape).not.toHaveBeenCalled();
 			},
 		);
 	});
 
-	describe('Form submission behavior (feedback-collector-custom-validation)', () => {
-		ffTest(
-			'feedback-collector-custom-validation',
-			async () => {
-				// Feature flag ON: Should prevent form submission when invalid
-				const mockOnSubmit = jest.fn();
+	describe('Submit button behavior', () => {
+		it('should have submit button enabled by default', async () => {
+			render(
+				<FeedbackForm
+					locale={'en'}
+					onClose={() => {}}
+					onSubmit={async () => {}}
+					showTypeField={true}
+					showDefaultTextFields={true}
+				/>,
+			);
+
+			const submitBtn = screen.getByTestId('feedbackCollectorSubmitBtn');
+			expect(submitBtn).not.toBeDisabled();
+		});
+	});
+
+	describe('Validation error display', () => {
+		it('should show validation errors after submit', async () => {
+			render(
+				<FeedbackForm
+					locale={'en'}
+					onClose={() => {}}
+					onSubmit={async () => {}}
+					showTypeField={true}
+					showDefaultTextFields={true}
+				/>,
+			);
+
+			const submitBtn = screen.getByTestId('feedbackCollectorSubmitBtn');
+			fireEvent.click(submitBtn);
+
+			await waitFor(() => {
+				expect(screen.getByText('Please select a feedback type')).toBeInTheDocument();
+			});
+		});
+
+		const renderForm = () =>
+			render(
+				<FeedbackForm
+					locale="en"
+					onClose={() => {}}
+					onSubmit={async () => {}}
+					showTypeField
+					showDefaultTextFields
+				/>,
+			);
+		const submit = () => fireEvent.click(screen.getByTestId('feedbackCollectorSubmitBtn'));
+		const getCombobox = () => screen.getByRole('combobox', { name: 'Select feedback' });
+		const describedText = (el: Element) =>
+			(el.getAttribute('aria-describedby') ?? '')
+				.split(/\s+/)
+				.map((id) => document.getElementById(id)?.textContent ?? '')
+				.join(' ');
+
+		it('marks the field aria-invalid and links aria-describedby to the error text on failed submit', async () => {
+			renderForm();
+			submit();
+			await waitFor(() => {
+				expect(getCombobox()).toHaveAttribute('aria-invalid', 'true');
+				expect(describedText(getCombobox())).toContain('Please select a feedback type');
+			});
+		});
+
+		it('moves focus to the first invalid field on failed submit', async () => {
+			renderForm();
+			submit();
+			await waitFor(() => expect(document.activeElement).toBe(getCombobox()));
+		});
+
+		it('clears aria-invalid once the user selects a valid feedback type', async () => {
+			renderForm();
+			submit();
+			await waitFor(() => expect(getCombobox()).toHaveAttribute('aria-invalid', 'true'));
+			fireEvent.keyDown(getCombobox(), { key: 'ArrowDown', code: 40 });
+			fireEvent.keyDown(getCombobox(), { key: 'Enter', code: 13 });
+			await waitFor(() => {
+				expect(getCombobox()).not.toHaveAttribute('aria-invalid', 'true');
+				expect(describedText(getCombobox())).not.toContain('Please select a feedback type');
+			});
+		});
+	});
+
+	describe('Form submission behavior', () => {
+		it('should prevent form submission when invalid', async () => {
+			const mockOnSubmit = jest.fn();
+
+			render(
+				<FeedbackForm
+					locale={'en'}
+					onClose={() => {}}
+					onSubmit={mockOnSubmit}
+					showTypeField={true}
+					showDefaultTextFields={true}
+				/>,
+			);
+
+			const submitBtn = screen.getByTestId('feedbackCollectorSubmitBtn');
+			fireEvent.click(submitBtn);
+
+			await waitFor(() => {
+				expect(screen.getByText('Please select a feedback type')).toBeInTheDocument();
+			});
+
+			expect(mockOnSubmit).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('onCancel callback', () => {
+		describe('FeedbackForm', () => {
+			it('should call onClose when cancel button is clicked and onCancel is not provided', () => {
+				const mockOnClose = jest.fn();
+
+				render(<FeedbackForm locale={'en'} onClose={mockOnClose} onSubmit={async () => {}} />);
+
+				const cancelBtn = screen.getByRole('button', { name: /cancel/i });
+				fireEvent.click(cancelBtn);
+
+				expect(mockOnClose).toHaveBeenCalledTimes(1);
+			});
+
+			it('should call both onCancel and onClose when cancel button is clicked and onCancel is provided', () => {
+				const mockOnClose = jest.fn();
+				const mockOnCancel = jest.fn();
 
 				render(
 					<FeedbackForm
 						locale={'en'}
-						onClose={() => {}}
-						onSubmit={mockOnSubmit}
-						showTypeField={true}
-						showDefaultTextFields={true}
+						onClose={mockOnClose}
+						onCancel={mockOnCancel}
+						onSubmit={async () => {}}
 					/>,
 				);
 
-				const submitBtn = screen.getByTestId('feedbackCollectorSubmitBtn');
-				fireEvent.click(submitBtn);
+				const cancelBtn = screen.getByRole('button', { name: /cancel/i });
+				fireEvent.click(cancelBtn);
 
-				await waitFor(() => {
-					expect(screen.getByText('Please select a feedback type')).toBeInTheDocument();
-				});
+				expect(mockOnCancel).toHaveBeenCalledTimes(1);
+				expect(mockOnClose).toHaveBeenCalledTimes(1);
+			});
 
-				expect(mockOnSubmit).not.toHaveBeenCalled();
-			},
-			async () => {
-				// Feature flag OFF: Should use legacy submission behavior
-				const mockOnSubmit = jest.fn();
+			it('should call onCancel before onClose when cancel button is clicked', () => {
+				const callOrder: string[] = [];
+				const mockOnClose = jest.fn(() => callOrder.push('onClose'));
+				const mockOnCancel = jest.fn(() => callOrder.push('onCancel'));
 
 				render(
 					<FeedbackForm
 						locale={'en'}
-						onClose={() => {}}
+						onClose={mockOnClose}
+						onCancel={mockOnCancel}
+						onSubmit={async () => {}}
+					/>,
+				);
+
+				const cancelBtn = screen.getByRole('button', { name: /cancel/i });
+				fireEvent.click(cancelBtn);
+
+				expect(callOrder).toEqual(['onCancel', 'onClose']);
+			});
+
+			it('should not call onCancel when the form is submitted', async () => {
+				const mockOnCancel = jest.fn();
+				const mockOnClose = jest.fn();
+				const mockOnSubmit = jest.fn().mockResolvedValue(undefined);
+
+				render(
+					<FeedbackForm
+						locale={'en'}
+						onClose={mockOnClose}
+						onCancel={mockOnCancel}
 						onSubmit={mockOnSubmit}
 						showTypeField={false}
-						showDefaultTextFields={true}
+						showDefaultTextFields={false}
 					/>,
 				);
-
-				const textarea = screen.getByRole('textbox');
-				fireEvent.change(textarea, { target: { value: 'Some feedback' } });
 
 				const submitBtn = screen.getByTestId('feedbackCollectorSubmitBtn');
 				fireEvent.click(submitBtn);
 
 				await waitFor(() => {
-					expect(mockOnSubmit).toHaveBeenCalled();
+					expect(mockOnSubmit).toHaveBeenCalledTimes(1);
 				});
-			},
-		);
+
+				expect(mockOnCancel).not.toHaveBeenCalled();
+			});
+		});
+
+		describe('FeedbackCollector', () => {
+			it('should work without onCancel prop (backward compatibility)', () => {
+				const mockOnClose = jest.fn();
+
+				renderFeedbackCollector({ onClose: mockOnClose });
+
+				const cancelBtn = screen.getByRole('button', { name: /cancel/i });
+				fireEvent.click(cancelBtn);
+
+				expect(mockOnClose).toHaveBeenCalledTimes(1);
+			});
+
+			it('should call both onCancel and onClose when cancel button is clicked', () => {
+				const mockOnClose = jest.fn();
+				const mockOnCancel = jest.fn();
+
+				renderFeedbackCollector({ onClose: mockOnClose, onCancel: mockOnCancel });
+
+				const cancelBtn = screen.getByRole('button', { name: /cancel/i });
+				fireEvent.click(cancelBtn);
+
+				expect(mockOnCancel).toHaveBeenCalledTimes(1);
+				expect(mockOnClose).toHaveBeenCalledTimes(1);
+			});
+
+			it('should call onCancel before onClose when cancel button is clicked', () => {
+				const callOrder: string[] = [];
+				const mockOnClose = jest.fn(() => callOrder.push('onClose'));
+				const mockOnCancel = jest.fn(() => callOrder.push('onCancel'));
+
+				renderFeedbackCollector({ onClose: mockOnClose, onCancel: mockOnCancel });
+
+				const cancelBtn = screen.getByRole('button', { name: /cancel/i });
+				fireEvent.click(cancelBtn);
+
+				expect(callOrder).toEqual(['onCancel', 'onClose']);
+			});
+		});
 	});
 });

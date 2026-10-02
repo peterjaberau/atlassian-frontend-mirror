@@ -1,4 +1,4 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
 // Do not add messages to this file
 // Add them here platform/packages/editor/editor-common/src/messages/block-menu.ts instead
@@ -6,7 +6,23 @@ import { defineMessages } from 'react-intl-next';
  * @private
  * @deprecated
  */
-export const messages = defineMessages({
+export const messages: {
+	copyBlock: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	deleteBlock: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	turnInto: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	copyBlock: {
 		id: 'fabric.editor.block.menu.copy.block',
 		defaultMessage: 'Copy block',
@@ -15,7 +31,8 @@ export const messages = defineMessages({
 	deleteBlock: {
 		id: 'fabric.editor.block.menu.delete.block',
 		defaultMessage: 'Delete',
-		description: 'Delete the selected block',
+		description:
+			'The text is shown as a menu item in the block menu when the user wants to delete the currently selected block from the document.',
 	},
 	turnInto: {
 		id: 'fabric.editor.block.menu.turn.into',

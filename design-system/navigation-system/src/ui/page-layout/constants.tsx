@@ -8,8 +8,12 @@
 export const sideNavVar = '--n_sNvw';
 export const asideVar = '--n_asDw';
 export const panelVar = '--n_pnlW';
+export const chatPanelVar = '--n_cPnlW';
+export const chatPanelLiveWidthVar = '--n_cPnlLw';
+export const mainMinimumWidthVar = '--n_mainMinW';
 export const bannerMountedVar = '--n_bnrM';
 export const topNavMountedVar = '--n_tNvM';
+export const ribbonVar = '--n_rbnW';
 
 /**
  * Captures the current width of the side navigation, at all times, including during resizing.
@@ -19,7 +23,9 @@ export const topNavMountedVar = '--n_tNvM';
 export const sideNavLiveWidthVar = '--n_sNvlw';
 
 export const sideNavPanelSplitterId: unique symbol = Symbol('SideNav PanelSplitter');
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const asidePanelSplitterId: unique symbol = Symbol('Aside PanelSplitter');
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const panelPanelSplitterId: unique symbol = Symbol('Panel PanelSplitter');
 
 // We aren't using template literals here because Compiled can't compiled them in platform ATM.
@@ -34,35 +40,42 @@ export const contentInsetBlockStart = `calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0
 export const UNSAFE_topNavVar = '--topNavigationHeight';
 export const UNSAFE_bannerVar = '--bannerHeight';
 export const UNSAFE_sideNavLayoutVar = '--leftSidebarWidth';
+export const UNSAFE_ribbonVar = '--leftPanelWidth';
 export const UNSAFE_asideLayoutVar = '--rightSidebarWidth';
 export const UNSAFE_panelLayoutVar = '--rightPanelWidth';
 
 // The following UNSAFE variables are used to absolutely position elements that aren't a child of page layout.
 // Known use cases: Legacy pages rendered inside Confluence and Jira.
-export const UNSAFE_MAIN_BLOCK_START_FOR_LEGACY_PAGES_ONLY = `calc(var(${UNSAFE_bannerVar}, 0px) + var(${UNSAFE_topNavVar}, 0px))`;
-export const UNSAFE_MAIN_INLINE_START_FOR_LEGACY_PAGES_ONLY = `var(${UNSAFE_sideNavLayoutVar}, 0px)`;
-export const UNSAFE_MAIN_INLINE_END_FOR_LEGACY_PAGES_ONLY = `calc(var(${UNSAFE_asideLayoutVar}, 0px) + var(${UNSAFE_panelLayoutVar}, 0px))`;
+export const UNSAFE_MAIN_BLOCK_START_FOR_LEGACY_PAGES_ONLY: 'calc(var(--bannerHeight, 0px) + var(--topNavigationHeight, 0px))' = `calc(var(${UNSAFE_bannerVar}, 0px) + var(${UNSAFE_topNavVar}, 0px))`;
+export const UNSAFE_MAIN_INLINE_START_FOR_LEGACY_PAGES_ONLY: 'calc(var(--leftPanelWidth, 0px) + var(--leftSidebarWidth, 0px))' = `calc(var(${UNSAFE_ribbonVar}, 0px) + var(${UNSAFE_sideNavLayoutVar}, 0px))`;
+export const UNSAFE_MAIN_INLINE_END_FOR_LEGACY_PAGES_ONLY: 'calc(var(--rightSidebarWidth, 0px) + var(--rightPanelWidth, 0px))' = `calc(var(${UNSAFE_asideLayoutVar}, 0px) + var(${UNSAFE_panelLayoutVar}, 0px))`;
 
 /**
  * We define the z-indexes here so each page slot can be locally layered against each other.
  * For globally defined values such as flag, modal, etc, we can continue to
  * rely on accessing them through global means.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const localSlotLayers: {
+	chatPanelOverlay: number;
+	ribbon: number;
 	sideNavPanelSplitterFHS: number;
-    topBar: number;
-    banner: number;
-    bannerFHS: number;
-    topNavFHS: number;
-    sideNav: number;
-    panelSmallViewports: number;
+	topBar: number;
+	banner: number;
+	bannerFHS: number;
+	topNavFHS: number;
+	sideNav: number;
+	panelSmallViewports: number;
 } = {
-	// The side nav panel splitter is layered above the top nav when FHS and 'platform-dst-side-nav-layering-fixes' is enabled.
+	// Chat overlays the app, including TopNav and SideNav, below the banner.
+	chatPanelOverlay: 5,
+	ribbon: 4,
+	// The side nav panel splitter is layered above the top nav when FHS is enabled.
 	// It has the same z-index value, but is rendered after the top nav in the DOM so is stacked above.
 	sideNavPanelSplitterFHS: 4,
 	topBar: 4,
 	banner: 4,
-	// When FHS and 'platform-dst-side-nav-layering-fixes' is enabled, the side nav is layered below the top nav,
+	// When FHS is enabled, the side nav is layered below the top nav,
 	// but above the panel
 	bannerFHS: 3,
 	topNavFHS: 3,
@@ -78,9 +91,3 @@ export const openLayerObserverSideNavNamespace = 'side-nav';
 export const openLayerObserverTopNavStartNamespace = 'top-nav-start';
 export const openLayerObserverTopNavMiddleNamespace = 'top-nav-middle';
 export const openLayerObserverTopNavEndNamespace = 'top-nav-end';
-
-/**
- * CSS scroll timeline variable for the side nav content scroll indicator.
- * The scroll timeline is created in SideNavContent, and then used by TopNavStart to apply the scroll indicator line.
- */
-export const sideNavContentScrollTimelineVar = '--sNcst';

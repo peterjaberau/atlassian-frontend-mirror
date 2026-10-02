@@ -6,7 +6,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { PerformanceMetrics, type OnTTVC } from '@atlaskit/editor-performance-metrics/react';
+import { PerformanceMetrics } from '@atlaskit/editor-performance-metrics/react';
+import type { OnTTVC } from '@atlaskit/editor-performance-metrics/react';
 
 import type { WindowWithEditorPerformanceGlobals } from '../__tests__/playwright/window-type';
 
@@ -247,7 +248,7 @@ const SectionTen = ({ base, appCreatedAt }: { appCreatedAt: number; base: number
 };
 
 // Main App component
-export default function Example() {
+export default function Example(): JSX.Element {
 	const appCreatedAt = useMemo(() => performance.now(), []);
 	const [isTTVCReady, setIsTTVCReady] = useState(false);
 

@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 
 import { SmartLinkStatus } from '../../constants';
 import { FlexibleCardContext } from '../../state/flexible-ui-context';
@@ -26,7 +26,7 @@ export const getFlexibleCardTestWrapper =
 	({ children }) => {
 		return (
 			<IntlProvider locale="en">
-				<SmartCardProvider>
+				<SmartCardProvider rovoOptions={{ isRovoEnabled: true, isRovoLLMEnabled: true }}>
 					<FlexibleCardContext.Provider
 						value={{ data, status: status ?? SmartLinkStatus.Resolved, ui }}
 					>

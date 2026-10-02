@@ -1,6 +1,17 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const asyncPopupSelectMessages = defineMessages({
+export const asyncPopupSelectMessages: {
+	selectPlaceholder: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	paginationDetails: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+} = defineMessages({
 	selectPlaceholder: {
 		id: 'linkDataSource.basic-filter.dropdown.select.placeholder',
 		description: 'Placeholder text to be displayed for the search input box.',

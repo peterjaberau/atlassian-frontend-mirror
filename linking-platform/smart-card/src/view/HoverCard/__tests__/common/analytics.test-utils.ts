@@ -1,15 +1,52 @@
-import { act, screen, within } from '@testing-library/react';
+import type { CardStore } from '@atlaskit/linking-common/store';
+import { eeTest } from '@atlaskit/tmp-editor-statsig/editor-experiments-test-utils';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { act, screen, within } from '@atlassian/testing-library';
 
 import MockAtlasProject from '../../../../__fixtures__/atlas-project';
+import { closeEmbedModal } from '../../../../__tests__/__utils__/unit-helpers';
 import * as analytics from '../../../../utils/analytics/analytics';
 import * as HoverCardComponent from '../../components/HoverCardComponent';
-import { mockBaseResponseWithDownload, mockBaseResponseWithPreview } from '../__mocks__/mocks';
-
+import {
+	mockBaseResponseWithDownload,
+	mockBaseResponseWithPreview,
+	mockUnauthorisedResponse,
+} from '../__mocks__/mocks';
+import { mockUrl } from './common.test-utils';
 import {
 	type setup as hoverCardSetup,
 	mockIntersectionObserver,
 	type SetUpParams,
 } from './setup.test-utils';
+
+/**
+ * Inline/flexible hovers usually open after the same URL is already resolved in the store.
+ * Standalone hover often opens on an empty store, so `ui.hoverCard.viewed` (mount effect) runs
+ * while still loading and analytics context does not yet match the unauthorised surface.
+ * Seeding matches the behaviour those displays get without changing production timing.
+ */
+const storeOptionsWithUnauthorisedSeedForStandalone = (
+	isAnalyticsContextResolvedOnHover: boolean,
+	partialStoreOptions: SetUpParams['storeOptions'],
+): SetUpParams['storeOptions'] => {
+	if (isAnalyticsContextResolvedOnHover) {
+		return partialStoreOptions;
+	}
+	const seed: CardStore = {
+		[mockUrl]: {
+			status: 'unauthorized',
+			details: mockUnauthorisedResponse,
+			metadataStatus: 'resolved',
+		},
+	};
+	return {
+		...partialStoreOptions,
+		initialState: {
+			...partialStoreOptions?.initialState,
+			...seed,
+		},
+	};
+};
 
 type AnalyticsTestConfig = {
 	/**
@@ -246,6 +283,8 @@ export const analyticsTests = (
 					}),
 				}),
 			);
+
+			await closeEmbedModal(event);
 		});
 
 		it('should fire clicked event when download button is clicked', async () => {
@@ -317,23 +356,100 @@ export const analyticsTests = (
 		});
 
 		it('should fire render failed event when hover card errors during render', async () => {
+			const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 			jest.spyOn(HoverCardComponent, 'HoverCardComponent').mockImplementation(() => {
 				throw new Error('something happened');
 			});
 
-			// setup function implicitly tests that the inline link resolved view is still in the DOM
-			const { mockAnalyticsClient } = await setup();
-			expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
-				expect.objectContaining({
-					action: 'renderFailed',
-					actionSubject: 'smartLink',
-					attributes: expect.objectContaining({
-						error: new Error('something happened'),
-						errorInfo: expect.any(Object),
-						display: 'hoverCardPreview',
+			try {
+				// setup function implicitly tests that the inline link resolved view is still in the DOM
+				const { mockAnalyticsClient } = await setup();
+				expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
+					expect.objectContaining({
+						action: 'renderFailed',
+						actionSubject: 'smartLink',
+						attributes: expect.objectContaining({
+							error: new Error('something happened'),
+							errorInfo: expect.any(Object),
+							display: 'hoverCardPreview',
+						}),
 					}),
-				}),
-			);
+				);
+			} finally {
+				consoleErrorSpy.mockRestore();
+			}
 		});
+
+		ffTest.on(
+			'platform_sl_3p_preauth_better_hovercard_killswitch',
+			'unauthorised hover viewVariant (HoverCardContentWithViewVariant)',
+			() => {
+				eeTest
+					.describe(
+						'platform_sl_3p_preauth_better_hovercard',
+						'with platform_sl_3p_preauth_better_hovercard enabled',
+					)
+					.variant(true, () => {
+						describe.each<[string, string, SetUpParams, string | undefined]>([
+							[
+								'when Rovo is disabled',
+								'default',
+								{
+									rovoOptions: { isRovoEnabled: false, isRovoLLMEnabled: true },
+								},
+								'unauthorized',
+							],
+							[
+								'when unauthorised with Rovo, services, and preauth experiment on',
+								'rovo-unauthorised-view',
+								{},
+								'unauthorized',
+							],
+						])(
+							'unauthorised hover viewVariant %s',
+							(_label, viewVariant, partial, expectedStatus) => {
+								it('should fire hover card viewed with expected viewVariant', async () => {
+									const { mockAnalyticsClient } = await setup({
+										mock: partial.mock ?? mockUnauthorisedResponse,
+										testId:
+											/^smart-block-title-errored-view$|^inline-card-unauthorized-view$|^hover-test-div$/,
+										extraCardProps: {
+											showHoverPreview: true,
+											...partial.extraCardProps,
+										},
+										rovoOptions: partial.rovoOptions ?? {
+											isRovoEnabled: true,
+											isRovoLLMEnabled: true,
+										},
+										storeOptions: storeOptionsWithUnauthorisedSeedForStandalone(
+											_config.isAnalyticsContextResolvedOnHover,
+											partial.storeOptions,
+										),
+										mockFetch: partial.mockFetch,
+									});
+
+									act(() => {
+										jest.runAllTimers();
+									});
+
+									await screen.findByTestId('hover-card');
+									expect(mockAnalyticsClient.sendUIEvent).toHaveBeenCalledWith(
+										expect.objectContaining({
+											action: 'viewed',
+											actionSubject: 'hoverCard',
+											attributes: expect.objectContaining({
+												previewDisplay: 'card',
+												previewInvokeMethod: 'mouse_hover',
+												...(expectedStatus !== undefined ? { status: expectedStatus } : {}),
+												viewVariant,
+											}),
+										}),
+									);
+								});
+							},
+						);
+					});
+			},
+		);
 	});
 };

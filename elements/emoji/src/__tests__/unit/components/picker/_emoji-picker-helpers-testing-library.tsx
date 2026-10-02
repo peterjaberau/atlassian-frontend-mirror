@@ -2,13 +2,14 @@ import { fireEvent, screen, within } from '@testing-library/react';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import userEvent from '@testing-library/user-event';
-import { emojiActionsTestId, uploadEmojiTestId } from '../../../../components/common/EmojiActions';
+
+import { emojiActionsTestId } from '../../../../components/common/EmojiActions';
 import {
 	emojiErrorIconTestId,
 	emojiErrorMessageTestId,
 	emojiErrorMessageTooltipTestId,
 } from '../../../../components/common/EmojiErrorMessage';
-import { emojiPlaceholderTestId } from '../../../../components/common/EmojiPlaceholder';
+import { emojiPlaceholderTestId } from '../../../../components/common/emojiPlaceholderTestId';
 import {
 	cancelUploadButtonTestId,
 	uploadPreviewTestId,
@@ -18,30 +19,29 @@ import {
 	fileUploadInputTestId,
 } from '../../../../components/common/FileChooser';
 import { retryUploadButtonTestId } from '../../../../components/common/RetryableButton';
-import {
-	categorySelectorCategoryTestId,
-	categorySelectorComponentTestId,
-} from '../../../../components/picker/CategorySelector';
+import { categorySelectorComponentTestId } from '../../../../components/picker/CategorySelector';
+import { categorySelectorCategoryTestId } from '../../../../components/picker/categorySelectorCategoryTestId';
 import { emojiPickerFooterTestId } from '../../../../components/picker/EmojiPickerFooter';
 import { emojiPickerSearchTestId } from '../../../../components/picker/EmojiPickerListSearch';
+import { virtualListScrollContainerTestId } from '../../../../components/picker/VirtualList';
 
-export function getEmojiActionsSection() {
+export function getEmojiActionsSection(): HTMLElement {
 	return screen.getByTestId(emojiActionsTestId);
 }
 
-export function queryEmojiActonsSection() {
+export function queryEmojiActonsSection(): HTMLElement | null {
 	return screen.queryByTestId(emojiActionsTestId);
 }
 
-export async function getAddCustomEmojiButton() {
-	return await screen.findByRole('button', { name: 'Add your own emoji' });
+export async function getAddCustomEmojiButton(): Promise<HTMLElement> {
+	return await screen.findByRole('button', { name: /Add (your own|custom) emoji/ });
 }
 
-export function queryAddCustomEmojiButton() {
-	return screen.queryByTestId(uploadEmojiTestId);
+export function queryAddCustomEmojiButton(): HTMLElement | null {
+	return screen.queryByRole('button', { name: /Add (your own|custom) emoji/ });
 }
 
-export function getUploadEmojiNameInput() {
+export function getUploadEmojiNameInput(): HTMLElement {
 	return screen.getByLabelText('Enter a name for the new emoji');
 }
 
@@ -56,11 +56,11 @@ export async function chooseFile(file: any): Promise<void> {
 	await userEvent.upload(fileUploadInput, file);
 }
 
-export function getUploadPreview() {
+export function getUploadPreview(): HTMLElement {
 	return screen.getByTestId(uploadPreviewTestId);
 }
 
-export function getUploadEmojiButton() {
+export function getUploadEmojiButton(): HTMLElement {
 	return screen.getByRole('button', { name: 'Add emoji' });
 }
 
@@ -78,27 +78,27 @@ export function retryUpload(): void {
 	fireEvent.click(retryUploadButton);
 }
 
-export function getVirtualList() {
-	return screen.getByRole('grid');
+export function getVirtualList(): HTMLElement {
+	return screen.getByTestId(virtualListScrollContainerTestId);
 }
 
 export function scrollToIndex(index: number): void {
 	fireEvent.scroll(getVirtualList(), { target: { scrollTop: 40 * index } });
 }
 
-export function getEmojiPickerFooter() {
+export function getEmojiPickerFooter(): HTMLElement {
 	return screen.getByTestId(emojiPickerFooterTestId);
 }
 
-export function queryUploadPreview() {
+export function queryUploadPreview(): HTMLElement | null {
 	return screen.queryByTestId(uploadPreviewTestId);
 }
 
-export function getEmojiErrorMessage() {
+export function getEmojiErrorMessage(): HTMLElement {
 	return screen.getByTestId(emojiErrorMessageTestId);
 }
 
-export function getEmojiSearchInput() {
+export function getEmojiSearchInput(): HTMLElement {
 	return screen.getByTestId(emojiPickerSearchTestId);
 }
 
@@ -108,19 +108,19 @@ export async function searchEmoji(name: string): Promise<void> {
 	await userEvent.type(searchInput, name);
 }
 
-export function getEmojiErrorMessageTooltip() {
+export function getEmojiErrorMessageTooltip(): HTMLElement {
 	return screen.getByTestId(emojiErrorMessageTooltipTestId);
 }
 
-export function getEmojiErrorIcon() {
+export function getEmojiErrorIcon(): HTMLElement {
 	return screen.getByTestId(emojiErrorIconTestId);
 }
 
-export function getEmojiCategoryHeader(title: string) {
+export function getEmojiCategoryHeader(title: string): HTMLElement {
 	return screen.getByText(title);
 }
 
-export function queryEmojiCategoryHeader(title: string) {
+export function queryEmojiCategoryHeader(title: string): HTMLElement | null {
 	return within(getVirtualList()).queryByText(title);
 }
 
@@ -129,14 +129,14 @@ export async function selectCategory(categoryId: string): Promise<void> {
 	await userEvent.click(categoryButton);
 }
 
-export function queryCategorySelector(categoryId: string) {
+export function queryCategorySelector(categoryId: string): HTMLElement | null {
 	return screen.queryByTestId(categorySelectorCategoryTestId(categoryId));
 }
 
-export function getCategorySelector() {
+export function getCategorySelector(): HTMLElement {
 	return screen.getByTestId(categorySelectorComponentTestId);
 }
 
-export function getEmojiPlaceholder(shortName: string) {
+export function getEmojiPlaceholder(shortName: string): HTMLElement {
 	return within(getVirtualList()).getByTestId(emojiPlaceholderTestId(shortName));
 }

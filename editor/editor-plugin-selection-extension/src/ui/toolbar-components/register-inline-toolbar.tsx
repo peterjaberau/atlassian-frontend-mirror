@@ -7,14 +7,11 @@ import {
 } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 import type { SelectionExtensionPlugin } from '../../selectionExtensionPluginType';
 import type { ExtensionConfiguration, ExtensionMenuItemConfiguration } from '../../types';
 import { SelectionExtensionMenuItems } from '../menu/SelectionExtensionMenuItems';
 import { SelectionExtensionComponentContextProvider } from '../SelectionExtensionComponentContext';
-
-import { MenuItem } from './MenuItem';
 import { ToolbarButton } from './ToolbarButton';
 import { ToolbarMenu } from './ToolbarMenu';
 
@@ -45,6 +42,7 @@ const InlineToolbarMenuItemComponent = ({
 
 	return (
 		<SelectionExtensionComponentContextProvider
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			value={{
 				api,
 				editorView,
@@ -58,7 +56,11 @@ const InlineToolbarMenuItemComponent = ({
 	);
 };
 
-export const registerInlineToolbar = ({ api, extension, index }: RegisterExtensionProps) => {
+export const registerInlineToolbar = ({
+	api,
+	extension,
+	index,
+}: RegisterExtensionProps): RegisterComponent[] => {
 	const { key, inlineToolbar } = extension;
 
 	const baseKey = `selection-extension-${key}`;
@@ -141,11 +143,6 @@ export const registerInlineToolbar = ({ api, extension, index }: RegisterExtensi
 			});
 		}
 
-		// Remove ExtensionMenuSectionConfiguration - only care about items
-		const menuItems = fg('platform_editor_block_menu_v2_patch_1')
-			? []
-			: getMenuItems().filter((item) => 'label' in item && 'icon' in item);
-
 		components.push({
 			type: 'menu-item',
 			key,
@@ -158,14 +155,12 @@ export const registerInlineToolbar = ({ api, extension, index }: RegisterExtensi
 				},
 			],
 			component: () => {
-				return fg('platform_editor_block_menu_v2_patch_1') ? (
+				return (
 					<InlineToolbarMenuItemComponent
 						api={api}
 						extension={extension}
 						getMenuItems={getMenuItems}
 					/>
-				) : (
-					<MenuItem api={api} extensionMenuItems={menuItems} />
 				);
 			},
 		});

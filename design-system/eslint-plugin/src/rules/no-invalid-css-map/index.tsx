@@ -8,10 +8,10 @@ import {
 	isCssMap,
 } from '@atlaskit/eslint-utils/is-supported-import';
 
+import { createLintRule } from '../utils/create-lint-rule';
 import { checkIfSupportedExport } from '../utils/create-no-exported-rule/check-if-supported-export';
-import { createLintRule } from '../utils/create-rule';
-
-import { CssMapObjectChecker, getCssMapObject } from './utils';
+import { getCssMapObject } from './get-css-map-object';
+import { CssMapObjectChecker } from './utils';
 
 type CallExpression = ESCallExpression & Rule.NodeParentExtension;
 

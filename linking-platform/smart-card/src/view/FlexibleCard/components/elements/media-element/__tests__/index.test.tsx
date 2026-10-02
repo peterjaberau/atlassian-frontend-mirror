@@ -3,8 +3,9 @@
  * @jsx jsx
  */
 import { css, jsx } from '@compiled/react';
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
+
+import { render, screen } from '@atlassian/testing-library';
 
 import { MediaType } from '../../../../../../constants';
 import MediaElement from '../index';
@@ -29,7 +30,8 @@ describe('Element: Media', () => {
 		const { container } = render(
 			<IntlProvider locale={'en'}>
 				<MediaElement type={MediaType.Image} url="src-loaded" />
-			</IntlProvider>);
+			</IntlProvider>,
+		);
 
 		await expect(container).toBeAccessible();
 	});
@@ -38,7 +40,7 @@ describe('Element: Media', () => {
 		render(
 			<IntlProvider locale={'en'}>
 				<MediaElement type={MediaType.Image} url="src-loaded" />
-			</IntlProvider>
+			</IntlProvider>,
 		);
 
 		const element = await screen.findByTestId(testId);
@@ -71,7 +73,7 @@ describe('Element: Media', () => {
 		render(
 			<IntlProvider locale={'en'}>
 				<MediaElement css={overrideCss} type={MediaType.Image} url="src-loaded" />
-			</IntlProvider>
+			</IntlProvider>,
 		);
 
 		const element = await screen.findByTestId(testId);
@@ -84,7 +86,7 @@ describe('Element: Media', () => {
 			const { container } = render(
 				<IntlProvider locale={'en'}>
 					<MediaElement type={MediaType.Image} url="src-error" />
-				</IntlProvider>
+				</IntlProvider>,
 			);
 
 			await expect(container).toBeAccessible();
@@ -94,7 +96,7 @@ describe('Element: Media', () => {
 			render(
 				<IntlProvider locale={'en'}>
 					<MediaElement type={MediaType.Image} url="src-error" />
-				</IntlProvider>
+				</IntlProvider>,
 			);
 			await screen.findByTestId(testId);
 

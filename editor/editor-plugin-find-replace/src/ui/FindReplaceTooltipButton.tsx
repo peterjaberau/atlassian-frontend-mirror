@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import { findKeymapByDescription, ToolTipContent } from '@atlaskit/editor-common/keymaps';
 import type { IconProps } from '@atlaskit/icon/types';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 interface Props {
 	appearance?: 'default' | 'primary' | 'subtle';
 	disabled?: boolean;
@@ -57,7 +57,7 @@ export class FindReplaceTooltipButton extends React.PureComponent<Props> {
 					testId={title}
 					ref={this.buttonRef}
 					// Ignored via go/ees005
-					// eslint-disable-next-line react/jsx-props-no-spreading
+					// eslint-disable-next-line react/jsx-props-no-spreading, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					icon={(iconProps) => <Icon {...iconProps} size={iconSize} />}
 					isDisabled={disabled}
 					onClick={this.handleClick}

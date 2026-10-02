@@ -1,10 +1,26 @@
 import React from 'react';
-import { List } from '../../../list';
-import { IntlProvider } from 'react-intl-next';
-import { MockedMediaClientProvider } from '@atlaskit/media-client-react/test-helpers';
+
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
+
+import { MockedMediaClientProvider } from '@atlaskit/media-client-react/mocked-media-client-provider';
 import { createMockedMediaApi } from '@atlaskit/media-client/test-helpers';
 import { generateSampleFileItem } from '@atlaskit/media-test-data';
-import { render, screen, waitFor } from '@testing-library/react';
+
+import Header from '../../../headerWithIntl';
+import { InsetViewerProvider } from '../../../insetViewerContext';
+import { List } from '../../../list';
+import { nextNavButtonId } from '../../../navigation';
+import { ItemStage } from '../../../styleWrappers';
+
+jest.mock('../../../headerWithIntl', () => {
+	const original = jest.requireActual('../../../headerWithIntl');
+	return { __esModule: true, ...original, default: jest.fn(original.default) };
+});
+jest.mock('../../../styleWrappers', () => {
+	const original = jest.requireActual('../../../styleWrappers');
+	return { ...original, ItemStage: jest.fn(({ children }) => children) };
+});
 
 describe('<List />', () => {
 	it('should show item', async () => {
@@ -40,5 +56,83 @@ describe('<List />', () => {
 		expect(screen.getByLabelText('zoom in')).toBeInTheDocument();
 
 		await expect(document.body).toBeAccessible();
+	});
+
+	describe('onNavigationRequest', () => {
+		const renderTwoItemList = (props?: Partial<React.ComponentProps<typeof List>>) => {
+			const [fileItem1, identifier1] = generateSampleFileItem.workingImgWithRemotePreview();
+			const [fileItem2, identifier2] = generateSampleFileItem.workingGif();
+			const { mediaApi } = createMockedMediaApi([fileItem1, fileItem2]);
+
+			render(
+				<IntlProvider locale="en">
+					<MockedMediaClientProvider mockedMediaApi={mediaApi}>
+						<List items={[identifier1, identifier2]} defaultSelectedItem={identifier1} {...props} />
+					</MockedMediaClientProvider>
+				</IntlProvider>,
+			);
+
+			return { identifier1, identifier2 };
+		};
+
+		it('should commit navigation immediately when no interceptor is supplied', async () => {
+			const onNavigationChange = jest.fn();
+			const { identifier2 } = renderTwoItemList({ onNavigationChange });
+
+			fireEvent.click(await screen.findByTestId(nextNavButtonId));
+
+			expect(onNavigationChange).toHaveBeenCalledWith(identifier2);
+		});
+
+		it('should not commit navigation until the interceptor calls proceed', async () => {
+			const onNavigationChange = jest.fn();
+			const onNavigationRequest = jest.fn();
+			const { identifier2 } = renderTwoItemList({ onNavigationChange, onNavigationRequest });
+
+			fireEvent.click(await screen.findByTestId(nextNavButtonId));
+
+			expect(onNavigationRequest).toHaveBeenCalledWith(identifier2, expect.any(Function));
+			expect(onNavigationChange).not.toHaveBeenCalled();
+
+			act(() => onNavigationRequest.mock.calls[0][1]());
+
+			expect(onNavigationChange).toHaveBeenCalledWith(identifier2);
+		});
+	});
+
+	describe('inset viewer', () => {
+		const renderList = (isInsetViewer: boolean) => {
+			const [fileItem, identifier] = generateSampleFileItem.workingImgWithRemotePreview();
+			const { mediaApi } = createMockedMediaApi(fileItem);
+
+			render(
+				<IntlProvider locale="en">
+					<MockedMediaClientProvider mockedMediaApi={mediaApi}>
+						<InsetViewerProvider isInsetViewer={isInsetViewer}>
+							<List items={[identifier]} defaultSelectedItem={identifier} />
+						</InsetViewerProvider>
+					</MockedMediaClientProvider>
+				</IntlProvider>,
+			);
+		};
+
+		beforeEach(() => {
+			jest.mocked(Header).mockClear();
+			jest.mocked(ItemStage).mockClear();
+		});
+
+		it('should render the overlay header outside inset mode', () => {
+			renderList(false);
+
+			expect(Header).toHaveBeenCalled();
+			expect(ItemStage).not.toHaveBeenCalled();
+		});
+
+		it('should drop the overlay header and stage the item in inset mode', () => {
+			renderList(true);
+
+			expect(Header).not.toHaveBeenCalled();
+			expect(ItemStage).toHaveBeenCalled();
+		});
 	});
 });

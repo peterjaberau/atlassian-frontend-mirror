@@ -10,8 +10,10 @@ import type { FeatureFlagsPlugin } from '@atlaskit/editor-plugin-feature-flags';
 import type { InteractionPlugin } from '@atlaskit/editor-plugin-interaction';
 import type { SelectionPlugin } from '@atlaskit/editor-plugin-selection';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugin-toolbar';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugin-ui-control-registry';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 
+import type { CodeBlockState } from './pm-plugins/main-state';
 import type { CodeBlockPluginOptions } from './types';
 
 type CodeBlockDependencies = [
@@ -25,6 +27,7 @@ type CodeBlockDependencies = [
 	OptionalPlugin<BlockMenuPlugin>,
 	OptionalPlugin<SelectionPlugin>,
 	OptionalPlugin<ToolbarPlugin>,
+	OptionalPlugin<UiControlRegistryPlugin>,
 ];
 
 export type CodeBlockPlugin = NextEditorPlugin<
@@ -38,6 +41,8 @@ export type CodeBlockPlugin = NextEditorPlugin<
 		sharedState:
 			| {
 					copyButtonHoverNode: PMNode;
+					formatCodeErrors: CodeBlockState['formatCodeErrors'];
+					pendingFormats: CodeBlockState['pendingFormats'];
 			  }
 			| undefined;
 	}

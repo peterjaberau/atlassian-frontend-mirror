@@ -1,15 +1,12 @@
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Link from '@atlaskit/link/link';
 import React from 'react';
 import { md, Example, Props, code, AtlassianInternalWarning } from '@atlaskit/docs';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 import { Text } from '@atlaskit/primitives/compiled';
 
 import ReactionsExample from '../examples/01-connected-reactions-view';
 
-const LinkComponent = (props: any) =>
-	// eslint-disable-next-line @atlaskit/design-system/no-html-anchor, @atlassian/a11y/anchor-has-content
-	fg('dst-a11y__replace-anchor-with-link__editor-collabo') ? <Link {...props} /> : <a {...props} />;
+const LinkComponent = (props: any) => <Link {...props}>{props.children}</Link>;
 
 const _default_1: any = md`
   ${(<AtlassianInternalWarning />)}
@@ -107,15 +104,15 @@ const _default_1: any = md`
 
 
   // Render the component in your React app
-  ReactDOM.render(
+  const root = createRoot(container);
+  root.render(
     <ConnectedReactionsView
       store={store}
       containerAri={containerAri}
       ari={demoAri}
       emojiProvider={Promise.resolve(emojiResource)}
     />
-    container,
-  };`}
+  );`}
 
   ${(
 		<>

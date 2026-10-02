@@ -1,85 +1,90 @@
-import { Subscription } from 'rxjs/Subscription';
-import { type ReplaySubject } from 'rxjs/ReplaySubject';
-import { map } from 'rxjs/operators/map';
-// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
-import type Dataloader from 'dataloader';
-import { type AuthProvider, authToOwner } from '@atlaskit/media-core';
-import { downloadUrl } from '@atlaskit/media-common/downloadUrl';
-import { type MediaFileArtifacts } from '@atlaskit/media-state';
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
 
-import {
-	MediaStore as MediaApi,
-	type MediaStoreCopyFileWithTokenBody,
-	type MediaStoreCopyFileWithTokenParams,
-	type TouchedFiles,
-	type TouchFileDescriptor,
-} from '../media-store';
-import {
-	type GetFileOptions,
-	isErrorFileState,
-	isFinalFileState,
-	isProcessingFileState,
-	mapMediaFileToFileState,
-	mapMediaItemToFileState,
-} from '../../models/file-state';
-import {
-	isNotFoundMediaItemDetails,
-	type MediaItemDetails,
-	type MediaFile,
-} from '../../models/media';
-import { FileFetcherError } from './error';
-import { type UploadableFile, type UploadableFileUpfrontIds, uploadFile } from '../../uploader';
-import { type UploadController } from '../../upload-controller';
+import type Dataloader from 'dataloader';
+import { getExtension } from 'mime';
+import { map } from 'rxjs/operators/map';
+import { type ReplaySubject } from 'rxjs/ReplaySubject';
+import { Subscription } from 'rxjs/Subscription';
+// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
+import { v4 as uuid } from 'uuid';
+
+import { type MediaTraceContext } from '@atlaskit/media-common';
+import { downloadUrl } from '@atlaskit/media-common/downloadUrl';
+import { isValidUuid } from '@atlaskit/media-common/isValidUuid';
+import { getMediaTypeFromMimeType } from '@atlaskit/media-common/mediaTypeUtils';
+import type { AuthProvider } from '@atlaskit/media-core/auth';
+import { authToOwner } from '@atlaskit/media-core/auth-to-owner';
+import type { MediaFileArtifacts } from '@atlaskit/media-state/file-state';
+import type {
+	ErrorFileState,
+	UploadingFileState,
+	FilePreview,
+	FileState,
+	ProcessingFileState,
+} from '@atlaskit/media-state/file-state';
+import { type MediaStore, mediaStore } from '@atlaskit/media-state/media-store';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+
+import { RECENTS_COLLECTION } from '../../constants';
 import { getFileStreamsCache } from '../../file-streams-cache';
 import { globalMediaEventEmitter } from '../../globalMediaEventEmitter';
-import { RECENTS_COLLECTION } from '../../constants';
-import isValidId from 'uuid-validate';
-import {
-	createFileDataloader,
-	type DataloaderKey,
-	type DataloaderResult,
-} from '../../utils/createFileDataLoader';
-import { getMediaTypeFromUploadableFile } from '../../utils/getMediaTypeFromUploadableFile';
-import { overrideMediaTypeIfUnknown } from '../../utils/overrideMediaTypeIfUnknown';
+import type { MediaClientErrorReason } from '../../models/errors';
+import { CommonMediaClientError } from '../../models/errors/CommonMediaClientError';
+import { fromCommonMediaClientError } from '../../models/errors/fromCommonMediaClientError';
+import { isCommonMediaClientError } from '../../models/errors/isCommonMediaClientError';
+import type { GetFileOptions } from '../../models/file-state';
+import { isErrorFileState } from '../../models/is-error-file-state';
+import { isFinalFileState } from '../../models/is-final-file-state';
+import { isNotFoundMediaItemDetails } from '../../models/is-not-found-media-item-details';
+import { isProcessingFileState } from '../../models/is-processing-file-state';
+import { mapMediaFileToFileState } from '../../models/map-media-file-to-file-state';
+import { mapMediaItemToFileState } from '../../models/map-media-item-to-file-state';
+import type { MediaItemDetails, MediaFile } from '../../models/media';
+import { type UploadController } from '../../upload-controller';
+import { type UploadableFile, type UploadableFileUpfrontIds, uploadFile } from '../../uploader';
 import { convertBase64ToBlob } from '../../utils/convertBase64ToBlob';
-import { toPromise, fromObservable, type MediaSubscribable } from '../../utils/mediaSubscribable';
-import { getDimensionsFromBlob, type Dimensions } from '../../utils/getDimensionsFromBlob';
-import { createMediaSubject } from '../../utils/createMediaSubject';
-import { getMediaTypeFromMimeType } from '@atlaskit/media-common/mediaTypeUtils';
-import { shouldFetchRemoteFileStates } from '../../utils/shouldFetchRemoteFileStates';
-import { PollingFunction } from '../../utils/polling';
-import { isEmptyFile } from '../../utils/detectEmptyFile';
-import { type MediaTraceContext } from '@atlaskit/media-common';
-import {
-	type ErrorFileState,
-	type UploadingFileState,
-	type FilePreview,
-	type FileState,
-	type ProcessingFileState,
-	type MediaStore,
-	mediaStore,
-} from '@atlaskit/media-state';
 import {
 	type CopyIntentKey,
 	createCopyIntentRegisterationBatcher,
 } from '../../utils/createCopyIntentRegisterationBatcher';
-import { defaultShouldRetryError } from '../../utils/request/helpers';
-import {
-	isCommonMediaClientError,
-	CommonMediaClientError,
-	fromCommonMediaClientError,
-	type MediaClientErrorReason,
-} from '../../models/errors';
+import type { DataloaderKey, DataloaderResult } from '../../utils/createFileDataLoader';
+import { createFileDataloader } from '../../utils/createFileDataloader-2';
+import { createMediaSubject } from '../../utils/createMediaSubject';
+import { isEmptyFile } from '../../utils/detectEmptyFile';
+import { getDimensionsFromBlob, type Dimensions } from '../../utils/getDimensionsFromBlob';
+import { getMediaTypeFromUploadableFile } from '../../utils/getMediaTypeFromUploadableFile';
+import { fromObservable } from '../../utils/mediaSubscribable/fromObservable';
+import { toPromise } from '../../utils/mediaSubscribable/toPromise';
+import type { MediaSubscribable } from '../../utils/mediaSubscribable/types';
+import { overrideMediaTypeIfUnknown } from '../../utils/overrideMediaTypeIfUnknown';
+import { PollingFunction } from '../../utils/polling';
+import { defaultShouldRetryError } from '../../utils/request/defaultShouldRetryError';
+import { shouldFetchRemoteFileStates } from '../../utils/shouldFetchRemoteFileStates';
+import { MediaStore as MediaApi } from '../media-store/MediaStore';
+import type {
+	MediaStoreCopyFileWithTokenBody,
+	MediaStoreCopyFileWithTokenParams,
+	TouchedFiles,
+	TouchFileDescriptor,
+} from '../media-store/types';
 import { type UploadArtifactParams } from '../media-store/types';
+import { FileFetcherError } from './FileFetcherError';
 
-export type { FileFetcherErrorAttributes, FileFetcherErrorReason } from './error';
-export { isFileFetcherError, FileFetcherError } from './error';
+export type { FileFetcherErrorAttributes, FileFetcherErrorReason } from './FileFetcherError';
+/**
+ * @deprecated Use `import { FileFetcherError } from '@atlaskit/media-client/file-fetcher/error'` instead.
+ */
+export { FileFetcherError } from './FileFetcherError';
+/**
+ * @deprecated Use `import { isFileFetcherError } from '@atlaskit/media-client/file-fetcher/error'` instead.
+ */
+export { isFileFetcherError } from './isFileFetcherError';
 
 export interface CopySourceFile {
 	id: string;
 	collection?: string;
 	authProvider?: AuthProvider;
+	clientId?: string;
 }
 
 export interface CopyDestination extends MediaStoreCopyFileWithTokenParams {
@@ -123,6 +128,7 @@ export interface FileFetcher {
 		descriptors: TouchFileDescriptor[],
 		collection?: string,
 		traceContext?: MediaTraceContext,
+		expectedFileSize?: number,
 	): Promise<TouchedFiles>;
 	upload(
 		file: UploadableFile,
@@ -134,6 +140,7 @@ export interface FileFetcher {
 		url: string,
 		collection?: string,
 		traceContext?: MediaTraceContext,
+		anonymizeFilename?: boolean,
 	): Promise<ExternalUploadPayload>;
 	downloadBinary(
 		id: string,
@@ -148,7 +155,12 @@ export interface FileFetcher {
 		options?: CopyFileOptions,
 		traceContext?: MediaTraceContext,
 	): Promise<MediaFile>;
-	getFileBinaryURL(id: string, collectionName?: string, maxAge?: number): Promise<string>;
+	getFileBinaryURL(
+		id: string,
+		collectionName?: string,
+		maxAge?: number,
+		name?: string,
+	): Promise<string>;
 	registerCopyIntent(id: string, collectionName?: string): Promise<void>;
 	uploadArtifact(
 		id: string,
@@ -209,8 +221,17 @@ export class FileFetcherImpl implements FileFetcher {
 	};
 
 	public getFileState(id: string, options: GetFileOptions = {}): MediaSubscribable {
-		const { collectionName, occurrenceKey, includeHashForDuplicateFiles, forceRefresh } = options;
-		if (!isValidId(id)) {
+		const {
+			collectionName,
+			occurrenceKey,
+			includeHashForDuplicateFiles,
+			forceRefresh,
+			initialFileState,
+		} = options;
+		if (!isValidUuid(id)) {
+			// Do NOT pass initialFileState here — for an invalid UUID the SSR seed
+			// is meaningless and would cause subscribers to briefly see a
+			// valid-looking file state before the error is emitted.
 			const subject = createMediaSubject<FileState>();
 			const err = new FileFetcherError('invalidFileId', { id, collectionName, occurrenceKey });
 
@@ -235,6 +256,7 @@ export class FileFetcherImpl implements FileFetcher {
 					undefined,
 					includeHashForDuplicateFiles,
 					forceRefresh,
+					initialFileState,
 				);
 				subject.subscribe({
 					next: (fileState) => {
@@ -262,8 +284,13 @@ export class FileFetcherImpl implements FileFetcher {
 		return this.mediaApi.getArtifactURL(artifacts, artifactName, collectionName);
 	}
 
-	getFileBinaryURL(id: string, collectionName?: string, maxAge?: number): Promise<string> {
-		return this.mediaApi.getFileBinaryURL(id, collectionName, maxAge);
+	getFileBinaryURL(
+		id: string,
+		collectionName?: string,
+		maxAge?: number,
+		name?: string,
+	): Promise<string> {
+		return this.mediaApi.getFileBinaryURL(id, collectionName, maxAge, name);
 	}
 
 	// TODO: ----- ADD TICKET TO PASS TRACE ID to this.dataloader.load
@@ -273,14 +300,20 @@ export class FileFetcherImpl implements FileFetcher {
 		occurrenceKey?: string,
 		includeHashForDuplicateFiles?: boolean,
 		forceRefresh?: boolean,
+		initialFileState?: FileState,
 	): ReplaySubject<FileState> => {
-		const subject = createMediaSubject<FileState>();
+		const subject = createMediaSubject<FileState>(initialFileState);
 		const poll = new PollingFunction();
 
 		// ensure subject errors if polling exceeds max iterations or uncaught exception in executor
 		poll.onError = (error: Error) => subject.error(error);
 
 		poll.execute(async () => {
+			if (!forceRefresh && initialFileState?.status === 'processed') {
+				subject.complete();
+				return;
+			}
+
 			if (forceRefresh) {
 				this.dataloader.clear({
 					id,
@@ -332,6 +365,7 @@ export class FileFetcherImpl implements FileFetcher {
 		descriptors: TouchFileDescriptor[],
 		collection?: string,
 		traceContext?: MediaTraceContext,
+		expectedFileSize?: number,
 	): Promise<TouchedFiles> {
 		return this.mediaApi
 			.touchFiles(
@@ -340,6 +374,7 @@ export class FileFetcherImpl implements FileFetcher {
 					collection,
 				},
 				traceContext,
+				{ expectedFileSize },
 			)
 			.then(({ data }) => data);
 	}
@@ -347,6 +382,7 @@ export class FileFetcherImpl implements FileFetcher {
 	private generateUploadableFileUpfrontIds(
 		collection?: string,
 		traceContext?: MediaTraceContext,
+		expectedFileSize?: number,
 	): UploadableFileUpfrontIds {
 		// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 		const id = uuid();
@@ -358,9 +394,12 @@ export class FileFetcherImpl implements FileFetcher {
 			collection,
 		};
 
-		const deferredUploadId = this.touchFiles([touchFileDescriptor], collection, traceContext).then(
-			(touchedFiles) => touchedFiles.created[0].uploadId,
-		);
+		const deferredUploadId = this.touchFiles(
+			[touchFileDescriptor],
+			collection,
+			traceContext,
+			expectedFileSize,
+		).then((touchedFiles) => touchedFiles.created[0].uploadId);
 
 		return {
 			id,
@@ -373,6 +412,7 @@ export class FileFetcherImpl implements FileFetcher {
 		url: string,
 		collection?: string,
 		traceContext?: MediaTraceContext,
+		anonymizeFilename?: boolean,
 	): Promise<ExternalUploadPayload> {
 		const uploadableFileUpfrontIds = this.generateUploadableFileUpfrontIds(
 			collection,
@@ -392,11 +432,11 @@ export class FileFetcherImpl implements FileFetcher {
 
 			resolve({ value: blob as Blob, origin: 'remote' });
 		});
-		const name = url.split('/').pop() || '';
+		const initialName = anonymizeFilename ? crypto.randomUUID() : url.split('/').pop() || '';
 		// we create a initial fileState with the minimum info that we have at this point
 		const fileState: ProcessingFileState = {
 			status: 'processing',
-			name,
+			name: initialName,
 			size: 0,
 			mediaType: 'unknown',
 			mimeType: '',
@@ -416,6 +456,11 @@ export class FileFetcherImpl implements FileFetcher {
 			}
 
 			const { type, size } = blob;
+			const extension =
+				anonymizeFilename && isExperimentEnabled('cc_maui_polish_changes_batch_8')
+					? getExtension(type)
+					: undefined;
+			const name = extension ? `${initialName}.${extension}` : initialName;
 			const file: UploadableFile = {
 				content: blob,
 				mimeType: type,
@@ -502,7 +547,8 @@ export class FileFetcherImpl implements FileFetcher {
 		const { collection } = file;
 
 		const upfrontId =
-			uploadableFileUpfrontIds || this.generateUploadableFileUpfrontIds(collection, traceContext);
+			uploadableFileUpfrontIds ||
+			this.generateUploadableFileUpfrontIds(collection, traceContext, file.size);
 
 		const { id, occurrenceKey } = upfrontId;
 
@@ -580,12 +626,13 @@ export class FileFetcherImpl implements FileFetcher {
 
 	public async downloadBinary(
 		id: string,
-		name: string = 'download',
+		name?: string,
 		collectionName?: string,
 		traceContext?: MediaTraceContext,
 	): Promise<void> {
-		const url = await this.mediaApi.getFileBinaryURL(id, collectionName);
-		downloadUrl(url, { name });
+		const downloadName = name ?? 'download';
+		const url = await this.mediaApi.getFileBinaryURL(id, collectionName, undefined, name);
+		downloadUrl(url, { name: downloadName });
 
 		globalMediaEventEmitter.emit('media-viewed', {
 			fileId: id,
@@ -665,6 +712,7 @@ export class FileFetcherImpl implements FileFetcher {
 				replaceFileId: destination.replaceFileId,
 			},
 			traceContext,
+			source.clientId,
 		);
 
 		const { data } = res;
@@ -922,12 +970,14 @@ export class FileFetcherImpl implements FileFetcher {
 		return videoLength;
 	};
 
-	getVideoDurations = async (files: Array<{ id: string; collectionName?: string }>) => {
+	getVideoDurations = async (
+		files: Array<{ id: string; collectionName?: string }>,
+	): Promise<Record<string, number>> => {
 		// get all the duration promises
 		const promises = files.map(async ({ id, collectionName }) => {
 			try {
 				return await this.getDurationOfVideo(id, collectionName);
-			} catch (_err) {
+			} catch {
 				return -1;
 			}
 		});

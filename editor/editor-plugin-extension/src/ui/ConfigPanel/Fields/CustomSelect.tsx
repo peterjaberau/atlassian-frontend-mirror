@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type {
 	CustomField,
@@ -14,14 +14,13 @@ import {
 	getCustomFieldResolver,
 	configPanelMessages as messages,
 } from '@atlaskit/editor-common/extensions';
-import { Field } from '@atlaskit/form';
-import { AsyncCreatableSelect } from '@atlaskit/select';
-import type { ValueType } from '@atlaskit/select';
+import Field from '@atlaskit/form/field';
+import AsyncCreatableSelect from '@atlaskit/select/async-creatable-select';
+import type { ValueType } from '@atlaskit/select/types';
 
 import FieldMessages from '../FieldMessages';
 import type { OnFieldChange } from '../types';
 import { validate } from '../utils';
-
 import { formatOptionLabel } from './SelectItem';
 import UnhandledType from './UnhandledType';
 
@@ -75,7 +74,7 @@ function CustomSelect({
 			setLoading(true);
 
 			try {
-				const resolver = await getCustomFieldResolver(extensionManifest, field.options.resolver);
+				const resolver = getCustomFieldResolver(extensionManifest, field.options.resolver);
 
 				if (cancel) {
 					return;
@@ -133,6 +132,7 @@ function CustomSelect({
 			label={label}
 			isRequired={isRequired}
 			defaultValue={defaultValue as ValueType<Option, false>}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			validate={(value) => validate(field, value)}
 			testId={`config-panel-custom-select-${name}`}
 			isDisabled={isDisabled}
@@ -145,6 +145,7 @@ function CustomSelect({
 								// Ignored via go/ees005
 								// eslint-disable-next-line react/jsx-props-no-spreading
 								{...fieldProps}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onChange={(value) => {
 									fieldProps.onChange(value);
 									// We assume onChange is called whenever values actually changed
@@ -154,15 +155,18 @@ function CustomSelect({
 								// add type cast to avoid adding a "IsMulti" generic prop (TODO: ED-12072)
 								isMulti={(isMultiple || false) as false}
 								isClearable={true}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								isValidNewOption={(value: string) => !!(isCreatable && value)}
 								validationState={error ? 'error' : 'default'}
 								defaultOptions={defaultOptions}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								formatCreateLabel={(value: string) =>
 									customFormatCreateLabel
 										? customFormatCreateLabel(value)
 										: formatCreateLabel(value)
 								}
 								formatOptionLabel={formatOptionLabel}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								loadOptions={(searchTerm: string) => {
 									return resolver(searchTerm, fieldDefaultValue, parameters);
 								}}
@@ -179,4 +183,30 @@ function CustomSelect({
 	);
 }
 
-export default injectIntl(CustomSelect);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<
+	WithIntlProps<
+		{
+			autoFocus?: boolean;
+			extensionManifest: ExtensionManifest;
+			field: CustomField;
+			name: string;
+			onFieldChange: OnFieldChange;
+			parameters?: Parameters;
+			placeholder?: string;
+		} & WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			autoFocus?: boolean;
+			extensionManifest: ExtensionManifest;
+			field: CustomField;
+			name: string;
+			onFieldChange: OnFieldChange;
+			parameters?: Parameters;
+			placeholder?: string;
+		} & WrappedComponentProps
+	>;
+} = injectIntl(CustomSelect);
+export default _default_1;

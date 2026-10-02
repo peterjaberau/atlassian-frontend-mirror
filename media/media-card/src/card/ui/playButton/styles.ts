@@ -1,6 +1,6 @@
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css } from '@emotion/react';
-import { N0, N90A } from '@atlaskit/theme/colors';
+import { css, type SerializedStyles } from '@emotion/react';
+
 import { token } from '@atlaskit/tokens';
 
 export const playButtonClassName = 'media-card-play-button';
@@ -10,7 +10,7 @@ export const bkgClassName = 'play-icon-background';
 const discSize = 48;
 const discSizeHover = 56;
 
-export const fixedPlayButtonStyles = `
+export const fixedPlayButtonStyles: '\n  .play-icon-background {\n    width: 56px;\n    height: 56px;\n  }\n' = `
   .${bkgClassName} {
     width: ${discSizeHover}px;
     height: ${discSizeHover}px;
@@ -18,7 +18,7 @@ export const fixedPlayButtonStyles = `
 `;
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const playButtonWrapperStyles = css({
+export const playButtonWrapperStyles: SerializedStyles = css({
 	position: 'absolute',
 	top: 0,
 	left: 0,
@@ -27,7 +27,7 @@ export const playButtonWrapperStyles = css({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
-	color: token('color.icon.inverse', N0),
+	color: token('color.icon.inverse'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	span: {
 		position: 'absolute',
@@ -35,12 +35,12 @@ export const playButtonWrapperStyles = css({
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const backgroundStyles = css({
+export const backgroundStyles: SerializedStyles = css({
 	transitionProperty: 'width, height',
 	transitionDuration: '0.1s',
 	position: 'absolute',
 	width: `${discSize}px`,
 	height: `${discSize}px`,
-	background: token('color.background.neutral.bold', N90A),
+	background: token('color.background.neutral.bold'),
 	borderRadius: token('radius.full'),
 });

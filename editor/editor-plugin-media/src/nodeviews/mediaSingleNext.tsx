@@ -1,21 +1,19 @@
 /**
  * @jsxRuntime classic
  * @jsx jsx
- * @jsxFrag
  */
-import React, { Fragment, type MouseEvent } from 'react';
+import React, { Fragment, type KeyboardEvent, type MouseEvent } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
+import type { MediaADFAttrs, MediaAttributes } from '@atlaskit/adf-schema/media';
 import type {
 	ExtendedMediaAttributes,
-	MediaADFAttrs,
-	MediaAttributes,
-	RichMediaLayout as MediaSingleLayout,
-} from '@atlaskit/adf-schema';
+	Layout as MediaSingleLayout,
+} from '@atlaskit/adf-schema/rich-media-common';
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import { usePreviousState } from '@atlaskit/editor-common/hooks';
 import { captionMessages } from '@atlaskit/editor-common/media';
@@ -32,6 +30,7 @@ import type {
 	ContextIdentifierProvider,
 	MediaProvider,
 } from '@atlaskit/editor-common/provider-factory';
+import { NodeViewContentHole } from '@atlaskit/editor-common/react-node-view';
 import type { EditorAppearance, ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { MediaSingle } from '@atlaskit/editor-common/ui';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
@@ -39,18 +38,15 @@ import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import { findParentNodeOfTypeClosestToPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { getAttrsFromUrl } from '@atlaskit/media-client';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { MediaNextEditorPluginType } from '../mediaPluginType';
 import { insertAndSelectCaptionFromMediaSinglePos } from '../pm-plugins/commands/captions';
 import { isMediaBlobUrlFromAttrs } from '../pm-plugins/utils/media-common';
 import type { ForwardRef, MediaOptions } from '../types';
-import { CaptionPlaceholder, CaptionPlaceholderButton } from '../ui/CaptionPlaceholder';
+import { CaptionPlaceholderButton } from '../ui/CaptionPlaceholder';
 import { CommentBadgeWrapper } from '../ui/CommentBadge';
 import ResizableMediaSingle from '../ui/ResizableMediaSingle';
 import ResizableMediaSingleNext from '../ui/ResizableMediaSingle/ResizableMediaSingleNext';
-
 import { hasPrivateAttrsChanged } from './helpers';
 import type { MediaNodeUpdater } from './mediaNodeUpdater';
 import { createMediaNodeUpdater } from './mediaNodeUpdater';
@@ -182,6 +178,7 @@ type UseMediaAsyncOperationsProps = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	addPendingTask: (promise: Promise<any>) => void;
 	getPos: () => number | undefined;
+	mediaChildNodeId: string | undefined;
 	mediaNode: PMNode;
 	mediaNodeUpdater: MediaNodeUpdater | null;
 };
@@ -190,6 +187,7 @@ const useMediaAsyncOperations = ({
 	mediaNodeUpdater,
 	addPendingTask,
 	getPos,
+	mediaChildNodeId,
 }: UseMediaAsyncOperationsProps) => {
 	React.useEffect(() => {
 		if (!mediaNodeUpdater) {
@@ -208,7 +206,11 @@ const useMediaAsyncOperations = ({
 			mediaNode,
 			addPendingTask,
 		});
-	}, [mediaNode, addPendingTask, mediaNodeUpdater, getPos]);
+		// mediaChildNodeId is included so this effect re-runs when the media source
+		// is replaced (id changes), ensuring getRemoteDimensions fires for the new file
+		// with up-to-date updater props after setProps has been called.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [mediaNode, addPendingTask, mediaNodeUpdater, getPos, mediaChildNodeId]);
 };
 
 const noop = () => {};
@@ -375,7 +377,9 @@ export type MediaSingleNodeNextProps = {
 	view: EditorView;
 	width: number;
 };
-export const MediaSingleNodeNext = (mediaSingleNodeNextProps: MediaSingleNodeNextProps) => {
+export const MediaSingleNodeNext = (
+	mediaSingleNodeNextProps: MediaSingleNodeNextProps,
+): jsx.JSX.Element => {
 	const {
 		selected,
 		getPos,
@@ -422,6 +426,7 @@ export const MediaSingleNodeNext = (mediaSingleNodeNextProps: MediaSingleNodeNex
 		getPos,
 		mediaNode,
 		addPendingTask: addPendingTask || noop,
+		mediaChildNodeId: mediaNode.firstChild?.attrs.id as string | undefined,
 	});
 
 	React.useLayoutEffect(() => {
@@ -553,13 +558,14 @@ export const MediaSingleNodeNext = (mediaSingleNodeNextProps: MediaSingleNodeNex
 	);
 
 	const mediaSingleWrapperRef = React.createRef<HTMLDivElement>();
-	const captionPlaceHolderRef = React.createRef<HTMLSpanElement>();
+	const captionPlaceHolderRef = React.createRef<HTMLButtonElement>();
+
+	const browser = getBrowserInfo();
+	const notIos = !browser.ios;
 
 	const onMediaSingleClicked = React.useCallback(
 		(event: MouseEvent) => {
-			const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-				? getBrowserInfo()
-				: browserLegacy;
+			const browser = getBrowserInfo();
 			// Workaround for iOS 16 Caption selection issue
 			// @see https://product-fabric.atlassian.net/browse/MEX-2012
 			if (!browser.ios) {
@@ -571,6 +577,20 @@ export const MediaSingleNodeNext = (mediaSingleNodeNextProps: MediaSingleNodeNex
 			}
 
 			captionPlaceHolderRef.current?.click();
+		},
+		[mediaSingleWrapperRef, captionPlaceHolderRef],
+	);
+
+	const onMediaSingleKeyDown = React.useCallback(
+		(event: KeyboardEvent<HTMLElement>) => {
+			if (mediaSingleWrapperRef.current !== event.target) {
+				return;
+			}
+
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				captionPlaceHolderRef.current?.click();
+			}
 		},
 		[mediaSingleWrapperRef, captionPlaceHolderRef],
 	);
@@ -594,13 +614,13 @@ export const MediaSingleNodeNext = (mediaSingleNodeNextProps: MediaSingleNodeNex
 	}, [widthType, mediaSingleWidthAttribute]);
 
 	const MediaChildren = (
-		// eslint-disable-next-line @atlassian/a11y/no-noninteractive-element-interactions, @atlassian/a11y/click-events-have-key-events
 		<figure
 			ref={mediaSingleWrapperRef}
 			css={figureWrapperStyles}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={MediaSingleNodeSelector}
-			onClick={onMediaSingleClicked}
+			onClick={notIos ? undefined : onMediaSingleClicked}
+			onKeyDown={notIos ? undefined : onMediaSingleKeyDown}
 		>
 			<MediaBadges
 				mediaElement={currentMediaElement()}
@@ -609,7 +629,7 @@ export const MediaSingleNodeNext = (mediaSingleNodeNextProps: MediaSingleNodeNex
 				extendedResizeOffset={mediaOptions.allowPixelResizing && !isInsideTable}
 			>
 				{({ visible }: { visible: boolean }) => (
-					<>
+					<React.Fragment>
 						{visible && (
 							<ExternalImageBadge
 								type={childMediaNodeAttrs.type}
@@ -625,161 +645,150 @@ export const MediaSingleNodeNext = (mediaSingleNodeNextProps: MediaSingleNodeNex
 								isDrafting={isCurrentNodeDrafting}
 							/>
 						)}
-					</>
+					</React.Fragment>
 				)}
 			</MediaBadges>
-			<div ref={forwardRef} />
-			{shouldShowPlaceholder &&
-				(fg('platform_editor_typography_ugc') ? (
-					<CaptionPlaceholderButton
-						// platform_editor_typography_ugc clean up
-						// remove typecasting
-						ref={captionPlaceHolderRef as React.RefObject<HTMLButtonElement>}
-						onClick={clickPlaceholder}
-						placeholderMessage={
-							mediaOptions.allowImagePreview
-								? captionMessages.placeholderWithDoubleClickPrompt
-								: captionMessages.placeholder
-						}
-					/>
-				) : (
-					<CaptionPlaceholder
-						ref={captionPlaceHolderRef}
-						onClick={clickPlaceholder}
-						placeholderMessage={
-							mediaOptions.allowImagePreview
-								? captionMessages.placeholderWithDoubleClickPrompt
-								: captionMessages.placeholder
-						}
-					/>
-				))}
+
+			<NodeViewContentHole ref={forwardRef} />
+
+			{shouldShowPlaceholder && (
+				<CaptionPlaceholderButton
+					ref={captionPlaceHolderRef}
+					onClick={clickPlaceholder}
+					placeholderMessage={
+						mediaOptions.allowImagePreview
+							? captionMessages.placeholderWithDoubleClickPrompt
+							: captionMessages.placeholder
+					}
+				/>
+			)}
 		</figure>
 	);
 
-	if (expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)) {
-		return mediaOptions.allowPixelResizing ? (
-			<ResizableMediaSingleNext
-				view={view}
-				getPos={getPos}
-				updateSize={updateSize}
-				gridSize={12}
-				viewMediaClientConfig={viewMediaClientConfig}
-				allowBreakoutSnapPoints={mediaOptions && mediaOptions.allowBreakoutSnapPoints}
-				selected={isSelected}
-				dispatchAnalyticsEvent={dispatchAnalyticsEvent}
-				pluginInjectionApi={pluginInjectionApi}
-				layout={layout}
-				width={width}
-				height={height}
-				containerWidth={containerWidth}
-				lineLength={contentWidth || FALLBACK_MOST_COMMON_WIDTH}
-				fullWidthMode={fullWidthMode}
-				hasFallbackContainer={false}
-				mediaSingleWidth={mediaSingleWidth}
-				editorAppearance={editorAppearance}
-				showLegacyNotification={widthType !== 'pixel'}
-				forceHandlePositioning={mediaOptions?.forceHandlePositioning}
-				disableHandles={!canResize}
-			>
-				{MediaChildren}
-			</ResizableMediaSingleNext>
-		) : (
-			<ResizableMediaSingle
-				view={view}
-				getPos={getPos}
-				updateSize={updateSize}
-				gridSize={12}
-				viewMediaClientConfig={viewMediaClientConfig}
-				allowBreakoutSnapPoints={mediaOptions && mediaOptions.allowBreakoutSnapPoints}
-				selected={isSelected}
-				dispatchAnalyticsEvent={dispatchAnalyticsEvent}
-				pluginInjectionApi={pluginInjectionApi}
-				layout={layout}
-				width={width}
-				height={height}
-				containerWidth={containerWidth}
-				fullWidthMode={fullWidthMode}
-				hasFallbackContainer={false}
-				mediaSingleWidth={mediaSingleWidth}
-				editorAppearance={editorAppearance}
-				lineLength={contentWidthForLegacyExperience || FALLBACK_MOST_COMMON_WIDTH}
-				pctWidth={mediaSingleWidthAttribute}
-				disableHandles={!canResize}
-			>
-				{MediaChildren}
-			</ResizableMediaSingle>
+	if (widthType !== 'pixel') {
+		return (
+			<Fragment>
+				{canResize ? (
+					mediaOptions.allowPixelResizing ? (
+						<ResizableMediaSingleNext
+							view={view}
+							getPos={getPos}
+							updateSize={updateSize}
+							gridSize={12}
+							viewMediaClientConfig={viewMediaClientConfig}
+							allowBreakoutSnapPoints={mediaOptions && mediaOptions.allowBreakoutSnapPoints}
+							selected={isSelected}
+							dispatchAnalyticsEvent={dispatchAnalyticsEvent}
+							pluginInjectionApi={pluginInjectionApi}
+							layout={layout}
+							width={width}
+							height={height}
+							containerWidth={containerWidth}
+							lineLength={contentWidth || FALLBACK_MOST_COMMON_WIDTH}
+							fullWidthMode={fullWidthMode}
+							hasFallbackContainer={false}
+							mediaSingleWidth={mediaSingleWidth}
+							editorAppearance={editorAppearance}
+							showLegacyNotification={true}
+							forceHandlePositioning={mediaOptions?.forceHandlePositioning}
+						>
+							{MediaChildren}
+						</ResizableMediaSingleNext>
+					) : (
+						<ResizableMediaSingle
+							view={view}
+							getPos={getPos}
+							updateSize={updateSize}
+							gridSize={12}
+							viewMediaClientConfig={viewMediaClientConfig}
+							allowBreakoutSnapPoints={mediaOptions && mediaOptions.allowBreakoutSnapPoints}
+							selected={isSelected}
+							dispatchAnalyticsEvent={dispatchAnalyticsEvent}
+							pluginInjectionApi={pluginInjectionApi}
+							layout={layout}
+							width={width}
+							height={height}
+							containerWidth={containerWidth}
+							fullWidthMode={fullWidthMode}
+							hasFallbackContainer={false}
+							mediaSingleWidth={mediaSingleWidth}
+							editorAppearance={editorAppearance}
+							lineLength={contentWidthForLegacyExperience || FALLBACK_MOST_COMMON_WIDTH}
+							pctWidth={mediaSingleWidthAttribute}
+						>
+							{MediaChildren}
+						</ResizableMediaSingle>
+					)
+				) : (
+					<MediaSingle
+						layout={layout}
+						width={width}
+						height={height}
+						containerWidth={containerWidth}
+						fullWidthMode={fullWidthMode}
+						hasFallbackContainer={false}
+						editorAppearance={editorAppearance}
+						pctWidth={mediaSingleWidthAttribute}
+						lineLength={lineLength || FALLBACK_MOST_COMMON_WIDTH}
+						size={legacySize}
+					>
+						{MediaChildren}
+					</MediaSingle>
+				)}
+			</Fragment>
 		);
 	}
 
-	return (
-		<Fragment>
-			{canResize ? (
-				mediaOptions.allowPixelResizing ? (
-					<ResizableMediaSingleNext
-						view={view}
-						getPos={getPos}
-						updateSize={updateSize}
-						gridSize={12}
-						viewMediaClientConfig={viewMediaClientConfig}
-						allowBreakoutSnapPoints={mediaOptions && mediaOptions.allowBreakoutSnapPoints}
-						selected={isSelected}
-						dispatchAnalyticsEvent={dispatchAnalyticsEvent}
-						pluginInjectionApi={pluginInjectionApi}
-						layout={layout}
-						width={width}
-						height={height}
-						containerWidth={containerWidth}
-						lineLength={contentWidth || FALLBACK_MOST_COMMON_WIDTH}
-						fullWidthMode={fullWidthMode}
-						hasFallbackContainer={false}
-						mediaSingleWidth={mediaSingleWidth}
-						editorAppearance={editorAppearance}
-						showLegacyNotification={widthType !== 'pixel'}
-						forceHandlePositioning={mediaOptions?.forceHandlePositioning}
-					>
-						{MediaChildren}
-					</ResizableMediaSingleNext>
-				) : (
-					<ResizableMediaSingle
-						view={view}
-						getPos={getPos}
-						updateSize={updateSize}
-						gridSize={12}
-						viewMediaClientConfig={viewMediaClientConfig}
-						allowBreakoutSnapPoints={mediaOptions && mediaOptions.allowBreakoutSnapPoints}
-						selected={isSelected}
-						dispatchAnalyticsEvent={dispatchAnalyticsEvent}
-						pluginInjectionApi={pluginInjectionApi}
-						layout={layout}
-						width={width}
-						height={height}
-						containerWidth={containerWidth}
-						fullWidthMode={fullWidthMode}
-						hasFallbackContainer={false}
-						mediaSingleWidth={mediaSingleWidth}
-						editorAppearance={editorAppearance}
-						lineLength={contentWidthForLegacyExperience || FALLBACK_MOST_COMMON_WIDTH}
-						pctWidth={mediaSingleWidthAttribute}
-					>
-						{MediaChildren}
-					</ResizableMediaSingle>
-				)
-			) : (
-				<MediaSingle
-					layout={layout}
-					width={width}
-					height={height}
-					containerWidth={containerWidth}
-					fullWidthMode={fullWidthMode}
-					hasFallbackContainer={false}
-					editorAppearance={editorAppearance}
-					pctWidth={mediaSingleWidthAttribute}
-					lineLength={lineLength || FALLBACK_MOST_COMMON_WIDTH}
-					size={legacySize}
-				>
-					{MediaChildren}
-				</MediaSingle>
-			)}
-		</Fragment>
+	return mediaOptions.allowPixelResizing ? (
+		<ResizableMediaSingleNext
+			view={view}
+			getPos={getPos}
+			updateSize={updateSize}
+			gridSize={12}
+			viewMediaClientConfig={viewMediaClientConfig}
+			allowBreakoutSnapPoints={mediaOptions && mediaOptions.allowBreakoutSnapPoints}
+			selected={isSelected}
+			dispatchAnalyticsEvent={dispatchAnalyticsEvent}
+			pluginInjectionApi={pluginInjectionApi}
+			layout={layout}
+			width={width}
+			height={height}
+			containerWidth={containerWidth}
+			lineLength={contentWidth || FALLBACK_MOST_COMMON_WIDTH}
+			fullWidthMode={fullWidthMode}
+			hasFallbackContainer={false}
+			mediaSingleWidth={mediaSingleWidth}
+			editorAppearance={editorAppearance}
+			showLegacyNotification={widthType !== 'pixel'}
+			forceHandlePositioning={mediaOptions?.forceHandlePositioning}
+			disableHandles={!canResize}
+		>
+			{MediaChildren}
+		</ResizableMediaSingleNext>
+	) : (
+		<ResizableMediaSingle
+			view={view}
+			getPos={getPos}
+			updateSize={updateSize}
+			gridSize={12}
+			viewMediaClientConfig={viewMediaClientConfig}
+			allowBreakoutSnapPoints={mediaOptions && mediaOptions.allowBreakoutSnapPoints}
+			selected={isSelected}
+			dispatchAnalyticsEvent={dispatchAnalyticsEvent}
+			pluginInjectionApi={pluginInjectionApi}
+			layout={layout}
+			width={width}
+			height={height}
+			containerWidth={containerWidth}
+			fullWidthMode={fullWidthMode}
+			hasFallbackContainer={false}
+			mediaSingleWidth={mediaSingleWidth}
+			editorAppearance={editorAppearance}
+			lineLength={contentWidthForLegacyExperience || FALLBACK_MOST_COMMON_WIDTH}
+			pctWidth={mediaSingleWidthAttribute}
+			disableHandles={!canResize}
+		>
+			{MediaChildren}
+		</ResizableMediaSingle>
 	);
 };

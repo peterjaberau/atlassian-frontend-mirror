@@ -5,15 +5,17 @@
 
 import { jsx } from '@compiled/react';
 
-import Badge from '@atlaskit/badge';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import Badge from '@atlaskit/badge/badge';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import { JiraIcon } from '@atlaskit/logo';
 import { Main } from '@atlaskit/navigation-system/layout/main';
 import { PanelSplitter } from '@atlaskit/navigation-system/layout/panel-splitter';
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavToggleButton,
 } from '@atlaskit/navigation-system/layout/side-nav';
 import {
@@ -63,7 +65,7 @@ export default function JiraMockExample(): JSX.Element {
 						<Help label="Help" />
 						<Notifications
 							badge={() => (
-								<Badge max={9} appearance="important">
+								<Badge max={9} appearance="dangerBold">
 									{99999}
 								</Badge>
 							)}
@@ -85,7 +87,7 @@ export default function JiraMockExample(): JSX.Element {
 					</TopNavEnd>
 				</TopNav>
 				<SideNav>
-					<SideNavContent testId="side-nav-content">
+					<SideNavBody testId="side-nav-content">
 						<MenuList>
 							{Array.from({ length: 30 }, (_, index) => (
 								<LinkMenuItem href="#" key={index}>
@@ -93,7 +95,7 @@ export default function JiraMockExample(): JSX.Element {
 								</LinkMenuItem>
 							))}
 						</MenuList>
-					</SideNavContent>
+					</SideNavBody>
 					<PanelSplitter label="Resize side nav" testId="side-nav-panel-splitter" />
 				</SideNav>
 				<Main id="main-container">Hello world</Main>

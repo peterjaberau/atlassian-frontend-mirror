@@ -6,9 +6,9 @@ import { useEffect, useRef } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
-import { LinkButton } from '@atlaskit/button/new';
+import LinkButton from '@atlaskit/button/link';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Text, xcss } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
@@ -72,12 +72,12 @@ export default function EmptyState({
 
 const emptyStateHeading = css({
 	font: token('font.heading.medium'),
-	color: token('color.text', 'rgb(23, 43, 77)'),
-	marginTop: token('space.300', '24px'),
+	color: token('color.text'),
+	marginTop: token('space.300'),
 });
 
 const emptyStateSubHeading = css({
-	marginTop: token('space.200', '16px'),
+	marginTop: token('space.200'),
 	maxWidth: '400px',
 	textAlign: 'center',
 });

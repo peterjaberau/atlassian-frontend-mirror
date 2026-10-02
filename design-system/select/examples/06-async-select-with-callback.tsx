@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Label } from '@atlaskit/form';
-import Select, { type OptionsType } from '@atlaskit/select';
+import { Label } from '@atlaskit/form/label/default';
+import Select from '@atlaskit/select/default';
+import type { OptionsType } from '@atlaskit/select/types';
 
 import { cities } from './common/data';
 
@@ -19,13 +20,11 @@ const loadOptions = (inputValue: string, callback: (options: OptionsType) => voi
 const AsyncExample = (): React.JSX.Element => (
 	<>
 		<Label htmlFor="async-select-with-callback-example">Which country do you live in?</Label>
-		{/* eslint-disable-next-line @atlaskit/design-system/no-placeholder */}
 		<Select
 			inputId="async-select-with-callback-example"
 			testId="react-select"
 			defaultOptions
 			loadOptions={loadOptions}
-			placeholder=""
 		/>
 	</>
 );

@@ -1,11 +1,12 @@
-import memoizeOne from 'memoize-one';
+import memoizeOne, { type MemoizedFn } from 'memoize-one';
 
-import type { MediaADFAttrs } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
 import type {
 	EditorAnalyticsAPI,
 	InputMethodInsertMedia,
 	InsertEventPayload,
 	MediaSwitchType,
+	// oxlint-disable-next-line import/no-duplicates
 } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -25,6 +26,7 @@ import {
 import {
 	atTheBeginningOfBlock,
 	selectionIsAtTheBeginningOfBlock,
+	startPositionOfParent,
 } from '@atlaskit/editor-common/selection';
 import type {
 	Command,
@@ -32,16 +34,17 @@ import type {
 	EditorContainerWidth as WidthPluginState,
 } from '@atlaskit/editor-common/types';
 import { checkNodeDown, isEmptyParagraph } from '@atlaskit/editor-common/utils';
-import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode, ResolvedPos, Schema } from '@atlaskit/editor-prosemirror/model';
 import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { safeInsert as pmSafeInsert, removeSelectedNode } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { akEditorDefaultLayoutWidth } from '@atlaskit/editor-shared-styles';
+import { TableMap } from '@atlaskit/editor-tables/table-map';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { MediaState } from '../../types';
 import { copyOptionalAttrsFromMediaState } from '../utils/media-common';
-
 import { findChangeFromLocation, getChangeMediaAnalytics } from './analytics';
 import { isImage } from './is-type';
 
@@ -50,6 +53,68 @@ interface MediaSingleState extends MediaState {
 	dimensions: { height: number; width: number };
 	scaleFactor?: number;
 }
+
+const TABLE_CELL_HORIZONTAL_PADDING = 16;
+
+const getPositiveWidth = (width: number | null | undefined): number | undefined =>
+	typeof width === 'number' && width > 0 ? width : undefined;
+
+const getClosestNodeDepth = ($pos: ResolvedPos, nodeNames: string[]): number | undefined => {
+	for (let depth = $pos.depth; depth > 0; depth--) {
+		if (nodeNames.includes($pos.node(depth).type.name)) {
+			return depth;
+		}
+	}
+};
+
+const getTableCellWidthFromPosition = (
+	doc: PMNode,
+	pos: number | undefined,
+): number | undefined => {
+	if (typeof pos !== 'number') {
+		return undefined;
+	}
+
+	try {
+		const $pos = doc.resolve(pos);
+		const cellDepth = getClosestNodeDepth($pos, ['tableCell', 'tableHeader']);
+		const tableDepth = getClosestNodeDepth($pos, ['table']);
+
+		if (cellDepth === undefined || tableDepth === undefined || tableDepth >= cellDepth) {
+			return undefined;
+		}
+
+		const tableNode = $pos.node(tableDepth);
+		const cellNode = $pos.node(cellDepth);
+		const tableMap = TableMap.get(tableNode);
+		const tableStart = $pos.before(tableDepth) + 1;
+		const cellPositionInTable = $pos.before(cellDepth) - tableStart;
+		const cellRect = tableMap.findCell(cellPositionInTable);
+		const columnSpan = cellRect.right - cellRect.left;
+
+		const colwidth = cellNode.attrs.colwidth as number[] | null | undefined;
+		const explicitCellWidth = colwidth
+			?.slice(0, columnSpan)
+			.reduce((total, width) => total + width, 0);
+		const tableWidth = getPositiveWidth(tableNode.attrs.width) ?? akEditorDefaultLayoutWidth;
+		const inferredCellWidth = (tableWidth / tableMap.width) * columnSpan;
+		const cellWidth = getPositiveWidth(explicitCellWidth) ?? getPositiveWidth(inferredCellWidth);
+
+		return cellWidth ? cellWidth - TABLE_CELL_HORIZONTAL_PADDING : undefined;
+	} catch {
+		return undefined;
+	}
+};
+
+const getMediaSingleMaxWidthForInsertion = (
+	view: EditorView,
+	pos: number | undefined,
+	widthPluginState?: WidthPluginState | undefined,
+): number | undefined =>
+	getPositiveWidth(getMaxWidthForNestedNodeNext(view, pos, true)) ??
+	getPositiveWidth(getTableCellWidthFromPosition(view.state.doc, pos)) ??
+	getPositiveWidth(widthPluginState?.lineLength) ??
+	getPositiveWidth(widthPluginState?.width);
 
 const getInsertMediaAnalytics = (
 	inputMethod: InputMethodInsertMedia,
@@ -147,6 +212,7 @@ function insertNodesWithOptionalParagraph({
 
 function insertNodesWithOptionalParagraphCommand({
 	nodes,
+	positions,
 	analyticsAttributes = {},
 	editorAnalyticsAPI,
 	insertMediaVia,
@@ -160,6 +226,7 @@ function insertNodesWithOptionalParagraphCommand({
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined;
 	insertMediaVia?: InsertMediaVia;
 	nodes: PMNode[];
+	positions?: [number, number];
 }): EditorCommand {
 	return ({ tr }) => {
 		const { inputMethod, fileExtension, newType, previousType } = analyticsAttributes;
@@ -167,10 +234,17 @@ function insertNodesWithOptionalParagraphCommand({
 		let updatedTr = tr;
 		const openEnd = 0;
 
-		if (tr.selection.empty) {
-			const insertFrom = selectionIsAtTheBeginningOfBlock(tr.selection)
-				? tr.selection.$from.before()
-				: tr.selection.from;
+		const { selection } = tr;
+		const from = positions ? positions[0] : selection.from;
+		const to = positions ? positions[1] : selection.to;
+		const $from = positions ? tr.doc.resolve(from) : selection.$from;
+		const isEmpty = positions ? from === to : selection.empty;
+
+		if (isEmpty) {
+			const isAtTheBeginningOfBlock = positions
+				? startPositionOfParent($from) === $from.pos
+				: selectionIsAtTheBeginningOfBlock(selection);
+			const insertFrom = isAtTheBeginningOfBlock ? $from.before() : from;
 
 			// the use of pmSafeInsert causes the node selection to media single node.
 			// It leads to discrepancy between the full-page and comment editor - not sure why :shrug:
@@ -181,7 +255,10 @@ function insertNodesWithOptionalParagraphCommand({
 			// so we revert to use tr.insert instead. No extra paragraph is added.
 			updatedTr = updatedTr.insert(insertFrom, nodes);
 		} else {
-			updatedTr.replaceSelection(new Slice(Fragment.from(nodes), 0, openEnd));
+			const slice = new Slice(Fragment.from(nodes), 0, openEnd);
+			updatedTr = positions
+				? updatedTr.replaceRange(from, to, slice)
+				: updatedTr.replaceSelection(slice);
 		}
 
 		if (inputMethod) {
@@ -232,6 +309,8 @@ export const insertMediaAsMediaSingle = (
 		return false;
 	}
 
+	const mediaSingleMaxWidth = getMediaSingleMaxWidthForInsertion(view, state.selection.$from.pos);
+
 	if (fg('platform_editor_introduce_insert_media_command')) {
 		const updatedTr = createInsertMediaAsMediaSingleCommand(
 			node.attrs as MediaADFAttrs,
@@ -239,6 +318,9 @@ export const insertMediaAsMediaSingle = (
 			editorAnalyticsAPI,
 			insertMediaVia,
 			allowPixelResizing,
+			undefined,
+			undefined,
+			mediaSingleMaxWidth,
 		)({ tr: state.tr });
 		if (updatedTr && dispatch) {
 			dispatch?.(updatedTr);
@@ -250,7 +332,10 @@ export const insertMediaAsMediaSingle = (
 	const mediaSingleAttrs = allowPixelResizing
 		? {
 				widthType: 'pixel',
-				width: getMediaSingleInitialWidth(node.attrs.width ?? DEFAULT_IMAGE_WIDTH),
+				width: getMediaSingleInitialWidth(
+					node.attrs.width ?? DEFAULT_IMAGE_WIDTH,
+					mediaSingleMaxWidth,
+				),
 				layout: 'center',
 			}
 		: {};
@@ -275,6 +360,9 @@ export const createInsertMediaAsMediaSingleCommand = (
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
 	insertMediaVia?: InsertMediaVia,
 	allowPixelResizing?: boolean,
+	positions?: [number, number],
+	dataConsumerSource?: string,
+	mediaSingleMaxWidth?: number,
 ): EditorCommand => {
 	return ({ tr }) => {
 		const { mediaSingle, media } = tr.doc.type.schema.nodes;
@@ -287,14 +375,31 @@ export const createInsertMediaAsMediaSingleCommand = (
 			return null;
 		}
 
+		const resolvedMediaSingleMaxWidth =
+			getPositiveWidth(mediaSingleMaxWidth) ??
+			getPositiveWidth(
+				getTableCellWidthFromPosition(tr.doc, positions ? positions[0] : tr.selection.from),
+			);
 		const mediaSingleAttrs = allowPixelResizing
 			? {
 					widthType: 'pixel',
-					width: getMediaSingleInitialWidth(mediaAttrs.width ?? DEFAULT_IMAGE_WIDTH),
+					width: getMediaSingleInitialWidth(
+						mediaAttrs.width ?? DEFAULT_IMAGE_WIDTH,
+						resolvedMediaSingleMaxWidth,
+					),
 					layout: 'center',
 				}
 			: {};
-		const mediaNode = media.create(mediaAttrs);
+
+		const dataConsumerMarkType = dataConsumerSource
+			? tr.doc.type.schema.marks.dataConsumer
+			: undefined;
+		const mediaNode =
+			dataConsumerSource && dataConsumerMarkType
+				? media.create(mediaAttrs, undefined, [
+						dataConsumerMarkType.create({ sources: [dataConsumerSource] }),
+					])
+				: media.create(mediaAttrs);
 
 		const mediaSingleNode = mediaSingle.create(mediaSingleAttrs, mediaNode);
 		const nodes = [mediaSingleNode];
@@ -308,6 +413,7 @@ export const createInsertMediaAsMediaSingleCommand = (
 		};
 		return insertNodesWithOptionalParagraphCommand({
 			nodes,
+			positions,
 			analyticsAttributes,
 			editorAnalyticsAPI,
 			insertMediaVia,
@@ -346,9 +452,7 @@ export const insertMediaSingleNode = (
 	// add undefined as fallback as we don't want media single width to have upper limit as 0
 	// if widthPluginState.width is 0, default 760 will be used
 	const contentWidth =
-		getMaxWidthForNestedNodeNext(view, state.selection.$from.pos, true) ||
-		widthPluginState?.lineLength ||
-		widthPluginState?.width ||
+		getMediaSingleMaxWidthForInsertion(view, state.selection.$from.pos, widthPluginState) ??
 		undefined;
 
 	const node = createMediaSingleNode(
@@ -423,9 +527,7 @@ export const changeFromMediaInlineToMediaSingleNode = (
 	// add undefined as fallback as we don't want media single width to have upper limit as 0
 	// if widthPluginState.width is 0, default 760 will be used
 	const contentWidth =
-		getMaxWidthForNestedNodeNext(view, state.selection.$from.pos, true) ||
-		widthPluginState?.lineLength ||
-		widthPluginState?.width ||
+		getMediaSingleMaxWidthForInsertion(view, state.selection.$from.pos, widthPluginState) ??
 		undefined;
 
 	const node = replaceWithMediaSingleNode(
@@ -543,6 +645,8 @@ const replaceWithMediaSingleNode =
 		return mediaSingle.createChecked(extendedMediaSingleAttrs, copiedMediaNode);
 	};
 
-export const isVideo = memoizeOne((fileType?: string): boolean => {
-	return !!fileType && fileType.includes('video');
-});
+export const isVideo: MemoizedFn<(fileType?: string) => boolean> = memoizeOne(
+	(fileType?: string): boolean => {
+		return !!fileType && fileType.includes('video');
+	},
+);

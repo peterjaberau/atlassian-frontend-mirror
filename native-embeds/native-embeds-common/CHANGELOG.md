@@ -1,0 +1,534 @@
+# @atlaskit/native-embeds-common
+
+## 2.6.2
+
+### Patch Changes
+
+- [`ee7d8e25afa75`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee7d8e25afa75) -
+  DXAI-1824: Refine AVPViz native embeds with a borderless raised frame, a loading skeleton matching
+  Viz Bifrost (announced as a "Loading chart" progress bar), and a single chart title. Enforce
+  native presentation parameters after Smart Link resolution, including fullscreen. Native URL
+  matching remains behind `platform_avp_viz_confluence_native_embed`.
+
+  Add a Static data / Dynamic data selector to the AVPViz native header. It is lazy-loaded and only
+  appears after the child negotiates `avpviz-data-fetch-v1`, so older children keep their own
+  selector. A local `useNativeEmbedChannel` hook validates state from the experience-scoped
+  child-command subscription and owns feature negotiation, connection sessions, and connection
+  timeouts. The data-fetch hook owns selection rules and pending state; the dropdown renders the
+  reported state and sends selections through it. Export the shared protocol from
+  `@atlassian/native-embeds-avpviz-experience/data-fetch-protocol`. Show the loading label, without
+  a mode icon, when no strategy is displayed. The selector's chunk is only downloaded once the child
+  agrees to the feature. Errors are the trigger's accessible description and appear on the option
+  they affect.
+
+  Core gains an opt-in `frameElevation: 'raised'` UI config and exposes the agreed-features promise
+  and experience-scoped child-command subscription on `ActionContext`. The additional context
+  capabilities and generic child-command events are enabled by
+  `platform_avp_viz_confluence_native_embed`; gate-off preserves the existing manifest dispatch and
+  action context.
+
+  Preserve the raised chart frame shadow in editor mode by allowing its host wrappers to overflow.
+  Keep content clipping inside the frame and preserve the editor selection ring.
+
+## 2.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.0
+
+### Minor Changes
+
+- [`72c0d47a53488`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72c0d47a53488) -
+  Add native-embed comments support, including a reusable Comment toolbar action and omitting
+  annotations from copied embeds.
+
+## 2.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.0
+
+### Minor Changes
+
+- [`dc4692834dd9f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dc4692834dd9f) -
+  Apply local Remix revision snapshots during pre-mint undo and redo without echoing local edits
+  under cc_maui_editing_experience.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.0
+
+### Minor Changes
+
+- [`0394648ac08c8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0394648ac08c8) -
+  [ux] Group MAUI text edits by revision and link delayed version creation without adding another
+  history step. Undoing the first edit on a fresh embed now restores the pre-edit text.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.0
+
+### Minor Changes
+
+- [`f63012e42f000`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f63012e42f000) -
+  Add a `remixAppId` node parameter and a session-scoped slot-value store (`recordRemixSlotValues` /
+  `getRemixSlotValues`, exposed via the new `@atlaskit/native-embeds-common/remix-slot-store`
+  subpath) used to support reload-free undo/redo for MAUI native embeds. Behind gate
+  `platform_editor_maui_remix_app_id`; no behavioural change when the gate is off.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.10
+
+### Patch Changes
+
+- [`01a486c093e01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01a486c093e01) -
+  [ux] Propagate native embed alignment to Whiteboards
+- Updated dependencies
+
+## 2.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.6
+
+### Patch Changes
+
+- [`89392d1eb49c1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/89392d1eb49c1) -
+  [fix] Keep native embeds and their resize handles aligned within old and new panel resize
+  boundaries, with a dynamic-config kill switch for rollback.
+- Updated dependencies
+
+## 2.2.5
+
+### Patch Changes
+
+- [`98f123ee15575`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/98f123ee15575) -
+  [ux] Align native embed placeholders in edit mode on first paint
+
+## 2.2.4
+
+### Patch Changes
+
+- [`9135fb9538960`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9135fb9538960) -
+  [ux] Reuse native embed placement for first-paint placeholders
+- Updated dependencies
+
+## 2.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`53006a460ecb2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/53006a460ecb2) -
+  [ux] Allow opted-in native embed experiences to use the editor text layout width as their maximum
+  width when the `platform_native_embeds_max_width` dynamic configuration is enabled. MAUI opts in
+  to the new `allowMaxWidth` manifest capability. Other experiences can opt in with:
+
+  ```ts
+  const MyExperienceManifest: ExperienceManifest = {
+  	allowMaxWidth: true,
+  	// other manifest fields
+  };
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`ae762b2ef8b90`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae762b2ef8b90) -
+  Add `getRemixFloatingToolbarButton` action and `BUILTIN_TOOLBAR_KEYS.REMIX` so the regular Remix
+  button can be surfaced in the native-embeds floating toolbar.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.6
+
+### Patch Changes
+
+- [`07226ab3fad50`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07226ab3fad50) -
+  [ux] Reserve native embed first-paint layout
+- Updated dependencies
+
+## 2.0.5
+
+### Patch Changes
+
+- [`56d5d8d23bed9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/56d5d8d23bed9) -
+  Bump native embeds i18n packages to include French and Portuguese (Brazil) translations.
+
+## 2.0.4
+
+### Patch Changes
+
+- [`d9d79b8830e62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d9d79b8830e62) -
+  [ux] Add generated i18n wrappers for native embeds
+- Updated dependencies
+
+## 2.0.3
+
+### Patch Changes
+
+- [`8c5ee69cd39e2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8c5ee69cd39e2) -
+  Update i18n NPM package versions
+
+## 2.0.2
+
+### Patch Changes
+
+- [`eeb90fdfdad94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eeb90fdfdad94) -
+  Add generated i18n runtime package dependencies
+- Updated dependencies
+
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.5.0
+
+### Minor Changes
+
+- [`e7c06cfc71b06`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e7c06cfc71b06) -
+  MAUI-590 execute remix update
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.4.0
+
+### Minor Changes
+
+- [`ffe37ecd72b10`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ffe37ecd72b10) -
+  MAUI-478: Add border options to Infographic, Chart and Visualization native embed toolbar behind
+  the cc-maui-experiment experiment gate.
+
+  Users can now toggle "Add border" / "No border" from the native embed toolbar when the MAUI
+  experiment is enabled. The border state is persisted as a `showBorder` macro parameter on the node
+  and reflected in the embed frame.
+
+## 1.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.3.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.0
+
+### Minor Changes
+
+- [`6909e71070730`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6909e71070730) -
+  Show an AI generating overlay (rainbow loading bar) on the targeted native embed while Rovo is
+  processing an inline-edit prompt. Behind the `cc-maui-phase-2-loading` feature gate.
+
+  Two-stage commit pattern so the overlay only appears once the user has actually submitted a prompt
+  — not when the AI modal first opens:
+  - The toolbar handler for "Ask Rovo" (`maui:onAskRovoClick`) **stages** the embed `localId` via
+    the new `stageInlineRovoStreaming` action. The toolbar handler factory now propagates the
+    selected node's `localId` to manifest handlers via
+    `EditorToolbarHandlerContext.selectedNodeLocalId` so MAUI can stage the correct target before
+    opening the AI modal.
+  - `RovoPromptScreenWithLogic.onSubmit` **commits** the staged id via `commitInlineRovoStreaming`.
+    This is what triggers the consumer-visible loading overlay.
+  - `RovoPromptScreenWithLogic.onComplete` / `handleAbort` dispatches `endInlineRovoStreaming` to
+    clear it.
+
+  The native-embeds extension subscribes to the AI plugin's new `inlineRovoStreamingTargetId`
+  shared-state field and renders the overlay when its own `localId` matches.
+
+  The overlay component (`AIGeneratingOverlay`) is colocated inside `native-embeds-core` rather than
+  extracted to a shared package. Hosting it in `@atlaskit/editor-common` (the natural shared spot)
+  would create a TS6202 circular project reference because `editor-common` already depends on
+  `@atlaskit/media-card`. A new leaf-level package would force workspace registrations across every
+  product `package.json`, plus tsconfig project-reference updates and lockfile churn — large
+  unrelated review surface for a 130-line component. When the parallel media inline-edit branch
+  lands (PR #357140), the two implementations should be consolidated into a shared package below
+  both consumers in the dependency graph.
+
+  Includes reducer + consumer unit tests covering both gate-on and gate-off paths.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.1
+
+### Patch Changes
+
+- [`9e964a88958bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e964a88958bd) -
+  Fix resize overlay placeholder height and aspect ratio calculation to use the stored `aspectRatio`
+  node parameter (set from originalWidth/originalHeight during card-to-native-embed conversion)
+  rather than relying solely on live DOM measurements. This ensures resize handles and the overlay
+  placeholder reflect the correct proportions from the very first selection, before a resize has
+  occurred. Applies to both `EmbedResizeOverlay` and `ResizableNativeEmbedLegacy`.
+
+  Add `aspectRatio` to `NativeEmbedParameters` macroParams type so that `getParameters` and
+  `setParameters` correctly serialize and deserialize the stored width-to-height ratio. This enables
+  native embed containers to derive their height from the original embed dimensions without
+  requiring a resize interaction.
+
+  Fix native embed containers incorrectly defaulting to a 1:1 or 1200/600 aspect ratio on initial
+  render when `aspectRatio` (originalWidth/originalHeight) is stored in the node parameters. The
+  container now derives the correct height from the stored `aspectRatio` on the very first render,
+  before any resize interaction occurs.
+
+- Updated dependencies
+
+## 1.1.0
+
+### Minor Changes
+
+- [`7fe1914f87802`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fe1914f87802) -
+  MAUI-463: Add expand (fullscreen preview) button to native embed editor floating toolbar. Removes
+  expand button from embed header for MAUI embeds (Infographic, Chart, Visualization) since it is
+  now in the editor toolbar.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`4b920b03625a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b920b03625a1) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.4
+
+### Patch Changes
+
+- [`89e32bffb1383`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/89e32bffb1383) -
+  [ux] Add support to consume the editor AI plugin summarise functionality in other editor plugins.
+- Updated dependencies
+
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.0
+
+### Minor Changes
+
+- [`6c3e67fec342f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6c3e67fec342f) -
+  Add BUILTIN_TOOLBAR_KEYS.COPY for copying native-embed nodes. COPY_LINK is now a deprecated alias
+  for COPY. Add onCopyClick handler alongside deprecated onCopyLinkClick alias.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.1
+
+### Patch Changes
+
+- [`71180287b9fed`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71180287b9fed) -
+  pen inline prompt when ask rovo is clicked on a maui app and send the context to the api
+- Updated dependencies

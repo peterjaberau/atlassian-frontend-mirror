@@ -5,11 +5,11 @@
 
 import { css, jsx } from '@compiled/react';
 
-import Avatar from '@atlaskit/avatar';
-import Heading from '@atlaskit/heading';
+import Avatar from '@atlaskit/avatar/avatar';
+import Heading from '@atlaskit/heading/heading';
 import { Inline, Stack, Text } from '@atlaskit/primitives/compiled';
-import { AvatarTag } from '@atlaskit/tag';
-import TeamAvatar from '@atlaskit/teams-avatar';
+import AvatarTag from '@atlaskit/tag/avatar-tag';
+import TeamAvatar from '@atlaskit/teams-avatar/teams-avatar';
 import { token } from '@atlaskit/tokens';
 
 // Sample avatar images
@@ -342,10 +342,7 @@ export default function AvatarTagExample(): JSX.Element {
 							// eslint-disable-next-line no-alert
 							return window.confirm('Are you sure you want to remove this tag?');
 						}}
-						onAfterRemoveAction={(text) => {
-							// eslint-disable-next-line no-console
-							console.log(`Removed tag: ${text}`);
-						}}
+						onAfterRemoveAction={() => {}}
 						testId="avatar-tag-callbacks"
 					/>
 					<AvatarTag
@@ -357,10 +354,7 @@ export default function AvatarTagExample(): JSX.Element {
 							// eslint-disable-next-line no-alert
 							return window.confirm('Are you sure you want to remove this team tag?');
 						}}
-						onAfterRemoveAction={(text) => {
-							// eslint-disable-next-line no-console
-							console.log(`Removed team tag: ${text}`);
-						}}
+						onAfterRemoveAction={() => {}}
 						testId="avatar-tag-team-callbacks"
 					/>
 				</Inline>

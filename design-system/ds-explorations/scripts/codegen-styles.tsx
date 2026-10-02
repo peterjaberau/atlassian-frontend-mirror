@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 
@@ -8,9 +9,8 @@ import { createColorMapTemplate } from './color-map-template';
 import { createInteractionStylesFromTemplate } from './interaction-codegen';
 
 const colorMapOutputFolder = join(__dirname, '../', 'src', 'internal');
-const colorTokensDependencyPath = require.resolve(
-	'../../tokens/src/artifacts/tokens-raw/atlassian-light',
-);
+const colorTokensDependencyPath =
+	require.resolve('../../tokens/src/artifacts/tokens-raw/atlassian-light');
 
 writeFile(
 	join(colorMapOutputFolder, 'color-map.tsx'),

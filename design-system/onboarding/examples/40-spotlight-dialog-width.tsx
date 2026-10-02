@@ -8,9 +8,10 @@ import { Component } from 'react';
 import { css, jsx } from '@compiled/react';
 import Lorem from 'react-lorem-component';
 
-import { Code } from '@atlaskit/code';
+import Code from '@atlaskit/code/code';
 import ArrowDownIcon from '@atlaskit/icon/core/arrow-down';
 import ArrowUpIcon from '@atlaskit/icon/core/arrow-up';
+// eslint-disable-next-line @atlaskit/design-system/use-spotlight-package
 import {
 	Spotlight,
 	SpotlightManager,
@@ -44,7 +45,7 @@ const buttonStyles = css({
 	borderRadius: '0.2em',
 	color: 'inherit',
 	cursor: 'pointer',
-	marginInlineEnd: token('space.050', '4px'),
+	marginInlineEnd: token('space.050'),
 	opacity: 0.75,
 	'&:hover, &:focus': {
 		backgroundColor: 'rgba(255, 255, 255, 0.2)',

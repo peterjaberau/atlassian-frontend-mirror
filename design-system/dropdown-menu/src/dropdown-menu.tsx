@@ -2,19 +2,21 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { bind } from 'bind-event-listener';
 
-import Button from '@atlaskit/button/new';
-import { KEY_DOWN, KEY_ENTER, KEY_SPACE, KEY_TAB } from '@atlaskit/ds-lib/keycodes';
+import Button from '@atlaskit/button/default/button';
+import { KEY_DOWN, KEY_ENTER, KEY_LEFT, KEY_SPACE, KEY_TAB } from '@atlaskit/ds-lib/keycodes';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
 import noop from '@atlaskit/ds-lib/noop';
 import useControlledState from '@atlaskit/ds-lib/use-controlled';
 import useFocus from '@atlaskit/ds-lib/use-focus-event';
 import ExpandIcon from '@atlaskit/icon/core/chevron-down';
-import { useLayering } from '@atlaskit/layering';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Popup, { type TriggerProps } from '@atlaskit/popup';
-// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { useLayering } from '@atlaskit/layering/use-layering';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Popup } from '@atlaskit/popup/popup';
+import type { TriggerProps } from '@atlaskit/popup/types';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports, @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
 
+import DropdownMenuTopLayer from './dropdown-menu-top-layer';
 import FocusManager from './internal/components/focus-manager';
 import MenuWrapper from './internal/components/menu-wrapper';
 import SelectionStore from './internal/context/selection-store';
@@ -79,15 +81,9 @@ function isKeyboardEvent(
 }
 
 /**
- * __Dropdown menu__
- *
- * A dropdown menu displays a list of actions or options to a user.
- *
- * - [Examples](https://atlassian.design/components/dropdown-menu/examples)
- * - [Code](https://atlassian.design/components/dropdown-menu/code)
- * - [Usage](https://atlassian.design/components/dropdown-menu/usage)
+ * Legacy Popper/Popup implementation (hooks run unconditionally when this component mounts).
  */
-const DropdownMenu = <T extends HTMLElement = any>({
+function DropdownMenuLegacy<T extends HTMLElement = any>({
 	autoFocus = false,
 	children,
 	defaultOpen = false,
@@ -108,7 +104,9 @@ const DropdownMenu = <T extends HTMLElement = any>({
 	interactionName,
 	strategy,
 	menuLabel,
-}: DropdownMenuProps<T>): React.JSX.Element => {
+	shouldPreventEscapePropagation = false,
+	shouldIgnoreCloseEvent,
+}: DropdownMenuProps<T>): React.JSX.Element {
 	const [isLocalOpen, setLocalIsOpen] = useControlledState(isOpen, () => defaultOpen);
 	const triggerRef = useRef<HTMLElement | null>(null);
 	const [isTriggeredUsingKeyboard, setTriggeredUsingKeyboard] = useState(false);
@@ -154,14 +152,28 @@ const DropdownMenu = <T extends HTMLElement = any>({
 			event: KeyboardEvent | MouseEvent | React.KeyboardEvent | React.MouseEvent | null,
 			currentLevel?: number,
 		) => {
-			const isTabOrEscapeKey =
-				isKeyboardEvent(event) && (event.key === 'Tab' || event.key === 'Escape');
+			const isTabLeftOrEscapeKey =
+				isKeyboardEvent(event) &&
+				(event.key === 'Tab' || event.key === 'Escape' || event.key === KEY_LEFT);
+
+			// Stop propagation on ESCAPE or Left arrow if shouldPreventEscapePropagation is true
+			if (
+				shouldPreventEscapePropagation &&
+				isKeyboardEvent(event) &&
+				(event.key === 'Escape' || event.key === KEY_LEFT)
+			) {
+				event.stopPropagation();
+			}
 
 			if (
 				event !== null &&
-				!isTabOrEscapeKey &&
+				!isTabLeftOrEscapeKey &&
 				event.target instanceof HTMLElement &&
-				event.target.closest?.(`[id^=${PREFIX}] [aria-haspopup]`)
+				event.target.closest?.(
+					fg('platform_dst-a11y_modal-trigger-haspopup')
+						? `[id^=${PREFIX}] [aria-haspopup="menu"], [id^=${PREFIX}] [aria-haspopup="true"]`
+						: `[id^=${PREFIX}] [aria-haspopup]`,
+				)
 			) {
 				// Check if it is within dropdown and it is a trigger button
 				// if it is a nested dropdown, clicking trigger won't close the dropdown
@@ -186,7 +198,9 @@ const DropdownMenu = <T extends HTMLElement = any>({
 				});
 			} else if (
 				isKeyboardEvent(event) &&
-				((event.key === 'Tab' && event.shiftKey) || event.key === 'Escape')
+				((event.key === 'Tab' && event.shiftKey) ||
+					event.key === 'Escape' ||
+					event.key === KEY_LEFT)
 			) {
 				requestAnimationFrame(() => {
 					itemRef.current?.focus();
@@ -208,7 +222,7 @@ const DropdownMenu = <T extends HTMLElement = any>({
 
 			onOpenChange({ isOpen: newValue, event });
 		},
-		[itemRef, onOpenChange, returnFocusRef, setLocalIsOpen],
+		[itemRef, onOpenChange, returnFocusRef, setLocalIsOpen, shouldPreventEscapePropagation],
 	);
 
 	const { isFocused, bindFocus } = useFocus();
@@ -232,7 +246,11 @@ const DropdownMenu = <T extends HTMLElement = any>({
 			listener: function openOnKeyDown(e: KeyboardEvent) {
 				let isNestedTriggerButton;
 				if (e.target instanceof HTMLElement) {
-					isNestedTriggerButton = e.target.closest(`[id^=${PREFIX}] [aria-haspopup]`);
+					isNestedTriggerButton = e.target.closest(
+						fg('platform_dst-a11y_modal-trigger-haspopup')
+							? `[id^=${PREFIX}] [aria-haspopup="menu"], [id^=${PREFIX}] [aria-haspopup="true"]`
+							: `[id^=${PREFIX}] [aria-haspopup]`,
+					);
 				}
 
 				if (e.key === KEY_DOWN && !isNestedTriggerButton) {
@@ -289,14 +307,11 @@ const DropdownMenu = <T extends HTMLElement = any>({
 				onClose={handleOnClose}
 				zIndex={zIndex}
 				placement={placement}
-				role={
-					shouldRenderToParent && currentLevel > 0 && fg('platform-dst-nested-dropdown-menu-role')
-						? 'group'
-						: undefined
-				}
+				role={shouldRenderToParent && currentLevel > 0 ? 'group' : undefined}
 				fallbackPlacements={fallbackPlacements}
 				testId={testId && `${testId}--content`}
 				shouldUseCaptureOnOutsideClick
+				shouldIgnoreCloseEvent={shouldIgnoreCloseEvent}
 				{...conditionalProps}
 				shouldDisableFocusLock
 				trigger={({
@@ -365,6 +380,65 @@ const DropdownMenu = <T extends HTMLElement = any>({
 			/>
 		</SelectionStore>
 	);
+}
+
+/**
+ * __Dropdown menu__
+ *
+ * A dropdown menu displays a list of actions or options to a user.
+ *
+ * - [Examples](https://atlassian.design/components/dropdown-menu/examples)
+ * - [Code](https://atlassian.design/components/dropdown-menu/code)
+ * - [Usage](https://atlassian.design/components/dropdown-menu/usage)
+ */
+const DropdownMenu = <T extends HTMLElement = any>(
+	props: DropdownMenuProps<T>,
+): React.JSX.Element => {
+	const {
+		autoFocus = false,
+		children,
+		defaultOpen = false,
+		isLoading,
+		isOpen,
+		onOpenChange = noop,
+		placement = 'bottom-start',
+		shouldFitContainer = false,
+		returnFocusRef,
+		spacing,
+		statusLabel,
+		testId,
+		trigger,
+		label,
+		interactionName,
+		menuLabel,
+	} = props;
+
+	if (fg('platform-dst-top-layer')) {
+		return (
+			<DropdownMenuTopLayer
+				autoFocus={autoFocus}
+				children={children}
+				defaultOpen={defaultOpen}
+				isLoading={isLoading}
+				isOpen={isOpen}
+				onOpenChange={onOpenChange}
+				placement={placement}
+				shouldFitContainer={shouldFitContainer}
+				returnFocusRef={returnFocusRef}
+				spacing={spacing}
+				statusLabel={statusLabel}
+				testId={testId}
+				trigger={trigger}
+				label={label}
+				interactionName={interactionName}
+				menuLabel={menuLabel}
+			/>
+		);
+	}
+
+	// Forward full public props to the legacy Popper/Popup implementation unchanged.
+	// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props -- wrapper delegates entire DropdownMenuProps API
+	return <DropdownMenuLegacy {...props} />;
 };
 
 export default DropdownMenu;

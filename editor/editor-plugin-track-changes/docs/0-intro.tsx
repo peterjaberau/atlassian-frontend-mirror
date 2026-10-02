@@ -1,25 +1,25 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
-export default md`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- md template from @atlaskit/docs
+const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Track Changes', [
 	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
-  ${
-		(
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			<div style={{ marginTop: token('space.100', '8px') }}>
+  ${(
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
 				<AtlassianInternalWarning />
 			</div>
-		)
-	}
+		</>
+	)}
 
   This package includes the track changes plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,10 +30,26 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+interface TrackChangesPluginOptions {
+  /**
+   * Custom wrapper component for the track changes button.
+   */
+  ButtonWrapper?: React.ComponentType<{ children: React.ReactNode }>;
+  /**
+   * Whether the track changes button should be shown on the toolbar.
+   * Defaults to false.
+   */
+  showOnToolbar?: boolean;
+}
+
 type TrackChangesPlugin = NextEditorPlugin<
   'trackChanges',
   {
     commands: {
+      /**
+       * Resets the baseline used for tracking changes in the editor.
+       */
+      resetBaseline: EditorCommand;
       /**
        * Toggles the displaying of changes in the editor.
        */
@@ -45,17 +61,19 @@ type TrackChangesPlugin = NextEditorPlugin<
        */
       OptionalPlugin<PrimaryToolbarPlugin>,
       /**
+       * For ensuring the tracked changes align with the history
+       */
+      OptionalPlugin<HistoryPlugin>,
+      /**
        * Show diff plugin for showing the changes in a diff view.
        */
       ShowDiffPlugin,
-    ];
-    pluginConfiguration?: {
       /**
-       * Whether the track changes button should be shown on the toolbar.
-       * Defaults to false.
+       * Toolbar plugin for registering the track changes button. Will be replacing the Primary Toolbar Plugin
        */
-      showOnToolbar?: boolean;
-    };
+      OptionalPlugin<ToolbarPlugin>,
+    ];
+    pluginConfiguration?: TrackChangesPluginOptions;
     sharedState: {
       /**
        * Whether the track changes feature is currently displaying changes.
@@ -143,3 +161,4 @@ For internal Atlassian, visit the slack channel [#help-editor](https://atlassian
 ---
  Please see [Atlassian Frontend - License](https://hello.atlassian.net/wiki/spaces/AF/pages/2589099144/Documentation#License) for more licensing information.
 `;
+export default _default_1;

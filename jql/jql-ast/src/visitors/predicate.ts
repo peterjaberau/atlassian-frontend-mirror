@@ -1,12 +1,12 @@
-import {
-	type JqlChangedPredicateContext,
-	type JqlDatePredicateOperatorContext,
-	type JqlDateRangePredicateOperatorContext,
-	type JqlPredicateOperandContext,
-	type JqlUserPredicateOperatorContext,
-	type JqlValuePredicateOperatorContext,
-	type JqlWasPredicateContext,
-} from '@atlaskit/jql-parser';
+import type {
+	JqlChangedPredicateContext,
+	JqlDatePredicateOperatorContext,
+	JqlDateRangePredicateOperatorContext,
+	JqlPredicateOperandContext,
+	JqlUserPredicateOperatorContext,
+	JqlValuePredicateOperatorContext,
+	JqlWasPredicateContext,
+} from '@atlaskit/jql-parser/JQLParser';
 
 import { internalCreators } from '../creators';
 import {
@@ -16,7 +16,6 @@ import {
 	type PredicateOperator,
 } from '../types';
 import { notUndefined } from '../utils';
-
 import { getPositionFromContext, JastBuildingVisitor } from './common';
 import { OperandVisitor } from './operand';
 
@@ -28,8 +27,8 @@ type PredicateOperatorContext =
 	| void;
 
 export class PredicateVisitor extends JastBuildingVisitor<Predicate> {
-	predicateOperatorVisitor = new PredicateOperatorVisitor(this.tokens);
-	predicateOperandVisitor = new PredicateOperandVisitor(this.tokens);
+	predicateOperatorVisitor: PredicateOperatorVisitor = new PredicateOperatorVisitor(this.tokens);
+	predicateOperandVisitor: PredicateOperandVisitor = new PredicateOperandVisitor(this.tokens);
 
 	visitJqlWasPredicate = (ctx: JqlWasPredicateContext): Predicate => {
 		const operator = this.getOperatorForContexts([
@@ -100,9 +99,9 @@ class PredicateOperatorVisitor extends JastBuildingVisitor<PredicateOperator> {
 }
 
 class PredicateOperandVisitor extends JastBuildingVisitor<Operand> {
-	operandVisitor = new OperandVisitor(this.tokens);
+	operandVisitor: OperandVisitor = new OperandVisitor(this.tokens);
 
-	visitJqlPredicateOperand = (ctx: JqlPredicateOperandContext) => {
+	visitJqlPredicateOperand = (ctx: JqlPredicateOperandContext): void | Operand => {
 		return ctx.jqlOperand().accept(this.operandVisitor);
 	};
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/datetime-picker",
-	"version": "17.5.0",
+	"version": "19.0.0",
 	"description": "A date time picker allows the user to select an associated date and time.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,25 +12,30 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
 		".": "./src/index.tsx",
+		"./date-picker": "./src/components/date-picker.tsx",
+		"./date-time-picker": "./src/components/date-time-picker.tsx",
+		"./time-picker": "./src/components/time-picker.tsx",
 		"./types": "./src/types.tsx"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Date time picker",
 			"category": "Forms and input"
 		}
@@ -47,14 +52,17 @@
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/popper": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/react-select": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
+		"@atlaskit/top-layer": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
 		"date-fns": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -72,50 +80,28 @@
 		"@atlaskit/section-message": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
 		"@atlaskit/toggle": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/testing-library__jest-dom": "root:*",
 		"jest-in-case": "root:*",
 		"jscodeshift": "root:*",
 		"moment": "root:*",
+		"react": "^19.0.0",
 		"react-dom": "root:*",
 		"react-lorem-component": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"styling": [
-				"compiled",
-				"static"
-			],
-			"ui-components": [
-				"primitives",
-				"lite-mode"
-			],
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports"
-		}
-	},
 	"platform-feature-flags": {
-		"dst-date-picker-use-functional-component": {
+		"platform-dst-top-layer": {
 			"type": "boolean"
 		},
-		"dst-date-time-picker-use-functional-component": {
+		"platform-dst-dp-current-reference-date": {
 			"type": "boolean"
 		},
-		"platform-visual-refresh-icons": {
-			"type": "boolean"
-		},
-		"platform-dst-shape-theme-default": {
+		"platform-dst-locale-week-start-day": {
 			"type": "boolean"
 		}
 	},

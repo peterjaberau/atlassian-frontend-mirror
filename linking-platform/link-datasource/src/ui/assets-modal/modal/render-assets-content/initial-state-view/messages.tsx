@@ -1,6 +1,27 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const initialStateViewMessages = defineMessages({
+export const initialStateViewMessages: {
+	searchTitle: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	searchDescription: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	learnMoreLinkOld: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+	learnMoreLink: {
+		id: string;
+		description: string;
+		defaultMessage: string;
+	};
+} = defineMessages({
 	searchTitle: {
 		id: 'linkDataSource.assets.configModal.renderAssetsContent.initialStateView.searchTitle',
 		description:

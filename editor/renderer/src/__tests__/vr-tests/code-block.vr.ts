@@ -1,15 +1,18 @@
 import { Device, snapshot } from '@af/visual-regression';
 import { flagsForVrTestsWithReducedPadding } from '@atlaskit/editor-test-helpers/advanced-layouts-flags';
+
 import {
 	CodeBlockRendererCopy,
 	CodeBlockRendererCopyWrap,
 	CodeBlockRendererTrailingNewline,
 	CodeBlockRendererWrap,
 	CodeBlockRendererOverflow,
+	CodeBlockRendererLineNumbersHidden,
 	CodeBlockWithReactLooselyLazy,
 	CodeBlockRendererWithBreakout,
 	CodeBlockRendererWithBreakoutFullWidth,
-} from './code-block.fixture';
+	CodeBlockRendererWithWrapEnabled,
+} from './code-block.fixture.vr.ap';
 
 snapshot(CodeBlockRendererCopy, {
 	description: 'should render copy button on hover if enabled',
@@ -28,6 +31,17 @@ snapshot(CodeBlockRendererTrailingNewline, {
 snapshot(CodeBlockRendererWrap, {
 	description: 'should render wrap button on hover if enabled',
 	states: [{ state: 'hovered', selector: { byTestId: 'renderer-code-block' } }],
+});
+
+snapshot(CodeBlockRendererWithWrapEnabled, {
+	description:
+		'should initialise wrap from ADF wrap attribute and render wrap button as selected on hover',
+	variants: [{ name: 'light', environment: { colorScheme: 'light' } }],
+	states: [{ state: 'hovered', selector: { byTestId: 'renderer-code-block' } }],
+});
+
+snapshot(CodeBlockRendererLineNumbersHidden, {
+	description: 'renderer code block - line numbers hidden',
 });
 
 snapshot(CodeBlockRendererOverflow, {

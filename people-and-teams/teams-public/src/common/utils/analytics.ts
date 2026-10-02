@@ -1,5 +1,5 @@
 import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
-import { usePeopleTeamsAnalyticsSubcontext } from '@atlaskit/people-teams-ui-public/analytics';
+import { usePeopleTeamsAnalyticsSubcontext } from '@atlaskit/people-teams-ui-public/analytics-subcontext/store';
 
 const ANALYTICS_CHANNEL = 'peopleTeams';
 
@@ -30,7 +30,24 @@ interface AnalyticsEvent {
  * @private
  * @deprecated Analytics events should be fired using the `@atlaskit/teams-app-internal-analytics` package.
  */
-export const usePeopleAndTeamAnalytics = () => {
+export const usePeopleAndTeamAnalytics = (): {
+	fireOperationalEvent: (
+		createAnalyticsEvent: CreateUIAnalyticsEvent | undefined,
+		body: AnalyticsEvent,
+	) => void;
+	fireScreenEvent: (
+		createAnalyticsEvent: CreateUIAnalyticsEvent | undefined,
+		body: AnalyticsEvent,
+	) => void;
+	fireTrackEvent: (
+		createAnalyticsEvent: CreateUIAnalyticsEvent | undefined,
+		body: AnalyticsEvent,
+	) => void;
+	fireUIEvent: (
+		createAnalyticsEvent: CreateUIAnalyticsEvent | undefined,
+		body: AnalyticsEvent,
+	) => void;
+} => {
 	const [{ eventAttributes: injectedEventAttributes }] = usePeopleTeamsAnalyticsSubcontext();
 	const fireEvent =
 		(kind: 'operational' | 'screen' | 'track' | 'ui') =>

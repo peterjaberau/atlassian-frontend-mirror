@@ -1,8 +1,7 @@
 import type { Rule } from 'eslint';
 
-import { createLintRule } from '../utils/create-rule';
-
-import { ImportDeclaration } from './linters';
+import { createLintRule } from '../utils/create-lint-rule';
+import { ImportDeclaration } from './linters/import-declaration';
 
 const rule: Rule.RuleModule = createLintRule({
 	meta: {
@@ -22,8 +21,7 @@ const rule: Rule.RuleModule = createLintRule({
 	},
 	create(context) {
 		return {
-			'ImportDeclaration[source.value="@atlaskit/onboarding"]': (node: Rule.Node) =>
-				ImportDeclaration.lint(node, { context }),
+			ImportDeclaration: (node: Rule.Node) => ImportDeclaration.lint(node, { context }),
 		};
 	},
 });

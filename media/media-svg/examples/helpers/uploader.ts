@@ -1,9 +1,15 @@
 import { type SyntheticEvent, useState } from 'react';
 
 import { type FileIdentifier } from '@atlaskit/media-client';
-import { useMediaClient } from '@atlaskit/media-client-react';
+import { useMediaClient } from '@atlaskit/media-client-react/use-media-client';
 
-export const useSvgUploader = (collectionName?: string) => {
+export const useSvgUploader = (
+	collectionName?: string,
+): {
+	status: string;
+	identifier: FileIdentifier | undefined;
+	uploadFn: (event: SyntheticEvent<HTMLInputElement>) => Promise<void>;
+} => {
 	const mediaClient = useMediaClient();
 	const [identifier, setIdentifier] = useState<FileIdentifier>();
 	const [status, setStatus] = useState<string>('');
@@ -19,6 +25,7 @@ export const useSvgUploader = (collectionName?: string) => {
 			content: file,
 			name: file.name,
 			collection: collectionName,
+			size: file.size,
 		};
 
 		mediaClient.file.upload(uplodableFile).subscribe({

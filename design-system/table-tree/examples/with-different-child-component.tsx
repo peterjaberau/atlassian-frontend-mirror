@@ -1,6 +1,6 @@
 import React, { Component, type ComponentType } from 'react';
 
-import EmptyState from '@atlaskit/empty-state';
+import EmptyState from '@atlaskit/empty-state/empty-state';
 import TableTree, {
 	Cell,
 	Header,
@@ -14,7 +14,13 @@ import exampleImage from './img/example-image.png';
 
 type Item = (typeof ROOTS)[number] & { component: ComponentType<any> };
 
-const ROOTS = [
+const ROOTS: {
+	title: string;
+	id: string;
+	page: number;
+	numbering: string;
+	hasChildren: boolean;
+}[] = [
 	{
 		title: 'Chapter 1: Clean code',
 		id: 'chapter-1',
@@ -109,14 +115,7 @@ export default class WithDifferentChildComponent extends Component {
 				</Headers>
 				<Rows
 					items={items}
-					render={({
-						title,
-						numbering,
-						page,
-						hasChildren,
-						children,
-						component: CustomComponent,
-					}) =>
+					render={({ title, numbering, page, hasChildren, children, component: CustomComponent }) =>
 						CustomComponent ? (
 							<CustomComponent header="I am the header" imageUrl={exampleImage} />
 						) : (

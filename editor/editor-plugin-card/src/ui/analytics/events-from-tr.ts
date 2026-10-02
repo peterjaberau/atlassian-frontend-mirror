@@ -1,4 +1,4 @@
-import { LinkMetaStep } from '@atlaskit/adf-schema/steps';
+import { LinkMetaStep } from '@atlaskit/adf-schema/steps/link-meta-step';
 import { TableSortStep } from '@atlaskit/custom-steps';
 import { ACTION } from '@atlaskit/editor-common/analytics';
 import { getLinkMetadataFromTransaction } from '@atlaskit/editor-common/card';
@@ -14,7 +14,6 @@ import { AddMarkStep, RemoveMarkStep } from '@atlaskit/editor-prosemirror/transf
 import { pluginKey } from '../../pm-plugins/plugin-key';
 import { getPluginState } from '../../pm-plugins/util/state';
 import type { Queue, Resolve } from '../../types';
-
 import type { CardPluginEvent, Entity } from './types';
 import { EVENT, EVENT_SUBJECT } from './types';
 import {
@@ -29,7 +28,23 @@ import {
 /**
  * Find the links, smartLinks, datasources that were changed in a transaction
  */
-export const findChanged = (tr: Transaction | ReadonlyTransaction, state: EditorState) => {
+export const findChanged = (
+	tr: Transaction | ReadonlyTransaction,
+	state: EditorState,
+): {
+	inserted: Entity[];
+	removed: Entity[];
+	updated: (
+		| {
+				inserted: Entity;
+				removed: Entity;
+		  }
+		| {
+				inserted: Entity;
+				previous: { display?: string };
+		  }
+	)[];
+} => {
 	const schema = tr.doc.type.schema;
 	const removed: Entity[] = [];
 	const inserted: Entity[] = [];
@@ -52,6 +67,7 @@ export const findChanged = (tr: Transaction | ReadonlyTransaction, state: Editor
 
 	const queuedForUpgrade = isTransactionQueuedForUpgrade(tr);
 	const isResolveReplace = isTransactionResolveReplace(tr);
+	const isAutoConvert = isAutoConvertTr(tr);
 
 	// History
 	const historyMeta: unknown = tr.getMeta(pmHistoryPluginKey);
@@ -147,9 +163,12 @@ export const findChanged = (tr: Transaction | ReadonlyTransaction, state: Editor
 		 * Skip "deletions" when the transaction is relating to
 		 * replacing links queued for upgrade to cards,
 		 * because the "deleted" link has not actually been
-		 * tracked as "created" yet
+		 * tracked as "created" yet.
+		 * Also skip when the transaction is an auto-convert
+		 * (e.g. a pasted link being converted to a native embed extension),
+		 * because the link is being converted, not deleted by the user.
 		 */
-		if (!isResolveReplace) {
+		if (!isResolveReplace && !isAutoConvert) {
 			removed.push(...removedInStep);
 		}
 		inserted.push(...omitRequestsForUpgrade(insertedInStep));
@@ -284,6 +303,20 @@ const isTransactionResolveReplace = (tr: Transaction | ReadonlyTransaction) => {
 	const pluginMeta = tr.getMeta(pluginKey);
 
 	return isMetadataResolve(pluginMeta);
+};
+
+/**
+ * Checks if the transaction is an auto-convert action
+ * (e.g. a pasted link being converted to a native embed extension node).
+ * In this case the link removal should not be tracked as a deletion.
+ */
+const isAutoConvertTr = (tr: Transaction | ReadonlyTransaction) => {
+	return !!tr.steps.find((step) => {
+		if (!(step instanceof LinkMetaStep)) {
+			return false;
+		}
+		return step.getMetadata().cardAction === 'AUTO_CONVERT';
+	});
 };
 
 const isMetadataResolve = (metaData: unknown): metaData is Resolve => {

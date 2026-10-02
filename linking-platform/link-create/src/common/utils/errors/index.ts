@@ -1,4 +1,4 @@
-import { getTraceId } from '@atlaskit/linking-common/utils';
+import { getTraceId } from '@atlaskit/linking-common/utils/get-trace-id';
 
 const getUrlPath = (url: string) => {
 	try {
@@ -8,7 +8,19 @@ const getUrlPath = (url: string) => {
 	}
 };
 
-export const getNetworkFields = (error: unknown) => {
+export const getNetworkFields = (
+	error: unknown,
+):
+	| {
+			traceId: string | null;
+			status: number;
+			path: string;
+	  }
+	| {
+			traceId: null;
+			status: null;
+			path: null;
+	  } => {
 	if (error instanceof Response) {
 		return {
 			traceId: getTraceId(error),

@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::68c2bbf4fd6874e93c78c51b9065dc7c>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::648c0ae2eed997392fbe02564d9706c1>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -21,11 +21,11 @@ const svg = `<svg height="100%" viewBox="0 0 166 32">
 /**
  * __BitbucketDataCenterLogoCS__
  *
- * A temporary component to represent the logo for Bitbucket Data Center.
+ * A component to represent the logo for Bitbucket Data Center.
  *
  */
 export function BitbucketDataCenterLogoCS({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Bitbucket Data Center',
 	testId,

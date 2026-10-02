@@ -1,11 +1,13 @@
 import React from 'react';
+
 import { defaultSchema as schema } from '@atlaskit/adf-schema/schema-default';
-import { create } from 'react-test-renderer';
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { render } from '@atlassian/testing-library/render';
+
 import { ReactSerializer } from '../../../index';
-import { complexDocument as doc } from './__fixtures__/documents';
-import * as NodeUtil from '../../nodes';
 import * as MarkUtil from '../../marks';
+import * as NodeUtil from '../../nodes';
+import { complexDocument as doc } from './__fixtures__/documents';
 
 describe('Renderer - ReactSerializer - TextWrapperComponent', () => {
 	let docFromSchema: PMNode;
@@ -29,7 +31,7 @@ describe('Renderer - ReactSerializer - TextWrapperComponent', () => {
 				surroundTextNodesWithTextWrapper: true,
 			});
 
-			create(reactSerializer.serializeFragment(docFromSchema.content) as any);
+			render(<>{reactSerializer.serializeFragment(docFromSchema.content)}</>);
 
 			expect(createElementSpy).toHaveBeenCalled();
 			const keys = new Set();

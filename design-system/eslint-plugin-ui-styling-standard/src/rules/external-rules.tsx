@@ -1,6 +1,6 @@
 import type { LintRuleMeta } from '@atlaskit/eslint-utils/create-rule';
 
-import { getRuleUrl } from './utils/create-rule';
+import { getRuleUrl } from './utils/get-rule-url';
 
 /**
  * External rules must be scoped, have a display name, and external urls.
@@ -119,6 +119,20 @@ export const externalRules: ExternalRuleMeta[] = [
 			pluginConfig: {
 				allowedFunctionCalls: [['@atlaskit/tokens', 'token']],
 			},
+		},
+	},
+	{
+		name: '@atlaskit/design-system/no-css-map-scoped',
+		displayName: 'no-css-map-scoped',
+		isExternal: true,
+		docs: {
+			description:
+				'Disallows usage of the experimental `cssMapScoped` API from `@compiled/react`. This API is internal and is not part of the public Compiled CSS-in-JS interface.',
+			url: getRuleUrl('no-css-map-scoped'),
+			externalUrl:
+				'https://atlassian.design/components/eslint-plugin-design-system/no-css-map-scoped/usage',
+			recommended: true,
+			severity: 'error',
 		},
 	},
 ];

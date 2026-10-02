@@ -1,15 +1,15 @@
-import React, { Fragment, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Form, { Field, HelperMessage } from '@atlaskit/form';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import Textfield from '@atlaskit/textfield';
+import Button from '@atlaskit/button/default/button';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import Textfield from '@atlaskit/textfield/text-field';
 
 export default function Example(): React.JSX.Element {
 	const [isOpen, setIsOpen] = useState(false);
@@ -45,14 +45,9 @@ export default function Example(): React.JSX.Element {
 									name="name"
 									label="Type your name to continue"
 									defaultValue="Ian Atlas"
-								>
-									{({ fieldProps }) => (
-										<Fragment>
-											<Textfield {...fieldProps} />
-											<HelperMessage>{name ? `Hello, ${name}` : ''}</HelperMessage>
-										</Fragment>
-									)}
-								</Field>
+									helperMessage={name ? `Hello, ${name}` : ''}
+									component={({ fieldProps }) => <Textfield {...fieldProps} />}
+								/>
 							</ModalBody>
 							<ModalFooter>
 								<Button appearance="subtle" onClick={closeModal}>

@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import { Code } from '@atlaskit/code';
-import Drawer, {
-	DrawerCloseButton,
-	DrawerContent,
-	DrawerSidebar,
-	type DrawerWidth,
-} from '@atlaskit/drawer';
-import { widths } from '@atlaskit/drawer/constants';
-import { Label } from '@atlaskit/form';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Box, Inline } from '@atlaskit/primitives';
+import Button from '@atlaskit/button/default/button';
+import Code from '@atlaskit/code/code';
+import { Drawer } from '@atlaskit/drawer/drawer';
+import { DrawerCloseButton } from '@atlaskit/drawer/drawer-close-button';
+import { DrawerContent } from '@atlaskit/drawer/drawer-content';
+import { DrawerSidebar } from '@atlaskit/drawer/drawer-sidebar';
+import type { DrawerWidth } from '@atlaskit/drawer/types';
+import { Label } from '@atlaskit/form/label/default';
+import { Box, Inline } from '@atlaskit/primitives/compiled';
+
+const widths: DrawerWidth[] = ['narrow', 'medium', 'wide', 'extended', 'full'];
 
 const DrawersExample = (): React.JSX.Element => {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);

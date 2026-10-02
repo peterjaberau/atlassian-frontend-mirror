@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/icon",
-	"version": "30.0.2",
+	"version": "38.0.2",
 	"description": "An icon is a symbol representing a command, device, directory, or common action.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,8 +17,18 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Icon",
 			"category": "Images and icons",
 			"subPages": [
@@ -31,17 +41,17 @@
 		}
 	},
 	"scripts": {
-		"build-glyphs": "ts-node --project ../../../tsconfig.node.json ./build/index.tsx"
+		"build-glyphs": "tsx ./build/index.tsx"
 	},
 	"dependencies": {
-		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tile": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -55,7 +65,6 @@
 		"@atlaskit/form": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon-file-type": "workspace:^",
-		"@atlaskit/icon-object": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/logo": "workspace:^",
 		"@atlaskit/menu": "workspace:^",
@@ -68,87 +77,43 @@
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@babel/core": "root:*",
 		"@babel/register": "root:*",
 		"@codeshift/utils": "root:*",
-		"@testing-library/react": "root:*",
 		"fs-extra": "root:*",
 		"globby": "root:*",
 		"jscodeshift": "root:*",
 		"lodash": "root:*",
 		"nullthrows": "root:*",
 		"pkg-dir": "root:*",
+		"react": "^19.0.0",
 		"react-dom": "root:*",
-		"ts-node": "root:*"
+		"tsx": "root:*"
 	},
 	"keywords": [
 		"atlaskit",
 		"ui"
 	],
-	"techstack": {
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"styling": [
-				"static"
-			],
-			"ui-components": "lite-mode",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports"
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"homepage": "https://atlassian.design/components/icon/",
 	"exports": {
-		"./base": "./src/entry-points/base.tsx",
-		"./base-new": "./src/entry-points/base-new.tsx",
-		"./migration-map": "./src/entry-points/migration-map.tsx",
-		"./constants": "./src/entry-points/constants.tsx",
-		"./deprecated-map": "./src/entry-points/deprecated-map.tsx",
-		"./metadata": "./src/entry-points/metadata.tsx",
-		"./svg": "./src/entry-points/svg.tsx",
-		"./types": "./src/entry-points/types.tsx",
-		"./glyph": "./glyph",
-		"./glyph/*": {
-			"types": "./glyph/*.d.ts",
-			"default": "./glyph/*.js"
-		},
+		".": "./src/index.tsx",
+		"./components/icon-new": "./src/components/icon-new.tsx",
 		"./core": "./core",
 		"./core/*": {
 			"types": "./core/*.d.ts",
 			"default": "./core/*.js"
 		},
-		".": "./src/index.tsx"
-	},
-	"platform-feature-flags": {
-		"platform-visual-refresh-icons": {
-			"type": "boolean"
-		},
-		"platform-visual-refresh-icons-facade-button-fix": {
-			"type": "boolean"
-		},
-		"platform_dst_new_icon_tile": {
-			"type": "boolean"
-		},
-		"platform_dst_new_icon_tile_stage2": {
-			"type": "boolean"
-		},
-		"platform_dst_icon_tile_circle_replacement": {
-			"type": "boolean"
-		},
-		"platform_dst_icon_tile_circle_replacement_stage2": {
-			"type": "boolean"
-		}
+		"./deprecated-core": "./src/deprecated-core.tsx",
+		"./deprecated-map": "./src/deprecated-core.tsx",
+		"./icon-tile": "./src/components/icon-tile/index.tsx",
+		"./metadata": "./src/entry-points/metadata.tsx",
+		"./metadata-core": "./src/metadata-core.tsx",
+		"./skeleton": "./src/components/skeleton.tsx",
+		"./constants/default": "./src/constants.tsx",
+		"./types": "./src/types.tsx",
+		"./base-new": "./src/entry-points/base-new.tsx"
 	}
 }

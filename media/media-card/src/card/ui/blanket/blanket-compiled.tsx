@@ -3,12 +3,12 @@
  * @jsx jsx
  */
 import { jsx, css } from '@compiled/react';
+
 import { token } from '@atlaskit/tokens';
-import { N90A } from '@atlaskit/theme/colors';
 
 export const blanketClassName = 'media-card-blanket';
 
-export const fixedBlanketStyles: string = `background-color: ${token('color.blanket', N90A)};`;
+export const fixedBlanketStyles: string = `background-color: ${token('color.blanket')};`;
 
 const blanketStyles = css({
 	position: 'absolute',
@@ -22,14 +22,17 @@ const blanketStyles = css({
 });
 
 const fixedBlanketStyle = css({
-	backgroundColor: token('color.blanket', N90A),
+	backgroundColor: token('color.blanket'),
 });
 
 export interface BlanketProps {
 	isFixed?: boolean;
 }
 
-export const Blanket = (props: BlanketProps) => {
+export const Blanket: {
+	(props: BlanketProps): JSX.Element;
+	displayName: string;
+} = (props: BlanketProps): JSX.Element => {
 	const { isFixed } = props;
 
 	return (

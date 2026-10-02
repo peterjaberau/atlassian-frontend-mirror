@@ -3,13 +3,10 @@ import {
 	type DomainConfig,
 	type DomainKey,
 } from '../../../common/constants/host-based-lookup/types';
-
-import {
-	_getEnvironmentFromDomain,
-	configure,
-	getATLContextDomain,
-	getATLContextUrl,
-} from './index';
+import { _getEnvironmentFromDomain } from './_getEnvironmentFromDomain';
+import { configure } from './configure';
+import { getATLContextDomain } from './getATLContextDomain';
+import { getATLContextUrl } from './getATLContextUrl';
 
 const ATL_CONTEXT_DOMAIN: DomainConfig = {
 	admin: 'admin.atlassian.com',

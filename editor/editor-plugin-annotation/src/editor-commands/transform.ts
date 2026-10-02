@@ -1,4 +1,4 @@
-import { AnnotationTypes } from '@atlaskit/adf-schema';
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -18,8 +18,9 @@ import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { getRangeInlineNodeNames } from '@atlaskit/editor-common/utils';
 import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
-import { AddMarkStep, type Step } from '@atlaskit/editor-prosemirror/transform';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { AddMarkStep } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type { AnnotationPlugin } from '../annotationPluginType';
 import {
@@ -27,14 +28,18 @@ import {
 	getPluginState,
 	resolveDraftBookmark,
 } from '../pm-plugins/utils';
-import type { InlineCommentInputMethod } from '../types';
+import type { InlineCommentAnnotationProvider, InlineCommentInputMethod } from '../types';
 
 const isAnnotationStep = (step: Step): step is AddMarkStep =>
 	step instanceof AddMarkStep && step.mark.type.name === 'annotation';
 
 const addAnnotationMark =
-	(id: string, supportedBlockNodes?: string[]) =>
-	(transaction: Transaction, state: EditorState) => {
+	(
+		id: string,
+		supportedBlockNodes?: string[],
+		isBlockNodeSupported?: InlineCommentAnnotationProvider['isBlockNodeSupported'],
+	) =>
+	(transaction: Transaction, state: EditorState): Transaction => {
 		const inlineCommentState = getPluginState(state);
 		const { bookmark } = inlineCommentState || {};
 		const annotationMark = state.schema.marks.annotation.create({
@@ -45,6 +50,7 @@ const addAnnotationMark =
 			state,
 			bookmark,
 			supportedBlockNodes,
+			isBlockNodeSupported,
 		);
 
 		let tr = transaction;
@@ -70,9 +76,13 @@ const addInlineComment =
 		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
 		editorAPI: ExtractInjectionAPI<AnnotationPlugin> | undefined,
 	) =>
-	(id: string, supportedBlockNodes?: string[]) =>
-	(transaction: Transaction, state: EditorState) => {
-		let tr = addAnnotationMark(id, supportedBlockNodes)(transaction, state);
+	(
+		id: string,
+		supportedBlockNodes?: string[],
+		isBlockNodeSupported?: InlineCommentAnnotationProvider['isBlockNodeSupported'],
+	) =>
+	(transaction: Transaction, state: EditorState): Transaction => {
+		let tr = addAnnotationMark(id, supportedBlockNodes, isBlockNodeSupported)(transaction, state);
 
 		editorAPI?.editorViewModeEffects?.actions.applyViewModeStepAt(tr);
 
@@ -95,7 +105,7 @@ const addInlineComment =
 const addOpenCloseAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
 	(drafting: boolean, method: InlineCommentInputMethod = INPUT_METHOD.TOOLBAR) =>
-	(transaction: Transaction, state: EditorState) => {
+	(transaction: Transaction, state: EditorState): Transaction => {
 		const draftingPayload = getDraftCommandAnalyticsPayload(
 			drafting,
 			method,
@@ -107,7 +117,7 @@ const addOpenCloseAnalytics =
 const handleDraftState =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
 	(drafting: boolean, method: InlineCommentInputMethod = INPUT_METHOD.TOOLBAR) =>
-	(transaction: Transaction, state: EditorState) => {
+	(transaction: Transaction, state: EditorState): Transaction => {
 		const tr = addOpenCloseAnalytics(editorAnalyticsAPI)(drafting, method)(transaction, state);
 
 		const pluginState = getPluginState(state);
@@ -123,7 +133,7 @@ const handleDraftState =
 
 const addInsertAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
-	(transaction: Transaction, state: EditorState) => {
+	(transaction: Transaction, state: EditorState): Transaction => {
 		const analyticsEvent: AnnotationAEP = {
 			action: ACTION.INSERTED,
 			actionSubject: ACTION_SUBJECT.ANNOTATION,
@@ -151,7 +161,7 @@ const addInsertAnalytics =
 const addResolveAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
 	(method?: RESOLVE_METHOD) =>
-	(transaction: Transaction, state: EditorState) => {
+	(transaction: Transaction, state: EditorState): Transaction => {
 		const resolvedPayload = {
 			action: ACTION.RESOLVED,
 			actionSubject: ACTION_SUBJECT.ANNOTATION,
@@ -168,7 +178,7 @@ const addResolveAnalytics =
 const addPreemptiveGateErrorAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
 	(errorReason?: string) =>
-	(transaction: Transaction, state: EditorState) => {
+	(transaction: Transaction, state: EditorState): Transaction => {
 		const analyticsEvent: AnnotationErrorAEP = {
 			action: ACTION.ERROR,
 			actionSubject: ACTION_SUBJECT.ANNOTATION,
@@ -184,7 +194,7 @@ const addPreemptiveGateErrorAnalytics =
 
 const addDeleteAnalytics =
 	(editorAnalyticsAPI: EditorAnalyticsAPI | undefined) =>
-	(transaction: Transaction, state: EditorState) => {
+	(transaction: Transaction, state: EditorState): Transaction => {
 		const analyticsEvent: AnnotationAEP = {
 			action: ACTION.DELETED,
 			actionSubject: ACTION_SUBJECT.ANNOTATION,
@@ -196,7 +206,45 @@ const addDeleteAnalytics =
 		return transaction;
 	};
 
-export default {
+const _default_1: {
+	addAnnotationMark: (
+		id: string,
+		supportedBlockNodes?: string[],
+		isBlockNodeSupported?: InlineCommentAnnotationProvider['isBlockNodeSupported'],
+	) => (transaction: Transaction, state: EditorState) => Transaction;
+	addDeleteAnalytics: (
+		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+	) => (transaction: Transaction, state: EditorState) => Transaction;
+	addInlineComment: (
+		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+		editorAPI: ExtractInjectionAPI<AnnotationPlugin> | undefined,
+	) => (
+		id: string,
+		supportedBlockNodes?: string[],
+		isBlockNodeSupported?: InlineCommentAnnotationProvider['isBlockNodeSupported'],
+	) => (transaction: Transaction, state: EditorState) => Transaction;
+	addInsertAnalytics: (
+		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+	) => (transaction: Transaction, state: EditorState) => Transaction;
+	addOpenCloseAnalytics: (
+		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+	) => (
+		drafting: boolean,
+		method?: InlineCommentInputMethod,
+	) => (transaction: Transaction, state: EditorState) => Transaction;
+	addPreemptiveGateErrorAnalytics: (
+		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+	) => (errorReason?: string) => (transaction: Transaction, state: EditorState) => Transaction;
+	addResolveAnalytics: (
+		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+	) => (method?: RESOLVE_METHOD) => (transaction: Transaction, state: EditorState) => Transaction;
+	handleDraftState: (
+		editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
+	) => (
+		drafting: boolean,
+		method?: InlineCommentInputMethod,
+	) => (transaction: Transaction, state: EditorState) => Transaction;
+} = {
 	addAnnotationMark,
 	addInlineComment,
 	handleDraftState,
@@ -206,3 +254,4 @@ export default {
 	addPreemptiveGateErrorAnalytics,
 	addDeleteAnalytics,
 };
+export default _default_1;

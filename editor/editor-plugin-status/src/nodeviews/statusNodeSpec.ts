@@ -1,20 +1,19 @@
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { convertToInlineCss } from '@atlaskit/editor-common/lazy-node-view';
 import { ZERO_WIDTH_SPACE } from '@atlaskit/editor-common/whitespace';
 import type { DOMOutputSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { normalizeStatusColorAttr } from '../utils/normalizeStatusColor';
 
 // eg. Version/4.0 Chrome/95.0.4638.50
 const isAndroidChromium =
-	// @ts-ignore - TS1501 TypeScript 5.9.2 upgrade
 	typeof window !== 'undefined' && /Version\/.* Chrome\/.*/u.test(window.navigator.userAgent);
 
 export const statusToDOM = (node: PMNode): DOMOutputSpec => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 	const { text, color, style, localId } = node.attrs;
+	const dataColor = normalizeStatusColorAttr(color);
 
 	const editorNodeWrapperAttrs: Record<string, string> = {
 		class: 'statusView-content-wrap inlineNodeView',
@@ -22,32 +21,24 @@ export const statusToDOM = (node: PMNode): DOMOutputSpec => {
 		'data-prosemirror-node-name': 'status',
 		localid: localId,
 		// Required for parseDOM to correctly parse status when NodeView DOM is copied directly
-		...(expValEquals(
-			'platform_editor_copy_paste_issue_fix',
-			'isEnabled',
-			true,
-		)
-			? {
-				'data-node-type': 'status',
-				'data-color': color,
-				'data-text': text, // Text stored as attribute for parseDOM extraction
-			}
-			: {}),
+		'data-node-type': 'status',
+		'data-color': dataColor,
+		'data-text': text, // Text stored as attribute for parseDOM extraction
 	};
 
 	const statusElementAttrs = {
 		style: convertToInlineCss(
 			isAndroidChromium
 				? {
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
-					display: 'inline-block !important',
-					verticalAlign: 'middle',
-				}
+						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles -- Ignored via go/DSP-18766
+						display: 'inline-block !important',
+						verticalAlign: 'middle',
+					}
 				: {},
 		),
 		class: 'status-lozenge-span',
 		'data-node-type': 'status',
-		'data-color': color,
+		'data-color': dataColor,
 		'data-style': style,
 	};
 
@@ -60,9 +51,15 @@ export const statusToDOM = (node: PMNode): DOMOutputSpec => {
 		style: convertToInlineCss({
 			...(fg('platform-lozenge-custom-letterspacing')
 				? {
-					// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-					letterSpacing: '0.165px',
-				}
+						// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+						letterSpacing: '0.165px',
+					}
+				: {}),
+			...(style !== 'mixedCase' && fg('platform-dst-lozenge-tag-badge-visual-uplifts')
+				? {
+						// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
+						textTransform: 'uppercase',
+					}
 				: {}),
 		}),
 	};
@@ -78,10 +75,10 @@ export const statusToDOM = (node: PMNode): DOMOutputSpec => {
 		['span', statusElementAttrs, ['span', lozengeWrapperAttrs, ['span', lozengeTextAttrs, text]]],
 		browser.android
 			? [
-				'span',
-				{ class: 'zeroWidthSpaceContainer', contentEditable: 'false' },
-				['span', { class: 'inlineNodeViewAddZeroWidthSpace' }, ZERO_WIDTH_SPACE],
-			]
+					'span',
+					{ class: 'zeroWidthSpaceContainer', contentEditable: 'false' },
+					['span', { class: 'inlineNodeViewAddZeroWidthSpace' }, ZERO_WIDTH_SPACE],
+				]
 			: ['span', { class: 'inlineNodeViewAddZeroWidthSpace' }, ''],
 	];
 };

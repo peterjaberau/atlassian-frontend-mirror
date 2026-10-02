@@ -3,7 +3,17 @@
  * @jsx jsx
  */
 import { css, jsx } from '@compiled/react';
+
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { token } from '@atlaskit/tokens';
+
+const iconWrapperStyles = css({
+	alignItems: 'center',
+	display: 'inline-flex',
+	height: '24px',
+	justifyContent: 'center',
+	width: '24px',
+});
 
 const svgStyles = css({
 	fill: token('elevation.surface'),
@@ -15,9 +25,13 @@ const svgStyles = css({
 	height: '24px',
 });
 
-export default () => {
+export default (): JSX.Element => {
 	return (
-		<span data-vc={'icon-editor-dropbox'} aria-hidden={true}>
+		<span
+			data-vc={'icon-editor-dropbox'}
+			aria-hidden={true}
+			css={[isExperimentEnabled('platform_editor_slash_command') && iconWrapperStyles]}
+		>
 			{/* This colour is not ADG - it is the dropbox brand color */}
 			{/* eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage */}
 			<svg viewBox="0 0 24 24" css={svgStyles} aria-label="dropbox-icon" role="img">

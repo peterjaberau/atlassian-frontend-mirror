@@ -1,6 +1,7 @@
 import React from 'react';
-import { ImageContainer as CompiledImageContainer } from './imageContainer-compiled';
+
 import type { MediaCardCursor } from '../../../types';
+import { ImageContainer as CompiledImageContainer } from './imageContainer-compiled';
 
 type ImageContainerProps = {
 	children: React.ReactNode;
@@ -12,6 +13,7 @@ type ImageContainerProps = {
 	progress?: number;
 	selected?: boolean;
 	source?: string;
+	mediaMotion?: 'hidden' | 'entering';
 };
 
 export const ImageContainer = (props: ImageContainerProps): React.JSX.Element => (

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import camelCase from 'lodash/camelCase';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type {
 	AnalyticsEventPayload,
@@ -43,10 +43,7 @@ import type { EditorState, Selection } from '@atlaskit/editor-prosemirror/state'
 import { AllSelection, PluginKey, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import { findDomRefAtPos, findSelectedNodeOfType } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import type {
 	ConfigWithNodeInfo,
@@ -68,9 +65,15 @@ const SUPPRESS_TOOLBAR_USER_INTENTS = [
 	'tableContextualMenuPopupOpen',
 	'tableDragMenuPopupOpen',
 	'commenting',
+	// Suppress while reviewing an AI Suggested Edits card so node floating toolbars don't overlap
+	// or mis-position against the suggestion card / diff decorations. Set by the ai-suggestions plugin.
+	'reviewing',
 	'resizing',
 	'blockMenuOpen',
 	'statusPickerOpen',
+	// Suppress when a modal/overlay is open over the editor (e.g. the Jira remix ephemeral preview),
+	// so the floating toolbar does not bleed through on top of the overlay.
+	'overlayOpen',
 ];
 
 // TODO: AFP-2532 - Fix automatic suppressions below
@@ -294,23 +297,25 @@ export function ContentComponent({
 > & {
 	pluginInjectionApi: ExtractInjectionAPI<FloatingToolbarPlugin> | undefined;
 } & { editorView: EditorView }): React.JSX.Element | null {
-	const {
-		floatingToolbarState,
-		editorDisabledState,
-		editorViewModeState,
-		userIntentState,
-		// @ts-expect-error - excluded from FloatingToolbarPlugin dependencies to avoid circular dependency
-		blockControlsState,
-	} = useSharedPluginState(pluginInjectionApi, [
-		'floatingToolbar',
-		'editorDisabled',
-		'editorViewMode',
-		'userIntent',
-		// @ts-expect-error - excluded from FloatingToolbarPlugin dependencies to avoid circular dependency
-		'blockControls',
-	]);
+	const { floatingToolbarState, editorDisabledState, editorViewModeState, userIntentState } =
+		useSharedPluginState(pluginInjectionApi, [
+			'floatingToolbar',
+			'editorDisabled',
+			'editorViewMode',
+			'userIntent',
+		]);
 
-	const { configWithNodeInfo, floatingToolbarData } = floatingToolbarState ?? {};
+	const { configWithNodeInfo: configWithNodeInfoFromHook, floatingToolbarData } =
+		floatingToolbarState ?? {};
+
+	let configWithNodeInfo = configWithNodeInfoFromHook;
+	if (fg('platform_editor_ai_remix_toolbar')) {
+		// Read configWithNodeInfo live because the hook snapshot can lag behind the
+		// current editor selection and keep the floating toolbar rendered stale.
+		// for example, trigger remix on panel will not hide the floating toolbar
+		configWithNodeInfo =
+			pluginInjectionApi?.floatingToolbar?.sharedState.currentState()?.configWithNodeInfo;
+	}
 
 	if (isSSR()) {
 		return null;
@@ -325,24 +330,9 @@ export function ContentComponent({
 		return null;
 	}
 
-	const userIntentEnabled = Boolean(
-		pluginInjectionApi?.userIntent &&
-			expValEqualsNoExposure('platform_editor_lovability_user_intent', 'isEnabled', true),
-	);
-
-	if (
-		(userIntentState?.currentUserIntent === 'dragging' ||
-			(userIntentState?.currentUserIntent === 'blockMenuOpen' &&
-				expValEquals('platform_editor_block_menu', 'isEnabled', true))) &&
-		!userIntentEnabled
-	) {
-		return null;
-	}
-
 	if (
 		userIntentState?.currentUserIntent &&
-		SUPPRESS_TOOLBAR_USER_INTENTS.includes(userIntentState?.currentUserIntent) &&
-		userIntentEnabled
+		SUPPRESS_TOOLBAR_USER_INTENTS.includes(userIntentState?.currentUserIntent)
 	) {
 		return null;
 	}
@@ -371,6 +361,7 @@ export function ContentComponent({
 		getDomRef = getDomRefFromSelection,
 		align = 'center',
 		className = '',
+		containerSurface,
 		height,
 		width,
 		zIndex,
@@ -398,6 +389,7 @@ export function ContentComponent({
 	if (isInViewMode) {
 		// Typescript note: Not all toolbar item types have the `supportsViewMode` prop.
 		const toolbarItemViewModeProp: keyof FloatingToolbarButton<Command> = 'supportsViewMode';
+		// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 		items = iterableItems.filter(
 			(item) => toolbarItemViewModeProp in item && !!item[toolbarItemViewModeProp],
 		);
@@ -406,12 +398,14 @@ export function ContentComponent({
 	if (areToolbarFlagsEnabled(Boolean(pluginInjectionApi?.toolbar))) {
 		// Consolidate floating toolbar items
 		const toolbarItemsArray = Array.isArray(items) ? items : items?.(node);
+		// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 		const overflowDropdownItems = toolbarItemsArray.filter(
 			(item) => item.type === 'overflow-dropdown',
 		) as FloatingToolbarOverflowDropdown<Command>[];
 
 		if (overflowDropdownItems.length > 1) {
 			const consolidatedOverflowDropdown = consolidateOverflowDropdownItems(overflowDropdownItems);
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render -- Ignored via go/ees017 (to be fixed)
 			const otherItems = toolbarItemsArray.filter((item) => item.type !== 'overflow-dropdown');
 
 			if (otherItems.length > 0) {
@@ -479,29 +473,20 @@ export function ContentComponent({
 	// Confirm dialog
 	let confirmButtonItem;
 
-	if (fg('platform_editor_fix_confirm_table_removal')) {
-		const { confirmDialogForItem, confirmDialogForItemOption } = floatingToolbarData || {};
-		const matchingItem = confirmDialogForItem ? toolbarItems?.[confirmDialogForItem] : undefined;
+	const { confirmDialogForItem, confirmDialogForItemOption } = floatingToolbarData || {};
+	const matchingItem = confirmDialogForItem ? toolbarItems?.[confirmDialogForItem] : undefined;
 
-		if (matchingItem?.type === 'button') {
-			confirmButtonItem = matchingItem;
+	if (matchingItem?.type === 'button') {
+		confirmButtonItem = matchingItem;
+	}
+
+	if (matchingItem?.type === 'overflow-dropdown' && confirmDialogForItemOption !== undefined) {
+		const matchingItemOption = matchingItem.options[confirmDialogForItemOption];
+
+		// OverflowDropdownOption is the only member of the union that does not have a 'type' property
+		if (!('type' in matchingItemOption)) {
+			confirmButtonItem = matchingItemOption;
 		}
-
-		if (matchingItem?.type === 'overflow-dropdown' && confirmDialogForItemOption !== undefined) {
-			const matchingItemOption = matchingItem.options[confirmDialogForItemOption];
-
-			// OverflowDropdownOption is the only member of the union that does not have a 'type' property
-			if (!('type' in matchingItemOption)) {
-				confirmButtonItem = matchingItemOption;
-			}
-		}
-	} else {
-		const { confirmDialogForItem } = floatingToolbarData || {};
-		confirmButtonItem = confirmDialogForItem
-			? // Ignored via go/ees005
-				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-				(toolbarItems![confirmDialogForItem] as FloatingToolbarButton<Function>)
-			: undefined;
 	}
 
 	const scrollable = config.scrollable;
@@ -520,7 +505,7 @@ export function ContentComponent({
 		>
 			<Popup
 				ariaLabel={title}
-				role={fg('platform_editor_a11y_add_role_to_popup') ? 'toolbar' : undefined}
+				role={'toolbar'}
 				offset={offset}
 				target={targetRef}
 				alignY="bottom"
@@ -542,7 +527,9 @@ export function ContentComponent({
 			>
 				<WithProviders
 					providerFactory={providerFactory}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					providers={['extensionProvider']}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					renderNode={(providers) => {
 						return (
 							<Toolbar
@@ -556,6 +543,8 @@ export function ContentComponent({
 								editorView={editorView}
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 								className={className}
+								containerSurface={containerSurface}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								focusEditor={() => editorView.focus()}
 								providerFactory={providerFactory}
 								popupsMountPoint={popupsMountPoint}
@@ -575,6 +564,7 @@ export function ContentComponent({
 			<ConfirmationModal
 				testId="ak-floating-toolbar-confirmation-modal"
 				options={confirmDialogOptions}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onConfirm={(isChecked = false) => {
 					// Ignored via go/ees005
 					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -588,6 +578,7 @@ export function ContentComponent({
 						dispatchCommand(confirmButtonItem!.onClick);
 					}
 				}}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onClose={() => {
 					dispatchCommand(hideConfirmDialog());
 					// Need to set focus to Editor here,
@@ -610,7 +601,8 @@ export function ContentComponent({
  */
 // We throttle update of this plugin with RAF.
 // So from other plugins you will always get the previous state.
-export const pluginKey = new PluginKey<FloatingToolbarPluginState>('floatingToolbarPluginKey');
+export const pluginKey: PluginKey<FloatingToolbarPluginState> =
+	new PluginKey<FloatingToolbarPluginState>('floatingToolbarPluginKey');
 
 /**
  * Clean up floating toolbar configs from undesired properties.
@@ -645,7 +637,9 @@ export function floatingToolbarPluginFactory(options: {
 	floatingToolbarHandlers: Array<FloatingToolbarHandler>;
 	getIntl: () => IntlShape;
 	providerFactory: ProviderFactory;
-}) {
+}): SafePlugin<{
+	getConfigWithNodeInfo: (editorState: EditorState) => ConfigWithNodeInfo | null | undefined;
+}> {
 	const { floatingToolbarHandlers, providerFactory, getIntl, api } = options;
 	const intl = getIntl();
 	const getConfigWithNodeInfo = (
@@ -657,22 +651,7 @@ export function floatingToolbarPluginFactory(options: {
 			const handler = floatingToolbarHandlers[index];
 			const config = handler(editorState, intl, providerFactory, activeConfigs);
 			if (config) {
-				const userIntentEnabled = Boolean(
-					api?.userIntent &&
-						expValEqualsNoExposure('platform_editor_lovability_user_intent', 'isEnabled', true),
-				);
-
 				if (
-					config.__suppressAllToolbars &&
-					editorExperiment('platform_editor_controls', 'variant1') &&
-					!userIntentEnabled
-				) {
-					activeConfigs = undefined;
-					break;
-				}
-
-				if (
-					userIntentEnabled &&
 					SUPPRESS_TOOLBAR_USER_INTENTS.includes(
 						api?.userIntent?.sharedState.currentState()?.currentUserIntent || '',
 					)
@@ -689,31 +668,8 @@ export function floatingToolbarPluginFactory(options: {
 		return relevantConfig;
 	};
 
-	const getIsToolbarSuppressed = (editorState: EditorState) => {
-		const userIntentEnabled = Boolean(
-			api?.userIntent &&
-				expValEqualsNoExposure('platform_editor_lovability_user_intent', 'isEnabled', true),
-		);
-
-		if (userIntentEnabled) {
-			return false;
-		}
-
-		for (let index = 0; index < floatingToolbarHandlers.length; index++) {
-			const handler = floatingToolbarHandlers[index];
-			const config = handler(editorState, intl, providerFactory);
-			if (config?.__suppressAllToolbars) {
-				return true;
-			}
-		}
+	const getIsToolbarSuppressed = () => {
 		return false;
-	};
-
-	const apply = () => {
-		const newPluginState: FloatingToolbarPluginState = {
-			getConfigWithNodeInfo,
-		};
-		return newPluginState;
 	};
 
 	return new SafePlugin({
@@ -722,37 +678,33 @@ export function floatingToolbarPluginFactory(options: {
 			init: () => {
 				return { getConfigWithNodeInfo };
 			},
-			apply: expValEquals('platform_editor_lovability_suppress_toolbar_event', 'isEnabled', true)
-				? (_tr, _pluginState, __oldEditorState, newEditorState) => {
-						const suppressedToolbar = getIsToolbarSuppressed(newEditorState);
+			apply: (_tr, _pluginState, __oldEditorState) => {
+				const suppressedToolbar = getIsToolbarSuppressed();
 
-						const newPluginState: FloatingToolbarPluginState = {
-							getConfigWithNodeInfo,
-							suppressedToolbar,
-						};
+				const newPluginState: FloatingToolbarPluginState = {
+					getConfigWithNodeInfo,
+					suppressedToolbar,
+				};
 
-						return newPluginState;
-					}
-				: apply,
+				return newPluginState;
+			},
 		},
-		view: expValEquals('platform_editor_lovability_suppress_toolbar_event', 'isEnabled', true)
-			? () => {
-					return {
-						update: (view, prevState) => {
-							const pluginState = pluginKey.getState(view.state);
-							const prevPluginState = pluginKey.getState(prevState);
+		view: () => {
+			return {
+				update: (view, prevState) => {
+					const pluginState = pluginKey.getState(view.state);
+					const prevPluginState = pluginKey.getState(prevState);
 
-							if (pluginState?.suppressedToolbar && !prevPluginState?.suppressedToolbar) {
-								api?.analytics?.actions?.fireAnalyticsEvent({
-									action: ACTION.SUPPRESSED,
-									actionSubject: ACTION_SUBJECT.FLOATING_TOOLBAR_PLUGIN,
-									actionSubjectId: ACTION_SUBJECT_ID.FLOATING_TOOLBAR,
-									eventType: EVENT_TYPE.TRACK,
-								});
-							}
-						},
-					};
-				}
-			: undefined,
+					if (pluginState?.suppressedToolbar && !prevPluginState?.suppressedToolbar) {
+						api?.analytics?.actions?.fireAnalyticsEvent({
+							action: ACTION.SUPPRESSED,
+							actionSubject: ACTION_SUBJECT.FLOATING_TOOLBAR_PLUGIN,
+							actionSubjectId: ACTION_SUBJECT_ID.FLOATING_TOOLBAR,
+							eventType: EVENT_TYPE.TRACK,
+						});
+					}
+				},
+			};
+		},
 	});
 }

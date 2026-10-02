@@ -7,9 +7,12 @@ import React, { Fragment, memo, useCallback } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
-import Button, { type ThemeProps, type ThemeTokens } from '@atlaskit/button/custom-theme-button';
+import withAnalyticsContext, {
+	type WithContextProps,
+} from '@atlaskit/analytics-next/withAnalyticsContext';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import type { ThemeProps, ThemeTokens } from '@atlaskit/button/custom-theme-button-types';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
 import { token } from '@atlaskit/tokens';
 
 import {
@@ -19,7 +22,7 @@ import {
 	EVENT_TYPE,
 	fireAnalyticsEvent,
 } from '../../analytics';
-import { DEVICE_BREAKPOINT_NUMBERS, GRID_SIZE } from '../constants';
+import { DEVICE_BREAKPOINT_NUMBERS } from '../constants';
 import useFocus from '../hooks/use-focus';
 import type { Category } from '../types';
 
@@ -157,7 +160,7 @@ function CategoryListItem({
 				buttonStyles: {
 					...buttonStyles,
 					textAlign: 'start' as const,
-					marginLeft: token('space.025', '2px'),
+					marginLeft: token('space.025'),
 					height: '100%',
 					width: '100%',
 					color:
@@ -245,11 +248,8 @@ function CategoryListItem({
 
 const buttonWrapper = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-	height: `${GRID_SIZE * 4}px`,
-	margin: `${token('space.050', '4px')} ${token('space.050', '4px')} ${token(
-		'space.050',
-		'4px',
-	)} 0`,
+	height: `32px`,
+	margin: `${token('space.050')} ${token('space.050')} ${token('space.050')} 0`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 	[`@media (min-width: ${DEVICE_BREAKPOINT_NUMBERS.medium}px)`]: {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
@@ -259,7 +259,11 @@ const buttonWrapper = css({
 	},
 });
 
-const MemoizedCategoryListWithAnalytics = memo(
+const MemoizedCategoryListWithAnalytics: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<
+		Omit<Props & WithAnalyticsEventsProps & WithContextProps, 'ref'> & React.RefAttributes<unknown>
+	>
+> = memo(
 	withAnalyticsContext({
 		component: 'CategoryList',
 	})(CategoryList),

@@ -1,31 +1,36 @@
 import React, { useMemo } from 'react';
-import type { Mark as PMMark, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import type { RendererContext, ExtensionViewportSize } from '../types';
-import type { Serializer } from '../../serializer';
-import type { ExtensionLayout } from '@atlaskit/adf-schema';
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+
+import type { Layout as ExtensionLayout } from '@atlaskit/adf-schema/extensions';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { ACTION_SUBJECT_ID } from '@atlaskit/editor-common/analytics';
 import type {
 	ExtensionHandlers,
 	ExtensionParams,
 	Parameters,
 } from '@atlaskit/editor-common/extensions';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
-import { renderExtension } from './extension';
-import { ErrorBoundary } from '../../ui/Renderer/ErrorBoundary';
-import ExtensionRenderer from '../../ui/ExtensionRenderer';
+import type { Mark as PMMark, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+
 import { ACTION_SUBJECT } from '../../analytics/enums';
-import { ACTION_SUBJECT_ID } from '@atlaskit/editor-common/analytics';
+import type { AnalyticsEventPayload } from '../../analytics/events';
+import type { Serializer } from '../../serializer';
 import { AnnotationsPositionContext } from '../../ui/annotations';
+import ExtensionRenderer from '../../ui/ExtensionRenderer';
+import { ErrorBoundary } from '../../ui/Renderer/ErrorBoundary';
+import type { RendererAppearance } from '../../ui/Renderer/types';
 import { ValidationContextProvider } from '../../ui/Renderer/ValidationContext';
+import type { RendererContext, ExtensionViewportSize } from '../types';
+import { renderExtension } from './extension';
 
 interface Props {
-	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	content?: any;
 	extensionHandlers?: ExtensionHandlers;
 	extensionKey: string;
 	extensionType: string;
 	extensionViewportSizes?: ExtensionViewportSize[];
+	fireAnalyticsEvent?: (event: AnalyticsEventPayload) => void;
+	// Ignored via go/ees005
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	getContent?: () => any;
 	layout?: ExtensionLayout;
 	localId?: string;
 	marks?: PMMark[];
@@ -37,6 +42,7 @@ interface Props {
 	parameters?: any;
 	path?: PMNode[];
 	providers: ProviderFactory;
+	rendererAppearance?: RendererAppearance;
 	rendererContext: RendererContext;
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -56,6 +62,7 @@ const BodiedExtension = (props: React.PropsWithChildren<Props>): React.JSX.Eleme
 		extensionViewportSizes,
 		localId,
 		shouldDisplayExtensionAsInline,
+		fireAnalyticsEvent,
 	} = props;
 	const { createAnalyticsEvent } = useAnalyticsEvents();
 	const removeOverflow = React.Children.toArray(children)
@@ -79,6 +86,7 @@ const BodiedExtension = (props: React.PropsWithChildren<Props>): React.JSX.Eleme
 			 * This allows nested renderers to have their positions reported in a way
 			 * that the annotations positions can be calculated correctly.
 			 */}
+			{/* eslint-disable-next-line @atlassian/perf-linting/no-inline-context-value, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed) */}
 			<AnnotationsPositionContext.Provider value={{ startPos: props.startPos + 1 }}>
 				<ValidationContextProvider value={validationContextValue}>
 					<ExtensionRenderer
@@ -96,6 +104,8 @@ const BodiedExtension = (props: React.PropsWithChildren<Props>): React.JSX.Eleme
 										layout,
 										{
 											isTopLevel: path.length < 1,
+											rendererAppearance: props.rendererAppearance,
+											fireAnalyticsEvent,
 										},
 										removeOverflow,
 										parameters?.extensionId,
@@ -117,6 +127,8 @@ const BodiedExtension = (props: React.PropsWithChildren<Props>): React.JSX.Eleme
 								layout,
 								{
 									isTopLevel: path.length < 1,
+									rendererAppearance: props.rendererAppearance,
+									fireAnalyticsEvent,
 								},
 								removeOverflow,
 								parameters?.extensionId,

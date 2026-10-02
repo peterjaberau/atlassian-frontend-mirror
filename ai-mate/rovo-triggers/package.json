@@ -1,12 +1,25 @@
 {
 	"name": "@atlaskit/rovo-triggers",
-	"version": "5.13.0",
+	"version": "11.8.0",
 	"description": "Provides various trigger events to drive Rovo Chat functionality, such as a publish-subscribe and URL parameter hooks",
 	"author": "Atlassian Pty Ltd",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"website": {
+			"tags": [
+				"platform-labs",
+				"rovo-components"
+			]
+		},
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "AI Mate",
 		"singleton": true
 	},
@@ -16,14 +29,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
@@ -32,6 +37,12 @@
 		".": "./src/index.ts",
 		"./chat-context/types": "./src/common/utils/chat-context/types.tsx",
 		"./chat-context": "./src/common/utils/chat-context/index.tsx",
+		"./chat-entry-point": "./src/chat-entry-point.ts",
+		"./extension-context-bridge/analytics": "./src/common/utils/extension-context-bridge/analytics.ts",
+		"./extension-context-bridge/client": "./src/common/utils/extension-context-bridge/ExtensionContextBridgeClient.tsx",
+		"./extension-context-bridge/constants": "./src/common/utils/extension-context-bridge/constants.ts",
+		"./extension-context-bridge/host": "./src/common/utils/extension-context-bridge/ExtensionContextBridgeHost.tsx",
+		"./extension-context-bridge/transport": "./src/common/utils/extension-context-bridge/transport.ts",
 		"./jsm-journey-builder-types": "./src/common/types/jsm-journey-builder/index.ts",
 		"./main": "./src/main.tsx",
 		"./params": "./src/common/utils/params/index.ts",
@@ -42,7 +53,8 @@
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
-		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@babel/runtime": "root:*",
 		"bind-event-listener": "root:*"
 	},
@@ -56,52 +68,13 @@
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
-		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/conversation-assistant-service-api": "workspace:^",
+		"@atlassian/experiment-test-utils": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*",
 		"wait-for-expect": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"tangerine-next"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
-	"platform-feature-flags": {
-		"ai-mate-pub-sub-post-message-origin-fix": {
-			"type": "boolean"
-		}
 	}
 }

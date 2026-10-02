@@ -4,14 +4,14 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { contentStyles, wrapperStyles } from '@af/editor-examples-helpers/example-presets';
 import { DevTools } from '@af/editor-examples-helpers/utils';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cardProvider } from '@atlaskit/editor-test-helpers/card-provider';
 import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
 import { macroProvider } from '@atlaskit/editor-test-helpers/mock-macro-provider';
@@ -27,8 +27,10 @@ import WithEditorActions from '../src/ui/WithEditorActions';
 // eslint-disable-next-line no-console
 const SAVE_ACTION = () => console.log('Save');
 
+const loadExampleDocument = () => import('../example-helpers/templates/example.adf.json');
+
 const SaveAndCancelButtons = (props: { editorActions: EditorActions }) => {
-	const exampleDocument = useExampleDocument();
+	const exampleDocument = useExampleDocument(loadExampleDocument);
 
 	return (
 		<ButtonGroup>
@@ -64,7 +66,7 @@ const quickInsert = {
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export class ExampleEditor extends React.Component<Props> {
-	render() {
+	render(): jsx.JSX.Element {
 		return (
 			<IntlProvider locale="en">
 				{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
@@ -146,7 +148,8 @@ export class ExampleEditor extends React.Component<Props> {
 	}
 }
 
-export default function Example(defaultValue: string | object) {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export default function Example(defaultValue: string | object): jsx.JSX.Element {
 	return (
 		<EditorContext>
 			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}

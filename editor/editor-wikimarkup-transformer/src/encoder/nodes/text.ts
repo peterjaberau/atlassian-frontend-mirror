@@ -1,7 +1,7 @@
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type NodeEncoder, type NodeEncoderOpts } from '..';
-import { macroKeywordTokenMap } from '../../parser/tokenize/keyword';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 
+import type { NodeEncoder, NodeEncoderOpts } from '..';
+import { macroKeywordTokenMap } from '../../parser/tokenize/keyword';
 import { code } from '../marks/code';
 import { textColor } from '../marks/color';
 import { em } from '../marks/em';
@@ -59,6 +59,7 @@ const isEscapeNeeded = (node: PMNode, parent?: PMNode) => {
 function escapingWikiFormatter(text: string) {
 	const pattern = [
 		MENTION_ESCAPE_PATTERN,
+		// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 		...macroKeywordTokenMap.map((macro) => `(${macro.regex.source.replace('^', '')})`),
 	].join('|');
 	return (

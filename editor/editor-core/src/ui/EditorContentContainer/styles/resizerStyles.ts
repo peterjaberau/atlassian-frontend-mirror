@@ -1,5 +1,10 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import {
 	akEditorFullPageNarrowBreakout,
@@ -7,19 +12,79 @@ import {
 } from '@atlaskit/editor-shared-styles';
 import { token } from '@atlaskit/tokens';
 
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const resizerItemClassName = 'resizer-item';
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const resizerHoverZoneClassName = 'resizer-hover-zone';
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const resizerExtendedZone = 'resizer-is-extended';
 
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const resizerHandleClassName = 'resizer-handle';
-export const resizerHandleTrackClassName = `${resizerHandleClassName}-track`;
-export const resizerHandleThumbClassName = `${resizerHandleClassName}-thumb`;
-export const resizerDangerClassName = `${resizerHandleClassName}-danger`;
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const resizerHandleTrackClassName: 'resizer-handle-track' = `${resizerHandleClassName}-track`;
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const resizerHandleThumbClassName: 'resizer-handle-thumb' = `${resizerHandleClassName}-thumb`;
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const resizerDangerClassName: 'resizer-handle-danger' = `${resizerHandleClassName}-danger`;
 
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const resizerHandleThumbWidth = 3;
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const handleWrapperClass = 'resizer-handle-wrapper';
 
-// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766, Seems perfectly safe to autofix, but comments would be lost…
+// eslint-disable-next-line @atlaskit/design-system/no-css-tagged-template-expression -- Ignored via go/DSP-18766, Seems perfectly safe to autofix, but comments would be lost…
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const resizerStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
 	[`.${resizerItemClassName}`]: {
@@ -65,15 +130,16 @@ export const resizerStyles: SerializedStyles = css({
 
 		// NOTE: The below style is targeted at the div element added by the tooltip. We don't have any means of injecting styles
 		// into the tooltip
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		"& div[role='presentation']": {
+		// Guard skips top-layer elements (eg tooltip, modal); `:where()` keeps specificity unchanged.
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		"& div[role='presentation']:not(:where([popover], dialog, [popover] *, dialog *))": {
 			width: '100%',
 			height: '100%',
 			display: 'flex',
 			flexDirection: 'column',
 			justifyContent: 'center',
 			alignItems: 'center',
-			marginTop: token('space.negative.200', '-16px'),
+			marginTop: token('space.negative.200'),
 			whiteSpace: 'normal',
 		},
 
@@ -126,8 +192,8 @@ export const resizerStyles: SerializedStyles = css({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
 			[`& .${resizerHandleThumbClassName}`]: {
 				position: 'sticky',
-				top: token('space.150', '12px'),
-				bottom: token('space.150', '12px'),
+				top: token('space.150'),
+				bottom: token('space.150'),
 			},
 		},
 
@@ -150,7 +216,7 @@ export const resizerStyles: SerializedStyles = css({
 		content: "' '",
 		display: 'flex',
 		width: 3,
-		margin: `0 ${token('space.025', '2px')}`,
+		margin: `0 ${token('space.025')}`,
 		height: 64,
 		transition: 'background-color 0.2s',
 		borderRadius: token('radius.medium'),
@@ -171,11 +237,11 @@ export const resizerStyles: SerializedStyles = css({
 			'&::after': {
 				content: "''",
 				position: 'absolute',
-				top: token('space.negative.050', '-4px'),
-				right: token('space.negative.050', '-4px'),
-				bottom: token('space.negative.050', '-4px'),
-				left: token('space.negative.050', '-4px'),
-				border: `2px solid ${token('color.border.focused')}`,
+				top: token('space.negative.050'),
+				right: token('space.negative.050'),
+				bottom: token('space.negative.050'),
+				left: token('space.negative.050'),
+				border: `${token('border.width.selected')} solid ${token('color.border.focused')}`,
 				borderRadius: 'inherit',
 				zIndex: -1,
 			},
@@ -234,8 +300,8 @@ export const resizerStyles: SerializedStyles = css({
 
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
 		[`&.${resizerExtendedZone}`]: {
-			padding: `0 ${token('space.150', '12px')}`,
-			left: token('space.negative.150', '-12px'),
+			padding: `0 ${token('space.150')}`,
+			left: token('space.negative.150'),
 		},
 	},
 
@@ -248,7 +314,79 @@ export const resizerStyles: SerializedStyles = css({
 		},
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * Bottom-handle styles for the vertical-resize feature shipped under the
+ * `databases-native-embeds-v2` experiment
+ */
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const resizerBottomHandleStyles: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${resizerHandleClassName}.bottom`]: {
+		flexDirection: 'row',
+		alignItems: 'flex-end',
+		width: '100%',
+		height: 7,
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+		[`& .${resizerHandleThumbClassName}`]: {
+			width: 64,
+			height: 3,
+			minWidth: 24,
+			minHeight: 0,
+			margin: `${token('space.025')} 0`,
+
+			'&:hover': {
+				cursor: 'row-resize',
+			},
+		},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+		[`& .${resizerHandleTrackClassName}`]: {
+			width: 'calc(100% - 40px)',
+			height: 7,
+		},
+
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+		[`& .${resizerHandleTrackClassName}.full-height`]: {
+			width: '100%',
+			height: 7,
+			minWidth: 36,
+			minHeight: 0,
+		},
+	},
+
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${resizerHandleClassName}.small.bottom .${resizerHandleThumbClassName}`]: {
+		width: 43,
+		height: 3,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${resizerHandleClassName}.medium.bottom .${resizerHandleThumbClassName}`]: {
+		width: 64,
+		height: 3,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${resizerHandleClassName}.large.bottom .${resizerHandleThumbClassName}`]: {
+		width: 96,
+		height: 3,
+	},
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors,@atlaskit/ui-styling-standard/no-unsafe-values
+	[`.${resizerHandleClassName}.clamped.bottom .${resizerHandleThumbClassName}`]: {
+		width: 'clamp(43px, calc(100% - 32px), 96px)',
+		height: 3,
+	},
+});
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const pragmaticResizerStylesForTooltip: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.pm-breakout-resize-handle-rail-wrapper': {
@@ -263,9 +401,10 @@ export const pragmaticResizerStylesForTooltip: SerializedStyles = css({
 		borderRadius: token('radius.small'),
 		zIndex: 2,
 
-		// Tootip element
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-		'[role="presentation"]': {
+		// Tooltip element. Guard skips top-layer elements (eg tooltip, modal); `:where()` keeps
+		// specificity unchanged.
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'[role="presentation"]:not(:where([popover], dialog, [popover] *, dialog *))': {
 			height: '100%',
 			width: '100%',
 		},
@@ -276,8 +415,12 @@ export const pragmaticResizerStylesForTooltip: SerializedStyles = css({
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const pragmaticStylesLayoutFirstNodeResizeHandleFix: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.fabric-editor-breakout-mark': {
@@ -293,7 +436,12 @@ export const pragmaticStylesLayoutFirstNodeResizeHandleFix: SerializedStyles = c
 
 // Code block resizer position: legacy selector (matches any descendant code block).
 // When synced block contains a code block, this incorrectly applies -5px and the handle appears inside the border.
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const pragmaticResizerStylesCodeBlockLegacy: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.fabric-editor-breakout-mark': {
@@ -323,9 +471,14 @@ export const pragmaticResizerStylesCodeBlockLegacy: SerializedStyles = css({
 	},
 });
 
-// Code block resizer position: only when breakout directly wraps a code block (platform_synced_block_patch_1).
+// Code block resizer position: only when breakout directly wraps a code block.
 // Synced block containing code block keeps -24px from pragmaticResizerStylesSyncedBlock so the handle stays outside.
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const pragmaticResizerStylesCodeBlockSyncedBlockPatch: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.fabric-editor-breakout-mark': {
@@ -355,8 +508,12 @@ export const pragmaticResizerStylesCodeBlockSyncedBlockPatch: SerializedStyles =
 		},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const pragmaticResizerStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.fabric-editor-breakout-mark': {
@@ -412,6 +569,9 @@ export const pragmaticResizerStyles: SerializedStyles = css({
 	'.pm-breakout-resize-handle-container--right': {
 		justifySelf: 'end',
 	},
+	// Rail and thumb styles intentionally mirror the layout column divider
+	// (see layoutColumnDividerRailClassName and layoutColumnDividerThumbClassName in layout.ts).
+	// If updating these styles, consider keeping both in sync.
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.pm-breakout-resize-handle-rail': {
 		position: 'relative',
@@ -436,6 +596,17 @@ export const pragmaticResizerStyles: SerializedStyles = css({
 				background: token('color.border.focused'),
 			},
 		},
+	},
+	// Positions the vanilla resize tooltip at the pointer's Y, set by `pragmatic-resizer.tsx`.
+	// Inert until `platform_editor_use_vanilla_components` — nothing carries this class on control.
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.pm-breakout-resize-tooltip-anchor': {
+		position: 'absolute',
+		left: 0,
+		right: 0,
+		height: 0,
+		pointerEvents: 'none',
+		top: 'var(--pm-breakout-resize-tooltip-anchor-top, 0)',
 	},
 	// same as 'hover' styles above
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -465,12 +636,16 @@ export const pragmaticResizerStyles: SerializedStyles = css({
 
 		// sticky styles
 		position: 'sticky',
-		top: token('space.150', '12px'),
-		bottom: token('space.150', '12px'),
+		top: token('space.150'),
+		bottom: token('space.150'),
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const pragmaticResizerStylesSyncedBlock: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.fabric-editor-breakout-mark': {
@@ -493,8 +668,12 @@ export const pragmaticResizerStylesSyncedBlock: SerializedStyles = css({
 			},
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const pragmaticResizerStylesWithReducedEditorGutter: SerializedStyles = css({
 	/* container editor-area is defined in platform/packages/editor/editor-core/src/ui/Appearance/FullPage/StyledComponents.ts */
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-container-queries, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
@@ -527,5 +706,77 @@ export const pragmaticResizerStylesWithReducedEditorGutter: SerializedStyles = c
 				},
 			},
 		},
+	},
+});
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const pragmaticResizerStylesPanelAndRule: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.fabric-editor-breakout-mark': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'&:has(> .fabric-editor-breakout-mark-dom > [data-prosemirror-node-name="panel"])': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'> .pm-breakout-resize-handle-container--right': {
+				right: '-4px',
+			},
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'> .pm-breakout-resize-handle-container': {
+				height: 'calc(100% - 12px)',
+			},
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'&:has(> .fabric-editor-breakout-mark-dom > [data-prosemirror-node-name="panel_c1"])': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'> .pm-breakout-resize-handle-container--right': {
+				right: '-4px',
+			},
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'> .pm-breakout-resize-handle-container': {
+				height: 'calc(100% - 12px)',
+			},
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'&:has(> .fabric-editor-breakout-mark-dom > [data-prosemirror-node-name="rule"])': {
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'> .pm-breakout-resize-handle-container--right': {
+				right: '-4px',
+			},
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+			'> .pm-breakout-resize-handle-container': {
+				alignSelf: 'center',
+				height: '40px',
+			},
+		},
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'&:has(> .fabric-editor-breakout-mark-dom > [data-prosemirror-node-name="rule"].first-node-in-document)':
+			{
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+				'> .pm-breakout-resize-handle-container': {
+					transform: 'translateY(-12px)',
+				},
+			},
+	},
+});
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
+export const pragmaticResizerStylesExtensions: SerializedStyles = css({
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+	'.fabric-editor-breakout-mark': {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
+		'&:has([data-prosemirror-node-name="extension"]), &:has([data-prosemirror-node-name="bodiedExtension"]), &:has([data-prosemirror-node-name="multiBodiedExtension"])':
+			{
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+				'> .pm-breakout-resize-handle-container--right': {
+					right: '-25px',
+				},
+			},
 	},
 });

@@ -3,8 +3,8 @@
  */
 
 import { DEV, PRODUCTION, STAGING } from '../../common/constants';
-
-import { getDomainInContext, getUrlForDomainInContext } from './index';
+import { getDomainInContext } from './getDomainInContext';
+import { getUrlForDomainInContext } from './getUrlForDomainInContext';
 
 describe('getDomainInContext', () => {
 	beforeEach(() => {

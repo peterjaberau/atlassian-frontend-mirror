@@ -1,16 +1,23 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
-import type { ComponentsLogEntry } from '../../src/common/vc/types';
 
-import { expect, test, viewports } from './fixtures';
+import type { ComponentsLogEntry } from '../../src/common/vc/types';
+import { expect, getClientCalculatedVCRevisions, test, viewports } from './fixtures';
 
 test.describe('ReactUFO: class attribute mutation', () => {
 	for (const viewport of viewports) {
 		test.describe(`when view port is ${viewport.width}x${viewport.height}`, () => {
 			test.use({
-				examplePage: 'class-attribute-mutation',
 				viewport,
+			});
+
+			test.beforeEach(async ({ page }) => {
+				await page.visitExample<typeof import('../../examples/13-class-attribute-mutation.tsx')>(
+					'react-ufo',
+					'atlaskit',
+					'class-attribute-mutation',
+				);
 			});
 
 			test(`VC90 should match when the [content-div] class changed`, async ({
@@ -90,9 +97,9 @@ test.describe('ReactUFO: class attribute mutation', () => {
 				});
 
 				//check future bigger revisions
-				const applicableRevisions = ufoRevisions?.filter((rev) => rev['revision'] >= 'fy25.03');
+				const applicableRevisions = getClientCalculatedVCRevisions(ufoRevisions);
 
-				for (const rev of applicableRevisions!) {
+				for (const rev of applicableRevisions) {
 					const vc90Result = rev['metric:vc90'];
 					const revisionName = rev['revision'];
 					expect(vc90Result).toBeDefined();
@@ -111,11 +118,7 @@ test.describe('ReactUFO: class attribute mutation', () => {
 				}
 			});
 
-			test('should capture and report a11y violations', async ({
-				page,
-				waitForReactUFOPayload,
-				getSectionAttributeNthChange,
-			}) => {
+			test('should capture and report a11y violations', async ({ page }) => {
 				const mainDiv = page.locator('[data-testid="main"]');
 				await expect(mainDiv).toBeVisible();
 

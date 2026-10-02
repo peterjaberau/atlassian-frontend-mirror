@@ -13,9 +13,8 @@ import {
 	RemoveMarkStep,
 	RemoveNodeMarkStep,
 } from '@atlaskit/editor-prosemirror/transform';
-import { fg } from '@atlaskit/platform-feature-flags';
 
-import { type EditorViewModeEffectsPlugin } from './editorViewmodeEffectsPluginType';
+import type { EditorViewModeEffectsPlugin } from './editorViewmodeEffectsPluginType';
 import { ViewModeNodeStep, ViewModeStep } from './pm-plugins/viewModeStep';
 
 const createFilterStepsPlugin =
@@ -30,8 +29,8 @@ const createFilterStepsPlugin =
 
 				if (
 					tr.getMeta('isRemote') ||
-					(tr.getMeta('allowViewModeTransaction') &&
-						fg('platform_editor_allow_viewmode_transaction'))
+					tr.getMeta('replaceDocument') ||
+					tr.getMeta('allowViewModeTransaction')
 				) {
 					return true;
 				}

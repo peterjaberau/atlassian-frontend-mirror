@@ -1,4 +1,4 @@
-import type { Match } from '@atlaskit/adf-schema';
+import type { Match } from '@atlaskit/adf-schema/url';
 
 /** Created by scanning the Wikipedia page for all TLDs and selecting those that are common filenames, along
  * with customer complaints */
@@ -42,6 +42,13 @@ const tldsToNotAutoLinkify = [
 	'vb',
 ];
 
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const STARTS_WITH_HTTP_HTTPS_REGEX = /^https?:\/\//;
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const STARTS_WITH_WWW_REGEX = /^www\./;
+
 /**
  * Decide if a url should auto linkify, based on the TLD.
  * If URL is in a list of suspicious TLDs (eg. README.md), returns false
@@ -52,16 +59,12 @@ const tldsToNotAutoLinkify = [
  * @param url Link that hasn't been already prefixed with http://, https:// or www.
  */
 export function shouldAutoLinkifyTld(url: string): boolean {
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const startsWithHttpHttps = /^https?:\/\//.test(url);
+	const startsWithHttpHttps = STARTS_WITH_HTTP_HTTPS_REGEX.test(url);
 	if (startsWithHttpHttps) {
 		return true;
 	}
 
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const startsWithWWW = /^www\./.test(url);
+	const startsWithWWW = STARTS_WITH_WWW_REGEX.test(url);
 	if (startsWithWWW) {
 		return true;
 	}
@@ -89,6 +92,7 @@ export function shouldAutoLinkifyTld(url: string): boolean {
  * @param match Linkify Match
  * @returns True if should auto linkify, false otherwise
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function shouldAutoLinkifyMatch(match: Match): boolean {
 	return shouldAutoLinkifyTld(match.raw);
 }

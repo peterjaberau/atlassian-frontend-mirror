@@ -1,5 +1,95 @@
 # @atlaskit/platform-feature-flags-react
 
+## 1.2.0
+
+### Minor Changes
+
+- [`ae3b452f54cbe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae3b452f54cbe) -
+  Flatten the deprecated `entry-points` re-export shims onto clean granular subpaths (Volt Stage-1).
+  Single-symbol entry points (`component-with-condition`, `component-with-fg`, `function-with-fg`)
+  now resolve straight to their implementation modules, and the multi-symbol entry points are split
+  into per-symbol subpaths (`function-union-with-condition`,
+  `do-not-use-this-in-production-ever-reset-conditional-hooks-factory-cache`, etc.). No existing
+  subpath key was removed; the public surface only gains new entry points.
+
+## 1.1.1
+
+### Patch Changes
+
+- [`fa0809e8c979c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa0809e8c979c) -
+  Apply volt-no-multi-exports: split multi-export files into one-export-per-file
+
+## 1.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+## 1.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.5.1
+
+### Patch Changes
+
+- [`72290778b16ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72290778b16ca) -
+  Enrol mixed platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 0.5.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 0.4.4
+
+### Patch Changes
+
+- [`e18437c28f9ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e18437c28f9ab) -
+  Improve synced blocks robustness.
+
 ## 0.4.3
 
 ### Patch Changes

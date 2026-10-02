@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::58c9ee3b4e44f14aa5c8a2e33c7dac51>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::5ef214a3238f7b6419046bc2f04de4d6>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -20,11 +20,11 @@ const svg = `<svg height="100%" viewBox="0 0 126 32">
 /**
  * __AdminLogoCS__
  *
- * A temporary component to represent the logo for Admin.
+ * A component to represent the logo for Admin.
  *
  */
 export function AdminLogoCS({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Admin',
 	testId,

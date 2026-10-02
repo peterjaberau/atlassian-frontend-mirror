@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-state",
-	"version": "1.8.0",
+	"version": "4.0.0",
 	"description": "Contains the central state of Media frontend",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,17 +12,13 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./create-media-store": "./src/create-media-store.ts",
+		"./file-state": "./src/file-state.ts",
+		"./media-store": "./src/media-store.ts",
+		"./store": "./src/store.ts"
 	},
 	"atlassian": {
 		"team": "Media Exif",
@@ -36,15 +32,5 @@
 	},
 	"devDependencies": {
 		"wait-for-expect": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		}
 	}
 }

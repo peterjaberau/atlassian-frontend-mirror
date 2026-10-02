@@ -1,10 +1,13 @@
 import type { Page } from '@af/integration-testing';
-import { rendererTestCase as test, expect, type RendererPageInterface } from './not-libra';
 
+import { rendererTestCase as test, expect } from './not-libra';
+import type { RendererPageInterface } from './not-libra';
 import {
 	basicTableAdf,
 	nestedTablesInHeaderAndCellAdf,
 } from './table-width-analytics.spec.ts-fixtures';
+
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
 
 test.describe('table height information analytics', () => {
 	const waitForTableHeightInformationEvent = async (
@@ -23,11 +26,10 @@ test.describe('table height information analytics', () => {
 	};
 
 	test.use({
+		rendererMountOptions: { allowNestedTables: true },
 		rendererProps: {
+			adfStage: 'stage0',
 			appearance: 'full-page',
-		},
-		platformFeatureFlags: {
-			platform_editor_table_height_analytics_event: true,
 		},
 	});
 

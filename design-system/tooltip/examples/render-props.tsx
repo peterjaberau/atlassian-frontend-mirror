@@ -2,14 +2,13 @@ import React, { Fragment, useState } from 'react';
 
 import { styled } from '@compiled/react';
 
-import Button, { IconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import AddIcon from '@atlaskit/icon/core/add';
 import { token } from '@atlaskit/tokens';
-import Tooltip, {
-	type PositionType,
-	TooltipPrimitive,
-	type TooltipPrimitiveProps,
-} from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import TooltipPrimitive, { type TooltipPrimitiveProps } from '@atlaskit/tooltip/TooltipPrimitive';
+import type { PositionType } from '@atlaskit/tooltip/types';
 
 const VALID_POSITIONS: PositionType[] = ['mouse', 'top', 'right', 'bottom', 'left'];
 
@@ -26,10 +25,10 @@ const InlineDialog = styled<TooltipPrimitiveProps>(TooltipPrimitive)({
 	color: token('color.text'),
 	maxHeight: '300px',
 	maxWidth: '300px',
-	paddingTop: token('space.100', '8px'),
-	paddingRight: token('space.150', '12px'),
-	paddingBottom: token('space.100', '8px'),
-	paddingLeft: token('space.150', '12px'),
+	paddingTop: token('space.100'),
+	paddingRight: token('space.150'),
+	paddingBottom: token('space.100'),
+	paddingLeft: token('space.150'),
 });
 
 export default function RenderPropsExample(): React.JSX.Element {
@@ -60,7 +59,7 @@ export default function RenderPropsExample(): React.JSX.Element {
 			<p>Position</p>
 			<div
 				style={{
-					padding: `${token('space.500', '40px')} ${token('space.500', '40px')}`,
+					padding: `${token('space.500')} ${token('space.500')}`,
 				}}
 			>
 				<Tooltip content={positionText} position={positionText}>
@@ -75,7 +74,7 @@ export default function RenderPropsExample(): React.JSX.Element {
 			<p>Position without render props</p>
 			<div
 				style={{
-					padding: `${token('space.500', '40px')} ${token('space.500', '40px')}`,
+					padding: `${token('space.500')} ${token('space.500')}`,
 				}}
 			>
 				<Tooltip content={positionText} position={positionText}>

@@ -11,7 +11,7 @@ import {
 	type MemoExoticComponent,
 	type ReactNode,
 	type Ref,
-    type RefAttributes,
+	type RefAttributes,
 } from 'react';
 
 import { jsx } from '@compiled/react';
@@ -160,8 +160,8 @@ const styles = cssMap({
  *
  * @example
  * ```tsx
- * // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
- * import { Flex, Box } from '@atlaskit/primitives'
+ * import { Box } from '@atlaskit/primitives/compiled'
+ * import { Flex } from '@atlaskit/primitives/compiled/flex'
  *
  * const Component = () => (
  *   <Flex direction="column">
@@ -171,7 +171,9 @@ const styles = cssMap({
  * )
  * ```
  */
-const Flex: MemoExoticComponent<ForwardRefExoticComponent<Omit<FlexProps<ElementType>, "ref"> & RefAttributes<any>>> = memo(
+export const Flex: MemoExoticComponent<
+	ForwardRefExoticComponent<Omit<FlexProps<ElementType>, 'ref'> & RefAttributes<any>>
+> = memo(
 	forwardRef(
 		<T extends ElementType = 'div'>(
 			{
@@ -219,5 +221,3 @@ const Flex: MemoExoticComponent<ForwardRefExoticComponent<Omit<FlexProps<Element
 );
 
 Flex.displayName = 'Flex';
-
-export default Flex;

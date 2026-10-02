@@ -1,9 +1,11 @@
 import { snapshot } from '@af/visual-regression';
-import { MultiBodiedExtensionRenderer,
+
+import {
+	MultiBodiedExtensionRenderer,
 	MultiBodiedExtensionRendererFullPage,
 	MultiBodiedExtensionRendererFullPageFullWidth,
-	MultiBodiedExtensionRendererFullPageWideMode
- } from './multi-bodied-extension.fixture';
+	MultiBodiedExtensionRendererFullPageWideMode,
+} from './multi-bodied-extension.fixture.vr.ap';
 
 snapshot(MultiBodiedExtensionRenderer, {
 	drawsOutsideBounds: true,

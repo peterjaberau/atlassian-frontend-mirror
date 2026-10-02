@@ -11,24 +11,24 @@ import { token } from '@atlaskit/tokens';
 
 import { IconType, SmartLinkSize } from '../../src/constants';
 import { FlexibleCardContext } from '../../src/state/flexible-ui-context';
-import { LinkIcon } from '../../src/view/FlexibleCard/components/elements';
+import { default as LinkIcon } from '../../src/view/FlexibleCard/components/elements/link-icon-element';
 import { getContext } from '../utils/flexible-ui';
 import { HorizontalWrapper } from '../utils/vr-test';
 import VRTestWrapper from '../utils/vr-test-wrapper';
 
 const boxStyles = css({
-	color: token('color.text.inverse', '#FFFFFF'),
-	backgroundColor: token('color.icon.brand', '#0C66E4'),
+	color: token('color.text.inverse'),
+	backgroundColor: token('color.icon.brand'),
 	borderRadius: token('radius.medium', '6px'),
 });
 const linkIconStyles = css({
-	backgroundColor: token('color.background.accent.blue.subtle', '#579DFF'),
+	backgroundColor: token('color.background.accent.blue.subtle'),
 	borderRadius: token('radius.full', '15px'),
 });
 
 const context = getContext();
 
-export default () => {
+export default (): JSX.Element => {
 	return (
 		<VRTestWrapper>
 			<FlexibleCardContext.Provider value={{ data: context }}>

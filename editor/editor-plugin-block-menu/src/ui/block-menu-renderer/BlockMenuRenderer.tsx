@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 
 import type { RegisterBlockMenuComponent } from '../../blockMenuPluginType';
-
 import { BlockMenuComponents } from './BlockMenuComponents';
 import { BLOCK_MENU_FALLBACKS } from './fallbacks';
 import type { BlockMenuFallbacks } from './types';
@@ -18,7 +17,7 @@ type BlockMenuProps = {
 export const BlockMenuRenderer = ({
 	allRegisteredComponents,
 	fallbacks = BLOCK_MENU_FALLBACKS,
-}: BlockMenuProps) => {
+}: BlockMenuProps): React.JSX.Element => {
 	const { childrenMap, topLevelSections } = useMemo(
 		() => ({
 			childrenMap: buildChildrenMap(allRegisteredComponents),

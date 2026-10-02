@@ -1,11 +1,8 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 
 import type { InteractionMetrics } from '../../common';
-import { setUFOConfig, shouldUseRawDataThirdPartyBehavior } from '../../config';
-import { createPayloads } from '../index';
-
-jest.mock('@atlaskit/platform-feature-flags');
-const mockFg = fg as jest.Mock;
+import { setUFOConfig } from '../../config';
+import { createPayloads } from '../createPayloads';
 
 // Mock window
 Object.defineProperty(global, 'window', {
@@ -70,18 +67,16 @@ describe('Payload Creation with Third-Party Holds', () => {
 			enabled: true,
 			product: 'test-product',
 			region: 'test-region',
+			vc: {
+				enabled: true,
+				enabledVCRevisions: {
+					all: ['fy26.04'],
+				},
+			},
 			enableVCRawDataRates: {
 				enabled: true,
 				rates: { 'test-ufo-name': 0.5 },
 			},
-		});
-
-		// Mock feature flags
-		mockFg.mockImplementation((flag: string) => {
-			if (flag === 'platform_ufo_raw_data_thirdparty') {
-				return true;
-			}
-			return false;
 		});
 	});
 
@@ -106,9 +101,8 @@ describe('Payload Creation with Third-Party Holds', () => {
 			requestInfo: [],
 			reactProfilerTimings: [],
 			holdInfo: [],
-			holdExpInfo: [],
 			holdActive: new Map(),
-			holdExpActive: new Map(),
+			preloadInfo: [],
 			hold3pActive: new Map([
 				[
 					'hold-id-1',
@@ -170,24 +164,19 @@ describe('Payload Creation with Third-Party Holds', () => {
 
 		expect(mainPayload).toBeDefined();
 
-		// Verify that hold3pActive and hold3pInfo are included in the payload
-		const interactionMetrics = (mainPayload?.attributes?.properties as any)?.interactionMetrics;
-		if (shouldUseRawDataThirdPartyBehavior('test-ufo-name', 'page_load')) {
-			expect(interactionMetrics?.hold3pActive).toBeDefined();
-			expect(Array.isArray(interactionMetrics?.hold3pActive)).toBe(true);
-			expect(interactionMetrics?.hold3pInfo).toBeDefined();
-		}
+		const properties = mainPayload?.attributes?.properties as any;
+		expect(properties?.['ufo:hasAbortingInteractionDuringSSR']).toBe(false);
 
+		// Verify that hold3pActive and hold3pInfo are included in the payload
+		const interactionMetrics = properties?.interactionMetrics;
+		expect(interactionMetrics?.hold3pActive).toBeDefined();
+		expect(Array.isArray(interactionMetrics?.hold3pActive)).toBe(true);
+		expect(interactionMetrics?.hold3pInfo).toBeDefined();
 		expect(Array.isArray(interactionMetrics?.hold3pInfo)).toBe(true);
 	});
 
-	it('should not include hold3pActive and hold3pInfo when feature flag is disabled', async () => {
-		mockFg.mockImplementation((flag: string) => {
-			if (flag === 'platform_ufo_raw_data_thirdparty') {
-				return false;
-			}
-			return false;
-		});
+	it('should emit metric variant hold info for GenAI holds without adding them to root holdInfo', async () => {
+		passGate('platform_ufo_emit_metric_variant_holds');
 
 		const interaction: InteractionMetrics = {
 			id: 'test-interaction',
@@ -203,25 +192,270 @@ describe('Payload Creation with Third-Party Holds', () => {
 			requestInfo: [],
 			reactProfilerTimings: [],
 			holdInfo: [],
-			holdExpInfo: [],
 			holdActive: new Map(),
-			holdExpActive: new Map(),
+			preloadInfo: [],
+			hold3pActive: new Map(),
+			hold3pInfo: [
+				{
+					labelStack: [
+						{ name: 'app-root', segmentId: 'root-id' },
+						{ name: 'gen-ai-segment', segmentId: 'gen-ai-id', type: 'gen-ai' as const },
+					],
+					name: 'gen-ai-hold',
+					start: 1500,
+					end: 2600,
+				},
+			],
+			metricWindows: {
+				standard: {
+					start: 1000,
+					end: 2000,
+					includeCategories: [],
+					excludeCategories: ['third-party', 'gen-ai'],
+				},
+				'include-gen-ai': {
+					start: 1000,
+					end: 2600,
+					includeCategories: ['gen-ai'],
+					excludeCategories: [],
+				},
+			},
+			measureStart: 1000,
+			rate: 1,
+			cancelCallbacks: [],
+			metaData: {},
+			errors: [],
+			apdex: [],
+			labelStack: null,
+			routeName: 'test-route',
+			knownSegments: [
+				{
+					labelStack: [
+						{ name: 'app-root', segmentId: 'root-id' },
+						{ name: 'gen-ai-segment', segmentId: 'gen-ai-id', type: 'gen-ai' as const },
+					],
+				},
+			],
+			cleanupCallbacks: [],
+			awaitReactProfilerCount: 0,
+			redirects: [],
+			timerID: undefined,
+			changeTimeout: jest.fn(),
+			trace: null,
+			previousInteractionName: undefined,
+			isPreviousInteractionAborted: false,
+			abortReason: undefined,
+			minorInteractions: [],
+		};
+
+		Object.defineProperty(document, 'visibilityState', {
+			value: 'visible',
+			writable: true,
+		});
+		Object.defineProperty(document, 'hidden', {
+			value: false,
+			writable: true,
+		});
+
+		const payloads = await createPayloads('test-interaction', interaction);
+		const mainPayload = payloads.find(
+			(payload: any) =>
+				payload.actionSubject === 'experience' &&
+				payload.action === 'measured' &&
+				payload.attributes?.properties?.interactionMetrics,
+		);
+		const interactionMetrics = (mainPayload?.attributes?.properties as any)?.interactionMetrics;
+
+		expect(interactionMetrics.holdInfo).toEqual([]);
+		expect(interactionMetrics.metricVariantHoldInfo).toEqual({
+			'gen-ai': [
+				expect.objectContaining({
+					labelStack: 'root-id/gen-ai-id/gen-ai-hold',
+					startTime: 1500,
+					endTime: 2600,
+				}),
+			],
+		});
+		expect(interactionMetrics.metricWindows.standard).toEqual({
+			start: 1000,
+			end: 2000,
+			includeCategories: [],
+			excludeCategories: ['third-party', 'gen-ai'],
+		});
+	});
+
+	it('should use metric category end for active GenAI holds finalized before interaction end', async () => {
+		passGate('platform_ufo_emit_metric_variant_holds');
+
+		const interaction: InteractionMetrics = {
+			id: 'test-interaction',
+			start: 1000,
+			end: 2000,
+			ufoName: 'test-ufo-name',
+			type: 'page_load',
+			marks: [],
+			customData: [],
+			cohortingCustomData: new Map(),
+			customTimings: [],
+			spans: [],
+			requestInfo: [],
+			reactProfilerTimings: [],
+			holdInfo: [],
+			holdActive: new Map(),
+			preloadInfo: [],
 			hold3pActive: new Map([
 				[
-					'hold-id-1',
+					'gen-ai-hold-id',
 					{
-						labelStack: [{ name: 'segment1', type: 'third-party' as const }],
-						name: '3p-hold',
+						labelStack: [
+							{ name: 'app-root', segmentId: 'root-id' },
+							{ name: 'gen-ai-segment', segmentId: 'gen-ai-id', type: 'gen-ai' as const },
+						],
+						name: 'gen-ai-hold',
 						start: 1500,
 					},
 				],
 			]),
+			hold3pInfo: [],
+			metricCategoryEnds: {
+				'gen-ai': 1800,
+			},
+			metricWindows: {
+				standard: {
+					start: 1000,
+					end: 2000,
+					includeCategories: [],
+					excludeCategories: ['third-party', 'gen-ai'],
+				},
+				'include-gen-ai': {
+					start: 1000,
+					end: 1800,
+					includeCategories: ['gen-ai'],
+					excludeCategories: [],
+				},
+			},
+			measureStart: 1000,
+			rate: 1,
+			cancelCallbacks: [],
+			metaData: {},
+			errors: [],
+			apdex: [],
+			labelStack: null,
+			routeName: 'test-route',
+			knownSegments: [],
+			cleanupCallbacks: [],
+			awaitReactProfilerCount: 0,
+			redirects: [],
+			timerID: undefined,
+			changeTimeout: jest.fn(),
+			trace: null,
+			previousInteractionName: undefined,
+			isPreviousInteractionAborted: false,
+			abortReason: undefined,
+			minorInteractions: [],
+		};
+
+		Object.defineProperty(document, 'visibilityState', {
+			value: 'visible',
+			writable: true,
+		});
+		Object.defineProperty(document, 'hidden', {
+			value: false,
+			writable: true,
+		});
+
+		const payloads = await createPayloads('test-interaction', interaction);
+		const mainPayload = payloads.find(
+			(payload: any) =>
+				payload.actionSubject === 'experience' &&
+				payload.action === 'measured' &&
+				payload.attributes?.properties?.interactionMetrics,
+		);
+		const interactionMetrics = (mainPayload?.attributes?.properties as any)?.interactionMetrics;
+
+		expect(interactionMetrics.holdInfo).toEqual([]);
+		expect(interactionMetrics.metricVariantHoldInfo).toEqual({
+			'gen-ai': [
+				expect.objectContaining({
+					labelStack: 'root-id/gen-ai-id/gen-ai-hold',
+					startTime: 1500,
+					endTime: 1800,
+				}),
+			],
+		});
+	});
+
+	it('should include generic metricWindows, lifecycleObservations, and window-specific profiler timings', async () => {
+		const interaction: InteractionMetrics = {
+			id: 'test-interaction',
+			start: 1000,
+			end: 2000,
+			end3p: 3000,
+			ufoName: 'test-ufo-name',
+			type: 'page_load',
+			marks: [],
+			customData: [],
+			cohortingCustomData: new Map(),
+			customTimings: [],
+			spans: [],
+			requestInfo: [],
+			reactProfilerTimings: [
+				{
+					labelStack: [{ name: 'standard-segment' }],
+					type: 'mount',
+					actualDuration: 10,
+					baseDuration: 10,
+					startTime: 1500,
+					commitTime: 1600,
+				},
+				{
+					labelStack: [{ name: 'crossing-segment' }],
+					type: 'update',
+					actualDuration: 15,
+					baseDuration: 15,
+					startTime: 1900,
+					commitTime: 2100,
+				},
+				{
+					labelStack: [{ name: 'late-segment' }],
+					type: 'update',
+					actualDuration: 20,
+					baseDuration: 20,
+					startTime: 2500,
+					commitTime: 2600,
+				},
+			],
+			holdInfo: [],
+			holdActive: new Map(),
+			preloadInfo: [],
+			hold3pActive: new Map(),
 			hold3pInfo: [
 				{
 					labelStack: [{ name: 'segment1', type: 'third-party' as const }],
 					name: '3p-hold-completed',
 					start: 1200,
-					end: 1800,
+					end: 3000,
+				},
+			],
+			metricWindows: {
+				standard: {
+					start: 1000,
+					end: 2000,
+					includeCategories: [],
+					excludeCategories: ['third-party'],
+				},
+				'include-third-party': {
+					start: 1000,
+					end: 3000,
+					includeCategories: ['third-party'],
+					excludeCategories: [],
+				},
+			},
+			lifecycleObservations: [
+				{
+					type: 'new_interaction_started',
+					timestamp: 2500.4,
+					triggerName: 'next-interaction',
 				},
 			],
 			measureStart: 1000,
@@ -245,7 +479,6 @@ describe('Payload Creation with Third-Party Holds', () => {
 			minorInteractions: [],
 		};
 
-		// Mock page visibility to ensure detailed payload is created
 		Object.defineProperty(document, 'visibilityState', {
 			value: 'visible',
 			writable: true,
@@ -256,20 +489,285 @@ describe('Payload Creation with Third-Party Holds', () => {
 		});
 
 		const payloads = await createPayloads('test-interaction', interaction);
-
-		// Find the main interaction metrics payload
 		const mainPayload = payloads.find(
 			(payload: any) =>
 				payload.actionSubject === 'experience' &&
 				payload.action === 'measured' &&
 				payload.attributes?.properties?.interactionMetrics,
 		);
-
-		expect(mainPayload).toBeDefined();
-
-		// When feature flag is disabled, hold3pActive and hold3pInfo should not be in the detailed metrics
 		const interactionMetrics = (mainPayload?.attributes?.properties as any)?.interactionMetrics;
-		expect(interactionMetrics?.hold3pActive).toBeUndefined();
-		expect(interactionMetrics?.hold3pInfo).toBeUndefined();
+
+		expect(interactionMetrics.metricWindows).toEqual({
+			standard: {
+				start: 1000,
+				end: 2000,
+				includeCategories: [],
+				excludeCategories: ['third-party'],
+			},
+			'include-third-party': {
+				start: 1000,
+				end: 3000,
+				includeCategories: ['third-party'],
+				excludeCategories: [],
+			},
+		});
+		expect(interactionMetrics.reactProfilerTimings).toEqual([
+			expect.objectContaining({
+				labelStack: 'standard-segment',
+				startTime: 1500,
+				endTime: 1600,
+			}),
+			expect.objectContaining({
+				labelStack: 'crossing-segment',
+				startTime: 1900,
+				endTime: 2100,
+			}),
+		]);
+		expect(interactionMetrics.reactProfilerTimingsByMetricWindow['include-third-party']).toEqual([
+			expect.objectContaining({
+				labelStack: 'standard-segment',
+				startTime: 1500,
+				endTime: 1600,
+			}),
+			expect.objectContaining({
+				labelStack: 'crossing-segment',
+				startTime: 1900,
+				endTime: 2100,
+			}),
+			expect.objectContaining({
+				labelStack: 'late-segment',
+				startTime: 2500,
+				endTime: 2600,
+			}),
+		]);
+
+		expect(interactionMetrics.lifecycleObservations).toEqual([
+			{
+				type: 'new_interaction_started',
+				timestamp: 2500,
+				triggerName: 'next-interaction',
+			},
+		]);
+	});
+
+	// NOTE ON SCOPE: this is a SERIALIZER PASS-THROUGH test, not a test of the decision logic in
+	// getNonExcludedThirdPartyEnd. It hand-builds an already-computed interaction (end3p=3000, the
+	// include-third-party window already at 3000, the excluded bg hold at 9000 retained only in
+	// hold3pInfo) and asserts the serializer carries those values through faithfully and never
+	// resurrects the bg end (9000) into the emitted window. The DECISION LOGIC that actually produces
+	// 3000-instead-of-9000 (real 3p hold active -> keep clock; only bg left -> fall back to last
+	// non-excluded end, clamped to interaction.end) is exercised end-to-end via the real
+	// addHold/tryComplete/abort APIs in interaction-metrics/__tests__/raw-data-thirdparty.test.ts
+	// (the "mixed real + excluded 3p holds (getNonExcludedThirdPartyEnd)" block, Cases 1/2/4). We do
+	// not drive the full addNewInteraction lifecycle here because it starts the real VC/BM3 async
+	// machinery, which this serializer-focused harness does not mock.
+	it('serializer pass-through: an already-computed mixed interaction emits the real-hold include-third-party window (3000), never the excluded bg end (9000)', async () => {
+		const mockObserver = {
+			observe: jest.fn(),
+			disconnect: jest.fn(),
+			takeRecords: jest.fn(() => []),
+		};
+		const mockPerformanceObserverConstructor = jest
+			.fn()
+			.mockImplementation(() => mockObserver) as any;
+		mockPerformanceObserverConstructor.supportedEntryTypes = ['element'];
+		global.PerformanceObserver = mockPerformanceObserverConstructor;
+
+		const interaction: InteractionMetrics = {
+			id: 'test-interaction',
+			start: 1000,
+			end: 1500,
+			end3p: 3000,
+			ufoName: 'test-ufo-name',
+			type: 'transition',
+			marks: [],
+			customData: [],
+			cohortingCustomData: new Map(),
+			customTimings: [],
+			spans: [],
+			requestInfo: [],
+			reactProfilerTimings: [],
+			holdInfo: [],
+			holdActive: new Map(),
+			preloadInfo: [],
+			hold3pActive: new Map(),
+			hold3pInfo: [
+				{
+					labelStack: [{ name: 'segment2', type: 'third-party' as const }],
+					name: 'real-3p-hold',
+					start: 1200,
+					end: 3000,
+				},
+				{
+					labelStack: [
+						{ name: 'segment1', type: 'third-party' as const, excludeFromMetrics: true },
+					],
+					name: 'bg-hold',
+					start: 1200,
+					end: 9000,
+				},
+			],
+			metricCategoryEnds: { 'third-party': 3000 },
+			metricWindows: {
+				standard: {
+					start: 1000,
+					end: 1500,
+					includeCategories: [],
+					excludeCategories: ['third-party', 'gen-ai'],
+				},
+				'include-third-party': {
+					start: 1000,
+					end: 3000,
+					includeCategories: ['third-party'],
+					excludeCategories: [],
+				},
+			},
+			lifecycleObservations: [],
+			measureStart: 1000,
+			rate: 1,
+			cancelCallbacks: [],
+			metaData: {},
+			errors: [],
+			apdex: [],
+			labelStack: null,
+			routeName: 'test-route',
+			knownSegments: [],
+			cleanupCallbacks: [],
+			awaitReactProfilerCount: 0,
+			redirects: [],
+			timerID: undefined,
+			changeTimeout: jest.fn(),
+			trace: null,
+			previousInteractionName: undefined,
+			isPreviousInteractionAborted: false,
+			abortReason: undefined,
+			minorInteractions: [],
+		};
+
+		Object.defineProperty(document, 'visibilityState', { value: 'visible', writable: true });
+		Object.defineProperty(document, 'hidden', { value: false, writable: true });
+
+		const payloads = await createPayloads('test-interaction', interaction);
+		const mainPayload = payloads.find(
+			(payload: any) =>
+				payload.actionSubject === 'experience' &&
+				payload.action === 'measured' &&
+				payload.attributes?.properties?.interactionMetrics,
+		);
+		const interactionMetrics = (mainPayload?.attributes?.properties as any)?.interactionMetrics;
+
+		// Standard window is untouched by either 3p hold.
+		expect(interactionMetrics.metricWindows.standard).toEqual({
+			start: 1000,
+			end: 1500,
+			includeCategories: [],
+			excludeCategories: ['third-party', 'gen-ai'],
+		});
+		// The emitted include-third-party window follows the real hold (3000), NOT the bg hold (9000).
+		expect(interactionMetrics.metricWindows['include-third-party']).toEqual({
+			start: 1000,
+			end: 3000,
+			includeCategories: ['third-party'],
+			excludeCategories: [],
+		});
+		expect(interactionMetrics.end3p).toBe(3000);
+	});
+
+	describe('raw-handler payload size preservation', () => {
+		const createLargeInteraction = (): InteractionMetrics =>
+			({
+				id: 'test-interaction',
+				start: 1000,
+				end: 2000,
+				ufoName: 'test-ufo-name',
+				type: 'page_load',
+				marks: [],
+				customData: [
+					{
+						labelStack: [],
+						data: {
+							large: 'x'.repeat(260 * 1024),
+						},
+					},
+				],
+				cohortingCustomData: new Map(),
+				customTimings: [],
+				spans: [],
+				requestInfo: [],
+				featureFlags: {
+					prior: {
+						preservedFlag: true,
+					},
+					during: {
+						preservedFlag: false,
+					},
+				},
+				reactProfilerTimings: [],
+				holdInfo: [],
+				holdActive: new Map(),
+				preloadInfo: [],
+				hold3pActive: new Map(),
+				hold3pInfo: [],
+				measureStart: 1000,
+				rate: 1,
+				cancelCallbacks: [],
+				metaData: {},
+				errors: [],
+				apdex: [],
+				labelStack: null,
+				routeName: 'test-route',
+				knownSegments: [],
+				cleanupCallbacks: [],
+				awaitReactProfilerCount: 0,
+				redirects: [],
+				timerID: undefined,
+				changeTimeout: jest.fn(),
+				trace: null,
+				previousInteractionName: undefined,
+				isPreviousInteractionAborted: false,
+				abortReason: undefined,
+				minorInteractions: [],
+				vcObserver: {
+					start: jest.fn(),
+					stop: jest.fn(),
+					getVCRawData: jest.fn().mockReturnValue(null),
+					getVCResult: jest.fn().mockResolvedValue({
+						'ufo:vc:rev': [
+							{
+								revision: 'raw-handler',
+								clean: true,
+								'metric:vc90': null,
+								rawData: {
+									obs: [{ t: 0, r: [0, 0, 100, 100], eid: 1, chg: 1 }],
+									eid: { 1: 'div.test' },
+									chg: { 1: 'mutation:element' },
+								},
+								viewport: { w: 100, h: 100 },
+							},
+						],
+					}),
+					setSSRElement: jest.fn(),
+					setReactRootRenderStart: jest.fn(),
+					setReactRootRenderStop: jest.fn(),
+					collectSSRPlaceholders: jest.fn(),
+				},
+			}) as unknown as InteractionMetrics;
+
+		it('should preserve raw-handler when payload is over budget', async () => {
+			const payloads = await createPayloads('test-interaction', createLargeInteraction());
+			const mainPayload = payloads.find(
+				(payload: any) =>
+					payload.actionSubject === 'experience' &&
+					payload.action === 'measured' &&
+					payload.attributes?.properties?.interactionMetrics,
+			);
+			const properties = mainPayload?.attributes?.properties as any;
+
+			expect(properties?.['ufo:vc:raw:removed']).toBeUndefined();
+			expect(properties?.['ufo:vc:raw:preservedOverBudget']).toBe(true);
+			expect(
+				properties?.['ufo:vc:rev']?.find((rev: any) => rev.revision === 'raw-handler'),
+			).toBeDefined();
+		});
 	});
 });

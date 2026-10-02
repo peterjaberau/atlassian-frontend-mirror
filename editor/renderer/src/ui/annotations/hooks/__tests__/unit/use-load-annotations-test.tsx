@@ -1,16 +1,17 @@
-import { waitFor } from '@testing-library/react';
-import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema';
+import React from 'react';
+
+import { AnnotationMarkStates, AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import type { AnnotationProviders, AnnotationState } from '@atlaskit/editor-common/types';
 import { AnnotationUpdateEmitter, AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
-import type { JSONDocNode } from '@atlaskit/editor-json-transformer';
+import type { JSONDocNode } from '@atlaskit/editor-json-transformer/types';
 import type { Mark } from '@atlaskit/editor-prosemirror/model';
-import React from 'react';
-import { render } from 'react-dom';
-import { act } from 'react-dom/test-utils';
+import { render, waitFor } from '@atlassian/testing-library';
+
 import RendererActions from '../../../../../actions/index';
 import { RendererContext } from '../../../../RendererActionsContext';
 import { ProvidersContext } from '../../../context';
-import { useLoadAnnotations, type LoadCompleteHandler } from '../../use-load-annotations';
+import { useLoadAnnotations } from '../../use-load-annotations';
+import type { LoadCompleteHandler } from '../../use-load-annotations';
 
 function createFakeMark(id: string): Mark {
 	// @ts-ignore
@@ -38,9 +39,6 @@ function createFakeAnnotationState(id: string): AnnotationState<AnnotationTypes.
 }
 
 describe('Annotations: Hooks/useLoadAnnotations', () => {
-	let container: HTMLElement | null;
-	let root: any; // Change to Root once we go full React 18
-
 	const defaultAdfDocument: JSONDocNode = {
 		version: 1,
 		type: 'doc',
@@ -74,22 +72,6 @@ describe('Annotations: Hooks/useLoadAnnotations', () => {
 		version: 1,
 	};
 
-	beforeEach(async () => {
-		container = document.createElement('div');
-		document.body.appendChild(container);
-		if (process.env.IS_REACT_18 === 'true') {
-			// @ts-ignore react-dom/client only available in react 18
-			// eslint-disable-next-line @repo/internal/import/no-unresolved, import/dynamic-import-chunkname -- react-dom/client only available in react 18
-			const { createRoot } = await import('react-dom/client');
-			root = createRoot(container!);
-		}
-	});
-
-	afterEach(() => {
-		document.body.removeChild(container!);
-		container = null;
-	});
-
 	describe('#useLoadAnnotations', () => {
 		const CustomComp = ({
 			adfDocument = defaultAdfDocument,
@@ -97,7 +79,7 @@ describe('Annotations: Hooks/useLoadAnnotations', () => {
 			onLoadComplete = () => {},
 		}: CustomCompProps) => {
 			useLoadAnnotations({ adfDocument, isNestedRender, onLoadComplete });
-			return null;
+			return <div data-testid="annotation-hook-probe">Annotation hook probe</div>;
 		};
 
 		const fakeMarksIds = ['lol1', 'lol2', 'lol3'];
@@ -138,54 +120,24 @@ describe('Annotations: Hooks/useLoadAnnotations', () => {
 				};
 
 				expect(providers.inlineComment.getState).toHaveBeenCalledTimes(0);
-				if (process.env.IS_REACT_18 === 'true') {
-					act(() => {
-						root.render(
-							<RendererContext.Provider value={actionsFake}>
-								<ProvidersContext.Provider value={providers}>
-									<CustomComp adfDocument={defaultAdfDocument} />
-								</ProvidersContext.Provider>
-							</RendererContext.Provider>,
-						);
-					});
-				} else {
-					act(() => {
-						render(
-							<RendererContext.Provider value={actionsFake}>
-								<ProvidersContext.Provider value={providers}>
-									<CustomComp adfDocument={defaultAdfDocument} />
-								</ProvidersContext.Provider>
-							</RendererContext.Provider>,
-							container,
-						);
-					});
-				}
+				const { rerender } = render(
+					<RendererContext.Provider value={actionsFake}>
+						<ProvidersContext.Provider value={providers}>
+							<CustomComp adfDocument={defaultAdfDocument} />
+						</ProvidersContext.Provider>
+					</RendererContext.Provider>,
+				);
 				expect(providers.inlineComment.getState).toHaveBeenCalledTimes(1);
 
 				const sameDocument = defaultAdfDocument;
 
-				if (process.env.IS_REACT_18 === 'true') {
-					act(() => {
-						root.render(
-							<RendererContext.Provider value={actionsFake}>
-								<ProvidersContext.Provider value={providers}>
-									<CustomComp adfDocument={sameDocument} />
-								</ProvidersContext.Provider>
-							</RendererContext.Provider>,
-						);
-					});
-				} else {
-					act(() => {
-						render(
-							<RendererContext.Provider value={actionsFake}>
-								<ProvidersContext.Provider value={providers}>
-									<CustomComp adfDocument={sameDocument} />
-								</ProvidersContext.Provider>
-							</RendererContext.Provider>,
-							container,
-						);
-					});
-				}
+				rerender(
+					<RendererContext.Provider value={actionsFake}>
+						<ProvidersContext.Provider value={providers}>
+							<CustomComp adfDocument={sameDocument} />
+						</ProvidersContext.Provider>
+					</RendererContext.Provider>,
+				);
 				expect(providers.inlineComment.getState).toHaveBeenCalledTimes(1);
 
 				const newAdfDocument: JSONDocNode = {
@@ -194,86 +146,42 @@ describe('Annotations: Hooks/useLoadAnnotations', () => {
 					content: [],
 				};
 
-				if (process.env.IS_REACT_18 === 'true') {
-					act(() => {
-						root.render(
-							<RendererContext.Provider value={actionsFake}>
-								<ProvidersContext.Provider value={providers}>
-									<CustomComp adfDocument={newAdfDocument} />
-								</ProvidersContext.Provider>
-							</RendererContext.Provider>,
-						);
-					});
-				} else {
-					act(() => {
-						render(
-							<RendererContext.Provider value={actionsFake}>
-								<ProvidersContext.Provider value={providers}>
-									<CustomComp adfDocument={newAdfDocument} />
-								</ProvidersContext.Provider>
-							</RendererContext.Provider>,
-							container,
-						);
-					});
-				}
+				rerender(
+					<RendererContext.Provider value={actionsFake}>
+						<ProvidersContext.Provider value={providers}>
+							<CustomComp adfDocument={newAdfDocument} />
+						</ProvidersContext.Provider>
+					</RendererContext.Provider>,
+				);
 				expect(providers.inlineComment.getState).toHaveBeenCalledTimes(2);
 			});
 		});
 
-		it('should call getState from Inline Comment provider with Annotations from action', () => {
+		it('should call getState from Inline Comment provider with Annotations from action', async () => {
 			expect(providers.inlineComment.getState).toHaveBeenCalledTimes(0);
 
-			if (process.env.IS_REACT_18 === 'true') {
-				act(() => {
-					root.render(
-						<RendererContext.Provider value={actionsFake}>
-							<ProvidersContext.Provider value={providers}>
-								<CustomComp />
-							</ProvidersContext.Provider>
-						</RendererContext.Provider>,
-					);
-				});
-			} else {
-				act(() => {
-					render(
-						<RendererContext.Provider value={actionsFake}>
-							<ProvidersContext.Provider value={providers}>
-								<CustomComp />
-							</ProvidersContext.Provider>
-						</RendererContext.Provider>,
-						container,
-					);
-				});
-			}
+			const { container } = render(
+				<RendererContext.Provider value={actionsFake}>
+					<ProvidersContext.Provider value={providers}>
+						<CustomComp />
+					</ProvidersContext.Provider>
+				</RendererContext.Provider>,
+			);
 
 			expect(providers.inlineComment.getState).toHaveBeenCalledWith(fakeMarksIds, false);
+			await expect(container).toBeAccessible();
 		});
 
 		it('should call getState from Inline Comment provider with isNestedRender: true when the adf is a bodiedExtention macro', () => {
 			expect(providers.inlineComment.getState).toHaveBeenCalledTimes(0);
 
-			if (process.env.IS_REACT_18 === 'true') {
-				act(() => {
-					root.render(
-						<RendererContext.Provider value={actionsFake}>
-							<ProvidersContext.Provider value={providers}>
-								<CustomComp adfDocument={adfDocumentForExcerptMacro} isNestedRender />
-							</ProvidersContext.Provider>
-						</RendererContext.Provider>,
-					);
-				});
-			} else {
-				act(() => {
-					render(
-						<RendererContext.Provider value={actionsFake}>
-							<ProvidersContext.Provider value={providers}>
-								<CustomComp adfDocument={adfDocumentForExcerptMacro} isNestedRender />
-							</ProvidersContext.Provider>
-						</RendererContext.Provider>,
-						container,
-					);
-				});
-			}
+			render(
+				<RendererContext.Provider value={actionsFake}>
+					<ProvidersContext.Provider value={providers}>
+						<CustomComp adfDocument={adfDocumentForExcerptMacro} isNestedRender />
+					</ProvidersContext.Provider>
+				</RendererContext.Provider>,
+			);
 
 			expect(providers.inlineComment.getState).toHaveBeenCalledWith(fakeMarksIds, true);
 		});
@@ -283,28 +191,13 @@ describe('Annotations: Hooks/useLoadAnnotations', () => {
 
 			expect(providers.inlineComment.getState).toHaveBeenCalledTimes(0);
 
-			if (process.env.IS_REACT_18 === 'true') {
-				act(() => {
-					root.render(
-						<RendererContext.Provider value={actionsFake}>
-							<ProvidersContext.Provider value={providers}>
-								<CustomComp />
-							</ProvidersContext.Provider>
-						</RendererContext.Provider>,
-					);
-				});
-			} else {
-				act(() => {
-					render(
-						<RendererContext.Provider value={actionsFake}>
-							<ProvidersContext.Provider value={providers}>
-								<CustomComp />
-							</ProvidersContext.Provider>
-						</RendererContext.Provider>,
-						container,
-					);
-				});
-			}
+			render(
+				<RendererContext.Provider value={actionsFake}>
+					<ProvidersContext.Provider value={providers}>
+						<CustomComp />
+					</ProvidersContext.Provider>
+				</RendererContext.Provider>,
+			);
 
 			expect(providers.inlineComment.getState).toHaveBeenCalledTimes(1);
 		});
@@ -313,28 +206,13 @@ describe('Annotations: Hooks/useLoadAnnotations', () => {
 			it('should emit SET_ANNOTATION_STATE event on updateSubscriber', (done) => {
 				expect(updateSubscriberFake.emit).toHaveBeenCalledTimes(0);
 
-				if (process.env.IS_REACT_18 === 'true') {
-					act(() => {
-						root.render(
-							<RendererContext.Provider value={actionsFake}>
-								<ProvidersContext.Provider value={providers}>
-									<CustomComp />
-								</ProvidersContext.Provider>
-							</RendererContext.Provider>,
-						);
-					});
-				} else {
-					act(() => {
-						render(
-							<RendererContext.Provider value={actionsFake}>
-								<ProvidersContext.Provider value={providers}>
-									<CustomComp />
-								</ProvidersContext.Provider>
-							</RendererContext.Provider>,
-							container,
-						);
-					});
-				}
+				render(
+					<RendererContext.Provider value={actionsFake}>
+						<ProvidersContext.Provider value={providers}>
+							<CustomComp />
+						</ProvidersContext.Provider>
+					</RendererContext.Provider>,
+				);
 
 				const expected = fakeDataReturn.reduce((acc, cur) => {
 					return {
@@ -362,7 +240,6 @@ describe('Annotations: Hooks/useLoadAnnotations', () => {
 							<CustomComp onLoadComplete={mockOnLoadComplete} />
 						</ProvidersContext.Provider>
 					</RendererContext.Provider>,
-					container,
 				);
 
 				await waitFor(() => {
@@ -385,7 +262,6 @@ describe('Annotations: Hooks/useLoadAnnotations', () => {
 							<CustomComp onLoadComplete={mockOnLoadComplete} />
 						</ProvidersContext.Provider>
 					</RendererContext.Provider>,
-					container,
 				);
 
 				await waitFor(() => {

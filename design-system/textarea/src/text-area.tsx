@@ -6,9 +6,8 @@ import React, { forwardRef, memo, useCallback, useEffect, useMemo, useRef } from
 
 import { css, cssMap, jsx } from '@compiled/react';
 
-import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { B200, N0, N10, N20, N200, N30, N70, N900, R400 } from '@atlaskit/theme/colors';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import { type TextAreaProps } from './types';
@@ -26,7 +25,6 @@ const lineHeightBase = 20;
 const lineHeightCompact = 16;
 const compactVerticalPadding = 2;
 const verticalPadding = 6;
-const transitionDuration = '0.2s';
 const borderWidth = 2;
 
 const baseStyles = css({
@@ -39,17 +37,15 @@ const baseStyles = css({
 	position: 'relative',
 	flex: '1 1 100%',
 
-	borderRadius: token('radius.small', '3px'),
+	borderRadius: token('radius.medium'),
 	borderWidth: token('border.width'),
-	color: token('color.text', N900),
+	color: token('color.text'),
 	font: token('font.body'),
 	outline: 'none',
 	overflow: 'auto',
-	transition: `background-color ${transitionDuration} ease-in-out,
-               border-color ${transitionDuration} ease-in-out`,
 	wordWrap: 'break-word',
 	'&:disabled': {
-		color: token('color.text.disabled', N70),
+		color: token('color.text.disabled'),
 		cursor: 'not-allowed',
 		// Safari puts on some difficult to remove styles, mainly for disabled inputs
 		// but we want full control so need to override them in all cases
@@ -67,37 +63,37 @@ const baseStyles = css({
 	// border and background styles
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'&[data-invalid]:focus': {
-		backgroundColor: token('color.background.input.pressed', N0),
-		borderColor: token('color.border.focused', B200),
-		boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.focused', B200)}`,
+		backgroundColor: token('color.background.input.pressed'),
+		borderColor: token('color.border.focused'),
+		boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.focused')}`,
 	},
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&[data-invalid]:not(:focus)': {
-		backgroundColor: token('color.background.input', N10),
-		borderColor: token('color.border.danger', R400),
-		boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.danger', R400)}`,
+		backgroundColor: token('color.background.input'),
+		borderColor: token('color.border.danger'),
+		boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.danger')}`,
 	},
 
 	// hover styles
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&:hover:not(:read-only):not(:focus)': {
 		'&:disabled': {
-			backgroundColor: token('color.background.disabled', N20),
+			backgroundColor: token('color.background.disabled'),
 		},
 		// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 		'&[data-invalid]': {
-			backgroundColor: token('color.background.input.hovered', N30),
-			borderColor: token('color.border.danger', R400),
-			boxShadow: `inset 0 0 0 ${token('border.width', '1px')} ${token('color.border.danger', R400)}`,
+			backgroundColor: token('color.background.input.hovered'),
+			borderColor: token('color.border.danger'),
+			boxShadow: `inset 0 0 0 ${token('border.width')} ${token('color.border.danger')}`,
 		},
 	},
 
 	// placeholder styles
 	'&::placeholder': {
-		color: token('color.text.subtlest', N200),
+		color: token('color.text.subtlest'),
 	},
 	'&:disabled::placeholder': {
-		color: token('color.text.disabled', N70),
+		color: token('color.text.disabled'),
 	},
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/design-system/no-nested-styles
@@ -113,8 +109,17 @@ const baseStyles = css({
 	},
 });
 
-const baseStylesT26Shape = css({
-	borderRadius: token('radius.medium', '6px'),
+const inputMotionStyles = cssMap({
+	legacy: {
+		transition: `background-color 0.2s ease-in-out, border-color 0.2s ease-in-out`,
+	},
+	base: {
+		transition: token('motion.input'),
+	},
+});
+
+const finessePlaceholderStyles = css({
+	'&::placeholder': { color: token('color.text.subtle') },
 });
 
 const appearanceStyles = cssMap({
@@ -236,22 +241,22 @@ const appearanceStyles = cssMap({
 });
 
 // iOS Safari automatically zooms into form inputs on focus when the font size is less than 16px.
-// To prevent this zoom behaviour on mobile devices, the textarea uses font.body.large (16px) by default,
-// then switches to the smaller font.body on screens wider than 30rem (desktop).
+// To prevent this zoom behaviour on touch devices with small viewports, the textarea uses font.body (default),
+// and font.body.large (16px) for touch devices (pointer: coarse) with screens narrower than 30rem.
 // @see: https://medium.com/@rares.popescu/2-ways-to-avoid-the-automatic-zoom-in-on-input-fields-8a71479e542e
 
 const fontStyles = cssMap({
 	default: {
-		font: token('font.body.large'),
-		'@media (min-width: 30rem)': {
-			font: token('font.body'),
+		font: token('font.body'),
+		'@media (pointer: coarse) and (max-width: 30rem)': {
+			font: token('font.body.large'),
 		},
 	},
 	monospace: {
-		font: token('font.body.large'),
+		font: token('font.body'),
 		fontFamily: token('font.family.code'),
-		'@media (min-width: 30rem)': {
-			font: token('font.body'),
+		'@media (pointer: coarse) and (max-width: 30rem)': {
+			font: token('font.body.large'),
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
 			fontFamily: `${token('font.family.code')} !important`,
 		},
@@ -309,6 +314,8 @@ const InnerTextArea: React.ForwardRefExoticComponent<
 		style,
 		...rest
 	} = props;
+	const isInputMotionEnabled = fg('platform-dst-motion-uplift-input');
+	const isInteractive = !isDisabled && !isReadOnly;
 
 	const borderHeight = useMemo(() => (appearance === 'none' ? 2 : 1), [appearance]);
 
@@ -338,7 +345,6 @@ const InnerTextArea: React.ForwardRefExoticComponent<
 	const getTextAreaRef = (elementRef: HTMLTextAreaElement | null) => {
 		ourRef.current = elementRef;
 		if (ref && typeof ref === 'object') {
-			// @ts-ignore
 			ref.current = elementRef;
 		}
 		if (ref && typeof ref === 'function') {
@@ -390,7 +396,9 @@ const InnerTextArea: React.ForwardRefExoticComponent<
 			rows={minimumRows}
 			css={[
 				baseStyles,
-				fg('platform-dst-shape-theme-default') && baseStylesT26Shape,
+				!isInputMotionEnabled && inputMotionStyles.legacy,
+				isInputMotionEnabled && isInteractive && inputMotionStyles.base,
+				fg('platform-dst-tokens-finesse') && finessePlaceholderStyles,
 				appearanceStyles[appearance],
 				fontStyles[isMonospaced ? 'monospace' : 'default'],
 				resizeStyles[resize],
@@ -416,13 +424,16 @@ const InnerTextArea: React.ForwardRefExoticComponent<
  * - [Code](https://atlassian.design/components/textarea/code)
  * - [Usage](https://atlassian.design/components/textarea/usage)
  */
-const TextArea: React.MemoExoticComponent<React.ForwardRefExoticComponent<Omit<TextAreaProps, "ref"> & React.RefAttributes<HTMLTextAreaElement>>> = memo(
-	forwardRef<HTMLTextAreaElement, TextAreaProps>(function TextArea(
-		props: TextAreaProps,
-		ref: React.Ref<HTMLTextAreaElement>,
-	) {
-		return <InnerTextArea ref={ref} {...props} />;
-	}),
+const TextArea: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<
+		Omit<TextAreaProps, 'ref'> & React.RefAttributes<HTMLTextAreaElement>
+	>
+> = memo(
+	forwardRef<HTMLTextAreaElement, TextAreaProps>(
+		(props: TextAreaProps, ref: React.Ref<HTMLTextAreaElement>) => (
+			<InnerTextArea ref={ref} {...props} />
+		),
+	),
 );
 
 TextArea.displayName = 'TextArea';

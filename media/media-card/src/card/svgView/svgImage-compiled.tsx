@@ -2,11 +2,17 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { jsx, css } from '@compiled/react';
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { MediaCardError, type SvgPrimaryReason } from '../../errors';
+
+import { jsx, css } from '@compiled/react';
+
+import { MediaSVGError, type MediaSVGErrorReason } from '@atlaskit/media-svg/media-svg-error';
+import { useResolveSvg } from '@atlaskit/media-svg/use-resolve-svg';
+
+import type { SvgPrimaryReason } from '../../errors';
+import { MediaCardError } from '../../MediaCardError';
 import { calculateSvgDimensions } from './helpers';
-import { useResolveSvg, MediaSVGError, type MediaSVGErrorReason } from '@atlaskit/media-svg';
 import type { SvgViewProps } from './types';
 
 const getErrorReason = (svgReason: MediaSVGErrorReason): SvgPrimaryReason => {
@@ -22,8 +28,11 @@ const getErrorReason = (svgReason: MediaSVGErrorReason): SvgPrimaryReason => {
 	}
 };
 
-const svgRendererStyles = css({
+const svgRendererBaseStyles = css({
 	objectFit: 'contain',
+});
+
+const svgRendererWhiteBgStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage
 	backgroundColor: 'white', // This background color is for transparency
 });
@@ -40,7 +49,8 @@ export const SvgView = ({
 	onError,
 	wrapperRef,
 	alt,
-}: SvgViewProps) => {
+	backgroundColor,
+}: SvgViewProps): JSX.Element | null => {
 	const [didSvgRender, setDidSvgRender] = useState<boolean>(false);
 	const [svgDimensions, setSvgDimensions] = useState<React.CSSProperties>({});
 	const imgRef = useRef<HTMLImageElement>(null);
@@ -83,8 +93,13 @@ export const SvgView = ({
 			data-source={source}
 			src={svgUrl}
 			alt={alt}
-			css={[svgRendererStyles, !width && !height && svgRendererMaxDimensionStyles]}
+			css={[
+				svgRendererBaseStyles,
+				!backgroundColor && svgRendererWhiteBgStyles,
+				!width && !height && svgRendererMaxDimensionStyles,
+			]}
 			style={{
+				backgroundColor,
 				visibility: didSvgRender ? 'visible' : 'hidden',
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 				...svgDimensions,

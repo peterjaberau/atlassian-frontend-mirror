@@ -3,21 +3,28 @@ import React, {
 	type MouseEventHandler,
 	useCallback,
 	useEffect,
+	useMemo,
 	useState,
 } from 'react';
 
 import { bind, type UnbindFn } from 'bind-event-listener';
 
-import Avatar from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
 import { KEY_DOWN } from '@atlaskit/ds-lib/keycodes';
 import noop from '@atlaskit/ds-lib/noop';
 import useFocus from '@atlaskit/ds-lib/use-focus-event';
 import { useId } from '@atlaskit/ds-lib/use-id';
-import { Section } from '@atlaskit/menu';
-import Popup from '@atlaskit/popup';
-import Tooltip, { type PositionType } from '@atlaskit/tooltip';
+import Section from '@atlaskit/menu/section';
+import Motion from '@atlaskit/motion/entering/motion';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Popup } from '@atlaskit/popup/popup';
+import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import type { PositionType } from '@atlaskit/tooltip/types';
 
 import AvatarGroupItem from './avatar-group-item';
+import { MoreDropdownTopLayer } from './avatar-group-top-layer';
+import { getOverrides } from './get-overrides';
 import Grid from './grid';
 import FocusManager from './internal/components/focus-manager';
 import PopupAvatarGroup from './internal/components/popup-avatar-group';
@@ -27,7 +34,6 @@ import {
 	type AvatarGroupOverrides,
 	type AvatarGroupSize,
 	type AvatarProps,
-	type DeepRequired,
 	type onAvatarClickHandler,
 } from './types';
 import { composeUniqueKey } from './utils';
@@ -47,6 +53,12 @@ export interface AvatarGroupProps {
 	appearance?: 'grid' | 'stack';
 
 	/**
+	 * Selects an experimental taller hexagon geometry for small, medium, large, xlarge, and
+	 * xxlarge avatars.
+	 */
+	UNSAFE_isUpdatedGeometry?: boolean;
+
+	/**
 	 * Component used to render each avatar.
 	 */
 	avatar?: typeof Avatar | ElementType<AvatarProps>;
@@ -62,7 +74,7 @@ export interface AvatarGroupProps {
 	 * Defines the size of the avatar.
 	 * Defaults to "medium".
 	 *
-	 * Note: The "xsmall" size that exists on Avatar is not supported here because elements such as the more indicator cannot be displayed in an accessible manner at that size.
+	 * Note: The "xxsmall" (16px), legacy "xsmall", and "UNSAFE_xsmall" (20px) sizes that exist on Avatar are not supported here because elements such as the more indicator cannot be displayed in an accessible manner at those sizes.
 	 */
 	size?: AvatarGroupSize;
 
@@ -165,28 +177,6 @@ export interface AvatarGroupProps {
 	moreIndicatorLabel?: string;
 }
 
-function getOverrides(overrides?: AvatarGroupOverrides): DeepRequired<AvatarGroupOverrides> {
-	return {
-		AvatarGroupItem: {
-			render: (Component, props, index) => (
-				<Component {...props} key={composeUniqueKey(props.avatar, index)} />
-			),
-			...(overrides && overrides.AvatarGroupItem),
-		},
-		Avatar: {
-			render: (Component, props, index) => (
-				//@ts-ignore - TS2604/TS2786: Component type union causing issues for help-center local consumption with TS 5.9.2
-				<Component {...props} key={composeUniqueKey(props, index)} />
-			),
-			...(overrides && overrides.Avatar),
-		},
-		MoreIndicator: {
-			render: (Component, props) => <Component {...props} />,
-			...(overrides && overrides.MoreIndicator),
-		},
-	};
-}
-
 /**
  * __Avatar group__
  *
@@ -198,6 +188,7 @@ function getOverrides(overrides?: AvatarGroupOverrides): DeepRequired<AvatarGrou
  */
 const AvatarGroup = ({
 	appearance = 'stack',
+	UNSAFE_isUpdatedGeometry,
 	avatar = Avatar,
 	borderColor,
 	boundariesElement,
@@ -218,6 +209,13 @@ const AvatarGroup = ({
 	const [isTriggeredUsingKeyboard, setTriggeredUsingKeyboard] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
 	const onClose = useCallback(() => setIsOpen(false), []);
+	const resolvedData = useMemo(
+		() =>
+			UNSAFE_isUpdatedGeometry === undefined
+				? data
+				: data.map((avatarData) => ({ ...avatarData, UNSAFE_isUpdatedGeometry })),
+		[data, UNSAFE_isUpdatedGeometry],
+	);
 
 	const handleTriggerClicked = useCallback((event: React.MouseEvent | KeyboardEvent) => {
 		const { clientX, clientY, type } = event as React.MouseEvent;
@@ -230,12 +228,26 @@ const AvatarGroup = ({
 
 	const { isFocused, bindFocus } = useFocus();
 
+	const {
+		AvatarGroupItem: avatarGroupItemOverrides,
+		Avatar: avatarOverrides,
+		MoreIndicator: moreIndicatorOverrides,
+	} = getOverrides(overrides);
+
 	// When a trigger is focused, we want to open the popup
-	// the user presses the DownArrow
+	// the user presses the DownArrow.
+	// Skipped when top-layer is enabled — DropdownMenu/top-layer handles
+	// ArrowDown-to-open and arrow key navigation internally.
 	useEffect(() => {
 		// Set initial value if popup is closed
 		if (!isOpen) {
 			setTriggeredUsingKeyboard(false);
+		}
+
+		// Top-layer path: ArrowDown-to-open is handled by the menu's
+		// own focus management, so skip the parent's ArrowDown handler.
+		if (fg('platform-dst-top-layer')) {
+			return noop;
 		}
 
 		// Only need to listen for keydown when focused
@@ -290,10 +302,10 @@ const AvatarGroup = ({
 		}: {
 			'aria-controls'?: string;
 			'aria-expanded'?: boolean;
-			'aria-haspopup'?: boolean | 'dialog';
+			'aria-haspopup'?: boolean | 'dialog' | 'menu' | 'listbox' | 'tree' | 'grid';
 			onClick: MouseEventHandler;
-		}) =>
-			getOverrides(overrides).MoreIndicator.render(MoreIndicator, {
+		}) => {
+			const moreButton = moreIndicatorOverrides.render(MoreIndicator, {
 				buttonProps: showMoreButtonProps,
 				borderColor: borderColor,
 				count: total - max,
@@ -308,11 +320,44 @@ const AvatarGroup = ({
 				...props,
 			});
 
+			// Every overflow path must complete its exit so Stack can release removed children.
+			return fg('platform-dst-avatar-group-overflow-exit') && fg('platform-dst-motion-uplift') ? (
+				<Motion
+					enteringAnimation={token('motion.avatar.enter')}
+					exitingAnimation={token('motion.avatar.exit')}
+				>
+					{moreButton}
+				</Motion>
+			) : (
+				moreButton
+			);
+		};
+
 		// bail if the consumer wants to handle onClick
 		if (typeof onMoreClick === 'function') {
 			return renderMoreButton({
 				onClick: onMoreClick,
 			});
+		}
+
+		if (fg('platform-dst-top-layer')) {
+			return (
+				<MoreDropdownTopLayer
+					isOpen={isOpen}
+					onClose={onClose}
+					isTriggeredUsingKeyboard={isTriggeredUsingKeyboard}
+					data={resolvedData}
+					max={max}
+					// eslint-disable-next-line @repo/internal/react/no-unsafe-overrides
+					overrides={overrides}
+					onAvatarClick={onAvatarClick}
+					testId={testId}
+					labelId={labelId}
+					renderMoreButton={renderMoreButton}
+					handleTriggerClicked={handleTriggerClicked}
+					bindFocus={bindFocus}
+				/>
+			);
 		}
 
 		// split boundariesElement into `boundary` and `rootBoundary` props for Popup
@@ -323,6 +368,8 @@ const AvatarGroup = ({
 			}
 			return boundariesElement === 'window' ? 'document' : 'viewport';
 		})();
+
+		const avatarComponent = avatar ?? undefined;
 
 		return (
 			<Popup
@@ -343,12 +390,14 @@ const AvatarGroup = ({
 							setInitialFocusRef={isTriggeredUsingKeyboard ? setInitialFocusRef : undefined}
 						>
 							<Section titleId={labelId} testId={`${testId}--section`}>
-								{data.slice(max).map((avatar, index) =>
-									getOverrides(overrides).AvatarGroupItem.render(
+								{resolvedData.slice(max).map((avatarData, index) =>
+									avatarGroupItemOverrides.render(
 										AvatarGroupItem,
 										{
-											avatar,
+											avatar: avatarData,
+											avatarComponent,
 											onAvatarClick,
+											avatarOverrides,
 											testId: testId && `${testId}--avatar-group-item-${index + max}`,
 											index: index + max,
 										},
@@ -361,28 +410,41 @@ const AvatarGroup = ({
 						</PopupAvatarGroup>
 					</FocusManager>
 				)}
-				trigger={(triggerProps) =>
-					renderMoreButton({
+				trigger={(triggerProps) => {
+					const moreButton = renderMoreButton({
 						...triggerProps,
 						...bindFocus,
 						onClick: handleTriggerClicked,
-					})
-				}
+					});
+
+					// Preserve the original popup animation when the shared overflow fix is disabled.
+					return !fg('platform-dst-avatar-group-overflow-exit') &&
+						fg('platform-dst-motion-uplift') ? (
+						<Motion
+							enteringAnimation={token('motion.avatar.enter')}
+							exitingAnimation={token('motion.avatar.exit')}
+						>
+							{moreButton}
+						</Motion>
+					) : (
+						moreButton
+					);
+				}}
 				testId={testId && `${testId}--overflow-menu`}
 			/>
 		);
 	}
 
 	const max = maxCount === undefined || maxCount === 0 ? MAX_COUNT[appearance] : maxCount;
-	const total = data.length;
+	const total = resolvedData.length;
 	const maxAvatar = total > max ? max - 1 : max;
 	const groupId = useId();
 
 	return appearance === 'stack' ? (
 		<Stack id={groupId} testId={testId && `${testId}--avatar-group`} aria-label={label} size={size}>
-			{data.slice(0, maxAvatar).map((avatarData, idx) => {
+			{resolvedData.slice(0, maxAvatar).map((avatarData, idx) => {
 				const callback = avatarData.onClick || onAvatarClick;
-				const finalAvatar = getOverrides(overrides).Avatar.render(
+				const finalAvatar = avatarOverrides.render(
 					avatar,
 					{
 						...avatarData,
@@ -399,26 +461,48 @@ const AvatarGroup = ({
 					idx,
 				);
 
-				return !isTooltipDisabled && !avatarData.isDisabled ? (
-					<Tooltip
-						key={composeUniqueKey(avatarData, idx)}
-						content={avatarData.name}
-						testId={testId && `${testId}--tooltip-${idx}`}
-						position={tooltipPosition}
-					>
-						{finalAvatar}
-					</Tooltip>
-				) : (
-					finalAvatar
-				);
+				if (fg('platform-dst-motion-uplift')) {
+					return (
+						<Motion
+							enteringAnimation={token('motion.avatar.enter')}
+							exitingAnimation={token('motion.avatar.exit')}
+							key={composeUniqueKey(avatarData, idx)}
+						>
+							{!isTooltipDisabled && !avatarData.isDisabled ? (
+								<Tooltip
+									content={avatarData.name}
+									testId={testId && `${testId}--tooltip-${idx}`}
+									position={tooltipPosition}
+								>
+									{finalAvatar}
+								</Tooltip>
+							) : (
+								finalAvatar
+							)}
+						</Motion>
+					);
+				} else {
+					return !isTooltipDisabled && !avatarData.isDisabled ? (
+						<Tooltip
+							key={composeUniqueKey(avatarData, idx)}
+							content={avatarData.name}
+							testId={testId && `${testId}--tooltip-${idx}`}
+							position={tooltipPosition}
+						>
+							{finalAvatar}
+						</Tooltip>
+					) : (
+						finalAvatar
+					);
+				}
 			})}
 			{renderMoreDropdown(+maxAvatar, total, groupId)}
 		</Stack>
 	) : (
 		<Grid id={groupId} testId={testId && `${testId}--avatar-group`} aria-label={label}>
-			{data.slice(0, maxAvatar).map((avatarData, idx) => {
+			{resolvedData.slice(0, maxAvatar).map((avatarData, idx) => {
 				const callback = avatarData.onClick || onAvatarClick;
-				const finalAvatar = getOverrides(overrides).Avatar.render(
+				const finalAvatar = avatarOverrides.render(
 					avatar,
 					{
 						...avatarData,
@@ -435,18 +519,40 @@ const AvatarGroup = ({
 					idx,
 				);
 
-				return !isTooltipDisabled && !avatarData.isDisabled ? (
-					<Tooltip
-						key={composeUniqueKey(avatarData, idx)}
-						content={avatarData.name}
-						testId={testId && `${testId}--tooltip-${idx}`}
-						position={tooltipPosition}
-					>
-						{finalAvatar}
-					</Tooltip>
-				) : (
-					finalAvatar
-				);
+				if (fg('platform-dst-motion-uplift')) {
+					return (
+						<Motion
+							enteringAnimation={token('motion.avatar.enter')}
+							exitingAnimation={token('motion.avatar.exit')}
+							key={composeUniqueKey(avatarData, idx)}
+						>
+							{!isTooltipDisabled && !avatarData.isDisabled ? (
+								<Tooltip
+									content={avatarData.name}
+									testId={testId && `${testId}--tooltip-${idx}`}
+									position={tooltipPosition}
+								>
+									{finalAvatar}
+								</Tooltip>
+							) : (
+								finalAvatar
+							)}
+						</Motion>
+					);
+				} else {
+					return !isTooltipDisabled && !avatarData.isDisabled ? (
+						<Tooltip
+							key={composeUniqueKey(avatarData, idx)}
+							content={avatarData.name}
+							testId={testId && `${testId}--tooltip-${idx}`}
+							position={tooltipPosition}
+						>
+							{finalAvatar}
+						</Tooltip>
+					) : (
+						finalAvatar
+					);
+				}
 			})}
 			{renderMoreDropdown(+maxAvatar, total, groupId)}
 		</Grid>

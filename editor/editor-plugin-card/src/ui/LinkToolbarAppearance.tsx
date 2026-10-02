@@ -1,8 +1,8 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { AnalyticsContext } from '@atlaskit/analytics-next';
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { ACTION, INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type { OptionConfig } from '@atlaskit/editor-common/card';
@@ -18,11 +18,10 @@ import { isSupportedInParent } from '@atlaskit/editor-common/utils';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import type { CardContext } from '@atlaskit/link-provider';
+import type { CardContext } from '@atlaskit/link-provider/types';
 
 import { changeSelectedCardToLink, setSelectedCardAppearance } from '../pm-plugins/doc';
 import { getResolvedAttributesFromStore } from '../pm-plugins/utils';
-
 import { LOCAL_STORAGE_DISCOVERY_KEY_TOOLBAR } from './local-storage';
 import { DiscoveryPulse } from './Pulse';
 import { shouldRenderToolbarPulse } from './toolbar';
@@ -179,6 +178,7 @@ export class LinkToolbarAppearance extends React.Component<LinkToolbarAppearance
 			);
 
 			return (
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				<AnalyticsContext data={{ attributes: { ...resolvedAnalyticsAttributes } }}>
 					<DiscoveryPulse
 						localStorageKey={LOCAL_STORAGE_DISCOVERY_KEY_TOOLBAR}
@@ -215,6 +215,7 @@ export const getUnavailableMessage = (state: EditorState, intl: IntlShape): stri
 		});
 		return tooltip;
 	} catch (e) {
+		// eslint-disable-line no-unused-vars
 		return intl.formatMessage(messages.displayOptionUnavailableInParentNode, {
 			node: intl.formatMessage(nodeNames.defaultBlockNode),
 		});

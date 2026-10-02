@@ -1,10 +1,14 @@
 /* eslint-disable @atlaskit/editor/no-re-export */
 // Entry file in package.json
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import type { TableLayout } from '@atlaskit/adf-schema';
-import { tableCellSelector, tableHeaderSelector, tablePrefixSelector } from '@atlaskit/adf-schema';
+import type { Layout as TableLayout } from '@atlaskit/adf-schema/tableNodes';
+import {
+	tableCellSelector,
+	tableHeaderSelector,
+	tablePrefixSelector,
+} from '@atlaskit/adf-schema/tableNodes';
 import type { TableColumnOrdering } from '@atlaskit/custom-steps';
 import type { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { TableSharedCssClassName } from '@atlaskit/editor-common/styles';
@@ -24,6 +28,7 @@ export type RowInsertPosition = 'TOP' | 'BOTTOM';
 /**
  * @deprecated {@link https://hello.atlassian.net/browse/ENGHEALTH-6877 Internal documentation for deprecation (no external access)}
  **/
+
 export type PermittedLayoutsDescriptor = TableLayout[] | 'all';
 export type Cell = { node: PmNode; pos: number; start: number };
 export type CellTransform = (cell: Cell) => (tr: Transaction) => Transaction;
@@ -53,6 +58,9 @@ export type TableSharedStateInternal = Pick<
 	| 'wasMaxWidthModeEnabled'
 	| 'isHeaderRowEnabled'
 	| 'isHeaderColumnEnabled'
+	| 'isNumberColumnEnabled'
+	| 'isCommentEditor'
+	| 'isTableScalingEnabled'
 	| 'ordering'
 	| 'isInDanger'
 	| 'hoveredRows'
@@ -68,9 +76,9 @@ export type TableSharedStateInternal = Pick<
 	| 'pluginConfig'
 	| 'insertColumnButtonIndex'
 	| 'insertRowButtonIndex'
-	| 'isDragAndDropEnabled'
 	| 'tableWrapperTarget'
 	| 'isCellMenuOpenByKeyboard'
+	| 'activeTableMenu'
 > & {
 	dragMenuDirection?: TableDirection;
 	dragMenuIndex?: number;
@@ -78,6 +86,7 @@ export type TableSharedStateInternal = Pick<
 	isDragMenuOpen?: boolean;
 	isResizing: boolean;
 	isSizeSelectorOpen?: boolean;
+	isTableFixedColumnWidthsOptionEnabled?: boolean;
 	isTableResizing?: boolean;
 	isWholeTableInDanger?: boolean;
 	resizingTableLocalId?: string;
@@ -165,7 +174,14 @@ export interface WidthToWidest {
 	[tableLocalId: string]: boolean;
 }
 
+export type ActiveTableMenu =
+	| { type: 'none' }
+	| { openedBy: 'mouse' | 'keyboard'; type: 'cell' }
+	| { index: number; openedBy: 'mouse' | 'keyboard'; type: 'row' }
+	| { index: number; openedBy: 'mouse' | 'keyboard'; type: 'column' };
+
 export interface TablePluginState {
+	activeTableMenu?: ActiveTableMenu;
 	canCollapseTable?: boolean; // enabled/disabled state of collapse option
 	editorHasFocus?: boolean;
 	editorViewportHeight?: number;
@@ -176,8 +192,9 @@ export interface TablePluginState {
 	insertColumnButtonIndex?: number;
 	insertRowButtonIndex?: number;
 	isCellMenuOpenByKeyboard?: boolean;
+	isChromelessEditor?: boolean;
+	isCommentEditor?: boolean;
 	isContextualMenuOpen?: boolean;
-	isDragAndDropEnabled?: boolean;
 	isFullWidthModeEnabled?: boolean;
 	isHeaderColumnEnabled: boolean;
 	isHeaderRowEnabled: boolean;
@@ -198,17 +215,17 @@ export interface TablePluginState {
 	ordering?: TableColumnOrdering;
 	pluginConfig: PluginConfig;
 	resizeHandleColumnIndex?: number;
-	resizeHandleIncludeTooltip?: boolean;
-	resizeHandleRowIndex?: number;
 
+	resizeHandleIncludeTooltip?: boolean;
+
+	resizeHandleRowIndex?: number;
 	// controls need to be re-rendered when table content changes
 	// e.g. when pressing enter inside of a cell, it creates a new p and we need to update row controls
 	tableNode?: PmNode;
-
 	tablePos?: number;
+
 	tableRef?: HTMLTableElement;
 	tableWrapperTarget?: HTMLElement;
-
 	// position of a cell PM node that has cursor
 	targetCellPosition?: number;
 	wasFullWidthModeEnabled?: boolean;
@@ -222,140 +239,141 @@ export type TablePluginAction =
 	| { type: 'TOGGLE_HEADER_COLUMN' }
 	| { data: { ordering: TableColumnOrdering }; type: 'SORT_TABLE' }
 	| {
-		data: {
-			isHeaderColumnEnabled: boolean;
-			isHeaderRowEnabled: boolean;
-			tableNode?: PmNode;
-			tableRef?: HTMLTableElement;
-			tableWrapperTarget?: HTMLElement;
-		};
-		type: 'SET_TABLE_REF';
-	}
+			data: {
+				isHeaderColumnEnabled: boolean;
+				isHeaderRowEnabled: boolean;
+				tableNode?: PmNode;
+				tableRef?: HTMLTableElement;
+				tableWrapperTarget?: HTMLElement;
+			};
+			type: 'SET_TABLE_REF';
+	  }
 	| {
-		data: {
-			decorationSet: DecorationSet;
-			hoveredRows: number[];
-			isInDanger?: boolean;
-		};
-		type: 'HOVER_ROWS';
-	}
+			data: {
+				decorationSet: DecorationSet;
+				hoveredRows: number[];
+				isInDanger?: boolean;
+			};
+			type: 'HOVER_ROWS';
+	  }
 	| {
-		data: {
-			decorationSet: DecorationSet;
-		};
-		type: 'HOVER_MERGED_CELLS';
-	}
+			data: {
+				decorationSet: DecorationSet;
+			};
+			type: 'HOVER_MERGED_CELLS';
+	  }
 	| {
-		data: {
-			decorationSet: DecorationSet;
-			hoveredColumns: number[];
-			isInDanger?: boolean;
-		};
-		type: 'HOVER_COLUMNS';
-	}
+			data: {
+				decorationSet: DecorationSet;
+				hoveredColumns: number[];
+				isInDanger?: boolean;
+			};
+			type: 'HOVER_COLUMNS';
+	  }
 	| {
-		data: {
-			decorationSet: DecorationSet;
-			hoveredColumns: number[];
-			hoveredRows: number[];
-			isInDanger?: boolean;
-		};
-		type: 'HOVER_TABLE';
-	}
+			data: {
+				decorationSet: DecorationSet;
+				hoveredColumns: number[];
+				hoveredRows: number[];
+				isInDanger?: boolean;
+			};
+			type: 'HOVER_TABLE';
+	  }
 	| {
-		data: {
-			decorationSet: DecorationSet;
-			isKeyboardResize?: boolean;
-			resizeHandleColumnIndex: number;
-			resizeHandleIncludeTooltip: boolean;
-			resizeHandleRowIndex: number;
-		};
-		type: 'START_KEYBOARD_COLUMN_RESIZE';
-	}
+			data: {
+				decorationSet: DecorationSet;
+				isKeyboardResize?: boolean;
+				resizeHandleColumnIndex: number;
+				resizeHandleIncludeTooltip: boolean;
+				resizeHandleRowIndex: number;
+			};
+			type: 'START_KEYBOARD_COLUMN_RESIZE';
+	  }
 	| {
-		data: {
-			decorationSet: DecorationSet;
-			isKeyboardResize?: boolean;
-			resizeHandleColumnIndex: number;
-			resizeHandleIncludeTooltip: boolean;
-			resizeHandleRowIndex: number;
-		};
-		type: 'ADD_RESIZE_HANDLE_DECORATIONS';
-	}
+			data: {
+				decorationSet: DecorationSet;
+				isKeyboardResize?: boolean;
+				resizeHandleColumnIndex: number;
+				resizeHandleIncludeTooltip: boolean;
+				resizeHandleRowIndex: number;
+			};
+			type: 'ADD_RESIZE_HANDLE_DECORATIONS';
+	  }
 	| {
-		data: {
-			decorationSet: DecorationSet;
-			resizeHandleColumnIndex: number | undefined;
-			resizeHandleIncludeTooltip: boolean | undefined;
-			resizeHandleRowIndex: number | undefined;
-		};
-		type: 'UPDATE_RESIZE_HANDLE_DECORATIONS';
-	}
+			data: {
+				decorationSet: DecorationSet;
+				resizeHandleColumnIndex: number | undefined;
+				resizeHandleIncludeTooltip: boolean | undefined;
+				resizeHandleRowIndex: number | undefined;
+			};
+			type: 'UPDATE_RESIZE_HANDLE_DECORATIONS';
+	  }
 	| {
-		data: {
-			widthToWidest: WidthToWidest | undefined;
-		};
-		type: 'UPDATE_TABLE_WIDTH_TO_WIDEST';
-	}
+			data: {
+				widthToWidest: WidthToWidest | undefined;
+			};
+			type: 'UPDATE_TABLE_WIDTH_TO_WIDEST';
+	  }
 	| {
-		data: { decorationSet: DecorationSet };
-		type: 'REMOVE_RESIZE_HANDLE_DECORATIONS';
-	}
+			data: { decorationSet: DecorationSet };
+			type: 'REMOVE_RESIZE_HANDLE_DECORATIONS';
+	  }
 	| {
-		data: { decorationSet: DecorationSet };
-		type: 'STOP_KEYBOARD_COLUMN_RESIZE';
-	}
+			data: { decorationSet: DecorationSet };
+			type: 'STOP_KEYBOARD_COLUMN_RESIZE';
+	  }
 	| { data: { decorationSet: DecorationSet }; type: 'CLEAR_HOVER_SELECTION' }
 	| { data: { decorationSet: DecorationSet }; type: 'SHOW_RESIZE_HANDLE_LINE' }
 	| { data: { decorationSet: DecorationSet }; type: 'HIDE_RESIZE_HANDLE_LINE' }
 	| {
-		data: {
-			hoveredCell: CellHoverMeta;
-		};
-		type: 'HOVER_CELL';
-	}
+			data: {
+				hoveredCell: CellHoverMeta;
+			};
+			type: 'HOVER_CELL';
+	  }
 	| {
-		data: {
-			isTableHovered: boolean;
-		};
-		type: 'TABLE_HOVERED';
-	}
+			data: {
+				isTableHovered: boolean;
+			};
+			type: 'TABLE_HOVERED';
+	  }
 	| { data: { targetCellPosition?: number }; type: 'SET_TARGET_CELL_POSITION' }
 	| {
-		data: { decorationSet: DecorationSet; targetCellPosition: number };
-		type: 'SELECT_COLUMN';
-	}
+			data: { decorationSet: DecorationSet; targetCellPosition: number };
+			type: 'SELECT_COLUMN';
+	  }
 	| { data: { insertRowButtonIndex: number }; type: 'SHOW_INSERT_ROW_BUTTON' }
 	| {
-		data: { insertColumnButtonIndex: number };
-		type: 'SHOW_INSERT_COLUMN_BUTTON';
-	}
+			data: { insertColumnButtonIndex: number };
+			type: 'SHOW_INSERT_COLUMN_BUTTON';
+	  }
 	| {
-		type: 'HIDE_INSERT_COLUMN_OR_ROW_BUTTON';
-	}
+			type: 'HIDE_INSERT_COLUMN_OR_ROW_BUTTON';
+	  }
 	| { type: 'TOGGLE_CONTEXTUAL_MENU' }
+	| { data: { activeTableMenu: ActiveTableMenu }; type: 'SET_ACTIVE_TABLE_MENU' }
 	| {
-		data: {
-			isCellMenuOpenByKeyboard: boolean;
-		};
-		type: 'SET_CELL_MENU_OPEN';
-	}
+			data: {
+				isCellMenuOpenByKeyboard: boolean;
+			};
+			type: 'SET_CELL_MENU_OPEN';
+	  }
 	| { data: { editorViewportHeight: number }; type: 'UPDATE_EDITOR_VIEWPORT_HEIGHT' };
 
 export type ColumnResizingPluginAction =
 	| {
-		data: { resizeHandlePos: number | null };
-		type: 'SET_RESIZE_HANDLE_POSITION';
-	}
+			data: { resizeHandlePos: number | null };
+			type: 'SET_RESIZE_HANDLE_POSITION';
+	  }
 	| { type: 'STOP_RESIZING' }
 	| {
-		data: { dragging: { startWidth: number; startX: number } | null };
-		type: 'SET_DRAGGING';
-	}
+			data: { dragging: { startWidth: number; startX: number } | null };
+			type: 'SET_DRAGGING';
+	  }
 	| {
-		data: { lastClick: { time: number; x: number; y: number } | null };
-		type: 'SET_LAST_CLICK';
-	};
+			data: { lastClick: { time: number; x: number; y: number } | null };
+			type: 'SET_LAST_CLICK';
+	  };
 
 export enum TableDecorations {
 	/** Classic controls */
@@ -374,11 +392,138 @@ export enum TableDecorations {
 
 	COLUMN_INSERT_LINE = 'COLUMN_INSERT_LINE',
 	ROW_INSERT_LINE = 'ROW_INSERT_LINE',
-
-	LAST_CELL_ELEMENT = 'LAST_CELL_ELEMENT',
 }
 
-export const TableCssClassName = {
+export const TableCssClassName: {
+	ACTIVE_CURSOR_CELL: string;
+	/** Classic controls */
+	COLUMN_CONTROLS: string;
+	COLUMN_CONTROLS_DECORATIONS: string;
+	COLUMN_SELECTED: string;
+	CONTEXTUAL_MENU_BUTTON: string;
+	CONTEXTUAL_MENU_BUTTON_FIXED: string;
+	CONTEXTUAL_MENU_BUTTON_WRAP: string;
+	CONTEXTUAL_MENU_ICON_SMALL: string;
+	CONTEXTUAL_SUBMENU: string;
+	CONTROLS_BUTTON: string;
+	CONTROLS_BUTTON_ICON: string;
+	CONTROLS_BUTTON_OVERLAY: string;
+	CONTROLS_CORNER_BUTTON: string;
+	CONTROLS_DELETE_BUTTON: string;
+	CONTROLS_DELETE_BUTTON_WRAP: string;
+	CONTROLS_FLOATING_BUTTON_COLUMN: string;
+	CONTROLS_FLOATING_BUTTON_ROW: string;
+	CONTROLS_INSERT_BUTTON: string;
+	CONTROLS_INSERT_BUTTON_INNER: string;
+	CONTROLS_INSERT_BUTTON_WRAP: string;
+	CONTROLS_INSERT_COLUMN: string;
+	CONTROLS_INSERT_LINE: string;
+	CONTROLS_INSERT_MARKER: string;
+	CONTROLS_INSERT_ROW: string;
+	CORNER_CONTROLS: string;
+	CORNER_CONTROLS_INSERT_COLUMN_MARKER: string;
+	CORNER_CONTROLS_INSERT_ROW_MARKER: string;
+	DRAG_COLUMN_CONTROLS: string;
+	DRAG_COLUMN_CONTROLS_INNER: string;
+	DRAG_COLUMN_CONTROLS_WRAPPER: string;
+	DRAG_COLUMN_DROP_TARGET_CONTROLS: string;
+	DRAG_COLUMN_FLOATING_INSERT_DOT: string;
+	DRAG_COLUMN_FLOATING_INSERT_DOT_WRAPPER: string;
+	DRAG_CONTROLS_INSERT_BUTTON: string;
+	DRAG_CONTROLS_INSERT_BUTTON_INNER: string;
+	DRAG_CONTROLS_INSERT_BUTTON_INNER_COLUMN: string;
+	DRAG_CONTROLS_INSERT_BUTTON_INNER_ROW: string;
+	DRAG_CONTROLS_INSERT_BUTTON_INNER_ROW_CHROMELESS: string;
+	DRAG_CONTROLS_INSERT_BUTTON_WRAP: string;
+	DRAG_CORNER_BUTTON: string;
+	DRAG_CORNER_BUTTON_INNER: string;
+	DRAG_HANDLE_BUTTON_CLICKABLE_ZONE: string;
+	DRAG_HANDLE_BUTTON_CONTAINER: string;
+	/** disabled classes */
+	DRAG_HANDLE_DISABLED: string;
+	/** minimised handle class */
+	DRAG_HANDLE_MINIMISED: string;
+	DRAG_ROW_CONTROLS: string;
+	/** drag and drop controls */
+	DRAG_ROW_CONTROLS_WRAPPER: string;
+	DRAG_ROW_FLOATING_DRAG_HANDLE: string;
+	DRAG_ROW_FLOATING_INSERT_DOT: string;
+	DRAG_ROW_FLOATING_INSERT_DOT_WRAPPER: string;
+	DRAG_SUBMENU: string;
+	DRAG_SUBMENU_ICON: string;
+	HOVERED_CELL: string;
+	HOVERED_CELL_ACTIVE: string;
+	HOVERED_CELL_IN_DANGER: string;
+	HOVERED_CELL_WARNING: string;
+	HOVERED_COLUMN: string;
+	HOVERED_DELETE_BUTTON: string;
+	HOVERED_NO_HIGHLIGHT: string;
+	HOVERED_ROW: string;
+	HOVERED_TABLE: string;
+	IS_RESIZING: string;
+	NATIVE_STICKY: string;
+	NATIVE_STICKY_ACTIVE: string;
+	/** nested tables classes */
+	NESTED_TABLE_WITH_CONTROLS: string;
+	NO_OVERFLOW: string;
+	// defined in ReactNodeView based on PM node name
+	NODEVIEW_WRAPPER: string;
+	/** Other classes */
+	NUMBERED_COLUMN: string;
+	NUMBERED_COLUMN_BUTTON: string;
+	NUMBERED_COLUMN_BUTTON_DISABLED: string;
+	RESIZE_CURSOR: string;
+	RESIZE_HANDLE_DECORATION: string;
+	RESIZING_PLUGIN: string;
+	ROW_CONTROLS: string;
+	ROW_CONTROLS_BUTTON: string;
+	ROW_CONTROLS_BUTTON_WRAP: string;
+	ROW_CONTROLS_INNER: string;
+	ROW_CONTROLS_WRAPPER: string;
+	// come from prosemirror-table
+	SELECTED_CELL: string;
+	TABLE_CELL: 'pm-table-cell-content-wrap';
+	TABLE_CELL_NODEVIEW_CONTENT_DOM: 'pm-table-cell-nodeview-content-dom';
+	TABLE_CELL_WRAPPER: 'pm-table-cell-content-wrap';
+	TABLE_CHROMELESS: string;
+	TABLE_COLUMN_CONTROLS_DECORATIONS: 'pm-table-column-controls-decoration';
+	TABLE_CONTAINER: 'pm-table-container';
+	TABLE_CORNER_MASK: 'pm-table-corner-mask';
+	TABLE_HEADER_CELL: 'pm-table-header-content-wrap';
+	TABLE_HEADER_CELL_WRAPPER: 'pm-table-header-content-wrap';
+	TABLE_LEFT_BORDER: 'pm-table-left-border';
+	TABLE_NODE_WRAPPER: 'pm-table-wrapper';
+	TABLE_NODE_WRAPPER_NO_OVERFLOW: 'pm-table-wrapper-no-overflow';
+	TABLE_RESIZER_CONTAINER: 'pm-table-resizer-container';
+	TABLE_RIGHT_BORDER: 'pm-table-right-border';
+	TABLE_ROW_CONTROLS_WRAPPER: 'pm-table-row-controls-wrapper';
+	TABLE_SCROLL_INLINE_SHADOW: 'pm-table-scroll-inline-shadow';
+	TABLE_SELECTED: string;
+	TABLE_STICKY: string;
+	TABLE_STICKY_SCROLLBAR_CONTAINER: 'pm-table-sticky-scrollbar-container';
+	TABLE_STICKY_SCROLLBAR_SENTINEL_BOTTOM: 'pm-table-sticky-scrollbar-sentinel-bottom';
+	TABLE_STICKY_SCROLLBAR_SENTINEL_TOP: 'pm-table-sticky-scrollbar-sentinel-top';
+	TABLE_STICKY_SENTINEL_BOTTOM: 'pm-table-sticky-sentinel-bottom';
+	TABLE_STICKY_SENTINEL_TOP: 'pm-table-sticky-sentinel-top';
+	TABLE_STICKY_WRAPPER: 'pm-table-sticky-wrapper';
+	TABLE_VIEW_CONTENT_WRAP: 'tableView-content-wrap';
+	TOP_LEFT_CELL: string;
+	WITH_COLUMN_INSERT_LINE: string;
+	WITH_COLUMN_INSERT_LINE_INACTIVE: string;
+	WITH_CONTROLS: string;
+	WITH_DRAG_RESIZE_LINE: string;
+	WITH_DRAG_RESIZE_LINE_LAST_COLUMN: string;
+	WITH_FIRST_COLUMN_INSERT_LINE: string;
+	WITH_FIRST_COLUMN_INSERT_LINE_INACTIVE: string;
+	WITH_LAST_COLUMN_INSERT_LINE: string;
+	WITH_LAST_COLUMN_INSERT_LINE_INACTIVE: string;
+	WITH_LAST_ROW_INSERT_LINE: string;
+	WITH_LAST_ROW_INSERT_LINE_INACTIVE: string;
+	WITH_RESIZE_LINE: string;
+	WITH_RESIZE_LINE_LAST_COLUMN: string;
+	WITH_ROW_INSERT_LINE: string;
+	WITH_ROW_INSERT_LINE_INACTIVE: string;
+} = {
 	...TableSharedCssClassName,
 
 	/** Classic controls */
@@ -480,7 +625,6 @@ export const TableCssClassName = {
 	CONTEXTUAL_MENU_BUTTON_WRAP: `${tablePrefixSelector}-contextual-menu-button-wrap`,
 	CONTEXTUAL_MENU_BUTTON: `${tablePrefixSelector}-contextual-menu-button`,
 	CONTEXTUAL_MENU_BUTTON_FIXED: `${tablePrefixSelector}-contextual-menu-button-fixed`,
-	CONTEXTUAL_MENU_ICON: `${tablePrefixSelector}-contextual-submenu-icon`,
 	CONTEXTUAL_MENU_ICON_SMALL: `${tablePrefixSelector}-contextual-submenu-icon-small`,
 
 	// come from prosemirror-table
@@ -491,12 +635,12 @@ export const TableCssClassName = {
 
 	TABLE_SELECTED: `${tablePrefixSelector}-table__selected`,
 	TABLE_CELL: tableCellSelector,
+	TABLE_CORNER_MASK: `${tablePrefixSelector}-corner-mask`,
 	TABLE_HEADER_CELL: tableHeaderSelector,
 	TABLE_STICKY: `${tablePrefixSelector}-sticky`,
 	TABLE_CHROMELESS: `${tablePrefixSelector}-chromeless`,
 
 	TOP_LEFT_CELL: 'table > tbody > tr:nth-child(2) > td:nth-child(1)',
-	LAST_ITEM_IN_CELL: `${tablePrefixSelector}-last-item-in-cell`,
 
 	WITH_COLUMN_INSERT_LINE: `${tablePrefixSelector}-column-insert-line`,
 	WITH_COLUMN_INSERT_LINE_INACTIVE: `${tablePrefixSelector}-column-insert-line__inactive`,
@@ -520,6 +664,8 @@ export const TableCssClassName = {
 	NATIVE_STICKY: `${tablePrefixSelector}-row-native-sticky`,
 	NATIVE_STICKY_ACTIVE: `${tablePrefixSelector}-row-native-sticky-active`,
 	NO_OVERFLOW: `${tablePrefixSelector}-no-overflow`,
+
+	ACTIVE_CURSOR_CELL: `${tablePrefixSelector}-active-cursor-cell`,
 };
 
 export interface ToolbarMenuConfig {
@@ -531,7 +677,6 @@ export interface ToolbarMenuConfig {
 
 export interface ToolbarMenuState {
 	canCollapseTable?: boolean;
-	isDragAndDropEnabled?: boolean;
 	isHeaderColumnEnabled?: boolean;
 	isHeaderRowEnabled?: boolean;
 	isNumberColumnEnabled?: boolean;
@@ -540,11 +685,6 @@ export interface ToolbarMenuState {
 
 export interface ToolbarMenuContext {
 	formatMessage: IntlShape['formatMessage'];
-}
-
-export enum ShadowEvent {
-	SHOW_BEFORE_SHADOW = 'showBeforeShadow',
-	SHOW_AFTER_SHADOW = 'showAfterShadow',
 }
 
 export type ReportInvalidNodeAttrs = (invalidNodeAttrs: InvalidNodeAttr) => void;

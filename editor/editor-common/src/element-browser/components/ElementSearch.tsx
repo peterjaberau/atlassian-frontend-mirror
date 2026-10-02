@@ -6,15 +6,16 @@ import React, { memo, useLayoutEffect, useRef, useState } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import withAnalyticsContext from '@atlaskit/analytics-next/withAnalyticsContext';
+import type { WithContextProps } from '@atlaskit/analytics-next/withAnalyticsContext';
 import { relativeFontSizeToBase16 } from '@atlaskit/editor-shared-styles';
 import { shortcutStyle } from '@atlaskit/editor-shared-styles/shortcut';
 import SearchIcon from '@atlaskit/icon/core/search';
-import { fg } from '@atlaskit/platform-feature-flags';
-import Textfield from '@atlaskit/textfield';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 import type { QuickInsertItem } from '../../provider-factory';
@@ -97,9 +98,11 @@ function ElementSearch({
 	const assistiveMessage = getFormattedMessage(items?.length);
 
 	const isInputNotFocusedAndItemSelected = !inputFocused && selectedItemIndex !== undefined;
-	const ariaActiveDescendant = isInputNotFocusedAndItemSelected
-		? `searched-item-${selectedItemIndex}`
-		: undefined;
+	const ariaActiveDescendant =
+		isInputNotFocusedAndItemSelected &&
+		(!isExperimentEnabled('platform_editor_element_browser_aria_fix') || items[selectedItemIndex])
+			? `searched-item-${selectedItemIndex}`
+			: undefined;
 
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
@@ -132,10 +135,8 @@ function ElementSearch({
 					</div>
 				}
 				placeholder={formatMessage(commonMessages.placeHolderMessage)}
-				aria-label={fg('platform_editor_dec_a11y_fixes')
-					? formatMessage(commonMessages.searchAriaLabel)
-					: "search"}
-				aria-labelledby="search-assistive"
+				aria-label={formatMessage(commonMessages.searchAriaLabelNew)}
+				aria-describedby="search-assistive"
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className="js-search-input"
 				role="combobox"
@@ -160,8 +161,8 @@ function ElementSearch({
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 const styledShortcut = css(shortcutStyle, {
-	padding: `${token('space.050', '4px')} ${token('space.100', '8px')}`,
-	width: token('space.600', '48px'),
+	padding: `${token('space.050')} ${token('space.100')}`,
+	width: token('space.600'),
 });
 
 const wrapper = css({
@@ -177,10 +178,7 @@ const wrapper = css({
 		'& > [data-ds--text-field--input]': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 			fontSize: relativeFontSizeToBase16(14),
-			padding: `${token('space.100', '8px')} ${token('space.075', '6px')} ${token(
-				'space.100',
-				'8px',
-			)} 0`,
+			padding: `${token('space.100')} ${token('space.075')} ${token('space.100')} 0`,
 		},
 	},
 });
@@ -189,17 +187,14 @@ const wrapperInline = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& > [data-ds--text-field--container]': {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-		height: `${GRID_SIZE * 5}px`,
+		height: `40px`,
 		flex: 'none',
 		overflow: 'revert',
 	},
 });
 
 const elementBeforeInput = css({
-	margin: `${token('space.025', '2px')} ${token('space.075', '6px')} 0 ${token(
-		'space.100',
-		'8px',
-	)}`,
+	margin: `${token('space.025')} ${token('space.075')} 0 ${token('space.100')}`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'span, svg': {
 		height: '20px',
@@ -208,13 +203,20 @@ const elementBeforeInput = css({
 });
 
 const elementAfterInput = css({
-	margin: `0 ${token('space.100', '8px')}`,
+	margin: `0 ${token('space.100')}`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	height: SEARCH_ITEM_HEIGHT_WIDTH,
 	textAlign: 'center',
 });
 
-const MemoizedElementSearchWithAnalytics = memo(
+const MemoizedElementSearchWithAnalytics: React.MemoExoticComponent<
+	React.ForwardRefExoticComponent<
+		Omit<Props & WrappedComponentProps, 'intl'> & {
+			forwardedRef?: React.Ref<unknown>;
+		} & WithContextProps &
+			React.RefAttributes<unknown>
+	>
+> = memo(
 	withAnalyticsContext({
 		component: 'Searchbar',
 	})(injectIntl(ElementSearch)),

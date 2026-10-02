@@ -39,29 +39,36 @@ export interface EditorAppearanceComponentProps<Plugins extends NextEditorPlugin
 	contentMode?: EditorContentMode;
 	contextPanel?: ReactComponents;
 	customContentComponents?: ContentComponents;
-
 	customPrimaryToolbarComponents?: PrimaryToolbarComponents;
+
 	customSecondaryToolbarComponents?: ReactComponents;
 	disabled?: boolean;
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent;
-
 	editorActions?: EditorActions;
+
 	editorAPI: PublicPluginAPI<Plugins> | undefined;
-
 	editorDOMElement: JSX.Element;
-	editorView?: EditorView;
 
+	editorView?: EditorView;
 	enableToolbarMinWidth?: boolean;
+
 	eventDispatcher?: EventDispatcher;
 	extensionHandlers?: ExtensionHandlers;
 	featureFlags: FeatureFlags;
 	innerRef?: RefObject<HTMLDivElement>;
-
 	insertMenuItems?: MenuItem[];
+	isEditorModernisationEnabled?: boolean;
+
 	maxHeight?: number;
 	minHeight?: number;
+
 	onCancel?: (editorView: EditorView) => void;
 	onSave?: (editorView: EditorView) => void;
+	onSSRMeasure?: (measure: {
+		endTimestamp: number;
+		segmentName: string;
+		startTimestamp: number;
+	}) => void;
 
 	persistScrollGutter?: boolean;
 	pluginHooks?: ReactHookFactory[];
@@ -79,6 +86,8 @@ export interface EditorAppearanceComponentProps<Plugins extends NextEditorPlugin
 
 	providerFactory: ProviderFactory;
 	secondaryToolbarComponents?: UIComponentFactory[];
+
+	UNSAFE_containLayout?: boolean;
 
 	useStickyToolbar?: UseStickyToolbarType;
 }

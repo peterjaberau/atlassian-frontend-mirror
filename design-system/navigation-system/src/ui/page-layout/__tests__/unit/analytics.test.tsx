@@ -1,12 +1,13 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
-
-import { AnalyticsListener, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import noop from '@atlaskit/ds-lib/noop';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 import { setMediaQuery } from '@atlassian/test-utils';
+import { render } from '@atlassian/testing-library/render';
+import { screen } from '@atlassian/testing-library/screen';
+import { userEvent } from '@atlassian/testing-library/user-event';
 
 import { SideNavPanelSplitter } from '../../panel-splitter/side-nav-panel-splitter';
 import { Root } from '../../root';
@@ -26,8 +27,8 @@ function filterByAction(mockFn: OnAnalyticsEventMock, action: string) {
 
 window.scrollTo = noop;
 
-ffTest.on('platform_dst_nav4_fhs_instrumentation_1', 'analytics', () => {
-	// eslint-disable-next-line @atlassian/a11y/require-jest-coverage
+// eslint-disable-next-line @atlassian/a11y/require-jest-coverage
+describe('analytics', () => {
 	describe('sideNavMenu viewedOnLoad', () => {
 		it('should fire if the menu is open on initial load (desktop)', () => {
 			setMediaQuery('(min-width: 64rem)', { initial: true });

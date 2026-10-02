@@ -2,42 +2,63 @@ import { useCallback, useMemo } from 'react';
 
 import { LRUMap } from 'lru_map';
 
-import { useSmartLinkContext } from '@atlaskit/link-provider';
-import { request } from '@atlaskit/linking-common';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import { request } from '@atlaskit/linking-common/api';
+import type {
+	DatasourceDataRequest,
+	DatasourceDataResponse,
+	DatasourceDetailsRequest,
+	DatasourceDetailsResponse,
+} from '@atlaskit/linking-types/datasource';
 import type {
 	ActionsDiscoveryRequest,
 	ActionsDiscoveryResponse,
 	ActionsServiceDiscoveryResponse,
 	AtomicActionExecuteRequest,
 	AtomicActionExecuteResponse,
-	DatasourceDataRequest,
-	DatasourceDataResponse,
-	DatasourceDetailsRequest,
-	DatasourceDetailsResponse,
-} from '@atlaskit/linking-types';
+} from '@atlaskit/linking-types/datasource-actions';
 
 import { useResolverUrl } from '../use-resolver-url';
 
 const URL_RESPONSE_CACHE_SIZE = 50;
 
-export const datasourceDetailsResponsePromiseCache = new LRUMap<
+export const datasourceDetailsResponsePromiseCache: LRUMap<
 	string,
 	Promise<DatasourceDetailsResponse>
->(URL_RESPONSE_CACHE_SIZE);
+> = new LRUMap<string, Promise<DatasourceDetailsResponse>>(URL_RESPONSE_CACHE_SIZE);
 
-export const datasourceDataResponsePromiseCache = new LRUMap<
+export const datasourceDataResponsePromiseCache: LRUMap<
 	string,
 	Promise<DatasourceDataResponse>
->(URL_RESPONSE_CACHE_SIZE);
+> = new LRUMap<string, Promise<DatasourceDataResponse>>(URL_RESPONSE_CACHE_SIZE);
 
-export const datasourceActionsPermissionsPromiseCache = new LRUMap<
+export const datasourceActionsPermissionsPromiseCache: LRUMap<
 	string,
 	Promise<ActionsServiceDiscoveryResponse>
->(URL_RESPONSE_CACHE_SIZE);
+> = new LRUMap<string, Promise<ActionsServiceDiscoveryResponse>>(URL_RESPONSE_CACHE_SIZE);
 
 export const DEFAULT_GET_DATASOURCE_DATA_PAGE_SIZE = 20;
 
-export const useDatasourceClientExtension = () => {
+export const useDatasourceClientExtension = (): {
+	executeAtomicAction: (
+		data: AtomicActionExecuteRequest,
+	) => Promise<AtomicActionExecuteResponse<unknown>>;
+	getDatasourceActionsAndPermissions: (
+		data: ActionsDiscoveryRequest,
+		force?: boolean,
+	) => Promise<ActionsDiscoveryResponse>;
+	getDatasourceData: (
+		datasourceId: string,
+		data: DatasourceDataRequest,
+		force?: boolean,
+	) => Promise<DatasourceDataResponse>;
+	getDatasourceDetails: (
+		datasourceId: string,
+		data: DatasourceDetailsRequest,
+		force?: boolean,
+	) => Promise<DatasourceDetailsResponse>;
+	invalidateDatasourceDataCacheByAri: (ari: string) => void;
+} => {
 	const {
 		connections: { client },
 	} = useSmartLinkContext();

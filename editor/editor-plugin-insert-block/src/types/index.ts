@@ -27,6 +27,7 @@ import type { TablePlugin } from '@atlaskit/editor-plugin-table';
 import type { TasksAndDecisionsPlugin } from '@atlaskit/editor-plugin-tasks-and-decisions';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugin-toolbar';
 import type { TypeAheadPlugin } from '@atlaskit/editor-plugin-type-ahead';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugin-ui-control-registry/ui-control-registry-plugin-type';
 
 export type InsertBlockPluginDependencies = [
 	TypeAheadPlugin,
@@ -56,6 +57,7 @@ export type InsertBlockPluginDependencies = [
 	OptionalPlugin<ContextPanelPlugin>,
 	OptionalPlugin<ConnectivityPlugin>,
 	OptionalPlugin<ToolbarPlugin>,
+	OptionalPlugin<UiControlRegistryPlugin>,
 ];
 
 type PluginToolbarComponentsConfig<T extends string> = {
@@ -73,6 +75,17 @@ export interface InsertBlockPluginOptions {
 	horizontalRuleEnabled?: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	insertMenuItems?: any;
+	/**
+	 * EDITOR-6558: Optional predicate for filtering insert-block items by
+	 * `value.name` before they're rendered in the toolbar / dropdown /
+	 * element browser. Items returning `false` are hidden.
+	 *
+	 * Used by Markdown Mode (gated by the `cc-markdown-mode` experiment in
+	 * Confluence) to allowlist only items whose corresponding node/mark
+	 * types have a clean GFM round-trip. Currently applied to the main
+	 * toolbar insert surfaces (`ToolbarInsertBlock`, `useInsertButtonState`).
+	 */
+	itemFilter?: (item: { value: { name: string } }) => boolean;
 	nativeStatusSupported?: boolean;
 	/**
 	 * To hide the element browser "view more" button in the
@@ -85,7 +98,8 @@ export interface InsertBlockPluginOptions {
 	 * Configure which toolbar buttons should be visible
 	 * @default undefined - shows all available buttons (current behaviour)
 	 *
-	 * Only applies when platform_editor_toolbar_aifc is enabled
+	 * Only respected when the editor configuration includes `toolbarPlugin` from
+	 * `@atlaskit/editor-plugin-toolbar`.
 	 */
 	toolbarButtons?: ToolbarInsertBlockButtonsConfig;
 	/**
@@ -93,7 +107,8 @@ export interface InsertBlockPluginOptions {
 	 * and only show the plus button
 	 * @default undefined Shows the insert block buttons and the plus button
 	 *
-	 * Only applies when platform_editor_toolbar_aifc is enabled
+	 * Only respected when the editor configuration includes `toolbarPlugin` from
+	 * `@atlaskit/editor-plugin-toolbar`.
 	 *
 	 * @warning Use {@link toolbarButtons} instead to configure the insert block toolbar buttons
 	 * @see https://product-fabric.atlassian.net/browse/ED-29426

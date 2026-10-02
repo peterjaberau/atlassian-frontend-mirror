@@ -1,7 +1,7 @@
 import React, { type ComponentClass, type FunctionComponent } from 'react';
 
 import { type IconProps, type NewIconProps } from '@atlaskit/icon/types';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type IconProp } from '../types';
 
@@ -25,6 +25,9 @@ function isIconRenderProp(
  *
  */
 const IconRenderer = ({ icon: Icon }: { icon: IconProp }): React.JSX.Element => {
+	// React Compiler opt-out: RC-incompatible (memoization breaks runtime behaviour).
+	'use no memo';
+
 	const isRenderProp = isIconRenderProp(Icon);
 	let iconProps: IconProps | NewIconProps = {
 		label: '',

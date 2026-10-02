@@ -1,37 +1,37 @@
 /* eslint-disable @atlaskit/platform/no-preconditioning */
+
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cssMap } from '@compiled/react';
-import { FormattedMessage, useIntl } from 'react-intl-next';
+import { FormattedMessage, useIntl } from 'react-intl';
 
-import FeatureGates from '@atlaskit/feature-gate-js-client';
-import { IntlMessagesProvider } from '@atlaskit/intl-messages-provider';
-import LinkComponent from '@atlaskit/link';
-import type { DatasourceParameters, Link } from '@atlaskit/linking-types';
-import {
-	CloseButton,
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import { fg } from '@atlaskit/platform-feature-flags';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';
+import LinkComponent from '@atlaskit/link/link';
+import type { DatasourceParameters, Link } from '@atlaskit/linking-types/datasource';
+import { CloseButton } from '@atlaskit/modal-dialog/close-button';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../analytics';
 import { EVENT_CHANNEL } from '../../../analytics/constants';
 import { DatasourceAction, DatasourceDisplay } from '../../../analytics/types';
-import { startUfoExperience } from '../../../analytics/ufoExperiences';
 import { useColumnPickerRenderedFailedUfoExperience } from '../../../analytics/ufoExperiences/hooks/useColumnPickerRenderedFailedUfoExperience';
 import { useDataRenderedUfoExperience } from '../../../analytics/ufoExperiences/hooks/useDataRenderedUfoExperience';
+import { startUfoExperience } from '../../../analytics/ufoExperiences/startUfoExperience';
 import { mapSearchMethod } from '../../../analytics/utils';
+import { useDatasourceCrossProductAttribution } from '../../../analytics/xpc/useDatasourceCrossProductAttribution';
 import type { DisplayViewModes, JiraSearchMethod, Site } from '../../../common/types';
 import { RichIconSearch } from '../../../common/ui/rich-icon/search';
 import { fetchMessagesForLocale } from '../../../common/utils/locale/fetch-messages-for-locale';
-import { useDatasourceExperienceId } from '../../../contexts/datasource-experience-id';
-import { useUserInteractions } from '../../../contexts/user-interactions';
+import { useDatasourceExperienceId } from '../../../contexts/datasource-experience-id/use-datasource-experience-id';
+import { useUserInteractions } from '../../../contexts/user-interactions/use-user-interactions';
 import i18nEN from '../../../i18n/en';
 import { useAvailableSites } from '../../../services/useAvailableSites';
 import { StoreContainer } from '../../../state';
@@ -44,17 +44,18 @@ import { InitialStateView } from '../../common/initial-state-view';
 import { initialStateViewMessages } from '../../common/initial-state-view/messages';
 import { CancelButton } from '../../common/modal/cancel-button';
 import { ContentContainer } from '../../common/modal/content-container';
-import { SmartCardPlaceholder, SmartLink } from '../../common/modal/count-view-smart-link';
-import { useDatasourceContext } from '../../common/modal/datasource-context';
+import { SmartCardPlaceholder } from '../../common/modal/count-view-smart-link/smart-card-placeholder';
+import { SmartLink } from '../../common/modal/count-view-smart-link/smart-link';
+import { useDatasourceContext } from '../../common/modal/datasource-context/useDatasourceContext';
 import { DatasourceModal } from '../../common/modal/datasource-modal';
 import { createDatasourceModal } from '../../common/modal/datasource-modal/createDatasourceModal';
 import DatasourcesTableInModalPreview from '../../common/modal/datasources-table-in-modal-preview';
 import { InsertButton } from '../../common/modal/insert-button';
-import { DatasourceViewModeDropDown } from '../../common/modal/mode-switcher';
+import { DatasourceViewModeDropDown } from '../../common/modal/mode-switcher/DatasourceViewModeDropDown';
 import { useViewModeContext } from '../../common/modal/mode-switcher/useViewModeContext';
 import TableSearchCount from '../../common/modal/search-count';
 import { SiteSelector } from '../../common/modal/site-selector';
-import { EmptyState } from '../../issue-like-table';
+import EmptyState from '../../issue-like-table/empty-state';
 import type { SelectedOptionsMap } from '../basic-filters/types';
 import { availableBasicFilterTypes } from '../basic-filters/ui';
 import { isQueryTooComplex } from '../basic-filters/utils/isQueryTooComplex';
@@ -65,7 +66,6 @@ import {
 	type JiraIssueDatasourceParameters,
 	type JiraIssueDatasourceParametersQuery,
 } from '../types';
-
 import { modalMessages } from './messages';
 
 const styles = cssMap({
@@ -118,7 +118,6 @@ const PlainJiraIssuesConfigModal = (props: ConnectedJiraConfigModalProps) => {
 	const { cloudId, jql } = parameters ?? {};
 	const [initialJql] = useState(jql);
 
-	const isJqlSubmitFixEnabled = fg('navx-1345-issues-modal-jql-submit-fix');
 	const [hasJqlSyntaxErrors, setHasJqlSyntaxErrors] = useState(false); // Tracks if current jql input has syntax errors
 
 	const { currentViewMode } = useViewModeContext();
@@ -142,6 +141,8 @@ const PlainJiraIssuesConfigModal = (props: ConnectedJiraConfigModalProps) => {
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 	const experienceId = useDatasourceExperienceId();
 
+	const { wrapCrossProductUrl } = useDatasourceCrossProductAttribution();
+
 	const { formatMessage } = useIntl();
 
 	const analyticsPayload = useMemo(
@@ -153,7 +154,16 @@ const PlainJiraIssuesConfigModal = (props: ConnectedJiraConfigModalProps) => {
 	);
 
 	const resolvedWithNoResults = status === 'resolved' && !responseItems.length;
-	const jqlUrl = selectedJiraSite && jql && `${selectedJiraSite.url}/issues/?jql=${encodeURI(jql)}`;
+	// With columns available the table can keep its headers and show the empty state in place of
+	// the rows, instead of replacing the whole table with it.
+	const shouldRenderTableWithNoResults =
+		resolvedWithNoResults && !!columns.length && fg('platform_lp_sllv_ux_improvements');
+	const jqlUrlUnwrapped =
+		selectedJiraSite && jql && `${selectedJiraSite.url}/issues/?jql=${encodeURI(jql)}`;
+	const jqlUrl =
+		jqlUrlUnwrapped && fg('electric_issue_like_table_xpc_url_wrapping')
+			? wrapCrossProductUrl(jqlUrlUnwrapped)
+			: jqlUrlUnwrapped;
 
 	const shouldShowIssueCount = !!totalCount && totalCount !== 1 && currentViewMode === 'table';
 
@@ -377,7 +387,10 @@ const PlainJiraIssuesConfigModal = (props: ConnectedJiraConfigModalProps) => {
 			);
 		} else if (status === 'unauthorized') {
 			return <AccessRequired url={selectedJiraSiteUrl || urlBeingEdited} />;
-		} else if (resolvedWithNoResults || status === 'forbidden') {
+		} else if (
+			(resolvedWithNoResults && !shouldRenderTableWithNoResults) ||
+			status === 'forbidden'
+		) {
 			return <NoResults />;
 		} else if (status === 'empty' || !columns.length) {
 			// persist the empty state when making the initial /data request which contains the columns
@@ -432,6 +445,7 @@ const PlainJiraIssuesConfigModal = (props: ConnectedJiraConfigModalProps) => {
 		jql,
 		jqlUrl,
 		resolvedWithNoResults,
+		shouldRenderTableWithNoResults,
 		selectedJiraSite?.url,
 		status,
 		urlBeingEdited,
@@ -498,9 +512,12 @@ const PlainJiraIssuesConfigModal = (props: ConnectedJiraConfigModalProps) => {
 		selectedJiraSite?.url,
 	]);
 
-	const updateParametersJql = useCallback((parameters: JiraIssueDatasourceParameters) => {
-		parameters.jql = searchBarJql;
-	}, [searchBarJql]);
+	const updateParametersJql = useCallback(
+		(parameters: JiraIssueDatasourceParameters) => {
+			parameters.jql = searchBarJql;
+		},
+		[searchBarJql],
+	);
 
 	return (
 		<IntlMessagesProvider defaultMessages={i18nEN} loaderFn={fetchMessagesForLocale}>
@@ -535,7 +552,7 @@ const PlainJiraIssuesConfigModal = (props: ConnectedJiraConfigModalProps) => {
 								<JiraSearchContainer
 									setSearchBarJql={setSearchBarJql}
 									searchBarJql={searchBarJql}
-									setHasJqlSyntaxErrors={isJqlSubmitFixEnabled ? setHasJqlSyntaxErrors : undefined}
+									setHasJqlSyntaxErrors={setHasJqlSyntaxErrors}
 									isSearching={status === 'loading'}
 									parameters={parameters}
 									onSearch={onSearch}
@@ -578,10 +595,8 @@ const PlainJiraIssuesConfigModal = (props: ConnectedJiraConfigModalProps) => {
 								testId="jira-datasource-modal--insert-button"
 								url={urlToInsert}
 								getAnalyticsPayload={getInsertButtonAnalyticsPayload}
-								{...(isJqlSubmitFixEnabled ? {
-									onBeforeInsert: updateParametersJql,
-									hasErrors: hasJqlSyntaxErrors,
-								} : {})}
+								onBeforeInsert={updateParametersJql}
+								hasErrors={hasJqlSyntaxErrors}
 							>
 								<FormattedMessage {...modalMessages.insertIssuesButtonTextIssueTermSllv} />
 							</InsertButton>
@@ -625,4 +640,5 @@ export const JiraIssuesConfigModal = (props: JiraConfigModalProps): React.JSX.El
 	);
 };
 
-export const JiraIssuesConfigModalNoSuspense = JiraIssuesConfigModal;
+export const JiraIssuesConfigModalNoSuspense: (props: JiraConfigModalProps) => React.JSX.Element =
+	JiraIssuesConfigModal;

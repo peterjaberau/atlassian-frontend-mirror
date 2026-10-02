@@ -1,16 +1,14 @@
 import { type ReactNode } from 'react';
 import type React from 'react';
 import { type AriaAttributes } from 'react';
-import { type WithAnalyticsEventsProps } from '@atlaskit/analytics-next';
-import { type Placement } from '@atlaskit/popper';
 
-import { type EmailValidator } from './components/emailValidation';
-import {
-	type StylesConfig,
-	type SelectComponentsConfig,
-	type PopupSelectProps,
-} from '@atlaskit/select';
+import type { WithAnalyticsEventsProps } from '@atlaskit/analytics-next/withAnalyticsEvents';
+import type { Placement } from '@atlaskit/popper/main';
+import type { PopupSelectProps } from '@atlaskit/select/popup-select';
+import type { StylesConfig, SelectComponentsConfig } from '@atlaskit/select/types';
+
 import { type BaseUserPickerWithoutAnalytics } from './components/BaseUserPicker';
+import { type EmailValidator } from './components/emailValidation';
 
 export type UserPickerProps = WithAnalyticsEventsProps & {
 	/** Message to encourage the user to add more items to user picker. */
@@ -39,6 +37,15 @@ export type UserPickerProps = WithAnalyticsEventsProps & {
 	closeMenuOnScroll?: boolean | EventListener;
 	/** Override the default components used in the user picker. */
 	components?: SelectComponentsConfig<OptionData, boolean>;
+	/**
+	 * Stable, locale-independent labels keyed by option type, used only for analytics events.
+	 * When provided alongside `customGroupLabels`, the corresponding string will be emitted as the
+	 * `selectedLabel` analytics attribute instead of the raw option type, allowing consumers to
+	 * report meaningful group identifiers (e.g. `'recommendedAgents'`) without leaking display text.
+	 */
+	customGroupAnalyticsLabels?: Partial<Record<NonNullable<OptionData['type']>, string>>;
+	/** Custom labels for grouped option types. Overrides default labels when groupByTypeOrder is used. */
+	customGroupLabels?: Partial<Record<NonNullable<OptionData['type']>, React.ReactNode>>;
 	/** Default value for the field to be used on initial render.
 	 * `defaultValue` differs from `value` in that it sets the initial value then leaves the component 'uncontrolled'
 	 * whereas setting the `value` prop delegates responsibility for maintaining the value to the caller
@@ -86,6 +93,8 @@ export type UserPickerProps = WithAnalyticsEventsProps & {
 	isDisabled?: boolean;
 	/** Checks if the footer is focused or not. This is needed to keep the menu open when the footer is focused */
 	isFooterFocused?: boolean;
+	/** Checks if the header is focused or not. This is needed to keep the menu open when the header is focused */
+	isHeaderFocused?: boolean;
 	/** Display the  picker with a style to show the value is invalid */
 	isInvalid?: boolean;
 	/** Show the loading indicator. */
@@ -127,6 +136,8 @@ export type UserPickerProps = WithAnalyticsEventsProps & {
 	menuPosition?: 'absolute' | 'fixed';
 	/** Whether to block scrolling actions */
 	menuShouldBlockScroll?: boolean;
+	/** Sets the minimum height of the user picker. If not set, the minimum height will be based on the "height" prop then "compact" or "normal" appearance if height is not set. */
+	minHeight?: number | string;
 	/** Name to use for input element. */
 	name?: string;
 	/** Display the picker with no border. */
@@ -161,6 +172,8 @@ export type UserPickerProps = WithAnalyticsEventsProps & {
 	open?: boolean;
 	/** Override the internal behaviour of default menu open on focus and applicable for single value select  */
 	openMenuOnClick?: boolean;
+	/** Whether to open the menu when the input receives focus. Defaults to true for multi-select. */
+	openMenuOnFocus?: boolean;
 	/** List of users or teams to be used as options by the user picker. */
 	options?: OptionData[];
 	/** Placeholder text to be shown when there is no value in the field. */
@@ -175,6 +188,8 @@ export type UserPickerProps = WithAnalyticsEventsProps & {
 	search?: string;
 	/** Sets if the footer is focused or not. This is needed to keep the menu open when the footer is focused */
 	setIsFooterFocused?: React.Dispatch<React.SetStateAction<boolean>>;
+	/** Sets if the header is focused or not. This is needed to keep the menu open when the header is focused */
+	setIsHeaderFocused?: React.Dispatch<React.SetStateAction<boolean>>;
 	/** Override default behavior and show the clear indicator. */
 	showClearIndicator?: boolean;
 	/** Positioning strategy for the popper element */
@@ -345,6 +360,8 @@ export interface LozengeProps {
 }
 export const TeamType = 'team';
 
+export type TeamState = 'ACTIVE' | 'DISBANDED' | 'PURGED';
+
 export interface TeamMember {
 	id: string;
 	name: string;
@@ -360,6 +377,7 @@ export interface Team extends OptionData {
 	includeTeamsUpdates?: boolean;
 	memberCount?: number;
 	members?: TeamMember[];
+	state?: TeamState;
 	teamTypeName?: string;
 	type: 'team';
 	verified?: boolean;

@@ -1,0 +1,44 @@
+---
+title: Entering motion
+description: A set of legacy utilities to apply motion in your application.
+order: 1
+props:
+  packageName: '@atlaskit/motion'
+  exports:
+    - FadeIn
+    - SlideIn
+    - ZoomIn
+    - ShrinkOut
+---
+
+import SectionMessage from '@atlaskit/section-message';
+
+## `<FadeIn />`
+
+Useful for fading in one or more elements.
+
+<TSMorphProps exportName="FadeIn" packageName="@atlaskit/motion" />
+
+## `<SlideIn />`
+
+Will slide an element into position, generally used for things that appear from outside of the
+viewport into view.
+
+<TSMorphProps exportName="SlideIn" packageName="@atlaskit/motion" />
+
+## `<ZoomIn />`
+
+Will over zoom an element into position.
+
+<TSMorphProps exportName="ZoomIn" packageName="@atlaskit/motion" />
+
+## `<ShrinkOut />`
+
+<SectionMessage appearance="warning">
+	This motion only has an exiting motion. StaggeredEntrance will have no effect.
+</SectionMessage>
+
+Will shrink an element down to nothing when exiting. Works best with flex children as collapsing
+margins can come with undesired behavior.
+
+<TSMorphProps exportName="ShrinkOut" packageName="@atlaskit/motion" />

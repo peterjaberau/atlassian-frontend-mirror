@@ -1,13 +1,12 @@
 import React, { useCallback, useRef, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import ModalDialog, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-} from '@atlaskit/modal-dialog';
-import { Box, Inline } from '@atlaskit/primitives/compiled';
+import Button from '@atlaskit/button/default/button';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import { Box, Inline, Text } from '@atlaskit/primitives/compiled';
 
 export default function ReturnFocusToElement(): React.JSX.Element {
 	const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +30,7 @@ export default function ReturnFocusToElement(): React.JSX.Element {
 						<ModalTitle>Returning focus to custom element</ModalTitle>
 					</ModalHeader>
 					<ModalBody>
-						<p>Modal content</p>
+						<Text as="p">Modal content</Text>
 					</ModalBody>
 					<ModalFooter>
 						<Button appearance="primary" onClick={close} testId="close-modal">

@@ -2,17 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { css, jsx } from '@compiled/react';
-import { FormattedMessage } from 'react-intl-next';
 
-import {
-	CheckboxOption,
-	components,
-	type MenuListComponentProps,
-	type OptionProps,
-	type OptionType,
-} from '@atlaskit/select';
-import { fontFallback } from '@atlaskit/theme/typography';
+import { css, jsx } from '@compiled/react';
+import { FormattedMessage } from 'react-intl';
+
+import { components } from '@atlaskit/react-select/components';
+import type { MenuListComponentProps, OptionType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 import { columnPickerMessages } from './messages';
@@ -20,37 +15,15 @@ import { columnPickerMessages } from './messages';
 export const SELECT_ITEMS_MAXIMUM_THRESHOLD = 200;
 
 const messageStyles = css({
-	color: token('color.text.subtle', '#44546F'),
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-	font: token('font.body.small', fontFallback.body.small),
-	fontWeight: token('font.weight.regular', '400'),
-});
-
-const listItemStylesSelected = css({
-	backgroundColor: token('color.background.selected'),
-	'&:hover': {
-		backgroundColor: token('color.background.selected.hovered'),
-	},
-	'&:active': {
-		backgroundColor: token('color.background.selected.pressed'),
-	},
-	boxShadow: 'none',
-});
-
-const listItemStyles = css({
-	'&:hover': {
-		backgroundColor: token('color.background.neutral.hovered'),
-	},
-	'&:active': {
-		backgroundColor: token('color.background.neutral.pressed'),
-	},
-	boxShadow: 'none',
+	color: token('color.text.subtle'),
+	font: token('font.body.small'),
+	fontWeight: token('font.weight.regular'),
 });
 
 export const ConcatenatedMenuList = ({
 	children,
 	...props
-}: MenuListComponentProps<OptionType, true>) => {
+}: MenuListComponentProps<OptionType, true>): JSX.Element => {
 	const shouldUseDefaultMenuList =
 		!children || !Array.isArray(children) || children.length <= SELECT_ITEMS_MAXIMUM_THRESHOLD;
 
@@ -59,7 +32,7 @@ export const ConcatenatedMenuList = ({
 	}
 
 	const optionStyle = {
-		padding: `${token('space.050', '4px')} ${token('space.200', '16px')}`,
+		padding: `${token('space.050')} ${token('space.200')}`,
 		height: 'auto',
 	};
 	const maximumLimitReachedMessage = (
@@ -75,13 +48,5 @@ export const ConcatenatedMenuList = ({
 			{children.slice(0, SELECT_ITEMS_MAXIMUM_THRESHOLD)}
 			{maximumLimitReachedMessage}
 		</components.MenuList>
-	);
-};
-
-export const MenuItem = ({ children, ...props }: OptionProps<OptionType, true>) => {
-	return (
-		<CheckboxOption css={[props.isSelected ? listItemStylesSelected : listItemStyles]} {...props}>
-			{children}
-		</CheckboxOption>
 	);
 };

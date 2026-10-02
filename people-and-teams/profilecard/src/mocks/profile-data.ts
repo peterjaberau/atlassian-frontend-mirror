@@ -1,6 +1,7 @@
 import sample from 'lodash/sample';
 
-import { getTimeString, getWeekday } from './util';
+import { getTimeString } from './get-time-string';
+import { getWeekday } from './get-weekday';
 
 export const avatarImages: string[] = [
 	'data:image/gif;base64,R0lGODdhgACAAPIHAABRzMHT8l6O3o2w6env+zh22P///xRe0CwAAAAAgACAAAAD/wi63P4wykmrvTjrzbv/YCiOZGmeaKqubOu+cCzPdG3feK7vfO//wKBwSCwaj8ikcslsOp/QqHRKrVqv2Kx2y+16v+CweEwum8/otHrNbrvf8Lh8Tq83CwGDgTA4RA4DBHoBAnADeoh7BQ8HgokGA24Cj4gED3mUBoVsmJmbC5OZe22iepEMh6V+a6UGAQ2poouspacLsZmrap2UswsFpa9sjZnCsLJuBY6IAbrHiQSfbQcCAQED0g8FA9YCznbg4eLj5OVO2zMDvlXKrt8qB3kE61LEg/Qo8ZX4TvrQ2SbaQXvHxB+lPicAiWomBdejaCUEFiPIxOGjAPw04GnFkIiKxYveOFRrBQlLKJKEKDagFohkySwSSRK4NgBbAQE1uS2TCdCKQZdAUaq0ImBn0KN6IIppiTQon6FbqBlt+hBhmm1Tj/LpebVaVkoz1YUrQDZnTbIZzaldy7at27dw48qdS7eu3bt48+rdy7ev37+AAwseTLiw4cOIEytezLix48eQI0uenDcBADs=',
@@ -14,7 +15,53 @@ export const avatarImages: string[] = [
 
 const getAvatar = () => sample(avatarImages) as string;
 
-const profiles = [
+const profiles: (
+	| {
+			User: {
+				avatarUrl: string;
+				fullName: string;
+				nickname: string;
+				email: string;
+				location: string;
+				meta: string;
+				remoteTimeString: string;
+				remoteWeekdayIndex: number;
+				remoteWeekdayString: string;
+				accountType: string;
+				status?: undefined;
+			};
+	  }
+	| {
+			User: {
+				avatarUrl: string;
+				fullName: string;
+				nickname: string;
+				email: string;
+				location: string;
+				meta: string;
+				status: string;
+				remoteTimeString: string;
+				remoteWeekdayIndex: number;
+				remoteWeekdayString: string;
+				accountType: string;
+			};
+	  }
+	| {
+			User: {
+				avatarUrl: string;
+				fullName: string;
+				nickname: string;
+				email: string;
+				meta: string;
+				accountType: string;
+				location?: undefined;
+				remoteTimeString?: undefined;
+				remoteWeekdayIndex?: undefined;
+				remoteWeekdayString?: undefined;
+				status?: undefined;
+			};
+	  }
+)[] = [
 	{
 		User: {
 			avatarUrl: getAvatar(),

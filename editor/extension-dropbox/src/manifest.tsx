@@ -1,12 +1,55 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { type ExtensionManifest } from '@atlaskit/editor-common/extensions';
-import { inlineCard } from '@atlaskit/adf-utils/builders';
+import { createRoot, type Root } from 'react-dom/client';
+import { createIntl, defineMessage, type IntlShape } from 'react-intl';
 
-import enableDropbox from './enable-dropbox';
-import { type DropboxFile } from './types';
+import { inlineCard } from '@atlaskit/adf-utils/builders';
+import type { ExtensionManifest } from '@atlaskit/editor-common/extensions';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+
 import { POPUP_MOUNTPOINT, DROPBOX_IFRAME_NAME } from './constants';
+import enableDropbox from './enable-dropbox';
+import type { DropboxFile } from './types';
+
+const reactRoots = new WeakMap<Element, Root>();
+const defaultIntl = createIntl({ locale: 'en' });
+const dropboxName = defineMessage({
+	id: 'editor-extension-dropbox.attribution-name.ai-non-final',
+	defaultMessage: 'Dropbox',
+	description:
+		'Dropbox product name displayed as the creator in the slash-command preview attribution.',
+});
+
+/** Mounts `element` into `mountPoint` using `createRoot` when the migration experiment is on. */
+const renderToMountPoint = (element: React.ReactElement, mountPoint: Element) => {
+	if (isExperimentEnabled('platform_editor_react19_migration')) {
+		let root = reactRoots.get(mountPoint);
+
+		if (!root) {
+			root = createRoot(mountPoint);
+			reactRoots.set(mountPoint, root);
+		}
+
+		root.render(element);
+	} else {
+		ReactDOM.render(element, mountPoint);
+	}
+};
+
+/** Unmounts the tree using the registered root when the migration experiment is on. */
+const unmountFromMountPoint = (mountPoint: Element) => {
+	if (isExperimentEnabled('platform_editor_react19_migration')) {
+		const root = reactRoots.get(mountPoint);
+
+		if (root) {
+			root.unmount();
+			reactRoots.delete(mountPoint);
+		}
+	} else {
+		ReactDOM.unmountComponentAtNode(mountPoint);
+	}
+};
 
 declare global {
 	interface Window {
@@ -28,10 +71,11 @@ async function pickFromDropbox(appKey: string, canMountinIframe: boolean) {
 	await enableDropbox(appKey);
 
 	let popupMountPoint;
+	let root: Root | null = null;
 
 	// BC - as of 2020-01-21 this does not work, as no dropbox app we have is authorised
 	// to iframe in the picker - we are currently waiting for permissions.
-	// To test the picker, comment out the ReactDOM render call, and the `iframe` and `winowName` options
+	// To test the picker, comment out the render call, and the `iframe` and `winowName` options
 	if (canMountinIframe) {
 		const Modal = await import('./modal');
 
@@ -46,7 +90,14 @@ async function pickFromDropbox(appKey: string, canMountinIframe: boolean) {
 			popupMountPoint.id = POPUP_MOUNTPOINT;
 			document.body.appendChild(popupMountPoint);
 		}
-		ReactDOM.render(<Modal.default onClose={() => {}} />, popupMountPoint);
+		if (isExperimentEnabled('platform_editor_react19_migration')) {
+			root = createRoot(popupMountPoint);
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+			root.render(<Modal.default onClose={() => {}} />);
+		} else {
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+			renderToMountPoint(<Modal.default onClose={() => {}} />, popupMountPoint);
+		}
 	}
 
 	let files: DropboxFile[];
@@ -60,17 +111,26 @@ async function pickFromDropbox(appKey: string, canMountinIframe: boolean) {
 				cancel: reject,
 			});
 		});
+		// eslint-disable-next-line no-unused-vars
 	} catch (e) {
-		if (popupMountPoint) {
-			ReactDOM.unmountComponentAtNode(popupMountPoint);
+		if (isExperimentEnabled('platform_editor_react19_migration')) {
+			if (root) {
+				root.unmount();
+			}
+		} else if (popupMountPoint) {
+			unmountFromMountPoint(popupMountPoint);
 		}
 		return;
 	}
 	let node;
 
 	if (!files.length) {
-		if (popupMountPoint) {
-			ReactDOM.unmountComponentAtNode(popupMountPoint);
+		if (isExperimentEnabled('platform_editor_react19_migration')) {
+			if (root) {
+				root.unmount();
+			}
+		} else if (popupMountPoint) {
+			unmountFromMountPoint(popupMountPoint);
 		}
 		return;
 	}
@@ -88,8 +148,12 @@ async function pickFromDropbox(appKey: string, canMountinIframe: boolean) {
 		};
 	}
 
-	if (popupMountPoint) {
-		ReactDOM.unmountComponentAtNode(popupMountPoint);
+	if (isExperimentEnabled('platform_editor_react19_migration')) {
+		if (root) {
+			root.unmount();
+		}
+	} else if (popupMountPoint) {
+		unmountFromMountPoint(popupMountPoint);
 	}
 	return node;
 }
@@ -97,13 +161,22 @@ async function pickFromDropbox(appKey: string, canMountinIframe: boolean) {
 const manifestFunction = ({
 	appKey,
 	canMountinIframe,
+	intl = defaultIntl,
 }: {
 	appKey: string;
 	canMountinIframe: boolean;
+	intl?: Pick<IntlShape, 'formatMessage'>;
 }): ExtensionManifest => ({
 	title: 'Dropbox',
 	type: 'com.dropbox.fabric',
 	key: 'dropbox',
+	preview: {
+		attribution: { name: intl.formatMessage(dropboxName) },
+		image: {
+			dark: 'https://dam-cdn.atl.orangelogic.com/CDNLink/AT12OVH2.png',
+			light: 'https://dam-cdn.atl.orangelogic.com/CDNLink/AT12OVKI.png',
+		},
+	},
 	description: 'Embed Dropbox file to collaborate with your team',
 	icons: {
 		'16': () =>

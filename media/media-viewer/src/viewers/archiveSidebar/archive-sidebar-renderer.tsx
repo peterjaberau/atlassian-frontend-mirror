@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 
+import { type ZipEntry } from 'unzipit';
+
 import { type MediaClient, type FileState, isErrorFileState } from '@atlaskit/media-client';
 
+import { ArchiveViewerError } from '../../ArchiveViewerError';
+import { Spinner } from '../../loading';
 import { SpinnerWrapper } from '../../styleWrappers';
 import { ArchiveSidebar } from './archive-sidebar';
-import { getArchiveEntriesFromFileState } from './archive';
-import { Spinner } from '../../loading';
-import { ArchiveViewerError } from '../../errors';
+import { getArchiveEntriesFromFileState } from './get-archive-entries-from-file-state';
 import { ArchiveSideBar } from './styleWrappers';
-import { type ZipEntry } from 'unzipit';
 
 export interface ArchiveSidebarRendererProps {
 	selectedFileState: FileState;
@@ -49,12 +50,19 @@ export default class ArchiveSidebarRenderer extends Component<
 			onSuccess();
 		} catch (error) {
 			this.setState({ status: 'loaded' });
-			onError(
-				new ArchiveViewerError(
-					'archiveviewer-read-binary',
-					error instanceof Error ? error : undefined,
-				),
-			);
+			// Preserve archiveviewer-not-zip as-is so the generic error boundary
+			// can show a clear "format not supported" message instead of a
+			// generic read error.
+			if (error instanceof ArchiveViewerError && error.primaryReason === 'archiveviewer-not-zip') {
+				onError(error);
+			} else {
+				onError(
+					new ArchiveViewerError(
+						'archiveviewer-read-binary',
+						error instanceof Error ? error : undefined,
+					),
+				);
+			}
 		}
 	}
 

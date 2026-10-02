@@ -1,8 +1,9 @@
+import { snapshotInformational } from '@af/visual-regression';
+
 import {
 	LoadedSummaryReactions,
 	LoadedReactionsWithSummaryAllowSelectFromEmojiPicker,
-} from './SummaryReactions.fixtures';
-import { snapshotInformational } from '@af/visual-regression';
+} from './SummaryReactions.fixtures.vr.ap';
 
 const featureFlags = {
 	'platform-component-visual-refresh': true,

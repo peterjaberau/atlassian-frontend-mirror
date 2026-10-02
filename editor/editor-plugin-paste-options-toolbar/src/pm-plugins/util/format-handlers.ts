@@ -1,3 +1,4 @@
+import { normalizeMarkdownCodeBlockAttrsInSlice } from '@atlaskit/editor-common/code-block';
 import { logException } from '@atlaskit/editor-common/monitoring';
 import { md } from '@atlaskit/editor-common/paste';
 import { MarkdownTransformer } from '@atlaskit/editor-markdown-transformer';
@@ -6,14 +7,20 @@ import { Fragment, Slice } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import { Selection } from '@atlaskit/editor-prosemirror/state';
 import { ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
-import type { PasteOtionsPluginState } from '../../types/types';
-
+import type { MarkdownToPmConverter } from '../../pasteOptionsToolbarPluginType';
+import type { PasteOptionsPluginState } from '../../types/types';
 import { escapeLinks } from './index';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const CODE_BLOCK_FENCE_REGEX = /```/;
 
 export const formatMarkdown = (
 	tr: Transaction,
-	pluginState: PasteOtionsPluginState,
+	pluginState: PasteOptionsPluginState,
+	markdownToPmConverter?: MarkdownToPmConverter,
 ): Transaction => {
 	let pasteStartPos = pluginState.pasteStartPos;
 	const pasteEndPos = pluginState.pasteEndPos;
@@ -33,6 +40,7 @@ export const formatMarkdown = (
 		plaintext,
 		tr.doc.type.schema,
 		tr.selection,
+		markdownToPmConverter,
 	);
 
 	if (!markdownSlice) {
@@ -51,7 +59,7 @@ export const formatMarkdown = (
 
 export const formatRichText = (
 	tr: Transaction,
-	pluginState: PasteOtionsPluginState,
+	pluginState: PasteOptionsPluginState,
 ): Transaction => {
 	let pasteStartPos = pluginState.pasteStartPos;
 	const pasteEndPos = pluginState.pasteEndPos;
@@ -83,7 +91,7 @@ export const formatRichText = (
 
 export const formatPlainText = (
 	tr: Transaction,
-	pluginState: PasteOtionsPluginState,
+	pluginState: PasteOptionsPluginState,
 ): Transaction => {
 	let pasteStartPos = pluginState.pasteStartPos;
 	const pasteEndPos = pluginState.pasteEndPos;
@@ -202,10 +210,15 @@ function richTextSliceTransactionWithSelectionAdjust({
 	}
 }
 
+/**
+ * Parse markdown text into a slice for paste replacement, using markdown-plus
+ * only when the paste parser experiment is enabled.
+ */
 export function getMarkdownSlice(
 	text: string,
 	schema: Schema,
 	selection: Selection,
+	markdownToPmConverter?: MarkdownToPmConverter,
 ): Slice | undefined {
 	const targetOpenStartNode = selection.$from.parent;
 	const targetOpenEndNode = selection.$to.parent;
@@ -213,37 +226,38 @@ export function getMarkdownSlice(
 	try {
 		let textInput: string = text;
 
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		const textSplitByCodeBlock = textInput.split(/```/);
+		const textSplitByCodeBlock = textInput.split(CODE_BLOCK_FENCE_REGEX);
 
 		for (let i = 0; i < textSplitByCodeBlock.length; i++) {
 			if (i % 2 === 0) {
 				// Ignored via go/ees005
-				// eslint-disable-next-line require-unicode-regexp
+				// eslint-disable-next-line require-unicode-regexp, @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 				textSplitByCodeBlock[i] = textSplitByCodeBlock[i].replace(/\\/g, '\\\\');
 			}
 		}
 
 		textInput = textSplitByCodeBlock.join('```');
 
-		const atlassianMarkDownParser = new MarkdownTransformer(schema, md);
-		const doc = atlassianMarkDownParser.parse(escapeLinks(textInput));
+		const doc =
+			markdownToPmConverter && isExperimentEnabled('platform_editor_paste_as_md_use_gfm')
+				? schema.nodes.doc.createAndFill({}, markdownToPmConverter({ markdown: textInput, schema }))
+				: new MarkdownTransformer(schema, md).parse(escapeLinks(textInput));
 
 		if (!doc || !doc.content) {
 			return;
 		}
-
 		const canMergeOpenStart = targetOpenStartNode.type === doc.content.firstChild?.type;
 		const canMergeOpenEnd = targetOpenEndNode.type === doc.content.lastChild?.type;
-
 		const $start = Selection.atStart(doc).$from;
 		const $end = Selection.atEnd(doc).$from;
 
 		const openStart = canMergeOpenStart ? $start.depth : 0;
 		const openEnd = canMergeOpenEnd ? $end.depth : 0;
 
-		return new Slice(doc.content, openStart, openEnd);
+		return normalizeMarkdownCodeBlockAttrsInSlice(
+			new Slice(doc.content, openStart, openEnd),
+			schema,
+		);
 	} catch (error) {
 		logException(error as Error, {
 			location: 'editor-plugin-paste-options-toolbar/util',

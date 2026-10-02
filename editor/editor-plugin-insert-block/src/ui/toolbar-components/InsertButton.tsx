@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import {
 	ACTION,
@@ -27,13 +27,11 @@ import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared
 import { akEditorMenuZIndex } from '@atlaskit/editor-shared-styles';
 import type { Breakpoint } from '@atlaskit/editor-toolbar';
 import { ToolbarButton, ToolbarTooltip, AddIcon, useToolbarUI } from '@atlaskit/editor-toolbar';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 import type { InsertBlockPlugin } from '../../insertBlockPluginType';
 import type { ToolbarInsertBlockButtonsConfig } from '../../types';
 import InsertMenu, { DEFAULT_HEIGHT } from '../ElementBrowser/InsertMenu';
 import type { OnInsert } from '../ElementBrowser/types';
-
 import { LINK_BUTTON_KEY } from './hooks/filterDropdownItems';
 import { useEmojiPickerPopup } from './hooks/useEmojiPickerPopup';
 import { useInsertButtonState } from './hooks/useInsertButtonState';
@@ -52,6 +50,8 @@ type InsertButtonProps = {
 	horizontalRuleEnabled?: boolean;
 	insertMenuItems?: MenuItem[];
 	isFullPageAppearance?: boolean;
+	/** @see InsertBlockPluginOptions.itemFilter */
+	itemFilter?: (item: MenuItem) => boolean;
 	nativeStatusSupported?: boolean;
 	numberOfButtons?: number;
 	onInsertBlockType?: (name: string) => Command;
@@ -70,6 +70,7 @@ export const InsertButton = ({
 	horizontalRuleEnabled,
 	expandEnabled,
 	insertMenuItems,
+	itemFilter,
 	numberOfButtons,
 	onInsertBlockType,
 	toolbarConfig,
@@ -92,12 +93,14 @@ export const InsertButton = ({
 		buttonRef: insertButtonRef,
 	});
 	const showMediaPicker = useSharedPluginStateSelector(api, 'media.showMediaPicker');
+	const emojiContentId = useSharedPluginStateSelector(api, 'emoji.contentId');
 	const { dropdownItems, emojiProvider, isTypeAheadAllowed } = useInsertButtonState({
 		api,
 		breakpoint,
 		editorView: editorView || undefined,
 		horizontalRuleEnabled,
 		insertMenuItems,
+		itemFilter,
 		nativeStatusSupported,
 		numberOfButtons,
 		tableSelectorSupported,
@@ -166,11 +169,9 @@ export const InsertButton = ({
 				break;
 			case 'media':
 				if (showMediaPicker) {
-					if (fg('platform_editor_media_insert_check')) {
-						api?.mediaInsert?.commands.showMediaInsertPopup ? api?.core?.actions.execute(api?.mediaInsert?.commands.showMediaInsertPopup()) : showMediaPicker?.();
-					} else {
-						api?.core?.actions.execute(api?.mediaInsert?.commands.showMediaInsertPopup());
-					}
+					api?.mediaInsert?.commands.showMediaInsertPopup
+						? api?.core?.actions.execute(api?.mediaInsert?.commands.showMediaInsertPopup())
+						: showMediaPicker?.();
 				}
 				break;
 			case 'mention':
@@ -239,6 +240,7 @@ export const InsertButton = ({
 					target={insertButtonRef.current}
 					fitHeight={DEFAULT_HEIGHT + FIT_HEIGHT_BUFFER}
 					fitWidth={350}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					offset={[0, 3]}
 					mountTo={popupsMountPoint}
 					boundariesElement={popupsBoundariesElement}
@@ -262,6 +264,7 @@ export const InsertButton = ({
 			)}
 			{emojiProvider && (
 				<EmojiPickerPopup
+					contentId={emojiContentId}
 					isOpen={emojiPickerPopup.isOpen}
 					targetRef={insertButtonRef}
 					emojiProvider={Promise.resolve(emojiProvider)}

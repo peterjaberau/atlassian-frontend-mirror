@@ -1,6 +1,8 @@
-import { JQLLexer, JQLParser } from '@atlaskit/jql-parser';
+import { JQLLexer } from '@atlaskit/jql-parser/JQLLexer';
+import { JQLParser } from '@atlaskit/jql-parser/JQLParser';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-export const defaultIgnoredTokens = new Set([
+export const defaultIgnoredTokens: Set<number> = new Set([
 	JQLLexer.EOF,
 	JQLLexer.LPAREN,
 	JQLLexer.RPAREN,
@@ -70,14 +72,16 @@ const operandRules = [
  *
  * More info at https://github.com/mike-lischke/antlr4-c3#preferred-rules
  */
-export const defaultPreferredRules = new Set([
-	JQLParser.RULE_jqlField,
-	...operatorRules,
-	...operandRules,
-	...unhandledRules,
-	// Disable token suggestions for predicate operands.
-	// To be removed when we build proper autocomplete support.
-	JQLParser.RULE_jqlPredicateOperand,
-]);
+export const getDefaultPreferredRules = (): Set<number> =>
+	new Set([
+		JQLParser.RULE_jqlField,
+		...operatorRules,
+		...operandRules,
+		...(fg('enable-jql-membersof-autocomplete') ? [JQLParser.RULE_jqlArgument] : []),
+		...unhandledRules,
+		// Disable token suggestions for predicate operands.
+		// To be removed when we build proper autocomplete support.
+		JQLParser.RULE_jqlPredicateOperand,
+	]);
 
-export const defaultDelimiterTokens = new Set([JQLLexer.LPAREN, JQLLexer.COMMA]);
+export const defaultDelimiterTokens: Set<number> = new Set([JQLLexer.LPAREN, JQLLexer.COMMA]);

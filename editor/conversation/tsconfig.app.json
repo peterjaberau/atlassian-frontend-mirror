@@ -1,7 +1,8 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
 		"**/vr-tests/**/*",
@@ -25,11 +26,19 @@
 		"**/mock.*",
 		"**/codemods/**/*.ts",
 		"**/codemods/**/*.tsx",
-		"./example-helpers/**/*"
+		"./example-helpers/**/*",
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__conversation/app"
+		"outDir": "../../../tsDist/@atlaskit__conversation/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
@@ -42,6 +51,9 @@
 			"path": "../../design-system/comment/tsconfig.app.json"
 		},
 		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
+		},
+		{
 			"path": "../editor-common/tsconfig.app.json"
 		},
 		{
@@ -51,10 +63,22 @@
 			"path": "../editor-plugins/tsconfig.app.json"
 		},
 		{
+			"path": "../../design-system/link/tsconfig.app.json"
+		},
+		{
 			"path": "../../elements/reactions/tsconfig.app.json"
 		},
 		{
 			"path": "../renderer/tsconfig.app.json"
+		},
+		{
+			"path": "../../elements/util-data-test/tsconfig.app.json"
+		},
+		{
+			"path": "../../design-system/structured-docs-types/tsconfig.app.json"
+		},
+		{
+			"path": "../../ap/workbench/tsconfig.app.json"
 		}
 	]
 }

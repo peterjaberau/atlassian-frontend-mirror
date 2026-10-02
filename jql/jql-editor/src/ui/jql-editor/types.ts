@@ -1,16 +1,18 @@
-import { type FocusEvent, type MouseEvent, type Ref } from 'react';
+import { type ElementType, type FocusEvent, type MouseEvent, type Ref } from 'react';
 
 import { type Jast } from '@atlaskit/jql-ast';
+import type { AutocompleteProvider } from '@atlaskit/jql-editor-common/autocomplete/types';
 
-import { type AutocompleteProvider } from '../../plugins/autocomplete/types';
 import { type CustomComponents, type ExternalMessage } from '../../state/types';
 
 export type HydratedUser = {
+	appType?: string | null;
+	/** Optional consumer-provided avatar renderer used in place of the standard avatar URL. */
+	avatarRenderer?: ElementType;
 	avatarUrl: string;
 	id: string;
 	name: string;
 	type: 'user';
-	appType?: string | null;
 };
 
 export type HydratedTeam = {
@@ -18,6 +20,22 @@ export type HydratedTeam = {
 	id: string;
 	name: string;
 	type: 'team';
+};
+
+export type HydratedProject = {
+	iconName?: string;
+	id: string;
+	name: string;
+	privateProject?: boolean;
+	type: 'project';
+};
+
+export type HydratedGoal = {
+	iconKey?: string | null | undefined;
+	id: string;
+	name: string;
+	status?: string | null | undefined;
+	type: 'goal';
 };
 
 export type HydratedDeprecatedField = {
@@ -29,7 +47,28 @@ export type HydratedDeprecatedField = {
 	type: 'deprecated-field';
 };
 
-export type HydratedValue = HydratedUser | HydratedTeam | HydratedDeprecatedField;
+export type HydratedLozengeWithAvatar = {
+	avatarUrl?: string;
+	id: string;
+	name: string;
+	type: 'lozengeWithAvatar';
+};
+
+export type HydratedAssets = {
+	avatarUrl?: string;
+	id: string;
+	name: string;
+	type: 'assets';
+};
+
+export type HydratedValue =
+	| HydratedUser
+	| HydratedTeam
+	| HydratedProject
+	| HydratedGoal
+	| HydratedDeprecatedField
+	| HydratedLozengeWithAvatar
+	| HydratedAssets;
 
 export type HydratedValues = {
 	[fieldName: string]: HydratedValue[];

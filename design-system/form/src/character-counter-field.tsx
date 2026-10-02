@@ -8,9 +8,11 @@ import { cssMap, jsx } from '@compiled/react';
 
 import { token } from '@atlaskit/tokens';
 
-import CharacterCounter from './character-counter';
+import { CharacterCounter } from './character-counter';
+import { ErrorMessage } from './error-message';
 import Field, { type FieldComponentProps, type FieldProps, type Meta } from './field';
-import { ErrorMessage, HelperMessage, MessageWrapper } from './messages';
+import { HelperMessage } from './helper-message';
+import { MessageWrapper } from './message-wrapper';
 
 type SupportedElements = HTMLInputElement | HTMLTextAreaElement;
 
@@ -19,7 +21,7 @@ const fieldWrapperStyles = cssMap({
 	root: {
 		// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors
 		'& label[id$="-label"]': {
-			marginBlockEnd: token('space.0', '0px'),
+			marginBlockEnd: token('space.0'),
 		},
 	},
 });
@@ -27,10 +29,10 @@ const fieldWrapperStyles = cssMap({
 // Override helper message margins to fix inconsistent spacing issue
 const helperMessageWrapperStyles = cssMap({
 	root: {
-		marginBlockEnd: token('space.050', '4px'),
+		marginBlockEnd: token('space.050'),
 		// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors
 		'& [id$="-helper"]': {
-			marginBlockStart: token('space.0', '0px'),
+			marginBlockStart: token('space.0'),
 		},
 	},
 });
@@ -39,9 +41,9 @@ export interface CharacterCounterFieldProps<
 	FieldValue = string,
 	Element extends SupportedElements = HTMLInputElement,
 > extends Omit<
-		FieldComponentProps<FieldValue, Element>,
-		'children' | 'component' | 'helperMessage' | 'errorMessage' | 'validMessage' | 'transform'
-	> {
+	FieldComponentProps<FieldValue, Element>,
+	'children' | 'component' | 'helperMessage' | 'errorMessage' | 'validMessage' | 'transform'
+> {
 	/**
 	 * The input component to render. Use a render function that receives `fieldProps`, `error`, `valid`, and `meta` state.
 	 * Spread `fieldProps` onto your input element (such as `TextField` or `TextArea`).
@@ -85,7 +87,7 @@ export interface CharacterCounterFieldProps<
  * A field component that wraps the standard Field with automatic character count validation.
  * Validates minimum and maximum character limits and displays a character counter.
  */
-export default function CharacterCounterField<
+export function CharacterCounterField<
 	FieldValue = string,
 	Element extends SupportedElements = HTMLInputElement,
 >({

@@ -21,7 +21,12 @@ const tableCell3 = `[data-testid$='cell-3']`;
 test('DynamicTable elements should be able to be identified, interacted and sorted by data-testid', async ({
 	page,
 }) => {
-	await page.visitExample('design-system', 'dynamic-table', 'testing');
+	await page.visitExample<typeof import('../../../../examples/99-testing.vr.ap.tsx')>(
+		'design-system',
+		'dynamic-table',
+		'testing',
+		{ 'react-18-mode': 'modern' },
+	);
 
 	// Check for visibility.
 	await expect(page.locator(table).first()).toBeVisible();
@@ -64,7 +69,11 @@ test('DynamicTable elements should be able to be identified, interacted and sort
 });
 
 test('the highlighted row stays consistent after sorting', async ({ page }) => {
-	await page.visitExample('design-system', 'dynamic-table', 'highlighted-row-with-sorting');
+	await page.visitExample<
+		typeof import('../../../../examples/20-highlighted-row-with-sorting.tsx')
+	>('design-system', 'dynamic-table', 'highlighted-row-with-sorting', {
+		'react-18-mode': 'modern',
+	});
 
 	const highlightedRow = page.locator('[data-ts--dynamic-table--table-row--highlighted="true"]');
 

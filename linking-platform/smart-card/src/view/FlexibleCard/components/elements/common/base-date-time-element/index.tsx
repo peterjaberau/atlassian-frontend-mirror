@@ -2,11 +2,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { css, cssMap, jsx } from '@compiled/react';
 import { selectUnit } from '@formatjs/intl-utils';
-import { FormattedMessage, type MessageDescriptor, useIntl } from 'react-intl-next';
+import { FormattedMessage, type MessageDescriptor, useIntl } from 'react-intl';
 
 import type { Prettify } from '@atlaskit/linking-common';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../../../../messages';
@@ -30,6 +32,40 @@ const styles = css({
 });
 
 type DateTypeVariation = 'relative' | 'absolute';
+
+const ABSOLUTE_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+	month: 'short',
+	day: 'numeric',
+	year: 'numeric',
+};
+
+const isValidTimeZone = (timeZone: string): boolean => {
+	try {
+		new Intl.DateTimeFormat(undefined, { timeZone });
+		return true;
+	} catch {
+		return false;
+	}
+};
+
+const formatAbsoluteDateWithOptionalTimeZone = ({
+	date,
+	formatDate,
+	timeZone,
+}: {
+	date: Date;
+	formatDate: ReturnType<typeof useIntl>['formatDate'];
+	timeZone?: string;
+}): string => {
+	if (!timeZone || !isValidTimeZone(timeZone)) {
+		return formatDate(date, ABSOLUTE_DATE_FORMAT);
+	}
+
+	return formatDate(date, {
+		...ABSOLUTE_DATE_FORMAT,
+		timeZone,
+	});
+};
 
 const typeToDescriptorMap: Record<DateTimeType, Record<DateTypeVariation, MessageDescriptor>> = {
 	created: {
@@ -56,9 +92,6 @@ const fontOverrideStyleMap = cssMap({
 	'font.body.small': {
 		font: token('font.body.small'),
 	},
-	'font.body.UNSAFE_small': {
-		font: token('font.body.UNSAFE_small'),
-	},
 });
 
 export type BaseDateTimeElementProps = ElementProps & {
@@ -74,10 +107,7 @@ export type BaseDateTimeElementProps = ElementProps & {
 	 * Override the default font size.
 	 */
 	fontSize?: Prettify<
-		Extract<
-			Parameters<typeof token>[0],
-			'font.body' | 'font.body.large' | 'font.body.small' | 'font.body.UNSAFE_small'
-		>
+		Extract<Parameters<typeof token>[0], 'font.body' | 'font.body.large' | 'font.body.small'>
 	>;
 	/**
 	 * Hide the date prefix (e.g. "Created on", "Modified on", "Sent on")
@@ -87,6 +117,10 @@ export type BaseDateTimeElementProps = ElementProps & {
 	 * The override text which will show next to the date
 	 */
 	text?: string;
+	/**
+	 * IANA timezone used for absolute date formatting.
+	 */
+	timeZone?: string;
 	/**
 	 * Whether the date time element text should contain "Modified" or "Created" or "sent"
 	 */
@@ -111,7 +145,8 @@ const BaseDateTimeElement = ({
 	hideDatePrefix = false,
 	color,
 	fontSize,
-}: BaseDateTimeElementProps) => {
+	timeZone,
+}: BaseDateTimeElementProps): JSX.Element | null => {
 	const { formatRelativeTime, formatDate } = useIntl();
 	if (!type || !date) {
 		return null;
@@ -121,11 +156,17 @@ const BaseDateTimeElement = ({
 	let typeVariant: DateTypeVariation;
 	if (isLongerThenWeek) {
 		typeVariant = 'absolute';
-		context = formatDate(date, {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric',
-		});
+		context = fg('dfo_issue_view_remote_data_srr_group')
+			? formatAbsoluteDateWithOptionalTimeZone({
+					date,
+					formatDate,
+					timeZone,
+				})
+			: formatDate(date, {
+					month: 'short',
+					day: 'numeric',
+					year: 'numeric',
+				});
 	} else {
 		const { value, unit } = selectUnit(date, Date.now());
 		typeVariant = 'relative';
@@ -162,10 +203,3 @@ const BaseDateTimeElement = ({
 };
 
 export default BaseDateTimeElement;
-
-export const toDateTimeProps = (
-	type: 'created' | 'modified' | 'sent',
-	dateString?: string,
-): Partial<BaseDateTimeElementProps> | undefined => {
-	return dateString ? { date: new Date(dateString), type } : undefined;
-};

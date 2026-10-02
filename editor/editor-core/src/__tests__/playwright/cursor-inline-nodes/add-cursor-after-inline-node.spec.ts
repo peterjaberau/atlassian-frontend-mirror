@@ -1,7 +1,7 @@
 import { expect, editorTestCase as test } from '@af/editor-libra';
-// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { doc, li, p, ul } from '@atlaskit/editor-test-helpers/doc-builder';
 
+// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import {
 	dateADF,
 	emojiADF,
@@ -13,6 +13,7 @@ import {
 
 test.describe('Cursor Inline Nodes', () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 		editorProps: {
 			appearance: 'full-page',
 			allowStatus: true,
@@ -21,6 +22,7 @@ test.describe('Cursor Inline Nodes', () => {
 
 	test.describe('Status', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowStatus: true,
@@ -46,6 +48,7 @@ test.describe('Cursor Inline Nodes', () => {
 
 	test.describe('Emoji', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowStatus: true,
@@ -62,9 +65,11 @@ test.describe('Cursor Inline Nodes', () => {
 	});
 	test.describe('Inline Extension', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowStatus: true,
+				allowExtension: true,
 			},
 			adf: inlineExtensionADF,
 		});
@@ -79,6 +84,7 @@ test.describe('Cursor Inline Nodes', () => {
 
 	test.describe('Mention', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowStatus: true,
@@ -95,9 +101,11 @@ test.describe('Cursor Inline Nodes', () => {
 	});
 	test.describe('Date', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowStatus: true,
+				allowDate: true,
 			},
 			adf: dateADF,
 		});
@@ -112,6 +120,7 @@ test.describe('Cursor Inline Nodes', () => {
 
 	test.describe('Multiple Inline Nodes', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowStatus: true,

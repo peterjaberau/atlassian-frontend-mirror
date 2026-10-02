@@ -1,4 +1,6 @@
-import { AnnotationTypes } from '@atlaskit/adf-schema';
+import React, { act } from 'react';
+
+import { AnnotationTypes } from '@atlaskit/adf-schema/annotation';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -9,18 +11,22 @@ import type {
 	AnnotationActionResult,
 	InlineCommentSelectionComponentProps,
 } from '@atlaskit/editor-common/types';
-import { render } from '@testing-library/react';
-import React from 'react';
-import { act } from 'react-dom/test-utils';
+// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
+import createAnalyticsEventMock from '@atlaskit/editor-test-helpers/create-analytics-event-mock';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { render } from '@atlassian/testing-library';
+
 import type { ApplyAnnotation } from '../../../../../actions/index';
 import { updateWindowSelectionAroundDraft } from '../../../draft/dom';
 import type { Position } from '../../../types';
 import { Mounter } from '../../mounter';
-// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
-import createAnalyticsEventMock from '@atlaskit/editor-test-helpers/create-analytics-event-mock';
 
 jest.mock('../../../draft/dom');
 jest.mock('../../../draft/component');
+jest.mock('@atlaskit/tmp-editor-statsig/editor-experiment', () => ({
+	...jest.requireActual('@atlaskit/tmp-editor-statsig/editor-experiment'),
+	editorExperiment: jest.fn(() => false),
+}));
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('Annotations: Mounter', () => {
@@ -184,6 +190,39 @@ describe('Annotations: Mounter', () => {
 					annotationType: AnnotationTypes.INLINE_COMMENT,
 				};
 				expect(fakeApplyAnnotation).toHaveBeenCalledWith(fakeDocumentPosition, fakeAnnotation);
+			});
+		});
+
+		describe('COMMENTS-6594: experiment on — uses current position not stale', () => {
+			beforeEach(() => {
+				(editorExperiment as jest.Mock).mockImplementation(
+					(key: string, param: string) =>
+						key === 'confluence_inline_comments_fix_stale_selection' && param === 'isEnabled',
+				);
+			});
+
+			afterEach(() => {
+				(editorExperiment as jest.Mock).mockReset();
+			});
+
+			it('should use current position, not stale position from previous selection', () => {
+				// Render with position #1, trigger applyDraftMode
+				const { applyDraftModeCallback } = renderMounter({ from: 0, to: 10 });
+				act(() => {
+					applyDraftModeCallback({ keepNativeSelection: true });
+				});
+
+				// Re-render with position #2 — capture fresh onCreateCallback from second render
+				const nextDocumentPosition = { from: 30, to: 45 };
+				const { onCreateCallback } = renderMounter(nextDocumentPosition);
+
+				// onCreate should use position #2 (not stale position #1)
+				onCreateCallback('annotationId');
+
+				expect(fakeApplyAnnotation).toHaveBeenCalledWith(nextDocumentPosition, {
+					annotationId: 'annotationId',
+					annotationType: AnnotationTypes.INLINE_COMMENT,
+				});
 			});
 		});
 

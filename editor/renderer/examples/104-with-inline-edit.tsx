@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+
+import type { DocNode } from '@atlaskit/adf-schema/doc';
+import InlineEdit from '@atlaskit/inline-edit/inline-edit';
+import Textfield from '@atlaskit/textfield/text-field';
+
 import { default as Renderer } from '../src/ui/Renderer';
 import codeBlockADF from './helper/codeblock.adf.json';
-
-import InlineEdit from '@atlaskit/inline-edit';
-import Textfield from '@atlaskit/textfield';
-import type { DocNode } from '@atlaskit/adf-schema/schema';
 
 export default function InlineEditWithRenderer(): React.JSX.Element {
 	const [editValue, setEditValue] = useState('Field value');

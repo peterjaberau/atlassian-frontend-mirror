@@ -1,7 +1,6 @@
 import React, { useLayoutEffect, useRef } from 'react';
 
 import { getDocument } from '@atlaskit/browser-apis';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { ToolbarKeyboardNavigationProviderConfig } from '../types';
 
@@ -45,6 +44,11 @@ export const ToolbarKeyboardNavigationProvider = ({
 			// 1. Within the child component selector
 			// 2. Visible (not hidden by display:none on itself or any parent)
 			return allFocusable.filter((el) => {
+				// Independent containers own their key handling and tab stops.
+				if (el.closest('[data-keyboard-navigation-independent]')) {
+					return false;
+				}
+
 				if (!el.closest(`${childComponentSelector}`)) {
 					return false;
 				}
@@ -113,6 +117,13 @@ export const ToolbarKeyboardNavigationProvider = ({
 				return;
 			}
 
+			if (
+				targetElement instanceof HTMLElement &&
+				targetElement.closest('[data-keyboard-navigation-independent]')
+			) {
+				return;
+			}
+
 			switch (event.key) {
 				case 'Escape':
 					handleEscape(event);
@@ -130,7 +141,7 @@ export const ToolbarKeyboardNavigationProvider = ({
 					break;
 				}
 				default:
-			};
+			}
 		};
 
 		const globalKeyDownHandler = (event: KeyboardEvent): void => {
@@ -167,11 +178,7 @@ export const ToolbarKeyboardNavigationProvider = ({
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- ignored via go/DSP-18766
 			className="custom-key-handler-wrapper"
 			ref={wrapperRef}
-			role={
-				expValEquals('platform_editor_aifc_remove_duplicate_role', 'isEnabled', true)
-					? 'toolbar'
-					: undefined
-			}
+			role="toolbar"
 			aria-label={ariaLabel}
 			aria-controls={ariaControls}
 		>

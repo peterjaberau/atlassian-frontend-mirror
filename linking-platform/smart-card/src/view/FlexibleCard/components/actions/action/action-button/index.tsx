@@ -2,28 +2,27 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { forwardRef, useCallback, useMemo } from 'react';
 
-import { css, jsx } from '@compiled/react';
+import { css, cssMap, cx, jsx } from '@compiled/react';
 
-import { LoadingButton } from '@atlaskit/button';
-import Button, {
-	type ButtonProps,
-	IconButton,
-	type IconButtonProps,
-	type IconProp,
-	LinkButton,
-	LinkIconButton,
-} from '@atlaskit/button/new';
+import Button, { type ButtonProps } from '@atlaskit/button/default/button';
+import IconButton, { type IconButtonProps } from '@atlaskit/button/icon/button';
+import LinkIconButton from '@atlaskit/button/icon/link';
+import LinkButton from '@atlaskit/button/link';
+import LoadingButton from '@atlaskit/button/loading-button';
+import type { IconProp } from '@atlaskit/button/variants/types';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { SmartLinkSize } from '../../../../../../constants';
-import { useFlexibleUiOptionContext } from '../../../../../../state/flexible-ui-context';
+import { ActionName, SmartLinkSize } from '../../../../../../constants';
+import { useFlexibleUiContext } from '../../../../../../state/flexible-ui-context/useFlexibleUiContext';
+import { useFlexibleUiOptionContext } from '../../../../../../state/flexible-ui-context/useFlexibleUiOptionContext';
+import useRovoConfig from '../../../../../../state/hooks/use-rovo-config';
 import { withOverrideCss } from '../../../common/with-override-css';
 import { sizeToButtonSpacing } from '../../../utils';
-
 import { type ActionButtonProps } from './types';
 
 const IconOnlyLarge = css({
@@ -38,25 +37,37 @@ const IconOnlyLarge = css({
 });
 
 const SizeSmall = css({
-	font: token('font.body.UNSAFE_small'),
+	font: token('font.body.small'),
 	fontWeight: token('font.weight.medium'),
+});
+
+const styles = cssMap({
+	textSmall: {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		button: {
+			font: token('font.body.small'),
+			fontWeight: token('font.weight.medium'),
+			flexWrap: 'wrap',
+			alignContent: 'center',
+		},
+	},
 });
 
 const SizeSmallIconOnly = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values,@atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'button, button:hover, button:focus, button:active': {
-		paddingTop: token('space.025', '0.125rem'),
-		paddingRight: token('space.025', '0.125rem'),
-		paddingBottom: token('space.025', '0.125rem'),
-		paddingLeft: token('space.025', '0.125rem'),
+		paddingTop: token('space.025'),
+		paddingRight: token('space.025'),
+		paddingBottom: token('space.025'),
+		paddingLeft: token('space.025'),
 	},
 });
 
 const SizeSmallNotIconOnly = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values,@atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'button, button:hover, button:focus, button:active': {
-		paddingLeft: token('space.050', '0.25rem'),
-		paddingRight: token('space.050', '0.25rem'),
+		paddingLeft: token('space.050'),
+		paddingRight: token('space.050'),
 	},
 });
 
@@ -105,6 +116,11 @@ const ActionButtonRefresh = forwardRef(
 	) => {
 		const iconOnly = !content;
 
+		const context = useFlexibleUiContext();
+		const { product } = useRovoConfig();
+		const isRovoSupported =
+			!!context?.actions?.[ActionName.RovoChatAction] && !!product && product === 'CONFLUENCE';
+
 		const onButtonClick = useCallback(
 			(handler: Function) => (e: React.BaseSyntheticEvent) => {
 				e.preventDefault();
@@ -118,11 +134,10 @@ const ActionButtonRefresh = forwardRef(
 			const spacing =
 				size === SmartLinkSize.Large || size === SmartLinkSize.XLarge ? 'default' : 'compact';
 
-			if (iconOnly) {
-				const icon = iconBefore || iconAfter;
-				const iconFn = (() => icon || null) as IconProp;
-
-				if (isLinkButton) {
+			const icon = iconBefore || iconAfter;
+			const iconFn = icon ? ((() => icon) as IconProp) : undefined;
+			if (iconOnly && iconFn) {
+				if (isLinkButton && iconFn) {
 					return (
 						<LinkIconButton
 							appearance={IconButtonAppearanceMap[appearance]}
@@ -155,8 +170,9 @@ const ActionButtonRefresh = forwardRef(
 				);
 			}
 
-			const iconBeforeFn = (() => iconBefore || null) as IconProp;
-			const iconAfterFn = (() => iconAfter || null) as IconProp;
+			const iconBeforeFn = iconBefore ? () => iconBefore : undefined;
+			const iconAfterFn = iconAfter ? () => iconAfter : undefined;
+
 			if (isLinkButton) {
 				return (
 					<Tooltip content={tooltipMessage} hideTooltipOnClick={true} testId={`${testId}-tooltip`}>
@@ -212,7 +228,11 @@ const ActionButtonRefresh = forwardRef(
 		]);
 
 		return (
-			<Box testId={`${testId}-button-wrapper`} ref={ref}>
+			<Box
+				testId={`${testId}-button-wrapper`}
+				ref={ref}
+				xcss={cx(isRovoSupported && size === SmartLinkSize.Small && styles.textSmall)}
+			>
 				{button}
 			</Box>
 		);

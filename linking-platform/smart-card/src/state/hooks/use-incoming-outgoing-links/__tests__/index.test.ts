@@ -1,20 +1,29 @@
 import 'jest-extended';
-import { renderHook } from '@testing-library/react';
-
 import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { renderHook } from '@atlassian/testing-library';
 
+import { currentSiteCloudIdService } from '../../../services/current-site-cloud-id';
 import useIncomingOutgoingAri from '../index';
 import { queryIncomingOutgoingLinks } from '../query';
 
 describe('useIncomingOutgoingLinks', () => {
+	const FALLBACK_CLOUD_ID = 'fallback-cloud-id-123';
+
 	const setup = () => {
 		const {
-			result: {
-				current: { getIncomingOutgoingAris },
-			},
+			current: { getIncomingOutgoingAris },
 		} = renderHook(() => useIncomingOutgoingAri());
 		return { getIncomingOutgoingAris };
 	};
+
+	const mockTenantInfo = () => {
+		fetchMock.mockOnceIf('/_edge/tenant_info', JSON.stringify({ cloudId: FALLBACK_CLOUD_ID }));
+	};
+
+	beforeEach(() => {
+		currentSiteCloudIdService.clearCache();
+		window.localStorage?.clear?.();
+	});
 
 	afterEach(() => {
 		jest.clearAllMocks();
@@ -29,10 +38,11 @@ describe('useIncomingOutgoingLinks', () => {
 			'makes the right query to graphql with ari: %s firstIncoming: %s firstOutgoing %s',
 			async (ari, firstIncoming, firstOutgoing) => {
 				const { getIncomingOutgoingAris } = setup();
+				mockTenantInfo();
 				fetchMock.mockOnce('{}');
 				await getIncomingOutgoingAris(ari, firstIncoming, firstOutgoing);
-				const url = fetchMock.mock.calls[0][0] as string;
-				const request = fetchMock.mock.calls[0][1] as Request;
+				const url = fetchMock.mock.calls[1][0] as string;
+				const request = fetchMock.mock.calls[1][1] as Request;
 				expect(url).toEqual(`/gateway/api/graphql`);
 				const requestBodyJson = await new Response(request.body).json();
 				expect(requestBodyJson.query).toEqual(queryIncomingOutgoingLinks);
@@ -48,6 +58,7 @@ describe('useIncomingOutgoingLinks', () => {
 		// throws error
 		it('throws when the request fails', async () => {
 			const { getIncomingOutgoingAris } = setup();
+			mockTenantInfo();
 			fetchMock.mockRejectOnce();
 			expect(getIncomingOutgoingAris('test-ari')).rejects.toEqual(undefined);
 		});
@@ -182,6 +193,7 @@ describe('useIncomingOutgoingLinks', () => {
 			'%# for given graphql response, incomingAris should be %s and outgoingAris should be %s',
 			async (response, expectedIncomingAris, expectedOutgoingAris) => {
 				const { getIncomingOutgoingAris } = setup();
+				mockTenantInfo();
 				fetchMock.mockOnceIf('/gateway/api/graphql', JSON.stringify(response));
 				const { incomingAris, outgoingAris } = await getIncomingOutgoingAris('test-ari', 50, 50);
 				expect(incomingAris).toEqual(expectedIncomingAris);
@@ -198,81 +210,42 @@ describe('useIncomingOutgoingLinks', () => {
 			'ari:cloud:graph::customer-org-category/activation/5fd9b3db-3a95-4c43-b119-79d12ab4182e/bc2c8785-dddb-4406-8c2c-060f11e5fbcc';
 		const THIRD_PARTY_ARI =
 			'ari:third-party:google.google-drive::document/spreadsheetId/1XR-jbjSqdOY_cP2wqKTe4gljZnwLoXAUWCafOSRkQcg';
-		const FALLBACK_CLOUD_ID = 'fallback-cloud-id-123';
+		it.each([
+			['Jira', JIRA_ARI],
+			['Confluence', CONFLUENCE_ARI],
+		])('should send X-Query-Context header with siteId extracted from %s ARI', async (_, ari) => {
+			const { getIncomingOutgoingAris } = setup();
+			fetchMock.mockOnce('{}');
+			await getIncomingOutgoingAris(ari);
 
-		ffTest.off(
-			'platform_navx_send_context_to_ugs_for_rel_links',
-			'when feature flag is disabled',
-			() => {
-				it('should not send X-Query-Context header and not call tenant_info', async () => {
-					const { getIncomingOutgoingAris } = setup();
-					fetchMock.mockOnce('{}');
-					await getIncomingOutgoingAris(JIRA_ARI);
+			expect(fetchMock).toHaveBeenCalledTimes(1);
+			expect(fetchMock).toHaveBeenCalledWith(
+				'/gateway/api/graphql',
+				expect.objectContaining({
+					headers: expect.objectContaining({
+						'X-Query-Context': `ari:cloud:platform::site/${EXPECTED_SITE_ID}`,
+					}),
+				}),
+			);
+		});
 
-					// Verify only one call was made (graphql, not tenant_info)
-					expect(fetchMock).toHaveBeenCalledTimes(1);
-					expect(fetchMock).toHaveBeenCalledWith(
-						'/gateway/api/graphql',
-						expect.objectContaining({
-							headers: expect.not.objectContaining({
-								'X-Query-Context': expect.any(String),
-							}),
-						}),
-					);
-				});
-			},
-		);
-
-		ffTest.on(
-			'platform_navx_send_context_to_ugs_for_rel_links',
-			'when feature flag is enabled',
-			() => {
-				it.each([
-					['Jira', JIRA_ARI],
-					['Confluence', CONFLUENCE_ARI],
-				])(
-					'should send X-Query-Context header with siteId extracted from %s ARI',
-					async (_, ari) => {
-						const { getIncomingOutgoingAris } = setup();
-						fetchMock.mockOnce('{}');
-						await getIncomingOutgoingAris(ari);
-
-						expect(fetchMock).toHaveBeenCalledTimes(1);
-						expect(fetchMock).toHaveBeenCalledWith(
-							'/gateway/api/graphql',
-							expect.objectContaining({
-								headers: expect.objectContaining({
-									'X-Query-Context': `ari:cloud:platform::site/${EXPECTED_SITE_ID}`,
-								}),
-							}),
-						);
-					},
-				);
-
-				describe.each([
-					['third-party ARI', THIRD_PARTY_ARI],
-					['cloud ARI without siteId', CLOUD_ARI_WITHOUT_SITE_ID],
-				])('with %s', (_, ari) => {
-
+		describe.each([
+			['third-party ARI', THIRD_PARTY_ARI],
+			['cloud ARI without siteId', CLOUD_ARI_WITHOUT_SITE_ID],
+		])('with %s', (_, ari) => {
+			ffTest.both(
+				'platform_sl_incoming_outgoing_tenant_info_killswitch',
+				'tenant_info killswitch',
+				() => {
 					it(`should call /_edge/tenant_info`, async () => {
 						const { getIncomingOutgoingAris } = setup();
-
-						// First call is to /_edge/tenant_info to get the fallback cloudId
-						fetchMock.mockOnceIf(
-							'/_edge/tenant_info',
-							JSON.stringify({ cloudId: FALLBACK_CLOUD_ID }),
-						);
-						// Second call is to /gateway/api/graphql
+						mockTenantInfo();
 						fetchMock.mockOnce('{}');
 
 						await getIncomingOutgoingAris(ari);
 
 						expect(fetchMock).toHaveBeenCalledTimes(2);
-						expect(fetchMock).toHaveBeenNthCalledWith(
-							1,
-							'/_edge/tenant_info',
-							expect.any(Object),
-						);
+						expect(fetchMock).toHaveBeenNthCalledWith(1, '/_edge/tenant_info', expect.any(Object));
 						expect(fetchMock).toHaveBeenNthCalledWith(
 							2,
 							'/gateway/api/graphql',
@@ -299,8 +272,8 @@ describe('useIncomingOutgoingLinks', () => {
 						expect(fetchMock).toHaveBeenCalledTimes(1);
 						expect(fetchMock).toHaveBeenCalledWith('/_edge/tenant_info', expect.any(Object));
 					});
-				});
-			},
-		);
+				},
+			);
+		});
 	});
 });

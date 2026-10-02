@@ -1,18 +1,22 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { getCapabilityRate, getConfig } from '../../config';
-import { DefaultInteractionID } from '../../interaction-id-context';
-import { getVCObserver, newVCObserver } from '../../vc';
+import DefaultInteractionID from '../../interaction-id-context/defaultInteractionId';
+import { getVCObserver } from '../../vc/getVCObserver';
+import { newVCObserver } from '../../vc/newVCObserver';
 import { addNewInteraction, getActiveInteraction, remove } from '../index';
 
 // Mock the feature flag
-jest.mock('@atlaskit/platform-feature-flags', () => ({
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
 	fg: jest.fn(),
 }));
 
 // Mock the VC observer
-jest.mock('../../vc', () => ({
+jest.mock('../../vc/getVCObserver', () => ({
 	getVCObserver: jest.fn(),
+}));
+jest.mock('../../vc/newVCObserver', () => ({
 	newVCObserver: jest.fn(),
 }));
 
@@ -23,7 +27,15 @@ jest.mock('../../config', () => ({
 	getAwaitBM3TTIList: jest.fn(() => []),
 	getInteractionTimeout: jest.fn(() => 60000),
 	getPostInteractionRate: jest.fn(() => 1),
-	getExperimentalInteractionRate: jest.fn(() => 0),
+	// `addNewInteraction` calls `getSelectorConfig()` to obtain the
+	// FedRAMP-aware selectorConfig for the per-interaction VC observer. It
+	// must be present in this mock; returning `undefined` mirrors the
+	// pre-FedRAMP-override behaviour (the legacy hard-coded fallback in
+	// VCObserver applies).
+	getSelectorConfig: jest.fn(() => undefined),
+	getFinishInteractionOnTransition: jest.fn(() => false),
+	getReactHydrationStats: jest.fn(() => false),
+	shouldUseRawDataThirdPartyBehavior: jest.fn(() => false),
 }));
 
 // Mock coinflip

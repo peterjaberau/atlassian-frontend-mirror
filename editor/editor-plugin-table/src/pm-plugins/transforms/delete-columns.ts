@@ -1,4 +1,4 @@
-import type { CellAttributes } from '@atlaskit/adf-schema';
+import type { CellAttributes } from '@atlaskit/adf-schema/tableNodes';
 import { AddColumnStep } from '@atlaskit/custom-steps';
 import { TABLE_OVERFLOW_CHANGE_TRIGGER } from '@atlaskit/editor-common/analytics';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
@@ -11,7 +11,6 @@ import { findTable } from '@atlaskit/editor-tables/utils';
 
 import type { PluginInjectionAPI } from '../../types';
 import { META_KEYS } from '../table-analytics';
-
 import { rescaleColumns } from './column-width';
 import { splitCellsInColumns } from './split';
 
@@ -253,7 +252,7 @@ export const deleteColumns =
 		shouldUseIncreasedScalingPercent = false,
 		isCommentEditor = false,
 	) =>
-	(tr: Transaction) => {
+	(tr: Transaction): Transaction => {
 		let updatedTr = tr;
 		updatedTr.setMeta(META_KEYS.OVERFLOW_TRIGGER, {
 			name: TABLE_OVERFLOW_CHANGE_TRIGGER.DELETED_COLUMN,

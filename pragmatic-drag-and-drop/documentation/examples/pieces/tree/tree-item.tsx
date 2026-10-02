@@ -1,43 +1,53 @@
-/* eslint-disable @atlaskit/design-system/no-html-button */
+/* eslint-disable @atlaskit/design-system/no-deprecated-imports, @atlaskit/design-system/no-html-button -- Preserve existing tree example while focus-ring usage is reviewed separately. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
 
-import { Fragment, memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+	Fragment,
+	memo,
+	useCallback,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+	type NamedExoticComponent,
+} from 'react';
+import ReactDOM from 'react-dom';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import ReactDOM from 'react-dom';
 import invariant from 'tiny-invariant';
 
-import Button from '@atlaskit/button';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import Button from '@atlaskit/button/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 // eslint-disable-next-line @atlaskit/design-system/no-banned-imports
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
-import FocusRing from '@atlaskit/focus-ring';
+import FocusRing from '@atlaskit/focus-ring/focus-ring';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
-import { ModalTransition } from '@atlaskit/modal-dialog';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { type Instruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/list-item';
 import { GroupDropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/group';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import {
 	draggable,
 	dropTargetForElements,
 	type ElementDropTargetEventBasePayload,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/pointer-outside-of-preview';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 import { token } from '@atlaskit/tokens';
 
 import { type TreeItem as TreeItemType } from '../../data/tree-legacy';
-
 import { MoveDialog } from './move-dialog';
 import { DependencyContext, TreeContext } from './tree-context';
 
-const iconColor = token('color.icon', '#44546F');
+const iconColor = token('color.icon');
 
 function ChildIcon() {
 	return (
@@ -68,7 +78,7 @@ const outerButtonStyles = css({
 	/**
 	 * Without this Safari renders white text on drag.
 	 */
-	color: token('color.text', 'currentColor'),
+	color: token('color.text'),
 
 	border: 0,
 	width: '100%',
@@ -85,7 +95,7 @@ const outerHoverStyles = css({
 	cursor: 'pointer',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	':hover': {
-		background: token('color.background.neutral.subtle.hovered', 'rgba(9, 30, 66, 0.06)'),
+		background: token('color.background.neutral.subtle.hovered'),
 	},
 });
 
@@ -100,13 +110,15 @@ const innerButtonStyles = css({
 	display: 'flex',
 	flexDirection: 'row',
 
-	background: token('color.background.neutral.subtle', 'transparent'),
+	background: token('color.background.neutral.subtle'),
 	borderRadius: 3,
 });
 
 const idStyles = css({
 	margin: 0,
-	color: token('color.text.disabled', '#8993A5'),
+	// `color.text.subtlest` (not `color.text.disabled`) so the inline `<code>`
+	// `Draft` label meets WCAG AA contrast.
+	color: token('color.text.subtlest'),
 });
 
 const labelStyles = css({
@@ -129,7 +141,7 @@ const fullWidthStyle = css({
 });
 
 const previewStyles = css({
-	background: token('elevation.surface.raised', 'red'),
+	background: token('elevation.surface.raised'),
 	padding: token('space.100'),
 	borderRadius: 3,
 });
@@ -151,7 +163,11 @@ function delay({ waitMs: timeMs, fn }: { waitMs: number; fn: () => void }): () =
 	};
 }
 
-const TreeItem = memo(function TreeItem({
+const TreeItem: NamedExoticComponent<{
+	item: TreeItemType;
+	level: number;
+	index: number;
+}> = memo(function TreeItem({
 	item,
 	level,
 	index,
@@ -388,11 +404,7 @@ const TreeItem = memo(function TreeItem({
 						<Button
 							ref={mergeRefs([triggerRef, actionMenuTriggerRef])}
 							iconBefore={
-								<MoreIcon
-									label="Actions"
-									color={token('color.icon.subtle', '#626F86')}
-									size="small"
-								/>
+								<MoreIcon label="Actions" color={token('color.icon.subtle')} size="small" />
 							}
 							{...triggerProps}
 							spacing="compact"

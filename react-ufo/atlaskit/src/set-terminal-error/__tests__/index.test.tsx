@@ -1,9 +1,11 @@
 import React, { type ReactNode } from 'react';
 
-import { renderHook } from '@testing-library/react';
+import { renderHook } from '@atlassian/testing-library';
 
+import { getActiveTrace } from '../../experience-trace-id-context/get-active-trace';
 import UFOInteractionContext, { type UFOInteractionContextType } from '../../interaction-context';
 import * as interactionMetricsModule from '../../interaction-metrics';
+import UFORouteName from '../../route-name-context';
 import {
 	setTerminalError,
 	sinkTerminalErrorHandler,
@@ -22,6 +24,16 @@ jest.mock('../../interaction-metrics', () => ({
 	},
 }));
 
+jest.mock('../../route-name-context', () => ({
+	__esModule: true,
+	default: { current: null },
+}));
+
+jest.mock('../../experience-trace-id-context/get-active-trace', () => ({
+	getActiveTrace: jest.fn(),
+}));
+const mockGetActiveTrace = getActiveTrace as jest.Mock;
+
 // Mock performance.now() for consistent testing
 const mockPerformanceNow = jest.fn(() => 1000);
 Object.defineProperty(global.performance, 'now', {
@@ -30,7 +42,8 @@ Object.defineProperty(global.performance, 'now', {
 });
 
 const mockGetActiveInteraction = interactionMetricsModule.getActiveInteraction as jest.Mock;
-const mockPreviousInteractionLog = interactionMetricsModule.PreviousInteractionLog as interactionMetricsModule.PreviousInteractionLogType;
+const mockPreviousInteractionLog =
+	interactionMetricsModule.PreviousInteractionLog as interactionMetricsModule.PreviousInteractionLogType;
 
 const createMockContext = (
 	overrides: Partial<UFOInteractionContextType> = {},
@@ -43,7 +56,6 @@ const createMockContext = (
 	addCustomData: jest.fn(),
 	addCustomTimings: jest.fn(),
 	addApdex: jest.fn(),
-	holdExperimental: jest.fn(),
 	...overrides,
 });
 
@@ -62,13 +74,17 @@ describe('terminal-error', () => {
 		mockPerformanceNow.mockReturnValue(1000);
 		sinkTerminalErrorHandler(mockSink);
 		mockGetActiveInteraction.mockReturnValue(undefined);
-		
+		mockGetActiveTrace.mockReturnValue(undefined);
+
 		// Reset PreviousInteractionLog
 		mockPreviousInteractionLog.id = undefined;
 		mockPreviousInteractionLog.name = undefined;
 		mockPreviousInteractionLog.type = undefined;
 		mockPreviousInteractionLog.isAborted = undefined;
 		mockPreviousInteractionLog.timestamp = undefined;
+
+		// Reset UFORouteName
+		UFORouteName.current = null;
 	});
 
 	describe('setTerminalError', () => {
@@ -108,7 +124,6 @@ describe('terminal-error', () => {
 				packageName: 'test-package',
 				errorBoundaryId: 'boundary-123',
 				errorHash: 'abc123',
-				traceId: 'trace-456',
 				fallbackType: 'page',
 				statusCode: 500,
 			});
@@ -119,9 +134,20 @@ describe('terminal-error', () => {
 					packageName: 'test-package',
 					errorBoundaryId: 'boundary-123',
 					errorHash: 'abc123',
-					traceId: 'trace-456',
 					fallbackType: 'page',
 					statusCode: 500,
+				}),
+			);
+		});
+
+		it('should include errorCategory in errorData', () => {
+			const productError = new Error('Cannot read properties of undefined');
+			productError.name = 'TypeError';
+			setTerminalError(productError);
+
+			expect(mockSink.mock.calls[0][0]).toEqual(
+				expect.objectContaining({
+					errorCategory: 'product',
 				}),
 			);
 		});
@@ -155,6 +181,7 @@ describe('terminal-error', () => {
 					previousInteractionName: null,
 					previousInteractionType: null,
 					timeSincePreviousInteraction: null,
+					routeName: null,
 				}),
 			);
 		});
@@ -214,6 +241,145 @@ describe('terminal-error', () => {
 				}),
 			);
 		});
+
+		it('should include routeName in context when UFORouteName has a value', () => {
+			UFORouteName.current = 'test-route-name';
+
+			setTerminalError(mockError);
+
+			expect(mockSink.mock.calls[0][1]).toEqual(
+				expect.objectContaining({
+					routeName: 'test-route-name',
+				}),
+			);
+		});
+
+		it('should include routeName as null in context when UFORouteName is null', () => {
+			UFORouteName.current = null;
+
+			setTerminalError(mockError);
+
+			expect(mockSink.mock.calls[0][1]).toEqual(
+				expect.objectContaining({
+					routeName: null,
+				}),
+			);
+		});
+
+		it('should use statusCode from additionalAttributes when provided', () => {
+			const relayError = Object.assign(new Error('Relay error'), {
+				name: 'RelayNetwork',
+				type: 'network',
+				source: {
+					errors: [{ extensions: { statusCode: 503 } }],
+				},
+			});
+
+			setTerminalError(relayError, { statusCode: 200 });
+
+			expect(mockSink.mock.calls[0][0]).toEqual(
+				expect.objectContaining({
+					statusCode: 200,
+				}),
+			);
+		});
+
+		it('should extract statusCode from a Relay network error', () => {
+			const relayError = Object.assign(new Error('Relay error'), {
+				name: 'RelayNetwork',
+				type: 'network',
+				source: {
+					errors: [{ extensions: { statusCode: 503 } }],
+				},
+			});
+
+			setTerminalError(relayError);
+
+			expect(mockSink.mock.calls[0][0]).toEqual(
+				expect.objectContaining({
+					statusCode: 503,
+				}),
+			);
+		});
+
+		it('should extract statusCode from an error with a statusCode property', () => {
+			const errorWithStatusCode = Object.assign(new Error('Not found'), {
+				statusCode: 404,
+			});
+
+			setTerminalError(errorWithStatusCode);
+
+			expect(mockSink.mock.calls[0][0]).toEqual(
+				expect.objectContaining({
+					statusCode: 404,
+				}),
+			);
+		});
+
+		it('should set statusCode to undefined for a regular error without statusCode', () => {
+			setTerminalError(mockError);
+
+			expect(mockSink.mock.calls[0][0].statusCode).toBeUndefined();
+		});
+
+		it('should use traceId from getActiveTrace()', () => {
+			mockGetActiveTrace.mockReturnValue({
+				traceId: 'active-trace-123',
+				spanId: 'span-456',
+				type: 'page_load',
+			});
+
+			setTerminalError(mockError);
+
+			expect(mockSink.mock.calls[0][0]).toEqual(
+				expect.objectContaining({
+					traceId: 'active-trace-123',
+				}),
+			);
+		});
+
+		it('should fall back to traceId from the error object when getActiveTrace() returns undefined', () => {
+			mockGetActiveTrace.mockReturnValue(undefined);
+			const errorWithTraceId = Object.assign(new Error('Fetch error'), {
+				traceId: 'error-trace-789',
+			});
+
+			setTerminalError(errorWithTraceId);
+
+			expect(mockSink.mock.calls[0][0]).toEqual(
+				expect.objectContaining({
+					traceId: 'error-trace-789',
+				}),
+			);
+		});
+
+		it('should set traceId to undefined when neither getActiveTrace nor error.traceId is available', () => {
+			mockGetActiveTrace.mockReturnValue(undefined);
+
+			setTerminalError(mockError);
+
+			expect(mockSink.mock.calls[0][0].traceId).toBeUndefined();
+		});
+
+		it('should include teamName, packageName, errorBoundaryId, errorHash, and fallbackType from additionalAttributes', () => {
+			setTerminalError(mockError, {
+				teamName: 'platform-team',
+				packageName: 'my-package',
+				errorBoundaryId: 'boundary-99',
+				errorHash: 'hash-abc',
+				fallbackType: 'flag',
+			});
+
+			expect(mockSink.mock.calls[0][0]).toEqual(
+				expect.objectContaining({
+					teamName: 'platform-team',
+					packageName: 'my-package',
+					errorBoundaryId: 'boundary-99',
+					errorHash: 'hash-abc',
+					fallbackType: 'flag',
+				}),
+			);
+		});
 	});
 
 	describe('useReportTerminalError', () => {
@@ -252,13 +418,13 @@ describe('terminal-error', () => {
 		it('should only call setTerminalError once even on re-renders', () => {
 			const mockContext = createMockContext();
 
-			const { rerender } = renderHook(() => useReportTerminalError(mockError), {
+			const hookResult = renderHook(() => useReportTerminalError(mockError), {
 				wrapper: createWrapper(mockContext),
 			});
 
 			expect(mockSink).toHaveBeenCalledTimes(1);
 
-			rerender();
+			hookResult.update();
 
 			expect(mockSink).toHaveBeenCalledTimes(1);
 		});

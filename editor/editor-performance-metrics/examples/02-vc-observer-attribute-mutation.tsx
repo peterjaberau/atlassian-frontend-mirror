@@ -3,6 +3,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useEffect, useRef } from 'react';
 
 import { css, jsx } from '@compiled/react';
@@ -75,7 +76,7 @@ const SectionContentOne = () => {
 	);
 };
 
-export default function Example() {
+export default function Example(): JSX.Element {
 	return (
 		<main id="app-main" css={mainStyles}>
 			<SectionContentOne />

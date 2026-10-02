@@ -5,9 +5,9 @@
 /** @jsxFrag */
 import { jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import { type SelectionExtensionComponentProps } from '@atlaskit/editor-plugin-selection-extension';
-import { Popup } from '@atlaskit/popup';
+import Button from '@atlaskit/button/default/button';
+import type { SelectionExtensionComponentProps } from '@atlaskit/editor-plugin-selection-extension';
+import { Popup } from '@atlaskit/popup/popup';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { xcss, Box } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
@@ -29,7 +29,7 @@ const EXAMPLE_LIVE_PAGE_PAGE_PADDING_TOP = 105;
 export const ExampleForgeApp = ({
 	closeExtension,
 	selection,
-}: SelectionExtensionComponentProps) => {
+}: SelectionExtensionComponentProps): JSX.Element => {
 	return (
 		<Popup
 			content={() => {
@@ -60,7 +60,7 @@ export const ExampleForgeApp = ({
 						position: 'absolute',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 						pointerEvents: 'none',
-						border: `${token('border.width')} dashed ${token('color.border.accent.green', '#ccc')}`,
+						border: `${token('border.width')} dashed ${token('color.border.accent.green')}`,
 						top: selection.coords.top - EXAMPLE_LIVE_PAGE_PAGE_PADDING_TOP,
 						left: selection.coords.left,
 						width: selection.coords.right - selection.coords.left,

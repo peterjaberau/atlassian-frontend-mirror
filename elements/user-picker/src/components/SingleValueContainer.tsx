@@ -3,15 +3,18 @@
  * @jsx jsx
  */
 import React from 'react';
-import { components, type ValueContainerProps } from '@atlaskit/select';
+
+import { css, cssMap, jsx } from '@compiled/react';
+
+import getAppearanceForAppType from '@atlaskit/avatar/get-appearance';
+import { components } from '@atlaskit/react-select/components';
+import type { ValueContainerProps } from '@atlaskit/select/types';
+import { token } from '@atlaskit/tokens';
+
 import { type Option, type User } from '../types';
 import { AvatarOrIcon } from './AvatarOrIcon';
 import { SizeableAvatar } from './SizeableAvatar';
 import ValueContainerWrapper from './ValueContainerWrapper';
-import { token } from '@atlaskit/tokens';
-import { css, cssMap, jsx } from '@compiled/react';
-import { getAppearanceForAppType } from '@atlaskit/avatar';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 const valueContainerStyles = cssMap({
 	root: {
@@ -32,7 +35,7 @@ const valueContainerStyles = cssMap({
 });
 
 const placeholderIconContainer = css({
-	paddingLeft: token('space.075', '6px'),
+	paddingLeft: token('space.075'),
 	gridArea: '1/1/2/2',
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: 0,
@@ -47,7 +50,6 @@ export class SingleValueContainer extends React.Component<ValueContainerProps<Op
 	private renderAvatar = () => {
 		const {
 			hasValue,
-			//@ts-ignore react-select unsupported props
 			selectProps: { appearance, isFocused, inputValue, value, placeholderAvatar },
 		} = this.props;
 
@@ -63,11 +65,7 @@ export class SingleValueContainer extends React.Component<ValueContainerProps<Op
 						iconColor={userData.iconColor}
 						type={placeholderAvatar}
 						src={userData.avatarUrl}
-						avatarAppearanceShape={
-							userData && fg('jira_ai_agent_avatar_user_picker_user_option')
-								? getAppearanceForAppType(userData.appType)
-								: undefined
-						}
+						avatarAppearanceShape={userData ? getAppearanceForAppType(userData.appType) : undefined}
 					/>
 				);
 			}
@@ -77,21 +75,16 @@ export class SingleValueContainer extends React.Component<ValueContainerProps<Op
 					appearance={appearance}
 					type={placeholderAvatar}
 					src={userData?.avatarUrl}
-					avatarAppearanceShape={
-						userData && fg('jira_ai_agent_avatar_user_picker_user_option')
-							? getAppearanceForAppType(userData.appType)
-							: undefined
-					}
+					avatarAppearanceShape={userData ? getAppearanceForAppType(userData.appType) : undefined}
 				/>
 			);
 		}
 		return null;
 	};
 
-	//@ts-ignore react-select unsupported props
 	onValueContainerClick: any = this.props.selectProps.onValueContainerClick;
 
-	Wrapper = ({ children }: { children: React.ReactElement }) => {
+	Wrapper = ({ children }: { children: React.ReactElement }): JSX.Element => {
 		return this.onValueContainerClick ? (
 			// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values, @atlassian/a11y/no-static-element-interactions -- Ignored via go/DSP-18766
 			<div css={wrapperStyle} onMouseDown={this.onValueContainerClick}>
@@ -102,7 +95,7 @@ export class SingleValueContainer extends React.Component<ValueContainerProps<Op
 		);
 	};
 
-	render() {
+	render(): JSX.Element {
 		const { children, ...valueContainerProps } = this.props;
 
 		return (

@@ -1,16 +1,15 @@
 import React, { forwardRef } from 'react';
-import * as colors from '@atlaskit/theme/colors';
-import {
-	useAnalyticsEvents,
-	type UIAnalyticsEvent,
-	AnalyticsContext,
-} from '@atlaskit/analytics-next';
+
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
 import ShortcutIcon from '@atlaskit/icon/core/link-external';
+import LikeIcon from '@atlaskit/icon/core/thumbs-up';
 import { token } from '@atlaskit/tokens';
-import { injectIntl, type WrappedComponentProps } from 'react-intl-next';
 
 import { type ArticleItem } from '../../../model/Article';
-import LikeIcon from '@atlaskit/icon/core/thumbs-up';
 import {
 	ArticlesListItemWrapper,
 	ArticlesListItemContainer,
@@ -65,7 +64,9 @@ const highlightText = (text?: string) => {
 	return sections;
 };
 
-export const ArticlesListItem = forwardRef<HTMLAnchorElement, ArticlesListItemProps>(
+export const ArticlesListItem: React.ForwardRefExoticComponent<
+	Props & Partial<ArticleItem> & WrappedComponentProps & React.RefAttributes<HTMLAnchorElement>
+> = forwardRef<HTMLAnchorElement, ArticlesListItemProps>(
 	(
 		{ styles, title, description, href = '', onClick, trustFactors, source, lastPublished },
 		ref,
@@ -105,18 +106,16 @@ export const ArticlesListItem = forwardRef<HTMLAnchorElement, ArticlesListItemPr
 					<ArticlesListItemTitleSection>
 						<ArticlesListItemTitleText>{title}</ArticlesListItemTitleText>
 						{isLastPublishedVisible && (
-							// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+							/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 							<ArticlesListItemLastModified>
 								Last modified: {lastPublished}
+								{/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 							</ArticlesListItemLastModified>
 						)}
 					</ArticlesListItemTitleSection>
 					{href && (
 						<ArticlesListItemLinkIcon>
-							<ShortcutIcon
-								label="Opens in a new window"
-								color={token('color.icon.subtle', colors.N90)}
-							/>
+							<ShortcutIcon label="Opens in a new window" color={token('color.icon.subtle')} />
 						</ArticlesListItemLinkIcon>
 					)}
 				</ArticlesListItemContainer>
@@ -152,5 +151,22 @@ const ArticlesListItemWithContext = forwardRef<HTMLAnchorElement, ArticlesListIt
 	},
 );
 
-const _default_1 = injectIntl(ArticlesListItemWithContext, { forwardRef: true });
+const _default_1: React.ForwardRefExoticComponent<
+	Omit<
+		WithIntlProps<
+			React.PropsWithChildren<
+				Props &
+					Partial<ArticleItem> &
+					WrappedComponentProps &
+					React.RefAttributes<HTMLAnchorElement>
+			>
+		>,
+		'ref'
+	> &
+		React.RefAttributes<any>
+> & {
+	WrappedComponent: React.ComponentType<
+		Props & Partial<ArticleItem> & WrappedComponentProps & React.RefAttributes<HTMLAnchorElement>
+	>;
+} = injectIntl(ArticlesListItemWithContext, { forwardRef: true });
 export default _default_1;

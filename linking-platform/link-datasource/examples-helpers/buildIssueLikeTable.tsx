@@ -2,21 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useEffect, useMemo } from 'react';
 
 import { jsx, styled } from '@compiled/react';
 
-import { IntlMessagesProvider } from '@atlaskit/intl-messages-provider';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import IntlMessagesProvider from '@atlaskit/intl-messages-provider/main';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { mockDatasourceFetchRequests } from '@atlaskit/link-test-helpers/datasource';
 import { Text } from '@atlaskit/primitives/compiled';
 
 import { fetchMessagesForLocale } from '../src/common/utils/locale/fetch-messages-for-locale';
-import { DatasourceExperienceIdProvider } from '../src/contexts/datasource-experience-id';
+import { DatasourceExperienceIdProvider } from '../src/contexts/datasource-experience-id/datasource-experience-id-provider';
 import { useDatasourceTableState } from '../src/hooks/useDatasourceTableState';
-import { IssueLikeDataTableView } from '../src/ui/issue-like-table';
+import { IssueLikeDataTableView } from '../src/ui/issue-like-table/issue-like-data-table-view';
 import { type JiraIssueDatasourceParameters } from '../src/ui/jira-issues-modal/types';
-
 import SmartLinkClient from './smartLinkCustomClient';
 import { useCommonTableProps } from './useCommonTableProps';
 
@@ -46,6 +46,7 @@ const ExampleBody = ({
 	forceLoading = false,
 	visibleColumnKeys: overrideVisibleColumnKeys,
 	mockExecutionDelay = 600,
+	initialVisibleColumnKeys,
 	cloudId,
 }: Props) => {
 	const parameters = useMemo<JiraIssueDatasourceParameters>(
@@ -57,7 +58,7 @@ const ExampleBody = ({
 	);
 
 	useEffect(() => {
-		mockDatasourceFetchRequests({ mockExecutionDelay });
+		mockDatasourceFetchRequests({ initialVisibleColumnKeys, mockExecutionDelay });
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -82,6 +83,7 @@ const ExampleBody = ({
 		onColumnResize,
 		wrappedColumnKeys,
 		onWrappedColumnChange,
+		onWrappedColumnsChange,
 	} = useCommonTableProps({
 		defaultColumnCustomSizes: {
 			summary: 180,
@@ -120,6 +122,7 @@ const ExampleBody = ({
 					onColumnResize={isReadonly || !canResizeColumns ? undefined : onColumnResize}
 					columnCustomSizes={columnCustomSizes}
 					onWrappedColumnChange={canControlWrapping ? onWrappedColumnChange : undefined}
+					onWrappedColumnsChange={canControlWrapping ? onWrappedColumnsChange : undefined}
 					wrappedColumnKeys={wrappedColumnKeys}
 				/>
 			) : (
@@ -129,7 +132,7 @@ const ExampleBody = ({
 	);
 };
 
-export const ExampleIssueLikeTableExample = (props: Props) => {
+export const ExampleIssueLikeTableExample = (props: Props): JSX.Element => {
 	return (
 		<DatasourceExperienceIdProvider>
 			<IntlMessagesProvider loaderFn={fetchMessagesForLocale}>

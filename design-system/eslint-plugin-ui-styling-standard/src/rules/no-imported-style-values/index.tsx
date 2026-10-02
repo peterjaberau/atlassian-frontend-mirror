@@ -1,4 +1,4 @@
-import type { AST_NODE_TYPES } from '@typescript-eslint/typescript-estree/dist/ts-estree';
+import type { AST_NODE_TYPES } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type * as ESTree from 'eslint-codemod-utils';
 import esquery from 'esquery';
@@ -89,6 +89,17 @@ const checkIdentifier = (
 ) => {
 	const { parent } = identifier as Rule.Node;
 
+	// Type references and `typeof` queries are erased at runtime and are not
+	// imported style values. Runtime expressions wrapped by `as` or `satisfies`
+	// must still be checked.
+	if (
+		parent &&
+		((parent as { type?: string }).type === 'TSTypeReference' ||
+			(parent as { type?: string }).type === 'TSTypeQuery')
+	) {
+		return;
+	}
+
 	// Even though `member` in `object.member` is syntactically an identifier,
 	// it should be ignored as `.member` is syntax sugar for `['member']` here.
 	// We should still lint `object[member]` (when `parent.computed` === true)
@@ -111,7 +122,7 @@ const checkIdentifier = (
 	}
 };
 
-export const rule: Rule.RuleModule = createLintRule({
+const rule: Rule.RuleModule = createLintRule({
 	meta: {
 		name: 'no-imported-style-values',
 		docs: {

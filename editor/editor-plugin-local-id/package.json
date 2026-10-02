@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-plugin-local-id",
-	"version": "5.1.9",
+	"version": "21.0.0",
 	"description": "LocalId plugin for @atlaskit/editor-core",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -17,23 +17,21 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./local-id-plugin": "./src/entry-points/local-id-plugin.tsx",
+		"./local-id-plugin-type": "./src/entry-points/local-id-plugin-type.ts",
+		"./utils/generateShortUUID": "./src/entry-points/generate-short-uuid.ts"
 	},
 	"dependencies": {
 		"@atlaskit/adf-schema": "workspace:^",
+		"@atlaskit/editor-plugin-collab-edit": "workspace:^",
+		"@atlaskit/editor-plugin-composition": "workspace:^",
 		"@atlaskit/editor-plugin-limited-mode": "workspace:^",
 		"@atlaskit/editor-prosemirror": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@babel/runtime": "root:*",
@@ -41,54 +39,13 @@
 	},
 	"peerDependencies": {
 		"@atlaskit/editor-common": "workspace:^",
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.2.0"
 	},
 	"devDependencies": {
+		"react": "^19.2.0",
 		"typescript": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"editor-plugin"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"emotion",
-				"emotion"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
 	"platform-feature-flags": {
-		"platform_editor_use_localid_dedupe": {
-			"type": "boolean"
-		},
-		"platform_editor_localid_improvements": {
-			"type": "boolean"
-		},
 		"platform_editor_ai_aifc_localid_error_reporting": {
 			"type": "boolean"
 		}

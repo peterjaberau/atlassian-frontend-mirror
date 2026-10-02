@@ -1,33 +1,33 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import { cssMap } from '@compiled/react';
-import { useIntl, type IntlShape, type MessageDescriptor } from 'react-intl-next';
+import { useIntl } from 'react-intl';
+import type { IntlShape, MessageDescriptor } from 'react-intl';
 
-
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type {
 	DeletionReason,
 	SyncBlockAttrs,
 	SyncBlockStoreManager,
 } from '@atlaskit/editor-synced-block-provider';
-import ModalDialog, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import { fg } from '@atlaskit/platform-feature-flags';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { Text, Box } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 
 import { syncedBlockPluginKey } from '../pm-plugins/main';
 import type { SyncedBlockPlugin } from '../syncedBlockPluginType';
 
+// oxlint-disable-next-line eslint/no-redeclare
 type ModalContent = {
 	confirmButtonLabel: MessageDescriptor;
 	descriptionMultiple: MessageDescriptor;
@@ -35,36 +35,30 @@ type ModalContent = {
 	titleMultiple: MessageDescriptor;
 	titleSingle: MessageDescriptor;
 };
-const modalContentMap: Record<'source-block-deleted' | 'source-block-unsynced', ModalContent> = {
-	'source-block-deleted': {
-		titleMultiple: messages.deleteConfirmationModalTitleMultiple,
-		titleSingle: messages.deleteConfirmationModalTitleSingle,
-		descriptionSingle: messages.deleteConfirmationModalDescriptionNoRef,
-		descriptionMultiple: messages.deleteConfirmationModalDescriptionMultiple,
-		confirmButtonLabel: messages.deleteConfirmationModalDeleteButton,
-	},
-	'source-block-unsynced': {
-		titleMultiple: messages.unsyncConfirmationModalTitle,
-		titleSingle: messages.unsyncConfirmationModalTitle,
-		descriptionSingle: messages.unsyncConfirmationModalDescriptionSingle,
-		descriptionMultiple: messages.unsyncConfirmationModalDescriptionMultiple,
-		confirmButtonLabel: messages.deleteConfirmationModalUnsyncButton,
-	},
-};
 
-const modalContentMapNew: Record<'source-block-deleted' | 'source-block-unsynced', ModalContent> = {
+const modalContentMap: Record<
+	'source-block-deleted' | 'source-block-unsynced' | 'source-block-unpublished',
+	ModalContent
+> = {
 	'source-block-deleted': {
 		titleMultiple: messages.deleteConfirmationModalTitleMultiple,
 		titleSingle: messages.deletionConfirmationModalTitleSingle,
 		descriptionSingle: messages.deletionConfirmationModalDescriptionNoRef,
-		descriptionMultiple: messages.deletionConfirmationModalDescription,
+		descriptionMultiple: messages.deletionConfirmationModalDescriptionNew,
+		confirmButtonLabel: messages.deleteConfirmationModalDeleteButton,
+	},
+	'source-block-unpublished': {
+		titleMultiple: messages.deleteConfirmationModalTitleMultiple,
+		titleSingle: messages.deletionConfirmationModalTitleSingle,
+		descriptionSingle: messages.deletionConfirmationModalDescriptionNoRef,
+		descriptionMultiple: messages.deletionConfirmationModalDescriptionNew,
 		confirmButtonLabel: messages.deleteConfirmationModalDeleteButton,
 	},
 	'source-block-unsynced': {
 		titleMultiple: messages.unsyncConfirmationModalTitle,
 		titleSingle: messages.unsyncConfirmationModalTitle,
 		descriptionSingle: messages.unsyncConfirmModalDescriptionSingle,
-		descriptionMultiple: messages.unsyncConfirmModalDescriptionMultiple,
+		descriptionMultiple: messages.unsyncConfirmModalDescriptionMultipleNew,
 		confirmButtonLabel: messages.deleteConfirmationModalUnsyncButton,
 	},
 };
@@ -79,8 +73,10 @@ const styles = cssMap({
 export const DeleteConfirmationModal = ({
 	syncBlockStoreManager,
 	api,
+	editorView,
 }: {
 	api?: ExtractInjectionAPI<SyncedBlockPlugin>;
+	editorView?: EditorView;
 	syncBlockStoreManager: SyncBlockStoreManager;
 }): React.JSX.Element => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -103,6 +99,11 @@ export const DeleteConfirmationModal = ({
 		undefined,
 	);
 
+	// When a source block with no references is deleted, the modal is never shown but
+	// onDeleteCompleted still sets bodiedSyncBlockDeletionStatus to 'completed'. This ref signals
+	// the useEffect to silently reset the status without trying to close the modal (which was never open).
+	const skipModalOnCompletedRef = React.useRef(false);
+
 	const handleClick = useCallback(
 		(confirm: boolean) => () => {
 			if (resolverRef.current) {
@@ -121,12 +122,78 @@ export const DeleteConfirmationModal = ({
 					activeFlag: false,
 				});
 			});
+
+			// The delete menu adds a `danger` decoration that it only clears on mouse leave, which
+			// never fires because clicking Delete closes the menu. It stays for the lifetime of this
+			// modal so the block being deleted remains highlighted, and confirming drops it along
+			// with the node, but cancelling has to clear it or the red highlight is left behind.
+			if (!confirm && editorView) {
+				api?.decorations?.actions.removeDecoration(editorView.state, editorView.dispatch);
+			}
 		},
-		[api?.core?.actions],
+		[api?.core?.actions, api?.decorations?.actions, editorView],
 	);
 
+	// Store activeFlag in a ref so confirmationCallback always reads the latest value
+	// even if it changes during the await fetchReferenceCountRef call.
+	const activeFlagRef = React.useRef(activeFlag);
+	activeFlagRef.current = activeFlag;
+
+	// Use a ref so fetchReferenceCount can be called from confirmationCallback without
+	// being added to its dependency array — preventing confirmationCallback from being
+	// recreated mid-flight during an await (which would break the promise chain).
+	// The assignment during render is intentional — this is a standard React ref-as-latest-value
+	// pattern. The reduce over syncBlockIds (typically 1-2 items) is not actually expensive.
+	const fetchReferenceCountRef = React.useRef<(syncBlockIds: SyncBlockAttrs[]) => Promise<number>>(
+		() => Promise.resolve(0),
+	);
+	fetchReferenceCountRef.current = async (syncBlockIds: SyncBlockAttrs[]): Promise<number> => {
+		const references = await Promise.all(
+			syncBlockIds.map(async (syncBlockId) => {
+				const result = await syncBlockStoreManager.sourceManager.fetchReferences(
+					syncBlockId.resourceId,
+				);
+				if (result?.error) {
+					// Consider fetch fails as soon as one of the fetches fails
+					throw new Error();
+				}
+				return result.references?.length ?? 0;
+			}),
+		);
+		// eslint-disable-next-line @atlassian/perf-linting/no-expensive-computations-in-render
+		return references.reduce((sum, count) => sum + count, 0);
+	};
+
 	const confirmationCallback = useCallback(
-		(syncBlockIds: SyncBlockAttrs[], deleteReason: DeletionReason | undefined) => {
+		async (syncBlockIds: SyncBlockAttrs[], deleteReason: DeletionReason | undefined) => {
+			// Fetch references before opening the modal. If none exist, skip the modal
+			// entirely and auto-confirm the deletion. On fetch error, default to showing
+			// the modal to avoid accidental data loss.
+			let count: number;
+			try {
+				count = await fetchReferenceCountRef.current(syncBlockIds);
+			} catch {
+				count = 1;
+			}
+
+			if (count === 0) {
+				// No references — auto-confirm without showing the modal.
+				// Clear activeFlag to avoid issues with subsequent deletion attempts.
+				// We do NOT reset bodiedSyncBlockDeletionStatus here because onDeleteCompleted
+				// will set it to 'completed' after the delete call returns. Instead we use a
+				// ref to signal that the next 'completed' status should be silently reset
+				// without trying to close the modal.
+				skipModalOnCompletedRef.current = true;
+				api?.core?.actions.execute(({ tr }) => {
+					return tr.setMeta(syncedBlockPluginKey, {
+						...(activeFlagRef.current ? { activeFlag: false } : {}),
+					});
+				});
+				return true;
+			}
+
+			setReferenceCount(count);
+
 			setIsOpen(true);
 			setSyncBlockIds(syncBlockIds);
 
@@ -138,7 +205,7 @@ export const DeleteConfirmationModal = ({
 				resolverRef.current = resolve;
 			});
 
-			if (activeFlag) {
+			if (activeFlagRef.current) {
 				api?.core?.actions.execute(({ tr }) => {
 					return tr.setMeta(syncedBlockPluginKey, {
 						// Clear flag to avoid potential retry deletion of different blocks
@@ -149,7 +216,10 @@ export const DeleteConfirmationModal = ({
 
 			return confirmedPromise;
 		},
-		[activeFlag, api?.core?.actions],
+		// fetchReferenceCountRef and activeFlagRef are intentionally omitted — they are refs
+		// and never change identity, ensuring confirmationCallback is never recreated mid-flight
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[api?.core?.actions],
 	);
 
 	useEffect(() => {
@@ -162,8 +232,29 @@ export const DeleteConfirmationModal = ({
 	}, [syncBlockStoreManager, confirmationCallback]);
 
 	useEffect(() => {
+		if (skipModalOnCompletedRef.current) {
+			if (bodiedSyncBlockDeletionStatus === 'completed') {
+				// Deletion was auto-confirmed without showing the modal (no references).
+				// Reset the status to 'none' — keep skipModalOnCompletedRef true until
+				// we confirm the status has landed as 'none' to guard against the race where
+				// the next deletion opens the modal before this transaction is processed.
+				api?.core?.actions.execute(({ tr }) => {
+					return tr.setMeta(syncedBlockPluginKey, {
+						bodiedSyncBlockDeletionStatus: 'none',
+					});
+				});
+			} else if (bodiedSyncBlockDeletionStatus === 'none') {
+				skipModalOnCompletedRef.current = false;
+			} else if (bodiedSyncBlockDeletionStatus === 'processing' && isOpen) {
+				// Reset on deletion failure (e.g. network error) to avoid modal stuck in opened state.
+				skipModalOnCompletedRef.current = false;
+			}
+			return;
+		}
+
 		if (bodiedSyncBlockDeletionStatus === 'completed' && isOpen) {
 			// auto close modal once deletion is successful
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			setIsOpen(false);
 			api?.core?.actions.execute(({ tr }) => {
 				return tr.setMeta(syncedBlockPluginKey, {
@@ -174,33 +265,8 @@ export const DeleteConfirmationModal = ({
 		}
 	}, [api?.core?.actions, bodiedSyncBlockDeletionStatus, isOpen]);
 
-	useEffect(() => {
-		if (isOpen && syncBlockIds !== undefined) {
-			const fetchReferences = async () => {
-				try {
-					const references = await Promise.all(
-						syncBlockIds.map(async (syncBlockId) => {
-							const references = await syncBlockStoreManager.sourceManager.fetchReferences(
-								syncBlockId.resourceId,
-							);
-							if (references?.error) {
-								// Consider fetch fails as soon as one of the fetches fails
-								throw new Error();
-							}
-							return references.references?.length ?? 0;
-						}),
-					);
-
-					const totalCount = references.reduce((sum, count) => sum + count, 0);
-					setReferenceCount(totalCount);
-				} catch {
-					setReferenceCount(0);
-				}
-			};
-
-			fetchReferences();
-		}
-	}, [isOpen, syncBlockIds, syncBlockStoreManager.sourceManager]);
+	// References are fetched and set before the modal opens in
+	// confirmationCallback, so no additional fetch is needed here.
 
 	return (
 		<ModalTransition>
@@ -210,28 +276,24 @@ export const DeleteConfirmationModal = ({
 					testId="sync-block-delete-confirmation"
 					height={184}
 				>
-						<>
-							{referenceCount === undefined ? (
-								<Box xcss={styles.spinner}>
-									<Spinner size="large" />
-								</Box>
-							) : (
-								<ModalContent
-									content={
-										fg('platform_synced_block_patch_2')
-											? modalContentMapNew[deleteReason]
-											: modalContentMap[deleteReason]
-									}
-									referenceCount={referenceCount}
-									handleClick={handleClick}
-									formatMessage={formatMessage}
-									isDeleting={bodiedSyncBlockDeletionStatus === 'processing'}
-									isDisabled={isOfflineMode(mode)}
-									deleteReason={deleteReason}
-									sourceCount={syncBlockIds?.length || 0}
-								/>
-							)}
-						</>
+					<>
+						{referenceCount === undefined ? (
+							<Box xcss={styles.spinner}>
+								<Spinner size="large" />
+							</Box>
+						) : (
+							<ModalContent
+								content={modalContentMap[deleteReason]}
+								referenceCount={referenceCount}
+								handleClick={handleClick}
+								formatMessage={formatMessage}
+								isDeleting={bodiedSyncBlockDeletionStatus === 'processing'}
+								isDisabled={isOfflineMode(mode)}
+								deleteReason={deleteReason}
+								sourceCount={syncBlockIds?.length || 0}
+							/>
+						)}
+					</>
 				</ModalDialog>
 			)}
 		</ModalTransition>
@@ -261,8 +323,15 @@ const ModalContent = ({
 		content;
 
 	const hasNoReferenceOrFailToFetch = referenceCount === 0;
-	const syncBlockCount =
+	const totalLocationCount =
 		deleteReason === 'source-block-deleted' ? referenceCount + sourceCount : referenceCount;
+	const isReferenceCountDescriptionEnabled = deleteReason === 'source-block-deleted';
+	const descriptionLocationCount = isReferenceCountDescriptionEnabled
+		? referenceCount
+		: totalLocationCount;
+	const descriptionMultipleMessage = isReferenceCountDescriptionEnabled
+		? messages.deletionConfirmationModalDescriptionReferenceCount
+		: descriptionMultiple;
 
 	return (
 		<>
@@ -270,15 +339,15 @@ const ModalContent = ({
 				<ModalTitle appearance="warning">
 					{hasNoReferenceOrFailToFetch
 						? formatMessage(titleSingle)
-						: formatMessage(titleMultiple, { count: syncBlockCount })}
+						: formatMessage(titleMultiple, { count: totalLocationCount })}
 				</ModalTitle>
 			</ModalHeader>
 			<ModalBody>
 				<Text>
 					{hasNoReferenceOrFailToFetch
 						? formatMessage(descriptionSingle)
-						: formatMessage(descriptionMultiple, {
-								syncBlockCount,
+						: formatMessage(descriptionMultipleMessage, {
+								syncBlockCount: descriptionLocationCount,
 							})}
 				</Text>
 			</ModalBody>

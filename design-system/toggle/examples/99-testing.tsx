@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import { Label } from '@atlaskit/form';
+import Button from '@atlaskit/button/default/button';
+import { Label } from '@atlaskit/form/label/default';
 import { Stack } from '@atlaskit/primitives/compiled';
 import Toggle from '@atlaskit/toggle';
 import { token } from '@atlaskit/tokens';
@@ -25,7 +25,7 @@ const StatelessExample = (): React.JSX.Element => {
 			<p
 				id="button-description"
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				style={{ marginBottom: token('space.100', '8px') }}
+				style={{ marginBottom: token('space.100') }}
 			>
 				Can use this button to trigger a toggle
 			</p>

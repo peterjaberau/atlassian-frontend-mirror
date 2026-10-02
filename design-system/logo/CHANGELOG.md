@@ -1,5 +1,361 @@
 # @atlaskit/logo
 
+## 23.3.1
+
+### Patch Changes
+
+- [`90712ce0925fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90712ce0925fc) -
+  Fix incorrect deprecation metadata on supported icons and document direct icon imports. Preserve
+  explicit deprecation metadata for generated components.
+
+## 23.3.0
+
+### Minor Changes
+
+- [`2af3960b5e05f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2af3960b5e05f) -
+  Add first-class `ArtifactsIcon` and `ArtifactsLogo` components to `@atlaskit/logo`, including new
+  `artifacts` icon/logo entry points and documentation/example wiring.
+
+## 23.2.0
+
+### Minor Changes
+
+- [`6b0236ecca8c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6b0236ecca8c5) -
+  Add CodeSearchIcon export and ./code-search/icon entrypoint
+
+## 23.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.1.0
+
+### Minor Changes
+
+- [`7f07675ed99e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f07675ed99e8) -
+  [ux] Add InsightsIcon and InsightsLogo components for the Insights product brand.
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Major Changes
+
+- [`6b4b7bd1571b1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6b4b7bd1571b1) -
+  Remove unused logo rebrand feature-flag wrappers. Icon and logo components now default `size` to
+  `'medium'` themselves. Adds a jscodeshift codemod to migrate barrel imports to entry-points.
+  removal of obsolete props shouldUseNewLogoDesign and shouldUseHexLogo.
+
+## 22.0.0
+
+### Major Changes
+
+- [`fa980ed20c8fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa980ed20c8fd) -
+  Remove unused logo rebrand feature-flag wrappers. Icon and logo components now default `size` to
+  `'medium'` themselves. Adds a jscodeshift codemod to migrate barrel imports to entry-points.
+  removal of obsolete props shouldUseNewLogoDesign and shouldUseHexLogo.
+
+## 21.6.1
+
+### Patch Changes
+
+- [`7c11695adc550`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7c11695adc550) -
+  Renamed the internal `assets-platform-branding-with-confluence` feature gate check to
+  `assets-platform-branding-v2`. No visible behaviour change.
+
+## 21.6.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.5.2
+
+### Patch Changes
+
+- [`e974cd0ae082c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e974cd0ae082c) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 21.5.1
+
+### Patch Changes
+
+- Use `@atlassian/testing-library` exclusively in unit tests.
+
+## 21.5.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.4
+
+### Patch Changes
+
+- [`af4ee14c58af1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/af4ee14c58af1) -
+  Internal refactor to support tree shaking. No consumer changes.
+
+## 21.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.4.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.3.1
+
+### Patch Changes
+
+- [`f24eb9181feee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f24eb9181feee) -
+  Cleanup feature gates `platform-logo-rebrand` and `platform-logo-rebrand-rovo-hex`. The new visual
+  refresh logos and Rovo hex logo design are now permanently enabled.
+
+  Deprecated the `shouldUseNewLogoDesign` prop on `LogoProps` and the `shouldUseHexLogo` prop on
+  Rovo logo components — these props are now no-ops and will be removed in a future release.
+
+## 21.3.0
+
+### Minor Changes
+
+- [`6dbd37709ec20`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6dbd37709ec20) -
+  Remove internal barrel files and add individual subpath entry-points as part of Volt module
+  compliance.
+  - Added 83 new subpath entry-points (44 icon, 39 logo-cs) so consumers can import granularly, e.g.
+    `@atlaskit/logo/confluence/icon`, `@atlaskit/logo/jira/logo`
+  - Removed 44 generated `index.tsx` barrel files from `src/artifacts/logo-components/<slug>/`
+  - Rewrote all internal imports in `src/index.tsx` and `src/exports/` to point directly at the leaf
+    files (`/icon`, `/logo-cs`, `/logo`) instead of going through artifact barrels
+  - Updated the `generate:components` codegen to no longer produce artifact barrel `index.tsx` files
+
+  Existing consumers importing from `@atlaskit/logo` (the root barrel) are unaffected.
+
+## 21.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.1.2
+
+### Patch Changes
+
+- [`78b18c51d5855`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78b18c51d5855) -
+  Updated logo package codegen. Internal artifact components (icons and logos) now use clearer JSDoc
+  descriptions distinguishing migration logos (with deprecation notices) from non-migration logos
+  (with "internal component" notices). Also fixes TypeScript errors in `temp-size-wrapper` to
+  correctly accept `UtilityIconProps` components.
+
+## 21.1.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 21.1.0
+
+### Minor Changes
+
+- [`8f2b7327fda32`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f2b7327fda32) -
+  Added the `assets-platform-branding-with-confluence` feature gate as an OR condition alongside the
+  existing `assets-platform-branding` gate, so the Assets brand styling is also applied when the
+  Confluence-targeted gate is enabled.
+
+## 21.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.2.0
+
+### Minor Changes
+
+- [`19bdb9d9991c1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19bdb9d9991c1) -
+  [ux] Add JiraCodingAgentIcon to @atlaskit/logo
+
+## 20.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.0
+
+### Minor Changes
+
+- [`1b6e8b426b9fe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b6e8b426b9fe) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 20.0.0
+
+### Major Changes
+
+- [`9ecd6968b11f8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ecd6968b11f8) -
+  [ux] Cleans up `platform-logo-rebrand-team-eu` feature flag and add the Feedback logo to the
+  `@atlaskit/logo` library.
+
+  Removes exports:
+
+      - `chatNewIcon` (use `chatIcon` instead),
+      - `searchNewIcon` (use `searchIcon` instead),
+      - `studioNewIcon` (use `studioIcon` instead),
+      - `chatNewLogo` (use `chatLogo` instead),
+      - `searchNewLogo` (use `searchLogo` instead),
+      - `studioNewLogo` (use `studioLogo` instead),
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.10.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.10.6
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 19.10.5
+
+### Patch Changes
+
+- [`22bf79dbdcdca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22bf79dbdcdca) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+
+## 19.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 19.10.2
 
 ### Patch Changes

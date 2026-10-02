@@ -1,20 +1,21 @@
-import { Fragment, Node as PMNode, type Schema } from '@atlaskit/editor-prosemirror/model';
+import { isSchemaWithBlockQuotes } from '@atlaskit/adf-schema/is-schema-with-block-quotes';
+import { isSchemaWithCodeBlock } from '@atlaskit/adf-schema/is-schema-with-code-block';
+import { isSchemaWithEmojis } from '@atlaskit/adf-schema/is-schema-with-emojis';
+import { isSchemaWithLists } from '@atlaskit/adf-schema/is-schema-with-lists';
+import { isSchemaWithMedia } from '@atlaskit/adf-schema/is-schema-with-media';
+import { isSchemaWithMentions } from '@atlaskit/adf-schema/is-schema-with-mentions';
+import { isSchemaWithTables } from '@atlaskit/adf-schema/is-schema-with-tables';
+import type { Transformer } from '@atlaskit/editor-common/types';
+import { Fragment, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Schema } from '@atlaskit/editor-prosemirror/model';
 
-import parseHtml from './parse-html';
 import fixDoc from './fix-doc';
-
+import parseHtml from './parse-html';
 import { bfsOrder, convert, ensureBlocks } from './utils';
 
-import {
-	isSchemaWithLists,
-	isSchemaWithMentions,
-	isSchemaWithEmojis,
-	isSchemaWithCodeBlock,
-	isSchemaWithBlockQuotes,
-	isSchemaWithMedia,
-	isSchemaWithTables,
-} from '@atlaskit/adf-schema/schema-jira';
-import { type Transformer } from '@atlaskit/editor-common/types';
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const FRAGMENT_HREF_REGEX = /^#/;
 
 export type CustomEncoder = (userId: string) => string;
 
@@ -313,9 +314,7 @@ export class JIRATransformer implements Transformer<string> {
 						const href = mark.attrs['href'];
 
 						/** JIRA always expects external-link attribute set on links created via editor unless its #fragment */
-						// Ignored via go/ees005
-						// eslint-disable-next-line require-unicode-regexp
-						if (!href.match(/^#/)) {
+						if (!href.match(FRAGMENT_HREF_REGEX)) {
 							linkElem.setAttribute('class', 'external-link');
 							linkElem.setAttribute('rel', 'nofollow');
 						}

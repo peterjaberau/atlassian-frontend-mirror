@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -14,12 +13,13 @@ ${createEditorUseOnlyNotice('Editor Plugin Custom Autoformat', [
 
 
   ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
-			<AtlassianInternalWarning />
-		</div>
-	)
-	}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the custom autoformat plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,7 +30,16 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type CustomAutoformatPlugin = NextEditorPlugin<'customAutoformat'>;
+type CustomAutoformatPlugin = NextEditorPlugin<
+  'customAutoformat',
+  {
+    actions: {
+      setProvider: (provider: Promise<AutoformattingProvider>) => Promise<boolean>;
+    };
+    pluginConfiguration: CustomAutoformatPluginOptions;
+    sharedState: CustomAutoformatPluginSharedState | undefined;
+  }
+>;
 `}
 
 

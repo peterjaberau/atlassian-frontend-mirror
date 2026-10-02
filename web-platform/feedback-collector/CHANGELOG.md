@@ -1,5 +1,404 @@
 # @atlaskit/feedback-collector
 
+## 16.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.12.0
+
+### Minor Changes
+
+- [`3f092027a5956`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f092027a5956) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.11.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.11.0
+
+### Minor Changes
+
+- [`243f107ca4fc8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/243f107ca4fc8) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.2
+
+### Patch Changes
+
+- [`6f66af09bd361`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6f66af09bd361) -
+  Cleanup feature gate `ak_feedback_collector_select_escape`. The feedback type select now always
+  prevents Escape key propagation when its menu is open.
+
+## 16.9.1
+
+### Patch Changes
+
+- [`2543c8b0416d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2543c8b0416d7) -
+  Cleanup feature gate `fun-2435_improve_feedback_collector_copy`. The contact opt-in checkbox
+  always uses the copy explaining that consent is required to receive a reply.
+
+## 16.9.0
+
+### Minor Changes
+
+- [`d6496db5d242e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d6496db5d242e) -
+  [ux] Behind the `fun-2435_improve_feedback_collector_copy` feature gate, the contact opt-in
+  checkbox copy now explains that consent is required to receive a reply, and that Atlassian teams
+  may ask for more details about the reported experience.
+
+## 16.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.8.0
+
+### Minor Changes
+
+- [`d82e5d7f2fe7c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e5d7f2fe7c) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.7.0
+
+### Minor Changes
+
+- [`6ec59d952d937`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ec59d952d937) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 16.6.2
+
+### Patch Changes
+
+- [`38d753092aa79`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38d753092aa79) -
+  Fix feedback collector translations failing to load. The locale messages loader now resolves
+  bundles through an explicit per-locale loader map instead of a free-form dynamic import that
+  generated non-existent async chunk URLs in some builds (causing the dialog to silently fall back
+  to English). The fix is behind the `fun-2388_fix_feedback_collector_i18n` gate; when the gate is
+  off the previous loading behaviour is preserved.
+- Updated dependencies
+
+## 16.6.1
+
+### Patch Changes
+
+- [`a3bf20a2ec9f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3bf20a2ec9f1) -
+  Stop Escape from closing the feedback dialog when dismissing the feedback type dropdown.
+
+## 16.6.0
+
+### Minor Changes
+
+- [`e8b3f04d788a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8b3f04d788a2) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 16.5.0
+
+### Minor Changes
+
+- [`b9a7b3350402b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9a7b3350402b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.4.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.3.0
+
+### Minor Changes
+
+- [`c01a4725bff2a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c01a4725bff2a) -
+  Wrap atlaskit form ErrorMessage components with MessageWrapper so validation messages are
+  accessible to assistive technology (ENGHEALTH-58254)
+
+## 16.2.0
+
+### Minor Changes
+
+- [`84e6b9695a7ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/84e6b9695a7ca) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 16.1.2
+
+### Patch Changes
+
+- [`309a7bd882781`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/309a7bd882781) -
+  Add a dialogRef prop for accessing the rendered feedback dialog container.
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`fa57ab7543ad8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa57ab7543ad8) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.0
+
+### Minor Changes
+
+- [`fcbbf3c80f95a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fcbbf3c80f95a) -
+  [ux] AX-2068 — Announce feedback collector validation errors to screen readers and move focus to
+  the first invalid field on failed submit by delegating validation to @atlaskit/form's built-in
+  Field validate API.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.0
+
+### Minor Changes
+
+- [`7bbde375a3b30`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7bbde375a3b30) -
+  Add onCancel callback to FeedbackCollector and FeedbackForm
+
+## 15.4.0
+
+### Minor Changes
+
+- [`4cffc70fa1cfe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4cffc70fa1cfe) -
+  Add onCancel callback to FeedbackCollector and FeedbackForm
+
+## 15.3.0
+
+### Minor Changes
+
+- [`ffa7b21ccc11b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ffa7b21ccc11b) -
+  A11Y fix (A11Y-31065): Remove inappropriate `aria-hidden={false}` and `hidden` attributes from
+  `<legend>` elements inside the opt-in options `<fieldset>` in FeedbackForm. The `hidden` HTML
+  attribute removes elements from the accessibility tree regardless of `aria-hidden`, causing screen
+  readers to miss the fieldset group label "Atlassian opt-in options". Replaced with a standard
+  visually-hidden CSS pattern so the legend is accessible to screen readers but not visible on
+  screen.
+
+## 15.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.2.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 15.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`a8e9bef6d418f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a8e9bef6d418f) -
+  Remove flag to increase accessibility in links.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Major Changes
+
+- [`d2e14ba5ae9fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2e14ba5ae9fc) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 14.7.0
+
+### Minor Changes
+
+- [`e52fd53a473c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e52fd53a473c5) -
+  Update i18n NPM package versions for discovery,navigation,web-platform,bitbucket,policy-platform
+  (Group 14)
+
+## 14.6.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.6.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.6.21
+
+### Patch Changes
+
+- [`8f1a80e10b1d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f1a80e10b1d7) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 14.6.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.6.19
+
+### Patch Changes
+
+- [`b35eb5f6a4e6a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b35eb5f6a4e6a) -
+  Remove now inert `autoFocus` prop from modal dialog components.
+
+## 14.6.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.6.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.6.16
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 14.6.15
 
 ### Patch Changes

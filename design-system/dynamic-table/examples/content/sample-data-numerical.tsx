@@ -7,8 +7,8 @@ import { type FC, type ReactNode } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Avatar from '@atlaskit/avatar';
-import Link from '@atlaskit/link';
+import Avatar from '@atlaskit/avatar/avatar';
+import Link from '@atlaskit/link/link';
 import { token } from '@atlaskit/tokens';
 
 import { presidents } from './numerical';
@@ -38,26 +38,28 @@ const avatarWrapperStyles = css({
 });
 
 const AvatarWrapper: FC<{ children: ReactNode }> = ({ children }) => (
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
 	<div css={avatarWrapperStyles}>{children}</div>
 );
 
 export const caption = 'Sample Numerical Data';
 
 export const createHead: (withWidth: boolean) => {
-    cells: ({
-        key: string;
-        content: string;
-        isSortable: boolean;
-        width: number | undefined;
-        shouldTruncate?: undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable: boolean;
-        width: number | undefined;
-    })[];
+	cells: (
+		| {
+				key: string;
+				content: string;
+				isSortable: boolean;
+				width: number | undefined;
+				shouldTruncate?: undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable: boolean;
+				width: number | undefined;
+		  }
+	)[];
 } = (withWidth: boolean) => {
 	return {
 		cells: [
@@ -85,30 +87,36 @@ export const createHead: (withWidth: boolean) => {
 };
 
 export const head: {
-    cells: ({
-        key: string;
-        content: string;
-        isSortable: boolean;
-        width: number | undefined;
-        shouldTruncate?: undefined;
-    } | {
-        key: string;
-        content: string;
-        shouldTruncate: boolean;
-        isSortable: boolean;
-        width: number | undefined;
-    })[];
+	cells: (
+		| {
+				key: string;
+				content: string;
+				isSortable: boolean;
+				width: number | undefined;
+				shouldTruncate?: undefined;
+		  }
+		| {
+				key: string;
+				content: string;
+				shouldTruncate: boolean;
+				isSortable: boolean;
+				width: number | undefined;
+		  }
+	)[];
 } = createHead(true);
 
 export const rows: {
-    key: string;
-    cells: ({
-        key: string;
-        content: JSX.Element;
-    } | {
-        key: string | number;
-        content: string | number;
-    })[];
+	key: string;
+	cells: (
+		| {
+				key: string;
+				content: JSX.Element;
+		  }
+		| {
+				key: string | number;
+				content: string | number;
+		  }
+	)[];
 }[] = presidents.map((president: President, index: number) => ({
 	key: `row-${index}-${president.name}`,
 	cells: [

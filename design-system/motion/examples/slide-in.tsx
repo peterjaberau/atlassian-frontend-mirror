@@ -4,15 +4,39 @@
  */
 import { useState } from 'react';
 
-import { jsx } from '@compiled/react';
+import { css, jsx } from '@compiled/react';
 
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
-import { ExitingPersistence, SlideIn } from '@atlaskit/motion';
-// @ts-ignore - this is not a valid package entry point and cannot be resolved when using a modern Typescript 'moduleResolution' setting
-import { type Direction, type Fade } from '@atlaskit/motion/src/entering/types';
+import Button from '@atlaskit/button/default/button';
+import { type Direction, type Fade } from '@atlaskit/motion/entering/types';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import SlideIn from '@atlaskit/motion/slide-in';
 
-import { Block, Centered, RetryContainer } from './utils';
+import { Block } from './utils/blocks';
+import { Centered, RetryContainer } from './utils/containers';
+
+const buttonContainerStyles = css({
+	textAlign: 'center',
+});
+
+const centeredStyles = css({
+	height: '300px',
+	position: 'relative',
+	marginBlockEnd: 0,
+	marginBlockStart: 0,
+	marginInlineEnd: 'auto',
+	marginInlineStart: 'auto',
+	overflow: 'hidden',
+});
+
+const blockStyles = css({
+	width: '95%',
+	height: '95%',
+	marginBlockEnd: 'auto',
+	marginBlockStart: 'auto',
+	marginInlineEnd: 'auto',
+	marginInlineStart: 'auto',
+});
 
 const froms: Direction[] = ['top', 'right', 'bottom', 'left'];
 const fades: Fade[] = ['none', 'in', 'out', 'inout'];
@@ -24,8 +48,7 @@ export default (): JSX.Element => {
 
 	return (
 		<RetryContainer>
-			{/* eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
-			<div css={{ textAlign: 'center' }}>
+			<div css={buttonContainerStyles}>
 				<ButtonGroup label="Motion options">
 					<Button onClick={() => setIsIn((prev) => !prev)}>{isIn ? 'Exit' : 'Enter'}</Button>
 					<Button onClick={() => setFromIndex((prev) => (prev + 1) % froms.length)}>
@@ -36,14 +59,7 @@ export default (): JSX.Element => {
 					</Button>
 				</ButtonGroup>
 
-				<Centered
-					css={{
-						overflow: 'hidden',
-						height: '300px',
-						margin: '0 auto',
-						position: 'relative',
-					}}
-				>
+				<Centered css={centeredStyles}>
 					<ExitingPersistence appear>
 						{isIn && (
 							<SlideIn enterFrom={froms[fromIndex]} fade={fades[fadeIndex]}>
@@ -52,11 +68,7 @@ export default (): JSX.Element => {
 										ref={props.ref}
 										// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 										className={props.className}
-										css={{
-											height: '95%',
-											width: '95%',
-											margin: 'auto',
-										}}
+										css={blockStyles}
 									/>
 								)}
 							</SlideIn>

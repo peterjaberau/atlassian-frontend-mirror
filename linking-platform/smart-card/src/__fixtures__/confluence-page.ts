@@ -1,3 +1,5 @@
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 export default {
 	meta: {
 		auth: [],
@@ -44,4 +46,4 @@ export default {
 			'atlassian:supportedPlatforms': ['web'],
 		},
 	},
-};
+} as SmartLinkResponse;

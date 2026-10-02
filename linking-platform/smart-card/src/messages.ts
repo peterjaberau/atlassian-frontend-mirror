@@ -1,4 +1,4 @@
-import { defineMessages, type MessageDescriptor } from 'react-intl-next';
+import { defineMessages, type MessageDescriptor } from 'react-intl';
 
 export type RequestAccessMessageKey =
 	| 'click_to_join'
@@ -17,21 +17,46 @@ export type RequestAccessMessageKey =
 	| 'access_exists_description'
 	| 'not_found_description'
 	| 'not_found_title';
+export type RovoChatActionMessageKey =
+	| 'rovo_prompt_context_generic'
+	| 'rovo_prompt_context_generic_plural'
+	| 'rovo_prompt_context_confluence_page'
+	| 'rovo_prompt_context_jira_work_item'
+	| 'rovo_prompt_message_summarize'
+	| 'rovo_prompt_button_ask_rovo_anything'
+	| 'rovo_prompt_message_ask_rovo_anything'
+	| 'rovo_prompt_button_highlight_relevant_content'
+	| 'rovo_prompt_message_highlight_relevant_content'
+	| 'rovo_prompt_button_identify_key_trends'
+	| 'rovo_prompt_message_identify_key_trends'
+	| 'rovo_prompt_button_identify_key_points'
+	| 'rovo_prompt_message_identify_key_points'
+	| 'rovo_prompt_button_find_open_questions'
+	| 'rovo_prompt_message_find_open_questions'
+	| 'rovo_prompt_button_key_highlights'
+	| 'rovo_prompt_message_key_highlights'
+	| 'rovo_prompt_message_summarize_document'
+	| 'rovo_prompt_message_summarize_presentation'
+	| 'rovo_prompt_button_explain_code'
+	| 'rovo_prompt_message_explain_code'
+	| 'rovo_prompt_button_catch_up'
+	| 'rovo_prompt_message_catch_up'
+	| 'rovo_prompt_button_salesforce_prep'
+	| 'rovo_prompt_message_salesforce_prep';
 export type MessageKey =
 	| 'assigned_to'
 	| 'ai_summarize'
 	| 'change_status'
-	| 'ai_summarized'
 	| 'ai_summarized_abbreviation'
 	| 'ai_summarized_info'
 	| 'ai_summarized_info_short'
-	| 'ai_summarizing'
-	| 'ai_summary_error_generic'
+	| 'ai_summary_error_generic_rebrand'
 	| 'ai_summary_error_acceptable_use_violation'
 	| 'ai_summary_error_hipaa_content_detected'
 	| 'ai_summary_error_exceeding_context_length_error'
-	| 'ai_summary_action'
+	| 'ai_summary_action_rebrand'
 	| 'ai_summary_action_description'
+	| 'ai_summary_action_description_rebrand'
 	| 'automation_action_title'
 	| 'automation_action_tooltip'
 	| 'automation_action_icon_label'
@@ -46,7 +71,25 @@ export type MessageKey =
 	| 'connect_link_account_card'
 	| 'connect_link_account_card_name'
 	| 'connect_link_account_card_description'
+	| 'connect_link_account_embed_carousel_button_next'
+	| 'connect_link_account_embed_carousel_dot_label'
+	| 'connect_link_account_embed_carousel_dot_row_label'
+	| 'connect_link_account_embed_carousel_sl_description'
+	| 'connect_link_account_embed_carousel_sl_title'
+	| 'connect_link_account_embed_carousel_rovo_description'
+	| 'connect_link_account_embed_carousel_rovo_title'
+	| 'connect_link_account_embed_carousel_rovochat_description'
+	| 'connect_link_account_embed_carousel_rovochat_title'
+	| 'connect_link_account_success_flag_description'
+	| 'connect_link_account_success_flag_title'
+	| 'connect_link_account_success_flag_title_default'
 	| 'connect_unauthorised_account_action'
+	| 'connect_3p_account'
+	| 'connect_inline_social_proof'
+	| 'social_proof_inline_cta_tag_high_with_context'
+	| 'social_proof_inline_cta_tag_high_no_context'
+	| 'social_proof_inline_cta_tag_low_with_context'
+	| 'social_proof_inline_cta_tag_low_no_context'
 	| 'connect_unauthorised_account_description'
 	| 'connect_unauthorised_account_description_no_provider'
 	| 'continue'
@@ -125,6 +168,7 @@ export type MessageKey =
 	| 'unauthorised_account_description_no_provider'
 	| 'unauthorised_account_name'
 	| 'unauthorised_account_name_no_provider'
+	| 'rovo_actions_explore'
 	| 'unassigned'
 	| 'unfollow'
 	| 'unfollow_project_description'
@@ -138,6 +182,7 @@ export type MessageKey =
 	| 'user_attributes'
 	| 'view'
 	| 'viewIn'
+	| 'viewInProvider'
 	| 'viewOriginal'
 	// Cannot find direct usage of the following messages,
 	// but the context indicates it could be used in Smart Links.
@@ -173,7 +218,23 @@ export type MessageKey =
 	| 'connect_unauthorised_account_description_appify'
 	| 'connect_unauthorised_account_description_no_provider_appify'
 	| 'learn_more_about_connecting_account_experiment_shorter'
-	| 'learn_more_about_connecting_account_appify';
+	| 'learn_more_about_connecting_account_appify'
+	| 'rovo_summary_loading'
+	| 'ai_disclaimer'
+	| 'rovo_unauthorised_title'
+	| 'rovo_unauthorised_title_no_provider'
+	| 'rovo_unauthorised_feature_clear_link_names'
+	| 'rovo_unauthorised_feature_understand_linked_docs'
+	| 'rovo_unauthorised_feature_go_deeper_smart_suggestions'
+	| 'rovo_unauthorised_connect_account'
+	| 'rovo_unauthorised_not_now'
+	| 'rovo_chat_action_section_header'
+	| 'rovo_prompt_button_summarize_this'
+	| 'rovo_prompt_button_ask_a_specific_question'
+	| 'rovo_prompt_button_show_me_whats_relevant'
+	| RovoChatActionMessageKey
+	| 'pre_auth_block_social_proof_not_low'
+	| 'pre_auth_block_social_proof_low';
 
 type Messages = {
 	[K in MessageKey]: MessageDescriptor;
@@ -182,22 +243,17 @@ export const messages: Messages = defineMessages({
 	actions: {
 		id: 'fabric.linking.actions',
 		defaultMessage: 'Actions',
-		description: '',
+		description: 'Title for a section or menu containing available actions for a resource.',
 	},
 	add_account: {
 		id: 'fabric.linking.add_account',
 		defaultMessage: 'Add account',
-		description: 'Allows to add a new account',
+		description: 'Button label that allows the user to add and connect a new external account',
 	},
 	ai_summarize: {
 		id: 'fabric.linking.ai_summarize',
 		defaultMessage: 'Summarize',
 		description: 'Action to summarize link resource content with AI',
-	},
-	ai_summarized: {
-		id: 'fabric.linking.ai_summarized',
-		defaultMessage: 'Summarized by Atlassian Intelligence',
-		description: 'Shown with the content summarised by AI.',
 	},
 	ai_summarized_abbreviation: {
 		id: 'fabric.linking.ai_summarized_abbreviation',
@@ -215,15 +271,9 @@ export const messages: Messages = defineMessages({
 		defaultMessage: 'Content quality may vary',
 		description: 'Additional info about the content summarised by AI.',
 	},
-	ai_summarizing: {
-		id: 'fabric.linking.ai_summarizing',
-		defaultMessage: 'Atlassian Intelligence is working...',
-		description: 'Shown when AI summary is summarising the link resource content.',
-	},
-	ai_summary_error_generic: {
-		id: 'fabric.linking.ai_summary_error_generic',
-		defaultMessage:
-			'Atlassian Intelligence (AI) isn’t responding. Try again later or <a>check the status of AI</a>.',
+	ai_summary_error_generic_rebrand: {
+		id: 'fabric.linking.ai_summary_error_generic_rebrand',
+		defaultMessage: 'Rovo isn’t responding. Try again later or <a>check the status of AI</a>.',
 		description:
 			'Shown when AI Summary encountered an unexpected error while summarizing the linked resource content.',
 	},
@@ -291,12 +341,13 @@ export const messages: Messages = defineMessages({
 	cancel: {
 		id: 'fabric.linking.cancel',
 		defaultMessage: 'Cancel',
-		description: 'cancel',
+		description: 'Cancel the current action or close the modal.',
 	},
 	beta: {
 		id: 'fabric.linking.beta',
 		defaultMessage: 'Beta',
-		description: 'Indicates a beta phase of the feature.',
+		description:
+			'Text shown in a lozenge badge on a smart link or card to indicate the feature is currently in beta.',
 	},
 	cannot_connect: {
 		id: 'fabric.linking.cannot_connect',
@@ -322,17 +373,20 @@ export const messages: Messages = defineMessages({
 	close: {
 		id: 'fabric.linking.close',
 		defaultMessage: 'Close',
-		description: '',
+		description:
+			'Label for a button or icon that closes the currently open modal dialog or overlay screen.',
 	},
 	check_this_link: {
 		id: 'fabric.linking.check_this_link',
 		defaultMessage: 'Check this link',
-		description: 'Link safety warning modal header',
+		description:
+			'Heading shown at the top of the link safety warning modal, prompting the user to verify a potentially unsafe link before proceeding.',
 	},
 	compass_applied_components_count: {
 		id: 'compass.applied_components_count.non-final',
 		defaultMessage:
 			'Applied to {numberOfComponents, plural, one {{numberOfComponents, number} component}  other {{numberOfComponents, number} components}}',
+		description: 'Indicates the number of components the resource is applied to.',
 	},
 	connect_to: {
 		id: 'fabric.linking.connect_to',
@@ -368,10 +422,134 @@ export const messages: Messages = defineMessages({
 		description:
 			'Shown when a user does not have access to a link, but can connect their external account to view the link on card view. Displayed in byline.',
 	},
+	connect_link_account_embed_carousel_dot_label: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_dot_label.non-final',
+		defaultMessage: 'Go to slide {index} of {total}',
+		description:
+			'Accessible label for a dot indicator button in the teaser carousel, describing which slide it navigates to',
+	},
+	connect_link_account_embed_carousel_dot_row_label: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_dot_row_label.non-final',
+		defaultMessage: 'Slides',
+		description: 'Accessible label for the group of dot indicator buttons in the teaser carousel',
+	},
+	connect_link_account_embed_carousel_button_next: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_button_next.non-final',
+		defaultMessage: 'Next',
+		description:
+			'A button to view next teaser on benefit of connecting account on Smart Link embed',
+	},
+	connect_link_account_embed_carousel_sl_description: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_sl_description.non-final',
+		defaultMessage: `Embed live previews of {context, select,
+				Google {Google Docs, Sheets, and Slides}
+				other {{context}}} {product, select,
+				BITBUCKET {right inside Bitbucket}
+				CONFLUENCE {right inside Confluence and Jira}
+				JIRA {right inside Confluence and Jira}
+				TRELLO {right inside Trello}
+				other {across Atlassian}}.`,
+		description:
+			'A description on a teaser slide 1 on benefit of connecting account on Smart Link embed.' +
+			' Example Google+CONFLUENCE: Embed live previews of Google Docs, Sheets, and Slides right inside Confluence and Jira.' +
+			' Example Google+TRELLO: Embed live previews of Google Docs, Sheets, and Slides right inside Trello.' +
+			' Example other+TRELLO: Embed live previews of Figma right inside Trello.' +
+			' Example other+other: Embed live previews of Figma across Atlassian.',
+	},
+	connect_link_account_embed_carousel_sl_title: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_sl_title.non-final',
+		defaultMessage: 'Turn smart links into rich previews',
+		description: 'A title on a teaser slide 1 on benefit of connecting account on Smart Link embed',
+	},
+	connect_link_account_embed_carousel_rovo_title: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_rovo_title.non-final',
+		defaultMessage: 'Find everything in one search',
+		description: 'A title on a teaser slide 2 on benefit of connecting account on Smart Link embed',
+	},
+	connect_link_account_embed_carousel_rovo_description: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_rovo_description.non-final',
+		defaultMessage: `Access {context} files alongside your work in {product, select,
+				BITBUCKET {Bitbucket}
+				CONFLUENCE {Confluence and Jira}
+				JIRA {Confluence and Jira}
+				TRELLO {Trello}
+				other {Atlassian}}. We'll always respect your {context} permissions.`,
+		description:
+			'A description on a teaser slide 2 on benefit of connecting account on Smart Link embed.' +
+			" Example Figma+JIRA: Access Figma files alongside your work in Confluence and Jira. We'll always respect your Figma permissions." +
+			" Example Figma+BITBUCKET: Access Figma files alongside your work in Bitbucket. We'll always respect your Figma permissions." +
+			" Example Figma+other: Access Figma files alongside your work in Atlassian. We'll always respect your Figma permissions.",
+	},
+	connect_link_account_embed_carousel_rovochat_title: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_rovochat_title.non-final',
+		defaultMessage: 'Get help from Rovo',
+		description: 'A title on a teaser slide 3 on benefit of connecting account on Smart Link embed',
+	},
+	connect_link_account_embed_carousel_rovochat_description: {
+		id: 'fabric.linking.connect_link_account_embed_carousel_rovochat_description.non-final',
+		defaultMessage:
+			'Rovo uses your {context} content to answer questions, summarise docs, and draft updates using the work you’ve already done.',
+		description:
+			'A description on a teaser slide 3 on benefit of connecting account on Smart Link embed',
+	},
+	connect_link_account_success_flag_description: {
+		id: 'fabric.linking.connect_link_account_success_flag_description',
+		defaultMessage: 'Shared links now display rich previews.',
+		description:
+			'Shown in a flag after user successfully connect 3P account and Smart Link reload with metadata',
+	},
+	connect_link_account_success_flag_title: {
+		id: 'fabric.linking.connect_link_account_success_flag_title',
+		defaultMessage: '{context} is connected',
+		description:
+			'Shown in a flag after user successfully connect 3P account. {context} is the name of link provider, e.g. Google, Figma, etc.',
+	},
+	connect_link_account_success_flag_title_default: {
+		id: 'fabric.linking.connect_link_account_success_flag_title_default',
+		defaultMessage: 'Smart Link',
+		description:
+			'Default context for connect_link_account_success_flag_title when link provider name (Google, Figma, etc.) is not provided',
+	},
 	connect_unauthorised_account_action: {
 		id: 'fabric.linking.connect_unauthorised_account_action',
 		defaultMessage: 'Connect to {context}',
 		description: 'Shown on a button to connect user external account to their Atlassian account.',
+	},
+	connect_3p_account: {
+		id: 'fabric.linking.connect_3p_account.non-final',
+		defaultMessage: 'Connect {context}',
+		description:
+			'Shown on a button to connect user external 3P account to their Atlassian account, e.g. Connect Figma',
+	},
+	connect_inline_social_proof: {
+		id: 'fabric.linking.connect_inline_social_proof',
+		defaultMessage: 'Connect',
+		description:
+			'Shown on a button for unauthorised inline smart links when the social proof inline CTA experiment is active. Replaces the longer "Connect your {context} account" label.',
+	},
+	social_proof_inline_cta_tag_high_with_context: {
+		id: 'fabric.linking.social_proof_inline_cta_tag_high_with_context',
+		defaultMessage: '<b>{connectedPct}%</b> of your team sees {context} previews',
+		description:
+			'Social-proof tag pill beside the shortcut "Connect" on an unauthorised inline smart link when adoption is not in the exploratory range. {connectedPct} is the approximate share seeing previews for the integration; {context} is the provider display name.',
+	},
+	social_proof_inline_cta_tag_high_no_context: {
+		id: 'fabric.linking.social_proof_inline_cta_tag_high_no_context',
+		defaultMessage: '<b>{connectedPct}%</b> of your team sees richer previews',
+		description:
+			'Social-proof tag pill when adoption is above the exploratory threshold and no provider display name is available; {connectedPct} is the approximate share seeing richer previews.',
+	},
+	social_proof_inline_cta_tag_low_with_context: {
+		id: 'fabric.linking.social_proof_inline_cta_tag_low_with_context',
+		defaultMessage: 'Your team sees richer {context} previews',
+		description:
+			'Social-proof tag pill when share is below the percentage headline threshold; shown only when a provider display name is available. Omit the pill entirely when personalization is unavailable or the provider name is unknown.',
+	},
+	social_proof_inline_cta_tag_low_no_context: {
+		id: 'fabric.linking.social_proof_inline_cta_tag_low_no_context',
+		defaultMessage: 'Your team sees richer previews',
+		description:
+			'Social-proof tag pill for the case when neither percentage nor provider display name are available.',
 	},
 	connect_unauthorised_account_description: {
 		id: 'fabric.linking.connect_unauthorised_account_description',
@@ -389,17 +567,19 @@ export const messages: Messages = defineMessages({
 	continue: {
 		id: 'fabric.linking.continue',
 		defaultMessage: 'Continue',
-		description: 'continue',
+		description:
+			'Label for a button that advances the user to the next step, e.g. in the link safety warning modal flow.',
 	},
 	copy_url_to_clipboard: {
 		id: 'fabric.linking.copy_url_to_clipboard',
 		defaultMessage: 'Copy link',
-		description: '',
+		description: 'Action to copy the URL of the link to the clipboard.',
 	},
 	copied_url_to_clipboard: {
 		id: 'fabric.linking.copied_url_to_clipboard',
 		defaultMessage: 'Copied!',
-		description: 'Url has been copied to the clipboard',
+		description:
+			'Confirmation text shown briefly after the user copies a URL to the clipboard using the copy link action.',
 	},
 	could_not_load_link: {
 		id: 'fabric.linking.couldnt_load_link',
@@ -424,31 +604,41 @@ export const messages: Messages = defineMessages({
 	delete: {
 		id: 'fabric.linking.delete',
 		defaultMessage: 'Delete',
-		description: 'Allow a user to delete a link',
+		description:
+			'Label for the delete action in a smart link or card action menu, allowing the user to remove the linked item.',
 	},
 	download: {
 		id: 'fabric.linking.download',
 		defaultMessage: 'Download',
-		description: '',
+		description:
+			'Label for the download action in a smart link or card action menu, initiating a file download.',
 	},
 	download_description: {
 		id: 'fabric.linking.download_description',
 		defaultMessage: 'Download this file into your local storage',
-		description: 'Description on what Download does',
+		description:
+			"Tooltip or description text for the download action, explaining it saves the file to the user's local storage.",
 	},
 	download_file: {
 		id: 'fabric.linking.download_file',
 		defaultMessage: 'Download file',
-		description: 'Allow a user to download a file',
+		description:
+			'Label for the download file action in a smart link or card action menu, allowing the user to save the linked file locally.',
 	},
-	ai_summary_action: {
-		id: 'fabric.linking.ai_summary_action',
-		defaultMessage: 'Summarize with AI',
-		description: 'Allow a user to summarize a link',
+	ai_summary_action_rebrand: {
+		id: 'fabric.linking.ai_summary_action_rebrand',
+		defaultMessage: 'Summarize with Rovo',
+		description:
+			'Label for the AI summarize action in a smart link or hover card action menu, allowing the user to generate an AI summary of the linked content.',
 	},
 	ai_summary_action_description: {
 		id: 'fabric.linking.ai_summary_action_description',
 		defaultMessage: 'Summarize the content of this link using Atlassian Intelligence.',
+		description: 'Description of what the summarize link with AI action does',
+	},
+	ai_summary_action_description_rebrand: {
+		id: 'fabric.linking.ai_summary_action_description_rebrand',
+		defaultMessage: 'Summarize the content of this link using Rovo.',
 		description: 'Description of what the summarize link with AI action does',
 	},
 	copy_summary_action: {
@@ -469,22 +659,26 @@ export const messages: Messages = defineMessages({
 	edit: {
 		id: 'fabric.linking.edit',
 		defaultMessage: 'Edit',
-		description: 'Allow a user to edit a link',
+		description:
+			'Label for the edit action in a smart link or card action menu, allowing the user to modify the linked item.',
 	},
 	follow: {
 		id: 'fabric.linking.follow',
 		defaultMessage: 'Follow',
-		description: 'Click to follow a project.',
+		description:
+			'Label for the follow button on a smart link card, allowing the user to subscribe to updates for the linked project or resource.',
 	},
 	follow_project_description: {
 		id: 'fabric.linking.follow_project_description',
 		defaultMessage: 'Follow to get notifications on this project',
-		description: 'Description on what Follow does',
+		description:
+			'Tooltip or description text for the follow project button, explaining that clicking it enables notifications for the project.',
 	},
 	follow_project: {
 		id: 'fabric.linking.follow_project',
 		defaultMessage: 'Follow project',
-		description: 'Click to follow a project.',
+		description:
+			'Label for the follow project button on a smart link card, allowing the user to subscribe to updates for the linked Atlassian project.',
 	},
 	follow_project_error: {
 		id: 'fabric.linking.follow_project_error',
@@ -495,12 +689,14 @@ export const messages: Messages = defineMessages({
 	follow_goal_description: {
 		id: 'fabric.linking.follow_goal_description',
 		defaultMessage: 'Follow this goal to get notifications on updates',
-		description: 'Description on what Follow does',
+		description:
+			'Tooltip or description text for the follow goal button, explaining that clicking it enables notifications for updates to the goal.',
 	},
 	follow_goal: {
 		id: 'fabric.linking.follow_goal',
 		defaultMessage: 'Follow goal',
-		description: 'Click to follow a project.',
+		description:
+			'Label for the follow goal button on a smart link card, allowing the user to subscribe to updates for the linked Atlas goal.',
 	},
 	follow_goal_error: {
 		id: 'fabric.linking.follow_goal_error',
@@ -511,7 +707,8 @@ export const messages: Messages = defineMessages({
 	go_back: {
 		id: 'fabric.linking.go_back',
 		defaultMessage: 'Go back',
-		description: 'go back',
+		description:
+			'Label for a navigation button that returns the user to the previous step or screen in a modal flow.',
 	},
 	invalid_permissions: {
 		id: 'fabric.linking.invalid_permissions',
@@ -569,12 +766,14 @@ export const messages: Messages = defineMessages({
 	open_issue_in_jira: {
 		id: 'fabric.linking.open_issue_in_jira',
 		defaultMessage: 'Open issue in Jira',
-		description: 'Click to open link in Jira',
+		description:
+			'Label for the action button on a smart link card that opens the linked Jira issue in Jira.',
 	},
 	open_link_in_a_new_tab: {
 		id: 'fabric.linking.open_link_in_a_new_tab',
 		defaultMessage: 'Open link in a new tab',
-		description: 'Click to open link in a new tab',
+		description:
+			'Label for the action button on a smart link card that opens the linked resource in a new browser tab.',
 	},
 	owned_by: {
 		id: 'fabric.linking.owned_by',
@@ -589,7 +788,8 @@ export const messages: Messages = defineMessages({
 	preview_description: {
 		id: 'fabric.linking.preview_description',
 		defaultMessage: 'Open a full screen preview of this link',
-		description: 'Description on what Preview does',
+		description:
+			'Tooltip or description text for the preview action on a smart link card, explaining it opens a full-screen embed preview of the linked content.',
 	},
 	preview_improved: {
 		id: 'fabric.linking.preview_improved',
@@ -611,7 +811,8 @@ export const messages: Messages = defineMessages({
 	preview_close: {
 		id: 'fabric.linking.preview_close',
 		defaultMessage: 'Close preview',
-		description: 'Click to close embed preview modal.',
+		description:
+			'Label for the button that closes the embed preview modal dialog on a smart link card.',
 	},
 	preview_max_size: {
 		id: 'fabric.linking.preview_max_size',
@@ -626,57 +827,68 @@ export const messages: Messages = defineMessages({
 	priority_blocker: {
 		id: 'fabric.linking.priority_blocker',
 		defaultMessage: 'Blocker',
-		description: 'Indicated priority as blocker',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Blocker priority.',
 	},
 	priority_critical: {
 		id: 'fabric.linking.priority_critical',
 		defaultMessage: 'Critical',
-		description: 'Indicated priority as critical',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Critical priority.',
 	},
 	priority_high: {
 		id: 'fabric.linking.priority_high',
 		defaultMessage: 'High',
-		description: 'Indicated priority as high',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has High priority.',
 	},
 	priority_highest: {
 		id: 'fabric.linking.priority_highest',
 		defaultMessage: 'Highest',
-		description: 'Indicated priority as highest',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Highest priority.',
 	},
 	priority_low: {
 		id: 'fabric.linking.priority_low',
 		defaultMessage: 'Low',
-		description: 'Indicated priority as low',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Low priority.',
 	},
 	priority_lowest: {
 		id: 'fabric.linking.priority_lowest',
 		defaultMessage: 'Lowest',
-		description: 'Indicated priority as lowest',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Lowest priority.',
 	},
 	priority_major: {
 		id: 'fabric.linking.priority_major',
 		defaultMessage: 'Major',
-		description: 'Indicated priority as major',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Major priority.',
 	},
 	priority_medium: {
 		id: 'fabric.linking.priority_medium',
 		defaultMessage: 'Medium',
-		description: 'Indicated priority as medium',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Medium priority.',
 	},
 	priority_minor: {
 		id: 'fabric.linking.priority_minor',
 		defaultMessage: 'Minor',
-		description: 'Indicated priority as minor',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Minor priority.',
 	},
 	priority_trivial: {
 		id: 'fabric.linking.priority_trivial',
 		defaultMessage: 'Trivial',
-		description: 'Indicated priority as trivial',
+		description:
+			'Label for a priority badge on a Jira issue smart link card indicating the issue has Trivial priority.',
 	},
 	priority_undefined: {
 		id: 'fabric.linking.priority_undefined',
 		defaultMessage: 'Undefined',
-		description: 'Indicated priority as unknown',
+		description:
+			'Label for a priority badge on a Jira issue smart link card when the priority level is not defined or unknown.',
 	},
 	forbidden_access: {
 		id: 'fabric.linking.forbidden_access',
@@ -691,7 +903,8 @@ export const messages: Messages = defineMessages({
 	read_time: {
 		id: 'fabric.linking.read_time',
 		defaultMessage: '{context} min read',
-		description: 'Estimated time to read this resource',
+		description:
+			'Text shown on a smart link card displaying the estimated reading time. The placeholder {context} is substituted with the number of minutes.',
 	},
 	restricted_link: {
 		id: 'fabric.linking.restricted_link',
@@ -711,12 +924,14 @@ export const messages: Messages = defineMessages({
 	retry: {
 		id: 'fabric.linking.retry',
 		defaultMessage: 'Retry',
-		description: 'Allows user to perform an action again',
+		description:
+			'Label for a retry button shown on a smart link card after an error, allowing the user to attempt the failed action again.',
 	},
 	save: {
 		id: 'fabric.linking.save',
 		defaultMessage: 'Save',
-		description: 'Just the "save" word',
+		description:
+			"Label for a save button on a smart link card or action, confirming and persisting the user's changes.",
 	},
 	sent_on_relative: {
 		id: 'fabric.linking.sent_on_relative',
@@ -746,7 +961,8 @@ export const messages: Messages = defineMessages({
 	try_again: {
 		id: 'fabric.linking.try_again',
 		defaultMessage: 'Try again',
-		description: 'Allow the user to try an action again',
+		description:
+			'Label for a button shown on a smart link error state, prompting the user to retry the failed load or action.',
 	},
 	try_another_account: {
 		id: 'fabric.linking.try_another_account',
@@ -757,7 +973,8 @@ export const messages: Messages = defineMessages({
 		id: 'fabric.linking.link_safety_warning_message',
 		defaultMessage:
 			'The link {unsafeLinkText} is taking you to a different site, <a>actual link here</a>',
-		description: 'Link safety check warning message',
+		description:
+			'Warning message shown in the link safety modal. The placeholder {unsafeLinkText} is substituted with the suspicious link text, and <a> wraps the actual destination URL.',
 	},
 	unauthorised_account_description: {
 		id: 'fabric.linking.unauthorised_account_description',
@@ -781,6 +998,12 @@ export const messages: Messages = defineMessages({
 		defaultMessage: "We can't display private pages",
 		description: 'Shown when a user does not have access to a link.',
 	},
+	rovo_actions_explore: {
+		id: 'fabric.linking.rovo_actions_explore-non-final',
+		defaultMessage: 'Explore',
+		description:
+			'Label for the Rovo Actions button that allows users to explore AI actions for a link',
+	},
 	unassigned: {
 		id: 'fabric.linking.unassigned',
 		defaultMessage: 'Unassigned',
@@ -789,17 +1012,20 @@ export const messages: Messages = defineMessages({
 	unfollow: {
 		id: 'fabric.linking.unfollow',
 		defaultMessage: 'Unfollow',
-		description: 'Click to unfollow a project.',
+		description:
+			'Label for the unfollow button on a smart link card, allowing the user to stop receiving updates for the linked project or resource.',
 	},
 	unfollow_project_description: {
 		id: 'fabric.linking.unfollow_project_description',
 		defaultMessage: 'Unfollow to stop receiving project notifications',
-		description: 'Description on what Unfollow does',
+		description:
+			'Tooltip or description for the unfollow project button, explaining that clicking it stops project update notifications.',
 	},
 	unfollow_project: {
 		id: 'fabric.linking.unfollow_project',
 		defaultMessage: 'Unfollow project',
-		description: 'Click to unfollow a project.',
+		description:
+			'Label for the unfollow project button on a smart link card, allowing the user to stop following the linked Atlassian project.',
 	},
 	unfollow_project_error: {
 		id: 'fabric.linking.unfollow_project_error',
@@ -810,12 +1036,14 @@ export const messages: Messages = defineMessages({
 	unfollow_goal_description: {
 		id: 'fabric.linking.unfollow_goal_description',
 		defaultMessage: 'Unfollow to stop receiving notifications for this goal',
-		description: 'Description on what Unfollow does',
+		description:
+			'Tooltip or description for the unfollow goal button, explaining that clicking it stops notifications for the linked Atlas goal.',
 	},
 	unfollow_goal: {
 		id: 'fabric.linking.unfollow_goal',
 		defaultMessage: 'Unfollow goal',
-		description: 'Click to unfollow a project.',
+		description:
+			'Label for the unfollow goal button on a smart link card, allowing the user to stop following the linked Atlas goal.',
 	},
 	unfollow_goal_error: {
 		id: 'fabric.linking.unfollow_goal_error',
@@ -838,6 +1066,12 @@ export const messages: Messages = defineMessages({
 		defaultMessage: 'View in',
 		description:
 			'We have a link in our preview modals to the original document. This text goes before the provider name',
+	},
+	viewInProvider: {
+		id: 'fabric.linking.viewinprovider',
+		defaultMessage: 'View in {providerName}',
+		description:
+			'We have a link in our preview modals to the original document. This text tells the user where it will open',
 	},
 	viewOriginal: {
 		id: 'fabric.linking.srclinkunknown',
@@ -936,7 +1170,8 @@ export const messages: Messages = defineMessages({
 	generic_error_message: {
 		id: 'fabric.linking.generic_error_message',
 		defaultMessage: 'An error occurred',
-		description: 'A generic error message to the user',
+		description:
+			'Generic error message shown on a smart link card when an unspecified error occurs and no more specific message is available.',
 	},
 	related_links_modal_title: {
 		id: 'fabric.linking.related_links_modal_title',
@@ -971,12 +1206,14 @@ export const messages: Messages = defineMessages({
 	related_links_modal_error_title: {
 		id: 'fabric.linking.related_links_modal_error_title',
 		defaultMessage: `We're having trouble loading related links`,
-		description: 'Title for related links error',
+		description:
+			'Heading shown in the related links modal when related links fail to load due to a network or server error.',
 	},
 	related_links_modal_unavailable_title: {
 		id: 'fabric.linking.related_links_modal_unavailable_title',
 		defaultMessage: `We couldn't find any related links`,
-		description: 'Title for related links error',
+		description:
+			'Heading shown in the related links modal when no related links are available for the current resource.',
 	},
 	related_links_modal_error_description: {
 		id: 'fabric.linking.related_links_modal_error_description',
@@ -997,7 +1234,8 @@ export const messages: Messages = defineMessages({
 	open_issue_in_jiraIssueTermRefresh: {
 		id: 'fabric.linking.open_issue_in_jira-issue-term-refresh',
 		defaultMessage: 'Open work item in Jira',
-		description: 'Click to open link in Jira',
+		description:
+			'Label for the action button on a smart link card that opens the linked Jira work item in Jira (issue term refresh variant).',
 	},
 	request_access_to_viewIssueTermRefresh: {
 		id: 'fabric.linking.request_access_to_view-issue-term-refresh',
@@ -1012,7 +1250,8 @@ export const messages: Messages = defineMessages({
 	team_members_count: {
 		id: 'fabric.linking.team_members_count',
 		defaultMessage: '{context} members',
-		description: 'Indicates the count of team member',
+		description:
+			'Text shown on a smart link card displaying the number of members in a team. The placeholder {context} is substituted with the member count.',
 	},
 	user_attributes: {
 		id: 'fabric.linking.user_attributes',
@@ -1023,7 +1262,8 @@ export const messages: Messages = defineMessages({
 	follow_project_descriptionGalaxia: {
 		id: 'fabric.linking.follow_project_description-galaxia',
 		defaultMessage: 'Follow to get notifications on this space',
-		description: 'Description on what Follow does',
+		description:
+			'Tooltip or description for the follow space button (Galaxia variant), explaining that clicking it enables notifications for the Confluence space.',
 	},
 	follow_project_errorGalaxia: {
 		id: 'fabric.linking.follow_project_error-galaxia',
@@ -1034,7 +1274,8 @@ export const messages: Messages = defineMessages({
 	unfollow_project_descriptionGalaxia: {
 		id: 'fabric.linking.unfollow_project_description-galaxia',
 		defaultMessage: 'Unfollow to stop receiving space notifications',
-		description: 'Description on what Unfollow does',
+		description:
+			'Tooltip or description for the unfollow space button (Galaxia variant), explaining that clicking it stops notifications for the Confluence space.',
 	},
 	unfollow_project_errorGalaxia: {
 		id: 'fabric.linking.unfollow_project_error-galaxia',
@@ -1065,5 +1306,247 @@ export const messages: Messages = defineMessages({
 		defaultMessage: 'Turn your URLs into rich, interactive previews.',
 		description:
 			'An anchor link to redirect user to a page about authorization with 3rd party accounts.',
+	},
+	rovo_summary_loading: {
+		id: 'fabric.linking.rovo_summary.loading.non-final',
+		defaultMessage: 'Rovo is thinking',
+		description:
+			'Shown when a Rovo summary is loading, indicating that the AI is generating a summary for the user.',
+	},
+	ai_disclaimer: {
+		id: 'fabric.linking.rovo_summary.ai_disclaimer.non-final',
+		defaultMessage: 'Uses AI. Verify Results.',
+		description:
+			'Shown on a Rovo summary to indicate that the summary was generated by AI and should be verified by the user for accuracy.',
+	},
+	rovo_unauthorised_title: {
+		id: 'fabric.linking.rovo_unauthorised.title',
+		defaultMessage: 'Get smarter workflows by connecting your {context} account',
+		description:
+			'Banner headline in Rovo unauthorised hover card header. {context} is the third-party provider name (e.g. Google).',
+	},
+	rovo_unauthorised_title_no_provider: {
+		id: 'fabric.linking.rovo_unauthorised.title_no_provider',
+		defaultMessage: 'Get smarter workflows by connecting your account',
+		description:
+			'Banner headline in Rovo unauthorised hover card header when the provider name is unknown.',
+	},
+	rovo_unauthorised_feature_clear_link_names: {
+		id: 'fabric.linking.rovo_unauthorised.feature.clear_link_names',
+		defaultMessage: 'Turn long URLs into clear link names',
+		description: 'First feature bullet in Rovo unauthorised hover card.',
+	},
+	rovo_unauthorised_feature_understand_linked_docs: {
+		id: 'fabric.linking.rovo_unauthorised.feature.understand_linked_docs',
+		defaultMessage: 'Understand linked docs in seconds',
+		description: 'Second feature bullet in Rovo unauthorised hover card.',
+	},
+	rovo_unauthorised_feature_go_deeper_smart_suggestions: {
+		id: 'fabric.linking.rovo_unauthorised.feature.go_deeper_smart_suggestions',
+		defaultMessage: 'Go deeper with smart suggestions',
+		description: 'Third feature bullet in Rovo unauthorised hover card.',
+	},
+	rovo_unauthorised_connect_account: {
+		id: 'fabric.linking.rovo_unauthorised.connect_account',
+		defaultMessage: 'Connect',
+		description: 'Primary action button in Rovo unauthorised hover card.',
+	},
+	rovo_unauthorised_not_now: {
+		id: 'fabric.linking.rovo_unauthorised.not_now',
+		defaultMessage: 'Maybe later',
+		description: 'Secondary action in Rovo unauthorised hover card.',
+	},
+	rovo_prompt_context_generic: {
+		id: 'fabric.linking.rovo_prompt_context_confluence_page.non-final',
+		defaultMessage: 'page',
+		description:
+			'The location the user see Smart Link in, to be used as the {context} for Rovo prompt message',
+	},
+	rovo_prompt_context_generic_plural: {
+		id: 'fabric.linking.rovo_prompt_context_confluence_page.non-final',
+		defaultMessage: 'pages',
+		description:
+			'The site-wide location the user see Smart Link in, to be used as the {context} for Rovo prompt message',
+	},
+	rovo_prompt_context_confluence_page: {
+		id: 'fabric.linking.rovo_prompt_context_confluence_page.non-final',
+		defaultMessage: 'Confluence page',
+		description:
+			'The Confluence page the user see Smart Link in, to be used as the {context} for Rovo prompt message',
+	},
+	rovo_prompt_context_jira_work_item: {
+		id: 'fabric.linking.rovo_prompt_context_jira_work_item.non-final',
+		defaultMessage: 'Jira work item',
+		description:
+			'The Jira work item the user see Smart Link in, to be used as the {context} for Rovo prompt message',
+	},
+	rovo_prompt_message_summarize: {
+		id: 'fabric.linking.rovo_prompt_message_summarize.non-final',
+		defaultMessage:
+			'<p>Summarize the main ideas and key points of <a>{url}</a> in 3-5 clear, complete bullet points (markdown list).</p><p>Preserve important details such as names, dates, and key decisions.</p>',
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_button_ask_rovo_anything: {
+		id: 'fabric.linking.rovo_prompt_button_ask_rovo.non-final',
+		defaultMessage: 'Ask Rovo',
+		description:
+			'The name of the action to open Rovo Chat and ask a question in relation to current Smart Link',
+	},
+	rovo_prompt_message_ask_rovo_anything: {
+		id: 'fabric.linking.rovo_prompt_message_ask_rovo_anything.non-final',
+		defaultMessage: '`I have a question about this linked item` {url}',
+		description:
+			'The placeholder prompt message pre-filled in Rovo Chat input. {url} refers to the Smart Link URL. This is not auto-submitted — the user types their question.',
+	},
+	rovo_prompt_button_highlight_relevant_content: {
+		id: 'fabric.linking.rovo_prompt_button_highlight_relevant_content',
+		defaultMessage: `Highlight what's relevant`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_highlight_relevant_content: {
+		id: 'fabric.linking.rovo_prompt_message_highlight_relevant_content',
+		defaultMessage:
+			"<p>Based on this linked item (<a>{url}</a>) and the {context} I'm currently viewing, highlight the parts of the linked content that are most relevant to this work. Explain briefly why each part is relevant.</p>",
+		description:
+			'The prompt message to send to Rovo Chat. {context} refers to the content the user triggered from, e.g. Confluence page or Jira work item. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_button_identify_key_trends: {
+		id: 'fabric.linking.rovo_prompt_button_identify_key_trends',
+		defaultMessage: `Identify key trends`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_identify_key_trends: {
+		id: 'fabric.linking.rovo_prompt_message_identify_key_trends',
+		defaultMessage:
+			'<p>From this <a>{url}</a>, identify the key trends, anomalies, and headline numbers. Call out anything increasing/decreasing significantly, noteworthy comparisons, and any risks or opportunities the data suggests.</p>',
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_button_identify_key_points: {
+		id: 'fabric.linking.rovo_prompt_button_identify_key_points',
+		defaultMessage: `Identify key points`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_identify_key_points: {
+		id: 'fabric.linking.rovo_prompt_message_identify_key_points',
+		defaultMessage:
+			'<p>From this <a>{url}</a>, identify the key points, proposals, and decisions. Focus on what someone skimming the deck should know in order to understand the main message.</p>',
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_button_find_open_questions: {
+		id: 'fabric.linking.rovo_prompt_button_find_open_questions',
+		defaultMessage: `Find open questions`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_find_open_questions: {
+		id: 'fabric.linking.rovo_prompt_message_find_open_questions',
+		defaultMessage:
+			'<p>Look at this <a>{url}</a> and list any open questions, unresolved decisions, or asks that still need follow‑up. Group them by owner if possible and keep it concise.</p>',
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_button_key_highlights: {
+		id: 'fabric.linking.rovo_prompt_button_key_highlights',
+		defaultMessage: `Key highlights`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_key_highlights: {
+		id: 'fabric.linking.rovo_prompt_message_key_highlights',
+		defaultMessage:
+			'<p>Based on this <a>{url}</a> and the page or ticket I’m currently viewing, highlight the parts of the linked content that are most relevant to this work. Explain briefly why each part is relevant.</p>',
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_chat_action_section_header: {
+		id: 'fabric.linking.rovo_chat_action_section_header.non-final',
+		defaultMessage: 'Ask Rovo',
+		description:
+			'Heading shown above the Rovo prompt action buttons in the smart link hover card, alongside the Rovo logo, to introduce the AI prompt suggestions.',
+	},
+	rovo_prompt_button_summarize_this: {
+		id: 'fabric.linking.rovo_prompt_button_summarize_this.non-final',
+		defaultMessage: 'Summarize this for me',
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_button_ask_a_specific_question: {
+		id: 'fabric.linking.rovo_prompt_button_ask_a_specific_question.non-final',
+		defaultMessage: 'Ask a specific question',
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_button_show_me_whats_relevant: {
+		id: 'fabric.linking.rovo_prompt_button_show_me_whats_relevant.non-final',
+		defaultMessage: `Show me what's relevant`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_summarize_document: {
+		id: 'fabric.linking.rovo_prompt_message_summarize_document',
+		defaultMessage: `<p>Summarize this doc <a>{url}</a> into a concise, easy-to-scan overview. Adapt to whatever the content is and focus on the main ideas, important decisions, key updates, and next steps, only include these if they exist; don't mention their absence. Avoid unnecessary detail, repetition, or formatting commentary. Write in plain language and optimize for a quick 5–10 second read</p>`,
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_message_summarize_presentation: {
+		id: 'fabric.linking.rovo_prompt_message_summarize_presentation',
+		defaultMessage: `<p>Summarize this Google Slides deck <a>{url}</a> into a concise executive overview. Focus on the tldr, key findings, decisions, metrics, risks, and next steps, if there are any. Use a short executive summary followed by 2-3 bullet points. Avoid slide-by-slide narration, design details, repetition, and filler.</p>`,
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_button_explain_code: {
+		id: 'fabric.linking.rovo_prompt_button_explain_code',
+		defaultMessage: `Explain`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_explain_code: {
+		id: 'fabric.linking.rovo_prompt_message_explain_code',
+		defaultMessage: `<p>Explain this code, pull request, or commit <a>{url}</a> in clear, plain language for a non-technical audience.</p><p>Cover:</p><ol><li><strong>Purpose</strong> — What problem does it solve or what goal does it achieve?</li><li><strong>How it works</strong> — High-level mechanics (no implementation detail unless critical to understanding).</li><li><strong>Why</strong> — Motivation for the change or design choice.</li><li><strong>Impact</strong> — Key behavior changes, risks, or downstream effects worth noting.</li></ol><p>Constraints:</p><ul><li>3–5 sentences or 100–150 words max.</li><li>Omit sections with nothing meaningful to say.</li><li>Prefer concrete language over abstract descriptions (e.g., "speeds up page load by caching results" over "improves performance").</li></ul>`,
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_button_catch_up: {
+		id: 'fabric.linking.rovo_prompt_button_catch_up',
+		defaultMessage: `Catch up`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_catch_up: {
+		id: 'fabric.linking.rovo_prompt_message_catch_up',
+		defaultMessage: `<p>Catch me up on the latest {provider} conversations or channel activity in <a>{url}</a> from the last two weeks. If there's no activity in the past two weeks, expand the window to the most recent 30 days (or until meaningful activity is found). Summarize the most important updates, decisions, and discussions so the user can quickly understand what they missed. Focus on key changes, unresolved questions, and any action items or follow-ups. Prioritize recent messages with the most activity. Keep the response concise — ideally 80–150 words or a short set of 3–5 key bullets.</p>`,
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. {provider} is the 3P app name (Please make sure all html tags remain the same.)',
+	},
+	rovo_prompt_button_salesforce_prep: {
+		id: 'fabric.linking.rovo_prompt_button_salesforce_prep',
+		defaultMessage: `Prep`,
+		description:
+			'The name of the action to send prompt message to Rovo Chat in relation to current Smart Link',
+	},
+	rovo_prompt_message_salesforce_prep: {
+		id: 'fabric.linking.rovo_prompt_message_salesforce_prep',
+		defaultMessage: `<p>Prep me for this Salesforce record <a>{url}</a>. What's the current state, what's the recent activity, what risks or opportunities should I be aware of, and what would be useful to know before a conversation about it?</p>`,
+		description:
+			'The prompt message to send to Rovo Chat. {url} refers to Smart Link that the user triggers this action from. (Please make sure all html tags remain the same.)',
+	},
+	// TODO: remove when social-proof-3p-unauth-block-fg is cleaned up
+	pre_auth_block_social_proof_not_low: {
+		id: 'fabric.linking.pre_auth_block_social_proof_not_low',
+		defaultMessage: '<b>{percentage}%</b> of your team sees <b>{provider}</b> previews.',
+		description:
+			'Social proof message shown on unauthorized 3P block cards when 30% or more of the tenant has connected the provider. {percentage} is a number, {provider} is the 3P app name (e.g. OneDrive).',
+	},
+	pre_auth_block_social_proof_low: {
+		id: 'fabric.linking.pre_auth_block_social_proof_low',
+		defaultMessage: 'Your team sees richer <b>{provider}</b> previews.',
+		description:
+			'Social proof message shown on unauthorized 3P block cards when less than 30% of the tenant has connected the provider. {provider} is the 3P app name (e.g. OneDrive).',
 	},
 });

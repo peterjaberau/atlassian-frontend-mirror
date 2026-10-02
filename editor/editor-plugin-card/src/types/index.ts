@@ -1,9 +1,10 @@
-import type { RichMediaAttributes } from '@atlaskit/adf-schema';
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type { RichMediaAttributes } from '@atlaskit/adf-schema/rich-media-common';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import type { ACTION } from '@atlaskit/editor-common/analytics';
 import type {
 	CardOptions,
 	CardReplacementInputMethod,
+	EmbedCardTransformers,
 	OnClickCallback,
 } from '@atlaskit/editor-common/card';
 import type { CardAppearance, CardProvider } from '@atlaskit/editor-common/provider-factory';
@@ -13,7 +14,8 @@ import type {
 	LinkPickerOptions,
 } from '@atlaskit/editor-common/types';
 import type { Node } from '@atlaskit/editor-prosemirror/model';
-import type { DatasourceAdf, DatasourceAdfView } from '@atlaskit/linking-common';
+import type { CardContext } from '@atlaskit/link-provider/types';
+import type { DatasourceAdf, DatasourceAdfView } from '@atlaskit/linking-common/types';
 import type { SmartLinkEvents } from '@atlaskit/smart-card';
 
 import type { EditorCardPluginEvents } from '../ui/analytics/create-events-queue';
@@ -31,6 +33,13 @@ export type CardInfo = {
 	pos: number;
 	title?: string;
 	url?: string;
+};
+
+export type ToolbarResolvedAttributes = {
+	displayCategory?: 'smartLink' | 'link';
+	extensionKey?: string | null;
+	status?: string | null;
+	statusDetails?: string | null;
 };
 
 export type Request = {
@@ -101,12 +110,19 @@ export type CardPluginState = {
 	datasourceStash: DatasourceStash;
 	datasourceTableRef?: HTMLElement;
 	editorAppearance?: EditorAppearance;
+	embedCardTransformers?: EmbedCardTransformers;
 	inlineCardAwarenessCandidatePosition?: number;
 	layout?: DatasourceTableLayout;
 	overlayCandidatePosition?: number;
 	provider: CardProvider | null;
 	removeOverlay?: () => void;
 	requests: Request[];
+	resolvedInlineSmartLinks?: Array<{
+		pos: number;
+		source: CardReplacementInputMethod;
+		url: string;
+	}>;
+	resolvedToolbarAttributesByUrl: Record<string, ToolbarResolvedAttributes>;
 	selectedInlineLinkPosition?: number;
 	showDatasourceModal: boolean;
 	showLinkingToolbar: boolean;
@@ -118,11 +134,14 @@ export type CardPluginOptions = CardOptions & {
 	CompetitorPrompt?: React.ComponentType<{ linkType?: string; sourceUrl: string }>;
 	disableFloatingToolbar?: boolean;
 	editorAppearance?: EditorAppearance;
+	embedCardTransformers?: EmbedCardTransformers;
+	enablePasteDisplayAsMenu?: boolean;
 	fullWidthMode?: boolean;
 	isPageSSRed?: boolean;
 	linkPicker?: LinkPickerOptions;
 	lpLinkPicker?: boolean;
 	onClickCallback?: OnClickCallback;
+	smartCardContext?: CardContext;
 };
 
 // actions
@@ -178,6 +197,12 @@ export type SetDatasourceTableRef = {
 	type: 'SET_DATASOURCE_TABLE_REF';
 };
 
+export type SetResolvedToolbarAttributes = {
+	attributes: ToolbarResolvedAttributes;
+	type: 'SET_RESOLVED_TOOLBAR_ATTRIBUTES';
+	url: string;
+};
+
 export type SetCardLayout = {
 	layout: DatasourceTableLayout;
 	type: 'SET_CARD_LAYOUT';
@@ -221,6 +246,7 @@ export type CardPluginAction =
 	| HideDatasourceModal
 	| RegisterSmartCardEvents
 	| SetDatasourceTableRef
+	| SetResolvedToolbarAttributes
 	| SetCardLayout
 	| SetCardLayoutAndDatasourceTableRef
 	| ClearOverlayCandidate

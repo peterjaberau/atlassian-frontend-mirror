@@ -1,13 +1,20 @@
 import React from 'react';
 
-import { AutoDismissFlag, FlagGroup } from '@atlaskit/flag';
+import {
+	injectIntl,
+	IntlProvider,
+	useIntl,
+	type WithIntlProps,
+	type WrappedComponentProps,
+} from 'react-intl';
+
+import AutoDismissFlag from '@atlaskit/flag/auto-dismiss-flag';
+import FlagGroup from '@atlaskit/flag/flag-group';
 import FailIcon from '@atlaskit/icon/core/cross-circle';
-import { R300 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { type UploadRejectionData } from '../../types';
 import { errorFlagMessages } from './messages';
-import { injectIntl, IntlProvider, useIntl, type WrappedComponentProps } from 'react-intl-next';
 
 export interface ErrorFlagGroupProps {
 	readonly flagData: UploadRejectionData[];
@@ -55,9 +62,7 @@ const FlagGroupContent = ({ flagData, onFlagDismissed }: ErrorFlagGroupProps) =>
 			{flagData.map((data: UploadRejectionData, i: number) => (
 				<AutoDismissFlag
 					id={i}
-					icon={
-						<FailIcon color={token('color.icon.danger', R300)} label="Fail" spacing="spacious" />
-					}
+					icon={<FailIcon color={token('color.icon.danger')} label="Fail" spacing="spacious" />}
 					key={i}
 					title={intl.formatMessage(errorFlagMessages.errorTitle)}
 					description={
@@ -90,6 +95,9 @@ const ErrorFlagGroup = ({
 	);
 };
 
-export default injectIntl(ErrorFlagGroup, {
+const _default_1: React.FC<WithIntlProps<ErrorFlagGroupProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<ErrorFlagGroupProps & WrappedComponentProps>;
+} = injectIntl(ErrorFlagGroup, {
 	enforceContext: false,
 });
+export default _default_1;

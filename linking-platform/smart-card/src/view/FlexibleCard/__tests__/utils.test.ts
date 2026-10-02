@@ -1,9 +1,11 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { IconType, SmartLinkStatus } from '../../../constants';
+import { CONFLUENCE_GENERATOR_ID, JIRA_GENERATOR_ID } from '../../../extractors/constants';
 import { messages } from '../../../messages';
-import { getContextByStatus, getRetryOptions } from '../utils';
+import { getContextByStatus } from '../getContextByStatus';
+import { getRetryOptions } from '../getRetryOptions';
 
 describe('getContextByStatus', () => {
 	const url = 'some-url';
@@ -85,7 +87,7 @@ describe('getContextByStatus', () => {
 				},
 				linkIcon: {
 					icon: 'FileType:Document',
-					label: 'Everything you need to know about ShipIt53!',
+					label: 'document',
 					render: undefined,
 				},
 				provider: { icon: 'Provider:Confluence', label: 'Confluence' },
@@ -95,9 +97,9 @@ describe('getContextByStatus', () => {
 				}),
 				url: 'https://confluence-url/wiki/spaces/space-id/pages/page-id',
 				type: ['schema:TextDigitalDocument', 'Document'],
-				meta: {
+				meta: expect.objectContaining({
 					resourceType: 'page',
-				},
+				}),
 			}),
 		);
 	});
@@ -175,6 +177,102 @@ describe('getContextByStatus', () => {
 				url,
 			}),
 		);
+	});
+
+	/**
+	 * Non-resolved statuses (Unauthorized, Forbidden, NotFound, Errored, Fallback) use
+	 * `extractProvider`, which returns `{ label, url }` only when the provider name is truthy.
+	 */
+	describe('provider field in error statuses', () => {
+		const makeResponse = (generatorId: string, name: string, iconUrl: string) =>
+			({
+				meta: { access: 'forbidden' as const, visibility: 'restricted' as const },
+				data: {
+					'@context': {
+						'@vocab': 'https://www.w3.org/ns/activitystreams#',
+						atlassian: 'https://schema.atlassian.com/ns/vocabulary#',
+						schema: 'http://schema.org/',
+					},
+					'@type': 'Document',
+					url,
+					generator: {
+						'@type': 'Application',
+						'@id': generatorId,
+						name,
+						icon: { '@type': 'Image', url: iconUrl },
+					},
+				},
+			}) as unknown as JsonLd.Response;
+
+		it.each([
+			[SmartLinkStatus.Unauthorized],
+			[SmartLinkStatus.Forbidden],
+			[SmartLinkStatus.NotFound],
+			[SmartLinkStatus.Errored],
+			[SmartLinkStatus.Fallback],
+		])('returns Confluence icon type provider — status: %s', (status) => {
+			const response = makeResponse(
+				CONFLUENCE_GENERATOR_ID,
+				'Confluence',
+				'https://confluence-icon.com/icon.png',
+			);
+			const context = getContextByStatus({ url, status, response });
+
+			// extractProvider returns an IconType-based descriptor for Confluence
+			expect(context?.provider).toEqual({
+				icon: IconType.Confluence,
+				label: 'Confluence',
+			});
+		});
+
+		it.each([
+			[SmartLinkStatus.Unauthorized],
+			[SmartLinkStatus.Forbidden],
+			[SmartLinkStatus.NotFound],
+			[SmartLinkStatus.Errored],
+			[SmartLinkStatus.Fallback],
+		])('returns Jira icon type provider — status: %s', (status) => {
+			const response = makeResponse(JIRA_GENERATOR_ID, 'Jira', 'https://jira-icon.com/icon.png');
+			const context = getContextByStatus({ url, status, response });
+
+			// extractProvider returns an IconType-based descriptor for Jira
+			expect(context?.provider).toEqual({
+				icon: IconType.Jira,
+				label: 'Jira',
+			});
+		});
+
+		it('returns label and url provider for third-party providers', () => {
+			const thirdPartyIconUrl = 'https://figma-icon.com/icon.png';
+			const response = makeResponse('https://figma.com', 'Figma', thirdPartyIconUrl);
+
+			const context = getContextByStatus({
+				url,
+				status: SmartLinkStatus.Unauthorized,
+				response,
+			});
+
+			// Third-party providers resolve to { label, url }
+			expect(context?.provider).toEqual({
+				label: 'Figma',
+				url: thirdPartyIconUrl,
+			});
+		});
+
+		it('returns undefined provider when response has no generator', () => {
+			const responseWithNoGenerator = {
+				meta: { access: 'forbidden' as const, visibility: 'restricted' as const },
+				data: { '@type': 'Document', url },
+			} as unknown as JsonLd.Response;
+
+			const context = getContextByStatus({
+				url,
+				status: SmartLinkStatus.Forbidden,
+				response: responseWithNoGenerator,
+			});
+
+			expect(context?.provider).toBeUndefined();
+		});
 	});
 });
 

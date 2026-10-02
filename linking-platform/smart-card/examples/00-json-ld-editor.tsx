@@ -2,7 +2,10 @@ import React from 'react';
 
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Grid, xcss } from '@atlaskit/primitives';
-import Tabs, { Tab, TabList, TabPanel } from '@atlaskit/tabs';
+import Tab from '@atlaskit/tabs/tab';
+import TabList from '@atlaskit/tabs/tab-list';
+import TabPanel from '@atlaskit/tabs/tab-panel';
+import Tabs from '@atlaskit/tabs/tabs';
 
 import CardExample from './jsonld-editor/card-example';
 import JsonldEditor from './jsonld-editor/jsonld-editor';
@@ -10,9 +13,16 @@ import JsonldEditorInput from './jsonld-editor/jsonld-editor-input';
 import JsonldExample from './jsonld-editor/jsonld-example';
 import LoadLinkForm from './jsonld-editor/load-link-form';
 import JsonLdGenerator from './jsonld-generator';
+import useFeatureGateOverrideConfig from './utils/use-feature-gate-override-config.ts';
 
 const tabPanelStyles = xcss({ width: '100%' });
 const Example = (): React.JSX.Element => {
+	const gateRevision = useFeatureGateOverrideConfig();
+
+	if (!gateRevision) {
+		return <Box>Loading...</Box>;
+	}
+
 	return (
 		<JsonldEditor>
 			{({

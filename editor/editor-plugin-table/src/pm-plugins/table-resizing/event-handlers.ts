@@ -1,4 +1,4 @@
-import type { CellAttributes } from '@atlaskit/adf-schema';
+import type { CellAttributes } from '@atlaskit/adf-schema/tableNodes';
 import {
 	ACTION_SUBJECT,
 	EVENT_TYPE,
@@ -7,14 +7,13 @@ import {
 	TABLE_OVERFLOW_CHANGE_TRIGGER,
 } from '@atlaskit/editor-common/analytics';
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { tableCellMinWidth } from '@atlaskit/editor-common/styles';
 import type { GetEditorContainerWidth, GetEditorFeatureFlags } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { TableMap } from '@atlaskit/editor-tables/table-map';
 import { getSelectionRect } from '@atlaskit/editor-tables/utils';
 import { insm } from '@atlaskit/insm';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { PluginInjectionAPI } from '../../types';
 import { stopKeyboardColumnResizing } from '../commands/column-resize';
@@ -24,7 +23,6 @@ import { META_KEYS } from '../table-analytics';
 import { updateColumnWidths } from '../transforms/column-width';
 import { tablesHaveDifferentNoOfColumns } from '../utils/nodes';
 import { getSelectedColumnIndexes } from '../utils/selection';
-
 import { evenColumns, setDragging, stopResizing } from './commands';
 import { getPluginState } from './plugin-factory';
 import { TABLE_OFFSET_IN_COMMENT_EDITOR } from './utils/consts';
@@ -66,9 +64,7 @@ export const handleMouseDown = (
 	const { isKeyboardResize } = getTablePluginState(state);
 	event.preventDefault();
 
-	if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-		insm.session?.startFeature('tableColumnResize');
-	}
+	insm.session?.startFeature('tableColumnResize');
 
 	const tr = view.state.tr;
 	tr.setMeta(META_KEYS.OVERFLOW_TRIGGER, {
@@ -172,16 +168,12 @@ export const handleMouseDown = (
 		const { dragging, resizeHandlePos } = getPluginState(state);
 		const { isTableHovered } = getTablePluginState(state);
 		if (resizeHandlePos === null) {
-			if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-				insm.session?.endFeature('tableColumnResize');
-			}
+			insm.session?.endFeature('tableColumnResize');
 			return stopResizing()(state, dispatch);
 		}
 
 		if (!pointsAtCell(state.doc.resolve(resizeHandlePos))) {
-			if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-				insm.session?.endFeature('tableColumnResize');
-			}
+			insm.session?.endFeature('tableColumnResize');
 			return;
 		}
 		// resizeHandlePos could be remapped via a collab change.
@@ -194,9 +186,7 @@ export const handleMouseDown = (
 
 		// If we let go in the same place we started, don't need to do anything.
 		if (dragging && clientX === dragging.startX) {
-			if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-				insm.session?.endFeature('tableColumnResize');
-			}
+			insm.session?.endFeature('tableColumnResize');
 			if (isKeyboardResize || !isTableHovered) {
 				/** if column resize had started via keyboard but continued by mouse
 				 *  or mouse pointer leaves the table but mouse button still pressed
@@ -290,9 +280,7 @@ export const handleMouseDown = (
 				})(tr);
 			}
 
-			if (expValEquals('cc_editor_interactivity_monitoring', 'isEnabled', true)) {
-				insm.session?.endFeature('tableColumnResize');
-			}
+			insm.session?.endFeature('tableColumnResize');
 			if (isKeyboardResize || !isTableHovered) {
 				/** if column resize had started via keyboard but continued by mouse
 				 *  or mouse pointer leaves the table but mouse button still pressed

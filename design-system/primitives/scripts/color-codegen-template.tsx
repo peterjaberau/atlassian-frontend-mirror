@@ -1,12 +1,9 @@
 import format from '@af/formatting/sync';
-import { light as tokens } from '@atlaskit/tokens/tokens-raw';
+import tokens from '@atlaskit/tokens/atlassian-light';
 
-import {
-	capitalize,
-	constructTokenFunctionCall,
-	generateTypeDefs,
-	type ShadowDefinition,
-} from './utils';
+import { capitalize } from './capitalize';
+import { generateTypeDefs } from './generate-type-defs';
+import { constructTokenFunctionCall, type ShadowDefinition } from './utils';
 
 type Token = {
 	token: string;
@@ -20,31 +17,32 @@ const tokenStyles = {
 		objectName: 'textColor',
 		prefix: 'color.text.',
 		cssProperty: 'color',
-		filterFn: <T extends Token>(t: T) =>
+		filterFn: <T extends Token>(t: T): boolean =>
 			t.token.startsWith(tokenStyles.text.prefix) || t.token.startsWith('color.link'),
 	},
 	background: {
 		objectName: 'backgroundColor',
 		prefix: 'color.background.',
 		cssProperty: 'backgroundColor',
-		filterFn: <T extends Token>(t: T) =>
+		filterFn: <T extends Token>(t: T): boolean =>
 			t.token.startsWith(tokenStyles.background.prefix) ||
 			t.token.startsWith('elevation.surface') ||
 			t.token.startsWith('utility.elevation.surface') ||
 			t.token.startsWith('color.blanket') ||
-			t.token.startsWith('color.skeleton'),
+			t.token.startsWith('color.skeleton') ||
+			t.token.startsWith('color.rovo.background.'),
 	},
 	border: {
 		objectName: 'borderColor',
 		prefix: 'color.border.',
 		cssProperty: 'borderColor',
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.border.prefix),
+		filterFn: <T extends Token>(t: T): boolean => t.token.startsWith(tokenStyles.border.prefix),
 	},
 	fill: {
 		objectName: 'fill',
 		prefix: 'color.icon.',
 		cssProperty: 'fill',
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.fill.prefix),
+		filterFn: <T extends Token>(t: T): boolean => t.token.startsWith(tokenStyles.fill.prefix),
 	},
 } as const;
 
@@ -58,7 +56,9 @@ const activeTokens = tokens
 		}),
 	);
 
-export const createColorStylesFromTemplate: (colorProperty: keyof typeof tokenStyles) => string = (colorProperty: keyof typeof tokenStyles) => {
+export const createColorStylesFromTemplate: (colorProperty: keyof typeof tokenStyles) => string = (
+	colorProperty: keyof typeof tokenStyles,
+) => {
 	if (!tokenStyles[colorProperty]) {
 		throw new Error(`[codegen] Unknown option found "${colorProperty}"`);
 	}

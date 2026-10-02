@@ -5,15 +5,16 @@
 
 import { css, jsx } from '@compiled/react';
 
-import Lozenge from '@atlaskit/lozenge';
-import Spinner, { type Size } from '@atlaskit/spinner';
+import Lozenge from '@atlaskit/lozenge/lozenge';
+import Spinner from '@atlaskit/spinner/spinner';
+import type { Size } from '@atlaskit/spinner/types';
 import { token } from '@atlaskit/tokens';
 
 const sizes: Size[] = ['xsmall', 'small', 'medium', 'large', 'xlarge', 80];
 
 const containerStyles = css({
 	display: 'flex',
-	gap: token('space.200', '16px'),
+	gap: token('space.200'),
 	flexWrap: 'wrap',
 });
 
@@ -21,7 +22,7 @@ const itemStyles = css({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'flex-end',
-	gap: token('space.100', '8px'),
+	gap: token('space.100'),
 	flexDirection: 'column',
 });
 
@@ -32,7 +33,7 @@ export default function Example(): JSX.Element {
 				<div key={size} css={itemStyles}>
 					<Spinner size={size} label="Loading" />
 					{typeof size === 'number' ? (
-						<Lozenge appearance="new">custom</Lozenge>
+						<Lozenge appearance="discovery">custom</Lozenge>
 					) : (
 						<Lozenge appearance="success">{size}</Lozenge>
 					)}

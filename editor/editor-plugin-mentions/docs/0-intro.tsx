@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Mentions', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the mentions plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,17 +30,57 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type MentionsPlugin = NextEditorPlugin<
-  'mentions',
+export type MentionActionOpenTypeAhead = (inputMethod: TypeAheadInputMethod) => boolean;
+
+export type MentionActionAnnounceMentionsInsertion = (
+  mentionIds: {
+    id: string;
+    localId: string;
+    taskLocalId?: string;
+    type: 'added' | 'deleted';
+  }[],
+) => void;
+
+export type MentionActionSetProvider = (provider: Promise<MentionProvider>) => Promise<boolean>;
+
+export type MentionActions = {
+  announceMentionsInsertion: MentionActionAnnounceMentionsInsertion;
+  openTypeAhead: MentionActionOpenTypeAhead;
+  setProvider: MentionActionSetProvider;
+};
+
+export type MentionPluginDependencies = [
+  OptionalPlugin<AnalyticsPlugin>,
+  TypeAheadPlugin,
+  OptionalPlugin<ContextIdentifierPlugin>,
+  OptionalPlugin<BasePlugin>,
+  OptionalPlugin<SelectionPlugin>,
+];
+
+export type MentionsPlugin = NextEditorPlugin<
+  'mention',
   {
-    pluginConfiguration: MentionsPluginOptions;
-    sharedState: MentionSharedState;
-    dependencies: [
-      OptionalPlugin<AnalyticsPlugin>, TypeAheadPlugin
-    ];
-    actions: {
-      openTypeAhead: (inputMethod: TypeAheadInputMethod) => boolean;
-    }
+    actions: MentionActions;
+    commands: {
+      /**
+       * Inserts mention node into the document based on parameters.
+       *
+       * !Warning at this stage only inserts single mentions
+       *
+       * @param params.name string
+       * @param params.id string
+       * @param params.userType string (optional)
+       * @param params.nickname string (optional)
+       * @param params.localId string (optional)
+       * @param params.accessLevel string (optional)
+       * @param params.isXProductUser boolean (optional)
+       * @returns
+       */
+      insertMention: (params: InsertMentionParameters) => EditorCommand;
+    };
+    dependencies: MentionPluginDependencies;
+    pluginConfiguration: MentionPluginOptions | undefined;
+    sharedState: MentionSharedState | undefined;
   }
 >;
 `}

@@ -14,6 +14,10 @@ import { getEntryPointDataForPlugin } from './entrypoint-data';
 import { generateAllPluginTests } from './generate-tests';
 import { formatCode, sortObjectKeys } from './util';
 
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const TESTS_FOLDER_REGEX = /editor-plugin-.*-tests$/;
+
 // Interfaces for dependency tracking
 interface Dependencies {
 	[key: string]: string;
@@ -32,7 +36,11 @@ interface DependenciesDiffResult {
 	updated: DependencyDiff[];
 }
 
-const foldersToIgnore: string[] = ['editor-plugin-code-block-advanced'];
+const foldersToIgnore: string[] = [
+	'editor-plugin-code-block-advanced',
+	'editor-plugin-native-embeds',
+	'editor-plugin-ai-selection-context',
+];
 
 // Locate the root directory of the project
 const rootPath = findRootSync(process.cwd());
@@ -67,9 +75,7 @@ function getPluginFolderNames(): string[] {
 		(folder) =>
 			folder.startsWith('editor-plugin-') &&
 			!foldersToIgnore.includes(folder) &&
-			// Ignored via go/ees005
-			// eslint-disable-next-line require-unicode-regexp
-			!/editor-plugin-.*-tests$/.test(folder),
+			!TESTS_FOLDER_REGEX.test(folder),
 	);
 }
 
@@ -115,6 +121,7 @@ function orderObjectByDepthAndRoot(input: { [key: string]: string }): {
 	// First, group the entries by their root level name
 	const grouped = Object.entries(input).reduce(
 		(acc, [key, value]) => {
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			const root = key.split('/')[1]; // Get the root level name
 			if (!acc[root]) {
 				acc[root] = [];
@@ -482,10 +489,6 @@ async function run() {
 				exports: orderObjectByDepthAndRoot(newEditorPluginsExports),
 				dependencies: sortObjectKeys(updatedDeps),
 				'platform-feature-flags': featureFlags,
-				// only update the 'af:exports' property if it already exists in the package
-				...(editorPluginsPackageJson['af:exports'] && {
-					'af:exports': orderObjectByDepthAndRoot(newEditorPluginsExports),
-				}),
 				// only update the 'exports' property if it already exists in the package
 				...(editorPluginsPackageJson.exports && {
 					exports: orderObjectByDepthAndRoot(newEditorPluginsExports),

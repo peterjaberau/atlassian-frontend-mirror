@@ -21,13 +21,14 @@ export const createHorizontalRule = (
 	start: number,
 	end: number,
 	inputMethod:
+		| INPUT_METHOD.ELEMENT_BROWSER
 		| INPUT_METHOD.QUICK_INSERT
 		| INPUT_METHOD.TOOLBAR
 		| INPUT_METHOD.INSERT_MENU
 		| INPUT_METHOD.FORMATTING
 		| INPUT_METHOD.SHORTCUT,
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
-) => {
+): Transaction | null => {
 	if (!state.selection.empty) {
 		return null;
 	}
@@ -77,6 +78,9 @@ const createHorizontalRuleAutoformat = (
 	return createHorizontalRule(state, start, end, INPUT_METHOD.FORMATTING, editorAnalyticsAPI);
 };
 
+// eslint-disable-next-line require-unicode-regexp
+const HORIZONTAL_RULE_AUTOFORMAT_REGEX = /^(---|\*\*\*)$/;
+
 export function inputRulePlugin(
 	schema: Schema,
 	editorAnalyticsAPI: EditorAnalyticsAPI | undefined,
@@ -86,8 +90,7 @@ export function inputRulePlugin(
 	if (schema.nodes.rule) {
 		// '---' and '***' for hr
 		rules.push(
-			// eslint-disable-next-line require-unicode-regexp
-			createRule(/^(\-\-\-|\*\*\*)$/, (state, _match, start, end) =>
+			createRule(HORIZONTAL_RULE_AUTOFORMAT_REGEX, (state, _match, start, end) =>
 				createHorizontalRuleAutoformat(state, start, end, editorAnalyticsAPI),
 			),
 		);

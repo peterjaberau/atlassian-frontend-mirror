@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::710b2ced0f3f7a71776e2929f7b34c84>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::43af2a79037fdb7a50ebad51750636fe>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -18,14 +18,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __MoreAtlassianAppsIcon__
  *
- * A temporary component to represent the icon for More Atlassian Apps.
- * @deprecated This component has been replaced by the component `MoreAtlassianAppsIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for More Atlassian Apps.
+ * Import `MoreAtlassianAppsIcon` from `@atlaskit/logo/more-atlassian-apps/icon`.
  *
  */
 export function MoreAtlassianAppsIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'More Atlassian Apps',
 	testId,

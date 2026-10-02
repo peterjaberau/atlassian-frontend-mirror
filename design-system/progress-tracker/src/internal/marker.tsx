@@ -3,6 +3,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { type FC } from 'react';
 
 import { css, jsx } from '@compiled/react';
@@ -13,10 +14,10 @@ import { token } from '@atlaskit/tokens';
 import type { Status } from '../types';
 
 const progressMarkerStyles = css({
-	width: token('space.100', '8px'),
-	height: token('space.100', '8px'),
+	width: token('space.100'),
+	height: token('space.100'),
 	position: 'absolute',
-	borderRadius: token('space.100', '8px'),
+	borderRadius: token('space.100'),
 	insetInlineStart: '50%',
 	transform: `translate(-50%, calc(-1 * ${token('space.250')}))`,
 	transition: `background-color var(--ds--pt--ts) var(--ds--pt--te)`,
@@ -42,8 +43,9 @@ const markerColor = cssMap({
  *
  * Similar to `@atlaskit/progress-indicator`, a small visual circle marker
  */
-const ProgressMarker: FC<{ testId?: string, status: Status }> = ({ testId, status = 'unvisited' }) => (
-	<div data-testid={testId} css={[progressMarkerStyles, markerColor[status]]} />
-);
+const ProgressMarker: FC<{ testId?: string; status: Status }> = ({
+	testId,
+	status = 'unvisited',
+}) => <div data-testid={testId} css={[progressMarkerStyles, markerColor[status]]} />;
 
 export default ProgressMarker;

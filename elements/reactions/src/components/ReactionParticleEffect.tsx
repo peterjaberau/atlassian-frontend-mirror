@@ -2,9 +2,11 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type EmojiProvider, ResourcedEmoji, type EmojiId } from '@atlaskit/emoji';
+
 import { css, jsx } from '@compiled/react';
 
+import { type EmojiProvider, ResourcedEmoji, type EmojiId } from '@atlaskit/emoji';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
 import { layers } from '@atlaskit/theme/constants';
 
 import { RESOURCED_EMOJI_COMPACT_HEIGHT } from '../shared/constants';
@@ -85,10 +87,18 @@ interface ReactionParticleEffectProps {
 	 * Provider for loading emojis
 	 */
 	emojiProvider: Promise<EmojiProvider>;
+	/**
+	 * Optional URL to optimistically render the emoji image before the catalogue arrives.
+	 */
+	optimisticImageURL?: string;
 }
 
-export const ReactionParticleEffect = ({ emojiProvider, emojiId }: ReactionParticleEffectProps) => (
-	<div css={containerStyle}>
+export const ReactionParticleEffect = ({
+	emojiProvider,
+	emojiId,
+	optimisticImageURL,
+}: ReactionParticleEffectProps): JSX.Element => (
+	<div css={containerStyle} aria-hidden>
 		{[...Array(PARTICLE_COUNT)].map((_, index) => {
 			return (
 				<div key={index} css={reactionParticleStyle}>
@@ -96,6 +106,7 @@ export const ReactionParticleEffect = ({ emojiProvider, emojiId }: ReactionParti
 						emojiProvider={emojiProvider}
 						emojiId={emojiId}
 						fitToHeight={RESOURCED_EMOJI_COMPACT_HEIGHT}
+						optimisticImageURL={optimisticImageURL}
 					/>
 				</div>
 			);

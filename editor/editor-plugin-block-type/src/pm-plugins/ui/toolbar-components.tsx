@@ -18,13 +18,13 @@ import type { RegisterComponent } from '@atlaskit/editor-toolbar-model';
 
 import type { BlockTypePlugin } from '../../blockTypePluginType';
 import { toolbarBlockTypesWithRank } from '../block-types';
-
 import { HeadingButton } from './ToolbarBlockType/HeadingButton';
 import { QuoteButton } from './ToolbarBlockType/QuoteButton';
 import { TextStylesMenuButton } from './ToolbarBlockType/TextStylesMenuButton';
 
 export const getToolbarComponents = (
 	api?: ExtractInjectionAPI<BlockTypePlugin>,
+	allowFontSize?: boolean,
 ): RegisterComponent[] => {
 	const toolbarComponents: RegisterComponent[] = [
 		{
@@ -54,7 +54,9 @@ export const getToolbarComponents = (
 				},
 			],
 			component: ({ children }: { children: React.ReactNode }) => (
-				<TextStylesMenuButton api={api}>{children}</TextStylesMenuButton>
+				<TextStylesMenuButton api={api} allowFontSize={allowFontSize}>
+					{children}
+				</TextStylesMenuButton>
 			),
 		},
 		{
@@ -75,7 +77,7 @@ export const getToolbarComponents = (
 		},
 	];
 
-	Object.values(toolbarBlockTypesWithRank()).forEach((blockType) => {
+	Object.values(toolbarBlockTypesWithRank({ allowFontSize })).forEach((blockType) => {
 		if (blockType.toolbarKey) {
 			const menuItem: RegisterComponent = {
 				type: 'menu-item',

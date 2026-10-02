@@ -7,7 +7,6 @@ import { type ReactNode } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
 import { token } from '@atlaskit/tokens';
 
 import { ExpandableMenuItemLevelContext } from '../expandable-menu-item/expandable-menu-item-level-context';
@@ -36,16 +35,12 @@ const dragPreviewStyles = cssMap({
 		backgroundColor: token('elevation.surface'),
 		// menu items already have a border radius, but adding on this element too
 		// as we are adding a border on this element
-		borderRadius: token('radius.small'),
+		borderRadius: token('radius.medium'),
 
 		// helps the preview feel more feel more balanced
 		paddingInlineEnd: token('space.050'),
 		// cannot go above 280px (web platform limitation), so leaving a bit of room
 		maxWidth: 260,
-	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	rootT26Shape: {
-		borderRadius: token('radius.medium', '6px'),
 	},
 
 	/**
@@ -71,7 +66,7 @@ const dragPreviewStyles = cssMap({
  * A drag preview for sidebar menu items.
  *
  * The limited API corresponds with the limited amount of information we
- * want to show in drag previews.
+ * want to show in drag previews. Only essential information is shown.
  *
  * If no `elemBefore` is provided, then the `elemBefore` will automatically collapse.
  * There is no need to pass in `COLLAPSE_ELEM_BEFORE`. We do this as there is no
@@ -87,19 +82,13 @@ export function DragPreview({
 }: {
 	children: ReactNode;
 	elemBefore?: ReactNode;
-}) {
+}): JSX.Element {
 	return (
 		// Resetting the expandable menu items to 0.
 		// This is to prevent our hidden element from pushing
 		// the drag preview further away from the users pointer
 		<ExpandableMenuItemLevelContext.Provider value={0}>
-			<div
-				css={[
-					dragPreviewStyles.root,
-					fg('platform-dst-shape-theme-default') && dragPreviewStyles.rootT26Shape,
-					isSafari() && dragPreviewStyles.safariFix,
-				]}
-			>
+			<div css={[dragPreviewStyles.root, isSafari() && dragPreviewStyles.safariFix]}>
 				{/* For drag previews, we can collapse if there is no elemBefore as we don't
 			need to worry about vertical alignment with other elements */}
 				<MenuItemBase elemBefore={elemBefore ?? COLLAPSE_ELEM_BEFORE}>{children}</MenuItemBase>

@@ -1,3 +1,6 @@
+import { type IntlShape } from 'react-intl';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import {
 	type ExternalUser,
 	ExternalUserType,
@@ -10,8 +13,8 @@ import {
 	TeamType,
 	type User,
 	UserType,
-} from '@atlaskit/user-picker';
-import { type IntlShape } from 'react-intl-next';
+} from '@atlaskit/user-picker/types';
+
 import { messages } from '../i18n';
 import type { UserEntityType } from '../types';
 import { EntityType } from '../types';
@@ -35,7 +38,10 @@ interface ServerUser extends ServerItem {
 	email?: string;
 	attributes?: Record<string, string>;
 	nonLicensedUser?: boolean;
+	appType?: string | null;
 }
+
+type ServerTeamState = 'ACTIVE' | 'DISBANDED' | 'PURGED';
 
 interface ServerTeam extends ServerItem {
 	displayName?: string;
@@ -47,6 +53,7 @@ interface ServerTeam extends ServerItem {
 	members?: TeamMember[];
 	includesYou?: boolean;
 	verified?: boolean;
+	state?: ServerTeamState;
 	type?: {
 		name?: string;
 	};
@@ -69,7 +76,6 @@ const getLozenzeProperties = (
 	if (entity.attributes?.workspaceMember) {
 		return intl.formatMessage(messages.memberLozengeText);
 	}
-
 	if (entity.attributes?.isConfluenceExternalCollaborator) {
 		const lozengeTooltipMessage =
 			entity.entityType === EntityType.GROUP
@@ -80,6 +86,10 @@ const getLozenzeProperties = (
 			tooltip: intl.formatMessage(lozengeTooltipMessage),
 			appearance: 'default',
 		};
+	}
+	const isJiraGuestUser = fg('user_picker_guest_lozenges') && entity.attributes?.isJiraGuest;
+	if (isJiraGuestUser) {
+		return intl.formatMessage(messages.guestLozengeText);
 	}
 
 	return undefined;
@@ -108,6 +118,7 @@ const transformUser = (
 			tooltip: user.name,
 			isExternal: Boolean(user.nonLicensedUser),
 			sources: user.nonLicensedUser ? ['other-atlassian'] : undefined,
+			appType: user.appType !== undefined ? user.appType : user.attributes?.appType,
 		};
 	}
 
@@ -126,6 +137,7 @@ const transformUser = (
 			tooltip: team.displayName,
 			verified: team.verified,
 			teamTypeName: team.type?.name,
+			state: team.state,
 		};
 	}
 

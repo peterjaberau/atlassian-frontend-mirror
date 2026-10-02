@@ -2,18 +2,16 @@ import { isDirtyTransaction } from '@atlaskit/editor-common/collab';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorState, ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
-import type { Step } from '@atlaskit/editor-prosemirror/transform';
 import { AddMarkStep } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 
 import type { CollabInitializedMetadata } from '../types';
-
 import { originalTransactionHasMeta } from './utils';
 
-export const trackNCSInitializationPluginKey = new PluginKey<CollabInitializedMetadata>(
-	'collabTrackNCSInitializationPlugin',
-);
+export const trackNCSInitializationPluginKey: PluginKey<CollabInitializedMetadata> =
+	new PluginKey<CollabInitializedMetadata>('collabTrackNCSInitializationPlugin');
 
-export const createPlugin = () => {
+export const createPlugin = (): SafePlugin<CollabInitializedMetadata> => {
 	return new SafePlugin<CollabInitializedMetadata>({
 		key: trackNCSInitializationPluginKey,
 		state: {

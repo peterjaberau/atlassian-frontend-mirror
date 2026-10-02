@@ -2,20 +2,22 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef, useMemo } from 'react';
-import { useIntl } from 'react-intl-next';
+import { forwardRef, useMemo, type ForwardRefExoticComponent, type RefAttributes } from 'react';
+
+import { cssMap, jsx, cx } from '@compiled/react';
+import { useIntl } from 'react-intl';
+
 import { ResourcedEmoji } from '@atlaskit/emoji';
-import { messages } from '../shared/i18n';
+import { Box, Flex, Inline, Stack } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
 import { RESOURCED_EMOJI_COMPACT_HEIGHT } from '../shared/constants';
+import { messages } from '../shared/i18n';
 import { type ReactionSummary } from '../types';
 import { Counter } from './Counter';
 import { ReactionButton } from './ReactionButton';
-import { type ReactionsProps } from './Reactions';
 import { ReactionParticleEffect } from './ReactionParticleEffect';
-
-import { Box, Flex, Inline, Stack } from '@atlaskit/primitives/compiled';
-import { cssMap, jsx, cx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
+import { type ReactionsProps } from './Reactions';
 
 const styles = cssMap({
 	emoji: {
@@ -49,8 +51,10 @@ const styles = cssMap({
 	},
 });
 
-interface ReactionSummaryButtonProps
-	extends Pick<ReactionsProps, 'emojiProvider' | 'reactions' | 'useButtonAlignmentStyling'> {
+interface ReactionSummaryButtonProps extends Pick<
+	ReactionsProps,
+	'emojiProvider' | 'reactions' | 'useButtonAlignmentStyling'
+> {
 	/**
 	 * The number of emojis to show in the summary button
 	 */
@@ -95,6 +99,11 @@ interface ReactionSummaryButtonProps
 	 * Optional prop to set the most recently clicked emoji id
 	 */
 	summaryViewParticleEffectEmojiId?: { id: string; shortName: string } | null;
+
+	/**
+	 * Optional prop to indicate whether the summary popup is open, used for aria-expanded
+	 */
+	isOpen?: boolean;
 }
 
 /**
@@ -108,7 +117,9 @@ export const RENDER_SUMMARY_BUTTON_TESTID = 'reaction-summary-button';
 export const RENDER_SUMMARY_EMOJI_TESTID = 'summary-emoji-display';
 
 // forwardRef is used here so that the parent popup component can properly interact with the button
-export const ReactionSummaryButton = forwardRef(
+export const ReactionSummaryButton: ForwardRefExoticComponent<
+	ReactionSummaryButtonProps & RefAttributes<HTMLDivElement>
+> = forwardRef(
 	(
 		{
 			emojiProvider,
@@ -123,6 +134,7 @@ export const ReactionSummaryButton = forwardRef(
 			summaryGetOptimisticImageURL,
 			summaryButtonIconAfter,
 			summaryViewParticleEffectEmojiId,
+			isOpen,
 		}: ReactionSummaryButtonProps,
 		ref: React.Ref<HTMLDivElement>,
 	) => {
@@ -161,7 +173,10 @@ export const ReactionSummaryButton = forwardRef(
 						onMouseEnter={onMouseEnter}
 						onMouseLeave={onMouseLeave}
 						testId={RENDER_SUMMARY_BUTTON_TESTID}
-						ariaLabel={intl.formatMessage(messages.summary)}
+						ariaLabel={intl.formatMessage(messages.summary, {
+							count: totalReactionsCount,
+						})}
+						ariaExpanded={isOpen}
 						showSubtleStyle={subtleReactionsSummaryAndPicker}
 						showOpaqueBackground={showOpaqueBackground}
 					>

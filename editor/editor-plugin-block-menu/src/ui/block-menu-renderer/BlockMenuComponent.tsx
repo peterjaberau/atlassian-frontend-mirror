@@ -1,7 +1,6 @@
 import React from 'react';
 
 import type { RegisterBlockMenuComponent } from '../../blockMenuPluginType';
-
 import { BlockMenuComponents } from './BlockMenuComponents';
 import type { BlockMenuRenderingContext } from './types';
 import { getChildrenMapKey, willComponentRender } from './utils';
@@ -17,7 +16,7 @@ export const BlockMenuComponent = ({
 	registeredComponent,
 	childrenMap,
 	fallbacks,
-}: BlockMenuComponentProps) => {
+}: BlockMenuComponentProps): React.JSX.Element | null => {
 	if (!willComponentRender(registeredComponent, childrenMap)) {
 		return null;
 	}

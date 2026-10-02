@@ -2,14 +2,15 @@
 
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { DevTools, getTranslations, LanguagePicker } from '@af/editor-examples-helpers/utils';
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { syncBlockMessages } from '@atlaskit/editor-common/messages';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
+import { SYNCED_BLOCKS_DOCUMENTATION_URL } from '@atlaskit/editor-common/sync-block';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
 import { extensionHandlers } from '@atlaskit/editor-test-helpers/extensions';
 import LockCircleIcon from '@atlaskit/icon/core/lock-locked';
 import { token } from '@atlaskit/tokens';
@@ -81,7 +82,18 @@ declare global {
 // Ignored via go/ees005
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export class CommentEditorWithFeedback extends React.Component<Props, State> {
-	state = {
+	state: {
+		hasJquery: boolean;
+		intlState: {
+			locale: string;
+			messages: {
+				'fabric.editor.chromeCollapsedPlaceholder': string;
+				'fabric.editor.editorAssistiveLabel': string;
+				'fabric.editor.headingLink.toolbarHelpTitle': string;
+			};
+		};
+		isExpanded: boolean;
+	} = {
 		hasJquery: false,
 		isExpanded: false,
 		intlState: { locale: 'en', messages: enMessages },
@@ -143,7 +155,7 @@ export class CommentEditorWithFeedback extends React.Component<Props, State> {
 								disabled,
 							}: any) => (
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								<div style={{ padding: token('space.250', '20px') }}>
+								<div style={{ padding: token('space.250') }}>
 									<CollapsedEditor
 										placeholder="What do you want to say?"
 										isExpanded={this.state.isExpanded}
@@ -205,7 +217,7 @@ export class CommentEditorWithFeedback extends React.Component<Props, State> {
 												cannotPasteSyncedBlock: {
 													title: syncBlockMessages.cannotPasteSyncedBlockTitle,
 													description: syncBlockMessages.cannotPasteSyncedBlockDescription,
-													urlHref: 'https://hello.atlassian.net/wiki/x/tAtCeAE',
+													urlHref: SYNCED_BLOCKS_DOCUMENTATION_URL,
 													urlText: syncBlockMessages.cannotPasteSyncedBlockAction,
 												},
 											}}
@@ -261,4 +273,5 @@ const ComposableEditorWrapper = (props: EditorProps) => {
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default CommentEditorWithFeedback;

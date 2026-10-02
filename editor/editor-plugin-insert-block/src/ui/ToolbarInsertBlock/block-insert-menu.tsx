@@ -2,10 +2,10 @@ import React from 'react';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { InsertBlockPlugin } from '../../index';
 import type { OnInsert } from '../ElementBrowser/types';
-
 import { BlockInsertElementBrowser } from './block-insert-element-browser';
 import type { BlockMenuItem } from './create-items';
 import { DropDownButton } from './dropdown-button';
@@ -13,6 +13,7 @@ import { DropDownButton } from './dropdown-button';
 export interface BlockInsertMenuProps {
 	disabled: boolean;
 	editorView: EditorView;
+	isEditorOffline?: boolean;
 	isFullPageAppearance?: boolean;
 	items: BlockMenuItem[];
 	label: string;
@@ -36,7 +37,11 @@ export interface BlockInsertMenuProps {
 }
 
 export const BlockInsertMenu = (props: BlockInsertMenuProps): React.JSX.Element | null => {
-	if (props.items.length === 0 && !props.showElementBrowserLink) {
+	if (
+		props.items.length === 0 &&
+		!props.showElementBrowserLink &&
+		!isExperimentEnabled('platform_editor_slash_command')
+	) {
 		return null;
 	}
 
@@ -77,6 +82,7 @@ export const BlockInsertMenu = (props: BlockInsertMenuProps): React.JSX.Element 
 			spacing={props.spacing}
 			togglePlusMenuVisibility={props.togglePlusMenuVisibility}
 			showElementBrowserLink={props.showElementBrowserLink}
+			isEditorOffline={props.isEditorOffline}
 			pluginInjectionApi={props.pluginInjectionApi}
 			isFullPageAppearance={props.isFullPageAppearance}
 		/>

@@ -7,17 +7,20 @@ import { useState } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
 
-import Badge from '@atlaskit/badge';
+import Badge from '@atlaskit/badge/badge';
 import AKBanner from '@atlaskit/banner';
-import Button from '@atlaskit/button/new';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
-import Heading from '@atlaskit/heading';
+import Button from '@atlaskit/button/default/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import Heading from '@atlaskit/heading/heading';
 import AppsIcon from '@atlaskit/icon/core/apps';
 import GrowDiagonalIcon from '@atlaskit/icon/core/grow-diagonal';
 import InboxIcon from '@atlaskit/icon/core/inbox';
 import ProjectIcon from '@atlaskit/icon/core/project';
 import ShrinkDiagonalIcon from '@atlaskit/icon/core/shrink-diagonal';
 import { ConfluenceIcon } from '@atlaskit/logo';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
 import { Aside } from '@atlaskit/navigation-system/layout/aside';
 import { Banner } from '@atlaskit/navigation-system/layout/banner';
 import { Main } from '@atlaskit/navigation-system/layout/main';
@@ -26,7 +29,7 @@ import { PanelSplitter } from '@atlaskit/navigation-system/layout/panel-splitter
 import { Root } from '@atlaskit/navigation-system/layout/root';
 import {
 	SideNav,
-	SideNavContent,
+	SideNavBody,
 	SideNavToggleButton,
 } from '@atlaskit/navigation-system/layout/side-nav';
 import {
@@ -129,7 +132,7 @@ export default function FullScreenModeExample(): JSX.Element {
 							<Notifications
 								label="Notifications"
 								badge={() => (
-									<Badge max={9} appearance="important">
+									<Badge max={9} appearance="dangerBold">
 										{99999}
 									</Badge>
 								)}
@@ -160,7 +163,7 @@ export default function FullScreenModeExample(): JSX.Element {
 						}}
 						defaultCollapsed={defaultSideNavCollapsed}
 					>
-						<SideNavContent>
+						<SideNavBody>
 							<MenuList>
 								<LinkMenuItem href="#" elemBefore={<InboxIcon label="" color="currentColor" />}>
 									Your work
@@ -172,7 +175,7 @@ export default function FullScreenModeExample(): JSX.Element {
 									Projects
 								</LinkMenuItem>
 							</MenuList>
-						</SideNavContent>
+						</SideNavBody>
 						<PanelSplitter label="Resize side nav" />
 					</SideNav>
 				)}
@@ -225,27 +228,29 @@ export default function FullScreenModeExample(): JSX.Element {
 						<PanelSplitter label="Resize aside" />
 					</Aside>
 				)}
-				{isPanelVisible && !isFullscreen && (
-					<Panel defaultWidth={350}>
-						<Stack space="space.200" xcss={panelStyles.content}>
-							<Heading size="small">Panel</Heading>
-							<Stack space="space.050">
-								<Text weight="bold">What is an epic?</Text>
-								<Text>Learn what an epic is and how it's displayed in Jira.</Text>
+				<ExitingPersistence>
+					{isPanelVisible && !isFullscreen && (
+						<Panel defaultWidth={350}>
+							<Stack space="space.200" xcss={panelStyles.content}>
+								<Heading size="small">Panel</Heading>
+								<Stack space="space.050">
+									<Text weight="bold">What is an epic?</Text>
+									<Text>Learn what an epic is and how it's displayed in Jira.</Text>
+								</Stack>
+								<Stack space="space.050">
+									<Text weight="bold">What are sprints?</Text>
+									<Text>
+										Find out what sprints are and why your team might want to use them to predict
+										and execute your project's work.
+									</Text>
+								</Stack>
+								<Text color="color.link">Show 12 more articles</Text>
+								<div css={scrollableContent.root} />
 							</Stack>
-							<Stack space="space.050">
-								<Text weight="bold">What are sprints?</Text>
-								<Text>
-									Find out what sprints are and why your team might want to use them to predict and
-									execute your project's work.
-								</Text>
-							</Stack>
-							<Text color="color.link">Show 12 more articles</Text>
-							<div css={scrollableContent.root} />
-						</Stack>
-						<PanelSplitter label="Resize panel" />
-					</Panel>
-				)}
+							<PanelSplitter label="Resize panel" />
+						</Panel>
+					)}
+				</ExitingPersistence>
 			</Root>
 		</WithResponsiveViewport>
 	);

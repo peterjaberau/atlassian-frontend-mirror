@@ -9,13 +9,13 @@ import React, {
 
 import { bind } from 'bind-event-listener';
 
-import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
 import noop from '@atlaskit/ds-lib/noop';
 import { Box, Inline } from '@atlaskit/primitives/compiled';
 
 import type { ProgressDotsProps } from '../types';
-
-import { ButtonIndicator, PresentationalIndicator } from './indicator';
+import { ButtonIndicator } from './button-indicator';
+import { PresentationalIndicator } from './presentational-indicator';
 
 const packageName = process.env._PACKAGE_NAME_ as string;
 const packageVersion = process.env._PACKAGE_VERSION_ as string;
@@ -52,6 +52,7 @@ const ProgressDots: FC<ProgressDotsProps> = ({
 	appearance = 'default',
 	ariaControls = 'panel',
 	ariaLabel = 'tab',
+	getAriaLabel,
 	size = 'default',
 	// NOTE: `spacing` is a reserved HTML attribute and will be added to the
 	// element, replaced with `gutter`.
@@ -147,6 +148,7 @@ const ProgressDots: FC<ProgressDotsProps> = ({
 					const isSelected = selectedIndex === index;
 					const tabId = `${ariaLabel}${index}`;
 					const panelId = `${ariaControls}${index}`;
+					const label = getAriaLabel ? getAriaLabel(index) : tabId;
 					const indicatorTestId = testId && `${testId}-ind-${index}`;
 
 					return onSelect ? (
@@ -157,6 +159,7 @@ const ProgressDots: FC<ProgressDotsProps> = ({
 							isSelected={isSelected}
 							tabId={tabId}
 							panelId={panelId}
+							label={label}
 							onClick={(event) => onSelectWithAnalytics({ event, index })}
 						/>
 					) : (

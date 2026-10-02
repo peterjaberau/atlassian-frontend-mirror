@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/ads-mcp",
-	"version": "0.15.0",
+	"version": "1.10.10",
 	"description": "The official Atlassian Design System MCP server to develop apps and user interfaces matching the Atlassian style.",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -13,20 +13,12 @@
 	},
 	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-mirror",
 	"scripts": {
-		"ak-postbuild": "yarn workspace @atlassian/structured-docs build",
+		"ak-postbuild": "afm workspace @atlassian/structured-docs build",
 		"prepare": "yarn ak-postbuild"
 	},
 	"bin": "index.js",
 	"main": "dist/cjs/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
 		".": {
@@ -34,15 +26,29 @@
 			"publish": "./src/index.tsx",
 			"default": "./index.js"
 		},
+		"./tools/search-components": "./src/entry-points/search-components.tsx",
+		"./tools/search-tokens": "./src/entry-points/search-tokens.tsx",
+		"./tools/search-icons": "./src/entry-points/search-icons.tsx",
+		"./tools/get-all-components": "./src/entry-points/get-all-components.tsx",
+		"./tools/get-all-tokens": "./src/entry-points/get-all-tokens.tsx",
+		"./tools/get-all-icons": "./src/entry-points/get-all-icons.tsx",
+		"./tools/get-guidelines": "./src/entry-points/get-guidelines.tsx",
+		"./tools/get-lint-rules": "./src/entry-points/get-lint-rules.tsx",
+		"./tools/get-a11y-guidelines": "./src/entry-points/get-a11y-guidelines.tsx",
+		"./tools/suggest-a11y-fixes": "./src/entry-points/suggest-a11y-fixes.tsx",
+		"./tools/migration-guides": "./src/entry-points/migration-guides.tsx",
+		"./tools/i18n-conversion": "./src/entry-points/i18n-conversion.tsx",
+		"./a11y-guidelines": "./src/entry-points/a11y-guidelines.tsx",
+		"./a11y-fixes": "./src/entry-points/a11y-fixes.tsx",
+		"./migration-registry": "./src/entry-points/migration-registry.tsx",
+		"./i18n-conversion-guide": "./src/entry-points/i18n-conversion-guide.tsx",
+		"./tools/plan": "./src/entry-points/plan.tsx",
+		"./tools/analyze-a11y": "./src/entry-points/analyze-a11y.tsx",
 		"./package.json": "./package.json"
-	},
-	"platform-feature-flags": {
-		"design_system_mcp_structured_content": {
-			"type": "boolean"
-		}
 	},
 	"dependencies": {
 		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/icon-lab": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@axe-core/playwright": "root:*",
@@ -62,6 +68,6 @@
 		"@atlassiansox/analytics-node-client": "root:*"
 	},
 	"devDependencies": {
-		"ts-node": "root:*"
+		"@atlassian/feature-flags-test-utils": "workspace:^"
 	}
 }

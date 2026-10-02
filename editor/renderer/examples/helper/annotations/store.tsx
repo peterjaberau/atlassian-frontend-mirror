@@ -1,5 +1,6 @@
 import React, { createContext, useReducer } from 'react';
-import { AnnotationMarkStates } from '@atlaskit/adf-schema';
+
+import { AnnotationMarkStates } from '@atlaskit/adf-schema/annotation';
 
 type MyAction =
 	| { id: string; type: 'resolved' }
@@ -22,7 +23,7 @@ const initialData: MyData = {
 	'53500c44-4f1e-41eb-b215-9ccfaaa79397': AnnotationMarkStates.RESOLVED,
 };
 
-const annotationsStore = createContext<MyState>({
+const annotationsStore: React.Context<MyState> = createContext<MyState>({
 	state: {},
 	dispatch: () => {},
 });
@@ -40,7 +41,9 @@ const reducer: MyReducer = (state: MyData, action: MyAction): MyData => {
 	}
 };
 
-const AnnotationsStoreProvider = ({ children }: React.PropsWithChildren<unknown>): React.JSX.Element => {
+const AnnotationsStoreProvider = ({
+	children,
+}: React.PropsWithChildren<unknown>): React.JSX.Element => {
 	const [state, dispatch] = useReducer(reducer, initialData);
 
 	return <Provider value={{ state, dispatch }}>{children}</Provider>;

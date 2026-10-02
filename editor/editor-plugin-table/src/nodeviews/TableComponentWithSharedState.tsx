@@ -2,10 +2,8 @@ import React from 'react';
 
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type {
 	ExtractInjectionAPI,
 	GetEditorFeatureFlags,
@@ -17,7 +15,6 @@ import { findTable } from '@atlaskit/editor-tables';
 
 import type tablePlugin from '../tablePlugin';
 import type { PluginInjectionAPI, TableSharedStateInternal } from '../types';
-
 import TableComponent from './TableComponent';
 import type { TableOptions } from './types';
 
@@ -78,13 +75,14 @@ export const TableComponentWithSharedState = ({
 		mode,
 		selection,
 		width,
+		limitedModeEnabled,
 	} = useSharedPluginStateWithSelector(
 		api,
-		['table', 'width', 'media', 'selection', 'editorViewMode', 'interaction'],
+		['table', 'width', 'media', 'selection', 'editorViewMode', 'interaction', 'limitedMode'],
 		(
 			states: NamedPluginStatesFromInjectionAPI<
 				ExtractInjectionAPI<typeof tablePlugin>,
-				'width' | 'media' | 'selection' | 'editorViewMode' | 'interaction'
+				'width' | 'media' | 'selection' | 'editorViewMode' | 'interaction' | 'limitedMode'
 			> & {
 				tableState: TableSharedStateInternal | undefined;
 			},
@@ -113,6 +111,9 @@ export const TableComponentWithSharedState = ({
 			lineLength: states.widthState?.lineLength,
 			// interactionState
 			interaction: states.interactionState?.interactionState,
+			// limitedModeState — selected (rather than read once) so sticky headers stop when limited
+			// mode latches mid-session, not only when it was already on as the table mounted.
+			limitedModeEnabled: states.limitedModeState?.enabled,
 		}),
 	);
 
@@ -127,6 +128,7 @@ export const TableComponentWithSharedState = ({
 	try {
 		currentTablePos = getPos ? getPos() : undefined;
 	} catch (e) {
+		// eslint-disable-line no-unused-vars
 		currentTablePos = undefined;
 	}
 
@@ -149,9 +151,9 @@ export const TableComponentWithSharedState = ({
 			isMediaFullscreen={isFullscreen}
 			options={options}
 			allowControls={allowControls}
+			isDragAndDropEnabled={!isLivePageViewMode}
 			isHeaderRowEnabled={isHeaderRowEnabled ?? false}
 			isHeaderColumnEnabled={isHeaderColumnEnabled ?? false}
-			isDragAndDropEnabled={options?.isDragAndDropEnabled && !isLivePageViewMode}
 			isTableScalingEnabled={options?.isTableScalingEnabled}
 			allowTableAlignment={allowTableAlignment}
 			allowTableResizing={allowTableResizing}
@@ -160,6 +162,7 @@ export const TableComponentWithSharedState = ({
 			ordering={ordering}
 			isResizing={isResizing}
 			getNode={getNode}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			containerWidth={{
 				width: width ?? 0,
 				lineLength,
@@ -174,6 +177,7 @@ export const TableComponentWithSharedState = ({
 			isTableHovered={isTableHovered}
 			isWholeTableInDanger={isWholeTableInDanger}
 			selection={selection}
+			limitedMode={limitedModeEnabled}
 		/>
 	);
 };

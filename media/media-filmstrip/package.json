@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-filmstrip",
-	"version": "51.1.9",
+	"version": "53.0.0",
 	"description": "Includes components that show media cards as a filmstrip",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,25 +12,31 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
+		".": "./src/index.tsx",
+		"./dom": "./src/dom.ts",
 		"./filmstrip": "./src/filmstrip.tsx",
-		".": "./src/index.tsx"
+		"./filmstrip-view": "./src/filmstripView/index.tsx",
+		"./types": "./src/types.ts",
+		"./wrappers": "./src/filmstripView/wrappers.tsx"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Media Filmstrip"
 		}
 	},
@@ -43,6 +49,7 @@
 		"@atlaskit/media-common": "workspace:^",
 		"@atlaskit/media-viewer": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
@@ -55,28 +62,25 @@
 		"react": "^18.2.0"
 	},
 	"devDependencies": {
+		"@atlaskit/button": "workspace:^",
 		"@atlaskit/media-core": "workspace:^",
 		"@atlaskit/media-test-data": "workspace:^",
 		"@atlaskit/media-test-helpers": "workspace:^",
+		"@atlaskit/radio": "workspace:^",
+		"@atlaskit/range": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
 		"@types/debounce": "root:*",
-		"enzyme": "root:*",
 		"react": "root:*",
 		"react-dom": "root:*",
+		"react-intl": "root:*",
 		"rxjs": "root:*",
 		"wait-for-expect": "root:*"
 	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			]
-		}
-	},
 	"platform-feature-flags": {
-		"platform_editor_disable_trigger_scroll_event": {
+		"platform-dst-motion-uplift-custom-button": {
 			"type": "boolean"
 		}
 	}

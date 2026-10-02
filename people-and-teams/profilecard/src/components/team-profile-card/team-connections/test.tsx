@@ -1,15 +1,9 @@
 import React from 'react';
 
 import { screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-import {
-	mockRunItLaterSynchronously,
-	renderWithAnalyticsListener as render,
-} from '@atlassian/ptc-test-utils';
-
-mockRunItLaterSynchronously();
+import { renderWithAnalyticsListener as render } from '@atlassian/ptc-test-utils';
 
 import { TeamConnections } from './main';
 
@@ -20,7 +14,7 @@ describe('TeamConnections', () => {
 				<TeamConnections
 					containerType={'ConfluenceSpace'}
 					title={'Test Confluence Space'}
-					onDisconnectButtonClick={() => { }}
+					onDisconnectButtonClick={() => {}}
 					link="https://test-dev.com"
 				/>
 			</IntlProvider>,
@@ -74,7 +68,7 @@ describe('TeamConnections', () => {
 				<TeamConnections
 					containerType={'JiraProject'}
 					title={'Test Jira Project'}
-					onDisconnectButtonClick={() => { }}
+					onDisconnectButtonClick={() => {}}
 				/>
 			</IntlProvider>,
 		);
@@ -92,26 +86,14 @@ describe('TeamConnections', () => {
 				container: 'ConfluenceSpace',
 			},
 		};
-		ffTest.off('ptc-enable-profile-card-analytics-refactor', 'legacy analytics', () => {
-			it('should fire the correct analytics event', async () => {
-				const { user, expectEventToBeFired } = renderComponent();
 
-				const teamConnectionItem = screen.getByTestId('team-connection-item');
-				expect(teamConnectionItem).toBeInTheDocument();
-				await user.click(teamConnectionItem);
-				expectEventToBeFired('ui', event);
-			});
-		});
+		it('should fire the correct analytics event', async () => {
+			const { user, expectEventToBeFired } = renderComponent();
 
-		ffTest.on('ptc-enable-profile-card-analytics-refactor', 'new analytics', () => {
-			it('should fire the correct analytics event', async () => {
-				const { user, expectEventToBeFired } = renderComponent();
-
-				const teamConnectionItem = screen.getByTestId('team-connection-item');
-				expect(teamConnectionItem).toBeInTheDocument();
-				await user.click(teamConnectionItem);
-				expectEventToBeFired('ui', event);
-			});
+			const teamConnectionItem = screen.getByTestId('team-connection-item');
+			expect(teamConnectionItem).toBeInTheDocument();
+			await user.click(teamConnectionItem);
+			expectEventToBeFired('ui', event);
 		});
 	});
 });

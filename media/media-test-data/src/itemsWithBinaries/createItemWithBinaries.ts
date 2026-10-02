@@ -3,7 +3,7 @@ import type {
 	MediaFileArtifact,
 	MediaFileArtifacts,
 	MediaUserArtifact,
-} from '@atlaskit/media-state';
+} from '@atlaskit/media-state/file-state';
 
 import { defaultArtifactsUris } from './artifactSets';
 import type { ArtifactsSet, ItemWithBinaries } from './types';

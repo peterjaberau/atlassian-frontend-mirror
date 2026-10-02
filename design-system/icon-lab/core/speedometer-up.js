@@ -1,6 +1,6 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::cdceb864c2f472952abe34e088cb85b5>>
+ * @codegen <<SignedSource::f46a0bde0ed66462f104206301813dc2>>
  * @codegenCommand yarn build:icon-glyphs
  */
 "use strict";
@@ -10,19 +10,20 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _react = _interopRequireDefault(require("react"));
-var _baseNew = _interopRequireDefault(require("@atlaskit/icon/base-new"));
+var _iconNew = _interopRequireDefault(require("@atlaskit/icon/components/icon-new"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 /**
  * Icon: "SpeedometerUp".
  * Category: multi-purpose
- * Location: @atlaskit/icon-lab
- * Usage guidance: Known uses: video is set a normal playback speed
+ * Location: @atlaskit/icon-lab/core/speedometer-up
+ * Usage guidance:
+ * Known uses: video is set a normal playback speed; medium risk likelihood
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/icon)
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/icon/docs/custom-icons)
  */
-const SpeedometerUpIcon = props => /*#__PURE__*/_react.default.createElement(_baseNew.default, Object.assign({
+const SpeedometerUpIcon = props => /*#__PURE__*/_react.default.createElement(_iconNew.default, Object.assign({
   name: "SpeedometerUpIcon",
-  dangerouslySetGlyph: `<path fill="currentcolor" d="M1.5 9a6.5 6.5 0 0 1 3.75-5.891V1.485a8.003 8.003 0 0 0-2.767 13.308l1.034-1.086A6.48 6.48 0 0 1 1.5 9"/><path fill="currentcolor" fill-rule="evenodd" d="M8.75 1.035v6.08a2.501 2.501 0 1 1-1.5 0v-6.08a8 8 0 0 1 1.5 0M7 9.5a1 1 0 1 1 2 0 1 1 0 0 1-2 0" clip-rule="evenodd"/><path fill="currentcolor" d="M10.75 1.485V3.11a6.5 6.5 0 0 1 1.733 10.598l1.034 1.086A8.003 8.003 0 0 0 10.75 1.485"/>`
+  dangerouslySetGlyph: `<path fill="currentcolor" d="M5 3.23A6.5 6.5 0 0 0 3.52 13.7l-1.04 1.09A8 8 0 0 1 5 1.58zm6-1.65a8 8 0 0 1 2.52 13.21l-1.04-1.09A6.5 6.5 0 0 0 11 3.23z"/><path fill="currentcolor" fill-rule="evenodd" d="M8.75 7.114A2.501 2.501 0 0 1 8 12a2.5 2.5 0 0 1-.75-4.886V1h1.5zM8 8.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2" clip-rule="evenodd"/>`
   // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 }, props));
 SpeedometerUpIcon.displayName = 'SpeedometerUpIcon';

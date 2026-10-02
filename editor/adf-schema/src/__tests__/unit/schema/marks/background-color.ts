@@ -1,16 +1,24 @@
+import { fromHTML, toHTML, textWithMarks } from '@af/adf-test-helpers/src/adf-schema';
+import { doc, p, textColor, backgroundColor } from '@af/adf-test-helpers/src/doc-builder';
+import { defaultSchema } from '@af/adf-test-helpers/src/schema';
 import { Transform } from '@atlaskit/editor-prosemirror/transform';
+import { setupEditorExperiments } from '@atlaskit/tmp-editor-statsig/setup';
+
+import { backgroundColor as backgroundColorNodeSpec } from '../../../..';
 import { createSchema } from '../../../../schema/create-schema';
 import { setGlobalTheme } from '../../../../schema/marks/text-color';
-import { defaultSchema } from '@af/adf-test-helpers/src/schema';
-import { doc, p, textColor, backgroundColor } from '@af/adf-test-helpers/src/doc-builder';
-import { fromHTML, toHTML, textWithMarks } from '@af/adf-test-helpers/src/adf-schema';
-import { backgroundColor as backgroundColorNodeSpec } from '../../../..';
 
 const testColorObj1 = { color: '#d3f1a7' };
 const testColorObj2 = { color: '#D3F1A7' };
 const packageName = process.env.npm_package_name as string;
 
 describe(`${packageName}/schema backgroundColor mark`, () => {
+	beforeEach(() => {
+		setupEditorExperiments('test', {
+			platform_editor_lovability_text_bg_color: false,
+		});
+	});
+
 	// The mark spec will be generated from ADF DSL
 	// this test would detect any changes if this mark is updated from ADF DSL
 	it('should return correct mark spec', () => {
@@ -18,7 +26,6 @@ describe(`${packageName}/schema backgroundColor mark`, () => {
 			attrs: {
 				color: {},
 			},
-			excludes: 'color',
 			group: 'color',
 			inclusive: true,
 			parseDOM: [
@@ -42,6 +49,41 @@ describe(`${packageName}/schema backgroundColor mark`, () => {
 	);
 	itMatches(`<span style="background-color: #d3f1a7;">text</span>`, 'text', testColorObj1);
 	itMatches(`<span style="background-color: #D3F1A7;">text</span>`, 'text', testColorObj1);
+
+	it('does not match new background palette colors when platform_editor_lovability_text_bg_color is disabled', () => {
+		const schema = makeSchema();
+		const doc = fromHTML(`<span style="background-color: #b3d4ff;">text</span>`, schema);
+		const backgroundColorNode = schema.marks.backgroundColor.create({ color: '#b3d4ff' });
+
+		expect(textWithMarks(doc, 'text', [backgroundColorNode])).toBe(false);
+	});
+
+	it('matches new background palette colors from inline styles when platform_editor_lovability_text_bg_color is enabled', () => {
+		setupEditorExperiments('test', {
+			platform_editor_lovability_text_bg_color: true,
+		});
+
+		const schema = makeSchema();
+		const doc = fromHTML(`<span style="background-color: #b3d4ff;">text</span>`, schema);
+		const backgroundColorNode = schema.marks.backgroundColor.create({ color: '#b3d4ff' });
+
+		expect(textWithMarks(doc, 'text', [backgroundColorNode])).toBe(true);
+	});
+
+	it('matches new background palette colors from renderer copy markup when platform_editor_lovability_text_bg_color is enabled', () => {
+		setupEditorExperiments('test', {
+			platform_editor_lovability_text_bg_color: true,
+		});
+
+		const schema = makeSchema();
+		const doc = fromHTML(
+			`<span class="fabric-background-color-mark" data-background-custom-color="#b3d4ff">text</span>`,
+			schema,
+		);
+		const backgroundColorNode = schema.marks.backgroundColor.create({ color: '#b3d4ff' });
+
+		expect(textWithMarks(doc, 'text', [backgroundColorNode])).toBe(true);
+	});
 
 	it('serializes to <span style="color: ...">', () => {
 		const schema = makeSchema();
@@ -75,8 +117,8 @@ describe(`${packageName}/schema backgroundColor mark`, () => {
 		});
 	});
 
-	describe('mark exclusions', () => {
-		it('removes textColor mark if applied to a range that already has it applied', () => {
+	describe('mark coexistence', () => {
+		it('allows backgroundColor to coexist with textColor when applied to the same range', () => {
 			const originalDocument = doc(p(textColor({ color: 'red' })('lol')))(defaultSchema);
 
 			const tr = new Transform(originalDocument);
@@ -84,12 +126,13 @@ describe(`${packageName}/schema backgroundColor mark`, () => {
 
 			tr.addMark(1, 5, defaultSchema.mark('backgroundColor', { color: 'blue' }));
 
-			expect(tr.doc.firstChild!.firstChild!.marks.length).toEqual(1);
-			expect(tr.doc.firstChild!.firstChild!.marks[0].type.name).toEqual('backgroundColor');
-			expect(tr.doc.firstChild!.firstChild!.marks[0].attrs.color).toEqual('blue');
+			expect(tr.doc.firstChild!.firstChild!.marks.map((mark) => mark.type.name)).toEqual([
+				'textColor',
+				'backgroundColor',
+			]);
 		});
 
-		it('does not allow the textColor mark to be applied to a range with the backgroundColor mark applied', () => {
+		it('allows textColor to coexist with backgroundColor when applied to the same range', () => {
 			const originalDocument = doc(p(backgroundColor({ color: 'blue' })('lol')))(defaultSchema);
 
 			const tr = new Transform(originalDocument);
@@ -97,9 +140,10 @@ describe(`${packageName}/schema backgroundColor mark`, () => {
 
 			tr.addMark(1, 5, defaultSchema.mark('textColor', { color: 'red' }));
 
-			expect(tr.doc.firstChild!.firstChild!.marks.length).toEqual(1);
-			expect(tr.doc.firstChild!.firstChild!.marks[0].type.name).toEqual('backgroundColor');
-			expect(tr.doc.firstChild!.firstChild!.marks[0].attrs.color).toEqual('blue');
+			expect(tr.doc.firstChild!.firstChild!.marks.map((mark) => mark.type.name)).toEqual([
+				'textColor',
+				'backgroundColor',
+			]);
 		});
 	});
 });

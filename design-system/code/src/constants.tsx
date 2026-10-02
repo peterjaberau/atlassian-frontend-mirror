@@ -441,8 +441,6 @@ export const SUPPORTED_LANGUAGES = [
 	},
 ] as const;
 
-export { CODE_BLOCK_SELECTOR } from './internal/theme/constants';
-
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
 export type LanguageAlias = (typeof SUPPORTED_LANGUAGES)[number]['alias'][number];

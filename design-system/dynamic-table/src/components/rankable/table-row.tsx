@@ -3,11 +3,10 @@ import React from 'react';
 // Allowing existing usage of non Pragmatic drag and drop solution
 import { Draggable } from '@atlaskit/pragmatic-drag-and-drop-react-beautiful-dnd-migration';
 
-import withDimensions, { type WithDimensionsProps } from '../../hoc/with-dimensions';
-import { inlineStylesIfRanking } from '../../internal/helpers';
+import withDimensions, { type State, type WithDimensionsProps } from '../../hoc/with-dimensions';
+import { inlineStylesIfRanking } from '../../internal/inline-styles-if-ranking';
 import { RankableTableBodyRow } from '../../styled/rankable/table-row';
 import { type HeadType, type RowType } from '../../types';
-
 import TableCell from './table-cell';
 
 interface RankableTableRowProps extends WithDimensionsProps {
@@ -77,7 +76,6 @@ class RankableTableRow extends React.Component<RankableTableRowProps> {
 						role={undefined}
 						// It is necessary to prevent the passing of aria-labelledby
 						aria-labelledby={undefined}
-						// @ts-ignore: [PIT-1685] Fails in post-office due to backwards incompatibility issue with React 18
 						aria-describedby={provided.dragHandleProps?.['aria-describedby']}
 						ref={this.innerRef(provided.innerRef)}
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -108,4 +106,8 @@ class RankableTableRow extends React.Component<RankableTableRowProps> {
 }
 
 // eslint-disable-next-line import/no-anonymous-default-export
-export default withDimensions<RankableTableRowProps>(RankableTableRow);
+const _default_1: React.ComponentClass<
+	Omit<RankableTableRowProps, 'refWidth' | 'refHeight' | 'innerRef'>,
+	State
+> = withDimensions<RankableTableRowProps>(RankableTableRow);
+export default _default_1;

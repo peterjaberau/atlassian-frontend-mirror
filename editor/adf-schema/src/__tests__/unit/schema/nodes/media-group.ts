@@ -1,6 +1,6 @@
+import { schema } from '@af/adf-test-helpers/src/adf-schema';
 import { fromHTML, toDOM } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
 
-import { schema } from '@af/adf-test-helpers/src/adf-schema';
 import { mediaGroup } from '../../../..';
 import { normalizeNodeSpec } from '../../_utils';
 
@@ -17,7 +17,7 @@ describe(`${packageName}/schema mediaGroup node`, () => {
 				attrs: {},
 				content: '(media | unsupportedBlock)+',
 				group: 'block',
-				marks: 'unsupportedMark unsupportedNodeAttribute annotation border link',
+				marks: 'unsupportedMark unsupportedNodeAttribute annotation border dataConsumer link',
 				parseDOM: [
 					{
 						tag: 'div[data-node-type="mediaGroup"]',

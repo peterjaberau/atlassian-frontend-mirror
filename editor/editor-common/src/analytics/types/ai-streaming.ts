@@ -1,4 +1,4 @@
-import { type ACTION, type ACTION_SUBJECT, type ACTION_SUBJECT_ID } from './enums';
+import type { ACTION, ACTION_SUBJECT, ACTION_SUBJECT_ID } from './enums';
 import type { OperationalAEP, UIAEP } from './utils';
 
 type AILocalIdNotFoundErrorAEP = OperationalAEP<
@@ -11,6 +11,15 @@ type AILocalIdNotFoundErrorAEP = OperationalAEP<
 		localIdStatus: string;
 		localIdStatusSize: number;
 		scrubbedLocalId: string;
+	}
+>;
+
+type AILocalIdsRepairedAEP = OperationalAEP<
+	ACTION.LOCAL_IDS_REPAIRED,
+	ACTION_SUBJECT.AI_STREAMING,
+	ACTION_SUBJECT_ID.EXPERIENCE_APPLICATION,
+	{
+		repairedNodeCount: number;
 	}
 >;
 
@@ -32,13 +41,19 @@ type AIStreamingInvalidCommandAEP = OperationalAEP<
 	ACTION_SUBJECT_ID.EXPERIENCE_APPLICATION,
 	{
 		ancestors?: string[];
+		anchorNodeType?: string;
 		// Disable for now #hot-122604
 		// command: Record<string, unknown>;
+		destinationParentNodeType?: string;
 		errorMessage?: string;
 		errorStack?: string;
 		fragments?: string[];
+		parentNodeType?: string;
 		repaired: boolean;
+		sourceNodeType?: string;
+		sourceParentNodeType?: string;
 		success: boolean;
+		validationReason?: string;
 	}
 >;
 
@@ -50,6 +65,7 @@ type AIStreamingUpdateStreamError = OperationalAEP<
 		docSize: number;
 		errorMessage?: string;
 		errorStack: string;
+		experienceName?: string;
 		fragmentSize: number;
 		isFinalStream: boolean;
 	}
@@ -90,6 +106,7 @@ type AIChangesRejectButtonClickedAEP = UIAEP<
 
 export type AIStreamingEventPayload =
 	| AILocalIdNotFoundErrorAEP
+	| AILocalIdsRepairedAEP
 	| AIStreamingNoDocChangeAEP
 	| AIStreamingInvalidCommandAEP
 	| AIStreamingUpdateStreamError

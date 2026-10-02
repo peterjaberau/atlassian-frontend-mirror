@@ -17,7 +17,7 @@ import {
 	InlineExtensionCenterAligned,
 	InlineExtensionRightAligned,
 	InlineExtensionWithSmartLink,
-} from '../../vr-tests/extension-with-updated-button-UI.fixtures';
+} from '../../vr-tests/extension-with-updated-button-UI.fixtures.vr.ap';
 
 const CONTENT_AREA_TEST_ID = 'ak-editor-fp-content-area';
 
@@ -40,9 +40,6 @@ snapshotInformational(BlockExtension, {
 	selector: {
 		byTestId: CONTENT_AREA_TEST_ID,
 	},
-	featureFlags: {
-		platform_editor_extension_styles: true,
-	},
 	prepare: async (page) => {
 		const editor = await EditorPageModel.from({ page });
 		const nodes = EditorNodeContainerModel.from(editor);
@@ -59,9 +56,6 @@ snapshotInformational(BlockExtension, {
 	selector: {
 		byTestId: CONTENT_AREA_TEST_ID,
 	},
-	featureFlags: {
-		platform_editor_extension_styles: true,
-	},
 	prepare: async (page) => {
 		const editor = await EditorPageModel.from({ page });
 		const nodes = EditorNodeContainerModel.from(editor);
@@ -73,9 +67,6 @@ snapshotInformational(BlockExtensionWithSmartLink, {
 	description: 'Block extension label showing on top of smart link',
 	selector: {
 		byTestId: CONTENT_AREA_TEST_ID,
-	},
-	featureFlags: {
-		platform_editor_extension_styles: true,
 	},
 	prepare: async (page) => {
 		const editor = await EditorPageModel.from({ page });

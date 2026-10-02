@@ -1,10 +1,11 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	NestedExpandInExpandRenderer,
 	NestedExpandInExpandDefaultModeRenderer,
 	NestedExpandInExpandWideModeRenderer,
 	NestedExpandInExpandFullWidthModeRenderer,
-} from './nested-expand.fixture';
+} from './nested-expand.fixture.vr.ap';
 
 snapshot(NestedExpandInExpandRenderer);
 

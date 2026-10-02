@@ -3,11 +3,14 @@
  * @jsx jsx
  */
 import { cssMap as cssMapCompiled } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { AVATAR_SIZES, type SizeType } from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
+import { AvatarContent } from '@atlaskit/avatar/avatar-content';
+import { AVATAR_SIZES } from '@atlaskit/avatar/avatar-sizes';
+import type { SizeType } from '@atlaskit/avatar/types';
 import { cssMap, jsx } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
 
 import { GeneratedAvatar } from './generated-avatars';
@@ -63,11 +66,17 @@ type AgentAvatarProps = {
 	isRovoDev?: boolean;
 	isForgeAgent?: boolean;
 	forgeAgentIconUrl?: string | null;
+	/** Uses ADS Avatar for the hexagon frame, border, and geometry. */
+	UNSAFE_useAdsAvatar?: boolean;
 };
 
 /**
  * Agent avatar components that handles rendering correct avatar for different variations of agent types
  *
+ * @deprecated Use AvatarRelay to render the agent avatar stored in Identity.
+ * See https://hello.atlassian.net/wiki/spaces/agents/pages/7797900562/How+to+migrate+AgentAvatar+to+AvatarRelay
+ *
+ * @param imageUrl - A non-empty URL takes priority over generated avatars, unless isForgeAgent and forgeAgentIconUrl select a Forge icon. If you already have an image URL, use Avatar from @atlaskit/avatar with appearance="hexagon" and src={imageUrl} directly.
  * @param agentNamedId - This is agent.external_config_reference, this value exists for OOTB (out of the box) agents. This id is the first priority to generate avatar because each OOTB agents have its own fixed avatar
  * @param agentIdentityAccountId - This is Atlassian identity account ID for the agent(aaid). This id is prioritised to generate random avatar for non OOTB agents
  * @param agentId - This is agent.id
@@ -84,10 +93,41 @@ export const AgentAvatar = ({
 	isRovoDev,
 	isForgeAgent,
 	forgeAgentIconUrl,
-}: AgentAvatarProps) => {
+	UNSAFE_useAdsAvatar,
+}: AgentAvatarProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	const imgUrl = isForgeAgent && forgeAgentIconUrl ? forgeAgentIconUrl : imageUrl;
+	const avatarName = name || label || formatMessage(messages.agentAvatarLabel);
+	const generatedAvatar = imgUrl ? null : (
+		<GeneratedAvatar
+			agentId={agentId}
+			agentNamedId={agentNamedId}
+			agentIdentityAccountId={agentIdentityAccountId}
+			isRovoDev={isRovoDev}
+			size={size}
+		/>
+	);
+
+	if (UNSAFE_useAdsAvatar) {
+		const adsAvatarProps = {
+			appearance: 'hexagon' as const,
+			label,
+			name: avatarName,
+			size,
+			UNSAFE_isUpdatedGeometry: true,
+		};
+
+		if (imgUrl) {
+			return <Avatar {...adsAvatarProps} src={imgUrl} />;
+		}
+
+		return (
+			<Avatar {...adsAvatarProps}>
+				<AvatarContent>{generatedAvatar}</AvatarContent>
+			</Avatar>
+		);
+	}
 
 	return (
 		<Box
@@ -114,20 +154,9 @@ export const AgentAvatar = ({
 			<div css={stylesCompiled.innerShape}>
 				<Box xcss={styles.avatarContentContainer}>
 					{imgUrl ? (
-						<Box
-							as="img"
-							xcss={styles.image}
-							src={imgUrl}
-							alt={name || label || formatMessage(messages.agentAvatarLabel)}
-						/>
+						<Box as="img" xcss={styles.image} src={imgUrl} alt={avatarName} />
 					) : (
-						<GeneratedAvatar
-							agentId={agentId}
-							agentNamedId={agentNamedId}
-							agentIdentityAccountId={agentIdentityAccountId}
-							isRovoDev={isRovoDev}
-							size={size}
-						/>
+						generatedAvatar
 					)}
 				</Box>
 			</div>

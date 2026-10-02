@@ -1,5 +1,149 @@
 # @atlaskit/feature-gate-js-client
 
+## 7.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.2
+
+### Patch Changes
+
+- [`f7959cbd02630`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f7959cbd02630) -
+  Apply Volt Standards (One Export Per File) to `@atlaskit/feature-gate-js-client`.
+
+  Internal refactor only — the package's public API (`package.json#exports` and `src/index.ts`) is
+  unchanged:
+  - Split the multi-export `src/client/utils.ts` into one file per export (`deepAssign`,
+    `getOptionsWithDefaults`, `migrateInitializationOptions`, `migrateEvaluationDetails`,
+    `migrateSecondaryExposures`, `shallowEquals`, `toStatsigUser`).
+  - Flatten the internal re-export barrels `src/client/fetcher/index.ts` and
+    `src/subscriptions/index.ts`; consumers now import from the concrete modules.
+  - Remove now-unused imports surfaced by the above.
+
+## 6.0.1
+
+### Patch Changes
+
+- [`b1cf9e336f0f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1cf9e336f0f0) -
+  Migrate consumers of @atlaskit/atlassian-context from barrel imports to direct subpath imports,
+  and remove the deprecated `./domain-lookup`, `./generalized-domain-lookup`, and `./perimeter`
+  entry-point exports (all symbols remain available via their per-export subpaths).
+
+  Also extends the `no-restricted-fedramp-imports` ESLint rule to cover the new
+  `@atlaskit/atlassian-context/is-fedramp` and `@atlaskit/atlassian-context/is-isolated-cloud`
+  subpaths, so the FedRamp/IsolatedCloud deprecation guardrail keeps firing after the migration.
+
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.8.0
+
+### Minor Changes
+
+- [`adb4e7777d502`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/adb4e7777d502) -
+  Add new identifiers for customerAccountId and csmAccountId
+
+## 5.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.7.1
+
+### Patch Changes
+
+- [`ecdd607bee176`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ecdd607bee176) -
+  Fix BootstrapStableIDMismatch warnings that appear in diagnostics when the stableId identifier is
+  provided
+
+## 5.7.0
+
+### Minor Changes
+
+- [`9553e19fc007d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9553e19fc007d) -
+  Adds newly rolled out studioWorkspaceId identifier.
+
+## 5.6.0
+
+### Minor Changes
+
+- [`d4e632fa57116`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4e632fa57116) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 5.5.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.5.9
+
+### Patch Changes
+
+- [`000d0a2d3aca2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/000d0a2d3aca2) -
+  Remove non-erasable syntax (e.g. enums, namespaces with runtime code) from package
+
+## 5.5.8
+
+### Patch Changes
+
+- [`c68a6884df01e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c68a6884df01e) -
+  Make the underlying Statsig client properties merge in the backend evaluated properties. This is
+  to prevent Statsig showing false positive "BootstrapPartialUserMatch" errors in its UI when
+  bootstrapping frontend SDKs.
+
 ## 5.5.7
 
 ### Patch Changes

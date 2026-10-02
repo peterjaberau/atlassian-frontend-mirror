@@ -2,12 +2,14 @@
 // Keep PlaybackSpeedControls to use static colors from the new color palette to support the hybrid
 // theming in media viewer https://product-fabric.atlassian.net/browse/DSP-6067
 // with the compiled react, we are leaving the static colors in tact for now.
+
 import React from 'react';
-import { type PopupSelect, type OptionType, type StylesConfig, components } from '@atlaskit/select';
-import { DN900 } from '@atlaskit/theme/colors';
+
 import { cssMap } from '@compiled/react';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Flex } from '@atlaskit/primitives';
+
+import { components } from '@atlaskit/react-select/components';
+import type { PopupSelect } from '@atlaskit/select/popup-select';
+import type { OptionType, StylesConfig } from '@atlaskit/select/types';
 
 export const popupCustomStyles: StylesConfig<OptionType> = {
 	container: (styles) => ({
@@ -20,7 +22,7 @@ export const popupCustomStyles: StylesConfig<OptionType> = {
 	menuList: (styles) => ({ ...styles, padding: '4px 0px' }),
 	option: (styles, { isFocused, isSelected }) => ({
 		...styles,
-		color: isSelected ? '#579dff' : DN900,
+		color: isSelected ? '#579dff' : '#E6EDFA',
 		backgroundColor: isSelected ? '#082145' : isFocused ? '#a1bdd914' : '#22272b',
 		':active': {
 			backgroundColor: '#a6c5e229',
@@ -31,6 +33,10 @@ export const popupCustomStyles: StylesConfig<OptionType> = {
 		color: '#9fadbc',
 	}),
 };
+
+/** Distance (px) between the trigger element and the popup menu. */
+
+export const POPUP_OFFSET = 10;
 
 export const popperProps: PopupSelect['props']['popperProps'] = {
 	strategy: 'fixed',
@@ -50,13 +56,15 @@ export const popperProps: PopupSelect['props']['popperProps'] = {
 			name: 'offset',
 			enabled: true,
 			options: {
-				offset: [0, 10],
+				offset: [0, POPUP_OFFSET],
 			},
 		},
 	],
 	placement: 'top',
 };
 
+// `cssMap` usages cannot be exported (@atlaskit/design-system/no-invalid-css-map), so this style
+// map is declared locally in each module that needs it rather than shared via an import.
 const selectOptionStyles = cssMap({
 	root: {
 		'&:active': {
@@ -68,19 +76,3 @@ const selectOptionStyles = cssMap({
 export const popupSelectComponents: PopupSelect['props']['components'] = {
 	Option: (props) => <components.Option {...props} xcss={selectOptionStyles.root} />,
 };
-
-export const createPopupSelectComponentsWithIcon = (
-	IconComponent: React.ComponentType<{ label: string; value: string }>,
-): PopupSelect['props']['components'] => ({
-	Option: ({ children, ...props }) => {
-		const childrenWithIcon = (
-			<Flex justifyContent="space-between" alignItems="center">
-				{children}
-				<IconComponent label={props.label} value={`${props.data.value}`} />
-			</Flex>
-		);
-		return (
-			<components.Option {...props} children={childrenWithIcon} xcss={selectOptionStyles.root} />
-		);
-	},
-});

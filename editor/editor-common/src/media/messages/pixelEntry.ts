@@ -1,6 +1,67 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const pixelEntryMessages = defineMessages({
+export const pixelEntryMessages: {
+	validationFailedMessage: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inputWidthTooltip: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inputWidthAriaLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inputWidthLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inputHeightTooltip: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	inputHeightAriaLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	submitButtonText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	fullWidthLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	migrationButtonText: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	migrationButtonTooltip: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	closePixelEntry: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	resizeOption: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	validationFailedMessage: {
 		id: 'fabric.editor.media.pixelEntry.validationFailedMessage',
 		defaultMessage: 'Validation for width failed',
@@ -14,12 +75,14 @@ export const pixelEntryMessages = defineMessages({
 	inputWidthAriaLabel: {
 		id: 'fabric.editor.media.pixelEntry.inputWidthAriaLabel',
 		defaultMessage: 'Max width {maxWidth}px',
-		description: 'The width input aria label',
+		description:
+			'Aria label for the width input field used for media pixel entry. The placeholder {maxWidth} will be substituted with the maximum allowed width value in pixels.',
 	},
 	inputWidthLabel: {
 		id: 'fabric.editor.media.pixelEntry.inputWidthLabel',
 		defaultMessage: 'Width',
-		description: 'The label displayed next to the width input',
+		description:
+			'Label for the width input field in the media resize panel. Users enter a numeric value representing the desired width in pixels for the image.',
 	},
 	inputHeightTooltip: {
 		id: 'fabric.editor.media.pixelEntry.inputHeightTooltip',
@@ -29,7 +92,8 @@ export const pixelEntryMessages = defineMessages({
 	inputHeightAriaLabel: {
 		id: 'fabric.editor.media.pixelEntry.inputHeightAriaLabel',
 		defaultMessage: 'height input',
-		description: 'The width input aria label',
+		description:
+			'Aria label for the height input field used for media pixel entry to inform screen readers about the purpose of the input.',
 	},
 	submitButtonText: {
 		id: 'fabric.editor.media.pixelEntry.submitButtonText',
@@ -39,7 +103,8 @@ export const pixelEntryMessages = defineMessages({
 	fullWidthLabel: {
 		id: 'fabric.editor.image.fullWidthLabel',
 		defaultMessage: 'Full-width',
-		description: 'The media has reached its maximum width',
+		description:
+			'Label shown in the media pixel entry toolbar when the image is at its maximum width, indicating the image is in full-width display mode.',
 	},
 	migrationButtonText: {
 		id: 'fabric.editor.media.pixelEntry.migrationButtonText',

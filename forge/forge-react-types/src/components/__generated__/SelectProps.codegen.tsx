@@ -4,12 +4,12 @@
  * Extract component prop types from UIKit 2 components - SelectProps
  *
  * @codegen <<SignedSource::e7cc2654f6b4dfb3d3f0374d0970989f>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
  * @codegenDependency ../../../../forge-ui/src/components/UIKit/select/index.tsx <<SignedSource::f7eed13874b04c56ded5f3434e03c70e>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
-import type { SelectProps as PlatformSelectProps } from '@atlaskit/select';
+import type { SelectProps as PlatformSelectProps } from '@atlaskit/select/types';
 
 export type SelectProps = Pick<
 	PlatformSelectProps<any, true | false>,

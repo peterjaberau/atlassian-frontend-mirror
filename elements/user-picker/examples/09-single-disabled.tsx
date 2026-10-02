@@ -1,7 +1,9 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
+
+import { IntlProvider } from 'react-intl';
+
 import { exampleOptions } from '../example-helpers';
-import UserPicker from '../src';
+import { UserPicker } from '../src/components/UserPicker';
 
 const Example = (): React.JSX.Element => {
 	return (

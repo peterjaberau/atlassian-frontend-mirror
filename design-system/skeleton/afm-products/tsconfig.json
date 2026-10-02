@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__skeleton/app",
 		"rootDir": "../",
 		"composite": true,
@@ -23,6 +22,15 @@
 		"../src/**/stories/**/*"
 	],
 	"references": [
+		{
+			"path": "../../../observability/interaction-context/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
 		{
 			"path": "../../tokens/afm-products/tsconfig.json"
 		}

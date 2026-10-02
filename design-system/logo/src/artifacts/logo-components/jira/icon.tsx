@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::b225283860ba91a6c228b8f4fa0e1d39>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::c0e4bfbb3ca87324a6e97db845b2ae2c>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -22,15 +22,13 @@ const customThemeSvg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __JiraIcon__
  *
- * A temporary component to represent the icon for Jira.
- * @deprecated This component has been replaced by the component `JiraIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Jira.
+ * Import `JiraIcon` from `@atlaskit/logo/jira/icon`.
  *
  */
 export function JiraIcon({
 	iconColor,
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Jira',
 	testId,

@@ -6,14 +6,14 @@ import React, { useMemo } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import LinkGlyph from '@atlaskit/icon/core/link';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { ExpandedFrame } from '../../components/ExpandedFrame';
 import { ImageIcon } from '../../components/ImageIcon';
-
 import type { UnresolvedViewProps } from './types';
 
 const containerStyles = css({
@@ -28,11 +28,11 @@ const contentStyles = css({
 	textAlign: 'center',
 	alignItems: 'center',
 	margin: 'auto',
-	paddingTop: token('space.200', '16px'),
-	paddingRight: token('space.200', '16px'),
-	paddingBottom: token('space.200', '16px'),
-	paddingLeft: token('space.200', '16px'),
-	gap: token('space.250', '20px'),
+	paddingTop: token('space.200'),
+	paddingRight: token('space.200'),
+	paddingBottom: token('space.200'),
+	paddingLeft: token('space.200'),
+	gap: token('space.250'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	maxWidth: '400px',
 });
@@ -53,22 +53,32 @@ const UnresolvedView = ({
 	inheritDimensions,
 	isSelected,
 	onClick,
+	providerIcon,
+	providerIconLabel,
 	testId,
 	text,
 	title,
 	url,
-}: UnresolvedViewProps) => {
+}: UnresolvedViewProps): JSX.Element => {
+	// Unresolved embeds have no entity title. The frame shows the provider name, so
+	// pair it with the provider/generator icon rather than the entity-type icon.
+	const shouldUseProviderIcon =
+		providerIcon != null && fg('platform_lp_use_generator_icon_for_provider');
+	const frameIconUrlOrElement = shouldUseProviderIcon ? providerIcon : iconUrlOrElement;
+	const frameIconLabel = shouldUseProviderIcon ? providerIconLabel : undefined;
+
 	const icon = useMemo(() => {
-		if (React.isValidElement(iconUrlOrElement)) {
-			return iconUrlOrElement;
+		if (React.isValidElement(frameIconUrlOrElement)) {
+			return frameIconUrlOrElement;
 		}
 		return (
 			<ImageIcon
-				src={typeof iconUrlOrElement === 'string' ? iconUrlOrElement : undefined}
+				src={typeof frameIconUrlOrElement === 'string' ? frameIconUrlOrElement : undefined}
+				alt={frameIconLabel}
 				default={<LinkGlyph label="icon" testId="embed-card-fallback-icon" color="currentColor" />}
 			/>
 		);
-	}, [iconUrlOrElement]);
+	}, [frameIconLabel, frameIconUrlOrElement]);
 
 	const image = useMemo(() => {
 		if (!imageUrlOrElement) {

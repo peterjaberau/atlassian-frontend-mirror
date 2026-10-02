@@ -5,7 +5,7 @@
 import { type ReactNode } from 'react';
 
 import { css, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import { token } from '@atlaskit/tokens';
 
 interface FormSectionProps {
@@ -32,12 +32,10 @@ const formSectionWrapperStyles = css({
 });
 
 const FormSectionWrapper = ({ children }: { children?: ReactNode }) => {
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
 	return <div css={formSectionWrapperStyles}>{children}</div>;
 };
 
 const FormSectionDescription = ({ children }: { children: ReactNode }) => {
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
 	return <div css={formSectionDescriptionStyles}>{children}</div>;
 };
 
@@ -51,7 +49,7 @@ const FormSectionDescription = ({ children }: { children: ReactNode }) => {
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/form/docs/layout)
  * - [Usage](https://atlaskit.atlassian.com/packages/design-system/form/docs/layout).
  */
-const FormSection = ({ children, description, title }: FormSectionProps): JSX.Element => {
+export const FormSection = ({ children, description, title }: FormSectionProps): JSX.Element => {
 	return (
 		<FormSectionWrapper>
 			{title && <Heading size="medium">{title}</Heading>}
@@ -60,5 +58,3 @@ const FormSection = ({ children, description, title }: FormSectionProps): JSX.El
 		</FormSectionWrapper>
 	);
 };
-
-export default FormSection;

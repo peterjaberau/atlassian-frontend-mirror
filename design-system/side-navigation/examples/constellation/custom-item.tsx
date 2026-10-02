@@ -1,7 +1,10 @@
 import React, { forwardRef } from 'react';
 
 import ArrowUpRightIcon from '@atlaskit/icon/core/arrow-up-right';
-import { CustomItem, type CustomItemComponentProps, Section } from '@atlaskit/side-navigation';
+import type { CustomItemComponentProps } from '@atlaskit/menu/types';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { CustomItem } from '@atlaskit/side-navigation/custom-item';
+import { Section } from '@atlaskit/side-navigation/section';
 
 type CustomProps = CustomItemComponentProps & { href: string };
 

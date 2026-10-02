@@ -1,9 +1,17 @@
-import BlogIconSmall from '@atlaskit/icon-object/glyph/blog/16';
-import BlogIconLarge from '@atlaskit/icon-object/glyph/blog/24';
+import type { FC } from 'react';
 
-import { renderIconPerSize } from './utils';
+import BlogObject from '@atlaskit/object/blog';
+import BlogObjectTile from '@atlaskit/object/tile/blog';
+import type { ObjectProps } from '@atlaskit/object/types';
 
-const BlogIconWithColor = renderIconPerSize(BlogIconSmall, BlogIconLarge);
+import type { SmartLinkSize } from '../../../constants';
+import { renderIconPerSize } from './render-icon-per-size';
+
+const BlogIconWithColor: FC<
+	Omit<ObjectProps, 'size'> & {
+		size?: SmartLinkSize;
+	}
+> = renderIconPerSize(BlogObject, BlogObjectTile);
 BlogIconWithColor.displayName = 'BlogIconWithColor';
 
 export default BlogIconWithColor;

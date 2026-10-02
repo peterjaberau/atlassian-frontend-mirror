@@ -1,8 +1,14 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+/* eslint-disable jsdoc/require-jsdoc -- internal step helpers */
+
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
 import { AddMarkStep } from '@atlaskit/editor-prosemirror/transform';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-function getStartPos(element: HTMLElement) {
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const MEDIA_OR_MEDIA_SINGLE_REGEX = /media|mediaSingle/;
+
+export function getStartPos(element: HTMLElement): number {
 	return parseInt(element.dataset.rendererStartPos || '-1', 10);
 }
 
@@ -12,9 +18,9 @@ function isPositionPointer(element: HTMLElement) {
 	return getStartPos(element) > -1;
 }
 
-function findParent(element: ChildNode | Node): HTMLElement | null {
+export function findParent(element: ChildNode | Node): HTMLElement | null {
 	const { parentElement } = element;
-	if (!parentElement || isRoot(parentElement)) {
+	if (!parentElement || isRendererRoot(parentElement)) {
 		return null;
 	}
 
@@ -27,7 +33,7 @@ function findParent(element: ChildNode | Node): HTMLElement | null {
 
 function findMediaParent(element: ChildNode | Node): HTMLElement | null {
 	const { parentElement } = element;
-	if (!parentElement || isRoot(parentElement)) {
+	if (!parentElement || isRendererRoot(parentElement)) {
 		return null;
 	}
 
@@ -40,7 +46,7 @@ function findMediaParent(element: ChildNode | Node): HTMLElement | null {
 
 function findParentBeforePointer(element: HTMLElement): HTMLElement | null {
 	const { parentElement } = element;
-	if (isRoot(parentElement) || !parentElement) {
+	if (isRendererRoot(parentElement) || !parentElement) {
 		return null;
 	}
 
@@ -153,11 +159,11 @@ function resolveNodePos(node: Node) {
 	return resolvedPos;
 }
 
-export function isRoot(element: HTMLElement | null): boolean {
+export function isRendererRoot(element: HTMLElement | null): boolean {
 	return !!element && element.classList.contains('ak-renderer-document');
 }
 
-export function resolvePos(node: Node | null, offset: number, findEnd = false) {
+export function resolvePos(node: Node | null, offset: number, findEnd = false): number | false {
 	// If the passed node doesn't exist, we should abort
 	if (!node) {
 		return false;
@@ -255,9 +261,7 @@ export function getPosFromRange(range: Range): { from: number; to: number } | fa
 	// Video hover targets return media single, not media, thus, the extra check in condition.
 	const isMediaOrMediaSingle =
 		possibleMediaOrMediaSingleElement &&
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		/media|mediaSingle/.test(getNodeType(possibleMediaOrMediaSingleElement) || '');
+		MEDIA_OR_MEDIA_SINGLE_REGEX.test(getNodeType(possibleMediaOrMediaSingleElement) || '');
 	if (isMediaOrMediaSingle) {
 		let pos;
 		const mediaSingleElement =
@@ -284,7 +288,11 @@ export function getPosFromRange(range: Range): { from: number; to: number } | fa
 	return { from, to };
 }
 
-export function createAnnotationStep(from: number, to: number, opts: AnnotationStepOptions) {
+export function createAnnotationStep(
+	from: number,
+	to: number,
+	opts: AnnotationStepOptions,
+): AddMarkStep {
 	return new AddMarkStep(
 		Math.min(from, to),
 		Math.max(from, to),

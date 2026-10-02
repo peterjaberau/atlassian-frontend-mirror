@@ -1,4 +1,3 @@
-
 import {
 	TEAMS_CLIENT_EXPERIENCES,
 	type TeamsClientExperienceKeys,
@@ -6,11 +5,11 @@ import {
 import {
 	type MembershipState,
 	type TeamMembership,
-	type TeamWithImageUrls,
 	type TeamWithMemberships,
-} from '../types';
-
-import { aggClient, type TeamContainers } from './agg-client';
+} from '../types/membership';
+import { type TeamWithImageUrls } from '../types/team';
+import { aggClient } from './agg-client';
+import { type TeamContainers } from './agg-client/TeamContainers';
 import { type AGGPageInfoVariables, type ResultWithPageInfo } from './agg-client/types';
 import collaborationGraphClient from './collaborationgraph-client';
 import { directoryClient } from './directory-client';
@@ -836,11 +835,11 @@ export class TeamsClient {
 	/**
 	 * Get token to upload media for a team
 	 */
-	async getWriteTeamMediaToken(): Promise<
-		AwaitedReturn<typeof userPreferencesClient.getReadMediaToken>
-	> {
+	async getWriteTeamMediaToken(
+		teamId?: string,
+	): Promise<AwaitedReturn<typeof userPreferencesClient.getReadMediaToken>> {
 		return this.measurePerformance('getWriteTeamMediaToken', () =>
-			this._legionClient.getWriteMediaToken(),
+			this._legionClient.getWriteMediaToken(teamId),
 		);
 	}
 
@@ -1106,4 +1105,4 @@ export class TeamsClient {
 	}
 }
 
-export const teamsClient = new TeamsClient();
+export const teamsClient: TeamsClient = new TeamsClient();

@@ -1,16 +1,20 @@
 import React from 'react';
+
 import {
-	useAnalyticsEvents,
-	type UIAnalyticsEvent,
-	AnalyticsContext,
-} from '@atlaskit/analytics-next';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
+	injectIntl,
+	FormattedMessage,
+	type WithIntlProps,
+	type WrappedComponentProps,
+} from 'react-intl';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import Button from '@atlaskit/button/default/button';
 import { Text } from '@atlaskit/primitives/compiled';
-import Button from '@atlaskit/button/new';
 
 import NotFoundImage from '../../../../assets/NotFoundImage';
 import { messages } from '../../../../messages';
-
 import { WhatsNewResultsEmptyMessageImage, WhatsNewResultsEmptyMessageText } from './styled';
 
 export interface Props {
@@ -51,10 +55,16 @@ export const WhatsNewResultsEmpty: React.FC<Props & WrappedComponentProps> = ({
 							componentName: 'WhatsNewResultsEmpty',
 						}}
 					>
-						<Button appearance="primary" onClick={handleClearFilterLinkClick}>
-							{formatMessage(messages.help_whats_new_no_results_clear_filter_button_label)}
-						</Button>
-						<Text>{formatMessage(messages.help_whats_new_no_results_clear_filter_info)}</Text>
+						<FormattedMessage
+							{...messages.help_whats_new_no_results_clear_filter_button_label}
+							values={{
+								button: (chunks) => (
+									<Button appearance="primary" onClick={handleClearFilterLinkClick}>
+										{chunks}
+									</Button>
+								),
+							}}
+						/>
 					</AnalyticsContext>
 				</Text>
 			</WhatsNewResultsEmptyMessageText>

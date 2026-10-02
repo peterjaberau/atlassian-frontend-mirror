@@ -1,14 +1,17 @@
 /* eslint-disable @repo/internal/react/require-jsdoc */
+
 import type { Rule } from 'eslint';
 import { isNodeOfType, type Property } from 'eslint-codemod-utils';
 
 import { getSourceCode } from '@atlaskit/eslint-utils/context-compat';
 
-import { Root } from '../../../ast-nodes';
+import { Root } from '../../../ast-nodes/root';
 import { getNodeSource } from '../../utils/get-node-source';
-import { isDecendantOfStyleBlock, isDecendantOfType } from '../../utils/is-node';
-import { type RuleConfig } from '../config';
-import { findFontWeightTokenForValue, insertTokensImport } from '../utils';
+import { isDecendantOfStyleBlock } from '../../utils/is-decendant-of-style-block';
+import { isDecendantOfType } from '../../utils/is-decendant-of-type';
+import type { RuleConfig } from '../config/types';
+import { findFontWeightTokenForValue } from '../find-font-weight-token-for-value';
+import { insertTokensImport } from '../insert-tokens-import';
 
 interface MetaData {
 	context: Rule.RuleContext;
@@ -16,9 +19,15 @@ interface MetaData {
 }
 
 export const FontWeight: {
-    lint(node: Rule.Node, { context, config }: MetaData): void;
-    _check(node: Rule.Node, { context, config }: MetaData): node is Property & Rule.NodeParentExtension;
-    _fix(node: Property & Rule.NodeParentExtension, context: Rule.RuleContext): (fixer: Rule.RuleFixer) => Rule.Fix[];
+	lint(node: Rule.Node, { context, config }: MetaData): void;
+	_check(
+		node: Rule.Node,
+		{ context, config }: MetaData,
+	): node is Property & Rule.NodeParentExtension;
+	_fix(
+		node: Property & Rule.NodeParentExtension,
+		context: Rule.RuleContext,
+	): (fixer: Rule.RuleFixer) => Rule.Fix[];
 } = {
 	lint(node: Rule.Node, { context, config }: MetaData): void {
 		// Check whether all criteria needed to make a transformation are met
@@ -27,7 +36,13 @@ export const FontWeight: {
 			return context.report({
 				node,
 				messageId: 'noRawFontWeightValues',
-				fix: FontWeight._fix(node, context),
+				...(config.enableUnsafeAutofix
+					? { fix: FontWeight._fix(node, context) }
+					: {
+							suggest: [
+								{ desc: 'Convert to font weight token', fix: FontWeight._fix(node, context) },
+							],
+						}),
 			});
 		}
 	},

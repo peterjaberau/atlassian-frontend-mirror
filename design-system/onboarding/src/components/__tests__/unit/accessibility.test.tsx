@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { render } from '@testing-library/react';
 import Lorem from 'react-lorem-component';
 
 import { axe } from '@af/accessibility-testing';
+import { render } from '@atlassian/testing-library';
 
 import welcomeImage from '../../../../examples/assets/this-is-new-jira.png';
 import { ModalTransition } from '../../../../src';

@@ -1,32 +1,45 @@
-import type { Node as PMNode, NodeType } from '@atlaskit/editor-prosemirror/model';
 import type { ExtensionParams, Parameters } from '@atlaskit/editor-common/extensions';
+import type { Node as PMNode, NodeType } from '@atlaskit/editor-prosemirror/model';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 export function markBlockAsInline({
 	nodes,
 	onMark,
 	parentPos,
 	shouldDisplayExtensionAsInline,
+	isTopLevel = true,
 }: {
+	isTopLevel?: boolean;
 	nodes: PMNode[];
 	onMark: ({ pos }: { pos: number }) => void;
 	parentPos: number;
 	shouldDisplayExtensionAsInline: (extensionParams: ExtensionParams<Parameters>) => boolean;
-}) {
+}): void {
 	if (!nodes || nodes.length === 0 || nodes[0].isInline) {
 		return;
 	}
 
 	function isInlineBodiedExtension(node?: PMNode | null): boolean {
+		if (
+			!isTopLevel &&
+			node?.type.name === 'bodiedExtension' &&
+			node.attrs?.extensionType === 'com.atlassian.ecosystem' &&
+			node.attrs?.parameters?.layout === 'inline-bodied' &&
+			fg('platform_forge_inline_bodied_layout_switch') &&
+			fg('platform_forge_inline_bodied_macro')
+		) {
+			return false;
+		}
 		return Boolean(
 			node?.type.name === 'bodiedExtension' &&
-				shouldDisplayExtensionAsInline({
-					type: node.type.name,
-					extensionKey: node.attrs?.extensionKey,
-					extensionType: node.attrs?.extensionType,
-					parameters: node.attrs?.parameters,
-					content: node.content,
-					localId: node.attrs?.localId,
-				}),
+			shouldDisplayExtensionAsInline({
+				type: node.type.name,
+				extensionKey: node.attrs?.extensionKey,
+				extensionType: node.attrs?.extensionType,
+				parameters: node.attrs?.parameters,
+				content: node.content,
+				localId: node.attrs?.localId,
+			}),
 		);
 	}
 

@@ -1,6 +1,72 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	defaultAdvisedAction: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	defaultHeadline: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	differentText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	loadingPlaceholder: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	loginAgain: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	memberCountWithoutYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	memberCountWithYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	noAccessLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	noAccessWarning: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	plus50MembersWithoutYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	plus50MembersWithYou: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	unknownUserError: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	xProductMentionDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	unknownUserError: {
 		id: 'fabric.mention.unknow.user.error',
 		defaultMessage: 'Unknown user {userId}',
@@ -14,7 +80,8 @@ export const messages = defineMessages({
 	noAccessLabel: {
 		id: 'fabric.mention.noAccess.label',
 		defaultMessage: 'No access',
-		description: 'Label for no access icon',
+		description:
+			'Accessible label shown next to the no-access icon on a mention, indicating the mentioned user does not have access to the current content.',
 	},
 	defaultHeadline: {
 		id: 'fabric.mention.error.defaultHeadline',
@@ -63,5 +130,11 @@ export const messages = defineMessages({
 		id: 'fabric.elements.mentions.xproduct.mention.description',
 		defaultMessage: 'Needs access to Confluence',
 		description: 'Description for a x-product mention item in the mention list in Confluence',
+	},
+	loadingPlaceholder: {
+		id: 'fabric.elements.mentions.loading.placeholder',
+		defaultMessage: 'Loading',
+		description:
+			'Accessible label for a loading placeholder row shown in the mention list while a slower mention source (such as agents) is still loading.',
 	},
 });

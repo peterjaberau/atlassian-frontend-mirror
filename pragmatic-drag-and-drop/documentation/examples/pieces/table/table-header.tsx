@@ -3,27 +3,25 @@
  * @jsx jsx
  */
 import { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, type SerializedStyles } from '@emotion/react';
-import ReactDOM from 'react-dom';
 import invariant from 'tiny-invariant';
 
-import {
-	attachClosestEdge,
-	type Edge,
-	extractClosestEdge,
-} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
 import {
 	draggable,
 	dropTargetForElements,
 	monitorForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview';
-import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
-import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/prevent-unhandled';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/disable-native-drag-preview';
+import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/pointer-outside-of-preview';
+import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/utils/prevent-unhandled';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Stack, xcss } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
@@ -86,14 +84,14 @@ function clamp({ value, min, max }: { value: number; min: number; max: number })
 }
 
 const headerDraggingStyles = css({
-	background: token('color.background.disabled', '#091E4224'),
-	color: token('color.text.disabled', '#091E424F'),
+	background: token('color.background.disabled'),
+	color: token('color.text.disabled'),
 });
 
 type ColumnType = 'first-of-many' | 'middle-of-many' | 'last-of-many' | 'only-column';
 
 const resizerStyles = css({
-	'--local-hitbox-width': token('space.300', '24px'),
+	'--local-hitbox-width': token('space.300'),
 	width: 'var(--local-hitbox-width)',
 	cursor: 'col-resize',
 	flexGrow: '0',
@@ -106,10 +104,10 @@ const resizerStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'::before': {
 		opacity: 0,
-		'--local-line-width': token('border.width', '2px'),
+		'--local-line-width': token('border.width'),
 		content: '""',
 		position: 'absolute',
-		background: token('color.border.brand', '#0052CC'),
+		background: token('color.border.brand'),
 		// Jesse would like us to use 'color.border' for hover, then brand while resizing
 		// However,
 		// - right now that is inconsistent with our sidebar
@@ -175,7 +173,7 @@ const dropTargetStyles: {
 };
 
 const thStyles = css({
-	borderBottom: `${token('border.width.selected')} solid ${token('color.border', 'red')}`,
+	borderBottom: `${token('border.width.selected')} solid ${token('color.border')}`,
 	// Need position:relative so our drop indicator (which uses position:absolute) can be
 	// correctly positioned inside
 	position: 'relative',
@@ -473,8 +471,8 @@ const previewStyles = xcss({
 });
 
 const previewHeaderStyles = xcss({
-	fontWeight: token('font.weight.bold', 'bold'),
-	borderBottom: `${token('border.width.selected')} solid ${token('color.border', 'red')}`,
+	fontWeight: 'font.weight.bold',
+	borderBottom: `${token('border.width.selected')} solid ${token('color.border')}`,
 	lineHeight: '32px',
 });
 

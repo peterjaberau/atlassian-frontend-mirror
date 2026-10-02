@@ -1,10 +1,67 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	edit: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	deleteElementTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	unnamedSource: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	confirmDeleteLinkedModalOKButton: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	confirmDeleteLinkedModalMessage: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	confirmModalCheckboxLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	saveIndicator: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	panelLoadingError: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	extensionLoadingError: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	unknownMacroPlaceholderAriaLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	unknownMacroHeader: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	edit: {
 		id: 'fabric.editor.edit',
 		defaultMessage: 'Edit',
-		description: 'Edit the properties for this extension.',
+		description:
+			'The text is shown as a button label in the extension context menu. Triggers opening the properties editor for the selected extension to modify its configuration.',
 	},
 	deleteElementTitle: {
 		id: 'fabric.editor.extension.deleteElementTitle',
@@ -31,122 +88,38 @@ export const messages = defineMessages({
 	confirmModalCheckboxLabel: {
 		id: 'fabric.editor.floatingToolbar.confirmModalCheckboxLabel',
 		defaultMessage: 'Also delete connected elements',
-		description: 'checkbox label text',
+		description:
+			'Label for a checkbox in a confirm modal that allows the user to also delete connected elements when deleting an extension.',
 	},
 	saveIndicator: {
 		id: 'fabric.editor.extensions.config-panel.save-indicator',
 		defaultMessage: 'All changes are always autosaved',
 		description:
-			'Message shown to the user to notify to them that we save the changes automatically.',
+			'Informational message displayed in the extension configuration panel to reassure users that their changes are being saved automatically without requiring manual save action.',
 	},
 	panelLoadingError: {
 		id: 'fabric.editor.extensions.config-panel.loading-error.non-final',
 		defaultMessage: 'We ran into a bit of trouble. Refresh to try again.',
-		description: 'Error message when loading the configuration panel',
+		description:
+			'Error message displayed when the extension configuration panel fails to load. Instructs users to refresh the page to attempt loading the panel again.',
 	},
 	extensionLoadingError: {
 		id: 'fabric.editor.extension.loading-error',
 		defaultMessage: 'Error loading the extension!',
-		description: 'Error message when loading an extension',
+		description:
+			'Error message displayed when an extension fails to load in the editor. Indicates a problem occurred during the extension initialization or rendering process.',
+	},
+	unknownMacroPlaceholderAriaLabel: {
+		id: 'fabric.editor.extension.unknownMacroPlaceholderAriaLabel',
+		defaultMessage: 'Unknown macro placeholder',
+		description:
+			'Accessible label for the unknown macro fallback block shown when a Confluence macro cannot be resolved.',
+	},
+	unknownMacroHeader: {
+		id: 'fabric.editor.extension.unknownMacroHeader',
+		defaultMessage: "Unknown macro: ''{macroTitle}''",
+		description: 'Header text for an unresolved Confluence macro placeholder.',
 	},
 });
-
-export const configPanelMessages = defineMessages({
-	configFailedToLoad: {
-		id: 'fabric.editor.configFailedToLoad',
-		defaultMessage: 'Failed to load',
-		description: 'Displayed when the config panel fails to load fields',
-	},
-	submit: {
-		id: 'fabric.editor.configPanel.submit',
-		defaultMessage: 'Submit',
-		description: 'Submit button label',
-	},
-	cancel: {
-		id: 'fabric.editor.configPanel.cancel',
-		defaultMessage: 'Cancel',
-		description: 'Cancel button label',
-	},
-	close: {
-		id: 'fabric.editor.configPanel.close',
-		defaultMessage: 'Close',
-		description: 'Close button label',
-	},
-	required: {
-		id: 'fabric.editor.configPanel.required',
-		defaultMessage: 'Required field',
-		description: 'Validation message for required field',
-	},
-	invalid: {
-		id: 'fabric.editor.configPanel.invalid',
-		defaultMessage: 'Invalid field',
-		description: 'Validation message when a field value is not acceptable',
-	},
-	isMultipleAndRadio: {
-		id: 'fabric.editor.configPanel.fieldTypeError.isMultipleAndRadio',
-		defaultMessage: 'Can not combine isMultiple with style: radio',
-		description: 'Configuration error',
-	},
-	addField: {
-		id: 'fabric.editor.configPanel.formType.addField',
-		defaultMessage: 'Add field',
-		description: 'Button to add a new field in nested forms',
-	},
-	removeField: {
-		id: 'fabric.editor.configPanel.formType.removeField',
-		defaultMessage: 'Remove field',
-		description: 'Button to remove a field in nested forms',
-	},
-	createOption: {
-		id: 'fabric.editor.configPanel.customSelect.createOption',
-		defaultMessage: 'Create',
-		description: 'Create a new option for a select field',
-	},
-	documentation: {
-		id: 'fabric.editor.configPanel.documentation',
-		defaultMessage: 'Documentation',
-		description: 'Label for the documentation link',
-	},
-	help: {
-		id: 'fabric.editor.configPanel.help',
-		defaultMessage: 'Need help?',
-		description: 'Label for documentation link v.2 (to replace "Documentation" text)',
-	},
-	custom: {
-		id: 'fabric.editor.configPanel.dateRange.option.custom',
-		defaultMessage: 'Custom',
-		description: 'Label for the option "Custom" in the date range UI element',
-	},
-	from: {
-		id: 'fabric.editor.configPanel.dateRange.custom.from',
-		defaultMessage: 'From',
-		description:
-			'Label for the initial date when the option "Custom" is selected in the date range UI element',
-	},
-	to: {
-		id: 'fabric.editor.configPanel.dateRange.custom.to',
-		defaultMessage: 'To',
-		description:
-			'Label for the end date when the option "Custom" is selected in the date range UI element',
-	},
-	expand: {
-		id: 'fabric.editor.configPanel.dateRange.grouping.expand',
-		defaultMessage: 'Expand',
-		description: 'Label for expanding a group of fields',
-	},
-	collapse: {
-		id: 'fabric.editor.configPanel.dateRange.grouping.collapse',
-		defaultMessage: 'Collapse',
-		description: 'Label for collapsing a group of fields',
-	},
-	errorBoundaryTitle: {
-		id: 'fabric.editor.configPanel.errorBoundary.title',
-		defaultMessage: 'Something went wrong.',
-		description: 'Title for uncaught config panel error',
-	},
-	errorBoundaryNote: {
-		id: 'fabric.editor.configPanel.errorBoundary.note',
-		defaultMessage: `We've let the team know. You can still edit and publish this page, or check the error console for more information.`,
-		description: 'Note for uncaught config panel error',
-	},
-});
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { configPanelMessages } from './configPanelMessages';

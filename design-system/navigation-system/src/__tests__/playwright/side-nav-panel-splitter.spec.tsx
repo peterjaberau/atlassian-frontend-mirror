@@ -11,11 +11,14 @@ const mobileViewport = { width: 600, height: 768 };
 
 test.describe('side nav panel splitter', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.visitExample('design-system', 'navigation-system', 'resizable-slots', {
-			// Enabling both feature flags by setting the featureFlag query parameter twice
-			featureFlag:
-				'navx-full-height-sidebar&featureFlag=platform-dst-side-nav-layering-fixes&featureFlag=platform_dst_nav4_side_nav_resize_tooltip_feedback',
-		});
+		await page.visitExample<typeof import('../../../examples/resizable-slots.tsx')>(
+			'design-system',
+			'navigation-system',
+			'resizable-slots',
+			{
+				featureFlag: 'navx-full-height-sidebar',
+			},
+		);
 	});
 
 	test.describe('when screen size is greater than 64rem', () => {
@@ -104,7 +107,7 @@ test.describe('side nav panel splitter', () => {
 			await expect(sideNavPanelSplitter).toBeVisible();
 		});
 
-		// Explicitly testing this scenario as it was a previous bug. It is fixed in fg('platform-dst-side-nav-layering-fixes').
+		// Explicitly testing this scenario as it was a previous bug.
 		test('side nav panel splitter should be visible [mobile=expanded, desktop=collapsed]', async ({
 			page,
 		}) => {
@@ -182,7 +185,7 @@ test.describe('side nav panel splitter', () => {
 			invariant(boundingBox);
 
 			expect(boundingBox.x).toBe(330); // Constant distance from resizer
-			expect(boundingBox.y).toBe(56); // Top-most allowed position -> 8px below top nav
+			expect(boundingBox.y).toBe(64); // Top-most allowed position -> 8px below top nav
 		});
 
 		test('should be positioned alongside cursor when hovering within main content area', async ({

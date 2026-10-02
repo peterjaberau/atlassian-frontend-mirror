@@ -1,11 +1,13 @@
-import { uuid } from '../../utils/uuid';
-import type { Inline } from './types/inline-content';
-import type { ParagraphDefinition as Paragraph } from './paragraph';
-import type { ExtensionDefinition as Extension } from './extension';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import {
 	taskItem as taskItemFactory,
 	blockTaskItem as blockTaskItemFactory,
 } from '../../next-schema/generated/nodeTypes';
+import { uuid } from '../../utils/uuid';
+import type { ExtensionDefinition as Extension } from './extension';
+import type { ParagraphDefinition as Paragraph } from './paragraph';
+import type { Inline } from './types/inline-content';
 
 /**
  * @name taskItem_node
@@ -16,6 +18,7 @@ export interface TaskItemDefinition {
 		state: 'TODO' | 'DONE';
 	};
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @allowUnsupportedInline true
 	 */
 	content?: Array<Inline>;
@@ -31,13 +34,14 @@ export interface BlockTaskItemDefinition {
 		state: 'TODO' | 'DONE';
 	};
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @allowUnsupportedInline true
 	 */
 	content?: Array<Paragraph | Extension>;
 	type: 'blockTaskItem';
 }
 
-export const taskItem = taskItemFactory({
+export const taskItem: NodeSpec = taskItemFactory({
 	parseDOM: [
 		{
 			tag: 'div[data-task-local-id]',
@@ -63,7 +67,7 @@ export const taskItem = taskItemFactory({
 	},
 });
 
-export const blockTaskItem = blockTaskItemFactory({
+export const blockTaskItem: NodeSpec = blockTaskItemFactory({
 	parseDOM: [
 		{
 			tag: 'div[data-task-is-block]',

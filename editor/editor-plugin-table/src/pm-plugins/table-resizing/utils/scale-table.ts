@@ -1,5 +1,6 @@
 import { getTableContainerWidth } from '@atlaskit/editor-common/node-width';
 import { tableCellMinWidth } from '@atlaskit/editor-common/styles';
+import { BodiedSyncBlockSharedCssClassName } from '@atlaskit/editor-common/sync-block';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 import type { DomAtPos } from '@atlaskit/editor-prosemirror/utils';
@@ -17,7 +18,6 @@ import {
 	updateColgroup,
 } from '../utils/resize-state';
 import type { ResizeState } from '../utils/types';
-
 import { hasTableBeenResized, insertColgroupFromNode } from './colgroup';
 import { syncStickyRowToTable } from './dom';
 
@@ -130,7 +130,6 @@ const scaleWithParent = (
 // Scales the table to a given size and updates its colgroup DOM node
 export function scaleTableTo(state: ResizeState, maxSize: number): ResizeState {
 	const scaleFactor = maxSize / getTotalWidth(state);
-
 	let newState = {
 		...state,
 		maxSize,
@@ -148,7 +147,6 @@ export function scaleTableTo(state: ResizeState, maxSize: number): ResizeState {
 	if (newTotalWidth > maxSize) {
 		newState = reduceSpace(newState, newTotalWidth - maxSize);
 	}
-
 	return adjustColumnsWidths(newState, maxSize);
 }
 
@@ -158,7 +156,7 @@ export const previewScaleTable = (
 	domAtPos: DomAtPos,
 	isTableScalingEnabled: boolean = false,
 	allowFixedColumnWidthOption: boolean = false,
-	isCommentEditor: boolean = false,
+	isCommentOrChromelessEditor: boolean = false,
 ): void => {
 	const { node, start, parentWidth } = options;
 
@@ -190,7 +188,8 @@ export const previewScaleTable = (
 	}
 
 	const shouldUseIncreasedScalingPercent =
-		isTableScalingWithFixedColumnWidthsOptionEnabled || (isTableScalingEnabled && isCommentEditor);
+		isTableScalingWithFixedColumnWidthsOptionEnabled ||
+		(isTableScalingEnabled && isCommentOrChromelessEditor);
 
 	const resizeState = parentWidth
 		? scaleWithParent(
@@ -218,9 +217,9 @@ export const scaleTable =
 		api: PluginInjectionAPI | undefined | null,
 		isTableScalingEnabledOnCurrentTable = false,
 		shouldUseIncreasedScalingPercent = false,
-		isCommentEditor = false,
+		isCommentOrChromelessEditor = false,
 	) =>
-	(tr: Transaction) => {
+	(tr: Transaction): Transaction => {
 		if (!tableRef) {
 			return tr;
 		}
@@ -237,7 +236,7 @@ export const scaleTable =
 					isTableScalingEnabled,
 					undefined,
 					shouldUseIncreasedScalingPercent,
-					isCommentEditor,
+					isCommentOrChromelessEditor,
 				);
 			}
 			tr.setMeta('scrollIntoView', false);
@@ -246,9 +245,21 @@ export const scaleTable =
 
 		let resizeState;
 		if (parentWidth) {
+			// When the table is nested inside a bodiedSyncBlock, the table's outer transparent
+			// left/right borders (1px total under `border-collapse: collapse`) cause the
+			// table's outer width to exceed the colgroup width by 1px. Subtract 1px from the
+			// parentWidth here so that the scaled colgroup fits within the sync-block
+			// container without overflowing.
+			const isNestedInBodiedSyncBlock = !!tableRef.closest?.(
+				`.${BodiedSyncBlockSharedCssClassName.content}`,
+			);
+			const BORDER_COLLAPSE_WIDTH_PX = 1;
+			const adjustedParentWidth = isNestedInBodiedSyncBlock
+				? parentWidth - BORDER_COLLAPSE_WIDTH_PX
+				: parentWidth;
 			resizeState = scaleWithParent(
 				tableRef,
-				parentWidth,
+				adjustedParentWidth,
 				node,
 				start,
 				domAtPos,

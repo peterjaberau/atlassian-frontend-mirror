@@ -7,11 +7,9 @@
 
 import { css, jsx } from '@compiled/react';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import CheckMarkIcon from '@atlaskit/icon/core/check-mark';
 import CrossIcon from '@atlaskit/icon/core/cross';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { B400, N0, N20A, N30A, N50A, N60A } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 const buttonsContainerStyles = css({
@@ -20,35 +18,31 @@ const buttonsContainerStyles = css({
 	flexShrink: 0,
 	insetBlockStart: '100%',
 	insetInlineEnd: 0,
-	marginBlockStart: token('space.075', '6px'),
+	marginBlockStart: token('space.075'),
 });
 
 const buttonWrapperBaseStyles = css({
 	boxSizing: 'border-box',
-	width: token('space.400', '32px'),
+	width: token('space.400'),
 	zIndex: 200,
-	backgroundColor: token('elevation.surface.overlay', N0),
-	borderRadius: token('radius.small', '3px'),
-	boxShadow: token('elevation.shadow.overlay', `0 4px 8px -2px ${N50A}, 0 0 1px ${N60A}`),
+	backgroundColor: token('elevation.surface.overlay'),
+	borderRadius: token('radius.medium'),
+	boxShadow: token('elevation.shadow.overlay'),
 	font: token('font.body'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'&:last-child': {
-		marginInlineStart: token('space.050', '4px'),
+		marginInlineStart: token('space.050'),
 	},
 	'& > button': {
-		backgroundColor: token('elevation.surface.overlay', N20A),
+		backgroundColor: token('elevation.surface.overlay'),
 	},
 	'& > button:hover': {
-		backgroundColor: token('elevation.surface.overlay.hovered', N30A),
+		backgroundColor: token('elevation.surface.overlay.hovered'),
 	},
 	'& > button:active': {
-		backgroundColor: token('elevation.surface.overlay.pressed', 'rgba(179, 212, 255, 0.6)'),
-		color: token('color.text', B400),
+		backgroundColor: token('elevation.surface.overlay.pressed'),
+		color: token('color.text'),
 	},
-});
-
-const buttonWrapperBaseStylesT26Shape = css({
-	borderRadius: token('radius.medium', '6px'),
 });
 
 interface ButtonsProp {
@@ -59,48 +53,39 @@ interface ButtonsProp {
 	testId?: string;
 }
 
-const Buttons: ({ confirmButtonLabel, cancelButtonLabel, onMouseDown, onCancelClick, testId, }: ButtonsProp) => JSX.Element = ({
+const Buttons: ({
 	confirmButtonLabel,
 	cancelButtonLabel,
 	onMouseDown,
 	onCancelClick,
 	testId,
-}: ButtonsProp) => {
-	return (
-		<div css={buttonsContainerStyles}>
-			<div
-				css={[
-					buttonWrapperBaseStyles,
-					fg('platform-dst-shape-theme-default') && buttonWrapperBaseStylesT26Shape,
-				]}
-				tabIndex={-1}
-			>
-				<IconButton
-					type="submit"
-					icon={(iconProps) => <CheckMarkIcon {...iconProps} size="small" />}
-					onMouseDown={onMouseDown}
-					label={confirmButtonLabel}
-					testId={testId && `${testId}--confirm`}
-				/>
-			</div>
-			<div
-				css={[
-					buttonWrapperBaseStyles,
-					fg('platform-dst-shape-theme-default') && buttonWrapperBaseStylesT26Shape,
-				]}
-				tabIndex={-1}
-			>
-				<IconButton
-					icon={(iconProps) => <CrossIcon {...iconProps} size="small" />}
-					label={cancelButtonLabel}
-					onClick={onCancelClick}
-					onMouseDown={onMouseDown}
-					testId={testId && `${testId}--cancel`}
-				/>
-			</div>
+}: ButtonsProp) => JSX.Element = ({
+	confirmButtonLabel,
+	cancelButtonLabel,
+	onMouseDown,
+	onCancelClick,
+	testId,
+}: ButtonsProp) => (
+	<div css={buttonsContainerStyles}>
+		<div css={[buttonWrapperBaseStyles]} tabIndex={-1}>
+			<IconButton
+				type="submit"
+				icon={(iconProps) => <CheckMarkIcon {...iconProps} size="small" />}
+				onMouseDown={onMouseDown}
+				label={confirmButtonLabel}
+				testId={testId && `${testId}--confirm`}
+			/>
 		</div>
-	);
-};
-
+		<div css={[buttonWrapperBaseStyles]} tabIndex={-1}>
+			<IconButton
+				icon={(iconProps) => <CrossIcon {...iconProps} size="small" />}
+				label={cancelButtonLabel}
+				onClick={onCancelClick}
+				onMouseDown={onMouseDown}
+				testId={testId && `${testId}--cancel`}
+			/>
+		</div>
+	</div>
+);
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
 export default Buttons;

@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import type { Rule } from 'eslint';
+
 import { getObjectPropertyAsLiteral, getObjectPropertyAsObject } from '../util/handle-ast-object';
 
 type RuleOptions = {
@@ -39,7 +40,11 @@ const rule: Rule.RuleModule = {
 
 		return {
 			ObjectExpression: (node: Rule.Node) => {
-				if (!context.getFilename().endsWith('package.json') || node.type !== 'ObjectExpression') {
+				if (
+					// @ts-ignore - Jira's ESLint v10 types expose filename, platform still checks with ESLint v9.
+					!(context.filename ?? context.getFilename()).endsWith('package.json') ||
+					node.type !== 'ObjectExpression'
+				) {
 					return;
 				}
 

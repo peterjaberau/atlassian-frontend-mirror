@@ -1,13 +1,20 @@
-import {
-	type DatasourceDataResponse,
-	type DatasourceDataResponseItem,
-	type DatasourceDetailsResponse,
-	type DatasourceResponseSchemaProperty,
-} from '@atlaskit/linking-types';
+import type {
+	DatasourceDataResponse,
+	DatasourceDataResponseItem,
+	DatasourceDetailsResponse,
+	DatasourceMeta,
+	DatasourceResponseParameter,
+	DatasourceResponseSchemaProperty,
+} from '@atlaskit/linking-types/datasource';
 
 import { mike, nidhin, profile } from '../../images';
 
-export const objectSchemaListResponse = {
+export const objectSchemaListResponse: {
+	values: {
+		id: string;
+		name: string;
+	}[];
+} = {
 	values: [
 		{
 			id: '1',
@@ -1328,7 +1335,20 @@ export const defaultAssetsDetailsResponse: DatasourceDetailsResponse = {
 	},
 };
 
-export const assetsDefaultDetails = {
+export const assetsDefaultDetails: {
+	data: {
+		ari: string;
+		description: string;
+		id: string;
+		name: string;
+		parameters: DatasourceResponseParameter[];
+		schema: {
+			defaultProperties: string[];
+			properties: DatasourceResponseSchemaProperty[];
+		};
+	};
+	meta: DatasourceMeta;
+} = {
 	...defaultAssetsDetailsResponse,
 	data: {
 		...defaultAssetsDetailsResponse.data,

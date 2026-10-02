@@ -22,12 +22,13 @@ export type ContextPanelContext = {
 	width: number;
 };
 
-export const ContextPanel = React.createContext<ContextPanelContext>({
-	width: 0,
-	positionedOverEditor: false,
-	broadcastWidth: () => {},
-	broadcastPosition: () => {},
-});
+export const ContextPanel: React.Context<ContextPanelContext> =
+	React.createContext<ContextPanelContext>({
+		width: 0,
+		positionedOverEditor: false,
+		broadcastWidth: () => {},
+		broadcastPosition: () => {},
+	});
 
 export type ContextPanelProviderState = {
 	positionedOverEditor?: boolean;
@@ -35,7 +36,7 @@ export type ContextPanelProviderState = {
 };
 
 // Ignored via go/ees005
-// eslint-disable-next-line @repo/internal/react/no-class-components, @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @repo/internal/react/no-class-components, @typescript-eslint/no-explicit-any, @atlaskit/volt-strict-mode/no-multiple-exports
 export class ContextPanelWidthProvider extends React.Component<any, ContextPanelProviderState> {
 	state = { width: 0, positionedOverEditor: false };
 
@@ -66,6 +67,7 @@ export class ContextPanelWidthProvider extends React.Component<any, ContextPanel
 
 		return (
 			<Provider
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				value={{
 					width,
 					positionedOverEditor,
@@ -79,6 +81,8 @@ export class ContextPanelWidthProvider extends React.Component<any, ContextPanel
 	}
 }
 
-const { Provider, Consumer } = ContextPanel;
+const Provider: React.Provider<ContextPanelContext> = ContextPanel.Provider;
+const Consumer: React.Consumer<ContextPanelContext> = ContextPanel.Consumer;
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export { Provider as ContextPanelProvider, Consumer as ContextPanelConsumer };

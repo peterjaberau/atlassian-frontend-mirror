@@ -1,16 +1,15 @@
-import {
-	type JqlAndClauseContext,
-	type JqlNotClauseContext,
-	type JqlOrClauseContext,
-	type JqlSubClauseContext,
-	type JqlWhereContext,
-} from '@atlaskit/jql-parser';
+import type {
+	JqlAndClauseContext,
+	JqlNotClauseContext,
+	JqlOrClauseContext,
+	JqlSubClauseContext,
+	JqlWhereContext,
+} from '@atlaskit/jql-parser/JQLParser';
 
 import { COMPOUND_OPERATOR_AND, COMPOUND_OPERATOR_OR } from '../constants';
 import { internalCreators } from '../creators';
 import { type Clause } from '../types';
 import { notUndefined } from '../utils';
-
 import {
 	getPositionFromContext,
 	getPositionFromToken,
@@ -20,7 +19,7 @@ import {
 import { TerminalClauseVisitor } from './terminal-clause';
 
 export class WhereVisitor extends JastBuildingVisitor<Clause | void> {
-	terminalClauseVisitor = new TerminalClauseVisitor(this.tokens);
+	terminalClauseVisitor: TerminalClauseVisitor = new TerminalClauseVisitor(this.tokens);
 
 	visitJqlWhere = (ctx: JqlWhereContext): Clause | void => {
 		return this.visitJqlOrClause(ctx.jqlOrClause());

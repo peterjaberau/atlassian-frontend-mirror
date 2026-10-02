@@ -2,26 +2,25 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider, type MessageDescriptor } from 'react-intl-next';
+import { IntlProvider, type MessageDescriptor } from 'react-intl';
 
-import { useTeamContainers } from '@atlaskit/teams-public';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
-import {
-	mockRunItLaterSynchronously,
-	renderWithAnalyticsListener as render,
-} from '@atlassian/ptc-test-utils';
+import { useTeamContainers } from '@atlaskit/teams-public/use-team-containers/use-team-containers';
+import { renderWithAnalyticsListener as render } from '@atlassian/ptc-test-utils';
 
 import { TeamProfileCard, type TeamProfileCardProps } from './main';
 import { mockProfileData } from './mocks';
 
-jest.mock('@atlaskit/teams-public', () => ({
-	...jest.requireActual('@atlaskit/teams-public'),
+jest.mock('@atlaskit/teams-public/use-team-containers/use-team-containers', () => ({
+	...jest.requireActual('@atlaskit/teams-public/use-team-containers/use-team-containers'),
 	useTeamContainers: jest.fn(),
+}));
+jest.mock('@atlaskit/teams-public/main', () => ({
+	...jest.requireActual('@atlaskit/teams-public/main'),
 	TeamContainers: () => <div data-testid="mocked-div">Mocked Team Containers</div>,
 }));
 
-jest.mock('react-intl-next', () => ({
-	...jest.requireActual('react-intl-next'),
+jest.mock('react-intl', () => ({
+	...jest.requireActual('react-intl'),
 	useIntl: jest.fn().mockReturnValue({
 		formatMessage: ({ defaultMessage }: MessageDescriptor) => defaultMessage,
 	}),
@@ -51,8 +50,6 @@ const profileLinkClickEvent = {
 	actionSubjectId: 'viewTeamProfileButton',
 	attributes: {},
 };
-
-mockRunItLaterSynchronously();
 
 describe('TeamProfileCard', () => {
 	let originalWindowOpen: typeof window.open;
@@ -160,22 +157,11 @@ describe('TeamProfileCard', () => {
 		expect(action2).toBeInTheDocument();
 	});
 
-	ffTest.off('ptc-enable-profile-card-analytics-refactor', 'legacy analytics', () => {
-		it('should fire analytics on profile link item click', async () => {
-			const { expectEventToBeFired } = renderComponent();
+	it('should fire analytics on profile link item click', async () => {
+		const { expectEventToBeFired } = renderComponent();
 
-			await userEvent.click(screen.getByTestId('team-profile-card-profile-link-item'));
+		await userEvent.click(screen.getByTestId('team-profile-card-profile-link-item'));
 
-			expectEventToBeFired('ui', profileLinkClickEvent);
-		});
-	});
-	ffTest.on('ptc-enable-profile-card-analytics-refactor', 'new analytics', () => {
-		it('should fire analytics on profile link item click', async () => {
-			const { expectEventToBeFired } = renderComponent();
-
-			await userEvent.click(screen.getByTestId('team-profile-card-profile-link-item'));
-
-			expectEventToBeFired('ui', profileLinkClickEvent);
-		});
+		expectEventToBeFired('ui', profileLinkClickEvent);
 	});
 });

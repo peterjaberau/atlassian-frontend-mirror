@@ -1,5 +1,674 @@
 # @atlaskit/teams-public
 
+## 3.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.0
+
+### Minor Changes
+
+- [`83d98483d183d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83d98483d183d) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 3.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.13.0
+
+### Minor Changes
+
+- [`d09e13cae1b7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d09e13cae1b7d) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.12.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.12.0
+
+### Minor Changes
+
+- [`50356398c83ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/50356398c83ee) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.11.0
+
+### Minor Changes
+
+- [`1a3f7d6aa71c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a3f7d6aa71c6) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.1
+
+### Patch Changes
+
+- [`2c412fe430071`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c412fe430071) -
+  Cleanup feature gate `fix_team_link_card_a11y`. The accessible team link card markup
+  (anchor-wrapped content with the shared team link card actions) is now the only behaviour.
+- Updated dependencies
+
+## 2.10.0
+
+### Minor Changes
+
+- [`a75866f802a52`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a75866f802a52) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 2.9.4
+
+### Patch Changes
+
+- [`25cc01ed2952c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25cc01ed2952c) -
+  Cleanup feature gate `enable_medium_size_icons_for_team_link_cards`. Team link "add container"
+  cards now always render medium-sized container icons with the tighter `space.025` stack spacing.
+
+## 2.9.3
+
+### Patch Changes
+
+- [`9a59eac015bf9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a59eac015bf9) -
+  Cleanup feature gate `teams-a11y-34974-34752-34709`. Semantic description list (`dl`/`dt`/`dd`)
+  markup for team details fields and list semantics (`role="list"`/`role="listitem"`) for team
+  containers are now permanently enabled.
+
+## 2.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.1
+
+### Patch Changes
+
+- [`bcfe498b206d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcfe498b206d5) -
+  Adopt button and list-item motion tokens behind the use-pressable-motion rollout.
+
+## 2.9.0
+
+### Minor Changes
+
+- [`59d2ce879f145`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/59d2ce879f145) -
+  Apply the Volt one-export-per-file standard via `volt-migrate-package` to
+  `@atlaskit/teams-public`. The package `exports` map grows from 28 to 40 subpaths — no subpath was
+  removed and none was retargeted, so every existing import path keeps its current target and
+  behaviour. Multi-export modules were split so that each public symbol has its own file, and the
+  former barrels are now `@deprecated` re-export shims kept for compatibility (VOLTC-139 tracks
+  their removal).
+
+  ### No public API was removed
+
+  Every symbol previously reachable through the `exports` map is still reachable from the same
+  subpath:
+
+  ```ts
+  import { ContainerIcon, useTeamContainers, useTeamWebLinks } from '@atlaskit/teams-public';
+  import { ConfluenceIcon, JiraIcon, LoomIcon } from '@atlaskit/teams-public/assets';
+  import {
+  	useConnectedTeams,
+  	useTeamContainersHook,
+  } from '@atlaskit/teams-public/use-team-containers';
+  import { actions, useTeamWebLinksActions } from '@atlaskit/teams-public/use-team-web-links';
+  import { hasProductPermission, transformPermissions } from '@atlaskit/teams-public/utils';
+  ```
+
+  ### New subpaths for the split modules
+
+  Twelve new published subpaths expose the symbols that used to be reachable only through a barrel.
+  Every one of them exposes a symbol that was already public, so no new API is added — only new,
+  narrower paths to existing API. Prefer these over the deprecated barrel imports:
+  - `./confluence-icon`, `./jira-icon`, `./loom-icon` — the default-exported SVGs behind `./assets`
+  - `./product-permission/get-product-permission-request-body` — `getProductPermissionRequestBody`
+  - `./product-permission/has-product-permission` — `hasProductPermission`
+  - `./product-permission/transform-permissions` — `transformPermissions`
+  - `./use-connected-teams` — `useConnectedTeams`
+  - `./use-team-containers/use-team-containers` — `useTeamContainers`
+  - `./use-team-containers/use-team-containers-hook` — `useTeamContainersHook`
+  - `./use-team-web-links/use-team-web-links` — `useTeamWebLinks`
+  - `./use-team-web-links-actions` — `useTeamWebLinksActions`
+  - `./use-team-web-links/actions` — `actions`
+
+  The two `createStore` results, `TeamWebLinksStore` and `TeamContainersStore`, were module-private
+  before the split and stay internal. Each now lives in its own `store.ts` because two sibling
+  modules need it, but neither is published in the `exports` map nor re-exported from a barrel — use
+  the `useTeamWebLinks` / `useTeamWebLinksActions` / `useTeamContainers` hooks instead.
+
+  ### Note for consumers that mock these modules
+
+  Three modules that previously contained their implementations are now re-export shims only:
+  - `.../controllers/hooks/use-team-containers/index.ts`
+  - `.../controllers/hooks/use-team-web-links/index.ts`
+  - `.../controllers/product-permission/utils.ts`
+
+  A `jest.mock()` or `jest.spyOn()` targeting one of those paths will no longer intercept the
+  implementation, because the symbol is no longer defined there. Mock the module that now owns the
+  export instead — for example `use-team-containers/use-team-containers` for `useTeamContainers`,
+  `use-team-web-links/use-team-web-links` for `useTeamWebLinks`,
+  `use-team-web-links/use-team-web-links-actions` for `useTeamWebLinksActions`, and
+  `product-permission/hasProductPermission` for `hasProductPermission`. The same applies to the
+  deleted private module `.../common/ui/loom-avatar/utils.ts`, whose exports now live in
+  `getAvatarText.ts`, `pickContainerColor.ts` and `pickTextColor.ts` alongside it.
+
+  ### Internal-only renames
+  - `common/utils/get-link-domain.ts` → `common/utils/get-domain-from-link-uri.ts`, with
+    `unsafeGetDomainFromUrl` split out into `common/utils/unsafe-get-domain-from-url.ts`
+  - `common/utils/team-web-link-converters.ts` split into `container-to-new-web-link.ts`,
+    `web-link-to-container.ts`, `web-links-to-containers.ts` and `is-new-team-web-link.ts`
+  - `ui/team-containers/add-container-card/index.tsx` →
+    `ui/team-containers/add-container-card/AddContainerCard.tsx`
+
+  None of these paths are reachable through the `exports` map, and all symbol names are unchanged.
+  No behaviour change.
+
+## 2.8.0
+
+### Minor Changes
+
+- [`c595edf05d60e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c595edf05d60e) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.7.0
+
+### Minor Changes
+
+- [`68e50c0e75e2f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/68e50c0e75e2f) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 2.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.0
+
+### Minor Changes
+
+- [`a9a8208446bfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9a8208446bfa) -
+  Support React 19 for people-and-teams packages.
+- [`fcad5db87cc77`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fcad5db87cc77) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.5.1
+
+### Patch Changes
+
+- [`92b3f332e1a93`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92b3f332e1a93) -
+  A11Y-34709: Add unordered list semantics to Team link add-container cards section (gated
+  teams-a11y-34974-34752-34709)
+
+## 2.5.0
+
+### Minor Changes
+
+- [`2ae2f4d041a3a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ae2f4d041a3a) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 2.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.4.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.0
+
+### Minor Changes
+
+- [`278d493fc61aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/278d493fc61aa) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 2.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`f4abaa54b4859`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f4abaa54b4859) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 2.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.5.0
+
+### Minor Changes
+
+- [`e4c5ae488aad4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4c5ae488aad4) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 1.4.4
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+
+## 1.4.3
+
+### Patch Changes
+
+- [`2e067adb30e59`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e067adb30e59) -
+  Update missing terminology refresh updates
+
+## 1.4.2
+
+### Patch Changes
+
+- [`b97b0f02591fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b97b0f02591fc) -
+  Cleanup feature gate ptc-links-migrate-atlaskit-anchor-to-teams-anchor. TeamsAnchor is now the
+  permanent link rendering path.
+
+## 1.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.4.0
+
+### Minor Changes
+
+- [`fb2784c333519`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb2784c333519) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.3.0
+
+### Minor Changes
+
+- [`70f6974f09ee3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70f6974f09ee3) -
+  Cleaned up legacy analytics
+
+## 1.2.0
+
+### Minor Changes
+
+- [`0a345bc4f4b1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a345bc4f4b1e) -
+  Removed unused linked container card
+
+## 1.1.1
+
+### Patch Changes
+
+- [`7fb5bfbafb83e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fb5bfbafb83e) -
+  Enrol people-and-teams packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+- Updated dependencies
+
+## 1.1.0
+
+### Minor Changes
+
+- [`5ad73d0a4dc97`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ad73d0a4dc97) -
+  Aligned UI to conform with Team'26 US design drop
+
+### Patch Changes
+
+- [`2fee5f9932185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2fee5f9932185) -
+  Migrate examples to use the playground package
+
+## 1.0.0
+
+### Major Changes
+
+- [`fbc8a506b5b08`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbc8a506b5b08) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.74.4
+
+### Patch Changes
+
+- [`07762e36b9ca8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07762e36b9ca8) -
+  Mark old add-container-card as deprecated
+
+## 0.74.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.74.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.74.1
+
+### Patch Changes
+
+- [`bcca5482f4ea4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcca5482f4ea4) -
+  Migrate links to teams anchor
+- Updated dependencies
+
+## 0.74.0
+
+### Minor Changes
+
+- [`1368864a76f91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1368864a76f91) -
+  Remove dead code from teams-public package
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.73.0
+
+### Minor Changes
+
+- [`336c2e0b7bbff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/336c2e0b7bbff) -
+  Remove enable-fix-team-container-height feature gate and enable height fix permanently
+
+## 0.72.2
+
+### Patch Changes
+
+- [`fd9cfb7fca5c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fd9cfb7fca5c6) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 0.72.1
+
+### Patch Changes
+
+- [`79cd2fc60c2a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/79cd2fc60c2a2) -
+  Fix require-description ESLint violation
+
+## 0.72.0
+
+### Minor Changes
+
+- [`6705502efc21c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6705502efc21c) -
+  [ux] Updating the disconnect team modal content and delete team modal message for jira project
+
+## 0.71.1
+
+### Patch Changes
+
+- [`cb9bdb694c88e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cb9bdb694c88e) -
+  Fix require-description ESLint violation
+
+## 0.71.0
+
+### Minor Changes
+
+- [`884f8dadc3c94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/884f8dadc3c94) -
+  Cleaned up feature gate related to the after icon sizing in containers
+
+## 0.70.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.70.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.70.7
+
+### Patch Changes
+
+- [`2c34be51e4045`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c34be51e4045) -
+  Remove code related to the teams_app_auto_container_create_universal_create experiment (we are not
+  going ahead with this)
+- Updated dependencies
+
+## 0.70.6
+
+### Patch Changes
+
+- [`cf41ce07edce7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf41ce07edce7) -
+  Clean up new_team_profile experiment
+- Updated dependencies
+
+## 0.70.5
+
+### Patch Changes
+
+- [`f5d57d0bce900`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f5d57d0bce900) -
+  Clean up teams_app_auto_container_creation experiment
+
+## 0.70.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.70.3
+
+### Patch Changes
+
+- [`acb61d1d6efd9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/acb61d1d6efd9) -
+  Add dependency for a11y testing.
+
+## 0.70.2
+
+### Patch Changes
+
+- [`6d87d08be8526`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d87d08be8526) -
+  Add dependency for a11y testing.
+
+## 0.70.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.70.0
+
+### Minor Changes
+
+- [`92f68aebd9135`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/92f68aebd9135) -
+  Update i18n NPM package versions for people-and-teams,identity (Group 8)
+
+## 0.69.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.69.1
 
 ### Patch Changes

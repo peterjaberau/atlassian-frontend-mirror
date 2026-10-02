@@ -1,11 +1,132 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
-	copyBlock: {
-		id: 'fabric.editor.block.menu.copy.block',
-		defaultMessage: 'Copy block',
-		description: 'Copy the selected block to the clipboard',
-	},
+export const messages: {
+	changeFormat: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	codeBlock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copy: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copyLink: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copyLinkToSelection: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	copySyncedBlock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	create: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	decisionList: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteBlock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fallbackMenuItem: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fallbackNestedMenu: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	headings: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	layout: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	linkCopiedToClipboard: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveDownBlock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveUpBlock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	newLozenge: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	normalText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	paragraph: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	structure: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	suggested: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	syncBlock: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	textFormatting: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	turnInto: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	wrapIcon: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	moveUpBlock: {
 		id: 'fabric.editor.block.menu.move.up',
 		defaultMessage: 'Move up',
@@ -16,15 +137,22 @@ export const messages = defineMessages({
 		defaultMessage: 'Move down',
 		description: 'Move the selected block down in the document',
 	},
+	copy: {
+		id: 'fabric.editor.block.menu.copy',
+		defaultMessage: 'Copy',
+		description: 'Copy the selected content to the clipboard',
+	},
 	copyLink: {
 		id: 'fabric.editor.block.menu.copy.link',
 		defaultMessage: 'Copy link',
-		description: 'Copy link to the selected block',
+		description:
+			'Label for a menu item in the block controls menu that copies a direct link to the selected content block to the clipboard.',
 	},
-	copyLinkToBlock: {
-		id: 'fabric.editor.block.menu.copy.link.to.block',
-		defaultMessage: 'Copy link to block',
-		description: 'Copy link to the selected block',
+	copyLinkToSelection: {
+		id: 'fabric.editor.block.menu.copy.link.to.selection',
+		defaultMessage: 'Copy link to selection',
+		description:
+			'Label for a menu item in the block controls menu that copies a link pointing to the current text selection to the clipboard.',
 	},
 	linkCopiedToClipboard: {
 		id: 'fabric.editor.block.menu.link.copied.to.clipboard',
@@ -35,6 +163,11 @@ export const messages = defineMessages({
 		id: 'fabric.editor.block.menu.paragraph',
 		defaultMessage: 'Paragraph',
 		description: 'Change the selected block to a paragraph',
+	},
+	normalText: {
+		id: 'fabric.editor.block.menu.normal.text',
+		defaultMessage: 'Normal text',
+		description: 'Change the selected block to normal text',
 	},
 	codeBlock: {
 		id: 'fabric.editor.block.menu.codeblock',
@@ -56,9 +189,14 @@ export const messages = defineMessages({
 		defaultMessage: 'Turn into',
 		description: 'Turn the selected block into another type',
 	},
-	createSyncedBlock: {
-		id: 'fabric.editor.block.menu.create.synced.block',
-		defaultMessage: 'Create synced block',
+	changeFormat: {
+		id: 'fabric.editor.block.menu.change.format',
+		defaultMessage: 'Change format',
+		description: 'Change the selected block to another format',
+	},
+	syncBlock: {
+		id: 'fabric.editor.block.menu.sync.block',
+		defaultMessage: 'Sync block',
 		description:
 			'Create a synced block at this line, converting the selection to a synced block if applicable',
 	},
@@ -91,6 +229,11 @@ export const messages = defineMessages({
 		id: 'fabric.editor.block.menu.headings',
 		defaultMessage: 'Headings',
 		description: 'Menu section title for heading block types',
+	},
+	textFormatting: {
+		id: 'fabric.editor.block.menu.text.formatting',
+		defaultMessage: 'Text formatting',
+		description: 'Menu section title for text formatting block types',
 	},
 	suggested: {
 		id: 'fabric.editor.block.menu.suggested',

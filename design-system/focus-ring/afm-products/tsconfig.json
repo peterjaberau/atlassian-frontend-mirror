@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__focus-ring/app",
 		"rootDir": "../",
 		"composite": true,
@@ -24,6 +23,9 @@
 		"../src/**/stories/**/*"
 	],
 	"references": [
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
 		{
 			"path": "../../tokens/afm-products/tsconfig.json"
 		}

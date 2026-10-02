@@ -1,18 +1,21 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import Button from '@atlaskit/button/default/button';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { showDiffPlugin } from '@atlaskit/editor-plugin-show-diff';
 import { trackChangesPlugin } from '@atlaskit/editor-plugin-track-changes';
-import { type HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
+import type { HelpDialogPlugin } from '@atlaskit/editor-plugins/help-dialog';
 import { MockActivityResource } from '@atlaskit/editor-test-helpers/example-helpers';
 import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
-import Form, { Field, FormFooter } from '@atlaskit/form';
-import { SmartCardProvider, CardClient } from '@atlaskit/link-provider';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { ReactRenderer } from '@atlaskit/renderer';
-import Textfield from '@atlaskit/textfield';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 import { currentUser, getEmojiProvider } from '@atlaskit/util-data-test/get-emoji-provider';
 import { mentionResourceProvider } from '@atlaskit/util-data-test/mention-story-data';
@@ -92,7 +95,7 @@ export class CommentEditorJiraBento extends React.Component<Props, State> {
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 									display: 'flex',
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-									padding: token('space.050', '4px'),
+									padding: token('space.050'),
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 									alignItems: 'center',
 								}}
@@ -288,6 +291,7 @@ const ComposableEditorWrapper = ({
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default function CommentExample(props?: Props): React.JSX.Element {
 	return (
 		<CommentEditorJiraBento

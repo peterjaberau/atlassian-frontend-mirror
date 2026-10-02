@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-synced-block/app",
 		"rootDir": "../",
 		"composite": true,
@@ -39,19 +38,46 @@
 			"path": "../../editor-plugin-analytics/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-plugin-block-controls/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-plugin-block-menu/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-connectivity/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-plugin-content-format/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-plugin-decorations/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-editor-disabled/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-editor-viewmode/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-floating-toolbar/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../editor-plugin-focus/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-history/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-plugin-selection/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-toolbar/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-ui-control-registry/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-user-intent/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-prosemirror/afm-products/tsconfig.json"
@@ -84,6 +110,9 @@
 			"path": "../../../design-system/modal-dialog/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
@@ -91,6 +120,9 @@
 		},
 		{
 			"path": "../../../design-system/spinner/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../tmp-editor-statsig/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

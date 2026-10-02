@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::9928c9b96accda0f9234a11fc7ddaca0>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::c87e84c959bef8a628a70d71f0872564>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -19,14 +19,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __CrowdIcon__
  *
- * A temporary component to represent the icon for Crowd.
- * @deprecated This component has been replaced by the component `CrowdIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Crowd.
+ * Import `CrowdIcon` from `@atlaskit/logo/crowd/icon`.
  *
  */
 export function CrowdIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Crowd',
 	testId,

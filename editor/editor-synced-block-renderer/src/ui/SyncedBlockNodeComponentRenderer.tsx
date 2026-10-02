@@ -1,20 +1,18 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
-import type { DocNode } from '@atlaskit/adf-schema';
+import type { RendererSyncBlockEventPayload } from '@atlaskit/editor-common/analytics';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
 import {
 	SyncBlockSharedCssClassName,
 	SyncBlockRendererDataAttributeName,
+	handleSSRErrorsAnalytics,
 } from '@atlaskit/editor-common/sync-block';
 import type { SyncBlockStoreManager } from '@atlaskit/editor-synced-block-provider';
 import { SyncBlockError, useFetchSyncBlockData } from '@atlaskit/editor-synced-block-provider';
-import { type MediaSSR, type NodeProps } from '@atlaskit/renderer';
+import type { MediaSSR, NodeProps } from '@atlaskit/renderer';
 
 import type { SyncedBlockRendererOptions } from '../types';
-
-import { AKRendererWrapper } from './AKRendererWrapper';
-import { SyncedBlockErrorComponent } from './SyncedBlockErrorComponent';
-import { SyncedBlockLoadingState } from './SyncedBlockLoadingState';
+import { renderSyncedBlockContent } from './renderSyncedBlockContent';
 
 export interface SyncedBlockProps {
 	localId?: string;
@@ -24,6 +22,7 @@ export interface SyncedBlockProps {
 export type SyncedBlockNodeProps = NodeProps<SyncedBlockProps>;
 
 export type SyncedBlockNodeComponentRendererProps = {
+	getAccountId?: () => string | null;
 	nodeProps: SyncedBlockNodeProps;
 	rendererOptions: SyncedBlockRendererOptions | undefined;
 	syncBlockStoreManager: SyncBlockStoreManager;
@@ -33,17 +32,44 @@ export const SyncedBlockNodeComponentRenderer = ({
 	nodeProps,
 	syncBlockStoreManager,
 	rendererOptions,
+	getAccountId,
 }: SyncedBlockNodeComponentRendererProps): React.JSX.Element => {
 	const { resourceId, localId, fireAnalyticsEvent } = nodeProps;
+	// `fireAnalyticsEvent` from NodeProps is typed as the generic
+	// `AnalyticsEventPayload`. The synced-block consumers below
+	// (`updateFireAnalyticsEvent`, `useFetchSyncBlockData`, `renderSyncedBlockContent`)
+	// only ever invoke it with the narrower `RendererSyncBlockEventPayload`
+	// union, which is a strict subset of `AnalyticsEventPayload`, so the cast
+	// is safe.
+	const syncBlockFireAnalyticsEvent = fireAnalyticsEvent as
+		| ((payload: RendererSyncBlockEventPayload) => void)
+		| undefined;
 
-	syncBlockStoreManager.referenceManager.updateFireAnalyticsEvent(fireAnalyticsEvent);
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			// handleSSRErrorsAnalytics expects only `SyncedBlockSSRErrorAEP` — the
+			// generic `fireAnalyticsEvent` from NodeProps is a superset, so the
+			// cast is safe (the handler only ever calls back with that one AEP).
+			handleSSRErrorsAnalytics(
+				fireAnalyticsEvent as Parameters<typeof handleSSRErrorsAnalytics>[0],
+			);
+		}, 0);
+
+		return () => {
+			clearTimeout(timeoutId);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	useEffect(() => {
+		syncBlockStoreManager.referenceManager.updateFireAnalyticsEvent(syncBlockFireAnalyticsEvent);
+	}, [syncBlockStoreManager.referenceManager, syncBlockFireAnalyticsEvent]);
 
 	const { syncBlockInstance, isLoading, reloadData, providerFactory, ssrProviders } =
-		useFetchSyncBlockData(syncBlockStoreManager, resourceId, localId, fireAnalyticsEvent);
+		useFetchSyncBlockData(syncBlockStoreManager, resourceId, localId, syncBlockFireAnalyticsEvent);
 
 	const finalRendererOptions = useMemo(() => {
 		if (
-			!isSSR() ||
 			rendererOptions?.media?.ssr || // already has ssr config
 			!ssrProviders?.media?.viewMediaClientConfig
 		) {
@@ -51,7 +77,9 @@ export const SyncedBlockNodeComponentRenderer = ({
 		}
 
 		const mediaSSR = {
-			mode: 'server' as const,
+			// Use synced block's media config so auth uses source contentId, not current page.
+			// Server: during SSR; client: after hydration (avoids using page's MediaClient).
+			mode: isSSR() ? 'server' : 'client',
 			config: ssrProviders?.media.viewMediaClientConfig,
 		} as MediaSSR;
 
@@ -64,67 +92,45 @@ export const SyncedBlockNodeComponentRenderer = ({
 		};
 	}, [rendererOptions, ssrProviders]);
 
-	if (isLoading && !syncBlockInstance) {
-		return <SyncedBlockLoadingState />;
-	}
-
-	// In SSR, if server returned error, we should render loading state instead of error state
-	// since  FE will do another fetch and render the error state or proper data then
-	if (isSSR() && syncBlockInstance?.error) {
-		return <SyncedBlockLoadingState />;
-	}
-
-	if (
-		!resourceId ||
-		syncBlockInstance?.error ||
-		!syncBlockInstance?.data ||
-		syncBlockInstance.data.status === 'deleted'
-	) {
+	const errorForDisplay =
+		syncBlockInstance?.error ??
+		(syncBlockInstance?.data?.status === 'deleted'
+			? { type: SyncBlockError.NotFound, reason: syncBlockInstance.data?.deletionReason }
+			: {
+					type: SyncBlockError.Errored,
+					// Keep `reason` static — the block's `resourceId` is emitted as its own
+					// analytics attribute, so interpolating it here would only leak the
+					// identifier into the `error` string.
+					reason: !resourceId ? 'missing resource id' : 'missing data',
+				});
+	const result = renderSyncedBlockContent({
+		syncBlockInstance: syncBlockInstance ?? undefined,
+		isLoading,
+		rendererOptions: finalRendererOptions,
+		providerFactory,
+		reloadData,
+		fireAnalyticsEvent: syncBlockFireAnalyticsEvent,
+		resourceId,
+		error: errorForDisplay,
+		getAccountId,
+		// Prefix heading ids with the reference node's localId so ToC deep links
+		// and heading anchor links resolve, and so the same source block embedded
+		// twice on a page produces distinct, stable ids. Only takes effect when the
+		// renderer options enable heading anchor links; otherwise the prefix is set
+		// but ids stay disabled inside AKRendererWrapper.
+		headingIdPrefix: localId,
+	});
+	if (result.isSuccess) {
 		return (
-			<SyncedBlockErrorComponent
-				error={
-					syncBlockInstance?.error ??
-					(syncBlockInstance?.data?.status === 'deleted'
-						? { type: SyncBlockError.NotFound }
-						: { type: SyncBlockError.Errored })
-				}
-				resourceId={syncBlockInstance?.resourceId}
-				onRetry={reloadData}
-				isLoading={isLoading}
-				fireAnalyticsEvent={fireAnalyticsEvent}
-			/>
+			<div
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+				className={SyncBlockSharedCssClassName.renderer}
+				// eslint-disable-next-line react/jsx-props-no-spreading
+				{...{ [SyncBlockRendererDataAttributeName]: true }}
+			>
+				{result.element}
+			</div>
 		);
 	}
-
-	if (syncBlockInstance?.data?.status === 'unpublished') {
-		return (
-			<SyncedBlockErrorComponent
-				error={{ type: SyncBlockError.Unpublished }}
-				resourceId={syncBlockInstance?.resourceId}
-				sourceURL={syncBlockInstance.data?.sourceURL}
-				fireAnalyticsEvent={fireAnalyticsEvent}
-			/>
-		);
-	}
-
-	const syncBlockDoc = {
-		content: syncBlockInstance.data.content,
-		version: 1,
-		type: 'doc',
-	} as DocNode;
-
-	return (
-		<div
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
-			className={SyncBlockSharedCssClassName.renderer}
-			// eslint-disable-next-line react/jsx-props-no-spreading
-			{...{ [SyncBlockRendererDataAttributeName]: true }}
-		>
-			<AKRendererWrapper
-				doc={syncBlockDoc}
-				dataProviders={providerFactory}
-				options={finalRendererOptions}
-			/>
-		</div>
-	);
+	return result.element;
 };

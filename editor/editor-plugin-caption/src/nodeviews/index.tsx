@@ -1,12 +1,17 @@
 import React from 'react';
 
+import { RawIntlProvider, type IntlShape } from 'react-intl';
+
+import { getDocument } from '@atlaskit/browser-apis';
+import { isSSR } from '@atlaskit/editor-common/core-utils';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type {
 	ForwardRef,
 	ReactComponentProps,
 	shouldUpdate,
 } from '@atlaskit/editor-common/react-node-view';
+import { NodeViewContentHole } from '@atlaskit/editor-common/react-node-view';
 import { SelectionBasedNodeView } from '@atlaskit/editor-common/selection-based-node-view';
 import type {
 	ExtractInjectionAPI,
@@ -23,6 +28,7 @@ export class CaptionNodeView extends SelectionBasedNodeView {
 	private selected = this.insideSelection();
 	private cleanupEditorDisabledListener?: () => void;
 	pluginInjectionApi?: ExtractInjectionAPI<CaptionPlugin>;
+	private intl?: IntlShape;
 
 	constructor(
 		node: PMNode,
@@ -34,6 +40,7 @@ export class CaptionNodeView extends SelectionBasedNodeView {
 		reactComponent?: React.ComponentType<React.PropsWithChildren<unknown>>,
 		viewShouldUpdate?: shouldUpdate,
 		pluginInjectionApi?: ExtractInjectionAPI<CaptionPlugin>,
+		intl?: IntlShape,
 	) {
 		super(
 			node,
@@ -46,17 +53,20 @@ export class CaptionNodeView extends SelectionBasedNodeView {
 			viewShouldUpdate,
 		);
 		this.pluginInjectionApi = pluginInjectionApi;
+		this.intl = intl;
 		this.handleEditorDisabledChanged();
 	}
 
-	createDomRef() {
-		const domRef = document.createElement('figcaption');
+	createDomRef(): HTMLElement {
+		const domRef = (getDocument() ?? document).createElement('figcaption');
 		domRef.setAttribute('data-caption', 'true');
 		return domRef;
 	}
 
-	getContentDOM() {
-		const dom = document.createElement('div');
+	getContentDOM(): {
+		dom: HTMLDivElement;
+	} {
+		const dom = (getDocument() ?? document).createElement('div');
 		// setting a className prevents PM/Chrome mutation observer from
 		// incorrectly deleting nodes
 		dom.className = 'caption-wrapper';
@@ -93,11 +103,17 @@ export class CaptionNodeView extends SelectionBasedNodeView {
 	}
 
 	render(_props: never, forwardRef: ForwardRef): React.JSX.Element {
-		return (
+		const children = (
 			<Caption selected={this.insideSelection()} hasContent={this.node.content.childCount > 0}>
-				<div ref={forwardRef} />
+				<NodeViewContentHole ref={forwardRef} />
 			</Caption>
 		);
+
+		if (!this.intl || !isSSR()) {
+			return children;
+		}
+
+		return <RawIntlProvider value={this.intl}>{children}</RawIntlProvider>;
 	}
 
 	viewShouldUpdate(nextNode: PMNode): boolean {
@@ -120,12 +136,14 @@ export class CaptionNodeView extends SelectionBasedNodeView {
 	}
 }
 
+/** Creates a caption node view for use with ProseMirror. */
 export default function captionNodeView(
 	portalProviderAPI: PortalProviderAPI,
 	eventDispatcher: EventDispatcher,
 	pluginInjectionApi: ExtractInjectionAPI<CaptionPlugin> | undefined,
+	intl?: IntlShape,
 ) {
-	return (node: PMNode, view: EditorView, getPos: getPosHandler) => {
+	return (node: PMNode, view: EditorView, getPos: getPosHandler): CaptionNodeView => {
 		return new CaptionNodeView(
 			node,
 			view,
@@ -136,6 +154,7 @@ export default function captionNodeView(
 			undefined,
 			undefined,
 			pluginInjectionApi,
+			intl,
 		).init();
 	};
 }

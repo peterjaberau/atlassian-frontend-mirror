@@ -3,10 +3,16 @@
  * @jsx jsx
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useIntl } from 'react-intl-next';
+
 import { css, cssMap, jsx } from '@compiled/react';
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
+import { useIntl } from 'react-intl';
+
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { cx } from '@atlaskit/css';
 import { type EmojiProvider, ResourcedEmoji, type EmojiId } from '@atlaskit/emoji';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Box, Inline } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
 
 import {
 	createAndFireSafe,
@@ -14,25 +20,30 @@ import {
 	createReactionFocusedEvent,
 	createReactionHoveredEvent,
 } from '../analytics';
-import { type ReactionSummary, type ReactionClick, type ReactionMouseEnter } from '../types';
-import { Counter } from './Counter';
-import { ReactionParticleEffect } from './ReactionParticleEffect';
-import { ReactionTooltip } from './ReactionTooltip';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { RESOURCED_EMOJI_COMPACT_HEIGHT } from '../shared/constants';
 import { messages } from '../shared/i18n';
 import { isLeftClick } from '../shared/utils';
-import { RESOURCED_EMOJI_COMPACT_HEIGHT } from '../shared/constants';
+import { type ReactionSummary, type ReactionClick, type ReactionMouseEnter } from '../types';
 import { type ReactionFocused } from '../types/reaction';
+import { Counter } from './Counter';
 import { ReactionButton } from './ReactionButton';
-import { StaticReaction } from './StaticReaction';
+import { ReactionParticleEffect } from './ReactionParticleEffect';
 import { type OpenReactionsDialogOptions } from './Reactions';
-import { token } from '@atlaskit/tokens';
-
-import { Box, Inline } from '@atlaskit/primitives/compiled';
+import { ReactionTooltip } from './ReactionTooltip';
+import { StaticReaction } from './StaticReaction';
 
 const styles = cssMap({
 	container: {
 		position: 'relative',
+	},
+	listItem: {
+		marginInline: token('space.0'),
+		marginBlock: token('space.0'),
+		paddingInline: token('space.0'),
+		paddingBlock: token('space.0'),
+	},
+	listItemNoMarker: {
+		listStyleType: 'none',
 	},
 });
 
@@ -40,18 +51,16 @@ const emojiStyle = css({
 	transformOrigin: 'center center 0',
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: '12px',
-	paddingTop: token('space.050', '4px'),
-	paddingRight: token('space.050', '4px'),
-	paddingBottom: token('space.050', '4px'),
-	paddingLeft: token('space.100', '8px'),
+	paddingBlock: token('space.050'),
+	paddingInlineStart: token('space.100'),
+	paddingInlineEnd: token('space.050'),
 });
 
 const emojiNoReactionStyle = css({
-	paddingTop: token('space.050', '4px'),
-	paddingRight: token('space.025', '2px'),
-	paddingBottom: token('space.050', '4px'),
+	paddingBlock: token('space.050'),
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-space
-	paddingLeft: '10px',
+	paddingInlineStart: '10px',
+	paddingInlineEnd: token('space.025'),
 });
 
 /**
@@ -93,9 +102,18 @@ export interface ReactionProps {
 	 */
 	onMouseEnter?: ReactionMouseEnter;
 	/**
+	 * Optional URL to optimistically render the emoji image before the catalogue arrives.
+	 * When provided, the emoji will render immediately without waiting for the emoji provider to resolve.
+	 */
+	optimisticImageURL?: string;
+	/**
 	 * Data for the reaction
 	 */
 	reaction: ReactionSummary;
+	/**
+	 * The HTML element used for the reaction root
+	 */
+	rootElement?: 'div' | 'li';
 	/**
 	 * Optional prop for using an opaque button background instead of a transparent background
 	 */
@@ -126,7 +144,9 @@ export const Reaction = ({
 	handleOpenReactionsDialog,
 	isViewOnly = false,
 	showSubtleStyle,
-}: ReactionProps) => {
+	optimisticImageURL,
+	rootElement,
+}: ReactionProps): JSX.Element => {
 	const intl = useIntl();
 	const hoverStart = useRef<number>();
 	const focusStart = useRef<number>();
@@ -198,6 +218,7 @@ export const Reaction = ({
 					emojiProvider={emojiProvider}
 					emojiId={emojiId}
 					fitToHeight={RESOURCED_EMOJI_COMPACT_HEIGHT}
+					optimisticImageURL={optimisticImageURL}
 				/>
 			</div>
 			<Counter value={reaction.count} highlight={!isViewOnly && reaction.reacted} />
@@ -217,11 +238,21 @@ export const Reaction = ({
 
 	return (
 		<Box
-			xcss={styles.container}
-			as={fg('jfp_a11y_team_comment_actions_semantic') ? 'li' : undefined}
+			xcss={cx(
+				styles.container,
+				rootElement === 'li' ? styles.listItem : undefined,
+				rootElement === 'li' && fg('platform_a11y_fixes_reading_order')
+					? styles.listItemNoMarker
+					: undefined,
+			)}
+			as={rootElement}
 		>
 			{showParticleEffect && (
-				<ReactionParticleEffect emojiId={emojiId} emojiProvider={emojiProvider} />
+				<ReactionParticleEffect
+					emojiId={emojiId}
+					emojiProvider={emojiProvider}
+					optimisticImageURL={optimisticImageURL}
+				/>
 			)}
 			<ReactionTooltip
 				emojiName={emojiName}

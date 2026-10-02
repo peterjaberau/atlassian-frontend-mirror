@@ -1,7 +1,9 @@
+import type { IntlShape } from 'react-intl';
+
 import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
-import { withLazyLoading } from '@atlaskit/editor-common/lazy-node-view';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import { withLazyLoading, type NodeViewConstructor } from '@atlaskit/editor-common/lazy-node-view';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
@@ -15,7 +17,9 @@ export const lazyMediaInlineView = (
 	providerFactory: ProviderFactory,
 	api: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined,
 	dispatchAnalyticsEvent?: DispatchAnalyticsEvent,
-) => {
+	fallbackMediaNameFetcher?: (id: string) => Promise<string>,
+	intl?: IntlShape,
+): NodeViewConstructor => {
 	return withLazyLoading({
 		nodeName: 'mediaInline',
 		getNodeViewOptions: () => {},
@@ -31,6 +35,8 @@ export const lazyMediaInlineView = (
 						providerFactory,
 						api,
 						dispatchAnalyticsEvent,
+						fallbackMediaNameFetcher,
+						intl,
 					)(node, view, getPos);
 				};
 			});

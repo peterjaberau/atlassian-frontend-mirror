@@ -4,7 +4,7 @@
 interface MockedJest<F, S> {
 	fn: (value?: F) => MockStub<F, F>;
 	spyOn: () => MockStub<S, S>;
-	genMockFromModule: undefined;
+	createMockFromModule: undefined;
 	requireActual: () => void;
 	doMock: () => void;
 }
@@ -33,11 +33,12 @@ const mockJest = <F, S>(): MockedJest<F, S> => {
 	return {
 		fn: (value?: F) => mockStub<F>() as MockStub<F, F>,
 		spyOn: () => mockStub<S>() as MockStub<S, S>,
-		genMockFromModule: undefined,
+		createMockFromModule: undefined,
 		requireActual: () => {},
 		doMock: () => {},
 	};
 };
 
 // ED-15806 Required as some examples currently use test modules and complain about not having `jest`.
-export const getJest = <F, S>() => (typeof jest === 'undefined' ? mockJest<F, S>() : jest);
+export const getJest = <F, S>(): typeof jest | MockedJest<F, S> =>
+	typeof jest === 'undefined' ? mockJest<F, S>() : jest;

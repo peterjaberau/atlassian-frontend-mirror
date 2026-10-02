@@ -5,7 +5,7 @@ import type { BreakoutMode, ExtractInjectionAPI } from '@atlaskit/editor-common/
 import { Popup } from '@atlaskit/editor-common/ui';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { BreakoutPlugin } from '../breakoutPluginType';
 import type { ActiveGuidelineKey } from '../pm-plugins/resizing-plugin';
@@ -46,6 +46,7 @@ export const GuidelineLabel = ({
 	return (
 		<Popup
 			target={element && element instanceof HTMLElement ? element : undefined}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			offset={[0, 10]}
 			alignY="bottom"
 			alignX="center"

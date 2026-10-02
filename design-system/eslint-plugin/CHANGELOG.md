@@ -1,5 +1,601 @@
 # @atlaskit/eslint-plugin-design-system
 
+## 16.13.3
+
+### Patch Changes
+
+- [`32ee25eeb4eef`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/32ee25eeb4eef) -
+  Accept the motion.tab token for native tab button colour transitions.
+
+## 16.13.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.13.0
+
+### Minor Changes
+
+- [`4fae57ea9244e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4fae57ea9244e) -
+  Add no-empty-icon-button-label rule to flag statically empty IconButton/LinkIconButton labels.
+
+## 16.12.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.12.7
+
+### Patch Changes
+
+- [`db3d1d131101f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db3d1d131101f) -
+  Keep unsafe autofixes opt-in for rules that expose `enableUnsafeAutofix`; recommended warning
+  rules use suggestions unless a consumer explicitly enables the unsafe option.
+
+## 16.12.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.12.5
+
+### Patch Changes
+
+- [`172807d4dcd96`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/172807d4dcd96) -
+  Avoid crashing while inspecting styles that compose a token call in a binary expression.
+- Updated dependencies
+
+## 16.12.4
+
+### Patch Changes
+
+- [`4b7046a6ca079`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b7046a6ca079) -
+  Improve modal title rule to avoid recursive search of components.
+
+## 16.12.3
+
+### Patch Changes
+
+- [`3dd2bfbb50aa5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3dd2bfbb50aa5) -
+  Fix `use-pressable-motion` to recognize semantic transitions in composed xcss arrays, including
+  motion styles gated by `platform-dst-motion-uplift-custom-button`.
+
+## 16.12.2
+
+### Patch Changes
+
+- [`ef9028194ebf1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef9028194ebf1) -
+  Mark @atlassian/preview-panel and @atlassian/preview-panels-api as deprecated; add ESLint
+  deprecation rules in favour of @atlassian/panel-system
+
+## 16.12.1
+
+### Patch Changes
+
+- [`c07f65513c732`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c07f65513c732) -
+  Add @atlassian/manual-trial-awareness-modal and
+  @post-office/message-template--jira-manual-trial-awareness-modal to deprecated config. TWCG-208
+  experiment has been shut down.
+
+## 16.12.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.11.3
+
+### Patch Changes
+
+- [`85a3e1ec4b6ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85a3e1ec4b6ff) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+- Updated dependencies
+
+## 16.11.2
+
+### Patch Changes
+
+- [`fdedfb06aa229`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fdedfb06aa229) -
+  Allow canonical typed media queries and typed container-query exceptions in styling lint rules.
+
+## 16.11.1
+
+### Patch Changes
+
+- [`4612437357f61`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4612437357f61) -
+  Remove references to the unused @atlassian/icon-private package. Its value is dropped from the
+  icon metadata location union, the ensure-icon-color lint rule no longer matches it, and the
+  adoption scanner no longer scans its entrypoint.
+- Updated dependencies
+
+## 16.11.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.10.1
+
+### Patch Changes
+
+- [`25e3dde50eeb3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/25e3dde50eeb3) -
+  Upgrade `@typescript-eslint` dependencies from v5 to v7
+- Updated dependencies
+
+## 16.10.0
+
+### Minor Changes
+
+- [`b2a44b7d3ce87`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b2a44b7d3ce87) -
+  Extend `no-modal-label` to disallow `modalProps.label` on modal entry-point triggers.
+
+  Exclude ads-mcp get-lint-rules from content and deprecated-import ratcheting (docs embed
+  intentional bad examples as strings).
+
+## 16.9.0
+
+### Minor Changes
+
+- [`db14bab6f54dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db14bab6f54dc) -
+  Make modal title rules error instead of warn.
+
+## 16.8.1
+
+### Patch Changes
+
+- [`2866cc2465350`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2866cc2465350) -
+  Exclude jira eslint-plugin restricted rules from barrel import ratcheting. Exclude ads-mcp codegen
+  from deprecated entry-point import ratcheting (docs embed example imports). Point
+  use-pressable-motion docs at compiled Pressable.
+- Updated dependencies
+
+## 16.8.0
+
+### Minor Changes
+
+- [`bbc31818ea186`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bbc31818ea186) -
+  Extend `use-popup-label` to cover `PopupTrigger` from `@atlassian/entry-points/popup-trigger`.
+
+## 16.7.0
+
+### Minor Changes
+
+- [`b3652ef9d1db3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b3652ef9d1db3) -
+  Extend `use-pressable-motion` to suggest semantic hover and pressed motion tokens for native
+  button colour transitions.
+
+## 16.6.0
+
+### Minor Changes
+
+- [`a54598e30d32b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a54598e30d32b) -
+  Fix de-barrelling support in several additional rules so they continue to recognize Atlaskit
+  components when consumers import from subpath entrypoints instead of package root barrels. Updated
+  rules:
+  - `use-simple-field`
+  - `use-simple-form`
+  - `use-field-message-wrapper`
+  - `use-correct-field`
+  - `use-character-counter-field`
+  - `no-placeholder`
+  - `no-readonly-or-disabled-inputs`
+  - `use-should-render-to-parent`
+  - `ensure-proper-xcss-usage`
+  - `lozenge-badge-tag-labelling-system-migration`
+
+## 16.5.0
+
+### Minor Changes
+
+- [`5ff2cf3cc5699`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ff2cf3cc5699) -
+  Add `use-pressable-motion` to suggest semantic hover and pressed motion tokens for Pressable
+  colour transitions.
+
+## 16.4.0
+
+### Minor Changes
+
+- [`8d9f7d9d4e40d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d9f7d9d4e40d) -
+  Fix de-barrelling support in several rules so they continue to recognize Atlaskit components when
+  consumers import from subpath entrypoints instead of package root barrels. Updated rules:
+  - `no-html-anchor`
+  - `no-html-heading`
+  - `no-html-image`
+  - `no-html-code`
+  - `no-html-text-input`
+  - `no-html-textarea`
+  - `no-separator-with-list-elements`
+  - `ensure-avatar-tag-avatar-props`
+  - `enforce-inline-styles-in-select`
+  - `use-datetime-picker-calendar-button`
+  - `use-drawer-label`
+  - `use-popup-label`
+  - `use-tag-group-label`
+  - `use-heading-level-in-section-message`
+  - `use-modal-dialog-close-button`
+  - `use-heading-level-in-spotlight-card`
+  - `use-spotlight-package`
+
+## 16.3.0
+
+### Minor Changes
+
+- [`6b78df4959ab8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6b78df4959ab8) -
+  Add new rule for enforcing the usage of `ModalTitle` within a modal header.
+
+## 16.2.1
+
+### Patch Changes
+
+- [`00f3166426df4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00f3166426df4) -
+  add eslint rule for cssMapScope and ratcheting rule
+
+## 16.2.0
+
+### Minor Changes
+
+- [`9f115ecc01686`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f115ecc01686) -
+  Create a new rule to block usage of `label` in modal dialog.
+
+## 16.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`b5338e4d22f84`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5338e4d22f84) -
+  Update @atlaskit/design-system/no-emotion-primitives to handle de-barrelled entrypoints.
+
+## 16.0.1
+
+### Patch Changes
+
+- [`88a1176b97a25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88a1176b97a25) -
+  Internal TypeScript typecheck fixes for ts7 (tsgo) adoption. No functional or API changes.
+
+## 16.0.0
+
+### Major Changes
+
+- [`db02bae78813d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db02bae78813d) -
+  Remove the `use-primitives` rule and its Box recommendation.
+
+  This is a breaking change. After upgrading, remove `@atlaskit/design-system/use-primitives` from
+  your ESLint configuration and any ESLint disable comments to avoid "Definition for rule was not
+  found" errors.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.6.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.5.0
+
+### Minor Changes
+
+- [`62b5aa6adc358`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62b5aa6adc358) -
+  Completes deprecation guidance for the legacy WidthDetector default export.
+
+  Use `WidthObserver` from `@atlaskit/width-detector/width-observer` instead.
+
+## 15.4.0
+
+### Minor Changes
+
+- [`0af52c9020b98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0af52c9020b98) -
+  Add `expand-motion-shorthand` rule to `@atlaskit/eslint-plugin-design-system` so it is documented
+  on the design system website. Expands `transition` and `animation` CSS shorthand properties into
+  their individual sub-properties so values can be replaced with motion tokens.
+
+  Deprecate the `compiled/expand-motion-shorthand` rule in `@atlaskit/eslint-plugin-platform` in
+  favour of `@atlaskit/design-system/expand-motion-shorthand`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.3.0
+
+### Minor Changes
+
+- [`c012f03a95a5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c012f03a95a5a) -
+  Remove modal `autoFocus` rule because type has been updated to remove unwanted case.
+
+## 15.2.0
+
+### Minor Changes
+
+- [`7c344654b5d24`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7c344654b5d24) -
+  Deprecates FocusRing, useFocusRing, and their entrypoints. Use `Focusable` from
+  `@atlaskit/primitives/compiled/focusable` instead.
+
+## 15.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.1
+
+### Patch Changes
+
+- [`2b3eee14e8063`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2b3eee14e8063) -
+  Update lozenge-badge-tag-labelling-system-migration ESLint rule and codemod for the new Lozenge
+  API.
+  - Lozenges no longer migrate to `<Tag>`. The `<Lozenge>` component stays as `<Lozenge>`.
+  - Legacy `appearance` values are now auto-fixed in-place to new semantic values: `default` →
+    `neutral`, `inprogress` → `information`, `moved` → `warning`, `removed` → `danger`, `new` →
+    `discovery`. The value `success` is unchanged.
+  - `isBold` is intentionally not flagged: while the feature flag
+    `platform-dst-lozenge-tag-badge-visual-uplifts` is OFF, users still need `isBold` to render
+    subtle Lozenges. It will be cleaned up in a separate pass after rollout.
+
+## 15.1.0
+
+### Minor Changes
+
+- [`c6fce4a43355c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c6fce4a43355c) -
+  Add new `use-tokens-motion` ESLint rule to enforce the use of motion design tokens for durations
+  and easing values. This rule was moved from `@atlaskit/eslint-plugin-platform`
+  (`compiled/use-motion-token-values`) to the design-system plugin as a first-class rule.
+
+## 15.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.4.0
+
+### Minor Changes
+
+- [`9e3507590f1b4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e3507590f1b4) -
+  Add rule to encourage use of `headingLevel` in section message component.
+
+## 14.3.2
+
+### Patch Changes
+
+- [`7affa87ae5857`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7affa87ae5857) -
+  Add ESLint v9/v10 RuleContext compatibility for platform ESLint packages consumed by Jira.
+- Updated dependencies
+
+## 14.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.0
+
+### Minor Changes
+
+- [`fca44a3d35abe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fca44a3d35abe) -
+  Adds Nav 3 packages (`@atlaskit/atlassian-navigation` + `@atlaskit/page-layout` +
+  `@atlaskit/side-navigation`) to the deprecated config.
+
+## 14.2.0
+
+### Minor Changes
+
+- [`ec906640e3e00`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec906640e3e00) -
+  Add new components to the `use-should-render-to-parent` rule.
+
+## 14.1.0
+
+### Minor Changes
+
+- [`06a50a4e30a01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06a50a4e30a01) -
+  Add rule to discourage usage of disabled and readonly inputs.
+
+## 14.0.0
+
+### Major Changes
+
+- [`b1e060ffdd070`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1e060ffdd070) -
+  Remove no-custom-icons ESLint rule
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.44.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.44.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.44.0
+
+### Minor Changes
+
+- [`bc69c1d196bae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc69c1d196bae) -
+  Removed `shouldEnforceFallbacks` option from the `use-tokens-typography` rule. The auto-fixer no
+  longer adds `fontFallback` imports from `@atlaskit/theme/typography`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.43.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.43.1
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Update codemod and eslint to handle different scenarios to migrate spacing props
+- Updated dependencies
+
+## 13.43.0
+
+### Minor Changes
+
+- [`7c66756e9392b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7c66756e9392b) -
+  Add use-textfield-autocomplete rule to flag inaccessible use of autocomplete prop for email, url
+  and tel text fields
+
+## 13.42.0
+
+### Minor Changes
+
+- [`0daada0469ab8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0daada0469ab8) -
+  Remove `@atlaskit/icon/migration-map` entry point, `IconMigrationMap` and
+  `IconMigrationSizeGuidance` types from `@atlaskit/icon`, and `@atlaskit/icon-lab/migration-map`
+  entry point. These were only needed to support the legacy glyph icon migration path which has now
+  been fully completed. Remove the `no-legacy-icons` ESLint rule from
+  `@atlaskit/eslint-plugin-design-system` as `@atlaskit/icon/glyph` and
+  `@atlaskit/icon/core/migration` no longer exist.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.41.3
+
+### Patch Changes
+
+- [`f1ef2305b8862`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1ef2305b8862) -
+  Remove legacy icon glyphs and oldName prop support from metadata core.
+- Updated dependencies
+
+## 13.41.2
+
+### Patch Changes
+
+- [`5e06fddfce409`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5e06fddfce409) -
+  Rename codemod to `next-icon-spacing-to-flex-primitive` (now discoverable via
+  `npx @atlaskit/codemod-cli`) and update `no-icon-spacing-prop` ESLint rule to generate `Flex`
+  wrapper instead of `Box`.
+- Updated dependencies
+
+## 13.41.1
+
+### Patch Changes
+
+- [`af619ffaf19e1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/af619ffaf19e1) -
+  Add `no-icon-spacing-prop` ESLint rule to flag and suggest migration of deprecated `spacing` prop
+  on icon components.
+- Updated dependencies
+
+## 13.41.0
+
+### Minor Changes
+
+- [`dcbccb3da71a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dcbccb3da71a6) -
+  The `use-side-nav-items-package` rule has been removed.
+
+## 13.40.4
+
+### Patch Changes
+
+- [`1f45f35f80c0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f45f35f80c0a) -
+  use-spotlight-package now triggers for specific import specifiers, and ignores modal related
+  specifiers.
+- Updated dependencies
+
+## 13.40.3
+
+### Patch Changes
+
+- [`000d0a2d3aca2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/000d0a2d3aca2) -
+  Remove non-erasable syntax (e.g. enums, namespaces with runtime code) from package
+
+## 13.40.2
+
+### Patch Changes
+
+- [`f3af0f1353dd5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3af0f1353dd5) -
+  Remove legacy icon glyphs and oldName prop support from metadata core.
+- Updated dependencies
+
+## 13.40.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 13.40.0
 
 ### Minor Changes

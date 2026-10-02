@@ -2,7 +2,15 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef, type RefObject, useCallback, useImperativeHandle, useRef } from 'react';
+import {
+	forwardRef,
+	type ForwardRefExoticComponent,
+	type RefAttributes,
+	type RefObject,
+	useCallback,
+	useImperativeHandle,
+	useRef,
+} from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, keyframes } from '@emotion/react';
@@ -26,7 +34,7 @@ const lineOverlayStyles = css({
 	top: 0,
 	left: 0,
 	pointerEvents: 'none',
-	stroke: token('color.border.bold', '#738496'),
+	stroke: token('color.border.bold'),
 	strokeWidth: 4,
 });
 
@@ -40,7 +48,7 @@ const activeLineStyles = css({
 	animationDuration: '250ms',
 	animationTimingFunction: 'linear',
 	animationIterationCount: 'infinite',
-	stroke: token('color.border.selected', '#579DFF'),
+	stroke: token('color.border.selected'),
 	strokeDasharray: '16px 8px',
 });
 
@@ -71,7 +79,10 @@ function createLine() {
 	return line;
 }
 
-const Lines = forwardRef<LineOverlayHandle, {}>(({}, ref) => {
+const Lines: ForwardRefExoticComponent<RefAttributes<LineOverlayHandle>> = forwardRef<
+	LineOverlayHandle,
+	{}
+>(({}, ref) => {
 	invariant(ref !== null && 'current' in ref, 'ref is a ref object');
 
 	const svgRef = useRef<SVGSVGElement>(null);

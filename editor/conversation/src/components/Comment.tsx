@@ -1,14 +1,19 @@
-import AkAvatar from '@atlaskit/avatar';
+import React from 'react';
+
+import formatDistanceToNow from 'date-fns/formatDistanceToNow';
+import isEqual from 'lodash/isEqual';
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import styled from 'styled-components';
+
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import AkAvatar from '@atlaskit/avatar/avatar';
 import AkComment, { CommentAction, CommentAuthor, CommentTime } from '@atlaskit/comment';
 import { WithProviders } from '@atlaskit/editor-common/provider-factory';
 import type { EditorProps } from '@atlaskit/editor-core';
-import { type ComposableEditor } from '@atlaskit/editor-core/composable-editor';
+import type { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { ConnectedReactionsView } from '@atlaskit/reactions';
 import { ReactRenderer } from '@atlaskit/renderer';
-import formatDistanceToNow from 'date-fns/formatDistanceToNow';
-import React from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import styled from 'styled-components';
+
 import type { HttpError } from '../api/HttpError';
 import CommentContainer from '../containers/Comment';
 import { actionSubjectIds, eventTypes, fireEvent, trackEventActions } from '../internal/analytics';
@@ -16,8 +21,6 @@ import type { Comment as CommentType } from '../model/Comment';
 import type { User } from '../model/User';
 import Editor from './Editor';
 import type { SharedProps, RenderEditorWithComments } from './types';
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import isEqual from 'lodash/isEqual';
 
 export interface Props extends SharedProps {
 	canModerateComment?: boolean;
@@ -440,6 +443,7 @@ export default class Comment extends React.Component<Props, State> {
 	}
 
 	private renderComments() {
+		// eslint-disable-next-line no-unused-vars
 		const { comment, comments, ...otherCommentProps } = this.props;
 
 		if (!comments || comments.length === 0) {
@@ -451,7 +455,7 @@ export default class Comment extends React.Component<Props, State> {
 				key={child.localId}
 				comment={child}
 				// Ignored via go/ees005
-				// eslint-disable-next-line react/jsx-props-no-spreading
+				// eslint-disable-next-line react/jsx-props-no-spreading, @atlassian/perf-linting/detect-unnecessary-rerenders, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				renderComment={(props) => <Comment {...props} />}
 				// Ignored via go/ees005
 				// eslint-disable-next-line react/jsx-props-no-spreading
@@ -513,21 +517,24 @@ export default class Comment extends React.Component<Props, State> {
 
 		const { createdBy, commentAri } = comment;
 		let actions = [
-			// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+			/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 			<CommentAction key="reply" onClick={this.onReply}>
 				Reply
+				{/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 			</CommentAction>,
 		];
 		const editAction = (
-			// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+			/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 			<CommentAction key="edit" onClick={this.onEdit}>
 				Edit
+				{/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 			</CommentAction>
 		);
 		const deleteAction = (
-			// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+			/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 			<CommentAction key="delete" onClick={this.onDelete}>
 				Delete
+				{/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 			</CommentAction>
 		);
 
@@ -552,8 +559,10 @@ export default class Comment extends React.Component<Props, State> {
 				...actions,
 				<WithProviders
 					key="reactions"
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					providers={['emojiProvider', 'reactionsStore']}
 					providerFactory={dataProviders}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					renderNode={({ emojiProvider, reactionsStore }) => {
 						if (typeof emojiProvider === 'undefined' || typeof reactionsStore === 'undefined') {
 							return null;
@@ -613,18 +622,20 @@ export default class Comment extends React.Component<Props, State> {
 
 			if ((error as HttpError).canRetry) {
 				errorProps.actions = [
-					// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+					/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 					<CommentAction key="retry" onClick={this.onRequestRetry}>
 						Retry
+						{/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 					</CommentAction>,
 				];
 			}
 
 			errorProps.actions = [
 				...errorProps.actions,
-				// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
+				/* eslint-disable @atlassian/i18n/no-literal-string-in-jsx */
 				<CommentAction key="cancel" onClick={this.onRequestCancel}>
 					Cancel
+					{/* eslint-enable @atlassian/i18n/no-literal-string-in-jsx */}
 				</CommentAction>,
 			];
 

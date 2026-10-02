@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/editor-palette",
-	"version": "2.1.23",
+	"version": "3.5.54",
 	"description": "The editor palette",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -18,48 +18,33 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./background": "./src/entry-points/background.ts",
+		"./border": "./src/entry-points/border.ts",
+		"./table-charts": "./src/entry-points/table-charts.ts",
+		"./text": "./src/entry-points/text.ts",
+		"./text-background-color": "./src/entry-points/text-background-color.ts"
 	},
 	"dependencies": {
+		"@atlaskit/docs": "workspace:^",
+		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/section-message": "workspace:^",
+		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"devDependencies": {
+		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@testing-library/react": "root:*",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
 		"wait-for-expect": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"deprecation": "no-deprecated-imports",
-			"design-tokens": [
-				"color"
-			],
-			"styling": [
-				"emotion"
-			]
-		}
+		"react": "^18.2.0 || ^19.2.0",
+		"react-dom": "^18.2.0 || ^19.2.0"
 	}
 }

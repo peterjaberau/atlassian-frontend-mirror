@@ -2,6 +2,8 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+import type { JSX } from 'react';
+
 import { css, jsx } from '@compiled/react';
 
 import { token } from '@atlaskit/tokens';
@@ -23,7 +25,7 @@ const labelStyles = css({
 const flagStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	fontSize: '1.125rem', // emoji size
-	marginInlineEnd: token('space.100', '8px'),
+	marginInlineEnd: token('space.100'),
 });
 
 const Opt = ({ children, icon }: { icon: Country['icon']; children: string }) => (
@@ -54,7 +56,9 @@ const formatOptionLabel = (opt: Country, { context }: FormatOptionLabelMeta<Coun
 	context === 'value' ? controlLabel(opt) : optionLabel(opt);
 
 // put it all together
-const CountrySelect: (props: SelectProps<Country>) => JSX.Element = (props: SelectProps<Country>) => {
+export const CountrySelect: (props: SelectProps<Country>) => JSX.Element = (
+	props: SelectProps<Country>,
+) => {
 	const { options } = props;
 	const countryOptions = options || groupedCountries;
 
@@ -73,4 +77,3 @@ const CountrySelect: (props: SelectProps<Country>) => JSX.Element = (props: Sele
 };
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
-export default CountrySelect;

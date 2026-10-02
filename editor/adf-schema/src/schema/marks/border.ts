@@ -1,15 +1,19 @@
 import type { MarkSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { border as borderFactory } from '../../next-schema/generated/markTypes';
-import { hexToEditorBorderPaletteColor } from '../../utils/editor-palette';
 import { N300A, N600, N1000 } from '../../utils/colors';
+import { hexToEditorBorderPaletteColor } from '../../utils/hex-to-editor-border-palette-color';
 
 export type BorderMarkAttributes = {
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @pattern "^#[0-9a-fA-F]{8}$|^#[0-9a-fA-F]{6}$"
 	 */
 	color: string;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @minimum 1
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @maximum 3
 	 */
 	size: number;
@@ -32,7 +36,7 @@ const borderColorArrayPalette: Array<[string, BorderColorKey]> = [
 	[N1000, 'Bold gray'],
 ];
 
-export const borderColorPalette = new Map<string, BorderColorKey>();
+export const borderColorPalette: Map<string, BorderColorKey> = new Map<string, BorderColorKey>();
 
 borderColorArrayPalette.forEach(([color, label]) =>
 	borderColorPalette.set(color.toLowerCase(), label),

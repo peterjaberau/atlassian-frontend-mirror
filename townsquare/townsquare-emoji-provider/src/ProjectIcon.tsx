@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { Status } from '@atlaskit/avatar';
+import Status from '@atlaskit/avatar/status';
 import { cssMap } from '@atlaskit/css';
 import { type EmojiProvider, ResourcedEmoji } from '@atlaskit/emoji';
 import { Box } from '@atlaskit/primitives/compiled';
@@ -34,7 +34,7 @@ export type Props = {
 	height?: number;
 };
 
-export const ProjectIcon = ({ emoji, isPrivate, height }: Props) => {
+export const ProjectIcon = ({ emoji, isPrivate, height }: Props): React.JSX.Element | null => {
 	const iconSize = height ?? 16;
 
 	const emojiProvider = useMemo<Promise<EmojiProvider> | undefined>(() => {
@@ -44,10 +44,7 @@ export const ProjectIcon = ({ emoji, isPrivate, height }: Props) => {
 		return getTownsquareEmojiProvider();
 	}, [emoji]);
 
-	const emojiId = useMemo(
-		() => (emoji ? { shortName: emoji } : undefined),
-		[emoji],
-	);
+	const emojiId = useMemo(() => (emoji ? { shortName: emoji } : undefined), [emoji]);
 
 	if (!emojiId) {
 		return null;

@@ -10,9 +10,11 @@ import { css, jsx } from '@emotion/react';
 import AppSwitcherIcon from '@atlaskit/icon/core/app-switcher';
 import { token } from '@atlaskit/tokens';
 
-import { SkeletonIconButton } from './components/SkeletonIconButton';
 import { useTheme } from './theme';
 
+/**
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export type SkeletonSwitcherButtonProps = {
 	/**
 	 *  Describes the specific role of this navigation component for users viewing the page with a screen
@@ -30,8 +32,8 @@ export type SkeletonSwitcherButtonProps = {
 const skeletonSwitcherButtonStyles = css({
 	margin: 0,
 	// eslint-disable-next-line @atlaskit/design-system/no-physical-properties
-	marginRight: token('space.050', '4px'),
-	padding: `${token('space.050', '4px')} ${token('space.075', '6px')}`,
+	marginRight: token('space.050'),
+	padding: `${token('space.050')} ${token('space.075')}`,
 	border: 0,
 	borderRadius: token('radius.full', '100%'),
 	pointerEvents: 'none',
@@ -69,6 +71,8 @@ const skeletonSwitcherButtonStyles = css({
  *
  * - [Examples](https://atlassian.design/components/atlassian-navigation/examples#skeleton-button)
  * - [Code](https://atlassian.design/components/atlassian-navigation/code)
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 export const SkeletonSwitcherButton = ({
 	label = '',
@@ -89,15 +93,4 @@ export const SkeletonSwitcherButton = ({
 	);
 };
 
-/**
- * __Nav 4 skeleton switcher button__
- *
- * A nav 4 skeleton switcher button
- */
-export const Nav4SkeletonSwitcherButton = ({
-	label = '',
-}: SkeletonSwitcherButtonProps): React.JSX.Element => (
-	<SkeletonIconButton>
-		<AppSwitcherIcon label={label} spacing="spacious" color={token('color.icon')} />
-	</SkeletonIconButton>
-);
+export { Nav4SkeletonSwitcherButton } from './nav4-skeleton-switcher-button';

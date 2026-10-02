@@ -3,30 +3,33 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import type { MouseEventHandler, PointerEvent } from 'react';
-import React, { PureComponent, useContext } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import type { MouseEventHandler, PointerEvent } from 'react';
+import React, { PureComponent, useCallback, useContext, useMemo } from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
 import { akEditorFloatingPanelZIndex } from '@atlaskit/editor-shared-styles';
-import type { CustomItemComponentProps } from '@atlaskit/menu';
-import { CustomItem, MenuGroup, Section } from '@atlaskit/menu';
-import { fg } from '@atlaskit/platform-feature-flags';
+import CustomItem from '@atlaskit/menu/custom-item';
+import MenuGroup from '@atlaskit/menu/menu-group';
+import Section from '@atlaskit/menu/section';
+import type { CustomItemComponentProps } from '@atlaskit/menu/types';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 import { token } from '@atlaskit/tokens';
-import type { PositionType } from '@atlaskit/tooltip';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import type { PositionType } from '@atlaskit/tooltip/types';
 
 import { DropdownMenuSharedCssClassName } from '../../styles';
 import { KeyDownHandlerContext } from '../../ui-menu/ToolbarArrowKeyNavigationProvider';
 import { OutsideClickTargetRefContext, withReactEditorViewOuterListeners } from '../../ui-react';
-import DropList, { type Props as DropListProps } from '../../ui/DropList';
+import DropList from '../../ui/DropList';
+import type { Props as DropListProps } from '../../ui/DropList';
 import Popup from '../../ui/Popup';
 import { ArrowKeyNavigationProvider } from '../ArrowKeyNavigationProvider';
 import { ArrowKeyNavigationType } from '../ArrowKeyNavigationProvider/types';
-
 import type { MenuItem, Props, State } from './types';
 
 const wrapper = css({
@@ -58,20 +61,14 @@ const buttonStyles = (isActive?: boolean, submenuActive?: boolean) => {
 					position: absolute;
 					left: 0;
 					top: 0;
-					background: ${token('color.border.selected', 'transparent')};
+					background: ${token('color.border.selected')};
 					content: '';
 				}
 				> span,
 				> span:hover,
 				> span:active {
-					background: ${token(
-						'color.background.selected',
-						fg('platform_editor_updated_dropdown_colors') ? '#E9F2FE' : '#6c798f',
-					)};
-					color: ${token(
-						'color.text.selected',
-						fg('platform_editor_updated_dropdown_colors') ? '#1868DB' : '#0C66E4',
-					)};
+					background: ${token('color.background.selected')};
+					color: ${token('color.text.selected')};
 				}
 				:focus > span[aria-disabled='false'] {
 					${focusedMenuItemStyle};
@@ -91,14 +88,8 @@ const buttonStyles = (isActive?: boolean, submenuActive?: boolean) => {
 			> span,
 			> span:hover,
 			> span:active {
-				background: ${token(
-					'color.background.selected',
-					fg('platform_editor_updated_dropdown_colors') ? '#E9F2FE' : '#6c798f',
-				)};
-				color: ${token(
-					'color.text.selected',
-					fg('platform_editor_updated_dropdown_colors') ? '#1868DB' : '#0C66E4',
-				)};
+				background: ${token('color.background.selected')};
+				color: ${token('color.text.selected')};
 			}
 			:focus > span[aria-disabled='false'] {
 				${focusedMenuItemStyle};
@@ -113,12 +104,12 @@ const buttonStyles = (isActive?: boolean, submenuActive?: boolean) => {
 		return css`
 			> span:hover[aria-disabled='false'] {
 				color: ${token('color.text')};
-				background-color: ${token('color.background.neutral.subtle.hovered', 'rgb(244, 245, 247)')};
+				background-color: ${token('color.background.neutral.subtle.hovered')};
 			}
 			${!submenuActive &&
 			`
 					> span:active[aria-disabled='false'] {
-						background-color: ${token('color.background.neutral.subtle.pressed', 'rgb(179, 212, 255)')};
+						background-color: ${token('color.background.neutral.subtle.pressed')};
 					}`}
 			> span[aria-disabled='true'] {
 				color: ${token('color.text.disabled')};
@@ -136,8 +127,7 @@ const buttonStyles = (isActive?: boolean, submenuActive?: boolean) => {
 
 const DropListWithOutsideClickTargetRef = (props: DropListProps) => {
 	const setOutsideClickTargetRef = React.useContext(OutsideClickTargetRefContext);
-	// Ignored via go/ees005
-	// eslint-disable-next-line react/jsx-props-no-spreading
+	// eslint-disable-next-line react/jsx-props-no-spreading -- Spreading props to pass through dynamic component props
 	return <DropList onDroplistRef={setOutsideClickTargetRef} {...props} />;
 };
 const DropListWithOutsideListeners = withReactEditorViewOuterListeners(
@@ -183,6 +173,13 @@ export default class DropdownMenuWrapper extends PureComponent<Props, State> {
 		}
 	};
 
+	private handleEnterKeydown = (e: KeyboardEvent) => {
+		if (!this.props.allowEnterDefaultBehavior) {
+			e.preventDefault();
+		}
+		e.stopPropagation();
+	};
+
 	private renderDropdownMenu() {
 		const { target, popupPlacement } = this.state;
 		const {
@@ -199,7 +196,6 @@ export default class DropdownMenuWrapper extends PureComponent<Props, State> {
 			onItemActivated,
 			arrowKeyNavigationProviderOptions,
 			section,
-			allowEnterDefaultBehavior,
 			handleEscapeKeydown,
 		} = this.props;
 		// Note that this onSelection function can't be refactored to useMemo for
@@ -239,8 +235,7 @@ export default class DropdownMenuWrapper extends PureComponent<Props, State> {
 				offset={offset}
 			>
 				<ArrowKeyNavigationProvider
-					// Ignored via go/ees005
-					// eslint-disable-next-line react/jsx-props-no-spreading
+					// eslint-disable-next-line react/jsx-props-no-spreading -- Spreading navigationProviderProps to pass through dynamic component props
 					{...navigationProviderProps}
 					handleClose={this.handleCloseAndFocus}
 					closeOnTab={true}
@@ -251,12 +246,7 @@ export default class DropdownMenuWrapper extends PureComponent<Props, State> {
 						shouldFitContainer={true}
 						handleClickOutside={this.handleClose}
 						handleEscapeKeydown={handleEscapeKeydown || this.handleCloseAndFocus}
-						handleEnterKeydown={(e: KeyboardEvent) => {
-							if (!allowEnterDefaultBehavior) {
-								e.preventDefault();
-							}
-							e.stopPropagation();
-						}}
+						handleEnterKeydown={this.handleEnterKeydown}
 						targetRef={this.state.target}
 					>
 						{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
@@ -291,7 +281,7 @@ export default class DropdownMenuWrapper extends PureComponent<Props, State> {
 		);
 	}
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { children, isOpen } = this.props;
 
 		return (
@@ -340,8 +330,7 @@ const DropdownMenuItemCustomComponent = React.forwardRef<
 	return (
 		<span
 			ref={ref}
-			// Ignored via go/ees005
-			// eslint-disable-next-line react/jsx-props-no-spreading
+			// eslint-disable-next-line react/jsx-props-no-spreading -- Spreading rest to pass through dynamic component props
 			{...rest}
 			style={{
 				// This forces the item container back to be `position: static`, the default value.
@@ -359,6 +348,7 @@ const DropdownMenuItemCustomComponent = React.forwardRef<
 	);
 });
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function DropdownMenuItem({
 	item,
 	onItemActivated,
@@ -367,8 +357,44 @@ export function DropdownMenuItem({
 	onMouseLeave,
 }: {
 	item: MenuItem;
-} & Pick<Props, 'onItemActivated' | 'shouldUseDefaultRole' | 'onMouseEnter' | 'onMouseLeave'>) {
+} & Pick<
+	Props,
+	'onItemActivated' | 'shouldUseDefaultRole' | 'onMouseEnter' | 'onMouseLeave'
+>): jsx.JSX.Element {
 	const [submenuActive, setSubmenuActive] = React.useState(false);
+
+	const memoizedOnClick = useCallback(
+		() => onItemActivated && onItemActivated({ item }),
+		[onItemActivated, item],
+	);
+	const onClick = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedOnClick
+		: () => onItemActivated && onItemActivated({ item });
+
+	const memoizedOnMouseDown = useCallback((e: React.MouseEvent) => {
+		e.preventDefault();
+	}, []);
+	const onMouseDown = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedOnMouseDown
+		: (e: React.MouseEvent) => {
+				e.preventDefault();
+			};
+
+	const memoizedOnMouseEnter = useCallback(
+		() => onMouseEnter && onMouseEnter({ item }),
+		[onMouseEnter, item],
+	);
+	const onMouseEnterHandler = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedOnMouseEnter
+		: () => onMouseEnter && onMouseEnter({ item });
+
+	const memoizedOnMouseLeave = useCallback(
+		() => onMouseLeave && onMouseLeave({ item }),
+		[onMouseLeave, item],
+	);
+	const onMouseLeaveHandler = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+		? memoizedOnMouseLeave
+		: () => onMouseLeave && onMouseLeave({ item });
 
 	// onClick and value.name are the action indicators in the handlers
 	// If neither are present, don't wrap in an Item.
@@ -380,7 +406,7 @@ export function DropdownMenuItem({
 		setSubmenuActive(
 			Boolean(
 				event.target instanceof HTMLElement &&
-					event.target.closest(`.${DropdownMenuSharedCssClassName.SUBMENU}`),
+				event.target.closest(`.${DropdownMenuSharedCssClassName.SUBMENU}`),
 			),
 		);
 	};
@@ -425,16 +451,14 @@ export function DropdownMenuItem({
 				iconBefore={item.elemBefore}
 				iconAfter={item.elemAfter}
 				isDisabled={item.isDisabled}
-				onClick={() => onItemActivated && onItemActivated({ item })}
+				onClick={onClick}
 				aria-label={ariaLabel}
 				aria-pressed={shouldUseDefaultRole ? item.isActive : undefined}
 				aria-keyshortcuts={item['aria-keyshortcuts']}
-				onMouseDown={(e) => {
-					e.preventDefault();
-				}}
+				onMouseDown={onMouseDown}
 				component={DropdownMenuItemCustomComponent}
-				onMouseEnter={() => onMouseEnter && onMouseEnter({ item })}
-				onMouseLeave={() => onMouseLeave && onMouseLeave({ item })}
+				onMouseEnter={onMouseEnterHandler}
+				onMouseLeave={onMouseLeaveHandler}
 				aria-expanded={
 					expValEquals('platform_editor_august_a11y', 'isEnabled', true)
 						? undefined
@@ -461,22 +485,29 @@ export function DropdownMenuItem({
 	return dropListItem;
 }
 
-export const DropdownMenuWithKeyboardNavigation = React.memo(
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const DropdownMenuWithKeyboardNavigation: React.MemoExoticComponent<
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Ignored via go/ees005
+	({ ...props }: React.PropsWithChildren<any>) => jsx.JSX.Element
+> = React.memo(
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	({ ...props }: React.PropsWithChildren<any>) => {
+	({ ...props }: React.PropsWithChildren<any>): jsx.JSX.Element => {
 		const keyDownHandlerContext = useContext(KeyDownHandlerContext);
 
 		// This context is to handle the tab, Arrow Right/Left key events for dropdown.
 		// Default context has the void callbacks for above key events
+		const memoizedArrowKeyNavOptions = useMemo(
+			() => ({ ...props.arrowKeyNavigationProviderOptions, keyDownHandlerContext }),
+			[props.arrowKeyNavigationProviderOptions, keyDownHandlerContext],
+		);
+		const arrowKeyNavOptions = isExperimentEnabled('platform_editor_perf_lint_cleanup')
+			? memoizedArrowKeyNavOptions
+			: { ...props.arrowKeyNavigationProviderOptions, keyDownHandlerContext };
 		return (
 			<DropdownMenuWrapper
-				arrowKeyNavigationProviderOptions={{
-					...props.arrowKeyNavigationProviderOptions,
-					keyDownHandlerContext,
-				}}
-				// Ignored via go/ees005
-				// eslint-disable-next-line react/jsx-props-no-spreading
+				arrowKeyNavigationProviderOptions={arrowKeyNavOptions}
+				// eslint-disable-next-line react/jsx-props-no-spreading -- Spreading props to pass through dynamic component props
 				{...props}
 			/>
 		);

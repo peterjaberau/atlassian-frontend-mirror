@@ -1,6 +1,32 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	agentDeletedSuccessFlagTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	agentDeletedSuccessFlagDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	agentDeletedErrorFlagTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	agentDeletedErrorFlagDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	aiDisclaimer: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	agentDeletedSuccessFlagTitle: {
 		id: 'profilecard.agent-profile-card.delete-agent-success-flag-title',
 		defaultMessage: 'Agent deleted',
@@ -24,6 +50,7 @@ export const messages = defineMessages({
 	aiDisclaimer: {
 		id: 'profilecard.agent-profile-card.ai-disclaimer',
 		defaultMessage: 'Uses AI. Verify results.',
-		description: 'Disclaimer text warning users to verify AI-generated content with a link to https://www.atlassian.com/trust/atlassian-intelligence',
+		description:
+			'Disclaimer text warning users to verify AI-generated content with a link to https://www.atlassian.com/trust/atlassian-intelligence',
 	},
 });

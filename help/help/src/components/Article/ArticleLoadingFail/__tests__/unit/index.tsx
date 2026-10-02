@@ -1,10 +1,11 @@
 import React from 'react';
+
 import { render, fireEvent } from '@testing-library/react';
-import { createIntl, createIntlCache } from 'react-intl-next';
+import { createIntl, createIntlCache } from 'react-intl';
+
 import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 
 import { messages } from '../../../../../messages';
-
 import { ArticleLoadingFail } from '../../index';
 
 // Messages
@@ -30,16 +31,6 @@ describe('ArticleLoadingFail', () => {
 		);
 
 		await expect(container).toBeAccessible();
-	});
-
-	it.skip('Should match snapshot', () => {
-		const { container } = render(
-			<AnalyticsListener channel="help" onEvent={analyticsSpy}>
-				<ArticleLoadingFail onTryAgainButtonClick={mockOnTryAgainButtonClick} intl={intl} />
-			</AnalyticsListener>,
-		);
-
-		expect(container.firstChild).toMatchSnapshot();
 	});
 
 	it('it should call handleOnClick when the user click the loading error button', () => {

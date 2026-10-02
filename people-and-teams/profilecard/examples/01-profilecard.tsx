@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { ProfileCard } from '../src';
-import { profiles } from '../src/mocks';
+import { ProfilecardInternal as ProfileCard } from '../src/components/User/ProfilecardInternal';
+import profiles from '../src/mocks/profile-data';
 import { reportingLinesData } from '../src/mocks/reporting-lines-data';
-
 import ExampleWrapper from './helper/example-wrapper';
 import { MainStage } from './helper/main-stage';
 

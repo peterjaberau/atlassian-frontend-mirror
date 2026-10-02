@@ -1,22 +1,31 @@
-import { AnalyticsListener as AnalyticsListenerNext } from '@atlaskit/analytics-next';
+/* eslint-disable @atlaskit/design-system/no-deprecated-imports, @atlassian/testing-library/prefer-atlassian-testing-library, testing-library/no-container -- Preserve existing mention test coverage while focus-ring usage is reviewed separately. */
+
+import React from 'react';
+
+import { fireEvent, screen, render, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { renderToString } from 'react-dom/server';
+import { IntlProvider } from 'react-intl';
+
+import AnalyticsListenerNext from '@atlaskit/analytics-next/AnalyticsListener';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // Commented due to HOT-111922
 // import { type ConcurrentExperience } from '@atlaskit/ufo';
-import FocusRing from '@atlaskit/focus-ring';
-import React from 'react';
-import Mention, { ANALYTICS_HOVER_DELAY } from '../../../components/Mention';
-import ResourcedMention from '../../../components/Mention/ResourcedMention';
-import { ELEMENTS_CHANNEL } from '../../../_constants';
-import { IntlProvider } from 'react-intl-next';
-import { MentionType, MentionNameStatus } from '../../../types';
-import MentionResource, { type MentionProvider } from '../../../api/MentionResource';
+import FocusRing from '@atlaskit/focus-ring/focus-ring';
+import { passGate, failGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
+import { ELEMENTS_CHANNEL, UNKNOWN_USER_ID } from '../../../_constants';
 import { type MentionNameResolver } from '../../../api/MentionNameResolver';
+import { MentionResource, type MentionProvider } from '../../../api/MentionResource';
+import Mention, { ANALYTICS_HOVER_DELAY } from '../../../components/Mention';
+import { mentionStyle } from '../../../components/Mention/mention-style';
+import { MentionInternal } from '../../../components/Mention/MentionInternal';
+import ResourcedMention from '../../../components/Mention/ResourcedMention';
+import { MentionType, MentionNameStatus } from '../../../types';
 import {
 	mockMentionData as mentionData,
 	mockMentionProvider as mentionProvider,
 } from '../_test-helpers';
-import { screen, render, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 const packageName = process.env._PACKAGE_NAME_ as string;
 
@@ -39,9 +48,7 @@ const createPayload = (actionSubject: string, action: string) => ({
 const mockUfoStart = jest.fn();
 const mockUfoSuccess = jest.fn();
 const mockUfoFailure = jest.fn();
-jest.mock('@atlaskit/ufo', () => {
-	const actualModule = jest.requireActual('@atlaskit/ufo');
-
+jest.mock('@atlaskit/ufo/concurrent-experience', () => {
 	class MockConcurrentExperience {
 		experienceId: string;
 		constructor(experienceId: string) {
@@ -56,15 +63,15 @@ jest.mock('@atlaskit/ufo', () => {
 			};
 		}
 	}
-
 	return {
+		...jest.requireActual('@atlaskit/ufo/concurrent-experience'),
 		__esModule: true,
-		...actualModule,
 		ConcurrentExperience: MockConcurrentExperience,
 	};
 });
 
-jest.mock('@atlaskit/focus-ring', () => ({
+jest.mock('@atlaskit/focus-ring/focus-ring', () => ({
+	...jest.requireActual('@atlaskit/focus-ring/focus-ring'),
 	__esModule: true,
 	default: jest.fn(),
 }));
@@ -95,6 +102,127 @@ describe('<Mention />', () => {
 		jest.clearAllMocks();
 	});
 
+	describe('avatar observability', () => {
+		const onEvent = jest.fn();
+		const avatar = (url = 'https://example.com/private-avatar.png') => (
+			<AnalyticsListenerNext channel={ELEMENTS_CHANNEL} onEvent={onEvent}>
+				<Mention {...mentionData} avatarUrl={url} renderAvatarSlot />
+			</AnalyticsListenerNext>
+		);
+
+		it.each(['load', 'error'] as const)(
+			'reports only failures for image %s events without sensitive data',
+			async (outcome) => {
+				passGate('platform_editor_mention_avatar_observability');
+				await renderWait(avatar());
+				expect(onEvent).not.toHaveBeenCalled();
+				const image = screen.getByTestId('mention-avatar');
+				fireEvent[outcome](image);
+				fireEvent[outcome](image);
+				if (outcome === 'load') {
+					expect(onEvent).not.toHaveBeenCalled();
+					return;
+				}
+				expect(onEvent).toHaveBeenCalledTimes(1);
+				expect(onEvent.mock.calls[0][0].payload).toEqual({
+					action: 'failed',
+					actionSubject: 'mentionAvatar',
+					eventType: 'operational',
+					attributes: {
+						componentName: 'mention',
+						surface: 'renderer',
+						reason: 'image_load_failed',
+					},
+				});
+				expect(screen.getByTestId('mention-avatar-slot')).toHaveTextContent('@');
+			},
+		);
+
+		it('reports a new attempt after the URL changes', async () => {
+			passGate('platform_editor_mention_avatar_observability');
+			const { rerender } = await renderWait(avatar());
+			fireEvent.error(screen.getByTestId('mention-avatar'));
+			rerender(<IntlProvider locale="en">{avatar('https://example.com/retry.png')}</IntlProvider>);
+			fireEvent.error(screen.getByTestId('mention-avatar'));
+			expect(onEvent).toHaveBeenCalledTimes(2);
+		});
+
+		it.each(['hidden slot', 'unknown mention'])(
+			'reports a new image after %s with the same URL',
+			async (hiddenState) => {
+				passGate('platform_editor_mention_avatar_observability');
+				const { rerender } = await renderWait(avatar());
+				fireEvent.load(screen.getByTestId('mention-avatar'));
+				rerender(
+					<IntlProvider locale="en">
+						<AnalyticsListenerNext channel={ELEMENTS_CHANNEL} onEvent={onEvent}>
+							<Mention
+								{...mentionData}
+								avatarUrl="https://example.com/private-avatar.png"
+								renderAvatarSlot={hiddenState !== 'hidden slot'}
+								text={hiddenState === 'unknown mention' ? `@${UNKNOWN_USER_ID}` : mentionData.text}
+							/>
+						</AnalyticsListenerNext>
+					</IntlProvider>,
+				);
+				rerender(<IntlProvider locale="en">{avatar()}</IntlProvider>);
+				fireEvent.error(screen.getByTestId('mention-avatar'));
+				expect(onEvent).toHaveBeenCalledTimes(1);
+			},
+		);
+
+		it.each([
+			{ gateEnabled: true, naturalWidth: 0 },
+			{ gateEnabled: true, naturalWidth: 16 },
+			{ gateEnabled: false, naturalWidth: 0 },
+			{ gateEnabled: false, naturalWidth: 16 },
+		])(
+			'observes pre-completed images without changing UI: gate $gateEnabled, width $naturalWidth',
+			async ({ gateEnabled, naturalWidth }) => {
+				(gateEnabled ? passGate : failGate)('platform_editor_mention_avatar_observability');
+				const complete = jest
+					.spyOn(HTMLImageElement.prototype, 'complete', 'get')
+					.mockReturnValue(true);
+				const width = jest
+					.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get')
+					.mockReturnValue(naturalWidth);
+				try {
+					await renderWait(avatar());
+					expect(onEvent).toHaveBeenCalledTimes(gateEnabled && !naturalWidth ? 1 : 0);
+					expect(screen.getByTestId('mention-avatar')).toBeInTheDocument();
+					expect(screen.getByTestId('mention-avatar-slot')).not.toHaveTextContent('@');
+					if (gateEnabled && !naturalWidth) {
+						expect(onEvent.mock.calls[0][0].payload.action).toBe('failed');
+					}
+				} finally {
+					complete.mockRestore();
+					width.mockRestore();
+				}
+			},
+		);
+
+		it('keeps the image fallback when no analytics callback is provided', async () => {
+			await renderWait(
+				<MentionInternal
+					{...mentionData}
+					avatarUrl="https://example.com/broken-avatar.png"
+					renderAvatarSlot
+				/>,
+			);
+			fireEvent.error(screen.getByTestId('mention-avatar'));
+			expect(screen.queryByTestId('mention-avatar')).not.toBeInTheDocument();
+			expect(screen.getByTestId('mention-avatar-slot')).toHaveTextContent('@');
+		});
+
+		it('keeps the existing fallback without telemetry when disabled', async () => {
+			failGate('platform_editor_mention_avatar_observability');
+			await renderWait(avatar());
+			fireEvent.error(screen.getByTestId('mention-avatar'));
+			expect(onEvent).not.toHaveBeenCalled();
+			expect(screen.getByTestId('mention-avatar-slot')).toHaveTextContent('@');
+		});
+	});
+
 	describe('Mention', () => {
 		it('should render based on mention data', async () => {
 			await renderWait(<Mention {...mentionData} />);
@@ -102,6 +230,66 @@ describe('<Mention />', () => {
 			expect(screen.getByText(mentionData.text)).toBeInTheDocument();
 
 			await expect(document.body).toBeAccessible();
+		});
+
+		it('should replace the at-sign with a decorative avatar when avatar data is available', async () => {
+			await renderWait(
+				<Mention {...mentionData} avatarUrl="https://example.com/avatar.png" renderAvatarSlot />,
+			);
+
+			const avatar = screen.getByTestId('mention-avatar');
+			expect(avatar).toBeInTheDocument();
+			expect(avatar).toHaveAttribute('loading', 'lazy');
+			const mentionText = screen.getByText(mentionData.text.slice(1));
+			expect(mentionText).toBeInTheDocument();
+			expect(mentionText.parentElement).toContainElement(screen.getByTestId('mention-avatar-slot'));
+			expect(screen.queryByText(mentionData.text)).not.toBeInTheDocument();
+			expect(screen.queryByRole('img')).not.toBeInTheDocument();
+
+			await expect(document.body).toBeAccessible();
+		});
+
+		it('should reserve avatar space in server-rendered markup without an image URL', () => {
+			const html = renderToString(
+				<IntlProvider locale="en">
+					<MentionInternal {...mentionData} renderAvatarSlot />
+				</IntlProvider>,
+			);
+
+			expect(html).toContain('mention-avatar-slot');
+			expect(html).not.toContain('https://example.com/avatar.png');
+			expect(html).toContain(mentionData.text.slice(1));
+			expect(html).not.toContain(mentionData.text);
+		});
+
+		it('should replace a failed avatar image with an at-sign inside its reserved space', async () => {
+			await renderWait(
+				<Mention
+					{...mentionData}
+					avatarUrl="https://example.com/broken-avatar.png"
+					renderAvatarSlot
+				/>,
+			);
+
+			fireEvent.error(screen.getByTestId('mention-avatar'));
+
+			expect(screen.queryByTestId('mention-avatar')).not.toBeInTheDocument();
+			expect(screen.getByTestId('mention-avatar-slot')).toHaveTextContent('@');
+			expect(screen.getByText(mentionData.text.slice(1))).toBeInTheDocument();
+		});
+
+		it('should use an ellipsis without an at-sign while avatar space is reserved', async () => {
+			await renderWait(<Mention {...mentionData} text="" renderAvatarSlot />);
+
+			expect(screen.getByText('...')).toBeInTheDocument();
+			expect(screen.queryByText('@...')).not.toBeInTheDocument();
+		});
+
+		it('should preserve the at-sign when the avatar slot is not requested', async () => {
+			await renderWait(<Mention {...mentionData} avatarUrl="https://example.com/avatar.png" />);
+
+			expect(screen.queryByTestId('mention-avatar')).not.toBeInTheDocument();
+			expect(screen.getByText(mentionData.text)).toBeInTheDocument();
 		});
 
 		it('should render a default lozenge if no accessLevel data and is not being mentioned', async () => {
@@ -182,6 +370,28 @@ describe('<Mention />', () => {
 			await expect(document.body).toBeAccessible();
 		});
 
+		it('should keep a disabled mention keyboard-focusable, readable, and expose the disabled reason', async () => {
+			const tooltip = 'Only one agent can be active at a time';
+			const { container } = await renderWait(
+				<Mention {...mentionData} isDisabled disabledTooltip={tooltip} />,
+			);
+
+			const item = container.querySelector(`[data-mention-type="${MentionType.DISABLED}"]`);
+			expect(item).toBeInTheDocument();
+			expect(item).toHaveAttribute('aria-disabled', 'true');
+			expect(item).toHaveAttribute('aria-label', `${mentionData.text} — ${tooltip}`);
+			expect(item).toHaveAttribute('tabindex', '0');
+			expect(mentionStyle[MentionType.DISABLED]).toEqual(
+				expect.objectContaining({
+					background: expect.stringContaining('--ds-background-disabled'),
+					text: expect.stringContaining('--ds-text-disabled'),
+					hoveredBackground: mentionStyle[MentionType.DISABLED].background,
+					pressedBackground: mentionStyle[MentionType.DISABLED].background,
+				}),
+			);
+
+			await expect(document.body).toBeAccessible();
+		});
 		it('should dispatch onClick-event', async () => {
 			const user = userEvent.setup();
 			const spy = jest.fn();

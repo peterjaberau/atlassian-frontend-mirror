@@ -4,9 +4,9 @@
  */
 import { useEffect } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import type { DispatchAnalyticsEvent, EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
@@ -22,7 +22,6 @@ import type { ExtractInjectionAPI, FeatureFlags } from '@atlaskit/editor-common/
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { AvatarGroupPlugin } from '../index';
-
 import AvatarsWithPluginState from './avatars-with-plugin-state';
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage
@@ -53,7 +52,7 @@ const AvatarGroupPluginWrapper = (props: {
 	eventDispatcher: EventDispatcher<any>;
 	featureFlags: FeatureFlags;
 	takeFullWidth: boolean;
-}) => {
+}): jsx.JSX.Element => {
 	const { dispatchAnalyticsEvent, featureFlags } = props;
 	const intl = useIntl();
 

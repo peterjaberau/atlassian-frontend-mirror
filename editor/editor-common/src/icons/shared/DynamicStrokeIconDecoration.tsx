@@ -2,7 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
@@ -14,7 +14,7 @@ const barStyles = css({
 	right: 0,
 	top: '18px',
 	margin: 'auto',
-	width: token('space.200', '16px'),
+	width: token('space.200'),
 	height: '3px',
 });
 
@@ -40,7 +40,7 @@ export const DynamicStrokeIconDecoration = ({
 	selectedColor,
 	disabled,
 	icon,
-}: DynamicStrokeIconDecorationProps) => {
+}: DynamicStrokeIconDecorationProps): jsx.JSX.Element => {
 	return (
 		<Box xcss={textColorIconWrapper}>
 			{icon}

@@ -1,12 +1,10 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@atlassian/testing-library';
 
 import ExitingPersistence from '../../../entering/exiting-persistence';
 import ZoomIn from '../../../entering/zoom-in';
 import { easeInOut } from '../../../utils/curves';
-
-jest.mock('../../../utils/accessibility');
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('<ZoomIn />', () => {

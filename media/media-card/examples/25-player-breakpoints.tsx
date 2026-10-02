@@ -1,21 +1,33 @@
 import React, { useState } from 'react';
-import { Card } from '../src';
+
+import Heading from '@atlaskit/heading/heading';
+import type { FileIdentifier, MediaClientConfig } from '@atlaskit/media-client';
+import type { Identifier } from '@atlaskit/media-client';
+import { generateItemWithBinaries } from '@atlaskit/media-test-data';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Flex, xcss } from '@atlaskit/primitives';
-import Heading from '@atlaskit/heading';
-import type { FileIdentifier, MediaClientConfig } from '@atlaskit/media-client';
-import { generateItemWithBinaries } from '@atlaskit/media-test-data';
-import type { Identifier } from '@atlaskit/media-client';
+
 import { MainWrapper } from '../example-helpers';
-import { useCreateMockedMediaProviderWithBinaries } from '../src/utils/__tests__/utils/mockedMediaClientProvider/_MockedMediaProviderWithBinaries';
+import { ToggleBox } from '../example-helpers/svg-helpers/toggle';
+import Card from '../src/card/cardLoader';
 import { useCreateMockedMediaClientProviderWithBinaries } from '../src/utils/__tests__/utils/mockedMediaClientProvider/_MockedMediaClientProviderWithBinaries';
-import { ToggleBox } from '../example-helpers/svg-helpers';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { useCreateMockedMediaProviderWithBinaries } from '../src/utils/__tests__/utils/mockedMediaClientProvider/_MockedMediaProviderWithBinaries';
 
 const flexStyles = xcss({ marginBottom: 'space.300' });
 const dummyMediaClientConfig = {} as MediaClientConfig;
 
-export const getVideoBreakpoints = () =>
+export const getVideoBreakpoints = ():
+	| {
+			small: number;
+			medium: number;
+			large: number;
+	  }
+	| {
+			small: number;
+			medium: number;
+			large?: undefined;
+	  } =>
 	fg('platform_media_video_captions')
 		? {
 				small: 260,

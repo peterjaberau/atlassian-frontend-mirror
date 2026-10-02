@@ -1,6 +1,92 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const mediaInsertMessages = defineMessages({
+export const mediaInsertMessages: {
+	cancel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	chooseFile: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fileTabTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fromUrlErrorMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fromUrlWarning: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	generateTabTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	insert: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	invalidUrlErrorMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	linkTabTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	loadPreview: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	localFileErrorMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	localFileNetworkErrorMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	mediaAlt: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	mediaPickerPopupAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	pasteLinkToUpload: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	upload: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	uploadTabTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	loadPreview: {
 		id: 'fabric.editor.media.insert.loadPreview',
 		defaultMessage: 'Load preview',
@@ -70,6 +156,11 @@ export const mediaInsertMessages = defineMessages({
 		defaultMessage: 'File',
 		description: 'Title of the navigation tab that allows users to upload local media files',
 	},
+	generateTabTitle: {
+		id: 'fabric.editor.media.insert.generateTabTitle',
+		defaultMessage: 'Create',
+		description: 'Title of the navigation tab that allows users to generate an image through AI',
+	},
 	mediaPickerPopupAriaLabel: {
 		id: 'fabric.editor.media.insert.mediaPickerPopupAriaLabel',
 		defaultMessage: 'Media picker',
@@ -79,5 +170,15 @@ export const mediaInsertMessages = defineMessages({
 		id: 'fabric.editor.media.insert.invalidUrlErrorMessage',
 		defaultMessage: 'Invalid link',
 		description: 'Error message displayed when a user tries to insert media from an invalid URL',
+	},
+	uploadTabTitle: {
+		id: 'fabric.editor.media.insert.uploadTabTitle',
+		defaultMessage: 'Upload',
+		description: 'Title of the navigation tab that allows users to upload local media files',
+	},
+	chooseFile: {
+		id: 'fabric.editor.media.insert.chooseFile',
+		defaultMessage: 'Choose a file',
+		description: 'Text on a button that opens a file picker dialog to choose a local media file',
 	},
 });

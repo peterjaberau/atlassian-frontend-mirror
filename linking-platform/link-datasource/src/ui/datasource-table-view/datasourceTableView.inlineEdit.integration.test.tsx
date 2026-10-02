@@ -1,17 +1,17 @@
 import React from 'react';
 
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { CardClient, SmartCardProvider } from '@atlaskit/link-provider';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import type {
-	AtomicActionInterface,
 	DatasourceDataResponseItem,
 	DatasourceDataSchema,
-} from '@atlaskit/linking-types';
+} from '@atlaskit/linking-types/datasource';
+import type { AtomicActionInterface } from '@atlaskit/linking-types/datasource-actions';
 
-import { DatasourceExperienceIdProvider } from '../../contexts/datasource-experience-id';
-
+import { DatasourceExperienceIdProvider } from '../../contexts/datasource-experience-id/datasource-experience-id-provider';
 import {
 	mockActionKey,
 	mockActionsDiscoveryEndpoint,

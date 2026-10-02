@@ -4,8 +4,14 @@ description: Layout components define a page’s structure and the areas for nav
 order: 4
 ---
 
-import layoutDo from './images/layout-do.png';
-import layoutDont from './images/layout-dont.png';
+import Image from '@atlaskit/image';
+
+import layoutAnatomyLight from './images/layout-anatomy-light.png';
+import layoutAnatomyDark from './images/layout-anatomy-dark.png';
+import layoutDoLight from './images/layout-do-light.png';
+import layoutDoDark from './images/layout-do-dark.png';
+import layoutDontLight from './images/layout-dont-light.png';
+import layoutDontDark from './images/layout-dont-dark.png';
 
 import SectionMessage from '@atlaskit/section-message';
 
@@ -15,9 +21,15 @@ Use layout to compose the structure of your application. It also defines the pag
 navigational areas.
 
 When applying components to the navigational areas,
-[see navigation experience guidelines (Atlassians only)](https://hello.atlassian.net/wiki/spaces/navx/pages/5104144812).
+[see navigation resources (Atlassians only)](https://hello.atlassian.net/wiki/spaces/navx/pages/5104144812).
 
-![Diagram of the navigation system layout areas](./images/layout-anatomy.png)
+## Parts
+
+<Image
+	src={layoutAnatomyLight}
+	srcDark={layoutAnatomyDark}
+	alt="Diagram of the navigation system layout areas"
+/>
 
 <ol>
 	<li>
@@ -28,7 +40,8 @@ When applying components to the navigational areas,
 		<a href="/components/navigation-system/top-nav-items">top nav items</a>.
 		<ol type="a">
 			<li>
-				<strong>Top nav start:</strong> Area for left-aligned actions.
+				<strong>Top nav start:</strong> Area for left-aligned actions. Appears in the side nav when
+				the side nav is expanded.
 			</li>
 			<li>
 				<strong>Top nav middle:</strong> Area for centre-aligned actions.
@@ -40,9 +53,9 @@ When applying components to the navigational areas,
 	</li>
 	<li>
 		<strong>Side nav:</strong> Use to display{' '}
-		<a href="/components/navigation-system/side-nav-items">side nav items</a>. Is resizable and
-		collapsible.
-		<ol type="a" start="4">
+		<a href="https://atlaskit.atlassian.com/packages/navigation/side-nav-items">side nav items</a>.
+		Is resizable and collapsible.
+		<ol type="a">
 			<li>
 				<strong>Side nav header:</strong> Optional. Top part of the side nav (fixed).
 			</li>
@@ -59,70 +72,72 @@ When applying components to the navigational areas,
 		<strong>Main:</strong> Use for the page content. Expands to fill available space.
 	</li>
 	<li>
-		<strong>Aside:</strong> Optional. Use to display supporting or supplementary content. Is
-		resizable. <em>We plan to deprecate this component, please use Panel instead.</em>
-	</li>
-	<li>
 		<strong>Panel:</strong> Optional. Use to display supporting or supplementary content. Is
-		resizable and collapsible.
+		resizable and collapsible. Wrap `Panel` in `ExitingPersistence` from
+		`@atlaskit/motion/exiting-persistence` so it stays in the DOM until its exit animation
+		completes.
 	</li>
 </ol>
 
-### The difference between Aside, Panel and Modal dialog
+### The difference between panel and modal dialog
 
-<SectionMessage appearance="warning" title="Caution">
-	We are planning on deprecating the Aside component. Please use Panel instead.
-</SectionMessage>
+The main difference between panel and modal dialog is their behaviors:
 
-The main difference between Aside, Panel and Modal dialog is their behaviours:
+- **Panel** presents content alongside the **main** area, while a **modal dialog** appears in a
+  layer above the page.
+- **Panel** can be collapsed and resized. On small viewports (1024px and below), the **panel**
+  becomes an overlay.
 
-- **Aside** is not collapsible, while **Panel** can be collapsible.
-- **Panel** and **Aside** present content alongside the **Main** area, while **Modal dialog** exists
-  in a layer above the page.
-- On small viewports (1024px and below), the **Panel** becomes an overlay, while the **Aside** moves
-  below **Main**.
+#### Usage guidance
 
-#### Usage guidance:
-
-- Use **Aside** for content that needs to be constantly visible and accessible without requiring the
-  user to open it, or have the ability to close it.
-- Use **Panel** for contextual information or tertiary actions that complement the user's workflow.
-  Panels enable greater multitasking by functioning as an additional work space, while keeping users
+- Use the **panel** for contextual information or tertiary actions that complement the user's
+  workflow. Panels enable multitasking by providing an additional work space, while keeping users
   connected to their primary task.
-- Use **Modal dialog** when you need your user to focus their attention on a single or specific
-  task, like requiring a decision or action before they can return to their primary task.
+- Use a **modal dialog** when you need the user to focus on a specific task, such as making a
+  decision or completing an action, before they can return to their primary task.
+
+## Accessibility
+
+- Always place slots in this order as direct children of the root: banner, top nav, side nav, main,
+  panel. This determines the keyboard tab order, screen reader reading order, and skip link order.
+- Provide a unique, meaningful `label` for side nav, panel, and top nav end. The label is exposed as
+  the landmark's accessible name. Don't repeat the landmark's role in the label.
+- Slots provide landmark roles automatically. Don't add or duplicate landmark roles inside them.
+- Use custom skip links sparingly. Too many skip links makes the skip links menu noisy. Consider the
+  utility of each one before adding it.
 
 ## Best practices
 
-### Design using grid in the Main area
+### Design using grid in the main area
 
-<DoDont
-	type="do"
-	image={{
-		url: layoutDo,
-		alt: 'A layout with a grid overlay on the Main area.',
-	}}
-	isFullWidth
->
-	When designing, use <a href="/foundations/grid-beta">Grid</a> to position content within the Main
-	area only.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: layoutDont,
-		alt: 'A layout with a grid overlay on the Main area, but also on the Side nav, Aside and Panel areas.',
-	}}
-	isFullWidth
->
-	Don't include Side nav, Aside or Panel areas as part of your Grid.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: layoutDoLight,
+			urlDarkMode: layoutDoDark,
+			alt: 'A layout with a grid overlay on the Main area.',
+		}}
+		isFullWidth
+	>
+		When designing, use <a href="/foundations/grid">grid</a> to position content within the main
+		area only.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: layoutDontLight,
+			urlDarkMode: layoutDontDark,
+			alt: 'A layout with a grid overlay on the Main area, but also on the Side nav and Panel areas.',
+		}}
+		isFullWidth
+	>
+		Don't include side nav or panel areas as part of your grid.
+	</DoDont>
+</DoDontGrid>
 
 ## Related
 
 - [Page header](/components/page-header)
-- [Side nav items](/components/navigation-system/side-nav-items)
 - [Top nav items](/components/navigation-system/top-nav-items)
-- [Navigation experience guidelines (Atlassians only)](https://hello.atlassian.net/wiki/spaces/navx/pages/5104144812)
-- [Preview panel (Atlassians only)](https://atlaskit-website-staging.stg-east.frontend.public.atl-paas.net/#/packages/navigation/preview-panel)
+- [Navigation resources (Atlassians only)](https://hello.atlassian.net/wiki/x/rBE7MAE)

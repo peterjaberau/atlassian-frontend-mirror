@@ -4,14 +4,39 @@
  */
 import { jsx } from '@compiled/react';
 
-import { components, type MenuProps, type OptionType } from '@atlaskit/select';
+import { components } from '@atlaskit/react-select/components';
+import type { MenuProps, OptionType } from '@atlaskit/select/types';
 
 import FixedLayer from '../internal/fixed-layer';
 
 /**
  * This is the fixed layer menu used in the time picker.
  */
-export const FixedLayerMenu: ({ className, clearValue, cx, getStyles, getValue, hasValue, innerProps, innerRef, isLoading, isMulti, isRtl, maxMenuHeight, menuPlacement, menuPosition, menuShouldScrollIntoView, minMenuHeight, options, placement, selectOption, selectProps, setValue, children, ...rest }: MenuProps<OptionType>) => JSX.Element = ({
+export const FixedLayerMenu: ({
+	className,
+	clearValue,
+	cx,
+	getStyles,
+	getValue,
+	hasValue,
+	innerProps,
+	innerRef,
+	isLoading,
+	isMulti,
+	isRtl,
+	maxMenuHeight,
+	menuPlacement,
+	menuPosition,
+	menuShouldScrollIntoView,
+	minMenuHeight,
+	options,
+	placement,
+	selectOption,
+	selectProps,
+	setValue,
+	children,
+	...rest
+}: MenuProps<OptionType>) => JSX.Element = ({
 	className,
 	clearValue,
 	cx,
@@ -38,7 +63,6 @@ export const FixedLayerMenu: ({ className, clearValue, cx, getStyles, getValue, 
 }: MenuProps<OptionType>) => (
 	<FixedLayer
 		inputValue={selectProps.inputValue}
-		//@ts-ignore react-select unsupported props
 		containerRef={selectProps.fixedLayerRef}
 		content={
 			<components.Menu
@@ -72,7 +96,6 @@ export const FixedLayerMenu: ({ className, clearValue, cx, getStyles, getValue, 
 				{children}
 			</components.Menu>
 		}
-		//@ts-ignore react-select unsupported props
 		testId={selectProps.testId}
 	/>
 );

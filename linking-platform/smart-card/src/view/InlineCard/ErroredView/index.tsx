@@ -2,9 +2,10 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
 
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import { jsx } from '@atlaskit/css';
 import ErrorIcon from '@atlaskit/icon/core/status-error';
@@ -57,7 +58,7 @@ export const InlineCardErroredView = ({
 	onRetry,
 	truncateInline,
 	showHoverPreview,
-}: InlineCardErroredViewProps) => {
+}: InlineCardErroredViewProps): JSX.Element => {
 	const frameRef = React.useRef<HTMLSpanElement & null>(null);
 	const hashAction = !!onRetry;
 

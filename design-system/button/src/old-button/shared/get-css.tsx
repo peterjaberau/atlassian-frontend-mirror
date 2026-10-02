@@ -1,0 +1,337 @@
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+import { type CSSObject } from '@emotion/react';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+
+import { type Appearance, type Spacing } from '../types';
+
+const gridSize: number = 8;
+const HAS_DISABLED_BACKGROUND = ['default', 'primary', 'danger', 'warning'];
+const heights: { [key in Spacing]: string } = {
+	default: `${32 / 14}em`, // 32px
+	compact: `${24 / 14}em`,
+	none: 'auto',
+};
+const lineHeights: { [key in Spacing]: string } = {
+	default: heights.default,
+	compact: heights.compact,
+	none: 'inherit',
+};
+const padding: { [key in Spacing]: string } = {
+	// 10px gutter
+	default: `0 ${gridSize + gridSize / 4}px`,
+	compact: `0 ${gridSize + gridSize / 4}px`,
+	none: '0',
+};
+const singleIconPadding: { [key in Spacing]: string } = {
+	// 2px gutter
+	compact: `0 ${gridSize / 4}px`,
+	default: `0 ${gridSize / 4}px`,
+	none: '0',
+};
+const verticalAlign: { [key in Spacing]: string } = {
+	default: 'middle',
+	compact: 'middle',
+	none: 'baseline',
+};
+const defaultAfterStyles: CSSObject = {
+	borderRadius: 'inherit',
+	inset: token('space.0'),
+	borderStyle: 'solid',
+	borderWidth: token('border.width'),
+	pointerEvents: 'none',
+	position: 'absolute',
+};
+const defaultStyles: CSSObject = {
+	background: token('color.background.neutral.subtle'),
+	color: token('color.text'),
+
+	'&::after': {
+		...defaultAfterStyles,
+		content: '""',
+		borderColor: token('color.border'),
+	},
+
+	'&:hover': {
+		background: token('color.background.neutral.hovered'),
+		color: token('color.text'),
+		textDecoration: 'none',
+	},
+
+	'&:active': {
+		background: token('color.background.neutral.pressed'),
+		color: token('color.text'),
+		textDecoration: 'none',
+	},
+
+	'&[data-has-overlay="true"]:not([disabled]):hover': {
+		background: token('color.background.neutral.subtle'),
+	},
+
+	'&:disabled[disabled]': {
+		background: token('color.background.neutral.subtle'),
+	},
+
+	'&:disabled[disabled]:hover': {
+		background: token('color.background.neutral.subtle'),
+	},
+
+	'&:disabled[disabled]:active': {
+		background: token('color.background.neutral.subtle'),
+	},
+
+	textDecoration: 'none',
+};
+const primaryStyles: CSSObject = {
+	background: token('color.background.brand.bold'),
+	color: token('color.text.inverse'),
+
+	'&:hover': {
+		background: token('color.background.brand.bold.hovered'),
+		color: token('color.text.inverse'),
+		textDecoration: 'none',
+	},
+
+	'&:active': {
+		background: token('color.background.brand.bold.pressed'),
+		color: token('color.text.inverse'),
+		textDecoration: 'none',
+	},
+
+	'&[data-has-overlay="true"]:not([disabled]):hover': {
+		background: token('color.background.brand.bold'),
+	},
+
+	textDecoration: 'none',
+};
+const linkStyles: CSSObject = {
+	background: 'transparent',
+	color: token('color.link'),
+
+	'&:hover': {
+		color: token('color.link'),
+		textDecoration: 'underline',
+	},
+
+	'&:active': {
+		color: token('color.link.pressed'),
+		textDecoration: 'underline',
+	},
+
+	textDecoration: 'none',
+};
+const subtleStyles: CSSObject = {
+	background: 'transparent',
+	color: token('color.text.subtle'),
+
+	'&:hover': {
+		background: token('color.background.neutral.subtle.hovered'),
+		color: token('color.text.subtle'),
+		textDecoration: 'none',
+	},
+
+	'&:active': {
+		background: token('color.background.neutral.subtle.pressed'),
+		color: token('color.text.subtle'),
+		textDecoration: 'none',
+	},
+
+	'&[data-has-overlay="true"]:not([disabled]):hover': {
+		background: 'transparent',
+	},
+
+	textDecoration: 'none',
+};
+const subtleLinkStyles: CSSObject = {
+	background: 'transparent',
+	color: token('color.text.subtle'),
+
+	'&:hover': {
+		background: 'transparent',
+		color: token('color.text.subtle'),
+		textDecoration: 'underline',
+	},
+
+	'&:active': {
+		background: 'transparent',
+		color: token('color.text'),
+		textDecoration: 'underline',
+	},
+
+	textDecoration: 'none',
+};
+const warningStyles: CSSObject = {
+	background: token('color.background.warning.bold'),
+	color: token('color.text.warning.inverse'),
+
+	'&:hover': {
+		background: token('color.background.warning.bold.hovered'),
+		color: token('color.text.warning.inverse'),
+		textDecoration: 'none',
+	},
+
+	'&:active': {
+		background: token('color.background.warning.bold.pressed'),
+		color: token('color.text.warning.inverse'),
+		textDecoration: 'none',
+	},
+
+	'&[data-has-overlay="true"]:not([disabled]):hover': {
+		background: token('color.background.warning.bold'),
+	},
+
+	textDecoration: 'none',
+};
+const dangerStyles: CSSObject = {
+	background: token('color.background.danger.bold'),
+	color: token('color.text.inverse'),
+
+	'&:hover': {
+		background: token('color.background.danger.bold.hovered'),
+		color: token('color.text.inverse'),
+		textDecoration: 'none',
+	},
+
+	'&:active': {
+		background: token('color.background.danger.bold.pressed'),
+		color: token('color.text.inverse'),
+		textDecoration: 'none',
+	},
+
+	'&[data-has-overlay="true"]:not([disabled]):hover': {
+		background: token('color.background.danger.bold'),
+	},
+
+	textDecoration: 'none',
+};
+const selectedStyles: CSSObject = {
+	background: token('color.background.selected'),
+	color: token('color.text.selected'),
+
+	'&:not([disabled])::after': {
+		...defaultAfterStyles,
+		content: '""',
+		borderColor: token('color.border.selected'),
+	},
+};
+
+const hasOverlayStyles: CSSObject = {
+	'&[data-has-overlay="true"]': {
+		cursor: 'default',
+		textDecoration: 'none',
+	},
+};
+
+type GetCssArgs = {
+	appearance: Appearance;
+	spacing: Spacing;
+	isSelected: boolean;
+	shouldFitContainer: boolean;
+	isOnlySingleIcon: boolean;
+};
+
+export function getCss({
+	appearance,
+	spacing,
+	isSelected,
+	shouldFitContainer,
+	isOnlySingleIcon,
+}: GetCssArgs): CSSObject {
+	const baseAppearanceStyles = {
+		...(appearance === 'default' && defaultStyles),
+		...(appearance === 'primary' && primaryStyles),
+		...(appearance === 'link' && linkStyles),
+		...(appearance === 'subtle' && subtleStyles),
+		...(appearance === 'subtle-link' && subtleLinkStyles),
+		...(appearance === 'warning' && warningStyles),
+		...(appearance === 'danger' && dangerStyles),
+	};
+	const appearanceStyles =
+		appearance === 'default' && fg('platform-dst-tokens-finesse')
+			? {
+					...baseAppearanceStyles,
+					'&:hover': {
+						...(baseAppearanceStyles['&:hover'] as CSSObject),
+						background: token('color.background.neutral.subtle.hovered'),
+					},
+					'&:active': {
+						...(baseAppearanceStyles['&:active'] as CSSObject),
+						background: token('color.background.neutral.subtle.pressed'),
+					},
+				}
+			: baseAppearanceStyles;
+	const activeStyles = appearanceStyles['&:active'] as CSSObject | undefined;
+
+	return {
+		// 0px margin added to css-reset
+		alignItems: 'baseline',
+		borderWidth: 0,
+		borderRadius: token('radius.medium'),
+		boxSizing: 'border-box',
+		display: 'inline-flex',
+		fontSize: 'inherit',
+		fontStyle: 'normal',
+		// Chrome recently changed button so that they use 'arial' as the font family
+		fontFamily: 'inherit',
+		fontWeight: token('font.weight.medium'),
+		// margin for button has been applied to css reset
+		maxWidth: '100%',
+		// Needed to position overlay
+		position: 'relative',
+		textAlign: 'center',
+		textDecoration: 'none',
+		transition: fg('platform-dst-motion-uplift-button')
+			? `${token('motion.button.hovered')}, box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38)`
+			: 'background 0.1s ease-out, box-shadow 0.15s cubic-bezier(0.47, 0.03, 0.49, 1.38)',
+		whiteSpace: 'nowrap',
+		cursor: 'pointer',
+		height: heights[spacing],
+		lineHeight: lineHeights[spacing],
+		padding: isOnlySingleIcon ? singleIconPadding[spacing] : padding[spacing],
+		verticalAlign: verticalAlign[spacing],
+		width: shouldFitContainer ? '100%' : 'auto',
+		// justifyContent required for shouldFitContainer buttons with an icon inside
+		justifyContent: 'center',
+		...(isSelected
+			? selectedStyles
+			: {
+					...appearanceStyles,
+					...(activeStyles &&
+						fg('platform-dst-motion-uplift-button') && {
+							'&:active': {
+								...activeStyles,
+								transition: token('motion.button.pressed'),
+							},
+						}),
+
+					'&[disabled]': {
+						color: token('color.text.disabled'),
+						backgroundColor: HAS_DISABLED_BACKGROUND.includes(appearance)
+							? token('color.background.disabled')
+							: 'transparent',
+						cursor: 'not-allowed',
+						textDecoration: 'none',
+
+						'&:hovered': {
+							backgroundColor: HAS_DISABLED_BACKGROUND.includes(appearance)
+								? token('color.background.disabled')
+								: 'transparent',
+						},
+
+						'&:active': {
+							backgroundColor: HAS_DISABLED_BACKGROUND.includes(appearance)
+								? token('color.background.disabled')
+								: 'transparent',
+						},
+					},
+
+					...hasOverlayStyles,
+				}),
+		'&::-moz-focus-inner': {
+			border: 0,
+			margin: 0,
+			padding: 0,
+		},
+	};
+}

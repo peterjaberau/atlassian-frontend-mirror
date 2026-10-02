@@ -1,8 +1,9 @@
 import { Device, type Hooks, type SnapshotTestOptions } from '@af/visual-regression';
+// oxlint-disable-next-line @atlassian/no-restricted-imports
 import { snapshotInformational } from '@atlassian/gemini';
 
-import { ScrollableNoPanelVR, ScrollableVR } from '../../../examples/composition';
-import { LayersInMainShouldForceOpenLayers } from '../../../examples/layers-in-main';
+import { ScrollableNoPanelVR, ScrollableVR } from '../../../examples/composition.vr.ap';
+import { LayersInMainShouldForceOpenLayers } from '../../../examples/layers-in-main.vr.ap';
 
 const mobileOnlyOptions: SnapshotTestOptions<Hooks> = {
 	drawsOutsideBounds: true,
@@ -83,7 +84,6 @@ snapshotInformational(ScrollableVR, {
 		await page.getByRole('button', { name: 'Recent' }).click();
 	},
 	featureFlags: {
-		platform_dst_nav4_flyoutmenuitem_render_to_parent: true,
 		platform_design_system_nav4_panel_default_border: true,
 	},
 });
@@ -101,7 +101,6 @@ snapshotInformational(ScrollableVR, {
 		await page.getByRole('button', { name: 'Recent' }).click();
 	},
 	featureFlags: {
-		platform_dst_nav4_flyoutmenuitem_render_to_parent: true,
 		platform_design_system_nav4_panel_default_border: true,
 	},
 });
@@ -119,7 +118,6 @@ snapshotInformational(ScrollableNoPanelVR, {
 		await page.getByRole('button', { name: 'Recent' }).click();
 	},
 	featureFlags: {
-		platform_dst_nav4_flyoutmenuitem_render_to_parent: true,
 		platform_design_system_nav4_panel_default_border: true,
 	},
 });
@@ -138,7 +136,6 @@ snapshotInformational(ScrollableVR, {
 		await page.getByRole('tooltip').waitFor({ state: 'hidden' });
 	},
 	featureFlags: {
-		platform_dst_nav4_flyoutmenuitem_render_to_parent: true,
 		platform_design_system_nav4_panel_default_border: true,
 	},
 });

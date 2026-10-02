@@ -1,7 +1,14 @@
-import { render, screen } from '@testing-library/react';
 import React from 'react';
+
+import { render, screen } from '@testing-library/react';
+
 import { DEFAULT_LOCALE } from '@atlassian/embedded-confluence-common';
+
 import { EditPage, type EditPageProps } from '../';
+
+jest.mock('uuid', () => ({
+	v4: () => 'test-uuid',
+}));
 
 const defaultProps: EditPageProps = {
 	locale: DEFAULT_LOCALE,
@@ -26,7 +33,7 @@ it('should use the default locale to localize by if no locale was provided', asy
 	const iframe = await screen.findByTestId('confluence-page-iframe');
 	expect(iframe).toHaveAttribute(
 		'src',
-		`${mockDefaultProtocol}//${mockDefaultHost}/wiki/spaces/TEST/pages/edit-embed/123?parentProduct=test&parentProductContentContainerId=10000&locale=${DEFAULT_LOCALE}`,
+		`${mockDefaultProtocol}//${mockDefaultHost}/wiki/spaces/TEST/pages/edit-embed/123?parentProduct=test&parentProductContentContainerId=10000&uniqueKey=embedded-confluence-iframe-test-uuid&locale=${DEFAULT_LOCALE}`,
 	);
 });
 
@@ -37,7 +44,7 @@ it('should localize by the locale provided', async () => {
 	const iframe = await screen.findByTestId('confluence-page-iframe');
 	expect(iframe).toHaveAttribute(
 		'src',
-		`${mockDefaultProtocol}//${mockDefaultHost}/wiki/spaces/TEST/pages/edit-embed/123?parentProduct=test&parentProductContentContainerId=10000&locale=${locale}`,
+		`${mockDefaultProtocol}//${mockDefaultHost}/wiki/spaces/TEST/pages/edit-embed/123?parentProduct=test&parentProductContentContainerId=10000&uniqueKey=embedded-confluence-iframe-test-uuid&locale=${locale}`,
 	);
 });
 

@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { type BooleanType } from '@atlaskit/linking-types';
+import type { BooleanType } from '@atlaskit/linking-types/datasource';
 
 import TextRenderType from '../text';
-
 import { booleanTypeMessages } from './messages';
 
 interface BooleanProps {

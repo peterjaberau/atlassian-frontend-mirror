@@ -1,10 +1,10 @@
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { configPanelMessages as messages } from '@atlaskit/editor-common/extensions';
-import EmptyState from '@atlaskit/empty-state';
+import EmptyState from '@atlaskit/empty-state/empty-state';
 
 import ErrorImage from './ErrorImage';
 
@@ -17,6 +17,7 @@ const ConfigPanelErrorMessage = ({ errorMessage, intl }: Props) => {
 		<EmptyState
 			header={intl.formatMessage(messages.configFailedToLoad)}
 			description={errorMessage}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			renderImage={() => <ErrorImage />}
 			width="narrow"
 			imageHeight={80}
@@ -25,4 +26,8 @@ const ConfigPanelErrorMessage = ({ errorMessage, intl }: Props) => {
 	);
 };
 
-export default injectIntl(ConfigPanelErrorMessage);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props>> & {
+	WrappedComponent: React.ComponentType<Props>;
+} = injectIntl(ConfigPanelErrorMessage);
+export default _default_1;

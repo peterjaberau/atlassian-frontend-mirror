@@ -4,18 +4,19 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useCallback, useEffect, useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { Checkbox } from '@atlaskit/checkbox';
-import { calculateADFComplexity } from '@atlaskit/editor-performance-metrics/page-complexity-score';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import type {
-	DebugNodePath,
-	ComplexityResult,
 	AdfNode,
-} from '@atlaskit/editor-performance-metrics/src/page-complexity-score/types';
-import TextArea from '@atlaskit/textarea';
+	ComplexityResult,
+	DebugNodePath,
+} from '@atlaskit/editor-performance-metrics/page-complexity-score';
+import { calculateADFComplexity } from '@atlaskit/editor-performance-metrics/page-complexity-score';
+import TextArea from '@atlaskit/textarea/text-area';
 import { token } from '@atlaskit/tokens';
 
 import bigDocumentADF from './big-document.json';
@@ -375,7 +376,7 @@ const ComplexityViewer = () => {
 	);
 };
 
-export default function Example() {
+export default function Example(): JSX.Element {
 	return (
 		<main id="app-main" css={mainStyles}>
 			<ComplexityViewer />

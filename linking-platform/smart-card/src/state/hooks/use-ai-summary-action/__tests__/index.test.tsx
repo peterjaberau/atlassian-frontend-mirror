@@ -1,20 +1,20 @@
 import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { renderHook } from '@testing-library/react';
 import fetchMock from 'jest-fetch-mock';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import TestRenderer from 'react-test-renderer';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { renderHook } from '@atlassian/testing-library';
 
-import { ANALYTICS_CHANNEL } from '../../../../utils/analytics';
+import { ANALYTICS_CHANNEL } from '../../../../utils/analytics/analytics';
 import { mocks } from '../../../../utils/mocks';
-import * as ufo from '../../../analytics/ufoExperiences';
+import * as startUfoExperienceModule from '../../../analytics/startUfoExperience';
+import * as succeedUfoExperienceModule from '../../../analytics/succeedUfoExperience';
 import { aiSummaryMocks } from '../../__tests__/__mocks__/ai-summary-mocks';
 import { readStream } from '../../use-ai-summary/ai-summary-service/readStream';
 import { AISummariesStore } from '../../use-ai-summary/ai-summary-service/store';
@@ -24,7 +24,7 @@ import useAISummaryAction from '../index';
 jest.mock('uuid', () => ({
 	...jest.requireActual('uuid'),
 	__esModule: true,
-	default: jest.fn().mockReturnValue('some-uuid-1'),
+	v4: jest.fn().mockReturnValue('some-uuid-1'),
 }));
 
 jest.mock('../../use-ai-summary/ai-summary-service/readStream', () => ({
@@ -80,7 +80,7 @@ describe('useAISummaryAction', () => {
 		fetchMock.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
 		(readStream as jest.Mock).mockImplementationOnce(aiSummaryMocks.readStreamSuccess);
 
-		const { result } = renderHook(() => useAISummaryAction(url), { wrapper });
+		const result = renderHook(() => useAISummaryAction(url), { wrapper });
 		await act(async () => {
 			await result.current.summariseUrl();
 		});
@@ -91,7 +91,7 @@ describe('useAISummaryAction', () => {
 
 	it('sets status on summariseUrl error response', async () => {
 		fetchMock.mockRejectOnce(new Error('foo'));
-		const { result } = renderHook(() => useAISummaryAction(url), { wrapper });
+		const result = renderHook(() => useAISummaryAction(url), { wrapper });
 		await act(async () => {
 			await result.current.summariseUrl();
 		});
@@ -104,7 +104,7 @@ describe('useAISummaryAction', () => {
 		fetchMock.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
 		(readStream as jest.Mock).mockImplementationOnce(aiSummaryMocks.readStreamError);
 
-		const { result } = renderHook(() => useAISummaryAction(url), { wrapper });
+		const result = renderHook(() => useAISummaryAction(url), { wrapper });
 		await act(async () => {
 			await result.current.summariseUrl();
 		});
@@ -117,7 +117,7 @@ describe('useAISummaryAction', () => {
 		fetchMock.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
 		(readStream as jest.Mock).mockImplementationOnce(aiSummaryMocks.readStreamErrorMulti);
 
-		const { result } = renderHook(() => useAISummaryAction(url), { wrapper });
+		const result = renderHook(() => useAISummaryAction(url), { wrapper });
 		await act(async () => {
 			await result.current.summariseUrl();
 		});
@@ -129,14 +129,14 @@ describe('useAISummaryAction', () => {
 	describe('with analytics', () => {
 		it('sends summary success event', async () => {
 			const experienceId = 'ufo-experience-success-id';
-			const ufoStartSpy = jest.spyOn(ufo, 'startUfoExperience');
-			const ufoSucceedSpy = jest.spyOn(ufo, 'succeedUfoExperience');
+			const ufoStartSpy = jest.spyOn(startUfoExperienceModule, 'startUfoExperience');
+			const ufoSucceedSpy = jest.spyOn(succeedUfoExperienceModule, 'succeedUfoExperience');
 
 			uuid.mockReturnValueOnce(experienceId);
 			fetchMock.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
 			(readStream as jest.Mock).mockImplementationOnce(aiSummaryMocks.readStreamSuccess);
 
-			const { result } = renderHook(() => useAISummaryAction(url), { wrapper });
+			const result = renderHook(() => useAISummaryAction(url), { wrapper });
 
 			await act(async () => {
 				await result.current.summariseUrl();
@@ -168,7 +168,7 @@ describe('useAISummaryAction', () => {
 			async (expected: boolean, reason?: string) => {
 				fetchMock.mockRejectOnce(new ChunkProcessingError(reason));
 
-				const { result } = renderHook(() => useAISummaryAction(url), { wrapper });
+				const result = renderHook(() => useAISummaryAction(url), { wrapper });
 				await act(async () => {
 					await result.current.summariseUrl();
 				});

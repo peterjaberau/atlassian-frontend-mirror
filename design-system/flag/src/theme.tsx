@@ -1,60 +1,6 @@
-import React, { type ReactElement } from 'react';
-
-import ErrorIcon from '@atlaskit/icon/core/status-error';
-import InformationIcon from '@atlaskit/icon/core/status-information';
-import SuccessIcon from '@atlaskit/icon/core/status-success';
-import WarningIcon from '@atlaskit/icon/core/status-warning';
-import { type BackgroundColor } from '@atlaskit/primitives/compiled';
-import { B400, N0, N30A, N700, N800 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
-import { type AppearanceTypes, type HeadingColor } from './types';
-
-export const flagBackgroundColor: Record<AppearanceTypes, BackgroundColor> = {
-	error: 'color.background.danger.bold',
-	info: 'color.background.neutral.bold',
-	normal: 'elevation.surface.overlay',
-	success: 'color.background.success.bold',
-	warning: 'color.background.warning.bold',
-};
-
-export const flagIconColor: Record<AppearanceTypes, string> = {
-	error: token('color.icon.inverse'),
-	info: token('color.icon.inverse'),
-	normal: token('color.icon.subtle'),
-	success: token('color.icon.inverse'),
-	warning: token('color.icon.warning.inverse'),
-};
-
-export const flagIconGlyph: Record<AppearanceTypes, ReactElement> = {
-	error: <ErrorIcon label="" />,
-	info: <InformationIcon label="" />,
-	normal: <InformationIcon label="" />,
-	success: <SuccessIcon label="" />,
-	warning: <WarningIcon label="" />,
-};
-
-export const flagTextColor: Record<AppearanceTypes, HeadingColor> = {
-	error: 'color.text.inverse',
-	info: 'color.text.inverse',
-	normal: 'color.text',
-	success: 'color.text.inverse',
-	warning: 'color.text.warning.inverse',
-};
-
-export const flagTextColorToken: {
-    error: "var(--ds-text-inverse)";
-    info: "var(--ds-text-inverse)";
-    normal: "var(--ds-text)";
-    success: "var(--ds-text-inverse)";
-    warning: "var(--ds-text-warning-inverse)";
-} = {
-	error: token('color.text.inverse', N0),
-	info: token('color.text.inverse', N0),
-	normal: token('color.text', N800),
-	success: token('color.text.inverse', N0),
-	warning: token('color.text.warning.inverse', N700),
-};
+import { type AppearanceTypes } from './types';
 
 type ActionBackgroundColor = Record<
 	Exclude<AppearanceTypes, 'normal'>,
@@ -77,36 +23,28 @@ type ActionBackgroundColor = Record<
 // https://product-fabric.atlassian.net/browse/DSP-2519
 export const actionBackgroundColor: ActionBackgroundColor = {
 	success: {
-		default: token('color.background.inverse.subtle', N30A),
-		active: token('color.background.inverse.subtle.pressed', N30A),
-		pressed: token('color.background.inverse.subtle.hovered', N30A),
+		default: token('color.background.inverse.subtle'),
+		active: token('color.background.inverse.subtle.pressed'),
+		pressed: token('color.background.inverse.subtle.hovered'),
 	},
 	info: {
-		default: token('color.background.inverse.subtle', N30A),
-		active: token('color.background.inverse.subtle.pressed', N30A),
-		pressed: token('color.background.inverse.subtle.hovered', N30A),
+		default: token('color.background.inverse.subtle'),
+		active: token('color.background.inverse.subtle.pressed'),
+		pressed: token('color.background.inverse.subtle.hovered'),
 	},
 	error: {
-		default: token('color.background.inverse.subtle', N30A),
-		active: token('color.background.inverse.subtle.pressed', N30A),
-		pressed: token('color.background.inverse.subtle.hovered', N30A),
+		default: token('color.background.inverse.subtle'),
+		active: token('color.background.inverse.subtle.pressed'),
+		pressed: token('color.background.inverse.subtle.hovered'),
 	},
 	warning: {
-		default: token('color.background.inverse.subtle', N30A),
-		active: token('color.background.inverse.subtle.pressed', N30A),
-		pressed: token('color.background.inverse.subtle.hovered', N30A),
+		default: token('color.background.inverse.subtle'),
+		active: token('color.background.inverse.subtle.pressed'),
+		pressed: token('color.background.inverse.subtle.hovered'),
 	},
 	normal: {
 		default: 'none',
 		active: 'none',
 		pressed: 'none',
 	},
-};
-
-export const actionTextColor: Record<AppearanceTypes, string> = {
-	success: token('color.text.inverse', N0),
-	info: token('color.text.inverse', N0),
-	error: token('color.text.inverse', N0),
-	warning: token('color.text.warning.inverse', N700),
-	normal: token('color.link', B400),
 };

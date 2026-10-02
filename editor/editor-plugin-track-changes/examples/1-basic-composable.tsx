@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
 import { EditorPresetBuilder } from '@atlaskit/editor-common/preset';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
@@ -53,6 +53,9 @@ import { trackChangesPlugin } from '../src/trackChangesPlugin';
 
 const styles = cssMap({
 	aboveEditor: {
+		position: 'fixed',
+		bottom: 0,
+		zIndex: 800,
 		paddingTop: token('space.100'),
 		paddingBottom: token('space.100'),
 	},
@@ -76,7 +79,6 @@ const createPreset = () =>
 		.add(guidelinePlugin)
 		.add(selectionPlugin)
 		.add(decorationsPlugin)
-		.add([tablesPlugin, { dragAndDropEnabled: true, tableOptions: { advanced: true } }])
 		.add(hyperlinkPlugin)
 		.add(datePlugin)
 		.add(listPlugin)
@@ -100,6 +102,7 @@ const createPreset = () =>
 		.add(extensionPlugin)
 		.add(tasksAndDecisionsPlugin)
 		.add(textFormattingPlugin)
+		.add([tablesPlugin, { tableOptions: { advanced: true } }])
 		.add([
 			insertBlockPlugin,
 			{
@@ -116,6 +119,7 @@ function Editor(): React.JSX.Element {
 	const { preset, editorApi } = usePreset(createPreset);
 
 	const isSelected = useSharedPluginStateSelector(editorApi, 'trackChanges.isDisplayingChanges');
+	const activeIndex = useSharedPluginStateSelector(editorApi, 'showDiff.activeIndex');
 	const isShowDiffAvailable = useSharedPluginStateSelector(
 		editorApi,
 		'trackChanges.isShowDiffAvailable',
@@ -135,6 +139,23 @@ function Editor(): React.JSX.Element {
 					>
 						Show Diff
 					</Button>
+					<Button
+						appearance="primary"
+						onClick={() => {
+							editorApi?.core.actions.execute(editorApi?.showDiff.commands.scrollToNext);
+						}}
+					>
+						Next
+					</Button>
+					<Button
+						appearance="primary"
+						onClick={() => {
+							editorApi?.core.actions.execute(editorApi?.showDiff.commands.scrollToPrevious);
+						}}
+					>
+						Previous
+					</Button>
+					<Button>{activeIndex}</Button>
 				</Box>
 				<ComposableEditor preset={preset} appearance="comment" />
 			</Box>

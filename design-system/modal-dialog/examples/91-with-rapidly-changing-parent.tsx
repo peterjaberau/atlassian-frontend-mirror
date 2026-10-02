@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
 
-import Lorem from 'react-lorem-component';
-
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import Link from '@atlaskit/link';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import { Box } from '@atlaskit/primitives/compiled';
+import Link from '@atlaskit/link/link';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { Box, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
+
+import PlaceholderContent from './placeholder-content';
 
 const containerStyles = cssMap({
 	root: {
@@ -42,16 +41,16 @@ function Child() {
 
 	return (
 		<Box xcss={containerStyles.root}>
-			<p>
+			<Text as="p">
 				This shows a use case where the parent of modal dialog rapidly re-renders, which is not
 				always in sync with the duration of modal dialog's enter/exit animation.
-			</p>
-			<p>
+			</Text>
+			<Text as="p">
 				This replicates{' '}
 				<Link href="https://product-fabric.atlassian.net/browse/DSP-640">DSP-640</Link>, except now
 				that the bug is fixed, modal dialog's exit animation should be followed through even when
 				its parent's render cycle is quicker than its own.
-			</p>
+			</Text>
 			<br />
 			<Button aria-haspopup="dialog" appearance="primary" onClick={open} testId="modal-trigger">
 				Open Modal
@@ -64,7 +63,7 @@ function Child() {
 						</ModalHeader>
 
 						<ModalBody>
-							<Lorem count={2} />
+							<PlaceholderContent count={2} />
 						</ModalBody>
 						<ModalFooter>
 							<Button appearance="subtle" testId="subtle">

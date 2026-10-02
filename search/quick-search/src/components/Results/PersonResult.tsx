@@ -1,5 +1,6 @@
 import React from 'react';
-import Avatar from '@atlaskit/avatar';
+
+import Avatar from '@atlaskit/avatar/avatar';
 
 import ResultBase from './ResultBase';
 import { type CommonResultProps } from './types';
@@ -23,10 +24,10 @@ export default class PersonResult extends React.PureComponent<Props> {
 		presenceState: null, // No presence indicator by default
 	};
 
-	getMention = () =>
+	getMention = (): string | undefined =>
 		this.props.mentionName ? `${this.props.mentionPrefix}${this.props.mentionName}` : undefined;
 
-	getAvatar = () => {
+	getAvatar = (): string | number | true | Iterable<React.ReactNode> | React.JSX.Element => {
 		if (this.props.avatar) {
 			return this.props.avatar;
 		}

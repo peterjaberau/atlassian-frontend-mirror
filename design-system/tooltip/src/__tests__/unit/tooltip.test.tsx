@@ -1,9 +1,10 @@
 import React, { forwardRef } from 'react';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
 import { act, fireEvent, render, screen, userEvent } from '@atlassian/testing-library';
 
+import { waitForTooltipToHide } from '../../testing';
 import Tooltip from '../../tooltip';
 import { type TooltipPrimitiveProps } from '../../tooltip-primitive';
 
@@ -182,10 +183,8 @@ describe('Tooltip', () => {
 			act(() => {
 				jest.runOnlyPendingTimers();
 			});
-			// flush motion
-			act(() => {
-				jest.runOnlyPendingTimers();
-			});
+			// flush motion and exit settlement
+			await waitForTooltipToHide();
 
 			expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
 			expect(onHide).toHaveBeenCalledTimes(1);
@@ -256,6 +255,9 @@ describe('Tooltip', () => {
 	});
 
 	it('should abort hiding if there is a mouseover while animating out', async () => {
+		// Legacy-only: in jsdom the top-layer path has no animations to observe, so the exit
+		// settles before the pointer can return. Real browsers are covered by Playwright.
+		failGate('platform-dst-top-layer-tooltip');
 		const user = createUser();
 		const onHide = jest.fn();
 		const wrapped = (
@@ -431,17 +433,17 @@ describe('Tooltip', () => {
 
 			rerender(jsx);
 
-			// Waits for exit animation to finish
-			act(() => {
-				jest.runAllTimers();
-			});
+			// Waits for exit animation and settlement to finish
+			await waitForTooltipToHide();
 
 			expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
 			unmount();
 		}
 	});
 
-	it('should be visible after trigger is clicked', async () => {
+	it('should be visible after trigger is clicked (legacy)', async () => {
+		// Legacy-only: the top-layer path dismisses on a pointer press - see the test below.
+		failGate('platform-dst-top-layer-tooltip');
 		const user = createUser();
 		const wrapped = (
 			<Tooltip testId="tooltip" content="hello world">
@@ -470,6 +472,59 @@ describe('Tooltip', () => {
 				jest.runAllTimers();
 			});
 
+			expect(screen.getByTestId('tooltip')).toHaveTextContent('hello world');
+			// Only the top-layer path renders a popover host, so its absence proves the
+			// gate-off cohort took the legacy path.
+			expect(screen.queryByTestId('tooltip--popover')).not.toBeInTheDocument();
+			unmount();
+		}
+	});
+
+	it('should stay hidden after a pointer press until the trigger is re-entered (top-layer)', async () => {
+		// Native light dismiss hides the tooltip on pointerup, and it stays hidden until the
+		// pointer leaves and comes back. See `notes/decisions/tooltip-pointer-dismissal.md`.
+		passGate('platform-dst-top-layer-tooltip');
+		const user = createUser();
+		const wrapped = (
+			<Tooltip testId="tooltip" content="hello world">
+				<button data-testid="trigger" type="button">
+					focus me
+				</button>
+			</Tooltip>
+		);
+		const renderProp = (
+			<Tooltip testId="tooltip" content="hello world">
+				{(tooltipProps) => (
+					<button {...tooltipProps} data-testid="trigger" type="button">
+						focus me
+					</button>
+				)}
+			</Tooltip>
+		);
+
+		for (const jsx of [wrapped, renderProp]) {
+			const { unmount } = render(jsx);
+			const trigger = screen.getByTestId('trigger');
+
+			await user.hover(trigger);
+			act(() => {
+				jest.runAllTimers();
+			});
+			expect(screen.getByTestId('tooltip')).toHaveTextContent('hello world');
+
+			await user.click(trigger);
+			act(() => {
+				jest.runAllTimers();
+			});
+			await waitForTooltipToHide();
+			expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
+
+			// Leaving and re-entering the trigger clears the dismissal.
+			await user.unhover(trigger);
+			await user.hover(trigger);
+			act(() => {
+				jest.runAllTimers();
+			});
 			expect(screen.getByTestId('tooltip')).toHaveTextContent('hello world');
 			unmount();
 		}
@@ -592,6 +647,8 @@ describe('Tooltip', () => {
 			act(() => {
 				jest.runAllTimers();
 			});
+			// flush motion and exit settlement
+			await waitForTooltipToHide();
 
 			expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
 			unmount();
@@ -603,7 +660,6 @@ describe('Tooltip', () => {
 		const CustomTooltip: React.ForwardRefExoticComponent<
 			React.PropsWithoutRef<TooltipPrimitiveProps> & React.RefAttributes<HTMLDivElement>
 		> = forwardRef<HTMLDivElement, TooltipPrimitiveProps>(({ style, testId }, ref) => (
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 			<strong ref={ref} style={style} data-testid={testId}>
 				Im a custom tooltip
 			</strong>
@@ -768,158 +824,81 @@ describe('Tooltip', () => {
 		}
 	});
 
-	ffTest.off(
-		'platform_dst_nav4_side_nav_resize_tooltip_feedback',
-		'showImmediate behaviour',
-		() => {
-			it('should show immediately if another tooltip is already showing even with UNSAFE_shouldAlwaysFadeIn set', async () => {
-				const user = createUser();
-				const onShow = jest.fn();
-				const wrapped = (
-					<div>
-						<Tooltip testId="tooltip-a" content="Tooltip" onShow={onShow} delay={1000}>
-							<button data-testid="trigger-a" type="button">
-								click me
-							</button>
-						</Tooltip>
-						<Tooltip
-							testId="tooltip-b"
-							content="Tooltip"
-							onShow={onShow}
-							delay={1000}
-							UNSAFE_shouldAlwaysFadeIn
-						>
-							<button data-testid="trigger-b" type="button">
-								click me
-							</button>
-						</Tooltip>
-					</div>
-				);
-				const renderProp = (
-					<div>
-						<Tooltip testId="tooltip-a" content="Tooltip" onShow={onShow} delay={1000}>
-							{(tooltipProps) => (
-								<button {...tooltipProps} data-testid="trigger-a" type="button">
-									click me
-								</button>
-							)}
-						</Tooltip>
-						<Tooltip
-							testId="tooltip-b"
-							content="Tooltip"
-							onShow={onShow}
-							delay={1000}
-							UNSAFE_shouldAlwaysFadeIn
-						>
-							{(tooltipProps) => (
-								<button {...tooltipProps} data-testid="trigger-b" type="button">
-									click me
-								</button>
-							)}
-						</Tooltip>
-					</div>
-				);
+	it('should never show immediately if shouldAlwaysFadeIn is true', async () => {
+		const user = createUser();
+		const onShow = jest.fn();
+		const wrapped = (
+			<div>
+				<Tooltip testId="tooltip-a" content="Tooltip" onShow={onShow} delay={1000}>
+					<button data-testid="trigger-a" type="button">
+						click me
+					</button>
+				</Tooltip>
+				<Tooltip
+					testId="tooltip-b"
+					content="Tooltip"
+					onShow={onShow}
+					delay={1000}
+					shouldAlwaysFadeIn
+				>
+					<button data-testid="trigger-b" type="button">
+						click me
+					</button>
+				</Tooltip>
+			</div>
+		);
+		const renderProp = (
+			<div>
+				<Tooltip testId="tooltip-a" content="Tooltip" onShow={onShow} delay={1000}>
+					{(tooltipProps) => (
+						<button {...tooltipProps} data-testid="trigger-a" type="button">
+							click me
+						</button>
+					)}
+				</Tooltip>
+				<Tooltip
+					testId="tooltip-b"
+					content="Tooltip"
+					onShow={onShow}
+					delay={1000}
+					shouldAlwaysFadeIn
+				>
+					{(tooltipProps) => (
+						<button {...tooltipProps} data-testid="trigger-b" type="button">
+							click me
+						</button>
+					)}
+				</Tooltip>
+			</div>
+		);
 
-				for (const jsx of [wrapped, renderProp]) {
-					const { unmount } = render(jsx);
+		for (const jsx of [wrapped, renderProp]) {
+			const { unmount } = render(jsx);
 
-					await user.hover(screen.getByTestId('trigger-a'));
+			await user.hover(screen.getByTestId('trigger-a'));
 
-					act(() => {
-						jest.runAllTimers();
-					});
-					expect(onShow).toHaveBeenCalledTimes(1);
-					expect(screen.getByTestId('tooltip-a')).toBeInTheDocument();
-					onShow.mockClear();
-
-					await user.hover(screen.getByTestId('trigger-b'));
-					expect(onShow).toHaveBeenCalledTimes(1);
-					expect(screen.getByTestId('tooltip-b')).toBeInTheDocument();
-
-					unmount();
-					onShow.mockClear();
-				}
+			act(() => {
+				jest.runAllTimers();
 			});
-		},
-	);
+			expect(onShow).toHaveBeenCalledTimes(1);
+			expect(screen.getByTestId('tooltip-a')).toBeInTheDocument();
+			onShow.mockClear();
 
-	ffTest.on('platform_dst_nav4_side_nav_resize_tooltip_feedback', 'showImmediate behaviour', () => {
-		it('should never show immediately if UNSAFE_shouldAlwaysFadeIn is true', async () => {
-			const user = createUser();
-			const onShow = jest.fn();
-			const wrapped = (
-				<div>
-					<Tooltip testId="tooltip-a" content="Tooltip" onShow={onShow} delay={1000}>
-						<button data-testid="trigger-a" type="button">
-							click me
-						</button>
-					</Tooltip>
-					<Tooltip
-						testId="tooltip-b"
-						content="Tooltip"
-						onShow={onShow}
-						delay={1000}
-						UNSAFE_shouldAlwaysFadeIn
-					>
-						<button data-testid="trigger-b" type="button">
-							click me
-						</button>
-					</Tooltip>
-				</div>
-			);
-			const renderProp = (
-				<div>
-					<Tooltip testId="tooltip-a" content="Tooltip" onShow={onShow} delay={1000}>
-						{(tooltipProps) => (
-							<button {...tooltipProps} data-testid="trigger-a" type="button">
-								click me
-							</button>
-						)}
-					</Tooltip>
-					<Tooltip
-						testId="tooltip-b"
-						content="Tooltip"
-						onShow={onShow}
-						delay={1000}
-						UNSAFE_shouldAlwaysFadeIn
-					>
-						{(tooltipProps) => (
-							<button {...tooltipProps} data-testid="trigger-b" type="button">
-								click me
-							</button>
-						)}
-					</Tooltip>
-				</div>
-			);
+			// With shouldAlwaysFadeIn prop, the tooltip should not show immediately
+			await user.hover(screen.getByTestId('trigger-b'));
+			expect(onShow).not.toHaveBeenCalled();
+			expect(screen.queryByTestId('tooltip-b')).not.toBeInTheDocument();
 
-			for (const jsx of [wrapped, renderProp]) {
-				const { unmount } = render(jsx);
+			// The tooltip should still show after the delay
+			act(() => {
+				jest.runAllTimers();
+			});
+			expect(onShow).toHaveBeenCalledTimes(1);
+			expect(screen.getByTestId('tooltip-b')).toBeInTheDocument();
 
-				await user.hover(screen.getByTestId('trigger-a'));
-
-				act(() => {
-					jest.runAllTimers();
-				});
-				expect(onShow).toHaveBeenCalledTimes(1);
-				expect(screen.getByTestId('tooltip-a')).toBeInTheDocument();
-				onShow.mockClear();
-
-				// With UNSAFE_shouldAlwaysFadeIn prop, the tooltip should not show immediately
-				await user.hover(screen.getByTestId('trigger-b'));
-				expect(onShow).not.toHaveBeenCalled();
-				expect(screen.queryByTestId('tooltip-b')).not.toBeInTheDocument();
-
-				// The tooltip should still show after the delay
-				act(() => {
-					jest.runAllTimers();
-				});
-				expect(onShow).toHaveBeenCalledTimes(1);
-				expect(screen.getByTestId('tooltip-b')).toBeInTheDocument();
-
-				unmount();
-				onShow.mockClear();
-			}
-		});
+			unmount();
+			onShow.mockClear();
+		}
 	});
 
 	it('should wait a configurable delay before showing', async () => {
@@ -1012,10 +991,8 @@ describe('Tooltip', () => {
 			// Still present because we haven't flushed motion
 			expect(screen.getByTestId('tooltip')).toBeInTheDocument();
 
-			// Flushing motion
-			act(() => {
-				jest.runAllTimers();
-			});
+			// Flushing motion and exit settlement
+			await waitForTooltipToHide();
 			expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
 			unmount();
 		}
@@ -1067,10 +1044,8 @@ describe('Tooltip', () => {
 
 			rerender(jsx);
 
-			// Waits for exit animation to finish
-			act(() => {
-				jest.runAllTimers();
-			});
+			// Waits for exit animation and settlement to finish
+			await waitForTooltipToHide();
 
 			expect(screen.queryByTestId('tooltip')).not.toBeInTheDocument();
 			unmount();
@@ -1425,10 +1400,8 @@ describe('Tooltip', () => {
 			act(() => {
 				jest.runOnlyPendingTimers();
 			});
-			// flush motion
-			act(() => {
-				jest.runOnlyPendingTimers();
-			});
+			// flush motion and exit settlement
+			await waitForTooltipToHide();
 
 			rerender(jsx);
 
@@ -1453,6 +1426,8 @@ describe('Tooltip', () => {
 	});
 
 	it('should have strategy as fixed by default', async () => {
+		// Legacy-only: asserts Popper inline styles the top-layer path never sets.
+		failGate('platform-dst-top-layer-tooltip');
 		const user = createUser();
 		const wrapped = (
 			<Tooltip testId="tooltip" content="hello world" position="mouse" mousePosition="left">
@@ -1481,14 +1456,14 @@ describe('Tooltip', () => {
 				jest.runAllTimers();
 			});
 
-			expect(screen.getByTestId('tooltip--wrapper')).toHaveStyle(
-				'position: fixed; left: 0px; top: 0px;',
-			);
+			expect(screen.getByTestId('tooltip--wrapper')).toHaveStyle('left: 0px; top: 0px;');
 			unmount();
 		}
 	});
 
 	it('should have strategy as absolute for popper', async () => {
+		// Legacy-only: asserts Popper inline styles the top-layer path never sets.
+		failGate('platform-dst-top-layer-tooltip');
 		const user = createUser();
 		const wrapped = (
 			<Tooltip

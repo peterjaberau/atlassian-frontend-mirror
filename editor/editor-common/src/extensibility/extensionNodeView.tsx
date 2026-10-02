@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
-import { type ADFEntity } from '@atlaskit/adf-utils/types';
+import type { IntlShape } from 'react-intl';
+
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
-import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import type { Selection } from '@atlaskit/editor-prosemirror/state';
+import type {
+	Decoration,
+	DecorationSource,
+	EditorView,
+	NodeView,
+} from '@atlaskit/editor-prosemirror/view';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { isReactCompilerActivePlatform } from '@atlaskit/react-compiler-gating';
 
+import { isSSR } from '../core-utils';
 import type { EventDispatcher } from '../event-dispatcher';
 import type { ExtensionHandlers } from '../extensions';
 import type { PortalProviderAPI } from '../portal';
@@ -13,9 +22,9 @@ import type { ProviderFactory } from '../provider-factory';
 import type { ForwardRef, getPosHandler, ProsemirrorGetPosHandler } from '../react-node-view';
 import ReactNodeView from '../react-node-view';
 import type { EditorAppearance } from '../types';
-
 import { Extension } from './Extension';
 import { ExtensionNodeWrapper } from './ExtensionNodeWrapper';
+import { isNativeEmbedExtension } from './nativeEmbedExtension';
 import type {
 	ExtensionsPluginInjectionAPI,
 	MacroInteractionDesignFeatureFlags,
@@ -23,13 +32,17 @@ import type {
 } from './types';
 
 interface ExtensionNodeViewOptions {
+	/** See `allowAIGeneratedContentMotion` on the extension plugin's options. */
+	allowAIGeneratedContentMotion?: boolean;
 	appearance?: EditorAppearance;
 	getExtensionHeight?: GetPMNodeHeight;
 }
 
 interface ReactExtensionNodeProps {
 	extensionHandlers: ExtensionHandlers;
+	extensionLoadingHandlers?: ExtensionHandlers;
 	extensionNodeViewOptions?: ExtensionNodeViewOptions;
+	intl?: IntlShape;
 	macroInteractionDesignFeatureFlags?: MacroInteractionDesignFeatureFlags;
 	pluginInjectionApi: ExtensionsPluginInjectionAPI;
 	providerFactory: ProviderFactory;
@@ -37,6 +50,67 @@ interface ReactExtensionNodeProps {
 	showLivePagesBodiedMacrosRendererView?: (node: ADFEntity) => boolean;
 	showUpdatedLivePages1PBodiedExtensionUI?: (node: ADFEntity) => boolean;
 }
+
+/**
+ * Allowlists of extension keys + layout
+ * Currently, only toc with default layout allows to skip React render.
+ * Extensions NOT in this list always follow the normal React render path.
+ */
+const ssrHydrationExtensionAllowlist = ['toc'];
+const ssrHydrationLayoutAllowlist = ['default'];
+
+const isSSRHydrationEligible = (node: PmNode): boolean => {
+	if (node.type.name !== 'extension') {
+		return false;
+	}
+	const { extensionKey, layout } = node.attrs ?? {};
+	if (!ssrHydrationExtensionAllowlist.includes(extensionKey)) {
+		return false;
+	}
+	// Treat a missing layout attr as `default` (the schema default).
+	const effectiveLayout = layout ?? 'default';
+	return ssrHydrationLayoutAllowlist.includes(effectiveLayout);
+};
+
+/**
+ * Per-(EditorView, extensionKey + localId) record of which extension identities
+ * have already had their initial-hydration init pass. SSR DOM reuse is only valid
+ * the very first time an ExtensionNode init runs for a given identity in a given
+ * editor — that is the only moment a real SSR-rendered element for that identity
+ * can exist in the editor DOM.
+ *
+ * After the first init, any element matching the SSR selector is the previous
+ * node view's React-rendered domRef that ProseMirror has not yet detached (e.g.
+ * during DnD / layout resize, where ProseMirror constructs the new node view
+ * BEFORE destroying the old one). Reusing it as if it were SSR DOM causes the
+ * new node view to skip React rendering and leaves the extension invisible
+ * (EDITOR-6613).
+ */
+const consumedHydrationIdentitiesByEditor = new WeakMap<EditorView, Set<string>>();
+
+const getHydrationIdentityKey = (extensionKey: unknown, localId: unknown): string | null => {
+	if (typeof extensionKey !== 'string' || typeof localId !== 'string') {
+		return null;
+	}
+	if (extensionKey === '' || localId === '') {
+		return null;
+	}
+	return `${extensionKey}::${localId}`;
+};
+
+const hasHydrationIdentityBeenConsumed = (view: EditorView, identityKey: string): boolean => {
+	const consumed = consumedHydrationIdentitiesByEditor.get(view);
+	return consumed ? consumed.has(identityKey) : false;
+};
+
+const markHydrationIdentityAsConsumed = (view: EditorView, identityKey: string): void => {
+	let consumed = consumedHydrationIdentitiesByEditor.get(view);
+	if (!consumed) {
+		consumed = new Set<string>();
+		consumedHydrationIdentitiesByEditor.set(view, consumed);
+	}
+	consumed.add(identityKey);
+};
 
 // getInlineNodeViewProducer is a new api to use instead of ReactNodeView
 // when creating inline node views, however, it is difficult to test the impact
@@ -46,6 +120,9 @@ interface ReactExtensionNodeProps {
 export class ExtensionNode<AdditionalParams = unknown> extends ReactNodeView<
 	ReactExtensionNodeProps & AdditionalParams
 > {
+	/** True between SSR DOM adoption in `createDomRef` and the SSR→React handoff in `update`. */
+	private didReuseSsrDom = false;
+
 	ignoreMutation(mutation: MutationRecord | { target: Node; type: 'selection' }): boolean {
 		// Extensions can perform async operations that will change the DOM.
 		// To avoid having their tree rebuilt, we need to ignore the mutation
@@ -57,8 +134,32 @@ export class ExtensionNode<AdditionalParams = unknown> extends ReactNodeView<
 		);
 	}
 
+	/** See {@link consumedHydrationIdentitiesByEditor}. Null when attrs are missing → SSR reuse skipped. */
+	private getHydrationIdentityKey(): string | null {
+		return getHydrationIdentityKey(this.node.attrs?.extensionKey, this.node.attrs?.localId);
+	}
+
+	/** True only for the first ExtensionNode of this identity in this editor. See {@link consumedHydrationIdentitiesByEditor}. */
+	private isInInitialHydrationWindow(): boolean {
+		const identityKey = this.getHydrationIdentityKey();
+		if (identityKey === null) {
+			return false;
+		}
+		return !hasHydrationIdentityBeenConsumed(this.view, identityKey);
+	}
+
 	// Reserve height by setting a minimum height for the extension node view element
 	createDomRef(): HTMLElement {
+		// SSR DOM reuse takes precedence over preset height — when eligible, adopt the
+		// server-rendered element directly so React hydration is deferred until update().
+		if (!isSSR() && isSSRHydrationEligible(this.node) && this.isInInitialHydrationWindow()) {
+			const ssrElement = this.findSSRElement();
+			if (ssrElement) {
+				this.didReuseSsrDom = true;
+				return ssrElement;
+			}
+		}
+
 		if (!fg('confluence_connect_macro_preset_height')) {
 			return super.createDomRef();
 		}
@@ -77,25 +178,139 @@ export class ExtensionNode<AdditionalParams = unknown> extends ReactNodeView<
 	}
 
 	/**
-	 * When interacting with input elements inside an extension's body, the events
-	 * bubble up to the editor and get handled by it. This almost always gets in the way
-	 * of being able to actually interact with said input in the extension, i.e.
-	 * typing inside a text field (in an extension body) will print the text in the editor
-	 * content area instead. This change prevents the editor view from trying to handle these events,
-	 * when the target of the event is an input element, so the extension can.
+	 * Cache for SSR element lookup to avoid repeated DOM queries.
+	 * undefined = not yet searched, null = searched but not found, HTMLElement = found
 	 */
-	stopEvent(event: Event): boolean {
-		if (fg('forge-ui-extensionnodeview-stop-event-for-textarea')) {
-			return (
-				event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement
-			);
+	private cachedSsrElement: HTMLElement | undefined | null;
+
+	/**
+	 * Attempts to find an existing SSR'd DOM element for this extension node by extensionKey and localId
+	 * which should uniquely identify the
+	 * extension node within the editor content.
+	 *
+	 * @returns The SSR'd element if found, otherwise null
+	 */
+	private findSSRElement(): HTMLElement | null {
+		if (this.cachedSsrElement !== undefined) {
+			return this.cachedSsrElement || null;
 		}
 
-		return event.target instanceof HTMLInputElement;
+		const extensionKey = this.node.attrs.extensionKey;
+		const localId = this.node.attrs.localId;
+		const editorDom = this.view.dom;
+
+		if (extensionKey && localId) {
+			const selector = `[extensionkey="${extensionKey}"][localid="${localId}"]`;
+			const element = editorDom.querySelector(selector);
+			if (element && element instanceof HTMLElement) {
+				// A server-rendered element is only worth adopting if React actually rendered into it.
+				// The SSR pass renders each node view through an isolated `renderToStaticMarkup`; when
+				// that render throws, the portal provider swallows the error and leaves the container
+				// empty. Adopting an empty element and skipping the React portal leaves the extension
+				// invisible until the next `update()`, which for an untouched node only happens on user
+				// interaction (HOT-306707). Treat an empty element as "no SSR DOM" so the node view takes
+				// the normal React render path instead.
+				if (
+					fg('platform_editor_ssr_reuse_requires_content') &&
+					!element.querySelector('[data-testid="extension-node-wrapper"]')
+				) {
+					this.cachedSsrElement = null;
+					return null;
+				}
+				this.cachedSsrElement = element;
+				return element;
+			}
+		}
+
+		this.cachedSsrElement = null;
+		return null;
 	}
 
-	getContentDOM() {
+	/** Skip React Portal render on first init when reusing SSR DOM. See {@link consumedHydrationIdentitiesByEditor}. */
+	init(): this {
+		const isEligibleForSsrReuse = !isSSR() && isSSRHydrationEligible(this.node);
+
+		if (isEligibleForSsrReuse && this.isInInitialHydrationWindow()) {
+			const ssrElement = this.findSSRElement();
+			const shouldSkipInitRender = ssrElement !== null;
+			super.init(shouldSkipInitRender);
+			const identityKey = this.getHydrationIdentityKey();
+			if (identityKey !== null) {
+				// Close the hydration window — see {@link consumedHydrationIdentitiesByEditor}.
+				markHydrationIdentityAsConsumed(this.view, identityKey);
+			}
+		} else {
+			super.init();
+		}
+
+		return this;
+	}
+
+	update(
+		node: PmNode,
+		decorations: ReadonlyArray<Decoration>,
+		_innerDecorations?: DecorationSource,
+		validUpdate: (currentNode: PmNode, newNode: PmNode) => boolean = () => true,
+	): boolean {
+		// Remove extensionNodeWrapper aka span.relative if we previously reused SSR DOM
+		// control is back to React afterwards
+		if (this.didReuseSsrDom) {
+			const ssrElement = this.findSSRElement();
+			if (ssrElement) {
+				const extensionNodeWrapper = ssrElement.querySelector(
+					'[data-testid="extension-node-wrapper"]',
+				);
+				if (extensionNodeWrapper) {
+					extensionNodeWrapper.remove();
+				}
+				this.didReuseSsrDom = false;
+			}
+		}
+
+		return super.update(node, decorations, _innerDecorations, validUpdate);
+	}
+
+	/**
+	 * Prevents ProseMirror from handling events that belong to the extension's React UI.
+	 *
+	 * For multibodied extensions: the node consists of a React app (e.g. tab bar) that controls
+	 * frames, and the editable frames themselves. Events inside frames must reach ProseMirror
+	 * for normal editing; events in the surrounding React app (buttons, navigation) are stopped
+	 * so ProseMirror doesn't create a NodeSelection on the entire node.
+	 *
+	 * For other extensions: input/textarea events are stopped so users can interact
+	 * with form elements inside the extension body without the editor intercepting them.
+	 */
+	stopEvent(event: Event): boolean {
+		if (this.node.type.name === 'multiBodiedExtension') {
+			const target = event.target;
+			if (target instanceof Element) {
+				if (target.closest('[data-multibodiedextension-frames]')) {
+					return false;
+				}
+				return !!target.closest('[data-multiBodiedExtension-container]');
+			}
+			return false;
+		}
+
+		return event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement;
+	}
+
+	getContentDOM():
+		| {
+				contentDOM: HTMLDivElement;
+				dom: HTMLDivElement;
+		  }
+		| {
+				contentDOM?: undefined;
+				dom: HTMLDivElement;
+		  }
+		| undefined {
 		if (this.node.isInline) {
+			return;
+		}
+
+		if (this.didReuseSsrDom) {
 			return;
 		}
 
@@ -107,11 +322,7 @@ export class ExtensionNode<AdditionalParams = unknown> extends ReactNodeView<
 			this.reactComponentProps?.macroInteractionDesignFeatureFlags
 				?.showMacroInteractionDesignUpdates;
 
-		if (
-			isBodiedExtension &&
-			showMacroInteractionDesignUpdates &&
-			expValEquals('platform_editor_bodiedextension_layoutshift_fix', 'isEnabled', true)
-		) {
+		if (isBodiedExtension && showMacroInteractionDesignUpdates) {
 			// Create outer wrapper to hold space for the lozenge
 			const outerWrapper = document.createElement('div');
 			outerWrapper.className = `${this.node.type.name}-content-outer-wrapper`;
@@ -128,73 +339,139 @@ export class ExtensionNode<AdditionalParams = unknown> extends ReactNodeView<
 		return { dom: contentDomWrapper };
 	}
 
-	render(
-		props: {
-			extensionHandlers: ExtensionHandlers;
-			// referentiality plugin won't utilise appearance just yet
-			extensionNodeViewOptions?: ExtensionNodeViewOptions;
-			macroInteractionDesignFeatureFlags?: MacroInteractionDesignFeatureFlags;
-			pluginInjectionApi: ExtensionsPluginInjectionAPI;
-			providerFactory: ProviderFactory;
-			rendererExtensionHandlers?: ExtensionHandlers;
-			showLivePagesBodiedMacrosRendererView?: (node: ADFEntity) => boolean;
-			showUpdatedLivePages1PBodiedExtensionUI?: (node: ADFEntity) => boolean;
-		},
-		forwardRef: ForwardRef,
-	): React.JSX.Element {
+	render(props: ExtensionRenderProps, forwardRef: ForwardRef): React.JSX.Element {
+		// While sitting on SSR DOM, skip the React portal — see {@link didReuseSsrDom}.
+		if (this.didReuseSsrDom) {
+			return null as unknown as React.JSX.Element;
+		}
+
 		return (
-			<ExtensionNodeWrapper
-				nodeType={this.node.type.name}
-				macroInteractionDesignFeatureFlags={props.macroInteractionDesignFeatureFlags}
-			>
-				<Extension
-					editorView={this.view}
-					node={this.node}
-					eventDispatcher={this.eventDispatcher}
-					// The getPos arg is always a function when used with nodes
-					// the version of the types we use has a union with the type
-					// for marks.
-					// This has been fixed in later versions of the definitly typed
-					// types (and also in prosmirror-views inbuilt types).
-					// https://github.com/DefinitelyTyped/DefinitelyTyped/pull/57384
-					getPos={this.getPos as ProsemirrorGetPosHandler}
-					providerFactory={props.providerFactory}
-					handleContentDOMRef={forwardRef}
-					extensionHandlers={props.extensionHandlers}
-					editorAppearance={props.extensionNodeViewOptions?.appearance}
-					pluginInjectionApi={props.pluginInjectionApi}
-					macroInteractionDesignFeatureFlags={props.macroInteractionDesignFeatureFlags}
-					showLivePagesBodiedMacrosRendererView={props.showLivePagesBodiedMacrosRendererView}
-					showUpdatedLivePages1PBodiedExtensionUI={props.showUpdatedLivePages1PBodiedExtensionUI}
-					rendererExtensionHandlers={props.rendererExtensionHandlers}
-				/>
-			</ExtensionNodeWrapper>
+			<ExtensionNodeRender
+				// EditorView is mutable; expose selection changes to invalidate compiled renders.
+				selection={isReactCompilerActivePlatform() ? this.view.state.selection : undefined}
+				editorView={this.view}
+				eventDispatcher={this.eventDispatcher}
+				forwardRef={forwardRef}
+				// The getPos arg is always a function when used with nodes
+				// the version of the types we use has a union with the type
+				// for marks.
+				// This has been fixed in later versions of the definitly typed
+				// types (and also in prosmirror-views inbuilt types).
+				// https://github.com/DefinitelyTyped/DefinitelyTyped/pull/57384
+				getPos={this.getPos as ProsemirrorGetPosHandler}
+				node={this.node}
+				renderProps={props}
+			/>
 		);
 	}
 }
 
+type ExtensionRenderProps = {
+	extensionHandlers: ExtensionHandlers;
+	extensionLoadingHandlers?: ExtensionHandlers;
+	// referentiality plugin won't utilise appearance just yet
+	extensionNodeViewOptions?: ExtensionNodeViewOptions;
+	intl?: IntlShape;
+	macroInteractionDesignFeatureFlags?: MacroInteractionDesignFeatureFlags;
+	pluginInjectionApi: ExtensionsPluginInjectionAPI;
+	providerFactory: ProviderFactory;
+	rendererExtensionHandlers?: ExtensionHandlers;
+	showLivePagesBodiedMacrosRendererView?: (node: ADFEntity) => boolean;
+	showUpdatedLivePages1PBodiedExtensionUI?: (node: ADFEntity) => boolean;
+};
+
+type ExtensionNodeRenderProps = {
+	editorView: EditorView;
+	eventDispatcher: EventDispatcher | undefined;
+	forwardRef: ForwardRef;
+	getPos: ProsemirrorGetPosHandler;
+	node: PmNode;
+	renderProps: ExtensionRenderProps;
+	selection?: Selection;
+};
+
+/**
+ * Wraps the extension in its node wrapper. A component rather than part of the node view's `render`,
+ * so `contentReady` can be React state: the extension reports its content ready from inside the
+ * wrapper, and the wrapper animates the node in once it has.
+ */
+function ExtensionNodeRender({
+	selection,
+	editorView,
+	eventDispatcher,
+	forwardRef,
+	getPos,
+	node,
+	renderProps,
+}: ExtensionNodeRenderProps): React.JSX.Element {
+	const [contentReady, setContentReady] = useState(false);
+	const onContentReady = useCallback(() => setContentReady(true), []);
+
+	// Only native embeds animate in; every other extension type renders as it does without the
+	// option, so nothing waits on a signal it does not send.
+	const generatedContentMotion =
+		!!renderProps.extensionNodeViewOptions?.allowAIGeneratedContentMotion &&
+		isNativeEmbedExtension(node);
+
+	return (
+		<ExtensionNodeWrapper
+			intl={renderProps.intl}
+			nodeType={node.type.name}
+			macroInteractionDesignFeatureFlags={renderProps.macroInteractionDesignFeatureFlags}
+			generatedContentMotion={generatedContentMotion}
+			contentReady={contentReady}
+		>
+			<Extension
+				selection={selection}
+				editorView={editorView}
+				node={node}
+				eventDispatcher={eventDispatcher}
+				getPos={getPos}
+				providerFactory={renderProps.providerFactory}
+				handleContentDOMRef={forwardRef}
+				extensionHandlers={renderProps.extensionHandlers}
+				extensionLoadingHandlers={renderProps.extensionLoadingHandlers}
+				editorAppearance={renderProps.extensionNodeViewOptions?.appearance}
+				pluginInjectionApi={renderProps.pluginInjectionApi}
+				macroInteractionDesignFeatureFlags={renderProps.macroInteractionDesignFeatureFlags}
+				showLivePagesBodiedMacrosRendererView={renderProps.showLivePagesBodiedMacrosRendererView}
+				showUpdatedLivePages1PBodiedExtensionUI={
+					renderProps.showUpdatedLivePages1PBodiedExtensionUI
+				}
+				rendererExtensionHandlers={renderProps.rendererExtensionHandlers}
+				onContentReady={generatedContentMotion ? onContentReady : undefined}
+			/>
+		</ExtensionNodeWrapper>
+	);
+}
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default function ExtensionNodeView(
 	portalProviderAPI: PortalProviderAPI,
 	eventDispatcher: EventDispatcher,
 	providerFactory: ProviderFactory,
 	extensionHandlers: ExtensionHandlers,
+	extensionLoadingHandlers: ExtensionHandlers | undefined,
 	extensionNodeViewOptions: ExtensionNodeViewOptions,
 	pluginInjectionApi: ExtensionsPluginInjectionAPI,
 	macroInteractionDesignFeatureFlags?: MacroInteractionDesignFeatureFlags,
 	showLivePagesBodiedMacrosRendererView?: (node: ADFEntity) => boolean,
 	showUpdatedLivePages1PBodiedExtensionUI?: (node: ADFEntity) => boolean,
 	rendererExtensionHandlers?: ExtensionHandlers,
+	intl?: IntlShape,
 ) {
 	return (node: PmNode, view: EditorView, getPos: getPosHandler): NodeView => {
 		return new ExtensionNode(node, view, getPos, portalProviderAPI, eventDispatcher, {
 			providerFactory,
 			extensionHandlers,
+			extensionLoadingHandlers,
 			extensionNodeViewOptions,
 			pluginInjectionApi,
 			macroInteractionDesignFeatureFlags,
 			showLivePagesBodiedMacrosRendererView,
 			showUpdatedLivePages1PBodiedExtensionUI,
 			rendererExtensionHandlers,
+			intl,
 		}).init();
 	};
 }

@@ -1,7 +1,9 @@
+/* eslint-disable @atlaskit/design-system/no-deprecated-imports -- Preserve existing example behavior while focus-ring usage is reviewed separately. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
@@ -9,41 +11,35 @@ import { css, jsx } from '@emotion/react';
 import { bind } from 'bind-event-listener';
 import invariant from 'tiny-invariant';
 
-import Button from '@atlaskit/button/new';
-import FocusRing from '@atlaskit/focus-ring';
+import Button from '@atlaskit/button/default/button';
+import FocusRing from '@atlaskit/focus-ring/focus-ring';
 import CheckIcon from '@atlaskit/icon/core/check-mark';
 import TrashIcon from '@atlaskit/icon/core/delete';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview';
-import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/prevent-unhandled';
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { disableNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/disable-native-drag-preview';
+import { preventUnhandled } from '@atlaskit/pragmatic-drag-and-drop/utils/prevent-unhandled';
 import { Inline } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 const containerStyles = css({
-	boxShadow: token(
-		'elevation.shadow.raised',
-		'0px 1px 1px rgba(9, 30, 66, 0.25),0px 0px 1px rgba(9, 30, 66, 0.31)',
-	),
+	boxShadow: token('elevation.shadow.raised'),
 	borderRadius: token('radius.small', '4px'),
 	overflow: 'hidden',
 	display: 'flex',
 	height: 400,
 	position: 'relative',
-	background: token('elevation.surface.raised', '#FFF'),
+	background: token('elevation.surface.raised'),
 });
 
 const sidebarStyles = css({
-	background: token('elevation.surface.overlay', '#FFF'),
+	background: token('elevation.surface.overlay'),
 	display: 'flex',
 	padding: 16,
 	gap: 16,
 	position: 'absolute',
 	bottom: 24,
-	boxShadow: token(
-		'elevation.shadow.overlay',
-		'0px 8px 12px rgba(9, 30, 66, 0.15),0px 0px 1px rgba(9, 30, 66, 0.31)',
-	),
+	boxShadow: token('elevation.shadow.overlay'),
 	borderRadius: 4,
 	left: '50%',
 	transform: 'translateX(-50%)',
@@ -53,26 +49,26 @@ const sidebarStyles = css({
 
 const swatchBaseStyles = css({
 	boxSizing: 'border-box',
-	border: `${token('border.width.selected')} solid ${token('color.border', 'rgba(9, 30, 66, 0.14)')}`,
+	border: `${token('border.width.selected')} solid ${token('color.border')}`,
 	width: 32,
 	height: 32,
 	borderRadius: token('radius.full'),
 	cursor: 'pointer',
-	color: token('color.text.inverse', '#FFF'),
+	color: token('color.text.inverse'),
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'center',
 });
 
 const swatchColorMap = {
-	red: token('color.background.accent.red.subtle', '#F87462'),
-	orange: token('color.background.accent.orange.subtle', '#FAA53D'),
-	yellow: token('color.background.accent.yellow.subtle', '#E2B203'),
-	green: token('color.background.accent.green.subtle', '#4BCE97'),
-	teal: token('color.background.accent.teal.subtle', '#60C6D2'),
-	blue: token('color.background.accent.blue.subtle', '#579DFF'),
-	purple: token('color.background.accent.purple.subtle', '#9F8FEF'),
-	magenta: token('color.background.accent.magenta.subtle', '#E774BB'),
+	red: token('color.background.accent.red.subtle'),
+	orange: token('color.background.accent.orange.subtle'),
+	yellow: token('color.background.accent.yellow.subtle'),
+	green: token('color.background.accent.green.subtle'),
+	teal: token('color.background.accent.teal.subtle'),
+	blue: token('color.background.accent.blue.subtle'),
+	purple: token('color.background.accent.purple.subtle'),
+	magenta: token('color.background.accent.magenta.subtle'),
 };
 
 type SwatchColor = keyof typeof swatchColorMap;
@@ -110,8 +106,8 @@ const canvasStyles = css({
 
 const dividerStyles = css({
 	width: 1,
-	height: token('space.400', '32px'),
-	background: token('color.border', '#091E4224'),
+	height: token('space.400'),
+	background: token('color.border'),
 	display: 'flex',
 });
 

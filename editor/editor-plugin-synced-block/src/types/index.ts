@@ -1,6 +1,11 @@
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
-import type { SyncBlockStoreManager } from '@atlaskit/editor-synced-block-provider';
+import type {
+	SyncBlockProduct,
+	SyncBlockStoreManager,
+} from '@atlaskit/editor-synced-block-provider';
+
+import type { SyncedBlockFeedbackContext } from '../syncedBlockPluginType';
 
 export enum FLAG_ID {
 	CANNOT_DELETE_WHEN_OFFLINE = 'cannot-delete-when-offline',
@@ -10,14 +15,31 @@ export enum FLAG_ID {
 	SYNC_BLOCK_COPIED = 'sync-block-copied',
 	UNPUBLISHED_SYNC_BLOCK_PASTED = 'unpublished-sync-block-pasted',
 	CANNOT_CREATE_SYNC_BLOCK = 'cannot-create-sync-block',
+	INLINE_EXTENSION_IN_SYNC_BLOCK = 'inline-extension-in-sync-block',
+	EXTENSION_IN_SYNC_BLOCK = 'extension-in-sync-block',
+	DUPLICATE_SOURCE_SYNC_BLOCK = 'duplicate-source-sync-block',
+	SYNC_BLOCK_FEEDBACK_PROMPT = 'synced-block-feedback-prompt',
 }
 
 type FlagConfig = {
+	feedbackContext?: Omit<SyncedBlockFeedbackContext, 'entryPoint'> & {
+		entryPoint: Exclude<SyncedBlockFeedbackContext['entryPoint'], 'overflow-menu'>;
+	};
 	id: FLAG_ID;
+	/** Whether the copied synced block confirmation originated from a live page. */
+	isLivePage?: boolean;
+	/** Whether the copied synced block's source content must be published before it can be reused. */
+	isSourceContentUnpublished?: boolean;
 	// Called when the flag is closed
 	onDismissed?: (tr: Transaction) => Transaction | void;
 	// Called when retry button in flag is clicked
 	onRetry?: () => void;
+	resourceId?: string;
+	/**
+	 * Optional source product for the synced block triggering this flag. Used to tailor
+	 * unpublished paste copy and copied-block reuse guidance by product.
+	 */
+	sourceProduct?: SyncBlockProduct;
 };
 
 export type BodiedSyncBlockDeletionStatus = 'none' | 'processing' | 'completed';
@@ -39,6 +61,16 @@ export type SyncedBlockSharedState = {
 	 * Whether the plugin is currently saving bodiedSyncBlock deletion to backend
 	 */
 	bodiedSyncBlockDeletionStatus?: BodiedSyncBlockDeletionStatus;
+	/**
+	 * Whether the document currently contains any synced block (source or
+	 * reference). Sticky once flipped to `true` for the lifetime of the
+	 * editor session.
+	 */
+	hasSyncedBlocks: boolean;
+	/**
+	 * Whether there are unsaved bodiedSyncBlock changes in the cache
+	 */
+	hasUnsavedBodiedSyncBlockChanges: boolean;
 	/**
 	 * Positions of pending creations keyed by resourceId, used for retry/revert flow.
 	 * When a new bodiedSyncBlock is added, a new entry is added to map for mapping. The entry is removed when creation succeeds or retry option is dismissed.
@@ -69,9 +101,12 @@ export const SYNCED_BLOCK_BUTTON_TEST_ID = {
 	primaryToolbarCreate: 'create-synced-block-toolbar-btn',
 	blockMenuCreate: 'create-synced-block-block-menu-btn',
 	quickInsertCreate: 'create-synced-block-quick-insert-btn',
+	syncedBlockToolbarCopy: 'synced-block-copy-btn',
 	syncedBlockToolbarReferenceDelete: 'reference-synced-block-delete-btn',
 	syncedBlockToolbarSourceDelete: 'source-synced-block-delete-btn',
 	syncedBlockToolbarReferenceUnsync: 'reference-synced-block-unsync-btn',
 	syncedBlockToolbarSourceUnsync: 'source-synced-block-unsync-btn',
 	syncedBlockToolbarSyncedLocationsTrigger: 'synced-block-synced-locations-dropdown--trigger',
+	syncedBlockToolbarReferenceOverflowTrigger: 'reference-synced-block-overflow-dropdown--trigger',
+	syncedBlockToolbarSourceOverflowTrigger: 'source-synced-block-overflow-dropdown--trigger',
 } as const;

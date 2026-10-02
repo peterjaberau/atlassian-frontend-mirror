@@ -1,5 +1,5 @@
-import type { Schema } from '@atlaskit/editor-prosemirror/model';
-import { type Node as PMNode, Fragment } from '@atlaskit/editor-prosemirror/model';
+import { createBlockTaskItem } from '@atlaskit/editor-common/transforms';
+import { type Schema, Fragment, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 
 import { isListWithIndentation } from '../nodeChecks';
 import type { TransformStep, TransformStepContext } from '../types';
@@ -105,10 +105,14 @@ const transformList = (
 
 		if (isTargetTaskItem) {
 			const inlineContent: PMNode[] = [];
+			let blockMarks = itemNode.marks;
 
 			itemNode.forEach((child) => {
 				if (child.type === paragraphType) {
 					inlineContent.push(...child.children);
+					if (child.marks.length > 0) {
+						blockMarks = child.marks;
+					}
 				} else if (child.isInline) {
 					inlineContent.push(child);
 					// Nested lists will be extracted and placed as siblings in the taskList
@@ -116,6 +120,16 @@ const transformList = (
 					unsupportedContent.push(child);
 				}
 			});
+
+			const { blockTaskItem } = schema.nodes;
+
+			if (blockTaskItem && blockMarks.length > 0) {
+				return createBlockTaskItem({
+					content: inlineContent,
+					marks: blockMarks,
+					schema,
+				});
+			}
 
 			return targetItemNodeType.create({}, inlineContent);
 		}

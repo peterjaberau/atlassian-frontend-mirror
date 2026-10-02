@@ -1,26 +1,27 @@
 import '@atlaskit/link-test-helpers/jest';
-
 import React from 'react';
 
-import { fireEvent, render, screen } from '@testing-library/react';
-
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { CardClient as Client, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import Client from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { cardState, url } from '@atlaskit/media-test-helpers/smart-card-state';
+import { fireEvent, render, screen } from '@atlassian/testing-library';
 
 import { CardSSR, type CardSSRProps } from '../../ssr';
-import { CardWithUrlContent } from '../../view/CardWithUrl/component';
+import { CardWithUrl } from '../../view/CardWithUrl/component';
 
 jest.mock('../../view/CardWithUrl/component', () => {
 	const originalModule = jest.requireActual('../../view/CardWithUrl/component');
 	return {
 		...originalModule,
 		CardWithUrlContent: jest.fn((props) => <originalModule.CardWithUrlContent {...props} />),
+		CardWithUrl: jest.fn((props) => <originalModule.CardWithUrl {...props} />),
 	};
 });
 
 describe('<CardSSR />', () => {
-	const cardWithUrlContentMock = jest.mocked(CardWithUrlContent);
+	const cardWithUrlMock = jest.mocked(CardWithUrl);
 	const cardProps: CardSSRProps = {
 		appearance: 'inline',
 		url,
@@ -54,11 +55,6 @@ describe('<CardSSR />', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		// Reset the implementation
-		const originalModule = jest.requireActual('../../view/CardWithUrl/component');
-		cardWithUrlContentMock.mockImplementation((props) => (
-			<originalModule.CardWithUrlContent {...props} />
-		));
 	});
 
 	it('should render CardWithUrlContent with provided props', async () => {
@@ -71,42 +67,14 @@ describe('<CardSSR />', () => {
 	});
 
 	it('should render error fallback component with correct props', async () => {
-		cardWithUrlContentMock.mockImplementation(() => {
+		const onResolve = () => {
 			throw new Error();
-		});
+		};
 
-		setup();
+		setup({ onResolve });
 		expect(await screen.findByTestId('lazy-render-placeholder')).toBeVisible();
 
 		await expect(document.body).toBeAccessible();
-	});
-
-	describe('props', () => {
-		it('should pass down id prop if there is one', async () => {
-			const id = 'abc';
-
-			setup({
-				id,
-			});
-
-			expect(cardWithUrlContentMock).toHaveBeenCalledWith(
-				expect.objectContaining({ id }),
-				expect.anything(),
-			);
-
-			await expect(document.body).toBeAccessible();
-		});
-
-		it('should provide random uuid for id prop if there is not one provided', async () => {
-			setup();
-
-			expect(cardWithUrlContentMock).toHaveBeenCalledWith(
-				expect.objectContaining({ id: expect.any(String) }),
-				expect.anything(),
-			);
-
-			await expect(document.body).toBeAccessible();
-		});
 	});
 
 	describe('analytics', () => {
@@ -145,6 +113,44 @@ describe('<CardSSR />', () => {
 			);
 
 			await expect(document.body).toBeAccessible();
+		});
+	});
+
+	describe('props', () => {
+		it('should pass down id prop if there is one', async () => {
+			const id = 'abc';
+
+			setup({
+				id,
+			});
+
+			expect(cardWithUrlMock).toHaveBeenCalledWith(
+				expect.objectContaining({ id }),
+				expect.anything(),
+			);
+
+			await expect(document.body).toBeAccessible();
+		});
+
+		it('should provide random uuid for id prop if there is not one provided', async () => {
+			setup();
+
+			expect(cardWithUrlMock).toHaveBeenCalledWith(
+				expect.objectContaining({ id: expect.any(String) }),
+				expect.anything(),
+			);
+
+			await expect(document.body).toBeAccessible();
+		});
+
+		it('should pass down title prop', async () => {
+			const title = 'title-from-ssr';
+			setup({ title });
+
+			expect(cardWithUrlMock).toHaveBeenCalledWith(
+				expect.objectContaining({ title }),
+				expect.anything(),
+			);
 		});
 	});
 });

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-file-preview",
-	"version": "0.15.5",
+	"version": "2.0.0",
 	"description": "A React Hook to fetch and render file previews. It's overloaded with fancy features like SSR, lazy loading, memory cache and local preview.",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,6 +8,13 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif",
 		"website": {
 			"name": "MediaFilePreview",
@@ -19,18 +26,24 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./ensure-media-file-preview-error": "./src/ensureMediaFilePreviewError.ts",
+		"./errors": "./src/errors.ts",
+		"./image-load-error": "./src/ImageLoadError.ts",
+		"./is-local-preview-error": "./src/isLocalPreviewError.ts",
+		"./is-media-file-preview-error": "./src/isMediaFilePreviewError.ts",
+		"./is-remote-preview-error": "./src/isRemotePreviewError.ts",
+		"./is-unsupported-local-preview-error": "./src/isUnsupportedLocalPreviewError.ts",
+		"./local-preview-error": "./src/LocalPreviewError.ts",
+		"./media-file-preview-error": "./src/MediaFilePreviewError.ts",
+		"./remote-preview-error": "./src/RemotePreviewError.ts",
+		"./ssr-preview-error": "./src/SsrPreviewError.ts",
+		"./types": "./src/types.ts",
+		"./use-file-preview": "./src/useFilePreview.tsx",
+		"./use-media-image": "./src/useMediaImage.tsx"
 	},
 	"dependencies": {
 		"@atlaskit/media-client": "workspace:^",
@@ -38,9 +51,9 @@
 		"@atlaskit/media-common": "workspace:^",
 		"@atlaskit/media-ui": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/react-ufo": "workspace:^",
 		"@babel/runtime": "root:*",
-		"eventemitter2": "root:*",
 		"lru_map": "root:*"
 	},
 	"peerDependencies": {
@@ -52,56 +65,30 @@
 		"@af/visual-regression": "workspace:^",
 		"@atlaskit/media-state": "workspace:^",
 		"@atlaskit/media-test-data": "workspace:^",
+		"@atlaskit/media-test-helpers": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
+		"@atlaskit/spinner": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
+		"@atlassian/a11y-jest-testing": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@testing-library/react": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*",
 		"wait-for-expect": "root:*"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
-	},
 	"platform-feature-flags": {
-		"platform_close_image_blindspot_2": {
-			"type": "boolean"
-		},
 		"media-perf-uplift-mutation-fix": {
 			"type": "boolean"
 		},
 		"media-perf-lazy-loading-optimisation": {
+			"type": "boolean"
+		},
+		"platform_media_cross_client_copy_with_auth": {
+			"type": "boolean"
+		},
+		"platform_media_ssr_data_seed": {
 			"type": "boolean"
 		}
 	}

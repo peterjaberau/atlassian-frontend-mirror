@@ -1,6 +1,102 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const dateRangeMessages = defineMessages({
+export const dateRangeMessages: {
+	dateRangeTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeAnyTime: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeToday: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeYesterday: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeLastWeek: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeLastMonth: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeLastYear: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeCustom: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeFrom: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeTo: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeDateInputPlaceholder: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeCustomInvalidDateAfterToday: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeCustomInvalidToDateAfterToday: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeCustomInvalidDateAfterEnd: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeToLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeUpdateButton: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeBeforeLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeAfterLabel: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	dateRangeError: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	dateRangeTitle: {
 		id: 'linkDataSource.confluence-search.configmodal.date.range.title',
 		defaultMessage: 'Last updated',
@@ -39,7 +135,7 @@ export const dateRangeMessages = defineMessages({
 	dateRangeCustom: {
 		id: 'linkDataSource.confluence-search.configmodal.date.range.custom',
 		defaultMessage: 'Custom',
-		description: 'Custom date range',
+		description: 'Option to select a custom date range for filtering content by last modified date',
 	},
 	dateRangeFrom: {
 		id: 'linkDataSource.confluence-search.configmodal.date.range.from',
@@ -49,7 +145,7 @@ export const dateRangeMessages = defineMessages({
 	dateRangeTo: {
 		id: 'linkDataSource.confluence-search.configmodal.date.range.to',
 		defaultMessage: 'To',
-		description: 'Filter up to a custom date',
+		description: 'Label for the end date field in the custom date range filter picker',
 	},
 	dateRangeDateInputPlaceholder: {
 		id: 'linkDataSource.confluence-search.configmodal.date.range.input.placeholder',
@@ -84,12 +180,14 @@ export const dateRangeMessages = defineMessages({
 	dateRangeBeforeLabel: {
 		id: 'linkDataSource.confluence-search.configmodal.date.range.before.label',
 		defaultMessage: 'before {date}',
-		description: '`before date` for date picker dropdown',
+		description:
+			'Drop-down item label in the date range picker. The placeholder {date} is substituted with the selected date value.',
 	},
 	dateRangeAfterLabel: {
 		id: 'linkDataSource.confluence-search.configmodal.date.range.after.label',
 		defaultMessage: 'after {date}',
-		description: '`after date` for date picker dropdown',
+		description:
+			'Drop-down item label in the date range picker. The placeholder {date} is substituted with the selected date value.',
 	},
 	dateRangeError: {
 		id: 'linkDataSource.confluence-search.configmodal.date.range.error',

@@ -27,6 +27,7 @@ export {
 	EVENT_TYPE,
 	INPUT_METHOD,
 	INSERT_MEDIA_VIA,
+	MEDIA_INSERT_TAB,
 	TRIGGER_METHOD,
 	CONTENT_COMPONENT,
 	FLOATING_CONTROLS_TITLE,
@@ -56,6 +57,12 @@ export type {
 	InsertEventPayload,
 } from './types/insert-events';
 
+export type {
+	InputMethodInsertNativeEmbed,
+	InsertNativeEmbedAEP,
+	NativeEmbedResizeErroredAEP,
+} from './types/native-embed-events';
+
 export {
 	CHANGE_ALIGNMENT_REASON,
 	TABLE_ACTION,
@@ -72,6 +79,8 @@ export { PasteContents, PasteSources, PasteTypes } from './types/paste-events';
 
 export type {
 	PASTE_ACTION_SUBJECT_ID,
+	PasteActionsMenuEventPayload,
+	PasteActionsMenuOpenedAEP,
 	PasteContent,
 	PasteEventPayload,
 	PasteSource,
@@ -86,6 +95,7 @@ export type {
 	CaptionTrackAction,
 	MediaResizeTrackAction,
 	MediaInputResizeTrackAction,
+	MediaRenderedAEP,
 } from './types/media-events';
 
 export type { MoveContentEventPayload } from './types/move-content-events';
@@ -189,7 +199,8 @@ export type { ExperienceEventPayload } from './types/experience-events';
 
 export type { EditorAnalyticsAPI, FireAnalyticsEventOptions, BaseEventPayload } from './api';
 
-export { editorAnalyticsChannel, fireAnalyticsEvent } from './fire-analytics-event';
+export { editorAnalyticsChannel } from './editorAnalyticsChannel';
+export { fireAnalyticsEvent } from './fire-analytics-event';
 
 export { getAnalyticsEventsFromTransaction } from './utils';
 
@@ -208,6 +219,14 @@ export type { RequestToEditAEP } from './types/general-events';
 export type { AIEventPayload, AIMarkdownConversionErrorCaughtAttributes } from './types/ai-events';
 
 export type { AIProactiveEventPayload } from './types/ai-proactive-events';
+export type { AIQuickPromptEventPayload } from './types/ai-quick-prompt-events';
+
+export type { AiAutocompleteEventPayload, TriggerType } from './types/ai-autocomplete-events';
+
+export type {
+	CompletionSource,
+	ContextualTypeaheadEventPayload,
+} from './types/contextual-typeahead-events';
 
 export type { AIDefinitionsEventPayload } from './types/ai-definitions-events';
 
@@ -225,14 +244,21 @@ export {
 
 export { type TelepointerClickPayload } from './types/telepointer-events';
 
-export {
-	type NcsSessionStepEventAEP,
-	type NcsSessionStepMetrics,
-} from './types/ncs-session-step-events';
-
 export type { BlockMenuEventPayload } from './types/block-menu-events';
 export type { BreakoutEventPayload, BreakoutSupportedNodes } from './types/breakout-events';
 export type {
 	RendererSyncBlockEventPayload,
 	SyncBlockEventPayload,
+	SyncedBlockSSRErrorAEP,
 } from './types/sync-block-events';
+
+export type {
+	AiSuggestionsConversationErrorReason,
+	AiSuggestionInteractionPoint,
+	AiSuggestionsEntryPoint,
+	AiSuggestionsEventPayload,
+	AiSuggestionsEmptyStateType,
+	AiSuggestionsRegenerationOutcome,
+	AiSuggestionsRegenerationTrigger,
+	AiSuggestionsRightRailEntryPoint,
+} from './types/ai-suggestions-events';

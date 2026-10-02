@@ -1,15 +1,17 @@
+/* eslint-disable @repo/internal/react/use-noop */
+
 import React from 'react';
 
 import { render, renderHook } from '@testing-library/react';
 import invariant from 'tiny-invariant';
-
-import noop from '@atlaskit/ds-lib/noop';
 
 import { OpenLayerObserver } from '../../open-layer-observer/open-layer-observer';
 import { OpenLayerObserverNamespaceProvider } from '../../open-layer-observer/open-layer-observer-namespace-provider';
 import type { LayerType } from '../../open-layer-observer/types';
 import { useNotifyOpenLayerObserver } from '../../open-layer-observer/use-notify-open-layer-observer';
 import { useOpenLayerObserver } from '../../open-layer-observer/use-open-layer-observer';
+
+const noop = () => {};
 
 const MockLayerComponent = ({ type }: { type?: LayerType }) => {
 	useNotifyOpenLayerObserver({
@@ -48,16 +50,18 @@ describe('OpenLayerObserver', () => {
 	});
 
 	it('should throw an error when there are nested layer observers', () => {
-		expect(() => renderHook(useOpenLayerObserver, {
-			wrapper: ({ children }) => (
-				<OpenLayerObserver>
-					{children}
+		expect(() =>
+			renderHook(useOpenLayerObserver, {
+				wrapper: ({ children }) => (
 					<OpenLayerObserver>
-						<MockLayerComponent />
+						{children}
+						<OpenLayerObserver>
+							<MockLayerComponent />
+						</OpenLayerObserver>
 					</OpenLayerObserver>
-				</OpenLayerObserver>
-			),
-		})).toThrow(
+				),
+			}),
+		).toThrow(
 			new Error(
 				'Invariant failed: `OpenLayerObserver` cannot be nested within another `OpenLayerObserver`.',
 			),
@@ -331,7 +335,7 @@ describe('OpenLayerObserver', () => {
 				wrapper: ({ children }: { children: React.ReactNode }) => (
 					<OpenLayerObserver>
 						{children}
-						{isOpen && <MockLayerComponent />}	
+						{isOpen && <MockLayerComponent />}
 					</OpenLayerObserver>
 				),
 			});
@@ -497,7 +501,7 @@ describe('OpenLayerObserver', () => {
 
 			expect(listener).not.toHaveBeenCalled();
 
-			// Rerender with the layer opened to increase the layer count	
+			// Rerender with the layer opened to increase the layer count
 			isOpen = true;
 			rerender();
 
@@ -775,7 +779,7 @@ describe('OpenLayerObserver', () => {
 
 		it('should no longer call the namespaced onChange callback when the unsubscribe function has been called', () => {
 			let isOpen = true;
-			const { result, rerender } = renderHook(useOpenLayerObserver, {	
+			const { result, rerender } = renderHook(useOpenLayerObserver, {
 				wrapper: ({ children }) => (
 					<OpenLayerObserver>
 						{children}

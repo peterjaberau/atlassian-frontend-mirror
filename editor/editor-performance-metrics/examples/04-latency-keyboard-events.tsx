@@ -3,7 +3,9 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ChangeEventHandler, useCallback, useEffect, useState } from 'react';
+
+import { useCallback, useEffect, useState } from 'react';
+import type { ChangeEventHandler } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
@@ -63,7 +65,7 @@ const SectionContentOne = () => {
 	);
 };
 
-export default function Example() {
+export default function Example(): JSX.Element {
 	return (
 		<main id="app-main" css={mainStyles}>
 			<SectionContentOne />

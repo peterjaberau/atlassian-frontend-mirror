@@ -1,21 +1,21 @@
 import React from 'react';
 
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import {
 	ACTION,
-	type EditorAnalyticsAPI,
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
+import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { linkMessages } from '@atlaskit/editor-common/messages';
 import { FloatingToolbarButton as Button } from '@atlaskit/editor-common/ui';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import PanelRightIcon from '@atlaskit/icon/core/panel-right';
-import { extractSmartLinkEmbed } from '@atlaskit/link-extractors';
-import { useSmartLinkContext } from '@atlaskit/link-provider';
+import { extractSmartLinkEmbed } from '@atlaskit/link-extractors/extract-smart-link-embed';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
 import { Inline, Box, Flex } from '@atlaskit/primitives/compiled';
 import { getObjectAri, getObjectIconUrl, getObjectName } from '@atlaskit/smart-card';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';

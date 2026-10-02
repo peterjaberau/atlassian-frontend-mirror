@@ -2,33 +2,27 @@ import React from 'react';
 
 import { cssMap } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
-import { G400, G75, R75, Y75 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
-import ProfileCardClient from '../src/client/ProfileCardClient';
-import TeamProfileCardClient from '../src/client/TeamProfileCardClient';
-import TeamProfilecardTrigger from '../src/components/Team';
-import teamData from '../src/mocks/team-data';
-import { type Team } from '../src/types';
-
+import TeamProfilecardTrigger from '../src/components/Team/TeamProfileCardTrigger';
 import ExampleWrapper from './helper/example-wrapper';
 
 const styles = cssMap({
 	table: {
-		borderWidth: token('border.width', '1px'),
+		borderWidth: token('border.width'),
 		borderStyle: 'solid',
-		borderColor: token('color.border', 'black'),
+		borderColor: token('color.border'),
 		borderCollapse: 'collapse',
 	},
 	head: {
-		borderWidth: token('border.width', '1px'),
+		borderWidth: token('border.width'),
 		borderStyle: 'solid',
-		borderColor: token('color.border', 'black'),
+		borderColor: token('color.border'),
 	},
 	cell: {
-		borderWidth: token('border.width', '1px'),
+		borderWidth: token('border.width'),
 		borderStyle: 'solid',
-		borderColor: token('color.border', 'black'),
+		borderColor: token('color.border'),
 	},
 
 	text: {
@@ -36,10 +30,10 @@ const styles = cssMap({
 	},
 	triggerText: {
 		borderRadius: token('radius.small', '3px'),
-		paddingTop: token('space.050', '4px'),
-		paddingRight: token('space.050', '4px'),
-		paddingBottom: token('space.050', '4px'),
-		paddingLeft: token('space.050', '4px'),
+		paddingTop: token('space.050'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.050'),
+		paddingLeft: token('space.050'),
 	},
 });
 
@@ -63,43 +57,9 @@ const TriggerText = ({ children }: { children: React.ReactNode }) => {
 	return <Box xcss={styles.triggerText}>{children}</Box>;
 };
 
-const team = teamData({});
-
-class MockTeamClient extends TeamProfileCardClient {
-	makeRequest(): Promise<Team> {
-		return Promise.resolve(team);
-	}
-}
-
-const args = {
-	cacheSize: 10,
-	maxCacheAge: 0,
-	url: 'DUMMY',
-	cloudId: 'site-id',
-};
-
-const profileClient = new ProfileCardClient(args, {
-	teamClient: new MockTeamClient(args),
-});
-
-interface TriggerKind {
-	trigger: 'hover' | 'click' | 'hover-click';
-	triggerLinkType: 'none' | 'link' | 'clickable-link';
-	color: string;
-	whiteText?: boolean;
-}
-
-function Trigger(props: TriggerKind) {
+function Trigger() {
 	return (
-		<TeamProfilecardTrigger
-			orgId="DUMMY"
-			resourceClient={profileClient}
-			teamId="team"
-			viewProfileLink="about:blank"
-			trigger={props.trigger}
-			triggerLinkType={props.triggerLinkType}
-			// actions={actions.slice(0, props.numActions)}
-		>
+		<TeamProfilecardTrigger>
 			<TriggerText>trigger</TriggerText>
 		</TeamProfilecardTrigger>
 	);
@@ -109,10 +69,7 @@ const TriggerTypeTable = (): React.JSX.Element => (
 	<ExampleWrapper>
 		<div
 			style={{
-				padding: `${token('space.100', '8px')} ${token(
-					'space.100',
-					'8px',
-				)} ${token('space.600', '48px')}`,
+				padding: `${token('space.100')} ${token('space.100')} ${token('space.600')}`,
 			}}
 		>
 			<p>
@@ -175,21 +132,21 @@ const TriggerTypeTable = (): React.JSX.Element => (
 						</Text>
 					</Head>
 					<Cell>
-						<Trigger trigger="hover" triggerLinkType="none" color={Y75} />
+						<Trigger />
 						<p>
 							Only recommended for use cases where you are already wrapping the trigger in something
 							like a link.
 						</p>
 					</Cell>
 					<Cell>
-						<Trigger trigger="hover" triggerLinkType="link" color={Y75} />
+						<Trigger />
 						<p>
 							This is confusing for screen-reader users. The trigger is a link that they cannot
 							click through. (They can still open in new tab)
 						</p>
 					</Cell>
 					<Cell>
-						<Trigger trigger="hover" triggerLinkType="clickable-link" color={G75} />
+						<Trigger />
 						<p>
 							This is okay for use cases where the trigger is primarily a link to the team profile
 							and the card is secondary.
@@ -205,18 +162,18 @@ const TriggerTypeTable = (): React.JSX.Element => (
 						</Text>
 					</Head>
 					<Cell>
-						<Trigger trigger="click" triggerLinkType="none" color={R75} />
+						<Trigger />
 						<p>Confusing for screen reader users. No indication that this is interactible.</p>
 					</Cell>
 					<Cell>
-						<Trigger trigger="click" triggerLinkType="link" color={G400} whiteText />
+						<Trigger />
 						<p>
 							The most highly recommended behaviour. Easy to interact with and suitable for mouse
 							and keyboard/screen-reader users. Link is also very useful.
 						</p>
 					</Cell>
 					<Cell>
-						<Trigger trigger="click" triggerLinkType="clickable-link" color={R75} />
+						<Trigger />
 						<p>
 							This behaviour doesn't make much sense, since trying to open the profile card by
 							clicking just navigates you away.
@@ -232,19 +189,19 @@ const TriggerTypeTable = (): React.JSX.Element => (
 						</Text>
 					</Head>
 					<Cell>
-						<Trigger trigger="hover-click" triggerLinkType="none" color={R75} />
+						<Trigger />
 						<p>Not useful to keyboard/screen-reader users.</p>
 						<p>Either of the above combinations would be better than this.</p>
 					</Cell>
 					<Cell>
-						<Trigger trigger="hover-click" triggerLinkType="link" color={G75} />
+						<Trigger />
 						<p>
 							The perfect scenario for when mouse users cannot click the trigger, e.g. in an inline
 							edit (like a Jira team field).
 						</p>
 					</Cell>
 					<Cell>
-						<Trigger trigger="hover-click" triggerLinkType="clickable-link" color={R75} />
+						<Trigger />
 						<p>
 							Not substantially different from a hover-only clickable-link, as keyboard users cannot
 							reasonably open the profile card in either case.

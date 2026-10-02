@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,17 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
   ${createEditorUseOnlyNotice('Editor Plugin Collab Edit', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
-])}
+		{ name: 'Editor Core', link: '/packages/editor/editor-core' },
+	])}
 
   ${(
-    <>
-      {/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-      <div style={{ marginTop: token('space.100', '8px') }}>
-        <AtlassianInternalWarning />
-      </div>
-    </>
-  )}
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the collab-edit plugin used by @atlaskit/editor-core.
 
@@ -30,23 +29,40 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+type CollabEditPluginDependencies = [
+  OptionalPlugin<FeatureFlagsPlugin>,
+  OptionalPlugin<AnalyticsPlugin>,
+  OptionalPlugin<EditorViewModePlugin>,
+  OptionalPlugin<ConnectivityPlugin>,
+];
+
+type CollabEditPluginOptions = PrivateCollabEditOptions;
+
 type CollabEditPlugin = NextEditorPlugin<
   'collabEdit',
   {
-    pluginConfiguration: PrivateCollabEditOptions;
-    dependencies: [
-      OptionalPlugin<FeatureFlagsPlugin>,
-      OptionalPlugin<AnalyticsPlugin>,
-    ];
-    sharedState:
-      | {
-          activeParticipants: ReadOnlyParticipants | undefined;
-          sessionId: string | undefined;
-        }
-      | undefined;
     actions: {
-      getAvatarColor: (str: string) => { index: number; backgroundColor: string, textColor: string };
+      addInlineCommentMark: (props: { from: number; mark: Mark; to: number }) => boolean;
+      addInlineCommentNodeMark: (props: { mark: Mark; pos: number }) => boolean;
+      getAvatarColor: (str: string) => {
+        backgroundColor: string;
+        index: number;
+        textColor: string;
+      };
+      getCurrentCollabState: () => {
+        content: JSONNode | undefined;
+        sendableSteps: CollabSendableSteps | undefined | null;
+        version: number | undefined;
+      };
+      isRemoteReplaceDocumentTransaction: (tr: Transaction) => boolean;
+      validatePMJSONDocument: (doc: any) => boolean;
     };
+    commands: {
+      nudgeTelepointer: (sessionId: string) => EditorCommand;
+    };
+    dependencies: CollabEditPluginDependencies;
+    pluginConfiguration: CollabEditPluginOptions;
+    sharedState: CollabEditPluginSharedState;
   }
 >;
 `}

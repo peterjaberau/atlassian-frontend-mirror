@@ -1,9 +1,11 @@
-import type { AnalyticsEventPayload, CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
 
 export const FABRIC_CHANNEL = 'fabric-elements';
 
 export const createStatusAnalyticsAndFire =
-	(createAnalyticsEvent?: CreateUIAnalyticsEvent) => (payload: AnalyticsEventPayload): void => {
+	(createAnalyticsEvent?: CreateUIAnalyticsEvent) =>
+	(payload: AnalyticsEventPayload): void => {
 		if (createAnalyticsEvent && payload) {
 			const statusPayload: AnalyticsEventPayload = {
 				...payload,
@@ -18,4 +20,5 @@ export const createStatusAnalyticsAndFire =
 		}
 	};
 
-export const analyticsState = (isNew: boolean | undefined) => (isNew ? 'new' : 'update');
+export const analyticsState = (isNew: boolean | undefined): 'new' | 'update' =>
+	isNew ? 'new' : 'update';

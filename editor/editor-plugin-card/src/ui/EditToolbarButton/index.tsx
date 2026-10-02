@@ -4,9 +4,9 @@
  */
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { FormattedMessage } from 'react-intl-next';
+import { FormattedMessage } from 'react-intl';
 
 import { linkToolbarMessages, cardMessages as messages } from '@atlaskit/editor-common/messages';
 import {
@@ -18,18 +18,17 @@ import {
 	DropdownContainer as UiDropdown,
 } from '@atlaskit/editor-common/ui-menu';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import type { DatasourceAdf } from '@atlaskit/link-datasource';
-import { useSmartLinkContext } from '@atlaskit/link-provider';
-import { ButtonItem } from '@atlaskit/menu';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import type { DatasourceAdf } from '@atlaskit/linking-common/types';
+import ButtonItem from '@atlaskit/menu/button-item';
 import { Flex } from '@atlaskit/primitives/compiled';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { token } from '@atlaskit/tokens';
 
 import { focusEditorView, isDatasourceConfigEditable } from '../../pm-plugins/utils';
 import { editDatasource } from '../editDatasourceAction';
 import { useFetchDatasourceDataInfo } from '../useFetchDatasourceDataInfo';
 import { useFetchDatasourceInfo } from '../useFetchDatasourceInfo';
-
 import EditToolbarButtonPresentation from './EditToolbarButtonPresentation';
 import type {
 	EditDatasourceToolbarButtonProps,
@@ -38,7 +37,7 @@ import type {
 } from './types';
 
 const dropdownExpandContainer = css({
-	margin: `0px ${token('space.negative.050', '-4px')}`,
+	margin: `0px ${token('space.negative.050')}`,
 });
 
 type EditVariant = 'none' | 'edit-link' | 'edit-datasource' | 'edit-dropdown';
@@ -188,6 +187,7 @@ const EditToolbarButtonWithCardContext = (props: EditDatasourceToolbarButtonProp
 						handleEscapeKeydown={onClose}
 						trigger={trigger}
 						scrollableElement={containerRef.current}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						arrowKeyNavigationProviderOptions={{
 							type: ArrowKeyNavigationType.MENU,
 						}}
@@ -319,7 +319,7 @@ const EditToolbarButtonWithDatasourceId = (
 	);
 };
 
-export const EditToolbarButton = (props: EditDatasourceToolbarButtonProps) => {
+export const EditToolbarButton = (props: EditDatasourceToolbarButtonProps): jsx.JSX.Element => {
 	const {
 		currentAppearance,
 		datasourceId,

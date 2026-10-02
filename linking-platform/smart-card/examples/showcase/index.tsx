@@ -1,18 +1,15 @@
 /* eslint-disable @atlaskit/design-system/ensure-design-token-usage */
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import Link from '@atlaskit/link';
-import {
-	CardClient as Client,
-	type EnvironmentsKeys,
-	SmartCardProvider as Provider,
-} from '@atlaskit/link-provider';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { N200 } from '@atlaskit/theme/colors';
+import Client from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
+import Link from '@atlaskit/link/link';
+import type { EnvironmentsKeys } from '@atlaskit/linking-common/types';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { exampleUrlsJsonPath, getConfig } from './config';
 import { ShowcaseMenu } from './Menu';
@@ -82,22 +79,12 @@ export const SmartLinksShowcase = (): React.JSX.Element => {
 						<p>
 							We know it's not a usual "log in" but we need to acquire ASAP-signed JWT token through
 							a micros static server for our Atlaskit examples.{' '}
-							{fg('dst-a11y__replace-anchor-with-link__linking-platfo') ? (
-								<Link
-									href="https://product-fabric.atlassian.net/wiki/spaces/MEX/pages/3057025945"
-									target="_blank"
-								>
-									Read more about that here.
-								</Link>
-							) : (
-								// eslint-disable-next-line @atlaskit/design-system/no-html-anchor
-								<a
-									href="https://product-fabric.atlassian.net/wiki/spaces/MEX/pages/3057025945"
-									target="_blank"
-								>
-									Read more about that here.
-								</a>
-							)}
+							<Link
+								href="https://product-fabric.atlassian.net/wiki/spaces/MEX/pages/3057025945"
+								target="_blank"
+							>
+								Read more about that here.
+							</Link>
 						</p>
 						<p>
 							To access the links login to start. Atlassian products' production links including
@@ -129,7 +116,7 @@ export const SmartLinksShowcase = (): React.JSX.Element => {
 					<div
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							padding: token('space.800', '64px'),
+							padding: token('space.800'),
 							// we hardcode the padding bottom to account for the spacing of the floating bar on the example page
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							paddingBottom: '120px',
@@ -140,9 +127,9 @@ export const SmartLinksShowcase = (): React.JSX.Element => {
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 								textAlign: 'center',
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								paddingTop: token('space.300', '24px'),
+								paddingTop: token('space.300'),
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								paddingBottom: token('space.1000', '80px'),
+								paddingBottom: token('space.1000'),
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 								position: 'relative',
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
@@ -153,7 +140,7 @@ export const SmartLinksShowcase = (): React.JSX.Element => {
 							<h3
 								style={{
 									// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-									color: token('color.text.subtlest', N200),
+									color: token('color.text.subtlest'),
 								}}
 							>
 								{entitiesSupported} entities supported across {providersSupported} providers.

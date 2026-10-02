@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import { ButtonItem, MenuGroup, Section } from '@atlaskit/menu';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Stack } from '@atlaskit/primitives';
+import Button from '@atlaskit/button/default/button';
+import ButtonItem from '@atlaskit/menu/button-item';
+import MenuGroup from '@atlaskit/menu/menu-group';
+import Section from '@atlaskit/menu/section';
+import { Stack } from '@atlaskit/primitives/compiled';
 
 import ImgIcon from './common/img-icon';
 import MenuGroupContainer from './common/menu-group-container';

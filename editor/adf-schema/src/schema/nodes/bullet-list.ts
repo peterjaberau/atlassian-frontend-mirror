@@ -1,9 +1,11 @@
-import { uuid } from '../../utils';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { bulletList as bulletListFactory } from '../../next-schema/generated/nodeTypes';
+import { uuid } from '../../utils/uuid';
 
 export const bulletListSelector = '.ak-ul';
 
-export const bulletList = bulletListFactory({
+export const bulletList: NodeSpec = bulletListFactory({
 	parseDOM: [{ tag: 'ul' }],
 	toDOM() {
 		const attrs = {
@@ -13,7 +15,7 @@ export const bulletList = bulletListFactory({
 	},
 });
 
-export const bulletListWithLocalId = bulletListFactory({
+export const bulletListWithLocalId: NodeSpec = bulletListFactory({
 	parseDOM: [
 		{
 			tag: 'ul',

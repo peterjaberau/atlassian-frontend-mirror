@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import {
 	defaultInitialVisibleJiraColumnKeys,
 	mockBasicFilterAGGFetchRequests,
@@ -10,7 +10,7 @@ import {
 } from '@atlaskit/link-test-helpers/datasource';
 
 import SmartLinkClient from '../../examples-helpers/smartLinkCustomClient';
-import { JIRA_LIST_OF_LINKS_DATASOURCE_ID } from '../../src';
+import { JIRA_LIST_OF_LINKS_DATASOURCE_ID } from '../../src/ui/jira-issues-modal';
 import { JiraIssuesConfigModal } from '../../src/ui/jira-issues-modal/modal';
 
 mockDatasourceFetchRequests({ delayedResponse: false });
@@ -24,7 +24,7 @@ export default (): React.JSX.Element => (
 				visibleColumnKeys={defaultInitialVisibleJiraColumnKeys}
 				parameters={{
 					cloudId: '67899',
-					jql: 'project in ("My IT TEST", Test) and type in ("[System] Change", "[System] Incident") and status in (Authorize, "Awaiting approval") and assignee in (empty, "membersOf(administrators)") ORDER BY created DESC',
+					jql: 'project in ("Sample Scrum Project A", Test) and type in ("[System] Change", "[System] Incident") and status in (Authorize, "Awaiting approval") and assignee in (empty, "membersOf(administrators)") ORDER BY created DESC',
 				}}
 				onCancel={() => {}}
 				onInsert={() => {}}

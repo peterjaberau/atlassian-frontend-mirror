@@ -1,18 +1,25 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { ProductType } from '@atlaskit/linking-common/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type FireEventFunction } from '../../../common/analytics/types';
 import { ActionName, InternalActionName } from '../../../constants';
 import { type FlexibleUiActions } from '../../../state/flexible-ui-context/types';
 import { type AISummaryConfig } from '../../../state/hooks/use-ai-summary-config/types';
+import type { RovoConfig } from '../../../state/hooks/use-rovo-config';
 import { type AnalyticsOrigin } from '../../../utils/types';
-import { type CardActionOptions, type CardInnerAppearance } from '../../../view/Card/types';
-
+import {
+	type InternalCardActionOptions as CardActionOptions,
+	type CardInnerAppearance,
+} from '../../../view/Card/types';
+import { type TransformUrlFn } from '../../action/types';
 import { extractAISummaryAction } from './extract-ai-summary-action';
 import { extractAutomationAction } from './extract-automation-action';
 import { extractCopyLinkClientAction } from './extract-copy-link-action';
 import { extractDownloadClientAction } from './extract-download-action';
 import extractFollowAction from './extract-follow-action';
 import { extractPreviewClientAction } from './extract-preview-action';
+import extractRovoChatAction from './extract-rovo-chat-action';
 import { extractViewRelatedLinksAction } from './extract-view-related-links-action';
 
 export type ExtractActionsParam = {
@@ -22,6 +29,7 @@ export type ExtractActionsParam = {
 	fireEvent?: FireEventFunction;
 	id?: string;
 	isPreviewPanelAvailable?: (params: { ari: string }) => boolean;
+	isPreviewRestricted?: (params: { ari: string }) => boolean;
 	openPreviewPanel?: (params: {
 		ari: string;
 		iconUrl: string | undefined;
@@ -30,7 +38,10 @@ export type ExtractActionsParam = {
 		url: string;
 	}) => void;
 	origin?: AnalyticsOrigin;
+	product?: ProductType;
 	response: JsonLd.Response;
+	rovoConfig?: RovoConfig;
+	transformUrl?: TransformUrlFn;
 	url?: string;
 };
 
@@ -41,9 +52,13 @@ export const extractFlexibleCardActions = ({
 	fireEvent,
 	id,
 	origin,
+	product,
 	response,
+	rovoConfig,
+	transformUrl,
 	url,
 	isPreviewPanelAvailable,
+	isPreviewRestricted,
 	openPreviewPanel,
 }: ExtractActionsParam): FlexibleUiActions | undefined => {
 	const action = {
@@ -68,7 +83,9 @@ export const extractFlexibleCardActions = ({
 			origin,
 			response,
 			isPreviewPanelAvailable,
+			...(fg('preview_panel_unit_check') ? { isPreviewRestricted } : undefined),
 			openPreviewPanel,
+			transformUrl,
 		}),
 		[ActionName.AutomationAction]: extractAutomationAction(response),
 		[InternalActionName.AISummaryAction]: extractAISummaryAction(
@@ -77,6 +94,14 @@ export const extractFlexibleCardActions = ({
 			actionOptions,
 			aiSummaryConfig,
 		),
+		[ActionName.RovoChatAction]: extractRovoChatAction({
+			actionOptions,
+			appearance,
+			id,
+			product,
+			response,
+			rovoConfig,
+		}),
 		[InternalActionName.ViewRelatedLinksAction]: extractViewRelatedLinksAction(response),
 	};
 

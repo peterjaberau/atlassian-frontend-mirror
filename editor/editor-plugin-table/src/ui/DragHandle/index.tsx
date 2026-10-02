@@ -1,22 +1,25 @@
 /* eslint-disable @atlaskit/design-system/no-html-button */
-import type { MouseEventHandler } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+
+import type { MouseEventHandler, FocusEventHandler } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 
 import classnames from 'classnames';
-import ReactDOM from 'react-dom';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { tableMessages as messages } from '@atlaskit/editor-common/messages';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { findTable, TableMap } from '@atlaskit/editor-tables';
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
+import { closeActiveTableMenu } from '../../pm-plugins/commands/active-table-menu';
 import { getPluginState as getDnDPluginState } from '../../pm-plugins/drag-and-drop/plugin-factory';
 import type { TriggerType } from '../../pm-plugins/drag-and-drop/types';
 import {
@@ -24,15 +27,21 @@ import {
 	hasMergedCellsInSelection,
 } from '../../pm-plugins/utils/merged-cells';
 import { TableCssClassName as ClassName } from '../../types';
-import type { CellHoverMeta, TableDirection } from '../../types';
+import type {
+	CellHoverMeta,
+	PluginInjectionAPI,
+	TableDirection,
+	TableSharedStateInternal,
+} from '../../types';
 import { dragTableInsertColumnButtonSize } from '../consts';
 import { DragPreview } from '../DragPreview';
-
+import { useIsTableInLimitedMode } from '../hooks/useIsTableInLimitedMode';
 import { HandleIconComponent } from './HandleIconComponent';
 
 export type DragHandleAppearance = 'default' | 'selected' | 'disabled' | 'danger' | 'placeholder';
 
 type DragHandleProps = {
+	api?: PluginInjectionAPI | null;
 	appearance?: DragHandleAppearance;
 	direction?: TableDirection;
 	editorView: EditorView;
@@ -40,7 +49,9 @@ type DragHandleProps = {
 	hoveredCell?: CellHoverMeta;
 	indexes: number[];
 	isDragMenuTarget: boolean; // this is identify which current handle component is
+	onBlur?: FocusEventHandler;
 	onClick?: MouseEventHandler;
+	onFocus?: FocusEventHandler;
 	onMouseOut?: MouseEventHandler;
 	onMouseOver?: MouseEventHandler;
 	previewHeight?: number;
@@ -49,10 +60,13 @@ type DragHandleProps = {
 	toggleDragMenu?: (
 		trigger: TriggerType,
 		event?: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+		// Index represented by this rendered handle, used when merged cells make `hoveredCell` stale.
+		handleIndex?: number,
 	) => void;
 };
 
 const DragHandleComponent = ({
+	api,
 	isDragMenuTarget,
 	tableLocalId,
 	direction = 'row',
@@ -63,6 +77,8 @@ const DragHandleComponent = ({
 	previewHeight,
 	onMouseOver,
 	onMouseOut,
+	onFocus,
+	onBlur,
 	toggleDragMenu,
 	hoveredCell,
 	onClick,
@@ -78,6 +94,13 @@ const DragHandleComponent = ({
 
 	const { isDragMenuOpen = false } = getDnDPluginState(state);
 	const [isHovered, setIsHovered] = useState(false);
+
+	// Limited mode disables dragging rows and columns, but the handle itself keeps working as the
+	// selection and menu affordance. The hook subscribes to limited mode (rather than reading the
+	// plugin state once) so the effect below re-runs and un-registers the draggable if limited mode
+	// flips mid-session.
+	const isInLimitedMode = useIsTableInLimitedMode(api, editorView);
+	const isDraggingEnabled = !isInLimitedMode;
 
 	const isRow = direction === 'row';
 	const isColumn = direction === 'column';
@@ -146,9 +169,13 @@ const DragHandleComponent = ({
 
 	useEffect(() => {
 		const dragHandleDivRefCurrent = dragHandleDivRef.current;
-		const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-			? getBrowserInfo()
-			: browserLegacy;
+		const browser = getBrowserInfo();
+
+		// Skipping the registration entirely (rather than returning false from `canDrag`) means the
+		// `draggable="true"` attribute is never added, so no drag can start from the handle at all.
+		if (!isDraggingEnabled) {
+			return;
+		}
 
 		if (dragHandleDivRefCurrent) {
 			return draggable({
@@ -191,12 +218,58 @@ const DragHandleComponent = ({
 				},
 			});
 		}
-	}, [tableLocalId, direction, indexes, isRow, editorView.state.selection, hasMergedCells]);
+	}, [
+		tableLocalId,
+		direction,
+		indexes,
+		isRow,
+		editorView.state.selection,
+		hasMergedCells,
+		isDraggingEnabled,
+	]);
 
 	const showDragMenuAnchorId = isRow ? 'drag-handle-button-row' : 'drag-handle-button-column';
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
+
+	// Clicking the drag handle's clickable zone is a plain row/column selection (not the menu
+	// trigger), so the selection toolbar should appear. The floating menu defers closing for clicks
+	// inside the drag controls, so we close it here and reset the user intent to 'default' (in the
+	// same transaction) so the toolbar is shown.
+	const closeActiveDragMenuAndShowToolbar = useCallback(() => {
+		if (!api) {
+			return;
+		}
+		const activeTableMenu = (
+			api.table?.sharedState.currentState() as TableSharedStateInternal | undefined
+		)?.activeTableMenu;
+		const isActiveTableMenuOpen =
+			activeTableMenu?.type === 'row' || activeTableMenu?.type === 'column';
+		if (!isActiveTableMenuOpen) {
+			return;
+		}
+		api.core?.actions.execute(({ tr }) => {
+			closeActiveTableMenu(api, { skipUserIntent: true })({ tr });
+			api.userIntent?.commands.setCurrentUserIntent('default')({ tr });
+			return tr;
+		});
+	}, [api]);
+
+	const keepActiveDragMenuOrHideToolbar = useCallback(() => {
+		if (!isExperimentEnabled('platform_editor_table_menu_updates_patch_4') || !api) {
+			return;
+		}
+		const activeTableMenu = (
+			api.table?.sharedState.currentState() as TableSharedStateInternal | undefined
+		)?.activeTableMenu;
+		const isActiveTableMenuOpen =
+			activeTableMenu?.type === 'row' || activeTableMenu?.type === 'column';
+		api.core?.actions.execute(({ tr }) => {
+			api.userIntent?.commands.setCurrentUserIntent(
+				isActiveTableMenuOpen ? 'tableDragMenuPopupOpen' : 'dragHandleSelected',
+			)({ tr });
+			return tr;
+		});
+	}, [api]);
 
 	return (
 		<>
@@ -209,13 +282,13 @@ const DragHandleComponent = ({
 					height: isRow
 						? // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 							`calc(100% - ${dragTableInsertColumnButtonSize}px)`
-						: `${token('space.200', '16px')}`, // 16px here because it's the size of drag handle button's large side
+						: `${token('space.200')}`, // 16px here because it's the size of drag handle button's large side
 					width: isRow
-						? `${token('space.200', '16px')}` // 16px here because it's the size of drag handle button's large side
+						? `${token('space.200')}` // 16px here because it's the size of drag handle button's large side
 						: // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 							`calc(100% - ${dragTableInsertColumnButtonSize}px)`,
-					left: isRow ? `${token('space.050', '4px')}` : undefined,
-					bottom: isColumn ? `${token('space.0', '0px')}` : undefined,
+					left: isRow ? `${token('space.050')}` : undefined,
+					bottom: isColumn ? `${token('space.0')}` : undefined,
 					alignSelf: isColumn ? 'none' : 'center',
 					zIndex: isColumn ? '-1' : 'auto',
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
@@ -226,7 +299,10 @@ const DragHandleComponent = ({
 					// return focus to editor so copying table selections whilst still works, i cannot call e.preventDefault in a mousemove event as this stops dragstart events from firing
 					// -> this is bad for a11y but is the current standard new copy/paste keyboard shortcuts should be introduced instead
 					editorView.focus();
-					if (isDragMenuOpen) {
+					if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+						// New menu: close the open row/column menu (and show the selection toolbar).
+						closeActiveDragMenuAndShowToolbar();
+					} else if (isDragMenuOpen) {
 						toggleDragMenu && toggleDragMenu('mouse', e);
 					}
 				}}
@@ -249,26 +325,38 @@ const DragHandleComponent = ({
 				aria-label={formatMessage(isRow ? messages.rowDragHandle : messages.columnDragHandle)}
 				aria-expanded={isDragMenuOpen && isDragMenuTarget ? 'true' : 'false'}
 				aria-haspopup="menu"
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 				onMouseOver={(e) => {
 					setIsHovered(true);
 					onMouseOver && onMouseOver(e);
 				}}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 				onMouseOut={(e) => {
 					setIsHovered(false);
 					onMouseOut && onMouseOut(e);
 				}}
+				onFocus={onFocus}
+				onBlur={onBlur}
 				onMouseUp={(e) => {
 					// return focus to editor so copying table selections whilst still works, i cannot call e.preventDefault in a mousemove event as this stops dragstart events from firing
 					// -> this is bad for a11y but is the current standard new copy/paste keyboard shortcuts should be introduced instead
 					editorView.focus();
-					toggleDragMenu && toggleDragMenu('mouse', e);
+					if (isExperimentEnabled('platform_editor_table_menu_updates_patch_4') && e.shiftKey) {
+						keepActiveDragMenuOrHideToolbar();
+						return;
+					}
+					if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+						toggleDragMenu && toggleDragMenu('mouse', e, indexes[0]);
+					} else {
+						toggleDragMenu && toggleDragMenu('mouse', e);
+					}
 				}}
 				onClick={onClick}
 				onKeyDown={(e) => {
 					if (e.key === 'Enter' || e.key === ' ') {
-						toggleDragMenu && toggleDragMenu('keyboard');
+						if (expValEquals('platform_editor_table_menu_updates', 'isEnabled', true)) {
+							toggleDragMenu && toggleDragMenu('keyboard', undefined, indexes[0]);
+						} else {
+							toggleDragMenu && toggleDragMenu('keyboard');
+						}
 					}
 				}}
 			>
@@ -301,4 +389,7 @@ const DragHandleComponent = ({
 	);
 };
 
-export const DragHandle = injectIntl(DragHandleComponent);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const DragHandle: React.FC<WithIntlProps<DragHandleProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<DragHandleProps & WrappedComponentProps>;
+} = injectIntl(DragHandleComponent);

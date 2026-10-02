@@ -1,1 +1,4 @@
-export const unsupportedNodeTypesForMediaCards = new Set<string>(['decisionItem', 'taskItem']);
+export const unsupportedNodeTypesForMediaCards: Set<string> = new Set<string>([
+	'decisionItem',
+	'taskItem',
+]);

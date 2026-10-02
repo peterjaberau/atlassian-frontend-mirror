@@ -1,13 +1,10 @@
-import Link from '@atlaskit/link';
-import { fg } from '@atlaskit/platform-feature-flags';
+import Link from '@atlaskit/link/link';
 import React from 'react';
 import { md, code, Props } from '@atlaskit/docs';
-import SectionMessage from '@atlaskit/section-message';
+import SectionMessage from '@atlaskit/section-message/message';
 import { Text } from '@atlaskit/primitives/compiled';
 
-const LinkComponent = (props: any) =>
-	// eslint-disable-next-line @atlaskit/design-system/no-html-anchor, @atlassian/a11y/anchor-has-content
-	fg('dst-a11y__replace-anchor-with-link__editor-collabo') ? <Link {...props} /> : <a {...props} />;
+const LinkComponent = (props: any) => <Link {...props}>{props.children}</Link>;
 
 const _default_1: any = md`
 

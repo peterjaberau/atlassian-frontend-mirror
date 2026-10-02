@@ -1,5 +1,397 @@
 # @atlaskit/help
 
+## 12.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.2
+
+### Patch Changes
+
+- [`b64b6603d26e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b64b6603d26e3) -
+  Migrate internal imports off deprecated root-barrel / re-export shims of Volt-compliant packages
+  to their non-deprecated subpath entrypoints (Volt Stage-2). No public API or runtime behaviour
+  change:
+  - `@atlaskit/help`, `@atlaskit/help-layout`, `@atlassian/help-widget`: split the
+    `import * as x from '@atlaskit/analytics-next'` namespace import into per-symbol subpath imports
+    (`/withAnalyticsEvents`, `/withAnalyticsContext`, `/createAndFireEvents`, `/UIAnalyticsEvent`,
+    `/types`), using type-only imports where applicable.
+
+- Updated dependencies
+
+## 12.2.1
+
+### Patch Changes
+
+- [`bcfe498b206d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcfe498b206d5) -
+  Adopt button and list-item motion tokens behind the use-pressable-motion rollout.
+
+## 12.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`c3a10c340a9d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c3a10c340a9d8) -
+  Add Turkish and Traditional Chinese locale support.
+
+## 12.0.7
+
+### Patch Changes
+
+- [`219b3f4ddad8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/219b3f4ddad8a) -
+  Use published Help translations for the panel title, close button, and additional article button.
+  The Help patch publishes its updated i18n bundle dependency.
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- [`f525c281af49b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f525c281af49b) -
+  Populate i18n locale files with translations from Traduki
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`a1b7400147034`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a1b7400147034) -
+  Fix translation pipeline for in-product help panel strings and improve i18n correctness.
+
+  **Translation fix (Help.tsx):** The `LocaleIntlProvider` inside `@atlaskit/help` was creating
+  empty `IntlProvider` instances with no `messages`, shadowing the parent app's loaded locale
+  bundles. It now reads `locale` and `messages` from the parent `IntlProvider` via `useIntl()` and
+  forwards them, so consumer-provided translations (e.g. Confluence's locale chunks) resolve
+  correctly inside the help panel.
+
+  **i18n concatenation fixes:** Several strings were split across multiple keys, forcing English
+  sentence structure on translators. The following have been merged into single strings using
+  react-intl rich-text formatting:
+  - `help.search_results.no_results_line_two` — now includes the external site link text inline via
+    an `<a>` tag value
+  - `help.search_results.search_external_site` — now includes the external site link text inline via
+    an `<a>` tag value (the separate `help.search_results.external_site_link` key has been removed)
+  - `help.whats.new_no_results_clear_filter_button_label` — now includes the trailing "to try again"
+    text inline via a `<button>` tag value (the separate
+    `help.whats.new_no_results_clear_filter_info` key has been removed)
+
+  **ICU plural fix:** `help.show_more_button.label_more` used a `{itemsType}` interpolation which
+  forces English word order and doesn't support languages with multiple plural forms. It has been
+  replaced with two per-type strings using ICU plural format:
+  - `help.show_more_button.label_more_articles`
+  - `help.show_more_button.label_more_changes`
+
+  The `ShowMoreButton` component's `itemsType` prop is now typed as `'articles' | 'changes'` instead
+  of `string`.
+
+  ## Breaking changes & migration
+
+  ### Removed message keys from `@atlaskit/help/messages`
+
+  **`help_search_results_external_site_link`** — removed. The link text is now embedded in
+  `help_search_results_no_results_line_two` and `help_search_results_search_external_site` via an
+  `<a>` rich-text value. If you were using this key directly, remove the reference; the full
+  sentence including link text is now in the parent message.
+
+  **`help_whats_new_no_results_clear_filter_info`** — removed. The trailing "to try again." text is
+  now embedded in `help_whats_new_no_results_clear_filter_button_label` via a `<button>` rich-text
+  value. Remove any direct usage of this key.
+
+  **`help_show_more_button_label_more`** — removed. Replace with:
+  - `help_show_more_button_label_more_articles` for article lists
+  - `help_show_more_button_label_more_changes` for what's new change lists
+
+  Both use ICU plural format with a single `{numberOfItemsLeft}` variable (the `{itemsType}`
+  variable has been removed).
+
+  ```ts
+  // Before
+  formatMessage(messages.help_show_more_button_label_more, {
+  	numberOfItemsLeft: 3,
+  	itemsType: 'articles',
+  });
+
+  // After
+  formatMessage(messages.help_show_more_button_label_more_articles, { numberOfItemsLeft: 3 });
+  ```
+
+  ### `ShowMoreButton` prop type narrowed
+
+  The `itemsType` prop on `ShowMoreButton` has changed from `string` to `'articles' | 'changes'`.
+  Update any callsite passing a custom string value to use one of the two supported values.
+
+## 11.0.8
+
+### Patch Changes
+
+- [`2f9a2f62da5e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f9a2f62da5e3) -
+  Update package ownership to PACE PS2 team and #pace-ps2 Slack channel
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- [`2114e0503a86f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2114e0503a86f) -
+  Update i18n message descriptions
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- [`4b547dfb10894`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b547dfb10894) -
+  Updated `NotificationIndicator` appearance from `'primary'` to `'informationBold'` to use the new
+  semantic bold Badge appearance, improving visual prominence of the notification count.
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`770f036c93884`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/770f036c93884) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.11
+
+### Patch Changes
+
+- [`379cf9c4c25f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/379cf9c4c25f0) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 9.4.10
+
+### Patch Changes
+
+- [`62281c5d82340`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62281c5d82340) -
+  Align examples and tests with the new `NotificationLogClient` object constructor API , updated for
+  GraphQL support
+- Updated dependencies
+
+## 9.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.7
+
+### Patch Changes
+
+- [`d8333dbe8ad56`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d8333dbe8ad56) -
+  Upgrade help packages for React 19 compatibility (react-next wrapper)
+  - Upgraded `react` and `react-dom` peer dependencies to support `^18.2.0 || ^19.0.0`
+  - Added `react-intl` as a peer dependency where needed for internationalization
+  - Integrated `useRef` for transition handling in BackButton, SearchResults, and RightSidePanel
+  - Updated transition components to use `nodeRef` for better performance and animation control
+  - Refactored components to use forward refs for improved flexibility with animations
+
+- Updated dependencies
+
+## 9.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 9.4.3
 
 ### Patch Changes
@@ -1268,7 +1660,7 @@
 
 - [#26424](https://bitbucket.org/atlassian/atlassian-frontend/pull-requests/26424)
   [`0c19f354255`](https://bitbucket.org/atlassian/atlassian-frontend/commits/0c19f354255) -
-  Consolidate In Product Help & Self-Help Experiences ownership
+  Consolidate In Product Help & PACE PS2 ownership
 
 ## 7.1.15
 

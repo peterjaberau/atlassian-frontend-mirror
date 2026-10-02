@@ -1,5 +1,5 @@
-import type { LinkAttributes } from '@atlaskit/adf-schema';
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type { LinkAttributes } from '@atlaskit/adf-schema/link';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import type { EditorAnalyticsAPI, UnlinkToolbarAEP } from '@atlaskit/editor-common/analytics';
 import {
 	ACTION,
@@ -236,7 +236,7 @@ export const insertLinkWithAnalytics = (
 	cardsAvailable: boolean = false,
 	sourceEvent: UIAnalyticsEvent | null | undefined = undefined,
 	appearance?: CardAppearance,
-) => {
+): Command => {
 	// If smart cards are available, we send analytics for hyperlinks when a smart link is rejected.
 	if (cardsAvailable && !title && !displayText) {
 		return insertLink(
@@ -251,9 +251,8 @@ export const insertLinkWithAnalytics = (
 			cardActions,
 		);
 	}
-	return withAnalytics(
-		editorAnalyticsApi,
-		getLinkCreationAnalyticsEvent(inputMethod, href),
+	return withAnalytics(editorAnalyticsApi, (state) =>
+		getLinkCreationAnalyticsEvent(inputMethod, href, from !== to ? state.tr : undefined),
 	)(
 		insertLink(
 			from,

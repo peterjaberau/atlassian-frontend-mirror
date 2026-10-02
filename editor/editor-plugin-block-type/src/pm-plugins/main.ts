@@ -1,6 +1,7 @@
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { INSERTED_TRAILING_PARAGRAPH_TO_LAST_NODE_META } from '@atlaskit/editor-common/block-type';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import type {
 	EditorCommand,
@@ -12,11 +13,8 @@ import type { Node, Schema } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { PluginKey } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { BlockTypePlugin } from '../blockTypePluginType';
-
 import {
 	BLOCK_QUOTE,
 	CODE_BLOCK,
@@ -33,9 +31,14 @@ import {
 	TEXT_BLOCK_TYPES,
 	WRAPPER_BLOCK_TYPES,
 	getBlockTypesInDropdown,
+	SMALL_TEXT,
 } from './block-types';
-import { setHeadingWithAnalytics, setNormalTextWithAnalytics } from './commands/block-type';
-import { HEADING_KEYS, HEADING_NUMPAD_KEYS } from './consts';
+import {
+	setHeadingWithAnalytics,
+	setNormalTextWithAnalytics,
+	setSmallTextWithAnalytics,
+} from './commands/block-type';
+import { HEADING_KEYS, HEADING_NUMPAD_KEYS, KEY_7 } from './consts';
 import type { BlockType } from './types';
 import { areBlockTypesDisabled, checkFormattingIsPresent, hasBlockQuoteInOptions } from './utils';
 
@@ -54,6 +57,8 @@ const blockTypeForNode = (node: Node, schema: Schema): BlockType => {
 		if (maybeNode) {
 			return maybeNode;
 		}
+	} else if (node.marks.some((m) => m.type.name === 'fontSize' && m.attrs.fontSize === 'small')) {
+		return SMALL_TEXT;
 	} else if (node.type === schema.nodes.paragraph) {
 		return NORMAL_TEXT;
 	} else if (node.type === schema.nodes.blockquote) {
@@ -73,6 +78,8 @@ const isBlockTypeSchemaSupported = (blockType: BlockType, state: EditorState) =>
 		case HEADING_5:
 		case HEADING_6:
 			return !!state.schema.nodes.heading;
+		case SMALL_TEXT:
+			return !!state.schema.marks.fontSize;
 		case BLOCK_QUOTE:
 			return !!state.schema.nodes.blockquote;
 		case CODE_BLOCK:
@@ -120,14 +127,17 @@ const autoformatHeading = (
 	);
 };
 
-export const pluginKey = new PluginKey<BlockTypeState>('blockTypePlugin');
+export const pluginKey: PluginKey<BlockTypeState> = new PluginKey<BlockTypeState>(
+	'blockTypePlugin',
+);
 export const createPlugin = (
 	editorAPI: ExtractInjectionAPI<BlockTypePlugin> | undefined,
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	dispatch: (eventName: string | PluginKey, data: any) => void,
 	lastNodeMustBeParagraph?: boolean,
 	includeBlockQuoteAsTextstyleOption?: boolean,
-) => {
+	allowFontSize?: boolean,
+): SafePlugin<BlockTypeState> => {
 	const editorAnalyticsApi = editorAPI?.analytics?.actions;
 	let altKeyLocation = 0;
 
@@ -142,16 +152,12 @@ export const createPlugin = (
 				const lastNode = pos.node(1);
 				const { paragraph } = newState.schema.nodes;
 				if (lastNode && lastNode.isBlock && lastNode.type !== paragraph) {
-					if (fg('platform_editor_fix_insert_paragraph_undo')) {
-						return newState.tr.insert(
-							newState.doc.content.size,
-							newState.schema.nodes.paragraph.create(),
-						);
-					} else {
-						return newState.tr
-							.insert(newState.doc.content.size, newState.schema.nodes.paragraph.create())
-							.setMeta('addToHistory', false);
-					}
+					const tr = newState.tr.insert(
+						newState.doc.content.size,
+						newState.schema.nodes.paragraph.create(),
+					);
+
+					return tr.setMeta(INSERTED_TRAILING_PARAGRAPH_TO_LAST_NODE_META, true);
 				}
 			}
 		},
@@ -175,7 +181,7 @@ export const createPlugin = (
 
 				return {
 					currentBlockType: detectBlockType(availableBlockTypesInDropdown, state),
-					blockTypesDisabled: areBlockTypesDisabled(state),
+					blockTypesDisabled: areBlockTypesDisabled(state, allowFontSize),
 					availableBlockTypes,
 					availableWrapperBlockTypes,
 					availableBlockTypesInDropdown,
@@ -187,7 +193,7 @@ export const createPlugin = (
 				const newPluginState = {
 					...oldPluginState,
 					currentBlockType: detectBlockType(oldPluginState.availableBlockTypesInDropdown, newState),
-					blockTypesDisabled: areBlockTypesDisabled(newState),
+					blockTypesDisabled: areBlockTypesDisabled(newState, allowFontSize),
 					formattingIsPresent: hasBlockQuoteInOptions(oldPluginState.availableBlockTypesInDropdown)
 						? checkFormattingIsPresent(newState)
 						: undefined,
@@ -221,9 +227,7 @@ export const createPlugin = (
 					headingLevel = HEADING_NUMPAD_KEYS.indexOf(event.keyCode);
 				}
 
-				const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-					? getBrowserInfo()
-					: browserLegacy;
+				const browser = getBrowserInfo();
 
 				if (headingLevel > -1 && event.altKey) {
 					if (browser.mac && event.metaKey) {
@@ -240,6 +244,24 @@ export const createPlugin = (
 						return (
 							editorAPI?.core?.actions.execute(
 								autoformatHeading(headingLevel as HeadingLevels, editorAnalyticsApi),
+							) ?? false
+						);
+					}
+				} else if (event.keyCode === KEY_7 && event.altKey) {
+					if (browser.mac && event.metaKey) {
+						return (
+							editorAPI?.core?.actions.execute(
+								setSmallTextWithAnalytics(INPUT_METHOD.SHORTCUT, editorAnalyticsApi),
+							) ?? false
+						);
+					} else if (
+						!browser.mac &&
+						event.ctrlKey &&
+						altKeyLocation !== event.DOM_KEY_LOCATION_RIGHT
+					) {
+						return (
+							editorAPI?.core?.actions.execute(
+								setSmallTextWithAnalytics(INPUT_METHOD.SHORTCUT, editorAnalyticsApi),
 							) ?? false
 						);
 					}

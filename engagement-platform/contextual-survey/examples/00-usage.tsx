@@ -7,17 +7,18 @@ import React, { useCallback, useState } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import { Checkbox } from '@atlaskit/checkbox';
+import Button from '@atlaskit/button/default/button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
 import { token } from '@atlaskit/tokens';
 
-import { ContextualSurvey, type OnDismissArgs, SurveyMarshal } from '../src';
+import { ContextualSurvey, DismissTrigger, type OnDismissArgs, SurveyMarshal } from '../src';
 
 const styles = css({
-	paddingTop: token('space.100', '8px'),
+	paddingTop: token('space.100'),
 	font: token('font.body.large'),
 });
-export default function BasicUsage() {
+
+export default function BasicUsage(): React.JSX.Element {
 	const [showSurvey, setShowSurvey] = useState(false);
 	const [hasUserAnswered, setHasUserAnswered] = useState(false);
 	const onClick = useCallback(() => {
@@ -27,7 +28,10 @@ export default function BasicUsage() {
 	const onDismiss = useCallback(
 		(args: OnDismissArgs) => {
 			console.log('dismiss called with', args);
-			setShowSurvey(false);
+			// Required due to double render in react strict mode
+			if (args.trigger !== DismissTrigger.Unmount) {
+				setShowSurvey(false);
+			}
 		},
 		[setShowSurvey],
 	);

@@ -24,7 +24,7 @@ type Col = Array<string | { [name: string]: string }>;
  * padding on the .pm-table-wrapper, so all elements need to be the same width to avoid
  * overflow.
  */
-export const getColWidthFix = (colwidth: number, tableColumnCount: number) =>
+export const getColWidthFix = (colwidth: number, tableColumnCount: number): number =>
 	colwidth - 1 / tableColumnCount;
 
 const generateColStyle = (
@@ -50,7 +50,7 @@ const generateColStyle = (
 		if (hasTableBeenResized) {
 			return `width: max(${fixedColWidth}px, ${tableCellMinWidth}px)`;
 		}
-		return `width: ${tableCellMinWidth}px)`;
+		return `width: ${tableCellMinWidth}px`;
 	}
 	if (isFullPageEditor || (!isFullPageEditor && isTableHasWidth)) {
 		const scaledPercent = isNumberColumnEnabled
@@ -76,7 +76,7 @@ export const generateColgroupFromNode = (
 	isNested?: boolean,
 	isTableScalingEnabled?: boolean,
 	shouldUseIncreasedScalingPercent?: boolean,
-) => {
+): Col[] => {
 	const cols: Col[] = [];
 	const map = TableMap.get(table);
 	const isTableHasWidth = !!table.attrs.width;
@@ -165,8 +165,8 @@ export const generateColgroup = (
 	table: PmNode,
 	tableRef?: HTMLElement,
 	shouldUseIncreasedScalingPercent?: boolean,
-	isCommentEditor?: boolean,
-) => {
+	isCommentOrChromelessEditor?: boolean,
+): Col[] => {
 	const cols: Col[] = [];
 	const map = TableMap.get(table);
 
@@ -180,7 +180,7 @@ export const generateColgroup = (
 			if (tableRef) {
 				// if we have tableRef here, isTableScalingEnabled is true
 				let scalePercent = 1;
-				if (isCommentEditor && !table.attrs?.width) {
+				if (isCommentOrChromelessEditor && !table.attrs?.width) {
 					scalePercent = getScalingPercentForTableWithoutWidth(table, tableRef);
 				} else {
 					scalePercent = getTableScalingPercent(table, tableRef, shouldUseIncreasedScalingPercent);
@@ -232,7 +232,7 @@ export const insertColgroupFromNode = (
 	isTableScalingEnabled = false,
 	shouldRemove = true,
 	shouldUseIncreasedScalingPercent = false,
-	isCommentEditor = false,
+	isCommentOrChromelessEditor = false,
 ): HTMLCollection => {
 	// Ignored via go/ees005
 	// eslint-disable-next-line @atlaskit/editor/no-as-casting
@@ -245,7 +245,7 @@ export const insertColgroupFromNode = (
 		table,
 		isTableScalingEnabled ? (tableRef ?? undefined) : undefined,
 		shouldUseIncreasedScalingPercent,
-		isCommentEditor,
+		isCommentOrChromelessEditor,
 	);
 	if (shouldRemove) {
 		tableRef?.insertBefore(colgroup, tableRef?.firstChild);
@@ -262,7 +262,7 @@ export const hasTableBeenResized = (table: PmNode): boolean => {
 	);
 };
 
-export const hasTableColumnBeenResized = hasTableBeenResized;
+export const hasTableColumnBeenResized: (table: PmNode) => boolean = hasTableBeenResized;
 
 /**
  * Check if a table has all the column width set to tableCellMinWidth(48px) or null
@@ -288,12 +288,17 @@ function renderColgroupFromNode(
 	table: PmNode,
 	maybeTableRef: HTMLElement | undefined,
 	shouldUseIncreasedScalingPercent: boolean,
-	isCommentEditor: boolean,
+	isCommentOrChromelessEditor: boolean,
 ): HTMLElement {
 	const rendered = DOMSerializer.renderSpec(document, [
 		'colgroup',
 		{},
-		...generateColgroup(table, maybeTableRef, shouldUseIncreasedScalingPercent, isCommentEditor),
+		...generateColgroup(
+			table,
+			maybeTableRef,
+			shouldUseIncreasedScalingPercent,
+			isCommentOrChromelessEditor,
+		),
 	]);
 
 	// Ignored via go/ees005
@@ -306,7 +311,7 @@ export const getColgroupChildrenLength = (table: PmNode): number => {
 	return map.width;
 };
 
-export const getResizerMinWidth = (node: PmNode) => {
+export const getResizerMinWidth = (node: PmNode): number => {
 	const currentColumnCount = getColgroupChildrenLength(node);
 	const minColumnWidth = Math.min(3, currentColumnCount) * COLUMN_MIN_WIDTH;
 	// add an extra pixel as the scale table logic will scale columns to be tableContainerWidth - 1

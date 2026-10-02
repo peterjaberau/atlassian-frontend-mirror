@@ -3,17 +3,19 @@
  * @jsx jsx
  */
 import { type AriaAttributes } from 'react';
-import { defineMessages, useIntl } from 'react-intl-next';
-import { type AnalyticsEvent, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import Tooltip from '@atlaskit/tooltip';
-import { token } from '@atlaskit/tokens';
-import EmojiAddIcon from '@atlaskit/icon/core/emoji-add';
-
-import { fg } from '@atlaskit/platform-feature-flags';
-
-import { Box, Pressable } from '@atlaskit/primitives/compiled';
-import { cssMap, jsx, cx, css } from '@compiled/react';
 import React from 'react';
+
+import { cssMap, jsx, cx, css } from '@compiled/react';
+import { defineMessages, useIntl } from 'react-intl';
+
+import type AnalyticsEvent from '@atlaskit/analytics-next/AnalyticsEvent';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { type PickerSize } from '@atlaskit/emoji/types';
+import EmojiAddIcon from '@atlaskit/icon/core/emoji-add';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Box, Pressable } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 const styles = cssMap({
 	trigger: {
@@ -119,6 +121,13 @@ export interface TriggerProps {
 	 * Enable/Disable the button to be clickable (defaults to false)
 	 */
 	disabled?: boolean;
+	/**
+	 * Optional emoji picker size; when supplied, the default trigger icon is rendered at the
+	 * matching size ('small' = 12px, 'medium' = 16px). Mirrors the size used by the emoji
+	 * picker popup so the trigger stays visually consistent. `'large'` is excluded because
+	 * the underlying icon family does not provide a large variant.
+	 */
+	emojiPickerSize?: PickerSize;
 	/*
 	 * Optional prop for controlling if the selector tray reaction picker trigger should be full width
 	 */
@@ -181,7 +190,7 @@ const i18n = defineMessages({
 
 const addReactionStyles = cssMap({
 	addReactionMessage: {
-		font: token('font.body.UNSAFE_small'),
+		font: token('font.body.small'),
 		color: token('color.text.subtle'),
 		marginLeft: token('space.050'),
 	},
@@ -194,104 +203,103 @@ const noMarkerListStyle = css({
 /**
  * Render an emoji button to open the reactions select picker
  */
-export const Trigger = React.forwardRef(
-	(props: TriggerProps, ref: React.Ref<HTMLButtonElement>) => {
-		const { formatMessage } = useIntl();
+export const Trigger: React.ForwardRefExoticComponent<
+	TriggerProps & React.RefAttributes<HTMLButtonElement>
+> = React.forwardRef((props: TriggerProps, ref: React.Ref<HTMLButtonElement>) => {
+	const { formatMessage } = useIntl();
 
-		const {
-			onClick,
-			miniMode,
-			tooltipContent,
-			disabled = false,
-			ariaAttributes = {},
-			showOpaqueBackground = false,
-			showAddReactionText = false,
-			subtleReactionsSummaryAndPicker = false,
-			reactionPickerTriggerIcon,
-			reactionPickerTriggerText = formatMessage(i18n.addReaction),
-			fullWidthSummaryViewReactionPickerTrigger = false,
-			isListItem = false,
-			fullWidthSelectorTrayReactionPickerTrigger = false,
-		} = props;
+	const {
+		onClick,
+		miniMode,
+		tooltipContent,
+		disabled = false,
+		ariaAttributes = {},
+		showOpaqueBackground = false,
+		showAddReactionText = false,
+		subtleReactionsSummaryAndPicker = false,
+		reactionPickerTriggerIcon,
+		reactionPickerTriggerText = formatMessage(i18n.addReaction),
+		fullWidthSummaryViewReactionPickerTrigger = false,
+		isListItem = false,
+		fullWidthSelectorTrayReactionPickerTrigger = false,
+		emojiPickerSize,
+	} = props;
 
-		const handleMouseDown = (
-			e: React.MouseEvent<HTMLElement>,
-			analyticsEvent: UIAnalyticsEvent,
-		) => {
-			if (onClick && !disabled) {
-				onClick(e, analyticsEvent);
-			}
-		};
+	const handleMouseDown = (e: React.MouseEvent<HTMLElement>, analyticsEvent: UIAnalyticsEvent) => {
+		if (onClick && !disabled) {
+			onClick(e, analyticsEvent);
+		}
+	};
 
-		const renderPressableButton = () => (
-			<Pressable
-				testId={RENDER_TRIGGER_BUTTON_TESTID}
-				xcss={cx(
-					styles.trigger,
-					(fullWidthSummaryViewReactionPickerTrigger ||
-						fullWidthSelectorTrayReactionPickerTrigger) &&
-						styles.fullWidth,
-					subtleReactionsSummaryAndPicker && styles.subtleTrigger,
-					showAddReactionText && styles.expandedTrigger,
-					disabled
-						? styles.disabledTrigger
-						: showOpaqueBackground
-							? styles.opaqueEnabledTrigger
-							: styles.transparentEnabledTrigger,
-					miniMode && styles.miniMode,
-					fg('platform-component-visual-refresh') && styles.triggerStylesRefresh,
-				)}
-				style={{
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop, @atlaskit/design-system/use-tokens-typography
-					lineHeight: '16px',
-				}}
-				onClick={handleMouseDown}
-				isDisabled={disabled}
-				ref={ref}
-				data-subtle={subtleReactionsSummaryAndPicker}
-				data-mini-mode={miniMode}
-				{...ariaAttributes}
+	const renderPressableButton = () => (
+		<Pressable
+			testId={RENDER_TRIGGER_BUTTON_TESTID}
+			xcss={cx(
+				styles.trigger,
+				(fullWidthSummaryViewReactionPickerTrigger || fullWidthSelectorTrayReactionPickerTrigger) &&
+					styles.fullWidth,
+				subtleReactionsSummaryAndPicker && styles.subtleTrigger,
+				showAddReactionText && styles.expandedTrigger,
+				disabled
+					? styles.disabledTrigger
+					: showOpaqueBackground
+						? styles.opaqueEnabledTrigger
+						: styles.transparentEnabledTrigger,
+				miniMode && styles.miniMode,
+				fg('platform-component-visual-refresh') && styles.triggerStylesRefresh,
+			)}
+			style={{
+				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop, @atlaskit/design-system/use-tokens-typography
+				lineHeight: '16px',
+			}}
+			onClick={handleMouseDown}
+			isDisabled={disabled}
+			ref={ref}
+			data-subtle={subtleReactionsSummaryAndPicker}
+			data-mini-mode={miniMode}
+			{...ariaAttributes}
+		>
+			{!!reactionPickerTriggerIcon ? (
+				reactionPickerTriggerIcon
+			) : (
+				// TODO: https://product-fabric.atlassian.net/browse/DSP-21007
+				<EmojiAddIcon
+					testId="emoji-add-icon"
+					color={disabled ? token('color.icon.disabled') : token('color.icon')}
+					label={formatMessage(i18n.addReaction)}
+					aria-hidden
+					size={emojiPickerSize === 'small' ? 'small' : 'medium'}
+				/>
+			)}
+			{showAddReactionText && (
+				<Box xcss={cx(addReactionStyles.addReactionMessage)}>{reactionPickerTriggerText}</Box>
+			)}
+		</Pressable>
+	);
+
+	return (
+		<Box
+			xcss={cx(
+				fullWidthSummaryViewReactionPickerTrigger &&
+					styles.fullWidthSummaryViewReactionPickerTrigger,
+				fullWidthSelectorTrayReactionPickerTrigger &&
+					styles.fullWidthSelectorTrayReactionPickerTrigger,
+			)}
+			testId={RENDER_TRIGGER_CONTAINER_TESTID}
+		>
+			<Tooltip
+				testId={RENDER_TOOLTIP_TRIGGER_TESTID}
+				content={tooltipContent}
+				canAppear={() => !showAddReactionText}
 			>
-				{!!reactionPickerTriggerIcon ? (
-					reactionPickerTriggerIcon
+				{isListItem ? (
+					<li data-testid={RENDER_LIST_ITEM_WRAPPER_TESTID} css={noMarkerListStyle}>
+						{renderPressableButton()}
+					</li>
 				) : (
-					// TODO: https://product-fabric.atlassian.net/browse/DSP-21007
-					<EmojiAddIcon
-						testId="emoji-add-icon"
-						color={disabled ? token('color.icon.disabled') : token('color.icon')}
-						label="Add reaction"
-					/>
+					renderPressableButton()
 				)}
-				{showAddReactionText && (
-					<Box xcss={cx(addReactionStyles.addReactionMessage)}>{reactionPickerTriggerText}</Box>
-				)}
-			</Pressable>
-		);
-
-		return (
-			<Box
-				xcss={cx(
-					fullWidthSummaryViewReactionPickerTrigger &&
-						styles.fullWidthSummaryViewReactionPickerTrigger,
-					fullWidthSelectorTrayReactionPickerTrigger &&
-						styles.fullWidthSelectorTrayReactionPickerTrigger,
-				)}
-				testId={RENDER_TRIGGER_CONTAINER_TESTID}
-			>
-				<Tooltip
-					testId={RENDER_TOOLTIP_TRIGGER_TESTID}
-					content={tooltipContent}
-					canAppear={() => !showAddReactionText}
-				>
-					{isListItem ? (
-						<li data-testid={RENDER_LIST_ITEM_WRAPPER_TESTID} css={noMarkerListStyle}>
-							{renderPressableButton()}
-						</li>
-					) : (
-						renderPressableButton()
-					)}
-				</Tooltip>
-			</Box>
-		);
-	},
-);
+			</Tooltip>
+		</Box>
+	);
+});

@@ -1,19 +1,19 @@
 /**
  * @jsxRuntime classic
  * @jsx jsx
- * @jsxFrag
  */
 
 import React, { useState } from 'react';
 
-import Lorem from 'react-lorem-component';
-
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap, jsx } from '@atlaskit/css';
-import { Drawer, DrawerCloseButton, DrawerContent } from '@atlaskit/drawer';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
-import { Stack, Text } from '@atlaskit/primitives';
+import { Drawer } from '@atlaskit/drawer/drawer';
+import { DrawerCloseButton } from '@atlaskit/drawer/drawer-close-button';
+import { DrawerContent } from '@atlaskit/drawer/drawer-content';
+import { Stack, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
+
+import { Lorem } from '../lorem';
 
 const styles = cssMap({
 	buttonLayout: {
@@ -22,9 +22,9 @@ const styles = cssMap({
 		insetInlineStart: token('space.200'),
 	},
 	content: {
-		marginTop: token('space.0'),
-		paddingLeft: token('space.300'),
-		paddingRight: token('space.300'),
+		marginBlockStart: token('space.0'),
+		paddingInlineStart: token('space.300'),
+		paddingInlineEnd: token('space.300'),
 	},
 	contentLayout: {
 		height: '100%',
@@ -38,7 +38,7 @@ export default function DrawerExample(): JSX.Element {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
 	return (
-		<>
+		<React.Fragment>
 			<Drawer
 				isOpen={isDrawerOpen}
 				label="Drawer with customized composition"
@@ -62,6 +62,6 @@ export default function DrawerExample(): JSX.Element {
 			<Button appearance="primary" onClick={() => setIsDrawerOpen(true)}>
 				Open drawer
 			</Button>
-		</>
+		</React.Fragment>
 	);
 }

@@ -31,7 +31,7 @@ built-in event tracking. It renders a `<button>` element. Use pressable when exi
 
 Pressable is unstyled by default, aside from basic focus styles.
 
-<Example Component={PressableDefault} packageName="@atlaskit/primitives/pressable" />
+<Example Component={PressableDefault} packageName="@atlaskit/primitives/compiled/pressable" />
 
 ## Basic styling
 
@@ -40,7 +40,76 @@ Pressable can be styled further using the design system styling API,
 
 Make sure styling indicates the interaction state using `:hover` and `:active` pseudo-classes.
 
-<Example Component={PressableBasic} packageName="@atlaskit/primitives/pressable" />
+Pressable does not include button motion by default. For a custom button that cannot use the
+[Button](/components/button/examples) component, add button motion tokens to the background-color
+transition:
+
+```tsx
+const styles = cssMap({
+	root: {
+		backgroundColor: token('color.background.neutral'),
+		transition: token('motion.button.hovered'),
+		'&:hover': {
+			backgroundColor: token('color.background.neutral.hovered'),
+		},
+		'&:active': {
+			backgroundColor: token('color.background.neutral.pressed'),
+			transition: token('motion.button.pressed'),
+		},
+	},
+});
+```
+
+Use button motion only for Pressable elements that are semantically buttons. Keep Pressable cards,
+list items, navigation items, links, and form controls motion-neutral or use the motion tokens for
+their semantic component.
+
+For a custom list item built with Pressable, use list-item motion tokens for the interactive state
+transitions:
+
+```tsx
+import { cssMap } from '@atlaskit/css';
+import { Pressable } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
+const listItemStyles = cssMap({
+	root: {
+		transition: token('motion.listitem.hovered'),
+		'&:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&:active': {
+			transition: token('motion.listitem.pressed'),
+		},
+		'&[data-selected]': {
+			transition: token('motion.listitem.selected'),
+		},
+		'&[data-selected]:hover': {
+			transition: token('motion.listitem.hovered'),
+		},
+		'&[data-selected]:active': {
+			transition: token('motion.listitem.pressed'),
+		},
+		'&:focus-visible': {
+			transition: 'none',
+		},
+	},
+});
+
+export function CustomListItem({ isSelected, children, onClick }) {
+	return (
+		<Pressable
+			xcss={listItemStyles.root}
+			data-selected={isSelected ? 'true' : undefined}
+			onClick={onClick}
+		>
+			{children}
+		</Pressable>
+	);
+}
+```
+
+<Example Component={PressableBasic} packageName="@atlaskit/primitives/compiled/pressable" />
 
 ## Advanced styling
 
@@ -48,7 +117,7 @@ Use a combination of `cssMap` and other primitives for more complex designs.
 
 <Example
 	Component={PressableStyled}
-	packageName="@atlaskit/primitives/pressable"
+	packageName="@atlaskit/primitives/compiled/pressable"
 	backgroundColor="white"
 />
 
@@ -63,7 +132,7 @@ users how to proceed.
 
 <!-- todo: snippet for disabled a11y warnings? -->
 
-<Example Component={PressableDisabled} packageName="@atlaskit/primitives/pressable" />
+<Example Component={PressableDisabled} packageName="@atlaskit/primitives/compiled/pressable" />
 
 ## Buttons without visible labels
 
@@ -77,7 +146,7 @@ button's purpose.
 
 <Example
 	Component={PressableWithoutVisibleLabels}
-	packageName="@atlaskit/primitives/pressable"
+	packageName="@atlaskit/primitives/compiled/pressable"
 	backgroundColor="white"
 />
 
@@ -86,16 +155,22 @@ button's purpose.
 Pressable passes all valid HTML attributes to the underlying `<button>` element. The `type`
 attribute defaults to `button` to prevent unintentionally submitting forms.
 
-<Example Component={PressableHtmlAttributes} packageName="@atlaskit/primitives/pressable" />
+<Example
+	Component={PressableHtmlAttributes}
+	packageName="@atlaskit/primitives/compiled/pressable"
+/>
 
-<Snippet name="primitives-event-tracking-header" variables={{ componentName: 'pressable' }} />
+<PrimitivesEventTrackingHeaderSnippet componentName="pressable" />
 
-<Example Component={PressableAnalytics} packageName="@atlaskit/primitives/pressable" />
+<Example Component={PressableAnalytics} packageName="@atlaskit/primitives/compiled/pressable" />
 
-<Snippet name="primitives-event-tracking-gasv3" />
+<PrimitivesEventTrackingGasv3Snippet />
 
-<Example Component={PressableAnalyticsGASv3} packageName="@atlaskit/primitives/pressable" />
+<Example
+	Component={PressableAnalyticsGASv3}
+	packageName="@atlaskit/primitives/compiled/pressable"
+/>
 
-<Snippet name="primitives-event-tracking-ufo" variables={{ componentName: 'pressable' }} />
+<PrimitivesEventTrackingUfoSnippet componentName="pressable" />
 
-<Example Component={PressablePressTracing} packageName="@atlaskit/primitives/pressable" />
+<Example Component={PressablePressTracing} packageName="@atlaskit/primitives/compiled/pressable" />

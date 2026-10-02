@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { useSmartLinkContext } from '@atlaskit/link-provider';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { useSmartLinkContext } from '@atlaskit/link-provider/use-smart-link-context';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { useAnalyticsEvents } from '../../common/analytics/generated/use-analytics-events';
@@ -17,6 +18,7 @@ import type { AnalyticsOrigin } from '../../utils/types';
 import type { CardActionOptions, CardInnerAppearance } from '../../view/Card/types';
 import useInvokeClientAction from '../hooks/use-invoke-client-action';
 import useResolve from '../hooks/use-resolve';
+import { useSmartLinkCrossProductUrlWrapper } from '../hooks/use-smart-link-cross-product-url-wrapper';
 import { useSmartCardState as useLinkState } from '../store';
 
 export interface LinkAction {
@@ -75,22 +77,26 @@ export function useSmartLinkActions({
 	origin,
 	actionOptions,
 	prefetch,
-}: UseSmartLinkActionsOpts) {
+}: UseSmartLinkActionsOpts): LinkAction[] {
 	// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 	const id: string = useMemo(() => uuid(), []);
 
 	const linkState = useLinkState(url);
 	const { fireEvent } = useAnalyticsEvents();
-	const { isPreviewPanelAvailable, openPreviewPanel } = useSmartLinkContext();
+	const { isPreviewPanelAvailable, isPreviewRestricted, openPreviewPanel } = useSmartLinkContext();
 	const invokeClientAction = useInvokeClientAction({ fireEvent });
 	const resolve = useResolve();
+
+	const appendCrossProductAnalyticsParams = useSmartLinkCrossProductUrlWrapper({
+		details: linkState.details,
+	});
 
 	if (
 		expValEquals('platform_hover_card_preview_panel', 'cohort', 'test') &&
 		prefetch &&
 		!linkState.details
 	) {
-		resolve(url);
+		resolve({ url });
 	}
 
 	if (linkState.details && !actionOptions?.hide) {
@@ -104,7 +110,10 @@ export function useSmartLinkActions({
 			);
 		}
 
-		const viewActionProps = extractInvokeViewAction(invokeParam);
+		const viewActionProps = extractInvokeViewAction({
+			...invokeParam,
+			transformUrl: (destinationUrl = url) => appendCrossProductAnalyticsParams(destinationUrl),
+		});
 		if (viewActionProps) {
 			actions.push(toAction(viewActionProps, invokeClientAction, messages.view, 'view-content'));
 		}
@@ -114,7 +123,9 @@ export function useSmartLinkActions({
 			fireEvent,
 			origin,
 			isPreviewPanelAvailable,
+			...(fg('preview_panel_unit_check') ? { isPreviewRestricted } : undefined),
 			openPreviewPanel,
+			transformUrl: (destinationUrl = url) => appendCrossProductAnalyticsParams(destinationUrl),
 		});
 		if (previewActionProps) {
 			actions.push(

@@ -4,9 +4,9 @@
  */
 import { Component } from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap, jsx } from '@atlaskit/css';
-import InlineDialog from '@atlaskit/inline-dialog';
+import InlineDialog from '@atlaskit/inline-dialog/inline-dialog';
 import { Box } from '@atlaskit/primitives/compiled';
 
 const styles = cssMap({
@@ -25,6 +25,7 @@ const content = (
 	</Box>
 );
 
+// eslint-disable-next-line @repo/internal/react/no-class-components
 export default class InlineDialogDefaultExample extends Component<{}, State> {
 	state = {
 		dialogOpen: true,

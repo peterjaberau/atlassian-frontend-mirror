@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 
-import Popup from '@atlaskit/popup';
-import Tooltip from '@atlaskit/tooltip';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { Popup } from '@atlaskit/popup/popup';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
 import { resetMatchMedia, setMediaQuery } from '@atlassian/test-utils';
 import { act, render, screen, userEvent } from '@atlassian/testing-library';
 
@@ -13,7 +14,6 @@ import { TopNav } from '../../top-nav/top-nav';
 import { TopNavEnd } from '../../top-nav/top-nav-end';
 import { TopNavMiddle } from '../../top-nav/top-nav-middle';
 import { TopNavStart } from '../../top-nav/top-nav-start';
-
 import {
 	filterFromConsoleErrorOutput,
 	parseCssErrorRegex,
@@ -80,12 +80,13 @@ describe('SideNavPanelSplitter', () => {
 			expect(onCollapse).toHaveBeenCalledTimes(1);
 			expect(onCollapse).toHaveBeenCalledWith({
 				screen: 'desktop',
+				trigger: 'double-click',
 			});
 		});
 
 		ffTest.on('navx-full-height-sidebar', 'callback should include trigger', async () => {
 			// Trigger info is behind separate instrumentation flag
-			ffTest.on('platform_dst_nav4_fhs_instrumentation_1', 'analytics', () => {
+			describe('analytics', () => {
 				it('should collapse the side nav on double click by default', async () => {
 					const user = createUser();
 					const onCollapse = jest.fn();
@@ -133,6 +134,34 @@ describe('SideNavPanelSplitter', () => {
 			expect(screen.getByTestId('sidenav')).toHaveAttribute('data-visible', 'large');
 			expect(onCollapse).not.toHaveBeenCalled();
 		});
+	});
+
+	it('should display the tooltip with the built-in shortcut when desired FHS features are enabled', async () => {
+		failGate('navx-full-height-sidebar');
+		passGate('platform-dst-keep-desired-fhs-features');
+		const user = createUser();
+		setMediaQuery('(min-width: 64rem)', { initial: true });
+
+		render(
+			<Root isSideNavShortcutEnabled>
+				<SideNav testId="sidenav">
+					<SideNavPanelSplitter
+						label="Resize or collapse side nav"
+						testId="panel-splitter"
+						tooltipContent="Double click to collapse"
+					/>
+				</SideNav>
+			</Root>,
+		);
+
+		await user.hover(screen.getByTestId('panel-splitter'));
+		act(() => {
+			jest.runAllTimers();
+		});
+
+		expect(
+			await screen.findByRole('tooltip', { name: 'Double click to collapse Ctrl [' }),
+		).toBeInTheDocument();
 	});
 
 	ffTest.on('navx-full-height-sidebar', 'with useIsFhsEnabled true', () => {
@@ -250,7 +279,42 @@ describe('SideNavPanelSplitter', () => {
 			).toBeInTheDocument();
 		});
 
-		ffTest.on('platform-dst-side-nav-layering-fixes', 'with layering fixes enabled', () => {
+		ffTest.on('platform-dst-top-layer', 'top layer feature flag on', () => {
+			/**
+			 * Role-less popups have no popup semantics for assistive
+			 * technology, so they intentionally do not register with the
+			 * open-layer observer as `type: 'popup'`. The panel splitter
+			 * follows the same contract and stays visible alongside them.
+			 *
+			 * This is gated to the top-layer path because the legacy
+			 * popup implementation registered every open popup with the
+			 * observer regardless of role; that behaviour predates the
+			 * role-gated contract and is being removed with the gate.
+			 */
+			it('should still render the panel splitter when an open popup has no role', () => {
+				render(
+					<Root>
+						<SideNav testId="sidenav">
+							<Popup
+								shouldRenderToParent
+								isOpen
+								content={() => <div>Content</div>}
+								trigger={({ ref }) => (
+									<button type="button" ref={ref}>
+										Popup trigger
+									</button>
+								)}
+							/>
+							<SideNavPanelSplitter label="Resize or collapse side nav" testId="panel-splitter" />
+						</SideNav>
+					</Root>,
+				);
+
+				expect(screen.getByTestId('panel-splitter')).toBeInTheDocument();
+			});
+		});
+
+		ffTest.both('platform-dst-top-layer', 'top layer feature flag', () => {
 			it('should not render the panel splitter when there is an open popup in the side nav', () => {
 				render(
 					<Root>
@@ -258,6 +322,8 @@ describe('SideNavPanelSplitter', () => {
 							<Popup
 								shouldRenderToParent
 								isOpen
+								role="dialog"
+								label="Test popup"
 								content={() => <div>Content</div>}
 								trigger={({ ref }) => (
 									<button type="button" ref={ref}>
@@ -277,10 +343,12 @@ describe('SideNavPanelSplitter', () => {
 				render(
 					<Root>
 						<TopNav>
-							<TopNavStart>
+							<TopNavStart sideNavToggleButton={null}>
 								<Popup
 									shouldRenderToParent
 									isOpen
+									role="dialog"
+									label="Test popup"
 									content={() => <div>Content</div>}
 									trigger={({ ref }) => (
 										<button type="button" ref={ref}>
@@ -307,6 +375,8 @@ describe('SideNavPanelSplitter', () => {
 								<Popup
 									shouldRenderToParent
 									isOpen
+									role="dialog"
+									label="Test popup"
 									content={() => <div>Content</div>}
 									trigger={({ ref }) => (
 										<button type="button" ref={ref}>
@@ -333,6 +403,8 @@ describe('SideNavPanelSplitter', () => {
 								<Popup
 									shouldRenderToParent
 									isOpen
+									role="dialog"
+									label="Test popup"
 									content={() => <div>Content</div>}
 									trigger={({ ref }) => (
 										<button type="button" ref={ref}>
@@ -363,6 +435,8 @@ describe('SideNavPanelSplitter', () => {
 								<Popup
 									shouldRenderToParent
 									isOpen={isPopupOpen}
+									role="dialog"
+									label="Test popup"
 									onClose={() => setIsPopupOpen(false)}
 									content={() => <div>Content</div>}
 									trigger={({ ref }) => (
@@ -379,7 +453,7 @@ describe('SideNavPanelSplitter', () => {
 
 				render(<TestComponent />);
 
-				// Panel splitter should not rendered initially as the popup is closed
+				// Panel splitter should be rendered initially as the popup is closed
 				expect(screen.getByTestId('panel-splitter')).toBeInTheDocument();
 
 				// Click on the popup trigger to open the popup
@@ -425,7 +499,7 @@ describe('SideNavPanelSplitter', () => {
 				render(
 					<Root>
 						<TopNav>
-							<TopNavStart>
+							<TopNavStart sideNavToggleButton={null}>
 								<Tooltip content="Tooltip content">
 									<button type="button">Tooltip trigger</button>
 								</Tooltip>

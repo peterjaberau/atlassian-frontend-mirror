@@ -9,46 +9,39 @@ import {
 import { getScope, getSourceCode } from '@atlaskit/eslint-utils/context-compat';
 import { getImportSources } from '@atlaskit/eslint-utils/is-supported-import';
 
-import { createLintRule } from '../utils/create-rule';
+import { createLintRule } from '../utils/create-lint-rule';
 import { errorBoundary } from '../utils/error-boundary';
-import { includesHardCodedColor } from '../utils/is-color';
-import {
-	isDecendantOfGlobalToken,
-	isDecendantOfStyleBlock,
-	isDecendantOfType,
-	isDecendantOfXcssBlock,
-} from '../utils/is-node';
-
-import {
-	lintJSXIdentifierForColor,
-	lintJSXLiteralForColor,
-	lintJSXMemberForColor,
-	lintObjectForColor,
-	lintTemplateIdentifierForColor,
-} from './color';
+import { includesHardCodedColor } from '../utils/includes-hard-coded-color';
+import { isDecendantOfGlobalToken } from '../utils/is-decendant-of-global-token';
+import { isDecendantOfStyleBlock } from '../utils/is-decendant-of-style-block';
+import { isDecendantOfType } from '../utils/is-decendant-of-type';
+import { isDecendantOfXcssBlock } from '../utils/is-decendant-of-xcss-block';
+import { convertHyphenatedNameToCamelCase } from './convert-hyphenated-name-to-camel-case';
+import { emToPixels } from './em-to-pixels';
+import { getDomainsForProperty } from './get-domains-for-property';
+import { getFontSizeValueInScope } from './get-font-size-value-in-scope';
+import { getPropertyNodeFromParent } from './get-property-node-from-parent';
+import { getTokenReplacement } from './get-token-replacement';
+import { getValueForPropertyNode } from './get-value-for-property-node';
+import { getValueFromShorthand } from './get-value-from-shorthand';
+import { getValueFromTemplateLiteralRaw } from './get-value-from-template-literal-raw';
+import { includesTokenString } from './includes-token-string';
+import { insertTokensImport } from './insert-tokens-import';
+import { isAuto } from './is-auto';
+import { isCalc } from './is-calc';
+import { isTokenValueString } from './is-token-value-string';
+import { isValidSpacingValue } from './is-valid-spacing-value';
+import { isZero } from './is-zero';
+import { lintJSXIdentifierForColor } from './lint-jsx-identifier-for-color';
+import { lintJSXLiteralForColor } from './lint-jsx-literal-for-color';
+import { lintJSXMemberForColor } from './lint-jsx-member-for-color';
+import { lintObjectForColor } from './lint-object-for-color';
+import { lintTemplateIdentifierForColor } from './lint-template-identifier-for-color';
+import { processCssNode } from './process-css-node';
 import ruleMeta from './rule-meta';
 import { lintObjectForSpacing } from './spacing';
-import { type RuleConfig } from './types';
-import {
-	convertHyphenatedNameToCamelCase,
-	emToPixels,
-	getDomainsForProperty,
-	getFontSizeValueInScope,
-	getPropertyNodeFromParent,
-	getTokenReplacement,
-	getValueForPropertyNode,
-	getValueFromShorthand,
-	getValueFromTemplateLiteralRaw,
-	includesTokenString,
-	insertTokensImport,
-	isAuto,
-	isCalc,
-	isTokenValueString,
-	isValidSpacingValue,
-	isZero,
-	processCssNode,
-	splitShorthandValues,
-} from './utils';
+import { splitShorthandValues } from './split-shorthand-values';
+import type { RuleConfig } from './types';
 
 const defaultConfig: RuleConfig = {
 	domains: ['color', 'spacing'],
@@ -57,7 +50,7 @@ const defaultConfig: RuleConfig = {
 	failSilently: false,
 };
 
-const createWithConfig: (initialConfig: RuleConfig) => Rule.RuleModule['create'] =
+export const createWithConfig: (initialConfig: RuleConfig) => Rule.RuleModule['create'] =
 	(initialConfig: RuleConfig) => (context: Rule.RuleContext) => {
 		// TODO: JFP-2823 - this type cast was added due to Jira's ESLint v9 migration
 		const userConfig = context.options[0] as unknown as Partial<RuleConfig>;
@@ -387,5 +380,5 @@ const rule: Rule.RuleModule = createLintRule({
 	create: createWithConfig(defaultConfig),
 });
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default rule;
-export { createWithConfig };

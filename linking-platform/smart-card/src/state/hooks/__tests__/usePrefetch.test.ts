@@ -1,11 +1,12 @@
-import { renderHook } from '@testing-library/react';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { renderHook } from '@atlassian/testing-library';
 
 import { mocks } from '../../../utils/mocks';
 import { usePrefetch } from '../usePrefetch';
 
 let mockUseSmartLinkContext = jest.fn();
-jest.mock('@atlaskit/link-provider', () => ({
-	...jest.requireActual('@atlaskit/link-provider'),
+jest.mock('@atlaskit/link-provider/use-smart-link-context', () => ({
+	...jest.requireActual('@atlaskit/link-provider/use-smart-link-context'),
 	useSmartLinkContext: () => mockUseSmartLinkContext(),
 }));
 
@@ -41,7 +42,7 @@ describe('usePrefetch', () => {
 			dispatch: jest.fn(),
 		};
 		mockPrefetchStore = {};
-		mockPrefetchData = jest.fn().mockImplementation(async (url: string) => {
+		mockPrefetchData = jest.fn().mockImplementation(async (url: string, _appearance?: string) => {
 			expect(url).toBe(mockUrl);
 			return mocks.success;
 		});
@@ -63,7 +64,7 @@ describe('usePrefetch', () => {
 	});
 
 	it('triggers client.prefetchData() when new prefetch request is made', async () => {
-		const { result } = renderHook(() => usePrefetch(mockUrl));
+		const result = renderHook(() => usePrefetch(mockUrl));
 		const prefetcher = result.current;
 		await prefetcher();
 
@@ -71,7 +72,7 @@ describe('usePrefetch', () => {
 
 		expect(mockConnections.client.prefetchData).toHaveBeenCalled();
 		expect(mockConnections.client.prefetchData).toHaveBeenCalledTimes(1);
-		expect(mockConnections.client.prefetchData).toHaveBeenCalledWith(mockUrl);
+		expect(mockConnections.client.prefetchData).toHaveBeenCalledWith(mockUrl, undefined);
 
 		expect(mockStore.dispatch).toHaveBeenCalled();
 		expect(mockStore.dispatch).toHaveBeenCalledTimes(2);
@@ -88,7 +89,7 @@ describe('usePrefetch', () => {
 	});
 
 	it('does not trigger client.prefetchData() when duplicate prefetch requests are made', async () => {
-		const { result } = renderHook(() => usePrefetch(mockUrl));
+		const result = renderHook(() => usePrefetch(mockUrl));
 		const prefetcher = result.current;
 		await prefetcher();
 		await prefetcher();
@@ -97,7 +98,7 @@ describe('usePrefetch', () => {
 
 		expect(mockConnections.client.prefetchData).toHaveBeenCalled();
 		expect(mockConnections.client.prefetchData).toHaveBeenCalledTimes(1);
-		expect(mockConnections.client.prefetchData).toHaveBeenCalledWith(mockUrl);
+		expect(mockConnections.client.prefetchData).toHaveBeenCalledWith(mockUrl, undefined);
 
 		expect(mockStore.dispatch).toHaveBeenCalled();
 		expect(mockStore.dispatch).toHaveBeenCalledTimes(2);
@@ -121,7 +122,7 @@ describe('usePrefetch', () => {
 			},
 		}));
 
-		const { result } = renderHook(() => usePrefetch(mockUrl));
+		const result = renderHook(() => usePrefetch(mockUrl));
 		const prefetcher = result.current;
 		await prefetcher();
 
@@ -136,13 +137,13 @@ describe('usePrefetch', () => {
 			throw new Error();
 		});
 
-		const { result } = renderHook(() => usePrefetch(mockUrl));
+		const result = renderHook(() => usePrefetch(mockUrl));
 		const prefetcher = result.current;
 		await prefetcher();
 
 		expect(mockConnections.client.prefetchData).toHaveBeenCalled();
 		expect(mockConnections.client.prefetchData).toHaveBeenCalledTimes(1);
-		expect(mockConnections.client.prefetchData).toHaveBeenCalledWith(mockUrl);
+		expect(mockConnections.client.prefetchData).toHaveBeenCalledWith(mockUrl, undefined);
 	});
 
 	it('does not throw errors when CardContext props are undefined', async () => {
@@ -152,11 +153,81 @@ describe('usePrefetch', () => {
 			connections: undefined,
 		}));
 
-		const { result } = renderHook(() => usePrefetch(mockUrl));
+		const result = renderHook(() => usePrefetch(mockUrl));
 		const prefetcher = result.current;
 		await prefetcher();
 
 		expect(mockConnections.client.prefetchData).not.toHaveBeenCalled();
 		expect(mockStore.dispatch).not.toHaveBeenCalled();
 	});
+
+	it('passes appearance parameter to prefetchData when provided', async () => {
+		const result = renderHook(() => usePrefetch(mockUrl, 'inline'));
+		const prefetcher = result.current;
+		await prefetcher();
+
+		expect(mockConnections.client.prefetchData).toHaveBeenCalledWith(mockUrl, 'inline');
+	});
+
+	it('passes block appearance parameter to prefetchData when provided', async () => {
+		const result = renderHook(() => usePrefetch(mockUrl, 'block'));
+		const prefetcher = result.current;
+		await prefetcher();
+
+		expect(mockConnections.client.prefetchData).toHaveBeenCalledWith(mockUrl, 'block');
+	});
+
+	ffTest.on(
+		'platform_smartlink_inline_resolve_optimization',
+		'when FG is on, inline prefetch dispatches metadataStatus pending',
+		() => {
+			it('dispatches metadataStatus pending for inline appearance when FG is on', async () => {
+				const result = renderHook(() => usePrefetch(mockUrl, 'inline'));
+				const prefetcher = result.current;
+				await prefetcher();
+
+				expect(mockStore.dispatch).toHaveBeenCalledWith(
+					expect.objectContaining({
+						url: mockUrl,
+						type: 'metadata',
+						metadataStatus: 'pending',
+					}),
+				);
+			});
+		},
+	);
+
+	it('dispatches metadataStatus resolved for block appearance regardless of FG', async () => {
+		const result = renderHook(() => usePrefetch(mockUrl, 'block'));
+		const prefetcher = result.current;
+		await prefetcher();
+
+		expect(mockStore.dispatch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				url: mockUrl,
+				type: 'metadata',
+				metadataStatus: 'resolved',
+			}),
+		);
+	});
+
+	ffTest.off(
+		'platform_smartlink_inline_resolve_optimization',
+		'when FG is off, inline prefetch dispatches metadataStatus resolved',
+		() => {
+			it('dispatches metadataStatus resolved for inline appearance when FG is off', async () => {
+				const result = renderHook(() => usePrefetch(mockUrl, 'inline'));
+				const prefetcher = result.current;
+				await prefetcher();
+
+				expect(mockStore.dispatch).toHaveBeenCalledWith(
+					expect.objectContaining({
+						url: mockUrl,
+						type: 'metadata',
+						metadataStatus: 'resolved',
+					}),
+				);
+			});
+		},
+	);
 });

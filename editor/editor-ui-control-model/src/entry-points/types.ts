@@ -1,0 +1,40 @@
+/* eslint-disable @atlaskit/editor/no-re-export */
+
+export type {
+	AsyncHiddenContext,
+	ButtonType,
+	CommonComponentProps,
+	ComponentIdentifier,
+	ComponentType,
+	ComponentTypes,
+	ContextToken,
+	GroupType,
+	IsComponentHidden,
+	IsHiddenOptions,
+	MenuItemMatchContext,
+	MenuItemMatchResult,
+	MenuItemType,
+	MenuSectionType,
+	MenuType,
+	NestedMenuType,
+	RegisterButton,
+	RegisterComponent,
+	RegisterComponentParent,
+	RegisterGroup,
+	RegisterMenu,
+	RegisterMenuItem,
+	RegisterMenuItemMatch,
+	RegisterMenuSection,
+	RegisterMenuSurface,
+	RegisterNestedMenu,
+	RegisterSection,
+	RegisterToolbar,
+	RegisteredComponent,
+	RegistryListener,
+	SectionType,
+	SurfaceContext,
+	ToolbarType,
+} from '../types';
+
+export { createSurfaceContext } from '../createSurfaceContext';
+export { createContextToken } from '../types';

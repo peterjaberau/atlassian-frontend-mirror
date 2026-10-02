@@ -4,7 +4,8 @@
  */
 
 import { cssMap, jsx } from '@atlaskit/css';
-import { components, type IndicatorsContainerProps } from '@atlaskit/select';
+import { components } from '@atlaskit/react-select/components';
+import type { IndicatorsContainerProps } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 const styles = cssMap({
@@ -13,8 +14,11 @@ const styles = cssMap({
 });
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
-export const IndicatorsContainer: ({ showClearIndicator, ...rest }: IndicatorsContainerProps<any> & {
-    showClearIndicator?: boolean;
+export const IndicatorsContainer: ({
+	showClearIndicator,
+	...rest
+}: IndicatorsContainerProps<any> & {
+	showClearIndicator?: boolean;
 }) => JSX.Element = ({
 	showClearIndicator,
 	...rest

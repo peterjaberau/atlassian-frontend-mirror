@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 import Loadable from 'react-loadable';
 
 import type { ADFEntity } from '@atlaskit/adf-utils/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type {
 	ExtensionAPI,
@@ -17,7 +16,6 @@ import type {
 import { getContextualToolbarItemsFromModule } from '../extensions';
 import type { DropdownOptionT } from '../types';
 import { nodeToJSON } from '../utils';
-
 import { DropdownMenuItem } from './DropdownMenuItem';
 import { DropdownSeparator } from './DropdownSeparator';
 
@@ -66,19 +64,10 @@ const convertExtensionToDropdownMenuItem = ({
 }: {
 	disabled?: (key: string) => boolean;
 	extension: ExtensionProps;
-	IconComponent?: React.ComponentType<{ label: string }>;
+	IconComponent: React.ComponentType<{ label: string }> | null;
 	item: ExtensionToolbarButton;
 	node: PMNode;
 }): DropdownOptionT<Function> => {
-	const ButtonIcon = item.icon
-		? Loadable<{ label: string }, never>({
-				// Ignored via go/ees005
-				// eslint-disable-next-line require-await
-				loader: async () => resolveExtensionIcon(item.icon),
-				loading: noop,
-			})
-		: undefined;
-
 	let title = '';
 	if (item.label) {
 		title = item.label;
@@ -92,10 +81,7 @@ const convertExtensionToDropdownMenuItem = ({
 
 	const getIcon = () => {
 		const label = item.label || '';
-		if (expValEquals('platform_editor_table_toolbar_icon_ext_fix_exp', 'isEnabled', true)) {
-			return IconComponent ? <IconComponent label={label} /> : undefined;
-		}
-		return ButtonIcon ? <ButtonIcon label={label} /> : undefined;
+		return IconComponent ? <IconComponent label={label} /> : undefined;
 	};
 
 	return {
@@ -132,15 +118,9 @@ const DropdownMenuExtensionItem = ({
 }) => {
 	// Use ref to keep icon component stable across renders
 	const iconRef = useRef<React.ComponentType<{ label: string }> | null>(null);
-	if (
-		!iconRef.current &&
-		item.icon &&
-		expValEquals('platform_editor_table_toolbar_icon_ext_fix_exp', 'isEnabled', true)
-	) {
+	if (!iconRef.current && item.icon) {
 		iconRef.current = Loadable<{ label: string }, never>({
-			// Ignored via go/ees005
-			// eslint-disable-next-line require-await
-			loader: async () => resolveExtensionIcon(item.icon),
+			loader: () => resolveExtensionIcon(item.icon),
 			loading: noop,
 		});
 	}
@@ -150,9 +130,7 @@ const DropdownMenuExtensionItem = ({
 		disabled,
 		node,
 		extension,
-		...(expValEquals('platform_editor_table_toolbar_icon_ext_fix_exp', 'isEnabled', true)
-			? { IconComponent: iconRef.current ?? undefined }
-			: {}),
+		IconComponent: iconRef.current,
 	});
 
 	if (!dropdownItem) {

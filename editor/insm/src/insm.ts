@@ -1,16 +1,15 @@
-import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
+import { INPTracker } from './inp-measurers/inp';
 import { INSMSession } from './insm-session';
 import type { ExperienceProperties, INSMOptions } from './types';
-import { AnimationFPSIM } from './period-measurers/afps';
-import { INPTracker } from './inp-measurers/inp';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 export class INSM {
 	analyticsWebClient?: AnalyticsWebClient;
 	runningSession?: INSMSession;
 	options: INSMOptions;
-	periodMeasurers: [AnimationFPSIM, INPTracker];
+	periodMeasurers: [INPTracker];
 
 	/**
 	 * Heavy tasks are tracked at the insm layer as heavy tasks
@@ -20,7 +19,7 @@ export class INSM {
 	runningHeavyTasks: Set<string> = new Set();
 
 	constructor(options: INSMOptions) {
-		this.periodMeasurers = [new AnimationFPSIM(), new INPTracker()];
+		this.periodMeasurers = [new INPTracker()];
 		this.options = options;
 
 		// If this does throw -- we do want an unhandledRejection rejection to be passed to the window
@@ -148,7 +147,7 @@ export class INSM {
 	/**
 	 * Gets the current running session details
 	 */
-	get session() {
+	get session(): INSMSession | undefined {
 		return this.runningSession;
 	}
 }

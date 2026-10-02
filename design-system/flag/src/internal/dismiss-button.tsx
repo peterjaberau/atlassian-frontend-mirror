@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import ChevronUpIcon from '@atlaskit/icon/core/chevron-up';
 import CrossIcon from '@atlaskit/icon/core/cross';
 
-import { flagTextColorToken } from '../theme';
+import { flagTextColorToken } from '../flag-text-color-token';
 import { type AppearanceTypes } from '../types';
 
 interface DismissButtonProps {
@@ -49,7 +49,9 @@ const DismissButtonComponent = ({
 	);
 };
 
-const DismissButton: React.MemoExoticComponent<({ appearance, onClick, isBold, isExpanded, testId, }: DismissButtonProps) => React.JSX.Element> = memo(DismissButtonComponent);
+const DismissButton: React.MemoExoticComponent<
+	({ appearance, onClick, isBold, isExpanded, testId }: DismissButtonProps) => React.JSX.Element
+> = memo(DismissButtonComponent);
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
 export default DismissButton;

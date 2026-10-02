@@ -1,8 +1,9 @@
 import React, { type ReactNode } from 'react';
 
-import Avatar from '@atlaskit/avatar';
-import Badge from '@atlaskit/badge';
-import Button, { IconButton } from '@atlaskit/button/new';
+import Avatar from '@atlaskit/avatar/avatar';
+import Badge from '@atlaskit/badge/badge';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
@@ -55,8 +56,8 @@ function BacklogHeader() {
 				<Inline space="space.100" alignBlock="center">
 					<Inline space="space.050">
 						<Badge>0d</Badge>
-						<Badge appearance="primary">0d</Badge>
-						<Badge appearance="added">0d</Badge>
+						<Badge appearance="informationBold">0d</Badge>
+						<Badge appearance="success">0d</Badge>
 					</Inline>
 					<Button>Complete sprint</Button>
 					<IconButton icon={MoreIcon} label="more actions" />

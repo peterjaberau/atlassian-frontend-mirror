@@ -1,3 +1,7 @@
-import { createRenameVariableTransform } from '../utils';
+import type { JSCodeshift } from 'jscodeshift';
+import type { Collection } from 'jscodeshift/src/Collection';
 
-export const renameUnsafeCardProp = createRenameVariableTransform('UNSAFE_cards', 'smartLinks');
+import { createRenameVariableTransform } from '../createRenameVariableTransform';
+
+export const renameUnsafeCardProp: (j: JSCodeshift, source: Collection<unknown>) => void =
+	createRenameVariableTransform('UNSAFE_cards', 'smartLinks');

@@ -1,4 +1,5 @@
 import { snapshot, Device } from '@af/visual-regression';
+
 import {
 	MediaWrappedLayout,
 	MediaWrappedLayoutSplit,
@@ -6,7 +7,7 @@ import {
 	MediaWrappedComplexResizeLayout,
 	MediaWrappedLayoutShiftUp,
 	MultipleWrappedMediaInLayout,
-} from './media-layout.fixture';
+} from './media-layout.fixture.vr.ap';
 
 snapshot(MediaWrappedLayout, {
 	description: 'should render 2 media items in 1 line when wrapped with text in between',
@@ -22,9 +23,6 @@ snapshot(MediaWrappedLayoutShiftUp, {
 });
 
 snapshot(MediaWrappedComplexLayout, {
-	featureFlags: {
-		platform_editor_dec_a11y_fixes: true,
-	},
 	description: 'should render complex layout',
 	variants: [
 		{

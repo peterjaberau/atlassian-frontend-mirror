@@ -1,22 +1,18 @@
 import React from 'react';
 
-import BranchIcon from '@atlaskit/icon-object/glyph/branch/16';
-import RepoIcon from '@atlaskit/icon-object/glyph/code/16';
-import CommitIcon from '@atlaskit/icon-object/glyph/commit/16';
-import PullRequestIcon from '@atlaskit/icon-object/glyph/pull-request/16';
-import TaskIcon from '@atlaskit/icon-object/glyph/task/16';
 import PeopleGroupIcon from '@atlaskit/icon/core/people-group';
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import {
-	extractProvider,
-	extractTitle,
-	extractUrlFromIconJsonLd,
-	type LinkProvider,
-} from '@atlaskit/link-extractors';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import { extractProvider } from '@atlaskit/link-extractors/extract-provider';
+import { extractUrlFromIconJsonLd } from '@atlaskit/link-extractors/extract-url-from-icon-json-ld';
+import type { LinkProvider } from '@atlaskit/link-extractors/types';
+import BranchObject from '@atlaskit/object/branch';
+import CodeObject from '@atlaskit/object/code';
+import CommitObject from '@atlaskit/object/commit';
+import PullRequestObject from '@atlaskit/object/pull-request';
+import TaskObject from '@atlaskit/object/task';
 
-import { getIconForFileType } from '../../../utils';
+import { getIconForFileType } from '../../../utils/get-icon-for-file-type';
 import { extractTaskType, type LinkTaskType } from '../lozenge/extractTaskType';
-
 import { extractFileFormat } from './extractFileFormat';
 import { extractIconFromDocument } from './extractIconFromDocument';
 import { extractIconFromTask } from './extractIconFromTask';
@@ -31,7 +27,6 @@ export interface IconOpts {
 	provider?: LinkProvider;
 	showIconLabel?: boolean;
 	taskType?: LinkTaskType;
-	title?: string;
 }
 
 export const extractIcon = (
@@ -41,7 +36,6 @@ export const extractIcon = (
 ): React.ReactNode | undefined => {
 	const type = jsonLd['@type'];
 	const opts = {
-		title: extractTitle(jsonLd),
 		provider: extractProvider(jsonLd),
 		fileFormat: extractFileFormat(jsonLd as JsonLd.Data.Document),
 		taskType: extractTaskType(jsonLd as JsonLd.Data.Task),
@@ -64,23 +58,17 @@ function typeToIcon(
 ): React.ReactNode | undefined {
 	switch (type) {
 		case 'atlassian:SourceCodeCommit':
-			return <CommitIcon label={opts.title || 'commit'} testId="commit-icon" />;
+			return <CommitObject label="commit" testId="commit-icon" />;
 		case 'atlassian:Project':
-			return (
-				<PeopleGroupIcon
-					label={opts.title || 'project'}
-					testId="project-icon"
-					color="currentColor"
-				/>
-			);
+			return <PeopleGroupIcon label="project" testId="project-icon" color="currentColor" />;
 		case 'atlassian:SourceCodePullRequest':
-			return <PullRequestIcon label={opts.title || 'pullRequest'} testId="pull-request-icon" />;
+			return <PullRequestObject label="pull request" testId="pull-request-icon" />;
 		case 'atlassian:SourceCodeReference':
-			return <BranchIcon label={opts.title || 'reference'} testId="branch-icon" />;
+			return <BranchObject label="reference" testId="branch-icon" />;
 		case 'atlassian:SourceCodeRepository':
-			return <RepoIcon label={opts.title || 'repository'} testId="repo-icon" />;
+			return <CodeObject label="repository" testId="repo-icon" />;
 		case 'atlassian:Goal':
-			return <TaskIcon label={opts.title || 'goal'} testId="task-icon" />;
+			return <TaskObject label="goal" testId="task-icon" />;
 		case 'atlassian:Task':
 			return extractIconFromTask(opts);
 		default:
@@ -93,7 +81,9 @@ function standardisedExtractIcon(
 	opts: IconOpts,
 ) {
 	const iconFromType = typeToIcon(type, opts);
-	const iconFromFileFormat = opts.fileFormat ? getIconForFileType(opts.fileFormat) : undefined;
+	const iconFromFileFormat = opts.fileFormat
+		? getIconForFileType(opts.fileFormat, opts.showIconLabel)
+		: undefined;
 	const iconFromProvider = opts.provider && opts.provider.icon;
 
 	return prioritiseIcon<React.ReactNode>({

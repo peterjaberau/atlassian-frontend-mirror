@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/atlassian-context",
-	"version": "0.6.0",
+	"version": "2.0.0",
 	"description": "Provides perimeter-specific URL resolution and helps identify which environment a product is running in.",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -19,60 +19,32 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./cloud-provider": "./src/services/cloud-provider/index.tsx",
+		"./get-atl-context-domain": "./src/services/host-based-lookup/domain-lookup/getATLContextDomain.tsx",
+		"./get-atl-context-url": "./src/services/host-based-lookup/domain-lookup/getATLContextUrl.tsx",
+		"./get-domain-in-context": "./src/services/generalized-domain-lookup/getDomainInContext.tsx",
+		"./get-url-for-domain-in-context": "./src/services/generalized-domain-lookup/getUrlForDomainInContext.tsx",
+		"./is-fedramp": "./src/services/host-based-lookup/is-fedramp/index.tsx",
+		"./is-fedramp-moderate": "./src/services/perimeter/isFedrampModerate.tsx",
+		"./is-isolated-cloud": "./src/services/perimeter/isIsolatedCloud.tsx",
+		"./isolated-cloud-domain": "./src/services/perimeter/isolatedCloudDomain.tsx",
+		"./isolation-context-id": "./src/services/perimeter/isolationContextId.tsx",
+		"./resolve-provided-url-by-boundary": "./src/services/resolve-provided-url-by-boundary/index.tsx",
+		"./types": "./src/common/constants/host-based-lookup/types.tsx"
 	},
 	"dependencies": {
 		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
+	"devDependencies": {
+		"react": "^19.0.0"
 	}
 }

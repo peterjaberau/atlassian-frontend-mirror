@@ -2,11 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { css, jsx } from '@compiled/react';
 
 import { type MediaType } from '../../../../../constants';
-import { useFlexibleUiOptionContext } from '../../../../../state/flexible-ui-context';
-import ImageIcon from '../../common/image-icon';
+import { useFlexibleUiOptionContext } from '../../../../../state/flexible-ui-context/useFlexibleUiOptionContext';
+import ImageIcon from '../../../../common/image-icon';
 import { type ElementProps } from '../index';
 
 /**
@@ -80,7 +81,7 @@ const MediaElement = ({
 	url,
 	onLoad,
 	onError,
-}: MediaElementProps) => {
+}: MediaElementProps): JSX.Element | null => {
 	const ui = useFlexibleUiOptionContext();
 
 	if (!type || !url) {

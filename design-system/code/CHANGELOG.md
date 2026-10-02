@@ -1,5 +1,279 @@
 # @atlaskit/code
 
+## 20.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.2
+
+### Patch Changes
+
+- [`d7eeefc938dd4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7eeefc938dd4) -
+  Cleaned up new shape theme styles, making new border and radius values the default.
+
+## 19.2.1
+
+### Patch Changes
+
+- [`836565aa39593`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/836565aa39593) -
+  Experimental React 19 test compatibility fix for Code. Test coverage is partial.
+
+## 19.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Major Changes
+
+- [`11ace7dc73878`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/11ace7dc73878) -
+  Apply Volt entry-point and multi-export standards via `volt-migrate-package`. This is a **major**
+  change to `@atlaskit/code`: the package `exports` map has been restructured so every public
+  subpath now resolves **directly** to its `./src/*` implementation instead of going through an
+  intermediate `./src/entry-points/*` re-export. It also introduces new public subpaths:
+  `@atlaskit/code/bidi-character-regex`, `@atlaskit/code/bidi-warning/bidi-warning-decorator`,
+  `@atlaskit/code/internal/types`.
+
+  ### Why this is breaking
+
+  Because each subpath now points straight at its implementation module, a subpath and the package
+  root can resolve to the **same module instance**. Consumers that deep-import the internal
+  `entry-points/*` files, or that `jest.mock()` a specific subpath, may observe changed
+  resolution/behaviour and need updating.
+
+  ### Migration — public imports are unchanged
+
+  Importing the published subpaths (or the package root) continues to work as before:
+
+  ```ts
+  // Still valid — no change required
+  import CodeBlock from '@atlaskit/code/code-block';
+  ```
+
+  If you were reaching into the internal entry-point modules, switch to the public subpath:
+
+  ```diff
+  -import CodeBlock from '@atlaskit/code/entry-points/code-block';
+  +import CodeBlock from '@atlaskit/code/code-block';
+  ```
+
+  ### Before / after `exports` map
+
+  ```diff
+    "exports": {
+      ".": "./src/index.tsx",
+  +   "./bidi-character-regex": "./src/bidi-warning/bidi-character-regex.tsx",
+      "./bidi-warning": "./src/bidi-warning/index.tsx",
+      "./bidi-warning-decorator": "./src/entry-points/bidi-warning-decorator.tsx",
+  -   "./bidi-warning-ui": "./src/entry-points/bidi-warning-ui.tsx",
+  +   "./bidi-warning-ui": "./src/bidi-warning/ui/index.tsx",
+  +   "./bidi-warning/bidi-warning-decorator": "./src/bidi-warning/bidi-warning-decorator.tsx",
+      "./block": "./src/entry-points/block.tsx",
+  -   "./code": "./src/entry-points/code.tsx",
+  +   "./code": "./src/code.tsx",
+  -   "./code-block": "./src/entry-points/code-block.tsx",
+  +   "./code-block": "./src/code-block.tsx",
+  -   "./constants": "./src/entry-points/constants.tsx",
+  +   "./constants": "./src/constants.tsx",
+      "./inline": "./src/entry-points/inline.tsx",
+  +   "./internal/types": "./src/internal/types.tsx",
+  -   "./types": "./src/entry-points/types.tsx",
+  +   "./types": "./src/types.tsx",
+    }
+  ```
+
+  The secondary re-exports that remain on multi-export modules (`CODE_BLOCK_SELECTOR` from
+  `./constants`, `bidiCharacterRegex` from `./bidi-warning-decorator`, the `./bidi-warning` and
+  `./block` shims) are now marked `@deprecated`, each pointing at the import to use instead.
+  VOLTC-139 tracks their removal.
+
+  Internal type-only imports in the syntax highlighter were also straightened out — `AST` and
+  `RefractorNode` are now imported directly from `refractor` rather than re-exported through
+  `./src/syntax-highlighter/types.tsx`. The set of types available from the public `./types` subpath
+  is unchanged.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`8f42cb78984a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f42cb78984a2) -
+  Fix markdown code blocks silently dropping HTML/JSX tags when refractor parses embedded
+  sub-language grammars. Safe highlighting behind feature gate
+  platform-code-highlight-markdown-safe.
+
+## 18.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 18.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.5.0
+
+### Minor Changes
+
+- [`aef119573f01b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aef119573f01b) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.7
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+
+## 17.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.4.5
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 17.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 17.4.3
 
 ### Patch Changes

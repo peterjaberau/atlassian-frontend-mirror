@@ -2,12 +2,11 @@ import React from 'react';
 
 import { act, renderHook } from '@testing-library/react';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 
 import mockedPluginData from '../../../../../__tests__/__helpers/mock-plugin-data';
 import { ANALYTICS_CHANNEL } from '../../../../../common/constants';
-
 import { useTrackResultsShown } from './index';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
@@ -86,7 +85,7 @@ describe('useTrackResultsShown', () => {
 		});
 
 		expect(onEvent).toHaveBeenCalledTimes(1);
-		expect(onEvent).toBeCalledWith(
+		expect(onEvent).toHaveBeenCalledWith(
 			expect.objectContaining({
 				hasFired: true,
 				payload: expect.objectContaining({
@@ -115,7 +114,7 @@ describe('useTrackResultsShown', () => {
 		});
 
 		expect(onEvent).toHaveBeenCalledTimes(1);
-		expect(onEvent).toBeCalledWith(
+		expect(onEvent).toHaveBeenCalledWith(
 			expect.objectContaining({
 				hasFired: true,
 				payload: expect.objectContaining({
@@ -146,7 +145,7 @@ describe('useTrackResultsShown', () => {
 		});
 
 		expect(onEvent).toHaveBeenCalledTimes(1);
-		expect(onEvent).toBeCalledWith(
+		expect(onEvent).toHaveBeenCalledWith(
 			expect.objectContaining({
 				payload: expect.objectContaining({
 					attributes: expect.objectContaining({
@@ -193,7 +192,7 @@ describe('useTrackResultsShown', () => {
 		});
 
 		expect(onEvent).toHaveBeenCalledTimes(1);
-		expect(onEvent).toBeCalledWith(
+		expect(onEvent).toHaveBeenCalledWith(
 			expect.objectContaining({
 				payload: expect.objectContaining({
 					attributes: expect.objectContaining({

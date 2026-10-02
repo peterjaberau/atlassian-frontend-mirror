@@ -1,9 +1,12 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@atlassian/testing-library';
 
+import { ErrorMessage } from '../../error-message';
 import { FieldId } from '../../field-id-context';
-import { ErrorMessage, HelperMessage, MessageWrapper, ValidMessage } from '../../index';
+import { HelperMessage } from '../../helper-message';
+import { MessageWrapper } from '../../message-wrapper';
+import { ValidMessage } from '../../valid-message';
 
 const props = {
 	testId: 'testId',

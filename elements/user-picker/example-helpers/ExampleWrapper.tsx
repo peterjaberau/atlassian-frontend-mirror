@@ -1,12 +1,16 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl-next';
-import { assignToMe, exampleOptions, filterUsers, unassigned, withLocalResource } from '.';
+
+import { IntlProvider } from 'react-intl';
+
+import { assignToMe, exampleOptions, unassigned } from '.';
 import {
 	type LoadOptions,
 	type OnOption,
 	type OptionData,
 	type UserPickerProps,
 } from '../src/types';
+import { filterUsers } from './filterUsers';
+import { withLocalResource } from './withLocalResource';
 
 const mockOptions = withLocalResource(exampleOptions);
 
@@ -60,7 +64,7 @@ export class ExampleWrapper extends React.PureComponent<Props, { options: Option
 		console.log('@atlaskit/user-picker onSelection:', selection, sessionId);
 	};
 
-	render() {
+	render(): React.JSX.Element {
 		const { children } = this.props;
 		const { options } = this.state;
 

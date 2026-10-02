@@ -1,7 +1,13 @@
-import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
 import React from 'react';
+
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+
 import AnalyticsContext from '../../analytics/analyticsContext';
 import { ElementSelection } from './element-selection';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const MAC_PLATFORM_REGEX = /Mac/;
 
 export const useSelectAllTrap = <T extends HTMLElement>(): React.MutableRefObject<T | null> => {
 	const { fireAnalyticsEvent } = React.useContext(AnalyticsContext);
@@ -9,9 +15,8 @@ export const useSelectAllTrap = <T extends HTMLElement>(): React.MutableRefObjec
 	const clicked = React.useRef<boolean>(false);
 	const caught = React.useRef<ElementSelection>();
 
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	const mac = typeof navigator !== 'undefined' ? /Mac/.test(navigator.platform) : false;
+	const mac =
+		typeof navigator !== 'undefined' ? MAC_PLATFORM_REGEX.test(navigator.platform) : false;
 
 	const onKeyDown = React.useCallback(
 		(e: KeyboardEvent) => {

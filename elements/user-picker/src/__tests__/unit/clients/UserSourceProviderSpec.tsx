@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useUserSource } from '../../../clients/UserSourceProvider';
+
+import { useUserSource } from '../../../clients/useUserSource';
 import { type UserSourceResult } from '../../../types';
 import { createMockedSourceProvider } from '../_testUtils';
 
@@ -38,12 +39,9 @@ describe('UserSourceProvider', () => {
 						]);
 					}),
 			);
-			const { result, rerender } = renderHook(
-				() => useUserSource('1234', true),
-				{
-					wrapper: createMockedSourceProvider(mockFetch),
-				},
-			);
+			const { result, rerender } = renderHook(() => useUserSource('1234', true), {
+				wrapper: createMockedSourceProvider(mockFetch),
+			});
 
 			expect(mockFetch).toHaveBeenCalled();
 			expect(result.current.loading).toStrictEqual(true);
@@ -66,12 +64,9 @@ describe('UserSourceProvider', () => {
 						reject('Unexpected error');
 					}),
 			);
-			const { result, rerender } = renderHook(
-				() => useUserSource('1234', true),
-				{
-					wrapper: createMockedSourceProvider(mockFetch),
-				},
-			);
+			const { result, rerender } = renderHook(() => useUserSource('1234', true), {
+				wrapper: createMockedSourceProvider(mockFetch),
+			});
 
 			expect(mockFetch).toHaveBeenCalled();
 			expect(result.current.loading).toStrictEqual(true);

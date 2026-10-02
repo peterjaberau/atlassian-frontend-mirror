@@ -3,8 +3,10 @@ import React, { Component } from 'react';
 import Lorem from 'react-lorem-component';
 
 import { cssMap } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
-import { ExitingPersistence, SlideIn } from '@atlaskit/motion';
+import Heading from '@atlaskit/heading/heading';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import SlideIn from '@atlaskit/motion/slide-in';
+// eslint-disable-next-line @atlaskit/design-system/use-spotlight-package
 import { Spotlight, SpotlightManager, SpotlightTransition } from '@atlaskit/onboarding';
 import { Stack } from '@atlaskit/primitives/compiled';
 
@@ -82,7 +84,7 @@ export default class SpotlightNodeExample extends Component<Object, State> {
 								}}
 							>
 								{({ ref, className, style }) => (
-									// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop, @atlaskit/ui-styling-standard/no-classname-prop
+									// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 									<div ref={ref} style={style} className={className}>
 										<Highlight ref={this.drawer} color="green">
 											<Stack space="space.100" xcss={targetElementStyles.root}>

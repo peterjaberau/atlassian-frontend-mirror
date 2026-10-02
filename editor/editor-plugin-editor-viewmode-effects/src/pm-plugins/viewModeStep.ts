@@ -1,14 +1,15 @@
 import type { Mark, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { Slice } from '@atlaskit/editor-prosemirror/model';
+// oxlint-disable-next-line import/no-duplicates
 import type { Mappable } from '@atlaskit/editor-prosemirror/transform';
 import {
 	type AddMarkStep,
 	type AddNodeMarkStep,
 	ReplaceStep,
-	Step,
 	StepMap,
 	StepResult,
 } from '@atlaskit/editor-prosemirror/transform';
+import { Step } from '@atlaskit/editor-prosemirror/transform-override';
 
 type ViewModeStepProps = {
 	from: number;
@@ -31,7 +32,7 @@ export class ViewModeStep extends Step {
 		this.mark = mark;
 	}
 
-	invert(doc: PMNode) {
+	invert(doc: PMNode): ViewModeStep {
 		return new ViewModeStep({
 			inverted: true,
 			from: this.from,
@@ -40,7 +41,7 @@ export class ViewModeStep extends Step {
 		});
 	}
 
-	apply(doc: PMNode) {
+	apply(doc: PMNode): StepResult {
 		return StepResult.ok(doc);
 	}
 
@@ -63,7 +64,7 @@ export class ViewModeStep extends Step {
 		});
 	}
 
-	getMap() {
+	getMap(): StepMap {
 		return new StepMap([0, 0, 0]);
 	}
 
@@ -76,13 +77,13 @@ export class ViewModeStep extends Step {
 		};
 	}
 
-	static fromJSON() {
+	static fromJSON(): ReplaceStep {
 		// This is a "local custom step" once serialized
 		// we need to transform it in a no-operation action
 		return new ReplaceStep(0, 0, Slice.empty);
 	}
 
-	static from(step: AddMarkStep) {
+	static from(step: AddMarkStep): ViewModeStep {
 		const { mark, from, to } = step;
 		return new ViewModeStep({
 			mark,
@@ -110,7 +111,7 @@ export class ViewModeNodeStep extends Step {
 		this.mark = mark;
 	}
 
-	invert(doc: PMNode) {
+	invert(doc: PMNode): ViewModeNodeStep {
 		return new ViewModeNodeStep({
 			inverted: true,
 			pos: this.pos,
@@ -118,7 +119,7 @@ export class ViewModeNodeStep extends Step {
 		});
 	}
 
-	apply(doc: PMNode) {
+	apply(doc: PMNode): StepResult {
 		return StepResult.ok(doc);
 	}
 
@@ -139,7 +140,7 @@ export class ViewModeNodeStep extends Step {
 		});
 	}
 
-	getMap() {
+	getMap(): StepMap {
 		return new StepMap([0, 0, 0]);
 	}
 
@@ -152,14 +153,14 @@ export class ViewModeNodeStep extends Step {
 		};
 	}
 
-	static fromJSON() {
+	static fromJSON(): ReplaceStep {
 		// This is a "local custom step" once serialized
 		// we need to transform it in a no-operation action
 
 		return new ReplaceStep(0, 0, Slice.empty);
 	}
 
-	static from(step: AddNodeMarkStep) {
+	static from(step: AddNodeMarkStep): ViewModeNodeStep {
 		const { mark, pos } = step;
 
 		return new ViewModeNodeStep({

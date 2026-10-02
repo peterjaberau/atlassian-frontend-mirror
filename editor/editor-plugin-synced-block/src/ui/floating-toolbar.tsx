@@ -1,13 +1,18 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
-import commonMessages, { syncBlockMessages as messages } from '@atlaskit/editor-common/messages';
+import commonMessages, {
+	syncBlockMessages as messages,
+	toolbarInsertBlockMessages,
+} from '@atlaskit/editor-common/messages';
+import { GapCursorSelection, Side } from '@atlaskit/editor-common/selection';
 import type {
 	Command,
 	ExtractInjectionAPI,
 	FloatingToolbarConfig,
+	FloatingToolbarCustomRenderContext,
 	FloatingToolbarItem,
 } from '@atlaskit/editor-common/types';
 import { FloatingToolbarButton as Button } from '@atlaskit/editor-common/ui';
@@ -16,12 +21,13 @@ import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { findDomRefAtPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorSelectedNodeClassName } from '@atlaskit/editor-shared-styles/consts';
-import { SyncBlockError, type SyncBlockStoreManager } from '@atlaskit/editor-synced-block-provider';
+import { SyncBlockError } from '@atlaskit/editor-synced-block-provider';
+import type { SyncBlockStoreManager } from '@atlaskit/editor-synced-block-provider';
 import CopyIcon from '@atlaskit/icon/core/copy';
 import DeleteIcon from '@atlaskit/icon/core/delete';
 import EditIcon from '@atlaskit/icon/core/edit';
 import LinkBrokenIcon from '@atlaskit/icon/core/link-broken';
-import { fg } from '@atlaskit/platform-feature-flags';
+import MegaphoneIcon from '@atlaskit/icon/core/megaphone';
 
 import {
 	copySyncedBlockReferenceToClipboard,
@@ -30,26 +36,26 @@ import {
 	unsync,
 } from '../editor-commands';
 import { findSyncBlockOrBodiedSyncBlock, isBodiedSyncBlockNode } from '../pm-plugins/utils/utils';
-import type { SyncedBlockPlugin } from '../syncedBlockPluginType';
+import type { SyncedBlockFeedbackContext, SyncedBlockPlugin } from '../syncedBlockPluginType';
 import { SYNCED_BLOCK_BUTTON_TEST_ID } from '../types';
-
-import { SyncedLocationDropdown } from './SyncedLocationDropdown';
+import { SyncedLocationDropdownWithCount } from './SyncedLocationDropdown';
 
 export const getToolbarConfig = (
 	state: EditorState,
 	intl: IntlShape,
 	api: ExtractInjectionAPI<SyncedBlockPlugin> | undefined,
 	syncBlockStore: SyncBlockStoreManager,
+	isLivePage?: boolean,
+	onGiveFeedback?: (context: SyncedBlockFeedbackContext) => void,
 ): FloatingToolbarConfig | undefined => {
 	const syncBlockObject = findSyncBlockOrBodiedSyncBlock(state.schema, state.selection);
 	if (!syncBlockObject) {
 		return;
 	}
 
-	if (syncBlockStore.sourceManager.isPendingCreation(syncBlockObject.node.attrs.resourceId) && fg('platform_synced_block_patch_1')) {
+	if (syncBlockStore.sourceManager.isPendingCreation(syncBlockObject.node.attrs.resourceId)) {
 		return;
 	}
-
 
 	const syncBlockInstance = syncBlockStore.referenceManager.getFromCache(
 		syncBlockObject.node.attrs.resourceId,
@@ -77,7 +83,6 @@ export const getToolbarConfig = (
 	});
 
 	const items: Array<FloatingToolbarItem<Command>> = [];
-
 	if (isUnsyncedBlock) {
 		const deleteButton: FloatingToolbarItem<Command> = {
 			type: 'button',
@@ -90,19 +95,45 @@ export const getToolbarConfig = (
 
 		items.push(deleteButton);
 	} else {
+		const copyButton: FloatingToolbarItem<Command> = {
+			id: 'editor.syncedBlock.copy',
+			type: 'button',
+			appearance: 'subtle',
+			icon: CopyIcon,
+			title: formatMessage(messages.copyToSyncLabel),
+			showTitle: true,
+			testId: SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarCopy,
+			onClick: copySyncedBlockReferenceToClipboard(
+				syncBlockStore,
+				INPUT_METHOD.SYNCED_BLOCK_TB,
+				api,
+				isLivePage,
+			),
+			...hoverDecorationProps(nodeType, akEditorSelectedNodeClassName),
+		};
+
+		items.push(copyButton);
+
 		if (!isErroredBlock) {
 			const syncedLocation: FloatingToolbarItem<Command> = {
 				type: 'custom',
 				fallback: [],
-				render: () => {
+				render: (
+					_view,
+					_idx,
+					_dispatchAnalyticsEvent,
+					floatingToolbarRenderContext?: FloatingToolbarCustomRenderContext,
+				) => {
 					return (
-						<SyncedLocationDropdown
+						<SyncedLocationDropdownWithCount
+							key={`${resourceId}:${localId}:${isBodiedSyncBlock}`}
 							syncBlockStore={syncBlockStore}
 							resourceId={resourceId}
 							localId={localId}
 							intl={intl}
 							isSource={isBodiedSyncBlock}
 							api={api}
+							floatingToolbarRenderContext={floatingToolbarRenderContext}
 						/>
 					);
 				},
@@ -115,15 +146,15 @@ export const getToolbarConfig = (
 					return (
 						<Button
 							areAnyNewToolbarFlagsEnabled={true}
+							disabled={syncBlockInstance?.data?.status === 'unpublished'}
 							icon={<LinkBrokenIcon label="" />}
 							title={formatMessage(messages.unsyncButton)}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onClick={() => unsync(syncBlockStore, isBodiedSyncBlock, view)}
 							testId={
-								fg('platform_synced_block_patch_1')
-									? isBodiedSyncBlock
-										? SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarSourceUnsync
-										: SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarReferenceUnsync
-									: undefined
+								isBodiedSyncBlock
+									? SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarSourceUnsync
+									: SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarReferenceUnsync
 							}
 						/>
 					);
@@ -131,23 +162,6 @@ export const getToolbarConfig = (
 			};
 			items.push(syncedLocation, unsyncButton);
 		}
-
-		const copyButton: FloatingToolbarItem<Command> = {
-			id: 'editor.syncedBlock.copy',
-			type: 'button',
-			appearance: 'subtle',
-			icon: CopyIcon,
-			title: formatMessage(messages.copySyncBlockLabel),
-			showTitle: false,
-			tooltipContent: formatMessage(messages.copySyncedBlockTooltip),
-			onClick: copySyncedBlockReferenceToClipboard(
-				syncBlockStore,
-				INPUT_METHOD.SYNCED_BLOCK_TB,
-				api,
-			),
-			...hoverDecorationProps(nodeType, akEditorSelectedNodeClassName),
-		};
-		items.push(copyButton);
 
 		const disabled = !syncBlockStore.referenceManager.getSyncBlockURL(
 			syncBlockObject.node.attrs.resourceId,
@@ -173,22 +187,45 @@ export const getToolbarConfig = (
 
 		// testId is required to show focus on trigger button on ESC key press
 		// see hideOnEsc in platform/packages/editor/editor-plugin-floating-toolbar/src/ui/Dropdown.tsx
-		const testId = 'synced-block-overflow-dropdown-trigger';
+		const testId = isBodiedSyncBlock
+			? SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarSourceOverflowTrigger
+			: SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarReferenceOverflowTrigger;
 
 		const overflowMenuConfig: FloatingToolbarItem<Command>[] = [
 			{
 				type: 'overflow-dropdown',
 				testId,
 				options: [
+					...(onGiveFeedback
+						? [
+								{
+									title: formatMessage(toolbarInsertBlockMessages.feedbackDialog),
+									icon: <MegaphoneIcon label="" />,
+									onClick: () => {
+										api?.core.actions.execute(({ tr }) =>
+											tr.setSelection(
+												new GapCursorSelection(
+													tr.doc.resolve(syncBlockObject.pos + syncBlockObject.node.nodeSize),
+													Side.RIGHT,
+												),
+											),
+										);
+										onGiveFeedback({
+											blockType: isBodiedSyncBlock ? 'source' : 'reference',
+											entryPoint: 'overflow-menu',
+										});
+										return true;
+									},
+								},
+							]
+						: []),
 					{
 						title: formatMessage(commonMessages.delete),
 						onClick: removeSyncedBlock(api),
 						icon: <DeleteIcon label="" />,
-						testId: fg('platform_synced_block_patch_1')
-							? isBodiedSyncBlock
-								? SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarSourceDelete
-								: SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarReferenceDelete
-							: undefined,
+						testId: isBodiedSyncBlock
+							? SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarSourceDelete
+							: SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarReferenceDelete,
 						...hoverDecorationProps(nodeType),
 					},
 				],

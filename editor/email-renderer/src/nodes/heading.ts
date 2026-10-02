@@ -1,7 +1,8 @@
-import { N800 } from '@atlaskit/adf-schema';
-import type { NodeSerializerOpts } from '../interfaces';
-import { createTag } from '../create-tag';
+import { N800 } from '@atlaskit/adf-schema/colors';
+
 import { applyMarks } from '../apply-marks';
+import { createTag } from '../create-tag';
+import type { NodeSerializerOpts } from '../interfaces';
 import { createClassName, headingSizes } from '../styles/util';
 
 const commonStyle = `

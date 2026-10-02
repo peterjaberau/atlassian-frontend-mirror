@@ -1,7 +1,9 @@
-import { type MediaStoreResponse } from '../../../client/media-store';
+import type { ProcessingFailedState } from '@atlaskit/media-state/file-state';
+
+import type { MediaStoreResponse } from '../../../client/media-store/types';
+import { mapMediaFileToFileState } from '../../map-media-file-to-file-state';
+import { mapMediaItemToFileState } from '../../map-media-item-to-file-state';
 import { type MediaFile, type MediaItemDetails } from '../../media';
-import { mapMediaFileToFileState, mapMediaItemToFileState } from '../../file-state';
-import { type ProcessingFailedState } from '@atlaskit/media-state';
 
 describe('mapMediaFileToFileState', () => {
 	const baseMediaFile: MediaFile = {
@@ -74,7 +76,12 @@ describe('mapMediaFileToFileState', () => {
 	});
 
 	it('should map processing status failed with different failReason values', () => {
-		const failReasons = ['operation-failed', 'timeout', 'unsupported-file-type', 'unknown'] as const;
+		const failReasons = [
+			'operation-failed',
+			'timeout',
+			'unsupported-file-type',
+			'unknown',
+		] as const;
 
 		failReasons.forEach((failReason) => {
 			const mediaFile: MediaStoreResponse<MediaFile> = {

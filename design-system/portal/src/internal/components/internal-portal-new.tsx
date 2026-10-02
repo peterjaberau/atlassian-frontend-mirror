@@ -1,12 +1,13 @@
 import React, { Suspense, useState } from 'react';
-
 import { createPortal } from 'react-dom';
 
-import { ThemeProvider, useColorMode } from '@atlaskit/app-provider';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { ThemeProvider } from '@atlaskit/app-provider/theme-provider';
+import { useColorMode } from '@atlaskit/app-provider/use-color-mode';
+import { useIsInsideThemeProvider } from '@atlaskit/app-provider/use-is-inside-theme-provider';
 
 import { useIsomorphicLayoutEffect } from '../hooks/use-isomorphic-layout-effect';
-import { createAtlaskitPortal, createPortalParent } from '../utils/portal-dom-utils';
+import { createAtlaskitPortal } from '../utils/create-atlaskit-portal';
+import { createPortalParent } from '../utils/create-portal-parent';
 
 interface InternalPortalProps {
 	children: React.ReactNode;
@@ -18,6 +19,7 @@ export default function InternalPortalNew(props: InternalPortalProps): React.Rea
 	const [atlaskitPortal, setAtlaskitPortal] = useState<HTMLDivElement | undefined | null>(null);
 
 	const colorMode = useColorMode();
+	const isInsideThemeProvider = useIsInsideThemeProvider();
 
 	useIsomorphicLayoutEffect(() => {
 		const tempPortalContainer = createAtlaskitPortal(zIndex);
@@ -42,7 +44,7 @@ export default function InternalPortalNew(props: InternalPortalProps): React.Rea
 	 */
 	const suspendedChildren = (
 		<Suspense fallback={null}>
-			{colorMode && fg('platform_dst_subtree_theming') ? (
+			{isInsideThemeProvider ? (
 				<ThemeProvider defaultColorMode={colorMode}>{children}</ThemeProvider>
 			) : (
 				children

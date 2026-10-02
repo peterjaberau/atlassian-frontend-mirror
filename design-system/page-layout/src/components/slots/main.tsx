@@ -7,8 +7,8 @@ import { useContext } from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
-import { prefersReducedMotion } from '@atlaskit/motion/accessibility';
 import { easeOut } from '@atlaskit/motion/curves';
+import { prefersReducedMotion } from '@atlaskit/motion/utils/accessibility';
 
 import {
 	COLLAPSED_LEFT_SIDEBAR_WIDTH,
@@ -16,11 +16,10 @@ import {
 	TRANSITION_DURATION,
 	VAR_LEFT_SIDEBAR_FLYOUT,
 } from '../../common/constants';
+import { getPageLayoutSlotSelector } from '../../common/get-page-layout-slot-selector';
 import { useIsSidebarDragging } from '../../common/hooks';
-import { type SlotWidthProps } from '../../common/types';
-import { getPageLayoutSlotSelector } from '../../common/utils';
+import type { SlotWidthProps } from '../../common/types';
 import { SidebarResizeContext, useSkipLink } from '../../controllers';
-
 import SlotFocusRing from './internal/slot-focus-ring';
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
@@ -57,6 +56,8 @@ const flyoutStyles = css({
  *
  * - [Examples](https://atlassian.design/components/page-layout/examples)
  * - [Code](https://atlassian.design/components/page-layout/code)
+ *
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 const Main = (props: SlotWidthProps): jsx.JSX.Element => {
 	const { children, testId, id, skipLinkTitle } = props;

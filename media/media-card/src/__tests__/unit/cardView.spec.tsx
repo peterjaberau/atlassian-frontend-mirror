@@ -1,32 +1,49 @@
 jest.mock('../../utils/getElementDimension');
-jest.mock('../../card/ui/styles', () => {
-	const original = jest.requireActual('../../card/ui/styles');
+jest.mock('../../card/ui/calcBreakpointSize', () => {
+	const original = jest.requireActual('../../card/ui/calcBreakpointSize');
 	return {
 		...original,
 		calcBreakpointSize: jest.fn(original.calcBreakpointSize),
 	};
 });
-jest.mock('@atlaskit/platform-feature-flags', () => ({
-	fg: jest.fn(),
+jest.mock('@atlaskit/platform-feature-flags/fg', () => ({
+	...jest.requireActual('@atlaskit/platform-feature-flags/fg'),
+	fg: jest.fn().mockReturnValue(false),
+}));
+jest.mock('@atlaskit/tooltip/Tooltip', () => ({
+	...jest.requireActual('@atlaskit/tooltip/Tooltip'),
+	__esModule: true,
+	default: ({ children, content }: { children: any; content: any }) => (
+		<div data-testid="mock-tooltip" data-content={typeof content === 'string' ? content : ''}>
+			{children}
+		</div>
+	),
 }));
 
 import React from 'react';
-import { CardView, CardViewBase, type CardViewProps } from '../../card/cardView';
-import { type CardStatus } from '../../types';
+
+import { fireEvent, render as rtlRender, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { IntlProvider } from 'react-intl';
+
+import { FabricChannel } from '@atlaskit/analytics-listeners/types';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import DownloadIcon from '@atlaskit/icon/core/download';
 import { type FileDetails } from '@atlaskit/media-client';
+import {
+	createPollingMaxAttemptsError,
+	createMediaStoreError,
+} from '@atlaskit/media-client/test-helpers';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { CardView, CardViewBase, type CardViewProps } from '../../card/cardView';
+import { LOCAL_WIDTH_VARIABLE } from '../../card/ui/wrapper/wrapper-compiled';
+import { MediaCardError } from '../../MediaCardError';
+import { type CardStatus } from '../../types';
 import { getDefaultCardDimensions } from '../../utils/cardDimensions';
 import { getElementDimension } from '../../utils/getElementDimension';
-import { createPollingMaxAttemptsError, createMediaStoreError } from '@atlaskit/media-client/test-helpers';
 import { imgTestId, spinnerTestId, cardTestId, cardBlanketTestId } from '../utils/_testIDs';
-import { MediaCardError } from '../../errors';
-import { AnalyticsListener, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import { FabricChannel } from '@atlaskit/analytics-listeners';
-import { fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
-import DownloadIcon from '@atlaskit/icon/core/download';
-import { LOCAL_WIDTH_VARIABLE } from '../../card/ui/wrapper/wrapper-compiled';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 const identifier = {
 	id: 'some-id',
@@ -57,24 +74,31 @@ const nonLoadingStatuses: Array<CardStatus> = [...nonErrorOrLoadingStatuses, ...
 
 const previewUnavailableMessage = 'Preview Unavailable';
 const checkInternetConnectionMessage = 'Failed to load. Please check your internet connection';
+const traceIdTooltipMessage = 'Use Trace ID {traceId} when reaching out to support.';
+
+const intlMessages = {
+	'fabric.media.preview_unavailable': previewUnavailableMessage,
+	'fabric.media.check_internet_connection': checkInternetConnectionMessage,
+	'fabric.media.trace_id_tooltip': traceIdTooltipMessage,
+};
+
+const render = (ui: React.ReactElement, renderOptions = {}) =>
+	rtlRender(
+		<IntlProvider locale="en" messages={intlMessages}>
+			{ui}
+		</IntlProvider>,
+		renderOptions,
+	);
 
 const renderCardViewBase = (props: Partial<CardViewProps> = {}, renderOptions = {}) =>
 	render(
-		<IntlProvider
-			locale="en"
-			messages={{
-				'fabric.media.preview_unavailable': previewUnavailableMessage,
-				'fabric.media.check_internet_connection': checkInternetConnectionMessage,
-			}}
-		>
-			<CardViewBase
-				status="loading"
-				mediaItemType="file"
-				dimensions={{ width: 100, height: 100 }}
-				identifier={identifier}
-				{...props}
-			/>
-		</IntlProvider>,
+		<CardViewBase
+			status="loading"
+			mediaItemType="file"
+			dimensions={{ width: 100, height: 100 }}
+			identifier={identifier}
+			{...props}
+		/>,
 		renderOptions,
 	);
 
@@ -845,8 +869,8 @@ describe('CardView', () => {
 					metadata: { name: 'charlie.jpg' } as any,
 				});
 
-				const tooltip = screen.queryByRole('presentation');
-				expect(tooltip).toBeInTheDocument();
+				expect(screen.getByTestId('mock-tooltip')).toBeInTheDocument();
+				expect(screen.getByTestId('mock-tooltip')).toHaveAttribute('data-content', 'charlie.jpg');
 			});
 
 			it('should not render the tooltip when overlay is disabled and there is filename', () => {
@@ -854,23 +878,18 @@ describe('CardView', () => {
 					metadata: { name: 'charlie.jpg' } as any,
 					disableOverlay: true,
 				});
-				expect(screen.queryByText('charlie.jpg')).not.toBeInTheDocument();
+				expect(screen.queryByTestId('mock-tooltip')).not.toBeInTheDocument();
 			});
 
-			/*
-        Tooltip should not rely on metadata. That causes flicker
-        on the image when metadata is fetched.
-      */
-			it('should render the tooltip if there is no filename', () => {
-				// Without filename and overlay enabled
+			it('should render the tooltip if there is no filename and no trace support message', () => {
 				renderCardViewBase();
-				expect(screen.queryByRole('presentation')).toBeInTheDocument();
+				expect(screen.getByTestId('mock-tooltip')).toBeInTheDocument();
+				expect(screen.getByTestId('mock-tooltip')).toHaveAttribute('data-content', '');
 			});
 
 			it('should not render the tooltip if shouldHideTooltip is set to `true`', () => {
-				// Without filename and overlay enabled
-				renderCardViewBase({ shouldHideTooltip: true });
-				expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
+				renderCardViewBase({ shouldHideTooltip: true, metadata: { name: 'charlie.jpg' } as any });
+				expect(screen.queryByTestId('mock-tooltip')).not.toBeInTheDocument();
 			});
 		});
 	});
@@ -900,5 +919,80 @@ describe('CardView', () => {
 		await user.click(downloadButton);
 
 		expect(downloadAction.handler).toHaveBeenCalledTimes(1);
+	});
+
+	describe('Trace support tooltip', () => {
+		it('should show trace support text in the tooltip for preview unavailable', () => {
+			renderCardViewBase({
+				status: 'error',
+				metadata: file,
+				traceId: 'test-trace-abc',
+			});
+
+			expect(screen.getByTestId('mock-tooltip')).toHaveAttribute(
+				'data-content',
+				'Use Trace ID test-trace-abc when reaching out to support.',
+			);
+		});
+
+		it('should show trace support text in the tooltip for failed to load', () => {
+			renderCardViewBase({
+				status: 'error',
+				traceId: 'test-trace-abc',
+			});
+
+			expect(screen.getByTestId('mock-tooltip')).toHaveAttribute(
+				'data-content',
+				'Use Trace ID test-trace-abc when reaching out to support.',
+			);
+		});
+
+		it('should fall back to the filename tooltip when traceId is not provided', () => {
+			renderCardViewBase({
+				status: 'error',
+				metadata: file,
+			});
+
+			expect(screen.getByTestId('mock-tooltip')).toHaveAttribute('data-content', 'my-file');
+			expect(screen.queryByText(/Use Trace ID/)).not.toBeInTheDocument();
+		});
+
+		it('should fall back to the filename tooltip when status is not an error state', () => {
+			renderCardViewBase({
+				status: 'complete',
+				metadata: file,
+				traceId: 'test-trace-abc',
+			});
+
+			expect(screen.getByTestId('mock-tooltip')).toHaveAttribute('data-content', 'my-file');
+			expect(screen.queryByText(/Use Trace ID/)).not.toBeInTheDocument();
+		});
+
+		it('should fall back to the filename tooltip for upload errors', () => {
+			renderCardViewBase({
+				status: 'error',
+				metadata: file,
+				traceId: 'test-trace-abc',
+				error: new MediaCardError('upload'),
+			});
+
+			expect(screen.getByTestId('mock-tooltip')).toHaveAttribute('data-content', 'my-file');
+			expect(screen.queryByText(/Use Trace ID/)).not.toBeInTheDocument();
+		});
+
+		it('should fall back to the filename tooltip for network errors', () => {
+			(fg as jest.Mock).mockImplementation((gateName: string) =>
+				gateName === 'media_card_failed_messaging_ui_revamp' ? true : false,
+			);
+			renderCardViewBase({
+				status: 'error',
+				metadata: file,
+				traceId: 'test-trace-abc',
+				error: new MediaCardError('metadata-fetch', new TypeError('network failed')),
+			});
+
+			expect(screen.getByTestId('mock-tooltip')).toHaveAttribute('data-content', 'my-file');
+			expect(screen.queryByText(/Use Trace ID/)).not.toBeInTheDocument();
+		});
 	});
 });

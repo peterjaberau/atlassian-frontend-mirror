@@ -5,16 +5,21 @@
 
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import type { ErrorReporter } from '@atlaskit/editor-common/error-reporter';
 import { mediaEditingMessages } from '@atlaskit/editor-common/messages';
 import CheckMarkIcon from '@atlaskit/icon/core/check-mark';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import Modal, { ModalBody, ModalFooter, ModalTransition } from '@atlaskit/modal-dialog';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 import { Box } from '@atlaskit/primitives/compiled';
-import Spinner from '@atlaskit/spinner';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 
 import { Cropper } from './Cropper';
@@ -59,7 +64,7 @@ const modalFooter = css({
 const ratioBtn = css({
 	display: 'flex',
 	alignItems: 'center',
-	gap: token('space.100', '8px'),
+	gap: token('space.100'),
 });
 
 const ratioSelect = css({
@@ -82,7 +87,7 @@ const dropdownItemGroup = css({
 const btnGroupStyle = cssMap({
 	box: {
 		display: 'flex',
-		gap: token('space.100', '8px'),
+		gap: token('space.100'),
 	},
 });
 
@@ -103,7 +108,7 @@ export const ImageEditor = ({
 	onClose,
 	onSave,
 	errorReporter,
-}: ImageEditModalProps) => {
+}: ImageEditModalProps): JSX.Element => {
 	const {
 		cropperRef,
 		doneButtonRef,
@@ -122,6 +127,7 @@ export const ImageEditor = ({
 	return (
 		<ModalTransition>
 			{isOpen && (
+				// eslint-disable-next-line @atlaskit/design-system/no-modal-label
 				<Modal
 					onClose={isSaving ? () => {} : onClose}
 					height={800}
@@ -158,6 +164,7 @@ export const ImageEditor = ({
 							<div>
 								<DropdownMenu
 									appearance="default"
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									trigger={({ triggerRef, ...props }) => (
 										<Button
 											ref={triggerRef}
@@ -191,6 +198,7 @@ export const ImageEditor = ({
 											{(['original', 'custom'] as const).map((item) => (
 												<DropdownItem
 													key={item}
+													// eslint-disable-next-line @atlassian/perf-linting/detect-unnecessary-rerenders, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 													onClick={() => {
 														setSelectionArea(item);
 													}}
@@ -207,6 +215,7 @@ export const ImageEditor = ({
 												(item) => (
 													<DropdownItem
 														key={item}
+														// eslint-disable-next-line @atlassian/perf-linting/detect-unnecessary-rerenders, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 														onClick={() => {
 															setSelectionArea(item);
 														}}
@@ -217,9 +226,7 @@ export const ImageEditor = ({
 																	`${item}Button` as keyof typeof mediaEditingMessages
 																],
 															)}
-															{aspectRatioSelection === item && (
-																<CheckMarkIcon label="selected" />
-															)}
+															{aspectRatioSelection === item && <CheckMarkIcon label="selected" />}
 														</div>
 													</DropdownItem>
 												),
@@ -228,6 +235,7 @@ export const ImageEditor = ({
 									</div>
 								</DropdownMenu>
 								<Button
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									onClick={async () => {
 										rotateRight();
 										await setSelectionArea('custom');
@@ -237,10 +245,7 @@ export const ImageEditor = ({
 									testId="image-editor-rotate-right-btn"
 									appearance="subtle"
 								>
-									<RotateIcon
-										label="rotate right button"
-										isDisabled={!isImageReady || isSaving}
-									/>
+									<RotateIcon label="rotate right button" isDisabled={!isImageReady || isSaving} />
 								</Button>
 								<Button
 									onClick={flipVertical}
@@ -271,6 +276,7 @@ export const ImageEditor = ({
 								</Button>
 								<Button
 									appearance="primary"
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									onClick={() => handleSave(onSave, onClose, errorReporter)}
 									isDisabled={!isImageReady || isSaving}
 									isLoading={isSaving}

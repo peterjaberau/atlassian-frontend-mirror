@@ -1,13 +1,13 @@
-import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { nextTick } from '@atlaskit/editor-test-helpers/next-tick';
-import AnalyticsHelper from '../analytics-helper';
-import { EVENT_ACTION, EVENT_STATUS } from '../../helpers/const';
 
-import { name as packageName, version as packageVersion } from '../../version-wrapper';
+import { CustomError } from '../../errors/custom-errors';
 import type { InternalError } from '../../errors/internal-errors';
 import { NCS_ERROR_CODE } from '../../errors/ncs-errors';
-import { CustomError } from '../../errors/custom-errors';
+import { EVENT_ACTION, EVENT_STATUS } from '../../helpers/const';
+import { name as packageName, version as packageVersion } from '../../version-wrapper';
+import AnalyticsHelper from '../analytics-helper';
 
 describe('Analytics helper function', () => {
 	const fakeAnalyticsWebClient: AnalyticsWebClient = {
@@ -30,7 +30,6 @@ describe('Analytics helper function', () => {
 	});
 
 	beforeEach(() => {
-		// @ts-ignore UTEST-1630
 		jest.spyOn(window, 'requestAnimationFrame').mockImplementationOnce((cb) => (cb as Function)());
 
 		analyticsHelper = new AnalyticsHelper(fakeDocumentAri, 'live', fakeAnalyticsWebClient);
@@ -42,7 +41,7 @@ describe('Analytics helper function', () => {
 		analyticsHelper.sendActionEvent(EVENT_ACTION.UPDATE_PARTICIPANTS, EVENT_STATUS.SUCCESS);
 
 		expect(fakeAnalyticsWebClient.sendOperationalEvent).toHaveBeenCalledTimes(1);
-		expect(fakeAnalyticsWebClient.sendOperationalEvent).toBeCalledWith({
+		expect(fakeAnalyticsWebClient.sendOperationalEvent).toHaveBeenCalledWith({
 			action: 'updateParticipants',
 			actionSubject: 'collab',
 			attributes: {
@@ -70,7 +69,7 @@ describe('Analytics helper function', () => {
 		});
 
 		expect(fakeAnalyticsWebClient.sendOperationalEvent).toHaveBeenCalledTimes(1);
-		expect(fakeAnalyticsWebClient.sendOperationalEvent).toBeCalledWith({
+		expect(fakeAnalyticsWebClient.sendOperationalEvent).toHaveBeenCalledWith({
 			action: 'connection',
 			actionSubject: 'collab',
 			attributes: {
@@ -109,7 +108,7 @@ describe('Analytics helper function', () => {
 		analyticsHelper.sendErrorEvent(stepRejectedError, 'Meaningful Context-Aware Error Message');
 
 		expect(fakeAnalyticsWebClient.sendTrackEvent).toHaveBeenCalledTimes(1);
-		expect(fakeAnalyticsWebClient.sendTrackEvent).toBeCalledWith({
+		expect(fakeAnalyticsWebClient.sendTrackEvent).toHaveBeenCalledWith({
 			action: 'error',
 			actionSubject: 'collab',
 			attributes: {
@@ -142,7 +141,7 @@ describe('Analytics helper function', () => {
 		analyticsHelper.sendErrorEvent(customError, 'Meaningful Context-Aware Error Message');
 
 		expect(fakeAnalyticsWebClient.sendTrackEvent).toHaveBeenCalledTimes(1);
-		expect(fakeAnalyticsWebClient.sendTrackEvent).toBeCalledWith({
+		expect(fakeAnalyticsWebClient.sendTrackEvent).toHaveBeenCalledWith({
 			action: 'error',
 			actionSubject: 'collab',
 			attributes: {
@@ -176,7 +175,7 @@ describe('Analytics helper function', () => {
 		analyticsHelper.sendErrorEvent(typeError, 'Meaningful Context-Aware Error Message');
 
 		expect(fakeAnalyticsWebClient.sendTrackEvent).toHaveBeenCalledTimes(1);
-		expect(fakeAnalyticsWebClient.sendTrackEvent).toBeCalledWith({
+		expect(fakeAnalyticsWebClient.sendTrackEvent).toHaveBeenCalledWith({
 			action: 'error',
 			actionSubject: 'collab',
 			attributes: {
@@ -217,7 +216,7 @@ describe('Analytics helper function', () => {
 		await nextTick();
 
 		expect(fakeAnalyticsWebClient.sendOperationalEvent).toHaveBeenCalledTimes(1);
-		expect(fakeAnalyticsWebClient.sendOperationalEvent).toBeCalledWith({
+		expect(fakeAnalyticsWebClient.sendOperationalEvent).toHaveBeenCalledWith({
 			action: 'updateParticipants',
 			actionSubject: 'collab',
 			attributes: {
@@ -263,7 +262,7 @@ describe('Analytics helper function', () => {
 		await nextTick();
 
 		expect(fakeAnalyticsWebClient.sendTrackEvent).toHaveBeenCalledTimes(1);
-		expect(fakeAnalyticsWebClient.sendTrackEvent).toBeCalledWith({
+		expect(fakeAnalyticsWebClient.sendTrackEvent).toHaveBeenCalledWith({
 			action: 'error',
 			actionSubject: 'collab',
 			attributes: {

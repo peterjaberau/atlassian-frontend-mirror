@@ -1,10 +1,11 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	MediaWrapped,
 	MediaWrappedText,
 	MediaWrappedTextSplit,
 	MediaWrappedSmall,
-} from './media-wrapped.fixture';
+} from './media-wrapped.fixture.vr.ap';
 
 snapshot(MediaWrapped, {
 	description: 'should render 2 media items in 1 line when wrapped',

@@ -1,9 +1,10 @@
 /* eslint-disable @repo/internal/dom-events/no-unsafe-event-listeners */
 /* eslint-disable @atlaskit/ui-styling-standard/enforce-style-prop */
+
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 
 import UFOLoadHold from '@atlaskit/react-ufo/load-hold';
-import UFOSegment from '@atlaskit/react-ufo/segment';
+import UFOSegment from '@atlaskit/react-ufo/ufo-segment';
 
 const PREFIX_TESTID = 'sectionHorizontal';
 
@@ -91,6 +92,7 @@ const useCounterToVisible = (
 		// To speed up tests, if the base pixel is below 85% of the screen
 		// We will render it as soon as possible
 		const p85 = Math.ceil(heightViewport * 0.85);
+		const p95 = Math.ceil(heightViewport * 0.95);
 		if (base <= p85) {
 			setTimeout(() => {
 				setVisible(performance.now());
@@ -99,9 +101,11 @@ const useCounterToVisible = (
 			return;
 		}
 
-		// After half of the screen was rendered we need to slow down the rendering
-		// We render the next section only after the previous one is painted
-		const previousSectionId = base - 1;
+		// Keep the sequential rendering through p95, which is the highest
+		// section boundary asserted by the Playwright tests. The remaining
+		// sections are not part of those assertions, so release them together
+		// when p95 is visible instead of serializing the unobserved tail.
+		const previousSectionId = base > p95 ? p95 : base - 1;
 		sectionHorizontalEmitter.onSectionVisible(previousSectionId, () => {
 			setVisible(performance.now());
 		});

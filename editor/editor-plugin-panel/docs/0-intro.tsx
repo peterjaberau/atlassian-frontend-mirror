@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,17 +8,18 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Panel', [
-  { name: 'Editor Core', link: '/packages/editor/editor-core' },
+	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
   ${(
-    // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-    <div style={{ marginTop: token('space.100', '8px') }}>
-      <AtlassianInternalWarning />
-    </div>
-  )
-  }
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
+				<AtlassianInternalWarning />
+			</div>
+		</>
+	)}
 
   This package includes the panel plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,17 +30,32 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
+interface PanelPluginOptions extends LongPressSelectionPluginOptions, PanelPluginConfig {}
+
+interface PanelPluginConfig {
+  allowCustomPanel?: boolean;
+  allowCustomPanelEdit?: boolean;
+}
+
+type PanelPluginDependencies = [
+  typeof decorationsPlugin,
+  OptionalPlugin<typeof analyticsPlugin>,
+  OptionalPlugin<ToolbarPlugin>,
+  EmojiPlugin,
+  OptionalPlugin<BlockMenuPlugin>,
+  OptionalPlugin<SelectionPlugin>,
+];
+
 type PanelPlugin = NextEditorPlugin<
   'panel',
   {
-    pluginConfiguration: PanelPluginOptions | undefined;
-    dependencies: [
-      typeof decorationsPlugin,
-      OptionalPlugin<typeof analyticsPlugin>,
-    ];
     actions: {
-      insertPanel: (inputMethod: INPUT_METHOD) => Command;
+      insertPanel: (
+        inputMethod: INPUT_METHOD.INSERT_MENU | INPUT_METHOD.QUICK_INSERT | INPUT_METHOD.TOOLBAR,
+      ) => Command;
     };
+    dependencies: PanelPluginDependencies;
+    pluginConfiguration: PanelPluginOptions | undefined;
   }
 >;
 `}

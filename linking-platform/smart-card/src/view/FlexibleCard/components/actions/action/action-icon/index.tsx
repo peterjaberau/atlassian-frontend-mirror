@@ -7,10 +7,10 @@ import { css, jsx } from '@compiled/react';
 import { type ActionIconProps } from './types';
 
 const stackItemIconStylesCompiled = css({
-	display: 'inline-block',
+	display: 'inline-flex',
 });
 
-const ActionIcon = ({ testId, icon }: ActionIconProps) => {
+const ActionIcon = ({ testId, icon }: ActionIconProps): JSX.Element => {
 	return (
 		<span css={[stackItemIconStylesCompiled]} data-testid={`${testId}-icon`}>
 			{icon}

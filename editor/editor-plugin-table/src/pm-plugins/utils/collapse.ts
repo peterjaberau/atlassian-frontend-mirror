@@ -1,14 +1,14 @@
 import type { NodeType } from '@atlaskit/editor-prosemirror/model';
 import { NodeRange } from '@atlaskit/editor-prosemirror/model';
-// @ts-ignore -- ReadonlyTransaction is a local declaration and will cause a TS2305 error in CCFE typecheck
 import type { ReadonlyTransaction, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { findWrapping } from '@atlaskit/editor-prosemirror/transform';
 import { findTable } from '@atlaskit/editor-tables/utils';
 
 interface IsTableCollapsibleResult {
-	findWrappingRes?: // Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	Array<{ attrs?: { [key: string]: any } | null; type: NodeType }> | null | undefined;
+	findWrappingRes?:
+		// Ignored via go/ees005
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		Array<{ attrs?: { [key: string]: any } | null; type: NodeType }> | null | undefined;
 	range?: NodeRange;
 	tableIsCollapsible: boolean;
 }

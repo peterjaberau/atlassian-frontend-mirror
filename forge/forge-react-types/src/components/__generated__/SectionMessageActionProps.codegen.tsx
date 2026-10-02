@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - SectionMessageActionProps
  *
- * @codegen <<SignedSource::287b8b418516838ff371d14e49272fa5>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/sectionmessage/__generated__/action.partial.tsx <<SignedSource::50b24e38b69e96bf0beef119eeba8b2f>>
+ * @codegen <<SignedSource::7fcc165142dc5f33f51e517cb5eff1f5>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/sectionmessage/__generated__/action.partial.tsx <<SignedSource::e75c76ceae83aa849a75c351273734f1>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import { SectionMessageAction as PlatformSectionMessageAction } from '@atlaskit/section-message';
+import PlatformSectionMessageAction from '@atlaskit/section-message/message-action';
 
 type PlatformSectionMessageActionProps = React.ComponentProps<typeof PlatformSectionMessageAction>;
 

@@ -4,7 +4,7 @@
  */
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { jsx } from '@atlaskit/css';
 import {
@@ -31,7 +31,7 @@ import ListBulletedIcon from '@atlaskit/icon/core/list-bulleted';
 import ListNumberedIcon from '@atlaskit/icon/core/list-numbered';
 import TextIndentLeftIcon from '@atlaskit/icon/core/text-indent-left';
 import TextIndentRightIcon from '@atlaskit/icon/core/text-indent-right';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { type ButtonName, type ToolbarProps, ToolbarType } from '../types';
 
@@ -42,7 +42,7 @@ export type DropdownProps = ToolbarProps & {
 	toolbarType: ToolbarType;
 };
 
-export function ToolbarDropdown(props: DropdownProps) {
+export function ToolbarDropdown(props: DropdownProps): JSX.Element {
 	const { formatMessage } = useIntl();
 	const {
 		disabled,
@@ -105,7 +105,9 @@ export function ToolbarDropdown(props: DropdownProps) {
 			<ListBulletedIcon spacing="spacious" label="" />
 		);
 	} else {
-		activeListIcon = <ListBulletedIcon color="currentColor" spacing="spacious" label={labelLists} />;
+		activeListIcon = (
+			<ListBulletedIcon color="currentColor" spacing="spacious" label={labelLists} />
+		);
 		isSelected = bulletListActive || orderedListActive || isDropdownOpen;
 	}
 
@@ -122,6 +124,7 @@ export function ToolbarDropdown(props: DropdownProps) {
 				fitHeight={188}
 				fitWidth={175}
 				shouldUseDefaultRole
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				shouldFocusFirstItem={() => {
 					if (isOpenedByKeyboard) {
 						setOpenedByKeyboard(false);

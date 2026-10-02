@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__renderer/app",
 		"rootDir": "../",
 		"composite": true,
@@ -49,6 +47,12 @@
 			"path": "../../../design-system/code/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/css/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-card-provider/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../editor-json-transformer/afm-products/tsconfig.json"
 		},
 		{
@@ -59,6 +63,9 @@
 		},
 		{
 			"path": "../../editor-shared-styles/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-smart-link-draggable/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../elements/emoji/afm-products/tsconfig.json"
@@ -103,10 +110,19 @@
 			"path": "../../../media/media-viewer/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../platform/feature-flags-react/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../pragmatic-drag-and-drop/core/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../react-ufo/atlaskit/afm-products/tsconfig.json"

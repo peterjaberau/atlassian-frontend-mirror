@@ -2,18 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
+
 import { keyframes } from '@compiled/react';
 
 import { css, jsx, cssMap } from '@atlaskit/css';
-import { type EmojiId, type OnEmojiEvent } from '@atlaskit/emoji/types';
 import { type EmojiProvider } from '@atlaskit/emoji/resource';
+import { type EmojiId, type OnEmojiEvent } from '@atlaskit/emoji/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Inline } from '@atlaskit/primitives/compiled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
+import { getDefaultReactions } from '../shared/constants';
 import { messages } from '../shared/i18n';
-import { DefaultReactions } from '../shared/constants';
 import { EmojiButton } from './EmojiButton';
 import { ShowMore } from './ShowMore';
 import { Trigger } from './Trigger';
@@ -46,6 +49,19 @@ const styles = cssMap({
 		paddingRight: token('space.050'),
 		paddingBottom: token('space.050'),
 		paddingLeft: token('space.050'),
+		gap: token('space.050'),
+	},
+
+	hoverableReactionPickerSelectorList: {
+		paddingTop: token('space.050'),
+		paddingRight: token('space.050'),
+		paddingBottom: token('space.050'),
+		paddingLeft: token('space.050'),
+		marginTop: token('space.0'),
+		marginRight: token('space.0'),
+		marginBottom: token('space.0'),
+		marginLeft: token('space.0'),
+		listStyleType: 'none',
 		gap: token('space.050'),
 	},
 });
@@ -111,7 +127,14 @@ type RevealProps = {
 
 const Reveal = ({ children, testId }: RevealProps) => {
 	return (
-		<Box as="li" xcss={styles.emojiContainer}>
+		<Box
+			as={
+				expValEquals('platform_a11y_fixes_reactions_selector_list', 'isEnabled', true)
+					? undefined
+					: 'li'
+			}
+			xcss={styles.emojiContainer}
+		>
 			<div data-testid={testId} css={revealStyle}>
 				{children}
 			</div>
@@ -127,9 +150,21 @@ export const Selector = ({
 	onMoreClick,
 	onSelection,
 	showMore,
-	pickerQuickReactionEmojiIds = DefaultReactions,
+	pickerQuickReactionEmojiIds,
 	hoverableReactionPickerSelector = false,
-}: SelectorProps) => {
+}: SelectorProps): JSX.Element => {
+	const [isTeamojiPickerRefreshEnabled, setIsTeamojiPickerRefreshEnabled] = useState(false);
+
+	useEffect(() => {
+		setIsTeamojiPickerRefreshEnabled(
+			expValEquals('platform_teamoji_26_refresh_emoji_picker', 'isEnabled', true) ||
+				fg('platform_teamoji_26_refresh_emoji_picker_user_id'),
+		);
+	}, []);
+
+	const quickReactionEmojiIds =
+		pickerQuickReactionEmojiIds ?? getDefaultReactions(isTeamojiPickerRefreshEnabled);
+
 	/**
 	 * Render the default emoji icon
 	 * @param emoji emoji item
@@ -137,7 +172,7 @@ export const Selector = ({
 	 */
 	const renderEmoji = (emoji: EmojiId, index: number) => {
 		const emojiButtonAndTooltip = (
-			<Tooltip content={emoji.shortName}>
+			<Tooltip key={emoji.id ?? emoji.shortName} content={emoji.shortName}>
 				<EmojiButton
 					emojiId={emoji}
 					emojiProvider={emojiProvider}
@@ -148,7 +183,9 @@ export const Selector = ({
 		);
 
 		return hoverableReactionPickerSelector ? (
-			emojiButtonAndTooltip
+			<Box as="li" key={emoji.id ?? emoji.shortName} xcss={styles.emojiContainer}>
+				{emojiButtonAndTooltip}
+			</Box>
 		) : (
 			<Reveal key={emoji.id ?? emoji.shortName} testId={RENDER_SELECTOR_TESTID}>
 				{emojiButtonAndTooltip}
@@ -166,26 +203,37 @@ export const Selector = ({
 					reactionPickerTriggerText={messages.addNewReaction.defaultMessage}
 					fullWidthSelectorTrayReactionPickerTrigger
 				/>
-				<Inline
-					alignBlock="center"
-					xcss={
-						hoverableReactionPickerSelector
-							? styles.hoverableReactionPickerSelectorContainer
-							: styles.container
-					}
-				>
-					{pickerQuickReactionEmojiIds ? pickerQuickReactionEmojiIds.map(renderEmoji) : null}
+				<Inline as="ul" alignBlock="center" xcss={styles.hoverableReactionPickerSelectorList}>
+					{quickReactionEmojiIds.map(renderEmoji)}
 				</Inline>
 			</Box>
 		);
 	}
 
+	const isSelectorListMarkupFixEnabled = expValEquals(
+		'platform_a11y_fixes_reactions_selector_list',
+		'isEnabled',
+		true,
+	);
+
 	return (
-		<Inline alignBlock="center" xcss={styles.container} as="ul">
-			{pickerQuickReactionEmojiIds ? pickerQuickReactionEmojiIds.map(renderEmoji) : null}
+		<Inline
+			alignBlock="center"
+			xcss={styles.container}
+			as={isSelectorListMarkupFixEnabled ? undefined : 'ul'}
+			role={isSelectorListMarkupFixEnabled ? 'group' : undefined}
+			aria-label={
+				isSelectorListMarkupFixEnabled ? messages.popperWrapperLabel.defaultMessage : undefined
+			}
+		>
+			{quickReactionEmojiIds.map(renderEmoji)}
 			{showMore ? (
 				<Fragment>
-					<Box xcss={styles.separator} />
+					<Box
+						as={isSelectorListMarkupFixEnabled ? undefined : 'li'}
+						xcss={styles.separator}
+						aria-hidden={isSelectorListMarkupFixEnabled ? true : undefined}
+					/>
 					<Reveal>
 						<ShowMore key="more" onClick={onMoreClick} />
 					</Reveal>

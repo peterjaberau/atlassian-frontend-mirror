@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Spinner from '@atlaskit/spinner';
+import Button from '@atlaskit/button/default/button';
+import Spinner from '@atlaskit/spinner/spinner';
 import { token } from '@atlaskit/tokens';
 
 const InvertedSpinner = () => <Spinner appearance="invert" label="Loading" />;
@@ -22,7 +22,7 @@ function SpinnerButton() {
 
 export default (): React.JSX.Element => (
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-	<div style={{ padding: token('space.100', '8px') }}>
+	<div style={{ padding: token('space.100') }}>
 		<SpinnerButton />
 	</div>
 );

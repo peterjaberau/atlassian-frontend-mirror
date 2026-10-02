@@ -5,15 +5,14 @@
 import { useEffect } from 'react';
 
 import { cssMap, jsx } from '@compiled/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import EmptyState from '@atlaskit/empty-state';
+import EmptyState from '@atlaskit/empty-state/empty-state';
 import { Box } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../analytics';
 import { SpotPadlockKey } from '../../../common/ui/spot/basics/padlock-key';
-
 import { loadingErrorMessages } from './messages';
 
 const styles = cssMap({
@@ -23,7 +22,7 @@ const styles = cssMap({
 	descriptionMessageStyles: {
 		display: 'flex',
 		flexDirection: 'column',
-		gap: token('space.200', '16px'),
+		gap: token('space.200'),
 	},
 	urlStyles: {
 		font: token('font.heading.medium'),
@@ -56,7 +55,7 @@ interface AccessRequiredProps {
 	url?: string;
 }
 
-export const AccessRequired = ({ url }: AccessRequiredProps) => {
+export const AccessRequired = ({ url }: AccessRequiredProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 

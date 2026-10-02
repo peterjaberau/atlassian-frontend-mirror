@@ -1,5 +1,1229 @@
 # @atlaskit/prosemirror-input-rules
 
+## 4.1.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 4.0.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.56
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 4.0.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.7.0
+
+### Minor Changes
+
+- [`7b2ab46c79d94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b2ab46c79d94) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.6.18
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.6.17
 
 ### Patch Changes

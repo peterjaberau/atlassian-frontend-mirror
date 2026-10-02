@@ -1,11 +1,9 @@
 import React from 'react';
 
-import { DatasourceTableView } from '@atlaskit/link-datasource';
+import { DatasourceTableViewWithWrappers as DatasourceTableView } from '@atlaskit/link-datasource/datasource-table-view-with-wrappers';
 
 import { ExampleJiraIssuesTableView } from '../examples-helpers/buildJiraIssuesTable';
 import { FakeModalDialogContainer } from '../examples-helpers/fakeModalDialogContainer';
-
-
 
 export default (): React.JSX.Element => {
 	return (

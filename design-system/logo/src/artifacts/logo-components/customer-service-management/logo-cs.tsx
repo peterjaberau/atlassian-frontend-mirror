@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::7b7476897879e097648c054d2783409e>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::da4ae4c0cf56c3cbc340136bd149ac9d>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -20,11 +20,11 @@ const svg = `<svg height="100%" viewBox="0 0 456 32">
 /**
  * __CustomerServiceManagementLogoCS__
  *
- * A temporary component to represent the logo for Customer Service Management.
+ * A component to represent the logo for Customer Service Management.
  *
  */
 export function CustomerServiceManagementLogoCS({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Customer Service Management',
 	testId,

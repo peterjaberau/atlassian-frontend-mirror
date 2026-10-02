@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 
-import { type ADFEntity } from '@atlaskit/adf-utils/types';
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { EventDispatcher } from '../event-dispatcher';
@@ -10,7 +11,6 @@ import { ProviderFactory, WithProviders } from '../provider-factory';
 import type { Providers } from '../provider-factory';
 import type { ProsemirrorGetPosHandler } from '../react-node-view';
 import type { EditorAppearance } from '../types';
-
 import { ExtensionComponent } from './ExtensionComponent';
 import type { ExtensionsPluginInjectionAPI, MacroInteractionDesignFeatureFlags } from './types';
 
@@ -19,14 +19,19 @@ export interface Props {
 	editorView: EditorView;
 	eventDispatcher?: EventDispatcher;
 	extensionHandlers: ExtensionHandlers;
+	extensionLoadingHandlers?: ExtensionHandlers;
 	getPos: ProsemirrorGetPosHandler;
 	handleContentDOMRef: (node: HTMLElement | null) => void;
 	macroInteractionDesignFeatureFlags?: MacroInteractionDesignFeatureFlags;
 	node: PMNode;
+	/** Called by the extension once its content is ready to be shown. */
+	onContentReady?: () => void;
 	pluginInjectionApi: ExtensionsPluginInjectionAPI;
 	providerFactory?: ProviderFactory;
 	references?: ReferenceEntity[];
 	rendererExtensionHandlers?: ExtensionHandlers;
+	/** Invalidates memoized renders on selection changes; read current state from editorView. */
+	selection?: Selection;
 	showLivePagesBodiedMacrosRendererView?: (node: ADFEntity) => boolean;
 	showUpdatedLivePages1PBodiedExtensionUI?: (node: ADFEntity) => boolean;
 }
@@ -55,9 +60,11 @@ export class Extension extends Component<Props, any> {
 		const {
 			node,
 			getPos,
+			selection,
 			editorView,
 			handleContentDOMRef,
 			extensionHandlers,
+			extensionLoadingHandlers,
 			references,
 			editorAppearance,
 			pluginInjectionApi,
@@ -66,6 +73,7 @@ export class Extension extends Component<Props, any> {
 			showLivePagesBodiedMacrosRendererView,
 			showUpdatedLivePages1PBodiedExtensionUI,
 			rendererExtensionHandlers,
+			onContentReady,
 		} = this.props;
 
 		// Extensions are not yet using the new plugin architecture, and the use of the pluginInjectionApi
@@ -77,6 +85,7 @@ export class Extension extends Component<Props, any> {
 
 		return (
 			<ExtensionComponent
+				selection={selection}
 				editorView={editorView}
 				node={node}
 				getPos={getPos}
@@ -84,6 +93,7 @@ export class Extension extends Component<Props, any> {
 				extensionProvider={extensionProvider}
 				handleContentDOMRef={handleContentDOMRef}
 				extensionHandlers={extensionHandlers}
+				extensionLoadingHandlers={extensionLoadingHandlers}
 				editorAppearance={editorAppearance}
 				pluginInjectionApi={pluginInjectionApi}
 				eventDispatcher={eventDispatcher}
@@ -92,6 +102,7 @@ export class Extension extends Component<Props, any> {
 				showUpdatedLivePages1PBodiedExtensionUI={showUpdatedLivePages1PBodiedExtensionUI}
 				rendererExtensionHandlers={rendererExtensionHandlers}
 				isLivePageViewMode={isLivePageViewMode}
+				onContentReady={onContentReady}
 			/>
 		);
 	};
@@ -99,6 +110,7 @@ export class Extension extends Component<Props, any> {
 	render(): React.JSX.Element {
 		return (
 			<WithProviders
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- there seems to be an existing bug where the Extension component can't be resized if this is memoised because it doesn't rerender so this can't be memoised without a larger refactor
 				providers={['extensionProvider']}
 				providerFactory={this.providerFactory}
 				renderNode={this.renderWithProvider}

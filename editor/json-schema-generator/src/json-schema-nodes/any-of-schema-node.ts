@@ -1,12 +1,12 @@
-import type SchemaNode from './schema-node';
 import OfSchemaNode from './of-schema-node';
+import type SchemaNode from './schema-node';
 
 export default class AnyOfSchemaNode extends OfSchemaNode {
 	constructor(values: Array<SchemaNode> = []) {
 		super('anyOf', values);
 	}
 
-	toSpec() {
+	toSpec(): (string | object)[] {
 		return this.values.map((value) => value.toSpec());
 	}
 }

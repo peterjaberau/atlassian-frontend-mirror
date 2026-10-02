@@ -3,28 +3,26 @@
  * @jsx jsx
  */
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
 import { jsx, css } from '@emotion/react';
 
-import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import type { RendererContext } from '../types';
-import type { Serializer } from '../../serializer';
-import type { ExtensionLayout } from '@atlaskit/adf-schema';
+import type { Layout as ExtensionLayout } from '@atlaskit/adf-schema/extensions';
 import type { ExtensionHandlers } from '@atlaskit/editor-common/extensions';
 import type { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { token } from '@atlaskit/tokens';
 
+import type { Serializer } from '../../serializer';
+import type { RendererContext } from '../types';
+
 const containerCSS = css({
-	padding: `${token('space.100', '8px')}`,
+	padding: `${token('space.100')}`,
 	minHeight: '100px',
 	// by default all frames are hidden, this style is overridden in multiBodiedExtensions for active frame
 	display: 'none',
-})
+});
 
 type Props = React.PropsWithChildren<{
-	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	content?: any;
 	extensionHandlers?: ExtensionHandlers;
 	extensionKey: string;
 	extensionType: string;
@@ -44,12 +42,9 @@ type Props = React.PropsWithChildren<{
 	serializer: Serializer<any>;
 }>;
 
-const ExtensionFrame = (props: Props) => {
+const ExtensionFrame = (props: Props): jsx.JSX.Element => {
 	return (
-		<div
-			css={[containerCSS]}
-			data-extension-frame="true"
-		>
+		<div css={[containerCSS]} data-extension-frame="true">
 			{props.children}
 		</div>
 	);

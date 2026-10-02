@@ -2,10 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useCallback, useState } from 'react';
+import { type JSX, useCallback, useState } from 'react';
 
 import { cssMap, cx, jsx } from '@atlaskit/css';
-import { Inline, Pressable, Stack } from '@atlaskit/primitives/compiled';
+import { Inline } from '@atlaskit/primitives/compiled/inline';
+import { Pressable } from '@atlaskit/primitives/compiled/pressable';
+import { Stack } from '@atlaskit/primitives/compiled/stack';
 import Toggle from '@atlaskit/toggle';
 import { token } from '@atlaskit/tokens';
 
@@ -13,10 +15,10 @@ const styles = cssMap({
 	pressable: {
 		fontWeight: token('font.weight.medium'),
 		backgroundColor: token('color.background.neutral.subtle'),
-		paddingTop: token('space.0'),
-		paddingRight: token('space.0'),
-		paddingBottom: token('space.0'),
-		paddingLeft: token('space.0'),
+		paddingBlockStart: token('space.0'),
+		paddingInlineEnd: token('space.0'),
+		paddingBlockEnd: token('space.0'),
+		paddingInlineStart: token('space.0'),
 	},
 
 	enabled: {

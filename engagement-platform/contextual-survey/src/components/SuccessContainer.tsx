@@ -5,31 +5,30 @@
 import { css, jsx } from '@compiled/react';
 
 import CheckCircleIcon from '@atlaskit/icon/core/status-success';
-import { G300 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 const sectionStyles = css({
-	marginLeft: token('space.500', '40px'),
+	marginLeft: token('space.500'),
 });
 
 const iconContainerStyles = css({
 	position: 'absolute',
-	top: token('space.250', '20px'),
-	left: token('space.300', '24px'),
+	top: token('space.250'),
+	left: token('space.300'),
 });
 
 interface Props {
 	children: React.ReactNode;
 }
 
-export default ({ children }: Props) => (
+export default ({ children }: Props): React.JSX.Element => (
 	<section css={sectionStyles}>
 		<div css={iconContainerStyles}>
 			<CheckCircleIcon
 				spacing="spacious"
 				label=""
 				aria-hidden
-				color={token('color.icon.success', G300)}
+				color={token('color.icon.success')}
 			/>
 		</div>
 		{children}

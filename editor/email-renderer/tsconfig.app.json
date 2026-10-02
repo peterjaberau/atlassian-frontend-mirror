@@ -1,9 +1,11 @@
 {
 	"extends": "../../../tsconfig.base.json",
-	"include": ["./src/**/*.ts", "./src/**/*.tsx"],
-	"exclude": [
+	"include": [
+		"./src/**/*.ts",
+		"./src/**/*.tsx",
 		"**/docs/**/*",
 		"**/__tests__/**/*",
+		"**/__tests__/**/*.json",
 		"**/vr-tests/**/*",
 		"**/__perf__/**/*",
 		"**/*.test.*",
@@ -25,13 +27,19 @@
 		"**/mock.*",
 		"**/codemods/**/*.ts",
 		"**/codemods/**/*.tsx",
-		"./src/static/generator/generate.ts",
-		"./src/static/generator/image-sources.ts",
-		"./src/static/generator/types/**/*"
+		"**/stories.ts",
+		"**/stories.tsx",
+		"**/stories/*.ts",
+		"**/stories/*.tsx",
+		"**/stories/**/*.ts",
+		"**/stories/**/*.tsx",
+		"./build/*.ts"
 	],
+	"exclude": [],
 	"compilerOptions": {
 		"composite": true,
-		"outDir": "../../../tsDist/@atlaskit__email-renderer/app"
+		"outDir": "../../../tsDist/@atlaskit__email-renderer/app",
+		"isolatedDeclarations": true
 	},
 	"references": [
 		{
@@ -41,8 +49,22 @@
 			"path": "../adf-utils/tsconfig.app.json"
 		},
 		{
+			"path": "../../../build/website/docs/tsconfig.app.json"
+		},
+		{
 			"path": "../editor-prosemirror/tsconfig.app.json"
+		},
+		{
+			"path": "../../design-system/tokens/tsconfig.app.json"
+		},
+		{
+			"path": "../../elements/util-data-test/tsconfig.app.json"
+		},
+		{
+			"path": "../../design-system/structured-docs-types/tsconfig.app.json"
+		},
+		{
+			"path": "../../ap/workbench/tsconfig.app.json"
 		}
-	],
-	"files": []
+	]
 }

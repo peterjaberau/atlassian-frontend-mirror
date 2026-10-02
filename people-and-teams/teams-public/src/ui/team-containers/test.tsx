@@ -2,26 +2,35 @@ import React from 'react';
 
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 import { renderWithAnalyticsListener as render } from '@atlassian/ptc-test-utils';
 
 import { messages } from '../../common/utils/get-container-properties';
+import { spaceInviteScheduler } from '../../common/utils/spaceInviteScheduler';
 import { useProductPermissions } from '../../controllers/hooks/use-product-permission';
-import { useTeamContainers } from '../../controllers/hooks/use-team-containers';
+import { useTeamContainers } from '../../controllers/hooks/use-team-containers/use-team-containers';
 import { useTeamLinksAndContainers } from '../../controllers/hooks/use-team-links-and-containers';
-
 import { TeamContainers } from './main';
 import type { TeamContainersComponent } from './types';
 
-jest.mock('@atlaskit/platform-feature-flags');
+jest.mock('@atlaskit/platform-feature-flags/fg');
 
-jest.mock('../../controllers/hooks/use-team-containers', () => ({
-	...jest.requireActual('../../controllers/hooks/use-team-containers'),
-	initializeCalled: jest.fn().mockReturnValue(true),
-	useTeamContainers: jest.fn(),
+jest.mock('../../common/utils/spaceInviteScheduler', () => ({
+	spaceInviteScheduler: {
+		scheduleInvite: jest.fn(),
+		cancelInvite: jest.fn(),
+	},
+}));
+
+jest.mock('../../controllers/hooks/use-team-containers/use-team-containers-hook', () => ({
 	useTeamContainersHook: jest.fn().mockReturnValue([]),
+}));
+
+jest.mock('../../controllers/hooks/use-team-containers/use-team-containers', () => ({
+	useTeamContainers: jest.fn(),
 }));
 
 jest.mock('../../controllers/hooks/use-product-permission', () => ({
@@ -31,6 +40,11 @@ jest.mock('../../controllers/hooks/use-product-permission', () => ({
 jest.mock('../../controllers/hooks/use-team-links-and-containers', () => ({
 	useTeamLinksAndContainers: jest.fn(),
 }));
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 const mockFg = fg as jest.Mock;
 
@@ -247,7 +261,6 @@ describe('TeamContainers', () => {
 	});
 
 	it('should only render three containers if maxNumberOfContainersToShow is 3', () => {
-		mockFg.mockImplementation((flag: string) => flag === 'fix_team_link_card_a11y' ? true : false);
 		const teamContainers = Array.from({ length: 5 }, (_, index) => ({
 			id: index.toString(),
 			type: 'ConfluenceSpace',
@@ -419,6 +432,96 @@ describe('TeamContainers', () => {
 		expectEventToBeFired('track', teamContainerUnlinkedFailedEvent);
 	});
 
+	it('should fire cancelled analytics event when cancelInvite returns true', async () => {
+		mockFg.mockImplementation((flag: string) => flag === 'space-team_linking_invites_fg');
+		(spaceInviteScheduler.cancelInvite as jest.Mock).mockReturnValue(true);
+		(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
+			teamLinks: [JiraProject],
+			removeTeamLink: jest.fn(),
+		});
+		(useTeamContainers as jest.Mock).mockReturnValue({
+			unlinkError: null,
+		});
+
+		const { expectEventToBeFired } = renderTeamContainers(teamId);
+
+		await userEvent.hover(screen.getByText(JiraProject.name));
+		const crossIconButton = screen.getByRole('button', {
+			name: 'disconnect the container Jira Project Name',
+		});
+		await userEvent.click(crossIconButton);
+
+		const disconnectButton = screen.getByRole('button', { name: 'Remove' });
+		await userEvent.click(disconnectButton);
+
+		expect(spaceInviteScheduler.cancelInvite).toHaveBeenCalledWith(teamId, JiraProject.id);
+
+		expectEventToBeFired('track', {
+			action: 'cancelled',
+			actionSubject: 'sendSpaceTeamInvites',
+			attributes: {
+				spaceId: JiraProject.id,
+				teamId,
+			},
+		});
+	});
+
+	it('should not fire cancelled analytics event when cancelInvite returns false', async () => {
+		mockFg.mockImplementation((flag: string) => flag === 'space-team_linking_invites_fg');
+		(spaceInviteScheduler.cancelInvite as jest.Mock).mockReturnValue(false);
+		(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
+			teamLinks: [JiraProject],
+			removeTeamLink: jest.fn(),
+		});
+		(useTeamContainers as jest.Mock).mockReturnValue({
+			unlinkError: null,
+		});
+
+		const { mockClient } = renderTeamContainers(teamId);
+
+		await userEvent.hover(screen.getByText(JiraProject.name));
+		const crossIconButton = screen.getByRole('button', {
+			name: 'disconnect the container Jira Project Name',
+		});
+		await userEvent.click(crossIconButton);
+
+		const disconnectButton = screen.getByRole('button', { name: 'Remove' });
+		await userEvent.click(disconnectButton);
+
+		expect(spaceInviteScheduler.cancelInvite).toHaveBeenCalledWith(teamId, JiraProject.id);
+
+		expect(mockClient.sendTrackEvent).not.toHaveBeenCalledWith(
+			expect.objectContaining({
+				action: 'cancelled',
+				actionSubject: 'sendSpaceTeamInvites',
+			}),
+		);
+	});
+
+	it('should not call cancelInvite on disconnect when feature gate is disabled', async () => {
+		mockFg.mockImplementation(() => false);
+		(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
+			teamLinks: [JiraProject],
+			removeTeamLink: jest.fn(),
+		});
+		(useTeamContainers as jest.Mock).mockReturnValue({
+			unlinkError: null,
+		});
+
+		renderTeamContainers(teamId);
+
+		await userEvent.hover(screen.getByText(JiraProject.name));
+		const crossIconButton = screen.getByRole('button', {
+			name: 'disconnect the container Jira Project Name',
+		});
+		await userEvent.click(crossIconButton);
+
+		const disconnectButton = screen.getByRole('button', { name: 'Remove' });
+		await userEvent.click(disconnectButton);
+
+		expect(spaceInviteScheduler.cancelInvite).not.toHaveBeenCalled();
+	});
+
 	it('should have no accessibility violations', async () => {
 		(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
 			teamLinks: [JiraProject, ConfluenceSpace],
@@ -489,13 +592,6 @@ describe('TeamLinks', () => {
 			},
 			error: null,
 		});
-
-		mockFg.mockImplementation((flag) => {
-			if (flag === 'enable_web_links_in_team_containers') {
-				return true;
-			}
-			return false;
-		});
 	});
 
 	it('should render add Jira, Confluence, Web link card when the team has no Jira project, Confluence space and Web links and has product access', () => {
@@ -565,5 +661,18 @@ describe('TeamLinks', () => {
 		expect(screen.getByText(ConfluenceSpace.name)).toBeInTheDocument();
 		expect(screen.getByText(WebLinks.name)).toBeInTheDocument();
 		expect(screen.getByText(messages.linkContainerDescription.defaultMessage)).toBeInTheDocument();
+	});
+
+	it('should render list semantics', () => {
+		(useTeamLinksAndContainers as jest.Mock).mockReturnValue({
+			teamLinks: [JiraProject, ConfluenceSpace],
+		});
+
+		const { container } = renderTeamContainers(teamId);
+		const gridContainer = container.querySelector('[role="list"]');
+		expect(gridContainer).toBeInTheDocument();
+
+		const listItems = container.querySelectorAll('[role="listitem"]');
+		expect(listItems.length).toBeGreaterThan(0);
 	});
 });

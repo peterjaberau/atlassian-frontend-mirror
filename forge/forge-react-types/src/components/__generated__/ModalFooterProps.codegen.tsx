@@ -3,14 +3,14 @@
  *
  * Extract component prop types from UIKit 2 components - ModalFooterProps
  *
- * @codegen <<SignedSource::9ca302c7b8cd20f9723c0613af32ff45>>
- * @codegenCommand yarn workspace @atlaskit/forge-react-types codegen
- * @codegenDependency ../../../../forge-ui/src/components/UIKit/modal/__generated__/modal-footer.partial.tsx <<SignedSource::0ff399d8f02a70c539a63e9466091768>>
+ * @codegen <<SignedSource::f1a1714f406b2236c6e085c4286f710f>>
+ * @codegenCommand afm workspace @atlaskit/forge-react-types codegen
+ * @codegenDependency ../../../../forge-ui/src/components/UIKit/modal/__generated__/modal-footer.partial.tsx <<SignedSource::4f8632360bc707a48ff359168ea643ec>>
  */
 /* eslint @repo/internal/codegen/signed-source-integrity: "warn" */
 
 import React from 'react';
-import { ModalFooter as PlatformModalFooter } from '@atlaskit/modal-dialog';
+import PlatformModalFooter from '@atlaskit/modal-dialog/modal-footer';
 
 type PlatformModalFooterProps = React.ComponentProps<typeof PlatformModalFooter>;
 

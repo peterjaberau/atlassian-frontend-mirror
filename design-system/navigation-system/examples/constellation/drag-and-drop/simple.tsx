@@ -1,5 +1,4 @@
 /**
- * @jsxFrag
  * @jsxRuntime classic
  * @jsx jsx
  */
@@ -7,9 +6,11 @@ import React, { type ReactNode, type Ref, useEffect, useRef, useState } from 're
 
 import invariant from 'tiny-invariant';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import { jsx } from '@atlaskit/css';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import AddIcon from '@atlaskit/icon/core/add';
 import BasketballIcon from '@atlaskit/icon/core/basketball';
 import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
@@ -20,11 +21,11 @@ import SettingsIcon from '@atlaskit/icon/core/settings';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
 import StarUnstarredIcon from '@atlaskit/icon/core/star-unstarred';
 import TagIcon from '@atlaskit/icon/core/tag';
-import { SideNavContent } from '@atlaskit/navigation-system/layout/side-nav';
+import { SideNavBody } from '@atlaskit/navigation-system/layout/side-nav';
 import {
 	dropTargetForElements,
 	type ElementDropTargetEventBasePayload,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { ButtonMenuItem } from '@atlaskit/side-nav-items/button-menu-item';
 import { DropIndicator } from '@atlaskit/side-nav-items/drag-and-drop/drop-indicator';
 import { GroupDropIndicator } from '@atlaskit/side-nav-items/drag-and-drop/group-drop-indicator';
@@ -129,7 +130,7 @@ function OurLinkMenuItem({
 		});
 
 	return (
-		<>
+		<React.Fragment>
 			<LinkMenuItem
 				href="#"
 				testId={testId}
@@ -144,7 +145,7 @@ function OurLinkMenuItem({
 				Link menu item
 			</LinkMenuItem>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }
 
@@ -176,7 +177,7 @@ function OurButtonMenuItem({
 		});
 
 	return (
-		<>
+		<React.Fragment>
 			<ButtonMenuItem
 				testId={testId}
 				elemBefore={<BasketballIcon label="" />}
@@ -190,7 +191,7 @@ function OurButtonMenuItem({
 				Button menu item
 			</ButtonMenuItem>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }
 
@@ -222,7 +223,7 @@ function OurFlyoutMenuItem({
 		});
 
 	return (
-		<>
+		<React.Fragment>
 			<FlyoutMenuItem>
 				<FlyoutMenuItemTrigger
 					testId={triggerTestId}
@@ -240,7 +241,7 @@ function OurFlyoutMenuItem({
 				</FlyoutMenuItemContent>
 			</FlyoutMenuItem>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }
 
@@ -344,7 +345,7 @@ function OurExpandableMenuItem({
 	}, [state.type, isExpanded]);
 
 	return (
-		<>
+		<React.Fragment>
 			<ExpandableMenuItem
 				isExpanded={isExpanded}
 				onExpansionToggle={() => setIsExpanded((value) => !value)}
@@ -359,7 +360,7 @@ function OurExpandableMenuItem({
 					hasDragIndicator
 					elemBefore={<FilterIcon label="" />}
 					actionsOnHover={
-						<>
+						<React.Fragment>
 							<IconButton
 								label="Add"
 								icon={(iconProps) => <AddIcon {...iconProps} size="small" />}
@@ -367,7 +368,7 @@ function OurExpandableMenuItem({
 								spacing="compact"
 							/>
 							<FakeMoreMenu />
-						</>
+						</React.Fragment>
 					}
 				>
 					Expandable menu item
@@ -377,7 +378,7 @@ function OurExpandableMenuItem({
 				</ExpandableMenuItemContent>
 			</ExpandableMenuItem>
 			{dragPreview}
-		</>
+		</React.Fragment>
 	);
 }
 
@@ -401,7 +402,7 @@ export function AllMenuItems(): JSX.Element {
 
 	return (
 		<SidebarExampleContainer>
-			<SideNavContent>
+			<SideNavBody>
 				<GroupDropIndicator isActive={isInnerMostOver} ref={ref}>
 					<MenuList>
 						<OurLinkMenuItem testId="link-menu-item" />
@@ -410,7 +411,7 @@ export function AllMenuItems(): JSX.Element {
 						<OurExpandableMenuItem triggerTestId="expandable-menu-item-trigger" />
 					</MenuList>
 				</GroupDropIndicator>
-			</SideNavContent>
+			</SideNavBody>
 		</SidebarExampleContainer>
 	);
 }
@@ -420,13 +421,13 @@ export function AllMenuItems(): JSX.Element {
 function LinkMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator: ReactNode }) {
 	return (
 		<SidebarExampleContainer>
-			<SideNavContent>
+			<SideNavBody>
 				<GroupDropIndicator isActive>
 					<MenuList>
 						<OurLinkMenuItem testId="link-menu-item" forcedDropIndicator={dropIndicator} />
 					</MenuList>
 				</GroupDropIndicator>
-			</SideNavContent>
+			</SideNavBody>
 		</SidebarExampleContainer>
 	);
 }
@@ -434,13 +435,13 @@ function LinkMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator: React
 function ButtonMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator: ReactNode }) {
 	return (
 		<SidebarExampleContainer>
-			<SideNavContent>
+			<SideNavBody>
 				<GroupDropIndicator isActive>
 					<MenuList>
 						<OurButtonMenuItem testId="button-menu-item" forcedDropIndicator={dropIndicator} />
 					</MenuList>
 				</GroupDropIndicator>
-			</SideNavContent>
+			</SideNavBody>
 		</SidebarExampleContainer>
 	);
 }
@@ -448,7 +449,7 @@ function ButtonMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator: Rea
 function FlyoutMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator: ReactNode }) {
 	return (
 		<SidebarExampleContainer>
-			<SideNavContent>
+			<SideNavBody>
 				<GroupDropIndicator isActive>
 					<MenuList>
 						<OurFlyoutMenuItem
@@ -457,7 +458,7 @@ function FlyoutMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator: Rea
 						/>
 					</MenuList>
 				</GroupDropIndicator>
-			</SideNavContent>
+			</SideNavBody>
 		</SidebarExampleContainer>
 	);
 }
@@ -465,7 +466,7 @@ function FlyoutMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator: Rea
 function ExpandableMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator: ReactNode }) {
 	return (
 		<SidebarExampleContainer>
-			<SideNavContent>
+			<SideNavBody>
 				<GroupDropIndicator isActive>
 					<MenuList>
 						<OurExpandableMenuItem
@@ -474,7 +475,7 @@ function ExpandableMenuItemWithDropIndicator({ dropIndicator }: { dropIndicator:
 						/>
 					</MenuList>
 				</GroupDropIndicator>
-			</SideNavContent>
+			</SideNavBody>
 		</SidebarExampleContainer>
 	);
 }

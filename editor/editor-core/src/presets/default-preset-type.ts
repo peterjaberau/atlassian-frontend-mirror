@@ -4,6 +4,7 @@ import type { UserPreferencesPlugin } from '@atlaskit/editor-plugin-user-prefere
 import type { AnalyticsPlugin } from '@atlaskit/editor-plugins/analytics';
 import type { BasePlugin } from '@atlaskit/editor-plugins/base';
 import type { BetterTypeHistoryPlugin } from '@atlaskit/editor-plugins/better-type-history';
+import type { BlockMenuPlugin } from '@atlaskit/editor-plugins/block-menu';
 import type { BlockTypePlugin } from '@atlaskit/editor-plugins/block-type';
 import type { ClearMarksOnEmptyDocPlugin } from '@atlaskit/editor-plugins/clear-marks-on-empty-doc';
 import type { ClipboardPlugin } from '@atlaskit/editor-plugins/clipboard';
@@ -29,6 +30,7 @@ import type { SubmitEditorPlugin } from '@atlaskit/editor-plugins/submit-editor'
 import type { TextFormattingPlugin } from '@atlaskit/editor-plugins/text-formatting';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugins/toolbar';
 import type { TypeAheadPlugin } from '@atlaskit/editor-plugins/type-ahead';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugins/ui-control-registry';
 import type { UndoRedoPlugin } from '@atlaskit/editor-plugins/undo-redo';
 import type { UnsupportedContentPlugin } from '@atlaskit/editor-plugins/unsupported-content';
 import type { UserIntentPlugin } from '@atlaskit/editor-plugins/user-intent';
@@ -61,7 +63,9 @@ export type DefaultPresetPlugins = [
 	SelectionToolbarPlugin,
 	ClearMarksOnEmptyDocPlugin,
 	BlockTypePlugin,
+	BlockMenuPlugin | undefined,
 	UndoRedoPlugin | undefined,
+	UiControlRegistryPlugin | undefined,
 	PrimaryToolbarPlugin,
 	ToolbarPlugin | undefined,
 	UserIntentPlugin | undefined,

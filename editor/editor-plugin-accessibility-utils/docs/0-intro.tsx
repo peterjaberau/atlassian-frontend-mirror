@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -14,12 +13,13 @@ ${createEditorUseOnlyNotice('Editor Plugin Accessibility Utils', [
 
 
 ${(
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-		<div style={{ marginTop: token('space.100', '8px') }}>
+	<>
+		{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+		<div style={{ marginTop: token('space.100') }}>
 			<AtlassianInternalWarning />
 		</div>
-	)
-	}
+	</>
+)}
 
 This package includes the table plugin used by \`@atlaskit/editor-core\`.
 
@@ -30,9 +30,36 @@ This package includes the table plugin used by \`@atlaskit/editor-core\`.
 This api is based on the proposed imperative notification API [ariaNotify](https://github.com/MicrosoftEdge/MSEdgeExplainers/blob/main/Accessibility/AriaNotify/explainer.md).
 
 ${code`
-  pluginInjectionApi?.accessibilityUtils?.actions.ariaNotify(
-    formatMessage(messages.insertedTableColumnToTheRight),
-  );
+// Type definitions
+export interface AriaLiveElementAttributes {
+ priority?: 'important' | 'none';
+}
+
+export interface AccessibilityUtilsPluginState {
+ ariaLiveElementAttributes?: AriaLiveElementAttributes;
+ key?: string;
+ message: string;
+}
+
+export type AccessibilityUtilsPlugin = NextEditorPlugin<
+ 'accessibilityUtils',
+ {
+   actions: {
+     ariaNotify: (
+       message: string,
+       ariaLiveElementAttributes?: AriaLiveElementAttributes
+     ) => void;
+   };
+   dependencies: [];
+   sharedState: AccessibilityUtilsPluginState;
+ }
+>;
+
+// Usage example
+pluginInjectionApi?.accessibilityUtils?.actions.ariaNotify(
+ formatMessage(messages.insertedTableColumnToTheRight),
+ { priority: 'important' }
+);
 `}
 
 ---

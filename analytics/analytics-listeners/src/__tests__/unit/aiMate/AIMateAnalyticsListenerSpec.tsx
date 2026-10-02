@@ -1,3 +1,8 @@
+import React from 'react';
+
+import { render, screen, fireEvent } from '@testing-library/react';
+import cases from 'jest-in-case';
+
 import {
 	type GasPurePayload,
 	OPERATIONAL_EVENT_TYPE,
@@ -5,13 +10,11 @@ import {
 	TRACK_EVENT_TYPE,
 	SCREEN_EVENT_TYPE,
 } from '@atlaskit/analytics-gas-types';
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { render, screen, fireEvent } from '@testing-library/react';
-import cases from 'jest-in-case';
-import React from 'react';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+
 import { createButtonWithAnalytics } from '../../../../examples/helpers';
-import type Logger from '../../../helpers/logger';
 import AIMateAnalyticsListener from '../../../aiMate/AIMateAnalyticsListener';
+import type Logger from '../../../helpers/logger';
 import { type AnalyticsWebClient, FabricChannel } from '../../../types';
 import { createAnalyticsContexts, createLoggerMock } from '../../_testUtils';
 
@@ -70,7 +73,7 @@ describe('AIMateAnalyticsListener', () => {
 			const dummyButton = screen.getByRole('button', { name: 'Test [click on me]' });
 			fireEvent.click(dummyButton);
 
-			let mockFn = analyticsWebClientMock.sendUIEvent;
+			let mockFn: AnalyticsWebClient[keyof AnalyticsWebClient] = analyticsWebClientMock.sendUIEvent;
 
 			if (eventType === OPERATIONAL_EVENT_TYPE) {
 				mockFn = analyticsWebClientMock.sendOperationalEvent;
@@ -81,7 +84,7 @@ describe('AIMateAnalyticsListener', () => {
 			}
 
 			if (eventType === SCREEN_EVENT_TYPE) {
-				analyticsWebClientMock.sendScreenEvent;
+				mockFn = analyticsWebClientMock.sendScreenEvent;
 			}
 
 			window.setTimeout(() => {
@@ -234,7 +237,7 @@ describe('AIMateAnalyticsListener', () => {
 					objectType: 'page',
 					containerType: 'space',
 					containerId: 'space-123',
-					source: 'smartCreate',
+					source: 'aiMate',
 					attributes: {
 						sourceHierarchy: 'aiMate',
 						packageHierarchy: undefined,
@@ -243,6 +246,36 @@ describe('AIMateAnalyticsListener', () => {
 						packageVersion: undefined,
 						flow: 'test-flow',
 						contentType: 'page',
+					},
+					tags: ['aiMate'],
+				},
+			},
+			{
+				name: 'with screen event type including path and url',
+				eventType: SCREEN_EVENT_TYPE,
+				eventPayload: {
+					eventType: SCREEN_EVENT_TYPE,
+					name: 'aiMateActions',
+					path: '/jira/servicedesk/projects/ABC/queues',
+					url: 'https://example.atlassian.net/jira/servicedesk/projects/ABC/queues',
+					attributes: {
+						agentActions: ['jsm-rovo-it-queue-0'],
+						numActions: 1,
+					},
+				},
+				context: [{ component: 'aiMateNext', source: 'aiMate' }],
+				clientPayload: {
+					name: 'aiMateActions',
+					path: '/jira/servicedesk/projects/ABC/queues',
+					url: 'https://example.atlassian.net/jira/servicedesk/projects/ABC/queues',
+					attributes: {
+						sourceHierarchy: 'aiMate',
+						packageHierarchy: undefined,
+						componentHierarchy: 'aiMateNext',
+						packageName: undefined,
+						packageVersion: undefined,
+						agentActions: ['jsm-rovo-it-queue-0'],
+						numActions: 1,
 					},
 					tags: ['aiMate'],
 				},

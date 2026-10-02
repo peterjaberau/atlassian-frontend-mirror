@@ -1,18 +1,18 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { isVCRevisionEnabled } from '../../config';
 import { getActiveInteraction } from '../../interaction-metrics';
-
 import EntriesTimeline from './entries-timeline';
 import * as getElementNameModule from './get-element-name';
+import { getHasAbortingEventDuringSSR } from './get-has-aborting-event-during-ssr';
+import { default as VCObserverNew } from './index';
+import type { VCObserverNewConfig } from './index';
 import VCCalculator_FY25_03 from './metric-calculator/fy25_03';
 import VCCalculator_FY26_04 from './metric-calculator/fy26_04';
 import RawDataHandler from './raw-data-handler';
 import type { VCObserverEntry } from './types';
 import ViewportObserver from './viewport-observer';
 import WindowEventObserver from './window-event-observer';
-
-import VCObserverNew, { type VCObserverNewConfig } from './index';
 
 // Mock dependencies
 jest.mock('./viewport-observer');
@@ -22,7 +22,7 @@ jest.mock('./metric-calculator/fy25_03');
 jest.mock('./metric-calculator/fy26_04');
 jest.mock('./raw-data-handler');
 jest.mock('./get-element-name');
-jest.mock('@atlaskit/platform-feature-flags');
+jest.mock('@atlaskit/platform-feature-flags/fg');
 jest.mock('../../interaction-metrics');
 jest.mock('../../config');
 jest.mock('../vc-observer/observers/ssr-placeholders');
@@ -154,6 +154,7 @@ describe('VCObserverNew', () => {
 					eventType: 'keydown',
 				},
 			});
+			expect(getHasAbortingEventDuringSSR()).toBe(false);
 
 			// Verify window.__SSR_ABORT_LISTENERS__ was NOT deleted
 			expect(window.__SSR_ABORT_LISTENERS__).toBeDefined();
@@ -238,6 +239,7 @@ describe('VCObserverNew', () => {
 			onEventCallback({
 				time: 200,
 				type: 'scroll',
+				event: new Event('scroll'),
 			});
 
 			expect(mockEntriesTimeline.push).toHaveBeenCalledWith({
@@ -246,6 +248,90 @@ describe('VCObserverNew', () => {
 					type: 'window:event',
 					eventType: 'scroll',
 				},
+			});
+		});
+
+		describe('abort event target elementName', () => {
+			it.each(['scroll-container', 'scroll', 'wheel'] as const)(
+				'should add elementName for %s events',
+				(eventType) => {
+					(getElementNameModule.default as jest.Mock).mockReturnValue('div[data-vc="scrollable"]');
+
+					new VCObserverNew({});
+					const onEventCallback = (WindowEventObserver as jest.Mock).mock.calls[
+						(WindowEventObserver as jest.Mock).mock.calls.length - 1
+					][0].onEvent;
+					mockEntriesTimeline.push.mockClear();
+
+					const target = document.createElement('div');
+					onEventCallback({
+						time: 200,
+						type: eventType,
+						event: { target } as unknown as Event,
+					});
+
+					expect(getElementNameModule.default).toHaveBeenCalledWith(expect.any(Object), target);
+					expect(mockEntriesTimeline.push).toHaveBeenCalledWith({
+						time: 200,
+						data: {
+							type: 'window:event',
+							eventType,
+							elementName: 'div[data-vc="scrollable"]',
+						},
+					});
+				},
+			);
+
+			it('should not add elementName for unsupported abort events', () => {
+				new VCObserverNew({});
+				const onEventCallback = (WindowEventObserver as jest.Mock).mock.calls[
+					(WindowEventObserver as jest.Mock).mock.calls.length - 1
+				][0].onEvent;
+				mockEntriesTimeline.push.mockClear();
+
+				onEventCallback({
+					time: 200,
+					type: 'resize',
+					event: { target: document.createElement('div') } as unknown as Event,
+				});
+
+				expect(getElementNameModule.default).not.toHaveBeenCalled();
+				expect(mockEntriesTimeline.push).toHaveBeenCalledWith({
+					time: 200,
+					data: {
+						type: 'window:event',
+						eventType: 'resize',
+					},
+				});
+			});
+
+			it('should use document scrolling element for document targets', () => {
+				(getElementNameModule.default as jest.Mock).mockReturnValue('html');
+
+				new VCObserverNew({});
+				const onEventCallback = (WindowEventObserver as jest.Mock).mock.calls[
+					(WindowEventObserver as jest.Mock).mock.calls.length - 1
+				][0].onEvent;
+				mockEntriesTimeline.push.mockClear();
+
+				onEventCallback({
+					time: 200,
+					type: 'scroll-container',
+					event: { target: document } as unknown as Event,
+				});
+
+				expect(getElementNameModule.default).toHaveBeenCalledWith(
+					expect.any(Object),
+					document.scrollingElement || document.documentElement,
+				);
+				expect(mockEntriesTimeline.push).toHaveBeenCalledWith({
+					time: 200,
+					data: {
+						type: 'window:event',
+						eventType: 'scroll-container',
+						elementName: 'html',
+					},
+				});
 			});
 		});
 
@@ -461,9 +547,11 @@ describe('VCObserverNew', () => {
 				isPostInteraction: false,
 				excludeSmartAnswersInSearch: undefined,
 				include3p: undefined,
+				includeSSRRatio: undefined,
 				interactionAbortReason: undefined,
 				interactionType: 'page_load',
 				isPageVisible: true,
+				reportLayoutShiftOffenders: false,
 			});
 			expect(VCCalculator_FY26_04.prototype.calculate).toHaveBeenCalledWith({
 				orderedEntries: mockEntries,
@@ -473,9 +561,11 @@ describe('VCObserverNew', () => {
 				isPostInteraction: false,
 				excludeSmartAnswersInSearch: undefined,
 				include3p: undefined,
+				includeSSRRatio: undefined,
 				interactionAbortReason: undefined,
 				interactionType: 'page_load',
 				isPageVisible: true,
+				reportLayoutShiftOffenders: false,
 			});
 		});
 
@@ -521,9 +611,6 @@ describe('VCObserverNew', () => {
 			];
 
 			beforeEach(() => {
-				(fg as jest.Mock).mockImplementation((flag: string) => {
-					return flag === 'platform_ufo_enable_vc_raw_data';
-				});
 				(RawDataHandler.prototype.getRawData as jest.Mock).mockResolvedValue({
 					revision: 'raw-handler',
 					clean: true,
@@ -532,12 +619,14 @@ describe('VCObserverNew', () => {
 			});
 
 			it('should use rawDataStopTime for raw data handler when provided', async () => {
-				mockEntriesTimeline.getOrderedEntries.mockImplementation(({ stop }: { start?: number | null | undefined; stop?: number | null | undefined }) => {
-					if (stop === 200) {
-						return mockExtendedEntries;
-					}
-					return mockEntries;
-				});
+				mockEntriesTimeline.getOrderedEntries.mockImplementation(
+					({ stop }: { start?: number | null | undefined; stop?: number | null | undefined }) => {
+						if (stop === 200) {
+							return mockExtendedEntries;
+						}
+						return mockEntries;
+					},
+				);
 				(VCCalculator_FY25_03.prototype.calculate as jest.Mock).mockResolvedValue({
 					revision: 'fy25.03',
 					clean: true,
@@ -633,6 +722,116 @@ describe('VCObserverNew', () => {
 					stop: 200,
 				});
 			});
+		});
+	});
+
+	describe('getVCResult - fy26.04 disabled via config', () => {
+		const mockEntries: VCObserverEntry[] = [
+			{
+				time: 100,
+				data: {
+					type: 'mutation:element',
+					elementName: 'element1',
+					rect: new DOMRect(0, 0, 10, 10),
+					visible: true,
+				},
+			},
+		];
+
+		beforeEach(() => {
+			mockEntriesTimeline.getOrderedEntries.mockReturnValue(mockEntries);
+			(VCCalculator_FY25_03.prototype.calculate as jest.Mock).mockResolvedValue({
+				revision: 'fy25.03',
+				clean: true,
+				'metric:vc90': 100,
+				vcDetails: { '90': { t: 100, e: ['element1'] } },
+				ratios: { element1: 0.5 },
+			});
+			(VCCalculator_FY26_04.prototype.calculate as jest.Mock).mockResolvedValue({
+				revision: 'fy26.04',
+				clean: true,
+				'metric:vc90': 100,
+			});
+			(RawDataHandler.prototype.getRawData as jest.Mock).mockResolvedValue({
+				revision: 'raw-handler',
+				clean: true,
+				'metric:vc90': null,
+			});
+		});
+
+		it('should skip fy26.04 calculator when fy26.04 is not in enabledVCRevisions', async () => {
+			// Only enable fy25.03, not fy26.04
+			(isVCRevisionEnabled as jest.Mock).mockImplementation((revision: string) => {
+				return revision === 'fy25.03';
+			});
+
+			const result = await vcObserver.getVCResult({
+				start: 0,
+				stop: 1000,
+				interactionId: 'test-interaction-id',
+				interactionType: 'page_load',
+				isPageVisible: true,
+			});
+
+			expect(VCCalculator_FY26_04.prototype.calculate).not.toHaveBeenCalled();
+			expect(VCCalculator_FY25_03.prototype.calculate).toHaveBeenCalled();
+			// Should not include fy26.04 result
+			expect(result.find((r) => r.revision === 'fy26.04')).toBeUndefined();
+			// Should include fy25.03 result
+			expect(result.find((r) => r.revision === 'fy25.03')).toBeDefined();
+		});
+
+		it('should always include raw data when fy26.04 is not enabled', async () => {
+			// Only enable fy25.03
+			(isVCRevisionEnabled as jest.Mock).mockImplementation((revision: string) => {
+				return revision === 'fy25.03';
+			});
+
+			const result = await vcObserver.getVCResult({
+				start: 0,
+				stop: 1000,
+				interactionId: 'test-interaction-id',
+				interactionType: 'page_load',
+				isPageVisible: true,
+				includeRawData: false,
+			});
+
+			expect(RawDataHandler.prototype.getRawData).toHaveBeenCalled();
+			expect(result.find((r) => r.revision === 'raw-handler')).toBeDefined();
+		});
+
+		it('should include raw data even when fy26.04 is enabled and includeRawData is false', async () => {
+			// Only enable fy26.04
+			(isVCRevisionEnabled as jest.Mock).mockImplementation((revision: string) => {
+				return revision === 'fy26.04';
+			});
+
+			const result = await vcObserver.getVCResult({
+				start: 0,
+				stop: 1000,
+				interactionId: 'test-interaction-id',
+				interactionType: 'page_load',
+				isPageVisible: true,
+				includeRawData: false,
+			});
+
+			expect(RawDataHandler.prototype.getRawData).toHaveBeenCalled();
+			expect(result.find((r) => r.revision === 'raw-handler')).toBeDefined();
+		});
+
+		it('should delete vcDetails and ratios when raw data is included', async () => {
+			const result = await vcObserver.getVCResult({
+				start: 0,
+				stop: 1000,
+				interactionId: 'test-interaction-id',
+				interactionType: 'page_load',
+				isPageVisible: true,
+				includeRawData: true,
+			});
+
+			const fy25_03Result = result.find((r) => r.revision === 'fy25.03');
+			expect(fy25_03Result?.vcDetails).toBeUndefined();
+			expect(fy25_03Result?.ratios).toBeUndefined();
 		});
 	});
 

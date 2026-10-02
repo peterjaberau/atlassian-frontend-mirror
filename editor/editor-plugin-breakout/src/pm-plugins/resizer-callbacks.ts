@@ -1,31 +1,19 @@
 import type { BreakoutEventPayload } from '@atlaskit/editor-common/analytics';
 import type { GuidelineConfig } from '@atlaskit/editor-common/guideline';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type Mark, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
-import {
-	akEditorGutterPaddingDynamic,
-	akEditorGutterPadding,
-	akEditorGutterPaddingReduced,
-	akEditorFullPageNarrowBreakout,
-	akEditorDefaultLayoutWidth,
-	akEditorFullWidthLayoutWidth,
-	akEditorCalculatedWideLayoutWidth,
-	akEditorMaxLayoutWidth,
-} from '@atlaskit/editor-shared-styles';
+import type { Mark, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { ElementDragPayload } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
 import type {
 	BaseEventPayload,
 	DragLocationHistory,
 	ElementDragType,
 } from '@atlaskit/pragmatic-drag-and-drop/types';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { BreakoutPlugin } from '../breakoutPluginType';
 import { setBreakoutWidth } from '../editor-commands/set-breakout-width';
-
 import { getGuidelines } from './get-guidelines';
+import { clampWidthToResizeBounds, getResizeContainerWidth, WIDTHS } from './resize-width';
 import { LOCAL_RESIZE_PROPERTY } from './resizing-mark-view';
 import { resizingPluginKey } from './resizing-plugin';
 import { generateResizeFrameRatePayloads, generateResizedEventPayload } from './utils/analytics';
@@ -33,13 +21,6 @@ import { measureFramerate, reduceResizeFrameRateSamples } from './utils/measure-
 
 const RESIZE_RATIO = 2;
 const SNAP_GAP = 10;
-
-const WIDTHS = {
-	MIN: akEditorDefaultLayoutWidth,
-	WIDE: akEditorCalculatedWideLayoutWidth,
-	FULL: akEditorFullWidthLayoutWidth,
-	MAX: akEditorMaxLayoutWidth,
-};
 
 export function getProposedWidth({
 	initialWidth,
@@ -58,28 +39,17 @@ export function getProposedWidth({
 		RESIZE_RATIO *
 		directionMultiplier;
 
-	const width = api?.width.sharedState?.currentState()?.width || 0;
-	const padding =
-		width <= akEditorFullPageNarrowBreakout &&
-		editorExperiment('platform_editor_preview_panel_responsiveness', true, {
-			exposure: true,
-		})
-			? akEditorGutterPaddingReduced
-			: akEditorGutterPaddingDynamic();
-
-	const containerWidth = width - 2 * padding - akEditorGutterPadding;
+	const containerWidth = getResizeContainerWidth(api);
 
 	// the node width may be greater than the container width so we resize using the smaller value
 	const proposedWidth = Math.min(initialWidth, containerWidth) + diffX;
 
-	const snapPoints = [WIDTHS.MIN, WIDTHS.WIDE, Math.min(containerWidth, WIDTHS.FULL)];
-
-	if (
-		expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-		expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-	) {
-		snapPoints.push(Math.min(containerWidth, WIDTHS.MAX));
-	}
+	const snapPoints = [
+		WIDTHS.MIN,
+		WIDTHS.WIDE,
+		Math.min(containerWidth, WIDTHS.FULL),
+		Math.min(containerWidth, WIDTHS.MAX),
+	];
 
 	for (const snapPoint of snapPoints) {
 		if (snapPoint - SNAP_GAP < proposedWidth && snapPoint + SNAP_GAP > proposedWidth) {
@@ -87,13 +57,7 @@ export function getProposedWidth({
 		}
 	}
 
-	const hardMax =
-		expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-		expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-			? Math.min(containerWidth, WIDTHS.MAX)
-			: Math.min(containerWidth, WIDTHS.FULL);
-
-	return Math.max(WIDTHS.MIN, Math.min(proposedWidth, hardMax));
+	return clampWidthToResizeBounds(proposedWidth, containerWidth);
 }
 
 export function createResizerCallbacks({
@@ -191,15 +155,9 @@ export function createResizerCallbacks({
 				(guideline) => guideline.key.startsWith('full_width') && guideline.active,
 			);
 
-			let isResizedToMaxWidth = false;
-			if (
-				expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-				expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-			) {
-				isResizedToMaxWidth = !!guidelines.find(
-					(guideline) => guideline.key.startsWith('max_width') && guideline.active,
-				);
-			}
+			const isResizedToMaxWidth = !!guidelines.find(
+				(guideline) => guideline.key.startsWith('max_width') && guideline.active,
+			);
 
 			guidelines = getGuidelines(false, 0, getEditorWidth);
 			api?.guideline?.actions?.displayGuideline(view)({ guidelines });
@@ -211,13 +169,8 @@ export function createResizerCallbacks({
 				? WIDTHS.FULL
 				: getProposedWidth({ initialWidth, location, api, source });
 
-			if (
-				expValEquals('editor_tinymce_full_width_mode', 'isEnabled', true) ||
-				expValEquals('confluence_max_width_content_appearance', 'isEnabled', true)
-			) {
-				if (isResizedToMaxWidth) {
-					newWidth = WIDTHS.MAX;
-				}
+			if (isResizedToMaxWidth) {
+				newWidth = WIDTHS.MAX;
 			}
 
 			const isEditMode = api?.editorViewMode?.sharedState.currentState()?.mode === 'edit';

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/linking-common",
-	"version": "9.9.3",
+	"version": "13.0.1",
 	"description": "Contains utils and interfaces shared across different LP components",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,14 +12,6 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
@@ -27,18 +19,20 @@
 	"atlassian": {
 		"team": "Navigation Experiences - Linking Platform",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "LinkingCommon"
 		}
 	},
 	"scripts": {
-		"codegen-analytics": "yarn run ts-analytics-codegen --command='yarn workspace @atlaskit/linking-common run codegen-analytics'"
+		"codegen-analytics": "yarn run ts-analytics-codegen --command='afm workspace @atlaskit/linking-common codegen-analytics'"
 	},
 	"dependencies": {
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/json-ld-types": "workspace:^",
 		"@atlaskit/linking-types": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
@@ -53,29 +47,72 @@
 		"@atlaskit/link-test-helpers": "workspace:^",
 		"@atlaskit/media-test-helpers": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@types/linkify-it": "root:*",
 		"fetch-mock": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*",
-		"react-intl-next": "root:*",
+		"react-intl": "root:*",
 		"sinon": "root:*",
 		"wait-for-expect": "root:*"
 	},
 	"exports": {
+		".": "./src/index.ts",
+		"./accessible-products-result": "./src/common/mocks/accessible-products-result.ts",
+		"./actions": "./src/actions.ts",
+		"./api": "./src/api.ts",
+		"./api/errors": "./src/errors.ts",
+		"./api-error": "./src/APIError.ts",
+		"./invalid-url-error": "./src/InvalidUrlError.ts",
+		"./network-error": "./src/NetworkError.ts",
+		"./get-base-url": "./src/getBaseUrl.ts",
+		"./get-resolver-url": "./src/getResolverUrl.ts",
+		"./use-available-sites": "./src/hooks/useAvailableSites/useAvailableSites.ts",
+		"./use-available-sites-v2": "./src/hooks/useAvailableSites/useAvailableSitesV2.ts",
+		"./map-accessible-products-to-available-sites": "./src/hooks/useAvailableSites/mapAccessibleProductsToAvailableSites.ts",
+		"./pulse/pulse": "./src/components/Pulse/Pulse.tsx",
+		"./available-sites-result": "./src/common/mocks/available-sites-result.ts",
+		"./browser": "./src/user-agent/index.ts",
+		"./client": "./src/environments.ts",
+		"./constants": "./src/common/utils/constants.ts",
+		"./hook/use-available-sites": "./src/hooks/useAvailableSites/index.ts",
+		"./hook/use-cloud-id-to-url": "./src/hooks/useCloudIdToUrl/index.ts",
+		"./hook/use-is-mounted": "./src/hooks/useIsMounted/index.ts",
+		"./linkify": "./src/url.ts",
+		"./pulse": "./src/components/Pulse/index.tsx",
+		"./sentry": "./src/sentry/capture-exception.ts",
+		"./sentry/capture-exception": "./src/sentry/capture-exception.ts",
+		"./skeleton": "./src/components/Skeleton/index.tsx",
+		"./span-skeleton": "./src/components/Skeleton/span-skeleton.tsx",
+		"./store": "./src/store.ts",
 		"./types": "./src/types.ts",
+		"./units-rollout": "./src/units-rollout/shouldUseUnitCompliantApi.ts",
+		"./units-rollout-test-utils": "./src/units-rollout/clearCacheForTests.ts",
 		"./url": "./src/url.ts",
 		"./user-agent": "./src/user-agent/index.ts",
-		"./utils": "./src/utils/index.ts",
+		"./utils/filter-site-products": "./src/utils/filter-site-products.ts",
+		"./utils/filter-unique-items": "./src/utils/filter-unique-items.ts",
+		"./utils/get-status": "./src/utils/get-status.ts",
+		"./utils/get-trace-id": "./src/utils/get-trace-id.ts",
+		"./utils/is-within-preview-panel-iframe": "./src/utils/is-within-preview-panel-i-frame.ts",
+		"./utils/promise-debounce": "./src/utils/promise-debounce.ts",
+		"./utils/with-feature-flagged-component": "./src/utils/with-feature-flagged-component.tsx",
 		"./hooks": "./src/hooks/index.ts",
-		"./mocks": "./src/common/mocks/index.ts",
-		"./sentry": "./src/sentry/index.ts",
-		".": "./src/index.ts"
+		"./utils": "./src/utils/index.ts",
+		"./utils/preview-panel": "./src/utils/preview-panel-utils.ts"
 	},
-	"techstack": {
-		"@repo/internal": {
-			"styling": [
-				"compiled"
-			]
+	"platform-feature-flags": {
+		"cc-units-ga": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"linking_platform_site_picker_api_unit_compliant": {
+			"type": "boolean"
+		},
+		"platform_lp_sllv_display_name_fallback": {
+			"type": "boolean"
 		}
 	},
 	"compassUnitTestMetricSourceId": "ari:cloud:compass:a436116f-02ce-4520-8fbb-7301462a1674:metric-source/c5751cc6-3513-4070-9deb-af31e86aed34/bb313f46-0a0e-4e79-b6f0-d524f5b510ba"

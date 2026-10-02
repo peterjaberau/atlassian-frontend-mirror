@@ -1,21 +1,32 @@
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { getBreakoutResizableNodeTypes } from '@atlaskit/editor-common/utils';
+import {
+	getBreakoutResizableNodeTypes,
+	getBreakoutResizableNodeTypesNew,
+} from '@atlaskit/editor-common/utils';
 import type { NodeType } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection, TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { NodeWithPos } from '@atlaskit/editor-prosemirror/utils';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import {
-	akEditorDefaultLayoutWidth,
-	akEditorFullWidthLayoutWidth,
-} from '@atlaskit/editor-shared-styles';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 
 import type { BreakoutPlugin } from '../breakoutPluginType';
 import { setBreakoutWidth } from '../editor-commands/set-breakout-width';
+import { clampWidthToResizeBounds, getResizeContainerWidth } from './resize-width';
 
 const KEYBOARD_RESIZE_STEP = 10;
+
+const getKeyboardResizeWidth = (
+	currentWidth: number,
+	step: number,
+	api: ExtractInjectionAPI<BreakoutPlugin> | undefined,
+): number => {
+	const containerWidth = getResizeContainerWidth(api);
+
+	const resizeStartWidth = Math.min(currentWidth, containerWidth);
+	return clampWidthToResizeBounds(resizeStartWidth + step, containerWidth);
+};
 
 const getAncestorResizableNode = (
 	view: EditorView,
@@ -48,16 +59,18 @@ const getAncestorResizableNode = (
 export const handleKeyDown =
 	(api: ExtractInjectionAPI<BreakoutPlugin> | undefined) =>
 	(view: EditorView, event: KeyboardEvent): boolean => {
-		const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-			? getBrowserInfo()
-			: browserLegacy;
+		const browser = getBrowserInfo();
 		const metaKey = browser.mac ? event.metaKey : event.ctrlKey;
 		const isBracketKey = event.code === 'BracketRight' || event.code === 'BracketLeft';
 		if (metaKey && event.altKey && isBracketKey) {
-			const { expand, codeBlock, layoutSection } = view.state.schema.nodes;
-			const breakoutResizableNodes = editorExperiment('platform_synced_block', true)
-											? getBreakoutResizableNodeTypes(view.state.schema)
-											: new Set([expand, codeBlock, layoutSection]);
+			const breakoutResizableNodes = isExperimentEnabled(
+				'platform_editor_lovability_resize_extensions',
+			)
+				? getBreakoutResizableNodeTypesNew(view.state.schema)
+				: getBreakoutResizableNodeTypes(
+						view.state.schema,
+						expValEquals('platform_editor_lovability_resize_dividers_panels', 'isEnabled', true),
+					);
 
 			const result = getAncestorResizableNode(view, breakoutResizableNodes);
 			if (result) {
@@ -67,12 +80,13 @@ export const handleKeyDown =
 				if (breakoutMark) {
 					const step = event.code === 'BracketRight' ? KEYBOARD_RESIZE_STEP : -KEYBOARD_RESIZE_STEP;
 
-					const newWidth = breakoutMark.attrs.width + step;
-					if (newWidth < akEditorFullWidthLayoutWidth && newWidth > akEditorDefaultLayoutWidth) {
+					const newWidth = getKeyboardResizeWidth(breakoutMark.attrs.width, step, api);
+
+					if (newWidth !== breakoutMark.attrs.width) {
 						const isEditMode = api?.editorViewMode?.sharedState.currentState()?.mode === 'edit';
 
 						setBreakoutWidth(
-							breakoutMark.attrs.width + step,
+							newWidth,
 							breakoutMark.attrs.mode,
 							pos,
 							isEditMode,

@@ -1,4 +1,4 @@
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import {
 	TELEPOINTER_DIM_CLASS,
 	TELEPOINTER_PULSE_CLASS,
@@ -14,7 +14,6 @@ import type { ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
 import { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { Decoration } from '@atlaskit/editor-prosemirror/view';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { ReadOnlyParticipants } from '../../types';
 import { Participants } from '../participants';
@@ -24,13 +23,21 @@ import {
 	getPositionOfTelepointer,
 	isReplaceStep,
 	hasExistingNudge,
-	type NudgeAnimationsMap,
 } from '../utils';
+import type { NudgeAnimationsMap } from '../utils';
+import {
+	ADD_AGENT_SHIMMER_META,
+	type AgentShimmerRange,
+	buildAgentShimmerDecorations,
+	HIGHLIGHT_AGENT_SHIMMER_META,
+	reduceAgentShimmers,
+	REMOVE_AGENT_SHIMMER_META,
+} from './agent-shimmer-decorations';
 
 /**
  * Returns position where it's possible to place a decoration.
  */
-export const getValidPos = (tr: ReadonlyTransaction, pos: number) => {
+export const getValidPos = (tr: ReadonlyTransaction, pos: number): number => {
 	const endOfDocPos = tr.doc.nodeSize - 2;
 	if (pos <= endOfDocPos) {
 		const resolvedPos = tr.doc.resolve(pos);
@@ -40,21 +47,25 @@ export const getValidPos = (tr: ReadonlyTransaction, pos: number) => {
 		return backwardSelection
 			? backwardSelection.from
 			: forwardSelection
-			? forwardSelection.from
-			: pos;
+				? forwardSelection.from
+				: pos;
 	}
 	return endOfDocPos;
 };
+
 export class PluginState {
 	private decorationSet: DecorationSet;
 	private participants: Participants;
 	private nudgeAnimations: NudgeAnimationsMap;
+	// Active agent-edit shimmer ranges (pure data). Replaced with a fresh array of fresh
+	// objects whenever it changes — never mutated in place.
+	private agentShimmers: AgentShimmerRange[];
 	// eslint-disable-next-line no-console
 	private onError = (error: Error) => console.error(error);
 	private sid?: string;
 	public isReady: boolean;
 
-	get decorations() {
+	get decorations(): DecorationSet {
 		return this.decorationSet;
 	}
 
@@ -62,7 +73,7 @@ export class PluginState {
 		return this.participants as ReadOnlyParticipants;
 	}
 
-	get sessionId() {
+	get sessionId(): string | undefined {
 		return this.sid;
 	}
 
@@ -73,6 +84,7 @@ export class PluginState {
 		collabInitalised: boolean = false,
 		onError?: (err: Error) => void,
 		nudgeAnimations: NudgeAnimationsMap = new Map(),
+		agentShimmers: AgentShimmerRange[] = [],
 	) {
 		this.decorationSet = decorations;
 		this.participants = participants;
@@ -80,6 +92,7 @@ export class PluginState {
 		this.isReady = collabInitalised;
 		this.onError = onError || this.onError;
 		this.nudgeAnimations = nudgeAnimations;
+		this.agentShimmers = agentShimmers;
 	}
 
 	getFullName(sessionId: string): string {
@@ -97,7 +110,7 @@ export class PluginState {
 		return participant?.presenceId ?? sessionId;
 	}
 
-	apply(tr: ReadonlyTransaction) {
+	apply(tr: ReadonlyTransaction): PluginState {
 		// Ignored via go/ees005
 		// eslint-disable-next-line prefer-const
 		let { participants, sid, isReady } = this;
@@ -105,6 +118,9 @@ export class PluginState {
 		const presenceData = tr.getMeta('presence') as CollabEventPresenceData;
 		const telepointerData = tr.getMeta('telepointer') as CollabTelepointerPayload;
 		const nudgeTelepointerData = tr.getMeta('nudgeTelepointer') as { sessionId: string };
+		const agentShimmerData = tr.getMeta(ADD_AGENT_SHIMMER_META) as AgentShimmerRange[] | undefined;
+		const removeAgentShimmerId = tr.getMeta(REMOVE_AGENT_SHIMMER_META) as string | undefined;
+		const highlightAgentShimmerId = tr.getMeta(HIGHLIGHT_AGENT_SHIMMER_META) as string | undefined;
 		const sessionIdData = tr.getMeta('sessionId') as CollabEventConnectionData;
 		let collabInitialised = tr.getMeta('collabInitialised');
 
@@ -178,6 +194,7 @@ export class PluginState {
 						this.getPresenceId(sessionId),
 						this.getFullName(sessionId),
 						hasExistingNudge(sessionId, this.nudgeAnimations),
+						participants.get(sessionId)?.agentType,
 					),
 				);
 			}
@@ -220,6 +237,7 @@ export class PluginState {
 										presenceId,
 										this.getFullName(sessionId),
 										hasExistingNudge(sessionId, this.nudgeAnimations),
+										participants.get(sessionId)?.agentType,
 									),
 								);
 							}
@@ -235,11 +253,13 @@ export class PluginState {
 		// Ignored via go/ees005
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		this.decorationSet.find().forEach((deco: any) => {
+			// Never let telepointer dim/side logic touch agent-shimmer decorations.
+			if (deco.spec?.isAgentShimmer) {
+				return;
+			}
 			if (deco.type.toDOM) {
 				const hasTelepointerDimClass = deco.type.toDOM.classList.contains(TELEPOINTER_DIM_CLASS);
-				const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-					? getBrowserInfo()
-					: browserLegacy;
+				const browser = getBrowserInfo();
 
 				if (deco.from === selection.from && deco.to === selection.to) {
 					if (!hasTelepointerDimClass) {
@@ -267,6 +287,10 @@ export class PluginState {
 			// Ignored via go/ees005
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			this.decorationSet.find().forEach((deco: any) => {
+				// Never let telepointer nudge logic touch agent-shimmer decorations.
+				if (deco.spec?.isAgentShimmer) {
+					return;
+				}
 				if (
 					deco.type.toDOM &&
 					participants.get(nudgeSessionId) &&
@@ -281,6 +305,47 @@ export class PluginState {
 					this.nudgeAnimations.set(nudgeSessionId, Date.now());
 				}
 			});
+		}
+
+		// Register / keep-aligned / remove the agent-edit purple highlight
+		// decorations. Fully fault-isolated — it works on local copies and only merges into the shared
+		// `add`/`remove` (and commits `this.agentShimmers`) after the whole block succeeds, so a fault
+		// here can never corrupt telepointer decorations or the shared decoration set. Never mutates
+		// shimmer entries in place: each change produces a fresh array of fresh objects.
+		try {
+			const { changed, next } = reduceAgentShimmers(
+				this.agentShimmers,
+				tr,
+				agentShimmerData,
+				removeAgentShimmerId,
+				highlightAgentShimmerId,
+			);
+			if (changed) {
+				// Build into local arrays; only merge into the shared add/remove once the block succeeds.
+				const agentRemove = this.decorationSet.find(
+					undefined,
+					undefined,
+					(spec) => spec.isAgentShimmer,
+				);
+				const agentAdd = buildAgentShimmerDecorations(tr, next, getValidPos, this.onError);
+
+				// Commit only after the whole block succeeded.
+				remove = remove.concat(agentRemove);
+				add = add.concat(agentAdd);
+				this.agentShimmers = next;
+			}
+		} catch (err) {
+			this.onError(err as Error);
+			// Degrade to no shimmer without corrupting telepointer decorations: drop all agent
+			// decorations and clear agent state, leaving the telepointer `add`/`remove` untouched.
+			this.agentShimmers = [];
+			try {
+				remove = remove.concat(
+					this.decorationSet.find(undefined, undefined, (spec) => spec.isAgentShimmer),
+				);
+			} catch {
+				// Teardown must not re-throw.
+			}
 		}
 
 		if (remove.length) {
@@ -310,6 +375,7 @@ export class PluginState {
 			collabInitialised,
 			this.onError,
 			this.nudgeAnimations,
+			this.agentShimmers,
 		);
 
 		return PluginState.eq(nextState, this) ? this : nextState;
@@ -323,7 +389,7 @@ export class PluginState {
 
 	// Ignored via go/ees005
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	static init(config: any) {
+	static init(config: any): PluginState {
 		const { doc, onError } = config;
 		return new PluginState(
 			DecorationSet.create(doc, []),

@@ -2,40 +2,45 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { memo, type Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+	memo,
+	type NamedExoticComponent,
+	type Ref,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import { createPortal } from 'react-dom';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, type SerializedStyles } from '@emotion/react';
-import { createPortal } from 'react-dom';
 import invariant from 'tiny-invariant';
 
-import { IconButton } from '@atlaskit/button/new';
-import DropdownMenu, {
-	type CustomTriggerProps,
-	DropdownItem,
-	DropdownItemGroup,
-} from '@atlaskit/dropdown-menu';
-import Heading from '@atlaskit/heading';
+import IconButton from '@atlaskit/button/icon/button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
+import type { CustomTriggerProps } from '@atlaskit/dropdown-menu/types';
+import Heading from '@atlaskit/heading/heading';
 import MoreIcon from '@atlaskit/icon/core/show-more-horizontal';
 import { easeInOut } from '@atlaskit/motion/curves';
-import { durations } from '@atlaskit/motion/durations';
-import {
-	attachClosestEdge,
-	type Edge,
-	extractClosestEdge,
-} from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { durations } from '@atlaskit/motion/utils/durations';
+import type { Edge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
+import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge';
+import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import {
 	draggable,
 	dropTargetForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/element/preserve-offset-on-source';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
+import { preserveOffsetOnSource } from '@atlaskit/pragmatic-drag-and-drop/utils/preserve-offset-on-source';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 import { token } from '@atlaskit/tokens';
 
 import { cardGap } from '../../util/constants';
-
 import { useBoardContext } from './board-context';
 import { Card } from './card';
 import { ColumnContext, type ColumnContextProps, useColumnContext } from './column-context';
@@ -45,7 +50,7 @@ const columnStyles = css({
 	display: 'flex',
 	width: 300,
 	flexDirection: 'column',
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 	borderRadius: token('radius.large'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 	transition: `background ${durations.medium}ms ${easeInOut}`,
@@ -73,7 +78,7 @@ const columnHeaderStyles = css({
 	justifyContent: 'space-between',
 	alignItems: 'center',
 	flexDirection: 'row',
-	color: token('color.text.subtlest', '#626F86'),
+	color: token('color.text.subtlest'),
 	userSelect: 'none',
 	cursor: 'grab',
 });
@@ -97,7 +102,7 @@ const isDraggingState: DraggableState = { type: 'is-dragging' };
 
 const stateStyles: Partial<Record<DropTargetState['type'], SerializedStyles>> = {
 	'is-card-over': css({
-		background: token('color.background.selected.hovered', '#CCE0FF'),
+		background: token('color.background.selected.hovered'),
 	}),
 };
 
@@ -111,7 +116,9 @@ const draggableStateStyles: Partial<Record<DraggableState['type'], SerializedSty
 	}),
 };
 
-export const Column = memo(function Column({ column }: { column: ColumnType }) {
+export const Column: NamedExoticComponent<{
+	column: ColumnType;
+}> = memo(function Column({ column }: { column: ColumnType }) {
 	const columnId = column.columnId;
 	const columnRef = useRef<HTMLDivElement | null>(null);
 	const headerRef = useRef<HTMLDivElement | null>(null);
@@ -254,7 +261,7 @@ export const Column = memo(function Column({ column }: { column: ColumnType }) {
 
 const previewStyles = css({
 	width: 250,
-	background: token('elevation.surface.sunken', '#F7F8F9'),
+	background: token('elevation.surface.sunken'),
 	borderRadius: token('radius.large'),
 	padding: token('space.200'),
 });

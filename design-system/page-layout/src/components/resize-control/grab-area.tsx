@@ -3,17 +3,16 @@
  * @jsx jsx
  */
 import * as React from 'react';
-import { type ComponentProps, type FocusEvent, type KeyboardEvent, type MouseEvent } from 'react';
+import type { ComponentProps, FocusEvent, KeyboardEvent, MouseEvent } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { B200 } from '@atlaskit/theme/colors';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import { GRAB_AREA_LINE_SELECTOR, GRAB_AREA_SELECTOR } from '../../common/constants';
-import { type LeftSidebarProps } from '../../common/types';
+import type { LeftSidebarProps } from '../../common/types';
 
 type GrabAreaProps = {
 	isDisabled: boolean;
@@ -36,7 +35,7 @@ type GrabAreaProps = {
 const varLineColor = '--ds-line';
 
 const grabAreaStyles = css({
-	width: token('space.200', '16px'),
+	width: token('space.200'),
 	height: '100%',
 	padding: 0,
 	backgroundColor: 'transparent',
@@ -50,12 +49,12 @@ const grabAreaStyles = css({
 		outline: 0,
 	},
 	'&:enabled:hover, &:enabled:focus, &:enabled:active': {
-		[varLineColor]: token('color.border.selected', B200),
+		[varLineColor]: token('color.border.selected'),
 	},
 });
 
 const grabAreaCollapsedStyles = css({
-	height: `calc(100% - ${token('space.600', '3rem')} * 2)`,
+	height: `calc(100% - ${token('space.600')} * 2)`,
 	padding: 0,
 	position: 'absolute',
 	backgroundColor: 'transparent',
@@ -72,21 +71,32 @@ const lineStyles = css({
 	transition: 'background-color 200ms',
 });
 
+const lineMotionStyles = css({
+	transition: token('motion.button.hovered'),
+});
+
 const grabAreaLineSelector = { [GRAB_AREA_LINE_SELECTOR]: true };
 const grabAreaSelector = { [GRAB_AREA_SELECTOR]: true };
 
-const GrabArea: React.ForwardRefExoticComponent<{
-    isDisabled: boolean;
-    isLeftSidebarCollapsed: boolean;
-    label: string;
-    leftSidebarPercentageExpanded: number;
-    onBlur: (event: FocusEvent) => void;
-    onFocus: (event: FocusEvent) => void;
-    onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
-    onMouseDown: (event: MouseEvent<HTMLButtonElement>) => void;
-    testId?: string;
-    valueTextLabel?: string;
-} & Omit<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, "ref"> & Partial<LeftSidebarProps> & React.RefAttributes<HTMLButtonElement>> = React.forwardRef<HTMLButtonElement, GrabAreaProps & Partial<LeftSidebarProps>>(
+const GrabArea: React.ForwardRefExoticComponent<
+	{
+		isDisabled: boolean;
+		isLeftSidebarCollapsed: boolean;
+		label: string;
+		leftSidebarPercentageExpanded: number;
+		onBlur: (event: FocusEvent) => void;
+		onFocus: (event: FocusEvent) => void;
+		onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
+		onMouseDown: (event: MouseEvent<HTMLButtonElement>) => void;
+		testId?: string;
+		valueTextLabel?: string;
+	} & Omit<
+		React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
+		'ref'
+	> &
+		Partial<LeftSidebarProps> &
+		React.RefAttributes<HTMLButtonElement>
+> = React.forwardRef<HTMLButtonElement, GrabAreaProps & Partial<LeftSidebarProps>>(
 	(
 		{
 			testId,
@@ -131,9 +141,12 @@ const GrabArea: React.ForwardRefExoticComponent<{
 				onMouseDown={onMouseDown}
 				onFocus={onFocus}
 				onBlur={onBlur}
-				{...(fg('platform_dst_spread-props-page-layout') ? {} : rest)}
+				{...rest}
 			>
-				<span css={lineStyles} {...grabAreaLineSelector} />
+				<span
+					css={[lineStyles, fg('platform-dst-motion-uplift-button') && lineMotionStyles]}
+					{...grabAreaLineSelector}
+				/>
 			</button>
 		);
 	},

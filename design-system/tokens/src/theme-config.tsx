@@ -1,8 +1,9 @@
-import { fg } from '@atlaskit/platform-feature-flags';
-
 /**
  * This file contains the source of truth for themes and all associated meta data.
  */
+import type { ThemeColorModes } from './theme-color-modes';
+import { themeIds, type ThemeIds } from './theme-ids';
+import type { ThemeState } from './theme-state';
 
 /**
  * Themes: The internal identifier of a theme.
@@ -13,13 +14,15 @@ export type Themes =
 	| 'atlassian-light'
 	| 'atlassian-light-future'
 	| 'atlassian-light-increased-contrast'
+	| 'UNSAFE-test-light'
 	| 'atlassian-dark'
 	| 'atlassian-dark-future'
 	| 'atlassian-dark-increased-contrast'
+	| 'UNSAFE-test-dark'
 	| 'atlassian-shape'
 	| 'atlassian-spacing'
 	| 'atlassian-typography'
-export type ThemeFileNames = Themes;
+	| 'atlassian-motion';
 
 /**
  * ThemeOverrides: The internal identifier of a theme override. Which are themes that contain
@@ -27,23 +30,26 @@ export type ThemeFileNames = Themes;
  * theme files/folders are called. style-dictionary will attempt to locate these in the file-system.
  * Theme overrides are temporary and there may not be any defined at times.
  */
-export type ThemeOverrides = Themes;
+type FinesseThemeOverrides =
+	| 'atlassian-light-finesse'
+	| 'atlassian-light-increased-contrast-finesse'
+	| 'atlassian-dark-finesse'
+	| 'atlassian-dark-increased-contrast-finesse'
+	| 'atlassian-typography-finesse';
+
+// Retain Themes in this public type for backwards compatibility.
+// platform-dst-tokens-finesse cleanup: Revisit when the temporary override themes are removed.
+export type ThemeOverrides = Themes | FinesseThemeOverrides;
+
+export type ThemeFileNames = Themes | FinesseThemeOverrides;
 
 /**
  * Theme kinds: The type of theme.
  * Some themes are entirely focused on Color, whilst others are purely focused on spacing.
  * In the future other types may be introduced such as typography.
  */
-type ThemeKinds = 'color' | 'spacing' | 'typography' | 'shape';
+type ThemeKinds = 'color' | 'spacing' | 'typography' | 'shape' | 'motion';
 
-/**
- * Theme modes: The general purpose of a theme.
- * This attr is used to apply the appropriate system-preference option
- * It may also be used as a selector for mode-specific overrides such as light/dark images.
- * The idea is there may exist many color themes, but every theme must either fit into light or dark.
- */
-export const themeColorModes = ['light', 'dark', 'auto'] as const;
-export type ThemeColorModes = (typeof themeColorModes)[number];
 export type DataColorModes = Exclude<ThemeColorModes, 'auto'>;
 
 /**
@@ -54,34 +60,38 @@ export type ThemeContrastModes = (typeof themeContrastModes)[number];
 export type DataContrastModes = 'more' | 'no-preference' | 'auto';
 
 /**
- * Theme ids: The value that will be mounted to the DOM as a data attr
- * For example: `data-theme="light:light dark:dark spacing:spacing"
- *
- * These ids must be kebab case
+ * Theme override ids: the equivalent of themeIds for theme overrides.
+ * Theme overrides are temporary and there may not be any defined at times.
  */
-export const themeIds = [
+export const themeOverrideIds = [
+	'light-finesse',
+	'light-increased-contrast-finesse',
+	'dark-finesse',
+	'dark-increased-contrast-finesse',
+	'typography-finesse',
+] as const;
+
+export type ThemeOverrideIds = (typeof themeOverrideIds)[number];
+
+export const themeIdsWithOverrides: readonly [
 	'light-increased-contrast',
 	'light',
 	'light-future',
+	'UNSAFE-test-light',
 	'dark',
+	'UNSAFE-test-dark',
 	'dark-future',
 	'dark-increased-contrast',
 	'spacing',
 	'shape',
-	'typography'
-] as const;
-
-export type ThemeIds = (typeof themeIds)[number];
-
-/**
- * Theme override ids: the equivalent of themeIds for theme overrides.
- * Theme overrides are temporary and there may not be any defined at times.
- */
-const themeOverrideIds = [] as const;
-
-export type ThemeOverrideIds = (typeof themeOverrideIds)[number];
-
-export const themeIdsWithOverrides: readonly ["light-increased-contrast", "light", "light-future", "dark", "dark-future", "dark-increased-contrast", "spacing", "shape", "typography"] = [...themeIds, ...themeOverrideIds] as const;
+	'typography',
+	'motion',
+	'light-finesse',
+	'light-increased-contrast-finesse',
+	'dark-finesse',
+	'dark-increased-contrast-finesse',
+	'typography-finesse',
+] = [...themeIds, ...themeOverrideIds];
 
 export type ThemeIdsWithOverrides = (typeof themeIdsWithOverrides)[number];
 
@@ -97,7 +107,12 @@ type ExtensionThemeId = ThemeIds;
  * For example: legacy light & dark themes use the "legacyPalette" containing colors from our
  * previous color set.
  */
-export type Palettes = 'defaultPalette' | 'spacingScale' | 'shapePalette' | 'typographyPalette';
+export type Palettes =
+	| 'defaultPalette'
+	| 'spacingScale'
+	| 'shapePalette'
+	| 'typographyPalette'
+	| 'motionPalette';
 
 /**
  * ThemeConfig: the source of truth for all theme meta-data.
@@ -114,7 +129,7 @@ interface ThemeConfig {
 				mode: DataColorModes;
 		  }
 		| {
-				type: Extract<ThemeKinds, 'spacing' | 'typography' | 'shape'>;
+				type: Extract<ThemeKinds, 'spacing' | 'typography' | 'shape' | 'motion'>;
 		  }
 	) & {
 		/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required */
@@ -128,12 +143,21 @@ interface ThemeConfig {
 	 * Theme to use a base. This will create the theme as
 	 * an extension with all token values marked as optional
 	 * to allow tokens to be overridden as required.
+	 *
+	 * The resulting theme css will contain a complete theme.
+	 * All tokens specified in the child theme will be overridden.
+	 * All tokens not specified in the child theme will be inherited from the parent theme.
 	 */
 	extends?: ThemeIds;
 	/**
 	 * Theme to override. This will cause the theme to only
 	 * output css variables which can be imported to temporarily
 	 * override existing themes for testing purposes.
+	 *
+	 *
+	 * The resulting theme css will be only the tokens specified
+	 * and will need the dependant theme to be loaded alongside
+	 * it in order to function correctly.
 	 */
 	override?: ThemeIds;
 	/**
@@ -144,7 +168,7 @@ interface ThemeConfig {
 	increasesContrastFor?: ThemeIds;
 }
 
-const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
+export const themeConfig: Record<ThemeFileNames, ThemeConfig> = {
 	'atlassian-light': {
 		id: 'light',
 		displayName: 'Light Theme',
@@ -164,6 +188,26 @@ const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
 		},
 		override: 'light',
 	},
+	'atlassian-light-finesse': {
+		id: 'light-finesse',
+		displayName: 'FY27 Finesse Light Theme Override',
+		palette: 'defaultPalette',
+		attributes: {
+			type: 'color',
+			mode: 'light',
+		},
+		override: 'light',
+	},
+	'atlassian-light-increased-contrast-finesse': {
+		id: 'light-increased-contrast-finesse',
+		displayName: 'FY27 Finesse Light Theme (increased contrast) Override',
+		palette: 'defaultPalette',
+		attributes: {
+			type: 'color',
+			mode: 'light',
+		},
+		override: 'light-increased-contrast',
+	},
 	'atlassian-light-increased-contrast': {
 		id: 'light-increased-contrast',
 		displayName: 'Light Theme (increased contrast)',
@@ -175,6 +219,26 @@ const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
 		extends: 'light',
 		increasesContrastFor: 'light',
 	},
+	'UNSAFE-test-light': {
+		id: 'UNSAFE-test-light',
+		displayName: 'UNSAFE Test Light Theme',
+		palette: 'defaultPalette',
+		attributes: {
+			type: 'color',
+			mode: 'light',
+		},
+		extends: 'light',
+	},
+	'UNSAFE-test-dark': {
+		id: 'UNSAFE-test-dark',
+		displayName: 'UNSAFE Test Dark Theme',
+		palette: 'defaultPalette',
+		attributes: {
+			type: 'color',
+			mode: 'dark',
+		},
+		extends: 'dark',
+	},
 	'atlassian-dark': {
 		id: 'dark',
 		displayName: 'Dark Theme',
@@ -184,6 +248,7 @@ const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
 			mode: 'dark',
 		},
 	},
+
 	'atlassian-dark-future': {
 		id: 'dark-future',
 		displayName: 'Future Dark Theme',
@@ -193,6 +258,26 @@ const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
 			mode: 'dark',
 		},
 		override: 'light',
+	},
+	'atlassian-dark-finesse': {
+		id: 'dark-finesse',
+		displayName: 'FY27 Finesse Dark Theme Override',
+		palette: 'defaultPalette',
+		attributes: {
+			type: 'color',
+			mode: 'dark',
+		},
+		override: 'dark',
+	},
+	'atlassian-dark-increased-contrast-finesse': {
+		id: 'dark-increased-contrast-finesse',
+		displayName: 'FY27 Finesse Dark Theme (increased contrast) Override',
+		palette: 'defaultPalette',
+		attributes: {
+			type: 'color',
+			mode: 'dark',
+		},
+		override: 'dark-increased-contrast',
 	},
 	'atlassian-dark-increased-contrast': {
 		id: 'dark-increased-contrast',
@@ -221,6 +306,15 @@ const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
 			type: 'typography',
 		},
 	},
+	'atlassian-typography-finesse': {
+		id: 'typography-finesse',
+		displayName: 'FY27 Finesse Typography Override',
+		palette: 'typographyPalette',
+		attributes: {
+			type: 'typography',
+		},
+		override: 'typography',
+	},
 	'atlassian-shape': {
 		id: 'shape',
 		displayName: 'Shape',
@@ -229,73 +323,14 @@ const themeConfig: Record<Themes | ThemeOverrides, ThemeConfig> = {
 			type: 'shape',
 		},
 	},
-};
-
-type HEX = `#${string}`;
-export type CSSColor = HEX;
-
-/**
- * ThemeOptionsSchema: additional configuration options used to customize Atlassian's themes
- */
-export interface ThemeOptionsSchema {
-	brandColor: CSSColor;
-}
-
-/**
- * ThemeState: the standard representation of an app's current theme and preferences
- */
-export interface ThemeState {
-	light: Extract<
-		ThemeIds,
-		| 'light'
-		| 'light-future'
-		| 'dark'
-		| 'dark-future'
-		| 'light-increased-contrast'
-		| 'dark-increased-contrast'
-	>;
-	dark: Extract<
-		ThemeIds,
-		| 'light'
-		| 'light-future'
-		| 'dark'
-		| 'dark-future'
-		| 'light-increased-contrast'
-		| 'dark-increased-contrast'
-	>;
-	colorMode: ThemeColorModes;
-	contrastMode: ThemeContrastModes;
-	shape?: Extract<ThemeIds, 'shape'>;
-	spacing: Extract<ThemeIds, 'spacing'>;
-	typography: Extract<ThemeIds, 'typography'>;
-	UNSAFE_themeOptions?: ThemeOptionsSchema;
-}
-
-/**
- * Can't evaluate typography feature flags at the module level,
- * it will always resolve to false when server side rendered or when flags are loaded async.
- */
-interface ThemeStateDefaults extends Omit<ThemeState, 'shape'> {
-	shape: () => ThemeState['shape'];
-}
-
-/**
- * themeStateDefaults: the default values for ThemeState used by theming utilities
- */
-export const themeStateDefaults: ThemeStateDefaults = {
-	colorMode: 'auto',
-	contrastMode: 'auto',
-	dark: 'dark',
-	light: 'light',
-	shape: () => {
-		if (fg('platform-dst-shape-theme-default')) {
-			return 'shape';
-		}
-		return undefined;
+	'atlassian-motion': {
+		id: 'motion',
+		displayName: 'Motion',
+		palette: 'motionPalette',
+		attributes: {
+			type: 'motion',
+		},
 	},
-	spacing: 'spacing',
-	typography: 'typography',
-	UNSAFE_themeOptions: undefined,
 };
 
 /**
@@ -306,4 +341,20 @@ export interface ActiveThemeState extends ThemeState {
 	colorMode: DataColorModes;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default themeConfig;
+
+/**
+ * @deprecated Use `import { themeColorModes, ThemeColorModes } from '@atlaskit/tokens/theme-color-modes'` instead.
+ */
+export { themeColorModes, type ThemeColorModes } from './theme-color-modes';
+/**
+ * @deprecated Use `import { themeIds, ThemeIds } from '@atlaskit/tokens/theme-ids'` instead.
+ */
+export { themeIds, type ThemeIds } from './theme-ids';
+/**
+ * @deprecated Use `import { themeStateDefaults } from '@atlaskit/tokens/theme-state-defaults'` instead.
+ */
+export { themeStateDefaults } from './theme-state-defaults';
+export { type ThemeOptionsSchema, type CSSColor } from './theme-options-schema';
+export { type ThemeState } from './theme-state';

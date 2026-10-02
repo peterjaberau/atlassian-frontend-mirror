@@ -1,6 +1,6 @@
 /* eslint-disable require-unicode-regexp  */
 
-import type { JSONNode } from '@atlaskit/editor-json-transformer';
+import type { JSONNode } from '@atlaskit/editor-json-transformer/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 
 import type {
@@ -11,10 +11,79 @@ import type {
 	SyncBlockProduct,
 } from '../common/types';
 
+const GET_CONTENT_ID_AND_PRODUCT_REGEX = /^(confluence-page|jira-work-item)\/([^/]+)/;
+
+const normalizeSyncBlockJSONContentInternal = <T extends JSONNode | undefined>(
+	content: T[],
+	options: { convertPanelC1ToPanel: boolean },
+): T[] => {
+	let normalizedContent: T[] | undefined;
+
+	content.forEach((contentNode, index) => {
+		if (!contentNode) {
+			normalizedContent?.push(contentNode);
+			return;
+		}
+
+		const hasAnnotationMark = contentNode.marks?.some((mark) => mark.type === 'annotation');
+		const shouldConvertPanelC1 = options.convertPanelC1ToPanel && contentNode.type === 'panel_c1';
+		const childContent = contentNode.content
+			? normalizeSyncBlockJSONContentInternal(contentNode.content, options)
+			: undefined;
+		const hasContentChanged = childContent !== undefined && childContent !== contentNode.content;
+
+		if (!hasAnnotationMark && !shouldConvertPanelC1 && !hasContentChanged) {
+			normalizedContent?.push(contentNode);
+			return;
+		}
+
+		if (!normalizedContent) {
+			normalizedContent = content.slice(0, index);
+		}
+
+		const normalizedNode = { ...contentNode };
+
+		if (shouldConvertPanelC1) {
+			normalizedNode.type = 'panel';
+		}
+
+		if (hasAnnotationMark) {
+			const marks = contentNode.marks?.filter((mark) => mark.type !== 'annotation');
+			if (marks && marks.length > 0) {
+				normalizedNode.marks = marks;
+			} else {
+				delete normalizedNode.marks;
+			}
+		}
+
+		if (hasContentChanged && childContent) {
+			normalizedNode.content = childContent;
+		}
+
+		normalizedContent.push(normalizedNode as T);
+	});
+
+	return normalizedContent ?? content;
+};
+
+export const stripAnnotationMarksFromJSONContent = <T extends JSONNode | undefined>(
+	content: T[],
+): T[] => {
+	return normalizeSyncBlockJSONContentInternal(content, { convertPanelC1ToPanel: false });
+};
+
+export const normalizeSyncBlockJSONContent = <T extends JSONNode | undefined>(
+	content: T[],
+): T[] => {
+	return normalizeSyncBlockJSONContentInternal(content, { convertPanelC1ToPanel: true });
+};
+
 export const convertSyncBlockPMNodeToSyncBlockData = (node: PMNode): SyncBlockData => {
+	const content = node.content.toJSON();
+
 	return {
 		blockInstanceId: node.attrs.localId,
-		content: node.content.toJSON(),
+		content: content ? normalizeSyncBlockJSONContent(content) : content,
 		resourceId: node.attrs.resourceId,
 	};
 };
@@ -64,11 +133,9 @@ export const convertPMNodeToSyncBlockNode = (node: PMNode): SyncBlockNode | unde
 };
 
 export const convertPMNodesToSyncBlockNodes = (nodes: PMNode[]): SyncBlockNode[] => {
-	return (
-		nodes
-			.map((node) => convertPMNodeToSyncBlockNode(node))
-			.filter((node: SyncBlockNode | undefined): node is SyncBlockNode => node !== undefined) || []
-	);
+	return nodes
+		.map((node) => convertPMNodeToSyncBlockNode(node))
+		.filter((node: SyncBlockNode | undefined): node is SyncBlockNode => node !== undefined);
 };
 
 /*
@@ -76,8 +143,13 @@ export const convertPMNodesToSyncBlockNodes = (nodes: PMNode[]): SyncBlockNode[]
  * e.g. confluence-page/5769323474/cdf6a1bc-b241-487a-93e9-e30bde363cbc
  * Extracts the source page content id and source product
  */
-export const getContentIdAndProductFromResourceId = (resourceId: string) => {
-	const match = resourceId.match(/^(confluence-page|jira-work-item)\/([^/]+)/);
+export const getContentIdAndProductFromResourceId = (
+	resourceId: string,
+): {
+	sourceContentId: string;
+	sourceProduct: SyncBlockProduct;
+} => {
+	const match = resourceId.match(GET_CONTENT_ID_AND_PRODUCT_REGEX);
 	if (match?.[2]) {
 		return {
 			sourceProduct: match[1] as SyncBlockProduct,
@@ -85,6 +157,24 @@ export const getContentIdAndProductFromResourceId = (resourceId: string) => {
 		};
 	}
 	throw new Error(`Invalid resourceId: ${resourceId}`);
+};
+
+/*
+ * Safe variant of `getContentIdAndProductFromResourceId` for analytics call-sites.
+ * Returns `undefined` instead of throwing when the resourceId is missing or malformed,
+ * so a bad value can never break the analytics pipeline.
+ */
+export const getSourceProductFromResourceIdSafe = (
+	resourceId?: string,
+): SyncBlockProduct | undefined => {
+	if (!resourceId) {
+		return undefined;
+	}
+	try {
+		return getContentIdAndProductFromResourceId(resourceId).sourceProduct;
+	} catch {
+		return undefined;
+	}
 };
 
 export const convertContentUpdatedAt = (

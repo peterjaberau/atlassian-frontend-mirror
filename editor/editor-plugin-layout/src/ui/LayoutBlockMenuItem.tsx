@@ -1,22 +1,37 @@
+/**
+ * @jsxRuntime classic
+ * @jsx jsx
+ */
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
+import { cssMap, jsx } from '@atlaskit/css';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { blockMenuMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { BlockMenuItemComponentProps } from '@atlaskit/editor-plugin-block-menu/blockMenuPluginType';
 import { ToolbarDropdownItem } from '@atlaskit/editor-toolbar';
 import LayoutTwoColumnsIcon from '@atlaskit/icon/core/layout-two-columns';
 
 import type { LayoutPlugin } from '../layoutPluginType';
 
+const styles = cssMap({
+	svgOverflow: {
+		// @ts-expect-error - nested selector required to target SVGs within icon wrapper
+		// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors
+		svg: { overflow: 'visible' },
+	},
+});
+
 type Props = {
 	api: ExtractInjectionAPI<LayoutPlugin> | undefined;
+	isSuggested?: boolean;
 };
 
 const NODE_NAME = 'layoutSection';
 
-const LayoutBlockMenuItem = ({ api }: Props) => {
+const LayoutBlockMenuItem = ({ api, isSuggested }: Props) => {
 	const { formatMessage } = useIntl();
 
 	const handleClick = (event: React.MouseEvent | React.KeyboardEvent) => {
@@ -31,6 +46,7 @@ const LayoutBlockMenuItem = ({ api }: Props) => {
 				tr.doc.type.schema.nodes.layoutSection,
 				{
 					inputMethod,
+					isSuggested,
 					triggeredFrom,
 					targetTypeName: NODE_NAME,
 				},
@@ -40,12 +56,21 @@ const LayoutBlockMenuItem = ({ api }: Props) => {
 	};
 
 	return (
-		<ToolbarDropdownItem onClick={handleClick} elemBefore={<LayoutTwoColumnsIcon label="" />}>
+		<ToolbarDropdownItem
+			onClick={handleClick}
+			elemBefore={
+				<span css={styles.svgOverflow}>
+					<LayoutTwoColumnsIcon label="" size="small" />
+				</span>
+			}
+		>
 			{formatMessage(blockMenuMessages.layout)}
 		</ToolbarDropdownItem>
 	);
 };
 
 export const createLayoutBlockMenuItem = (api: ExtractInjectionAPI<LayoutPlugin> | undefined) => {
-	return (): React.JSX.Element => <LayoutBlockMenuItem api={api} />;
+	return ({ isSuggested }: BlockMenuItemComponentProps = {}): React.JSX.Element => (
+		<LayoutBlockMenuItem api={api} isSuggested={isSuggested} />
+	);
 };

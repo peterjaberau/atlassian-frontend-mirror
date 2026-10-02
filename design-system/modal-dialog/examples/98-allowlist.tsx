@@ -1,19 +1,19 @@
 import React, { useCallback, useState } from 'react';
 
-import Lorem from 'react-lorem-component';
-
 import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/new';
-import { Label } from '@atlaskit/form';
-import Heading from '@atlaskit/heading';
-import ModalDialog, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-} from '@atlaskit/modal-dialog';
-import { Box } from '@atlaskit/primitives/compiled';
-import TextField from '@atlaskit/textfield';
+import Button from '@atlaskit/button/default/button';
+import Code from '@atlaskit/code/code';
+import { Label } from '@atlaskit/form/label/default';
+import Heading from '@atlaskit/heading/heading';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import { Box, Text } from '@atlaskit/primitives/compiled';
+import TextField from '@atlaskit/textfield/text-field';
+
+import PlaceholderContent from './placeholder-content';
 
 const allowlistElement = (element: HTMLElement) => {
 	if (element.closest('[data-allowlist-container="true"]')) {
@@ -41,14 +41,14 @@ export default function Allowlist(): React.JSX.Element {
 						Open Modal
 					</Button>
 				</ButtonGroup>
-				<p>
+				<Text as="p">
 					This example shows how the focus lock allowlist lets people interact with content outside
 					of the modal dialog. When the nested modal is open, the parent modal remains accessible.
-				</p>
-				<p>
-					Focus lock ignores specified areas. Pass the <code>focusLockAllowlist</code> prop a
-					function which returns <code>false</code> for node which should ignored by focus lock.
-				</p>
+				</Text>
+				<Text as="p">
+					Focus lock ignores specified areas. Pass the <Code>focusLockAllowlist</Code> prop a
+					function which returns <Code>false</Code> for node which should ignored by focus lock.
+				</Text>
 			</Box>
 			{isOpen && (
 				<ModalDialog testId="modal-focus-lock" width="large" onClose={close}>
@@ -57,12 +57,12 @@ export default function Allowlist(): React.JSX.Element {
 					</ModalHeader>
 					<Box data-allowlist-container="true">
 						<ModalBody>
-							<p>
+							<Text as="p">
 								All elements of this modal are accessible through focus lock due to allowlisted
 								container.
-							</p>
+							</Text>
 							<Label htmlFor="allowlist-input">Allow List Input</Label>
-							<TextField placeholder="first" id="allowlist-input" />
+							<TextField id="allowlist-input" />
 						</ModalBody>
 						<ModalFooter>
 							<ButtonGroup label="Modal Controls">
@@ -86,7 +86,7 @@ export default function Allowlist(): React.JSX.Element {
 								<ModalTitle>Nested Modal</ModalTitle>
 							</ModalHeader>
 							<ModalBody>
-								<Lorem count={1} />
+								<PlaceholderContent count={1} />
 							</ModalBody>
 							<ModalFooter>
 								<ButtonGroup label="Inner modal controls">

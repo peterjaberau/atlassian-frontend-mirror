@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 // eslint-disable-next-line @atlassian/relay/use-single-relay-environment
 import { graphql, RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
 import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
@@ -8,7 +8,6 @@ import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
 import { RovoAgentSelector } from '../src';
 import { generateMockAgentEdges } from '../src/common/utils/generate-mock-agent-edges';
 import type { AgentOption } from '../src/ui/rovo-agent-selector/types';
-
 import type { selectedRovoAgentSelectorQuery } from './__generated__/selectedRovoAgentSelectorQuery.graphql';
 
 const TestRenderer = () => {

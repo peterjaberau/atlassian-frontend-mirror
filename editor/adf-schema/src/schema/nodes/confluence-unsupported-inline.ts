@@ -1,8 +1,10 @@
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { confluenceUnsupportedInline as confluenceUnsupportedInlineFactory } from '../../next-schema/generated/nodeTypes';
 
 const name = 'confluenceUnsupportedInline';
 
-export const confluenceUnsupportedInline = confluenceUnsupportedInlineFactory({
+export const confluenceUnsupportedInline: NodeSpec = confluenceUnsupportedInlineFactory({
 	toDOM(node) {
 		const attrs = {
 			'data-node-type': name,

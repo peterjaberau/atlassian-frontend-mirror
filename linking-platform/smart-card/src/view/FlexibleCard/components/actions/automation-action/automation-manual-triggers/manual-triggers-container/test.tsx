@@ -1,14 +1,15 @@
 import React from 'react';
 
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { injectable } from 'react-magnetic-di';
 
-import { mockTransformedRules } from './common/mocks';
-import { renderWithDi } from './common/test-utils';
-import type { ManualRule, RuleQuery } from './common/types';
-import { invokeManuallyTriggeredRule } from './services';
+import { act, fireEvent, screen, waitFor } from '@atlassian/testing-library';
 
-import { ManualRulesContainer, type ManualRulesContainerProps, useManualRules } from './index';
+import { mockTransformedRules } from './common/mocks';
+import { renderWithDi } from './common/test-utils/render-with-di';
+import type { ManualRule, RuleQuery } from './common/types';
+import { ManualRulesContainer, type ManualRulesContainerProps } from './ManualRulesContainer';
+import { invokeManuallyTriggeredRule } from './services/invokeManuallyTriggeredRule';
+import { useManualRules } from './useManualRules';
 
 const ChildComp = (props: JSX.IntrinsicElements['div']) => <div {...props} title="childComp" />;
 const InvokeButton = (props: JSX.IntrinsicElements['button']) => (

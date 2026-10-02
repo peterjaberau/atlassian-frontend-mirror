@@ -21,6 +21,7 @@ export {
 	toggleNumberColumn,
 	toggleTableLayout,
 } from './toggle';
+export { closeActiveTableMenu, toggleActiveTableMenu } from './active-table-menu';
 export { clearMultipleCells } from './clear';
 export {
 	autoSizeTable,
@@ -35,6 +36,7 @@ export {
 	setCellAttr,
 	setEditorFocus,
 	setMultipleCellAttrs,
+	setMultipleCellAttrsEditorCommand,
 	setTableRef,
 	showInsertColumnButton,
 	showInsertRowButton,

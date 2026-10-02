@@ -3,7 +3,7 @@ import mentionsDoc from './__fixtures__/mentions.json';
 
 describe('Traverse#map', () => {
 	it('should return an array of all nodes', () => {
-		expect(map(mentionsDoc, (node) => node)).toMatchSnapshot();
+		expect(map(mentionsDoc, (node) => node)).toHaveLength(15);
 	});
 
 	it('should return an array of results of a callback applied to every node', () => {

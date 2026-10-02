@@ -1,7 +1,10 @@
 import type { Rule } from 'eslint';
+
 import { isIdentifierImportedFrom, type Node } from '../utils';
 
 const BANNED_IMPORTS_SET = new Set(['@atlaskit/feature-gate-js-client']);
+
+type Options = { includeSubpathImports?: boolean };
 
 const rule: Rule.RuleModule = {
 	meta: {
@@ -11,20 +14,30 @@ const rule: Rule.RuleModule = {
 		},
 		messages: {
 			notSupported:
-				'Experimentation is not suported in platform feature flags, reach out to #help-statsig-switcheroo.',
+				'Experimentation is not supported in platform feature flags, reach out to #help-statsig-switcheroo.',
 			useRecommended:
 				'Please do not use FeatureGates.{{util}}, use {{recommended}} from {{lib}} instead.',
 		},
 		type: 'problem',
+		schema: [
+			{
+				type: 'object',
+				properties: { includeSubpathImports: { type: 'boolean' } },
+				additionalProperties: false,
+			},
+		],
 	},
 	create(context) {
+		const { includeSubpathImports = false }: Options = context.options[0] ?? {};
+		const utilOptions = { includeSubpaths: includeSubpathImports };
+
 		return {
 			'CallExpression > MemberExpression:matches([property.name="checkGate"])': (
 				node: Node<'MemberExpression'>,
 			) => {
 				if (
 					node.object.type === 'Identifier' &&
-					isIdentifierImportedFrom(node.object.name, BANNED_IMPORTS_SET, context, node)
+					isIdentifierImportedFrom(node.object.name, BANNED_IMPORTS_SET, context, node, utilOptions)
 				) {
 					context.report({
 						messageId: 'useRecommended',
@@ -42,11 +55,16 @@ const rule: Rule.RuleModule = {
 			) => {
 				if (
 					node.object.type === 'Identifier' &&
-					isIdentifierImportedFrom(node.object.name, BANNED_IMPORTS_SET, context, node)
+					isIdentifierImportedFrom(node.object.name, BANNED_IMPORTS_SET, context, node, utilOptions)
 				) {
 					context.report({
-						messageId: 'notSupported',
+						messageId: 'useRecommended',
 						node,
+						data: {
+							lib: '`@atlaskit/platform-feature-experiments`',
+							util: (node.property as any).name,
+							recommended: '`isExperimentEnabled` or `expVal`',
+						},
 					});
 				}
 			},

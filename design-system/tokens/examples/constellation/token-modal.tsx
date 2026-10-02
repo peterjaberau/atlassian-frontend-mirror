@@ -4,7 +4,7 @@
  */
 import { cssMap, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { token } from '@atlaskit/tokens';
 
 export const TokenModalCodeBlock = `
@@ -82,7 +82,7 @@ export const TokenModal = (): JSX.Element => {
 };
 
 const _default_1: {
-    example: () => JSX.Element;
-    code: string;
+	example: () => JSX.Element;
+	code: string;
 } = { example: TokenModal, code: TokenModalCodeBlock };
 export default _default_1;

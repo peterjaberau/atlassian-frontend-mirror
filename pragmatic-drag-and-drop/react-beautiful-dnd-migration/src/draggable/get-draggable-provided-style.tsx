@@ -1,7 +1,6 @@
 import type { DraggingStyle, NotDraggingStyle } from 'react-beautiful-dnd';
 
 import type { DraggableDimensions } from '../hooks/use-captured-dimensions';
-
 import { zIndex } from './constants';
 import type { DraggablePreviewOffset, DraggableState } from './state';
 
@@ -54,6 +53,7 @@ function getDraggingStyle({
  * Returns the styles which should be provided to the draggable via the
  * `draggableProps` API.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function getDraggableProvidedStyle({
 	draggableDimensions,
 	draggableState,

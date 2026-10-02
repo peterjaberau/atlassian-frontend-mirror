@@ -1,17 +1,16 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { toggleViewChanges, ToolTipContent } from '@atlaskit/editor-common/keymaps';
 import { trackChangesMessages } from '@atlaskit/editor-common/messages';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { ToolbarButton, ToolbarTooltip, HistoryIcon } from '@atlaskit/editor-toolbar';
-import { fg } from '@atlaskit/platform-feature-flags';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import { HistoryIcon, ToolbarButton, ToolbarTooltip } from '@atlaskit/editor-toolbar';
 
-import { type TrackChangesPlugin } from '../trackChangesPluginType';
+import type { TrackChangesPlugin } from '../trackChangesPluginType';
 
 type TrackChangesToolbarButtonProps = {
 	api: ExtractInjectionAPI<TrackChangesPlugin> | undefined;
@@ -24,14 +23,16 @@ export const TrackChangesToolbarButton = ({
 }: TrackChangesToolbarButtonProps): React.JSX.Element => {
 	const isToolbarAIFCEnabled = Boolean(api?.toolbar);
 
-	const { isDisplayingChanges, isShowDiffAvailable } = useSharedPluginStateWithSelector(
-		api,
-		['trackChanges'],
-		(states) => ({
+	const { isDisplayingChanges, isShowDiffAvailable, isToggleChangesDisabled } =
+		useSharedPluginStateWithSelector(api, ['trackChanges'], (states) => ({
 			isDisplayingChanges: states.trackChangesState?.isDisplayingChanges,
 			isShowDiffAvailable: states.trackChangesState?.isShowDiffAvailable,
-		}),
-	);
+			isToggleChangesDisabled: states.trackChangesState?.isToggleChangesDisabled,
+		}));
+
+	// Disabled either because there's nothing to diff, or because another plugin currently
+	// owns the diff decorations (e.g. the AI Review moment is visible).
+	const isDisabled = !isShowDiffAvailable || Boolean(isToggleChangesDisabled);
 
 	const { formatMessage } = useIntl();
 
@@ -46,7 +47,7 @@ export const TrackChangesToolbarButton = ({
 
 	const browser = getBrowserInfo();
 	// Exclude Firefox browser from showing keyboard shortcut in tooltip
-	const showShortcut = !browser.gecko && fg('platform_editor_ai_aifc_patch_ga_blockers');
+	const showShortcut = !browser.gecko;
 
 	const tooltipContent = showShortcut ? (
 		<ToolTipContent
@@ -64,7 +65,7 @@ export const TrackChangesToolbarButton = ({
 					icon={HistoryIcon}
 					label={formatMessage(trackChangesMessages.toolbarIconLabel)}
 					appearance="subtle"
-					isDisabled={!isShowDiffAvailable}
+					isDisabled={isDisabled}
 					isSelected={isDisplayingChanges}
 					onClick={handleClick}
 				/>
@@ -79,7 +80,7 @@ export const TrackChangesToolbarButton = ({
 					<HistoryIcon label={formatMessage(trackChangesMessages.toolbarIconLabel)} size="small" />
 				}
 				onClick={handleClick}
-				isDisabled={!isShowDiffAvailable}
+				isDisabled={isDisabled}
 				isSelected={isDisplayingChanges}
 			/>
 		</ToolbarTooltip>

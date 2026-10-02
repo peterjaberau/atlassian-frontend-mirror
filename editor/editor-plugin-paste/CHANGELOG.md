@@ -1,5 +1,1902 @@
 # @atlaskit/editor-plugin-paste
 
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- [`56ed7cf145315`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/56ed7cf145315) -
+  Cleanup experiment platform_editor_fix_header_paste_in_panel and permanently support pasting
+  headings into panels.
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- [`c312f08226250`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c312f08226250) -
+  Clean up experiment `platform_editor_nest_in_table_renderer_paste`
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- [`3b3e57040d2d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b3e57040d2d0) -
+  Remove retired flexible-list feature controls and schema styles while preserving shipped list
+  normalization, hidden-marker rendering for wrapper list items, task paste and task-list tab
+  behavior, and toolbar indentation behavior.
+
+  Remove unused legacy list utilities after the flexible-list rollout: `flattenList`,
+  `normalizeListItemsSelection`, `hasValidListIndentationLevel`,
+  `processNestedTaskListsInSameLevel`, and `wrapTaskListIntoListAbove`. The
+  `@atlaskit/editor-common/lists/indentation` entrypoint is also removed.
+
+  Consumers of the removed runtime helpers should use the editor list plugin's indent/outdent
+  commands. The shared `FlattenedItem`, `FlattenListOptions`, and `FlattenListResult` types remain
+  available for the active list implementations.
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- [`9e6211ceb4ceb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e6211ceb4ceb) -
+  Clean up the fully rolled-out `platform_editor_small_font_size` experiment and make its permanent
+  `true` behavior unconditional across editor formatting, task and list handling, paste behavior,
+  controls, and rendering.
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- [`4a3a84237c82a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4a3a84237c82a) -
+  Behind the `platform_editor_paste_autoconvert_robustness` experiment: paste auto-conversion no
+  longer waits for the smart link provider before inserting pasted content, and the macro
+  replacement range is derived from the applied transaction steps instead of the slice size so the
+  pasted link can no longer be left behind alongside the macro. If the pasted link can no longer be
+  located when the request settles (for example it was unlinked in the meantime), nothing is
+  replaced — content is never matched by proximity to a stale position, which could otherwise
+  convert a different, unrelated link to the same URL. Behaviour is unchanged when the experiment is
+  off.
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- [`fb891566dfac2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb891566dfac2) -
+  Add anyMarksActiveFromTr and getHadMarkAttributes so mark-active checks can run from a
+  transaction. Color, highlight, toolbar/Cmd+K link apply, and paste events include had-mark
+  attributes behind kill switch platform_editor_add_text_color_tracking.
+- Updated dependencies
+
+## 17.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.9
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 17.1.8
+
+### Patch Changes
+
+- [`513f878e1df07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/513f878e1df07) -
+  [ux] Behind the platform_editor_preserve_mention_on_paste experiment, stop hoisting a mention's
+  avatar image out of its span during paste, so pasting a mention pastes a mention instead of a
+  standalone image
+- Updated dependencies
+
+## 17.1.7
+
+### Patch Changes
+
+- [`a6c26b16402ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a6c26b16402ca) -
+  Migrate nine dogfooding editor experiments from `@atlaskit/tmp-editor-statsig` to the Platform
+  experiment API and move their tests to Platform experiment mocks.
+- Updated dependencies
+
+## 17.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- [`d8ceccbefb264`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d8ceccbefb264) -
+  Clean up experiment `platform_editor_paste_renderer_analytics`.
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- [`5d35806b69659`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5d35806b69659) -
+  Clean up experiment `platform_editor_expand_paste_in_comment_editor`
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- [`12a986f8ae94a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12a986f8ae94a) -
+  Ship fix_copy_paste_external_media_renderer_to_editor permanently by always hoisting external
+  media copied from renderer markup. Remove its temporary Statsig experiment configuration;
+  consumers should remove any calls that read this experiment.
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.17
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 16.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.13
+
+### Patch Changes
+
+- [`7d9913d23d739`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d9913d23d739) -
+  Clean up feature gate `platform_editor_track_node_types`
+- Updated dependencies
+
+## 16.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- [`b8598a6de03d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b8598a6de03d4) -
+  [EDITOR-8613] clean up resize kill switches for bugfixes
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- [`285e872c16221`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/285e872c16221) -
+  Fix bare URL pastes under the platform_editor_paste_as_md_use_gfm experiment so Smart Links
+  resolve again, gated by the platform_editor_gfm_link_paste_fix experiment.
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.2
+
+### Patch Changes
+
+- [`b8700e10d6391`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b8700e10d6391) -
+  Remove invalid experiment keys from Editor package feature gate manifests.
+- Updated dependencies
+
+## 15.1.1
+
+### Patch Changes
+
+- [`0b4753c0a8c07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b4753c0a8c07) -
+  Clean up feature gates from completed rollout
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`a006cb2cc79f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a006cb2cc79f9) -
+  Use the GFM markdown transformer for Cmd+V plain-text paste when
+  `platform_editor_paste_as_md_use_gfm` is enabled, matching the existing paste-as-markdown
+  (Shift+Cmd+V) path.
+
+  Consumers can inject a converter via `PastePluginOptions.markdownToPmConverter` and gate usage
+  with:
+
+  `expValEquals('platform_editor_paste_as_md_use_gfm', 'isEnabled', true)`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- [`56827bed31e4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/56827bed31e4a) -
+  [ux] EDITOR-8452 fix copy paste table in panel from renderer
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- [`cd807b8c872ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd807b8c872ee) -
+  [ux] Fix pasting headings from panel context into an existing panel.
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.0
+
+### Minor Changes
+
+- [`6e4030f86d5b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e4030f86d5b6) -
+  Fix copy/paste of partial text selected from inside a table nested in a panel (panel_c1)
+  re-wrapping the pasted text in a panel and table. The paste plugin now treats panel_c1 as a panel
+  variant everywhere it special-cases panels, so the existing panel paste handling strips the open
+  panel/table boundary. Gated behind platform_editor_nest_table_in_panel.
+
+### Patch Changes
+
+- [`7d2c4ad5f91a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d2c4ad5f91a2) -
+  Clean up experiment `improve_3p_smart_link_resolve_rate`
+- Updated dependencies
+
+## 13.3.20
+
+### Patch Changes
+
+- [`d72a5eb291763`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d72a5eb291763) -
+  Clean up experiment `platform_editor_table_in_panel_paste_fallback`
+- Updated dependencies
+
+## 13.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.14
+
+### Patch Changes
+
+- [`c897922dd06fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c897922dd06fc) -
+  Resolve root gap cursor paste selection as doc-level so repeated resized panel paste keeps
+  breakout width
+- Updated dependencies
+
+## 13.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.12
+
+### Patch Changes
+
+- [`0e797fd81675f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0e797fd81675f) -
+  Cleaning up interactivity monitoring experiment
+- Updated dependencies
+
+## 13.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.8
+
+### Patch Changes
+
+- [`c2986ab2c7a01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2986ab2c7a01) -
+  Cleans up prefer static regex violations and enables e18e rule
+- Updated dependencies
+
+## 13.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.1
+
+### Patch Changes
+
+- [`73743eb8b36e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73743eb8b36e6) -
+  CLeanup prefer static regex violations
+- Updated dependencies
+
+## 13.3.0
+
+### Minor Changes
+
+- [`3f5a55729ccfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f5a55729ccfa) -
+  Fix over-nesting (auto-indent) when pasting a task/action into a bullet list item under the
+  flexible list schema (EDITOR-6738), behind kill switch platform_editor_flexible_list_kill_switch_1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`75bc915c1fe98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/75bc915c1fe98) -
+  Hide paste actions when pasting agent mentions behind the platform_editor_agent_mentions
+  experiment. The paste plugin now exposes the source pasted slice so consumers can inspect the
+  paste handler content without depending on the last transaction step slice.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.2
+
+### Patch Changes
+
+- [`49b8e9a322976`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/49b8e9a322976) -
+  Reduce q4 lovability experiment exposure noise in code block setup and bookkeeping paths
+- Updated dependencies
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`1a60a3ac641f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a60a3ac641f9) -
+  Add a track analytics event that fires when a synced block reference is pasted into a surface that
+  does not support synced blocks, allowing these insertion attempts to be measured directly. The
+  event is gated behind the `platform_editor_blocks_patch_2` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- [`302b888acacab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/302b888acacab) -
+  cleanup platform_editor_inline_media_copy_paste_fix feature flag
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.13
+
+### Patch Changes
+
+- [`643d0f8f77dff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/643d0f8f77dff) -
+  Clean up stale experiment platform_editor_pasting_text_in_panel (FFCLEANUP-104459)
+- Updated dependencies
+
+## 12.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.9
+
+### Patch Changes
+
+- [`ebfe7dee1573c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebfe7dee1573c) -
+  Suppress pasted agent mention notifications
+- Updated dependencies
+
+## 12.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- [`dbe0d03cebcd7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dbe0d03cebcd7) -
+  Fix media copy/paste from rendered comments: only hoist external images from mediaSingle wrappers,
+  preserve internal media with valid file references so ProseMirror can reconstruct proper media
+  nodes. Remove debug console.log.
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`f7fc6c3bcc4e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f7fc6c3bcc4e3) -
+  [ux] EDITOR-7242 add paste logic to support table in panel nesting
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.9
+
+### Patch Changes
+
+- [`52a08b0d14e39`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/52a08b0d14e39) -
+  Add code block language auto-detection experiment
+- Updated dependencies
+
+## 11.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.1
+
+### Patch Changes
+
+- [`d93fb5f6f6ced`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d93fb5f6f6ced) -
+  [EDITOR-7014] Preserve explicit code block wrap values during paste and ADF serialization
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`a94a013546f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a94a013546f69) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.11
+
+### Patch Changes
+
+- [`a27e4893b8fa2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a27e4893b8fa2) -
+  Add sorted comma seperated list of nodes to analytics
+
+## 11.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.7
+
+### Patch Changes
+
+- [`ded95ac7efcc4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ded95ac7efcc4) -
+  Persist code block wrap state in ADF, default code blocks created across editor runtime paths to
+  wrapped, and update the wrap toolbar tooltip behind platform_editor_code_block_q4_lovability.
+- Updated dependencies
+
+## 11.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.5
+
+### Patch Changes
+
+- [`54c0e17fe643b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/54c0e17fe643b) -
+  Add fabric-renderer as a recognised PasteSource value for the document pasted analytics event
+- Updated dependencies
+
+## 11.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.3
+
+### Patch Changes
+
+- [`ab837b5646256`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab837b5646256) -
+  [ux] EDITOR-6274 Clean up platform_editor_element_drag_and_drop_multiselect
+- Updated dependencies
+
+## 11.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`da0f71ae99150`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da0f71ae99150) -
+  Add other MS product like AzureDevops and Power BI to render as SmartLinks
+
+## 11.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.12
+
+### Patch Changes
+
+- [`c5778756509ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5778756509ab) -
+  EDITOR-5011 Show paste warning for synced blocks in unsupported products
+
+## 11.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- [`583f16df338b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/583f16df338b0) -
+  Normalise small text fontSize mark on paste: strip fontSize when pasting into headings, and
+  preserve source style when pasting normal text into small-text paragraphs
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- [`402738b592e0b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/402738b592e0b) -
+  Fix invalid flexible list structures caused by delete, paste, and typing operations.
+
+  Under platform_editor_flexible_list_schema, operations that remove content spanning list or task
+  list items could leave nodes with a nested list as their first child instead of a required
+  paragraph/item. Normalisation now runs efficiently on all relevant transactions in
+  appendTransaction.
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- [`90779068bff5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90779068bff5a) -
+  Fix: preserve fontSize block mark when pasting small text copied from inside container nodes (e.g.
+  panel, expand). ProseMirror wraps the pasted content back in the container context, increasing
+  openStart/openEnd. handleParagraphBlockMarks now unwraps these container nodes so the fontSize
+  mark is preserved during paste.
+
+## 11.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- [`bae5d569f660c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bae5d569f660c) -
+  Prevent flexible list creation when platform_editor_flexible_list_schema is on but
+  platform_editor_flexible_list_indentation is off. Slice normalisation in paste pipeline.
+  appendTransaction normaliser in list plugin.
+
+  Paste plugin detects list-into-list paste and sets a transaction meta to skip closeHistory,
+  keeping the paste and normalisation appendTransaction as a single undo step.
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.18
+
+### Patch Changes
+
+- [`bfe80c5eaf923`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bfe80c5eaf923) -
+  Enable onedrive and MS teams links to render as smartlinks
+- Updated dependencies
+
+## 9.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.13
+
+### Patch Changes
+
+- [`fa146e17e08d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa146e17e08d6) -
+  Update README.md and 0-intro.tsx
+
+## 9.1.12
+
+### Patch Changes
+
+- [`7b7c52dff5d7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7c52dff5d7d) -
+  Fix eslint violations for type import syntax
+- Updated dependencies
+
+## 9.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.4
+
+### Patch Changes
+
+- [`1c4534dc921e6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c4534dc921e6) -
+  Preserve small text formatting when converting selections to task lists across block menu, block
+  type, and paste flows
+- Updated dependencies
+
+## 9.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`b749ce678d575`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b749ce678d575) -
+  Preserve small text formatting across list and task list edits
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.11
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 9.0.10
+
+### Patch Changes
+
+- [`d193def6569f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d193def6569f2) -
+  Fixed mixed HTML/Editor content copy/paste issue on mediaInline node by preventing
+  unwrapNestedMediaElements from hoisting images out of mediaInline wrappers.
+- Updated dependencies
+
+## 9.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.6.0
+
+### Minor Changes
+
+- [`ad3f33096c4c2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ad3f33096c4c2) -
+  [[EDITOR-5761](https://hello.jira.atlassian.cloud/browse/EDITOR-5761) - clean up
+  platform_editor_date_to_text feature flag
+
+## 8.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`a71583c5b6516`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a71583c5b6516) -
+  cleanup platform_editor_fix_emoji_paste_html
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.1
+
+### Patch Changes
+
+- [`b47da2946160e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b47da2946160e) -
+  [FFCLEANUP-79685] clean up missed references to platform_editor_fix_captions_on_copy
+- Updated dependencies
+
+## 8.4.0
+
+### Minor Changes
+
+- [`342dd44a8575e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/342dd44a8575e) -
+  [ux] EDITOR-4609 Add prop to disable pasting expands
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.0
+
+### Minor Changes
+
+- [`a0f86fbc3de86`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0f86fbc3de86) -
+  [FFCLEANUP-79685] clean up platform_editor_fix_captions_on_copy feature gate
+
+## 8.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.8
+
+### Patch Changes
+
+- [`19274be1b1972`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19274be1b1972) -
+  [ux] EDITOR-5417 Flexible list indentation ADF schema + validator support
+- Updated dependencies
+
+## 8.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.3
+
+### Patch Changes
+
+- [`a040c03082274`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a040c03082274) -
+  [ux] EDITOR-507 Clean up main nested tables experiment `platform_editor_nested_tables`
+- Updated dependencies
+
+## 8.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`c90ccf0c600ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c90ccf0c600ee) -
+  Enable cross product/cross client copy and paste of Media files by including clientId during Copy
+  operations.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 8.1.11
 
 ### Patch Changes

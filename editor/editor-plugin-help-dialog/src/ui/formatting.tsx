@@ -4,10 +4,10 @@
  */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import type { IntlShape } from 'react-intl-next';
-import { FormattedMessage } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import {
 	addInlineComment,
 	addLink,
@@ -17,10 +17,19 @@ import {
 	askAIQuickInsert,
 	clearFormatting,
 	decreaseMediaSize,
+	dragToMoveDown,
+	dragToMoveLeft,
+	dragToMoveRight,
+	dragToMoveUp,
 	focusTableResizer,
+	showElementDragHandle,
 	focusToContextMenuTrigger,
 	increaseMediaSize,
 	insertRule,
+	moveColumnLeft,
+	moveColumnRight,
+	moveRowDown,
+	moveRowUp,
 	navToEditorToolbar,
 	navToFloatingToolbar,
 	pastePlainText,
@@ -36,6 +45,7 @@ import {
 	toggleHeading4,
 	toggleHeading5,
 	toggleHeading6,
+	toggleSmallText,
 	toggleHighlightPalette,
 	toggleItalic,
 	toggleOrderedList,
@@ -52,6 +62,7 @@ import {
 	blockTypeMessages,
 	listMessages,
 	helpDialogMessages as messages,
+	tableMessages,
 	toolbarInsertBlockMessages,
 	toolbarMessages,
 	undoRedoMessages,
@@ -59,8 +70,8 @@ import {
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 import { token } from '@atlaskit/tokens';
 
 import type { Format } from './Format';
@@ -275,6 +286,11 @@ export const formatting: (intl: IntlShape) => Format[] = ({ formatMessage }) => 
 		keymap: () => setNormalText,
 	},
 	{
+		name: formatMessage(blockTypeMessages.smallText),
+		type: 'fontSize',
+		keymap: () => toggleSmallText,
+	},
+	{
 		name: formatMessage(listMessages.orderedList),
 		type: 'orderedList',
 		keymap: () => toggleOrderedList,
@@ -456,9 +472,7 @@ const quickInsertAskAI: (intl: IntlShape) => Format = ({ formatMessage }) => ({
 });
 
 const otherFormatting: (intl: IntlShape) => Format[] = ({ formatMessage }) => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 	return [
 		{
 			name: formatMessage(toolbarMessages.clearFormatting),
@@ -744,6 +758,60 @@ const focusTableResizeHandleFormatting: (intl: IntlShape) => Format[] = ({ forma
 	},
 ];
 
+// 'navigation' is used as the type for these entries because Format.type is designed to match ADF
+// schema node/mark names — these shortcuts have no corresponding ADF type, so 'navigation' acts as
+// a catch-all that passes the schema filter and routes entries to the keyboard shortcuts column in the UI.
+const blockControlsShortcutsFormatting: (intl: IntlShape) => Format[] = ({ formatMessage }) => [
+	{
+		name: formatMessage(messages.selectDragHandle),
+		type: 'navigation',
+		keymap: () => showElementDragHandle,
+	},
+	{
+		name: formatMessage(messages.moveSelectionUp),
+		type: 'navigation',
+		keymap: () => dragToMoveUp,
+	},
+	{
+		name: formatMessage(messages.moveSelectionDown),
+		type: 'navigation',
+		keymap: () => dragToMoveDown,
+	},
+	{
+		name: formatMessage(messages.moveSelectionLeft),
+		type: 'navigation',
+		keymap: () => dragToMoveLeft,
+	},
+	{
+		name: formatMessage(messages.moveSelectionRight),
+		type: 'navigation',
+		keymap: () => dragToMoveRight,
+	},
+];
+
+const moveTableRowColumnFormatting: (intl: IntlShape) => Format[] = ({ formatMessage }) => [
+	{
+		name: formatMessage(tableMessages.moveColumnLeftHelpDialogLabel),
+		type: 'table',
+		keymap: () => moveColumnLeft,
+	},
+	{
+		name: formatMessage(tableMessages.moveColumnRightHelpDialogLabel),
+		type: 'table',
+		keymap: () => moveColumnRight,
+	},
+	{
+		name: formatMessage(tableMessages.moveRowUpHelpDialogLabel),
+		type: 'table',
+		keymap: () => moveRowUp,
+	},
+	{
+		name: formatMessage(tableMessages.moveRowDownHelpDialogLabel),
+		type: 'table',
+		keymap: () => moveRowDown,
+	},
+];
+
 const openCellOptionsFormattingtoFormat: (intl: IntlShape) => Format[] = ({ formatMessage }) => [
 	{
 		name: formatMessage(messages.openCellOptions),
@@ -794,12 +862,11 @@ export const getSupportedFormatting = (
 	);
 
 	return [
-		...(aiEnabled && editorExperiment('platform_editor_ai_quickstart_command', true)
-			? [quickInsertAskAI(intl)]
-			: []),
+		...(aiEnabled ? [quickInsertAskAI(intl)] : []),
 		...navigationKeymaps(intl),
 		...otherFormatting(intl),
 		...supportedBySchema,
+		...blockControlsShortcutsFormatting(intl),
 		...(imageEnabled ? [imageAutoFormat] : []),
 		...(quickInsertEnabled ? [quickInsertAutoFormat(intl)] : []),
 		...focusTableResizeHandleFormatting(intl),
@@ -807,5 +874,8 @@ export const getSupportedFormatting = (
 			? newResizeInformationFormatting(intl)
 			: resizeInformationFormatting(intl)),
 		...openCellOptionsFormattingtoFormat(intl),
+		...(expValEquals('editor-a11y-fy26-keyboard-move-row-column', 'isEnabled', true)
+			? moveTableRowColumnFormatting(intl)
+			: []),
 	];
 };

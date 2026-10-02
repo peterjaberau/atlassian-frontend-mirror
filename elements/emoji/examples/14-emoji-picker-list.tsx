@@ -3,18 +3,19 @@
  * @jsx jsx
  */
 import React from 'react';
+
 import { css, cssMap, jsx } from '@compiled/react';
+import { IntlProvider } from 'react-intl';
+
 import { token } from '@atlaskit/tokens';
-import { N40 } from '@atlaskit/theme/colors';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { getEmojis } from '@atlaskit/util-data-test/get-emojis';
+
 import {
 	EmojiPickerVirtualListInternal as EmojiPickerList,
 	type Props,
 } from '../src/components/picker/EmojiPickerList';
-
-import { IntlProvider } from 'react-intl-next';
 
 const allEmojis = getEmojis();
 
@@ -26,10 +27,10 @@ const emojiPicker = css({
 	display: 'flex',
 	flexDirection: 'column',
 	justifyContent: 'space-between',
-	backgroundColor: token('elevation.surface.overlay', 'white'),
-	border: `${token('color.border', N40)} ${token('border.width')} solid`,
+	backgroundColor: token('elevation.surface.overlay'),
+	border: `${token('color.border')} ${token('border.width')} solid`,
 	borderRadius: token('radius.small', '3px'),
-	boxShadow: token('elevation.shadow.overlay', '0 3px 6px rgba(0, 0, 0, 0.2)'),
+	boxShadow: token('elevation.shadow.overlay'),
 	height: '375px',
 	width: '350px',
 	minWidth: '350px',
@@ -51,7 +52,7 @@ const withoutPreviewHeight = cssMap({
 	},
 });
 
-export default function Example() {
+export default function Example(): JSX.Element {
 	const [query, setQuery] = React.useState('');
 	const [emojis, setEmojis] = React.useState(allEmojis);
 

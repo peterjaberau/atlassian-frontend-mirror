@@ -2,7 +2,7 @@ import React from 'react';
 
 import { AtlassianInternalWarning, code, Example, md } from '@atlaskit/docs';
 
-export default md`
+const _default_1: any = md`
 ${(<AtlassianInternalWarning />)}
 
   ## JSM Assets Configuration Modal Props
@@ -33,9 +33,10 @@ aql?: string;
   ${(
 		<Example
 			packageName="@atlaskit/link-datasource"
-			Component={require('./examples/basic-assets-config-modal').default}
+			Component={require('../examples/content/basic-assets-config-modal').default}
 			title="JSM Assets Configuration Modal"
-			source={require('!!raw-loader!./examples/basic-assets-config-modal')}
+			source={require('!!raw-loader!../examples/content/basic-assets-config-modal')}
 		/>
 	)}
 `;
+export default _default_1;

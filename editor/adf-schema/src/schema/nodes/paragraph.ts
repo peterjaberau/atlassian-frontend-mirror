@@ -1,7 +1,9 @@
-import type { AlignmentMarkDefinition, IndentationMarkDefinition } from '../marks';
-import type { MarksObject, NoMark } from './types/mark';
-import type { Inline } from './types/inline-content';
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
 import { paragraph as paragraphFactory } from '../../next-schema/generated/nodeTypes';
+import type { AlignmentMarkDefinition, IndentationMarkDefinition } from '../marks';
+import type { Inline } from './types/inline-content';
+import type { MarksObject, NoMark } from './types/mark';
 
 export interface ParagraphAttributes {
 	/**
@@ -16,6 +18,7 @@ export interface ParagraphAttributes {
 export interface ParagraphBaseDefinition {
 	attrs?: ParagraphAttributes;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @allowUnsupportedInline true
 	 */
 	content?: Array<Inline>;
@@ -54,7 +57,7 @@ export type ParagraphWithMarksDefinition =
 	| ParagraphWithAlignmentDefinition
 	| ParagraphWithIndentationDefinition;
 
-export const paragraph = paragraphFactory({
+export const paragraph: NodeSpec = paragraphFactory({
 	parseDOM: [
 		{
 			tag: 'p',

@@ -7,7 +7,6 @@ import { forwardRef } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
 import { token } from '@atlaskit/tokens';
 
 import { type Appearance } from '../types';
@@ -28,7 +27,7 @@ const subtleBgStyles = css({
 	borderColor: 'transparent',
 });
 const subtleFocusedBgStyles = css({
-	backgroundColor: token('color.background.input.pressed', 'transparent'),
+	backgroundColor: token('color.background.input.pressed'),
 	borderColor: 'transparent',
 });
 const noBgStyles = css({
@@ -59,20 +58,16 @@ const isDisabledStyles = css({
 	},
 });
 const newBorderStyles = css({
-	border: `${token('border.width', '1px')} solid ${token('color.border.input')}`,
+	border: `${token('border.width')} solid ${token('color.border.input')}`,
 });
 const baseContainerStyles = css({
 	display: 'flex',
 	backgroundColor: token('color.background.input'),
-	borderRadius: token('radius.small'),
+	borderRadius: token('radius.medium'),
 	transition: 'background-color 200ms ease-in-out, border-color 200ms ease-in-out',
 	'&:hover': {
 		cursor: 'pointer',
 	},
-});
-// platform-dst-shape-theme-default TODO: Merge into base after rollout
-const baseContainerStylesT26Shape = css({
-	borderRadius: token('radius.medium'),
 });
 
 type DateTimePickerContainerProps = {
@@ -99,7 +94,6 @@ export const DateTimePickerContainer: React.ForwardRefExoticComponent<
 			<div
 				css={[
 					baseContainerStyles,
-					fg('platform-dst-shape-theme-default') && baseContainerStylesT26Shape,
 					newBorderStyles,
 					isDisabled && isDisabledStyles,
 					isFocused && isFocusedStyles,

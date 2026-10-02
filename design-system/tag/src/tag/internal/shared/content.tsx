@@ -7,6 +7,7 @@ import { css, jsx } from '@compiled/react';
 
 import { token } from '@atlaskit/tokens';
 
+import { getTagText } from '../../../tag-new/get-tag-text';
 import type { SimpleTagProps } from './types';
 
 interface ContentProps extends SimpleTagProps {
@@ -45,7 +46,14 @@ const hasAfterStyles = css({
 	maxWidth: '160px',
 });
 
-const Content: ({ isRemovable, text, color, href, linkComponent, testId, }: ContentProps) => JSX.Element = ({
+const Content: ({
+	isRemovable,
+	text,
+	color,
+	href,
+	linkComponent,
+	testId,
+}: ContentProps) => JSX.Element = ({
 	isRemovable = true,
 	text = '',
 	color = 'standard',
@@ -54,6 +62,7 @@ const Content: ({ isRemovable, text, color, href, linkComponent, testId, }: Cont
 	testId,
 }: ContentProps) => {
 	const Link = linkComponent ?? 'a';
+	const normalizedText = getTagText(text);
 
 	if (href) {
 		return (
@@ -63,11 +72,11 @@ const Content: ({ isRemovable, text, color, href, linkComponent, testId, }: Cont
 				data-testid={testId ? `${testId}--link` : undefined}
 				css={[baseStyles, linkStyles, isRemovable && hasAfterStyles]}
 			>
-				{text}
+				{normalizedText}
 			</Link>
 		);
 	} else {
-		return <span css={[baseStyles, isRemovable && hasAfterStyles]}>{text}</span>;
+		return <span css={[baseStyles, isRemovable && hasAfterStyles]}>{normalizedText}</span>;
 	}
 };
 

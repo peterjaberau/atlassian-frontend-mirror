@@ -1,12 +1,13 @@
 /* eslint-disable @atlaskit/editor/no-re-export */
 // Entry file in package.json
 
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { Selection, type SelectionBookmark } from '@atlaskit/editor-prosemirror/state';
-import { type Mappable } from '@atlaskit/editor-prosemirror/transform';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import { Selection } from '@atlaskit/editor-prosemirror/state';
+import type { SelectionBookmark } from '@atlaskit/editor-prosemirror/state';
+import type { Mappable } from '@atlaskit/editor-prosemirror/transform';
 
-import { type SerializedCellSelection } from './types';
-import { inSameTable } from './utils/tables';
+import type { SerializedCellSelection } from './types';
+import { inSameTable } from './utils/in-same-table';
 
 export class CellBookmark implements SelectionBookmark {
 	constructor(

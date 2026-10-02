@@ -1,6 +1,7 @@
 import { expect, editorTestCase as test } from '@af/editor-libra';
 import { fixTest } from '@af/integration-testing';
 import { BROWSERS } from '@af/integration-testing/config/constants';
+import { skipAutoA11yFile } from '@atlassian/a11y-playwright-testing';
 
 import {
 	multilineWithDates,
@@ -45,6 +46,15 @@ import {
 	trailingSpacesWithUnsupportedInline,
 } from './inline-nodes.spec.ts-fixtures/unsupportedinline';
 import type { TestSuiteOptions } from './test-suite-options';
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:playwright
+skipAutoA11yFile({
+	exceptTests: [
+		'Extend a selection to the end of the current line from the current position',
+		'Extend a selection to the start of the current line from the current position',
+	],
+});
 
 const testCases: Array<TestSuiteOptions> = [
 	{
@@ -135,6 +145,7 @@ const filterTestCasesIfOnlySet = (testCases: Array<TestSuiteOptions>) =>
 filterTestCasesIfOnlySet(testCases).forEach(({ nodeName, adfs, editorOptions }) => {
 	test.describe(`inline-nodes - ${nodeName}`, () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowTextAlignment: true,
@@ -148,6 +159,7 @@ filterTestCasesIfOnlySet(testCases).forEach(({ nodeName, adfs, editorOptions }) 
 
 		test.describe(`trailing spaces`, () => {
 			test.use({
+				exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 				adf: adfs.trailingSpaces,
 			});
 
@@ -197,6 +209,7 @@ filterTestCasesIfOnlySet(testCases).forEach(({ nodeName, adfs, editorOptions }) 
 
 		test.describe(`no trailing spaces`, () => {
 			test.use({
+				exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 				adf: adfs.notrailingSpaces,
 			});
 
@@ -332,6 +345,7 @@ filterTestCasesIfOnlySet(testCases).forEach(({ nodeName, adfs, editorOptions }) 
 
 		test.describe(`multiple nodes across lines`, () => {
 			test.use({
+				exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 				adf: adfs.multipleNodesAcrossLines,
 			});
 			test(`Can move the selection down one line using down arrow key when ${nodeName} is the first node of each line`, async ({
@@ -549,6 +563,7 @@ filterTestCasesIfOnlySet(testCases).forEach(({ nodeName, adfs, editorOptions }) 
 
 		test.describe(`multiline`, () => {
 			test.use({
+				exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 				adf: adfs.multiline,
 			});
 			test('Can insert text directly after the last node view in the same paragraph', async ({

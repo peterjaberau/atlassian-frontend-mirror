@@ -14,7 +14,7 @@ import {
 	type MemoExoticComponent,
 	type ReactNode,
 	type Ref,
-    type RefAttributes,
+	type RefAttributes,
 } from 'react';
 
 import { jsx } from '@compiled/react';
@@ -22,7 +22,7 @@ import { jsx } from '@compiled/react';
 import { cssMap, cx } from '@atlaskit/css';
 import { token } from '@atlaskit/tokens';
 
-import Flex, { type FlexProps } from './flex';
+import { Flex, type FlexProps } from './flex';
 import type { AlignBlock, AlignInline, BasePrimitiveProps, Grow, Spread } from './types';
 
 export type InlineProps<T extends ElementType = 'div'> = {
@@ -116,7 +116,9 @@ const Separator: FC<{ children: string }> = ({ children }) => (
  * ```
  *
  */
-const Inline: MemoExoticComponent<ForwardRefExoticComponent<Omit<InlineProps<ElementType>, "ref"> & RefAttributes<any>>> = memo(
+export const Inline: MemoExoticComponent<
+	ForwardRefExoticComponent<Omit<InlineProps<ElementType>, 'ref'> & RefAttributes<any>>
+> = memo(
 	forwardRef(
 		<T extends ElementType = 'div'>(
 			{
@@ -175,5 +177,3 @@ const Inline: MemoExoticComponent<ForwardRefExoticComponent<Omit<InlineProps<Ele
 );
 
 Inline.displayName = 'Inline';
-
-export default Inline;

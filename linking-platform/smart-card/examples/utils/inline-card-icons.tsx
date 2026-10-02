@@ -1,7 +1,7 @@
 import React from 'react';
 
-import type { JsonLd } from '@atlaskit/json-ld-types';
-import { CardClient } from '@atlaskit/link-provider';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import CardClient from '@atlaskit/link-provider/client';
 import { generateContext, type GenerateContextProp } from '@atlaskit/link-test-helpers';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Flex, xcss } from '@atlaskit/primitives';
@@ -16,7 +16,7 @@ export class DynamicIconCard extends CardClient {
 		super();
 		this.context = context;
 	}
-	fetchData() {
+	fetchData(): Promise<JsonLd.Response<JsonLd.Data.BaseData>> {
 		const response = generateContext(this.context);
 		return Promise.resolve(response as JsonLd.Response);
 	}

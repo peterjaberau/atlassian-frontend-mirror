@@ -1,7 +1,7 @@
 import React from 'react';
 
 import type { Meta, StoryObj } from '@storybook/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { withPlatformFeatureGates } from '@atlassian/feature-flags-storybook-utils';
 import {
@@ -10,8 +10,8 @@ import {
 	withStorybookLinkHarness,
 } from '@atlassian/platform-storybook-helpers';
 
-import { AgentProfileCard } from '../src';
-import { simpleProfileClient } from '../src/mocks';
+import AgentProfileCard from '../src/components/Agent/AgentProfileCard';
+import { simpleProfileClient } from '../src/mocks/simple-mock-clients';
 import type { AgentProfileCardProps, RovoAgentProfileCardInfo } from '../src/types';
 
 type StoryArgs = AgentProfileCardProps;
@@ -77,36 +77,23 @@ export default meta;
 type Story = StoryObj<StoryArgs>;
 
 const baseFeatureGates = {
-	rovo_agent_empty_state_refresh: false,
 	jira_ai_force_rovo_dev_avatar: false,
 };
 
 export const Standard: Story = {
 	name: 'Standard (non-Rovo Dev)',
-	decorators: [withPlatformFeatureGates({ ...baseFeatureGates, rovo_dev_themed_identity_card: false })],
+	decorators: [withPlatformFeatureGates({ ...baseFeatureGates })],
 	render: (props) => <AgentProfileCard {...props} />,
 };
 
-export const RovoDevGateOff: Story = {
-	name: 'Rovo Dev (gate OFF)',
+export const RovoDev: Story = {
+	name: 'Rovo Dev',
 	args: {
 		agent: {
 			...agent,
 			creator_type: 'ROVO_DEV',
 		},
 	},
-	decorators: [withPlatformFeatureGates({ ...baseFeatureGates, rovo_dev_themed_identity_card: false })],
-	render: (props) => <AgentProfileCard {...props} />,
-};
-
-export const RovoDevGateOn: Story = {
-	name: 'Rovo Dev (gate ON)',
-	args: {
-		agent: {
-			...agent,
-			creator_type: 'ROVO_DEV',
-		},
-	},
-	decorators: [withPlatformFeatureGates({ ...baseFeatureGates, rovo_dev_themed_identity_card: true })],
+	decorators: [withPlatformFeatureGates({ ...baseFeatureGates })],
 	render: (props) => <AgentProfileCard {...props} />,
 };

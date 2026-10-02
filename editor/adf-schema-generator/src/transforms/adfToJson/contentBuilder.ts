@@ -1,5 +1,6 @@
-import uniqBy from 'lodash/uniqBy';
 import type { JSONSchema4 } from 'json-schema';
+import uniqBy from 'lodash/uniqBy';
+
 import { ADFNode } from '../../adfNode';
 import type { ADFNodeGroup } from '../../types/ADFNodeGroup';
 import type { ADFNodeContentSpec, ADFNodeSpec } from '../../types/ADFNodeSpec';
@@ -105,7 +106,9 @@ export function processContentTypes(contentTypes: string[]): JSONSchema4 | undef
 	}
 }
 
-export function processContentGroups(content: Array<ContentVisitorReturnType>): (JSONSchema4 | undefined)[] {
+export function processContentGroups(
+	content: Array<ContentVisitorReturnType>,
+): (JSONSchema4 | undefined)[] {
 	return content.map((item) => processContentTypes(item.contentTypes)).filter(Boolean);
 }
 

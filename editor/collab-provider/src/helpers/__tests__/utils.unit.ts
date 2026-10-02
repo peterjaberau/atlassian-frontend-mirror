@@ -1,14 +1,30 @@
-import step from './__fixtures__/clean-step-for-empty-doc.json';
-import { Step as ProseMirrorStep, ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  and raise concerns in https://atlassian.enterprise.slack.com/archives/C0BD4K40BLH
+*/
+
 import { getSchemaBasedOnStage } from '@atlaskit/adf-schema/schema-default';
-// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
-import { doc, p } from '@atlaskit/editor-test-helpers/doc-builder';
+import type { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
+import { ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
+import { Step as ProseMirrorStep } from '@atlaskit/editor-prosemirror/transform-override';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { createEditorState } from '@atlaskit/editor-test-helpers/create-editor-state';
-import { getStepUGCFreeDetails, isAIProviderID, logObfuscatedSteps } from '../utils';
-
+// eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
+import { doc, p } from '@atlaskit/editor-test-helpers/doc-builder';
 import { collab as collabPlugin, sendableSteps } from '@atlaskit/prosemirror-collab';
-import { type SafePlugin } from '@atlaskit/editor-common/safe-plugin';
+
+import {
+	getAgentProviderId,
+	getStepUGCFreeDetails,
+	isAIProviderID,
+	isGCPtenant,
+	logObfuscatedSteps,
+	normalizeAgentId,
+} from '../utils';
+import step from './__fixtures__/clean-step-for-empty-doc.json';
 
 jest.mock<typeof import('@atlaskit/prosemirror-collab')>('@atlaskit/prosemirror-collab', () => {
 	const originPC = jest.requireActual<typeof import('@atlaskit/prosemirror-collab')>(
@@ -37,6 +53,38 @@ describe('Utils unit tests', () => {
 		expect(isAIProviderID('test:agent:')).toBe(false);
 	});
 
+	describe('normalizeAgentId', () => {
+		it('unwraps an identity user ARI to the bare AAID', () => {
+			expect(
+				normalizeAgentId('ari:cloud:identity::user/712020:e7a5fef1-25cd-4943-9bff-c725bf3f9804'),
+			).toBe('712020:e7a5fef1-25cd-4943-9bff-c725bf3f9804');
+		});
+		it('returns a bare AAID unchanged', () => {
+			expect(normalizeAgentId('712020:e7a5fef1-25cd-4943-9bff-c725bf3f9804')).toBe(
+				'712020:e7a5fef1-25cd-4943-9bff-c725bf3f9804',
+			);
+		});
+	});
+
+	describe('getAgentProviderId', () => {
+		it('returns undefined for a non-agent step (no agentType)', () => {
+			expect(getAgentProviderId({ agentId: '712020:abc' })).toBeUndefined();
+			expect(getAgentProviderId({})).toBeUndefined();
+		});
+		it('keys on the AAID (normalised) when agentId is present', () => {
+			expect(getAgentProviderId({ agentType: 'mcp', agentId: '712020:abc' })).toBe(
+				'agent:712020:abc',
+			);
+			expect(
+				getAgentProviderId({ agentType: 'mcp', agentId: 'ari:cloud:identity::user/712020:abc' }),
+			).toBe('agent:712020:abc');
+		});
+		it('falls back to the agent type when agentId is absent', () => {
+			expect(getAgentProviderId({ agentType: 'mcp' })).toBe('agent:mcp');
+			expect(getAgentProviderId({ agentType: 'twg' })).toBe('agent:twg');
+		});
+	});
+
 	it('returns obfuscated steps', async () => {
 		const newState = createEditorState(
 			doc(p('Hello New World')),
@@ -58,11 +106,42 @@ describe('Utils unit tests', () => {
 
 		expect(assert).toHaveProperty('stepsFromOldState');
 		expect(assert).toHaveProperty('stepsFromNewState');
-		expect(assert).toMatchInlineSnapshot(`
-		{
-		  "stepsFromNewState": "[{"stepType":{"type":"replace","contentTypes":"paragraph"},"stepContent":[{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lorem Ips Umdol"}],"attrs":{"localId":null}}]}],"stepPositions":{"from":1,"to":1}}]",
-		  "stepsFromOldState": "[{"stepType":{"type":"replace","contentTypes":"paragraph"},"stepContent":[{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lorem Ips Umdol"}],"attrs":{"localId":null}}]}],"stepPositions":{"from":1,"to":1}}]",
+		if (assert instanceof Error) {
+			throw assert;
 		}
-	`);
+		expect(assert).toEqual({
+			stepsFromNewState:
+				'[{"stepType":{"type":"replace","contentTypes":"paragraph"},"stepContent":[{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lorem Ips Umdol"}],"attrs":{"localId":null}}]}],"stepPositions":{"from":1,"to":1}}]',
+			stepsFromOldState:
+				'[{"stepType":{"type":"replace","contentTypes":"paragraph"},"stepContent":[{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Lorem Ips Umdol"}],"attrs":{"localId":null}}]}],"stepPositions":{"from":1,"to":1}}]',
+		});
+	});
+
+	it('isGCPtenant returns true for tenant with GCP naming convention', () => {
+		const hostname = 'test-tenant-cdp-bb0.jira-dev.com';
+		const result = isGCPtenant(hostname);
+
+		expect(result).toBe(true);
+	});
+
+	it('isGCPtenant returns false for tenant without GCP naming convention', () => {
+		const hostname = 'test-tenant-gcp.jira-dev.com';
+		const result = isGCPtenant(hostname);
+
+		expect(result).toBe(false);
+	});
+
+	it('isGCPtenant returns false for empty hostname', () => {
+		const hostname = '';
+		const result = isGCPtenant(hostname);
+
+		expect(result).toBe(false);
+	});
+
+	it('isGCPtenant returns false for undefined hostname', () => {
+		const hostname = undefined;
+		const result = isGCPtenant(hostname);
+
+		expect(result).toBe(false);
 	});
 });

@@ -1,15 +1,13 @@
 import React, { type FunctionComponent } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { AutoDismissFlag } from '@atlaskit/flag';
+import AutoDismissFlag from '@atlaskit/flag/auto-dismiss-flag';
 import SuccessIcon from '@atlaskit/icon/core/status-success';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { G300 } from '@atlaskit/theme/colors';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 import { messages } from '../messages';
-
 import { IntlProviderWithResolvedMessages } from './IntlProviderWithResolvedMessages';
 
 interface AkProps {
@@ -22,9 +20,7 @@ const FeedbackFlag = ({ description, title }: AkProps) => {
 	const { formatMessage } = useIntl();
 	return (
 		<AutoDismissFlag
-			icon={
-				<SuccessIcon spacing="spacious" color={token('color.icon.success', G300)} label="Success" />
-			}
+			icon={<SuccessIcon spacing="spacious" color={token('color.icon.success')} label="Success" />}
 			id="feedbackSent"
 			description={
 				description ||

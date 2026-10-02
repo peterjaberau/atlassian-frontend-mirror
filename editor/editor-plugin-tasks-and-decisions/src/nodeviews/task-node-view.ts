@@ -1,11 +1,10 @@
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { TasksAndDecisionsPlugin } from '../tasksAndDecisionsPluginType';
-
 import { TaskItemNodeView } from './TaskItemNodeView';
 
 export const taskView = (
@@ -13,7 +12,7 @@ export const taskView = (
 	intl: IntlShape,
 	placeholder?: string,
 ) => {
-	return (node: PMNode, view: EditorView, getPos: () => number | undefined) => {
+	return (node: PMNode, view: EditorView, getPos: () => number | undefined): TaskItemNodeView => {
 		return new TaskItemNodeView(node, view, getPos, {
 			placeholder,
 			api,

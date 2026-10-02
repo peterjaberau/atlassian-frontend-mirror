@@ -1,12 +1,16 @@
+import { getEarliestHiddenTiming } from '../../../hidden-timing';
 import getViewportHeight from '../metric-calculator/utils/get-viewport-height';
 import getViewportWidth from '../metric-calculator/utils/get-viewport-width';
 import type { VCObserverEntry, ViewportEntryData, WindowEventEntryData } from '../types';
-
 import RawDataHandler from './index';
 
 // Mock viewport utilities
 jest.mock('../metric-calculator/utils/get-viewport-width');
 jest.mock('../metric-calculator/utils/get-viewport-height');
+jest.mock('../../../hidden-timing');
+const mockGetEarliestHiddenTiming = getEarliestHiddenTiming as jest.MockedFunction<
+	typeof getEarliestHiddenTiming
+>;
 
 const mockGetViewportWidth = getViewportWidth as jest.MockedFunction<typeof getViewportWidth>;
 const mockGetViewportHeight = getViewportHeight as jest.MockedFunction<typeof getViewportHeight>;
@@ -337,7 +341,9 @@ describe('RawDataHandler', () => {
 			expect(result?.rawData?.evts?.[1].t).toBe(1000); // 2000 - 1000
 		});
 
-		it('should not include events when page is not visible', async () => {
+		it('should use hidden timestamp when page is not visible', async () => {
+			mockGetEarliestHiddenTiming.mockReturnValue(500);
+
 			const entries: VCObserverEntry[] = [
 				{
 					time: 1100,
@@ -357,6 +363,26 @@ describe('RawDataHandler', () => {
 
 			expect(result?.rawData).toBeUndefined();
 			expect(result?.abortReason).toBe('browser_backgrounded');
+			expect(result?.abortTimestamp).toBe(500);
+			expect(mockGetEarliestHiddenTiming).toHaveBeenCalledWith(startTime, stopTime);
+		});
+
+		it('should fallback to -1 when page is not visible and hidden timestamp is unavailable', async () => {
+			mockGetEarliestHiddenTiming.mockReturnValue(undefined);
+
+			const entries: VCObserverEntry[] = [];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: false,
+			});
+
+			expect(result?.rawData).toBeUndefined();
+			expect(result?.abortReason).toBe('browser_backgrounded');
+			expect(result?.abortTimestamp).toBe(-1);
+			expect(mockGetEarliestHiddenTiming).toHaveBeenCalledWith(startTime, stopTime);
 		});
 	});
 
@@ -750,6 +776,117 @@ describe('RawDataHandler', () => {
 			// Last observations should be scroll events
 			const scrollEventId = result?.rawData?.evts?.[MAX_OBSERVATIONS].evt;
 			expect(result?.rawData?.evt?.[scrollEventId!]).toBe('scroll');
+		});
+
+		it('should include event target eid for window events with elementName', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: startTime + 100,
+					data: {
+						type: 'window:event',
+						eventType: 'scroll-container',
+						elementName: 'div[data-vc="scrollable"]',
+					} as WindowEventEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			const eventObservation = result?.rawData?.evts?.[0];
+			expect(eventObservation).toEqual({
+				t: 100,
+				evt: expect.any(Number),
+				eid: expect.any(Number),
+			});
+			expect(result?.rawData?.evt?.[eventObservation!.evt]).toBe('scroll-container');
+			expect(result?.rawData?.eid?.[eventObservation!.eid!]).toBe('div[data-vc="scrollable"]');
+		});
+
+		it('should reuse viewport eid for window event elementName when already present', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: startTime + 50,
+					data: {
+						type: 'mutation:element',
+						elementName: 'div[data-vc="scrollable"]',
+						rect: new DOMRect(0, 0, 100, 100),
+						visible: true,
+					} as ViewportEntryData,
+				},
+				{
+					time: startTime + 100,
+					data: {
+						type: 'window:event',
+						eventType: 'scroll-container',
+						elementName: 'div[data-vc="scrollable"]',
+					} as WindowEventEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			expect(result?.rawData?.evts?.[0].eid).toBe(result?.rawData?.obs?.[0].eid);
+		});
+
+		it('should remove unreferenced event target eid map entries after trimming', async () => {
+			const entries: VCObserverEntry[] = [];
+			const totalEvents = MAX_OBSERVATIONS + 50;
+
+			entries.push({
+				time: startTime,
+				data: {
+					type: 'window:event',
+					eventType: 'resize',
+					elementName: 'kept-first-container',
+				} as WindowEventEntryData,
+			});
+
+			entries.push({
+				time: startTime + 5,
+				data: {
+					type: 'window:event',
+					eventType: 'wheel',
+					elementName: 'trimmed-container',
+				} as WindowEventEntryData,
+			});
+
+			for (let i = 0; i < totalEvents; i++) {
+				entries.push({
+					time: startTime + i * 10,
+					data: {
+						type: 'window:event',
+						eventType: 'scroll',
+						elementName: 'kept-scroll-container',
+					} as WindowEventEntryData,
+				});
+			}
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			const elementNames = Object.values(result?.rawData?.eid || {});
+			expect(elementNames).toContain('kept-first-container');
+			expect(elementNames).toContain('kept-scroll-container');
+			expect(elementNames).not.toContain('trimmed-container');
+
+			const referencedEids = new Set(result?.rawData?.evts?.map((evt) => evt.eid).filter(Boolean));
+			for (const eid of referencedEids) {
+				expect(result?.rawData?.eid?.[Number(eid)]).toBeDefined();
+			}
 		});
 
 		it('should remove unreferenced event type map entries after trimming', async () => {
@@ -1277,6 +1414,340 @@ describe('RawDataHandler', () => {
 			// Verify all observation eids reference valid entries in the eid map
 			const allEids = new Set(result?.rawData?.obs?.map((obs) => obs.eid) || []);
 			for (const eid of allEids) {
+				expect(result?.rawData?.eid?.[eid]).toBeDefined();
+			}
+		});
+	});
+
+	describe('getRawData - previousRect (pr) capture', () => {
+		const startTime = 1000;
+		const stopTime = 2000;
+
+		it('should encode pr as null when previousRect is undefined', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'layout-shift',
+						elementName: 'element1',
+						rect: new DOMRect(10, 20, 100, 200),
+						previousRect: undefined,
+						visible: true,
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			expect(result?.rawData?.obs?.[0]).toMatchObject({
+				t: 100,
+				r: [10, 20, 110, 220],
+				pr: null,
+			});
+		});
+
+		it('should encode pr when previousRect differs from current rect', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'layout-shift',
+						elementName: 'element1',
+						rect: new DOMRect(10, 20, 100, 200),
+						previousRect: new DOMRect(0, 0, 100, 200),
+						visible: true,
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			expect(result?.rawData?.obs?.[0]).toMatchObject({
+				r: [10, 20, 110, 220],
+				pr: [0, 0, 100, 200],
+			});
+		});
+
+		it('should omit pr when previousRect matches current rect after encoding', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'layout-shift',
+						elementName: 'element1',
+						rect: new DOMRect(10, 20, 100, 200),
+						previousRect: new DOMRect(10, 20, 100, 200),
+						visible: true,
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			expect(result?.rawData?.obs?.[0]).toMatchObject({ r: [10, 20, 110, 220] });
+			expect(result?.rawData?.obs?.[0]).not.toHaveProperty('pr');
+		});
+
+		it('should include pr when previousRect differs from current rect', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'layout-shift',
+						elementName: 'element1',
+						rect: new DOMRect(10, 20, 100, 200),
+						previousRect: new DOMRect(0, 0, 100, 200),
+						visible: true,
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			expect(result?.rawData?.obs?.[0]).toMatchObject({
+				r: [10, 20, 110, 220],
+				pr: [0, 0, 100, 200],
+			});
+		});
+	});
+
+	describe('getRawData - labelStacks (lbl) capture', () => {
+		const startTime = 1000;
+		const stopTime = 2000;
+
+		it('should include lbl field when entries have labelStacks', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'mutation:element',
+						elementName: 'element1',
+						rect: new DOMRect(0, 0, 100, 100),
+						visible: true,
+						labelStacks: {
+							segment: 'main-content',
+							labelStack: 'App/MainContent/Header',
+						},
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			expect(result?.rawData?.lbl).toBeDefined();
+			// The element should have eid 1 (first element)
+			const eid = Object.keys(result?.rawData?.eid || {}).find(
+				(key) => result?.rawData?.eid?.[Number(key)] === 'element1',
+			);
+			expect(eid).toBeDefined();
+			expect(result?.rawData?.lbl?.[Number(eid!)]).toEqual({
+				s: 'main-content',
+				l: 'App/MainContent/Header',
+			});
+			expect(result?.rawData?.lblMode).toBe('sentinel-v1');
+		});
+
+		it('should encode unknown lbl entries with a compact sentinel', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'mutation:element',
+						elementName: 'element-unknown',
+						rect: new DOMRect(0, 0, 100, 100),
+						visible: true,
+						labelStacks: {
+							segment: 'unknown',
+							labelStack: 'unknown',
+						},
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			const eid = Object.keys(result?.rawData?.eid || {}).find(
+				(key) => result?.rawData?.eid?.[Number(key)] === 'element-unknown',
+			);
+			expect(result?.rawData?.lbl?.[Number(eid!)]).toBe('u');
+			expect(result?.rawData?.lblMode).toBe('sentinel-v1');
+		});
+
+		it('should not include lbl field when no entries have labelStacks', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'mutation:element',
+						elementName: 'element1',
+						rect: new DOMRect(0, 0, 100, 100),
+						visible: true,
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			expect(result?.rawData?.lbl).toBeUndefined();
+		});
+
+		it('should capture labelStacks only once per unique element', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'mutation:element',
+						elementName: 'element1',
+						rect: new DOMRect(0, 0, 100, 100),
+						visible: true,
+						labelStacks: {
+							segment: 'main-content',
+							labelStack: 'App/MainContent/Header',
+						},
+					} as ViewportEntryData,
+				},
+				{
+					time: 1200,
+					data: {
+						type: 'mutation:attribute',
+						elementName: 'element1',
+						rect: new DOMRect(0, 0, 100, 100),
+						visible: true,
+						labelStacks: {
+							segment: 'updated-segment',
+							labelStack: 'App/MainContent/Header/Updated',
+						},
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			const eid = Object.keys(result?.rawData?.eid || {}).find(
+				(key) => result?.rawData?.eid?.[Number(key)] === 'element1',
+			);
+			// Should keep the first labelStack, not the second
+			expect(result?.rawData?.lbl?.[Number(eid!)]).toEqual({
+				s: 'main-content',
+				l: 'App/MainContent/Header',
+			});
+		});
+
+		it('should capture labelStacks for multiple different elements', async () => {
+			const entries: VCObserverEntry[] = [
+				{
+					time: 1100,
+					data: {
+						type: 'mutation:element',
+						elementName: 'element1',
+						rect: new DOMRect(0, 0, 100, 100),
+						visible: true,
+						labelStacks: {
+							segment: 'header',
+							labelStack: 'App/Header',
+						},
+					} as ViewportEntryData,
+				},
+				{
+					time: 1200,
+					data: {
+						type: 'mutation:element',
+						elementName: 'element2',
+						rect: new DOMRect(0, 100, 100, 100),
+						visible: true,
+						labelStacks: {
+							segment: 'content',
+							labelStack: 'App/Content',
+						},
+					} as ViewportEntryData,
+				},
+			];
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			expect(Object.keys(result?.rawData?.lbl || {})).toHaveLength(2);
+		});
+
+		it('should remove labelStacks for trimmed elements when observations exceed MAX_OBSERVATIONS', async () => {
+			const entries: VCObserverEntry[] = [];
+			// Create MAX_OBSERVATIONS + 10 entries with different element names
+			for (let i = 0; i < 510; i++) {
+				entries.push({
+					time: startTime + i + 1,
+					data: {
+						type: 'mutation:element',
+						elementName: `element-${i}`,
+						rect: new DOMRect(0, 0, 10, 10),
+						visible: true,
+						labelStacks: {
+							segment: `segment-${i}`,
+							labelStack: `App/Component${i}`,
+						},
+					} as ViewportEntryData,
+				});
+			}
+
+			const result = await handler.getRawData({
+				entries,
+				startTime,
+				stopTime,
+				isPageVisible: true,
+			});
+
+			// All remaining eids should have corresponding lbl entries
+			const remainingEids = Object.keys(result?.rawData?.eid || {}).map(Number);
+			for (const eid of remainingEids) {
+				expect(result?.rawData?.lbl?.[eid]).toBeDefined();
+			}
+
+			// lbl entries should only exist for remaining eids
+			const lblEids = Object.keys(result?.rawData?.lbl || {}).map(Number);
+			for (const eid of lblEids) {
 				expect(result?.rawData?.eid?.[eid]).toBeDefined();
 			}
 		});

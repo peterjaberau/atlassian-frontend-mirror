@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { codeBlock, codeBlockWithLocalId } from '@atlaskit/adf-schema';
+import { codeBlock, codeBlockWithLocalId } from '@atlaskit/adf-schema/code-block';
 import {
 	ACTION,
 	ACTION_SUBJECT,
@@ -8,19 +8,21 @@ import {
 	EVENT_TYPE,
 	INPUT_METHOD,
 } from '@atlaskit/editor-common/analytics';
+import { IconCode } from '@atlaskit/editor-common/assets';
 import {
 	TRANSFORM_STRUCTURE_MENU_SECTION,
 	TRANSFORM_STRUCTURE_CODE_BLOCK_MENU_ITEM,
 	TRANSFORM_STRUCTURE_MENU_SECTION_RANK,
 } from '@atlaskit/editor-common/block-menu';
 import { blockTypeMessages } from '@atlaskit/editor-common/messages';
-import { IconCode } from '@atlaskit/editor-common/quick-insert';
 import type { PMPluginFactoryParams } from '@atlaskit/editor-common/types';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import type { CodeBlockPlugin } from './codeBlockPluginType';
 import { createInsertCodeBlockTransaction, insertCodeBlockWithAnalytics } from './editor-commands';
+import { createAutoDetectPlugin } from './pm-plugins/auto-detect';
 import { codeBlockAutoFullStopTransformPlugin } from './pm-plugins/codeBlockAutoFullStopTransformPlugin';
 import {
 	codeBlockCopySelectionPlugin,
@@ -30,38 +32,55 @@ import ideUX from './pm-plugins/ide-ux';
 import { createCodeBlockInputRule } from './pm-plugins/input-rule';
 import keymap from './pm-plugins/keymaps';
 import { createPlugin } from './pm-plugins/main';
+import { pluginKey } from './pm-plugins/plugin-key';
 import refreshBrowserSelectionOnChange from './pm-plugins/refresh-browser-selection';
 import { getToolbarConfig } from './pm-plugins/toolbar';
 import { createCodeBlockMenuItem } from './ui/CodeBlockMenuItem';
+import { FormatCodeErrorFlag } from './ui/FormatCodeErrorFlag';
+import { getCodeBlockQuickInsertComponents } from './ui/quick-insert/getCodeBlockQuickInsertComponents';
 
 const CODE_BLOCK_NODE_NAME = 'codeBlock';
 
 const codeBlockPlugin: CodeBlockPlugin = ({ config: options, api }) => {
-	if (expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) {
-		api?.blockMenu?.actions.registerBlockMenuComponents([
-			{
-				type: 'block-menu-item',
-				key: TRANSFORM_STRUCTURE_CODE_BLOCK_MENU_ITEM.key,
-				parent: {
-					type: 'block-menu-section' as const,
-					key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
-					rank: TRANSFORM_STRUCTURE_MENU_SECTION_RANK[TRANSFORM_STRUCTURE_CODE_BLOCK_MENU_ITEM.key],
-				},
-				component: createCodeBlockMenuItem(api),
-				isHidden: () =>
-					Boolean(api?.blockMenu?.actions.isTransformOptionDisabled(CODE_BLOCK_NODE_NAME)),
+	const isRegisteredSlashCommandEnabled = isExperimentEnabled('platform_editor_slash_command');
+
+	api?.blockMenu?.actions.registerBlockMenuComponents([
+		{
+			type: 'block-menu-item',
+			key: TRANSFORM_STRUCTURE_CODE_BLOCK_MENU_ITEM.key,
+			parent: {
+				type: 'block-menu-section' as const,
+				key: TRANSFORM_STRUCTURE_MENU_SECTION.key,
+				rank: (TRANSFORM_STRUCTURE_MENU_SECTION_RANK as Record<string, number>)[
+					TRANSFORM_STRUCTURE_CODE_BLOCK_MENU_ITEM.key
+				],
 			},
-		]);
+			component: createCodeBlockMenuItem(api),
+			isHidden: () =>
+				Boolean(api?.blockMenu?.actions.isTransformOptionDisabled(CODE_BLOCK_NODE_NAME)),
+		},
+	]);
+
+	if (isRegisteredSlashCommandEnabled) {
+		api?.uiControlRegistry?.actions.register(getCodeBlockQuickInsertComponents({ api }));
 	}
 
-	return {
+	const plugin: ReturnType<CodeBlockPlugin> = {
 		name: 'codeBlock',
 
 		nodes() {
 			return [
 				{
 					name: 'codeBlock',
-					node: fg('platform_editor_adf_with_localid') ? codeBlockWithLocalId : codeBlock,
+					node: expValEqualsNoExposure(
+						'platform_editor_code_block_q4_lovability',
+						'isEnabled',
+						true,
+					)
+						? codeBlock
+						: fg('platform_editor_adf_with_localid')
+							? codeBlockWithLocalId
+							: codeBlock,
 				},
 			];
 		},
@@ -70,8 +89,11 @@ const codeBlockPlugin: CodeBlockPlugin = ({ config: options, api }) => {
 			if (!state) {
 				return undefined;
 			}
+			const codeBlockState = pluginKey.getState(state);
 			return {
 				copyButtonHoverNode: copySelectionPluginKey.getState(state).codeBlockNode,
+				formatCodeErrors: codeBlockState?.formatCodeErrors ?? {},
+				pendingFormats: codeBlockState?.pendingFormats ?? {},
 			};
 		},
 
@@ -92,6 +114,14 @@ const codeBlockPlugin: CodeBlockPlugin = ({ config: options, api }) => {
 						return createCodeBlockInputRule(schema, api?.analytics?.actions);
 					},
 				},
+				...(expValEqualsNoExposure('platform_editor_code_block_q4_lovability', 'isEnabled', true)
+					? [
+							{
+								name: 'codeBlockAutoDetect',
+								plugin: () => createAutoDetectPlugin(api),
+							},
+						]
+					: []),
 				{
 					name: 'codeBlockIDEKeyBindings',
 					plugin: () => ideUX(api),
@@ -126,43 +156,46 @@ const codeBlockPlugin: CodeBlockPlugin = ({ config: options, api }) => {
 		},
 
 		pluginsOptions: {
-			quickInsert: ({ formatMessage }) => [
-				{
-					id: 'codeblock',
-					title: formatMessage(blockTypeMessages.codeblock),
-					description: formatMessage(blockTypeMessages.codeblockDescription),
-					keywords: ['code block'],
-					priority: 700,
-					keyshortcut: '```',
-					icon: () => <IconCode />,
-					action(_insert, state, source) {
-						const tr = createInsertCodeBlockTransaction({ state });
-						api?.analytics?.actions.attachAnalyticsEvent({
-							action: ACTION.INSERTED,
-							actionSubject: ACTION_SUBJECT.DOCUMENT,
-							actionSubjectId: ACTION_SUBJECT_ID.CODE_BLOCK,
-							attributes: {
-								inputMethod: expValEqualsNoExposure(
-									'platform_editor_plain_text_support',
-									'isEnabled',
-									true,
-								)
-									? source || INPUT_METHOD.QUICK_INSERT
-									: INPUT_METHOD.QUICK_INSERT,
-							},
-							eventType: EVENT_TYPE.TRACK,
-						})(tr);
-						return tr;
+			...(!isRegisteredSlashCommandEnabled && {
+				quickInsert: ({ formatMessage }) => [
+					{
+						id: 'codeblock',
+						title: formatMessage(blockTypeMessages.codeblock),
+						description: formatMessage(blockTypeMessages.codeblockDescription),
+						keywords: ['code block'],
+						priority: 700,
+						keyshortcut: '```',
+						icon: () => <IconCode />,
+						action(_insert, state, source) {
+							const tr = createInsertCodeBlockTransaction({ state });
+							api?.analytics?.actions.attachAnalyticsEvent({
+								action: ACTION.INSERTED,
+								actionSubject: ACTION_SUBJECT.DOCUMENT,
+								actionSubjectId: ACTION_SUBJECT_ID.CODE_BLOCK,
+								attributes: {
+									inputMethod: source || INPUT_METHOD.QUICK_INSERT,
+								},
+								eventType: EVENT_TYPE.TRACK,
+							})(tr);
+							return tr;
+						},
 					},
-				},
-			],
+				],
+			}),
 			floatingToolbar: getToolbarConfig(
 				options?.allowCopyToClipboard,
 				api,
 				options?.overrideLanguageName,
+				options?.formatCodeProvider,
 			),
 		},
+
+		contentComponent: () =>
+			expValEqualsNoExposure('platform_editor_code_block_q4_lovability', 'isEnabled', true) ? (
+				<FormatCodeErrorFlag api={api} />
+			) : null,
 	};
+	return plugin;
 };
 
 export default codeBlockPlugin;

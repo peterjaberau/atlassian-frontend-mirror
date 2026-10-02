@@ -4,17 +4,16 @@
  */
 
 import { css, cssMap, jsx } from '@compiled/react';
-import { type MessageDescriptor, useIntl } from 'react-intl-next';
+import { type MessageDescriptor, useIntl } from 'react-intl';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import SearchIcon from '@atlaskit/icon/core/search';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box } from '@atlaskit/primitives/compiled';
-import Textfield from '@atlaskit/textfield';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
 import { useDatasourceAnalyticsEvents } from '../../../../analytics';
-
 import { basicSearchInputMessages } from './messages';
 
 export interface BasicSearchInputProps {
@@ -29,7 +28,7 @@ export interface BasicSearchInputProps {
 }
 
 const styles = cssMap({
-	searchButtonContainer: { marginRight: token('space.075', '6px') },
+	searchButtonContainer: { marginRight: token('space.075') },
 });
 
 const formStyles = css({
@@ -50,7 +49,7 @@ export const BasicSearchInput = ({
 	fullWidth,
 	testId,
 	ariaLabel,
-}: BasicSearchInputProps) => {
+}: BasicSearchInputProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 	const { fireEvent } = useDatasourceAnalyticsEvents();
 

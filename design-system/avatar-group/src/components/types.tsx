@@ -1,9 +1,10 @@
 import type { ElementType, ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react';
 
-import type { AnalyticsEvent } from '@atlaskit/analytics-next';
-import { type default as Avatar, type AvatarPropTypes, type SizeType } from '@atlaskit/avatar';
-import { type MenuGroupProps } from '@atlaskit/menu';
-import { type ContentProps } from '@atlaskit/popup';
+import type AnalyticsEvent from '@atlaskit/analytics-next/AnalyticsEvent';
+import type { default as Avatar, AvatarPropTypes } from '@atlaskit/avatar/avatar';
+import type { SizeType } from '@atlaskit/avatar/types';
+import type { MenuGroupProps } from '@atlaskit/menu/types';
+import type { ContentProps } from '@atlaskit/popup/types';
 
 import type { AvatarGroupItemProps } from './avatar-group-item';
 import { type MoreIndicatorProps } from './more-indicator';
@@ -54,4 +55,11 @@ export interface PopupAvatarGroupProps extends MenuGroupProps {
 	setInitialFocusRef?: ContentProps['setInitialFocusRef'];
 }
 
-export type AvatarGroupSize = Exclude<SizeType, 'xsmall'>;
+/**
+ * The set of avatar sizes supported by `AvatarGroup` and its `MoreIndicator`.
+ *
+ * Excludes `xxsmall` (16px), legacy `xsmall`, and `UNSAFE_xsmall` (20px): the
+ * more indicator and grouped avatars cannot be displayed in an accessible manner
+ * at those sizes.
+ */
+export type AvatarGroupSize = Exclude<SizeType, 'xxsmall' | 'xsmall' | 'UNSAFE_xsmall'>;

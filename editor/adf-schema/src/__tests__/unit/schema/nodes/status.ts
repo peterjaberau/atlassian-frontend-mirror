@@ -1,7 +1,8 @@
-import { toDOM, fromHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
-import { status } from '../../../..';
-import { StatusLocalIdRegex } from '@af/adf-test-helpers/src/constants';
 import { schema } from '@af/adf-test-helpers/src/adf-schema';
+import { toDOM, fromHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
+import { StatusLocalIdRegex } from '@af/adf-test-helpers/src/constants';
+
+import { status } from '../../../..';
 const packageName = process.env.npm_package_name as string;
 
 describe(`${packageName}/schema status node`, () => {
@@ -41,6 +42,27 @@ describe(`${packageName}/schema status node`, () => {
 			const doc = fromHTML('<span data-node-type="status" />', schema);
 			const node = doc.firstChild!.firstChild!;
 			expect(node.type.spec).toEqual(status);
+		});
+
+		it('gets hexadecimal color from html', () => {
+			const color = '#123ABC';
+			const doc = fromHTML(
+				`
+        <span
+          data-node-type="status"
+          data-color="${color}"
+        >
+          On track
+        </span>
+      `,
+				schema,
+			);
+			const node = doc.firstChild!.firstChild!;
+			expect(node.attrs).toMatchObject({
+				text: 'On track',
+				color,
+				localId: expect.stringMatching(StatusLocalIdRegex),
+			});
 		});
 
 		it('gets attributes from html', () => {
@@ -132,6 +154,26 @@ describe(`${packageName}/schema status node`, () => {
 			});
 
 			expect(parsedNode.attrs.localId).not.toEqual(attrs.localId);
+		});
+
+		it('preserves hexadecimal color identifiers through a DOM round-trip', () => {
+			const attrs = {
+				text: 'On track',
+				color: '#123ABC',
+				localId: '3fba07fc-0458-449c-bba9-04d5555164ea',
+			};
+			const node = schema.nodes.status.create(attrs);
+			// eslint-disable-next-line @atlaskit/editor/no-as-casting
+			const dom = toDOM(node, schema).firstChild as HTMLElement;
+
+			expect(dom.getAttribute('data-color')).toEqual('#123ABC');
+
+			const parsedNode = fromHTML(dom.outerHTML, schema).firstChild!.firstChild!;
+			expect(parsedNode.attrs).toMatchObject({
+				text: 'On track',
+				color: '#123ABC',
+				localId: expect.stringMatching(StatusLocalIdRegex),
+			});
 		});
 
 		it('converts html status attributes to node attributes without style', () => {

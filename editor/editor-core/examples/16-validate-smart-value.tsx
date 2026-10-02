@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { isSafeUrl } from '@atlaskit/adf-schema';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
 import { code } from '@atlaskit/docs';
 import { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { createDefaultPreset } from '@atlaskit/editor-core/preset-default';
@@ -14,7 +14,7 @@ import { mediaPlugin } from '@atlaskit/editor-plugin-media';
 import { mediaInsertPlugin } from '@atlaskit/editor-plugin-media-insert';
 import { listPlugin } from '@atlaskit/editor-plugins/list';
 import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-provider';
-import { withPlatformFeatureGates } from '@atlassian/feature-flags-storybook-utils';
+import { type Decorator, withPlatformFeatureGates } from '@atlassian/feature-flags-storybook-utils';
 
 const MAX_URL_LENGTH = 2048;
 
@@ -74,7 +74,7 @@ function Editor() {
 	return <ComposableEditor preset={preset} />;
 }
 
-const Example = (): React.JSX.Element => {
+const ExampleComponent = (): React.JSX.Element => {
 	return (
 		<div>
 			<p>{'A basic example of only allowing external image URLs for media insert.'}</p>
@@ -109,10 +109,16 @@ function Editor() {
 	);
 };
 
-Example.decorators = [
-	withPlatformFeatureGates({
-		platform_editor_media_from_url_remove_form: true,
-	}),
-];
+const Example: (() => React.JSX.Element) & { decorators: Decorator[] } = Object.assign(
+	ExampleComponent,
+	{
+		decorators: [
+			withPlatformFeatureGates({
+				platform_editor_media_from_url_remove_form: true,
+			}),
+		],
+	},
+);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Example;

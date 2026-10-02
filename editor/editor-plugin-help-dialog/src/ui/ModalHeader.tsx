@@ -2,18 +2,21 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+import type { ComponentType, FC } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx, css, type SerializedStyles } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { FormattedMessage, injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
 
 import { helpDialogMessages as messages } from '@atlaskit/editor-common/messages';
 import { ToolbarButton } from '@atlaskit/editor-common/ui-menu';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import CrossIcon from '@atlaskit/icon/core/cross';
-import { CloseButton, type OnCloseHandler } from '@atlaskit/modal-dialog';
+import { CloseButton } from '@atlaskit/modal-dialog/close-button';
+import type { OnCloseHandler } from '@atlaskit/modal-dialog/types';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { header, toolbarButton } from './styles';
 
@@ -22,8 +25,8 @@ const toolbarFocusStyles: SerializedStyles = css({
 	// Hence we manually force it
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-nested-selectors
 	'button:focus:not(:focus-visible)': {
-		outline: `2px solid ${token('color.border.focused')}`,
-		outlineOffset: token('space.025', '2px'),
+		outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
+		outlineOffset: token('space.025'),
 	},
 });
 
@@ -31,7 +34,9 @@ interface ModalHeaderProps extends WrappedComponentProps {
 	onClose: OnCloseHandler | undefined;
 }
 
-const ModalHeader = injectIntl(({ intl: { formatMessage }, onClose }: ModalHeaderProps) => {
+const ModalHeader: FC<WithIntlProps<ModalHeaderProps>> & {
+	WrappedComponent: ComponentType<ModalHeaderProps>;
+} = injectIntl(({ intl: { formatMessage }, onClose }: ModalHeaderProps) => {
 	return (
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 		<div css={header}>
@@ -42,7 +47,6 @@ const ModalHeader = injectIntl(({ intl: { formatMessage }, onClose }: ModalHeade
 					{...messages.editorHelp}
 				/>
 			</Heading>
-
 			{onClose ? (
 				<div css={toolbarFocusStyles}>
 					<Tooltip content={formatMessage(messages.closeHelpDialog)} position="top">

@@ -1,6 +1,9 @@
-import { changeImportEntryPoint } from '@atlaskit/codemod-utils';
+import { changeImportEntryPoint, type JSCodeshift, type Collection } from '@atlaskit/codemod-utils';
 
-export const updateImportEntryPointsForBitbucketSchema = [
+export const updateImportEntryPointsForBitbucketSchema: ((
+	j: JSCodeshift,
+	root: Collection<Node>,
+) => void)[] = [
 	changeImportEntryPoint(
 		'@atlaskit/adf-schema',
 		'bitbucketSchema',

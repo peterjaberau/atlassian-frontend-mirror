@@ -4,26 +4,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
+import type { ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
 import { akEditorBreakoutPadding } from '@atlaskit/editor-shared-styles';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { DropIndicator } from '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator/box';
-import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { B200 } from '@atlaskit/theme/colors';
+import { dropTargetForElements } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { getNodeAnchor } from '../pm-plugins/decorations-common';
 import { useActiveAnchorTracker } from '../pm-plugins/utils/active-anchor-tracker';
-import { type AnchorRectCache, isAnchorSupported } from '../pm-plugins/utils/anchor-utils';
+import { isAnchorSupported } from '../pm-plugins/utils/anchor-utils';
+import type { AnchorRectCache } from '../pm-plugins/utils/anchor-utils';
 import { getInsertLayoutStep, updateSelection } from '../pm-plugins/utils/update-selection';
-
-import { type DropTargetProps } from './drop-target';
+import type { DropTargetProps } from './drop-target';
 
 const HOVER_ZONE_WIDTH = '--editor-blocks-inline-hover-zone-width';
 const HOVER_ZONE_HEIGHT = '--editor-blocks-inline-hover-zone-height';
@@ -36,7 +38,7 @@ const hoverZoneCommonStyle = css({
 	// above the top and bottom drop zone as block hover zone
 	zIndex: 120,
 	positionAnchor: `var(${HOVER_ZONE_ANCHOR_NAME})`,
-	minWidth: token('space.100', '8px'),
+	minWidth: token('space.100'),
 	left: 0,
 	right: 0,
 	width: `var(${HOVER_ZONE_WIDTH})`,
@@ -61,7 +63,7 @@ const GAP = 4;
 const dropTargetLayoutHintStyle = css({
 	height: '100%',
 	position: 'absolute',
-	borderRight: `${token('border.width')} dashed ${token('color.border.focused', B200)}`,
+	borderRight: `${token('border.width')} dashed ${token('color.border.focused')}`,
 	width: 0,
 	left: 0,
 });
@@ -104,7 +106,12 @@ const getWidthOffset = (node: PMNode, width: string, position: 'left' | 'right')
 		}
 	}
 
-	if (node.type.name === 'bodiedExtension' || node.type.name === 'extension') {
+	if (
+		node.type.name === 'bodiedExtension' ||
+		node.type.name === 'extension' ||
+		(node.type.name === 'multiBodiedExtension' &&
+			expValEquals('confluence_native_tabs_experiment', 'isEnabled', true))
+	) {
 		return '-12px';
 	}
 };
@@ -120,12 +127,15 @@ export const InlineDropTarget = ({
 }: DropTargetProps & {
 	anchorRectCache?: AnchorRectCache;
 	position: 'left' | 'right';
-}) => {
+}): jsx.JSX.Element => {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const [isDraggedOver, setIsDraggedOver] = useState(false);
 
 	const anchorName = useMemo(() => {
-		if (expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) {
+		if (
+			expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+			isExperimentEnabled('platform_editor_block_control_migration')
+		) {
 			return nextNode ? api?.core.actions.getAnchorIdForNode(nextNode, getPos() ?? -1) || '' : '';
 		}
 
@@ -169,15 +179,13 @@ export const InlineDropTarget = ({
 				innerContainerWidth = `calc(var(--ak-editor--line-length) * ${percentageWidth})`;
 			}
 		} else if (nextNode.type.name === 'table' && nextNode.firstChild) {
-			const tableWidthAnchor = expValEquals(
-				'platform_editor_native_anchor_with_dnd',
-				'isEnabled',
-				true,
-			)
-				? typeof nextNodePos === 'number'
-					? api?.core.actions.getAnchorIdForNode(nextNode.firstChild, nextNodePos + 1) || ''
-					: ''
-				: getNodeAnchor(nextNode.firstChild);
+			const tableWidthAnchor =
+				expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+				isExperimentEnabled('platform_editor_block_control_migration')
+					? typeof nextNodePos === 'number'
+						? api?.core.actions.getAnchorIdForNode(nextNode.firstChild, nextNodePos + 1) || ''
+						: ''
+					: getNodeAnchor(nextNode.firstChild);
 
 			const isNumberColumnEnabled = Boolean(nextNode.attrs.isNumberColumnEnabled);
 			if (isAnchorSupported()) {
@@ -193,7 +201,10 @@ export const InlineDropTarget = ({
 				innerContainerWidth = `min(${nextNode.attrs.width}px, ${innerContainerWidth})`;
 			}
 		} else if (nextNode.type.name === 'mediaSingle' && nextNode.firstChild) {
-			if (expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) {
+			if (
+				expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+				isExperimentEnabled('platform_editor_block_control_migration')
+			) {
 				// check pos is a number
 				if (typeof nextNodePos === 'number' && nextNode.firstChild?.type.name === 'media') {
 					targetAnchorName =
@@ -208,7 +219,10 @@ export const InlineDropTarget = ({
 		let heightTargetAnchorName = targetAnchorName;
 		if (nextNode.type.name === 'layoutSection' && nextNode.firstChild && nextNode.lastChild) {
 			if (isLeftPosition) {
-				if (expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) {
+				if (
+					expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+					isExperimentEnabled('platform_editor_block_control_migration')
+				) {
 					if (typeof nextNodePos === 'number') {
 						heightTargetAnchorName =
 							api?.core.actions.getAnchorIdForNode(nextNode.firstChild, nextNodePos + 1) || '';
@@ -219,7 +233,10 @@ export const InlineDropTarget = ({
 					heightTargetAnchorName = getNodeAnchor(nextNode.firstChild);
 				}
 			} else {
-				if (expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)) {
+				if (
+					expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+					isExperimentEnabled('platform_editor_block_control_migration')
+				) {
 					if (typeof nextNodePos === 'number') {
 						const lastNodeStartPos = nextNode.content.size - nextNode.lastChild.nodeSize;
 						heightTargetAnchorName =

@@ -1,14 +1,15 @@
 import { snapshot, type SnapshotTestOptions } from '@af/visual-regression';
 
-import Colors from '../../../../examples/1-colors';
-import Basic from '../../../../examples/vr-tests/basic-tag';
-import ElementBeforeStates from '../../../../examples/vr-tests/element-before-states';
-import LinkedTagStates from '../../../../examples/vr-tests/linked-tag-states';
-import ColorsNonInteractive from '../../../../examples/vr-tests/non-interactive-colors';
-import NonInteractiveStates from '../../../../examples/vr-tests/non-interactive-states';
-import RemovableAvatar from '../../../../examples/vr-tests/removable-avatar';
-import RemovableTagStates from '../../../../examples/vr-tests/removable-tag-states';
-import TextMaxLengthComprehensive from '../../../../examples/vr-tests/text-max-length-comprehensive';
+import Colors from '../../../../examples/1-colors.vr.ap';
+import TagDropdownTriggerExamples from '../../../../examples/13-tag-dropdown-trigger.vr.ap';
+import Basic from '../../../../examples/vr-tests/basic-tag.vr.ap';
+import ElementBeforeStates from '../../../../examples/vr-tests/element-before-states.vr.ap';
+import LinkedTagStates from '../../../../examples/vr-tests/linked-tag-states.vr.ap';
+import ColorsNonInteractive from '../../../../examples/vr-tests/non-interactive-colors.vr.ap';
+import NonInteractiveStates from '../../../../examples/vr-tests/non-interactive-states.vr.ap';
+import RemovableAvatar from '../../../../examples/vr-tests/removable-avatar.vr.ap';
+import RemovableTagStates from '../../../../examples/vr-tests/removable-tag-states.vr.ap';
+import TextMaxLengthComprehensive from '../../../../examples/vr-tests/text-max-length-comprehensive.vr.ap';
 
 const themeVariants: SnapshotTestOptions<any>['variants'] = [
 	{
@@ -19,39 +20,15 @@ const themeVariants: SnapshotTestOptions<any>['variants'] = [
 	},
 ];
 
-// Basic tag - with ff on
+// Basic tag
 snapshot(Basic, {
-	description: 'tag-basic-visual-uplifts-ff-on',
-	featureFlags: {
-		'platform-dst-lozenge-tag-badge-visual-uplifts': true,
-	},
+	description: 'tag-basic-visual-uplifts',
 	variants: themeVariants,
 });
 
-// Basic tag - with ff off
-snapshot(Basic, {
-	description: 'tag-basic-visual-uplifts-ff-off',
-	featureFlags: {
-		'platform-dst-lozenge-tag-badge-visual-uplifts': false,
-	},
-	variants: themeVariants,
-});
-
-// Colors tag - with ff on
+// Colors tag
 snapshot(Colors, {
-	description: 'tag-colors-visual-uplifts-ff-on',
-	featureFlags: {
-		'platform-dst-lozenge-tag-badge-visual-uplifts': true,
-	},
-	variants: themeVariants,
-});
-
-// Colors tag - with ff off
-snapshot(Colors, {
-	description: 'tag-colors-visual-uplifts-ff-off',
-	featureFlags: {
-		'platform-dst-lozenge-tag-badge-visual-uplifts': false,
-	},
+	description: 'tag-colors-visual-uplifts',
 	variants: themeVariants,
 });
 
@@ -171,5 +148,11 @@ snapshot(RemovableAvatar, {
 
 // Text max length comprehensive
 snapshot(TextMaxLengthComprehensive, {
+	variants: themeVariants,
+});
+
+// Tag Dropdown Trigger
+snapshot(TagDropdownTriggerExamples, {
+	description: 'tag-dropdown-trigger',
 	variants: themeVariants,
 });

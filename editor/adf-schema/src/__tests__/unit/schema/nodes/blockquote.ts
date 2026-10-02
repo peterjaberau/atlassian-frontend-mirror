@@ -6,19 +6,31 @@ import {
 	p,
 	blockquote,
 	ol,
-	li,
 	ul,
 	code_block,
 	mediaSingle,
 	media,
 	mediaGroup,
+	nodeFactory,
 } from '@af/adf-test-helpers/src/adf-schema';
 
-import { blockquote as blockquoteNodeSpec, extendedBlockquote } from '../../../..';
+import { blockquote as blockquoteNodeSpec, extendedBlockquote, uuid } from '../../../..';
 
 const packageName = process.env.npm_package_name as string;
+const LIST_LOCAL_ID = 'test-list-local-id';
+
+const liWithLocalId = nodeFactory(schema.nodes.listItem, {
+	localId: LIST_LOCAL_ID,
+});
 
 describe(`${packageName}/schema blockquote node`, () => {
+	beforeAll(() => {
+		uuid.setStatic(LIST_LOCAL_ID);
+	});
+
+	afterAll(() => {
+		uuid.setStatic(false);
+	});
 	// The node spec will be generated from ADF DSL
 	// this test would detect any changes if this node is updated from ADF DSL
 	it('should return correct node spec', () => {
@@ -46,7 +58,7 @@ describe(`${packageName}/schema blockquote node`, () => {
 				'(paragraph | orderedList | bulletList | unsupportedBlock | codeBlock | mediaSingle | mediaGroup | extension)+',
 			defining: true,
 			group: 'block',
-			marks: 'unsupportedMark unsupportedNodeAttribute dataConsumer fragment',
+			marks: 'unsupportedMark unsupportedNodeAttribute dataConsumer fragment annotation',
 			parseDOM: [
 				{
 					tag: 'blockquote',
@@ -82,12 +94,14 @@ describe(`${packageName}/schema blockquote node`, () => {
 
 	it('should be possible to have ordered list inside blockquote', () => {
 		const docFromHTML = fromHTML('<blockquote><ol><li>text</li></ol></blockquote>', schema);
-		expect(docFromHTML.toJSON()).toEqual(doc(blockquote(ol({ order: 1 })(li(p('text'))))).toJSON());
+		expect(docFromHTML.toJSON()).toEqual(
+			doc(blockquote(ol({ order: 1 })(liWithLocalId(p('text'))))).toJSON(),
+		);
 	});
 
 	it('should be possible to have bullet list inside blockquote', () => {
 		const docFromHTML = fromHTML('<blockquote><ul><li>text</li></ul></blockquote>', schema);
-		expect(docFromHTML.toJSON()).toEqual(doc(blockquote(ul(li(p('text'))))).toJSON());
+		expect(docFromHTML.toJSON()).toEqual(doc(blockquote(ul(liWithLocalId(p('text'))))).toJSON());
 	});
 
 	it('should be possible to have codeblock inside blockquote', () => {
@@ -96,7 +110,9 @@ describe(`${packageName}/schema blockquote node`, () => {
 			schema,
 		);
 		expect(docFromHTML.toJSON()).toEqual(
-			doc(blockquote(code_block({})('window.alert("hello");'))).toJSON(),
+			doc(
+				blockquote(code_block({ localId: LIST_LOCAL_ID, wrap: true })('window.alert("hello");')),
+			).toJSON(),
 		);
 	});
 

@@ -7,24 +7,25 @@ import { type CSSProperties, useContext, useEffect, useRef, useState } from 'rea
 import { cssMap, jsx } from '@compiled/react';
 
 import type { StrictXCSSProp } from '@atlaskit/css';
+import type MediaAboveMd from '@atlaskit/css/at-rules/media-above-md';
 import usePreviousValue from '@atlaskit/ds-lib/use-previous-value';
-import { media } from '@atlaskit/primitives/responsive';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 
-import { useSkipLinkInternal } from '../../context/skip-links/skip-links-context';
-
+import { useSkipLinkInternal } from '../../context/skip-links/use-skip-link-internal';
 import {
+	UNSAFE_asideLayoutVar,
 	asidePanelSplitterId,
 	asideVar,
-	contentHeightWhenFixed,
-	contentInsetBlockStart,
-	UNSAFE_asideLayoutVar,
+	type contentHeightWhenFixed,
+	type contentInsetBlockStart,
 } from './constants';
+import { DangerouslyHoistCssVarToDocumentRoot } from './dangerously-hoist-css-var-to-document-root';
 import { DangerouslyHoistSlotSizes } from './hoist-slot-sizes-context';
-import { DangerouslyHoistCssVarToDocumentRoot } from './hoist-utils';
-import { useLayoutId } from './id-utils';
 import { PanelSplitterProvider } from './panel-splitter/provider';
 import type { ResizeBounds } from './panel-splitter/types';
 import type { CommonSlotProps } from './types';
+import { useLayoutId } from './use-layout-id';
 import { useResizingWidthCssVarOnRootElement } from './use-resizing-width-css-var-on-root-element';
 import { useSafeDefaultWidth } from './use-safe-default-width';
 
@@ -58,7 +59,7 @@ const styles = cssMap({
 		position: 'relative',
 		'@media (min-width: 64rem)': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			width: `var(${panelSplitterResizingVar}, var(${asideVar}))`,
+			width: `var(${panelSplitterResizingVar}, var(${'--n_asDw' satisfies typeof asideVar}))`,
 			justifySelf: 'end',
 		},
 	},
@@ -67,7 +68,8 @@ const styles = cssMap({
 		// point is exactly where this element is rendered to with no wiggle room. Unfortunately the CSS
 		// spec for sticky doesn't support "stick to where I'm initially rendered" so we need to tell it.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		insetBlockStart: contentInsetBlockStart,
+		insetBlockStart:
+			'calc(var(--n_bnrM, 0px) + var(--n_tNvM, 0px))' satisfies typeof contentInsetBlockStart,
 		overflow: 'auto',
 		// We want the direct child of the "aside" grid item to also take up the full height of the grid item.
 		// An example use case is for consumers to add a border that takes up the full height of the aside slot.
@@ -77,7 +79,8 @@ const styles = cssMap({
 			// This is only set on larger viewports meaning stickiness only occurs on them.
 			// On small viewports it is not sticky.
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-			height: contentHeightWhenFixed,
+			height:
+				'calc(100vh - var(--n_bnrM, 0px) - var(--n_tNvM, 0px))' satisfies typeof contentHeightWhenFixed,
 			position: 'sticky',
 		},
 	},
@@ -90,7 +93,7 @@ const fallbackDefaultWidth = 330;
  *
  * You can optionally render a `PanelSplitter` as a child to make the aside area resizable.
  *
- * Note: We plan to deprecate the Aside component. Please use Panel instead.
+ * @deprecated Use `Panel` instead.
  */
 export function Aside({
 	children,
@@ -133,11 +136,13 @@ export function Aside({
 	 * Don't show the skip link if the slot has 0 width.
 	 *
 	 * Remove `isHidden` usage after https://jplat.atlassian.net/browse/BLU-3951
+	 *
+	 * TODO: when cleaning up 'platform_dst_nav4_skip_link_a11y_1' remove this call entirely
 	 */
 	useSkipLinkInternal({
 		id,
 		label: skipLinkLabel,
-		isHidden: defaultWidth === 0,
+		isHidden: defaultWidth === 0 || fg('platform_dst_nav4_skip_link_a11y_1'),
 	});
 	const ref = useRef<HTMLDivElement | null>(null);
 	const [width, setWidth] = useState(defaultWidth);
@@ -194,7 +199,7 @@ export function Aside({
 				<DangerouslyHoistCssVarToDocumentRoot
 					variableName={UNSAFE_asideLayoutVar}
 					value="0px"
-					mediaQuery={media.above.md}
+					mediaQuery={'@media (min-width: 64rem)' satisfies MediaAboveMd}
 					responsiveValue={`var(${panelSplitterResizingVar}, ${asideVariableWidth})`}
 				/>
 				// ------ END UNSAFE STYLES ------

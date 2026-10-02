@@ -3,17 +3,16 @@
  * @jsx jsx
  */
 import { useRef } from 'react';
+import type { ComponentType, FC } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import { DynamicStrokeIconDecoration } from '@atlaskit/editor-common/icons';
 import {
 	getAriaKeyshortcuts,
@@ -30,14 +29,13 @@ import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { TOOLBAR_BUTTON, ToolbarButton } from '@atlaskit/editor-common/ui-menu';
 import type { ToolbarButtonRef } from '@atlaskit/editor-common/ui-menu';
 import { hexToEditorTextBackgroundPaletteColor } from '@atlaskit/editor-palette';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 import HighlightIcon from '@atlaskit/icon/core/highlight';
 import { Flex } from '@atlaskit/primitives/compiled';
 
 import { setPalette } from '../editor-commands/palette';
 import type { HighlightPlugin } from '../highlightPluginType';
-
 import { PaletteDropdown } from './shared/PaletteDropdown';
 import { useDropdownEvents } from './shared/useDropdownEvents';
 
@@ -160,6 +158,7 @@ const PrimaryToolbarHighlightColor = ({
 						}
 					/>
 				}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onColorChange={(color) => handleColorChange({ color, inputMethod: INPUT_METHOD.TOOLBAR })}
 				isOpenedByKeyboard={isOpenedByKeyboard}
 				handleClickOutside={handleClickOutside}
@@ -169,4 +168,8 @@ const PrimaryToolbarHighlightColor = ({
 	);
 };
 
-export const PrimaryToolbarHighlightColorWithIntl = injectIntl(PrimaryToolbarHighlightColor);
+export const PrimaryToolbarHighlightColorWithIntl: FC<
+	WithIntlProps<PrimaryToolbarHighlightColorProps>
+> & {
+	WrappedComponent: ComponentType<PrimaryToolbarHighlightColorProps>;
+} = injectIntl(PrimaryToolbarHighlightColor);

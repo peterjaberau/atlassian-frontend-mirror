@@ -1,7 +1,9 @@
 import format from '@af/formatting/sync';
-import { shape as shapeTokens } from '@atlaskit/tokens/tokens-raw';
+import shapeTokens from '@atlaskit/tokens/atlassian-shape';
 
-import { capitalize, constructTokenFunctionCall, generateTypeDefs } from './utils';
+import { capitalize } from './capitalize';
+import { generateTypeDefs } from './generate-type-defs';
+import { constructTokenFunctionCall } from './utils';
 
 type Token = {
 	token: string;
@@ -14,14 +16,15 @@ const tokenStyles = {
 		objectName: 'borderWidth',
 		filterPrefix: 'border.width',
 		cssProperty: 'borderWidth',
-		filterFn: <T extends Token>(t: T) =>
+		filterFn: <T extends Token>(t: T): boolean =>
 			t.token.startsWith(tokenStyles.width.filterPrefix) && !t.isDeprecated,
 	},
 	radius: {
 		objectName: 'borderRadius',
 		filterPrefix: 'radius',
 		cssProperty: 'borderRadius',
-		filterFn: <T extends Token>(t: T) => t.token.startsWith(tokenStyles.radius.filterPrefix),
+		filterFn: <T extends Token>(t: T): boolean =>
+			t.token.startsWith(tokenStyles.radius.filterPrefix),
 	},
 } as const;
 
@@ -35,7 +38,9 @@ const activeTokens = shapeTokens
 		}),
 	);
 
-export const createShapeStylesFromTemplate: (property: keyof typeof tokenStyles) => string = (property: keyof typeof tokenStyles): string => {
+export const createShapeStylesFromTemplate: (property: keyof typeof tokenStyles) => string = (
+	property: keyof typeof tokenStyles,
+): string => {
 	if (!tokenStyles[property]) {
 		throw new Error(`[codegen] Unknown option found "${property}"`);
 	}

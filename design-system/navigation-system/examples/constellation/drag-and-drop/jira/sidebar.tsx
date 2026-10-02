@@ -9,14 +9,14 @@ import { jsx } from '@compiled/react';
 import invariant from 'tiny-invariant';
 
 import useStableRef from '@atlaskit/ds-lib/use-stable-ref';
-import { SideNavContent } from '@atlaskit/navigation-system/layout/side-nav';
+import { SideNavBody } from '@atlaskit/navigation-system/layout/side-nav';
 import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element';
 import { triggerPostMoveFlash } from '@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash';
 import * as liveRegion from '@atlaskit/pragmatic-drag-and-drop-live-region';
 import {
 	dropTargetForElements,
 	monitorForElements,
-} from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+} from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
 import { GroupDropIndicator } from '@atlaskit/side-nav-items/drag-and-drop/group-drop-indicator';
 import {
 	extractInstruction,
@@ -233,7 +233,9 @@ export function Sidebar(): JSX.Element {
 
 			// TODO: screen reader announce
 			liveRegion.announce(
-				`The top level menu item ${action.value} has moved from position ${getPosition(action.startIndex)} to ${getPosition(action.finishIndex)}`,
+				`The top level menu item ${action.value} has moved from position ${getPosition(
+					action.startIndex,
+				)} to ${getPosition(action.finishIndex)}`,
 			);
 
 			return;
@@ -257,7 +259,9 @@ export function Sidebar(): JSX.Element {
 			invariant(project);
 
 			liveRegion.announce(
-				`The project ${project.name} has moved from position ${getPosition(action.startIndex)} to ${getPosition(action.finishIndex)}`,
+				`The project ${project.name} has moved from position ${getPosition(
+					action.startIndex,
+				)} to ${getPosition(action.finishIndex)}`,
 			);
 
 			return;
@@ -336,7 +340,7 @@ export function Sidebar(): JSX.Element {
 	);
 
 	return (
-		<SideNavContent ref={scrollableRef}>
+		<SideNavBody ref={scrollableRef}>
 			<GetDataContext.Provider value={getData}>
 				<DispatchContext.Provider value={dispatch}>
 					<LastActionContext.Provider value={data.lastAction}>
@@ -356,6 +360,6 @@ export function Sidebar(): JSX.Element {
 					</LastActionContext.Provider>
 				</DispatchContext.Provider>
 			</GetDataContext.Provider>
-		</SideNavContent>
+		</SideNavBody>
 	);
 }

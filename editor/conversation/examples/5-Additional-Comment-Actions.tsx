@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { MOCK_USERS } from '../example-helpers/MockData';
 import {
 	getDataProviderFactory,
@@ -19,7 +20,7 @@ export default class AdditionalCommentActions extends React.Component<{}, State>
 		likes: {},
 	};
 
-	async componentDidMount() {
+	async componentDidMount(): Promise<void> {
 		const [conversation] = await provider.getConversations();
 
 		this.setState({
@@ -27,7 +28,7 @@ export default class AdditionalCommentActions extends React.Component<{}, State>
 		});
 	}
 
-	render() {
+	render(): React.JSX.Element | null {
 		const { conversationId } = this.state;
 		if (!conversationId) {
 			return null;

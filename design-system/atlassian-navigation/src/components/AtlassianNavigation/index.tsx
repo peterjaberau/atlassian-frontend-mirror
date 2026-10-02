@@ -7,14 +7,13 @@ import React from 'react';
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import { NavigationAnalyticsContext } from '@atlaskit/analytics-namespaced-context';
-import { N30 } from '@atlaskit/theme/colors';
+import { NavigationAnalyticsContext } from '@atlaskit/analytics-namespaced-context/NavigationAnalyticsContext';
+import warnOnce from '@atlaskit/ds-lib/warn-once';
 import { token } from '@atlaskit/tokens';
 
 import { HORIZONTAL_GLOBAL_NAV_HEIGHT } from '../../common/constants';
 import { defaultTheme, ThemeProvider } from '../../theme';
 import { PrimaryItemsContainer } from '../PrimaryItemsContainer';
-
 import { type AtlassianNavigationProps } from './types';
 
 const containerStyles = css({
@@ -26,9 +25,9 @@ const containerStyles = css({
 	alignItems: 'center',
 	justifyContent: 'space-between',
 	flexShrink: 0,
-	borderBlockEnd: `${token('border.width')} solid ${token('color.border', N30)}`,
-	paddingInlineEnd: token('space.150', '12px'),
-	paddingInlineStart: token('space.150', '12px'),
+	borderBlockEnd: `${token('border.width')} solid ${token('color.border')}`,
+	paddingInlineEnd: token('space.150'),
+	paddingInlineStart: token('space.150'),
 });
 
 const leftStyles = css({
@@ -50,7 +49,7 @@ const rightStyles = css({
 	// eslint-disable-next-line @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'& > *': {
 		flexShrink: 0,
-		marginInlineEnd: token('space.050', '4px'),
+		marginInlineEnd: token('space.050'),
 	},
 });
 
@@ -70,8 +69,20 @@ const analyticsData = {
  *
  * - [Examples](https://atlassian.design/components/atlassian-navigation/examples)
  * - [Code](https://atlassian.design/components/atlassian-navigation/examples)
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 export const AtlassianNavigation = (props: AtlassianNavigationProps): React.JSX.Element => {
+	if (
+		typeof process !== 'undefined' &&
+		process.env.NODE_ENV !== 'production' &&
+		process.env.NODE_ENV !== 'CI'
+	) {
+		warnOnce(
+			'@atlaskit/atlassian-navigation is deprecated. Use @atlaskit/navigation-system instead.',
+		);
+	}
+
 	const {
 		label: label,
 		primaryItems = [],

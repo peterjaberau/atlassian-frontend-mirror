@@ -1,11 +1,8 @@
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import {
-	PluginKey,
-	type ReadonlyTransaction,
-	type EditorState,
-} from '@atlaskit/editor-prosemirror/state';
+import { PluginKey } from '@atlaskit/editor-prosemirror/state';
+import type { ReadonlyTransaction, EditorState } from '@atlaskit/editor-prosemirror/state';
 
-import { type EditorViewStateUpdatedCallbackProps } from '../types/editor-config';
+import type { EditorViewStateUpdatedCallbackProps } from '../types/editor-config';
 
 const key = new PluginKey<EditorStateNotificationPluginState>('editorStateNotificationPlugin');
 
@@ -22,7 +19,7 @@ export const createEditorStateNotificationPlugin = (
 		callback: (props: EditorViewStateUpdatedCallbackProps) => void;
 		pluginName: string;
 	}>,
-) => {
+): SafePlugin<EditorStateNotificationPluginState> => {
 	const transactions: ReadonlyTransaction[] = [];
 	return new SafePlugin<EditorStateNotificationPluginState>({
 		key: key,

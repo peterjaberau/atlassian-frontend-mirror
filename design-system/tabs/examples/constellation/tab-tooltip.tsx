@@ -6,9 +6,12 @@ import { type ReactNode } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Tabs, { Tab, TabList, TabPanel } from '@atlaskit/tabs';
+import Tab from '@atlaskit/tabs/tab';
+import TabList from '@atlaskit/tabs/tab-list';
+import TabPanel from '@atlaskit/tabs/tab-panel';
+import Tabs from '@atlaskit/tabs/tabs';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 const panelStyles = css({
 	display: 'flex',
@@ -29,11 +32,11 @@ const panelStyles = css({
 	paddingInlineStart: token('space.400'),
 });
 
-export const Panel: ({ children }: {
-    children: ReactNode;
-}) => JSX.Element = ({ children }: { children: ReactNode }) => (
-	<div css={panelStyles}>{children}</div>
-);
+export const Panel: ({ children }: { children: ReactNode }) => JSX.Element = ({
+	children,
+}: {
+	children: ReactNode;
+}) => <div css={panelStyles}>{children}</div>;
 
 const TooltipTab = ({ label, tooltip }: { label: string; tooltip: string }) => (
 	<Tooltip content={tooltip}>

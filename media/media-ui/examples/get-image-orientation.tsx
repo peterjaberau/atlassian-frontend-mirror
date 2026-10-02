@@ -1,6 +1,8 @@
 import React from 'react';
+
+import Lozenge from '@atlaskit/lozenge/lozenge';
 import Page, { Grid, GridColumn } from '@atlaskit/page';
-import { getOrientation, getFileInfo, getCssFromImageOrientation, readImageMetaData } from '../src';
+
 import {
 	InputWrapper,
 	PreviewList,
@@ -9,7 +11,10 @@ import {
 	CloseButton,
 	OrientationSelectWrapper,
 } from '../example-helpers/styled';
-import Lozenge from '@atlaskit/lozenge';
+import { getFileInfo } from '../src/getFileInfo';
+import { getCssFromImageOrientation } from '../src/imageMetaData/getCssFromImageOrientation';
+import { getOrientation } from '../src/imageMetaData/getOrientation';
+import { readImageMetaData } from '../src/imageMetaData/readImageMetaData';
 
 interface ExamplePreview {
 	filename: string;
@@ -134,7 +139,7 @@ class Example extends React.Component<{}, ExampleState> {
 				<PreviewItem key={`preview-${i}`}>
 					<div>
 						<p>
-							filename: <Lozenge appearance="inprogress">{preview.filename}</Lozenge>
+							filename: <Lozenge appearance="information">{preview.filename}</Lozenge>
 						</p>
 						<p>
 							orientation:{' '}
@@ -158,7 +163,7 @@ class Example extends React.Component<{}, ExampleState> {
 						<p>tags: {JSON.stringify(preview.tags)}</p>
 						<p>
 							transform:{' '}
-							<Lozenge appearance="moved">{getCssFromImageOrientation(orientation)}</Lozenge>
+							<Lozenge appearance="warning">{getCssFromImageOrientation(orientation)}</Lozenge>
 						</p>
 						<p>
 							duration: <Lozenge>{preview.duration}ms</Lozenge>

@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
@@ -31,11 +30,27 @@ The \`dependencies\`, \`configuration\`, \`state\`, \`actions\`, and \`commands\
 below:
 
 ${code`
-type PlaceholderPlugin = NextEditorPlugin<
+export interface PlaceholderPluginOptions {
+  emptyLinePlaceholder?: string;
+  enableLoadingSpinner?: boolean;
+  isPlaceholderHidden?: boolean;
+  placeholder?: string;
+  placeholderADF?: DocNode;
+  placeholderBracketHint?: string;
+  placeholderPrompts?: string[];
+  withEmptyParagraph?: boolean;
+}
+
+export type PlaceholderPlugin = NextEditorPlugin<
   'placeholder',
   {
+    commands: {
+      setAnimatingPlaceholderPrompts: (placeholderPrompts: string[]) => EditorCommand;
+      setPlaceholder: (placeholder: string) => EditorCommand;
+      setPlaceholderHidden: (isPlaceholderHidden: boolean) => EditorCommand;
+    };
+    dependencies: [FocusPlugin, CompositionPlugin, TypeAheadPlugin, OptionalPlugin<ShowDiffPlugin>];
     pluginConfiguration: PlaceholderPluginOptions | undefined;
-    dependencies: [FocusPlugin, CompositionPlugin, TypeAheadPlugin];
   }
 >;
 `}

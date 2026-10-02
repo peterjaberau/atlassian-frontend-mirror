@@ -1,5 +1,8 @@
+import memoizeOne from 'memoize-one';
+
 import { DRAG_HANDLE_WIDTH } from '@atlaskit/editor-common/styles';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import {
 	DRAG_HANDLE_DIVIDER_TOP_ADJUSTMENT,
@@ -9,11 +12,11 @@ import {
 	DRAG_HANDLE_H5_TOP_ADJUSTMENT,
 	DRAG_HANDLE_H6_TOP_ADJUSTMENT,
 	DRAG_HANDLE_HEIGHT,
+	DRAG_HANDLE_PARAGRAPH_SMALL_TOP_ADJUSTMENT,
 	DRAG_HANDLE_PARAGRAPH_TOP_ADJUSTMENT,
 	dragHandleGap,
 } from '../../ui/consts';
-
-import { type AnchorRectCache } from './anchor-utils';
+import type { AnchorRectCache } from './anchor-utils';
 
 const STICKY_NODES = ['panel', 'table', 'expand', 'layoutSection', 'bodiedExtension'];
 
@@ -43,6 +46,8 @@ export const getTopPosition = (dom: HTMLElement | null, type?: string): string =
 		return `${dom.offsetTop - DRAG_HANDLE_H5_TOP_ADJUSTMENT}px`;
 	} else if (type === 'heading-6') {
 		return `${dom.offsetTop - DRAG_HANDLE_H6_TOP_ADJUSTMENT}px`;
+	} else if (type === 'paragraph-small') {
+		return `${dom.offsetTop + DRAG_HANDLE_PARAGRAPH_SMALL_TOP_ADJUSTMENT}px`;
 	} else if (type === 'paragraph') {
 		return `${dom.offsetTop + DRAG_HANDLE_PARAGRAPH_TOP_ADJUSTMENT}px`;
 	} else {
@@ -85,9 +90,16 @@ export const getNodeHeight = (
 	anchorRectCache?: AnchorRectCache,
 ): number | undefined => anchorRectCache?.getHeight(anchor) || dom?.offsetHeight;
 
+const getStickyNodes = memoizeOne(() => [
+	...STICKY_NODES,
+	...(expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)
+		? ['multiBodiedExtension']
+		: []),
+]);
+
 export const shouldBeSticky = (nodeType: string): boolean => {
 	return (
-		editorExperiment('platform_editor_controls', 'variant1') && STICKY_NODES.includes(nodeType)
+		editorExperiment('platform_editor_controls', 'variant1') && getStickyNodes().includes(nodeType)
 	);
 };
 
@@ -96,7 +108,20 @@ export const getControlBottomCSSValue = (
 	isSticky: boolean,
 	isTopLevelNode: boolean,
 	isLayoutColumn?: boolean,
-): { bottom: String } => {
+	fallbackAnchor?: string,
+): { bottom: string } => {
+	if (expValEquals('platform_editor_controls_reliable_anchor', 'isEnabled', true)) {
+		return (editorExperiment('advanced_layouts', true) && isLayoutColumn) ||
+			!isSticky ||
+			!isTopLevelNode
+			? { bottom: 'unset' }
+			: {
+					bottom: fallbackAnchor
+						? `anchor(${anchor} end, anchor(${fallbackAnchor} end))`
+						: `anchor(${anchor} end)`,
+				};
+	}
+
 	return (editorExperiment('advanced_layouts', true) && isLayoutColumn) ||
 		!isSticky ||
 		!isTopLevelNode

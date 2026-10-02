@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { selectionToolbarMessages } from '@atlaskit/editor-common/messages';
 import { useEditorToolbar } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
@@ -16,6 +17,7 @@ const shouldShowPinMenuItem = (editMode?: ViewMode) => {
 
 type PinMenuItemProps = {
 	api?: ExtractInjectionAPI<SelectionToolbarPlugin>;
+	disablePin?: boolean;
 };
 
 const usePluginState = (_api?: ExtractInjectionAPI<SelectionToolbarPlugin> | undefined) => {
@@ -31,12 +33,21 @@ const usePluginState = (_api?: ExtractInjectionAPI<SelectionToolbarPlugin> | und
 /**
  * The menu-item version of pin only appears in selection toolbar - the primary toolbar will have its own component
  */
-export const PinMenuItem = ({ api }: PinMenuItemProps): React.JSX.Element | null => {
+export const PinMenuItem = ({ api, disablePin }: PinMenuItemProps): React.JSX.Element | null => {
 	const intl = useIntl();
-	const { editorViewMode, editorToolbarDockingPreference, isOffline: isDisabled } = usePluginState(api);
+	const runtimeOverride = useSharedPluginStateWithSelector(
+		api,
+		['toolbar'],
+		(states) => states.toolbarState?.contextualFormattingModeOverride,
+	);
+	const {
+		editorViewMode,
+		editorToolbarDockingPreference,
+		isOffline: isDisabled,
+	} = usePluginState(api);
 	const isToolbarDocked = editorToolbarDockingPreference === 'top';
 
-	if (!shouldShowPinMenuItem(editorViewMode)) {
+	if (disablePin || !shouldShowPinMenuItem(editorViewMode) || runtimeOverride === 'always-pinned') {
 		return null;
 	}
 

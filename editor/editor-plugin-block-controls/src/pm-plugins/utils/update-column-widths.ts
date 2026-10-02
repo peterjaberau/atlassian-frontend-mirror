@@ -1,5 +1,5 @@
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type Transaction } from '@atlaskit/editor-prosemirror/state';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Transaction } from '@atlaskit/editor-prosemirror/state';
 
 import { DEFAULT_COLUMN_DISTRIBUTIONS } from '../../ui/consts';
 
@@ -8,7 +8,10 @@ export const updateColumnWidths = (
 	layoutNode: PMNode,
 	layoutNodePos: number,
 	childCount: number,
-) => {
+): {
+	newColumnWidth: number;
+	tr: Transaction;
+} => {
 	const newColumnWidth = DEFAULT_COLUMN_DISTRIBUTIONS[childCount];
 
 	if (newColumnWidth) {

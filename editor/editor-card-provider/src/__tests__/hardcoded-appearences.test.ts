@@ -1,9 +1,10 @@
-import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags';
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
+import { setBooleanFeatureFlagResolver } from '@atlaskit/platform-feature-flags/setBooleanFeatureFlagResolver';
+import { _overrides } from '@atlaskit/tmp-editor-statsig/setup';
+import { passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
 import { EditorCardProvider } from '..';
 import { mocks } from './__fixtures__/mocks';
-import FeatureGates from '@atlaskit/feature-gate-js-client';
-import { _overrides } from '@atlaskit/tmp-editor-statsig/setup';
-
 import { getMockProvidersResponse, expectedInlineAdf, expectedEmbedAdf } from './test-utils';
 
 const mockGetExperimentValue = jest.fn();
@@ -19,7 +20,7 @@ describe('hardcoded appearences', () => {
 		mockFetch = jest.fn();
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		(global as any).fetch = mockFetch;
-		setBooleanFeatureFlagResolver((flag) => flag === 'avp_unfurl_shared_charts_embed_by_default_2');
+		setBooleanFeatureFlagResolver(() => false);
 	});
 
 	afterAll(() => {
@@ -69,10 +70,32 @@ describe('hardcoded appearences', () => {
 			'Loom Video human readable section',
 			'https://www.loom.com/share/human-readable-text-9b62d620bbea4476bbf2286a6b0c83cf',
 		],
+		['Loom Playlist', 'https://www.loom.com/playlists/01234567-89ab-cdef-0123-456789abcdef'],
+		[
+			'Loom Playlist view with positional params',
+			'https://www.loom.com/playlists/01234567-89ab-cdef-0123-456789abcdef/view?v=abcdef0123456789abcdef0123456789&t=42',
+		],
+		[
+			'Loom Playlist embed',
+			'https://www.loom.com/embed/playlists/01234567-89ab-cdef-0123-456789abcdef',
+		],
 		['A whiteboard', 'https://pug.jira-dev.com/wiki/spaces/BT2/whiteboard/452724424706'],
 		[
 			'A whiteboard with query params',
 			'https://pug.jira-dev.com/wiki/spaces/BT2/whiteboard/452724424706?myQueryParam=foo&bar=baz',
+		],
+		['A slide', 'https://hello.atlassian.net/wiki/spaces/TEAM/slide/6822455429'],
+		[
+			'A slide with user space',
+			'https://hello.atlassian.net/wiki/spaces/~63749c02a593cb822e92b8ec/slide/6822455429',
+		],
+		[
+			'A slide with query params',
+			'https://hello.atlassian.net/wiki/spaces/TEAM/slide/6822455429?foo=bar',
+		],
+		[
+			'A slide with UUID resource id',
+			'https://hello.atlassian.net/wiki/spaces/TEAM/slide/8fb8c642-803d-59fe-8d1c-066610e860c6',
 		],
 		[
 			'A database with a user space',
@@ -285,9 +308,19 @@ describe('hardcoded appearences', () => {
 			'https://hello.atlassian.net/avpviz/c/12345/?foo=bar',
 		],
 		['AVP Visualization view on different domain', 'https://jdog.jira-dev.com/avpviz/c/entity-123'],
+		[
+			'Dashboards chart view',
+			'https://hello.atlassian.net/dashboards/c/cloud-id/w/workspace-id/d/dashboard-id/chart/chart-id',
+		],
 	])(
 		'returns embedCard when %s public link is inserted, calling /providers and /resolve/batch endpoint',
 		async (_, url) => {
+			if (url.includes('/playlists/')) {
+				passGate('loom-playlist-smartlink-embed-default');
+			}
+			if (url.includes('/dashboards/')) {
+				setBooleanFeatureFlagResolver((flag) => flag === 'platform_avp_viz_dashboard_link_embed');
+			}
 			mockGetExperimentValue.mockReturnValue(true);
 			const provider = new EditorCardProvider();
 			mockFetch.mockResolvedValueOnce({
@@ -335,4 +368,91 @@ describe('hardcoded appearences', () => {
 			expect(adf).toEqual(expectedInlineAdf(url));
 		},
 	);
+
+	describe('Artifacts share view', () => {
+		const mockProvidersAndResolve = () => {
+			mockFetch.mockResolvedValueOnce({
+				json: async () => getMockProvidersResponse(),
+				ok: true,
+			});
+			// Mocking call to /resolve/batch
+			mockFetch.mockResolvedValueOnce({
+				json: async () => [{ body: mocks.success, status: 200 }],
+				ok: true,
+			});
+		};
+
+		const artifactUrls: [string, string][] = [
+			[
+				'Artifacts apps share link',
+				'https://hello.atlassian.net/apps/d3838adc-1d7d-4558-8b3c-ab4b51515d48/287d495a-a0e6-4165-8ebe-0f100069ab5d/?smartlink=artifact',
+			],
+			[
+				'Artifacts apps share link with other query params',
+				'https://jdog.jira-dev.com/apps/d3838adc-1d7d-4558-8b3c-ab4b51515d48/287d495a-a0e6-4165-8ebe-0f100069ab5d/view?foo=bar&smartlink=artifact',
+			],
+			[
+				'Artifacts direct link',
+				'https://hello.atlassian.net/artifacts/287d495a-a0e6-4165-8ebe-0f100069ab5d',
+			],
+			[
+				'Artifacts direct link with query params',
+				'https://hello.atlassian.net/artifacts/287d495a-a0e6-4165-8ebe-0f100069ab5d?foo=bar',
+			],
+		];
+
+		it.each<[string, string]>(artifactUrls)(
+			'returns embedCard when %s is inserted and platform_forge_ui_artifact_confluence_integration is enabled',
+			async (_, url) => {
+				setBooleanFeatureFlagResolver(
+					(flag) => flag === 'platform_forge_ui_artifact_confluence_integration',
+				);
+				mockGetExperimentValue.mockReturnValue(true);
+				const provider = new EditorCardProvider();
+				mockProvidersAndResolve();
+
+				const adf = await provider.resolve(url, 'inline', false);
+				expect(adf).toEqual(expectedEmbedAdf(url));
+			},
+		);
+
+		it.each<[string, string]>(artifactUrls)(
+			'returns inlineCard when %s is inserted and platform_forge_ui_artifact_confluence_integration is disabled',
+			async (_, url) => {
+				const provider = new EditorCardProvider();
+				mockProvidersAndResolve();
+
+				const adf = await provider.resolve(url, 'inline', false);
+				expect(adf).toEqual(expectedInlineAdf(url));
+			},
+		);
+
+		it.each<[string, string]>([
+			[
+				'apps link without smartlink=artifact',
+				'https://hello.atlassian.net/apps/d3838adc-1d7d-4558-8b3c-ab4b51515d48/287d495a-a0e6-4165-8ebe-0f100069ab5d/',
+			],
+			[
+				'apps link with a different smartlink value',
+				'https://hello.atlassian.net/apps/d3838adc-1d7d-4558-8b3c-ab4b51515d48/287d495a-a0e6-4165-8ebe-0f100069ab5d/?smartlink=other',
+			],
+			[
+				'apps link with smartlink=artifact only in the fragment',
+				'https://hello.atlassian.net/apps/d3838adc-1d7d-4558-8b3c-ab4b51515d48/287d495a-a0e6-4165-8ebe-0f100069ab5d/#?smartlink=artifact',
+			],
+			['artifacts link with non-UUID id', 'https://hello.atlassian.net/artifacts/not-a-uuid'],
+		])(
+			'returns inlineCard when %s is inserted even if platform_forge_ui_artifact_confluence_integration is enabled',
+			async (_, url) => {
+				setBooleanFeatureFlagResolver(
+					(flag) => flag === 'platform_forge_ui_artifact_confluence_integration',
+				);
+				const provider = new EditorCardProvider();
+				mockProvidersAndResolve();
+
+				const adf = await provider.resolve(url, 'inline', false);
+				expect(adf).toEqual(expectedInlineAdf(url));
+			},
+		);
+	});
 });

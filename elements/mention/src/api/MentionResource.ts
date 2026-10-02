@@ -1,30 +1,31 @@
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+
+import debounce from 'lodash/debounce';
+
 import { type KeyValues, utils as serviceUtils } from '@atlaskit/util-service-support';
 
+import { isAppMention } from '../is-app-mention';
+import { isTeamMention } from '../is-team-mention';
 import {
-	type AnalyticsCallback,
-	type ErrorCallback,
-	type InfoCallback,
 	type InviteFlow,
-	isAppMention,
-	isTeamMention,
 	type MentionContextIdentifier,
 	type MentionDescription,
+	type MentionDisabledState,
+	type MentionDisabledStateInput,
 	type MentionNameDetails,
 	MentionNameStatus,
 	type MentionProvider,
 	type MentionResourceConfig,
 	type MentionsResult,
-	type MentionStats,
-	type ResourceProvider,
-	type ResultCallback,
 	type UserRole,
 	SliNames,
 	Actions,
 } from '../types';
+import { SLI_EVENT_TYPE } from '../util/analytics';
 import debug from '../util/logger';
+import { AbstractMentionResource } from './AbstractMentionResource';
 
 const MAX_QUERY_ITEMS = 100;
-const MAX_NOTIFIED_ITEMS = 20;
 
 export type {
 	MentionStats,
@@ -35,13 +36,23 @@ export type {
 	ResourceProvider,
 	MentionContextIdentifier,
 	MentionProvider,
-} from '../types'; // Re-exporting types to prevent breaking change
-// Re-exporting types to prevent breaking change
+} from '../types';
 
-import { SLI_EVENT_TYPE } from '../util/analytics';
-import debounce from 'lodash/debounce';
-
+/**
+ * Configuration for the TeamMentionResource, which extends {@link MentionResourceConfig}
+ * to support fetching team mentions from a separate team search service endpoint.
+ *
+ * Used as the second argument when constructing a {@link TeamMentionResource}, alongside
+ * a standard `MentionResourceConfig` for user mentions.
+ */
 export interface TeamMentionResourceConfig extends MentionResourceConfig {
+	/**
+	 * A custom resolver function to generate the URL for a team's profile page.
+	 * If not provided, a default link of `{window.location.origin}/people/team/{teamId}` is used.
+	 *
+	 * @param teamId - The ID of the team (with any ARI prefix already trimmed).
+	 * @returns The full URL to the team's profile page.
+	 */
 	teamLinkResolver?: (teamId: string) => string;
 }
 
@@ -64,152 +75,6 @@ const emptySecurityProvider = () => {
 type SearchResponse = {
 	mentions: Promise<MentionsResult>;
 };
-
-class AbstractResource<Result> implements ResourceProvider<Result> {
-	protected changeListeners: Map<string, ResultCallback<Result>>;
-	protected errListeners: Map<string, ErrorCallback>;
-	protected infoListeners: Map<string, InfoCallback>;
-	protected allResultsListeners: Map<string, ResultCallback<Result>>;
-	protected analyticsListeners: Map<string, AnalyticsCallback>;
-
-	constructor() {
-		this.changeListeners = new Map<string, ResultCallback<Result>>();
-		this.allResultsListeners = new Map<string, ResultCallback<Result>>();
-		this.errListeners = new Map<string, ErrorCallback>();
-		this.infoListeners = new Map<string, InfoCallback>();
-		this.analyticsListeners = new Map<string, AnalyticsCallback>();
-	}
-
-	subscribe(
-		key: string,
-		callback?: ResultCallback<Result>,
-		errCallback?: ErrorCallback,
-		infoCallback?: InfoCallback,
-		allResultsCallback?: ResultCallback<Result>,
-		analyticsListeners?: AnalyticsCallback,
-	): void {
-		if (callback) {
-			this.changeListeners.set(key, callback);
-		}
-		if (errCallback) {
-			this.errListeners.set(key, errCallback);
-		}
-		if (infoCallback) {
-			this.infoListeners.set(key, infoCallback);
-		}
-		if (allResultsCallback) {
-			this.allResultsListeners.set(key, allResultsCallback);
-		}
-		if (analyticsListeners) {
-			this.analyticsListeners.set(key, analyticsListeners);
-		}
-	}
-
-	unsubscribe(key: string): void {
-		this.changeListeners.delete(key);
-		this.errListeners.delete(key);
-		this.infoListeners.delete(key);
-		this.allResultsListeners.delete(key);
-		this.analyticsListeners.delete(key);
-	}
-}
-
-class AbstractMentionResource
-	extends AbstractResource<MentionDescription[]>
-	implements MentionProvider
-{
-	shouldHighlightMention(_mention: MentionDescription): boolean {
-		return false;
-	}
-
-	// eslint-disable-next-line class-methods-use-this
-	filter(query?: string): void {
-		throw new Error(`not yet implemented.\nParams: query=${query}`);
-	}
-
-	// eslint-disable-next-line class-methods-use-this, no-unused-vars
-	recordMentionSelection(_mention: MentionDescription): void {
-		// Do nothing
-	}
-
-	isFiltering(_query: string): boolean {
-		return false;
-	}
-
-	protected _notifyListeners(mentionsResult: MentionsResult, stats?: MentionStats): void {
-		debug(
-			'ak-mention-resource._notifyListeners',
-			mentionsResult && mentionsResult.mentions && mentionsResult.mentions.length,
-			this.changeListeners,
-		);
-
-		this.changeListeners.forEach((listener, key) => {
-			try {
-				listener(mentionsResult.mentions.slice(0, MAX_NOTIFIED_ITEMS), mentionsResult.query, stats);
-			} catch (e) {
-				// ignore error from listener
-				debug(`error from listener '${key}', ignoring`, e);
-			}
-		});
-	}
-
-	protected _notifyAllResultsListeners(mentionsResult: MentionsResult): void {
-		debug(
-			'ak-mention-resource._notifyAllResultsListeners',
-			mentionsResult && mentionsResult.mentions && mentionsResult.mentions.length,
-			this.changeListeners,
-		);
-
-		this.allResultsListeners.forEach((listener, key) => {
-			try {
-				listener(mentionsResult.mentions.slice(0, MAX_NOTIFIED_ITEMS), mentionsResult.query);
-			} catch (e) {
-				// ignore error from listener
-				debug(`error from listener '${key}', ignoring`, e);
-			}
-		});
-	}
-
-	protected _notifyErrorListeners(error: Error, query?: string): void {
-		this.errListeners.forEach((listener, key) => {
-			try {
-				listener(error, query);
-			} catch (e) {
-				// ignore error from listener
-				debug(`error from listener '${key}', ignoring`, e);
-			}
-		});
-	}
-
-	protected _notifyInfoListeners(info: string): void {
-		this.infoListeners.forEach((listener, key) => {
-			try {
-				listener(info);
-			} catch (e) {
-				// ignore error fromr listener
-				debug(`error from listener '${key}', ignoring`, e);
-			}
-		});
-	}
-
-	protected _notifyAnalyticsListeners(
-		event: string,
-		actionSubject: string,
-		action: string,
-		attributes?: {
-			[key: string]: any;
-		},
-	): void {
-		this.analyticsListeners.forEach((listener, key) => {
-			try {
-				listener(event, actionSubject, action, attributes);
-			} catch (e) {
-				// ignore error from listener
-				debug(`error from listener '${key}', ignoring`, e);
-			}
-		});
-	}
-}
 
 /**
  * Provides a Javascript API
@@ -249,6 +114,10 @@ export class MentionResource extends AbstractMentionResource implements Resolvin
 		}
 
 		return false;
+	}
+
+	getMentionDisabledState(mention: MentionDisabledStateInput): MentionDisabledState | undefined {
+		return this.config.getMentionDisabledState?.(mention);
 	}
 
 	notify(searchTime: number, mentionResult: MentionsResult, query?: string): void {
@@ -379,9 +248,11 @@ export class MentionResource extends AbstractMentionResource implements Resolvin
 		contextIdentifier?: MentionContextIdentifier,
 	): Promise<MentionsResult> {
 		const queryParams: KeyValues = this.getQueryParams(contextIdentifier);
+		const configHeaders = this.config.headers;
 		const options = {
 			path: 'bootstrap',
 			queryParams,
+			...(configHeaders && { requestInit: { headers: configHeaders } }),
 		};
 		try {
 			const result = await serviceUtils.requestService<MentionsResult>(this.config, options);
@@ -403,6 +274,7 @@ export class MentionResource extends AbstractMentionResource implements Resolvin
 		query: string,
 		contextIdentifier?: MentionContextIdentifier,
 	): Promise<MentionsResult> {
+		const configHeaders = this.config.headers;
 		const options = {
 			path: 'search',
 			queryParams: {
@@ -410,6 +282,7 @@ export class MentionResource extends AbstractMentionResource implements Resolvin
 				limit: MAX_QUERY_ITEMS,
 				...this.getQueryParams(contextIdentifier),
 			},
+			...(configHeaders && { requestInit: { headers: configHeaders } }),
 		};
 		try {
 			const result = await serviceUtils.requestService<MentionsResult>(this.config, options);
@@ -423,6 +296,11 @@ export class MentionResource extends AbstractMentionResource implements Resolvin
 
 	private transformServiceResponse(result: MentionsResult, query: string): MentionsResult {
 		const mentions = result.mentions.map((mention) => {
+			// Loading placeholders carry none of these fields and pass through untouched.
+			if (mention.isPlaceholder) {
+				return mention;
+			}
+
 			let lozenge: string | undefined;
 			if (isAppMention(mention)) {
 				lozenge = mention.userType;
@@ -437,26 +315,22 @@ export class MentionResource extends AbstractMentionResource implements Resolvin
 	}
 }
 
-export class HttpError implements Error {
-	name: string;
-	message: string;
-	statusCode: number;
-	stack?: string;
+/**
+ * @deprecated Use `import { HttpError } from '@atlaskit/mention/mention-resource'` instead.
+ */
+export { HttpError } from './HttpError';
 
-	constructor(statusCode: number, statusMessage: string) {
-		this.statusCode = statusCode;
-		this.message = statusMessage;
-		this.name = 'HttpError';
-		this.stack = new Error().stack;
-	}
-}
+/**
+ * @deprecated Use `import { isResolvingMentionProvider } from '@atlaskit/mention/mention-resource'` instead.
+ */
+export { isResolvingMentionProvider } from './isResolvingMentionProvider';
 
-export const isResolvingMentionProvider = (p: any): p is ResolvingMentionProvider =>
-	!!(
-		p &&
-		(p as ResolvingMentionProvider).supportsMentionNameResolving &&
-		p.supportsMentionNameResolving()
-	);
+/**
+ * @deprecated Use `import { AbstractResource } from '@atlaskit/mention/mention-resource'` instead.
+ */
+export { AbstractResource } from './AbstractResource';
 
-export { AbstractResource, AbstractMentionResource };
-export default MentionResource;
+/**
+ * @deprecated Use `import { AbstractMentionResource } from '@atlaskit/mention/mention-resource'` instead.
+ */
+export { AbstractMentionResource } from './AbstractMentionResource';

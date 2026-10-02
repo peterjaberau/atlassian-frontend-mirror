@@ -1,10 +1,15 @@
 import React from 'react';
-import InlineDialog, { type Placement } from '@atlaskit/inline-dialog';
+
+import InlineDialog from '@atlaskit/inline-dialog/inline-dialog';
+import type { Placement } from '@atlaskit/inline-dialog/types';
+
+import { TriggerButton } from './styled';
 
 interface Props {
 	children: React.ReactNode;
 	content: React.ReactNode;
 	placement?: Placement;
+	label: string;
 }
 
 interface State {
@@ -33,13 +38,18 @@ export class StatefulInlineDialog extends React.Component<Props, State> {
 	};
 
 	render(): React.JSX.Element {
-		const { children, content, placement } = this.props;
+		const { children, content, placement, label } = this.props;
 		return (
 			<InlineDialog content={content} placement={placement} isOpen={this.state.isOpen}>
-				{/* eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events*/}
-				<span onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut}>
+				<TriggerButton
+					aria-label={label}
+					onMouseOver={this.handleMouseOver}
+					onMouseOut={this.handleMouseOut}
+					onFocus={this.openDialog}
+					onBlur={this.closeDialog}
+				>
 					{children}
-				</span>
+				</TriggerButton>
 			</InlineDialog>
 		);
 	}

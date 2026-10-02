@@ -10,6 +10,7 @@ import type { EditorViewModePlugin } from '@atlaskit/editor-plugin-editor-viewmo
 import type { SelectionPlugin } from '@atlaskit/editor-plugin-selection';
 import type { ToolbarPlugin } from '@atlaskit/editor-plugin-toolbar';
 import type { TypeAheadPlugin } from '@atlaskit/editor-plugin-type-ahead';
+import type { UiControlRegistryPlugin } from '@atlaskit/editor-plugin-ui-control-registry';
 import type { TaskDecisionProvider } from '@atlaskit/task-decision/types';
 
 import type { insertTaskDecisionCommand } from './pm-plugins/insert-commands';
@@ -24,6 +25,7 @@ export type TasksAndDecisionsPluginDependencies = [
 	OptionalPlugin<BlockMenuPlugin>,
 	OptionalPlugin<SelectionPlugin>,
 	OptionalPlugin<ToolbarPlugin>,
+	OptionalPlugin<UiControlRegistryPlugin>,
 ];
 
 export type TasksAndDecisionsPlugin = NextEditorPlugin<

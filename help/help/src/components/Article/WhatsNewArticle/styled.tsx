@@ -4,10 +4,11 @@
  */
 
 import React from 'react';
-import { css, jsx } from '@compiled/react';
-import Heading from '@atlaskit/heading';
-import { token } from '@atlaskit/tokens';
 
+import { css, jsx } from '@compiled/react';
+
+import Heading from '@atlaskit/heading/heading';
+import { token } from '@atlaskit/tokens';
 
 export const WhatsNewTypeTitle = ({ children }: { children: React.ReactNode }): JSX.Element => (
 	<Heading size="xsmall" as="h3">
@@ -17,14 +18,13 @@ export const WhatsNewTypeTitle = ({ children }: { children: React.ReactNode }): 
 
 const whatsNewIconContainerStyles = css({
 	display: 'flex',
-	gap: token('space.100', '8px'),
-	paddingBottom: token('space.100', '8px'),
+	gap: token('space.100'),
+	paddingBottom: token('space.100'),
 });
 
 export const WhatsNewIconContainer = ({ children }: { children: React.ReactNode }): JSX.Element => (
 	<div css={whatsNewIconContainerStyles}>{children}</div>
 );
-
 
 export const WhatsNewTitleText = ({ children }: { children: React.ReactNode }): JSX.Element => (
 	<Heading size="xsmall" as="h4">
@@ -33,18 +33,17 @@ export const WhatsNewTitleText = ({ children }: { children: React.ReactNode }): 
 );
 
 const relatedLinkContainerStyles = css({
-	marginBottom: token('space.100', '8px'),
+	marginBottom: token('space.100'),
 });
 
 export const RelatedLinkContainer = ({ children }: { children: React.ReactNode }): JSX.Element => (
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
 	<div css={relatedLinkContainerStyles}>{children}</div>
 );
 
 const externalLinkIconContainerStyles = css({
 	display: 'inline-block',
 	verticalAlign: 'middle',
-	paddingLeft: token('space.050', '4px'),
+	paddingLeft: token('space.050'),
 });
 
 export const ExternalLinkIconContainer = ({

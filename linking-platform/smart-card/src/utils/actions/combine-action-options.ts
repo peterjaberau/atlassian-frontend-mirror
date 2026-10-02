@@ -1,4 +1,8 @@
-import { type CardAction, type CardActionOptions, type CardPlatform } from '../../view/Card/types';
+import type { CardAction } from '../../constants';
+import {
+	type InternalCardActionOptions as CardActionOptions,
+	type CardPlatform,
+} from '../../view/Card/types';
 
 type CombineActionsOptions = {
 	actionOptions?: CardActionOptions;

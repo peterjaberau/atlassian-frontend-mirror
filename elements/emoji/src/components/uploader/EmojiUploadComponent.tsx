@@ -2,25 +2,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useState, memo, useEffect } from 'react';
+
+import { useState, memo, useEffect, type MemoExoticComponent } from 'react';
+
 import { jsx, css } from '@compiled/react';
-import { FormattedMessage, type MessageDescriptor } from 'react-intl-next';
-import type { AnalyticsEventPayload, CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
+import { FormattedMessage, type MessageDescriptor } from 'react-intl';
+
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
 import { token } from '@atlaskit/tokens';
 
+import type { EmojiProvider } from '../../api/EmojiResource';
+import { supportsUploadFeature } from '../../api/supportsUploadFeature';
 import type { EmojiUpload } from '../../types';
-import { type EmojiProvider, supportsUploadFeature } from '../../api/EmojiResource';
+import { createAndFireEventInElementsChannel } from '../../util/analytics/analytics';
+import { selectedFileEvent } from '../../util/analytics/selectedFileEvent';
+import { ufoExperiences } from '../../util/analytics/ufoExperiences';
+import { uploadCancelButton } from '../../util/analytics/uploadCancelButton';
+import { uploadConfirmButton } from '../../util/analytics/uploadConfirmButton';
+import { type EmojiPickerWidth } from '../../util/constants';
 import EmojiUploadPickerWithIntl from '../common/EmojiUploadPicker';
 import { uploadEmoji } from '../common/UploadEmoji';
-import {
-	createAndFireEventInElementsChannel,
-	selectedFileEvent,
-	uploadCancelButton,
-	uploadConfirmButton,
-} from '../../util/analytics';
-import { ufoExperiences } from '../../util/analytics/ufoExperiences';
 import { messages } from '../i18n';
-import { type EmojiPickerWidth } from '../../util/constants';
 
 export interface UploadRefHandler {
 	(ref: HTMLDivElement): void;
@@ -32,14 +35,14 @@ const emojiUploadWidget = css({
 	flexDirection: 'column',
 	justifyContent: 'center',
 	alignItems: 'stretch',
-	backgroundColor: token('elevation.surface.overlay', 'white'),
+	backgroundColor: token('elevation.surface.overlay'),
 	height: `120px`,
 	width: `${emojiPickerWidth}px`,
 	minWidth: `${emojiPickerWidth}px`,
-	marginTop: token('space.negative.200', '-16px'),
-	marginLeft: token('space.negative.150', '-12px'),
-	marginBottom: token('space.negative.150', '-12px'),
-	marginRight: token('space.negative.150', '-12px'),
+	marginTop: token('space.negative.200'),
+	marginLeft: token('space.negative.150'),
+	marginBottom: token('space.negative.150'),
+	marginRight: token('space.negative.150'),
 });
 
 const emojiUploadFooter = css({
@@ -47,14 +50,16 @@ const emojiUploadFooter = css({
 });
 
 export interface Props {
+	/** Current Confluence page content id, enables AI emoji generation. */
+	contentId?: string;
 	createAnalyticsEvent?: CreateUIAnalyticsEvent;
 	disableFocusLock?: boolean;
 	emojiProvider: EmojiProvider;
 	onUploaderRef?: UploadRefHandler;
 }
 
-const EmojiUploadComponent = (props: Props) => {
-	const { emojiProvider, createAnalyticsEvent, onUploaderRef, disableFocusLock } = props;
+const EmojiUploadComponent = (props: Props): JSX.Element => {
+	const { emojiProvider, createAnalyticsEvent, onUploaderRef, disableFocusLock, contentId } = props;
 	const [uploadErrorMessage, setUploadErrorMessage] = useState<MessageDescriptor>();
 
 	useEffect(() => {
@@ -146,10 +151,13 @@ const EmojiUploadComponent = (props: Props) => {
 					onUploadEmoji={onUploadEmoji}
 					errorMessage={uploadErrorMessage ? <FormattedMessage {...uploadErrorMessage} /> : null}
 					disableFocusLock={disableFocusLock}
+					contentId={contentId}
+					fireAnalytics={fireAnalytics}
 				/>
 			</div>
 		</div>
 	);
 };
 
-export default memo(EmojiUploadComponent);
+const _default_1: MemoExoticComponent<(props: Props) => JSX.Element> = memo(EmojiUploadComponent);
+export default _default_1;

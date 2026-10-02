@@ -12,7 +12,6 @@ import { canInsert } from '@atlaskit/editor-prosemirror/utils';
 
 import type { DatePlugin, DeleteDate, InsertDate } from '../types';
 import { isToday } from '../ui/DatePicker/utils/internal';
-
 import { pluginKey } from './plugin-key';
 
 type DeleteDateCommand = (

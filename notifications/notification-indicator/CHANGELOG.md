@@ -1,5 +1,173 @@
 # @atlaskit/notification-indicator
 
+## 11.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- [`e13ee97cc69a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e13ee97cc69a4) -
+  Fixed the legacy-appearance fallback for the `dangerBold` Badge appearance to map to `important`
+  instead of `removed`. When the `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate is
+  off, `dangerBold` now falls back to the same legacy appearance the existing red danger Badge has
+  always used, preserving the previous visual look for consumers that haven't migrated yet.
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 11.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`762163ffca9b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/762163ffca9b3) -
+  Added support for the new semantic Badge appearance values on the `NotificationIndicator`'s
+  `appearance` prop, and changed the default from `'important'` to `'dangerBold'` so the
+  notification bell badge uses the new bold danger styling. Legacy appearance values are still
+  supported — this is a non-breaking change.
+
+  **New accepted values (in addition to existing ones):**
+  - Semantic appearances:
+    `'success' | 'neutral' | 'information' | 'inverse' | 'danger' | 'warning' | 'discovery'`
+  - Bold semantic appearances:
+    `'successBold' | 'informationBold' | 'dangerBold' | 'warningBold' | 'discoveryBold'`
+
+  **Default change:** the default `appearance` value is now `'dangerBold'` (previously
+  `'important'`). Both render as a red badge — `'important'` uses the legacy Badge with a red300
+  background, while `'dangerBold'` uses the new bold danger Badge appearance behind the
+  `platform-dst-lozenge-tag-badge-visual-uplifts` feature gate. When the feature gate is off,
+  `'dangerBold'` falls back to the legacy `'removed'` (red) Badge appearance via the Badge
+  component's built-in mapping — so the visual is consistent regardless of gate state.
+
+  **Backwards compatibility:** All legacy appearance values (`'added'`, `'default'`, `'important'`,
+  `'primary'`, `'primaryInverted'`, `'removed'`) continue to work as before. No migration required
+  for existing consumers.
+
+## 10.1.4
+
+### Patch Changes
+
+- [`8a0fcd0cacc99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8a0fcd0cacc99) -
+  Enrol post-office, notifications and activity-platform packages into the React Compiler with
+  platform gating via isReactCompilerActivePlatform
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- [`0a9bb1ad4261d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a9bb1ad4261d) -
+  Remove unused routingWorkspaceId prop in NotificationIndicator component.
+
+## 10.1.1
+
+### Patch Changes
+
+- [`62281c5d82340`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/62281c5d82340) -
+  Align examples and tests with the new `NotificationLogClient` object constructor API , updated for
+  GraphQL support
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`bfc622620e041`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bfc622620e041) -
+  Adds new optional parameter `routingWorkspaceId` to Notifications, NotificationFullPage and
+  NotificationFullPage components to support collaboration contexts.
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 10.0.1
 
 ### Patch Changes
@@ -275,7 +443,6 @@
 
   Remove namespace imports from React, ReactDom, and PropTypes- Updated dependencies
   [6548261c9a](https://bitbucket.org/atlassian/atlassian-frontend/commits/6548261c9a):
-
   - @atlaskit/docs@8.3.2
   - @atlaskit/analytics-next@6.3.5
   - @atlaskit/badge@13.1.5
@@ -333,12 +500,10 @@
   safety. Flow types are no longer provided. No behavioural changes.
 
   **Breaking changes**
-
   - `withAnalyticsForSumTypeProps` alias has been removed, please use `withAnalyticsEvents`
   - `AnalyticsContextWrappedComp` alias has been removed, please use `withAnalyticsContext`
 
   **Breaking changes to TypeScript annotations**
-
   - `withAnalyticsEvents` now infers proptypes automatically, consumers no longer need to provide
     props as a generic type.
   - `withAnalyticsContext` now infers proptypes automatically, consumers no longer need to provide
@@ -379,7 +544,6 @@
 - [patch][18dfac7332](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/18dfac7332):
 
   In this PR, we are:
-
   - Re-introducing dist build folders
   - Adding back cjs
   - Replacing es5 by cjs and es2015 by esm
@@ -414,20 +578,17 @@
 ## 7.0.0
 
 - [major][7c17b35107](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/7c17b35107):
-
   - Updates react and react-dom peer dependencies to react@^16.8.0 and react-dom@^16.8.0. To use
     this package, please ensure you use at least this version of react and react-dom.
 
 ## 6.0.1
 
 - [patch][0a4ccaafae](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/0a4ccaafae):
-
   - Bump tslib
 
 ## 6.0.0
 
 - [major][987ab01f30](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/987ab01f30):
-
   - The appearance prop only accepts appearance types supported by the badge component, i.e.
     'primary', 'added', 'default' etc.
 
@@ -438,19 +599,16 @@
 ## 5.1.1
 
 - [patch][1bcaa1b991](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/1bcaa1b991):
-
   - Add npmignore for index.ts to prevent some jest tests from resolving that instead of index.js
 
 ## 5.1.0
 
 - [minor][de0c7c3258](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/de0c7c3258):
-
   - Enable noImplicitAny for home/notification-indicator
 
 ## 5.0.0
 
 - [major][9d5cc39394](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/9d5cc39394):
-
   - Dropped ES5 distributables from the typescript packages
 
 ## 4.1.3
@@ -465,19 +623,16 @@
 ## 4.1.2
 
 - [patch][4c9a6d2187](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/4c9a6d2187):
-
   - Correcting attribute name in analytics event
 
 ## 4.1.1
 
 - [patch][a4b0717](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/a4b0717):
-
   - Updated analytics events triggered by the notification-indicator
 
 ## 4.1.0
 
 - [minor][9cfee26](https://bitbucket.org/atlassian/atlaskit-mk-2/commits/9cfee26):
-
   - Add data-test-selector to various components to help open and close the Notification Drawer
     programmatically. This would support test automation
 

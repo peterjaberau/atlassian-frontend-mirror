@@ -1,28 +1,31 @@
-/* eslint-disable @atlaskit/design-system/consistent-css-prop-usage */
+/* eslint-disable @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/design-system/no-deprecated-imports, @atlaskit/platform/no-direct-document-usage -- Preserve old-button behavior while focus-ring usage is reviewed separately. */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React, { type ReactNode, useCallback, useContext, useEffect, useRef } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, type CSSObject, jsx, type SerializedStyles } from '@emotion/react';
 
-import { type UIAnalyticsEvent, usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
 import noop from '@atlaskit/ds-lib/noop';
 import useAutoFocus from '@atlaskit/ds-lib/use-auto-focus';
-import FocusRing from '@atlaskit/focus-ring';
+import FocusRing from '@atlaskit/focus-ring/focus-ring';
 import type { InteractionContextType } from '@atlaskit/interaction-context';
 // eslint-disable-next-line no-duplicate-imports
 import InteractionContext from '@atlaskit/interaction-context';
-import { N500 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { type BaseProps } from '../types';
-
 import blockEvents from './block-events';
-import { getContentStyle, getFadingCss, getIconStyle, overlayCss } from './css';
+import { getContentStyle } from './get-content-style';
+import { getFadingCss } from './get-fading-css';
+import { getIconStyle } from './get-icon-style';
 import { getIfVisuallyHiddenChildren } from './get-if-visually-hidden-children';
+import { overlayCss } from './overlay-css';
 
 // Disabled buttons will still publish events for nested elements in webkit.
 // We are disabling pointer events on child elements so that
@@ -42,20 +45,19 @@ type ButtonBaseProps = BaseProps & {
  * These CSS variables consumed by the new icons, to allow them to have appropriate
  * padding inside Button while also maintaining spacing for the existing icons.
  *
- * These styles can be removed once the new icons are fully rolled out, feature flag
- * platform-visual-refresh-icons is cleaned up,
+ * These styles can be removed once the new icons are fully rolled out
  * and we bump Button to set padding based on the new icons.
  */
 const iconBeforeSpacingFixStyle = css({
-	'--ds--button--new-icon-padding-end': token('space.025', '2px'),
-	'--ds--button--new-icon-padding-start': token('space.050', '4px'),
-	marginInlineStart: token('space.negative.025', '-2px'),
+	'--ds--button--new-icon-padding-end': token('space.025'),
+	'--ds--button--new-icon-padding-start': token('space.050'),
+	marginInlineStart: token('space.negative.025'),
 });
 
 const iconAfterSpacingFixStyle = css({
-	'--ds--button--new-icon-padding-end': token('space.050', '4px'),
-	'--ds--button--new-icon-padding-start': token('space.025', '2px'),
-	marginInlineEnd: token('space.negative.025', '-2px'),
+	'--ds--button--new-icon-padding-end': token('space.050'),
+	'--ds--button--new-icon-padding-start': token('space.025'),
+	marginInlineEnd: token('space.negative.025'),
 });
 
 const getSpacingFix = (
@@ -192,8 +194,8 @@ const ButtonBase: React.ForwardRefExoticComponent<
 			'[data-theme] & circle': {
 				stroke: `${
 					isSelected || isDisabled
-						? token('color.icon.subtle', N500)
-						: token('color.icon.warning.inverse', N500)
+						? token('color.icon.subtle')
+						: token('color.icon.warning.inverse')
 				} !important`,
 			},
 		};
@@ -201,7 +203,6 @@ const ButtonBase: React.ForwardRefExoticComponent<
 
 	return (
 		<FocusRing>
-			{/* @ts-ignore - TS2604/TS2786: Component type union causing issues for help-center local consumption with TS 5.9.2 */}
 			<Component
 				{...rest}
 				ref={setRef}

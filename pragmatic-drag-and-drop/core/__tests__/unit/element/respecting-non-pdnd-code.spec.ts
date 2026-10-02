@@ -1,8 +1,10 @@
 import { createEvent, fireEvent } from '@testing-library/dom';
 import { bind, bindAll } from 'bind-event-listener';
 
-import { combine } from '../../../src/entry-point/combine';
-import { draggable, monitorForElements } from '../../../src/entry-point/element/adapter';
+import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+
+import { draggable, monitorForElements } from '../../../src/adapter/element-adapter';
+import { combine } from '../../../src/public-utils/combine';
 import {
 	addItemsToEvent,
 	appendToBody,
@@ -13,6 +15,11 @@ import {
 	select,
 	userEvent,
 } from '../_util';
+
+// This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
+// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+// the next line and associated import. For more information, see go/afm-a11y-tooling:jest
+skipAutoA11yFile();
 
 afterEach(reset);
 

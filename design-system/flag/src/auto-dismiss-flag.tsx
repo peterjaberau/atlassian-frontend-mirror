@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
 import noop from '@atlaskit/ds-lib/noop';
 
 import Flag from './flag';
-import { useFlagGroup } from './flag-group';
+import { useFlagGroup } from './internal/use-flag-group';
 import { type AutoDismissFlagProps } from './types';
 
 const packageName = process.env._PACKAGE_NAME_ as string;

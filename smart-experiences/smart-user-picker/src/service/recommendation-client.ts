@@ -1,9 +1,10 @@
-import { type OptionData } from '@atlaskit/user-picker';
+import { type IntlShape } from 'react-intl';
 
-import { transformUsers } from './users-transformer';
+import type { OptionData } from '@atlaskit/user-picker/types';
+
 import { config } from '../config';
 import { type ConfluenceAttributes, type RecommendationRequest } from '../types';
-import { type IntlShape } from 'react-intl-next';
+import { transformUsers } from './users-transformer';
 
 export interface SUPError extends Error {
 	message: string;
@@ -31,6 +32,9 @@ const getUserRecommendations = (
 			performSearchQueryOnly: false,
 			searchQuery: {
 				...(request.verifiedTeams === true && { isVerifiedTeamFilter: true }),
+				...(request.isTeamSyncedToGroupDirectoryFilter === true && {
+					isTeamSyncedToGroupDirectoryFilter: true,
+				}),
 				cpusQueryHighlights: {
 					query: '',
 					field: '',

@@ -1,28 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import {
-	UFOExperience,
-	ExperiencePerformanceTypes,
-	ExperienceTypes,
-	ConcurrentExperience,
-	type CustomData,
-} from '@atlaskit/ufo';
-import { type CardStatus } from '../types';
-import { type FileAttributes, getFeatureFlagKeysAllProducts } from '@atlaskit/media-common';
-import isValidId from 'uuid-validate';
-import { UFOExperienceState } from '@atlaskit/ufo';
-import {
-	extractErrorInfo,
-	getRenderErrorRequestMetadata,
-	type MediaCardErrorInfo,
-	type SSRStatus,
-} from './analytics';
-import { MediaCardError } from '../errors';
+
 import { getMediaEnvironment, getMediaRegion, type RequestMetadata } from '@atlaskit/media-client';
-import { type FileStateFlags } from '../types';
+import { type FileAttributes, getFeatureFlagKeysAllProducts } from '@atlaskit/media-common';
+import { isValidUuid } from '@atlaskit/media-common/isValidUuid';
 import { getActiveInteraction } from '@atlaskit/react-ufo/interaction-metrics';
+import { ConcurrentExperience } from '@atlaskit/ufo/concurrent-experience';
+import { UFOExperience } from '@atlaskit/ufo/experience';
+import { UFOExperienceState } from '@atlaskit/ufo/experience-state';
+import { ExperiencePerformanceTypes, ExperienceTypes } from '@atlaskit/ufo/experience-types';
+import type { Timing, CustomData } from '@atlaskit/ufo/types';
+
+import { MediaCardError } from '../MediaCardError';
+import { type CardStatus } from '../types';
+import { type FileStateFlags } from '../types';
+import type { MediaCardErrorInfo, SSRStatus } from './analytics';
+import { extractErrorInfo } from './analytics/extractErrorInfo';
+import { getRenderErrorRequestMetadata } from './analytics/getRenderErrorRequestMetadata';
+import { getMediaGlobalScope } from './globalScope/getMediaGlobalScope';
 import { type ExperimentalPerformanceResourceTiming } from './mediaPerformanceObserver/types';
-import { type Timing } from '@atlaskit/ufo/types';
-import { getMediaGlobalScope } from './globalScope/globalScope';
 
 const packageName = process.env._PACKAGE_NAME_ as string;
 const packageVersion = process.env._PACKAGE_VERSION_ as string;
@@ -64,7 +59,9 @@ const findPerformanceEntryByName = (
 	const entries = performance.getEntriesByType('resource');
 	const ssrPerformanceEntries = getMediaGlobalScope().performanceEntries ?? [];
 
-	return [...ssrPerformanceEntries, ...entries].find((entry) => name.includes(entry.name)) as ExperimentalPerformanceResourceTiming | undefined;
+	return [...ssrPerformanceEntries, ...entries].find((entry) => name.includes(entry.name)) as
+		| ExperimentalPerformanceResourceTiming
+		| undefined;
 };
 
 /**
@@ -186,7 +183,7 @@ const addResourceTimingMarks = (
 
 const sanitiseFileAttributes = (fileAttributes: FileAttributes) => {
 	let sanitisedFileId = 'INVALID_FILE_ID';
-	if (fileAttributes.fileId === 'external-image' || isValidId(fileAttributes.fileId)) {
+	if (fileAttributes.fileId === 'external-image' || isValidUuid(fileAttributes.fileId)) {
 		sanitisedFileId = fileAttributes.fileId;
 	}
 	return {
@@ -314,6 +311,7 @@ const createExperience = (instanceId: string, timings: Timing[] = []): UFOExperi
  * ufoExperience.complete(status, fileAttributes, fileStateFlags, ssrReliability, error, ssrPreviewInfo);
  * ```
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- Keep the UFO experience lifecycle API co-located with its shared module state.
 export const useMediaCardUfoExperience = ({
 	instanceId,
 	enabled,
@@ -532,10 +530,12 @@ const getExperience = (id: string) => {
 	return concurrentExperience.getInstance(id);
 };
 
-export const startUfoExperience = (id: string, startTime?: number) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- Start, complete, and abort must share the same concurrentExperience singleton.
+export const startUfoExperience = (id: string, startTime?: number): void => {
 	getExperience(id).start(startTime);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- Start, complete, and abort must share the same concurrentExperience singleton.
 export const completeUfoExperience = (
 	id: string,
 	status: CardStatus,
@@ -544,7 +544,7 @@ export const completeUfoExperience = (
 	ssrReliability: SSRStatus,
 	error: MediaCardError = new MediaCardError('missing-error-data'),
 	ssrPreviewInfo?: SSRPreviewInfo,
-) => {
+): void => {
 	// Only complete for terminal statuses - ignore intermediate statuses like 'loading-preview'
 	if (!['complete', 'error', 'failed-processing'].includes(status)) {
 		return;
@@ -619,7 +619,8 @@ export const completeUfoExperience = (
 	}
 };
 
-export const abortUfoExperience = (id: string, properties?: Partial<SucceedUfoPayload>) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports -- Start, complete, and abort must share the same concurrentExperience singleton.
+export const abortUfoExperience = (id: string, properties?: Partial<SucceedUfoPayload>): void => {
 	const metadata: CustomData = { ...getBasePayloadAttributes() };
 
 	if (properties?.fileAttributes) {

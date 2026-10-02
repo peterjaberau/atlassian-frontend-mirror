@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
-import { bind, type UnbindFn } from 'bind-event-listener';
+import { bind } from 'bind-event-listener';
+import type { UnbindFn } from 'bind-event-listener';
 import rafSchedule from 'raf-schd';
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import { messages } from '@atlaskit/editor-common/floating-toolbar';
 import type { Node } from '@atlaskit/editor-prosemirror/model';
 import ChevronLeftLargeIcon from '@atlaskit/icon/core/chevron-left';
@@ -47,7 +48,7 @@ export const ScrollButton = ({
 	node,
 	disabled,
 	side,
-}: ScrollButtonProps) => {
+}: ScrollButtonProps): false | React.JSX.Element => {
 	const [needScroll, setNeedScroll] = useState(false);
 	const [canScrollToSide, setCanScrollToSide] = useState(true);
 
@@ -84,7 +85,7 @@ export const ScrollButton = ({
 		});
 	};
 
-	const resizeObserver = new ResizeObserver((t) => {
+	const resizeObserver = new ResizeObserver((_t) => {
 		const widthNeededToShowAllItems = scrollContainerRef.current?.scrollWidth || 0;
 
 		const parentNode = scrollContainerRef.current?.parentNode;
@@ -149,6 +150,7 @@ export const ScrollButton = ({
 		((side === 'left' && canScrollToSide) || (side === 'right' && canScrollToSide)) && (
 			<Box
 				padding="space.050"
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				xcss={[side === 'left' ? leftSideStyles : rightSideStyles, buttonCommonStyles]}
 			>
 				<IconButton
@@ -160,8 +162,10 @@ export const ScrollButton = ({
 					)}
 					onClick={onClick}
 					isDisabled={disabled}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					icon={(iconProps) => <Icon label={iconProps.label} size="small" />}
 					isTooltipDisabled={false}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					tooltip={{ position: 'top' }}
 				/>
 			</Box>

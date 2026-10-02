@@ -2,11 +2,15 @@
 /* eslint-disable testing-library/prefer-screen-queries */
 /* eslint-disable compat/compat */
 /* eslint-disable playwright/no-conditional-in-test */
+
 import { expect, test, viewports } from './fixtures';
 
 test.describe('speed index', () => {
 	test.use({
 		examplePage: 'basic',
+	} satisfies {
+		examplePage: 'basic';
+		__exampleDependency?: typeof import('../../examples/01-basic.tsx');
 	});
 
 	test('the page reports speed index', async ({ page, waitForReactUFOPayload }) => {
@@ -34,10 +38,12 @@ test.describe('speed index', () => {
 	});
 });
 
-test.describe('speed index - fy26.04 revision with feature flag enabled', () => {
+test.describe('speed index - fy26.04 revision', () => {
 	test.use({
 		examplePage: 'basic',
-		featureFlags: ['platform_ufo_ttvc_v4_speed_index'],
+	} satisfies {
+		examplePage: 'basic';
+		__exampleDependency?: typeof import('../../examples/01-basic.tsx');
 	});
 
 	for (const viewport of viewports) {
@@ -46,7 +52,7 @@ test.describe('speed index - fy26.04 revision with feature flag enabled', () => 
 				viewport,
 			});
 
-			test('fy26.04 revision should include speedIndex when feature flag is enabled', async ({
+			test('fy26.04 revision should include speedIndex', async ({
 				page,
 				waitForReactUFOPayload,
 			}) => {
@@ -97,69 +103,41 @@ test.describe('speed index - fy26.04 revision with feature flag enabled', () => 
 				const fy26_04_revision = ufoRevisions?.find((rev) => rev.revision === 'fy26.04');
 
 				expect(fy26_04_revision).toBeDefined();
-				expect(fy26_04_revision?.vcDetails).toBeDefined();
 
 				const speedIndex = fy26_04_revision?.speedIndex;
-				const vc50 = fy26_04_revision?.vcDetails?.['50']?.t;
-				const vc100 = fy26_04_revision?.vcDetails?.['100']?.t;
+				expect(speedIndex).toBeDefined();
+				expect(typeof speedIndex).toBe('number');
+				expect(speedIndex).toBeGreaterThan(0);
 
-				// Speed index is typically between VC50 and VC100
-				// It represents the average time at which the viewport is painted
-				if (vc50 !== undefined && speedIndex !== undefined) {
-					// Speed index should generally be >= VC50
-					// (time at which at least 50% is painted)
-					expect(speedIndex).toBeGreaterThanOrEqual(vc50 * 0.5); // Allow some tolerance
+				// When raw data is included, vcDetails is deleted and carried by raw-handler.
+				// Use metric:vc90 (which is always present) for speed index validation.
+				const vc90 = fy26_04_revision?.['metric:vc90'];
+				// eslint-disable-next-line playwright/no-conditional-in-test
+				if (vc90 !== null && vc90 !== undefined && speedIndex !== undefined) {
+					expect(speedIndex).toBeLessThanOrEqual(vc90);
 				}
 
-				if (vc100 !== undefined && speedIndex !== undefined) {
-					// Speed index should be <= VC100
-					// (time at which 100% is painted)
-					expect(speedIndex).toBeLessThanOrEqual(vc100);
+				// eslint-disable-next-line playwright/no-conditional-in-test
+				if (fy26_04_revision?.vcDetails) {
+					const vc50 = fy26_04_revision.vcDetails['50']?.t;
+					const vc100 = fy26_04_revision.vcDetails['100']?.t;
+
+					// Speed index is typically between VC50 and VC100
+					// It represents the average time at which the viewport is painted
+					if (vc50 !== undefined && speedIndex !== undefined) {
+						expect(speedIndex).toBeGreaterThanOrEqual(vc50 * 0.5);
+					}
+
+					if (vc100 !== undefined && speedIndex !== undefined) {
+						expect(speedIndex).toBeLessThanOrEqual(vc100);
+					}
+				} else {
+					// Verify raw-handler carries the observation data for backend recalculation
+					const rawHandlerRev = ufoRevisions?.find((rev) => rev.revision === 'raw-handler');
+					expect(rawHandlerRev).toBeTruthy();
+					expect(rawHandlerRev!.rawData).toBeDefined();
+					expect(rawHandlerRev!.rawData!.obs!.length).toBeGreaterThan(0);
 				}
-			});
-		});
-	}
-});
-
-test.describe('speed index - fy26.04 revision with feature flag disabled', () => {
-	test.use({
-		examplePage: 'basic',
-		featureFlags: [],
-	});
-
-	for (const viewport of viewports) {
-		test.describe(`when viewport is ${viewport.width}x${viewport.height}`, () => {
-			test.use({
-				viewport,
-			});
-
-			test('fy26.04 revision should NOT include speedIndex when feature flag is disabled', async ({
-				page,
-				waitForReactUFOPayload,
-			}) => {
-				const mainDiv = page.locator('[data-testid="main"]');
-				const sections = page.locator('[data-testid="main"] > div');
-
-				await expect(mainDiv).toBeVisible();
-				await expect(sections.nth(9)).toBeVisible();
-
-				const reactUFOPayload = await waitForReactUFOPayload();
-
-				expect(reactUFOPayload).toBeDefined();
-
-				const ufoRevisions = reactUFOPayload!.attributes.properties['ufo:vc:rev'];
-				expect(ufoRevisions).toBeDefined();
-
-				// Find the fy26.04 revision
-				const fy26_04_revision = ufoRevisions?.find((rev) => rev.revision === 'fy26.04');
-				expect(fy26_04_revision).toBeDefined();
-
-				// Verify speedIndex is NOT present when feature flag is disabled
-				expect(fy26_04_revision?.speedIndex).toBeUndefined();
-
-				// Other VC metrics should still be present
-				expect(fy26_04_revision?.['metric:vc90']).toBeDefined();
-				expect(fy26_04_revision?.vcDetails).toBeDefined();
 			});
 		});
 	}

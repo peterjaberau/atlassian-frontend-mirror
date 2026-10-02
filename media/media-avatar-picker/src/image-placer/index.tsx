@@ -2,25 +2,26 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { jsx, css } from '@compiled/react';
+
 import React from 'react';
-import {
-	Rectangle,
-	Vector2,
-	Bounds,
-	dataURItoFile,
-	type FileInfo,
-	getFileInfo,
-	getFileInfoFromSrc,
-} from '@atlaskit/media-ui';
+
+import { jsx, css } from '@compiled/react';
+
+import { Bounds } from '@atlaskit/media-ui/bounds';
+import { dataURItoFile } from '@atlaskit/media-ui/dataURItoFile';
+import { getFileInfo } from '@atlaskit/media-ui/getFileInfo';
+import { getFileInfoFromSrc } from '@atlaskit/media-ui/getFileInfoFromSrc';
+import type { FileInfo } from '@atlaskit/media-ui/imageMetaData/types';
+import { Rectangle } from '@atlaskit/media-ui/rectangle';
+import { Vector2 } from '@atlaskit/media-ui/vector2';
+
+import { isSSR } from '../util';
+import { zoomToFit, applyConstraints, transformVisibleBoundsToImageCoords } from './constraints';
 import { ImagePlacerContainer } from './container';
 import { ImagePlacerImage } from './image';
-import { Margin } from './margin';
-import { initialiseImagePreview, renderImageAtCurrentView } from './imageProcessor';
-import { zoomToFit, applyConstraints, transformVisibleBoundsToImageCoords } from './constraints';
 import { ImagePlacerErrorWrapper } from './imagePlacerErrorWrapper';
-import { isSSR } from '../util';
-
+import { initialiseImagePreview, renderImageAtCurrentView } from './imageProcessor';
+import { Margin } from './margin';
 /*
 "container(Width|Height)" is the outputed size of the final image plus "margin"s.
 "visibleBounds" is the exact output size of the final image
@@ -38,14 +39,12 @@ import { isSSR } from '../util';
 |  +------------------+  |
 +------------------------+
 */
-
 /* pass onImageActions prop function to receive an object with this API to access image at current view */
 export interface ImageActions {
 	toCanvas: () => HTMLCanvasElement;
 	toDataURL: () => string;
 	toFile: () => File;
 }
-
 export interface ImagePlacerProps {
 	containerWidth: number;
 	containerHeight: number;
@@ -64,7 +63,6 @@ export interface ImagePlacerProps {
 	onImageActions?: (actions: ImageActions) => void;
 	onRenderError?: (errorMessage: string) => JSX.Element;
 }
-
 /* immutable prop defaults */
 export const DEFAULT_MAX_ZOOM = 4;
 export const DEFAULT_MARGIN = 28;
@@ -73,11 +71,24 @@ export const DEFAULT_ZOOM = 0;
 export const DEFAULT_ORIGIN_X = 0;
 export const DEFAULT_ORIGIN_Y = 0;
 export const DEFAULT_USE_CONSTRAINTS = true;
-export const DEFAULT_USE_CIRCULAR = false; /* whether or not to apply a circular margin to image while positioning */
-export const DEFAULT_USE_CIRCULAR_CLIP_WITH_ACTIONS = false; /* whether or not to apply a circular clip when rendering via actions */
+export const DEFAULT_USE_CIRCULAR = false;
+/* whether or not to apply a circular margin to image while positioning */
+export const DEFAULT_USE_CIRCULAR_CLIP_WITH_ACTIONS = false;
+/* whether or not to apply a circular clip when rendering via actions */
 export const DEFAULT_BACKGROUND_COLOR = 'transparent';
-
-export const defaultProps = {
+export const defaultProps: {
+	containerWidth: number;
+	containerHeight: number;
+	margin: number;
+	zoom: number;
+	maxZoom: number;
+	originX: number;
+	originY: number;
+	useConstraints: boolean;
+	isCircular: boolean;
+	useCircularClipWithActions: boolean;
+	backgroundColor: string;
+} = {
 	containerWidth: DEFAULT_CONTAINER_SIZE,
 	containerHeight: DEFAULT_CONTAINER_SIZE,
 	margin: DEFAULT_MARGIN,
@@ -90,7 +101,6 @@ export const defaultProps = {
 	useCircularClipWithActions: DEFAULT_USE_CIRCULAR_CLIP_WITH_ACTIONS,
 	backgroundColor: DEFAULT_BACKGROUND_COLOR,
 };
-
 export interface ImagePlacerState {
 	imageWidth: number;
 	imageHeight: number;
@@ -107,10 +117,22 @@ const imagePlacerWrapperBaseStyles = css({
 });
 
 export class ImagePlacer extends React.Component<ImagePlacerProps, ImagePlacerState> {
-	imageSourceRect = new Rectangle(0, 0); /* original size of image (un-scaled) */
+	imageSourceRect: Rectangle = new Rectangle(0, 0); /* original size of image (un-scaled) */
 	imageElement?: HTMLImageElement; /* image element used to load */
 
-	static defaultProps = defaultProps;
+	static defaultProps: {
+		containerWidth: number;
+		containerHeight: number;
+		margin: number;
+		zoom: number;
+		maxZoom: number;
+		originX: number;
+		originY: number;
+		useConstraints: boolean;
+		isCircular: boolean;
+		useCircularClipWithActions: boolean;
+		backgroundColor: string;
+	} = defaultProps;
 
 	state: ImagePlacerState = {
 		imageWidth: 0,
@@ -188,17 +210,8 @@ export class ImagePlacer extends React.Component<ImagePlacerProps, ImagePlacerSt
 		}
 	}
 
-	/* respond to prop changes */
-	async UNSAFE_componentWillReceiveProps(nextProps: ImagePlacerProps): Promise<void> {
-		const { imageSourceRect, state, props } = this;
-		const { zoom } = state;
-		const {
-			useConstraints: currentUseConstraints,
-			containerWidth: currentContainerWidth,
-			containerHeight: currentContainerHeight,
-			margin: currentMargin,
-			src: currentSrc,
-		} = props;
+	async componentDidUpdate(prevProps: ImagePlacerProps): Promise<void> {
+		const { imageSourceRect, props } = this;
 		const {
 			zoom: nextZoom,
 			useConstraints: nextUseConstraints,
@@ -207,17 +220,26 @@ export class ImagePlacer extends React.Component<ImagePlacerProps, ImagePlacerSt
 			margin: nextMargin,
 			src: nextSrc,
 			onImageActions: nextOnImageActions,
-		} = nextProps;
+		} = props;
+		const {
+			zoom: prevZoom,
+			useConstraints: prevUseConstraints,
+			containerWidth: prevContainerWidth,
+			containerHeight: prevContainerHeight,
+			margin: prevMargin,
+			src: prevSrc,
+			onImageActions: prevOnImageActions,
+		} = prevProps;
 
-		const isZoomChange = nextZoom !== undefined && nextZoom !== zoom;
+		const isZoomChange = nextZoom !== prevZoom;
 		const isUseConstraintsChange =
-			nextUseConstraints !== undefined && nextUseConstraints !== currentUseConstraints;
+			nextUseConstraints !== undefined && nextUseConstraints !== prevUseConstraints;
 		const isContainerWidthChange =
-			nextContainerWidth !== undefined && nextContainerWidth !== currentContainerWidth;
+			nextContainerWidth !== undefined && nextContainerWidth !== prevContainerWidth;
 		const isContainerHeightChange =
-			nextContainerHeight !== undefined && nextContainerHeight !== currentContainerHeight;
-		const isMarginChange = nextMargin !== undefined && nextMargin !== currentMargin;
-		const isImageAction = typeof nextOnImageActions !== undefined;
+			nextContainerHeight !== undefined && nextContainerHeight !== prevContainerHeight;
+		const isMarginChange = nextMargin !== undefined && nextMargin !== prevMargin;
+		const isImageActionChange = nextOnImageActions !== prevOnImageActions;
 
 		const zoomReset = { zoom: 0 };
 
@@ -241,21 +263,23 @@ export class ImagePlacer extends React.Component<ImagePlacerProps, ImagePlacerSt
 			this.updateZoomProp();
 		}
 
-		let fileInfo;
+		if (nextSrc !== prevSrc) {
+			let fileInfo;
 
-		if (nextSrc instanceof File && nextSrc !== currentSrc) {
-			fileInfo = await getFileInfo(nextSrc as File);
+			if (nextSrc instanceof File) {
+				fileInfo = await getFileInfo(nextSrc as File);
+			}
+
+			if (typeof nextSrc === 'string') {
+				fileInfo = await getFileInfoFromSrc(nextSrc as string);
+			}
+
+			if (fileInfo) {
+				await this.preprocessFile(fileInfo);
+			}
 		}
 
-		if (typeof nextSrc === 'string' && nextSrc !== currentSrc) {
-			fileInfo = await getFileInfoFromSrc(nextSrc as string);
-		}
-
-		if (fileInfo) {
-			await this.preprocessFile(fileInfo);
-		}
-
-		if (isImageAction) {
+		if (isImageActionChange) {
 			this.provideImageActions();
 		}
 	}
@@ -459,7 +483,7 @@ export class ImagePlacer extends React.Component<ImagePlacerProps, ImagePlacerSt
 	};
 
 	/* make it so */
-	render() {
+	render(): JSX.Element {
 		const { containerWidth, containerHeight, margin, isCircular, onRenderError } = this.props;
 		const { errorMessage, src } = this.state;
 		const { imageBounds } = this;

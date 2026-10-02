@@ -1,17 +1,6 @@
 import React from 'react';
 
-import { IntlProvider } from 'react-intl-next';
-
-import { AnalyticsListener, type UIAnalyticsEvent } from '@atlaskit/analytics-next';
-
-const onAnalyticsEvent = (event: UIAnalyticsEvent) => {
-	console.log(
-		event.payload.action,
-		event.payload.actionSubject,
-		event.payload.actionSubjectId || '',
-		event.payload.attributes,
-	);
-};
+import { IntlProvider } from 'react-intl';
 
 type Props = {
 	locale?: string;
@@ -22,11 +11,9 @@ const ExampleWrapper = (props: Props): React.JSX.Element => {
 	const { locale = 'en', children } = props;
 
 	return (
-		<AnalyticsListener channel="peopleTeams" onEvent={onAnalyticsEvent}>
-			<IntlProvider key={locale} locale={locale}>
-				{children}
-			</IntlProvider>
-		</AnalyticsListener>
+		<IntlProvider key={locale} locale={locale}>
+			{children}
+		</IntlProvider>
 	);
 };
 

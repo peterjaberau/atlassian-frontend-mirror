@@ -1,5 +1,139 @@
 # @atlaskit/jql-editor-common
 
+## 4.4.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.3.0
+
+### Minor Changes
+
+- [`9d816d1001fcf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9d816d1001fcf) -
+  Render Assets (CMDB) object names, and their object icon, as rich inline nodes in the JQL editor —
+  both when hydrating an existing query and when a value is selected from autocomplete. Behind
+  `assets_object_jql_values_in_editor`.
+
+  Adds an `assets` rich inline node, a `HydratedAssets` member of the `HydratedValue` union, and an
+  `'assets'` member of `AutocompleteValueType`.
+
+## 4.2.1
+
+### Patch Changes
+
+- [`bf16eda51e6f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bf16eda51e6f4) -
+  VOLTC-146 - run volt-migrate-package on @atlaskit/jql-editor-common
+- [`4ef345aa8387e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4ef345aa8387e) -
+  VOLTC-121 - run volt-migrate-package on @atlaskit/jql-editor-common
+
+## 4.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.1.0
+
+### Minor Changes
+
+- [`bd45351c2a76b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd45351c2a76b) -
+  Add optional autocomplete groupTitle for grouped suggestions and functionArgument option type for
+  JQL function argument autocomplete
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 4.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.4.0
+
+### Minor Changes
+
+- [`506238c0247fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/506238c0247fd) -
+  PTC-16709: Added changes to show autocomplete for membersOf function to fetch Teams
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.3.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.0
+
+### Minor Changes
+
+- [`2f2e1ff7d48a0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f2e1ff7d48a0) -
+  [ux] Add goal lozenge and use it on JQL editor
+
+## 3.1.1
+
+### Patch Changes
+
+- [`85a5e662048f6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85a5e662048f6) -
+  Enrol jql packages into the React Compiler with platform gating via isReactCompilerActivePlatform
+
+## 3.1.0
+
+### Minor Changes
+
+- [`daf5c2659939b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/daf5c2659939b) -
+  [ux] Added Project (Atlas) node to the JQL Editor
+
 ## 3.0.2
 
 ### Patch Changes

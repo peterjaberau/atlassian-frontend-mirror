@@ -32,8 +32,7 @@ const styles = cssMap({
 	},
 });
 
-// Using default export to play well with React.lazy
-export default function DragHandle() {
+export function DragHandle(): JSX.Element {
 	return (
 		<div css={styles.root} aria-hidden="true">
 			<DragHandleVerticalIcon label="" size="small" />

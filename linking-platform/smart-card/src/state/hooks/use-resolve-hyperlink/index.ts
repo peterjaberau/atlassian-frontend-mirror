@@ -1,17 +1,41 @@
 import { useEffect, useState } from 'react';
 
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
+
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { CardState } from '@atlaskit/linking-common/store';
 
 import { useAnalyticsEvents } from '../../../common/analytics/generated/use-analytics-events';
-import * as measure from '../../../utils/performance';
+import type { InvokeClientOpts, InvokeServerOpts } from '../../../model/invoke-opts';
+import { create } from '../../../utils/create';
+import { getMeasure } from '../../../utils/get-measure';
+import { mark } from '../../../utils/mark';
+import type { CardInnerAppearance } from '../../../view/Card/types';
 import { useSmartCardActions } from '../../actions';
-import { getDefinitionId, getExtensionKey, getResourceType } from '../../helpers';
+import { getDefinitionId } from '../../getDefinitionId';
+import { getExtensionKey } from '../../getExtensionKey';
+import { getResourceType } from '../../getResourceType';
 import { useSmartCardState } from '../../store';
-
 import { useScheduledRegister } from './useScheduledRegister';
 
-const useResolveHyperlink = ({ href }: { href: string }) => {
+const useResolveHyperlink = ({
+	href,
+}: {
+	href: string;
+}): {
+	actions: {
+		authorize: (appearance: CardInnerAppearance) => void;
+		invoke: (
+			opts: InvokeClientOpts | InvokeServerOpts,
+			appearance: CardInnerAppearance,
+		) => Promise<JsonLd.Response | void>;
+		loadMetadata: () => Promise<void> | undefined;
+		register: () => Promise<void>;
+		reload: () => void;
+	};
+	state: CardState;
+} => {
 	// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 	const [id] = useState(() => uuid() satisfies string);
 	const state = useSmartCardState(href);
@@ -31,20 +55,21 @@ const useResolveHyperlink = ({ href }: { href: string }) => {
 	}, [scheduledRegister]);
 
 	useEffect(() => {
-		measure.mark(id, state.status);
+		mark(id, state.status);
 		if (state.status !== 'pending' && state.status !== 'resolving') {
-			measure.create(id, state.status);
+			create(id, state.status);
 
 			if (state.status === 'resolved') {
 				fireEvent('operational.hyperlink.resolved', {
 					definitionId: definitionId ?? null,
 					extensionKey: extensionKey ?? null,
 					resourceType: resourceType ?? null,
-					duration: measure.getMeasure(id, state.status)?.duration ?? null,
+					duration: getMeasure(id, state.status)?.duration ?? null,
 				});
 			} else if (
 				state.error?.type !== 'ResolveUnsupportedError' &&
-				state.error?.type !== 'UnsupportedError'
+				state.error?.type !== 'UnsupportedError' &&
+				state.error?.name !== 'InvalidUrlError'
 			) {
 				fireEvent('operational.hyperlink.unresolved', {
 					definitionId: definitionId ?? null,

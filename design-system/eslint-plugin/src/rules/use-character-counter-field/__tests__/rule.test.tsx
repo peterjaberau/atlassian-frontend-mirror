@@ -1,4 +1,3 @@
-// @ts-ignore
 import outdent from 'outdent';
 
 import { tester } from '../../__tests__/utils/_tester';
@@ -59,8 +58,41 @@ tester.run('use-character-counter-field', rule, {
 				</Form>
 			`,
 		},
+		{
+			name: 'should pass when using debarrelled CharacterCounterField inside debarrelled Form',
+			code: outdent`
+				import CharacterCounterField from '@atlaskit/form/character-counter-field';
+				import Form from '@atlaskit/form/form';
+				import Textfield from '@atlaskit/textfield/text-field';
+
+				<Form>
+					<CharacterCounterField name="name" label="Name" maxCharacters={50}>
+						{({ fieldProps }) => <Textfield {...fieldProps} />}
+					</CharacterCounterField>
+				</Form>
+			`,
+		},
 	],
 	invalid: [
+		{
+			name: 'should warn when debarrelled Textfield has maxLength inside debarrelled Form',
+			code: outdent`
+				import Field from '@atlaskit/form/field';
+				import Form from '@atlaskit/form/form';
+				import Textfield from '@atlaskit/textfield/text-field';
+
+				<Form>
+					<Field name="name">
+						{({ fieldProps }) => <Textfield {...fieldProps} label="Name" maxLength={50} />}
+					</Field>
+				</Form>
+			`,
+			errors: [
+				{
+					messageId: 'useCharacterCounterField',
+				},
+			],
+		},
 		{
 			name: 'should warn when Textfield has maxLength inside Form',
 			code: outdent`
@@ -388,6 +420,19 @@ tester.run('use-character-counter-field', rule, {
 			],
 		},
 		// Standalone usage tests - should use CharacterCounter
+		{
+			name: 'should warn when debarrelled Textarea has maxLength outside Form context',
+			code: outdent`
+				import Textarea from '@atlaskit/textarea/text-area';
+
+				<Textarea label="Description" maxLength={200} />
+			`,
+			errors: [
+				{
+					messageId: 'useCharacterCounter',
+				},
+			],
+		},
 		{
 			name: 'should warn when Textfield with maxLength is outside Form context',
 			code: outdent`

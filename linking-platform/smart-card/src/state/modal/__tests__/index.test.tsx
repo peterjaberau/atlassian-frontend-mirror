@@ -1,8 +1,9 @@
 import React, { lazy, type ReactNode, useState } from 'react';
 
-import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, within } from '@atlassian/testing-library';
 
-import { SmartLinkModalProvider, useSmartLinkModal } from '../index';
+import { SmartLinkModalProvider } from '../SmartLinkModalProvider';
+import { useSmartLinkModal } from '../useSmartLinkModal';
 
 const Modal = lazy(() =>
 	import('./index.test.modal.mock').then(({ Modal }) => ({
@@ -144,7 +145,7 @@ describe('useSmartLinkModal', () => {
 	});
 
 	it('does not throw error when context is not available', () => {
-		const { result } = renderHook(() => useSmartLinkModal());
+		const result = renderHook(() => useSmartLinkModal());
 
 		act(() => {
 			result.current.open(<div />);

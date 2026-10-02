@@ -1,16 +1,23 @@
 {
 	"name": "@atlaskit/spotlight",
-	"version": "0.10.4",
+	"version": "4.2.9",
 	"description": "A spotlight introduces users to points of interest, from focused messages to multi-step tours.",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
-			"category": "Messaging",
-			"status": {
-				"type": "beta"
-			}
+			"tags": [
+				"platform-labs"
+			],
+			"category": "Messaging"
 		}
 	},
 	"homepage": "https://atlassian.design/components/spotlight/",
@@ -19,20 +26,33 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <5.4": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
-		".": "./src/index.tsx"
+		"./actions": "./src/ui/actions/index.tsx",
+		"./body": "./src/ui/body/index.tsx",
+		"./card": "./src/ui/card/index.tsx",
+		"./controls": "./src/ui/controls/index.tsx",
+		"./dismiss-control": "./src/ui/dismiss-control/index.tsx",
+		"./footer": "./src/ui/footer/index.tsx",
+		"./header": "./src/ui/header/index.tsx",
+		"./headline": "./src/ui/headline/index.tsx",
+		"./media": "./src/ui/media/index.tsx",
+		"./popover-content": "./src/ui/popover-content/index.tsx",
+		"./popover-provider": "./src/ui/popover-provider/index.tsx",
+		"./popover-target": "./src/ui/popover-target/index.tsx",
+		"./primary-action": "./src/ui/primary-action/index.tsx",
+		"./primary-link": "./src/ui/primary-link/index.tsx",
+		"./secondary-action": "./src/ui/secondary-action/index.tsx",
+		"./secondary-link": "./src/ui/secondary-link/index.tsx",
+		"./show-more-control": "./src/ui/show-more-control/index.tsx",
+		"./spotlight-context-provider": "./src/controllers/context.tsx",
+		"./step-count": "./src/ui/step-count/index.tsx",
+		"./types": "./src/types.tsx",
+		"./update-on-change": "./src/ui/UNSAFE_update-on-change/index.tsx",
+		"./use-preload-media": "./src/utils/use-preload-media/index.tsx"
 	},
 	"dependencies": {
 		"@atlaskit/browser-apis": "workspace:^",
@@ -42,72 +62,54 @@
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/image": "workspace:^",
+		"@atlaskit/motion": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/popper": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
+		"@atlaskit/top-layer": "workspace:^",
 		"@atlaskit/visually-hidden": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
 		"bind-event-listener": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
+		"@atlaskit/blanket": "workspace:^",
 		"@atlaskit/dropdown-menu": "workspace:^",
+		"@atlaskit/modal-dialog": "workspace:^",
 		"@atlaskit/ssr": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
-		"@testing-library/react": "root:*",
-		"react-dom": "root:*"
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
+		"jscodeshift": "root:*",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
 	},
 	"platform-feature-flags": {
 		"platform-component-visual-refresh": {
 			"type": "boolean"
 		},
-		"platform-dst-shape-theme-default": {
-			"type": "boolean"
-		}
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"tangerine-next"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
+		"platform-dst-motion-uplift-custom-button": {
+			"type": "boolean",
+			"referenceOnly": true
 		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"compiled"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
+		"platform_spotlight_card_fit_content_anchor": {
+			"type": "boolean"
+		},
+		"platform-dst-motion-uplift-spotlight": {
+			"type": "boolean"
+		},
+		"platform-dst-top-layer-spotlight": {
+			"type": "boolean"
 		}
 	},
 	"publishConfig": {

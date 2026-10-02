@@ -6,6 +6,7 @@ import type {
 	QuickInsertProvider,
 } from '@atlaskit/editor-common/provider-factory';
 import { find } from '@atlaskit/editor-common/quick-insert';
+import { getActiveQuickInsertCategories } from '@atlaskit/editor-common/quick-insert/get-active-quick-insert-categories';
 import type { OptionalPlugin } from '@atlaskit/editor-common/types';
 import type { ExtensionPlugin } from '@atlaskit/editor-plugins/extension';
 import { getExampleExtensionProviders } from '@atlaskit/editor-test-helpers/example-helpers';
@@ -13,34 +14,10 @@ import { getExampleExtensionProviders } from '@atlaskit/editor-test-helpers/exam
 import type EditorActions from '../src/actions';
 import { usePresetContext } from '../src/presets/context';
 import { extensionProviderToQuickInsertProvider } from '../src/utils/extensions';
-
+import { useStateFromPromise } from './useStateFromPromise';
 type StackPlugins = [OptionalPlugin<ExtensionPlugin>];
 
 const ACTIONS = {} as EditorActions;
-
-// Copied and simplified from `editor-plugin-extension/src/ui/ConfigPanel/use-state-from-promise/index.ts`
-export function useStateFromPromise<S>(
-	callback: () => Promise<S>,
-	deps: React.DependencyList,
-	initialValue?: S,
-): [S | undefined, React.Dispatch<React.SetStateAction<S | undefined>>] {
-	// AFP-2511 TODO: Fix automatic suppressions below
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const fn = React.useCallback(callback, deps);
-	const [value, setValue] = React.useState<S | undefined>(initialValue);
-
-	React.useEffect(
-		() => {
-			Promise.resolve(fn()).then((result) => {
-				setValue(result);
-			});
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[...deps],
-	);
-
-	return [value, setValue];
-}
 
 const useDefaultQuickInsertProvider = (providers: ExtensionProvider) => {
 	const [quickInsertProvider] = useStateFromPromise<QuickInsertProvider>(
@@ -51,7 +28,10 @@ const useDefaultQuickInsertProvider = (providers: ExtensionProvider) => {
 	return quickInsertProvider;
 };
 
-export const useDefaultQuickInsertGetItems = () => {
+export const useDefaultQuickInsertGetItems = (): ((
+	query?: string,
+	category?: string,
+) => QuickInsertItem[]) => {
 	const editorApi = usePresetContext<StackPlugins>();
 	const providers = React.useMemo(() => getExampleExtensionProviders(editorApi), [editorApi]);
 	const quickInsertProvider = useDefaultQuickInsertProvider(providers);
@@ -71,7 +51,9 @@ export const useDefaultQuickInsertGetItems = () => {
 				query || '',
 				category === 'all' || !category
 					? defaultItems
-					: defaultItems.filter((item) => item.categories && item.categories.includes(category)),
+					: defaultItems.filter((item) =>
+							getActiveQuickInsertCategories(item.category, item.categories).includes(category),
+						),
 			);
 		},
 		[items],

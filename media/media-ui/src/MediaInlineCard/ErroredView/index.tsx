@@ -2,14 +2,17 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { token } from '@atlaskit/tokens';
+
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
-import { R500 } from '@atlaskit/theme/colors';
+
 import WarningIcon from '@atlaskit/icon/core/status-warning';
+import { token } from '@atlaskit/tokens';
+
+import { AKIconWrapper } from '../AKIconWrapper-2';
 import { Frame } from '../Frame';
 import { IconAndTitleLayout } from '../IconAndTitleLayout';
-import { AKIconWrapper } from '../Icon';
 export interface MediaInlineCardErroredViewProps {
 	/** The error message to display */
 	message: string;
@@ -25,10 +28,10 @@ export interface MediaInlineCardErroredViewProps {
 }
 
 const errorTitleStyles = css({
-	color: token('color.text.danger', R500),
+	color: token('color.text.danger'),
 });
 export class MediaInlineCardErroredView extends React.Component<MediaInlineCardErroredViewProps> {
-	render() {
+	render(): JSX.Element {
 		const {
 			onClick,
 			isSelected,
@@ -43,7 +46,7 @@ export class MediaInlineCardErroredView extends React.Component<MediaInlineCardE
 					icon={
 						icon || (
 							<AKIconWrapper>
-								<WarningIcon label="error" color={token('color.icon.danger', R500)} size="small" />
+								<WarningIcon label="error" color={token('color.icon.danger')} size="small" />
 							</AKIconWrapper>
 						)
 					}

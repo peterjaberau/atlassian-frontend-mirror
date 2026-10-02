@@ -1,14 +1,16 @@
-import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { NodeSpec, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
-import type { TextDefinition as Text } from './text';
-import type { BreakoutMarkDefinition } from '../marks/breakout';
-import type { MarksObject, NoMark } from './types/mark';
+
 import { codeBlock as codeBlockFactory } from '../../next-schema/generated/nodeTypes';
-import { uuid } from '../../utils';
+import { uuid } from '../../utils/uuid';
+import type { BreakoutMarkDefinition } from '../marks/breakout';
+import type { TextDefinition as Text } from './text';
+import type { MarksObject, NoMark } from './types/mark';
 
 export type CodeBlockBaseDefinition = {
 	attrs?: CodeBlockAttrs;
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @allowUnsupportedInline true
 	 */
 	content?: Array<Text & NoMark>;
@@ -18,9 +20,11 @@ export type CodeBlockBaseDefinition = {
 };
 
 export type CodeBlockAttrs = {
+	hideLineNumbers?: boolean;
 	language?: string;
 	localId?: string;
 	uniqueId?: string;
+	wrap?: boolean;
 };
 
 /**
@@ -56,10 +60,11 @@ const getLanguageFromCode = (dom: HTMLElement): string | undefined => {
 	}
 };
 
+const LANGUAGE_CLASS_REGEX = /(?:^|\s)language-([^\s]+)/u;
+const TRAILING_NEWLINE_REGEX = /\n$/u;
+
 const extractLanguageFromClass = (className: string): string | undefined => {
-	// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
-	const languageRegex = /(?:^|\s)language-([^\s]+)/u;
-	const result = languageRegex.exec(className);
+	const result = LANGUAGE_CLASS_REGEX.exec(className);
 	if (result && result[1]) {
 		return result[1];
 	}
@@ -69,9 +74,8 @@ const extractLanguageFromClass = (className: string): string | undefined => {
 const removeLastNewLine = (dom: HTMLElement): HTMLElement => {
 	const parent = dom && dom.parentElement;
 	if (parent && parent.classList.contains('codehilite')) {
-		// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
 		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-		dom.textContent = dom.textContent!.replace(/\n$/u, '');
+		dom.textContent = dom.textContent!.replace(TRAILING_NEWLINE_REGEX, '');
 	}
 	return dom;
 };
@@ -100,7 +104,7 @@ function parseCodeFromHtml(node: Node) {
 	return code;
 }
 
-export const codeBlock = codeBlockFactory({
+export const codeBlock: NodeSpec = codeBlockFactory({
 	parseDOM: [
 		{
 			tag: 'pre',
@@ -117,7 +121,15 @@ export const codeBlock = codeBlockFactory({
 					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 					dom.getAttribute('data-language')!;
 				dom = removeLastNewLine(dom);
-				return { language };
+				const wrapAttr = dom.getAttribute('data-wrap');
+				const isCopiedFromEditor = Boolean(
+					dom.closest('[data-pm-slice]') || dom.hasAttribute('data-pm-slice'),
+				);
+				// Default external HTML paste to wrapped when data-wrap is absent, but preserve
+				// unwrapped editor-origin paste when copied content has data-pm-slice.
+				const wrap = wrapAttr === null ? !isCopiedFromEditor : wrapAttr !== 'false';
+				const hideLineNumbers = dom.getAttribute('data-hide-line-numbers') === 'true';
+				return { language, wrap, hideLineNumbers, localId: uuid.generate() };
 			},
 		},
 		// Handle VSCode, Android Studio paste
@@ -132,7 +144,7 @@ export const codeBlock = codeBlockFactory({
 					dom.style.whiteSpace === 'pre' ||
 					(dom.style.fontFamily && dom.style.fontFamily.toLowerCase().indexOf('monospace') > -1)
 				) {
-					return {};
+					return { wrap: true };
 				}
 				return false;
 			},
@@ -148,7 +160,7 @@ export const codeBlock = codeBlockFactory({
 			getAttrs: (dom) => {
 				// eslint-disable-next-line @atlaskit/editor/no-as-casting
 				if ((dom as HTMLElement).querySelector('td[class*="blob-code"]')) {
-					return {};
+					return { wrap: true };
 				}
 				return false;
 			},
@@ -168,16 +180,35 @@ export const codeBlock = codeBlockFactory({
 					// `react-syntax-highlighter-line-number` check, so that we don't remove real code
 					lineNumber.forEach((line) => line.remove());
 				}
-				return {};
+				return { wrap: true };
 			},
 		},
 	],
 	toDOM(node) {
-		return ['pre', ['code', { 'data-language': node.attrs.language }, 0]];
+		const attrs: Record<string, string> = {};
+		if (node?.attrs?.localId !== undefined) {
+			attrs['data-local-id'] = node.attrs.localId;
+		}
+
+		// Always serialize data-wrap explicitly (both true and false) so that
+		// editor-to-editor paste can distinguish intentional wrap:false from
+		// absent data-wrap (which parseDOM defaults to wrap:true for external HTML).
+		attrs['data-wrap'] = node.attrs.wrap ? 'true' : 'false';
+
+		if (node.attrs.hideLineNumbers) {
+			attrs['data-hide-line-numbers'] = 'true';
+		}
+
+		return ['pre', attrs, ['code', { 'data-language': node.attrs.language }, 0]];
 	},
 });
 
-export const toJSON = (node: PMNode) => ({
+export const toJSON = (
+	node: PMNode,
+): {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	attrs: Record<string, any>;
+} => ({
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	attrs: Object.keys(node.attrs).reduce<Record<string, any>>((memo, key) => {
 		if (key === 'uniqueId') {
@@ -188,12 +219,20 @@ export const toJSON = (node: PMNode) => ({
 			return memo;
 		}
 
+		if (key === 'wrap' && node.attrs.wrap === null) {
+			return memo;
+		}
+
+		if (key === 'hideLineNumbers' && !node.attrs.hideLineNumbers) {
+			return memo;
+		}
+
 		memo[key] = node.attrs[key];
 		return memo;
 	}, {}),
 });
 
-export const codeBlockWithLocalId = codeBlockFactory({
+export const codeBlockWithLocalId: NodeSpec = codeBlockFactory({
 	parseDOM: [
 		{
 			tag: 'pre',
@@ -273,3 +312,6 @@ export const codeBlockWithLocalId = codeBlockFactory({
 		return ['pre', attrs, ['code', { 'data-language': node.attrs.language }, 0]];
 	},
 });
+
+// Public API aliases preserved from an eliminated entry-point (volt-migrate-package).
+export { toJSON as codeBlockToJSON };

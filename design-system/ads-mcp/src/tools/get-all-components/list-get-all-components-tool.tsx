@@ -1,0 +1,24 @@
+/* eslint-disable-next-line import/extensions -- MCP SDK requires .js extensions for ESM imports */
+
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { z } from 'zod';
+
+import { zodToJsonSchema } from '../../helpers/zod-to-json-schema';
+
+export const listGetAllComponentsTool: Tool = {
+	name: 'ads_get_all_components',
+	description: `Returns **every** canonical Atlassian Design System (ADS) component record as separate JSON text chunks (full catalog; large payload). For non-ADS public \`@atlaskit/*\` packages, use \`atlaskit_get_components\` or \`atlaskit_search_components\`.
+
+WHEN TO USE:
+Last resort when \`ads_plan\` / \`ads_search_components\` is insufficient and you must enumerate all components. Prefer search for normal component picking.
+
+No parameters.`,
+	annotations: {
+		title: 'Get all ADS components',
+		readOnlyHint: true,
+		destructiveHint: false,
+		idempotentHint: true,
+		openWorldHint: true,
+	},
+	inputSchema: zodToJsonSchema(z.object({})),
+};

@@ -1,19 +1,19 @@
 import React from 'react';
-import { ColorPaletteMenu } from '../src';
-import { simplePalette } from '../mock-data';
-// AFP-2532 TODO: Fix automatic suppressions below
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
-import { colors } from '@atlaskit/theme';
-import { token } from '@atlaskit/tokens';
-import { IntlProvider } from 'react-intl-next';
+
+import { IntlProvider } from 'react-intl';
 import { DiProvider, injectable } from 'react-magnetic-di';
-import { fg } from '@atlaskit/platform-feature-flags';
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+
+import { simplePalette } from '../mock-data';
+import { ColorPaletteMenu } from '../src';
 
 const platformFgInjectable = injectable(fg, () => true);
 
 class ColorPaletteMenuExample extends React.Component<{}, { color: string }> {
 	state = {
-		color: token('color.background.accent.purple.subtle', colors.P200),
+		color: token('color.background.accent.purple.subtle'),
 	};
 
 	render() {

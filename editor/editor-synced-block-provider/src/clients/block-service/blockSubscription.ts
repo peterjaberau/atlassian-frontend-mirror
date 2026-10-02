@@ -1,4 +1,5 @@
-import { type Client, createClient } from 'graphql-ws';
+import { createClient } from 'graphql-ws';
+import type { Client } from 'graphql-ws';
 
 import type { ADFEntity } from '@atlaskit/adf-utils/types';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
@@ -8,7 +9,57 @@ import { convertContentUpdatedAt } from '../../utils/utils';
 
 const GRAPHQL_WS_ENDPOINT = '/gateway/api/graphql/subscriptions';
 
+// eslint-disable-next-line require-unicode-regexp
+const EXTRACT_RESOURCE_ID_FROM_BLOCK_ARI_REGEX = /ari:cloud:blocks:[^:]+:synced-block\/(.+)$/;
+
 let blockServiceClient: Client | null = null;
+
+/**
+ * Tracks the last known WebSocket connection context for diagnostics.
+ * Since browser WebSocket errors are intentionally opaque ({isTrusted: true}),
+ * we capture lifecycle events to provide meaningful context when errors occur.
+ */
+const connectionDiagnostics = {
+	/** Whether the last connection attempt was a retry */
+	wasRetry: false,
+	/** Timestamp of the last successful connection */
+	lastConnectedAt: 0,
+	/** The close code from the most recent WebSocket CloseEvent, see (https://websocket.org/reference/close-codes/)*/
+	lastCloseCode: 0,
+	/** The close reason from the most recent WebSocket CloseEvent */
+	lastCloseReason: '',
+	/** Whether the last close was clean */
+	lastCloseWasClean: true,
+	/** Current connection state */
+	state: 'idle' as 'idle' | 'connecting' | 'connected' | 'closed' | 'error',
+	/** Number of consecutive connection failures */
+	consecutiveFailures: 0,
+};
+
+/**
+ * Returns a diagnostic summary string from the last known connection state.
+ * This provides context that the opaque WebSocket error events cannot.
+ */
+export const getConnectionDiagnosticsSummary = (): string => {
+	const parts: string[] = [];
+
+	if (connectionDiagnostics.lastCloseCode !== 0) {
+		parts.push(`lastCloseCode=${connectionDiagnostics.lastCloseCode}`);
+		parts.push(`lastCloseReason="${connectionDiagnostics.lastCloseReason || 'none'}"`);
+		parts.push(`wasClean=${connectionDiagnostics.lastCloseWasClean}`);
+	}
+
+	parts.push(`state=${connectionDiagnostics.state}`);
+	parts.push(`wasRetry=${connectionDiagnostics.wasRetry}`);
+	parts.push(`consecutiveFailures=${connectionDiagnostics.consecutiveFailures}`);
+
+	if (connectionDiagnostics.lastConnectedAt > 0) {
+		const elapsed = Date.now() - connectionDiagnostics.lastConnectedAt;
+		parts.push(`timeSinceLastConnection=${elapsed}ms`);
+	}
+
+	return parts.join(', ');
+};
 
 const getBlockServiceClient = (): Client | null => {
 	// Don't create client during SSR
@@ -24,6 +75,33 @@ const getBlockServiceClient = (): Client | null => {
 			url: wsUrl,
 			lazy: true,
 			retryAttempts: 3,
+			on: {
+				connecting: (isRetry) => {
+					connectionDiagnostics.wasRetry = isRetry;
+					connectionDiagnostics.state = 'connecting';
+				},
+				connected: (_socket, _payload, wasRetry) => {
+					connectionDiagnostics.state = 'connected';
+					connectionDiagnostics.lastConnectedAt = Date.now();
+					connectionDiagnostics.wasRetry = wasRetry;
+					connectionDiagnostics.consecutiveFailures = 0;
+				},
+				closed: (event) => {
+					connectionDiagnostics.state = 'closed';
+					const closeEvent = event as {
+						code?: number;
+						reason?: string;
+						wasClean?: boolean;
+					};
+					connectionDiagnostics.lastCloseCode = closeEvent.code ?? 0;
+					connectionDiagnostics.lastCloseReason = closeEvent.reason ?? '';
+					connectionDiagnostics.lastCloseWasClean = closeEvent.wasClean ?? false;
+				},
+				error: () => {
+					connectionDiagnostics.state = 'error';
+					connectionDiagnostics.consecutiveFailures += 1;
+				},
+			},
 		});
 	}
 
@@ -75,7 +153,36 @@ subscription EDITOR_SYNCED_BLOCK_ON_BLOCK_UPDATED($resourceId: ID!) {
 
 type SubscriptionCallback = (data: ParsedBlockSubscriptionData) => void;
 type ErrorCallback = (error: Error) => void;
+type CompleteCallback = () => void;
 type Unsubscribe = () => void;
+
+/**
+ * Extracts a meaningful error message from the error: GraphQL WebSocket Error: {"isTrusted":true}
+ *
+ * @param error - The error passed to the sink's error callback
+ * @returns A descriptive error message string
+ */
+export const extractGraphQLWSErrorMessage = (error: unknown): string => {
+	const diagnostics = getConnectionDiagnosticsSummary();
+
+	// Raw Event from WebSocket.onerror — browsers don't expose error details
+	// for security reasons, so {isTrusted: true} is all we get.
+	if (typeof error === 'object' && error !== null && 'isTrusted' in error) {
+		return `GraphQL WebSocket connection error (browser restricted error details). Diagnostics: ${diagnostics}`;
+	}
+
+	if (error instanceof Error) {
+		return error.message;
+	}
+
+	// Fallback: try to stringify whatever we got
+	try {
+		const serialized = JSON.stringify(error);
+		return `GraphQL subscription error: ${serialized}`;
+	} catch {
+		return 'GraphQL subscription error: unknown error';
+	}
+};
 
 /**
  * Extracts the resourceId from a block ARI.
@@ -84,8 +191,7 @@ type Unsubscribe = () => void;
  * @returns The resourceId portion of the ARI
  */
 const extractResourceIdFromBlockAri = (blockAri: string): string | null => {
-	// eslint-disable-next-line require-unicode-regexp
-	const match = blockAri.match(/ari:cloud:blocks:[^:]+:synced-block\/(.+)$/);
+	const match = blockAri.match(EXTRACT_RESOURCE_ID_FROM_BLOCK_ARI_REGEX);
 	return match?.[1] || null;
 };
 
@@ -105,12 +211,7 @@ const parseSubscriptionPayload = (
 
 		let createdAt: string | undefined;
 		if (payload.createdAt !== undefined && payload.createdAt !== null) {
-			try {
-				// BE returns microseconds, convert to milliseconds
-				createdAt = new Date(payload.createdAt / 1000).toISOString();
-			} catch {
-				createdAt = undefined;
-			}
+			createdAt = new Date(payload.createdAt).toISOString();
 		}
 
 		return {
@@ -142,6 +243,7 @@ export const subscribeToBlockUpdates = (
 	blockAri: string,
 	onData: SubscriptionCallback,
 	onError?: ErrorCallback,
+	onComplete?: CompleteCallback,
 ): Unsubscribe => {
 	const client = getBlockServiceClient();
 
@@ -150,7 +252,9 @@ export const subscribeToBlockUpdates = (
 		return () => {};
 	}
 
-	const unsubscribe = client.subscribe<{ blockService_onBlockUpdated: BlockSubscriptionPayload | null }>(
+	const unsubscribe = client.subscribe<{
+		blockService_onBlockUpdated: BlockSubscriptionPayload | null;
+	}>(
 		{
 			query: SUBSCRIPTION_QUERY,
 			variables: { resourceId: blockAri },
@@ -168,12 +272,10 @@ export const subscribeToBlockUpdates = (
 				}
 			},
 			error: (error) => {
-				const errorMessage =
-					error instanceof Error ? error.message : 'GraphQL subscription error';
-				onError?.(new Error(errorMessage));
+				onError?.(new Error(extractGraphQLWSErrorMessage(error)));
 			},
 			complete: () => {
-				// Subscription completed
+				onComplete?.();
 			},
 		},
 	);

@@ -1,5 +1,815 @@
 # @atlaskit/tokens
 
+## 20.1.0
+
+### Minor Changes
+
+- [`5ba2e4b714c03`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ba2e4b714c03) -
+  Adds tab text color and neutral underline opacity transitions, plus directional selected-indicator
+  motion behind the `platform-dst-motion-uplift-tab` feature gate.
+
+## 20.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Major Changes
+
+- [`7470fe5b0b5e7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7470fe5b0b5e7) -
+  Remove `motion.input.hovered` and `motion.input.focused` in favor of `motion.input`. Consumers
+  using `token('motion.input.hovered')` or `token('motion.input.focused')` must update to
+  `token('motion.input')`. Use `motion.input` for input hover, focus, and error state transitions.
+
+## 18.3.0
+
+### Minor Changes
+
+- [`7356d483a3b72`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7356d483a3b72) -
+  Add a shared text color transition and directional indicator motion tokens for Tabs, and correct
+  slide-out keyframe names to match their distances.
+
+## 18.2.1
+
+### Patch Changes
+
+- [`e9115c37cd99c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e9115c37cd99c) -
+  Improve static theme loading for server-rendered applications. When
+  `platform-static-theme-loading` is enabled with React 19 streaming SSR, `ThemeProvider` streams
+  the CSS required by the active standard themes and finesse overrides before the themed subtree.
+  During hydration, it reuses the server-rendered CSS before hoisting styles to the document head,
+  avoiding a flash of unthemed content and hydration mismatches. React 18 continues to use the
+  existing no-inline-CSS fallback.
+
+  Expose the Tokens theme preference resolvers used to select the standard and finesse override
+  theme styles.
+
+## 18.2.0
+
+### Minor Changes
+
+- [`78264aeafd321`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/78264aeafd321) -
+  Add reusable grid-column enter and exit keyframe tokens and update the motion.label animations.
+  Updated consumers apply the new motion behind platform-dst-motion-uplift-labels.
+
+## 18.1.0
+
+### Minor Changes
+
+- [`7f37ec7cc8629`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f37ec7cc8629) -
+  Add UNSAFE_test-light and UNSAFE_test-dark color themes for visual and unit testing.
+
+## 18.0.0
+
+### Major Changes
+
+- [`20b3e525959eb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20b3e525959eb) -
+  The `shape` theme is now enabled by default and is no longer behind a feature gate. The
+  `ThemeState` type now requires a value for the `shape` property to be provided.
+
+### Minor Changes
+
+- [`b6effa4972e52`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6effa4972e52) -
+  Add motion.input.hovered and motion.input.focused tokens for input background-color, border-color,
+  and box-shadow transitions.
+
+## 17.0.1
+
+### Patch Changes
+
+- [`c7333edc6dfa2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7333edc6dfa2) -
+  Align panel content motion token timing and easing with the design specification by removing the
+  built-in enter delay. Panel open applies its 100ms content-enter delay separately, while panel
+  content replacement starts the enter motion after the preceding 50ms exit motion completes.
+
+## 17.0.0
+
+### Major Changes
+
+- [`98fa516d85430`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/98fa516d85430) -
+  The `shape` theme is now enabled by default and is no longer behind a feature gate. The
+  `ThemeState` type now requires a value for the `shape` property to be provided.
+
+## 16.12.0
+
+### Minor Changes
+
+- [`73b74955b8418`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73b74955b8418) -
+  Added `color.border.input.search` for search input borders. Navigation System Search uses the new
+  token when `platform-dst-tokens-finesse` is enabled; the existing border is unchanged when the
+  gate is disabled.
+
+## 16.11.3
+
+### Patch Changes
+
+- [`9704cd5f7c190`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9704cd5f7c190) -
+  Maps color.blanket.selected to lighter neutral colors in Finesse themes behind
+  platform-dst-tokens-finesse.
+
+## 16.11.2
+
+### Patch Changes
+
+- [`7d49f4cfcd044`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7d49f4cfcd044) -
+  Adds dedicated color and smaller-heading typography override themes behind
+  `platform-dst-tokens-finesse`, including softer neutral subtle interaction states, while
+  preserving the existing future themes.
+
+## 16.11.1
+
+### Patch Changes
+
+- [`f096d43c97bbd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f096d43c97bbd) -
+  De-barrelling cleanup.
+
+## 16.11.0
+
+### Minor Changes
+
+- [`1646c59e857d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1646c59e857d9) -
+  Add granular subpath exports `./utils/get-css-custom-property`,
+  `./utils/get-fully-qualified-token-id`, and `./utils/get-token-id`, giving Volt Stage-1 clean,
+  non-deprecated homes for the `getCSSCustomProperty`, `getFullyQualifiedTokenId`, and `getTokenId`
+  values previously reachable only via the `@deprecated` `@atlaskit/tokens/token-ids` re-export
+  shim. The shim's `@deprecated` messages are updated to point at the new clean subpaths (they
+  previously pointed back at the deprecated `token-ids` surface). Removal of the shim is tracked by
+  VOLTC-139.
+
+## 16.10.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.9.0
+
+### Minor Changes
+
+- [`e3de502bac0ff`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e3de502bac0ff) -
+  The following legacy exports are deprecated and will be removed in a future release. Replace each
+  import with its dedicated entry point.
+
+  | Old import                                                                               | Replacement                                                                                        |
+  | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+  | `import { token } from '@atlaskit/tokens';`                                              | `import { token } from '@atlaskit/tokens/token';`                                                  |
+  | `import { token } from '@atlaskit/tokens/get-token';`                                    | `import { token } from '@atlaskit/tokens/token';`                                                  |
+  | `import { light } from '@atlaskit/tokens/tokens-raw';`                                   | `import light from '@atlaskit/tokens/atlassian-light';`                                            |
+  | `import { dark } from '@atlaskit/tokens/tokens-raw';`                                    | `import dark from '@atlaskit/tokens/atlassian-dark';`                                              |
+  | `import { spacing } from '@atlaskit/tokens/tokens-raw';`                                 | `import spacing from '@atlaskit/tokens/atlassian-spacing';`                                        |
+  | `import { typography } from '@atlaskit/tokens/tokens-raw';`                              | `import typography from '@atlaskit/tokens/atlassian-typography';`                                  |
+  | `import { shape } from '@atlaskit/tokens/tokens-raw';`                                   | `import shape from '@atlaskit/tokens/atlassian-shape';`                                            |
+  | `import { motion } from '@atlaskit/tokens/tokens-raw';`                                  | `import motion from '@atlaskit/tokens/atlassian-motion';`                                          |
+  | `import tokens from '@atlaskit/tokens/palettes-raw';`                                    | `import tokens from '@atlaskit/tokens/palette';`                                                   |
+  | `import { typographyPalette } from '@atlaskit/tokens/palettes-raw';`                     | `import typographyPalette from '@atlaskit/tokens/typography-palette';`                             |
+  | `import { themeStringToObject } from '@atlaskit/tokens/theme-state-transformer';`        | `import { themeStringToObject } from '@atlaskit/tokens/theme-string-to-object';`                   |
+  | `import { themeObjectToString } from '@atlaskit/tokens/theme-state-transformer';`        | `import { themeObjectToString } from '@atlaskit/tokens/theme-object-to-string';`                   |
+  | `import { themeColorModes, type ThemeColorModes } from '@atlaskit/tokens/theme-config';` | `import { themeColorModes, type ThemeColorModes } from '@atlaskit/tokens/theme-color-modes';`      |
+  | `import { themeIds, type ThemeIds } from '@atlaskit/tokens/theme-config';`               | `import { themeIds, type ThemeIds } from '@atlaskit/tokens/theme-ids';`                            |
+  | `import { themeStateDefaults } from '@atlaskit/tokens/theme-config';`                    | `import { themeStateDefaults } from '@atlaskit/tokens/theme-state-defaults';`                      |
+  | `import { UNSAFE_loadCustomThemeStyles } from '@atlaskit/tokens/custom-themes';`         | `import { UNSAFE_loadCustomThemeStyles } from '@atlaskit/tokens/unsafe-load-custom-theme-styles';` |
+
+## 16.8.1
+
+### Patch Changes
+
+- [`906386bf1d4fa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/906386bf1d4fa) -
+  [ux] Update motion token curves for sidenav exit and panel content exit.
+  `motion.sidenav.exit.left` and `motion.sidenav.exit.right` now use `EaseBoldOut`
+  (`cubic-bezier(0, 0.4, 0, 1)`) to match their enter counterparts, and `motion.panel.content.exit`
+  now uses `EasePracticalIn` (`cubic-bezier(0.6, 0, 0.8, 0.6)`).
+
+## 16.8.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+## 16.7.0
+
+### Minor Changes
+
+- [`0195cea826a48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0195cea826a48) -
+  Use directional motion tokens for RTL-aware panel slide animations. Adds new
+  `motion.panel.content.enter` and `motion.panel.content.exit` motion tokens, applied to the Panel
+  to soften the content when opening and closing.
+
+## 16.6.0
+
+### Minor Changes
+
+- [`ed721ba4263f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed721ba4263f4) -
+  Added `motion.panel.enter.left`, `motion.panel.enter.right`, `motion.panel.exit.left` and
+  `motion.panel.exit.right` tokens for direction-aware Panel slide transitions. These replace
+  `motion.panel.enter` and `motion.panel.exit`, which remain available.
+
+## 16.5.0
+
+### Minor Changes
+
+- [`160059b7df6cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/160059b7df6cc) -
+  Add motion tokens for label elements: `motion.label.enter` and `motion.label.exit` (used by the
+  tag component). Also adds two new motion keyframes to the palette: `ScaleXIn80to100` and
+  `ScaleXOut100to0` for horizontal collapse/expand animations.
+
+## 16.4.1
+
+### Patch Changes
+
+- [`77c80a1010e70`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/77c80a1010e70) -
+  Include border-color in button motion transitions and apply the motion to interactive lozenge
+  dropdown triggers behind the button motion feature flag.
+
+## 16.4.0
+
+### Minor Changes
+
+- [`ae67b39dceca0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae67b39dceca0) -
+  Added `motion.sidenav.enter.left`, `motion.sidenav.enter.right`, `motion.sidenav.exit.left` and
+  `motion.sidenav.exit.right` tokens for Side Nav slide transitions.
+
+## 16.3.0
+
+### Minor Changes
+
+- [`2a6fe72f2d5f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a6fe72f2d5f2) -
+  Add alpha-aware color palette tokens for added and removed code diff lines.
+
+  The existing `color.background.code.added.line` and `color.background.code.removed.line` semantic
+  tokens now resolve to alpha-channel values in light, dark, and increased-contrast themes so code
+  diff lines retain their intended transparency.
+
+## 16.2.0
+
+### Minor Changes
+
+- [`b1453699ad8be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1453699ad8be) -
+  Add semantic code syntax tokens:
+  - `color.background.code.default`
+  - `color.background.code.gutter`
+  - `color.background.code.highlight`
+  - `color.background.code.added.line`
+  - `color.background.code.added.highlight`
+  - `color.background.code.removed.line`
+  - `color.background.code.removed.highlight`
+  - `color.border.code`
+  - `color.text.code.default`
+  - `color.text.code.comments`
+  - `color.text.code.operators`
+  - `color.text.code.keywords`
+  - `color.text.code.strings`
+  - `color.text.code.numbers`
+  - `color.text.code.functions`
+  - `color.text.code.tags`
+  - `color.text.code.accent.1`
+  - `color.text.code.accent.2`
+  - `color.text.code.gutter`
+
+  ```tsx
+  import { token } from '@atlaskit/tokens';
+
+  const keywordColor = token('color.text.code.keywords', '#AE2E24');
+  // Or via CSS variable: var(--ds-text-code-keywords)
+  ```
+
+  Update `BackgroundColorToken` to support the new code background tokens.
+
+## Unreleased
+
+### Minor Changes
+
+- Add alpha-aware code diff line palette tokens: `color.palette.Green200A40`,
+  `color.palette.Green900A70`, `color.palette.Red200A40`, and `color.palette.Red900A70`.
+- Update `color.background.code.added.line` and `color.background.code.removed.line` to use
+  transparent values across light, dark, and increased-contrast themes.
+
+- Add semantic code syntax tokens:
+  - `color.background.code.default`
+  - `color.background.code.gutter`
+  - `color.background.code.highlight`
+  - `color.background.code.added.line`
+  - `color.background.code.added.highlight`
+  - `color.background.code.removed.line`
+  - `color.background.code.removed.highlight`
+  - `color.border.code`
+  - `color.text.code.default`
+  - `color.text.code.comments`
+  - `color.text.code.operators`
+  - `color.text.code.keywords`
+  - `color.text.code.strings`
+  - `color.text.code.numbers`
+  - `color.text.code.functions`
+  - `color.text.code.tags`
+  - `color.text.code.accent.1`
+  - `color.text.code.accent.2`
+  - `color.text.code.gutter`
+
+## 16.1.0
+
+### Minor Changes
+
+- [`cad86b0c0e613`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cad86b0c0e613) -
+  Add optional fill property to motion tokens supporting 'forwards' and 'backwards' animation fill
+  modes. Adds AnimationFillModeForwards and AnimationFillModeBackwards base palette tokens, extends
+  MotionPaletteToken and MotionScaleTokenSchema, and updates the animation builder to include
+  fill-mode in generated CSS animation shorthands.
+
+## 16.0.0
+
+### Major Changes
+
+- [`ecc5823dc898c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ecc5823dc898c) - ##
+  Breaking change: barrel file exports removed from `@atlaskit/tokens`
+
+  The main entry point (`@atlaskit/tokens`) now only exports the `token` function. All other named
+  exports have been moved to dedicated sub-path entry-points to reduce bundle size, improve build
+  times, and minimise the package's overall footprint.
+
+  ### Why we're doing this
+
+  Large barrel files (a single `index` that re-exports everything) force bundlers to load the entire
+  package even when only a small subset is used. By splitting exports into individual entry-points,
+  consumers can import only what they need, leading to:
+  - Faster build and typecheck times
+  - Smaller production bundles
+  - Clearer dependency boundaries
+
+  ### What's changed
+
+  Previously you could import anything from the root:
+
+  ```ts
+  import {
+  	token,
+  	getTokenValue,
+  	setGlobalTheme,
+  	useThemeObserver,
+  	ThemeState,
+  	COLOR_MODE_ATTRIBUTE,
+  } from '@atlaskit/tokens';
+  ```
+
+  Now only `token` remains in the root. Everything else must be imported from its own entry-point:
+
+  ```ts
+  import { token } from '@atlaskit/tokens';
+  import { getTokenValue } from '@atlaskit/tokens/get-token-value';
+  import { setGlobalTheme } from '@atlaskit/tokens/set-global-theme';
+  import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
+  import type { ThemeState } from '@atlaskit/tokens/theme-config';
+  import { COLOR_MODE_ATTRIBUTE } from '@atlaskit/tokens/constants';
+  ```
+
+  ### Full entry-point reference
+
+  | Export(s)                                                                                                                                                               | New import path                               |
+  | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+  | `token`                                                                                                                                                                 | `@atlaskit/tokens` _(unchanged)_              |
+  | `getTokenValue`                                                                                                                                                         | `@atlaskit/tokens/get-token-value`            |
+  | `setGlobalTheme`                                                                                                                                                        | `@atlaskit/tokens/set-global-theme`           |
+  | `enableGlobalTheme`                                                                                                                                                     | `@atlaskit/tokens/enable-global-theme`        |
+  | `getThemeStyles`                                                                                                                                                        | `@atlaskit/tokens/get-theme-styles`           |
+  | `getThemeHtmlAttrs`                                                                                                                                                     | `@atlaskit/tokens/get-theme-html-attrs`       |
+  | `getSSRAutoScript`                                                                                                                                                      | `@atlaskit/tokens/get-ssr-auto-script`        |
+  | `useThemeObserver`                                                                                                                                                      | `@atlaskit/tokens/use-theme-observer`         |
+  | `ThemeMutationObserver`                                                                                                                                                 | `@atlaskit/tokens/theme-mutation-observer`    |
+  | `getGlobalTheme`                                                                                                                                                        | `@atlaskit/tokens/get-global-theme`           |
+  | `themeStringToObject`, `themeObjectToString`                                                                                                                            | `@atlaskit/tokens/theme-state-transformer`    |
+  | `themeConfig`, `ThemeColorModes`, `ThemeContrastModes`, `Themes`, `ThemeFileNames`, `ThemeIds`, `ThemeOptionsSchema`, `ThemeState`, `ActiveThemeState`                  | `@atlaskit/tokens/theme-config`               |
+  | `themeImportMap`                                                                                                                                                        | `@atlaskit/tokens/artifacts/theme-import-map` |
+  | `CSSToken`, `CSSTokenMap`                                                                                                                                               | `@atlaskit/tokens/token-names`                |
+  | `ActiveTokens`                                                                                                                                                          | `@atlaskit/tokens/artifacts/types`            |
+  | `FontFamilyToken`, `FontWeightToken`, `Groups`, `OpacityToken`, `PaintToken`, `RawToken`, `ShadowToken`, `SpacingToken`, `ShapeToken`, `TypographyToken`, `MotionToken` | `@atlaskit/tokens/types`                      |
+  | `COLOR_MODE_ATTRIBUTE`, `CURRENT_SURFACE_CSS_VAR`, `SUBTREE_THEME_ATTRIBUTE`, `THEME_DATA_ATTRIBUTE`                                                                    | `@atlaskit/tokens/constants`                  |
+
+  ### Automated migration with codemod
+
+  A codemod is available to automatically update your imports. Run it with:
+
+  ```bash
+  npx @hypermod/cli --packages @atlaskit/tokens@<version> --preset migrate-to-entry-points <path-to-your-source>
+  ```
+
+  For example, to migrate all files in your `src/` directory:
+
+  ```bash
+  npx @hypermod/cli --packages @atlaskit/tokens@<version> --preset migrate-to-entry-points ./src
+  ```
+
+  The codemod will:
+  - Leave `import { token } from '@atlaskit/tokens'` untouched
+  - Split all other imports out to their appropriate entry-points
+  - Preserve type-only imports (`import type`) and per-specifier type modifiers
+  - Preserve import aliases (e.g. `import { getTokenValue as getValue }`)
+  - Group multiple imports that share the same entry-point into a single declaration
+
+## 15.8.0
+
+### Minor Changes
+
+- [`b5b9917f875a8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5b9917f875a8) -
+  [ux] Add `text-decoration-color` to the `motion.listitem.*` transition tokens and consume them in
+  Breadcrumbs.
+
+## 15.7.0
+
+### Minor Changes
+
+- [`0a1e6f2be05e3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a1e6f2be05e3) -
+  Add motion.panel.enter and motion.panel.exit tokens for panel slide transitions.
+
+## 15.6.1
+
+### Patch Changes
+
+- [`fa40c22b98aee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa40c22b98aee) -
+  Ensure ADS codegen verification covers all generated token consumers without prebuilding the
+  codegen utility.
+
+## 15.6.0
+
+### Minor Changes
+
+- [`b00a6d183e0c4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b00a6d183e0c4) -
+  [ux] Add `text-decoration-color` to the `motion.listitem.*` transition tokens (`hovered`,
+  `pressed`, `selected`) so list-item motion can animate underlines, and consume `motion.listitem.*`
+  in Breadcrumbs behind the `platform-dst-motion-uplift-list-item` feature gate: interactive
+  breadcrumb items (steps, ellipsis, and the current-item link) now animate their underline from
+  transparent to coloured on hover/press. Rendering is unchanged when the gate is off.
+
+## 15.5.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+## 15.4.0
+
+### Minor Changes
+
+- [`ff40331e58db6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff40331e58db6) -
+  Add motion.listitem.hovered (50ms), motion.listitem.pressed (100ms), and motion.listitem.selected
+  (100ms) motion tokens for list-item interaction states. All use the ease practical out curve and
+  transition background-color, border-color, and color.
+
+## 15.3.1
+
+### Patch Changes
+
+- [`48454686cbc98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48454686cbc98) -
+  Updated the `elevation.surface.container` token value to use an alpha neutral so it blends with
+  the surface beneath it. It now maps to `Neutral100A` in the light theme and `DarkNeutral100A` in
+  the dark theme.
+
+## 15.3.0
+
+### Minor Changes
+
+- [`8f588905041f4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f588905041f4) -
+  Add two new interaction-state tokens for the neutral container surface:
+  `elevation.surface.container.hovered` and `elevation.surface.container.pressed`. Use these for
+  hovered and pressed states of elements built on `elevation.surface.container`.
+
+## 15.2.0
+
+### Minor Changes
+
+- [`65bef1e41e5fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/65bef1e41e5fd) -
+  Add motion.button.hovered and motion.button.pressed motion tokens, and apply button background
+  motion uplift behind the platform-dst-motion-uplift-button feature gate.
+
+## 15.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+## 15.0.0
+
+### Major Changes
+
+- [`26bb3944a5ea4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/26bb3944a5ea4) -
+  Removed unused shape-rounder and shape-roundest themes. Removed legacy typography themes from
+  prebuilt.
+
+### Patch Changes
+
+- [`d223db963e46d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d223db963e46d) -
+  Cleanup feature gate `platform-dst-motion-theme-default`. Motion theme is now permanently enabled
+  by default in `setGlobalTheme` calls.
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 14.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.0
+
+### Minor Changes
+
+- [`28d6bdf2c3456`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28d6bdf2c3456) -
+  Add Rovo elevation surface overlay tokens for default, hovered, and pressed states. These tokens
+  provide dedicated Rovo overlay surface backgrounds across light, dark, and increased-contrast
+  themes.
+
+## 13.3.1
+
+### Patch Changes
+
+- [`e5eeed279b893`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e5eeed279b893) -
+  Changed `color.border.accent.gray.subtle` in the light theme to map to `Neutral400` (`#B7B9BE`)
+  instead of `Neutral300` (`#DDDEE1`). The previous value was too light to read as a distinct border
+  — `Neutral400` provides the visual prominence expected from a decorative-border token while
+  staying noticeably softer than the default `color.border.accent.gray` (`Neutral600`). Dark theme
+  remains unchanged (`DarkNeutral400`).
+
+## 13.3.0
+
+### Minor Changes
+
+- [`93eb21bd8fb25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93eb21bd8fb25) -
+  Add Rovo color tokens for brand surfaces and supporting border/icon accents, including generated
+  token artifacts, CSS/token type metadata, and category-aware usage guidelines for downstream docs
+  and AI tooling.
+
+## 13.2.0
+
+### Minor Changes
+
+- [`71fee8de88abc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71fee8de88abc) -
+  Added new design tokens to support the Lozenge / Tag / Badge visual uplift:
+
+  **15 new `color.border.*.subtle` tokens** for decorative borders that do not need to meet 3:1
+  contrast requirements:
+  - 5 semantic: `danger`, `warning`, `success`, `discovery`, `information` (no `neutral.subtle` —
+    the default `color.border` already serves this case)
+  - 10 accent: `red`, `orange`, `yellow`, `lime`, `green`, `teal`, `blue`, `purple`, `magenta`,
+    `gray`
+  - Light theme maps to Color300; dark theme maps to Color800 (DarkNeutral400 for `accent.gray`)
+
+  **5 new `color.background.*.subtle` tokens** for non-interactive elements (e.g. semantic badges,
+  status pills, callout chips):
+  - `danger`, `success`, `discovery`, `information` — light theme maps to Color300, dark theme maps
+    to Color800
+  - `warning` — light theme maps to Orange250, dark theme maps to Orange850 (different stops because
+    Orange300 is already used by `warning.bold`)
+
+  Note: `color.background.*.subtle` is intentionally non-interactive only — no `.hovered` or
+  `.pressed` variants are provided. For interactive surfaces, use `color.background.<semantic>.bold`
+  or `color.background.<semantic>.subtler` instead.
+
+## 13.1.1
+
+### Patch Changes
+
+- [`e92deb020eae0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e92deb020eae0) -
+  Add `Neutral1200` and `DarkNeutral1200` base palette tokens and update generated raw palette
+  artifacts.
+
+## 13.1.0
+
+### Minor Changes
+
+- [`6ae1bed1867c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ae1bed1867c5) -
+  [ux] Updated `color.background.disabled` to use a stronger neutral palette value (`Neutral200A` in
+  light themes, `DarkNeutral300A` in dark themes).
+
+## 13.0.4
+
+### Patch Changes
+
+- [`591568c487e99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/591568c487e99) -
+  Moved "motion.easing.spring" token into experimental state
+
+## 13.0.3
+
+### Patch Changes
+
+- [`f63b64df22780`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f63b64df22780) -
+  Allow `0` and `'0'` as valid values for the `SizeIntrinsic` type. This means `width`, `height`,
+  `minWidth`, `minHeight`, `maxWidth`, `maxHeight`, and related block/inline size properties now
+  accept bare `0` without requiring `'0px'`. This is consistent with how CSS works (bare `0` is
+  valid without a unit) and matches the existing behaviour of `Space`, `BorderWidth`,
+  `BorderRadius`, and `Opacity` types.
+
+## 13.0.2
+
+### Patch Changes
+
+- [`125ae08eb4dbf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/125ae08eb4dbf) -
+  Updated tokens structured content to mention motion tokens
+
+## 13.0.1
+
+### Patch Changes
+
+- [`b5f57321dd863`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b5f57321dd863) -
+  Transitioned motion design tokens from experimental to active and added usage guidance
+
+## 13.0.0
+
+### Major Changes
+
+- [`72017386a0120`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72017386a0120) -
+  Remove the deprecated `font.body.UNSAFE_small` token. This token was deprecated in `10.1.0` and
+  has been replaced by `font.body.small`. Please migrate any remaining usages to `font.body.small`.
+
+## 12.0.0
+
+### Major Changes
+
+- [`de60749da093b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/de60749da093b) -
+  This releases introduces a new set of experimental semantic base tokens for Motion.
+
+  ### Added
+  - `motion.duration.instant`
+  - `motion.duration.xxshort`
+  - `motion.duration.xshort`
+  - `motion.duration.short`
+  - `motion.duration.medium`
+  - `motion.duration.long`
+  - `motion.duration.xlong`
+  - `motion.duration.xxlong`
+
+  - `motion.easing.in.practical`
+  - `motion.easing.inout.bold`
+  - `motion.easing.out.practical`
+  - `motion.easing.out.bold`
+  - `motion.easing.spring`
+
+  - `motion.keyframe.fade.in`
+  - `motion.keyframe.fade.out`
+  - `motion.keyframe.scale.in.medium`
+  - `motion.keyframe.scale.in.small`
+  - `motion.keyframe.scale.out.medium`
+  - `motion.keyframe.scale.out.small`
+  - `motion.keyframe.slide.in.bottom.short`
+  - `motion.keyframe.slide.in.left.half`
+  - `motion.keyframe.slide.in.left.short`
+  - `motion.keyframe.slide.in.right.short`
+  - `motion.keyframe.slide.in.top.short`
+  - `motion.keyframe.slide.out.bottom.short`
+  - `motion.keyframe.slide.out.left.half`
+  - `motion.keyframe.slide.out.left.short`
+  - `motion.keyframe.slide.out.right.short`
+  - `motion.keyframe.slide.out.top.short`
+
+  Added and removed experimental semantic tokens for Motion.
+
+  ### Added
+  - `motion.blanket.enter`
+  - `motion.blanket.exit`
+
+  ### Removed
+  - `motion.content.enter.short`
+  - `motion.content.enter.medium`
+  - `motion.content.enter.long`
+  - `motion.content.exit.short`
+  - `motion.content.exit.medium`
+  - `motion.content.exit.long`
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.4.3
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+
+## 11.4.2
+
+### Patch Changes
+
+- [`08170da1fbf62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08170da1fbf62) -
+  Migrate spacing prop usages on icons to Flex wrapper
+
+## 11.4.1
+
+### Patch Changes
+
+- [`6bce18279cb35`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6bce18279cb35) -
+  Prevents a bundling/runtime failure for `themeStateDefaults` **shape** and **motion** defaults by
+  defining them as module-scope functions instead of inline object methods, so `react-magnetic-di`’s
+  `fg()` rewrite uses a valid `di(host, fg)` host and no longer references undefined `motion` /
+  `shape` identifiers.
+
+## 11.4.0
+
+### Minor Changes
+
+- [`6d76a7647c5da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d76a7647c5da) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 11.3.1
+
+### Patch Changes
+
+- [`9f858e9b1f9e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f858e9b1f9e8) -
+  Fixed default fallback resolution for motion design tokens
+
+## 11.3.0
+
+### Minor Changes
+
+- [`6df6d2b1f286b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6df6d2b1f286b) -
+  Added motion values to tokens babel plugin
+
+## 11.2.0
+
+### Minor Changes
+
+- [`4927c4a64f704`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4927c4a64f704) -
+  Added new set of experimental motion design tokens
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`07b8035be9593`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/07b8035be9593) -
+  Added an experimental set of motion design tokens.
+
+## 11.0.2
+
+### Patch Changes
+
+- [`18a6ca6a0c98c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18a6ca6a0c98c) -
+  Widen React peer dependency from ^18.2.0 to ^18.2.0 || ^19.0.0 to support React 19
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- [`5db9e3f21a52f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5db9e3f21a52f) -
+  Internal refactoring
+
 ## 11.0.0
 
 ### Major Changes

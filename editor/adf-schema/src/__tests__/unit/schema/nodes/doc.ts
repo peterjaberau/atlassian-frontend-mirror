@@ -1,5 +1,4 @@
 import { doc } from '../../../..';
-
 import { normalizeNodeSpec } from '../../_utils';
 
 const packageName = process.env.npm_package_name as string;
@@ -13,9 +12,9 @@ describe(`${packageName}/schema doc node`, () => {
 		expect(normalizeNodeSpec(doc)).toStrictEqual(
 			normalizeNodeSpec({
 				content:
-					'(block | codeBlock | layoutSection | blockRootOnly | expand | syncBlock | bodiedSyncBlock)+',
+					'(block | panel_c1 | codeBlock | panel | panel_c1_root_only | rule | bodiedRule | extension | bodiedExtension | multiBodiedExtension | layoutSection | blockRootOnly | expand | syncBlock | bodiedSyncBlock)+',
 				marks:
-					'alignment breakout dataConsumer fragment indentation unsupportedMark unsupportedNodeAttribute',
+					'alignment fontSize breakout dataConsumer fragment indentation unsupportedMark unsupportedNodeAttribute annotation',
 			}),
 		);
 	});

@@ -5,6 +5,7 @@ import {
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
 } from '@atlaskit/editor-common/analytics';
+import { createToggleBlockMarkOnRangeNext } from '@atlaskit/editor-common/commands';
 import { withAnalytics } from '@atlaskit/editor-common/editor-analytics';
 import type {
 	Command,
@@ -19,7 +20,7 @@ import { CellSelection } from '@atlaskit/editor-tables';
 
 import type { TextBlockTypes } from '../block-types';
 import { HEADINGS_BY_NAME, NORMAL_TEXT } from '../block-types';
-
+import { convertTaskItemsToBlockTaskItems, getSelectionRangeExpandedToLists } from '../utils';
 import {
 	FORMATTING_NODE_TYPES,
 	FORMATTING_MARK_TYPES,
@@ -47,6 +48,10 @@ export function setBlockType(name: TextBlockTypes): EditorCommand {
 		const { nodes } = tr.doc.type.schema;
 		if (name === NORMAL_TEXT.name && nodes.paragraph) {
 			return setNormalText()({ tr });
+		}
+
+		if (name === 'smallText') {
+			return setSmallText()({ tr });
 		}
 
 		const headingBlockType = HEADINGS_BY_NAME[name];
@@ -97,6 +102,30 @@ export function setHeading(
 			}
 		});
 
+		// Remove fontSize mark from transformed content in range
+		// List content stays as paragraphs (headings aren't allowed in list items),
+		// but non-list content has been converted to headings by setBlockType above.
+		const { fontSize } = schema.marks;
+		if (fontSize) {
+			const allowedBlocks = [schema.nodes.paragraph, schema.nodes.heading];
+			if (selection instanceof CellSelection) {
+				selection.forEachCell((cell, pos) => {
+					createToggleBlockMarkOnRangeNext(fontSize, () => false, allowedBlocks)(
+						pos,
+						pos + cell.nodeSize,
+						tr,
+					);
+				});
+			} else {
+				const expandedRange = getSelectionRangeExpandedToLists(tr);
+				createToggleBlockMarkOnRangeNext(fontSize, () => false, allowedBlocks)(
+					expandedRange.from,
+					expandedRange.to,
+					tr,
+				);
+			}
+		}
+
 		return tr;
 	};
 }
@@ -108,9 +137,13 @@ export function setBlockTypeWithAnalytics(
 	fromBlockQuote?: boolean,
 ): EditorCommand {
 	return ({ tr }) => {
-		const { nodes } = tr.doc.type.schema;
+		const { nodes, marks } = tr.doc.type.schema;
 		if (name === 'normal' && nodes.paragraph) {
 			return setNormalTextWithAnalytics(inputMethod, editorAnalyticsApi, fromBlockQuote)({ tr });
+		}
+
+		if (name === 'smallText' && marks.fontSize) {
+			return setSmallTextWithAnalytics(inputMethod, editorAnalyticsApi, fromBlockQuote)({ tr });
 		}
 
 		const headingBlockType = HEADINGS_BY_NAME[name];
@@ -127,6 +160,84 @@ export function setBlockTypeWithAnalytics(
 	};
 }
 
+export function setSmallText(fromBlockQuote?: boolean): EditorCommand {
+	return function ({ tr }) {
+		const {
+			marks: { fontSize },
+			nodes: { paragraph },
+		} = tr.doc.type.schema;
+
+		if (!fontSize) {
+			return null;
+		}
+
+		const { selection } = tr;
+		const applySmallFontSize = createToggleBlockMarkOnRangeNext(
+			fontSize,
+			() => ({ fontSize: 'small' }),
+			[paragraph],
+		);
+
+		if (fromBlockQuote) {
+			const { $from, $to } = selection;
+
+			const range = $from.blockRange($to);
+			if (!range) {
+				return tr;
+			}
+			const targetLiftDepth = liftTarget(range);
+			if (targetLiftDepth || targetLiftDepth === 0) {
+				tr.lift(range, targetLiftDepth);
+			}
+			const from = tr.mapping.map($from.pos);
+			const to = tr.mapping.map($to.pos);
+			tr.setBlockType(from, to, paragraph);
+			applySmallFontSize(from, to, tr);
+		} else if (selection instanceof CellSelection) {
+			const mapFrom = tr.steps.length;
+			selection.forEachCell((cell, pos) => {
+				const from = tr.mapping.slice(mapFrom).map(pos);
+				const to = from + cell.nodeSize;
+				tr.setBlockType(from, to, paragraph);
+				convertTaskItemsToBlockTaskItems(tr, from, to);
+				applySmallFontSize(from, to, tr);
+			});
+		} else {
+			tr.setBlockType(selection.from, selection.to, paragraph);
+			const expandedRange = getSelectionRangeExpandedToLists(tr);
+			convertTaskItemsToBlockTaskItems(tr, expandedRange.from, expandedRange.to);
+			applySmallFontSize(
+				tr.mapping.map(expandedRange.from, -1),
+				tr.mapping.map(expandedRange.to, 1),
+				tr,
+			);
+		}
+
+		return tr;
+	};
+}
+
+export function setSmallTextWithAnalytics(
+	inputMethod: InputMethod,
+	editorAnalyticsApi: EditorAnalyticsAPI | undefined,
+	fromBlockQuote?: boolean,
+): EditorCommand {
+	return withCurrentHeadingLevel((previousHeadingLevel) => ({ tr }) => {
+		editorAnalyticsApi?.attachAnalyticsEvent({
+			action: ACTION.FORMATTED,
+			actionSubject: ACTION_SUBJECT.TEXT,
+			eventType: EVENT_TYPE.TRACK,
+			actionSubjectId: ACTION_SUBJECT_ID.FORMAT_SMALL_TEXT,
+			attributes: {
+				inputMethod,
+				previousBlockType:
+					previousHeadingLevel !== undefined ? String(previousHeadingLevel) : undefined,
+			},
+		})(tr);
+		return setSmallText(fromBlockQuote)({ tr });
+	});
+}
+
 export function setNormalText(fromBlockQuote?: boolean): EditorCommand {
 	return function ({ tr }) {
 		const {
@@ -135,6 +246,8 @@ export function setNormalText(fromBlockQuote?: boolean): EditorCommand {
 				type: { schema },
 			},
 		} = tr;
+
+		// Apply normal text to the selection range (handles non-list content)
 		const ranges = selection instanceof CellSelection ? selection.ranges : [selection];
 		ranges.forEach(({ $from, $to }) => {
 			if (fromBlockQuote) {
@@ -156,6 +269,27 @@ export function setNormalText(fromBlockQuote?: boolean): EditorCommand {
 				tr.setBlockType($from.pos, $to.pos, schema.nodes.paragraph);
 			}
 		});
+
+		// Remove fontSize mark from any lists the selection touches
+		const { fontSize } = schema.marks;
+		if (fontSize) {
+			if (selection instanceof CellSelection) {
+				selection.forEachCell((cell, pos) => {
+					createToggleBlockMarkOnRangeNext(fontSize, () => false, [schema.nodes.paragraph])(
+						pos,
+						pos + cell.nodeSize,
+						tr,
+					);
+				});
+			} else {
+				const expandedRange = getSelectionRangeExpandedToLists(tr);
+				createToggleBlockMarkOnRangeNext(fontSize, () => false, [schema.nodes.paragraph])(
+					expandedRange.from,
+					expandedRange.to,
+					tr,
+				);
+			}
+		}
 
 		return tr;
 	};
@@ -307,7 +441,7 @@ export const setHeadingWithAnalytics = (
 	inputMethod: InputMethod,
 	editorAnalyticsApi: EditorAnalyticsAPI | undefined,
 	fromBlockQuote?: boolean,
-) => {
+): EditorCommand => {
 	return withCurrentHeadingLevel((previousHeadingLevel) => ({ tr }) => {
 		editorAnalyticsApi?.attachAnalyticsEvent({
 			action: ACTION.FORMATTED,
@@ -347,7 +481,7 @@ function insertBlockQuote(): Command {
 export const insertBlockQuoteWithAnalytics = (
 	inputMethod: InputMethod,
 	editorAnalyticsApi: EditorAnalyticsAPI | undefined,
-) => {
+): Command => {
 	return withAnalytics(editorAnalyticsApi, {
 		action: ACTION.FORMATTED,
 		actionSubject: ACTION_SUBJECT.TEXT,
@@ -363,7 +497,7 @@ export function insertBlockQuoteWithAnalyticsCommand(
 	inputMethod: InputMethod,
 	editorAnalyticsApi: EditorAnalyticsAPI | undefined,
 ): EditorCommand {
-	return withCurrentHeadingLevel((previousHeadingLevel) => ({ tr }) => {
+	return withCurrentHeadingLevel(() => ({ tr }) => {
 		const { nodes } = tr.doc.type.schema;
 		editorAnalyticsApi?.attachAnalyticsEvent({
 			action: ACTION.FORMATTED,

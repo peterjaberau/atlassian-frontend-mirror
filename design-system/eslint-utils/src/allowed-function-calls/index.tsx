@@ -17,7 +17,8 @@
 import type { Variable } from 'eslint-scope';
 import merge from 'lodash/merge';
 
-import { defaultAllowedDynamicKeys, defaultAllowedValues } from './default-allowed';
+import { defaultAllowedValues } from './default-allowed';
+import { defaultAllowedDynamicKeys } from './default-allowed-dynamic-keys';
 import type { AllowList } from './types';
 
 export type { AllowList } from './types';
@@ -86,6 +87,7 @@ function getAllowList({
 	return merge({}, defaultAllowList, collectEntries(options[0][allowListKey]));
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getAllowedFunctionCalls = (options: any[]): AllowList =>
 	getAllowList({
 		options,
@@ -93,6 +95,7 @@ export const getAllowedFunctionCalls = (options: any[]): AllowList =>
 		defaultAllowList: defaultAllowedValues,
 	});
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getAllowedDynamicKeys = (options: any[]): AllowList =>
 	getAllowList({
 		options,

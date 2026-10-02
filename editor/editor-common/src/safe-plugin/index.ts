@@ -1,15 +1,18 @@
+// oxlint-disable-next-line import/no-duplicates
 import type { Mark as PMMark } from '@atlaskit/editor-prosemirror/model';
-import { type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { Plugin } from '@atlaskit/editor-prosemirror/state';
 import type { PluginSpec, SafePluginSpec } from '@atlaskit/editor-prosemirror/state';
 import type {
+	EditorView,
 	Decoration,
 	DecorationSource,
-	EditorView,
 	NodeView,
 } from '@atlaskit/editor-prosemirror/view';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
+import { isSSR } from '../core-utils/is-ssr';
 import type { NodeAnchorProvider } from '../node-anchor/node-anchor-provider';
 import { getNodeIdProvider } from '../node-anchor/node-anchor-provider';
 import { createProseMirrorMetadata } from '../prosemirror-dom-metadata';
@@ -56,7 +59,8 @@ export const attachGenericProseMirrorMetadata = ({
 
 		if (
 			name === 'data-node-anchor' &&
-			expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
+			(expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+				isExperimentEnabled('platform_editor_block_control_migration'))
 		) {
 			// if browser doesn't support CSS anchor, won't need the style
 			// Or if it supports CSS attr() function as the value of anchor-name,
@@ -70,6 +74,16 @@ export const attachGenericProseMirrorMetadata = ({
 			return;
 		}
 	});
+};
+
+/** Type guard to check if a Node is an HTMLElement in a safe way. */
+const isHTMLElement = (element: Node | null | undefined): element is HTMLElement => {
+	if (element === null || element === undefined) {
+		return false;
+	}
+
+	// In SSR `HTMLElement` is not defined, so we need to use duck typing here
+	return 'innerHTML' in element && 'style' in element && 'classList' in element;
 };
 
 // Wraper to avoid any exception during the get pos operation
@@ -92,7 +106,8 @@ const wrapGetPosExceptions = <T extends SafePluginSpec>(spec: T): T => {
 
 					if (
 						!nodeIdProvider &&
-						expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
+						(expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+							isExperimentEnabled('platform_editor_block_control_migration'))
 					) {
 						nodeIdProvider = getNodeIdProvider(view);
 					}
@@ -109,12 +124,17 @@ const wrapGetPosExceptions = <T extends SafePluginSpec>(spec: T): T => {
 
 					const result = Reflect.apply(target, thisArg, [node, view, safeGetPos, ...more]);
 
-					if (result?.dom instanceof HTMLElement) {
+					if (
+						result?.dom instanceof HTMLElement ||
+						// SSR result?.dom is not an instance of HTMLElement, but we still want to attach metadata to it
+						(isSSR() && isHTMLElement(result?.dom))
+					) {
 						// we only attach metadata to the dom if its position is known
 						const pos = safeGetPos();
 						const options =
 							pos !== undefined &&
-							expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true)
+							(expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) ||
+								isExperimentEnabled('platform_editor_block_control_migration'))
 								? {
 										anchrorId: nodeIdProvider?.getOrGenerateId(node, pos) as string,
 									}
@@ -141,7 +161,7 @@ const wrapGetPosExceptions = <T extends SafePluginSpec>(spec: T): T => {
 };
 
 // Ignored via go/ees005
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @atlaskit/volt-strict-mode/no-multiple-exports
 export class SafePlugin<T = any> extends Plugin<T> {
 	// This variable isn't (and shouldn't) be used anywhere. Its purpose is
 	// to distinguish Plugin from SafePlugin, thus ensuring that an 'unsafe'

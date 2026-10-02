@@ -1,9 +1,9 @@
 import { fireEvent } from '@testing-library/dom';
 
+import { draggable, dropTargetForElements } from '../../../../src/adapter/element-adapter';
 import { elementAdapterNativeDataKey } from '../../../../src/adapter/element-adapter-native-data-key';
-import { combine } from '../../../../src/entry-point/combine';
-import { draggable, dropTargetForElements } from '../../../../src/entry-point/element/adapter';
-import { type Input } from '../../../../src/entry-point/types';
+import { type Input } from '../../../../src/internal-types';
+import { combine } from '../../../../src/public-utils/combine';
 import {
 	appendToBody,
 	getBubbleOrderedTree,

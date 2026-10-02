@@ -1,5 +1,5 @@
-import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
 import { type CleanupFn } from '@atlaskit/pragmatic-drag-and-drop/types';
+import { combine } from '@atlaskit/pragmatic-drag-and-drop/utils/combine';
 
 /**
  * Set a `style` property on a `HTMLElement`
@@ -106,7 +106,7 @@ export function makeFixForAdapter({
 	watchForInteractionStart: ({ start }: { start: () => void }) => CleanupFn;
 	watchForInteractionEnd: ({ stop }: { stop: () => void }) => CleanupFn;
 }): {
-    registerUsage: () => CleanupFn;
+	registerUsage: () => CleanupFn;
 } {
 	let registrationCount = 0;
 	let stopWatchingInteractionStart: CleanupFn | null = null;

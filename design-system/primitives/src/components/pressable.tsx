@@ -14,21 +14,18 @@ import {
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import { type UIAnalyticsEvent, usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
 import noop from '@atlaskit/ds-lib/noop';
 import InteractionContext, { type InteractionContextType } from '@atlaskit/interaction-context';
 
-import {
-	type BackgroundColor,
-	backgroundColorStylesMap,
-	borderColorMap,
-	borderWidthMap,
-	paddingStylesMap,
-	positiveSpaceMap,
-	type Space,
-} from '../xcss/style-maps.partial';
-import { parseXcss } from '../xcss/xcss';
-
+import { type BackgroundColor } from '../xcss/background-color';
+import { backgroundColorStylesMap } from '../xcss/background-color-styles-map';
+import { borderColorMap } from '../xcss/border-color';
+import { borderWidthMap } from '../xcss/border-width';
+import { paddingStylesMap } from '../xcss/padding-styles-map';
+import { parseXcss } from '../xcss/parse-xcss';
+import { positiveSpaceMap, type Space } from '../xcss/positive-space';
 import type { BasePrimitiveProps, StyleProp } from './types';
 
 type BasePressableProps = {
@@ -162,7 +159,7 @@ const disabledStyles = css({
  * - [Code](https://atlassian.design/components/primitives/pressable/code)
  * - [Usage](https://atlassian.design/components/primitives/pressable/usage)
  */
-const Pressable: React.ForwardRefExoticComponent<
+export const Pressable: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<PressableProps> & React.RefAttributes<HTMLButtonElement>
 > = forwardRef(
 	(
@@ -215,7 +212,6 @@ const Pressable: React.ForwardRefExoticComponent<
 
 		return (
 			<button
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				style={style}
 				ref={ref}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
@@ -255,4 +251,5 @@ const Pressable: React.ForwardRefExoticComponent<
 	},
 );
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default Pressable;

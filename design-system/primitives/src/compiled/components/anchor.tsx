@@ -5,6 +5,7 @@
 import {
 	type ComponentPropsWithoutRef,
 	forwardRef,
+	type JSX,
 	type ReactNode,
 	type Ref,
 	useCallback,
@@ -14,14 +15,16 @@ import {
 import { cx, jsx, cssMap as unboundedCssMap } from '@compiled/react';
 import invariant from 'tiny-invariant';
 
-import { type UIAnalyticsEvent, usePlatformLeafEventHandler } from '@atlaskit/analytics-next';
-import { type RouterLinkComponentProps, useRouterLink } from '@atlaskit/app-provider';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { usePlatformLeafEventHandler } from '@atlaskit/analytics-next/usePlatformLeafEventHandler';
+import type { RouterLinkComponentProps } from '@atlaskit/app-provider/router-link-provider';
+import { useRouterLink } from '@atlaskit/app-provider/use-router-link';
 import noop from '@atlaskit/ds-lib/noop';
 import { useId } from '@atlaskit/ds-lib/use-id';
 import InteractionContext, { type InteractionContextType } from '@atlaskit/interaction-context';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
-import Focusable from './focusable';
+import { Focusable } from './focusable';
 import type { BasePrimitiveProps, StyleProp } from './types';
 
 type BaseAnchorProps = {
@@ -166,7 +169,6 @@ const AnchorNoRef = <RouterLinkConfig extends Record<string, any> = never>(
 			// @ts-expect-error we don't allow `a` on Focusable for makers as they should use Anchor instead
 			as={Component}
 			className={xcss}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- TODO: Properly type this and allow pass-through if we can determine the type
 			style={style}
 			ref={ref}
 			// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
@@ -206,10 +208,10 @@ const AnchorNoRef = <RouterLinkConfig extends Record<string, any> = never>(
  * - [Code](https://atlassian.design/components/primitives/anchor/code)
  * - [Usage](https://atlassian.design/components/primitives/anchor/usage)
  */
-const Anchor = forwardRef(AnchorNoRef) as <RouterLinkConfig extends Record<string, any> = never>(
+export const Anchor = forwardRef(AnchorNoRef) as <
+	RouterLinkConfig extends Record<string, any> = never,
+>(
 	props: AnchorProps<RouterLinkConfig> & {
 		ref?: Ref<HTMLAnchorElement>;
 	},
 ) => ReturnType<typeof AnchorNoRef>;
-
-export default Anchor;

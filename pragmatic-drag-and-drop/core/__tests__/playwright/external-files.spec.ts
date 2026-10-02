@@ -4,7 +4,7 @@ import path from 'path';
 import invariant from 'tiny-invariant';
 
 import { expect, type Page, test } from '@af/integration-testing';
-
+import { skipAutoA11y } from '@atlassian/a11y-playwright-testing';
 async function getElement(page: Page, selector: string) {
 	const result = page.locator(selector);
 	invariant(result !== null);
@@ -13,6 +13,10 @@ async function getElement(page: Page, selector: string) {
 
 test.describe('file dropping', () => {
 	test('should support dropping of many files at once', async ({ browserName, page }) => {
+		// This test exposes one or more accessibility violations. Testing is currently skipped but violations need to
+		// be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove
+		// the next line and associated import. For more information, see go/afm-a11y-tooling:playwright
+		skipAutoA11y();
 		// eslint-disable-next-line playwright/no-conditional-in-test
 		if (browserName === 'webkit') {
 			/**
@@ -28,7 +32,11 @@ test.describe('file dropping', () => {
 			return;
 		}
 
-		await page.visitExample('pragmatic-drag-and-drop', 'core', 'file');
+		await page.visitExample<typeof import('../../examples/file.tsx')>(
+			'pragmatic-drag-and-drop',
+			'core',
+			'file',
+		);
 
 		// waiting for the drop target to be visible as a way to ensure the example
 		// is completely loaded (preemptively avoiding flakiness)
@@ -85,11 +93,19 @@ test.describe('file dropping', () => {
 	test('should capture and report a11y violations', async ({ browserName, page }) => {
 		// eslint-disable-next-line playwright/no-conditional-in-test
 		if (browserName === 'webkit') {
+			// Without an actual page navigation the auto-a11y hook reports a
+			// `document-title` violation against the empty page. Suppress it
+			// for the early-return path only.
+			skipAutoA11y();
 			return;
 		}
-		await page.visitExample('pragmatic-drag-and-drop', 'core', 'file');
+		await page.visitExample<typeof import('../../examples/file.tsx')>(
+			'pragmatic-drag-and-drop',
+			'core',
+			'file',
+		);
 		await page.locator('[data-drop-target-for-external]').waitFor({ state: 'visible' });
 
-		await expect(page).toBeAccessible({ violationCount: 1 });
+		await expect(page).toBeAccessible();
 	});
 });

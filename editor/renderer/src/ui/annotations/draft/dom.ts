@@ -1,6 +1,15 @@
-import { type Position } from '../types';
+/* eslint-disable @atlaskit/platform/no-direct-document-usage -- draft selection uses document range APIs */
 
-export const dataAttributes = ({ from, to }: Position) => {
+import type { Position } from '../types';
+
+export const dataAttributes = ({
+	from,
+	to,
+}: Position): {
+	'data-annotation-draft-mark': boolean;
+	'data-draft-end-at': number;
+	'data-draft-start-at': number;
+} => {
 	return {
 		['data-annotation-draft-mark']: true,
 		['data-draft-start-at']: from,

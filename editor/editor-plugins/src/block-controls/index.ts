@@ -4,10 +4,14 @@
 export { blockControlsPlugin } from '@atlaskit/editor-plugin-block-controls';
 export type {
 	BlockControlsPlugin,
+	BlockControlsPluginConfig,
 	BlockControlsSharedState,
 	HandleOptions,
 	MoveNodeMethod,
 	BlockControlsPluginDependencies,
+	NodeDecorationFactory,
+	NodeDecorationFactoryParams,
 	PluginState,
+	RightEdgeButtonProps,
 	MoveNode,
 } from '@atlaskit/editor-plugin-block-controls';

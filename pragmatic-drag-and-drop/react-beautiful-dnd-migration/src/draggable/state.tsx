@@ -20,7 +20,6 @@ import { rbdInvariant } from '../drag-drop-context/rbd-invariant';
 import { directionMapping } from '../droppable/drop-indicator/constants';
 import type { DraggableDimensions } from '../hooks/use-captured-dimensions';
 import type { Action } from '../internal-types';
-
 import { keyboardPreviewCrossAxisOffset } from './constants';
 
 type DraggableIdleState = {
@@ -294,6 +293,7 @@ function startDrag(
 	return nextState;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function reducer(state: DraggableState, action: DraggableAction): DraggableState {
 	if (action.type === 'START_POINTER_DRAG') {
 		return startDrag(state, {

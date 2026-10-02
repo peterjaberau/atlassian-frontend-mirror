@@ -1,14 +1,11 @@
-import type {
-	BlockTaskItemDefinition,
-	DecisionItemDefinition,
-	TaskItemDefinition,
-} from '@atlaskit/adf-schema';
+import type { DecisionItemDefinition } from '@atlaskit/adf-schema/decision-item';
+import type { BlockTaskItemDefinition, TaskItemDefinition } from '@atlaskit/adf-schema/task-item';
 import type { INPUT_METHOD, USER_CONTEXT } from '@atlaskit/editor-common/analytics';
 import type { ContextIdentifierProvider } from '@atlaskit/editor-common/provider-factory';
 import type { LongPressSelectionPluginOptions } from '@atlaskit/editor-common/types';
 import type { NodeType } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
-import { type DecorationSet } from '@atlaskit/editor-prosemirror/view';
+import type { DecorationSet } from '@atlaskit/editor-prosemirror/view';
 import type { TaskDecisionProvider } from '@atlaskit/task-decision/types';
 
 export type TaskDecisionListType = 'taskList' | 'decisionList';
@@ -18,7 +15,8 @@ export type TaskDecisionInputMethod =
 	| INPUT_METHOD.INSERT_MENU
 	| INPUT_METHOD.QUICK_INSERT
 	| INPUT_METHOD.FORMATTING
-	| INPUT_METHOD.KEYBOARD;
+	| INPUT_METHOD.KEYBOARD
+	| INPUT_METHOD.ELEMENT_BROWSER;
 
 export type ContextData = {
 	containerId: string;

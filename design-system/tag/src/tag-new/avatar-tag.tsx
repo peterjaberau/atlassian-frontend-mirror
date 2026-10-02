@@ -2,23 +2,33 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ComponentType, forwardRef, memo } from 'react';
+// Clips avatar-tag text during motion and restores measured truncation after it settles.
+import {
+	cloneElement,
+	type ComponentType,
+	forwardRef,
+	isValidElement,
+	memo,
+	useCallback,
+} from 'react';
 
 import { cssMap as cssMapUnbound, jsx } from '@compiled/react';
 
-import type { AvatarPropTypes } from '@atlaskit/avatar';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import type { AvatarPropTypes } from '@atlaskit/avatar/avatar';
 import StatusVerifiedIcon from '@atlaskit/icon/core/status-verified';
-import type { TeamAvatarProps } from '@atlaskit/teams-avatar';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import type { TeamAvatarProps } from '@atlaskit/teams-avatar/teams-avatar';
 import { token } from '@atlaskit/tokens';
 
-import {
-	LinkWrapper,
-	RemovableWrapper,
-	useButtonInteraction,
-	useLink,
-	useRemoveButton,
-	useTagRemoval,
-} from './shared';
+import { LinkWrapper } from './link-wrapper';
+import { RemovableWrapper } from './removable-wrapper';
+import { TagMotion } from './tag-motion';
+import { markAsTagMotionCapable } from './tag-motion-capability';
+import { useButtonInteraction } from './use-button-interaction';
+import { useLink } from './use-link';
+import { useRemoveButton } from './use-remove-button';
+import { useTagRemoval } from './use-tag-removal';
 
 /**
  * The type values that AvatarTag accepts.
@@ -31,9 +41,9 @@ export type TypesOfAvatars = 'user' | 'agent' | 'other';
  */
 export interface AvatarRenderProps {
 	/**
-	 * The size of the avatar. Always 'xsmall' for AvatarTag.
+	 * The size of the avatar. Always 'xxsmall' for AvatarTag.
 	 */
-	size: 'xsmall';
+	size: 'xxsmall';
 	/**
 	 * The appearance/shape of the avatar based on the tag type.
 	 * - 'circle' for user (round avatars)
@@ -91,6 +101,16 @@ interface CommonAvatarTagProps {
 	 * Accepts any valid CSS max-width value (e.g., '200px', '15rem', '100%').
 	 */
 	maxWidth?: string | number;
+	/**
+	 * When false, removes the tag's default margin. Use in contexts like User-picker
+	 * where the parent controls spacing. Defaults to `true`.
+	 */
+	hasMargin?: boolean;
+	/**
+	 * Handler called when the tag is clicked. Only fires for link tags (when href is provided).
+	 * The second argument provides an Atlaskit UI analytics event.
+	 */
+	onClick?: (e: React.MouseEvent<HTMLAnchorElement>, analyticsEvent: UIAnalyticsEvent) => void;
 }
 
 /**
@@ -107,11 +127,9 @@ type UserAvatarTag = CommonAvatarTagProps & {
 	isVerified?: never;
 	/**
 	 * The avatar component to render. AvatarTag will provide controlled props (size, appearance, borderColor).
-	 * Accepts Avatar or any compatible component.
-	 * @example avatar={Avatar}
-	 * @example avatar={(props) => <Avatar {...props} src="user.png" />}
+	 * Accepts Avatar from `@atlaskit/avatar` package
 	 */
-	avatar: ComponentType<Omit<AvatarPropTypes, 'size' | 'appearance' | 'borderColor'>>;
+	avatar: ComponentType<AvatarPropTypes>;
 };
 
 /**
@@ -128,13 +146,9 @@ type OtherAvatarTag = CommonAvatarTagProps & {
 	isVerified?: boolean;
 	/**
 	 * The avatar component to render. AvatarTag will provide controlled props (size, appearance, borderColor).
-	 * Accepts Avatar, TeamAvatar, or any compatible component.
-	 * @example avatar={TeamAvatar}
-	 * @example avatar={(props) => <TeamAvatar {...props} name="Team" />}
+	 * Accepts Avatar from `@atlaskit/avatar` or `@atlaskit/teams-avatar` package
 	 */
-	avatar:
-		| ComponentType<Omit<AvatarPropTypes, 'size' | 'appearance' | 'borderColor'>>
-		| ComponentType<Omit<TeamAvatarProps, 'size'>>;
+	avatar: ComponentType<AvatarPropTypes> | ComponentType<TeamAvatarProps>;
 };
 
 /**
@@ -151,11 +165,9 @@ type AgentAvatarTag = CommonAvatarTagProps & {
 	isVerified?: never;
 	/**
 	 * The avatar component to render. AvatarTag will provide controlled props (size, appearance, borderColor).
-	 * Accepts Avatar or any compatible component.
-	 * @example avatar={Avatar}
-	 * @example avatar={(props) => <Avatar {...props} src="agent.png" />}
+	 * Accepts Avatar from `@atlaskit/avatar` package
 	 */
-	avatar: ComponentType<Omit<AvatarPropTypes, 'size' | 'appearance' | 'borderColor'>>;
+	avatar: ComponentType<AvatarPropTypes>;
 };
 
 /**
@@ -169,37 +181,49 @@ const styles = cssMapUnbound({
 		boxSizing: 'border-box',
 		minWidth: '0px',
 		maxWidth: '11.25rem',
-		height: token('space.250', '20px'),
+		height: token('space.250'),
 		position: 'relative',
 		alignItems: 'center',
 		verticalAlign: 'middle',
-		gap: token('space.025', '2px'),
+		gap: token('space.025'),
 		backgroundColor: token('color.background.neutral.subtle'),
 		borderRadius: token('radius.full'),
 		borderStyle: 'solid',
-		borderWidth: token('border.width', '1px'),
+		borderWidth: token('border.width'),
 		color: token('color.text'),
 		cursor: 'default',
 		font: token('font.body.small'),
-		marginBlock: token('space.050', '4px'),
-		marginInline: token('space.050', '4px'),
 		paddingInlineEnd: '6px',
-		paddingInlineStart: token('space.0', '0px'),
-		paddingBlock: token('space.0', '0px'),
+		paddingInlineStart: token('space.0'),
+		paddingBlock: token('space.0'),
+		marginBlock: token('space.050'),
+		marginInline: token('space.050'),
+		// Keep tag text on one line even when surrounding styles set white-space.
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
+		'& [data-tag-text]': {
+			whiteSpace: 'nowrap',
+		},
+	},
+	noMarginStyles: {
+		marginBlock: token('space.0'),
+		marginInline: token('space.0'),
 	},
 	otherBaseStyles: {
-		borderRadius: token('radius.small', '4px'),
-		paddingInlineEnd: token('space.050', '4px'),
+		borderRadius: token('radius.small'),
+		paddingInlineEnd: token('space.050'),
 	},
 	agentBaseStyles: {
-		borderRadius: token('radius.small', '4px'),
-		paddingInlineEnd: token('space.050', '4px'),
+		borderRadius: token('radius.small'),
+		paddingInlineEnd: token('space.050'),
 	},
 	removableStyles: {
 		paddingInlineEnd: '3px',
+		// Ensure remove button always fits when compressed; text/avatar truncate first.
+		minWidth: '2.5rem',
 	},
 	userRemovableStyles: {
 		paddingInlineEnd: '3px',
+		minWidth: '2.5rem',
 	},
 	avatarStyles: {
 		display: 'inline-flex',
@@ -218,19 +242,29 @@ const styles = cssMapUnbound({
 	},
 	textStyles: {
 		overflow: 'hidden',
-		textOverflow: 'ellipsis',
 		whiteSpace: 'nowrap',
-		flexGrow: 1,
+		flex: '1 1 0',
+		flexShrink: 1,
 		minWidth: 0,
 		color: token('color.text'),
+	},
+	textEllipsis: {
+		textOverflow: 'ellipsis',
+	},
+	textClip: {
+		textOverflow: 'clip',
 	},
 	afterStyles: {
 		display: 'flex',
 		alignItems: 'center',
+		flex: '0 0 auto',
 		flexShrink: 0,
 		pointerEvents: 'auto',
-		marginInlineStart: token('space.025', '2px'),
+		marginInlineStart: token('space.025'),
 		position: 'relative',
+	},
+	afterMotionStyles: {
+		minWidth: token('space.150'),
 	},
 	verifiedIconStyles: {
 		display: 'inline-flex',
@@ -242,26 +276,23 @@ const styles = cssMapUnbound({
 	focusRingStyles: {
 		// Only show focus ring when keyboard navigating (not mouse clicks)
 		'&:focus-visible': {
-			outline: `${token('border.width.focused', '2px')} solid ${token('color.border.focused')}`,
-			// @ts-ignore
-			outlineOffset: token('space.025', '2px'),
+			outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
+			outlineOffset: token('space.025'),
 		},
 	},
 	// Show focus ring when child link is focused via keyboard (applied conditionally via JS)
 	childFocusRingStyles: {
-		outline: `${token('border.width.focused', '2px')} solid ${token('color.border.focused')}`,
-		// @ts-ignore
-		outlineOffset: token('space.025', '2px'),
+		outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
+		outlineOffset: token('space.025'),
 	},
 	// Base interactive styles - always applied when link (cursor, link styling)
 	interactiveBaseStyles: {
 		cursor: 'pointer',
-		// @ts-ignore
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'& a': {
 			display: 'inline-flex',
 			alignItems: 'center',
-			gap: token('space.025', '2px'),
+			gap: token('space.025'),
 			textDecoration: 'none',
 			// Allow link to shrink and enable text truncation
 			minWidth: 0,
@@ -295,82 +326,46 @@ const styles = cssMapUnbound({
 		'&:active': {
 			backgroundColor: token('color.background.neutral.subtle.pressed'),
 		},
-		// @ts-ignore
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'& a:hover': {
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-important-styles
 			color: 'inherit !important',
 		},
 		// Only underline the text span, not the avatar
-		// @ts-ignore
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'& a:hover > span[data-tag-text]': {
 			textDecoration: 'underline',
 		},
 	},
+	interactiveMotionStyles: {
+		transition: token('motion.button.hovered'),
+		'&:active': {
+			transition: token('motion.button.pressed'),
+		},
+	},
+	activeMotionStyles: {
+		// Prevent controls from painting outside the tag while its grid wrapper resizes.
+		overflow: 'hidden',
+	},
 });
 
 /* eslint-disable @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-important-styles */
-// Border color style - gray only for AvatarTag
+// Border color style - gray only for AvatarTag.
+// Uses the new color.border.accent.gray.subtle token directly so no OKLCH/color-mix
+// runtime transforms are needed.
 const borderColorStyles = cssMapUnbound({
 	root: {
-		'--tag-border-token': token('color.border.accent.gray'),
+		'--tag-border-token': token('color.border.accent.gray.subtle'),
 	},
 });
 
 // Border filter styles - base state
 const borderFilterStyles = cssMapUnbound({
 	root: {
-		borderColor:
-			'color-mix(in oklch, var(--tag-border-token) 100%, var(--cm-border-color) var(--cm-border-value))',
-		'--border-l-factor': '1.33',
-		'--cm-border-color': 'white',
-		'--cm-border-value': '45%',
-		'[data-color-mode="dark"] &': {
-			'--border-l-factor': '0.7',
-			'--cm-border-color': 'black',
-		},
-		'@supports (color: oklch(from white l c h))': {
-			borderColor: 'oklch(from var(--tag-border-token) calc(l * var(--border-l-factor)) c h)',
-		},
+		borderColor: 'var(--tag-border-token)',
 	},
 });
 
-// Border filter styles - interactive states (hover/pressed)
-const borderInteractiveFilterStyles = cssMapUnbound({
-	root: {
-		'--border-hovered-l-factor': '1.2',
-		'--border-pressed-l-factor': '1.08',
-		'--cm-border-hovered-value': '30%',
-		'--cm-border-pressed-value': '10%',
-
-		'[data-color-mode="dark"] &': {
-			'--border-hovered-l-factor': '0.8',
-			'--border-pressed-l-factor': '0.9',
-		},
-
-		'&:hover': {
-			borderColor:
-				'color-mix(in oklch, var(--tag-border-token) 100%, var(--cm-border-color) var(--cm-border-hovered-value))',
-		},
-
-		'&:active': {
-			borderColor:
-				'color-mix(in oklch, var(--tag-border-token) 100%, var(--cm-border-color) var(--cm-border-pressed-value))',
-		},
-
-		'@supports (color: oklch(from white l c h))': {
-			'&:hover': {
-				borderColor:
-					'oklch(from var(--tag-border-token) calc(l * var(--border-hovered-l-factor)) c h)',
-			},
-			'&:active': {
-				borderColor:
-					'oklch(from var(--tag-border-token) calc(l * var(--border-pressed-l-factor)) c h)',
-			},
-		},
-	},
-});
 /* eslint-enable @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/design-system/no-nested-styles, @atlaskit/ui-styling-standard/no-important-styles */
 
 /**
@@ -393,15 +388,19 @@ const AvatarTagComponent = forwardRef<HTMLSpanElement, AvatarTagProps>(function 
 		testId,
 		isVerified, // Shows verified icon for 'other' type tags
 		maxWidth,
+		hasMargin = true,
+		onClick,
 		...other
 	},
 	ref,
 ) {
-	const { status, handleRemoveRequest, onKeyPress, removingTag, showingTag } = useTagRemoval(
-		text,
-		onBeforeRemoveAction,
-		onAfterRemoveAction,
-	);
+	const isMotionEnabled = fg('platform-dst-motion-uplift-labels');
+	const { status, handleRemoveRequest, onKeyPress, removingTag, showingTag } =
+		useTagRemoval(onBeforeRemoveAction);
+
+	const onShrinkOutExitComplete = useCallback(() => {
+		onAfterRemoveAction?.(text);
+	}, [onAfterRemoveAction, text]);
 
 	const { isLink, LinkComponent } = useLink(href, linkComponent);
 	const {
@@ -440,31 +439,39 @@ const AvatarTagComponent = forwardRef<HTMLSpanElement, AvatarTagProps>(function 
 		buttonHandlers,
 	});
 
-	// Render the avatar component with controlled props
-	// Cast to ComponentType<AvatarRenderProps> to inject controlled props at runtime
-	const AvatarWithControlledProps = AvatarComponent as ComponentType<AvatarRenderProps>;
-	const avatarElement = (
-		<AvatarWithControlledProps
-			size="xsmall"
-			appearance={avatarAppearance}
-			borderColor="transparent"
-		/>
-	);
+	// Render the avatar with controlled props, then clone so our props are applied
+	const controlledProps: AvatarRenderProps = {
+		size: 'xxsmall',
+		appearance: avatarAppearance,
+		borderColor: 'transparent',
+	};
+	const AvatarComponentTyped = AvatarComponent as unknown as ComponentType<AvatarRenderProps>;
+	const rendered = <AvatarComponentTyped {...controlledProps} />;
+	const avatarElement =
+		// eslint-disable-next-line @repo/internal/react/no-clone-element
+		isValidElement(rendered) ? cloneElement(rendered, controlledProps) : rendered;
 
-	const tagContent = (
+	const renderTagContent = (
+		tagRef: React.Ref<HTMLSpanElement>,
+		isEntering = false,
+		isExiting = false,
+		hasEllipsis: boolean | null = null,
+	) => (
 		<span
 			{...other}
-			ref={ref}
+			ref={tagRef}
 			css={[
 				styles.baseStyles,
+				(isMotionEnabled || !hasMargin) && styles.noMarginStyles,
 				isOtherType && styles.otherBaseStyles,
 				isAgentType && styles.agentBaseStyles,
 				borderColorStyles.root,
 				borderFilterStyles.root,
 				isLink && styles.interactiveBaseStyles,
 				isLink && styles.focusRingStyles,
+				isLink && isMotionEnabled && styles.interactiveMotionStyles,
+				(isEntering || isExiting) && styles.activeMotionStyles,
 				// Only apply hover/active styles when link is hovered but NOT over the button
-				isLink && isLinkHovered && !isOverButton && borderInteractiveFilterStyles.root,
 				isLink && isLinkHovered && !isOverButton && styles.interactiveHoverStyles,
 				isRemovable && !isUserType && styles.removableStyles,
 				isRemovable && isUserType && styles.userRemovableStyles,
@@ -472,7 +479,7 @@ const AvatarTagComponent = forwardRef<HTMLSpanElement, AvatarTagProps>(function 
 				isLinkFocused && !isButtonFocused && styles.childFocusRingStyles,
 			]}
 			data-testid={testId}
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- maxWidth is a runtime consumer value
 			style={maxWidth !== undefined ? { maxWidth } : undefined}
 		>
 			<LinkWrapper
@@ -481,6 +488,7 @@ const AvatarTagComponent = forwardRef<HTMLSpanElement, AvatarTagProps>(function 
 				LinkComponent={LinkComponent}
 				testId={testId}
 				linkHandlers={linkHandlers}
+				onClick={onClick}
 			>
 				<span
 					css={[
@@ -491,7 +499,10 @@ const AvatarTagComponent = forwardRef<HTMLSpanElement, AvatarTagProps>(function 
 				>
 					{avatarElement}
 				</span>
-				<span css={styles.textStyles} data-tag-text>
+				<span
+					css={[styles.textStyles, hasEllipsis === false ? styles.textClip : styles.textEllipsis]}
+					data-tag-text
+				>
 					{text}
 				</span>
 			</LinkWrapper>
@@ -500,13 +511,36 @@ const AvatarTagComponent = forwardRef<HTMLSpanElement, AvatarTagProps>(function 
 					<StatusVerifiedIcon label="Verified" size="small" />
 				</span>
 			)}
-			{removeButton && <span css={styles.afterStyles}>{removeButton}</span>}
+			{removeButton && (
+				<span css={[styles.afterStyles, isMotionEnabled && styles.afterMotionStyles]}>
+					{!isExiting && removeButton}
+				</span>
+			)}
 		</span>
 	);
 
+	if (isMotionEnabled) {
+		return (
+			<TagMotion
+				forwardedRef={ref}
+				hasMargin={hasMargin}
+				onExitComplete={isRemovable ? onShrinkOutExitComplete : undefined}
+				status={status}
+			>
+				{({ hasEllipsis, isEntering, isExiting, ref: motionRef }) =>
+					renderTagContent(motionRef, isEntering, isExiting, hasEllipsis)
+				}
+			</TagMotion>
+		);
+	}
+
 	return (
-		<RemovableWrapper isRemovable={isRemovable} status={status}>
-			{tagContent}
+		<RemovableWrapper
+			isRemovable={isRemovable}
+			status={status}
+			onShrinkOutExitComplete={isRemovable ? onShrinkOutExitComplete : undefined}
+		>
+			{renderTagContent(ref)}
 		</RemovableWrapper>
 	);
 });
@@ -514,6 +548,10 @@ const AvatarTagComponent = forwardRef<HTMLSpanElement, AvatarTagProps>(function 
 /**
  * __Avatar tag__
  */
-const AvatarTag: import("react").MemoExoticComponent<import("react").ForwardRefExoticComponent<AvatarTagProps & import("react").RefAttributes<HTMLSpanElement>>> = memo(AvatarTagComponent);
+const AvatarTag: import('react').MemoExoticComponent<
+	import('react').ForwardRefExoticComponent<
+		AvatarTagProps & import('react').RefAttributes<HTMLSpanElement>
+	>
+> = markAsTagMotionCapable(memo(AvatarTagComponent));
 
 export default AvatarTag;

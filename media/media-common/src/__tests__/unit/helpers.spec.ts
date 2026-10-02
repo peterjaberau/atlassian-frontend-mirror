@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 import {
 	debounce,
 	getRandomHex,
@@ -7,7 +9,6 @@ import {
 	omitBy,
 	pick,
 } from '../../utils/helpers';
-import crypto from 'crypto';
 
 describe('helpers', () => {
 	const prevCrypto = window.crypto;
@@ -49,8 +50,8 @@ describe('helpers', () => {
 
 		debounce(callback, 3000)(1, 2);
 		jest.runAllTimers();
-		expect(callback).toBeCalledTimes(1);
-		expect(callback).toBeCalledWith(1, 2);
+		expect(callback).toHaveBeenCalledTimes(1);
+		expect(callback).toHaveBeenCalledWith(1, 2);
 	});
 
 	it('matches', () => {

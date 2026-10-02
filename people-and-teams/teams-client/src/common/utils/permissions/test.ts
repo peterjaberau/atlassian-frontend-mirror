@@ -1,36 +1,23 @@
-import * as atlassianContext from '@atlaskit/atlassian-context';
-import FeatureGates from '@atlaskit/feature-gate-js-client';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isFedRamp } from '@atlaskit/atlassian-context/is-fedramp';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type TeamMembership } from '../../../types/membership';
 import { type TeamPermission } from '../../../types/team';
-import { isMember } from '../team';
-
+import { isMember } from '../is-member';
 import { vanityActions } from './constants';
 import { hasPermission } from './has-permission';
 import { AllTeamActions } from './types';
 
-jest.mock('../team', () => ({
-	...jest.requireActual('../team'),
+jest.mock('../is-member', () => ({
 	isMember: jest.fn(),
 }));
 
-jest.mock('@atlaskit/atlassian-context', () => ({
-	...jest.requireActual('@atlaskit/atlassian-context'),
+jest.mock('@atlaskit/atlassian-context/is-fedramp', () => ({
+	...jest.requireActual('@atlaskit/atlassian-context/is-fedramp'),
 	isFedRamp: jest.fn(),
 }));
 
-jest.mock('@atlaskit/platform-feature-flags');
-
-jest.mock('@atlaskit/feature-gate-js-client', () => ({
-	...jest.requireActual('@atlaskit/feature-gate-js-client'),
-	initialize: jest.fn(),
-	initializeCalled: jest.fn(),
-	initializeFromValues: jest.fn(),
-	getExperimentValue: jest.fn(),
-	checkGate: jest.fn(),
-	initializeCompleted: () => true,
-}));
+jest.mock('@atlaskit/platform-feature-flags/fg');
 
 const nonPermissions: (TeamPermission | undefined)[] = ['FULL_READ', 'NONE', undefined];
 
@@ -82,6 +69,14 @@ const currentMemberMembership: TeamMembership = {
 	role: 'REGULAR',
 };
 
+// Ensure feature flag mock state does not leak between describe blocks.
+// Without this, mocks set up in one `describe` (e.g. SCIM-synced teams) can
+// persist into the next describe block and cause unrelated tests to fail.
+beforeEach(() => {
+	(fg as jest.Mock).mockReset();
+	(fg as jest.Mock).mockReturnValue(false);
+});
+
 describe('With no browse people permissions', () => {
 	it.each([...vanityActions])('members can %s changes to teams', (action) => {
 		expect(hasPermission(action, 'OPEN', 'FULL_WRITE', false, currentMemberMembership)).toBe(true);
@@ -107,11 +102,7 @@ describe('In open teams', () => {
 	describe('When the user is a member', () => {
 		beforeEach(() => {
 			(isMember as jest.Mock).mockReturnValue(true);
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		it.each([...openActionsExceptJoinAndType])(
@@ -158,11 +149,7 @@ describe('In open teams', () => {
 	describe('When the user is not a member', () => {
 		beforeEach(() => {
 			(isMember as jest.Mock).mockReturnValue(false);
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		test('anyone can join', () => {
@@ -203,11 +190,7 @@ describe('In open teams', () => {
 	describe('When the user is an org admin', () => {
 		beforeEach(() => {
 			(isMember as jest.Mock).mockReturnValue(true);
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		it.each([...openActionsExceptJoin])('org admins can perform %s', (action) => {
@@ -238,11 +221,7 @@ describe('In invite-only teams', () => {
 	describe('When the user is a member', () => {
 		beforeEach(() => {
 			(isMember as jest.Mock).mockReturnValue(true);
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		it.each([...allActionsExceptJoinAndType])(
@@ -280,11 +259,7 @@ describe('In invite-only teams', () => {
 	describe('When the user is not a member', () => {
 		beforeEach(() => {
 			(isMember as jest.Mock).mockReturnValue(false);
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		it.each(
@@ -325,11 +300,7 @@ describe('In invite-only teams', () => {
 	describe('When the user is an org admin', () => {
 		beforeEach(() => {
 			(isMember as jest.Mock).mockReturnValue(true);
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		it.each([...allActionsExceptJoin])('org admins can perform %s', (action) => {
@@ -358,14 +329,9 @@ describe('In invite-only teams', () => {
 describe('In SCIM-synced teams', () => {
 	beforeEach(() => {
 		(fg as jest.Mock).mockImplementation(
-			(flagName) =>
-				flagName !== 'enable_edit_team_name_external_type_teams'
+			(flagName) => flagName !== 'enable_edit_team_name_external_type_teams',
 		);
-		(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-			exp === 'new_team_profile' ? true : false,
-		);
-		// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-		(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+		(isFedRamp as jest.Mock).mockReturnValue(false);
 	});
 	describe('When the user is a member', () => {
 		beforeEach(() => {
@@ -435,11 +401,7 @@ describe('In SCIM-synced teams', () => {
 	describe('When the user is an org admin', () => {
 		beforeEach(() => {
 			(isMember as jest.Mock).mockReturnValue(false);
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 		it.each(
 			AllTeamActions.filter((a) =>
@@ -869,11 +831,7 @@ describe('ARCHIVE_TEAM and UNARCHIVE_TEAM permissions', () => {
 
 	describe('DELETE_TEAM on disbanded teams', () => {
 		beforeEach(() => {
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		it('allows member with FULL_WRITE to delete disbanded OPEN team', () => {
@@ -944,11 +902,7 @@ describe('ARCHIVE_TEAM and UNARCHIVE_TEAM permissions', () => {
 
 describe('In ORG_ADMIN_MANAGED teams', () => {
 	beforeEach(() => {
-		(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-			exp === 'new_team_profile' ? true : false,
-		);
-		// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-		(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+		(isFedRamp as jest.Mock).mockReturnValue(false);
 	});
 
 	describe('When the user is a member', () => {
@@ -1067,7 +1021,10 @@ describe('In ORG_ADMIN_MANAGED teams', () => {
 
 		it.each(
 			AllTeamActions.filter(
-				(a) => !['LEAVE_TEAM', 'UNARCHIVE_TEAM', 'EDIT_TEAM_MEMBERSHIP'].some((s) => a.includes(s)),
+				(a) =>
+					!['LEAVE_TEAM', 'UNARCHIVE_TEAM', 'EDIT_TEAM_MEMBERSHIP', 'ARCHIVE_TEAM'].some((s) =>
+						a.includes(s),
+					),
 			),
 		)('non-members with FULL_WRITE (no org admin) can perform %s', (action) => {
 			expect(
@@ -1187,11 +1144,7 @@ describe('In ORG_ADMIN_MANAGED teams', () => {
 
 	describe('Agent management permissions', () => {
 		beforeEach(() => {
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		it('allows members with FULL_WRITE to add agents', () => {
@@ -1294,11 +1247,7 @@ describe('In ORG_ADMIN_MANAGED teams', () => {
 	describe('ARCHIVE_TEAM permission', () => {
 		describe('When archive teams feature is enabled', () => {
 			beforeEach(() => {
-				(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-					exp === 'new_team_profile' ? true : false,
-				);
-				// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-				(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+				(isFedRamp as jest.Mock).mockReturnValue(false);
 			});
 
 			it('allows users with FULL_WRITE to archive teams', () => {
@@ -1317,7 +1266,7 @@ describe('In ORG_ADMIN_MANAGED teams', () => {
 				).toBe(true);
 			});
 
-			it('allows non-members with FULL_WRITE to archive teams', () => {
+			it('does not allow non-members with FULL_WRITE to archive teams', () => {
 				(isMember as jest.Mock).mockReturnValue(false);
 				expect(
 					hasPermission(
@@ -1330,7 +1279,7 @@ describe('In ORG_ADMIN_MANAGED teams', () => {
 						undefined,
 						'ACTIVE',
 					),
-				).toBe(true);
+				).toBe(false);
 			});
 
 			it('does not allow users without FULL_WRITE to archive teams', () => {
@@ -1349,40 +1298,11 @@ describe('In ORG_ADMIN_MANAGED teams', () => {
 				).toBe(false);
 			});
 		});
-
-		describe('When archive teams feature is disabled', () => {
-			beforeEach(() => {
-				(fg as jest.Mock).mockImplementation(() => false);
-				(FeatureGates.getExperimentValue as jest.Mock).mockImplementation(() => false);
-				// Simulate new team profile disabled: isFedRamp = true, fg = false
-				(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(true);
-			});
-
-			it('does not allow anyone to archive teams', () => {
-				(isMember as jest.Mock).mockReturnValue(true);
-				expect(
-					hasPermission(
-						'ARCHIVE_TEAM',
-						'ORG_ADMIN_MANAGED',
-						'FULL_WRITE',
-						true,
-						currentMemberMembership,
-						undefined,
-						undefined,
-						'ACTIVE',
-					),
-				).toBe(false);
-			});
-		});
 	});
 
 	describe('UNARCHIVE_TEAM permission on disbanded teams', () => {
 		beforeEach(() => {
-			(FeatureGates.getExperimentValue as jest.Mock).mockImplementation((exp) =>
-				exp === 'new_team_profile' ? true : false,
-			);
-			// Simulate new team profile enabled: isFedRamp = false (not FedRamp)
-			(atlassianContext.isFedRamp as jest.Mock).mockReturnValue(false);
+			(isFedRamp as jest.Mock).mockReturnValue(false);
 		});
 
 		it('allows org admins to unarchive disbanded teams', () => {

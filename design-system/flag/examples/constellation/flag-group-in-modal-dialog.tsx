@@ -1,17 +1,25 @@
 import React, { useCallback, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Flag, { FlagGroup } from '@atlaskit/flag';
+import Button from '@atlaskit/button/default/button';
+import { cssMap } from '@atlaskit/css';
+import Flag from '@atlaskit/flag/flag';
+import FlagGroup from '@atlaskit/flag/flag-group';
 import InformationIcon from '@atlaskit/icon/core/status-information';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import { Box } from '@atlaskit/primitives/compiled';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { Box, Flex } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 function FlagsInModalDialogExample(): React.JSX.Element {
 	const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -38,7 +46,6 @@ function FlagsInModalDialogExample(): React.JSX.Element {
 			<Button appearance="primary" onClick={openModal}>
 				Open modal
 			</Button>
-
 			<ModalTransition>
 				{isOpen && (
 					<Modal onClose={closeModal} testId="modal">
@@ -53,11 +60,9 @@ function FlagsInModalDialogExample(): React.JSX.Element {
 										<Flag
 											id={flagId}
 											icon={
-												<InformationIcon
-													label="Info"
-													color={token('color.icon.information')}
-													spacing="spacious"
-												/>
+												<Flex xcss={iconSpacingStyles.space050}>
+													<InformationIcon label="Info" color={token('color.icon.information')} />
+												</Flex>
 											}
 											key={flagId}
 											title={`Flag #${flagId}`}

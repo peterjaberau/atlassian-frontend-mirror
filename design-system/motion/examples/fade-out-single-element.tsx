@@ -4,12 +4,22 @@
  */
 import { useState } from 'react';
 
-import { jsx } from '@compiled/react';
+import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import { ExitingPersistence, FadeIn } from '@atlaskit/motion';
+import Button from '@atlaskit/button/default/button';
+import ExitingPersistence from '@atlaskit/motion/exiting-persistence';
+import FadeIn from '@atlaskit/motion/fade-in';
 
-import { Block, Centered, RetryContainer } from './utils';
+import { Block } from './utils/blocks';
+import { Centered, RetryContainer } from './utils/containers';
+
+const buttonContainerStyles = css({
+	textAlign: 'center',
+});
+
+const centeredStyles = css({
+	height: '182px',
+});
 
 export default (): JSX.Element => {
 	const directions = [
@@ -24,8 +34,7 @@ export default (): JSX.Element => {
 
 	return (
 		<RetryContainer>
-			{/* eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */}
-			<div css={{ textAlign: 'center' }}>
+			<div css={buttonContainerStyles}>
 				<Button onClick={() => setIsIn((prev) => !prev)}>{isIn ? 'Exit' : 'Enter'}</Button>
 				<Button
 					onClick={() => {
@@ -37,7 +46,7 @@ export default (): JSX.Element => {
 						: 'No Motion'}
 				</Button>
 
-				<Centered css={{ height: '182px' }}>
+				<Centered css={centeredStyles}>
 					<ExitingPersistence appear>
 						{isIn && (
 							<FadeIn entranceDirection={directions[direction]}>

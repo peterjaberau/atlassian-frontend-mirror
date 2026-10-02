@@ -3,16 +3,16 @@
  * @jsx jsx
  */
 import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx, keyframes } from '@emotion/react';
-import { createPortal } from 'react-dom';
 import invariant from 'tiny-invariant';
 
 import DragHandleVerticalIcon from '@atlaskit/icon/core/drag-handle-vertical';
-import { draggable } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview';
-import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview';
+import { draggable } from '@atlaskit/pragmatic-drag-and-drop/adapter/element-adapter';
+import { pointerOutsideOfPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/pointer-outside-of-preview';
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/utils/set-custom-native-drag-preview';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Grid, Stack, xcss } from '@atlaskit/primitives';
 import { token } from '@atlaskit/tokens';
@@ -65,8 +65,8 @@ export function DelayedCursorChange(): React.JSX.Element {
 			onGenerateDragPreview({ nativeSetDragImage }) {
 				setCustomNativeDragPreview({
 					getOffset: pointerOutsideOfPreview({
-						x: token('space.200', '16px'),
-						y: token('space.100', '8px'),
+						x: token('space.200'),
+						y: token('space.100'),
 					}),
 					nativeSetDragImage,
 					render({ container }) {

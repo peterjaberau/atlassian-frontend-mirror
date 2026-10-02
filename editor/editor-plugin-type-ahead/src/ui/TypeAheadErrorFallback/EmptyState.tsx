@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Flex, Text, xcss } from '@atlaskit/primitives';
 
@@ -17,7 +17,12 @@ const containerStyles = xcss({
 	textAlign: 'center',
 });
 
-export const EmptyState = ({ testId, header, description, renderImage }: EmptyStateProps): React.JSX.Element => {
+export const EmptyState = ({
+	testId,
+	header,
+	description,
+	renderImage,
+}: EmptyStateProps): React.JSX.Element => {
 	return (
 		<Flex
 			xcss={containerStyles}

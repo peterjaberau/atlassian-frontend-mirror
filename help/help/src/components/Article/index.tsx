@@ -4,31 +4,33 @@
  */
 
 import React, { useState, useLayoutEffect, useRef, useEffect, useCallback } from 'react';
+
+import { css, jsx } from '@compiled/react';
 import { Transition } from 'react-transition-group';
+
 import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { token } from '@atlaskit/tokens';
-import { css, jsx } from '@compiled/react';
 
-import { useNavigationContext } from '../contexts/navigationContext';
-import { useHelpArticleContext } from '../contexts/helpArticleContext';
-import { SLIDEIN_OVERLAY_TRANSITION_DURATION_MS, type TransitionStatus, VIEW } from '../constants';
-import ArticleContent from './ArticleContent';
 import type { HistoryItem } from '../../model/Help';
+import { SLIDEIN_OVERLAY_TRANSITION_DURATION_MS, type TransitionStatus, VIEW } from '../constants';
+import { useHelpArticleContext } from '../contexts/helpArticleContext';
+import { useNavigationContext } from '../contexts/navigationContext';
+import ArticleContent from './ArticleContent';
 
 interface ArticleProps {
 	isAiEnabled?: boolean;
 }
 
 const articleContainerStyles = css({
-	paddingTop: token('space.200', '16px'),
-	paddingRight: token('space.300', '24px'),
-	paddingBottom: token('space.200', '16px'),
-	paddingLeft: token('space.300', '24px'),
+	paddingTop: token('space.200'),
+	paddingRight: token('space.300'),
+	paddingBottom: token('space.200'),
+	paddingLeft: token('space.300'),
 	position: 'absolute',
 	height: '100%',
 	width: '100%',
 	top: 0,
-	backgroundColor: token('elevation.surface', '#FFFFFF'),
+	backgroundColor: token('elevation.surface'),
 	left: '100%',
 	flex: 1,
 	flexDirection: 'column',
@@ -42,14 +44,14 @@ const articleContainerStyles = css({
 });
 
 const articleContainerAiStyles = css({
-	paddingLeft: token('space.300', '24px'),
-	paddingRight: token('space.300', '24px'),
-	paddingBottom: token('space.200', '16px'),
+	paddingLeft: token('space.300'),
+	paddingRight: token('space.300'),
+	paddingBottom: token('space.200'),
 	position: 'absolute',
-	height: `calc(100% - ${token('space.800', '60px')})`,
+	height: `calc(100% - ${token('space.800')})`,
 	width: '100%',
-	top: token('space.800', '60px'),
-	backgroundColor: token('elevation.surface', '#FFFFFF'),
+	top: token('space.800'),
+	backgroundColor: token('elevation.surface'),
 	left: '100%',
 	flex: 1,
 	flexDirection: 'column',
@@ -167,6 +169,7 @@ export const Article: React.FC<ArticleProps> = ({ isAiEnabled }) => {
 			in={showArticle}
 			timeout={SLIDEIN_OVERLAY_TRANSITION_DURATION_MS}
 			enter={!skipArticleSlideInAnimation}
+			nodeRef={articleContainerRef}
 			onEntered={onArticleEntered}
 			onExit={onArticleExit}
 			unmountOnExit
@@ -203,6 +206,7 @@ export const Article: React.FC<ArticleProps> = ({ isAiEnabled }) => {
 			in={showArticle}
 			timeout={SLIDEIN_OVERLAY_TRANSITION_DURATION_MS}
 			enter={!skipArticleSlideInAnimation}
+			nodeRef={articleContainerRef}
 			onEntered={onArticleEntered}
 			onExit={onArticleExit}
 			unmountOnExit

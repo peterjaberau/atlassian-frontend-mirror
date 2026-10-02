@@ -1,5 +1,3060 @@
 # @atlaskit/editor-plugin-synced-block
 
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- [`55e90d4321606`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/55e90d4321606) -
+  Clean up experiment platform_editor_sync_block_activation.
+- Updated dependencies
+
+## 20.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.4
+
+### Patch Changes
+
+- [`feeef61c773db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/feeef61c773db) -
+  Clean up feature gate `platform_editor_blocks_patch_7`
+- Updated dependencies
+
+## 20.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.0
+
+### Minor Changes
+
+- [`70b2bc3a11027`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70b2bc3a11027) -
+  [ux] EDITOR-9295 Link the unsaved Jira source from the "Pasted from unsaved item" flag, behind
+  `editor_synced_blocks_jira_custom_rich_text`. Adds optional `resourceId` to `ActiveFlag`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- [`8013afd2c90d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8013afd2c90d0) -
+  Add Jira synced block copy guidance behind the platform_editor_blocks_patch_11 experiment.
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- [`a034f535638cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a034f535638cc) -
+  Add structured Quick Insert previews with localised title, description and attribution under
+  platform_editor_slash_command.
+
+  Exclude footer and category navigation actions from previews. Left-align attribution, use subtle
+  title and attribution text, and default description text.
+
+  Show text previews even without preview metadata, and reserve a fixed image area while images load
+  or when they fail. Keep previews within the viewport, flipping left when needed, with compact
+  panel dimensions and typography.
+
+  Replace baked panel screenshots with image-only assets. Remove image fields from text-only legacy
+  previews while preserving their attribution.
+
+  Let extension providers own their preview images and attribution. Pass preview metadata through
+  the Company Hub manifest factory and remove Editor's fallback preview registry.
+
+  Localize provider attribution names and display Confluence and Jira product icons instead of the
+  attribution prefix when an icon is present. Allow the Dropbox manifest to receive the host's
+  message formatter.
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.9
+
+### Patch Changes
+
+- [`ef5742162c47b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef5742162c47b) -
+  EDITOR-9184: Make the synced locations dropdown field-aware for Jira work items, behind the
+  `editor_synced_blocks_jira_custom_rich_text` experiment. Each Jira location's title and tooltip
+  name the work item field holding the block, a location in the field being viewed reads "This work
+  item field" and one in another field of the same work item reads "This work item"; `editor-common`
+  gains the three `syncBlockMessages` descriptors this uses. With the experiment off the dropdown
+  renders as before.
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.14
+
+### Patch Changes
+
+- [`88fb7a8d4013a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88fb7a8d4013a) -
+  [ux] Add optional light and dark preview URLs to slash-command menu items and pass theme-aware
+  previews to supported commands when the `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 16.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- [`0165bd2a039d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0165bd2a039d1) -
+  Clean up feature gate `platform_editor_blocks_patch_9`
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`db3dc405020c5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/db3dc405020c5) -
+  Fix undo of a source synced block creation deleting the converted content (e.g. a table). Behind
+  the `platform_editor_blocks_exp_patch_10` experiment, once the deletion is confirmed and persisted
+  the undo is replayed against the live editor state instead of recomputing a whole-node delete, and
+  a redo of the creation unwraps the block instead of deleting its content.
+  `@atlaskit/editor-plugin-history` gains an `undo` `EditorCommand` that builds the next history
+  undo onto a given transaction. EDITOR-8863
+
+### Patch Changes
+
+- [`abbc0c11100c8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/abbc0c11100c8) -
+  EDITOR-8863: replace platform_editor_blocks_patch_10 feature gate with
+  platform_editor_blocks_exp_patch_10 experiment for block menu close on confirmed sync block
+  deletion
+- [`b12eed2cd2633`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b12eed2cd2633) -
+  Add node type analytics for non-empty synced block conversions behind the
+  platform_editor_sync_block_node_types experiment.
+- Updated dependencies
+
+## 15.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Minor Changes
+
+- [`149408be91016`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/149408be91016) -
+  Thread the reference node's `localId` through the editor synced-block rendering path so products
+  can namespace heading ids inside synced block content.
+
+  `SyncedBlockRendererProps` gains an optional `localId`, which `SyncBlockRendererWrapper` now
+  forwards to the product-supplied `syncedBlockRenderer`. `SyncedBlockRenderer` accepts a matching
+  `localId` prop and passes it to `renderSyncedBlockContent` as `headingIdPrefix`.
+
+  This mirrors the existing view-page node component behaviour. Heading ids are still only emitted
+  when a prefix is supplied alongside `allowHeadingAnchorLinks`, so there is no change for consumers
+  that do not pass `localId`.
+
+  Confluence enables the new Table of Contents and heading-anchor behavior behind the
+  `confluence_toc_synced_block_exp` experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.21
+
+### Patch Changes
+
+- [`83985c2dddc58`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/83985c2dddc58) -
+  Fix the block menu staying open after deleting a source synced block via its delete button. The
+  delete now closes the block menu once the confirmed deletion lands, behind the
+  platform_editor_blocks_patch_10 gate.
+- Updated dependencies
+
+## 14.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.19
+
+### Patch Changes
+
+- [`167dc88b2c79c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/167dc88b2c79c) -
+  Show unpublished state in synced-block labels and open the publish tooltip from the whole label,
+  behind the `editor-synced-block-same-page-sync` experiment
+- Updated dependencies
+
+## 14.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.15
+
+### Patch Changes
+
+- [`ec66928dbdbeb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec66928dbdbeb) -
+  For the platform_editor_slash_command experiment, reorder Structure items, update slash-command
+  icons, move Jira work items to Data & Charts, and move Create Jira work item and Mention to
+  Structure. Use BlockSyncedIcon for the Synced block command.
+- Updated dependencies
+
+## 14.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.12
+
+### Patch Changes
+
+- [`90712d67e0e35`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/90712d67e0e35) -
+  Show local unpublished synced block content and publication guidance behind
+  editor-synced-block-same-page-sync.
+- Updated dependencies
+
+## 14.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.19
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 13.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.16
+
+### Patch Changes
+
+- [`ec69e45a298f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ec69e45a298f2) -
+  [ux] Preserve synced block breakout width behind `platform_editor_blocks_patch_8`.
+- Updated dependencies
+
+## 13.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.14
+
+### Patch Changes
+
+- [`9a3a071d7fcce`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9a3a071d7fcce) -
+  Fix Safari synced block copying when `platform_editor_blocks_patch_9` is enabled.
+  `copyDomNodeWithResult` exposes synchronous Patch 9 failures while `copyDomNode` retains its
+  existing void API.
+- Updated dependencies
+
+## 13.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- [`da4407c437f48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da4407c437f48) -
+  Always register synced-block quick insert when enabled by the current slash-command and
+  source-creation controls.
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- [`4273da2e1a648`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4273da2e1a648) -
+  Register native Quick Insert items behind `platform_editor_slash_command`.
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`da5eaf0bc37da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da5eaf0bc37da) -
+  Clean up the platform_editor_editor_ssr_streaming experiment. The SSR streaming code paths are now
+  permanent and the isSSRStreaming() utility has been removed from
+  @atlaskit/editor-common/core-utils.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.9
+
+### Patch Changes
+
+- [`0d9249f213c55`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d9249f213c55) -
+  Preserve source block content when unsyncing
+
+## 12.0.8
+
+### Patch Changes
+
+- [`1f0dab65b6efd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f0dab65b6efd) -
+  Remove unreachable cut-handling branch and duplicated synced block node view setup left over from
+  feature gate cleanup
+- Updated dependencies
+
+## 12.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.6
+
+### Patch Changes
+
+- [`0b4753c0a8c07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0b4753c0a8c07) -
+  Clean up feature gates from completed rollout
+- Updated dependencies
+
+## 12.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- [`b0b3eb20766c7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b0b3eb20766c7) -
+  [ux] Align the activation synced locations dropdown with the floating toolbar.
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.11
+
+### Patch Changes
+
+- [`2716a922a3300`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2716a922a3300) -
+  Align the synced locations empty-state illustration with light and dark theme tokens.
+- Updated dependencies
+
+## 11.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.8
+
+### Patch Changes
+
+- [`c32d495837a60`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c32d495837a60) -
+  [ux] Clear the red destructive highlight on a synced block when the delete confirmation is
+  cancelled
+- Updated dependencies
+
+## 11.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.5
+
+### Patch Changes
+
+- [`918ee54b672aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/918ee54b672aa) -
+  Fix synced block delete modal reference counts
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.3
+
+### Patch Changes
+
+- [`7167e21d35f98`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7167e21d35f98) -
+  Include the source block in synced location toolbar counts and explain the empty state in a
+  tooltip
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- [`72f7cec91a1d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72f7cec91a1d4) -
+  Remove the `editor_synced_block_perf` experiment. The lazy node-view init and cached
+  status-decoration apply path are now always on, and the legacy full-document `descendants()`
+  decoration walk has been removed.
+- [`72f7cec91a1d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72f7cec91a1d4) -
+  Remove the `platform_synced_block_use_new_source_nodeview` experiment. The new source node view is
+  now always used and the superseded implementation has been deleted.
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.8.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.8.4
+
+### Patch Changes
+
+- [`956983518bdcb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/956983518bdcb) -
+  Fix synced locations empty state colors in dark mode
+
+## 10.8.3
+
+### Patch Changes
+
+- [`2bba789b40ef3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2bba789b40ef3) -
+  [EDITOR-8406] Behind the `platform_editor_sync_block_activation` experiment, rename the synced
+  block block-menu copy action from "Copy synced block" to "Copy to sync". Existing terminology and
+  behaviour remain unchanged outside the experiment.
+
+## 10.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.8.0
+
+### Minor Changes
+
+- [`ff72ee885c82b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ff72ee885c82b) -
+  [ux] Prompt users with a feedback flag after undoing or deleting a synced block, and open the
+  product feedback collector only when they choose Give feedback. Keep the prompt UI and scoped
+  action alignment in the synced block plugin while preserving Flag's built-in action buttons.
+
+  Products check and persist the prompt allowance around the shared flag lifecycle:
+
+  ```ts
+  {
+  	shouldShowFeedbackPrompt: () => !feedbackStorage.has('prompt-shown'),
+  	onFeedbackPromptShown: () => feedbackStorage.set('prompt-shown', true),
+  	onGiveFeedback: (context) => openFeedbackCollector(context),
+  }
+  ```
+
+### Patch Changes
+
+- [`17014b0e91a7f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/17014b0e91a7f) -
+  Update the synced locations activation empty state
+- [`b4e3664f1eb3c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b4e3664f1eb3c) -
+  Keep the source sync block placeholder within narrow containers
+- [`04f47b1369740`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/04f47b1369740) -
+  Clarify source synced block labels and show more of referenced titles
+- Updated dependencies
+
+## 10.7.3
+
+### Patch Changes
+
+- [`472c37e82078b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/472c37e82078b) -
+  [ux] Fixed the source synced block placeholder disappearing after placing the cursor inside an
+  empty block and then clicking away from the editor.
+- Updated dependencies
+
+## 10.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.7.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.6.2
+
+### Patch Changes
+
+- [`1207d5bc1e287`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1207d5bc1e287) -
+  Show zero synced locations immediately for newly inserted source blocks
+- Updated dependencies
+
+## 10.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.6.0
+
+### Minor Changes
+
+- [`564443b22eeeb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/564443b22eeeb) -
+  Fix source synced block unsync deleting the entire block and its content instead of unwrapping it
+  when the cursor is inside the block (behind `platform_editor_blocks_patch_6`).
+
+  This release also adds a new `./types` subpath export so consumers can import the `SyncBlockAttrs`
+  type without reaching into the package internals:
+
+  ```ts
+  import type { SyncBlockAttrs } from '@atlaskit/editor-plugin-synced-block/types';
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.5.0
+
+### Minor Changes
+
+- [`3d4d7717366f7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d4d7717366f7) -
+  Prompt for feedback after eligible synced block deletion or undo
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.4.7
+
+### Patch Changes
+
+- [`d9e8a63a60b63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d9e8a63a60b63) -
+  Keep the placeholder visible in empty source synced blocks for the sync block activation treatment
+  while preserving the existing placeholder behavior in the control.
+
+## 10.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.4.3
+
+### Patch Changes
+
+- [`8b49fc1fd582e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8b49fc1fd582e) -
+  Show the number of synced block references in the floating toolbar when the sync block activation
+  experiment is enabled.
+- Updated dependencies
+
+## 10.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.4.1
+
+### Patch Changes
+
+- [`67ae1e14e8090`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/67ae1e14e8090) -
+  Revert persistent placeholder decorations for empty source synced blocks while retaining the sync
+  block activation experiment setup.
+
+## 10.4.0
+
+### Minor Changes
+
+- [`b0cecd4d5b970`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b0cecd4d5b970) -
+  Add a product feedback trigger to synced block overflow actions.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.5
+
+### Patch Changes
+
+- [`ead18351c8a3c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ead18351c8a3c) -
+  Add educational guidance to synced block copy confirmation flags in the activation experiment.
+- Updated dependencies
+
+## 10.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.0
+
+### Minor Changes
+
+- [`550cda5b8889d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/550cda5b8889d) -
+  Add a stable selector for the Copy to sync action
+
+  ```ts
+  SYNCED_BLOCK_BUTTON_TEST_ID.syncedBlockToolbarCopy; // 'synced-block-copy-btn'
+  ```
+
+## 10.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.13
+
+### Patch Changes
+
+- [`3574c94470487`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3574c94470487) -
+  Add `blockTypeMessages.syncedBlockQuickInsertTitle` for noun-form synced block labels, for example
+  `formatMessage(blockTypeMessages.syncedBlockQuickInsertTitle)`, and use it in quick insert under
+  the activation experiment.
+- [`abf715708f186`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/abf715708f186) -
+  Move synced block Delete into an overflow menu for activation experiment users
+- Updated dependencies
+
+## 10.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.11
+
+### Patch Changes
+
+- [`a3bbfab896310`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3bbfab896310) -
+  Replace feature gate `confluence_frontend_native_tabs_extension` with experiment
+  `confluence_native_tabs_experiment` using `expValEquals` from
+  `@atlaskit/tmp-editor-statsig/exp-val-equals`. Usage:
+  `expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)`.
+- Updated dependencies
+
+## 10.2.10
+
+### Patch Changes
+
+- [`abfc496602dcb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/abfc496602dcb) -
+  [ux] Fix the "when the page is published" link in the unpublished synced block reference error
+  card. Links rendered inside the reference sync block's contentEditable island did not navigate on
+  click (the browser placed the caret instead); anchor navigation is now re-triggered on click, and
+  interactive elements show the pointer cursor rather than the text cursor. Both behaviours are
+  gated behind the `platform_editor_sync_block_activation` experiment.
+- Updated dependencies
+
+## 10.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.8
+
+### Patch Changes
+
+- [`c1e8426f607ad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c1e8426f607ad) -
+  [EDITOR-8060] Behind the `platform_editor_sync_block_activation` experiment, the synced block
+  floating toolbar copy button is now the primary action: it shows a visible "Copy to sync" label
+  and is moved to the first position, ahead of the informational synced-location dropdown. Existing
+  behaviour is unchanged for users outside the experiment.
+- Updated dependencies
+
+## 10.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.5
+
+### Patch Changes
+
+- [`12355710b809c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/12355710b809c) -
+  Add the `platform_editor_sync_block_activation` boolean experiment API to
+  `@atlaskit/tmp-editor-statsig` for Confluence sync block activation checks. Consumers can gate
+  sync block activation behavior with
+  `expValEquals('platform_editor_sync_block_activation', 'isEnabled', true)`, for example to keep
+  source synced block placeholders visible only while the activation experiment is enabled.
+
+  Decoration-based placeholders now remain visible for empty source synced blocks while activation
+  is enabled.
+
+  The bodied synced block source nodeview now keeps its existing SSR streaming label-container fix
+  and only applies the non-SSR separate label container behavior when
+  `platform_synced_block_patch_14` is enabled.
+
+- Updated dependencies
+
+## 10.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.3
+
+### Patch Changes
+
+- [`95370844dfbda`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/95370844dfbda) -
+  Hide the Sync block block-menu action for Native Tabs.
+
+## 10.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`c0b0b98789f7a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c0b0b98789f7a) -
+  Add analytics for synced block source creation: record the creation input method and whether the
+  block was created empty, and emit a one-off event the first time an empty source block gains
+  content.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- [`70c2b083643f1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/70c2b083643f1) -
+  [ux] Fix creating a synced block from the block menu or toolbar so the caret is placed inside the
+  new block and the editor is re-focused, matching the slash-command behaviour. Previously the
+  cursor was left outside the newly created synced block.
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`ecafba7c81b7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ecafba7c81b7d) -
+  Enrich synced block deletion analytics so source-block deletions can be explained rather than just
+  counted. The source `syncedBlockDelete` operational event now carries `deletionReason` and a
+  `mechanism` dimension (undo/redo/deleteButton/keyboardDelete/selectionReplaced/other), and
+  repeated emissions for the same removal are de-duplicated. A real operational `syncedBlockCreate`
+  success event is now emitted, and the source bare-uuid join key is added to the copy event so
+  create/copy/delete can be correlated. All new attributes and events are gated behind
+  `platform_editor_blocks_patch_4`; gate-off behaviour is unchanged.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.21
+
+### Patch Changes
+
+- [`845de90a5f39e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/845de90a5f39e) -
+  [ux] Fix source synced block deletion intermittently failing when the document changes (from your
+  own edits or a collaborator's) while the delete confirmation dialog is open. The delete is now
+  recomputed from the current document on confirm, instead of replaying a stale transaction captured
+  when the dialog opened. Gated behind `platform_editor_blocks_patch_4`.
+
+## 10.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- [`d034aa0575c89`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d034aa0575c89) -
+  Add same-document analytics for synced block edit source and always evaluate the scroll gate.
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- [`e7ba9d5fba7d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e7ba9d5fba7d0) -
+  Scroll to same-page synced block source when editing source behind platform_editor_blocks_patch_2.
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.9
+
+### Patch Changes
+
+- [`5dd8cc218e393`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dd8cc218e393) -
+  Release packages affected by an issue blocking you from installing <@compiled>/react due to a yarn
+  patch.
+- Updated dependencies
+
+## 9.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.1.0
+
+### Minor Changes
+
+- [`6e3b4e2317b34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e3b4e2317b34) -
+  [EDITOR-7476](https://hello.jira.atlassian.cloud/browse/EDITOR-7476) - centralize SSR streaming
+  checks behind `isSSRStreaming()` so SSR eligibility is checked before emitting exposure for the
+  `platform_editor_editor_ssr_streaming` experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.2
+
+### Patch Changes
+
+- [`ed89ab85318b9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed89ab85318b9) -
+  [ux] Allow text selection and copying within reference synced blocks in the editor
+
+## 9.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.5.0
+
+### Minor Changes
+
+- [`608189fcbdca7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/608189fcbdca7) -
+  Harden synced block cache deletion lifecycle: replace the legacy 1-second eager deletion with a
+  guard-checked 30-second grace period that protects against premature cache invalidation when
+  blocks unmount/remount during editor open, block moves, or other React subscribe/unsubscribe
+  churn. Fixes an intermittent issue where the 'Edit at source' button could become disabled and the
+  source link could disappear from the synced locations dropdown. Gated behind
+  platform_synced_block_patch_14.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.13
+
+### Patch Changes
+
+- [`c4ae9a3284485`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4ae9a3284485) -
+  Add extra space after 'Last edited:' and bold 'Synced from' heading in synced block tooltip
+- [`02e2dd6d73009`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02e2dd6d73009) -
+  Move delete button out of overflow menu into direct toolbar button in synced block toolbar
+- Updated dependencies
+
+## 8.4.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.11
+
+### Patch Changes
+
+- [`3b124b51740be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b124b51740be) -
+  Remove fully rolled out feature gates platform_synced_block_patch_12 and
+  platform_synced_blocks_dogfooding
+- Updated dependencies
+
+## 8.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.9
+
+### Patch Changes
+
+- [`d1de671baa2aa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1de671baa2aa) -
+  Restore the synced locations dropdown trigger test id when `platform_synced_block_patch_13` is
+  enabled.
+- Updated dependencies
+
+## 8.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.4
+
+### Patch Changes
+
+- [`0805dc02ccee3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0805dc02ccee3) -
+  Fix partial cut handling for source synced blocks behind platform_synced_block_patch_13.
+- Updated dependencies
+
+## 8.4.3
+
+### Patch Changes
+
+- [`085a281306c03`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/085a281306c03) -
+  Add defensive mechanisms for synced block EntityNotFound errors:
+  - Add retry with exponential backoff when fetching synced block references returns EntityNotFound
+    (up to 3 retries with 2s/4s/8s delays)
+  - Add transformPasted handler to convert any bodiedSyncBlock nodes arriving via paste into
+    syncBlock references, preventing createBlock from being called with the wrong parentId
+
+  Both changes are gated behind `platform_synced_block_patch_13`.
+
+- Updated dependencies
+
+## 8.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.4.0
+
+### Minor Changes
+
+- [`6644994a61d9c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6644994a61d9c) -
+  Add editor-positioned dropdown support for custom floating toolbar items
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.15
+
+### Patch Changes
+
+- [`1c77cce42b15b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c77cce42b15b) -
+  Updated sync blocks to support ssr streaming
+- Updated dependencies
+
+## 8.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.12
+
+### Patch Changes
+
+- [`6ce6728b2191c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6ce6728b2191c) -
+  Adds separate testId for overflow menu to differenciate between reference and source sync block
+  button.
+
+## 8.3.11
+
+### Patch Changes
+
+- [`2cef675d24c75`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2cef675d24c75) -
+  Performance: short-circuit synced block plugin state updates for no-op editor transactions when
+  the perf experiment is enabled.
+- Updated dependencies
+
+## 8.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.9
+
+### Patch Changes
+
+- [`7ddc63dca3716`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ddc63dca3716) -
+  Fix synced block reference showing unpublished error when created from existing content on a live
+  page without further edits
+- Updated dependencies
+
+## 8.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.7
+
+### Patch Changes
+
+- [`cec76b6d3aeaa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cec76b6d3aeaa) -
+  Cleanup feature gate `platform_synced_block_patch_11`. Jira work-item issue-type icons,
+  product-specific copy, and Relay environment initialisation are now permanently enabled.
+- Updated dependencies
+
+## 8.3.6
+
+### Patch Changes
+
+- [`81682ab6c4a7f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/81682ab6c4a7f) -
+  EDITOR-7104: Update editor block menu copy behind feature gates.
+  - Update synced block quick insert and toolbar copy to "Sync block" behind
+    `platform_synced_block_patch_12`
+  - Update block menu "Turn into" copy to "Change format" behind
+    `platform_editor_block_menu_v2_patch_2`
+
+- Updated dependencies
+
+## 8.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.4
+
+### Patch Changes
+
+- [`4c459a2718b67`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c459a2718b67) -
+  Clean up synced block feature gates
+- Updated dependencies
+
+## 8.3.3
+
+### Patch Changes
+
+- [`434b508cc2368`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/434b508cc2368) -
+  EDITOR-7104: Add `featured-section` placement to block menu selection extension API
+  - Add `featured-section` to `BlockMenuPlacement` type which registers a top-level section with a
+    separator
+  - Add `BLOCK_ACTIONS_TEMPLATE_SECTION` and `BLOCK_ACTIONS_FEATURED_EXTENSION_SECTION_KEYS`
+    constants to `editor-common`
+  - Render lozenge inline next to label text (not pushed to far right) for dropdown and nested
+    dropdown items
+  - Move "New" lozenge next to label for synced block dropdown items
+  - Block template/menu behaviour gated behind `platform_editor_block_menu_v2_patch_2`; synced-block
+    lozenge placement behaviour gated behind `platform_synced_block_patch_12`
+
+- Updated dependencies
+
+## 8.3.2
+
+### Patch Changes
+
+- [`13169b42740a8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/13169b42740a8) -
+  Cache experiment value at plugin creation to avoid redundant Statsig SDK evaluations on every
+  editor transaction
+- Updated dependencies
+
+## 8.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.3.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.17
+
+### Patch Changes
+
+- [`9784984097a8a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9784984097a8a) -
+  [ux] Improves synced block support for Jira work items, including product-specific copy,
+  issue-type icons, and enhanced analytics.
+- Updated dependencies
+
+## 8.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.14
+
+### Patch Changes
+
+- [`f3286bd234240`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f3286bd234240) -
+  Only iterate top-level nodes in buildStatusDecorations for improved performance
+- [`4b21ea1a7170f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b21ea1a7170f) -
+  Performance improvements behind an experiment.
+- Updated dependencies
+
+## 8.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.11
+
+### Patch Changes
+
+- [`a160344820ea5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a160344820ea5) -
+  EDITOR-6929: Fix React re-render cascade by (1) returning same plugin state reference from apply()
+  when nothing changed, (2) memoizing getSharedState to return a stable reference, and (3) guarding
+  contentComponent to skip rendering when hasSyncedBlocks is false. All gated behind
+  editor_synced_block_perf experiment.
+- Updated dependencies
+
+## 8.2.10
+
+### Patch Changes
+
+- [`0a702a2b251d1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a702a2b251d1) -
+  Guard menuAndToolbarExperiencesPlugin DOM listeners and floatingToolbar config behind
+  hasSyncedBlocks to avoid unnecessary work on pages without synced blocks
+- Updated dependencies
+
+## 8.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.8
+
+### Patch Changes
+
+- [`27f53bba7e425`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/27f53bba7e425) -
+  EDITOR-6930: Refactor decorations prop to map status decorations in apply() instead of rebuilding
+  via doc.descendants() every transaction. Behind editor_synced_block_perf experiment.
+- Updated dependencies
+
+## 8.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.4
+
+### Patch Changes
+
+- [`ca8aefc573cc5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca8aefc573cc5) -
+  Clean up feature gates `platform_editor_block_menu_divider_patch` and
+  `platform_editor_block_menu_copy_section` (both rolled out as true).
+- [`826bc966b7b64`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/826bc966b7b64) -
+  ED-6586: Lazy init sync block
+- Updated dependencies
+
+## 8.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.2.0
+
+### Minor Changes
+
+- [`c5fc2c5fb9fd1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c5fc2c5fb9fd1) -
+  Add discardUnpublishedSyncBlocks action to clean up orphaned synced blocks when user cancels
+  editing. Fetches block statuses from the backend on editor init and deletes all blocks with
+  'unpublished' status on cancel.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`943c90327ad3b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/943c90327ad3b) -
+  Add discardUnpublishedSyncBlocks action to clean up orphaned synced blocks when user cancels
+  editing. Fetches block statuses from the backend on editor init and deletes all blocks with
+  'unpublished' status on cancel.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- [`c9d88dc997d4a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c9d88dc997d4a) -
+  Improve quick insert ranking for synced block when searching 'create'
+  (platform_synced_block_patch_10)
+- Updated dependencies
+
+## 8.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- [`720144a6aaf86`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/720144a6aaf86) -
+  [ux] Do not show confirm modal when source sync block without references is deleted.
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.13
+
+### Patch Changes
+
+- [`1bd298ad0a152`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bd298ad0a152) -
+  [ux] EDITOR-6280 Clean up platform_editor_block_menu_v2_patch_3 to fix icon and copy in jira block
+  menu
+- Updated dependencies
+
+## 6.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.8
+
+### Patch Changes
+
+- [`fa146e17e08d6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa146e17e08d6) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 6.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`dd9c0778c3832`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dd9c0778c3832) -
+  Add \_\_livePage option to syncedBlock plugin and store managers. Add isReferenceBlock/isSyncBlock
+  methods. Use predicate functions instead of hardcoded node type names. Fix isDirty logic for
+  remote transactions. Fix flush() view-mode return value.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.48
+
+### Patch Changes
+
+- [`ef5f5792a6aaf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef5f5792a6aaf) -
+  Clean up platform_synced_block_patch_7 feature gate
+- Updated dependencies
+
+## 6.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.46
+
+### Patch Changes
+
+- [`20b51bc2e61a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/20b51bc2e61a4) -
+  Remove duplicate source synced blocks when inserting block templates with existing resourceIds and
+  show error flag
+- [`15deee785151b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/15deee785151b) -
+  EDITOR-6174 Pass node to createBodiedSyncBlockNode to cache content on creation, preventing false
+  unsaved changes on page refresh
+- Updated dependencies
+
+## 6.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.44
+
+### Patch Changes
+
+- [`38e89dd6515da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/38e89dd6515da) -
+  Read viewMode from the editorViewMode plugin and pass it to SyncBlockStoreManager so that synced
+  block side effects are suppressed when the editor is in view mode (e.g. Version History).
+- Updated dependencies
+
+## 6.0.43
+
+### Patch Changes
+
+- [`c120ecfaba934`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c120ecfaba934) -
+  [ux] Update delete and unsync modal text for source with multiple references.
+- Updated dependencies
+
+## 6.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.41
+
+### Patch Changes
+
+- [`5421779d09855`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5421779d09855) -
+  [ux] Fix error state shown in the locations dropdown on a reference sync block when no references
+  are registered yet. When the block hasn't been saved, the dropdown now shows the source page and
+  the current page instead of an error. An 'Untitled' placeholder is shown when a page has no title.
+- Updated dependencies
+
+## 6.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.35
+
+### Patch Changes
+
+- [`827be3d512390`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/827be3d512390) -
+  Refactor source synced block cache update to use appendTransaction instead of nodeview update.
+  Behind fg('platform_synced_block_update_refactor'):
+  - Moves cache update from nodeview update() to PM plugin appendTransaction hook, filtering out
+    non-user changes (remote collab, table auto-scale, dirty transactions)
+  - Moves initial cache population from nodeview constructor to PM plugin state.init()
+  - Optimises updateSyncBlockData with Fragment.eq() for O(1) comparison instead of toJSON() +
+    lodash/isEqual
+- Updated dependencies
+
+## 6.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.33
+
+### Patch Changes
+
+- [`28b7faffe727d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/28b7faffe727d) -
+  [ux] Disables 'Unsync' button in the floating toolbar when source block is added on an unpublished
+  page.
+
+## 6.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.26
+
+### Patch Changes
+
+- [`5221db0d676ef`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5221db0d676ef) -
+  Mechanical type-import autofix for tables, collab, and synchrony packages.
+- Updated dependencies
+
+## 6.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.23
+
+### Patch Changes
+
+- [`a9d6a5531d4ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9d6a5531d4ba) -
+  [ux] Ensures hasUnsavedBodiedSyncBlockChanges state is updated when page is being published.
+- Updated dependencies
+
+## 6.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.20
+
+### Patch Changes
+
+- [`0f4a08b633f6e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f4a08b633f6e) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 6.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.17
+
+### Patch Changes
+
+- [`3895f6d32cc49`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3895f6d32cc49) -
+  Set hasReceivedContentChange on successful sync block creation to ensure unsaved changes are
+  flushed
+- Updated dependencies
+
+## 6.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.14
+
+### Patch Changes
+
+- [`7428d9bf3aa13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7428d9bf3aa13) -
+  Clean up platform_synced_block_patch_5 feature gate
+- Updated dependencies
+
+## 6.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.12
+
+### Patch Changes
+
+- [`10827e937e450`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/10827e937e450) -
+  [EDITOR-5750] Fix instrumentation issues with sync block experience tracking
+- Updated dependencies
+
+## 6.0.11
+
+### Patch Changes
+
+- [`b8082ae893289`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b8082ae893289) -
+  Account for new deletionReason: source-block-unpublished
+- Updated dependencies
+
+## 6.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.8
+
+### Patch Changes
+
+- [`ef315dbd33cd4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ef315dbd33cd4) -
+  EDITOR-5603 update lozenge and tag usage in editor for Team 26 ADS changes
+- Updated dependencies
+
+## 5.4.7
+
+### Patch Changes
+
+- [`dc717554783a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/dc717554783a6) -
+  [ux] EDITOR-5556 show warning flag when extensions are added inside synced blocks
+- Updated dependencies
+
+## 5.4.6
+
+### Patch Changes
+
+- [`2e6129d5b39bc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e6129d5b39bc) -
+  EDITOR-5529 clean up platform_synced_block_patch_3 and platform_synced_block_patch_4
+- [`b853527230a60`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b853527230a60) -
+  [EDITOR-5520] Fix reference sync block shows old page data when transitioning between live pages
+- Updated dependencies
+
+## 5.4.5
+
+### Patch Changes
+
+- [`1a05924d64777`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a05924d64777) -
+  [EDITOR-5528] Fix bodiedSyncBlock mutation
+- Updated dependencies
+
+## 5.4.4
+
+### Patch Changes
+
+- [`29d9d25ebe53a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/29d9d25ebe53a) -
+  [ux] EDITOR-5009 show sync block border when dragging
+- Updated dependencies
+
+## 5.4.3
+
+### Patch Changes
+
+- [`514037bd94288`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/514037bd94288) -
+  [ux] EDITOR-5588 pass content mode setting to reference sync block
+
+## 5.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.4.1
+
+### Patch Changes
+
+- [`3b290b31e9ad1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b290b31e9ad1) -
+  Update menu button text for sync blocks
+- Updated dependencies
+
+## 5.4.0
+
+### Minor Changes
+
+- [`e9b20ca59c789`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e9b20ca59c789) -
+  EDITOR-5666 fix first node bodied synced block selection
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.36
+
+### Patch Changes
+
+- [`432dbdcd07917`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/432dbdcd07917) -
+  EDITOR-5500 add hasUnsavedBodiedSyncBlocks state to synced block plugin to allow confluence to
+  check whether changes have been saved yet before leaving the page
+- Updated dependencies
+
+## 5.3.35
+
+### Patch Changes
+
+- [`d144f08676a16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d144f08676a16) -
+  [EDITOR-5528] Remove lazy loading for bodiedSyncBlock node
+
+## 5.3.34
+
+### Patch Changes
+
+- [`6424f86f6390a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6424f86f6390a) -
+  Improve Synced Blocks robustness
+- Updated dependencies
+
+## 5.3.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.31
+
+### Patch Changes
+
+- [`469aa2343e484`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/469aa2343e484) -
+  Misc fixes for synced blocks
+- Updated dependencies
+
+## 5.3.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.29
+
+### Patch Changes
+
+- [`0356685770e37`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0356685770e37) -
+  Update Synced Block support doc url
+
+## 5.3.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.27
+
+### Patch Changes
+
+- [`7ea2e225c0abb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ea2e225c0abb) -
+  [ux] Minor styling, wording changes for block menu and sync blocks
+- Updated dependencies
+
+## 5.3.26
+
+### Patch Changes
+
+- [`85444e8a5672a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/85444e8a5672a) -
+  EDITOR-5526 clean up platform_synced_block_patch_2
+- Updated dependencies
+
+## 5.3.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.24
+
+### Patch Changes
+
+- [`3a0ebffbfb871`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a0ebffbfb871) -
+  [ux] Add flag message for when inline extensions added to synced block
+- Updated dependencies
+
+## 5.3.23
+
+### Patch Changes
+
+- [`e4b932a41725c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e4b932a41725c) -
+  [ux] EDITOR-5459 fix merging logic for subtype in resolve sync block instance
+- Updated dependencies
+
+## 5.3.22
+
+### Patch Changes
+
+- [`8806992b3642c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8806992b3642c) -
+  EDITOR-5454 update synced block insert success event to use document inserted event
+- [`2b9f36bb91309`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2b9f36bb91309) -
+  Improve robustness
+- [`0f351c68adbac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f351c68adbac) -
+  Improve robustness
+- [`bf779fa373faa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bf779fa373faa) -
+  [ux] EDITOR-5016 fix synced locations dropdown showing blogpost instead of page
+- Updated dependencies
+
+## 5.3.21
+
+### Patch Changes
+
+- [`d7566e0dff5c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7566e0dff5c9) -
+  [ux] EDITOR-5273 fix sync block layout shift in ssr by adding class name to toDom
+- Updated dependencies
+
+## 5.3.20
+
+### Patch Changes
+
+- [`fa62876ed1943`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa62876ed1943) -
+  EDITOR-5134 Clean up platform_synced_block_patch_1
+- Updated dependencies
+
+## 5.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 5.3.17
 
 ### Patch Changes

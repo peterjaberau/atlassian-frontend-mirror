@@ -1,5 +1,7 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, type SerializedStyles } from '@emotion/react';
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
@@ -28,7 +30,7 @@ export const buttonGroupStyleBeforeVisualRefresh: SerializedStyles = css({
  * @private
  * @deprecated use `import { ToolbarButtonGroup } from '@atlaskit/editor-common/ui';` instead
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const buttonGroupStyle: SerializedStyles = css({
 	display: 'inline-flex',
 	alignItems: 'center',
@@ -43,10 +45,10 @@ export const buttonGroupStyle: SerializedStyles = css({
 			border: 'none', // remove blue border when an item has been selected
 		},
 	},
-	gap: token('space.050', '4px'),
+	gap: token('space.050'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'div[role=group]': {
-		gap: token('space.050', '4px'),
+		gap: token('space.050'),
 	},
 });
 
@@ -55,13 +57,13 @@ export const buttonGroupStyle: SerializedStyles = css({
  * @deprecated use `import { ToolbarSeparator } from '@atlaskit/editor-common/ui';` instead
  */
 // If you make change here, change in above file as well.
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const separatorStyles: SerializedStyles = css({
 	background: token('color.border'),
 	width: '1px',
 	height: '24px',
 	display: 'inline-block',
-	margin: `0 ${token('space.100', '8px')}`,
+	margin: `0 ${token('space.100')}`,
 	userSelect: 'none',
 });
 
@@ -70,7 +72,7 @@ export const separatorStyles: SerializedStyles = css({
  * @deprecated use `import { ToolbarDropdownWrapper } from '@atlaskit/editor-common/ui';` instead
  */
 // If you make change here, change in above file as well.
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const wrapperStyle: SerializedStyles = css({
 	display: 'flex',
 	alignItems: 'center',
@@ -97,7 +99,7 @@ export const wrapperStyle: SerializedStyles = css({
  * @private
  * @deprecated use `import { ToolbarDropdownTriggerWrapper } from '@atlaskit/editor-common/ui';` instead
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports -- Ignored via go/DSP-18766
 export const triggerWrapperStyles: SerializedStyles = css({
 	display: 'flex',
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
@@ -113,10 +115,10 @@ export const triggerWrapperStyles: SerializedStyles = css({
  * @private
  * @deprecated use `import { ToolbarDropdownTriggerWrapper } from '@atlaskit/editor-common/ui';` instead
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const triggerWrapperStylesWithPadding: SerializedStyles = css({
 	display: 'flex',
-	paddingRight: token('space.025', '2px'),
+	paddingRight: token('space.025'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	button: {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors
@@ -126,7 +128,7 @@ export const triggerWrapperStylesWithPadding: SerializedStyles = css({
 	},
 });
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/volt-strict-mode/no-multiple-exports
 export const disableBlueBorderStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 	'&:not([disabled])::after': {

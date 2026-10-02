@@ -7,11 +7,23 @@ import { useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
+import { cssMap } from '@atlaskit/css';
 import ArrowRight from '@atlaskit/icon/core/arrow-right';
 import MenuIcon from '@atlaskit/icon/core/menu';
-import { ButtonItem, PopupMenuGroup, Section } from '@atlaskit/menu';
-import Popup from '@atlaskit/popup';
+import ButtonItem from '@atlaskit/menu/button-item';
+import PopupMenuGroup from '@atlaskit/menu/popup-menu-group';
+import Section from '@atlaskit/menu/section';
+import { Popup } from '@atlaskit/popup/popup';
+import { Flex } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
+const iconSpacingStyles = cssMap({
+	space050: {
+		paddingBlock: token('space.050'),
+		paddingInline: token('space.050'),
+	},
+});
 
 const styles = css({ display: 'flex', gap: '16px' });
 const NestedPopup = ({ shouldRenderToParent }: { shouldRenderToParent?: boolean }) => {
@@ -35,7 +47,11 @@ const NestedPopup = ({ shouldRenderToParent }: { shouldRenderToParent?: boolean 
 							{...triggerProps}
 							isSelected={isOpen}
 							onClick={() => setIsOpen(true)}
-							iconAfter={<ArrowRight spacing="spacious" label="" />}
+							iconAfter={
+								<Flex xcss={iconSpacingStyles.space050}>
+									<ArrowRight label="" />
+								</Flex>
+							}
 						>
 							More actions
 						</ButtonItem>

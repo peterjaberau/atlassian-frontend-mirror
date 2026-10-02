@@ -1,6 +1,13 @@
 {
 	"atlaskit:src": "src/index.ts",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Search Platform: Search Experience",
 		"slack": {
 			"channel": "#search-plex-prs",
@@ -11,6 +18,9 @@
 			}
 		},
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Mention"
 		}
 	},
@@ -23,19 +33,25 @@
 		"@atlaskit/analytics-gas-types": "workspace:^",
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/avatar": "workspace:^",
+		"@atlaskit/css": "workspace:^",
 		"@atlaskit/focus-ring": "workspace:^",
 		"@atlaskit/heading": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/lozenge": "workspace:^",
+		"@atlaskit/platform-feature-experiments": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
+		"@atlaskit/skeleton": "workspace:^",
+		"@atlaskit/tag": "workspace:^",
 		"@atlaskit/teams-avatar": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/tmp-editor-statsig": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlaskit/ufo": "workspace:^",
 		"@atlaskit/util-service-support": "workspace:^",
 		"@babel/runtime": "root:*",
+		"@compiled/react": "root:*",
 		"@emotion/react": "root:*",
 		"@emotion/styled": "root:*",
 		"lodash": "root:*",
@@ -46,37 +62,59 @@
 		"@af/integration-testing": "workspace:^",
 		"@af/search-test-utils": "workspace:^",
 		"@af/visual-regression": "workspace:^",
-		"@atlaskit/elements-test-helpers": "workspace:^",
+		"@atlaskit/feature-gate-js-client": "workspace:^",
 		"@atlassian/a11y-jest-testing": "workspace:^",
+		"@atlassian/a11y-playwright-testing": "workspace:^",
+		"@atlassian/experiment-test-utils": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"@types/query-string": "root:*",
 		"@types/serialize-javascript": "root:*",
-		"enzyme": "root:*",
 		"es6-promise": "root:*",
 		"exenv": "root:*",
 		"fetch-mock": "root:*",
 		"query-string": "root:*",
 		"react": "root:*",
 		"react-dom": "root:*",
-		"react-intl-next": "root:*",
+		"react-intl": "root:*",
 		"serialize-javascript": "root:*"
 	},
 	"exports": {
 		".": "./src/index.ts",
-		"./element": "./src/element.ts",
-		"./i18n": "./src/i18n.ts",
+		"./analytics": "./src/util/analytics.ts",
+		"./abstract-mention-resource": "./src/api/AbstractMentionResource.ts",
+		"./abstract-presence-resource": "./src/api/AbstractPresenceResource.ts",
+		"./default-mention-name-resolver": "./src/api/DefaultMentionNameResolver.ts",
+		"./is-resolving-mention-provider": "./src/api/isResolvingMentionProvider.ts",
+		"./is-special-mention": "./src/is-special-mention.ts",
+		"./is-team-mention": "./src/is-team-mention.ts",
+		"./is-promise": "./src/is-promise.ts",
+		"./is-restricted": "./src/is-restricted.ts",
+		"./constants": "./src/_constants.ts",
+		"./context-mention-resource": "./src/api/ContextMentionResource.ts",
 		"./i18n/*": {
 			"publish": null,
 			"default": "./src/i18n/*.ts"
 		},
-		"./item": "./src/item.ts",
+		"./mention": "./src/components/Mention/index.tsx",
+		"./mention-item/styles": "./src/components/MentionItem/styles.ts",
+		"./mention-item": "./src/components/MentionItem/index.tsx",
+		"./mention-list": "./src/components/MentionList/index.tsx",
+		"./mention-name-client": "./src/api/MentionNameClient.ts",
+		"./mention-picker": "./src/components/MentionPicker/index.tsx",
+		"./mention-resource": "./src/api/MentionResource.ts",
+		"./presence-resource": "./src/api/PresenceResource.ts",
 		"./resource": "./src/resource.ts",
+		"./resourced-mention": "./src/components/Mention/ResourcedMention.tsx",
+		"./resourced-mention-list": "./src/components/ResourcedMentionList/index.tsx",
 		"./shared-styles": "./src/shared-styles.ts",
 		"./team-resource": "./src/team-resource.ts",
-		"./typeahead": "./src/typeahead.ts",
-		"./types": "./src/types.ts"
+		"./team-mention-resource": "./src/api/TeamMentionResource.ts",
+		"./types": "./src/types.ts",
+		"./mention-name-resolver": "./src/api/MentionNameResolver.ts"
 	},
 	"keywords": [
 		"ui",
@@ -92,13 +130,23 @@
 	"peerDependencies": {
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-intl-next": "*"
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"platform-feature-flags": {
+		"platform_editor_mention_avatar_observability": {
+			"type": "boolean"
+		},
+		"rovo_chat_mention_agents": {
+			"type": "experiment",
+			"referenceOnly": true
+		},
 		"jira_ai_agent_avatar_issue_view_comment_mentions": {
 			"type": "boolean"
 		},
-		"team-avatar-in-mention-picker": {
+		"platform-dst-lozenge-tag-badge-visual-uplifts": {
+			"type": "boolean"
+		},
+		"platform_editor_agent_mentions_drop_one_fixes": {
 			"type": "boolean"
 		}
 	},
@@ -109,23 +157,6 @@
 	"sideEffects": [
 		"*.compiled.css"
 	],
-	"techstack": {
-		"@repo/internal": {
-			"deprecation": "no-deprecated-imports",
-			"design-tokens": [
-				"color"
-			],
-			"styling": "emotion"
-		}
-	},
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
-	"version": "24.4.10"
+	"version": "30.0.16"
 }

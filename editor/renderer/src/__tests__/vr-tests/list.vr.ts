@@ -1,4 +1,5 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	ListRenderer,
 	ListWithCodeblock,
@@ -11,7 +12,7 @@ import {
 	CustomStartListOrder0,
 	CustomStartListOrder99,
 	RenderUlOlwithSamePadding,
-} from './list.fixture';
+} from './list.fixture.vr.ap';
 
 snapshot(ListRenderer);
 

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import {
 	ACTION,
@@ -14,7 +14,8 @@ import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/
 import { TOOLBAR_BUTTON_TEST_ID } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
-import { ToolbarButton, ToolbarTooltip, ImageIcon } from '@atlaskit/editor-toolbar';
+import { ToolbarButton, ToolbarTooltip, ImageIcon, useToolbarUI } from '@atlaskit/editor-toolbar';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { InsertBlockPlugin } from '../../insertBlockPluginType';
 
@@ -24,16 +25,15 @@ type MediaButtonProps = {
 
 export const MediaButton = ({ api }: MediaButtonProps): React.JSX.Element | null => {
 	const { formatMessage } = useIntl();
+	const { popupsMountPoint } = useToolbarUI();
 
-	const { showMediaPicker, connectivityMode, allowsUploads } = useSharedPluginStateWithSelector(
-		api,
-		['media', 'connectivity'],
-		(states) => ({
+	const { showMediaPicker, connectivityMode, allowsUploads, isUploadPending } =
+		useSharedPluginStateWithSelector(api, ['media', 'connectivity'], (states) => ({
 			showMediaPicker: states.mediaState?.showMediaPicker,
 			allowsUploads: states.mediaState?.allowsUploads,
+			isUploadPending: !states.mediaState || states.mediaState.uploadStatus === 'pending',
 			connectivityMode: states.connectivityState?.mode,
-		}),
-	);
+		}));
 
 	const mediaButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -47,11 +47,17 @@ export const MediaButton = ({ api }: MediaButtonProps): React.JSX.Element | null
 		}
 
 		if (api?.mediaInsert?.commands?.showMediaInsertPopup) {
-			const mountInfo = mediaButtonRef.current
-				? { ref: mediaButtonRef.current, mountPoint: mediaButtonRef.current }
+			const ref = mediaButtonRef.current;
+			const resolvedMountInfo = ref?.parentElement
+				? {
+						ref,
+						mountPoint: popupsMountPoint ?? ref.parentElement,
+					}
 				: undefined;
 
-			api?.core?.actions.execute(api?.mediaInsert?.commands.showMediaInsertPopup(mountInfo));
+			api?.core?.actions.execute(
+				api?.mediaInsert?.commands.showMediaInsertPopup(resolvedMountInfo),
+			);
 		} else {
 			showMediaPicker();
 		}
@@ -66,6 +72,12 @@ export const MediaButton = ({ api }: MediaButtonProps): React.JSX.Element | null
 	};
 
 	const isOffline = isOfflineMode(connectivityMode);
+	const isDisabled =
+		isOffline ||
+		!(
+			allowsUploads ||
+			(isExperimentEnabled('platform_editor_ssr_toolbar_optimistic') && isUploadPending)
+		);
 
 	return (
 		<ToolbarTooltip content={formatMessage(messages.addMediaFiles)}>
@@ -73,7 +85,7 @@ export const MediaButton = ({ api }: MediaButtonProps): React.JSX.Element | null
 				iconBefore={<ImageIcon label={formatMessage(messages.addMediaFiles)} size="small" />}
 				onClick={onClick}
 				ref={mediaButtonRef}
-				isDisabled={isOffline || !allowsUploads}
+				isDisabled={isDisabled}
 				testId={TOOLBAR_BUTTON_TEST_ID.MEDIA}
 			/>
 		</ToolbarTooltip>

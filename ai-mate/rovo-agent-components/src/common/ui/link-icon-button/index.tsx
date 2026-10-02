@@ -5,9 +5,9 @@
  */
 import { type KeyboardEvent, type MouseEvent } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import { IconButton } from '@atlaskit/button/new';
+import IconButton from '@atlaskit/button/icon/button';
 import { cssMap, cx, jsx } from '@atlaskit/css';
 import LinkIcon from '@atlaskit/icon/core/link';
 import { Box } from '@atlaskit/primitives/compiled';
@@ -24,10 +24,12 @@ const styles = cssMap({
 export const LinkIconButton = ({
 	handleCopy,
 	visible = true,
+	agentName,
 }: {
 	handleCopy: (e: MouseEvent<Element, globalThis.MouseEvent> | KeyboardEvent<Element>) => void;
 	visible?: boolean;
-}) => {
+	agentName: string;
+}): JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	return (
@@ -39,7 +41,7 @@ export const LinkIconButton = ({
 					icon={(iconProps) => <LinkIcon {...iconProps} color={token('color.icon')} />}
 					appearance="subtle"
 					spacing="compact"
-					label={formatMessage(messages.copyAgentLinkLabel)}
+					label={formatMessage(messages.copyAgentLinkLabel, { agentName })}
 				/>
 			</Box>
 		</>

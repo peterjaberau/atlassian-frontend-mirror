@@ -1,27 +1,46 @@
-import { flattenStep } from './flattenStep';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+
 import { applyTargetTextTypeStep } from './steps/applyTargetTextTypeStep';
 import { convertEachNodeStep } from './steps/convertEachNodeStep';
 import { decisionListToListStep } from './steps/decisionListToListStep';
 import { flattenListStep } from './steps/flattenListStep';
+import { flattenStep } from './steps/flattenStep';
 import { listToDecisionListStep } from './steps/listToDecisionListStep';
 import { listToListStep } from './steps/listToListStep';
 import { mergeNeighbourListsStep } from './steps/mergeNeighbourListsStep';
+import { unwrapExpandStep } from './steps/unwrapExpandStep';
 import { unwrapLayoutStep } from './steps/unwrapLayoutStep';
 import { unwrapListStep } from './steps/unwrapListStep';
+import { unwrapStep } from './steps/unwrapStep';
 import { wrapBlockquoteToDecisionListStep } from './steps/wrapBlockquoteToDecisionListStep';
+import { wrapIntoListStep } from './steps/wrapIntoListStep';
 import { wrapMixedContentStep } from './steps/wrapMixedContentStep';
+import { wrapStep } from './steps/wrapStep';
 import type { NodeTypeName, TransformStep } from './types';
-import { unwrapExpandStep } from './unwrapExpandStep';
-import { unwrapStep } from './unwrapStep';
-import { wrapIntoListStep } from './wrapIntoListStep';
-import { wrapStep } from './wrapStep';
 
-// Transform steps for all node type pairs.
-// If a transformation is not defined (undefined), it is not available.
-export const TRANSFORMATION_MATRIX: Record<
-	NodeTypeName,
-	Partial<Record<NodeTypeName, TransformStep[]>>
-> = {
+type TransformationMatrix = Record<NodeTypeName, Partial<Record<NodeTypeName, TransformStep[]>>>;
+
+const applyTargetHeadingToParagraphStep: TransformStep = (nodes, context) => {
+	if (!isExperimentEnabled('platform_editor_block_menu_small_text')) {
+		return nodes;
+	}
+
+	return nodes.map((node) => {
+		if (node.type.name !== 'heading') {
+			return node;
+		}
+
+		return applyTargetTextTypeStep([node], context).at(0) ?? node;
+	});
+};
+
+/**
+ * Creates the transformation matrix for all node type pairs.
+ * When includePanelC1 is true (platform_editor_nest_table_in_panel experiment on),
+ * panel_c1 entries are included as both source and target types.
+ * If a transformation is not defined (undefined), it is not available.
+ */
+const createTransformationMatrix = (includePanelC1: boolean): TransformationMatrix => ({
 	paragraph: {
 		heading: [flattenStep, applyTargetTextTypeStep],
 		blockquote: [wrapMixedContentStep],
@@ -30,6 +49,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapMixedContentStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapMixedContentStep],
+		...(includePanelC1 ? { panel_c1: [wrapMixedContentStep] } : {}),
 		bulletList: [wrapIntoListStep],
 		orderedList: [wrapIntoListStep],
 		taskList: [wrapIntoListStep],
@@ -44,6 +64,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapMixedContentStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapMixedContentStep],
+		...(includePanelC1 ? { panel_c1: [wrapMixedContentStep] } : {}),
 		bulletList: [wrapIntoListStep],
 		orderedList: [wrapIntoListStep],
 		taskList: [wrapIntoListStep],
@@ -55,27 +76,40 @@ export const TRANSFORMATION_MATRIX: Record<
 		expand: [unwrapStep, wrapStep],
 		nestedExpand: [unwrapStep, wrapStep],
 		layoutSection: [unwrapStep, wrapMixedContentStep],
-		paragraph: [unwrapStep],
+		paragraph: [unwrapStep, applyTargetHeadingToParagraphStep],
 	},
+	panel_c1: includePanelC1
+		? {
+				blockquote: [unwrapStep, wrapMixedContentStep],
+				codeBlock: [unwrapStep, wrapMixedContentStep],
+				expand: [unwrapStep, wrapStep],
+				nestedExpand: [unwrapStep, wrapStep],
+				layoutSection: [unwrapStep, wrapMixedContentStep],
+				paragraph: [unwrapStep, applyTargetHeadingToParagraphStep],
+			}
+		: {},
 	expand: {
 		panel: [unwrapExpandStep, wrapMixedContentStep],
+		...(includePanelC1 ? { panel_c1: [unwrapExpandStep, wrapMixedContentStep] } : {}),
 		blockquote: [unwrapExpandStep, wrapMixedContentStep],
 		layoutSection: [unwrapExpandStep, wrapMixedContentStep],
 		nestedExpand: [unwrapExpandStep, wrapStep],
-		paragraph: [unwrapExpandStep],
+		paragraph: [unwrapExpandStep, applyTargetHeadingToParagraphStep],
 	},
 	nestedExpand: {
 		panel: [unwrapExpandStep, wrapMixedContentStep],
+		...(includePanelC1 ? { panel_c1: [unwrapExpandStep, wrapMixedContentStep] } : {}),
 		blockquote: [unwrapExpandStep, wrapMixedContentStep],
 		layoutSection: [unwrapExpandStep, wrapMixedContentStep],
-		paragraph: [unwrapExpandStep],
+		paragraph: [unwrapExpandStep, applyTargetHeadingToParagraphStep],
 	},
 	blockquote: {
 		expand: [wrapStep],
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [unwrapStep, wrapStep],
-		paragraph: [unwrapStep],
+		...(includePanelC1 ? { panel_c1: [unwrapStep, wrapStep] } : {}),
+		paragraph: [unwrapStep, applyTargetHeadingToParagraphStep],
 		decisionList: [unwrapStep, wrapBlockquoteToDecisionListStep],
 	},
 	layoutSection: {
@@ -83,7 +117,8 @@ export const TRANSFORMATION_MATRIX: Record<
 		expand: [unwrapLayoutStep, wrapStep],
 		nestedExpand: [unwrapLayoutStep, wrapStep],
 		panel: [unwrapLayoutStep, wrapMixedContentStep],
-		paragraph: [unwrapLayoutStep],
+		...(includePanelC1 ? { panel_c1: [unwrapLayoutStep, wrapMixedContentStep] } : {}),
+		paragraph: [unwrapLayoutStep, applyTargetHeadingToParagraphStep],
 	},
 	codeBlock: {
 		blockquote: [wrapStep],
@@ -91,6 +126,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 		paragraph: [applyTargetTextTypeStep],
 	},
 	bulletList: {
@@ -102,6 +138,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 		paragraph: [flattenListStep, unwrapListStep, applyTargetTextTypeStep],
 	},
 	orderedList: {
@@ -113,6 +150,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 		paragraph: [flattenListStep, unwrapListStep, applyTargetTextTypeStep],
 	},
 	taskList: {
@@ -123,6 +161,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 		paragraph: [flattenListStep, unwrapListStep, applyTargetTextTypeStep],
 	},
 	table: {
@@ -136,6 +175,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 		bulletList: [wrapIntoListStep],
 		orderedList: [wrapIntoListStep],
 	},
@@ -145,6 +185,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 	},
 	media: {
 		blockquote: [wrapStep],
@@ -153,6 +194,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 		bulletList: [wrapIntoListStep],
 		orderedList: [wrapIntoListStep],
 		taskList: [wrapIntoListStep],
@@ -167,6 +209,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 		paragraph: [flattenListStep, unwrapListStep, applyTargetTextTypeStep],
 		heading: [flattenListStep, unwrapListStep, applyTargetTextTypeStep],
 	},
@@ -175,6 +218,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 	},
 	embedCard: {
 		expand: [wrapStep],
@@ -187,6 +231,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 	},
 	bodiedExtension: {
 		nestedExpand: [wrapStep],
@@ -199,6 +244,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapStep],
 		layoutSection: [wrapStep],
 		panel: [wrapStep],
+		...(includePanelC1 ? { panel_c1: [wrapStep] } : {}),
 		bulletList: [wrapIntoListStep],
 		orderedList: [wrapIntoListStep],
 		taskList: [wrapIntoListStep],
@@ -211,6 +257,7 @@ export const TRANSFORMATION_MATRIX: Record<
 		nestedExpand: [wrapMixedContentStep],
 		layoutSection: [wrapMixedContentStep],
 		panel: [wrapMixedContentStep],
+		...(includePanelC1 ? { panel_c1: [wrapMixedContentStep] } : {}),
 		bulletList: [convertEachNodeStep, mergeNeighbourListsStep],
 		orderedList: [convertEachNodeStep, mergeNeighbourListsStep],
 		taskList: [convertEachNodeStep, mergeNeighbourListsStep],
@@ -218,4 +265,8 @@ export const TRANSFORMATION_MATRIX: Record<
 		paragraph: [convertEachNodeStep],
 		heading: [applyTargetTextTypeStep],
 	},
-};
+});
+
+export const TRANSFORMATION_MATRIX: TransformationMatrix = createTransformationMatrix(false);
+export const TRANSFORMATION_MATRIX_PANEL_C1: TransformationMatrix =
+	createTransformationMatrix(true);

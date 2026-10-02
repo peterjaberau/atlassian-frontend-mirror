@@ -1,11 +1,11 @@
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import type { UIAnalyticsEvent } from '@atlaskit/analytics-next';
-import type { Node } from '@atlaskit/editor-prosemirror/model';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import type { Node, Schema } from '@atlaskit/editor-prosemirror/model';
 import type { EditorState, Transaction } from '@atlaskit/editor-prosemirror/state';
 
 import type { ACTION, EditorAnalyticsAPI, INPUT_METHOD } from '../analytics';
-import { type CardAppearance, type CardProvider } from '../provider-factory';
+import type { CardAppearance, CardProvider } from '../provider-factory';
 import type { Command, FloatingToolbarItem } from '../types';
 
 export interface OptionConfig {
@@ -37,6 +37,24 @@ export type QueueCardsFromTransactionAction = (
 	sourceEvent?: UIAnalyticsEvent | null | undefined,
 	appearance?: CardAppearance,
 ) => Transaction;
+
+/**
+ * Like {@link QueueCardsFromTransactionAction} but scoped to an explicit
+ * document range (`from`..`to`) instead of the entire step range of the
+ * transaction. Use this when only newly-inserted content should be resolved.
+ */
+export type QueueCardsFromRangeAction = (
+	state: EditorState,
+	tr: Transaction,
+	from: number,
+	to: number,
+	source: CardReplacementInputMethod,
+	analyticsAction?: ACTION,
+	normalizeLinkText?: boolean,
+	sourceEvent?: UIAnalyticsEvent | null | undefined,
+	appearance?: CardAppearance,
+) => Transaction;
+
 export type HideLinkToolbarAction = (tr: Transaction) => Transaction;
 export type ChangeSelectedCardToLink = (
 	text?: string,
@@ -63,10 +81,87 @@ export type GetEndingToolbarItems = (
 	link: string,
 ) => FloatingToolbarItem<Command>[];
 
+/**
+ * Attributes passed to an embed card node transformer.
+ * Contains the URL and layout information needed to transform
+ * an embedCard into an alternative node representation.
+ */
+export type EmbedCardTransformAttrs = {
+	layout?: string;
+	originalHeight?: number | null;
+	originalWidth?: number | null;
+	url: string;
+	width?: number;
+};
+
+/**
+ * A generic transformer function that converts embed card attributes into
+ * an alternative ProseMirror Node (e.g. a native embed extension node).
+ *
+ * Returns undefined if the URL is not supported or transformation is not possible.
+ *
+ * May return a Promise when the transformation requires async work, such as
+ * resolving a Confluence short-link URL via the Object Resolver Service before
+ * matching against a registered experience manifest. Callers that support async
+ * transformation should check for a Promise return value and await it.
+ */
+export type EmbedCardNodeTransformer = (
+	schema: Schema,
+	attrs: EmbedCardTransformAttrs,
+) => Node | undefined | Promise<Node | undefined>;
+
+/**
+ * Options for creating a transform command that replaces a selected card node
+ * with an alternative node representation.
+ */
+export type EmbedCardTransformCommandOptions = {
+	/**
+	 * Callback to augment the transaction with additional concerns
+	 * (e.g. analytics events, datasource stash updates, link metadata).
+	 */
+	augmentTransaction?: (tr: Transaction, state: EditorState) => void;
+	editorAnalyticsApi?: EditorAnalyticsAPI;
+};
+
+/**
+ * A factory function that creates a Command to replace the currently selected
+ * card node with an alternative node representation (e.g. a native embed).
+ *
+ * The returned command should return false if transformation is not possible.
+ */
+export type CreateEmbedCardTransformCommand = (
+	options?: EmbedCardTransformCommandOptions,
+) => Command;
+
+export interface EmbedCardTransformers {
+	createEmbedCardTransformCommand: CreateEmbedCardTransformCommand;
+	embedCardNodeTransformer: EmbedCardNodeTransformer;
+}
+
 export type CardPluginActions = {
 	getEndingToolbarItems: GetEndingToolbarItems;
 	getStartingToolbarItems: GetStartingToolbarItems;
 	hideLinkToolbar: HideLinkToolbarAction;
 	queueCardsFromChangedTr: QueueCardsFromTransactionAction;
+	/**
+	 * Like `queueCardsFromChangedTr` but scoped to an explicit document range.
+	 * Use when only newly-inserted content should be resolved, to avoid
+	 * accidentally converting pre-existing links in the surrounding document.
+	 *
+	 * Optional for backward compatibility — older versions of the card plugin
+	 * may not expose this action. Callers should fall back to
+	 * `queueCardsFromChangedTr` when unavailable.
+	 */
+	queueCardsFromRange?: QueueCardsFromRangeAction;
+	registerEmbedCardTransformer: (transformers: EmbedCardTransformers) => void;
+	/**
+	 * Resolves a URL via the Object Resolver Service and returns the canonical
+	 * expanded URL. Useful for expanding Confluence short-link URLs
+	 * (`/wiki/x/<token>`) before matching against experience manifests.
+	 *
+	 * Returns `undefined` if the URL cannot be resolved or ORS returns no
+	 * usable URL in its response data.
+	 */
+	resolveShortLinkUrl: (url: string) => Promise<string | undefined>;
 	setProvider: (provider: Promise<CardProvider>) => Promise<boolean>;
 };

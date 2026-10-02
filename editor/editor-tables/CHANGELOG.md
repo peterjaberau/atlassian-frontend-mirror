@@ -1,5 +1,1294 @@
 # @atlaskit/editor-tables
 
+## 3.2.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.30
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.17
+
+### Patch Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+- Updated dependencies
+
+## 3.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.2.0
+
+### Minor Changes
+
+- [`3ea3e1ea19b04`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3ea3e1ea19b04) -
+  Add dedicated table selection entry points while preserving existing imports and table editing
+  behavior. Prefer the following imports over the aggregate `@atlaskit/editor-tables/utils` entry
+  point:
+  - `import { selectTable } from '@atlaskit/editor-tables/select-table'`
+  - `import { selectTableClosestToPos } from '@atlaskit/editor-tables/select-table-closest-to-pos'`
+  - `import { getTableSelectionClosesToPos } from '@atlaskit/editor-tables/get-table-selection-closes-to-pos'`
+
+## 3.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.58
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 3.0.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.56
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.52
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.43
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.35
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.32
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.31
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.30
+
+### Patch Changes
+
+- [`2e35052e8fe41`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2e35052e8fe41) -
+  Remove the temporary experiment mock after the drag-and-drop multiselect cleanup.
+- Updated dependencies
+
+## 3.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.26
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.11
+
+### Patch Changes
+
+- [`346f91cfe1997`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/346f91cfe1997) -
+  Clean up prefer static regex violations
+- Updated dependencies
+
+## 3.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.19
+
+### Patch Changes
+
+- [`7f8f275864fb6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f8f275864fb6) -
+  Cleanup experiment `platform_editor_analyse_table_with_merged_cells`.
+- Updated dependencies
+
+## 2.10.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.10.0
+
+### Minor Changes
+
+- [`7b2ab46c79d94`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b2ab46c79d94) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.90
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.89
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.88
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.87
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.86
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.85
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.84
+
+### Patch Changes
+
+- [`ab837b5646256`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ab837b5646256) -
+  [ux] EDITOR-6274 Clean up platform_editor_element_drag_and_drop_multiselect
+- Updated dependencies
+
+## 2.9.83
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.82
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.81
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.80
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.79
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.78
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.77
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.76
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.75
+
+### Patch Changes
+
+- [`d2c265eaaf495`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2c265eaaf495) -
+  Remove isDragAndDropEnabled dead code from pm-plugins - always true (EDITOR-6290)
+- Updated dependencies
+
+## 2.9.74
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.73
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.72
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.71
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.70
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.69
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.68
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.67
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.66
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.65
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.64
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.63
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.62
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.61
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.60
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.59
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.58
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.57
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.56
+
+### Patch Changes
+
+- [`5221db0d676ef`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5221db0d676ef) -
+  Mechanical type-import autofix for tables, collab, and synchrony packages.
+
+## 2.9.55
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.54
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.53
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.52
+
+### Patch Changes
+
+- [`9ed32aea2c1d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ed32aea2c1d3) -
+  Replace feature experiment util with cross platform alternative for platform_editor_block_menu
+
+## 2.9.51
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.50
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.49
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.48
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.47
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.46
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.45
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.44
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.43
+
+### Patch Changes
+
+- [`1d245f9d74df5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d245f9d74df5) -
+  [ux] [EDITOR-1682] modify the logic in determineTableHeaderStateFromTableNode to read the 1st and
+  n_th cells instead of 1st and 2nd behind `platform_editor_analyse_table_with_merged_cells`
+- Updated dependencies
+
+## 2.9.42
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.41
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.40
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.39
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.38
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.37
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.36
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.35
+
+### Patch Changes
+
+- [`a040c03082274`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a040c03082274) -
+  [ux] EDITOR-507 Clean up main nested tables experiment `platform_editor_nested_tables`
+- Updated dependencies
+
+## 2.9.34
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.33
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.9.32
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 2.9.31
 
 ### Patch Changes

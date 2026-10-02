@@ -1,5 +1,2173 @@
 # @atlaskit/editor-plugin-media
 
+## 25.0.1
+
+### Patch Changes
+
+- [`e9abdca4bf1d7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e9abdca4bf1d7) -
+  Restore legacy inline media configuration behind platform_editor_remove_media_inline_feature_flag
+  to fix inline attachment insertion and upload completion in Jira.
+- Updated dependencies
+
+## 25.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.1.0
+
+### Minor Changes
+
+- [`051cd10867eae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/051cd10867eae) -
+  Expose uploadStatus and mentionProviderStatus to distinguish pending providers from unavailable
+  capabilities. Under platform_editor_ssr_toolbar_optimistic, keep mention and media toolbar buttons
+  enabled while providers are pending, avoiding class changes on successful initialization while
+  preserving existing insertion restrictions.
+
+  When a view-only synchronous SSR media provider accompanies a pending full provider, keep uploads
+  pending until the full provider resolves instead of treating the SSR config as a permission
+  denial.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.10
+
+### Patch Changes
+
+- [`b67e12494653e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b67e12494653e) -
+  Clean up feature gate `platform_editor_remove_media_inline_feature_flag`
+
+## 24.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.6
+
+### Patch Changes
+
+- [`e88ec21b2ee73`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e88ec21b2ee73) -
+  Re-land of EDITOR-9164. Behind the shared `platform_editor_reduce_forced_layout` experiment, the
+  media single node view no longer reads `offsetLeft` from `ignoreMutation` when nothing can consume
+  the result — that is, when pixel resizing is enabled (the resizer used in that mode never reads
+  it) or when resizing is disabled. The read forced a synchronous layout recalculation on every DOM
+  mutation and every caret move inside a media single. Percentage-based resizing is unaffected.
+
+  The skip decision is now resolved lazily on the first `ignoreMutation` call instead of in a
+  class-field initializer, avoiding the optional chaining in a class field that caused
+  `jsx is not defined` in the Help Center build.
+
+- Updated dependencies
+
+## 24.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- [`1b3056181e6ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b3056181e6ac) -
+  Revert EDITOR-9164 (`platform_editor_reduce_forced_layout` `ignoreMutation` change in the media
+  single node view). Its optional chaining in a class-field initializer made Babel's
+  optional-chaining transform hoist temp variables above the `@jsx jsx` pragma, so the `jsx` import
+  from `@emotion/react` was stripped and inserting images threw `ReferenceError: jsx is not defined`
+  in Help Center.
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- [`ae39a248bd118`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ae39a248bd118) -
+  FFCLEANUP-147994 clean up fg relating to fallback media name fetcher
+  platform_editor_media_name_fallback, platform_editor_media_file_rename_on_fallback,
+  platform_editor_media_file_rename_on_fallback, platform_editor_media_name_fallback_viewer_card
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.7
+
+### Patch Changes
+
+- [`fc379967e4bb6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fc379967e4bb6) -
+  Behind the shared `platform_editor_reduce_forced_layout` experiment, the media single node view no
+  longer reads `offsetLeft` from `ignoreMutation` when nothing can consume the result — that is,
+  when pixel resizing is enabled (the resizer used in that mode never reads it) or when resizing is
+  disabled. The read forced a synchronous layout recalculation on every DOM mutation and every caret
+  move inside a media single. Percentage-based resizing is unaffected.
+- Updated dependencies
+
+## 21.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.3
+
+### Patch Changes
+
+- [`22e02fb26ca02`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/22e02fb26ca02) -
+  Make the shipped media border radius styling permanent and remove the obsolete feature gate.
+- Updated dependencies
+
+## 21.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.5
+
+### Patch Changes
+
+- [`c942b90687404`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c942b90687404) -
+  Label the image border color and size radio groups for screen readers behind
+  platform_editor_a11y_border_radiogroup_label
+- Updated dependencies
+
+## 20.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.1.0
+
+### Minor Changes
+
+- [`2d026706450c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d026706450c6) -
+  Add the `allowAIGeneratedMediaMotion` media plugin option and the `hasLoadingMotion` card prop, so
+  media that arrives mid-flight opens the document out to make room for itself and then fades its
+  preview in, instead of drawing a loading indicator and snapping into place. Behind
+  `aifc_page_create_defer_generated_visuals`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.2.1
+
+### Patch Changes
+
+- [`357df7b291d07`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/357df7b291d07) -
+  [ux] remove the left hand resizer behind experiment `platform_editor_remove_left_resize_handle`
+- Updated dependencies
+
+## 19.2.0
+
+### Minor Changes
+
+- [`d3a7f9016da28`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3a7f9016da28) -
+  Add media render lifecycle callbacks for Remix-generated media behind
+  cc-maui-add-mark-for-remix-generated-images.
+
+## 19.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.1.0
+
+### Minor Changes
+
+- [`aec3fcfe13ff9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/aec3fcfe13ff9) -
+  EDITOR-8303 Add runtime input-latency trigger for limited mode behind
+  platform_editor_dynamic_limited_mode. Limited mode can now latch mid-session when sustained slow
+  input or repeated browser freezes indicate the device is struggling, in addition to the existing
+  document-size decision. The latch is one-way. Nothing is constructed when the experiment is off.
+
+  How much evidence is needed is a single tunable, `requiredConfirmations`: that many qualifying
+  windows, each separated from the last by `confirmationGapMs`. The hardware no longer feeds into
+  the decision — `navigator.hardwareConcurrency` and `navigator.deviceMemory` are reported with the
+  `limitedModeLatched` event instead, so which devices latch can be answered from the data rather
+  than assumed up front.
+
+  `LimitedModePluginState` gains a derived `enabled` flag, which is now the single thing consumers
+  should branch on — the individual reasons (`documentSizeBreachesThreshold`, `latchPolicyBreached`)
+  no longer need to be combined at each call site, so a future reason needs no change outside this
+  plugin. `sharedState.enabled` reads from it.
+
+  Under the experiment the document decision is also evaluated on load and on document replacement
+  only, rather than on every transaction that changes the document. That check walks the whole
+  document, so it was a full-document scan per keystroke on exactly the pages least able to afford
+  one. The trade-off is that a document editing its way past the thresholds is not re-judged until
+  it next loads.
+
+  Consumers updated to react to a mid-session change: table sticky headers now subscribe instead of
+  reading once at construction, block-controls resets rather than freezes its state on entry, and
+  the expand, media and table nodeviews read the derived flag so they no longer miss a runtime
+  latch.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.7
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 18.1.6
+
+### Patch Changes
+
+- [`a6c26b16402ca`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a6c26b16402ca) -
+  Migrate nine dogfooding editor experiments from `@atlaskit/tmp-editor-statsig` to the Platform
+  experiment API and move their tests to Platform experiment mocks.
+- Updated dependencies
+
+## 18.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.1.1
+
+### Patch Changes
+
+- [`08bf773f7599a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/08bf773f7599a) -
+  Migrate experiments to use the new platform experiment API. This major release removes the
+  migrated experiment entries from `@atlaskit/tmp-editor-statsig`'s `editorExperimentsConfig` and
+  test overrides. Consumers must replace legacy `expVal`/`expValEquals` calls with
+  `@atlaskit/platform-feature-experiments` APIs, using `isExperimentEnabled` for boolean `isEnabled`
+  experiments and `expVal` for parameterized experiments; use `mockExpEnabled`/`mockExpDisabled` in
+  tests.
+- Updated dependencies
+
+## 18.1.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- [`53ad40b08a887`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/53ad40b08a887) -
+  Clean up platform_editor_video_caption_commit
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.3
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 17.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.0
+
+### Minor Changes
+
+- [`d96f86ff344b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d96f86ff344b8) -
+  Use @atlaskit/platform-feature-experiments directly for
+  platform_editor_vc90_transition_expand_icon, platform_editor_add_image_editing,
+  platform_editor_ai_multi_format_streaming, platform_editor_default_toolbar_state,
+  platform_editor_early_exit_return_draft, platform_editor_fix_focus_MediaInsertPicker,
+  platform_editor_fix_table_move_shortcut, platform_editor_menu_radius_update,
+  platform_editor_react19_migration, and show_mentions_in_suggest_reply.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`a285770e5decb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a285770e5decb) -
+  Use @atlaskit/platform-feature-experiments directly for platform_editor_ai_move_node,
+  platform_editor_confluence_base_preset, platform_editor_inline_media_replacement, and
+  platform_editor_lovability_color_schema_change.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- [`76e9f6152bf16`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76e9f6152bf16) -
+  Enable launched synced block integrations and remove obsolete experiment scaffolding.
+
+  BREAKING: `@atlaskit/tmp-editor-statsig` no longer defines the `platform_synced_block` editor
+  experiment. Consumers that use `editorExperiment('platform_synced_block', ...)` to conditionally
+  enable synced-block integrations will no longer be able to look up that experiment; synced-block
+  integrations are now enabled by default. Remove each lookup and its conditional branch:
+
+  ```ts
+  // Before
+  if (editorExperiment('platform_synced_block', true)) {
+  	enableSyncedBlocks();
+  }
+
+  // After
+  enableSyncedBlocks();
+  ```
+
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.2.0
+
+### Minor Changes
+
+- [`da5eaf0bc37da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da5eaf0bc37da) -
+  Clean up the platform_editor_editor_ssr_streaming experiment. The SSR streaming code paths are now
+  permanent and the isSSRStreaming() utility has been removed from
+  @atlaskit/editor-common/core-utils.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.1.0
+
+### Minor Changes
+
+- [`2d23b40eed4f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2d23b40eed4f0) -
+  Add gated content-visibility:auto to tables, expands and media singles to improve editor rendering
+  performance on large documents. Applied only to nodes whose rendered size can be estimated closely
+  — structurally (row/child counts) for tables and expands, and from the media's own dimensions and
+  the renderer's width calculation for media singles. Behind the
+  cc_editor_limited_mode_perf_improvements experiment and only active when limited mode is enabled
+  for the document (shared large-document detection with the limited-mode plugin).
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`8043a37357f34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8043a37357f34) -
+  Added an `isCWR` prop to the media `Card`/`FileCard`. When set, the AI-generating loading state
+  renders an opaque `elevation.surface.sunken` overlay (instead of the translucent blanket) so the
+  generic media type icon isn't shown while a create-with-Rovo infographic streams in. Behaviour is
+  gated by the `aifc_page_create_with_rovo_include_infographics` experiment.
+
+  ```tsx
+  <FileCard identifier={identifier} isAIGenerating isCWR />
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.4.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.3.1
+
+### Patch Changes
+
+- [`4fa93c380fa24`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4fa93c380fa24) -
+  Clean up platform editor typography UGC feature gate
+
+## 14.3.0
+
+### Minor Changes
+
+- [`1bdd62ad6abf9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bdd62ad6abf9) -
+  Fix the AI "Ask Rovo" / "Edit image" loading overlay appearing on every copy of a duplicated
+  image, so only the acted-on image shows the loading state. Behind an experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.15
+
+### Patch Changes
+
+- [`bea4da79c297d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bea4da79c297d) -
+  [ux] EDITOR-7679 use fallback media name for filename in download
+- Updated dependencies
+
+## 14.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.12
+
+### Patch Changes
+
+- [`a72d5084ae782`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a72d5084ae782) -
+  Add a rendered analytics event for remix generated images
+- Updated dependencies
+
+## 14.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.10
+
+### Patch Changes
+
+- [`46ee61dd53e91`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/46ee61dd53e91) -
+  Remove stale experiment confluence_compact_text_format (FFCLEANUP-85812): inline final values
+  (flag enabled), simplify conditions, remove experiment config entries.
+- Updated dependencies
+
+## 14.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.3
+
+### Patch Changes
+
+- [`1586e012495ed`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1586e012495ed) -
+  [ux] Disables left resize handle on media nodes except for when media is aligned or wrapped right.
+
+## 14.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.2.0
+
+### Minor Changes
+
+- [`fe857f3a8f72b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fe857f3a8f72b) -
+  Gate media toolbar separator changes behind cc-maui-toolbar-separators-update feature flag
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.1.0
+
+### Minor Changes
+
+- [`19773530cd51c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19773530cd51c) -
+  Add fallbackMediaNameFetcher support to MediaCard (FileCard) and MediaViewer (header display),
+  gated behind the platform_editor_media_name_fallback_viewer_card experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- [`cf674939028c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf674939028c9) -
+  Preserve table cell sizing metadata when generated images are inserted as media singles.
+- Updated dependencies
+
+## 14.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.6.0
+
+### Minor Changes
+
+- [`a80e758660883`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a80e758660883) -
+  add remixSource attribute to mediaCardRender events behind
+  cc-maui-add-mark-for-remix-generated-images FF
+
+## 13.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.0
+
+### Minor Changes
+
+- [`01c0f76dfce1e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01c0f76dfce1e) -
+  Cleanup experiment `platform_editor_media_vc_fixes_patch1`.
+
+### Patch Changes
+
+- [`d1b772ec7a247`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d1b772ec7a247) -
+  Disable video caption management controls while editor media renders in view mode.
+- Updated dependencies
+
+## 13.4.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.0
+
+### Minor Changes
+
+- [`1b0c575cc96b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1b0c575cc96b6) -
+  make remix generated images identifiable from regular images
+
+## 13.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.0
+
+### Minor Changes
+
+- [`6e3b4e2317b34`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e3b4e2317b34) -
+  [EDITOR-7476](https://hello.jira.atlassian.cloud/browse/EDITOR-7476) - centralize SSR streaming
+  checks behind `isSSRStreaming()` so SSR eligibility is checked before emitting exposure for the
+  `platform_editor_editor_ssr_streaming` experiment.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`220363acedb01`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/220363acedb01) -
+  MAUI-590 in-editor remix image update - use saved positions to insert the image
+
+## 13.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`e52fe1a335508`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e52fe1a335508) -
+  [ux] Fixed evaluating experiment as FG instead of experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.9.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.9.1
+
+### Patch Changes
+
+- [`cd85cdec5ae7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd85cdec5ae7e) -
+  EDITOR-7170 add transform for panel -> panel_c1
+- Updated dependencies
+
+## 12.9.0
+
+### Minor Changes
+
+- [`330e005b44aa7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/330e005b44aa7) -
+  [ux] Adding support for loading state on media nodes during CWR with image gen. We reuse the
+  ai-generating-decoration and make gated changes to rebuild logic for this use case. We add
+  onPreviewRender callback to media-card to signal when the image has rendered.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.8.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.8.2
+
+### Patch Changes
+
+- [`00871f73e3651`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/00871f73e3651) -
+  [ux] Update translations package for media plugin and use expand tooltip instead of preview for
+  consistency across elements
+- Updated dependencies
+
+## 12.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.8.0
+
+### Minor Changes
+
+- [`58dc3a8cd70e2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/58dc3a8cd70e2) -
+  Remove confluence_frontend_preload_inline_comment_editor feature gate
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.7.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.7.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.7.3
+
+### Patch Changes
+
+- [`ed7459903c172`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed7459903c172) -
+  Updated media to display correctly when ssr streaming is used.
+- Updated dependencies
+
+## 12.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.7.1
+
+### Patch Changes
+
+- [`3a96ba83a62ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a96ba83a62ba) -
+  Clean up feature gate platform_editor_media_disable_save_during_upload. The attempted fix for
+  disabling save during upload did not resolve the issue and the code behind this gate has been
+  reverted.
+- Updated dependencies
+
+## 12.7.0
+
+### Minor Changes
+
+- [`64bd49d58dcd8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64bd49d58dcd8) -
+  Remove cc-maui-phase-2-loading fg references. Replace with cc-maui-phase-2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.6.1
+
+### Patch Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Cleanup dynamic config maui_ai_border_killswitch (resolved as false). Removed FeatureGates import
+  and killswitch condition check.
+- Updated dependencies
+
+## 12.6.0
+
+### Minor Changes
+
+- [`a94a013546f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a94a013546f69) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.5.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.5.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.5.0
+
+### Minor Changes
+
+- [`76dff28130c6a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/76dff28130c6a) -
+  Add replace-media button to media plugin
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.0
+
+### Minor Changes
+
+- [`a759f33417d9b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a759f33417d9b) -
+  [PIRA-1311](https://opsj.atlassian.net/browse/PIRA-1311) - clean up platform_editor_media_vc_fixes
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.3.0
+
+### Minor Changes
+
+- [`e8a04d9738c5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e8a04d9738c5a) -
+  Add a rainbow `AIGeneratingOverlay` shown over media nodes during AI inline edits, gated by
+  `fg('cc-maui-phase-2-loading')` layered on top of the existing MAUI gates and killswitch.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.2.0
+
+### Minor Changes
+
+- [`a0b1822615d7e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0b1822615d7e) -
+  Refactor inline editor AI image generation loading state to use ProseMirror decorations:
+  - Add AI generating decoration plugin to editor-plugin-media for transient visual state tracking
+    via ProseMirror decorations instead of ADF schema attributes
+  - Remove \_\_isAIGenerating transient attribute from ADF media node schema
+  - Update editor-rovo-bridge to dispatch decoration meta instead of mutating node attributes
+  - Media NodeView reads decoration state and passes isAIGenerating prop to media-card
+  - AIBorder component with pulsing gradient border and translucent blanket during AI image
+    generation
+  - Internationalized AI generating progress bar aria label
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.1.0
+
+### Minor Changes
+
+- [`b6bb07e5d72ac`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b6bb07e5d72ac) -
+  [ux] Fix for #hot-301450, add new media option for fallback media name fetcher to allow confluence
+  to use the attachment service instead of the media service to get filenames. After DC -> Cloud
+  migration filenames were not properly copied across to the media service causing inline media to
+  show an error.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- [`b10c935ca9497`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b10c935ca9497) -
+  Removed deprecated `browser` singleton from editor-common. This has been replaced with a
+  `getBrowserInfo` function that returns the same information. This change was made to avoid issues
+  with module loading order and to provide a more consistent API for accessing browser information.
+
+  Please update any imports of `browser` to use `getBrowserInfo` instead. For example, the following
+  imports have been removed:
+
+  ```javascript
+  import { browser } from '@atlaskit/editor-common/utils';
+  import { browser } from '@atlaskit/editor-common/browser';
+  ```
+
+  Instead, please use:
+
+  ```javascript
+  import { getBrowserInfo } from '@atlaskit/editor-common/browser';
+  ```
+
+  If you were previously using `browser.ie_version`, you would now use
+  `getBrowserInfo().ie_version`.
+
+- Updated dependencies
+
+## 10.2.13
+
+### Patch Changes
+
+- [`73b2fc243f544`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73b2fc243f544) -
+  Cleaning up getBrowserInfo which was behind experiment platform_editor_hydratable_ui and is now
+  rolled out
+- Updated dependencies
+
+## 10.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.9
+
+### Patch Changes
+
+- [`7b7c52dff5d7d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7b7c52dff5d7d) -
+  Fix eslint violations for type import syntax
+- Updated dependencies
+
+## 10.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.7
+
+### Patch Changes
+
+- [`ddd049a745d38`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ddd049a745d38) -
+  Internal change to how legacy colors are applied. No visual changes.
+- Updated dependencies
+
+## 10.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.5
+
+### Patch Changes
+
+- [`14803a836f641`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14803a836f641) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 10.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.2
+
+### Patch Changes
+
+- [`b42704f7ca9d8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b42704f7ca9d8) -
+  Clean up stale feature flag `platform_editor_media_insert_check` (final value: `true`). The
+  flag-gated code paths are now the default behaviour — media insert popup is shown via
+  `mediaInsert` plugin when available, falling back to the legacy `showMediaPicker`.
+
+## 10.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`3778325d7b086`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3778325d7b086) -
+  Fix save button disable in editor
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.12
+
+### Patch Changes
+
+- [`1229e42f9f503`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1229e42f9f503) -
+  fix layout shift issue and initial size issue on legacy media
+- Updated dependencies
+
+## 10.1.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.9
+
+### Patch Changes
+
+- [`a3b34e2d09709`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a3b34e2d09709) -
+  Cleanup experiment platform_editor_add_aria_checked_to_inline_img_btn - ships the enabled code
+  path (selected: false on inline image button)
+- Updated dependencies
+
+## 10.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.4
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- [`ca2338799c141`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca2338799c141) -
+  [ux] Fix media cards and media singles to use the correct border radius in the editor, renderer
+  and inline media player.
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`6e25e8bbb01c3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6e25e8bbb01c3) -
+  [ux] Adds mediaViewerExtensions prop to media-viewer/src/header and threads it through parents.
+  Allows callers to pass in additional buttons to the image / video preview'
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.11
+
+### Patch Changes
+
+- [`0d04e250bdf4b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d04e250bdf4b) -
+  [ux] Making submenus for media (color/size) and table (background color) consistent with ADS and
+  fixing incorrect gate mocking in editor-plugin-ai-tests
+- Updated dependencies
+
+## 10.0.10
+
+### Patch Changes
+
+- [`46ff42199054d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/46ff42199054d) -
+  Cleans up experiment platform_editor_eslint_suppression_fix
+- Updated dependencies
+
+## 10.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.8
+
+### Patch Changes
+
+- [`7428d9bf3aa13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7428d9bf3aa13) -
+  Clean up platform_synced_block_patch_5 feature gate
+- Updated dependencies
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- [`be5f64b1c1011`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/be5f64b1c1011) -
+  [ux] Patch for image editor tool bar border drop downUI size
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.9.1
+
+### Patch Changes
+
+- [`31ee998a097db`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31ee998a097db) -
+  Replace expValEquals/expValEqualsNoExposure with editorExperiment for platform_synced_block
+  experiment checks
+- Updated dependencies
+
+## 9.9.0
+
+### Minor Changes
+
+- [`528cef02f2f27`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/528cef02f2f27) -
+  EDITOR-5532 improve duplicate media error handling in editor
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.8.0
+
+### Minor Changes
+
+- [`17119fb95e0a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/17119fb95e0a4) -
+  [EDITOR-3747](https://hello.jira.atlassian.cloud/browse/EDITOR-3747) - clean up
+  platform_editor_ssr_renderer experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.7.3
+
+### Patch Changes
+
+- [`c28209fcfdfd2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c28209fcfdfd2) -
+  [ENGHEALTH-46817] Resolving eslint suppressions for accessibility violations
+- Updated dependencies
+
+## 9.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.7.0
+
+### Minor Changes
+
+- [`27de3457c3a79`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/27de3457c3a79) -
+  EDITOR-5532 add context to media error events
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.6.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.6.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.6.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.6.0
+
+### Minor Changes
+
+- [`88ce28af57fa3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88ce28af57fa3) -
+  Support starting createCommentExperience from editor media toolbar
+
+## 9.5.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.6
+
+### Patch Changes
+
+- [`5ad6e24098de0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5ad6e24098de0) -
+  tidy up fg platform_editor_media_video_check_fix_new
+- Updated dependencies
+
+## 9.5.5
+
+### Patch Changes
+
+- [`231bc5802c7de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/231bc5802c7de) -
+  fix stale node position issue in media single
+- Updated dependencies
+
+## 9.5.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.5.0
+
+### Minor Changes
+
+- [`c90ccf0c600ee`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c90ccf0c600ee) -
+  Enable cross product/cross client copy and paste of Media files by including clientId during Copy
+  operations.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.4.17
+
+### Patch Changes
+
+- [`f2da582faba66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2da582faba66) -
+  Fix EES013 method-signature-style violations
+- Updated dependencies
+
+## 9.4.16
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 9.4.15
 
 ### Patch Changes

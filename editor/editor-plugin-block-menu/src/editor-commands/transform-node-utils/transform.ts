@@ -1,23 +1,106 @@
-import {
-	type Node as PMNode,
-	type NodeType,
-	type Schema,
-} from '@atlaskit/editor-prosemirror/model';
+import { isNodeTypeValidChildOf } from '@atlaskit/editor-common/utils/node-type-utils';
+import type { Node as PMNode, NodeType, Schema } from '@atlaskit/editor-prosemirror/model';
+import { Fragment } from '@atlaskit/editor-prosemirror/model';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { getTargetNodeTypeNameInContext } from '../transform-node-utils/utils';
-
-import { TRANSFORMATION_MATRIX } from './TRANSFORMATION_MATRIX';
-import type { NodeTypeName, TransformStepContext } from './types';
+import { TRANSFORMATION_MATRIX, TRANSFORMATION_MATRIX_PANEL_C1 } from './TRANSFORMATION_MATRIX';
+import type { NodeTypeName, TargetNodeMarks, TransformStepContext } from './types';
 import { getNodeName, toNodeTypeValue } from './types';
 
 interface GetOutputNodesArgs {
 	isNested: boolean;
+	marksToAdd?: TargetNodeMarks;
+	marksToRemove?: string[];
 	parentNode?: PMNode;
 	schema: Schema;
 	sourceNodes: PMNode[];
 	targetAttrs?: Record<string, unknown>;
 	targetNodeType: NodeType;
 }
+
+const LIST_NODE_TYPE_NAMES = new Set([
+	'bulletList',
+	'orderedList',
+	'taskList',
+	'decisionList',
+	'listItem',
+	'taskItem',
+	'blockTaskItem',
+	'decisionItem',
+]);
+
+const shouldRecurseThroughListNode = (node: PMNode): boolean =>
+	LIST_NODE_TYPE_NAMES.has(node.type.name);
+
+const applyTargetNodeMarks = (
+	node: PMNode,
+	targetNodeType: NodeType,
+	marksToAdd: TargetNodeMarks | undefined,
+	marksToRemove: string[] | undefined,
+	schema: Schema,
+	shouldRecurseIntoChildren: (node: PMNode) => boolean = () => true,
+): PMNode => {
+	let nextNode = node;
+
+	if (node.type === targetNodeType) {
+		const marksAfterRemovals = (marksToRemove ?? []).reduce((currentMarks, name) => {
+			const markType = schema.marks[name];
+			return markType ? markType.removeFromSet(currentMarks) : currentMarks;
+		}, node.marks);
+		const marks = Object.entries(marksToAdd ?? {}).reduce((currentMarks, [name, attrs]) => {
+			const markType = schema.marks[name];
+			return markType
+				? markType.create(attrs).addToSet(markType.removeFromSet(currentMarks))
+				: currentMarks;
+		}, marksAfterRemovals);
+		nextNode = node.mark(marks);
+	}
+
+	if (!shouldRecurseIntoChildren(nextNode) || nextNode.childCount === 0) {
+		return nextNode;
+	}
+
+	const children: PMNode[] = [];
+	nextNode.forEach((child) =>
+		children.push(
+			applyTargetNodeMarks(
+				child,
+				targetNodeType,
+				marksToAdd,
+				marksToRemove,
+				schema,
+				shouldRecurseIntoChildren,
+			),
+		),
+	);
+	return nextNode.copy(Fragment.fromArray(children));
+};
+
+// Upgrade broken-out panel nodes to panel_c1 if the parent node allows it
+export const upgradePanelNodesToPanelC1 = (
+	nodes: PMNode[],
+	parentNode: PMNode | undefined,
+	schema: Schema,
+): PMNode[] => {
+	if (
+		!schema.nodes['panel_c1'] ||
+		!expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+	) {
+		return nodes;
+	}
+	return nodes.map((node) => {
+		if (node.type.name === 'panel') {
+			const shouldUsePanelC1 =
+				!parentNode || isNodeTypeValidChildOf('panel_c1', parentNode, schema);
+			if (shouldUsePanelC1) {
+				return schema.nodes['panel_c1'].createAndFill(node.attrs, node.content, node.marks) ?? node;
+			}
+		}
+		return node;
+	});
+};
 
 /**
  * Convert a list of nodes to a target node type.
@@ -31,6 +114,8 @@ interface GetOutputNodesArgs {
  * @param args.schema - The schema to use for the conversion
  * @param args.isNested - Whether the conversion is nested
  * @param args.targetAttrs - The attributes to use for the conversion
+ * @param args.marksToAdd - Block marks to add or replace on converted target nodes
+ * @param args.marksToRemove - Block marks to remove from converted target nodes
  * @param args.parentNode - The parent node of the selected node
  * @returns The converted list of nodes
  */
@@ -40,6 +125,8 @@ export const convertNodesToTargetType = ({
 	schema,
 	isNested,
 	targetAttrs,
+	marksToAdd,
+	marksToRemove,
 	parentNode,
 }: GetOutputNodesArgs): PMNode[] => {
 	const sourceNode = sourceNodes.at(0);
@@ -54,35 +141,73 @@ export const convertNodesToTargetType = ({
 		initialTargetNodeTypeName,
 		isNested,
 		parentNode,
+		schema,
 	);
 
 	if (!selectedNodeTypeName || !targetNodeTypeName) {
 		return sourceNodes;
 	}
 
-	const steps = TRANSFORMATION_MATRIX[selectedNodeTypeName][targetNodeTypeName];
+	const steps = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? TRANSFORMATION_MATRIX_PANEL_C1[selectedNodeTypeName][targetNodeTypeName]
+		: TRANSFORMATION_MATRIX[selectedNodeTypeName][targetNodeTypeName];
 
+	const shouldApplyTargetNodeMarkChanges =
+		isExperimentEnabled('platform_editor_block_menu_small_text') &&
+		Boolean(marksToAdd || marksToRemove);
 	const context: TransformStepContext = {
 		// sourceNode is incorrect now - what to do here?
 		fromNode: sourceNode,
+		includeBlockTaskItems: shouldApplyTargetNodeMarkChanges,
 		targetNodeTypeName,
 		schema,
 		targetAttrs,
 	};
 
-	if (!steps || steps.length === 0) {
-		return sourceNodes;
+	if (!shouldApplyTargetNodeMarkChanges) {
+		if (!steps || steps.length === 0) {
+			return sourceNodes;
+		}
+
+		const resultNodes = steps.reduce((nodes, step) => step(nodes, context), sourceNodes);
+		return upgradePanelNodesToPanelC1(resultNodes, parentNode, schema);
 	}
 
-	return steps.reduce((nodes, step) => {
-		return step(nodes, context);
-	}, sourceNodes);
+	const shouldLimitTargetNodeMarkRecursion =
+		targetNodeTypeName === 'paragraph' &&
+		[
+			'multi',
+			'panel',
+			'panel_c1',
+			'expand',
+			'nestedExpand',
+			'blockquote',
+			'layoutSection',
+		].includes(selectedNodeTypeName);
+
+	const resultNodes =
+		steps?.reduce((nodes, step) => step(nodes, context), sourceNodes) ?? sourceNodes;
+	const upgradedNodes = steps?.length
+		? upgradePanelNodesToPanelC1(resultNodes, parentNode, schema)
+		: resultNodes;
+	return upgradedNodes.map((node) =>
+		applyTargetNodeMarks(
+			node,
+			targetNodeType,
+			marksToAdd,
+			marksToRemove,
+			schema,
+			shouldLimitTargetNodeMarkRecursion ? shouldRecurseThroughListNode : undefined,
+		),
+	);
 };
 
 export const isTransformDisabledBasedOnStepsConfig = (
 	selectedNodeType: NodeTypeName,
 	targetNodeType: NodeTypeName,
 ): boolean => {
-	const steps = TRANSFORMATION_MATRIX[selectedNodeType][targetNodeType];
+	const steps = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? TRANSFORMATION_MATRIX_PANEL_C1[selectedNodeType][targetNodeType]
+		: TRANSFORMATION_MATRIX[selectedNodeType][targetNodeType];
 	return !steps || steps.length === 0;
 };

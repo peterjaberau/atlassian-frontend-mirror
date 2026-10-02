@@ -6,1947 +6,11 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::a101da74518f6374353a0e1b48115f4f>>
+ * @codegen <<SignedSource::c25b6178d5189344dbd5e08e2e13619b>>
  * @codegenCommand yarn build tokens
  */
 
 var tokens = [{
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for primary text, such as body copy, sentence case headers, and buttons."
-  },
-  "value": "#292A2E",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for primary text, such as body copy, sentence case headers, and buttons."
-    },
-    "value": "Neutral1000"
-  },
-  "name": "color.text.[default]",
-  "path": ["color", "text", "[default]"],
-  "cleanName": "color.text"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "1.8.0",
-    "description": "Use for lime text on subtlest and subtler lime accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#4C6B1F",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "1.8.0",
-      "description": "Use for lime text on subtlest and subtler lime accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Lime800"
-  },
-  "name": "color.text.accent.lime.[default]",
-  "path": ["color", "text", "accent", "lime", "[default]"],
-  "cleanName": "color.text.accent.lime"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "1.8.0",
-    "description": "Use for lime text on subtle lime accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#37471F",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "1.8.0",
-      "description": "Use for lime text on subtle lime accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Lime900"
-  },
-  "name": "color.text.accent.lime.bolder",
-  "path": ["color", "text", "accent", "lime", "bolder"],
-  "cleanName": "color.text.accent.lime.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for red text on subtlest and subtler red accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#AE2E24",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for red text on subtlest and subtler red accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Red800"
-  },
-  "name": "color.text.accent.red.[default]",
-  "path": ["color", "text", "accent", "red", "[default]"],
-  "cleanName": "color.text.accent.red"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.7.0",
-    "description": "Use for red text on subtle red accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#5D1F1A",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.7.0",
-      "description": "Use for red text on subtle red accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Red900"
-  },
-  "name": "color.text.accent.red.bolder",
-  "path": ["color", "text", "accent", "red", "bolder"],
-  "cleanName": "color.text.accent.red.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for orange text on subtlest and subtler orange accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#9E4C00",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for orange text on subtlest and subtler orange accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Orange800"
-  },
-  "name": "color.text.accent.orange.[default]",
-  "path": ["color", "text", "accent", "orange", "[default]"],
-  "cleanName": "color.text.accent.orange"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.7.0",
-    "description": "Use for orange text on subtle orange accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#693200",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.7.0",
-      "description": "Use for orange text on subtle orange accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Orange900"
-  },
-  "name": "color.text.accent.orange.bolder",
-  "path": ["color", "text", "accent", "orange", "bolder"],
-  "cleanName": "color.text.accent.orange.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for yellow text on subtlest and subtler yellow accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#7F5F01",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for yellow text on subtlest and subtler yellow accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Yellow800"
-  },
-  "name": "color.text.accent.yellow.[default]",
-  "path": ["color", "text", "accent", "yellow", "[default]"],
-  "cleanName": "color.text.accent.yellow"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.7.0",
-    "description": "Use for yellow text on subtle yellow accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#533F04",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.7.0",
-      "description": "Use for yellow text on subtle yellow accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Yellow900"
-  },
-  "name": "color.text.accent.yellow.bolder",
-  "path": ["color", "text", "accent", "yellow", "bolder"],
-  "cleanName": "color.text.accent.yellow.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for green text on subtlest and subtler green accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#216E4E",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for green text on subtlest and subtler green accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Green800"
-  },
-  "name": "color.text.accent.green.[default]",
-  "path": ["color", "text", "accent", "green", "[default]"],
-  "cleanName": "color.text.accent.green"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.7.0",
-    "description": "Use for green text on subtle green accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#164B35",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.7.0",
-      "description": "Use for green text on subtle green accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Green900"
-  },
-  "name": "color.text.accent.green.bolder",
-  "path": ["color", "text", "accent", "green", "bolder"],
-  "cleanName": "color.text.accent.green.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for teal text on subtlest and subtler teal accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#206A83",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for teal text on subtlest and subtler teal accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Teal800"
-  },
-  "name": "color.text.accent.teal.[default]",
-  "path": ["color", "text", "accent", "teal", "[default]"],
-  "cleanName": "color.text.accent.teal"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.7.0",
-    "description": "Use for teal text on subtle teal accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#164555",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.7.0",
-      "description": "Use for teal text on subtle teal accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Teal900"
-  },
-  "name": "color.text.accent.teal.bolder",
-  "path": ["color", "text", "accent", "teal", "bolder"],
-  "cleanName": "color.text.accent.teal.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for blue text on subtlest and subtler blue accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#1558BC",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for blue text on subtlest and subtler blue accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Blue800"
-  },
-  "name": "color.text.accent.blue.[default]",
-  "path": ["color", "text", "accent", "blue", "[default]"],
-  "cleanName": "color.text.accent.blue"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.7.0",
-    "description": "Use for blue text on subtle blue accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#123263",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.7.0",
-      "description": "Use for blue text on subtle blue accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Blue900"
-  },
-  "name": "color.text.accent.blue.bolder",
-  "path": ["color", "text", "accent", "blue", "bolder"],
-  "cleanName": "color.text.accent.blue.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for purple text on subtlest and subtler purple accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#803FA5",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for purple text on subtlest and subtler purple accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Purple800"
-  },
-  "name": "color.text.accent.purple.[default]",
-  "path": ["color", "text", "accent", "purple", "[default]"],
-  "cleanName": "color.text.accent.purple"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.7.0",
-    "description": "Use for purple text on subtle purple accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#48245D",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.7.0",
-      "description": "Use for purple text on subtle purple accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Purple900"
-  },
-  "name": "color.text.accent.purple.bolder",
-  "path": ["color", "text", "accent", "purple", "bolder"],
-  "cleanName": "color.text.accent.purple.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for magenta text on subtlest and subtler magenta accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#943D73",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for magenta text on subtlest and subtler magenta accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Magenta800"
-  },
-  "name": "color.text.accent.magenta.[default]",
-  "path": ["color", "text", "accent", "magenta", "[default]"],
-  "cleanName": "color.text.accent.magenta"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.7.0",
-    "description": "Use for magenta text on subtle magenta accent backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#50253F",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.7.0",
-      "description": "Use for magenta text on subtle magenta accent backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Magenta900"
-  },
-  "name": "color.text.accent.magenta.bolder",
-  "path": ["color", "text", "accent", "magenta", "bolder"],
-  "cleanName": "color.text.accent.magenta.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.10.5",
-    "description": "Use for text on non-bold gray accent backgrounds, such as colored tags."
-  },
-  "value": "#505258",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.10.5",
-      "description": "Use for text on non-bold gray accent backgrounds, such as colored tags."
-    },
-    "value": "Neutral800"
-  },
-  "name": "color.text.accent.gray.[default]",
-  "path": ["color", "text", "accent", "gray", "[default]"],
-  "cleanName": "color.text.accent.gray"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.10.5",
-    "description": "Use for text and icons on gray subtle accent backgrounds."
-  },
-  "value": "#1E1F21",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.10.5",
-      "description": "Use for text and icons on gray subtle accent backgrounds."
-    },
-    "value": "Neutral1100"
-  },
-  "name": "color.text.accent.gray.bolder",
-  "path": ["color", "text", "accent", "gray", "bolder"],
-  "cleanName": "color.text.accent.gray.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.0.15",
-    "description": "Use for text in a disabled state."
-  },
-  "value": "#080F214A",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.0.15",
-      "description": "Use for text in a disabled state."
-    },
-    "value": "Neutral400A"
-  },
-  "name": "color.text.disabled",
-  "path": ["color", "text", "disabled"],
-  "cleanName": "color.text.disabled"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for text on bold backgrounds."
-  },
-  "value": "#FFFFFF",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for text on bold backgrounds."
-    },
-    "value": "Neutral0"
-  },
-  "name": "color.text.inverse",
-  "path": ["color", "text", "inverse"],
-  "cleanName": "color.text.inverse"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for text in selected or opened states, such as tabs and dropdown buttons."
-  },
-  "value": "#1868DB",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for text in selected or opened states, such as tabs and dropdown buttons."
-    },
-    "value": "Blue700"
-  },
-  "name": "color.text.selected",
-  "path": ["color", "text", "selected"],
-  "cleanName": "color.text.selected"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for text that reinforces our brand."
-  },
-  "value": "#1868DB",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for text that reinforces our brand."
-    },
-    "value": "Blue700"
-  },
-  "name": "color.text.brand",
-  "path": ["color", "text", "brand"],
-  "cleanName": "color.text.brand"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.0.15",
-    "description": "Use for critical text, such as input field error messaging."
-  },
-  "value": "#AE2E24",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.0.15",
-      "description": "Use for critical text, such as input field error messaging."
-    },
-    "value": "Red800"
-  },
-  "name": "color.text.danger.[default]",
-  "path": ["color", "text", "danger", "[default]"],
-  "cleanName": "color.text.danger"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "8.1.0",
-    "description": "Use for text on top of danger semantic labels to ensure accessibility and desired visual appearance."
-  },
-  "value": "#5D1F1A",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "8.1.0",
-      "description": "Use for text on top of danger semantic labels to ensure accessibility and desired visual appearance."
-    },
-    "value": "Red900"
-  },
-  "name": "color.text.danger.bolder",
-  "path": ["color", "text", "danger", "bolder"],
-  "cleanName": "color.text.danger.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.0.15",
-    "description": "Use for text to emphasize caution, such as in moved lozenges."
-  },
-  "value": "#9E4C00",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.0.15",
-      "description": "Use for text to emphasize caution, such as in moved lozenges."
-    },
-    "value": "Orange800"
-  },
-  "name": "color.text.warning.[default]",
-  "path": ["color", "text", "warning", "[default]"],
-  "cleanName": "color.text.warning"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for text when on bold warning backgrounds."
-  },
-  "value": "#292A2E",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for text when on bold warning backgrounds."
-    },
-    "value": "Neutral1000"
-  },
-  "name": "color.text.warning.inverse",
-  "path": ["color", "text", "warning", "inverse"],
-  "cleanName": "color.text.warning.inverse"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "8.1.0",
-    "description": "Use for text on top of warning semantic labels to ensure accessibility and desired visual appearance."
-  },
-  "value": "#693200",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "8.1.0",
-      "description": "Use for text on top of warning semantic labels to ensure accessibility and desired visual appearance."
-    },
-    "value": "Orange900"
-  },
-  "name": "color.text.warning.bolder",
-  "path": ["color", "text", "warning", "bolder"],
-  "cleanName": "color.text.warning.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.0.15",
-    "description": "Use for text to communicate a favorable outcome, such as input field success messaging."
-  },
-  "value": "#4C6B1F",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.0.15",
-      "description": "Use for text to communicate a favorable outcome, such as input field success messaging."
-    },
-    "value": "Lime800"
-  },
-  "name": "color.text.success.[default]",
-  "path": ["color", "text", "success", "[default]"],
-  "cleanName": "color.text.success"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "8.1.0",
-    "description": "Use for text on top of success semantic labels to ensure accessibility and desired visual appearance."
-  },
-  "value": "#37471F",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "8.1.0",
-      "description": "Use for text on top of success semantic labels to ensure accessibility and desired visual appearance."
-    },
-    "value": "Lime900"
-  },
-  "name": "color.text.success.bolder",
-  "path": ["color", "text", "success", "bolder"],
-  "cleanName": "color.text.success.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.0.15",
-    "description": "Use for text to emphasize change or something new, such as in new lozenges."
-  },
-  "value": "#803FA5",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.0.15",
-      "description": "Use for text to emphasize change or something new, such as in new lozenges."
-    },
-    "value": "Purple800"
-  },
-  "name": "color.text.discovery.[default]",
-  "path": ["color", "text", "discovery", "[default]"],
-  "cleanName": "color.text.discovery"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "8.1.0",
-    "description": "Use for text on top of discovery semantic labels to ensure accessibility and desired visual appearance."
-  },
-  "value": "#48245D",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "8.1.0",
-      "description": "Use for text on top of discovery semantic labels to ensure accessibility and desired visual appearance."
-    },
-    "value": "Purple900"
-  },
-  "name": "color.text.discovery.bolder",
-  "path": ["color", "text", "discovery", "bolder"],
-  "cleanName": "color.text.discovery.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for informative text or to communicate something is in progress, such as in-progress lozenges."
-  },
-  "value": "#1558BC",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for informative text or to communicate something is in progress, such as in-progress lozenges."
-    },
-    "value": "Blue800"
-  },
-  "name": "color.text.information.[default]",
-  "path": ["color", "text", "information", "[default]"],
-  "cleanName": "color.text.information"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "8.1.0",
-    "description": "Use for text on top of information semantic labels to ensure accessibility and desired visual appearance."
-  },
-  "value": "#123263",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "8.1.0",
-      "description": "Use for text on top of information semantic labels to ensure accessibility and desired visual appearance."
-    },
-    "value": "Blue900"
-  },
-  "name": "color.text.information.bolder",
-  "path": ["color", "text", "information", "bolder"],
-  "cleanName": "color.text.information.bolder"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for tertiary text, such as meta-data, breadcrumbs, input field placeholder and helper text."
-  },
-  "value": "#6B6E76",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for tertiary text, such as meta-data, breadcrumbs, input field placeholder and helper text."
-    },
-    "value": "Neutral700"
-  },
-  "name": "color.text.subtlest",
-  "path": ["color", "text", "subtlest"],
-  "cleanName": "color.text.subtlest"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for secondary text, such as navigation, subtle button links, input field labels, and all caps subheadings."
-  },
-  "value": "#505258",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for secondary text, such as navigation, subtle button links, input field labels, and all caps subheadings."
-    },
-    "value": "Neutral800"
-  },
-  "name": "color.text.subtle",
-  "path": ["color", "text", "subtle"],
-  "cleanName": "color.text.subtle"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for links in a default or hovered state. Add an underline for hovered states."
-  },
-  "value": "#1868DB",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for links in a default or hovered state. Add an underline for hovered states."
-    },
-    "value": "Blue700"
-  },
-  "name": "color.link.[default]",
-  "path": ["color", "link", "[default]"],
-  "cleanName": "color.link"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for links in a pressed state."
-  },
-  "value": "#1558BC",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for links in a pressed state."
-    },
-    "value": "Blue800"
-  },
-  "name": "color.link.pressed",
-  "path": ["color", "link", "pressed"],
-  "cleanName": "color.link.pressed"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "1.23.0",
-    "description": "Use for visited links."
-  },
-  "value": "#803FA5",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "1.23.0",
-      "description": "Use for visited links."
-    },
-    "value": "Purple800"
-  },
-  "name": "color.link.visited.[default]",
-  "path": ["color", "link", "visited", "[default]"],
-  "cleanName": "color.link.visited"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "1.43.0",
-    "description": "Use for visited links in a pressed state."
-  },
-  "value": "#48245D",
-  "filePath": "schema/themes/atlassian-light/color/text.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "1.43.0",
-      "description": "Use for visited links in a pressed state."
-    },
-    "value": "Purple900"
-  },
-  "name": "color.link.visited.pressed",
-  "path": ["color", "link", "visited", "pressed"],
-  "cleanName": "color.link.visited.pressed"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icon-only buttons, or icons paired with color.text"
-  },
-  "value": "#292A2E",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icon-only buttons, or icons paired with color.text"
-    },
-    "value": "Neutral1000"
-  },
-  "name": "color.icon.[default]",
-  "path": ["color", "icon", "[default]"],
-  "cleanName": "color.icon"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "1.6.0",
-    "description": "Use for lime icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#6A9A23",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "1.6.0",
-      "description": "Use for lime icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Lime600"
-  },
-  "name": "color.icon.accent.lime",
-  "path": ["color", "icon", "accent", "lime"],
-  "cleanName": "color.icon.accent.lime"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for red icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#C9372C",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for red icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Red700"
-  },
-  "name": "color.icon.accent.red",
-  "path": ["color", "icon", "accent", "red"],
-  "cleanName": "color.icon.accent.red"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for orange icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#E06C00",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for orange icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Orange600"
-  },
-  "name": "color.icon.accent.orange",
-  "path": ["color", "icon", "accent", "orange"],
-  "cleanName": "color.icon.accent.orange"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for yellow icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#B38600",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for yellow icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Yellow600"
-  },
-  "name": "color.icon.accent.yellow",
-  "path": ["color", "icon", "accent", "yellow"],
-  "cleanName": "color.icon.accent.yellow"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for green icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#22A06B",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for green icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Green600"
-  },
-  "name": "color.icon.accent.green",
-  "path": ["color", "icon", "accent", "green"],
-  "cleanName": "color.icon.accent.green"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for teal icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#2898BD",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for teal icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Teal600"
-  },
-  "name": "color.icon.accent.teal",
-  "path": ["color", "icon", "accent", "teal"],
-  "cleanName": "color.icon.accent.teal"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for blue icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#357DE8",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for blue icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Blue600"
-  },
-  "name": "color.icon.accent.blue",
-  "path": ["color", "icon", "accent", "blue"],
-  "cleanName": "color.icon.accent.blue"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for purple icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#AF59E1",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for purple icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Purple600"
-  },
-  "name": "color.icon.accent.purple",
-  "path": ["color", "icon", "accent", "purple"],
-  "cleanName": "color.icon.accent.purple"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for magenta icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-  },
-  "value": "#CD519D",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for magenta icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
-    },
-    "value": "Magenta600"
-  },
-  "name": "color.icon.accent.magenta",
-  "path": ["color", "icon", "accent", "magenta"],
-  "cleanName": "color.icon.accent.magenta"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.10.5",
-    "description": "Use for icons on non-bold gray accent backgrounds, such as file type icons."
-  },
-  "value": "#7D818A",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.10.5",
-      "description": "Use for icons on non-bold gray accent backgrounds, such as file type icons."
-    },
-    "value": "Neutral600"
-  },
-  "name": "color.icon.accent.gray",
-  "path": ["color", "icon", "accent", "gray"],
-  "cleanName": "color.icon.accent.gray"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons in a disabled state."
-  },
-  "value": "#080F214A",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons in a disabled state."
-    },
-    "value": "Neutral400A"
-  },
-  "name": "color.icon.disabled",
-  "path": ["color", "icon", "disabled"],
-  "cleanName": "color.icon.disabled"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons on bold backgrounds."
-  },
-  "value": "#FFFFFF",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons on bold backgrounds."
-    },
-    "value": "Neutral0"
-  },
-  "name": "color.icon.inverse",
-  "path": ["color", "icon", "inverse"],
-  "cleanName": "color.icon.inverse"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.2",
-    "description": "Use for icons in selected or opened states, such as those used in dropdown buttons."
-  },
-  "value": "#1868DB",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.2",
-      "description": "Use for icons in selected or opened states, such as those used in dropdown buttons."
-    },
-    "value": "Blue700"
-  },
-  "name": "color.icon.selected",
-  "path": ["color", "icon", "selected"],
-  "cleanName": "color.icon.selected"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons that reinforce our brand."
-  },
-  "value": "#1868DB",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons that reinforce our brand."
-    },
-    "value": "Blue700"
-  },
-  "name": "color.icon.brand",
-  "path": ["color", "icon", "brand"],
-  "cleanName": "color.icon.brand"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons communicating critical information, such as those used in error handing."
-  },
-  "value": "#C9372C",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons communicating critical information, such as those used in error handing."
-    },
-    "value": "Red700"
-  },
-  "name": "color.icon.danger",
-  "path": ["color", "icon", "danger"],
-  "cleanName": "color.icon.danger"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons communicating caution, such as those used in warning section messages."
-  },
-  "value": "#E06C00",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons communicating caution, such as those used in warning section messages."
-    },
-    "value": "Orange600"
-  },
-  "name": "color.icon.warning.[default]",
-  "path": ["color", "icon", "warning", "[default]"],
-  "cleanName": "color.icon.warning"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons when on bold warning backgrounds."
-  },
-  "value": "#292A2E",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons when on bold warning backgrounds."
-    },
-    "value": "Neutral1000"
-  },
-  "name": "color.icon.warning.inverse",
-  "path": ["color", "icon", "warning", "inverse"],
-  "cleanName": "color.icon.warning.inverse"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons communicating a favorable outcome, such as those used in success section messaged."
-  },
-  "value": "#6A9A23",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons communicating a favorable outcome, such as those used in success section messaged."
-    },
-    "value": "Lime600"
-  },
-  "name": "color.icon.success",
-  "path": ["color", "icon", "success"],
-  "cleanName": "color.icon.success"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons communicating change or something new, such as discovery section messages."
-  },
-  "value": "#AF59E1",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons communicating change or something new, such as discovery section messages."
-    },
-    "value": "Purple600"
-  },
-  "name": "color.icon.discovery",
-  "path": ["color", "icon", "discovery"],
-  "cleanName": "color.icon.discovery"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons communicating information or something in-progress, such as information section messages."
-  },
-  "value": "#357DE8",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons communicating information or something in-progress, such as information section messages."
-    },
-    "value": "Blue600"
-  },
-  "name": "color.icon.information",
-  "path": ["color", "icon", "information"],
-  "cleanName": "color.icon.information"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "1.54.0",
-    "description": "Use for icons paired with color.text.subtlest"
-  },
-  "value": "#6B6E76",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "1.54.0",
-      "description": "Use for icons paired with color.text.subtlest"
-    },
-    "value": "Neutral700"
-  },
-  "name": "color.icon.subtlest",
-  "path": ["color", "icon", "subtlest"],
-  "cleanName": "color.icon.subtlest"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for icons paired with color.text.subtle"
-  },
-  "value": "#505258",
-  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for icons paired with color.text.subtle"
-    },
-    "value": "Neutral800"
-  },
-  "name": "color.icon.subtle",
-  "path": ["color", "icon", "subtle"],
-  "cleanName": "color.icon.subtle"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use to visually group or separate UI elements, such as flat cards or side panel dividers."
-  },
-  "value": "#0B120E24",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use to visually group or separate UI elements, such as flat cards or side panel dividers."
-    },
-    "value": "Neutral300A"
-  },
-  "name": "color.border.[default]",
-  "path": ["color", "border", "[default]"],
-  "cleanName": "color.border"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "1.6.0",
-    "description": "Use for lime borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#6A9A23",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "1.6.0",
-      "description": "Use for lime borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Lime600"
-  },
-  "name": "color.border.accent.lime",
-  "path": ["color", "border", "accent", "lime"],
-  "cleanName": "color.border.accent.lime"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for red borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#E2483D",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for red borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Red600"
-  },
-  "name": "color.border.accent.red",
-  "path": ["color", "border", "accent", "red"],
-  "cleanName": "color.border.accent.red"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for orange borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#E06C00",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for orange borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Orange600"
-  },
-  "name": "color.border.accent.orange",
-  "path": ["color", "border", "accent", "orange"],
-  "cleanName": "color.border.accent.orange"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for yellow borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#B38600",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for yellow borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Yellow600"
-  },
-  "name": "color.border.accent.yellow",
-  "path": ["color", "border", "accent", "yellow"],
-  "cleanName": "color.border.accent.yellow"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for green borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#22A06B",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for green borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Green600"
-  },
-  "name": "color.border.accent.green",
-  "path": ["color", "border", "accent", "green"],
-  "cleanName": "color.border.accent.green"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for teal borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#2898BD",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for teal borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Teal600"
-  },
-  "name": "color.border.accent.teal",
-  "path": ["color", "border", "accent", "teal"],
-  "cleanName": "color.border.accent.teal"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for blue borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#357DE8",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for blue borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Blue600"
-  },
-  "name": "color.border.accent.blue",
-  "path": ["color", "border", "accent", "blue"],
-  "cleanName": "color.border.accent.blue"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for purple borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#AF59E1",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for purple borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Purple600"
-  },
-  "name": "color.border.accent.purple",
-  "path": ["color", "border", "accent", "purple"],
-  "cleanName": "color.border.accent.purple"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for magenta borders on non-bold backgrounds when there is no meaning tied to the color."
-  },
-  "value": "#CD519D",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for magenta borders on non-bold backgrounds when there is no meaning tied to the color."
-    },
-    "value": "Magenta600"
-  },
-  "name": "color.border.accent.magenta",
-  "path": ["color", "border", "accent", "magenta"],
-  "cleanName": "color.border.accent.magenta"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.10.5",
-    "description": "Use for borders on non-bold gray accent backgrounds."
-  },
-  "value": "#7D818A",
-  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.10.5",
-      "description": "Use for borders on non-bold gray accent backgrounds."
-    },
-    "value": "Neutral600"
-  },
-  "name": "color.border.accent.gray",
-  "path": ["color", "border", "accent", "gray"],
-  "cleanName": "color.border.accent.gray"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders of elements in a disabled state."
-  },
-  "value": "#0515240F",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders of elements in a disabled state."
-    },
-    "value": "Neutral200A"
-  },
-  "name": "color.border.disabled",
-  "path": ["color", "border", "disabled"],
-  "cleanName": "color.border.disabled"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for focus rings of elements in a focus state."
-  },
-  "value": "#4688EC",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for focus rings of elements in a focus state."
-    },
-    "value": "Blue500"
-  },
-  "name": "color.border.focused",
-  "path": ["color", "border", "focused"],
-  "cleanName": "color.border.focused"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders of form UI elements, such as text fields, checkboxes, and radio buttons."
-  },
-  "value": "#8C8F97",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders of form UI elements, such as text fields, checkboxes, and radio buttons."
-    },
-    "value": "Neutral500"
-  },
-  "name": "color.border.input",
-  "path": ["color", "border", "input"],
-  "cleanName": "color.border.input"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders on bold backgrounds."
-  },
-  "value": "#FFFFFF",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders on bold backgrounds."
-    },
-    "value": "Neutral0"
-  },
-  "name": "color.border.inverse",
-  "path": ["color", "border", "inverse"],
-  "cleanName": "color.border.inverse"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.2",
-    "description": "Use for borders or visual indicators of elements in a selected or opened state, such as in tabs or menu items."
-  },
-  "value": "#1868DB",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.2",
-      "description": "Use for borders or visual indicators of elements in a selected or opened state, such as in tabs or menu items."
-    },
-    "value": "Blue700"
-  },
-  "name": "color.border.selected",
-  "path": ["color", "border", "selected"],
-  "cleanName": "color.border.selected"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders or visual indicators of elements that reinforce our brand, such as logos or primary buttons."
-  },
-  "value": "#1868DB",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders or visual indicators of elements that reinforce our brand, such as logos or primary buttons."
-    },
-    "value": "Blue700"
-  },
-  "name": "color.border.brand",
-  "path": ["color", "border", "brand"],
-  "cleanName": "color.border.brand"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders communicating critical information, such as the borders on invalid text fields."
-  },
-  "value": "#E2483D",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders communicating critical information, such as the borders on invalid text fields."
-    },
-    "value": "Red600"
-  },
-  "name": "color.border.danger",
-  "path": ["color", "border", "danger"],
-  "cleanName": "color.border.danger"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders communicating caution."
-  },
-  "value": "#E06C00",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders communicating caution."
-    },
-    "value": "Orange600"
-  },
-  "name": "color.border.warning",
-  "path": ["color", "border", "warning"],
-  "cleanName": "color.border.warning"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders communicating a favorable outcome, such as the borders on validated text fields."
-  },
-  "value": "#6A9A23",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders communicating a favorable outcome, such as the borders on validated text fields."
-    },
-    "value": "Lime600"
-  },
-  "name": "color.border.success",
-  "path": ["color", "border", "success"],
-  "cleanName": "color.border.success"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders communicating change or something new, such as the borders in onboarding spotlights."
-  },
-  "value": "#AF59E1",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders communicating change or something new, such as the borders in onboarding spotlights."
-    },
-    "value": "Purple600"
-  },
-  "name": "color.border.discovery",
-  "path": ["color", "border", "discovery"],
-  "cleanName": "color.border.discovery"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.6.0",
-    "description": "Use for borders communicating information or something in-progress."
-  },
-  "value": "#357DE8",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.6.0",
-      "description": "Use for borders communicating information or something in-progress."
-    },
-    "value": "Blue600"
-  },
-  "name": "color.border.information",
-  "path": ["color", "border", "information"],
-  "cleanName": "color.border.information"
-}, {
-  "attributes": {
-    "group": "paint",
-    "state": "active",
-    "introduced": "0.10.8",
-    "description": "A neutral border option that passes min 3:1 contrast ratios."
-  },
-  "value": "#7D818A",
-  "filePath": "schema/themes/atlassian-light/color/border.tsx",
-  "isSource": true,
-  "original": {
-    "attributes": {
-      "group": "paint",
-      "state": "active",
-      "introduced": "0.10.8",
-      "description": "A neutral border option that passes min 3:1 contrast ratios."
-    },
-    "value": "Neutral600"
-  },
-  "name": "color.border.bold",
-  "path": ["color", "border", "bold"],
-  "cleanName": "color.border.bold"
-}, {
   "attributes": {
     "group": "paint",
     "state": "active",
@@ -4590,10 +2654,164 @@ var tokens = [{
   "attributes": {
     "group": "paint",
     "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for highlighted added code lines."
+  },
+  "value": "#DCFFF1",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for highlighted added code lines."
+    },
+    "value": "Green100"
+  },
+  "name": "color.background.code.added.highlight",
+  "path": ["color", "background", "code", "added", "highlight"],
+  "cleanName": "color.background.code.added.highlight"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for added code lines."
+  },
+  "value": "#BAF3DB66",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for added code lines."
+    },
+    "value": "Green200A40"
+  },
+  "name": "color.background.code.added.line",
+  "path": ["color", "background", "code", "added", "line"],
+  "cleanName": "color.background.code.added.line"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for the default background of code blocks and code diffs."
+  },
+  "value": "#FFFFFF",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for the default background of code blocks and code diffs."
+    },
+    "value": "Neutral0"
+  },
+  "name": "color.background.code.default",
+  "path": ["color", "background", "code", "default"],
+  "cleanName": "color.background.code.default"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for the background of code gutters."
+  },
+  "value": "#F0F1F2",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for the background of code gutters."
+    },
+    "value": "Neutral200"
+  },
+  "name": "color.background.code.gutter",
+  "path": ["color", "background", "code", "gutter"],
+  "cleanName": "color.background.code.gutter"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for highlighted unchanged code lines."
+  },
+  "value": "#F0F1F2",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for highlighted unchanged code lines."
+    },
+    "value": "Neutral200"
+  },
+  "name": "color.background.code.highlight",
+  "path": ["color", "background", "code", "highlight"],
+  "cleanName": "color.background.code.highlight"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for highlighted removed code lines."
+  },
+  "value": "#FFECEB",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for highlighted removed code lines."
+    },
+    "value": "Red100"
+  },
+  "name": "color.background.code.removed.highlight",
+  "path": ["color", "background", "code", "removed", "highlight"],
+  "cleanName": "color.background.code.removed.highlight"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for removed code lines."
+  },
+  "value": "#FFD5D266",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for removed code lines."
+    },
+    "value": "Red200A40"
+  },
+  "name": "color.background.code.removed.line",
+  "path": ["color", "background", "code", "removed", "line"],
+  "cleanName": "color.background.code.removed.line"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
     "introduced": "0.0.15",
     "description": "Use for backgrounds of elements in a disabled state."
   },
-  "value": "#17171708",
+  "value": "#0515240F",
   "filePath": "schema/themes/atlassian-light/color/background.tsx",
   "isSource": true,
   "original": {
@@ -4603,7 +2821,7 @@ var tokens = [{
       "introduced": "0.0.15",
       "description": "Use for backgrounds of elements in a disabled state."
     },
-    "value": "Neutral100A"
+    "value": "Neutral200A"
   },
   "name": "color.background.disabled",
   "path": ["color", "background", "disabled"],
@@ -5404,6 +3622,28 @@ var tokens = [{
   "attributes": {
     "group": "paint",
     "state": "active",
+    "introduced": "13.2.0",
+    "description": "Background colour for non-interactive elements communicating critical danger information (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.danger.bold or color.background.danger.subtler for interactive states."
+  },
+  "value": "#FD9891",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Background colour for non-interactive elements communicating critical danger information (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.danger.bold or color.background.danger.subtler for interactive states."
+    },
+    "value": "Red300"
+  },
+  "name": "color.background.danger.subtle.[default]",
+  "path": ["color", "background", "danger", "subtle", "[default]"],
+  "cleanName": "color.background.danger.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
     "introduced": "0.6.0",
     "description": "A vibrant background option for communicating critical information, such as in danger buttons and error banners."
   },
@@ -5598,6 +3838,28 @@ var tokens = [{
   "name": "color.background.warning.subtler.pressed",
   "path": ["color", "background", "warning", "subtler", "pressed"],
   "cleanName": "color.background.warning.subtler.pressed"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Background colour for non-interactive elements communicating caution (e.g. status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.warning.bold or color.background.warning.subtler for interactive states."
+  },
+  "value": "#FBD779",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Background colour for non-interactive elements communicating caution (e.g. status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.warning.bold or color.background.warning.subtler for interactive states."
+    },
+    "value": "Orange250"
+  },
+  "name": "color.background.warning.subtle.[default]",
+  "path": ["color", "background", "warning", "subtle", "[default]"],
+  "cleanName": "color.background.warning.subtle"
 }, {
   "attributes": {
     "group": "paint",
@@ -5800,6 +4062,28 @@ var tokens = [{
   "attributes": {
     "group": "paint",
     "state": "active",
+    "introduced": "13.2.0",
+    "description": "Background colour for non-interactive elements communicating success (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.success.bold or color.background.success.subtler for interactive states."
+  },
+  "value": "#B3DF72",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Background colour for non-interactive elements communicating success (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.success.bold or color.background.success.subtler for interactive states."
+    },
+    "value": "Lime300"
+  },
+  "name": "color.background.success.subtle.[default]",
+  "path": ["color", "background", "success", "subtle", "[default]"],
+  "cleanName": "color.background.success.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
     "introduced": "0.6.0",
     "description": "A vibrant background option for communicating a favorable outcome, such as in checked toggles."
   },
@@ -5994,6 +4278,28 @@ var tokens = [{
   "name": "color.background.discovery.subtler.pressed",
   "path": ["color", "background", "discovery", "subtler", "pressed"],
   "cleanName": "color.background.discovery.subtler.pressed"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Background colour for non-interactive elements communicating discovery (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.discovery.bold or color.background.discovery.subtler for interactive states."
+  },
+  "value": "#D8A0F7",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Background colour for non-interactive elements communicating discovery (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.discovery.bold or color.background.discovery.subtler for interactive states."
+    },
+    "value": "Purple300"
+  },
+  "name": "color.background.discovery.subtle.[default]",
+  "path": ["color", "background", "discovery", "subtle", "[default]"],
+  "cleanName": "color.background.discovery.subtle"
 }, {
   "attributes": {
     "group": "paint",
@@ -6196,6 +4502,28 @@ var tokens = [{
   "attributes": {
     "group": "paint",
     "state": "active",
+    "introduced": "13.2.0",
+    "description": "Background colour for non-interactive elements communicating information (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.information.bold or color.background.information.subtler for interactive states."
+  },
+  "value": "#8FB8F6",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Background colour for non-interactive elements communicating information (e.g. semantic badges, status pills, callout chips). Sits between subtler and bold in visual emphasis. Not for interactive surfaces — see color.background.information.bold or color.background.information.subtler for interactive states."
+    },
+    "value": "Blue300"
+  },
+  "name": "color.background.information.subtle.[default]",
+  "path": ["color", "background", "information", "subtle", "[default]"],
+  "cleanName": "color.background.information.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
     "introduced": "0.6.0",
     "description": "A vibrant background option for communicating information or something in-progress."
   },
@@ -6262,68 +4590,2554 @@ var tokens = [{
   "attributes": {
     "group": "paint",
     "state": "active",
-    "introduced": "0.0.15",
-    "description": "Use for the screen overlay that appears with modal dialogs"
+    "introduced": "0.6.0",
+    "description": "Use to visually group or separate UI elements, such as flat cards or side panel dividers."
   },
-  "value": "#050C1F75",
-  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "value": "#0B120E24",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use to visually group or separate UI elements, such as flat cards or side panel dividers."
+    },
+    "value": "Neutral300A"
+  },
+  "name": "color.border.[default]",
+  "path": ["color", "border", "[default]"],
+  "cleanName": "color.border"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "1.6.0",
+    "description": "Use for lime borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#6A9A23",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "1.6.0",
+      "description": "Use for lime borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Lime600"
+  },
+  "name": "color.border.accent.lime.[default]",
+  "path": ["color", "border", "accent", "lime", "[default]"],
+  "cleanName": "color.border.accent.lime"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative lime borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#B3DF72",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative lime borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Lime300"
+  },
+  "name": "color.border.accent.lime.subtle",
+  "path": ["color", "border", "accent", "lime", "subtle"],
+  "cleanName": "color.border.accent.lime.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for red borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#E2483D",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for red borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Red600"
+  },
+  "name": "color.border.accent.red.[default]",
+  "path": ["color", "border", "accent", "red", "[default]"],
+  "cleanName": "color.border.accent.red"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative red borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#FD9891",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative red borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Red300"
+  },
+  "name": "color.border.accent.red.subtle",
+  "path": ["color", "border", "accent", "red", "subtle"],
+  "cleanName": "color.border.accent.red.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for orange borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#E06C00",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for orange borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Orange600"
+  },
+  "name": "color.border.accent.orange.[default]",
+  "path": ["color", "border", "accent", "orange", "[default]"],
+  "cleanName": "color.border.accent.orange"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative orange borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#FBC828",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative orange borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Orange300"
+  },
+  "name": "color.border.accent.orange.subtle",
+  "path": ["color", "border", "accent", "orange", "subtle"],
+  "cleanName": "color.border.accent.orange.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for yellow borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#B38600",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for yellow borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Yellow600"
+  },
+  "name": "color.border.accent.yellow.[default]",
+  "path": ["color", "border", "accent", "yellow", "[default]"],
+  "cleanName": "color.border.accent.yellow"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative yellow borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#EED12B",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative yellow borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Yellow300"
+  },
+  "name": "color.border.accent.yellow.subtle",
+  "path": ["color", "border", "accent", "yellow", "subtle"],
+  "cleanName": "color.border.accent.yellow.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for green borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#22A06B",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for green borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Green600"
+  },
+  "name": "color.border.accent.green.[default]",
+  "path": ["color", "border", "accent", "green", "[default]"],
+  "cleanName": "color.border.accent.green"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative green borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#7EE2B8",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative green borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Green300"
+  },
+  "name": "color.border.accent.green.subtle",
+  "path": ["color", "border", "accent", "green", "subtle"],
+  "cleanName": "color.border.accent.green.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for teal borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#2898BD",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for teal borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Teal600"
+  },
+  "name": "color.border.accent.teal.[default]",
+  "path": ["color", "border", "accent", "teal", "[default]"],
+  "cleanName": "color.border.accent.teal"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative teal borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#9DD9EE",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative teal borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Teal300"
+  },
+  "name": "color.border.accent.teal.subtle",
+  "path": ["color", "border", "accent", "teal", "subtle"],
+  "cleanName": "color.border.accent.teal.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for blue borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#357DE8",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for blue borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Blue600"
+  },
+  "name": "color.border.accent.blue.[default]",
+  "path": ["color", "border", "accent", "blue", "[default]"],
+  "cleanName": "color.border.accent.blue"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative blue borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#8FB8F6",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative blue borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Blue300"
+  },
+  "name": "color.border.accent.blue.subtle",
+  "path": ["color", "border", "accent", "blue", "subtle"],
+  "cleanName": "color.border.accent.blue.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for purple borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#AF59E1",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for purple borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Purple600"
+  },
+  "name": "color.border.accent.purple.[default]",
+  "path": ["color", "border", "accent", "purple", "[default]"],
+  "cleanName": "color.border.accent.purple"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative purple borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#D8A0F7",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative purple borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Purple300"
+  },
+  "name": "color.border.accent.purple.subtle",
+  "path": ["color", "border", "accent", "purple", "subtle"],
+  "cleanName": "color.border.accent.purple.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for magenta borders on non-bold backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#CD519D",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for magenta borders on non-bold backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Magenta600"
+  },
+  "name": "color.border.accent.magenta.[default]",
+  "path": ["color", "border", "accent", "magenta", "[default]"],
+  "cleanName": "color.border.accent.magenta"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative magenta borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#F797D2",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative magenta borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Magenta300"
+  },
+  "name": "color.border.accent.magenta.subtle",
+  "path": ["color", "border", "accent", "magenta", "subtle"],
+  "cleanName": "color.border.accent.magenta.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.10.5",
+    "description": "Use for borders on non-bold gray accent backgrounds."
+  },
+  "value": "#7D818A",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.10.5",
+      "description": "Use for borders on non-bold gray accent backgrounds."
+    },
+    "value": "Neutral600"
+  },
+  "name": "color.border.accent.gray.[default]",
+  "path": ["color", "border", "accent", "gray", "[default]"],
+  "cleanName": "color.border.accent.gray"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative gray borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#B7B9BE",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative gray borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Neutral400"
+  },
+  "name": "color.border.accent.gray.subtle",
+  "path": ["color", "border", "accent", "gray", "subtle"],
+  "cleanName": "color.border.accent.gray.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for code block and code diff borders."
+  },
+  "value": "#0B120E24",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for code block and code diff borders."
+    },
+    "value": "Neutral300A"
+  },
+  "name": "color.border.code",
+  "path": ["color", "border", "code"],
+  "cleanName": "color.border.code"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders of elements in a disabled state."
+  },
+  "value": "#0515240F",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders of elements in a disabled state."
+    },
+    "value": "Neutral200A"
+  },
+  "name": "color.border.disabled",
+  "path": ["color", "border", "disabled"],
+  "cleanName": "color.border.disabled"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for focus rings of elements in a focus state."
+  },
+  "value": "#4688EC",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for focus rings of elements in a focus state."
+    },
+    "value": "Blue500"
+  },
+  "name": "color.border.focused",
+  "path": ["color", "border", "focused"],
+  "cleanName": "color.border.focused"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders of form UI elements, such as text fields, checkboxes, and radio buttons."
+  },
+  "value": "#8C8F97",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders of form UI elements, such as text fields, checkboxes, and radio buttons."
+    },
+    "value": "Neutral500"
+  },
+  "name": "color.border.input.[default]",
+  "path": ["color", "border", "input", "[default]"],
+  "cleanName": "color.border.input"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.12.0",
+    "description": "Use for the border of search inputs."
+  },
+  "value": "#0B120E24",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.12.0",
+      "description": "Use for the border of search inputs."
+    },
+    "value": "Neutral300A"
+  },
+  "name": "color.border.input.search",
+  "path": ["color", "border", "input", "search"],
+  "cleanName": "color.border.input.search"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders on bold backgrounds."
+  },
+  "value": "#FFFFFF",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders on bold backgrounds."
+    },
+    "value": "Neutral0"
+  },
+  "name": "color.border.inverse",
+  "path": ["color", "border", "inverse"],
+  "cleanName": "color.border.inverse"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.2",
+    "description": "Use for borders or visual indicators of elements in a selected or opened state, such as in tabs or menu items."
+  },
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.2",
+      "description": "Use for borders or visual indicators of elements in a selected or opened state, such as in tabs or menu items."
+    },
+    "value": "Blue700"
+  },
+  "name": "color.border.selected",
+  "path": ["color", "border", "selected"],
+  "cleanName": "color.border.selected"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders or visual indicators of elements that reinforce our brand, such as logos or primary buttons."
+  },
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders or visual indicators of elements that reinforce our brand, such as logos or primary buttons."
+    },
+    "value": "Blue700"
+  },
+  "name": "color.border.brand",
+  "path": ["color", "border", "brand"],
+  "cleanName": "color.border.brand"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders communicating critical information, such as the borders on invalid text fields."
+  },
+  "value": "#E2483D",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders communicating critical information, such as the borders on invalid text fields."
+    },
+    "value": "Red600"
+  },
+  "name": "color.border.danger.[default]",
+  "path": ["color", "border", "danger", "[default]"],
+  "cleanName": "color.border.danger"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative danger borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#FD9891",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative danger borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Red300"
+  },
+  "name": "color.border.danger.subtle",
+  "path": ["color", "border", "danger", "subtle"],
+  "cleanName": "color.border.danger.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders communicating caution."
+  },
+  "value": "#E06C00",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders communicating caution."
+    },
+    "value": "Orange600"
+  },
+  "name": "color.border.warning.[default]",
+  "path": ["color", "border", "warning", "[default]"],
+  "cleanName": "color.border.warning"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative warning borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#FBC828",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative warning borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Orange300"
+  },
+  "name": "color.border.warning.subtle",
+  "path": ["color", "border", "warning", "subtle"],
+  "cleanName": "color.border.warning.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders communicating a favorable outcome, such as the borders on validated text fields."
+  },
+  "value": "#6A9A23",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders communicating a favorable outcome, such as the borders on validated text fields."
+    },
+    "value": "Lime600"
+  },
+  "name": "color.border.success.[default]",
+  "path": ["color", "border", "success", "[default]"],
+  "cleanName": "color.border.success"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative success borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#B3DF72",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative success borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Lime300"
+  },
+  "name": "color.border.success.subtle",
+  "path": ["color", "border", "success", "subtle"],
+  "cleanName": "color.border.success.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders communicating change or something new, such as the borders in onboarding spotlights."
+  },
+  "value": "#AF59E1",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders communicating change or something new, such as the borders in onboarding spotlights."
+    },
+    "value": "Purple600"
+  },
+  "name": "color.border.discovery.[default]",
+  "path": ["color", "border", "discovery", "[default]"],
+  "cleanName": "color.border.discovery"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative discovery borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#D8A0F7",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative discovery borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Purple300"
+  },
+  "name": "color.border.discovery.subtle",
+  "path": ["color", "border", "discovery", "subtle"],
+  "cleanName": "color.border.discovery.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for borders communicating information or something in-progress."
+  },
+  "value": "#357DE8",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for borders communicating information or something in-progress."
+    },
+    "value": "Blue600"
+  },
+  "name": "color.border.information.[default]",
+  "path": ["color", "border", "information", "[default]"],
+  "cleanName": "color.border.information"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.2.0",
+    "description": "Use for decorative information borders that do not need to meet 3:1 contrast requirements."
+  },
+  "value": "#8FB8F6",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.2.0",
+      "description": "Use for decorative information borders that do not need to meet 3:1 contrast requirements."
+    },
+    "value": "Blue300"
+  },
+  "name": "color.border.information.subtle",
+  "path": ["color", "border", "information", "subtle"],
+  "cleanName": "color.border.information.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.10.8",
+    "description": "A neutral border option that passes min 3:1 contrast ratios."
+  },
+  "value": "#7D818A",
+  "filePath": "schema/themes/atlassian-light/color/border.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.10.8",
+      "description": "A neutral border option that passes min 3:1 contrast ratios."
+    },
+    "value": "Neutral600"
+  },
+  "name": "color.border.bold",
+  "path": ["color", "border", "bold"],
+  "cleanName": "color.border.bold"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for primary text, such as body copy, sentence case headers, and buttons."
+  },
+  "value": "#292A2E",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for primary text, such as body copy, sentence case headers, and buttons."
+    },
+    "value": "Neutral1000"
+  },
+  "name": "color.text.[default]",
+  "path": ["color", "text", "[default]"],
+  "cleanName": "color.text"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "1.8.0",
+    "description": "Use for lime text on subtlest and subtler lime accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#4C6B1F",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "1.8.0",
+      "description": "Use for lime text on subtlest and subtler lime accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Lime800"
+  },
+  "name": "color.text.accent.lime.[default]",
+  "path": ["color", "text", "accent", "lime", "[default]"],
+  "cleanName": "color.text.accent.lime"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "1.8.0",
+    "description": "Use for lime text on subtle lime accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#37471F",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "1.8.0",
+      "description": "Use for lime text on subtle lime accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Lime900"
+  },
+  "name": "color.text.accent.lime.bolder",
+  "path": ["color", "text", "accent", "lime", "bolder"],
+  "cleanName": "color.text.accent.lime.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for red text on subtlest and subtler red accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#AE2E24",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for red text on subtlest and subtler red accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Red800"
+  },
+  "name": "color.text.accent.red.[default]",
+  "path": ["color", "text", "accent", "red", "[default]"],
+  "cleanName": "color.text.accent.red"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.7.0",
+    "description": "Use for red text on subtle red accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#5D1F1A",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.7.0",
+      "description": "Use for red text on subtle red accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Red900"
+  },
+  "name": "color.text.accent.red.bolder",
+  "path": ["color", "text", "accent", "red", "bolder"],
+  "cleanName": "color.text.accent.red.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for orange text on subtlest and subtler orange accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#9E4C00",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for orange text on subtlest and subtler orange accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Orange800"
+  },
+  "name": "color.text.accent.orange.[default]",
+  "path": ["color", "text", "accent", "orange", "[default]"],
+  "cleanName": "color.text.accent.orange"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.7.0",
+    "description": "Use for orange text on subtle orange accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#693200",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.7.0",
+      "description": "Use for orange text on subtle orange accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Orange900"
+  },
+  "name": "color.text.accent.orange.bolder",
+  "path": ["color", "text", "accent", "orange", "bolder"],
+  "cleanName": "color.text.accent.orange.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for yellow text on subtlest and subtler yellow accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#7F5F01",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for yellow text on subtlest and subtler yellow accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Yellow800"
+  },
+  "name": "color.text.accent.yellow.[default]",
+  "path": ["color", "text", "accent", "yellow", "[default]"],
+  "cleanName": "color.text.accent.yellow"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.7.0",
+    "description": "Use for yellow text on subtle yellow accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#533F04",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.7.0",
+      "description": "Use for yellow text on subtle yellow accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Yellow900"
+  },
+  "name": "color.text.accent.yellow.bolder",
+  "path": ["color", "text", "accent", "yellow", "bolder"],
+  "cleanName": "color.text.accent.yellow.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for green text on subtlest and subtler green accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#216E4E",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for green text on subtlest and subtler green accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Green800"
+  },
+  "name": "color.text.accent.green.[default]",
+  "path": ["color", "text", "accent", "green", "[default]"],
+  "cleanName": "color.text.accent.green"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.7.0",
+    "description": "Use for green text on subtle green accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#164B35",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.7.0",
+      "description": "Use for green text on subtle green accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Green900"
+  },
+  "name": "color.text.accent.green.bolder",
+  "path": ["color", "text", "accent", "green", "bolder"],
+  "cleanName": "color.text.accent.green.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for teal text on subtlest and subtler teal accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#206A83",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for teal text on subtlest and subtler teal accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Teal800"
+  },
+  "name": "color.text.accent.teal.[default]",
+  "path": ["color", "text", "accent", "teal", "[default]"],
+  "cleanName": "color.text.accent.teal"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.7.0",
+    "description": "Use for teal text on subtle teal accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#164555",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.7.0",
+      "description": "Use for teal text on subtle teal accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Teal900"
+  },
+  "name": "color.text.accent.teal.bolder",
+  "path": ["color", "text", "accent", "teal", "bolder"],
+  "cleanName": "color.text.accent.teal.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for blue text on subtlest and subtler blue accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#1558BC",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for blue text on subtlest and subtler blue accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Blue800"
+  },
+  "name": "color.text.accent.blue.[default]",
+  "path": ["color", "text", "accent", "blue", "[default]"],
+  "cleanName": "color.text.accent.blue"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.7.0",
+    "description": "Use for blue text on subtle blue accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#123263",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.7.0",
+      "description": "Use for blue text on subtle blue accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Blue900"
+  },
+  "name": "color.text.accent.blue.bolder",
+  "path": ["color", "text", "accent", "blue", "bolder"],
+  "cleanName": "color.text.accent.blue.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for purple text on subtlest and subtler purple accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#803FA5",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for purple text on subtlest and subtler purple accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Purple800"
+  },
+  "name": "color.text.accent.purple.[default]",
+  "path": ["color", "text", "accent", "purple", "[default]"],
+  "cleanName": "color.text.accent.purple"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.7.0",
+    "description": "Use for purple text on subtle purple accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#48245D",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.7.0",
+      "description": "Use for purple text on subtle purple accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Purple900"
+  },
+  "name": "color.text.accent.purple.bolder",
+  "path": ["color", "text", "accent", "purple", "bolder"],
+  "cleanName": "color.text.accent.purple.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for magenta text on subtlest and subtler magenta accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#943D73",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for magenta text on subtlest and subtler magenta accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Magenta800"
+  },
+  "name": "color.text.accent.magenta.[default]",
+  "path": ["color", "text", "accent", "magenta", "[default]"],
+  "cleanName": "color.text.accent.magenta"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.7.0",
+    "description": "Use for magenta text on subtle magenta accent backgrounds when there is no meaning tied to the color."
+  },
+  "value": "#50253F",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.7.0",
+      "description": "Use for magenta text on subtle magenta accent backgrounds when there is no meaning tied to the color."
+    },
+    "value": "Magenta900"
+  },
+  "name": "color.text.accent.magenta.bolder",
+  "path": ["color", "text", "accent", "magenta", "bolder"],
+  "cleanName": "color.text.accent.magenta.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.10.5",
+    "description": "Use for text on non-bold gray accent backgrounds, such as colored tags."
+  },
+  "value": "#505258",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.10.5",
+      "description": "Use for text on non-bold gray accent backgrounds, such as colored tags."
+    },
+    "value": "Neutral800"
+  },
+  "name": "color.text.accent.gray.[default]",
+  "path": ["color", "text", "accent", "gray", "[default]"],
+  "cleanName": "color.text.accent.gray"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.10.5",
+    "description": "Use for text and icons on gray subtle accent backgrounds."
+  },
+  "value": "#1E1F21",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.10.5",
+      "description": "Use for text and icons on gray subtle accent backgrounds."
+    },
+    "value": "Neutral1100"
+  },
+  "name": "color.text.accent.gray.bolder",
+  "path": ["color", "text", "accent", "gray", "bolder"],
+  "cleanName": "color.text.accent.gray.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for an additional syntax-highlighting text color."
+  },
+  "value": "#943D73",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for an additional syntax-highlighting text color."
+    },
+    "value": "Magenta800"
+  },
+  "name": "color.text.code.accent.1",
+  "path": ["color", "text", "code", "accent", "1"],
+  "cleanName": "color.text.code.accent.1"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for an additional syntax-highlighting text color."
+  },
+  "value": "#1558BC",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for an additional syntax-highlighting text color."
+    },
+    "value": "Blue800"
+  },
+  "name": "color.text.code.accent.2",
+  "path": ["color", "text", "code", "accent", "2"],
+  "cleanName": "color.text.code.accent.2"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for comments in syntax-highlighted code."
+  },
+  "value": "#505258",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for comments in syntax-highlighted code."
+    },
+    "value": "Neutral800"
+  },
+  "name": "color.text.code.comments",
+  "path": ["color", "text", "code", "comments"],
+  "cleanName": "color.text.code.comments"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for default text in code blocks and code diffs."
+  },
+  "value": "#505258",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for default text in code blocks and code diffs."
+    },
+    "value": "Neutral800"
+  },
+  "name": "color.text.code.default",
+  "path": ["color", "text", "code", "default"],
+  "cleanName": "color.text.code.default"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for functions in syntax-highlighted code."
+  },
+  "value": "#216E4E",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for functions in syntax-highlighted code."
+    },
+    "value": "Green800"
+  },
+  "name": "color.text.code.functions",
+  "path": ["color", "text", "code", "functions"],
+  "cleanName": "color.text.code.functions"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for line numbers and other code gutter text."
+  },
+  "value": "#6B6E76",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for line numbers and other code gutter text."
+    },
+    "value": "Neutral700"
+  },
+  "name": "color.text.code.gutter",
+  "path": ["color", "text", "code", "gutter"],
+  "cleanName": "color.text.code.gutter"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for language keywords in syntax-highlighted code."
+  },
+  "value": "#AE2E24",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for language keywords in syntax-highlighted code."
+    },
+    "value": "Red800"
+  },
+  "name": "color.text.code.keywords",
+  "path": ["color", "text", "code", "keywords"],
+  "cleanName": "color.text.code.keywords"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for numeric values in syntax-highlighted code."
+  },
+  "value": "#7F5F01",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for numeric values in syntax-highlighted code."
+    },
+    "value": "Yellow800"
+  },
+  "name": "color.text.code.numbers",
+  "path": ["color", "text", "code", "numbers"],
+  "cleanName": "color.text.code.numbers"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for operators and punctuation in syntax-highlighted code."
+  },
+  "value": "#292A2E",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for operators and punctuation in syntax-highlighted code."
+    },
+    "value": "Neutral1000"
+  },
+  "name": "color.text.code.operators",
+  "path": ["color", "text", "code", "operators"],
+  "cleanName": "color.text.code.operators"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for string values in syntax-highlighted code."
+  },
+  "value": "#4C6B1F",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for string values in syntax-highlighted code."
+    },
+    "value": "Lime800"
+  },
+  "name": "color.text.code.strings",
+  "path": ["color", "text", "code", "strings"],
+  "cleanName": "color.text.code.strings"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "16.0.0",
+    "description": "Use for tags in syntax-highlighted code."
+  },
+  "value": "#9E4C00",
+  "filePath": "schema/themes/atlassian-light/color/code.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "16.0.0",
+      "description": "Use for tags in syntax-highlighted code."
+    },
+    "value": "Orange800"
+  },
+  "name": "color.text.code.tags",
+  "path": ["color", "text", "code", "tags"],
+  "cleanName": "color.text.code.tags"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.0.15",
+    "description": "Use for text in a disabled state."
+  },
+  "value": "#080F214A",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
   "isSource": true,
   "original": {
     "attributes": {
       "group": "paint",
       "state": "active",
       "introduced": "0.0.15",
-      "description": "Use for the screen overlay that appears with modal dialogs"
+      "description": "Use for text in a disabled state."
     },
-    "value": "Neutral500A"
+    "value": "Neutral400A"
   },
-  "name": "color.blanket.[default]",
-  "path": ["color", "blanket", "[default]"],
-  "cleanName": "color.blanket"
+  "name": "color.text.disabled",
+  "path": ["color", "text", "disabled"],
+  "cleanName": "color.text.disabled"
 }, {
   "attributes": {
     "group": "paint",
     "state": "active",
     "introduced": "0.6.0",
-    "description": "Use as an overlay to communicate selected states when a simple background color change isn't possible, such as in Editor block elements"
+    "description": "Use for text on bold backgrounds."
   },
-  "value": "#388BFF14",
-  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "value": "#FFFFFF",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
   "isSource": true,
   "original": {
     "attributes": {
       "group": "paint",
       "state": "active",
       "introduced": "0.6.0",
-      "description": "Use as an overlay to communicate selected states when a simple background color change isn't possible, such as in Editor block elements"
+      "description": "Use for text on bold backgrounds."
     },
-    "value": "#388BFF14"
+    "value": "Neutral0"
   },
-  "name": "color.blanket.selected",
-  "path": ["color", "blanket", "selected"],
-  "cleanName": "color.blanket.selected"
+  "name": "color.text.inverse",
+  "path": ["color", "text", "inverse"],
+  "cleanName": "color.text.inverse"
 }, {
   "attributes": {
     "group": "paint",
     "state": "active",
     "introduced": "0.6.0",
-    "description": "Use as an overlay to communicate danger states when a simple background color change isn't possible, such as deletion of Editor block elements"
+    "description": "Use for text in selected or opened states, such as tabs and dropdown buttons."
   },
-  "value": "#EF5C4814",
-  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
   "isSource": true,
   "original": {
     "attributes": {
       "group": "paint",
       "state": "active",
       "introduced": "0.6.0",
-      "description": "Use as an overlay to communicate danger states when a simple background color change isn't possible, such as deletion of Editor block elements"
+      "description": "Use for text in selected or opened states, such as tabs and dropdown buttons."
     },
-    "value": "#EF5C4814"
+    "value": "Blue700"
   },
-  "name": "color.blanket.danger",
-  "path": ["color", "blanket", "danger"],
-  "cleanName": "color.blanket.danger"
+  "name": "color.text.selected",
+  "path": ["color", "text", "selected"],
+  "cleanName": "color.text.selected"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for text that reinforces our brand."
+  },
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for text that reinforces our brand."
+    },
+    "value": "Blue700"
+  },
+  "name": "color.text.brand",
+  "path": ["color", "text", "brand"],
+  "cleanName": "color.text.brand"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.0.15",
+    "description": "Use for critical text, such as input field error messaging."
+  },
+  "value": "#AE2E24",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.0.15",
+      "description": "Use for critical text, such as input field error messaging."
+    },
+    "value": "Red800"
+  },
+  "name": "color.text.danger.[default]",
+  "path": ["color", "text", "danger", "[default]"],
+  "cleanName": "color.text.danger"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "8.1.0",
+    "description": "Use for text on top of danger semantic labels to ensure accessibility and desired visual appearance."
+  },
+  "value": "#5D1F1A",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "8.1.0",
+      "description": "Use for text on top of danger semantic labels to ensure accessibility and desired visual appearance."
+    },
+    "value": "Red900"
+  },
+  "name": "color.text.danger.bolder",
+  "path": ["color", "text", "danger", "bolder"],
+  "cleanName": "color.text.danger.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.0.15",
+    "description": "Use for text to emphasize caution, such as in moved lozenges."
+  },
+  "value": "#9E4C00",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.0.15",
+      "description": "Use for text to emphasize caution, such as in moved lozenges."
+    },
+    "value": "Orange800"
+  },
+  "name": "color.text.warning.[default]",
+  "path": ["color", "text", "warning", "[default]"],
+  "cleanName": "color.text.warning"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for text when on bold warning backgrounds."
+  },
+  "value": "#292A2E",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for text when on bold warning backgrounds."
+    },
+    "value": "Neutral1000"
+  },
+  "name": "color.text.warning.inverse",
+  "path": ["color", "text", "warning", "inverse"],
+  "cleanName": "color.text.warning.inverse"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "8.1.0",
+    "description": "Use for text on top of warning semantic labels to ensure accessibility and desired visual appearance."
+  },
+  "value": "#693200",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "8.1.0",
+      "description": "Use for text on top of warning semantic labels to ensure accessibility and desired visual appearance."
+    },
+    "value": "Orange900"
+  },
+  "name": "color.text.warning.bolder",
+  "path": ["color", "text", "warning", "bolder"],
+  "cleanName": "color.text.warning.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.0.15",
+    "description": "Use for text to communicate a favorable outcome, such as input field success messaging."
+  },
+  "value": "#4C6B1F",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.0.15",
+      "description": "Use for text to communicate a favorable outcome, such as input field success messaging."
+    },
+    "value": "Lime800"
+  },
+  "name": "color.text.success.[default]",
+  "path": ["color", "text", "success", "[default]"],
+  "cleanName": "color.text.success"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "8.1.0",
+    "description": "Use for text on top of success semantic labels to ensure accessibility and desired visual appearance."
+  },
+  "value": "#37471F",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "8.1.0",
+      "description": "Use for text on top of success semantic labels to ensure accessibility and desired visual appearance."
+    },
+    "value": "Lime900"
+  },
+  "name": "color.text.success.bolder",
+  "path": ["color", "text", "success", "bolder"],
+  "cleanName": "color.text.success.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.0.15",
+    "description": "Use for text to emphasize change or something new, such as in new lozenges."
+  },
+  "value": "#803FA5",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.0.15",
+      "description": "Use for text to emphasize change or something new, such as in new lozenges."
+    },
+    "value": "Purple800"
+  },
+  "name": "color.text.discovery.[default]",
+  "path": ["color", "text", "discovery", "[default]"],
+  "cleanName": "color.text.discovery"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "8.1.0",
+    "description": "Use for text on top of discovery semantic labels to ensure accessibility and desired visual appearance."
+  },
+  "value": "#48245D",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "8.1.0",
+      "description": "Use for text on top of discovery semantic labels to ensure accessibility and desired visual appearance."
+    },
+    "value": "Purple900"
+  },
+  "name": "color.text.discovery.bolder",
+  "path": ["color", "text", "discovery", "bolder"],
+  "cleanName": "color.text.discovery.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for informative text or to communicate something is in progress, such as in-progress lozenges."
+  },
+  "value": "#1558BC",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for informative text or to communicate something is in progress, such as in-progress lozenges."
+    },
+    "value": "Blue800"
+  },
+  "name": "color.text.information.[default]",
+  "path": ["color", "text", "information", "[default]"],
+  "cleanName": "color.text.information"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "8.1.0",
+    "description": "Use for text on top of information semantic labels to ensure accessibility and desired visual appearance."
+  },
+  "value": "#123263",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "8.1.0",
+      "description": "Use for text on top of information semantic labels to ensure accessibility and desired visual appearance."
+    },
+    "value": "Blue900"
+  },
+  "name": "color.text.information.bolder",
+  "path": ["color", "text", "information", "bolder"],
+  "cleanName": "color.text.information.bolder"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for tertiary text, such as meta-data, breadcrumbs, input field placeholder and helper text."
+  },
+  "value": "#6B6E76",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for tertiary text, such as meta-data, breadcrumbs, input field placeholder and helper text."
+    },
+    "value": "Neutral700"
+  },
+  "name": "color.text.subtlest",
+  "path": ["color", "text", "subtlest"],
+  "cleanName": "color.text.subtlest"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for secondary text, such as navigation, subtle button links, input field labels, and all caps subheadings."
+  },
+  "value": "#505258",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for secondary text, such as navigation, subtle button links, input field labels, and all caps subheadings."
+    },
+    "value": "Neutral800"
+  },
+  "name": "color.text.subtle",
+  "path": ["color", "text", "subtle"],
+  "cleanName": "color.text.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icon-only buttons, or icons paired with color.text"
+  },
+  "value": "#292A2E",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icon-only buttons, or icons paired with color.text"
+    },
+    "value": "Neutral1000"
+  },
+  "name": "color.icon.[default]",
+  "path": ["color", "icon", "[default]"],
+  "cleanName": "color.icon"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "1.6.0",
+    "description": "Use for lime icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#6A9A23",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "1.6.0",
+      "description": "Use for lime icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Lime600"
+  },
+  "name": "color.icon.accent.lime",
+  "path": ["color", "icon", "accent", "lime"],
+  "cleanName": "color.icon.accent.lime"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for red icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#C9372C",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for red icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Red700"
+  },
+  "name": "color.icon.accent.red",
+  "path": ["color", "icon", "accent", "red"],
+  "cleanName": "color.icon.accent.red"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for orange icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#E06C00",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for orange icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Orange600"
+  },
+  "name": "color.icon.accent.orange",
+  "path": ["color", "icon", "accent", "orange"],
+  "cleanName": "color.icon.accent.orange"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for yellow icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#B38600",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for yellow icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Yellow600"
+  },
+  "name": "color.icon.accent.yellow",
+  "path": ["color", "icon", "accent", "yellow"],
+  "cleanName": "color.icon.accent.yellow"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for green icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#22A06B",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for green icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Green600"
+  },
+  "name": "color.icon.accent.green",
+  "path": ["color", "icon", "accent", "green"],
+  "cleanName": "color.icon.accent.green"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for teal icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#2898BD",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for teal icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Teal600"
+  },
+  "name": "color.icon.accent.teal",
+  "path": ["color", "icon", "accent", "teal"],
+  "cleanName": "color.icon.accent.teal"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for blue icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#357DE8",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for blue icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Blue600"
+  },
+  "name": "color.icon.accent.blue",
+  "path": ["color", "icon", "accent", "blue"],
+  "cleanName": "color.icon.accent.blue"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for purple icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#AF59E1",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for purple icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Purple600"
+  },
+  "name": "color.icon.accent.purple",
+  "path": ["color", "icon", "accent", "purple"],
+  "cleanName": "color.icon.accent.purple"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for magenta icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+  },
+  "value": "#CD519D",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for magenta icons on non-bold backgrounds when there is no meaning tied to the color, such as file type icons."
+    },
+    "value": "Magenta600"
+  },
+  "name": "color.icon.accent.magenta",
+  "path": ["color", "icon", "accent", "magenta"],
+  "cleanName": "color.icon.accent.magenta"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.10.5",
+    "description": "Use for icons on non-bold gray accent backgrounds, such as file type icons."
+  },
+  "value": "#7D818A",
+  "filePath": "schema/themes/atlassian-light/color/accent.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.10.5",
+      "description": "Use for icons on non-bold gray accent backgrounds, such as file type icons."
+    },
+    "value": "Neutral600"
+  },
+  "name": "color.icon.accent.gray",
+  "path": ["color", "icon", "accent", "gray"],
+  "cleanName": "color.icon.accent.gray"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons in a disabled state."
+  },
+  "value": "#080F214A",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons in a disabled state."
+    },
+    "value": "Neutral400A"
+  },
+  "name": "color.icon.disabled",
+  "path": ["color", "icon", "disabled"],
+  "cleanName": "color.icon.disabled"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons on bold backgrounds."
+  },
+  "value": "#FFFFFF",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons on bold backgrounds."
+    },
+    "value": "Neutral0"
+  },
+  "name": "color.icon.inverse",
+  "path": ["color", "icon", "inverse"],
+  "cleanName": "color.icon.inverse"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.2",
+    "description": "Use for icons in selected or opened states, such as those used in dropdown buttons."
+  },
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.2",
+      "description": "Use for icons in selected or opened states, such as those used in dropdown buttons."
+    },
+    "value": "Blue700"
+  },
+  "name": "color.icon.selected",
+  "path": ["color", "icon", "selected"],
+  "cleanName": "color.icon.selected"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons that reinforce our brand."
+  },
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons that reinforce our brand."
+    },
+    "value": "Blue700"
+  },
+  "name": "color.icon.brand",
+  "path": ["color", "icon", "brand"],
+  "cleanName": "color.icon.brand"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons communicating critical information, such as those used in error handing."
+  },
+  "value": "#C9372C",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons communicating critical information, such as those used in error handing."
+    },
+    "value": "Red700"
+  },
+  "name": "color.icon.danger",
+  "path": ["color", "icon", "danger"],
+  "cleanName": "color.icon.danger"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons communicating caution, such as those used in warning section messages."
+  },
+  "value": "#E06C00",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons communicating caution, such as those used in warning section messages."
+    },
+    "value": "Orange600"
+  },
+  "name": "color.icon.warning.[default]",
+  "path": ["color", "icon", "warning", "[default]"],
+  "cleanName": "color.icon.warning"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons when on bold warning backgrounds."
+  },
+  "value": "#292A2E",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons when on bold warning backgrounds."
+    },
+    "value": "Neutral1000"
+  },
+  "name": "color.icon.warning.inverse",
+  "path": ["color", "icon", "warning", "inverse"],
+  "cleanName": "color.icon.warning.inverse"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons communicating a favorable outcome, such as those used in success section messaged."
+  },
+  "value": "#6A9A23",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons communicating a favorable outcome, such as those used in success section messaged."
+    },
+    "value": "Lime600"
+  },
+  "name": "color.icon.success",
+  "path": ["color", "icon", "success"],
+  "cleanName": "color.icon.success"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons communicating change or something new, such as discovery section messages."
+  },
+  "value": "#AF59E1",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons communicating change or something new, such as discovery section messages."
+    },
+    "value": "Purple600"
+  },
+  "name": "color.icon.discovery",
+  "path": ["color", "icon", "discovery"],
+  "cleanName": "color.icon.discovery"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons communicating information or something in-progress, such as information section messages."
+  },
+  "value": "#357DE8",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons communicating information or something in-progress, such as information section messages."
+    },
+    "value": "Blue600"
+  },
+  "name": "color.icon.information",
+  "path": ["color", "icon", "information"],
+  "cleanName": "color.icon.information"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "1.54.0",
+    "description": "Use for icons paired with color.text.subtlest"
+  },
+  "value": "#6B6E76",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "1.54.0",
+      "description": "Use for icons paired with color.text.subtlest"
+    },
+    "value": "Neutral700"
+  },
+  "name": "color.icon.subtlest",
+  "path": ["color", "icon", "subtlest"],
+  "cleanName": "color.icon.subtlest"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for icons paired with color.text.subtle"
+  },
+  "value": "#505258",
+  "filePath": "schema/themes/atlassian-light/color/icon.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for icons paired with color.text.subtle"
+    },
+    "value": "Neutral800"
+  },
+  "name": "color.icon.subtle",
+  "path": ["color", "icon", "subtle"],
+  "cleanName": "color.icon.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for links in a default or hovered state. Add an underline for hovered states."
+  },
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for links in a default or hovered state. Add an underline for hovered states."
+    },
+    "value": "Blue700"
+  },
+  "name": "color.link.[default]",
+  "path": ["color", "link", "[default]"],
+  "cleanName": "color.link"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use for links in a pressed state."
+  },
+  "value": "#1558BC",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use for links in a pressed state."
+    },
+    "value": "Blue800"
+  },
+  "name": "color.link.pressed",
+  "path": ["color", "link", "pressed"],
+  "cleanName": "color.link.pressed"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "1.23.0",
+    "description": "Use for visited links."
+  },
+  "value": "#803FA5",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "1.23.0",
+      "description": "Use for visited links."
+    },
+    "value": "Purple800"
+  },
+  "name": "color.link.visited.[default]",
+  "path": ["color", "link", "visited", "[default]"],
+  "cleanName": "color.link.visited"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "1.43.0",
+    "description": "Use for visited links in a pressed state."
+  },
+  "value": "#48245D",
+  "filePath": "schema/themes/atlassian-light/color/text.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "1.43.0",
+      "description": "Use for visited links in a pressed state."
+    },
+    "value": "Purple900"
+  },
+  "name": "color.link.visited.pressed",
+  "path": ["color", "link", "visited", "pressed"],
+  "cleanName": "color.link.visited.pressed"
 }, {
   "attributes": {
     "group": "paint",
@@ -6412,6 +7226,72 @@ var tokens = [{
   "name": "color.skeleton.subtle",
   "path": ["color", "skeleton", "subtle"],
   "cleanName": "color.skeleton.subtle"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.0.15",
+    "description": "Use for the screen overlay that appears with modal dialogs"
+  },
+  "value": "#050C1F75",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.0.15",
+      "description": "Use for the screen overlay that appears with modal dialogs"
+    },
+    "value": "Neutral500A"
+  },
+  "name": "color.blanket.[default]",
+  "path": ["color", "blanket", "[default]"],
+  "cleanName": "color.blanket"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use as an overlay to communicate selected states when a simple background color change isn't possible, such as in Editor block elements"
+  },
+  "value": "#388BFF14",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use as an overlay to communicate selected states when a simple background color change isn't possible, such as in Editor block elements"
+    },
+    "value": "#388BFF14"
+  },
+  "name": "color.blanket.selected",
+  "path": ["color", "blanket", "selected"],
+  "cleanName": "color.blanket.selected"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "0.6.0",
+    "description": "Use as an overlay to communicate danger states when a simple background color change isn't possible, such as deletion of Editor block elements"
+  },
+  "value": "#EF5C4814",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "0.6.0",
+      "description": "Use as an overlay to communicate danger states when a simple background color change isn't possible, such as deletion of Editor block elements"
+    },
+    "value": "#EF5C4814"
+  },
+  "name": "color.blanket.danger",
+  "path": ["color", "blanket", "danger"],
+  "cleanName": "color.blanket.danger"
 }, {
   "attributes": {
     "group": "paint",
@@ -8616,6 +9496,248 @@ var tokens = [{
   "attributes": {
     "group": "paint",
     "state": "active",
+    "introduced": "8.2.0",
+    "description": "Background color for Rovo brand emphasis."
+  },
+  "value": "#000000",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "8.2.0",
+      "description": "Background color for Rovo brand emphasis."
+    },
+    "value": "Neutral1200"
+  },
+  "name": "color.rovo.background.brand.bold.[default]",
+  "path": ["color", "rovo", "background", "brand", "bold", "[default]"],
+  "cleanName": "color.rovo.background.brand.bold"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "8.2.0",
+    "description": "Hovered state of color.rovo.background.brand.bold."
+  },
+  "value": "#1E1F21",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "8.2.0",
+      "description": "Hovered state of color.rovo.background.brand.bold."
+    },
+    "value": "Neutral1100"
+  },
+  "name": "color.rovo.background.brand.bold.hovered",
+  "path": ["color", "rovo", "background", "brand", "bold", "hovered"],
+  "cleanName": "color.rovo.background.brand.bold.hovered"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "8.2.0",
+    "description": "Pressed state of color.rovo.background.brand.bold."
+  },
+  "value": "#292A2E",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "8.2.0",
+      "description": "Pressed state of color.rovo.background.brand.bold."
+    },
+    "value": "Neutral1000"
+  },
+  "name": "color.rovo.background.brand.bold.pressed",
+  "path": ["color", "rovo", "background", "brand", "bold", "pressed"],
+  "cleanName": "color.rovo.background.brand.bold.pressed"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.1.1",
+    "description": "Use for Rovo lime borders."
+  },
+  "value": "#6A9A23",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.1.1",
+      "description": "Use for Rovo lime borders."
+    },
+    "value": "Lime600"
+  },
+  "name": "color.rovo.border.lime",
+  "path": ["color", "rovo", "border", "lime"],
+  "cleanName": "color.rovo.border.lime"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.1.1",
+    "description": "Use for Rovo saffron borders."
+  },
+  "value": "#FCA700",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.1.1",
+      "description": "Use for Rovo saffron borders."
+    },
+    "value": "Orange400"
+  },
+  "name": "color.rovo.border.saffron",
+  "path": ["color", "rovo", "border", "saffron"],
+  "cleanName": "color.rovo.border.saffron"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.1.1",
+    "description": "Use for Rovo blue borders."
+  },
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.1.1",
+      "description": "Use for Rovo blue borders."
+    },
+    "value": "Blue700"
+  },
+  "name": "color.rovo.border.blue",
+  "path": ["color", "rovo", "border", "blue"],
+  "cleanName": "color.rovo.border.blue"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.1.1",
+    "description": "Use for Rovo purple borders."
+  },
+  "value": "#AF59E1",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.1.1",
+      "description": "Use for Rovo purple borders."
+    },
+    "value": "Purple600"
+  },
+  "name": "color.rovo.border.purple",
+  "path": ["color", "rovo", "border", "purple"],
+  "cleanName": "color.rovo.border.purple"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.1.1",
+    "description": "Use for Rovo lime icons."
+  },
+  "value": "#6A9A23",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.1.1",
+      "description": "Use for Rovo lime icons."
+    },
+    "value": "Lime600"
+  },
+  "name": "color.rovo.icon.lime",
+  "path": ["color", "rovo", "icon", "lime"],
+  "cleanName": "color.rovo.icon.lime"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.1.1",
+    "description": "Use for Rovo saffron icons."
+  },
+  "value": "#FCA700",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.1.1",
+      "description": "Use for Rovo saffron icons."
+    },
+    "value": "Orange400"
+  },
+  "name": "color.rovo.icon.saffron",
+  "path": ["color", "rovo", "icon", "saffron"],
+  "cleanName": "color.rovo.icon.saffron"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.1.1",
+    "description": "Use for Rovo blue icons."
+  },
+  "value": "#1868DB",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.1.1",
+      "description": "Use for Rovo blue icons."
+    },
+    "value": "Blue700"
+  },
+  "name": "color.rovo.icon.blue",
+  "path": ["color", "rovo", "icon", "blue"],
+  "cleanName": "color.rovo.icon.blue"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.1.1",
+    "description": "Use for Rovo purple icons."
+  },
+  "value": "#AF59E1",
+  "filePath": "schema/themes/atlassian-light/color/background.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.1.1",
+      "description": "Use for Rovo purple icons."
+    },
+    "value": "Purple600"
+  },
+  "name": "color.rovo.icon.purple",
+  "path": ["color", "rovo", "icon", "purple"],
+  "cleanName": "color.rovo.icon.purple"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
     "introduced": "0.6.0",
     "description": "Use as the primary background for the UI."
   },
@@ -8678,6 +9800,72 @@ var tokens = [{
   "name": "elevation.surface.[default].pressed",
   "path": ["elevation", "surface", "[default]", "pressed"],
   "cleanName": "elevation.surface.pressed"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.3.0",
+    "description": "Use as a neutral container surface background."
+  },
+  "value": "#17171708",
+  "filePath": "schema/themes/atlassian-light/elevation/surface.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.3.0",
+      "description": "Use as a neutral container surface background."
+    },
+    "value": "Neutral100A"
+  },
+  "name": "elevation.surface.container.[default]",
+  "path": ["elevation", "surface", "container", "[default]"],
+  "cleanName": "elevation.surface.container"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "14.1.0",
+    "description": "Hovered state of elevation.surface.container"
+  },
+  "value": "#0515240F",
+  "filePath": "schema/themes/atlassian-light/elevation/surface.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "14.1.0",
+      "description": "Hovered state of elevation.surface.container"
+    },
+    "value": "Neutral200A"
+  },
+  "name": "elevation.surface.container.hovered",
+  "path": ["elevation", "surface", "container", "hovered"],
+  "cleanName": "elevation.surface.container.hovered"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "14.1.0",
+    "description": "Pressed state of elevation.surface.container"
+  },
+  "value": "#0B120E24",
+  "filePath": "schema/themes/atlassian-light/elevation/surface.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "14.1.0",
+      "description": "Pressed state of elevation.surface.container"
+    },
+    "value": "Neutral300A"
+  },
+  "name": "elevation.surface.container.pressed",
+  "path": ["elevation", "surface", "container", "pressed"],
+  "cleanName": "elevation.surface.container.pressed"
 }, {
   "attributes": {
     "group": "paint",
@@ -8832,6 +10020,72 @@ var tokens = [{
   "name": "elevation.surface.sunken",
   "path": ["elevation", "surface", "sunken"],
   "cleanName": "elevation.surface.sunken"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.3.0",
+    "description": "Use for Rovo overlay surface backgrounds."
+  },
+  "value": "#F8F8F8",
+  "filePath": "schema/themes/atlassian-light/elevation/rovo/surface.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.3.0",
+      "description": "Use for Rovo overlay surface backgrounds."
+    },
+    "value": "Neutral100"
+  },
+  "name": "elevation.rovo.surface.overlay.[default]",
+  "path": ["elevation", "rovo", "surface", "overlay", "[default]"],
+  "cleanName": "elevation.rovo.surface.overlay"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.3.0",
+    "description": "Hovered state of elevation.rovo.surface.overlay."
+  },
+  "value": "#F0F1F2",
+  "filePath": "schema/themes/atlassian-light/elevation/rovo/surface.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.3.0",
+      "description": "Hovered state of elevation.rovo.surface.overlay."
+    },
+    "value": "Neutral200"
+  },
+  "name": "elevation.rovo.surface.overlay.hovered",
+  "path": ["elevation", "rovo", "surface", "overlay", "hovered"],
+  "cleanName": "elevation.rovo.surface.overlay.hovered"
+}, {
+  "attributes": {
+    "group": "paint",
+    "state": "active",
+    "introduced": "13.3.0",
+    "description": "Pressed state of elevation.rovo.surface.overlay."
+  },
+  "value": "#DDDEE1",
+  "filePath": "schema/themes/atlassian-light/elevation/rovo/surface.tsx",
+  "isSource": true,
+  "original": {
+    "attributes": {
+      "group": "paint",
+      "state": "active",
+      "introduced": "13.3.0",
+      "description": "Pressed state of elevation.rovo.surface.overlay."
+    },
+    "value": "Neutral300"
+  },
+  "name": "elevation.rovo.surface.overlay.pressed",
+  "path": ["elevation", "rovo", "surface", "overlay", "pressed"],
+  "cleanName": "elevation.rovo.surface.overlay.pressed"
 }, {
   "attributes": {
     "group": "shadow",

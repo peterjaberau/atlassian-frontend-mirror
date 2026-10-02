@@ -1,14 +1,15 @@
-import type { CellAttributes } from '@atlaskit/adf-schema';
-import { inlineNodes, isSafeUrl, PanelType, generateUuid as uuid } from '@atlaskit/adf-schema';
+import { inlineNodes } from '@atlaskit/adf-schema/inline-nodes';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
+import { PanelType } from '@atlaskit/adf-schema/panel';
 import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
+import type { CellAttributes } from '@atlaskit/adf-schema/tableNodes';
+import { generateUuid as uuid } from '@atlaskit/adf-schema/uuid';
 import type { Mark as PMMark, Schema } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-export const ADFStages = {
-	FINAL: 'final',
-	STAGE_0: 'stage0',
-} as const;
+import type { ADFStages } from './ADFStages';
+import { isSubSupType } from './isSubSupType';
+import { markOrder } from './markOrder';
 
 export type ADFStage = (typeof ADFStages)[keyof typeof ADFStages];
 
@@ -65,47 +66,13 @@ export interface ADMarkSimple {
 }
 
 /*
- * It's important that this order follows the marks rank defined here:
- * https://product-fabric.atlassian.net/wiki/spaces/ETEMP/pages/11174043/Atlassian+Document+Format+-+Internal+documentation#Rank
- */
-export const markOrder: string[] = [
-	'fragment',
-	'link',
-	'em',
-	'strong',
-	'textColor',
-	'backgroundColor',
-	'strike',
-	'subsup',
-	'underline',
-	'code',
-	'confluenceInlineComment',
-	'annotation',
-	'dataConsumer',
-];
-
-export const isSubSupType = (type: string): type is 'sub' | 'sup' => {
-	return type === 'sub' || type === 'sup';
-};
-
-/*
  * Sorts mark by the predefined order above
  */
-export const getMarksByOrder = (marks: readonly PMMark[]) => {
+export const getMarksByOrder = (marks: readonly PMMark[]): PMMark[] => {
 	return [...marks].sort((a, b) => markOrder.indexOf(a.type.name) - markOrder.indexOf(b.type.name));
 };
 
-/*
- * Check if two marks are the same by comparing type and attrs
- */
-export const isSameMark = (mark: PMMark | null, otherMark: PMMark | null): boolean => {
-	if (!mark || !otherMark) {
-		return false;
-	}
-
-	return mark.eq(otherMark);
-};
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getValidDocument = (
 	doc: ADDoc,
 	schema: Schema = defaultSchema,
@@ -127,6 +94,7 @@ const wrapInlineNodes = (nodes: ADNode[] = []): ADNode[] => {
 	);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getValidContent = (
 	content: ADNode[],
 	schema: Schema = defaultSchema,
@@ -186,6 +154,7 @@ const flattenUnknownBlockTree = (
  *
  * @see https://product-fabric.atlassian.net/wiki/spaces/E/pages/11174043/Document+structure#Documentstructure-ImplementationdetailsforHCNGwebrenderer
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getValidUnknownNode = (node: ADNode): ADNode => {
 	const { attrs = {}, content, text, type } = node;
 
@@ -247,6 +216,7 @@ const getValidMarks = (
  * If a node is not recognized or is missing required attributes, we should return 'unknown'
  *
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getValidNode = (
 	originalNode: ADNode,
 	schema: Schema = defaultSchema,
@@ -558,11 +528,13 @@ export const getValidNode = (
 				let mentionText = '';
 				let mentionId;
 				let mentionAccess;
+				let localId: string | undefined;
 				if (attrs) {
 					const { text, displayName, id, accessLevel } = attrs;
 					mentionText = text || displayName;
 					mentionId = id;
 					mentionAccess = accessLevel;
+					localId = attrs.localId;
 				}
 
 				if (!mentionText) {
@@ -576,6 +548,7 @@ export const getValidNode = (
 							id: mentionId,
 							text: mentionText,
 							accessLevel: '',
+							...(localId ? { localId } : {}),
 						},
 						...(fg('editor_inline_comments_on_inline_nodes') ? { marks } : {}),
 					};
@@ -872,7 +845,7 @@ export const getValidNode = (
 				return { type, attrs, content, marks };
 			}
 			case 'syncBlock': {
-				if (attrs && attrs.resourceId && editorExperiment('platform_synced_block', true)) {
+				if (attrs && attrs.resourceId) {
 					return {
 						type,
 						attrs: {
@@ -881,18 +854,11 @@ export const getValidNode = (
 						},
 						marks,
 					};
-				} else {
-					return getValidUnknownNode(node);
 				}
+				return getValidUnknownNode(node);
 			}
 			case 'bodiedSyncBlock': {
-				if (
-					attrs &&
-					attrs.resourceId &&
-					Array.isArray(content) &&
-					content.length > 0 &&
-					editorExperiment('platform_synced_block', true)
-				) {
+				if (attrs && attrs.resourceId && Array.isArray(content) && content.length > 0) {
 					return {
 						type,
 						attrs: {
@@ -902,9 +868,8 @@ export const getValidNode = (
 						marks,
 						content,
 					};
-				} else {
-					return getValidUnknownNode(node);
 				}
+				return getValidUnknownNode(node);
 			}
 		}
 	}
@@ -920,6 +885,7 @@ export const getValidNode = (
  * If a node is not recognized or is missing required attributes, we should return null
  *
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getValidMark = (mark: ADMark, adfStage: ADFStage = 'final'): ADMark | null => {
 	const { attrs, type } = mark;
 
@@ -1062,3 +1028,11 @@ export const getValidMark = (mark: ADMark, adfStage: ADFStage = 'final'): ADMark
 
 	return null;
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { ADFStages } from './ADFStages';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { markOrder } from './markOrder';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isSubSupType } from './isSubSupType';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { isSameMark } from './isSameMark';

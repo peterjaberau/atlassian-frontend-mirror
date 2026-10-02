@@ -2,29 +2,31 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React from 'react';
-import { FormattedMessage } from 'react-intl-next';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
 
-import { N20, B400, N800, N200 } from '@atlaskit/theme/colors';
-import { token } from '@atlaskit/tokens';
+import React from 'react';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
+import { css, jsx, type SerializedStyles } from '@emotion/react';
+import { FormattedMessage } from 'react-intl';
+
 import PeopleIcon from '@atlaskit/icon/core/people-group';
-import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon';
+import { VerifiedTeamIcon } from '@atlaskit/people-teams-ui-public/verified-team-icon/main';
+import { token } from '@atlaskit/tokens';
 
 import { type Group } from '../../types';
-import { AvatarItemOption, textWrapper } from '../AvatarItemOption';
-import { messages } from '../i18n';
+import { AvatarItemOption } from '../AvatarItemOption';
 import { HighlightText } from '../HighlightText';
+import { messages } from '../i18n';
+import { textWrapper } from '../textWrapper';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const groupOptionIconWrapper = css({
-	padding: token('space.025', '2px'),
+export const groupOptionIconWrapper: SerializedStyles = css({
+	padding: token('space.025'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'> span': {
-		backgroundColor: token('color.background.neutral', N20),
+		backgroundColor: token('color.background.neutral'),
 		borderRadius: token('radius.full'),
-		padding: token('space.050', '4px'),
+		padding: token('space.050'),
 	},
 });
 
@@ -44,9 +46,7 @@ export class GroupOption extends React.PureComponent<GroupOptionProps> {
 			<span
 				key="name"
 				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-				css={textWrapper(
-					isSelected ? token('color.text.selected', B400) : token('color.text', N800),
-				)}
+				css={textWrapper(isSelected ? token('color.text.selected') : token('color.text'))}
 			>
 				<HighlightText highlights={highlight && highlight.name}>{name}</HighlightText>
 			</span>,
@@ -81,9 +81,7 @@ export class GroupOption extends React.PureComponent<GroupOptionProps> {
 		return (
 			<span
 				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-				css={textWrapper(
-					isSelected ? token('color.text.selected', B400) : token('color.text.subtlest', N200),
-				)}
+				css={textWrapper(isSelected ? token('color.text.selected') : token('color.text.subtlest'))}
 				data-testid="user-picker-group-secondary-text"
 			>
 				{group.byline ? group.byline : getGroupByline()}
@@ -98,7 +96,7 @@ export class GroupOption extends React.PureComponent<GroupOptionProps> {
 				}
 			: this.props.group.lozenge;
 
-	render() {
+	render(): jsx.JSX.Element {
 		return (
 			<AvatarItemOption
 				avatar={this.renderAvatar()}

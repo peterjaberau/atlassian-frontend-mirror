@@ -1,13 +1,12 @@
 import React from 'react';
 
-import ReactDOM from 'react-dom';
+import { hydrateRoot } from 'react-dom/client';
 import waitForExpect from 'wait-for-expect';
 
 import { ssr } from '@atlaskit/ssr';
 
 import Example from '../../examples/00-use-media-image';
 
-// @ts-ignore
 jest.spyOn(global.console, 'error').mockImplementation(() => {});
 
 afterEach(() => {
@@ -19,7 +18,7 @@ test.skip('should ssr then hydrate example component correctly', async () => {
 	elem.innerHTML = await ssr(Example);
 
 	await waitForExpect(() => {
-		ReactDOM.hydrate(<Example />, elem);
+		hydrateRoot(elem, <Example />);
 		// ignore warnings caused by emotion's server-side rendering approach
 		// @ts-ignore
 		// eslint-disable-next-line no-console

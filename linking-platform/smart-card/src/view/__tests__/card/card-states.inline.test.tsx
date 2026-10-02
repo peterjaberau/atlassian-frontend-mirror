@@ -1,23 +1,21 @@
 import './card-states.card.test.mock';
-
 import React, { type ReactNode, useEffect, useState } from 'react';
 
-import { act, render, screen, waitFor as waitForElement } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import {
-	type CardClient,
-	type CardProviderStoreOpts,
-	SmartCardProvider as Provider,
-} from '@atlaskit/link-provider';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import type CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardProviderStoreOpts } from '@atlaskit/link-provider/types';
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
+import { act, render, screen, waitFor as waitForElement } from '@atlassian/testing-library';
 
-import { fakeFactory, mocks, waitFor } from '../../../utils/mocks';
+import { fakeFactory } from '../../../utils/fake-factory';
+import { mocks } from '../../../utils/mocks';
+import { waitFor } from '../../../utils/wait-for';
 import { Card } from '../../Card';
 import { InlineCardResolvingView } from '../../InlineCard';
-
-jest.mock('@atlaskit/platform-feature-flags');
 
 mockSimpleIntersectionObserver();
 

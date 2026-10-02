@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/portal",
-	"version": "5.2.1",
+	"version": "7.0.2",
 	"description": "A wrapper for rendering components in React portals.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,32 +12,37 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Portal",
 			"category": "Libraries"
 		}
 	},
 	"exports": {
-		"./types": "./src/entry-points/types.tsx",
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./constants": "./src/constants.tsx",
+		"./portal": "./src/portal.tsx",
+		"./types": "./src/types.tsx"
 	},
 	"dependencies": {
 		"@atlaskit/app-provider": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
@@ -65,42 +70,23 @@
 		"@atlaskit/tooltip": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@compiled/react": "root:*",
 		"@testing-library/react": "root:*",
 		"bind-event-listener": "root:*",
-		"raf-stub": "root:*"
+		"raf-stub": "root:*",
+		"react": "root:*",
+		"react-dom": "root:*"
 	},
 	"keywords": [
 		"atlaskit",
 		"react",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"ui-components": "lite-mode",
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"static",
-				"compiled"
-			]
-		}
-	},
 	"homepage": "https://atlassian.design/components/portal/",
 	"platform-feature-flags": {
 		"platform_design_system_team_portal_logic_r18_fix": {
-			"type": "boolean"
-		},
-		"platform_dst_subtree_theming": {
 			"type": "boolean"
 		}
 	}

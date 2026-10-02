@@ -1,10 +1,11 @@
+import '@atlaskit/link-test-helpers/jest';
 import React from 'react';
 
-import { renderHook } from '@testing-library/react';
-import '@atlaskit/link-test-helpers/jest';
 import fetchMock from 'jest-fetch-mock';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 import TestRenderer from 'react-test-renderer';
+
+import { renderHook } from '@atlassian/testing-library';
 
 import { aiSummaryMocks } from '../../__tests__/__mocks__/ai-summary-mocks';
 import { readStream } from '../ai-summary-service/readStream';
@@ -14,7 +15,7 @@ import { useAISummary } from '../index';
 jest.mock('uuid', () => ({
 	...jest.requireActual('uuid'),
 	__esModule: true,
-	default: jest.fn().mockReturnValue('some-uuid-1'),
+	v4: jest.fn().mockReturnValue('some-uuid-1'),
 }));
 
 jest.mock('../ai-summary-service/readStream', () => ({
@@ -58,7 +59,7 @@ describe('useAISummary', () => {
 		fetchMock.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
 		(readStream as jest.Mock).mockImplementationOnce(aiSummaryMocks.readStreamSuccess);
 
-		const { result } = renderHook(() => useAISummary(mockUseAISummaryProps), { wrapper });
+		const result = renderHook(() => useAISummary(mockUseAISummaryProps), { wrapper });
 		await act(async () => {
 			await result.current.summariseUrl();
 		});
@@ -69,7 +70,7 @@ describe('useAISummary', () => {
 
 	it('sets status on summariseUrl error response', async () => {
 		fetchMock.mockRejectOnce(new Error('foo'));
-		const { result } = renderHook(() => useAISummary(mockUseAISummaryProps), { wrapper });
+		const result = renderHook(() => useAISummary(mockUseAISummaryProps), { wrapper });
 		await act(async () => {
 			await result.current.summariseUrl();
 		});
@@ -81,7 +82,7 @@ describe('useAISummary', () => {
 		fetchMock.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
 		(readStream as jest.Mock).mockImplementationOnce(aiSummaryMocks.readStreamError);
 
-		const { result } = renderHook(() => useAISummary(mockUseAISummaryProps), { wrapper });
+		const result = renderHook(() => useAISummary(mockUseAISummaryProps), { wrapper });
 		await act(async () => {
 			await result.current.summariseUrl();
 		});
@@ -94,7 +95,7 @@ describe('useAISummary', () => {
 		fetchMock.mockResolvedValueOnce({ ok: true, status: 200 } as Response);
 		(readStream as jest.Mock).mockImplementationOnce(aiSummaryMocks.readStreamErrorMulti);
 
-		const { result } = renderHook(() => useAISummary(mockUseAISummaryProps), { wrapper });
+		const result = renderHook(() => useAISummary(mockUseAISummaryProps), { wrapper });
 		await act(async () => {
 			await result.current.summariseUrl();
 		});

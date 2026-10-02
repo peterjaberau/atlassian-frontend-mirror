@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-import { cssMap, cx } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { Anchor, Box, Flex, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
-import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics';
+import { cssMap } from '@atlaskit/css';
+import { Box, Flex, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
+import { TeamsAnchor } from '@atlaskit/teams-app-internal-navigation/teams-anchor';
 import { token } from '@atlaskit/tokens';
 
 import { type ContainerSubTypes, type ContainerTypes } from '../../../../common/types';
@@ -11,7 +11,7 @@ import { ContainerIcon } from '../../../../common/ui/container-icon';
 import { Separator } from '../../../../common/ui/separator';
 import { TeamLinkCardActions } from '../../../../common/ui/team-link-card-actions';
 import { getContainerProperties } from '../../../../common/utils/get-container-properties';
-import { getDomainFromLinkUri } from '../../../../common/utils/get-link-domain';
+import { getDomainFromLinkUri } from '../../../../common/utils/get-domain-from-link-uri';
 
 const styles = cssMap({
 	container: {
@@ -25,6 +25,7 @@ const styles = cssMap({
 	card: {
 		alignItems: 'center',
 		width: '100%',
+		height: '36px',
 	},
 	anchor: {
 		textDecoration: 'none',
@@ -45,24 +46,6 @@ const styles = cssMap({
 			color: token('color.text'),
 		},
 	},
-	crossIconWrapper: {
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'flex-end',
-		marginLeft: 'auto',
-	},
-	showMoreIconWrapper: {
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'flex-end',
-		marginLeft: 'auto',
-	},
-	linkableContent: {
-		flex: '1',
-	},
-	cardHeight: {
-		height: '36px',
-	},
 });
 
 export interface TeamLinkCardProps {
@@ -77,8 +60,6 @@ export interface TeamLinkCardProps {
 		subType?: ContainerSubTypes;
 		name?: string;
 	};
-	iconsLoading?: boolean;
-	iconHasLoaded?: boolean;
 	openInNewTab?: boolean;
 	isReadOnly?: boolean;
 }
@@ -92,8 +73,6 @@ export const TeamLinkCard = ({
 	containerTypeProperties,
 	onDisconnectButtonClick,
 	onEditLinkClick,
-	iconsLoading,
-	iconHasLoaded,
 	openInNewTab,
 	isReadOnly,
 }: TeamLinkCardProps): React.JSX.Element => {
@@ -161,20 +140,19 @@ export const TeamLinkCard = ({
 			onKeyDown={handleKeyDown}
 			testId="team-link-card-inner"
 		>
-			<Inline space="space.100" xcss={cx(styles.card, fg('enable-fix-team-container-height') ? styles.cardHeight : null)}>
+			<Inline space="space.100" xcss={styles.card}>
 				<ContainerIcon
 					containerType={containerType}
 					title={title}
 					containerIcon={containerIcon}
 					size="small"
-					iconsLoading={iconsLoading}
-					iconHasLoaded={iconHasLoaded}
 				/>
-				<Anchor
+				<TeamsAnchor
 					xcss={styles.anchor}
 					href={link || '#'}
 					onClick={handleLinkClick}
 					testId="team-link-card-linkable-content"
+					intent="unknown" // because links can be internal or external 'unknown' is appropriate here
 				>
 					<Stack space="space.025">
 						<Text maxLines={1} color="color.text">
@@ -196,7 +174,7 @@ export const TeamLinkCard = ({
 							</Inline>
 						</Flex>
 					</Stack>
-				</Anchor>
+				</TeamsAnchor>
 				{!isReadOnly && (
 					<TeamLinkCardActions
 						containerType={containerType}

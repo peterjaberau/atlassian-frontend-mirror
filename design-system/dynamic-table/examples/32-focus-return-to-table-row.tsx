@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 
-import { Drawer, DrawerCloseButton, DrawerContent, DrawerSidebar } from '@atlaskit/drawer';
+import { Drawer } from '@atlaskit/drawer/drawer';
+import { DrawerCloseButton } from '@atlaskit/drawer/drawer-close-button';
+import { DrawerContent } from '@atlaskit/drawer/drawer-content';
+import { DrawerSidebar } from '@atlaskit/drawer/drawer-sidebar';
 import { DynamicTableStateless } from '@atlaskit/dynamic-table';
 import { type RowType } from '@atlaskit/dynamic-table/types';
 import { token } from '@atlaskit/tokens';
 
 import { head, rows } from './content/sample-data-numerical';
 
-const paddingStyle = { padding: `${token('space.100', '8px')} 0` };
+const paddingStyle = { padding: `${token('space.100')} 0` };
 
 const FocusReturnToTableRowExample = (): React.JSX.Element => {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);

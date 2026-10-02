@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/select",
-	"version": "21.7.4",
+	"version": "23.1.0",
 	"description": "Select allows users to make a single selection or multiple selections from a list of options.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,32 +12,49 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Select",
 			"category": "Forms and input"
 		}
 	},
 	"exports": {
-		"./AsyncSelect": "./src/entry-points/async-select.tsx",
-		"./Select": "./src/entry-points/select.tsx",
-		"./AsyncCreatableSelect": "./src/entry-points/async-creatable-select.tsx",
-		"./CreatableSelect": "./src/entry-points/creatable-select.tsx",
+		".": "./src/index.tsx",
+		"./async-creatable-select": "./src/async-creatable-select.tsx",
+		"./async-select": "./src/async-select.tsx",
+		"./AsyncCreatableSelect": "./src/async-creatable-select.tsx",
+		"./AsyncSelect": "./src/async-select.tsx",
+		"./checkbox-option": "./src/components/checkbox-option.tsx",
+		"./checkbox-select": "./src/checkbox-select.tsx",
+		"./country-select": "./src/country-select.tsx",
+		"./creatable-select": "./src/creatable-select.tsx",
+		"./CreatableSelect": "./src/creatable-select.tsx",
+		"./default": "./src/select.tsx",
+		"./grouped-options-announcement": "./src/utils/grouped-options-announcement.tsx",
+		"./popup-select": "./src/popup-select/popup-select.tsx",
+		"./radio-option": "./src/components/radio-option.tsx",
+		"./radio-select": "./src/radio-select.tsx",
+		"./select-without-analytics": "./src/select-without-analytics.tsx",
 		"./types": "./src/types.tsx",
-		".": "./src/index.tsx"
+		"./react-select": "./src/entry-points/react-select.tsx",
+		"./select": "./src/entry-points/select.tsx",
+		"./Select": "./src/entry-points/select.tsx",
+		"./input-options": "./src/entry-points/input-options.tsx"
 	},
 	"dependencies": {
 		"@atlaskit/analytics-next": "workspace:^",
@@ -45,10 +62,13 @@
 		"@atlaskit/icon": "workspace:^",
 		"@atlaskit/layering": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/popper": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/react-select": "workspace:^",
 		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
+		"@atlaskit/top-layer": "workspace:^",
 		"@atlaskit/visually-hidden": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
@@ -59,58 +79,67 @@
 		"shallow-equal": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0",
+		"react-dom": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
 		"@af/integration-testing": "workspace:^",
 		"@af/visual-regression": "workspace:^",
+		"@atlaskit/banner": "workspace:^",
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/checkbox": "workspace:^",
+		"@atlaskit/css": "workspace:^",
 		"@atlaskit/docs": "workspace:^",
 		"@atlaskit/drawer": "workspace:^",
 		"@atlaskit/form": "workspace:^",
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/logo": "workspace:^",
+		"@atlaskit/lozenge": "workspace:^",
+		"@atlaskit/menu": "workspace:^",
 		"@atlaskit/modal-dialog": "workspace:^",
+		"@atlaskit/popup": "workspace:^",
 		"@atlaskit/radio": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
-		"@testing-library/react": "root:*",
-		"@testing-library/user-event": "root:*",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"ast-types": "root:*",
 		"jest-in-case": "root:*",
 		"jscodeshift": "root:*",
-		"react-dom": "root:*",
-		"react-select-event": "root:*"
-	},
-	"techstack": {
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports",
-			"styling": [
-				"static",
-				"compiled"
-			]
-		}
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-select-event": "root:*",
+		"tiny-invariant": "root:*"
 	},
 	"platform-feature-flags": {
 		"platform-component-visual-refresh": {
 			"type": "boolean"
 		},
-		"platform-visual-refresh-icons": {
+		"platform-dst-top-layer": {
 			"type": "boolean"
 		},
-		"platform-dst-shape-theme-default": {
+		"platform-dst-popper-consolidation": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"platform-dst-tokens-finesse": {
 			"type": "boolean"
 		},
-		"platform_navx_sllv_dropdown_escape_and_focus_fix": {
+		"platform-dst-motion-uplift-labels": {
+			"type": "boolean"
+		},
+		"platform_dst_select_dropdown_voice_control": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"platform_dst_select_disabled_a11y_fix": {
+			"type": "boolean",
+			"referenceOnly": true
+		},
+		"platform-dst-motion-uplift-list-item": {
 			"type": "boolean"
 		}
 	},

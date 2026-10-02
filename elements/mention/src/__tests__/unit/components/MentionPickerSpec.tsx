@@ -1,18 +1,21 @@
+import React from 'react';
+
+import { screen, render, act, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { IntlProvider } from 'react-intl';
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { mentionTestResult as mentions } from '@atlaskit/util-data-test/mention-test-data';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { MockMentionResource } from '@atlaskit/util-data-test/mock-mention-resource';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { mentionTestResult as mentions } from '@atlaskit/util-data-test/mention-test-data';
-import React from 'react';
+
 import MentionPicker, {
 	type OnClose,
 	type OnOpen,
 	type Props,
 } from '../../../components/MentionPicker';
-import * as Analytics from '../../../util/analytics';
-import { screen, render, act, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
-import userEvent from '@testing-library/user-event';
+import * as fireSliAnalyticsEventModule from '../../../util/fire-sli-analytics-event';
 
 const MAX_NOTIFIED_ITEMS = 20;
 
@@ -104,7 +107,7 @@ describe('MentionPicker', () => {
 	});
 
 	it('should fire SLI analytcs after search', async () => {
-		const analytics = jest.spyOn(Analytics, 'fireSliAnalyticsEvent');
+		const analytics = jest.spyOn(fireSliAnalyticsEventModule, 'fireSliAnalyticsEvent');
 		const component = setupPicker({
 			query: 's',
 		} as Props);

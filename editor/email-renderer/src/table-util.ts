@@ -1,10 +1,11 @@
-import { type Style, type Attrs } from './interfaces';
-import { serializeStyle } from './serialize-style';
-import { createTag } from './create-tag';
-import { createClassName } from './styles/util';
-import { fontFamily, fontSize, fontWeight } from './styles/common';
 import { transformNestedTablesIncomingDocument } from '@atlaskit/adf-utils/transforms';
-import { type ADFEntity } from '@atlaskit/adf-utils/types';
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
+
+import { createTag } from './create-tag';
+import type { Style, Attrs } from './interfaces';
+import { serializeStyle } from './serialize-style';
+import { fontFamily, fontSize, fontWeight } from './styles/common';
+import { createClassName } from './styles/util';
 
 export type TableData = {
 	attrs?: Attrs;
@@ -27,7 +28,16 @@ export const styles: string = `
 }
 `;
 
-export const createTableAttrs = (tableAttrs: Attrs = {}, tableStyle: Style = {}) => ({
+export const createTableAttrs = (
+	tableAttrs: Attrs = {},
+	tableStyle: Style = {},
+): {
+	class: string;
+	cellspacing: number;
+	cellpadding: number;
+	border: number;
+	style: string;
+} => ({
 	cellspacing: 0,
 	cellpadding: 0,
 	border: 0,
@@ -56,7 +66,7 @@ export const createTable = (
 	return createTag('table', attrs, tableRows);
 };
 
-export const transformNestedTableExtension = (adf: ADFEntity) => {
+export const transformNestedTableExtension = (adf: ADFEntity): ADFEntity => {
 	try {
 		const { transformedAdf, isTransformed } = transformNestedTablesIncomingDocument(adf);
 		return isTransformed ? transformedAdf : adf;

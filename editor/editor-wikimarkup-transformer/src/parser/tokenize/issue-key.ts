@@ -1,7 +1,8 @@
-import { type Schema, type Node as PMNode } from '@atlaskit/editor-prosemirror/model';
-import { type Token, type TokenParser } from './';
-import { type Context, type ConversionMap } from '../../interfaces';
+import type { Schema, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+
+import type { Context, ConversionMap } from '../../interfaces';
 import { isNotBlank } from '../utils/text';
+import type { Token, TokenParser } from './';
 
 /**
  * Inline Card From Text (ICFT).
@@ -13,7 +14,7 @@ import { isNotBlank } from '../utils/text';
  */
 // Ignored via go/ees005
 // eslint-disable-next-line require-unicode-regexp
-export const INLINE_CARD_FROM_TEXT_STAMP = /(#icft=)([A-Z][A-Z]+-[0-9]+)/;
+export const INLINE_CARD_FROM_TEXT_STAMP: RegExp = /(#icft=)([A-Z][A-Z]+-[0-9]+)/;
 
 export interface Issue {
 	key: string;
@@ -81,7 +82,8 @@ const withInlineCardFromTextStamp = (issue: Issue): string =>
 
 // Ignored via go/ees005
 // eslint-disable-next-line require-unicode-regexp
-const isNotAllowedChars = (char: string): boolean => !/\s|\(|\)|!|\.|\,|\/|\:/.test(char);
+const ALLOWED_CHARS_REGEX = /\s|\(|\)|!|\.|\,|\/|\:/;
+const isNotAllowedChars = (char: string): boolean => !ALLOWED_CHARS_REGEX.test(char);
 
 export const buildIssueKeyRegex = (inlineCardConversion?: ConversionMap): RegExp | undefined => {
 	if (!inlineCardConversion) {

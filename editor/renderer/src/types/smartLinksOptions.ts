@@ -25,6 +25,13 @@ export interface SmartLinksOptions {
 	 */
 	frameStyle?: CardProps['frameStyle'];
 	/**
+	 * Returns a placeholder string for an inline smart link while it is in a resolving state.
+	 * Used to show a preloaded title instead of the raw URL.
+	 *
+	 * Component: inline
+	 */
+	getResolvingPlaceholder?: (url: string) => string | undefined;
+	/**
 	 * A flag to disable hover preview on inline Smart Link.
 	 * Default is false.
 	 *
@@ -38,4 +45,11 @@ export interface SmartLinksOptions {
 	 * Component: inline
 	 */
 	ssr?: boolean;
+	/**
+	 * A Suspense boundary wrapper to enable inline SmartLinks to wait until data fetchers have completed before rendering
+	 * Default is undefined.
+	 *
+	 * Component: inline
+	 */
+	SuspenseWrapperForUrl?: React.ComponentType<{ children: React.ReactNode; url?: string }>;
 }

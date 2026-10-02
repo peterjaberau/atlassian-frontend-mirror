@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { type EditorProps } from '@atlaskit/editor-core';
-import { type ComposableEditor } from '@atlaskit/editor-core/composable-editor';
+
+import type { EditorProps } from '@atlaskit/editor-core';
+import type { ComposableEditor } from '@atlaskit/editor-core/composable-editor';
 import { useUniversalPreset } from '@atlaskit/editor-core/preset-universal';
+
 import { MOCK_USERS } from '../example-helpers/MockData';
 import {
 	getDataProviderFactory,
 	MockProvider as ConversationResource,
 } from '../example-helpers/MockProvider';
 import { Conversation } from '../src';
-import { type Comment as CommentType } from '../src/model/Comment';
+import type { Comment as CommentType } from '../src/model/Comment';
 
 const provider = new ConversationResource({
 	url: 'http://mockservice/',
@@ -57,7 +59,7 @@ const ComposableEditorWrapper = ({
 	return <Editor preset={universalPreset} {...props} />;
 };
 
-export default () => {
+export default (): React.JSX.Element | null => {
 	const [maxCommentNesting, setMaxCommentNesting] = useState(1);
 	const [shouldAutoMention, setShouldAutoMention] = useState(true);
 	const [conversationId, setConversationId] = useState<string | undefined>(undefined);

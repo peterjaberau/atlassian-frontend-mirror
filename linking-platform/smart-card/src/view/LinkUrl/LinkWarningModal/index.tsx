@@ -2,23 +2,25 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+import type { ComponentType, FC } from 'react';
+
 import { css, jsx } from '@compiled/react';
 import {
 	FormattedMessage,
 	injectIntl,
 	IntlProvider,
+	type WithIntlProps,
 	type WrappedComponentProps,
-} from 'react-intl-next';
+} from 'react-intl';
 
 import Button from '@atlaskit/button/standard-button';
-import Link from '@atlaskit/link';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
+import Link from '@atlaskit/link/link';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 
 import { messages } from '../../../messages';
 
@@ -80,6 +82,9 @@ const WarningModal = (props: LinkWarningModalProps & WrappedComponentProps) => {
 	return intl ? content : <IntlProvider locale="en">{content}</IntlProvider>;
 };
 
-export default injectIntl(WarningModal, {
+const _default_1: FC<WithIntlProps<LinkWarningModalProps & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<LinkWarningModalProps & WrappedComponentProps>;
+} = injectIntl(WarningModal, {
 	enforceContext: false,
 });
+export default _default_1;

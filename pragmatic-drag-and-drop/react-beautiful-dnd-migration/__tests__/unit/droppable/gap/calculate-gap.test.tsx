@@ -50,13 +50,13 @@ const rectMap: Record<string, DOMRect> = {
 	'1': DOMRect.fromRect({ x: 0, y: 60, width: 100, height: 40 }),
 };
 
-jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
-	this: HTMLElement,
-) {
-	const testId = this.getAttribute('data-testid');
-	invariant(typeof testId === 'string');
-	return rectMap[testId];
-});
+jest
+	.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+	.mockImplementation(function (this: HTMLElement) {
+		const testId = this.getAttribute('data-testid');
+		invariant(typeof testId === 'string');
+		return rectMap[testId];
+	});
 
 const getComputedStyle = jest.spyOn(window, 'getComputedStyle');
 
@@ -86,7 +86,6 @@ describe('calculateGap()', () => {
 
 		const firstElement = getByTestId('0');
 
-		// @ts-ignore UTEST-1630
 		getComputedStyle.mockImplementation(function (el) {
 			const style = new CSSStyleDeclaration();
 			if (el === firstElement) {
@@ -111,7 +110,6 @@ describe('calculateGap()', () => {
 
 		const lastElement = getByTestId('1');
 
-		// @ts-ignore UTEST-1630
 		getComputedStyle.mockImplementation((el) => {
 			const style = new CSSStyleDeclaration();
 			if (el === lastElement) {

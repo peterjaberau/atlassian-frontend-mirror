@@ -1,6 +1,427 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	addColumnLeft: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	addColumnRight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	addRowAbove: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	addRowBelow: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	adjustColumns: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	alignTableCenter: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	alignTableLeft: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	backgroundColor: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	canNotMoveColumnLeftWithMergedCells: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	canNotMoveColumnRightWithMergedCells: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	canNotMoveRowDownWithMergedCells: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	canNotMoveRowUpWithMergedCells: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	canNotSortTable: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	canNotSortTableNoIcon: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cellAlignment: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cellAlignmentBottom: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cellAlignmentMiddle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cellAlignmentTop: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cellBackground: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cellOptions: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	changedColumnWidth: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	clearCells: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	collapseTable: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnDragHandle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnMovedLeft: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnMovedRight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnResizeLast: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnResizeOverflow: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnResizeStop: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnsAreInserted: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnsAreRemoved: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	columnSelected: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	confirmDeleteLinkedModalMessage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	confirmDeleteLinkedModalMessagePrefix: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	confirmDeleteLinkedModalOKButton: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	confirmModalCheckboxLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cornerControl: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteElementTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	distributeColumns: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	dragHandleZone: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fitToContent: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	focusedOtherResize: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	fullWidthLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	headerColumn: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	headerRow: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	insertColumn: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	insertColumnDrag: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	insertRow: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	insertRowDrag: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	lockColumnWidths: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	mergeCells: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveColumnLeft: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveColumnLeftHelpDialogLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveColumnRight: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveColumnRightHelpDialogLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveRowDown: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveRowDownHelpDialogLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveRowUp: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	moveRowUpHelpDialogLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	numberedColumn: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	numberedRows: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	removeColumns: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	removeRows: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	resizeTable: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rowControl: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rowDragHandle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rowMovedDown: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rowMovedUp: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rowNumbers: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rowsAreInserted: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rowsAreRemoved: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	rowSelected: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	sortColumnASC: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	sortColumnDecreasing: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	sortColumnDESC: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	sortColumnIncreasing: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	splitCell: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	startedColumnResize: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	tableAlignmentOptions: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	tableOptions: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	tableScrollRegion: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	tableSizeDecreaseScreenReaderInformation: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	tableSizeIncreaseScreenReaderInformation: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	unnamedSource: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	tableScrollRegion: {
 		id: 'fabric.editor.tableScrollRegion',
 		defaultMessage: 'Table scroll region',
@@ -41,12 +462,14 @@ export const messages = defineMessages({
 	collapseTable: {
 		id: 'fabric.editor.collapseTable',
 		defaultMessage: 'Collapse table',
-		description: 'Wraps table in an expand',
+		description:
+			'The text is shown as a menu item in the table options dropdown when the user wants to collapse a table by wrapping it inside an expand element.',
 	},
 	resizeTable: {
 		id: 'fabric.editor.tables.resizeTable',
 		defaultMessage: 'Resize table',
-		description: 'Tooltip displayed on custom table width resize hande',
+		description:
+			'Tooltip text shown when hovering over the table width resize handle. Indicates users can drag to adjust the table width.',
 	},
 	insertColumn: {
 		id: 'fabric.editor.insertColumn',
@@ -71,7 +494,8 @@ export const messages = defineMessages({
 	removeColumns: {
 		id: 'fabric.editor.removeColumns',
 		defaultMessage: 'Delete {0, plural, one {column} other {columns}}',
-		description: 'Deletes a table column.',
+		description:
+			'The text is shown as a menu item or button when the user selects one or more table columns to delete them. The message adapts for singular or plural columns.',
 	},
 	insertRow: {
 		id: 'fabric.editor.insertRow',
@@ -81,32 +505,62 @@ export const messages = defineMessages({
 	addRowAbove: {
 		id: 'fabric.editor.addRowAbove',
 		defaultMessage: 'Add row above',
-		description: 'Adds a new row above the selected row.',
+		description:
+			'Label for the table context menu item that inserts a new empty row directly above the currently selected row.',
 	},
 	addRowBelow: {
 		id: 'fabric.editor.addRowBelow',
 		defaultMessage: 'Add row below',
-		description: 'Adds a new row below the selected row.',
+		description:
+			'Label for the table context menu item that inserts a new empty row directly below the currently selected row.',
 	},
 	moveColumnLeft: {
 		id: 'fabric.editor.moveColumnLeft',
 		defaultMessage: 'Move {0, plural, one {column} other {columns}} left',
-		description: 'Moves a column or columns to the left.',
+		description:
+			'Label for the table menu item that moves the selected column(s) one position to the left. The placeholder {0} is the number of columns being moved and controls the plural form.',
+	},
+	moveColumnLeftHelpDialogLabel: {
+		id: 'fabric.editor.moveColumnLeftHelpDialogLabel',
+		defaultMessage: 'Move column left',
+		description:
+			'Description of a keymap that moves one column or multiple columns left, this is in the help dialog and can be simpler than the puralisation version',
 	},
 	moveColumnRight: {
 		id: 'fabric.editor.moveColumnRight',
 		defaultMessage: 'Move {0, plural, one {column} other {columns}} right',
-		description: 'Moves a column or columns to the right.',
+		description:
+			'Label for the table menu item that moves the selected column(s) one position to the right. The placeholder {0} is the number of columns being moved and controls the plural form.',
+	},
+	moveColumnRightHelpDialogLabel: {
+		id: 'fabric.editor.moveColumnRightHelpDialogLabel',
+		defaultMessage: 'Move column right',
+		description:
+			'Description of a keymap that moves one column or multiple columns right, this is in the help dialog and can be simpler than the puralisation version',
 	},
 	moveRowUp: {
 		id: 'fabric.editor.moveRowUp',
 		defaultMessage: 'Move {0, plural, one {row} other {rows}} up',
-		description: 'Moves a row or selected rows up.',
+		description:
+			'Label for the table menu item that moves the selected row(s) one position upward. The placeholder {0} is the number of rows being moved and controls the plural form.',
+	},
+	moveRowUpHelpDialogLabel: {
+		id: 'fabric.editor.moveRowUpHelpDialogLabel',
+		defaultMessage: 'Move row up',
+		description:
+			'Description of a keymap that moves one row or multiple rows up, this is in the help dialog and can be simpler than the puralisation version',
 	},
 	moveRowDown: {
 		id: 'fabric.editor.moveDownDown',
 		defaultMessage: 'Move {0, plural, one {row} other {rows}} down',
-		description: 'Moves a row or selected rows down.',
+		description:
+			'Label for the table menu item that moves the selected row(s) one position downward. The placeholder {0} is the number of rows being moved and controls the plural form.',
+	},
+	moveRowDownHelpDialogLabel: {
+		id: 'fabric.editor.moveRowDownHelpDialogLabel',
+		defaultMessage: 'Move row down',
+		description:
+			'Description of a keymap that moves one row or multiple rows down, this is in the help dialog and can be simpler than the puralisation version',
 	},
 	insertRowDrag: {
 		id: 'fabric.editor.insertRowDrag',
@@ -116,17 +570,20 @@ export const messages = defineMessages({
 	removeRows: {
 		id: 'fabric.editor.removeRows',
 		defaultMessage: 'Delete {0, plural, one {row} other {rows}}',
-		description: 'Deletes a table row.',
+		description:
+			'The text is shown as a menu item or button when the user selects one or more table rows to delete them. The message adapts for singular or plural rows.',
 	},
 	rowNumbers: {
 		id: 'fabrid.editor.rowNumbers',
 		defaultMessage: 'Row numbers',
-		desciption: 'Adds a number to each row except header row',
+		description:
+			'The text is shown as a label for a toggle option in the table options menu that adds a number to each row except the header row.',
 	},
 	numberedRows: {
 		id: 'fabrid.editor.numberedRows',
 		defaultMessage: 'Numbered rows',
-		desciption: 'Adds a number to each row except header row',
+		description:
+			'The text is shown as a label for a toggle option in the table options menu that adds a number to each row except the header row.',
 	},
 	rowsAreInserted: {
 		id: 'fabric.editor.rowsAreInserted',
@@ -200,12 +657,14 @@ export const messages = defineMessages({
 	confirmDeleteLinkedModalMessagePrefix: {
 		id: 'fabric.editor.extension.confirmDeleteLinkedModalMessagePrefix',
 		defaultMessage: 'Deleting',
-		description: 'prefix for confirmation dialog text',
+		description:
+			'Text prefix shown at the start of a confirmation dialog message when the user is about to delete a linked element in the editor.',
 	},
 	confirmModalCheckboxLabel: {
 		id: 'fabric.editor.floatingToolbar.confirmModalCheckboxLabel',
 		defaultMessage: 'Also delete connected elements',
-		description: 'checkbox label text',
+		description:
+			'The text is shown as a checkbox label in a confirmation dialog when the user is about to delete an element that has connected extensions.',
 	},
 	deleteElementTitle: {
 		id: 'fabric.editor.extension.deleteElementTitle',
@@ -234,6 +693,26 @@ export const messages = defineMessages({
 		defaultMessage: 'Cell background',
 		description: 'Change the background color of a table cell.',
 	},
+	cellAlignment: {
+		id: 'fabric.editor.table.cellAlignment',
+		defaultMessage: 'Alignment',
+		description: 'Label for a nested menu that aligns content vertically inside a table cell.',
+	},
+	cellAlignmentTop: {
+		id: 'fabric.editor.table.cellAlignmentTop',
+		defaultMessage: 'Top',
+		description: 'Label for an option that aligns table cell content to the top.',
+	},
+	cellAlignmentMiddle: {
+		id: 'fabric.editor.table.cellAlignmentMiddle',
+		defaultMessage: 'Middle',
+		description: 'Label for an option that aligns table cell content to the middle.',
+	},
+	cellAlignmentBottom: {
+		id: 'fabric.editor.table.cellAlignmentBottom',
+		defaultMessage: 'Bottom',
+		description: 'Label for an option that aligns table cell content to the bottom.',
+	},
 	backgroundColor: {
 		id: 'fabric.editor.backgroundColor',
 		defaultMessage: 'Background color',
@@ -242,12 +721,14 @@ export const messages = defineMessages({
 	mergeCells: {
 		id: 'fabric.editor.mergeCells',
 		defaultMessage: 'Merge cells',
-		description: 'Merge tables cells together.',
+		description:
+			'The text is shown as a menu item in the cell options menu when the user selects multiple table cells to merge them into a single cell.',
 	},
 	splitCell: {
 		id: 'fabric.editor.splitCell',
 		defaultMessage: 'Split cell',
-		description: 'Split a merged table cell.',
+		description:
+			'The text is shown as a menu item in the cell options menu when the user wants to split a previously merged table cell back into individual cells.',
 	},
 	clearCells: {
 		id: 'fabric.editor.clearCells',
@@ -258,32 +739,66 @@ export const messages = defineMessages({
 	sortColumnASC: {
 		id: 'fabric.editor.sortColumnASC',
 		defaultMessage: 'Sort column A → Z',
-		description: 'Sort column in ascending order',
+		description:
+			'Label for the table column menu item that sorts the column alphabetically in ascending (A to Z) order.',
 	},
 	sortColumnDESC: {
 		id: 'fabric.editor.sortColumnDESC',
 		defaultMessage: 'Sort column Z → A',
-		description: 'Sort column in descending order',
+		description:
+			'Label for the table column menu item that sorts the column alphabetically in descending (Z to A) order.',
 	},
 	sortColumnIncreasing: {
 		id: 'fabric.editor.sortColumnIncreasing',
 		defaultMessage: 'Sort increasing',
-		description: 'Sort column in ascending order',
+		description:
+			'Label for the table column menu item that sorts numerical or date column values in increasing order.',
 	},
 	sortColumnDecreasing: {
 		id: 'fabric.editor.sortColumnDecreasing',
 		defaultMessage: 'Sort decreasing',
-		description: 'Sort column in descending order',
+		description:
+			'Label for the table column menu item that sorts numerical or date column values in decreasing order.',
 	},
 	canNotSortTable: {
 		id: 'fabric.editor.canNotSortTable',
 		defaultMessage: `⚠️ You can't sort a table with merged cells`,
 		description: `Split your cells to enable this feature`,
 	},
+	canNotSortTableNoIcon: {
+		id: 'fabric.editor.canNotSortTableNoIcon',
+		defaultMessage: `You can't sort a table with merged cells`,
+		description: `Split your cells to enable this feature`,
+	},
+	canNotMoveColumnLeftWithMergedCells: {
+		id: 'editor-common.messages.table.canNotMoveColumnLeftWithMergedCells',
+		defaultMessage: `You can't move a column left with merged cells`,
+		description: `Explains why the move column left option is unavailable`,
+	},
+	canNotMoveColumnRightWithMergedCells: {
+		id: 'editor-common.messages.table.canNotMoveColumnRightWithMergedCells',
+		defaultMessage: `You can't move a column right with merged cells`,
+		description: `Explains why the move column right option is unavailable`,
+	},
+	canNotMoveRowDownWithMergedCells: {
+		id: 'editor-common.messages.table.canNotMoveRowDownWithMergedCells',
+		defaultMessage: `You can't move a row down with merged cells`,
+		description: `Explains why the move row down option is unavailable`,
+	},
+	canNotMoveRowUpWithMergedCells: {
+		id: 'editor-common.messages.table.canNotMoveRowUpWithMergedCells',
+		defaultMessage: `You can't move a row up with merged cells`,
+		description: `Explains why the move row up option is unavailable`,
+	},
 	distributeColumns: {
 		id: 'fabric.editor.distributeColumns',
 		defaultMessage: `Distribute columns`,
 		description: `Distribute widths between selected columns`,
+	},
+	fitToContent: {
+		id: 'fabric.editor.fitToContent',
+		defaultMessage: `Fit to content`,
+		description: `Resize table columns to fit their content`,
 	},
 	lockColumnWidths: {
 		id: 'fabric.editor.lockColumns',
@@ -317,7 +832,8 @@ export const messages = defineMessages({
 	fullWidthLabel: {
 		id: 'fabric.editor.tableFullWidthLabel',
 		defaultMessage: 'Full-width',
-		description: 'Trigger table width to full-width mode',
+		description:
+			'Label for the button in the table toolbar that switches the table to full-width display mode, expanding it to fill the page width.',
 	},
 	startedColumnResize: {
 		id: 'fabric.editor.tables.startedColumnResize',
@@ -362,11 +878,13 @@ export const messages = defineMessages({
 	alignTableCenter: {
 		id: 'fabric.editor.alignTableCenter',
 		defaultMessage: 'Align center',
-		description: 'Aligns table to the center',
+		description:
+			'The text is shown as a menu item in the table alignment options menu when the user wants to align the table to the center of the page.',
 	},
 	alignTableLeft: {
 		id: 'fabric.editor.alignTableLeft',
 		defaultMessage: 'Align left',
-		description: 'Aligns table to the left',
+		description:
+			'The text is shown as a menu item in the table alignment options menu when the user wants to align the table to the left side of the page.',
 	},
 });

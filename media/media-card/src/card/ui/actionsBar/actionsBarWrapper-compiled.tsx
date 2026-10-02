@@ -3,10 +3,11 @@
  * @jsx jsx
  */
 import { jsx, css } from '@compiled/react';
+
 import { token } from '@atlaskit/tokens';
 
-import { type ActionBarWrapperProps } from './types';
 import { actionsBarClassName } from './styles';
+import { type ActionBarWrapperProps } from './types';
 
 const wrapperStyles = css({
 	position: 'absolute',
@@ -16,11 +17,11 @@ const wrapperStyles = css({
 	display: 'flex',
 	flexFlow: 'row nowrap',
 	justifyContent: 'right',
-	paddingTop: token('space.100', '8px'),
-	paddingBottom: token('space.100', '8px'),
-	paddingRight: token('space.100', '8px'),
-	paddingLeft: token('space.100', '8px'),
-	gap: token('space.100', '8px'),
+	paddingTop: token('space.100'),
+	paddingBottom: token('space.100'),
+	paddingRight: token('space.100'),
+	paddingLeft: token('space.100'),
+	gap: token('space.100'),
 	opacity: 0,
 });
 
@@ -28,12 +29,15 @@ const fixedActionBarStyle = css({
 	opacity: 1,
 });
 
-export const ActionsBarWrapper = (props: ActionBarWrapperProps) => {
+export const ActionsBarWrapper: {
+	(props: ActionBarWrapperProps): JSX.Element;
+	displayName: string;
+} = (props: ActionBarWrapperProps): JSX.Element => {
 	return (
-		// eslint-disable-next-line @atlassian/a11y/click-events-have-key-events, @atlassian/a11y/interactive-element-not-keyboard-focusable, @atlassian/a11y/no-static-element-interactions
 		<div
 			id="actionsBarWrapper"
 			data-testId="actionsBarWrapper"
+			role="none"
 			css={[wrapperStyles, props.isFixed && fixedActionBarStyle]}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className={actionsBarClassName}

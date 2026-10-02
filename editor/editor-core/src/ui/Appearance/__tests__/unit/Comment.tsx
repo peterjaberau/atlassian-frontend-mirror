@@ -1,7 +1,15 @@
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  and raise concerns in https://atlassian.enterprise.slack.com/archives/C0BD4K40BLH
+*/
+
 import React from 'react';
 
 import { matchers } from '@emotion/jest';
-import type { ReactWrapper } from 'enzyme';
+import { act, fireEvent, type RenderResult } from '@testing-library/react';
 
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import type { DocBuilder } from '@atlaskit/editor-common/types';
@@ -10,12 +18,11 @@ import type { MediaOptions } from '@atlaskit/editor-plugins/media/types';
 import { createEditorFactory } from '@atlaskit/editor-test-helpers/create-editor';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { doc, p } from '@atlaskit/editor-test-helpers/doc-builder';
+import { renderWithIntl } from '@atlaskit/editor-test-helpers/rtl';
 // eslint-disable-next-line import/no-extraneous-dependencies -- Removed import for fixing circular dependencies
 import { sleep } from '@atlaskit/editor-test-helpers/sleep';
 import { getDefaultMediaClientConfig } from '@atlaskit/media-test-helpers/fakeMediaClient';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
 
-import { mountWithIntl } from '../../../../__tests__/__helpers/enzyme';
 import EditorActions from '../../../../actions';
 import EditorContext from '../../../EditorContext';
 import { CommentEditorWithIntl as Comment } from '../../Comment/Comment';
@@ -36,7 +43,7 @@ describe('comment editor', () => {
 		});
 	it('should create empty terminal empty paragraph when clicked outside editor', () => {
 		const { editorView } = editor(doc(p('Hello world'), p('Hello world')));
-		const fullPage = mountWithIntl(
+		const fullPage = renderWithIntl(
 			<Comment
 				editorAPI={undefined}
 				editorView={editorView}
@@ -46,13 +53,13 @@ describe('comment editor', () => {
 			/>,
 		);
 
-		fullPage.find('div[data-testid="click-wrapper"]').simulate('mousedown', { clientY: 200 });
+		fireEvent.mouseDown(fullPage.getByTestId('click-wrapper'), { clientY: 200 });
 		expect(editorView.state.doc).toEqualDocument(doc(p('Hello world'), p('Hello world'), p('')));
 	});
 
 	it('should not create empty terminal empty paragraph if it is already present at end', () => {
 		const { editorView } = editor(doc(p('Hello world'), p('')));
-		const fullPage = mountWithIntl(
+		const fullPage = renderWithIntl(
 			<Comment
 				editorAPI={undefined}
 				editorView={editorView}
@@ -61,16 +68,14 @@ describe('comment editor', () => {
 				featureFlags={{}}
 			/>,
 		);
-		fullPage
-			.find('div[data-testid="click-wrapper"]')
-			.simulate('click', { clientY: 200 })
-			.simulate('click', { clientY: 200 });
+		fireEvent.click(fullPage.getByTestId('click-wrapper'), { clientY: 200 });
+		fireEvent.click(fullPage.getByTestId('click-wrapper'), { clientY: 200 });
 		expect(editorView.state.doc).toEqualDocument(doc(p('Hello world'), p('')));
 	});
 
 	it('should not create empty terminal paragraph when clicked inside editor', () => {
 		const { editorView } = editor(doc(p('Hello world')));
-		const fullPage = mountWithIntl(
+		const fullPage = renderWithIntl(
 			<Comment
 				editorAPI={undefined}
 				editorView={editorView}
@@ -80,7 +85,7 @@ describe('comment editor', () => {
 			/>,
 		);
 
-		fullPage.find('div.ak-editor-content-area').simulate('click');
+		fireEvent.click(fullPage.container.querySelector('div.ak-editor-content-area')!);
 
 		expect(editorView.state.doc).toEqualDocument(doc(p('Hello world')));
 	});
@@ -93,8 +98,8 @@ describe('comment editor', () => {
 			mediaProvider,
 		});
 
-		function getSaveButton(wrapper: ReactWrapper<any, any>) {
-			return wrapper.find('button[data-testid="comment-save-button"]');
+		function getSaveButton(rendered: RenderResult) {
+			return rendered.getByTestId('comment-save-button');
 		}
 
 		it('should not be disabled when mediaPluginState.allowUploadFinished is false', async () => {
@@ -108,7 +113,7 @@ describe('comment editor', () => {
 				},
 			});
 
-			const comment = mountWithIntl(
+			const comment = renderWithIntl(
 				<EditorContext editorActions={EditorActions.from(editorView, eventDispatcher)}>
 					<Comment
 						editorAPI={undefined}
@@ -122,18 +127,19 @@ describe('comment editor', () => {
 			);
 			const mediaPluginState = editorAPI?.media?.sharedState.currentState();
 
-			mediaPluginState?.updateAndDispatch({
-				allUploadsFinished: false,
+			await act(async () => {
+				mediaPluginState?.updateAndDispatch({
+					allUploadsFinished: false,
+				});
+				await sleep(0);
+
+				mediaPluginState?.updateAndDispatch({
+					allUploadsFinished: true,
+				});
+				await sleep(0);
 			});
 
-			await sleep(0);
-
-			mediaPluginState?.updateAndDispatch({
-				allUploadsFinished: true,
-			});
-			await sleep(0);
-
-			expect(getSaveButton(comment).prop('disabled')).toBe(false);
+			expect(getSaveButton(comment)).not.toBeDisabled();
 		});
 
 		it('should not be remain disabled when disabled prop has been updated', async () => {
@@ -160,11 +166,11 @@ describe('comment editor', () => {
 					/>
 				</EditorContext>
 			);
-			const comment = mountWithIntl(<EditorComment disabled={true} />);
-			await comment.setProps({ disabled: false });
+			const comment = renderWithIntl(<EditorComment disabled={true} />);
+			comment.rerender(<EditorComment disabled={false} />);
 
 			// save button should not be disabled
-			expect(getSaveButton(comment).prop('disabled')).toBe(false);
+			expect(getSaveButton(comment)).not.toBeDisabled();
 		});
 
 		it('should set up required media options for Comment Editor', () => {
@@ -190,7 +196,7 @@ describe('comment editor', () => {
 	describe('secondary toolbar', () => {
 		it('should render the secondary toolbar if there is a save button', () => {
 			const { editorView } = editor(doc(p('Hello world')));
-			const fullPage = mountWithIntl(
+			const fullPage = renderWithIntl(
 				<Comment
 					editorAPI={undefined}
 					editorView={editorView}
@@ -200,12 +206,12 @@ describe('comment editor', () => {
 					featureFlags={{}}
 				/>,
 			);
-			fullPage.find('div.ak-editor-content-area').simulate('click');
-			expect(fullPage.find('div[data-testid="ak-editor-secondary-toolbar"]').exists()).toBe(true);
+			fireEvent.click(fullPage.container.querySelector('div.ak-editor-content-area')!);
+			expect(fullPage.getByTestId('ak-editor-secondary-toolbar')).toBeInTheDocument();
 		});
 		it('should render the secondary toolbar if there is a cancel button', () => {
 			const { editorView } = editor(doc(p('Hello world')));
-			const fullPage = mountWithIntl(
+			const fullPage = renderWithIntl(
 				<Comment
 					editorAPI={undefined}
 					editorView={editorView}
@@ -215,13 +221,13 @@ describe('comment editor', () => {
 					featureFlags={{}}
 				/>,
 			);
-			fullPage.find('div.ak-editor-content-area').simulate('click');
+			fireEvent.click(fullPage.container.querySelector('div.ak-editor-content-area')!);
 
-			expect(fullPage.find('div[data-testid="ak-editor-secondary-toolbar"]').exists()).toBe(true);
+			expect(fullPage.getByTestId('ak-editor-secondary-toolbar')).toBeInTheDocument();
 		});
 		it('should render the secondary toolbar if there is a custom secondary toolbar button', () => {
 			const { editorView } = editor(doc(p('Hello world')));
-			const fullPage = mountWithIntl(
+			const fullPage = renderWithIntl(
 				<Comment
 					editorAPI={undefined}
 					editorView={editorView}
@@ -231,12 +237,12 @@ describe('comment editor', () => {
 					featureFlags={{}}
 				/>,
 			);
-			fullPage.find('div.ak-editor-content-area').simulate('click');
-			expect(fullPage.find('div[data-testid="ak-editor-secondary-toolbar"]').exists()).toBe(true);
+			fireEvent.click(fullPage.container.querySelector('div.ak-editor-content-area')!);
+			expect(fullPage.getByTestId('ak-editor-secondary-toolbar')).toBeInTheDocument();
 		});
 		it('should not render the secondary toolbar if there is no save, cancel or custom button', () => {
 			const { editorView } = editor(doc(p('Hello world')));
-			const fullPage = mountWithIntl(
+			const fullPage = renderWithIntl(
 				<Comment
 					editorAPI={undefined}
 					editorView={editorView}
@@ -245,8 +251,8 @@ describe('comment editor', () => {
 					featureFlags={{}}
 				/>,
 			);
-			fullPage.find('div.ak-editor-content-area').simulate('click');
-			expect(fullPage.find('div[data-testid="ak-editor-secondary-toolbar"]').exists()).toBe(false);
+			fireEvent.click(fullPage.container.querySelector('div.ak-editor-content-area')!);
+			expect(fullPage.queryByTestId('ak-editor-secondary-toolbar')).not.toBeInTheDocument();
 		});
 
 		describe('comment toolbar shortcuts', () => {
@@ -259,44 +265,35 @@ describe('comment editor', () => {
 				const { editorView, commentComponent } = mountCommentWithToolbarButton();
 				const editorFocusSpy = jest.spyOn(editorView, 'focus');
 
-				const toolbarClickWrapper = commentComponent
-					.find('.custom-key-handler-wrapper')
-					.last()
-					.getDOMNode();
-				toolbarClickWrapper.dispatchEvent(
-					new KeyboardEvent('keydown', {
-						key: 'Escape',
-					}),
+				const toolbarClickWrappers = commentComponent.container.querySelectorAll(
+					'.custom-key-handler-wrapper',
 				);
+				const toolbarClickWrapper = toolbarClickWrappers[toolbarClickWrappers.length - 1];
+				fireEvent.keyDown(toolbarClickWrapper, { key: 'Escape' });
 				expect(editorFocusSpy).toHaveBeenCalled();
 			});
 
 			it('focuses toolbar on alt + F9', () => {
 				const { editorView, commentComponent } = mountCommentWithToolbarButton();
-				// Ignored via go/ees005
-				// eslint-disable-next-line @atlaskit/editor/no-as-casting
-				const buttonElement = commentComponent
-					.find('[data-testid="custom-button"]')
-					.last()
-					.getDOMNode() as HTMLElement;
+				const customButtons = commentComponent.getAllByTestId('custom-button');
+				const buttonElement = customButtons.at(-1);
+				expect(buttonElement).toBeDefined();
 
-				const buttonFocusSpy = jest.spyOn(buttonElement, 'focus');
-				const buttonScrollSpy = jest.spyOn(buttonElement, 'scrollIntoView');
+				const buttonFocusSpy = jest.spyOn(buttonElement!, 'focus');
+				const buttonScrollSpy = jest.spyOn(buttonElement!, 'scrollIntoView');
 
-				editorView.dom.dispatchEvent(
-					new KeyboardEvent('keydown', {
-						key: 'F9',
-						keyCode: 120,
-						altKey: true,
-					}),
-				);
+				fireEvent.keyDown(editorView.dom, {
+					key: 'F9',
+					keyCode: 120,
+					altKey: true,
+				});
 				expect(buttonFocusSpy).toHaveBeenCalled();
 				expect(buttonScrollSpy).toHaveBeenCalled();
 			});
 
 			function mountCommentWithToolbarButton() {
 				const { editorView } = editor(doc(p('Hello world')));
-				const commentComponent = mountWithIntl(
+				const commentComponent = renderWithIntl(
 					<Comment
 						editorAPI={undefined}
 						editorView={editorView}
@@ -313,81 +310,86 @@ describe('comment editor', () => {
 
 	describe('sticky toolbar styles', () => {
 		it('should render sticky toolbar with correct styles', () => {
-			const fullPage = mountWithIntl(
+			const fullPage = renderWithIntl(
 				<Comment
 					editorAPI={undefined}
 					onSave={true as any}
 					providerFactory={{} as any}
-					editorDOMElement={<div />}
+					editorDOMElement={<div id="ak-editor-textarea" />}
 					featureFlags={{}}
 					// this would enable two line toolbar
 					customPrimaryToolbarComponents={<div>custom primary toolbar</div>}
 					useStickyToolbar
 				/>,
 			);
-			const stickyToolbar = fullPage.find('div[data-testid="ak-editor-main-toolbar"]');
-			expect(stickyToolbar.exists()).toBe(true);
+			const stickyToolbar = fullPage.getByTestId('ak-editor-main-toolbar');
+			expect(stickyToolbar).toBeInTheDocument();
 			expect(stickyToolbar).toHaveStyleRule('z-index', '500');
 			expect(stickyToolbar).toHaveStyleRule('position', 'sticky');
 			const emotionStyles = Array.from(document.querySelectorAll('style[data-emotion]'))
 				.map((el) => el.textContent)
 				.filter((style) => style?.includes('-StickyToolbar'))
 				.join('\n');
-			expect(emotionStyles).toMatchSnapshot();
+			expect(emotionStyles).toContain('position:sticky');
+			expect(emotionStyles).toContain('z-index:500');
+			expect(emotionStyles).toContain('box-shadow:none');
+			expect(emotionStyles).toContain('padding-left:var(--ds-space-250, 20px)');
+			expect(emotionStyles).toContain('show-keyline');
 		});
 	});
 
 	describe('fixed toolbar styles', () => {
-		ffTest.off('platform_editor_comments_border_radius', 'border radius disabled', () => {
-			it('should render sticky toolbar with correct styles', () => {
-				const fullPage = mountWithIntl(
-					<Comment
-						editorAPI={undefined}
-						onSave={true as any}
-						providerFactory={{} as any}
-						editorDOMElement={<div />}
-						featureFlags={{}}
-						// this would enable two line toolbar
-						customPrimaryToolbarComponents={<div>custom primary toolbar</div>}
-					/>,
-				);
-				const fixedToolbar = fullPage.find('div[data-testid="ak-editor-main-toolbar"]');
-				expect(fixedToolbar.exists()).toBe(true);
-				expect(fixedToolbar).toHaveStyleRule('position', 'relative');
-				const emotionStyles = Array.from(document.querySelectorAll('style[data-emotion]'))
-					.map((el) => el.textContent)
-					.filter((style) => style?.includes('-FixedToolbar'))
-					.join('\n');
-				expect(emotionStyles).toMatchSnapshot();
-			});
+		it('should render fixed toolbar with correct styles', () => {
+			const fullPage = renderWithIntl(
+				<Comment
+					editorAPI={undefined}
+					onSave={true as any}
+					providerFactory={{} as any}
+					editorDOMElement={<div id="ak-editor-textarea" />}
+					featureFlags={{}}
+					// this would enable two line toolbar
+					customPrimaryToolbarComponents={<div>custom primary toolbar</div>}
+				/>,
+			);
+			const fixedToolbar = fullPage.getByTestId('ak-editor-main-toolbar');
+			expect(fixedToolbar).toBeInTheDocument();
+			expect(fixedToolbar).toHaveStyleRule('position', 'relative');
+			const emotionStyles = Array.from(document.querySelectorAll('style[data-emotion]'))
+				.map((el) => el.textContent)
+				.filter((style) => style?.includes('-FixedToolbar'))
+				.join('\n');
+			expect(emotionStyles).toContain('position:relative');
+			expect(emotionStyles).toContain('box-shadow:none');
+			expect(emotionStyles).toContain('padding-left:var(--ds-space-250, 20px)');
 		});
 
-		ffTest.on('platform_editor_comments_border_radius', 'border radius enabled', () => {
-			it('should render sticky toolbar with border radius styles', () => {
-				const fullPage = mountWithIntl(
-					<Comment
-						editorAPI={undefined}
-						onSave={true as any}
-						providerFactory={{} as any}
-						editorDOMElement={<div />}
-						featureFlags={{}}
-						// this would enable two line toolbar
-						customPrimaryToolbarComponents={<div>custom primary toolbar</div>}
-					/>,
-				);
-				const fixedToolbar = fullPage.find('div[data-testid="ak-editor-main-toolbar"]');
-				expect(fixedToolbar.exists()).toBe(true);
-				expect(fixedToolbar).toHaveStyleRule('position', 'relative');
-				expect(fixedToolbar).toHaveStyleRule(
-					'border-radius',
-					'var(--ds-radius-small, 3px) var(--ds-radius-small, 3px) 0 0',
-				);
-				const emotionStyles = Array.from(document.querySelectorAll('style[data-emotion]'))
-					.map((el) => el.textContent)
-					.filter((style) => style?.includes('-FixedToolbar'))
-					.join('\n');
-				expect(emotionStyles).toMatchSnapshot();
-			});
+		it('should render fixed toolbar with the shipped border radius styles', () => {
+			const fullPage = renderWithIntl(
+				<Comment
+					editorAPI={undefined}
+					onSave={true as any}
+					providerFactory={{} as any}
+					editorDOMElement={<div id="ak-editor-textarea" />}
+					featureFlags={{}}
+					// this would enable two line toolbar
+					customPrimaryToolbarComponents={<div>custom primary toolbar</div>}
+				/>,
+			);
+			const fixedToolbar = fullPage.getByTestId('ak-editor-main-toolbar');
+			expect(fixedToolbar).toBeInTheDocument();
+			expect(fixedToolbar).toHaveStyleRule('position', 'relative');
+			expect(fixedToolbar).toHaveStyleRule(
+				'border-radius',
+				'var(--ds-radius-medium, 6px) var(--ds-radius-medium, 6px) 0 0',
+			);
+			const emotionStyles = Array.from(document.querySelectorAll('style[data-emotion]'))
+				.map((el) => el.textContent)
+				.filter((style) => style?.includes('-FixedToolbar'))
+				.join('\n');
+			expect(emotionStyles).toContain('position:relative');
+			expect(emotionStyles).toContain(
+				'border-radius:var(--ds-radius-medium, 6px) var(--ds-radius-medium, 6px) 0 0',
+			);
 		});
 	});
 });

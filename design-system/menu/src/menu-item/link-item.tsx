@@ -15,7 +15,7 @@ import {
 
 import { jsx } from '@compiled/react';
 
-import { useRouterLink } from '@atlaskit/app-provider';
+import { useRouterLink } from '@atlaskit/app-provider/use-router-link';
 import InteractionContext, { type InteractionContextType } from '@atlaskit/interaction-context';
 
 import MenuItemPrimitive from '../internal/components/menu-item-primitive';
@@ -36,7 +36,11 @@ const preventEvent = (e: MouseEvent | KeyboardEvent) => {
  * - [Examples](https://atlaskit.atlassian.com/packages/design-system/menu/docs/link-item)
  * - [Code](https://atlaskit.atlassian.com/packages/design-system/menu)
  */
-const LinkItem: import("react").MemoExoticComponent<import("react").ForwardRefExoticComponent<LinkItemProps & import("react").RefAttributes<HTMLElement>>> = memo(
+const LinkItem: import('react').MemoExoticComponent<
+	import('react').ForwardRefExoticComponent<
+		LinkItemProps & import('react').RefAttributes<HTMLElement>
+	>
+> = memo(
 	forwardRef<HTMLElement, LinkItemProps>((props, ref) => {
 		const {
 			children,
@@ -125,7 +129,7 @@ const LinkItem: import("react").MemoExoticComponent<import("react").ForwardRefEx
 						onMouseDown={isDisabled ? preventEvent : onMouseDownHandler}
 						onClick={isDisabled ? preventEvent : handleClick}
 						aria-current={isSelected ? 'page' : undefined}
-						aria-disabled={isDisabled}
+						aria-disabled={isDisabled || undefined}
 						ref={ref as Ref<HTMLAnchorElement>}
 					>
 						{children}

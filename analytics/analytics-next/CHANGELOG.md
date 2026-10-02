@@ -1,5 +1,200 @@
 # @atlaskit/analytics-next
 
+## 12.5.1
+
+### Patch Changes
+
+- [`31d46e9b95a11`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/31d46e9b95a11) -
+  Remove the `platform-analytics-next-safe-clone` gate. Always fall back to a shallow clone when an
+  analytics payload cannot be deep-cloned.
+
+## 12.5.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.4.1
+
+### Patch Changes
+
+- [`9411db36ce9de`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9411db36ce9de) -
+  Clean up the fully rolled out `analytics-next-lock-context-type` and
+  `analytics-next-lock-context-type-all-afm` feature gates. `AnalyticsContext`, `AnalyticsListener`
+  and `AnalyticsErrorBoundary` now always resolve the Modern/Legacy context choice once when they
+  mount, which was the behavior with the gates enabled.
+
+## 12.4.0
+
+### Minor Changes
+
+- [`ee630debbdf71`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee630debbdf71) -
+  Add adminhub-analytics-next-use-modern-context fg for migration to modern analytics context
+
+## 12.3.3
+
+### Patch Changes
+
+- [`4e32a26273c5a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4e32a26273c5a) -
+  Fix analytics-next-lock-context-type-all-afm perf regression (COPPER-1111): revert to
+  short-circuit gate evaluation so the old lock gate is not read on every render once the new gate
+  is on
+
+## 12.3.2
+
+### Patch Changes
+
+- [`06a901a064e4d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06a901a064e4d) -
+  Add analytics-next-lock-context-type-all-afm safety gate ahead of all-AFM rollout.
+
+## 12.3.1
+
+### Patch Changes
+
+- [`5f5ec82946d83`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5f5ec82946d83) -
+  Revert removal of the analytics-next-use-legacy-context feature gate, reinstating the gated legacy
+  analytics context path
+
+## 12.3.0
+
+### Minor Changes
+
+- [`4d1d9d6175588`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4d1d9d6175588) -
+  Guard `UIAnalyticsEvent` payload deep-clone against circular references (e.g. DOM nodes carrying
+  React fiber back-references) so analytics cloning can never crash product UI. Behind the
+  `platform-analytics-next-safe-clone` gate, a failed `JSON` deep clone now falls back to a shallow
+  clone instead of throwing (HOT-127428).
+
+## 12.2.1
+
+### Patch Changes
+
+- [`0ead54dc6b223`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0ead54dc6b223) -
+  Remove the `analytics-next-use-legacy-context` feature gate. The Modern/Legacy React Context
+  choice is now driven solely by the `ANALYTICS_NEXT_MODERN_CONTEXT` environment variable (Modern
+  when set, Legacy otherwise), matching the previous behaviour with the gate off. The
+  `analytics-next-lock-context-type` gate is left in place: when on it captures that choice once at
+  mount instead of reading it live per render.
+
+## 12.2.0
+
+### Minor Changes
+
+- [`5818788ddb350`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5818788ddb350) -
+  Adds the `analytics-next-lock-context-type` feature gate (default off). When enabled,
+  `AnalyticsContext`, `AnalyticsListener` and `AnalyticsErrorBoundary` lock their Modern/Legacy
+  choice to the value read at first mount instead of re-reading the
+  `analytics-next-use-legacy-context` gate on every render. That gate resolves asynchronously, so
+  re-reading it caused the rendered component **type** to switch (Modern to Legacy) after mount,
+  forcing React to unmount and remount the whole subtree below the provider (a full-page flash plus
+  scroll reset on first interaction). With the gate off, behaviour is unchanged. When on, the choice
+  is frozen per mount, which removes the remount; Legacy remains a superset of Modern, so no
+  analytics context is dropped.
+
+## 12.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+## 12.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.3.0
+
+### Minor Changes
+
+- [`f8b3089961cdf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8b3089961cdf) -
+  Extend `StructuredContentSource` so `*.docs.tsx` files can describe packages whose exports are not
+  all renderable React components. The container now accepts optional `package`, `hooks`, and
+  `utilities` (function / constant / type) keys alongside the existing `components` key. New
+  per-kind schemas: `hookDocsSourceSchema`, `utilityDocsSourceSchema`, plus `packageMetadataSchema`
+  for shared package-level metadata.
+
+  All new fields are optional, so existing components-only `*.docs.tsx` files continue to work
+  unchanged — this is an additive, non-breaking extension.
+
+  Pilots the new shape with `docs.tsx` files for `@atlaskit/analytics-next`, `@atlaskit/layering`,
+  `@af/accessibility-testing`, `@af/react-unit-testing`, `@atlaskit/pragmatic-drag-and-drop-hitbox`,
+  `@atlaskit/pragmatic-drag-and-drop-live-region`, `@atlaskit/feature-flag-client`,
+  `@atlaskit/frontend-utilities`, and `@atlaskit/linking-common`. The last two are non-ADS pilots
+  that exercise the new `hooks` and `utilities` kinds in `helpers/` and `linking-platform/`. These
+  pilot files are explicitly marked as non-final in their file-level JSDoc.
+
+## 11.2.2
+
+### Patch Changes
+
+- [`caa0499e0b24a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/caa0499e0b24a) -
+  Enrol mercury, one-software-catalog, team-central, react-ufo, analytics and performance packages
+  into the React Compiler with platform gating via isReactCompilerActivePlatform
+
+## 11.2.1
+
+### Patch Changes
+
+- [`35a1309b51bea`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/35a1309b51bea) -
+  Isolate handler errors in `UIAnalyticsEvent.fire()` so a throwing analytics handler never
+  propagates out and crashes the calling product UI.
+
+  Each handler is now wrapped in a `try/catch`. In non-production environments the error is surfaced
+  via `console.error`; in production it is swallowed silently. This prevents analytics from being in
+  the critical path of product UI rendering.
+
+  PIR: PIR-300717 / HOT-301294 (CFIND-6243)
+
+## 11.2.0
+
+### Minor Changes
+
+- [`a0a0a9bcde425`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a0a0a9bcde425) -
+  Autofix: add explicit package exports (barrel removal)
+
 ## 11.1.4
 
 ### Patch Changes

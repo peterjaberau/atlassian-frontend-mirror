@@ -1,7 +1,8 @@
-import { type JsonLd } from '@atlaskit/json-ld-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 import CardClient from '../..';
 import { type ErrorResponseBody } from '../../types/responses';
-import type { SmartLinkResponse } from '@atlaskit/linking-types';
 
 export const mockContext = {
 	'@vocab': 'https://www.w3.org/ns/activitystreams#',
@@ -253,7 +254,8 @@ export const mocks = {
 		status: 200,
 	},
 };
-export const fakeResponse = () => Promise.resolve(mocks.success);
+export const fakeResponse = (): Promise<JsonLd.Response<JsonLd.Data.BaseData>> =>
+	Promise.resolve(mocks.success);
 
 export const fakeFactory: any = (
 	implementation: () => Promise<JsonLd.Response>,
@@ -274,4 +276,4 @@ export const fakeFactory: any = (
 		}
 	};
 
-export const waitFor = (time = 1) => new Promise((res) => setTimeout(res, time));
+export const waitFor = (time = 1): Promise<void> => new Promise((res) => setTimeout(res, time));

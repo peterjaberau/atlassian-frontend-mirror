@@ -5,18 +5,17 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 import { graphql, usePaginationFragment } from 'react-relay';
 
 import { jsx } from '@atlaskit/css';
-import { Label } from '@atlaskit/form';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { Label } from '@atlaskit/form/label/default';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Inline, Stack, Text } from '@atlaskit/primitives/compiled';
 import { AgentAvatar } from '@atlaskit/rovo-agent-components/ui/AgentAvatar';
-import Select from '@atlaskit/select';
+import Select from '@atlaskit/select/default';
 
 import { useSuspenselessRefetch } from '../../common/utils/use-suspenseless-refetch';
-
 import type { rovoAgentSelector_AtlaskitRovoAgentSelector$key } from './__generated__/rovoAgentSelector_AtlaskitRovoAgentSelector.graphql';
 import rovoAgentSelectorInternal_AtlaskitRovoAgentSelectorPaginationQueryNode, {
 	type rovoAgentSelectorInternal_AtlaskitRovoAgentSelectorPaginationQuery,
@@ -55,7 +54,8 @@ export function RovoAgentSelector({
 	selectedAgent,
 	onChange,
 	isLoading: isLoadingOverride,
-}: RovoAgentSelectorProps) {
+	isDisabled = false,
+}: RovoAgentSelectorProps): JSX.Element | null {
 	const { formatMessage } = useIntl();
 	const isFeatureEnabled = isFeatureEnabledOverride ?? fg('jsm_help_center_one-click_rovo_agent');
 	const [, setSearchInput] = useState<string | null>(null);
@@ -105,7 +105,11 @@ export function RovoAgentSelector({
 					value: agent?.id ?? '',
 					externalConfigReference: agent?.externalConfigReference ?? undefined,
 					identityAccountId: agent?.identityAccountId ?? undefined,
-					isForgeAgent: agent?.creatorType === 'FORGE',
+					isForgeAgent: fg('rovo_agent_support_a2a_avatar')
+						? agent?.creatorType === 'THIRD_PARTY' ||
+							agent?.creatorType === 'FORGE' ||
+							agent?.creatorType === 'REMOTE_A2A'
+						: agent?.creatorType === 'FORGE',
 				}))
 				.filter((option: AgentOption) => option.label) ?? []
 		);
@@ -178,6 +182,7 @@ export function RovoAgentSelector({
 					isSearchable
 					filterOption={() => true} // Disabled filtering in component since options are cached and filtered in relay store
 					isLoading={isLoading}
+					isDisabled={isDisabled}
 					onMenuScrollToBottom={handleMenuScrollToBottom}
 					formatOptionLabel={({
 						label,

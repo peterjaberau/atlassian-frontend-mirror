@@ -1,7 +1,6 @@
 import { bind, type UnbindFn } from 'bind-event-listener';
 
 import { CONTRAST_MODE_ATTRIBUTE } from '../constants';
-
 import { moreContrastMediaQuery } from './theme-loading';
 
 const isMatchMediaAvailable = typeof window !== 'undefined' && 'matchMedia' in window;
@@ -22,7 +21,7 @@ const contrastModeMql = isMatchMediaAvailable && window.matchMedia(moreContrastM
 class ContrastModeObserver {
 	unbindContrastChangeListener: UnbindFn | null = null;
 
-	getContrastMode(): "more" | "no-preference" {
+	getContrastMode(): 'more' | 'no-preference' {
 		if (!contrastModeMql) {
 			return 'no-preference';
 		}

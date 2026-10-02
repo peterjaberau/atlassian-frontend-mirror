@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-test-helpers",
-	"version": "39.0.15",
+	"version": "43.0.3",
 	"description": "Collection of test helpers used in media component stories and specs",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,16 +12,15 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif"
 	},
 	"dependencies": {
@@ -37,6 +36,7 @@
 		"@atlaskit/platform-feature-flags": "workspace:^",
 		"@atlaskit/popup": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tabs": "workspace:^",
 		"@atlaskit/textfield": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
@@ -46,55 +46,83 @@
 		"@emotion/react": "root:*",
 		"@emotion/styled": "root:*",
 		"@testing-library/react": "root:*",
-		"enzyme": "root:*",
 		"exenv": "root:*",
 		"kakapo": "root:*",
 		"mock-socket": "root:*",
-		"react-intl-next": "root:*",
 		"rxjs": "root:*",
 		"uuid": "root:*",
 		"xhr-mock": "root:*"
 	},
 	"peerDependencies": {
 		"@atlaskit/media-core": "workspace:^",
-		"react": "^18.2.0"
+		"react": "^18.2.0",
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@atlaskit/media-core": "workspace:^",
 		"@types/exenv": "root:*",
-		"react-dom": "root:*"
+		"react": "root:*",
+		"react-dom": "root:*",
+		"react-intl": "root:*"
 	},
 	"exports": {
-		"./renderWithIntl": "./src/renderWithIntl.tsx",
-		"./smart-card-state": "./src/smart-card-state.ts",
-		"./fakeMediaClient": "./src/fakeMediaClient.ts",
-		"./media-mock": "./src/mocks/media-mock.ts",
-		"./images": "./src/images.tsx",
-		"./jestHelpers": "./src/jestHelpers.ts",
+		".": "./src/index.tsx",
+		"./constants": "./src/constants.ts",
+		"./authProvider": "./src/authProvider.ts",
+		"./await-error": "./src/await-error.ts",
+		"./clipboardEventMocks": "./src/clipboardEventMocks.ts",
 		"./collectionNames": "./src/collectionNames.ts",
-		"./exampleMediaItems": "./src/exampleMediaItems.ts",
+		"./createFileState": "./src/fileStateFactory/factory/createFileState.ts",
+		"./createMouseEvent": "./src/createMouseEvent.ts",
+		"./createTouchEvent": "./src/createTouchEvent.ts",
+		"./docs-content-tabs": "./src/docs-content-tabs.tsx",
 		"./exampleMediaFeatureFlags": "./src/example-mediaFeatureFlags.ts",
-		"./globalEventEmitterListeners": "./src/globalEventEmitterListeners.ts",
-		"./mediaPickerAuthProvider": "./src/mediaPickerAuthProvider.ts",
+		"./exampleMediaItems": "./src/exampleMediaItems.ts",
+		"./factory": "./src/fileStateFactory/factory/factory.ts",
+		"./fakeI18n": "./src/fakeI18n.ts",
+		"./fakeMediaClient": "./src/fakeMediaClient.ts",
+		"./featureFlagsWrapper": "./src/featureFlagsWrapper/index.tsx",
+		"./fileReader": "./src/fileReader.ts",
+		"./fileSimulation": "./src/fileStateFactory/fileSimulation/fileSimulation.ts",
+		"./flushPromises": "./src/flushPromises.ts",
 		"./getAuthFromContextProvider": "./src/getAuthFromContextProvider.ts",
 		"./getMediaAuthProvider": "./src/getMediaAuthProvider.ts",
+		"./globalEventEmitterListeners": "./src/globalEventEmitterListeners.ts",
+		"./helpers": "./src/fileStateFactory/factory/helpers.ts",
+		"./I18nWrapper": "./src/I18nWrapper.tsx",
+		"./images": "./src/images.tsx",
+		"./jestHelpers": "./src/jestHelpers.ts",
+		"./keyboardEventWithKeyCode": "./src/keyboardEventWithKeyCode.ts",
+		"./media-mock": "./src/mocks/media-mock.ts",
+		"./mediaBaseURLS": "./src/mediaBaseURLS.ts",
+		"./mediaClientProvider": "./src/mediaClientProvider.ts",
+		"./mediaPickerAuthProvider": "./src/mediaPickerAuthProvider.ts",
+		"./mockCanvas": "./src/mockCanvas.ts",
 		"./mockData": "./src/utils/mockData.ts",
-		".": "./src/index.tsx"
-	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			]
-		}
+		"./mock-data-utils": "./src/mockData/utils.ts",
+		"./MockGlobalImage": "./src/MockGlobalImage.ts",
+		"./mockLoadImage": "./src/mockLoadImage.ts",
+		"./nextTick": "./src/nextTick.ts",
+		"./renderWithIntl": "./src/renderWithIntl.tsx",
+		"./simulations": "./src/fileStateFactory/fileSimulation/simulations.ts",
+		"./smallImageURI": "./src/dataURIs/smallImageURI.ts",
+		"./smallTransparentImageURI": "./src/dataURIs/smallTransparentImageURI.ts",
+		"./smart-card-state": "./src/smart-card-state.ts",
+		"./story-list": "./src/story-list.tsx",
+		"./story-styles": "./src/story-styles.tsx",
+		"./tallImageURI": "./src/dataURIs/tallImageURI.ts",
+		"./timeoutPromise": "./src/timeoutPromise.ts",
+		"./ufoLogger": "./src/ufoLogger.ts",
+		"./utils": "./src/utils/index.ts",
+		"./videoPreviewURI": "./src/dataURIs/videoPreviewURI.ts",
+		"./videoURI": "./src/dataURIs/videoURI.ts",
+		"./vr-test-small-image": "./src/dataURIs/vr_test_small_image.ts",
+		"./waitUntil": "./src/waitUntil.ts",
+		"./wideImageURI": "./src/dataURIs/wideImageURI.ts",
+		"./wideTransparentImageURI": "./src/dataURIs/wideTransparentImageURI.ts"
 	},
 	"sideEffects": [
 		"*.compiled.css"
 	],
-	"platform-feature-flags": {
-		"should-render-to-parent-should-be-true-media-exif": {
-			"type": "boolean"
-		}
-	}
+	"platform-feature-flags": {}
 }

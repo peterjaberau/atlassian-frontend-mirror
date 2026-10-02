@@ -1,13 +1,14 @@
 import React from 'react';
 
-import { render, screen, waitFor } from '@testing-library/react';
-
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { type JsonLd } from '@atlaskit/json-ld-types';
-import { CardClient, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
+import CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
-import { APIError } from '@atlaskit/linking-common';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { APIError } from '@atlaskit/linking-common/api-error';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { render, screen, waitFor } from '@atlassian/testing-library';
 
 import { ChunkLoadError } from '../../../utils/__tests__/index.test';
 import { mocks } from '../../../utils/mocks';
@@ -37,7 +38,6 @@ describe('smart-card: error analytics', () => {
 	beforeEach(() => {
 		mockWindowOpen = jest.fn();
 		mockUrl = 'https://my.url';
-		/// @ts-ignore
 		global.open = mockWindowOpen;
 		consoleErrorFn = jest.spyOn(console, 'error').mockImplementation(() => jest.fn());
 	});
@@ -111,6 +111,30 @@ describe('smart-card: error analytics', () => {
 		);
 	});
 
+	it('should invoke onError on InvalidUrlError', async () => {
+		const invalidUrl = 'https://';
+		const onError = jest.fn();
+		render(
+			<FabricAnalyticsListeners client={mockAnalyticsClient}>
+				<Provider>
+					<Card testId="erroredLink" appearance="inline" url={invalidUrl} onError={onError} />
+				</Provider>
+			</FabricAnalyticsListeners>,
+		);
+		await waitFor(() =>
+			expect(onError).toHaveBeenCalledWith({
+				status: 'errored',
+				url: invalidUrl,
+			}),
+		);
+		expect(mockAnalyticsClient.sendOperationalEvent).not.toHaveBeenCalledWith(
+			expect.objectContaining({
+				actionSubject: 'smartLink',
+				action: 'unresolved',
+			}),
+		);
+	});
+
 	it('should render unauthorized on ResolveAuthError', async () => {
 		class MockClient extends CardClient {
 			async fetchData(url: string): Promise<JsonLd.Response> {
@@ -154,7 +178,6 @@ describe('smart-card: error analytics', () => {
 		beforeEach(() => {
 			mockWindowOpen = jest.fn();
 			mockUrl = 'https://my.url';
-			/// @ts-ignore
 			global.open = mockWindowOpen;
 			consoleErrorFn = jest.spyOn(console, 'error').mockImplementation(() => jest.fn());
 		});
@@ -431,7 +454,6 @@ describe('smart-card: error analytics', () => {
 		beforeEach(() => {
 			mockWindowOpen = jest.fn();
 			mockUrl = 'https://my.url';
-			/// @ts-ignore
 			global.open = mockWindowOpen;
 			consoleErrorFn = jest.spyOn(console, 'error').mockImplementation(() => jest.fn());
 		});
@@ -736,9 +758,7 @@ describe('smart-card: error analytics', () => {
 			</FabricAnalyticsListeners>,
 		);
 		const resolvedView = await screen.findByTestId('erroredLink-resolved-view');
-		const resolvedCard = screen.getByRole('button');
 		expect(resolvedView).toBeTruthy();
-		expect(resolvedCard).toBeTruthy();
 		expect(onError).not.toHaveBeenCalled();
 		expect(mockAnalyticsClient.sendOperationalEvent).toHaveBeenCalledWith(
 			expect.objectContaining({

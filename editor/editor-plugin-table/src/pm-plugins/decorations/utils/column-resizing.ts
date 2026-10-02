@@ -1,15 +1,12 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
 
 import { TableDecorations } from '../../../types';
 import { createResizeHandleDecoration, updateDecorations } from '../../utils/decoration';
-
 import { composeDecorations } from './compose-decorations';
 import type { DecorationTransformer } from './types';
-
-const emptyDecorations = [[], []];
 
 const updateColumnResizeHandle =
 	(columnResizesDecorations: Decoration[]): DecorationTransformer =>
@@ -21,16 +18,6 @@ const updateColumnResizeHandle =
 			TableDecorations.COLUMN_RESIZING_HANDLE_WIDGET,
 		);
 
-const updateLastCellElement =
-	(lastCellElementsDecorations: Decoration[]): DecorationTransformer =>
-	({ decorationSet, tr }) =>
-		updateDecorations(
-			tr.doc,
-			decorationSet,
-			lastCellElementsDecorations,
-			TableDecorations.LAST_CELL_ELEMENT,
-		);
-
 export const buildColumnResizingDecorations =
 	(
 		rowEndIndex: number,
@@ -40,9 +27,9 @@ export const buildColumnResizingDecorations =
 		nodeViewPortalProviderAPI: PortalProviderAPI,
 	): DecorationTransformer =>
 	({ tr, decorationSet }): DecorationSet => {
-		const [columnResizesDecorations, lastCellElementsDecorations] =
+		const columnResizesDecorations =
 			columnEndIndex < 0
-				? emptyDecorations
+				? []
 				: createResizeHandleDecoration(
 						tr,
 						rowEndIndex,
@@ -54,18 +41,14 @@ export const buildColumnResizingDecorations =
 						nodeViewPortalProviderAPI,
 					);
 
-		return composeDecorations([
-			updateColumnResizeHandle(columnResizesDecorations),
-			updateLastCellElement(lastCellElementsDecorations),
-		])({ decorationSet, tr });
+		return composeDecorations([updateColumnResizeHandle(columnResizesDecorations)])({
+			decorationSet,
+			tr,
+		});
 	};
 
 export const clearColumnResizingDecorations =
 	(): DecorationTransformer =>
 	({ tr, decorationSet }): DecorationSet => {
-		const [columnResizesDecorations, lastCellElementsDecorations] = emptyDecorations;
-		return composeDecorations([
-			updateColumnResizeHandle(columnResizesDecorations),
-			updateLastCellElement(lastCellElementsDecorations),
-		])({ decorationSet, tr });
+		return composeDecorations([updateColumnResizeHandle([])])({ decorationSet, tr });
 	};

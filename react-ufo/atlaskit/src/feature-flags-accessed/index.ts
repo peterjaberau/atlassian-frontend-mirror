@@ -1,7 +1,6 @@
 import type { FeatureFlagValue } from './common/types';
-import { redactValue } from './common/utils';
+import { redactValue } from './common/utils/redactValue';
 
-export { redactValue } from './common/utils';
 export type { FeatureFlagValue } from './common/types';
 
 declare global {
@@ -12,11 +11,13 @@ declare global {
 
 export const allFeatureFlagsAccessed: Map<string, FeatureFlagValue> = new Map();
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const currentFeatureFlagsAccessed: Map<string, FeatureFlagValue> = new Map();
 
 /**
  * Used for tracking accessed feature flags in "@atlassian/jira-feature-flagging".
  * */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function addFeatureFlagAccessed(
 	featureFlagName: string,
 	featureFlagValue: FeatureFlagValue,

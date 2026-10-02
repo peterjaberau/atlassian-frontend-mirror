@@ -4,37 +4,166 @@ description: A set of utilities to apply motion in your application.
 order: 0
 ---
 
-## Library Considerations
+import SectionMessage from '@atlaskit/section-message';
 
-### CSS over Javascript
+## How to use the Motion library
 
-Where possible this library will use CSS exclusively, and only use Javascript when it is impossible
-otherwise. This is primarily for **Performance**, but also for allowing us to have motion run
-without waiting for Javascript to execute on initial load (very important for our SSR rendered
-apps).
+### Motion primitive
 
-What this boils down to is:
+Use the Motion primitive to apply entry and exit animations. It uses semantic enter/exit tokens and
+base tokens for custom transitions, enabling streamlined implementation without redoing base system
+behaviors. Pass pre-defined motion tokens to `enteringAnimation` and `exitingAnimation`, or supply
+custom `cssMap` styles via `enteringAnimationXcss` and `exitingAnimationXcss` for full control.
 
-- Use CSS animation/transitions over animation engines unless there is no possible alternative
-- Avoid any client side calculations to power motion if it can be done with CSS
-- Emulating any spring styled motions with CSS animation
-- Highly interactive and/or gestural motions would be contenders for using an animation engine, but
-  we're not there yet
+#### How the primitive is composed
+
+Wrap your component in `<Motion>` and get best-practice enter/exit transitions out of the box.
+
+```tsx
+import { Motion } from '@atlaskit/motion';
+
+<Motion
+	enteringAnimation={token('motion.example.enter')}
+	exitingAnimation={token('motion.example.exit')}
+>
+	<Card />
+</Motion>;
+```
+
+#### How motion components work together
+
+The Motion primitive can be paired with motion StaggeredEntrance and ExitingPersistence components
+for more detailed choreography.
+
+```tsx
+import { ExitingPersistence, StaggeredEntrance, Motion } from '@atlaskit/motion';
+import { token } from '@atlaskit/tokens';
+
+<StaggeredEntrance>
+	<ExitingPersistence appear>
+		{isIn && (
+			<Motion
+				enteringAnimationXcss={styles.entering}
+				exitingAnimation={styles.exiting}
+			>
+				<Card appearance="small" />
+			</Motion>
+			<Motion
+				enteringAnimationXcss={styles.entering}
+				exitingAnimation={styles.exiting}
+			>
+				<Card appearance="small" />
+			</Motion>
+			<Motion
+				enteringAnimationXcss={styles.entering}
+				exitingAnimation={styles.exiting}
+			>
+				<Card appearance="small" />
+			</Motion>
+		)}
+	</ExitingPersistence>
+</StaggeredEntrance>
+```
+
+### useMotion hook
+
+[useMotion](/components/motion/use-motion) runs the same entry and exit lifecycle as the Motion
+primitive, but renders no markup. It returns the current motion `state`, and you apply the animation
+to an element you already render.
+
+```tsx
+import { useMotion } from '@atlaskit/motion/use-motion';
+
+const { ref, state } = useMotion<HTMLLIElement>();
+
+<li ref={ref} css={[styles.item, state === 'entering' && styles.entering]}>
+	Item
+</li>;
+```
+
+Both are the same engine, the Motion primitive is built on `useMotion` internally, and the primitive
+is not being deprecated. Use the Motion primitive by default: it is less code and handles the
+animation styling, the hidden states, and reduced motion for you. Use `useMotion` when the
+primitive's wrapper `<div>` would break something:
+
+- **Layout**, where the animated element must stay a direct child of a CSS grid or flex container.
+- **Semantics or accessibility**, where a parent and child must stay directly related, such as
+  `<ul>` and `<li>`, `<table>` and `<tr>`, or elements with related ARIA roles.
+- **Attributes**, where a parent selects on something that must sit on the animated element itself,
+  such as a layout slot marker or an ARIA attribute.
+- **Composition**, where the animation needs to apply to an element you already render.
+
+The resulting motion is identical either way, so this is an implementation choice rather than a
+design one. See [useMotion](/components/motion/use-motion) for the state machine and the
+responsibilities you take on with the hook.
+
+### CSS over JavaScript
+
+Where possible this library uses CSS exclusively, and only falls back to JavaScript when there is no
+alternative. The reason for this is primarily for performance. CSS animations run on the compositor
+thread, avoid blocking the main thread, and execute without waiting for JavaScript to load,
+important for SSR-rendered apps.
+
+In practice this means:
+
+- CSS animations and transitions are preferred over animation engines
+- Client-side calculations to drive motion are avoided where CSS can do the same job
+- Spring-style motions are emulated with CSS animation curves
+- Highly interactive or gestural motions may warrant an animation engine, but these are handled
+  case-by-case
+
+For new CSS-based animations that are not entry or exit animations, use motion tokens to ensure
+consistency, accessibility, and automatic updates across products. Use tokens like
+`motion.duration.*` and `motion.easing.*` to define animation and transition CSS properties:
+
+- `animation-timing-function`
+- `animation-duration`
+- `animation-delay`
+- `transition-timing-function`
+- `transition-duration`
+- `transition-delay`
+
+For entry and exit transitions, use the [Motion primitive](/components/motion/motion-primitive),
+which manages the animation lifecycle using the correct tokens. For the full list of motion tokens,
+visit [All tokens](/components/tokens/all-tokens#motion).
+
+### Tokens over custom values
+
+Use the provided tokens to power your motion. This ensures a consistent motion experience across all
+apps. If there is motion you need that doesn't exist yet, reach out to the ADS team for contribution
+consideration.
+
+### Reduced motion support
+
+While motion is used to create relationships, highlight what matters, and create delight, it's
+equally important to allow users to opt out. Every motion component and custom animation should
+respect the user's reduced-motion preference. See [Accessibility](/components/motion/accessibility)
+for the utilities available.
+
+## Legacy entering-motion components
+
+<SectionMessage appearance="warning" title="Caution">
+	<p>
+		FadeIn, SlideIn, ZoomIn and ShrinkOut are legacy components and are planned for deprecation. For
+		new work, use the <a href="/components/motion/motion-primitive">Motion primitive</a> component
+		instead.
+	</p>
+</SectionMessage>
 
 ### Not rendering markup
 
-Every component in this library will not render markup, they will just pass down \`props\` for you
-to wire up. Because of this the majority of _motion atoms_ will utilise children as props or hooks:
-
-```
-<div {...useMotion()} />
-```
+The legacy entering motions do not render markup — they pass down `props` for you to wire up, using
+the children-as-props pattern:
 
 ```
 <FadeIn>
   {props => <div {...props} />}
 </FadeIn>
 ```
+
+Note that this is not the same as [useMotion](/components/motion/use-motion). The hook's return
+value is not a set of props to spread onto an element — it returns `state` for you to map to your
+own styles, plus a `ref` and `reanimate`.
 
 ### Usage with Primitives
 
@@ -72,16 +201,5 @@ const ComponentWithSlideIn = ({ children }: { children: ReactNode }) => (
 );
 ```
 
-### Motion abstractions
-
-We want you to use abstractions (atoms) to power your motion and to not worry about underlying tech.
-We _also_ want a consistent experience across our apps. Need a particular motion that doesn't exist
-yet?
-
-Think about contributing to `@atlaskit/motion` so all apps at Atlassian can benefit.
-
-### Reduced motion support
-
-While motion is utilised to create relationships, show the most important thing on the page, and
-create delight, it's also important to allow our users to opt out of it. Every motion component
-should use the provided utilities (see: [Accessibility](/components/motion/accessibility)).
+If you are maintaining existing code that uses these components, see
+[Entering motions](/components/motion/entering-motion) for their full API reference.

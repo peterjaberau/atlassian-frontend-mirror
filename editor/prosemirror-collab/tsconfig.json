@@ -1,9 +1,7 @@
 {
-  "extends": "../../../tsconfig.json",
-  "include": [
-    "__tests__/**/*.ts",
-    "src/**/*.ts"
-  ],
-  "compilerOptions": {
-  }
+	"extends": "./tsconfig.app.json",
+	"compilerOptions": {
+		"disableReferencedProjectLoad": true,
+		"disableSolutionSearching": true
+	}
 }

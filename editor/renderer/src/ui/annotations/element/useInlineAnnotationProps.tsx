@@ -1,4 +1,6 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+/* eslint-disable jsdoc/require-jsdoc */
+
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { useAnnotationRangeState } from '../contexts/AnnotationRangeContext';
 
@@ -8,7 +10,28 @@ export type MarkDataAttributes = {
 	};
 };
 
-export function useInlineAnnotationProps(props: MarkDataAttributes) {
+export function useInlineAnnotationProps(props: MarkDataAttributes):
+	| {
+			'data-annotation-draft-mark'?: undefined;
+			'data-annotation-inline-node'?: undefined;
+			'data-annotation-mark'?: undefined;
+			'data-renderer-mark'?: undefined;
+			'data-renderer-start-pos'?: undefined;
+	  }
+	| {
+			'data-annotation-draft-mark': boolean;
+			'data-annotation-inline-node': boolean;
+			'data-annotation-mark'?: undefined;
+			'data-renderer-mark': boolean;
+			'data-renderer-start-pos': number;
+	  }
+	| {
+			'data-annotation-draft-mark'?: undefined;
+			'data-annotation-inline-node': boolean;
+			'data-annotation-mark': boolean;
+			'data-renderer-mark'?: undefined;
+			'data-renderer-start-pos': number;
+	  } {
 	const { selectionDraftDocumentPosition: draftPosition } = useAnnotationRangeState();
 
 	if (!fg('editor_inline_comments_on_inline_nodes')) {

@@ -1,9 +1,10 @@
 import React, { type ReactNode } from 'react';
 
-import CodeBidiWarning from '../../../bidi-warning';
-import codeBidiWarningDecorator from '../../../bidi-warning/bidi-warning-decorator';
-import { type CodeBidiWarningConfig, type RefractorNode } from '../../types';
+import type { RefractorNode } from 'refractor';
 
+import codeBidiWarningDecorator from '../../../bidi-warning/bidi-warning-decorator';
+import CodeBidiWarning from '../../../bidi-warning/ui';
+import type { CodeBidiWarningConfig } from '../../types';
 import createChildren from './create-children';
 
 function createClassNameString(classNames: string[] | undefined) {

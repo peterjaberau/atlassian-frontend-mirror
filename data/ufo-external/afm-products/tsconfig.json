@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__ufo/app",
 		"rootDir": "../",
 		"composite": true,
@@ -22,5 +21,9 @@
 		"../src/**/stories/*",
 		"../src/**/stories/**/*"
 	],
-	"references": []
+	"references": [
+		{
+			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
+		}
+	]
 }

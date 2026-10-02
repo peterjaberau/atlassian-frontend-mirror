@@ -6,8 +6,8 @@ import { useEffect, useRef } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import { UNSAFE_useColorModeForMigration } from '@atlaskit/app-provider';
-import { useThemeObserver } from '@atlaskit/tokens';
+import { UNSAFE_useColorModeForMigration } from '@atlaskit/app-provider/use-color-mode-for-migration';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 	/**
@@ -37,7 +37,14 @@ const baseImageStyles = css({
  * - [Code](https://atlassian.design/components/image/code)
  * - [Usage](https://atlassian.design/components/image/usage)
  */
-export default function Image({ src, srcDark, alt, testId, className, ...props }: ImageProps): JSX.Element {
+export default function Image({
+	src,
+	srcDark,
+	alt,
+	testId,
+	className,
+	...props
+}: ImageProps): JSX.Element {
 	const imgRef = useRef<HTMLImageElement>(null);
 	const providedColorMode = UNSAFE_useColorModeForMigration();
 	const { colorMode: observedColorMode } = useThemeObserver();

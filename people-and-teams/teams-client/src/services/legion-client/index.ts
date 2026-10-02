@@ -1,30 +1,30 @@
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+
+import { type LinkOrder, type NewTeamLink, type TeamLink } from '../../types/links';
+import { type ReadMediaTokenResponse } from '../../types/media';
 import {
 	type InvitedUser,
-	type LinkOrder,
-	type NewTeamLink,
-	type ReadMediaTokenResponse,
-	type Team,
-	type TeamLink,
 	type TeamMembership,
-	type TeamMembershipSettings,
-	type TeamWithImageUrls,
 	type TeamWithMemberships,
-} from '../../types';
-import {
-	type AlignmentPermission,
-	type AssignedTeamsResponse,
-	type AssignTeamsToSitesResponse,
-	type ExternalReference,
-	type LinkedTeamsBulkResponse,
-	type LinkedTeamsProfileDetails,
-	type OrgScope,
-	type SoftDeletedTeam,
-	type SoftDeletedTeamResponse,
-	type TeamEnabledSitesResponse,
-	type TeamSiteAssignmentOrgDetailsResponse,
-	type TeamsPermissionFromApi,
-	type TeamsToBeClonedToJsmSitesResponse,
-	type UnassignedTeamsResponse,
+} from '../../types/membership';
+import type {
+	AlignmentPermission,
+	AssignedTeamsResponse,
+	AssignTeamsToSitesResponse,
+	ExternalReference,
+	LinkedTeamsBulkResponse,
+	LinkedTeamsProfileDetails,
+	OrgScope,
+	SoftDeletedTeam,
+	SoftDeletedTeamResponse,
+	TeamEnabledSitesResponse,
+	TeamSiteAssignmentOrgDetailsResponse,
+	TeamsPermissionFromApi,
+	TeamsToBeClonedToJsmSitesResponse,
+	UnassignedTeamsResponse,
+	Team,
+	TeamMembershipSettings,
+	TeamWithImageUrls,
 } from '../../types/team';
 import {
 	type ApiTeamContainerCreationPayload,
@@ -33,7 +33,6 @@ import {
 import { type UserInSiteUserbase } from '../../types/user';
 import { DEFAULT_CONFIG } from '../constants';
 import { RestClient } from '../rest-client';
-
 import {
 	type LegionAssociateAgentResponse,
 	type LegionLinkResponseV3,
@@ -76,6 +75,7 @@ export interface SortField {
  * @property {boolean} useDefaultSort - Whether to use the default sort order
  * @property {boolean} showEmptyTeams - Whether to return empty teams in the search
  * @property {string[]} teamTypeIdsFilter - List of team type IDs to filter teams
+ * @property {boolean} enablePagination - Whether the API should paginate the response
  */
 export interface AllTeamsQuery {
 	/**
@@ -91,6 +91,7 @@ export interface AllTeamsQuery {
 	showEmptyTeams?: boolean;
 	sortBy?: SortField[];
 	teamTypeIdsFilter?: string[];
+	enablePagination?: boolean;
 }
 
 /**
@@ -117,6 +118,7 @@ export interface AllTeamsPayload {
 	cursor: string;
 }
 
+// oxlint-disable-next-line eslint/no-redeclare
 export interface LegionClient {
 	getTeamById(teamId: string): Promise<TeamWithImageUrls>;
 
@@ -267,6 +269,7 @@ export class LegionClient extends RestClient implements LegionClient {
 		try {
 			const orgId = this.getOrgId(allTeamsQuery.orgId);
 			const siteId = this.getCloudId();
+			const enablePagination = allTeamsQuery.enablePagination ?? true;
 
 			const { entities, cursor } = await this.postResource<
 				LegionPaginatedResponse<LegionTeamSearchResponseV4>
@@ -275,7 +278,6 @@ export class LegionClient extends RestClient implements LegionClient {
 				siteId: siteId,
 				limit: allTeamsQuery.limit,
 				query: allTeamsQuery.searchQuery,
-				cursor: allTeamsQuery.cursor || '',
 				sortBy: allTeamsQuery.useDefaultSort
 					? null
 					: allTeamsQuery.sortBy && allTeamsQuery.sortBy.length > 0
@@ -284,6 +286,8 @@ export class LegionClient extends RestClient implements LegionClient {
 				membership: { memberAccountIds: allTeamsQuery.memberAccountIds },
 				showEmptyTeams: allTeamsQuery.showEmptyTeams,
 				teamTypeIdsFilter: allTeamsQuery.teamTypeIdsFilter,
+				enablePagination,
+				...(enablePagination && allTeamsQuery.cursor ? { cursor: allTeamsQuery.cursor } : {}),
 			});
 
 			const teams = entities.map((t) => this.mapTeamSearchResponseV4ToTeamWithMembership(t));
@@ -595,7 +599,9 @@ export class LegionClient extends RestClient implements LegionClient {
 			throw err;
 		}
 
-		const url = `${v4UrlPath}/external?origin.cloudId=${encodeURIComponent(this.getCloudId(siteId || cloudId))}`;
+		const url = `${v4UrlPath}/external?origin.cloudId=${encodeURIComponent(
+			this.getCloudId(siteId || cloudId),
+		)}`;
 
 		const legionExternalTeam = await this.postResource<LegionTeamCreateResponseV4>(url, {
 			description,
@@ -633,13 +639,16 @@ export class LegionClient extends RestClient implements LegionClient {
 		});
 	}
 
-	async getWriteMediaToken(): Promise<ReadMediaTokenResponse> {
-		return this.getResource<ReadMediaTokenResponse>('/v4/teams/header-image/media-upload').then(
-			(response) => ({
-				...response,
-				baseUrl: response.baseUrl?.endsWith('/') ? response.baseUrl.slice(0, -1) : response.baseUrl,
-			}),
-		);
+	async getWriteMediaToken(teamId?: string): Promise<ReadMediaTokenResponse> {
+		const path =
+			fg('ptc-enable-team-scoped-header-image-media-upload') && teamId
+				? `${v4UrlPath}/${this.trimTeamARI(teamId)}/header-image/media-upload`
+				: `${v4UrlPath}/header-image/media-upload`;
+
+		return this.getResource<ReadMediaTokenResponse>(path).then((response) => ({
+			...response,
+			baseUrl: response.baseUrl?.endsWith('/') ? response.baseUrl.slice(0, -1) : response.baseUrl,
+		}));
 	}
 
 	async getSoftDeletedTeamById(teamId: string): Promise<SoftDeletedTeam> {
@@ -1006,4 +1015,4 @@ export class LegionClient extends RestClient implements LegionClient {
 	}
 }
 
-export const defaultLegionClient = new LegionClient(DEFAULT_CONFIG.stargateRoot);
+export const defaultLegionClient: LegionClient = new LegionClient(DEFAULT_CONFIG.stargateRoot);

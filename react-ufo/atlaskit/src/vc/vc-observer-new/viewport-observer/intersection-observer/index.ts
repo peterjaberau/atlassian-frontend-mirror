@@ -77,7 +77,8 @@ export function createIntersectionObserver({
 					if (
 						tagOrCallbackResult &&
 						typeof tagOrCallbackResult !== 'string' &&
-						tagOrCallbackResult.type === 'mutation:attribute'
+						tagOrCallbackResult.type === 'mutation:attribute' &&
+						'oldValue' in tagOrCallbackResult.mutationData
 					) {
 						const { attributeName, oldValue, newValue } = tagOrCallbackResult.mutationData;
 						const isRoutingMutation =
@@ -101,7 +102,7 @@ export function createIntersectionObserver({
 					return tagOrCallbackResult;
 				};
 
-				for (const child of entry.target.children) {
+				for (const child of Array.from(entry.target.children)) {
 					observer.observe(child);
 					callbacksPerElement.set(child, zeroDimensionRectangleTagCallback);
 				}

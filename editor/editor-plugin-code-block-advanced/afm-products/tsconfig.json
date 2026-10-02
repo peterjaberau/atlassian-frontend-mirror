@@ -1,7 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__editor-plugin-code-block-advanced/app",
 		"rootDir": "../",
 		"composite": true,
@@ -25,6 +24,12 @@
 	"references": [
 		{
 			"path": "../../adf-schema/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../design-system/code/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../editor-plugin-analytics/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../editor-plugin-code-block/afm-products/tsconfig.json"

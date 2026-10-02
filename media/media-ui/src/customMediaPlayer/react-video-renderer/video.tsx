@@ -11,10 +11,12 @@ import {
 	type RefObject,
 	type MediaHTMLAttributes,
 } from 'react';
-import { type VideoTextTracks, type VideoTextTrackKind, getVideoTextTrackId } from './text';
-import { requestFullScreen } from './utils';
-import { TextTracks } from './track';
+
 import { jsx } from '@atlaskit/css';
+
+import { type VideoTextTracks, type VideoTextTrackKind, getVideoTextTrackId } from './text';
+import { TextTracks } from './track';
+import { requestFullScreen } from './utils';
 
 export type VideoStatus = 'playing' | 'paused' | 'errored';
 export type VideoError = MediaError | null;
@@ -125,7 +127,13 @@ export class Video extends Component<VideoProps, VideoComponentState> {
 		isMuted: false,
 	};
 
-	static defaultProps = {
+	static defaultProps: {
+		defaultTime: () => number;
+		sourceType: string;
+		autoPlay: boolean;
+		controls: boolean;
+		preload: string;
+	} = {
 		defaultTime: () => 0,
 		sourceType: 'video',
 		autoPlay: false,
@@ -349,7 +357,7 @@ export class Video extends Component<VideoProps, VideoComponentState> {
 		this.setState({ isLoading: true });
 	};
 
-	render() {
+	render(): React.ReactNode {
 		const { videoState, actions } = this;
 		const {
 			sourceType,

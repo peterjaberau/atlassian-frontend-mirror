@@ -1,10 +1,7 @@
 import { snapshot } from '@af/visual-regression';
 
-import AssetsObjectsTable from '../../examples/vr/assets-objects-table-vr';
+import AssetsObjectsTable from '../../examples/vr/assets-objects-table-vr.vr.ap';
 
 snapshot(AssetsObjectsTable, {
 	description: 'Assets Objects Table',
-	featureFlags: {
-		'navx-1895-new-logo-design': [true, false],
-	},
 });

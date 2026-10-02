@@ -1,10 +1,15 @@
-import { type CreateUIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type { CreateUIAnalyticsEvent } from '@atlaskit/analytics-next/types';
+import type { WithSamplingUFOExperience } from '@atlaskit/emoji';
+import { expVal } from '@atlaskit/platform-feature-experiments/exp-val';
+import type { ConcurrentExperience } from '@atlaskit/ufo/concurrent-experience';
+
 import {
 	createAndFireSafe,
 	createRestFailedEvent,
 	createRestSucceededEvent,
 	extractErrorInfo,
 } from '../analytics';
+import { SAMPLING_RATE_REACTIONS_RENDERED_EXP } from '../shared/constants';
 import {
 	type Client,
 	type OnChangeCallback,
@@ -17,6 +22,17 @@ import {
 	type Store,
 	type Updater,
 } from '../types';
+import {
+	type ReactionUpdateSuccess,
+	type ReactionUpdateFailure,
+	ReactionUpdateType,
+} from '../types/reaction';
+import {
+	ReactionsAdd,
+	ReactionDetailsFetch,
+	ReactionsRemove,
+	sampledReactionsRendered,
+} from '../ufo';
 import { batch, batchByKey } from './batched';
 import {
 	addOne,
@@ -28,19 +44,28 @@ import {
 	removeOne,
 	updateByEmojiId,
 } from './utils';
-import { SAMPLING_RATE_REACTIONS_RENDERED_EXP } from '../shared/constants';
-import {
-	ReactionsAdd,
-	ReactionDetailsFetch,
-	ReactionsRemove,
-	sampledReactionsRendered,
-} from '../ufo';
-import { type ReactionUpdateSuccess, ReactionUpdateType } from '../types/reaction';
 
 /**
  * Set of all available UFO experiences relating to reaction element
  */
-export const ufoExperiences = {
+export const ufoExperiences: {
+	/**
+	 * Experience when a reaction emoji gets added
+	 */
+	add: ConcurrentExperience;
+	/**
+	 * Experience when a reaction details gets fetched
+	 */
+	fetchDetails: ConcurrentExperience;
+	/**
+	 * Experience when a reaction emoji gets removed/decrement
+	 */
+	remove: ConcurrentExperience;
+	/**
+	 * Experience when the list of reactions gets rendered with sampling
+	 */
+	render: (instanceId: string) => WithSamplingUFOExperience;
+} = {
 	/**
 	 * Experience when a reaction emoji gets added
 	 */
@@ -52,7 +77,7 @@ export const ufoExperiences = {
 	/**
 	 * Experience when the list of reactions gets rendered with sampling
 	 */
-	render: (instanceId: string) => sampledReactionsRendered(instanceId),
+	render: (instanceId: string): WithSamplingUFOExperience => sampledReactionsRendered(instanceId),
 	/**
 	 * Experience when a reaction details gets fetched
 	 */
@@ -257,6 +282,7 @@ export class MemoryReactionsStore implements Store {
 			ari: string,
 			emojiId: string,
 			onSuccess?: ReactionUpdateSuccess,
+			onFailure?: ReactionUpdateFailure,
 		): void => {
 			this.withReadyReaction(
 				containerAri,
@@ -272,7 +298,7 @@ export class MemoryReactionsStore implements Store {
 				const callback: Updater<ReactionSummary> =
 					reaction.reacted || !notReactedCallback ? reactedCallback : notReactedCallback;
 
-				const updatedReaction = callback(reaction, onSuccess);
+				const updatedReaction = callback(reaction, onSuccess, onFailure);
 				if (updatedReaction && !(updatedReaction instanceof Function)) {
 					return readyState(
 						reactionsState.reactions.map(
@@ -287,7 +313,11 @@ export class MemoryReactionsStore implements Store {
 		};
 	}
 
-	private doAddReaction = (reaction: ReactionSummary, onSuccess?: ReactionUpdateSuccess) => {
+	private doAddReaction = (
+		reaction: ReactionSummary,
+		onSuccess?: ReactionUpdateSuccess,
+		onFailure?: ReactionUpdateFailure,
+	) => {
 		const { containerAri, ari, emojiId } = reaction;
 		this.optmisticUpdate(containerAri, ari, emojiId)(addOne);
 		this.flash(reaction);
@@ -331,11 +361,20 @@ export class MemoryReactionsStore implements Store {
 						},
 					});
 				}
+				if (onFailure && expVal('exp-comment-reaction-fail-fix', 'isEnabled', false)) {
+					// revert the optimistic update since the request failed
+					this.optmisticUpdate(containerAri, ari, emojiId)(removeOne);
+					onFailure(ReactionUpdateType.added, ari, emojiId, error);
+				}
 				return Promise.reject(error);
 			});
 	};
 
-	private doRemoveReaction = (reaction: ReactionSummary, onSuccess?: ReactionUpdateSuccess) => {
+	private doRemoveReaction = (
+		reaction: ReactionSummary,
+		onSuccess?: ReactionUpdateSuccess,
+		onFailure?: ReactionUpdateFailure,
+	) => {
 		const { containerAri, ari, emojiId } = reaction;
 		const exp = ufoExperiences.remove.getInstance(`${ari}|${emojiId}`);
 		this.setParticleEffectForEmoji(containerAri, ari, emojiId, false);
@@ -366,6 +405,11 @@ export class MemoryReactionsStore implements Store {
 						reason: 'deleteReaction fetch failed',
 					},
 				});
+				if (onFailure && expVal('exp-comment-reaction-fail-fix', 'isEnabled', false)) {
+					// revert the optimistic update since the request failed
+					this.optmisticUpdate(containerAri, ari, emojiId)(addOne);
+					onFailure(ReactionUpdateType.removed, ari, emojiId, error);
+				}
 			});
 	};
 
@@ -373,79 +417,93 @@ export class MemoryReactionsStore implements Store {
 		this.createAnalyticsEvent = createAnalyticsEvent;
 	};
 
-	getReactions = batchByKey((containerAri: string, aris: string[][]): void => {
-		/**
-		 * TODO:
-		 * All reactions are usually fetched in a single call to reactions-service. Need to check why "getReactions" gets called randomly 1-2 times everytime on each fetch request despite using same containerAri.
-		 */
-		const sampledExp = ufoExperiences.render(containerAri);
-		const arisArr = aris.reduce(flattenAris);
-		// ufo start reaction experience
-		sampledExp.start({ samplingRate: SAMPLING_RATE_REACTIONS_RENDERED_EXP });
-		sampledExp.addMetadata({
-			source: 'MemoryReactionsStore',
-			storeMetadata: this.metadata,
-			containerAri,
-			aris: arisArr.join(','),
-		});
-		this.client
-			.getReactions(containerAri, arisArr)
-			.then((value: Reactions) => {
-				Object.keys(value).map((ari) => {
-					const reactionsState = this.getReactionsState(containerAri, ari);
-					const reactions =
-						reactionsState && reactionsState.status === ReactionStatus.ready
-							? reactionsState.reactions
-							: undefined;
-					this.setReactions(
-						containerAri,
-						ari,
-						readyState(value[ari].sort(getReactionsSortFunction(reactions))),
-					);
-				});
-			})
-			.then(() => {
-				if (this.createAnalyticsEvent) {
-					createAndFireSafe(this.createAnalyticsEvent, createRestSucceededEvent, 'getReactions');
-				}
-				sampledExp.success();
-			})
-			.catch((error) => {
-				if (isRealErrorFromService(error.code)) {
+	getReactions: (key: string, ...args: string[]) => void = batchByKey(
+		(containerAri: string, aris: string[][]): void => {
+			/**
+			 * TODO:
+			 * All reactions are usually fetched in a single call to reactions-service. Need to check why "getReactions" gets called randomly 1-2 times everytime on each fetch request despite using same containerAri.
+			 */
+			const sampledExp = ufoExperiences.render(containerAri);
+			const arisArr = aris.reduce(flattenAris);
+			// ufo start reaction experience
+			sampledExp.start({ samplingRate: SAMPLING_RATE_REACTIONS_RENDERED_EXP });
+			sampledExp.addMetadata({
+				source: 'MemoryReactionsStore',
+				storeMetadata: this.metadata,
+				containerAri,
+				aris: arisArr.join(','),
+			});
+			this.client
+				.getReactions(containerAri, arisArr)
+				.then((value: Reactions) => {
+					Object.keys(value).map((ari) => {
+						const reactionsState = this.getReactionsState(containerAri, ari);
+						const reactions =
+							reactionsState && reactionsState.status === ReactionStatus.ready
+								? reactionsState.reactions
+								: undefined;
+						this.setReactions(
+							containerAri,
+							ari,
+							readyState(value[ari].sort(getReactionsSortFunction(reactions))),
+						);
+					});
+				})
+				.then(() => {
 					if (this.createAnalyticsEvent) {
-						createAndFireSafe(this.createAnalyticsEvent, createRestFailedEvent, 'getReactions');
+						createAndFireSafe(this.createAnalyticsEvent, createRestSucceededEvent, 'getReactions');
 					}
-					sampledExp.failure({
-						metadata: {
-							error: extractErrorInfo(error),
-							reason: 'getReactions fetch failed',
+					sampledExp.success();
+				})
+				.catch((error) => {
+					if (isRealErrorFromService(error.code)) {
+						if (this.createAnalyticsEvent) {
+							createAndFireSafe(this.createAnalyticsEvent, createRestFailedEvent, 'getReactions');
+						}
+						sampledExp.failure({
+							metadata: {
+								error: extractErrorInfo(error),
+								reason: 'getReactions fetch failed',
+							},
+						});
+					}
+
+					const reactionsState = arisArr.reduce(
+						(acc, ari) =>
+							({
+								...acc,
+								[`${containerAri}|${ari}`]: {
+									reactions: [],
+									status: ReactionStatus.error,
+								},
+							}) as State['reactions'],
+						{},
+					);
+					this.setState({
+						...this.state,
+						reactions: {
+							...this.state.reactions,
+							...reactionsState,
 						},
 					});
-				}
-
-				const reactionsState = arisArr.reduce(
-					(acc, ari) =>
-						({
-							...acc,
-							[`${containerAri}|${ari}`]: {
-								reactions: [],
-								status: ReactionStatus.error,
-							},
-						}) as State['reactions'],
-					{},
-				);
-				this.setState({
-					...this.state,
-					reactions: {
-						...this.state.reactions,
-						...reactionsState,
-					},
 				});
-			});
-	});
+		},
+	);
 
-	public toggleReaction = this.withReaction(this.doRemoveReaction, this.doAddReaction);
-	public addReaction = this.withReaction(this.flash, this.doAddReaction);
+	public toggleReaction: (
+		containerAri: string,
+		ari: string,
+		emojiId: string,
+		onSuccess?: ReactionUpdateSuccess,
+		onFailure?: ReactionUpdateFailure,
+	) => void = this.withReaction(this.doRemoveReaction, this.doAddReaction);
+	public addReaction: (
+		containerAri: string,
+		ari: string,
+		emojiId: string,
+		onSuccess?: ReactionUpdateSuccess,
+		onFailure?: ReactionUpdateFailure,
+	) => void = this.withReaction(this.flash, this.doAddReaction);
 
 	public getDetailedReaction = (containerAri: string, ari: string, emojiId: string): void => {
 		const exp = ufoExperiences.fetchDetails.getInstance(`${ari}|${emojiId}`);
@@ -475,7 +533,7 @@ export class MemoryReactionsStore implements Store {
 			});
 	};
 
-	getState = () => this.state;
+	getState = (): State => this.state;
 
 	onChange = (callback: OnChangeCallback): void => {
 		this.callbacks.push(callback);

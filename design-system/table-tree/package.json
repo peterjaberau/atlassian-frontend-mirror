@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/table-tree",
-	"version": "12.2.18",
+	"version": "13.3.4",
 	"description": "A table tree is an expandable table for showing nested hierarchies of information.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,8 +17,18 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Table tree",
 			"category": "Text and data display"
 		}
@@ -28,15 +38,15 @@
 		"@atlaskit/button": "workspace:^",
 		"@atlaskit/ds-lib": "workspace:^",
 		"@atlaskit/icon": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/spinner": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*",
 		"lodash": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -51,46 +61,29 @@
 		"@atlaskit/select": "workspace:^",
 		"@atlaskit/visually-hidden": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
-		"react-dom": "root:*"
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
 	},
 	"keywords": [
 		"atlaskit",
 		"react",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions",
-			"circular-dependencies": "file-and-folder-level"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"design-system": "v1",
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"deprecation": "no-deprecated-imports"
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"homepage": "https://atlassian.design/components/table-tree/",
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./cell": "./src/entry-points/cell.tsx",
+		"./header": "./src/entry-points/header.tsx",
+		"./headers": "./src/entry-points/headers.tsx",
+		"./row": "./src/entry-points/row.tsx",
+		"./rows": "./src/entry-points/rows.tsx",
+		"./table-tree": "./src/entry-points/table-tree.tsx",
+		"./table-tree-data-helper": "./src/entry-points/table-tree-data-helper.tsx",
+		"./with-column-width": "./src/entry-points/with-column-width.tsx"
 	},
 	"platform-feature-flags": {
 		"dst-a11y-remove-lodash-from-table-tree": {

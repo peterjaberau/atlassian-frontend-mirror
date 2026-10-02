@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { act, fireEvent, render, screen } from '@atlassian/testing-library';
 
-import { AnalyticsListener, UIAnalyticsEvent } from '@atlaskit/analytics-next';
-
+import { waitForTooltipToHide } from '../../testing';
 import Tooltip from '../../tooltip';
 
 const analyticsAttributes = {
@@ -21,7 +22,9 @@ function assert(eventMock: jest.Mock<any, any>, expected: UIAnalyticsEvent) {
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
 describe('test analytics', () => {
 	beforeEach(() => {
-		HTMLElement.prototype.matches = jest.fn().mockReturnValue(true);
+		HTMLElement.prototype.matches = jest
+			.fn()
+			.mockReturnValue(true) as unknown as typeof HTMLElement.prototype.matches;
 
 		jest.useFakeTimers();
 	});
@@ -29,7 +32,7 @@ describe('test analytics', () => {
 	afterEach(() => {
 		jest.useRealTimers();
 	});
-	it('should fire event on the public channel and the internal channel', () => {
+	it('should fire event on the public channel and the internal channel', async () => {
 		const onPublicEvent = jest.fn();
 		const onAtlaskitEvent = jest.fn();
 		function WithBoth() {
@@ -84,10 +87,8 @@ describe('test analytics', () => {
 		act(() => {
 			jest.runOnlyPendingTimers();
 		});
-		// flush motion
-		act(() => {
-			jest.runOnlyPendingTimers();
-		});
+		// flush motion and exit settlement
+		await waitForTooltipToHide();
 
 		const expectedHide: UIAnalyticsEvent = new UIAnalyticsEvent({
 			payload: {

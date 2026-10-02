@@ -1,19 +1,18 @@
 import './card-states.card.test.mock';
-
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import {
-	type CardClient,
-	type CardProviderStoreOpts,
-	SmartCardProvider as Provider,
-} from '@atlaskit/link-provider';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import type CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardProviderStoreOpts } from '@atlaskit/link-provider/types';
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
+import { render, screen } from '@atlassian/testing-library';
 
-import { fakeFactory, mockGenerator, mocks } from '../../../utils/mocks';
+import { fakeFactory } from '../../../utils/fake-factory';
+import { mockGenerator, mocks } from '../../../utils/mocks';
 import { Card } from '../../Card';
 
 mockSimpleIntersectionObserver();
@@ -197,12 +196,12 @@ describe('smart-card: card states, flexible block withUrl', () => {
 				);
 				const frame = await screen.findByTestId('smart-block-forbidden-view');
 				expect(frame).toBeTruthy();
-				const forbiddenLink = await screen.findByText('Join Google to view this content');
+				const forbiddenLink = await screen.findByText('Join Google Drive to view this content');
 				expect(forbiddenLink).toBeTruthy();
 
 				const messageContainer = await screen.findByTestId('smart-element-text');
 				expect(messageContainer).toHaveTextContent(
-					'Your team uses Google to collaborate and you can start using it right away!',
+					'Your team uses Google Drive to collaborate and you can start using it right away!',
 				);
 
 				const buttons = screen.getAllByRole('button');
@@ -233,12 +232,12 @@ describe('smart-card: card states, flexible block withUrl', () => {
 				);
 				const frame = await screen.findByTestId('smart-block-forbidden-view');
 				expect(frame).toBeTruthy();
-				const forbiddenLink = await screen.findByText('Join Google to view this content');
+				const forbiddenLink = await screen.findByText('Join Google Drive to view this content');
 				expect(forbiddenLink).toBeTruthy();
 
 				const messageContainer = await screen.findByTestId('smart-element-text');
 				expect(messageContainer).toHaveTextContent(
-					'Your team uses Google to collaborate. Send your admin a request for access.',
+					'Your team uses Google Drive to collaborate. Send your admin a request for access.',
 				);
 
 				const buttons = screen.getAllByRole('button');
@@ -271,7 +270,7 @@ describe('smart-card: card states, flexible block withUrl', () => {
 				);
 				const frame = await screen.findByTestId('smart-block-forbidden-view');
 				expect(frame).toBeTruthy();
-				const forbiddenLink = await screen.findByText('Access to Google is pending');
+				const forbiddenLink = await screen.findByText('Access to Google Drive is pending');
 				expect(forbiddenLink).toBeTruthy();
 
 				const messageContainer = await screen.findByTestId('smart-element-text');
@@ -336,7 +335,7 @@ describe('smart-card: card states, flexible block withUrl', () => {
 
 				const messageContainer = await screen.findByTestId('smart-element-text');
 				expect(messageContainer).toHaveTextContent(
-					"Your admin didn't approve your request to view Google pages from drive.google.com.",
+					"Your admin didn't approve your request to view Google Drive pages from drive.google.com.",
 				);
 
 				const forbiddenLinkButton = screen.getByRole('button');
@@ -388,8 +387,9 @@ describe('smart-card: card states, flexible block withUrl', () => {
 			const frame = await screen.findByTestId('smart-block-unauthorized-view');
 			expect(frame).toBeTruthy();
 
-			const unauthorizedLink = await screen.findByText(mockUrl);
+			const unauthorizedLink = await screen.findByText('drive/folders/test');
 			expect(unauthorizedLink).toBeTruthy();
+			expect(unauthorizedLink.closest('a')?.getAttribute('href')).toEqual(mockUrl);
 
 			expect(mockFetch).toHaveBeenCalled();
 			expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -401,7 +401,7 @@ describe('smart-card: card states, flexible block withUrl', () => {
 			const unauthorizedContent = screen.getByTestId('smart-block-unauthorized-view-content');
 			expect(unauthorizedContent).toBeTruthy();
 			expect(unauthorizedContent).toHaveTextContent(
-				'Connect your account to collaborate on work across Atlassian products. Learn more about Smart Links.',
+				'Connect your account to collaborate on work across Atlassian products.Learn more about Smart Links.',
 			);
 
 			const providerImage = screen.queryByTestId('smart-block-card-footer-provider-image');
@@ -441,8 +441,9 @@ describe('smart-card: card states, flexible block withUrl', () => {
 			const frame = await screen.findByTestId('smart-block-unauthorized-view');
 			expect(frame).toBeTruthy();
 
-			const unauthorizedLink = await screen.findByText(mockUrl);
+			const unauthorizedLink = await screen.findByText('drive/folders/test');
 			expect(unauthorizedLink).toBeTruthy();
+			expect(unauthorizedLink.closest('a')?.getAttribute('href')).toEqual(mockUrl);
 
 			expect(mockFetch).toHaveBeenCalled();
 			expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -451,38 +452,23 @@ describe('smart-card: card states, flexible block withUrl', () => {
 				status: 'unauthorized',
 			});
 
-			const unauthorizedTitle = await screen.findByTestId('smart-block-title-errored-view');
+			const unauthorizedTitle = await screen.findByTestId(
+				'smart-block-unauthorized-view-errored-view',
+			);
 			expect(unauthorizedTitle).toBeTruthy();
 
-			// Title should only have the icon and the url
-			expect(unauthorizedTitle.childElementCount).toEqual(4); // doubled likely to compiled css
-
-			const imgTags = unauthorizedTitle.querySelectorAll('img');
-			expect(imgTags).toBeTruthy();
-			expect(imgTags.length).toEqual(1);
-			expect(imgTags[0].getAttribute('src')).toEqual(
-				'https://developers.google.com/drive/images/drive_icon.png',
-			);
-
-			expect(unauthorizedTitle.querySelectorAll('a')[0].innerHTML).toContain(
+			const titleAnchor = unauthorizedTitle.querySelectorAll('a')[0];
+			expect(titleAnchor.getAttribute('href')).toEqual(
 				'https://drive.google.com/drive/folders/test',
 			);
+			expect(titleAnchor.innerHTML).toContain('drive/folders/test');
 
 			const unauthorizedContent = screen.getByTestId('smart-block-unauthorized-view-content');
 			expect(unauthorizedContent).toBeTruthy();
 			expect(unauthorizedContent).toHaveTextContent(
-				'Connect your Google account to collaborate on work across Atlassian products. Learn more about Smart Links.',
+				'Turn your URLs into rich, interactive previews.Learn more about Smart Links.',
 			);
 
-			const providerImage = screen.getByTestId('smart-block-card-footer-provider-image');
-			expect(providerImage).toBeTruthy();
-			expect(providerImage.getAttribute('src')).toEqual(
-				'https://developers.google.com/drive/images/drive_icon.png',
-			);
-
-			const providerLabel = screen.getByTestId('smart-block-card-footer-provider-label');
-			expect(providerLabel).toBeTruthy();
-			expect(providerLabel.innerHTML).toContain('Google');
 			const connectButton = screen.getByTestId('smart-action-connect-account');
 			expect(connectButton).toBeTruthy();
 			expect(connectButton.innerHTML).toContain('Connect to Google');
@@ -498,9 +484,10 @@ describe('smart-card: card states, flexible block withUrl', () => {
 			);
 			const frame = await screen.findByTestId('smart-block-unauthorized-view');
 			expect(frame).toBeTruthy();
-			const unauthorizedLink = await screen.findByText(mockUrl);
+			const unauthorizedLink = await screen.findByText('drive/folders/test');
 			const unauthorizedLinkButton = screen.queryByRole('button');
 			expect(unauthorizedLink).toBeTruthy();
+			expect(unauthorizedLink.closest('a')?.getAttribute('href')).toEqual(mockUrl);
 			expect(unauthorizedLinkButton).toBeFalsy();
 			expect(mockFetch).toHaveBeenCalled();
 			expect(mockFetch).toHaveBeenCalledTimes(1);

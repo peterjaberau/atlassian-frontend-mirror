@@ -1,5 +1,132 @@
 # @atlaskit/charlie-hierarchy
 
+## 1.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.7
+
+### Patch Changes
+
+- [`e1a51b09d74dc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e1a51b09d74dc) -
+  [ux] Adds connector style prop for consumers to style the line connectors (i.e. cornerRadius) and
+  only paint one connector line per parent to avoid overlapping opacity issues when there are
+  multiple children
+
+## 1.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.2.0
+
+### Minor Changes
+
+- [`437eba4b32d0d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/437eba4b32d0d) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 0.1.18
+
+### Patch Changes
+
+- [`42a9772eb71b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/42a9772eb71b8) -
+  replace 'react-intl-next' alias with 'react-intl'
+
+## 0.1.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.1.15
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.1.14
 
 ### Patch Changes

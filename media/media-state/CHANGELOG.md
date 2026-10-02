@@ -1,5 +1,90 @@
 # @atlaskit/media-state
 
+## 4.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+## 3.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 3.1.0
+
+### Minor Changes
+
+- [`c2bd2cf3b0b62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2bd2cf3b0b62) -
+  Flatten entry points and add explicit subpath package exports (barrel removal): split multi-export
+  `store.ts` into `media-store.ts` and `create-media-store.ts`, and expose per-symbol subpath
+  exports (`./media-store`, `./create-media-store`).
+
+## 3.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`a68f551856a81`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a68f551856a81) -
+  Thread preview CDN URL from GQL fragment through FileState to useFilePreview (gated by
+  platform_media_ssr_data_seed)
+
+## 2.1.0
+
+### Minor Changes
+
+- [`818d7e656a226`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/818d7e656a226) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`bc6f294d90d3f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc6f294d90d3f) -
+  Upgrade immer dependency to 11.1.4 (COMMIT-24745). Addresses dependency debt and version conflicts
+  for downstream consumers. Uses immer via zustand middleware, compatible across v8–v11.
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 1.8.0
 
 ### Minor Changes

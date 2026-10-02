@@ -18,6 +18,7 @@ import {
 test.describe('Gap-cursor:', () => {
 	test.describe('Connected extension', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowExtension: {},
@@ -86,17 +87,10 @@ test.describe('Gap-cursor:', () => {
 				head: 165,
 			});
 		});
-
-		test('should capture and report a11y violations', async ({ editor }) => {
-			const nodes = EditorNodeContainerModel.from(editor);
-			await nodes.extension.first().waitFor({ state: 'visible' });
-			await expect(nodes.extension).toHaveCount(2);
-
-			await expect(editor.page).toBeAccessible();
-		});
 	});
 	test.describe('Comment Editor', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'comment',
 				allowPanel: true,
@@ -124,6 +118,7 @@ test.describe('Gap-cursor:', () => {
 	});
 	test.describe('Full Page Editor', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 				allowPanel: true,
@@ -151,6 +146,7 @@ test.describe('Gap-cursor:', () => {
 	});
 	test.describe('Code Block', () => {
 		test.use({
+			exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 			editorProps: {
 				appearance: 'full-page',
 			},

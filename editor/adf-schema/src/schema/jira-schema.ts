@@ -1,6 +1,8 @@
 /* eslint-disable @repo/internal/deprecations/deprecation-ticket-required */
-import { createSchema } from './create-schema';
+
 import type { Schema } from '@atlaskit/editor-prosemirror/model';
+
+import { createSchema } from './create-schema';
 
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
@@ -20,9 +22,11 @@ export interface JIRASchemaConfig {
 }
 
 /**
+ * Creates a Jira-specific ADF schema.
+ *
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export default function makeSchema(config: JIRASchemaConfig) {
+export default function makeSchema(config: JIRASchemaConfig): Schema<string, string> {
 	const nodes = ['doc', 'paragraph', 'text', 'hardBreak', 'heading', 'rule'];
 	const marks = [
 		'strong',
@@ -80,74 +84,59 @@ export default function makeSchema(config: JIRASchemaConfig) {
 
 	return createSchema({ nodes, marks });
 }
+
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithLists(schema: Schema): boolean {
-	return !!schema.nodes.bulletList;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithLists } from './is-schema-with-lists';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithMentions(schema: Schema): boolean {
-	return !!schema.nodes.mention;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithMentions } from './is-schema-with-mentions';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithEmojis(schema: Schema): boolean {
-	return !!schema.nodes.emoji;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithEmojis } from './is-schema-with-emojis';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithLinks(schema: Schema): boolean {
-	return !!schema.marks.link;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithLinks } from './is-schema-with-links';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithAdvancedTextFormattingMarks(schema: Schema): boolean {
-	return !!schema.marks.code && !!schema.marks.strike;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithAdvancedTextFormattingMarks } from './is-schema-with-advanced-text-formatting-marks';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithSubSupMark(schema: Schema): boolean {
-	return !!schema.marks.subsup;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithSubSupMark } from './is-schema-with-sub-sup-mark';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithCodeBlock(schema: Schema): boolean {
-	return !!schema.nodes.codeBlock;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithCodeBlock } from './is-schema-with-code-block';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithBlockQuotes(schema: Schema): boolean {
-	return !!schema.nodes.blockquote;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithBlockQuotes } from './is-schema-with-block-quotes';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithMedia(schema: Schema): boolean {
-	return !!schema.nodes.mediaGroup && !!schema.nodes.media && !!schema.nodes.mediaInline;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithMedia } from './is-schema-with-media';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithTextColor(schema: Schema): boolean {
-	return !!schema.marks.textColor;
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithTextColor } from './is-schema-with-text-color';
 /**
  * @deprecated [ED-15676] We have stopped supporting product specific schemas. Use `@atlaskit/adf-schema/schema-default` instead.
  **/
-export function isSchemaWithTables(schema: Schema): boolean {
-	return (
-		!!schema.nodes.table &&
-		!!schema.nodes.tableCell &&
-		!!schema.nodes.tableHeader &&
-		!!schema.nodes.tableRow
-	);
-}
+// eslint-disable-next-line @atlaskit/editor/no-re-export, @atlaskit/volt-strict-mode/no-re-exports -- Public compatibility re-export.
+export { isSchemaWithTables } from './is-schema-with-tables';

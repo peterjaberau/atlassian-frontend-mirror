@@ -1,5 +1,145 @@
 # @atlaskit/smart-hooks
 
+## 2.7.0
+
+### Minor Changes
+
+- [`48ee35bbf1e1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48ee35bbf1e1b) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 2.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.6.0
+
+### Minor Changes
+
+- [`69cbbe9ee0f63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69cbbe9ee0f63) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 2.5.0
+
+### Minor Changes
+
+- [`942e8a15cbdf1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/942e8a15cbdf1) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 2.4.0
+
+### Minor Changes
+
+- [`0a39ae0f69a25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a39ae0f69a25) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 2.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`4fd26afe1912d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4fd26afe1912d) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 2.1.0
+
+### Minor Changes
+
+- [`7f2eb99bad9b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f2eb99bad9b3) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.0
+
+### Minor Changes
+
+- [`fbb51c73ed426`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbb51c73ed426) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+## 1.1.0
+
+### Minor Changes
+
+- [`3f23aba4db7f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f23aba4db7f2) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`d2e14ba5ae9fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d2e14ba5ae9fc) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.3.7
+
+### Patch Changes
+
+- [`b7751c58914be`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b7751c58914be) -
+  Remove old storybook addon (knobs)
+- [`3e57aae5b06fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e57aae5b06fd) -
+  Bump storybook v6 to v8
+- Updated dependencies
+
+## 0.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.3.5
 
 ### Patch Changes

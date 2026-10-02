@@ -13,30 +13,46 @@ import type {
 } from '@atlaskit/editor-common/types';
 import type { EditorState, SafeStateField } from '@atlaskit/editor-prosemirror/state';
 import { insm } from '@atlaskit/insm';
-import type { MentionProvider } from '@atlaskit/mention/resource';
-import { SLI_EVENT_TYPE, SMART_EVENT_TYPE } from '@atlaskit/mention/resource';
+import { SLI_EVENT_TYPE, SMART_EVENT_TYPE } from '@atlaskit/mention/analytics';
 import {
 	ComponentNames,
+	type MentionProvider,
 	type Actions as MentionActions,
 	type SliNames,
 } from '@atlaskit/mention/types';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
+import { isMentionTypeAheadEnabled } from '../isMentionTypeAheadEnabled';
 import type { MentionsPlugin } from '../mentionsPluginType';
 import { MentionNodeView } from '../nodeviews/mentionNodeView';
-import {
-	type FireElementsChannelEvent,
-	MENTION_PROVIDER_REJECTED,
-	MENTION_PROVIDER_UNDEFINED,
-	type MentionPluginOptions,
-	type MentionPluginState,
-} from '../types';
-
+import { MENTION_PROVIDER_REJECTED, MENTION_PROVIDER_UNDEFINED } from '../types';
+import type { FireElementsChannelEvent, MentionPluginOptions, MentionPluginState } from '../types';
 import { mentionPluginKey } from './key';
 import { canMentionBeCreatedInRange } from './utils';
 
 export const ACTIONS = {
+	COMMIT_PENDING_TYPED_AGENT_MENTION: 'COMMIT_PENDING_TYPED_AGENT_MENTION',
+	DISCARD_PENDING_TYPED_AGENT_MENTION: 'DISCARD_PENDING_TYPED_AGENT_MENTION',
+	SET_PENDING_TYPED_AGENT_MENTION: 'SET_PENDING_TYPED_AGENT_MENTION',
 	SET_PROVIDER: 'SET_PROVIDER',
+	/**
+	 * Dispatched by the `setAgentMentionRunStates` action to push the product's run-state
+	 * map into plugin state, which drives the run-state node decorations.
+	 */
+	SET_AGENT_RUN_STATES: 'SET_AGENT_RUN_STATES',
+	/**
+	 * Dispatched from view().update() when async resolveMentionName() resolves
+	 * for a pasted agent mention.
+	 * Updates lastInsertedAgentMentionName so the nudge shows the correct name.
+	 */
+	RESOLVE_PASTED_AGENT_MENTION_NAME: 'RESOLVE_PASTED_AGENT_MENTION_NAME',
+	/**
+	 * Dispatched from view().update() when async resolveMentionName() resolves
+	 * with a non-OK status for a pasted agent mention.
+	 * Clears pendingPastedAgentMention so no retry loop occurs.
+	 */
+	CLEAR_PENDING_PASTED_AGENT_MENTION: 'CLEAR_PENDING_PASTED_AGENT_MENTION',
 };
 
 const PACKAGE_NAME = process.env._PACKAGE_NAME_ as string;
@@ -68,8 +84,12 @@ export function createMentionPlugin({
 	fireEvent,
 	options,
 	api,
-}: CreateMentionPlugin) {
+}: CreateMentionPlugin): SafePlugin<MentionPluginState> {
 	let mentionProvider: MentionProvider;
+
+	const isMentionInsertionEnabled = (state: EditorState): boolean =>
+		isMentionTypeAheadEnabled(options?.canOpenTypeAhead) &&
+		canMentionBeCreatedInRange(state.selection.from, state.selection.to)(state);
 
 	const sendAnalytics = (
 		event: string,
@@ -101,12 +121,9 @@ export function createMentionPlugin({
 		key: mentionPluginKey,
 		state: {
 			init(_, state: EditorState): MentionPluginState {
-				const canInsertMention = canMentionBeCreatedInRange(
-					state.selection.from,
-					state.selection.to,
-				)(state);
 				return {
-					canInsertMention,
+					canInsertMention: isMentionInsertionEnabled(state),
+					mentionProviderStatus: 'pending',
 				};
 			},
 			apply(tr, pluginState: MentionPluginState, oldState, newState): MentionPluginState {
@@ -114,9 +131,8 @@ export function createMentionPlugin({
 					action: null,
 					params: null,
 				};
-				let hasNewPluginState = false;
+				let hasPublicPluginStateChanged = false;
 				let newPluginState = pluginState;
-
 				const hasPositionChanged =
 					oldState.selection.from !== newState.selection.from ||
 					oldState.selection.to !== newState.selection.to;
@@ -124,12 +140,9 @@ export function createMentionPlugin({
 				if (tr.docChanged || (tr.selectionSet && hasPositionChanged)) {
 					newPluginState = {
 						...pluginState,
-						canInsertMention: canMentionBeCreatedInRange(
-							newState.selection.from,
-							newState.selection.to,
-						)(newState),
+						canInsertMention: isMentionInsertionEnabled(newState),
 					};
-					hasNewPluginState = true;
+					hasPublicPluginStateChanged = true;
 				}
 
 				switch (action) {
@@ -137,12 +150,13 @@ export function createMentionPlugin({
 						newPluginState = {
 							...newPluginState,
 							mentionProvider: params.provider,
+							mentionProviderStatus: params.provider ? 'available' : 'unavailable',
 						};
-						hasNewPluginState = true;
+						hasPublicPluginStateChanged = true;
 						break;
 				}
 
-				if (hasNewPluginState) {
+				if (hasPublicPluginStateChanged) {
 					pmPluginFactoryParams.dispatch(mentionPluginKey, newPluginState);
 				}
 
@@ -221,22 +235,27 @@ export function createMentionPlugin({
 		} as SafeStateField<MentionPluginState>,
 		props: {
 			nodeViews: {
-				mention: (node) => {
+				mention: (node, view) => {
 					return new MentionNodeView(node, {
 						options,
 						api,
+						editorView: view,
 						portalProviderAPI: pmPluginFactoryParams.portalProviderAPI,
 					});
 				},
 			},
 		},
 		view(editorView) {
+			let destroyed = false;
+			const optimistic = isExperimentEnabled('platform_editor_ssr_toolbar_optimistic');
+			let currentProviderPromise: Promise<MentionProvider | ContextIdentifierProvider> | undefined;
 			const providerHandler = (
 				name: string,
 				providerPromise?: Promise<MentionProvider | ContextIdentifierProvider>,
 			) => {
 				switch (name) {
 					case 'mentionProvider':
+						currentProviderPromise = providerPromise;
 						if (!providerPromise) {
 							fireEvent({
 								action: ACTION.ERRORED,
@@ -252,6 +271,9 @@ export function createMentionPlugin({
 
 						(providerPromise as Promise<MentionProvider>)
 							.then((provider) => {
+								if (optimistic && (destroyed || currentProviderPromise !== providerPromise)) {
+									return;
+								}
 								if (mentionProvider) {
 									mentionProvider.unsubscribe('mentionPlugin');
 								}
@@ -269,6 +291,9 @@ export function createMentionPlugin({
 								);
 							})
 							.catch(() => {
+								if (optimistic && (destroyed || currentProviderPromise !== providerPromise)) {
+									return;
+								}
 								fireEvent({
 									action: ACTION.ERRORED,
 									actionSubject: ACTION_SUBJECT.MENTION,
@@ -290,10 +315,23 @@ export function createMentionPlugin({
 				providerHandler('mentionProvider', options?.mentionProvider);
 			} else {
 				pmPluginFactoryParams.providerFactory.subscribe('mentionProvider', providerHandler);
+				if (optimistic) {
+					// Subscribe does not notify us when no provider exists. Wait until the view
+					// has finished mounting before publishing the unavailable state.
+					Promise.resolve().then(() => {
+						if (
+							!destroyed &&
+							!pmPluginFactoryParams.providerFactory.hasProvider('mentionProvider')
+						) {
+							setProvider(undefined)(editorView.state, editorView.dispatch);
+						}
+					});
+				}
 			}
 
 			return {
 				destroy() {
+					destroyed = true;
 					if (pmPluginFactoryParams.providerFactory) {
 						pmPluginFactoryParams.providerFactory.unsubscribe('mentionProvider', providerHandler);
 					}

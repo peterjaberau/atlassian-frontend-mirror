@@ -4,27 +4,24 @@
  */
 import React, { useRef } from 'react';
 
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { cssMap, cx, jsx } from '@atlaskit/css';
 import mergeRefs from '@atlaskit/ds-lib/merge-refs';
 import useAutoFocus from '@atlaskit/ds-lib/use-auto-focus';
 import { useId } from '@atlaskit/ds-lib/use-id';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Pressable } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
-import {
-	SplitButtonContext,
-	useSplitButtonContext,
-} from '../../containers/split-button/split-button-context';
+import { SplitButtonContext } from '../../containers/split-button/split-button-context';
+import { useSplitButtonContext } from '../../containers/split-button/use-split-button-context';
 import {
 	type Appearance,
 	type CommonBaseProps,
 	type CommonButtonProps,
 	type Spacing,
 } from '../types';
-
 import blockEvents from './block-events';
 import renderLoadingOverlay from './loading-overlay';
 
@@ -103,7 +100,7 @@ const styles = cssMap({
 		alignItems: 'baseline',
 		justifyContent: 'center',
 		columnGap: token('space.050'),
-		borderRadius: token('radius.small', '3px'),
+		borderRadius: token('radius.medium'),
 		borderWidth: 0,
 		flexShrink: 0,
 		height: '2rem',
@@ -124,9 +121,11 @@ const styles = cssMap({
 			position: 'absolute',
 		},
 	},
-	// platform-dst-shape-theme-default TODO: Merge into base after rollout
-	baseT26Shape: {
-		borderRadius: token('radius.medium', '6px'),
+	interactiveMotion: {
+		transition: token('motion.button.hovered'),
+		'&:active': {
+			transition: token('motion.button.pressed'),
+		},
 	},
 	// Required due to Jira's AUI CSS reset: https://product-fabric.atlassian.net/browse/DSP-15687
 	linkDecorationUnset: {
@@ -148,14 +147,14 @@ const styles = cssMap({
 	},
 	// Shared diabled styles for primary, warning, danger, and discovery appearances
 	sharedDisabled: {
-		backgroundColor: token('color.background.disabled', 'rgba(9, 30, 66, 0.04)'),
+		backgroundColor: token('color.background.disabled'),
 		'&:hover': {
 			// @ts-expect-error
-			backgroundColor: token('color.background.disabled', 'rgba(9, 30, 66, 0.04)'),
+			backgroundColor: token('color.background.disabled'),
 		},
 		'&:active': {
 			// @ts-expect-error
-			backgroundColor: token('color.background.disabled', 'rgba(9, 30, 66, 0.04)'),
+			backgroundColor: token('color.background.disabled'),
 		},
 	},
 	spacingCompact: {
@@ -165,8 +164,6 @@ const styles = cssMap({
 		paddingInlineEnd: token('space.150'),
 		paddingInlineStart: token('space.150'),
 		verticalAlign: 'middle',
-	},
-	spacingCompactT26Shape: {
 		borderRadius: token('radius.small'),
 	},
 	circle: {
@@ -189,10 +186,12 @@ const styles = cssMap({
 		width: '1.5rem',
 	},
 	buttonIconBefore: {
-		paddingInlineStart: token('space.100'),
+		paddingInlineStart: token('space.150'),
+		columnGap: token('space.075'),
 	},
 	buttonIconAfter: {
-		paddingInlineEnd: token('space.100'),
+		paddingInlineEnd: token('space.150'),
+		columnGap: token('space.075'),
 	},
 	splitButton: {
 		'&:focus-visible': {
@@ -269,7 +268,7 @@ const defaultStyles = cssMap({
 
 const primaryStyles = cssMap({
 	root: {
-		backgroundColor: token('color.background.brand.bold', '#0052CC'),
+		backgroundColor: token('color.background.brand.bold'),
 		color: token('color.text.inverse'),
 		'&:visited': {
 			color: token('color.text.inverse'),
@@ -288,50 +287,81 @@ const primaryStyles = cssMap({
 	interactive: {
 		'&:hover': {
 			color: token('color.text.inverse'),
-			backgroundColor: token('color.background.brand.bold.hovered', '#0065FF'),
+			backgroundColor: token('color.background.brand.bold.hovered'),
 		},
 		'&:active': {
 			// @ts-expect-error
 			color: token('color.text.inverse'),
-			backgroundColor: token('color.background.brand.bold.pressed', '#0747A6'),
+			backgroundColor: token('color.background.brand.bold.pressed'),
+		},
+	},
+});
+
+const rovoStyles = cssMap({
+	root: {
+		backgroundColor: token('color.rovo.background.brand.bold'),
+		color: token('color.text.inverse'),
+		'&:visited': {
+			color: token('color.text.inverse'),
+		},
+		'&:hover': {
+			color: token('color.text.inverse'),
+		},
+		'&:active': {
+			// @ts-expect-error
+			color: token('color.text.inverse'),
+		},
+		'&:focus': {
+			color: token('color.text.inverse'),
+		},
+	},
+	interactive: {
+		'&:hover': {
+			color: token('color.text.inverse'),
+			backgroundColor: token('color.rovo.background.brand.bold.hovered'),
+		},
+		'&:active': {
+			// @ts-expect-error
+			color: token('color.text.inverse'),
+			backgroundColor: token('color.rovo.background.brand.bold.pressed'),
 		},
 	},
 });
 
 const warningStyles = cssMap({
 	root: {
-		backgroundColor: token('color.background.warning.bold', '#FFAB00'),
-		color: token('color.text.warning.inverse', '#172B4D'),
+		backgroundColor: token('color.background.warning.bold'),
+		color: token('color.text.warning.inverse'),
 		'&:visited': {
-			color: token('color.text.warning.inverse', '#172B4D'),
+			color: token('color.text.warning.inverse'),
 		},
 		'&:hover': {
-			color: token('color.text.warning.inverse', '#172B4D'),
+			color: token('color.text.warning.inverse'),
 		},
 		'&:active': {
 			// @ts-expect-error
-			color: token('color.text.warning.inverse', '#172B4D'),
+			color: token('color.text.warning.inverse'),
 		},
 		'&:focus': {
-			color: token('color.text.warning.inverse', '#172B4D'),
+			color: token('color.text.warning.inverse'),
 		},
 	},
 	interactive: {
 		'&:hover': {
-			color: token('color.text.warning.inverse', '#172B4D'),
-			backgroundColor: token('color.background.warning.bold.hovered', '#FFC400'),
+			color: token('color.text.warning.inverse'),
+			backgroundColor: token('color.background.warning.bold.hovered'),
 		},
 		'&:active': {
 			// @ts-expect-error
-			color: token('color.text.warning.inverse', '#172B4D'),
-			backgroundColor: token('color.background.warning.bold.pressed', '#FF991F'),
+			color: token('color.text.warning.inverse'),
+			backgroundColor: token('color.background.warning.bold.pressed'),
 		},
 	},
 });
 
 const dangerStyles = cssMap({
 	root: {
-		backgroundColor: token('color.background.danger.bold', '#DE350B'),
+		backgroundColor: token('color.background.danger.bold'),
 		color: token('color.text.inverse'),
 		'&:visited': {
 			color: token('color.text.inverse'),
@@ -350,19 +380,19 @@ const dangerStyles = cssMap({
 	interactive: {
 		'&:hover': {
 			color: token('color.text.inverse'),
-			backgroundColor: token('color.background.danger.bold.hovered', '#FF5630'),
+			backgroundColor: token('color.background.danger.bold.hovered'),
 		},
 		'&:active': {
 			// @ts-expect-error
 			color: token('color.text.inverse'),
-			backgroundColor: token('color.background.danger.bold.pressed', '#BF2600'),
+			backgroundColor: token('color.background.danger.bold.pressed'),
 		},
 	},
 });
 
 const discoveryStyles = cssMap({
 	root: {
-		backgroundColor: token('color.background.discovery.bold', '#5243AA'),
+		backgroundColor: token('color.background.discovery.bold'),
 		color: token('color.text.inverse'),
 		'&:visited': {
 			color: token('color.text.inverse'),
@@ -381,19 +411,19 @@ const discoveryStyles = cssMap({
 	interactive: {
 		'&:hover': {
 			color: token('color.text.inverse'),
-			backgroundColor: token('color.background.discovery.bold.hovered', '#8777D9'),
+			backgroundColor: token('color.background.discovery.bold.hovered'),
 		},
 		'&:active': {
 			// @ts-expect-error
 			color: token('color.text.inverse'),
-			backgroundColor: token('color.background.discovery.bold.pressed', '#5243AA'),
+			backgroundColor: token('color.background.discovery.bold.pressed'),
 		},
 	},
 });
 
 const subtleStyles = cssMap({
 	root: {
-		backgroundColor: token('color.background.neutral.subtle', 'transparent'),
+		backgroundColor: token('color.background.neutral.subtle'),
 		color: token('color.text.subtle'),
 		'&:visited': {
 			color: token('color.text.subtle'),
@@ -411,11 +441,11 @@ const subtleStyles = cssMap({
 	},
 	interactive: {
 		'&:hover': {
-			backgroundColor: token('color.background.neutral.subtle.hovered', '#091e4214'),
+			backgroundColor: token('color.background.neutral.subtle.hovered'),
 			color: token('color.text.subtle'),
 		},
 		'&:active': {
-			backgroundColor: token('color.background.neutral.subtle.pressed', '#B3D4FF'),
+			backgroundColor: token('color.background.neutral.subtle.pressed'),
 			// @ts-expect-error
 			color: token('color.text.subtle'),
 		},
@@ -439,23 +469,23 @@ const subtleStyles = cssMap({
 const selectedStyles = cssMap({
 	root: {
 		backgroundColor: token('color.background.selected'),
-		color: token('color.text.selected', '#0052cc'),
+		color: token('color.text.selected'),
 		'&::after': {
 			content: '""',
-			borderColor: token('color.border.selected', '#0052cc'),
+			borderColor: token('color.border.selected'),
 		},
 		'&:visited': {
-			color: token('color.text.selected', '#0052cc'),
+			color: token('color.text.selected'),
 		},
 		'&:hover': {
-			color: token('color.text.selected', '#0052cc'),
+			color: token('color.text.selected'),
 		},
 		'&:active': {
 			// @ts-expect-error
-			color: token('color.text.selected', '#0052cc'),
+			color: token('color.text.selected'),
 		},
 		'&:focus': {
-			color: token('color.text.selected', '#0052cc'),
+			color: token('color.text.selected'),
 		},
 	},
 	insideSplitButton: {
@@ -467,61 +497,61 @@ const selectedStyles = cssMap({
 	},
 	interactive: {
 		'&:hover': {
-			backgroundColor: token('color.background.selected.hovered', '#253858'),
-			color: token('color.text.selected', '#F4F5F7'),
+			backgroundColor: token('color.background.selected.hovered'),
+			color: token('color.text.selected'),
 		},
 		'&:active': {
-			backgroundColor: token('color.background.selected.pressed', '#253858'),
+			backgroundColor: token('color.background.selected.pressed'),
 			// @ts-expect-error
-			color: token('color.text.selected', '#F4F5F7'),
+			color: token('color.text.selected'),
 		},
 	},
 	// TODO: Remove me once we kill color fallbacks
 	warning: {
-		backgroundColor: token('color.background.selected', '#FF991F'),
-		color: token('color.text.selected', '#172B4D'),
+		backgroundColor: token('color.background.selected'),
+		color: token('color.text.selected'),
 		'&:hover': {
-			color: token('color.text.selected', '#F4F5F7'),
+			color: token('color.text.selected'),
 			// @ts-expect-error
-			backgroundColor: token('color.background.selected', '#FF991F'),
+			backgroundColor: token('color.background.selected'),
 		},
 		'&:active': {
 			// @ts-expect-error
-			color: token('color.text.selected', '#F4F5F7'),
+			color: token('color.text.selected'),
 			// @ts-expect-error
-			backgroundColor: token('color.background.selected', '#FF991F'),
+			backgroundColor: token('color.background.selected'),
 		},
 	},
 	// TODO: Remove me once we kill color fallbacks
 	danger: {
-		backgroundColor: token('color.background.selected', '#BF2600'),
-		color: token('color.text.selected', '#F4F5F7'),
+		backgroundColor: token('color.background.selected'),
+		color: token('color.text.selected'),
 		'&:hover': {
-			color: token('color.text.selected', '#F4F5F7'),
+			color: token('color.text.selected'),
 			// @ts-expect-error
-			backgroundColor: token('color.background.selected', '#BF2600'),
+			backgroundColor: token('color.background.selected'),
 		},
 		'&:active': {
 			// @ts-expect-error
-			color: token('color.text.selected', '#F4F5F7'),
+			color: token('color.text.selected'),
 			// @ts-expect-error
-			backgroundColor: token('color.background.selected', '#BF2600'),
+			backgroundColor: token('color.background.selected'),
 		},
 	},
 	// TODO: Remove me once we kill color fallbacks
 	discovery: {
-		backgroundColor: token('color.background.selected', '#403294'),
-		color: token('color.text.selected', '#F4F5F7'),
+		backgroundColor: token('color.background.selected'),
+		color: token('color.text.selected'),
 		'&:hover': {
-			color: token('color.text.selected', '#F4F5F7'),
+			color: token('color.text.selected'),
 			// @ts-expect-error
-			backgroundColor: token('color.background.selected', '#403294'),
+			backgroundColor: token('color.background.selected'),
 		},
 		'&:active': {
 			// @ts-expect-error
-			color: token('color.text.selected', '#F4F5F7'),
+			color: token('color.text.selected'),
 			// @ts-expect-error
-			backgroundColor: token('color.background.selected', '#403294'),
+			backgroundColor: token('color.background.selected'),
 		},
 	},
 });
@@ -588,6 +618,9 @@ const ButtonBase: React.ForwardRefExoticComponent<
 		}: ButtonBaseProps<HTMLButtonElement>,
 		ref: React.Ref<HTMLButtonElement>,
 	): JSX.Element => {
+		// React Compiler opt-out: RC-incompatible (memoization breaks runtime behaviour).
+		'use no memo';
+
 		const localRef = useRef<HTMLButtonElement | null>(null);
 		const splitButtonContext = useSplitButtonContext();
 		const loadingLabelId = useId();
@@ -619,11 +652,13 @@ const ButtonBase: React.ForwardRefExoticComponent<
 				ref={mergeRefs([localRef, ref])}
 				xcss={cx(
 					styles.base,
-					fg('platform-dst-shape-theme-default') && styles.baseT26Shape,
+					isInteractive && fg('platform-dst-motion-uplift-button') && styles.interactiveMotion,
 					appearance === 'default' && defaultStyles.root,
 					appearance === 'default' && isInteractive && defaultStyles.interactive,
 					appearance === 'primary' && primaryStyles.root,
 					appearance === 'primary' && isInteractive && primaryStyles.interactive,
+					appearance === 'rovo' && rovoStyles.root,
+					appearance === 'rovo' && isInteractive && rovoStyles.interactive,
 					appearance === 'warning' && warningStyles.root,
 					appearance === 'warning' && isInteractive && warningStyles.interactive,
 					appearance === 'danger' && dangerStyles.root,
@@ -648,13 +683,11 @@ const ButtonBase: React.ForwardRefExoticComponent<
 						appearance !== 'subtle' &&
 						styles.sharedDisabled,
 					isDisabled && appearance === 'default' && defaultStyles.disabled,
-					isCircle && !isSplitButton && styles.circle,
 					spacing === 'compact' && styles.spacingCompact,
-					spacing === 'compact' &&
-						fg('platform-dst-shape-theme-default') &&
-						styles.spacingCompactT26Shape,
-					hasIconBefore && styles.buttonIconBefore,
+					// This must come after spacing compact styling as it overrides the border radius
+					isCircle && !isSplitButton && styles.circle,
 					shouldFitContainer && styles.fullWidth,
+					hasIconBefore && styles.buttonIconBefore,
 					hasIconAfter && styles.buttonIconAfter,
 					isIconButton && styles.iconButton,
 					isIconButton && spacing === 'compact' && styles.iconButtonCompact,
@@ -662,12 +695,9 @@ const ButtonBase: React.ForwardRefExoticComponent<
 					isSplitButton && styles.splitButton,
 					isNavigationSplitButton && styles.navigationSplitButton,
 				)}
-				isDisabled={
-					fg('platform-dst_fix_not_focusable_loading_button') ? isDisabled : isEffectivelyDisabled
-				}
-				{...(fg('platform-dst_fix_not_focusable_loading_button') && { 'aria-live': 'polite' })}
-				{...(isLoading &&
-					fg('platform-dst_fix_not_focusable_loading_button') && { 'aria-disabled': true })}
+				isDisabled={isDisabled}
+				aria-live="polite"
+				{...(isLoading && { 'aria-disabled': true })}
 				aria-label={
 					isLoading && ariaLabel && !ariaLabelledBy ? `${ariaLabel} ${LOADING_LABEL}` : ariaLabel
 				}
@@ -708,10 +738,10 @@ const ButtonBase: React.ForwardRefExoticComponent<
 					{isLoading && (
 						<span css={styles.loadingOverlay}>
 							{renderLoadingOverlay({
-								spacing: spacing,
-								appearance: appearance,
-								isDisabled: isDisabled,
-								isSelected: isSelected,
+								spacing,
+								appearance,
+								isDisabled,
+								isSelected,
 								testId,
 							})}
 						</span>

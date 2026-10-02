@@ -4,13 +4,12 @@
  */
 import type { ReactNode } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import ErrorIcon from '@atlaskit/icon/core/status-error';
 import SuccessIcon from '@atlaskit/icon/core/status-success';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { token } from '@atlaskit/tokens';
 
 import commonMessages from '../../messages';
@@ -34,14 +33,14 @@ const messageStyle = () =>
 		lineHeight: 16 / 12,
 		fontWeight: token('font.weight.regular'),
 		color: token('color.text.subtlest'),
-		marginTop: token('space.050', '4px'),
+		marginTop: token('space.050'),
 		display: 'flex',
 		justifyContent: 'baseline',
 	});
 
 const iconWrapperStyle = css({
 	display: 'flex',
-	marginRight: token('space.050', '4px'),
+	marginRight: token('space.050'),
 });
 
 interface Props {
@@ -49,9 +48,12 @@ interface Props {
 	children: ReactNode;
 }
 
-export const HelperMessage = ({ children }: Props) => <div css={messageStyle}>{children}</div>;
+export const HelperMessage = ({ children }: Props): jsx.JSX.Element => (
+	<div css={messageStyle}>{children}</div>
+);
 
-export const ErrorMessage = ({ children }: Props) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const ErrorMessage = ({ children }: Props): jsx.JSX.Element => {
 	const intl = useIntl();
 	return (
 		<div
@@ -60,17 +62,15 @@ export const ErrorMessage = ({ children }: Props) => {
 			}}
 		>
 			<span css={iconWrapperStyle}>
-				<ErrorIcon
-					label={fg('platform_editor_dec_a11y_fixes') ? intl.formatMessage(commonMessages.error) : "error"}
-					aria-label={fg('platform_editor_dec_a11y_fixes') ? undefined : "error"}
-				/>
+				<ErrorIcon label={intl.formatMessage(commonMessages.error)} />
 			</span>
 			{children}
 		</div>
-	)
+	);
 };
 
-export const ValidMessage = ({ children }: Props) => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const ValidMessage = ({ children }: Props): jsx.JSX.Element => {
 	const intl = useIntl();
 	return (
 		<div
@@ -79,12 +79,9 @@ export const ValidMessage = ({ children }: Props) => {
 			}}
 		>
 			<span css={iconWrapperStyle}>
-				{fg('platform_editor_dec_a11y_fixes')
-					? <SuccessIcon label={intl.formatMessage(commonMessages.success)} />
-					: <SuccessIcon label="success" />
-				}
+				<SuccessIcon label={intl.formatMessage(commonMessages.success)} />
 			</span>
 			{children}
 		</div>
-	)
+	);
 };

@@ -17,7 +17,12 @@ const color: ValueSchema<BorderColorTokenSchema<BaseToken>> = {
 				value: 'Blue500',
 			},
 			input: {
-				value: 'Neutral500',
+				'[default]': {
+					value: 'Neutral500',
+				},
+				search: {
+					value: 'Neutral300A',
+				},
 			},
 			disabled: {
 				value: 'Neutral200A',
@@ -29,19 +34,24 @@ const color: ValueSchema<BorderColorTokenSchema<BaseToken>> = {
 				value: 'Blue700',
 			},
 			danger: {
-				value: 'Red600',
+				'[default]': { value: 'Red600' },
+				subtle: { value: 'Red300' },
 			},
 			warning: {
-				value: 'Orange600',
+				'[default]': { value: 'Orange600' },
+				subtle: { value: 'Orange300' },
 			},
 			success: {
-				value: 'Lime600',
+				'[default]': { value: 'Lime600' },
+				subtle: { value: 'Lime300' },
 			},
 			discovery: {
-				value: 'Purple600',
+				'[default]': { value: 'Purple600' },
+				subtle: { value: 'Purple300' },
 			},
 			information: {
-				value: 'Blue600',
+				'[default]': { value: 'Blue600' },
+				subtle: { value: 'Blue300' },
 			},
 		},
 	},

@@ -1,4 +1,5 @@
 /* eslint-disable testing-library/no-node-access */
+
 import React, {
 	type Dispatch,
 	forwardRef,
@@ -8,12 +9,11 @@ import React, {
 	useState,
 } from 'react';
 
-import { fireEvent, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { replaceRaf } from 'raf-stub';
 
-import Button from '@atlaskit/button/new';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import Button from '@atlaskit/button/default/button';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import { fireEvent, render, screen, userEvent, waitFor } from '@atlassian/testing-library';
 
 import { Popup } from '../../popup';
 import { type ContentProps, type PopupComponentProps, type TriggerProps } from '../../types';
@@ -80,12 +80,7 @@ describe('Popup', () => {
 		content: () => <div>content</div>,
 		isOpen: false,
 		trigger: (props: TriggerProps) => (
-			<button
-				{...props}
-				type="button"
-				// @ts-ignore
-				ref={props.ref}
-			>
+			<button {...props} type="button" ref={props.ref}>
 				trigger
 			</button>
 		),
@@ -138,7 +133,6 @@ describe('Popup', () => {
 				// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 				{...props}
 				type="button"
-				// @ts-ignore
 				ref={props.ref}
 			>
 				trigger
@@ -166,7 +160,6 @@ describe('Popup', () => {
 						// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 						{...props}
 						type="button"
-						// @ts-ignore
 						ref={props.ref}
 					>
 						trigger
@@ -187,7 +180,6 @@ describe('Popup', () => {
 						// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 						{...props}
 						type="button"
-						// @ts-ignore
 						ref={props.ref}
 					>
 						trigger
@@ -212,7 +204,6 @@ describe('Popup', () => {
 					// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 					{...props}
 					type="button"
-					// @ts-ignore
 					ref={props.ref}
 				>
 					trigger
@@ -236,7 +227,6 @@ describe('Popup', () => {
 					// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 					{...props}
 					type="button"
-					// @ts-ignore
 					ref={props.ref}
 				>
 					trigger
@@ -265,7 +255,6 @@ describe('Popup', () => {
 				// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 				{...props}
 				type="button"
-				// @ts-ignore
 				ref={props.ref}
 			>
 				trigger
@@ -374,7 +363,6 @@ describe('Popup', () => {
 					// eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
 					{...props}
 					type="button"
-					// @ts-ignore
 					ref={props.ref}
 				>
 					trigger
@@ -578,7 +566,7 @@ describe('Popup', () => {
 		expect(screen.getByText('content')).not.toHaveFocus();
 	});
 
-	it('focuses the specified element inside of the content when the popup is open', () => {
+	it('focuses the specified element inside of the content when the popup is open', async () => {
 		render(
 			<Popup
 				{...defaultProps}
@@ -599,10 +587,15 @@ describe('Popup', () => {
 		//@ts-ignore
 		requestAnimationFrame.step();
 
-		expect(screen.getByText('focused content')).toHaveFocus();
+		// `focus-trap` >= 2.4.6 applies the trap's initial focus in a `setTimeout(…, 0)` rather
+		// than synchronously within `activate()`, so stepping the animation frame that activates
+		// the trap is no longer enough on its own.
+		await waitFor(() => {
+			expect(screen.getByText('focused content')).toHaveFocus();
+		});
 	});
 
-	it('focuses the specified element inside of the content when the popup is opened', () => {
+	it('focuses the specified element inside of the content when the popup is opened', async () => {
 		const content = ({ setInitialFocusRef }: ContentProps) => (
 			<button
 				type="button"
@@ -621,7 +614,10 @@ describe('Popup', () => {
 		//@ts-ignore
 		requestAnimationFrame.step();
 
-		expect(screen.getByText('focused content')).toHaveFocus();
+		// See the note above: `focus-trap` defers the trap's initial focus to a macrotask.
+		await waitFor(() => {
+			expect(screen.getByText('focused content')).toHaveFocus();
+		});
 	});
 
 	it('popup stays open if propagation is stopped on an event before it reaches window', async () => {

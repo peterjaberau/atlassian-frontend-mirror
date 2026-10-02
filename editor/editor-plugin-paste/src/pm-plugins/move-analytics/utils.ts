@@ -5,7 +5,6 @@ import {
 	findParentNodeOfTypeClosestToPos,
 } from '@atlaskit/editor-prosemirror/utils';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 const excludedNodes = [
 	'caption',
@@ -85,7 +84,7 @@ export const isNestedInTable = (state: EditorState): boolean => {
 	return true;
 };
 
-export const getParentNodeDepth = (selection: Selection) => {
+export const getParentNodeDepth = (selection: Selection): number => {
 	const parentNode = findParentNodeClosestToPos(selection.$from, () => true);
 	if (!parentNode) {
 		return 0;
@@ -112,7 +111,12 @@ export const containsExcludedNode = (content: Fragment): boolean => {
 	return false;
 };
 
-export const getMultipleSelectionAttributes = (content: Fragment) => {
+export const getMultipleSelectionAttributes = (
+	content: Fragment,
+): {
+	hasSelectedMultipleNodes: boolean;
+	nodeTypes: string | undefined;
+} => {
 	const nodeTypes: string[] = [];
 
 	if (content.size) {
@@ -122,9 +126,7 @@ export const getMultipleSelectionAttributes = (content: Fragment) => {
 	}
 
 	return {
-		nodeTypes: fg('platform_editor_track_node_types')
-			? [...new Set(nodeTypes)].sort().join(',')
-			: undefined,
+		nodeTypes: [...new Set(nodeTypes)].sort().join(','),
 		hasSelectedMultipleNodes: nodeTypes.length > 1,
 	};
 };

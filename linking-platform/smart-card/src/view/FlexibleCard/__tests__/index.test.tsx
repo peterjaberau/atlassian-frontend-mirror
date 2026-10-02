@@ -1,13 +1,16 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import { type CardState } from '@atlaskit/linking-common';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardState } from '@atlaskit/linking-common/store';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+import { render, screen } from '@atlassian/testing-library';
 
 import { getCardTestWrapper } from '../../../__tests__/__utils__/unit-testing-library-helpers';
 import { SmartLinkStatus } from '../../../constants';
-import { TitleBlock } from '../components/blocks';
+import { useFlexibleUiContext } from '../../../state/flexible-ui-context/useFlexibleUiContext';
+import { useSmartLinkCrossProductUrlWrapper } from '../../../state/hooks/use-smart-link-cross-product-url-wrapper';
+import { default as TitleBlock } from '../components/blocks/title-block';
+import { getContextByStatus } from '../getContextByStatus';
 import FlexibleCard from '../index';
 
 jest.mock('@atlaskit/react-ufo/load-hold', () => ({
@@ -15,9 +18,63 @@ jest.mock('@atlaskit/react-ufo/load-hold', () => ({
 	default: ({ name }: { name: string }) => <div data-testid="ufo-hold-load" data-name={name} />,
 }));
 
+jest.mock('../../../state/hooks/use-smart-link-cross-product-url-wrapper', () => ({
+	useSmartLinkCrossProductUrlWrapper: jest.fn().mockReturnValue((url: string) => url),
+}));
+
+jest.mock('../getContextByStatus', () => ({
+	...jest.requireActual('../getContextByStatus'),
+	getContextByStatus: jest.fn(
+		(...args: Parameters<typeof import('../getContextByStatus').getContextByStatus>) =>
+			jest.requireActual('../getContextByStatus').getContextByStatus(...args),
+	),
+}));
+
 describe('FlexibleCard', () => {
 	const title = 'some-name';
 	const url = 'http://some-url.com';
+
+	it.each([true, false])(
+		'gates navigation overrides without changing metadata (enabled=%s)',
+		(enabled) => {
+			if (enabled) passGate('confluence_ep_shim_macro_links_v2');
+			else failGate('confluence_ep_shim_macro_links_v2');
+			const metadata = Object.freeze({
+				url,
+				linkTitle: Object.freeze({ text: title, url }),
+			});
+			jest.mocked(getContextByStatus).mockReturnValueOnce(metadata);
+			const readMetadata = jest.fn();
+			const MetadataConsumer = () => {
+				readMetadata(useFlexibleUiContext());
+				return null;
+			};
+			const destination = 'https://help-center.example/article';
+
+			render(
+				<FlexibleCard
+					cardState={{ status: 'resolved' }}
+					url={url}
+					navigation={{ url: destination, target: '_top' }}
+					ui={{ clickableContainer: true, removeBlockRestriction: true }}
+				>
+					<TitleBlock />
+					<MetadataConsumer />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			expect(readMetadata.mock.calls.at(-1)?.[0]).toBe(metadata);
+			expect(metadata.linkTitle.url).toBe(url);
+			const links = screen.getAllByRole('link', { name: title });
+			expect(links).toHaveLength(2);
+			const targets = enabled ? ['_top', '_top'] : ['_self', '_blank'];
+			links.forEach((link, index) => {
+				expect(link).toHaveAttribute('href', enabled ? destination : url);
+				expect(link.getAttribute('target') || '_self').toBe(targets[index]);
+			});
+		},
+	);
 
 	it('renders flexible card', async () => {
 		const cardState: CardState = {
@@ -220,6 +277,28 @@ describe('FlexibleCard', () => {
 
 			render(
 				<FlexibleCard cardState={cardState} onResolve={onResolve} url={url}>
+					<TitleBlock />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			expect(onResolve).toHaveBeenCalledWith({ title, url });
+		});
+
+		it('uses resolved card title for onResolve even when title prop is provided', async () => {
+			const onResolve = jest.fn();
+			const cardState = {
+				status: SmartLinkStatus.Resolved,
+				details: { meta: {}, data: { name: title, url } },
+			} as CardState;
+
+			render(
+				<FlexibleCard
+					cardState={cardState}
+					onResolve={onResolve}
+					url={url}
+					title="title-from-ssr-prop"
+				>
 					<TitleBlock />
 				</FlexibleCard>,
 				{ wrapper: getCardTestWrapper() },
@@ -558,6 +637,65 @@ describe('FlexibleCard', () => {
 			);
 
 			expect(screen.queryByTestId('ufo-hold-load')).not.toBeInTheDocument();
+		});
+	});
+
+	describe('cross-product URL transformation', () => {
+		const cardState: CardState = {
+			status: 'resolved',
+			details: {
+				meta: { access: 'granted', visibility: 'public' },
+				data: {
+					'@type': 'Object',
+					'@context': {
+						'@vocab': 'https://www.w3.org/ns/activitystreams#',
+						atlassian: 'https://schema.atlassian.com/ns/vocabulary#',
+						schema: 'http://schema.org/',
+					},
+					url,
+					name: 'some-name',
+				},
+			},
+		};
+
+		const mockWrapper = jest.fn().mockReturnValue(`${url}?xpc=1`);
+
+		beforeEach(() => {
+			(useSmartLinkCrossProductUrlWrapper as jest.Mock).mockReturnValue(mockWrapper);
+		});
+
+		afterEach(() => {
+			jest.clearAllMocks();
+		});
+
+		it('passes transformUrl to getContextByStatus', () => {
+			render(
+				<FlexibleCard cardState={cardState} url={url}>
+					<TitleBlock />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			expect(getContextByStatus).toHaveBeenCalledWith(
+				expect.objectContaining({
+					transformUrl: expect.any(Function),
+				}),
+			);
+		});
+
+		it('transformUrl uses the cross-product url wrapper', () => {
+			render(
+				<FlexibleCard cardState={cardState} url={url}>
+					<TitleBlock />
+				</FlexibleCard>,
+				{ wrapper: getCardTestWrapper() },
+			);
+
+			const callArgs = (getContextByStatus as jest.Mock).mock.calls[0][0];
+			const transformed = callArgs.transformUrl(url);
+
+			expect(mockWrapper).toHaveBeenCalledWith(url);
+			expect(transformed).toBe(`${url}?xpc=1`);
 		});
 	});
 });

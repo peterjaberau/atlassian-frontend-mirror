@@ -1,10 +1,10 @@
 import { transformNestedTableNodeOutgoingDocument } from '@atlaskit/adf-utils/transforms';
 import { traverse } from '@atlaskit/adf-utils/traverse';
-import { type ADFEntity } from '@atlaskit/adf-utils/types';
+import type { ADFEntity } from '@atlaskit/adf-utils/types';
 
-import { type JSONNode } from '../types';
-
-import { removeMarks, removeNonAnnotationMarks } from './remove-marks';
+import type { JSONNode } from '../types';
+import { removeMarks } from './remove-marks';
+import { removeNonAnnotationMarks } from './remove-non-annotation-marks';
 
 const hasNestedTable = (tableCellNode: ADFEntity) =>
 	tableCellNode.content?.some((node) => node?.type === 'table');
@@ -55,6 +55,7 @@ export function sanitizeNode(json: JSONNode, options: SanitizeNodeOptions = {}):
 			}
 			return;
 		},
+		panel_c1: (node) => ({ ...node, type: 'panel' }) as JSONNode,
 		emoji: removeNonAnnotationMarks,
 		mention: removeNonAnnotationMarks,
 		date: removeNonAnnotationMarks,

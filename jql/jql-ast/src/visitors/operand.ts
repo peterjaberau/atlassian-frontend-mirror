@@ -1,12 +1,12 @@
-import {
-	type JqlArgumentListContext,
-	type JqlEmptyContext,
-	type JqlFunctionContext,
-	type JqlFunctionNameContext,
-	type JqlListContext,
-	type JqlOperandContext,
-	type JqlValueContext,
-} from '@atlaskit/jql-parser';
+import type {
+	JqlArgumentListContext,
+	JqlEmptyContext,
+	JqlFunctionContext,
+	JqlFunctionNameContext,
+	JqlListContext,
+	JqlOperandContext,
+	JqlValueContext,
+} from '@atlaskit/jql-parser/JQLParser';
 
 import { OPERAND_EMPTY } from '../constants';
 import { internalCreators } from '../creators';
@@ -20,17 +20,16 @@ import {
 	type ValueOperand,
 } from '../types';
 import { notUndefined } from '../utils';
-
 import { ArgumentVisitor } from './argument';
 import { getPositionFromContext, getPositionFromToken, JastBuildingVisitor } from './common';
 import { NumberVisitor } from './number';
 import { StringVisitor } from './string';
 
 export class OperandVisitor extends JastBuildingVisitor<Operand | void> {
-	stringVisitor = new StringVisitor(this.tokens);
-	numberVisitor = new NumberVisitor(this.tokens);
-	functionNameVisitor = new FunctionNameVisitor(this.tokens);
-	argumentListVisitor = new ArgumentListVisitor(this.tokens);
+	stringVisitor: StringVisitor = new StringVisitor(this.tokens);
+	numberVisitor: NumberVisitor = new NumberVisitor(this.tokens);
+	functionNameVisitor: FunctionNameVisitor = new FunctionNameVisitor(this.tokens);
+	argumentListVisitor: ArgumentListVisitor = new ArgumentListVisitor(this.tokens);
 
 	visitJqlOperand = (ctx: JqlOperandContext): Operand | void => {
 		const operandContext = [ctx.jqlEmpty(), ctx.jqlValue(), ctx.jqlList(), ctx.jqlFunction()].find(
@@ -86,7 +85,7 @@ export class OperandVisitor extends JastBuildingVisitor<Operand | void> {
 }
 
 class FunctionNameVisitor extends JastBuildingVisitor<FunctionString> {
-	stringVisitor = new StringVisitor(this.tokens);
+	stringVisitor: StringVisitor = new StringVisitor(this.tokens);
 
 	visitJqlFunctionName = (ctx: JqlFunctionNameContext): FunctionString => {
 		const stringContext = ctx.jqlString();
@@ -105,7 +104,7 @@ class FunctionNameVisitor extends JastBuildingVisitor<FunctionString> {
 }
 
 class ArgumentListVisitor extends JastBuildingVisitor<Argument[]> {
-	argumentVisitor = new ArgumentVisitor(this.tokens);
+	argumentVisitor: ArgumentVisitor = new ArgumentVisitor(this.tokens);
 
 	visitJqlArgumentList = (ctx: JqlArgumentListContext): Argument[] => {
 		return ctx.jqlArgument().map((argumentCtx) => argumentCtx.accept(this.argumentVisitor));

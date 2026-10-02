@@ -1,10 +1,15 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import checkWithinComponent from './check-within-component';
 
 // Mock the feature flag
-jest.mock('@atlaskit/platform-feature-flags');
+jest.mock('@atlaskit/platform-feature-flags/fg');
 const mockFg = fg as jest.Mock;
+
+beforeEach(() => {
+	mockFg.mockReset();
+	mockFg.mockReturnValue(false);
+});
 
 // Mock Fiber node structure
 type MockFiber = {
@@ -254,6 +259,298 @@ describe('Using checkWithinComponent to check UFOThirdPartySegment', () => {
 		});
 
 		const result = checkWithinComponent(childElement, 'UFOThirdPartySegment', mapIs3pResult);
+		expect(result.isWithin).toBe(false);
+	});
+
+	it('should stop DOM walk after 40 levels', () => {
+		let currentElement = createMockNode({
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		});
+
+		for (let i = 0; i < 41; i++) {
+			const childElement = document.createElement('div') as HTMLElement;
+			Object.defineProperty(childElement, 'parentElement', {
+				value: currentElement,
+				writable: true,
+			});
+			currentElement = childElement;
+		}
+
+		const result = checkWithinComponent(currentElement, 'UFOThirdPartySegment', mapIs3pResult);
+		expect(result.isWithin).toBe(false);
+	});
+
+	it('should walk up to 40 DOM levels', () => {
+		let currentElement = createMockNode({
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		});
+
+		for (let i = 0; i < 39; i++) {
+			const childElement = document.createElement('div') as HTMLElement;
+			Object.defineProperty(childElement, 'parentElement', {
+				value: currentElement,
+				writable: true,
+			});
+			currentElement = childElement;
+		}
+
+		const result = checkWithinComponent(currentElement, 'UFOThirdPartySegment', mapIs3pResult);
+		expect(result.isWithin).toBe(true);
+	});
+
+	it('should walk up to 400 DOM levels when bumped walk levels are enabled', () => {
+		mockFg.mockReturnValue(true);
+
+		let currentElement = createMockNode({
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		});
+
+		for (let i = 0; i < 399; i++) {
+			const childElement = document.createElement('div') as HTMLElement;
+			Object.defineProperty(childElement, 'parentElement', {
+				value: currentElement,
+				writable: true,
+			});
+			currentElement = childElement;
+		}
+
+		const result = checkWithinComponent(currentElement, 'UFOThirdPartySegment', new WeakMap());
+		expect(result.isWithin).toBe(true);
+	});
+
+	it('should stop DOM walk after 400 levels when bumped walk levels are enabled', () => {
+		mockFg.mockReturnValue(true);
+
+		let currentElement = createMockNode({
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		});
+
+		for (let i = 0; i < 401; i++) {
+			const childElement = document.createElement('div') as HTMLElement;
+			Object.defineProperty(childElement, 'parentElement', {
+				value: currentElement,
+				writable: true,
+			});
+			currentElement = childElement;
+		}
+
+		const result = checkWithinComponent(currentElement, 'UFOThirdPartySegment', new WeakMap());
+		expect(result.isWithin).toBe(false);
+	});
+
+	it('should walk up to 40 fiber levels', () => {
+		let topFiber: MockFiber = {
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		};
+		let currentFiber: MockFiber = topFiber;
+		for (let i = 0; i < 39; i++) {
+			const childFiber: MockFiber = {
+				key: null,
+				type: { name: `Wrapper${i}` },
+				return: currentFiber,
+			};
+			currentFiber = childFiber;
+		}
+
+		const node = createMockNode(currentFiber);
+		const result = checkWithinComponent(node, 'UFOThirdPartySegment', new WeakMap());
+		expect(result.isWithin).toBe(true);
+	});
+
+	it('should walk up to 400 fiber levels when bumped walk levels are enabled', () => {
+		mockFg.mockReturnValue(true);
+
+		let topFiber: MockFiber = {
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		};
+		let currentFiber: MockFiber = topFiber;
+		for (let i = 0; i < 399; i++) {
+			const childFiber: MockFiber = {
+				key: null,
+				type: { name: `Wrapper${i}` },
+				return: currentFiber,
+			};
+			currentFiber = childFiber;
+		}
+
+		const node = createMockNode(currentFiber);
+		const result = checkWithinComponent(node, 'UFOThirdPartySegment', new WeakMap());
+		expect(result.isWithin).toBe(true);
+	});
+
+	it('should reuse a cached ancestor result when bumped walk levels are enabled', () => {
+		mockFg.mockReturnValue(true);
+
+		const targetFiber: MockFiber = {
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		};
+		const targetElement = createMockNode(targetFiber);
+		const parentElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(parentElement, 'parentElement', {
+			value: targetElement,
+			writable: true,
+		});
+
+		const firstChildElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(firstChildElement, 'parentElement', {
+			value: parentElement,
+			writable: true,
+		});
+
+		const secondChildElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(secondChildElement, 'parentElement', {
+			value: parentElement,
+			writable: true,
+		});
+
+		const resultCache = new WeakMap<HTMLElement, boolean>();
+
+		expect(
+			checkWithinComponent(firstChildElement, 'UFOThirdPartySegment', resultCache).isWithin,
+		).toBe(true);
+
+		targetFiber.type = { name: 'OtherComponent' };
+
+		expect(
+			checkWithinComponent(secondChildElement, 'UFOThirdPartySegment', resultCache).isWithin,
+		).toBe(true);
+	});
+
+	it('should reuse a cached false ancestor result when bumped walk levels are enabled', () => {
+		mockFg.mockReturnValue(true);
+
+		const targetFiber: MockFiber = {
+			key: null,
+			type: { name: 'OtherComponent' },
+			return: null,
+		};
+		const targetElement = createMockNode(targetFiber);
+		const parentElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(parentElement, 'parentElement', {
+			value: targetElement,
+			writable: true,
+		});
+
+		const firstChildElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(firstChildElement, 'parentElement', {
+			value: parentElement,
+			writable: true,
+		});
+
+		const secondChildElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(secondChildElement, 'parentElement', {
+			value: parentElement,
+			writable: true,
+		});
+
+		const resultCache = new WeakMap<HTMLElement, boolean>();
+
+		expect(
+			checkWithinComponent(firstChildElement, 'UFOThirdPartySegment', resultCache).isWithin,
+		).toBe(false);
+
+		targetFiber.type = { name: 'UFOThirdPartySegment' };
+
+		expect(
+			checkWithinComponent(secondChildElement, 'UFOThirdPartySegment', resultCache).isWithin,
+		).toBe(false);
+	});
+
+	it('should not reuse a cached ancestor result when bumped walk levels are disabled', () => {
+		mockFg.mockReturnValue(false);
+
+		const targetFiber: MockFiber = {
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		};
+		const targetElement = createMockNode(targetFiber);
+		const parentElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(parentElement, 'parentElement', {
+			value: targetElement,
+			writable: true,
+		});
+
+		const firstChildElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(firstChildElement, 'parentElement', {
+			value: parentElement,
+			writable: true,
+		});
+
+		const secondChildElement = document.createElement('div') as HTMLElement;
+		Object.defineProperty(secondChildElement, 'parentElement', {
+			value: parentElement,
+			writable: true,
+		});
+
+		const resultCache = new WeakMap<HTMLElement, boolean>();
+
+		expect(
+			checkWithinComponent(firstChildElement, 'UFOThirdPartySegment', resultCache).isWithin,
+		).toBe(true);
+
+		targetFiber.type = { name: 'OtherComponent' };
+
+		expect(
+			checkWithinComponent(secondChildElement, 'UFOThirdPartySegment', resultCache).isWithin,
+		).toBe(false);
+	});
+
+	it('should stop fiber walk after 40 levels', () => {
+		let topFiber: MockFiber = {
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		};
+		let currentFiber: MockFiber = topFiber;
+		for (let i = 0; i < 41; i++) {
+			const childFiber: MockFiber = {
+				key: null,
+				type: { name: `Wrapper${i}` },
+				return: currentFiber,
+			};
+			currentFiber = childFiber;
+		}
+
+		const node = createMockNode(currentFiber);
+		const result = checkWithinComponent(node, 'UFOThirdPartySegment', new WeakMap());
+		expect(result.isWithin).toBe(false);
+	});
+
+	it('should stop fiber walk after 400 levels when bumped walk levels are enabled', () => {
+		mockFg.mockReturnValue(true);
+
+		let topFiber: MockFiber = {
+			key: null,
+			type: { name: 'UFOThirdPartySegment' },
+			return: null,
+		};
+		let currentFiber: MockFiber = topFiber;
+		for (let i = 0; i < 401; i++) {
+			const childFiber: MockFiber = {
+				key: null,
+				type: { name: `Wrapper${i}` },
+				return: currentFiber,
+			};
+			currentFiber = childFiber;
+		}
+
+		const node = createMockNode(currentFiber);
+		const result = checkWithinComponent(node, 'UFOThirdPartySegment', new WeakMap());
 		expect(result.isWithin).toBe(false);
 	});
 });

@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/link-client-extension",
-	"version": "6.0.0",
+	"version": "8.0.0",
 	"description": "Extension methods for linking platform client",
 	"author": "Atlassian Pty Ltd",
 	"license": "Apache-2.0",
@@ -8,8 +8,18 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Navigation Experiences - Linking Platform",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "LinkClientExtension"
 		}
 	},
@@ -18,24 +28,26 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./use-data-source-client-extension/mockActionsDiscoveryEmptyResponse": "./src/services/use-data-source-client-extension/mockActionsDiscoveryEmptyResponse.ts",
+		"./use-data-source-client-extension/mockActionsDiscoveryResponse": "./src/services/use-data-source-client-extension/mockActionsDiscoveryResponse.ts",
+		"./use-data-source-client-extension/mockDatasourceDataNoActionsResponse": "./src/services/use-data-source-client-extension/mockDatasourceDataNoActionsResponse.ts",
+		"./use-data-source-client-extension/mockDatasourceDataResponse": "./src/services/use-data-source-client-extension/mockDatasourceDataResponse.ts",
+		"./use-data-source-client-extension/mockDatasourceDataResponseWithSchema": "./src/services/use-data-source-client-extension/mocks.ts",
+		"./use-data-source-client-extension/mockDatasourceDetailsResponse": "./src/services/use-data-source-client-extension/mockDatasourceDetailsResponse.ts",
+		"./use-data-source-client-extension/types": "./src/services/use-data-source-client-extension/types.ts",
+		"./use-data-source-client-extension": "./src/services/use-data-source-client-extension/index.ts",
+		"./use-smart-link-client-extension": "./src/services/use-smart-link-client-extension/index.ts"
 	},
 	"dependencies": {
 		"@atlaskit/json-ld-types": "workspace:^",
 		"@atlaskit/linking-common": "workspace:^",
 		"@atlaskit/linking-types": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@babel/runtime": "root:*",
 		"lru_map": "root:*"
 	},
@@ -46,47 +58,11 @@
 	"devDependencies": {
 		"@atlaskit/link-test-helpers": "workspace:^",
 		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
 		"@testing-library/react": "root:*",
+		"react": "root:*",
 		"react-dom": "root:*",
 		"wait-for-expect": "root:*"
-	},
-	"techstack": {
-		"@atlassian/frontend": {
-			"code-structure": [
-				"tangerine-next"
-			],
-			"import-structure": [
-				"atlassian-conventions"
-			],
-			"circular-dependencies": [
-				"file-and-folder-level"
-			]
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"analytics": [
-				"analytics-next"
-			],
-			"design-tokens": [
-				"color"
-			],
-			"theming": [
-				"react-context"
-			],
-			"ui-components": [
-				"lite-mode"
-			],
-			"deprecation": [
-				"no-deprecated-imports"
-			],
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"imports": [
-				"import-no-extraneous-disable-for-examples-and-docs"
-			]
-		}
 	},
 	"compassUnitTestMetricSourceId": "ari:cloud:compass:a436116f-02ce-4520-8fbb-7301462a1674:metric-source/c5751cc6-3513-4070-9deb-af31e86aed34/cf4080bb-133c-425e-bf40-17e725f5add5"
 }

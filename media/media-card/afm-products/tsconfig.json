@@ -1,8 +1,6 @@
 {
 	"extends": "../../../../tsconfig.local-consumption.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
 		"outDir": "../../../../../tsDist/@atlaskit__media-card/app",
 		"rootDir": "../",
 		"composite": true,
@@ -38,6 +36,9 @@
 			"path": "../../../design-system/icon/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../observability/interaction-context/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../design-system/link/afm-products/tsconfig.json"
 		},
 		{
@@ -53,6 +54,9 @@
 			"path": "../../media-file-preview/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../media-state/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../media-svg/afm-products/tsconfig.json"
 		},
 		{
@@ -62,19 +66,31 @@
 			"path": "../../media-viewer/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../platform/feature-experiments/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../platform/feature-flags/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/primitives/afm-products/tsconfig.json"
 		},
 		{
+			"path": "../../../design-system/progress-bar/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../react-compiler/react-compiler-gating/afm-products/tsconfig.json"
+		},
+		{
 			"path": "../../../react-ufo/atlaskit/afm-products/tsconfig.json"
 		},
 		{
-			"path": "../../../design-system/spinner/afm-products/tsconfig.json"
+			"path": "../../../design-system/section-message/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/theme/afm-products/tsconfig.json"
+		},
+		{
+			"path": "../../../editor/tmp-editor-statsig/afm-products/tsconfig.json"
 		},
 		{
 			"path": "../../../design-system/tokens/afm-products/tsconfig.json"

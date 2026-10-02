@@ -1,4 +1,5 @@
-import { uuid } from '../../../../utils';
+import { fromHTML, toHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
+
 import { createSchema } from '../../../../schema/create-schema';
 import type { TableAttributes, CellAttributes } from '../../../../schema/nodes/tableNodes';
 import {
@@ -10,10 +11,12 @@ import {
 	tableCellWithNestedTable,
 	tableHeaderWithNestedTable,
 	tableRowWithNestedTable,
+	tableCellWithNestedTableStage0,
+	tableHeaderWithNestedTableStage0,
 	setGlobalTheme,
 } from '../../../../schema/nodes/tableNodes';
-import { fromHTML, toHTML } from '@af/adf-test-helpers/src/adf-schema/html-helpers';
-
+import { uuid } from '../../../../utils/uuid';
+import { normalizeNodeSpec } from '../../_utils';
 import {
 	ATTRIBUTES_PARSE_DEFAULTS,
 	ATTRIBUTES_PARSE_DEFAULT_DISPLAY_MODE,
@@ -57,7 +60,6 @@ import {
 	HTML_PARSE_EDITOR_P_TABLE_P_RANGE_NESTED_TABLE,
 	HTML_PARSE_EDITOR_P_PARTIAL_TABLE_NESTED_TABLE,
 } from './_consts';
-import { normalizeNodeSpec } from '../../_utils';
 
 const makeSchema = () =>
 	createSchema({
@@ -66,8 +68,29 @@ const makeSchema = () =>
 		customNodeSpecs: {
 			table: tableWithNestedTable,
 			tableRow: tableRowWithNestedTable,
-			tableCell: tableCellWithNestedTable,
-			tableHeader: tableHeaderWithNestedTable,
+			// Use the localId-generating cell specs so assertions cover localId behaviour.
+			tableCell: tableCellWithNestedTableStage0,
+			tableHeader: tableHeaderWithNestedTableStage0,
+		},
+	});
+
+const makeSchemaWithFontSize = () =>
+	createSchema({
+		nodes: ['doc', 'paragraph', 'text', 'table', 'tableRow', 'tableCell', 'tableHeader'],
+		marks: [
+			'fontSize',
+			'alignment',
+			'indentation',
+			'fragment',
+			'unsupportedMark',
+			'unsupportedNodeAttribute',
+		],
+		customNodeSpecs: {
+			table: tableWithNestedTable,
+			tableRow: tableRowWithNestedTable,
+			// Use the localId-generating cell specs so assertions cover localId behaviour.
+			tableCell: tableCellWithNestedTableStage0,
+			tableHeader: tableHeaderWithNestedTableStage0,
 		},
 	});
 
@@ -145,11 +168,15 @@ describe(`${packageName}/schema table node`, () => {
 						localId: {
 							default: null,
 						},
+						valign: {
+							default: null,
+						},
 					},
 					content:
-						'(paragraph | panel | blockquote | orderedList | bulletList | rule | heading | codeBlock | mediaSingle | mediaGroup | decisionList | taskList | blockCard | embedCard | extension | nestedExpand | unsupportedBlock)+',
+						'(paragraph | panel | blockquote | orderedList | bulletList | rule | bodiedRule | heading | codeBlock | mediaSingle | mediaGroup | decisionList | taskList | blockCard | embedCard | extension | nestedExpand | unsupportedBlock)+',
 					isolating: true,
-					marks: 'alignment dataConsumer fragment unsupportedMark unsupportedNodeAttribute',
+					marks:
+						'alignment fontSize dataConsumer fragment unsupportedMark unsupportedNodeAttribute annotation',
 					parseDOM: [
 						{
 							ignore: true,
@@ -188,11 +215,15 @@ describe(`${packageName}/schema table node`, () => {
 						localId: {
 							default: null,
 						},
+						valign: {
+							default: null,
+						},
 					},
 					content:
-						'(paragraph | panel | blockquote | orderedList | bulletList | rule | heading | codeBlock | mediaSingle | mediaGroup | decisionList | taskList | blockCard | embedCard | extension | nestedExpand)+',
+						'(paragraph | panel | blockquote | orderedList | bulletList | rule | bodiedRule | heading | codeBlock | mediaSingle | mediaGroup | decisionList | taskList | blockCard | embedCard | extension | nestedExpand)+',
 					isolating: true,
-					marks: 'alignment dataConsumer fragment unsupportedMark unsupportedNodeAttribute',
+					marks:
+						'alignment fontSize dataConsumer fragment unsupportedMark unsupportedNodeAttribute annotation',
 					parseDOM: [
 						{
 							getAttrs: expect.anything(),
@@ -285,11 +316,15 @@ describe(`${packageName}/schema table node`, () => {
 						localId: {
 							default: null,
 						},
+						valign: {
+							default: null,
+						},
 					},
 					content:
-						'(paragraph | panel | blockquote | orderedList | bulletList | rule | heading | codeBlock | mediaSingle | mediaGroup | decisionList | taskList | blockCard | embedCard | extension | nestedExpand | unsupportedBlock | table)+',
+						'(paragraph | panel | blockquote | orderedList | bulletList | rule | bodiedRule | heading | codeBlock | mediaSingle | mediaGroup | decisionList | taskList | blockCard | embedCard | extension | nestedExpand | unsupportedBlock | table)+',
 					isolating: true,
-					marks: 'alignment dataConsumer fragment unsupportedMark unsupportedNodeAttribute',
+					marks:
+						'alignment fontSize dataConsumer fragment unsupportedMark unsupportedNodeAttribute annotation',
 					parseDOM: [
 						{
 							ignore: true,
@@ -328,11 +363,15 @@ describe(`${packageName}/schema table node`, () => {
 						localId: {
 							default: null,
 						},
+						valign: {
+							default: null,
+						},
 					},
 					content:
-						'(paragraph | panel | blockquote | orderedList | bulletList | rule | heading | codeBlock | mediaSingle | mediaGroup | decisionList | taskList | blockCard | embedCard | extension | nestedExpand | table)+',
+						'(paragraph | panel | blockquote | orderedList | bulletList | rule | bodiedRule | heading | codeBlock | mediaSingle | mediaGroup | decisionList | taskList | blockCard | embedCard | extension | nestedExpand | table)+',
 					isolating: true,
-					marks: 'alignment dataConsumer fragment unsupportedMark unsupportedNodeAttribute',
+					marks:
+						'alignment fontSize dataConsumer fragment unsupportedMark unsupportedNodeAttribute annotation',
 					parseDOM: [
 						{
 							getAttrs: expect.anything(),
@@ -1084,6 +1123,16 @@ describe(`${packageName}/schema table node`, () => {
 		});
 
 		describe('cell node', () => {
+			it('generates localId in stage-0 schema', () => {
+				const doc = fromHTML(
+					'<table><tbody><tr><td data-valign="middle"></td></tr></tbody></table>',
+					schema,
+				);
+				const cell = doc.firstChild!.firstChild!.firstChild!;
+				expect(cell.attrs.valign).toBe('middle');
+				expect(cell.attrs.localId).toEqual(TABLE_LOCAL_ID);
+			});
+
 			it('should convert default cell', () => {
 				const cell = schema.nodes.tableCell.create();
 				expect(toHTML(cell, schema)).toEqual('<td class="pm-table-cell-content-wrap"></td>');
@@ -1176,9 +1225,27 @@ describe(`${packageName}/schema table node`, () => {
 					);
 				});
 			});
+
+			it('should convert cell with valign attribute', () => {
+				const attrs = { valign: 'middle' } as CellAttributes;
+				const cell = schema.nodes.tableCell.create(attrs);
+				expect(toHTML(cell, schema)).toEqual(
+					'<td class="pm-table-cell-content-wrap" data-valign="middle"></td>',
+				);
+			});
 		});
 
 		describe('header node', () => {
+			it('generates localId in stage-0 schema', () => {
+				const doc = fromHTML(
+					'<table><tbody><tr><th data-valign="bottom"></th></tr></tbody></table>',
+					schema,
+				);
+				const header = doc.firstChild!.firstChild!.firstChild!;
+				expect(header.attrs.valign).toBe('bottom');
+				expect(header.attrs.localId).toEqual(TABLE_LOCAL_ID);
+			});
+
 			it('should convert default header', () => {
 				const header = schema.nodes.tableHeader.create();
 				expect(toHTML(header, schema)).toEqual('<th class="pm-table-header-content-wrap"></th>');
@@ -1231,6 +1298,14 @@ describe(`${packageName}/schema table node`, () => {
 					'<th style="" class="pm-table-header-content-wrap"></th>',
 				);
 			});
+
+			it('should convert header with valign attribute', () => {
+				const attrs = { valign: 'bottom' } as CellAttributes;
+				const header = schema.nodes.tableHeader.create(attrs);
+				expect(toHTML(header, schema)).toEqual(
+					'<th class="pm-table-header-content-wrap" data-valign="bottom"></th>',
+				);
+			});
 		});
 
 		describe('row node', () => {
@@ -1238,6 +1313,139 @@ describe(`${packageName}/schema table node`, () => {
 				const row = schema.nodes.tableRow.create();
 				expect(toHTML(row, schema)).toEqual('<tr></tr>');
 			});
+		});
+	});
+
+	describe('paragraph with fontSize mark', () => {
+		const schemaWithFontSize = makeSchemaWithFontSize();
+
+		it('paragraph with fontSize is valid inside tableCell', () => {
+			const paragraph = schemaWithFontSize.nodes.paragraph.create(
+				null,
+				schemaWithFontSize.text('Small text'),
+				[schemaWithFontSize.marks.fontSize.create({ fontSize: 'small' })],
+			);
+			const cell = schemaWithFontSize.nodes.tableCell.create(null, [paragraph]);
+
+			expect(cell).toBeDefined();
+			expect(cell.firstChild).toBe(paragraph);
+			expect(cell.firstChild?.marks[0].type.name).toBe('fontSize');
+			expect(cell.firstChild?.marks[0].attrs.fontSize).toBe('small');
+		});
+
+		it('paragraph with fontSize is valid inside tableHeader', () => {
+			const paragraph = schemaWithFontSize.nodes.paragraph.create(
+				null,
+				schemaWithFontSize.text('Small header'),
+				[schemaWithFontSize.marks.fontSize.create({ fontSize: 'small' })],
+			);
+			const header = schemaWithFontSize.nodes.tableHeader.create(null, [paragraph]);
+
+			expect(header).toBeDefined();
+			expect(header.firstChild).toBe(paragraph);
+			expect(header.firstChild?.marks[0].type.name).toBe('fontSize');
+			expect(header.firstChild?.marks[0].attrs.fontSize).toBe('small');
+		});
+
+		it('table cells with fontSize paragraph validate correctly', () => {
+			const paragraphWithFontSize = schemaWithFontSize.nodes.paragraph.create(
+				null,
+				schemaWithFontSize.text('Small text'),
+				[schemaWithFontSize.marks.fontSize.create({ fontSize: 'small' })],
+			);
+			const paragraphNormal = schemaWithFontSize.nodes.paragraph.create(
+				null,
+				schemaWithFontSize.text('Normal text'),
+			);
+
+			const cell1 = schemaWithFontSize.nodes.tableCell.create(null, [paragraphWithFontSize]);
+			const cell2 = schemaWithFontSize.nodes.tableCell.create(null, [paragraphNormal]);
+			const row = schemaWithFontSize.nodes.tableRow.create(null, [cell1, cell2]);
+			const table = schemaWithFontSize.nodes.table.create(null, [row]);
+
+			expect(table).toBeDefined();
+			expect(table.firstChild?.firstChild?.firstChild?.marks[0]?.type.name).toBe('fontSize');
+			expect(table.firstChild?.lastChild?.firstChild?.marks.length).toBe(0);
+		});
+
+		it('tableCell with fontSize paragraph serializes correctly', () => {
+			const paragraph = schemaWithFontSize.nodes.paragraph.create(
+				null,
+				schemaWithFontSize.text('Small text'),
+				[schemaWithFontSize.marks.fontSize.create({ fontSize: 'small' })],
+			);
+			const cell = schemaWithFontSize.nodes.tableCell.create(null, [paragraph]);
+			const html = toHTML(cell, schemaWithFontSize);
+
+			expect(html).toContain('data-font-size="small"');
+			expect(html).toContain('Small text');
+		});
+
+		it('tableHeader with fontSize paragraph serializes correctly', () => {
+			const paragraph = schemaWithFontSize.nodes.paragraph.create(
+				null,
+				schemaWithFontSize.text('Small header'),
+				[schemaWithFontSize.marks.fontSize.create({ fontSize: 'small' })],
+			);
+			const header = schemaWithFontSize.nodes.tableHeader.create(null, [paragraph]);
+			const html = toHTML(header, schemaWithFontSize);
+
+			expect(html).toContain('data-font-size="small"');
+			expect(html).toContain('Small header');
+		});
+	});
+
+	describe('valign in full schema', () => {
+		const fullSchema = createSchema({
+			nodes: ['doc', 'paragraph', 'text', 'table', 'tableRow', 'tableCell', 'tableHeader'],
+			marks: ['fragment', 'unsupportedMark', 'unsupportedNodeAttribute'],
+			customNodeSpecs: {
+				table,
+				tableRow,
+				tableCell,
+				tableHeader,
+			},
+		});
+
+		it('exposes valign as a tableCell attribute', () => {
+			expect(fullSchema.nodes.tableCell.spec.attrs).toHaveProperty('valign');
+		});
+
+		it('exposes valign as a tableHeader attribute', () => {
+			expect(fullSchema.nodes.tableHeader.spec.attrs).toHaveProperty('valign');
+		});
+
+		it('serializes tableCell valign', () => {
+			const cell = fullSchema.nodes.tableCell.create({ valign: 'middle' });
+			expect(toHTML(cell, fullSchema)).toContain('data-valign="middle"');
+		});
+
+		it('serializes tableHeader valign', () => {
+			const header = fullSchema.nodes.tableHeader.create({ valign: 'bottom' });
+			expect(toHTML(header, fullSchema)).toContain('data-valign="bottom"');
+		});
+
+		it('parses tableCell valign from data-valign', () => {
+			const doc = fromHTML(
+				'<table><tbody><tr><td data-valign="middle"></td></tr></tbody></table>',
+				fullSchema,
+			);
+			const cell = doc.firstChild!.firstChild!.firstChild!;
+			expect(cell.attrs.valign).toBe('middle');
+		});
+
+		it('parses tableHeader valign from data-valign', () => {
+			const doc = fromHTML(
+				'<table><tbody><tr><th data-valign="bottom"></th></tr></tbody></table>',
+				fullSchema,
+			);
+			const header = doc.firstChild!.firstChild!.firstChild!;
+			expect(header.attrs.valign).toBe('bottom');
+		});
+
+		it('omits data-valign when valign is not set', () => {
+			const cell = fullSchema.nodes.tableCell.create();
+			expect(toHTML(cell, fullSchema)).not.toContain('data-valign');
 		});
 	});
 });

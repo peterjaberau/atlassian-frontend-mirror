@@ -2,7 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { css, jsx } from '@atlaskit/css';
 import { selectionToolbarMessages } from '@atlaskit/editor-common/messages';
@@ -12,7 +12,6 @@ import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import PinIcon from '@atlaskit/icon/core/pin';
 import PinFilledIcon from '@atlaskit/icon/core/pin-filled';
-import { fg } from '@atlaskit/platform-feature-flags';
 import { token } from '@atlaskit/tokens';
 
 import type { SelectionToolbarPlugin } from '../selectionToolbarPluginType';
@@ -33,14 +32,15 @@ type PrimaryToolbarComponentProps = {
  * A component used to renderer a pin/unpin
  * button to the toolbar to the or make it in-line.
  */
-export const PrimaryToolbarComponent = ({ api, disabled }: PrimaryToolbarComponentProps) => {
+export const PrimaryToolbarComponent = ({
+	api,
+	disabled,
+}: PrimaryToolbarComponentProps): JSX.Element => {
 	const intl = useIntl();
 	const mode = useSharedPluginStateSelector(api, 'connectivity.mode');
 	const isOffline = isOfflineMode(mode);
-	const isDockedToTop = fg('platform_editor_use_preferences_plugin')
-		? api?.userPreferences?.sharedState.currentState()?.preferences?.toolbarDockingPosition ===
-			'top'
-		: api?.selectionToolbar.sharedState.currentState()?.toolbarDocking === 'top';
+	const isDockedToTop =
+		api?.userPreferences?.sharedState.currentState()?.preferences?.toolbarDockingPosition === 'top';
 	if (isDockedToTop) {
 		return (
 			<ToolbarButton
@@ -49,6 +49,7 @@ export const PrimaryToolbarComponent = ({ api, disabled }: PrimaryToolbarCompone
 				css={buttonStyles}
 				disabled={disabled || isOffline}
 				iconBefore={<PinFilledIcon label="" spacing="spacious" />}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				onClick={() => {
 					return (
 						api?.core.actions.execute(
@@ -68,6 +69,7 @@ export const PrimaryToolbarComponent = ({ api, disabled }: PrimaryToolbarCompone
 			css={buttonStyles}
 			disabled={disabled || isOffline}
 			iconBefore={<PinIcon label="" spacing="spacious" />}
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			onClick={() => {
 				return (
 					api?.core.actions.execute(

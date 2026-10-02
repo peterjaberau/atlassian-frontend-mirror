@@ -2,10 +2,13 @@ import valueParser from 'postcss-value-parser';
 import stylelint, { type Rule, type RuleBase } from 'stylelint';
 
 import renameMapping from '@atlaskit/tokens/rename-mapping';
-import { getCSSCustomProperty } from '@atlaskit/tokens/token-ids';
+import { getCSSCustomProperty } from '@atlaskit/tokens/utils/get-css-custom-property';
 
-import { isFunction, isVar, isWord } from '../../utils/rules';
-import { getDefaultTokenValue, isToken } from '../../utils/tokens';
+import { getDefaultTokenValue } from '../../utils/get-default-token-value';
+import { isFunction } from '../../utils/is-function';
+import { isToken } from '../../utils/is-token';
+import { isVar } from '../../utils/is-var';
+import { isWord } from '../../utils/is-word';
 
 type PluginFlags = {
 	shouldEnsureFallbackUsage: boolean;
@@ -14,10 +17,13 @@ type PluginFlags = {
 
 export const ruleName = 'design-system/no-unsafe-design-token-usage';
 export const messages: {
-    invalidToken: (name: string | number | boolean | RegExp) => string;
-    tokenRemoved: (name: string | number | boolean | RegExp, replacement: string | number | boolean | RegExp) => string;
-    missingFallback: string;
-    hasFallback: string;
+	invalidToken: (name: string | number | boolean | RegExp) => string;
+	tokenRemoved: (
+		name: string | number | boolean | RegExp,
+		replacement: string | number | boolean | RegExp,
+	) => string;
+	missingFallback: string;
+	hasFallback: string;
 } = stylelint.utils.ruleMessages(ruleName, {
 	invalidToken: (name): string =>
 		`The token '${name}' does not exist. You can find the design tokens reference at <https://atlaskit.atlassian.com/packages/design-system/tokens/docs/tokens-reference>.`,
@@ -162,4 +168,5 @@ const rule: Rule<any, any> = Object.assign(ruleBase, {
 
 const plugin: stylelint.Plugin = stylelint.createPlugin(ruleName, rule);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default plugin;

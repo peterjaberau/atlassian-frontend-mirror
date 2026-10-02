@@ -74,12 +74,14 @@ export type PositiveSpaceToken =
 	| 'space.600'
 	| 'space.800'
 	| 'space.1000';
+export type Space = PositiveSpaceToken;
 export type PaddingToken = PositiveSpaceToken;
 export type GapToken = PositiveSpaceToken;
 
 export type SurfaceColorToken =
 	| 'utility.elevation.surface.current'
 	| 'elevation.surface'
+	| 'elevation.surface.container'
 	| 'elevation.surface.overlay'
 	| 'elevation.surface.raised'
 	| 'elevation.surface.sunken';
@@ -123,7 +125,7 @@ export type TextColor =
 	| 'color.link.pressed'
 	| 'color.link.visited'
 	| 'color.link.visited.pressed';
-export type FontSize = 'small' | 'medium' | 'UNSAFE_small' | 'large';
+export type FontSize = 'small' | 'medium' | 'large';
 export type FontWeight = 'bold' | 'medium' | 'regular' | 'semibold';
 
 export type MetricTextFontSize = 'small' | 'medium' | 'large';

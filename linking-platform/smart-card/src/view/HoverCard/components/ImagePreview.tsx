@@ -1,10 +1,15 @@
 import React, { useCallback, useRef, useState } from 'react';
 
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
 import { token } from '@atlaskit/tokens';
 
-import { extractSmartLinkPreviewImage } from '../../../extractors/flexible/extract-preview';
-import { PreviewBlock } from '../../FlexibleCard/components/blocks';
-import { type ImagePreviewProps } from '../types';
+import { extractSmartLinkPreviewImage } from '../../../extractors/flexible/extract-smart-link-preview-image';
+import { default as PreviewBlock } from '../../FlexibleCard/components/blocks/preview-block';
+
+type ImagePreviewProps = {
+	fallbackElementHeight: number;
+	response?: SmartLinkResponse;
+};
 
 const ImagePreview = ({
 	fallbackElementHeight,

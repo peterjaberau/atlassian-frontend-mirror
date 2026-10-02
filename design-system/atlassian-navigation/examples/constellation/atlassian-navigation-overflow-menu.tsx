@@ -1,5 +1,6 @@
 import React from 'react';
 
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
 import {
 	AtlassianNavigation,
 	Create,
@@ -9,8 +10,18 @@ import {
 	type PrimaryDropdownButtonProps,
 	useOverflowStatus,
 } from '@atlaskit/atlassian-navigation';
+import { cssMap } from '@atlaskit/css';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
-import { ButtonItem } from '@atlaskit/menu';
+import ButtonItem from '@atlaskit/menu/button-item';
+import { Flex } from '@atlaskit/primitives/compiled';
+import { token } from '@atlaskit/tokens';
+
+const iconSpacingStyles = cssMap({
+	space075: {
+		paddingBlock: token('space.075'),
+		paddingInline: token('space.075'),
+	},
+});
 
 const ResponsivePrimaryButton = (props: PrimaryButtonProps) => {
 	const overflowStatus = useOverflowStatus();
@@ -28,7 +39,13 @@ const ResponsivePrimaryDropdownButton = (props: PrimaryDropdownButtonProps) => {
 	return overflowStatus.isVisible ? (
 		<PrimaryDropdownButton>{props.children}</PrimaryDropdownButton>
 	) : (
-		<ButtonItem iconAfter={<ChevronDownIcon label="" size="small" spacing="spacious" />}>
+		<ButtonItem
+			iconAfter={
+				<Flex xcss={iconSpacingStyles.space075}>
+					<ChevronDownIcon label="" size="small" />
+				</Flex>
+			}
+		>
 			{props.children}
 		</ButtonItem>
 	);

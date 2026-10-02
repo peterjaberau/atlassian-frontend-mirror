@@ -21,19 +21,15 @@ import {
 	IconTypeSubTasksProgress,
 	IconTypeView,
 	IconTypeVote,
-} from '../../../examples/vr-flexible-card/vr-flexible-ui-icon';
+} from '../../../examples/vr-flexible-card/vr-flexible-ui-icon.vr.ap';
 
 snapshot(IconTypeAttachment, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypeCheckItem, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -45,9 +41,7 @@ snapshot(IconTypeCheckItem, {
 });
 
 snapshot(IconTypeComment, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -59,9 +53,7 @@ snapshot(IconTypeComment, {
 });
 
 snapshot(IconTypeView, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -73,9 +65,7 @@ snapshot(IconTypeView, {
 });
 
 snapshot(IconTypeReact, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -87,86 +77,62 @@ snapshot(IconTypeReact, {
 });
 
 snapshot(IconTypeVote, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityBlocker, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityCritical, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityHigh, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityHighest, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityLow, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityLowest, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityMajor, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityMedium, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityMinor, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityTrivial, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	waitForReactLazy: true,
 });
 
 snapshot(IconTypePriorityUndefined, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -178,9 +144,7 @@ snapshot(IconTypePriorityUndefined, {
 });
 
 snapshot(IconTypeProgrammingLanguage, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -192,9 +156,7 @@ snapshot(IconTypeProgrammingLanguage, {
 });
 
 snapshot(IconTypeSubscriber, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,
@@ -206,9 +168,7 @@ snapshot(IconTypeSubscriber, {
 });
 
 snapshot(IconTypeSubTasksProgress, {
-	featureFlags: {
-		'platform-visual-refresh-icons': true,
-	},
+	featureFlags: {},
 	ignoredErrors: [
 		{
 			pattern: /Can't perform a React state update on a component that hasn't mounted yet/,

@@ -3,15 +3,16 @@
  * @jsx jsx
  * @jsxFrag
  */
-import { type CSSProperties, forwardRef, type ReactNode } from 'react';
+import { type CSSProperties, forwardRef, type ReactNode, useContext } from 'react';
 
 import { cssMap as unboundCssMap } from '@compiled/react';
 
 import { cssMap, jsx } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
-import { useAvatarContent, useEnsureIsInsideAvatar } from './context';
+import { AvatarContentContext } from './internal/content-context';
+import { useEnsureIsInsideAvatar } from './internal/use-ensure-is-inside-avatar';
 
 const boxShadowCssVar = '--avatar-box-shadow';
 const bgColorCssVar = '--avatar-bg-color';
@@ -49,14 +50,14 @@ const styles = cssMap({
 		},
 		'&:focus-visible': {
 			boxShadow: 'initial',
-			outlineColor: token('color.border.focused', '#2684FF'),
-			outlineOffset: token('space.025', '2px'),
+			outlineColor: token('color.border.focused'),
+			outlineOffset: token('space.025'),
 			outlineStyle: 'solid',
-			outlineWidth: token('border.width.focused', '2px'),
+			outlineWidth: token('border.width.focused'),
 		},
 		'@media screen and (forced-colors: active), screen and (-ms-high-contrast: active)': {
 			'&:focus-visible': {
-				outlineWidth: token('border.width', '1px'),
+				outlineWidth: token('border.width'),
 			},
 		},
 	},
@@ -75,15 +76,20 @@ const styles = cssMap({
 	disabled: {
 		cursor: 'not-allowed',
 		'&::after': {
-			backgroundColor: token('elevation.surface', '#FFFFFF'),
-			opacity: token('opacity.disabled', '0.7'),
+			backgroundColor: token('elevation.surface'),
+			opacity: token('opacity.disabled'),
 		},
 	},
 });
 
 const unboundStyles = unboundCssMap({
+	rootCustomBorder: {
+		// eslint-disable-next-line @compiled/shorthand-property-sorting -- Intentional: `background` shorthand must override `backgroundColor` in `root` when avatar-custom-border is enabled
+		background: `var(${bgColorCssVar})`,
+	},
 	root: {
 		boxSizing: 'content-box',
+		// eslint-disable-next-line @compiled/shorthand-property-sorting -- Intentional: `backgroundColor` in root, overridden by `background` in rootCustomBorder when avatar-custom-border is enabled
 		backgroundColor: `var(${bgColorCssVar})`,
 		boxShadow: `var(${boxShadowCssVar})`,
 	},
@@ -97,14 +103,24 @@ const unboundStyles = unboundCssMap({
 		// The goal here is emulating a 2px "outline"
 		paddingBlock: `calc(${token('border.width.selected')} * 1.25)`,
 		paddingInline: token('border.width.selected'),
-		// NOTE: `marginInline` is set in `marginInlineMap[size]`
 		marginBlock: `calc(${token('border.width.selected')} * 1.25 * -1)`,
+		marginInline: `calc(${token('border.width.selected')} * -1)`,
+
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- We have to hack the focus together with this hexagon `clip-path`
 		'&:has(:focus-visible)': {
 			backgroundColor: token('color.border.focused'),
 		},
 	},
+	updatedHexagonClipPath: {
+		clipPath:
+			'polygon(43.61555% 1.47441%, 46.08136% 0.49147%, 48.67910% 0.00000%, 51.32080% 0.00000%, 53.91847% 0.49147%, 56.38412% 1.47441%, 93.61555% 20.77327%, 95.79666% 22.19894%, 97.56964% 23.97299%, 98.89052% 26.02699%, 99.71530% 28.29251%, 100.00000% 30.70112%, 100.00000% 69.29883%, 99.71530% 71.70746%, 98.89052% 73.97300%, 97.56964% 76.02700%, 95.79666% 77.80100%, 93.61555% 79.22654%, 56.38412% 98.52540%, 53.91847% 99.50837%, 51.32080% 99.99991%, 48.67910% 100.00000%, 46.08136% 99.50860%, 43.61555% 98.52569%, 6.38428% 79.22654%, 4.20328% 77.80100%, 2.43035% 76.02700%, 1.10949% 73.97300%, 0.28471% 71.70746%, 0.00000% 69.29883%, 0.00000% 30.70112%, 0.28471% 28.29251%, 1.10949% 26.02699%, 2.43035% 23.97299%, 4.20328% 22.19894%, 6.38428% 20.77327%)',
+	},
+	hexagonBorderContainerCustomBorder: {
+		// eslint-disable-next-line @compiled/shorthand-property-sorting -- Intentional: `background` shorthand must override `backgroundColor` in `hexagonBorderContainer` when avatar-custom-border is enabled
+		background: `var(${bgColorCssVar})`,
+	},
 	hexagonBorderContainer: {
+		// eslint-disable-next-line @compiled/shorthand-property-sorting -- Intentional: `backgroundColor` in hexagonBorderContainer, overridden by `background` in hexagonBorderContainerCustomBorder when avatar-custom-border is enabled
 		backgroundColor: `var(${bgColorCssVar})`,
 		clipPath: 'inherit',
 		// NOTE: The `clip-path` and `background` overflows padding in an unexpected way, so
@@ -112,6 +128,8 @@ const unboundStyles = unboundCssMap({
 		// The goal here is emulating a 2px "border"
 		paddingBlock: `calc(${token('border.width.selected')} * 0.5)`,
 		paddingInline: `calc(${token('border.width.selected')} * 0.4)`,
+		marginBlock: `calc(${token('border.width.selected')} * 0.5 * -1)`,
+		marginInline: `calc(${token('border.width.selected')} * 0.4 * -1)`,
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- We have to hack the focus together with this hexagon `clip-path`
 		'&:has(:focus-visible)': {
 			// NOTE: For `circle` and `square` this is different. This would be border:none` and
@@ -142,11 +160,11 @@ const unboundStyles = unboundCssMap({
 	interactive: {
 		cursor: 'pointer',
 		'&:hover::after': {
-			backgroundColor: token('color.interaction.hovered', 'rgba(9, 30, 66, 0.36)'),
+			backgroundColor: token('color.interaction.hovered'),
 			opacity: '1',
 		},
 		'&:active::after': {
-			backgroundColor: token('color.interaction.pressed', 'rgba(9, 30, 66, 0.36)'),
+			backgroundColor: token('color.interaction.pressed'),
 			opacity: '1',
 		},
 		'@media screen and (forced-colors: active)': {
@@ -155,10 +173,81 @@ const unboundStyles = unboundCssMap({
 			},
 		},
 	},
+	// This can be combined with the interactive style when "platform-dst-motion-uplift" is cleaned up
+	interactiveMotion: {
+		transition: token('motion.avatar.hovered'),
+		willChange: 'transform',
+		'&:hover': {
+			transform: 'scale(1.12)',
+		},
+	},
+});
+
+const hexagonBorderFixStyles = unboundCssMap({
+	hexagonBorderContainer: {
+		// The 'border' is actually stacked hexagons, with the inner hexagon inset.
+		// A full 2px-looking clipped-hexagon ring needs `borderWidth * 1.12 = 2.24px` of
+		// padding on each side (1.12 is calculated based on the hexagon geometry).
+		// The existing avatar margin already contributes 2px of space.
+		// See https://hello.atlassian.net/wiki/spaces/DST/pages/7432283012
+		paddingBlockEnd: `calc(${token('border.width.selected')} * 0.12)`,
+		paddingBlockStart: `calc(${token('border.width.selected')} * 0.12)`,
+		paddingInlineEnd: `calc(${token('border.width.selected')} * 0.12)`,
+		paddingInlineStart: `calc(${token('border.width.selected')} * 0.12)`,
+		marginBlockEnd: `calc(${token('border.width.selected')} * -0.12)`,
+		marginBlockStart: `calc(${token('border.width.selected')} * -0.12)`,
+		marginInlineEnd: `calc(${token('border.width.selected')} * -0.12)`,
+		marginInlineStart: `calc(${token('border.width.selected')} * -0.12)`,
+	},
+	hexagonFocusContainer: {
+		// The focus ring is another stacked hexagon layer outside the border wrapper.
+		// It does not get help from the inner avatar margin, so it needs the full
+		// `borderWidth * 1.12` rectangular gap.
+		// See https://hello.atlassian.net/wiki/spaces/DST/pages/7432283012
+		paddingBlockEnd: `calc(${token('border.width.selected')} * 1.12)`,
+		paddingBlockStart: `calc(${token('border.width.selected')} * 1.12)`,
+		paddingInlineEnd: `calc(${token('border.width.selected')} * 1.12)`,
+		paddingInlineStart: `calc(${token('border.width.selected')} * 1.12)`,
+		marginBlockEnd: `calc(${token('border.width.selected')} * -1.12)`,
+		marginBlockStart: `calc(${token('border.width.selected')} * -1.12)`,
+		marginInlineEnd: `calc(${token('border.width.selected')} * -1.12)`,
+		marginInlineStart: `calc(${token('border.width.selected')} * -1.12)`,
+	},
+});
+
+// See https://hello.atlassian.net/wiki/spaces/DST/pages/7432283012
+const updatedHexagonBorderFixStyles = unboundCssMap({
+	hexagonBorderContainer: {
+		// The existing avatar margin already contributes `borderWidth * 1` of the gap needed in
+		// both directions, so no extra inline padding/margin is required, but the block direction
+		// still needs the aspect-ratio-scaled remainder: `borderWidth * 1.125 - borderWidth * 1 = borderWidth * 0.125`.
+		paddingBlockEnd: `calc(${token('border.width.selected')} * 0.125)`,
+		paddingBlockStart: `calc(${token('border.width.selected')} * 0.125)`,
+		paddingInlineEnd: 0,
+		paddingInlineStart: 0,
+		marginBlockEnd: `calc(${token('border.width.selected')} * -0.125)`,
+		marginBlockStart: `calc(${token('border.width.selected')} * -0.125)`,
+		marginInlineEnd: 0,
+		marginInlineStart: 0,
+	},
+	hexagonFocusContainer: {
+		// This layer gets no help from the inner avatar margin, so it needs the full gap in both
+		// directions: `borderWidth * 1` inline, `borderWidth * 1.125` block.
+		paddingBlockEnd: `calc(${token('border.width.selected')} * 1.125)`,
+		paddingBlockStart: `calc(${token('border.width.selected')} * 1.125)`,
+		paddingInlineEnd: token('border.width.selected'),
+		paddingInlineStart: token('border.width.selected'),
+		marginBlockEnd: `calc(${token('border.width.selected')} * -1.125)`,
+		marginBlockStart: `calc(${token('border.width.selected')} * -1.125)`,
+		marginInlineEnd: `calc(${token('border.width.selected')} * -1)`,
+		marginInlineStart: `calc(${token('border.width.selected')} * -1)`,
+	},
 });
 
 const widthHeightMap = cssMap({
+	xxsmall: { width: '16px', height: '16px' },
 	xsmall: { width: '16px', height: '16px' },
+	UNSAFE_xsmall: { width: '20px', height: '20px' },
 	small: { width: '24px', height: '24px' },
 	medium: { width: '32px', height: '32px' },
 	large: { width: '40px', height: '40px' },
@@ -166,42 +255,14 @@ const widthHeightMap = cssMap({
 	xxlarge: { width: '128px', height: '128px' },
 });
 
-const marginAdjustmentMap = unboundCssMap({
-	// NOTE: These are relatively magical, manual adjustments to adjust for the imperfection of this hexagon.
-	// The hexagon is a 9:10 ratio so we use negative margin to align it in AvatarGroup and other places.
-	xsmall: { marginInline: `calc(${token('border.width.selected')} * -1 - 1px)` },
-	small: { marginInline: `calc(${token('border.width.selected')} * -1 - 1px)` },
-	medium: { marginInline: `calc(${token('border.width.selected')} * -1 - 2px)` },
-	large: { marginInline: `calc(${token('border.width.selected')} * -1 - 2px)` },
-	xlarge: { marginInline: `calc(${token('border.width.selected')} * -1 - 4px)` },
-	xxlarge: { marginInline: `calc(${token('border.width.selected')} * -1 - 8px)` },
-});
-
-const borderRadiusMap = unboundCssMap({
-	xsmall: {
-		borderRadius: token('radius.xsmall'),
-		'&::after': { borderRadius: token('radius.xsmall') },
-	},
-	small: {
-		borderRadius: token('radius.xsmall'),
-		'&::after': { borderRadius: token('radius.xsmall') },
-	},
-	medium: {
-		borderRadius: token('radius.small'),
-		'&::after': { borderRadius: token('radius.small') },
-	},
-	large: {
-		borderRadius: token('radius.small'),
-		'&::after': { borderRadius: token('radius.small') },
-	},
-	xlarge: {
-		borderRadius: token('radius.medium'),
-		'&::after': { borderRadius: token('radius.medium') },
-	},
-	xxlarge: {
-		borderRadius: token('radius.xlarge'),
-		'&::after': { borderRadius: token('radius.xlarge') },
-	},
+// The sole source of truth for the updated hexagon width/height geometry (per size).
+const updatedHexagonDimensionMap = cssMap({
+	xxsmall: { width: '15.4px', height: '17.17px' },
+	small: { width: '23.11px', height: '25.76px' },
+	medium: { width: '30.81px', height: '34.34px' },
+	large: { width: '38.51px', height: '42.93px' },
+	xlarge: { width: '92.44px', height: '103.04px' },
+	xxlarge: { width: '123.25px', height: '137.39px' },
 });
 
 type AvatarContentProps = {
@@ -225,6 +286,7 @@ export const AvatarContent: React.ForwardRefExoticComponent<
 	const {
 		as: Container,
 		appearance,
+		UNSAFE_isUpdatedGeometry,
 		avatarImage,
 		borderColor = token('elevation.surface'),
 		href,
@@ -237,26 +299,34 @@ export const AvatarContent: React.ForwardRefExoticComponent<
 		testId,
 		size,
 		stackIndex,
-	} = useAvatarContent();
+		'aria-controls': ariaControls,
+		'aria-expanded': ariaExpanded,
+		'aria-haspopup': ariaHasPopup,
+	} = useContext(AvatarContentContext);
 
-	const isInteractive = Boolean(onClick || href || isDisabled);
+	const isInteractive = Boolean(onClick || href || isDisabled || ariaHasPopup);
 
 	const renderedContent = (
 		<Container
 			css={[
 				unboundStyles.root,
+				fg('avatar-custom-border') && unboundStyles.rootCustomBorder,
 				styles.root,
-				!fg('platform_dst_avatar_tile') &&
-					!fg('platform_dst_avatar_tile_stage2') &&
-					borderRadiusMap[size],
-				appearance === 'square' &&
-					(fg('platform_dst_avatar_tile') || fg('platform_dst_avatar_tile_stage2')) &&
-					styles.square,
+				appearance === 'square' && styles.square,
 				appearance === 'circle' && styles.circle,
 				appearance === 'hexagon' && unboundStyles.hexagon,
 				widthHeightMap[size],
+				UNSAFE_isUpdatedGeometry &&
+					updatedHexagonDimensionMap[
+						size as 'xxsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge'
+					],
 				stackIndex !== undefined && styles.positionRelative,
 				isInteractive && !isDisabled && unboundStyles.interactive,
+				isInteractive &&
+					!isDisabled &&
+					appearance !== 'hexagon' &&
+					fg('platform-dst-motion-uplift') &&
+					unboundStyles.interactiveMotion,
 				isDisabled && styles.disabled,
 			]}
 			style={
@@ -269,6 +339,9 @@ export const AvatarContent: React.ForwardRefExoticComponent<
 				(ref || contextRef) as React.Ref<HTMLAnchorElement & HTMLButtonElement & HTMLSpanElement>
 			}
 			aria-label={isInteractive ? label : undefined}
+			aria-controls={ariaControls}
+			aria-expanded={ariaExpanded}
+			aria-haspopup={ariaHasPopup}
 			onClick={onClick}
 			tabIndex={tabIndex}
 			data-testid={testId}
@@ -292,7 +365,18 @@ export const AvatarContent: React.ForwardRefExoticComponent<
 	// layer multiple elements and use their background colors to create the different layers.
 	return (
 		<div
-			css={[unboundStyles.hexagonFocusContainer, marginAdjustmentMap[size]]}
+			css={[
+				unboundStyles.hexagonFocusContainer,
+				UNSAFE_isUpdatedGeometry && unboundStyles.updatedHexagonClipPath,
+				isInteractive &&
+					!isDisabled &&
+					fg('platform-dst-motion-uplift') &&
+					unboundStyles.interactiveMotion,
+				UNSAFE_isUpdatedGeometry && updatedHexagonBorderFixStyles.hexagonFocusContainer,
+				fg('platform_editor_agent_mentions_drop_one_fixes') &&
+					!UNSAFE_isUpdatedGeometry &&
+					hexagonBorderFixStyles.hexagonFocusContainer,
+			]}
 			style={
 				{
 					[bgColorCssVar]: borderColor,
@@ -302,7 +386,14 @@ export const AvatarContent: React.ForwardRefExoticComponent<
 			data-testid={testId ? `${testId}-hexagon-focus-container` : 'hexagon-focus-container'}
 		>
 			<div
-				css={unboundStyles.hexagonBorderContainer}
+				css={[
+					unboundStyles.hexagonBorderContainer,
+					fg('avatar-custom-border') && unboundStyles.hexagonBorderContainerCustomBorder,
+					UNSAFE_isUpdatedGeometry && updatedHexagonBorderFixStyles.hexagonBorderContainer,
+					fg('platform_editor_agent_mentions_drop_one_fixes') &&
+						!UNSAFE_isUpdatedGeometry &&
+						hexagonBorderFixStyles.hexagonBorderContainer,
+				]}
 				data-testid={testId ? `${testId}-hexagon-border-container` : 'hexagon-border-container'}
 			>
 				{renderedContent}

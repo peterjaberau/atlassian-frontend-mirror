@@ -1,20 +1,20 @@
 import React from 'react';
 
-import type { IntlShape } from 'react-intl-next';
-import { IntlProvider } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
+import { IntlProvider } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 import { v4 as uuid } from 'uuid';
 import { keyName as keyNameNormalized } from 'w3c-keyname';
 
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { ReadonlyTransaction, Transaction } from '@atlaskit/editor-prosemirror/state';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { Decoration, DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { redo, undo } from '@atlaskit/prosemirror-history';
-import { B400 } from '@atlaskit/theme/colors';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { redo } from '@atlaskit/prosemirror-history/redo';
+import { undo } from '@atlaskit/prosemirror-history/undo';
 import { token } from '@atlaskit/tokens';
 
 import type { TypeAheadPlugin } from '../typeAheadPluginType';
@@ -24,7 +24,6 @@ import type {
 	RemoveTypeAheadDecorations,
 } from '../types';
 import { WrapperTypeAhead } from '../ui/WrapperTypeAhead';
-
 import { closeTypeAhead } from './commands/close-type-ahead';
 import { TYPE_AHEAD_DECORATION_DATA_ATTRIBUTE, TYPE_AHEAD_DECORATION_KEY } from './constants';
 import { StatsModifier } from './stats-modifier';
@@ -94,7 +93,7 @@ export const factoryDecorations = ({
 				typeaheadComponent.dataset.editorPopup = 'true';
 				typeaheadComponent.dataset.typeAhead = TYPE_AHEAD_DECORATION_DATA_ATTRIBUTE;
 
-				typeaheadComponent.style.color = token('color.text.accent.blue', B400);
+				typeaheadComponent.style.color = token('color.text.accent.blue');
 				typeaheadComponent.style.backgroundColor = 'transparent';
 
 				const onUndoRedo = (inputType: 'historyUndo' | 'historyRedo'): boolean => {

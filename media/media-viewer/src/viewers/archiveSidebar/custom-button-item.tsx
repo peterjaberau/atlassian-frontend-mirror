@@ -4,25 +4,26 @@
  */
 import { css, jsx } from '@compiled/react';
 
-import { ButtonItem, type ButtonItemProps } from '@atlaskit/side-navigation';
+import type { ButtonItemProps } from '@atlaskit/menu/types';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { ButtonItem } from '@atlaskit/side-navigation/button-item';
 import { token } from '@atlaskit/tokens';
-import { DN500 } from '@atlaskit/theme/colors';
 
 const itemStyles = css({
-	backgroundColor: `${token('color.background.neutral.subtle', '#101214')}`,
-	fill: `${token('color.icon.success', '#101214')}`,
-	color: `${token('color.text', DN500)}`,
+	backgroundColor: `${token('color.background.neutral.subtle')}`,
+	fill: `${token('color.icon.success')}`,
+	color: `${token('color.text')}`,
 	'&:hover': {
-		backgroundColor: `${token('color.background.neutral.subtle.hovered', '#A1BDD914')}`,
-		color: `${token('color.text', DN500)}`,
+		backgroundColor: `${token('color.background.neutral.subtle.hovered')}`,
+		color: `${token('color.text')}`,
 	},
 	'&:active': {
-		backgroundColor: `${token('color.background.neutral.subtle.pressed', '#A6C5E229')}`,
-		color: `${token('color.text', DN500)}`,
+		backgroundColor: `${token('color.background.neutral.subtle.pressed')}`,
+		color: `${token('color.text')}`,
 	},
 });
 
-export function CustomButtonItem({ children, onClick, ...rest }: ButtonItemProps) {
+export function CustomButtonItem({ children, onClick, ...rest }: ButtonItemProps): JSX.Element {
 	return (
 		<ButtonItem
 			onClick={onClick}

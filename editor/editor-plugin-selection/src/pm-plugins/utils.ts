@@ -3,6 +3,7 @@ import {
 	isSelectionAtStartOfNode,
 } from '@atlaskit/editor-common/selection';
 import { isEmptyParagraph, isListItemNode } from '@atlaskit/editor-common/utils';
+import { getBaseNodeTypeName } from '@atlaskit/editor-common/utils/node-type-utils';
 import type { Node as PmNode, ResolvedPos } from '@atlaskit/editor-prosemirror/model';
 import type {
 	EditorState,
@@ -27,7 +28,6 @@ import { akEditorSelectedNodeClassName } from '@atlaskit/editor-shared-styles';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { selectionPluginKey } from '../types';
-
 import { createHideCursorDecoration } from './cursor/ui/hide-cursor-decoration';
 
 export const getDecorations = (
@@ -65,7 +65,7 @@ export const getDecorations = (
 
 		// Only apply node decorations when there is an active block selection.
 		// When there is no block selection, text selections should use native browser selection appearance.
-		if (!expValEquals('platform_editor_block_menu', 'isEnabled', true) || blockSelection) {
+		if (blockSelection) {
 			const selectionDecorations = getNodesToDecorateFromSelection(selection, tr.doc).map(
 				({ node, pos }) => {
 					return Decoration.node(pos, pos + node.nodeSize, {
@@ -100,7 +100,13 @@ const topLevelBlockNodesThatHaveSelectionStyles = [
  * applied natively and also ignore nodes that don't completely
  * sit within the given `Selection`.
  */
-export const getNodesToDecorateFromSelection = (selection: Selection, doc: PmNode) => {
+export const getNodesToDecorateFromSelection = (
+	selection: Selection,
+	doc: PmNode,
+): {
+	node: PmNode;
+	pos: number;
+}[] => {
 	const nodes: { node: PmNode; pos: number }[] = [];
 	if (selection.from !== selection.to) {
 		const { from, to } = selection;
@@ -119,8 +125,11 @@ export const getNodesToDecorateFromSelection = (selection: Selection, doc: PmNod
 			// selection styles. I couldn’t see a clear way to differentiate
 			// without explicitly stating which nodes should be traversed
 			// and which shouldn’t.
+			const nodeTypeName = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+				? getBaseNodeTypeName(node.type)
+				: node.type.name;
 			const isTopLevelNodeThatHasSelectionStyles =
-				topLevelBlockNodesThatHaveSelectionStyles.includes(node.type.name);
+				topLevelBlockNodesThatHaveSelectionStyles.includes(nodeTypeName);
 			// If the node is a top-level block node and completely sits within
 			// the selection, we do not recurse it's children to prevent selection
 			// styles being added to its child nodes. The expected behaviour
@@ -407,8 +416,12 @@ export const isListItemWithinContainerNotAtEnd = (
  * Determines if the given node is a Container (layoutColumn, panel, expand) node.
  */
 export const isContainerNode = (node: PmNode | null | undefined): boolean => {
-	const { layoutColumn, panel, expand } = node?.type?.schema?.nodes || {};
-	return Boolean(node && node.type && [panel, expand, layoutColumn].includes(node.type));
+	const { layoutColumn, panel, panel_c1, expand } = node?.type?.schema?.nodes || {};
+
+	const containerNodes = expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? [panel, panel_c1, expand, layoutColumn]
+		: [panel, expand, layoutColumn];
+	return Boolean(node && node.type && containerNodes.includes(node.type));
 };
 
 /**
@@ -440,10 +453,7 @@ export const isSelectionAtEndOfLayoutColumn = ($pos: ResolvedPos): boolean => {
 	}
 
 	const panelOrExpandParent = findParentNodeClosestToPos($pos, isPanelOrExpandNode);
-	if (
-		panelOrExpandParent &&
-		panelOrExpandParent.pos > layoutColumnParent.pos
-	) {
+	if (panelOrExpandParent && panelOrExpandParent.pos > layoutColumnParent.pos) {
 		return false;
 	}
 
@@ -462,6 +472,13 @@ export const isLayoutColumnNode = (node: PmNode | null | undefined): boolean => 
 };
 
 export const isPanelOrExpandNode = (node: PmNode | null | undefined): boolean => {
-	const { panel, expand } = node?.type?.schema?.nodes || {};
-	return Boolean(node && node.type && (node.type === panel || node.type === expand));
+	const { panel, panel_c1, expand } = node?.type?.schema?.nodes || {};
+	return Boolean(
+		node &&
+		node.type &&
+		(node.type === panel ||
+			(expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true) &&
+				node.type === panel_c1) ||
+			node.type === expand),
+	);
 };

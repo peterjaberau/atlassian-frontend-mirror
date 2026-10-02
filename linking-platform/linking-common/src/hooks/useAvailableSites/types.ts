@@ -2,7 +2,6 @@ export interface AvailableSite {
 	avatarUrl: string;
 	cloudId: string;
 	displayName: string;
-	isVertigo: boolean;
 	products: AvailableSitesProductType[];
 	url: string;
 }
@@ -22,10 +21,9 @@ export interface Workspace {
 	cloudUrl: string;
 	isPartOf: string[];
 	orgId: string;
-	vortexMode: string;
 	workspaceAri: string;
 	workspaceAvatarUrl: string;
-	workspaceDisplayName: string;
+	workspaceDisplayName?: string;
 	workspacePermissionIds?: string[];
 	workspaceUrl: string;
 }

@@ -1,6 +1,16 @@
 import { Device, type Hooks, snapshot, type SnapshotTestOptions } from '@af/visual-regression';
 
-import CompanyHubMockExample from '../../../../../examples/company-hub-mock';
+import CompanyHubMockExample from '../../../../../examples/company-hub-mock.vr.ap';
+import AsideBorderExample from '../../../../../examples/page-layout-aside-border.vr.ap';
+import PageLayoutImplicitRows from '../../../../../examples/page-layout-implicit-rows.vr.ap';
+import {
+	PanelAsideDefaultWidthsVR,
+	PanelAsideZeroWidthsVR,
+} from '../../../../../examples/page-layout-panel-aside-default-widths.vr.ap';
+import { SideNavContentScrollWithStickyVR } from '../../../../../examples/page-layout-side-nav-content-scroll-with-sticky.vr.ap';
+import SideNavSlotsExample from '../../../../../examples/page-layout-side-nav-slots.vr.ap';
+import PageLayoutTopLayerDialogAsDirectChild from '../../../../../examples/page-layout-top-layer-dialog-as-direct-child.vr.ap';
+import PageLayoutTopLayerPopoverAsDirectChild from '../../../../../examples/page-layout-top-layer-popover-as-direct-child.vr.ap';
 import {
 	AllSlots,
 	AllSlotsBannerHeightZero,
@@ -26,15 +36,9 @@ import {
 	TopBarSideNavMainAside,
 	TopBarSideNavMainAsideScrollable,
 	TopBarSideNavMainScrollable,
-} from '../../../../../examples/page-layout';
-import AsideBorderExample from '../../../../../examples/page-layout-aside-border';
-import PageLayoutImplicitRows from '../../../../../examples/page-layout-implicit-rows';
-import {
-	PanelAsideDefaultWidthsVR,
-	PanelAsideZeroWidthsVR,
-} from '../../../../../examples/page-layout-panel-aside-default-widths';
-import { SideNavContentScrollWithStickyVR } from '../../../../../examples/page-layout-side-nav-content-scroll-with-sticky';
-import SideNavSlotsExample from '../../../../../examples/page-layout-side-nav-slots';
+} from '../../../../../examples/page-layout.vr.ap';
+import RibbonWithoutSideNavExample from '../../../../../examples/ribbon-without-side-nav.vr.ap';
+import RibbonExample from '../../../../../examples/ribbon.vr.ap';
 
 const defaultOptions: SnapshotTestOptions<Hooks> = {
 	drawsOutsideBounds: true,
@@ -260,4 +264,40 @@ snapshot(CompanyHubMockExample, {
 		/* eslint-enable @atlaskit/design-system/no-dark-theme-vr-tests */
 	],
 	description: 'Panel default background color',
+});
+
+snapshot(AllSlots, {
+	...defaultOptions,
+	// this example doesn't render the ribbon slot, this is a smoke test to check the layout doesn't break
+	description: 'All slots minus ribbon with ribbon flag enabled',
+});
+
+snapshot(RibbonExample, {
+	...defaultOptions,
+	description: 'Ribbon with side nav',
+});
+
+snapshot(RibbonWithoutSideNavExample, {
+	...defaultOptions,
+	description: 'Ribbon without side nav',
+});
+
+// Regression coverage: native top-layer elements rendered as direct children of Root must paint.
+// Gated behind `platform-dst-top-layer`.
+snapshot(PageLayoutTopLayerDialogAsDirectChild, {
+	...desktopOnly,
+	drawsOutsideBounds: true,
+	featureFlags: {
+		'platform-dst-top-layer': true,
+	},
+	description: 'Top-layer <dialog> rendered as a direct child of Root',
+});
+
+snapshot(PageLayoutTopLayerPopoverAsDirectChild, {
+	...desktopOnly,
+	drawsOutsideBounds: true,
+	featureFlags: {
+		'platform-dst-top-layer': true,
+	},
+	description: 'Top-layer [popover] rendered as a direct child of Root',
 });

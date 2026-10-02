@@ -1,28 +1,43 @@
 import type { CSSProperties } from 'react';
 import React from 'react';
-import type { CellAttributes } from '@atlaskit/adf-schema';
-import { tableBackgroundColorPalette, getDarkModeLCHColor } from '@atlaskit/adf-schema';
-import { useThemeObserver } from '@atlaskit/tokens';
+
+import { useIntl } from 'react-intl';
+import type { IntlShape } from 'react-intl';
+
+import { getDarkModeLCHColor } from '@atlaskit/adf-schema/get-dark-mode-lch-color';
+import {
+	tableBackgroundColorNameByHex,
+	type CellAttributes,
+} from '@atlaskit/adf-schema/tableNodes';
+import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
+import { SortingIcon } from '@atlaskit/editor-common/table';
 import { SortOrder } from '@atlaskit/editor-common/types';
 import { hexToEditorBackgroundPaletteRawValue } from '@atlaskit/editor-palette';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
-import { SortingIcon } from '@atlaskit/editor-common/table';
 import type { AnalyticsEventPayload } from '../../analytics/events';
 import { MODE, PLATFORM } from '../../analytics/events';
-import { ACTION, ACTION_SUBJECT, EVENT_TYPE } from '@atlaskit/editor-common/analytics';
 import { RendererCssClassName } from '../../consts';
-import { useIntl } from 'react-intl-next';
-import type { IntlShape } from 'react-intl-next';
 import { tableCellMessages } from '../../messages';
 
-type CellProps = CellAttributes & {
-	ariaSort?: string;
-	children?: React.ReactNode;
-	className?: string;
-	colGroupWidth?: string;
-	offsetTop?: number;
-	onClick?: () => void;
+export type TableCellEdgeProps = {
+	reachesBottom?: boolean;
+	reachesLeft?: boolean;
+	reachesRight?: boolean;
+	reachesTop?: boolean;
 };
+
+type CellProps = CellAttributes &
+	TableCellEdgeProps & {
+		ariaSort?: string;
+		children?: React.ReactNode;
+		className?: string;
+		colGroupWidth?: string;
+		offsetTop?: number;
+		onClick?: () => void;
+	};
 const IgnoreSorting = ['LABEL', 'INPUT'];
 
 export type CellWithSortingProps = CellProps & {
@@ -61,15 +76,42 @@ const getSortOrderLabel = (intl: IntlShape, currentSortOrder?: SortOrder): strin
 	}
 };
 
-// Ignored via go/ees005
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getDataAttributes = (colwidth?: number[], background?: string): any => {
-	// Ignored via go/ees005
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const attrs: any = {};
+type DataAttributes = {
+	'data-cell-background'?: string;
+	'data-colwidth'?: string;
+	'data-reaches-bottom'?: boolean;
+	'data-reaches-left'?: boolean;
+	'data-reaches-right'?: boolean;
+	'data-reaches-top'?: boolean;
+	'data-valign'?: CellAttributes['valign'];
+};
+
+const getDataAttributes = (
+	colwidth?: number[],
+	background?: string,
+	cellEdgeProps?: TableCellEdgeProps,
+	valign?: CellAttributes['valign'],
+): DataAttributes => {
+	const attrs: DataAttributes = {};
 	if (colwidth) {
 		attrs['data-colwidth'] = colwidth.join(',');
 	}
+
+	if (expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)) {
+		if (cellEdgeProps?.reachesTop) {
+			attrs['data-reaches-top'] = true;
+		}
+		if (cellEdgeProps?.reachesBottom) {
+			attrs['data-reaches-bottom'] = true;
+		}
+		if (cellEdgeProps?.reachesLeft) {
+			attrs['data-reaches-left'] = true;
+		}
+		if (cellEdgeProps?.reachesRight) {
+			attrs['data-reaches-right'] = true;
+		}
+	}
+
 	/**
 	 * Storing hex code in data-cell-background because
 	 *  we want to have DST token (css variable) or
@@ -88,6 +130,10 @@ const getDataAttributes = (colwidth?: number[], background?: string): any => {
 		attrs['data-cell-background'] = background;
 	}
 
+	if (valign && expValEqualsNoExposure('platform_editor_table_menu_updates', 'isEnabled', true)) {
+		attrs['data-valign'] = valign;
+	}
+
 	return attrs;
 };
 
@@ -100,11 +146,13 @@ const getStyle = ({
 	colGroupWidth,
 	offsetTop,
 	colorMode,
+	valign,
 }: {
 	background?: string;
 	colGroupWidth?: string;
 	colorMode: ReturnType<typeof useThemeObserver>['colorMode'];
 	offsetTop?: number;
+	valign?: CellAttributes['valign'];
 }): CSSProperties => {
 	const style: CSSProperties = {};
 	if (
@@ -163,6 +211,10 @@ const getStyle = ({
 		style.top = offsetTop;
 	}
 
+	if (valign && expValEqualsNoExposure('platform_editor_table_menu_updates', 'isEnabled', true)) {
+		style.verticalAlign = valign;
+	}
+
 	return style;
 };
 
@@ -180,11 +232,17 @@ const getWithCellProps = (WrapperComponent: React.ElementType) => {
 			background,
 			offsetTop,
 			ariaSort,
+			reachesTop,
+			reachesBottom,
+			reachesLeft,
+			reachesRight,
+			valign,
 		} = props;
 
 		// This is used to set the background color of the cell
 		// to a dark mode color in mobile dark mode
-		const colorName = background ? tableBackgroundColorPalette.get(background) : '';
+		const backgroundHex = background?.toLowerCase();
+		const colorName = backgroundHex ? tableBackgroundColorNameByHex.get(backgroundHex) : '';
 
 		return (
 			<WrapperComponent
@@ -195,14 +253,30 @@ const getWithCellProps = (WrapperComponent: React.ElementType) => {
 				// Instead it is taken from the data-cell-background attribute
 				// (added via getDataAttributes below).
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				style={getStyle({ background, colGroupWidth, offsetTop, colorMode })}
+				style={getStyle({
+					background,
+					colGroupWidth,
+					offsetTop,
+					colorMode,
+					valign,
+				})}
 				colorname={colorName}
 				onClick={onClick}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className={className}
 				// Ignored via go/ees005
 				// eslint-disable-next-line react/jsx-props-no-spreading
-				{...getDataAttributes(colwidth, background)}
+				{...getDataAttributes(
+					colwidth,
+					background,
+					{
+						reachesTop,
+						reachesBottom,
+						reachesLeft,
+						reachesRight,
+					},
+					valign,
+				)}
 				aria-sort={ariaSort}
 			>
 				{children}
@@ -298,7 +372,8 @@ export const withSortableColumn = (WrapperComponent: React.ElementType) => {
 	};
 };
 
-export const TableHeader = withSortableColumn(TH);
+export const TableHeader: (props: CellWithSortingProps) => React.JSX.Element =
+	withSortableColumn(TH);
 
 const TD = getWithCellProps('td');
-export const TableCell = TD;
+export const TableCell: (props: CellProps) => React.JSX.Element = TD;

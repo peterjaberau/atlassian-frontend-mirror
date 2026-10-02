@@ -1,14 +1,13 @@
-/* eslint-disable @atlaskit/design-system/consistent-css-prop-usage */
 /**
  * @jsxRuntime classic
  * @jsx jsx
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
+import { css, jsx } from '@compiled/react';
 
-import { type Appearance, LoadingButton as Button } from '@atlaskit/button';
+import Button from '@atlaskit/button/loading-button';
+import type { Appearance } from '@atlaskit/button/old-button/types';
 import { token } from '@atlaskit/tokens';
 
 const appearances: Appearance[] = [
@@ -20,6 +19,23 @@ const appearances: Appearance[] = [
 	'warning',
 	'danger',
 ];
+
+const tableStyles = css({
+	display: 'table',
+});
+
+const rowStyles = css({
+	display: 'flex',
+	flexWrap: 'wrap',
+});
+
+const cellStyles = css({
+	width: '100px',
+	paddingBlockEnd: token('space.050'),
+	paddingBlockStart: token('space.050'),
+	paddingInlineEnd: 0,
+	paddingInlineStart: 0,
+});
 
 /**
  * For VR testing purposes we are overriding the animation timing
@@ -35,13 +51,11 @@ const animationStyles = css({
 });
 
 const Table = (props: React.HTMLProps<HTMLDivElement>) => (
-	<div css={{ display: 'table' }}>{props.children}</div>
+	<div css={tableStyles}>{props.children}</div>
 );
-const Row = (props: React.HTMLProps<HTMLDivElement>) => (
-	<div css={{ display: 'flex', flexWrap: 'wrap' }}>{props.children}</div>
-);
+const Row = (props: React.HTMLProps<HTMLDivElement>) => <div css={rowStyles}>{props.children}</div>;
 const Cell = (props: React.HTMLProps<HTMLDivElement>) => (
-	<div css={{ width: '100px', padding: `${token('space.050', '4px')} 0` }}>{props.children}</div>
+	<div css={cellStyles}>{props.children}</div>
 );
 
 function capitalize(str: string) {

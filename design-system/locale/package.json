@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/locale",
-	"version": "3.0.4",
+	"version": "5.3.2",
 	"description": "Utility functions for handling localization",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,21 +12,17 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": [
 		"**/*.compiled.css"
 	],
 	"atlaskit:src": "src/index.tsx",
 	"exports": {
 		".": "./src/index.tsx",
-		"./LocaleSelect": "./src/locale-select.tsx"
+		"./LocaleSelect": "./src/locale-select.tsx",
+		"./default-locales": "./src/default-locales.tsx",
+		"./locale-select": "./src/locale-select.tsx",
+		"./localization-provider": "./src/internal/localization-provider/localization-provider.tsx",
+		"./date-parser": "./src/internal/date-parser/index.tsx"
 	},
 	"atlassian": {
 		"team": "Design System Team",
@@ -36,16 +32,25 @@
 		}
 	},
 	"dependencies": {
+		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-select": "workspace:^",
 		"@atlaskit/select": "workspace:^",
 		"@babel/runtime": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@atlaskit/docs": "workspace:^",
-		"@atlaskit/textfield": "workspace:^"
+		"@atlaskit/textfield": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
+		"react": "^19.0.0"
 	},
-	"platform-feature-flags": {},
+	"platform-feature-flags": {
+		"platform-dst-locale-week-start-day": {
+			"type": "boolean"
+		}
+	},
 	"homepage": "https://atlaskit.atlassian.com/packages/helpers/locale"
 }

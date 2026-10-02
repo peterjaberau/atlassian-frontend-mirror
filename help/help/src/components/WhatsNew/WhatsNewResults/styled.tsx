@@ -4,7 +4,9 @@
  */
 
 import React from 'react';
+
 import { css, jsx } from '@compiled/react';
+
 import { token } from '@atlaskit/tokens';
 
 const selectContainerStyles = css({
@@ -16,23 +18,20 @@ export const SelectContainer = ({ children }: { children: React.ReactNode }): JS
 );
 
 const whatsNewResultsListContainerStyles = css({
-	paddingTop: token('space.100', '8px'),
+	paddingTop: token('space.100'),
 });
 
 export const WhatsNewResultsListContainer = ({
 	children,
 }: {
 	children: React.ReactNode;
-}): JSX.Element => (
-	// eslint-disable-next-line @atlaskit/design-system/use-primitives
-	<div css={whatsNewResultsListContainerStyles}>{children}</div>
-);
+}): JSX.Element => <div css={whatsNewResultsListContainerStyles}>{children}</div>;
 
 const whatsNewResultsListTitleContainerStyles = css({
 	paddingTop: 0,
-	paddingRight: token('space.100', '8px'),
+	paddingRight: token('space.100'),
 	paddingBottom: 0,
-	paddingLeft: token('space.100', '8px'),
+	paddingLeft: token('space.100'),
 });
 
 export const WhatsNewResultsListTitleContainer = ({

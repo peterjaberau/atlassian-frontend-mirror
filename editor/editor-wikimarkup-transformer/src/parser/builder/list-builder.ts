@@ -1,15 +1,18 @@
-import { type Node as PMNode, type Schema } from '@atlaskit/editor-prosemirror/model';
-import { type AddArgs, type List, type ListItem, type ListType } from '../../interfaces';
+import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
+
+import type { AddArgs, List, ListItem, ListType } from '../../interfaces';
 
 const supportedContentType = ['paragraph', 'orderedList', 'bulletList', 'mediaSingle', 'codeBlock'];
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const ORDERED_LIST_REGEX = /#$/;
 
 /**
  * Return the type of a list from the bullets
  */
 export function getType(bullets: string): ListType {
-	// Ignored via go/ees005
-	// eslint-disable-next-line require-unicode-regexp
-	return /#$/.test(bullets) ? 'orderedList' : 'bulletList';
+	return ORDERED_LIST_REGEX.test(bullets) ? 'orderedList' : 'bulletList';
 }
 
 export class ListBuilder {
@@ -191,10 +194,24 @@ export class ListBuilder {
 
 	private createListItem(content: PMNode[], schema: Schema): PMNode {
 		if (content.length === 0 || ['paragraph', 'mediaSingle'].indexOf(content[0].type.name) === -1) {
-			// If the content is empty or the first element is not paragraph or mediaSingle.
-			// this likely to be a nested list where the toplevel list is empty
+			// If the first element is a list node, try to create a wrapper listItem
+			// (list as first child, no paragraph) for flexible list indentation.
+			// If the schema doesn't support this variant, fall back to prepending
+			// an empty paragraph.
+			const listTypes = ['bulletList', 'orderedList', 'taskList'];
+			if (content.length > 0 && listTypes.indexOf(content[0].type.name) !== -1) {
+				try {
+					return schema.nodes.listItem.createChecked({}, content);
+				} catch {
+					// Schema doesn't support list as first child of listItem,
+					// fall back to prepending an empty paragraph
+				}
+			}
+
+			// If the content is empty or the first element is not paragraph or mediaSingle,
+			// this is likely a nested list where the top-level list item has no text content.
 			// For example: *# item 1
-			// In this case we create an empty paragraph for the top level listNode
+			// In this case we create an empty paragraph for the top level listNode.
 			content.unshift(this.schema.nodes.paragraph.createChecked());
 		}
 

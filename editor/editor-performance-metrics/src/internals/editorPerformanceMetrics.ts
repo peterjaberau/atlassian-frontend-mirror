@@ -4,14 +4,14 @@ import {
 	createHeatmapFromEvents,
 	createHeatmapFromTimeline,
 	createHeatmapWithAspectRatio,
-	type Heatmap,
 } from './heatmap';
+import type { Heatmap } from './heatmap';
 import {
 	getLatencyPercentiles,
 	getVCPercentFromHeatmap,
 	getVCPercentileTargets,
-	type VCTargetsTuple,
 } from './measurements';
+import type { VCTargetsTuple } from './measurements';
 import type { Timeline } from './timelineInterfaces';
 import type { TimelineEventNames, UserEvent } from './timelineTypes';
 import type { UserEventCategory, ViewportDimension } from './types';
@@ -182,6 +182,9 @@ export class EditorPerformanceMetrics {
 	}
 }
 
-export function createCalculator(timeline: Timeline, viewport?: ViewportDimension) {
+export function createCalculator(
+	timeline: Timeline,
+	viewport?: ViewportDimension,
+): EditorPerformanceMetrics {
 	return new EditorPerformanceMetrics(timeline, viewport);
 }

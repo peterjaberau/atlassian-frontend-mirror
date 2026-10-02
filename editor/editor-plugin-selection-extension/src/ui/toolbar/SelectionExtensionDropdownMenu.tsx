@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
@@ -15,8 +15,7 @@ import {
 	type MenuItem,
 } from '@atlaskit/editor-common/ui-menu';
 
-import { type MenuItemsType } from '../../types';
-
+import type { MenuItemsType } from '../../types';
 import { SelectionExtensionDropdownMenuButton } from './SelectionExtensionDropdownMenuButton';
 
 export type SelectionExtensionDropdownMenuProps = {
@@ -29,6 +28,7 @@ const SelectionExtensionDropdownMenuComponent = React.memo(
 		const [isMenuOpen, setIsMenuOpen] = useState(false);
 		return (
 			<DropdownMenu
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				section={{ hasSeparator: true }}
 				isOpen={isMenuOpen}
 				items={items}
@@ -40,6 +40,7 @@ const SelectionExtensionDropdownMenuComponent = React.memo(
 				<SelectionExtensionDropdownMenuButton
 					aria-expanded={isMenuOpen}
 					selected={isMenuOpen}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 					onClick={() =>
 						setIsMenuOpen((prevIsMenuOpen) => {
 							const nextIsMenuOpen = !prevIsMenuOpen;
@@ -63,4 +64,21 @@ const SelectionExtensionDropdownMenuComponent = React.memo(
 	},
 );
 
-export const SelectionExtensionDropdownMenu = injectIntl(SelectionExtensionDropdownMenuComponent);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const SelectionExtensionDropdownMenu: React.FC<
+	WithIntlProps<
+		{
+			editorAnalyticsAPI?: EditorAnalyticsAPI;
+			items: MenuItemsType;
+			onItemActivated?: (attrs: { item: MenuItem; shouldCloseMenu?: boolean }) => void;
+		} & WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			editorAnalyticsAPI?: EditorAnalyticsAPI;
+			items: MenuItemsType;
+			onItemActivated?: (attrs: { item: MenuItem; shouldCloseMenu?: boolean }) => void;
+		} & WrappedComponentProps
+	>;
+} = injectIntl(SelectionExtensionDropdownMenuComponent);

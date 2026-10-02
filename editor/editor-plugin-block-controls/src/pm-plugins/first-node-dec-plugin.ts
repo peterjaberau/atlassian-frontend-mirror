@@ -1,18 +1,15 @@
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
-import {
-	type EditorState,
-	PluginKey,
-	type ReadonlyTransaction,
-} from '@atlaskit/editor-prosemirror/state';
-import { ReplaceAroundStep, ReplaceStep, type Step } from '@atlaskit/editor-prosemirror/transform';
-import {
-	DecorationSet,
-	Decoration,
-	type DecorationSource,
-} from '@atlaskit/editor-prosemirror/view';
+import { PluginKey } from '@atlaskit/editor-prosemirror/state';
+import type { EditorState, ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
+import { ReplaceAroundStep, ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
+import { DecorationSet, Decoration } from '@atlaskit/editor-prosemirror/view';
+import type { DecorationSource } from '@atlaskit/editor-prosemirror/view';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
-export const firstNodeDecPluginKey = new PluginKey<DecorationSet>('firstNodeDec');
+export const firstNodeDecPluginKey: PluginKey<DecorationSet> = new PluginKey<DecorationSet>(
+	'firstNodeDec',
+);
 
 const createFirstNodeDecSet = (state: EditorState): DecorationSet => {
 	const firstNode = state.doc.firstChild;
@@ -34,7 +31,7 @@ const createFirstNodeDecSet = (state: EditorState): DecorationSet => {
 
 type EditorStateConfig = Parameters<typeof EditorState.create>[0];
 
-export const firstNodeDecPlugin = () =>
+export const firstNodeDecPlugin = (): SafePlugin<DecorationSet> =>
 	new SafePlugin({
 		key: firstNodeDecPluginKey,
 		state: {

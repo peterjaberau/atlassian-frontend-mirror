@@ -1,19 +1,20 @@
 import React, { useMemo, useCallback, useContext } from 'react';
-import {
-	type AnnotationId,
-	type AnnotationDataAttributes,
-	AnnotationMarkStates,
-	type AnnotationTypes,
-} from '@atlaskit/adf-schema';
-import { AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
 
-import { MarkComponent } from './mark';
-import { useInlineCommentsFilter } from '../hooks/use-inline-comments-filter';
-import { useInlineCommentSubscriberContext } from '../hooks/use-inline-comment-subscriber';
-import { useHasFocusEvent } from '../hooks/use-events';
-import { InlineCommentsStateContext } from '../context';
+import { AnnotationMarkStates } from '@atlaskit/adf-schema/annotation';
+import type {
+	AnnotationId,
+	AnnotationDataAttributes,
+	AnnotationTypes,
+} from '@atlaskit/adf-schema/annotation';
+import { AnnotationUpdateEvent } from '@atlaskit/editor-common/types';
 import type { OnAnnotationClickPayload } from '@atlaskit/editor-common/types';
+
+import { InlineCommentsStateContext } from '../context';
 import { useAnnotationManagerDispatch } from '../contexts/AnnotationManagerContext';
+import { useHasFocusEvent } from '../hooks/use-events';
+import { useInlineCommentSubscriberContext } from '../hooks/use-inline-comment-subscriber';
+import { useInlineCommentsFilter } from '../hooks/use-inline-comments-filter';
+import { MarkComponent } from './mark';
 
 type MarkElementProps = React.PropsWithChildren<{
 	annotationParentIds: AnnotationId[];

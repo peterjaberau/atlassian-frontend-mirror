@@ -1,3 +1,4 @@
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled -- Pre-existing lint debt surfaced by this mechanical type-import-only PR. */
 /* eslint-disable @atlaskit/ui-styling-standard/no-imported-style-values */
 /* eslint-disable @atlaskit/ui-styling-standard/no-unsafe-values */
 /* eslint-disable @atlaskit/ui-styling-standard/no-nested-selectors */
@@ -5,9 +6,9 @@
 /* eslint-disable @atlaskit/design-system/use-tokens-typography */
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { token, type ThemeState } from '@atlaskit/tokens';
+import type { ThemeState } from '@atlaskit/tokens/theme-state';
 
 import editorUGCToken from '../../ugc-tokens/get-editor-ugc-token';
 
@@ -47,125 +48,62 @@ const headingWithAlignmentStyles = () =>
 // text sizing prototype: http://proto/fabricrender/
 export const headingsSharedStyles = (
 	_typographyTheme?: ThemeState['typography'],
-) => {
-	if (fg('platform_editor_typography_ugc')) {
-		return css({
-			'& h1': {
-				font: editorUGCToken('editor.font.heading.h1'),
-				marginBottom: 0,
-				marginTop: '1.45833em',
-				'& strong': {
-					fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
-				},
-				'&::before': {},
+): SerializedStyles => {
+	return css({
+		'& h1': {
+			font: editorUGCToken('editor.font.heading.h1'),
+			marginBottom: 0,
+			marginTop: '1.45833em',
+			'& strong': {
+				fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
 			},
+			'&::before': {},
+		},
 
-			'& h2': {
-				font: editorUGCToken('editor.font.heading.h2'),
-				marginTop: '1.4em',
-				marginBottom: 0,
-				'& strong': {
-					fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
-				},
+		'& h2': {
+			font: editorUGCToken('editor.font.heading.h2'),
+			marginTop: '1.4em',
+			marginBottom: 0,
+			'& strong': {
+				fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
 			},
+		},
 
-			'& h3': {
-				font: editorUGCToken('editor.font.heading.h3'),
-				marginTop: '1.31249em',
-				marginBottom: 0,
-				'& strong': {
-					fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
-				},
+		'& h3': {
+			font: editorUGCToken('editor.font.heading.h3'),
+			marginTop: '1.31249em',
+			marginBottom: 0,
+			'& strong': {
+				fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
 			},
+		},
 
-			'& h4': {
-				font: editorUGCToken('editor.font.heading.h4'),
-				marginTop: '1.25em',
-				'& strong': {
-					fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
-				},
+		'& h4': {
+			font: editorUGCToken('editor.font.heading.h4'),
+			marginTop: '1.25em',
+			'& strong': {
+				fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
 			},
+		},
 
-			'& h5': {
-				font: editorUGCToken('editor.font.heading.h5'),
-				marginTop: '1.45833em',
-				textTransform: 'none',
-				'& strong': {
-					fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
-				},
+		'& h5': {
+			font: editorUGCToken('editor.font.heading.h5'),
+			marginTop: '1.45833em',
+			textTransform: 'none',
+			'& strong': {
+				fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
 			},
+		},
 
-			'& h6': {
-				font: editorUGCToken('editor.font.heading.h6'),
-				marginTop: '1.59091em',
-				textTransform: 'none',
-				'& strong': {
-					fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
-				},
+		'& h6': {
+			font: editorUGCToken('editor.font.heading.h6'),
+			marginTop: '1.59091em',
+			textTransform: 'none',
+			'& strong': {
+				fontWeight: editorUGCToken('editor.font.weight.heading.h1.bold'),
 			},
+		},
 
-			...headingWithAlignmentStyles(),
-		});
-	} else {
-		return css({
-			'& h1': {
-				fontSize: `${24 / 14}em`,
-				fontStyle: 'inherit',
-				lineHeight: 28 / 24,
-				color: token('color.text'),
-				fontWeight: token('font.weight.medium'),
-				letterSpacing: `-0.01em`,
-				marginBottom: 0,
-				marginTop: '1.667em',
-			},
-			'& h2': {
-				fontSize: `${20 / 14}em`,
-				fontStyle: 'inherit',
-				lineHeight: 24 / 20,
-				color: token('color.text'),
-				fontWeight: token('font.weight.medium'),
-				letterSpacing: `-0.008em`,
-				marginTop: '1.8em',
-				marginBottom: 0,
-			},
-			'& h3': {
-				fontSize: `${16 / 14}em`,
-				fontStyle: 'inherit',
-				lineHeight: 20 / 16,
-				color: token('color.text'),
-				fontWeight: token('font.weight.semibold'),
-				letterSpacing: `-0.006em`,
-				marginTop: '2em',
-				marginBottom: 0,
-			},
-			'& h4': {
-				fontSize: `${14 / 14}em`,
-				fontStyle: 'inherit',
-				lineHeight: 16 / 14,
-				color: token('color.text'),
-				fontWeight: token('font.weight.semibold'),
-				letterSpacing: `-0.003em`,
-				marginTop: '1.357em',
-			},
-			'& h5': {
-				fontSize: `${12 / 14}em`,
-				fontStyle: 'inherit',
-				lineHeight: 16 / 12,
-				color: token('color.text'),
-				fontWeight: token('font.weight.semibold'),
-				marginTop: '1.667em',
-				textTransform: 'none',
-			},
-			'& h6': {
-				fontSize: `${11 / 14}em`,
-				fontStyle: 'inherit',
-				lineHeight: 16 / 11,
-				color: token('color.text.subtlest'),
-				fontWeight: token('font.weight.bold'),
-				marginTop: '1.455em',
-				textTransform: 'none',
-			},
-			...headingWithAlignmentStyles(),
-		});
-	}
+		...headingWithAlignmentStyles(),
+	});
 };

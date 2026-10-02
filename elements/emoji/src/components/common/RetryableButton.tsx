@@ -2,11 +2,14 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { FormattedMessage } from 'react-intl-next';
+
 import { css, jsx } from '@compiled/react';
-import AkButton from '@atlaskit/button/new';
-import Spinner from '@atlaskit/spinner';
+import { FormattedMessage } from 'react-intl';
+
+import AkButton from '@atlaskit/button/default/button';
 import { Box } from '@atlaskit/primitives/compiled';
+import Spinner from '@atlaskit/spinner/spinner';
+
 import { messages } from '../i18n';
 
 const buttonSpinner = css({
@@ -79,7 +82,7 @@ const UploadButton = (props: Props) => {
 	);
 };
 
-const RetryableButton = (props: Props) => {
+const RetryableButton = (props: Props): JSX.Element => {
 	const { loading, error } = props;
 
 	if (loading) {

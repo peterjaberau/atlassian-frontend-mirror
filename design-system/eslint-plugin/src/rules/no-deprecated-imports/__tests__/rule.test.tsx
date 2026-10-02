@@ -2,7 +2,6 @@ import { tester } from '../../__tests__/utils/_tester';
 import { getConfig } from '../../utils/get-deprecated-config';
 import { importNameWithCustomMessageId, pathWithCustomMessageId } from '../constants';
 import rule from '../index';
-
 import { invalidDeprecatedIconTests } from './__helpers/icon-test-helper';
 
 const deprecatedImports = getConfig('imports');
@@ -26,8 +25,10 @@ for (const [path, value] of Object.entries(deprecatedImports)) {
 	}
 }
 
-jest.mock('@atlaskit/icon/metadata', () => ({
-	coreIconMetadata: {
+jest.mock('@atlaskit/icon/metadata-core', () => ({
+	...jest.requireActual('@atlaskit/icon/metadata-core'),
+	__esModule: true,
+	default: {
 		activity: {
 			keywords: ['dashboard', 'window', 'grid', 'icon', 'core', 'activity', 'view'],
 			componentName: 'ActivityIcon',
@@ -99,6 +100,9 @@ jest.mock('@atlaskit/icon/metadata', () => ({
 			status: 'deprecated',
 		},
 	},
+}));
+jest.mock('@atlaskit/icon/metadata', () => ({
+	...jest.requireActual('@atlaskit/icon/metadata'),
 	utilityIconMetadata: {
 		'chevron-up-circle': {
 			keywords: [
@@ -133,39 +137,6 @@ jest.mock('@atlaskit/icon-lab/metadata', () => ({
 		categorization: 'single-purpose',
 		usage: 'Single purpose - Reserved for activities in Jira.',
 		team: 'Design System Team',
-	},
-}));
-
-jest.mock('@atlaskit/icon/migration-map', () => ({
-	'bullet-list': {
-		newIcon: { name: 'list-bulleted', type: 'core', package: '@atlaskit/icon' },
-		additionalIcons: [{ name: 'bulleted-list', type: 'core', package: '@atlaskit/icon' }],
-		sizeGuidance: {
-			small: 'swap',
-			medium: 'swap',
-			large: 'icon-tile',
-			xlarge: 'icon-tile',
-		},
-	},
-	document: {
-		newIcon: { name: 'file', type: 'core', package: '@atlaskit/icon' },
-		additionalIcons: [{ name: 'page', type: 'core', package: '@atlaskit/icon' }],
-		sizeGuidance: {
-			small: 'swap-slight-visual-change',
-			medium: 'swap-slight-visual-change',
-			large: 'icon-tile',
-			xlarge: 'icon-tile',
-		},
-	},
-	'image-resize': {
-		newIcon: { name: 'maximize', type: 'core', package: '@atlaskit/icon' },
-		additionalIcons: [{ name: 'expand', type: 'core', package: '@atlaskit/icon' }],
-		sizeGuidance: {
-			small: 'swap-visual-change',
-			medium: 'swap-visual-change',
-			large: 'icon-tile',
-			xlarge: 'icon-tile',
-		},
 	},
 }));
 
@@ -230,7 +201,10 @@ describe('no-deprecated-imports', () => {
 			},
 
 			...namedImports.map(({ path, import: { importName } }) => ({
-				code: `import { ${importName} } from '${path}';`,
+				code:
+					importName === 'default'
+						? `import DeprecatedDefaultImport from '${path}';`
+						: `import { ${importName} } from '${path}';`,
 				errors: [
 					{
 						messageId: importNameWithCustomMessageId,

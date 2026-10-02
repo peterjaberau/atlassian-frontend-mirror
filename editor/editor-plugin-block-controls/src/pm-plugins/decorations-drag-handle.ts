@@ -1,27 +1,47 @@
 import { createElement } from 'react';
 
-import { bind, type UnbindFn } from 'bind-event-listener';
-import ReactDOM from 'react-dom';
-import { type IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { type EditorState } from '@atlaskit/editor-prosemirror/state';
-import { Decoration, type DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import type { EditorState } from '@atlaskit/editor-prosemirror/state';
+import { Decoration } from '@atlaskit/editor-prosemirror/view';
+import type { DecorationSet } from '@atlaskit/editor-prosemirror/view';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { BlockControlsPlugin, HandleOptions } from '../blockControlsPluginType';
+import { ACTIVE_DRAG_HANDLE_ATTR } from '../ui/consts';
 import { DragHandle, DragHandleWithVisibility } from '../ui/drag-handle';
-
 import { TYPE_HANDLE_DEC, TYPE_NODE_DEC, unmountDecorations } from './decorations-common';
-import { type AnchorRectCache } from './utils/anchor-utils';
-import { getActiveBlockMarks } from './utils/marks';
+import { renderToMountPoint } from './react-root-registry';
+import type { AnchorRectCache } from './utils/anchor-utils';
+import { getMatchingBlockMarks } from './utils/marks';
 
-export const emptyParagraphNodeDecorations = () => {
+export const TYPE_ACTIVE_HANDLE_DEC = 'active-drag-handle-node';
+
+/**
+ * Creates a Decoration.node that marks the active node with `data-active-drag-handle="true"`.
+ * The CSS in staticControlsAnchorStyles then applies `anchor-name` to this attribute,
+ * which is more reliable than the adjacency-selector approach in dragHandlerAnchorStyles.
+ */
+export const createActiveDragHandleNodeDecoration = (pos: number, nodeSize: number): Decoration =>
+	Decoration.node(
+		pos,
+		pos + nodeSize,
+		{ [ACTIVE_DRAG_HANDLE_ATTR]: 'true' },
+		{ type: TYPE_ACTIVE_HANDLE_DEC },
+	);
+
+export const findActiveDragHandleNodeDec = (
+	decorations: DecorationSet,
+	from?: number,
+	to?: number,
+): Decoration[] => decorations.find(from, to, (spec) => spec.type === TYPE_ACTIVE_HANDLE_DEC);
+
+export const emptyParagraphNodeDecorations = (): Decoration => {
 	const anchorName = `--node-anchor-paragraph-0`;
 	const style = `anchor-name: ${anchorName}; margin-top: 0px;`;
 	return Decoration.node(
@@ -37,7 +57,11 @@ export const emptyParagraphNodeDecorations = () => {
 	);
 };
 
-export const findHandleDec = (decorations: DecorationSet, from?: number, to?: number) => {
+export const findHandleDec = (
+	decorations: DecorationSet,
+	from?: number,
+	to?: number,
+): Decoration[] => {
 	return decorations.find(from, to, (spec) => spec.type === TYPE_HANDLE_DEC);
 };
 
@@ -63,20 +87,12 @@ export const dragHandleDecoration = ({
 	handleOptions,
 	anchorRectCache,
 	editorState,
-}: DragHandleDecorationParams) => {
-	if (
-		!editorExperiment('platform_editor_block_control_optimise_render', true, {
-			exposure: true,
-		})
-	) {
-		unmountDecorations(
-			nodeViewPortalProviderAPI,
-			'data-blocks-drag-handle-container',
-			'data-blocks-drag-handle-key',
-		);
-	}
-
-	let unbind: UnbindFn;
+}: DragHandleDecorationParams): Decoration => {
+	unmountDecorations(
+		nodeViewPortalProviderAPI,
+		'data-blocks-drag-handle-container',
+		'data-blocks-drag-handle-key',
+	);
 	// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 	const key = uuid();
 
@@ -91,38 +107,20 @@ export const dragHandleDecoration = ({
 				 * Exclude 'breakout' on purpose, so the widgets render at the top of the document to avoid z-index issues
 				 * Other block marks must be added, otherwise PM will split the DOM elements causing mutations and re-draws
 				 */
-				marks: getActiveBlockMarks(editorState, pos),
-				destroy: (node: Node) => {
-					unbind && unbind();
-
-					if (
-						editorExperiment('platform_editor_block_control_optimise_render', true) &&
-						node instanceof HTMLElement
-					) {
-						ReactDOM.unmountComponentAtNode(node);
-					}
-				},
+				marks: getMatchingBlockMarks(editorState, pos, [
+					editorState.schema.marks.alignment,
+					editorState.schema.marks.fontSize,
+				]),
 			}
 		: {
 				side: -1,
 				type: TYPE_HANDLE_DEC,
 				// eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
 				testid: `${TYPE_HANDLE_DEC}-${uuid()}`,
-				marks:
-					expValEquals('platform_editor_native_anchor_with_dnd', 'isEnabled', true) &&
-					fg('platform_editor_native_anchor_patch_1')
-						? getActiveBlockMarks(editorState, pos)
-						: undefined,
-				destroy: (node: Node) => {
-					unbind && unbind();
-
-					if (
-						editorExperiment('platform_editor_block_control_optimise_render', true) &&
-						node instanceof HTMLElement
-					) {
-						ReactDOM.unmountComponentAtNode(node);
-					}
-				},
+				marks: getMatchingBlockMarks(editorState, pos, [
+					editorState.schema.marks.alignment,
+					editorState.schema.marks.fontSize,
+				]),
 			};
 
 	return Decoration.widget(
@@ -131,6 +129,9 @@ export const dragHandleDecoration = ({
 			const element = document.createElement('span');
 			// inline decoration causes focus issues when refocusing Editor into first line
 			element.style.display = 'block';
+			if (fg('confluence_remix_button_right_side_block_fg')) {
+				element.setAttribute('data-blocks-decorator-widget', 'true');
+			}
 			element.setAttribute('data-testid', 'block-ctrl-decorator-widget');
 			element.setAttribute('data-blocks-drag-handle-container', 'true');
 			element.setAttribute('data-blocks-drag-handle-key', key);
@@ -156,18 +157,9 @@ export const dragHandleDecoration = ({
 			 * However, the tooltip for nested drag handle is no long working.
 			 */
 			if (newPos === undefined || !isTopLevelNode) {
-				if (fg('platform_editor_fix_widget_destroy')) {
-					element.onmouseover = (e) => {
-						e.stopPropagation();
-					};
-				} else {
-					unbind = bind(element, {
-						type: 'mouseover',
-						listener: (e) => {
-							e.stopPropagation();
-						},
-					});
-				}
+				element.onmouseover = (e) => {
+					e.stopPropagation();
+				};
 			}
 
 			// There are times when global clear: "both" styles are applied to this decoration causing jumpiness
@@ -195,7 +187,7 @@ export const dragHandleDecoration = ({
 			// 	);
 
 			if (editorExperiment('platform_editor_controls', 'variant1')) {
-				ReactDOM.render(
+				renderToMountPoint(
 					createElement(DragHandleWithVisibility, {
 						view,
 						api,
@@ -210,7 +202,7 @@ export const dragHandleDecoration = ({
 					element,
 				);
 			} else {
-				ReactDOM.render(
+				renderToMountPoint(
 					createElement(DragHandle, {
 						view,
 						api,

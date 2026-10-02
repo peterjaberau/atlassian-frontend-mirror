@@ -66,7 +66,15 @@ module.exports = {
 						},
 					},
 				],
-				exclude: /node_modules/,
+				// Exclude node_modules except uuid, at node_modules/uuid or pnpm's node_modules/.pnpm/uuid@<version>/node_modules/uuid.
+				exclude: {
+					and: [/node_modules/],
+					not: [/node_modules\/uuid\//],
+				},
+			},
+			{
+				test: /\.svg$/,
+				loader: 'url-loader',
 			},
 		],
 	},

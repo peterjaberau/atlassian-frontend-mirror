@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ElementName } from '../../../../../constants';
+import { noop } from '../../../../../utils/noop';
 import { HoverCard } from '../../../../HoverCard';
-
 import { type HoverCardDelayProps } from './types';
 
 const FLEXIBLE_HOVER_CARD_CAN_OPEN_DELAY = 100;
@@ -78,7 +78,7 @@ const HoverCardControl = ({
 			hoverPreviewOptions={hoverPreviewOptions}
 		>
 			<span
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
+				onBlur={noop}
 				onMouseLeave={onMouseLeave}
 				onMouseMove={onMouseMove}
 				data-testid={`${testId}-hover-card-wrapper`}

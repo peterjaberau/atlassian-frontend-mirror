@@ -1,6 +1,8 @@
 import React from 'react';
 
-import { AtlassianNavigation, SignIn } from '@atlaskit/atlassian-navigation';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { AtlassianNavigation } from '@atlaskit/atlassian-navigation/atlassian-navigation';
+import { SignIn } from '@atlaskit/atlassian-navigation/sign-in';
 
 import { DefaultCreate } from './shared/create';
 import { HelpPopup } from './shared/help-popup';

@@ -1,27 +1,35 @@
 import React from 'react';
 
+import type { IntlShape } from 'react-intl';
+
 import type { EventDispatcher } from '@atlaskit/editor-common/event-dispatcher';
 import {
 	type NamedPluginStatesFromInjectionAPI,
 	useSharedPluginStateWithSelector,
 } from '@atlaskit/editor-common/hooks';
-import { type PortalProviderAPI } from '@atlaskit/editor-common/portal';
+import type { PortalProviderAPI } from '@atlaskit/editor-common/portal';
 import { WithProviders } from '@atlaskit/editor-common/provider-factory';
 import type { MediaProvider, ProviderFactory } from '@atlaskit/editor-common/provider-factory';
 import ReactNodeView from '@atlaskit/editor-common/react-node-view';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView, NodeView } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { MediaNextEditorPluginType } from '../mediaPluginType';
-import type { ForwardRef, getPosHandler, getPosHandlerNode, MediaOptions } from '../types';
+import type {
+	ForwardRef,
+	getPosHandler,
+	getPosHandlerNode,
+	MediaOptions,
+	MediaPluginOptions,
+} from '../types';
 import { useMediaProvider } from '../ui/hooks/useMediaProvider';
-
+import { MediaSSRReactContextsProvider } from '../ui/MediaSSRReactContextsProvider';
 import { MediaGroupNext } from './mediaGroupNext';
 
 interface MediaGroupNodeViewProps {
 	allowLazyLoading?: boolean;
+	intl?: IntlShape;
 	isCopyPasteEnabled?: boolean;
 	mediaOptions: MediaOptions;
 	pluginInjectionApi: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined;
@@ -71,56 +79,53 @@ function MediaGroupNodeViewInternal({
 
 class MediaGroupNodeView extends ReactNodeView<MediaGroupNodeViewProps> {
 	render(props: MediaGroupNodeViewProps, forwardRef: ForwardRef) {
-		const { providerFactory, mediaOptions, pluginInjectionApi } = props;
+		const { providerFactory, mediaOptions, pluginInjectionApi, intl } = props;
 		const getPos = this.getPos as getPosHandlerNode;
 
 		return (
-			<WithProviders
-				providers={['contextIdentifierProvider']}
-				providerFactory={providerFactory}
-				renderNode={({ contextIdentifierProvider }) => {
-					const renderFn = ({
-						mediaProvider: mediaProviderFromState,
-						editorDisabled,
-						editorViewMode,
-					}: RenderFn) => {
-						const mediaProvider = mediaProviderFromState
-							? Promise.resolve(mediaProviderFromState)
-							: undefined;
-						if (
-							!mediaProvider &&
-							!expValEquals('platform_editor_media_vc_fixes', 'isEnabled', true)
-						) {
-							return null;
-						}
+			<MediaSSRReactContextsProvider intl={intl}>
+				<WithProviders
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					providers={['contextIdentifierProvider']}
+					providerFactory={providerFactory}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					renderNode={({ contextIdentifierProvider }) => {
+						const renderFn = ({
+							mediaProvider: mediaProviderFromState,
+							editorDisabled,
+							editorViewMode,
+						}: RenderFn) => {
+							const mediaProvider = mediaProviderFromState
+								? Promise.resolve(mediaProviderFromState)
+								: undefined;
+							return (
+								<MediaGroupNext
+									node={this.node}
+									getPos={getPos}
+									view={this.view}
+									forwardRef={forwardRef}
+									disabled={editorDisabled}
+									allowLazyLoading={mediaOptions.allowLazyLoading}
+									mediaProvider={mediaProvider}
+									contextIdentifierProvider={contextIdentifierProvider}
+									isCopyPasteEnabled={mediaOptions.isCopyPasteEnabled}
+									anchorPos={this.view.state.selection.$anchor.pos}
+									headPos={this.view.state.selection.$head.pos}
+									mediaOptions={mediaOptions}
+									editorViewMode={editorViewMode === 'view'}
+								/>
+							);
+						};
 
 						return (
-							<MediaGroupNext
-								node={this.node}
-								getPos={getPos}
-								view={this.view}
-								forwardRef={forwardRef}
-								disabled={editorDisabled}
-								allowLazyLoading={mediaOptions.allowLazyLoading}
-								mediaProvider={mediaProvider}
-								contextIdentifierProvider={contextIdentifierProvider}
-								isCopyPasteEnabled={mediaOptions.isCopyPasteEnabled}
-								anchorPos={this.view.state.selection.$anchor.pos}
-								headPos={this.view.state.selection.$head.pos}
-								mediaOptions={mediaOptions}
-								editorViewMode={editorViewMode === 'view'}
+							<MediaGroupNodeViewInternal
+								renderFn={renderFn}
+								pluginInjectionApi={pluginInjectionApi}
 							/>
 						);
-					};
-
-					return (
-						<MediaGroupNodeViewInternal
-							renderFn={renderFn}
-							pluginInjectionApi={pluginInjectionApi}
-						/>
-					);
-				}}
-			/>
+					}}
+				/>
+			</MediaSSRReactContextsProvider>
 		);
 	}
 }
@@ -130,13 +135,15 @@ export const ReactMediaGroupNode =
 		portalProviderAPI: PortalProviderAPI,
 		eventDispatcher: EventDispatcher,
 		providerFactory: ProviderFactory,
-		mediaOptions: MediaOptions = {},
+		mediaOptions: MediaPluginOptions | undefined = {},
 		pluginInjectionApi: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined,
+		intl?: IntlShape,
 	) =>
 	(node: PMNode, view: EditorView, getPos: getPosHandler): NodeView => {
 		return new MediaGroupNodeView(node, view, getPos, portalProviderAPI, eventDispatcher, {
 			providerFactory,
 			mediaOptions,
 			pluginInjectionApi,
+			intl,
 		}).init();
 	};

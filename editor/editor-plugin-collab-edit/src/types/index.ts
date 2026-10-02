@@ -6,7 +6,7 @@ import type {
 	SyncUpErrorFunction,
 } from '@atlaskit/editor-common/collab';
 import type { Transaction } from '@atlaskit/editor-prosemirror/state';
-import { type Step } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 
 export type PrivateCollabEditOptions = CollabEditOptions & {
 	hideTelecursorOnLoad?: boolean;
@@ -40,6 +40,8 @@ export type LastOrganicChangeMetadata = {
 	lastLocalOrganicChangeAt: null | number;
 	lastRemoteOrganicBodyChangeAt: null | number;
 	lastRemoteOrganicChangeAt: null | number;
+	/** Monotonic count of direct local human body edits, excluding agents and comments. */
+	localHumanBodyChangeCount?: number;
 };
 
 export type TrackSpammingStepsMetadata = {

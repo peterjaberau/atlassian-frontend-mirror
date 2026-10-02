@@ -1,32 +1,40 @@
+import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
+
+import { status as statusFactory } from '../../next-schema/generated/nodeTypes';
 import { uuid } from '../../utils/uuid';
 import type { AnnotationMarkDefinition } from '../marks/annotation';
-import { status as statusFactory } from '../../next-schema/generated/nodeTypes';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+const NEWLINE_REGEX = /\n/u;
 
 /**
  * @name status_node
  */
 export interface StatusDefinition {
 	attrs: {
-		color: 'neutral' | 'purple' | 'blue' | 'red' | 'yellow' | 'green';
+		/**
+		 * @pattern "^(neutral|purple|blue|red|yellow|green|#[0-9a-fA-F]{6})$"
+		 */
+		color: string;
 		localId?: string;
 		/**
-		 * Supported values are bold and subtle
+		 * Supported values are bold, subtle, and mixedCase
 		 */
 		style?: string;
 		/**
+		 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 		 * @minLength 1
 		 */
 		text: string;
 	};
 	/**
+	 // eslint-disable-next-line eslint-plugin-jsdoc/check-tag-names
 	 * @stage 0
 	 */
 	marks?: Array<AnnotationMarkDefinition>;
 	type: 'status';
 }
 
-export const status = statusFactory({
+export const status: NodeSpec = statusFactory({
 	parseDOM: [
 		{
 			tag: 'span[data-node-type="status"]',
@@ -34,17 +42,12 @@ export const status = statusFactory({
 				// eslint-disable-next-line @atlaskit/editor/no-as-casting
 				const dom = domNode as HTMLElement;
 
-				// @ts-ignore TS1501: This regular expression flag is only available when targeting 'es6' or later.
 				// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-				const textContent = dom.textContent!.replace(/\n/u, '').trim();
+				const textContent = dom.textContent!.replace(NEWLINE_REGEX, '').trim();
 
 				// Prefer data-text attribute over textContent
 				// When NodeView DOM is copied, inner text content may not be preserved
-				const text = expValEquals(
-					'platform_editor_copy_paste_issue_fix',
-					'isEnabled',
-					true,
-				) ? dom.getAttribute('data-text') || textContent : textContent;
+				const text = dom.getAttribute('data-text') || textContent;
 
 				return {
 					text,

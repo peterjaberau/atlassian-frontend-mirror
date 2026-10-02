@@ -3,16 +3,28 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { jsx } from '@emotion/react';
+import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button';
-import { AtlassianIcon } from '@atlaskit/logo';
+import Button from '@atlaskit/button/button';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
 import { token } from '@atlaskit/tokens';
 
 const Icon = <AtlassianIcon label="" size="small" />;
+
+const buttonWrapperStyles = css({
+	display: 'inline-block',
+	paddingBlockEnd: token('space.050'),
+	paddingBlockStart: token('space.050'),
+	paddingInlineEnd: token('space.050'),
+	paddingInlineStart: token('space.050'),
+});
+
+const blockStyles = css({
+	display: 'block',
+});
 
 const ButtonWrapper = ({
 	inline = true,
@@ -20,16 +32,7 @@ const ButtonWrapper = ({
 }: {
 	inline?: boolean;
 	children: React.ReactNode;
-}) => (
-	<div
-		css={{
-			display: inline ? 'inline-block' : 'block',
-			padding: token('space.050', '4px'),
-		}}
-	>
-		{children}
-	</div>
-);
+}) => <div css={[buttonWrapperStyles, !inline && blockStyles]}>{children}</div>;
 
 const ButtonOptions = (): React.JSX.Element => (
 	<div>

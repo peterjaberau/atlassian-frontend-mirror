@@ -1,14 +1,12 @@
+import { UFOExperience } from '../../../core/experience/experience';
+import { UFOExperienceState } from '../../../core/experience/experience-state';
 import {
 	ExperiencePerformanceTypes,
 	ExperienceTypes,
-	UFOExperience,
-	UFOExperienceState,
-} from '../../../core';
+} from '../../../core/experience/experience-types';
 import { untilAll } from '../../../utils/until-helpers';
 
 describe('untilAll helper', () => {
-	beforeAll(() => {});
-
 	test('untilAll with 1 success experience', async () => {
 		const experience = new UFOExperience('test', {
 			type: ExperienceTypes.Load,
@@ -145,5 +143,59 @@ describe('untilAll helper', () => {
 		expect(res1.state).toBe(UFOExperienceState.FAILED);
 		expect(res2.done).toBe(false);
 		expect(res2.state).toBe(undefined);
+	});
+
+	test('untilAll should ignore failures from unrelated experiences', async () => {
+		const experiences = [
+			new UFOExperience('child1', {
+				type: ExperienceTypes.Load,
+				performanceType: ExperiencePerformanceTypes.PageSegmentLoad,
+			}),
+			new UFOExperience('child2', {
+				type: ExperienceTypes.Load,
+				performanceType: ExperiencePerformanceTypes.PageSegmentLoad,
+			}),
+		];
+		const unrelated = new UFOExperience('unrelated', {
+			type: ExperienceTypes.Load,
+			performanceType: ExperiencePerformanceTypes.PageSegmentLoad,
+		});
+
+		experiences[0].start();
+		experiences[1].start();
+		unrelated.start();
+		unrelated.failure();
+
+		const until = untilAll(experiences.map((experience) => ({ experience })))();
+		const unrelatedData = await unrelated.exportData();
+
+		// An unrelated experience failing should NOT cause untilAll to complete
+		const res = until(unrelatedData);
+		expect(res.done).toBe(false);
+	});
+
+	test('untilAll should still propagate failures from actual dependencies', async () => {
+		const experiences = [
+			new UFOExperience('dep1', {
+				type: ExperienceTypes.Load,
+				performanceType: ExperiencePerformanceTypes.PageSegmentLoad,
+			}),
+			new UFOExperience('dep2', {
+				type: ExperienceTypes.Load,
+				performanceType: ExperiencePerformanceTypes.PageSegmentLoad,
+			}),
+		];
+
+		experiences[0].start();
+		experiences[1].start();
+		experiences[0].failure();
+
+		const until = untilAll(experiences.map((experience) => ({ experience })))();
+		const dep1Data = await experiences[0].exportData();
+
+		// A dependency failing SHOULD still cause untilAll to complete with FAILED
+		const res = until(dep1Data);
+		expect(res.done).toBe(true);
+		expect(res.state).toBe(UFOExperienceState.FAILED);
 	});
 });

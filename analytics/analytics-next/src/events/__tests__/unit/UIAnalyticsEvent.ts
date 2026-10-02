@@ -1,5 +1,5 @@
+import { isUIAnalyticsEvent } from '../../isUIAnalyticsEvent';
 import {
-	isUIAnalyticsEvent,
 	default as UIAnalyticsEvent,
 	type UIAnalyticsEventHandler,
 	type UIAnalyticsEventProps,
@@ -63,6 +63,36 @@ it('should deep clone event payloads when cloning', () => {
 	expect(analyticsEvent.payload.a).not.toBe(clonedEvent!.payload.a);
 });
 
+describe('cloning a payload with a circular reference (HOT-127428)', () => {
+	const buildCircularEvent = () => {
+		const circular: Record<string, any> = { action: 'click' };
+		// Mimics a DOM node carrying a React fiber back-reference, which forms a
+		// cycle that JSON.stringify cannot serialize.
+		circular.self = circular;
+
+		return new UIAnalyticsEvent({
+			context: [],
+			handlers: [],
+			payload: circular,
+		});
+	};
+
+	it('does not throw and falls back to a shallow clone', () => {
+		const analyticsEvent = buildCircularEvent();
+
+		let clonedEvent: UIAnalyticsEvent | null = null;
+		expect(() => {
+			clonedEvent = analyticsEvent.clone();
+		}).not.toThrow();
+
+		// Shallow clone: a new payload object with the same top-level values.
+		expect(clonedEvent).not.toBeNull();
+		expect(clonedEvent!.payload).not.toBe(analyticsEvent.payload);
+		expect(clonedEvent!.payload.action).toBe('click');
+		expect(clonedEvent!.payload.self).toBe(analyticsEvent.payload.self);
+	});
+});
+
 it('payload can be updated with an object that is shallow merged', () => {
 	const analyticsEvent = new UIAnalyticsEvent({
 		context: [],
@@ -110,6 +140,23 @@ it('payload can be updated with a function', () => {
 		a: { b: 'c', f: 'g' },
 		d: 'e',
 	});
+});
+
+it('isolates handler errors so a throwing handler does not prevent subsequent handlers from firing', () => {
+	const throwingHandler = jest.fn().mockImplementation(() => {
+		throw new Error('handler error');
+	});
+	const subsequentHandler = jest.fn();
+	const analyticsEvent = new UIAnalyticsEvent({
+		...standardEventArgs,
+		handlers: [throwingHandler, subsequentHandler],
+	});
+
+	// Should not throw despite a bad handler
+	expect(() => analyticsEvent.fire()).not.toThrow();
+	expect(throwingHandler).toHaveBeenCalledTimes(1);
+	// Subsequent handlers still fire after the bad one
+	expect(subsequentHandler).toHaveBeenCalledTimes(1);
 });
 
 it('executes all event handlers when fired without a channel', () => {

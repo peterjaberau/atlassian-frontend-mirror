@@ -1,27 +1,32 @@
 import React from 'react';
 
-import Button, { IconButton, SplitButton } from '@atlaskit/button/new';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
+import Button from '@atlaskit/button/default/button';
+import IconButton from '@atlaskit/button/icon/button';
+import { SplitButton } from '@atlaskit/button/split-button/split-button';
+import DropdownMenu from '@atlaskit/dropdown-menu/dropdown-menu';
+import DropdownItem from '@atlaskit/dropdown-menu/dropdown-menu-item';
+import DropdownItemGroup from '@atlaskit/dropdown-menu/dropdown-menu-item-group';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 
 const _default_1: React.JSX.Element = (
-    <SplitButton spacing="compact">
-        <Button>Link work item</Button>
-        <DropdownMenu
-            shouldRenderToParent
-            trigger={({ triggerRef, ...triggerProps }) => (
-                <IconButton
-                    ref={triggerRef}
-                    {...triggerProps}
-                    icon={ChevronDownIcon}
-                    label="More link work item options" />
-            )}
-        >
-            <DropdownItemGroup>
-                <DropdownItem>Create new link</DropdownItem>
-                <DropdownItem>Link existing item</DropdownItem>
-            </DropdownItemGroup>
-        </DropdownMenu>
-    </SplitButton>
+	<SplitButton spacing="compact">
+		<Button>Link work item</Button>
+		<DropdownMenu
+			shouldRenderToParent
+			trigger={({ triggerRef, ...triggerProps }) => (
+				<IconButton
+					ref={triggerRef}
+					{...triggerProps}
+					icon={ChevronDownIcon}
+					label="More link work item options"
+				/>
+			)}
+		>
+			<DropdownItemGroup>
+				<DropdownItem>Create new link</DropdownItem>
+				<DropdownItem>Link existing item</DropdownItem>
+			</DropdownItemGroup>
+		</DropdownMenu>
+	</SplitButton>
 );
 export default _default_1;

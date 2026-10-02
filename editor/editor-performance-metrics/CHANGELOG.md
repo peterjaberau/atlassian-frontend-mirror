@@ -1,5 +1,130 @@
 # @atlaskit/editor-performance-metrics
 
+## 4.0.0
+
+### Major Changes
+
+- [`a70e1af6e4130`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a70e1af6e4130) -
+  EDITOR-8867 Remove the `editor inp` implementation: the `EditorINPMetrics` component in
+  `@atlaskit/editor-core` and the `inp` entry point (`setupINPTracking`) with its vendored `onINP`
+  internals in `@atlaskit/editor-performance-metrics`. Interaction latency is reported by the
+  `editor interactivity` event from `@atlaskit/editor-plugin-interactivity`, which should be used
+  instead.
+
+## 3.2.1
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+
+## 3.2.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+## 3.1.2
+
+### Patch Changes
+
+- [`ce458bc7e24d2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce458bc7e24d2) -
+  Replace editor-performance-metrics source imports with package entrypoints.
+
+## 3.1.1
+
+### Patch Changes
+
+- [`88a1176b97a25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88a1176b97a25) -
+  Internal TypeScript typecheck fixes for ts7 (tsgo) adoption. No functional or API changes.
+
+## 3.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+## 3.0.2
+
+### Patch Changes
+
+- [`05df1ed6e8107`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/05df1ed6e8107) -
+  fix: resolve flaky playwright integration tests - wait for DOM to settle before a11y check in
+  vc-next-placeholder; poll for expected toolCallResult event count before asserting in
+  aifc-streaming-replay
+- Updated dependencies
+
+## 3.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 3.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 2.2.0
+
+### Minor Changes
+
+- [`ce30a31e6369d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ce30a31e6369d) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 2.1.10
+
+### Patch Changes
+
+- [`9e45c7ac76c9a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e45c7ac76c9a) -
+  Enrol editor core packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 2.1.9
+
+### Patch Changes
+
+- [`c0a8e9590b919`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c0a8e9590b919) -
+  Mechanical type-import autofix for editor lint and metrics packages.
+
+## 2.1.8
+
+### Patch Changes
+
+- [`5b7ac366074b5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5b7ac366074b5) -
+  Fix method-signature-style violations (EES013)
+
 ## 2.1.7
 
 ### Patch Changes
@@ -90,7 +215,6 @@
 
   This update fix a race condition between `Timeline.attemptFlushIdleBuffer` and
   `Timeline.callOnNextIdleCallbacks`,
-
   - The `attemptFlushIdleBuffer` was cleaning the idle buffer before the `callOnNextIdleCallbacks`
     call the listerners.
 
@@ -111,7 +235,6 @@
   Patch Changes
 
   This update fix a race condition caused by wrongly scope binding.
-
   - The idle callbacks will be called with a shallow copy of timelineBuffer from the lexical scope
   - The handleIdle is manually bindided with the Timeline class instance to avoid race-condition
     issues
@@ -144,11 +267,8 @@
   operations, ensuring that resources are properly released even when exceptions occur.
 
   ## Error Handling Improvements
-
   1. **Wrapper Functions for Web APIs**
-
      - Enhanced `wrapperFetch`:
-
        - Now ensures that `unhold` is called even if an exception is thrown within the fetch
          operation.
        - Introduced try-catch-finally blocks to manage error handling and ensure consistent resource
@@ -159,13 +279,11 @@
        - Utilizes try-finally blocks to guarantee unhold operations.
 
   ## Testing Enhancements
-
   - Added new test cases to verify the behavior when exceptions are thrown within wrapped functions:
     - Ensures `unhold` is called when an exception occurs in a `setTimeout` callback.
     - Confirms `unhold` is invoked when an exception is thrown inside the fetch implementation.
 
   ## Important Notes
-
   - These changes maintain backward compatibility with existing implementations.
   - The core functionalities of the wrapper functions remain unchanged, with improvements focused on
     error handling.
@@ -186,9 +304,7 @@
   EditorPerformanceObserver, providing better control over observer states and cleanup operations.
 
   ## Timeline Lifecycle Management
-
   1. New `cleanupSubscribers` method in TimelineClock:
-
      - Forcefully removes all subscribers
      - Flushes any pending idle buffer
      - Triggers the onceAllSubscribersCleaned callback
@@ -205,25 +321,21 @@
   ## React Integration Improvements
 
   The PerformanceMetrics component now properly manages the EditorPerformanceObserver lifecycle:
-
   - Automatically starts the observer when the component mounts
   - Properly stops the observer when the component unmounts
   - Handles SSR scenarios gracefully
 
   ## Documentation Updates
-
   - Added comprehensive examples for lifecycle management
 
   ## Testing
 
   Added new test suites:
-
   - Timeline cleanupSubscribers functionality
   - EditorPerformanceObserver start/stop operations
   - PerformanceMetrics component lifecycle management
 
   ## Important Notes
-
   - These changes maintain backward compatibility with existing implementations
   - The core timeline functionality remains unchanged
   - Improved resource management should lead to better memory usage in long-running applications
@@ -302,9 +414,7 @@
 
   We've introduced a new hold mechanism to the Timeline system, allowing for better tracking and
   management of asynchronous operations:
-
   1. `TimelineHoldable` interface:
-
      - Defines a `hold` method to initiate a hold operation.
      - Returns an `UnHoldFunction` to release the hold when the operation is complete.
 
@@ -317,9 +427,7 @@
   operations.
 
   ## Wrapper Functions for Web APIs
-
   1. `wrapperFetch`:
-
      - Integrates fetch calls with the Timeline system.
      - Automatically applies hold and unhold operations for each fetch call.
 
@@ -332,14 +440,11 @@
   # Improvements
 
   ## Timeline Controller Enhancements
-
   1. Hold Management:
-
      - Implemented `checkHoldTimeout` to manage hold timeouts.
      - Modified `scheduleNextIdle` to respect active holds.
 
   2. Configuration:
-
      - Added `maxHoldDuration` to `TimelineOptions` to configure the maximum duration for holds.
 
   3. Subscription Management:
@@ -347,32 +452,26 @@
        subscribers are unsubscribed.
 
   ## Code Organization
-
   1. Split Timeline-related code into separate files:
-
      - `timelineTypes.ts`: Contains type definitions for Timeline events and options.
      - `timelineInterfaces.ts`: Defines interfaces for Timeline functionality.
 
   2. Improved modularity and maintainability of the codebase.
 
   ## EditorPerformanceObserver Updates
-
   - Modified to use both `TimelineClock` and `TimelineHoldable` interfaces.
   - Implemented wrapper application and cleanup logic.
 
   # Documentation Updates
-
   - Added comprehensive JSDoc for new interfaces and methods.
   - Updated existing documentation to reflect new functionality.
 
   # Testing
-
   - Added new test files: `wrapperFetch.test.ts` and `wrapperTimers.test.ts`.
   - Enhanced existing tests in `timeline.test.ts` to cover new functionality.
   - Added `editorPerformanceObserver.test.ts` to test wrapper application and cleanup.
 
   # Important Notes
-
   - These enhancements maintain backward compatibility with existing implementations.
   - The core timeline functionality remains unchanged; only new features have been added.
   - Wrapper functions are applied only when needed and cleaned up when no longer in use.
@@ -389,9 +488,7 @@
 
   We've introduced two new categories for `onUserLatency` to provide more granular insights into
   mouse interactions:
-
   1. `mouse-movement`:
-
      - mouseenter
      - mouseleave
      - mousemove
@@ -420,9 +517,7 @@
   performance.
 
   ## React API Enhancements
-
   1. [ED-26251] Optimized Time to Actively Interactive (TTAI) for Time to Visually Complete (TTVC)
-
      - The `onTTVC` callback is now triggered immediately after the first idle slot, without waiting
        for a buffer threshold.
      - This change improves the accuracy and responsiveness of TTVC measurements.
@@ -431,21 +526,18 @@
      - Improved code style and readability for easier maintenance and understanding.
 
   ## Performance Optimizations
-
   1. Task Splitting for Data Processing
      - Implemented chunk-based processing in `createHeatmapFromEvents` to prevent long-running
        blocking tasks.
      - This enhancement ensures better responsiveness, especially on slower devices.
 
   ## Documentation Updates
-
   - New comprehensive documentation for the React API is now available at
     `https://atlaskit.atlassian.com/packages/editor/editor-performance-metrics`.
   - The documentation provides detailed information on using and implementing performance metrics in
     React applications.
 
   # Important Notes
-
   - The core metric calculation methods remain unchanged; only the timing of calculations has been
     optimized.
   - Existing implementations should continue to function without requiring modifications.

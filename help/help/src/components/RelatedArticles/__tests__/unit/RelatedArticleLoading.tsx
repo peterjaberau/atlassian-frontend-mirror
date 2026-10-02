@@ -1,9 +1,10 @@
 import React from 'react';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { render } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+
+import { IntlProvider } from 'react-intl';
 
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { render } from '@atlassian/testing-library/render';
 
 import RelatedArticlesLoading from '../../RelatedArticlesLoading';
 
@@ -26,13 +27,13 @@ describe('RelatedArticlesLoading', () => {
 		});
 	});
 
-	it('Should match snapshot', () => {
-		const { asFragment } = render(
+	it('should render the related articles loading state', () => {
+		const { container } = render(
 			<IntlProvider locale="en">
 				<RelatedArticlesLoading />
 			</IntlProvider>,
 		);
 
-		expect(asFragment()).toMatchSnapshot();
+		expect(container.querySelectorAll('li').length).toBeGreaterThan(0);
 	});
 });

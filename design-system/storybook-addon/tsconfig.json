@@ -1,9 +1,7 @@
 {
-	"extends": "../../../tsconfig.json",
+	"extends": "./tsconfig.app.json",
 	"compilerOptions": {
-		"declaration": true,
-		"target": "es5",
-		"paths": {}
-	},
-	"include": ["src/**/*"]
+		"disableReferencedProjectLoad": true,
+		"disableSolutionSearching": true
+	}
 }

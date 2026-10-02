@@ -3,8 +3,8 @@ import {
 	ACTION_SUBJECT,
 	ACTION_SUBJECT_ID,
 	EVENT_TYPE,
-	type EditorAnalyticsAPI,
 } from '@atlaskit/editor-common/analytics';
+import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import {
 	changeImageAlignment,
 	changeImageAlignmentNext,
@@ -175,9 +175,10 @@ const changeImageAlignmentWithAnalyticsTr =
 		return tr;
 	};
 
-// Remove this when cleaning up platform_editor_toolbar_aifc
 // eslint-disable-next-line @repo/internal/deprecations/deprecation-ticket-required
 /**
+ * Command-based alignment used by the legacy primary/floating toolbars and alignment keymap.
+ * The new toolbar uses changeAlignmentTr.
  *
  * @deprecated use changeAlignmentTr instead
  */

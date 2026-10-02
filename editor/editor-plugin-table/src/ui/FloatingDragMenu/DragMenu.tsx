@@ -4,12 +4,18 @@
  * @jsx jsx
  */
 /** @jsxFrag */
+
 import React, { useEffect, useState } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx } from '@emotion/react';
-import type { IntlShape, MessageDescriptor, WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type {
+	IntlShape,
+	MessageDescriptor,
+	WithIntlProps,
+	WrappedComponentProps,
+} from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { EditorAnalyticsAPI } from '@atlaskit/editor-common/analytics';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
@@ -23,6 +29,7 @@ import type {
 import {
 	backgroundPaletteTooltipMessages,
 	cellBackgroundColorPalette,
+	cellBackgroundColorPaletteNew,
 	ColorPalette,
 	getSelectedRowAndColumnFromPalette,
 } from '@atlaskit/editor-common/ui-color';
@@ -47,11 +54,9 @@ import {
 	isSelectionType,
 } from '@atlaskit/editor-tables/utils';
 import PaintBucketIcon from '@atlaskit/icon/core/paint-bucket';
-import { fg } from '@atlaskit/platform-feature-flags';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 import Toggle from '@atlaskit/toggle';
 
 import { clearHoverSelection, hoverColumns, hoverRows } from '../../pm-plugins/commands';
@@ -75,8 +80,7 @@ import { getSelectedColumnIndexes, getSelectedRowIndexes } from '../../pm-plugin
 import type { TablePlugin } from '../../tablePluginType';
 import { TableCssClassName as ClassName } from '../../types';
 import type { PluginConfig, TableDirection } from '../../types';
-import { colorPalletteColumns } from '../consts';
-
+import { colorPaletteColumns, colorPalletteColumns } from '../consts';
 import { DropdownMenu } from './DropdownMenu';
 import { cellColourPreviewStyles, dragMenuBackgroundColorStyles, toggleStyles } from './styles';
 
@@ -331,8 +335,6 @@ const DragMenu = React.memo(
 			selectionRect,
 		);
 
-		const isToolbarAIFCEnabled = Boolean(api?.toolbar);
-
 		const handleSubMenuRef = (ref: HTMLDivElement | null) => {
 			// Ignored via go/ees005
 			// eslint-disable-next-line @atlaskit/editor/no-as-casting
@@ -386,10 +388,20 @@ const DragMenu = React.memo(
 			const node = targetCellPosition ? state.doc.nodeAt(targetCellPosition) : null;
 			const background = hexToEditorBackgroundPaletteColor(node?.attrs?.background || '#ffffff');
 
+			const isMoreColorsEnabled = expValEquals(
+				'platform_editor_lovability_text_bg_color',
+				'isEnabled',
+				true,
+			);
+			const activePalette = isMoreColorsEnabled
+				? cellBackgroundColorPaletteNew
+				: cellBackgroundColorPalette;
+			const activeCols = isMoreColorsEnabled ? colorPaletteColumns : colorPalletteColumns;
+
 			const { selectedRowIndex, selectedColumnIndex } = getSelectedRowAndColumnFromPalette(
-				cellBackgroundColorPalette,
+				activePalette,
 				background,
-				colorPalletteColumns,
+				activeCols,
 			);
 
 			return {
@@ -425,6 +437,7 @@ const DragMenu = React.memo(
 									type={ArrowKeyNavigationType.COLOR}
 									selectedRowIndex={selectedRowIndex}
 									selectedColumnIndex={selectedColumnIndex}
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									handleClose={() => {
 										const keyboardEvent = new KeyboardEvent('keydown', {
 											key: 'ArrowDown',
@@ -440,13 +453,15 @@ const DragMenu = React.memo(
 									isOpenedByKeyboard={isKeyboardModeActive}
 								>
 									<ColorPalette
-										cols={colorPalletteColumns}
+										cols={activeCols}
+										// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 										onClick={(color) => {
 											setColor(color);
 										}}
 										selectedColor={background}
+										// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 										paletteOptions={{
-											palette: cellBackgroundColorPalette,
+											palette: activePalette,
 											paletteColorTooltipMessages: backgroundPaletteTooltipMessages,
 											hexToPaletteColor: hexToEditorBackgroundPaletteColor,
 										}}
@@ -495,22 +510,6 @@ const DragMenu = React.memo(
 			</div>
 		);
 
-		const createHeaderRowColumnMenuItemOld = (direction: TableDirection) => {
-			return direction === 'column'
-				? ({
-						key: 'header_column',
-						content: formatMessage(messages.headerColumn),
-						value: { name: 'header_column' },
-						elemAfter: <HeaderColumnToggle />,
-					} as MenuItem)
-				: ({
-						key: 'header_row',
-						content: formatMessage(messages.headerRow),
-						value: { name: 'header_row' },
-						elemAfter: <HeaderRowToggle />,
-					} as MenuItem);
-		};
-
 		const createHeaderRowColumnMenuItem = (direction: TableDirection) => {
 			if (direction === 'column' && (pluginConfig?.advanced || pluginConfig?.allowHeaderColumn)) {
 				return {
@@ -534,22 +533,14 @@ const DragMenu = React.memo(
 		const createRowNumbersMenuItem = () => {
 			return {
 				key: 'row_numbers',
-				content: formatMessage(
-					fg('platform_editor_rename_numbered_rows_label')
-						? messages.numberedRows
-						: messages.rowNumbers,
-				),
+				content: formatMessage(messages.numberedRows),
 				value: { name: 'row_numbers' },
 				elemAfter: (
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 					<div css={toggleStyles}>
 						<Toggle
 							id="toggle-row-numbers"
-							label={formatMessage(
-								fg('platform_editor_rename_numbered_rows_label')
-									? messages.numberedRows
-									: messages.numberedColumn,
-							)}
+							label={formatMessage(messages.numberedRows)}
 							onChange={toggleRowNumbers}
 							isChecked={checkIfNumberColumnEnabled(selection)}
 						/>
@@ -591,10 +582,8 @@ const DragMenu = React.memo(
 			if (shouldCloseMenu(state)) {
 				if (target && focusTarget === 'handle') {
 					(target as HTMLElement | null)?.focus();
-				} else if (expValEquals('platform_editor_table_cell_colour_change', 'isEnabled', true)) {
-					editorView.focus();
 				} else {
-					editorView.dom.focus();
+					editorView.focus();
 				}
 				toggleDragMenu(false, direction, index)(state, dispatch);
 			}
@@ -684,13 +673,10 @@ const DragMenu = React.memo(
 		// If first row, add toggle for Header row, default is true
 		// If first column, add toggle for Header column, default is false
 		if (index === 0) {
-			if (!fg('platform_editor_enable_table_dnd')) {
-				menuItems.push({ items: [createHeaderRowColumnMenuItemOld(direction)] });
-			} else if (
-				(pluginConfig?.advanced ||
-					pluginConfig?.allowHeaderColumn ||
-					pluginConfig?.allowHeaderRow) &&
-				fg('platform_editor_enable_table_dnd')
+			if (
+				pluginConfig?.advanced ||
+				pluginConfig?.allowHeaderColumn ||
+				pluginConfig?.allowHeaderRow
 			) {
 				const headerRowColumnMenuItem = createHeaderRowColumnMenuItem(direction);
 				headerRowColumnMenuItem && menuItems.push({ items: [headerRowColumnMenuItem] });
@@ -698,50 +684,36 @@ const DragMenu = React.memo(
 		}
 
 		// All rows, add toggle for numbered rows, default is false
-		if (
-			direction === 'row' &&
-			(fg('platform_editor_enable_table_dnd')
-				? pluginConfig?.advanced || pluginConfig?.allowNumberColumn
-				: true)
-		) {
+		if (direction === 'row' && (pluginConfig?.advanced || pluginConfig?.allowNumberColumn)) {
 			index === 0
 				? menuItems[menuItems.length - 1].items.push(createRowNumbersMenuItem())
 				: menuItems.push({ items: [createRowNumbersMenuItem()] });
 		}
 
-		const Menu = (
-			<DropdownMenu
-				disableKeyboardHandling={isSubmenuOpen}
-				section={{ hasSeparator: true }}
-				items={menuItems}
-				onItemActivated={handleMenuItemActivated}
-				onMouseEnter={handleItemMouseEnter}
-				onMouseLeave={handleItemMouseLeave}
-				handleClose={closeMenu}
-				fitHeight={fitHeight}
-				fitWidth={fitWidth}
-				direction={direction}
-				boundariesElement={boundariesElement}
-				scrollableElement={scrollableElement}
-			/>
-		);
-
-		return isToolbarAIFCEnabled ||
-			expValEquals('platform_editor_lovability_user_intent', 'isEnabled', true) ? (
-			<UserIntentPopupWrapper
-				api={api}
-				userIntent={
-					expValEqualsNoExposure('platform_editor_lovability_user_intent', 'isEnabled', true)
-						? 'tableDragMenuPopupOpen'
-						: undefined
-				}
-			>
-				{Menu}
+		return (
+			<UserIntentPopupWrapper api={api} userIntent="tableDragMenuPopupOpen">
+				<DropdownMenu
+					disableKeyboardHandling={isSubmenuOpen}
+					// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
+					section={{ hasSeparator: true }}
+					items={menuItems}
+					onItemActivated={handleMenuItemActivated}
+					onMouseEnter={handleItemMouseEnter}
+					onMouseLeave={handleItemMouseLeave}
+					handleClose={closeMenu}
+					fitHeight={fitHeight}
+					fitWidth={fitWidth}
+					direction={direction}
+					boundariesElement={boundariesElement}
+					scrollableElement={scrollableElement}
+				/>
 			</UserIntentPopupWrapper>
-		) : (
-			Menu
 		);
 	},
 );
 
-export default injectIntl(DragMenu);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<DragMenuProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<DragMenuProps & WrappedComponentProps>;
+} = injectIntl(DragMenu);
+export default _default_1;

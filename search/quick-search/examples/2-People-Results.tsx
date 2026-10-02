@@ -1,8 +1,10 @@
 import React from 'react';
-import Avatar from '@atlaskit/avatar';
-import { getPersonAvatarUrl } from './utils/mockData';
-import PersonResult from '../src/components/Results/PersonResult';
+
+import Avatar from '@atlaskit/avatar/avatar';
+
 import ResultItemGroup from '../src/components/ResultItem/ResultItemGroup';
+import PersonResult from '../src/components/Results/PersonResult';
+import { getPersonAvatarUrl } from './utils/mockData';
 
 const defaultProps = {
 	resultId: 'result_id',
@@ -12,7 +14,7 @@ const dummyAvatarComponent = <Avatar src={getPersonAvatarUrl('wowowow')} appeara
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default class extends React.Component {
-	render() {
+	render(): React.JSX.Element {
 		return (
 			<div>
 				<h3>People</h3>

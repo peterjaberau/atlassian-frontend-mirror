@@ -1,5 +1,652 @@
 # @atlassian/give-kudos
 
+## 7.1.1
+
+### Patch Changes
+
+- [`239e9d95307d9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/239e9d95307d9) -
+  Cleanup `feature_gate` `goals_projects_bug_smash_july_2026`. The metric select accessible label,
+  the help pointer editor close button, the wrapped help pointer form error message and the give
+  kudos confirmation modal close button are now always enabled.
+
+## 7.1.0
+
+### Minor Changes
+
+- [`63ef8afc66021`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/63ef8afc66021) -
+  Fix keyboard focus being lost when the Give Kudos drawer is closed from a user profile card, and
+  stop the profile card from closing when the drawer is dismissed with its close button.
+
+  Behind the `teams_a11y_focus_high_priority` feature gate:
+  - Focus returns to the profile card's "More actions" button when the drawer closes. The "Give
+    kudos" item itself can't be the target: it lives inside the menu popup, which unmounts the
+    instant the menu closes.
+  - The profile card now stays open for the drawer's whole lifetime. Previously a click on the
+    drawer's close button — portalled to `<body>` and carrying no `data-ds--level` — was treated by
+    the card's popup as an outside click, closing the card (and the focus-return target) underneath
+    the drawer. Escape was unaffected because popup's keydown path checks layering and its click
+    path does not.
+
+  New APIs:
+  - `@atlaskit/teams-app-internal-popup-adaptor`: `PopupTriggerWithHover` accepts
+    `shouldPreventClose`, consulted before every close; return `true` to keep the popup open.
+  - `@atlaskit/give-kudos`: `GiveKudosLauncher` accepts `triggerRef` (forwarded to the drawer's
+    `shouldReturnFocus`) and `onCloseComplete` (fires once the drawer has fully closed).
+
+## 7.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.18.0
+
+### Minor Changes
+
+- [`1383228d55f90`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1383228d55f90) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.17.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.17.1
+
+### Patch Changes
+
+- [`b787f81ea2fad`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b787f81ea2fad) -
+  Return focus to the element that opened the Give Kudos drawer when the drawer is closed from the
+  "Confirm Close" modal. The modal is now dismissed before the drawer is closed, so that focus is
+  back inside the drawer by the time its focus lock is torn down and the lock can return focus as it
+  already does for the other close paths. Gated behind the `teams_a11y_focus_high_priority` feature
+  flag.
+
+## 6.17.0
+
+### Minor Changes
+
+- [`abf2022813c97`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/abf2022813c97) -
+  Apply the Volt one-export-per-file standard via `volt-migrate-package` to `@atlaskit/give-kudos`.
+  The package `exports` map gains two subpaths and now has 7 public subpaths in total — every
+  pre-existing subpath keeps its existing target. The two URL-validation helpers that previously
+  lived inside `GiveKudosLauncher/main.tsx` now each own a module, and `main.tsx` re-exports them as
+  `@deprecated` shims so existing imports keep working; VOLTC-139 tracks removing those shims.
+
+  ### No public API was removed
+
+  Every symbol exported before is still exported from the same subpath, including from
+  `./give-kudos-launcher/main`:
+
+  ```ts
+  import GiveKudosLauncher, {
+  	isSafeHttpsUrl,
+  	isTrustedOrigin,
+  } from '@atlaskit/give-kudos/give-kudos-launcher/main';
+  ```
+
+  ### Two new subpaths expose the helpers directly
+  - `./is-safe-https-url` — `isSafeHttpsUrl`
+  - `./is-trusted-origin` — `isTrustedOrigin`
+
+  Both are published. These are the preferred import paths going forward:
+
+  ```ts
+  import { isSafeHttpsUrl } from '@atlaskit/give-kudos/is-safe-https-url';
+  import { isTrustedOrigin } from '@atlaskit/give-kudos/is-trusted-origin';
+  ```
+
+  ### Note for consumers that mock these modules
+
+  `main.tsx` no longer defines `isSafeHttpsUrl` or `isTrustedOrigin`; it imports them and calls the
+  imported bindings internally. A `jest.mock()` or `jest.spyOn()` targeting
+  `@atlaskit/give-kudos/give-kudos-launcher/main` will therefore no longer intercept the launcher's
+  internal use of these helpers. Mock the module that now owns each export instead:
+
+  ```ts
+  jest.mock('@atlaskit/give-kudos/is-safe-https-url', () => ({ isSafeHttpsUrl: () => true }));
+  ```
+
+  No behaviour change.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.16.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.16.0
+
+### Minor Changes
+
+- [`ee77f0533c536`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee77f0533c536) -
+  Update i18n NPM package versions for team-central (split from Group 10)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.15.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.14.0
+
+### Minor Changes
+
+- [`fcdae83cc7c2b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fcdae83cc7c2b) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.13.0
+
+### Minor Changes
+
+- [`1490ef523b50d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1490ef523b50d) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.12.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.12.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.12.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.12.3
+
+### Patch Changes
+
+- [`2a615d4e92a7b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a615d4e92a7b) -
+  Removed the fully-rolled-out `teams-a11y-35569-35538-35421` feature gate. The keyboard-focus-guard
+  behaviour in `GiveKudosLauncher` is now always enabled. No behaviour change for users.
+- Updated dependencies
+
+## 6.12.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.12.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.12.0
+
+### Minor Changes
+
+- [`7cbe9ab6ed3ae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7cbe9ab6ed3ae) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.11.0
+
+### Minor Changes
+
+- [`91cb85bc182e5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/91cb85bc182e5) -
+  Add accessible close controls to Team Central modals
+
+## 6.10.0
+
+### Minor Changes
+
+- [`18f57716518b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/18f57716518b0) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.9.0
+
+### Minor Changes
+
+- [`6da587d0bcaec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6da587d0bcaec) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.0
+
+### Minor Changes
+
+- [`152c843708af5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/152c843708af5) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.7.4
+
+### Patch Changes
+
+- [`72ef19f7fc1cd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72ef19f7fc1cd) -
+  [ux] Fix keyboard focus being stolen by the iframe form in the Give Kudos drawer. Focus now stays
+  on (or is restored to) the back button after the drawer loads. Gated behind the
+  `teams-a11y-35569-35538-35421` feature flag.
+
+## 6.7.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.0
+
+### Minor Changes
+
+- [`3d0a54b76bd6a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3d0a54b76bd6a) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.6.0
+
+### Minor Changes
+
+- [`0a8f7cc765a2b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a8f7cc765a2b) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.0
+
+### Minor Changes
+
+- [`2f56c78f969b8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f56c78f969b8) -
+  Update i18n NPM package versions for teamwork-graph (Group 16)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.0
+
+### Minor Changes
+
+- [`9986dabf342e2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9986dabf342e2) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.3.0
+
+### Minor Changes
+
+- [`0ca3b87fd1200`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0ca3b87fd1200) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`10253eac437e7`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/10253eac437e7) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.12.0
+
+### Minor Changes
+
+- [`d3dfbc7b5c3a8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d3dfbc7b5c3a8) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 5.11.0
+
+### Minor Changes
+
+- [`e78a1a01f344b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e78a1a01f344b) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.10.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.10.0
+
+### Minor Changes
+
+- [`0779cecad8954`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0779cecad8954) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 5.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.9.0
+
+### Minor Changes
+
+- [`3a42014833ae1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3a42014833ae1) -
+  Adding event origin and safe url checks to the kudos launcher
+
+## 5.8.1
+
+### Patch Changes
+
+- [`caa0499e0b24a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/caa0499e0b24a) -
+  Enrol mercury, one-software-catalog, team-central, react-ufo, analytics and performance packages
+  into the React Compiler with platform gating via isReactCompilerActivePlatform
+- Updated dependencies
+
+## 5.8.0
+
+### Minor Changes
+
+- [`0d3a3b820af40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0d3a3b820af40) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 5.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.7.0
+
+### Minor Changes
+
+- [`d05464b9c9f0a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d05464b9c9f0a) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.6.0
+
+### Minor Changes
+
+- [`3248c87c5dc1d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3248c87c5dc1d) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 5.5.0
+
+### Minor Changes
+
+- [`f14521b15a464`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f14521b15a464) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 5.4.0
+
+### Minor Changes
+
+- [`2c93f0e1ebf43`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c93f0e1ebf43) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 5.3.0
+
+### Minor Changes
+
+- [`ed9a99a2cdf84`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ed9a99a2cdf84) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 5.2.0
+
+### Minor Changes
+
+- [`2f151769d281b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2f151769d281b) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 5.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`f1bde75d15bcc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1bde75d15bcc) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`4b920b03625a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b920b03625a1) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 4.19.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.19.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.19.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.19.0
+
+### Minor Changes
+
+- [`fa451af793197`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fa451af793197) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.18.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.18.0
+
+### Minor Changes
+
+- [`4c6737d0ca996`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c6737d0ca996) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.17.0
+
+### Minor Changes
+
+- [`3ad3d7dd8b4bf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3ad3d7dd8b4bf) -
+  [ux] Adds title text to 2 iframes
+
+## 4.16.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.16.1
+
+### Patch Changes
+
+- [`280bad8989ff3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/280bad8989ff3) -
+  Clean up people-teams-kudos-launcher-z-index feature gate
+
+## 4.16.0
+
+### Minor Changes
+
+- [`09ffc074f98f9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/09ffc074f98f9) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.15.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.15.0
+
+### Minor Changes
+
+- [`ee58785c72e00`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee58785c72e00) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.14.0
+
+### Minor Changes
+
+- [`09b3553af2235`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/09b3553af2235) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.13.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.13.0
+
+### Minor Changes
+
+- [`ba315b2def6e8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ba315b2def6e8) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.12.0
+
+### Minor Changes
+
+- [`0aa72417d0f19`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0aa72417d0f19) -
+  Update i18n NPM package versions for townsquare,team-central (Group 10)
+
+## 4.11.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 4.11.0
 
 ### Minor Changes

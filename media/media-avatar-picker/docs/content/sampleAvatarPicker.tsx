@@ -11,7 +11,7 @@ interface AvatarAppProps {
 	isOpen: boolean;
 }
 
-const AvatarApp = ({ isOpen }: AvatarAppProps) => {
+const AvatarApp = ({ isOpen }: AvatarAppProps): React.JSX.Element => {
 	const [canDialogOpen, setDialogOpen] = useState(isOpen);
 	const [imageSrc, setImageSrc] = useState('');
 	return (
@@ -28,7 +28,7 @@ const AvatarApp = ({ isOpen }: AvatarAppProps) => {
 					style={{
 						visibility: imageSrc.length > 0 ? 'visible' : 'hidden',
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						marginLeft: token('space.1000', '80px'),
+						marginLeft: token('space.1000'),
 					}}
 				/>
 			</div>

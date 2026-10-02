@@ -5,7 +5,6 @@ import { type EditorView } from '@atlaskit/editor-prosemirror/view';
 import { type JQLEditorCommand } from '../../schema';
 import { type PortalActions } from '../../ui/jql-editor-portal-provider/types';
 import { PluginKeymap } from '../common/plugin-keymap';
-
 import {
 	ARROW_DOWN_KEY,
 	ARROW_UP_KEY,
@@ -27,7 +26,10 @@ const getKeyHandler =
 		return binding ? binding(state, dispatch, view) : false;
 	};
 
-const autocompletePlugin = (portalActions: PortalActions, enableRichInlineNodes: boolean) => {
+const autocompletePlugin = (
+	portalActions: PortalActions,
+	enableRichInlineNodes: boolean,
+): Plugin<void> => {
 	// Empty keymap passed down to the React component so it can register key bindings
 	const keymap = new PluginKeymap();
 	return new Plugin<void>({

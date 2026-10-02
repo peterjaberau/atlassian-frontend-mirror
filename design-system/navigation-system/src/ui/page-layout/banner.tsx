@@ -7,31 +7,32 @@ import { useContext } from 'react';
 import { cssMap, jsx } from '@compiled/react';
 
 import type { StrictXCSSProp } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { useSkipLinkInternal } from '../../context/skip-links/skip-links-context';
+import { useSkipLinkInternal } from '../../context/skip-links/use-skip-link-internal';
 import { useIsFhsEnabled } from '../fhs-rollout/use-is-fhs-enabled';
-
-import { bannerMountedVar, localSlotLayers, UNSAFE_bannerVar } from './constants';
+import type { localSlotLayers } from './constants';
+import { bannerMountedVar, UNSAFE_bannerVar } from './constants';
+import { DangerouslyHoistCssVarToDocumentRoot } from './dangerously-hoist-css-var-to-document-root';
+import { HoistCssVarToLocalGrid } from './hoist-css-var-to-local-grid';
 import { DangerouslyHoistSlotSizes } from './hoist-slot-sizes-context';
-import { DangerouslyHoistCssVarToDocumentRoot, HoistCssVarToLocalGrid } from './hoist-utils';
-import { useLayoutId } from './id-utils';
 import type { CommonSlotProps } from './types';
+import { useLayoutId } from './use-layout-id';
 
 const styles = cssMap({
 	root: {
 		gridArea: 'banner',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values
-		height: `var(${bannerMountedVar})`,
+		height: `var(${'--n_bnrM' satisfies typeof bannerMountedVar})`,
 		insetBlockStart: 0,
 		position: 'sticky',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-		zIndex: localSlotLayers.banner,
+		zIndex: 4 satisfies typeof localSlotLayers.banner,
 		overflow: 'hidden',
 	},
-	fullHeightSidebarWithLayeringFixes: {
+	fullHeightSidebar: {
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
-		zIndex: localSlotLayers.bannerFHS,
+		zIndex: 3 satisfies typeof localSlotLayers.bannerFHS,
 	},
 });
 
@@ -71,11 +72,13 @@ export function Banner({
 
 	/**
 	 * Don't show the skip link if the slot has 0 height.
+	 *
+	 * TODO: when cleaning up 'platform_dst_nav4_skip_link_a11y_1' remove this call entirely
 	 */
 	useSkipLinkInternal({
 		id,
 		label: skipLinkLabel,
-		isHidden: height === 0,
+		isHidden: height === 0 || fg('platform_dst_nav4_skip_link_a11y_1'),
 	});
 
 	return (
@@ -86,12 +89,7 @@ export function Banner({
 		<div
 			id={id}
 			data-layout-slot
-			css={[
-				styles.root,
-				isFhsEnabled &&
-					fg('platform-dst-side-nav-layering-fixes') &&
-					styles.fullHeightSidebarWithLayeringFixes,
-			]}
+			css={[styles.root, isFhsEnabled && styles.fullHeightSidebar]}
 			className={xcss}
 			data-testid={testId}
 		>

@@ -1,12 +1,11 @@
 import React, { type MouseEvent } from 'react';
 
-import Button from '@atlaskit/button';
-import { LinkIconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/button';
+import LinkIconButton from '@atlaskit/button/icon/link';
 import QuestionCircleIcon from '@atlaskit/icon/core/question-circle';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, xcss } from '@atlaskit/primitives';
-import { N0 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import { SyntaxHelpContainer } from './styled';
@@ -56,9 +55,7 @@ export const BaseSyntaxHelp = ({
 					<Box xcss={iconStyle}>
 						<QuestionCircleIcon
 							label={''}
-							color={
-								isDisabled ? token('color.icon.disabled', N0) : token('color.icon.inverse', N0)
-							}
+							color={isDisabled ? token('color.icon.disabled') : token('color.icon.inverse')}
 						/>
 					</Box>
 				}

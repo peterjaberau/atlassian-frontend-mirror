@@ -1,10 +1,9 @@
-import {
-	type DatasourceDataResponseItem,
-	type DatasourceDetailsResponse,
-} from '@atlaskit/linking-types';
+import type {
+	DatasourceDataResponseItem,
+	DatasourceDetailsResponse,
+} from '@atlaskit/linking-types/datasource';
 
 import { type GenerateDataResponse } from '../types';
-
 import { defaultInitialVisibleColumnKeys, mockConfluenceData } from './data';
 
 const defaultDetailsResponse: DatasourceDetailsResponse = {
@@ -370,7 +369,60 @@ const resolveConfluenceSearch = {
 	status: 200,
 };
 
-export const generateResolveResponse = (resourceUrl: string) => {
+export const generateResolveResponse = (
+	resourceUrl: string,
+):
+	| {
+			body: {
+				data: {
+					'@context': {
+						'@vocab': string;
+						atlassian: string;
+						schema: string;
+					};
+					'@type': string[];
+					'atlassian:titlePrefix': {
+						'@type': string;
+						text: string;
+					};
+					generator: {
+						'@id': string;
+						'@type': string;
+						icon: {
+							'@type': string;
+							url: string;
+						};
+						name: string;
+					};
+					name: string;
+					url: string;
+				};
+				datasources: {
+					ari: string;
+					description: string;
+					id: string;
+					key: string;
+					name: string;
+					parameters: {
+						searchString: string;
+					};
+				}[];
+				meta: {
+					access: string;
+					auth: never[];
+					category: string;
+					definitionId: string;
+					key: string;
+					objectId: string;
+					product: string;
+					resourceType: string;
+					tenantId: string;
+					visibility: string;
+				};
+			};
+			status: number;
+	  }
+	| undefined => {
 	const url = new URL(resourceUrl);
 	if (url.search.includes('wiki/')) {
 		return resolveConfluenceSearch;

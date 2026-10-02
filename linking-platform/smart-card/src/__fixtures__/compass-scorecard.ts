@@ -1,3 +1,5 @@
+import type { SmartLinkResponse } from '@atlaskit/linking-types/smart-link';
+
 export default {
 	meta: {
 		access: 'granted',
@@ -43,4 +45,4 @@ export default {
 		summary:
 			'Ensure component details are ready for development teams to reference in the catalog.',
 	},
-};
+} as SmartLinkResponse;

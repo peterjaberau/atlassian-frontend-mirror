@@ -2,12 +2,12 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
-import Avatar from '@atlaskit/avatar';
+import Avatar from '@atlaskit/avatar/avatar';
 import type { Option } from '@atlaskit/editor-common/extensions';
-import type { FormatOptionLabelMeta } from '@atlaskit/select';
+import type { FormatOptionLabelMeta } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 const itemWrapperStyles = css({
@@ -29,12 +29,12 @@ const iconWrapperStyles = css({
 // Adding 4px instead of 3px, since Design tokens supports space sizes in 2 multiples only Ref: https://atlassian.design/components/tokens/all-tokens
 const iconWrapperMenuStyles = css({
 	alignSelf: 'flex-start',
-	marginTop: token('space.050', '4px'),
+	marginTop: token('space.050'),
 });
 
 const getIconSize = (context: 'menu' | 'value', description?: string) => {
 	if (context === 'value' || !description) {
-		return 'xsmall';
+		return 'xxsmall';
 	}
 
 	return 'small';
@@ -43,7 +43,7 @@ const getIconSize = (context: 'menu' | 'value', description?: string) => {
 export const formatOptionLabel = (
 	{ label, icon, description }: Option,
 	{ context }: FormatOptionLabelMeta<Option>,
-) => {
+): jsx.JSX.Element => {
 	return (
 		<div css={itemWrapperStyles}>
 			<span css={[iconWrapperStyles, context === 'menu' && iconWrapperMenuStyles]}>
@@ -54,7 +54,7 @@ export const formatOptionLabel = (
 				)}
 			</span>
 			<div
-				style={{ paddingLeft: icon ? token('space.100', '8px') : token('space.0', '0') }}
+				style={{ paddingLeft: icon ? token('space.100') : token('space.0') }}
 				data-testid="extension-option-label"
 			>
 				{label}

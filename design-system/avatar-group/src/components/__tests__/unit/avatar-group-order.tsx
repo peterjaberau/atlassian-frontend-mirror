@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 
-import { render } from '@testing-library/react';
+import Avatar from '@atlaskit/avatar/avatar';
+import type { AppearanceType, SizeType } from '@atlaskit/avatar/types';
+import { render } from '@atlassian/testing-library';
 
-import Avatar, { type AppearanceType, type SizeType } from '@atlaskit/avatar';
-
-import { RANDOM_USERS } from '../../../../examples-util/data';
+import { RANDOM_USERS } from '../../../../examples-util/random-users';
 import AvatarGroup, { type AvatarGroupProps } from '../../avatar-group';
 import { type AvatarProps } from '../../types';
 import { composeUniqueKey } from '../../utils';

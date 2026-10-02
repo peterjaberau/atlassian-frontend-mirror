@@ -1,12 +1,13 @@
 import type React from 'react';
 
-import { type UIAnalyticsEvent } from '@atlaskit/analytics-next';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
 import { type IconProps, type NewIconProps } from '@atlaskit/icon/types';
 
 export type ButtonAppearance =
 	| 'default'
 	| 'danger'
 	| 'primary'
+	| 'rovo'
 	| 'subtle'
 	| 'warning'
 	| 'discovery';
@@ -15,11 +16,12 @@ export type LinkButtonAppearance =
 	| 'default'
 	| 'danger'
 	| 'primary'
+	| 'rovo'
 	| 'subtle'
 	| 'warning'
 	| 'discovery';
 
-export type IconButtonAppearance = 'default' | 'primary' | 'discovery' | 'subtle';
+export type IconButtonAppearance = 'default' | 'primary' | 'rovo' | 'discovery' | 'subtle';
 
 export type Appearance = ButtonAppearance | LinkButtonAppearance | IconButtonAppearance;
 
@@ -107,6 +109,11 @@ export type CommonAnchorProps<RouterLinkConfig extends Record<string, any> = nev
 		 * URL to navigate to.
 		 */
 		href?: string | RouterLinkConfig;
+		/**
+		 * Override the default text used to announce that the link opens in a new window.
+		 * This should be localized when the product is displayed in a non-English locale.
+		 */
+		newWindowLabel?: string;
 	};
 
 type SupportedElementAttributes =

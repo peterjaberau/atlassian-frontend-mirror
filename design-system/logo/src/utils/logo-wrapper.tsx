@@ -5,8 +5,9 @@
 /* eslint-disable @atlaskit/ui-styling-standard/no-imported-style-values */
 import { cssMap, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-import { token, useThemeObserver } from '@atlaskit/tokens';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import { type LogoSize } from './types';
 
@@ -291,7 +292,10 @@ export function LogoWrapper({
 					: colorMode === 'dark'
 						? cloudDarkAppearanceMap[appearance]
 						: cloudLightAppearanceMap[appearance],
-				isAssets && appearance === 'brand' && fg('assets-platform-branding') && styles.TEMP_assets,
+				isAssets &&
+					appearance === 'brand' &&
+					(fg('assets-platform-branding') || fg('assets-platform-branding-v2')) &&
+					styles.TEMP_assets,
 			]}
 			style={
 				{

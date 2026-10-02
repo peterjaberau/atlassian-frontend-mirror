@@ -1,13 +1,12 @@
 import '@testing-library/jest-dom';
-
 import React from 'react';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import PremiumIcon from '@atlaskit/icon/core/premium';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { token } from '@atlaskit/tokens';
+import { fireEvent, render, screen, waitFor, userEvent } from '@atlassian/testing-library';
 
 import context from '../../../../../../__fixtures__/flexible-ui-data-context';
 import { getFlexibleCardTestWrapper } from '../../../../../../__tests__/__utils__/unit-testing-library-helpers';
@@ -31,11 +30,13 @@ describe('ActionGroup', () => {
 		const items = Array(itemsCount).fill(null).map(makeActionItem);
 
 		return render(
-			<IntlProvider locale="en">
-				<div onClick={containerOnClick}>
-					<ActionGroup items={items} visibleButtonsNum={visibleButtonsNum} />
-				</div>
-			</IntlProvider>,
+			<SmartCardProvider>
+				<IntlProvider locale="en">
+					<div onClick={containerOnClick}>
+						<ActionGroup items={items} visibleButtonsNum={visibleButtonsNum} />
+					</div>
+				</IntlProvider>
+			</SmartCardProvider>,
 		);
 	};
 
@@ -148,7 +149,7 @@ describe('ActionGroup', () => {
 					? ({
 							name: ActionName.CustomAction,
 							...commonProps,
-							icon: <PremiumIcon label="magic" color={token('color.icon', '#44546F')} />,
+							icon: <PremiumIcon label="magic" color={token('color.icon')} />,
 							content: 'Magic!',
 						} as CustomActionItem)
 					: {

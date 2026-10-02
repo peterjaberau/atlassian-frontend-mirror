@@ -1,4 +1,5 @@
-import type { ExtensionLayout, PanelType } from '@atlaskit/adf-schema';
+import type { Layout as ExtensionLayout } from '@atlaskit/adf-schema/extensions';
+import type { PanelType } from '@atlaskit/adf-schema/panel';
 
 import type {
 	ACTION,
@@ -7,6 +8,7 @@ import type {
 	INPUT_METHOD,
 	INSERT_MEDIA_VIA,
 } from './enums';
+import type { InsertNativeEmbedAEP } from './native-embed-events';
 import type { InsertSmartLinkAEP } from './smart-links';
 import type { InsertAEP, TrackAEP, OperationalAEP } from './utils';
 
@@ -15,11 +17,13 @@ export enum USER_CONTEXT {
 	NEW = 'new',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum LINK_STATUS {
 	RESOLVED = 'resolved',
 	UNRESOLVED = 'unresolved',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum LINK_REPRESENTATION {
 	TEXT = 'text',
 	INLINE_CARD = 'inlineCard',
@@ -27,6 +31,7 @@ export enum LINK_REPRESENTATION {
 	EMBED = 'embed',
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export enum LINK_RESOURCE {
 	JIRA = 'jiraIssue',
 	CONFLUENCE = 'confluencePage',
@@ -60,7 +65,8 @@ type InsertDividerAEP = InsertAEP<
 			| INPUT_METHOD.TOOLBAR
 			| INPUT_METHOD.INSERT_MENU
 			| INPUT_METHOD.FORMATTING
-			| INPUT_METHOD.SHORTCUT;
+			| INPUT_METHOD.SHORTCUT
+			| INPUT_METHOD.ELEMENT_BROWSER;
 	},
 	undefined
 >;
@@ -68,7 +74,11 @@ type InsertDividerAEP = InsertAEP<
 type InsertPanelAEP = InsertAEP<
 	ACTION_SUBJECT_ID.PANEL,
 	{
-		inputMethod: INPUT_METHOD.QUICK_INSERT | INPUT_METHOD.TOOLBAR | INPUT_METHOD.INSERT_MENU;
+		inputMethod:
+			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.INSERT_MENU
+			| INPUT_METHOD.ELEMENT_BROWSER;
 		panelType: PanelType;
 	},
 	undefined
@@ -82,7 +92,7 @@ type InsertCodeBlockAEP = InsertAEP<
 			| INPUT_METHOD.TOOLBAR
 			| INPUT_METHOD.INSERT_MENU
 			| INPUT_METHOD.FORMATTING
-			| INPUT_METHOD.INSERT_MENU;
+			| INPUT_METHOD.ELEMENT_BROWSER;
 	},
 	undefined
 >;
@@ -92,12 +102,14 @@ type InsertTableAEP = InsertAEP<
 	{
 		inputMethod:
 			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.ELEMENT_BROWSER
 			| INPUT_METHOD.TOOLBAR
 			| INPUT_METHOD.INSERT_MENU
 			| INPUT_METHOD.FORMATTING
 			| INPUT_METHOD.PICKER
 			| INPUT_METHOD.SHORTCUT;
 		localId?: string;
+		parentNode?: string;
 		totalColumnCount?: number;
 		totalRowCount?: number;
 	},
@@ -107,7 +119,11 @@ type InsertTableAEP = InsertAEP<
 type InsertExpandAEP = InsertAEP<
 	ACTION_SUBJECT_ID.EXPAND | ACTION_SUBJECT_ID.NESTED_EXPAND,
 	{
-		inputMethod: INPUT_METHOD.QUICK_INSERT | INPUT_METHOD.INSERT_MENU;
+		inputMethod:
+			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.INSERT_MENU
+			| INPUT_METHOD.ELEMENT_BROWSER
+			| INPUT_METHOD.TOOLBAR;
 	},
 	undefined
 >;
@@ -118,10 +134,12 @@ type InsertActionDecisionAEP = InsertAEP<
 		containerAri?: string;
 		inputMethod:
 			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.ELEMENT_BROWSER
 			| INPUT_METHOD.TOOLBAR
 			| INPUT_METHOD.INSERT_MENU
 			| INPUT_METHOD.FORMATTING
-			| INPUT_METHOD.KEYBOARD;
+			| INPUT_METHOD.KEYBOARD
+			| INPUT_METHOD.FLOATING_TB;
 		listLocalId: string;
 		listSize: number;
 		localId: string;
@@ -143,7 +161,12 @@ type InsertEmojiAEP = InsertAEP<
 type InsertStatusAEP = InsertAEP<
 	ACTION_SUBJECT_ID.STATUS,
 	{
-		inputMethod: INPUT_METHOD.QUICK_INSERT | INPUT_METHOD.TOOLBAR | INPUT_METHOD.INSERT_MENU;
+		inputMethod:
+			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.INSERT_MENU
+			| INPUT_METHOD.ELEMENT_BROWSER
+			| INPUT_METHOD.BLOCK_MENU;
 	},
 	undefined
 >;
@@ -153,7 +176,9 @@ export type InputMethodInsertMedia =
 	| INPUT_METHOD.PICKER_CLOUD
 	| INPUT_METHOD.DRAG_AND_DROP
 	| INPUT_METHOD.BROWSER
-	| INPUT_METHOD.MEDIA_PICKER;
+	| INPUT_METHOD.MEDIA_PICKER
+	| INPUT_METHOD.REMIX
+	| INPUT_METHOD.REMIX_FROM_MEDIA_INSERTS;
 
 export type InsertMediaVia =
 	| INSERT_MEDIA_VIA.EXTERNAL_UPLOAD
@@ -204,6 +229,7 @@ type InsertLinkAEP = InsertAEP<
 	ACTION_SUBJECT_ID.LINK,
 	{
 		fromCurrentDomain: boolean;
+		hadBackgroundColor?: boolean;
 		inputMethod: InputMethodInsertLink;
 	},
 	{
@@ -255,12 +281,28 @@ type InsertLayoutAEP = InsertAEP<
 		hasSelectedMultipleNodes?: boolean;
 		inputMethod:
 			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.FLOATING_TB
 			| INPUT_METHOD.INSERT_MENU
 			| INPUT_METHOD.QUICK_INSERT
-			| INPUT_METHOD.DRAG_AND_DROP;
+			| INPUT_METHOD.DRAG_AND_DROP
+			| INPUT_METHOD.ELEMENT_BROWSER;
 		// For DRAG_AND_DROP inputMethod, track distinctive types of source nodes that are dragged to create layout
 		// and whether there are multiple nodes
 		nodeTypes?: string;
+	},
+	undefined
+>;
+
+type InsertLayoutColumnAEP = InsertAEP<
+	ACTION_SUBJECT_ID.LAYOUT_COLUMN,
+	{
+		endIndex: number;
+		inputMethod: INPUT_METHOD.LAYOUT_COLUMN_MENU | INPUT_METHOD.SHORTCUT;
+		newColumnCount: number;
+		previousColumnCount: number;
+		selectedCount: number;
+		side: 'left' | 'right';
+		startIndex: number;
 	},
 	undefined
 >;
@@ -270,6 +312,7 @@ export type InsertDateAEP = InsertAEP<
 	{
 		inputMethod:
 			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.ELEMENT_BROWSER
 			| INPUT_METHOD.TOOLBAR
 			| INPUT_METHOD.INSERT_MENU
 			| INPUT_METHOD.INLINE_SUGGESTION_FLOATING_TB;
@@ -282,7 +325,11 @@ type InsertExtensionAEP = InsertAEP<
 	{
 		extensionKey: string;
 		extensionType: string;
-		inputMethod: INPUT_METHOD.QUICK_INSERT | INPUT_METHOD.TOOLBAR;
+		inputMethod:
+			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.INSERT_MENU
+			| INPUT_METHOD.ELEMENT_BROWSER;
 		key: string;
 	},
 	// Ignored via go/ees005
@@ -320,7 +367,11 @@ type InsertNodeViaExtensionAPIAEP = InsertAEP<
 type InsertPlaceholderTextAEP = InsertAEP<
 	ACTION_SUBJECT_ID.PLACEHOLDER_TEXT,
 	{
-		inputMethod: INPUT_METHOD.QUICK_INSERT | INPUT_METHOD.TOOLBAR | INPUT_METHOD.INSERT_MENU;
+		inputMethod:
+			| INPUT_METHOD.QUICK_INSERT
+			| INPUT_METHOD.TOOLBAR
+			| INPUT_METHOD.INSERT_MENU
+			| INPUT_METHOD.ELEMENT_BROWSER;
 	},
 	undefined
 >;
@@ -335,6 +386,72 @@ type FailedToInsertMediaPayload = OperationalAEP<
 		insertMediaVia?: InsertMediaVia;
 		reason?: string;
 	}
+>;
+
+type InsertReferenceSyncedBlockPayload = InsertAEP<
+	ACTION_SUBJECT_ID.SYNCED_BLOCK,
+	{
+		blockInstanceId: string;
+		isPaste: boolean;
+		resourceId: string;
+		sourceProduct?: string;
+	},
+	undefined
+>;
+
+export type InsertSourceSyncedBlockPayload = InsertAEP<
+	ACTION_SUBJECT_ID.BODIED_SYNCED_BLOCK,
+	{
+		resourceId: string;
+	},
+	undefined
+>;
+
+export const TEMPLATE_GALLERY_INPUT_SOURCE = 'templateGallery' as const;
+
+export type InsertSnippetInputMethod =
+	| INPUT_METHOD.ELEMENT_BROWSER
+	| INPUT_METHOD.INSERT_MENU
+	| INPUT_METHOD.QUICK_INSERT
+	| INPUT_METHOD.TOOLBAR
+	| typeof TEMPLATE_GALLERY_INPUT_SOURCE;
+
+type InsertSnippetAEP = InsertAEP<
+	ACTION_SUBJECT_ID.SNIPPET,
+	{
+		hadMedia?: boolean;
+		inputMethod: InsertSnippetInputMethod;
+		snippetId: string;
+		// Template provenance: 'atlassian' (OOTB) vs 'user' (user/space-created).
+		templateType?: 'atlassian' | 'user';
+	},
+	undefined
+>;
+
+type FailedToInsertSnippetAEP = OperationalAEP<
+	ACTION.FAILED_TO_INSERT,
+	ACTION_SUBJECT.DOCUMENT,
+	ACTION_SUBJECT_ID.SNIPPET,
+	| {
+			reason: 'emptyBody' | 'insertError' | 'parseError';
+			snippetId: string;
+			templateType?: 'atlassian' | 'user';
+	  }
+	| {
+			numFailedMediaFiles: number;
+			numTotalMediaFiles: number;
+			reason: 'snippetMediaDirectCopyFailed';
+			snippetId: string;
+			snippetMediaCopyStatus: 'copied' | 'partial-copy' | 'failed' | 'copy-unavailable';
+			templateType?: 'atlassian' | 'user';
+	  }
+	| {
+			numFailedMediaFiles: number;
+			numTotalMediaFiles: number;
+			reason: 'snippetMediaDirectCopyUnexpectedError';
+			snippetId: string;
+			templateType?: 'atlassian' | 'user';
+	  }
 >;
 
 export type InsertEventPayload =
@@ -355,8 +472,14 @@ export type InsertEventPayload =
 	| InsertMediaLinkAEP
 	| InsertSmartLinkAEP
 	| InsertLayoutAEP
+	| InsertLayoutColumnAEP
 	| InsertExtensionAEP
 	| InsertNodeViaExtensionAPIAEP
 	| InsertDateAEP
 	| InsertPlaceholderTextAEP
-	| FailedToInsertMediaPayload;
+	| InsertNativeEmbedAEP
+	| FailedToInsertMediaPayload
+	| InsertReferenceSyncedBlockPayload
+	| InsertSourceSyncedBlockPayload
+	| InsertSnippetAEP
+	| FailedToInsertSnippetAEP;

@@ -3,6 +3,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import {
 	Fragment,
 	type MouseEvent as ReactMouseEvent,
@@ -16,9 +17,9 @@ import {
 import { css, jsx } from '@emotion/react';
 
 import useCloseOnEscapePress from '@atlaskit/ds-lib/use-close-on-escape-press';
-import { easeOut } from '@atlaskit/motion';
+import { easeOut } from '@atlaskit/motion/curves';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { UNSAFE_useMediaQuery as useMediaQuery } from '@atlaskit/primitives/responsive';
-import { N100A } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 import {
@@ -31,15 +32,12 @@ import {
 	VAR_LEFT_SIDEBAR_FLYOUT,
 	VAR_LEFT_SIDEBAR_WIDTH,
 } from '../../common/constants';
-import { type LeftSidebarProps } from '../../common/types';
-import {
-	getGridStateFromStorage,
-	mergeGridStateIntoStorage,
-	resolveDimension,
-} from '../../common/utils';
+import { getGridStateFromStorage } from '../../common/get-grid-state-from-storage';
+import { mergeGridStateIntoStorage } from '../../common/merge-grid-state-into-storage';
+import { resolveDimension } from '../../common/resolve-dimension';
+import type { LeftSidebarProps } from '../../common/types';
 import { publishGridState, SidebarResizeContext, useSkipLink } from '../../controllers';
 import ResizeControl from '../resize-control';
-
 import LeftSidebarInner from './internal/left-sidebar-inner';
 import LeftSidebarOuter from './internal/left-sidebar-outer';
 import ResizableChildrenWrapper from './internal/resizable-children-wrapper';
@@ -49,7 +47,7 @@ const openBackdropStyles = css({
 	width: '100%',
 	height: '100%',
 	position: 'absolute',
-	background: token('color.blanket', N100A),
+	background: token('color.blanket'),
 	opacity: 1,
 });
 
@@ -71,6 +69,8 @@ const hiddenBackdropStyles = css({
  *
  * - [Examples](https://atlassian.design/components/page-layout/examples)
  * - [Code](https://atlassian.design/components/page-layout/code)
+ *
+ * @deprecated `@atlaskit/page-layout` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 const LeftSidebar = (props: LeftSidebarProps): jsx.JSX.Element => {
 	const {

@@ -3,11 +3,12 @@
  * @jsx jsx
  */
 import {
-    type Context,
+	type Context,
 	createContext,
 	type Dispatch,
 	type MutableRefObject,
 	type ReactNode,
+	type RefObject,
 	type SetStateAction,
 	useId,
 	useRef,
@@ -16,7 +17,7 @@ import {
 
 import { jsx } from '@atlaskit/css';
 
-import type { BackEvent, DismissEvent, DoneEvent, Placement } from '../types';
+import type { BackEvent, DismissEvent, DoneEvent, Placement, PositionArea } from '../types';
 
 // eslint-disable-next-line @repo/internal/react/consistent-types-definitions
 export interface SpotlightContextType {
@@ -25,18 +26,26 @@ export interface SpotlightContextType {
 		setRef: Dispatch<SetStateAction<MutableRefObject<HTMLDivElement | null> | null>>;
 		placement: Placement;
 		setPlacement: Dispatch<SetStateAction<Placement>>;
+		motion: React.ComponentType<{ children: ReactNode }> | undefined;
+		setMotion: Dispatch<SetStateAction<React.ComponentType<{ children: ReactNode }> | undefined>>;
 	};
 	heading: {
 		id: string;
 		setId: Dispatch<SetStateAction<string>>;
 	};
 	popoverContent: {
-		ref: MutableRefObject<HTMLDivElement | undefined> | undefined;
-		setRef: Dispatch<SetStateAction<MutableRefObject<HTMLDivElement | undefined> | undefined>>;
-		update: () => () => Promise<any>;
-		setUpdate: Dispatch<SetStateAction<() => () => Promise<any>>>;
+		ref: MutableRefObject<HTMLDivElement | null> | undefined;
+		setRef: Dispatch<SetStateAction<MutableRefObject<HTMLDivElement | null> | undefined>>;
+		positionArea: PositionArea | 'none' | undefined;
+		setPositionArea: Dispatch<SetStateAction<PositionArea | 'none' | undefined>>;
+		update: () => Promise<any>;
+		setUpdate: Dispatch<SetStateAction<() => Promise<any>>>;
 		dismiss: MutableRefObject<(_event: DismissEvent) => void>;
 		setDismiss: (dismissFn: (_event: DismissEvent) => void) => void;
+	};
+	target: {
+		ref: RefObject<HTMLElement | null>;
+		setRef: Dispatch<SetStateAction<RefObject<HTMLElement | null>>>;
 	};
 	primaryAction: {
 		action: MutableRefObject<(_event: DoneEvent) => void>;
@@ -55,6 +64,8 @@ export const SpotlightContext: Context<SpotlightContextType> = createContext<Spo
 		setRef: () => undefined,
 		placement: 'bottom-end',
 		setPlacement: () => undefined,
+		motion: undefined,
+		setMotion: () => undefined,
 	},
 	heading: {
 		id: '',
@@ -63,10 +74,16 @@ export const SpotlightContext: Context<SpotlightContextType> = createContext<Spo
 	popoverContent: {
 		ref: undefined,
 		setRef: () => undefined,
-		update: () => () => new Promise(() => null),
-		setUpdate: () => () => new Promise(() => null),
+		positionArea: undefined,
+		setPositionArea: () => undefined,
+		update: () => new Promise(() => null),
+		setUpdate: () => new Promise(() => null),
 		dismiss: { current: () => undefined },
 		setDismiss: () => undefined,
+	},
+	target: {
+		ref: { current: null },
+		setRef: () => undefined,
 	},
 	primaryAction: {
 		action: { current: () => undefined },
@@ -78,16 +95,62 @@ export const SpotlightContext: Context<SpotlightContextType> = createContext<Spo
 	},
 });
 
+/**
+ * Props accepted by `SpotlightContextProvider`.
+ */
+// eslint-disable-next-line @repo/internal/react/consistent-types-definitions
+export interface SpotlightContextProviderProps {
+	/**
+	 * The children rendered inside the spotlight context. Typically a
+	 * `PopoverTarget` + `PopoverContent` pair.
+	 */
+	children: ReactNode;
+
+	/**
+	 * Optional caller-supplied anchor ref. When provided, this ref is used as
+	 * the target ref in the spotlight context — `PopoverContent` reads it via
+	 * `target.ref` for `useAnchoredPopover`. The ref's element identity may
+	 * change over time (e.g. as a target resolves asynchronously); each new
+	 * ref object is propagated through the context value.
+	 *
+	 * When omitted, the default behaviour is preserved: `PopoverTarget`
+	 * registers its own ref via `target.setRef` and `PopoverContent` consumes
+	 * that.
+	 *
+	 * This prop exists primarily for callers that render their popover
+	 * content in a different React subtree from the target (where a shared
+	 * `PopoverTarget` cannot be used), but still need the spotlight context
+	 * to be wired up. The popover content remains rendered in the React tree
+	 * where the provider lives, while the visual anchor is the DOM node the
+	 * ref points to.
+	 */
+	targetRef?: RefObject<HTMLElement | null>;
+}
+
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
-export const SpotlightContextProvider = ({ children }: { children: ReactNode }): JSX.Element => {
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const SpotlightContextProvider = ({
+	children,
+	targetRef,
+}: SpotlightContextProviderProps): JSX.Element => {
 	const id = useId();
+	const defaultTargetRef = useRef<HTMLElement>(null);
+	const [motion, setMotion] = useState<React.ComponentType<{ children: ReactNode }>>();
 	const [placement, setPlacement] = useState<Placement>('bottom-end');
 	const [headingId, setHeadingId] = useState<string>(`${id}-heading`);
-	const [update, setUpdate] = useState<() => () => Promise<any>>(() => async () => undefined);
+	const [update, setUpdate] = useState<() => Promise<any>>(() => async () => undefined);
 	const [popoverRef, setPopoverRef] = useState<
-		MutableRefObject<HTMLDivElement | undefined> | undefined
+		MutableRefObject<HTMLDivElement | null> | undefined
 	>();
+	const [positionArea, setPositionArea] = useState<PositionArea | 'none' | undefined>();
 	const [cardRef, setCardRef] = useState<MutableRefObject<HTMLDivElement | null> | null>(null);
+	const [internalTargetRef, setInternalTargetRef] =
+		useState<RefObject<HTMLElement | null>>(defaultTargetRef);
+	// `targetRef` (the prop) takes precedence when provided. Its identity is
+	// allowed to change over time; downstream consumers that depend on
+	// `target.ref` identity (e.g. `useAnchoredPopover`'s effect deps) will
+	// re-run accordingly.
+	const effectiveTargetRef = targetRef ?? internalTargetRef;
 
 	const dismissRef = useRef<(_event: DismissEvent) => void>(() => undefined);
 	const setDismiss = (dismissFn: (_event: DismissEvent) => void) => {
@@ -112,6 +175,8 @@ export const SpotlightContextProvider = ({ children }: { children: ReactNode }):
 					setRef: setCardRef,
 					placement,
 					setPlacement,
+					motion,
+					setMotion,
 				},
 				heading: {
 					id: headingId,
@@ -120,10 +185,16 @@ export const SpotlightContextProvider = ({ children }: { children: ReactNode }):
 				popoverContent: {
 					ref: popoverRef,
 					setRef: setPopoverRef,
+					positionArea,
+					setPositionArea,
 					update,
 					setUpdate,
 					dismiss: dismissRef,
 					setDismiss,
+				},
+				target: {
+					ref: effectiveTargetRef,
+					setRef: setInternalTargetRef,
 				},
 				primaryAction: {
 					action: primaryActionRef,

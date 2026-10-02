@@ -1,17 +1,19 @@
-import { renderHook } from '@testing-library/react';
+import * as AppProvider from '@atlaskit/app-provider/use-color-mode';
+import { renderHook } from '@atlassian/testing-library/render-hook';
 
 import { useCustomTheme } from '../../use-custom-theme';
+import { useCustomThemeNew } from '../../use-custom-theme-new';
 
 describe('useCustomTheme()', () => {
 	it('should return an object with isEnabled and a style object', () => {
-		const { result } = renderHook(() =>
+		const utils = renderHook(() =>
 			useCustomTheme({
 				backgroundColor: '#123',
 				highlightColor: '#456',
 			}),
 		);
 
-		expect(result.current).toEqual({
+		expect(utils.current).toEqual({
 			isEnabled: true,
 			style: expect.objectContaining({
 				backgroundColor: 'rgb(17, 34, 51)',
@@ -22,22 +24,123 @@ describe('useCustomTheme()', () => {
 
 	describe('invalid input', () => {
 		it('should be disabled if there is no theme', () => {
-			const { result } = renderHook(() => useCustomTheme(undefined));
-			expect(result.current).toEqual({ isEnabled: false });
+			const utils = renderHook(() => useCustomTheme(undefined));
+			expect(utils.current).toEqual({ isEnabled: false });
 		});
 
 		it('should be disabled if the backgroundColor cannot be parsed', () => {
-			const { result } = renderHook(() =>
+			const utils = renderHook(() =>
 				useCustomTheme({ backgroundColor: 'invalidColorString', highlightColor: '#123' }),
 			);
-			expect(result.current).toEqual({ isEnabled: false });
+			expect(utils.current).toEqual({ isEnabled: false });
 		});
 
 		it('should be disabled if the highlightColor cannot be parsed', () => {
-			const { result } = renderHook(() =>
+			const utils = renderHook(() =>
 				useCustomTheme({ backgroundColor: '#123', highlightColor: 'invalidColorString' }),
 			);
-			expect(result.current).toEqual({ isEnabled: false });
+			expect(utils.current).toEqual({ isEnabled: false });
+		});
+	});
+});
+
+describe('useCustomThemeNew()', () => {
+	it('should return an object with isEnabled, a style object, and hasDefaultBackground', () => {
+		const utils = renderHook(() =>
+			useCustomThemeNew({
+				backgroundColor: '#123',
+				highlightColor: '#456',
+			}),
+		);
+
+		expect(utils.current).toEqual({
+			isEnabled: true,
+			style: expect.objectContaining({
+				backgroundColor: 'rgb(17, 34, 51)',
+				color: '#FFF',
+			}),
+			hasDefaultBackground: false,
+		});
+	});
+
+	describe('hasDefaultBackground', () => {
+		const useColorModeSpy = jest.spyOn(AppProvider, 'useColorMode');
+
+		afterAll(() => {
+			useColorModeSpy.mockRestore();
+		});
+
+		it('should be true for #FFF in light mode', () => {
+			useColorModeSpy.mockReturnValue('light');
+
+			const utils = renderHook(() =>
+				useCustomThemeNew({
+					backgroundColor: '#FFF',
+					highlightColor: '#456',
+				}),
+			);
+
+			expect(utils.current).toHaveProperty('hasDefaultBackground', true);
+		});
+
+		it('should be false for #FFF in dark mode', () => {
+			useColorModeSpy.mockReturnValue('dark');
+
+			const utils = renderHook(() =>
+				useCustomThemeNew({
+					backgroundColor: '#FFF',
+					highlightColor: '#456',
+				}),
+			);
+
+			expect(utils.current).toHaveProperty('hasDefaultBackground', false);
+		});
+
+		it('should be true for #1F1F21 in dark mode', () => {
+			useColorModeSpy.mockReturnValue('dark');
+
+			const utils = renderHook(() =>
+				useCustomThemeNew({
+					backgroundColor: '#1F1F21',
+					highlightColor: '#456',
+				}),
+			);
+
+			expect(utils.current).toHaveProperty('hasDefaultBackground', true);
+		});
+
+		it('should be false for #1F1F21 in light mode', () => {
+			useColorModeSpy.mockReturnValue('light');
+
+			const utils = renderHook(() =>
+				useCustomThemeNew({
+					backgroundColor: '#1F1F21',
+					highlightColor: '#456',
+				}),
+			);
+
+			expect(utils.current).toHaveProperty('hasDefaultBackground', false);
+		});
+	});
+
+	describe('invalid input', () => {
+		it('should be disabled if there is no theme', () => {
+			const utils = renderHook(() => useCustomThemeNew(undefined));
+			expect(utils.current).toEqual({ isEnabled: false });
+		});
+
+		it('should be disabled if the backgroundColor cannot be parsed', () => {
+			const utils = renderHook(() =>
+				useCustomThemeNew({ backgroundColor: 'invalidColorString', highlightColor: '#123' }),
+			);
+			expect(utils.current).toEqual({ isEnabled: false });
+		});
+
+		it('should be disabled if the highlightColor cannot be parsed', () => {
+			const utils = renderHook(() =>
+				useCustomThemeNew({ backgroundColor: '#123', highlightColor: 'invalidColorString' }),
+			);
+			expect(utils.current).toEqual({ isEnabled: false });
 		});
 	});
 });

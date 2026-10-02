@@ -1,5 +1,143 @@
 # @atlaskit/layering
 
+## 6.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 5.1.1
+
+### Patch Changes
+
+- [`e974cd0ae082c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e974cd0ae082c) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 5.1.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+## 5.0.0
+
+### Major Changes
+
+- [`6988f5fcfbabe`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6988f5fcfbabe) -
+  Breaking: migrate to subpath-only exports (barrel removal). All imports must use explicit subpath
+  exports.
+
+## 4.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+## 4.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 4.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 3.8.0
+
+### Minor Changes
+
+- [`f8b3089961cdf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8b3089961cdf) -
+  Extend `StructuredContentSource` so `*.docs.tsx` files can describe packages whose exports are not
+  all renderable React components. The container now accepts optional `package`, `hooks`, and
+  `utilities` (function / constant / type) keys alongside the existing `components` key. New
+  per-kind schemas: `hookDocsSourceSchema`, `utilityDocsSourceSchema`, plus `packageMetadataSchema`
+  for shared package-level metadata.
+
+  All new fields are optional, so existing components-only `*.docs.tsx` files continue to work
+  unchanged — this is an additive, non-breaking extension.
+
+  Pilots the new shape with `docs.tsx` files for `@atlaskit/analytics-next`, `@atlaskit/layering`,
+  `@af/accessibility-testing`, `@af/react-unit-testing`, `@atlaskit/pragmatic-drag-and-drop-hitbox`,
+  `@atlaskit/pragmatic-drag-and-drop-live-region`, `@atlaskit/feature-flag-client`,
+  `@atlaskit/frontend-utilities`, and `@atlaskit/linking-common`. The last two are non-ADS pilots
+  that exercise the new `hooks` and `utilities` kinds in `helpers/` and `linking-platform/`. These
+  pilot files are explicitly marked as non-final in their file-level JSDoc.
+
+## 3.7.0
+
+### Minor Changes
+
+- [`74f04d68a4ff6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/74f04d68a4ff6) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 3.6.2
+
+### Patch Changes
+
+- [`02483200273ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/02483200273ec) -
+  Enrol all Design System UI packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+
+## 3.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 3.6.0
 
 ### Minor Changes

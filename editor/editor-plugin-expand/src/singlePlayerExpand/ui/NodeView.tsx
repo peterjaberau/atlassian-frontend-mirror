@@ -1,17 +1,30 @@
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { expandedState } from '@atlaskit/editor-common/expand';
 import { expandClassNames } from '@atlaskit/editor-common/styles';
 import { expandMessages } from '@atlaskit/editor-common/ui';
 import type { DOMOutputSpec, Node as PmNode } from '@atlaskit/editor-prosemirror/model';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
 export const buildExpandClassName = (type: string, expanded: boolean) => {
 	return `${expandClassNames.prefix} ${expandClassNames.type(type)} ${
 		expanded ? expandClassNames.expanded : ''
 	}`;
+};
+
+export const getExpandBodyAriaLabel = (title: string, intl?: IntlShape): string => {
+	const safeTitle =
+		title.trim() ||
+		intl?.formatMessage(expandMessages.expandBodyAriaLabelUntitled) ||
+		expandMessages.expandBodyAriaLabelUntitled.defaultMessage;
+
+	return (
+		intl?.formatMessage(expandMessages.expandBodyAriaLabel, {
+			title: safeTitle,
+		}) || expandMessages.expandBodyAriaLabel.defaultMessage.replace('{title}', safeTitle)
+	);
 };
 
 export const toDOM = (
@@ -44,7 +57,7 @@ export const toDOM = (
 			tabindex: '-1',
 		},
 		// prettier-ignore
-		['div', { 'class': expandClassNames.icon, style: `display: flex; width: ${token('space.300', '24px')}; height: ${token('space.300', '24px')}` }],
+		['div', { 'class': expandClassNames.icon, style: `display: flex; width: ${token('space.300')}; height: ${token('space.300')}` }],
 		[
 			'div',
 			{
@@ -72,15 +85,28 @@ export const toDOM = (
 		],
 	],
 	[
-		'div',
+		isExperimentEnabled('platform_editor_expand_content_a11y_2') ? 'section' : 'div',
 		{
 			// prettier-ignore
-			class: expandClassNames.content,
-			style: expValEquals('platform_editor_display_none_to_expand', 'isEnabled', true)
-				? `display: ${expandedState.get(node) ? 'flow-root' : 'none'}`
-				: undefined,
+			class: `${expandClassNames.content} ${expandedState.get(node) ? '' : expandClassNames.contentCollapsed}`,
 			contenteditable:
 				contentEditable !== undefined ? (contentEditable ? 'true' : 'false') : undefined,
+			...(!isExperimentEnabled('platform_editor_expand_content_a11y_2') && {
+				role: 'textbox',
+				'aria-multiline': 'true',
+				'aria-label':
+					(intl && intl.formatMessage(expandMessages.expandBodyAriaLabelOriginal)) ||
+					expandMessages.expandBodyAriaLabelOriginal.defaultMessage,
+			}),
+			...(isExperimentEnabled('platform_editor_expand_content_a11y_2') && {
+				'aria-label': getExpandBodyAriaLabel(node.attrs.title ?? '', intl),
+				'aria-description':
+					intl?.formatMessage(expandMessages.expandBodyAriaDescription) ||
+					expandMessages.expandBodyAriaDescription.defaultMessage,
+				'aria-roledescription':
+					intl?.formatMessage(expandMessages.expandBodyRoleDescription) ??
+					expandMessages.expandBodyRoleDescription.defaultMessage,
+			}),
 		},
 		0,
 	],

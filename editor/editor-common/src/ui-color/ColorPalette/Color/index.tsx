@@ -2,14 +2,16 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import React, { type ReactElement } from 'react';
+import React from 'react';
+import type { ReactElement } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 
 import EditorDoneIcon from '@atlaskit/icon/core/check-mark';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import type { IconColor } from '@atlaskit/tokens/css-type-schema';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import { buttonStyle, buttonWrapperStyle } from './styles';
 
@@ -27,7 +29,7 @@ export interface Props {
 	value: string;
 }
 
-const Color = (props: Props) => {
+const Color = (props: Props): jsx.JSX.Element => {
 	const {
 		autoFocus,
 		tabIndex,
@@ -35,6 +37,7 @@ const Color = (props: Props) => {
 		label,
 		isSelected,
 		borderColor,
+		checkMarkColor,
 		/**
 		 * When hexToPaletteColor prop is set,
 		 * it will be used to get background color style based on
@@ -46,11 +49,11 @@ const Color = (props: Props) => {
 
 	const colorStyle = hexToPaletteColor ? hexToPaletteColor(value) : value;
 
-	const onMouseDown = (e: React.MouseEvent<Object>) => {
+	const onMouseDown = (e: React.MouseEvent<object>) => {
 		e.preventDefault();
 	};
 
-	const onClick = (e: React.MouseEvent<Object>) => {
+	const onClick = (e: React.MouseEvent<object>) => {
 		const { onClick, value, label } = props;
 		e.preventDefault();
 		onClick(value, label);
@@ -83,12 +86,14 @@ const Color = (props: Props) => {
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 					className={`${isSelected ? 'selected' : ''}`}
 					style={{
-						backgroundColor: colorStyle || token('color.background.input', '#FFFFFF'),
+						backgroundColor: colorStyle || token('color.background.input'),
 						border: `${token('border.width')} solid ${borderColor}`,
 					}}
 					autoFocus={autoFocus}
 				>
-					{!decorator && isSelected && <EditorDoneIcon label="" />}
+					{!decorator && isSelected && (
+						<EditorDoneIcon label="" color={checkMarkColor as IconColor | undefined} />
+					)}
 					{decorator}
 				</button>
 			</span>

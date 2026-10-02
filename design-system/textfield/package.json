@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/textfield",
-	"version": "8.2.3",
+	"version": "10.2.6",
 	"description": "A text field is an input that allows a user to write or edit text.",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -17,8 +17,18 @@
 	],
 	"atlaskit:src": "src/index.tsx",
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Design System Team",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Text field",
 			"category": "Forms and input"
 		}
@@ -26,12 +36,13 @@
 	"dependencies": {
 		"@atlaskit/analytics-next": "workspace:^",
 		"@atlaskit/platform-feature-flags": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@babel/runtime": "root:*",
 		"@compiled/react": "root:*"
 	},
 	"peerDependencies": {
-		"react": "^18.2.0"
+		"react": "^18.2.0 || ^19.0.0"
 	},
 	"devDependencies": {
 		"@af/accessibility-testing": "workspace:^",
@@ -39,6 +50,7 @@
 		"@af/visual-regression": "workspace:^",
 		"@atlaskit/avatar": "workspace:^",
 		"@atlaskit/button": "workspace:^",
+		"@atlaskit/css": "workspace:^",
 		"@atlaskit/docs": "workspace:^",
 		"@atlaskit/ds-lib": "workspace:^",
 		"@atlaskit/form": "workspace:^",
@@ -46,49 +58,30 @@
 		"@atlaskit/link": "workspace:^",
 		"@atlaskit/primitives": "workspace:^",
 		"@atlaskit/section-message": "workspace:^",
+		"@atlassian/feature-flags-test-utils": "workspace:^",
 		"@atlassian/ssr-tests": "workspace:^",
+		"@atlassian/structured-docs-types": "workspace:^",
+		"@atlassian/workbench": "workspace:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
-		"react-dom": "root:*"
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
 	},
 	"keywords": [
 		"atlaskit",
 		"react",
 		"ui"
 	],
-	"techstack": {
-		"@atlassian/frontend": {
-			"import-structure": "atlassian-conventions"
-		},
-		"@repo/internal": {
-			"dom-events": "use-bind-event-listener",
-			"ui-components": "lite-mode",
-			"styling": [
-				"static",
-				"emotion"
-			],
-			"analytics": "analytics-next",
-			"design-tokens": [
-				"color",
-				"spacing"
-			],
-			"design-system": "v1",
-			"deprecation": "no-deprecated-imports"
-		}
-	},
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"exports": {
-		".": "./src/index.tsx"
+		".": "./src/index.tsx",
+		"./text-field": "./src/text-field.tsx",
+		"./types": "./src/types.tsx"
 	},
 	"platform-feature-flags": {
-		"platform-dst-shape-theme-default": {
+		"platform-dst-motion-uplift-input": {
+			"type": "boolean"
+		},
+		"platform-dst-tokens-finesse": {
 			"type": "boolean"
 		}
 	},

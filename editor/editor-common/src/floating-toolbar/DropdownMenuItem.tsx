@@ -4,27 +4,22 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
 // eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import type { Node } from '@atlaskit/editor-prosemirror/model';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import EditorDoneIcon from '@atlaskit/icon/core/check-mark';
-import type { ButtonItemProps } from '@atlaskit/menu';
-import { ButtonItem } from '@atlaskit/menu';
+import ButtonItem from '@atlaskit/menu/button-item';
+import type { ButtonItemProps } from '@atlaskit/menu/types';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import type { ExtensionAPI, ExtensionProvider } from '../extensions';
 import { messages } from '../floating-toolbar';
 import type { DropdownOptionT, FloatingToolbarOverflowDropdownOptions } from '../types';
-
-export const menuItemDimensions = {
-	width: 175,
-	height: 32,
-};
 
 const labelStyles = css({
 	display: 'inline-block',
@@ -34,7 +29,7 @@ const labelStyles = css({
 const spacerStyles = css({
 	display: 'flex',
 	flex: 1,
-	padding: token('space.100', '8px'),
+	padding: token('space.100'),
 });
 
 export interface Props {
@@ -91,7 +86,7 @@ export type DropdownMenuItemProps = {
 	itemSelected?: boolean;
 	showSelected: boolean;
 };
-export const DropdownMenuItem = (props: DropdownMenuItemProps) => {
+export const DropdownMenuItem = (props: DropdownMenuItemProps): jsx.JSX.Element => {
 	const { item, hide, dispatchCommand, editorView, showSelected, intl } = props;
 	const itemSelected = item.selected;
 
@@ -258,3 +253,5 @@ export const DropdownMenuItem = (props: DropdownMenuItemProps) => {
 
 	return itemContent;
 };
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { menuItemDimensions } from './menuItemDimensions';

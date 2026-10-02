@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
-
-import { ShadowObserver, shadowObserverClassNames } from './shadowObserver';
+import { ShadowObserver } from './shadowObserver';
+import { shadowObserverClassNames } from './shadowObserverClassNames';
 
 export const shadowClassNames = {
 	RIGHT_SHADOW: 'right-shadow',
@@ -27,10 +26,11 @@ export interface OverflowShadowOptions {
 	useShadowObserver?: boolean;
 }
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default function overflowShadow<P>(
 	Component: React.ComponentType<React.PropsWithChildren<P & OverflowShadowProps>>,
 	options: OverflowShadowOptions,
-) {
+): React.ComponentClass<P & OverflowShadowProps, OverflowShadowState> {
 	return class OverflowShadow extends React.Component<
 		P & OverflowShadowProps,
 		OverflowShadowState
@@ -128,10 +128,11 @@ export default function overflowShadow<P>(
 
 			let width = 0;
 			for (let i = 0; i < this.scrollable.length; i++) {
-				// Ignored via go/ees005
-				// eslint-disable-next-line @atlaskit/editor/no-as-casting
-				const scrollableElement = this.scrollable[i] as HTMLElement;
-				width += scrollableElement.scrollWidth;
+				const scrollableElement = this.scrollable[i];
+
+				if (isElementNode(scrollableElement)) {
+					width += scrollableElement.scrollWidth;
+				}
 			}
 
 			return width;
@@ -141,11 +142,9 @@ export default function overflowShadow<P>(
 			if (!container || this.container) {
 				return;
 			}
-			this.container = container;
 
-			// Ignored via go/ees005
-			// eslint-disable-next-line @atlaskit/editor/no-as-casting
-			this.overflowContainer = container.querySelector(options.overflowSelector) as HTMLElement;
+			this.container = container;
+			this.overflowContainer = container.querySelector(options.overflowSelector);
 
 			if (!this.overflowContainer) {
 				this.overflowContainer = container;
@@ -208,15 +207,19 @@ export default function overflowShadow<P>(
 			const hasOverflowScroll = showRightShadow || showLeftShadow;
 
 			return (
-				// Ignored via go/ees005
 				<Component
 					handleRef={this.handleContainer}
-					tabIndex={hasOverflowScroll && fg('platform_editor_dec_a11y_fixes') ? 0 : undefined}
+					tabIndex={hasOverflowScroll ? 0 : undefined}
 					shadowClassNames={classNames}
-					// eslint-disable-next-line react/jsx-props-no-spreading
+					// eslint-disable-next-line react/jsx-props-no-spreading -- Spreading props to pass all component props through to wrapped generic component
 					{...this.props}
 				/>
 			);
 		}
 	};
+}
+
+// Helper function to check if the passed node is of Element class
+function isElementNode(node: Node): node is Element {
+	return node.nodeType === 1;
 }

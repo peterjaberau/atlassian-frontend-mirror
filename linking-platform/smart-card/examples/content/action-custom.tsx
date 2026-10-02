@@ -9,7 +9,6 @@ import PremiumIcon from '@atlaskit/icon/core/premium';
 import { token } from '@atlaskit/tokens';
 
 import { ActionName, FooterBlock } from '../../src';
-
 import ExampleContainer from './example-container';
 
 const styles = css({
@@ -19,7 +18,7 @@ const styles = css({
 	},
 });
 
-export default () => (
+export default (): JSX.Element => (
 	<ExampleContainer>
 		<FooterBlock
 			actions={[
@@ -31,13 +30,13 @@ export default () => (
 				},
 				{
 					name: ActionName.CustomAction,
-					icon: <PremiumIcon label="magic" color={token('color.icon', '#44546F')} />,
+					icon: <PremiumIcon label="magic" color={token('color.icon')} />,
 					content: 'Magic!',
 					onClick: () => {},
 				},
 				{
 					name: ActionName.CustomAction,
-					icon: <PremiumIcon label="magic" color={token('color.icon', '#44546F')} />,
+					icon: <PremiumIcon label="magic" color={token('color.icon')} />,
 					content:
 						'This is an example of a custom action with hidden content. Note how the content still appears in the tooltip.',
 					hideContent: true,

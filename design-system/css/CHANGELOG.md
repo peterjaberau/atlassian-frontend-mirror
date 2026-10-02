@@ -1,5 +1,102 @@
 # @atlaskit/css
 
+## 1.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.1.2
+
+### Patch Changes
+
+- [`695fcbc68ad47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/695fcbc68ad47) -
+  Experimental React 19 peer dependency support. This patch widens the peer range; CI coverage is
+  partial.
+
+## 1.1.1
+
+### Patch Changes
+
+- [`fdedfb06aa229`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fdedfb06aa229) -
+  Allow canonical typed media queries and typed container-query exceptions in styling lint rules.
+
+## 1.1.0
+
+### Minor Changes
+
+- [`971a484d0cc7f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/971a484d0cc7f) -
+  Add canonical default type entrypoints for media and other CSS at-rules to
+  `@atlaskit/css/at-rules`.
+
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 0.19.3
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 0.19.2
 
 ### Patch Changes

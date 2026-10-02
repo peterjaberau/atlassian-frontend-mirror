@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { AtlassianInternalWarning, md } from '@atlaskit/docs';
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
+import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
@@ -9,13 +8,13 @@ import { token } from '@atlaskit/tokens';
 const _default_1: any = md`
 
   ${createEditorUseOnlyNotice('Editor Plugin Avatar Group', [
-	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
-])}
+		{ name: 'Editor Core', link: '/packages/editor/editor-core' },
+	])}
 
   ${(
 		<>
 			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-			<div style={{ marginTop: token('space.100', '8px') }}>
+			<div style={{ marginTop: token('space.100') }}>
 				<AtlassianInternalWarning />
 			</div>
 		</>
@@ -25,22 +24,36 @@ const _default_1: any = md`
 
   ## Usage
 ---
-// Add in info about plugin.
 
-### Plugin dependencies
+${code`
+export type AvatarGroupPluginOptions = {
+  collabEdit?: CollabEditOptions;
+  showAvatarGroup?: boolean;
+  takeFullWidth: boolean;
+};
 
+export type AvatarGroupPluginDependencies = [
+  OptionalPlugin<FeatureFlagsPlugin>,
+  OptionalPlugin<AnalyticsPlugin>,
+  OptionalPlugin<CollabEditPlugin>,
+  OptionalPlugin<PrimaryToolbarPlugin>,
+];
 
-### Plugin configuration
-
-
-### Shared state
-
-
-### Actions
-
-
-### Commands
-
+export type AvatarGroupPlugin = NextEditorPlugin<
+  'avatarGroup',
+  {
+    actions: {
+      getToolbarItem: ({
+        inviteToEditHandler,
+        isInviteToEditButtonSelected,
+        inviteToEditComponent,
+      }: CollabInviteToEditProps) => JSX.Element | null;
+    };
+    dependencies: AvatarGroupPluginDependencies;
+    pluginConfiguration: AvatarGroupPluginOptions;
+  }
+>;
+`}
 
   ## Support
 ---

@@ -1,4 +1,7 @@
-import { BatchAttrsStep, type BatchAttrsStepData } from '@atlaskit/adf-schema/steps';
+import {
+	BatchAttrsStep,
+	type BatchAttrsStepData,
+} from '@atlaskit/adf-schema/steps/batch-attrs-step';
 import { tintDirtyTransaction } from '@atlaskit/editor-common/collab';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
@@ -18,7 +21,10 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
  *
  * TODO: use pluginInjectionAPI to batch updates from a command in a separate PR later
  */
-export const batchStepsUpdate = (editorView: EditorView, steps: BatchAttrsStepData[]) => {
+export const batchStepsUpdate = (
+	editorView: EditorView,
+	steps: BatchAttrsStepData[],
+): false | undefined => {
 	const { state, dispatch } = editorView;
 	const tr = state.tr;
 	if (steps.length === 0) {

@@ -9,7 +9,7 @@ import React, {
 	useState,
 } from 'react';
 
-// eslint-disable-next-line @atlassian/tangerine/import/entry-points
+// oxlint-disable-next-line @atlassian/no-restricted-imports
 import type { DebouncedFuncLeading } from 'lodash';
 import throttle from 'lodash/throttle';
 
@@ -27,6 +27,7 @@ const updateHashRef = (currentRef: string[], value: string) => {
 	currentRef.length = 3;
 };
 
+// oxlint-disable-next-line eslint/no-redeclare
 interface OverflowContext {
 	/**
 	 * Returns `true` when the navigation item is visible,
@@ -71,9 +72,13 @@ export const OverflowProvider = ({
  * Returns the current context value for the nearest OverflowProvider.
  *
  * - [Example](https://atlassian.design/components/atlassian-navigation/examples#responsive)
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const useOverflowStatus = (): OverflowContext => useContext(OverflowContext);
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const useOverflowController = (
 	nodes: ReactNode | ReactNode[],
 ): {
@@ -170,4 +175,5 @@ export const useOverflowController = (
 
 // Used to extract props for useOverflowStatus();
 // eslint-disable-next-line import/no-anonymous-default-export
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default (_props: OverflowContext): void => {};

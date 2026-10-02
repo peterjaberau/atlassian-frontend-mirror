@@ -3,8 +3,9 @@ jest.mock('../../../../../utils/isIE', () => ({
 }));
 
 import React from 'react';
+
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import {
 	globalMediaEventEmitter,
@@ -17,6 +18,11 @@ import {
 	expectToEqual,
 	asMockFunction,
 } from '@atlaskit/media-test-helpers';
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
+import { getErrorDetail } from '../../../../../getErrorDetail';
+import { getSecondaryErrorReason } from '../../../../../getSecondaryErrorReason';
+import { MediaViewerError } from '../../../../../MediaViewerError';
 import { VideoViewer, type Props } from '../../../../../viewers/video';
 
 const token = 'some-token';
@@ -63,12 +69,14 @@ function setup(options: SetupOptions = {}) {
 
 	jest.spyOn(mediaClient.file, 'getArtifactURL').mockReturnValue(getArtifactURLResult);
 
+	const onError = jest.fn();
+
 	const el = render(
 		<IntlProvider locale="en">
 			<VideoViewer
 				identifier={props?.identifier || { id: 'some-id', mediaItemType: 'file' }}
 				onCanPlay={() => {}}
-				onError={() => {}}
+				onError={onError}
 				mediaClient={mediaClient}
 				item={item || videoItem}
 				previewCount={(props && props.previewCount) || 0}
@@ -78,7 +86,7 @@ function setup(options: SetupOptions = {}) {
 		</IntlProvider>,
 	);
 
-	return { mediaClient, el, item: item || videoItem };
+	return { mediaClient, el, item: item || videoItem, onError };
 }
 
 // eslint-disable-next-line @atlassian/a11y/require-jest-coverage
@@ -131,14 +139,109 @@ describe('Video viewer', () => {
 
 	it('should always use HD artifact when available', async () => {
 		const { mediaClient } = setup({ item: videoItem });
-		await waitFor(() =>
-			expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
-		);
+		await waitFor(() => expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument());
 
 		expectToEqual(
 			asMockFunction(mediaClient.file.getArtifactURL).mock.calls[0][1],
 			'video_1280.mp4',
 		);
+	});
+
+	describe('SD fallback (platform_media_video_sd_fallback)', () => {
+		// Resolves an artifact URL only when that artifact actually exists on the item,
+		// mirroring the real getArtifactURL behaviour (undefined/'' when missing).
+		function setupWithArtifactResolver(item: ProcessedFileState) {
+			const authPromise = Promise.resolve({ token, clientId, baseUrl });
+			const mediaClient = fakeMediaClient({ authProvider: () => authPromise });
+
+			jest
+				.spyOn(mediaClient.file, 'getArtifactURL')
+				.mockImplementation((artifacts, artifactName) =>
+					Promise.resolve(
+						artifacts[artifactName as keyof typeof artifacts]
+							? `${baseUrl}/${artifactName}?client=${clientId}&token=${token}`
+							: '',
+					),
+				);
+
+			const el = render(
+				<IntlProvider locale="en">
+					<VideoViewer
+						identifier={{ id: 'some-id', mediaItemType: 'file' }}
+						onCanPlay={() => {}}
+						onError={jest.fn()}
+						mediaClient={mediaClient}
+						item={item}
+						previewCount={0}
+						traceContext={{ traceId: 'some-trace-id' }}
+					/>
+				</IntlProvider>,
+			);
+
+			return { mediaClient, el };
+		}
+
+		const sdOnlyItem: ProcessedFileState = {
+			...videoItem,
+			artifacts: {
+				'video_640.mp4': {
+					url: '/video',
+					processingStatus: 'succeeded',
+				},
+			},
+		};
+
+		it('falls back to the SD artifact when the HD artifact is missing', async () => {
+			passGate('platform_media_video_sd_fallback');
+
+			const { mediaClient, el } = setupWithArtifactResolver(sdOnlyItem);
+			await waitFor(() =>
+				expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
+			);
+
+			// The viewer requested the SD artifact rather than throwing.
+			expectToEqual(
+				asMockFunction(mediaClient.file.getArtifactURL).mock.calls[0][1],
+				'video_640.mp4',
+			);
+			// A playable <video> element is rendered (no "Something went wrong" error).
+			expect(el.container.querySelector('video')?.src).toEqual(
+				'http://localhost/some-base-url/video_640.mp4?client=some-client-id&token=some-token',
+			);
+			expect(
+				screen.queryByText("We couldn't generate a preview for this file."),
+			).not.toBeInTheDocument();
+		});
+
+		it('still prefers the HD artifact when both HD and SD are available', async () => {
+			passGate('platform_media_video_sd_fallback');
+
+			const { mediaClient } = setupWithArtifactResolver(videoItem);
+			await waitFor(() =>
+				expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
+			);
+
+			expectToEqual(
+				asMockFunction(mediaClient.file.getArtifactURL).mock.calls[0][1],
+				'video_1280.mp4',
+			);
+		});
+
+		it('when the flag is off, requests only the HD artifact (legacy behaviour)', async () => {
+			failGate('platform_media_video_sd_fallback');
+
+			const { mediaClient } = setupWithArtifactResolver(sdOnlyItem);
+			await waitFor(() =>
+				expect(screen.queryByLabelText('Loading file...')).not.toBeInTheDocument(),
+			);
+
+			// Legacy path only ever asks for the HD artifact and shows the error screen.
+			expectToEqual(
+				asMockFunction(mediaClient.file.getArtifactURL).mock.calls[0][1],
+				'video_1280.mp4',
+			);
+			expect(screen.getByText("We couldn't generate a preview for this file.")).toBeInTheDocument();
+		});
 	});
 
 	describe('AutoPlay', () => {
@@ -215,5 +318,57 @@ describe('Video viewer', () => {
 		await act(async () => fireEvent.loadedData(videoEl));
 		expect(global.localStorage.getItem).toHaveBeenLastCalledWith('time-saver-default-time-some-id');
 		global.localStorage = originLocalStorage;
+	});
+
+	describe('playback error diagnostics', () => {
+		it('reports the native MediaError in the videoviewer-playback secondaryError', async () => {
+			const { onError } = setup({ item: { ...videoItem, mimeType: 'video/mp4' } });
+
+			let videoEl!: HTMLVideoElement;
+			await waitFor(() => {
+				expect((videoEl = document.querySelector('video')!)).toBeInTheDocument();
+			});
+
+			// Simulate the browser exposing a native decode error on the element.
+			Object.defineProperty(videoEl, 'error', {
+				configurable: true,
+				value: { code: 3, message: 'PIPELINE_ERROR_DECODE' } as MediaError,
+			});
+
+			await act(async () => fireEvent.error(videoEl));
+
+			expect(onError).toHaveBeenCalled();
+			const error = onError.mock.calls[0][0] as MediaViewerError;
+			expect(error).toBeInstanceOf(MediaViewerError);
+			expect(error.primaryReason).toBe('videoviewer-playback');
+			// No longer opaque: secondaryReason + detail carry the native diagnostics.
+			expect(getSecondaryErrorReason(error)).toBe('nativeError');
+			const detail = getErrorDetail(error);
+			expect(detail).not.toBe('unknown');
+			expect(detail).toContain('mediaErrorCode=3');
+			expect(detail).toContain('mediaErrorName=MEDIA_ERR_DECODE');
+			expect(detail).toContain('mediaErrorMessage=PIPELINE_ERROR_DECODE');
+			expect(detail).toContain('mimeType=video/mp4');
+			expect(detail).toContain('isBrowserPlayable=true');
+		});
+
+		it('still emits videoviewer-playback when no native MediaError is available', async () => {
+			const { onError } = setup({ item: { ...videoItem, mimeType: 'video/mp4' } });
+
+			let videoEl!: HTMLVideoElement;
+			await waitFor(() => {
+				expect((videoEl = document.querySelector('video')!)).toBeInTheDocument();
+			});
+
+			await act(async () => fireEvent.error(videoEl));
+
+			expect(onError).toHaveBeenCalled();
+			const error = onError.mock.calls[0][0] as MediaViewerError;
+			expect(error.primaryReason).toBe('videoviewer-playback');
+			// File context is still captured even without a native MediaError.
+			const detail = getErrorDetail(error);
+			expect(detail).toContain('mimeType=video/mp4');
+			expect(detail).not.toContain('mediaErrorCode');
+		});
 	});
 });

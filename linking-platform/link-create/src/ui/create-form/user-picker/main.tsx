@@ -1,9 +1,8 @@
 import React from 'react';
 
-import SmartUserPicker from '@atlaskit/smart-user-picker';
+import SmartUserPicker from '@atlaskit/smart-user-picker/components';
 
-import { CreateField } from '../../../controllers/create-field';
-
+import { CreateField } from '../../../controllers/create-field/main';
 import { type UserPickerProps } from './types';
 
 export const TEST_ID = 'link-create-user-picker';

@@ -1,7 +1,6 @@
 import React from 'react';
 
-
-import type { IntlShape } from 'react-intl-next';
+import type { IntlShape } from 'react-intl';
 
 import { INPUT_METHOD, VIEW_METHOD } from '@atlaskit/editor-common/analytics';
 import { ToolTipContent } from '@atlaskit/editor-common/keymaps';
@@ -16,11 +15,11 @@ import type {
 import { isOfflineMode } from '@atlaskit/editor-plugin-connectivity';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import CommentIcon from '@atlaskit/icon/core/comment';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { MediaNextEditorPluginType } from '../../mediaPluginType';
-
+import type { MediaPluginOptions } from '../../types';
 import { getSelectedMediaSingle } from './utils';
 
 export const commentButton = (
@@ -28,6 +27,7 @@ export const commentButton = (
 	state: EditorState,
 	api: ExtractInjectionAPI<MediaNextEditorPluginType> | undefined,
 	onCommentButtonMount?: () => void,
+	createCommentExperience?: MediaPluginOptions['createCommentExperience'],
 ): FloatingToolbarButton<Command> => {
 	const selectMediaNode = getSelectedMediaSingle(state)?.node.firstChild;
 	let hasActiveComments = false;
@@ -58,6 +58,18 @@ export const commentButton = (
 					isOpeningMediaCommentFromToolbar,
 				)(state, dispatch)
 			) {
+				if (fg('confluence_fe_create_inline_comment_exp_coverage_2')) {
+					createCommentExperience?.start({
+						attributes: {
+							pageClass: 'editor',
+							commentType: 'block',
+							blockType: 'media',
+							entryPoint: 'highlightActionsSimple',
+						},
+					});
+					createCommentExperience?.initExperience.start();
+				}
+
 				setInlineCommentDraftState(
 					true,
 					// TODO: ED-26962 - might need to update to reflect it's from media floating toolbar
@@ -82,9 +94,7 @@ export const commentButton = (
 		supportsViewMode: true,
 		disabled: isOfflineMode(api?.connectivity?.sharedState?.currentState()?.mode),
 		onMount: () => {
-			if (fg('confluence_frontend_preload_inline_comment_editor')) {
-				onCommentButtonMount && onCommentButtonMount();
-			}
+			onCommentButtonMount && onCommentButtonMount();
 		},
 	};
 };

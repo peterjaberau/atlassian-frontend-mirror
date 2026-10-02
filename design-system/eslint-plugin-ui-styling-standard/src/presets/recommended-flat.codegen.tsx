@@ -1,10 +1,9 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::f99588f71d6b353cefbed97fd172e433>>
- * @codegenCommand yarn workspace @atlaskit/eslint-plugin-ui-styling-standard codegen
+ * @codegen <<SignedSource::4d0de15d2213df65666693ea490b4cce>>
+ * @codegenCommand afm workspace @atlaskit/eslint-plugin-ui-styling-standard codegen
  */
 import type { Linter } from 'eslint';
-
 import * as atlaskitDesignSystemPlugin from '@atlaskit/eslint-plugin-design-system';
 
 const config: Linter.FlatConfig = {
@@ -18,6 +17,7 @@ const config: Linter.FlatConfig = {
 		'@atlaskit/ui-styling-standard/enforce-style-prop': 'error',
 		'@atlaskit/ui-styling-standard/local-cx-xcss': 'error',
 		'@atlaskit/ui-styling-standard/no-array-arguments': 'error',
+		'@atlaskit/ui-styling-standard/no-atlaskit-theme': 'error',
 		'@atlaskit/ui-styling-standard/no-classname-prop': 'error',
 		'@atlaskit/ui-styling-standard/no-container-queries': 'error',
 		'@atlaskit/ui-styling-standard/no-dynamic-styles': 'error',
@@ -60,6 +60,7 @@ const config: Linter.FlatConfig = {
 				allowedFunctionCalls: [['@atlaskit/tokens', 'token']],
 			},
 		],
+		'@atlaskit/design-system/no-css-map-scoped': 'error',
 	},
 };
 

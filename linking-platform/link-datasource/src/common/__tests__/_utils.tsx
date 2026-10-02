@@ -1,19 +1,31 @@
 import React, { useEffect } from 'react';
 
-import { act, type ByRoleMatcher, fireEvent, type Matcher, type MatcherOptions, type queries, render, type RenderResult, type SelectorMatcherOptions, type waitForOptions } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import {
+	act,
+	type ByRoleMatcher,
+	fireEvent,
+	type Matcher,
+	type MatcherOptions,
+	type queries,
+	render,
+	type RenderResult,
+	type SelectorMatcherOptions,
+	type waitForOptions,
+} from '@testing-library/react';
+import { IntlProvider } from 'react-intl';
 import invariant from 'tiny-invariant';
 
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { JQLEditor, type JQLEditorProps } from '@atlaskit/jql-editor';
-import { SmartCardProvider } from '@atlaskit/link-provider';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import JQLEditor from '@atlaskit/jql-editor/ui';
+import type { JQLEditorProps } from '@atlaskit/jql-editor/ui/types';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
 import { mockSiteData } from '@atlaskit/link-test-helpers/datasource';
 import { asMock } from '@atlaskit/link-test-helpers/jest';
-import { type DatasourceParameters } from '@atlaskit/linking-types';
+import type { DatasourceParameters } from '@atlaskit/linking-types/datasource';
 
 import SmartLinkClient from '../../../examples-helpers/smartLinkCustomClient';
-import { EVENT_CHANNEL } from '../../analytics';
-import { succeedUfoExperience } from '../../analytics/ufoExperiences';
+import { EVENT_CHANNEL } from '../../analytics/constants';
+import { succeedUfoExperience } from '../../analytics/ufoExperiences/succeedUfoExperience';
 import { type ConfigModalProps, type DisplayViewModes, type Site } from '../../common/types';
 import {
 	type DatasourceTableState,
@@ -22,7 +34,7 @@ import {
 } from '../../hooks/useDatasourceTableState';
 import { getAccessibleProducts } from '../../services/getAvailableSites';
 import { type ConfluenceSearchConfigModalProps } from '../../ui/confluence-search-modal/types';
-import { IssueLikeDataTableView } from '../../ui/issue-like-table';
+import { IssueLikeDataTableView } from '../../ui/issue-like-table/issue-like-data-table-view';
 import { type IssueLikeDataTableViewProps } from '../../ui/issue-like-table/types';
 
 jest.mock('../../services/getAvailableSites', () => ({
@@ -43,8 +55,8 @@ const MockIssueLikeTable = () => {
 	return null;
 };
 
-jest.mock('../../ui/issue-like-table', () => ({
-	...jest.requireActual('../../ui/issue-like-table'),
+jest.mock('../../ui/issue-like-table/issue-like-data-table-view', () => ({
+	...jest.requireActual('../../ui/issue-like-table/issue-like-data-table-view'),
 	IssueLikeDataTableView: jest.fn(() => <MockIssueLikeTable />),
 }));
 
@@ -68,11 +80,12 @@ type AnalyticsPayloadOverride = {
 };
 
 export interface ModalProps<ADF, Parameters extends DatasourceParameters>
-	extends ConfigModalProps<ADF, Parameters>,
-	Pick<
-		ConfluenceSearchConfigModalProps,
-		'disableDisplayDropdown' | 'overrideParameters' | 'disableSiteSelector'
-	> { }
+	extends
+		ConfigModalProps<ADF, Parameters>,
+		Pick<
+			ConfluenceSearchConfigModalProps,
+			'disableDisplayDropdown' | 'overrideParameters' | 'disableSiteSelector'
+		> {}
 
 export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs, ADF>(
 	providerType: ProviderType,
@@ -82,7 +95,13 @@ export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs
 	getDefaultParameters: () => Parameters,
 	insertArgs: (args: InsertArgs) => object,
 ): {
-	getAvailableSites: (product: "jira" | "confluence") => Promise<Site[]>; getDefaultHookState: () => DatasourceTableState; getEmptyHookState: () => DatasourceTableState; getErrorHookState: () => DatasourceTableState; getInsertAnalyticPayload: <T extends AnalyticsPayloadOverride | undefined>(override: T) => {
+	getAvailableSites: (product: 'jira' | 'confluence') => Promise<Site[]>;
+	getDefaultHookState: () => DatasourceTableState;
+	getEmptyHookState: () => DatasourceTableState;
+	getErrorHookState: () => DatasourceTableState;
+	getInsertAnalyticPayload: <T extends AnalyticsPayloadOverride | undefined>(
+		override: T,
+	) => {
 		_isAnalyticsEvent: boolean;
 		_isUIAnalyticsEvent: boolean;
 		clone: any;
@@ -96,22 +115,45 @@ export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs
 			actionSubjectId: string;
 			eventType: string;
 		} & T & {
-			attributes: {
-				actions: never[];
-				destinationObjectTypes: string[];
-				display: string;
-				displayedColumnCount: number;
-				extensionKey: string;
-				isQueryComplex?: boolean | undefined;
-				searchCount: number;
-				searchMethod: null;
-				totalItemCount: number;
+				attributes: {
+					actions: never[];
+					destinationObjectTypes: string[];
+					display: string;
+					displayedColumnCount: number;
+					extensionKey: string;
+					isQueryComplex?: boolean | undefined;
+					searchCount: number;
+					searchMethod: null;
+					totalItemCount: number;
+				};
 			};
-		};
-	}; getLoadingHookState: () => DatasourceTableState; getSingleResponseItemHookState: (url?: string) => DatasourceTableState; getUnauthorisedHookState: () => DatasourceTableState; IssueLikeDataTableView: ({ testId, onNextPage, onLoadDatasourceDetails, items, itemIds, columns, renderItem, visibleColumnKeys, onVisibleColumnKeysChange, columnCustomSizes, onColumnResize, wrappedColumnKeys, onWrappedColumnChange, status, hasNextPage, scrollableContainerHeight, extensionKey, }: IssueLikeDataTableViewProps) => JSX.Element; setup: (args?: {
-		columnCustomSizes?: ConfigModalProps<ADF, Parameters>["columnCustomSizes"];
-		disableDisplayDropdown?: ConfluenceSearchConfigModalProps["disableDisplayDropdown"];
-		disableSiteSelector?: ConfluenceSearchConfigModalProps["disableSiteSelector"];
+	};
+	getLoadingHookState: () => DatasourceTableState;
+	getSingleResponseItemHookState: (url?: string) => DatasourceTableState;
+	getUnauthorisedHookState: () => DatasourceTableState;
+	IssueLikeDataTableView: ({
+		testId,
+		onNextPage,
+		onLoadDatasourceDetails,
+		items,
+		itemIds,
+		columns,
+		renderItem,
+		visibleColumnKeys,
+		onVisibleColumnKeysChange,
+		columnCustomSizes,
+		onColumnResize,
+		wrappedColumnKeys,
+		onWrappedColumnChange,
+		status,
+		hasNextPage,
+		scrollableContainerHeight,
+		extensionKey,
+	}: IssueLikeDataTableViewProps) => JSX.Element;
+	setup: (args?: {
+		columnCustomSizes?: ConfigModalProps<ADF, Parameters>['columnCustomSizes'];
+		disableDisplayDropdown?: ConfluenceSearchConfigModalProps['disableDisplayDropdown'];
+		disableSiteSelector?: ConfluenceSearchConfigModalProps['disableSiteSelector'];
 		dontWaitForSitesToLoad?: boolean;
 		hookState?: DatasourceTableState;
 		mockSiteDataOverride?: {
@@ -119,20 +161,39 @@ export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs
 			displayName: string;
 			url: string;
 		}[];
-		overrideParameters?: ConfluenceSearchConfigModalProps["overrideParameters"];
+		overrideParameters?: ConfluenceSearchConfigModalProps['overrideParameters'];
 		parameters?: Parameters;
-		url?: ConfigModalProps<ADF, Parameters>["url"];
+		url?: ConfigModalProps<ADF, Parameters>['url'];
 		viewMode?: DisplayViewModes;
 		visibleColumnKeys?: string[];
-		wrappedColumnKeys?: ConfigModalProps<ADF, Parameters>["wrappedColumnKeys"];
+		wrappedColumnKeys?: ConfigModalProps<ADF, Parameters>['wrappedColumnKeys'];
 	}) => Promise<{
 		assertAnalyticsAfterButtonClick: (buttonName: string, payload: any) => Promise<void>;
-		assertInsertResult: (args: InsertArgs, analyticsExpectedOverride?: AnalyticsPayloadOverride) => void;
+		assertInsertResult: (
+			args: InsertArgs,
+			analyticsExpectedOverride?: AnalyticsPayloadOverride,
+		) => void;
 		component: RenderResult<typeof queries, HTMLElement, HTMLElement>;
-		findByLabelText: (id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
-		findByRole: (role: ByRoleMatcher, options?: queries.ByRoleOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
-		findByTestId: (id: Matcher, options?: MatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
-		findByText: (id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
+		findByLabelText: (
+			id: Matcher,
+			options?: SelectorMatcherOptions | undefined,
+			waitForElementOptions?: waitForOptions | undefined,
+		) => Promise<HTMLElement>;
+		findByRole: (
+			role: ByRoleMatcher,
+			options?: queries.ByRoleOptions | undefined,
+			waitForElementOptions?: waitForOptions | undefined,
+		) => Promise<HTMLElement>;
+		findByTestId: (
+			id: Matcher,
+			options?: MatcherOptions | undefined,
+			waitForElementOptions?: waitForOptions | undefined,
+		) => Promise<HTMLElement>;
+		findByText: (
+			id: Matcher,
+			options?: SelectorMatcherOptions | undefined,
+			waitForElementOptions?: waitForOptions | undefined,
+		) => Promise<HTMLElement>;
 		getByLabelText: (id: Matcher, options?: SelectorMatcherOptions | undefined) => HTMLElement;
 		getByPlaceholderText: (id: Matcher, options?: MatcherOptions | undefined) => HTMLElement;
 		getByRole: (role: ByRoleMatcher, options?: queries.ByRoleOptions | undefined) => HTMLElement;
@@ -145,7 +206,10 @@ export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs
 		onAnalyticFireEvent: jest.Mock<any, any, any>;
 		onCancel: jest.Mock<any, any, any>;
 		onInsert: jest.Mock<any, any, any>;
-		queryByRole: (role: ByRoleMatcher, options?: queries.ByRoleOptions | undefined) => HTMLElement | null;
+		queryByRole: (
+			role: ByRoleMatcher,
+			options?: queries.ByRoleOptions | undefined,
+		) => HTMLElement | null;
 		queryByTestId: (id: Matcher, options?: MatcherOptions | undefined) => HTMLElement | null;
 		queryByText: (id: Matcher, options?: SelectorMatcherOptions | undefined) => HTMLElement | null;
 		renderComponent: () => RenderResult<typeof queries, HTMLElement, HTMLElement>;
@@ -155,7 +219,12 @@ export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs
 		selectNewInstanceSite: () => Promise<void>;
 		switchMode: (viewMode: DisplayViewModes) => void;
 		updateVisibleColumnList: (newVisibleColumns: string[]) => void;
-	}>; useDatasourceTableState: ({ datasourceId, parameters, fieldKeys, }: DatasourceTableStateProps) => DatasourceTableState;
+	}>;
+	useDatasourceTableState: ({
+		datasourceId,
+		parameters,
+		fieldKeys,
+	}: DatasourceTableStateProps) => DatasourceTableState;
 } => {
 	const getDefaultHookState: () => DatasourceTableState = () => ({
 		reset: jest.fn(),
@@ -263,24 +332,31 @@ export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs
 	const getInsertAnalyticPayload = <T extends AnalyticsPayloadOverride | undefined>(
 		override: T,
 	): {
-		_isAnalyticsEvent: boolean; _isUIAnalyticsEvent: boolean; clone: any; context: any; fire: any; handlers: any; hasFired: boolean; payload: {
+		_isAnalyticsEvent: boolean;
+		_isUIAnalyticsEvent: boolean;
+		clone: any;
+		context: any;
+		fire: any;
+		handlers: any;
+		hasFired: boolean;
+		payload: {
 			action: string;
 			actionSubject: string;
 			actionSubjectId: string;
 			eventType: string;
 		} & T & {
-			attributes: {
-				actions: never[];
-				destinationObjectTypes: string[];
-				display: string;
-				displayedColumnCount: number;
-				extensionKey: string;
-				isQueryComplex?: boolean | undefined;
-				searchCount: number;
-				searchMethod: null;
-				totalItemCount: number;
+				attributes: {
+					actions: never[];
+					destinationObjectTypes: string[];
+					display: string;
+					displayedColumnCount: number;
+					extensionKey: string;
+					isQueryComplex?: boolean | undefined;
+					searchCount: number;
+					searchMethod: null;
+					totalItemCount: number;
+				};
 			};
-		};
 	} => {
 		return {
 			_isAnalyticsEvent: true,
@@ -332,12 +408,31 @@ export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs
 		} = {},
 	): Promise<{
 		assertAnalyticsAfterButtonClick: (buttonName: string, payload: any) => Promise<void>;
-		assertInsertResult: (args: InsertArgs, analyticsExpectedOverride?: AnalyticsPayloadOverride) => void;
+		assertInsertResult: (
+			args: InsertArgs,
+			analyticsExpectedOverride?: AnalyticsPayloadOverride,
+		) => void;
 		component: RenderResult<typeof queries, HTMLElement, HTMLElement>;
-		findByLabelText: (id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
-		findByRole: (role: ByRoleMatcher, options?: queries.ByRoleOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
-		findByTestId: (id: Matcher, options?: MatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
-		findByText: (id: Matcher, options?: SelectorMatcherOptions | undefined, waitForElementOptions?: waitForOptions | undefined) => Promise<HTMLElement>;
+		findByLabelText: (
+			id: Matcher,
+			options?: SelectorMatcherOptions | undefined,
+			waitForElementOptions?: waitForOptions | undefined,
+		) => Promise<HTMLElement>;
+		findByRole: (
+			role: ByRoleMatcher,
+			options?: queries.ByRoleOptions | undefined,
+			waitForElementOptions?: waitForOptions | undefined,
+		) => Promise<HTMLElement>;
+		findByTestId: (
+			id: Matcher,
+			options?: MatcherOptions | undefined,
+			waitForElementOptions?: waitForOptions | undefined,
+		) => Promise<HTMLElement>;
+		findByText: (
+			id: Matcher,
+			options?: SelectorMatcherOptions | undefined,
+			waitForElementOptions?: waitForOptions | undefined,
+		) => Promise<HTMLElement>;
 		getByLabelText: (id: Matcher, options?: SelectorMatcherOptions | undefined) => HTMLElement;
 		getByPlaceholderText: (id: Matcher, options?: MatcherOptions | undefined) => HTMLElement;
 		getByRole: (role: ByRoleMatcher, options?: queries.ByRoleOptions | undefined) => HTMLElement;
@@ -350,7 +445,10 @@ export const setupFactory = <Parameters extends DatasourceParameters, InsertArgs
 		onAnalyticFireEvent: jest.Mock<any, any, any>;
 		onCancel: jest.Mock<any, any, any>;
 		onInsert: jest.Mock<any, any, any>;
-		queryByRole: (role: ByRoleMatcher, options?: queries.ByRoleOptions | undefined) => HTMLElement | null;
+		queryByRole: (
+			role: ByRoleMatcher,
+			options?: queries.ByRoleOptions | undefined,
+		) => HTMLElement | null;
 		queryByTestId: (id: Matcher, options?: MatcherOptions | undefined) => HTMLElement | null;
 		queryByText: (id: Matcher, options?: SelectorMatcherOptions | undefined) => HTMLElement | null;
 		renderComponent: () => RenderResult<typeof queries, HTMLElement, HTMLElement>;

@@ -1,6 +1,307 @@
-import { defineMessages } from 'react-intl-next';
+import { defineMessages } from 'react-intl';
 
-export const messages = defineMessages({
+export const messages: {
+	activityCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	addCustomEmojiLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	addEmojiLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	createEmojiWithRovoTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	createEmojiWithRovoPromptPlaceholder: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	createEmojiWithRovoPromptAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	createEmojiWithRovoGenerateLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	createEmojiWithRovoError: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	allUploadsCustomCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	cancelLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	categoriesSearchResults: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	categoriesSelectorLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	changeEmojiShortnameButtonLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteEmojiDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteEmojiFailed: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteEmojiLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteEmojiTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteEmojiTooltip: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	deleteEmojiTooltipForScreenreader: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiButtonRoleDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiChooseFileDndTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiChooseFileScreenReaderDescription: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiChooseFileTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiDuplicateName: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiImageRequirements: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiImageTooBig: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiInvalidImage: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiNameAriaLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiNameLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiPickerAddCustomEmoji: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiPickerGrid: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiPickerNoResults: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiPickerListPanel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiPickerTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiPlaceholder: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiPreview: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiPreviewTitle: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiSelectSkinToneButtonAriaLabelText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiSelectColorButtonAriaLabelText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiSelectColorListAriaLabelText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiSelectSkinToneListAriaLabelText: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiUnsupportedFileType: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiUploadFailed: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	emojiUploadTimeout: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	error: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	flagsCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	foodsCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	frequentCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	natureCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	objectsCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	peopleCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	placesCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	productivityCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	retryLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	searchLabel: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	searchPlaceholder: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	searchResultsStatus: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	searchResultsStatusSeeAll: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	symbolsCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+	userUploadsCustomCategory: {
+		defaultMessage: string;
+		description: string;
+		id: string;
+	};
+} = defineMessages({
 	deleteEmojiTooltip: {
 		id: 'fabric.emoji.delete.tooltip',
 		defaultMessage: 'Delete',
@@ -14,22 +315,26 @@ export const messages = defineMessages({
 	deleteEmojiTitle: {
 		id: 'fabric.emoji.delete.title',
 		defaultMessage: 'Remove emoji',
-		description: 'Title for emoji removal dialog',
+		description:
+			'Heading text shown at the top of the emoji removal confirmation dialog, prompting the user to confirm removing the selected custom emoji.',
 	},
 	deleteEmojiDescription: {
 		id: 'fabric.emoji.delete.description',
 		defaultMessage: 'All existing instances of this emoji will be replaced with {emojiShortName}',
-		description: 'Description for emoji removal dialog',
+		description:
+			'Body text shown inside the emoji removal confirmation dialog. The placeholder {emojiShortName} will be substituted with the short name (e.g. ":smile:") of the replacement emoji.',
 	},
 	deleteEmojiLabel: {
 		id: 'fabric.emoji.delete.label',
 		defaultMessage: 'Remove',
-		description: 'Button label to remove emoji',
+		description:
+			'Label for the primary action button in the emoji removal confirmation dialog that confirms and executes the removal.',
 	},
 	addCustomEmojiLabel: {
 		id: 'fabric.emoji.add.custom.emoji.label',
 		defaultMessage: 'Add your own emoji',
-		description: 'Button label to add custom emoji',
+		description:
+			'Label for the button in the emoji picker that opens the custom emoji upload panel, allowing users to add their own emoji.',
 	},
 	emojiPlaceholder: {
 		id: 'fabric.emoji.placeholder',
@@ -41,10 +346,22 @@ export const messages = defineMessages({
 		defaultMessage: 'Enter a name for the new emoji',
 		description: 'Explains to enter a name for a new emoji',
 	},
+	emojiNameLabel: {
+		id: 'fabric.emoji.name.label',
+		defaultMessage: 'Emoji name',
+		description: 'Label for the emoji name input field in the custom emoji upload panel',
+	},
 	emojiChooseFileTitle: {
 		id: 'fabric.emoji.choose.file.title',
 		defaultMessage: 'Choose file',
-		description: 'Choose custom emoji file',
+		description:
+			'Label for the file chooser button in the custom emoji upload panel where users select an image file for their emoji.',
+	},
+	emojiChooseFileDndTitle: {
+		id: 'fabric.emoji.choose.file.dnd.title',
+		defaultMessage: 'Select or drop an image',
+		description:
+			'Label for the file chooser button in the custom emoji upload panel where users select or drag and drop an image file for their emoji.',
 	},
 	emojiChooseFileScreenReaderDescription: {
 		id: 'fabric.emoji.choose.file.screenReaderDescription',
@@ -57,6 +374,17 @@ export const messages = defineMessages({
 		defaultMessage: 'Choose your skin tone, {selectedTone} selected',
 		description:
 			'Message indicating the purpose of the skin tone selection button and the selected tone',
+	},
+	emojiSelectColorButtonAriaLabelText: {
+		id: 'fabric.emoji.select.color.ariaLabel',
+		defaultMessage: 'Productivity emoji color selector',
+		description:
+			'Message indicating the purpose of the color selection button and the selected color',
+	},
+	emojiSelectColorListAriaLabelText: {
+		id: 'fabric.emoji.select.color.list.ariaLabel',
+		defaultMessage: 'Productivity emoji colour selector',
+		description: 'Message indicating the purpose of the productivity emoji color list selector',
 	},
 	emojiSelectSkinToneListAriaLabelText: {
 		id: 'fabric.emoji.select.skin.list.ariaLabel',
@@ -72,37 +400,72 @@ export const messages = defineMessages({
 	emojiPreviewTitle: {
 		id: 'fabric.emoji.preview.title',
 		defaultMessage: 'Preview',
-		description: 'Emoji preview title',
+		description:
+			'Section heading shown above the emoji preview area in the custom emoji upload panel.',
 	},
 	emojiPreview: {
 		id: 'fabric.emoji.preview',
 		defaultMessage: 'Your new emoji {emoji} looks great',
-		description: 'Emoji preview',
+		description:
+			'Success text shown in the emoji preview area after the user uploads a new emoji image. The placeholder {emoji} will be substituted with the rendered emoji image.',
 	},
 	addEmojiLabel: {
 		id: 'fabric.emoji.add.label',
 		defaultMessage: 'Add emoji',
-		description: 'verb - Button label to add emoji',
+		description:
+			'Label for the submit button in the custom emoji upload panel that saves the new emoji to the workspace.',
+	},
+	createEmojiWithRovoTitle: {
+		id: 'fabric.emoji.ai.create.title',
+		defaultMessage: 'Create an emoji with Rovo',
+		description:
+			'Section heading for the AI emoji generation area where users describe an emoji and generate it with AI.',
+	},
+	createEmojiWithRovoPromptPlaceholder: {
+		id: 'fabric.emoji.ai.prompt.placeholder',
+		defaultMessage: 'Describe your emoji...',
+		description:
+			'Placeholder text for the input where the user describes the emoji they want the AI to generate.',
+	},
+	createEmojiWithRovoPromptAriaLabel: {
+		id: 'fabric.emoji.ai.prompt.ariaLabel',
+		defaultMessage: 'Describe the emoji you want to generate',
+		description: 'Accessible label for the AI emoji description input field.',
+	},
+	createEmojiWithRovoGenerateLabel: {
+		id: 'fabric.emoji.ai.generate.label',
+		defaultMessage: 'Generate',
+		description: 'Label for the button that triggers AI generation of the described emoji.',
+	},
+	createEmojiWithRovoError: {
+		id: 'fabric.emoji.ai.error',
+		defaultMessage: 'Something went wrong. Try a different description.',
+		description:
+			'Inline error message shown when AI emoji generation or upload fails, prompting the user to try again.',
 	},
 	retryLabel: {
 		id: 'fabric.emoji.retry.label',
 		defaultMessage: 'Retry',
-		description: 'verb - Button label to retry upload',
+		description:
+			'Label for the button in the custom emoji upload panel that retries a previously failed upload attempt.',
 	},
 	cancelLabel: {
 		id: 'fabric.emoji.cancel.label',
 		defaultMessage: 'Cancel',
-		description: 'verb - button label to cancel operation',
+		description:
+			'Label for the cancel button in the custom emoji upload panel that dismisses the panel without saving.',
 	},
 	searchPlaceholder: {
 		id: 'fabric.emoji.search.placeholder',
 		defaultMessage: 'Search',
-		description: 'Placeholder for search emoji field',
+		description:
+			'Placeholder text shown inside the emoji search input field in the emoji picker before the user types a query.',
 	},
 	searchLabel: {
 		id: 'fabric.emoji.search.label',
 		defaultMessage: 'Emoji name',
-		description: 'verb - button label to search',
+		description:
+			'Accessible label for the emoji name search input field in the emoji picker, used by screen readers.',
 	},
 	searchResultsStatus: {
 		id: 'fabric.emoji.search.status.count',
@@ -122,67 +485,79 @@ export const messages = defineMessages({
 	categoriesSearchResults: {
 		id: 'fabric.emoji.categories.search.results',
 		defaultMessage: 'Search results',
-		description: 'Emoji categories search results',
+		description:
+			'Category heading label shown in the emoji picker category bar when displaying results from a search query.',
 	},
 	frequentCategory: {
 		id: 'fabric.emoji.category.frequent',
 		defaultMessage: 'Frequent',
-		description: 'Emoji frequent category',
+		description:
+			'Label for the Frequent category tab in the emoji picker, showing recently used emojis.',
 	},
 	peopleCategory: {
 		id: 'fabric.emoji.category.people',
 		defaultMessage: 'People',
-		description: 'Emoji frequent category',
+		description:
+			'Label for the People category tab in the emoji picker, showing face and person emojis.',
 	},
 	natureCategory: {
 		id: 'fabric.emoji.category.nature',
 		defaultMessage: 'Nature',
-		description: 'Emoji nature category',
+		description:
+			'Label for the Nature category tab in the emoji picker, showing animal and nature emojis.',
 	},
 	foodsCategory: {
 		id: 'fabric.emoji.category.foods',
 		defaultMessage: 'Food & Drink',
-		description: 'Emoji Foods category',
+		description: 'Label for the Food and Drink category tab in the emoji picker.',
 	},
 	activityCategory: {
 		id: 'fabric.emoji.category.activity',
 		defaultMessage: 'Activity',
-		description: 'Emoji activity category',
+		description:
+			'Label for the Activity category tab in the emoji picker, showing sports and activity emojis.',
 	},
 	placesCategory: {
 		id: 'fabric.emoji.category.places',
 		defaultMessage: 'Travel & Places',
-		description: 'Emoji Places category',
+		description:
+			'Label for the Travel and Places category tab in the emoji picker, showing location and travel emojis.',
 	},
 	objectsCategory: {
 		id: 'fabric.emoji.category.objects',
 		defaultMessage: 'Objects',
-		description: 'Emoji objects category',
+		description:
+			'Label for the Objects category tab in the emoji picker, showing everyday object emojis.',
 	},
 	symbolsCategory: {
 		id: 'fabric.emoji.category.symbols',
 		defaultMessage: 'Symbols',
-		description: 'Emoji symbols category',
+		description:
+			'Label for the Symbols category tab in the emoji picker, showing symbol and sign emojis.',
 	},
 	flagsCategory: {
 		id: 'fabric.emoji.category.flags',
 		defaultMessage: 'Flags',
-		description: 'Emoji flags category',
+		description:
+			'Label for the Flags category tab in the emoji picker, showing country and regional flag emojis.',
 	},
 	productivityCategory: {
 		id: 'fabric.emoji.category.productivity',
 		defaultMessage: 'Atlassian & productivity',
-		description: 'Emoji Atlassian & productivity category',
+		description:
+			'Label for the Atlassian and productivity category tab in the emoji picker, showing Atlassian product and productivity emojis.',
 	},
 	userUploadsCustomCategory: {
 		id: 'fabric.emoji.category.user.uploads',
 		defaultMessage: 'Your uploads',
-		description: 'User uploads in the custom category',
+		description:
+			'Label for the Your Uploads category tab in the emoji picker, showing custom emojis uploaded by the current user.',
 	},
 	allUploadsCustomCategory: {
 		id: 'fabric.emoji.category.all.uploads',
 		defaultMessage: 'All uploads',
-		description: 'All uploads in the custom category',
+		description:
+			'Label for the All Uploads category tab in the emoji picker, showing all custom emojis uploaded across the workspace.',
 	},
 	deleteEmojiFailed: {
 		id: 'fabric.emoji.error.delete.failed',
@@ -197,22 +572,49 @@ export const messages = defineMessages({
 	emojiUploadFailed: {
 		id: 'fabric.emoji.error.upload.failed',
 		defaultMessage: 'Upload failed',
-		description: 'Failed to upload emoji image',
+		description:
+			'Error message shown in the custom emoji upload panel when the image upload fails due to an error.',
 	},
 	emojiUploadTimeout: {
 		id: 'fabric.emoji.error.upload.timeout',
 		defaultMessage: 'Upload timed out',
-		description: 'Failed to upload emoji image',
+		description:
+			'Error message shown in the custom emoji upload panel when the image upload fails because it timed out.',
 	},
 	emojiImageTooBig: {
 		id: 'fabric.emoji.error.image.too.big',
 		defaultMessage: 'Selected image is more than 1 MB',
 		description: 'Error message for image too big, beyond the size limit',
 	},
+	emojiUnsupportedFileType: {
+		id: 'fabric.emoji.error.unsupported.file.type',
+		defaultMessage:
+			"This file type isn't supported. Select a PNG, JPEG, or GIF to create your emoji.",
+		description: 'Error message shown when the selected emoji upload file type is not supported',
+	},
+	emojiDuplicateName: {
+		id: 'fabric.emoji.error.duplicate.name',
+		defaultMessage: 'An emoji with this name exists already',
+		description:
+			'Error message shown when the user tries to upload an emoji with a name that already exists in the custom emoji set',
+	},
+	emojiPickerNoResults: {
+		id: 'fabric.emoji.picker.no.results',
+		defaultMessage: 'No results',
+		description:
+			'Heading shown in the emoji picker when a search query returns no matching emojis.',
+	},
+	emojiPickerAddCustomEmoji: {
+		id: 'fabric.emoji.picker.add.custom.emoji',
+		defaultMessage: 'Add custom emoji',
+		description:
+			'Label for the button shown in the emoji picker no-results screen that opens the custom emoji upload panel.',
+	},
 	emojiPickerTitle: {
 		id: 'fabric.emoji.picker',
 		defaultMessage: 'Emoji picker',
-		description: 'Aria label for emoji picker',
+		description:
+			'Accessible aria-label for the emoji picker dialog, used by screen readers to identify the picker.',
 	},
 	emojiPickerListPanel: {
 		id: 'fabric.emoji.pickerlist.tabpanel',
@@ -228,6 +630,11 @@ export const messages = defineMessages({
 		id: 'fabric.emoji.emojipicker.emoi.roledescription',
 		defaultMessage: 'emoji button',
 		description: `Aria roledescription for emoji button, used in emoji picker.`,
+	},
+	changeEmojiShortnameButtonLabel: {
+		id: 'fabric.emoji.change.shortname.button.label',
+		defaultMessage: 'Change emoji, currently {shortName}',
+		description: 'Aria label for the button in page title used to change emoji',
 	},
 	error: {
 		id: 'fabric.emoji.emojipicker.error',

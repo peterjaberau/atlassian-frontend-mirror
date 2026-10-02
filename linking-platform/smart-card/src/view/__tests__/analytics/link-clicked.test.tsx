@@ -1,20 +1,21 @@
 import React from 'react';
 
-import '@atlaskit/link-test-helpers/jest';
+import { IntlProvider } from 'react-intl';
 
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { IntlProvider } from 'react-intl-next';
-
-import { AnalyticsListener } from '@atlaskit/analytics-next';
-import { type CardClient, SmartCardProvider as Provider } from '@atlaskit/link-provider';
+import AnalyticsListener from '@atlaskit/analytics-next/AnalyticsListener';
+import type CardClient from '@atlaskit/link-provider/client';
+import { SmartCardProvider as Provider } from '@atlaskit/link-provider/smart-card-provider';
 import { mockSimpleIntersectionObserver } from '@atlaskit/link-test-helpers';
 import * as userAgent from '@atlaskit/linking-common/user-agent';
-import { ffTest } from '@atlassian/feature-flags-test-utils';
+import { ffTest } from '@atlassian/feature-flags-test-utils/test-runner';
+import '@atlaskit/link-test-helpers/jest';
+import { render, screen, userEvent } from '@atlassian/testing-library';
 
 import { TitleBlock } from '../../../index';
-import { ANALYTICS_CHANNEL } from '../../../utils/analytics';
-import { fakeFactory, mocks } from '../../../utils/mocks';
+import { ANALYTICS_CHANNEL } from '../../../utils/analytics/analytics';
+import { type ClickOutcome } from '../../../utils/analytics/types';
+import { fakeFactory } from '../../../utils/fake-factory';
+import { mocks } from '../../../utils/mocks';
 import { Card, type CardProps } from '../../Card';
 
 mockSimpleIntersectionObserver();
@@ -38,6 +39,21 @@ type TestCaseOptions = {
 	 * Expected context to be seen on the event
 	 */
 	context?: Record<string, unknown>[];
+	/**
+	 * `clickOutcome` reported by appearances whose click handler opens the link itself rather than
+	 * letting the anchor navigate natively (currently only FlexibleCard).
+	 *
+	 * Those appearances overwrite `clickOutcome` with a value derived from the resolved anchor
+	 * `target`, which discards the modifier the user actually held. Because FlexibleCard always
+	 * renders `target="_blank"`, every modifier click collapses to
+	 * `clickThroughNewTabOrWindow`.
+	 *
+	 * Appearances that leave this unset report the modifier-derived outcome, which is the value
+	 * standard browser behaviour would predict.
+	 *
+	 * Tracked in NAVX-5620.
+	 */
+	hijackedClickOutcome?: ClickOutcome;
 	/**
 	 * Link selector to target an element to click
 	 */
@@ -398,7 +414,7 @@ describe('`link clicked`', () => {
 				);
 			});
 
-			it('should fire with `clickOutcome` = `clickThrough` if the ctrl key is held (NOT macOS) but an `onClick` is supplied', async () => {
+			it('should fire with `clickOutcome` = `clickThroughNewTabOrWindow` if the ctrl key is held (NOT macOS) but an `onClick` is supplied', async () => {
 				jest.spyOn(userAgent, 'browser').mockReturnValue({ mac: false } as any);
 
 				const { spy, user, link } = await setup({ onClick: jest.fn() });
@@ -450,7 +466,7 @@ describe('`link clicked`', () => {
 				);
 			});
 
-			it('should fire with `clickOutcome` = `clickThroughNewTab` if the ctrl key is held on macOS (if onClick is triggered and `onClick` is NOT provided)', async () => {
+			it('should fire with `clickOutcome` = `clickThroughNewTabOrWindow` if the ctrl key is held on macOS (if onClick is triggered and `onClick` is NOT provided)', async () => {
 				jest.spyOn(userAgent, 'browser').mockReturnValue({ mac: true } as any);
 
 				const { spy, user, link } = await setup();
@@ -511,7 +527,7 @@ describe('`link clicked`', () => {
 		});
 
 		describe('middle click', () => {
-			it('should fire with `clickOutcome` = `clickThroughNewTab` when middle clicking', async () => {
+			it('should fire with `clickOutcome` = `clickThroughNewTabOrWindow` when middle clicking', async () => {
 				const { spy, user, link } = await setup();
 
 				await user.pointer({ target: link, keys: '[MouseMiddle]' });
@@ -699,6 +715,7 @@ describe('`link clicked`', () => {
 					return screen.findByTestId('smart-element-link');
 				},
 				context: [PACKAGE_CONTEXT],
+				hijackedClickOutcome: 'clickThroughNewTabOrWindow',
 			},
 		],
 	])('with `%s` appearance with options %j', (testCase, options) => {
@@ -779,22 +796,6 @@ describe('`link clicked`', () => {
 
 				await user.click(link);
 
-				/**
-				 * In the case of flex UI the onClick handler is passed to the title
-				 * preventing clickthrough
-				 *
-				 * In the case of hoverCard the onClick handler is not provided to the title block and there is no
-				 * preventing of default behaviour
-				 */
-				const getTestCaseDefaultPrevented = () => {
-					switch (testCase) {
-						case 'hoverCard':
-							return false;
-						case 'flexible':
-							return true;
-					}
-				};
-
 				expect(spy).toBeFiredWithAnalyticEventOnce(
 					{
 						context: options?.context,
@@ -806,7 +807,7 @@ describe('`link clicked`', () => {
 								clickType: 'left',
 								clickOutcome: 'clickThroughNewTabOrWindow',
 								keysHeld: [],
-								defaultPrevented: getTestCaseDefaultPrevented(),
+								defaultPrevented: true,
 							},
 						},
 					},
@@ -814,6 +815,11 @@ describe('`link clicked`', () => {
 				);
 			});
 
+			/**
+			 * Alt/option + click means "download the target" in every major browser, so `alt` is
+			 * the outcome standard behaviour predicts. Appearances that hijack navigation report
+			 * the target-derived outcome instead, which is incorrect — see NAVX-5620.
+			 */
 			it('should fire with `clickOutcome` = `alt` if the alt key is held', async () => {
 				const { spy, user, link } = await setup();
 
@@ -829,7 +835,7 @@ describe('`link clicked`', () => {
 							eventType: 'ui',
 							attributes: {
 								clickType: 'left',
-								clickOutcome: 'alt',
+								clickOutcome: options?.hijackedClickOutcome ?? 'alt',
 								keysHeld: ['alt'],
 							},
 						},
@@ -853,7 +859,7 @@ describe('`link clicked`', () => {
 							eventType: 'ui',
 							attributes: {
 								clickType: 'left',
-								clickOutcome: 'alt',
+								clickOutcome: options?.hijackedClickOutcome ?? 'alt',
 								keysHeld: ['alt'],
 							},
 						},
@@ -938,6 +944,10 @@ describe('`link clicked`', () => {
 				);
 			});
 
+			/**
+			 * On Windows the meta key is the Windows key, which is not a navigation modifier, so
+			 * the anchor's own `target` decides the outcome.
+			 */
 			it('should fire with `clickOutcome` = `clickThrough` if the meta key is held but an `onClick` is supplied (windows)', async () => {
 				jest.spyOn(userAgent, 'browser').mockReturnValue({ mac: false } as any);
 
@@ -955,7 +965,7 @@ describe('`link clicked`', () => {
 							eventType: 'ui',
 							attributes: {
 								clickType: 'left',
-								clickOutcome: 'clickThrough',
+								clickOutcome: options?.hijackedClickOutcome ?? 'clickThrough',
 								keysHeld: ['meta'],
 							},
 						},
@@ -990,7 +1000,7 @@ describe('`link clicked`', () => {
 				);
 			});
 
-			it('should fire with `clickOutcome` = `clickThrough` if the ctrl key is held (NOT macOS) and no `onClick` is provided', async () => {
+			it('should fire with `clickOutcome` = `clickThroughNewTabOrWindow` if the ctrl key is held (NOT macOS) and no `onClick` is provided', async () => {
 				jest.spyOn(userAgent, 'browser').mockReturnValue({ mac: false } as any);
 
 				const { spy, user, link } = await setup();
@@ -1038,7 +1048,7 @@ describe('`link clicked`', () => {
 							eventType: 'ui',
 							attributes: {
 								clickType: 'left',
-								clickOutcome: 'clickThrough',
+								clickOutcome: options?.hijackedClickOutcome ?? 'clickThrough',
 								keysHeld: ['ctrl'],
 							},
 						},
@@ -1047,7 +1057,7 @@ describe('`link clicked`', () => {
 				);
 			});
 
-			it('should fire with `clickOutcome` = `clickThroughNewTab` if the ctrl key is held on macOS (if onClick is triggered and `onClick` is provided)', async () => {
+			it('should fire with `clickOutcome` = `clickThrough` if the ctrl key is held on macOS (if onClick is triggered and `onClick` is provided)', async () => {
 				jest.spyOn(userAgent, 'browser').mockReturnValue({ mac: true } as any);
 
 				const { spy, user, link } = await setup({ onClick: jest.fn() });
@@ -1064,7 +1074,7 @@ describe('`link clicked`', () => {
 							eventType: 'ui',
 							attributes: {
 								clickType: 'left',
-								clickOutcome: 'clickThrough',
+								clickOutcome: options?.hijackedClickOutcome ?? 'clickThrough',
 								keysHeld: ['ctrl'],
 							},
 						},

@@ -3,12 +3,14 @@
  * @jsx jsx
  * @jsxFrag Fragment
  */
-import { Fragment } from 'react';
+// oxlint-disable-next-line no-unused-vars
+import { Fragment, type JSX } from 'react';
 
 import { cssMap, cx, jsx } from '@compiled/react';
 
-import { Label } from '@atlaskit/form';
-import Select, { components } from '@atlaskit/select';
+import { Label } from '@atlaskit/form/label/default';
+import { components } from '@atlaskit/react-select/components';
+import Select from '@atlaskit/select/default';
 import { token } from '@atlaskit/tokens';
 
 import { cities } from '../common/data';

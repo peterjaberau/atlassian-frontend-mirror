@@ -3,12 +3,13 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { Children, cloneElement, Fragment, useState } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { cssMap, jsx } from '@compiled/react';
 
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 const styles = cssMap({
 	container: {
@@ -104,7 +105,7 @@ export default function RatingGroup({
 	value,
 	testId,
 	children,
-}: RatingGroupProps) {
+}: RatingGroupProps): JSX.Element {
 	const [currentValue, setValue] = useState(value || defaultValue);
 	const [firstSelectionMade, setFirstSelectionMade] = useState(!!currentValue);
 	const actualValue = value || currentValue;

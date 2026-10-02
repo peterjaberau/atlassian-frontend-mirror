@@ -4,8 +4,10 @@
  */
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import { Manager, Popper, Reference } from '@atlaskit/popper';
+import Button from '@atlaskit/button/default/button';
+import { Popper } from '@atlaskit/popper/main';
+import { Manager } from '@atlaskit/popper/manager';
+import { Reference } from '@atlaskit/popper/reference';
 import { token } from '@atlaskit/tokens';
 
 const popupStyles = css({
@@ -31,7 +33,6 @@ const BasicPositioningExample = (): JSX.Element => (
 		</Reference>
 		<Popper placement="right">
 			{({ ref, style }) => (
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				<div ref={ref} style={style} css={popupStyles}>
 					This text is a popper placed to the right
 				</div>

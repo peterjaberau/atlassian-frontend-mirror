@@ -4,7 +4,7 @@
  */
 import React from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { jsx } from '@emotion/react';
 
 import { ProviderFactory } from '@atlaskit/editor-common/provider-factory';
@@ -73,7 +73,7 @@ export default class ToolsDrawer extends React.Component<Props, State> {
 				<div>
 					<div
 						// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage, @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						style={{ color: '#ccc', marginBottom: token('space.100', '8px') }}
+						style={{ color: '#ccc', marginBottom: token('space.100') }}
 					>
 						&lt;Renderer&gt;
 					</div>
@@ -83,9 +83,7 @@ export default class ToolsDrawer extends React.Component<Props, State> {
 						{...props}
 					/>
 					{/* eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage, @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
-					<div style={{ color: '#ccc', marginTop: token('space.100', '8px') }}>
-						&lt;/Renderer&gt;
-					</div>
+					<div style={{ color: '#ccc', marginTop: token('space.100') }}>&lt;/Renderer&gt;</div>
 				</div>
 			);
 		} catch (ex) {
@@ -93,7 +91,7 @@ export default class ToolsDrawer extends React.Component<Props, State> {
 		}
 	}
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { reloadEditor, jsonDocument } = this.state;
 		return (
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766

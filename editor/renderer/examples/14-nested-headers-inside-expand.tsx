@@ -2,15 +2,19 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import Button from '@atlaskit/button/new';
-import { RadioGroup } from '@atlaskit/radio';
-import type { OptionsPropType } from '@atlaskit/radio/types';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css, jsx } from '@emotion/react';
+
 import { useEffect, useState } from 'react';
+
+/* eslint-disable @typescript-eslint/consistent-type-imports, @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic */
+import { jsx, css } from '@emotion/react';
+
+import Button from '@atlaskit/button/default/button';
+import RadioGroup from '@atlaskit/radio/radio-group';
+import type { OptionsPropType } from '@atlaskit/radio/types';
+import { token } from '@atlaskit/tokens';
+
 import nestedHeadersAdf from '../src/__tests__/__fixtures__/nested-headings-adf.json';
 import RendererDemo from './helper/RendererDemo';
-import { token } from '@atlaskit/tokens';
 
 const getHeaderIdsAsRadioOptions = () =>
 	Array.from(document.querySelectorAll('.heading-anchor-wrapper')).map(({ parentElement }) => {
@@ -30,11 +34,11 @@ const headersIdListStyle = css({
 
 const containerStyle = css({
 	display: 'inline-block',
-	marginTop: token('space.150', '12px'),
-	marginBottom: token('space.150', '12px'),
+	marginTop: token('space.150'),
+	marginBottom: token('space.150'),
 });
 
-export default function Example() {
+export default function Example(): jsx.JSX.Element {
 	const [headings, setHeadings] = useState<OptionsPropType | undefined>();
 	const [activeHeadingId, setActiveHeadingId] = useState<string | undefined>();
 	const [rendererDemoExampleKey, setRendererDemoExampleKey] = useState(1);

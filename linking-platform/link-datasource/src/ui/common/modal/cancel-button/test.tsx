@@ -1,13 +1,12 @@
 import React from 'react';
 
 import { fireEvent, render } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
 
 import { useDatasourceAnalyticsEvents } from '../../../../analytics';
-
 import { CancelButton, type CancelButtonProps } from './index';
 
-jest.mock('../../../../analytics', () => ({
+jest.mock('../../../../analytics/index', () => ({
 	useDatasourceAnalyticsEvents: jest.fn(),
 }));
 

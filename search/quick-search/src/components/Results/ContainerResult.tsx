@@ -1,5 +1,6 @@
 import React from 'react';
-import Avatar from '@atlaskit/avatar';
+
+import Avatar from '@atlaskit/avatar/avatar';
 
 import ResultBase from './ResultBase';
 import { type CommonResultProps } from './types';
@@ -19,7 +20,7 @@ export type Props = CommonResultProps & {
  * Generic result type for Atlassian containers.
  */
 export default class ContainerResult extends React.PureComponent<Props> {
-	getAvatar = () => {
+	getAvatar = (): string | number | true | Iterable<React.ReactNode> | React.JSX.Element => {
 		if (this.props.avatar) {
 			return this.props.avatar;
 		}

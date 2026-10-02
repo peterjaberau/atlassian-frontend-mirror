@@ -4,11 +4,12 @@
 /* eslint-disable @atlaskit/design-system/no-css-tagged-template-expression */
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import { css } from '@emotion/react';
+import { css, type SerializedStyles } from '@emotion/react';
 
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
 import {
 	ANCHOR_VARIABLE_NAME,
+	DRAG_HANDLE_WIDTH,
 	tableMarginTop,
 	tableSharedStyle,
 	TableSharedCssClassName,
@@ -27,21 +28,18 @@ import {
 	MAX_BROWSER_SCROLLBAR_HEIGHT,
 	SelectionStyle,
 	relativeSizeToBaseFontSize,
-	relativeFontSizeToBase16,
 	akEditorSelectedBorderColor,
 } from '@atlaskit/editor-shared-styles';
+import { akEditorTableContainerBg } from '@atlaskit/editor-shared-styles/consts';
 import { scrollbarStyles } from '@atlaskit/editor-shared-styles/scrollbar';
 import { hideNativeBrowserTextSelectionStyles } from '@atlaskit/editor-shared-styles/selection';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { N0, N40A, R500 } from '@atlaskit/theme/colors';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
 import { token } from '@atlaskit/tokens';
 
 import { SORTING_ICON_CLASS_NAME } from '../pm-plugins/view-mode-sort/consts';
 import { TableCssClassName as ClassName } from '../types';
-
 import {
 	aboveNativeStickyHeaderZIndex,
 	belowNativeStickyHeaderZIndex,
@@ -67,7 +65,6 @@ import {
 	tableHeaderCellBackgroundColor,
 	tableHeaderCellSelectedColor,
 	tableInsertColumnButtonSize,
-	tableOverflowShadowWidth,
 	tablePadding,
 	tableScrollbarOffset,
 	tableTextColor,
@@ -75,6 +72,7 @@ import {
 	tableToolbarSelectedColor,
 	tableToolbarSize,
 } from './consts';
+import { roundedTableOverrides } from './rounded-table-styles';
 import {
 	columnControlsDecoration,
 	columnControlsLineMarker,
@@ -92,7 +90,6 @@ import {
 	insertLine,
 	InsertMarker,
 	insertRowButtonWrapper,
-	OverflowShadow,
 	resizeHandle,
 	rowControlsWrapperDotStyle,
 } from './ui-styles';
@@ -104,7 +101,8 @@ const cornerControlHeight = tableToolbarSize + 1;
   that is aligned to the right edge initially on hover of the top right column control when table overflown,
   its center should be aligned with the edge
 */
-export const insertColumnButtonOffset = tableInsertColumnButtonSize / 2;
+
+export const insertColumnButtonOffset: number = tableInsertColumnButtonSize / 2;
 export const tableRowHeight = 44;
 
 // Shared styling for numbered column buttons in selected state
@@ -114,7 +112,7 @@ const numberedColumnButtonSelectedStyles = `
 	background-color: ${tableToolbarSelectedColor};
 	position: relative;
 	z-index: ${akEditorUnitZIndex};
-	color: ${token('color.text.selected', N0)};
+	color: ${token('color.text.selected')};
 `;
 
 const rangeSelectionStyles = `
@@ -131,11 +129,43 @@ const rangeSelectionStyles = `
 }
 `;
 
+// Q4 path: node selection is painted by roundedTableSelectedNodeStyles() (the .selectedCell model),
+// so getSelectionStyles is omitted here and only native text-selection hiding is kept.
+const rangeSelectionStylesForRoundedTable = `
+.${ClassName.NODEVIEW_WRAPPER}.${akEditorSelectedNodeClassName} table tbody tr {
+  th,td {
+    ${hideNativeBrowserTextSelectionStyles}
+  }
+}
+`;
+
 const rangeSelectionStylesForFakeBorders = `
 .${ClassName.NODEVIEW_WRAPPER}.${akEditorSelectedNodeClassName} .${TableSharedCssClassName.TABLE_LEFT_BORDER},
 .${ClassName.NODEVIEW_WRAPPER}.${akEditorSelectedNodeClassName} .${TableSharedCssClassName.TABLE_RIGHT_BORDER} {
 	  background: ${akEditorSelectedBorderColor};
 }
+`;
+
+// Once platform-dst-tokens-finesse is cleaned up, apply these styles unconditionally.
+// Keep this scoped to cell selection so actual focus rings, danger states, and table controls
+// continue to use their existing semantic colours.
+const selectedCellBorderStyles = (): SerializedStyles => css`
+	.${ClassName.TABLE_NODE_WRAPPER} > table > tbody > tr {
+		${!expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? `
+		> td.${ClassName.TABLE_CELL}.${ClassName.SELECTED_CELL}:not(.${ClassName.HOVERED_CELL_IN_DANGER}),
+		> th.${ClassName.TABLE_HEADER_CELL}.${ClassName.SELECTED_CELL}:not(.${ClassName.HOVERED_CELL_IN_DANGER}) {
+			border-color: ${token('color.border.selected')};
+		}`
+			: ''}
+
+		> td.${ClassName.TABLE_CELL}.${ClassName.SELECTED_CELL}:not(.${ClassName.HOVERED_CELL_IN_DANGER})::after,
+		> th.${ClassName.TABLE_HEADER_CELL}.${ClassName.SELECTED_CELL}:not(.${ClassName.HOVERED_CELL_IN_DANGER})::after,
+		> td.${ClassName.TABLE_CELL}.${ClassName.ACTIVE_CURSOR_CELL}::after,
+		> th.${ClassName.TABLE_HEADER_CELL}.${ClassName.ACTIVE_CURSOR_CELL}::after {
+			border-color: ${token('color.border.selected')};
+		}
+	}
 `;
 
 const sentinelStyles = `.${ClassName.TABLE_CONTAINER} {
@@ -195,23 +225,6 @@ const stickyScrollbarContainerStyles = `.${ClassName.TABLE_CONTAINER} {
 }`;
 
 const stickyScrollbarStyles = `${stickyScrollbarContainerStyles} ${stickyScrollbarSentinelStyles}`;
-
-const shadowSentinelStyles = `
-  .${ClassName.TABLE_SHADOW_SENTINEL_LEFT},
-  .${ClassName.TABLE_SHADOW_SENTINEL_RIGHT} {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 1px;
-    visibility: hidden;
-  }
-  .${ClassName.TABLE_SHADOW_SENTINEL_LEFT} {
-    left: 0;
-  }
-  .${ClassName.TABLE_SHADOW_SENTINEL_RIGHT} {
-    right: 0;
-  }
-`;
 
 const breakoutWidthStyling = () => {
 	return css`
@@ -294,9 +307,7 @@ const tableStickyHeaderColumnControlsDecorationsStyle = () => {
 };
 
 const tableStickyHeaderFirefoxFixStyle = () => {
-	const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-		? getBrowserInfo()
-		: browserLegacy;
+	const browser = getBrowserInfo();
 	/*
 	This is MAGIC!
 	This fixes a bug which occurs in firefox when the first row becomes sticky.
@@ -321,18 +332,44 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	${hoveredWarningCell};
 	${insertLine()};
 	${resizeHandle()};
-	${rangeSelectionStyles};
+	${
+		// Only block getSelectionStyles when our replacement (gated by q4) owns the
+		// decoration, so node selection is never left unstyled.
+		expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? rangeSelectionStylesForRoundedTable
+			: rangeSelectionStyles
+	};
 	${rangeSelectionStylesForFakeBorders};
 	${viewModeSortStyles()};
+
+	${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+		? `
+		.ak-editor-panel:not([data-panel-type="custom"]) .${ClassName.TABLE_CONTAINER} {
+			${akEditorTableContainerBg}: ${token('color.background.accent.blue.subtlest')};
+		}
+		.ak-editor-panel[data-panel-type="note"] .${ClassName.TABLE_CONTAINER} {
+			${akEditorTableContainerBg}: ${token('color.background.accent.purple.subtlest')};
+		}
+		.ak-editor-panel[data-panel-type="tip"] .${ClassName.TABLE_CONTAINER} {
+			${akEditorTableContainerBg}: ${token('color.background.accent.green.subtlest')};
+		}
+		.ak-editor-panel[data-panel-type="warning"] .${ClassName.TABLE_CONTAINER} {
+			${akEditorTableContainerBg}: ${token('color.background.accent.yellow.subtlest')};
+		}
+		.ak-editor-panel[data-panel-type="error"] .${ClassName.TABLE_CONTAINER} {
+			${akEditorTableContainerBg}: ${token('color.background.accent.red.subtlest')};
+		}
+		.ak-editor-panel[data-panel-type="success"] .${ClassName.TABLE_CONTAINER} {
+			${akEditorTableContainerBg}: ${token('color.background.accent.green.subtlest')};
+		}
+	`
+		: ''}
+
 	${expValEquals(
 		'platform_editor_table_sticky_header_improvements',
 		'cohort',
 		'test_with_overflow',
 	) && tableAnchorStyles};
-
-	.${ClassName.LAST_ITEM_IN_CELL} {
-		margin-bottom: 0;
-	}
 
 	.${ClassName.TABLE_NODE_WRAPPER} {
 		td.${ClassName.TABLE_CELL}, th.${ClassName.TABLE_HEADER_CELL} {
@@ -375,37 +412,44 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	/* Ends Delete button */
 
 	/* sticky styles */
-	${fg('platform_editor_nested_tables_sticky_header_bug')
-		? `
-		.${ClassName.TABLE_STICKY} > .${props.isDragAndDropEnabled ? ClassName.DRAG_ROW_CONTROLS_WRAPPER : ClassName.ROW_CONTROLS_WRAPPER} .${ClassName.NUMBERED_COLUMN} .${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
-			margin-top: ${stickyRowOffsetTop}px;
-			width: ${akEditorTableNumberColumnWidth}px;
+	.${ClassName.TABLE_STICKY} > .${props.isDragAndDropEnabled
+		? ClassName.DRAG_ROW_CONTROLS_WRAPPER
+		: ClassName.ROW_CONTROLS_WRAPPER} .${ClassName.NUMBERED_COLUMN} .${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
+		margin-top: ${stickyRowOffsetTop}px;
+		width: ${akEditorTableNumberColumnWidth}px;
 
-			position: fixed !important;
-			z-index: ${akEditorStickyHeaderZIndex} !important;
-			box-shadow: 0px -${stickyRowOffsetTop}px ${token('elevation.surface', 'white')};
-			border-right: 0 none;
-			/* top set by NumberColumn component */
-		}
-		`
-		: `
-    	.${ClassName.TABLE_STICKY} .${ClassName.NUMBERED_COLUMN} .${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
-			margin-top: ${stickyRowOffsetTop}px;
-			width: ${akEditorTableNumberColumnWidth}px;
+		position: fixed !important;
+		z-index: ${akEditorStickyHeaderZIndex} !important;
+		box-shadow: 0px -${stickyRowOffsetTop}px
+			${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+				? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+				: token('elevation.surface')};
+		border-right: 0 none;
+		${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? `
+			width: ${akEditorTableNumberColumnWidth + 1}px;
+			border-left: 1px solid ${tableBorderColor};
 
-			position: fixed !important;
-			z-index: ${akEditorStickyHeaderZIndex} !important;
-			box-shadow: 0px -${stickyRowOffsetTop}px ${token('elevation.surface', 'white')};
-			border-right: 0 none;
-			/* top set by NumberColumn component */
-		}
-		`}
+			/* Keep the new fixed left border in sync with the selected/danger states,
+			   which would otherwise leave it the default colour (.active recolours the
+			   rest of the border) or drop it entirely (delete-hover sets border-left: 0). */
+			&.active {
+				border-left-color: ${tableBorderSelectedColor};
+			}
+			&.${ClassName.HOVERED_CELL_IN_DANGER} {
+				border-left: 1px solid ${tableBorderDeleteColor};
+			}
+			`
+			: ''}/* top set by NumberColumn component */
+	}
 
 	.${ClassName.TABLE_STICKY} .${ClassName.CORNER_CONTROLS}.sticky {
 		position: fixed !important;
 		/* needs to be above row controls */
 		z-index: ${akEditorSmallZIndex} !important;
-		background: ${token('elevation.surface', 'white')};
+		background: ${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+			? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+			: token('elevation.surface')};
 
 		width: ${tableToolbarSize}px;
 		height: ${tableToolbarSize}px;
@@ -429,13 +473,19 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		position: fixed !important;
 		z-index: ${akEditorStickyHeaderZIndex} !important;
 		display: flex;
-		border-left: ${tableToolbarSize}px solid ${token('elevation.surface', 'white')};
+		border-left: ${tableToolbarSize}px solid
+			${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+				? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+				: token('elevation.surface')};
 		margin-left: -${tableToolbarSize}px;
 	}
 
 	.${ClassName.TABLE_STICKY} col:first-of-type {
 		/* moving rows out of a table layout does weird things in Chrome */
-		border-right: 1px solid ${token('elevation.surface', 'green')};
+		border-right: 1px solid
+			${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+				? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+				: token('elevation.surface')};
 	}
 
 	tr.sticky {
@@ -452,26 +502,17 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		grid-auto-flow: column;
 
 		/* background for where controls apply */
-		background: ${token('elevation.surface', 'white')};
+		background: ${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+			? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+			: token('elevation.surface')};
 		box-sizing: content-box;
-		box-shadow: 0 6px 4px -4px ${token('elevation.shadow.overflow.perimeter', N40A)};
+		box-shadow: 0 6px 4px -4px ${token('elevation.shadow.overflow.perimeter')};
 
 		margin-left: -1px;
 
 		&.no-pointer-events {
 			pointer-events: none;
 		}
-	}
-
-	.${ClassName.TABLE_STICKY} .${ClassName.TABLE_STICKY_SHADOW} {
-		left: unset;
-		position: fixed;
-		/* needs to be above sticky header row and below date and other nodes popups that are inside sticky header */
-		z-index: ${akEditorTableCellOnStickyHeaderZIndex};
-	}
-
-	.${ClassName.WITH_CONTROLS}.${ClassName.TABLE_STICKY} .${ClassName.TABLE_STICKY_SHADOW} {
-		padding-bottom: ${tableToolbarSize}px;
 	}
 
 	.tableView-content-wrap:has(.tableView-content-wrap):has(
@@ -502,6 +543,38 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	.${ClassName.TABLE_STICKY} tr.sticky::after {
 		content: ' ';
 		width: ${insertColumnButtonOffset + 1}px;
+	}
+
+	/* use :before element to hide table row insert dots when legacy table sticky header is activated */
+	.${ClassName.TABLE_CONTAINER}.${ClassName.TABLE_STICKY}:has(tr.sticky)::before {
+		content: ' ';
+		position: sticky;
+		pointer-events: none;
+		top: 0;
+		float: left;
+		transform: translateX(calc(-1 * (${DRAG_HANDLE_WIDTH}px + ${token('space.150')})));
+		margin-bottom: calc(
+			-1 * (${token('space.400')} - 1px + ${token('space.200')} + ${token('space.300')})
+		);
+		height: calc(${token('space.400')} - 1px + ${token('space.200')} + ${token('space.300')});
+		width: calc(${DRAG_HANDLE_WIDTH}px + ${token('space.150')});
+		background: linear-gradient(
+			to bottom,
+			${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+					? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+					: token('elevation.surface')}
+				90%,
+			transparent
+		);
+		z-index: ${rowControlsZIndex + 5};
+	}
+	/* Shift the mask left by the numbered column width so it sits to the left of it. */
+	.${ClassName.TABLE_CONTAINER}.${ClassName.TABLE_STICKY}[data-number-column='true']:has(tr.sticky)::before {
+		transform: translateX(
+			calc(
+				-1 * (${DRAG_HANDLE_WIDTH}px + ${token('space.150')} + ${akEditorTableNumberColumnWidth}px)
+			)
+		);
 	}
 
 	/* To fix jumpiness caused in Chrome Browsers for sticky headers */
@@ -535,33 +608,36 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	tr.${ClassName.NATIVE_STICKY} {
 		position: sticky;
 		top: ${tableMarginTop}px;
-		z-index: calc(${akEditorTableCellOnStickyHeaderZIndex} - 5);
+		z-index: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? akEditorSmallZIndex
+			: `calc(${akEditorTableCellOnStickyHeaderZIndex} - 5)`};
 		box-shadow:
 			inset -1px 1px ${tableBorderColor},
 			inset 1px -1px ${tableBorderColor};
 
 		&.${ClassName.NATIVE_STICKY_ACTIVE} {
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? `z-index: ${nativeStickyHeaderZIndex};`
+				: ''}
 			box-shadow:
 				inset -1px 1px ${tableBorderColor},
 				inset 1px -1px ${tableBorderColor},
 				0 6px 4px -4px ${token('elevation.shadow.overflow.perimeter')};
 		}
 
-		${fg('platform_editor_table_sticky_header_patch_1')
-			? `th.${ClassName.TABLE_HEADER_CELL}::after {
-				height: 100%;
-				content: '';
-				border-left: 1px solid ${tableBorderColor};
-				border-bottom: 1px solid ${tableBorderColor};
-				position: absolute;
-				right: 0px;
-				top: 0px;
-				bottom: 0;
-				width: 100%;
-				display: inline-block;
-				pointer-events: none;
-			}`
-			: ``}
+		th.${ClassName.TABLE_HEADER_CELL}::after {
+			height: 100%;
+			content: '';
+			border-left: 1px solid ${tableBorderColor};
+			border-bottom: 1px solid ${tableBorderColor};
+			position: absolute;
+			right: 0px;
+			top: 0px;
+			bottom: 0;
+			width: 100%;
+			display: inline-block;
+			pointer-events: none;
+		}
 	}
 
 	/** Adds mask above sticky header to prevent table content from bleeding through on scroll */
@@ -574,26 +650,38 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		height: 0;
 		margin-bottom: -${tableMarginTop}px;
 		position: sticky;
-		border-top: ${tableMarginTop}px solid ${token('elevation.surface')};
+		border-top: ${tableMarginTop}px solid transparent;
 		z-index: ${stickyRowZIndex};
 	}
 
-	/** When cleaning up, merge this with the mask style above */
-	${fg('platform_editor_table_sticky_header_patch_2')
-		? `
-		.${ClassName.TABLE_NODE_WRAPPER}:has(tr.${ClassName.NATIVE_STICKY})::before {
-			border-top: ${tableMarginTop}px solid transparent;
-		}
+	.${ClassName.TABLE_NODE_WRAPPER}:has(tr.${ClassName.NATIVE_STICKY_ACTIVE})::before {
+		border-top: ${tableMarginTop}px solid
+			${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+				? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+				: token('elevation.surface')};
+	}
 
-		.${ClassName.TABLE_NODE_WRAPPER}:has(tr.${ClassName.NATIVE_STICKY_ACTIVE})::before {
-			border-top: ${tableMarginTop}px solid ${token('elevation.surface')};
-		}`
-		: fg('platform_editor_table_sticky_header_patch_1')
-			? `
-			.${ClassName.TABLE_NODE_WRAPPER}:has(tr.${ClassName.NATIVE_STICKY})::before {
-				margin-top: 1px;
-			}`
-			: ``}
+	${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true) &&
+	isExperimentEnabled('platform_editor_table_q4_patch_8')
+		? `
+	/* Borders floor to device pixels at fractional zoom; overlap the sticky row by 1px to avoid a seam. */
+	.${ClassName.TABLE_NODE_WRAPPER}:has(tr.${ClassName.NATIVE_STICKY})::before {
+		border-top: none;
+		height: ${tableMarginTop + 1}px;
+		margin-bottom: -${tableMarginTop + 1}px;
+		background: transparent;
+	}
+
+	.${ClassName.TABLE_NODE_WRAPPER}:has(tr.${ClassName.NATIVE_STICKY_ACTIVE})::before {
+		border-top: none;
+		background: ${
+			expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+				? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+				: token('elevation.surface')
+		};
+	}
+	`
+		: ''}
 
 	/** Corrects position of drag row controls when sticky header top mask is present */
 	.${ClassName.TABLE_CONTAINER}:has(.${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW})
@@ -604,13 +692,10 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		z-index: ${aboveNativeStickyHeaderZIndex};
 	}
 
-	${fg('platform_editor_table_sticky_header_patch_7')
-		? `
-		.${ClassName.DRAG_ROW_CONTROLS_WRAPPER}:has(~ .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW}) {
-			margin-top: 0;
-		}
-	`
-		: ``}
+	.${ClassName.TABLE_CONTAINER}:has(> .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW})
+		> .${ClassName.DRAG_ROW_CONTROLS_WRAPPER} {
+		margin-top: 0;
+	}
 
 	.${ClassName.TABLE_CONTAINER}[data-table-header-is-stuck='true']:has(.${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW})
 		> .${ClassName.DRAG_ROW_CONTROLS_WRAPPER}
@@ -620,11 +705,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	}
 
 	/** Corrects position of numbered column when sticky header top mask is present */
-	.${ClassName.TABLE_CONTAINER}:has(.${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} ${fg(
-			'platform_editor_table_sticky_header_patch_4',
-		)
-			? `tr.${ClassName.NATIVE_STICKY}`
-			: ''})
+	.${ClassName.TABLE_CONTAINER}:has(.${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr.${ClassName.NATIVE_STICKY})
 		> .${ClassName.DRAG_ROW_CONTROLS_WRAPPER}
 		> div
 		> .${ClassName.NUMBERED_COLUMN} {
@@ -660,34 +741,22 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		padding-top: ${tableControlsSpacing}px;
 	}
 
-	${fg('platform_editor_nested_tables_sticky_header_bug')
-		? `
-		.${ClassName.WITH_CONTROLS}.${ClassName.TABLE_STICKY} > .${ClassName.DRAG_ROW_CONTROLS_WRAPPER}
-			.${ClassName.NUMBERED_COLUMN}
-			.${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
-			margin-top: ${tableControlsSpacing}px;
-		}
-		`
-		: `
-		.${ClassName.WITH_CONTROLS}.${ClassName.TABLE_STICKY}
-			.${ClassName.NUMBERED_COLUMN}
-			.${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
-			margin-top: ${tableControlsSpacing}px;
-		}
-		`}
+	.${ClassName.WITH_CONTROLS}.${ClassName.TABLE_STICKY}
+		> .${ClassName.DRAG_ROW_CONTROLS_WRAPPER}
+		.${ClassName.NUMBERED_COLUMN}
+		.${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
+		margin-top: ${tableControlsSpacing}px;
+	}
 
 	.${ClassName.CORNER_CONTROLS}.sticky {
 		border-top: ${tableControlsSpacing - tableToolbarSize}px solid
-			${token('elevation.surface', 'white')};
+			${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+				? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+				: token('elevation.surface')};
 	}
 
 	${sentinelStyles}
-	${OverflowShadow(props.featureFlags?.tableDragAndDrop)}
-    ${stickyScrollbarStyles}
-
-    .${ClassName.TABLE_STICKY} .${ClassName.TABLE_STICKY_SHADOW} {
-		height: 0; /* stop overflow flash & set correct height in update-overflow-shadows.ts */
-	}
+	${stickyScrollbarStyles}
 
 	.less-padding {
 		padding: 0 ${tablePadding}px;
@@ -718,24 +787,6 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		&.${ClassName.TABLE_CONTAINER}[data-number-column='true'] {
 			padding-left: ${akEditorTableNumberColumnWidth + tablePadding - 1}px;
 		}
-		.${ClassName.TABLE_LEFT_SHADOW}, .${ClassName.TABLE_RIGHT_SHADOW} {
-			width: ${tableOverflowShadowWidth}px;
-		}
-
-		.${ClassName.TABLE_LEFT_SHADOW} {
-			left: 6px;
-		}
-		.${ClassName.TABLE_LEFT_SHADOW}.${ClassName.TABLE_CHROMELESS} {
-			left: 8px;
-		}
-
-		.${ClassName.TABLE_RIGHT_SHADOW} {
-			left: calc(100% - 6px);
-		}
-		.${ClassName.TABLE_RIGHT_SHADOW}.${ClassName.TABLE_CHROMELESS} {
-			left: calc(100% - 16px);
-		}
-
 		.${TableSharedCssClassName.TABLE_LEFT_BORDER} {
 			left: 8px;
 		}
@@ -896,7 +947,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			position: absolute;
 			bottom: -3px;
 			left: 2px;
-			background-color: ${token('color.background.accent.gray.subtler', '#C1C7D0')};
+			background-color: ${token('color.background.accent.gray.subtler')};
 			height: 4px;
 			width: 4px;
 			border-radius: 50%;
@@ -908,7 +959,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		.${ClassName.DRAG_COLUMN_CONTROLS_INNER} {
 			height: ${tableColumnControlsHeight}px;
 			position: absolute;
-			top: ${token('space.negative.150', '-12px')};
+			top: ${token('space.negative.150')};
 			z-index: ${resizeHandlerZIndex};
 		}
 
@@ -919,7 +970,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		}
 
 		.${ClassName.DRAG_COLUMN_FLOATING_INSERT_DOT} {
-			background-color: ${token('color.background.accent.gray.subtler', '#C1C7D0')};
+			background-color: ${token('color.background.accent.gray.subtler')};
 			height: 4px;
 			width: 4px;
 			border-radius: 50%;
@@ -952,7 +1003,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		padding: 0;
 		border-radius: 6px;
 		width: max-content;
-		border: 2px solid ${token('elevation.surface', N0)};
+		border: 2px solid ${token('elevation.surface')};
 
 		display: flex;
 		justify-content: center;
@@ -969,13 +1020,13 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			cursor: pointer;
 			& svg {
 				& > rect.${ClassName.DRAG_HANDLE_MINIMISED} {
-					fill: ${token('color.background.accent.gray.subtler', '#DCDFE4')};
+					fill: ${token('color.background.accent.gray.subtler')};
 				}
 				& > rect {
-					fill: ${token('color.background.accent.gray.subtlest', '#F4F5F7')};
+					fill: ${token('color.background.accent.gray.subtlest')};
 				}
 				& > g > rect {
-					fill: ${token('color.icon.disabled', '#BFDBF847')};
+					fill: ${token('color.icon.disabled')};
 				}
 			}
 		}
@@ -983,20 +1034,20 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		&:not(.${ClassName.DRAG_HANDLE_DISABLED}) {
 			& svg {
 				rect {
-					fill: ${token('color.background.accent.gray.subtler', '#DCDFE4')};
+					fill: ${token('color.background.accent.gray.subtler')};
 				}
 				g {
-					fill: ${token('color.icon.subtle', '#626f86')};
+					fill: ${token('color.icon.subtle')};
 				}
 			}
 
 			&:hover {
 				svg {
 					rect {
-						fill: ${token('color.background.accent.blue.subtle', '#579DFF')};
+						fill: ${token('color.background.accent.blue.subtle')};
 					}
 					g {
-						fill: ${token('color.icon.inverse', '#FFF')};
+						fill: ${token('color.icon.inverse')};
 					}
 				}
 			}
@@ -1007,7 +1058,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 
 			&.selected {
 				:focus {
-					outline: 2px solid ${token('color.border.focused', '#2684FF')};
+					outline: 2px solid ${token('color.border.focused')};
 					outline-offset: 1px;
 				}
 
@@ -1017,10 +1068,10 @@ const baseTableStylesWithoutSharedStyle = (props: {
 
 				svg {
 					rect {
-						fill: ${token('color.background.accent.blue.subtle', '#579dff')};
+						fill: ${token('color.background.accent.blue.subtle')};
 					}
 					g {
-						fill: ${token('color.icon.inverse', '#fff')};
+						fill: ${token('color.icon.inverse')};
 					}
 				}
 			}
@@ -1028,10 +1079,10 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			&.danger {
 				svg {
 					rect {
-						fill: ${token('color.background.accent.red.subtler.pressed', '#F87462')};
+						fill: ${token('color.background.accent.red.subtler.pressed')};
 					}
 					g {
-						fill: ${token('color.border.inverse', '#FFF')};
+						fill: ${token('color.border.inverse')};
 					}
 				}
 			}
@@ -1050,9 +1101,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		position: relative;
 		float: right;
 		margin-left: ${akEditorTableToolbarSize}px;
-		top: ${props.isDragAndDropEnabled || editorExperiment('support_table_in_comment_jira', true)
-			? 0
-			: akEditorTableToolbarSize}px;
+		top: ${props.isDragAndDropEnabled ? 0 : akEditorTableToolbarSize}px;
 		width: ${akEditorTableNumberColumnWidth + 1}px;
 		box-sizing: border-box;
 	}
@@ -1062,18 +1111,9 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		box-sizing: border-box;
 		margin-top: -1px;
 		padding-bottom: 2px;
-		padding: ${expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-			(expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-				fg('platform_editor_content_mode_button_mvp'))
-				? relativeSizeToBaseFontSize(10)
-				: `10px`}
-			2px;
+		padding: ${relativeSizeToBaseFontSize(10)} 2px;
 		text-align: center;
-		font-size: ${expValEquals('confluence_compact_text_format', 'isEnabled', true) ||
-		(expValEquals('cc_editor_ai_content_mode', 'variant', 'test') &&
-			fg('platform_editor_content_mode_button_mvp'))
-			? relativeSizeToBaseFontSize(14)
-			: relativeFontSizeToBase16(14)};
+		font-size: ${relativeSizeToBaseFontSize(14)};
 		background-color: ${tableHeaderCellBackgroundColor};
 		color: ${tableTextColor};
 		border-color: ${tableBorderColor};
@@ -1089,39 +1129,23 @@ const baseTableStylesWithoutSharedStyle = (props: {
 
 	/* add a background above the first numbered column cell when sticky header is engaged
 	which hides the table when scrolling */
-	${fg('platform_editor_nested_tables_sticky_header_bug')
-		? `
-		.${ClassName.TABLE_STICKY} > .${props.isDragAndDropEnabled ? ClassName.DRAG_ROW_CONTROLS_WRAPPER : ClassName.ROW_CONTROLS_WRAPPER} {
-				.${ClassName.NUMBERED_COLUMN_BUTTON_DISABLED}:first-of-type::after {
-				content: '';
-				display: block;
-				height: 33px;
-				width: 100%;
-				background-color: ${token('elevation.surface', 'white')};
-				position: absolute;
+	.${ClassName.TABLE_STICKY}
+		> .${props.isDragAndDropEnabled
+			? ClassName.DRAG_ROW_CONTROLS_WRAPPER
+			: ClassName.ROW_CONTROLS_WRAPPER} {
+		.${ClassName.NUMBERED_COLUMN_BUTTON_DISABLED}:first-of-type::after {
+			content: '';
+			display: block;
+			height: 33px;
+			width: 100%;
+			background-color: ${token('elevation.surface')};
+			position: absolute;
 
-				/* the extra pixel is accounting for borders */
-				top: -34px;
-				left: -1px;
-			}
+			/* the extra pixel is accounting for borders */
+			top: -34px;
+			left: -1px;
 		}
-		`
-		: `
-		.${ClassName.TABLE_STICKY} {
-			.${ClassName.NUMBERED_COLUMN_BUTTON_DISABLED}:first-of-type::after {
-				content: '';
-				display: block;
-				height: 33px;
-				width: 100%;
-				background-color: ${token('elevation.surface', 'white')};
-				position: absolute;
-
-				/* the extra pixel is accounting for borders */
-				top: -34px;
-				left: -1px;
-			}
-		}
-		`}
+	}
 
 	.${ClassName.WITH_CONTROLS} {
 		.${ClassName.CORNER_CONTROLS}, .${ClassName.ROW_CONTROLS} {
@@ -1147,8 +1171,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		}
 	}
 
-	${expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-		? `/* Apply numbered column styling when table is selected via text selection (e.g., block menu) */
+	/* Apply numbered column styling when table is selected via text selection (e.g., block menu) */
 	.${akEditorSelectedNodeClassName} {
 		.${ClassName.NUMBERED_COLUMN} {
 			.${ClassName.NUMBERED_COLUMN_BUTTON} {
@@ -1156,8 +1179,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 				${hideNativeBrowserTextSelectionStyles}
 			}
 		}
-	}`
-		: ''}
+	}
 
 	:not(.${ClassName.IS_RESIZING}) .${ClassName.WITH_CONTROLS} {
 		.${ClassName.NUMBERED_COLUMN_BUTTON}:not(.${ClassName.NUMBERED_COLUMN_BUTTON_DISABLED}) {
@@ -1170,26 +1192,24 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			background-color: ${tableToolbarDeleteColor};
 			border: 1px solid ${tableBorderDeleteColor};
 			border-left: 0;
-			color: ${token('color.text.danger', R500)};
+			color: ${token('color.text.danger')};
 			position: relative;
 			z-index: ${akEditorUnitZIndex};
 		}
 	}
 
-	${expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)
-		? `.tableView-content-wrap.danger {
+	.tableView-content-wrap.danger {
 		:not(.${ClassName.IS_RESIZING}) .${ClassName.WITH_CONTROLS} {
 			.${ClassName.NUMBERED_COLUMN_BUTTON} {
 				background-color: ${tableToolbarDeleteColor};
 				border: 1px solid ${tableBorderDeleteColor};
 				border-left: 0;
-				color: ${token('color.text.danger', R500)};
+				color: ${token('color.text.danger')};
 				position: relative;
 				z-index: ${akEditorUnitZIndex};
 			}
 		}
-	}`
-		: ''}
+	}
 
 	/* Table */
 	.${ClassName.TABLE_NODE_WRAPPER} > table {
@@ -1243,7 +1263,9 @@ const baseTableStylesWithoutSharedStyle = (props: {
 			pointer-events: none;
 		}
 		.${ClassName.SELECTED_CELL} {
-			border: 1px solid ${tableBorderSelectedColor};
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? '' /* Cell borders handled by ::after overlay in rounded mode. */
+				: `border: 1px solid ${tableBorderSelectedColor};`}
 		}
 		.${ClassName.SELECTED_CELL}::after {
 			background: ${tableCellSelectedColor};
@@ -1252,8 +1274,10 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		/* Override border colors for danger state */
 		th.${ClassName.TABLE_HEADER_CELL}.${ClassName.HOVERED_CELL_IN_DANGER},
 			td.${ClassName.TABLE_CELL}.${ClassName.HOVERED_CELL_IN_DANGER} {
-			border-left-color: ${tableBorderDeleteColor};
-			border-top-color: ${tableBorderDeleteColor};
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? '' /* Cell border colors are handled by the ::after overlay in rounded mode. */
+				: `border-left-color: ${tableBorderDeleteColor};
+			border-top-color: ${tableBorderDeleteColor};`}
 			&::after {
 				height: 100%;
 				width: 100%;
@@ -1300,6 +1324,10 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		}
 	}
 
+	${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+		? roundedTableOverrides()
+		: ''}
+
 	/* override for DnD controls */
 	.${ClassName.DRAG_ROW_CONTROLS_WRAPPER} {
 		position: absolute;
@@ -1324,39 +1352,39 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		`}
 	}
 
-	.${ClassName.DRAG_ROW_CONTROLS_WRAPPER}.${ClassName.TABLE_LEFT_SHADOW},
-		.${ClassName.ROW_CONTROLS_WRAPPER}.${ClassName.TABLE_LEFT_SHADOW} {
-		z-index: ${akEditorUnitZIndex};
-	}
-
 	.${ClassName.DRAG_COLUMN_CONTROLS_WRAPPER} {
 		position: absolute;
 		top: ${tableMarginTop}px;
 	}
 
-	${fg('platform_editor_table_sticky_header_patch_1')
-		? `
 	.${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} > .${ClassName.DRAG_COLUMN_CONTROLS_WRAPPER} {
 		/* +2px is to overlap the table border on the sides */
 		width: calc(anchor-size(width) + 2px);
-		height: ${tableMarginTop}px;
-		background: ${token('elevation.surface')};
+		height: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true) &&
+		isExperimentEnabled('platform_editor_table_q4_patch_8')
+			? tableMarginTop - 1
+			: tableMarginTop}px;
+		background: ${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+			? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+			: token('elevation.surface')};
 		top: unset;
 		position: fixed;
 		position-area: top center;
 		position-visibility: anchors-visible;
 		z-index: ${nativeStickyHeaderZIndex + 1};
-	}`
-		: `.${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} > .${ClassName.DRAG_COLUMN_CONTROLS_WRAPPER} {
-		/* +2px is to overlap the table border on the sides */
-		width: calc(anchor-size(width) + 2px);
-		height: ${tableMarginTop}px;
-		background: ${token('elevation.surface')};
-		position: fixed;
-		position-area: top center;
-		position-visibility: anchors-visible;
-		z-index: ${nativeStickyHeaderZIndex + 1};
-	}`}
+		${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? isExperimentEnabled('platform_editor_table_q4_patch_8')
+				? `
+		/* Transparent bottom 1px so the sticky header row's top border stays visible. */
+		padding-bottom: 1px;
+		background-clip: content-box;
+		/* Chrome can fall back to start alignment after zoom, covering the header. */
+		align-self: unsafe end;`
+				: `
+		/* Leave a 1px gap so the sticky header row's top border stays visible. */
+		translate: 0 -1px;`
+			: ``}
+	}
 
 	/** Mask for content to the left of the column controls */
 
@@ -1366,8 +1394,13 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		display: inline-block;
 		margin-left: -${akEditorTableNumberColumnWidth + dragRowControlsWidth}px;
 		width: ${akEditorTableNumberColumnWidth + dragRowControlsWidth}px;
-		height: ${tableMarginTop}px;
-		background: ${token('elevation.surface')};
+		height: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true) &&
+		isExperimentEnabled('platform_editor_table_q4_patch_8')
+			? tableMarginTop - 1
+			: tableMarginTop}px;
+		background: ${expValEquals('platform_editor_nest_table_in_panel', 'isEnabled', true)
+			? `var(${akEditorTableContainerBg}, ${token('elevation.surface')})`
+			: token('elevation.surface')};
 		z-index: ${nativeStickyHeaderZIndex - 1};
 	}
 
@@ -1378,71 +1411,78 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		display: inline-block;
 		box-sizing: border-box;
 		left: 0;
-		width: ${akEditorTableNumberColumnWidth - 1}px;
-		height: 100%;
-		margin-left: -${akEditorTableNumberColumnWidth}px;
-		margin-top: -${stickyRowOffsetTop}px;
-		outline: ${expValEquals('platform_editor_table_sticky_header_patch_9', 'isEnabled', true)
-			? `0.5px solid ${tableBorderColor}`
-			: `1px solid ${tableBorderColor}`};
-		border-left: ${expValEquals('platform_editor_table_sticky_header_patch_9', 'isEnabled', true)
+		width: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? `${akEditorTableNumberColumnWidth}px`
+			: `${akEditorTableNumberColumnWidth - 1}px`};
+		height: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? 'calc(100% + 2px)'
+			: '100%'};
+		margin-left: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? `-${akEditorTableNumberColumnWidth + 1}px`
+			: `-${akEditorTableNumberColumnWidth}px`};
+		${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? // Anchor the mask with an explicit `top` so `vertical-align` (data-valign) on the cell
+				// doesn't shift it; the calc reproduces the previous top-aligned offset.
+				`top: calc(${token('space.100')} - ${stickyRowOffsetTop + 1}px);`
+			: `margin-top: -${stickyRowOffsetTop}px;`}
+		outline: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
 			? 'none'
-			: `1px solid ${tableBorderColor}`};
-		background: ${token('color.background.accent.gray.subtlest')};
-		${fg('platform_editor_table_sticky_header_patch_1')
-			? `border-top: 1px solid ${tableBorderColor};`
+			: `0.5px solid ${tableBorderColor}`};
+		border-left: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? `1px solid ${tableBorderColor}`
+			: 'none'};
+		${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? `border-bottom: 1px solid ${tableBorderColor};`
 			: ``}
-
-		${getBrowserInfo().gecko &&
-		expValEquals('platform_editor_table_sticky_header_patch_9', 'isEnabled', true)
-			? `border-top: 1px solid ${tableBorderColor};`
-			: `border-top: none;`}
+		background: ${token('color.background.accent.gray.subtlest')};
+		border-top: 1px solid ${tableBorderColor};
 	}
 
-	${fg('platform_editor_table_sticky_header_patch_7')
-		? `.ak-editor-selected-node .${ClassName.TABLE_CONTAINER}[data-number-column="true"]:not(.${ClassName.TABLE_SELECTED}) .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th:first-of-type {
-			&::before {
-				margin-top: 0;
-			}
-			&::after {
-				width: 100%;
-				border-left: 1px solid ${tableBorderSelectedColor};
-				background: ${tableCellSelectedColor};
-			}
-	}`
-		: ''}
+	.ak-editor-selected-node .${ClassName.TABLE_CONTAINER}[data-number-column="true"]:not(.${ClassName.TABLE_SELECTED}) .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th:first-of-type {
+		/* Recolour the number-column corner mask to match the selected cells. Keep this identical
+		   to the .selectedCell ::before rule below — never set margin-top (the base negative
+		   margin aligns the mask) or radius (rounded generically by data-reaches-* rules). */
+		&::before {
+			outline: none;
+			border-left-color: ${tableBorderSelectedColor};
+			${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+				? `border-bottom-color: ${tableBorderSelectedColor};`
+				: ''}
+			border-top-color: ${tableBorderSelectedColor};
+			background: ${tableHeaderCellSelectedColor};
+		}
+	}
 
 	.${ClassName.TABLE_CONTAINER}[data-number-column="true"].${ClassName.TABLE_SELECTED} .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.SELECTED_CELL}:not(.${ClassName.HOVERED_CELL_IN_DANGER}):first-of-type::before, .${ClassName.TABLE_CONTAINER}[data-number-column="true"] .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.SELECTED_CELL}:not(.${ClassName.HOVERED_CELL_IN_DANGER}, .${ClassName.COLUMN_SELECTED}):first-of-type::before {
 		outline: none;
 		border-left-color: ${tableBorderSelectedColor};
-		${fg('platform_editor_table_sticky_header_patch_1')
-			? `border-top-color: ${tableBorderSelectedColor};`
-			: ``}
+		${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? `border-bottom-color: ${tableBorderSelectedColor}`
+			: ''};
+		border-top-color: ${tableBorderSelectedColor};
 		background: ${tableHeaderCellSelectedColor};
 	}
 
-	${fg('platform_editor_table_sticky_header_patch_1')
-		? `.${ClassName.TABLE_CONTAINER}[data-number-column="true"] .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.HOVERED_CELL_IN_DANGER}:first-of-type::before, .${ClassName.TABLE_CONTAINER}[data-number-column="true"] .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.HOVERED_CELL_IN_DANGER}:not(.${ClassName.COLUMN_SELECTED}):first-of-type::before {
-			outline: none;
-			border-left: unset;
-			border-top: unset;
-			background: ${tableCellDeleteColor};
-		}
-		.${ClassName.TABLE_CONTAINER}[data-number-column="true"].${ClassName.TABLE_SELECTED}.${ClassName.HOVERED_DELETE_BUTTON} .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th:first-of-type::before, .${ClassName.TABLE_CONTAINER}[data-number-column="true"].${ClassName.HOVERED_DELETE_BUTTON} .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.SELECTED_CELL}:not(.${ClassName.COLUMN_SELECTED}):first-of-type::before {
+	.${ClassName.TABLE_CONTAINER}[data-number-column="true"] .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.HOVERED_CELL_IN_DANGER}:first-of-type::before, .${ClassName.TABLE_CONTAINER}[data-number-column="true"] .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.HOVERED_CELL_IN_DANGER}:not(.${ClassName.COLUMN_SELECTED}):first-of-type::before {
+		outline: none;
+		${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true)
+			? // Recolour the corner edges to the delete border and composite the translucent danger
+				// fill over the mask's gray so it matches the adjacent cells instead of reading as transparent.
+				`border-left: 1px solid ${tableBorderDeleteColor};
+						border-top: 1px solid ${tableBorderDeleteColor};
+						border-bottom: 1px solid ${tableBorderDeleteColor};
+						background-color: ${token('color.background.accent.gray.subtlest')};
+						background-image: linear-gradient(${tableCellDeleteColor}, ${tableCellDeleteColor});`
+			: `border-left: unset;
+					border-top: unset;
+					background: ${tableCellDeleteColor};`}
+	}
+	.${ClassName.TABLE_CONTAINER}[data-number-column="true"].${ClassName.TABLE_SELECTED}.${ClassName.HOVERED_DELETE_BUTTON} .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th:first-of-type::before, .${ClassName.TABLE_CONTAINER}[data-number-column="true"].${ClassName.HOVERED_DELETE_BUTTON} .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.SELECTED_CELL}:not(.${ClassName.COLUMN_SELECTED}):first-of-type::before {
 		outline: none;
 		border-left-color: ${tableBorderDeleteColor};
 		border-top-color: ${tableBorderDeleteColor};
 		background: ${tableCellDeleteColor};
-		}`
-		: `	.${ClassName.TABLE_CONTAINER}[data-number-column="true"] .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.HOVERED_CELL_IN_DANGER}:not(.${ClassName.COLUMN_SELECTED}):first-of-type::before {
-				outline: none;
-				background: ${tableCellDeleteColor};
-			}
-			.${ClassName.TABLE_CONTAINER}[data-number-column="true"].${ClassName.HOVERED_DELETE_BUTTON} .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} tr:first-of-type th.${ClassName.SELECTED_CELL}:not(.${ClassName.COLUMN_SELECTED}):first-of-type::before {
-				outline: none;
-				border-left-color: ${tableBorderDeleteColor};
-				background: ${tableCellDeleteColor};
-		}`}
+	}
 
 	.${ClassName.TABLE_CONTAINER}[data-number-column="true"] .${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} .${ClassName.NATIVE_STICKY_ACTIVE} th:first-of-type::before {
 		box-shadow: 0 6px 4px -4px ${token('elevation.shadow.overflow.perimeter')};
@@ -1451,7 +1491,10 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	.${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW}
 		.${ClassName.DRAG_COLUMN_CONTROLS_INNER}:not(.${ClassName.NESTED_TABLE_WITH_CONTROLS} *) {
 		/* !important to override the inline style in the inner controls component */
-		margin-top: ${tableMarginTop}px !important;
+		margin-top: ${expValEquals('platform_editor_table_q4_loveability', 'isEnabled', true) &&
+		isExperimentEnabled('platform_editor_table_q4_patch_8')
+			? tableMarginTop - 1
+			: tableMarginTop}px !important;
 	}
 
 	.${ClassName.TABLE_STICKY} .${ClassName.DRAG_COLUMN_CONTROLS_WRAPPER} {
@@ -1460,11 +1503,7 @@ const baseTableStylesWithoutSharedStyle = (props: {
 		z-index: ${akEditorTableCellOnStickyHeaderZIndex - 4};
 	}
 
-	${expValEquals(
-		'platform_editor_table_sticky_header_improvements',
-		'cohort',
-		'test_with_overflow',
-	) && fg('platform_editor_table_sticky_header_patch_6')
+	${expValEquals('platform_editor_table_sticky_header_improvements', 'cohort', 'test_with_overflow')
 		? `.${ClassName.TABLE_CONTAINER}.${ClassName.WITH_CONTROLS}:has(tr.sticky) .${ClassName.NUMBERED_COLUMN} .${ClassName.NUMBERED_COLUMN_BUTTON}:first-of-type {
 			box-shadow: 0 -5px 0 1px ${tableBorderColor};
 		}`
@@ -1489,13 +1528,16 @@ const baseTableStylesWithoutSharedStyle = (props: {
 	.${ClassName.TABLE_NODE_WRAPPER}.${ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW} {
 		overflow: visible;
 	}
+
+	${fg('platform-dst-tokens-finesse') ? selectedCellBorderStyles() : ''}
 `;
 
+// TODO: EDITOR-7593 - No usage found accross AFM, deprecate when EditorContentContainer in editor-core has finished compiled css migration under experiment 'platform_editor_core_static_css'
 // re-exporting these styles to use in Gemini test when table node view is rendered outside of PM
 export const baseTableStyles = (props: {
 	featureFlags?: FeatureFlags;
 	isDragAndDropEnabled?: boolean;
-}) => css`
+}): SerializedStyles => css`
 	${tableSharedStyle()};
 	${baseTableStylesWithoutSharedStyle(props)};
 `;
@@ -1504,11 +1546,9 @@ export const baseTableStyles = (props: {
 export const tableStyles = (props: {
 	featureFlags?: FeatureFlags;
 	isDragAndDropEnabled?: boolean;
-}) => css`
+}): SerializedStyles => css`
 	.ProseMirror {
-		${expValEquals('platform_editor_ssr_renderer', 'isEnabled', true)
-			? baseTableStylesWithoutSharedStyle(props)
-			: baseTableStyles(props)};
+		${baseTableStylesWithoutSharedStyle(props)};
 	}
 
 	.ProseMirror.${ClassName.IS_RESIZING} {
@@ -1521,12 +1561,10 @@ export const tableStyles = (props: {
 	.ProseMirror.${ClassName.RESIZE_CURSOR} {
 		cursor: col-resize;
 	}
-
-	${shadowSentinelStyles}
 `;
 
 // eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const tableFullPageEditorStyles = css`
+export const tableFullPageEditorStyles: SerializedStyles = css`
 	.ProseMirror .${ClassName.TABLE_NODE_WRAPPER} > table {
 		margin-left: 0;
 		/* 1px border width offset added here to prevent unwanted overflow and scolling - ED-16212 */
@@ -1536,7 +1574,7 @@ export const tableFullPageEditorStyles = css`
 `;
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const tableCommentEditorStyles = css`
+export const tableCommentEditorStyles: SerializedStyles = css`
 	.ProseMirror .${ClassName.TABLE_NODE_WRAPPER} > table {
 		margin-left: 0;
 		margin-right: 0;

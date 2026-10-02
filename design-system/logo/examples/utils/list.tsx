@@ -9,20 +9,12 @@ import {
 	AnalyticsLogo,
 	AssetsIcon,
 	AssetsLogo,
-	AtlasIcon,
-	AtlasLogo,
-	AtlassianAccessIcon,
-	AtlassianAccessLogo,
 	AtlassianAdminIcon,
 	AtlassianAdministrationIcon,
 	AtlassianAdministrationLogo,
 	AtlassianAdminLogo,
 	AtlassianAnalyticsIcon,
 	AtlassianAnalyticsLogo,
-	AtlassianIcon,
-	AtlassianLogo,
-	AtlassianMarketplaceIcon,
-	AtlassianMarketplaceLogo,
 	BambooIcon,
 	BambooLogo,
 	BitbucketDataCenterIcon,
@@ -42,6 +34,8 @@ import {
 	CustomerServiceManagementIcon,
 	CustomerServiceManagementLogo,
 	DxIcon,
+	FeedbackIcon,
+	FeedbackLogo,
 	FocusIcon,
 	FocusLogo,
 	GoalsIcon,
@@ -54,6 +48,7 @@ import {
 	HubLogo,
 	JiraAlignIcon,
 	JiraAlignLogo,
+	JiraCodingAgentIcon,
 	JiraDataCenterIcon,
 	JiraDataCenterLogo,
 	JiraIcon,
@@ -64,11 +59,6 @@ import {
 	JiraServiceManagementDataCenterLogo,
 	JiraServiceManagementIcon,
 	JiraServiceManagementLogo,
-	JiraSoftwareIcon,
-	JiraSoftwareLogo,
-	JiraWorkManagementIcon,
-	JiraWorkManagementLogo,
-	type LogoProps,
 	LoomAttributionIcon,
 	LoomAttributionLogo,
 	LoomBlurpleIcon,
@@ -98,14 +88,31 @@ import {
 	TrelloIcon,
 	TrelloLogo,
 } from '@atlaskit/logo';
+import { ArtifactsIcon } from '@atlaskit/logo/artifacts/icon';
+import { ArtifactsLogo } from '@atlaskit/logo/artifacts/logo';
+import { AtlasIcon } from '@atlaskit/logo/atlas-icon';
+import { AtlassianAccessIcon } from '@atlaskit/logo/atlassian-access/icon';
+import { AtlassianAccessLogo } from '@atlaskit/logo/atlassian-access/logo';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
+import { AtlassianMarketplaceIcon } from '@atlaskit/logo/atlassian-marketplace/icon';
+import { AtlassianMarketplaceLogo } from '@atlaskit/logo/atlassian-marketplace/logo';
+import { AtlassianLogo } from '@atlaskit/logo/atlassian/logo';
+import { InsightsIcon } from '@atlaskit/logo/insights/icon';
+import { InsightsLogo } from '@atlaskit/logo/insights/logo';
+import { JiraSoftwareIcon } from '@atlaskit/logo/jira-software-icon';
+import { JiraSoftwareLogo } from '@atlaskit/logo/jira-software/logo';
+import { JiraWorkManagementIcon } from '@atlaskit/logo/jira-work-management/icon';
+import { JiraWorkManagementLogo } from '@atlaskit/logo/jira-work-management/logo';
+import { AtlasLogo } from '@atlaskit/logo/logo';
+import type { LogoProps } from '@atlaskit/logo/types';
 
 // eslint-disable-next-line @atlaskit/platform/use-entrypoints-in-examples
-import { logoDocsSchema } from '../../src/logo-config';
+import { logoDocsSchema } from '../../src/logo-docs-schema';
 
 const logoMap: {
 	name: (typeof logoDocsSchema)[number]['name'];
-	logo: ComponentType<LogoProps & { shouldUseHexLogo?: boolean }>;
-	icon: ComponentType<LogoProps & { shouldUseHexLogo?: boolean }>;
+	logo: ComponentType<LogoProps>;
+	icon: ComponentType<LogoProps>;
 }[] = [
 	// Program logos
 	{ name: 'atlassian', logo: AtlassianLogo, icon: AtlassianIcon },
@@ -137,11 +144,13 @@ const logoMap: {
 		logo: RovoDevAgentLogo,
 		icon: RovoDevAgentIcon,
 	},
+	{ name: 'jira-coding-agent', logo: JiraCodingAgentIcon, icon: JiraCodingAgentIcon },
 	{
 		name: 'jira-service-management',
 		logo: JiraServiceManagementLogo,
 		icon: JiraServiceManagementIcon,
 	},
+	{ name: 'artifacts', logo: ArtifactsLogo, icon: ArtifactsIcon },
 	{ name: 'assets', logo: AssetsLogo, icon: AssetsIcon },
 	{
 		name: 'customer-service-management',
@@ -153,7 +162,9 @@ const logoMap: {
 	{ name: 'trello', logo: TrelloLogo, icon: TrelloIcon },
 	{ name: 'admin', logo: AdminLogo, icon: AdminIcon },
 	{ name: 'analytics', logo: AnalyticsLogo, icon: AnalyticsIcon },
+	{ name: 'insights', logo: InsightsLogo, icon: InsightsIcon },
 	{ name: 'chat', logo: ChatLogo, icon: ChatIcon },
+	{ name: 'feedback', logo: FeedbackLogo, icon: FeedbackIcon },
 	{ name: 'goals', logo: GoalsLogo, icon: GoalsIcon },
 	{ name: 'guard', logo: GuardLogo, icon: GuardIcon },
 	{ name: 'projects', logo: ProjectsLogo, icon: ProjectsIcon },
@@ -190,26 +201,20 @@ const logoMap: {
 ];
 
 export const logos: ComponentType<{
-    size?: "small" | "large" | "medium" | "xlarge" | "xsmall" | "xxsmall";
-    appearance?: "brand" | "neutral" | "inverse";
-    textColor?: string;
-    iconColor?: string;
-    label?: string;
-    testId?: string;
-    shouldUseNewLogoDesign?: boolean;
-} & {
-    shouldUseHexLogo?: boolean;
+	size?: 'small' | 'large' | 'medium' | 'xlarge' | 'xsmall' | 'xxsmall';
+	appearance?: 'brand' | 'neutral' | 'inverse';
+	textColor?: string;
+	iconColor?: string;
+	label?: string;
+	testId?: string;
 }>[] = logoMap.map(({ logo }) => logo);
 export const icons: ComponentType<{
-    size?: "small" | "large" | "medium" | "xlarge" | "xsmall" | "xxsmall";
-    appearance?: "brand" | "neutral" | "inverse";
-    textColor?: string;
-    iconColor?: string;
-    label?: string;
-    testId?: string;
-    shouldUseNewLogoDesign?: boolean;
-} & {
-    shouldUseHexLogo?: boolean;
+	size?: 'small' | 'large' | 'medium' | 'xlarge' | 'xsmall' | 'xxsmall';
+	appearance?: 'brand' | 'neutral' | 'inverse';
+	textColor?: string;
+	iconColor?: string;
+	label?: string;
+	testId?: string;
 }>[] = logoMap.map(({ icon }) => icon);
 
 /**
@@ -228,63 +233,39 @@ const filterByType = (type: 'legacy' | 'migration' | 'new' | 'rovo-hex') =>
 	});
 
 export const legacyOnlyLogosAndIcons: {
-    name: (typeof logoDocsSchema)[number]["name"];
-    logo: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
-    icon: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
+	name: (typeof logoDocsSchema)[number]['name'];
+	logo: ComponentType<LogoProps>;
+	icon: ComponentType<LogoProps>;
 }[] = filterByType('legacy');
 export const migrationLogosAndIcons: {
-    name: (typeof logoDocsSchema)[number]["name"];
-    logo: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
-    icon: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
+	name: (typeof logoDocsSchema)[number]['name'];
+	logo: ComponentType<LogoProps>;
+	icon: ComponentType<LogoProps>;
 }[] = filterByType('migration');
 export const newOnlyLogosAndIcons: {
-    name: (typeof logoDocsSchema)[number]["name"];
-    logo: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
-    icon: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
+	name: (typeof logoDocsSchema)[number]['name'];
+	logo: ComponentType<LogoProps>;
+	icon: ComponentType<LogoProps>;
 }[] = filterByType('new');
 export const rovoHexLogosAndIcons: {
-    name: (typeof logoDocsSchema)[number]["name"];
-    logo: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
-    icon: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
+	name: (typeof logoDocsSchema)[number]['name'];
+	logo: ComponentType<LogoProps>;
+	icon: ComponentType<LogoProps>;
 }[] = filterByType('rovo-hex');
 
 export const deprecatedLogos: {
-    name: (typeof logoDocsSchema)[number]["name"];
-    logo: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
-    icon: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
+	name: (typeof logoDocsSchema)[number]['name'];
+	logo: ComponentType<LogoProps>;
+	icon: ComponentType<LogoProps>;
 }[] = logoMap.filter(({ name }) => {
 	const logo = getLogoSchema(name);
 	return logo?.deprecated;
 });
 
 export const logosAndIcons: {
-    name: (typeof logoDocsSchema)[number]["name"];
-    logo: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
-    icon: ComponentType<LogoProps & {
-        shouldUseHexLogo?: boolean;
-    }>;
+	name: (typeof logoDocsSchema)[number]['name'];
+	logo: ComponentType<LogoProps>;
+	icon: ComponentType<LogoProps>;
 }[] = logoMap.sort((a, b) => {
 	const aIndex = logoDocsSchema.findIndex(({ name: logoName }) => logoName === a.name);
 	const bIndex = logoDocsSchema.findIndex(({ name: logoName }) => logoName === b.name);

@@ -1,0 +1,288 @@
+# @atlaskit/teams-app-internal-navigation
+
+## 3.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.3.0
+
+### Minor Changes
+
+- [`660a0143710c6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/660a0143710c6) -
+  Apply Volt Standards (OEPF) Stage 1: split multi-export files into one export per file and publish
+  a subpath for the displaced public symbol.
+
+  Adds one new public entry point:
+  - `@atlaskit/teams-app-internal-navigation/use-teams-navigation-context`
+
+  `useTeamsNavigationContext` moved out of `TeamsNavigationProvider.tsx` into its own module, so it
+  now has a dedicated subpath. Every existing entry point and binding continues to work unchanged —
+  the previous path (`@atlaskit/teams-app-internal-navigation/teams-navigation-provider`) keeps
+  exporting it via a `@deprecated` re-export shim, and the root entry point is unaffected. No
+  existing public API was removed or repointed.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.0
+
+### Minor Changes
+
+- [`a9a8208446bfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9a8208446bfa) -
+  Support React 19 for people-and-teams packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.9.0
+
+### Minor Changes
+
+- [`69b7956cd2bbf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69b7956cd2bbf) -
+  Improve logic for handling context entry points
+
+## 1.8.6
+
+### Patch Changes
+
+- [`64567ac32f48f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/64567ac32f48f) -
+  Fall through to navigation if opening the preview panel fails
+
+## 1.8.5
+
+### Patch Changes
+
+- [`7fb5bfbafb83e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fb5bfbafb83e) -
+  Enrol people-and-teams packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 1.8.4
+
+### Patch Changes
+
+- [`1624a6cc2aec4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1624a6cc2aec4) -
+  Removed unnecessary TeamsNavigationProviders and props
+
+## 1.8.3
+
+### Patch Changes
+
+- [`9193f92bade74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9193f92bade74) -
+  Migrate examples to use playground package
+
+## 1.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.8.1
+
+### Patch Changes
+
+- [`3397d18bb9049`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3397d18bb9049) -
+  Updated README and improved package readability
+
+## 1.8.0
+
+### Minor Changes
+
+- [`f2ae85938fde5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2ae85938fde5) -
+  Made the navigate prop optional and the whole TeamsNavigationProvider optional.
+
+### Patch Changes
+
+- [`bcca5482f4ea4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bcca5482f4ea4) -
+  Add loom to atlassian domains
+
+## 1.7.0
+
+### Minor Changes
+
+- [`ac9844d3efdb0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ac9844d3efdb0) -
+  Nested providers now resolve contextEntryPoint by using the closest ancestor with a valid value. A
+  provider's own contextEntryPoint takes priority; if absent, the nearest ancestor's value is
+  inherited.
+
+## 1.6.2
+
+### Patch Changes
+
+- [`73c1948914bd5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/73c1948914bd5) -
+  Fixed staging links being treated as external and updated classifyNavigationIntent tests.
+
+## 1.6.1
+
+### Patch Changes
+
+- [`cc97d87696c48`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cc97d87696c48) -
+  Revamped examples file to better reflect component use
+
+## 1.6.0
+
+### Minor Changes
+
+- [`6314532348ebc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6314532348ebc) -
+  Updated URL navigation intent classification utility to recognise FEDRAMP and Isolated Cloud
+  environments.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.5.1
+
+### Patch Changes
+
+- [`2732080e75eb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2732080e75eb8) -
+  Updated Teams Link components to use the href returned by getNavigationProps, moved the onClick
+  handling to getNavigationProps and did a cleanup of the Link component props.
+
+## 1.5.0
+
+### Minor Changes
+
+- [`03592ef49b37f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/03592ef49b37f) -
+  Removed cloudId/orgId props from TeamsNavigationProvider and updated package export paths
+
+## 1.4.0
+
+### Minor Changes
+
+- [`b60167a9835e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b60167a9835e4) -
+  Add support for prefixing links
+
+## 1.3.0
+
+### Minor Changes
+
+- [`5675f51636ecb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5675f51636ecb) -
+  Introduces the TeamsLink, TeamsLinkItem and TeamsLinkButton components & relevant test.
+
+## 1.2.1
+
+### Patch Changes
+
+- [`da9ca9e7a3c2d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da9ca9e7a3c2d) -
+  Fixes bug where previewPanelProps isn't optional when intent is 'action'
+
+## 1.2.0
+
+### Minor Changes
+
+- [`d684c04042ee3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d684c04042ee3) -
+  Added unit tests
+
+## 1.1.0
+
+### Minor Changes
+
+- [`1dac42a3f7c43`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1dac42a3f7c43) -
+  Implemented getNavigationProps base functionality
+
+## 1.0.1
+
+### Patch Changes
+
+- [`fbb54a7a40ade`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbb54a7a40ade) -
+  Added a URL intent classification utility
+- Updated dependencies

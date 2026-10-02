@@ -1,10 +1,10 @@
 import React from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import type { ConfirmationDialogProps } from '@atlaskit/editor-common/types';
-import { ModalTransition } from '@atlaskit/modal-dialog';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
 
 import { CheckboxModal } from './CheckboxModal';
 import { SimpleModal } from './SimpleModal';
@@ -24,4 +24,9 @@ const ConfirmationModalImpl = (props: ConfirmationDialogProps & WrappedComponent
 	) : null;
 };
 
-export const ConfirmationModal = injectIntl(ConfirmationModalImpl);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const ConfirmationModal: React.FC<
+	WithIntlProps<ConfirmationDialogProps & WrappedComponentProps>
+> & {
+	WrappedComponent: React.ComponentType<ConfirmationDialogProps & WrappedComponentProps>;
+} = injectIntl(ConfirmationModalImpl);

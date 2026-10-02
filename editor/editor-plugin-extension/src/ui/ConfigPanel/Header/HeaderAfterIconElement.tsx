@@ -1,9 +1,13 @@
 import React from 'react';
 
-import type { ExtensionManifest } from '@atlaskit/editor-common/extensions';
+import type {
+	ExtensionKey,
+	ExtensionManifest,
+	ExtensionProvider,
+	ExtensionType,
+} from '@atlaskit/editor-common/extensions';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Flex, xcss } from '@atlaskit/primitives';
-import { token } from '@atlaskit/tokens';
 
 import { withExtensionManifest } from '../withExtensionManifest';
 
@@ -22,7 +26,7 @@ const itemTextStyles = xcss({
 });
 
 const summaryStyles = xcss({
-	font: token('font.body.small'),
+	font: 'font.body.small',
 	color: 'color.text.subtlest',
 	marginTop: 'space.050',
 	whiteSpace: 'nowrap',
@@ -55,4 +59,9 @@ function HeaderAfterIconElement({ extensionManifest }: HeaderAfterIconElementPro
 	);
 }
 
-export default withExtensionManifest(HeaderAfterIconElement);
+const _default_1: (props: {
+	extensionKey: ExtensionKey;
+	extensionProvider: ExtensionProvider;
+	extensionType: ExtensionType;
+}) => React.JSX.Element | null = withExtensionManifest(HeaderAfterIconElement);
+export default _default_1;

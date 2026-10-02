@@ -1,5 +1,112 @@
 # @atlaskit/pragmatic-drag-and-drop-hitbox
 
+## 3.0.0
+
+### Major Changes
+
+- [`0c7c7be927bde`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0c7c7be927bde) -
+  Remove deprecated Volt re-export shims from public package entry points. Consumers should import
+  from the replacement subpaths or implementation entry points instead.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.2.2
+
+### Patch Changes
+
+- [`eb738ba92ec47`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eb738ba92ec47) -
+  Deprecated exports from the legacy `closest-edge` entry point. Import `attachClosestEdge`,
+  `extractClosestEdge`, and `Edge` from their dedicated entry points instead.
+
+## 2.2.1
+
+### Patch Changes
+
+- [`cf6a13a455065`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf6a13a455065) -
+  Import closest-edge types directly from their existing definition module.
+
+## 2.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`29fd54df69593`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/29fd54df69593) -
+  Imports from the package root are deprecated and will be removed in a future release. Migrate to
+  dedicated entry-point imports to reduce upgrade friction. Recommended imports:
+  - `import { attachClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/attach-closest-edge'`
+  - `import { extractClosestEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge/extract-closest-edge'`
+  - `import { attachInstruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/list-item/attach-instruction'`
+  - `import { extractInstruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/list-item/extract-instruction'`
+  - `import { attachInstruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item/attach-instruction'`
+  - `import { extractInstruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item/extract-instruction'`
+  - `import { reorderWithEdge } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/reorder-with-edge'`
+  - `import { getReorderDestinationIndex } from '@atlaskit/pragmatic-drag-and-drop-hitbox/util/get-reorder-destination-index'`
+
+## 2.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.2.0
+
+### Minor Changes
+
+- [`f8b3089961cdf`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f8b3089961cdf) -
+  Extend `StructuredContentSource` so `*.docs.tsx` files can describe packages whose exports are not
+  all renderable React components. The container now accepts optional `package`, `hooks`, and
+  `utilities` (function / constant / type) keys alongside the existing `components` key. New
+  per-kind schemas: `hookDocsSourceSchema`, `utilityDocsSourceSchema`, plus `packageMetadataSchema`
+  for shared package-level metadata.
+
+  All new fields are optional, so existing components-only `*.docs.tsx` files continue to work
+  unchanged — this is an additive, non-breaking extension.
+
+  Pilots the new shape with `docs.tsx` files for `@atlaskit/analytics-next`, `@atlaskit/layering`,
+  `@af/accessibility-testing`, `@af/react-unit-testing`, `@atlaskit/pragmatic-drag-and-drop-hitbox`,
+  `@atlaskit/pragmatic-drag-and-drop-live-region`, `@atlaskit/feature-flag-client`,
+  `@atlaskit/frontend-utilities`, and `@atlaskit/linking-common`. The last two are non-ADS pilots
+  that exercise the new `hooks` and `utilities` kinds in `helpers/` and `linking-platform/`. These
+  pilot files are explicitly marked as non-final in their file-level JSDoc.
+
 ## 1.1.0
 
 ### Minor Changes
@@ -25,7 +132,6 @@
   [`4d9e25ab4eaa`](https://stash.atlassian.com/projects/CONFCLOUD/repos/confluence-frontend/commits/4d9e25ab4eaa) -
   Updating the descriptions of Pragmatic drag and drop packages, so they each provide a consistent
   description to various consumers, and so they are consistently formed amongst each other.
-
   - `package.json` `description`
   - `README.md`
   - Website documentation
@@ -408,7 +514,6 @@
 - [#24613](https://bitbucket.org/atlassian/atlassian-frontend/pull-requests/24613)
   [`dcebdf9404e`](https://bitbucket.org/atlassian/atlassian-frontend/commits/dcebdf9404e) - We have
   improved our naming consistency across our drag and drop packages.
-
   - `@atlaskit/drag-and-drop-hitbox/closest-edge` has been renamed to
     `@atlaskit/drag-and-drop-hitbox/addon/closest-edge`
   - `@atlaskit/drag-and-drop-hitbox/reorder-with-edge` has been renamed to

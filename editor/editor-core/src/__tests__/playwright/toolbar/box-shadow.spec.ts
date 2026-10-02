@@ -5,6 +5,7 @@ import { adf } from './box-shadow.spec.ts-fixtures';
 
 test.describe('Box shadow with short browsers', () => {
 	test.use({
+		exampleName: 'testing' as keyof typeof import('../../../../examples/99-testing.tsx'),
 		viewport: { width: 1280, height: 200 },
 		adf,
 		editorProps: {
@@ -22,12 +23,5 @@ test.describe('Box shadow with short browsers', () => {
 
 		const toolbar = EditorMainToolbarModel.from(editor);
 		await expect(toolbar.wrapper).not.toHaveCSS('box-shadow', 'none');
-	});
-
-	test('should capture and report a11y violations', async ({ editor }) => {
-		const toolbar = EditorMainToolbarModel.from(editor);
-		await expect(toolbar.wrapper).toBeVisible();
-
-		await expect(editor.page).toBeAccessible();
 	});
 });

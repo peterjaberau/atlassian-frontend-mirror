@@ -7,8 +7,9 @@ import { drawCellSelection } from '../utils/draw-cell-selection';
 import type { ReportFixedTable } from '../utils/fix-tables';
 import { fixTables } from '../utils/fix-tables';
 import { normalizeSelection } from '../utils/normalize-selection';
-
-import { handleKeyDown, handleMouseDown, handleTripleClick } from './input';
+import { handleMouseDown } from './handle-mouse-down';
+import { handleTripleClick } from './handle-triple-click';
+import { handleKeyDown } from './input';
 import { tableEditingKey } from './plugin-key';
 
 // :: () → Plugin
@@ -28,11 +29,9 @@ type PluginState = number | null;
 
 export function tableEditing({
 	allowTableNodeSelection = false,
-	dragAndDropEnabled = false,
 	reportFixedTable,
 }: {
 	allowTableNodeSelection?: boolean;
-	dragAndDropEnabled?: boolean;
 	reportFixedTable?: ReportFixedTable;
 } = {}): Plugin<PluginState> {
 	return new Plugin({
@@ -64,7 +63,7 @@ export function tableEditing({
 
 			handleDOMEvents: {
 				mousedown: (view: EditorView, event: Event) => {
-					handleMouseDown(view, event, dragAndDropEnabled);
+					handleMouseDown(view, event);
 				},
 			},
 

@@ -1,17 +1,16 @@
 import { useMemo } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
 import type { insertBlockPlugin } from '../../insertBlockPlugin';
 import type { InsertBlockOptions } from '../../types';
 import { createItems } from '../ToolbarInsertBlock/create-items';
+import type { BlockMenuItem } from '../ToolbarInsertBlock/create-items';
 
 const selector = (
 	states: NamedPluginStatesFromInjectionAPI<
@@ -46,7 +45,7 @@ export const useInsertMenuRailItems = (
 	editorView: EditorView,
 	options: InsertBlockOptions,
 	api?: ExtractInjectionAPI<typeof insertBlockPlugin>,
-) => {
+): BlockMenuItem[] => {
 	const { formatMessage } = useIntl();
 	const {
 		dateEnabled,

@@ -6,12 +6,11 @@ import { jsx } from '@atlaskit/css';
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type { ExtractInjectionAPI, FeatureFlags } from '@atlaskit/editor-common/types';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import type { IndentationButtonNode } from '../pm-plugins/indentation-buttons';
 import type { ToolbarListsIndentationPlugin } from '../toolbarListsIndentationPluginType';
 import { ToolbarType } from '../types';
-
 import { onItemActivated } from './onItemActivated';
 import { Toolbar } from './Toolbar';
 import { ToolbarDropdown } from './ToolbarDropdown';
@@ -38,7 +37,7 @@ export interface Props {
 	toolbarType: ToolbarType;
 }
 
-export default function ToolbarListsIndentation(props: Props) {
+export default function ToolbarListsIndentation(props: Props): JSX.Element {
 	const {
 		disabled,
 		isSmall,

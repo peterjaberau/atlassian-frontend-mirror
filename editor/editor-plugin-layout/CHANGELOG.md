@@ -1,5 +1,1874 @@
 # @atlaskit/editor-plugin-layout
 
+## 24.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.10
+
+### Patch Changes
+
+- [`5655e3d4d88fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5655e3d4d88fc) -
+  Clean up experiment `platform_editor_reduce_event_listener_count`. The treatment behaviour is now
+  permanent: node views that render nothing no longer mount a React portal, breakout resize tooltips
+  mount on first hover, and layout column dividers are keyed by section ordinal and found via a
+  scoped document walk.
+- Updated dependencies
+
+## 23.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.6
+
+### Patch Changes
+
+- [`f1454b828555b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f1454b828555b) -
+  Clean up experiment `platform_editor_breakout_interaction_rerender`
+- Updated dependencies
+
+## 23.0.5
+
+### Patch Changes
+
+- [`d7f1f4ebb1cd3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d7f1f4ebb1cd3) -
+  Keep the shipped layout column delete shortcut behavior for explicitly selected columns. Remove
+  the `platform_editor_layout_column_delete_shortcut_fix` and
+  `platform_editor_layout_column_valign_rendering` experiment keys. Consumers of these keys must
+  remove their experiment reads and use the shipped behavior directly.
+- Updated dependencies
+
+## 23.0.4
+
+### Patch Changes
+
+- [`a4fe8636fa0ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a4fe8636fa0ec) -
+  Clean up the fully rolled out `platform_editor_layout_column_menu` experiment and the
+  `platform_editor_layout_column_menu_kill_switch_1` feature gate, retaining their shipped behavior.
+  Consumers must remove any direct `@atlaskit/tmp-editor-statsig` experiment override for
+  `platform_editor_layout_column_menu`.
+- Updated dependencies
+
+## 23.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 23.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.4
+
+### Patch Changes
+
+- [`a034f535638cc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a034f535638cc) -
+  Add structured Quick Insert previews with localised title, description and attribution under
+  platform_editor_slash_command.
+
+  Exclude footer and category navigation actions from previews. Left-align attribution, use subtle
+  title and attribution text, and default description text.
+
+  Show text previews even without preview metadata, and reserve a fixed image area while images load
+  or when they fail. Keep previews within the viewport, flipping left when needed, with compact
+  panel dimensions and typography.
+
+  Replace baked panel screenshots with image-only assets. Remove image fields from text-only legacy
+  previews while preserving their attribution.
+
+  Let extension providers own their preview images and attribution. Pass preview metadata through
+  the Company Hub manifest factory and remove Editor's fallback preview registry.
+
+  Localize provider attribution names and display Confluence and Jira product icons instead of the
+  attribution prefix when an icon is present. Allow the Dropbox manifest to receive the host's
+  message formatter.
+
+- Updated dependencies
+
+## 22.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 22.0.0
+
+### Minor Changes
+
+- [`5c5d7a5bbff74`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5c5d7a5bbff74) -
+  Cleanup `feature_gate` `platform_editor_element_browser_analytic`. Insert analytics permanently
+  report the caller's actual input method rather than always attributing the insertion to
+  `quickInsert`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 21.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 20.0.3
+
+### Patch Changes
+
+- [`fc26bfc51dd5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fc26bfc51dd5c) -
+  Add sparse block-control surface anchors, intersection-driven candidates, and explicit visibility
+  invalidation for registry-backed block controls. Expose registration change subscriptions from the
+  UI control registry model, and refresh cached visibility from suggestion and collapse transaction
+  metadata. Under `platform_editor_block_control_migration`, use native node-anchor identity across
+  Editor and Block Controls, and route expand keyboard focus through the shared Block Controls
+  command. Preserve Show Diff visibility checks in both migration cohorts so block controls stay
+  hidden while a diff is displayed. Keep the block menu closed when a migrated layout-column handle
+  opens the layout menu, and close the layout menu when the selection moves away from its selected
+  columns.
+- Updated dependencies
+
+## 20.0.2
+
+### Patch Changes
+
+- [`1e8d2aad8e882`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1e8d2aad8e882) -
+  Remove the permanent `platform_editor_layout_typeahead_reorder` experiment and its temporary
+  Editor Statsig registration.
+- Updated dependencies
+
+## 20.0.1
+
+### Patch Changes
+
+- [`8d37dc7e55d62`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d37dc7e55d62) -
+  Clean up shipped experiment `platform_editor_block_menu`
+- Updated dependencies
+
+## 20.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.11
+
+### Patch Changes
+
+- [`88fb7a8d4013a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88fb7a8d4013a) -
+  [ux] Add optional light and dark preview URLs to slash-command menu items and pass theme-aware
+  previews to supported commands when the `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 19.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 19.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.2
+
+### Patch Changes
+
+- [`848b5c3689131`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/848b5c3689131) -
+  Cache `isEmptyLayout` on the vanilla `LayoutSectionView` behind
+  `platform_editor_vanilla_node_views_patch_1` so `update()` does not walk the layout twice.
+- Updated dependencies
+
+## 18.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 18.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.2.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.4
+
+### Patch Changes
+
+- [`4df90d6af7dc0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4df90d6af7dc0) -
+  Clean up experiment `platform_editor_layout_keywords` and retain the launched layout search
+  keywords.
+- Updated dependencies
+
+## 17.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.1.0
+
+### Minor Changes
+
+- [`6f957d4e7bcb8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6f957d4e7bcb8) -
+  Make layout column resizing generally available
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.4
+
+### Patch Changes
+
+- [`d82ea790b5c1c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82ea790b5c1c) -
+  Update registered slash-command menu icons, including the Jira datasource WorkItems icon, when the
+  `platform_editor_slash_command` experiment is enabled.
+- Updated dependencies
+
+## 17.0.3
+
+### Patch Changes
+
+- [`e62dacf4416fd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e62dacf4416fd) -
+  Add the shared popup-anchor contract, registry-backed drag handle, and menu integrations behind
+  `platform_editor_block_control_migration`.
+- Updated dependencies
+
+## 17.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 17.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.17
+
+### Patch Changes
+
+- [`656801b9e097c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/656801b9e097c) -
+  VOLTC-331 - Migrate updated package usage in platform/editor: rewrite barrel imports of
+  voltCompliant provider packages to deep/subpath imports (consumer-side debarrel). No public API
+  changes.
+- Updated dependencies
+
+## 16.0.16
+
+### Patch Changes
+
+- [`288e340380dbb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/288e340380dbb) -
+  Behind experiment platform_editor_reduce_event_listener_count: cut the number of native DOM event
+  listeners the editor registers per node. React 18 registers a bubble and a capture listener for
+  every supported event type on each portal container (~130 listeners) and never removes them, so
+  (1) node views whose render() returns null no longer mount a portal at all, and (2) the breakout
+  resize handle tooltip portal is deferred until the pointer enters the node instead of being
+  mounted for every resizable node up front.
+
+  Also reduces the work the layout column divider decorations do on every `decorations(state)` read:
+  the mousedown listener is unbound when the widget decoration is destroyed, the widget DOM is built
+  lazily rather than once per call, the document walk no longer descends into node types that cannot
+  contain a layout, and the decoration key is derived from the layout's ordinal rather than its
+  position so an edit above a layout no longer invalidates and rebuilds every divider below it. The
+  widget now resolves its own layout section and column index from its live position at mousedown.
+
+- Updated dependencies
+
+## 16.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.14
+
+### Patch Changes
+
+- [`343c4a1cca800`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/343c4a1cca800) -
+  Fix editing image captions in layout columns behind the
+  `platform_editor_fix_edit_media_caption_in_layout` experiment.
+- Updated dependencies
+
+## 16.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.9
+
+### Patch Changes
+
+- [`ca2fd9cde15a4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ca2fd9cde15a4) -
+  Add a vanilla `LayoutSectionView` behind the `platform_editor_vanilla_node_views_phase1`
+  experiment.
+
+  Replaces the `ReactNodeView`-based `LayoutSectionView` with a pure vanilla `NodeView`, eliminating
+  the React portal mount (including `<ErrorBoundary>{null}</ErrorBoundary>`) per layout section
+  node. It is used on both the client and during SSR streaming, where it also removes the
+  `NodeViewContentHole` / `data-ssr-content-dom-ref` re-attach round trip. Requires
+  `platform_editor_breakout_resizing` to be fully rolled out.
+
+  Also extracts `isEmptyLayout` into a shared `nodeviews/utils.ts` (using `isEmptyParagraph` from
+  `@atlaskit/editor-common/utils`) to avoid duplication between the two views.
+
+- Updated dependencies
+
+## 16.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 16.0.1
+
+### Patch Changes
+
+- [`4273da2e1a648`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4273da2e1a648) -
+  Register native Quick Insert items behind `platform_editor_slash_command`.
+- Updated dependencies
+
+## 16.0.0
+
+### Patch Changes
+
+- [`711b3354a8c2a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/711b3354a8c2a) -
+  Clean up feature gate platform_editor_layout_resize_analytics
+- Updated dependencies
+
+## 15.1.0
+
+### Minor Changes
+
+- [`da5eaf0bc37da`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/da5eaf0bc37da) -
+  Clean up the platform_editor_editor_ssr_streaming experiment. The SSR streaming code paths are now
+  permanent and the isSSRStreaming() utility has been removed from
+  @atlaskit/editor-common/core-utils.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 15.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 14.0.1
+
+### Patch Changes
+
+- [`72f7cec91a1d4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/72f7cec91a1d4) -
+  Remove stale `platform-feature-flags` registrations for shipped block menu and blocks feature
+  gates. No behaviour change.
+- Updated dependencies
+
+## 14.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.5.0
+
+### Minor Changes
+
+- [`9425f3fa081e4`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9425f3fa081e4) -
+  Fix nested content selection inside layouts
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.4.0
+
+### Minor Changes
+
+- [`51c33ef5349b6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/51c33ef5349b6) -
+  Enable compatibility with React 19.2.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.22
+
+### Patch Changes
+
+- [`b90bdc71cdf99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b90bdc71cdf99) -
+  Fix layout column delete shortcut deleting the whole column when the caret is a text selection
+  inside a column (e.g. a table nested in a layout), gated behind
+  platform_editor_layout_column_delete_shortcut_fix.
+
+  Adds a new experiment key `platform_editor_layout_column_delete_shortcut_fix` to
+  `@atlaskit/tmp-editor-statsig`. Usage:
+
+  ```ts
+  import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+  if (expValEquals('platform_editor_layout_column_delete_shortcut_fix', 'isEnabled', true)) {
+  	// new behaviour: preserve the column when the caret is a text selection inside it
+  }
+  ```
+
+- Updated dependencies
+
+## 13.3.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.3.0
+
+### Minor Changes
+
+- [`5b844f57bfad8`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5b844f57bfad8) -
+  [ED-7731] Preserve the editor selection when inserting, deleting, or resizing layout columns with
+  the cursor inside a column, instead of moving it out of the layout. Gated behind
+  platform_editor_layout_column_menu_kill_switch_1.
+
+## 13.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.3
+
+### Patch Changes
+
+- [`6827a39105ea0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6827a39105ea0) -
+  EDITOR-7736: Fix left gap cursor before first image/expand in vertically-aligned layout column
+- Updated dependencies
+
+## 13.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.2.0
+
+### Minor Changes
+
+- [`bb48c26acb8ba`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb48c26acb8ba) -
+  Add platform_editor_layout_column_menu_kill_switch_1 kill switch and render the full block drag
+  handle icon for layout columns when the new behaviour is enabled (gate OFF). When the new
+  behaviour is enabled, re-clicking the layout column whose menu is already open now closes the
+  menu, while clicking a different column switches the menu to that column. The layout column menu
+  now opens below the drag handle with left-aligned edges (relying on the popup's built-in placement
+  to invert horizontally or nudge up when space is tight) instead of the previous centred
+  prefer-above behaviour. The layout column Delete hover/focus danger preview now matches the table
+  delete affordance exactly, using the translucent color.blanket.danger fill and a 1px
+  color.border.danger border instead of the previous low-alpha fill with a 2px border, and clears
+  the concurrent blue selected blanket while the danger preview is active so the preview reads as
+  pure red with no blue cast.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.1.0
+
+### Minor Changes
+
+- [`b483e293da76f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b483e293da76f) -
+  Add a gated `isSuggested` attribute to block menu element transformed analytics events so
+  suggested and non-suggested transform selections can be distinguished. The event attribute is
+  gated behind the `platform_editor_blocks_patch_2` feature gate.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 13.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 12.0.0
+
+### Major Changes
+
+- [`19c2b7d1cbc13`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/19c2b7d1cbc13) -
+  Add analytics for layout column menu interactions
+
+### Minor Changes
+
+- [`f95240aab2e55`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f95240aab2e55) -
+  Promote layout column vertical alignment in ADF schema
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.2
+
+### Patch Changes
+
+- [`7f12a2679677d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f12a2679677d) -
+  Open the layout column menu above the drag handle when space allows
+- Updated dependencies
+
+## 11.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.1.0
+
+### Minor Changes
+
+- [`5182f0ffac22f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5182f0ffac22f) -
+  Add keyboard shortcuts and danger preview to layout column menu actions.
+
+  Fix keyboard navigation in the layout column menu.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.4
+
+### Patch Changes
+
+- [`1f5c61250d103`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1f5c61250d103) -
+  Updating layout plugin to support ssr streaming
+
+## 11.0.3
+
+### Patch Changes
+
+- [`795424ce08dae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/795424ce08dae) -
+  Add analytics for layout column resizing
+- Updated dependencies
+
+## 11.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 11.0.1
+
+### Patch Changes
+
+- [`8bf2ab100a93d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8bf2ab100a93d) -
+  Add col to layout keywords
+- [`91c01182107f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/91c01182107f2) -
+  Preserve layout column selection after menu actions and delay editor-ai-dev Bitbucket credential
+  checks until after CLI command validation.
+- Updated dependencies
+
+## 11.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.9.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.9.1
+
+### Patch Changes
+
+- [`3b52ed6492f99`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b52ed6492f99) -
+  Fix layout column blank-space focus for vertical alignment
+- [`523f77de83059`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/523f77de83059) -
+  Suppress drag handle tooltip while layout column menu is open. Adds layoutColumnMenuPopupOpen user
+  intent and wraps LayoutColumnMenu with UserIntentPopupWrapper.
+- Updated dependencies
+
+## 10.9.0
+
+### Minor Changes
+
+- [`10c5beb57bb0d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/10c5beb57bb0d) -
+  [ux] Add Distribute columns to the layout floating toolbar
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.8.1
+
+### Patch Changes
+
+- [`2ad681c18e86f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2ad681c18e86f) -
+  Add layout column menu actions for inserting, deleting, distributing, and aligning columns.
+- Updated dependencies
+
+## 10.8.0
+
+### Minor Changes
+
+- [`1c86d46da6101`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1c86d46da6101) -
+  Address layout column alignment follow-up review feedback
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.7.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.7.0
+
+### Minor Changes
+
+- [`6767563047c0e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6767563047c0e) -
+  Add distributeLayoutColumns command that equalises widths of selected layout columns; wire into
+  drag-handle column menu and floating toolbar
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.6.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.6.0
+
+### Minor Changes
+
+- [`71eaad00529a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71eaad00529a1) -
+  Support multi-column layout column menu selections
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.5.0
+
+### Minor Changes
+
+- [`bc59bccc2fc5c`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bc59bccc2fc5c) -
+  Reorder advanced layout quick insert suggestions
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.4.0
+
+### Minor Changes
+
+- [`6d95dce3d9a86`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6d95dce3d9a86) -
+  Add deleteLayoutColumn command to editor-plugin-layout with proportional width redistribution and
+  analytics tracking (EDITOR-6669)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.5
+
+### Patch Changes
+
+- [`626fb6e8ce019`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/626fb6e8ce019) -
+  Wire layout column menu insert actions with proportional width redistribution.
+- Updated dependencies
+
+## 10.3.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.3
+
+### Patch Changes
+
+- [`0197bccd3d244`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0197bccd3d244) -
+  Add vertical alignment options to layout column menus and rendering.
+- Updated dependencies
+
+## 10.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.3.1
+
+### Patch Changes
+
+- [`4c22fe79f104e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c22fe79f104e) -
+  Guard against undefined plugin state when reading shared state in floating-toolbar handler
+  (layout) and useEffect deps array (block-controls drag handle); fixes intermittent crash during
+  editor reconfigure / partial-preset transitions.
+
+## 10.3.0
+
+### Minor Changes
+
+- [`89a8af72aa2c9`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/89a8af72aa2c9) -
+  Add reusable toolbar menu container and render the layout column menu in a popup
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.2.0
+
+### Minor Changes
+
+- [`a94a013546f69`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a94a013546f69) -
+  Autofix: add explicit package exports (barrel removal)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.1.0
+
+### Minor Changes
+
+- [`2023cac0fd36f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2023cac0fd36f) -
+  Add column drag handle context menu placeholder, gated behind the
+  platform_editor_layout_column_menu experiment flag.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 10.0.0
+
+### Major Changes
+
+- [`901c87a57486e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/901c87a57486e) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 9.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.12
+
+### Patch Changes
+
+- [`1bd298ad0a152`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1bd298ad0a152) -
+  [ux] EDITOR-6280 Clean up platform_editor_block_menu_v2_patch_3 to fix icon and copy in jira block
+  menu
+- Updated dependencies
+
+## 8.1.11
+
+### Patch Changes
+
+- [`8ad443c7b22d0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8ad443c7b22d0) -
+  Support 'max' editor appearance for layout column resize handle when
+  platform_editor_layout_column_resize_handle experiment is enabled; guard column divider
+  decorations behind layout resizing plugin availability check
+- Updated dependencies
+
+## 8.1.10
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.3
+
+### Patch Changes
+
+- [`14803a836f641`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/14803a836f641) -
+  Update README.md and 0-intro.tsx
+- Updated dependencies
+
+## 8.1.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.1.0
+
+### Minor Changes
+
+- [`fb96753c1753e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fb96753c1753e) -
+  [ux] Introduce adjustable layout column drag handle and update logic behind
+  platform_editor_layout_column_resize_handle experiment
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.16
+
+### Patch Changes
+
+- [`88a7ee0806123`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/88a7ee0806123) -
+  Mechanical type-import autofix for block, layout, and control packages.
+- Updated dependencies
+
+## 8.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.14
+
+### Patch Changes
+
+- [`5892e575833a1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5892e575833a1) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 8.0.13
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.10
+
+### Patch Changes
+
+- [`9ed32aea2c1d3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9ed32aea2c1d3) -
+  Replace feature experiment util with cross platform alternative for platform_editor_block_menu
+- Updated dependencies
+
+## 8.0.9
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.8
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 8.0.0
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.29
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.28
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.27
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.26
+
+### Patch Changes
+
+- [`47211917d90fc`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/47211917d90fc) -
+  Editor 5281 fix block menu icon cut off when zoom
+
+## 7.0.25
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.22
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.20
+
+### Patch Changes
+
+- [`7ea2e225c0abb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ea2e225c0abb) -
+  [ux] Minor styling, wording changes for block menu and sync blocks
+- Updated dependencies
+
+## 7.0.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.18
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.17
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.16
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 7.0.14
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 7.0.13
 
 ### Patch Changes

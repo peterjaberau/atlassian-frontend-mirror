@@ -1,12 +1,16 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
-import Form, { ErrorMessage, Field, HelperMessage } from '@atlaskit/form';
-import type { EnvironmentsKeys } from '@atlaskit/linking-common';
+import Button from '@atlaskit/button/default/button';
+import { ErrorMessage } from '@atlaskit/form/error-message';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { HelperMessage } from '@atlaskit/form/helper-message';
+import { MessageWrapper } from '@atlaskit/form/message-wrapper';
+import type { EnvironmentsKeys } from '@atlaskit/linking-common/types';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Anchor, Box, Inline, Stack, Text, xcss } from '@atlaskit/primitives';
-import Textfield from '@atlaskit/textfield';
-import Tooltip from '@atlaskit/tooltip';
+import Textfield from '@atlaskit/textfield/text-field';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 const PROD_URLS = ['https://hello.atlassian.net', 'https://product-fabric.atlassian.net'];
 
@@ -151,10 +155,12 @@ const LoadLinkForm = ({
 					{({ fieldProps, error, meta: { dirtySinceLastSubmit } }: any) => (
 						<React.Fragment>
 							<Textfield {...fieldProps} />
-							{error === 'INCORRECT_URL_FORMAT' && (
-								<ErrorMessage>Please enter a valid url.</ErrorMessage>
-							)}
-							{!dirtySinceLastSubmit && urlError && <ErrorMessage>{urlError}</ErrorMessage>}
+							<MessageWrapper>
+								{error === 'INCORRECT_URL_FORMAT' && (
+									<ErrorMessage>Please enter a valid url.</ErrorMessage>
+								)}
+								{!dirtySinceLastSubmit && urlError && <ErrorMessage>{urlError}</ErrorMessage>}
+							</MessageWrapper>
 						</React.Fragment>
 					)}
 				</Field>
@@ -164,9 +170,11 @@ const LoadLinkForm = ({
 							{({ fieldProps, error }: any) => (
 								<React.Fragment>
 									<Textfield {...fieldProps} />
-									{error === 'INCORRECT_ARI_FORMAT' && (
-										<ErrorMessage>Please enter a valid ARI.</ErrorMessage>
-									)}
+									<MessageWrapper>
+										{error === 'INCORRECT_ARI_FORMAT' && (
+											<ErrorMessage>Please enter a valid ARI.</ErrorMessage>
+										)}
+									</MessageWrapper>
 								</React.Fragment>
 							)}
 						</Field>
@@ -179,15 +187,19 @@ const LoadLinkForm = ({
 							{({ fieldProps, error }: any) => (
 								<React.Fragment>
 									<Textfield {...fieldProps} />
-									{error === 'INCORRECT_BRANCH_DEPLOY_FORMAT' && (
-										<ErrorMessage>Please enter a valid Branch Deploy</ErrorMessage>
-									)}
+									<MessageWrapper>
+										{error === 'INCORRECT_BRANCH_DEPLOY_FORMAT' && (
+											<ErrorMessage>Please enter a valid Branch Deploy</ErrorMessage>
+										)}
+									</MessageWrapper>
 								</React.Fragment>
 							)}
 						</Field>
 					</React.Fragment>
 				)}
-				<HelperMessage>{helpMessageUrl}</HelperMessage>
+				<MessageWrapper>
+					<HelperMessage>{helpMessageUrl}</HelperMessage>
+				</MessageWrapper>
 				<Box paddingBlockStart="space.100">
 					<Inline space="space.100">
 						<Button type="submit" appearance="primary">

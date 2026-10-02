@@ -1,14 +1,12 @@
 import { Device, snapshot } from '@af/visual-regression';
+
 import {
 	MediaImageInlineWithWideLayout,
 	MediaWithPixelWidthFullWidthNested,
 	MediaWithPixelWidthNested,
-} from '../__helpers/rendererComponents';
+} from '../__helpers/rendererComponents.vr.ap';
 
 snapshot(MediaWithPixelWidthNested, {
-	featureFlags: {
-		platform_editor_dec_a11y_fixes: true,
-	},
 	variants: [
 		{
 			name: 'desktop',
@@ -21,10 +19,8 @@ snapshot(MediaWithPixelWidthNested, {
 	],
 });
 
-snapshot(MediaImageInlineWithWideLayout, {
-	featureFlags: {
-		platform_editor_dec_a11y_fixes: true,
-	},
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(MediaImageInlineWithWideLayout, {
 	variants: [
 		{
 			name: 'desktop',

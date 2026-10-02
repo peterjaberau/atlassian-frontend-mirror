@@ -1,9 +1,11 @@
+/* eslint-disable jsdoc/require-jsdoc -- SSR inline script helpers */
+
 import React from 'react';
-import { breakoutConsts, type BreakoutConstsType } from '@atlaskit/editor-common/utils';
-import { fg } from '@atlaskit/platform-feature-flags';
+
+import { breakoutConsts } from '@atlaskit/editor-common/utils';
+import type { BreakoutConstsType } from '@atlaskit/editor-common/utils';
 
 import { FullPagePadding } from './style';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 declare global {
 	interface Window {
@@ -19,7 +21,7 @@ declare global {
 export function BreakoutSSRInlineScript({
 	noOpSSRInlineScript,
 }: {
-	noOpSSRInlineScript: Boolean;
+	noOpSSRInlineScript: boolean;
 }): React.JSX.Element | null {
 	/**
 	 * Should only inline this script while SSR,
@@ -38,7 +40,7 @@ export function BreakoutSSRInlineScript({
 
 	const id = Math.floor(Math.random() * (9999999999 - 9999 + 1)) + 9999;
 	const shouldSkipScript = {
-		table: fg('platform-ssr-table-resize'),
+		table: true,
 	};
 
 	return (
@@ -55,19 +57,10 @@ export function BreakoutSSRInlineScript({
 }
 
 export function createBreakoutInlineScript(id: number, shouldSkipScript: { table: boolean }) {
-	const flags = {
-		platform_editor_fix_media_in_renderer: fg('platform_editor_fix_media_in_renderer'),
-		platform_editor_fix_wide_media_in_renderer: fg('platform_editor_fix_wide_media_in_renderer'),
-		platform_editor_renderer_extension_width_fix: expValEquals(
-			'platform_editor_renderer_extension_width_fix',
-			'isEnabled',
-			true,
-		),
-	};
 	return `(function(window){
 if(typeof window !== 'undefined' && window.__RENDERER_BYPASS_BREAKOUT_SSR__) { return; }
 ${breakoutInlineScriptContext};
-(${applyBreakoutAfterSSR.toString()})("${id}", breakoutConsts, ${JSON.stringify(shouldSkipScript)}, ${JSON.stringify(flags)});
+(${applyBreakoutAfterSSR.toString()})("${id}", breakoutConsts, ${JSON.stringify(shouldSkipScript)});
 })(window);
 `;
 }
@@ -94,7 +87,6 @@ function applyBreakoutAfterSSR(
 	id: string,
 	breakoutConsts: BreakoutConstsType,
 	shouldSkipBreakoutScript: { table: boolean },
-	flags: Record<string, boolean>,
 ) {
 	const MEDIA_NODE_TYPE = 'mediaSingle';
 	const WIDE_LAYOUT_MODES = ['full-width', 'wide', 'custom'];
@@ -113,6 +105,7 @@ function applyBreakoutAfterSSR(
 	}
 
 	const renderer: HTMLElement | undefined = findUp(
+		// eslint-disable-next-line @atlaskit/platform/no-direct-document-usage -- inline script runs in browser document context
 		document.querySelector(`[data-breakout-script-id="${id}"]`),
 		(elem) => !!elem.parentElement?.classList.contains('ak-renderer-wrapper'),
 	);
@@ -127,7 +120,6 @@ function applyBreakoutAfterSSR(
 				return;
 			}
 
-			// Remove with feature gate 'platform-ssr-table-resize'
 			// Ignored via go/ees005
 			// eslint-disable-next-line @atlaskit/editor/no-as-casting
 			if ((item.target as HTMLElement).classList.contains('ak-renderer-document')) {
@@ -151,8 +143,8 @@ function applyBreakoutAfterSSR(
 						!mode ||
 						!WIDE_LAYOUT_MODES.includes(mode) ||
 						// skip apply width styling to mediaSingle node with pixel width to avoid image size changing
-						(isMediaSingleWithPixelWidth && flags['platform_editor_fix_media_in_renderer']) ||
-						(isExtension && flags['platform_editor_renderer_extension_width_fix'])
+						isMediaSingleWithPixelWidth ||
+						isExtension
 					) {
 						return;
 					}
@@ -216,12 +208,12 @@ function applyBreakoutAfterSSR(
 			) {
 				// Ignored via go/ees005
 				// eslint-disable-next-line @atlaskit/editor/no-as-casting
-				applyMediaBreakout(item.target as HTMLElement, flags);
+				applyMediaBreakout(item.target as HTMLElement);
 			}
 		});
 	});
 
-	const applyMediaBreakout = (card: HTMLElement, flags: Record<string, boolean>) => {
+	const applyMediaBreakout = (card: HTMLElement) => {
 		// width was already set by another breakout script
 		if (card.style.width) {
 			return;
@@ -241,16 +233,13 @@ function applyBreakoutAfterSSR(
 
 		// Pixel based resizing has width set in pixels based on its width attribute
 		// Thus, no need to override width
-		if (flags['platform_editor_fix_wide_media_in_renderer'] && isPixelBasedResizing) {
+		if (isPixelBasedResizing) {
 			return;
 		}
 
 		if (WIDE_LAYOUT_MODES.includes(mode)) {
 			card.style.width = '100%';
-		} else if (
-			width &&
-			(!isPixelBasedResizing || flags['platform_editor_fix_wide_media_in_renderer'])
-		) {
+		} else if (width) {
 			card.style.width = `${width}%`;
 		}
 	};
@@ -281,4 +270,4 @@ function applyBreakoutAfterSSR(
 	window.addEventListener('load', disconnect);
 }
 
-export const calcLineLength = breakoutConsts.calcLineLength(breakoutConsts);
+export const calcLineLength: () => number = breakoutConsts.calcLineLength(breakoutConsts);

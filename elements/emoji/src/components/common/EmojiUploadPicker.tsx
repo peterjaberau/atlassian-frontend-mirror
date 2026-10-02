@@ -4,6 +4,8 @@
  */
 import {
 	type KeyboardEventHandler,
+	type MouseEvent,
+	type ReactNode,
 	useEffect,
 	useLayoutEffect,
 	useState,
@@ -12,28 +14,52 @@ import {
 	useRef,
 	memo,
 	useCallback,
+	type ComponentType,
+	type FC,
 } from 'react';
+
 import { css, jsx } from '@compiled/react';
-import { token } from '@atlaskit/tokens';
-import { N300 } from '@atlaskit/theme/colors';
-import { FormattedMessage, injectIntl, type WrappedComponentProps } from 'react-intl-next';
-import TextField from '@atlaskit/textfield';
-import CrossIcon from '@atlaskit/icon/core/cross';
-import AkButton from '@atlaskit/button/standard-button';
-import { Text } from '@atlaskit/primitives/compiled';
 import FocusLock from 'react-focus-lock';
+import {
+	FormattedMessage,
+	injectIntl,
+	type WithIntlProps,
+	type WrappedComponentProps,
+} from 'react-intl';
+
+import type { AnalyticsEventPayload } from '@atlaskit/analytics-next/AnalyticsEvent';
+import { getDocument } from '@atlaskit/browser-apis';
+import Button from '@atlaskit/button/default/button';
+import AkButton from '@atlaskit/button/standard-button';
+import CrossIcon from '@atlaskit/icon/core/cross';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { Text } from '@atlaskit/primitives/compiled';
+import { Box } from '@atlaskit/primitives/compiled';
+import TextField from '@atlaskit/textfield/text-field';
+import { token } from '@atlaskit/tokens';
 
 import type { EmojiUpload, Message } from '../../types';
 import * as ImageUtil from '../../util/image';
 import debug from '../../util/logger';
 import { messages } from '../i18n';
+import CreateEmojiWithRovo from './CreateEmojiWithRovo';
 import EmojiErrorMessage from './EmojiErrorMessage';
 import EmojiUploadPreview from './EmojiUploadPreview';
 import FileChooser from './FileChooser';
 import { UploadStatus } from './internal-types';
+import { isRefreshEmojiPickerEnabled } from './isRefreshEmojiPickerEnabled';
 
 const closeEmojiUploadButton = css({
 	display: 'flex',
+});
+
+const uploadAddRowNew = css({
+	display: 'flex',
+	justifyContent: 'flex-end',
+	alignItems: 'center',
+	gap: token('space.100'),
+	paddingTop: token('space.100'),
+	paddingBottom: token('space.150'),
 });
 
 const emojiUpload = css({
@@ -46,16 +72,39 @@ const emojiUpload = css({
 	justifyContent: 'space-around',
 });
 
+const emojiUploadNew = css({
+	paddingTop: token('space.100'),
+	paddingRight: token('space.200'),
+	paddingBottom: token('space.100'),
+	paddingLeft: token('space.200'),
+	display: 'flex',
+	flexDirection: 'column',
+	justifyContent: 'space-around',
+});
+
 const emojiUploadTop = css({
 	paddingBottom: token('space.100'),
 	display: 'flex',
 	justifyContent: 'space-between',
 	alignItems: 'flex-end',
-	font: token('font.body.UNSAFE_small'),
+	font: token('font.body.small'),
+});
+
+const emojiUploadTopNew = css({
+	paddingTop: token('space.075'),
+	paddingBottom: token('space.150'),
+	display: 'flex',
+	justifyContent: 'space-between',
+	alignItems: 'flex-end',
 });
 
 const labelStyles = css({
 	font: token('font.body.small'),
+	fontWeight: token('font.weight.semibold'),
+});
+
+const labelStylesNew = css({
+	font: token('font.body'),
 	fontWeight: token('font.weight.semibold'),
 });
 
@@ -80,7 +129,7 @@ const uploadChooseFileEmojiName = css({
 const uploadChooseFileMessage = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
 	'&&': {
-		color: token('color.text.subtle', N300),
+		color: token('color.text.subtle'),
 	},
 });
 
@@ -91,6 +140,16 @@ const uploadChooseFileRow = css({
 	columnGap: token('space.075'),
 });
 
+const uploadChooseFileRowNew = css({
+	display: 'flex',
+	flexDirection: 'column',
+	gap: token('space.075'),
+	minHeight: '250px',
+});
+
+const supportedEmojiUploadMimeTypes = new Set(['image/png', 'image/jpeg', 'image/gif']);
+const supportedEmojiUploadExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
+
 export interface OnUploadEmoji {
 	(upload: EmojiUpload, retry: boolean, onSuccessHandler?: () => void): void;
 }
@@ -100,12 +159,21 @@ export const uploadEmojiComponentTestId = 'upload-emoji-component';
 export const cancelEmojiUploadPickerTestId = 'cancel-emoji-upload-picker';
 
 export interface Props {
+	/**
+	 * Current Confluence page content id. When provided (and the
+	 * `confluence_ai_generated_emojis` experiment is on), the "Create an emoji
+	 * with Rovo" AI generation section is shown above the Emoji name field.
+	 */
+	contentId?: string;
 	disableFocusLock?: boolean;
 	errorMessage?: Message;
+	/** Fires an analytics event (used by AI emoji generation). */
+	fireAnalytics?: (event: AnalyticsEventPayload) => void;
 	initialUploadName?: string;
 	onFileChooserClicked?: () => void;
 	onUploadCancelled: () => void;
 	onUploadEmoji: OnUploadEmoji;
+	onUploadPreviewErrorChange?: (hasPreviewError: boolean) => void;
 }
 
 const disallowedReplacementsMap = new Map([
@@ -137,13 +205,37 @@ const toEmojiName = (uploadName: string): string => {
 	return `${name.substr(0, 1).toLocaleUpperCase()}${name.substr(1)}`;
 };
 
+const toDefaultUploadName = (fileName: string): string => {
+	const nameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
+	return sanitizeName(nameWithoutExtension).slice(0, maxNameLength);
+};
+
+const isSupportedEmojiUploadFileType = (file: File): boolean => {
+	if (!isRefreshEmojiPickerEnabled()) {
+		return true;
+	}
+
+	if (supportedEmojiUploadMimeTypes.has(file.type)) {
+		return true;
+	}
+
+	const lowerCaseFileName = file.name.toLowerCase();
+	return supportedEmojiUploadExtensions.some((extension) => lowerCaseFileName.endsWith(extension));
+};
+
 interface ChooseEmojiFileProps {
+	/** Optional "Create an emoji with Rovo" section rendered above the name field. */
+	aiSection?: ReactNode;
 	errorMessage?: Message;
 	name?: string;
+	nameErrorMessage?: Message;
+	onAddEmoji?: () => void;
 	onChooseFile: ChangeEventHandler<any>;
 	onClick?: () => void;
 	onNameChange: ChangeEventHandler<any>;
 	onUploadCancelled: () => void;
+	previewImage?: string;
+	uploadStatus?: UploadStatus;
 }
 
 type ChooseEmojiFilePropsType = ChooseEmojiFileProps & WrappedComponentProps;
@@ -154,7 +246,12 @@ const ChooseEmojiFile = memo((props: ChooseEmojiFilePropsType) => {
 		onClick,
 		onNameChange,
 		onUploadCancelled,
+		onAddEmoji,
 		errorMessage,
+		nameErrorMessage,
+		previewImage,
+		uploadStatus,
+		aiSection,
 		intl,
 	} = props;
 	const { formatMessage } = intl;
@@ -181,8 +278,88 @@ const ChooseEmojiFile = memo((props: ChooseEmojiFilePropsType) => {
 	const emojiPlaceholder = formatMessage(messages.emojiPlaceholder);
 	const emojiNameAriaLabel = formatMessage(messages.emojiNameAriaLabel);
 	const emojiChooseFileTitle = formatMessage(messages.emojiChooseFileTitle);
+	const emojiChooseFileTitleNew = formatMessage(messages.emojiChooseFileDndTitle);
 
-	return (
+	const isUploading = uploadStatus === UploadStatus.Uploading;
+	const addEmojiDisabled = !previewImage || !name || isUploading;
+
+	return isRefreshEmojiPickerEnabled() ? (
+		<div css={emojiUploadNew} data-testid={uploadEmojiComponentTestId}>
+			<div css={emojiUploadTopNew}>
+				<label css={[uploadChooseFileMessage, labelStylesNew]} htmlFor="new-emoji-name-input">
+					{previewImage ? (
+						<FormattedMessage {...messages.emojiPreviewTitle} />
+					) : (
+						<FormattedMessage {...messages.addCustomEmojiLabel} />
+					)}
+				</label>
+			</div>
+			<div css={uploadChooseFileRowNew}>
+				<Box>
+					<FormattedMessage {...messages.emojiChooseFileScreenReaderDescription}>
+						{() => (
+							<FileChooser
+								label={
+									isRefreshEmojiPickerEnabled() ? emojiChooseFileTitleNew : emojiChooseFileTitle
+								}
+								onChange={onChooseFile}
+								onClick={onClick}
+								accept="image/png,image/jpeg,image/gif"
+								ariaDescribedBy={fileChooserButtonDescriptionId}
+								previewImage={previewImage}
+								previewAlt={name}
+							/>
+						)}
+					</FormattedMessage>
+					<div id={fileChooserButtonDescriptionId}>
+						{errorMessage && <EmojiErrorMessage errorStyle="chooseFile" message={errorMessage} />}
+					</div>
+				</Box>
+				{aiSection}
+				<div>
+					<label css={[uploadChooseFileMessage, labelStyles]} htmlFor="new-emoji-name-input">
+						<FormattedMessage {...messages.emojiNameLabel} />
+					</label>
+					<TextField
+						placeholder={emojiPlaceholder}
+						aria-label={emojiNameAriaLabel}
+						maxLength={maxNameLength}
+						onChange={onNameChange}
+						onKeyDown={onKeyDownHandler}
+						value={name}
+						isCompact
+						autoFocus
+						isInvalid={!!nameErrorMessage}
+						testId={uploadEmojiNameInputTestId}
+						ref={inputRef}
+						id="new-emoji-name-input"
+						aria-required={true}
+					/>
+					{nameErrorMessage && (
+						<EmojiErrorMessage errorStyle="chooseFile" message={nameErrorMessage} />
+					)}
+				</div>
+			</div>
+			<div css={uploadAddRowNew}>
+				<Button
+					onClick={onUploadCancelled}
+					appearance="subtle"
+					isDisabled={isUploading}
+					testId={cancelEmojiUploadPickerTestId}
+				>
+					<FormattedMessage {...messages.cancelLabel} />
+				</Button>
+				<Button
+					onClick={onAddEmoji}
+					appearance="primary"
+					isDisabled={addEmojiDisabled}
+					isLoading={isUploading}
+				>
+					<FormattedMessage {...messages.addEmojiLabel} />
+				</Button>
+			</div>
+		</div>
+	) : (
 		<div css={emojiUpload} data-testid={uploadEmojiComponentTestId}>
 			<div css={emojiUploadTop}>
 				<label css={[uploadChooseFileMessage, labelStyles]} htmlFor="new-emoji-name-input">
@@ -196,6 +373,7 @@ const ChooseEmojiFile = memo((props: ChooseEmojiFilePropsType) => {
 						spacing="none"
 						shouldFitContainer={true}
 						testId={cancelEmojiUploadPickerTestId}
+						name={messages.addCustomEmojiLabel.defaultMessage}
 					>
 						<CrossIcon color="currentColor" label={cancelLabel} />
 					</AkButton>
@@ -222,7 +400,9 @@ const ChooseEmojiFile = memo((props: ChooseEmojiFilePropsType) => {
 					<FormattedMessage {...messages.emojiChooseFileScreenReaderDescription}>
 						{() => (
 							<FileChooser
-								label={emojiChooseFileTitle}
+								label={
+									isRefreshEmojiPickerEnabled() ? emojiChooseFileTitleNew : emojiChooseFileTitle
+								}
 								onChange={onChooseFile}
 								onClick={onClick}
 								accept="image/png,image/jpeg,image/gif"
@@ -254,6 +434,9 @@ const EmojiUploadPicker = (props: Props & WrappedComponentProps) => {
 		onFileChooserClicked,
 		onUploadCancelled,
 		disableFocusLock = false,
+		contentId,
+		fireAnalytics,
+		onUploadPreviewErrorChange,
 		intl,
 	} = props;
 	const [uploadStatus, setUploadStatus] = useState(
@@ -289,7 +472,8 @@ const EmojiUploadPicker = (props: Props & WrappedComponentProps) => {
 		setName(undefined);
 		setPreviewImage(undefined);
 		setUploadStatus(UploadStatus.Waiting);
-	}, []);
+		onUploadPreviewErrorChange?.(false);
+	}, [onUploadPreviewErrorChange]);
 
 	const onNameChange = useCallback(
 		(event: ChangeEvent<any>) => {
@@ -344,13 +528,28 @@ const EmojiUploadPicker = (props: Props & WrappedComponentProps) => {
 		setPreviewImage(undefined);
 	}, []);
 
+	// When the Rovo section generates an image, feed it into the existing upload
+	// form (same preview, name field and "Add emoji" button as a manual upload).
+	const onEmojiGenerated = useCallback(
+		(dataURL: string, suggestedName: string) => {
+			setFilename('rovo-emoji.png');
+			setPreviewImage(dataURL);
+			setChooseEmojiErrorMessage(undefined);
+			onUploadPreviewErrorChange?.(false);
+			// Only auto-populate the name if the user hasn't already typed one.
+			setName((current) => current || sanitizeName(suggestedName));
+		},
+		[onUploadPreviewErrorChange],
+	);
+
 	const errorOnUpload = useCallback(
 		(event: any): void => {
 			debug('File load error: ', event);
 			setChooseEmojiErrorMessage(<FormattedMessage {...messages.emojiUploadFailed} />);
+			onUploadPreviewErrorChange?.(false);
 			cancelChooseFile();
 		},
-		[cancelChooseFile],
+		[cancelChooseFile, onUploadPreviewErrorChange],
 	);
 
 	const onFileLoad = useCallback(
@@ -358,14 +557,20 @@ const EmojiUploadPicker = (props: Props & WrappedComponentProps) => {
 			async (f: any): Promise<any> => {
 				try {
 					setFilename(file.name);
+					if (!name && isRefreshEmojiPickerEnabled()) {
+						setName(toDefaultUploadName(file.name));
+					}
 					await ImageUtil.parseImage(f.target.result);
 					setPreviewImage(f.target.result);
+					setChooseEmojiErrorMessage(undefined);
+					onUploadPreviewErrorChange?.(false);
 				} catch {
 					setChooseEmojiErrorMessage(<FormattedMessage {...messages.emojiInvalidImage} />);
+					onUploadPreviewErrorChange?.(false);
 					cancelChooseFile();
 				}
 			},
-		[cancelChooseFile],
+		[cancelChooseFile, name, onUploadPreviewErrorChange],
 	);
 
 	const onChooseFile = useCallback(
@@ -375,8 +580,16 @@ const EmojiUploadPicker = (props: Props & WrappedComponentProps) => {
 				const reader = new FileReader();
 				const file: File = files[0];
 
+				if (!isSupportedEmojiUploadFileType(file)) {
+					setChooseEmojiErrorMessage(<FormattedMessage {...messages.emojiUnsupportedFileType} />);
+					onUploadPreviewErrorChange?.(true);
+					cancelChooseFile();
+					return;
+				}
+
 				if (ImageUtil.hasFileExceededSize(file)) {
 					setChooseEmojiErrorMessage(<FormattedMessage {...messages.emojiImageTooBig} />);
+					onUploadPreviewErrorChange?.(false);
 					cancelChooseFile();
 					return;
 				}
@@ -386,34 +599,58 @@ const EmojiUploadPicker = (props: Props & WrappedComponentProps) => {
 				reader.addEventListener('error', errorOnUpload);
 				reader.readAsDataURL(file);
 			} else {
+				onUploadPreviewErrorChange?.(false);
 				cancelChooseFile();
 			}
 		},
-		[cancelChooseFile, errorOnUpload, onFileLoad],
+		[cancelChooseFile, errorOnUpload, onFileLoad, onUploadPreviewErrorChange],
 	);
 
-	const cancelUpload = useCallback(() => {
-		clearUploadPicker();
-		onUploadCancelled();
+	const cancelUpload = useCallback(
+		(event?: MouseEvent<HTMLElement>) => {
+			event?.preventDefault();
+			event?.stopPropagation();
+			clearUploadPicker();
+			onUploadCancelled();
+			onUploadPreviewErrorChange?.(false);
 
-		// using setTimeout here to allow the UI to update before setting focus
-		setTimeout(
-			(lastFocus) => {
-				if (lastFocus) {
-					document.getElementById(lastFocus)?.focus();
-				}
-			},
-			0,
-			lastFocusedElementId.current,
-		);
-	}, [clearUploadPicker, onUploadCancelled]);
+			// using setTimeout here to allow the UI to update before setting focus
+			setTimeout(
+				(lastFocus) => {
+					if (lastFocus) {
+						getDocument()?.getElementById(lastFocus)?.focus();
+					}
+				},
+				0,
+				lastFocusedElementId.current,
+			);
+		},
+		[clearUploadPicker, onUploadCancelled, onUploadPreviewErrorChange],
+	);
 
 	const onChooseFileClicked = () => {
 		onFileChooserClicked && onFileChooserClicked();
 	};
 
+	const isDuplicateNameError =
+		errorMessage !== null && errorMessage !== undefined && isRefreshEmojiPickerEnabled();
+
+	// "Create an emoji with Rovo" AI generation section. Only rendered when the
+	// experiment is on AND a page content id is available (the image generation
+	// backend requires it). It is rendered inside ChooseEmojiFile (between the
+	// drop area and the Emoji name field) so the generated image reuses the
+	// single shared name field and "Add emoji" button.
+	const aiSection =
+		contentId && isExperimentEnabled('confluence_ai_generated_emojis') ? (
+			<CreateEmojiWithRovo
+				contentId={contentId}
+				fireAnalytics={fireAnalytics}
+				onEmojiGenerated={onEmojiGenerated}
+			/>
+		) : null;
+
 	const content =
-		name && previewImage ? (
+		name && previewImage && !isRefreshEmojiPickerEnabled() ? (
 			<EmojiUploadPreview
 				errorMessage={errorMessage}
 				name={name}
@@ -429,14 +666,26 @@ const EmojiUploadPicker = (props: Props & WrappedComponentProps) => {
 				onClick={onChooseFileClicked}
 				onNameChange={onNameChange}
 				onUploadCancelled={cancelUpload}
+				onAddEmoji={onAddEmoji}
+				previewImage={previewImage}
+				uploadStatus={uploadStatus}
 				errorMessage={chooseEmojiErrorMessage}
+				nameErrorMessage={isDuplicateNameError ? errorMessage : undefined}
+				aiSection={aiSection}
 				intl={intl}
 			/>
 		);
 
-	return disableFocusLock ? content : <FocusLock noFocusGuards>{content}</FocusLock>;
+	return disableFocusLock || isRefreshEmojiPickerEnabled() ? (
+		content
+	) : (
+		<FocusLock noFocusGuards>{content}</FocusLock>
+	);
 };
 
-const EmojiUploadPickerComponent = injectIntl(memo(EmojiUploadPicker));
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const EmojiUploadPickerComponent: FC<WithIntlProps<Props & WrappedComponentProps>> & {
+	WrappedComponent: ComponentType<Props & WrappedComponentProps>;
+} = injectIntl(memo(EmojiUploadPicker));
 
 export default EmojiUploadPickerComponent;

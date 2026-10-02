@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3bfb9487e57255dc0512f225894a058b>>
+ * @generated SignedSource<<0c6c51fca90b1d8be221569188b41155>>
  * @relayHash 676631e44ffd7d0d16b3a7e96ba02def
  * @lightSyntaxTransform
  * @nogrep
@@ -12,7 +12,7 @@
 
 // @relayRequestID 68a651ca7e5a5c9b5a075954ed948672c451b0f8c255f4edbd3219fe4947484d
 
-import type { ConcreteRequest, Mutation } from 'relay-runtime';
+import type { ConcreteRequest } from 'relay-runtime';
 export type AccessType = "EDIT" | "VIEW" | "%future added value";
 export type RequestPageAccessInput = {
   accessType: AccessType;
@@ -24,7 +24,7 @@ export type SyncedBlockPermissionDeniedRequestAccessMutation$variables = {
 export type SyncedBlockPermissionDeniedRequestAccessMutation$data = {
   readonly requestPageAccess: {
     readonly displayName: string;
-  } | null | undefined;
+  } | null;
 };
 export type SyncedBlockPermissionDeniedRequestAccessMutation = {
   response: SyncedBlockPermissionDeniedRequestAccessMutation$data;

@@ -4,15 +4,19 @@
  * @jsx jsx
  */
 /* eslint-enable jsdoc/check-tag-names */
+
 import React from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { jsx, css } from '@compiled/react';
+
 // eslint-disable-next-line @atlaskit/editor/warn-no-restricted-imports -- Example file, requires core
 import { Editor, EditorContext, WithEditorActions } from '@atlaskit/editor-core';
-import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
 import { token } from '@atlaskit/tokens';
-import { MarkdownTransformer } from '../src';
+import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
+
 import exampleMarkdown from '../example-helpers/exampleMarkdown';
+import { MarkdownTransformer } from '../src';
 
 const container = css({
 	display: 'grid',
@@ -20,14 +24,14 @@ const container = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'#source': {
 		border: `${token('border.width.selected')} solid`,
-		marginTop: token('space.100', '8px'),
-		marginRight: token('space.100', '8px'),
-		marginBottom: token('space.100', '8px'),
-		marginLeft: token('space.100', '8px'),
-		paddingTop: token('space.100', '8px'),
-		paddingRight: token('space.100', '8px'),
-		paddingBottom: token('space.100', '8px'),
-		paddingLeft: token('space.100', '8px'),
+		marginTop: token('space.100'),
+		marginRight: token('space.100'),
+		marginBottom: token('space.100'),
+		marginLeft: token('space.100'),
+		paddingTop: token('space.100'),
+		paddingRight: token('space.100'),
+		paddingBottom: token('space.100'),
+		paddingLeft: token('space.100'),
 		whiteSpace: 'pre-wrap',
 		fontSize: 'xx-small',
 		'&:focus': {

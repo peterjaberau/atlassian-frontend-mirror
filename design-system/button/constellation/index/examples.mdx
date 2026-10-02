@@ -6,6 +6,7 @@ import SectionMessage from '@atlaskit/section-message';
 
 import ButtonDefault from '../../examples/constellation/new-button/button/button-default';
 import ButtonPrimary from '../../examples/constellation/new-button/button/button-primary';
+import ButtonRovo from '../../examples/constellation/new-button/button/button-rovo';
 import ButtonSubtle from '../../examples/constellation/new-button/button/button-subtle';
 import ButtonWarning from '../../examples/constellation/new-button/button/button-warning';
 import ButtonDanger from '../../examples/constellation/new-button/button/button-danger';
@@ -31,7 +32,7 @@ buttons are less prominent than primary buttons.
 
 ### Primary
 
-Use a primary button to call attention to a [form](/patterns/forms) submission or to highlight the
+Use a primary button to call attention to a [form](/components/form) submission or to highlight the
 most important call to action on a page. Primary buttons should only appear once per area, but not
 every screen needs a primary button.
 
@@ -72,6 +73,13 @@ deleting.
 A discovery button can be used as the call to action for new experiences.
 
 <Example Component={ButtonDiscovery} packageName="@atlaskit/button" />
+
+### Rovo
+
+Use a Rovo button for primary Rovo or AI actions, such as opening Rovo Chat or starting a
+Rovo-powered workflow.
+
+<Example Component={ButtonRovo} packageName="@atlaskit/button" />
 
 ## States
 
@@ -147,17 +155,17 @@ breaking layouts. An ellipsis will be added to the end to indicate that the text
 
 The truncation is implemented with styles, so screen readers will still read the full text.
 
-For more information see [truncation](/content/language-and-grammar#truncation).
+For more information see [truncation](/foundations/content/language-and-grammar#truncation).
 
 <Example Component={ButtonTruncation} packageName="@atlaskit/button" />
 
 ## Custom buttons
 
-<SectionMessage title="Coming soon" appearance="information">
+<SectionMessage title="CustomThemeButton is deprecated" appearance="warning">
 	<p>
-		The legacy{' '}
-		<a href="/components/button/button-legacy/examples#custom-theme-button">CustomThemeButton</a>{' '}
-		will soon be deprecated. We're working on a replacement for this with safe style overrides using{' '}
-		<a href="/components/primitives/xcss/usage">XCSS</a>.
+		The{' '}
+		<a href="/components/button/button-legacy/examples#custom-theme-button">CustomThemeButton</a> is
+		deprecated. Use <a href="/components/primitives/pressable">Pressable</a> if you require a custom
+		button to have an easier time with accessibility and consistency.
 	</p>
 </SectionMessage>

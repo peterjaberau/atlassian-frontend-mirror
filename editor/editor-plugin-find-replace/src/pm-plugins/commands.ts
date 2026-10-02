@@ -1,12 +1,11 @@
+import type { Command } from '@atlaskit/editor-common/types';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { TextSelection } from '@atlaskit/editor-prosemirror/state';
 import type { Decoration, EditorView } from '@atlaskit/editor-prosemirror/view';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
 
 import type { Match } from '../types';
-
 import type { FindReplaceAction } from './actions';
 import { FindReplaceActionTypes } from './actions';
 import { createCommand, getPluginState } from './plugin-factory';
@@ -26,7 +25,7 @@ import {
 import batchDecorations from './utils/batch-decorations';
 import { withScrollIntoView } from './utils/commands';
 
-export const activate = () =>
+export const activate = (): Command =>
 	createCommand((state: EditorState) => {
 		const { selection } = state;
 		let findText: string | undefined;
@@ -45,9 +44,7 @@ export const activate = () =>
 				api,
 			});
 
-			index = expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-				? findClosestMatch(selection.from, matches)
-				: findSearchIndex(selection.from, matches);
+			index = findClosestMatch(selection.from, matches);
 		}
 
 		return {
@@ -62,7 +59,7 @@ export const find = (
 	editorView: EditorView,
 	containerElement: HTMLElement | null,
 	keyword?: string,
-) =>
+): Command =>
 	withScrollIntoView(
 		createCommand(
 			(state: EditorState) => {
@@ -79,13 +76,7 @@ export const find = (
 							})
 						: [];
 
-				const index = expValEquals(
-					'platform_editor_find_and_replace_improvements',
-					'isEnabled',
-					true,
-				)
-					? findClosestMatch(selection.from, matches)
-					: findSearchIndex(selection.from, matches);
+				const index = findClosestMatch(selection.from, matches);
 
 				// we can't just apply all the decorations to highlight the search results at once
 				// as if there are a lot ProseMirror cries :'(
@@ -118,23 +109,14 @@ export const find = (
 						: [];
 
 				if (matches.length > 0) {
-					const index = expValEquals(
-						'platform_editor_find_and_replace_improvements',
-						'isEnabled',
-						true,
-					)
-						? findClosestMatch(selection.from, matches)
-						: findSearchIndex(selection.from, matches);
+					const index = findClosestMatch(selection.from, matches);
 					const newSelection = getSelectionForMatch(tr.selection, tr.doc, index, matches);
-					if (
-						expValEqualsNoExposure(
-							'platform_editor_toggle_expand_on_match_found',
-							'isEnabled',
-							true,
-						)
-					) {
-						// the exposure is fired inside toggleExpandWithMatch when user is exposed to the experiment
-						api?.expand?.commands.toggleExpandWithMatch(newSelection)({ tr });
+					api?.expand?.commands.toggleExpandWithMatch(newSelection)({ tr });
+					if (isExperimentEnabled('platform_editor_collapsible_headings')) {
+						api?.blockCollapse?.commands.expandHeadingsContainingRange(
+							newSelection.from,
+							newSelection.to,
+						)({ tr });
 					}
 					return tr.setSelection(newSelection);
 				}
@@ -143,7 +125,7 @@ export const find = (
 		),
 	);
 
-export const findNext = (editorView: EditorView) =>
+export const findNext = (editorView: EditorView): Command =>
 	withScrollIntoView(
 		createCommand(
 			(state: EditorState) => findInDirection(state, 'next'),
@@ -158,18 +140,19 @@ export const findNext = (editorView: EditorView) =>
 					searchIndex = nextIndex(searchIndex, matches.length);
 				}
 				const newSelection = getSelectionForMatch(tr.selection, tr.doc, searchIndex, matches);
-				if (
-					expValEqualsNoExposure('platform_editor_toggle_expand_on_match_found', 'isEnabled', true)
-				) {
-					// the exposure is fired inside toggleExpandWithMatch when user is exposed to the experiment
-					api?.expand?.commands.toggleExpandWithMatch(newSelection)({ tr });
+				api?.expand?.commands.toggleExpandWithMatch(newSelection)({ tr });
+				if (isExperimentEnabled('platform_editor_collapsible_headings')) {
+					api?.blockCollapse?.commands.expandHeadingsContainingRange(
+						newSelection.from,
+						newSelection.to,
+					)({ tr });
 				}
 				return tr.setSelection(newSelection);
 			},
 		),
 	);
 
-export const findPrevious = (editorView: EditorView) =>
+export const findPrevious = (editorView: EditorView): Command =>
 	withScrollIntoView(
 		createCommand(
 			(state: EditorState) => findInDirection(state, 'previous'),
@@ -180,11 +163,12 @@ export const findPrevious = (editorView: EditorView) =>
 				// from the current cursor position)
 				const searchIndex = findSearchIndex(state.selection.from, matches, true);
 				const newSelection = getSelectionForMatch(tr.selection, tr.doc, searchIndex, matches);
-				if (
-					expValEqualsNoExposure('platform_editor_toggle_expand_on_match_found', 'isEnabled', true)
-				) {
-					// the exposure is fired inside toggleExpandWithMatch when user is exposed to the experiment
-					api?.expand?.commands.toggleExpandWithMatch(newSelection)({ tr });
+				api?.expand?.commands.toggleExpandWithMatch(newSelection)({ tr });
+				if (isExperimentEnabled('platform_editor_collapsible_headings')) {
+					api?.blockCollapse?.commands.expandHeadingsContainingRange(
+						newSelection.from,
+						newSelection.to,
+					)({ tr });
 				}
 				return tr.setSelection(newSelection);
 			},
@@ -216,7 +200,7 @@ const findInDirection = (state: EditorState, dir: 'next' | 'previous'): FindRepl
 	};
 };
 
-export const replace = (replaceText: string) =>
+export const replace = (replaceText: string): Command =>
 	withScrollIntoView(
 		createCommand(
 			(state: EditorState) => {
@@ -244,32 +228,35 @@ export const replace = (replaceText: string) =>
 				};
 			},
 			(tr, state: EditorState) => {
-				const { matches, index, findText } = getPluginState(state);
+				const { matches, index, findText, api } = getPluginState(state);
 				if (matches[index]) {
-					if (
-						!matches[index].canReplace &&
-						expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-					) {
+					if (!matches[index].canReplace) {
 						return tr;
 					}
 					const { start, end } = matches[index];
 					const newIndex = nextIndex(index, matches.length);
-					tr.insertText(replaceText, start, end).setSelection(
-						getSelectionForMatch(
-							tr.selection,
-							tr.doc,
-							newIndex,
-							matches,
-							newIndex === 0 ? 0 : replaceText.length - findText.length,
-						),
+					tr.insertText(replaceText, start, end);
+					const newSelection = getSelectionForMatch(
+						tr.selection,
+						tr.doc,
+						newIndex,
+						matches,
+						newIndex === 0 ? 0 : replaceText.length - findText.length,
 					);
+					tr.setSelection(newSelection);
+					if (isExperimentEnabled('platform_editor_collapsible_headings')) {
+						api?.blockCollapse?.commands.expandHeadingsContainingRange(
+							newSelection.from,
+							newSelection.to,
+						)({ tr });
+					}
 				}
 				return tr;
 			},
 		),
 	);
 
-export const replaceAll = (replaceText: string) =>
+export const replaceAll = (replaceText: string): Command =>
 	createCommand(
 		{
 			type: FindReplaceActionTypes.REPLACE_ALL,
@@ -281,10 +268,7 @@ export const replaceAll = (replaceText: string) =>
 		(tr, state: EditorState) => {
 			const pluginState = getPluginState(state);
 			pluginState.matches.forEach((match: Match) => {
-				if (
-					!match.canReplace &&
-					expValEquals('platform_editor_find_and_replace_improvements', 'isEnabled', true)
-				) {
+				if (!match.canReplace) {
 					return tr;
 				}
 				tr.insertText(replaceText, tr.mapping.map(match.start), tr.mapping.map(match.end));
@@ -294,7 +278,7 @@ export const replaceAll = (replaceText: string) =>
 		},
 	);
 
-export const addDecorations = (decorations: Decoration[]) =>
+export const addDecorations = (decorations: Decoration[]): Command =>
 	createCommand((state: EditorState) => {
 		const { decorationSet } = getPluginState(state);
 		return {
@@ -303,7 +287,7 @@ export const addDecorations = (decorations: Decoration[]) =>
 		};
 	});
 
-export const removeDecorations = (decorations: Decoration[]) =>
+export const removeDecorations = (decorations: Decoration[]): Command =>
 	createCommand((state: EditorState) => {
 		const { decorationSet } = getPluginState(state);
 		return {
@@ -312,7 +296,7 @@ export const removeDecorations = (decorations: Decoration[]) =>
 		};
 	});
 
-export const cancelSearch = () =>
+export const cancelSearch = (): Command =>
 	createCommand(() => {
 		batchDecorations.stop();
 		return {
@@ -320,12 +304,12 @@ export const cancelSearch = () =>
 		};
 	});
 
-export const blur = () =>
+export const blur = (): Command =>
 	createCommand({
 		type: FindReplaceActionTypes.BLUR,
 	});
 
-export const toggleMatchCase = () =>
+export const toggleMatchCase = (): Command =>
 	createCommand({ type: FindReplaceActionTypes.TOGGLE_MATCH_CASE });
 
 const updateSelectedHighlight = (state: EditorState, nextSelectedIndex: number): DecorationSet => {

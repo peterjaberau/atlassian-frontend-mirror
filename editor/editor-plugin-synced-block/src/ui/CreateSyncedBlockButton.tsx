@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
+import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { syncBlockMessages } from '@atlaskit/editor-common/messages';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
@@ -37,11 +38,31 @@ export const CreateSyncedBlockButton = ({
 	const isDisabled = Boolean(isOfflineMode(mode) || (!canBeConverted && !canInsertEmptyBlock));
 
 	const onClick = useCallback(() => {
-		api?.core?.actions.execute(({ tr }) => api?.syncedBlock.commands.insertSyncedBlock()({ tr }));
-		api?.core?.actions.focus();
+		// Insert the synced block and stop preserving the selection in a single
+		// transaction so the caret that insertSyncedBlock places inside the new
+		// block survives (EDITOR-7949). The toolbar is not normally opened via the
+		// block menu, but stopping preservation is defensive and keeps behaviour
+		// consistent with the block-menu create item should preservation ever be
+		// active (e.g. a block is selected via block-controls). Then re-focus so
+		// the caret is active, but only when the transaction was actually
+		// dispatched — otherwise a failed insertion would still steal DOM focus
+		// into the editor (mirrors CreateSyncedBlockDropdownItem).
+		const dispatched = api?.core?.actions.execute(({ tr }) => {
+			const result = api?.syncedBlock.commands.insertSyncedBlock(INPUT_METHOD.SYNCED_BLOCK_TB)({
+				tr,
+			});
+			if (!result) {
+				return null;
+			}
+			api?.blockControls?.commands?.stopPreservingSelection()({ tr });
+			return tr;
+		});
+		if (dispatched) {
+			api?.core?.actions.focus();
+		}
 	}, [api]);
 
-	const message = intl.formatMessage(syncBlockMessages.createSyncBlockLabel);
+	const message = intl.formatMessage(syncBlockMessages.syncBlockLabel);
 
 	return (
 		<ToolbarTooltip content={message}>

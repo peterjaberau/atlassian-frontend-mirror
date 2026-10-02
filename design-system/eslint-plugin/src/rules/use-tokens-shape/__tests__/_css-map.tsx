@@ -1,6 +1,6 @@
 import outdent from 'outdent';
 
-import { type Tests } from '../../__tests__/utils/_types';
+import type { Tests } from '../../__tests__/utils/_types';
 
 const error =
 	'The use of shape tokens is preferred over the direct application of border radius and border width properties.';
@@ -37,6 +37,17 @@ const valid: string[] = [
         borderWidth: 0,
         borderRadius: '0rem',
         borderWidth: '0em',
+      }
+    });
+  `,
+	outdent`
+    // ignores zero radius values that do not have a matching token
+    import { cssMap } from '@compiled/react';
+
+    const pinchCornerSharpStyles = cssMap({
+      topLeft: {
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: '0',
       }
     });
   `,

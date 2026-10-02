@@ -2,22 +2,23 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type CSSProperties, type InputHTMLAttributes } from 'react';
+import { type CSSProperties, type InputHTMLAttributes, type JSX } from 'react';
 
 import { css, cssMap, cx, jsx } from '@compiled/react';
 
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { token } from '@atlaskit/tokens';
 
+import { getStyleProps } from '../get-style-props';
+import { cleanCommonProps } from '../internal/clean-common-props';
 import { type CommonPropsAndClassName, type GroupBase } from '../types';
-import { cleanCommonProps, getStyleProps } from '../utils';
 
 interface InputSpecificProps<
 	Option = unknown,
 	IsMulti extends boolean = boolean,
 	Group extends GroupBase<Option> = GroupBase<Option>,
-> extends InputHTMLAttributes<HTMLInputElement>,
-		CommonPropsAndClassName<Option, IsMulti, Group> {
+>
+	extends InputHTMLAttributes<HTMLInputElement>, CommonPropsAndClassName<Option, IsMulti, Group> {
 	/**
 	 * Reference to the internal element
 	 */
@@ -50,8 +51,6 @@ export type InputProps<
 	Group extends GroupBase<Option> = GroupBase<Option>,
 > = InputSpecificProps<Option, IsMulti, Group>;
 
-export const inputCSS: () => {} = () => ({});
-
 const inputStylesOld = cssMap({
 	root: {
 		display: 'inline-grid',
@@ -77,6 +76,12 @@ const inputStylesOld = cssMap({
 	},
 	disabled: {
 		visibility: 'hidden',
+	},
+	labellingFFStyles: {
+		font: token('font.body.small'),
+		marginBlock: token('space.0'),
+		marginInline: token('space.0'),
+		paddingBlock: token('space.0'),
 	},
 });
 
@@ -106,6 +111,12 @@ const inputStyles = cssMap({
 	},
 	disabled: {
 		visibility: 'hidden',
+	},
+	labellingFFStyles: {
+		font: token('font.body.small'),
+		marginBlock: token('space.0'),
+		marginInline: token('space.0'),
+		paddingBlock: token('space.0'),
 	},
 });
 
@@ -143,19 +154,25 @@ const hidden = css({
 	opacity: 0,
 });
 
-const Input: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(props: InputProps<Option, IsMulti, Group>) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+const Input: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
+	props: InputProps<Option, IsMulti, Group>,
+) => JSX.Element = <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
 	props: InputProps<Option, IsMulti, Group>,
 ) => {
-	const { cx: builtinCX, value, xcss } = props;
+	const { cx: builtinCX, value, xcss, isMulti } = props;
 	const { innerRef, isDisabled, isHidden, inputClassName, testId, ...innerProps } =
 		cleanCommonProps(props);
 	const dataId = testId ? `${testId}-select--input` : null;
 	const { css, className } = getStyleProps(props, 'input', { 'input-container': true });
 
-	if (fg('platform_do_not_clear_input_for_multiselect')) {
+	if (fg('platform_fix_input_component_styling')) {
 		return (
 			<div
-				css={[inputStyles.root, isDisabled && inputStyles.disabled]}
+				css={[
+					inputStyles.root,
+					isMulti && inputStyles.labellingFFStyles,
+					isDisabled && inputStyles.disabled,
+				]}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 				style={css as CSSProperties}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
@@ -178,7 +195,11 @@ const Input: <Option, IsMulti extends boolean, Group extends GroupBase<Option>>(
 
 	return (
 		<div
-			css={[inputStylesOld.root, isDisabled && inputStylesOld.disabled]}
+			css={[
+				inputStylesOld.root,
+				isMulti && inputStylesOld.labellingFFStyles,
+				isDisabled && inputStylesOld.disabled,
+			]}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 			style={css as CSSProperties}
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss

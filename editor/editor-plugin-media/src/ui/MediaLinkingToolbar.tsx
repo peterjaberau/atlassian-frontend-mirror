@@ -4,9 +4,9 @@
  */
 import React, { Fragment } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import type { IntlShape, WrappedComponentProps } from 'react-intl-next';
+import type { IntlShape, WrappedComponentProps } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import type {
@@ -33,7 +33,6 @@ import {
 import { normalizeUrl } from '@atlaskit/editor-common/utils';
 import ChevronLeftLargeIcon from '@atlaskit/icon/core/chevron-left';
 import EditorUnlinkIcon from '@atlaskit/icon/core/link-broken';
-import { R400 } from '@atlaskit/theme/colors';
 import { token } from '@atlaskit/tokens';
 
 type Props = {
@@ -56,27 +55,23 @@ type Props = {
 const validationWrapper = css({
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: 0,
-	padding: `${token('space.150', '12px')} ${token('space.300', '24px')} ${token(
-		'space.150',
-		'12px',
-	)} 0`,
-	margin: `0 ${token('space.050', '4px')} 0 ${token('space.400', '32px')}`,
-	borderTop: `${token('border.width')} solid ${token('color.border.danger', R400)}`,
+	padding: `${token('space.150')} ${token('space.300')} ${token('space.150')} 0`,
+	margin: `0 ${token('space.050')} 0 ${token('space.400')}`,
+	borderTop: `${token('border.width')} solid ${token('color.border.danger')}`,
 	alignItems: 'start',
 	display: 'flex',
 	flexDirection: 'column',
 });
 
 const buttonWrapper = css({
-	padding: `${token('space.050', '4px')} ${token('space.100', '8px')} ${token(
-		'space.050',
-		'4px',
-	)} 0px`,
+	padding: `${token('space.050')} ${token('space.100')} ${token('space.050')} 0px`,
 });
 
 // eslint-disable-next-line @repo/internal/react/no-class-components
 class LinkAddToolbar extends React.PureComponent<Props & WrappedComponentProps> {
-	state = {
+	state: {
+		validationErrors: never[];
+	} = {
 		validationErrors: [],
 	};
 
@@ -174,12 +169,14 @@ class LinkAddToolbar extends React.PureComponent<Props & WrappedComponentProps> 
 							<Button
 								title={formatLinkAddressText}
 								icon={<ChevronLeftLargeIcon label={formatLinkAddressText} size="small" />}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onClick={() =>
 									this.handleOnBack({
 										url: value,
 										inputMethod: currentInputMethod,
 									})
 								}
+								// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 								onKeyDown={(event) => {
 									if (event.key === 'Enter' || event.key === ' ') {
 										event.preventDefault();
@@ -202,6 +199,7 @@ class LinkAddToolbar extends React.PureComponent<Props & WrappedComponentProps> 
 							autoFocus={true}
 							onCancel={this.handleCancel}
 							defaultValue={value}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onSubmit={(inputValue) => {
 								const validationErrors = this.getValidationErrors(inputValue, currentInputMethod);
 								this.setState({ validationErrors });
@@ -209,6 +207,7 @@ class LinkAddToolbar extends React.PureComponent<Props & WrappedComponentProps> 
 									onSubmit();
 								}
 							}}
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onChange={(value) => {
 								this.setState({ validationErrors: [] });
 								onChange(value);
@@ -225,7 +224,9 @@ class LinkAddToolbar extends React.PureComponent<Props & WrappedComponentProps> 
 								<Button
 									title={formatUnlinkText}
 									icon={<EditorUnlinkIcon label={formatUnlinkText} />}
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									onClick={() => this.handleUnlink()}
+									// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 									onKeyDown={(event) => {
 										if (event.key === 'Enter' || event.key === ' ') {
 											event.preventDefault();
@@ -244,7 +245,7 @@ class LinkAddToolbar extends React.PureComponent<Props & WrappedComponentProps> 
 		);
 	};
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { providerFactory, displayUrl } = this.props;
 
 		return (

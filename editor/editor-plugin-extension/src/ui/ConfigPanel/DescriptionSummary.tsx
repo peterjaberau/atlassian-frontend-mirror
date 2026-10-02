@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import type { ExtensionManifest } from '@atlaskit/editor-common/extensions';
 import { configPanelMessages as messages } from '@atlaskit/editor-common/extensions';
@@ -8,6 +8,10 @@ import { configPanelMessages as messages } from '@atlaskit/editor-common/extensi
 import { Box, Text, xcss } from '@atlaskit/primitives';
 
 import { HelpLink } from './HelpLink';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const DESCRIPTION_PERIOD_REGEX = /([^.])$/;
 
 const descriptionStyles = xcss({
 	marginBottom: 'space.300',
@@ -37,13 +41,7 @@ export function DescriptionSummary({
 				<Box xcss={descriptionStyles}>
 					<Text as="p" testId="config-panel-header-description">
 						{description && (
-							<Fragment>
-								{
-									// Ignored via go/ees005
-									// eslint-disable-next-line require-unicode-regexp
-									description.replace(/([^.])$/, '$1.')
-								}{' '}
-							</Fragment>
+							<Fragment>{description.replace(DESCRIPTION_PERIOD_REGEX, '$1.')} </Fragment>
 						)}
 						{deprecation?.isDeprecated && deprecation?.message && (
 							<Box paddingBlockStart="space.150">{deprecation.message}</Box>

@@ -1,0 +1,42 @@
+{
+	"name": "@atlaskit/editor-plugin-autocomplete",
+	"version": "17.0.0",
+	"description": "Client-side text autocomplete plugin for @atlaskit/editor-core",
+	"author": "Atlassian Pty Ltd",
+	"license": "Apache-2.0",
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
+	},
+	"atlassian": {
+		"team": "Editor: AI",
+		"singleton": true
+	},
+	"repository": "https://bitbucket.org/atlassian/atlassian-frontend-mirror",
+	"main": "dist/cjs/index.js",
+	"module": "dist/esm/index.js",
+	"module:es2019": "dist/es2019/index.js",
+	"types": "dist/types/index.d.ts",
+	"sideEffects": false,
+	"atlaskit:src": "src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./autocompletePlugin": "./src/entry-points/autocompletePlugin.tsx",
+		"./autocompletePluginType": "./src/entry-points/autocompletePluginType.ts"
+	},
+	"dependencies": {
+		"@atlaskit/editor-prosemirror": "workspace:^",
+		"@atlaskit/ufo": "workspace:^",
+		"@babel/runtime": "root:*",
+		"@mlc-ai/web-llm": "root:*",
+		"compromise": "root:*",
+		"wink-nlp": "root:*"
+	},
+	"peerDependencies": {
+		"@atlaskit/editor-common": "workspace:^",
+		"@atlaskit/editor-plugin-analytics": "workspace:^",
+		"react": "^18.2.0 || ^19.2.0"
+	},
+	"devDependencies": {
+		"react": "^19.2.0"
+	}
+}

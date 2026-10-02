@@ -3,23 +3,24 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
+
 import { useCallback, useEffect, useMemo, useState, useRef, Fragment } from 'react';
 import type { ChangeEvent } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { jsx, css } from '@emotion/react';
 
-import Button from '@atlaskit/button';
-import { IconButton } from '@atlaskit/button/new';
+import Button from '@atlaskit/button/button';
+import IconButton from '@atlaskit/button/icon/button';
 import { pixelEntryMessages as messages } from '@atlaskit/editor-common/media';
-import Form, { Field } from '@atlaskit/form';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
 import CrossIcon from '@atlaskit/icon/core/cross';
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives
-// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives, @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Inline, Box, Text, xcss } from '@atlaskit/primitives';
-import Textfield from '@atlaskit/textfield';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import {
 	PIXEL_RESIZING_TOOLBAR_WIDTH,
@@ -60,7 +61,7 @@ export const PixelEntryComponent = ({
 	onCloseAndSave,
 	isViewMode,
 	areAnyNewToolbarFlagsEnabled,
-}: PixelEntryProps) => {
+}: PixelEntryProps): jsx.JSX.Element => {
 	const ratioWidth = useMemo(() => {
 		return mediaHeight / mediaWidth;
 	}, [mediaHeight, mediaWidth]);
@@ -229,7 +230,7 @@ export const PixelEntryComponent = ({
 												// Ignored via go/ees005
 												// eslint-disable-next-line react/jsx-props-no-spreading
 												{...fieldProps}
-												// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/no-unsafe-style-overrides -- Ignored via go/DSP-18766
+												// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/no-unsafe-style-overrides, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 												css={[pixelSizingWidthInput, pixelSizingInput]}
 												appearance="none"
 												isCompact
@@ -255,7 +256,7 @@ export const PixelEntryComponent = ({
 												// Ignored via go/ees005
 												// eslint-disable-next-line react/jsx-props-no-spreading
 												{...fieldProps}
-												// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/no-unsafe-style-overrides -- Ignored via go/DSP-18766
+												// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/no-unsafe-style-overrides, @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 												css={[pixelSizingHeightInput, pixelSizingInput]}
 												appearance="none"
 												isCompact
@@ -314,7 +315,7 @@ export const PixelEntryComponentNext = ({
 	computedHeight,
 	handleCloseAndSave,
 	isViewMode,
-}: PixelEntryComponentNextProps) => {
+}: PixelEntryComponentNextProps): jsx.JSX.Element => {
 	const widthInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
@@ -356,6 +357,7 @@ export const PixelEntryComponentNext = ({
 	);
 
 	return (
+		// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 		<Box xcss={[pixelEntryWrapperStyles, isViewMode && pixelEntryWrapperViewModeStyles]}>
 			<Inline alignBlock="center" spread="space-between">
 				<Box paddingInlineStart="space.100">
@@ -408,9 +410,11 @@ export const PixelEntryComponentNext = ({
 					<Fragment>
 						<Box xcss={dividerStyles}></Box>
 						<IconButton
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							icon={() => <CrossIcon label="" color={token('color.icon.subtlest')} />}
 							label={formatMessage(messages.closePixelEntry)}
 							appearance="subtle"
+							// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 							onClick={() => {
 								handleCloseAndSave({ inputWidth: computedWidth, inputHeight: computedHeight });
 							}}

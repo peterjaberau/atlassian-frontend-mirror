@@ -6,10 +6,10 @@ import React, { Fragment } from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import type {
 	ExtensionManifest,
 	FieldDefinition,
@@ -17,13 +17,12 @@ import type {
 	Parameters,
 } from '@atlaskit/editor-common/extensions';
 import { configPanelMessages as messages } from '@atlaskit/editor-common/extensions';
-import Heading from '@atlaskit/heading';
+import Heading from '@atlaskit/heading/heading';
 import AddCircleIcon from '@atlaskit/icon/core/add';
 // eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- to be migrated to @atlaskit/primitives/compiled – go/akcss
 import { Box, Text, xcss } from '@atlaskit/primitives';
-import SectionMessage from '@atlaskit/section-message';
-import Select from '@atlaskit/select';
-import { N40A } from '@atlaskit/theme/colors';
+import SectionMessage from '@atlaskit/section-message/message';
+import Select from '@atlaskit/select/default';
 import { token } from '@atlaskit/tokens';
 
 import type { FormContentProps, OnFieldChange } from '../types';
@@ -35,9 +34,9 @@ type OptionType = {
 };
 
 const actionsWrapperStyles = css({
-	borderTop: `${token('border.width')} solid ${token('color.border', N40A)}`,
-	marginTop: token('space.200', '16px'),
-	paddingTop: token('space.200', '16px'),
+	borderTop: `${token('border.width')} solid ${token('color.border')}`,
+	marginTop: token('space.200'),
+	paddingTop: token('space.200'),
 });
 
 const populateFromParameters = (
@@ -238,6 +237,7 @@ class FieldsetField extends React.Component<Props, State> {
 						autoFocus
 						placeholder={intl.formatMessage(messages.addField)}
 						options={selectOptions}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onChange={(option) => {
 							if (option) {
 								this.onSelectItem(option as OptionType);
@@ -248,6 +248,7 @@ class FieldsetField extends React.Component<Props, State> {
 					<Button
 						testId="add-more"
 						appearance="subtle"
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						iconBefore={(iconProps) => (
 							<AddCircleIcon
 								// Ignored via go/ees005
@@ -257,6 +258,7 @@ class FieldsetField extends React.Component<Props, State> {
 								label={intl.formatMessage(messages.addField)}
 							/>
 						)}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						onClick={() => this.setIsAdding(true)}
 					>
 						{intl.formatMessage(messages.addField)}
@@ -322,4 +324,8 @@ const sectionMessageWrapperStyles = xcss({
 	marginBottom: 'space.300',
 });
 
-export default injectIntl(FieldsetField);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<Props>> & {
+	WrappedComponent: React.ComponentType<Props>;
+} = injectIntl(FieldsetField);
+export default _default_1;

@@ -14,6 +14,17 @@ export const mouseLeave = (view: EditorView): void => {
 	view.dispatch(view.state.tr.setMeta(interactionTrackingPluginKey, { type: 'mouseLeave' }));
 };
 
-export const mouseEnter = (view: EditorView): void => {
-	view.dispatch(view.state.tr.setMeta(interactionTrackingPluginKey, { type: 'mouseEnter' }));
+export const mouseEnter = (view: EditorView, side?: 'left' | 'right'): void => {
+	const meta = side ? { type: 'mouseEnter', side } : { type: 'mouseEnter' };
+	view.dispatch(view.state.tr.setMeta(interactionTrackingPluginKey, meta));
+};
+
+export const setHoverSide = (view: EditorView, side: 'left' | 'right'): void => {
+	view.dispatch(
+		view.state.tr.setMeta(interactionTrackingPluginKey, { type: 'setHoverSide', side }),
+	);
+};
+
+export const clearHoverSide = (view: EditorView): void => {
+	view.dispatch(view.state.tr.setMeta(interactionTrackingPluginKey, { type: 'clearHoverSide' }));
 };

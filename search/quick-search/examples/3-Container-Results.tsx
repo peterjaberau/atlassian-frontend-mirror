@@ -1,8 +1,10 @@
 import React from 'react';
-import Avatar from '@atlaskit/avatar';
-import { getContainerAvatarUrl } from './utils/mockData';
-import ContainerResult from '../src/components/Results/ContainerResult';
+
+import Avatar from '@atlaskit/avatar/avatar';
+
 import ResultItemGroup from '../src/components/ResultItem/ResultItemGroup';
+import ContainerResult from '../src/components/Results/ContainerResult';
+import { getContainerAvatarUrl } from './utils/mockData';
 
 const defaultProps = {
 	resultId: 'result_id',
@@ -12,7 +14,7 @@ const dummyAvatarComponent = <Avatar src={getContainerAvatarUrl(4)} appearance="
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default class extends React.Component {
-	render() {
+	render(): React.JSX.Element {
 		return (
 			<div>
 				<h3>Containers</h3>

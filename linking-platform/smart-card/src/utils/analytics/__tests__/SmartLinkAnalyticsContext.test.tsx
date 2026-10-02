@@ -1,24 +1,18 @@
 import React, { useEffect } from 'react';
 
-import { render, renderHook } from '@testing-library/react';
+import FabricAnalyticsListeners from '@atlaskit/analytics-listeners/FabricAnalyticsListeners';
+import type { AnalyticsWebClient } from '@atlaskit/analytics-listeners/types';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import type { CardState } from '@atlaskit/linking-common/store';
+import { render, renderHook } from '@atlassian/testing-library';
 
-import FabricAnalyticsListeners, { type AnalyticsWebClient } from '@atlaskit/analytics-listeners';
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-import FeatureGates from '@atlaskit/feature-gate-js-client';
-import { SmartCardProvider } from '@atlaskit/link-provider';
-import type { CardState } from '@atlaskit/linking-common';
-
-import { mockByUrl, mocks } from '../../mocks';
+import { mockByUrl } from '../../mock-by-url';
+import { mocks } from '../../mocks';
 import { context } from '../analytics';
-import {
-	SmartLinkAnalyticsContext,
-	useSmartLinkAnalyticsContext,
-} from '../SmartLinkAnalyticsContext';
-
-jest.mock('@atlaskit/feature-gate-js-client', () => ({
-	getExperimentValue: jest.fn(() => false),
-	initializeCompleted: jest.fn(() => true),
-}));
+import { SmartLinkAnalyticsContext } from '../SmartLinkAnalyticsContext';
+import { useSmartLinkAnalyticsContext } from '../useSmartLinkAnalyticsContext';
+import { useSmartLinkAnalyticsUtils } from '../useSmartLinkAnalyticsUtils';
 
 describe('SL analytics context', () => {
 	const url = 'https://some.url';
@@ -27,11 +21,6 @@ describe('SL analytics context', () => {
 	const source = 'some-source';
 	const resolvedResponse = mockByUrl(url);
 	const resolvedCardState = { details: resolvedResponse, status: 'resolved' as const };
-	const getExperimentValueMock = FeatureGates.getExperimentValue as jest.Mock;
-
-	beforeEach(() => {
-		getExperimentValueMock.mockReturnValue(false);
-	});
 
 	describe('SmartLinkAnalyticsContext', () => {
 		const payload = {
@@ -145,15 +134,7 @@ describe('SL analytics context', () => {
 			await expect(document.body).toBeAccessible();
 		});
 
-		it('adds analytics context with displayCategory "link" when display is "url" when the hyperlink button experiment is running', async () => {
-			getExperimentValueMock.mockImplementation((experimentName: string) => {
-				if (
-					experimentName === 'platform_linking_bluelink_connect_confluence' ||
-					experimentName === 'platform_linking_bluelink_connect_jira'
-				) {
-					return true;
-				}
-			});
+		it('adds analytics context with displayCategory "link" when display is "url"', async () => {
 			const setupWithUrlDisplay = (cardState?: CardState) => {
 				const storeOptions = cardState ? { initialState: { [url]: cardState } } : undefined;
 
@@ -204,15 +185,7 @@ describe('SL analytics context', () => {
 			await expect(document.body).toBeAccessible();
 		});
 
-		it('adds analytics context with displayCategory "smartLink" when display is not "url" when the hyperlink button experiment is running', async () => {
-			getExperimentValueMock.mockImplementation((experimentName: string) => {
-				if (
-					experimentName === 'platform_linking_bluelink_connect_confluence' ||
-					experimentName === 'platform_linking_bluelink_connect_jira'
-				) {
-					return true;
-				}
-			});
+		it('adds analytics context with displayCategory "smartLink" when display is not "url"', async () => {
 			const setupWithInlineDisplay = (cardState?: CardState) => {
 				const storeOptions = cardState ? { initialState: { [url]: cardState } } : undefined;
 
@@ -275,7 +248,7 @@ describe('SL analytics context', () => {
 		};
 
 		it('returns analytics context based on url', async () => {
-			const { result } = setup(resolvedCardState);
+			const result = setup(resolvedCardState);
 
 			expect(result.current).toEqual({
 				source,
@@ -307,7 +280,7 @@ describe('SL analytics context', () => {
 		});
 
 		it('returns minimal analytics context if url is not in the store', async () => {
-			const { result } = setup();
+			const result = setup();
 
 			expect(result.current).toEqual({
 				source,
@@ -339,7 +312,7 @@ describe('SL analytics context', () => {
 		});
 
 		it('returns pending analytics context if url is not in the store', async () => {
-			const { result } = setup({ status: 'pending' });
+			const result = setup({ status: 'pending' });
 
 			expect(result.current).toEqual({
 				source,
@@ -371,7 +344,7 @@ describe('SL analytics context', () => {
 		});
 
 		it('returns forbidden analytics context', async () => {
-			const { result } = setup({ details: mocks.forbidden, status: 'pending' });
+			const result = setup({ details: mocks.forbidden, status: 'pending' });
 
 			expect(result.current).toEqual({
 				source,
@@ -403,7 +376,7 @@ describe('SL analytics context', () => {
 		});
 
 		it('returns unauthorized analytics context', async () => {
-			const { result } = setup({ details: mocks.unauthorized, status: 'pending' });
+			const result = setup({ details: mocks.unauthorized, status: 'pending' });
 
 			expect(result.current).toEqual({
 				source,
@@ -434,15 +407,7 @@ describe('SL analytics context', () => {
 			await expect(document.body).toBeAccessible();
 		});
 
-		it('returns analytics context with displayCategory "link" when display is "url" when the hyperlink button experiment is running', async () => {
-			getExperimentValueMock.mockImplementation((experimentName: string) => {
-				if (
-					experimentName === 'platform_linking_bluelink_connect_confluence' ||
-					experimentName === 'platform_linking_bluelink_connect_jira'
-				) {
-					return true;
-				}
-			});
+		it('returns analytics context with displayCategory "link" when display is "url"', async () => {
 			const setupWithUrlDisplay = (cardState?: CardState) => {
 				const storeOptions = cardState ? { initialState: { [url]: cardState } } : undefined;
 				return renderHook(() => useSmartLinkAnalyticsContext({ display: 'url', id, source, url }), {
@@ -452,7 +417,7 @@ describe('SL analytics context', () => {
 				});
 			};
 
-			const { result } = setupWithUrlDisplay(resolvedCardState);
+			const result = setupWithUrlDisplay(resolvedCardState);
 
 			expect(result.current).toEqual({
 				source,
@@ -483,15 +448,7 @@ describe('SL analytics context', () => {
 			await expect(document.body).toBeAccessible();
 		});
 
-		it('returns analytics context with displayCategory "smartLink" when display is not "url" when the hyperlink button experiment is running', async () => {
-			getExperimentValueMock.mockImplementation((experimentName: string) => {
-				if (
-					experimentName === 'platform_linking_bluelink_connect_confluence' ||
-					experimentName === 'platform_linking_bluelink_connect_jira'
-				) {
-					return true;
-				}
-			});
+		it('returns analytics context with displayCategory "smartLink" when display is not "url"', async () => {
 			const setupWithInlineDisplay = (cardState?: CardState) => {
 				const storeOptions = cardState ? { initialState: { [url]: cardState } } : undefined;
 				return renderHook(
@@ -504,7 +461,7 @@ describe('SL analytics context', () => {
 				);
 			};
 
-			const { result } = setupWithInlineDisplay(resolvedCardState);
+			const result = setupWithInlineDisplay(resolvedCardState);
 
 			expect(result.current).toEqual({
 				source,
@@ -528,6 +485,146 @@ describe('SL analytics context', () => {
 					packageVersion: expect.any(String),
 					resourceType: 'object-resource',
 					status: 'resolved',
+					statusDetails: null,
+				},
+			});
+
+			await expect(document.body).toBeAccessible();
+		});
+	});
+
+	describe('useSmartLinkAnalyticsUtils', () => {
+		const setup = (cardState?: CardState) => {
+			const storeOptions = cardState ? { initialState: { [url]: cardState } } : undefined;
+			return renderHook(() => useSmartLinkAnalyticsUtils(), {
+				wrapper: ({ children }) => (
+					<SmartCardProvider storeOptions={storeOptions}>{children}</SmartCardProvider>
+				),
+			});
+		};
+
+		it('returns analytics context for url in the store', async () => {
+			const result = setup(resolvedCardState);
+
+			expect(result.current.getByUrl(url, { display, id, source })).toEqual({
+				source,
+				attributes: {
+					...context,
+					canBeDatasource: false,
+					definitionId: 'd1',
+					destinationActivationId: null,
+					destinationCategory: null,
+					destinationContainerId: null,
+					destinationObjectId: null,
+					destinationObjectType: 'object-resource',
+					destinationProduct: 'object-product',
+					destinationSubproduct: 'object-subproduct',
+					destinationTenantId: null,
+					display,
+					displayCategory: 'smartLink',
+					extensionKey: 'object-provider',
+					id,
+					packageName: expect.any(String),
+					packageVersion: expect.any(String),
+					resourceType: 'object-resource',
+					status: 'resolved',
+					statusDetails: null,
+				},
+			});
+
+			await expect(document.body).toBeAccessible();
+		});
+
+		it('returns minimal analytics context if url is not in the store', async () => {
+			const result = setup();
+
+			expect(result.current.getByUrl(url, { display, id, source })).toEqual({
+				source,
+				attributes: {
+					...context,
+					canBeDatasource: false,
+					definitionId: null,
+					destinationActivationId: null,
+					destinationCategory: null,
+					destinationContainerId: null,
+					destinationObjectId: null,
+					destinationObjectType: null,
+					destinationProduct: null,
+					destinationSubproduct: null,
+					destinationTenantId: null,
+					display,
+					displayCategory: 'smartLink',
+					extensionKey: null,
+					id,
+					packageName: expect.any(String),
+					packageVersion: expect.any(String),
+					resourceType: null,
+					status: 'pending',
+					statusDetails: null,
+				},
+			});
+
+			await expect(document.body).toBeAccessible();
+		});
+
+		it('returns analytics context for a different url than the one in the store', async () => {
+			const otherUrl = 'https://other.url';
+			const result = setup(resolvedCardState);
+
+			expect(result.current.getByUrl(otherUrl, { display, id, source })).toEqual({
+				source,
+				attributes: {
+					...context,
+					canBeDatasource: false,
+					definitionId: null,
+					destinationActivationId: null,
+					destinationCategory: null,
+					destinationContainerId: null,
+					destinationObjectId: null,
+					destinationObjectType: null,
+					destinationProduct: null,
+					destinationSubproduct: null,
+					destinationTenantId: null,
+					display,
+					displayCategory: 'smartLink',
+					extensionKey: null,
+					id,
+					packageName: expect.any(String),
+					packageVersion: expect.any(String),
+					resourceType: null,
+					status: 'pending',
+					statusDetails: null,
+				},
+			});
+
+			await expect(document.body).toBeAccessible();
+		});
+
+		it('returns unauthorized analytics context', async () => {
+			const result = setup({ details: mocks.unauthorized, status: 'unauthorized' });
+
+			expect(result.current.getByUrl(url, { display, id, source })).toEqual({
+				source,
+				attributes: {
+					...context,
+					canBeDatasource: false,
+					definitionId: 'd1',
+					destinationActivationId: null,
+					destinationCategory: null,
+					destinationContainerId: null,
+					destinationObjectId: null,
+					destinationObjectType: null,
+					destinationProduct: null,
+					destinationSubproduct: null,
+					destinationTenantId: null,
+					display,
+					displayCategory: 'smartLink',
+					extensionKey: 'object-provider',
+					id,
+					packageName: expect.any(String),
+					packageVersion: expect.any(String),
+					resourceType: null,
+					status: 'unauthorized',
 					statusDetails: null,
 				},
 			});

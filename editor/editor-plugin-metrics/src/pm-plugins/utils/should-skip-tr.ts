@@ -1,6 +1,8 @@
-import { InsertTypeAheadStep, LinkMetaStep } from '@atlaskit/adf-schema/steps';
+import { LinkMetaStep } from '@atlaskit/adf-schema/steps/link-meta-step';
+import { InsertTypeAheadStep } from '@atlaskit/adf-schema/steps/type-ahead';
 import type { ReadonlyTransaction } from '@atlaskit/editor-prosemirror/state';
-import { ReplaceStep, type Step } from '@atlaskit/editor-prosemirror/transform';
+import { ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
+import type { Step } from '@atlaskit/editor-prosemirror/transform-override';
 
 const isResolvingLink = (tr: ReadonlyTransaction): boolean => {
 	// When links are added, there are two transactions that are fired and we want to ignore the last one where the link is resolved
@@ -9,8 +11,8 @@ const isResolvingLink = (tr: ReadonlyTransaction): boolean => {
 
 	return Boolean(
 		hasReplaceStep &&
-			linkStep instanceof LinkMetaStep &&
-			linkStep.getMetadata()?.cardAction === 'RESOLVE',
+		linkStep instanceof LinkMetaStep &&
+		linkStep.getMetadata()?.cardAction === 'RESOLVE',
 	);
 };
 

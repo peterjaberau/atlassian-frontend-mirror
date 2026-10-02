@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from 'react';
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
-import { expValEqualsNoExposure } from '@atlaskit/tmp-editor-statsig/exp-val-equals-no-exposure';
 
 import { createPlugin, dispatchShouldHideDecorations, key } from './pm-plugins/main';
 import type { ReleaseHiddenDecoration, SelectionMarkerPlugin } from './selectionMarkerPluginType';
@@ -92,13 +91,7 @@ export const selectionMarkerPlugin: SelectionMarkerPlugin = ({ config, api }) =>
 						isOpen: states.typeAheadState?.isOpen,
 						editorDisabled: states.editorDisabledState?.editorDisabled,
 						showToolbar: states.toolbarState?.shouldShowToolbar,
-						hasDangerDecorations: expValEqualsNoExposure(
-							'platform_editor_block_menu',
-							'isEnabled',
-							true,
-						)
-							? states.decorationsState?.hasDangerDecorations
-							: undefined,
+						hasDangerDecorations: states.decorationsState?.hasDangerDecorations,
 						currentUserIntent: states.userIntentState?.currentUserIntent,
 					};
 				},
@@ -113,9 +106,7 @@ export const selectionMarkerPlugin: SelectionMarkerPlugin = ({ config, api }) =>
 					editorHasNotBeenFocused.current = false;
 				}
 
-				const isBlockMenuOpen =
-					currentUserIntent === 'blockMenuOpen' &&
-					expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true);
+				const isBlockMenuOpen = currentUserIntent === 'blockMenuOpen';
 
 				/**
 				 * There are a number of conditions we should not show the marker,
@@ -133,8 +124,7 @@ export const selectionMarkerPlugin: SelectionMarkerPlugin = ({ config, api }) =>
 					isForcedHidden ||
 					(editorDisabled ?? false) ||
 					(showToolbar ?? false) ||
-					(!!hasDangerDecorations &&
-						expValEqualsNoExposure('platform_editor_block_menu', 'isEnabled', true)) ||
+					!!hasDangerDecorations ||
 					isBlockMenuOpen;
 
 				requestAnimationFrame(() => dispatchShouldHideDecorations(editorView, shouldHide));

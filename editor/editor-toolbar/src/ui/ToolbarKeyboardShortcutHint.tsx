@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Badge from '@atlaskit/badge';
+import Badge from '@atlaskit/badge/badge';
 import { Text } from '@atlaskit/primitives/compiled';
 
 type ToolbarKeyboardShortcutHintProps = {
@@ -14,7 +14,7 @@ export const ToolbarKeyboardShortcutHint = ({
 }: ToolbarKeyboardShortcutHintProps): React.JSX.Element => {
 	if (isDisabled) {
 		return (
-			<Badge appearance="primaryInverted">
+			<Badge appearance="inverse">
 				<Text color="color.text.disabled">{shortcut}</Text>
 			</Badge>
 		);

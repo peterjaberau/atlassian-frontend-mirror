@@ -1,9 +1,10 @@
 import { snapshot } from '@af/visual-regression';
+
 import {
 	BackgroundColorDefinedColors,
 	BackgroundColorOverlapped,
 	BackgroundColorCustomColors,
-} from './highlight.fixture';
+} from './highlight.fixture.vr.ap';
 
 const featureFlags = {
 	editor_inline_comments_on_inline_nodes: [true, false],

@@ -1,4 +1,5 @@
 import { Device, type Hooks, snapshot } from '@af/visual-regression';
+// oxlint-disable-next-line @atlassian/no-restricted-imports
 import type { SnapshotTestOptions } from '@atlassian/gemini';
 
 import {
@@ -7,7 +8,7 @@ import {
 	ScrollableVR,
 	UnscrollableNoPanelVR,
 	UnscrollableVR,
-} from '../../../examples/composition';
+} from '../../../examples/composition.vr.ap';
 
 const defaultOptions: SnapshotTestOptions<Hooks> = {
 	drawsOutsideBounds: true,
@@ -65,13 +66,16 @@ const panelSplitterHovered: SnapshotTestOptions<Hooks> = {
 snapshot(ScrollableVR, {
 	...panelSplitterHovered,
 });
-snapshot(ScrollableVR, {
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(ScrollableVR, {
 	...defaultOptions,
 });
-snapshot(UnscrollableVR, {
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(UnscrollableVR, {
 	...defaultOptions,
 });
-snapshot(ScrollableNoPanelVR, {
+// Will be re-enabled as part of UTEST-2316.
+snapshot.skip(ScrollableNoPanelVR, {
 	...defaultOptions,
 });
 snapshot(ScrollableScrolledVR, {

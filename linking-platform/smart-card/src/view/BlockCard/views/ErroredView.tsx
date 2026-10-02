@@ -7,7 +7,6 @@ import { messages } from '../../../messages';
 import { type ActionItem } from '../../FlexibleCard/components/blocks/types';
 import Text from '../../FlexibleCard/components/elements/common/base-text-element';
 import { RetryAction } from '../actions/RetryAction';
-
 import { type FlexibleBlockCardProps } from './types';
 import UnresolvedView from './unresolved-view';
 import { withFlexibleUIBlockCardStyle } from './utils/withFlexibleUIBlockCardStyle';
@@ -41,4 +40,6 @@ const ErroredView = ({ testId = 'smart-block-errored-view', ...props }: Flexible
 	);
 };
 
-export default withFlexibleUIBlockCardStyle(ErroredView);
+const _default_1: (props: FlexibleBlockCardProps) => JSX.Element =
+	withFlexibleUIBlockCardStyle(ErroredView);
+export default _default_1;

@@ -1,5 +1,258 @@
 # @atlaskit/teams-app-internal-analytics
 
+## 2.4.2
+
+### Patch Changes
+
+- [`264d6290c933a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/264d6290c933a) -
+  Instrument invite-from-anywhere analytics for twcg-448-invite-from-anywhere-experiment and
+  twcg-448-invite-from-anywhere-killswitch.
+
+## 2.4.1
+
+### Patch Changes
+
+- [`f08c657595242`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f08c657595242) -
+  Update UserProfilePreview and its consumers to correctly instrument distinct actions.
+
+## 2.4.0
+
+### Minor Changes
+
+- [`eafe925f0b19a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/eafe925f0b19a) -
+  Add diagnoseTeamPermissionsNudge rendered and clicked UI events.
+
+## 2.3.1
+
+### Patch Changes
+
+- [`271e969f72f04`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/271e969f72f04) -
+  VOLTC-111 - run volt-migrate-package on @atlaskit/teams-app-internal-analytics
+- Updated dependencies
+
+## 2.3.0
+
+### Minor Changes
+
+- [`a9a8208446bfa`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a9a8208446bfa) -
+  Support React 19 for people-and-teams packages.
+
+## 2.2.1
+
+### Patch Changes
+
+- [`f53c4ab7271ec`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f53c4ab7271ec) -
+  Add middle-click (auxiliary click) engagement instrumentation to UserProfilePreview,
+  UserInlinePreview and UserProfileCard. Middle-clicking the View profile, Message and Reporting
+  line actions now fires the same analytics events as a primary click, with a new isAuxClick
+  attribute set to true to distinguish middle-clicks.
+
+## 2.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 2.1.0
+
+### Minor Changes
+
+- [`2a4d380d67e59`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2a4d380d67e59) -
+  Added analytics registrations for merged destination team in team profile archived banner
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 2.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.33.0
+
+### Minor Changes
+
+- [`1a6c7ba7a76fb`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1a6c7ba7a76fb) -
+  [ux] Update LinkList and people consumers of it to have a viewAll link
+
+## 1.32.0
+
+### Minor Changes
+
+- [`f115eca784698`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f115eca784698) -
+  Clean up `twcg_640_invite_prompt_on_teams_page_links` feature gate. The
+  invite-prompt-on-team-page-links experiment is not shipping, so the control behaviour (no invite
+  prompt) is now permanent. Removed the entire `use-invite-flag/` controller subtree, the
+  `InviteFlagMessages` example, all related `invitePrompt.*` analytics events, and the gate
+  registrations from `@atlassian/teams`, `@townsquare/stat-sig`, and the Confluence e2e gates
+  fixture.
+
+## 1.31.0
+
+### Minor Changes
+
+- [`7ac3533571b4f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7ac3533571b4f) -
+  [ux] Update analytics for mini user profiles across consumers
+
+## 1.30.0
+
+### Minor Changes
+
+- [`d4e632fa57116`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d4e632fa57116) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 1.29.0
+
+### Minor Changes
+
+- [`ebab8f80bfc40`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ebab8f80bfc40) -
+  Register native GASv3 events for `userProfileCard`, `hierarchyChart`, and
+  `interactiveHierarchyModal` in `analytics.spec.yaml` and the generated `analytics.types.ts`. Also
+  adds `userProfileCard`, `hierarchyChart`, and `interactiveHierarchyModal` to the
+  `AnalyticsEventSource` union, and tightens `ui.userProfileCard.opened`'s `triggerMethod` attribute
+  to the literal union `'click' | 'hover'`.
+
+  The new event keys cover open/close, click, request lifecycle (`triggered` / `succeeded` /
+  `failed`), render lifecycle (`rendered.spinner` / `rendered.content` / `rendered.error` /
+  `rendered.errorBoundary`), and chart node interactions. See the per-package changesets for the
+  consumer-side wiring.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 1.28.0
+
+### Minor Changes
+
+- [`bb72314e9cb09`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bb72314e9cb09) -
+  Add native GASv3 analytics events for UserProfilePreview and UserInlinePreview UIs (click-based UI
+  events). Operational succeeded/failed events are exposed for consuming contexts to fire when
+  wiring Relay loading and error states.
+
+## 1.27.5
+
+### Patch Changes
+
+- [`decd539deebf1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/decd539deebf1) -
+  Migrate to use the playground package
+
+## 1.27.4
+
+### Patch Changes
+
+- [`7fb5bfbafb83e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7fb5bfbafb83e) -
+  Enrol people-and-teams packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 1.27.3
+
+### Patch Changes
+
+- [`7de638877e6ae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7de638877e6ae) -
+  Add classification to failed star team
+
+## 1.27.2
+
+### Patch Changes
+
+- [`c1deed94ac30d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c1deed94ac30d) -
+  [ux] Build custom fields for number and string type, add analytics events for updating custom
+  fields
+
+## 1.27.1
+
+### Patch Changes
+
+- [`2c34be51e4045`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2c34be51e4045) -
+  Remove code related to the teams_app_auto_container_create_universal_create experiment (we are not
+  going ahead with this)
+
+## 1.27.0
+
+### Minor Changes
+
+- [`5f4ff6a2dd06d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5f4ff6a2dd06d) -
+  Added analytics events for team hierarchy tree
+
+## 1.26.0
+
+### Minor Changes
+
+- [`9002e8f46f8a6`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9002e8f46f8a6) -
+  [ux] Added parent team picker
+
+## 1.25.3
+
+### Patch Changes
+
+- [`3e341ed734ff1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3e341ed734ff1) -
+  Remove source from track.starTeam.failed
+
+## 1.25.2
+
+### Patch Changes
+
+- [`0dd4d571a5040`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0dd4d571a5040) -
+  Add starTeam failed event
+
+## 1.25.1
+
+### Patch Changes
+
+- [`2595e04a5295b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/2595e04a5295b) -
+  Add starButton viewed (team) event
+
+## 1.25.0
+
+### Minor Changes
+
+- [`8204a3c66c06b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8204a3c66c06b) -
+  Add analytics for starred mutations
+
+## 1.24.2
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 1.24.1
 
 ### Patch Changes

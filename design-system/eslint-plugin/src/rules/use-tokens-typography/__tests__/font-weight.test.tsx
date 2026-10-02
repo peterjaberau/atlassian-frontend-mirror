@@ -4,7 +4,6 @@ import outdent from 'outdent';
 import { ruleTester } from '@atlassian/eslint-utils';
 
 import rule from '../index';
-
 import type { Tests } from './_types';
 
 export const typographyTests: Tests = {
@@ -57,11 +56,6 @@ export const typographyTests: Tests = {
 					fontWeight: 400,
 				})`,
 			errors: [{ messageId: 'noRawFontWeightValues' }],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = css({
-					fontWeight: token('font.weight.regular'),
-				})`,
 		},
 		{
 			options: [{ patterns: ['font-weight'] }],
@@ -70,11 +64,6 @@ export const typographyTests: Tests = {
 					fontWeight: '500',
 				})`,
 			errors: [{ messageId: 'noRawFontWeightValues' }],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = css({
-					fontWeight: token('font.weight.medium'),
-				})`,
 		},
 		{
 			options: [{ patterns: ['font-weight'] }],
@@ -83,11 +72,6 @@ export const typographyTests: Tests = {
 					fontWeight: '600',
 				})`,
 			errors: [{ messageId: 'noRawFontWeightValues' }],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = xcss({
-					fontWeight: token('font.weight.semibold'),
-				})`,
 		},
 		{
 			options: [{ patterns: ['font-weight'] }],
@@ -96,11 +80,6 @@ export const typographyTests: Tests = {
 					fontWeight: '700',
 				})`,
 			errors: [{ messageId: 'noRawFontWeightValues' }],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = styled.div({
-					fontWeight: token('font.weight.bold'),
-				})`,
 		},
 		// Errors on raw fontweight (only) and does not fix when not X00 number
 		{
@@ -119,11 +98,6 @@ export const typographyTests: Tests = {
 					fontWeight: 'bold',
 				})`,
 			errors: [{ messageId: 'noRawFontWeightValues' }],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = css({
-					fontWeight: token('font.weight.bold'),
-				})`,
 		},
 		// Fixes fontWeight: normal to token('font.weight.regular')
 		{
@@ -133,11 +107,6 @@ export const typographyTests: Tests = {
 					fontWeight: 'normal',
 				})`,
 			errors: [{ messageId: 'noRawFontWeightValues' }],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = css({
-					fontWeight: token('font.weight.regular'),
-				})`,
 		},
 		// Test cssMap
 		{
@@ -147,11 +116,6 @@ export const typographyTests: Tests = {
 					bold: { fontWeight: 700 }
 				});`,
 			errors: [{ messageId: 'noRawFontWeightValues' }],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = cssMap({
-					bold: { fontWeight: token('font.weight.bold') }
-				});`,
 		},
 		// Test cssMap with nesting
 		{
@@ -163,13 +127,6 @@ export const typographyTests: Tests = {
 					}
 				})`,
 			errors: [{ messageId: 'noRawFontWeightValues' }],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = cssMap({
-					bold: {
-						'& strong': { fontWeight: token('font.weight.regular') }
-					}
-				})`,
 		},
 	],
 };

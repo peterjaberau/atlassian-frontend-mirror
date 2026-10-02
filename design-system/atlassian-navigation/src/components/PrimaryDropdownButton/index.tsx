@@ -10,7 +10,6 @@ import { css, jsx } from '@emotion/react';
 import ChevronDownIcon from '@atlaskit/icon/core/chevron-down';
 
 import { PrimaryButton } from '../PrimaryButton';
-
 import { type PrimaryDropdownButtonProps } from './types';
 
 const buttonNoOpStyle = css({
@@ -25,6 +24,8 @@ const buttonNoOpStyle = css({
  *
  * - [Examples](https://atlassian.design/components/atlassian-navigation/examples#button)
  * - [Code](https://atlassian.design/components/atlassian-navigation/code)
+ *
+ * @deprecated `@atlaskit/atlassian-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
 export const PrimaryDropdownButton: React.ForwardRefExoticComponent<
 	React.PropsWithoutRef<PrimaryDropdownButtonProps> & React.RefAttributes<HTMLElement>

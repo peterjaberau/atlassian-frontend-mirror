@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { type IntlShape, useIntl } from 'react-intl-next';
+import { type IntlShape, useIntl } from 'react-intl';
 
+import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import { isSSR } from '@atlaskit/editor-common/core-utils';
 import type { Dispatch } from '@atlaskit/editor-common/event-dispatcher';
 import { toolbarInsertBlockMessages as messages } from '@atlaskit/editor-common/messages';
@@ -11,53 +12,102 @@ import type {
 	QuickInsertProvider,
 } from '@atlaskit/editor-common/provider-factory';
 import { memoProcessQuickInsertItems } from '@atlaskit/editor-common/quick-insert';
+import { getActiveQuickInsertCategories } from '@atlaskit/editor-common/quick-insert/get-active-quick-insert-categories';
 import { SafePlugin } from '@atlaskit/editor-common/safe-plugin';
 import { TypeAheadAvailableNodes } from '@atlaskit/editor-common/type-ahead';
 import type {
 	Command,
 	EditorCommand,
 	EmptyStateHandler,
+	ExtractInjectionAPI,
 	QuickInsertHandler,
-	QuickInsertPluginState,
-	QuickInsertPluginStateKeys,
 	TypeAheadHandler,
 } from '@atlaskit/editor-common/types';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import ShowMoreHorizontalIcon from '@atlaskit/icon/core/show-more-horizontal';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
-import { createInsertItem, openElementBrowserModal } from './pm-plugins/commands';
+import { createQuickInsertItemsAnalyticsScheduler } from './app-category-analytics';
+import {
+	createInsertItem,
+	openElementBrowser as openElementBrowserCommand,
+	openElementBrowserModal,
+} from './pm-plugins/commands';
 import { getQuickInsertOpenExperiencePlugin } from './pm-plugins/experiences/quick-insert-open-experience';
-import { pluginKey } from './pm-plugins/plugin-key';
-import { type QuickInsertPlugin } from './quickInsertPluginType';
+import {
+	pluginKey,
+	type QuickInsertPluginState,
+	type QuickInsertPluginStateKeys,
+} from './pm-plugins/plugin-key';
+import type { OpenElementBrowserOptions, QuickInsertPlugin } from './quickInsertPluginType';
+import { getBlockControlQuickInsertComponents } from './ui/block-control-quick-insert';
+import { getLegacyCompatibleComponents } from './ui/getLegacyCompatibleComponents';
+import { getQuickInsertComponents } from './ui/getQuickInsertComponents';
 import ModalElementBrowser from './ui/ModalElementBrowser';
-import { getQuickInsertSuggestions } from './ui/search';
+import { RegistryElementBrowserContainer } from './ui/RegistryElementBrowser';
+import { getQuickInsertSuggestions, withLayoutQuickInsertPrioritySorting } from './ui/search';
+
+type QuickInsertPluginRefs = {
+	editorView?: EditorView;
+	popupsMountPoint?: HTMLElement;
+	wrapperElement?: HTMLElement;
+};
 
 export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) => {
-	const refs: { popupsMountPoint?: HTMLElement; wrapperElement?: HTMLElement } = {};
+	const refs: QuickInsertPluginRefs = {};
 
 	const onInsert = (item: QuickInsertItem) => {
 		options?.onInsert?.(item);
 	};
 
+	const typeAheadPrioritySortingFn = withLayoutQuickInsertPrioritySorting(
+		options?.prioritySortingFn,
+	);
+
 	const typeAhead: TypeAheadHandler = {
 		id: TypeAheadAvailableNodes.QUICK_INSERT,
 		trigger: '/',
+		// Support fullwidth slash (U+FF0F) used by Japanese/CJK keyboards (e.g. typing / on a Japanese keyboard layout)
+		customRegex: '[/／]',
 		headless: options?.headless,
 		getItems({ query, editorState }) {
 			const quickInsertState = pluginKey.getState(editorState);
-
-			return Promise.resolve(
-				getQuickInsertSuggestions(
-					{
-						query: query,
-						disableDefaultItems: options?.disableDefaultItems,
-						prioritySortingFn: options?.prioritySortingFn,
-					},
-					quickInsertState?.lazyDefaultItems,
-					quickInsertState?.providedItems,
-				),
+			const items = getQuickInsertSuggestions(
+				{
+					query: query,
+					disableDefaultItems: options?.disableDefaultItems,
+					prioritySortingFn: typeAheadPrioritySortingFn,
+					// EDITOR-6558: pass through consumer-supplied filter (e.g. Markdown Mode allowlist)
+					itemFilter: options?.itemFilter,
+				},
+				quickInsertState?.lazyDefaultItems,
+				quickInsertState?.providedItems,
 			);
+
+			return Promise.resolve(items);
+		},
+
+		getEmptyItem({ editorState }) {
+			if (!isExperimentEnabled('platform_editor_insert_menu_ai')) {
+				return undefined;
+			}
+
+			const quickInsertState = pluginKey.getState(editorState);
+
+			const matches = getQuickInsertSuggestions(
+				{
+					query: '',
+					disableDefaultItems: options?.disableDefaultItems,
+					prioritySortingFn: options?.prioritySortingFn,
+					itemFilter: (item) =>
+						getActiveQuickInsertCategories(item.category, item.categories).includes('AI'),
+				},
+				quickInsertState?.lazyDefaultItems,
+				quickInsertState?.providedItems,
+			);
+
+			return matches[0];
 		},
 		selectItem: (state, item, insert) => {
 			const quickInsertItem = item as QuickInsertItem;
@@ -69,18 +119,60 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 
 			return result;
 		},
-		getMoreOptionsButtonConfig:
-			options?.enableElementBrowser || !fg('platform_editor_controls_fix_view_more_in_comment')
-				? ({ formatMessage }) => {
-						return {
-							title: formatMessage(messages.viewMore),
-							ariaLabel: formatMessage(messages.viewMoreAriaLabel),
-							onClick: openElementBrowserModal,
-							iconBefore: <ShowMoreHorizontalIcon label="" />,
-						};
-					}
-				: undefined,
+		getMoreOptionsButtonConfig: options?.enableElementBrowser
+			? ({ formatMessage }) => {
+					return {
+						title: formatMessage(messages.viewMore),
+						ariaLabel: formatMessage(messages.viewMoreAriaLabel),
+						onClick: (props) => openElementBrowser()(props),
+						iconBefore: <ShowMoreHorizontalIcon label="" />,
+					};
+				}
+			: undefined,
 	};
+	if (isExperimentEnabled('platform_editor_slash_command')) {
+		api?.uiControlRegistry?.actions.register(
+			getQuickInsertComponents({
+				api,
+				includeElementBrowserItems: options?.enableElementBrowser === true,
+				isRecommendedItem: options?.isRecommendedItem,
+			}),
+		);
+	}
+
+	if (
+		isExperimentEnabled('platform_editor_block_control_migration') &&
+		options?.blockControlButtonEnabled !== false
+	) {
+		api?.uiControlRegistry?.actions.register(
+			getBlockControlQuickInsertComponents({
+				api,
+				getEditorView: () => refs.editorView,
+				openTypeAhead: () =>
+					api?.typeAhead?.actions.open({
+						triggerHandler: typeAhead,
+						inputMethod: 'blockControl',
+						removePrefixTriggerOnCancel: true,
+					}),
+			}),
+		);
+	}
+
+	const openElementBrowser =
+		(options?: OpenElementBrowserOptions): EditorCommand =>
+		({ tr }) => {
+			if (fg('platform_editor_ease_of_use_metrics')) {
+				api?.metrics?.commands.handleIntentToStartEdit({
+					shouldStartTimer: false,
+					shouldPersistActiveSession: true,
+				})({ tr });
+			}
+			return (
+				isExperimentEnabled('platform_editor_slash_command')
+					? openElementBrowserCommand(options)
+					: openElementBrowserModal
+			)({ tr });
+		};
 
 	let intl: IntlShape;
 	return {
@@ -90,28 +182,31 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 			return [
 				{
 					name: 'quickInsert', // It's important that this plugin is above TypeAheadPlugin
-					plugin: ({ providerFactory, getIntl, dispatch }) =>
+					plugin: ({ providerFactory, getIntl, dispatch, dispatchAnalyticsEvent }) =>
 						quickInsertPluginFactory(
-							defaultItems,
+							isExperimentEnabled('platform_editor_slash_command')
+								? (defaultItems || []).filter((item) => item !== undefined)
+								: defaultItems,
 							providerFactory,
 							getIntl,
 							dispatch,
+							dispatchAnalyticsEvent,
+							refs,
 							options?.emptyStateHandler,
+							onInsert,
+							options?.itemFilter,
+							api,
 						),
 				},
-				...(expValEquals('platform_editor_experience_tracking', 'isEnabled', true)
-					? [
-							{
-								name: 'quickInsertOpenExperience',
-								plugin: () =>
-									getQuickInsertOpenExperiencePlugin({
-										refs,
-										dispatchAnalyticsEvent: (payload) =>
-											api?.analytics?.actions?.fireAnalyticsEvent(payload),
-									}),
-							},
-						]
-					: []),
+				{
+					name: 'quickInsertOpenExperience',
+					plugin: () =>
+						getQuickInsertOpenExperiencePlugin({
+							refs,
+							dispatchAnalyticsEvent: (payload) =>
+								api?.analytics?.actions?.fireAnalyticsEvent(payload),
+						}),
+				},
 			];
 		},
 
@@ -120,18 +215,26 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 		},
 
 		contentComponent({ editorView, popupsMountPoint, wrapperElement }) {
+			// using contentComponent to set editorView can cause it to become stale when editor is reconfigured
+			// (e.g. page appearance change)
+			if (!isExperimentEnabled('platform_editor_block_control_migration')) {
+				refs.editorView = editorView || undefined;
+			}
 			refs.popupsMountPoint = popupsMountPoint || undefined;
 			refs.wrapperElement = wrapperElement || undefined;
 
-			if (
-				!editorView ||
-				(expValEquals('platform_editor_hydratable_ui', 'isEnabled', true) && isSSR())
-			) {
+			if (!editorView || isSSR()) {
 				return null;
 			}
 
 			if (options?.enableElementBrowser) {
-				return (
+				return isExperimentEnabled('platform_editor_slash_command') && api?.uiControlRegistry ? (
+					<RegistryElementBrowserContainer
+						editorView={editorView}
+						helpUrl={options?.elementBrowserHelpUrl}
+						pluginInjectionAPI={api}
+					/>
+				) : (
 					<ModalElementBrowser
 						editorView={editorView}
 						helpUrl={options?.elementBrowserHelpUrl}
@@ -157,6 +260,7 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 				emptyStateHandler: quickInsertState.emptyStateHandler,
 				providedItems: quickInsertState.providedItems,
 				isElementBrowserModalOpen: quickInsertState.isElementBrowserModalOpen,
+				isElementBrowserOpen: quickInsertState.isElementBrowserOpen,
 			};
 		},
 
@@ -168,7 +272,7 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 					api?.typeAhead?.actions.open({
 						triggerHandler: typeAhead,
 						inputMethod,
-						removePrefixTriggerOnCancel: removePrefixTriggerOnCancel,
+						removePrefixTriggerOnCancel,
 					}),
 				);
 			},
@@ -176,8 +280,24 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 				const { lazyDefaultItems, providedItems } =
 					api?.quickInsert?.sharedState.currentState() ?? {};
 
-				if (options?.prioritySortingFn) {
-					searchOptions = { ...searchOptions, prioritySortingFn: options.prioritySortingFn };
+				searchOptions = {
+					...searchOptions,
+					prioritySortingFn: withLayoutQuickInsertPrioritySorting(
+						options?.prioritySortingFn ?? searchOptions.prioritySortingFn,
+					),
+				};
+
+				// EDITOR-6558: layer the consumer-supplied filter (e.g. Markdown Mode allowlist)
+				// over any caller-supplied filter so both apply.
+				if (options?.itemFilter) {
+					const consumerFilter = options.itemFilter;
+					const callerFilter = searchOptions.itemFilter;
+					searchOptions = {
+						...searchOptions,
+						itemFilter: callerFilter
+							? (item) => consumerFilter(item) && callerFilter(item)
+							: consumerFilter,
+					};
 				}
 
 				return getQuickInsertSuggestions(searchOptions, lazyDefaultItems, providedItems);
@@ -185,6 +305,7 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 		},
 
 		commands: {
+			openElementBrowser,
 			openElementBrowserModal: ({ tr }) => {
 				if (fg('platform_editor_ease_of_use_metrics')) {
 					api?.metrics?.commands.handleIntentToStartEdit({
@@ -207,7 +328,8 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 			updateQuickInsertItem:
 				(key: string, item: QuickInsertHandler): EditorCommand =>
 				({ tr }) => {
-					const { providedItems, lazyDefaultItems } = api?.quickInsert?.sharedState.currentState() ?? {};
+					const { providedItems, lazyDefaultItems } =
+						api?.quickInsert?.sharedState.currentState() ?? {};
 					const defaultItems = lazyDefaultItems ? lazyDefaultItems() : [];
 					const newItem = memoProcessQuickInsertItems([item], intl);
 
@@ -227,7 +349,8 @@ export const quickInsertPlugin: QuickInsertPlugin = ({ config: options, api }) =
 			removeQuickInsertItem:
 				(key: string): EditorCommand =>
 				({ tr }) => {
-					const { providedItems, lazyDefaultItems } = api?.quickInsert?.sharedState.currentState() ?? {};
+					const { providedItems, lazyDefaultItems } =
+						api?.quickInsert?.sharedState.currentState() ?? {};
 					const defaultItems = lazyDefaultItems ? lazyDefaultItems() : [];
 					return tr.setMeta(pluginKey, {
 						providedItems: providedItems?.filter((item) => item.key !== key) ?? [],
@@ -256,7 +379,12 @@ function quickInsertPluginFactory(
 	providerFactory: ProviderFactory,
 	getIntl: () => IntlShape,
 	dispatch: Dispatch,
+	dispatchAnalyticsEvent: DispatchAnalyticsEvent,
+	refs: QuickInsertPluginRefs,
 	emptyStateHandler?: EmptyStateHandler,
+	onInsert: (item: QuickInsertItem) => void = () => {},
+	itemFilter?: (item: QuickInsertItem) => boolean,
+	api?: ExtractInjectionAPI<QuickInsertPlugin>,
 ) {
 	return new SafePlugin({
 		key: pluginKey,
@@ -264,6 +392,7 @@ function quickInsertPluginFactory(
 			init(): QuickInsertPluginState {
 				return {
 					isElementBrowserModalOpen: false,
+					isElementBrowserOpen: false,
 					emptyStateHandler,
 					// lazy so it doesn't run on editor initialization
 					// memo here to avoid using a singleton cache, avoids editor
@@ -293,6 +422,13 @@ function quickInsertPluginFactory(
 		},
 
 		view(editorView) {
+			if (isExperimentEnabled('platform_editor_block_control_migration')) {
+				refs.editorView = editorView;
+			}
+			let quickInsertItemsAnalyticsScheduler:
+				| ReturnType<typeof createQuickInsertItemsAnalyticsScheduler>
+				| undefined;
+			let isDestroyed = false;
 			const providerHandler = async (
 				_name: string,
 				providerPromise?: Promise<QuickInsertProvider>,
@@ -301,8 +437,30 @@ function quickInsertPluginFactory(
 					try {
 						const provider = await providerPromise;
 						const providedItems = await provider.getItems();
-
+						if (isExperimentEnabled('platform_editor_slash_command')) {
+							const directComponents = provider.getComponents ? await provider.getComponents() : [];
+							const components = getLegacyCompatibleComponents({
+								directComponents,
+								itemFilter,
+								onInsert,
+								providedItems,
+							});
+							api?.uiControlRegistry?.actions.register(components);
+						}
 						setProviderState({ provider, providedItems })(editorView.state, editorView.dispatch);
+
+						if (
+							!isDestroyed &&
+							!quickInsertItemsAnalyticsScheduler &&
+							(isExperimentEnabled('platform_editor_slash_app_category_analytics') ||
+								isExperimentEnabled('platform_editor_slash_command'))
+						) {
+							quickInsertItemsAnalyticsScheduler =
+								createQuickInsertItemsAnalyticsScheduler(dispatchAnalyticsEvent);
+							quickInsertItemsAnalyticsScheduler.schedule({
+								providedItems,
+							});
+						}
 					} catch (e) {
 						// eslint-disable-next-line no-console
 						console.error('Error getting items from quick insert provider', e);
@@ -314,6 +472,14 @@ function quickInsertPluginFactory(
 
 			return {
 				destroy() {
+					if (
+						isExperimentEnabled('platform_editor_block_control_migration') &&
+						refs.editorView === editorView
+					) {
+						refs.editorView = undefined;
+					}
+					isDestroyed = true;
+					quickInsertItemsAnalyticsScheduler?.destroy();
 					providerFactory.unsubscribe('quickInsertProvider', providerHandler);
 				},
 			};

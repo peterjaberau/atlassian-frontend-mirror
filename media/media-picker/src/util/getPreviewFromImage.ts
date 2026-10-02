@@ -1,5 +1,7 @@
+import { getFileInfo } from '@atlaskit/media-ui/getFileInfo';
+import { getImageInfo } from '@atlaskit/media-ui/imageMetaData/getImageInfo';
+
 import { type Preview, type ImagePreview } from '../types';
-import { getImageInfo, getFileInfo } from '@atlaskit/media-ui';
 
 export async function getPreviewFromImage(file: File, devicePixelRatio?: number): Promise<Preview> {
 	const fileInfo = await getFileInfo(file);

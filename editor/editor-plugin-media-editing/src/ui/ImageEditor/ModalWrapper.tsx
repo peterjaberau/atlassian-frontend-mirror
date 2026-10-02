@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-import type { MediaADFAttrs } from '@atlaskit/adf-schema';
+import type { MediaADFAttrs } from '@atlaskit/adf-schema/media';
 import type { ErrorReporter } from '@atlaskit/editor-common/error-reporter';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import type { MediaClientConfig } from '@atlaskit/media-client';
 import { MediaClient } from '@atlaskit/media-client';
 
 import { isExternalMedia } from '../../pm-plugins/utils';
-
 import { ImageEditor } from './index';
 
 interface RenderImageEditorProps {
@@ -24,7 +23,7 @@ export const RenderImageEditor = ({
 	selectedNodeAttrs,
 	errorReporter,
 	editorView,
-}: RenderImageEditorProps) => {
+}: RenderImageEditorProps): React.JSX.Element => {
 	const [imageUrl, setImageUrl] = useState<string>('');
 	const [isSaving, setIsSaving] = useState<boolean>(false);
 

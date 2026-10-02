@@ -15,7 +15,7 @@ import { storyMediaProviderFactory } from '@atlaskit/editor-test-helpers/media-p
 import { token } from '@atlaskit/tokens';
 import { getMockTaskDecisionResource } from '@atlaskit/util-data-test/task-decision-story-data';
 
-import { JSONTransformer } from '../src';
+import { JSONTransformer } from '../src/JSONTransformer-2';
 
 const container = css({
 	display: 'grid',
@@ -23,14 +23,14 @@ const container = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
 	'#output': {
 		border: `${token('border.width.selected')} solid`,
-		marginTop: token('space.100', '8px'),
-		marginRight: token('space.100', '8px'),
-		marginBottom: token('space.100', '8px'),
-		marginLeft: token('space.100', '8px'),
-		paddingTop: token('space.100', '8px'),
-		paddingRight: token('space.100', '8px'),
-		paddingBottom: token('space.100', '8px'),
-		paddingLeft: token('space.100', '8px'),
+		marginTop: token('space.100'),
+		marginRight: token('space.100'),
+		marginBottom: token('space.100'),
+		marginLeft: token('space.100'),
+		paddingTop: token('space.100'),
+		paddingRight: token('space.100'),
+		paddingBottom: token('space.100'),
+		paddingLeft: token('space.100'),
 		whiteSpace: 'pre-wrap',
 		fontSize: 'xx-small',
 		'&:focus': {

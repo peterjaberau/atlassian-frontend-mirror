@@ -1,9 +1,32 @@
+import memoizeOne from 'memoize-one';
+import type { MemoizedFn } from 'memoize-one';
+
 import { expandSelectionToBlockRange } from '@atlaskit/editor-common/selection';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
-import type { NodeType, Node as PMNode, Schema, Slice } from '@atlaskit/editor-prosemirror/model';
-import type { Selection } from '@atlaskit/editor-prosemirror/state';
-import { findParentNodeOfType, findSelectedNodeOfType } from '@atlaskit/editor-prosemirror/utils';
+import type {
+	Mark,
+	NodeType,
+	Node as PMNode,
+	Schema,
+	Slice,
+} from '@atlaskit/editor-prosemirror/model';
+import type { EditorState, Selection, Transaction } from '@atlaskit/editor-prosemirror/state';
+import { ReplaceAroundStep, ReplaceStep } from '@atlaskit/editor-prosemirror/transform';
+import {
+	findParentNodeOfType,
+	findParentNodeOfTypeClosestToPos,
+	findSelectedNodeOfType,
+} from '@atlaskit/editor-prosemirror/utils';
 import type { ContentNodeWithPos } from '@atlaskit/editor-prosemirror/utils';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
+
+/**
+ * Defers a callback to the next microtask (when gated) or next macrotask via setTimeout(0).
+ * Used to avoid re-entrant ProseMirror dispatch cycles.
+ */
+export const deferDispatch = (fn: () => void): void => {
+	queueMicrotask(fn);
+};
 
 export const findSyncBlock = (
 	schema: Schema,
@@ -34,18 +57,25 @@ export const isBodiedSyncBlockNode = (node: PMNode, bodiedSyncBlock: NodeType): 
 	node.type === bodiedSyncBlock;
 
 export interface SyncBlockConversionInfo {
+	breakoutMark?: Mark;
 	contentToInclude: Fragment;
 	from: number;
 	to: number;
 }
 
-const UNSUPPORTED_NODE_TYPES = new Set([
-	'inlineExtension',
-	'extension',
-	'bodiedExtension',
-	'syncBlock',
-	'bodiedSyncBlock',
-]);
+export const getUnsupportedNodeTypes: MemoizedFn<() => Set<string>> = memoizeOne(
+	(): Set<string> =>
+		new Set([
+			'inlineExtension',
+			'extension',
+			'bodiedExtension',
+			'syncBlock',
+			'bodiedSyncBlock',
+			...(expValEquals('confluence_native_tabs_experiment', 'isEnabled', true)
+				? ['multiBodiedExtension']
+				: []),
+		]),
+);
 
 /**
  * Checks whether the selection can be converted to sync block
@@ -55,7 +85,9 @@ const UNSUPPORTED_NODE_TYPES = new Set([
  * stripping out unsupported marks (breakout on codeblock/expand/layout), as well as from and to positions,
  * or false if conversion is not possible
  */
-export const canBeConvertedToSyncBlock = (selection: Selection): SyncBlockConversionInfo | false => {
+export const canBeConvertedToSyncBlock = (
+	selection: Selection,
+): SyncBlockConversionInfo | false => {
 	const { $from, range } = expandSelectionToBlockRange(selection);
 
 	if (!range) {
@@ -64,10 +96,11 @@ export const canBeConvertedToSyncBlock = (selection: Selection): SyncBlockConver
 
 	const from = range.start;
 	const to = range.end;
+	const unsupportedNodeTypes = getUnsupportedNodeTypes();
 
 	let canBeConverted = true;
 	$from.doc.nodesBetween(from, to, (node) => {
-		if (UNSUPPORTED_NODE_TYPES.has(node.type.name)) {
+		if (unsupportedNodeTypes.has(node.type.name)) {
 			canBeConverted = false;
 			return false;
 		}
@@ -77,9 +110,16 @@ export const canBeConvertedToSyncBlock = (selection: Selection): SyncBlockConver
 		return false;
 	}
 
-	const contentToInclude = removeBreakoutMarks($from.doc.slice(from, to).content);
+	const selectedContent = $from.doc.slice(from, to).content;
+	// A single wrapper cannot preserve independent breakout widths for a multi-node selection.
+	const breakoutMark =
+		selectedContent.childCount === 1
+			? selectedContent.firstChild?.marks.find((mark) => mark.type.name === 'breakout')
+			: undefined;
+	const contentToInclude = removeBreakoutMarks(selectedContent);
 
 	return {
+		breakoutMark,
 		contentToInclude,
 		from,
 		to,
@@ -121,4 +161,94 @@ export const sliceFullyContainsNode = (slice: Slice, node: PMNode): boolean => {
 	}
 
 	return true;
+};
+
+// even though extension and bodiedExtension are explicitly not allowed by the schema, they can still be inserted nested inside other nodes e.g. layouts
+const EXTENSION_NODES = new Set(['inlineExtension', 'extension', 'bodiedExtension']);
+
+const fragmentContainsExtension = (fragment: Fragment): boolean => {
+	let found = false;
+	fragment.forEach((node) => {
+		if (found) {
+			return;
+		}
+		if (EXTENSION_NODES.has(node.type.name)) {
+			found = true;
+		} else if (node.content.size) {
+			if (fragmentContainsExtension(node.content)) {
+				found = true;
+			}
+		}
+	});
+	return found;
+};
+
+const sliceContainsExtension = (slice: Slice): boolean => fragmentContainsExtension(slice.content);
+
+/**
+ * Returns the resourceId of the bodied sync block where an inline extension was inserted, or undefined.
+ * Used to show a warning flag only on the first instance per sync block.
+ */
+export const wasExtensionInsertedInBodiedSyncBlock = (
+	tr: Transaction,
+	state: EditorState,
+): string | undefined => {
+	if (!tr.docChanged || tr.getMeta('isRemote')) {
+		return undefined;
+	}
+
+	const { bodiedSyncBlock } = state.schema.nodes;
+	if (!bodiedSyncBlock) {
+		return undefined;
+	}
+
+	const docs = (tr as Transaction & { docs?: (typeof tr.doc)[] }).docs;
+
+	// When docs is available (e.g. from history plugin), check each replace step
+	if (docs && docs.length > 0) {
+		for (let i = 0; i < tr.steps.length; i++) {
+			const step = tr.steps[i];
+			const isReplaceStep = step instanceof ReplaceStep || step instanceof ReplaceAroundStep;
+			if (!isReplaceStep || !('slice' in step) || !('from' in step)) {
+				continue;
+			}
+			const replaceStep = step as ReplaceStep | ReplaceAroundStep;
+			if (!sliceContainsExtension(replaceStep.slice)) {
+				continue;
+			}
+			const docAfterStep = docs[i + 1] ?? tr.doc;
+			try {
+				const $pos = docAfterStep.resolve(replaceStep.from);
+				const parent = findParentNodeOfTypeClosestToPos($pos, bodiedSyncBlock);
+				if (parent?.node.attrs.resourceId) {
+					return parent.node.attrs.resourceId as string;
+				}
+			} catch {
+				// resolve() can throw if position is invalid
+			}
+		}
+		return undefined;
+	}
+
+	// Fallback: scan final doc for inline extensions inside bodied sync block that were added
+	let resourceId: string | undefined;
+	tr.doc.descendants((node, pos) => {
+		if (resourceId !== undefined) {
+			return false;
+		}
+		if (EXTENSION_NODES.has(node.type.name)) {
+			const $pos = tr.doc.resolve(pos);
+			const parent = findParentNodeOfTypeClosestToPos($pos, bodiedSyncBlock);
+			if (parent?.node.attrs.resourceId) {
+				const mappedPos = tr.mapping.invert().map(pos);
+				const nodeBefore = state.doc.nodeAt(mappedPos);
+				if (!nodeBefore || EXTENSION_NODES.has(nodeBefore.type.name)) {
+					resourceId = parent.node.attrs.resourceId as string;
+					return false;
+				}
+			}
+		}
+		return true;
+	});
+	return resourceId;
 };

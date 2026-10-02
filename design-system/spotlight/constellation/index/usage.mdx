@@ -4,11 +4,22 @@ import {
 	SpotlightCollectionBackgroundColors,
 } from '@af/design-system-docs-ui';
 import { Stack } from '@atlaskit/primitives/compiled';
+import Image from '@atlaskit/image';
 
 import tourUseDo from '../images/tour-use-do.png';
 import tourUseDont from '../images/tour-use-dont.png';
-import principlesDo from '../images/principles-of-use-do.png';
-import principlesDont from '../images/principles-of-use-dont.png';
+import singleStepLight from '../images/single-step-light.png';
+import singleStepDark from '../images/single-step-dark.png';
+import triggeredSpotlightLight from '../images/triggered-spotlight-light.png';
+import triggeredSpotlightDark from '../images/triggered-spotlight-dark.png';
+import principlesDoLight from '../images/principles-of-use-do-light.png';
+import principlesDoDark from '../images/principles-of-use-do-dark.png';
+import principlesDontLight from '../images/principles-of-use-dont-light.png';
+import principlesDontDark from '../images/principles-of-use-dont-dark.png';
+import spotlightAnatomyLight from '../images/spotlight-anatomy-light.png';
+import spotlightAnatomyDark from '../images/spotlight-anatomy-dark.png';
+import colorApplicationLight from '../images/color-application-light.png';
+import colorApplicationDark from '../images/color-application-dark.png';
 
 ## Usage
 
@@ -26,7 +37,11 @@ the core experience instead.
 The ideal spotlight experience is lightweight and a single-step. Always try to limit your experience
 to one spotlight to prevent information overload for the user.
 
-![Example of a single-step spotlight with content about Jira tasks pointing at a task on a Jira board.](../images/single-step.png)
+<Image
+	src={singleStepLight}
+	srcDark={singleStepDark}
+	alt="Example of a single-step spotlight with content about Jira tasks pointing at a task on a Jira board."
+/>
 
 ### Multi-step tour
 
@@ -51,25 +66,26 @@ A tour is a series of spotlights that point to multiple areas of the UI. <br /> 
 Tours should be used sparingly. Before designing a tour, assess if you can combine or eliminate
 steps to keep the experience as lightweight as possible, as seen below.
 
-<DoDont
-	type="do"
-	image={{
-		url: tourUseDo,
-		alt: 'Example of a single-step spotlight with content that combines the example content of the multi-step tour next to it.',
-	}}
->
-	Keep things lightweight. Aim for one step with active and concise messaging.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: tourUseDont,
-		alt: 'Example of a multi-step spotlight with content that that can be combined into a single step.',
-	}}
->
-	Avoid tours unless the steps are crucial. Consolidate information first.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: tourUseDo,
+			alt: 'Example of a single-step spotlight with content that combines the example content of the multi-step tour next to it.',
+		}}
+	>
+		Keep things lightweight. Aim for one step with active and concise messaging.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: tourUseDont,
+			alt: 'Example of a multi-step spotlight with content that that can be combined into a single step.',
+		}}
+	>
+		Avoid tours unless the steps are crucial. Consolidate information first.
+	</DoDont>
+</DoDontGrid>
 
 ### Triggered spotlights
 
@@ -78,7 +94,11 @@ experience, they should not use a step count or “Back” CTA.
 
 **In this example, a banner triggers a spotlight that opens a dropdown**
 
-![Example of a single-step spotlight with content that combines the example content of the multi-step tour next to it.](../images/triggered-spotlight.png)
+<Image
+	src={triggeredSpotlightLight}
+	srcDark={triggeredSpotlightDark}
+	alt="Example of a single-step spotlight with content that combines the example content of the multi-step tour next to it."
+/>
 
 ## Spotlight use cases
 
@@ -98,29 +118,36 @@ also activate UI.
 
 ## Principles of use
 
-<DoDont
-	type="do"
-	image={{
-		url: principlesDo,
-		alt: 'Example of spotlight with content that explains what Rovo is.',
-	}}
->
-	Use spotlights to educate users or introduce them to something new.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: principlesDoLight,
+			urlDarkMode: principlesDoDark,
+			alt: 'Example of spotlight with content that explains what Rovo is.',
+		}}
+	>
+		Use spotlights to educate users or introduce them to something new.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: principlesDontLight,
+			urlDarkMode: principlesDontDark,
+			alt: 'Example of a spotlight with content that promotes purchasing collections to get Rovo.',
+		}}
+	>
+		Use spotlights for upsells or other transactional messaging.
+	</DoDont>
+</DoDontGrid>
 
-<DoDont
-	type="dont"
-	image={{
-		url: principlesDont,
-		alt: 'Example of a spotlight with content that promotes purchasing collections to get Rovo.',
-	}}
->
-	Use spotlights for upsells or other transactional messaging.
-</DoDont>
+## Parts
 
-## Anatomy and specifications
-
-![Example spotlight with a diagram that points to the elements that exist within a spotlight.](../images/spotlight-anatomy.png)
+<Image
+	src={spotlightAnatomyLight}
+	srcDark={spotlightAnatomyDark}
+	alt="Example spotlight with a diagram that points to the elements that exist within a spotlight."
+/>
 
 <SpotlightTable />
 
@@ -139,7 +166,11 @@ The cognitive load necessary for comprehension should determine the level of com
 
 ### Color application
 
-![Example spotlight with a diagram that points to the background color then outlines that it should be the right collection color.](../images/color-application.png)
+<Image
+	src={colorApplicationLight}
+	srcDark={colorApplicationDark}
+	alt="Example spotlight with a diagram that points to the background color then outlines that it should be the right collection color."
+/>
 
 - Use solid color for the background color to drive focus to the main UI elements
 - Incorporate the collection color into background color to further strengthen the color association
@@ -179,7 +210,7 @@ concise as possible, easy to scan, and only communicate essential information.
 
 - 75 characters max
 - Brief and direct
-- Elaborate value 
+- Elaborate value
 
 #### Primary CTA
 
@@ -190,7 +221,7 @@ concise as possible, easy to scan, and only communicate essential information.
   - Let them know where they’re going next when navigating to another screen “Go to Jira”
   - Be explicit when activating UI components “Chat with Rovo” opens the Rovo panel
   - Use “Learn more” when navigating to more detailed information
-  - For tours: start with “Next” and conclude the flow with “Done” 
+  - For tours: start with “Next” and conclude the flow with “Done”
 
 #### Secondary CTA
 

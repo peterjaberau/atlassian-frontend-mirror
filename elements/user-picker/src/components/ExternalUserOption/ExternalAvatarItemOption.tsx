@@ -3,9 +3,10 @@
  * @jsx jsx
  */
 import { type ReactNode } from 'react';
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
-import { B400 } from '@atlaskit/theme/colors';
+
 import { token } from '@atlaskit/tokens';
 
 const outerWrapper = (isDisabled?: boolean) =>
@@ -21,7 +22,7 @@ const outerWrapper = (isDisabled?: boolean) =>
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		cursor: isDisabled ? 'not-allowed' : 'pointer',
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-		opacity: isDisabled ? token('opacity.disabled', '0.4') : undefined,
+		opacity: isDisabled ? token('opacity.disabled') : undefined,
 	});
 
 const detailsWrapper = css({
@@ -31,7 +32,7 @@ const detailsWrapper = css({
 	flex: '1 1 100%',
 	// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
 	lineHeight: 1.4,
-	paddingLeft: token('space.100', '8px'),
+	paddingLeft: token('space.100'),
 	alignItems: 'center',
 });
 
@@ -43,7 +44,7 @@ const textSection = css({
 const getTextStyle = (isSecondary?: boolean) => {
 	const secondaryCssArgs = isSecondary
 		? {
-				color: token('color.text.selected', B400),
+				color: token('color.text.selected'),
 				font: token('font.body.small'),
 			}
 		: {};
@@ -51,7 +52,7 @@ const getTextStyle = (isSecondary?: boolean) => {
 		display: 'flex',
 		maxWidth: '100%',
 		margin: 0,
-		color: token('color.text.selected', B400),
+		color: token('color.text.selected'),
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 		...{ secondaryCssArgs },
 		whiteSpace: 'nowrap',
@@ -76,7 +77,7 @@ export const ExternalAvatarItemOption = ({
 	primaryText,
 	secondaryText,
 	sourcesInfoTooltip,
-}: ExternalAvatarItemOptionProps) => (
+}: ExternalAvatarItemOptionProps): jsx.JSX.Element => (
 	// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
 	<div css={outerWrapper(isDisabled)}>
 		{avatar}

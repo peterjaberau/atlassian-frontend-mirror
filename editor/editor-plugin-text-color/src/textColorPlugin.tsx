@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { textColor } from '@atlaskit/adf-schema';
-import {
-	type Command,
-	type FloatingToolbarCustom,
-	type ToolbarUIComponentFactory,
+import { textColor } from '@atlaskit/adf-schema/text-color';
+import type {
+	Command,
+	FloatingToolbarCustom,
+	ToolbarUIComponentFactory,
 } from '@atlaskit/editor-common/types';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { changeColor as changeColorCommand } from './editor-commands/change-color';
 import { setPalette } from './editor-commands/palette';
@@ -71,19 +70,10 @@ export const textColorPlugin: TextColorPlugin = ({ config: textColorConfig, api 
 
 	if (isToolbarAIFCEnabled) {
 		if (
-			fg('platform_editor_toolbar_aifc_text_color_config') ||
-			fg('platform_editor_toolbar_aifc_text_color_config_jsm')
+			api?.toolbar?.actions.registerComponents &&
+			isToolbarComponentEnabled(pluginConfig(textColorConfig))
 		) {
-			if (
-				api?.toolbar?.actions.registerComponents &&
-				isToolbarComponentEnabled(pluginConfig(textColorConfig))
-			) {
-				api.toolbar.actions.registerComponents(getToolbarComponents(api));
-			}
-		} else {
-			if (api?.toolbar?.actions.registerComponents) {
-				api.toolbar.actions.registerComponents(getToolbarComponents(api));
-			}
+			api.toolbar.actions.registerComponents(getToolbarComponents(api));
 		}
 	} else {
 		api?.primaryToolbar?.actions.registerComponent({
@@ -144,10 +134,8 @@ export const textColorPlugin: TextColorPlugin = ({ config: textColorConfig, api 
 		pluginsOptions: !isToolbarAIFCEnabled
 			? {
 					selectionToolbar: () => {
-						const toolbarDocking = fg('platform_editor_use_preferences_plugin')
-							? api?.userPreferences?.sharedState?.currentState()?.preferences
-									.toolbarDockingPosition
-							: api?.selectionToolbar?.sharedState?.currentState()?.toolbarDocking;
+						const toolbarDocking =
+							api?.userPreferences?.sharedState?.currentState()?.preferences.toolbarDockingPosition;
 
 						if (
 							toolbarDocking === 'none' &&

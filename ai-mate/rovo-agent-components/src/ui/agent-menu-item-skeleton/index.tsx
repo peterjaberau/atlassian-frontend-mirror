@@ -1,12 +1,11 @@
 import React from 'react';
 
-import type { SizeType } from '@atlaskit/avatar';
+import type { SizeType } from '@atlaskit/avatar/types';
 import { cssMap } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
 import Skeleton from '@atlaskit/skeleton';
 import { token } from '@atlaskit/tokens';
 
-// eslint-disable-next-line @atlassian/tangerine/import/no-parent-imports
 import { AgentAvatarSkeleton } from '../agent-avatar/agent-avatar-skeleton';
 const styles = cssMap({
 	skeletonContainer: {
@@ -57,7 +56,6 @@ export const AgentMenuItemSkeleton = ({
 			<Skeleton
 				width={skeletonTextWidth}
 				height={skeletonTextHeight}
-				borderRadius={4}
 				isShimmering
 				testId={`loading-agents-text-skeleton-${index}`}
 			/>

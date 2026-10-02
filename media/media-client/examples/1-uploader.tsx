@@ -1,19 +1,21 @@
 import { Component, type ChangeEvent } from 'react';
 import React from 'react';
-import { defaultMediaPickerAuthProvider } from '../src/test-helpers';
-import { tallImage } from '@atlaskit/media-common/test-helpers';
+
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
-import {
-	ImagePreview,
-	MetadataWrapper,
-	PreviewWrapper,
-	Wrapper,
-	FileInput,
-} from '../example-helpers/stylesWrapper';
-import { uploadFile, MediaStore, type UploadableFileUpfrontIds } from '../src';
-import { type UploadableFile, type UploadFileCallbacks } from '../src/uploader';
+import { v4 as uuid } from 'uuid';
+
 import { getRandomTelemetryId } from '@atlaskit/media-common';
+import { tallImage } from '@atlaskit/media-common/test-helpers';
+
+import { FileInput } from '../example-helpers/FileInput';
+import { ImagePreview } from '../example-helpers/ImagePreview';
+import { MetadataWrapper } from '../example-helpers/MetadataWrapper';
+import { PreviewWrapper } from '../example-helpers/PreviewWrapper';
+import { Wrapper } from '../example-helpers/Wrapper';
+import { uploadFile, MediaStore, type UploadableFileUpfrontIds } from '../src';
+import { defaultMediaPickerAuthProvider } from '../src/test-helpers';
+import { type UploadableFile, type UploadFileCallbacks } from '../src/uploader';
+import { convertBase64ToBlob } from '../src/utils/convertBase64ToBlob';
 
 type UploaderExampleProps = {};
 export interface UploaderExampleState {
@@ -68,8 +70,7 @@ class UploaderExample extends Component<UploaderExampleProps, UploaderExampleSta
 						<button onClick={this.onUploadStringClick}>Upload</button>
 					</div>
 					<div>
-						{/* eslint-disable-next-line @atlassian/a11y/aria-progressbar-name */}
-						<progress value={uploadingProgress} max="1" />
+						<progress value={uploadingProgress} max="1" aria-label="Upload progress" />
 					</div>
 					<div>Processing status: {processingStatus}</div>
 					<div>TraceId: {traceId}</div>
@@ -96,7 +97,11 @@ class UploaderExample extends Component<UploaderExampleProps, UploaderExampleSta
 	};
 
 	onUploadStringClick = () => {
-		const uploadableFile: UploadableFile = { content: tallImage };
+		const uploadableFile: UploadableFile = {
+			content: tallImage,
+			// `content` is a data URI, so the byte size has to come from the decoded blob
+			size: convertBase64ToBlob(tallImage).size,
+		};
 
 		this.uploadFile(uploadableFile);
 	};
@@ -117,6 +122,7 @@ class UploaderExample extends Component<UploaderExampleProps, UploaderExampleSta
 			content: file,
 			name: file.name,
 			mimeType: file.type,
+			size: file.size,
 		};
 
 		this.uploadFile(uploadableFile);

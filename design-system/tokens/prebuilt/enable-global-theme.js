@@ -4,8 +4,8 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
-var _themeConfig = require("./theme-config");
+exports.enableGlobalTheme = exports.default = void 0;
+var _themeStateDefaults = require("./theme-state-defaults");
 var _configurePage = _interopRequireDefault(require("./utils/configure-page"));
 var _getThemePreferences = require("./utils/get-theme-preferences");
 /**
@@ -16,6 +16,7 @@ var _getThemePreferences = require("./utils/get-theme-preferences");
  * @param {string} themeState.colorMode Determines which color theme is applied. If set to `auto`, the theme applied will be determined by the OS setting.
  * @param {string} themeState.dark The color theme to be applied when the color mode resolves to 'dark'.
  * @param {string} themeState.light The color theme to be applied when the color mode resolves to 'light'.
+ * @param {string} themeState.motion The motion theme to be applied.
  * @param {string} themeState.shape The shape theme to be applied.
  * @param {string} themeState.spacing The spacing theme to be applied.
  * @param {string} themeState.typography The typography theme to be applied.
@@ -29,30 +30,33 @@ var _getThemePreferences = require("./utils/get-theme-preferences");
  * enableGlobalTheme({colorMode: 'auto', light: 'light', dark: 'dark', spacing: 'spacing'});
  * ```
  */
-var enableGlobalTheme = function enableGlobalTheme() {
+var enableGlobalTheme = exports.enableGlobalTheme = function enableGlobalTheme() {
   var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
     _ref$colorMode = _ref.colorMode,
-    colorMode = _ref$colorMode === void 0 ? _themeConfig.themeStateDefaults['colorMode'] : _ref$colorMode,
+    colorMode = _ref$colorMode === void 0 ? _themeStateDefaults.themeStateDefaults['colorMode'] : _ref$colorMode,
     _ref$contrastMode = _ref.contrastMode,
-    contrastMode = _ref$contrastMode === void 0 ? _themeConfig.themeStateDefaults['contrastMode'] : _ref$contrastMode,
+    contrastMode = _ref$contrastMode === void 0 ? _themeStateDefaults.themeStateDefaults['contrastMode'] : _ref$contrastMode,
     _ref$dark = _ref.dark,
-    dark = _ref$dark === void 0 ? _themeConfig.themeStateDefaults['dark'] : _ref$dark,
+    dark = _ref$dark === void 0 ? _themeStateDefaults.themeStateDefaults['dark'] : _ref$dark,
     _ref$light = _ref.light,
-    light = _ref$light === void 0 ? _themeConfig.themeStateDefaults['light'] : _ref$light,
+    light = _ref$light === void 0 ? _themeStateDefaults.themeStateDefaults['light'] : _ref$light,
+    _ref$motion = _ref.motion,
+    motion = _ref$motion === void 0 ? _themeStateDefaults.themeStateDefaults['motion']() : _ref$motion,
     _ref$shape = _ref.shape,
-    shape = _ref$shape === void 0 ? _themeConfig.themeStateDefaults['shape']() : _ref$shape,
+    shape = _ref$shape === void 0 ? _themeStateDefaults.themeStateDefaults['shape'] : _ref$shape,
     _ref$spacing = _ref.spacing,
-    spacing = _ref$spacing === void 0 ? _themeConfig.themeStateDefaults['spacing'] : _ref$spacing,
+    spacing = _ref$spacing === void 0 ? _themeStateDefaults.themeStateDefaults['spacing'] : _ref$spacing,
     _ref$typography = _ref.typography,
-    typography = _ref$typography === void 0 ? _themeConfig.themeStateDefaults['typography'] : _ref$typography,
+    typography = _ref$typography === void 0 ? _themeStateDefaults.themeStateDefaults['typography'] : _ref$typography,
     _ref$UNSAFE_themeOpti = _ref.UNSAFE_themeOptions,
-    UNSAFE_themeOptions = _ref$UNSAFE_themeOpti === void 0 ? _themeConfig.themeStateDefaults['UNSAFE_themeOptions'] : _ref$UNSAFE_themeOpti;
+    UNSAFE_themeOptions = _ref$UNSAFE_themeOpti === void 0 ? _themeStateDefaults.themeStateDefaults['UNSAFE_themeOptions'] : _ref$UNSAFE_themeOpti;
   var themeLoader = arguments.length > 1 ? arguments[1] : undefined;
   var themeState = {
     colorMode: colorMode,
     contrastMode: contrastMode,
     dark: dark,
     light: light,
+    motion: motion,
     shape: shape,
     spacing: spacing,
     typography: typography,

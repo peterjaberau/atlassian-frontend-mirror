@@ -1,4 +1,8 @@
+import { failGate, passGate } from '@atlassian/feature-flags-test-utils/mock-gates';
+
 import { defaultSchema, getSchemaBasedOnStage } from '../../../schema/default-schema';
+
+const ANNOTATIONS_ON_EXTENSIONS_GATE = 'cc_maui_annotations_on_extensions';
 
 describe('Default Schema', () => {
 	describe('Nodes', () => {
@@ -33,6 +37,7 @@ describe('Get Schema Based On Stage', () => {
 				'blockquote',
 				'codeBlock',
 				'panel',
+				'panel_c1',
 				'rule',
 				'image',
 				'mention',
@@ -96,6 +101,7 @@ describe('Get Schema Based On Stage', () => {
 				'__fontStyleGroupDeclaration',
 				'__searchQueryGroupDeclaration',
 				'__linkGroupDeclaration',
+				'fontSize',
 				'breakout',
 				'dataConsumer',
 				'fragment',
@@ -108,6 +114,38 @@ describe('Get Schema Based On Stage', () => {
 	});
 
 	describe('Stage-0', () => {
+		beforeEach(() => {
+			getSchemaBasedOnStage.clear();
+		});
+
+		it('uses the base extension spec when extension annotations are disabled', () => {
+			failGate(ANNOTATIONS_ON_EXTENSIONS_GATE);
+			const schema = getSchemaBasedOnStage('stage0');
+
+			expect(schema.nodes.extension.allowsMarkType(schema.marks.annotation)).toBe(false);
+		});
+
+		it('allows extension annotations when the gate is enabled', () => {
+			passGate(ANNOTATIONS_ON_EXTENSIONS_GATE);
+			const schema = getSchemaBasedOnStage('stage0');
+
+			expect(schema.nodes.extension.allowsMarkType(schema.marks.annotation)).toBe(true);
+		});
+
+		it('uses the attribute-bearing root-only rule variant', () => {
+			const schema = getSchemaBasedOnStage('stage0');
+
+			expect(schema.nodes.rule.spec.attrs).toEqual({
+				color: { default: null },
+				localId: { default: null },
+				style: { default: null },
+				weight: { default: null },
+			});
+			expect(schema.nodes.rule.spec.marks).toBe(
+				'breakout unsupportedMark unsupportedNodeAttribute',
+			);
+		});
+
 		it('should contain the nodes', () => {
 			const schema = getSchemaBasedOnStage('stage0');
 			expect(Object.keys(schema.nodes)).toEqual([
@@ -121,7 +159,9 @@ describe('Get Schema Based On Stage', () => {
 				'blockquote',
 				'codeBlock',
 				'panel',
+				'panel_c1',
 				'rule',
+				'bodiedRule',
 				'image',
 				'mention',
 				'caption',
@@ -186,6 +226,7 @@ describe('Get Schema Based On Stage', () => {
 				'__fontStyleGroupDeclaration',
 				'__searchQueryGroupDeclaration',
 				'__linkGroupDeclaration',
+				'fontSize',
 				'breakout',
 				'dataConsumer',
 				'fragment',

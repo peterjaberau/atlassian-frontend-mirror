@@ -1,97 +1,85 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::71ab6af4453c6807be4d4249ca7614bc>>
+ * @codegen <<SignedSource::c7bf23ec9330aefbe8dbb595dde9d1c3>>
  * @codegenCommand yarn build tokens
  */
 const tokens = {
-	'color.text': '--ds-text',
-	'color.text.accent.lime': '--ds-text-accent-lime',
-	'color.text.accent.lime.bolder': '--ds-text-accent-lime-bolder',
-	'color.text.accent.red': '--ds-text-accent-red',
-	'color.text.accent.red.bolder': '--ds-text-accent-red-bolder',
-	'color.text.accent.orange': '--ds-text-accent-orange',
-	'color.text.accent.orange.bolder': '--ds-text-accent-orange-bolder',
-	'color.text.accent.yellow': '--ds-text-accent-yellow',
-	'color.text.accent.yellow.bolder': '--ds-text-accent-yellow-bolder',
-	'color.text.accent.green': '--ds-text-accent-green',
-	'color.text.accent.green.bolder': '--ds-text-accent-green-bolder',
-	'color.text.accent.teal': '--ds-text-accent-teal',
-	'color.text.accent.teal.bolder': '--ds-text-accent-teal-bolder',
-	'color.text.accent.blue': '--ds-text-accent-blue',
-	'color.text.accent.blue.bolder': '--ds-text-accent-blue-bolder',
-	'color.text.accent.purple': '--ds-text-accent-purple',
-	'color.text.accent.purple.bolder': '--ds-text-accent-purple-bolder',
-	'color.text.accent.magenta': '--ds-text-accent-magenta',
-	'color.text.accent.magenta.bolder': '--ds-text-accent-magenta-bolder',
-	'color.text.accent.gray': '--ds-text-accent-gray',
-	'color.text.accent.gray.bolder': '--ds-text-accent-gray-bolder',
-	'color.text.disabled': '--ds-text-disabled',
-	'color.text.inverse': '--ds-text-inverse',
-	'color.text.selected': '--ds-text-selected',
-	'color.text.brand': '--ds-text-brand',
-	'color.text.danger': '--ds-text-danger',
-	'color.text.danger.bolder': '--ds-text-danger-bolder',
-	'color.text.warning': '--ds-text-warning',
-	'color.text.warning.inverse': '--ds-text-warning-inverse',
-	'color.text.warning.bolder': '--ds-text-warning-bolder',
-	'color.text.success': '--ds-text-success',
-	'color.text.success.bolder': '--ds-text-success-bolder',
-	'color.text.discovery': '--ds-text-discovery',
-	'color.text.discovery.bolder': '--ds-text-discovery-bolder',
-	'color.text.information': '--ds-text-information',
-	'color.text.information.bolder': '--ds-text-information-bolder',
-	'color.text.subtlest': '--ds-text-subtlest',
-	'color.text.subtle': '--ds-text-subtle',
-	'color.link': '--ds-link',
-	'color.link.pressed': '--ds-link-pressed',
-	'color.link.visited': '--ds-link-visited',
-	'color.link.visited.pressed': '--ds-link-visited-pressed',
-	'color.icon': '--ds-icon',
-	'color.icon.accent.lime': '--ds-icon-accent-lime',
-	'color.icon.accent.red': '--ds-icon-accent-red',
-	'color.icon.accent.orange': '--ds-icon-accent-orange',
-	'color.icon.accent.yellow': '--ds-icon-accent-yellow',
-	'color.icon.accent.green': '--ds-icon-accent-green',
-	'color.icon.accent.teal': '--ds-icon-accent-teal',
-	'color.icon.accent.blue': '--ds-icon-accent-blue',
-	'color.icon.accent.purple': '--ds-icon-accent-purple',
-	'color.icon.accent.magenta': '--ds-icon-accent-magenta',
-	'color.icon.accent.gray': '--ds-icon-accent-gray',
-	'color.icon.disabled': '--ds-icon-disabled',
-	'color.icon.inverse': '--ds-icon-inverse',
-	'color.icon.selected': '--ds-icon-selected',
-	'color.icon.brand': '--ds-icon-brand',
-	'color.icon.danger': '--ds-icon-danger',
-	'color.icon.warning': '--ds-icon-warning',
-	'color.icon.warning.inverse': '--ds-icon-warning-inverse',
-	'color.icon.success': '--ds-icon-success',
-	'color.icon.discovery': '--ds-icon-discovery',
-	'color.icon.information': '--ds-icon-information',
-	'color.icon.subtlest': '--ds-icon-subtlest',
-	'color.icon.subtle': '--ds-icon-subtle',
-	'color.border': '--ds-border',
-	'color.border.accent.lime': '--ds-border-accent-lime',
-	'color.border.accent.red': '--ds-border-accent-red',
-	'color.border.accent.orange': '--ds-border-accent-orange',
-	'color.border.accent.yellow': '--ds-border-accent-yellow',
-	'color.border.accent.green': '--ds-border-accent-green',
-	'color.border.accent.teal': '--ds-border-accent-teal',
-	'color.border.accent.blue': '--ds-border-accent-blue',
-	'color.border.accent.purple': '--ds-border-accent-purple',
-	'color.border.accent.magenta': '--ds-border-accent-magenta',
-	'color.border.accent.gray': '--ds-border-accent-gray',
-	'color.border.disabled': '--ds-border-disabled',
-	'color.border.focused': '--ds-border-focused',
-	'color.border.input': '--ds-border-input',
-	'color.border.inverse': '--ds-border-inverse',
-	'color.border.selected': '--ds-border-selected',
-	'color.border.brand': '--ds-border-brand',
-	'color.border.danger': '--ds-border-danger',
-	'color.border.warning': '--ds-border-warning',
-	'color.border.success': '--ds-border-success',
-	'color.border.discovery': '--ds-border-discovery',
-	'color.border.information': '--ds-border-information',
-	'color.border.bold': '--ds-border-bold',
+	'motion.avatar.enter': '--ds-avatar-enter',
+	'motion.avatar.exit': '--ds-avatar-exit',
+	'motion.avatar.hovered': '--ds-avatar-hovered',
+	'motion.blanket.enter': '--ds-blanket-enter',
+	'motion.blanket.exit': '--ds-blanket-exit',
+	'motion.button.hovered': '--ds-button-hovered',
+	'motion.button.pressed': '--ds-button-pressed',
+	'motion.duration.instant': '--ds-duration-instant',
+	'motion.duration.long': '--ds-duration-long',
+	'motion.duration.medium': '--ds-duration-medium',
+	'motion.duration.short': '--ds-duration-short',
+	'motion.duration.xlong': '--ds-duration-xlong',
+	'motion.duration.xshort': '--ds-duration-xshort',
+	'motion.duration.xxlong': '--ds-duration-xxlong',
+	'motion.duration.xxshort': '--ds-duration-xxshort',
+	'motion.easing.in.practical': '--ds-easing-in-practical',
+	'motion.easing.inout.bold': '--ds-easing-inout-bold',
+	'motion.easing.out.practical': '--ds-easing-out-practical',
+	'motion.easing.out.bold': '--ds-easing-out-bold',
+	'motion.easing.spring': '--ds-easing-spring',
+	'motion.flag.enter': '--ds-flag-enter',
+	'motion.flag.exit': '--ds-flag-exit',
+	'motion.flag.reposition': '--ds-flag-reposition',
+	'motion.input': '--ds-input',
+	'motion.keyframe.fade.in': '--ds-keyframe-fade-in',
+	'motion.keyframe.fade.out': '--ds-keyframe-fade-out',
+	'motion.keyframe.grid.column.in': '--ds-keyframe-grid-column-in',
+	'motion.keyframe.grid.column.out': '--ds-keyframe-grid-column-out',
+	'motion.keyframe.scale.in.medium': '--ds-keyframe-scale-in-medium',
+	'motion.keyframe.scale.in.small': '--ds-keyframe-scale-in-small',
+	'motion.keyframe.scale.out.medium': '--ds-keyframe-scale-out-medium',
+	'motion.keyframe.scale.out.small': '--ds-keyframe-scale-out-small',
+	'motion.keyframe.slide.in.bottom.short': '--ds-keyframe-slide-in-bottom-short',
+	'motion.keyframe.slide.in.left.half': '--ds-keyframe-slide-in-left-half',
+	'motion.keyframe.slide.in.left.short': '--ds-keyframe-slide-in-left-short',
+	'motion.keyframe.slide.in.right.short': '--ds-keyframe-slide-in-right-short',
+	'motion.keyframe.slide.in.top.short': '--ds-keyframe-slide-in-top-short',
+	'motion.keyframe.slide.out.bottom.short': '--ds-keyframe-slide-out-bottom-short',
+	'motion.keyframe.slide.out.left.half': '--ds-keyframe-slide-out-left-half',
+	'motion.keyframe.slide.out.left.short': '--ds-keyframe-slide-out-left-short',
+	'motion.keyframe.slide.out.right.short': '--ds-keyframe-slide-out-right-short',
+	'motion.keyframe.slide.out.top.short': '--ds-keyframe-slide-out-top-short',
+	'motion.label.enter': '--ds-label-enter',
+	'motion.label.exit': '--ds-label-exit',
+	'motion.listitem.hovered': '--ds-listitem-hovered',
+	'motion.listitem.pressed': '--ds-listitem-pressed',
+	'motion.listitem.selected': '--ds-listitem-selected',
+	'motion.modal.enter': '--ds-modal-enter',
+	'motion.modal.exit': '--ds-modal-exit',
+	'motion.panel.content.enter': '--ds-panel-content-enter',
+	'motion.panel.content.exit': '--ds-panel-content-exit',
+	'motion.panel.enter': '--ds-panel-enter',
+	'motion.panel.enter.left': '--ds-panel-enter-left',
+	'motion.panel.enter.right': '--ds-panel-enter-right',
+	'motion.panel.exit': '--ds-panel-exit',
+	'motion.panel.exit.left': '--ds-panel-exit-left',
+	'motion.panel.exit.right': '--ds-panel-exit-right',
+	'motion.popup.enter.bottom': '--ds-popup-enter-bottom',
+	'motion.popup.enter.left': '--ds-popup-enter-left',
+	'motion.popup.enter.right': '--ds-popup-enter-right',
+	'motion.popup.enter.top': '--ds-popup-enter-top',
+	'motion.popup.exit.bottom': '--ds-popup-exit-bottom',
+	'motion.popup.exit.left': '--ds-popup-exit-left',
+	'motion.popup.exit.right': '--ds-popup-exit-right',
+	'motion.popup.exit.top': '--ds-popup-exit-top',
+	'motion.sidenav.enter.left': '--ds-sidenav-enter-left',
+	'motion.sidenav.enter.right': '--ds-sidenav-enter-right',
+	'motion.sidenav.exit.left': '--ds-sidenav-exit-left',
+	'motion.sidenav.exit.right': '--ds-sidenav-exit-right',
+	'motion.spotlight.enter': '--ds-spotlight-enter',
+	'motion.spotlight.exit': '--ds-spotlight-exit',
+	'motion.tab': '--ds-tab',
+	'motion.tab.indicator.enter.left': '--ds-tab-indicator-enter-left',
+	'motion.tab.indicator.enter.right': '--ds-tab-indicator-enter-right',
+	'motion.tab.indicator.exit.left': '--ds-tab-indicator-exit-left',
+	'motion.tab.indicator.exit.right': '--ds-tab-indicator-exit-right',
 	'color.background.accent.lime.subtlest': '--ds-background-accent-lime-subtlest',
 	'color.background.accent.lime.subtlest.hovered': '--ds-background-accent-lime-subtlest-hovered',
 	'color.background.accent.lime.subtlest.pressed': '--ds-background-accent-lime-subtlest-pressed',
@@ -222,6 +210,13 @@ const tokens = {
 	'color.background.accent.gray.bolder': '--ds-background-accent-gray-bolder',
 	'color.background.accent.gray.bolder.hovered': '--ds-background-accent-gray-bolder-hovered',
 	'color.background.accent.gray.bolder.pressed': '--ds-background-accent-gray-bolder-pressed',
+	'color.background.code.added.highlight': '--ds-background-code-added-highlight',
+	'color.background.code.added.line': '--ds-background-code-added-line',
+	'color.background.code.default': '--ds-background-code-default',
+	'color.background.code.gutter': '--ds-background-code-gutter',
+	'color.background.code.highlight': '--ds-background-code-highlight',
+	'color.background.code.removed.highlight': '--ds-background-code-removed-highlight',
+	'color.background.code.removed.line': '--ds-background-code-removed-line',
 	'color.background.disabled': '--ds-background-disabled',
 	'color.background.input': '--ds-background-input',
 	'color.background.input.hovered': '--ds-background-input-hovered',
@@ -259,6 +254,7 @@ const tokens = {
 	'color.background.danger.subtler': '--ds-background-danger-subtler',
 	'color.background.danger.subtler.hovered': '--ds-background-danger-subtler-hovered',
 	'color.background.danger.subtler.pressed': '--ds-background-danger-subtler-pressed',
+	'color.background.danger.subtle': '--ds-background-danger-subtle',
 	'color.background.danger.bold': '--ds-background-danger-bold',
 	'color.background.danger.bold.hovered': '--ds-background-danger-bold-hovered',
 	'color.background.danger.bold.pressed': '--ds-background-danger-bold-pressed',
@@ -268,6 +264,7 @@ const tokens = {
 	'color.background.warning.subtler': '--ds-background-warning-subtler',
 	'color.background.warning.subtler.hovered': '--ds-background-warning-subtler-hovered',
 	'color.background.warning.subtler.pressed': '--ds-background-warning-subtler-pressed',
+	'color.background.warning.subtle': '--ds-background-warning-subtle',
 	'color.background.warning.bold': '--ds-background-warning-bold',
 	'color.background.warning.bold.hovered': '--ds-background-warning-bold-hovered',
 	'color.background.warning.bold.pressed': '--ds-background-warning-bold-pressed',
@@ -277,6 +274,7 @@ const tokens = {
 	'color.background.success.subtler': '--ds-background-success-subtler',
 	'color.background.success.subtler.hovered': '--ds-background-success-subtler-hovered',
 	'color.background.success.subtler.pressed': '--ds-background-success-subtler-pressed',
+	'color.background.success.subtle': '--ds-background-success-subtle',
 	'color.background.success.bold': '--ds-background-success-bold',
 	'color.background.success.bold.hovered': '--ds-background-success-bold-hovered',
 	'color.background.success.bold.pressed': '--ds-background-success-bold-pressed',
@@ -286,6 +284,7 @@ const tokens = {
 	'color.background.discovery.subtler': '--ds-background-discovery-subtler',
 	'color.background.discovery.subtler.hovered': '--ds-background-discovery-subtler-hovered',
 	'color.background.discovery.subtler.pressed': '--ds-background-discovery-subtler-pressed',
+	'color.background.discovery.subtle': '--ds-background-discovery-subtle',
 	'color.background.discovery.bold': '--ds-background-discovery-bold',
 	'color.background.discovery.bold.hovered': '--ds-background-discovery-bold-hovered',
 	'color.background.discovery.bold.pressed': '--ds-background-discovery-bold-pressed',
@@ -295,16 +294,133 @@ const tokens = {
 	'color.background.information.subtler': '--ds-background-information-subtler',
 	'color.background.information.subtler.hovered': '--ds-background-information-subtler-hovered',
 	'color.background.information.subtler.pressed': '--ds-background-information-subtler-pressed',
+	'color.background.information.subtle': '--ds-background-information-subtle',
 	'color.background.information.bold': '--ds-background-information-bold',
 	'color.background.information.bold.hovered': '--ds-background-information-bold-hovered',
 	'color.background.information.bold.pressed': '--ds-background-information-bold-pressed',
-	'color.blanket': '--ds-blanket',
-	'color.blanket.selected': '--ds-blanket-selected',
-	'color.blanket.danger': '--ds-blanket-danger',
+	'color.border': '--ds-border',
+	'color.border.accent.lime': '--ds-border-accent-lime',
+	'color.border.accent.lime.subtle': '--ds-border-accent-lime-subtle',
+	'color.border.accent.red': '--ds-border-accent-red',
+	'color.border.accent.red.subtle': '--ds-border-accent-red-subtle',
+	'color.border.accent.orange': '--ds-border-accent-orange',
+	'color.border.accent.orange.subtle': '--ds-border-accent-orange-subtle',
+	'color.border.accent.yellow': '--ds-border-accent-yellow',
+	'color.border.accent.yellow.subtle': '--ds-border-accent-yellow-subtle',
+	'color.border.accent.green': '--ds-border-accent-green',
+	'color.border.accent.green.subtle': '--ds-border-accent-green-subtle',
+	'color.border.accent.teal': '--ds-border-accent-teal',
+	'color.border.accent.teal.subtle': '--ds-border-accent-teal-subtle',
+	'color.border.accent.blue': '--ds-border-accent-blue',
+	'color.border.accent.blue.subtle': '--ds-border-accent-blue-subtle',
+	'color.border.accent.purple': '--ds-border-accent-purple',
+	'color.border.accent.purple.subtle': '--ds-border-accent-purple-subtle',
+	'color.border.accent.magenta': '--ds-border-accent-magenta',
+	'color.border.accent.magenta.subtle': '--ds-border-accent-magenta-subtle',
+	'color.border.accent.gray': '--ds-border-accent-gray',
+	'color.border.accent.gray.subtle': '--ds-border-accent-gray-subtle',
+	'color.border.code': '--ds-border-code',
+	'color.border.disabled': '--ds-border-disabled',
+	'color.border.focused': '--ds-border-focused',
+	'color.border.input': '--ds-border-input',
+	'color.border.input.search': '--ds-border-input-search',
+	'color.border.inverse': '--ds-border-inverse',
+	'color.border.selected': '--ds-border-selected',
+	'color.border.brand': '--ds-border-brand',
+	'color.border.danger': '--ds-border-danger',
+	'color.border.danger.subtle': '--ds-border-danger-subtle',
+	'color.border.warning': '--ds-border-warning',
+	'color.border.warning.subtle': '--ds-border-warning-subtle',
+	'color.border.success': '--ds-border-success',
+	'color.border.success.subtle': '--ds-border-success-subtle',
+	'color.border.discovery': '--ds-border-discovery',
+	'color.border.discovery.subtle': '--ds-border-discovery-subtle',
+	'color.border.information': '--ds-border-information',
+	'color.border.information.subtle': '--ds-border-information-subtle',
+	'color.border.bold': '--ds-border-bold',
+	'color.text': '--ds-text',
+	'color.text.accent.lime': '--ds-text-accent-lime',
+	'color.text.accent.lime.bolder': '--ds-text-accent-lime-bolder',
+	'color.text.accent.red': '--ds-text-accent-red',
+	'color.text.accent.red.bolder': '--ds-text-accent-red-bolder',
+	'color.text.accent.orange': '--ds-text-accent-orange',
+	'color.text.accent.orange.bolder': '--ds-text-accent-orange-bolder',
+	'color.text.accent.yellow': '--ds-text-accent-yellow',
+	'color.text.accent.yellow.bolder': '--ds-text-accent-yellow-bolder',
+	'color.text.accent.green': '--ds-text-accent-green',
+	'color.text.accent.green.bolder': '--ds-text-accent-green-bolder',
+	'color.text.accent.teal': '--ds-text-accent-teal',
+	'color.text.accent.teal.bolder': '--ds-text-accent-teal-bolder',
+	'color.text.accent.blue': '--ds-text-accent-blue',
+	'color.text.accent.blue.bolder': '--ds-text-accent-blue-bolder',
+	'color.text.accent.purple': '--ds-text-accent-purple',
+	'color.text.accent.purple.bolder': '--ds-text-accent-purple-bolder',
+	'color.text.accent.magenta': '--ds-text-accent-magenta',
+	'color.text.accent.magenta.bolder': '--ds-text-accent-magenta-bolder',
+	'color.text.accent.gray': '--ds-text-accent-gray',
+	'color.text.accent.gray.bolder': '--ds-text-accent-gray-bolder',
+	'color.text.code.accent.1': '--ds-text-code-accent-1',
+	'color.text.code.accent.2': '--ds-text-code-accent-2',
+	'color.text.code.comments': '--ds-text-code-comments',
+	'color.text.code.default': '--ds-text-code-default',
+	'color.text.code.functions': '--ds-text-code-functions',
+	'color.text.code.gutter': '--ds-text-code-gutter',
+	'color.text.code.keywords': '--ds-text-code-keywords',
+	'color.text.code.numbers': '--ds-text-code-numbers',
+	'color.text.code.operators': '--ds-text-code-operators',
+	'color.text.code.strings': '--ds-text-code-strings',
+	'color.text.code.tags': '--ds-text-code-tags',
+	'color.text.disabled': '--ds-text-disabled',
+	'color.text.inverse': '--ds-text-inverse',
+	'color.text.selected': '--ds-text-selected',
+	'color.text.brand': '--ds-text-brand',
+	'color.text.danger': '--ds-text-danger',
+	'color.text.danger.bolder': '--ds-text-danger-bolder',
+	'color.text.warning': '--ds-text-warning',
+	'color.text.warning.inverse': '--ds-text-warning-inverse',
+	'color.text.warning.bolder': '--ds-text-warning-bolder',
+	'color.text.success': '--ds-text-success',
+	'color.text.success.bolder': '--ds-text-success-bolder',
+	'color.text.discovery': '--ds-text-discovery',
+	'color.text.discovery.bolder': '--ds-text-discovery-bolder',
+	'color.text.information': '--ds-text-information',
+	'color.text.information.bolder': '--ds-text-information-bolder',
+	'color.text.subtlest': '--ds-text-subtlest',
+	'color.text.subtle': '--ds-text-subtle',
+	'color.icon': '--ds-icon',
+	'color.icon.accent.lime': '--ds-icon-accent-lime',
+	'color.icon.accent.red': '--ds-icon-accent-red',
+	'color.icon.accent.orange': '--ds-icon-accent-orange',
+	'color.icon.accent.yellow': '--ds-icon-accent-yellow',
+	'color.icon.accent.green': '--ds-icon-accent-green',
+	'color.icon.accent.teal': '--ds-icon-accent-teal',
+	'color.icon.accent.blue': '--ds-icon-accent-blue',
+	'color.icon.accent.purple': '--ds-icon-accent-purple',
+	'color.icon.accent.magenta': '--ds-icon-accent-magenta',
+	'color.icon.accent.gray': '--ds-icon-accent-gray',
+	'color.icon.disabled': '--ds-icon-disabled',
+	'color.icon.inverse': '--ds-icon-inverse',
+	'color.icon.selected': '--ds-icon-selected',
+	'color.icon.brand': '--ds-icon-brand',
+	'color.icon.danger': '--ds-icon-danger',
+	'color.icon.warning': '--ds-icon-warning',
+	'color.icon.warning.inverse': '--ds-icon-warning-inverse',
+	'color.icon.success': '--ds-icon-success',
+	'color.icon.discovery': '--ds-icon-discovery',
+	'color.icon.information': '--ds-icon-information',
+	'color.icon.subtlest': '--ds-icon-subtlest',
+	'color.icon.subtle': '--ds-icon-subtle',
+	'color.link': '--ds-link',
+	'color.link.pressed': '--ds-link-pressed',
+	'color.link.visited': '--ds-link-visited',
+	'color.link.visited.pressed': '--ds-link-visited-pressed',
 	'color.interaction.hovered': '--ds-interaction-hovered',
 	'color.interaction.pressed': '--ds-interaction-pressed',
 	'color.skeleton': '--ds-skeleton',
 	'color.skeleton.subtle': '--ds-skeleton-subtle',
+	'color.blanket': '--ds-blanket',
+	'color.blanket.selected': '--ds-blanket-selected',
+	'color.blanket.danger': '--ds-blanket-danger',
 	'color.chart.categorical.1': '--ds-chart-categorical-1',
 	'color.chart.categorical.1.hovered': '--ds-chart-categorical-1-hovered',
 	'color.chart.categorical.2': '--ds-chart-categorical-2',
@@ -405,9 +521,23 @@ const tokens = {
 	'color.chart.information.hovered': '--ds-chart-information-hovered',
 	'color.chart.information.bold': '--ds-chart-information-bold',
 	'color.chart.information.bold.hovered': '--ds-chart-information-bold-hovered',
+	'color.rovo.background.brand.bold': '--ds-rovo-background-brand-bold',
+	'color.rovo.background.brand.bold.hovered': '--ds-rovo-background-brand-bold-hovered',
+	'color.rovo.background.brand.bold.pressed': '--ds-rovo-background-brand-bold-pressed',
+	'color.rovo.border.lime': '--ds-rovo-border-lime',
+	'color.rovo.border.saffron': '--ds-rovo-border-saffron',
+	'color.rovo.border.blue': '--ds-rovo-border-blue',
+	'color.rovo.border.purple': '--ds-rovo-border-purple',
+	'color.rovo.icon.lime': '--ds-rovo-icon-lime',
+	'color.rovo.icon.saffron': '--ds-rovo-icon-saffron',
+	'color.rovo.icon.blue': '--ds-rovo-icon-blue',
+	'color.rovo.icon.purple': '--ds-rovo-icon-purple',
 	'elevation.surface': '--ds-surface',
 	'elevation.surface.hovered': '--ds-surface-hovered',
 	'elevation.surface.pressed': '--ds-surface-pressed',
+	'elevation.surface.container': '--ds-surface-container',
+	'elevation.surface.container.hovered': '--ds-surface-container-hovered',
+	'elevation.surface.container.pressed': '--ds-surface-container-pressed',
 	'elevation.surface.overlay': '--ds-surface-overlay',
 	'elevation.surface.overlay.hovered': '--ds-surface-overlay-hovered',
 	'elevation.surface.overlay.pressed': '--ds-surface-overlay-pressed',
@@ -415,6 +545,9 @@ const tokens = {
 	'elevation.surface.raised.hovered': '--ds-surface-raised-hovered',
 	'elevation.surface.raised.pressed': '--ds-surface-raised-pressed',
 	'elevation.surface.sunken': '--ds-surface-sunken',
+	'elevation.rovo.surface.overlay': '--ds-rovo-surface-overlay',
+	'elevation.rovo.surface.overlay.hovered': '--ds-rovo-surface-overlay-hovered',
+	'elevation.rovo.surface.overlay.pressed': '--ds-rovo-surface-overlay-pressed',
 	'elevation.shadow.overflow': '--ds-shadow-overflow',
 	'elevation.shadow.overflow.perimeter': '--ds-shadow-overflow-perimeter',
 	'elevation.shadow.overflow.spread': '--ds-shadow-overflow-spread',
@@ -457,7 +590,6 @@ const tokens = {
 	'font.body.large': '--ds-font-body-large',
 	'font.body': '--ds-font-body',
 	'font.body.small': '--ds-font-body-small',
-	'font.body.UNSAFE_small': '--ds-font-body-UNSAFE_small',
 	'font.metric.large': '--ds-font-metric-large',
 	'font.metric.medium': '--ds-font-metric-medium',
 	'font.metric.small': '--ds-font-metric-small',
@@ -485,94 +617,82 @@ const tokens = {
 } as const;
 
 export type CSSTokenMap = {
-	'color.text': 'var(--ds-text)';
-	'color.text.accent.lime': 'var(--ds-text-accent-lime)';
-	'color.text.accent.lime.bolder': 'var(--ds-text-accent-lime-bolder)';
-	'color.text.accent.red': 'var(--ds-text-accent-red)';
-	'color.text.accent.red.bolder': 'var(--ds-text-accent-red-bolder)';
-	'color.text.accent.orange': 'var(--ds-text-accent-orange)';
-	'color.text.accent.orange.bolder': 'var(--ds-text-accent-orange-bolder)';
-	'color.text.accent.yellow': 'var(--ds-text-accent-yellow)';
-	'color.text.accent.yellow.bolder': 'var(--ds-text-accent-yellow-bolder)';
-	'color.text.accent.green': 'var(--ds-text-accent-green)';
-	'color.text.accent.green.bolder': 'var(--ds-text-accent-green-bolder)';
-	'color.text.accent.teal': 'var(--ds-text-accent-teal)';
-	'color.text.accent.teal.bolder': 'var(--ds-text-accent-teal-bolder)';
-	'color.text.accent.blue': 'var(--ds-text-accent-blue)';
-	'color.text.accent.blue.bolder': 'var(--ds-text-accent-blue-bolder)';
-	'color.text.accent.purple': 'var(--ds-text-accent-purple)';
-	'color.text.accent.purple.bolder': 'var(--ds-text-accent-purple-bolder)';
-	'color.text.accent.magenta': 'var(--ds-text-accent-magenta)';
-	'color.text.accent.magenta.bolder': 'var(--ds-text-accent-magenta-bolder)';
-	'color.text.accent.gray': 'var(--ds-text-accent-gray)';
-	'color.text.accent.gray.bolder': 'var(--ds-text-accent-gray-bolder)';
-	'color.text.disabled': 'var(--ds-text-disabled)';
-	'color.text.inverse': 'var(--ds-text-inverse)';
-	'color.text.selected': 'var(--ds-text-selected)';
-	'color.text.brand': 'var(--ds-text-brand)';
-	'color.text.danger': 'var(--ds-text-danger)';
-	'color.text.danger.bolder': 'var(--ds-text-danger-bolder)';
-	'color.text.warning': 'var(--ds-text-warning)';
-	'color.text.warning.inverse': 'var(--ds-text-warning-inverse)';
-	'color.text.warning.bolder': 'var(--ds-text-warning-bolder)';
-	'color.text.success': 'var(--ds-text-success)';
-	'color.text.success.bolder': 'var(--ds-text-success-bolder)';
-	'color.text.discovery': 'var(--ds-text-discovery)';
-	'color.text.discovery.bolder': 'var(--ds-text-discovery-bolder)';
-	'color.text.information': 'var(--ds-text-information)';
-	'color.text.information.bolder': 'var(--ds-text-information-bolder)';
-	'color.text.subtlest': 'var(--ds-text-subtlest)';
-	'color.text.subtle': 'var(--ds-text-subtle)';
-	'color.link': 'var(--ds-link)';
-	'color.link.pressed': 'var(--ds-link-pressed)';
-	'color.link.visited': 'var(--ds-link-visited)';
-	'color.link.visited.pressed': 'var(--ds-link-visited-pressed)';
-	'color.icon': 'var(--ds-icon)';
-	'color.icon.accent.lime': 'var(--ds-icon-accent-lime)';
-	'color.icon.accent.red': 'var(--ds-icon-accent-red)';
-	'color.icon.accent.orange': 'var(--ds-icon-accent-orange)';
-	'color.icon.accent.yellow': 'var(--ds-icon-accent-yellow)';
-	'color.icon.accent.green': 'var(--ds-icon-accent-green)';
-	'color.icon.accent.teal': 'var(--ds-icon-accent-teal)';
-	'color.icon.accent.blue': 'var(--ds-icon-accent-blue)';
-	'color.icon.accent.purple': 'var(--ds-icon-accent-purple)';
-	'color.icon.accent.magenta': 'var(--ds-icon-accent-magenta)';
-	'color.icon.accent.gray': 'var(--ds-icon-accent-gray)';
-	'color.icon.disabled': 'var(--ds-icon-disabled)';
-	'color.icon.inverse': 'var(--ds-icon-inverse)';
-	'color.icon.selected': 'var(--ds-icon-selected)';
-	'color.icon.brand': 'var(--ds-icon-brand)';
-	'color.icon.danger': 'var(--ds-icon-danger)';
-	'color.icon.warning': 'var(--ds-icon-warning)';
-	'color.icon.warning.inverse': 'var(--ds-icon-warning-inverse)';
-	'color.icon.success': 'var(--ds-icon-success)';
-	'color.icon.discovery': 'var(--ds-icon-discovery)';
-	'color.icon.information': 'var(--ds-icon-information)';
-	'color.icon.subtlest': 'var(--ds-icon-subtlest)';
-	'color.icon.subtle': 'var(--ds-icon-subtle)';
-	'color.border': 'var(--ds-border)';
-	'color.border.accent.lime': 'var(--ds-border-accent-lime)';
-	'color.border.accent.red': 'var(--ds-border-accent-red)';
-	'color.border.accent.orange': 'var(--ds-border-accent-orange)';
-	'color.border.accent.yellow': 'var(--ds-border-accent-yellow)';
-	'color.border.accent.green': 'var(--ds-border-accent-green)';
-	'color.border.accent.teal': 'var(--ds-border-accent-teal)';
-	'color.border.accent.blue': 'var(--ds-border-accent-blue)';
-	'color.border.accent.purple': 'var(--ds-border-accent-purple)';
-	'color.border.accent.magenta': 'var(--ds-border-accent-magenta)';
-	'color.border.accent.gray': 'var(--ds-border-accent-gray)';
-	'color.border.disabled': 'var(--ds-border-disabled)';
-	'color.border.focused': 'var(--ds-border-focused)';
-	'color.border.input': 'var(--ds-border-input)';
-	'color.border.inverse': 'var(--ds-border-inverse)';
-	'color.border.selected': 'var(--ds-border-selected)';
-	'color.border.brand': 'var(--ds-border-brand)';
-	'color.border.danger': 'var(--ds-border-danger)';
-	'color.border.warning': 'var(--ds-border-warning)';
-	'color.border.success': 'var(--ds-border-success)';
-	'color.border.discovery': 'var(--ds-border-discovery)';
-	'color.border.information': 'var(--ds-border-information)';
-	'color.border.bold': 'var(--ds-border-bold)';
+	'motion.avatar.enter': 'var(--ds-avatar-enter)';
+	'motion.avatar.exit': 'var(--ds-avatar-exit)';
+	'motion.avatar.hovered': 'var(--ds-avatar-hovered)';
+	'motion.blanket.enter': 'var(--ds-blanket-enter)';
+	'motion.blanket.exit': 'var(--ds-blanket-exit)';
+	'motion.button.hovered': 'var(--ds-button-hovered)';
+	'motion.button.pressed': 'var(--ds-button-pressed)';
+	'motion.duration.instant': 'var(--ds-duration-instant)';
+	'motion.duration.long': 'var(--ds-duration-long)';
+	'motion.duration.medium': 'var(--ds-duration-medium)';
+	'motion.duration.short': 'var(--ds-duration-short)';
+	'motion.duration.xlong': 'var(--ds-duration-xlong)';
+	'motion.duration.xshort': 'var(--ds-duration-xshort)';
+	'motion.duration.xxlong': 'var(--ds-duration-xxlong)';
+	'motion.duration.xxshort': 'var(--ds-duration-xxshort)';
+	'motion.easing.in.practical': 'var(--ds-easing-in-practical)';
+	'motion.easing.inout.bold': 'var(--ds-easing-inout-bold)';
+	'motion.easing.out.practical': 'var(--ds-easing-out-practical)';
+	'motion.easing.out.bold': 'var(--ds-easing-out-bold)';
+	'motion.easing.spring': 'var(--ds-easing-spring)';
+	'motion.flag.enter': 'var(--ds-flag-enter)';
+	'motion.flag.exit': 'var(--ds-flag-exit)';
+	'motion.flag.reposition': 'var(--ds-flag-reposition)';
+	'motion.input': 'var(--ds-input)';
+	'motion.keyframe.fade.in': 'var(--ds-keyframe-fade-in)';
+	'motion.keyframe.fade.out': 'var(--ds-keyframe-fade-out)';
+	'motion.keyframe.grid.column.in': 'var(--ds-keyframe-grid-column-in)';
+	'motion.keyframe.grid.column.out': 'var(--ds-keyframe-grid-column-out)';
+	'motion.keyframe.scale.in.medium': 'var(--ds-keyframe-scale-in-medium)';
+	'motion.keyframe.scale.in.small': 'var(--ds-keyframe-scale-in-small)';
+	'motion.keyframe.scale.out.medium': 'var(--ds-keyframe-scale-out-medium)';
+	'motion.keyframe.scale.out.small': 'var(--ds-keyframe-scale-out-small)';
+	'motion.keyframe.slide.in.bottom.short': 'var(--ds-keyframe-slide-in-bottom-short)';
+	'motion.keyframe.slide.in.left.half': 'var(--ds-keyframe-slide-in-left-half)';
+	'motion.keyframe.slide.in.left.short': 'var(--ds-keyframe-slide-in-left-short)';
+	'motion.keyframe.slide.in.right.short': 'var(--ds-keyframe-slide-in-right-short)';
+	'motion.keyframe.slide.in.top.short': 'var(--ds-keyframe-slide-in-top-short)';
+	'motion.keyframe.slide.out.bottom.short': 'var(--ds-keyframe-slide-out-bottom-short)';
+	'motion.keyframe.slide.out.left.half': 'var(--ds-keyframe-slide-out-left-half)';
+	'motion.keyframe.slide.out.left.short': 'var(--ds-keyframe-slide-out-left-short)';
+	'motion.keyframe.slide.out.right.short': 'var(--ds-keyframe-slide-out-right-short)';
+	'motion.keyframe.slide.out.top.short': 'var(--ds-keyframe-slide-out-top-short)';
+	'motion.label.enter': 'var(--ds-label-enter)';
+	'motion.label.exit': 'var(--ds-label-exit)';
+	'motion.listitem.hovered': 'var(--ds-listitem-hovered)';
+	'motion.listitem.pressed': 'var(--ds-listitem-pressed)';
+	'motion.listitem.selected': 'var(--ds-listitem-selected)';
+	'motion.modal.enter': 'var(--ds-modal-enter)';
+	'motion.modal.exit': 'var(--ds-modal-exit)';
+	'motion.panel.content.enter': 'var(--ds-panel-content-enter)';
+	'motion.panel.content.exit': 'var(--ds-panel-content-exit)';
+	'motion.panel.enter': 'var(--ds-panel-enter)';
+	'motion.panel.enter.left': 'var(--ds-panel-enter-left)';
+	'motion.panel.enter.right': 'var(--ds-panel-enter-right)';
+	'motion.panel.exit': 'var(--ds-panel-exit)';
+	'motion.panel.exit.left': 'var(--ds-panel-exit-left)';
+	'motion.panel.exit.right': 'var(--ds-panel-exit-right)';
+	'motion.popup.enter.bottom': 'var(--ds-popup-enter-bottom)';
+	'motion.popup.enter.left': 'var(--ds-popup-enter-left)';
+	'motion.popup.enter.right': 'var(--ds-popup-enter-right)';
+	'motion.popup.enter.top': 'var(--ds-popup-enter-top)';
+	'motion.popup.exit.bottom': 'var(--ds-popup-exit-bottom)';
+	'motion.popup.exit.left': 'var(--ds-popup-exit-left)';
+	'motion.popup.exit.right': 'var(--ds-popup-exit-right)';
+	'motion.popup.exit.top': 'var(--ds-popup-exit-top)';
+	'motion.sidenav.enter.left': 'var(--ds-sidenav-enter-left)';
+	'motion.sidenav.enter.right': 'var(--ds-sidenav-enter-right)';
+	'motion.sidenav.exit.left': 'var(--ds-sidenav-exit-left)';
+	'motion.sidenav.exit.right': 'var(--ds-sidenav-exit-right)';
+	'motion.spotlight.enter': 'var(--ds-spotlight-enter)';
+	'motion.spotlight.exit': 'var(--ds-spotlight-exit)';
+	'motion.tab': 'var(--ds-tab)';
+	'motion.tab.indicator.enter.left': 'var(--ds-tab-indicator-enter-left)';
+	'motion.tab.indicator.enter.right': 'var(--ds-tab-indicator-enter-right)';
+	'motion.tab.indicator.exit.left': 'var(--ds-tab-indicator-exit-left)';
+	'motion.tab.indicator.exit.right': 'var(--ds-tab-indicator-exit-right)';
 	'color.background.accent.lime.subtlest': 'var(--ds-background-accent-lime-subtlest)';
 	'color.background.accent.lime.subtlest.hovered': 'var(--ds-background-accent-lime-subtlest-hovered)';
 	'color.background.accent.lime.subtlest.pressed': 'var(--ds-background-accent-lime-subtlest-pressed)';
@@ -693,6 +813,13 @@ export type CSSTokenMap = {
 	'color.background.accent.gray.bolder': 'var(--ds-background-accent-gray-bolder)';
 	'color.background.accent.gray.bolder.hovered': 'var(--ds-background-accent-gray-bolder-hovered)';
 	'color.background.accent.gray.bolder.pressed': 'var(--ds-background-accent-gray-bolder-pressed)';
+	'color.background.code.added.highlight': 'var(--ds-background-code-added-highlight)';
+	'color.background.code.added.line': 'var(--ds-background-code-added-line)';
+	'color.background.code.default': 'var(--ds-background-code-default)';
+	'color.background.code.gutter': 'var(--ds-background-code-gutter)';
+	'color.background.code.highlight': 'var(--ds-background-code-highlight)';
+	'color.background.code.removed.highlight': 'var(--ds-background-code-removed-highlight)';
+	'color.background.code.removed.line': 'var(--ds-background-code-removed-line)';
 	'color.background.disabled': 'var(--ds-background-disabled)';
 	'color.background.input': 'var(--ds-background-input)';
 	'color.background.input.hovered': 'var(--ds-background-input-hovered)';
@@ -730,6 +857,7 @@ export type CSSTokenMap = {
 	'color.background.danger.subtler': 'var(--ds-background-danger-subtler)';
 	'color.background.danger.subtler.hovered': 'var(--ds-background-danger-subtler-hovered)';
 	'color.background.danger.subtler.pressed': 'var(--ds-background-danger-subtler-pressed)';
+	'color.background.danger.subtle': 'var(--ds-background-danger-subtle)';
 	'color.background.danger.bold': 'var(--ds-background-danger-bold)';
 	'color.background.danger.bold.hovered': 'var(--ds-background-danger-bold-hovered)';
 	'color.background.danger.bold.pressed': 'var(--ds-background-danger-bold-pressed)';
@@ -739,6 +867,7 @@ export type CSSTokenMap = {
 	'color.background.warning.subtler': 'var(--ds-background-warning-subtler)';
 	'color.background.warning.subtler.hovered': 'var(--ds-background-warning-subtler-hovered)';
 	'color.background.warning.subtler.pressed': 'var(--ds-background-warning-subtler-pressed)';
+	'color.background.warning.subtle': 'var(--ds-background-warning-subtle)';
 	'color.background.warning.bold': 'var(--ds-background-warning-bold)';
 	'color.background.warning.bold.hovered': 'var(--ds-background-warning-bold-hovered)';
 	'color.background.warning.bold.pressed': 'var(--ds-background-warning-bold-pressed)';
@@ -748,6 +877,7 @@ export type CSSTokenMap = {
 	'color.background.success.subtler': 'var(--ds-background-success-subtler)';
 	'color.background.success.subtler.hovered': 'var(--ds-background-success-subtler-hovered)';
 	'color.background.success.subtler.pressed': 'var(--ds-background-success-subtler-pressed)';
+	'color.background.success.subtle': 'var(--ds-background-success-subtle)';
 	'color.background.success.bold': 'var(--ds-background-success-bold)';
 	'color.background.success.bold.hovered': 'var(--ds-background-success-bold-hovered)';
 	'color.background.success.bold.pressed': 'var(--ds-background-success-bold-pressed)';
@@ -757,6 +887,7 @@ export type CSSTokenMap = {
 	'color.background.discovery.subtler': 'var(--ds-background-discovery-subtler)';
 	'color.background.discovery.subtler.hovered': 'var(--ds-background-discovery-subtler-hovered)';
 	'color.background.discovery.subtler.pressed': 'var(--ds-background-discovery-subtler-pressed)';
+	'color.background.discovery.subtle': 'var(--ds-background-discovery-subtle)';
 	'color.background.discovery.bold': 'var(--ds-background-discovery-bold)';
 	'color.background.discovery.bold.hovered': 'var(--ds-background-discovery-bold-hovered)';
 	'color.background.discovery.bold.pressed': 'var(--ds-background-discovery-bold-pressed)';
@@ -766,16 +897,133 @@ export type CSSTokenMap = {
 	'color.background.information.subtler': 'var(--ds-background-information-subtler)';
 	'color.background.information.subtler.hovered': 'var(--ds-background-information-subtler-hovered)';
 	'color.background.information.subtler.pressed': 'var(--ds-background-information-subtler-pressed)';
+	'color.background.information.subtle': 'var(--ds-background-information-subtle)';
 	'color.background.information.bold': 'var(--ds-background-information-bold)';
 	'color.background.information.bold.hovered': 'var(--ds-background-information-bold-hovered)';
 	'color.background.information.bold.pressed': 'var(--ds-background-information-bold-pressed)';
-	'color.blanket': 'var(--ds-blanket)';
-	'color.blanket.selected': 'var(--ds-blanket-selected)';
-	'color.blanket.danger': 'var(--ds-blanket-danger)';
+	'color.border': 'var(--ds-border)';
+	'color.border.accent.lime': 'var(--ds-border-accent-lime)';
+	'color.border.accent.lime.subtle': 'var(--ds-border-accent-lime-subtle)';
+	'color.border.accent.red': 'var(--ds-border-accent-red)';
+	'color.border.accent.red.subtle': 'var(--ds-border-accent-red-subtle)';
+	'color.border.accent.orange': 'var(--ds-border-accent-orange)';
+	'color.border.accent.orange.subtle': 'var(--ds-border-accent-orange-subtle)';
+	'color.border.accent.yellow': 'var(--ds-border-accent-yellow)';
+	'color.border.accent.yellow.subtle': 'var(--ds-border-accent-yellow-subtle)';
+	'color.border.accent.green': 'var(--ds-border-accent-green)';
+	'color.border.accent.green.subtle': 'var(--ds-border-accent-green-subtle)';
+	'color.border.accent.teal': 'var(--ds-border-accent-teal)';
+	'color.border.accent.teal.subtle': 'var(--ds-border-accent-teal-subtle)';
+	'color.border.accent.blue': 'var(--ds-border-accent-blue)';
+	'color.border.accent.blue.subtle': 'var(--ds-border-accent-blue-subtle)';
+	'color.border.accent.purple': 'var(--ds-border-accent-purple)';
+	'color.border.accent.purple.subtle': 'var(--ds-border-accent-purple-subtle)';
+	'color.border.accent.magenta': 'var(--ds-border-accent-magenta)';
+	'color.border.accent.magenta.subtle': 'var(--ds-border-accent-magenta-subtle)';
+	'color.border.accent.gray': 'var(--ds-border-accent-gray)';
+	'color.border.accent.gray.subtle': 'var(--ds-border-accent-gray-subtle)';
+	'color.border.code': 'var(--ds-border-code)';
+	'color.border.disabled': 'var(--ds-border-disabled)';
+	'color.border.focused': 'var(--ds-border-focused)';
+	'color.border.input': 'var(--ds-border-input)';
+	'color.border.input.search': 'var(--ds-border-input-search)';
+	'color.border.inverse': 'var(--ds-border-inverse)';
+	'color.border.selected': 'var(--ds-border-selected)';
+	'color.border.brand': 'var(--ds-border-brand)';
+	'color.border.danger': 'var(--ds-border-danger)';
+	'color.border.danger.subtle': 'var(--ds-border-danger-subtle)';
+	'color.border.warning': 'var(--ds-border-warning)';
+	'color.border.warning.subtle': 'var(--ds-border-warning-subtle)';
+	'color.border.success': 'var(--ds-border-success)';
+	'color.border.success.subtle': 'var(--ds-border-success-subtle)';
+	'color.border.discovery': 'var(--ds-border-discovery)';
+	'color.border.discovery.subtle': 'var(--ds-border-discovery-subtle)';
+	'color.border.information': 'var(--ds-border-information)';
+	'color.border.information.subtle': 'var(--ds-border-information-subtle)';
+	'color.border.bold': 'var(--ds-border-bold)';
+	'color.text': 'var(--ds-text)';
+	'color.text.accent.lime': 'var(--ds-text-accent-lime)';
+	'color.text.accent.lime.bolder': 'var(--ds-text-accent-lime-bolder)';
+	'color.text.accent.red': 'var(--ds-text-accent-red)';
+	'color.text.accent.red.bolder': 'var(--ds-text-accent-red-bolder)';
+	'color.text.accent.orange': 'var(--ds-text-accent-orange)';
+	'color.text.accent.orange.bolder': 'var(--ds-text-accent-orange-bolder)';
+	'color.text.accent.yellow': 'var(--ds-text-accent-yellow)';
+	'color.text.accent.yellow.bolder': 'var(--ds-text-accent-yellow-bolder)';
+	'color.text.accent.green': 'var(--ds-text-accent-green)';
+	'color.text.accent.green.bolder': 'var(--ds-text-accent-green-bolder)';
+	'color.text.accent.teal': 'var(--ds-text-accent-teal)';
+	'color.text.accent.teal.bolder': 'var(--ds-text-accent-teal-bolder)';
+	'color.text.accent.blue': 'var(--ds-text-accent-blue)';
+	'color.text.accent.blue.bolder': 'var(--ds-text-accent-blue-bolder)';
+	'color.text.accent.purple': 'var(--ds-text-accent-purple)';
+	'color.text.accent.purple.bolder': 'var(--ds-text-accent-purple-bolder)';
+	'color.text.accent.magenta': 'var(--ds-text-accent-magenta)';
+	'color.text.accent.magenta.bolder': 'var(--ds-text-accent-magenta-bolder)';
+	'color.text.accent.gray': 'var(--ds-text-accent-gray)';
+	'color.text.accent.gray.bolder': 'var(--ds-text-accent-gray-bolder)';
+	'color.text.code.accent.1': 'var(--ds-text-code-accent-1)';
+	'color.text.code.accent.2': 'var(--ds-text-code-accent-2)';
+	'color.text.code.comments': 'var(--ds-text-code-comments)';
+	'color.text.code.default': 'var(--ds-text-code-default)';
+	'color.text.code.functions': 'var(--ds-text-code-functions)';
+	'color.text.code.gutter': 'var(--ds-text-code-gutter)';
+	'color.text.code.keywords': 'var(--ds-text-code-keywords)';
+	'color.text.code.numbers': 'var(--ds-text-code-numbers)';
+	'color.text.code.operators': 'var(--ds-text-code-operators)';
+	'color.text.code.strings': 'var(--ds-text-code-strings)';
+	'color.text.code.tags': 'var(--ds-text-code-tags)';
+	'color.text.disabled': 'var(--ds-text-disabled)';
+	'color.text.inverse': 'var(--ds-text-inverse)';
+	'color.text.selected': 'var(--ds-text-selected)';
+	'color.text.brand': 'var(--ds-text-brand)';
+	'color.text.danger': 'var(--ds-text-danger)';
+	'color.text.danger.bolder': 'var(--ds-text-danger-bolder)';
+	'color.text.warning': 'var(--ds-text-warning)';
+	'color.text.warning.inverse': 'var(--ds-text-warning-inverse)';
+	'color.text.warning.bolder': 'var(--ds-text-warning-bolder)';
+	'color.text.success': 'var(--ds-text-success)';
+	'color.text.success.bolder': 'var(--ds-text-success-bolder)';
+	'color.text.discovery': 'var(--ds-text-discovery)';
+	'color.text.discovery.bolder': 'var(--ds-text-discovery-bolder)';
+	'color.text.information': 'var(--ds-text-information)';
+	'color.text.information.bolder': 'var(--ds-text-information-bolder)';
+	'color.text.subtlest': 'var(--ds-text-subtlest)';
+	'color.text.subtle': 'var(--ds-text-subtle)';
+	'color.icon': 'var(--ds-icon)';
+	'color.icon.accent.lime': 'var(--ds-icon-accent-lime)';
+	'color.icon.accent.red': 'var(--ds-icon-accent-red)';
+	'color.icon.accent.orange': 'var(--ds-icon-accent-orange)';
+	'color.icon.accent.yellow': 'var(--ds-icon-accent-yellow)';
+	'color.icon.accent.green': 'var(--ds-icon-accent-green)';
+	'color.icon.accent.teal': 'var(--ds-icon-accent-teal)';
+	'color.icon.accent.blue': 'var(--ds-icon-accent-blue)';
+	'color.icon.accent.purple': 'var(--ds-icon-accent-purple)';
+	'color.icon.accent.magenta': 'var(--ds-icon-accent-magenta)';
+	'color.icon.accent.gray': 'var(--ds-icon-accent-gray)';
+	'color.icon.disabled': 'var(--ds-icon-disabled)';
+	'color.icon.inverse': 'var(--ds-icon-inverse)';
+	'color.icon.selected': 'var(--ds-icon-selected)';
+	'color.icon.brand': 'var(--ds-icon-brand)';
+	'color.icon.danger': 'var(--ds-icon-danger)';
+	'color.icon.warning': 'var(--ds-icon-warning)';
+	'color.icon.warning.inverse': 'var(--ds-icon-warning-inverse)';
+	'color.icon.success': 'var(--ds-icon-success)';
+	'color.icon.discovery': 'var(--ds-icon-discovery)';
+	'color.icon.information': 'var(--ds-icon-information)';
+	'color.icon.subtlest': 'var(--ds-icon-subtlest)';
+	'color.icon.subtle': 'var(--ds-icon-subtle)';
+	'color.link': 'var(--ds-link)';
+	'color.link.pressed': 'var(--ds-link-pressed)';
+	'color.link.visited': 'var(--ds-link-visited)';
+	'color.link.visited.pressed': 'var(--ds-link-visited-pressed)';
 	'color.interaction.hovered': 'var(--ds-interaction-hovered)';
 	'color.interaction.pressed': 'var(--ds-interaction-pressed)';
 	'color.skeleton': 'var(--ds-skeleton)';
 	'color.skeleton.subtle': 'var(--ds-skeleton-subtle)';
+	'color.blanket': 'var(--ds-blanket)';
+	'color.blanket.selected': 'var(--ds-blanket-selected)';
+	'color.blanket.danger': 'var(--ds-blanket-danger)';
 	'color.chart.categorical.1': 'var(--ds-chart-categorical-1)';
 	'color.chart.categorical.1.hovered': 'var(--ds-chart-categorical-1-hovered)';
 	'color.chart.categorical.2': 'var(--ds-chart-categorical-2)';
@@ -876,9 +1124,23 @@ export type CSSTokenMap = {
 	'color.chart.information.hovered': 'var(--ds-chart-information-hovered)';
 	'color.chart.information.bold': 'var(--ds-chart-information-bold)';
 	'color.chart.information.bold.hovered': 'var(--ds-chart-information-bold-hovered)';
+	'color.rovo.background.brand.bold': 'var(--ds-rovo-background-brand-bold)';
+	'color.rovo.background.brand.bold.hovered': 'var(--ds-rovo-background-brand-bold-hovered)';
+	'color.rovo.background.brand.bold.pressed': 'var(--ds-rovo-background-brand-bold-pressed)';
+	'color.rovo.border.lime': 'var(--ds-rovo-border-lime)';
+	'color.rovo.border.saffron': 'var(--ds-rovo-border-saffron)';
+	'color.rovo.border.blue': 'var(--ds-rovo-border-blue)';
+	'color.rovo.border.purple': 'var(--ds-rovo-border-purple)';
+	'color.rovo.icon.lime': 'var(--ds-rovo-icon-lime)';
+	'color.rovo.icon.saffron': 'var(--ds-rovo-icon-saffron)';
+	'color.rovo.icon.blue': 'var(--ds-rovo-icon-blue)';
+	'color.rovo.icon.purple': 'var(--ds-rovo-icon-purple)';
 	'elevation.surface': 'var(--ds-surface)';
 	'elevation.surface.hovered': 'var(--ds-surface-hovered)';
 	'elevation.surface.pressed': 'var(--ds-surface-pressed)';
+	'elevation.surface.container': 'var(--ds-surface-container)';
+	'elevation.surface.container.hovered': 'var(--ds-surface-container-hovered)';
+	'elevation.surface.container.pressed': 'var(--ds-surface-container-pressed)';
 	'elevation.surface.overlay': 'var(--ds-surface-overlay)';
 	'elevation.surface.overlay.hovered': 'var(--ds-surface-overlay-hovered)';
 	'elevation.surface.overlay.pressed': 'var(--ds-surface-overlay-pressed)';
@@ -886,6 +1148,9 @@ export type CSSTokenMap = {
 	'elevation.surface.raised.hovered': 'var(--ds-surface-raised-hovered)';
 	'elevation.surface.raised.pressed': 'var(--ds-surface-raised-pressed)';
 	'elevation.surface.sunken': 'var(--ds-surface-sunken)';
+	'elevation.rovo.surface.overlay': 'var(--ds-rovo-surface-overlay)';
+	'elevation.rovo.surface.overlay.hovered': 'var(--ds-rovo-surface-overlay-hovered)';
+	'elevation.rovo.surface.overlay.pressed': 'var(--ds-rovo-surface-overlay-pressed)';
 	'elevation.shadow.overflow': 'var(--ds-shadow-overflow)';
 	'elevation.shadow.overflow.perimeter': 'var(--ds-shadow-overflow-perimeter)';
 	'elevation.shadow.overflow.spread': 'var(--ds-shadow-overflow-spread)';
@@ -928,7 +1193,6 @@ export type CSSTokenMap = {
 	'font.body.large': 'var(--ds-font-body-large)';
 	'font.body': 'var(--ds-font-body)';
 	'font.body.small': 'var(--ds-font-body-small)';
-	'font.body.UNSAFE_small': 'var(--ds-font-body-UNSAFE_small)';
 	'font.metric.large': 'var(--ds-font-metric-large)';
 	'font.metric.medium': 'var(--ds-font-metric-medium)';
 	'font.metric.small': 'var(--ds-font-metric-small)';

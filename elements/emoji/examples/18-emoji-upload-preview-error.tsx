@@ -1,13 +1,17 @@
 import React from 'react';
+
+import { IntlProvider } from 'react-intl';
+
 import { token } from '@atlaskit/tokens';
+
+import { onUploadCancelled } from '../example-helpers/on-upload-cancelled';
+import { onUploadEmoji } from '../example-helpers/on-upload-emoji';
 import EmojiUploadPicker from '../src/components/common/EmojiUploadPicker';
 import { emojiPickerWidth } from '../src/util/constants';
-import { onUploadEmoji, onUploadCancelled } from '../example-helpers';
-import { IntlProvider } from 'react-intl-next';
 
 const defaultStyles = {
 	width: emojiPickerWidth,
-	border: `${token('border.width')} solid ${token('color.border', '#ddd')}`,
+	border: `${token('border.width')} solid ${token('color.border')}`,
 	margin: '20px',
 };
 

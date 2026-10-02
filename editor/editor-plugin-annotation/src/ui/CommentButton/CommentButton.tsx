@@ -1,23 +1,23 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import { ToolTipContent, addInlineComment } from '@atlaskit/editor-common/keymaps';
 import { annotationMessages } from '@atlaskit/editor-common/messages';
 import { useEditorToolbar } from '@atlaskit/editor-common/toolbar';
 import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
-import { useSharedPluginStateSelector } from '@atlaskit/editor-common/use-shared-plugin-state-selector';
 import {
 	ToolbarButton,
 	CommentIcon as NewCommentIcon,
 	ToolbarTooltip,
 } from '@atlaskit/editor-toolbar';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type { AnnotationPlugin } from '../../annotationPluginType';
 import { isSelectionValid } from '../../pm-plugins/utils';
 import { AnnotationSelectionType, AnnotationTestIds, type AnnotationProviders } from '../../types';
-
 import { useCommentButtonMount } from './hooks';
 import {
 	fireOnClickAnalyticsEvent,
@@ -31,9 +31,18 @@ type CommentButtonProps = {
 	api?: ExtractInjectionAPI<AnnotationPlugin>;
 };
 
-export const CommentButton = ({ api, annotationProviders }: CommentButtonProps): React.JSX.Element | null => {
-	const isVisible = useSharedPluginStateSelector(api, 'annotation.isVisible');
-	const bookmark = useSharedPluginStateSelector(api, 'annotation.bookmark');
+export const CommentButton = ({
+	api,
+	annotationProviders,
+}: CommentButtonProps): React.JSX.Element | null => {
+	const { isVisible, bookmark } = useSharedPluginStateWithSelector(
+		api,
+		['annotation'],
+		(states) => ({
+			isVisible: states.annotationState?.isVisible,
+			bookmark: states.annotationState?.bookmark,
+		}),
+	);
 	const { editorView } = useEditorToolbar();
 
 	const annotationSelectionType = editorView?.state
@@ -85,21 +94,30 @@ export const CommentButton = ({ api, annotationProviders }: CommentButtonProps):
 		{ contentType },
 	);
 
-	const isDisabled = isButtonDisabled({
+	const { isDisabled, isAnnotationSelectionInvalid } = isButtonDisabled({
 		state: editorView?.state,
 		api,
 		canAddComments,
 	});
 
+	const tooltipContentWhenDisabled = () => {
+		if (!canAddComments) {
+			return noPermissionToAddCommentMessage;
+		} else if (isAnnotationSelectionInvalid) {
+			return commentDisabledMessage;
+		} else {
+			// i.e. isOffline. No tooltip message needed.
+			return expValEquals('confluence_fe_disable_comment_if_offline_fix', 'isEnabled', true)
+				? undefined
+				: commentDisabledMessage;
+		}
+	};
+
 	return (
 		<ToolbarTooltip
 			content={
 				isDisabled ? (
-					!canAddComments ? (
-						noPermissionToAddCommentMessage
-					) : (
-						commentDisabledMessage
-					)
+					tooltipContentWhenDisabled()
 				) : (
 					<ToolTipContent description={commentMessage} keymap={addInlineComment} />
 				)

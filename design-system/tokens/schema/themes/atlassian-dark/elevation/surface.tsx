@@ -40,6 +40,17 @@ const elevation: ValueSchema<SurfaceTokenSchema<BaseToken>> = {
 					value: 'DarkNeutral350',
 				},
 			},
+			container: {
+				'[default]': {
+					value: 'DarkNeutral100A',
+				},
+				hovered: {
+					value: 'DarkNeutral200A',
+				},
+				pressed: {
+					value: 'DarkNeutral250A',
+				},
+			},
 		},
 	},
 };

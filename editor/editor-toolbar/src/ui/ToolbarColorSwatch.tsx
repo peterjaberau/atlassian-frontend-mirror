@@ -1,4 +1,5 @@
-import React, { type ReactNode } from 'react';
+import React from 'react';
+import type { ReactNode } from 'react';
 
 import { cssMap } from '@atlaskit/css';
 import { Box } from '@atlaskit/primitives/compiled';
@@ -23,10 +24,15 @@ const styles = cssMap({
 	},
 });
 
-export const ToolbarColorSwatch = ({ children, highlightColor }: ToolbarColorSwatchProps): React.JSX.Element => {
+export const ToolbarColorSwatch = ({
+	children,
+	highlightColor,
+}: ToolbarColorSwatchProps): React.JSX.Element => {
 	return (
 		<Box
 			xcss={styles.colorSwatch}
+			testId="toolbar-color-swatch"
+			// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 			style={{
 				backgroundColor: highlightColor,
 			}}

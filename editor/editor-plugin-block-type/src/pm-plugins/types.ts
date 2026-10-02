@@ -8,7 +8,7 @@
 // nomenclature for what 'block type' is active.
 import type { ReactElement } from 'react';
 
-import type { MessageDescriptor } from 'react-intl-next';
+import type { MessageDescriptor } from 'react-intl';
 
 import type { AllowedBlockTypes, HeadingLevelsAndNormalText } from '@atlaskit/editor-common/types';
 import type { NodeSpec } from '@atlaskit/editor-prosemirror/model';
@@ -34,6 +34,7 @@ export interface BlockType {
 	icon?: ReactElement;
 	LEGACY_icon?: ReactElement;
 	level?: HeadingLevelsAndNormalText;
+	markName?: string;
 	name: string;
 	nodeName: string;
 	tagName?: string;
@@ -50,6 +51,14 @@ export interface BlockTypeNode {
 
 export interface BlockTypePluginOptions {
 	allowBlockType?: { exclude?: Array<AllowedBlockTypes> };
+	/**
+	 * Add ability to toggle paragraph size variations.
+	 *
+	 * Note: Feature is in development and logic is under an experiment.
+	 * Note: `fontSize` mark must be supported in the ADF schema for this feature to work.
+	 * Note: To support fontSize variatons in tasks, allowBlockTaskItem must be enabled for tasksAndDecisionsPlugin
+	 */
+	allowFontSize?: boolean;
 	includeBlockQuoteAsTextstyleOption?: boolean;
 	isUndoRedoButtonsEnabled?: boolean;
 	lastNodeMustBeParagraph?: boolean;

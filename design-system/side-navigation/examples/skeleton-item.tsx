@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { SkeletonItem } from '@atlaskit/side-navigation';
+// eslint-disable-next-line @atlaskit/design-system/no-deprecated-imports
+import { SkeletonItem } from '@atlaskit/side-navigation/skeleton-item';
 
 const Example = (): React.JSX.Element => (
 	<>

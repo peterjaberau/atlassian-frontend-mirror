@@ -1,10 +1,14 @@
 import type { Rule } from 'eslint';
 
-import { createLintRule } from '../utils/create-rule';
+import { createLintRule } from '../utils/create-lint-rule';
 import { errorBoundary } from '../utils/error-boundary';
-
-import { getConfig, PATTERNS, type RuleConfig } from './config';
-import { EmphasisElements, ParagraphElements, SpanElements, StrongElements, UnsafeSmallText } from './transformers';
+import { getConfig } from './config/get-config';
+import { PATTERNS } from './config/patterns';
+import type { RuleConfig } from './config/types';
+import { EmphasisElements } from './transformers/emphasis-elements';
+import { ParagraphElements } from './transformers/paragraph-elements';
+import { SpanElements } from './transformers/span-elements';
+import { StrongElements } from './transformers/strong-elements';
 
 const textDocsUrl = 'https://atlassian.design/components/primitives/text';
 
@@ -51,7 +55,6 @@ const rule: Rule.RuleModule = createLintRule({
 		messages: {
 			preferPrimitivesText: `This element can be replaced with a "Text" primitive. See ${textDocsUrl} for additional guidance.`,
 			preferPrimitivesStackedText: `These paragraphs can be replaced with a "Text" and "Stack" primitives. See ${textDocsUrl} for additional guidance.`,
-			noUnsafeSmallText: `Text size prop can be replaced with "small".`,
 		},
 	},
 	create(context) {
@@ -71,9 +74,6 @@ const rule: Rule.RuleModule = createLintRule({
 				},
 				'JSXElement[openingElement.name.name=em]': (node: Rule.Node) => {
 					return EmphasisElements.lint(node, { context, config });
-				},
-				'JSXElement[openingElement.name.name=Text]': (node: Rule.Node) => {
-					return UnsafeSmallText.lint(node, { context, config });
 				},
 			},
 			config,

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b3f6a07649eb82e75b49c0affe972388>>
+ * @generated SignedSource<<477fa8bbad45490f6a463fc28ad38d48>>
  * @relayHash c95a4b89f332b56ac41d44591442026c
  * @lightSyntaxTransform
  * @nogrep
@@ -12,7 +12,7 @@
 
 // @relayRequestID 8de69dcbcbaf21d9b6c334ea3f571232b1f22ba3798b5f801731c6faaf2bfb78
 
-import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ConcreteRequest } from 'relay-runtime';
 import type { FragmentRefs } from "relay-runtime";
 export type testAgentVerificationDropdownItemQuery$variables = Record<PropertyKey, never>;
 export type testAgentVerificationDropdownItemQuery$data = {
@@ -22,8 +22,8 @@ export type testAgentVerificationDropdownItemQuery$data = {
   readonly atlassianStudio_userSiteContext: {
     readonly userPermissions?: {
       readonly " $fragmentSpreads": FragmentRefs<"agentVerificationDropdownItem_AtlaskitRovoAgentComponents_userPermissionsRef">;
-    } | null | undefined;
-  } | null | undefined;
+    } | null;
+  } | null;
 };
 export type testAgentVerificationDropdownItemQuery = {
   response: testAgentVerificationDropdownItemQuery$data;
@@ -92,8 +92,7 @@ return {
           ],
           "storageKey": "agentStudio_agentById(id:\"test-agent-id\")"
         },
-        "action": "THROW",
-        "path": "agentStudio_agentById"
+        "action": "THROW"
       },
       {
         "args": (v1/*: any*/),
@@ -232,6 +231,6 @@ return {
 };
 })();
 
-(node as any).hash = "19dfd01b36565c5a9ddf6cfed9c3594f";
+(node as any).hash = "5f2bdb1cf9fe006560907bc0bd0c1fed";
 
 export default node;

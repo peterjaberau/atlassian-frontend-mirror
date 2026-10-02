@@ -18,18 +18,21 @@ const panelStyles = css({
 	borderRadius: token('radius.small', '3px'),
 	color: token('color.text.subtlest'),
 	fontSize: '4em',
-	fontWeight: token('font.weight.medium', '500'),
-	marginBlockEnd: token('space.100', '8px'),
-	marginBlockStart: token('space.200', '16px'),
-	paddingBlockEnd: token('space.400', '32px'),
-	paddingBlockStart: token('space.400', '32px'),
-	paddingInlineEnd: token('space.400', '32px'),
-	paddingInlineStart: token('space.400', '32px'),
+	fontWeight: token('font.weight.medium'),
+	marginBlockEnd: token('space.100'),
+	marginBlockStart: token('space.200'),
+	paddingBlockEnd: token('space.400'),
+	paddingBlockStart: token('space.400'),
+	paddingInlineEnd: token('space.400'),
+	paddingInlineStart: token('space.400'),
 });
 
-export const Panel: ({ children, testId }: {
-    children: ReactNode;
-    testId?: string;
+export const Panel: ({
+	children,
+	testId,
+}: {
+	children: ReactNode;
+	testId?: string;
 }) => JSX.Element = ({ children, testId }: { children: ReactNode; testId?: string }) => (
 	<div css={panelStyles} data-testid={testId}>
 		{children}

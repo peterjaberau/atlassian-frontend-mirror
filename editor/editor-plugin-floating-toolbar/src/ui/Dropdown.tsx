@@ -1,12 +1,11 @@
 /**
  * @jsxRuntime classic
  * @jsx jsx
- * @jsxFrag
  */
 import type { ReactElement } from 'react';
 import React, { Component } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports
 import { css, jsx } from '@emotion/react';
 
 import type {
@@ -14,7 +13,6 @@ import type {
 	DropdownOptions,
 	DropdownOptionT,
 	ExtensionDropdownOptions,
-	FloatingToolbarButtonSpotlightConfig,
 	FloatingToolbarOverflowDropdownOptions,
 } from '@atlaskit/editor-common/types';
 import type { OpenChangedEvent } from '@atlaskit/editor-common/ui';
@@ -33,7 +31,7 @@ import DropdownMenu, { itemSpacing, menuItemDimensions } from './DropdownMenu';
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage
 const dropdownExpandContainer = css({
-	margin: `0px ${token('space.negative.050', '-4px')}`,
+	margin: `0px ${token('space.negative.050')}`,
 });
 
 // eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage
@@ -41,7 +39,7 @@ const iconGroup = css({
 	display: 'flex',
 });
 
-const CompositeIcon = ({ icon }: { icon: React.ReactChild }) => (
+const CompositeIcon = ({ icon }: { icon: React.ReactElement | number | string }) => (
 	<div css={iconGroup}>
 		{icon}
 		<span css={dropdownExpandContainer}>
@@ -91,7 +89,6 @@ export interface Props {
 	shouldFitContainer?: boolean;
 	// Show a check next to selected dropdown menu items (true by default)
 	showSelected?: boolean;
-	spotlightConfig?: FloatingToolbarButtonSpotlightConfig;
 	title: string;
 	tooltip?: string;
 }
@@ -104,9 +101,9 @@ export interface State {
 // eslint-disable-next-line @repo/internal/react/no-class-components
 export default class Dropdown extends Component<Props, State> {
 	state: State = { isOpen: false, isOpenedByKeyboard: false };
-	triggerRef = React.createRef<HTMLDivElement>();
+	triggerRef: React.RefObject<HTMLDivElement> = React.createRef<HTMLDivElement>();
 
-	render() {
+	render(): jsx.JSX.Element {
 		const { isOpen } = this.state;
 		const {
 			title,
@@ -127,7 +124,6 @@ export default class Dropdown extends Component<Props, State> {
 			footer,
 			onMount,
 			pulse,
-			spotlightConfig,
 			shouldFitContainer,
 			alignX,
 			areAnyNewToolbarFlagsEnabled,
@@ -149,7 +145,6 @@ export default class Dropdown extends Component<Props, State> {
 					ariaHasPopup={areAnyNewToolbarFlagsEnabled ? true : undefined}
 					onMount={onMount}
 					pulse={pulse}
-					spotlightConfig={spotlightConfig}
 					areAnyNewToolbarFlagsEnabled={areAnyNewToolbarFlagsEnabled}
 				/>
 			);
@@ -177,7 +172,6 @@ export default class Dropdown extends Component<Props, State> {
 					areaControls={dropdownListId}
 					onMount={onMount}
 					pulse={pulse}
-					spotlightConfig={spotlightConfig}
 					areAnyNewToolbarFlagsEnabled={areAnyNewToolbarFlagsEnabled}
 				>
 					{title}
@@ -221,6 +215,7 @@ export default class Dropdown extends Component<Props, State> {
 				trigger={trigger}
 				dropdownListId={dropdownListId}
 				alignDropdownWithParentElement={alignDropdownWithToolbar}
+				// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 				arrowKeyNavigationProviderOptions={{
 					type: ArrowKeyNavigationType.MENU,
 				}}
@@ -232,10 +227,10 @@ export default class Dropdown extends Component<Props, State> {
 						? this.renderArrayOptions(this.makeArrayOptionsFromCallback(options))
 						: options.render({ hide: this.hide, dispatchCommand })}
 				{footer && (
-					<>
+					<React.Fragment>
 						<Divider />
 						{footer}
-					</>
+					</React.Fragment>
 				)}
 			</UiDropdown>
 		);

@@ -1,8 +1,5 @@
-import {
-	getOnlyFulfilled,
-	waitForAllPromises,
-	waitForFirstFulfilledPromise,
-} from './promise-helpers';
+import { getOnlyFulfilled, waitForAllPromises } from './promise-helpers';
+import { waitForFirstFulfilledPromise } from './waitForFirstFulfilledPromise';
 
 const flatten = <T>(arr: T[][]): T[] => ([] as T[]).concat(...arr);
 
@@ -16,6 +13,8 @@ export default <P>(
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	invokeList: <T>(methodName: keyof P, args?: any[]) => Promise<T[]>;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	invokeOptionalList: <T>(methodName: keyof P, args?: any[]) => Promise<T[]>;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	invokeSingle: <T>(methodName: keyof P, args?: any[]) => Promise<T>;
 } => {
 	if (providers.length === 0) {
@@ -25,7 +24,8 @@ export default <P>(
 	const getFulfilledProviders = async () => {
 		const results = await waitForAllPromises<P>(providers.map((result) => Promise.resolve(result)));
 
-		return getOnlyFulfilled<P>(results);
+		// Filter out null/undefined providers to prevent errors when calling methods on them
+		return getOnlyFulfilled<P>(results).filter((provider): provider is P => provider != null);
 	};
 
 	const runInAllProviders = async <T>(mapFunction: (provider: P) => Promise<T>) => {
@@ -72,8 +72,23 @@ export default <P>(
 		return flatten<T>(fulfilledResults).filter((result) => result);
 	};
 
+	// Ignored via go/ees005
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const invokeOptionalList = async <T>(methodName: keyof P, args?: any[]) => {
+		const providersWithMethod = (await getFulfilledProviders()).filter(
+			(provider) => typeof provider[methodName] === 'function',
+		);
+		const results = await waitForAllPromises<T[]>(
+			providersWithMethod.map(createCallback(methodName, args)),
+		);
+		const fulfilledResults = getOnlyFulfilled<T[]>(results);
+
+		return flatten<T>(fulfilledResults).filter((result) => result);
+	};
+
 	return {
 		invokeSingle,
 		invokeList,
+		invokeOptionalList,
 	};
 };

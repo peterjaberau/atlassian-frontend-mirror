@@ -1,38 +1,32 @@
 import React from 'react';
 
-import {
-	ACTION_SUBJECT,
-	ACTION_SUBJECT_ID,
-	type DispatchAnalyticsEvent,
-} from '@atlaskit/editor-common/analytics';
+import { ACTION_SUBJECT, ACTION_SUBJECT_ID } from '@atlaskit/editor-common/analytics';
+import type { DispatchAnalyticsEvent } from '@atlaskit/editor-common/analytics';
 import { ErrorBoundary } from '@atlaskit/editor-common/error-boundary';
 import { getDomRefFromSelection } from '@atlaskit/editor-common/get-dom-ref-from-selection';
-import {
-	type NamedPluginStatesFromInjectionAPI,
-	useSharedPluginStateWithSelector,
-} from '@atlaskit/editor-common/hooks';
+import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
+import type { NamedPluginStatesFromInjectionAPI } from '@atlaskit/editor-common/hooks';
 import { ResizerBreakoutModeLabel } from '@atlaskit/editor-common/resizer';
-import {
-	type ExtractInjectionAPI,
-	type GetEditorContainerWidth,
-	type GetEditorFeatureFlags,
+import type {
+	ExtractInjectionAPI,
+	GetEditorContainerWidth,
+	GetEditorFeatureFlags,
 } from '@atlaskit/editor-common/types';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import { akEditorFloatingPanelZIndex } from '@atlaskit/editor-shared-styles';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
-import { expValNoExposure } from '@atlaskit/tmp-editor-statsig/expVal';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import type tablePlugin from '../tablePlugin';
-import { type TablePlugin, type TablePluginOptions } from '../tablePluginType';
-import { type TableSharedStateInternal } from '../types';
-
+import type { TablePlugin, TablePluginOptions } from '../tablePluginType';
+import type { TableSharedStateInternal } from '../types';
 import FloatingContextualButton from './FloatingContextualButton';
 import FloatingContextualMenu from './FloatingContextualMenu';
-import FloatingDeleteButton from './FloatingDeleteButton';
 import FloatingDragMenu from './FloatingDragMenu';
 // Ignored via go/ees005
 // eslint-disable-next-line import/no-named-as-default
 import FloatingInsertButton from './FloatingInsertButton';
+import FloatingTableMenu from './FloatingTableMenu';
 import { FloatingToolbarLabel } from './FloatingToolbarLabel/FloatingToolbarLabel';
 import { GlobalStylesWrapper } from './global-styles';
 import { SizeSelector } from './SizeSelector';
@@ -70,7 +64,6 @@ const selector = (
 	insertRowButtonIndex: states.tableState?.insertRowButtonIndex,
 	isHeaderColumnEnabled: states.tableState?.isHeaderColumnEnabled,
 	isHeaderRowEnabled: states.tableState?.isHeaderRowEnabled,
-	isDragAndDropEnabled: states.tableState?.isDragAndDropEnabled,
 	tableWrapperTarget: states.tableState?.tableWrapperTarget,
 	isCellMenuOpenByKeyboard: states.tableState?.isCellMenuOpenByKeyboard,
 	stickyHeader: states.tableState?.stickyHeader,
@@ -116,7 +109,6 @@ const ContentComponentInternal = ({
 		insertRowButtonIndex,
 		isHeaderColumnEnabled,
 		isHeaderRowEnabled,
-		isDragAndDropEnabled,
 		tableWrapperTarget,
 		isCellMenuOpenByKeyboard,
 		stickyHeader,
@@ -141,6 +133,7 @@ const ContentComponentInternal = ({
 				options &&
 				options.allowContextualMenu && (
 					<FloatingContextualButton
+						api={api}
 						isNumberColumnEnabled={tableNode && tableNode.attrs.isNumberColumnEnabled}
 						editorView={editorView}
 						tableNode={tableNode}
@@ -152,7 +145,6 @@ const ContentComponentInternal = ({
 						stickyHeader={stickyHeader}
 						tableWrapper={tableWrapperTarget}
 						isCellMenuOpenByKeyboard={isCellMenuOpenByKeyboard}
-						isDragAndDropEnabled={isDragAndDropEnabled}
 					/>
 				)}
 			{allowControls && (
@@ -163,7 +155,6 @@ const ContentComponentInternal = ({
 					insertRowButtonIndex={insertRowButtonIndex}
 					isHeaderColumnEnabled={isHeaderColumnEnabled}
 					isHeaderRowEnabled={isHeaderRowEnabled}
-					isDragAndDropEnabled={isDragAndDropEnabled}
 					isTableScalingEnabled={options?.isTableScalingEnabled}
 					editorView={editorView}
 					mountPoint={popupsMountPoint}
@@ -184,7 +175,6 @@ const ContentComponentInternal = ({
 					editorView={editorView}
 					mountPoint={popupsMountPoint}
 					boundariesElement={popupsBoundariesElement}
-					targetCellPosition={targetCellPosition}
 					isOpen={Boolean(isContextualMenuOpen) && !isResizing}
 					pluginConfig={pluginConfig}
 					editorAnalyticsAPI={editorAnalyticsAPI}
@@ -193,15 +183,20 @@ const ContentComponentInternal = ({
 					isCellMenuOpenByKeyboard={isCellMenuOpenByKeyboard}
 					isCommentEditor={options?.isCommentEditor}
 					api={api}
-					isDragMenuOpen={
-						isDragAndDropEnabled &&
-						expValNoExposure('platform_editor_lovability_user_intent', 'isEnabled', false)
-							? isDragMenuOpen
-							: undefined
-					}
+					isDragMenuOpen={isDragMenuOpen}
 				/>
 			)}
-			{isDragAndDropEnabled && (
+			{expValEquals('platform_editor_table_menu_updates', 'isEnabled', true) ? (
+				<FloatingTableMenu
+					api={api}
+					boundariesElement={popupsBoundariesElement}
+					editorView={editorView}
+					mountPoint={popupsMountPoint}
+					stickyHeaders={stickyHeader}
+					tableWrapper={tableWrapperTarget}
+					targetCellPosition={targetCellPosition}
+				/>
+			) : (
 				<FloatingDragMenu
 					editorView={editorView}
 					mountPoint={popupsMountPoint}
@@ -222,20 +217,6 @@ const ContentComponentInternal = ({
 					api={api}
 					isCommentEditor={options?.isCommentEditor}
 					tableWrapper={tableWrapperTarget}
-				/>
-			)}
-			{allowControls && !isDragAndDropEnabled && !isResizing && (
-				<FloatingDeleteButton
-					editorView={editorView}
-					selection={editorView.state.selection}
-					tableRef={tableRef as HTMLTableElement}
-					mountPoint={popupsMountPoint}
-					boundariesElement={popupsBoundariesElement}
-					scrollableElement={popupsScrollableElement}
-					stickyHeaders={stickyHeader}
-					isNumberColumnEnabled={tableNode && tableNode.attrs.isNumberColumnEnabled}
-					editorAnalyticsAPI={editorAnalyticsAPI}
-					api={api}
 				/>
 			)}
 			{(options?.isTableScalingEnabled ||
@@ -259,6 +240,7 @@ const ContentComponentInternal = ({
 						stick={true}
 						forcePlacement={true}
 						zIndex={akEditorFloatingPanelZIndex}
+						// eslint-disable-next-line @atlassian/perf-linting/no-unstable-inline-props -- Ignored via go/ees017 (to be fixed)
 						offset={[0, 10]}
 					/>
 				)}
@@ -302,11 +284,7 @@ export const ContentComponent = ({
 			dispatchAnalyticsEvent={dispatchAnalyticsEvent}
 			fallbackComponent={null}
 		>
-			<GlobalStylesWrapper
-				featureFlags={api?.featureFlags?.sharedState.currentState()}
-				isDragAndDropEnabledOption={options?.dragAndDropEnabled}
-				api={api}
-			/>
+			<GlobalStylesWrapper featureFlags={api?.featureFlags?.sharedState.currentState()} api={api} />
 			<ContentComponentInternal
 				api={api}
 				editorView={editorView}

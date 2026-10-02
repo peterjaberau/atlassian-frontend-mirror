@@ -2,38 +2,39 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-/** @jsxFrag */
 
 import React, { useRef, useState } from 'react';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
-import {
-	useAnalyticsEvents,
-	type UIAnalyticsEvent,
-	AnalyticsContext,
-} from '@atlaskit/analytics-next';
-import SectionMessage from '@atlaskit/section-message';
-import ButtonGroup from '@atlaskit/button/button-group';
-import Button from '@atlaskit/button/custom-theme-button';
-import Form, { Field, CheckboxField, FormFooter } from '@atlaskit/form';
-import { RadioGroup } from '@atlaskit/radio';
-import { Checkbox } from '@atlaskit/checkbox';
-import TextArea from '@atlaskit/textarea';
-import { token } from '@atlaskit/tokens';
-import CheckCircleIcon from '@atlaskit/icon/core/status-success';
-import { colors } from '@atlaskit/theme';
+
 import { css, jsx } from '@compiled/react';
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+import AnalyticsContext from '@atlaskit/analytics-next/AnalyticsContext';
+import type UIAnalyticsEvent from '@atlaskit/analytics-next/UIAnalyticsEvent';
+import { useAnalyticsEvents } from '@atlaskit/analytics-next/useAnalyticsEvents';
+import ButtonGroup from '@atlaskit/button/button-group';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+import { CheckboxField } from '@atlaskit/form/checkbox-field';
+import Field from '@atlaskit/form/field';
+import Form from '@atlaskit/form/form';
+import { FormFooter } from '@atlaskit/form/form-footer';
+import CheckCircleIcon from '@atlaskit/icon/core/status-success';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Text } from '@atlaskit/primitives/compiled';
+import RadioGroup from '@atlaskit/radio/radio-group';
+import SectionMessage from '@atlaskit/section-message/message';
+import TextArea from '@atlaskit/textarea/text-area';
+import { token } from '@atlaskit/tokens';
 
 import { messages } from '../../../../messages';
 import { type ArticleFeedback } from '../../../../model/Article';
-import ArticleWasHelpfulYesButton from './WasHelpfulYesButton';
-import ArticleWasHelpfulNoButton from './WasHelpfulNoButton';
 import {
 	ArticleFeedbackContainer,
 	ArticleFeedbackText,
 	ArticleFeedbackAnswerWrapper,
 } from './styled';
-import { fg } from '@atlaskit/platform-feature-flags';
+import ArticleWasHelpfulNoButton from './WasHelpfulNoButton';
+import ArticleWasHelpfulYesButton from './WasHelpfulYesButton';
 
 const FEEDBACK_REASON_TEXT_MAX_LENGTH = '16000';
 const ANALYTICS_CONTEXT_DATA = {
@@ -193,9 +194,9 @@ export const ArticleWasHelpfulForm: React.FC<Props & WrappedComponentProps> = ({
 			!wasHelpfulFormSubmited
 		) {
 			return (
-				<>
+				<React.Fragment>
 					<ArticleFeedbackContainer>
-						<ArticleFeedbackText paddingRight={token('space.100', '8px')}>
+						<ArticleFeedbackText paddingRight={token('space.100')}>
 							{formatMessage(messages.help_article_rating_title)}
 						</ArticleFeedbackText>
 						<ButtonGroup
@@ -262,10 +263,10 @@ export const ArticleWasHelpfulForm: React.FC<Props & WrappedComponentProps> = ({
 											)}
 											<Field name="feedbackReasonText" defaultValue="">
 												{({ fieldProps }: { fieldProps: any }) => (
-													<>
+													<React.Fragment>
 														<ArticleFeedbackText
 															id="articleFeedbackText"
-															top={token('space.negative.100', '-8px')}
+															top={token('space.negative.100')}
 														>
 															{formatMessage(messages.help_article_rating_form_title)}
 														</ArticleFeedbackText>
@@ -277,7 +278,7 @@ export const ArticleWasHelpfulForm: React.FC<Props & WrappedComponentProps> = ({
 															value={feedbackReasonText}
 															onChange={feedbackReasonTextOnChange}
 														/>
-													</>
+													</React.Fragment>
 												)}
 											</Field>
 
@@ -313,7 +314,7 @@ export const ArticleWasHelpfulForm: React.FC<Props & WrappedComponentProps> = ({
 							</Form>
 						</ArticleFeedbackAnswerWrapper>
 					)}
-				</>
+				</React.Fragment>
 			);
 		} else if (wasHelpfulFormSubmited && wasHelpful === null) {
 			return (
@@ -321,7 +322,7 @@ export const ArticleWasHelpfulForm: React.FC<Props & WrappedComponentProps> = ({
 					<span
 						style={{
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							paddingRight: token('space.100', '8px'),
+							paddingRight: token('space.100'),
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 							verticalAlign: 'middle',
 						}}
@@ -329,11 +330,7 @@ export const ArticleWasHelpfulForm: React.FC<Props & WrappedComponentProps> = ({
 						// eslint-disable-next-line @atlassian/i18n/no-literal-string-in-jsx
 						aria-label="Success"
 					>
-						<CheckCircleIcon
-							spacing="spacious"
-							color={token('color.icon.success', colors.G400)}
-							label=""
-						/>
+						<CheckCircleIcon spacing="spacious" color={token('color.icon.success')} label="" />
 					</span>
 					<ArticleFeedbackText role="alert" aria-live="polite">
 						{formatMessage(messages.help_article_rating_form_Success)}
@@ -343,7 +340,7 @@ export const ArticleWasHelpfulForm: React.FC<Props & WrappedComponentProps> = ({
 		}
 	} else if (wasHelpfulFormSubmited && wasHelpfulFormSubmitedFailed) {
 		return (
-			<>
+			<React.Fragment>
 				{wasHelpfulFormSubmited && wasHelpfulFormSubmitedFailed && (
 					<ArticleFeedbackContainer>
 						<SectionMessage appearance="warning">
@@ -361,7 +358,7 @@ export const ArticleWasHelpfulForm: React.FC<Props & WrappedComponentProps> = ({
 						</SectionMessage>
 					</ArticleFeedbackContainer>
 				)}
-			</>
+			</React.Fragment>
 		);
 	}
 

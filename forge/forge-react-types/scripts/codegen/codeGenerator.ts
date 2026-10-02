@@ -1,4 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-types */
+// eslint-disable-next-line import/no-extraneous-dependencies
+import kebabCase from 'lodash/kebabCase';
+/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-wrapper-object-types */
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {
 	type Symbol,
@@ -11,8 +13,7 @@ import {
 	Node,
 	Project,
 } from 'ts-morph';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import kebabCase from 'lodash/kebabCase';
+
 import {
 	serializeTypeReferenceWithPickType,
 	extractPickKeys,
@@ -185,18 +186,23 @@ class ImportDeclarationProxy implements IImportDeclaration {
 
 	public getText() {
 		const code = this.base.getText();
-		
-		const match = code.match(/^(import(?:\s+type)?)\s+(?:(\w+)\s*,?\s*)?(?:\{([^}]*)\})?\s*from\s*['"](.+)['"];?$/);
+
+		const match = code.match(
+			/^(import(?:\s+type)?)\s+(?:(\w+)\s*,?\s*)?(?:\{([^}]*)\})?\s*from\s*['"](.+)['"];?$/,
+		);
 		if (!match) {
 			return this.base.getText();
 		}
-		
-		let [_, importKeyword, defaultImport, namedImportsStr, packageName] = match;
-		
-		let namedImportsList = namedImportsStr
-			? namedImportsStr.trim().split(',').map((text) => text.trim()).filter(Boolean)
-			: [];
 
+		let [_, importKeyword, defaultImport, namedImportsStr, packageName] = match;
+
+		let namedImportsList = namedImportsStr
+			? namedImportsStr
+					.trim()
+					.split(',')
+					.map((text) => text.trim())
+					.filter(Boolean)
+			: [];
 
 		if (this.removedNamedImports.size > 0) {
 			namedImportsList = namedImportsList.filter((text) => !this.removedNamedImports.has(text));
@@ -204,7 +210,7 @@ class ImportDeclarationProxy implements IImportDeclaration {
 		if (this.addedNamedImports) {
 			namedImportsList = Array.from(new Set([...namedImportsList, ...this.addedNamedImports]));
 		}
-		
+
 		// Build the import statement
 		const parts: string[] = [];
 		if (defaultImport) {
@@ -213,12 +219,12 @@ class ImportDeclarationProxy implements IImportDeclaration {
 		if (namedImportsList.length > 0) {
 			parts.push(`{ ${namedImportsList.sort().join(', ')} }`);
 		}
-		
+
 		// If no imports left, don't output anything
 		if (parts.length === 0) {
 			return '';
 		}
-		
+
 		return `${importKeyword} ${parts.join(', ')} from '${packageName}';`;
 	}
 }
@@ -342,7 +348,10 @@ const mergeImportsFromSameModule = (code: string): string => {
 	}
 
 	// Add merged imports back
-	for (const [module, { typeOnly, regular, defaultImport, namespaceImport, isTypeOnly }] of importsByModule) {
+	for (const [
+		module,
+		{ typeOnly, regular, defaultImport, namespaceImport, isTypeOnly },
+	] of importsByModule) {
 		// Handle namespace imports separately (can't be combined with named imports)
 		if (namespaceImport) {
 			tempFile.addImportDeclaration({
@@ -383,7 +392,6 @@ const mergeImportsFromSameModule = (code: string): string => {
 
 	return tempFile.getFullText();
 };
-
 
 // handles imports from platform/packages/forge/forge-ui/src/components/UIKit/tokens.partial.tsx
 // (can be type-only imports OR mixed value/type imports)
@@ -446,9 +454,11 @@ const getTypeDeclarationCodeFromImport = (
 	packageName: string,
 	typeName: string,
 ) => {
-	const importDeclaration = sourceFile.getImportDeclarationOrThrow(packageName);
-	const importSpecifier = importDeclaration
-		.getNamedImports()
+	// A file may import from the same package multiple times (e.g. separate `import type` lines).
+	const importSpecifier = sourceFile
+		.getImportDeclarations()
+		.filter((declaration) => declaration.getModuleSpecifierValue() === packageName)
+		.flatMap((declaration) => declaration.getNamedImports())
 		.find(
 			(specifier) =>
 				specifier.getName() === typeName || specifier.getAliasNode()?.getText() === typeName,
@@ -457,8 +467,15 @@ const getTypeDeclarationCodeFromImport = (
 	if (!importTypeSymbol) {
 		throw new Error(`Could not find type for ${typeName} in ${packageName}`);
 	}
-	const importSourcePath = importTypeSymbol
-		.getDeclarations()[0]
+	const declarations = importTypeSymbol.getDeclarations();
+	if (!declarations || declarations.length === 0) {
+		// eslint-disable-next-line no-console
+		console.warn(
+			`[codegen] No declarations found for type "${typeName}" from "${packageName}" — skipping. This may result in missing types in the generated output.`,
+		);
+		return null;
+	}
+	const importSourcePath = declarations[0]
 		.getType()
 		.getText()
 		.match(/import\("(.+)"\)/)?.[1];
@@ -672,27 +689,23 @@ const baseGenerateComponentPropTypeSourceCode = (
 ) => {
 	// 1) extract the prop types from the source file
 	const baseComponentPropSymbol = getBaseComponentSymbol(componentPropSymbol, sourceFile);
-
 	// 2) from the prop type code further extract other relevant types in the source file
 	const dependentTypeDeclarations = getDependentTypeDeclarations(
 		baseComponentPropSymbol,
 		sourceFile,
 	);
-
 	// 3) extract the import statement
 	const importDeclarations = extractImportDeclarations(
 		sourceFile,
 		baseComponentPropSymbol,
 		dependentTypeDeclarations,
 	);
-
 	// 4) resolve other types definition (not part of the ADS components)
 	const externalTypesCode = resolveExternalTypesCode(
 		sourceFile,
 		baseComponentPropSymbol,
 		dependentTypeDeclarations,
 	);
-
 	// 5) generate the source file
 	const importCode = importDeclarations.map((declaration) => declaration.getText()).join('\n');
 	const dependentTypeCode = dependentTypeDeclarations
@@ -1005,11 +1018,11 @@ const extractImportsForVariables = (
 
 	for (const importDecl of imports) {
 		const moduleSpecifier = importDecl.getModuleSpecifierValue();
-		
+
 		// Handle imports from @atlaskit packages or tokens.partial file
 		const isAtlaskitImport = moduleSpecifier.startsWith('@atlaskit/');
 		const isTokensImport = isTokensPartialImport(moduleSpecifier);
-		
+
 		if (isAtlaskitImport || isTokensImport) {
 			const namedImports = importDecl.getNamedImports();
 			const isTypeOnlyImport = importDecl.isTypeOnly();
@@ -1039,7 +1052,7 @@ const extractImportsForVariables = (
 			if (usedNamedImports.length > 0 || usedTypeImports.length > 0) {
 				// Rewrite tokens.partial imports to tokens.codegen
 				const targetModule = isTokensImport ? './tokens.codegen' : moduleSpecifier;
-				
+
 				// Combine type and value imports into a single { } block
 				const allImports: string[] = [
 					...usedTypeImports.map((name) => `type ${name}`),
@@ -1051,6 +1064,22 @@ const extractImportsForVariables = (
 	}
 
 	return importDeclarations;
+};
+
+/**
+ * `dts` emit sometimes prints `keyof U` constraints as `string | number | symbol` instead of
+ * `keyof CSSProperties`. The latter is required so `K_1` can index `RestrictedPropsSpec`.
+ */
+const normalizeXcssValidateDtsKeyof = (declarationText: string): string => {
+	return declarationText
+		.replace(
+			/SafeCSSObject<string \| number \| symbol, string \| number \| symbol, RestrictedPropsSpec>/g,
+			'SafeCSSObject<keyof CSSProperties, keyof CSSProperties, RestrictedPropsSpec>',
+		)
+		.replace(
+			/Extract<keyof U, string \| number \| symbol>/g,
+			'Extract<keyof U, keyof CSSProperties>',
+		);
 };
 
 const handleXCSSProp: CodeConsolidator = ({
@@ -1065,11 +1094,65 @@ const handleXCSSProp: CodeConsolidator = ({
 		.getProject()
 		.addSourceFileAtPath(require.resolve('@atlassian/forge-ui/utils/xcssValidator'));
 	const xcssValidatorDeclaration = xcssValidatorfile.getVariableDeclarationOrThrow('xcssValidator');
-	const xcssValidator = xcssValidatorDeclaration.getText();
-	const XCSSPropType = xcssValidatorfile
-		.getTypeAliasOrThrow('XCSSProp')
-		.setIsExported(false)
-		.getText();
+	// Strip any type-only / grouping wrappers (`as ...`, `satisfies ...`, parentheses) to reach the
+	// underlying `makeXCSSValidator({...})` call. Any such wrapper would otherwise leak a type name
+	// (e.g. `XCSSValidatorFn`) that is local to xcssValidator.ts and not carried into the generated
+	// file, breaking it with "Cannot find name ...".
+	let xcssValidatorInitializer = xcssValidatorDeclaration.getInitializerOrThrow();
+	while (
+		Node.isAsExpression(xcssValidatorInitializer) ||
+		Node.isSatisfiesExpression(xcssValidatorInitializer) ||
+		Node.isParenthesizedExpression(xcssValidatorInitializer)
+	) {
+		xcssValidatorInitializer = xcssValidatorInitializer.getExpression();
+	}
+
+	// Emit the validator spec as a *type* alias rather than a `const`.
+	//
+	// The spec is only ever needed at type level here: `XCSSProp` is derived from it, and
+	// `makeXCSSValidator` is an ambient `declare const`, so a runtime binding would emit nothing
+	// and go unused. Emitting a `const` instead forces `--isolatedDeclarations` to infer the
+	// object literal for the `.d.ts`, which fails on the non-const array literals
+	// (TS9017/TS9013). Annotating the const to satisfy that instead instantiates
+	// `XCSSPropsValidator<typeof spec>` and makes the checker compare two deep instantiations
+	// (TS2859). A type alias sidesteps both: aliases are emitted verbatim, so nothing is
+	// inferred and no function type is instantiated.
+	//
+	// The source object literal is already valid type syntax — `true` is a literal type and
+	// `['a', 'b']` is a tuple type (mutable, so it still satisfies the
+	// `supportedValues: Array<...>` constraint on `XCSSValidatorParam`). The only exception is a
+	// property whose value is a reference to a hoisted variable, which must become
+	// `typeof <name>` to be legal in type position.
+	const xcssValidatorSpec = xcssValidatorInitializer
+		.asKindOrThrow(SyntaxKind.CallExpression)
+		.getArguments()[0];
+	if (!Node.isObjectLiteralExpression(xcssValidatorSpec)) {
+		throw new Error(
+			'Expected makeXCSSValidator to be called with an object literal spec; got ' +
+				xcssValidatorSpec?.getKindName(),
+		);
+	}
+	const specStart = xcssValidatorSpec.getStart();
+	// Collect identifier-valued properties (e.g. `supportedValues: borderRadiusSupportedValues`)
+	// and splice in `typeof ` from the end so earlier offsets stay valid.
+	const identifierValueEdits = xcssValidatorSpec
+		.getDescendantsOfKind(SyntaxKind.PropertyAssignment)
+		.map((property) => property.getInitializer())
+		.filter((initializer) => initializer !== undefined && Node.isIdentifier(initializer))
+		.map((initializer) => initializer.getStart() - specStart)
+		.sort((a, b) => b - a);
+	let specText = xcssValidatorSpec.getText();
+	for (const offset of identifierValueEdits) {
+		specText = `${specText.slice(0, offset)}typeof ${specText.slice(offset)}`;
+	}
+
+	const xcssValidatorArgTypeName = 'XCSSValidatorArg';
+	const xcssValidatorSpecType = `type ${xcssValidatorArgTypeName} = ${specText};`;
+	// `XCSSProp` in the source is `ReturnType<typeof xcssValidator>`. With no `xcssValidator`
+	// binding emitted, resolve it through the validator's function type instead. The
+	// `U extends XCSSValidatorParam` constraint still validates the spec, so dropping the
+	// source's `satisfies XCSSValidatorParam` loses no checking.
+	const XCSSPropType = `type XCSSProp = ReturnType<XCSSPropsValidator<${xcssValidatorArgTypeName}>>;`;
 
 	// Extract variables referenced in xcssValidator
 	const referencedVariables = extractReferencedVariables(
@@ -1087,15 +1170,17 @@ const handleXCSSProp: CodeConsolidator = ({
 		.getProject()
 		.addSourceFileAtPath(require.resolve('@atlassian/forge-ui/utils/xcssValidate'));
 	try {
-		const xcssValidatorDeclarationCode = utilsFile.getEmitOutput({
-			emitOnlyDtsFiles: true,
-		}).compilerObject.outputFiles[0].text;
-		
+		const xcssValidatorDeclarationCode = normalizeXcssValidateDtsKeyof(
+			utilsFile.getEmitOutput({
+				emitOnlyDtsFiles: true,
+			}).compilerObject.outputFiles[0].text,
+		);
+
 		const xcssValidatorVariableDeclarationCode = [
 			xcssValidatorDeclarationCode,
 			variableImportsCode,
 			referencedVariablesCode,
-			`const ${xcssValidator};`,
+			xcssValidatorSpecType,
 			XCSSPropType,
 		]
 			.filter((code) => !!code)
@@ -1112,7 +1197,7 @@ const handleXCSSProp: CodeConsolidator = ({
 		]
 			.filter((code) => !!code)
 			.join('\n\n');
-		
+
 		// Merge duplicate imports from the same module (e.g., multiple tokens.codegen imports)
 		return mergeImportsFromSameModule(allCode);
 	} finally {
@@ -1141,7 +1226,7 @@ const typeSerializableComponentPropSymbols = [
 const generateComponentPropTypeSourceCode = (
 	componentPropSymbol: Symbol,
 	sourceFile: SourceFile,
-) => {
+): string => {
 	const sourceCodeGenerator = typeSerializableComponentPropSymbols.includes(
 		componentPropSymbol.getName(),
 	)

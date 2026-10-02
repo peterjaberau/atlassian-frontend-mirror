@@ -49,10 +49,9 @@ interface ElementTransformErrorAttr {
 	errorStack?: string;
 	from: string;
 	inputMethod: INPUT_METHOD.BLOCK_MENU;
-	position: number;
 	selection: SelectionJson;
 	to: string;
-	triggeredFrom: INPUT_METHOD.MOUSE | INPUT_METHOD.KEYBOARD;
+	triggeredFrom?: INPUT_METHOD.MOUSE | INPUT_METHOD.KEYBOARD;
 }
 
 export type ElementTransformErrorAEP = OperationalAEP<
@@ -67,6 +66,7 @@ interface ElementTransformAttr {
 	inputMethod: INPUT_METHOD.BLOCK_MENU;
 	isEmptyLine: boolean;
 	isNested: boolean;
+	isSuggested?: boolean;
 	outputNodesCount: number;
 	sourceNodesCount: number;
 	sourceNodesCountByType: Record<string, number>;

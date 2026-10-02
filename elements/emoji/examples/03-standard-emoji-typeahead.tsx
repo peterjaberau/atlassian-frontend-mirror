@@ -1,16 +1,22 @@
-import { layers } from '@atlaskit/theme/constants';
 import React, { useRef, useState } from 'react';
+
+import { IntlProvider } from 'react-intl';
+
+// eslint-disable-next-line @atlaskit/ui-styling-standard/no-atlaskit-theme
+import { layers } from '@atlaskit/theme/constants';
 // These imports are not included in the manifest file to avoid circular package dependencies blocking our Typescript and bundling tooling
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { getEmojiResource } from '@atlaskit/util-data-test/get-emoji-resource';
 
-import { lorem, onClose, onOpen, onSelection } from '../example-helpers';
+import { lorem } from '../example-helpers';
 import SearchTextInput from '../example-helpers/demo-search-text-input';
+import { onClose } from '../example-helpers/on-close';
+import { onOpen } from '../example-helpers/on-open';
+import { onSelection } from '../example-helpers/on-selection';
 import type { TypeaheadProps } from '../example-helpers/typeahead-props';
 import { EmojiTypeAhead } from '../src/typeahead';
 import type { EmojiId, OptionalEmojiDescription } from '../src/types';
 import debug from '../src/util/logger';
-import { IntlProvider } from 'react-intl-next';
 
 const loremContent = (
 	<div>

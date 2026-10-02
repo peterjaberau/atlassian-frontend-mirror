@@ -1,19 +1,19 @@
 /* eslint-disable @atlaskit/design-system/ensure-design-token-usage */
+
 import type { SyntheticEvent } from 'react';
 import React from 'react';
 
 import classnames from 'classnames';
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { addColumnAfter, addRowAfter, ToolTipContent } from '@atlaskit/editor-common/keymaps';
 import { tableMessages as messages } from '@atlaskit/editor-common/messages';
 import { tableMarginTop } from '@atlaskit/editor-common/styles';
 import { closestElement } from '@atlaskit/editor-common/utils';
 import { akEditorTableNumberColumnWidth } from '@atlaskit/editor-shared-styles';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
-import Tooltip from '@atlaskit/tooltip';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
 import type { TableDirection } from '../../types';
 import { TableCssClassName as ClassName } from '../../types';
@@ -27,38 +27,21 @@ interface ButtonProps {
 	type: TableDirection;
 }
 
-const getInsertLineHeight = (
-	tableRef: HTMLElement,
-	hasStickyHeaders: boolean,
-	isDragAndDropEnabled?: boolean,
-) => {
+const getInsertLineHeight = (tableRef: HTMLElement, hasStickyHeaders: boolean) => {
 	// The line gets height 100% from the table,
 	// but since we have an overflow on the left,
 	// we should add an offset to make up for it.
 	const LINE_OFFSET = 3;
 
 	const ADDITIONAL_HEIGHT = hasStickyHeaders
-		? tableRef.getBoundingClientRect().top -
-			tableMarginTop * (isDragAndDropEnabled ? 3 : 4) -
-			LINE_OFFSET
+		? tableRef.getBoundingClientRect().top - tableMarginTop * 3 - LINE_OFFSET
 		: tableToolbarSize + LINE_OFFSET;
 	return tableRef.offsetHeight + ADDITIONAL_HEIGHT;
 };
 
-const getToolbarSize = (tableRef: HTMLElement): number => {
+const getNumberColumnWidth = (tableRef: HTMLElement): number => {
 	const parent = closestElement(tableRef, `.${ClassName.TABLE_CONTAINER}`);
 	if (parent) {
-		return parent.querySelector(`.${ClassName.NUMBERED_COLUMN}`)
-			? tableToolbarSize + akEditorTableNumberColumnWidth - 1
-			: tableToolbarSize;
-	}
-
-	return tableToolbarSize;
-};
-
-const getNumberColumnWidth = (tableRef: HTMLElement, isDragAndDropEnabled?: boolean): number => {
-	const parent = closestElement(tableRef, `.${ClassName.TABLE_CONTAINER}`);
-	if (parent && isDragAndDropEnabled) {
 		return parent.querySelector(`.${ClassName.NUMBERED_COLUMN}`)
 			? akEditorTableNumberColumnWidth - 1
 			: 0;
@@ -66,15 +49,10 @@ const getNumberColumnWidth = (tableRef: HTMLElement, isDragAndDropEnabled?: bool
 	return 0;
 };
 
-const getInsertLineWidth = (
-	tableRef: HTMLElement,
-	isDragAndDropEnabled?: boolean,
-	isChromelessEditor?: boolean,
-) => {
+const getInsertLineWidth = (tableRef: HTMLElement, isChromelessEditor?: boolean) => {
 	// The line gets width 100% from the table,
 	// but since we have an overflow on the left,
 	// we should add an offset to make up for it.
-	const LINE_OFFSET = 4;
 	const DRAG_LINE_OFFSET = isChromelessEditor ? 14 : 6;
 	const { parentElement, offsetWidth } = tableRef;
 	// Ignored via go/ees005
@@ -84,16 +62,11 @@ const getInsertLineWidth = (
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	const { scrollLeft } = parentElement!;
 	const diff = offsetWidth - parentOffsetWidth;
-	const toolbarSize = isDragAndDropEnabled ? 0 : getToolbarSize(tableRef);
-	const lineOffset = isDragAndDropEnabled ? DRAG_LINE_OFFSET : LINE_OFFSET;
 
 	return (
-		Math.min(
-			offsetWidth + toolbarSize,
-			parentOffsetWidth + toolbarSize - Math.max(scrollLeft - diff, 0),
-		) +
-		lineOffset +
-		getNumberColumnWidth(tableRef, isDragAndDropEnabled)
+		Math.min(offsetWidth, parentOffsetWidth - Math.max(scrollLeft - diff, 0)) +
+		DRAG_LINE_OFFSET +
+		getNumberColumnWidth(tableRef)
 	);
 };
 
@@ -160,11 +133,11 @@ const InsertButtonForDragAndDrop = ({
 					style={
 						type === 'row'
 							? {
-									width: getInsertLineWidth(tableRef, true, isChromelessEditor),
-									left: token('space.150', '12px'),
+									width: getInsertLineWidth(tableRef, isChromelessEditor),
+									left: token('space.150'),
 								}
 							: {
-									height: getInsertLineHeight(tableRef, hasStickyHeaders, true) - 8,
+									height: getInsertLineHeight(tableRef, hasStickyHeaders) - 8,
 									// eslint-disable-next-line @atlaskit/design-system/ensure-design-token-usage/preview
 									top: '-3px',
 								}
@@ -191,7 +164,12 @@ const InsertButtonForDragAndDrop = ({
 	);
 };
 
-export const DragAndDropInsertButton = injectIntl(InsertButtonForDragAndDrop);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const DragAndDropInsertButton: React.FC<
+	WithIntlProps<ButtonProps & WrappedComponentProps>
+> & {
+	WrappedComponent: React.ComponentType<ButtonProps & WrappedComponentProps>;
+} = injectIntl(InsertButtonForDragAndDrop);
 
 const InsertButton = ({
 	onMouseDown,
@@ -218,11 +196,7 @@ const InsertButton = ({
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 						className={ClassName.CONTROLS_INSERT_BUTTON}
 						onMouseDown={onMouseDown}
-						aria-label={
-							expValEquals('platform_editor_fix_button_name_violation_in_table', 'isEnabled', true)
-								? formatMessage(tooltipMessageByType(type))
-								: undefined
-						}
+						aria-label={formatMessage(tooltipMessageByType(type))}
 					>
 						{/* eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766  */}
 						<svg className={ClassName.CONTROLS_BUTTON_ICON}>
@@ -266,4 +240,8 @@ const InsertButton = ({
 	);
 };
 
-export default injectIntl(InsertButton);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+const _default_1: React.FC<WithIntlProps<ButtonProps & WrappedComponentProps>> & {
+	WrappedComponent: React.ComponentType<ButtonProps & WrappedComponentProps>;
+} = injectIntl(InsertButton);
+export default _default_1;

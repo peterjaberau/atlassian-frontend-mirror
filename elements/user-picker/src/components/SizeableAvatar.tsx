@@ -1,7 +1,10 @@
-import Avatar, { type AvatarPropTypes, type AppearanceType } from '@atlaskit/avatar';
-import TeamAvatar from '@atlaskit/teams-avatar';
 import React from 'react';
-import { getAvatarSize } from './utils';
+
+import Avatar, { type AvatarPropTypes } from '@atlaskit/avatar/avatar';
+import type { AppearanceType } from '@atlaskit/avatar/types';
+import TeamAvatar from '@atlaskit/teams-avatar/teams-avatar';
+
+import { getAvatarSize } from './getAvatarSize';
 
 export type Props = {
 	appearance: string;
@@ -15,8 +18,9 @@ export class SizeableAvatar extends React.PureComponent<Props> {
 	render(): React.JSX.Element {
 		const { src, presence, appearance, type = 'person', avatarAppearanceShape } = this.props;
 
-		const props: AvatarPropTypes = {
-			size: getAvatarSize(appearance),
+		const size = getAvatarSize(appearance);
+		const props: Omit<AvatarPropTypes, 'size'> & { size: typeof size } = {
+			size,
 			src,
 			borderColor: 'transparent',
 			presence,

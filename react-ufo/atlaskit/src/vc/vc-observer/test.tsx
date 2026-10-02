@@ -1,16 +1,15 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { isVCRevisionEnabled } from '../../config';
 import { getActiveInteraction } from '../../interaction-metrics';
-
 import { attachAbortListeners } from './attachAbortListeners';
+import { VCObserver } from './index';
 import { Observers } from './observers';
 import type { Callback } from './observers/types';
 
-import { VCObserver } from './index';
-
-jest.mock('@atlaskit/platform-feature-flags');
-jest.mock('./observers');
+jest.mock('@atlaskit/platform-feature-flags/fg');
+jest.mock('./observers/index');
+jest.mock('./observers/types');
 jest.mock('../../config');
 jest.mock('./attachAbortListeners');
 jest.mock('../../interaction-metrics');
@@ -3297,9 +3296,7 @@ describe('vc-observer', () => {
 			onVCRevisionReady = jest.fn();
 			onUfoVcDebugDataReady = jest.fn();
 
-			// @ts-ignore
 			window.__ufo_devtool_onVCRevisionReady__ = onVCRevisionReady;
-			// @ts-ignore
 			window.__on_ufo_vc_debug_data_ready = onUfoVcDebugDataReady;
 
 			mockIsVCRevisionEnabled.mockImplementation((revision) =>
@@ -3311,9 +3308,7 @@ describe('vc-observer', () => {
 		afterEach(() => {
 			mockIsVCRevisionEnabled.mockClear();
 			mockFg.mockClear();
-			// @ts-ignore
 			delete window.__ufo_devtool_onVCRevisionReady__;
-			// @ts-ignore
 			delete window.__on_ufo_vc_debug_data_ready;
 		});
 
@@ -3442,9 +3437,7 @@ describe('vc-observer', () => {
 		});
 
 		test('should not call any debug callbacks if the functions are not defined on window', async () => {
-			// @ts-ignore
 			delete window.__ufo_devtool_onVCRevisionReady__;
-			// @ts-ignore
 			delete window.__on_ufo_vc_debug_data_ready;
 
 			vc.start({ startTime: 0 });

@@ -1,6 +1,15 @@
-import { uuid } from '@atlaskit/adf-schema';
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  and raise concerns in https://atlassian.enterprise.slack.com/archives/C0BD4K40BLH
+*/
+
+import { createSchema } from '@atlaskit/adf-schema/create-schema';
 import { confluenceSchema } from '@atlaskit/adf-schema/schema-confluence';
 import * as AdfSchemaDefault from '@atlaskit/adf-schema/schema-default';
+import { uuid } from '@atlaskit/adf-schema/uuid';
 import type { DocBuilder } from '@atlaskit/editor-common/types';
 import type { Node as PMNode } from '@atlaskit/editor-prosemirror/model';
 import { createEditorFactory } from '@atlaskit/editor-test-helpers/create-editor';
@@ -56,10 +65,11 @@ import {
 } from '@atlaskit/editor-test-helpers/doc-builder';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
 
-import { JSONTransformer, SchemaStage } from '../../index';
-import type { JSONDocNode, JSONNode } from '../../index';
+import { JSONTransformer } from '../../JSONTransformer-2';
 import * as markOverride from '../../markOverrideRules';
 import { sanitizeNode } from '../../sanitize/sanitize-node';
+import { SchemaStage } from '../../SchemaStage';
+import type { JSONDocNode, JSONNode } from '../../types';
 
 jest.mock('../../sanitize/sanitize-node');
 
@@ -173,7 +183,40 @@ describe('JSONTransformer:', () => {
 				),
 			);
 			const pmDoc = state.doc;
-			expect(toJSON(pmDoc)).toMatchSnapshot();
+			const result = toJSON(pmDoc);
+			expect(result.content).toHaveLength(16);
+			expect(result.content?.[0]).toMatchObject({
+				type: 'paragraph',
+				content: [
+					{ type: 'text', text: '>' },
+					{ type: 'text', text: ' Atlassian: ' },
+					{ type: 'hardBreak' },
+					{
+						type: 'text',
+						text: 'Atlassian',
+						marks: [{ type: 'link', attrs: { href: 'https://atlassian.com' } }],
+					},
+				],
+			});
+			expect(result.content?.[1]).toMatchObject({
+				type: 'paragraph',
+				content: expect.arrayContaining([
+					expect.objectContaining({ type: 'text', text: 'hello' }),
+					expect.objectContaining({ type: 'text', text: 'world' }),
+					expect.objectContaining({ type: 'text', text: '!' }),
+				]),
+			});
+			expect(result.content).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({ type: 'rule' }),
+					expect.objectContaining({ type: 'rule' }),
+				]),
+			);
+			expect(result.content?.[15]).toMatchObject({
+				type: 'orderedList',
+				attrs: { order: 6 },
+				content: expect.any(Array),
+			});
 		});
 
 		it('should serialize media nodes/marks as ProseMirror does', () => {
@@ -238,7 +281,69 @@ describe('JSONTransformer:', () => {
 				),
 			);
 			const pmDoc = editorView.state.doc;
-			expect(toJSON(pmDoc)).toMatchSnapshot();
+			const result = toJSON(pmDoc);
+			expect(result.content).toHaveLength(4);
+			expect(result.content?.[0]).toMatchObject({
+				type: 'mediaSingle',
+				attrs: { layout: 'center' },
+				content: [
+					{
+						type: 'media',
+						attrs: {
+							id: 'foo media single',
+							type: 'file',
+							collection: '',
+							width: 256,
+							height: 128,
+							alt: 'Good day',
+						},
+						marks: expect.arrayContaining([
+							expect.objectContaining({ type: 'link', attrs: { href: 'https://atlassian.com' } }),
+							expect.objectContaining({ type: 'border', attrs: { color: '#091e4224', size: 2 } }),
+						]),
+					},
+				],
+			});
+			expect(result.content?.[1]).toMatchObject({
+				type: 'mediaSingle',
+				attrs: { layout: 'center', width: 321 },
+			});
+			expect(result.content?.[2]).toMatchObject({
+				type: 'paragraph',
+				content: [
+					{
+						type: 'mediaInline',
+						attrs: {
+							id: 'foo file',
+							type: 'file',
+							collection: '',
+							width: 123,
+							height: 456,
+							alt: 'Good day',
+						},
+					},
+				],
+			});
+			expect(result.content?.[3]).toMatchObject({
+				type: 'paragraph',
+				content: [
+					{
+						type: 'mediaInline',
+						attrs: {
+							id: 'foo image',
+							type: 'image',
+							collection: '',
+							width: 123,
+							height: 456,
+							alt: 'Good day',
+						},
+						marks: expect.arrayContaining([
+							expect.objectContaining({ type: 'link', attrs: { href: 'https://atlassian.com' } }),
+							expect.objectContaining({ type: 'border', attrs: { color: '#091e4224', size: 3 } }),
+						]),
+					},
+				],
+			});
 		});
 
 		it('should strip optional attrs from media node', () => {
@@ -737,6 +842,30 @@ describe('JSONTransformer:', () => {
 					{
 						type: 'codeBlock',
 						attrs: {},
+						content: [
+							{
+								type: 'text',
+								text: 'var foo = 2;',
+							},
+						],
+					},
+				],
+			});
+		});
+
+		it('should preserve wrap=false from full-schema codeBlock node', () => {
+			const schema = AdfSchemaDefault.getSchemaBasedOnStage();
+			const pmDoc = schema.nodes.doc.createChecked(undefined, [
+				schema.nodes.codeBlock.createChecked({ wrap: false }, schema.text('var foo = 2;')),
+			]);
+
+			expect(toJSON(pmDoc)).toEqual({
+				version: 1,
+				type: 'doc',
+				content: [
+					{
+						type: 'codeBlock',
+						attrs: { wrap: false },
 						content: [
 							{
 								type: 'text',
@@ -2266,8 +2395,8 @@ describe('JSONTransformer:', () => {
 				expect(transformer.parse(adf, SchemaStage.STAGE_0)).toEqualDocument(
 					doc(p(fragmentMark({ localId: '6d9e04f9-7c77-4313-93a7-62c9612e94b1' })('lol'))),
 				);
-				expect(getSchemaBasedOnStageSpy).toBeCalledTimes(1);
-				expect(getSchemaBasedOnStageSpy).toBeCalledWith('stage0');
+				expect(getSchemaBasedOnStageSpy).toHaveBeenCalledTimes(1);
+				expect(getSchemaBasedOnStageSpy).toHaveBeenCalledWith('stage0');
 			});
 
 			it('should use the final / default schema if passed', () => {
@@ -2288,8 +2417,8 @@ describe('JSONTransformer:', () => {
 				};
 
 				expect(transformer.parse(adf, SchemaStage.FINAL)).toEqualDocument(doc(p('hello')));
-				expect(getSchemaBasedOnStageSpy).toBeCalledTimes(1);
-				expect(getSchemaBasedOnStageSpy).toBeCalledWith('final');
+				expect(getSchemaBasedOnStageSpy).toHaveBeenCalledTimes(1);
+				expect(getSchemaBasedOnStageSpy).toHaveBeenCalledWith('final');
 			});
 
 			it('should use the final / default schema when nothing is passed', () => {
@@ -2319,7 +2448,7 @@ describe('JSONTransformer:', () => {
 			type: 'paragraph',
 			content: [{ type: 'text', content: 'hello' }],
 		} as unknown as JSONDocNode;
-		expect(() => parseJSON(badADF)).toThrowError('Expected content format to be ADF');
+		expect(() => parseJSON(badADF)).toThrow('Expected content format to be ADF');
 	});
 
 	it('should throw an error if not a valid PM document', () => {
@@ -2329,6 +2458,25 @@ describe('JSONTransformer:', () => {
 		} as unknown as JSONDocNode;
 		// Ignored via go/ees005
 		// eslint-disable-next-line require-unicode-regexp
-		expect(() => parseJSON(badADF)).toThrowError(/Invalid input for Fragment.fromJSON/);
+		expect(() => parseJSON(badADF)).toThrow(/Invalid input for Fragment.fromJSON/);
+	});
+
+	it('leaves a panel unchanged on parse even when the schema declares panel_c1', () => {
+		const schema = createSchema({ nodes: ['doc', 'paragraph', 'text', 'panel', 'panel_c1'] });
+		const adf: JSONDocNode = {
+			version: 1,
+			type: 'doc',
+			content: [
+				{
+					type: 'panel',
+					attrs: { panelType: 'info' },
+					content: [{ type: 'paragraph', content: [] }],
+				},
+			],
+		};
+
+		const pmDoc = new JSONTransformer(schema).parse(adf);
+
+		expect(pmDoc.firstChild?.type.name).toBe('panel');
 	});
 });

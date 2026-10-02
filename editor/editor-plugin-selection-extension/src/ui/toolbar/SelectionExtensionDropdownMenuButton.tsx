@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { injectIntl } from 'react-intl-next';
-import type { WrappedComponentProps } from 'react-intl-next';
+import { injectIntl } from 'react-intl';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
 
 import { selectionExtensionMessages } from '@atlaskit/editor-common/messages';
 import { ToolbarButton } from '@atlaskit/editor-common/ui-menu';
@@ -46,6 +46,9 @@ const SelectionExtensionDropdownMenuButtonComponent = ({
 	);
 };
 
-export const SelectionExtensionDropdownMenuButton = injectIntl(
-	SelectionExtensionDropdownMenuButtonComponent,
-);
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const SelectionExtensionDropdownMenuButton: React.FC<
+	WithIntlProps<SelectionExtensionDropdownMenuButtonProps>
+> & {
+	WrappedComponent: React.ComponentType<SelectionExtensionDropdownMenuButtonProps>;
+} = injectIntl(SelectionExtensionDropdownMenuButtonComponent);

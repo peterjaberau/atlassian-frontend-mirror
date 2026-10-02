@@ -1,12 +1,13 @@
 import React from 'react';
-import Button from '@atlaskit/button';
-import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl-next';
-import { type WHATS_NEW_ITEM_TYPES } from '../../../../model/WhatsNew';
+
+import { injectIntl, type WithIntlProps, type WrappedComponentProps } from 'react-intl';
+
+import Button from '@atlaskit/button/button';
+import { Text } from '@atlaskit/primitives/compiled';
 
 import ErrorImage from '../../../../assets/ErrorImage';
 import { messages } from '../../../../messages';
-import { Text } from '@atlaskit/primitives/compiled';
-
+import { type WHATS_NEW_ITEM_TYPES } from '../../../../model/WhatsNew';
 import { SearchResultEmptyMessageImage, SearchResultEmptyMessageText } from './styled';
 
 export interface Props {

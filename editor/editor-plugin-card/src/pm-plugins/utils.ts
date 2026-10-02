@@ -1,20 +1,22 @@
 import type { CardAppearance } from '@atlaskit/editor-common/provider-factory';
-import { type getPosHandler } from '@atlaskit/editor-common/react-node-view';
+import type { getPosHandler } from '@atlaskit/editor-common/react-node-view';
 import type { Node, NodeType } from '@atlaskit/editor-prosemirror/model';
 import { Fragment } from '@atlaskit/editor-prosemirror/model';
 import { NodeSelection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
-import { type EditorView } from '@atlaskit/editor-prosemirror/view';
-import { getResolvedAttributes } from '@atlaskit/link-analytics/resolved-attributes';
-import {
-	ASSETS_LIST_OF_LINKS_DATASOURCE_ID,
-	CONFLUENCE_SEARCH_DATASOURCE_ID,
-	JIRA_LIST_OF_LINKS_DATASOURCE_ID,
-} from '@atlaskit/link-datasource';
-import type { CardContext } from '@atlaskit/link-provider';
+import type { EditorView } from '@atlaskit/editor-prosemirror/view';
+import { getResolvedAttributes } from '@atlaskit/link-analytics/get-resolved-attributes';
+import { ASSETS_LIST_OF_LINKS_DATASOURCE_ID } from '@atlaskit/link-datasource/assets-modal';
+import { CONFLUENCE_SEARCH_DATASOURCE_ID } from '@atlaskit/link-datasource/confluence-search-modal';
+import { JIRA_LIST_OF_LINKS_DATASOURCE_ID } from '@atlaskit/link-datasource/jira-issues-modal';
+import type { CardContext } from '@atlaskit/link-provider/types';
 
-import type { CardInfo, CardPluginState, DatasourceNode } from '../types';
-
+import type {
+	CardInfo,
+	CardPluginState,
+	DatasourceNode,
+	ToolbarResolvedAttributes,
+} from '../types';
 import { pluginKey } from './plugin-key';
 
 export const appearanceForNodeType = (spec: NodeType): CardAppearance | undefined => {
@@ -28,7 +30,7 @@ export const appearanceForNodeType = (spec: NodeType): CardAppearance | undefine
 	return;
 };
 
-export const selectedCardAppearance = (state: EditorState) => {
+export const selectedCardAppearance = (state: EditorState): CardAppearance | undefined => {
 	if (state.selection instanceof NodeSelection) {
 		return appearanceForNodeType(state.selection.node.type);
 	}
@@ -57,10 +59,10 @@ export const mergeCardInfo = (titleUrlPair: TitleUrlPair, info?: CardInfo): Titl
 	};
 };
 
-export const displayInfoForCard = (node: Node, info?: CardInfo) =>
+export const displayInfoForCard = (node: Node, info?: CardInfo): TitleUrlPair =>
 	mergeCardInfo(titleUrlPairFromNode(node), info);
 
-export const findCardInfo = (state: EditorState) => {
+export const findCardInfo = (state: EditorState): CardInfo | undefined => {
 	const pluginState: CardPluginState | undefined = pluginKey.getState(state);
 	if (!pluginState) {
 		return undefined;
@@ -111,7 +113,7 @@ export const getResolvedAttributesFromStore = (
 	url: string,
 	display: string | null,
 	store?: CardContext['store'],
-) => {
+): Partial<ToolbarResolvedAttributes> => {
 	if (!store) {
 		return {};
 	}
@@ -192,7 +194,11 @@ export const getAwarenessProps = (
 	allowEmbeds?: boolean,
 	allowBlockCards?: boolean,
 	disableOverlay = false,
-) => {
+): {
+	isOverlayEnabled: boolean;
+	isPulseEnabled: boolean;
+	isSelected: boolean;
+} => {
 	const getPosFunction = typeof getPos !== 'boolean' ? getPos : undefined;
 	const linkPosition = getPosFunction?.();
 

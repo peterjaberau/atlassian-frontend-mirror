@@ -11,13 +11,11 @@ import {
 	akEditorFloatingOverlapPanelZIndex,
 } from '@atlaskit/editor-shared-styles';
 import { CellSelection } from '@atlaskit/editor-tables/cell-selection';
-import { fg } from '@atlaskit/platform-feature-flags';
 
 import type { RowStickyState } from '../../pm-plugins/sticky-headers/types';
 import type { PluginConfig, PluginInjectionAPI, TableDirection } from '../../types';
 import { TableCssClassName as ClassName } from '../../types';
 import { dragMenuDropdownWidth, tablePopupMenuFitHeight } from '../consts';
-
 import DragMenu from './DragMenu';
 
 interface Props {
@@ -46,7 +44,12 @@ interface Props {
 	targetCellPosition?: number;
 }
 
-const FloatingDragMenu = ({
+interface FloatingDragMenuFunction {
+	(props: Props): React.JSX.Element | null;
+	displayName: string;
+}
+
+const FloatingDragMenu: FloatingDragMenuFunction = ({
 	mountPoint,
 	boundariesElement,
 	scrollableElement,
@@ -66,21 +69,18 @@ const FloatingDragMenu = ({
 	api,
 	isCommentEditor,
 	tableWrapper,
-}: Props): React.JSX.Element | null => {
+}) => {
 	if (!isOpen || !targetCellPosition || editorView.state.doc.nodeSize <= targetCellPosition) {
 		return null;
 	}
 	const inStickyMode =
 		stickyHeaders?.sticky ||
-		(tableWrapper?.classList.contains(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW) &&
-			fg('platform_editor_table_sticky_header_patch_7'));
+		tableWrapper?.classList.contains(ClassName.TABLE_NODE_WRAPPER_NO_OVERFLOW);
 
 	const targetHandleRef =
 		direction === 'row'
 			? document.querySelector('#drag-handle-button-row')
 			: document.querySelector('#drag-handle-button-column');
-
-	const offset = direction === 'row' ? [-9, 0] : [0, -7];
 
 	if (!targetHandleRef || !(editorView.state.selection instanceof CellSelection)) {
 		return null;
@@ -108,7 +108,7 @@ const FloatingDragMenu = ({
 			// In sticky mode, we want to show the menu above the sticky header
 			zIndex={inStickyMode ? akEditorFloatingDialogZIndex : akEditorFloatingOverlapPanelZIndex}
 			forcePlacement={true}
-			offset={offset}
+			offset={direction === 'row' ? [-9, 0] : [0, -7]}
 			stick={true}
 		>
 			<DragMenu

@@ -1,16 +1,15 @@
 import React, { Fragment, useCallback, useState } from 'react';
 
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
-import Modal, {
-	ModalBody,
-	ModalFooter,
-	ModalHeader,
-	ModalTitle,
-	ModalTransition,
-} from '@atlaskit/modal-dialog';
-import { Box, Stack } from '@atlaskit/primitives/compiled';
+import Heading from '@atlaskit/heading/heading';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import Modal from '@atlaskit/modal-dialog/modal-dialog';
+import ModalFooter from '@atlaskit/modal-dialog/modal-footer';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { Box, Stack, Text } from '@atlaskit/primitives/compiled';
 
 const styles = cssMap({
 	container: {
@@ -55,13 +54,13 @@ export default function Example(): React.JSX.Element {
 										<Heading as="h3" size="medium">
 											Be bold
 										</Heading>
-										<p>
+										<Text as="p">
 											Motivate teams to do their best work. Offer best practices to get users going
 											in the right direction. Be bold and offer just enough help to get the work
 											started, and then get out of the way. Give accurate information so users can
 											make educated decisions. Know your user's struggles and desired outcomes and
 											give just enough information to let them get where they need to go.
-										</p>
+										</Text>
 									</Stack>
 
 									<Stack>
@@ -69,7 +68,7 @@ export default function Example(): React.JSX.Element {
 											Be optimistic
 										</Heading>
 
-										<p>
+										<Text as="p">
 											Focusing on the details gives people confidence in our apps. Weave a
 											consistent story across our fabric and be diligent about vocabulary across all
 											messaging by being brand conscious across apps to create a seamless flow
@@ -79,7 +78,7 @@ export default function Example(): React.JSX.Element {
 											and opportunities for success. Be on the journey with them and highlight the
 											key points that will help them the most - right now. Be in the moment by
 											focusing attention on the important bits first.
-										</p>
+										</Text>
 									</Stack>
 
 									<Stack>
@@ -87,7 +86,7 @@ export default function Example(): React.JSX.Element {
 											Be practical, with a wink
 										</Heading>
 
-										<p>
+										<Text as="p">
 											Keep our own story short and give teams just enough to get moving. Get to the
 											point and be direct. Be concise - we tell the story of how we can help, but we
 											do it directly and with purpose. Be on the lookout for opportunities and be
@@ -98,7 +97,7 @@ export default function Example(): React.JSX.Element {
 											trust. We strive to write text that is understandable by anyone, anywhere,
 											regardless of their culture or language so that everyone feels they are part
 											of the team.
-										</p>
+										</Text>
 									</Stack>
 								</Stack>
 							</Box>

@@ -7,14 +7,12 @@ import { getAllComments } from '@atlaskit/eslint-utils/context-compat';
 import { findVariable } from '@atlaskit/eslint-utils/find-variable';
 
 import { createLintRule } from '../utils/create-rule';
-
-import { isSafeStyled, isSafeUsage } from './is-safe';
-import {
-	getFirstImportFromSource,
-	isImportDefaultSpecifier,
-	isImportNamespaceSpecifier,
-	isImportSpecifier,
-} from './utils';
+import { isImportDefaultSpecifier } from './is-import-default-specifier';
+import { isImportNamespaceSpecifier } from './is-import-namespace-specifier';
+import { isImportSpecifier } from './is-import-specifier';
+import { isSafeStyled } from './is-safe-styled';
+import { isSafeUsage } from './is-safe-usage';
+import { getFirstImportFromSource } from './utils';
 
 const SUPPORTED_EMOTION_IMPORTS = new Set(['css', 'keyframes', 'ClassNames', 'jsx']);
 
@@ -59,7 +57,7 @@ function readConfig(context: Rule.RuleContext): Config {
 	return Object.assign({}, defaultConfig, config);
 }
 
-export const rule: Rule.RuleModule = createLintRule({
+const rule: Rule.RuleModule = createLintRule({
 	meta: {
 		name: 'use-compiled',
 		type: 'problem',
@@ -99,11 +97,12 @@ export const rule: Rule.RuleModule = createLintRule({
 							return;
 						}
 
-						const importDeclarations = context
-							.getSourceCode()
-							.ast.body.filter(
-								(node): node is ESTree.ImportDeclaration => node.type === 'ImportDeclaration',
-							);
+						// @ts-ignore - Jira's ESLint v10 types expose sourceCode, platform still checks with ESLint v9.
+						const importDeclarations = (
+							context.sourceCode ?? context.getSourceCode()
+						).ast.body.filter(
+							(node): node is ESTree.ImportDeclaration => node.type === 'ImportDeclaration',
+						);
 
 						const hasEmotionImport = importDeclarations.some((importDeclaration) => {
 							const importSource = importDeclaration.source.value as string;
@@ -189,7 +188,8 @@ function getSpecifiers({
 		}
 		const styled = findVariable({
 			identifier: defaultSpecifier.local,
-			sourceCode: context.getSourceCode(),
+			// @ts-ignore - Jira's ESLint v10 types expose sourceCode, platform still checks with ESLint v9.
+			sourceCode: context.sourceCode ?? context.getSourceCode(),
 		});
 		if (!styled || !isSafeStyled(styled)) {
 			return;

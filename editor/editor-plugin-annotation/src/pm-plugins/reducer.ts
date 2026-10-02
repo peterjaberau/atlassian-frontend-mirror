@@ -1,8 +1,7 @@
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import { DecorationSet } from '@atlaskit/editor-prosemirror/view';
 
-import type { TargetType } from '../types';
-
+import type { InlineCommentAnnotationProvider, TargetType } from '../types';
 import type { InlineCommentAction, InlineCommentPluginState } from './types';
 import { ACTIONS } from './types';
 import { addDraftDecoration, resolveDraftBookmark } from './utils';
@@ -37,6 +36,7 @@ export default (
 				action.data.editorState,
 				action.data.targetType,
 				action.data.supportedBlockNodes,
+				action.data.isBlockNodeSupported,
 				action.data.targetNodeId,
 				action.data.isOpeningMediaCommentFromToolbar,
 			);
@@ -132,6 +132,7 @@ function getNewDraftState(
 	editorState?: EditorState,
 	targetType?: TargetType,
 	supportedBlockNodes?: string[],
+	isBlockNodeSupported?: InlineCommentAnnotationProvider['isBlockNodeSupported'],
 	targetNodeId?: string,
 	isOpeningMediaCommentFromToolbar?: boolean,
 ) {
@@ -152,7 +153,12 @@ function getNewDraftState(
 
 	if (drafting && editorState) {
 		newState.bookmark = editorState.selection.getBookmark();
-		const { from, to } = resolveDraftBookmark(editorState, newState.bookmark, supportedBlockNodes);
+		const { from, to } = resolveDraftBookmark(
+			editorState,
+			newState.bookmark,
+			supportedBlockNodes,
+			isBlockNodeSupported,
+		);
 
 		const draftDecoration = addDraftDecoration(from, to, targetType);
 		newState.draftDecorationSet = draftDecorationSet.add(editorState.doc, [draftDecoration]);

@@ -1,5 +1,5 @@
-import { useIntl } from 'react-intl-next';
-import type { MessageDescriptor } from 'react-intl-next';
+import { useIntl } from 'react-intl';
+import type { MessageDescriptor } from 'react-intl';
 
 import { useSharedPluginStateWithSelector } from '@atlaskit/editor-common/hooks';
 import {
@@ -25,18 +25,19 @@ import {
 	UNDERLINE_MENU_ITEM,
 	getInputMethodFromParentKeys,
 } from '@atlaskit/editor-common/toolbar';
+// oxlint-disable-next-line import/no-duplicates
 import type { TextFormattingState } from '@atlaskit/editor-common/types';
-import { type ExtractInjectionAPI } from '@atlaskit/editor-common/types';
+import type { ExtractInjectionAPI } from '@atlaskit/editor-common/types';
 import {
 	BoldIcon,
 	ItalicIcon,
-	type IconComponent,
 	UnderlineIcon,
 	CodeIcon,
 	StrikeThroughIcon,
 	SubscriptIcon,
 	SuperscriptIcon,
 } from '@atlaskit/editor-toolbar';
+import type { IconComponent } from '@atlaskit/editor-toolbar';
 import type { ToolbarComponentTypes } from '@atlaskit/editor-toolbar-model';
 
 import {
@@ -52,7 +53,7 @@ import type {
 	ToggleMarkWithAnalyticsEditorCommand,
 	ClearFormattingWithAnalyticsEditorCommand,
 } from '../../../editor-commands/types';
-import { type TextFormattingPlugin } from '../../../textFormattingPluginType';
+import type { TextFormattingPlugin } from '../../../textFormattingPluginType';
 import type { FormatOptionState, FormatOptions } from '../types';
 
 export type FormatComponentProps = {
@@ -85,7 +86,15 @@ export const useComponentInfo = ({
 	shortcut,
 	toggleMarkWithAnalyticsCallback,
 	parents,
-}: Omit<FormatComponentProps, 'icon' | 'ariaLabel' | 'groupLocation'>) => {
+}: Omit<FormatComponentProps, 'icon' | 'ariaLabel' | 'groupLocation'>): {
+	ariaLabel: string;
+	formatTitle: string;
+	isActive: boolean;
+	isDisabled: boolean;
+	isHidden: boolean;
+	onClick: () => void;
+	shortcutContent: string | undefined;
+} => {
 	const { isActive, isDisabled, isHidden, isPluginInitialised } = useSharedPluginStateWithSelector(
 		api,
 		['textFormatting'],

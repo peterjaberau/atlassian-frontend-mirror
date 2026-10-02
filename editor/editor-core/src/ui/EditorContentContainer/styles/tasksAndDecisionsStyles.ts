@@ -1,5 +1,10 @@
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled
-import { css, type SerializedStyles } from '@emotion/react';
+/* eslint-disable @atlaskit/volt-strict-mode/no-multiple-exports */
+/* eslint-disable @atlaskit/ui-styling-standard/use-compiled,
+	@repo/internal/deprecations/deprecation-ticket-required,
+	@atlaskit/ui-styling-standard/no-exported-styles */
+
+import { css } from '@emotion/react';
+import type { SerializedStyles } from '@emotion/react';
 
 import {
 	akEditorFullPageDefaultFontSize,
@@ -19,6 +24,12 @@ import {
 const akEditorLineHeight = 1.714;
 const akEditorSelectedNodeClassName = 'ak-editor-selected-node';
 
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const TaskDecisionSharedCssClassName = {
 	DECISION_CONTAINER: 'decisionItemView-content-wrap',
 	TASK_CONTAINER: 'taskItemView-content-wrap',
@@ -28,7 +39,12 @@ export const TaskDecisionSharedCssClassName = {
 	TASK_CHECKBOX_CONTAINER: 'task-item-checkbox-wrap',
 };
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const tasksAndDecisionsStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'.ProseMirror': {
@@ -74,20 +90,20 @@ export const tasksAndDecisionsStyles: SerializedStyles = css({
 
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'div[data-task-list-local-id]': {
-		margin: `${token('space.150', '12px')} 0 0 0`,
+		margin: `${token('space.150')} 0 0 0`,
 
 		// If task item is not first in the list then set margin top to 4px.
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 		'div + div': {
-			marginTop: token('space.050', '4px'),
+			marginTop: token('space.050'),
 		},
 	},
 
 	// If task list is not first in the document then set margin top to 4px.
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'div[data-task-list-local-id] div[data-task-list-local-id]': {
-		marginTop: token('space.050', '4px'),
-		marginLeft: token('space.300', '24px'),
+		marginTop: token('space.050'),
+		marginLeft: token('space.300'),
 	},
 
 	// When action list is inside panel
@@ -104,7 +120,12 @@ export const tasksAndDecisionsStyles: SerializedStyles = css({
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values
 const TASKLIST_CONTAINER_MARGIN_DENSE = `max(0px, calc(10px + (var(--ak-editor-base-font-size, ${akEditorFullPageDefaultFontSize}px) - ${akEditorFullPageDenseFontSize}px) * (2 / 3)))`;
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const getDenseTasksAndDecisionsStyles = (baseFontSize?: number): SerializedStyles => {
 	if (!baseFontSize || baseFontSize === akEditorFullPageDefaultFontSize) {
 		return css({});
@@ -137,7 +158,12 @@ export const getDenseTasksAndDecisionsStyles = (baseFontSize?: number): Serializ
 	});
 };
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const decisionStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values
 	[`.${akEditorSelectedNodeClassName} > [data-decision-wrapper], ol[data-node-type='decisionList'].${akEditorSelectedNodeClassName}`]:
@@ -221,7 +247,7 @@ export const decisionStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'[data-prosemirror-node-name="decisionItem"] > [data-decision-wrapper] > [data-component="placeholder"]':
 		{
-			margin: `0 0 0 calc(${token('space.100', '8px')} * 3.5)`,
+			margin: `0 0 0 calc(${token('space.100')} * 3.5)`,
 			position: 'absolute',
 			color: token('color.text.subtlest'),
 			pointerEvents: 'none',
@@ -244,16 +270,24 @@ export const decisionStyles: SerializedStyles = css({
 			flex: '1 1 auto',
 		},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const decisionDangerStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-nested-selectors
 	[`.${akEditorSelectedNodeClassName}.danger > [data-decision-wrapper], ol[data-node-type='decisionList'].${akEditorSelectedNodeClassName}.danger`]:
 		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
 		[dangerBackgroundStyles, dangerBorderStyles],
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const decisionIconWithVisualRefresh: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'[data-prosemirror-node-name="decisionItem"] > [data-decision-wrapper] > [data-component="icon"] > span >  svg[data-icon-source="legacy"]':
@@ -278,8 +312,12 @@ export const decisionIconWithVisualRefresh: SerializedStyles = css({
 			height: token('space.300'),
 		},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const decisionIconWithoutVisualRefresh: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'[data-prosemirror-node-name="decisionItem"] > [data-decision-wrapper] > [data-component="icon"] > span >  svg[data-icon-source="refreshed"]':
@@ -307,8 +345,12 @@ export const decisionIconWithoutVisualRefresh: SerializedStyles = css({
 			height: '32px',
 		},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const taskItemStyles: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'[data-prosemirror-node-name="taskItem"]': {
@@ -325,7 +367,7 @@ export const taskItemStyles: SerializedStyles = css({
 	'[data-prosemirror-node-name="taskItem"] [data-component="placeholder"]': {
 		position: 'absolute',
 		color: token('color.text.subtlest'),
-		margin: `0 0 0 calc(${token('space.100', '8px')} * 3)`,
+		margin: `0 0 0 calc(${token('space.100')} * 3)`,
 		pointerEvents: 'none',
 		textOverflow: 'ellipsis',
 		overflow: 'hidden',
@@ -348,379 +390,13 @@ export const taskItemStyles: SerializedStyles = css({
 		flex: '1 1 auto',
 	},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const taskItemCheckboxStyles: SerializedStyles = css({
-	// copied styles from packages/design-system/icon/src/components/icon-new.tsx
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="taskItem"] [data-component="checkbox-icon-wrap"]': {
-		display: 'inline-block',
-		boxSizing: 'border-box',
-		flexShrink: 0,
-		// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-		lineHeight: 1,
-		paddingInlineEnd: 'var(--ds--button--new-icon-padding-end, 0)',
-		paddingInlineStart: 'var(--ds--button--new-icon-padding-start, 0)',
-	},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="taskItem"] [data-component="checkbox-icon-wrap"] svg': {
-		overflow: 'hidden',
-		pointerEvents: 'none',
-		color: 'currentColor',
-		verticalAlign: 'bottom',
-		width: token('space.200', '16px'),
-		height: token('space.200', '16px'),
-	},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'[data-prosemirror-node-name="taskItem"] input[type=checkbox]:not(:checked) + span [data-component=checkbox-checked-icon]':
-		{
-			display: 'none',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'[data-prosemirror-node-name="taskItem"] input[type=checkbox]:not(:checked) + span [data-component=checkbox-unchecked-icon]':
-		{
-			display: 'inline',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="taskItem"] input[type=checkbox]:checked + span [data-component=checkbox-checked-icon]':
-		{
-			display: 'inline',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="taskItem"] input[type=checkbox]:checked + span [data-component=checkbox-unchecked-icon]':
-		{
-			display: 'none',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-	[`[data-prosemirror-node-name="taskItem"] .${TaskDecisionSharedCssClassName.TASK_CHECKBOX_CONTAINER}`]:
-		{
-			flex: '0 0 24px',
-			width: '24px',
-			height: '24px',
-			position: 'relative',
-			alignSelf: 'start',
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-			"& > input[type='checkbox']": {
-				width: '16px',
-				height: '16px',
-				zIndex: 1,
-				cursor: 'pointer',
-				outline: 'none',
-				margin: 0,
-				opacity: 0,
-				position: 'absolute',
-				top: '50%',
-				left: '50%',
-				transform: 'translate(-50%, -50%)',
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&[disabled]': {
-					cursor: 'default',
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'+ span': {
-					width: '24px',
-					height: '24px',
-					position: 'absolute',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'+ span > svg': {
-					boxSizing: 'border-box',
-					display: 'inline',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-					maxWidth: 'unset',
-					maxHeight: 'unset',
-					position: 'absolute',
-					overflow: 'hidden',
-					color: token('color.background.input'),
-					transition: 'color 0.2s ease-in-out, fill 0.2s ease-in-out',
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'path:first-of-type': {
-						visibility: 'hidden',
-					},
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.border.input'),
-						strokeWidth: 1,
-						transition: 'stroke 0.2s ease-in-out',
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-				'&:hover + span > svg': {
-					color: token('color.background.input.hovered'),
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.border.input'),
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-				'&:checked:hover + span > svg': {
-					color: token('color.background.selected.bold.hovered'),
-					fill: token('color.icon.inverse'),
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.background.selected.bold.hovered'),
-					},
-				},
-				'&:checked': {
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-					'+ span > svg': {
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-						'path:first-of-type': {
-							visibility: 'visible',
-						},
-						color: token('color.background.selected.bold'),
-						fill: token('color.icon.inverse'),
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-						'rect:first-of-type': {
-							stroke: token('color.background.selected.bold'),
-						},
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:active + span > svg': {
-					color: token('color.background.input.pressed'),
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.border'),
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:checked:active + span > svg': {
-					color: token('color.background.input.pressed'),
-					fill: token('color.icon.inverse'),
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.border'),
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:disabled + span > svg, &:disabled:hover + span > svg, &:disabled:focus + span > svg, &:disabled:active + span > svg':
-					{
-						color: token('color.background.disabled'),
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-						'rect:first-of-type': {
-							stroke: token('color.background.disabled'),
-						},
-					},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:disabled:checked + span > svg': {
-					fill: token('color.icon.disabled'),
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:focus + span::after': {
-					position: 'absolute',
-					width: token('space.200', '16px'),
-					height: token('space.200', '16px'),
-					border: `2px solid ${token('color.border.focused')}`,
-					borderRadius: token('space.050', '4px'),
-					content: "''",
-					display: 'block',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-				},
-			},
-		},
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const taskItemCheckboxStylesWithBlockTaskItem: SerializedStyles = css({
-	// copied styles from packages/design-system/icon/src/components/icon-new.tsx
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="taskItem"] [data-component="checkbox-icon-wrap"], [data-prosemirror-node-name="blockTaskItem"] [data-component="checkbox-icon-wrap"]':
-		{
-			display: 'inline-block',
-			boxSizing: 'border-box',
-			flexShrink: 0,
-			// eslint-disable-next-line @atlaskit/design-system/use-tokens-typography
-			lineHeight: 1,
-			paddingInlineEnd: 'var(--ds--button--new-icon-padding-end, 0)',
-			paddingInlineStart: 'var(--ds--button--new-icon-padding-start, 0)',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="taskItem"] [data-component="checkbox-icon-wrap"] svg, [data-prosemirror-node-name="blockTaskItem"] [data-component="checkbox-icon-wrap"] svg':
-		{
-			overflow: 'hidden',
-			pointerEvents: 'none',
-			color: 'currentColor',
-			verticalAlign: 'bottom',
-			width: token('space.200', '16px'),
-			height: token('space.200', '16px'),
-		},
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'[data-prosemirror-node-name="taskItem"] input[type=checkbox]:not(:checked) + span [data-component=checkbox-checked-icon], [data-prosemirror-node-name="blockTaskItem"] input[type=checkbox]:not(:checked) + span [data-component=checkbox-checked-icon]':
-		{
-			display: 'none',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
-	'[data-prosemirror-node-name="taskItem"] input[type=checkbox]:not(:checked) + span [data-component=checkbox-unchecked-icon], [data-prosemirror-node-name="blockTaskItem"] input[type=checkbox]:not(:checked) + span [data-component=checkbox-unchecked-icon]':
-		{
-			display: 'inline',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="taskItem"] input[type=checkbox]:checked + span [data-component=checkbox-checked-icon], [data-prosemirror-node-name="blockTaskItem"] input[type=checkbox]:checked + span [data-component=checkbox-checked-icon]':
-		{
-			display: 'inline',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-	'[data-prosemirror-node-name="taskItem"] input[type=checkbox]:checked + span [data-component=checkbox-unchecked-icon], [data-prosemirror-node-name="blockTaskItem"] input[type=checkbox]:checked + span [data-component=checkbox-unchecked-icon]':
-		{
-			display: 'none',
-		},
-
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values
-	[`[data-prosemirror-node-name="taskItem"] .${TaskDecisionSharedCssClassName.TASK_CHECKBOX_CONTAINER}, [data-prosemirror-node-name="blockTaskItem"] .${TaskDecisionSharedCssClassName.TASK_CHECKBOX_CONTAINER}`]:
-		{
-			flex: '0 0 24px',
-			width: '24px',
-			height: '24px',
-			position: 'relative',
-			alignSelf: 'start',
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-			"& > input[type='checkbox']": {
-				width: '16px',
-				height: '16px',
-				zIndex: 1,
-				cursor: 'pointer',
-				outline: 'none',
-				margin: 0,
-				opacity: 0,
-				position: 'absolute',
-				top: '50%',
-				left: '50%',
-				transform: 'translate(-50%, -50%)',
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&[disabled]': {
-					cursor: 'default',
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'+ span': {
-					width: '24px',
-					height: '24px',
-					position: 'absolute',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'+ span > svg': {
-					boxSizing: 'border-box',
-					display: 'inline',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-					maxWidth: 'unset',
-					maxHeight: 'unset',
-					position: 'absolute',
-					overflow: 'hidden',
-					color: token('color.background.input'),
-					transition: 'color 0.2s ease-in-out, fill 0.2s ease-in-out',
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'path:first-of-type': {
-						visibility: 'hidden',
-					},
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.border.input'),
-						strokeWidth: 1,
-						transition: 'stroke 0.2s ease-in-out',
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-				'&:hover + span > svg': {
-					color: token('color.background.input.hovered'),
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.border.input'),
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
-				'&:checked:hover + span > svg': {
-					color: token('color.background.selected.bold.hovered'),
-					fill: token('color.icon.inverse'),
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.background.selected.bold.hovered'),
-					},
-				},
-				'&:checked': {
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-					'+ span > svg': {
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-						'path:first-of-type': {
-							visibility: 'visible',
-						},
-						color: token('color.background.selected.bold'),
-						fill: token('color.icon.inverse'),
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-						'rect:first-of-type': {
-							stroke: token('color.background.selected.bold'),
-						},
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:active + span > svg': {
-					color: token('color.background.input.pressed'),
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.border'),
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:checked:active + span > svg': {
-					color: token('color.background.input.pressed'),
-					fill: token('color.icon.inverse'),
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-					'rect:first-of-type': {
-						stroke: token('color.border'),
-					},
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:disabled + span > svg, &:disabled:hover + span > svg, &:disabled:focus + span > svg, &:disabled:active + span > svg':
-					{
-						color: token('color.background.disabled'),
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
-						'rect:first-of-type': {
-							stroke: token('color.background.disabled'),
-						},
-					},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:disabled:checked + span > svg': {
-					fill: token('color.icon.disabled'),
-				},
-				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-				'&:focus + span::after': {
-					position: 'absolute',
-					width: token('space.200', '16px'),
-					height: token('space.200', '16px'),
-					border: `2px solid ${token('color.border.focused')}`,
-					borderRadius: token('space.050', '4px'),
-					content: "''",
-					display: 'block',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-				},
-			},
-		},
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
-export const taskItemNextCheckboxStyles: SerializedStyles = css({
 	/**
 	 * Background
 	 */
@@ -790,7 +466,7 @@ export const taskItemNextCheckboxStyles: SerializedStyles = css({
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 					'rect:first-of-type': {
 						stroke: 'var(--checkbox-border-color)',
-						strokeWidth: token('border.width', '1px'),
+						strokeWidth: token('border.width'),
 						transition: 'stroke 0.2s ease-in-out',
 					},
 				},
@@ -798,8 +474,8 @@ export const taskItemNextCheckboxStyles: SerializedStyles = css({
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors
 				'&:focus + svg, &:checked:focus + svg': {
 					borderRadius: token('radius.small', '0.25rem'),
-					outline: `${token('border.width.focused', '2px')} solid ${token('color.border.focused', '#2684FF')}`,
-					outlineOffset: token('space.negative.025', '-2px'),
+					outline: `${token('border.width.focused')} solid ${token('color.border.focused')}`,
+					outlineOffset: token('space.negative.025'),
 				},
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 				'&:hover + svg': {
@@ -843,8 +519,12 @@ export const taskItemNextCheckboxStyles: SerializedStyles = css({
 			},
 		},
 });
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-exported-styles
+/**
+ * @deprecated This style has been migrated to Compiled CSS, under experiment platform_editor_core_static_css
+ * If you need to make changes here, also update the corresponding style in
+ * packages/editor/editor-core/src/ui/EditorContentContainer/EditorContentContainer-compiled.tsx
+ * See EDITOR-7600 for more details: https://hello.jira.atlassian.cloud/jira/browse/EDITOR-7600
+ */
 export const taskItemStylesWithBlockTaskItem: SerializedStyles = css({
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors
 	'[data-prosemirror-node-name="taskItem"], [data-prosemirror-node-name="blockTaskItem"]': {
@@ -863,7 +543,7 @@ export const taskItemStylesWithBlockTaskItem: SerializedStyles = css({
 		{
 			position: 'absolute',
 			color: token('color.text.subtlest'),
-			margin: `0 0 0 calc(${token('space.100', '8px')} * 3)`,
+			margin: `0 0 0 calc(${token('space.100')} * 3)`,
 			pointerEvents: 'none',
 			textOverflow: 'ellipsis',
 			overflow: 'hidden',

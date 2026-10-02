@@ -1,7 +1,7 @@
 /**
  * THIS FILE WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::74f0ca66b8bc3995f7a9817f08a67d6f>>
- * @codegenCommand yarn workspace @atlaskit/logo generate:components
+ * @codegen <<SignedSource::0a5583241368ca27c8cfe513a110a7ef>>
+ * @codegenCommand afm workspace @atlaskit/logo generate:components
  */
 import React from 'react';
 
@@ -19,14 +19,12 @@ const svg = `<svg height="100%" viewBox="0 0 24 24">
 /**
  * __BambooIcon__
  *
- * A temporary component to represent the icon for Bamboo.
- * @deprecated This component has been replaced by the component `BambooIcon` in `@atlaskit/logo`.
- * Please migrate any usages of this temporary component, using the prop `shouldUseNewLogoDesign` where necessary
- * to enable the new design by default.
+ * A component to represent the icon for Bamboo.
+ * Import `BambooIcon` from `@atlaskit/logo/bamboo/icon`.
  *
  */
 export function BambooIcon({
-	size,
+	size = 'medium',
 	appearance = 'brand',
 	label = 'Bamboo',
 	testId,

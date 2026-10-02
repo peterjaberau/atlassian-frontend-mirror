@@ -1,6 +1,6 @@
 {
 	"name": "@atlaskit/media-table",
-	"version": "18.1.5",
+	"version": "21.0.0",
 	"description": "Table UI component",
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
@@ -12,22 +12,27 @@
 	"module": "dist/esm/index.js",
 	"module:es2019": "dist/es2019/index.js",
 	"types": "dist/types/index.d.ts",
-	"typesVersions": {
-		">=4.5 <4.9": {
-			"*": [
-				"dist/types-ts4.5/*",
-				"dist/types-ts4.5/index.d.ts"
-			]
-		}
-	},
 	"sideEffects": false,
 	"atlaskit:src": "src/index.ts",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./media-table": "./src/component/mediaTable.tsx",
+		"./name-cell": "./src/component/nameCell.tsx",
+		"./types": "./src/types.ts"
 	},
 	"atlassian": {
+		"react-compiler": {
+			"enabled": true,
+			"gating": {
+				"source": "@atlaskit/react-compiler-gating",
+				"importSpecifierName": "isReactCompilerActivePlatform"
+			}
+		},
 		"team": "Media Exif",
 		"website": {
+			"tags": [
+				"platform-labs"
+			],
 			"name": "Media Client"
 		}
 	},
@@ -40,7 +45,7 @@
 		"@atlaskit/media-client-react": "workspace:^",
 		"@atlaskit/media-ui": "workspace:^",
 		"@atlaskit/media-viewer": "workspace:^",
-		"@atlaskit/theme": "workspace:^",
+		"@atlaskit/react-compiler-gating": "workspace:^",
 		"@atlaskit/tokens": "workspace:^",
 		"@atlaskit/tooltip": "workspace:^",
 		"@babel/runtime": "root:*",
@@ -51,27 +56,21 @@
 		"@emotion/react": "^11.7.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-intl-next": "*"
+		"react-intl": "^5.25.1 || ^6.0.0 || ^7.0.0"
 	},
 	"devDependencies": {
 		"@atlaskit/icon-file-type": "workspace:^",
 		"@atlaskit/media-core": "workspace:^",
 		"@atlaskit/media-test-helpers": "workspace:^",
 		"@atlaskit/range": "workspace:^",
+		"@atlassian/testing-library": "workspace:^",
+		"@atlassian/workbench": "workspace:^",
 		"@emotion/react": "root:*",
 		"@testing-library/react": "root:*",
 		"@testing-library/user-event": "root:*",
 		"date-fns": "root:*",
-		"enzyme": "root:*",
 		"react": "root:*",
-		"react-dom": "root:*"
-	},
-	"techstack": {
-		"@repo/internal": {
-			"design-tokens": [
-				"color",
-				"spacing"
-			]
-		}
+		"react-dom": "root:*",
+		"react-intl": "root:*"
 	}
 }

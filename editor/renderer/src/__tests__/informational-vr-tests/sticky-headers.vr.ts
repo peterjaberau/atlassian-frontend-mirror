@@ -1,5 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
+
 import { snapshotInformational } from '@af/visual-regression';
+
 import {
 	StickyHeaderRowWithOnlyNonHeader,
 	StickyHeaderRowWithOnlyHeader,
@@ -16,7 +18,7 @@ import {
 	StickyHeadersTableInsideLayoutBrokenOut,
 	StickyHeadersTableMultipleHeaderRows,
 	StickyHeadersTableMergedRows,
-} from './sticky-headers.fixture';
+} from './sticky-headers.fixture.vr.ap';
 
 async function scrollToPos(page: Page, pos: number, timeout = 5000) {
 	const scrollContainer = page.locator('#testscrollcontainer');

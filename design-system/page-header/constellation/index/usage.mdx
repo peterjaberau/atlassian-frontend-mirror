@@ -12,9 +12,9 @@ import pageHeaderCountDont from './images/page-header-dont-2.png';
 The page header helps people understand what the page is for, and what to expect on the rest of the
 page. Use a page header to create a consistent experience at the top of a full page.
 
-## Anatomy
+## Parts
 
-![In this example page header, the title, breadcrumbs and search options are left-aligned, and the action buttons are right-aligned next to the title.](images/page-header-anatomy.png)
+![In this example page header, the title, breadcrumbs and search options are left-aligned, and the action buttons are right-aligned next to the title.](./images/page-header-anatomy.png)
 
 1. **Page grid:** The content area where the page header sits. Each page requires grid spacing to be
    set to account for page size and fixed/fluid pages.
@@ -35,45 +35,44 @@ page. Use a page header to create a consistent experience at the top of a full p
 
 ## Best practices
 
-<DoDont
-	type="do"
-	image={{
-		url: pageHeaderCountDo,
-		alt: 'Page that has one page header at the top. The header is "All open" and shows open Jira work items.',
-	}}
->
-	Use one page header per page.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: pageHeaderCountDont,
-		alt: 'Page that contains multiple page headers. The headers are "All open" and "Design" and show the header being misused to create multiple sections.',
-	}}
->
-	Use multiple page headers in one page.
-</DoDont>
-
-<DoDont
-	type="do"
-	image={{
-		url: pageHeaderContainerDo,
-		alt: 'Full page that has a page header at the top',
-	}}
->
-	Use a page header at the start of any page in Atlassian apps.
-</DoDont>
-
-<DoDont
-	type="dont"
-	image={{
-		url: pageHeaderContainerDont,
-		alt: 'Modal that has a page header at the top',
-	}}
->
-	Use a page header at the top of a smaller container like a popup, dialog, or drawer.
-</DoDont>
+<DoDontGrid>
+	<DoDont
+		type="do"
+		image={{
+			url: pageHeaderCountDo,
+			alt: 'Page that has one page header at the top. The header is "All open" and shows open Jira work items.',
+		}}
+	>
+		Use one page header per page.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: pageHeaderCountDont,
+			alt: 'Page that contains multiple page headers. The headers are "All open" and "Design" and show the header being misused to create multiple sections.',
+		}}
+	>
+		Use multiple page headers in one page.
+	</DoDont>
+	<DoDont
+		type="do"
+		image={{
+			url: pageHeaderContainerDo,
+			alt: 'Full page that has a page header at the top',
+		}}
+	>
+		Use a page header at the start of any page in Atlassian apps.
+	</DoDont>
+	<DoDont
+		type="dont"
+		image={{
+			url: pageHeaderContainerDont,
+			alt: 'Modal that has a page header at the top',
+		}}
+	>
+		Use a page header at the top of a smaller container like a popup, dialog, or drawer.
+	</DoDont>
+</DoDontGrid>
 
 ## Content guidelines
 

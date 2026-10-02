@@ -1,27 +1,37 @@
 import React from 'react';
 
 import rafSchedule from 'raf-schd';
+import type { IntlShape } from 'react-intl';
 // eslint-disable-next-line @atlaskit/platform/prefer-crypto-random-uuid -- Use crypto.randomUUID instead
-import uuid from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
-import { browser as browserLegacy, getBrowserInfo } from '@atlaskit/editor-common/browser';
-import ReactNodeView, {
-	type getInlineNodeViewProducer,
-} from '@atlaskit/editor-common/react-node-view';
+import { getBrowserInfo } from '@atlaskit/editor-common/browser';
+import ReactNodeView from '@atlaskit/editor-common/react-node-view';
+import type { getInlineNodeViewProducer } from '@atlaskit/editor-common/react-node-view';
 import type { PMPluginFactoryParams } from '@atlaskit/editor-common/types';
 import { findOverflowScrollParent, UnsupportedBlock } from '@atlaskit/editor-common/ui';
 import { canRenderDatasource } from '@atlaskit/editor-common/utils';
-import { type EditorViewModePluginState } from '@atlaskit/editor-plugin-editor-viewmode';
+import type { EditorViewModePluginState } from '@atlaskit/editor-plugin-editor-viewmode';
 import type { Node } from '@atlaskit/editor-prosemirror/model';
-import type { Decoration, DecorationSource, EditorView } from '@atlaskit/editor-prosemirror/view';
+import type {
+	Decoration,
+	DecorationSource,
+	EditorView,
+	NodeView,
+} from '@atlaskit/editor-prosemirror/view';
+import {
+	SmartLinkDraggable,
+	SMART_LINK_DRAG_TYPES,
+	SMART_LINK_APPEARANCE,
+} from '@atlaskit/editor-smart-link-draggable';
+import type { CardContext } from '@atlaskit/link-provider/types';
 import { Card as SmartCard } from '@atlaskit/smart-card';
 import { CardSSR } from '@atlaskit/smart-card/ssr';
-import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 
 import { Datasource } from '../nodeviews/datasource';
 import { registerCard, removeCard } from '../pm-plugins/actions';
 import { isDatasourceNode } from '../pm-plugins/utils';
-
+import { SmartCardSSRReactContextsProvider } from '../ui/SmartCardSSRReactContextsProvider';
 import type { SmartCardProps } from './genericCard';
 import { Card } from './genericCard';
 
@@ -83,10 +93,8 @@ export class BlockCardComponent extends React.PureComponent<
 		this.props.view.dispatch(tr);
 	}
 
-	gapCursorSpan = () => {
-		const browser = expValEquals('platform_editor_hydratable_ui', 'isEnabled', true)
-			? getBrowserInfo()
-			: browserLegacy;
+	gapCursorSpan = (): React.JSX.Element | undefined => {
+		const browser = getBrowserInfo();
 		// Don't render in EdgeHTMl version <= 18 (Edge version 44)
 		// as it forces the edit popup to render 24px lower than it should
 		if (browser.ie && browser.ie_version < 79) {
@@ -145,13 +153,19 @@ export class BlockCardComponent extends React.PureComponent<
 		// [WS-2307]: we only render card wrapped into a Provider when the value is ready,
 		// otherwise if we got data, we can render the card directly since it doesn't need the Provider
 		return (
-			<div>
-				{cardContext && cardContext.value ? (
-					<cardContext.Provider value={cardContext.value}>{cardInner}</cardContext.Provider>
-				) : data ? (
-					cardInner
-				) : null}
-			</div>
+			<SmartLinkDraggable
+				url={url}
+				appearance={SMART_LINK_APPEARANCE.BLOCK}
+				source={SMART_LINK_DRAG_TYPES.EDITOR}
+			>
+				<div>
+					{cardContext && cardContext.value ? (
+						<cardContext.Provider value={cardContext.value}>{cardInner}</cardContext.Provider>
+					) : data ? (
+						cardInner
+					) : null}
+				</div>
+			</SmartLinkDraggable>
 		);
 	}
 }
@@ -166,6 +180,8 @@ export type BlockCardNodeViewProps = Pick<
 	| 'isPageSSRed'
 	| 'provider'
 	| 'CompetitorPrompt'
+	| 'intl'
+	| 'smartCardContext'
 >;
 
 export class BlockCard extends ReactNodeView<BlockCardNodeViewProps> {
@@ -208,7 +224,11 @@ export class BlockCard extends ReactNodeView<BlockCardNodeViewProps> {
 		return !(isCurrentNodeBlockCard && isNewNodeDatasource);
 	}
 
-	update(node: Node, decorations: ReadonlyArray<Decoration>, _innerDecorations?: DecorationSource): boolean {
+	update(
+		node: Node,
+		decorations: ReadonlyArray<Decoration>,
+		_innerDecorations?: DecorationSource,
+	): boolean {
 		return super.update(node, decorations, _innerDecorations, this.validUpdate);
 	}
 
@@ -220,22 +240,41 @@ export class BlockCard extends ReactNodeView<BlockCardNodeViewProps> {
 			CompetitorPrompt,
 			isPageSSRed,
 			provider,
+			intl,
+			smartCardContext,
 		} = this.reactComponentProps;
 
 		return (
-			<WrappedBlockCard
-				node={this.node}
-				view={this.view}
-				getPos={this.getPos}
-				actionOptions={actionOptions}
-				pluginInjectionApi={pluginInjectionApi}
-				onClickCallback={onClickCallback}
-				id={this.id}
-				CompetitorPrompt={CompetitorPrompt}
-				isPageSSRed={isPageSSRed}
-				provider={provider}
-			/>
+			<SmartCardSSRReactContextsProvider intl={intl} smartCardContext={smartCardContext}>
+				<WrappedBlockCard
+					node={this.node}
+					view={this.view}
+					getPos={this.getPos}
+					actionOptions={actionOptions}
+					pluginInjectionApi={pluginInjectionApi}
+					onClickCallback={onClickCallback}
+					id={this.id}
+					CompetitorPrompt={CompetitorPrompt}
+					isPageSSRed={isPageSSRed}
+					provider={provider}
+				/>
+			</SmartCardSSRReactContextsProvider>
 		);
+	}
+
+	/**
+	 * Prevent ProseMirror from handling drag events on the smart-element-link,
+	 * allowing native drag to work so SmartLinkDraggable can intercept it.
+	 * @see {@link https://prosemirror.net/docs/ref/#view.NodeView.stopEvent}
+	 */
+	stopEvent(event: Event): boolean {
+		if (event.type === 'dragstart') {
+			const target = event.target;
+			if (target instanceof HTMLElement && target.closest('[data-smart-element-link]')) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	destroy(): void {
@@ -249,11 +288,13 @@ export interface BlockCardNodeViewProperties {
 	allowDatasource: boolean | undefined;
 	CompetitorPrompt?: React.ComponentType<{ linkType?: string; sourceUrl: string }>;
 	inlineCardViewProducer: ReturnType<typeof getInlineNodeViewProducer>;
+	intl?: IntlShape;
 	isPageSSRed: BlockCardNodeViewProps['isPageSSRed'];
 	onClickCallback: BlockCardNodeViewProps['onClickCallback'];
 	pluginInjectionApi: BlockCardNodeViewProps['pluginInjectionApi'];
 	pmPluginFactoryParams: PMPluginFactoryParams;
 	provider: BlockCardNodeViewProps['provider'];
+	smartCardContext?: CardContext;
 }
 
 export const blockCardNodeView =
@@ -267,13 +308,15 @@ export const blockCardNodeView =
 		CompetitorPrompt,
 		isPageSSRed,
 		provider,
+		intl,
+		smartCardContext,
 	}: BlockCardNodeViewProperties) =>
 	(
 		node: Node,
 		view: EditorView,
 		getPos: () => number | undefined,
 		decorations: readonly Decoration[],
-	) => {
+	): BlockCard | Datasource | NodeView => {
 		const { portalProviderAPI, eventDispatcher } = pmPluginFactoryParams;
 		const reactComponentProps: BlockCardNodeViewProps = {
 			actionOptions,
@@ -282,6 +325,8 @@ export const blockCardNodeView =
 			CompetitorPrompt,
 			isPageSSRed,
 			provider,
+			intl,
+			smartCardContext,
 		};
 		const isDatasource = isDatasourceNode(node);
 

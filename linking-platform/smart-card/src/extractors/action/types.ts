@@ -1,7 +1,9 @@
-import type { JsonLd } from '@atlaskit/json-ld-types';
+import type { JsonLd } from '@atlaskit/json-ld-types/jsonld';
 
-import type { CardActionOptions } from '../../view/Card/types';
+import type { InternalCardActionOptions as CardActionOptions } from '../../view/Card/types';
 import type { FlexibleCardProps } from '../../view/FlexibleCard/types';
+
+export type TransformUrlFn = (url?: string) => string | undefined;
 
 export type ExtractClientActionsParam = {
 	actionOptions?: CardActionOptions;

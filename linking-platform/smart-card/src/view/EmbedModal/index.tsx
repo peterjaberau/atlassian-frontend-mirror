@@ -1,14 +1,16 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import ModalDialog, { ModalBody, ModalTransition } from '@atlaskit/modal-dialog';
-import { useThemeObserver } from '@atlaskit/tokens';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import ModalTransition from '@atlaskit/modal-dialog/modal-transition';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
 
 import { SmartLinkSize } from '../../constants';
 import useInvokeClientAction from '../../state/hooks/use-invoke-client-action';
-import { getPreviewUrlWithTheme } from '../../utils';
+import { getPreviewUrlWithTheme } from '../../utils/get-preview-url-with-theme';
 import { BaseIconElement } from '../FlexibleCard/components/elements/common';
-
 import withAnalytics from './components/analytics';
+import type { WithAnalytics } from './components/analytics/types';
 import EmbedContent from './components/embed-content';
 import withErrorBoundary from './components/error-boundary';
 import LinkInfo from './components/link-info';
@@ -71,14 +73,41 @@ const EmbedModal = ({
 		if (onResize) {
 			onResize({ size: toSize(newWidth) });
 		}
-	}, [onResize, width]);
+
+		if (invokeViewAction) {
+			const visitedDisplay =
+				invokeViewAction.display && invokeViewAction.display !== 'url'
+					? invokeViewAction.display
+					: null;
+			if (visitedDisplay) {
+				fireEvent?.('track.smartLink.visited', {
+					id: invokeViewAction.id ?? iframeName,
+					display: visitedDisplay,
+					definitionId: invokeViewAction.definitionId ?? null,
+				});
+			}
+		}
+	}, [fireEvent, iframeName, invokeViewAction, onResize, width]);
 
 	const themeState = useThemeObserver();
 	let previewUrl = src;
 
 	const handleOnViewActionClick = useCallback(() => {
-		invokeViewAction && invoke(invokeViewAction);
-	}, [invoke, invokeViewAction]);
+		if (invokeViewAction) {
+			invoke(invokeViewAction);
+			const visitedDisplay =
+				invokeViewAction.display && invokeViewAction.display !== 'url'
+					? invokeViewAction.display
+					: null;
+			if (visitedDisplay) {
+				fireEvent?.('track.smartLink.visited', {
+					id: invokeViewAction.id ?? iframeName,
+					display: visitedDisplay,
+					definitionId: invokeViewAction.definitionId ?? null,
+				});
+			}
+		}
+	}, [fireEvent, iframeName, invoke, invokeViewAction]);
 
 	const handleOnDownloadActionClick = useCallback(() => {
 		invokeDownloadAction && invoke(invokeDownloadAction);
@@ -88,9 +117,35 @@ const EmbedModal = ({
 		previewUrl = getPreviewUrlWithTheme(previewUrl, themeState);
 	}
 
+	const focusRef = useRef<HTMLButtonElement>(null);
+	const hasRestoredFocus = useRef(false);
+
+	useEffect(() => {
+		if (!isOpen) {
+			hasRestoredFocus.current = false;
+			return;
+		}
+		const handleWindowBlur = () => {
+			if (hasRestoredFocus.current) return;
+			setTimeout(() => {
+				// document.hasFocus() returns true when focus moved to an
+				// iframe on the same page, false when the window itself
+				// lost focus (e.g. user switched browser tabs)
+				if (!document.hasFocus()) return;
+				hasRestoredFocus.current = true;
+				focusRef.current?.focus();
+			}, 0);
+		};
+		window.addEventListener('blur', handleWindowBlur);
+		return () => {
+			window.removeEventListener('blur', handleWindowBlur);
+		};
+	}, [isOpen]);
+
 	return (
 		<ModalTransition>
 			{isOpen && (
+				// eslint-disable-next-line @atlaskit/design-system/no-modal-label
 				<ModalDialog
 					height="100%"
 					onClose={handleOnClose}
@@ -115,6 +170,7 @@ const EmbedModal = ({
 						size={width}
 						title={title}
 						testId={testId}
+						focusRef={focusRef}
 					/>
 					<ModalBody>
 						<EmbedContent
@@ -132,4 +188,7 @@ const EmbedModal = ({
 	);
 };
 
-export default withAnalytics(withErrorBoundary(EmbedModal));
+const _default_1: (props: EmbedModalProps & WithAnalytics) => React.JSX.Element = withAnalytics(
+	withErrorBoundary(EmbedModal),
+);
+export default _default_1;

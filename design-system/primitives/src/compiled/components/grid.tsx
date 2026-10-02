@@ -2,7 +2,16 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { type ElementType, forwardRef, type ForwardRefExoticComponent, memo, type MemoExoticComponent, type ReactNode, type Ref, type RefAttributes } from 'react';
+import {
+	type ElementType,
+	forwardRef,
+	type ForwardRefExoticComponent,
+	memo,
+	type MemoExoticComponent,
+	type ReactNode,
+	type Ref,
+	type RefAttributes,
+} from 'react';
 
 import { jsx } from '@compiled/react';
 
@@ -170,7 +179,8 @@ const gridAutoFlowMap = cssMap({
  *
  * @example
  * ```tsx
- * import { Grid, Box } from '@atlaskit/primitives'
+ * import { Box } from '@atlaskit/primitives/compiled'
+ * import { Grid } from '@atlaskit/primitives/compiled/grid'
  *
  * const Component = () => (
  *   <Grid gap="space.100" gridColumns="1fr 1fr">
@@ -180,7 +190,9 @@ const gridAutoFlowMap = cssMap({
  * )
  * ```
  */
-const Grid: MemoExoticComponent<ForwardRefExoticComponent<Omit<GridProps<ElementType>, "ref"> & RefAttributes<any>>> = memo(
+export const Grid: MemoExoticComponent<
+	ForwardRefExoticComponent<Omit<GridProps<ElementType>, 'ref'> & RefAttributes<any>>
+> = memo(
 	forwardRef(
 		<T extends ElementType = 'div'>(
 			{
@@ -230,5 +242,3 @@ const Grid: MemoExoticComponent<ForwardRefExoticComponent<Omit<GridProps<Element
 );
 
 Grid.displayName = 'Grid';
-
-export default Grid;

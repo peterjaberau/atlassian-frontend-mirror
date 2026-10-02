@@ -4,7 +4,8 @@ import throttle from 'lodash/throttle';
 import type { EditorState } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 
-import { type FireAnalyticsCallback } from '../analytics';
+import type { FireAnalyticsCallback } from '../analytics';
+import type { EditorAppearance } from '../types';
 import type {
 	BasePluginDependenciesAPI,
 	CorePlugin,
@@ -12,7 +13,6 @@ import type {
 	NextEditorPlugin,
 	PluginDependenciesAPI,
 } from '../types/next-editor-plugin';
-
 import { corePlugin } from './core-plugin';
 
 // Ignored via go/ees005
@@ -24,6 +24,8 @@ type SharedStateAPIProps = {
 };
 
 interface PluginInjectionAPIProps extends SharedStateAPIProps {
+	// Initial appearance value for the editor, used to initialize appearance tracking in shared state
+	appearance?: EditorAppearance;
 	// Optional analytics callback - used exclusively by core plugin since it is unable to consume AnalyticsPlugin as a dependency
 	fireAnalyticsEvent?: FireAnalyticsCallback;
 	getEditorView: () => EditorView | undefined;
@@ -160,8 +162,6 @@ const notifyListenersThrottled = throttle(
 	THROTTLE_CALLS_FOR_MILLISECONDS,
 );
 
-export class PluginsData {}
-
 class ActionsAPI {
 	createAPI(
 		// Ignored via go/ees005
@@ -253,6 +253,15 @@ export class SharedStateAPI {
 		(this.listeners.get(pluginName) || new Set()).delete(sub);
 	}
 
+	// Drop every listener and pending update for a plugin that is no longer
+	// registered. Without this, callbacks (and their captured closures) for
+	// evicted plugins would linger in `listeners` until destroy(), and every
+	// transaction would still walk their keys via filterPluginsWithListeners.
+	removePluginListeners(pluginName: string): void {
+		this.listeners.delete(pluginName);
+		this.updatesToNotifyQueue.delete(pluginName);
+	}
+
 	private updatesToNotifyQueue: PluginUpdatesToNotify = new Map();
 	notifyListeners({
 		newEditorState,
@@ -311,23 +320,54 @@ type GenericAPIWithCore = {
 };
 const editorAPICache = new WeakMap<EditorPluginInjectionAPI, GenericAPIWithCore>();
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export class EditorPluginInjectionAPI implements PluginInjectionAPIDefinition {
 	private sharedStateAPI: SharedStateAPI;
 	private actionsAPI: ActionsAPI;
 	private commandsAPI: EditorCommandsAPI;
 	private plugins: Map<string, NextEditorPluginInitializedType>;
 
-	constructor({ getEditorState, getEditorView, fireAnalyticsEvent }: PluginInjectionAPIProps) {
+	constructor({
+		getEditorState,
+		getEditorView,
+		fireAnalyticsEvent,
+		appearance,
+	}: PluginInjectionAPIProps) {
 		this.sharedStateAPI = new SharedStateAPI({ getEditorState });
 		this.plugins = new Map();
 		this.actionsAPI = new ActionsAPI();
 		this.commandsAPI = new EditorCommandsAPI();
+
 		// Special core plugin that is always added
 		this.addPlugin(
 			corePlugin({
-				config: { getEditorView, fireAnalyticsEvent },
+				config: {
+					getEditorView,
+					fireAnalyticsEvent,
+					appearance,
+				},
 			}),
 		);
+	}
+
+	/**
+	 * Returns PM plugins from internally-registered plugins (e.g. the core plugin)
+	 * that are not processed through the normal preset builder flow.
+	 */
+	// Ignored via go/ees005
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	getInternalPMPlugins(): Array<{ name: string; plugin: (...args: any[]) => any }> {
+		// Ignored via go/ees005
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const result: Array<{ name: string; plugin: (...args: any[]) => any }> = [];
+		const corePlugin = this.plugins.get('core');
+		if (corePlugin && typeof corePlugin.pmPlugins === 'function') {
+			const pmPlugins = corePlugin.pmPlugins();
+			if (pmPlugins) {
+				result.push(...pmPlugins);
+			}
+		}
+		return result;
 	}
 
 	private createAPI() {
@@ -386,6 +426,32 @@ export class EditorPluginInjectionAPI implements PluginInjectionAPIDefinition {
 		this.addPlugin(plugin);
 	};
 
+	// Internal cleanup helper used by ReactEditorView's reconfigureState to
+	// reconcile the registered plugin set with the current preset. Removes
+	// every registered plugin not in `keptPluginNames`; `core` is always
+	// preserved. Returns the names that were removed. Intentionally not on
+	// PluginInjectionAPIDefinition: this is an editor-internal control, not
+	// part of the injection-API contract that plugins or external consumers
+	// depend on.
+	retainPlugins = (keptPluginNames: ReadonlySet<string>): string[] => {
+		const evicted: string[] = [];
+		for (const name of this.plugins.keys()) {
+			if (name !== 'core' && !keptPluginNames.has(name)) {
+				evicted.push(name);
+			}
+		}
+		for (const name of evicted) {
+			this.plugins.delete(name);
+			this.sharedStateAPI.removePluginListeners(name);
+		}
+		return evicted;
+	};
+
+	// Internal: snapshot the names of currently-registered plugins. Used by
+	// reconfigureState to capture the previous plugin set before the new
+	// preset registers its own plugins via onEditorPluginInitialized.
+	getRegisteredPluginNames = (): string[] => Array.from(this.plugins.keys());
+
 	private addPlugin = (plugin: NextEditorPluginInitializedType) => {
 		// Plugins other than `core` are checked by the preset itself
 		// For some reason in some tests we have duplicates that are missed.
@@ -405,3 +471,5 @@ export class EditorPluginInjectionAPI implements PluginInjectionAPIDefinition {
 		return plugin;
 	};
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { PluginsData } from './PluginsData';

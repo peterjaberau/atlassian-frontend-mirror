@@ -14,7 +14,7 @@ export const isCell = (node: HTMLElement | null): boolean => {
 export const isCornerButton = (node: HTMLElement | null): boolean =>
 	containsClassName(node, ClassName.CONTROLS_CORNER_BUTTON);
 
-export const isInsertRowButton = (node: HTMLElement | null) =>
+export const isInsertRowButton = (node: HTMLElement | null): boolean | HTMLElement | null =>
 	containsClassName(node, ClassName.CONTROLS_INSERT_ROW) ||
 	closestElement(node, `.${ClassName.CONTROLS_INSERT_ROW}`) ||
 	(containsClassName(node, ClassName.CONTROLS_BUTTON_OVERLAY) &&
@@ -24,6 +24,25 @@ export const getColumnOrRowIndex = (target: HTMLElement): [number, number] => [
 	parseInt(target.getAttribute('data-start-index') || '-1', 10),
 	parseInt(target.getAttribute('data-end-index') || '-1', 10),
 ];
+
+/**
+ * Returns the element that carries the `data-start-index` / `data-end-index` attributes for a
+ * column/row control.
+ *
+ * The floating insert dot is a child of a wrapper that holds the index attributes, so when the
+ * pointer is directly over the dot the attributes are not on the event target. This walks up to
+ * the nearest ancestor that has `data-start-index`, falling back to the original element so the
+ * behaviour is unchanged when the target already carries the attributes.
+ */
+export const getIndexAttributeSourceElement = (target: HTMLElement): HTMLElement => {
+	if (target.hasAttribute('data-start-index')) {
+		return target;
+	}
+	// Ignored via go/ees005
+	// eslint-disable-next-line @atlaskit/editor/no-as-casting
+	const closestWithIndex = target.closest('[data-start-index]') as HTMLElement | null;
+	return closestWithIndex ?? target;
+};
 
 export const isColumnControlsDecorations = (node: HTMLElement | null): boolean =>
 	containsClassName(node, ClassName.COLUMN_CONTROLS_DECORATIONS);
@@ -53,6 +72,10 @@ export const isDragColumnFloatingInsertDot = (node: HTMLElement | null): boolean
 export const isDragCornerButton = (node: HTMLElement | null): boolean =>
 	containsClassName(node, ClassName.DRAG_CORNER_BUTTON) ||
 	containsClassName(node, ClassName.DRAG_CORNER_BUTTON_INNER);
+
+export const isTableDragHandleButton = (target: EventTarget | null): boolean =>
+	target instanceof HTMLElement &&
+	Boolean(target.closest(`.${ClassName.DRAG_HANDLE_BUTTON_CONTAINER}`));
 
 /*
  * This function returns which side of a given element the mouse cursor is,
@@ -251,11 +274,7 @@ export const findNearestCellIndexToPoint = (
 };
 
 export const areAllRectsZero = (entry: IntersectionObserverEntry): boolean => {
-	const rects = [
-		entry.boundingClientRect,
-		entry.rootBounds,
-		entry.intersectionRect
-	];
+	const rects = [entry.boundingClientRect, entry.rootBounds, entry.intersectionRect];
 
 	return rects.every(
 		(rect) =>
@@ -269,4 +288,4 @@ export const areAllRectsZero = (entry: IntersectionObserverEntry): boolean => {
 			rect.x === 0 &&
 			rect.y === 0,
 	);
-}
+};

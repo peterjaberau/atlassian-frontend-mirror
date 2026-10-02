@@ -6,19 +6,44 @@ import { useState } from 'react';
 
 import { css, jsx } from '@compiled/react';
 
-import Button from '@atlaskit/button/new';
-import { Label } from '@atlaskit/form';
-import {
-	BitbucketIcon,
-	ConfluenceIcon,
-	JiraSoftwareIcon,
-	OpsgenieIcon,
-	StatuspageIcon,
-} from '@atlaskit/logo';
-import { FadeIn, StaggeredEntrance, useResizingHeight } from '@atlaskit/motion';
+import Button from '@atlaskit/button/default/button';
+import { Label } from '@atlaskit/form/label/default';
+import Heading from '@atlaskit/heading/heading';
+import { BitbucketIcon, ConfluenceIcon, OpsgenieIcon, StatuspageIcon } from '@atlaskit/logo';
+import { JiraSoftwareIcon } from '@atlaskit/logo/jira-software-icon';
+import FadeIn from '@atlaskit/motion/fade-in';
+import StaggeredEntrance from '@atlaskit/motion/staggered-entrance';
+import { useResizingHeight } from '@atlaskit/motion/use-resizing-height';
+import Textfield from '@atlaskit/textfield/text-field';
 import { token } from '@atlaskit/tokens';
 
-import { Centered } from './utils';
+import { Centered } from './utils/containers';
+
+const buttonContainerStyles = css({
+	textAlign: 'center',
+});
+
+const menuStyles = css({
+	width: '100%',
+	maxWidth: '500px',
+	borderRadius: token('radius.small', '3px'),
+	boxShadow: token('elevation.shadow.overlay'),
+	marginBlockEnd: '56px',
+	marginBlockStart: token('space.300'),
+	paddingBlockEnd: token('space.100'),
+});
+
+const itemStyles = css({
+	display: 'flex',
+	fontWeight: token('font.weight.medium'),
+	paddingBlockEnd: token('space.200'),
+	paddingBlockStart: token('space.200'),
+	paddingInlineEnd: token('space.200'),
+	paddingInlineStart: token('space.200'),
+	'&:hover': {
+		backgroundColor: token('color.background.neutral.subtle.hovered'),
+	},
+});
 
 const logos = [
 	[<BitbucketIcon size="small" />, 'Bitbucket'],
@@ -38,16 +63,11 @@ const searchTerm: { [key: string]: string } = {
 
 export default (): JSX.Element => {
 	const [num, setNum] = useState(1);
+	const resizingHeightProps = useResizingHeight();
 
 	return (
 		<div>
-			<div
-				// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-				css={{
-					textAlign: 'center',
-					'> *': { margin: token('space.025', '2px') },
-				}}
-			>
+			<div css={buttonContainerStyles}>
 				{[1, 2, 3, 4, 5].map((number) => (
 					<Button
 						testId={`button--${number}`}
@@ -63,45 +83,9 @@ export default (): JSX.Element => {
 			</div>
 
 			<Centered>
-				<div
-					data-testid="menu"
-					{...useResizingHeight()}
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-					css={css({
-						width: '100%',
-						maxWidth: '500px',
-						borderRadius: token('radius.small', '3px'),
-						boxShadow: token('elevation.shadow.overlay'),
-						marginBlockEnd: '56px',
-						marginBlockStart: token('space.300', '24px'),
-						paddingBlockEnd: token('space.100', '8px'),
-					})}
-				>
+				<div data-testid="menu" {...resizingHeightProps} css={menuStyles}>
 					<Label htmlFor="resize-text">Resize</Label>
-					<input
-						id="resize-text"
-						type="text"
-						readOnly
-						value={searchTerm[`s${num}`]}
-						// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-						css={css({
-							display: 'block',
-							boxSizing: 'border-box',
-							width: '100%',
-							border: 'none',
-							borderRadius: `${token('radius.small', '3px')} ${token('radius.small', '3px')} 0 0`,
-							color: '#172b4d',
-							fontSize: '24px',
-							marginBlockEnd: token('space.100', '8px'),
-							paddingBlockEnd: token('space.200', '16px'),
-							paddingBlockStart: token('space.200', '16px'),
-							paddingInlineEnd: token('space.200', '16px'),
-							paddingInlineStart: token('space.200', '16px'),
-							'&:hover': {
-								backgroundColor: token('color.background.neutral.subtle.hovered'),
-							},
-						})}
-					/>
+					<Textfield id="resize-text" readOnly value={searchTerm[`s${num}`]} />
 					<StaggeredEntrance columns={1}>
 						{Array(num)
 							.fill(undefined)
@@ -109,36 +93,16 @@ export default (): JSX.Element => {
 								<FadeIn key={index}>
 									{(motion) => (
 										<div
-											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-											css={css({
-												display: 'flex',
-												fontSize: '16px',
-												fontWeight: token('font.weight.medium', '500'),
-												paddingBlockEnd: token('space.200', '16px'),
-												paddingBlockStart: token('space.200', '16px'),
-												paddingInlineEnd: token('space.200', '16px'),
-												paddingInlineStart: token('space.200', '16px'),
-												'&:hover': {
-													backgroundColor: token('color.background.neutral.subtle.hovered'),
-												},
-											})}
+											css={itemStyles}
 											// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
 											className={motion.className}
-											// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
 											style={motion.style}
 											ref={motion.ref}
 										>
 											{logos[index][0]}
-											<h3
-												// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-												css={{
-													margin: 0,
-													fontWeight: 300,
-													marginLeft: token('space.100', '8px'),
-												}}
-											>
+											<Heading as="h3" size="small">
 												{logos[index][1]}
-											</h3>
+											</Heading>
 										</div>
 									)}
 								</FadeIn>

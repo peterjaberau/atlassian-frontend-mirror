@@ -1,13 +1,14 @@
 import React, { type ReactNode } from 'react';
 
-import { defineMessages, FormattedMessage } from 'react-intl-next';
+import { defineMessages, FormattedMessage } from 'react-intl';
 
 import { cssMap, cx } from '@atlaskit/css';
 import LinkIcon from '@atlaskit/icon/core/link';
 import LinkExternalIcon from '@atlaskit/icon/core/link-external';
 import Image from '@atlaskit/image';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Flex, Text } from '@atlaskit/primitives/compiled';
+import Tile from '@atlaskit/tile/tile';
 import { token } from '@atlaskit/tokens';
 
 import ConfluenceIcon from '../assets/ConfluenceIcon.svg';
@@ -25,17 +26,17 @@ interface ContainerProperties {
 	isEmptyContainer?: boolean;
 }
 
-type IconSize = 'small' | 'medium';
+type IconSize = 'xxsmall' | 'xsmall' | 'small' | 'medium';
 const styles = cssMap({
 	avatarWrapper: {
 		width: '24px',
 		height: '24px',
 	},
 	avatarMargin: {
-		marginTop: token('space.025', '2px'),
-		marginRight: token('space.025', '2px'),
-		marginBottom: token('space.025', '2px'),
-		marginLeft: token('space.025', '2px'),
+		marginTop: token('space.025'),
+		marginRight: token('space.025'),
+		marginBottom: token('space.025'),
+		marginLeft: token('space.025'),
 	},
 	smallAvatarWrapper: {
 		width: '16px',
@@ -45,6 +46,7 @@ const styles = cssMap({
 		marginInline: 0,
 		marginBlock: 0,
 	},
+
 	linkIconWrapper: {
 		width: '16px',
 		height: '16px',
@@ -64,12 +66,70 @@ const styles = cssMap({
 		backgroundColor: token('color.background.neutral'),
 		borderRadius: token('radius.small', '6px'),
 	},
+	profileCardWebLinkIconWrapper: {
+		width: '16px',
+		height: '16px',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 });
 
-export const messages = defineMessages({
+export const messages: {
+	addConfluenceContainerTitle: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	confluenceContainerDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	addLoomSpace: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	addJiraProject: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	jiraProjectDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	loomSpaceDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	spaceContainerTextOverride: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	emptyLinkContainerDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	addLink: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+	linkContainerDescription: {
+		id: string;
+		defaultMessage: string;
+		description: string;
+	};
+} = defineMessages({
 	addConfluenceContainerTitle: {
 		id: 'ptc-directory.team-profile-page.team-containers.add-confluence-space-title',
-		defaultMessage: 'Add space',
+		defaultMessage: 'Add Confluence space',
 		description: 'Title of the card to add a Confluence space to a team',
 	},
 	confluenceContainerDescription: {
@@ -79,18 +139,18 @@ export const messages = defineMessages({
 	},
 	addLoomSpace: {
 		id: 'ptc-directory.team-profile-page.team-containers.add-loom-space',
-		defaultMessage: 'Add Loom Space',
+		defaultMessage: 'Add Loom space',
 		description: 'Title of the card to add a Loom space to a team',
 	},
 	addJiraProject: {
 		id: 'ptc-directory.team-profile-page.team-containers.add-jira-project',
-		defaultMessage: 'Add Jira Project',
-		description: 'Title of the card to add a Jira project to a team',
+		defaultMessage: 'Add Jira space',
+		description: 'Title of the card to add a Jira space to a team',
 	},
 	jiraProjectDescription: {
 		id: 'ptc-directory.team-profile-page.team-containers.add-jira-project-description',
 		defaultMessage: 'Jira',
-		description: 'Description of the card to add a Jira project to a team',
+		description: 'Description of the card to add a Jira space to a team',
 	},
 	loomSpaceDescription: {
 		id: 'ptc-directory.team-profile-page.team-containers.add-loom-space-description',
@@ -119,6 +179,20 @@ export const messages = defineMessages({
 	},
 });
 
+const ContainerIconWrapper = ({
+	children,
+	iconSize,
+}: {
+	children: ReactNode;
+	iconSize: IconSize;
+}) => {
+	return (
+		<Tile label="" size={iconSize} isInset={false}>
+			{children}
+		</Tile>
+	);
+};
+
 const getJiraIcon = (containerSubTypes?: string) => {
 	switch (containerSubTypes) {
 		case 'PRODUCT_DISCOVERY':
@@ -140,21 +214,20 @@ interface GetJiraContainerPropertiesParams {
 
 const getJiraContainerProperties = ({
 	containerTypeProperties,
-	iconSize = fg('ptc-fix-containers-after-icon-size') ? 'medium' : 'small',
+	iconSize = 'medium',
 }: GetJiraContainerPropertiesParams): ContainerProperties => {
 	const { subType, name } = containerTypeProperties || {};
-	const isAfterIconSizeFixEnabled = fg('ptc-fix-containers-after-icon-size');
 	const baseProperties = {
 		description: <FormattedMessage {...messages.jiraProjectDescription} />,
-		icon: (
+		icon: fg('enable_teams_t26_design_drop_core_experiences') ? (
+			<ContainerIconWrapper iconSize={iconSize}>
+				<Image src={getJiraIcon(subType)} alt="" testId="jira-project-container-icon" />
+			</ContainerIconWrapper>
+		) : (
 			<Flex
 				xcss={cx(
-					iconSize === 'small' && isAfterIconSizeFixEnabled
-						? styles.smallAvatarWrapper
-						: styles.avatarWrapper,
-					iconSize === 'small' && isAfterIconSizeFixEnabled
-						? styles.smallAvatarMargin
-						: styles.avatarMargin,
+					iconSize === 'small' ? styles.smallAvatarWrapper : styles.avatarWrapper,
+					iconSize === 'small' ? styles.smallAvatarMargin : styles.avatarMargin,
 				)}
 			>
 				<Image src={getJiraIcon(subType)} alt="" testId="jira-project-container-icon" />
@@ -202,7 +275,13 @@ const getWebLinkContainerProperties = ({
 				<LinkIcon label="" size="medium" />
 			</Box>
 		) : isDisplayedOnProfileCard ? (
-			<LinkExternalIcon label="" size="small" testId="team-link-card-external-link-icon" />
+			fg('enable_teams_t26_design_drop_core_experiences') ? (
+				<Box xcss={styles.profileCardWebLinkIconWrapper}>
+					<LinkExternalIcon label="" size="small" testId="team-link-card-external-link-icon" />
+				</Box>
+			) : (
+				<LinkExternalIcon label="" size="small" testId="team-link-card-external-link-icon" />
+			)
 		) : (
 			<Box xcss={styles.linkIconWrapper} testId="team-link-card-globe-icon">
 				<LinkIcon label="" size="small" />
@@ -226,25 +305,26 @@ interface GetContainerPropertiesParams {
 
 export const getContainerProperties = ({
 	containerType,
-	iconSize = fg('ptc-fix-containers-after-icon-size') ? 'medium' : 'small',
+	iconSize = fg('enable_teams_t26_design_drop_core_experiences') ? 'small' : 'medium',
 	containerTypeProperties,
 	isEmptyContainer,
 	isDisplayedOnProfileCard,
 }: GetContainerPropertiesParams): ContainerProperties => {
-	const isAfterIconSizeFixEnabled = fg('ptc-fix-containers-after-icon-size');
+	const isT26DesignDropCoreExperiencesEnabled = fg('enable_teams_t26_design_drop_core_experiences');
+
 	switch (containerType) {
 		case 'ConfluenceSpace':
 			return {
 				description: <FormattedMessage {...messages.confluenceContainerDescription} />,
-				icon: (
+				icon: isT26DesignDropCoreExperiencesEnabled ? (
+					<ContainerIconWrapper iconSize={iconSize}>
+						<Image src={ConfluenceIcon} alt="" testId="confluence-space-container-icon" />
+					</ContainerIconWrapper>
+				) : (
 					<Flex
 						xcss={cx(
-							iconSize === 'small' && isAfterIconSizeFixEnabled
-								? styles.smallAvatarWrapper
-								: styles.avatarWrapper,
-							iconSize === 'small' && isAfterIconSizeFixEnabled
-								? styles.smallAvatarMargin
-								: styles.avatarMargin,
+							iconSize === 'small' ? styles.smallAvatarWrapper : styles.avatarWrapper,
+							iconSize === 'small' ? styles.smallAvatarMargin : styles.avatarMargin,
 						)}
 					>
 						<Image src={ConfluenceIcon} alt="" testId="confluence-space-container-icon" />
@@ -256,15 +336,15 @@ export const getContainerProperties = ({
 		case 'LoomSpace':
 			return {
 				description: <FormattedMessage {...messages.loomSpaceDescription} />,
-				icon: (
+				icon: isT26DesignDropCoreExperiencesEnabled ? (
+					<ContainerIconWrapper iconSize={iconSize}>
+						<Image src={LoomIcon} alt="" testId="loom-space-container-icon" />
+					</ContainerIconWrapper>
+				) : (
 					<Flex
 						xcss={cx(
-							iconSize === 'small' && isAfterIconSizeFixEnabled
-								? styles.smallAvatarWrapper
-								: styles.avatarWrapper,
-							iconSize === 'small' && isAfterIconSizeFixEnabled
-								? styles.smallAvatarMargin
-								: styles.avatarMargin,
+							iconSize === 'small' ? styles.smallAvatarWrapper : styles.avatarWrapper,
+							iconSize === 'small' ? styles.smallAvatarMargin : styles.avatarMargin,
 						)}
 					>
 						<Image src={LoomIcon} alt="" testId="loom-space-container-icon" />

@@ -1,57 +1,41 @@
+import type { HTMLAttributes, DetailedHTMLProps } from 'react';
+
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
-import styled from 'styled-components';
-import { N200 } from '@atlaskit/theme/colors';
+import styled, { type StyledComponentClass } from 'styled-components';
+
 import { token } from '@atlaskit/tokens';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles, @atlaskit/ui-styling-standard/no-dynamic-styles -- Ignored via go/DSP-18766
-export const ResultItemAfter = styled.div<{ shouldTakeSpace: boolean }>((props) => ({
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-	minWidth: props.shouldTakeSpace ? '24px' : 0,
-}));
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { ResultItemAfter } from './result-item-after';
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { ResultItemAfterWrapper } from './result-item-after-wrapper';
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { ResultItemIcon } from './result-item-icon';
+// eslint-disable-next-line no-barrel-files/no-barrel-files
+export { ResultItemTextAfter } from './result-item-text-after';
+
+// Copied from `@atlaskit/theme` to allow removal of that package
+const N200 = '#6B778C';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const ResultItemAfterWrapper = styled.div({
-	display: 'flex',
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const ResultItemCaption = styled.span({
+export const ResultItemCaption: StyledComponentClass<
+	DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>,
+	any,
+	DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled
+> = styled.span({
 	color: N200,
 	font: token('font.body.small'),
-	marginLeft: token('space.100', '8px'),
+	marginLeft: token('space.100'),
 });
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const ResultItemSubText = styled.span({
+export const ResultItemSubText: StyledComponentClass<
+	DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>,
+	any,
+	DetailedHTMLProps<HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>
+	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled
+> = styled.span({
 	font: token('font.body.small'),
 	color: N200,
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const ResultItemIcon = styled.div({
-	display: 'flex',
-	alignItems: 'center',
-	justifyContent: 'center',
-	flexShrink: 0,
-	transition: 'padding 200ms',
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-	'> *': {
-		flex: '1 0 auto',
-	},
-
-	/* We need to ensure that any image passed in as a child (<img/>, <svg/>
-    etc.) receives the correct width, height and border radius. We don't
-    currently assume that the image passed in is the correct dimensions, or has
-    width / height 100% */
-	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors -- Ignored via go/DSP-18766
-	'> img': {
-		height: token('space.300', '24px'),
-		width: token('space.300', '24px'),
-	},
-});
-
-// eslint-disable-next-line @atlaskit/ui-styling-standard/no-styled, @atlaskit/ui-styling-standard/no-exported-styles -- Ignored via go/DSP-18766
-export const ResultItemTextAfter = styled.div({
-	position: 'relative',
-	zIndex: 1,
 });

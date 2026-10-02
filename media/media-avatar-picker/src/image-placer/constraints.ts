@@ -1,4 +1,6 @@
-import { Rectangle, type Bounds, Vector2 } from '@atlaskit/media-ui';
+import type { Bounds } from '@atlaskit/media-ui/bounds';
+import { Rectangle } from '@atlaskit/media-ui/rectangle';
+import { Vector2 } from '@atlaskit/media-ui/vector2';
 
 export function zoomToFit(
 	imageWidth: number,
@@ -14,7 +16,7 @@ export function applyConstraints(
 	useConstraints: boolean,
 	imageBounds: Bounds,
 	visibleBounds: Bounds,
-) {
+): Vector2 {
 	if (useConstraints) {
 		/* stop imageBounds edges from going inside visibleBounds - this is when useConstraints is true */
 		return applyFullConstraints(imageBounds, visibleBounds);

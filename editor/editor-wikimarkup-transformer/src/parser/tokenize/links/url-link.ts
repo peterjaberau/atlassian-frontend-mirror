@@ -1,10 +1,15 @@
-import { type ContentLink } from './link-parser';
-import { TokenType } from '../index';
-import { type Context } from '../../../interfaces';
-import { isSafeUrl } from '@atlaskit/adf-schema';
+import { isSafeUrl } from '@atlaskit/adf-schema/is-safe-url';
+import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
+
+import type { Context } from '../../../interfaces';
 import { parseString } from '../../text';
 import { hasAnyOfMarks } from '../../utils/text';
-import { type Node as PMNode, type Schema } from '@atlaskit/editor-prosemirror/model';
+import { TokenType } from '../index';
+import type { ContentLink } from './link-parser';
+
+// Ignored via go/ees005
+// eslint-disable-next-line require-unicode-regexp
+const MAILTO_PREFIX_REGEX = /^mailto:/;
 
 export function urlLinkResolver(
 	link: ContentLink,
@@ -32,9 +37,7 @@ export function urlLinkResolver(
 		ignoreTokenTypes,
 		schema,
 		context,
-		// Ignored via go/ees005
-		// eslint-disable-next-line require-unicode-regexp
-		input: textRepresentation.replace(/^mailto:/, ''),
+		input: textRepresentation.replace(MAILTO_PREFIX_REGEX, ''),
 	});
 
 	const decoratedContent = rawContent.map((n) => {

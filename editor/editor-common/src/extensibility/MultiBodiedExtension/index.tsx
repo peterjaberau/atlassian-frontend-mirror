@@ -4,21 +4,27 @@
  * @jsx jsx
  */
 
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 
-// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
+// eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled, @typescript-eslint/consistent-type-imports -- Ignored via go/DSP-18766; jsx required at runtime for @jsxRuntime classic
 import { css, jsx } from '@emotion/react';
+import { bind } from 'bind-event-listener';
 import classnames from 'classnames';
+import { useIntl } from 'react-intl';
 
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
+import type { Selection } from '@atlaskit/editor-prosemirror/state';
 import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import EditorFileIcon from '@atlaskit/icon/core/file';
+import { isExperimentEnabled } from '@atlaskit/platform-feature-experiments/is-experiment-enabled';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import type { EventDispatcher } from '../../event-dispatcher';
 import type { MultiBodiedExtensionActions } from '../../extensions';
 import { useSharedPluginStateWithSelector } from '../../hooks';
+import { placeholderTextMessages } from '../../messages/placeholder-text';
 import type { EditorAppearance, EditorContainerWidth } from '../../types';
 import type { OverflowShadowProps } from '../../ui';
 import {
@@ -27,29 +33,82 @@ import {
 } from '../../ui/MultiBodiedExtension';
 import { calculateBreakoutStyles, getExtensionLozengeData } from '../../utils';
 import ExtensionLozenge from '../Extension/Lozenge';
+import { ExtensionFloatingLabel } from '../Extension/Lozenge/ExtensionFloatingLabel';
 import type { ExtensionsPluginInjectionAPI, MacroInteractionDesignFeatureFlags } from '../types';
 import { shouldExtensionBreakout } from '../utils/should-extension-breakout';
-
 import { useMultiBodiedExtensionActions } from './action-api';
-import { mbeExtensionWrapperCSSStyles, overlayStyles } from './styles';
+import {
+	mbeExtensionWrapperCSSStyles,
+	mbeExtensionWrapperCSSStylesOld,
+	overlayStyles,
+	overlayStylesOld,
+} from './styles';
 
 const getContainerCssExtendedStyles = (
 	activeChildIndex: number,
 	showMacroInteractionDesignUpdates?: boolean,
-) =>
+) => {
+	if (fg('platform_editor_nested_mbe_frames')) {
+		return sharedMultiBodiedExtensionStyles.mbeExtensionContainer;
+	}
+
+	const activeFrameSelector = `.multiBodiedExtension-content-dom-wrapper > [data-extension-frame='true']:nth-of-type(${
+		activeChildIndex + 1
+	})`;
+
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-	css(sharedMultiBodiedExtensionStyles.mbeExtensionContainer, {
-		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-		[`.multiBodiedExtension-content-dom-wrapper > [data-extension-frame='true']:nth-of-type(${
-			activeChildIndex + 1
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
-		})`]: css(
+	return css(sharedMultiBodiedExtensionStyles.mbeExtensionContainer, {
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+		[activeFrameSelector]: css(
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 			sharedMultiBodiedExtensionStyles.extensionFrameContent,
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
 			showMacroInteractionDesignUpdates && removeMarginsAndBorder,
 		),
 	});
+};
+
+const getFramesActiveFrameStyles = (
+	activeChildIndex: number,
+	showMacroInteractionDesignUpdates?: boolean,
+) => {
+	if (!fg('platform_editor_nested_mbe_frames')) {
+		return undefined;
+	}
+
+	const activeFrameSelector = `& > .multiBodiedExtension-content-dom-wrapper > [data-extension-frame='true']:nth-of-type(${
+		activeChildIndex + 1
+	})`;
+
+	return css({
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+		[activeFrameSelector]: css(
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+			sharedMultiBodiedExtensionStyles.extensionFrameContent,
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values, @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+			showMacroInteractionDesignUpdates && removeMarginsAndBorder,
+		),
+	});
+};
+
+// Renders a visual placeholder when the active frame contains a single empty paragraph.
+const getEmptyFramePlaceholderStyles = (activeChildIndex: number, placeholderText: string) => {
+	const activeFramePlaceholderSelector = `& > .multiBodiedExtension-content-dom-wrapper > [data-extension-frame='true']:nth-of-type(${
+		activeChildIndex + 1
+	}) > p:only-child:has(> .ProseMirror-trailingBreak:only-child)::before`;
+
+	return css({
+		// eslint-disable-next-line @atlaskit/ui-styling-standard/no-nested-selectors, @atlaskit/ui-styling-standard/no-unsafe-selectors, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+		[activeFramePlaceholderSelector]: {
+			color: token('color.text.subtlest'),
+			// JSON.stringify produces a quoted and escaped CSS string.
+			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
+			content: placeholderText,
+			pointerEvents: 'none',
+			position: 'absolute',
+		},
+	});
+};
 
 const imageStyles = css({
 	maxHeight: '24px',
@@ -57,6 +116,12 @@ const imageStyles = css({
 });
 
 const hoverStyles = css({
+	'&:hover': {
+		boxShadow: `0 0 0 1px ${token('color.border')}`,
+	},
+});
+
+const hoverStylesOld = css({
 	'&:hover': {
 		boxShadow: `0 0 0 1px ${token('color.border.input')}`,
 	},
@@ -73,6 +138,7 @@ type Props = {
 	eventDispatcher?: EventDispatcher;
 	getPos: () => number | undefined;
 	handleContentDOMRef: (node: HTMLElement | null) => void;
+	hideConfigureLabel?: boolean;
 	isLivePageViewMode?: boolean;
 	isNodeHovered?: boolean;
 	isNodeNested?: boolean;
@@ -96,18 +162,121 @@ interface CustomImageData {
 type ImageData = CustomImageData | undefined;
 
 const MultiBodiedExtensionFrames = ({
+	activeChildIndex,
 	articleRef,
+	emptyFramePlaceholderText,
+	shouldShowEmptyFramePlaceholder,
+	showMacroInteractionDesignUpdates,
 }: {
+	activeChildIndex: number;
 	articleRef: (node: HTMLElement | null) => void;
+	emptyFramePlaceholderText: string;
+	shouldShowEmptyFramePlaceholder: boolean;
+	showMacroInteractionDesignUpdates?: boolean;
 }) => {
 	return (
 		<article
 			// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 			className="multiBodiedExtension--frames"
+			css={[
+				/* eslint-disable @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */
+				getFramesActiveFrameStyles(activeChildIndex, showMacroInteractionDesignUpdates),
+				shouldShowEmptyFramePlaceholder &&
+					getEmptyFramePlaceholderStyles(activeChildIndex, emptyFramePlaceholderText),
+				/* eslint-enable @atlaskit/design-system/consistent-css-prop-usage */
+			]}
 			data-testid="multiBodiedExtension--frames"
+			data-multibodiedextension-frames
 			ref={articleRef}
 		/>
 	);
+};
+
+const isSelectionInsideNode = (
+	selection: Selection | undefined,
+	node: PmNode,
+	getPos: () => number | undefined,
+) => {
+	const nodeStartPosition = getPos();
+
+	if (typeof nodeStartPosition !== 'number' || !selection) {
+		return false;
+	}
+
+	const nodeEndPosition = nodeStartPosition + node.nodeSize;
+
+	/*
+		selection starts within MBE ||
+		selection ends within MBE ||
+		selection includes MBE
+	*/
+	return (
+		(nodeStartPosition < selection.from && selection.from < nodeEndPosition) ||
+		(nodeStartPosition < selection.to && selection.to < nodeEndPosition) ||
+		(nodeStartPosition >= selection.from && selection.to >= nodeEndPosition)
+	);
+};
+
+const useIsSelectionInsideNode = (
+	editorView: EditorView,
+	node: PmNode,
+	getPos: () => number | undefined,
+	enabled: boolean,
+) => {
+	const nodeRef = useRef(node);
+	const [isSelectionInside, setIsSelectionInside] = useState(
+		() => enabled && isSelectionInsideNode(editorView.state.selection, node, getPos),
+	);
+
+	nodeRef.current = node;
+
+	useEffect(() => {
+		if (!enabled) {
+			return;
+		}
+
+		let animationFrameId: number | undefined;
+
+		const updateSelectionInsideNode = () => {
+			setIsSelectionInside(
+				isSelectionInsideNode(editorView.state.selection, nodeRef.current, getPos),
+			);
+		};
+
+		const scheduleUpdateSelectionInsideNode = () => {
+			if (animationFrameId !== undefined) {
+				cancelAnimationFrame(animationFrameId);
+			}
+
+			animationFrameId = requestAnimationFrame(updateSelectionInsideNode);
+		};
+
+		const ownerDocument = editorView.dom.ownerDocument;
+		const unbindSelectionChange = bind(ownerDocument, {
+			listener: scheduleUpdateSelectionInsideNode,
+			type: 'selectionchange',
+		});
+		const unbindKeyUp = bind(editorView.dom, {
+			listener: scheduleUpdateSelectionInsideNode,
+			type: 'keyup',
+		});
+		const unbindMouseUp = bind(editorView.dom, {
+			listener: scheduleUpdateSelectionInsideNode,
+			type: 'mouseup',
+		});
+
+		return () => {
+			if (animationFrameId !== undefined) {
+				cancelAnimationFrame(animationFrameId);
+			}
+
+			unbindSelectionChange();
+			unbindKeyUp();
+			unbindMouseUp();
+		};
+	}, [editorView, getPos, enabled]);
+
+	return enabled && isSelectionInside;
 };
 
 // Similar to the one in platform/packages/editor/editor-common/src/extensibility/Extension/Lozenge.tsx
@@ -165,6 +334,7 @@ const MultiBodiedExtensionWithWidth = ({
 	pluginInjectionApi,
 	isLivePageViewMode,
 	allowBodiedOverride = false,
+	hideConfigureLabel,
 }: PropsWithWidth) => {
 	const { showMacroInteractionDesignUpdates } = macroInteractionDesignFeatureFlags || {};
 	const { parameters, extensionKey } = node.attrs;
@@ -174,6 +344,7 @@ const MultiBodiedExtensionWithWidth = ({
 		extensionKey ||
 		node.type.name;
 	const imageData: ImageData = getExtensionLozengeData({ node, type: 'image' });
+	const { formatMessage } = useIntl();
 
 	const [activeChildIndex, setActiveChildIndex] = useState<number>(0);
 	// Adding to avoid aliasing `this` for the callbacks
@@ -197,9 +368,32 @@ const MultiBodiedExtensionWithWidth = ({
 		[handleContentDOMRef],
 	);
 
+	const shouldShowEmptyFramePlaceholder = isExperimentEnabled('confluence_native_tabs_m15');
+	const emptyFramePlaceholderText = React.useMemo(
+		() =>
+			JSON.stringify(
+				formatMessage(placeholderTextMessages.multiBodiedExtensionEmptyFramePlaceholderText),
+			),
+		[formatMessage],
+	);
+
 	const childrenContainer = React.useMemo(() => {
-		return <MultiBodiedExtensionFrames articleRef={articleRef} />;
-	}, [articleRef]);
+		return (
+			<MultiBodiedExtensionFrames
+				activeChildIndex={activeChildIndex}
+				articleRef={articleRef}
+				emptyFramePlaceholderText={emptyFramePlaceholderText}
+				shouldShowEmptyFramePlaceholder={shouldShowEmptyFramePlaceholder}
+				showMacroInteractionDesignUpdates={showMacroInteractionDesignUpdates}
+			/>
+		);
+	}, [
+		activeChildIndex,
+		articleRef,
+		emptyFramePlaceholderText,
+		shouldShowEmptyFramePlaceholder,
+		showMacroInteractionDesignUpdates,
+	]);
 
 	const actions = useMultiBodiedExtensionActions({
 		updateActiveChild,
@@ -216,26 +410,11 @@ const MultiBodiedExtensionWithWidth = ({
 	}, [tryExtensionHandler, actions]);
 
 	const layout = node.attrs.layout;
-	const legacyShouldBreakout =
-		['full-width', 'wide'].includes(layout) && editorAppearance !== 'full-width';
-	const tinymceFullWidthModeEnabled = expValEquals(
-		'confluence_max_width_content_appearance',
-		'isEnabled',
-		true,
-	);
-	const breakoutExtensionFixEnabled = expValEquals(
-		'confluence_max_width_breakout_extension_fix',
-		'isEnabled',
-		true,
-	);
-	const shouldUseBreakoutFix = tinymceFullWidthModeEnabled && breakoutExtensionFixEnabled;
-	const shouldBreakout = shouldUseBreakoutFix
-		? shouldExtensionBreakout({
-				layout,
-				editorAppearance,
-				isTopLevelNode: true,
-			})
-		: legacyShouldBreakout;
+	const shouldBreakout = shouldExtensionBreakout({
+		layout,
+		editorAppearance,
+		isTopLevelNode: true,
+	});
 
 	let mbeWrapperStyles = {};
 	if (shouldBreakout) {
@@ -247,22 +426,37 @@ const MultiBodiedExtensionWithWidth = ({
 		mbeWrapperStyles = breakoutStyles;
 	}
 
+	const shouldUseUpdatedChrome = expValEquals(
+		'confluence_native_tabs_experiment',
+		'isEnabled',
+		true,
+	);
+	const isSelectionInsideMultiBodiedExtension = useIsSelectionInsideNode(
+		editorView,
+		node,
+		getPos,
+		shouldUseUpdatedChrome && !isLivePageViewMode,
+	);
+	const isMultiBodiedExtensionActive = isNodeSelected || isSelectionInsideMultiBodiedExtension;
+	const shouldShowChromeOnInteraction = isNodeHovered || isMultiBodiedExtensionActive;
+	const shouldShowMultiBodiedExtensionChrome = shouldUseUpdatedChrome
+		? !isLivePageViewMode && shouldShowChromeOnInteraction
+		: true;
+
 	const wrapperClassNames = classnames(
 		'multiBodiedExtension--wrapper',
 		'extension-container',
 		'block',
 		{
-			'with-border': showMacroInteractionDesignUpdates,
+			'with-border': showMacroInteractionDesignUpdates && shouldShowMultiBodiedExtensionChrome,
+			'with-selected-border':
+				showMacroInteractionDesignUpdates &&
+				shouldUseUpdatedChrome &&
+				!isLivePageViewMode &&
+				isNodeSelected,
 			'with-danger-overlay': showMacroInteractionDesignUpdates,
 			'with-padding-background-styles': showMacroInteractionDesignUpdates,
 			'with-margin-styles': showMacroInteractionDesignUpdates && !isNodeNested,
-			'with-hover-border': expValEquals(
-				'cc_editor_ttvc_release_bundle_one',
-				'extensionHoverRefactor',
-				true,
-			)
-				? false
-				: showMacroInteractionDesignUpdates && isNodeHovered,
 		},
 	);
 
@@ -286,12 +480,18 @@ const MultiBodiedExtensionWithWidth = ({
 			setIsNodeHovered(didHover);
 		}
 	};
+	const shouldRenderExtensionLozenge =
+		showMacroInteractionDesignUpdates && !isLivePageViewMode && !shouldUseUpdatedChrome;
+	const shouldRenderFloatingLabel =
+		showMacroInteractionDesignUpdates &&
+		!isLivePageViewMode &&
+		shouldUseUpdatedChrome &&
+		shouldShowChromeOnInteraction;
 
 	return (
 		<Fragment>
-			{showMacroInteractionDesignUpdates && !isLivePageViewMode && (
+			{shouldRenderExtensionLozenge && (
 				<ExtensionLozenge
-					isNodeSelected={isNodeSelected}
 					node={node}
 					showMacroInteractionDesignUpdates={true}
 					customContainerStyles={mbeWrapperStyles}
@@ -300,31 +500,49 @@ const MultiBodiedExtensionWithWidth = ({
 					setIsNodeHovered={setIsNodeHovered}
 					isBodiedMacro={true}
 					pluginInjectionApi={pluginInjectionApi}
+					hideConfigureLabel={hideConfigureLabel}
 				/>
 			)}
 			<div
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 				className={wrapperClassNames}
 				css={[
-					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-					mbeExtensionWrapperCSSStyles,
+					/* eslint-disable @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */
+					shouldUseUpdatedChrome ? mbeExtensionWrapperCSSStyles : mbeExtensionWrapperCSSStylesOld,
+					/* eslint-enable @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage */
 					showMacroInteractionDesignUpdates &&
 						!isLivePageViewMode &&
-						expValEquals('cc_editor_ttvc_release_bundle_one', 'extensionHoverRefactor', true) &&
-						hoverStyles,
+						(shouldUseUpdatedChrome ? hoverStyles : hoverStylesOld),
 				]}
 				data-testid="multiBodiedExtension--wrapper-editor"
 				data-layout={node.attrs.layout}
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				style={mbeWrapperStyles}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 				onMouseEnter={() => handleMouseEvent(true)}
-				// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
+				// @atlassian/a11y/mouse-events-have-key-events: hover border is also applied via .ak-editor-selected-node
+				// CSS on keyboard selection. No-ops here satisfy the rule without duplicating state updates.
+				onFocus={
+					expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+						? () => {}
+						: undefined
+				}
 				onMouseLeave={() => handleMouseEvent(false)}
+				onBlur={
+					expValEquals('editor_a11y__enghealth-46814_fy26', 'isEnabled', true)
+						? () => {}
+						: undefined
+				}
 			>
+				{shouldRenderFloatingLabel && (
+					<ExtensionFloatingLabel
+						title={title}
+						isSelected={isNodeSelected}
+						testId="multiBodiedExtension-floating-label"
+					/>
+				)}
 				<div
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-					css={overlayStyles}
+					css={shouldUseUpdatedChrome ? overlayStyles : overlayStylesOld}
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 					className={overlayClassNames}
 					data-testid="multiBodiedExtension--overlay"
@@ -333,9 +551,13 @@ const MultiBodiedExtensionWithWidth = ({
 				<div
 					// eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
 					className={containerClassNames}
-					// eslint-disable-next-line @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766
-					css={getContainerCssExtendedStyles(activeChildIndex, showMacroInteractionDesignUpdates)}
+					css={[
+						/* eslint-disable @atlaskit/design-system/consistent-css-prop-usage -- Ignored via go/DSP-18766 */
+						getContainerCssExtendedStyles(activeChildIndex, showMacroInteractionDesignUpdates),
+						/* eslint-enable @atlaskit/design-system/consistent-css-prop-usage */
+					]}
 					data-testid="multiBodiedExtension--container"
+					data-multiBodiedExtension-container
 					data-active-child-index={activeChildIndex}
 				>
 					{allowBodiedOverride ? (
@@ -367,7 +589,7 @@ const MultiBodiedExtensionWithWidth = ({
 	);
 };
 
-const MultiBodiedExtension = (props: Props & OverflowShadowProps) => {
+const MultiBodiedExtension = (props: Props & OverflowShadowProps): jsx.JSX.Element => {
 	const { pluginInjectionApi } = props;
 	const { width, lineLength } = useSharedPluginStateWithSelector(
 		pluginInjectionApi,

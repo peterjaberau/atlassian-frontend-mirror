@@ -1,29 +1,26 @@
 import React, { useCallback, useState } from 'react';
 
-import { defineMessages, useIntl } from 'react-intl-next';
+import { defineMessages, useIntl } from 'react-intl';
 
-import { useAnalyticsEvents } from '@atlaskit/analytics-next';
-import Button from '@atlaskit/button/new';
+import Button from '@atlaskit/button/default/button';
 import { cssMap } from '@atlaskit/css';
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 import { Box, Inline } from '@atlaskit/primitives/compiled';
-import { ChatPillIcon } from '@atlaskit/rovo-agent-components/common/ui/ChatIcon';
 import { AgentDropdownMenu } from '@atlaskit/rovo-agent-components/ui/AgentDropdownMenu';
-import { useAnalyticsEvents as useAnalyticsEventsNext } from '@atlaskit/teams-app-internal-analytics';
+import { useAnalyticsEvents } from '@atlaskit/teams-app-internal-analytics/use-analytics-events';
+import { expValEquals } from '@atlaskit/tmp-editor-statsig/exp-val-equals';
 import { token } from '@atlaskit/tokens';
 
 import { type ProfileClient, type RovoAgentProfileCardInfo } from '../../types';
-import { fireEvent } from '../../util/analytics';
-
 import { AgentDeleteConfirmationModal } from './AgentDeleteConfirmationModal';
 
 type AgentActionsProps = {
 	agent: RovoAgentProfileCardInfo;
 	onEditAgent: () => void;
 	onCopyAgent: () => void;
-	onDuplicateAgent: () => void;
+	onDuplicateAgent: () => Promise<void>;
 	onDeleteAgent: () => void;
-	onChatClick: (event: React.MouseEvent) => void;
+	onChatClick: (event: React.MouseEvent, agentStudioId?: string) => void;
 	onViewFullProfileClick: () => void;
 	resourceClient: ProfileClient;
 	hideMoreActions?: boolean;
@@ -39,25 +36,19 @@ const styles = cssMap({
 		fontWeight: token('font.weight.medium'),
 		height: '20px',
 	},
-	chatPillButtonInlineStyles: { paddingInline: token('space.025') },
 	chatPillTextStyles: {
 		wordBreak: 'break-word',
 		textAlign: 'left',
 		whiteSpace: 'pre-wrap',
 	},
-	chatPillIconWrapper: { minWidth: '20px', height: '20px' },
 	actionsWrapperStyles: {
-		borderTopStyle: 'solid',
-		borderWidth: token('border.width'),
-		borderColor: token('color.border'),
 		paddingTop: token('space.200'),
-		paddingRight: token('space.200'),
-		paddingBottom: token('space.200'),
-		paddingLeft: token('space.200'),
-		marginBlockStart: token('space.200'),
+		paddingRight: token('space.150'),
+		paddingBottom: token('space.150'),
+		paddingLeft: token('space.150'),
 		color: token('color.text'),
 	},
-	actionsWrapperStylesRefresh: {
+	actionsWrapperStylesLegacy: {
 		paddingTop: token('space.150'),
 		paddingRight: token('space.150'),
 		paddingBottom: token('space.150'),
@@ -78,53 +69,42 @@ export const AgentActions = ({
 	hideMoreActions,
 }: AgentActionsProps): React.JSX.Element => {
 	const { formatMessage } = useIntl();
-	const { createAnalyticsEvent } = useAnalyticsEvents();
-	const { fireEvent: fireEventNext } = useAnalyticsEventsNext();
+	const { fireEvent } = useAnalyticsEvents();
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const isForgeAgent = agent.creator_type === 'FORGE' || agent.creator_type === 'THIRD_PARTY';
 
 	const loadAgentPermissions = useCallback(async () => {
 		const {
-			permissions: { AGENT_CREATE, AGENT_UPDATE, AGENT_DEACTIVATE },
+			permissions: { AGENT_CREATE, AGENT_DUPLICATE, AGENT_UPDATE, AGENT_DEACTIVATE },
 		} = await resourceClient.getRovoAgentPermissions(agent.id);
 
 		return {
 			isCreateEnabled: AGENT_CREATE.permitted,
+			isDuplicateEnabled: AGENT_DUPLICATE.permitted,
 			isEditEnabled: AGENT_UPDATE.permitted,
 			isDeleteEnabled: AGENT_DEACTIVATE.permitted,
 		};
 	}, [agent.id, resourceClient]);
 
 	const handleDeleteAgent = useCallback(() => {
-		if (fg('ptc-enable-profile-card-analytics-refactor')) {
-			fireEventNext('ui.button.clicked.deleteAgentButton', {
-				agentId: agent.id,
-				source: 'agentProfileCard',
-			});
-		} else {
-			fireEvent(createAnalyticsEvent, {
-				action: 'clicked',
-				actionSubject: 'button',
-				actionSubjectId: 'deleteAgentButton',
-				attributes: {
-					agentId: agent.id,
-					source: 'agentProfileCard',
-				},
-			});
-		}
+		fireEvent('ui.button.clicked.deleteAgentButton', {
+			agentId: agent.id,
+			source: 'agentProfileCard',
+		});
 
 		setIsDeleteModalOpen(true);
-	}, [agent.id, createAnalyticsEvent, fireEventNext]);
+	}, [agent.id, fireEvent]);
 
 	return (
 		<>
 			<Inline
 				space="space.100"
 				xcss={
-					fg('rovo_agent_empty_state_refresh')
-						? styles.actionsWrapperStylesRefresh
-						: styles.actionsWrapperStyles
+					expValEquals('platform_editor_agent_mentions', 'isEnabled', true) &&
+					fg('platform_editor_agent_mentions_drop_one_fixes')
+						? styles.actionsWrapperStyles
+						: styles.actionsWrapperStylesLegacy
 				}
 			>
 				<Box xcss={styles.chatToAgentButtonContainer}>
@@ -136,18 +116,7 @@ export const AgentActions = ({
 						}}
 					>
 						<Box xcss={styles.chatToAgentButtonWrapper}>
-							<Inline
-								space="space.050"
-								xcss={
-									fg('rovo_agent_empty_state_refresh') ? null : styles.chatPillButtonInlineStyles
-								}
-								alignBlock="center"
-							>
-								{!fg('rovo_agent_empty_state_refresh') && (
-									<Box xcss={styles.chatPillIconWrapper}>
-										<ChatPillIcon />
-									</Box>
-								)}
+							<Inline space="space.050" alignBlock="center">
 								<Box xcss={styles.chatPillTextStyles}>
 									{formatMessage(messages.actionChatToAgent)}
 								</Box>

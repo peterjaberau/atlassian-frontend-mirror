@@ -1,5 +1,613 @@
 # @atlaskit/link-picker
 
+## 6.10.0
+
+### Minor Changes
+
+- [`48ee35bbf1e1b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/48ee35bbf1e1b) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.3
+
+### Patch Changes
+
+- [`45fa1ee658153`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/45fa1ee658153) -
+  NAVX-5378 Adding role tabpanel to link picker tab panels
+- Updated dependencies
+
+## 6.9.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.9.0
+
+### Minor Changes
+
+- [`69cbbe9ee0f63`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/69cbbe9ee0f63) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.8.0
+
+### Minor Changes
+
+- [`942e8a15cbdf1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/942e8a15cbdf1) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.7.2
+
+### Patch Changes
+
+- [`6dac09d559c6d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/6dac09d559c6d) -
+  Remove incorrect footer semantics from LinkPicker form actions behind gate
+  `platform_navx_fix_nested_footer_landmark`.
+
+## 6.7.1
+
+### Patch Changes
+
+- [`0927c3666c010`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0927c3666c010) -
+  Upgrade `uuid` from `3.x` to `11.1.1` to remediate GHSA-w5hq-g745-h8pq / SNYK-JS-UUID-16133035.
+
+  `uuid@11` removed the deep subpath exports (`uuid/v4`, `uuid/v1`, `uuid/v5`) and the default
+  export, so all internal call sites were migrated to named imports:
+
+  ```diff
+  -import uuid from 'uuid/v4';
+  +import { v4 as uuid } from 'uuid';
+
+  -import uuid from 'uuid';
+  +import { v4 as uuid } from 'uuid';
+  ```
+
+  With the exception of `@atlassian/integrations` (below), this is an internal implementation change
+  only - no public API, export, or entrypoint changed. UUID generation behaviour is unchanged
+  (`uuid@3`'s default export was already `v4`).
+
+  `@atlassian/integrations` declares `uuid` as a peer dependency, so its declared range moved from
+  `^3.1.0` to `^11.1.1`. That is a peer dependency declaration change, hence `minor` rather than
+  `patch` for that package.
+
+  The following `platform/packages/ai-mate` packages were also touched, but are all `private: true`
+  and so are intentionally not listed in the frontmatter above:
+  - `@atlassian/csm-assistance-service` - bumped its explicit `uuid` dependency from `npm:^9.0.0` to
+    `npm:^11.1.1` (`9.0.1` is also within the advisory's affected range).
+  - `@atlassian/csm-guidance-config` - example helper only, migrated to the named `uuid` import.
+  - `@atlassian/csm-ui-components` - example helper only, migrated to the named `uuid` import.
+
+- Updated dependencies
+
+## 6.7.0
+
+### Minor Changes
+
+- [`0a39ae0f69a25`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0a39ae0f69a25) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.6.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.5.0
+
+### Minor Changes
+
+- [`d82e6f76528ab`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/d82e6f76528ab) -
+  Add direct subpath package exports as part of the linking-platform, search, media, and
+  design-system barrel-removal (de-barrel) migration.
+
+  These packages now expose their individual modules via explicit `package.json` `exports` subpaths
+  so that consumers can import directly from the leaf module (e.g. `@atlaskit/pkg/thing`) instead of
+  the package barrel/index. This adds new public entry points without changing or removing any
+  existing exports, so it is a backwards-compatible additive change.
+
+  No runtime behaviour changes; this is an API-surface (entry-point) addition to support
+  tree-shaking and to unblock removal of the barrel index files.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.0
+
+### Minor Changes
+
+- [`4fd26afe1912d`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4fd26afe1912d) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.3.0
+
+### Minor Changes
+
+- [`7f2eb99bad9b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7f2eb99bad9b3) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.7
+
+### Patch Changes
+
+- [`9e5ea24ca5c66`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9e5ea24ca5c66) -
+  Fix no-results and error state text overflow when LinkPicker is inside a Popup with
+  shouldRenderToParent, caused by inherited white-space: nowrap from ancestor container
+- Updated dependencies
+
+## 6.2.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.3
+
+### Patch Changes
+
+- [`b1cf9e336f0f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b1cf9e336f0f0) -
+  Migrate consumers of @atlaskit/atlassian-context from barrel imports to direct subpath imports,
+  and remove the deprecated `./domain-lookup`, `./generalized-domain-lookup`, and `./perimeter`
+  entry-point exports (all symbols remain available via their per-export subpaths).
+
+  Also extends the `no-restricted-fedramp-imports` ESLint rule to cover the new
+  `@atlaskit/atlassian-context/is-fedramp` and `@atlaskit/atlassian-context/is-isolated-cloud`
+  subpaths, so the FedRamp/IsolatedCloud deprecation guardrail keeps firing after the migration.
+
+- [`f2ec2ee8b495e`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2ec2ee8b495e) -
+  Update `@atlaskit/spotlight` imports to use de-barrelled entry-points.
+- Updated dependencies
+
+## 6.2.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.2.1
+
+### Patch Changes
+
+- [`c444cbe1f2607`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c444cbe1f2607) -
+  NAVX-5116 cleaning up link picker focus state fg
+- Updated dependencies
+
+## 6.2.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.1.0
+
+### Minor Changes
+
+- [`672d0051b370b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/672d0051b370b) -
+  Add disableManualUrlInsert prop to disable the Insert button when a URL is typed but no search
+  result is selected
+
+  Fix bug where stale search results could enable the Insert button during an in-flight request or
+  error state when disableManualUrlInsert is true. The isLoading and error guards are now checked
+  before the disableManualUrlInsert block under the add-disable-manual-url-capability-technical
+  feature gate. The disableManualUrlInsert prop is also gated at the call site in
+  LinkPickerSubmitButton for additional safety.
+
+## 6.0.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.4
+
+### Patch Changes
+
+- [`027beb2f61316`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/027beb2f61316) -
+  Update smart link appearance, if and only if smart link is created from confluence editor quick
+  insert menu
+
+## 5.3.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.3.0
+
+### Minor Changes
+
+- [`fbb51c73ed426`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/fbb51c73ed426) -
+  Update i18n NPM package versions for linking-platform,smart-experiences (Group 15)
+
+### Patch Changes
+
+- [`cf3ee6a99c051`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cf3ee6a99c051) -
+  [ux] NAVX-4104 fixing the error focus state for link picker
+- Updated dependencies
+
+## 5.2.1
+
+### Patch Changes
+
+- [`c7fb2b6201353`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c7fb2b6201353) -
+  Wrap ErrorMessage/HelperMessage with MessageWrapper in linking-platform packages to improve
+  assistive technology support. Production code changes (link-datasource, link-picker, smart-card
+  source files) are gated behind feature flag `platform_navx_3298_message_wrapper`. The example file
+  `load-link-form.tsx` applies MessageWrapper unconditionally, as example files do not ship to
+  production and are not subject to feature-gating requirements.
+- Updated dependencies
+
+## 5.2.0
+
+### Minor Changes
+
+- [`71166a02faaa1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/71166a02faaa1) -
+  Mark barrel exports as deprecated and add new entry points:
+  - @atlaskit/link-picker/errors
+  - @atlaskit/link-picker/lazy
+  - @atlaskit/link-picker/loader-fallback
+  - @atlaskit/link-picker/types
+  - @atlaskit/link-picker/ui
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.7
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.6
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.5
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.4
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.3
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.1.2
+
+### Patch Changes
+
+- [`4b2ced38a9cf3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4b2ced38a9cf3) -
+  FG Cleanup navx-4548-migrate-to-atlaskit-spotlight
+- Updated dependencies
+
+## 5.1.1
+
+### Patch Changes
+
+- [`01bfb2823034b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/01bfb2823034b) -
+  Expands automatic accessibility (a11y) Playwright test coverage for Platform
+- Updated dependencies
+
+## 5.1.0
+
+### Minor Changes
+
+- [`c4f985702c3d5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c4f985702c3d5) -
+  Remove flag to increase accessibility in links.
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.1
+
+### Patch Changes
+
+- Updated dependencies
+
+## 5.0.0
+
+### Major Changes
+
+- [`9f6bcd21611f3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/9f6bcd21611f3) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+### Patch Changes
+
+- [`94e6e464e09a2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/94e6e464e09a2) -
+  NAVX-4548: Migrate @atlaskit/onboarding to @atlaskit/spotlight in link-picker behind feature flag
+- Updated dependencies
+
+## 4.2.24
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.23
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.22
+
+### Patch Changes
+
+- [`3b4f9743f0c18`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3b4f9743f0c18) -
+  Enrol navigation and linking-platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform.
+- Updated dependencies
+
+## 4.2.21
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.20
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.19
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.18
+
+### Patch Changes
+
+- [`93a66599141af`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/93a66599141af) -
+  Internal changes to remove unnecessary token fallbacks and imports from `@atlaskit/theme`
+- Updated dependencies
+
+## 4.2.17
+
+### Patch Changes
+
+- [`b9af0df8e1dae`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/b9af0df8e1dae) -
+  NAVX-3975 cleaning up navx-3332-update-link-picker-heading-levels
+- Updated dependencies
+
+## 4.2.16
+
+### Patch Changes
+
+- [`5dbae6055bb27`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5dbae6055bb27) -
+  NAVX-36742 cleaning up navx-3742-refactoring-link-picker-helper-text-a11y
+- Updated dependencies
+
+## 4.2.15
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.14
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.13
+
+### Patch Changes
+
+- [`1d0fcc9c19260`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/1d0fcc9c19260) -
+  Add Confluence-only link picker for knowledge source in JSM Journey Builder, gated behind
+  jsm_journey_confluence_only_knowledge feature flag. Add insertInlineCard method to
+  useEditorPlaceholder. Add alwaysShowTabs prop to LinkPicker.
+
+## 4.2.12
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.11
+
+### Patch Changes
+
+- Updated dependencies
+
+## 4.2.10
+
+### Patch Changes
+
+- [`0f1cfed063364`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/0f1cfed063364) -
+  NAVX-3742 Refactoring link picker helper message for text fields to be read by screen readers for
+  a11y
+
+## 4.2.9
+
+### Patch Changes
+
+- [`8d357ee3705c1`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8d357ee3705c1) -
+  [ux] NAVX-3332 updating link-picker headings to be h3 for a11y
+- Updated dependencies
+
+## 4.2.8
+
+### Patch Changes
+
+- Updated dependencies
+
 ## 4.2.7
 
 ### Patch Changes

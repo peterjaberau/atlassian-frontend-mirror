@@ -1,9 +1,12 @@
-import Button from '@atlaskit/button/new';
-import ModalDialog, { ModalBody } from '@atlaskit/modal-dialog';
-import { token } from '@atlaskit/tokens';
 import React, { useState } from 'react';
+
+import Button from '@atlaskit/button/default/button';
+import ModalBody from '@atlaskit/modal-dialog/modal-body';
+import ModalDialog from '@atlaskit/modal-dialog/modal-dialog';
+import { token } from '@atlaskit/tokens';
+
 import { ExampleWrapper } from '../example-helpers/ExampleWrapper';
-import UserPicker from '../src';
+import { UserPicker } from '../src/components/UserPicker';
 
 const closeMenuOnScroll: EventListener = () => {
 	return true;
@@ -28,7 +31,7 @@ const Example = (): React.JSX.Element => {
 			<Button onClick={() => setIsOpened(!isOpened)}>Show Modal</Button>
 			{isOpened && (
 				<ModalDialog width="x-large" height="40vh">
-					<h2 style={{ padding: `${token('space.150', '12px')}` }}>User picker in Modal</h2>
+					<h2 style={{ padding: `${token('space.150')}` }}>User picker in Modal</h2>
 					<ModalBody>
 						<ExampleWrapper>
 							{({ options, onInputChange }) => (

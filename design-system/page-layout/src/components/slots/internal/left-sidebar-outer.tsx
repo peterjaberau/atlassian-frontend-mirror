@@ -2,12 +2,22 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { forwardRef, type ForwardRefExoticComponent, type MouseEventHandler, type ReactNode, type Ref, type RefAttributes, useContext } from 'react';
+import {
+	forwardRef,
+	type ForwardRefExoticComponent,
+	type MouseEventHandler,
+	type ReactNode,
+	type Ref,
+	type RefAttributes,
+	useContext,
+} from 'react';
 
 // eslint-disable-next-line @atlaskit/ui-styling-standard/use-compiled -- Ignored via go/DSP-18766
 import { css, jsx } from '@emotion/react';
 
-import { easeOut, prefersReducedMotion } from '@atlaskit/motion';
+import { easeOut } from '@atlaskit/motion/curves';
+import { prefersReducedMotion } from '@atlaskit/motion/utils/accessibility';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import { UNSAFE_media } from '@atlaskit/primitives/responsive';
 import { token } from '@atlaskit/tokens';
 
@@ -19,10 +29,9 @@ import {
 	MOBILE_COLLAPSED_LEFT_SIDEBAR_WIDTH,
 	TRANSITION_DURATION,
 } from '../../../common/constants';
+import { getPageLayoutSlotSelector } from '../../../common/get-page-layout-slot-selector';
 import { useIsSidebarDragging } from '../../../common/hooks';
-import { getPageLayoutSlotSelector } from '../../../common/utils';
 import { SidebarResizeContext } from '../../../controllers';
-
 import SlotFocusRing from './slot-focus-ring';
 
 type LeftSidebarOuterProps = {
@@ -68,7 +77,7 @@ const outerStyles = css({
 	width: LEFT_SIDEBAR_WIDTH,
 	position: 'relative',
 	zIndex: 1,
-	marginInlineStart: token('space.0', '0px'),
+	marginInlineStart: token('space.0'),
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values, @atlaskit/ui-styling-standard/no-unsafe-values -- Ignored via go/DSP-18766
 	transition: `width ${TRANSITION_DURATION}ms ${easeOut} 0s`,
 	// eslint-disable-next-line @atlaskit/ui-styling-standard/no-unsafe-selectors -- Ignored via go/DSP-18766
@@ -173,7 +182,9 @@ const LeftSidebarOuterComponent = (
 	);
 };
 
-const LeftSidebarOuter: ForwardRefExoticComponent<LeftSidebarOuterProps & RefAttributes<HTMLDivElement>> = forwardRef(LeftSidebarOuterComponent);
+const LeftSidebarOuter: ForwardRefExoticComponent<
+	LeftSidebarOuterProps & RefAttributes<HTMLDivElement>
+> = forwardRef(LeftSidebarOuterComponent);
 
 // eslint-disable-next-line @repo/internal/react/require-jsdoc
 export default LeftSidebarOuter;

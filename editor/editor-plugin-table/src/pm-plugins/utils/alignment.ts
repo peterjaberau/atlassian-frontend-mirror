@@ -1,4 +1,4 @@
-import type { TableLayout } from '@atlaskit/adf-schema';
+import type { Layout as TableLayout } from '@atlaskit/adf-schema/tableNodes';
 import type { Node as PmNode } from '@atlaskit/editor-prosemirror/model';
 
 import type { AlignmentOptions } from '../../types';
@@ -25,9 +25,9 @@ export const shouldChangeAlignmentToCenterResized = (
 ): boolean =>
 	Boolean(
 		isTableAlignmentEnabled &&
-			tableNode &&
-			tableNode.attrs.layout === ALIGN_START &&
-			lineLength &&
-			updatedTableWidth > lineLength &&
-			lineLength < FULL_WIDTH_EDITOR_CONTENT_WIDTH,
+		tableNode &&
+		tableNode.attrs.layout === ALIGN_START &&
+		lineLength &&
+		updatedTableWidth > lineLength &&
+		lineLength < FULL_WIDTH_EDITOR_CONTENT_WIDTH,
 	);

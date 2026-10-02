@@ -1,11 +1,11 @@
-import { fg } from '@atlaskit/platform-feature-flags';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
 
 import { type RevisionPayloadEntry } from '../../common/vc/types';
-import { isVCRevisionEnabled } from '../../config';
+import { getSelectorConfig, isVCRevisionEnabled } from '../../config';
+import { sanitizeLabelStackName } from '../../create-payload/common/utils/sanitize-label-stack-name';
 import { getActiveInteraction } from '../../interaction-metrics';
 import type { SearchPageConfig } from '../types';
 import { SSRPlaceholderHandlers } from '../vc-observer/observers/ssr-placeholders';
-
 import EntriesTimeline from './entries-timeline';
 import getElementName, { type SelectorConfig } from './get-element-name';
 import VCCalculator_FY25_03 from './metric-calculator/fy25_03';
@@ -16,6 +16,7 @@ import VCCalculator_Next from './metric-calculator/vc-next';
 import RawDataHandler from './raw-data-handler';
 import type { VCObserverGetVCResultParam, VCObserverLabelStacks, ViewportEntryData } from './types';
 import ViewportObserver from './viewport-observer';
+import type { AttributeMutationData, MutationDataWithTimestamp } from './viewport-observer/types';
 import WindowEventObserver from './window-event-observer';
 
 export type VCObserverNewConfig = {
@@ -25,6 +26,7 @@ export type VCObserverNewConfig = {
 		enablePageLayoutPlaceholder?: boolean;
 	};
 	ssrPlaceholderHandler?: SSRPlaceholderHandlers | null;
+	trackLayoutShiftOffenders?: boolean;
 	searchPageConfig?: SearchPageConfig;
 };
 
@@ -51,12 +53,7 @@ const DEFAULT_SELECTOR_CONFIG = {
 	dataVC: true,
 };
 
-let hasAbortingEventDuringSSR = false;
-
-export function getHasAbortingEventDuringSSR() {
-	return hasAbortingEventDuringSSR;
-}
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export default class VCObserverNew {
 	private selectorConfig: SelectorConfig;
 	private viewportObserver: ViewportObserver | null = null;
@@ -64,6 +61,7 @@ export default class VCObserverNew {
 
 	private entriesTimeline: EntriesTimeline;
 	private isPostInteraction: boolean;
+	private trackLayoutShiftOffenders: boolean;
 
 	// SSR related properties
 	private ssrPlaceholderHandler: SSRPlaceholderHandlers | null = null;
@@ -78,7 +76,14 @@ export default class VCObserverNew {
 		this.entriesTimeline = new EntriesTimeline();
 		this.isPostInteraction = config.isPostInteraction ?? false;
 
-		this.selectorConfig = config.selectorConfig ?? DEFAULT_SELECTOR_CONFIG;
+		// Selector-config resolution is centralised in `getSelectorConfig()`
+		// (`../../config`). It applies the FedRAMP all-`false` override when
+		// `isFedrampModerate()` is true; otherwise it returns `caller-override
+		// → setUFOConfig value → historical default`.
+		this.selectorConfig =
+			getSelectorConfig(config.selectorConfig, DEFAULT_SELECTOR_CONFIG) ??
+			config.selectorConfig ??
+			DEFAULT_SELECTOR_CONFIG;
 
 		// Use shared SSR placeholder handler if provided, otherwise create new one if feature flag is enabled
 		if (config.ssrPlaceholderHandler) {
@@ -88,6 +93,8 @@ export default class VCObserverNew {
 				enablePageLayoutPlaceholder: config.SSRConfig?.enablePageLayoutPlaceholder ?? false,
 			});
 		}
+
+		this.trackLayoutShiftOffenders = config.trackLayoutShiftOffenders ?? false;
 
 		this.viewportObserver = new ViewportObserver({
 			onChange: (onChangeArg) => {
@@ -105,9 +112,10 @@ export default class VCObserverNew {
 					rect,
 					previousRect,
 					visible,
-					attributeName: mutationData?.attributeName,
-					oldValue: mutationData?.oldValue,
-					newValue: mutationData?.newValue,
+					attributeName: (mutationData as AttributeMutationData)?.attributeName,
+					oldValue: (mutationData as AttributeMutationData)?.oldValue,
+					newValue: (mutationData as AttributeMutationData)?.newValue,
+					originalMutationTimestamp: (mutationData as MutationDataWithTimestamp)?.timestamp,
 				};
 
 				if (element) {
@@ -126,10 +134,11 @@ export default class VCObserverNew {
 			getSSRState: () => this.getSSRState(),
 			getSSRPlaceholderHandler: () => this.getSSRPlaceholderHandler(),
 			searchPageConfig: config.searchPageConfig,
+			trackLayoutShiftOffenders: this.trackLayoutShiftOffenders,
 		});
 
 		this.windowEventObserver = new WindowEventObserver({
-			onEvent: ({ time, type }) => {
+			onEvent: ({ time, type, event }) => {
 				// Don't abort press interactions on keydown events, as keydown is expected
 				// when users press Enter/Space to activate buttons or other interactive elements
 				if (type === 'keydown' && fg('platform_ufo_keypress_interaction_abort')) {
@@ -138,11 +147,21 @@ export default class VCObserverNew {
 						return;
 					}
 				}
+
+				const abortEventTargetElement =
+					isAbortEventTargetSupported(type) && event
+						? getAbortEventTargetElement(event.target)
+						: null;
+				const elementName = abortEventTargetElement
+					? this.getElementName(abortEventTargetElement)
+					: undefined;
+
 				this.entriesTimeline.push({
 					time,
 					data: {
 						type: 'window:event',
 						eventType: type,
+						...(elementName ? { elementName } : {}),
 					},
 				});
 			},
@@ -160,56 +179,28 @@ export default class VCObserverNew {
 
 		this.viewportObserver?.start();
 
-		if (fg('ufo_fix_aborting_interaction_detection_during_ssr')) {
-			this.entriesTimeline.clear();
+		this.entriesTimeline.clear();
 
-			if (window?.__SSR_ABORT_LISTENERS__) {
-				const abortListeners = window.__SSR_ABORT_LISTENERS__;
+		if (window?.__SSR_ABORT_LISTENERS__) {
+			const abortListeners = window.__SSR_ABORT_LISTENERS__;
 
-				const aborts = abortListeners.aborts;
-				if (aborts && typeof aborts === 'object') {
-					Object.entries(aborts).forEach(([key, time]) => {
-						if (typeof time === 'number') {
-							this.entriesTimeline.push({
-								time,
-								data: {
-									type: 'window:event',
-									eventType: key as 'wheel' | 'keydown' | 'resize',
-								},
-							});
-						}
-					});
-				}
+			const aborts = abortListeners.aborts;
+			if (aborts && typeof aborts === 'object') {
+				Object.entries(aborts).forEach(([key, time]) => {
+					if (typeof time === 'number') {
+						this.entriesTimeline.push({
+							time,
+							data: {
+								type: 'window:event',
+								eventType: key as 'wheel' | 'keydown' | 'resize',
+							},
+						});
+					}
+				});
 			}
-
-			this.windowEventObserver?.start();
-		} else {
-			if (window?.__SSR_ABORT_LISTENERS__) {
-				const abortListeners = window.__SSR_ABORT_LISTENERS__;
-
-				const aborts = abortListeners.aborts;
-				if (aborts && typeof aborts === 'object') {
-					Object.entries(aborts).forEach(([key, time]) => {
-						if (typeof time === 'number') {
-							this.entriesTimeline.push({
-								time,
-								data: {
-									type: 'window:event',
-									eventType: key as 'wheel' | 'keydown' | 'resize',
-								},
-							});
-
-							if (fg('ufo_detect_aborting_interaction_during_ssr')) {
-								hasAbortingEventDuringSSR = true;
-							}
-						}
-					});
-				}
-			}
-
-			this.windowEventObserver?.start();
-			this.entriesTimeline.clear();
 		}
+
+		this.windowEventObserver?.start();
 	}
 
 	stop(): void {
@@ -283,7 +274,6 @@ export default class VCObserverNew {
 			include3p,
 			includeSSRRatio,
 			excludeSmartAnswersInSearch,
-			includeRawData,
 			rawDataStopTime,
 		} = param;
 		const results: RevisionPayloadEntry[] = [];
@@ -311,6 +301,7 @@ export default class VCObserverNew {
 					includeSSRRatio,
 					isPageVisible,
 					interactionAbortReason,
+					reportLayoutShiftOffenders: this.trackLayoutShiftOffenders,
 				})
 			: null;
 
@@ -338,10 +329,13 @@ export default class VCObserverNew {
 			includeSSRRatio,
 			isPageVisible,
 			interactionAbortReason,
+			reportLayoutShiftOffenders: this.trackLayoutShiftOffenders,
 		};
 
+		const isFy2604Enabled = isVCRevisionEnabled('fy26.04');
+
 		const [fy26_04, vcNext] = await Promise.all([
-			isVCRevisionEnabled('fy26.04') ? calculator_fy26_04.calculate(calculatorParams) : null,
+			isFy2604Enabled ? calculator_fy26_04.calculate(calculatorParams) : null,
 			isVCRevisionEnabled('next') ? calculator_next.calculate(calculatorParams) : null,
 		]);
 
@@ -355,30 +349,30 @@ export default class VCObserverNew {
 
 		const feVCCalculationEndTime = performance.now();
 
-		if (includeRawData && fg('platform_ufo_enable_vc_raw_data')) {
-			const rawVCCalculationStartTime = performance.now();
-			const rawHandler = new RawDataHandler();
-			// Use rawDataStopTime (end3p) when available to capture observations during 3p holds
-			const rawStopTime = rawDataStopTime ?? stop;
-			const rawOrderedEntries = rawDataStopTime
-				? this.entriesTimeline.getOrderedEntries({ start, stop: rawStopTime })
-				: orderedEntries;
-			const raw = await rawHandler.getRawData({
-				entries: rawOrderedEntries,
-				startTime: start,
-				stopTime: rawStopTime,
-				isPageVisible,
-			});
-			results.forEach((result) => {
-				delete result.vcDetails;
-				delete result.ratios;
-			});
+		// Always include raw data so the server can recalculate metrics
+		// (ssrRatio, labelStacks, speedIndex) from raw observations.
+		const rawVCCalculationStartTime = performance.now();
+		const rawHandler = new RawDataHandler();
+		// Use rawDataStopTime (end3p) when available to capture observations during 3p holds
+		const rawStopTime = rawDataStopTime ?? stop;
+		const rawOrderedEntries = rawDataStopTime
+			? this.entriesTimeline.getOrderedEntries({ start, stop: rawStopTime })
+			: orderedEntries;
+		const raw = await rawHandler.getRawData({
+			entries: rawOrderedEntries,
+			startTime: start,
+			stopTime: rawStopTime,
+			isPageVisible,
+		});
+		results.forEach((result) => {
+			delete result.vcDetails;
+			delete result.ratios;
+		});
 
-			if (raw) {
-				raw.rawVCTime = Number((performance.now() - rawVCCalculationStartTime).toFixed(2));
-				raw.feVCTime = Number((feVCCalculationEndTime - feVCCalculationStartTime).toFixed(2));
-				results.push(raw);
-			}
+		if (raw) {
+			raw.rawVCTime = Number((performance.now() - rawVCCalculationStartTime).toFixed(2));
+			raw.feVCTime = Number((feVCCalculationEndTime - feVCCalculationStartTime).toFixed(2));
+			results.push(raw);
 		}
 		return results;
 	}
@@ -434,7 +428,7 @@ function labelStackFromFiber(fiber: ReactFiberType): { name: string; segmentId?:
 }
 
 function labelStackToString(labelStack: { name: string; segmentId?: string }[]): string {
-	return labelStack.map((label) => label.name).join('/');
+	return labelStack.map((label) => sanitizeLabelStackName(label.name)).join('/');
 }
 
 function labelStackToSegment(labelStack: { name: string; segmentId?: string }[]): string {
@@ -447,7 +441,7 @@ function labelStackToSegment(labelStack: { name: string; segmentId?: string }[])
 	}
 	return labelStack
 		.slice(0, segmentIndex + 1)
-		.map((label) => label.name)
+		.map((label) => sanitizeLabelStackName(label.name))
 		.join('/');
 }
 
@@ -479,4 +473,40 @@ function getLabelStacks(element: HTMLElement): VCObserverLabelStacks | null {
 	}
 	const fiber = (element as any)[reactFiberKey] as ReactFiberType | undefined;
 	return fiber ? traverseFiber(fiber) : null;
+}
+
+const SUPPORTED_ABORT_EVENT_TARGET_TYPES = new Set(['scroll-container', 'scroll', 'wheel']);
+
+function isAbortEventTargetSupported(type: string): boolean {
+	return SUPPORTED_ABORT_EVENT_TARGET_TYPES.has(type);
+}
+
+function getAbortEventTargetElement(target: EventTarget | null): HTMLElement | null {
+	if (target instanceof HTMLElement) {
+		return target;
+	}
+
+	if (target instanceof Document) {
+		const scrollingElement = target.scrollingElement;
+		if (scrollingElement instanceof HTMLElement) {
+			return scrollingElement;
+		}
+
+		return target.documentElement ?? null;
+	}
+
+	if (target instanceof Window) {
+		const scrollingElement = target.document.scrollingElement;
+		if (scrollingElement instanceof HTMLElement) {
+			return scrollingElement;
+		}
+
+		return target.document.documentElement ?? null;
+	}
+
+	if (target instanceof Node) {
+		return target.parentElement;
+	}
+
+	return null;
 }

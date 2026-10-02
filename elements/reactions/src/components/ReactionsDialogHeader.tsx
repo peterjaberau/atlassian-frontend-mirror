@@ -3,26 +3,33 @@
  * @jsx jsx
  */
 import { useState } from 'react';
-import { useIntl } from 'react-intl-next';
+
 import { jsx, css, cssMap } from '@compiled/react';
+import { useIntl } from 'react-intl';
 
-import { token, useThemeObserver } from '@atlaskit/tokens';
-import { CloseButton, type OnCloseHandler } from '@atlaskit/modal-dialog';
-import { Tab, TabList } from '@atlaskit/tabs';
-import { Box, Flex, Inline, Stack } from '@atlaskit/primitives/compiled';
-import { IconButton } from '@atlaskit/button/new';
-import { type EmojiProvider } from '@atlaskit/emoji/resource';
-import Heading from '@atlaskit/heading';
-import { useModal } from '@atlaskit/modal-dialog';
-import Tooltip from '@atlaskit/tooltip';
-import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
-import ChevronLeftIcon from '@atlaskit/icon/core/chevron-left';
+import IconButton from '@atlaskit/button/icon/button';
 import { ResourcedEmoji } from '@atlaskit/emoji/element';
+import { type EmojiProvider } from '@atlaskit/emoji/resource';
+import Heading from '@atlaskit/heading/heading';
+import ChevronLeftIcon from '@atlaskit/icon/core/chevron-left';
+import ChevronRightIcon from '@atlaskit/icon/core/chevron-right';
+import { CloseButton } from '@atlaskit/modal-dialog/close-button';
+import { useModal } from '@atlaskit/modal-dialog/hooks';
+import ModalHeader from '@atlaskit/modal-dialog/modal-header';
+import ModalTitle from '@atlaskit/modal-dialog/modal-title';
+import type { OnCloseHandler } from '@atlaskit/modal-dialog/types';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { Box, Flex, Inline, Stack } from '@atlaskit/primitives/compiled';
+import Tab from '@atlaskit/tabs/tab';
+import TabList from '@atlaskit/tabs/tab-list';
+import { token } from '@atlaskit/tokens';
+import { useThemeObserver } from '@atlaskit/tokens/use-theme-observer';
+import Tooltip from '@atlaskit/tooltip/Tooltip';
 
-import { messages } from '../shared/i18n';
-import { Counter } from './Counter';
-import { type ReactionSummary } from '../types';
 import { RESOURCED_EMOJI_COMPACT_HEIGHT } from '../shared/constants';
+import { messages } from '../shared/i18n';
+import { type ReactionSummary } from '../types';
+import { Counter } from './Counter';
 
 const styles = cssMap({
 	leftNavigationStyle: {
@@ -69,7 +76,7 @@ const customTabListStyles = css({
 	'div[role=tablist]': {
 		flexGrow: 1,
 		// paddingInline exists to maintain styling prior to @atlaskit/tabs update that removed baked in horizontal padding
-		paddingInline: token('space.100', '8px'),
+		paddingInline: token('space.100'),
 		// we add our own border bottom below since tablist border is not full width
 		'&::before': {
 			backgroundColor: 'transparent',
@@ -77,7 +84,7 @@ const customTabListStyles = css({
 	},
 	width: '100%',
 	alignItems: 'flex-start',
-	borderBottom: `${token('border.width')} solid ${token('color.border', '#EBECF0')}`,
+	borderBottom: `${token('border.width')} solid ${token('color.border')}`,
 });
 
 const customTabWrapper = cssMap({
@@ -141,7 +148,7 @@ const customTabWrapper = cssMap({
 });
 
 const firstElement = css({
-	paddingLeft: token('space.200', '16px'),
+	paddingLeft: token('space.200'),
 });
 
 interface ReactionsDialogModalHeaderProps {
@@ -198,7 +205,7 @@ export const ReactionsDialogHeader = ({
 	currentReactions,
 	emojiProvider,
 	handleCloseReactionsDialog,
-}: ReactionsDialogModalHeaderProps) => {
+}: ReactionsDialogModalHeaderProps): JSX.Element => {
 	const [cache, setCache] = useState<{ [key: string]: string }>({});
 
 	const { titleId } = useModal();
@@ -237,19 +244,29 @@ export const ReactionsDialogHeader = ({
 
 	return (
 		<Stack>
-			<Flex
-				direction="row"
-				justifyContent="space-between"
-				alignItems="center"
-				xcss={styles.fullWidthStyle}
-			>
-				<Heading size="medium" id={titleId}>
-					{intl.formatMessage(messages.reactionsCount, {
-						count: totalReactionsCount,
-					})}
-				</Heading>
-				<CloseButton onClick={handleCloseReactionsDialog} />
-			</Flex>
+			{fg('platform_dst_modal-dialog-use-modal-title') ? (
+				<ModalHeader hasCloseButton>
+					<ModalTitle>
+						{intl.formatMessage(messages.reactionsCount, {
+							count: totalReactionsCount,
+						})}
+					</ModalTitle>
+				</ModalHeader>
+			) : (
+				<Flex
+					direction="row"
+					justifyContent="space-between"
+					alignItems="center"
+					xcss={styles.fullWidthStyle}
+				>
+					<Heading size="medium" id={titleId}>
+						{intl.formatMessage(messages.reactionsCount, {
+							count: totalReactionsCount,
+						})}
+					</Heading>
+					<CloseButton onClick={handleCloseReactionsDialog} />
+				</Flex>
+			)}
 			<Inline>
 				<div css={customTabListStyles} id="reactions-dialog-tabs-list">
 					{!isSinglePage && !isOnFirstPage && (
@@ -271,10 +288,16 @@ export const ReactionsDialogHeader = ({
 									className="reaction-elements"
 									key={reaction.emojiId}
 									data-testid={emojiId?.id}
-									// eslint-disable-next-line @atlassian/a11y/mouse-events-have-key-events
 									onMouseEnter={() => {
 										handleMouseEnter(reaction);
 									}}
+									onFocus={
+										fg('platform_suppression_removal_fix_reactions')
+											? () => {
+													handleMouseEnter(reaction);
+												}
+											: undefined
+									}
 								>
 									<Tab>
 										<Tooltip

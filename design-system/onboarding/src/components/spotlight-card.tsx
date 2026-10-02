@@ -4,25 +4,25 @@
  */
 import { forwardRef, type ReactNode } from 'react';
 
-import Button, { Theme as ButtonTheme } from '@atlaskit/button/custom-theme-button';
+import Button from '@atlaskit/button/custom-theme-button/custom-theme-button';
+import ButtonTheme from '@atlaskit/button/theme';
 import { css, cssMap, cx, jsx } from '@atlaskit/css';
-import Heading from '@atlaskit/heading';
-import { useLayering } from '@atlaskit/layering';
+import Heading from '@atlaskit/heading/heading';
+import { useLayering } from '@atlaskit/layering/use-layering';
 import { Box, Text } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
 
 import { DialogActionItem, DialogActionItemContainer } from '../styled/dialog';
 import { type SpotlightCardProps } from '../types';
-
 import { spotlightButtonTheme } from './theme';
 
 const bodyStyles = css({
 	display: 'flex',
 	flexDirection: 'column',
-	paddingBlockEnd: token('space.200', '16px'),
-	paddingBlockStart: token('space.200', '16px'),
-	paddingInlineEnd: token('space.250', '20px'),
-	paddingInlineStart: token('space.250', '20px'),
+	paddingBlockEnd: token('space.200'),
+	paddingBlockStart: token('space.200'),
+	paddingInlineEnd: token('space.250'),
+	paddingInlineStart: token('space.250'),
 });
 
 const imageStyles = css({
@@ -33,7 +33,7 @@ const defaultHeaderStyles = css({
 	display: 'flex',
 	alignItems: 'baseline',
 	justifyContent: 'space-between',
-	paddingBlockEnd: token('space.100', '8px'),
+	paddingBlockEnd: token('space.100'),
 });
 
 const DefaultHeader = ({ children }: { children: ReactNode }) => (
@@ -44,7 +44,7 @@ const defaultFooterStyles = css({
 	display: 'flex',
 	alignItems: 'center',
 	justifyContent: 'space-between',
-	paddingBlockStart: token('space.100', '8px'),
+	paddingBlockStart: token('space.100'),
 });
 
 const DefaultFooter = ({ children }: { children: ReactNode }) => (

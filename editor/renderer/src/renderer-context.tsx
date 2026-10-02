@@ -2,20 +2,25 @@
 // Entry file in package.json
 
 import React from 'react';
+
 import type { FeatureFlags } from '@atlaskit/editor-common/types';
-import type { RendererContentMode, NestedRendererType } from './ui/Renderer/types';
+
+import type { NestedRendererType } from './ui/Renderer/types';
 
 export type RendererContextProps = {
-	contentMode?: RendererContentMode;
 	featureFlags?: FeatureFlags;
 	// Keep this uninitialized it will be set to true in the top level renderer
 	isTopLevelRenderer?: boolean;
 	// used for analytics to track the type of nested renderer this is
 	nestedRendererType?: NestedRendererType;
+	// IANA timezone string for consistent date formatting between SSR and client
+	timeZone?: string;
 };
 
 const RendererContext = React.createContext({});
 
-export const useRendererContext = () => React.useContext<RendererContextProps>(RendererContext);
+export const useRendererContext = (): RendererContextProps =>
+	React.useContext<RendererContextProps>(RendererContext);
 
-export const RendererContextProvider = RendererContext.Provider;
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export const RendererContextProvider: React.Provider<{}> = RendererContext.Provider;

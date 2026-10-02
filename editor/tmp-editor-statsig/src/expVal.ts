@@ -1,10 +1,14 @@
-import FeatureGates from '@atlaskit/feature-gate-js-client';
+/* eslint-disable @repo/internal/deprecations/deprecation-ticket-required -- VOLTC-139 tracks removal of these deprecated re-export shims. */
+/* eslint-disable @atlaskit/editor/no-re-export -- deprecated shims re-exporting the split `expVal`/`expValNoExposure` modules for backwards compatibility (VOLTC-139). */
+
+import FeatureGates from '@atlaskit/feature-gate-js-client/feature-gates';
 import { addFeatureFlagAccessed } from '@atlaskit/react-ufo/feature-flags-accessed';
 
-import { type EditorExperimentsConfig, editorExperimentsConfig } from './experiments-config';
+import { disallowsProductKeys, editorExperimentsConfig } from './experiments-config';
+import type { EditorExperimentsConfig } from './experiments-config';
 import { _overrides, _paramOverrides, _product } from './setup';
 
-function expValInternal<
+export function expValInternal<
 	ExperimentName extends keyof EditorExperimentsConfig,
 	DefaultValue extends string | number | boolean,
 >({
@@ -29,7 +33,6 @@ function expValInternal<
 		);
 	}
 
-	// @ts-ignore need to loosen the type here to allow for any experiment name
 	if (_overrides[experimentName] !== undefined) {
 		// This will be hit in the case of a test setting an override
 		// @ts-ignore need to loosen the type here to allow for any experiment name
@@ -62,9 +65,13 @@ function expValInternal<
 		return defaultValue;
 	}
 
+	const resolvedExperimentKey = disallowsProductKeys.includes(experimentName)
+		? experimentName
+		: experimentKey;
+
 	// eslint-disable-next-line @atlaskit/platform/use-recommended-utils
 	const experimentValue = FeatureGates.getExperimentValue(
-		experimentName,
+		resolvedExperimentKey,
 		experimentParam,
 		defaultValue,
 		{
@@ -72,75 +79,17 @@ function expValInternal<
 		},
 	);
 
-	if (
-		// eslint-disable-next-line @atlaskit/platform/use-recommended-utils
-		FeatureGates.getExperimentValue(
-			'cc_editor_experiments_ufo_gate_reporting_expval',
-			'isEnabled',
-			false,
-		)
-	) {
-		// Duplicated from /confluence/next/packages/feature-experiments/src/index.ts
-		addFeatureFlagAccessed(`${experimentName}:${experimentParam}`, experimentValue as never);
-	}
+	// Duplicated from /confluence/next/packages/feature-experiments/src/index.ts
+	addFeatureFlagAccessed(`${resolvedExperimentKey}:${experimentParam}`, experimentValue as never);
 
 	return experimentValue;
 }
 
 /**
- * Use to check a any param value for an experiment
- *
- * **Note**: this will return the default value when the experiment;
- * - is not being served to the client (ie. pre start)
- * - or is not configured in experiments-config
- *
- * If you need to check a param value without an exposure check see {@link expValNoExposure}
- *
- * @example
- * ```ts
- * const delay = expVal('experiment-name', 'param-name', defaultValue)
- * await new Promise(res => setTimeout(res, delay)
- * ```
+ * @deprecated Use `import { expVal } from '@atlaskit/tmp-editor-statsig/expVal'` instead.
  */
-export function expVal<
-	ExperimentName extends keyof EditorExperimentsConfig,
-	DefaultValue extends string | number | boolean,
->(
-	experimentName: ExperimentName,
-	experimentParam: string,
-	defaultValue: DefaultValue extends boolean ? false : DefaultValue,
-): DefaultValue {
-	return expValInternal({
-		experimentName,
-		experimentParam,
-		defaultValue: defaultValue as DefaultValue,
-		fireExperimentExposure: true,
-	});
-} /**
- * Use to check a any param value for an experiment without firing an exposure event
- *
- * **Note**: this will return the default value when the experiment;
- * - is not being served to the client (ie. pre start)
- * - or is not configured in experiments-config
- *
- * @example
- * ```ts
- * const delay = expParamEqualsNoExposure('experiment-name', 'param-name', defaultValue)
- * await new Promise(res => setTimeout(res, delay)
- * ```
+export { expVal } from './exp-val';
+/**
+ * @deprecated Use `import { expValNoExposure } from '@atlaskit/tmp-editor-statsig/expVal'` instead.
  */
-export function expValNoExposure<
-	ExperimentName extends keyof EditorExperimentsConfig,
-	DefaultValue extends string | number | boolean,
->(
-	experimentName: ExperimentName,
-	experimentParam: string,
-	defaultValue: DefaultValue extends boolean ? false : DefaultValue,
-): DefaultValue {
-	return expValInternal({
-		experimentName,
-		experimentParam,
-		defaultValue: defaultValue as DefaultValue,
-		fireExperimentExposure: false,
-	});
-}
+export { expValNoExposure } from './exp-val-no-exposure';

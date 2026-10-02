@@ -1,0 +1,65 @@
+---
+title: Resizing motion
+description: Animate width and height changes, to be used with caution.
+order: 0
+---
+
+import Link from '@atlaskit/link';
+import SectionMessage from '@atlaskit/section-message';
+import MotionResizingWidth from '../../examples/constellation/motion-resizing-width';
+import MotionResizingHeightNew from '../../examples/constellation/motion-resizing-height-new';
+import MotionResizingBoth from '../../examples/constellation/motion-resizing-both';
+import MotionResizingHeight from '../../examples/constellation/motion-resizing-height';
+
+<SectionMessage appearance="warning">
+	<p>
+		This page demonstrates how to animate width, height or both which is{' '}
+		<a
+			target="_blank"
+			rel="noopener noreferrer"
+			href="https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Performance_best_practices_for_Firefox_fe_engineers#Get_familiar_with_the_pipeline_that_gets_pixels_to_the_screen"
+		>
+			notoriously unperformant
+		</a>
+		. <strong>Test your app over low powered devices</strong>, you may want to avoid this if you can
+		see it impacting FPS.
+	</p>
+</SectionMessage>
+
+## useResizing
+
+### Width
+
+Animates the container width as items are added or removed horizontally.
+
+<Example packageName="@atlaskit/motion" Component={MotionResizingWidth} title="Resizing width" />
+
+### Height
+
+Animates the container height as items are added or removed vertically.
+
+<Example
+	packageName="@atlaskit/motion"
+	Component={MotionResizingHeightNew}
+	title="Resizing height"
+/>
+
+### Width and Height
+
+Animates both width and height simultaneously as the grid grows or shrinks.
+
+<Example packageName="@atlaskit/motion" Component={MotionResizingBoth} title="Resizing both" />
+
+## useResizingHeight
+
+<SectionMessage appearance="warning" title="Caution">
+	We are planning on deprecating useResizingHeight. Please use the{' '}
+	<Link href="#useresizing">useResizing</Link> hook instead.
+</SectionMessage>
+
+<Example
+	highlight="13,53"
+	packageName="@atlaskit/motion"
+	Component={MotionResizingHeight}
+	title="Resizing height"
+/>

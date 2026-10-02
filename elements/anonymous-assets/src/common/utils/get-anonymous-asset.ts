@@ -1,5 +1,4 @@
 import type { AnonymousAsset, GetAnonymousAvatarWithStylingProps } from '../../types';
-
 import { ANONYMOUS_ASSETS } from './anonymous-assets';
 import { getIntl } from './intl';
 import { fetchWithRetry } from './retry';
@@ -34,13 +33,13 @@ export const addStyling = (svgRoot: Element, cssProperties: Record<string, strin
 	svgRoot.setAttribute('style', styleRuleString);
 };
 
-export const getAssetIndex = (index?: number) => {
+export const getAssetIndex = (index?: number): number => {
 	return index !== undefined
 		? index % ANONYMOUS_ASSETS.length
 		: Math.floor(Math.random() * ANONYMOUS_ASSETS.length);
 };
 
-export const svgStringToDomDocument = (svgString: string) => {
+export const svgStringToDomDocument = (svgString: string): Document => {
 	return new DOMParser().parseFromString(svgString, 'image/svg+xml');
 };
 

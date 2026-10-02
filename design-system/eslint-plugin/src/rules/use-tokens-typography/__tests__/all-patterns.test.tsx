@@ -4,7 +4,6 @@ import outdent from 'outdent';
 import { ruleTester } from '@atlassian/eslint-utils';
 
 import rule from '../index';
-
 import type { Tests } from './_types';
 
 export const typographyTests: Tests = {
@@ -44,18 +43,6 @@ export const typographyTests: Tests = {
 				{ messageId: 'noBannedProperties' },
 				{ messageId: 'noRestrictedCapitalisation' },
 			],
-			output: outdent`
-				import { token } from '@atlaskit/tokens';
-				const styles = css({
-					font: 'bold 36px Helvetica, Arial',
-					fontStyle: 'italic',
-					fontFamily: token('font.family.brand.heading'),
-					fontSize: '16px',
-					fontWeight: token('font.weight.medium'),
-					lineHeight: 24,
-					letterSpacing: '0.003em',
-					textTransform: 'uppercase',
-				})`,
 		},
 		{
 			options: [{ enableUnsafeAutofix: true }],

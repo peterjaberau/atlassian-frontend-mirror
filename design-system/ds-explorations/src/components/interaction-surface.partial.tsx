@@ -9,7 +9,7 @@ import { css, jsx, type SerializedStyles } from '@emotion/react';
 
 import { token } from '@atlaskit/tokens';
 
-import { SurfaceContext } from './surface-provider';
+import { SurfaceContext } from './surface-context';
 import { type BasePrimitiveProps } from './types';
 
 const baseStyles = css({
@@ -41,7 +41,11 @@ interface InteractionSurfaceProps extends BasePrimitiveProps {
  * </Pressable>
  * ```
  */
-const InteractionSurface = ({ appearance, children, testId }: InteractionSurfaceProps): React.JSX.Element => {
+const InteractionSurface = ({
+	appearance,
+	children,
+	testId,
+}: InteractionSurfaceProps): React.JSX.Element => {
 	const defaultSurface = useContext(SurfaceContext);
 	let surface = (appearance || defaultSurface) as InteractionBackgroundColor;
 
@@ -70,11 +74,11 @@ export default InteractionSurface;
 
 /**
  * THIS SECTION WAS CREATED VIA CODEGEN DO NOT MODIFY {@see http://go/af-codegen}
- * @codegen <<SignedSource::2872a8059e6b2969c20ed7a592cc85ca>>
+ * @codegen <<SignedSource::a4152760ec9eafcac74ee9e67bd30472>>
  * @codegenId interactions
  * @codegenCommand yarn codegen-styles
  * @codegenParams ["background"]
- * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::38a7d4716f6999a6bdda9e4fe2bca6a1>>
+ * @codegenDependency ../../../tokens/src/artifacts/tokens-raw/atlassian-light.tsx <<SignedSource::d88dceee1459b4e9e492bb497e903575>>
  */
 type InteractionBackgroundColor =
 	| 'accent.lime.subtlest'
@@ -143,6 +147,7 @@ type InteractionBackgroundColor =
 	| 'information.subtler'
 	| 'information.bold'
 	| 'elevation.surface'
+	| 'elevation.surface.container'
 	| 'elevation.surface.overlay'
 	| 'elevation.surface.raised';
 
@@ -344,6 +349,9 @@ const backgroundActiveColorMap: Record<InteractionBackgroundColor, SerializedSty
 	}),
 	'elevation.surface': css({
 		'&:active': { backgroundColor: token('elevation.surface.pressed') },
+	}),
+	'elevation.surface.container': css({
+		'&:active': { backgroundColor: token('elevation.surface.container.pressed') },
 	}),
 	'elevation.surface.overlay': css({
 		'&:active': { backgroundColor: token('elevation.surface.overlay.pressed') },
@@ -551,6 +559,9 @@ const backgroundHoverColorMap: Record<InteractionBackgroundColor, SerializedStyl
 	}),
 	'elevation.surface': css({
 		'&:hover': { backgroundColor: token('elevation.surface.hovered') },
+	}),
+	'elevation.surface.container': css({
+		'&:hover': { backgroundColor: token('elevation.surface.container.hovered') },
 	}),
 	'elevation.surface.overlay': css({
 		'&:hover': { backgroundColor: token('elevation.surface.overlay.hovered') },

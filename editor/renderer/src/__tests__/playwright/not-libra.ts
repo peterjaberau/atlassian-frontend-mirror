@@ -1,10 +1,31 @@
-import { test as base, expect as baseExpect } from '@af/integration-testing';
-import type { DocNode } from '@atlaskit/adf-schema';
+/* eslint-disable
+  @atlaskit/design-system/no-to-match-snapshot,
+  @atlaskit/design-system/no-unsafe-inline-snapshot
+  -- TODO(IND-4952): existing snapshot tests will be removed in a follow-up cleanup PR.
+  See https://hello.atlassian.net/wiki/spaces/afm/pages/7146174189/LDR+Unit+Tests+-+Ban+Snapshot+tests+in+Platform
+  and raise concerns in https://atlassian.enterprise.slack.com/archives/C0BD4K40BLH
+*/
 
-import type { EditorExperimentOverrides } from '@atlaskit/tmp-editor-statsig/setup';
-import type { Expect, Page, Locator } from '@af/integration-testing';
-import type { RendererProps } from '@atlaskit/renderer';
+import type {
+	TestType,
+	PlaywrightTestArgs,
+	PlaywrightTestOptions,
+	PlaywrightWorkerArgs,
+	PlaywrightWorkerOptions,
+} from 'playwright/test';
+
+import {
+	expect as baseExpect,
+	test as base,
+	type Expect,
+	type Locator,
+	type Page,
+} from '@af/integration-testing';
+import type { PlaywrightCoverageOptions } from '@af/integration-testing/fixtures';
+import type { DocNode } from '@atlaskit/adf-schema/doc';
 import type { GasPurePayload } from '@atlaskit/analytics-gas-types';
+import type { RendererProps } from '@atlaskit/renderer';
+import type { EditorExperimentOverrides } from '@atlaskit/tmp-editor-statsig/setup';
 
 class AnnotationModel {
 	private constructor(private page: Page) {}
@@ -48,7 +69,7 @@ class AnnotationModel {
 		return result;
 	}
 
-	public async validateRange() {
+	public async validateRange(): Promise<boolean> {
 		await this.page.waitForFunction(() => {
 			return Boolean(window && (window as any).__rendererActions);
 		});
@@ -69,7 +90,7 @@ class AnnotationModel {
 		return Boolean(result);
 	}
 
-	static from(page: Page) {
+	static from(page: Page): AnnotationModel {
 		return new AnnotationModel(page);
 	}
 }
@@ -83,7 +104,7 @@ class CodeBlockModel {
 		this.block = page.locator('[data-ds--code--code-block]');
 	}
 
-	static from(page: Page) {
+	static from(page: Page): CodeBlockModel {
 		return new CodeBlockModel(page);
 	}
 }
@@ -103,8 +124,8 @@ type RendererPropsOptional = Omit<
 	'document' | 'dataProviders'
 >;
 type MountRendererOptions = {
+	allowNestedTables?: boolean;
 	enableClickToEdit?: boolean;
-	exampleType?: string;
 	mockInlineComments?: boolean;
 	showSidebar?: boolean;
 	withRendererActions?: boolean;
@@ -179,9 +200,11 @@ class RendererPageModel implements RendererPageInterface {
 		adf,
 		platformFeatureFlags,
 		editorExperiments,
+		exampleName,
 	}: {
 		adf: DocNode | string | Record<string, unknown> | undefined;
 		editorExperiments?: EditorExperimentOverrides;
+		exampleName: string;
 		platformFeatureFlags?: Record<string, boolean>;
 		rendererMountOptions: MountRendererOptions;
 		rendererProps: RendererPropsOptional;
@@ -219,8 +242,8 @@ class RendererPageModel implements RendererPageInterface {
 			);
 		};
 
-		// Passing exampleType will render a custom example for the test instead of the default 'testing' example
-		if (!rendererMountOptions.exampleType) {
+		// Passing exampleName will render a custom example for the test instead of the default 'testing' example
+		if (exampleName === 'testing') {
 			const x: RendererMountEvaluateProps = {
 				_props: rendererProps,
 				_mountOptions: rendererMountOptions,
@@ -257,14 +280,36 @@ class RendererPageModel implements RendererPageInterface {
 	}
 }
 
-export const rendererTestCase = base.extend<{
+export const rendererTestCase: TestType<
+	PlaywrightTestArgs &
+		PlaywrightTestOptions & {
+			skipAxeCheck: () => void;
+		} & PlaywrightCoverageOptions & {
+			adf: DocNode | string | Record<string, unknown> | undefined;
+			/**
+			 * Note: This is not available when used with a custom exampleName (i.e. anything other than 'testing').
+			 * This is because custom examples will have their application loaded
+			 * prior to the experiment overrides being applied.
+			 */
+			editorExperiments?: EditorExperimentOverrides;
+			/** Name of the renderer example to load. Required — all test files must specify this via test.use({ exampleName: '...' }). */
+			exampleName: string;
+			platformFeatureFlags?: Record<string, boolean>;
+			renderer: RendererPageInterface;
+			rendererMountOptions: MountRendererOptions;
+			rendererProps: RendererPropsOptional;
+		},
+	PlaywrightWorkerArgs & PlaywrightWorkerOptions
+> = base.extend<{
 	adf: DocNode | string | Record<string, unknown> | undefined;
 	/**
-	 * Note: This is not available when used with the `exampleType` option.
+	 * Note: This is not available when used with a custom exampleName (i.e. anything other than 'testing').
 	 * This is because custom examples will have their application loaded
 	 * prior to the experiment overrides being applied.
 	 */
 	editorExperiments?: EditorExperimentOverrides;
+	/** Name of the renderer example to load. Required — all test files must specify this via test.use({ exampleName: '...' }). */
+	exampleName: string;
 	platformFeatureFlags?: Record<string, boolean>;
 	renderer: RendererPageInterface;
 	rendererMountOptions: MountRendererOptions;
@@ -275,24 +320,39 @@ export const rendererTestCase = base.extend<{
 	adf: undefined,
 	platformFeatureFlags: {},
 	editorExperiments: {},
+	// No default — all spec files must set this via test.use({ exampleName: '...' })
+	exampleName: [
+		async ({}, use, testInfo) => {
+			throw new Error(
+				`[not-libra] No exampleName fixture set in ${testInfo.file}. ` +
+					`Add test.use({ exampleName: 'my-example' }) at the top of the file.`,
+			);
+			await use('');
+		},
+		{ option: true },
+	],
 
 	renderer: async (
-		{ page, adf, rendererProps, rendererMountOptions, platformFeatureFlags, editorExperiments },
+		{
+			page,
+			adf,
+			rendererProps,
+			rendererMountOptions,
+			platformFeatureFlags,
+			editorExperiments,
+			exampleName,
+		},
 		use,
 	) => {
-		if (
-			editorExperiments &&
-			Object.keys(editorExperiments).length &&
-			rendererMountOptions.exampleType
-		) {
+		if (editorExperiments && Object.keys(editorExperiments).length && exampleName !== 'testing') {
 			throw new Error(
-				`Cannot use 'editorExperiments' with 'exampleType', received exampleType: ${rendererMountOptions.exampleType}, editorExperiments: ${JSON.stringify(editorExperiments)} `,
+				`Cannot use 'editorExperiments' with a custom exampleName, received exampleName: ${exampleName}, editorExperiments: ${JSON.stringify(editorExperiments)} `,
 			);
 		}
 		// Mock the date for testing purposes
 		await mockDate(page, { year: 2017, month: 8, day: 16 });
 
-		await page.visitExample('editor', 'renderer', rendererMountOptions.exampleType ?? 'testing');
+		await page.visitExample('editor', 'renderer', exampleName);
 
 		const rendererInstance = RendererPageModel.from(page);
 
@@ -302,6 +362,7 @@ export const rendererTestCase = base.extend<{
 			rendererMountOptions,
 			platformFeatureFlags,
 			editorExperiments,
+			exampleName,
 		});
 
 		await use(rendererInstance);
@@ -312,7 +373,11 @@ const customMatchers = {
 	async toMatchDocumentSnapshot(
 		this: ReturnType<Expect['getState']>,
 		doc: Record<string, unknown>,
-	) {
+	): Promise<{
+		// Playwright upgrade: `message` required in type MatcherReturnType
+		message: () => string;
+		pass: boolean;
+	}> {
 		baseExpect(JSON.stringify(doc, null, 2)).toMatchSnapshot();
 
 		return {
@@ -323,4 +388,4 @@ const customMatchers = {
 	},
 };
 
-export const expect = baseExpect.extend(customMatchers);
+export const expect: any = baseExpect.extend(customMatchers);

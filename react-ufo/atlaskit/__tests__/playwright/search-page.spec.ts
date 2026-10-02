@@ -1,12 +1,8 @@
 import type { ReactUFOPayload } from '../../src/common/react-ufo-payload-schema';
-
 import { expect, test, viewports } from './fixtures';
 import type { WindowWithReactUFOTestGlobals } from './window-type';
 
-const requiredFeatureFlags = [
-	'ufo_payload_use_idle_callback',
-	'rovo_search_page_ttvc_ignoring_smart_answers_fix',
-];
+const requiredFeatureFlags = ['ufo_payload_use_idle_callback'];
 
 const featureFlagsCombos = [[...requiredFeatureFlags]];
 
@@ -14,8 +10,13 @@ test.describe('Search Page without smart answers', () => {
 	for (const featureFlags of featureFlagsCombos) {
 		test.describe(`with feature flags ${featureFlags.join(', ')}`, () => {
 			test.use({
-				examplePage: 'search-page-without-smart-answers',
 				featureFlags,
+			});
+
+			test.beforeEach(async ({ page }) => {
+				await page.visitExample<
+					typeof import('../../examples/34-search-page-without-smart-answers.tsx')
+				>('react-ufo', 'atlaskit', 'search-page-without-smart-answers');
 			});
 
 			for (const viewport of viewports) {
@@ -75,8 +76,13 @@ test.describe('Search Page with smart answers', () => {
 	for (const featureFlags of featureFlagsCombos) {
 		test.describe(`with feature flags ${featureFlags.join(', ')}`, () => {
 			test.use({
-				examplePage: 'search-page-with-slower-smart-answers',
 				featureFlags,
+			});
+
+			test.beforeEach(async ({ page }) => {
+				await page.visitExample<
+					typeof import('../../examples/35-search-page-with-slower-smart-answers.tsx')
+				>('react-ufo', 'atlaskit', 'search-page-with-slower-smart-answers');
 			});
 
 			for (const viewport of viewports) {
@@ -121,8 +127,13 @@ test.describe('Search Page with smart answers', () => {
 	for (const featureFlags of featureFlagsCombos) {
 		test.describe(`with feature flags ${featureFlags.join(', ')}`, () => {
 			test.use({
-				examplePage: 'search-page-with-faster-smart-answers',
 				featureFlags,
+			});
+
+			test.beforeEach(async ({ page }) => {
+				await page.visitExample<
+					typeof import('../../examples/36-search-page-with-faster-smart-answers.tsx')
+				>('react-ufo', 'atlaskit', 'search-page-with-faster-smart-answers');
 			});
 
 			for (const viewport of viewports) {
@@ -172,8 +183,13 @@ test.describe('Search Page with smart answers', () => {
 			 * at the time of VC calculation.
 			 */
 			test.use({
-				examplePage: 'search-page-with-slower-smart-answers-class-change',
 				featureFlags,
+			});
+
+			test.beforeEach(async ({ page }) => {
+				await page.visitExample<
+					typeof import('../../examples/35-search-page-with-slower-smart-answers-class-change.tsx')
+				>('react-ufo', 'atlaskit', 'search-page-with-slower-smart-answers-class-change');
 			});
 
 			for (const viewport of viewports) {

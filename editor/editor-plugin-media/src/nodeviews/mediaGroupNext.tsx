@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { WrappedComponentProps } from 'react-intl-next';
-import { injectIntl } from 'react-intl-next';
+import type { WithIntlProps, WrappedComponentProps } from 'react-intl';
+import { injectIntl } from 'react-intl';
 
 import { usePreviousState } from '@atlaskit/editor-common/hooks';
 import { nodeViewsMessages as messages } from '@atlaskit/editor-common/media';
@@ -19,14 +19,13 @@ import type { EditorView } from '@atlaskit/editor-prosemirror/view';
 import EditorCloseIcon from '@atlaskit/icon/core/cross';
 import type { Identifier } from '@atlaskit/media-client';
 import { getMediaFeatureFlag } from '@atlaskit/media-common';
-import type { MediaClientConfig } from '@atlaskit/media-core';
+import type { MediaClientConfig } from '@atlaskit/media-core/auth';
 import { Filmstrip } from '@atlaskit/media-filmstrip';
-import { fg } from '@atlaskit/platform-feature-flags';
-import { editorExperiment } from '@atlaskit/tmp-editor-statsig/experiments';
+import { fg } from '@atlaskit/platform-feature-flags/fg';
+import { editorExperiment } from '@atlaskit/tmp-editor-statsig/editor-experiment';
 
 import { stateKey as mediaStateKey } from '../pm-plugins/plugin-key';
 import type { MediaOptions } from '../types';
-
 import { createMediaNodeUpdater, type MediaNodeUpdater } from './mediaNodeUpdater';
 
 const getIdentifier = (item: PMNode): Identifier => {
@@ -210,7 +209,48 @@ type MediaGroupProps = {
 	view: EditorView;
 } & WrappedComponentProps;
 
-export const MediaGroupNext = injectIntl(
+// eslint-disable-next-line @typescript-eslint/no-restricted-types
+export const MediaGroupNext: React.FC<
+	WithIntlProps<
+		{
+			allowLazyLoading?: boolean;
+			// These two numbers have to be passed separately. They can technically be derived from the view, but
+			// because the view is *reference* then `shouldComponentUpdate` can't identify changes from incoming props
+			anchorPos: number; // This value is required so that shouldComponentUpdate can calculate correctly
+			contextIdentifierProvider?: Promise<ContextIdentifierProvider>;
+			disabled?: boolean;
+			editorViewMode?: boolean;
+			forwardRef?: (ref: HTMLElement) => void;
+			getPos: () => number | undefined;
+			headPos: number; // This value is required so that shouldComponentUpdate can calculate correctly
+			isCopyPasteEnabled?: boolean;
+			mediaOptions: MediaOptions;
+			mediaProvider?: Promise<MediaProvider>;
+			node: PMNode;
+			view: EditorView;
+		} & WrappedComponentProps
+	>
+> & {
+	WrappedComponent: React.ComponentType<
+		{
+			allowLazyLoading?: boolean;
+			// These two numbers have to be passed separately. They can technically be derived from the view, but
+			// because the view is *reference* then `shouldComponentUpdate` can't identify changes from incoming props
+			anchorPos: number; // This value is required so that shouldComponentUpdate can calculate correctly
+			contextIdentifierProvider?: Promise<ContextIdentifierProvider>;
+			disabled?: boolean;
+			editorViewMode?: boolean;
+			forwardRef?: (ref: HTMLElement) => void;
+			getPos: () => number | undefined;
+			headPos: number; // This value is required so that shouldComponentUpdate can calculate correctly
+			isCopyPasteEnabled?: boolean;
+			mediaOptions: MediaOptions;
+			mediaProvider?: Promise<MediaProvider>;
+			node: PMNode;
+			view: EditorView;
+		} & WrappedComponentProps
+	>;
+} = injectIntl(
 	React.memo((props: MediaGroupProps) => {
 		const {
 			mediaOptions: {
@@ -218,6 +258,7 @@ export const MediaGroupNext = injectIntl(
 				allowMediaInlineImages,
 				enableDownloadButton,
 				featureFlags,
+				fallbackMediaNameFetcher,
 			},
 			intl,
 			getPos,
@@ -306,6 +347,7 @@ export const MediaGroupNext = injectIntl(
 		}, [mediaClientConfig]);
 
 		useEffect(() => {
+			// eslint-disable-next-line @atlassian/perf-linting/no-chain-state-updates -- Ignored via go/ees017 (to be fixed)
 			mediaNodesWithOffsets.forEach(({ node, offset }) => {
 				const mediaNodeUpdater = createMediaNodeUpdater({
 					view,
@@ -364,6 +406,7 @@ export const MediaGroupNext = injectIntl(
 				shouldOpenMediaViewer={
 					editorViewMode && editorExperiment('platform_editor_controls', 'control')
 				}
+				fallbackMediaNameFetcher={fallbackMediaNameFetcher}
 			/>
 		);
 	}),

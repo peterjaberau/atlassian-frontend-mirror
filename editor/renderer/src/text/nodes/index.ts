@@ -1,4 +1,5 @@
-import { type Node as PMNode, type Schema } from '@atlaskit/editor-prosemirror/model';
+import type { Node as PMNode, Schema } from '@atlaskit/editor-prosemirror/model';
+
 import blockquote from './blockquote';
 import bulletList from './bulletList';
 import date from './date';
@@ -38,6 +39,7 @@ const nodeToReducerMapping: { [key: string]: NodeReducer } = {
 	mention,
 	orderedList,
 	panel,
+	panel_c1: panel,
 	paragraph,
 	rule,
 	status,

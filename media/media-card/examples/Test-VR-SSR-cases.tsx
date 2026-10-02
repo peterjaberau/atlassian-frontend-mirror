@@ -4,18 +4,23 @@
  * feature. Some ways of using the component in here might not be the standard
  * way. It is discouraged to use this code as a base for consumers.
  */
+
 import React, { useEffect, useMemo } from 'react';
-import ReactDOM from 'react-dom';
+
+import { hydrateRoot } from 'react-dom/client';
+import ReactDOMServer from 'react-dom/server';
+
+import { MediaClient } from '@atlaskit/media-client';
+import { MediaClientContext } from '@atlaskit/media-client-react/media-client-provider';
+import { type SSR } from '@atlaskit/media-common';
 import { tallImage } from '@atlaskit/media-test-helpers';
 import { createStorybookMediaClientConfig } from '@atlaskit/media-test-helpers';
-import { MediaClient } from '@atlaskit/media-client';
-import { type SSR } from '@atlaskit/media-common';
-import { token } from '@atlaskit/tokens';
-import { Card, type CardBaseProps } from '../src/card/card';
-import ReactDOMServer from 'react-dom/server';
 import { imageFileId } from '@atlaskit/media-test-helpers';
-import { MediaClientContext } from '@atlaskit/media-client-react';
+import { token } from '@atlaskit/tokens';
+
 import { MainWrapper, SSRAnalyticsWrapper } from '../example-helpers';
+import { Card } from '../src/card/card';
+import type { CardBaseProps } from '../src/card/CardBase';
 
 const dimensions = { width: 250, height: 150 };
 
@@ -111,7 +116,8 @@ const runSSR = ({ containerId, mode, hydrate, throwError }: RunSSRParams) => {
 	if (elem) {
 		elem.innerHTML = txt;
 		hydrate &&
-			ReactDOM.hydrate(
+			hydrateRoot(
+				elem,
 				<Page
 					ssr="client"
 					title={title}
@@ -119,7 +125,6 @@ const runSSR = ({ containerId, mode, hydrate, throwError }: RunSSRParams) => {
 					throwError={throwError}
 					additionalProps={additionalProps}
 				/>,
-				elem,
 			);
 	}
 };
@@ -179,7 +184,7 @@ const runScenarios = (scenarios: Scenarios) => {
 const rowStyle = {
 	display: 'flex',
 	flexDirection: 'row',
-	marginBottom: token('space.250', '20px'),
+	marginBottom: token('space.250'),
 } as const;
 
 const ScenariosComponent: React.FC<{ scenarios: Scenarios }> = ({ scenarios }) => (
@@ -193,7 +198,7 @@ const ScenariosComponent: React.FC<{ scenarios: Scenarios }> = ({ scenarios }) =
 						<div
 							key={id}
 							// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-							style={{ marginRight: token('space.250', '20px') }}
+							style={{ marginRight: token('space.250') }}
 							id={id}
 						></div>
 					))}
@@ -217,7 +222,7 @@ export default (): React.JSX.Element => {
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 				margin: 'auto',
 				// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-				marginTop: token('space.250', '20px'),
+				marginTop: token('space.250'),
 			}}
 		>
 			<MainWrapper developmentOnly>

@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Label } from '@atlaskit/form';
-import { AtlassianIcon } from '@atlaskit/logo';
-import Select, { type FormatOptionLabelMeta, type OptionType } from '@atlaskit/select';
+import { Label } from '@atlaskit/form/label/default';
+import { AtlassianIcon } from '@atlaskit/logo/atlassian-icon';
+import Select from '@atlaskit/select/default';
+import type { FormatOptionLabelMeta, OptionType } from '@atlaskit/select/types';
 import { token } from '@atlaskit/tokens';
 
 const formatOptionLabel = (option: OptionType, { context }: FormatOptionLabelMeta<OptionType>) => {
@@ -20,7 +21,7 @@ const formatOptionLabel = (option: OptionType, { context }: FormatOptionLabelMet
 				<span
 					style={{
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-						paddingLeft: token('space.100', '8px'),
+						paddingLeft: token('space.100'),
 						// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
 						paddingBottom: 0,
 					}}

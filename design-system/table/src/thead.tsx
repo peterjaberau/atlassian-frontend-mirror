@@ -1,9 +1,10 @@
 import React, { type FC, type ReactNode } from 'react';
 
-import Checkbox from '@atlaskit/checkbox';
+import { Checkbox } from '@atlaskit/checkbox/checkbox';
+// eslint-disable-next-line @atlaskit/design-system/no-emotion-primitives -- TODO: migrate to @atlaskit/primitives/compiled
 import Inline from '@atlaskit/primitives/inline';
 import { token } from '@atlaskit/tokens';
-import VisuallyHidden from '@atlaskit/visually-hidden';
+import VisuallyHidden from '@atlaskit/visually-hidden/visually-hidden';
 
 import { useSelection } from './hooks/selection-provider';
 import { useTable } from './hooks/use-table';
@@ -42,10 +43,9 @@ const THead: FC<THeadProps> = ({ actions, children }) => {
 						<span
 							style={{
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								color: token('color.text', '#172B4D'),
-								/* @ts-ignore migrate to Text */
+								color: token('color.text'),
 								// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-								fontWeight: token('font.weight.medium', '500'),
+								fontWeight: token('font.weight.medium'),
 							}}
 						>
 							{state.checked.length} selected

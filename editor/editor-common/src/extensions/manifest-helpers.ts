@@ -1,19 +1,29 @@
 import type { ADFEntity } from '@atlaskit/adf-utils/types';
 
+import { buildExtensionKeyAndNodeKey } from './buildExtensionKeyAndNodeKey';
+import { resolveImportSync } from './resolveImportSync';
 import type {
 	ExtensionKey,
 	ExtensionManifest,
 	ExtensionModuleAction,
+	ExtensionModuleActionHandler,
 	ExtensionModuleActionObject,
-	ExtensionModuleKey,
 	ExtensionType,
 	Module,
 } from './types/extension-manifest';
-import type { ESModule } from './types/extension-manifest-common';
 import type { Parameters } from './types/extension-parameters';
 
 export const FORGE_EXTENSION_TYPE = 'com.atlassian.ecosystem';
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const NATIVE_EMBED_EXTENSION_TYPE = 'com.atlassian.confluence.macro.core';
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const NATIVE_EMBED_EXTENSION_KEY = 'native-embed';
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
+export const AGENT_MANAGED_EXTENSION_KEY = 'agent-managed-block';
+
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const getExtensionKeyAndNodeKey = (
 	extensionKey: ExtensionKey,
 	extensionType: ExtensionType,
@@ -29,21 +39,11 @@ export const getExtensionKeyAndNodeKey = (
 	return [extKey, nodeKey];
 };
 
-export const buildExtensionKeyAndNodeKey = (
-	extensionKey: ExtensionKey,
-	nodeKey?: ExtensionModuleKey,
-): string => {
-	if (!nodeKey || nodeKey === 'default') {
-		return extensionKey;
-	}
-
-	return `${extensionKey}:${nodeKey}`;
-};
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function buildAction<T extends Parameters>(
 	action: ExtensionModuleAction<T>,
 	manifest: ExtensionManifest<T>,
-) {
+): ADFEntity | ExtensionModuleActionHandler | undefined {
 	if (typeof action === 'function') {
 		return action;
 	}
@@ -63,18 +63,14 @@ type Extension = {
 	type: ExtensionType;
 };
 
-export const resolveImportSync = <T extends Parameters>(importedModule: Module<T>) => {
-	return importedModule && (importedModule as ESModule<T>).__esModule
-		? (importedModule as ESModule<T>).default
-		: (importedModule as T);
-};
-
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export const resolveImport = async <T extends Parameters>(
 	importPromise: Promise<Module<T>> | Module<T>,
-) => {
+): Promise<T> => {
 	return resolveImportSync(await importPromise);
 };
 
+// eslint-disable-next-line @atlaskit/volt-strict-mode/no-multiple-exports
 export function buildNode<T extends Parameters>(
 	action: ExtensionModuleActionObject<T>,
 	manifest: ExtensionManifest<T>,
@@ -123,3 +119,7 @@ export function buildNode<T extends Parameters>(
 
 	return extension;
 }
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { buildExtensionKeyAndNodeKey } from './buildExtensionKeyAndNodeKey';
+// eslint-disable-next-line @atlaskit/editor/no-re-export
+export { resolveImportSync } from './resolveImportSync';

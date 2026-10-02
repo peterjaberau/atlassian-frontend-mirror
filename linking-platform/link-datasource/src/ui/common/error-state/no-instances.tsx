@@ -3,7 +3,7 @@
  * @jsx jsx
  */
 import { cssMap, jsx } from '@compiled/react';
-import { type MessageDescriptor, useIntl } from 'react-intl-next';
+import { type MessageDescriptor, useIntl } from 'react-intl';
 
 import { Flex, Inline } from '@atlaskit/primitives/compiled';
 import { token } from '@atlaskit/tokens';
@@ -29,7 +29,11 @@ interface NoInstanceViewProps {
 	title: MessageDescriptor;
 }
 
-export const NoInstancesView = ({ title, description, testId }: NoInstanceViewProps) => {
+export const NoInstancesView = ({
+	title,
+	description,
+	testId,
+}: NoInstanceViewProps): JSX.Element => {
 	const { formatMessage } = useIntl();
 	return (
 		<Flex testId={testId} direction="column" alignItems="center" xcss={styles.containerStyles}>

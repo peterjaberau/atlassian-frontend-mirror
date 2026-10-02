@@ -1,24 +1,30 @@
 import React from 'react';
 
-import { render, screen } from '@testing-library/react';
-import { IntlProvider } from 'react-intl-next';
+import { IntlProvider } from 'react-intl';
+
+import { SmartCardProvider } from '@atlaskit/link-provider/smart-card-provider';
+import { render, screen } from '@atlassian/testing-library';
 
 import CommentCountElement from './index';
 
 const testId = 'smart-element-badge';
 
-jest.mock('../../../../../state/flexible-ui-context', () => ({
+jest.mock('../../../../../state/flexible-ui-context/useFlexibleUiContext', () => ({
 	useFlexibleUiContext: jest.fn(() => ({
 		commentCount: 2,
 	})),
+}));
+jest.mock('../../../../../state/flexible-ui-context/useFlexibleUiOptionContext', () => ({
 	useFlexibleUiOptionContext: jest.fn(() => undefined),
 }));
 
 const renderOwnedByElement = (onRender?: (hasData: boolean) => void) => {
 	return render(
-		<IntlProvider locale="en">
-			<CommentCountElement onRender={onRender} />
-		</IntlProvider>,
+		<SmartCardProvider>
+			<IntlProvider locale="en">
+				<CommentCountElement onRender={onRender} />
+			</IntlProvider>
+		</SmartCardProvider>,
 	);
 };
 

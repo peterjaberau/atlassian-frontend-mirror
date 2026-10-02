@@ -1,28 +1,28 @@
 import { IconType } from '../../../constants';
-
 import { type IconDescriptor } from './types';
 
-const extractJiraTaskIcon = (taskType?: string, label = 'Task'): IconDescriptor | undefined => {
+const extractJiraTaskIcon = (taskType?: string): IconDescriptor | undefined => {
+	const getIconDescriptor = (icon: IconType, label: string): IconDescriptor => ({ icon, label });
 	switch (taskType) {
 		case 'JiraBug':
-			return { icon: IconType.Bug, label };
+			return getIconDescriptor(IconType.Bug, 'Bug');
 		case 'JiraChange':
-			return { icon: IconType.Change, label };
+			return getIconDescriptor(IconType.Change, 'Change');
 		case 'JiraEpic':
-			return { icon: IconType.Epic, label };
+			return getIconDescriptor(IconType.Epic, 'Epic');
 		case 'JiraIncident':
-			return { icon: IconType.Incident, label };
+			return getIconDescriptor(IconType.Incident, 'Incident');
 		case 'JiraProblem':
-			return { icon: IconType.Problem, label };
+			return getIconDescriptor(IconType.Problem, 'Problem');
 		case 'JiraServiceRequest':
-			return { icon: IconType.ServiceRequest, label };
+			return getIconDescriptor(IconType.ServiceRequest, 'Service request');
 		case 'JiraStory':
-			return { icon: IconType.Story, label };
+			return getIconDescriptor(IconType.Story, 'Story');
 		case 'JiraSubTask':
-			return { icon: IconType.SubTask, label };
+			return getIconDescriptor(IconType.SubTask, 'Sub-task');
 		case 'JiraTask':
 		default:
-			return { icon: IconType.Task, label };
+			return getIconDescriptor(IconType.Task, 'Task');
 	}
 };
 

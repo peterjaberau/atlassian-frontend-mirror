@@ -1,5 +1,151 @@
 # @atlaskit/embedded-confluence
 
+## 6.4.2
+
+### Patch Changes
+
+- Updated dependencies
+
+## 6.4.1
+
+### Patch Changes
+
+- [`bca883e85f27b`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bca883e85f27b) -
+  Transpile UUID v11 in legacy Webpack 4 publishing builds so modern browser syntax is supported.
+
+## 6.4.0
+
+### Minor Changes
+
+- [`3ed2da7ef508f`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3ed2da7ef508f) -
+  Adds public JAC to docs
+
+### Patch Changes
+
+- [`e0bf3701493bd`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/e0bf3701493bd) -
+  Fix `import { Page } from '@atlaskit/embedded-confluence/page'` for npm by shipping the webpack
+  bundle at the generated `/page` dist paths.
+
+## 6.3.0
+
+### Minor Changes
+
+- [`bd2c5b0112185`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/bd2c5b0112185) -
+  Remove stale API report artifacts from published Platform packages.
+
+## 6.2.1
+
+### Patch Changes
+
+- [`06c47d2aaf93a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/06c47d2aaf93a) -
+  Remove incorrect `@deprecated` markers from public entry-point re-exports
+  (`@atlaskit/embedded-confluence` `./embedded-confluence-common` and `./experience-tracker`, and
+  `@atlaskit/side-navigation` `./menu`) so they are no longer flagged as deprecated.
+
+## 6.2.0
+
+### Minor Changes
+
+- [`c2d43ab375005`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/c2d43ab375005) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 6.1.0
+
+### Minor Changes
+
+- [`cd097a2111788`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/cd097a2111788) -
+  Republish packages depending on `@atlaskit/react-compiler-gating` so their published dependency
+  reference is updated to the renamed `@atlaskit/react-compiler-gating` scope.
+
+  The earlier rename of `@atlassian/react-compiler-gating` to `@atlaskit/react-compiler-gating` only
+  bumped the renamed package itself, so dependent packages were never republished and their
+  published versions still referenced the old `@atlassian/react-compiler-gating` name, which is not
+  available in the public npm registry. This minor bump republishes all affected packages with the
+  corrected dependency.
+
+## 6.0.1
+
+### Patch Changes
+
+- [`ee28cf33718b0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/ee28cf33718b0) -
+  Add @atlaskit/react-compiler-gating as a runtime dependency to enable React Compiler platform
+  gating.
+- Updated dependencies
+
+## 6.0.0
+
+### Major Changes
+
+- [`f2dc9097319f0`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/f2dc9097319f0) - ###
+  Dropped support for _legacy_ Typescript 4 types. **Typescript 5 is now the new minimum**.
+
+  Removes the `typesVersions` property and `dist/types-ts4.5` directory from the dist.
+
+  Types are now exclusively via the `"types": "dist/types/index.d.ts"` property.
+
+  ```diff
+  - "typesVersions": {
+  -    ">=4.5 <4.9": {
+  -        "*": [
+  -            "dist/types-ts4.5/*",
+  -            "dist/types-ts4.5/index.d.ts"
+  -        ]
+  -    }
+  - },
+  ```
+
+## 5.1.0
+
+### Minor Changes
+
+- [`3f23aba4db7f2`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/3f23aba4db7f2) -
+  Autofix: add explicit package exports (barrel removal)
+
+## 5.0.1
+
+### Patch Changes
+
+- [`7113d5c8d2703`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/7113d5c8d2703) -
+  Enrol confluence platform packages into the React Compiler with platform gating via
+  isReactCompilerActivePlatform
+
+## 5.0.0
+
+### Major Changes
+
+- [`5a7ba8453fcb5`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/5a7ba8453fcb5) -
+  Removed `react-intl-next` alias and replaced all usages with `react-intl` directly.
+
+  What changed: The `react-intl-next` npm alias (which resolved to `react-intl@^5`) has been
+  removed. All imports now reference `react-intl` directly, and `peerDependencies` have been updated
+  to `"^5.25.1 || ^6.0.0 || ^7.0.0"`.
+
+  How consumer should update their code: Ensure `react-intl` is installed at a version satisfying
+  `^5.25.1 || ^6.0.0 || ^7.0.0`. If your application was using `react-intl-next` as an npm alias, it
+  can be safely removed. Replace any remaining `react-intl-next` imports with `react-intl`.
+
+## 4.5.2
+
+### Patch Changes
+
+- [`8f05be23c4c9a`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/8f05be23c4c9a) -
+  Add JSDocs to public API exposures
+
+## 4.5.1
+
+### Patch Changes
+
+- [`a59c0d70262b3`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/a59c0d70262b3) -
+  Remove platform_ep_toc_fix gate and update public docs
+
+## 4.5.0
+
+### Minor Changes
+
+- [`caa0f069c5a43`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/caa0f069c5a43) -
+  Fix TOC scrolling when isHeightSetFromContent is true and add ability to pass in custom scroll
+  function
+
 ## 4.4.0
 
 ### Minor Changes
@@ -81,9 +227,9 @@
   [`4c5a404f45416`](https://bitbucket.org/atlassian/atlassian-frontend-monorepo/commits/4c5a404f45416) - 1.
   This upgrade migrates css styles from using `@emotion/react` to use `@compiled/react`. 2. In
   addition to some dependency changes, **the embedded `ViewPage` and `Page` components will no
-  longer accept the `className` prop because of the interference it causes with SSR.**
-  3. As an alternative, styles should be applied to a wrapping container placed around the
-     `ViewPage` component.
+  longer accept the `className` prop because of the interference it causes with SSR.** 3. As an
+  alternative, styles should be applied to a wrapping container placed around the `ViewPage`
+  component.
 
   **NOTE:** Some bundlers may not support `.css` files inside `node_modules/` out-of-the-box like
   the ones that Compiled generates. Please follow the guide below depending on the bundler your app

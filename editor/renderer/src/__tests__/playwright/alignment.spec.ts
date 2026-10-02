@@ -1,4 +1,5 @@
-import { rendererTestCase as test, expect } from './not-libra';
+import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
+import { doc, p, table, tr, alignment, td, th } from '@atlaskit/editor-test-helpers/doc-builder';
 
 import {
 	threeNormalParagraphs,
@@ -7,8 +8,9 @@ import {
 	thirdParagraphCentered,
 	mixAlignmentParagraph,
 } from './alignment.spec.ts-fixtures';
-import { doc, p, table, tr, alignment, td, th } from '@atlaskit/editor-test-helpers/doc-builder';
-import { defaultSchema } from '@atlaskit/adf-schema/schema-default';
+import { rendererTestCase as test, expect } from './not-libra';
+
+test.use({ exampleName: 'testing' as keyof typeof import('../../../examples/99-testing.tsx') });
 
 test.describe('when the paragraphs are in the first level of the document', () => {
 	test.describe('and when it is the first paragraph', () => {
@@ -20,13 +22,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 				const paragraphs = renderer.page.locator('p');
 				await expect(paragraphs.first()).toHaveCSS('margin-top', '0px');
 			});
-
-			test('should capture and report a11y violations', async ({ renderer }) => {
-				const paragraphs = renderer.page.locator('p');
-				await expect(paragraphs.first()).toBeVisible();
-
-				await expect(renderer.page).toBeAccessible();
-			});
 		});
 
 		test.describe('and when has an alignment mark', () => {
@@ -36,13 +31,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 			test('should not set the margin-top (0px)', async ({ renderer }) => {
 				const paragraphs = renderer.page.locator('.fabric-editor-alignment > p');
 				await expect(paragraphs).toHaveCSS('margin-top', '0px');
-			});
-
-			test('should capture and report a11y violations', async ({ renderer }) => {
-				const paragraphs = renderer.page.locator('.fabric-editor-alignment > p');
-				await expect(paragraphs).toBeVisible();
-
-				await expect(renderer.page).toBeAccessible();
 			});
 		});
 	});
@@ -56,15 +44,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 				'.fabric-editor-alignment[data-align="end"] > p',
 			);
 			await expect(secondParagraph).not.toHaveCSS('margin-top', '0px');
-		});
-
-		test('should capture and report a11y violations', async ({ renderer }) => {
-			const secondParagraph = renderer.page.locator(
-				'.fabric-editor-alignment[data-align="end"] > p',
-			);
-			await expect(secondParagraph).toBeVisible();
-
-			await expect(renderer.page).toBeAccessible();
 		});
 	});
 
@@ -91,15 +70,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 					);
 					await expect(paragraph).not.toHaveCSS('margin-top', '0px');
 				});
-
-				test('should capture and report a11y violations', async ({ renderer }) => {
-					const paragraph = renderer.page.locator(
-						`.ak-renderer-document p:nth-of-type(${nthParagraph})`,
-					);
-					await expect(paragraph).toBeVisible();
-
-					await expect(renderer.page).toBeAccessible();
-				});
 			});
 
 			test.describe('and when has an alignment mark', () => {
@@ -109,13 +79,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 				test('should set the margin-top', async ({ renderer }) => {
 					const paragraph = renderer.page.locator('.fabric-editor-alignment > p');
 					await expect(paragraph).not.toHaveCSS('margin-top', '0px');
-				});
-
-				test('should capture and report a11y violations', async ({ renderer }) => {
-					const paragraph = renderer.page.locator('.fabric-editor-alignment > p');
-					await expect(paragraph).toBeVisible();
-
-					await expect(renderer.page).toBeAccessible();
 				});
 			});
 		});
@@ -153,13 +116,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 				const paragraphs = renderer.page.locator('p');
 				await expect(paragraphs.nth(2)).not.toHaveCSS('margin-top', '0px');
 			});
-
-			test('should capture and report a11y violations', async ({ renderer }) => {
-				const paragraphs = renderer.page.locator('p');
-				await expect(paragraphs.first()).toBeVisible();
-
-				await expect(renderer.page).toBeAccessible();
-			});
 		});
 	});
 });
@@ -195,13 +151,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 			test('should not set margin-top to first paragraph', async ({ renderer }) => {
 				const paragraphs = renderer.page.locator('p');
 				await expect(paragraphs.first()).toHaveCSS('margin-top', '0px');
-			});
-
-			test('should capture and report a11y violations', async ({ renderer }) => {
-				const paragraphs = renderer.page.locator('p');
-				await expect(paragraphs.first()).toBeVisible();
-
-				await expect(renderer.page).toBeAccessible();
 			});
 		});
 	});
@@ -259,13 +208,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 					const paragraph = renderer.page.locator('.fabric-editor-alignment > p');
 					await expect(paragraph).not.toHaveCSS('margin-top', '0px');
 				});
-
-				test('should capture and report a11y violations', async ({ renderer }) => {
-					const paragraph = renderer.page.locator('.fabric-editor-alignment > p');
-					await expect(paragraph).toBeVisible();
-
-					await expect(renderer.page).toBeAccessible();
-				});
 			});
 
 			test.describe('case1', () => {
@@ -276,13 +218,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 				test('should set margin-top to 2nd paragraph', async ({ renderer }) => {
 					const paragraph = renderer.page.locator('.fabric-editor-alignment > p');
 					await expect(paragraph).not.toHaveCSS('margin-top', '0px');
-				});
-
-				test('should capture and report a11y violations', async ({ renderer }) => {
-					const paragraph = renderer.page.locator('.fabric-editor-alignment > p');
-					await expect(paragraph).toBeVisible();
-
-					await expect(renderer.page).toBeAccessible();
 				});
 			});
 		});
@@ -319,13 +254,6 @@ test.describe('when the paragraphs are in the first level of the document', () =
 			test('should set the second paragraph margin-top', async ({ renderer }) => {
 				const paragraph = renderer.page.locator('.fabric-editor-alignment[data-align="end"] > p');
 				await expect(paragraph).not.toHaveCSS('margin-top', '0px');
-			});
-
-			test('should capture and report a11y violations', async ({ renderer }) => {
-				const paragraph = renderer.page.locator('.fabric-editor-alignment[data-align="end"] > p');
-				await expect(paragraph).toBeVisible();
-
-				await expect(renderer.page).toBeAccessible();
 			});
 		});
 	});

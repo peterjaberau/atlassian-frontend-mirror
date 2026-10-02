@@ -1,14 +1,9 @@
-import {
-	Fragment,
-	type Mark,
-	Node as PMNode,
-	type Schema,
-	type MarkType,
-} from '@atlaskit/editor-prosemirror/model';
+import { normalizeHexColor } from '@atlaskit/adf-schema/normalize-hex-color';
+import { Fragment, Node as PMNode } from '@atlaskit/editor-prosemirror/model';
+import type { Mark, Schema, MarkType } from '@atlaskit/editor-prosemirror/model';
 
-import { normalizeHexColor } from '@atlaskit/adf-schema';
 import { AC_XMLNS } from './encode-cxhtml';
-import { type Macro } from './types';
+import type { Macro } from './types';
 
 /**
  * Deduce a set of marks from a style declaration.
@@ -92,7 +87,7 @@ export function getNodeMarkOfType(node: PMNode, markType: MarkType): Mark | null
  * nodes do not have their children traversed. Doing this avoids attempting to
  * decode unsupported content descendents into ProseMirror nodes.
  */
-export function findTraversalPath(roots: Node[]) {
+export function findTraversalPath(roots: Node[]): Node[] {
 	const inqueue = [...roots];
 	const outqueue = [] as Node[];
 
@@ -241,6 +236,7 @@ export function getMacroParameters(node: Element): any {
 	getMacroAttribute(node, 'parameters')
 		.split('|')
 		.forEach((paramStr) => {
+			// eslint-disable-next-line @atlassian/perf-linting/no-expensive-split-replace -- Ignored via go/ees017 (to be fixed)
 			const param = paramStr.split('=');
 			if (param.length) {
 				params[param[0]] = param[1];
@@ -396,7 +392,7 @@ export const encodeMacroParams = (
 	params: {
 		[name: string]: { value: string };
 	},
-) => {
+): DocumentFragment => {
 	const elem = doc.createDocumentFragment();
 	Object.keys(params).forEach((name) => {
 		const el = doc.createElementNS(AC_XMLNS, 'ac:parameter');

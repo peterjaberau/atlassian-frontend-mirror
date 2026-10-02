@@ -2,7 +2,7 @@
  * @jsxRuntime classic
  * @jsx jsx
  */
-import { defineMessages, useIntl } from 'react-intl-next';
+import { defineMessages, useIntl } from 'react-intl';
 
 import { cssMap, jsx } from '@atlaskit/css';
 import { Box, Stack } from '@atlaskit/primitives/compiled';
@@ -40,7 +40,7 @@ const i18n = defineMessages({
 	},
 });
 
-export const AutomationModalErrorState = () => {
+export const AutomationModalErrorState = (): JSX.Element => {
 	const { formatMessage } = useIntl();
 
 	return (

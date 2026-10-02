@@ -1,15 +1,16 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
 import { injectable } from 'react-magnetic-di';
 
-import { Field } from '@atlaskit/form';
+import Field from '@atlaskit/form/field';
 import { skipAutoA11yFile } from '@atlassian/a11y-jest-testing';
+import { screen } from '@atlassian/testing-library';
 
-import { createGenericComponent, renderWithDi } from '../../common/test-utils';
+import { createGenericComponent } from '../../common/create-generic-component';
+import { renderWithDi } from '../../common/test-utils/render-with-di';
 import { type UserInputNumberPrompt, UserInputType } from '../../common/types';
-
-import NumberInputPrompt, { Errors, numberValidate } from './main';
+import NumberInputPrompt, { Errors } from './main';
+import { numberValidate } from './numberValidate';
 
 // This file exposes one or more accessibility violations. Testing is currently skipped but violations need to
 // be fixed in a timely manner or result in escalation. Once all violations have been fixed, you can remove

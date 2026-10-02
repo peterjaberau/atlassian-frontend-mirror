@@ -14,6 +14,9 @@ const styles = cssMap({
 	},
 });
 
+/**
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
+ */
 export interface NavigationFooterProps {
 	children: ReactNode;
 }
@@ -25,13 +28,15 @@ export interface NavigationFooterProps {
  *
  * - [Examples](https://atlassian.design/components/side-navigation/examples#header-and-footer)
  * - [Code](https://atlassian.design/components/side-navigation/code)
+ *
+ * @deprecated `@atlaskit/side-navigation` is deprecated. Use `@atlaskit/navigation-system` instead.
  */
-const NavigationFooter: ({ children }: NavigationFooterProps) => JSX.Element = ({ children }: NavigationFooterProps) => {
+export const NavigationFooter: ({ children }: NavigationFooterProps) => JSX.Element = ({
+	children,
+}: NavigationFooterProps) => {
 	return (
 		<Box padding="space.100" paddingBlockEnd="space.200" xcss={styles.navigationFooter}>
 			{children}
 		</Box>
 	);
 };
-
-export default NavigationFooter;

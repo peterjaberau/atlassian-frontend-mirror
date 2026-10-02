@@ -4,21 +4,22 @@ import { AtlassianInternalWarning, code, md } from '@atlaskit/docs';
 import { createEditorUseOnlyNotice } from '@atlaskit/editor-common/doc-utils';
 import { token } from '@atlaskit/tokens';
 
-export default md`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- md template from @atlaskit/docs
+const _default_1: any = md`
 
 ${createEditorUseOnlyNotice('Editor Plugin Content Format', [
 	{ name: 'Editor Core', link: '/packages/editor/editor-core' },
 ])}
 
 
-  ${
-		(
-			// eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
-			<div style={{ marginTop: token('space.100', '8px') }}>
+  ${(
+		<>
+			{/* eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766 */}
+			<div style={{ marginTop: token('space.100') }}>
 				<AtlassianInternalWarning />
 			</div>
-		)
-	}
+		</>
+	)}
 
   A shared state management plugin for the Atlassian Editor that tracks the content mode/format of the editor. This plugin enables other editor plugins and products to be aware of the current editor content format state and update it as needed.
 
@@ -30,6 +31,26 @@ ${createEditorUseOnlyNotice('Editor Plugin Content Format', [
   - **Simple command API**: \`api.contentFormat?.commands.updateContentMode(...)\` to update the state
 
   ## Usage
+
+The exported types and interfaces for this plugin are:
+
+${code`
+export type ContentFormatPluginOptions = {
+  initialContentMode: EditorContentMode;
+};
+
+export type ContentFormatPlugin = NextEditorPlugin<
+  'contentFormat',
+  {
+    commands: {
+      updateContentMode: (mode: EditorContentMode) => EditorCommand;
+    };
+    dependencies: [];
+    pluginConfiguration?: ContentFormatPluginOptions;
+    sharedState: ContentFormatPluginState | null;
+  }
+>;
+`}
 
   ### Accessing Content Mode State
 
@@ -115,3 +136,4 @@ api.contentFormat?.commands.updateContentMode('dense');
 ---
 For internal Atlassian, visit the slack channel [#help-editor](https://atlassian.slack.com/archives/CFG3PSQ9E) for support or visit [go/editor-help](https://go/editor-help) to submit a bug.
 `;
+export default _default_1;

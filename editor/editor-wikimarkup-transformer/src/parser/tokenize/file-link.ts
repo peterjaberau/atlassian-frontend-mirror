@@ -1,6 +1,7 @@
-import { type Schema } from '@atlaskit/editor-prosemirror/model';
+import type { Schema } from '@atlaskit/editor-prosemirror/model';
+
 import getMediaGroupNodeView from '../nodes/mediaGroup';
-import { type Token } from './';
+import type { Token } from './';
 
 // [^attachment.pdf]
 // Ignored via go/ees005

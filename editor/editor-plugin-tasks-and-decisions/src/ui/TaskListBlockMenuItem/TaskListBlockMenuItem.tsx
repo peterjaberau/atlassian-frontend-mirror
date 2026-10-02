@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIntl } from 'react-intl-next';
+import { useIntl } from 'react-intl';
 
 import { INPUT_METHOD } from '@atlaskit/editor-common/analytics';
 import { tasksAndDecisionsMessages } from '@atlaskit/editor-common/messages';
@@ -14,8 +14,10 @@ const NODE_NAME = 'taskList';
 
 export const TaskListBlockMenuItem = ({
 	api,
+	isSuggested,
 }: {
 	api: ExtractInjectionAPI<TasksAndDecisionsPlugin> | undefined;
+	isSuggested?: boolean;
 }): React.JSX.Element | null => {
 	const { formatMessage } = useIntl();
 
@@ -29,6 +31,7 @@ export const TaskListBlockMenuItem = ({
 		api?.core.actions.execute(({ tr }) => {
 			const command = api?.blockMenu?.commands.transformNode(tr.doc.type.schema.nodes.taskList, {
 				inputMethod,
+				isSuggested,
 				triggeredFrom,
 				targetTypeName: NODE_NAME,
 			});
@@ -36,9 +39,8 @@ export const TaskListBlockMenuItem = ({
 		});
 	};
 
-
 	return (
-		<ToolbarDropdownItem onClick={onClick} elemBefore={<TaskIcon label="" />}>
+		<ToolbarDropdownItem onClick={onClick} elemBefore={<TaskIcon label="" size="small" />}>
 			{formatMessage(tasksAndDecisionsMessages.taskList)}
 		</ToolbarDropdownItem>
 	);
